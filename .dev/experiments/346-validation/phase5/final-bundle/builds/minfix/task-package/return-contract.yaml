@@ -1,0 +1,15 @@
+contract_version: "1.1"
+status: success
+slug: TASK-WF-spec-20261108-181543
+plan_path: ./TASK-WF-spec-20261108-181543.md
+source_path: ./source.md
+source_origin: .dev/brainstorms/346-minfix/SPEC.md
+strategy: systematic
+depth: standard
+handoff_action: none
+handoff_output_path: null
+reflect_status: partial
+reflect_report_path: /home/coder/workspaces/worktrees/IronClaude/bs346-minfix/.dev/brainstorms/346-minfix/workflow-report/nested/reflect-2/REPORT.md
+unresolved:
+  - "reflect (advisory) verdict FAIL with 4 blocking findings on the plan: M-F1 tests/recommend/test_routing_refresh.py must be allowed and run in Task 5 (plan line 119 forbids the edit); M-F2 reviewer-side exit-2 retry (source.md:46) missing from the shipped Fix Budget text; M-F3 review-3 escalation listing budget escalations and GRADE-CONFLICT ids (source.md:46) missing; M-F4 Task 4 grep can match __pycache__ .pyc. The plan was not edited from these findings (reflect is advisory)."
+  - "reflect-1 stopped with input_drift after the plan was edited to apply coordinator rulings msg_e91c51d66046 and msg_6d9353a2426f; reflect-2 is the run of record."

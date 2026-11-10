@@ -1,0 +1,8 @@
+reviewer: 3
+persona: refactorer
+model: opus
+note: "hit its 50-turn limit; resumed once with a report-now instruction"
+findings:
+  - {id: R3-B1, severity: blocking, claim: "tests/audit/test_invariant_preservation_NFR_6_through_10.py imports the nfr_conv_9 scorer and asserts one LOW finding scores FAIL (:344-350) and the invariant PASS only when one_low == FAIL (:460-466); not in the plan or inventory section 6, so Task 2's tests/audit run and every later one fail.", evidence: ["tests/audit/test_invariant_preservation_NFR_6_through_10.py:94-101", "tests/audit/test_invariant_preservation_NFR_6_through_10.py:344-350", "tests/audit/test_invariant_preservation_NFR_6_through_10.py:460-466", ".dev/review-severity-rule/inventory.md:203-213"], fix: "Task 2 also updates that file (expect PASS, rename test, invariant on one_low == PASS and one IMPORTANT == FAIL, docstrings :47-52, :320)."}
+  - {id: R3-M1, severity: minor, claim: "Task 18 does not ask to change 'Take the highest j of repair-<n>-<j>.md' (retry.md:148) though its grep forbids the token.", evidence: ["src/superclaude/skills/sc-implement-protocol/refs/retry.md:148"], fix: "Item 12 reads 'Read repair-<n>-1.md for the current start'; same in the twin."}
+self_audit: "Critical Rules hash scope vs later rows (only C-003 in block); dnsp sha anchors and wrapper checks; no cap old contains severity wording; CAP_CHECK logic and counts (161); Task 19 (a) 73 hits all assigned, (f) clean except allowlist; plugin twins; qa.md:267 outside the prompt block. Not verified: other tests/cli_portify tests depending on default 3 (test_tui.py:275, :336)."

@@ -1,0 +1,10 @@
+docs/designs/spec-panel-ponytail.md
+docs/memory/reflect/deviation-patterns-bs346-ponytail.md
+src/superclaude/commands/spec-panel-ponytail.md
+src/superclaude/skills/sc-fix-audit/SKILL.md
+src/superclaude/skills/sc-fix-audit/refs/auditor-brief.md
+src/superclaude/skills/sc-fix-audit/scripts/fix_audit.py
+tests/recommend/test_routing_refresh.py
+tests/skills/fixtures/spec-panel-post427-base.md
+tests/skills/test_fix_audit_script.py
+tests/skills/test_spec_panel_ponytail.py

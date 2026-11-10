@@ -1,0 +1,10 @@
+2026-11-09T19:39:52 TIER tier2: T2Model01 -> gpt-6.1-sol; answered status=200 count=0
+2026-11-09T19:39:52 RESPONSE backend served model=gpt-6.1-sol
+2026-11-09T19:39:53 TIER tier1a: T1aModel01 claude-opus-5-5 -> next model (429 all accounts out of usage); kind=usage count=0; cooling down until 2026-11-09T20:39:53; error=b'{"type":"error","error":{"type":"rate_limit_error","message":"All credentials for model claude-opus-5-5 are cooling down (last error: rate_limit_error: This request would exceed your account\\'s rate limit. Please try again later.)"}}'
+2026-11-09T19:39:53 TIER tier1a: T1aModel02 claude-sonnet-5-5 -> next model (429 all accounts out of usage); kind=usage count=0; cooling down until 2026-11-09T20:39:53; error=b'{"type":"error","error":{"type":"rate_limit_error","message":"All credentials for model claude-sonnet-5-5 are cooling down (last error: rate_limit_error: This request would exceed your account\\'s rate limit. Please try again later.)"}}'
+2026-11-09T19:39:53 TIER tier1a: ccsession: all Tier 1a models are out of usage; next retry at 20:39
+2026-11-09T19:39:54 TIER tier1a: ccsession: all Tier 1a models are out of usage; next retry at 20:39
+2026-11-09T19:39:55 TIER tier1a: ccsession: all Tier 1a models are out of usage; next retry at 20:39
+2026-11-09T19:39:57 TIER tier1a: ccsession: all Tier 1a models are out of usage; next retry at 20:39
+2026-11-09T19:40:02 TIER tier1a: ccsession: all Tier 1a models are out of usage; next retry at 20:39
+2026-11-09T19:40:11 TIER tier1a: ccsession: all Tier 1a models are out of usage; next retry at 20:39

@@ -1,0 +1,8 @@
+Guard: before running anything, check every Command: line below under the brief guard in ~/.claude/WORKER-CONTRACT.md; on a refusal run nothing and send worker_done --outcome failed with a body starting "guard refused:".
+On a blocked gate: report blocked
+Local commit: not authorized
+Report directory: .dev/p0-live/adversarial/
+Worktree: disposable worktree created by Orca from ironbelly/OrcaCLICommandRefactor-Specs for this check only; you are its only writer.
+Outward actions: none; the coordinator performs every push, PR, comment, install and paid run.
+P0 only: Report file: .dev/p0-live/adversarial/adversarial/merge-log.md, with the status in the Status: line of its ## Metadata section (the per-change **Status** lines do not count). Outcome rule: --outcome failed when the file is missing or empty, or its status is failed or blocked; otherwise --outcome succeeded. This rule replaces the WC-5 mapping for this Task.
+Command: /sc:adversarial --compare .dev/orca-command-refactor/decisions/D1/option-a.md,.dev/orca-command-refactor/decisions/D1/option-b.md --depth quick --output .dev/p0-live/adversarial/

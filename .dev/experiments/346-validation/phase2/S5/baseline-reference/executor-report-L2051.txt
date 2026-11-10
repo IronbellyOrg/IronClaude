@@ -1,0 +1,27 @@
+**WHAT:** All five tasks passed, the P0 verdict is PASS, but the package is not archived. The final independent review returned `issues`, so I stopped with `E-ARCHIVE-BLOCKED`. The package stays in `.dev/tasks/to-do/TASK-WF-writeTheP0LivePl-20261103-215902/`, and the `FINAL: issues` line is in `progress.md`.
+
+**WHY:** The review found one blocking defect. My write-up of check 2 says "six raw heartbeat gaps over 5 min", but the raw numbers show seven. The wrong count is in three places:
+- `artifacts/lc2-result.md:27`
+- `artifacts/lc2-step5.md:22`
+- `artifacts/lc2-step5.md:25`
+
+No verdict or acceptance criterion depends on the count. The protocol still treats a false statement in the delivered text as blocking, and says not to reopen completed tasks unless you say so.
+
+The reviewer also noted a similar miscount: `artifacts/lc1-step5.md:27` says "68 commands", but the real number is 52 Bash tool calls (68 was a line count). It does not block anything, and the conclusion it supports (no forbidden Orca calls) held when the reviewer re-ran the scan. The other non-blocking notes are minor.
+
+**RECOMMENDED ACTION:** Tell me "go ahead and fix the counts". I would then:
+- change "six" to "seven" in the three places above;
+- change "68" to "52" in `lc1-step5.md`;
+- run a fresh final review;
+- archive if it returns `pass`.
+
+These are text corrections only. They touch no live-check result and do not repeat any live run. If you would rather leave the package as is, nothing else is needed. It stays unarchived in `to-do/` with all evidence intact.
+
+| Status | Result |
+|---|---|
+| DONE | Tasks 1 to 5 each passed their own independent review and are recorded complete. |
+| DONE | Three live checks (troubleshoot, workflow, adversarial) and the P0 phase report are written. P0 verdict: PASS. |
+| DONE | `.dev/tasks` is staged, the superseded `…20261102-231950` package is unstaged, and HEAD is unchanged at `8db29f11`. |
+| NEXT | Your go-ahead to correct the miscounts, then a fresh final review and the archive. |
+
+RUNS: every live check and the phase report. NOT BUILT: the archive (blocked by the final review).

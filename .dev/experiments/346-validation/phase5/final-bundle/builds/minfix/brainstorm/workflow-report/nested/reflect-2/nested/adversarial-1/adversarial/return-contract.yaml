@@ -1,0 +1,15 @@
+return_contract:
+  merged_output_path: ".dev/brainstorms/346-minfix/workflow-report/nested/reflect-2/nested/adversarial-1/merged-verdict.md"
+  convergence_score: 1.0
+  artifacts_dir: ".dev/brainstorms/346-minfix/workflow-report/nested/reflect-2/nested/adversarial-1/adversarial"
+  status: "partial"
+  base_variant: "variant-1 (reviewer-1, sonnet:analyzer)"
+  unresolved_conflicts: 2
+  fallback_mode: false
+  failure_stage: null
+  invocation_method: "skill-direct"
+  unaddressed_invariants:
+    - {id: INV-001, category: guard_conditions, assumption: "Adding spec-panel-minfix to _POST_REFRESH_ADDITIONS resolves C-001 without rewriting plan:119", severity: HIGH}
+    - {id: INV-003, category: count_divergence, assumption: "Only C-002 of the source.md:46 step-3 requirements is missing (INF-032 also missing)", severity: HIGH}
+  convergence_status: "BLOCKED_BY_INVARIANTS"
+  note: "Diff-point agreement 19/19 after Round 2; --depth standard has no Round 3, so the two HIGH invariants were carried into the refactor plan (Changes #1 and #3) and are present in the merged card as M-F1 and M-F3."

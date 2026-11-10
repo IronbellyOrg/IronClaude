@@ -1,0 +1,13 @@
+contract_version: "1.1"
+status: success
+slug: TASK-WF-spec-20261108-181616
+plan_path: ./TASK-WF-spec-20261108-181616.md
+source_path: ./source.md
+source_origin: .dev/brainstorms/346-stoprule/SPEC.md
+strategy: systematic
+depth: standard
+handoff_action: none
+handoff_output_path: null
+reflect_status: partial
+reflect_report_path: /home/coder/workspaces/worktrees/IronClaude/bs346-stoprule/.dev/brainstorms/346-stoprule/workflow-report/nested/reflect-1/REPORT.md
+unresolved: []

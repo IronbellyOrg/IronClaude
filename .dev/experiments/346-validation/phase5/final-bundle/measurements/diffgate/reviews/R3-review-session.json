@@ -1,0 +1,87 @@
+{
+  "tool_calls": 27,
+  "unique_tool_call_ids": 27,
+  "assistant_turns": 21,
+  "output_tokens": 42509,
+  "input_tokens_uncached": 42,
+  "cache_creation_tokens": 188112,
+  "cache_read_tokens": 4177836,
+  "first_ts": "2026-11-09T00:18:37.703Z",
+  "last_ts": "2026-11-09T00:25:29.604Z",
+  "wall_minutes": 6.8650166666666665,
+  "session": "816a3832-d65a-462c-9c98-580c6c2177d2",
+  "task": "task_3f014eb4ecc8",
+  "dispatch": "ctx_0290dab9c753",
+  "source": "/home/coder/.claude/projects/-home-coder-workspaces-worktrees-IronClaude-exp346-v-diffgate/816a3832-d65a-462c-9c98-580c6c2177d2.jsonl",
+  "end_line": 377,
+  "worker_done_ts": "2026-11-09T00:25:29.604Z",
+  "whole_session": {
+    "tool_calls": 27,
+    "unique_tool_call_ids": 27,
+    "assistant_turns": 22,
+    "output_tokens": 43145,
+    "input_tokens_uncached": 44,
+    "cache_creation_tokens": 188832,
+    "cache_read_tokens": 4433481,
+    "first_ts": "2026-11-09T00:18:37.703Z",
+    "last_ts": "2026-11-09T00:25:36.809Z",
+    "wall_minutes": 6.9851
+  },
+  "models": [
+    "claude-opus-5-5"
+  ],
+  "versions": [
+    "2.1.319"
+  ],
+  "skill_calls": [
+    {
+      "line": 88,
+      "time": "2026-11-09T00:18:57.416Z",
+      "input": {
+        "skill": "sc:spec-panel-diffgate",
+        "args": "@.dev/orca-command-refactor/specs/orca-worker-contract-spec.md --mode critique --focus requirements,architecture --diffgate-dir .dev/orca-command-refactor/review/diffgate-loop --expect-round 3"
+      }
+    }
+  ],
+  "agent_calls": [],
+  "answer_key_tool_hits": [],
+  "command_reads": [],
+  "brief": {
+    "source": "/tmp/impl/s1v/briefs/diffgate/T09-R3-reviewer.filled.txt",
+    "source_sha256": "dea0f0af68c58578e996801f5ec9f1331343d52496b7ba8cce9d7fca37c51a42",
+    "delivered_sha256": "f3f7a37df685d9fae5fcd2c9366e97a61d2ab7be2e846e0e2b9bd282c2f23c42",
+    "first_user_line": 14,
+    "equals_source_after_root_substitution": true,
+    "root_substitutions": 1
+  },
+  "instruction_evidence": {
+    "minor findings never fail": [
+      17
+    ],
+    "at most 2 fix cycles": [
+      17
+    ],
+    "3 reviews": [
+      17
+    ],
+    "blocking/minor": []
+  },
+  "later_user_messages": [],
+  "error_records": [],
+  "explicit_user_resumes": [],
+  "loaded_command_evidence": [
+    {
+      "line": 93,
+      "command": "commands/sc/spec-panel-diffgate.md",
+      "sha256": "7de4224ff0869c8e29eff9ee4887e76f9725d0cddfea70d4aace1baed05eca53",
+      "chars": 39973,
+      "body_found_verbatim": true,
+      "loaded_found_in_current_file": false,
+      "first_difference": {
+        "tag": "insert",
+        "source_excerpt": "",
+        "loaded_excerpt": "\n\nARGUMENTS: @.dev/orca-command-refactor/specs/orca-worker-contract-spec.md --mode critique --focus requirements,architecture --diffgate-dir .dev/orca"
+      }
+    }
+  ]
+}

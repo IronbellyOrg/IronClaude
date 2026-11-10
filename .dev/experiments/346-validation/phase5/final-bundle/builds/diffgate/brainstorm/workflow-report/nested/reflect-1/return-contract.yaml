@@ -1,0 +1,113 @@
+contract_version: "1.8.0"
+status: success
+mode: pre
+tier_reached: 2
+report_path: /home/coder/workspaces/worktrees/IronClaude/bs346-diffgate/.dev/brainstorms/346-diffgate/workflow-report/nested/reflect-1/REPORT.md
+audit_log_path: /home/coder/workspaces/worktrees/IronClaude/bs346-diffgate/.dev/brainstorms/346-diffgate/workflow-report/nested/reflect-1/audit.log
+confidence_calibrated: 0.83
+escalation_rule_matched: 4
+onboarding_ran: false
+coverage_pct: null
+coverage_pct_union: 0.8
+coverage_undefined: false
+coverage_degraded: parsed-sparse
+unmapped_requirements: []
+unmapped_requirements_union: [INF-004, INF-006, INF-007, INF-021, INF-023, INF-025, INF-027]
+best_practice_grade: null
+implementation_coverage_pct: null
+missing_implementations: []
+hierarchy_slice_path: null
+hierarchy_coverage_pct: null
+input_sha256:
+  tasklist: 02c21a770ab0a44edfbeb1d9888cc7fc683acc9b3c6d05378ba705d05548f85c
+  spec: a745244a01bff994b2b2a5ebc4fcadb20e836ff5fffd274ca3f9bf1e9c1bd512
+input_tree_sha256: c410dae126a00601d4e83f88a3af0c2304dfb55c691233c4c990dfd72eb893b6   # sha256 of the sorted-by-input-order sha256sum listing of the 11 files
+input_tree_file_count: 11
+input_tree_snapshot_path: /home/coder/workspaces/worktrees/IronClaude/bs346-diffgate/.dev/brainstorms/346-diffgate/workflow-report/nested/reflect-1/artifacts/input-snapshot.yaml
+input_drift_detected: false
+input_drift_diff: null
+citations_total: 156
+citations_revalidated: 92
+citations_dropped: 0
+citations_dropped_extrapolated: 0
+citations_inferred: 0
+citation_budget_policy: sampled
+evidence_validator_ran: true
+citation_revalidation_at_promotion: false
+reviewer_cards:
+  - .dev/brainstorms/346-diffgate/workflow-report/nested/reflect-1/reviewer-cards/reviewer-1-card.yaml
+  - .dev/brainstorms/346-diffgate/workflow-report/nested/reflect-1/reviewer-cards/reviewer-2-card.yaml
+adversarial_artifacts_dir: .dev/brainstorms/346-diffgate/workflow-report/nested/reflect-1/nested/adversarial-1/adversarial
+adversarial_convergence_score: 1.0
+adversarial_unavailable: false
+merge_method: adversarial
+t2_model_class_diversity: degraded
+t2_vendor_diversity: single
+t2_effective_diversity: model-only
+calibrator_diversity: full
+remediation_offered: false
+remediation_accepted: null
+task_file_path: null
+remediation_task_path: null
+remediation_plan_path: null
+handoff_memory_key: null
+cannot_validate_without_user_input: false
+regression_present: false        # UC-1: no executed work; QA-001 is a plan-level Regression risk, not a verified regression
+unauthorized_deviation_present: false
+blocked_by_low_confidence: false
+spec_is_wrong: false
+user_decision_required: true     # INV-010 (and INV-029) need an owner ruling on the counting rule (source.md:280)
+needs_human_decision: false      # grounding-gaps.yaml not created
+per_task_verdicts: []
+interaction_effects_scanned: false
+interaction_effects_findings: 0
+budget_forced_tier_downgrade: false
+budget_forced_stop: false
+budget_check_skipped: true
+forced_tier: null
+promotion_action: not-applicable
+promotion_adapter: null
+promotion_source: null
+promotion_destination: null
+promotion_log_path: null
+promotion_gate_passed: null
+promotion_skip_reason: null
+promotion_fail_reason: null
+promotion_override_used: null
+promotion_rollback_command: null
+promotion_checkpoint_path: null
+promotion_cross_fs: false
+promotion_pending: false
+# Telemetry (non-stable)
+degraded_components: [env-aliases]   # executor-class exclusion left 2 reviewer classes
+executor_class_source: log-heuristic
+executor_class_resolved: true
+executor_exclusion_degraded: false
+memory_hits: 0
+memory_misses: 2
+memory_retention_actions: 0
+reviewer_models: [sonnet, haiku]
+reviewer_personas: [analyzer, qa]
+type_hierarchy_invoked: false
+summarize_changes_invoked: false
+references_extended_info_used: false
+# Worker fields (--unattended; --output is the report directory)
+worker_contract_version: "1"
+worker_status: succeeded
+command: "/sc:reflect --mode pre --spec .dev/tasks/to-do/TASK-WF-spec-20261108-181640/source.md --tasklist .dev/tasks/to-do/TASK-WF-spec-20261108-181640/TASK-WF-spec-20261108-181640.md --unattended --output .dev/brainstorms/346-diffgate/workflow-report/nested/reflect-1/"
+artifacts:
+  - .dev/brainstorms/346-diffgate/workflow-report/nested/reflect-1/audit.log
+  - .dev/brainstorms/346-diffgate/workflow-report/nested/reflect-1/t1-card.md
+  - .dev/brainstorms/346-diffgate/workflow-report/nested/reflect-1/artifacts/input-snapshot.yaml
+  - .dev/brainstorms/346-diffgate/workflow-report/nested/reflect-1/artifacts/coverage.py
+  - .dev/brainstorms/346-diffgate/workflow-report/nested/reflect-1/artifacts/coverage-matrix.json
+  - .dev/brainstorms/346-diffgate/workflow-report/nested/reflect-1/artifacts/coverage-matrix-wave5.json
+  - .dev/brainstorms/346-diffgate/workflow-report/nested/reflect-1/artifacts/tier_decision.yaml
+  - .dev/brainstorms/346-diffgate/workflow-report/nested/reflect-1/artifacts/t1-calibration.yaml
+  - .dev/brainstorms/346-diffgate/workflow-report/nested/reflect-1/artifacts/evidence-validation.yaml
+  - .dev/brainstorms/346-diffgate/workflow-report/nested/reflect-1/artifacts/fill_report.py
+  - .dev/brainstorms/346-diffgate/workflow-report/nested/reflect-1/reviewer-briefs/reviewer-1.md
+  - .dev/brainstorms/346-diffgate/workflow-report/nested/reflect-1/reviewer-briefs/reviewer-2.md
+  - .dev/brainstorms/346-diffgate/workflow-report/nested/reflect-1/reviewer-cards/reviewer-1-card.yaml
+  - .dev/brainstorms/346-diffgate/workflow-report/nested/reflect-1/reviewer-cards/reviewer-2-card.yaml
+  - .dev/brainstorms/346-diffgate/workflow-report/nested/reflect-1/nested/adversarial-1/return-contract.yaml

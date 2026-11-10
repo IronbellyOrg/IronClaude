@@ -1,0 +1,1398 @@
+# cap-edits.yaml: literal, mechanically checkable edit table for review-loop caps and at-cap rules.
+#
+# Date: 2026-11-02. Branch: fix/review-severity-rule (src unchanged from f90877be; line numbers verified on disk today).
+# Inputs: .dev/review-severity-rule/cap-sites.md (every IN row), inventory.md sections 3.1 and 4 (item 3a: cli-portify
+# default = 1 iteration = 3 reviews + 2 fix passes), .dev/reflect/pre-removeTheAnyIssu-20261102042426/REPORT.md P2-B1..P2-B7.
+# Rule: a review loop runs at most 2 fix cycles (3 reviews), then escalates to the user with the open blocking findings.
+# Canonical at-cap clause: "After 2 fix cycles (3 reviews), HALT and escalate to the user with the open blocking findings".
+# Open-Questions-and-proceed at-cap rules become "HALT and escalate to the user with the open blocking findings; minor
+# findings stay as notes."
+#
+# Row contract (check each row mechanically):
+#   - `old` is a literal substring of `file`; `grep -n -F -- "<old>" <file>` hits only the listed line(s) and the number of
+#     matches equals `occurrences` (verified 2026-11-02 with grep -n -o -F, every hit attributed to a listed site).
+#   - `old` holds only the cap / at-cap fragment; severity wording on the same line (e.g. "ALL findings regardless of
+#     severity must be resolved.") is deliberately left out so the severity task can edit it independently.
+#   - `new` never contains `old`. After applying: count(old) == 0 and count(new) >= 1 in `file`.
+#   - Rows whose `occurrences` > 1 list every site in `lines`; apply them with replace-all.
+#   - Multi-line `old` (one test row) uses YAML "\n" escapes; its uniqueness is anchored by a unique line inside it.
+# Groups: agents | templates | skills-a (operational-guide, readme, roadmap, tech-reference, tech-research, prd/tdd
+# build-request templates) | skills-b (task, task-builder) | portify (cli_portify code, sc-cli-portify-protocol,
+# tests/cli_portify/test_convergence.py) | prd-core (cli/prd/models.py, rules/core/ib_agent_core.md).
+rows:
+  # ---------------------------------------------------------------- agents
+  - id: C-001
+    file: src/superclaude/agents/rf-qa-qualitative.md
+    line: 797
+    group: agents
+    old: "Maximum 3 fix cycles. After 3 cycles, if issues remain, HALT execution and ask the user for guidance."
+    new: "Maximum 2 fix cycles. After 2 fix cycles (3 reviews), HALT and escalate to the user with the open blocking findings."
+    kind: both
+    occurrences: 1
+  - id: C-002
+    file: src/superclaude/agents/rf-qa-qualitative.md
+    line: 827
+    group: agents
+    old: "[1 / 2 / 3 / N/A]"
+    new: "[1 / 2 / N/A]"
+    kind: cap
+    occurrences: 1
+  - id: C-003
+    file: src/superclaude/agents/rf-qa-qualitative.md
+    line: 982
+    group: agents
+    old: "10. **Maximum 3 fix cycles** — After 3 rounds of fixes without resolution, HALT and escalate to the user."
+    new: "10. **Maximum 2 fix cycles** — After 2 fix cycles (3 reviews), HALT and escalate to the user with the open blocking findings."
+    kind: both
+    occurrences: 1
+  - id: C-004
+    file: src/superclaude/agents/rf-qa.md
+    line: 390
+    group: agents
+    old: "Maximum 3 fix cycles. After 3 cycles, if issues remain, HALT execution and ask the user for guidance."
+    new: "Maximum 2 fix cycles. After 2 fix cycles (3 reviews), HALT and escalate to the user with the open blocking findings."
+    kind: both
+    occurrences: 1
+  - id: C-005
+    file: src/superclaude/agents/rf-qa.md
+    line: 393
+    group: agents
+    old: "strengthens this 3-fix-cycle"
+    new: "strengthens this 2-fix-cycle"
+    kind: cap
+    occurrences: 1
+  - id: C-006
+    file: src/superclaude/agents/rf-qa.md
+    line: 395
+    group: agents
+    old: "the existing 3-fix-cycle above"
+    new: "the existing 2-fix-cycle above"
+    kind: cap
+    occurrences: 1
+  - id: C-007
+    file: src/superclaude/agents/rf-qa.md
+    line: 395
+    group: agents
+    old: "BEFORE the existing 3-cycle cap fires"
+    new: "BEFORE the existing 2-cycle cap fires"
+    kind: cap
+    occurrences: 1
+  - id: C-008
+    file: src/superclaude/agents/rf-qa.md
+    line: 403
+    group: agents
+    old: "continues to the 3-cycle cap"
+    new: "continues to the 2-cycle cap"
+    kind: cap
+    occurrences: 1
+  - id: C-009
+    file: src/superclaude/agents/rf-qa.md
+    line: 406
+    group: agents
+    old: "The existing 3-cycle hard cap"
+    new: "The existing 2-cycle hard cap"
+    kind: cap
+    occurrences: 1
+  - id: C-010
+    file: src/superclaude/agents/rf-qa.md
+    line: 418
+    group: agents
+    old: "[1 / 2 / 3 / N/A]"
+    new: "[1 / 2 / N/A]"
+    kind: cap
+    occurrences: 1
+  - id: C-011
+    file: src/superclaude/agents/rf-qa.md
+    line: 537
+    group: agents
+    old: "10. **Maximum 3 fix cycles** — After 3 rounds of fixes without resolution, HALT and escalate to the user."
+    new: "10. **Maximum 2 fix cycles** — After 2 fix cycles (3 reviews), HALT and escalate to the user with the open blocking findings."
+    kind: both
+    occurrences: 1
+  - id: C-012
+    file: src/superclaude/agents/rf-task-builder.md
+    line: 383
+    group: agents
+    old: "| research-gate | 3 |"
+    new: "| research-gate | 2 |"
+    kind: cap
+    occurrences: 1
+  - id: C-013
+    file: src/superclaude/agents/rf-task-builder.md
+    line: 384
+    group: agents
+    old: "synthesis-gate | 2 | Open Questions"
+    new: "synthesis-gate | 2 | HALT and escalate to the user with the open blocking findings; minor findings stay as notes"
+    kind: at-cap
+    occurrences: 1
+  - id: C-014
+    file: src/superclaude/agents/rf-task-builder.md
+    line: 385
+    group: agents
+    old: "| report-validation | 3 |"
+    new: "| report-validation | 2 |"
+    kind: cap
+    occurrences: 1
+  - id: C-015
+    file: src/superclaude/agents/rf-task-builder.md
+    line: 386
+    group: agents
+    old: "task-integrity | 2 | Open Questions"
+    new: "task-integrity | 2 | HALT and escalate to the user with the open blocking findings; minor findings stay as notes"
+    kind: at-cap
+    occurrences: 1
+  - id: C-016
+    file: src/superclaude/agents/rf-task-builder.md
+    line: 387
+    group: agents
+    old: "| Any qualitative gate | 3 |"
+    new: "| Any qualitative gate | 2 |"
+    kind: cap
+    occurrences: 1
+  - id: C-017
+    file: src/superclaude/agents/rf-task-executor.md
+    line: 226
+    group: agents
+    old: "Will retry up to 5 times."
+    new: "Will retry up to 2 times."
+    kind: cap
+    occurrences: 1
+    note: "newly found (grep 'retry up to [3-9]'); sample output of the automated_qa_workflow correction loop; follows ib_agent_core.md MAX_CORRECTION_ATTEMPTS 5 -> 2 (C-153..C-156)"
+  # ---------------------------------------------------------------- templates
+  - id: C-018
+    file: src/superclaude/templates/documents/agent_template_qa.md
+    line: 184
+    group: templates
+    old: "Maximum 3 fix cycles. After 3 cycles, if issues remain, HALT execution and ask the user for guidance."
+    new: "Maximum 2 fix cycles. After 2 fix cycles (3 reviews), HALT and escalate to the user with the open blocking findings."
+    kind: both
+    occurrences: 1
+  - id: C-019
+    file: src/superclaude/templates/documents/agent_template_qa.md
+    line: 210
+    group: templates
+    old: "[1 / 2 / 3 / N/A]"
+    new: "[1 / 2 / N/A]"
+    kind: cap
+    occurrences: 1
+  - id: C-020
+    file: src/superclaude/templates/documents/agent_template_qa.md
+    line: 320
+    group: templates
+    old: "rf-qa.md rule 10 (max 3 fix cycles)"
+    new: "rf-qa.md rule 10 (max 2 fix cycles)"
+    kind: cap
+    occurrences: 1
+  - id: C-021
+    file: src/superclaude/templates/documents/agent_template_qa.md
+    line: 335
+    group: templates
+    old: "N+3. **Maximum 3 fix cycles** — After 3 rounds of fixes without resolution, HALT and escalate to the user."
+    new: "N+3. **Maximum 2 fix cycles** — After 2 fix cycles (3 reviews), HALT and escalate to the user with the open blocking findings."
+    kind: both
+    occurrences: 1
+  - id: C-022
+    file: src/superclaude/templates/documents/skill_template.md
+    line: 427
+    group: templates
+    old: "in parallel, max 3 fix cycles, partitioning >6 files."
+    new: "in parallel, max 2 fix cycles, partitioning >6 files."
+    kind: cap
+    occurrences: 1
+  - id: C-023
+    file: src/superclaude/templates/modularization-template-review/qa-consolidated-findings_template.md
+    line: 102
+    group: templates
+    old: "{{RF_PLACEHOLDER:FIX_CYCLE}} / 3"
+    new: "{{RF_PLACEHOLDER:FIX_CYCLE}} / 2"
+    kind: cap
+    occurrences: 1
+  - id: C-024
+    file: src/superclaude/templates/modularization-template-review/qa-cross-source-contradictions_template.md
+    line: 101
+    group: templates
+    old: "{{RF_PLACEHOLDER:FIX_CYCLE}} / 3"
+    new: "{{RF_PLACEHOLDER:FIX_CYCLE}} / 2"
+    kind: cap
+    occurrences: 1
+  - id: C-025
+    file: src/superclaude/templates/modularization-template-review/qa-fix-summary_template.md
+    line: 96
+    group: templates
+    old: "{{RF_PLACEHOLDER:FIX_CYCLE}} / 3"
+    new: "{{RF_PLACEHOLDER:FIX_CYCLE}} / 2"
+    kind: cap
+    occurrences: 1
+  - id: C-026
+    file: src/superclaude/templates/modularization-template-review/qa-fix-summary_template.md
+    line: 105
+    group: templates
+    old: "Feeds the max-3-cycle escalation"
+    new: "Feeds the max-2-cycle escalation"
+    kind: cap
+    occurrences: 1
+  - id: C-027
+    file: src/superclaude/templates/modularization-template-review/qa-fix-summary_template.md
+    line: 105
+    group: templates
+    old: "unfixed at Fix cycle 3/3"
+    new: "unfixed at Fix cycle 2/2"
+    kind: cap
+    occurrences: 1
+  - id: C-028
+    file: src/superclaude/templates/modularization-template-review/qa-research-depth_report_template.md
+    line: 105
+    group: templates
+    old: "{{RF_PLACEHOLDER:FIX_CYCLE}} / 3"
+    new: "{{RF_PLACEHOLDER:FIX_CYCLE}} / 2"
+    kind: cap
+    occurrences: 1
+  - id: C-029
+    file: src/superclaude/templates/modularization-template-review/qa-research-evidence_report_template.md
+    line: 100
+    group: templates
+    old: "{{RF_PLACEHOLDER:FIX_CYCLE}} / 3"
+    new: "{{RF_PLACEHOLDER:FIX_CYCLE}} / 2"
+    kind: cap
+    occurrences: 1
+  - id: C-030
+    file: src/superclaude/templates/modularization-template-review/qa-research-gap_report_template.md
+    line: 103
+    group: templates
+    old: "{{RF_PLACEHOLDER:FIX_CYCLE}} / 3"
+    new: "{{RF_PLACEHOLDER:FIX_CYCLE}} / 2"
+    kind: cap
+    occurrences: 1
+  - id: C-031
+    file: src/superclaude/templates/modularization-template-review/qa-source-fidelity_template.md
+    line: 95
+    group: templates
+    old: "{{RF_PLACEHOLDER:FIX_CYCLE}} / 3"
+    new: "{{RF_PLACEHOLDER:FIX_CYCLE}} / 2"
+    kind: cap
+    occurrences: 1
+  - id: C-032
+    file: src/superclaude/templates/modularization-template-review/qa-task-validation-b2_report_template.md
+    line: 101
+    group: templates
+    old: "{{RF_PLACEHOLDER:FIX_CYCLE}} / 3"
+    new: "{{RF_PLACEHOLDER:FIX_CYCLE}} / 2"
+    kind: cap
+    occurrences: 1
+  - id: C-033
+    file: src/superclaude/templates/modularization-template-review/qa-task-validation-structure_report_template.md
+    line: 104
+    group: templates
+    old: "{{RF_PLACEHOLDER:FIX_CYCLE}} / 3"
+    new: "{{RF_PLACEHOLDER:FIX_CYCLE}} / 2"
+    kind: cap
+    occurrences: 1
+  - id: C-034
+    file: src/superclaude/templates/workflow/01_mdtm_template_generic_task.md
+    line: 649
+    group: templates
+    old: "| research-gate | 3 |"
+    new: "| research-gate | 2 |"
+    kind: cap
+    occurrences: 1
+  - id: C-035
+    file: src/superclaude/templates/workflow/01_mdtm_template_generic_task.md
+    line: 650
+    group: templates
+    old: "synthesis-gate | 2 | Unresolved issues become Open Questions"
+    new: "synthesis-gate | 2 | HALT and escalate to the user with the open blocking findings; minor findings stay as notes"
+    kind: at-cap
+    occurrences: 1
+  - id: C-036
+    file: src/superclaude/templates/workflow/01_mdtm_template_generic_task.md
+    line: 651
+    group: templates
+    old: "| report-validation | 3 |"
+    new: "| report-validation | 2 |"
+    kind: cap
+    occurrences: 1
+  - id: C-037
+    file: src/superclaude/templates/workflow/01_mdtm_template_generic_task.md
+    line: 652
+    group: templates
+    old: "task-integrity | 2 | Unresolved issues become Open Questions"
+    new: "task-integrity | 2 | HALT and escalate to the user with the open blocking findings; minor findings stay as notes"
+    kind: at-cap
+    occurrences: 1
+  - id: C-038
+    file: src/superclaude/templates/workflow/01_mdtm_template_generic_task.md
+    line: 653
+    group: templates
+    old: "| Any qualitative gate | 3 |"
+    new: "| Any qualitative gate | 2 |"
+    kind: cap
+    occurrences: 1
+  - id: C-039
+    file: src/superclaude/templates/workflow/01_mdtm_template_generic_task.md
+    line: 787
+    group: templates
+    old: "Per I16 (2-3 per gate)"
+    new: "Per I16 (2 per gate)"
+    kind: cap
+    occurrences: 1
+  - id: C-040
+    file: src/superclaude/templates/workflow/01_mdtm_template_generic_task.md
+    line: 803
+    group: templates
+    old: "If issues remain after 1 fix cycle, log as Open Questions and proceed."
+    new: "After 1 fix cycle, HALT and escalate to the user with the open blocking findings; minor findings stay as notes."
+    kind: at-cap
+    occurrences: 1
+  - id: C-041
+    file: src/superclaude/templates/workflow/01_mdtm_template_generic_task.md
+    line: 938
+    group: templates
+    old: "unresolved issues become Open Questions."
+    new: "then HALT and escalate to the user with the open blocking findings; minor findings stay as notes."
+    kind: at-cap
+    occurrences: 1
+    note: "P2-B1 lite at-cap; case-sensitive: lines 650/652 start with capital 'Unresolved' and are rows C-035/C-037"
+  - id: C-042
+    file: src/superclaude/templates/workflow/02_mdtm_template_complex_task.md
+    line: 662
+    group: templates
+    old: "| research-gate | 3 |"
+    new: "| research-gate | 2 |"
+    kind: cap
+    occurrences: 1
+  - id: C-043
+    file: src/superclaude/templates/workflow/02_mdtm_template_complex_task.md
+    line: 663
+    group: templates
+    old: "synthesis-gate | 2 | Unresolved issues become Open Questions"
+    new: "synthesis-gate | 2 | HALT and escalate to the user with the open blocking findings; minor findings stay as notes"
+    kind: at-cap
+    occurrences: 1
+  - id: C-044
+    file: src/superclaude/templates/workflow/02_mdtm_template_complex_task.md
+    line: 664
+    group: templates
+    old: "| report-validation | 3 |"
+    new: "| report-validation | 2 |"
+    kind: cap
+    occurrences: 1
+  - id: C-045
+    file: src/superclaude/templates/workflow/02_mdtm_template_complex_task.md
+    line: 665
+    group: templates
+    old: "task-integrity | 2 | Unresolved issues become Open Questions"
+    new: "task-integrity | 2 | HALT and escalate to the user with the open blocking findings; minor findings stay as notes"
+    kind: at-cap
+    occurrences: 1
+  - id: C-046
+    file: src/superclaude/templates/workflow/02_mdtm_template_complex_task.md
+    line: 666
+    group: templates
+    old: "| Any qualitative gate | 3 |"
+    new: "| Any qualitative gate | 2 |"
+    kind: cap
+    occurrences: 1
+  - id: C-047
+    file: src/superclaude/templates/workflow/02_mdtm_template_complex_task.md
+    line: 667
+    group: templates
+    old: "| source-fidelity | 3 |"
+    new: "| source-fidelity | 2 |"
+    kind: cap
+    occurrences: 1
+  - id: C-048
+    file: src/superclaude/templates/workflow/02_mdtm_template_complex_task.md
+    line: 753
+    group: templates
+    old: "(3 for most gates, 2 for synthesis-gate and task-integrity). If issues remain after 3 cycles, HALT and escalate to user."
+    new: "(2 for every gate). After 2 fix cycles (3 reviews), HALT and escalate to the user with the open blocking findings."
+    kind: both
+    occurrences: 1
+  - id: C-049
+    file: src/superclaude/templates/workflow/02_mdtm_template_complex_task.md
+    line: 804
+    group: templates
+    old: "Per I16 (2-3 per gate)"
+    new: "Per I16 (2 per gate)"
+    kind: cap
+    occurrences: 1
+  - id: C-050
+    file: src/superclaude/templates/workflow/02_mdtm_template_complex_task.md
+    line: 820
+    group: templates
+    old: "If issues remain after 1 fix cycle, log as Open Questions and proceed."
+    new: "After 1 fix cycle, HALT and escalate to the user with the open blocking findings; minor findings stay as notes."
+    kind: at-cap
+    occurrences: 1
+  - id: C-051
+    file: src/superclaude/templates/workflow/02_mdtm_template_complex_task.md
+    line: 1090
+    group: templates
+    old: "(3 for most gates, 2 for synthesis-gate and task-integrity) (per I16). If issues remain after 3 cycles, HALT and escalate to user."
+    new: "(2 for every gate) (per I16). After 2 fix cycles (3 reviews), HALT and escalate to the user with the open blocking findings."
+    kind: both
+    occurrences: 1
+  - id: C-052
+    file: src/superclaude/templates/workflow/02_mdtm_template_complex_task.md
+    line: 1090
+    group: templates
+    old: "unresolved issues become Open Questions."
+    new: "then HALT and escalate to the user with the open blocking findings; minor findings stay as notes."
+    kind: at-cap
+    occurrences: 1
+    note: "P2-B1 lite at-cap; does not overlap C-051 on the same line"
+  - id: C-053
+    file: src/superclaude/templates/workflow/02_mdtm_template_complex_task.md
+    line: 1119
+    group: templates
+    old: "Same cycle control as M3 Step 8 (max 3 cycles, then HALT)."
+    new: "Same cycle control as M3 Step 8 (max 2 cycles; after 2 fix cycles (3 reviews), HALT and escalate to the user with the open blocking findings)."
+    kind: both
+    occurrences: 1
+  # ---------------------------------------------------------------- skills-a
+  - id: C-054
+    file: src/superclaude/skills/operational-guide/SKILL.md
+    line: 427
+    group: skills-a
+    old: "Verification round (2 agents). Max 3 fix cycles."
+    new: "Verification round (2 agents). Max 2 fix cycles."
+    kind: cap
+    occurrences: 1
+  - id: C-055
+    file: src/superclaude/skills/operational-guide/SKILL.md
+    line: 439
+    group: skills-a
+    old: "= 5 agents. Max 3 fix cycles."
+    new: "= 5 agents. Max 2 fix cycles."
+    kind: cap
+    occurrences: 1
+  - id: C-056
+    file: src/superclaude/skills/operational-guide/SKILL.md
+    line: 447
+    group: skills-a
+    old: "= 11 agents. Max 3 fix cycles."
+    new: "= 11 agents. Max 2 fix cycles."
+    kind: cap
+    occurrences: 1
+  - id: C-057
+    file: src/superclaude/skills/operational-guide/SKILL.md
+    line: 514
+    group: skills-a
+    old: "run serialized fix cycle (max 3 cycles)"
+    new: "run serialized fix cycle (max 2 cycles)"
+    kind: cap
+    occurrences: 1
+  - id: C-058
+    file: src/superclaude/skills/operational-guide/SKILL.md
+    line: 571
+    group: skills-a
+    old: "repeat Step 6.4 (max 3 cycles total). After 3 cycles, HALT: log remaining issues in Task Log, present to user."
+    new: "repeat Step 6.4 (max 2 cycles total). After 2 fix cycles (3 reviews), HALT and escalate to the user with the open blocking findings; log remaining issues in Task Log."
+    kind: both
+    occurrences: 1
+  - id: C-059
+    file: src/superclaude/skills/operational-guide/SKILL.md
+    line: 1349
+    group: skills-a
+    old: "Max fix cycles: 3 for research, 2 for synthesis, 3 for final document, 2 for source-document fidelity. After max fix cycles, HALT and ask user for guidance."
+    new: "Max fix cycles: 2 for research, 2 for synthesis, 2 for final document, 2 for source-document fidelity. After 2 fix cycles (3 reviews), HALT and escalate to the user with the open blocking findings."
+    kind: both
+    occurrences: 1
+    note: "the following sentence 'ALL findings must be resolved.' is severity wording and stays out of old"
+  - id: C-060
+    file: src/superclaude/skills/operational-guide/SKILL.md
+    line: 1371
+    group: skills-a
+    old: "phase-gate QA failing 3 fix cycles"
+    new: "phase-gate QA failing 2 fix cycles"
+    kind: cap
+    occurrences: 1
+  - id: C-061
+    file: src/superclaude/skills/readme/SKILL.md
+    line: 188
+    group: skills-a
+    old: "apply fixes via serialized protocol (max 3 cycles)"
+    new: "apply fixes via serialized protocol (max 2 cycles)"
+    kind: cap
+    occurrences: 1
+  - id: C-062
+    file: src/superclaude/skills/readme/SKILL.md
+    line: 191
+    group: skills-a
+    old: "(max 3 fix cycles per gate)"
+    new: "(max 2 fix cycles per gate)"
+    kind: cap
+    occurrences: 1
+  - id: C-063
+    file: src/superclaude/skills/readme/SKILL.md
+    line: 451
+    group: skills-a
+    old: "= 5 agents. Max 3 fix cycles."
+    new: "= 5 agents. Max 2 fix cycles."
+    kind: cap
+    occurrences: 1
+  - id: C-064
+    file: src/superclaude/skills/readme/SKILL.md
+    line: 460
+    group: skills-a
+    old: "= 11 agents. Max 3 fix cycles."
+    new: "= 11 agents. Max 2 fix cycles."
+    kind: cap
+    occurrences: 1
+  - id: C-065
+    file: src/superclaude/skills/readme/SKILL.md
+    line: 464
+    group: skills-a
+    old: "HALT if unresolved after 3 cycles."
+    new: "After 2 fix cycles (3 reviews), HALT and escalate to the user with the open blocking findings."
+    kind: both
+    occurrences: 1
+  - id: C-066
+    file: src/superclaude/skills/readme/SKILL.md
+    line: 546
+    group: skills-a
+    old: "Maximum 3 fix cycles for Sub-flow A."
+    new: "Maximum 2 fix cycles for Sub-flow A."
+    kind: cap
+    occurrences: 1
+  - id: C-067
+    file: src/superclaude/skills/readme/SKILL.md
+    line: 553
+    group: skills-a
+    old: "Sub-flow A (max 3 fix cycles)"
+    new: "Sub-flow A (max 2 fix cycles)"
+    kind: cap
+    occurrences: 1
+  - id: C-068
+    file: src/superclaude/skills/readme/SKILL.md
+    line: 602
+    group: skills-a
+    old: "(max 3 cycles). If unresolved after 3 cycles, HALT and present findings to user."
+    new: "(max 2 cycles). After 2 fix cycles (3 reviews), HALT and escalate to the user with the open blocking findings."
+    kind: both
+    occurrences: 1
+  - id: C-069
+    file: src/superclaude/skills/readme/SKILL.md
+    line: 607
+    group: skills-a
+    old: "2 verification agents, max 3 cycles)"
+    new: "2 verification agents, max 2 cycles)"
+    kind: cap
+    occurrences: 1
+  - id: C-070
+    file: src/superclaude/skills/readme/SKILL.md
+    line: 608
+    group: skills-a
+    old: "  If unresolved after 3 cycles, HALT and present findings to user."
+    new: "  After 2 fix cycles (3 reviews), HALT and escalate to the user with the open blocking findings."
+    kind: at-cap
+    occurrences: 1
+    note: "old starts with exactly two spaces (the line's indentation); that keeps it from matching the same sentence inside C-068 on line 602"
+  - id: C-071
+    file: src/superclaude/skills/readme/SKILL.md
+    line: 1690
+    lines: [1690, 1715]
+    group: skills-a
+    old: "Maximum 3 fix cycles for the fidelity gate."
+    new: "Maximum 2 fix cycles for the fidelity gate."
+    kind: cap
+    occurrences: 2
+    note: "lines 1690 and 1715 are byte-identical, so no single-site literal exists; replace-all covers both sites"
+  - id: C-072
+    file: src/superclaude/skills/readme/SKILL.md
+    line: 1690
+    lines: [1690, 1715]
+    group: skills-a
+    old: "After 3 cycles, HALT and escalate to user."
+    new: "After 2 fix cycles (3 reviews), HALT and escalate to the user with the open blocking findings."
+    kind: at-cap
+    occurrences: 2
+    note: "same byte-identical pair as C-071; replace-all covers both sites"
+  - id: C-073
+    file: src/superclaude/skills/readme/SKILL.md
+    line: 2034
+    group: skills-a
+    old: "Max fix cycles: 3 for research gate, 2 for synthesis gate, 3 for final document gate, 3 for fidelity gate. After max fix cycles, HALT and ask user for guidance."
+    new: "Max fix cycles: 2 for research gate, 2 for synthesis gate, 2 for final document gate, 2 for fidelity gate. After 2 fix cycles (3 reviews), HALT and escalate to the user with the open blocking findings."
+    kind: both
+    occurrences: 1
+    note: "the following sentence 'ALL findings must be resolved.' is severity wording and stays out of old"
+  - id: C-074
+    file: src/superclaude/skills/readme/SKILL.md
+    line: 2058
+    group: skills-a
+    old: "phase-gate QA failing 3 fix cycles"
+    new: "phase-gate QA failing 2 fix cycles"
+    kind: cap
+    occurrences: 1
+  - id: C-075
+    file: src/superclaude/skills/roadmap/SKILL.md
+    line: 435
+    group: skills-a
+    old: "= 17-19 agents. Max 3 fix cycles."
+    new: "= 17-19 agents. Max 2 fix cycles."
+    kind: cap
+    occurrences: 1
+  - id: C-076
+    file: src/superclaude/skills/roadmap/SKILL.md
+    line: 440
+    group: skills-a
+    old: "detail-preservation rf-qa-qualitative). Max 3 fix cycles."
+    new: "detail-preservation rf-qa-qualitative). Max 2 fix cycles."
+    kind: cap
+    occurrences: 1
+  - id: C-077
+    file: src/superclaude/skills/roadmap/SKILL.md
+    line: 554
+    group: skills-a
+    old: "Fix cycle (max 3): identify unpopulated sections"
+    new: "Fix cycle (max 2): identify unpopulated sections"
+    kind: cap
+    occurrences: 1
+  - id: C-078
+    file: src/superclaude/skills/roadmap/SKILL.md
+    line: 563
+    group: skills-a
+    old: "repeat fix-verify cycle (max 3 total cycles). HALT if unresolved after 3 cycles."
+    new: "repeat fix-verify cycle (max 2 total cycles). After 2 fix cycles (3 reviews), HALT and escalate to the user with the open blocking findings."
+    kind: both
+    occurrences: 1
+  - id: C-079
+    file: src/superclaude/skills/roadmap/SKILL.md
+    line: 569
+    group: skills-a
+    old: "If gaps remain after 2 cycles, document remaining gaps in S10 Open Questions and proceed to Phase 3 Coverage Validation."
+    new: "After 2 fix cycles (3 reviews), HALT and escalate to the user with the open blocking findings; minor findings stay as notes."
+    kind: at-cap
+    occurrences: 1
+    note: "P2-B2; the earlier 'document it in S10 Open Questions with the source reference and justification for deferral' on the same line is a fix option, not the at-cap rule, and stays"
+  - id: C-080
+    file: src/superclaude/skills/roadmap/SKILL.md
+    line: 577
+    group: skills-a
+    old: "originating coverage agent). Max 3 fix cycles."
+    new: "originating coverage agent). Max 2 fix cycles."
+    kind: cap
+    occurrences: 1
+  - id: C-081
+    file: src/superclaude/skills/roadmap/SKILL.md
+    line: 2073
+    group: skills-a
+    old: "Stage 1 lens QA: max 3 fix cycles."
+    new: "Stage 1 lens QA: max 2 fix cycles."
+    kind: cap
+    occurrences: 1
+  - id: C-082
+    file: src/superclaude/skills/roadmap/SKILL.md
+    line: 2073
+    group: skills-a
+    old: "Stage 2 coverage: max 3 fix cycles."
+    new: "Stage 2 coverage: max 2 fix cycles."
+    kind: cap
+    occurrences: 1
+  - id: C-083
+    file: src/superclaude/skills/roadmap/SKILL.md
+    line: 2587
+    group: skills-a
+    old: "phase-gate QA failing 3 fix cycles"
+    new: "phase-gate QA failing 2 fix cycles"
+    kind: cap
+    occurrences: 1
+  - id: C-084
+    file: src/superclaude/skills/roadmap/SKILL.md
+    line: 2608
+    group: skills-a
+    old: "Unresolvable gaps MUST be documented in S10 Open Questions — they cannot be silently dropped."
+    new: "Gaps still open after 2 fix cycles (3 reviews) MUST be escalated: HALT and escalate to the user with the open blocking findings; minor findings stay as notes — they cannot be silently dropped."
+    kind: at-cap
+    occurrences: 1
+    note: "newly found: rule 26 restates the Step 2.VERIFY.FIX at-cap outcome (C-079) as 'document in S10 Open Questions'"
+  - id: C-085
+    file: src/superclaude/skills/tech-reference/SKILL.md
+    line: 177
+    group: skills-a
+    old: "gap-fill cycles if needed (max 3)"
+    new: "gap-fill cycles if needed (max 2)"
+    kind: cap
+    occurrences: 1
+  - id: C-086
+    file: src/superclaude/skills/tech-reference/SKILL.md
+    line: 412
+    group: skills-a
+    old: "1 rf-qa-qualitative). Max 3 cycles."
+    new: "1 rf-qa-qualitative). Max 2 cycles."
+    kind: cap
+    occurrences: 1
+  - id: C-087
+    file: src/superclaude/skills/tech-reference/SKILL.md
+    line: 415
+    group: skills-a
+    old: "then 2-agent verification round (max 3 cycles)"
+    new: "then 2-agent verification round (max 2 cycles)"
+    kind: cap
+    occurrences: 1
+  - id: C-088
+    file: src/superclaude/skills/tech-reference/SKILL.md
+    line: 424
+    group: skills-a
+    old: "Max 3 gap-fill cycles."
+    new: "Max 2 gap-fill cycles."
+    kind: cap
+    occurrences: 1
+  - id: C-089
+    file: src/superclaude/skills/tech-reference/SKILL.md
+    line: 428
+    group: skills-a
+    old: "= 5 agents. Max 3 fix cycles."
+    new: "= 5 agents. Max 2 fix cycles."
+    kind: cap
+    occurrences: 1
+  - id: C-090
+    file: src/superclaude/skills/tech-reference/SKILL.md
+    line: 432
+    group: skills-a
+    old: "= 11-15 agents. Max 3 fix cycles."
+    new: "= 11-15 agents. Max 2 fix cycles."
+    kind: cap
+    occurrences: 1
+  - id: C-091
+    file: src/superclaude/skills/tech-reference/SKILL.md
+    line: 436
+    group: skills-a
+    old: "8 at >2000. Max 3 fix cycles."
+    new: "8 at >2000. Max 2 fix cycles."
+    kind: cap
+    occurrences: 1
+  - id: C-092
+    file: src/superclaude/skills/tech-reference/SKILL.md
+    line: 512
+    group: skills-a
+    old: "Maximum 3 cycles — after 3 failed cycles, HALT execution: log all remaining issues in Task Log, present the QA report findings to the user, and ask for guidance on how to proceed."
+    new: "Maximum 2 cycles — after 2 fix cycles (3 reviews), HALT and escalate to the user with the open blocking findings; log all remaining issues in Task Log."
+    kind: both
+    occurrences: 1
+  - id: C-093
+    file: src/superclaude/skills/tech-reference/SKILL.md
+    line: 529
+    group: skills-a
+    old: "Maximum 3 fix cycles — after 3 failed cycles, HALT execution: log all remaining issues in Task Log, present findings to user, ask for guidance."
+    new: "Maximum 2 fix cycles — after 2 fix cycles (3 reviews), HALT and escalate to the user with the open blocking findings; log all remaining issues in Task Log."
+    kind: both
+    occurrences: 1
+  - id: C-094
+    file: src/superclaude/skills/tech-reference/SKILL.md
+    line: 534
+    group: skills-a
+    old: "(max 3 total cycles). After 3 cycles, HALT: log remaining issues, present to user, ask for guidance."
+    new: "(max 2 total cycles). After 2 fix cycles (3 reviews), HALT and escalate to the user with the open blocking findings."
+    kind: both
+    occurrences: 1
+  - id: C-095
+    file: src/superclaude/skills/tech-reference/SKILL.md
+    line: 535
+    group: skills-a
+    old: "(max 3 fix cycles). HALT after max cycles exceeded."
+    new: "(max 2 fix cycles). After 2 fix cycles (3 reviews), HALT and escalate to the user with the open blocking findings."
+    kind: both
+    occurrences: 1
+  - id: C-096
+    file: src/superclaude/skills/tech-reference/SKILL.md
+    line: 1307
+    group: skills-a
+    old: "Maximum 3 fix cycles per gate — after 3 failed cycles, HALT execution and ask the user for guidance."
+    new: "Maximum 2 fix cycles per gate — after 2 fix cycles (3 reviews), HALT and escalate to the user with the open blocking findings."
+    kind: both
+    occurrences: 1
+  - id: C-097
+    file: src/superclaude/skills/tech-reference/SKILL.md
+    line: 1327
+    group: skills-a
+    old: "phase-gate QA failing 3 fix cycles"
+    new: "phase-gate QA failing 2 fix cycles"
+    kind: cap
+    occurrences: 1
+  - id: C-098
+    file: src/superclaude/skills/tech-research/SKILL.md
+    line: 398
+    group: skills-a
+    old: "= 5 agents. Max 3 fix cycles."
+    new: "= 5 agents. Max 2 fix cycles."
+    kind: cap
+    occurrences: 1
+  - id: C-099
+    file: src/superclaude/skills/tech-research/SKILL.md
+    line: 406
+    group: skills-a
+    old: "= 9-13 agents. Max 3 fix cycles."
+    new: "= 9-13 agents. Max 2 fix cycles."
+    kind: cap
+    occurrences: 1
+  - id: C-100
+    file: src/superclaude/skills/tech-research/SKILL.md
+    line: 486
+    group: skills-a
+    old: "repeat Step 3.2 (max 3 cycles total), then HALT — log issues in Task Log, present to user"
+    new: "repeat Step 3.2 (max 2 cycles total). After 2 fix cycles (3 reviews), HALT and escalate to the user with the open blocking findings; log issues in Task Log"
+    kind: both
+    occurrences: 1
+  - id: C-101
+    file: src/superclaude/skills/tech-research/SKILL.md
+    line: 551
+    group: skills-a
+    old: "repeat Steps 6.5-6.6 (max 3 cycles), then HALT if unresolved."
+    new: "repeat Steps 6.5-6.6 (max 2 cycles). After 2 fix cycles (3 reviews), HALT and escalate to the user with the open blocking findings."
+    kind: both
+    occurrences: 1
+  - id: C-102
+    file: src/superclaude/skills/tech-research/SKILL.md
+    line: 1643
+    group: skills-a
+    old: "phase-gate QA failing 3 fix cycles"
+    new: "phase-gate QA failing 2 fix cycles"
+    kind: cap
+    occurrences: 1
+  - id: C-103
+    file: src/superclaude/skills/prd/refs/build-request-template.md
+    line: 130
+    group: skills-a
+    old: "Maximum 3 fix cycles — after 3 failed cycles, HALT execution: log all remaining issues in Task Log, present findings to user."
+    new: "Maximum 2 fix cycles — after 2 fix cycles (3 reviews), HALT and escalate to the user with the open blocking findings; log all remaining issues in Task Log."
+    kind: both
+    occurrences: 1
+  - id: C-104
+    file: src/superclaude/skills/tdd/refs/build-request-template.md
+    line: 125
+    group: skills-a
+    old: "Maximum 3 fix cycles — after 3 failed cycles, HALT execution: log all remaining issues in Task Log, present the QA report findings to the user, and ask for guidance on how to proceed."
+    new: "Maximum 2 fix cycles — after 2 fix cycles (3 reviews), HALT and escalate to the user with the open blocking findings; log all remaining issues in Task Log."
+    kind: both
+    occurrences: 1
+  # ---------------------------------------------------------------- skills-b
+  - id: C-105
+    file: src/superclaude/skills/task/SKILL.md
+    line: 120
+    group: skills-b
+    old: "a phase-gate QA has failed 3 fix cycles"
+    new: "a phase-gate QA has failed 2 fix cycles"
+    kind: cap
+    occurrences: 1
+  - id: C-106
+    file: src/superclaude/skills/task/SKILL.md
+    line: 254
+    group: skills-b
+    old: "Maximum 3 fix cycles total (per I16 (MDTM template rule: maximum 3 fix-verify cycles per gate)6)."
+    new: "Maximum 2 fix cycles total (per I16 (MDTM template rule: maximum 2 fix-verify cycles per gate))."
+    kind: cap
+    occurrences: 1
+    note: "also drops the stray '6' after the closing parenthesis"
+  - id: C-107
+    file: src/superclaude/skills/task/SKILL.md
+    line: 254
+    group: skills-b
+    old: "After 3 failed cycles: HALT execution — log all remaining issues"
+    new: "After 2 fix cycles (3 reviews), HALT and escalate to the user with the open blocking findings — log all remaining issues"
+    kind: at-cap
+    occurrences: 1
+  - id: C-108
+    file: src/superclaude/skills/task/SKILL.md
+    line: 336
+    group: skills-b
+    old: "then a verification round. Maximum 3 fix cycles."
+    new: "then a verification round. Maximum 2 fix cycles."
+    kind: cap
+    occurrences: 1
+  - id: C-109
+    file: src/superclaude/skills/task/SKILL.md
+    line: 366
+    group: skills-b
+    old: "Maximum 3 fix cycles total per gate."
+    new: "Maximum 2 fix cycles total per gate."
+    kind: cap
+    occurrences: 1
+  - id: C-110
+    file: src/superclaude/skills/task/SKILL.md
+    line: 368
+    group: skills-b
+    old: "6. **Escalation:** After 3 failed cycles, HALT — log all remaining issues in the Task Log, present findings to the user, and ask for guidance."
+    new: "6. **Escalation:** After 2 fix cycles (3 reviews), HALT and escalate to the user with the open blocking findings; log all remaining issues in the Task Log."
+    kind: both
+    occurrences: 1
+  - id: C-111
+    file: src/superclaude/skills/task/SKILL.md
+    line: 405
+    group: skills-b
+    old: "Maximum 3 fix cycles (per I16), then HALT and escalate to user."
+    new: "Maximum 2 fix cycles (per I16). After 2 fix cycles (3 reviews), HALT and escalate to the user with the open blocking findings."
+    kind: both
+    occurrences: 1
+  - id: C-112
+    file: src/superclaude/skills/task/SKILL.md
+    line: 477
+    group: skills-b
+    old: "[1 / 2 / 3 / N/A]"
+    new: "[1 / 2 / N/A]"
+    kind: cap
+    occurrences: 1
+  - id: C-113
+    file: src/superclaude/skills/task/SKILL.md
+    line: 616
+    group: skills-b
+    old: "phase-gate QA failing 3 fix cycles"
+    new: "phase-gate QA failing 2 fix cycles"
+    kind: cap
+    occurrences: 1
+  - id: C-114
+    file: src/superclaude/skills/task-builder/SKILL.md
+    line: 204
+    group: skills-b
+    old: "with gap-fill cycle if needed (max 3 rounds)"
+    new: "with gap-fill cycle if needed (max 2 rounds)"
+    kind: cap
+    occurrences: 1
+  - id: C-115
+    file: src/superclaude/skills/task-builder/SKILL.md
+    line: 872
+    group: skills-b
+    old: "4. **Maximum 3 gap-fill rounds**"
+    new: "4. **Maximum 2 gap-fill rounds**"
+    kind: cap
+    occurrences: 1
+  - id: C-116
+    file: src/superclaude/skills/task-builder/SKILL.md
+    line: 873
+    group: skills-b
+    old: "5. After 3 rounds, proceed with remaining gaps as Open Questions in the task file"
+    new: "5. After 2 fix cycles (3 reviews), HALT and escalate to the user with the open blocking findings; minor findings stay as notes"
+    kind: both
+    occurrences: 1
+  - id: C-117
+    file: src/superclaude/skills/task-builder/SKILL.md
+    line: 1147
+    group: skills-b
+    old: "6. Max 3 fix-verify cycles."
+    new: "6. Max 2 fix-verify cycles."
+    kind: cap
+    occurrences: 1
+  - id: C-118
+    file: src/superclaude/skills/task-builder/SKILL.md
+    line: 1259
+    group: skills-b
+    old: "proceed with gaps as Open Questions in the task file"
+    new: "HALT and escalate to the user with the open blocking findings; minor findings stay as notes"
+    kind: at-cap
+    occurrences: 1
+    note: "inventory 3.1; RESEARCH_NEEDED flow, cap already 2 ('Maximum 2 RESEARCH_NEEDED rounds'), so only the at-cap outcome changes; does not match line 873 ('proceed with remaining gaps')"
+  - id: C-119
+    file: src/superclaude/skills/task-builder/SKILL.md
+    line: 1275
+    group: skills-b
+    old: "rf-qa's 3-fix-cycle in rf-qa.md"
+    new: "rf-qa's 2-fix-cycle in rf-qa.md"
+    kind: cap
+    occurrences: 1
+  - id: C-120
+    file: src/superclaude/skills/task-builder/SKILL.md
+    line: 1275
+    group: skills-b
+    old: "the existing 3-cycle hard cap"
+    new: "the existing 2-cycle hard cap"
+    kind: cap
+    occurrences: 1
+  - id: C-121
+    file: src/superclaude/skills/task-builder/SKILL.md
+    line: 1310
+    group: skills-b
+    old: "research-gate=3"
+    new: "research-gate=2"
+    kind: cap
+    occurrences: 1
+  - id: C-122
+    file: src/superclaude/skills/task-builder/SKILL.md
+    line: 1310
+    group: skills-b
+    old: "report-validation=3"
+    new: "report-validation=2"
+    kind: cap
+    occurrences: 1
+  - id: C-123
+    file: src/superclaude/skills/task-builder/SKILL.md
+    line: 1310
+    group: skills-b
+    old: "qualitative=3"
+    new: "qualitative=2"
+    kind: cap
+    occurrences: 1
+  - id: C-124
+    file: src/superclaude/skills/task-builder/SKILL.md
+    line: 1310
+    group: skills-b
+    old: "with the global 3-cycle backstop"
+    new: "with the global 2-cycle backstop"
+    kind: cap
+    occurrences: 1
+  - id: C-125
+    file: src/superclaude/skills/task-builder/SKILL.md
+    line: 1310
+    group: skills-b
+    old: "(HALT-and-escalate or Open Questions)"
+    new: "(HALT and escalate to the user with the open blocking findings; minor findings stay as notes)"
+    kind: at-cap
+    occurrences: 1
+    note: "newly found: the hard-cap step names Open Questions as an at-cap path"
+  - id: C-126
+    file: src/superclaude/skills/task-builder/SKILL.md
+    line: 1412
+    group: skills-b
+    old: "  Max 3 fix-verify cycles."
+    new: "  Max 2 fix-verify cycles."
+    kind: cap
+    occurrences: 1
+    note: "old starts with exactly two spaces; that keeps it from matching inside C-117 ('6. Max 3 fix-verify cycles.' on line 1147)"
+  - id: C-127
+    file: src/superclaude/skills/task-builder/SKILL.md
+    line: 1419
+    group: skills-b
+    old: "**FAIL with unfixable issues after 3 fix-verify cycles**"
+    new: "**FAIL with unfixable issues after 2 fix-verify cycles (3 reviews)**"
+    kind: cap
+    occurrences: 1
+  - id: C-128
+    file: src/superclaude/skills/task-builder/SKILL.md
+    line: 1420
+    group: skills-b
+    old: "counts against the A.10 fix-cycle budget, max 3 cycles"
+    new: "counts against the A.10 fix-cycle budget, max 2 cycles"
+    kind: cap
+    occurrences: 1
+  - id: C-129
+    file: src/superclaude/skills/task-builder/SKILL.md
+    line: 1420
+    group: skills-b
+    old: "At max cycle, surface the missing/malformed report to the user as an Open Question in the task file and proceed to A.10.25 with the issue documented."
+    new: "At max cycle (after 2 fix cycles, 3 reviews), HALT and escalate to the user with the open blocking findings, including the missing/malformed report path; minor findings stay as notes."
+    kind: at-cap
+    occurrences: 1
+    note: "P2-B2. The DM-005 token 'failure_mode: retry-into-max-cycle-then-Open-Questions' at the end of this line (and lines 1490, 1620, 1644, 1660) is NOT edited here; see flagged_for_decision"
+  - id: C-130
+    file: src/superclaude/skills/task-builder/SKILL.md
+    line: 1471
+    group: skills-b
+    old: "(independent of A.10's 3-cycle budget)"
+    new: "(independent of A.10's 2-cycle budget)"
+    kind: cap
+    occurrences: 1
+  - id: C-131
+    file: src/superclaude/skills/task-builder/SKILL.md
+    line: 2369
+    group: skills-b
+    old: "phase-gate QA failing 3 fix cycles"
+    new: "phase-gate QA failing 2 fix cycles"
+    kind: cap
+    occurrences: 1
+  # ---------------------------------------------------------------- portify
+  - id: C-132
+    file: src/superclaude/cli/cli_portify/convergence.py
+    line: 149
+    group: portify
+    old: "engine = ConvergenceEngine(max_iterations=3)"
+    new: "engine = ConvergenceEngine(max_iterations=1)"
+    kind: cap
+    occurrences: 1
+  - id: C-133
+    file: src/superclaude/cli/cli_portify/convergence.py
+    line: 150
+    group: portify
+    old: "for i in range(1, 4):"
+    new: "for i in range(1, 2):"
+    kind: cap
+    occurrences: 1
+  - id: C-134
+    file: src/superclaude/cli/cli_portify/convergence.py
+    line: 165
+    group: portify
+    old: "max_iterations: int = 3,"
+    new: "max_iterations: int = 1,"
+    kind: cap
+    occurrences: 1
+  - id: C-135
+    file: src/superclaude/cli/cli_portify/steps/panel_review.py
+    line: 352
+    group: portify
+    old: "ConvergenceEngine(max_iterations=3)"
+    new: "ConvergenceEngine(max_iterations=1)"
+    kind: cap
+    occurrences: 1
+  - id: C-136
+    file: src/superclaude/cli/cli_portify/commands.py
+    line: 100
+    group: portify
+    old: "default=3,"
+    new: "default=1,"
+    kind: cap
+    occurrences: 1
+  - id: C-137
+    file: src/superclaude/cli/cli_portify/commands.py
+    line: 101
+    group: portify
+    old: "(default: 3)"
+    new: "(default: 1; follows the 2-fix-cycle cap)"
+    kind: cap
+    occurrences: 1
+  - id: C-138
+    file: src/superclaude/cli/cli_portify/config.py
+    line: 53
+    group: portify
+    old: "max_convergence: int = 3"
+    new: "max_convergence: int = 1"
+    kind: cap
+    occurrences: 1
+  - id: C-139
+    file: src/superclaude/cli/cli_portify/models.py
+    line: 583
+    group: portify
+    old: "max_convergence: int = 3"
+    new: "max_convergence: int = 1"
+    kind: cap
+    occurrences: 1
+  - id: C-140
+    file: src/superclaude/cli/cli_portify/prompts.py
+    line: 68
+    group: portify
+    old: "max_convergence: int = 3"
+    new: "max_convergence: int = 1"
+    kind: cap
+    occurrences: 1
+  - id: C-141
+    file: src/superclaude/cli/cli_portify/resume.py
+    line: 136
+    group: portify
+    old: "max_convergence: int = 3"
+    new: "max_convergence: int = 1"
+    kind: cap
+    occurrences: 1
+  - id: C-142
+    file: tests/cli_portify/test_convergence.py
+    line: 78
+    group: portify
+    old: "def test_default_max_iterations_is_3(self):"
+    new: "def test_default_max_iterations_is_1(self):"
+    kind: cap
+    occurrences: 1
+  - id: C-143
+    file: tests/cli_portify/test_convergence.py
+    line: 81
+    lines: [81, 82, 83, 84, 85]
+    group: portify
+    old: "        assert not engine.is_done\n        engine.submit(IterationResult(iteration=2, unaddressed_criticals=3))\n        assert not engine.is_done\n        engine.submit(IterationResult(iteration=3, unaddressed_criticals=1))\n        assert engine.is_done\n"
+    new: "        assert engine.is_done\n"
+    kind: cap
+    occurrences: 1
+    note: "multi-line old (8-space indent); unique because its line 84 'engine.submit(IterationResult(iteration=3, unaddressed_criticals=1))' occurs once in the file. Result: with the default of 1 the first submit (iteration=1, 5 CRITICALs) is terminal and line 86 'assert engine.state == ConvergenceState.ESCALATED' still holds"
+  - id: C-144
+    file: src/superclaude/skills/sc-cli-portify-protocol/SKILL.md
+    line: 355
+    group: portify
+    old: "Terminal state: 3 iterations exhausted"
+    new: "Terminal state: 1 iteration exhausted"
+    kind: cap
+    occurrences: 1
+  - id: C-145
+    file: src/superclaude/skills/sc-cli-portify-protocol/SKILL.md
+    line: 363
+    group: portify
+    old: "iteration < 3)"
+    new: "iteration < max_iterations)"
+    kind: cap
+    occurrences: 1
+  - id: C-146
+    file: src/superclaude/skills/sc-cli-portify-protocol/SKILL.md
+    line: 364
+    group: portify
+    old: "iteration >= 3)"
+    new: "iteration >= max_iterations)"
+    kind: cap
+    occurrences: 1
+  - id: C-147
+    file: src/superclaude/skills/sc-cli-portify-protocol/SKILL.md
+    line: 367
+    group: portify
+    old: "Hard cap: `max_iterations = 3`"
+    new: "Hard cap: `max_iterations = 1` (one iteration = 3 reviews + 2 fix passes, the 2-fix-cycle cap)"
+    kind: cap
+    occurrences: 1
+  - id: C-148
+    file: src/superclaude/skills/sc-cli-portify-protocol/SKILL.md
+    line: 374
+    group: portify
+    old: "— 3 iterations exhausted with"
+    new: "— 1 iteration exhausted with"
+    kind: cap
+    occurrences: 1
+  - id: C-149
+    file: src/superclaude/skills/sc-cli-portify-protocol/SKILL.md
+    line: 534
+    group: portify
+    old: "Maximum convergence iterations (3) reached"
+    new: "Maximum convergence iterations (1) reached"
+    kind: cap
+    occurrences: 1
+  - id: C-150
+    file: src/superclaude/skills/sc-cli-portify-protocol/decisions.yaml
+    line: 121
+    group: portify
+    old: "Max 3 iterations."
+    new: "Max 1 iteration (3 reviews, 2 fix passes)."
+    kind: cap
+    occurrences: 1
+  - id: C-151
+    file: src/superclaude/skills/sc-cli-portify-protocol/decisions.yaml
+    line: 123
+    group: portify
+    old: "ESCALATED = 3 iterations exhausted"
+    new: "ESCALATED = 1 iteration exhausted"
+    kind: cap
+    occurrences: 1
+  # ---------------------------------------------------------------- prd-core
+  - id: C-152
+    file: src/superclaude/cli/prd/models.py
+    line: 203
+    group: prd-core
+    old: "max_research_fix_cycles: int = 3"
+    new: "max_research_fix_cycles: int = 2"
+    kind: cap
+    occurrences: 1
+    note: "executor.py runs range(max_cycles + 1) = initial QA + N fix cycles, so 2 gives 3 QA runs"
+  - id: C-153
+    file: src/superclaude/rules/core/ib_agent_core.md
+    line: 574
+    group: prd-core
+    old: "Maximum 5 correction loops per batch"
+    new: "Maximum 2 correction loops per batch"
+    kind: cap
+    occurrences: 1
+    note: "P2-B6"
+  - id: C-154
+    file: src/superclaude/rules/core/ib_agent_core.md
+    line: 633
+    group: prd-core
+    old: "Maximum 5 correction attempts per batch"
+    new: "Maximum 2 correction attempts per batch"
+    kind: cap
+    occurrences: 1
+  - id: C-155
+    file: src/superclaude/rules/core/ib_agent_core.md
+    line: 913
+    group: prd-core
+    old: "Manual intervention needed after 3 attempts"
+    new: "Manual intervention needed after 2 attempts"
+    kind: cap
+    occurrences: 1
+  - id: C-156
+    file: src/superclaude/rules/core/ib_agent_core.md
+    line: 933
+    group: prd-core
+    old: "`MAX_CORRECTION_ATTEMPTS` (default: 5)"
+    new: "`MAX_CORRECTION_ATTEMPTS` (default: 2)"
+    kind: cap
+    occurrences: 1
+    note: "documents automated_qa_workflow.sh, which is not in this repo; doc-only change"
+  # ---------------------------------------------------------------- resolved flagged_for_decision items (orchestrator, 2026-11-02, under rule B1: never pass open blocking findings at the cap)
+  - id: C-157
+    file: src/superclaude/skills/task-builder/SKILL.md
+    lines: [1420, 1490, 1620, 1644, 1660]
+    group: skills-b
+    old: "retry-into-max-cycle-then-Open-Questions"
+    new: "retry-into-max-cycle-then-halt-escalate"
+    kind: at-cap
+    occurrences: 5
+    note: "DM-005 failure_mode token; only consumer is this file; no test pins it"
+  - id: C-158
+    file: src/superclaude/skills/task-builder/SKILL.md
+    line: 1620
+    group: skills-b
+    old: "retry into the max cycle then Open Questions"
+    new: "retry into the max cycle, then HALT and escalate to the user with the open blocking findings"
+    kind: at-cap
+    occurrences: 1
+  - id: C-159
+    file: src/superclaude/skills/task-builder/SKILL.md
+    line: 1660
+    group: skills-b
+    old: "(per DET-015 no-halt decision)"
+    new: "(at the cap, HALT and escalate to the user with the open blocking findings)"
+    kind: at-cap
+    occurrences: 1
+  - id: C-160
+    file: src/superclaude/skills/task-builder/SKILL.md
+    line: 1471
+    group: skills-b
+    old: "If unfixable after 1 cycle, document issues in the consolidated file and proceed to A.10.5."
+    new: "If blocking findings remain after 1 cycle, HALT and escalate to the user with the open blocking findings; minor findings stay as notes in the consolidated file."
+    kind: at-cap
+    occurrences: 1
+  - id: C-161
+    file: src/superclaude/templates/workflow/01_mdtm_template_generic_task.md
+    line: 1232
+    group: templates
+    old: "HALT and escalate by logging unresolved issues in ### Phase Gate Findings below with a note that manual intervention is required, then mark this item complete."
+    new: "HALT and escalate to the user with the open blocking findings (log them in ### Phase Gate Findings below); do not mark this item complete while blocking findings are open."
+    kind: at-cap
+    occurrences: 1
+
+handled_elsewhere:
+  - site: "src/superclaude/skills/sc-implement-protocol/refs/{retry,qa,ledger}.md and plugins/superclaude/skills/sc-implement-protocol/refs/{retry,qa,ledger}.md"
+    reason: "/sc:implement keeps its own severity model and ladder; option A (remove the second A2 repair) is a separate task (inventory section 4 item 2), with its tests test_implement_severity_static.py, test_implement_severity_replay.py, test_task_workspace_lifecycle.py"
+  - site: "src/superclaude/agents/rf-team-lead.md:462"
+    text: "(max 3 cycles per phase). If max cycles exhausted, HALT and ask user"
+    reason: "changes the sha256 pinned by tests/audit/test_dnsp_all_agents_fail_bypass.py and tests/audit/fixtures/rf-team-lead-fix-cycles-rule.txt; edited together with the DNSP lines below"
+  - site: "src/superclaude/agents/rf-analyst.md:74"
+    text: "(max-3-cycles HALT-and-ask-user contract); sha256 frozen at `51725c0f…`"
+    reason: "DNSP clause: 'max-3-cycles' token and sha re-pin"
+  - site: "src/superclaude/agents/rf-qa.md:82"
+    text: "same DNSP clause ('max-3-cycles', sha256 51725c0f…)"
+    reason: "DNSP clause: token and sha re-pin"
+  - site: "src/superclaude/agents/rf-qa-qualitative.md:83"
+    text: "same DNSP clause ('max-3-cycles', sha256 51725c0f…)"
+    reason: "DNSP clause: token and sha re-pin"
+  - site: "src/superclaude/skills/task-builder/SKILL.md:901"
+    text: "sha256 frozen at `51725c0f…`"
+    reason: "sha re-pin of the new rf-team-lead.md:462 line"
+  - site: "tests/audit/test_dnsp_all_agents_fail_bypass.py and tests/audit/fixtures/rf-team-lead-fix-cycles-rule.txt"
+    reason: "pin the rf-team-lead.md:462 text, its sha256 and the 'max-3-cycles' token"
+
+dependent_repins:
+  - test: "tests/audit/test_severity_floor_unweakened.py:48 BASELINE_BLOCK_SHA"
+    triggered_by: C-003
+    reason: "hashes the rf-qa-qualitative.md Critical Rules block that contains rule 10 (line 982)"
+  - test: "tests/skills/test_task_builder_merge.py:435"
+    triggered_by: C-011
+    reason: "comment names rf-qa.md's '3-fix-cycle'"
+
+flagged_for_decision:   # RESOLVED 2026-11-02 by the orchestrator under rule B1: items 1-3 became rows C-157..C-161; item 4 (sc-cli-eval schema loop) stays OUT (not a review loop)
+  - site: "src/superclaude/skills/task-builder/SKILL.md:1420 (tail), 1490, 1620, 1644, 1660"
+    text: "DM-005 token `failure_mode: retry-into-max-cycle-then-Open-Questions` (1660: 'per DET-015 no-halt decision')"
+    why: "a published wire value naming an Open-Questions-and-proceed at-cap path; after C-129 it contradicts the new HALT rule. No test pins it (git grep tests: 0 hits). Renaming it (e.g. retry-into-max-cycle-then-halt-escalate) is a contract change, so it needs a coordinator decision"
+  - site: "src/superclaude/skills/task-builder/SKILL.md:1471"
+    text: "If unfixable after 1 cycle, document issues in the consolidated file and proceed to A.10.5."
+    why: "A.10.25 at-cap (cap 1) proceeds with open findings without using the words 'Open Question'; same pattern as the at-cap rules being replaced"
+  - site: "src/superclaude/templates/workflow/01_mdtm_template_generic_task.md:1232"
+    text: "HALT and escalate by logging unresolved issues in ### Phase Gate Findings below with a note that manual intervention is required, then mark this item complete."
+    why: "says HALT but then marks the item complete, so execution continues with open findings"
+  - site: "src/superclaude/skills/sc-cli-eval-protocol/SKILL.md:204 and refs/create-pipeline.md:50"
+    text: "SKILL.md:204 'Max 3 fix loops'; create-pipeline.md:50 '(max 3 fix loops), then report blocked'"
+    why: "already flagged OUT in cap-sites.md section 17 (schema-loader fix loop, not a review); listed again so the decision is not lost"
+
+totals:
+  rows: 161
+  by_group:
+    agents: 17
+    templates: 37
+    skills-a: 51
+    skills-b: 31
+    portify: 20
+    prd-core: 5
+  by_kind:
+    cap: 111
+    at-cap: 23
+    both: 27
+  multi_site_rows: [C-071, C-072, C-143]

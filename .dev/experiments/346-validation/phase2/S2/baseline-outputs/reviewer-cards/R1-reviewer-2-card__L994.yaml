@@ -1,0 +1,50 @@
+reviewer: 2
+persona: qa
+model: haiku-alias (glm-5.3)
+findings:
+  - id: R2-F1
+    severity: blocking
+    claim: "R-002 requires S1-S3 (and S5 on a triad scale) in every edited QA agent/template; Tasks 3/4/6 and Task 13's fixed file set omit skill_template.md, analyst-completeness template, prd/tdd build-request templates and rf-analyst.md."
+    evidence: [.dev/tasks/to-do/TASK-WF-removeTheAnyIssu-20261101-225635/source.md:6, src/superclaude/templates/documents/skill_template.md:815, src/superclaude/agents/rf-analyst.md:148]
+    fix: "Extend Tasks 3/4/6 and the Task 13 set, or record an explicit spec-vs-inventory decision."
+  - id: R4-F1
+    severity: blocking
+    claim: "Task 11 grep cannot match 'Max fix cycles: 3 ...' (operational-guide:1349, readme:2034) or MDTM I16 '| 3 |' cells; passes while caps of 3 remain."
+    evidence: [src/superclaude/skills/operational-guide/SKILL.md:1349, src/superclaude/skills/readme/SKILL.md:2034, src/superclaude/templates/workflow/01_mdtm_template_generic_task.md:649-653]
+    fix: "Add ': 3' and '| 3 |' forms to Task 11 and Task 13 scans."
+  - id: R8-F1
+    severity: blocking
+    claim: "R-008 check 'git diff -U0 | grep ^+ | grep src/superclaude' matches '+++ b/src/superclaude/...' headers, so it always prints; cannot pass."
+    evidence: [.dev/tasks/to-do/TASK-WF-removeTheAnyIssu-20261101-225635/TASK-WF-removeTheAnyIssu-20261101-225635.md:24, .dev/tasks/to-do/TASK-WF-removeTheAnyIssu-20261101-225635/TASK-WF-removeTheAnyIssu-20261101-225635.md:191]
+    fix: "Use grep '^+[^+]' or grep -v '^+++'."
+  - id: R6-F1
+    severity: minor
+    claim: "Task 13 phrase list misses 'at any severity' (tech-reference/SKILL.md:536)."
+    evidence: [src/superclaude/skills/tech-reference/SKILL.md:536]
+    fix: "Add 'at any severity'."
+  - id: R10-F1
+    severity: minor
+    claim: "tests/cli/reflect/test_no_nesting_guard.py and tests/troubleshoot/backtest/test_backtest_e5.py read task-builder/SKILL.md but are in no run."
+    evidence: [tests/cli/reflect/test_no_nesting_guard.py:20, tests/troubleshoot/backtest/test_backtest_e5.py:32]
+    fix: "Append both to the Task 13 run."
+  - id: R4-F2
+    severity: minor
+    claim: "No check that kept paths (sc-roadmap-protocol, pr-submit, update.sh) stay unchanged or that the canonical cap text is written into Task 11 files."
+    evidence: []
+    fix: "Empty-diff check on kept paths; cap-text grep over Task 11 files."
+  - id: G-F1
+    severity: minor
+    claim: "Code-side loops outside the inventory keep 3 (cli_portify convergence.py:165, prd models.py:203) and prd prompts.py:1173 keeps the old FAIL line; contradicts the plan Goal."
+    evidence: [src/superclaude/cli/cli_portify/convergence.py:165, src/superclaude/cli/prd/models.py:203, src/superclaude/cli/prd/prompts.py:1173]
+    fix: "Record a scope decision; ideally lower the code caps and align prompts.py."
+  - id: R5-F1
+    severity: minor
+    claim: "Task 12 acceptance does not check that A3-A5 and 'halt review=5 reason=ladder-end' survive."
+    evidence: []
+    fix: "Add a post-edit grep for those tokens."
+  - id: T1-F5
+    severity: minor
+    claim: "'-k tech' and '-k readme or operational' select no tests in tests/skills."
+    evidence: []
+    fix: "Drop or point at real tests."
+self_audit: "R-001..R-010 and INF-001..006 audited; R-001, R-003, R-007, R-009 adherent with detectable checks; matrix claims reproduced."

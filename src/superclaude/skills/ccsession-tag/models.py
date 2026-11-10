@@ -762,6 +762,9 @@ def _settings_key(env=None, tenv=None) -> list:
         "CCSESSION_TIERS",
         "CCSESSION_COOLDOWN_SECONDS",
         "CCSESSION_FIRST_BYTE_TIMEOUT",
+        "CCSESSION_FAILS_BEFORE_SWITCH",
+        "CCSESSION_PARK_SECONDS",
+        "CCSESSION_PARK_MAX_SECONDS",
         "CODER_WORKSPACE_OWNER_NAME",  # which tiers the shim offers
         "CODER_WORKSPACE_OWNER_ROLES",
     ):

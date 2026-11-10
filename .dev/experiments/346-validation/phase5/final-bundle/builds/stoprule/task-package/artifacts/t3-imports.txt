@@ -1,0 +1,11 @@
+$ grep -nE "^(import|from) " stoprule.py
+14:import argparse
+15:import difflib
+16:import hashlib
+17:import json
+18:import pathlib
+19:import random
+20:import re
+21:import sys
+$ grep -cE 'subprocess|urllib' stoprule.py
+0

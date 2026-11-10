@@ -1,0 +1,20 @@
+selected_tier: 2
+fired_rule_number: 4
+coverage_degraded: parsed-sparse
+surface_unreached: null
+composite_score: 7.0
+per_signal_breakdown:
+  scope_size: 1.5
+  task_count: 1.5
+  blast_radius: 1.0
+  spec_density: 1.5
+  ambiguity_signals: 1.5
+escalation_reason: "coverage_degraded=parsed-sparse (0 parsed IDs, 142 inferred rows) is a table-wide pre-filter that forbids every Tier-1 STOP row; first matching ESCALATE row is rule 4 (S_domains=3: code, tests, docs); rule 5 also holds (S_dev_density 0.2676 > 0.20)"
+inputs:
+  S_scope: 8
+  S_domains: 3
+  S_dev_density: 0.2676
+  coverage_pct: null
+  coverage_pct_union: 0.7324
+  coverage_undefined: false
+  confidence_calibrated: pending-wave-1D

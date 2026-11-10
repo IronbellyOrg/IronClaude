@@ -1,0 +1,10 @@
+input_tree_sha256: f7ad1a9633350b0e66916e8d3030f96c9a9929dfc977e4401d09f6a70f5241a8
+file_list:
+  - path: .dev/tasks/to-do/TASK-WF-spec-20261108-181616/TASK-WF-spec-20261108-181616.md
+    sha256: 1a25c07859f1db8e3dfa6b8235bb49b410f7d78e56a08f6604b40ab5cafbdb59
+  - path: .dev/tasks/to-do/TASK-WF-spec-20261108-181616/source.md
+    sha256: 21db19dc3fbb51fbc189361e42ef43e605605c816184ed3930a8cca3522ea854
+file_count: 2
+output_root: /home/coder/workspaces/worktrees/IronClaude/bs346-stoprule/.dev/brainstorms/346-stoprule/workflow-report/nested/reflect-1
+output_input_overlap: false
+note: snapshot retaken at 18:25Z before Wave 1, after a coordinator-directed plan edit (owner rulings msg_1444b49a7811, msg_ca3a91181d81); no review step had run on the earlier plan text

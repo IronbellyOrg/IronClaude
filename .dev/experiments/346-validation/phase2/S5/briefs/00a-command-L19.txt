@@ -1,0 +1,3 @@
+<command-message>sc:implement</command-message>
+<command-name>/sc:implement</command-name>
+<command-args>.dev/tasks/to-do/TASK-WF-writeTheP0LivePl-20261103-215902/TASK-WF-writeTheP0LivePl-20261103-215902.md</command-args>

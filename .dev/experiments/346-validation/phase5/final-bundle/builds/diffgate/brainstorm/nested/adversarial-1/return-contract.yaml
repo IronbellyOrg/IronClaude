@@ -1,0 +1,22 @@
+worker_contract_version: "1"
+worker_status: partial
+command: "/sc:adversarial --unattended --source .dev/brainstorms/346-diffgate/seed-brief.md --generate spec --agents opus:architect:'prioritize maintainability and extension scaffolding for code domain',sonnet:refactorer:'focus on technical debt, simplification, and minimal-risk transformation paths',haiku:qa:'focus on test surface, edge cases, regression risk, and acceptance criteria' --depth standard --convergence 0.75 --output .dev/brainstorms/346-diffgate/nested/adversarial-1/"
+report_path: .dev/brainstorms/346-diffgate/nested/adversarial-1/merged-output.md
+artifacts:
+  - .dev/brainstorms/346-diffgate/nested/adversarial-1/adversarial/return-contract.yaml
+  - .dev/brainstorms/346-diffgate/nested/adversarial-1/adversarial/variant-1-opus-architect.md
+  - .dev/brainstorms/346-diffgate/nested/adversarial-1/adversarial/variant-2-sonnet-refactorer.md
+  - .dev/brainstorms/346-diffgate/nested/adversarial-1/adversarial/variant-3-haiku-qa.md
+  - .dev/brainstorms/346-diffgate/nested/adversarial-1/adversarial/diff-analysis.md
+  - .dev/brainstorms/346-diffgate/nested/adversarial-1/adversarial/debate-transcript.md
+  - .dev/brainstorms/346-diffgate/nested/adversarial-1/adversarial/invariant-probe.md
+  - .dev/brainstorms/346-diffgate/nested/adversarial-1/adversarial/base-selection.md
+  - .dev/brainstorms/346-diffgate/nested/adversarial-1/adversarial/refactor-plan.md
+  - .dev/brainstorms/346-diffgate/nested/adversarial-1/adversarial/merge-log.md
+  - .dev/brainstorms/346-diffgate/nested/adversarial-1/adversarial/debate/round1-A.md
+  - .dev/brainstorms/346-diffgate/nested/adversarial-1/adversarial/debate/round1-B.md
+  - .dev/brainstorms/346-diffgate/nested/adversarial-1/adversarial/debate/round1-C.md
+  - .dev/brainstorms/346-diffgate/nested/adversarial-1/adversarial/debate/round2-A.md
+  - .dev/brainstorms/346-diffgate/nested/adversarial-1/adversarial/debate/round2-B.md
+  - .dev/brainstorms/346-diffgate/nested/adversarial-1/adversarial/debate/round2-C.md
+  - .dev/brainstorms/346-diffgate/nested/adversarial-1/adversarial/debate/evidence-flg-r1.md

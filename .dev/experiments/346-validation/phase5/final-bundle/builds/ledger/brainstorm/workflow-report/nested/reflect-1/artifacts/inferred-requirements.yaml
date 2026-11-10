@@ -1,0 +1,761 @@
+rows:
+  - id: INF-001
+    section: "1"
+    citation: source.md:13
+    quote: "Theme: find once (review 1), then only verify ledger rows, with a script that owns the rows, the counters and the verdict."
+  - id: INF-002
+    section: "2"
+    citation: source.md:17
+    quote: "One stdlib Python script, `review_ledger.py`, is the only writer of the ledger."
+  - id: INF-003
+    section: "2"
+    citation: source.md:17
+    quote: "Models never edit ledger state: they write small JSON input files and their own reports, and the script validates and ingests them atomically."
+  - id: INF-004
+    section: "2"
+    citation: source.md:17
+    quote: "Every call is `uv run --no-project python \"<skill base>/scripts/review_ledger.py\" <subcommand> ...`"
+  - id: INF-005
+    section: "2"
+    citation: source.md:17
+    quote: "The actor is implied by the subcommand; there is no role flag."
+  - id: INF-006
+    section: "2"
+    citation: source.md:19
+    quote: "`<doc dir>/<doc stem>.review-ledger/` by default (overridable with `--ledger <dir>`), holding `ledger.json`, `snapshots/r1.md r2.md r3.md` (the exact text each review saw), `diffs/c1.json c2.json`, `inputs/*.json`, `plan-r2.md plan-r3.md` and `.lock`."
+  - id: INF-007
+    section: "2"
+    citation: source.md:19
+    quote: "The path is derivable from the document alone, so a session that loses a flag still finds the ledger, and `init` refuses when one exists (`E-EXISTS`): a lost flag can never restart a first review"
+  - id: INF-008
+    section: "2"
+    citation: source.md:19
+    quote: "For S1: `.dev/orca-command-refactor/specs/orca-worker-contract-spec.review-ledger/`."
+  - id: INF-009
+    section: "2"
+    citation: source.md:23
+    quote: "**Review 1 (FIND, the only full find pass).** Fresh reviewer session."
+  - id: INF-010
+    section: "2"
+    citation: source.md:23
+    quote: "`init --doc D --profile spec-panel` snapshots `D` as `r1.md` and prints `review: 1 of 3`."
+  - id: INF-011
+    section: "2"
+    citation: source.md:23
+    quote: "The panel runs unchanged over the whole document."
+  - id: INF-012
+    section: "2"
+    citation: source.md:23
+    quote: "Each finding becomes a row in `inputs/r1-find.json` with `grade` (CRITICAL/MAJOR/MINOR), `rule` (for example FR-8), `wrong_outcome` and an exact anchor quote; `find` checks each anchor is present once (`E-ANCHOR`, `E-ANCHOR-AMBIGUOUS`), and the profile, not the model, computes `blocking = grade == CRITICAL or rule in {FR-8, FR-9} or (grade == MAJOR and wrong_outcome non-empty)`, which is 427's grading rule (`spec-panel.md:259`) made a formula."
+  - id: INF-013
+    section: "2"
+    citation: source.md:23
+    quote: "Non-blocking rows are stored `deferred`."
+  - id: INF-014
+    section: "2"
+    citation: source.md:23
+    quote: "`close --report R1` appends the script tail (rendered ledger, Reviser brief, decision line) to the report."
+  - id: INF-015
+    section: "2"
+    citation: source.md:24
+    quote: "**Revise 1.** Separate reviser session, brief unchanged. It edits `D` from the Reviser brief in the report."
+  - id: INF-016
+    section: "2"
+    citation: source.md:24
+    quote: "Running `answer` (claim hunks per blocking row) is optional, because the S1 reviser briefs run no script."
+  - id: INF-017
+    section: "2"
+    citation: source.md:24
+    quote: "Answers on a `deferred` row are refused (`E-ILLEGAL`), so a minor row can never be \"fixed\" through the ledger."
+  - id: INF-018
+    section: "2"
+    citation: source.md:25
+    quote: "**Review 2 (VERIFY).** Fresh reviewer session."
+  - id: INF-019
+    section: "2"
+    citation: source.md:25
+    quote: "`begin --doc D` snapshots `r2.md`, diffs it against `r1.md` (difflib, whitespace-insensitive, old and new ranges, deletion tombstones), applies reviser answers, then **auto-claims** every remaining hunk that overlaps an open blocking row's anchor span widened to its enclosing paragraph (this is what lets a cycle progress when the reviser never ran `answer`)."
+  - id: INF-020
+    section: "2"
+    citation: source.md:25
+    quote: "Hunks no blocking row claims are **unclaimed**: reported with their bytes, and restored to the snapshot text only when the invocation carries `--revert-unclaimed`"
+  - id: INF-021
+    section: "2"
+    citation: source.md:25
+    quote: "`begin` writes `plan-r2.md`: every blocking row still open, its frozen grade and wrong outcome, its old anchor and the old and new text of its hunks, plus the unclaimed hunks."
+  - id: INF-022
+    section: "2"
+    citation: source.md:25
+    quote: "The verifier answers every plan row once with `resolved`, `open`, `regressed` or `cannot-verify`, an evidence quote that must exist in the new snapshot, and `touched_ok` (did the change break the sentence it touched; `no` requires a child row)."
+  - id: INF-023
+    section: "2"
+    citation: source.md:25
+    quote: "Then one **new-defect check** over this round's hunks only, both diff sides."
+  - id: INF-024
+    section: "2"
+    citation: source.md:25
+    quote: "A new row anchored inside a hunk is `scope=in` and can block (`origin=changed`, `caused_by` = the rows that claimed the hunk)."
+  - id: INF-025
+    section: "2"
+    citation: source.md:25
+    quote: "An allegation outside the hunks is not refused: it is stored `scope=outside`, never blocks, and is counted in the measurement headline, so nothing lives only in report prose."
+  - id: INF-026
+    section: "2"
+    citation: source.md:25
+    quote: "`verify` refuses a missing plan answer (`E-INCOMPLETE`). `close` computes the decision."
+  - id: INF-027
+    section: "2"
+    citation: source.md:26
+    quote: "**Revise 2.** As revise 1."
+  - id: INF-028
+    section: "2"
+    citation: source.md:27
+    quote: "**Review 3 (VERIFY, last).** As review 2 against `r2.md`; the decision can only be PASS or ESCALATE."
+  - id: INF-029
+    section: "2"
+    citation: source.md:28
+    quote: "**Final sweep (once, not a review, never looped).** A fresh context that has not read the ledger critiques the whole accepted snapshot, given as a copy in a temporary folder by `sweep --prepare`."
+  - id: INF-030
+    section: "2"
+    citation: source.md:28
+    quote: "Its rows are stored `deferred` with `round_found=sweep` and a location class (`in_claimed_span`, `in_unclaimed_hunk`, `outside_hunks`)."
+  - id: INF-031
+    section: "2"
+    citation: source.md:28
+    quote: "A blocking sweep row, or a sweep challenge to a verified row, makes the **delivery outcome** ESCALATE; it never opens a cycle."
+  - id: INF-032
+    section: "2"
+    citation: source.md:28
+    quote: "The sweep is skipped only after a review-1 PASS with the document unchanged."
+  - id: INF-033
+    section: "2"
+    citation: source.md:30
+    quote: "**Status transitions (only the script writes; merged s3 has the full T1 to T12 table).**"
+  - id: INF-034
+    section: "2"
+    citation: source.md:34
+    quote: "| none | `open` / `deferred` | `find` (review 1), `verify` new row (reviews 2, 3), `sweep` (always `deferred`) | anchor absent or repeated; a verify row outside the hunks becomes `scope=outside`, `deferred` |"
+  - id: INF-035
+    section: "2"
+    citation: source.md:35
+    quote: "| `open`, `reopened` | `fixed` | reviser `answer`, or the script's auto-claim at `begin` | row not blocking or not listed; claim wider than the row's paragraph (`E-CLAIM-WIDE`); a `fixed` answer with no edit in the span (`E-FIXED-NO-EDIT`) |"
+  - id: INF-036
+    section: "2"
+    citation: source.md:36
+    quote: "| `fixed` | `verified` | verifier `resolved` | evidence quote not in the new snapshot; anchor unmappable |"
+  - id: INF-037
+    section: "2"
+    citation: source.md:37
+    quote: "| `fixed` | `open` or `reopened` | verifier `open` (`reopened` if the row was ever verified, from history) | no reason or quote |"
+  - id: INF-038
+    section: "2"
+    citation: source.md:38
+    quote: "| `verified` | `fixed` | script at `begin`, when this round's hunk touches the row's span | never; then `regressed` is allowed |"
+  - id: INF-039
+    section: "2"
+    citation: source.md:39
+    quote: "| `verified` (untouched) | `reopened` | nobody | `E-NOT-CHANGED`: accepted text cannot be re-attacked |"
+  - id: INF-040
+    section: "2"
+    citation: source.md:40
+    quote: "| `deferred` | anything | nobody | `E-ILLEGAL` |"
+  - id: INF-041
+    section: "2"
+    citation: source.md:41
+    quote: "| any frozen field | changed | nobody | `E-FROZEN` (frozen at creation: id, grade, rule, wrong_outcome, blocking, anchor, origin, scope, caused_by, finding text) |"
+  - id: INF-042
+    section: "2"
+    citation: source.md:42
+    quote: "| any loop step after a terminal decision | | nobody | `E-TERMINAL` (only the single sweep and `status` run after it) |"
+  - id: INF-043
+    section: "2"
+    citation: source.md:44
+    quote: "A dispute is a flag on a claim, not a status; the verifier rules on it, and an unruled dispute at the cap counts as open."
+  - id: INF-044
+    section: "2"
+    citation: source.md:44
+    quote: "`ledger.json` carries `body_sha256`; a hand edit is refused `E-TAMPERED`."
+  - id: INF-045
+    section: "2"
+    citation: source.md:44
+    quote: "Mutations hold a nonblocking per-ledger lock and take `--op` and `--expect-seq`; an identical retry returns the committed result instead of using a slot."
+  - id: INF-046
+    section: "2"
+    citation: source.md:46
+    quote: "**Termination, computed by the script after each review k (k = 1, 2, 3):**"
+  - id: INF-047
+    section: "2"
+    citation: source.md:49
+    quote: "U = rows with blocking and scope == in and status in {open, fixed, reopened}"
+  - id: INF-048
+    section: "2"
+    citation: source.md:50
+    quote: "X = cannot-verify answers this round + unmappable anchors + failed revert preimages"
+  - id: INF-049
+    section: "2"
+    citation: source.md:51
+    quote: "I = ledger hash valid and snapshots intact and every plan row answered"
+  - id: INF-050
+    section: "2"
+    citation: source.md:52
+    quote: "loop_decision = ESCALATE  if not I or X > 0"
+  - id: INF-051
+    section: "2"
+    citation: source.md:53
+    quote: "PASS      if U == 0"
+  - id: INF-052
+    section: "2"
+    citation: source.md:54
+    quote: "CONTINUE  if k < 3"
+  - id: INF-053
+    section: "2"
+    citation: source.md:55
+    quote: "ESCALATE  otherwise"
+  - id: INF-054
+    section: "2"
+    citation: source.md:56
+    quote: "after the sweep: S = blocking sweep rows + blocking sweep challenges to verified rows"
+  - id: INF-055
+    section: "2"
+    citation: source.md:57
+    quote: "delivery_outcome = ESCALATE if loop_decision == ESCALATE or S > 0, else PASS"
+  - id: INF-056
+    section: "2"
+    citation: source.md:60
+    quote: "The review counter advances only on a committed `begin`; a fourth review or a third fix cycle is refused (`E-CAP`, constant `CAP_REVIEWS = 3` tied by a test to the pinned text `at most 2 fix cycles (3 reviews), then escalate to the user with the open blocking findings`, `tests/skills/test_review_severity_rule.py:215`)."
+  - id: INF-057
+    section: "2"
+    citation: source.md:60
+    quote: "The sweep is outside the 3-review cap: it cannot start a fix cycle and its report header is `sweep`, never `review: 4 of 3`."
+  - id: INF-058
+    section: "2"
+    citation: source.md:60
+    quote: "There is no second computed stop (no \"count did not shrink\" halt)"
+  - id: INF-059
+    section: "2"
+    citation: source.md:60
+    quote: "The reviewer may write its own verdict (the S1 briefs ask for one); the script's tail is always the report's last lines: CONTINUE ends `verdict: FAIL`, a terminal review before the sweep ends `loop: PASS (sweep pending)` or `loop: ESCALATE (sweep pending)`, and the sweep report ends `verdict: PASS` or `verdict: FAIL` from the delivery outcome."
+  - id: INF-060
+    section: "2"
+    citation: source.md:60
+    quote: "`begin` refuses an edited tail (`E-REPORT-EDITED`)."
+  - id: INF-061
+    section: "2"
+    citation: source.md:60
+    quote: "The read-only `verdict` subcommand exits 0 PASS, 10 CONTINUE, 11 ESCALATE and, settled here (the merge left it open), **12 PENDING** while the loop is terminal but the sweep has not run, so no caller can read an early loop PASS as a delivery PASS."
+  - id: INF-062
+    section: "2"
+    citation: source.md:60
+    quote: "Every other committed operation exits 0 whatever the decision."
+  - id: INF-063
+    section: "2"
+    citation: source.md:62
+    quote: "The ledger moves five duties to the script: the row list and statuses (a plan file instead of a re-read report), the origin tag (computed from hunks), the baseline and counter (script snapshots), the scope (rows outside hunks cannot block), and the verdict (computed, last line)."
+  - id: INF-064
+    section: "2"
+    citation: source.md:62
+    quote: "Grade is frozen per row, so it cannot drift upward between rounds."
+  - id: INF-065
+    section: "2"
+    citation: source.md:68
+    quote: "| Fresh whole-document re-review after each fix | removed for reviews 2 and 3; replaced by one sweep that cannot loop | MECHANICAL |"
+  - id: INF-066
+    section: "2"
+    citation: source.md:70
+    quote: "| Severity drift between rounds | removed for existing rows (`E-FROZEN`); left for new rows, graded once by a model | MECHANICAL / PROSE |"
+  - id: INF-067
+    section: "2"
+    citation: source.md:71
+    quote: "| Reviser applies minor findings | removed outside blocking paragraphs (unclaimed, reverted with the flag); LEFT inside a blocking row's paragraph (auto-claim admits it) | MECHANICAL, with a leak |"
+  - id: INF-068
+    section: "2"
+    citation: source.md:73
+    quote: "| No mechanical stop; verdict is reviewer judgement | removed: counter, cap, terminal phase, computed last line | MECHANICAL |"
+  - id: INF-069
+    section: "2"
+    citation: source.md:75
+    quote: "**Stateful single reviewer vs file ledger: file ledger, recommended.**"
+  - id: INF-070
+    section: "3"
+    citation: source.md:79
+    quote: "All additive. Nothing existing is edited: `src/superclaude/commands/spec-panel.md`, its `plugins/` copy, `HOW-WE-WORK.md`, the severity pins and routing stay as they are until S1 proves the variant."
+  - id: INF-071
+    section: "3"
+    citation: source.md:83
+    quote: "| `src/superclaude/commands/spec-panel-ledger.md` (new) | Copy of `spec-panel.md` with three blocks changed (below). |"
+  - id: INF-072
+    section: "3"
+    citation: source.md:84
+    quote: "| `src/superclaude/skills/sc-review-ledger/SKILL.md` (new) | Delegate-only skill (no slash command, like `sc-bare-review`): ledger layout, input schemas, `PROFILES`, transition table, CLI, how to add a profile. |"
+  - id: INF-073
+    section: "3"
+    citation: source.md:85
+    quote: "| `src/superclaude/skills/sc-review-ledger/scripts/review_ledger.py` (new) | The kernel. Stdlib only (`argparse`, `json`, `hashlib`, `difflib`, `fcntl`, `os`, `pathlib`, `re`). |"
+  - id: INF-074
+    section: "3"
+    citation: source.md:86
+    quote: "| `tests/skills/test_review_ledger_script.py` (new) | Behaviour tests, loading the script by path as `tests/skills/test_workflow_archive.py` does. |"
+  - id: INF-075
+    section: "3"
+    citation: source.md:87
+    quote: "| `tests/skills/fixtures/review-ledger/` (new) | Tiny documents and input JSON for the edge cases. |"
+  - id: INF-076
+    section: "3"
+    citation: source.md:88
+    quote: "| `tests/skills/test_spec_panel_ledger_command.py` (new) | Text pins and the drift test. |"
+  - id: INF-077
+    section: "3"
+    citation: source.md:89
+    quote: "| `docs/designs/spec-panel-ledger.md` (new, after approval) | This design. |"
+  - id: INF-078
+    section: "3"
+    citation: source.md:91
+    quote: "so the script reaches `~/.claude/skills/sc-review-ledger/scripts/`."
+  - id: INF-079
+    section: "3"
+    citation: source.md:91
+    quote: "The skill must not be named `sc-spec-panel-ledger`"
+  - id: INF-080
+    section: "3"
+    citation: source.md:94
+    quote: "Frontmatter `name: spec-panel-ledger`, description \"... with a script-kept finding ledger (find once, then verify)\"."
+  - id: INF-081
+    section: "3"
+    citation: source.md:95
+    quote: "Usage line: drop `[--re-review <prior-findings-file> --baseline <saved-copy>]`, add `[--ledger <dir>] [--revert-unclaimed] [--sweep]`; drop the `--unattended` usage line."
+  - id: INF-082
+    section: "3"
+    citation: source.md:95
+    quote: "`## Unattended mode` is omitted, because `tests/skills/test_worker_contract.py:831-839` requires the set of commands with that heading to equal `UNATTENDED_COMMANDS`; instead the new section's first line refuses a standalone `--unattended` token (\"spec-panel-ledger has no unattended mode\") so it is never silently ignored."
+  - id: INF-083
+    section: "3"
+    citation: source.md:96
+    quote: "`## Review Loop` replaced by `## Review Ledger Loop`, one line per bullet so the repo's line matchers see each whole:"
+  - id: INF-084
+    section: "3"
+    citation: source.md:97
+    quote: "**Setup**: critique only; invoke `Skill sc-review-ledger` (`~/.claude/skills/` first, then the project `.claude/skills/`); the ledger is `--ledger` or `<doc dir>/<doc stem>.review-ledger/`; run `init` if absent, else `begin`; a refusal stops the run and never falls back to a first review."
+  - id: INF-085
+    section: "3"
+    citation: source.md:98
+    quote: "**Find**: the full panel; each finding becomes a row with grade, rule, wrong outcome and an exact anchor quote; the script decides what blocks."
+  - id: INF-086
+    section: "3"
+    citation: source.md:99
+    quote: "**Verify**: answer every row in `plan-r<k>.md`; run one new-defect check on this round's hunks; anything else is filed `scope=outside`."
+  - id: INF-087
+    section: "3"
+    citation: source.md:100
+    quote: "**Sweep**: run only on the copy that `sweep --prepare` prints; never open the ledger folder."
+  - id: INF-088
+    section: "3"
+    citation: source.md:101
+    quote: "**Report**: write what the brief asks; never edit the lines `close` appends."
+  - id: INF-089
+    section: "3"
+    citation: source.md:102
+    quote: "**Cap**: `at most 2 fix cycles (3 reviews), then escalate to the user with the open blocking findings`, then `HALT and escalate to the user with the open blocking findings` (both verbatim); `review: N of 3` comes from the script."
+  - id: INF-090
+    section: "3"
+    citation: source.md:103
+    quote: "**Reviser contract**: revise only text a listed blocking row names; minor rows are not answerable; unclaimed edits are reported and, with `--revert-unclaimed`, restored."
+  - id: INF-091
+    section: "3"
+    citation: source.md:104
+    quote: "**Precedence**: a brief may narrow this scope, not widen it, and cannot change a grade or a script verdict."
+  - id: INF-092
+    section: "3"
+    citation: source.md:106
+    quote: "Output is one JSON object on stdout (`{ok, seq, phase, review, fix_cycles, counts, loop_decision, delivery_outcome, next_action}` or `{error, detail, next_action}`)."
+  - id: INF-093
+    section: "3"
+    citation: source.md:106
+    quote: "Exit codes: 0 committed (whatever the decision); 1 usage; 2 input refused (row level); 3 state refused; 4 lock or sequence conflict; `verdict` alone uses 0/10/11/12 (PASS/CONTINUE/ESCALATE/PENDING)."
+  - id: INF-094
+    section: "3"
+    citation: source.md:110
+    quote: "| `init --doc D --profile spec-panel [--archive-existing]` | review 1 | creates ledger, `r1.md` | `E-EXISTS` (rerun needs `--archive-existing`, which renames the old folder) |"
+  - id: INF-095
+    section: "3"
+    citation: source.md:111
+    quote: "| `find --input F` | review 1 | adds rows, computes `blocking`, defers the rest; accepts `[]` | `E-ANCHOR`, `E-ANCHOR-AMBIGUOUS`, `E-SCHEMA`, `E-PHASE` |"
+  - id: INF-096
+    section: "3"
+    citation: source.md:112
+    quote: "| `answer --input F` | reviser (optional) | claims hunks per blocking row; optional `gap` entries | `E-ILLEGAL`, `E-CLAIM-WIDE`, `E-FIXED-NO-EDIT`, `E-TERMINAL` |"
+  - id: INF-097
+    section: "3"
+    citation: source.md:113
+    quote: "| `begin --doc D [--revert-unclaimed]` | reviews 2, 3 | snapshot, diff, auto-claim, optional revert, writes `plan-r<k>.md` | `E-TAMPERED`, `E-REPORT-EDITED`, `E-CAP`, `E-TERMINAL` |"
+  - id: INF-098
+    section: "3"
+    citation: source.md:114
+    quote: "| `verify --input F` | reviews 2, 3 | applies answers, adds `scope=in` and `scope=outside` rows | `E-INCOMPLETE`, `E-ANCHOR`, `E-FROZEN`, `E-NOT-CHANGED` |"
+  - id: INF-099
+    section: "3"
+    citation: source.md:115
+    quote: "| `close --report R` | each review | computes `loop_decision`, appends the tail and its digest | `E-PHASE` |"
+  - id: INF-100
+    section: "3"
+    citation: source.md:116
+    quote: "| `sweep --prepare` / `sweep --input F --report R` | session holding the ledger | copy for the sweep; ingests sweep rows, sets `delivery_outcome`, re-checks every prior tail | `E-SWEEP-DONE`, `E-PHASE` |"
+  - id: INF-101
+    section: "3"
+    citation: source.md:117
+    quote: "| `status`, `verdict` | anyone | read-only counts, metrics, post-terminal edits by hash | none |"
+  - id: INF-102
+    section: "3"
+    citation: source.md:118
+    quote: "| `revert-unclaimed [--hunk k]`, `defer --id --quote` | reviser; coordinator | restore own unclaimed hunk (preimage-checked); record a user's words (no status change) | `E-PHASE` |"
+  - id: INF-103
+    section: "3"
+    citation: source.md:120
+    quote: "Writes: temp file, fsync, `os.replace`, under `fcntl.flock` on `.lock`; idempotency by request digest within phase and round."
+  - id: INF-104
+    section: "3"
+    citation: source.md:120
+    quote: "No event log, no git calls (snapshots are copies because a `.dev/` document may be untracked, `docs/designs/spec-panel-review-loop.md:50`)."
+  - id: INF-105
+    section: "3"
+    citation: source.md:123
+    quote: "Script: every transition and refusal code"
+  - id: INF-106
+    section: "3"
+    citation: source.md:123
+    quote: "the blocking formula for CRITICAL, FR-8 with MINOR, MAJOR with and without wrong outcome, MINOR"
+  - id: INF-107
+    section: "3"
+    citation: source.md:123
+    quote: "auto-claim with zero, one and two rows; paragraph admission on a pure rewrap"
+  - id: INF-108
+    section: "3"
+    citation: source.md:123
+    quote: "unclaimed hunks kept without the flag and restored with it; failed preimage gives `cannot-verify`"
+  - id: INF-109
+    section: "3"
+    citation: source.md:123
+    quote: "`scope=outside`; `E-TERMINAL`; empty `find`; zero-hunk round; half-open range and deletion edges; anchor relocation ending missing or ambiguous"
+  - id: INF-110
+    section: "3"
+    citation: source.md:123
+    quote: "identical retry under a new op id; stale sequence; two writers; `E-TAMPERED`; `E-REPORT-EDITED`"
+  - id: INF-111
+    section: "3"
+    citation: source.md:123
+    quote: "`verdict` exit 12 before the sweep; `CAP_REVIEWS == 3` tied to `CANONICAL_CAP_TEXT`."
+  - id: INF-112
+    section: "3"
+    citation: source.md:124
+    quote: "Command: `CANONICAL_CAP_TEXT` and `AT_CAP_CLAUSES[1]` present (imported from `tests/skills/test_review_severity_rule.py`)"
+  - id: INF-113
+    section: "3"
+    citation: source.md:124
+    quote: "eight one-line bullets in order; subcommand and flag names present"
+  - id: INF-114
+    section: "3"
+    citation: source.md:124
+    quote: "the `--unattended` refusal line present; no `## Unattended mode`"
+  - id: INF-115
+    section: "3"
+    citation: source.md:124
+    quote: "no `src/superclaude` path; dual lookup order"
+  - id: INF-116
+    section: "3"
+    citation: source.md:124
+    quote: "none of the banned severity phrases and no cap number above 2 (that test scans all of `src/`)."
+  - id: INF-117
+    section: "3"
+    citation: source.md:125
+    quote: "Drift test: the variant equals `spec-panel.md` outside the frontmatter name and description, the Usage block, the loop section and `## Unattended mode`, so the copied panel cannot silently diverge."
+  - id: INF-118
+    section: "3"
+    citation: source.md:127
+    quote: "**Later adopters (not in this change; each a separate change gated on S1).**"
+  - id: INF-119
+    section: "3"
+    citation: source.md:127
+    quote: "The kernel knows no spec-panel words: an adopter adds one `PROFILES` row (grade vocabulary, blocking predicate, cap, ordered stop guards) and a short adapter section."
+  - id: INF-120
+    section: "3"
+    citation: source.md:128
+    quote: "**rf-qa agents** (`src/superclaude/agents/rf-qa.md:379-416`): first adopter after spec-panel."
+  - id: INF-121
+    section: "3"
+    citation: source.md:128
+    quote: "the ledger replaces \"the previous QA report\" with `plan-r<k>.md`, step 5's verdict with `verdict`, and its prose monotonicity halt `|F_{n+1}| < |F_n|` (`:401`) with a profile guard run in rf-qa's own order (regression first, `:407`)."
+  - id: INF-122
+    section: "3"
+    citation: source.md:129
+    quote: "**`/sc:reflect`**: rows created only from findings that pass its evidence-validator gate"
+  - id: INF-123
+    section: "3"
+    citation: source.md:129
+    quote: "A ledger PASS never authorizes promotion."
+  - id: INF-124
+    section: "3"
+    citation: source.md:130
+    quote: "**`/sc:implement` final review**: not adopted."
+  - id: INF-125
+    section: "4"
+    citation: source.md:134
+    quote: "**Name**: `spec-panel-ledger`, invoked as `/sc:spec-panel-ledger`; source `src/superclaude/commands/spec-panel-ledger.md`; installed copy `~/.claude/commands/sc/spec-panel-ledger.md`, next to the unchanged `~/.claude/commands/sc/spec-panel.md`."
+  - id: INF-126
+    section: "4"
+    citation: source.md:134
+    quote: "Its skill installs to `~/.claude/skills/sc-review-ledger/` (with `scripts/review_ledger.py`)."
+  - id: INF-127
+    section: "4"
+    citation: source.md:135
+    quote: "The original file is never edited by the experiment."
+  - id: INF-128
+    section: "4"
+    citation: source.md:136
+    quote: "copy `spec-panel-ledger.md` into `~/.claude/commands/sc/` and the `sc-review-ledger/` folder into `~/.claude/skills/`; record their sha256 in the install watcher."
+  - id: INF-129
+    section: "4"
+    citation: source.md:136
+    quote: "Nothing else in `~/.claude/` changes; no `superclaude install`."
+  - id: INF-130
+    section: "4"
+    citation: source.md:137
+    quote: "**The one-line substitution** (in the three S1 review briefs only; reviser briefs stay verbatim):"
+  - id: INF-131
+    section: "4"
+    citation: source.md:140
+    quote: "/sc:spec-panel-ledger --ledger .dev/orca-command-refactor/specs/orca-worker-contract-spec.review-ledger --revert-unclaimed"
+  - id: INF-132
+    section: "4"
+    citation: source.md:143
+    quote: "All other flags on the line (`@<spec> --mode critique --focus requirements,architecture`) stay. No `--re-review`, no `--baseline`."
+  - id: INF-133
+    section: "4"
+    citation: source.md:143
+    quote: "`--revert-unclaimed` is the consent that lets `begin` restore edits no blocking row claims; it is part of the treatment and is recorded as such."
+  - id: INF-134
+    section: "4"
+    citation: source.md:144
+    quote: "if a throwaway dispatched worker with the T09 wrapper can spawn an Agent-tool subagent and keep its 5-minute heartbeat, the sweep is a subagent of the terminal review session (still 5 dispatches)."
+  - id: INF-135
+    section: "4"
+    citation: source.md:144
+    quote: "Otherwise it is a sixth dispatch, `/sc:spec-panel-ledger @<spec> --mode critique --focus requirements,architecture --ledger <same path> --sweep`, declared as a deviation."
+  - id: INF-136
+    section: "5"
+    citation: source.md:148
+    quote: "identical to Arm B as fixed in `DECISIONS.md` D11 (S1, base commit 2cb683f5, overlay, verbatim briefs T05 to T09, model claude-opus-5-5, `WORKER-CONTRACT.md` moved aside, install watcher), except the three recorded differences: the one-line substitution of section 4, the `--revert-unclaimed` flag inside it, and the sweep route."
+  - id: INF-137
+    section: "5"
+    citation: source.md:148
+    quote: "Comparators, reused: control ctl-r1/ctl-r2 and Arm B flg-r1/flg-r2."
+  - id: INF-138
+    section: "5"
+    citation: source.md:148
+    quote: "Reruns of an aborted replicate use `init --archive-existing`, never a manual delete."
+  - id: INF-139
+    section: "5"
+    citation: source.md:151
+    quote: "Smoke check for the sweep route (section 4)."
+  - id: INF-140
+    section: "5"
+    citation: source.md:152
+    quote: "Baseline sweeps: run the same sweep (a whole-document `/sc:spec-panel` critique on a copy) on the FINAL spec of all six existing replicates."
+  - id: INF-141
+    section: "5"
+    citation: source.md:152
+    quote: "If it is 3 or more, the combined bar cannot be met by the ledger alone, and the loop number and the sweep number are reported separately as the primary result."
+  - id: INF-142
+    section: "5"
+    citation: source.md:153
+    quote: "Hunk parity: run the script's diff on the three S1 history pairs (`exp346-ab-flg-r2/.dev/orca-command-refactor/specs/history/`) and fix the paragraph unit and the `HUNKS_LARGE` threshold from them."
+  - id: INF-143
+    section: "5"
+    citation: source.md:155
+    quote: "V1-ledger: `ledger.json` shows rounds 1 to 3 (or an earlier terminal decision), the snapshots, and a sweep record; a replicate whose sessions never ran the script is \"ledger not honoured\" and is not treatment"
+  - id: INF-144
+    section: "5"
+    citation: source.md:155
+    quote: "A sweep report that cites a ledger row id fails V1-ledger (the sweep read the ledger)."
+  - id: INF-145
+    section: "5"
+    citation: source.md:155
+    quote: "A blinded audit of `wrong_outcome` texts: more than 30% judged filler marks the replicate \"grading not honoured\"."
+  - id: INF-146
+    section: "5"
+    citation: source.md:155
+    quote: "Also recorded: command, skill and script sha256; auto-claim count per cycle; every reviewer-vs-script verdict disagreement; one `status` after the last dispatch."
+  - id: INF-147
+    section: "5"
+    citation: source.md:157
+    quote: "D5 M1 to M5 (`DECISIONS.md:23`), read from the ledger, not from report prose"
+  - id: INF-148
+    section: "5"
+    citation: source.md:157
+    quote: "Plus: unclaimed and reverted bytes per cycle, `minor_touched` (edits inside a deferred row's span, split by \"answered\" and \"auto-claimed\"), `scope=outside` count, `X` count, script calls, sessions and wall time per step."
+  - id: INF-149
+    section: "5"
+    citation: source.md:159
+    quote: "The headline is therefore the union, each defect counted once:"
+  - id: INF-150
+    section: "5"
+    citation: source.md:160
+    quote: "`U3`: CRITICAL or MAJOR rows (by grade, as Arm B's proxy counted by grade, `ARMB-REPORT.md:37`) not `verified` after review 3, child rows included;"
+  - id: INF-151
+    section: "5"
+    citation: source.md:161
+    quote: "`W`: sweep CRITICAL or MAJOR rows plus sweep challenges to verified rows;"
+  - id: INF-152
+    section: "5"
+    citation: source.md:162
+    quote: "`O`: `scope=outside` CRITICAL or MAJOR rows (verify-time allegations outside the hunks)."
+  - id: INF-153
+    section: "5"
+    citation: source.md:163
+    quote: "Duplicates between sets are ruled by a blinded analyst; the raw and auto-matched counts are published as bounds."
+  - id: INF-154
+    section: "5"
+    citation: source.md:163
+    quote: "that **deferred floor** is published separately, the bar is applied to the headline without it, and the control's comparable number (control MAJOR findings without a concrete wrong outcome) is computed by the same rubric."
+  - id: INF-155
+    section: "5"
+    citation: source.md:163
+    quote: "A run that ends early is counted at its terminal review. `U3` alone is the analogue of Arm B's hunk-scoped review 3 and is reported beside the headline."
+  - id: INF-156
+    section: "5"
+    citation: source.md:166
+    quote: "(a) **Ledger plus 427 vs control**: headline mean at most 3 (half the control's 6.0), growth after two fix cycles at most 44.4%, effect larger than the larger within-arm spread, and every ledger replicate better than both control replicates on both."
+  - id: INF-157
+    section: "5"
+    citation: source.md:167
+    quote: "(b) **The ledger's own effect vs Arm B** (the ledger carries 427's grading, so (a) credits both): headline mean below Arm B's 3.5 and growth at most 30.0%."
+  - id: INF-158
+    section: "5"
+    citation: source.md:168
+    quote: "Pre-registered per replicate: B1 (blocking rows after review 1) and r1, r2 (new blocking rows per blocking fix in cycles 1 and 2)."
+  - id: INF-159
+    section: "5"
+    citation: source.md:186
+    quote: "Headline mean 4 or more, or not below Arm B's 3.5: the ledger adds nothing over 427 with flags on convergence."
+  - id: INF-160
+    section: "5"
+    citation: source.md:187
+    quote: "The ledger sweep finds on average 2 or more CRITICAL+MAJOR rows more than the baseline sweeps: verify-only hid defects instead of preventing them."
+  - id: INF-161
+    section: "5"
+    citation: source.md:188
+    quote: "Growth above 30.0% after reverted bytes are shown: the minor-row rule did not cut text."
+  - id: INF-162
+    section: "5"
+    citation: source.md:189
+    quote: "`minor_touched` above 0 through answered claims with `--revert-unclaimed` on: the scope rule leaked mechanically."
+  - id: INF-163
+    section: "5"
+    citation: source.md:190
+    quote: "A loop stalled by a script refusal with no recovery path in either replicate."
+  - id: INF-164
+    section: "5"
+    citation: source.md:191
+    quote: "A replicate that fails V1-ledger or the wrong-outcome audit is not treatment (it is rerun), not a failure. Results inside both arms' spreads are \"not significant\" (D6)."
+  - id: INF-165
+    section: "5"
+    citation: source.md:193
+    quote: "`U3` below 3.5 in both replicates with growth at most 30%, the sweep no larger than the baseline sweeps, zero `minor_touched` through answers, and zero verdict computed by a model."
+  - id: INF-166
+    section: "6"
+    citation: source.md:197
+    quote: "**Cost per loop (estimates; measure as M5).**"
+  - id: INF-167
+    section: "6"
+    citation: source.md:204
+    quote: "Mitigation: `scope=outside` rows and the sweep enter the headline; baseline sweeps measure the hidden share."
+  - id: INF-168
+    section: "6"
+    citation: source.md:205
+    quote: "Measured by the wrong-outcome audit, not prevented."
+  - id: INF-169
+    section: "6"
+    citation: source.md:209
+    quote: "Unclaimed hunks and failed reverts never stall (they report or become `cannot-verify`), but one `cannot-verify` ends the loop as ESCALATE."
+  - id: INF-170
+    section: "6"
+    citation: source.md:210
+    quote: "Every disagreement is recorded."
+  - id: INF-171
+    section: "6"
+    citation: source.md:217
+    quote: "| Ledger written only by the script; hash refuses hand edits | MECHANICAL | detects, does not prevent, a determined editor |"
+  - id: INF-172
+    section: "6"
+    citation: source.md:218
+    quote: "| Blocking computed from grade, rule and wrong outcome; non-blocking rows deferred and unanswerable | MECHANICAL | the grade and the wrong-outcome text are still model judgement |"
+  - id: INF-173
+    section: "6"
+    citation: source.md:219
+    quote: "| Grade and anchor frozen | MECHANICAL | locks first-pass errors |"
+  - id: INF-174
+    section: "6"
+    citation: source.md:220
+    quote: "| Every plan row answered; evidence quote present in the snapshot | MECHANICAL | proves the text was opened, not that it was judged well (\"yes, yes\" answers) |"
+  - id: INF-175
+    section: "6"
+    citation: source.md:221
+    quote: "| New blocking rows only inside this round's hunks | MECHANICAL | interaction defects become non-blocking |"
+  - id: INF-176
+    section: "6"
+    citation: source.md:222
+    quote: "| Unclaimed edits reported; reverted with the flag | MECHANICAL | edits inside a blocking paragraph are admitted |"
+  - id: INF-177
+    section: "6"
+    citation: source.md:223
+    quote: "| Counter, cap, terminal phase, computed last line | MECHANICAL | a coordinator that ignores refusals and dispatches anyway |"
+  - id: INF-178
+    section: "6"
+    citation: source.md:224
+    quote: "| Verifier does not run a whole-document panel | PROSE | it may anyway; its out-of-hunk rows are then counted, not hidden |"
+  - id: INF-179
+    section: "6"
+    citation: source.md:225
+    quote: "| Sweep context does not open the ledger | PROSE, partly checked | detected only when the sweep report cites a row id |"
+  - id: INF-180
+    section: "6"
+    citation: source.md:226
+    quote: "| Reviewer, reviser and sweep are different sessions | PROSE | the script knows the subcommand, not the session |"
+  - id: INF-181
+    section: "6"
+    citation: source.md:227
+    quote: "| Reviser adds no mechanism inside a blocking fix | PROSE | the main remaining cause; bytes per claim are only measured |"
+  - id: INF-182
+    section: "6"
+    citation: source.md:229
+    quote: "The cleanest single test: if `U3` (the loop's own count) is not below Arm B's 3.5 in both replicates, the ledger adds nothing to convergence beyond what 427 with flags already does, and only its mechanical stop and honest counting remain as reasons to keep it."
+  - id: INF-183
+    section: "7"
+    citation: source.md:233
+    quote: "Decides 5 or 6 sessions and whether S1's dispatch list changes (UNVERIFIED; one smoke check settles it)."
+  - id: INF-184
+    section: "7"
+    citation: source.md:234
+    quote: "The default without the flag only reports."
+  - id: INF-185
+    section: "7"
+    citation: source.md:235
+    quote: "This design applies it without, and publishes the floor beside it; this must be fixed before replicate 1."
+  - id: INF-186
+    section: "7"
+    citation: source.md:237
+    quote: "Calibrate on the S1 history pairs."
+  - id: INF-187
+    section: "7"
+    citation: source.md:238
+    quote: "Recommended: only on the user's word."
+  - id: INF-188
+    section: "7"
+    citation: source.md:239
+    quote: "Can the duplicate ruling, the deferred-floor reading of the control reports and the wrong-outcome audit be staffed before replicate 1? Without them only raw bounds exist."
+  - id: INF-189
+    section: "7"
+    citation: source.md:240
+    quote: "Confirm before any adopter work."
+  - id: INF-190
+    section: "7"
+    citation: source.md:241
+    quote: "That changes what the arm tests and must be decided before it runs."

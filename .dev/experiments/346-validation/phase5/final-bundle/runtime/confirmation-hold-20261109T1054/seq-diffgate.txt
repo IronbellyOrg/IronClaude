@@ -1,0 +1,19 @@
+S	begin1	bash /tmp/impl/s1v/dg.sh begin 1
+W	T05	/tmp/impl/s1v/briefs/diffgate/T05-R1-reviewer.txt
+S	check1	bash /tmp/impl/s1v/dg.sh check 1 .dev/orca-command-refactor/review/spec-panel.md
+W	T06	/tmp/impl/s1v/briefs/diffgate/T06-R1-reviser.txt
+S	fixcheck1	bash /tmp/impl/s1v/dg.sh fixcheck 1 .dev/orca-command-refactor/review/disposition.md
+S	hist-v2	cp -p .dev/orca-command-refactor/specs/orca-worker-contract-spec.md .dev/orca-command-refactor/specs/history/spec-v2-after-round1.md
+S	begin2	bash /tmp/impl/s1v/dg.sh begin 2
+P	fill-T07
+W	T07	/tmp/impl/s1v/briefs/diffgate/T07-R2-reviewer.filled.txt
+S	check2	bash /tmp/impl/s1v/dg.sh check 2 .dev/orca-command-refactor/review/spec-panel-round2.md
+P	fill-T08
+W	T08	/tmp/impl/s1v/briefs/diffgate/T08-R2-reviser.filled.txt
+S	fixcheck2	bash /tmp/impl/s1v/dg.sh fixcheck 2 .dev/orca-command-refactor/review/disposition-round2.md
+S	hist-v3	cp -p .dev/orca-command-refactor/specs/orca-worker-contract-spec.md .dev/orca-command-refactor/specs/history/spec-v3-after-round2.md
+S	begin3	bash /tmp/impl/s1v/dg.sh begin 3
+P	fill-T09
+W	T09	/tmp/impl/s1v/briefs/diffgate/T09-R3-reviewer.filled.txt
+S	check3	bash /tmp/impl/s1v/dg.sh check 3 .dev/orca-command-refactor/review/spec-panel-round3.md
+W	T11-frozen	/tmp/impl/s1v/briefs/diffgate/T11-frozen-audit.txt

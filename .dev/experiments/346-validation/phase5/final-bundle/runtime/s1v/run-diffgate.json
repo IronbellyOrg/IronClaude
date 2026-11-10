@@ -1,0 +1,22 @@
+{
+  "id": "1bfd076b-e26b-45cb-ade4-3e925837a65c",
+  "ok": true,
+  "result": {
+    "run": {
+      "id": "run_c51a03ef71a7",
+      "objective": "Issue 346 S1 re-run, variant diffgate",
+      "coordinator_handle": "term_2fbcd553-3087-47aa-a17c-afb98769d1dc",
+      "consumer_generation": 1,
+      "legacy": 0,
+      "created_at": "2026-11-08T23:42:28Z",
+      "updated_at": "2026-11-08T23:42:28Z"
+    },
+    "mutation": {
+      "requestId": "19bac69c-b60f-4a01-b1f6-9dc7bc12d534",
+      "replayed": false
+    }
+  },
+  "_meta": {
+    "runtimeId": "93e79a07-81c4-4ec7-a938-8038a2f29ed3"
+  }
+}

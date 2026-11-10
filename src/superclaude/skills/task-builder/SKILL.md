@@ -1023,7 +1023,7 @@ Agent:
          representation. See I21 for full applicability criteria.
       5. QA gate items MUST be explicit checklist items (`- [ ]`) in the
          task file, not prose descriptions.
-      6. All QA agent prompts include adversarial framing.
+      6. All QA agent prompts include independent framing (concrete defects with evidence, no minimum count).
       7. Scale agents UP for larger outputs per MDTM I19:
          <500 lines: 6 agents, 500-1500: 8, 1500-3000: 10, >3000: 12.
       8. Follow MDTM I20 (Serialized Fix Authorization): NEVER give

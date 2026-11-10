@@ -1,0 +1,18 @@
+2026-11-09T19:38:27 TIER tier2: gpt-6.1-sol status=500 kind=server count=1; error=Scripted internal server error
+2026-11-09T19:38:28 TIER tier2: gpt-6.1-sol status=500 kind=server count=2; error=Scripted internal server error
+2026-11-09T19:38:29 TIER tier2: gpt-6.1-sol status=500 kind=server count=3; error=Scripted internal server error
+2026-11-09T19:38:29 TIER tier2: gpt-6.1-sol -> next model; park_seconds=300 cooling down until 2026-11-09T19:43:29
+2026-11-09T19:38:29 TIER tier2: T2Model02 -> glm-5.3; answered status=200 count=0
+2026-11-09T19:38:29 RESPONSE backend served model=glm-5.3
+2026-11-09T19:39:23 TIER tier2: gpt-6.1-sol status=500 kind=server count=1; error=Scripted internal server error
+2026-11-09T19:39:23 TIER tier2: gpt-6.1-sol status=500 kind=server count=2; error=Scripted internal server error
+2026-11-09T19:39:24 TIER tier2: gpt-6.1-sol status=500 kind=server count=3; error=Scripted internal server error
+2026-11-09T19:39:24 TIER tier2: gpt-6.1-sol -> next model; park_seconds=300 cooling down until 2026-11-09T19:44:24
+2026-11-09T19:39:24 TIER tier2: T2Model02 -> glm-5.3; answered status=200 count=0
+2026-11-09T19:39:24 RESPONSE backend served model=glm-5.3
+2026-11-09T19:46:46 TIER tier2: gpt-6.1-sol status=500 kind=server count=1; error=Scripted internal server error
+2026-11-09T19:46:47 TIER tier2: gpt-6.1-sol status=500 kind=server count=2; error=Scripted internal server error
+2026-11-09T19:46:48 TIER tier2: gpt-6.1-sol status=500 kind=server count=3; error=Scripted internal server error
+2026-11-09T19:46:48 TIER tier2: gpt-6.1-sol -> next model; park_seconds=300 cooling down until 2026-11-09T19:51:48
+2026-11-09T19:46:48 RESPONSE backend served model=glm-5.3
+2026-11-09T19:46:48 TIER tier2: T2Model02 -> glm-5.3; answered status=200 count=0

@@ -1,0 +1,2 @@
+src/superclaude/skills/sc-fixcheck/scripts/fixcheck.py
+tests/skills/test_sc_fixcheck.py

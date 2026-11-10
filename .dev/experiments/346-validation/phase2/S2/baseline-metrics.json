@@ -1,0 +1,435 @@
+{
+  "scenario": "S2",
+  "incident": "I2 (logs team phase-1 report): review-severity-rule plan, three pre-reviews with /sc:reflect --mode pre",
+  "baseline": "ORIGINAL recorded run (session d6112a25, 2026-11-02, branch fix/review-severity-rule at f90877be), not a new run",
+  "metric_definitions": "../../DECISIONS.md section D5 (M1..M5)",
+  "basis_legend": {
+    "E": "read from evidence (report text, card file, log line) without further processing",
+    "D": "derived or counted by the analyst (script or arithmetic) from evidence",
+    "R": "re-derived by the analyst's own reading because the original reviewers did not label it (lower confidence)"
+  },
+  "evidence_prefixes": {
+    "MAIN": "/home/coder/.claude/projects/-home-coder-workspaces-IronClaude--dev-worktrees-review-severity-rule/d6112a25-4a8a-4e17-927c-5d7b39e2f6af.jsonl (jsonl line numbers)",
+    "SUB": "same folder, d6112a25-4a8a-4e17-927c-5d7b39e2f6af/subagents/agent-<id>.jsonl"
+  },
+  "severity_rule_in_force": "blocking/minor grading, only blocking fails, loop cap 2 fix cycles (3 reviews), then escalate (the reviewers' briefs and the worker's own run rule; see ANALYSIS.md section 4). The repo text at f90877be still contained the old any-severity rule, which is the subject of the plan, not the rule the loop applied.",
+  "loop_level": {
+    "M1_rounds_until_clean_pass": {
+      "value": null,
+      "reviews_run": 3,
+      "basis": "E",
+      "reason": "no review returned PASS; the cap of 3 reviews was reached and the worker escalated (MAIN L3368, escalation body baseline-outputs via briefs/R3-escalation-body__Write-L3358.txt; R3 report line 24)",
+      "verdicts": [
+        "FAIL",
+        "FAIL (status partial, run stopped on input drift)",
+        "FAIL"
+      ],
+      "stop_reason": "cap reached after 2 fix cycles; owner decision (MAIN L4141): add the 10 findings to the plan and implement, no fourth review"
+    },
+    "last_round_blocking": {
+      "value": 10,
+      "basis": "E"
+    },
+    "document_growth_over_loop": {
+      "start_to_last_reviewed": {
+        "bytes_pct": 34.4,
+        "lines_pct": 36.14,
+        "tasks_pct": 42.86
+      },
+      "start_to_post_loop_final": {
+        "bytes_pct": 59.37,
+        "lines_pct": 44.06,
+        "tasks_pct": 50.0
+      },
+      "basis": "D"
+    },
+    "total_blocking_findings_all_rounds": {
+      "value": 28,
+      "basis": "D",
+      "note": "11 + 7 + 10"
+    }
+  },
+  "round_0_outside_counted_loop": {
+    "what": "a pre-review by the earlier (stalled) worker of the superseded package TASK-WF-removeTheAnyIssu-20261031-235404; Tier 1, status partial (input drift); 4 blocking (C1-C4), 3 minor",
+    "basis": "E",
+    "evidence": "inputs/common/prior-pre-review-REPORT-20261031235716.md (read in MAIN L57 result)",
+    "counted_in_M1": false
+  },
+  "rounds": [
+    {
+      "round": 1,
+      "document_reviewed": "plan v1 = package TASK-WF-removeTheAnyIssu-20261101-225635 (inputs/round1/)",
+      "review_command": "Skill sc-reflect-protocol args '--mode pre --spec <pkg>/source.md --tasklist <pkg>/<plan>.md' (first issued at MAIN L460 on package 225338; re-run without a new Skill call on 225635 after the plan was regenerated, MAIN L526-L606)",
+      "verdict": {
+        "value": "FAIL",
+        "basis": "E",
+        "evidence": "baseline-outputs/R1-REPORT.md line 24; MAIN L1572"
+      },
+      "M1": {
+        "clean_pass": false,
+        "basis": "E"
+      },
+      "M2_blocking": {
+        "value": 11,
+        "basis": "E",
+        "ids": "B-01..B-11",
+        "evidence": "baseline-outputs/R1-REPORT.md lines 28-38"
+      },
+      "minor_findings": {
+        "value": 17,
+        "basis": "E",
+        "ids": "M-01..M-17",
+        "evidence": "baseline-outputs/R1-REPORT.md line 42"
+      },
+      "raw_reviewer_card_counts_before_merge": {
+        "basis": "D (regex count of 'severity: blocking|minor' lines in the card Write calls)",
+        "tier1": {
+          "blocking": 4,
+          "minor": 1,
+          "line": "MAIN L761"
+        },
+        "reviewer_1_analyzer_sonnet": {
+          "blocking": 5,
+          "minor": 5,
+          "line": "MAIN L969"
+        },
+        "reviewer_2_qa_haiku_alias": {
+          "blocking": 3,
+          "minor": 6,
+          "line": "MAIN L994"
+        },
+        "reviewer_3_refactorer_opus": {
+          "blocking": 3,
+          "minor": 2,
+          "line": "MAIN L941"
+        }
+      },
+      "M3_share_caused_by_previous_fix": {
+        "value": null,
+        "basis": "n/a",
+        "reason": "first review of the loop; there is no previous fix cycle"
+      },
+      "M4_document": {
+        "bytes": 23890,
+        "lines": 202,
+        "tasks": 14,
+        "growth_vs_start_pct": {
+          "bytes_pct": 0.0,
+          "lines_pct": 0.0,
+          "tasks_pct": 0.0
+        },
+        "basis": "D (wc on the Write content MAIN L554, byte-equal to what the reviewer Read, SUB a11975dd L26)"
+      },
+      "M5": {
+        "basis": "D: counted from the jsonl logs by script; window = main-session line range plus subagents whose first timestamp falls in the window",
+        "main_session_lines": [
+          626,
+          1685
+        ],
+        "main_tool_calls": 78,
+        "main_output_tokens": 74492,
+        "main_fresh_input_tokens": 565814,
+        "subagents": 17,
+        "subagent_tool_calls": 393,
+        "subagent_output_tokens": 303000,
+        "subagent_fresh_input_tokens": 1760487,
+        "total_tool_calls": 471,
+        "total_output_tokens": 377492,
+        "total_fresh_input_tokens": 2326301,
+        "note": "fresh input = input_tokens + cache_creation_input_tokens; cache_read tokens are excluded (they re-count the same context every turn). Fix-cycle windows include their cap-site classifier subagent."
+      }
+    },
+    {
+      "round": "FC1",
+      "kind": "fix cycle 1 (reviser step): plan v1 -> plan v3",
+      "reviser": "the worker session itself (claude-opus-5-5) regenerated the plan; its inline source (the effective revise instruction) is inputs/round2/source.md (MAIN L1792); one helper subagent classified cap sites (brief briefs/FC1-cap-site-classifier__L1709.md)",
+      "M4_document_after": {
+        "bytes": 31868,
+        "lines": 264,
+        "tasks": 19,
+        "growth_vs_start_pct": {
+          "bytes_pct": 33.39,
+          "lines_pct": 30.69,
+          "tasks_pct": 35.71
+        },
+        "basis": "D (wc on MAIN L1806 Write content, byte-equal to SUB a02b4ae4 L26 Read)"
+      },
+      "M5": {
+        "basis": "D: counted from the jsonl logs by script; window = main-session line range plus subagents whose first timestamp falls in the window",
+        "main_session_lines": [
+          1686,
+          1909
+        ],
+        "main_tool_calls": 17,
+        "main_output_tokens": 33139,
+        "main_fresh_input_tokens": 57256,
+        "subagents": 1,
+        "subagent_tool_calls": 61,
+        "subagent_output_tokens": 64257,
+        "subagent_fresh_input_tokens": 200089,
+        "total_tool_calls": 78,
+        "total_output_tokens": 97396,
+        "total_fresh_input_tokens": 257345,
+        "note": "fresh input = input_tokens + cache_creation_input_tokens; cache_read tokens are excluded (they re-count the same context every turn). Fix-cycle windows include their cap-site classifier subagent."
+      }
+    },
+    {
+      "round": 2,
+      "document_reviewed": "plan v3 = package TASK-WF-removeTheAnyIssu-20261102-042031 (inputs/round2/)",
+      "review_command": "same protocol, same flags, re-executed from the already loaded skill text (no new Skill call; MAIN L1910 audit.log note)",
+      "verdict": {
+        "value": "FAIL (status partial: the run stopped at the Wave 5 pre-synthesis guard because inventory.md changed on purpose; no merge and no evidence validation)",
+        "basis": "E",
+        "evidence": "baseline-outputs/R2-REPORT.md lines 5, 22; MAIN L2235, L2273"
+      },
+      "M1": {
+        "clean_pass": false,
+        "basis": "E"
+      },
+      "M2_blocking": {
+        "value": 7,
+        "basis": "E",
+        "ids": "P2-B1..P2-B7",
+        "evidence": "baseline-outputs/R2-REPORT.md lines 26-32",
+        "caveat": "counted from the Tier 1 card, coverage matrix and 3 reviewer cards without the adversarial merge or calibration, so not comparable one-to-one with rounds 1 and 3"
+      },
+      "minor_findings": {
+        "value": null,
+        "basis": "E",
+        "reason": "the report lists the minor notes as one unnumbered paragraph (about 15 items by the analyst's count, basis D) and does not state a count"
+      },
+      "raw_reviewer_card_counts_before_merge": {
+        "basis": "D",
+        "tier1": {
+          "blocking": 1,
+          "minor": 1,
+          "line": "MAIN L1989"
+        },
+        "reviewer_1_analyzer_sonnet": {
+          "blocking": 2,
+          "minor": 6,
+          "line": "MAIN L2137"
+        },
+        "reviewer_2_qa_haiku_alias": {
+          "blocking": 1,
+          "minor": 1,
+          "line": "MAIN L2212 (card written by a Bash heredoc)"
+        },
+        "reviewer_3_refactorer_opus": {
+          "blocking": 2,
+          "minor": 7,
+          "line": "MAIN L2165"
+        }
+      },
+      "M3_share_caused_by_previous_fix": {
+        "value": 0.571,
+        "numerator": 4,
+        "denominator": 7,
+        "basis": "R",
+        "fix_induced": [
+          "P2-B3 (CAP_PATTERN written in fix cycle 1 misses 11 lines)",
+          "P2-B4 (Task 18(d), a clause new in plan v3, checks only pragmatic.md)",
+          "P2-B5 (plan v3 default 2 for cli-portify, wrong unit)",
+          "P2-B7 (plan v3 Task 12 whole-line replacements drop the sentence Tasks 2/4 add)"
+        ],
+        "pre_existing_site_missed": [
+          "P2-B1",
+          "P2-B2",
+          "P2-B6"
+        ],
+        "sensitivity": "3 of 7 (0.43) if P2-B4 is counted as a pre-existing gap, because plan v1 had no cap check at all",
+        "reason_not_E": "the review report does not attribute origin; phase-1 REPORT.md also did not attribute round 2"
+      },
+      "M4_document": {
+        "bytes": 31868,
+        "lines": 264,
+        "tasks": 19,
+        "growth_vs_start_pct": {
+          "bytes_pct": 33.39,
+          "lines_pct": 30.69,
+          "tasks_pct": 35.71
+        },
+        "basis": "D"
+      },
+      "M5": {
+        "basis": "D: counted from the jsonl logs by script; window = main-session line range plus subagents whose first timestamp falls in the window",
+        "main_session_lines": [
+          1910,
+          2253
+        ],
+        "main_tool_calls": 27,
+        "main_output_tokens": 31439,
+        "main_fresh_input_tokens": 53951,
+        "subagents": 5,
+        "subagent_tool_calls": 185,
+        "subagent_output_tokens": 328048,
+        "subagent_fresh_input_tokens": 698125,
+        "total_tool_calls": 212,
+        "total_output_tokens": 359487,
+        "total_fresh_input_tokens": 752076,
+        "note": "fresh input = input_tokens + cache_creation_input_tokens; cache_read tokens are excluded (they re-count the same context every turn). Fix-cycle windows include their cap-site classifier subagent."
+      }
+    },
+    {
+      "round": "FC2",
+      "kind": "fix cycle 2 (the last): plan v3 -> plan v4",
+      "reviser": "the worker session itself; effective revise instruction = inputs/round3/source.md (MAIN L2450) plus a helper subagent that built a literal cap-edit table (brief briefs/FC2-literal-cap-edit-table__L2255.md, output inputs/round3/cap-edits.yaml); coordinator decision 'cli-portify default = 1 iteration' injected at MAIN L2181",
+      "M4_document_after": {
+        "bytes": 32107,
+        "lines": 275,
+        "tasks": 20,
+        "growth_vs_start_pct": {
+          "bytes_pct": 34.4,
+          "lines_pct": 36.14,
+          "tasks_pct": 42.86
+        },
+        "basis": "D (MAIN L2464 Write, byte-equal to SUB a9d60b6d L26)"
+      },
+      "M5": {
+        "basis": "D: counted from the jsonl logs by script; window = main-session line range plus subagents whose first timestamp falls in the window",
+        "main_session_lines": [
+          2254,
+          2505
+        ],
+        "main_tool_calls": 22,
+        "main_output_tokens": 35388,
+        "main_fresh_input_tokens": 684866,
+        "subagents": 1,
+        "subagent_tool_calls": 45,
+        "subagent_output_tokens": 73921,
+        "subagent_fresh_input_tokens": 408176,
+        "total_tool_calls": 67,
+        "total_output_tokens": 109309,
+        "total_fresh_input_tokens": 1093042,
+        "note": "fresh input = input_tokens + cache_creation_input_tokens; cache_read tokens are excluded (they re-count the same context every turn). Fix-cycle windows include their cap-site classifier subagent."
+      }
+    },
+    {
+      "round": 3,
+      "document_reviewed": "plan v4 = package TASK-WF-removeTheAnyIssu-20261102-053741 (inputs/round3/)",
+      "review_command": "same as round 2",
+      "verdict": {
+        "value": "FAIL",
+        "basis": "E",
+        "evidence": "baseline-outputs/R3-REPORT.md line 24; MAIN L3149"
+      },
+      "M1": {
+        "clean_pass": false,
+        "basis": "E",
+        "note": "cap reached; escalated at MAIN L3368"
+      },
+      "M2_blocking": {
+        "value": 10,
+        "basis": "E",
+        "ids": "B3-01..B3-10",
+        "evidence": "baseline-outputs/R3-REPORT.md lines 28-37"
+      },
+      "minor_findings": {
+        "value": 12,
+        "basis": "E",
+        "ids": "M3-01..M3-12",
+        "evidence": "baseline-outputs/R3-REPORT.md line 41"
+      },
+      "raw_reviewer_card_counts_before_merge": {
+        "basis": "D",
+        "tier1": {
+          "blocking": 1,
+          "minor": 2,
+          "line": "MAIN L2550"
+        },
+        "reviewer_1_analyzer_sonnet": {
+          "blocking": 3,
+          "minor": 4,
+          "line": "MAIN L2670"
+        },
+        "reviewer_2_qa_haiku_alias": {
+          "blocking": 1,
+          "minor": 1,
+          "line": "MAIN L2763"
+        },
+        "reviewer_3_refactorer_opus": {
+          "blocking": 1,
+          "minor": 1,
+          "line": "MAIN L2718"
+        }
+      },
+      "M3_share_caused_by_previous_fix": {
+        "value": 0.2,
+        "numerator": 2,
+        "denominator": 10,
+        "basis": "R",
+        "fix_induced": [
+          "B3-06 (plan v4 Task 6 acceptance cannot detect an unchanged FIX trigger; the review-1 finding B-11 was not really fixed)",
+          "B3-09 (acceptance checks use line numbers that the same plan's insertions move)"
+        ],
+        "pre_existing_site_missed": [
+          "B3-01",
+          "B3-02",
+          "B3-03",
+          "B3-04",
+          "B3-05",
+          "B3-07",
+          "B3-08",
+          "B3-10"
+        ],
+        "report_own_statement": "R3 report line 21: all earlier blocking findings (B-01..B-11, P2-B1..P2-B7) landed",
+        "reason_not_E": "the report does not label origin per finding"
+      },
+      "M4_document": {
+        "bytes": 32107,
+        "lines": 275,
+        "tasks": 20,
+        "growth_vs_start_pct": {
+          "bytes_pct": 34.4,
+          "lines_pct": 36.14,
+          "tasks_pct": 42.86
+        },
+        "growth_vs_previous_reviewed_pct": {
+          "bytes_pct": 0.75
+        },
+        "basis": "D"
+      },
+      "M5": {
+        "basis": "D: counted from the jsonl logs by script; window = main-session line range plus subagents whose first timestamp falls in the window",
+        "main_session_lines": [
+          2506,
+          3399
+        ],
+        "main_tool_calls": 67,
+        "main_output_tokens": 50895,
+        "main_fresh_input_tokens": 202534,
+        "subagents": 14,
+        "subagent_tool_calls": 443,
+        "subagent_output_tokens": 339499,
+        "subagent_fresh_input_tokens": 1649488,
+        "total_tool_calls": 510,
+        "total_output_tokens": 390394,
+        "total_fresh_input_tokens": 1852022,
+        "note": "fresh input = input_tokens + cache_creation_input_tokens; cache_read tokens are excluded (they re-count the same context every turn). Fix-cycle windows include their cap-site classifier subagent."
+      }
+    },
+    {
+      "round": "post-loop",
+      "kind": "owner decision at the cap (MAIN L4141): fold the 10 findings into the plan, implement, no fourth review",
+      "M4_document_after": {
+        "bytes": 38073,
+        "lines": 291,
+        "tasks": 21,
+        "growth_vs_start_pct": {
+          "bytes_pct": 59.37,
+          "lines_pct": 44.06,
+          "tasks_pct": 50.0
+        },
+        "basis": "D (replay of the Write plus 17 Edit calls on the plan file; all applied; MAIN L6760 says 21 tasks)"
+      },
+      "M5": null,
+      "M5_reason": "outside the review loop; not measured"
+    }
+  ],
+  "unrecoverable_or_weak": [
+    "M3 for rounds 2 and 3 is the analyst's reading (basis R); the reviewers did not tag finding origin",
+    "round 2 is a partial run (no merge, no calibration, no evidence validation), so its blocking count is not like-for-like",
+    "plan sizes are exact; the inventory.md snapshots are exact for what the reviewers Read; Bash-made changes to other untracked files are not tracked",
+    "M5 tokens exclude cache reads; subagents are assigned to rounds by start time"
+  ]
+}

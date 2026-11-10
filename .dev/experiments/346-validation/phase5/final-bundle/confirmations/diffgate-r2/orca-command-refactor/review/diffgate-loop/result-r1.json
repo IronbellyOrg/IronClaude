@@ -1,0 +1,451 @@
+{
+ "acceptance": "clean",
+ "blocking": 8,
+ "blocking_ids": [
+  "R1.1",
+  "R1.2",
+  "R1.3",
+  "R1.4",
+  "R1.5",
+  "R1.6",
+  "R1.7",
+  "R1.8"
+ ],
+ "chains": {
+  "R1.1": [
+   "R1.1"
+  ],
+  "R1.2": [
+   "R1.2"
+  ],
+  "R1.3": [
+   "R1.3"
+  ],
+  "R1.4": [
+   "R1.4"
+  ],
+  "R1.5": [
+   "R1.5"
+  ],
+  "R1.6": [
+   "R1.6"
+  ],
+  "R1.7": [
+   "R1.7"
+  ],
+  "R1.8": [
+   "R1.8"
+  ]
+ },
+ "deferred": [],
+ "degraded": false,
+ "findings": [
+  {
+   "anchor": "Commands that already write a contract keep their fields and add the missing ones",
+   "at": [
+    62,
+    62
+   ],
+   "blocking": true,
+   "chain": [
+    "R1.1"
+   ],
+   "cites": null,
+   "demoted": false,
+   "fr": 8,
+   "hunk": null,
+   "id": "R1.1",
+   "origin": "full",
+   "outcome": "P1 keeps status: success in adversarial and workflow contracts, so WC-5 has no mapping and 7.2 step 4 fails a correct run; renaming instead breaks brainstorm reading the adversarial status",
+   "sev": "major",
+   "side": null,
+   "status": "open",
+   "text": "WC-4 status vocabulary conflicts with existing contracts",
+   "via": null
+  },
+  {
+   "anchor": "where `<output-dir>` is the directory the coordinator passed (`--output` / `--output-dir`)",
+   "at": [
+    62,
+    62
+   ],
+   "blocking": true,
+   "chain": [
+    "R1.2"
+   ],
+   "cites": null,
+   "demoted": false,
+   "fr": 8,
+   "hunk": null,
+   "id": "R1.2",
+   "origin": "full",
+   "outcome": "a brief for /sc:workflow passes --output, workflow stops with E-LEGACY and writes no contract; init-lite and tdd get a file path where a directory is expected",
+   "sev": "major",
+   "side": null,
+   "status": "open",
+   "text": "WC-4 assumes every command takes an output directory",
+   "via": null
+  },
+  {
+   "anchor": "Fix the contract filename to `<output>/adversarial/return-contract.yaml`",
+   "at": [
+    83,
+    83
+   ],
+   "blocking": true,
+   "chain": [
+    "R1.3"
+   ],
+   "cites": null,
+   "demoted": false,
+   "fr": null,
+   "hunk": null,
+   "id": "R1.3",
+   "origin": "full",
+   "outcome": "a coordinator built to WC-4 opens <output>/return-contract.yaml for adversarial and finds no file",
+   "sev": "major",
+   "side": null,
+   "status": "open",
+   "text": "adversarial contract path differs from WC-4",
+   "via": null
+  },
+  {
+   "anchor": "the `--unattended` flag accepted by every command in sections 3.1 and 3.2 (a no-op where a command has no gate)",
+   "at": [
+    159,
+    159
+   ],
+   "blocking": true,
+   "chain": [
+    "R1.4"
+   ],
+   "cites": null,
+   "demoted": false,
+   "fr": 8,
+   "hunk": null,
+   "id": "R1.4",
+   "origin": "full",
+   "outcome": "after P1, /sc:auggie-review <PR> --unattended is accepted and still posts the review to GitHub because the posting-off rule is a P2 change",
+   "sev": "major",
+   "side": null,
+   "status": "open",
+   "text": "--unattended behaviour on gated commands before their phase is unspecified",
+   "via": null
+  },
+  {
+   "anchor": "A command step that blocks a single tool call for longer than 5 minutes",
+   "at": [
+    68,
+    68
+   ],
+   "blocking": true,
+   "chain": [
+    "R1.5"
+   ],
+   "cites": null,
+   "demoted": false,
+   "fr": 8,
+   "hunk": null,
+   "id": "R1.5",
+   "origin": "full",
+   "outcome": "the WORKER-CONTRACT.md author must either split Agent-tool fan-out that WC-7 keeps unchanged or ship a rule every adversarial or tasklist worker breaks",
+   "sev": "major",
+   "side": null,
+   "status": "open",
+   "text": "WC-10 conflicts with WC-7 for Agent-tool waves",
+   "via": null
+  },
+  {
+   "anchor": "The worker runs the command directly in its own session",
+   "at": [
+    65,
+    65
+   ],
+   "blocking": true,
+   "chain": [
+    "R1.6"
+   ],
+   "cites": null,
+   "demoted": false,
+   "fr": null,
+   "hunk": null,
+   "id": "R1.6",
+   "origin": "full",
+   "outcome": "a worker reads the command file and improvises with no Skill call, and 7.2 step 5 and AC-0.4 record it as PASS, as happened in 11 P1 rows",
+   "sev": "major",
+   "side": null,
+   "status": "open",
+   "text": "WC-7 does not require or check the Skill or command call",
+   "via": null
+  },
+  {
+   "anchor": "The only allowed mention of Orca in a changed command is as an example of a caller's question channel inside the contract file.",
+   "at": [
+    147,
+    147
+   ],
+   "blocking": true,
+   "chain": [
+    "R1.7"
+   ],
+   "cites": null,
+   "demoted": false,
+   "fr": null,
+   "hunk": null,
+   "id": "R1.7",
+   "origin": "full",
+   "outcome": "P0 writes an orca orchestration ask example into src/superclaude/core/WORKER-CONTRACT.md and AC-C1 fails",
+   "sev": "major",
+   "side": null,
+   "status": "open",
+   "text": "SA-2 allowance contradicts AC-C1",
+   "via": null
+  },
+  {
+   "anchor": "`worker_done --outcome failed`; contract `status: blocked` with a non-empty `blocked_question`",
+   "at": [
+    200,
+    200
+   ],
+   "blocking": true,
+   "chain": [
+    "R1.8"
+   ],
+   "cites": null,
+   "demoted": false,
+   "fr": null,
+   "hunk": null,
+   "id": "R1.8",
+   "origin": "full",
+   "outcome": "a correct P2 gate conversion fails AC-2.2 whenever the worker uses the WC-3 ask path and the run ends succeeded",
+   "sev": "major",
+   "side": null,
+   "status": "open",
+   "text": "AC-2.2 ignores the WC-3 ask branch",
+   "via": null
+  },
+  {
+   "anchor": "Repo root: /home/coder/workspaces/worktrees/IronClaude/OrcaCLICommandRefactor-Specs",
+   "at": [
+    4,
+    4
+   ],
+   "blocking": false,
+   "chain": [
+    "R1.9"
+   ],
+   "cites": null,
+   "demoted": false,
+   "fr": null,
+   "hunk": null,
+   "id": "R1.9",
+   "origin": "full",
+   "outcome": null,
+   "sev": "minor",
+   "side": null,
+   "status": "minor",
+   "text": "stated repo root does not exist",
+   "via": null
+  },
+  {
+   "anchor": "only files under the brief's output directory",
+   "at": [
+    185,
+    185
+   ],
+   "blocking": false,
+   "chain": [
+    "R1.10"
+   ],
+   "cites": null,
+   "demoted": false,
+   "fr": null,
+   "hunk": null,
+   "id": "R1.10",
+   "origin": "full",
+   "outcome": null,
+   "sev": "minor",
+   "side": null,
+   "status": "minor",
+   "text": "step 6 fails under the shared worktree default",
+   "via": null
+  },
+  {
+   "anchor": "It is the only command-side change the contract asks for besides report files and resume.",
+   "at": [
+    51,
+    51
+   ],
+   "blocking": false,
+   "chain": [
+    "R1.11"
+   ],
+   "cites": null,
+   "demoted": false,
+   "fr": null,
+   "hunk": null,
+   "id": "R1.11",
+   "origin": "full",
+   "outcome": null,
+   "sev": "minor",
+   "side": null,
+   "status": "minor",
+   "text": "overstates the scope of command changes",
+   "via": null
+  },
+  {
+   "anchor": "One report file, known before dispatch, written on every outcome.",
+   "at": [
+    62,
+    62
+   ],
+   "blocking": false,
+   "chain": [
+    "R1.12"
+   ],
+   "cites": null,
+   "demoted": false,
+   "fr": null,
+   "hunk": null,
+   "id": "R1.12",
+   "origin": "full",
+   "outcome": null,
+   "sev": "minor",
+   "side": null,
+   "status": "minor",
+   "text": "no contract_version field",
+   "via": null
+  }
+ ],
+ "held": {},
+ "open_blocking": [
+  {
+   "anchor": "Commands that already write a contract keep their fields and add the missing ones",
+   "at": [
+    62,
+    62
+   ],
+   "chain": [
+    "R1.1"
+   ],
+   "hunk": null,
+   "id": "R1.1",
+   "sev": "major",
+   "text": "WC-4 status vocabulary conflicts with existing contracts"
+  },
+  {
+   "anchor": "where `<output-dir>` is the directory the coordinator passed (`--output` / `--output-dir`)",
+   "at": [
+    62,
+    62
+   ],
+   "chain": [
+    "R1.2"
+   ],
+   "hunk": null,
+   "id": "R1.2",
+   "sev": "major",
+   "text": "WC-4 assumes every command takes an output directory"
+  },
+  {
+   "anchor": "Fix the contract filename to `<output>/adversarial/return-contract.yaml`",
+   "at": [
+    83,
+    83
+   ],
+   "chain": [
+    "R1.3"
+   ],
+   "hunk": null,
+   "id": "R1.3",
+   "sev": "major",
+   "text": "adversarial contract path differs from WC-4"
+  },
+  {
+   "anchor": "the `--unattended` flag accepted by every command in sections 3.1 and 3.2 (a no-op where a command has no gate)",
+   "at": [
+    159,
+    159
+   ],
+   "chain": [
+    "R1.4"
+   ],
+   "hunk": null,
+   "id": "R1.4",
+   "sev": "major",
+   "text": "--unattended behaviour on gated commands before their phase is unspecified"
+  },
+  {
+   "anchor": "A command step that blocks a single tool call for longer than 5 minutes",
+   "at": [
+    68,
+    68
+   ],
+   "chain": [
+    "R1.5"
+   ],
+   "hunk": null,
+   "id": "R1.5",
+   "sev": "major",
+   "text": "WC-10 conflicts with WC-7 for Agent-tool waves"
+  },
+  {
+   "anchor": "The worker runs the command directly in its own session",
+   "at": [
+    65,
+    65
+   ],
+   "chain": [
+    "R1.6"
+   ],
+   "hunk": null,
+   "id": "R1.6",
+   "sev": "major",
+   "text": "WC-7 does not require or check the Skill or command call"
+  },
+  {
+   "anchor": "The only allowed mention of Orca in a changed command is as an example of a caller's question channel inside the contract file.",
+   "at": [
+    147,
+    147
+   ],
+   "chain": [
+    "R1.7"
+   ],
+   "hunk": null,
+   "id": "R1.7",
+   "sev": "major",
+   "text": "SA-2 allowance contradicts AC-C1"
+  },
+  {
+   "anchor": "`worker_done --outcome failed`; contract `status: blocked` with a non-empty `blocked_question`",
+   "at": [
+    200,
+    200
+   ],
+   "chain": [
+    "R1.8"
+   ],
+   "hunk": null,
+   "id": "R1.8",
+   "sev": "major",
+   "text": "AC-2.2 ignores the WC-3 ask branch"
+  }
+ ],
+ "priors": [],
+ "proxy_all": 8,
+ "proxy_ids": [
+  "R1.1",
+  "R1.2",
+  "R1.3",
+  "R1.4",
+  "R1.5",
+  "R1.6",
+  "R1.7",
+  "R1.8"
+ ],
+ "review": 1,
+ "scoped": {},
+ "verdict": "FAIL",
+ "verdict_line": "verdict: FAIL"
+}

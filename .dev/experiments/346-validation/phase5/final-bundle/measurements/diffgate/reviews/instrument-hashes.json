@@ -1,0 +1,26 @@
+{
+  "commands/sc/spec-panel-diffgate.md": {
+    "sha256": "d144aa097ea1558515848cc44efe6837f9f47e42db20a84fcccc68328fbaa4e1",
+    "bytes": 40181
+  },
+  "commands/sc/spec-panel-armb.md": {
+    "sha256": "00cab10e9ffd1a3e908895508cfb0620486c07f25e0222ac5890bee63068dff4",
+    "bytes": 35858
+  },
+  "commands/sc/spec-panel.md": {
+    "sha256": "4115f2a979800af8b3ed8dee9d006cf3a97e25c5d9e02420cfee761e82cbe3c9",
+    "bytes": 37945
+  },
+  "skills/sc-diffgate/SKILL.md": {
+    "sha256": "4e2adc073525c1a4e6aec77f3bc718369822ff8664e2aac3ff07628fc35df193",
+    "bytes": 7905
+  },
+  "skills/sc-diffgate/scripts/diffgate.py": {
+    "sha256": "6832190d5c7219357e37dcf7c21c05ad6807ea3068994a8fa5fef0c623b266d0",
+    "bytes": 62624
+  },
+  "WORKER-CONTRACT.md": {
+    "sha256": "5fbf2f2e201bd40c98d21348814f5b94d3dadc48697722fed1fa8e031b6f7698",
+    "present_at_recording": true
+  }
+}

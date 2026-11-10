@@ -1,0 +1,22 @@
+# Worker contract for the nested /sc:adversarial call (Unattended mode, --output), written 2026-11-08
+worker_contract_version: "1"
+worker_status: partial
+command: "Skill sc-adversarial-protocol --unattended --source .dev/brainstorms/346-stoprule/seed-brief.md --generate spec --agents opus:architect:'prioritize maintainability and extension scaffolding for code domain',sonnet:analyzer:'focus on root-cause analysis and evidence-based reasoning for code',haiku:devops:'focus on deployment, observability, runbooks, and SLO impact for enterprise delivery' --depth standard --convergence 0.75 --output .dev/brainstorms/346-stoprule/nested/adversarial-1/"
+report_path: .dev/brainstorms/346-stoprule/nested/adversarial-1/merged-output.md
+artifacts:
+  - .dev/brainstorms/346-stoprule/nested/adversarial-1/adversarial/return-contract.yaml
+  - .dev/brainstorms/346-stoprule/nested/adversarial-1/adversarial/variant-1-opus-architect.md
+  - .dev/brainstorms/346-stoprule/nested/adversarial-1/adversarial/variant-2-sonnet-analyzer.md
+  - .dev/brainstorms/346-stoprule/nested/adversarial-1/adversarial/variant-3-haiku-devops.md
+  - .dev/brainstorms/346-stoprule/nested/adversarial-1/adversarial/diff-analysis.md
+  - .dev/brainstorms/346-stoprule/nested/adversarial-1/adversarial/debate-r1-A.md
+  - .dev/brainstorms/346-stoprule/nested/adversarial-1/adversarial/debate-r1-B.md
+  - .dev/brainstorms/346-stoprule/nested/adversarial-1/adversarial/debate-r1-C.md
+  - .dev/brainstorms/346-stoprule/nested/adversarial-1/adversarial/debate-r2-A.md
+  - .dev/brainstorms/346-stoprule/nested/adversarial-1/adversarial/debate-r2-B.md
+  - .dev/brainstorms/346-stoprule/nested/adversarial-1/adversarial/debate-r2-C.md
+  - .dev/brainstorms/346-stoprule/nested/adversarial-1/adversarial/invariant-probe.md
+  - .dev/brainstorms/346-stoprule/nested/adversarial-1/adversarial/debate-transcript.md
+  - .dev/brainstorms/346-stoprule/nested/adversarial-1/adversarial/base-selection.md
+  - .dev/brainstorms/346-stoprule/nested/adversarial-1/adversarial/refactor-plan.md
+  - .dev/brainstorms/346-stoprule/nested/adversarial-1/adversarial/merge-log.md

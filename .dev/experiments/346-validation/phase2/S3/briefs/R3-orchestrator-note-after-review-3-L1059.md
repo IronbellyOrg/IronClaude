@@ -1,0 +1,5 @@
+The third and final review fails with 10 blocking findings. The reviewer built the classifier from the plan text alone and found that 37 of its 38 new attacks pass the rules, including pushes to `main` confirmed on real git. The plan's own test corpus behaves as written, so the plan is implementable, but the text-scanning approach keeps leaking.
+
+The rules allow no fourth review and no pass with open blocking findings. So I'm not marking these resolved. The merge goes ahead with each reviewer fix applied but labelled unreviewed, the ten findings listed as open, and the adversarial status partial.
+
+Three reviews found a combined 30 or more demonstrated leaks, which is also evidence for a design question. A structural layer at the git level, such as a `pre-push` hook that sees the real destination ref, would catch script wrappers that no text scan can. I'm adding that as an owner decision, O-22. The merge executor runs next.

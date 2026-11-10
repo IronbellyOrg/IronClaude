@@ -1,0 +1,64 @@
+{
+  "tool_calls": 37,
+  "unique_tool_call_ids": 37,
+  "assistant_turns": 22,
+  "output_tokens": 32934,
+  "input_tokens_uncached": 44,
+  "cache_creation_tokens": 154913,
+  "cache_read_tokens": 4044179,
+  "first_ts": "2026-11-09T00:12:13.394Z",
+  "last_ts": "2026-11-09T00:17:37.273Z",
+  "wall_minutes": 5.397983333333333,
+  "session": "efdd7e2a-ba9c-4bf8-81b7-56268fc538d2",
+  "task": "task_b0537130e666",
+  "dispatch": "ctx_e07b01555683",
+  "source": "/home/coder/.claude/projects/-home-coder-workspaces-worktrees-IronClaude-exp346-v-diffgate/efdd7e2a-ba9c-4bf8-81b7-56268fc538d2.jsonl",
+  "end_line": 426,
+  "worker_done_ts": "2026-11-09T00:17:37.273Z",
+  "whole_session": {
+    "tool_calls": 37,
+    "unique_tool_call_ids": 37,
+    "assistant_turns": 23,
+    "output_tokens": 33752,
+    "input_tokens_uncached": 46,
+    "cache_creation_tokens": 155858,
+    "cache_read_tokens": 4266625,
+    "first_ts": "2026-11-09T00:12:13.394Z",
+    "last_ts": "2026-11-09T00:17:46.858Z",
+    "wall_minutes": 5.557733333333333
+  },
+  "models": [
+    "claude-opus-5-5"
+  ],
+  "versions": [
+    "2.1.319"
+  ],
+  "skill_calls": [],
+  "agent_calls": [],
+  "answer_key_tool_hits": [],
+  "command_reads": [],
+  "brief": {
+    "source": "/tmp/impl/s1v/briefs/diffgate/T08-R2-reviser.filled.txt",
+    "source_sha256": "e8b95d06e84488b1b0fe64d5b49b3baa23ea3910f06fdbb185dc1247d8db6387",
+    "delivered_sha256": "d8a3f92af055d495cc162e1ccc2e557599aa905d8973d263446f4d053c089379",
+    "first_user_line": 13,
+    "equals_source_after_root_substitution": true,
+    "root_substitutions": 1
+  },
+  "instruction_evidence": {
+    "minor findings never fail": [
+      16
+    ],
+    "at most 2 fix cycles": [
+      16
+    ],
+    "3 reviews": [
+      16
+    ],
+    "blocking/minor": []
+  },
+  "later_user_messages": [],
+  "error_records": [],
+  "explicit_user_resumes": [],
+  "loaded_command_evidence": []
+}

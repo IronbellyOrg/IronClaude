@@ -1,0 +1,32 @@
+{
+  "model_requested": "claude-gw-tier2",
+  "result": "OK",
+  "returncode": 0,
+  "retries": [
+    {
+      "type": "system",
+      "subtype": "api_retry",
+      "attempt": 1,
+      "max_retries": 5,
+      "retry_delay_ms": 563,
+      "error_status": 500,
+      "error": "server_error",
+      "session_id": "acb83ea0-a029-486f-b1e1-f2678d5d2ae9",
+      "uuid": "eb2ee761-a93b-4964-b9f5-dc6742554065"
+    },
+    {
+      "type": "system",
+      "subtype": "api_retry",
+      "attempt": 2,
+      "max_retries": 5,
+      "retry_delay_ms": 1183,
+      "error_status": 500,
+      "error": "server_error",
+      "session_id": "acb83ea0-a029-486f-b1e1-f2678d5d2ae9",
+      "uuid": "cb9242d1-9433-4f14-a72e-c7b3c52d1be1"
+    }
+  ],
+  "answering_models": [
+    "glm-5.3"
+  ]
+}

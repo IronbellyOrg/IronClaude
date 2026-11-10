@@ -1,0 +1,189 @@
+{
+  "scenario": "S1 worker-contract specification",
+  "starting_bytes": 57763,
+  "convergence_proven": false,
+  "original_427_runs": {
+    "ctl-r1": {
+      "new_label_proxy": [
+        11,
+        9,
+        8
+      ],
+      "new_findings_total": [
+        19,
+        15,
+        11
+      ],
+      "endpoint_bytes": 91102,
+      "growth_percent": 57.71687758599796,
+      "source": "exp346-ab-ctl-r1/.dev/experiments/346-validation/phase4/ctl-r1/metrics.json"
+    },
+    "ctl-r2": {
+      "new_label_proxy": [
+        12,
+        7,
+        4
+      ],
+      "new_findings_total": [
+        21,
+        17,
+        7
+      ],
+      "endpoint_bytes": 97814,
+      "growth_percent": 69.33677267454945,
+      "source": "exp346-ab-ctl-r2/.dev/experiments/346-validation/phase4/ctl-r2/metrics.json"
+    },
+    "trt-r1": {
+      "new_label_proxy": [
+        9,
+        5,
+        6
+      ],
+      "new_findings_total": [
+        16,
+        9,
+        11
+      ],
+      "endpoint_bytes": 71113,
+      "growth_percent": 23.111680487509307,
+      "source": "exp346-ab-trt-r1/.dev/experiments/346-validation/phase4/trt-r1/metrics.json"
+    },
+    "trt-r2": {
+      "new_label_proxy": [
+        9,
+        7,
+        5
+      ],
+      "new_findings_total": [
+        16,
+        16,
+        9
+      ],
+      "endpoint_bytes": 78715,
+      "growth_percent": 36.27235427522809,
+      "source": "exp346-ab-trt-r2/.dev/experiments/346-validation/phase4/trt-r2/metrics.json"
+    },
+    "flg-r1": {
+      "new_label_proxy": [
+        16,
+        5,
+        6
+      ],
+      "new_findings_total": [
+        22,
+        12,
+        10
+      ],
+      "endpoint_bytes": 73807,
+      "growth_percent": 27.775565673528035,
+      "source": "exp346-ab-flg-r1/.dev/experiments/346-validation/phase4/flg-r1/metrics.json"
+    },
+    "flg-r2": {
+      "new_label_proxy": [
+        17,
+        6,
+        1
+      ],
+      "new_findings_total": [
+        22,
+        11,
+        4
+      ],
+      "endpoint_bytes": 76328,
+      "growth_percent": 32.13995117982099,
+      "source": "exp346-ab-flg-r2/.dev/experiments/346-validation/phase4/flg-r2/metrics.json"
+    }
+  },
+  "measured_variants": {
+    "diffgate": {
+      "completed_loops": 1,
+      "new_label_proxy": [
+        7,
+        2,
+        2
+      ],
+      "endpoint_bytes": 63717,
+      "growth_percent": 10.307636376226997,
+      "valid_repeated_success": false,
+      "endpoint_details": {
+        "unresolved_prior_labels": 0,
+        "owner_deferred": 0,
+        "audit_union_recorder_point": 6,
+        "audit_union_review_sensitive_bounds": [
+          5,
+          6
+        ]
+      },
+      "source": "exp346-v-diffgate/.dev/experiments/346-validation/phase5/diffgate/metrics.json"
+    },
+    "ponytail": {
+      "completed_loops": 1,
+      "new_label_proxy": [
+        9,
+        7,
+        0
+      ],
+      "endpoint_bytes": 70488,
+      "growth_percent": 22.029672974049134,
+      "valid_repeated_success": false,
+      "endpoint_details": {
+        "unresolved_prior_blockers": 0,
+        "owner_carry_conservative": 1,
+        "owner_carry_interpretation_bounds": [
+          0,
+          1
+        ],
+        "audit_saved_bytes": 91,
+        "full_document_audit_union": null
+      },
+      "source": "exp346-v-ponytail/.dev/experiments/346-validation/phase5/ponytail/metrics.json"
+    },
+    "ledger": {
+      "completed_loops": 1,
+      "new_label_proxy": [
+        13,
+        9,
+        3
+      ],
+      "endpoint_bytes": 70565,
+      "growth_percent": 22.162976299707427,
+      "valid_repeated_success": false,
+      "endpoint_details": {
+        "unresolved_prior_labels": 3,
+        "owner_deferred_including_sweep": 12,
+        "script_headline": 15,
+        "audit_union_point": 13,
+        "audit_union_bounds": [
+          11,
+          14
+        ]
+      },
+      "source": "exp346-v-ledger/.dev/experiments/346-validation/phase5/ledger/metrics.json"
+    }
+  },
+  "fixed_screen": {
+    "control_mean_new_final_labels": 6,
+    "label_limit": 3,
+    "control_label_range": 4,
+    "rounded_control_mean_growth_percent": 63.51,
+    "fixed_growth_limit_percent": 44.457
+  },
+  "recomputed_control_mean_growth_percent": 63.52682513027371,
+  "failed_or_unbuilt": {
+    "stoprule": "invalidated at first-review transcript check; no completed loop",
+    "minfix": "two tasks complete; task 3 halted; no runnable experiment command"
+  },
+  "exploratory_repeats": "paused; four first reviews only, no revised endpoints; not successful replicates",
+  "union_caveat": "Audit unions are not directly comparable with unaudited control new-label counts.",
+  "source_sha256": {
+    "exp346-ab-ctl-r1/.dev/experiments/346-validation/phase4/ctl-r1/metrics.json": "a19b0d1a6b5044a0b6442d4d0c1989f83c0b8acc2075cf07cfadac88a62c85f4",
+    "exp346-ab-ctl-r2/.dev/experiments/346-validation/phase4/ctl-r2/metrics.json": "b23ed8a009ad1770155a50fb503e22b98920a4166ba02e2f82665ec07d13a27f",
+    "exp346-ab-trt-r1/.dev/experiments/346-validation/phase4/trt-r1/metrics.json": "d6ef88f8125d5b406da0c64c50a5166098c773bd91cb3eb71520a454b5db781b",
+    "exp346-ab-trt-r2/.dev/experiments/346-validation/phase4/trt-r2/metrics.json": "cf5854d219f46004699a0ba2717d368d4594fd33a003752206ac94d3e4dc11ab",
+    "exp346-ab-flg-r1/.dev/experiments/346-validation/phase4/flg-r1/metrics.json": "9835f683bfead13db1af64f601d0770d01209c371afe50e3eb018ddb7adfb698",
+    "exp346-ab-flg-r2/.dev/experiments/346-validation/phase4/flg-r2/metrics.json": "4c437f682e4a371d74d0364231d26750e762d0e02973bf462c834a9efede4e81",
+    "exp346-v-diffgate/.dev/experiments/346-validation/phase5/diffgate/metrics.json": "076e4cf4ae474479ef559f8c02779a1443e565a487c6b8ff6ac85c454fa79479",
+    "exp346-v-ponytail/.dev/experiments/346-validation/phase5/ponytail/metrics.json": "cba1ac8a11a62469a18f7ea95f4b40dfe048c0125f3228cdd67889633aaeaddf",
+    "exp346-v-ledger/.dev/experiments/346-validation/phase5/ledger/metrics.json": "b09ef70823e34b2a90f7be99adff8058323eeaf460b6b5dd7735acc72b12eb7b"
+  }
+}

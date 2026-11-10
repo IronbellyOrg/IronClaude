@@ -1,0 +1,22 @@
+**WHAT:** I've paused before the review. The call log shows one more bare `python3` call that your approval doesn't cover: the third final reviewer ran `python3 -c 1` (a do-nothing call) at 12:35:19 UTC.
+
+**WHY:** A fourth review would find it and return `issues` again on the same plan rule. The rest checks out against the logs:
+- The 22 read-only reviewer-helper calls are confirmed: 22 distinct commands by the first final reviewer, 09:10:02 to 09:16:29 UTC.
+- The one empty call is also confirmed: mine, at 08:27:10 UTC.
+- Apart from the 12:35:19 `python3 -c 1`, I found no other bare-Python call in this run.
+
+I also can't edit the existing ledger line. The ledger is append-only, so "narrow the matching ledger wording" will be a new `ARCHIVE: Ruling:` line that states the corrected scope and replaces the earlier wording. The old line stays in the file.
+
+**RECOMMENDED ACTION:** Reply "yes, include it" or "no".
+- **yes (recommended):** I narrow `p0-phase-report.md:71` to "the executor's own calls". I append one wider ruling covering all three groups: the 22 helper calls, my empty call, and the reviewer's `python3 -c 1`. I tell the next reviewer to use only `uv run` (the earlier reviewers' bare Python calls are what caused this loop). Then I run the fourth review and archive on a pass.
+- **no:** I record only the 22 helper calls and the one empty call, and run the review anyway. It will probably return `issues` for the `python3 -c 1`, and I stop and report.
+
+Nothing was changed this turn, and nothing was committed or pushed.
+
+| Status | Result |
+|---|---|
+| DONE | Verified the 22 helper calls and my empty call against the session logs. |
+| DONE | Found one more call outside your approval: `python3 -c 1` by the third reviewer at 12:35:19 UTC. |
+| NEXT | Your yes or no on that call, then I narrow the sentence, append the wider ruling, run the fourth review and archive if it passes. |
+
+RUNS: all live checks, the P0 PASS verdict and the ledger as of the third review. NOT BUILT: the wider ruling, the sentence narrowing, the fourth review and the archive.

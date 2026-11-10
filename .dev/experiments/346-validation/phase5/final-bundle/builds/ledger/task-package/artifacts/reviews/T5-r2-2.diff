@@ -1,0 +1,164 @@
+diff --git a/src/superclaude/skills/sc-review-ledger/SKILL.md b/src/superclaude/skills/sc-review-ledger/SKILL.md
+new file mode 100644
+index 00000000..7c7b0007
+--- /dev/null
++++ b/src/superclaude/skills/sc-review-ledger/SKILL.md
+@@ -0,0 +1,118 @@
++---
++name: sc-review-ledger
++description: Delegate-only skill (no slash command) holding review_ledger.py, the script-kept finding ledger for document review loops (find once at review 1, then only verify ledger rows at reviews 2 and 3, one sweep after the loop). Used by /sc:spec-panel-ledger and by the coordinator steps that run its writing subcommands.
++allowed-tools: Read, Bash
++---
++
++# sc-review-ledger: script-kept finding ledger
++
++`scripts/review_ledger.py` is the only writer of a review ledger. A model never edits ledger state: it writes a small JSON input (or one fenced `ledger-input` block inside its own report or disposition file) and the script validates and ingests it atomically. The actor is implied by the subcommand; there is no role flag, no event log and no version-control call. Python standard library only.
++
++This skill has no slash command. `/sc:spec-panel-ledger` and the coordinator's ledger-step briefs invoke it.
++
++## Call shape
++
++```bash
++uv run --no-project python "<skill base>/scripts/review_ledger.py" <subcommand> [flags]
++```
++
++`<skill base>` is `~/.claude/skills/sc-review-ledger` first; if that is absent, the project copy `.claude/skills/sc-review-ledger`. Every host that runs it needs `uv`.
++
++## Who runs what
++
++- **Writing subcommands** (`init`, `find`, `answer`, `begin`, `revert-unclaimed`, `verify`, `close`, `sweep`, `defer`) are run by the session or coordinator step that holds the ledger. When a review or reviser brief allows its session to write only its own output file (the S1 briefs do), the coordinator runs these as its own inserted ledger steps between the sessions.
++- **Review and reviser sessions** under such a brief run only calls that write no file: `status`, `verdict`, and `find`, `answer`, `verify` or `sweep --input` with `--dry-run`. They read script-written files (`ledger.json`, `plan-r<k>.md`, a `close` tail) and hand their rows over in one fenced `ledger-input` block in their own report (a reviser: in its own disposition file).
++- **The sweep context** never opens the ledger folder and runs no script: it critiques the copy `sweep --prepare` printed and writes its rows in its report's `ledger-input` block.
++
++## Ledger layout
++
++Default folder `<doc dir>/<doc stem>.review-ledger/`; `--ledger <dir>` overrides it. The path is derived from the document, so a lost flag still finds the ledger.
++
++| Path | Holds |
++|---|---|
++| `ledger.json` | the state object (below) |
++| `snapshots/r1.md`, `r2.md`, `r3.md` | the exact text each review saw |
++| `diffs/c1.json`, `c2.json` | the hunks of fix cycle 1 and 2 (old and new half-open line ranges, deletion tombstones, claims, touched rows, unclaimed and reverted hunks) |
++| `plan-r2.md`, `plan-r3.md` | the rows review 2 or 3 must answer, their hunks, unclaimed hunks, reviser gaps |
++| `inputs/*.json` | every ingested input |
++| `.lock` | the writer lock |
++
++`ledger.json`: one UTF-8 JSON object with the keys `schema` (1), `profile`, `doc`, `cap_reviews`, `round`, `fix_cycles`, `phase`, `seq`, `snapshots`, `decisions`, `ops`, `rows`, `body_sha256`. `round` is the review number k (1 to 3) and always equals `1 + fix_cycles`; `fix_cycles` counts committed `begin` calls. `body_sha256` is the sha256 of the canonical JSON without that key; every call checks it first and a hand edit is refused `E-TAMPERED`.
++
++Each row: frozen at creation `id`, `label`, `round_found` (1, 2, 3 or `sweep`), `grade`, `rule`, `wrong_outcome`, `blocking`, `anchor`, `at`, `origin` (`find`, `changed`, `outside`, `sweep`), `scope` (`in`, `outside`, `sweep`), `caused_by`, `finding`; mutable `status`, `mappings`, `claims`, `history`.
++
++Phases: `find` (after `init`), `revise` (after a `close` whose decision is CONTINUE), `verify` (after `begin`), `terminal` (after a `close` whose decision is PASS or ESCALATE), `swept` (after the sweep).
++
++## PROFILES
++
++| Profile | Grades | Blocking predicate | Cap |
++|---|---|---|---|
++| `spec-panel` | CRITICAL, MAJOR, MINOR | `grade == CRITICAL or rule in {FR-8, FR-9} or (grade == MAJOR and wrong_outcome non-empty)` | `CAP_REVIEWS = 3` |
++
++Non-blocking rows are stored `deferred`. To add a profile, add one `PROFILES` entry (grade tuple, blocking function over the row, cap) and give `init --profile <name>`. Two places outside `PROFILES` still name grades: the `status` metrics (`U3`, `W`, `O`, `deferred_floor`) count CRITICAL and MAJOR by name (`CM` in the script), and the `close` tail's Reviser brief speaks of minor (deferred) rows; a profile with other grade names must change those too.
++
++## Input schemas
++
++Any `--input` may be a `.json` file or a `.md` file holding exactly one fenced block whose info string is `ledger-input` (zero or several such blocks: `E-SCHEMA`).
++
++- `find`: a JSON array of rows `{"grade", "rule", "wrong_outcome", "anchor", "finding", "label"}`. `grade` and non-empty `anchor` and `finding` are required; `rule`, `wrong_outcome`, `label` are strings or null; no other key. `[]` is accepted. Each anchor must occur exactly once in `snapshots/r1.md` (whitespace-normalized).
++- `answer`: `{"claims": [{"row", "action", "hunks", "reason"}], "gaps": [{"text"}]}`. `action` is `fixed` (with `hunks`: provisional hunk numbers from `status`), `not-fixed` or `disputed` (both need `reason`). Only open or reopened blocking rows.
++- `verify`: `{"answers": [{"row", "result", "evidence", "touched_ok", "reason", "dispute_ruling"}], "new_rows": [{"grade", "rule", "wrong_outcome", "anchor", "finding", "label", "side", "parent"}]}`. One answer per row of `plan-r<k>.md`; `result` is `resolved`, `open`, `regressed` or `cannot-verify`; `evidence` (required unless `cannot-verify`) must occur in `snapshots/r<k>.md`; `touched_ok` is `yes` or `no` (`no` needs a new row whose `parent` is that row). A new row's `side` is `new` (default, anchor in r<k>) or `old` (anchor in r<k-1>, deleted text); no `id` and no frozen field on an answer.
++- `sweep`: `{"rows": [{"grade", "rule", "wrong_outcome", "anchor", "finding", "label", "challenges"}]}`; `challenges` names a verified row; anchors must occur once in the sweep copy.
++
++## Status transitions
++
++| From | To | Requested by | Refused when |
++|---|---|---|---|
++| none | `open` / `deferred` | `find` (review 1); `verify` new row (reviews 2, 3); `sweep` (always `deferred`) | anchor absent (`E-ANCHOR`) or repeated (`E-ANCHOR-AMBIGUOUS`); a verify row outside this round's hunks is stored `scope=outside`, `deferred` |
++| `open`, `reopened` | `fixed` | reviser `answer`, or auto-claim at `begin` (a hunk overlapping the row's span widened to its admission unit) | row not an open blocking row (`E-ILLEGAL`); claim wider than the row's unit (`E-CLAIM-WIDE`); a `fixed` answer with no edit in the span (`E-FIXED-NO-EDIT`) |
++| `fixed` | `verified` | `verify` `resolved` | evidence not in the new snapshot or anchor unmappable (`E-ANCHOR`); an unruled dispute at review 3 keeps it open |
++| `fixed` | `open` or `reopened` | `verify` `open` (`reopened` when ever verified) | no reason or quote |
++| `verified` | `fixed` | `begin`, when this round's hunk touches the row's span | never; then `regressed` is allowed |
++| `fixed` (once verified) | `reopened` | `verify` `regressed` | never verified (`E-ILLEGAL`) |
++| `fixed` | unchanged | `verify` `cannot-verify` | counts in X |
++| `verified` (untouched) | `reopened` | nobody | `E-NOT-CHANGED` |
++| `open`, `reopened` | `verified` | nobody | `E-NOT-CHANGED` |
++| `deferred` | anything | nobody | `E-ILLEGAL` |
++| any frozen field | changed | nobody | `E-FROZEN` |
++| any loop step after a terminal decision | | nobody | `E-TERMINAL` for `find`, `answer`, `verify`, `close` and `begin` (only the sweep, `defer`, `status` and `verdict` run after it); exceptions: `begin` after review 3 is refused `E-CAP` first, and `revert-unclaimed` is refused `E-PHASE` in every phase but revise |
++
++A dispute is a flag a reviser `answer` sets on a row; the verifier rules with `dispute_ruling`; an unruled dispute at the cap counts as open.
++
++## Loop decision
++
++After each review k: `U` = blocking rows with `scope=in` and status `open`, `fixed` or `reopened`; `X` = this review's `cannot-verify` answers, unmappable anchors and failed revert preimages; `I` = snapshots intact and every plan row answered. `loop_decision` = ESCALATE if not I or X > 0; PASS if U == 0; CONTINUE if k < 3; else ESCALATE. After the sweep, `delivery_outcome` = ESCALATE if the loop escalated, a sweep row would block, a sweep row challenges a verified row, or a review tail was changed; else PASS. Every terminal decision, a review-1 PASS included, is followed by exactly one sweep.
++
++## Subcommands
++
++Every mutation except `init` takes `--op <id>` and `--expect-seq <n>` (not needed with `--dry-run`); `init` takes only an optional `--op`. An identical request in the same phase and round under a new op id returns the committed result (`replayed: true`). Output is one JSON object on stdout: `{ok, seq, phase, review, fix_cycles, counts, loop_decision, delivery_outcome, next_action, ...}` for every subcommand but `verdict`, which prints `{verdict, loop_decision, delivery_outcome, U, review, phase}`; a refusal prints `{error, detail, next_action}`. Besides the codes in the table, every subcommand can be refused `E-USAGE`, and every mutation but `init` can also be refused `E-NO-LEDGER`, `E-TAMPERED`, `E-LOCKED`, `E-STALE-SEQ` or `E-OP-CONFLICT` (a `--dry-run` call takes no lock and checks no sequence; `init`'s own codes are in its row).
++
++| Subcommand | Phase | Does | Refusals |
++|---|---|---|---|
++| `init --doc D --profile P [--archive-existing]` | none | creates the ledger and `snapshots/r1.md`; prints `review: 1 of 3`; `--archive-existing` renames an old folder to `<name>.archived-<n>` (never deletes) | `E-EXISTS`, `E-USAGE`, `E-LOCKED` |
++| `find --input F [--dry-run]` | find | adds review-1 rows; the profile computes `blocking` | `E-ANCHOR`, `E-ANCHOR-AMBIGUOUS`, `E-SCHEMA`, `E-PHASE`, `E-TERMINAL` |
++| `answer --input F [--dry-run]` | revise | stores claims on provisional hunks and gap entries | `E-ILLEGAL`, `E-CLAIM-WIDE`, `E-FIXED-NO-EDIT`, `E-SCHEMA`, `E-TERMINAL`, `E-PHASE` |
++| `revert-unclaimed [--hunk KEY]` | revise | restores one unclaimed provisional hunk (the key `status` lists) or all of them, preimage-checked | `E-PHASE`, `E-ILLEGAL` |
++| `begin --doc D [--revert-unclaimed]` | revise | checks `E-TAMPERED`, `E-CAP`, `E-TERMINAL`, `E-REPORT-EDITED` in that order; snapshots `r<k>`, diffs, applies stored claims, auto-claims, restores unclaimed hunks only with the flag (consent for this call only), writes `diffs/c<k-1>.json` and `plan-r<k>.md` | `E-CAP`, `E-TERMINAL`, `E-REPORT-EDITED`, `E-PHASE`, `E-USAGE` (a `--doc` that is not the ledger's document) |
++| `verify --input F [--dry-run]` | verify | applies the answers and new rows | `E-INCOMPLETE`, `E-ANCHOR`, `E-ANCHOR-AMBIGUOUS`, `E-FROZEN`, `E-NOT-CHANGED`, `E-ILLEGAL`, `E-SCHEMA`, `E-PHASE`, `E-TERMINAL` |
++| `close --report R` | find, verify | computes `loop_decision`, appends the tail (last line `verdict: FAIL`, or `loop: PASS (sweep pending)` / `loop: ESCALATE (sweep pending)`); in phase revise re-appends a tail the report lost (recovery for `E-REPORT-EDITED`) | `E-PHASE`, `E-TERMINAL`, `E-SCHEMA` (report not found) |
++| `sweep --prepare` | terminal | copies the live document to a new temporary folder outside the ledger and prints the path | `E-PHASE`, `E-SWEEP-DONE` |
++| `sweep --input F --report R [--dry-run]` | terminal | ingests sweep rows (`deferred`, `round_found=sweep`, location `in_claimed_span`, `in_unclaimed_hunk` or `outside_hunks`), re-checks every review tail, sets `delivery_outcome`, appends a tail headed `sweep` ending `verdict: PASS` or `verdict: FAIL` | `E-SWEEP-DONE`, `E-PHASE`, `E-SCHEMA`, `E-ANCHOR`, `E-ANCHOR-AMBIGUOUS` |
++| `defer --id R --quote Q` | terminal, swept | records a user's words on a row; no status change | `E-PHASE`, `E-ILLEGAL`, `E-SCHEMA` |
++| `status` | any | read-only counts, rows, provisional hunks (phase revise), `metrics` | `E-TAMPERED`, `E-NO-LEDGER`, `E-USAGE` (neither `--ledger` nor `--doc`) |
++| `verdict` | any | read-only; exit 0 PASS, 10 CONTINUE, 11 ESCALATE, 12 PENDING (terminal, sweep not run) | `E-TAMPERED`, `E-NO-LEDGER`, `E-USAGE` (neither `--ledger` nor `--doc`) |
++
++Exit codes: 0 committed (whatever the decision); 1 usage (`E-USAGE`); 2 row-level input refused (`E-SCHEMA`, `E-ANCHOR`, `E-ANCHOR-AMBIGUOUS`, `E-ILLEGAL`, `E-CLAIM-WIDE`, `E-FIXED-NO-EDIT`, `E-INCOMPLETE`, `E-FROZEN`, `E-NOT-CHANGED`); 3 state refused (`E-EXISTS`, `E-NO-LEDGER`, `E-TAMPERED`, `E-PHASE`, `E-CAP`, `E-TERMINAL`, `E-REPORT-EDITED`, `E-SWEEP-DONE`); 4 lock or sequence conflict (`E-LOCKED`, `E-STALE-SEQ`, `E-OP-CONFLICT`).
++
++## Diffs and admission
++
++Hunks come from `difflib` with autojunk off over whitespace-normalized lines, kept as half-open line ranges (a zero-width range at p overlaps `[s, e)` when `s <= p <= e`). The admission unit is a maximal run of non-blank lines, except that each table row and each list item is its own unit. A hunk whose units read the same once whitespace is collapsed is a rewrap: neither a claim nor unclaimed. `HUNKS_LARGE` is reported when changed lines exceed 40% of the document.
++
++## Metrics (`status` → `metrics`)
++
++- `U3`: loop rows (found at reviews 1 to 3, `scope=in`, child rows included) graded CRITICAL or MAJOR and not `verified`; rows deferred at review 1 included.
++- `W`: sweep rows graded CRITICAL or MAJOR or carrying `challenges`, each counted once.
++- `O`: `scope=outside` rows graded CRITICAL or MAJOR.
++- `deferred_floor`: CRITICAL or MAJOR rows stored `deferred` at review 1 (a subset of `U3`, published separately).
++- `headline_raw = U3 + W + O`. Owner rule: a deferred, demoted or outside CRITICAL or MAJOR finding stays counted as open.
++- Also `per_cycle_bytes` (unclaimed and reverted bytes per cycle), `claim_bytes` (changed bytes per claimed row per cycle), `minor_touched` (`answered`, `auto-claimed`), `scope_outside`, `X`, and `post_terminal_edit` (the live document's hash against the last snapshot).
+diff --git a/tests/skills/test_review_ledger_script.py b/tests/skills/test_review_ledger_script.py
+index fc1688fd..961880b8 100644
+--- a/tests/skills/test_review_ledger_script.py
++++ b/tests/skills/test_review_ledger_script.py
+@@ -1544,3 +1544,35 @@ def test_help_lists_every_subcommand():
+         "defer",
+     ):
+         assert name in text
++
++
++# ---------------------------------------------------------------- Task 5
++
++_SKILL_MD = _REPO / "src/superclaude/skills/sc-review-ledger/SKILL.md"
++
++
++def test_skill_md_names_every_refusal_code_and_subcommand():
++    text = _SKILL_MD.read_text()
++    assert "name: sc-review-ledger" in text
++    codes = set(__import__("re").findall(r'"(E-[A-Z-]+)"', _SCRIPT.read_text()))
++    assert codes and not [c for c in sorted(codes) if c not in text]
++    for name in (
++        "init",
++        "find",
++        "answer",
++        "begin",
++        "verify",
++        "close",
++        "sweep",
++        "status",
++        "verdict",
++        "revert-unclaimed",
++        "defer",
++    ):
++        assert f"`{name}" in text
++
++
++def test_installer_does_not_treat_the_skill_as_served_by_a_command():
++    from superclaude.cli.install_skills import _has_corresponding_command
++
++    assert _has_corresponding_command("sc-review-ledger") is False

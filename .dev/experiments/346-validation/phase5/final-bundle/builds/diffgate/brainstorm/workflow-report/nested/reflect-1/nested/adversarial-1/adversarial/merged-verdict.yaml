@@ -1,0 +1,562 @@
+# Provenance: produced by /sc:adversarial
+# Base: Variant 2
+# Merge date: 2026-11-08T19:05:37Z
+# Mode A merge of variant-2-original.md (base, reviewer-2, qa, haiku) and variant-1-original.md
+# (reviewer-1, analyzer, sonnet), plus the Round 2 consensus and the Round 2.5 invariant probe,
+# executed per refactor-plan.md (31 changes). Per-finding provenance is in each finding's `source:` field.
+merge_method: adversarial
+base_variant: "variant-2 (reviewer-2, qa, haiku)"
+reviewer: "merged (reviewer-2 base + reviewer-1)"
+mode: pre
+grounding_root: /home/coder/workspaces/worktrees/IronClaude/bs346-diffgate
+provenance:
+  - origin: reviewer-2
+    persona: qa
+    model_class: haiku
+    ids: "QA-NNN"
+    calibrated_confidence: 0.85
+    calibration_dimensions: {citation_grounding: 0.95, coverage_completeness: 0.80, deviation_classification_clarity: 0.75, risk_surface_coverage: 0.85, recommendation_actionability: 0.90}
+  - origin: reviewer-1
+    persona: analyzer
+    model_class: sonnet
+    ids: "Fn"
+    calibrated_confidence: 0.81
+    calibration_dimensions: {citation_grounding: 0.88, coverage_completeness: 0.80, deviation_classification_clarity: 0.70, risk_surface_coverage: 0.80, recommendation_actionability: 0.88}
+  - origin: "Round 2.5 invariant probe (invariant-probe.md)"
+    ids: "INV-NNN"
+  - origin: "Round 2 debate consensus (debate-transcript.md)"
+    ids: "M-01"
+  - origin: "reviewer-2 calibrator (unraised_gaps)"
+    ids: "M-02"
+verdict: refactor
+verdict_note: "Every finding is fixable by editing plan text or ACs; Tasks 2, 4 and 12 must not execute until the owner rules on INV-010 and INV-029 (source.md:280)."
+findings:
+  # ---------------- HIGH ----------------
+  - id: QA-001
+    class: Regression
+    severity: HIGH
+    needs_owner_ruling: false
+    citation:
+      - ".dev/tasks/to-do/TASK-WF-spec-20261108-181640/TASK-WF-spec-20261108-181640.md:49"
+    evidence: ["source.md:24-29", "source.md:149", "plan:52", "source.md:275"]
+    finding: >-
+      Task 2 unconditionally defers findings without a hunk or prior id, including critical findings,
+      without distinguishing review 1. Review 1 has neither a computed surface nor prior ids, so this
+      instruction permits all initial blockers to become non-blocking and produce a false PASS. The
+      acceptance criteria repeat the unconditional rule rather than testing the initial-review exception.
+      source.md:154 is a test-case list, not the rule; the rule at source.md:29, :40, :149 limits deferral
+      to review 2 on.
+    fix: >-
+      Apply surface-based deferral only from review 2 and require an end-to-end review-1 test where a valid
+      critical finding without a hunk or prior id yields blocking=1, verdict FAIL, and a reviser brief.
+      See INV-027 for the review-1 grammar this fix also needs.
+    related: [INV-027]
+    source: "Variant 2 QA-001 (base; class Drift -> Regression, source.md:275 added); merged per Change #1"
+
+  - id: INV-010
+    class: Drift
+    severity: HIGH
+    needs_owner_ruling: true
+    provisional_class: >-
+      Regression if the owner rules that review-2 deferrals, demotions and withdrawals count at review 3
+      (then plan:49 contradicts the plan:26 owner decision); withdrawn if the owner confirms review-3-only
+      counting (then plan:49 matches source.md:204).
+    citation: ["plan:26", "plan:49", "plan:53", "source.md:12", "source.md:29", "source.md:204", "source.md:220", "source.md:253", "source.md:280"]
+    finding: >-
+      `proxy_all` counts only findings first raised in review 3 and priors marked in review 3. A blocker
+      declined in cycle 1 and withdrawn at review 2, a CRITICAL deferred at review 2, or a MAJOR demoted at
+      review 2 leaves `R3-proxy-all`, which is the route the spec says the proxy closes ('the proxy sees
+      both', source.md:253).
+    fix: >-
+      Get an owner ruling on whether review-2 deferrals, demotions and withdrawals count at review 3; if
+      they do, make the count cumulative across reviews and add a test where a review-2 withdrawal is
+      counted at review 3. Execution of Tasks 2, 4 and 12 waits on that ruling.
+    source: "invariant-probe.md INV-010 (Round 2.5, HIGH UNADDRESSED, blocking); raised by the Round 2.5 probe, not calibrator-verified; merged per Change #20"
+
+  - id: INV-001
+    class: Drift
+    severity: HIGH
+    needs_owner_ruling: false
+    citation: ["plan:71", "plan:74", "source.md:18", "source.md:26", "source.md:82", "source.md:95", "source.md:143", "source.md:229"]
+    finding: >-
+      `begin` for review N+1 replays the recorded check (plan:71; source.md:143 're-run check on the
+      recorded report'), but the command appends `verdict_line` and adds the Reviser brief to the report
+      after `check`, and the `<dir>` file list keeps no copy. A replay that re-reads the report path
+      mismatches and exits 6 on every normal loop at review 2; exit 6 voids the replicate (source.md:229).
+      plan:74 tests exit 6 only for a hand-edited ledger.
+    fix: >-
+      Store the accepted report bytes (in the ledger or `<dir>`) and replay those; add a subprocess test
+      that appends the verdict line and a Reviser brief to the report before `begin --expect-round 2` and
+      asserts exit 0.
+    source: "invariant-probe.md INV-001 (Round 2.5, HIGH UNADDRESSED, blocking); raised by the Round 2.5 probe, not calibrator-verified; merged per Change #19"
+
+  # ---------------- MEDIUM ----------------
+  - id: INV-007
+    class: Drift
+    severity: MEDIUM
+    needs_owner_ruling: false
+    citation: ["plan:37", "plan:42", "source.md:144", "source.md:254", "source.md:264"]
+    finding: >-
+      The plan assumes the exclusive-create lock file is always released. plan:37 and :42 define the lock,
+      temp file and symlink refusal with no stale-lock handling, so a worker killed mid-write (session
+      timeout, stall) leaves the lock and every later call fails, which the experiment counts as a stall
+      that costs a replicate (source.md:254, :264).
+    fix: >-
+      Fix direction: define a stale-lock rule (for example, the lock file records the holder's pid and a
+      lock whose pid is not running is removed and reported in the JSON message), make `status` name a held
+      lock and the recovery command, and test it.
+    related: [M-02]
+    source: "invariant-probe.md INV-007 (Round 2.5, MEDIUM UNADDRESSED); not calibrator-verified; merged per Change #24"
+
+  - id: INV-027
+    class: Drift
+    subtype: coverage gap
+    severity: MEDIUM
+    needs_owner_ruling: false
+    citation: ["plan:49", "source.md:120", "source.md:125", "source.md:149"]
+    finding: >-
+      QA-001's fix is not sufficient on its own. The FINDING grammar makes `hunk=` mandatory except with
+      `via=` or `cites=` (source.md:125), and review 1 has no hunks, so a review-1 FINDING line either fails
+      C2 or must take a form the grammar never defines. `origin=changed|unchanged` at review 1 is also
+      undefined (the only example, source.md:120, is at review 2).
+    fix: >-
+      Fix direction: define the review-1 FINDING form in Task 2: `hunk=` omitted (review 1 has no hunks)
+      and `origin=` fixed or omitted at review 1; C2 accepts it at review 1 only; the QA-001 review-1
+      end-to-end test uses this form.
+    related: [QA-001]
+    source: "invariant-probe.md INV-027 (Round 2.5 sufficiency challenge, MEDIUM UNADDRESSED); not calibrator-verified; merged per Change #29"
+
+  - id: INV-011
+    class: Drift
+    severity: MEDIUM
+    needs_owner_ruling: false
+    citation: ["plan:41", "plan:49", "plan:52", "source.md:125", "source.md:149"]
+    finding: >-
+      plan:49 says `at=` is 1-based inclusive over `doc-r<N>.md` with no side exception. A `side=old`
+      finding anchors on a removed token, which exists only in `doc-r<N-1>.md`, so C4 ('inside the
+      snapshot') and C5 ('on the `at=` lines of the named side') need old-side numbering. plan:41 tests only
+      that a pure deletion produces an old-side hunk; plan:52 has no check-level `side=old` case.
+    fix: >-
+      Fix direction: state in Task 2 that with `side=old`, `at=` is 1-based inclusive over
+      `doc-r<N-1>.md`, and C4 and C5 check against that file; add a check-level test with a `side=old`
+      finding on a pure deletion.
+    source: "invariant-probe.md INV-011 (Round 2.5, MEDIUM UNADDRESSED); not calibrator-verified; merged per Change #25"
+
+  - id: INV-018
+    class: Drift
+    severity: MEDIUM
+    needs_owner_ruling: false
+    citation: ["plan:49", "plan:52", "source.md:94", "source.md:125", "source.md:149", "source.md:215", "source.md:217"]
+    finding: >-
+      C1 requires `FINDING` lines or `FINDINGS none`, C9 requires one PRIOR line per prior blocker, and the
+      grammar calls `FINDINGS none` 'the single line' (plan:49; source.md:94, :125). Read literally, a
+      re-review with every prior resolved and no new finding cannot be written, so the clean PASS path at
+      reviews 2 and 3, a bar alternative (source.md:215, :217), is unreachable. plan:52 does not say its
+      `FINDINGS none` test runs at review 2 with PRIOR lines.
+    fix: >-
+      Fix direction: reword 'the single line `FINDINGS none`' so it replaces only the FINDING lines and
+      PRIOR lines remain required; add a review-2 test with every prior `resolved` plus `FINDINGS none`
+      that is accepted with verdict PASS.
+    source: "invariant-probe.md INV-018 (Round 2.5, MEDIUM UNADDRESSED); not calibrator-verified; merged per Change #26"
+
+  - id: INV-021
+    class: Drift
+    severity: MEDIUM
+    needs_owner_ruling: false
+    citation: ["plan:49", "source.md:39", "source.md:81", "source.md:149"]
+    finding: >-
+      plan:49 writes C2b as 'an `R<k>.<j>` id in the prose missing from the block' (any review), where
+      source.md:149 writes 'every `R<N>.<j>` token' (current review). A re-review's prose naturally names
+      prior minor ids, which get no PRIOR line (source.md:81), and earlier-review ids, so a legitimate
+      report becomes a structural failure; a false structural failure counts toward `invalid`
+      (source.md:39).
+    fix: >-
+      Fix direction: scope C2b to ids of the current review (`R<N>.<j>`, as source.md:149 writes) and add a
+      test where re-review prose names a prior minor id and a prior blocking id and is accepted.
+    source: "invariant-probe.md INV-021 (Round 2.5, MEDIUM UNADDRESSED); not calibrator-verified; merged per Change #27"
+
+  - id: QA-002
+    class: Drift
+    subtype: coverage gap
+    severity: MEDIUM
+    needs_owner_ruling: false
+    citation:
+      - ".dev/tasks/to-do/TASK-WF-spec-20261108-181640/TASK-WF-spec-20261108-181640.md:71"
+    evidence: ["source.md:40", "source.md:96", "plan:74-77"]
+    finding: >-
+      The plan names deferred.md but never assigns its required disclosure sentence (source.md:40) to an
+      implementation task or acceptance check; the copied Close bullet (source.md:96) only shows deferred.md.
+    fix: >-
+      Assign the exact disclosure sentence and preserved reviewer severity labels to Task 4's deferred.md
+      output, with an acceptance assertion. The sentence is written by `diffgate.py` into `deferred.md` (a
+      Task 4 AC), not added to the command's Close text, so the Diffgate bullet 6 pin (QA-005 fix) stays
+      verbatim.
+    source: "Variant 2 QA-002 (base; subtype coverage gap added; placement constraint from invariant-probe INV-025, LOW); merged per Change #2"
+
+  - id: INV-002
+    class: Drift
+    severity: MEDIUM
+    needs_owner_ruling: false
+    citation: ["plan:71", "plan:74", "source.md:262"]
+    finding: >-
+      Replay is assumed to reproduce a degraded check. After one repair turn, finding-level violations
+      become `deferred: unanchored` and a missing PRIOR counts as `open`; a replay that re-runs `check`
+      without the attempt number would reject (exit 1) instead of degrading, and report a mismatch
+      (exit 6). plan:71 puts the degrade rule and replay in one task with no stated replay of attempt
+      state; plan:74 tests degrade and replay separately, never degrade then `begin`; source.md:262
+      expects degraded reviews to occur.
+    fix: >-
+      Fix direction: record the attempt number and `degraded` state with the accepted check and replay with
+      them, so a degraded acceptance replays as degraded; add a test that degrades a review, then runs
+      `begin --expect-round 2` and asserts exit 0.
+    related: [INV-001]
+    source: "invariant-probe.md INV-002 (Round 2.5, MEDIUM UNADDRESSED); depends on the INV-001 stored-copy design; not calibrator-verified; merged per Change #21"
+
+  - id: INV-003
+    class: Drift
+    severity: MEDIUM
+    needs_owner_ruling: false
+    citation: ["plan:71", "plan:74", "source.md:27", "source.md:239"]
+    finding: >-
+      `fix-rejected` is a defined terminal outcome: the plan records it in the ledger after a third failing
+      fixcheck (plan:71), but the `status` states (`open`, `checked`, `fixed`, `closed`, `invalid`) and
+      `halt` values (`pass`, `escalate`, `invalid`) have no slot for it, and nothing says what the next
+      `begin` does after it. The plan:74 AC only asserts the record.
+    fix: >-
+      Fix direction: map `fix-rejected` to a terminal state: `status` reports `closed` with
+      `halt: escalate` (source.md:27, 'stop the reviser and escalate without spending a review'), and the
+      next `begin` exits 4; extend the plan:74 AC to assert both.
+    source: "invariant-probe.md INV-003 (Round 2.5, MEDIUM UNADDRESSED); not calibrator-verified; merged per Change #22"
+
+  - id: INV-006
+    class: Drift
+    subtype: coverage gap
+    severity: MEDIUM
+    needs_owner_ruling: false
+    citation: ["plan:71", "plan:74", "source.md:49", "source.md:112"]
+    finding: >-
+      Step-order guards are listed only for `begin` and `--expect-round` (plan:71). The plan never says a
+      second `check` after an accepted check for the same review is refused, nor that `fixcheck` before an
+      accepted check exits 5, nor what `check` does with no ledger, so a resubmitted softer report could
+      overwrite an accepted FAIL. plan:74 has no such case; source.md:49 requires locks between steps.
+    fix: >-
+      Fix direction: state and test that a second `check` after an accepted check for the same review exits
+      5 (a softer report cannot overwrite an accepted FAIL), `fixcheck` before an accepted check exits 5,
+      and `check` with no ledger exits 5.
+    source: "invariant-probe.md INV-006 (Round 2.5, MEDIUM UNADDRESSED); not calibrator-verified; merged per Change #23"
+
+  - id: F1
+    class: Drift
+    subtype: coverage gap
+    severity: MEDIUM
+    needs_owner_ruling: false
+    title: Severity-rule green check cannot see untracked new files, so the acceptance criteria pass vacuously
+    citation: ["plan:89", "plan:104", "plan:149", "plan:25", "tests/skills/test_review_severity_rule.py:28-51"]
+    finding: >-
+      _tracked_text() builds its file set from git ls-files; new spec-panel-diffgate.md and sc-diffgate/**
+      are untracked until staged, so the severity-rule tests that read through `_tracked_text`, test_a
+      (line 172), test_f (320), test_i (448) and test_k (506), never read them, and the Tasks 5, 6 and 10
+      acceptance criteria pass vacuously. PR CI (.github/workflows/test.yml:3-7, :47) runs the full suite
+      once the files are committed, so the defect is a false green inside the plan's own runs, not a
+      shipped wrong result.
+    fix: >-
+      Before the severity-rule test in Tasks 5, 6 and 10, run `git add -N` on the new `src/` files (never
+      `.claude/`); `tests/` is not in `_SCAN_TREES` (line 28), so marking it is unnecessary. Put the step in
+      each AC.
+    source: "Variant 1 F1 (class Regression -> Drift, subtype coverage gap; severity MEDIUM per Round 2 / A-005); merged per Change #6"
+
+  - id: F2
+    class: Drift
+    severity: MEDIUM
+    needs_owner_ruling: false
+    title: Task 5 requires the subcommand table verbatim yet alters its check row; the test demands an exact substring
+    citation: ["plan:83", "plan:86", "source.md:105-110"]
+    finding: >-
+      Task 5 requires the subcommand table verbatim (plan:83) yet alters its check row with added
+      `proxy_all` text, while the test demands an exact substring of the table (plan:86); the plan
+      contradicts itself.
+    fix: >-
+      Keep the table verbatim and define proxy_all in a sentence directly under it; test both separately.
+    source: "Variant 1 F2 (class Regression -> Drift per Round 2 / C-003); invariant-probe INV-026 (ADDRESSED) confirms this fix and the F3 fix work together; merged per Change #7"
+
+  - id: QA-005
+    class: Drift
+    severity: MEDIUM
+    needs_owner_ruling: false
+    citation:
+      - ".dev/tasks/to-do/TASK-WF-spec-20261108-181640/TASK-WF-spec-20261108-181640.md:103"
+      - "plan:110"
+      - "plan:114"
+      - "source.md:86-96"
+      - "src/superclaude/commands/spec-panel.md:19-24"
+    evidence: ["plan:110-114", "source.md:86-96"]
+    finding: >-
+      Task 6 says Task 7 checks both bullet sections character for character, but Task 7 pins only the seven
+      Review Loop bullets; the six Diffgate bullets are checked for placement and lookup order only. Task
+      7's drift guard ('every other `## ` section equals the parent's', plan:110) also does not exempt the
+      edited `## Usage` section (spec-panel.md:19-24, token replaced per plan:97), so as written it fails on
+      a correct variant.
+    fix: >-
+      Extend Task 7 to pin all six `## Diffgate` bullets character for character, plus a negative test that
+      changes one behavioral clause of a Diffgate bullet (not only Review Loop bullet 3, plan:114). State
+      the drift-guard exceptions explicitly: (a) `## Usage`, compared after the `--re-review ...
+      --baseline ...` token is replaced by `--diffgate-dir ...`; (b) `## Review Loop`, pinned by the
+      seven-bullet check instead; (c) `## Diffgate`, a new section with no parent counterpart, pinned by the
+      six-bullet check this fix adds (exempt only because, and only once, that check exists);
+      (d) `## Tool Coordination`, equal after removing the release-spec template clause from the `**Read**`
+      bullet; (e) `## Unattended mode`, asserted absent. Resolve INV-024 before pinning bullet 4.
+    merged_from: [F4]
+    related: [INV-024]
+    source: "Variant 2 QA-005 (base) + Variant 1 F4 (Usage exemption; F4's original exception list corrected per X-001); negative case from invariant-probe INV-031; merged per Change #5"
+
+  - id: INV-024
+    class: Drift
+    severity: MEDIUM
+    needs_owner_ruling: false
+    citation: ["plan:21", "plan:103", "source.md:91", "source.md:94"]
+    finding: >-
+      Diffgate bullet 4 (source.md:94) names only `~/.claude/skills/sc-diffgate/SKILL.md`, not the project
+      `.claude/skills/sc-diffgate` copy, which breaks the plan's own dual-surface constraint (plan:21);
+      bullet 1 (source.md:91) names both. Pinning the six Diffgate bullets character for character (QA-005
+      fix) would make that break permanent.
+    fix: >-
+      Fix direction: in Task 6, write Diffgate bullet 4 to name `~/.claude/skills/sc-diffgate/SKILL.md`
+      first, then the project `.claude/skills/sc-diffgate/SKILL.md` copy, as plan:21 requires and bullet 1
+      already does; record it as a Necessary deviation from source.md 3.1 item 5; Task 7 pins the amended
+      text. Resolve before the QA-005 pin.
+    related: [QA-005]
+    source: "invariant-probe.md INV-024 (Round 2.5, MEDIUM UNADDRESSED); not calibrator-verified; merged per Change #28"
+
+  - id: QA-004
+    class: Drift
+    subtype: coverage gap
+    severity: MEDIUM
+    needs_owner_ruling: false
+    citation:
+      - ".dev/tasks/to-do/TASK-WF-spec-20261108-181640/TASK-WF-spec-20261108-181640.md:174"
+    evidence: ["source.md:33", "source.md:206", "source.md:223", "source.md:229"]
+    finding: >-
+      The scoring note always reads proxy_all from result-r3.json; an early PASS at review 1 or 2 closes the
+      loop, so that file never exists and the kit has no scoring instruction for that permitted outcome.
+    fix: >-
+      Add a scoring branch for early terminal reviews (read the last result-r<N>.json, carry growth forward,
+      never fabricate result-r3.json). The value read for an early terminal review is the owner's call
+      (INV-029, source.md:280); until ruled, README must state the open question instead of picking a value.
+    related: [INV-029]
+    source: "Variant 2 QA-004 (base; subtype coverage gap added; owner-call sentence from invariant-probe INV-029); merged per Change #4"
+
+  - id: INV-029
+    class: Drift
+    severity: MEDIUM
+    needs_owner_ruling: false
+    citation: ["plan:174", "source.md:204", "source.md:206", "source.md:215", "source.md:223", "source.md:280"]
+    finding: >-
+      QA-004's fix (read the last `result-r<N>.json`) does not settle early-PASS scoring. The bar's
+      alternative is 'a clean PASS sooner' (source.md:215, :223), so an early scoped PASS
+      (`acceptance: scoped`) needs a rule, and reading review 2's `proxy_all` quietly redefines
+      `R3-proxy-all` (defined 'within review 3', source.md:204) without the owner confirmation the spec asks
+      for (source.md:280).
+    fix: >-
+      Fix direction: put the early-PASS case (scoped or clean PASS at review 1 or 2) in the same owner
+      confirmation as INV-010 (source.md:280); README states the ruled value of `R3-proxy-all` for an arm
+      that closed early, and carries growth forward only as source.md:206 allows.
+    related: [QA-004, INV-010]
+    source: "invariant-probe.md INV-029 (Round 2.5 sufficiency challenge, MEDIUM UNADDRESSED); not calibrator-verified; merged per Change #30"
+
+  # ---------------- LOW ----------------
+  - id: F8
+    class: Drift
+    severity: LOW
+    needs_owner_ruling: false
+    title: Task 1 allows raising stubs yet requires one JSON object per path and CLI-level exit 2/3 tests
+    citation: ["plan:37", "plan:41"]
+    finding: >-
+      Task 1 allows raising stubs yet requires one JSON object per path and CLI-level exit 2/3 tests; a
+      stub body cannot satisfy those ACs unless validation runs before dispatch.
+    fix: >-
+      Run limit and read validation in `main` before dispatch, so the exit 2/3 ACs of Task 1 pass while
+      bodies are stubs; stubs print `{ok:false, exit:2, message:"not implemented"}`.
+    source: "Variant 1 F8 (fix reordered to lead with the calibrator's resolution); merged per Change #12"
+
+  - id: M-02
+    class: Drift
+    subtype: coverage gap
+    severity: LOW
+    needs_owner_ruling: false
+    title: Exclusive-create lock untested
+    citation: ["plan:37", "plan:42", "source.md:144"]
+    finding: >-
+      plan:42 tests symlink refusal but not the exclusive-create lock that source.md:144 requires.
+    fix: >-
+      Add a Task 1 AC: with the lock file present, `save_ledger` fails without writing the ledger or leaving
+      a temp file. This test does not supply the recovery rule; see INV-007.
+    related: [INV-007]
+    source: "Variant 2 calibrator unraised_gaps (promoted to a finding; U-017; Round 2 consensus row); merged per Change #18"
+
+  - id: F3
+    class: Drift
+    severity: LOW
+    needs_owner_ruling: false
+    title: Source of Task 5's expected verbatim blocks unspecified (source.md moves on archive)
+    citation: ["plan:86", "plan:110"]
+    finding: >-
+      Task 5 does not say where its expected verbatim blocks come from. source.md moves to
+      `.dev/tasks/done/` on archive (plan:110 already embeds Task 7's expected text in the test file;
+      plan:86 says nothing for Task 5).
+    fix: State that the expected blocks are literals embedded in tests/skills/test_diffgate_script.py.
+    source: "Variant 1 F3 (MEDIUM -> LOW per Round 2 consensus; CI hedge dropped); merged per Change #8"
+
+  - id: F10
+    class: Drift
+    subtype: coverage gap
+    severity: LOW
+    needs_owner_ruling: false
+    title: No lint step for the new Python files
+    citation: ["plan:143-149", "CLAUDE.md (make lint)"]
+    finding: >-
+      Task 10 (plan:143-149) runs no lint step on the new Python files, although the project's lint command
+      is `make lint` (CLAUDE.md).
+    fix: Add make lint on the new files to Task 10 with output saved under ./artifacts/.
+    source: "Variant 1 F10 (subtype coverage gap added per calibrator 'omitted step'); merged per Change #14"
+
+  - id: F9
+    class: Authorized expansion
+    severity: LOW
+    needs_owner_ruling: false
+    title: Tasks 11 and 12 take section 5 content (pre-run gate, T11 blindness-audit text) beyond the plan:19 scope line
+    citation: ["plan:19", "plan:155", "plan:173", "source.md:201", "source.md:209"]
+    finding: >-
+      Tasks 11 and 12 add the section 5 pre-run gate (plan:155) and plan-authored T11 blindness-audit text
+      (plan:173), drawn from source.md:201 and :209, which the plan:19 scope line does not name.
+    fix: >-
+      Amend the plan:19 scope line to name the section 5 pre-run gate (Task 11) and the T11 blindness-audit
+      brief (Task 12) as in scope.
+    source: "Variant 1 F9 (retitled; base-commit claim dropped since source.md:199 names it; fix per Round 2 disputed row 3); merged per Change #13"
+
+  - id: F5
+    class: Drift
+    severity: LOW
+    needs_owner_ruling: false
+    title: T10 template ships a brief the diffgate design says must not run (review-3 FAIL means halt, no third fix)
+    citation: ["plan:172", "source.md:32", "source.md:33", "source.md:206"]
+    finding: >-
+      T10 template ships a brief the diffgate design says must not run (review-3 FAIL means halt, no third
+      fix). plan:172 and :174 already route T10 to the coordinator; the residual gap is that the template
+      ships ready to dispatch.
+    fix: >-
+      Keep T10 only under `briefs/source/`, or keep `T10-R3-reviser.txt` with a first-line README marker
+      that it is excluded from the diffgate arm unless the coordinator rules otherwise.
+    source: "Variant 1 F5 (narrowed per calibrator 'partial'); merged per Change #9"
+
+  - id: F6
+    class: Drift
+    severity: LOW
+    needs_owner_ruling: false
+    title: Reviser line is appended after the 'Finish with worker_done' instruction (placement)
+    citation: ["plan:171", "plan:178", "source.md:189-193"]
+    finding: >-
+      The reviser line's position is stated (appended), but it lands after the 'Finish with worker_done'
+      instruction: badly placed, not ambiguous.
+    fix: >-
+      Insert the line immediately before 'Finish with worker_done', as one line, and make the Task 12 diff
+      AC (plan:178) match that position.
+    source: "Variant 1 F6 (retitled per calibrator 'badly placed, not ambiguous'); merged per Change #10"
+
+  - id: F7
+    class: Drift
+    subtype: coverage gap
+    severity: LOW
+    needs_owner_ruling: false
+    title: README omits that the plain-command blindness audit is exempt from the "plain /sc:spec-panel ran" validity void
+    citation: ["plan:173-174", "source.md:209", "source.md:229"]
+    finding: >-
+      source.md:229 voids a replicate when plain /sc:spec-panel ran, while source.md:209 requires a separate
+      plain-command blindness-audit session; the README (plan:173-174) does not exempt that session from
+      the void rule.
+    fix: Add one README sentence exempting the separate blindness-audit session.
+    source: "Variant 1 F7 (class Regression -> Drift, subtype coverage gap per Round 2); merged per Change #11"
+
+  - id: M-01
+    class: Drift
+    subtype: coverage gap
+    severity: LOW
+    needs_owner_ruling: false
+    title: No check that briefs never pass --unattended
+    citation: ["plan:29", "plan:133", "plan:155", "plan:173", "plan:178"]
+    finding: >-
+      The variant has no `## Unattended mode` section and the plan's residual (plan:29) holds only if no
+      brief passes `--unattended`; no AC asserts it.
+    fix: >-
+      Add a Task 12 AC: `grep -l -e '--unattended' .dev/brainstorms/346-diffgate/briefs/*.txt` prints
+      nothing; save the output under `./artifacts/`.
+    source: "Round 2 V1 rebuttal new evidence + V2 Round 1 A-008 QUALIFY (closes invariant-probe INV-009); not calibrator-verified; merged per Change #17"
+
+advisory:
+  - id: ADV-1
+    text: >-
+      Task 4 turns source.md:242's 'about 35' into a hard floor (plan:77); parametrization can meet it
+      without new coverage. Count distinct behaviours, or keep the number as a guide.
+    source: "Variant 1 correctness_gaps_advisory (invariant-probe INV-014 ADDRESSED); merged per Change #15"
+
+confirmed_ok:
+  # Source: Variant 1 confirmed_ok, copied verbatim per Change #16; true at audit time, not re-verified by the merge.
+  - 'Parent spec-panel.md anchors match (486 lines; title 10; Usage 22-23; Tool Coordination 218; Read bullet 220; Review Loop 256; Output Formats 266; Unattended 451; Boundaries 463).'
+  - 'The only src/superclaude string in the parent is the Read bullet at line 220.'
+  - 'tests/recommend/test_routing_refresh.py:33 and :648 match; CANONICAL_CAP_TEXT and AT_CAP_CLAUSES importable.'
+  - 'tests/skills/test_worker_contract.py:831-839 counts only files with the heading, so the owner ruling holds.'
+  - 'list_available_skills() at install_skill.py:115.'
+  - 'tests/skills/test_workflow_archive.py:22-28 matches the loader pattern.'
+  - 'Originals T07 and T09 each contain "any finding of any severity is FAIL" once; T05-T10 carry no --re-review/--baseline clause.'
+
+notes:
+  - "Read all 12 plan tasks, the complete spec, both brief sections and all 35 coverage-matrix rows."
+  - "Respected the owner rulings (no Unattended section, worker-contract test unchanged, review-brief wording verbatim, proxy_all keeps deferred/demoted/withdrawn labels)."
+  - "Read-only audit; no tests run; external S1 brief files not inspected."
+  - "Merged by /sc:adversarial Mode A; status BLOCKED_BY_INVARIANTS (INV-001, INV-010)."
+  - >-
+    Coverage artifact (not a plan finding; formerly QA-003, removed from findings per Change #3):
+    `reflect-1/artifacts/coverage-matrix.json:230-239` has no rows for checker rules C1-C12 (source.md:149),
+    input limits (source.md:133) or ledger locking, atomic replace and symlink refusal (source.md:144); the
+    plan covers them in Tasks 1-4 (plan:37, :42, :49). Add atomic inferred rows and recompute the 28/35
+    figure.
+
+calibration:
+  calibrator_model_class: opus
+  per_finding:
+    QA-001: {verified: true, reason: "plan:49/52 defer at every review; review 1 has no hunks; source intent is from review 2 (source.md:29, 149). Note source.md:154 repeats the unconditional wording, so the plan inherited it."}
+    QA-002: {verified: true, reason: "source.md:40 sentence absent from every task and AC; INF-006 unmapped."}
+    QA-004: {verified: true, reason: "plan:174 always reads result-r3.json; early PASS permitted (source.md:33, 206, 223, 229). Fix proposal is a guess."}
+    QA-005:
+      verified: true
+      reason: "plan:103 promises both bullet sets pinned; plan:110 pins only Review Loop."
+      merged_F4: {verified: true, reason: "## Usage (spec-panel.md:19-24) is edited; drift guard at plan:110 names only Unattended and Tool Coordination"}
+    F1: {verified: true, reason: "test_review_severity_rule.py:36-51 uses git ls-files; tests at 172 and 320 never read untracked new files"}
+    F2: {verified: true, reason: "plan:83 verbatim + extra proxy_all vs plan:86 substring assertion against source.md:108"}
+    F3: {verified: true, reason: "plan:86 gives no source for expected blocks; plan:110 says it for Task 7 only"}
+    F5: {verified: partial, reason: "plan:172/174 already flag T10 as a coordinator decision; gap smaller than stated"}
+    F6: {verified: partial, reason: "position stated (appended), but lands after the finish instruction: badly placed, not ambiguous"}
+    F7: {verified: true, reason: "source.md:229 voids on plain /sc:spec-panel; README at plan:174 has no audit exemption"}
+    F8: {verified: partial, reason: "conflict real; main() validating before dispatch resolves it"}
+    F9: {verified: partial, reason: "base commit 2cb683f5 is named at source.md:199, so 'unverified' is overstated"}
+    F10: {verified: true, reason: "plan:143-149 has no make lint"}
+    M-02: {verified: not calibrator-verified, reason: "raised by the reviewer-2 calibrator as an unraised gap (plan:42 tests symlink refusal but not the exclusive-create lock)"}
+    INV-001: {verified: not calibrator-verified, reason: "probe"}
+    INV-010: {verified: not calibrator-verified, reason: "probe"}
+    INV-007: {verified: not calibrator-verified, reason: "probe"}
+    INV-027: {verified: not calibrator-verified, reason: "probe"}
+    INV-011: {verified: not calibrator-verified, reason: "probe"}
+    INV-018: {verified: not calibrator-verified, reason: "probe"}
+    INV-021: {verified: not calibrator-verified, reason: "probe"}
+    INV-002: {verified: not calibrator-verified, reason: "probe"}
+    INV-003: {verified: not calibrator-verified, reason: "probe"}
+    INV-006: {verified: not calibrator-verified, reason: "probe"}
+    INV-024: {verified: not calibrator-verified, reason: "probe"}
+    INV-029: {verified: not calibrator-verified, reason: "probe"}
+    M-01: {verified: not calibrator-verified, reason: "debate"}
+
+counts: {HIGH: 3, MEDIUM: 15, LOW: 9}
+
+convergence:
+  diff_point_agreement: 1.0
+  status: BLOCKED_BY_INVARIANTS
+  blocking_items: [INV-001, INV-010]

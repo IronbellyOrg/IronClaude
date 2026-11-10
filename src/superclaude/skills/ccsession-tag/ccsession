@@ -91,8 +91,8 @@
 #                             Use a tier: its models fail over automatically when
 #                             one runs out of usage (tiers listed below)
 #   ccsession <topic> --model <name>
-#                             Use one model by name, no failover; its context
-#                             window comes from the tier settings
+#                             Start on a named model; failover uses its highest-
+#                             listed allowed tier. Its window comes from tier settings
 #   CCSESSION_SHOW_ALL_MODELS=1 ccsession <topic>
 #                             Also list the tier models one by one in /model
 #   In tier mode --profile is not used and the shim is always on.

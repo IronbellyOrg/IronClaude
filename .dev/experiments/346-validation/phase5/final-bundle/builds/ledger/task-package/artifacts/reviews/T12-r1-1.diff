@@ -1,0 +1,169 @@
+diff --git a/.dev/brainstorms/346-ledger/INSTALL.md b/.dev/brainstorms/346-ledger/INSTALL.md
+new file mode 100644
+index 00000000..f74a33ca
+--- /dev/null
++++ b/.dev/brainstorms/346-ledger/INSTALL.md
+@@ -0,0 +1,128 @@
++# INSTALL: the /sc:spec-panel-ledger experiment variant (issue 346, theme ledger)
++
++Owner install by hand for the S1 arm "led". This is not a repo change and runs no `superclaude install`.
++
++## What gets installed
++
++Exactly three files go into `~/.claude/`:
++
++| Repo file | Installed copy |
++|---|---|
++| `src/superclaude/commands/spec-panel-ledger.md` | `~/.claude/commands/sc/spec-panel-ledger.md` |
++| `src/superclaude/skills/sc-review-ledger/SKILL.md` | `~/.claude/skills/sc-review-ledger/SKILL.md` |
++| `src/superclaude/skills/sc-review-ledger/scripts/review_ledger.py` | `~/.claude/skills/sc-review-ledger/scripts/review_ledger.py` |
++
++Run from the repo root (the `bs346-ledger` worktree):
++
++```bash
++cp src/superclaude/commands/spec-panel-ledger.md ~/.claude/commands/sc/
++cp -r src/superclaude/skills/sc-review-ledger ~/.claude/skills/
++sha256sum ~/.claude/commands/sc/spec-panel-ledger.md \
++  ~/.claude/skills/sc-review-ledger/SKILL.md \
++  ~/.claude/skills/sc-review-ledger/scripts/review_ledger.py
++```
++
++Record the three `sha256sum` lines in the install watcher. Nothing else in `~/.claude/` changes: `~/.claude/commands/sc/spec-panel.md` stays as it is, and no `superclaude install` runs. Every worker host that runs the ledger steps needs `uv` (every call is `uv run --no-project python "<skill base>/scripts/review_ledger.py" ...`, with `<skill base>` = `~/.claude/skills/sc-review-ledger`).
++
++## The variant's base
++
++`spec-panel-ledger.md` is a byte copy of the 472-line Arm B file `/home/coder/workspaces/worktrees/IronClaude/exp346-p1-logs/.dev/experiments/346-validation/phase2/S1/inputs/tool-text/spec-panel-post427-95f2c6e4.md` (sha256 `c8d80346a96cb528fce6cff3bcadfed5bc95d1eee48dea0ac275404314b8df2f`, the PR 427 text the S1 arms ran), with only three blocks changed: the frontmatter `name` and `description`, the Usage line (`/sc:spec-panel-ledger`, no `--re-review`/`--baseline`, adds `[--ledger <dir>] [--revert-unclaimed] [--sweep]`), and `## Review Loop` replaced by `## Review Ledger Loop` (a refusal line for `--unattended` and eight one-line bullets). It is 475 lines.
++
++- The current `src/superclaude/commands/spec-panel.md` was not used as the base: without its `## Unattended mode` section it is 474 lines, two more than the Arm B file (a second Usage line with `--unattended` and a line about `--target-release`). The existing `src/superclaude/commands/spec-panel.md` is not changed.
++- The variant deliberately has no `## Unattended mode` section (owner decision; the base has none), and the S1 briefs never pass `--unattended`. A standalone `--unattended` token is refused with "spec-panel-ledger has no unattended mode".
++- The base inherits one line naming `src/superclaude/examples/release-spec-template.md` (in `## Tool Coordination`). The copy rule wins: the variant keeps that line unchanged, and `tests/skills/test_spec_panel_ledger_command.py` asserts the variant adds no `src/superclaude` occurrence beyond the base's one.
++- The title line `# /sc:spec-panel - Expert Specification Review Panel` and the examples that name `/sc:spec-panel` are byte copies of the base, on purpose.
++- The drift test compares the variant with a byte copy of the base kept as `tests/skills/fixtures/review-ledger/spec-panel-post427-base.md`.
++- `tests/recommend/test_routing_refresh.py` gets `spec-panel-ledger` added to `_POST_REFRESH_ADDITIONS` (owner ruling); nothing else in that file changes.
++- `make lint` reports one warning for the variant (Check 3, 475 lines over the 200-line warn threshold), the same warning `spec-panel.md` already gets; no error.
++
++## The briefs
++
++The one-line substitution (source.md section 4), in the three S1 review briefs only:
++
++```text
++/sc:spec-panel        ->  /sc:spec-panel-ledger --ledger .dev/orca-command-refactor/specs/orca-worker-contract-spec.review-ledger --revert-unclaimed
++```
++
++It applies to T05, T07 and T09; T06, T08 and T10 stay verbatim (T10 is not dispatched: review 3 always ends the loop). All other flags on the line stay. The ready copies are in `.dev/brainstorms/346-ledger/briefs/` with a `README.md` that lists every change and the values filled at dispatch time.
++
++## The ledger steps
++
++Review and reviser sessions never run a script call that writes a file. Every write (`init`, `find`, `answer`, `begin` with its scripted revert, `verify`, `close`, `sweep`) is an inserted coordinator step with its own brief template in `.dev/brainstorms/346-ledger/briefs/ledger-steps/`, run between the S1 tasks in the order its `README.md` gives (`L0-init`, T05, `L-find-close`, T06, `L-begin`, T07, `L-verify-close`, T08, `L-begin`, T09, `L-verify-close`, then the sweep route). Skip rule: after a `close` whose `verdict` exits 12 (the loop ended at review 1 or 2), the remaining T06 to T09 dispatches and their ledger steps are skipped and the sweep route runs next.
++
++## The sweep route
++
++The sweep runs once after every terminal decision, a review-1 PASS included, on the copy `sweep --prepare` prints, in a context that never opens the ledger folder.
++
++- Default: an Agent-tool subagent of the terminal ledger step (`ledger-steps/L-sweep-subagent.txt`), only after a recorded smoke check shows that a dispatched worker can spawn the subagent and keep sending its 5-minute heartbeat through a subagent run longer than 5 minutes.
++- Otherwise: `ledger-steps/L-sweep-prepare.txt`, then `T09b-sweep-dispatch.txt` as the sixth dispatch (declared as a deviation), then `ledger-steps/L-sweep-ingest.txt`.
++
++## Measurement rule
++
++`status` reports `metrics.headline_raw = U3 + W + O`: deferred, demoted and outside CRITICAL or MAJOR rows count as open (owner rule). `metrics.deferred_floor` is published beside it.
++
++## Every file this change creates or changes
++
++Listed from `git status --porcelain --untracked-files=all` against the snapshot taken before Task 1 (`.dev/tasks/to-do/TASK-WF-spec-20261108-181649/artifacts/untracked-before.txt`), leaving out `.dev/tasks/` (the plan package) and `.claude/` (gitignored dev copies written by `make sync-dev`).
++
++| Repo path | `~/.claude/` destination |
++|---|---|
++| `.dev/brainstorms/346-ledger/INSTALL.md` | not installed |
++| `.dev/brainstorms/346-ledger/briefs/README.md` | not installed |
++| `.dev/brainstorms/346-ledger/briefs/T05-R1-reviewer-L11-699ae853.txt` | not installed |
++| `.dev/brainstorms/346-ledger/briefs/T06-R1-reviser-L10-3bb70411.txt` | not installed |
++| `.dev/brainstorms/346-ledger/briefs/T07-R2-reviewer-L11-aff19d65.txt` | not installed |
++| `.dev/brainstorms/346-ledger/briefs/T08-R2-reviser-L10-66468bab.txt` | not installed |
++| `.dev/brainstorms/346-ledger/briefs/T09-R3-reviewer-L11-1c9a7ec8.txt` | not installed |
++| `.dev/brainstorms/346-ledger/briefs/T09b-sweep-dispatch.txt` | not installed |
++| `.dev/brainstorms/346-ledger/briefs/T10-R3-reviser-L10-458bdc00.txt` | not installed |
++| `.dev/brainstorms/346-ledger/briefs/ledger-steps/L-begin.txt` | not installed |
++| `.dev/brainstorms/346-ledger/briefs/ledger-steps/L-find-close.txt` | not installed |
++| `.dev/brainstorms/346-ledger/briefs/ledger-steps/L-sweep-ingest.txt` | not installed |
++| `.dev/brainstorms/346-ledger/briefs/ledger-steps/L-sweep-prepare.txt` | not installed |
++| `.dev/brainstorms/346-ledger/briefs/ledger-steps/L-sweep-subagent.txt` | not installed |
++| `.dev/brainstorms/346-ledger/briefs/ledger-steps/L-verify-close.txt` | not installed |
++| `.dev/brainstorms/346-ledger/briefs/ledger-steps/L0-init.txt` | not installed |
++| `.dev/brainstorms/346-ledger/briefs/ledger-steps/README.md` | not installed |
++| `docs/designs/spec-panel-ledger.md` | not installed |
++| `src/superclaude/commands/spec-panel-ledger.md` | `~/.claude/commands/sc/spec-panel-ledger.md` |
++| `src/superclaude/skills/sc-review-ledger/SKILL.md` | `~/.claude/skills/sc-review-ledger/SKILL.md` |
++| `src/superclaude/skills/sc-review-ledger/scripts/review_ledger.py` | `~/.claude/skills/sc-review-ledger/scripts/review_ledger.py` |
++| `tests/skills/fixtures/review-ledger/answer-basic.json` | not installed |
++| `tests/skills/fixtures/review-ledger/doc-r1.md` | not installed |
++| `tests/skills/fixtures/review-ledger/doc-r2-delete.md` | not installed |
++| `tests/skills/fixtures/review-ledger/doc-r2-fix.md` | not installed |
++| `tests/skills/fixtures/review-ledger/doc-r2-outside.md` | not installed |
++| `tests/skills/fixtures/review-ledger/doc-r2-rewrap.md` | not installed |
++| `tests/skills/fixtures/review-ledger/doc-r2-two-rows.md` | not installed |
++| `tests/skills/fixtures/review-ledger/find-basic.json` | not installed |
++| `tests/skills/fixtures/review-ledger/find-empty.json` | not installed |
++| `tests/skills/fixtures/review-ledger/spec-panel-post427-base.md` | not installed |
++| `tests/skills/fixtures/review-ledger/sweep-rows.json` | not installed |
++| `tests/skills/test_review_ledger_script.py` | not installed |
++| `tests/skills/test_spec_panel_ledger_command.py` | not installed |
++| `tests/recommend/test_routing_refresh.py` (changed, one set entry and its comment) | not installed |
++
++## Departures from the frozen plan
++
++The plan (`.dev/tasks/to-do/TASK-WF-spec-20261108-181649/TASK-WF-spec-20261108-181649.md`) was pinned before Task 1 started. These owner rulings arrived afterwards and were built inside the existing tasks without editing the plan (record: `.dev/tasks/to-do/TASK-WF-spec-20261108-181649/artifacts/owner-rulings.md`):
++
++1. **`--dry-run`** on `find` (built in Task 2's change), `answer` (Task 2), `verify` (Task 3) and `sweep --input` (Task 4): it validates the input against the current ledger, prints the would-be result, takes no lock and writes no file. Tests hash the whole ledger folder, the document and the report before and after a dry-run call and assert no change.
++2. **Read-only script calls in review and reviser sessions.** The plan says those sessions "never run the writing script"; by the owner's Option A ruling they may run `status`, `verdict` and `--dry-run` calls, which write no file. SKILL.md, the command's Setup, Find, Verify and Reviser contract bullets, and the ledger-step README say so. Task 5's reviewer flagged the plan wording; it is accepted by a scoped operator Ruling in the ledger (`progress.md`, the `T5: Ruling:` line) quoting the owner's approval.
++3. **Reviser claims inside the disposition file.** A reviser may put its `answer` claims in one `ledger-input` block inside its own disposition file; the coordinator's `L-begin` step runs `answer --input <disposition file>` before `begin`.
++4. **`--hunk` takes the hunk key.** `revert-unclaimed --hunk` takes the key `status` lists for a provisional hunk (not a bare number), so the caller reverts the hunk it saw (fix for a Task 2 review finding).
++
++Not a departure, for the record: the coordinator's ruling on a `make lint` Check 6 failure (`## Activation` heading) did not apply, because `make lint` passes for this variant; the variant gains no lines beyond its three changed blocks.
++
++## Known limits (recorded review notes, not fixed)
++
++- An identical retry of `revert-unclaimed` or `begin --revert-unclaimed` after its commit is not replayed (the document changed): the same `--op` gets `E-OP-CONFLICT`, a new one `E-STALE-SEQ`; the caller reads `status`.
++- `sweep --input` has no crash-retry re-append of its tail (`close` has one); `sweep --prepare` leaves its copy folder in the system temporary folder by design.
++- The sweep location class traces only the last fix cycle's hunks and each claimed row's current span.
++- No test covers `minor_touched`, the per-cycle unclaimed and reverted bytes, or the `in_unclaimed_hunk` location.
++- An anchor quote broken by an edit to only part of a multi-line span maps as `missing` and enters `X` (the loop then escalates).
++
++## Not built or not verified here
++
++- The measurement plan (SPEC section 5) is not run: no smoke check of the sweep route, no baseline sweeps, no hunk-parity calibration of the paragraph unit or the 40% `HUNKS_LARGE` threshold on the S1 history pairs.
++- The variant and the ledger steps have run only in tests and in a scripted simulation (`.dev/tasks/to-do/TASK-WF-spec-20261108-181649/artifacts/t10-sim.log`); no live S1 replicate has run them.
+diff --git a/.dev/tasks/to-do/TASK-WF-spec-20261108-181649/artifacts/t12-check.sh b/.dev/tasks/to-do/TASK-WF-spec-20261108-181649/artifacts/t12-check.sh
+new file mode 100644
+index 00000000..84928313
+--- /dev/null
++++ b/.dev/tasks/to-do/TASK-WF-spec-20261108-181649/artifacts/t12-check.sh
+@@ -0,0 +1,13 @@
++#!/usr/bin/env bash
++# Task 12 acceptance checks over INSTALL.md
++cd /home/coder/workspaces/worktrees/IronClaude/bs346-ledger
++P=.dev/tasks/to-do/TASK-WF-spec-20261108-181649
++I=.dev/brainstorms/346-ledger/INSTALL.md
++for s in '~/.claude/commands/sc/spec-panel-ledger.md' '~/.claude/skills/sc-review-ledger/SKILL.md' '~/.claude/skills/sc-review-ledger/scripts/review_ledger.py' \
++  '/sc:spec-panel-ledger --ledger .dev/orca-command-refactor/specs/orca-worker-contract-spec.review-ledger --revert-unclaimed' \
++  'no `## Unattended mode` section' 'c8d80346a96c' 'heartbeat' 'ledger-steps' 'headline_raw'; do
++  printf '%s: %s\n' "$s" "$(grep -cF -- "$s" "$I")"; done
++missing=0
++for f in $( { git status --porcelain --untracked-files=all | grep '^??' | cut -c4-; } | grep -vxF -f <(cut -c4- $P/artifacts/untracked-before.txt) | grep -v -e '^\.dev/tasks/' -e '^\.claude/'; echo tests/recommend/test_routing_refresh.py); do
++  grep -qF "| \`$f\`" "$I" || { echo "MISSING $f"; missing=$((missing+1)); }; done
++echo "files checked, missing=$missing"
+diff --git a/.dev/tasks/to-do/TASK-WF-spec-20261108-181649/artifacts/t12-checks.log b/.dev/tasks/to-do/TASK-WF-spec-20261108-181649/artifacts/t12-checks.log
+new file mode 100644
+index 00000000..4f77c365
+--- /dev/null
++++ b/.dev/tasks/to-do/TASK-WF-spec-20261108-181649/artifacts/t12-checks.log
+@@ -0,0 +1,10 @@
++~/.claude/commands/sc/spec-panel-ledger.md: 3
++~/.claude/skills/sc-review-ledger/SKILL.md: 3
++~/.claude/skills/sc-review-ledger/scripts/review_ledger.py: 3
++/sc:spec-panel-ledger --ledger .dev/orca-command-refactor/specs/orca-worker-contract-spec.review-ledger --revert-unclaimed: 1
++no `## Unattended mode` section: 1
++c8d80346a96c: 1
++heartbeat: 1
++ledger-steps: 11
++headline_raw: 1
++files checked, missing=0

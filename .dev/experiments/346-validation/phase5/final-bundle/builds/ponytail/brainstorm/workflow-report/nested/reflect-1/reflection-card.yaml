@@ -1,0 +1,7 @@
+card: t1-card.md
+dim_scores: {citation_grounding: 0.75, coverage_completeness: 0.65, deviation_classification_clarity: 0.45, risk_surface_coverage: 0.60, recommendation_actionability: 0.40}
+C: 0.57
+calibrator_model_class: opus
+reviewer_model_classes: [sonnet, haiku, opus]
+calibrator_diversity: degraded
+notes: "T1 card factual error: Task 12 reads three /tmp sources (T07, T08, T09), not two."

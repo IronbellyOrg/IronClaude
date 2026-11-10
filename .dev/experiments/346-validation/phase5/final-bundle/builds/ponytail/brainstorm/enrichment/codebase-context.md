@@ -1,0 +1,20 @@
+# Codebase context: 346-ponytail
+
+Source tier: primary query through the Augment code search on IronbellyOrg/IronClaude master (one query), then native Grep/Read in this worktree (fallback_1 style checks). Read 2026-11-08.
+
+## Facts (each read on disk this session)
+
+1. **Review Loop contract (427)**: `src/superclaude/commands/spec-panel.md:256-264`, seven one-line bullets (Mode, Grading, Verdict, Cap, Re-review output, Reviser contract, Precedence). Pinned by `tests/skills/test_spec_panel_review_loop.py` (T1-T10) and by `tests/skills/test_review_severity_rule.py` (canonical cap text, banned phrases). Design: `docs/designs/spec-panel-review-loop.md`.
+2. **No-consent rule**: spec-panel never modifies a spec without consent (`docs/designs/spec-panel-review-loop.md` C6, citing the command's Boundaries). An audit that reverts text inside spec-panel would break it; the apply step must live outside the reviewer.
+3. **ponytail-review skill**: `~/.claude/plugins/cache/ironclaude/ponytail/5.3.3/skills/ponytail-review/SKILL.md`. Written for code changes. Output: `What this change does:`, findings grouped Must fix / Should fix / Nice to have, each with four parts (What this is, Problem, Fix, If we skip it), then `Verdict: Ship.` or `Verdict: fix 1 and 3 first.`, `Lean: -<N> lines possible.`, `Not checked:`. "Lists findings, changes no code." No table, no per-fix severity column, no machine-readable output.
+4. **Ponytail availability**: installed by the IronClaude installer as a pinned third-party plugin `ponytail@ironclaude` v5.3.3 (`docs/getting-started/installation.md:346-370`); listed in `~/.claude/plugins/installed_plugins.json` on this host. A host without it has no `ponytail:ponytail-review` skill.
+5. **Existing stance against ponytail as a grader**: `src/superclaude/skills/sc-implement-protocol/refs/qa.md:91`: "A ponytail-style judgment never changes a checklist answer, so it never changes a severity or a verdict ... The protocol never invokes the `ponytail-review` plugin". Any adoption by `/sc:implement` would have to change that line on purpose.
+6. **Script pattern for installed primitives**: skills ship `scripts/` (e.g. `src/superclaude/skills/sc-implement-protocol/scripts/archive_workspace.py`), invoked as `uv run --no-project python "<skill base>/scripts/<name>.py" ...` (`refs/managed-workspace.md:54`). Commands have no scripts folder; a command reaches a script through an installed skill path `~/.claude/skills/<name>/scripts/...`.
+7. **Prior art for a safe text apply**: `.dev/review-severity-rule/implement-tools/apply_rows.py` (not shipped): rows of `{id, file, old, new, occurrences}`; every `old` must occur exactly the expected number of times or it prints `STOP, nothing written` and exits 1; already-applied rows are reported, not reapplied. `verify_tables.py` checks no overlaps and `new` never contains `old`.
+8. **Prior art for table parsing**: `src/superclaude/cli/swarm/recipes/findings_table_v1.py` (`parse_findings_table`: pipe rows after a divider), `src/superclaude/cli/cli_portify/steps/brainstorm_gaps.py` (`parse_findings`, regex over id rows).
+9. **Real loop artifacts** (`exp346-ab-flg-r2/.dev/orca-command-refactor/review/`): `disposition-round2.md` table columns `# | Finding | Blocking | Verified? | Disposition | Where (revised spec)`; 15 rows, 15 applied, 9 minor applied. Every spec edit carries its finding id inline (`grep -nE '\bN<n>\b'`). Baselines are saved copies under `specs/history/`. Round-3 report Part 1 table `# | Blocking (round 2) | Status | Evidence | Note`; its one blocking finding (N12) came from the N5 fix.
+
+## Integration points for the design
+- New variant command file `src/superclaude/commands/spec-panel-ponytail.md` (copy plus one section); installed by hand as `~/.claude/commands/sc/spec-panel-ponytail.md`.
+- Script home: a skill folder (new `sc-fix-audit` skill with `scripts/fix_audit.py`), since commands cannot ship scripts.
+- Tests: a new static test file beside `test_spec_panel_review_loop.py`, plus a unit test for the script.

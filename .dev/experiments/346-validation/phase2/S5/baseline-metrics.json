@@ -1,0 +1,394 @@
+{
+  "incident": "I5",
+  "scenario": "S5",
+  "title": "P0 live-check plan package: four independent final reviews (issues, issues, issues, pass)",
+  "baseline_kind": "original recorded run (DECISIONS.md D3); no new run was made",
+  "produced": "2026-11-08 by the S5 recreation analyst",
+  "metric_definitions": {
+    "reference": ".dev/experiments/346-validation/DECISIONS.md section D5",
+    "round": "round k = review k plus the fix cycle that followed it; 'after round k' is the state at the start of review k+1; 'after round 4' is the final archived package",
+    "blocking": "a finding the reviewer graded blocking under the severity test it was given (refs/qa.md 'Severity model' and 'FINAL derived test'; the four checklist answers amiss/false/harm/constraint, any 'yes' = blocking). Counts are the reviewers' own gradings; the analyst did not re-grade them."
+  },
+  "provenance_legend": {
+    "READ": "taken from a statement in the log or reviewer report",
+    "COUNTED": "counted by the analyst from log records with a script (derivation-scripts/)",
+    "RE-DERIVED": "worked out by the analyst from rebuilt document states and timestamps, not stated by the reviewer"
+  },
+  "M1_rounds_until_clean_pass": {
+    "value": 4,
+    "unit": "reviews (the fourth returned FINAL: pass)",
+    "failed_reviews_before_pass": 3,
+    "fix_cycles": 3,
+    "stop_reason": "FINAL: pass at agent-a40f02e69785bb0f5.jsonl L684; executor wrote the FINAL pass line (AA L2528) and archived the package (AA L2537)",
+    "cap_in_force": "at most 2 fix cycles (3 reviews), then escalate; never a fourth review (output-style rule quoted in AA L2131; applied by the executor at AA L2193 and L2378). The owner explicitly approved the third fix cycle and fourth review (AA L2390, L2427).",
+    "provenance": "READ (verdict lines) + COUNTED (spawn calls)"
+  },
+  "rounds": [
+    {
+      "round": 1,
+      "review_spawn": {
+        "aa_line": 2001,
+        "time_utc": "2026-11-04T09:09:08.436Z"
+      },
+      "reviewer_agent": "agent-a0d4eb0d0b16b7e1f",
+      "reviewer_final_message": "agent-a0d4eb0d0b16b7e1f.jsonl L441",
+      "verdict": "issues",
+      "M2_blocking_findings": 1,
+      "M2_blocking_detail": [
+        "F1: 'six' should be 'seven' raw heartbeat gaps over 5 min, in lc2-result.md:27, lc2-step5.md:22 and :25 (false claim)"
+      ],
+      "M2_nonblocking_findings": 8,
+      "M2_task_ac_lines_met": 23,
+      "M2_task_ac_lines_unmet": 0,
+      "M2_provenance": "READ (reviewer's FINDINGS list) + COUNTED (AC 'met' lines by regex: 23 of the plan's 23 criteria)",
+      "M3_findings_caused_by_previous_fix": null,
+      "M3_reason_null": "first review: there is no previous fix",
+      "M3_provenance": "n/a"
+    },
+    {
+      "round": 2,
+      "review_spawn": {
+        "aa_line": 2157,
+        "time_utc": "2026-11-04T12:11:17.569Z"
+      },
+      "reviewer_agent": "agent-ad1d95b612f2d9bd6",
+      "reviewer_final_message": "agent-ad1d95b612f2d9bd6.jsonl L444",
+      "verdict": "issues",
+      "M2_blocking_findings": 2,
+      "M2_blocking_detail": [
+        "F1: lc3-step5.md:18 and lc3-session-analysis.txt:96 say the only Orca verbs were check and send; subagents also ran read-only orca-ide commands (false claim)",
+        "F2: one empty bare python3 call by the executor at 2026-11-04T08:27:10Z (AA L1325) against plan Constraint 'UV for every Python command' (quoted-constraint breach; text edits cannot fix it)"
+      ],
+      "M2_nonblocking_findings": 6,
+      "M2_task_ac_lines_met": 23,
+      "M2_task_ac_lines_unmet": 0,
+      "M2_provenance": "READ + COUNTED",
+      "M3_findings_caused_by_previous_fix": 0,
+      "M3_denominator": 2,
+      "M3_share": 0.0,
+      "M3_provenance": "RE-DERIVED: F1's sentence is present in the rebuilt R1 and R2 states (rg hit in lc3-step5.md:18 in both), and fix cycle 1 touched only lc1-step5.md, lc2-result.md and lc2-step5.md; F2's call is dated 08:27:10Z, before any review. The executor's own report (AA L2193) also says both were new findings, not the corrected counts."
+    },
+    {
+      "round": 3,
+      "review_spawn": {
+        "aa_line": 2342,
+        "time_utc": "2026-11-04T12:29:53.890Z"
+      },
+      "reviewer_agent": "agent-a88ad232bf783d3a3",
+      "reviewer_final_message": "agent-a88ad232bf783d3a3.jsonl L606",
+      "verdict": "issues",
+      "M2_blocking_findings": 1,
+      "M2_blocking_detail": [
+        "F1: the first final reviewer (agent-a0d4eb0d0b16b7e1f) ran 22 read-only bare python3 Bash commands 09:10:02Z to 09:16:29Z, so p0-phase-report.md:71 and the ledger ruling ('every other Python call used uv run') are false and the accepted exception is too narrow (quoted-constraint breach plus false claim)"
+      ],
+      "M2_nonblocking_findings": 7,
+      "M2_task_ac_lines_met": 23,
+      "M2_task_ac_lines_unmet": 0,
+      "M2_provenance": "READ + COUNTED. The reviewer's prose says 'All 18 task ACs are met' but its list holds 23 met lines; the parent's report (AA L2378) says 22. The plan has 23. The prose counts are wrong; the list is right.",
+      "M3_findings_caused_by_previous_fix": 1,
+      "M3_denominator": 1,
+      "M3_share": 1.0,
+      "M3_provenance": "RE-DERIVED: the sentence 'every other Python call of the run used uv run' is absent from the rebuilt R1 and R2 states and present from R3 on, so fix cycle 2 (AA L2302) wrote it. Caveat: the 22 calls it overlooked were made by round 1's reviewer, a side effect of the previous review, not of the previous fix. By text origin: fix-caused. By underlying fact: review-caused."
+    },
+    {
+      "round": 4,
+      "review_spawn": {
+        "aa_line": 2499,
+        "time_utc": "2026-11-04T12:56:21.546Z"
+      },
+      "reviewer_agent": "agent-a40f02e69785bb0f5",
+      "reviewer_final_message": "agent-a40f02e69785bb0f5.jsonl L684",
+      "verdict": "pass",
+      "M2_blocking_findings": 0,
+      "M2_blocking_detail": [],
+      "M2_nonblocking_findings": 12,
+      "M2_task_ac_lines_met": 23,
+      "M2_task_ac_lines_unmet": 0,
+      "M2_provenance": "READ + COUNTED",
+      "M3_findings_caused_by_previous_fix": null,
+      "M3_reason_null": "no blocking findings, so the share is 0/0",
+      "M3_provenance": "n/a",
+      "prevention_note": "Before spawning, the executor found one more bare python3 call (round 3's reviewer, 12:35:19Z, AA L2415), got the owner to cover all 24 calls in one ruling (AA L2427), and told reviewer 4 to use only uv run (AA L2499). Round 4 confirmed exactly those 24 calls."
+    }
+  ],
+  "M3_overall": {
+    "blocking_findings_total": 4,
+    "caused_by_previous_fix": 1,
+    "share": 0.25,
+    "note": "Of the four blocking findings across rounds 1 to 3 only one is fix-caused by text origin (round 3 F1). Phase 1 (phase1/REPORT.md, I5 table) also found exactly one fix-caused item."
+  },
+  "M4_document_size": {
+    "unit": "bytes and newline count; 'package_all_files' = the 121 files of the task package; 'delivery_files_57' = the 57 files the archive helper digests (the files the final review must judge); also the phase report and ledger alone",
+    "provenance": "COUNTED from the rebuilt states (inputs/package-R1 plus inputs/tools/apply_round.py reproduce them; each rebuilt file matches a Claude Code file-history backup, see inputs/SOURCES.md). Phase 1 had listed per-round sizes as not measured.",
+    "states": {
+      "start_before_round1": {
+        "package_all_files": {
+          "bytes": 767470,
+          "lines": 11728,
+          "files": 121,
+          "growth_pct_bytes_vs_start": 0.0
+        },
+        "delivery_files_57": {
+          "bytes": 275813,
+          "lines": 4951,
+          "files": 57,
+          "growth_pct_bytes_vs_start": 0.0
+        },
+        "p0_phase_report": {
+          "bytes": 8358,
+          "lines": 80,
+          "growth_pct_bytes_vs_start": 0.0
+        },
+        "ledger_progress_md": {
+          "bytes": 7040,
+          "lines": 12,
+          "growth_pct_bytes_vs_start": 0.0
+        },
+        "plan": {
+          "bytes": 29151,
+          "lines": 151,
+          "growth_pct_bytes_vs_start": 0.0
+        }
+      },
+      "after_round1_fix": {
+        "package_all_files": {
+          "bytes": 767756,
+          "lines": 11729,
+          "files": 121,
+          "growth_pct_bytes_vs_start": 0.037
+        },
+        "delivery_files_57": {
+          "bytes": 275920,
+          "lines": 4951,
+          "files": 57,
+          "growth_pct_bytes_vs_start": 0.039
+        },
+        "p0_phase_report": {
+          "bytes": 8358,
+          "lines": 80,
+          "growth_pct_bytes_vs_start": 0.0
+        },
+        "ledger_progress_md": {
+          "bytes": 7219,
+          "lines": 13,
+          "growth_pct_bytes_vs_start": 2.543
+        },
+        "plan": {
+          "bytes": 29151,
+          "lines": 151,
+          "growth_pct_bytes_vs_start": 0.0
+        }
+      },
+      "after_round2_fix": {
+        "package_all_files": {
+          "bytes": 770047,
+          "lines": 11733,
+          "files": 121,
+          "growth_pct_bytes_vs_start": 0.336
+        },
+        "delivery_files_57": {
+          "bytes": 277419,
+          "lines": 4953,
+          "files": 57,
+          "growth_pct_bytes_vs_start": 0.582
+        },
+        "p0_phase_report": {
+          "bytes": 8869,
+          "lines": 81,
+          "growth_pct_bytes_vs_start": 6.114
+        },
+        "ledger_progress_md": {
+          "bytes": 8011,
+          "lines": 15,
+          "growth_pct_bytes_vs_start": 13.793
+        },
+        "plan": {
+          "bytes": 29151,
+          "lines": 151,
+          "growth_pct_bytes_vs_start": 0.0
+        }
+      },
+      "after_round3_fix": {
+        "package_all_files": {
+          "bytes": 771673,
+          "lines": 11735,
+          "files": 121,
+          "growth_pct_bytes_vs_start": 0.548
+        },
+        "delivery_files_57": {
+          "bytes": 277842,
+          "lines": 4953,
+          "files": 57,
+          "growth_pct_bytes_vs_start": 0.736
+        },
+        "p0_phase_report": {
+          "bytes": 9292,
+          "lines": 81,
+          "growth_pct_bytes_vs_start": 11.175
+        },
+        "ledger_progress_md": {
+          "bytes": 9214,
+          "lines": 17,
+          "growth_pct_bytes_vs_start": 30.881
+        },
+        "plan": {
+          "bytes": 29151,
+          "lines": 151,
+          "growth_pct_bytes_vs_start": 0.0
+        }
+      },
+      "after_round4_final_archived": {
+        "package_all_files": {
+          "bytes": 772021,
+          "lines": 11737,
+          "files": 121,
+          "growth_pct_bytes_vs_start": 0.593
+        },
+        "delivery_files_57": {
+          "bytes": 277842,
+          "lines": 4953,
+          "files": 57,
+          "growth_pct_bytes_vs_start": 0.736
+        },
+        "p0_phase_report": {
+          "bytes": 9292,
+          "lines": 81,
+          "growth_pct_bytes_vs_start": 11.175
+        },
+        "ledger_progress_md": {
+          "bytes": 9562,
+          "lines": 19,
+          "growth_pct_bytes_vs_start": 35.824
+        },
+        "plan": {
+          "bytes": 29151,
+          "lines": 151,
+          "growth_pct_bytes_vs_start": 0.0
+        }
+      }
+    },
+    "growth_over_loop_pct_bytes": {
+      "package_all_files": 0.593,
+      "delivery_files_57": 0.736
+    },
+    "growth_note": "Growth is tiny and mostly fixed by the owner rulings and disclosure notes (the whole loop adds 4,551 bytes: about 2.5 KB to the ledger, 0.9 KB to the phase report, the rest to the lc2 and lc3 step files), not by review churn. Criterion (b) of DECISIONS.md D6 (re-run growth <= 70 percent of baseline) means <= 0.415 percent (package) or <= 0.515 percent (delivery files) here."
+  },
+  "M5_effort": {
+    "provenance": "COUNTED from the reviewer subagent logs and the executor log with derivation-scripts/m5.py (tool_use blocks de-duplicated by id; tokens from message.usage, last record per message id)",
+    "per_round": [
+      {
+        "round": 1,
+        "reviewer_tool_calls": 67,
+        "reviewer_tools": {
+          "Read": 20,
+          "Bash": 47
+        },
+        "reviewer_api_messages": 48,
+        "reviewer_output_tokens": 87649,
+        "reviewer_uncached_input_tokens": 96,
+        "reviewer_cache_creation_tokens": 268251,
+        "reviewer_cache_read_tokens": 10738350,
+        "reviewer_first_ts": "2026-11-04T09:09:08.473Z",
+        "reviewer_last_ts": "2026-11-04T09:19:52.514Z",
+        "reviewer_wall_minutes": 10.73,
+        "executor_tool_calls_in_window": 13,
+        "executor_window": "R1_executor_window_L2001_L2156"
+      },
+      {
+        "round": 2,
+        "reviewer_tool_calls": 62,
+        "reviewer_tools": {
+          "Read": 8,
+          "Bash": 51,
+          "Grep": 3
+        },
+        "reviewer_api_messages": 55,
+        "reviewer_output_tokens": 78978,
+        "reviewer_uncached_input_tokens": 110,
+        "reviewer_cache_creation_tokens": 323587,
+        "reviewer_cache_read_tokens": 12755181,
+        "reviewer_first_ts": "2026-11-04T12:11:17.614Z",
+        "reviewer_last_ts": "2026-11-04T12:21:19.195Z",
+        "reviewer_wall_minutes": 10.03,
+        "executor_tool_calls_in_window": 15,
+        "executor_window": "R2_executor_window_L2157_L2341"
+      },
+      {
+        "round": 3,
+        "reviewer_tool_calls": 86,
+        "reviewer_tools": {
+          "Read": 3,
+          "Bash": 82,
+          "Write": 1
+        },
+        "reviewer_api_messages": 80,
+        "reviewer_output_tokens": 94021,
+        "reviewer_uncached_input_tokens": 160,
+        "reviewer_cache_creation_tokens": 340172,
+        "reviewer_cache_read_tokens": 19431495,
+        "reviewer_first_ts": "2026-11-04T12:29:53.928Z",
+        "reviewer_last_ts": "2026-11-04T12:44:04.514Z",
+        "reviewer_wall_minutes": 14.18,
+        "executor_tool_calls_in_window": 10,
+        "executor_window": "R3_executor_window_L2342_L2498"
+      },
+      {
+        "round": 4,
+        "reviewer_tool_calls": 96,
+        "reviewer_tools": {
+          "Read": 5,
+          "Bash": 78,
+          "TaskStop": 1,
+          "Write": 12
+        },
+        "reviewer_api_messages": 95,
+        "reviewer_output_tokens": 118523,
+        "reviewer_uncached_input_tokens": 190,
+        "reviewer_cache_creation_tokens": 394385,
+        "reviewer_cache_read_tokens": 25463110,
+        "reviewer_first_ts": "2026-11-04T12:56:21.592Z",
+        "reviewer_last_ts": "2026-11-04T13:21:21.649Z",
+        "reviewer_wall_minutes": 25,
+        "executor_tool_calls_in_window": 4,
+        "executor_window": "R4_executor_window_L2499_L2559"
+      }
+    ],
+    "wall_clock": {
+      "loop_first_spawn_to_final_report": "2026-11-04T09:09:08Z to 13:21:44Z = 4 h 12 min",
+      "owner_wait_between_round1_report_and_approval": "09:20:25Z to 12:10:22Z = 2 h 50 min (human latency, not agent work)",
+      "provenance": "READ from log timestamps"
+    },
+    "executor_tokens": null,
+    "executor_tokens_reason": "not computed; recoverable from message.usage in AA L2001 to L2559 if a replay wants like-for-like executor token cost",
+    "model_in_logs": "claude-sonnet-5-5 for the executor and for all four reviewers (message.model field); the Agent calls carried no model parameter, so reviewers inherited it",
+    "totals": {
+      "reviewer_tool_calls": 311,
+      "reviewer_output_tokens": 379171,
+      "reviewer_wall_minutes": 59.94,
+      "executor_tool_calls_in_windows": 42
+    }
+  },
+  "severity_rule_in_force_each_round": {
+    "text": "inputs/evidence/protocol-as-loaded/qa.md (git 80f934de) sections 'Severity model', 'FINAL derived test', 'Managed FINAL review'; the test is also pasted into every reviewer brief ('Severity test (from ... qa.md ...): return issues ONLY for a blocking defect ... (a) ac-outcome-missing (b) false-claim (c) harmful-effect (d) quoted-constraint-breach')",
+    "same_each_round": true,
+    "round_specific_additions": {
+      "1": "none beyond the base brief",
+      "2": "paragraph: this is a new archive attempt; do not rely on the earlier FINAL line; count corrections were made with owner approval",
+      "3": "paragraph: third attempt; owner approved fixes and a scoped acceptance of one empty bare python3 call; verify the acceptance matches the evidence; re-check every exclusivity claim ('only', 'no', 'all')",
+      "4": "HARD RULE paragraph: reviewer must not run bare python; accepted exception now covers exactly 24 calls in three groups; re-check exclusivity claims; separate rule for wording slips vs false claims"
+    },
+    "provenance": "READ"
+  },
+  "d6_implications": {
+    "criterion_a": "The baseline's last round has 0 blocking findings, so 'last-round blocking <= 50 percent of baseline' cannot be improved on. Only the second branch applies: a clean pass in fewer rounds than baseline, i.e. FINAL: pass at review 1, 2 or 3.",
+    "criterion_b": "see M4_document_size.growth_note",
+    "criterion_c": "Both replicates will differ from the baseline by ordinary run-to-run variation: the reviewers are fresh model sessions that pick their own checks (round 1's reviewer happened to find a count slip, round 3's reviewer created its own process finding). Two replicates that disagree by a round or more make any 1-round improvement 'not significant' under D6(c).",
+    "reach_of_pr_427": "This scenario's reviewer is the /sc:implement managed final review, not /sc:spec-panel. PR 427 changed no file under src/superclaude/skills/sc-implement-protocol or commands/implement.md (checked: git show --name-only 95f2c6e4). Expected delta from 427 is zero; a measured delta is run-to-run noise. S5 is useful as a negative control."
+  },
+  "not_recoverable": [
+    "The executor's reasoning and the exact wording of its fixes beyond the logged Edit inputs (the Edit inputs themselves are verbatim).",
+    "Original file permission bits of the package files (so the original package digests cannot be reproduced).",
+    "The original checkout's live git state (HEAD 8db29f11 with a staged .dev/tasks, other sessions' packages staged, protected-folder mtimes): reviewers checked these live; a replay cannot reproduce them exactly.",
+    "Reviewer sampling randomness: nothing in the logs can make a fresh reviewer pick the same checks."
+  ]
+}

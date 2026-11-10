@@ -1,0 +1,89 @@
+diff --git a/tests/skills/test_review_ledger_script.py b/tests/skills/test_review_ledger_script.py
+index 5519c3e6..947f3b31 100644
+--- a/tests/skills/test_review_ledger_script.py
++++ b/tests/skills/test_review_ledger_script.py
+@@ -1213,3 +1213,84 @@ def test_replayed_close_reappends_a_tail_lost_after_the_commit(tmp_path):
+     code, out = lp.close(rep, op="c2", seq=seq)
+     assert code == 0 and out.get("replayed") is True
+     assert rep.read_text().rstrip("\n").splitlines()[-1] == "verdict: FAIL"
++
++
++def _verified_r1_then_round3(lp: Loop, edit):
++    round2(lp)
++    assert verify(lp, basic_answers())[0] == 0
++    assert lp.close(lp.report("r2.md"))[1]["loop_decision"] == "CONTINUE"
++    lp.edit(text=edit(lp.doc.read_text()))
++    assert lp.begin()[0] == 0
++
++
++@pytest.mark.parametrize("result", ["regressed", "open"])
++def test_untouched_verified_row_cannot_be_reopened(tmp_path, result):
++    lp = Loop(tmp_path)
++    _verified_r1_then_round3(
++        lp, lambda t: t.replace("for 30 days.", "for 30 days, then purges them.")
++    )
++    assert by_id(lp.state())["R1"]["status"] == "verified"
++    answers = [
++        ans("R1", result, FIX_EV, reason="x"),
++        ans("R2", "open", R2_EV, reason="x"),
++        ans("R3", "resolved", "then purges them"),
++    ]
++    code, out = verify(lp, {"answers": answers})
++    assert code == 2 and out["error"] == "E-NOT-CHANGED"
++
++
++def test_open_on_a_once_verified_fixed_row_gives_reopened(tmp_path):
++    lp = Loop(tmp_path)
++    _verified_r1_then_round3(lp, lambda t: t.replace("at most twice", "at most once"))
++    assert by_id(lp.state())["R1"]["status"] == "fixed"
++    answers = [
++        ans("R1", "open", "at most once", reason="once is too few"),
++        ans("R2", "open", R2_EV, reason="x"),
++        ans("R3", "open", R3_EV, reason="x"),
++    ]
++    assert verify(lp, {"answers": answers})[0] == 0
++    assert by_id(lp.state())["R1"]["status"] == "reopened"
++
++
++def test_resolved_on_an_unmappable_anchor_is_refused(tmp_path):
++    wrapped = "# Spec\n\nThe archive keeps every invoice\nfor seven years after payment.\n\nOther text.\n"
++    lp = Loop(tmp_path)
++    lp.edit(text=wrapped)
++    lp.init()
++    lp.find(
++        [
++            {
++                "grade": "CRITICAL",
++                "anchor": "The archive keeps every invoice for seven years after payment.",
++                "finding": "retention basis missing",
++            }
++        ]
++    )
++    lp.close(lp.report())
++    lp.edit(text=wrapped.replace("for seven years", "for ten years"))
++    assert lp.begin()[0] == 0
++    row = by_id(lp.state())["R1"]
++    assert row["status"] == "fixed" and row["mappings"][-1]["span"] is None
++    code, out = verify(
++        lp, {"answers": [ans("R1", "resolved", "for ten years after payment.")]}
++    )
++    assert code == 2 and out["error"] == "E-ANCHOR"
++    assert verify(lp, {"answers": [ans("R1", "cannot-verify")]})[0] == 0
++
++
++@pytest.mark.parametrize(
++    "anchor, code_name",
++    [
++        ("This sentence is not in the snapshot.", "E-ANCHOR"),
++        ("The cache is refreshed every hour.", "E-ANCHOR-AMBIGUOUS"),
++    ],
++    ids=["missing", "repeated"],
++)
++def test_verify_new_row_anchor_must_occur_once(tmp_path, anchor, code_name):
++    lp = Loop(tmp_path)
++    round2(lp, rows=ONE_BLOCKER)
++    new = {"grade": "MAJOR", "anchor": anchor, "finding": "x"}
++    code, out = verify(
++        lp, {"answers": [ans("R1", "resolved", FIX_EV)], "new_rows": [new]}
++    )
++    assert code == 2 and out["error"] == code_name

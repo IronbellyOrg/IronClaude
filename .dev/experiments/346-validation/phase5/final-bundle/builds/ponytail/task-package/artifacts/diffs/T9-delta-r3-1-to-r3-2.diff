@@ -1,0 +1,13 @@
+diff --git a/docs/designs/spec-panel-ponytail.md b/docs/designs/spec-panel-ponytail.md
+index d92aaffb0..99b1a2d54 100644
+--- a/docs/designs/spec-panel-ponytail.md
++++ b/docs/designs/spec-panel-ponytail.md
+@@ -29,7 +29,7 @@ Step 6 acts only when a line of the review-2 report starts with `review: 2 of 3`
+ - Edit rows follow the exact-once old/new pattern: `delete` rows may remove only words the fix added and must keep every finding id of the hunk; `restore` rows only in a minor-only hunk, and only the aligned baseline span.
+ - A finding review 2 graded blocking, or protected (CRITICAL, FR-8, FR-9), is never closed by the audit. A validated-minor grade on an id review 2 graded blocking is logged `DOWNGRADE <id>` only; a protected id that review 2 did not grade blocking gets no `DOWNGRADE` line.
+ - What each step does on failure:
+-  - `check` does not write the specification. On a failure it writes `check.log`, records `audit: skipped(check failed)` and exits 1. (A K1 failure means the spec had already changed before the check ran.)
++  - `check` does not write the specification. On a failure it writes `check.log`, records `audit: skipped(check failed)` and exits 1. (K1 fails when the spec's or the baseline's sha256 changed since `prepare`; a K1 failure on the spec means the spec had already changed before the check ran.)
+   - `apply` runs the check again first and builds every row's edit in memory before it writes.
+   - An exact-once or overlap failure prints `APPLY_STOP: nothing written` and the specification is not written.
+   - If the specification write or its read-back fails, the script tries to copy `current-before-audit.md` back over the specification, then prints `APPLY_STOP: nothing written (write failed: ...)`.

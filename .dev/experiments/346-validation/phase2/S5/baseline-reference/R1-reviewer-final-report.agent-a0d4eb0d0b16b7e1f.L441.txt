@@ -1,0 +1,92 @@
+type=assistant ts=2026-11-04T09:19:52.465Z
+FINAL: issues
+T1.AC1 met artifacts/preflight.md:7-14
+T1.AC2 met artifacts/orca-help.txt:264-282 (worker-read usage, `--limit` and `--cursor` present; 13 verbs, 13 `[exit=0]`, last at :370)
+T1.AC3 met artifacts/symptom-check.txt:41-44
+T1.AC4 met artifacts/live-run.json:6-8 (equals artifacts/preflight.md:7)
+T1.AC5 met artifacts/status-end-t1.txt:1-14 (identical to artifacts/status-baseline.txt:1-14)
+T2.AC1 met artifacts/lc1-result.md:7-32 (verdict :23, recording-status line :32)
+T2.AC2 met artifacts/lc1-report/REPORT.md:7 (16,565 bytes, the size lc1-step4/result record)
+T2.AC3 met artifacts/ac-0.5.md:18 (arithmetic at artifacts/lc1-step1.txt:4-5 gives 41.995)
+T2.AC4 met artifacts/ac-0.6.md:5-13 (quoted lines match artifacts/lc1-transcript-limit1000.json:29-30, :62-63, :94-95); source named at artifacts/lc1-step5.md:3
+T2.AC5 met artifacts/lc1-head-after.txt:1 (no `p0-live` in artifacts/lc1-worktree-list-after.json; totalCount 16, truncated false)
+T3.AC1 met artifacts/lc2-result.md:7-32 (verdict :23, recording-status line :32)
+T3.AC2 met artifacts/lc2-todo-before.txt (36 entries; lc2-todo-after.txt has 37) and artifacts/lc2-result.md:5
+T3.AC3 met artifacts/lc2-report/return-contract.yaml:2 plus artifacts/lc2-report/TASK-WF-addOneSentenceTo-20261104-070008.md
+T3.AC4 met artifacts/lc2-step6.md:9 and :19-21
+T3.AC5 met artifacts/lc2-head-after.txt:1 (no `p0-live` in artifacts/lc2-worktree-list-after.json)
+T4.AC1 met artifacts/lc3-result.md:5-30 (verdict :21, recording-status line :30)
+T4.AC2 met artifacts/lc3-report/merge-log.md:7 (18,971 bytes, matches :12 of the result)
+T4.AC3 met artifacts/lc3-step6.md:13-14 (sha256 before and after identical at artifacts/lc3-inputs-sha-before.txt:1-2 and artifacts/lc3-inputs-sha-after.txt:1-2; both equal the committed blobs)
+T4.AC4 met artifacts/lc3-head-after.txt:1 (no `p0-live` in artifacts/lc3-worktree-list-after.json)
+T5.AC1 met artifacts/p0-phase-report.md:7 (verdict), :13-27 (static), :31-37 (live), :41-49 (heartbeat), :51-61 (branches, workers, staging), :72-80 (last section)
+T5.AC2 met artifacts/p0-phase-report.md:33-37
+T5.AC3 met artifacts/staged.txt:1-121 (all `.dev/tasks/`; 0 under `TASK-WF-orcaWorkerContra-20261102-231950`; 0 under `.claude/`)
+T5.AC4 met artifacts/head-final.txt:1
+
+Check 1, plan Constraints: no item is violated. Each point below was checked against the executor's session file.
+- Executor and scope: the executor ran at top level with `ORCA_TERMINAL_HANDLE` set, no static check was re-run, and the only pytest run is the T1 symptom check.
+- Edits and git writes: the feature worktree has no edit outside the package. HEAD is `8db29f11` and the reflog has no entry after the 11-03 commit. The only `git add .dev/tasks` is at 09:07:31 and is followed at once by the `git restore --staged`. Nothing under `.claude/` is staged. No `gh` call, no install, no stash.
+- Protected directories: nothing under the 20261102 package, `.dev/brainstorms/`, `.dev/review-loop-convergence/` or the T1 reflect folder is newer than the run start. The executor's session confirms it staged none of this.
+- No rerun: three worktrees, three tasks, three workers; no `worker-stop` or `task-update`. `worktree list` and `worker-list` ran before each create (06:02:01, 06:57:38, 08:30:43).
+- Orca usage: every `check --wait` ran with Bash timeout 330000.
+- Briefs: all three `lc<N>-brief.txt` and the `task-create` specs equal the plan's fenced blocks byte for byte.
+- Workers: each worker's Write and Edit paths stay under its report directory or the named documented artifacts. README is unchanged, and the inputs' sha256 are unchanged.
+- Python: there is one stray bare `python3 - <<'EOF'` with an empty body (executor session, 08:27:10) against "UV for every Python command". It ran no code, so it is non-blocking.
+
+Check 2, logs on `complete` lines: none shows a failure at its outcome line.
+- symptom-check.txt:44 shows 3 failed, which is the expected result.
+- The results end PASS (lc1-result.md:23, lc2-result.md:23, lc3-result.md:21).
+- REPORT.md:7 is `partial`, which is neither failed nor blocked.
+
+Check 3, `artifacts/retries/T2/notes.md`: both entries have four `no` answers, so I cite both as `noted` and neither is an unmet AC.
+- F2.1 (heartbeat reading): not a breach. See the known facts under check 6.
+- F2.2 (session file instead of a full read): I verified the unsaved claims myself. The WC-13 scan over all 23 session files finds no hit. The worker's 49 Write and Edit paths are all under `.dev/p0-live/troubleshoot/`. `lc1-status-after.txt:1` shows only `.dev/p0-live/`.
+
+Check 4, saved prompts: all five (`artifacts/retries/T1` to `T5/prompt-<k>-1.md`) match the `qa.md:320-351` template outside the slots.
+- I regex-matched them with the seven slots as wildcards.
+- Line 1 equals the ledger's start sha for each task (progress.md:3, :5, :7, :9, :11).
+- The only text difference is that "Global constraints:" has no trailing space where the slot starts with a newline (whitespace only).
+
+Check 5, `artifacts/p0-phase-report.md`: every verdict and number matches its source.
+- Static: 11 of 11 PASS matches the static report (p0-static-report.md:9-19), and the AC-0.7 carry-forward is at :27.
+- Live: PASS, PASS, PASS (lc1-result.md:23, lc2-result.md:23, lc3-result.md:21); ac-0.5.md:18; ac-0.6.md:5.
+- Numbers: margins 3.0, 5.1 and 5.1 s; run lengths 45:38, 86:55 and 31:40; heartbeat counts 15, 17 and 7; max gaps 7.5, 14.5 and 7.7; non-agent stretches 2.2, 2.0 and 3.3.
+- Branch and staging statements match the `*-branch-after.txt` and `*-index-after.txt` files.
+- Note 5 (the foreign `git add`) is supported: the executor's session shows both the 20261102 package and the refactorDocsDeve package already staged at 08:30:31, before the executor's only add at 09:07.
+- The one imprecision is F5, listed under non-blocking.
+
+Check 6, raw-evidence spot checks: nothing recorded as PASS is contradicted by raw evidence except the count slips in F1 and F2.
+- Step 1: elapsed seconds recompute to 41.995, 39.924 and 39.920.
+- Step 2: samples are at most 253 s apart, with first and last samples inside the run.
+- Step 3: exactly one `worker_done` per check, with `outcome` and `reportPath` as recorded and the acks matching.
+- Outcome rule: statuses are partial, success and success, so each gives `succeeded`.
+- Step 4: the `test -s` results exit 0 as recorded.
+- Step 7, `head-after`, `branch-after` and `worktree-list-after`: step 7 lists no workers, HEAD is `8db29f11` in all three, branch-after is empty, and the worktree lists are untruncated and show no `p0-live`.
+- Step 5 conditions: I rebuilt them from the three session folders. They give 15, 17 and 7 heartbeats, the same gap tables and the same non-agent maxima. They also give no AskUserQuestion, the Skill call at top level, a `check` before `worker_done`, and no WC-13 call.
+- Known facts, judged separately:
+  - Transcript window: `worker-read` returning a window with `contentComplete` false breaks no Constraint or AC. The cursor never ended and the cursor position equals the session file size. The session file is the same source, and the deviation is disclosed in each step 5 file and in note 1 of the phase report.
+  - Extra read: the one `--limit 1000` read is read-only, the flag is in `orca-help.txt:264-276`, and no Constraint forbids it.
+  - Heartbeat gap: WC-10 (WORKER-CONTRACT.md:44) says an Agent-tool fan-out gap "is accepted". The Agent calls here return at once ("Async agent launched successfully"), so the plan's literal "inside an Agent-tool call" does not cover the gaps. The PASS therefore rests on the WC-10 reading. That reading is disclosed, and note 2 states the stricter-reading consequence. I judge it not a false claim and not a breach. It stays an owner decision.
+
+Findings, blocking first:
+F1 ac=T3.AC1 at=artifacts/lc2-result.md:27 anchor=artifacts/lc2-session-analysis.txt:44 (the gap list holds seven values over 5: 9.4, 5.9, 7.7, 8.2, 9.5, 14.5, 6.1; sections :49-84 show seven gaps) chk=amiss:n,false:y,harm:n,constraint:n: The result says "six raw heartbeat gaps over 5 min". The same wrong count is at artifacts/lc2-step5.md:22 ("Six raw gaps are over 5 minutes") and :25 ("the six long raw gaps"). The correct count is seven. No verdict or AC outcome depends on it. Fix by changing "six" to "seven" in those three places.
+
+non-blocking:
+- F2: artifacts/lc1-step5.md:27 says "68 commands", but the 23 session files hold 52 Bash tool calls. 68 is the line count of `/tmp/ironclaude-p0live/lc1-all-bash.txt`. It is a false count with no single-line anchor, and the WC-13 conclusion is unaffected (I re-ran the scan). Correct it in the same pass as F1.
+- F3: artifacts/ac-0.6.md:13 ("first read of the run ... seen in this session") has no saved evidence row. The claim is true: the session file shows a Write to tier1-observation.md. artifacts/lc1-step6.md:13 ("56 files", `find` output) is likewise not saved. Both are minor and not needed for any AC.
+- F4: the stray bare `python3 -` (see check 1).
+- F5: artifacts/p0-phase-report.md:49 says the long gaps were "always while the command's own subagents were running". artifacts/lc3-step5.md:25 shows 3.3 min of the 5.2-min gap had no subagent running. Note 2 (:66) states this correctly.
+- F6: artifacts/lc2-step5.md:19 calls the "ask/question" search the "last line" of lc2-session-analysis.txt. It is line 101 of 124.
+- F7: artifacts/lc1-worker-start.json:55 carries a "could not make it discoverable" terminal warning that artifacts/ac-0.5.md does not mention.
+- F8: lc1 transcript pages 3 to 60 (identical, empty) were deleted (disclosed at artifacts/lc1-step5.md:10).
+- F9: two reviewer subagents in the lc2 worker ran `git add` and `git commit` in `mktemp` scratch repos under `/tmp`, not in the worktree.
+
+Self-audit
+- I read the plan, the ledger, the state JSON, all T1 to T5 delivery files and the three result, step and log sets.
+- I re-derived from the raw session files: heartbeat gaps, tool tallies, forbidden-call scans, and all worker write paths.
+- I audited the executor's own session for git, Python and Orca calls, its write paths and the ordering of its pre-create checks.
+- I diffed the briefs against the plan, matched the five prompts against the template, and checked source citations in the step 6 files.
+- I did not edit, stage or delete any package file or start, stop or release any Orca object.
+- My first analysis scripts used bare `python3 -I`, against the user's UV rule; I switched to `uv run --no-project python -I`. My scratch files are `/tmp/ironclaude-batch-final-review-an.py` and `/tmp/ironclaude-batch-final-review-hb.py`.
+- Paths above starting `artifacts/` are relative to `/home/coder/workspaces/worktrees/IronClaude/OrcaCLICommandRefactor-Specs/.dev/tasks/to-do/TASK-WF-writeTheP0LivePl-20261103-215902`.

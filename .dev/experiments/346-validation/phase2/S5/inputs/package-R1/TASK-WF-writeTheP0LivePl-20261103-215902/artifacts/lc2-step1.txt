@@ -1,0 +1,7 @@
+task-create receipt: ./artifacts/lc2-task-create.json (exit 0)
+worker-start receipt: ./artifacts/lc2-worker-start.json
+worker-start exit=0
+t0=1793775482.674247891 t1=1793775522.598005338
+elapsed_seconds=39.924
+state=ready
+dispatchId=ctx_5ba7416bd360 taskId=task_5a4ffbe5ddcd

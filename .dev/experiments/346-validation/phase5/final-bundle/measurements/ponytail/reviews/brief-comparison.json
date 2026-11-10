@@ -1,0 +1,125 @@
+[
+  {
+    "step": "T05",
+    "source": ".dev/experiments/346-validation/phase5/ponytail/reviews/briefs/T05-R1-reviewer.txt",
+    "source_sha256": "1840727834a64690e978c63dd042a654b236dfe74de35e7a8295d9890b4ff634",
+    "dispatched_sha256": "868b95765763ef5bb3d21604a25e49241e515da1a0db222593fc548ac4c07c8e",
+    "repo_root_substitution_count": 1,
+    "equal_after_root_substitution_ignoring_edge_whitespace": true,
+    "raw_edge_whitespace_difference": false,
+    "original_source": "/home/coder/workspaces/worktrees/IronClaude/exp346-p1-logs/.dev/experiments/346-validation/phase2/S1/briefs/task-text/T05-R1-reviewer-L11-699ae853.txt",
+    "original_sha256": "37e9006c2d404d66c3faa6d123aadb1c5a3196f6afc94d2684179b20ae3b03b0",
+    "word_substitutions_vs_original": [
+      {
+        "op": "replace",
+        "old": "/sc:spec-panel",
+        "new": "/sc:spec-panel-armb"
+      }
+    ]
+  },
+  {
+    "step": "T06",
+    "source": ".dev/experiments/346-validation/phase5/ponytail/reviews/briefs/T06-R1-reviser.txt",
+    "source_sha256": "28fdd09ed70b4bee5a3145efc37fc43b07f839d59756599588dbb6ea6b2ef30e",
+    "dispatched_sha256": "b51ce3fdc5b4aa88e1be8e805e5102ce0e86b6cfec6d7fe76249984acf8370d4",
+    "repo_root_substitution_count": 1,
+    "equal_after_root_substitution_ignoring_edge_whitespace": true,
+    "raw_edge_whitespace_difference": false,
+    "original_source": "/home/coder/workspaces/worktrees/IronClaude/exp346-p1-logs/.dev/experiments/346-validation/phase2/S1/briefs/task-text/T06-R1-reviser-L10-3bb70411.txt",
+    "original_sha256": "28fdd09ed70b4bee5a3145efc37fc43b07f839d59756599588dbb6ea6b2ef30e",
+    "word_substitutions_vs_original": []
+  },
+  {
+    "step": "T07",
+    "source": ".dev/experiments/346-validation/phase5/ponytail/reviews/briefs/T07-R2-reviewer.filled.txt",
+    "source_sha256": "590d8c620d329a4499bf0db53acaa44a7b47f0f473af56cc39a2e67f795e4f2a",
+    "dispatched_sha256": "b036ce08e490ec1c59e90ae333c6784a1bb8c0d5aa5547f2cd0ab4649782940c",
+    "repo_root_substitution_count": 1,
+    "equal_after_root_substitution_ignoring_edge_whitespace": true,
+    "raw_edge_whitespace_difference": false,
+    "original_source": "/home/coder/workspaces/worktrees/IronClaude/exp346-p1-logs/.dev/experiments/346-validation/phase2/S1/briefs/templates/T07-R2-reviewer.TEMPLATE.txt",
+    "original_sha256": "e2d7feb94fce6306bf706f46d2af415d38d3d45f2428288fac57c614e1970ebd",
+    "word_substitutions_vs_original": [
+      {
+        "op": "replace",
+        "old": "{{R1_COUNT}}",
+        "new": "16"
+      },
+      {
+        "op": "replace",
+        "old": "/sc:spec-panel",
+        "new": "/sc:spec-panel-armb"
+      },
+      {
+        "op": "insert",
+        "old": "",
+        "new": "--re-review .dev/orca-command-refactor/review/spec-panel.md --baseline .dev/orca-command-refactor/specs/history/spec-v1-draft.md"
+      }
+    ]
+  },
+  {
+    "step": "T08",
+    "source": ".dev/experiments/346-validation/phase5/ponytail/reviews/briefs/T08-R2-reviser.filled.txt",
+    "source_sha256": "2f23d14149b08e3bd03d598e702e17c51ad5a6d24c66f72ae895822b473a613c",
+    "dispatched_sha256": "8583c68a00ac67f65c568317be21d3f824418c04b749a848479385605a3d4d9f",
+    "repo_root_substitution_count": 1,
+    "equal_after_root_substitution_ignoring_edge_whitespace": true,
+    "raw_edge_whitespace_difference": false,
+    "original_source": "/home/coder/workspaces/worktrees/IronClaude/exp346-p1-logs/.dev/experiments/346-validation/phase2/S1/briefs/templates/T08-R2-reviser.TEMPLATE.txt",
+    "original_sha256": "892dd81b7284c73e5dc4d980147879d6fdf5f5d807274064848dab02f0e3fe30",
+    "word_substitutions_vs_original": [
+      {
+        "op": "replace",
+        "old": "{{R2_FIRST_ID}}-{{R2_LAST_ID}},",
+        "new": "NF1-NF7 and M1-M8,"
+      },
+      {
+        "op": "replace",
+        "old": "{{R2_CITATION_COUNT}}",
+        "new": "2"
+      },
+      {
+        "op": "replace",
+        "old": "{{R2_FIRST_ID}}-{{R2_LAST_ID}}",
+        "new": "NF1-NF7 and M1-M8"
+      }
+    ]
+  },
+  {
+    "step": "T09",
+    "source": ".dev/experiments/346-validation/phase5/ponytail/reviews/briefs/T09-R3-reviewer.filled.txt",
+    "source_sha256": "077e7a13e0558439d9f5ad99bad2447f40d14179d1b71ae2f7ead8e7e1f9fd31",
+    "dispatched_sha256": "bf796594bd2bb94f1809ae86994e2ddb1a17f169a2532e0a525bfb4e57bd49c6",
+    "repo_root_substitution_count": 1,
+    "equal_after_root_substitution_ignoring_edge_whitespace": true,
+    "raw_edge_whitespace_difference": false,
+    "original_source": "/home/coder/workspaces/worktrees/IronClaude/exp346-p1-logs/.dev/experiments/346-validation/phase2/S1/briefs/templates/T09-R3-reviewer.TEMPLATE.txt",
+    "original_sha256": "4c7bb775fb4fbbbfa8e41dba84fe68092b084e60f9e0fcb26e74460207c9946b",
+    "word_substitutions_vs_original": [
+      {
+        "op": "replace",
+        "old": "{{R2_FIRST_ID}}-{{R2_LAST_ID}}",
+        "new": "NF1-NF7 and M1-M8"
+      },
+      {
+        "op": "replace",
+        "old": "/sc:spec-panel",
+        "new": "/sc:spec-panel-armb"
+      },
+      {
+        "op": "insert",
+        "old": "",
+        "new": "--re-review .dev/orca-command-refactor/review/spec-panel-round2.md --baseline .dev/orca-command-refactor/specs/history/spec-v2-after-round1.md"
+      }
+    ]
+  },
+  {
+    "step": "T08a",
+    "source": ".dev/experiments/346-validation/phase5/ponytail/reviews/briefs/T08a-fix-audit.TEMPLATE.txt",
+    "source_sha256": "6a3267007db850daf06255917fe3b1b9387e6e9f461936f13c952d738f4ba1b8",
+    "dispatched_sha256": "9b2bc7c1b1ddbb0051913d599bd5f2d2cb8fd3ed0f09ca903ef3bb7a8d409b2b",
+    "repo_root_substitution_count": 1,
+    "equal_after_root_substitution_ignoring_edge_whitespace": true,
+    "raw_edge_whitespace_difference": false
+  }
+]
