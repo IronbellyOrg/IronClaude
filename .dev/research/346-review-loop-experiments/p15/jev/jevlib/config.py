@@ -1,5 +1,9 @@
 """Constants of the Jev adapter (contract J1.1). The only place these numbers live."""
-API_URL = "https://api.typesafe.ai/v1/systemone"
+import os
+from urllib.parse import urlsplit
+
+API_URL = "https://api.typesafe.ai/v1/systemone"   # the vendor endpoint; the default
+URL_ENV = "JEV_API_URL"         # optional override: the LiteLLM gateway route (see docs/docs-product/ops/jev-litellm-gateway-operational-guide.md)
 MODEL = "jev-1.14.0"            # verified on the live models page 2026-11-10 (current; jev-1.13.0 also listed); aliases are never sent
 KEY_ENV = "JEV_API_KEY"         # owner rule; the vendor's own key variable name is NOT used
 PRICE_USD_PER_MTOK_INPUT = 0.042  # live models page 2026-11-10; output tokens free
@@ -15,3 +19,25 @@ RETRY_AFTER_CAP_S = 20.0
 PROB_SUM_TOL = 0.02             # |sum(choice probabilities) - 1| <= tol
 ALLOWED_DATA_CLASSES = {"synthetic", "public", "s1_spec", "stage2_artifact"}
 QNAME_RE = r"^[a-z][a-z0-9_]{0,63}$"
+
+
+def api_url(environ=None) -> str:
+    """The endpoint to call: $JEV_API_URL when set, else the vendor URL.
+
+    An override must be https (plain http only for a loopback address, for local mocks), carry no user info,
+    query or fragment (a key or token in a URL ends up in logs), and have a host.  Anything else raises ValueError,
+    never falls back: a typo must not silently send packets to the vendor or to an unintended host.
+    The model id is NOT affected: the client still sends MODEL and still rejects a response with another model."""
+    env = os.environ if environ is None else environ
+    raw = env.get(URL_ENV)
+    if raw is None or raw == "":
+        return API_URL
+    u = urlsplit(raw)
+    loopback = u.hostname in ("127.0.0.1", "localhost", "::1")
+    if u.scheme != "https" and not (u.scheme == "http" and loopback):
+        raise ValueError(f"{URL_ENV} must be an https URL (http only for a loopback address)")
+    if not u.hostname:
+        raise ValueError(f"{URL_ENV} has no host")
+    if u.username is not None or u.password is not None or u.query or u.fragment:
+        raise ValueError(f"{URL_ENV} must not contain user info, a query or a fragment")
+    return raw

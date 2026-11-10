@@ -2,7 +2,7 @@
 id: "GFXAI-JEV-LITELLM-GATEWAY"
 title: "Jev through the LiteLLM gateway: provisioning, key handling and rollback"
 description: "How to expose TypeSafe Jev to Coder workspaces through the LiteLLM gateway, where each piece is provisioned, and how to verify, rotate and roll back."
-version: "0.2"
+version: "0.3"
 status: "🟡 Draft"
 type: "📘 Operational Guide"
 priority: "▶️ Medium"
@@ -188,9 +188,9 @@ In the template repo, next to the other gateway variables, expose a template par
 
 > **Note:** the value of `JEV_API_KEY` in a workspace is a gateway virtual key, not the vendor key. If it leaks, revoke it in the gateway (Phase 5); the vendor key is untouched.
 
-### Step 3.2: Client change needed before this is useful
+### Step 3.2: Client override (done)
 
-Our client has the URL fixed (`config.py:2`). Before any consumer can use the gateway route, add an optional `JEV_API_URL` override (default stays the vendor URL for the experiment tree), keep the model-id check, and keep the privacy scrub. This is a code change in the package, not a template change.
+The experiment-tree client now honours `JEV_API_URL`: unset or empty keeps the vendor URL; a set value must be https (http only for a loopback address), with no user info, query or fragment, otherwise the client raises `ValueError` and sends nothing (it never falls back to the vendor). The model-id check and the privacy scrub are unchanged, so a gateway that rewrites the model is still rejected. Code: `p15/jev/jevlib/config.py` (`api_url`), tests: `p15/jev/tests/test_api_url.py`. When the client moves into the superclaude package, carry the override and its tests with it.
 
 ### Step 3.3: Egress
 
@@ -269,7 +269,7 @@ Run the repo's key scan (`p15/jev/keyscan.py` in the experiment tree) over any d
 - [ ] Confirm the LiteLLM version and the native Jev route against `docs.litellm.ai` (blocked for the authoring session; the gateway was updated recently).
 - [x] Budget owner: Ryan Wiancko, company-wide.
 - [ ] Budget owner to set the monthly cap and alert thresholds (Step 2.0).
-- [ ] Add the `JEV_API_URL` override to the client when a consumer is approved.
+- [x] `JEV_API_URL` override added to the client (Step 3.2).
 - [ ] Re-evaluate enabling Jev only after a seam passes a precision gate against independent labels.
 
 ## Document History
@@ -278,3 +278,4 @@ Run the repo's key scan (`p15/jev/keyscan.py` in the experiment tree) over any d
 |---|---|---|---|
 | 2026-11-11 | 0.1 | Claude Code | Initial draft; gateway facts unverified |
 | 2026-11-11 | 0.2 | Claude Code | Record recent LiteLLM update, company-wide budget owner, budget step |
+| 2026-11-11 | 0.3 | Claude Code | Client `JEV_API_URL` override implemented |

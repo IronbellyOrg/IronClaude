@@ -147,6 +147,7 @@ class JevClient:
     def _attempts(self, req, body, sha, key, base, did, result, t_start):
         headers = {"Authorization": f"Bearer {key}", "Content-Type": "application/json"}
         deadline = t_start + C.LOGICAL_DEADLINE_S
+        url = C.api_url()   # may raise ValueError on a bad $JEV_API_URL before anything is sent
         attempts = 0
         while True:
             attempts += 1
@@ -154,7 +155,7 @@ class JevClient:
             status, rheaders, raw, exc = None, {}, b"", None
             try:
                 status, rheaders, raw = self.transport.post(
-                    C.API_URL, headers, body, timeout=max(1.0, min(C.ATTEMPT_TIMEOUT_S, deadline - t0)))
+                    url, headers, body, timeout=max(1.0, min(C.ATTEMPT_TIMEOUT_S, deadline - t0)))
             except TransportTimeout as e:
                 exc = ("timeout", e)
             except TransportError as e:
