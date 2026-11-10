@@ -39,6 +39,8 @@ TIER_TEXT_ALLOWED = (
     *ISSUE_WORKER_PINS,
     "src/superclaude/skills/sc-issue-protocol/",
     "src/superclaude/skills/ccsession-tag/",
+    # The review panel tier file maps the gateway tier aliases to model lists by design (PN1, shared contract C2).
+    "src/superclaude/cli/review/data/",
 )
 
 # Residual allow-list for full model ids in Python string constants:
