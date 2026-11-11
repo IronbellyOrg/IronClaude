@@ -24,7 +24,9 @@ def run(items, *, out_dir, experiment, ceiling_usd=0.50, workers=8, data_classes
                          data_classes=set(data_classes), purpose=experiment)
         o = {"status": r.status, "error": str(r.error) if r.error else None, "tokens": (r.usage or {}).get("input_tokens"), "model": r.model}
         a = (r.answers or {}).get(it["qname"]) if r.status == "ok" else None
-        if a and a.get("type") == "choice" and a.get("choice") in it["qdef"]["criteria"]:
+        if a and a.get("type") == "noul" and it["qdef"]["type"] == "noul":
+            o.update(noul=a["p"])
+        elif a and a.get("type") == "choice" and a.get("choice") in it["qdef"]["criteria"]:
             o.update(choice=a["choice"], probs=a["probs"], confidence=a.get("confidence"))
         elif r.status == "ok":
             o.update(status="invalid", error="answer_shape")

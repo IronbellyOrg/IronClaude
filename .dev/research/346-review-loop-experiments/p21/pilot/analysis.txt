@@ -1,0 +1,36 @@
+labels: sonnet; labelled pairs 4839 (same 56, overlap 32, diff 4751); unknown 1251
+AUC same vs diff: noul 0.98 | choice 0.975
+merge row (current code)         flagged 2133  precision 0.02 (same-or-overlap 0.04)  recall 0.88
+jev noul >= 0.5                  flagged   87  precision 0.48 (same-or-overlap 0.66)  recall 0.75
+merge row AND jev noul >= 0.5    flagged   80  precision 0.51 (same-or-overlap 0.70)  recall 0.73
+jev noul >= 0.7                  flagged   54  precision 0.67 (same-or-overlap 0.83)  recall 0.64
+merge row AND jev noul >= 0.7    flagged   52  precision 0.67 (same-or-overlap 0.85)  recall 0.62
+jev noul >= 0.9                  flagged   23  precision 0.78 (same-or-overlap 0.96)  recall 0.32
+merge row AND jev noul >= 0.9    flagged   23  precision 0.78 (same-or-overlap 0.96)  recall 0.32
+jev choice = same_defect          flagged   84  precision 0.49 (same-or-overlap 0.67)  recall 0.73
+
+d2-r1: 78 findings, 21 distinct ledger defects; merge rows 26, defects hidden behind another defect's row 15
+   split rows with jev noul >= 0.5: rows 47, defects hidden 8
+   split rows with jev noul >= 0.7: rows 56, defects hidden 2
+   split rows with jev noul >= 0.9: rows 65, defects hidden 0
+
+d2-r2: 92 findings, 27 distinct ledger defects; merge rows 20, defects hidden behind another defect's row 22
+   split rows with jev noul >= 0.5: rows 60, defects hidden 9
+   split rows with jev noul >= 0.7: rows 66, defects hidden 6
+   split rows with jev noul >= 0.9: rows 80, defects hidden 0
+====
+labels: opus; labelled pairs 1866 (same 17, overlap 16, diff 1833); unknown 661
+AUC same vs diff: noul 0.996 | choice 0.994
+merge row (current code)         flagged  511  precision 0.03 (same-or-overlap 0.06)  recall 0.94
+jev noul >= 0.5                  flagged   43  precision 0.35 (same-or-overlap 0.60)  recall 0.88
+merge row AND jev noul >= 0.5    flagged   38  precision 0.39 (same-or-overlap 0.68)  recall 0.88
+jev noul >= 0.7                  flagged   21  precision 0.52 (same-or-overlap 0.90)  recall 0.65
+merge row AND jev noul >= 0.7    flagged   21  precision 0.52 (same-or-overlap 0.90)  recall 0.65
+jev noul >= 0.9                  flagged   10  precision 0.60 (same-or-overlap 1.00)  recall 0.35
+merge row AND jev noul >= 0.9    flagged   10  precision 0.60 (same-or-overlap 1.00)  recall 0.35
+jev choice = same_defect          flagged   39  precision 0.36 (same-or-overlap 0.64)  recall 0.82
+
+d2-r1: 78 findings, 21 distinct ledger defects; merge rows 26, defects hidden behind another defect's row 15
+   split rows with jev noul >= 0.5: rows 47, defects hidden 7
+   split rows with jev noul >= 0.7: rows 56, defects hidden 2
+   split rows with jev noul >= 0.9: rows 65, defects hidden 0

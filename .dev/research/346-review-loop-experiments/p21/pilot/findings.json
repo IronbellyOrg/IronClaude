@@ -1,0 +1,4481 @@
+{
+ "d2-r1": [
+  {
+   "key": "d2-r1:t1b-1:F1",
+   "reviewer": "t1b-1",
+   "fid": "F1",
+   "severity": "CRITICAL",
+   "blocking": true,
+   "category": "contradiction",
+   "anchor": "asserts that every command in sections 3.1-3.2 has a `## Unattended mode` section naming `return-contract.yaml`",
+   "anchor2": "use it as a step inside another worker's brief, not as its own Task",
+   "refs": [
+    "AC-1.1",
+    "3.2 load",
+    "6 P1"
+   ],
+   "claim": "AC-1.1 demands an Unattended mode section on load (and on no-change ready commands) while the load row says it needs only a usage-line fix and no report, so the check fails for an implementer who follows the row.",
+   "merge_row": "L1"
+  },
+  {
+   "key": "d2-r1:t1b-1:F2",
+   "reviewer": "t1b-1",
+   "fid": "F2",
+   "severity": "CRITICAL",
+   "blocking": true,
+   "category": "contradiction",
+   "anchor": "the command writes `<output-dir>/return-contract.yaml`, where `<output-dir>` is the directory the coordinator passed",
+   "anchor2": "Fix the contract filename to `<output>/adversarial/return-contract.yaml`",
+   "refs": [
+    "WC-4",
+    "3.1 adversarial",
+    "3.1 workflow",
+    "7.2 step 3"
+   ],
+   "claim": "WC-4 puts the contract at the passed directory while the adversarial row and the workflow row put it elsewhere, so the live check on the WC-4 path fails for those commands.",
+   "merge_row": "L1"
+  },
+  {
+   "key": "d2-r1:t1b-1:F3",
+   "reviewer": "t1b-1",
+   "fid": "F3",
+   "severity": "CRITICAL",
+   "blocking": true,
+   "category": "unpassable-check",
+   "anchor": "steps 1-3 and 5-7 pass; step 4 uses the command's existing report file, since the contract arrives in P1",
+   "anchor2": "its report path is the WC-4 contract path",
+   "refs": [
+    "AC-0.4",
+    "7.2",
+    "P0"
+   ],
+   "claim": "AC-0.4 requires 7.2 step 3 to pass in P0, but step 3 compares the outcome and report path with a WC-4 contract that does not exist until P1.",
+   "merge_row": "L1"
+  },
+  {
+   "key": "d2-r1:t1b-1:F4",
+   "reviewer": "t1b-1",
+   "fid": "F4",
+   "severity": "MAJOR",
+   "blocking": false,
+   "category": "missing-requirement",
+   "anchor": "a precise component prompt, not a bare topic; `--output <file>`",
+   "anchor2": "is the directory the coordinator passed",
+   "refs": [
+    "WC-4",
+    "3.1 tdd",
+    "AC-2.2"
+   ],
+   "claim": "WC-4 locates the contract in a passed directory but tdd and init-lite pass a file, so the contract path is undefined for them.",
+   "merge_row": "L1"
+  },
+  {
+   "key": "d2-r1:t1b-1:F5",
+   "reviewer": "t1b-1",
+   "fid": "F5",
+   "severity": "MAJOR",
+   "blocking": false,
+   "category": "missing-requirement",
+   "anchor": "writes each run into a fresh output directory so a re-run starts clean",
+   "anchor2": "so the report path is known before dispatch (WC-4)",
+   "refs": [
+    "WC-6",
+    "WC-4",
+    "WC-3",
+    "2.3"
+   ],
+   "claim": "A fresh directory per re-run leaves a stale blocked contract at the pre-agreed path next to the real result.",
+   "merge_row": "L1"
+  },
+  {
+   "key": "d2-r1:t1b-1:F6",
+   "reviewer": "t1b-1",
+   "fid": "F6",
+   "severity": "MAJOR",
+   "blocking": false,
+   "category": "missing-requirement",
+   "anchor": "the behaviour a command switches to when its caller passes `--unattended`",
+   "anchor2": null,
+   "refs": [
+    "2.1",
+    "D1",
+    "SA-1"
+   ],
+   "claim": "No rule says a quoted `--unattended` inside prompt text does not switch the mode on for a person.",
+   "merge_row": "L1"
+  },
+  {
+   "key": "d2-r1:t1b-1:F7",
+   "reviewer": "t1b-1",
+   "fid": "F7",
+   "severity": "MAJOR",
+   "blocking": false,
+   "category": "missing-requirement",
+   "anchor": "A command step that blocks a single tool call for longer than 5 minutes (a poll wait, a long eval) must be split into waits of at most 4 minutes",
+   "anchor2": null,
+   "refs": [
+    "WC-10"
+   ],
+   "claim": "WC-10 gives no behavior for unsplittable long calls such as Agent-tool waves or builds, where no heartbeat can be sent.",
+   "merge_row": "L2"
+  },
+  {
+   "key": "d2-r1:t1b-1:F8",
+   "reviewer": "t1b-1",
+   "fid": "F8",
+   "severity": "MAJOR",
+   "blocking": false,
+   "category": "missing-requirement",
+   "anchor": "the `--unattended` flag accepted by every command in sections 3.1 and 3.2 (a no-op where a command has no gate)",
+   "anchor2": "no pr-submit changes in Phase 4",
+   "refs": [
+    "6 P1",
+    "D3",
+    "AC-1.1"
+   ],
+   "claim": "P1 adds the flag to P3 and P4 commands, including pr-submit, while the recommended D3 answer says pr-submit is not changed.",
+   "merge_row": "L3"
+  },
+  {
+   "key": "d2-r1:t1b-1:F9",
+   "reviewer": "t1b-1",
+   "fid": "F9",
+   "severity": "MAJOR",
+   "blocking": false,
+   "category": "other",
+   "anchor": "The only allowed mention of Orca in a changed command is as an example of a caller's question channel inside the contract file.",
+   "anchor2": "prints nothing (SA-2, WC-8)",
+   "refs": [
+    "SA-2",
+    "AC-C1"
+   ],
+   "claim": "AC-C1 greps core/, where the contract file that SA-2 lets mention Orca lives, and must print nothing.",
+   "merge_row": "L4"
+  },
+  {
+   "key": "d2-r1:t1b-1:F10",
+   "reviewer": "t1b-1",
+   "fid": "F10",
+   "severity": "MAJOR",
+   "blocking": false,
+   "category": "missing-requirement",
+   "anchor": "Commands that already write a contract keep their fields and add the missing ones.",
+   "anchor2": "assert d['status'] in {'succeeded','partial','failed','blocked'}",
+   "refs": [
+    "WC-4",
+    "7.2 step 4"
+   ],
+   "claim": "Existing contracts that keep their own status words would fail the four-value check, and the SPEC gives no mapping (existing vocabularies UNVERIFIED).",
+   "merge_row": "L1"
+  },
+  {
+   "key": "d2-r1:t1b-1:F11",
+   "reviewer": "t1b-1",
+   "fid": "F11",
+   "severity": "MAJOR",
+   "blocking": false,
+   "category": "missing-requirement",
+   "anchor": "under `--unattended`, Stage 10.5 passes `--unattended` to each reflect so the headless rule applies",
+   "anchor2": null,
+   "refs": [
+    "3.2 tasklist",
+    "SA-6"
+   ],
+   "claim": "What the headless auto-accept starts for tasklist is not quoted, so its harmlessness under WC-9 cannot be checked (rule text UNVERIFIED).",
+   "merge_row": "L5"
+  },
+  {
+   "key": "d2-r1:t1b-1:F12",
+   "reviewer": "t1b-1",
+   "fid": "F12",
+   "severity": "MINOR",
+   "blocking": false,
+   "category": "other",
+   "anchor": "What changes in the commands is limited to the worker contract in section 2",
+   "anchor2": null,
+   "refs": [
+    "1.1",
+    "SA-4"
+   ],
+   "claim": "Section 1.1 understates the change set; section 3.2 also fixes interface drift and tool lists.",
+   "merge_row": "L6"
+  },
+  {
+   "key": "d2-r1:t1b-1:F13",
+   "reviewer": "t1b-1",
+   "fid": "F13",
+   "severity": "MINOR",
+   "blocking": false,
+   "category": "other",
+   "anchor": "Phases 1-3 need no user decision",
+   "anchor2": null,
+   "refs": [
+    "6",
+    "D1",
+    "D4"
+   ],
+   "claim": "P1 to P3 rest on the recommended answers to D1 and D4, which section 9 words as proceeding on recommendations.",
+   "merge_row": "L7"
+  },
+  {
+   "key": "d2-r1:t1b-1:F14",
+   "reviewer": "t1b-1",
+   "fid": "F14",
+   "severity": "MINOR",
+   "blocking": false,
+   "category": "other",
+   "anchor": "invocation_method: \"skill-direct\"",
+   "anchor2": "so it proves the nested route, not the direct route this spec requires",
+   "refs": [
+    "E3",
+    "1.4"
+   ],
+   "claim": "E3 cites the skill-direct field as support while section 1.4 says the run proves only the nested route.",
+   "merge_row": "L8"
+  },
+  {
+   "key": "d2-r1:t1b-1:F15",
+   "reviewer": "t1b-1",
+   "fid": "F15",
+   "severity": "MINOR",
+   "blocking": false,
+   "category": "other",
+   "anchor": "This worker re-read 11 of the load-bearing locations on 2026-11-02",
+   "anchor2": null,
+   "refs": [
+    "Citation conventions",
+    "UNVERIFIED 14"
+   ],
+   "claim": "Citations outside the inventories and the self-reported re-read counts cannot be checked in this sandbox (UNVERIFIED).",
+   "merge_row": "L9"
+  },
+  {
+   "key": "d2-r1:t2-1:F1",
+   "reviewer": "t2-1",
+   "fid": "F1",
+   "severity": "MAJOR",
+   "blocking": true,
+   "category": "other",
+   "anchor": "the session may instead ask the coordinator once with the preamble's `ask` command",
+   "anchor2": "(c) **blocked**: the command writes its report with `status: blocked` and the exact question, and stops.",
+   "refs": [
+    "WC-2",
+    "WC-3",
+    "D2",
+    "3.2 cli-portify row"
+   ],
+   "claim": "WC-3 lets a coordinator reply satisfy a person-approval gate that WC-2 (c) and the cli-portify row require to stay blocked, and only D2 restricts this, for implement.",
+   "merge_row": "L1"
+  },
+  {
+   "key": "d2-r1:t2-1:F2",
+   "reviewer": "t2-1",
+   "fid": "F2",
+   "severity": "MAJOR",
+   "blocking": true,
+   "category": "other",
+   "anchor": "`--outcome succeeded` otherwise, including `partial`",
+   "anchor2": null,
+   "refs": [
+    "WC-4",
+    "WC-5",
+    "2.2"
+   ],
+   "claim": "A run with a missing, empty or malformed contract status is reported as succeeded, so Orca settles the Task and unblocks dependents on an invalid result.",
+   "merge_row": "L1"
+  },
+  {
+   "key": "d2-r1:t2-1:F3",
+   "reviewer": "t2-1",
+   "fid": "F3",
+   "severity": "MAJOR",
+   "blocking": true,
+   "category": "contradiction",
+   "anchor": "use it as a step inside another worker's brief, not as its own Task",
+   "anchor2": "In unattended mode the command writes `<output-dir>/return-contract.yaml`",
+   "refs": [
+    "WC-4",
+    "3.2 load row",
+    "AC-1.1",
+    "Decisions load"
+   ],
+   "claim": "The load row and the Decision give load no report file, while WC-4 and AC-1.1 require return-contract.yaml for every section 3.2 command, including load.",
+   "merge_row": "L1"
+  },
+  {
+   "key": "d2-r1:t2-1:M1",
+   "reviewer": "t2-1",
+   "fid": "M1",
+   "severity": "MAJOR",
+   "blocking": false,
+   "category": "missing-requirement",
+   "anchor": "make `--remediate` follow the existing headless auto-accept rule",
+   "anchor2": "`--unattended` reuses it and does not replace it.",
+   "refs": [
+    "3.1 reflect row",
+    "3.2 tasklist row",
+    "SA-6"
+   ],
+   "claim": "Unattended remediation auto-accepts without a stated brief authorization, and the trigger moves from claude --print to a flag while SA-6 says nothing changes.",
+   "merge_row": "L1"
+  },
+  {
+   "key": "d2-r1:t2-1:M2",
+   "reviewer": "t2-1",
+   "fid": "M2",
+   "severity": "MAJOR",
+   "blocking": false,
+   "category": "other",
+   "anchor": "its reflect fan-out runs one layer below the worker, inside Claude Code's nesting limit",
+   "anchor2": null,
+   "refs": [
+    "3.2 tasklist row",
+    "1.4 gap 3"
+   ],
+   "claim": "The tasklist nesting depth is stated as one layer and as settled, but the inventory counts two layers and marks nested spawning UNVERIFIED.",
+   "merge_row": "L10"
+  },
+  {
+   "key": "d2-r1:t2-1:M3",
+   "reviewer": "t2-1",
+   "fid": "M3",
+   "severity": "MAJOR",
+   "blocking": false,
+   "category": "contradiction",
+   "anchor": "`--monitor 1` refused under `--unattended`; operator HALTs resolve as blocked",
+   "anchor2": "no pr-submit changes in Phase 4.",
+   "refs": [
+    "3.2 pr-submit row",
+    "6 P4",
+    "D3",
+    "10/27/6 split"
+   ],
+   "claim": "The 27 needing-change count includes pr-submit although recommended D3 (a) makes it coordinator-only.",
+   "merge_row": "L3"
+  },
+  {
+   "key": "d2-r1:t2-1:M4",
+   "reviewer": "t2-1",
+   "fid": "M4",
+   "severity": "MAJOR",
+   "blocking": false,
+   "category": "missing-requirement",
+   "anchor": "Two workers in one worktree must never write the same file.",
+   "anchor2": "and the worktree placement (`CAPS:115`)",
+   "refs": [
+    "WC-11",
+    "2.3"
+   ],
+   "claim": "No rule keeps two workers that edit tracked product files out of one worktree, so their edits can collide.",
+   "merge_row": "L1"
+  },
+  {
+   "key": "d2-r1:t2-1:M5",
+   "reviewer": "t2-1",
+   "fid": "M5",
+   "severity": "MAJOR",
+   "blocking": false,
+   "category": "missing-requirement",
+   "anchor": "posting returns only with an explicit `--post-pr` in the brief (WC-9)",
+   "anchor2": null,
+   "refs": [
+    "3.2 auggie-review row",
+    "WC-9"
+   ],
+   "claim": "The row requires a --post-pr flag that the inventory does not show, and it lists no required change to add it.",
+   "merge_row": "L11"
+  },
+  {
+   "key": "d2-r1:t2-1:M6",
+   "reviewer": "t2-1",
+   "fid": "M6",
+   "severity": "MAJOR",
+   "blocking": false,
+   "category": "other",
+   "anchor": "A partial run left a usable deliverable",
+   "anchor2": null,
+   "refs": [
+    "Decisions partial",
+    "WC-5"
+   ],
+   "claim": "A partial run settles as succeeded, so dependent Tasks can start on partial output without a coordinator check of the status.",
+   "merge_row": "L12"
+  },
+  {
+   "key": "d2-r1:t2-1:m1",
+   "reviewer": "t2-1",
+   "fid": "m1",
+   "severity": "MINOR",
+   "blocking": false,
+   "category": "other",
+   "anchor": "must be split into waits of at most 4 minutes",
+   "anchor2": null,
+   "refs": [
+    "WC-10"
+   ],
+   "claim": "A single wait of 4 to 5 minutes is neither covered nor forbidden.",
+   "merge_row": "L2"
+  },
+  {
+   "key": "d2-r1:t2-1:m2",
+   "reviewer": "t2-1",
+   "fid": "m2",
+   "severity": "MINOR",
+   "blocking": false,
+   "category": "other",
+   "anchor": "`observation.agentWait` is never non-null",
+   "anchor2": null,
+   "refs": [
+    "7.2 step 2"
+   ],
+   "claim": "The pass condition assumes an ask wait never sets agentWait, which the inventory does not establish.",
+   "merge_row": "L13"
+  },
+  {
+   "key": "d2-r1:t2-1:m3",
+   "reviewer": "t2-1",
+   "fid": "m3",
+   "severity": "MINOR",
+   "blocking": false,
+   "category": "other",
+   "anchor": "git diff -U0 master...HEAD -- src/superclaude/commands/<name>.md",
+   "anchor2": null,
+   "refs": [
+    "AC-C5"
+   ],
+   "claim": "The diff base is master, not origin/master as the fork rule requires.",
+   "merge_row": "L14"
+  },
+  {
+   "key": "d2-r1:t2-2:F1",
+   "reviewer": "t2-2",
+   "fid": "F1",
+   "severity": "MAJOR",
+   "blocking": true,
+   "category": "unpassable-check",
+   "anchor": "steps 1-3 and 5-7 pass; step 4 uses the command's existing report file, since the contract arrives in P1",
+   "anchor2": null,
+   "refs": [
+    "AC-0.4",
+    "7.2 step 4",
+    "WC-4"
+   ],
+   "claim": "AC-0.4 applies the 7.2 step 4 YAML status check to /sc:troubleshoot's REPORT.md, which is not a return contract outside --caller task-unified, so the P0 gate cannot pass.",
+   "merge_row": "L1"
+  },
+  {
+   "key": "d2-r1:t2-2:F2",
+   "reviewer": "t2-2",
+   "fid": "F2",
+   "severity": "MAJOR",
+   "blocking": true,
+   "category": "contradiction",
+   "anchor": "where `<output-dir>` is the directory the coordinator passed (`--output` / `--output-dir`)",
+   "anchor2": "`--output <file>` | the TDD at `--output`",
+   "refs": [
+    "WC-4",
+    "2.3",
+    "tdd row",
+    "init-lite row",
+    "workflow row",
+    "research row"
+   ],
+   "claim": "WC-4 requires a directory-based contract path known before dispatch, but the tdd and init-lite rows pass a file, and the workflow and research paths are generated at run time.",
+   "merge_row": "L1"
+  },
+  {
+   "key": "d2-r1:t2-2:F3",
+   "reviewer": "t2-2",
+   "fid": "F3",
+   "severity": "MAJOR",
+   "blocking": true,
+   "category": "safety",
+   "anchor": "The coordinator quotes the instruction in the brief and passes the command's explicit flag",
+   "anchor2": "without it every outward default is off (WC-9)",
+   "refs": [
+    "D4",
+    "D2",
+    "WC-9",
+    "P2"
+   ],
+   "claim": "D4 option (a) lets the coordinator, an agent, authorize a worker's PR, post or push by quoting an instruction it supplies, with no check against the user's words and no user confirmation.",
+   "merge_row": "L15"
+  },
+  {
+   "key": "d2-r1:t2-2:F4",
+   "reviewer": "t2-2",
+   "fid": "F4",
+   "severity": "MAJOR",
+   "blocking": true,
+   "category": "contradiction",
+   "anchor": "a report file would be an unrequested addition",
+   "anchor2": "every command in sections 3.1-3.2 has a `## Unattended mode` section naming `return-contract.yaml`",
+   "refs": [
+    "load row",
+    "Decisions /sc:load",
+    "AC-1.1",
+    "WC-4"
+   ],
+   "claim": "AC-1.1 requires /sc:load to name a return-contract.yaml, which the load row and the Decisions say it must not write.",
+   "merge_row": "L1"
+  },
+  {
+   "key": "d2-r1:t2-2:F5",
+   "reviewer": "t2-2",
+   "fid": "F5",
+   "severity": "MAJOR",
+   "blocking": false,
+   "category": "other",
+   "anchor": "The only end-to-end proof is the PR #329 run",
+   "anchor2": "invocation_method: \"skill-direct\"",
+   "refs": [
+    "E3",
+    "1.4 item 1"
+   ],
+   "claim": "Section 1.4 says the only end-to-end proof is the PR #329 nested run, while E3 cites a skill-direct contract as evidence that the direct route has run.",
+   "merge_row": "L16"
+  },
+  {
+   "key": "d2-r1:t2-2:F6",
+   "reviewer": "t2-2",
+   "fid": "F6",
+   "severity": "MAJOR",
+   "blocking": false,
+   "category": "contradiction",
+   "anchor": "split into 10 ready today, 27 needing a change and 6 coordinator-only",
+   "anchor2": null,
+   "refs": [
+    "D3",
+    "section 3.2",
+    "section 4",
+    "P4"
+   ],
+   "claim": "The 10/27/6 split counts pr-submit as needing change, but the recommended D3 option makes it coordinator-only.",
+   "merge_row": "L17"
+  },
+  {
+   "key": "d2-r1:t2-2:F7",
+   "reviewer": "t2-2",
+   "fid": "F7",
+   "severity": "MINOR",
+   "blocking": false,
+   "category": "other",
+   "anchor": "posting returns only with an explicit `--post-pr` in the brief (WC-9)",
+   "anchor2": null,
+   "refs": [
+    "section 3.2 auggie-review",
+    "AC-2.4"
+   ],
+   "claim": "The --post-pr flag has no source in the inventories, and AC-2.4 depends on it.",
+   "merge_row": "L11"
+  },
+  {
+   "key": "d2-r1:t2-2:F8",
+   "reviewer": "t2-2",
+   "fid": "F8",
+   "severity": "MAJOR",
+   "blocking": false,
+   "category": "other",
+   "anchor": "Each phase's plan must resolve this before editing.",
+   "anchor2": null,
+   "refs": [
+    "UNVERIFIED 8",
+    "AC-C1",
+    "AC-C2"
+   ],
+   "claim": "No acceptance check covers the plugins/superclaude mirror of the command files.",
+   "merge_row": "L18"
+  },
+  {
+   "key": "d2-r1:t2-2:F9",
+   "reviewer": "t2-2",
+   "fid": "F9",
+   "severity": "MAJOR",
+   "blocking": false,
+   "category": "data-loss",
+   "anchor": "apply only items the file already allows without approval",
+   "anchor2": null,
+   "refs": [
+    "cleanup row",
+    "CAPS:115",
+    "INV-A:43"
+   ],
+   "claim": "Unattended cleanup can apply edits and deletions in a shared worktree with no verified rollback.",
+   "merge_row": "L10"
+  },
+  {
+   "key": "d2-r1:t2-2:F10",
+   "reviewer": "t2-2",
+   "fid": "F10",
+   "severity": "MINOR",
+   "blocking": false,
+   "category": "other",
+   "anchor": "/sc:troubleshoot \"login fails\" --unattended --output .dev/troubleshoot/login/",
+   "anchor2": null,
+   "refs": [
+    "D1",
+    "INV-B:49"
+   ],
+   "claim": "The D1 example passes an --output flag that no inventory row lists for /sc:troubleshoot.",
+   "merge_row": "L19"
+  },
+  {
+   "key": "d2-r1:t3-1:F1",
+   "reviewer": "t3-1",
+   "fid": "F1",
+   "severity": "CRITICAL",
+   "blocking": true,
+   "category": "contradiction",
+   "anchor": "the session may instead ask the coordinator once with the preamble's `ask` command, wait, then re-invoke or resume the command with the answer as a flag.",
+   "anchor2": "The worker stops, writes the halt to its ledger and contract, and ends `failed`.",
+   "refs": [
+    "WC-3",
+    "WC-9",
+    "D2",
+    "D4",
+    "section 3.2 implement row"
+   ],
+   "claim": "WC-3 lets a coordinator reply re-invoke a blocked command with that reply as a flag, which for implement records a Ruling that D2(a) says a coordinator reply cannot be, and lets the reply turn on an outward flag that D4(a) allows only on the user's own instruction.",
+   "merge_row": "L1"
+  },
+  {
+   "key": "d2-r1:t3-1:F2",
+   "reviewer": "t3-1",
+   "fid": "F2",
+   "severity": "MAJOR",
+   "blocking": true,
+   "category": "contradiction",
+   "anchor": "The only allowed mention of Orca in a changed command is as an example of a caller's question channel inside the contract file.",
+   "anchor2": "src/superclaude/commands src/superclaude/skills src/superclaude/agents src/superclaude/core",
+   "refs": [
+    "SA-2",
+    "AC-C1",
+    "WC-3",
+    "P0"
+   ],
+   "claim": "SA-2 allows an Orca question-channel example in the contract file, but that file lives under src/superclaude/core, which AC-C1 greps and requires to print nothing, so the allowed text fails the gate every phase must pass.",
+   "merge_row": "L4"
+  },
+  {
+   "key": "d2-r1:t3-1:F3",
+   "reviewer": "t3-1",
+   "fid": "F3",
+   "severity": "MAJOR",
+   "blocking": true,
+   "category": "contradiction",
+   "anchor": "use it as a step inside another worker's brief, not as its own Task",
+   "anchor2": "every command in sections 3.1-3.2 has a `## Unattended mode` section naming `return-contract.yaml`",
+   "refs": [
+    "WC-4",
+    "AC-1.1",
+    "section 3.2 load row",
+    "Decisions /sc:load handling"
+   ],
+   "claim": "The load row and the Decisions table say load writes no report file and gets no contract, but AC-1.1 requires every section 3.2 command, load included, to have an Unattended mode section naming return-contract.yaml, so an implementer must add an unrequested contract or fail AC-1.1.",
+   "merge_row": "L1"
+  },
+  {
+   "key": "d2-r1:t3-1:F4",
+   "reviewer": "t3-1",
+   "fid": "F4",
+   "severity": "MAJOR",
+   "blocking": false,
+   "category": "unpassable-check",
+   "anchor": "each run directly by the worker (no Agent-tool wrapper, verified in the step-5 transcript)",
+   "anchor2": "search the transcript for `AskUserQuestion`",
+   "refs": [
+    "AC-0.4",
+    "7.2 step 5",
+    "section 1.4 item 1"
+   ],
+   "claim": "AC-0.4 says the no-wrapper check is verified in step 5, but step 5 checks only for AskUserQuestion, so a subagent-wrapped run can pass the P0 gate.",
+   "merge_row": "L1"
+  },
+  {
+   "key": "d2-r1:t3-1:F5",
+   "reviewer": "t3-1",
+   "fid": "F5",
+   "severity": "MINOR",
+   "blocking": false,
+   "category": "unpassable-check",
+   "anchor": "step 4 uses the command's existing report file, since the contract arrives in P1",
+   "anchor2": "assert d['command']",
+   "refs": [
+    "AC-0.4",
+    "7.2 step 4",
+    "INV-B:272"
+   ],
+   "claim": "Step 4 asserts command and a four-value status on existing contracts, but the workflow contract fields listed at INV-B:272 have no command key and the adversarial filename is not fixed, so the P0 check cannot be applied as written.",
+   "merge_row": "L1"
+  },
+  {
+   "key": "d2-r1:t3-1:F6",
+   "reviewer": "t3-1",
+   "fid": "F6",
+   "severity": "MINOR",
+   "blocking": false,
+   "category": "other",
+   "anchor": "split into 10 ready today, 27 needing a change and 6 coordinator-only (section 4)",
+   "anchor2": "`/sc:pr-submit` stays a worker candidate only if the user accepts open decision D3.",
+   "refs": [
+    "section 3 header",
+    "section 3.2 pr-submit row",
+    "section 4",
+    "D3"
+   ],
+   "claim": "pr-submit is counted as needs-change and scheduled in P4, but D3(a), which the spec recommends, makes it coordinator-only, so the counts and the P4 scope go stale under the recommendation.",
+   "merge_row": "L17"
+  },
+  {
+   "key": "d2-r1:t3-1:F7",
+   "reviewer": "t3-1",
+   "fid": "F7",
+   "severity": "MAJOR",
+   "blocking": false,
+   "category": "contradiction",
+   "anchor": "The only end-to-end proof is the PR #329 run",
+   "anchor2": "in the codegraph planning run, Orca workers invoked",
+   "refs": [
+    "section 1.4 item 1",
+    "E3",
+    "inventory/commands-a.md:13"
+   ],
+   "claim": "Section 1.4 says the direct route has no end-to-end proof, while E3 and inventory A line 13 cite a skill-direct run as evidence that the route has worked, so the evidence is used in both directions.",
+   "merge_row": "L16"
+  },
+  {
+   "key": "d2-r1:t3-1:F8",
+   "reviewer": "t3-1",
+   "fid": "F8",
+   "severity": "MAJOR",
+   "blocking": false,
+   "category": "other",
+   "anchor": "Under `--unattended`, make `--remediate` follow the existing headless auto-accept rule instead of the `[yes / no]` prompt (P2)",
+   "anchor2": "The existing headless rule of `/sc:reflect` under `claude --print` keeps working exactly as today",
+   "refs": [
+    "section 3.1 reflect row",
+    "SA-6",
+    "D2 rationale"
+   ],
+   "claim": "Under --unattended the remediation yes/no becomes an auto-accept, which may be an agent approving its own remediation; the spec does not say whether WC-2(a) covers it, and D2 says the approval rule exists to prevent that.",
+   "merge_row": "L1"
+  },
+  {
+   "key": "d2-r1:t3-2:F1",
+   "reviewer": "t3-2",
+   "fid": "F1",
+   "severity": "MAJOR",
+   "blocking": true,
+   "category": "contradiction",
+   "anchor": "the exact command line including `--unattended` and every flag section 3 lists as required",
+   "anchor2": "The only command changes are the small fixes in the last column.",
+   "refs": [
+    "2.3",
+    "3.1",
+    "6 P1",
+    "AC-1.1"
+   ],
+   "claim": "Section 2.3 requires --unattended in every brief and AC-1.1 requires an Unattended section in every 3.1 command, but the 3.1 header says the ready commands change only by their listed fixes, and brainstorm and init-lite have no fix.",
+   "merge_row": "L1"
+  },
+  {
+   "key": "d2-r1:t3-2:F2",
+   "reviewer": "t3-2",
+   "fid": "F2",
+   "severity": "MAJOR",
+   "blocking": true,
+   "category": "unpassable-check",
+   "anchor": "prints nothing (SA-2, WC-8)",
+   "anchor2": "The only allowed mention of Orca in a changed command is as an example of a caller's question channel inside the contract file.",
+   "refs": [
+    "AC-C1",
+    "SA-2",
+    "WC-8",
+    "P0"
+   ],
+   "claim": "AC-C1 requires no Orca orchestration mention under src/superclaude/core in every phase, but SA-2 permits one in the core contract file and P0 adds an Orca section to core, so AC-C1 cannot pass at P0.",
+   "merge_row": "L4"
+  },
+  {
+   "key": "d2-r1:t3-2:F3",
+   "reviewer": "t3-2",
+   "fid": "F3",
+   "severity": "MAJOR",
+   "blocking": true,
+   "category": "contradiction",
+   "anchor": "One report file, known before dispatch, written on every outcome.",
+   "anchor2": ".dev/tasks/to-do/<id>/return-contract.yaml",
+   "refs": [
+    "WC-4",
+    "2.3",
+    "3.1 workflow",
+    "3.1 adversarial",
+    "3.1 tdd",
+    "3.2 research"
+   ],
+   "claim": "WC-4 requires a report path known before dispatch under <output-dir>, but workflow's path contains a run-generated id, research's file name is timestamped, adversarial's fixed path differs, and tdd and init-lite take --output as a file.",
+   "merge_row": "L1"
+  },
+  {
+   "key": "d2-r1:t3-2:F4",
+   "reviewer": "t3-2",
+   "fid": "F4",
+   "severity": "CRITICAL",
+   "blocking": true,
+   "category": "safety",
+   "anchor": "the session may instead ask the coordinator once with the preamble's `ask` command, wait, then re-invoke or resume the command with the answer as a flag",
+   "anchor2": "because the rule exists to stop an agent approving its own work",
+   "refs": [
+    "WC-2",
+    "WC-3",
+    "D2",
+    "3.2 cleanup",
+    "3.2 improve",
+    "3.2 cli-portify"
+   ],
+   "claim": "WC-3 lets the coordinator's answer re-enter any blocked gate as a flag, which breaks the D2 rule against agent approval for implement and the user-approval gates of cleanup, improve and cli-portify.",
+   "merge_row": "L1"
+  },
+  {
+   "key": "d2-r1:t3-2:F5",
+   "reviewer": "t3-2",
+   "fid": "F5",
+   "severity": "MAJOR",
+   "blocking": true,
+   "category": "contradiction",
+   "anchor": "A command either resumes from its on-disk state when given its resume flag, or, if it has none, writes each run into a fresh output directory",
+   "anchor2": "Re-run overwrites its marked report",
+   "refs": [
+    "WC-6",
+    "3.1 init-lite",
+    "3.1 cleanup-audit"
+   ],
+   "claim": "WC-6 forbids a retry from corrupting the first attempt's output and allows only resume or a fresh directory, but init-lite's re-run overwrites its marked report with neither.",
+   "merge_row": "L1"
+  },
+  {
+   "key": "d2-r1:t3-2:F6",
+   "reviewer": "t3-2",
+   "fid": "F6",
+   "severity": "MAJOR",
+   "blocking": true,
+   "category": "unpassable-check",
+   "anchor": "`--outcome failed` when the report says `failed` or `blocked`, or no report exists",
+   "anchor2": "`--outcome succeeded` otherwise, including `partial`",
+   "refs": [
+    "WC-4",
+    "WC-5",
+    "7.2 step 4"
+   ],
+   "claim": "WC-5 sends succeeded for any contract that is neither failed nor blocked, so an empty or unparseable contract (which has no status, though WC-4 requires one) is reported as succeeded.",
+   "merge_row": "L1"
+  },
+  {
+   "key": "d2-r1:t3-2:F7",
+   "reviewer": "t3-2",
+   "fid": "F7",
+   "severity": "MAJOR",
+   "blocking": false,
+   "category": "other",
+   "anchor": "so a command that calls `worker-start` from inside a worker would be refused with `nested_worker_depth_exceeded`",
+   "anchor2": "Which call sites enforce the check was not traced",
+   "refs": [
+    "R1",
+    "inventory/orca-capabilities.md:103"
+   ],
+   "claim": "R1 states the refusal as fact while the same cell says the enforcing call sites are untraced and UNVERIFIED.",
+   "merge_row": "L20"
+  },
+  {
+   "key": "d2-r1:t3-2:F8",
+   "reviewer": "t3-2",
+   "fid": "F8",
+   "severity": "MAJOR",
+   "blocking": false,
+   "category": "other",
+   "anchor": "Orca does not check the file, so the coordinator opens it.",
+   "anchor2": null,
+   "refs": [
+    "WC-4",
+    "9 UNVERIFIED 3",
+    "CAPS:79"
+   ],
+   "claim": "WC-4 states Orca's handling of the report file as fact, while its own evidence and section 9 mark it UNVERIFIED.",
+   "merge_row": "L1"
+  },
+  {
+   "key": "d2-r1:t3-2:F9",
+   "reviewer": "t3-2",
+   "fid": "F9",
+   "severity": "MAJOR",
+   "blocking": false,
+   "category": "missing-requirement",
+   "anchor": "What changes in the commands is limited to the worker contract in section 2",
+   "anchor2": "Existing lines change only where section 3 names a defect fix",
+   "refs": [
+    "1.1",
+    "SA-4",
+    "3.2"
+   ],
+   "claim": "Section 1.1 says command changes are limited to the worker contract, but section 3 and SA-4 authorize defect fixes outside the contract.",
+   "merge_row": "L6"
+  },
+  {
+   "key": "d2-r1:t3-2:F10",
+   "reviewer": "t3-2",
+   "fid": "F10",
+   "severity": "MAJOR",
+   "blocking": false,
+   "category": "missing-requirement",
+   "anchor": "Launch setup, not commands",
+   "anchor2": "Nothing in the launch path (wrapper, hook, startup command) may wait on a person before Claude's input box is ready.",
+   "refs": [
+    "WC-1",
+    "P0",
+    "AC-0"
+   ],
+   "claim": "WC-1 assigns the launch path to an owner that no phase, command edit or acceptance check covers.",
+   "merge_row": "L21"
+  },
+  {
+   "key": "d2-r1:t3-2:F11",
+   "reviewer": "t3-2",
+   "fid": "F11",
+   "severity": "MAJOR",
+   "blocking": false,
+   "category": "unpassable-check",
+   "anchor": "contract `status: blocked` with a non-empty `blocked_question`",
+   "anchor2": "the session may instead ask the coordinator once with the preamble's `ask` command",
+   "refs": [
+    "WC-3",
+    "AC-2.2"
+   ],
+   "claim": "AC-2.2 expects a blocked outcome, but WC-3 lets the worker ask first, so the outcome is not deterministic.",
+   "merge_row": "L1"
+  },
+  {
+   "key": "d2-r1:t3-2:F12",
+   "reviewer": "t3-2",
+   "fid": "F12",
+   "severity": "MINOR",
+   "blocking": false,
+   "category": "missing-requirement",
+   "anchor": "until `worker_done` arrives.",
+   "anchor2": "its `--outcome` matches the contract's `status` under WC-5",
+   "refs": [
+    "7.2 step 3",
+    "inventory/orca-capabilities.md:63"
+   ],
+   "claim": "Step 3 waits on question and escalation messages but never answers a question and has no pass criterion for escalation.",
+   "merge_row": "L22"
+  },
+  {
+   "key": "d2-r1:t3-2:F13",
+   "reviewer": "t3-2",
+   "fid": "F13",
+   "severity": "MINOR",
+   "blocking": false,
+   "category": "other",
+   "anchor": "Only defects that stop a command working as a worker are in scope",
+   "anchor2": "move the frontmatter out of its code block (effect on loading UNVERIFIED)",
+   "refs": [
+    "8 #8",
+    "3.2 business-panel",
+    "3.2 agent"
+   ],
+   "claim": "Section 8 #8 limits scope to worker-blocking defects, but the business-panel frontmatter fix (effect UNVERIFIED) is in scope while agent's missing frontmatter is not.",
+   "merge_row": "L10"
+  },
+  {
+   "key": "d2-r1:t3-2:F14",
+   "reviewer": "t3-2",
+   "fid": "F14",
+   "severity": "MAJOR",
+   "blocking": false,
+   "category": "missing-requirement",
+   "anchor": "`run` requires `--suite` and the safety flags in the brief, else blocked",
+   "anchor2": null,
+   "refs": [
+    "3.2 cli-eval",
+    "inventory/commands-a.md:44"
+   ],
+   "claim": "The cli-eval rule depends on a set of safety flags that the spec never names.",
+   "merge_row": "L10"
+  },
+  {
+   "key": "d2-r1:t3-2:F15",
+   "reviewer": "t3-2",
+   "fid": "F15",
+   "severity": "MAJOR",
+   "blocking": false,
+   "category": "other",
+   "anchor": "its reflect fan-out runs one layer below the worker, inside Claude Code's nesting limit",
+   "anchor2": null,
+   "refs": [
+    "3.2 tasklist",
+    "inventory/commands-b.md:314",
+    "inventory/commands-b.md:322"
+   ],
+   "claim": "The tasklist no-change verdict rests on nested spawning and on the answer to the reflect remediation offer, both UNVERIFIED in the inventories.",
+   "merge_row": "L10"
+  },
+  {
+   "key": "d2-r1:t3-2:F16",
+   "reviewer": "t3-2",
+   "fid": "F16",
+   "severity": "MAJOR",
+   "blocking": false,
+   "category": "other",
+   "anchor": "dispatch only inside an IronClaude checkout (hardcoded template path)",
+   "anchor2": null,
+   "refs": [
+    "3.2 cli-portify",
+    "project CLAUDE.md rule (session-provided, not in sandbox)"
+   ],
+   "claim": "The cli-portify row keeps a hard-coded src/superclaude template path in an installed skill without a fix or justification.",
+   "merge_row": "L10"
+  },
+  {
+   "key": "d2-r1:t3-2:F17",
+   "reviewer": "t3-2",
+   "fid": "F17",
+   "severity": "MAJOR",
+   "blocking": false,
+   "category": "missing-requirement",
+   "anchor": "including `partial` and including an audit whose verdict is FAIL",
+   "anchor2": null,
+   "refs": [
+    "WC-5",
+    "decisions: partial",
+    "inventory/orca-capabilities.md:77"
+   ],
+   "claim": "A partial deliverable is reported as succeeded, which settles the Task and can start dependents, and the spec does not say whether dependents should wait.",
+   "merge_row": "L1"
+  },
+  {
+   "key": "d2-r1:t3-2:F18",
+   "reviewer": "t3-2",
+   "fid": "F18",
+   "severity": "MINOR",
+   "blocking": false,
+   "category": "other",
+   "anchor": "The first sentence of the body states the report's status and verdict.",
+   "anchor2": null,
+   "refs": [
+    "WC-5"
+   ],
+   "claim": "The outcome rule uses 'the report says' without naming whether the status field or body prose decides.",
+   "merge_row": "L1"
+  },
+  {
+   "key": "d2-r1:t3-2:F19",
+   "reviewer": "t3-2",
+   "fid": "F19",
+   "severity": "MINOR",
+   "blocking": false,
+   "category": "other",
+   "anchor": "run once in a plain session with no `--unattended` and no new output flag",
+   "anchor2": null,
+   "refs": [
+    "AC-1.3",
+    "SA-6"
+   ],
+   "claim": "The acceptance check calls a headless claude -p run a plain session, which does not exercise the interactive path.",
+   "merge_row": "L23"
+  },
+  {
+   "key": "d2-r1:t3-2:F20",
+   "reviewer": "t3-2",
+   "fid": "F20",
+   "severity": "MAJOR",
+   "blocking": false,
+   "category": "missing-requirement",
+   "anchor": "The worker passes the contract path as `worker_done --report-path`.",
+   "anchor2": null,
+   "refs": [
+    "WC-4",
+    "WC-5"
+   ],
+   "claim": "The spec does not order the contract write before worker_done, so the coordinator can open a file that does not exist yet.",
+   "merge_row": "L1"
+  },
+  {
+   "key": "d2-r1:t3-3:F1",
+   "reviewer": "t3-3",
+   "fid": "F1",
+   "severity": "MAJOR",
+   "blocking": true,
+   "category": "unpassable-check",
+   "anchor": "step 4 uses the command's existing report file, since the contract arrives in P1",
+   "anchor2": null,
+   "refs": [
+    "AC-0.4",
+    "7.2 step 4",
+    "WC-4",
+    "3.1 troubleshoot",
+    "3.1 adversarial"
+   ],
+   "claim": "Following AC-0.4 as written, step 4 parses the existing report as YAML and asserts status and command; REPORT.md for troubleshoot has no such fields and the adversarial contract has no fixed path, so the P0 gate cannot pass.",
+   "merge_row": "L1"
+  },
+  {
+   "key": "d2-r1:t3-3:F2",
+   "reviewer": "t3-3",
+   "fid": "F2",
+   "severity": "MAJOR",
+   "blocking": true,
+   "category": "safety",
+   "anchor": "grep -rnE '\\borca(-ide)?[[:space:]]+(orchestration\\|worktree\\|terminal\\|agent)\\b'",
+   "anchor2": null,
+   "refs": [
+    "AC-C1",
+    "SA-2",
+    "WC-8",
+    "R2"
+   ],
+   "claim": "The AC-C1 pattern uses \\| where ERE needs |, so it never matches an Orca call (probe exit 1 on orca orchestration worker-start); a command that calls Orca passes every phase gate and breaks standalone use.",
+   "merge_row": "L4"
+  },
+  {
+   "key": "d2-r1:t3-3:F3",
+   "reviewer": "t3-3",
+   "fid": "F3",
+   "severity": "MAJOR",
+   "blocking": true,
+   "category": "contradiction",
+   "anchor": "In unattended mode the command writes `<output-dir>/return-contract.yaml`",
+   "anchor2": "Write the contract for pre-creation STOPs too",
+   "refs": [
+    "WC-4",
+    "2.3",
+    "3.1 workflow",
+    "INV-B:272"
+   ],
+   "claim": "WC-4 requires a contract path known before dispatch on every outcome, but the workflow path is .dev/tasks/to-do/<id>/, which does not exist at a pre-creation stop, so the coordinator has no file to open for that outcome.",
+   "merge_row": "L1"
+  },
+  {
+   "key": "d2-r1:t3-3:F4",
+   "reviewer": "t3-3",
+   "fid": "F4",
+   "severity": "MAJOR",
+   "blocking": true,
+   "category": "contradiction",
+   "anchor": "Each changed command adds a short `## Unattended mode` section",
+   "anchor2": "every command in sections 3.1-3.2 has a `## Unattended mode` section",
+   "refs": [
+    "2.1",
+    "3 intro",
+    "AC-1.1",
+    "3.1 brainstorm",
+    "3.1 init-lite"
+   ],
+   "claim": "Following 2.1 leaves brainstorm and init-lite, which have no changes, without the section, and AC-1.1 requires it for every command in 3.1-3.2, so AC-1.1 fails in P1.",
+   "merge_row": "L1"
+  },
+  {
+   "key": "d2-r1:t3-3:F5",
+   "reviewer": "t3-3",
+   "fid": "F5",
+   "severity": "MAJOR",
+   "blocking": false,
+   "category": "other",
+   "anchor": "Existing lines change only where section 3 names a defect fix",
+   "anchor2": "For every command file the phase edits without a named defect fix (SA-4)",
+   "refs": [
+    "SA-4",
+    "AC-C5",
+    "3.2 cli-eval",
+    "3.2 save",
+    "3.1 reflect"
+   ],
+   "claim": "Section 3 requires existing-line behaviour changes that SA-4's defect-fix list does not name, so following SA-4 and AC-C5 forces those changes into new sections or fails the check.",
+   "merge_row": "L6"
+  },
+  {
+   "key": "d2-r1:t3-3:F6",
+   "reviewer": "t3-3",
+   "fid": "F6",
+   "severity": "MAJOR",
+   "blocking": false,
+   "category": "other",
+   "anchor": "make `--remediate` follow the existing headless auto-accept rule instead of the `[yes / no]` prompt",
+   "anchor2": "because the rule exists to stop an agent approving its own work",
+   "refs": [
+    "3.1 reflect",
+    "SA-6",
+    "D2",
+    "WC-2"
+   ],
+   "claim": "Under --unattended, reflect --remediate auto-accepts its own generated code change, which is the self-approval D2 describes as the thing the approval rule exists to stop; the spec does not say whether that is intended.",
+   "merge_row": "L1"
+  },
+  {
+   "key": "d2-r1:t3-3:F7",
+   "reviewer": "t3-3",
+   "fid": "F7",
+   "severity": "MINOR",
+   "blocking": false,
+   "category": "other",
+   "anchor": "`--no-promote` when the coordinator owns folder moves",
+   "anchor2": "No outward action unless the brief authorizes it.",
+   "refs": [
+    "3.1 reflect",
+    "WC-9",
+    "INV-B:114"
+   ],
+   "claim": "The reflect default folder move is not listed in WC-9, so a worker moves work-unit folders by default with no gate.",
+   "merge_row": "L24"
+  },
+  {
+   "key": "d2-r1:t3-3:F8",
+   "reviewer": "t3-3",
+   "fid": "F8",
+   "severity": "MINOR",
+   "blocking": false,
+   "category": "contradiction",
+   "anchor": "`PROJECT_INDEX.md` (location implied)",
+   "anchor2": "so the report path is known before dispatch (WC-4)",
+   "refs": [
+    "3.1 index-repo",
+    "2.3",
+    "WC-4",
+    "INV-A:53"
+   ],
+   "claim": "index-repo is listed as ready with no output flag and an implied report location, so its path cannot be stated in the brief as section 2.3 requires.",
+   "merge_row": "L1"
+  },
+  {
+   "key": "d2-r1:t3-3:F9",
+   "reviewer": "t3-3",
+   "fid": "F9",
+   "severity": "MAJOR",
+   "blocking": false,
+   "category": "other",
+   "anchor": "its reflect fan-out runs one layer below the worker",
+   "anchor2": null,
+   "refs": [
+    "3.2 tasklist",
+    "INV-A:14",
+    "INV-B:314",
+    "INV-B:322"
+   ],
+   "claim": "The tasklist no-change verdict treats subagent-to-agent nesting as settled, while inventory B lists it as UNVERIFIED.",
+   "merge_row": "L10"
+  },
+  {
+   "key": "d2-r1:t3-4:F1",
+   "reviewer": "t3-4",
+   "fid": "F1",
+   "severity": "MAJOR",
+   "blocking": true,
+   "category": "contradiction",
+   "anchor": "none: use it as a step inside another worker's brief, not as its own Task",
+   "anchor2": "the test asserts that every command in sections 3.1-3.2 has a `## Unattended mode` section naming `return-contract.yaml`",
+   "refs": [
+    "section 3.2",
+    "WC-4",
+    "P1",
+    "AC-1.1"
+   ],
+   "claim": "The load row gives no return-contract.yaml under --unattended, while AC-1.1 requires every 3.1-3.2 command to name that file, so the acceptance test cannot pass for load.",
+   "merge_row": "L1"
+  },
+  {
+   "key": "d2-r1:t3-4:F2",
+   "reviewer": "t3-4",
+   "fid": "F2",
+   "severity": "MEDIUM",
+   "blocking": false,
+   "category": "other",
+   "anchor": "output dir is fixed, so one audit per worktree at a time (WC-11)",
+   "anchor2": null,
+   "refs": [
+    "section 3.1",
+    "WC-11"
+   ],
+   "claim": "cleanup-audit is listed as ready today, but its fixed output directory can clash with a second worker in the same worktree, which WC-11 forbids.",
+   "merge_row": null
+  },
+  {
+   "key": "d2-r1:t3-4:F3",
+   "reviewer": "t3-4",
+   "fid": "F3",
+   "severity": "MINOR",
+   "blocking": false,
+   "category": "other",
+   "anchor": "EXEMPT `commit`/`push` refused unless authorized (WC-9)",
+   "anchor2": null,
+   "refs": [
+    "section 3.2",
+    "WC-9",
+    "P2"
+   ],
+   "claim": "The task row says commit/push are refused unless authorized, while P2 says the default is turned off; the wording differs for one WC-9 rule.",
+   "merge_row": "L5"
+  },
+  {
+   "key": "d2-r1:t3-4:F4",
+   "reviewer": "t3-4",
+   "fid": "F4",
+   "severity": "MINOR",
+   "blocking": false,
+   "category": "other",
+   "anchor": "Phase 0 (section 6) therefore starts with live smoke runs.",
+   "anchor2": "Write `src/superclaude/core/WORKER-CONTRACT.md`",
+   "refs": [
+    "section 1.4",
+    "section 6",
+    "AC-0.4"
+   ],
+   "claim": "Section 1.4 says Phase 0 starts with smoke runs, but the P0 row writes the contract first, so the order of P0 work is ambiguous.",
+   "merge_row": "L25"
+  }
+ ],
+ "d2-r2": [
+  {
+   "key": "d2-r2:t1b-1:F1",
+   "reviewer": "t1b-1",
+   "fid": "F1",
+   "severity": "CRITICAL",
+   "blocking": true,
+   "category": "contradiction",
+   "anchor": "the test asserts that every command in sections 3.1-3.2 has a `## Unattended mode` section",
+   "anchor2": "no pr-submit changes in Phase 4",
+   "refs": [
+    "AC-1.1",
+    "AC-1.2",
+    "3.2",
+    "6",
+    "9",
+    "D3"
+   ],
+   "claim": "AC-1.1 requires an Unattended mode section naming return-contract.yaml in load, implement, post-release and pr-submit, which the load row, the P4 plan and D3(a) say get no contract or no change, and AC-1.2 cannot pass for load.",
+   "merge_row": "L1"
+  },
+  {
+   "key": "d2-r2:t1b-1:F2",
+   "reviewer": "t1b-1",
+   "fid": "F2",
+   "severity": "MAJOR",
+   "blocking": true,
+   "category": "unpassable-check",
+   "anchor": "its report path is the WC-4 contract path",
+   "anchor2": "steps 1-3 and 5-7 pass; step 4 uses the command's existing report file, since the contract arrives in P1",
+   "refs": [
+    "AC-0.4",
+    "7.2",
+    "WC-4",
+    "6"
+   ],
+   "claim": "AC-0.4 step 3 requires the WC-4 contract path in P0, where no command is edited and the contract does not exist, so the P0 gate that blocks Phase 1 cannot pass.",
+   "merge_row": "L1"
+  },
+  {
+   "key": "d2-r2:t1b-1:F3",
+   "reviewer": "t1b-1",
+   "fid": "F3",
+   "severity": "MAJOR",
+   "blocking": false,
+   "category": "other",
+   "anchor": "the `--unattended` flag accepted by every command in sections 3.1 and 3.2 (a no-op where a command has no gate)",
+   "anchor2": "Each default-on gate resolves per its section 3 row",
+   "refs": [
+    "6",
+    "WC-9"
+   ],
+   "claim": "Between Phase 1 and Phase 2 a gate command accepts --unattended while its gate and outward default are unchanged.",
+   "merge_row": "L1"
+  },
+  {
+   "key": "d2-r2:t1b-1:F4",
+   "reviewer": "t1b-1",
+   "fid": "F4",
+   "severity": "MAJOR",
+   "blocking": false,
+   "category": "missing-requirement",
+   "anchor": "where `<output-dir>` is the directory the coordinator passed (`--output` / `--output-dir`)",
+   "anchor2": "require an explicit `--output` and an explicit pre-tag choice, else blocked",
+   "refs": [
+    "WC-4",
+    "3.1",
+    "3.2"
+   ],
+   "claim": "No contract location is defined for file-valued or absent output flags, so a blocked run with no output directory has nowhere to write its question.",
+   "merge_row": "L1"
+  },
+  {
+   "key": "d2-r2:t1b-1:F5",
+   "reviewer": "t1b-1",
+   "fid": "F5",
+   "severity": "MAJOR",
+   "blocking": false,
+   "category": "missing-requirement",
+   "anchor": "writes each run into a fresh output directory so a re-run starts clean",
+   "anchor2": "starts fresh, no `[Y/n]` in the transcript, contract written",
+   "refs": [
+    "WC-6",
+    "AC-3.2"
+   ],
+   "claim": "A fresh output directory conflicts with a coordinator-fixed directory on retry, and repeated blocked attempts are never capped.",
+   "merge_row": "L1"
+  },
+  {
+   "key": "d2-r2:t1b-1:F6",
+   "reviewer": "t1b-1",
+   "fid": "F6",
+   "severity": "MAJOR",
+   "blocking": false,
+   "category": "missing-requirement",
+   "anchor": "the exact command line including `--unattended` and every flag section 3 lists as required",
+   "anchor2": "Lifecycle messages (`heartbeat`, `ask`, `check`, `worker_done`) are sent only by that top-level session",
+   "refs": [
+    "2.3",
+    "WC-3",
+    "WC-5",
+    "WC-7"
+   ],
+   "claim": "The brief does not tell the worker session to read and follow the worker contract, so its rules are not delivered to the agent that must obey them.",
+   "merge_row": "L1"
+  },
+  {
+   "key": "d2-r2:t1b-1:F7",
+   "reviewer": "t1b-1",
+   "fid": "F7",
+   "severity": "MAJOR",
+   "blocking": false,
+   "category": "missing-requirement",
+   "anchor": "A phase passes only when every check in its block and every common check passes.",
+   "anchor2": null,
+   "refs": [
+    "WC-1",
+    "WC-3",
+    "WC-6",
+    "WC-10",
+    "WC-11",
+    "WC-12"
+   ],
+   "claim": "WC-3, WC-6 and WC-12 have no acceptance check, WC-1 has no bound, and WC-10 leaves the 4-5 minute band open.",
+   "merge_row": "L2"
+  },
+  {
+   "key": "d2-r2:t1b-1:F8",
+   "reviewer": "t1b-1",
+   "fid": "F8",
+   "severity": "MAJOR",
+   "blocking": false,
+   "category": "missing-requirement",
+   "anchor": "It is testable by grep and cannot misfire on a person.",
+   "anchor2": null,
+   "refs": [
+    "D1",
+    "SA-4"
+   ],
+   "claim": "The flag token is unparsed so quoted prompt text can trigger it, and an older installed command ignores it and prompts.",
+   "merge_row": "L3"
+  },
+  {
+   "key": "d2-r2:t1b-1:F9",
+   "reviewer": "t1b-1",
+   "fid": "F9",
+   "severity": "MINOR",
+   "blocking": false,
+   "category": "other",
+   "anchor": "prints nothing: edits are additive",
+   "anchor2": null,
+   "refs": [
+    "AC-C5",
+    "AC-0.3",
+    "SA-4"
+   ],
+   "claim": "The grep on removed lines misses deleted markdown bullets and fails on a Usage-line flag addition that SA-4 allows.",
+   "merge_row": "L4"
+  },
+  {
+   "key": "d2-r2:t1b-1:F10",
+   "reviewer": "t1b-1",
+   "fid": "F10",
+   "severity": "MAJOR",
+   "blocking": false,
+   "category": "contradiction",
+   "anchor": "prints nothing (SA-2, WC-8)",
+   "anchor2": "Write `src/superclaude/core/WORKER-CONTRACT.md` (section 2 rules plus a coordinator brief template listing the section 3.1 flags)",
+   "refs": [
+    "AC-C1",
+    "SA-2",
+    "P0"
+   ],
+   "claim": "AC-C1 greps core, where Phase 0 puts Orca-facing text, so the common check can fail on the deliverables it guards.",
+   "merge_row": "L1"
+  },
+  {
+   "key": "d2-r2:t1b-1:F11",
+   "reviewer": "t1b-1",
+   "fid": "F11",
+   "severity": "MAJOR",
+   "blocking": false,
+   "category": "contradiction",
+   "anchor": "`status` (one of `succeeded`, `partial`, `failed`, `blocked`)",
+   "anchor2": "Commands that already write a contract keep their fields and add the missing ones.",
+   "refs": [
+    "WC-4",
+    "7.2"
+   ],
+   "claim": "Existing contracts whose status uses other values cannot both keep their fields and satisfy the four-value assertion.",
+   "merge_row": "L1"
+  },
+  {
+   "key": "d2-r2:t1b-1:F12",
+   "reviewer": "t1b-1",
+   "fid": "F12",
+   "severity": "MAJOR",
+   "blocking": false,
+   "category": "missing-requirement",
+   "anchor": "under `--unattended`, Stage 10.5 passes `--unattended` to each reflect so the headless rule applies",
+   "anchor2": null,
+   "refs": [
+    "3.2",
+    "WC-2"
+   ],
+   "claim": "The tasklist row does not resolve the needs_human_decision HALT inside Stage 10.5.",
+   "merge_row": "L1"
+  },
+  {
+   "key": "d2-r2:t1b-1:F13",
+   "reviewer": "t1b-1",
+   "fid": "F13",
+   "severity": "MAJOR",
+   "blocking": false,
+   "category": "contradiction",
+   "anchor": "Two workers in one worktree must never write the same file.",
+   "anchor2": "output dir is fixed, so one audit per worktree at a time (WC-11)",
+   "refs": [
+    "WC-11",
+    "3.1"
+   ],
+   "claim": "Ready-today commands with fixed output paths break WC-11 and no coordinator serialisation rule is stated.",
+   "merge_row": "L1"
+  },
+  {
+   "key": "d2-r2:t1b-1:F14",
+   "reviewer": "t1b-1",
+   "fid": "F14",
+   "severity": "MAJOR",
+   "blocking": false,
+   "category": "missing-requirement",
+   "anchor": "`observation.agentWait` is never non-null",
+   "anchor2": null,
+   "refs": [
+    "7.2",
+    "1.4"
+   ],
+   "claim": "A chat-question stall may leave agentWait null, and no coordinator rule for a turn that ends without worker_done is given.",
+   "merge_row": "L1"
+  },
+  {
+   "key": "d2-r2:t1b-1:F15",
+   "reviewer": "t1b-1",
+   "fid": "F15",
+   "severity": "MINOR",
+   "blocking": false,
+   "category": "contradiction",
+   "anchor": "Phases 1-3 need no user decision; Phase 4 waits for answers to D2-D4.",
+   "anchor2": "How the mode is selected (flag versus detecting the preamble) is open decision D1",
+   "refs": [
+    "6",
+    "9",
+    "D1"
+   ],
+   "claim": "Phase 1 builds the mechanism that open decision D1 selects while section 6 says no decision is needed.",
+   "merge_row": "L5"
+  },
+  {
+   "key": "d2-r2:t1b-1:F16",
+   "reviewer": "t1b-1",
+   "fid": "F16",
+   "severity": "MINOR",
+   "blocking": false,
+   "category": "other",
+   "anchor": "calls a paid external run is off",
+   "anchor2": null,
+   "refs": [
+    "WC-9"
+   ],
+   "claim": "WC-9 does not define a paid external run, so web-search commands cannot be classified.",
+   "merge_row": "L6"
+  },
+  {
+   "key": "d2-r2:t1b-1:F17",
+   "reviewer": "t1b-1",
+   "fid": "F17",
+   "severity": "MINOR",
+   "blocking": false,
+   "category": "other",
+   "anchor": "`.dev/orca-command-refactor/README.md:31`; per-command outward actions in column (f) of the inventories",
+   "anchor2": null,
+   "refs": [
+    "WC-9",
+    "4"
+   ],
+   "claim": "A rule for this planning run's workers is cited as general policy for outward actions.",
+   "merge_row": "L6"
+  },
+  {
+   "key": "d2-r2:t1b-1:F18",
+   "reviewer": "t1b-1",
+   "fid": "F18",
+   "severity": "MINOR",
+   "blocking": false,
+   "category": "other",
+   "anchor": "A command's own `AskUserQuestion` or chat question comes *after* readiness, so it does not fail `worker-start`",
+   "anchor2": null,
+   "refs": [
+    "1.4"
+   ],
+   "claim": "The ordering of a command's first question relative to input_accepted is asserted without a cite, and the task is injected on the command line.",
+   "merge_row": "L1"
+  },
+  {
+   "key": "d2-r2:t1b-1:F19",
+   "reviewer": "t1b-1",
+   "fid": "F19",
+   "severity": "MINOR",
+   "blocking": false,
+   "category": "contradiction",
+   "anchor": "`--monitor 1` refused under `--unattended`; operator HALTs resolve as blocked",
+   "anchor2": null,
+   "refs": [
+    "3.2",
+    "D3"
+   ],
+   "claim": "An unattended mode for pr-submit is proposed without reconciling the command's own Will Not run headless.",
+   "merge_row": "L1"
+  },
+  {
+   "key": "d2-r2:t1b-1:F20",
+   "reviewer": "t1b-1",
+   "fid": "F20",
+   "severity": "MINOR",
+   "blocking": false,
+   "category": "other",
+   "anchor": "PyYAML is a declared dependency, `pyproject.toml:38`",
+   "anchor2": null,
+   "refs": [
+    "7.2"
+   ],
+   "claim": "Several load-bearing cites and checks depend on files and rules outside the workspace and cannot be verified here.",
+   "merge_row": "L1"
+  },
+  {
+   "key": "d2-r2:t1b-1:F21",
+   "reviewer": "t1b-1",
+   "fid": "F21",
+   "severity": "MINOR",
+   "blocking": false,
+   "category": "missing-requirement",
+   "anchor": "The worker sends `worker_done` exactly once from its own top-level session.",
+   "anchor2": null,
+   "refs": [
+    "WC-4",
+    "WC-5"
+   ],
+   "claim": "No retry-request guidance for a lost worker_done response and no contract_version field.",
+   "merge_row": "L1"
+  },
+  {
+   "key": "d2-r2:t1b-1:F22",
+   "reviewer": "t1b-1",
+   "fid": "F22",
+   "severity": "MINOR",
+   "blocking": false,
+   "category": "other",
+   "anchor": "What changes in the commands is limited to the worker contract in section 2",
+   "anchor2": null,
+   "refs": [
+    "1.1",
+    "SA-4"
+   ],
+   "claim": "The opening sentence understates the defect fixes that section 3 and SA-4 list.",
+   "merge_row": "L7"
+  },
+  {
+   "key": "d2-r2:t2-1:F1",
+   "reviewer": "t2-1",
+   "fid": "F1",
+   "severity": "MAJOR",
+   "blocking": true,
+   "category": "unpassable-check",
+   "anchor": "step 4 uses the command's existing report file, since the contract arrives in P1",
+   "anchor2": null,
+   "refs": [
+    "AC-0.4",
+    "7.2 step 4",
+    "WC-4",
+    "INV-B:49",
+    "INV-B:272"
+   ],
+   "claim": "AC-0.4 step 4 requires a YAML contract with status and command keys, but troubleshoot writes only REPORT.md and workflow's contract has no command key, so the P0 gate cannot pass.",
+   "merge_row": "L1"
+  },
+  {
+   "key": "d2-r2:t2-1:F2",
+   "reviewer": "t2-1",
+   "fid": "F2",
+   "severity": "MAJOR",
+   "blocking": true,
+   "category": "contradiction",
+   "anchor": "every command in sections 3.1-3.2 has a `## Unattended mode` section naming `return-contract.yaml`",
+   "anchor2": "none: use it as a step inside another worker's brief, not as its own Task",
+   "refs": [
+    "3.2 load row",
+    "AC-1.1",
+    "WC-4",
+    "SPEC:76"
+   ],
+   "claim": "The load row gives no contract while AC-1.1 requires every section 3.2 command, load included, to name return-contract.yaml.",
+   "merge_row": "L1"
+  },
+  {
+   "key": "d2-r2:t2-1:F3",
+   "reviewer": "t2-1",
+   "fid": "F3",
+   "severity": "MAJOR",
+   "blocking": true,
+   "category": "contradiction",
+   "anchor": "where `<output-dir>` is the directory the coordinator passed",
+   "anchor2": "a precise component prompt, not a bare topic; `--output <file>`",
+   "refs": [
+    "WC-4",
+    "3.1 init-lite row",
+    "3.1 tdd row",
+    "P1"
+   ],
+   "claim": "WC-4 treats --output as a directory, but the init-lite and tdd rows use it as a file, so the contract path for those commands is wrong or undefined.",
+   "merge_row": "L1"
+  },
+  {
+   "key": "d2-r2:t2-1:F4",
+   "reviewer": "t2-1",
+   "fid": "F4",
+   "severity": "MAJOR",
+   "blocking": true,
+   "category": "contradiction",
+   "anchor": "Default output paths carry a timestamp or the slug the coordinator passes",
+   "anchor2": "`PROJECT_INDEX.md` (location implied)",
+   "refs": [
+    "WC-11",
+    "3.1 index-repo row",
+    "CAPS:115"
+   ],
+   "claim": "The ready-today index-repo row writes a fixed PROJECT_INDEX.md, so two workers in one worktree write the same file, which WC-11 forbids.",
+   "merge_row": "L1"
+  },
+  {
+   "key": "d2-r2:t2-1:F5",
+   "reviewer": "t2-1",
+   "fid": "F5",
+   "severity": "MAJOR",
+   "blocking": true,
+   "category": "other",
+   "anchor": "(orchestration\\|worktree\\|terminal\\|agent)",
+   "anchor2": "The only allowed mention of Orca in a changed command",
+   "refs": [
+    "AC-C1",
+    "SA-2",
+    "WC-8",
+    "P0"
+   ],
+   "claim": "The AC-C1 grep uses \\| inside ERE so it never matches an Orca call, so a command that calls orca orchestration passes the check that is meant to forbid it, and fixing the pattern would also flag the P0 contract file and HOW-WE-WORK section.",
+   "merge_row": "L1"
+  },
+  {
+   "key": "d2-r2:t2-1:F6",
+   "reviewer": "t2-1",
+   "fid": "F6",
+   "severity": "MAJOR",
+   "blocking": true,
+   "category": "contradiction",
+   "anchor": "`target_release` required as a flag for TDD inputs, else blocked",
+   "anchor2": "add `--output`; contract",
+   "refs": [
+    "3.2 spec-panel row",
+    "INV-B:43",
+    "INV-B:182",
+    "CMD:23",
+    "CMD:460-461"
+   ],
+   "claim": "The spec-panel row adds a directory-valued --output and a new flag, but command.md already defines --output as a file, --report-dir as the unattended directory and --target-release as a flag, so the planned change conflicts with the existing command.",
+   "merge_row": "L8"
+  },
+  {
+   "key": "d2-r2:t2-1:F7",
+   "reviewer": "t2-1",
+   "fid": "F7",
+   "severity": "MAJOR",
+   "blocking": true,
+   "category": "unpassable-check",
+   "anchor": "only files under the brief's output directory (and the command's documented artifacts) appear",
+   "anchor2": "cleanup | apply only items the file already allows without approval",
+   "refs": [
+    "7.2 step 6",
+    "AC-2.3",
+    "P2",
+    "INV-A:43",
+    "INV-A:52",
+    "INV-B:48"
+   ],
+   "claim": "The step 6 pass condition rejects the source edits that cleanup, improve and test --fix make on their happy paths, so AC-2.3 cannot pass for those P2 commands.",
+   "merge_row": "L9"
+  },
+  {
+   "key": "d2-r2:t2-1:F8",
+   "reviewer": "t2-1",
+   "fid": "F8",
+   "severity": "MAJOR",
+   "blocking": false,
+   "category": "other",
+   "anchor": "the session may instead ask the coordinator once with the preamble's",
+   "anchor2": "the command writes its report with `status: blocked` and the exact question, and stops",
+   "refs": [
+    "WC-2",
+    "WC-3",
+    "WC-7"
+   ],
+   "claim": "WC-3 'instead' and 're-invoke' allow both a stopped command and a paused command, and the spec does not say how a session pauses a running command.",
+   "merge_row": "L1"
+  },
+  {
+   "key": "d2-r2:t2-1:F9",
+   "reviewer": "t2-1",
+   "fid": "F9",
+   "severity": "MINOR",
+   "blocking": false,
+   "category": "other",
+   "anchor": "`observation.agentWait` is never non-null",
+   "anchor2": null,
+   "refs": [
+    "7.2 step 2",
+    "WC-3",
+    "CAPS:129"
+   ],
+   "claim": "The step 2 pass condition may fail during legitimate coordinator asks if an ask sets agentWait, which is UNVERIFIED.",
+   "merge_row": "L10"
+  },
+  {
+   "key": "d2-r2:t2-1:F10",
+   "reviewer": "t2-1",
+   "fid": "F10",
+   "severity": "MINOR",
+   "blocking": false,
+   "category": "other",
+   "anchor": "Only defects that stop a command working as a worker are in scope",
+   "anchor2": "move the frontmatter out of its code block",
+   "refs": [
+    "Non-goal 8",
+    "3.2 business-panel row",
+    "UNVERIFIED 7",
+    "INV-A:36"
+   ],
+   "claim": "The scope rule excludes the agent frontmatter defect but includes the business-panel frontmatter fix whose effect is unknown.",
+   "merge_row": "L8"
+  },
+  {
+   "key": "d2-r2:t2-1:F11",
+   "reviewer": "t2-1",
+   "fid": "F11",
+   "severity": "MAJOR",
+   "blocking": false,
+   "category": "other",
+   "anchor": "Phase 0 (section 6) therefore starts with live smoke runs",
+   "anchor2": "Then run three ready commands as real Orca workers",
+   "refs": [
+    "1.4",
+    "P0",
+    "SPEC:194"
+   ],
+   "claim": "Section 1.4 says P0 starts with live smoke runs but the P0 row writes the contract and core files first, and no rollback is stated if the smoke runs fail.",
+   "merge_row": "L1"
+  },
+  {
+   "key": "d2-r2:t2-1:F12",
+   "reviewer": "t2-1",
+   "fid": "F12",
+   "severity": "MAJOR",
+   "blocking": false,
+   "category": "other",
+   "anchor": "make `--remediate` follow the existing headless auto-accept rule",
+   "anchor2": "reuses it and does not replace it",
+   "refs": [
+    "3.1 reflect row",
+    "SA-6",
+    "WC-2",
+    "WC-9",
+    "INV-B:109"
+   ],
+   "claim": "Extending the headless auto-accept rule to every --unattended run lets an unattended worker start a file-editing remediation without a person, which SA-6 and WC-9 do not cover.",
+   "merge_row": "L11"
+  },
+  {
+   "key": "d2-r2:t2-2:F1",
+   "reviewer": "t2-2",
+   "fid": "F1",
+   "severity": "MAJOR",
+   "blocking": true,
+   "category": "unpassable-check",
+   "anchor": "step 4 uses the command's existing report file, since the contract arrives in P1",
+   "anchor2": "assert d['status'] in {'succeeded','partial','failed','blocked'}; assert d['command']",
+   "refs": [
+    "AC-0.4",
+    "7.2 step 4"
+   ],
+   "claim": "AC-0.4 asserts YAML fields on REPORT.md (troubleshoot) and on the workflow contract, which has no command field, so the P0 check fails as written.",
+   "merge_row": "L1"
+  },
+  {
+   "key": "d2-r2:t2-2:F2",
+   "reviewer": "t2-2",
+   "fid": "F2",
+   "severity": "MAJOR",
+   "blocking": true,
+   "category": "contradiction",
+   "anchor": "One report file, known before dispatch, written on every outcome.",
+   "anchor2": ".dev/tasks/to-do/<id>/return-contract.yaml",
+   "refs": [
+    "WC-4",
+    "2.3",
+    "section 3 line 76",
+    "adversarial row",
+    "workflow row"
+   ],
+   "claim": "WC-4 requires a known pre-dispatch path under the coordinator's output dir, but adversarial writes under <output>/adversarial/ and workflow writes to a per-run <id> package path.",
+   "merge_row": "L1"
+  },
+  {
+   "key": "d2-r2:t2-2:F3",
+   "reviewer": "t2-2",
+   "fid": "F3",
+   "severity": "MAJOR",
+   "blocking": true,
+   "category": "contradiction",
+   "anchor": "none: use it as a step inside another worker's brief, not as its own Task",
+   "anchor2": "every command in sections 3.1-3.2 has a `## Unattended mode` section naming `return-contract.yaml`",
+   "refs": [
+    "AC-1.1",
+    "load row",
+    "decision load handling"
+   ],
+   "claim": "AC-1.1 requires a return-contract section for every 3.1-3.2 command, but the load row and decision exclude load from writing a report.",
+   "merge_row": "L1"
+  },
+  {
+   "key": "d2-r2:t2-2:F4",
+   "reviewer": "t2-2",
+   "fid": "F4",
+   "severity": "MAJOR",
+   "blocking": true,
+   "category": "contradiction",
+   "anchor": "add an Orca section to `HOW-WE-WORK.md` and its two mirrored copies",
+   "anchor2": "src/superclaude/commands src/superclaude/skills src/superclaude/agents src/superclaude/core",
+   "refs": [
+    "AC-C1",
+    "SA-2",
+    "SA-5",
+    "P0"
+   ],
+   "claim": "SA-2 and P0 require Orca text in src/superclaude/core, but AC-C1 bans orca orchestration command forms in that directory, so P0 cannot pass AC-C1 for an example that names the command.",
+   "merge_row": "L1"
+  },
+  {
+   "key": "d2-r2:t2-2:F5",
+   "reviewer": "t2-2",
+   "fid": "F5",
+   "severity": "MAJOR",
+   "blocking": false,
+   "category": "other",
+   "anchor": "No command in scope has been run end to end as an Orca worker in this run.",
+   "anchor2": "invocation_method: \"skill-direct\"",
+   "refs": [
+    "1.4 gap 1",
+    "E3",
+    "UNVERIFIED 1"
+   ],
+   "claim": "Section 1.4 says the only end-to-end proof is nested, while E3 cites a skill-direct contract from the same run.",
+   "merge_row": "L12"
+  },
+  {
+   "key": "d2-r2:t2-2:F6",
+   "reviewer": "t2-2",
+   "fid": "F6",
+   "severity": "MAJOR",
+   "blocking": false,
+   "category": "other",
+   "anchor": "`--outcome succeeded` otherwise, including `partial`",
+   "anchor2": null,
+   "refs": [
+    "WC-5",
+    "2.3",
+    "decision partial"
+   ],
+   "claim": "A partial run settles the Task as succeeded, which unblocks dependents, and 2.3 does not require a contract check before dependents start.",
+   "merge_row": "L1"
+  },
+  {
+   "key": "d2-r2:t2-2:F7",
+   "reviewer": "t2-2",
+   "fid": "F7",
+   "severity": "MAJOR",
+   "blocking": false,
+   "category": "missing-requirement",
+   "anchor": "The worker runs the command directly in its own session; it never wraps the command in an Agent-tool subagent.",
+   "anchor2": "verified in the step-5 transcript",
+   "refs": [
+    "WC-1",
+    "WC-3",
+    "WC-7",
+    "WC-12",
+    "AC-0.4",
+    "7.2 step 5"
+   ],
+   "claim": "WC-1, WC-3, WC-7 and WC-12 have no acceptance check, and the WC-7 claim in AC-0.4 is not tested by step 5.",
+   "merge_row": "L1"
+  },
+  {
+   "key": "d2-r2:t2-2:F8",
+   "reviewer": "t2-2",
+   "fid": "F8",
+   "severity": "MAJOR",
+   "blocking": false,
+   "category": "missing-requirement",
+   "anchor": "Launch setup, not commands",
+   "anchor2": "P0. Contract and live baseline",
+   "refs": [
+    "WC-1",
+    "section 6",
+    "1.2 E5"
+   ],
+   "claim": "WC-1 names an owner that no phase covers, and the P0 smoke runs can fail at readiness for a reason no phase fixes.",
+   "merge_row": "L1"
+  },
+  {
+   "key": "d2-r2:t2-2:F9",
+   "reviewer": "t2-2",
+   "fid": "F9",
+   "severity": "MINOR",
+   "blocking": false,
+   "category": "other",
+   "anchor": "What changes in the commands is limited to the worker contract in section 2",
+   "anchor2": "add Write to its tools (only Read/Grep/Glob, TodoWrite, Task today)",
+   "refs": [
+    "1.1",
+    "section 3",
+    "SA-4"
+   ],
+   "claim": "Section 1.1 says command changes are limited to the contract, but section 3 adds reconciled flags, a default target fix and a tool addition.",
+   "merge_row": "L7"
+  },
+  {
+   "key": "d2-r2:t2-2:F10",
+   "reviewer": "t2-2",
+   "fid": "F10",
+   "severity": "MAJOR",
+   "blocking": false,
+   "category": "contradiction",
+   "anchor": "The coordinator (a top-level session) runs it after the workers finish; no pr-submit changes in Phase 4.",
+   "anchor2": "These six are never dispatched as workers and get no `--unattended` mode.",
+   "refs": [
+    "D3",
+    "section 3.2 pr-submit row",
+    "section 4"
+   ],
+   "claim": "D3 recommends pr-submit be coordinator-only with no Phase 4 changes, but section 3.2 keeps it needs-change in P4 and section 4 omits it.",
+   "merge_row": "L1"
+  },
+  {
+   "key": "d2-r2:t2-2:F11",
+   "reviewer": "t2-2",
+   "fid": "F11",
+   "severity": "MAJOR",
+   "blocking": false,
+   "category": "contradiction",
+   "anchor": "A standalone default run writes the same files it writes today.",
+   "anchor2": "workflow states the contract is written for pre-creation STOPs",
+   "refs": [
+    "SA-3",
+    "SA-4",
+    "AC-1.4",
+    "P1 adversarial and workflow rows"
+   ],
+   "claim": "SA-3 forbids changing standalone default output, but the P1 adversarial and workflow changes alter it.",
+   "merge_row": "L1"
+  },
+  {
+   "key": "d2-r2:t2-2:F12",
+   "reviewer": "t2-2",
+   "fid": "F12",
+   "severity": "MAJOR",
+   "blocking": false,
+   "category": "other",
+   "anchor": "then re-invoke or resume the command with the answer as a flag",
+   "anchor2": "writes each run into a fresh output directory so a re-run starts clean",
+   "refs": [
+    "WC-3",
+    "WC-6",
+    "section 3.2 resume column"
+   ],
+   "claim": "WC-3 re-invocation with an answer flag conflicts with WC-6 fresh-dir resume, and most answer flags are undefined.",
+   "merge_row": "L1"
+  },
+  {
+   "key": "d2-r2:t2-2:F13",
+   "reviewer": "t2-2",
+   "fid": "F13",
+   "severity": "MINOR",
+   "blocking": false,
+   "category": "other",
+   "anchor": "The only command changes are the small fixes in the last column.",
+   "anchor2": "Under `--unattended`, make `--remediate` follow the existing headless auto-accept rule instead of the `[yes / no]` prompt (P2)",
+   "refs": [
+    "3.1",
+    "P2"
+   ],
+   "claim": "The ready-today section lists P2 gate conversions as small fixes.",
+   "merge_row": "L1"
+  },
+  {
+   "key": "d2-r2:t2-2:F14",
+   "reviewer": "t2-2",
+   "fid": "F14",
+   "severity": "MINOR",
+   "blocking": false,
+   "category": "unpassable-check",
+   "anchor": "For two P1 commands, run once in a plain session",
+   "anchor2": null,
+   "refs": [
+    "AC-1.3",
+    "SA-3"
+   ],
+   "claim": "AC-1.3 does not name its commands, and workflow writes a contract by default today.",
+   "merge_row": "L1"
+  },
+  {
+   "key": "d2-r2:t2-2:F15",
+   "reviewer": "t2-2",
+   "fid": "F15",
+   "severity": "MINOR",
+   "blocking": false,
+   "category": "unpassable-check",
+   "anchor": "until `worker_done` arrives",
+   "anchor2": null,
+   "refs": [
+    "7.2 step 3"
+   ],
+   "claim": "Step 3 does not say how a question returned by the check is handled, so a question-blocked run cannot be judged.",
+   "merge_row": "L13"
+  },
+  {
+   "key": "d2-r2:t3-1:F1",
+   "reviewer": "t3-1",
+   "fid": "F1",
+   "severity": "MAJOR",
+   "blocking": true,
+   "category": "contradiction",
+   "anchor": "the exact command line including `--unattended` and every flag section 3 lists as required",
+   "anchor2": "Then run three ready commands as real Orca workers, invoked directly",
+   "refs": [
+    "2.3",
+    "7.2",
+    "AC-0.4",
+    "P0"
+   ],
+   "claim": "An implementer who follows the P0 brief rule passes --unattended to commands that do not accept it until P1, so the AC-0.4 live check cannot be run as written.",
+   "merge_row": "L1"
+  },
+  {
+   "key": "d2-r2:t3-1:F2",
+   "reviewer": "t3-1",
+   "fid": "F2",
+   "severity": "MAJOR",
+   "blocking": true,
+   "category": "contradiction",
+   "anchor": "In unattended mode the command writes `<output-dir>/return-contract.yaml`",
+   "anchor2": "Fix the contract filename to `<output>/adversarial/return-contract.yaml`",
+   "refs": [
+    "WC-4",
+    "2.3",
+    "7.2 step 3",
+    "AC-1.4"
+   ],
+   "claim": "Adversarial and workflow write their contract at paths the coordinator cannot know before dispatch or that differ from the WC-4 path, so the step 3 check fails.",
+   "merge_row": "L1"
+  },
+  {
+   "key": "d2-r2:t3-1:F3",
+   "reviewer": "t3-1",
+   "fid": "F3",
+   "severity": "MAJOR",
+   "blocking": true,
+   "category": "contradiction",
+   "anchor": "none: use it as a step inside another worker's brief, not as its own Task",
+   "anchor2": "every command in sections 3.1-3.2 has a `## Unattended mode` section naming `return-contract.yaml`",
+   "refs": [
+    "WC-4",
+    "AC-1.1",
+    "Decisions: /sc:load"
+   ],
+   "claim": "Load writes no contract, so AC-1.1 cannot pass for it while WC-4 requires a contract on every outcome.",
+   "merge_row": "L1"
+  },
+  {
+   "key": "d2-r2:t3-1:F4",
+   "reviewer": "t3-1",
+   "fid": "F4",
+   "severity": "MAJOR",
+   "blocking": true,
+   "category": "data-loss",
+   "anchor": "Default output paths carry a timestamp or the slug the coordinator passes",
+   "anchor2": "Two workers in one worktree must never write the same file.",
+   "refs": [
+    "WC-11",
+    "3.1 cleanup-audit",
+    "3.1 index-repo",
+    "3.1 init-lite"
+   ],
+   "claim": "Two workers dispatched to cleanup-audit, index-repo or init-lite in one worktree write the same fixed path, which WC-11 forbids and which overwrites the other report.",
+   "merge_row": "L1"
+  },
+  {
+   "key": "d2-r2:t3-1:F5",
+   "reviewer": "t3-1",
+   "fid": "F5",
+   "severity": "MAJOR",
+   "blocking": true,
+   "category": "contradiction",
+   "anchor": "A command either resumes from its on-disk state when given its resume flag, or, if it has none, writes each run into a fresh output directory",
+   "anchor2": "Re-run overwrites its marked report",
+   "refs": [
+    "WC-6",
+    "3.1 init-lite",
+    "3.2 implement"
+   ],
+   "claim": "A retry of init-lite overwrites the first attempt's report, which is neither a resume nor a fresh directory, so WC-6 is violated.",
+   "merge_row": "L1"
+  },
+  {
+   "key": "d2-r2:t3-1:F6",
+   "reviewer": "t3-1",
+   "fid": "F6",
+   "severity": "MAJOR",
+   "blocking": true,
+   "category": "other",
+   "anchor": "otherwise, including `partial` and including an audit whose verdict is FAIL",
+   "anchor2": "or no report exists",
+   "refs": [
+    "WC-5",
+    "7.2 step 4"
+   ],
+   "claim": "An empty or unparseable contract matches the catch-all succeeded case, so the worker reports success for a run that left no usable report.",
+   "merge_row": "L1"
+  },
+  {
+   "key": "d2-r2:t3-1:F7",
+   "reviewer": "t3-1",
+   "fid": "F7",
+   "severity": "MAJOR",
+   "blocking": false,
+   "category": "contradiction",
+   "anchor": "Each gate resolves one of three ways, listed per command in section 3",
+   "anchor2": "the session may instead ask the coordinator once with the preamble's `ask` command",
+   "refs": [
+    "WC-2",
+    "WC-3"
+   ],
+   "claim": "The three-way gate rule and the optional ask path give two readings of how a gate may resolve, and the choice is left to the implementer.",
+   "merge_row": "L1"
+  },
+  {
+   "key": "d2-r2:t3-1:F8",
+   "reviewer": "t3-1",
+   "fid": "F8",
+   "severity": "MEDIUM",
+   "blocking": false,
+   "category": "other",
+   "anchor": "Orca does not check the file, so the coordinator opens it.",
+   "anchor2": "the spec assumes it does not",
+   "refs": [
+    "WC-4",
+    "UNVERIFIED 3"
+   ],
+   "claim": "WC-4 states as fact that Orca does not check the report file, which the spec itself lists as unverified.",
+   "merge_row": null
+  },
+  {
+   "key": "d2-r2:t3-1:F9",
+   "reviewer": "t3-1",
+   "fid": "F9",
+   "severity": "MEDIUM",
+   "blocking": false,
+   "category": "other",
+   "anchor": "its reflect fan-out runs one layer below the worker, inside Claude Code's nesting limit",
+   "anchor2": "A command's own Agent-tool fan-out stays as it is.",
+   "refs": [
+    "3.2 tasklist",
+    "WC-7",
+    "commands-b.md:215"
+   ],
+   "claim": "Tasklist keeps its fan-out without a recorded decision overriding the inventory recommendation, and whether its layer depth is within the limit is not established.",
+   "merge_row": null
+  },
+  {
+   "key": "d2-r2:t3-1:F10",
+   "reviewer": "t3-1",
+   "fid": "F10",
+   "severity": "MEDIUM",
+   "blocking": false,
+   "category": "other",
+   "anchor": "The worker sends a heartbeat every 5 minutes while working.",
+   "anchor2": "Cadence is from the dispatch preamble, not a guide",
+   "refs": [
+    "WC-10",
+    "7.2 step 2"
+   ],
+   "claim": "The 4-minute wait split depends on a heartbeat whose effect on liveness is unverified, so a long wait could still look dead.",
+   "merge_row": null
+  },
+  {
+   "key": "d2-r2:t3-1:F11",
+   "reviewer": "t3-1",
+   "fid": "F11",
+   "severity": "MINOR",
+   "blocking": false,
+   "category": "other",
+   "anchor": "worker reached `state: ready, stage: input_accepted` and answered",
+   "anchor2": null,
+   "refs": [
+    "1.2 E2"
+   ],
+   "claim": "The cited evidence line does not say the worker answered, and the file is unreadable here.",
+   "merge_row": "L12"
+  },
+  {
+   "key": "d2-r2:t3-1:F12",
+   "reviewer": "t3-1",
+   "fid": "F12",
+   "severity": "MEDIUM",
+   "blocking": false,
+   "category": "other",
+   "anchor": "It has worked before: in the codegraph planning run, Orca workers invoked `/sc:adversarial`",
+   "anchor2": "its brief told workers to run `/sc:adversarial` through an Agent-tool subagent",
+   "refs": [
+    "1.2 E3",
+    "1.4",
+    "WC-7"
+   ],
+   "claim": "E3 presents the nested-subagent run as evidence for the direct-route design that WC-7 requires.",
+   "merge_row": null
+  },
+  {
+   "key": "d2-r2:t3-2:F1",
+   "reviewer": "t3-2",
+   "fid": "F1",
+   "severity": "MAJOR",
+   "blocking": true,
+   "category": "unpassable-check",
+   "anchor": "its report path is the WC-4 contract path",
+   "anchor2": "steps 1-3 and 5-7 pass; step 4 uses the command's existing report file",
+   "refs": [
+    "AC-0.4",
+    "7.2",
+    "WC-4",
+    "WC-5"
+   ],
+   "claim": "AC-0.4 requires step 3 in Phase 0, but step 3 demands the WC-4 contract path, which Phase 1 introduces, so the check cannot pass in P0.",
+   "merge_row": "L1"
+  },
+  {
+   "key": "d2-r2:t3-2:F2",
+   "reviewer": "t3-2",
+   "fid": "F2",
+   "severity": "MAJOR",
+   "blocking": true,
+   "category": "contradiction",
+   "anchor": "In unattended mode the command writes `<output-dir>/return-contract.yaml`",
+   "anchor2": "Fix the contract filename to `<output>/adversarial/return-contract.yaml` (P1)",
+   "refs": [
+    "WC-4",
+    "2.3",
+    "3.1",
+    "AC-1.4"
+   ],
+   "claim": "WC-4 places the adversarial contract at <output-dir>/return-contract.yaml while the 3.1 row places it at <output>/adversarial/return-contract.yaml, so the coordinator cannot know which path to open.",
+   "merge_row": "L1"
+  },
+  {
+   "key": "d2-r2:t3-2:F3",
+   "reviewer": "t3-2",
+   "fid": "F3",
+   "severity": "MAJOR",
+   "blocking": true,
+   "category": "contradiction",
+   "anchor": "Default output paths carry a timestamp or the slug the coordinator passes",
+   "anchor2": "output dir is fixed, so one audit per worktree at a time (WC-11)",
+   "refs": [
+    "WC-11",
+    "2.3",
+    "3.1"
+   ],
+   "claim": "WC-11 forbids two workers in one worktree writing the same default file, yet the cleanup-audit, index-repo and init-lite rows keep fixed default paths and nothing enforces one-at-a-time, so workers overwrite each other's reports.",
+   "merge_row": "L1"
+  },
+  {
+   "key": "d2-r2:t3-2:F4",
+   "reviewer": "t3-2",
+   "fid": "F4",
+   "severity": "MAJOR",
+   "blocking": false,
+   "category": "other",
+   "anchor": "These run as workers now if the brief uses the stated flags",
+   "anchor2": "No command in scope has been run end to end as an Orca worker in this run",
+   "refs": [
+    "3.1",
+    "1.4",
+    "6"
+   ],
+   "claim": "Section 3.1 says the ten ready commands run as workers now, while section 1.4 says none has run end to end, so a coordinator could dispatch them without the Phase 0 proof.",
+   "merge_row": "L1"
+  },
+  {
+   "key": "d2-r2:t3-2:F5",
+   "reviewer": "t3-2",
+   "fid": "F5",
+   "severity": "MAJOR",
+   "blocking": false,
+   "category": "missing-requirement",
+   "anchor": "require an explicit `--output` and an explicit pre-tag choice, else blocked",
+   "anchor2": "including stops before any other output exists",
+   "refs": [
+    "WC-4",
+    "WC-5",
+    "3.2"
+   ],
+   "claim": "When --output is missing, a blocked worker has no stated directory for its WC-4 contract, so the location of its report is undefined.",
+   "merge_row": "L1"
+  },
+  {
+   "key": "d2-r2:t3-2:F6",
+   "reviewer": "t3-2",
+   "fid": "F6",
+   "severity": "MAJOR",
+   "blocking": false,
+   "category": "other",
+   "anchor": "its reflect fan-out runs one layer below the worker, inside Claude Code's nesting limit",
+   "anchor2": null,
+   "refs": [
+    "3.2"
+   ],
+   "claim": "The tasklist row asserts reflect's fan-out is one layer below the worker and inside the nesting limit, but the cited evidence gives a three-layer limit and marks nested spawning UNVERIFIED, so the depth is not shown.",
+   "merge_row": "L1"
+  },
+  {
+   "key": "d2-r2:t3-2:F7",
+   "reviewer": "t3-2",
+   "fid": "F7",
+   "severity": "MINOR",
+   "blocking": false,
+   "category": "missing-requirement",
+   "anchor": "analyze, build, business-panel, design, document, explain, index, test, load (usage line only)",
+   "anchor2": "the `--unattended` flag accepted by every command in sections 3.1 and 3.2",
+   "refs": [
+    "3.1",
+    "6",
+    "AC-1.1"
+   ],
+   "claim": "Brainstorm and init-lite are ready-today rows in section 3.1 but appear in no phase's command list, and the general phrase in P1 is the only place they are covered.",
+   "merge_row": "L1"
+  },
+  {
+   "key": "d2-r2:t3-2:F8",
+   "reviewer": "t3-2",
+   "fid": "F8",
+   "severity": "MAJOR",
+   "blocking": false,
+   "category": "other",
+   "anchor": "step 2 never shows `agentWait`",
+   "anchor2": "the session may instead ask the coordinator once with the preamble's `ask` command",
+   "refs": [
+    "WC-3",
+    "AC-2.2",
+    "7.2"
+   ],
+   "claim": "AC-2.2 requires no agentWait on a gate-trigger run, but WC-3 lets the worker ask, which parks it with an agentWait, so a worker following WC-3 fails a check the spec does not exclude it from.",
+   "merge_row": "L1"
+  },
+  {
+   "key": "d2-r2:t3-3:F1",
+   "reviewer": "t3-3",
+   "fid": "F1",
+   "severity": "MAJOR",
+   "blocking": true,
+   "category": "contradiction",
+   "anchor": "Fix the contract filename to `<output>/adversarial/return-contract.yaml` (P1)",
+   "anchor2": "writes `<output-dir>/return-contract.yaml`, where `<output-dir>` is the directory the coordinator passed",
+   "refs": [
+    "WC-4",
+    "3.1 adversarial row",
+    "7.2 step 3"
+   ],
+   "claim": "An implementer following the adversarial row writes the contract one folder below the path WC-4 and the coordinator checks read, so the coordinator cannot find it.",
+   "merge_row": "L1"
+  },
+  {
+   "key": "d2-r2:t3-3:F2",
+   "reviewer": "t3-3",
+   "fid": "F2",
+   "severity": "MAJOR",
+   "blocking": true,
+   "category": "unpassable-check",
+   "anchor": "steps 1-3 and 5-7 pass; step 4 uses the command's existing report file",
+   "anchor2": "its report path is the WC-4 contract path",
+   "refs": [
+    "AC-0.4",
+    "7.2 step 3",
+    "7.2 step 4"
+   ],
+   "claim": "P0 cannot pass because step 3 needs a WC-4 contract path and step 4 needs YAML status, while P0 runs commands that only write REPORT.md or other non-contract files.",
+   "merge_row": "L1"
+  },
+  {
+   "key": "d2-r2:t3-3:F3",
+   "reviewer": "t3-3",
+   "fid": "F3",
+   "severity": "MAJOR",
+   "blocking": true,
+   "category": "unpassable-check",
+   "anchor": "the `--unattended` flag accepted by every command in sections 3.1 and 3.2",
+   "anchor2": "every command in sections 3.1-3.2 has a `## Unattended mode` section",
+   "refs": [
+    "AC-1.1",
+    "6 P1",
+    "7.3"
+   ],
+   "claim": "AC-1.1 requires all 37 commands in sections 3.1-3.2 to have the Unattended section, but P2-P4 add it to most of them, so P1 cannot pass.",
+   "merge_row": "L1"
+  },
+  {
+   "key": "d2-r2:t3-3:F4",
+   "reviewer": "t3-3",
+   "fid": "F4",
+   "severity": "MAJOR",
+   "blocking": false,
+   "category": "contradiction",
+   "anchor": "Phase 0 (section 6) therefore starts with live smoke runs",
+   "anchor2": "the smoke runs test the decision before anything is built on it",
+   "refs": [
+    "1.4",
+    "6 P0"
+   ],
+   "claim": "Section 1.4 says P0 starts with smoke runs, but the P0 row builds the contract and routing-guide edits before running them.",
+   "merge_row": "L1"
+  },
+  {
+   "key": "d2-r2:t3-3:F5",
+   "reviewer": "t3-3",
+   "fid": "F5",
+   "severity": "MAJOR",
+   "blocking": false,
+   "category": "contradiction",
+   "anchor": "What changes in the commands is limited to the worker contract in section 2",
+   "anchor2": "add Write to its tools (only Read/Grep/Glob, TodoWrite, Task today)",
+   "refs": [
+    "1.1",
+    "3",
+    "SA-4"
+   ],
+   "claim": "Section 1.1 limits command changes to section 2, but section 3 and SA-4 also require tool, flag, default and frontmatter edits.",
+   "merge_row": "L7"
+  },
+  {
+   "key": "d2-r2:t3-3:F6",
+   "reviewer": "t3-3",
+   "fid": "F6",
+   "severity": "MAJOR",
+   "blocking": false,
+   "category": "other",
+   "anchor": "so a command run by a worker has the same tools as a command a person runs",
+   "anchor2": "are not Orca workers and are not counted by Orca",
+   "refs": [
+    "E2",
+    "E4"
+   ],
+   "claim": "E2 and E4 state tool parity and the absence of a subagent limit as facts, but the cited sources mark both as UNVERIFIED.",
+   "merge_row": "L12"
+  },
+  {
+   "key": "d2-r2:t3-3:F7",
+   "reviewer": "t3-3",
+   "fid": "F7",
+   "severity": "MAJOR",
+   "blocking": false,
+   "category": "contradiction",
+   "anchor": "It has worked before: in the codegraph planning run, Orca workers invoked",
+   "anchor2": "The only end-to-end proof is the PR #329 run, and its brief told workers to run",
+   "refs": [
+    "E3",
+    "1.4",
+    "WC-7"
+   ],
+   "claim": "E3 cites the nested PR #329 route as evidence for direct worker runs that WC-7 forbids, and it conflicts with the skill-direct citation.",
+   "merge_row": "L1"
+  },
+  {
+   "key": "d2-r2:t3-3:F8",
+   "reviewer": "t3-3",
+   "fid": "F8",
+   "severity": "MAJOR",
+   "blocking": false,
+   "category": "contradiction",
+   "anchor": "A standalone default run writes the same files it writes today",
+   "anchor2": "fixes to adversarial, cleanup-audit, index-repo, workflow",
+   "refs": [
+    "SA-3",
+    "SA-4",
+    "6 P1"
+   ],
+   "claim": "SA-3 forbids changing what a standalone default run writes, but the P1 adversarial and workflow fixes change it, and SA-3 has no exception for documented defects.",
+   "merge_row": "L1"
+  },
+  {
+   "key": "d2-r2:t3-3:F9",
+   "reviewer": "t3-3",
+   "fid": "F9",
+   "severity": "MAJOR",
+   "blocking": false,
+   "category": "missing-requirement",
+   "anchor": "`.dev/superclaude/context-audit.md` or `--output`",
+   "anchor2": "analyze, build, business-panel, design, document, explain, index, test, load (usage line only)",
+   "refs": [
+    "WC-4",
+    "AC-1.1",
+    "3.1",
+    "3.2"
+   ],
+   "claim": "init-lite, tdd, troubleshoot and release-split must write a WC-4 contract under AC-1.1, but no phase assigns one, and load's exemption is not in WC-4.",
+   "merge_row": "L1"
+  },
+  {
+   "key": "d2-r2:t3-3:F10",
+   "reviewer": "t3-3",
+   "fid": "F10",
+   "severity": "MAJOR",
+   "blocking": false,
+   "category": "missing-requirement",
+   "anchor": "A retry worker (`worker-start --retry-of`) must not corrupt the first attempt",
+   "anchor2": "writes each run into a fresh output directory so a re-run starts clean",
+   "refs": [
+    "WC-6",
+    "2.3"
+   ],
+   "claim": "Nothing requires a new output directory per dispatch or retry, so a retry with the same fixed --output can overwrite the first attempt.",
+   "merge_row": "L1"
+  },
+  {
+   "key": "d2-r2:t3-3:F11",
+   "reviewer": "t3-3",
+   "fid": "F11",
+   "severity": "MAJOR",
+   "blocking": false,
+   "category": "missing-requirement",
+   "anchor": "verified in the step-5 transcript",
+   "anchor2": "Launch setup, not commands",
+   "refs": [
+    "AC-0.4",
+    "7.2 step 5",
+    "WC-1",
+    "WC-3",
+    "WC-6",
+    "WC-7",
+    "WC-12"
+   ],
+   "claim": "WC-1, WC-3, WC-6, WC-7 and WC-12 have no pass condition, and AC-0.4 claims a check (no Agent wrapper) that step 5 does not perform.",
+   "merge_row": "L1"
+  },
+  {
+   "key": "d2-r2:t3-3:F12",
+   "reviewer": "t3-3",
+   "fid": "F12",
+   "severity": "MAJOR",
+   "blocking": false,
+   "category": "missing-requirement",
+   "anchor": "Write the contract for pre-creation STOPs too",
+   "anchor2": ".dev/tasks/to-do/<id>/return-contract.yaml",
+   "refs": [
+    "WC-4",
+    "3.1 workflow"
+   ],
+   "claim": "The workflow contract for a pre-creation STOP has no defined location, because its package directory does not exist yet.",
+   "merge_row": "L1"
+  },
+  {
+   "key": "d2-r2:t3-3:F13",
+   "reviewer": "t3-3",
+   "fid": "F13",
+   "severity": "MAJOR",
+   "blocking": false,
+   "category": "missing-requirement",
+   "anchor": "dispatch only inside an IronClaude checkout (hardcoded template path)",
+   "anchor2": null,
+   "refs": [
+    "3.2 cli-portify",
+    "6"
+   ],
+   "claim": "The required cli-portify change for its hardcoded checkout path is assigned to no phase, so the installed command keeps the defect.",
+   "merge_row": "L14"
+  },
+  {
+   "key": "d2-r2:t3-3:F14",
+   "reviewer": "t3-3",
+   "fid": "F14",
+   "severity": "MINOR",
+   "blocking": false,
+   "category": "other",
+   "anchor": "calls a paid external run is off",
+   "anchor2": null,
+   "refs": [
+    "WC-9"
+   ],
+   "claim": "The term paid external run is undefined, so the implementer cannot tell which commands WC-9 disables under --unattended.",
+   "merge_row": "L6"
+  },
+  {
+   "key": "d2-r2:t3-4:F1",
+   "reviewer": "t3-4",
+   "fid": "F1",
+   "severity": "CRITICAL",
+   "blocking": true,
+   "category": "safety",
+   "anchor": "the session may instead ask the coordinator once with the preamble's `ask` command",
+   "anchor2": "Faster, but it weakens a deliberate safety rule",
+   "refs": [
+    "WC-3",
+    "WC-2",
+    "WC-9",
+    "D2",
+    "D4"
+   ],
+   "claim": "WC-3 lets a blocked gate, including the implement Ruling halt, be answered by the coordinator and re-run as a flag, which D2 and D4 keep for the person.",
+   "merge_row": "L1"
+  },
+  {
+   "key": "d2-r2:t3-4:F2",
+   "reviewer": "t3-4",
+   "fid": "F2",
+   "severity": "MAJOR",
+   "blocking": false,
+   "category": "unpassable-check",
+   "anchor": "The only allowed mention of Orca in a changed command is as an example",
+   "anchor2": "src/superclaude/agents src/superclaude/core",
+   "refs": [
+    "SA-2",
+    "AC-C1",
+    "P0"
+   ],
+   "claim": "AC-C1 greps the core directory that P0 must add Orca content to, with no exemption for the routing section or the contract example.",
+   "merge_row": "L1"
+  },
+  {
+   "key": "d2-r2:t3-4:F3",
+   "reviewer": "t3-4",
+   "fid": "F3",
+   "severity": "MAJOR",
+   "blocking": true,
+   "category": "contradiction",
+   "anchor": "The only command changes are the small fixes in the last column.",
+   "anchor2": "the `--unattended` flag accepted by every command in sections 3.1 and 3.2",
+   "refs": [
+    "section 3.1",
+    "P1",
+    "AC-1.1"
+   ],
+   "claim": "Section 3.1 says ready commands need only small fixes, but P1 and AC-1.1 require the unattended flag and section in every one of them.",
+   "merge_row": "L1"
+  },
+  {
+   "key": "d2-r2:t3-4:F4",
+   "reviewer": "t3-4",
+   "fid": "F4",
+   "severity": "MAJOR",
+   "blocking": false,
+   "category": "missing-requirement",
+   "anchor": "Launch setup, not commands",
+   "anchor2": "Any such prompt must fall back on its own well inside the readiness limit",
+   "refs": [
+    "WC-1",
+    "section 6",
+    "AC-0.4"
+   ],
+   "claim": "WC-1 has no owner phase and no acceptance check, so the launch-path rule has no artifact to change.",
+   "merge_row": "L1"
+  },
+  {
+   "key": "d2-r2:t3-4:F5",
+   "reviewer": "t3-4",
+   "fid": "F5",
+   "severity": "MAJOR",
+   "blocking": false,
+   "category": "missing-requirement",
+   "anchor": "writes each run into a fresh output directory so a re-run starts clean",
+   "anchor2": "the output directory, so the report path is known before dispatch",
+   "refs": [
+    "WC-6",
+    "WC-4",
+    "section 2.3"
+   ],
+   "claim": "The retry rule does not say who picks the fresh directory or what happens when --output already holds files.",
+   "merge_row": "L1"
+  },
+  {
+   "key": "d2-r2:t3-4:F6",
+   "reviewer": "t3-4",
+   "fid": "F6",
+   "severity": "MAJOR",
+   "blocking": false,
+   "category": "other",
+   "anchor": "`--unattended` reuses it and does not replace it",
+   "anchor2": "Stage 10.5 passes `--unattended` to each reflect so the headless rule applies",
+   "refs": [
+    "SA-6",
+    "section 3.1 reflect row",
+    "section 3.2 tasklist row"
+   ],
+   "claim": "The cited headless rule keys on claude --print, so a --unattended flag does not trigger it as the spec assumes.",
+   "merge_row": "L11"
+  },
+  {
+   "key": "d2-r2:t3-4:F7",
+   "reviewer": "t3-4",
+   "fid": "F7",
+   "severity": "MINOR",
+   "blocking": false,
+   "category": "other",
+   "anchor": "Orca does not check the file, so the coordinator opens it.",
+   "anchor2": null,
+   "refs": [
+    "WC-4",
+    "UNVERIFIED item 3"
+   ],
+   "claim": "WC-4 states as fact an Orca behavior the spec itself marks UNVERIFIED.",
+   "merge_row": "L1"
+  },
+  {
+   "key": "d2-r2:t3-4:F8",
+   "reviewer": "t3-4",
+   "fid": "F8",
+   "severity": "MINOR",
+   "blocking": false,
+   "category": "other",
+   "anchor": "a command that calls `worker-start` from inside a worker would be refused",
+   "anchor2": null,
+   "refs": [
+    "section 1.3 R1"
+   ],
+   "claim": "The R1 rationale states the refusal as fact while the enforcing call sites are UNVERIFIED.",
+   "merge_row": "L15"
+  },
+  {
+   "key": "d2-r2:t3-4:F9",
+   "reviewer": "t3-4",
+   "fid": "F9",
+   "severity": "MINOR",
+   "blocking": false,
+   "category": "other",
+   "anchor": "`/sc:pr-submit` stays a worker candidate only if the user accepts open decision D3.",
+   "anchor2": "`--monitor 1` refused under `--unattended`",
+   "refs": [
+    "section 3.2",
+    "D3",
+    "section 4"
+   ],
+   "claim": "pr-submit is counted among the 27 needs-change commands and given P4 changes though D3 recommends it not be a worker.",
+   "merge_row": "L16"
+  }
+ ],
+ "d2-r3": [
+  {
+   "key": "d2-r3:t1b-1:F1",
+   "reviewer": "t1b-1",
+   "fid": "F1",
+   "severity": "CRITICAL",
+   "blocking": true,
+   "category": "contradiction",
+   "anchor": "every command in sections 3.1-3.2 has a `## Unattended mode` section naming `return-contract.yaml` and `~/.claude/WORKER-CONTRACT.md`",
+   "anchor2": "use it as a step inside another worker's brief, not as its own Task",
+   "refs": [
+    "AC-1.1",
+    "AC-1.2",
+    "section 3.2 load",
+    "Decisions"
+   ],
+   "claim": "AC-1.1 and AC-1.2 require /sc:load to carry an Unattended-mode section and contract while its row and the Decisions table give it no report file.",
+   "merge_row": "L1"
+  },
+  {
+   "key": "d2-r3:t1b-1:F2",
+   "reviewer": "t1b-1",
+   "fid": "F2",
+   "severity": "CRITICAL",
+   "blocking": true,
+   "category": "unpassable-check",
+   "anchor": "where `<output-dir>` is the directory the coordinator passed (`--output` / `--output-dir`)",
+   "anchor2": "a precise component prompt, not a bare topic; `--output <file>`",
+   "refs": [
+    "WC-4",
+    "AC-2.2",
+    "7.2 step 4",
+    "section 3.1 tdd"
+   ],
+   "claim": "For commands whose --output is a file the contract path is undefined, so AC-2.2 and 7.2 step 4 cannot name the contract.",
+   "merge_row": "L1"
+  },
+  {
+   "key": "d2-r3:t1b-1:F3",
+   "reviewer": "t1b-1",
+   "fid": "F3",
+   "severity": "CRITICAL",
+   "blocking": true,
+   "category": "contradiction",
+   "anchor": "Fix the contract filename to `<output>/adversarial/return-contract.yaml` (P1)",
+   "anchor2": "**One report file, known before dispatch, written on every outcome.**",
+   "refs": [
+    "WC-4",
+    "AC-1.4",
+    "7.2 step 3",
+    "section 3.1 adversarial",
+    "section 3.1 workflow"
+   ],
+   "claim": "WC-4 places the contract at the passed directory and requires it known before dispatch, but the adversarial row uses a subdirectory and the workflow row an unsupplied id, and 7.2 step 3 requires equality with WC-4.",
+   "merge_row": "L1"
+  },
+  {
+   "key": "d2-r3:t1b-1:F4",
+   "reviewer": "t1b-1",
+   "fid": "F4",
+   "severity": "MAJOR",
+   "blocking": false,
+   "category": "missing-requirement",
+   "anchor": "In unattended mode the command writes `<output-dir>/return-contract.yaml`",
+   "anchor2": null,
+   "refs": [
+    "WC-4",
+    "2.3"
+   ],
+   "claim": "No text says what a command does when --unattended is passed with no output directory.",
+   "merge_row": "L1"
+  },
+  {
+   "key": "d2-r3:t1b-1:F5",
+   "reviewer": "t1b-1",
+   "fid": "F5",
+   "severity": "MAJOR",
+   "blocking": false,
+   "category": "other",
+   "anchor": "`--outcome succeeded` otherwise, including `partial`",
+   "anchor2": null,
+   "refs": [
+    "WC-5"
+   ],
+   "claim": "A report with an unrecognised status or an empty file maps to succeeded.",
+   "merge_row": "L1"
+  },
+  {
+   "key": "d2-r3:t1b-1:F6",
+   "reviewer": "t1b-1",
+   "fid": "F6",
+   "severity": "MAJOR",
+   "blocking": false,
+   "category": "other",
+   "anchor": "must be split into waits of at most 4 minutes",
+   "anchor2": "no single tool call exceeds 240 s",
+   "refs": [
+    "WC-10",
+    "AC-4.3"
+   ],
+   "claim": "WC-10 permits single calls of 4 to 5 minutes that AC-4.3 fails.",
+   "merge_row": "L2"
+  },
+  {
+   "key": "d2-r3:t1b-1:F7",
+   "reviewer": "t1b-1",
+   "fid": "F7",
+   "severity": "MAJOR",
+   "blocking": false,
+   "category": "missing-requirement",
+   "anchor": "writes each run into a fresh output directory so a re-run starts clean",
+   "anchor2": null,
+   "refs": [
+    "WC-6",
+    "WC-4",
+    "2.3"
+   ],
+   "claim": "Nobody is told to allocate the fresh directory or clear an earlier contract, so a resumed run can read a stale file.",
+   "merge_row": "L1"
+  },
+  {
+   "key": "d2-r3:t1b-1:F8",
+   "reviewer": "t1b-1",
+   "fid": "F8",
+   "severity": "MAJOR",
+   "blocking": false,
+   "category": "other",
+   "anchor": "the smoke runs test the decision before anything is built on it",
+   "anchor2": "Then run three ready commands as real Orca workers",
+   "refs": [
+    "P0"
+   ],
+   "claim": "The P0 row builds the contract and docs first and smoke-tests second, against its own stated rationale.",
+   "merge_row": "L1"
+  },
+  {
+   "key": "d2-r3:t1b-1:F9",
+   "reviewer": "t1b-1",
+   "fid": "F9",
+   "severity": "MAJOR",
+   "blocking": false,
+   "category": "other",
+   "anchor": "src/superclaude/commands src/superclaude/skills src/superclaude/agents src/superclaude/core",
+   "anchor2": "The only allowed mention of Orca in a changed command is as an example of a caller's question channel inside the contract file.",
+   "refs": [
+    "AC-C1",
+    "SA-2",
+    "P0"
+   ],
+   "claim": "AC-C1 scans core, where P0 adds Orca text that SA-2 allows, so the common check may fail in P0.",
+   "merge_row": "L1"
+  },
+  {
+   "key": "d2-r3:t1b-1:F10",
+   "reviewer": "t1b-1",
+   "fid": "F10",
+   "severity": "MAJOR",
+   "blocking": false,
+   "category": "unpassable-check",
+   "anchor": "Command-file edits in Phases 1-3 are additive: a new `## Unattended mode` section and new flags.",
+   "anchor2": "prints nothing: edits are additive",
+   "refs": [
+    "SA-4",
+    "AC-C5"
+   ],
+   "claim": "Adding a flag to a Usage line deletes the old line, which AC-C5 fails.",
+   "merge_row": "L3"
+  },
+  {
+   "key": "d2-r3:t1b-1:F11",
+   "reviewer": "t1b-1",
+   "fid": "F11",
+   "severity": "MAJOR",
+   "blocking": false,
+   "category": "missing-requirement",
+   "anchor": "the session may instead ask the coordinator once with the preamble's `ask` command",
+   "anchor2": "**Changing the `/sc:implement` Ruling rule** unless the user chooses D2 option (b)",
+   "refs": [
+    "WC-3",
+    "D2",
+    "section 8 item 6"
+   ],
+   "claim": "WC-3 has no exclusion for gates that require the person, and does not say whether once means once per run or per gate.",
+   "merge_row": "L1"
+  },
+  {
+   "key": "d2-r3:t1b-1:F12",
+   "reviewer": "t1b-1",
+   "fid": "F12",
+   "severity": "MAJOR",
+   "blocking": false,
+   "category": "missing-requirement",
+   "anchor": "`--format interactive` refused",
+   "anchor2": "Each gate resolves one of three ways",
+   "refs": [
+    "WC-2",
+    "section 3.2"
+   ],
+   "claim": "Six rows say a flag is refused, which is not one of the three WC-2 resolutions.",
+   "merge_row": "L1"
+  },
+  {
+   "key": "d2-r3:t1b-1:F13",
+   "reviewer": "t1b-1",
+   "fid": "F13",
+   "severity": "MAJOR",
+   "blocking": false,
+   "category": "other",
+   "anchor": "Phases 1-3 need no user decision; Phase 4 waits for answers to D2-D4.",
+   "anchor2": null,
+   "refs": [
+    "section 6",
+    "D1",
+    "D4"
+   ],
+   "claim": "D1 and D4 bear on Phases 1 to 3, so the statement of no user decision is imprecise.",
+   "merge_row": "L4"
+  },
+  {
+   "key": "d2-r3:t1b-1:F14",
+   "reviewer": "t1b-1",
+   "fid": "F14",
+   "severity": "MAJOR",
+   "blocking": false,
+   "category": "other",
+   "anchor": "`gh api repos/IronbellyOrg/IronClaude/pulls/<PR>/reviews --jq length`",
+   "anchor2": null,
+   "refs": [
+    "AC-2.4"
+   ],
+   "claim": "The count check reads one page and can pass although a post was made.",
+   "merge_row": "L5"
+  },
+  {
+   "key": "d2-r3:t1b-1:F15",
+   "reviewer": "t1b-1",
+   "fid": "F15",
+   "severity": "MAJOR",
+   "blocking": false,
+   "category": "other",
+   "anchor": "comes *after* readiness, so it does not fail `worker-start`",
+   "anchor2": null,
+   "refs": [
+    "1.4",
+    "CAPS:47"
+   ],
+   "claim": "An inference about readiness is stated as fact without evidence.",
+   "merge_row": "L6"
+  },
+  {
+   "key": "d2-r3:t1b-1:F16",
+   "reviewer": "t1b-1",
+   "fid": "F16",
+   "severity": "MAJOR",
+   "blocking": false,
+   "category": "missing-requirement",
+   "anchor": "Two workers in one worktree must never write the same file.",
+   "anchor2": "output dir is fixed, so one audit per worktree at a time (WC-11)",
+   "refs": [
+    "WC-11",
+    "2.3",
+    "section 3.1"
+   ],
+   "claim": "Commands with fixed output paths break WC-11 and the coordinator is not told to serialise them.",
+   "merge_row": "L1"
+  },
+  {
+   "key": "d2-r3:t1b-1:F17",
+   "reviewer": "t1b-1",
+   "fid": "F17",
+   "severity": "MAJOR",
+   "blocking": false,
+   "category": "missing-requirement",
+   "anchor": "EXEMPT `commit`/`push` refused unless authorized (WC-9)",
+   "anchor2": "It turns on only through the command's own explicit flag written in the brief.",
+   "refs": [
+    "WC-9",
+    "section 3.2 task",
+    "D4"
+   ],
+   "claim": "No flag exists to authorise task commit or push, so authorisation under WC-9 is unreachable.",
+   "merge_row": "L7"
+  },
+  {
+   "key": "d2-r3:t1b-1:F18",
+   "reviewer": "t1b-1",
+   "fid": "F18",
+   "severity": "MINOR",
+   "blocking": false,
+   "category": "other",
+   "anchor": "Fixed set `succeeded / partial / failed / blocked`",
+   "anchor2": null,
+   "refs": [
+    "WC-4",
+    "Decisions"
+   ],
+   "claim": "The contract has no schema version and its blocked status shares a name with the Orca Task status.",
+   "merge_row": "L8"
+  },
+  {
+   "key": "d2-r3:t1b-1:F19",
+   "reviewer": "t1b-1",
+   "fid": "F19",
+   "severity": "MINOR",
+   "blocking": false,
+   "category": "other",
+   "anchor": "What changes in the commands is limited to the worker contract in section 2",
+   "anchor2": null,
+   "refs": [
+    "1.1",
+    "SA-4",
+    "section 3"
+   ],
+   "claim": "Section 1.1 understates the defect fixes that section 3 requires.",
+   "merge_row": "L9"
+  },
+  {
+   "key": "d2-r3:t1b-1:F20",
+   "reviewer": "t1b-1",
+   "fid": "F20",
+   "severity": "MINOR",
+   "blocking": false,
+   "category": "other",
+   "anchor": "`target_release` required as a flag for TDD inputs, else blocked",
+   "anchor2": null,
+   "refs": [
+    "section 3.2 spec-panel",
+    "INV-B:182"
+   ],
+   "claim": "The spec-panel row may rest on a stale premise about the missing --output flag.",
+   "merge_row": "L10"
+  },
+  {
+   "key": "d2-r3:t1b-1:F21",
+   "reviewer": "t1b-1",
+   "fid": "F21",
+   "severity": "MINOR",
+   "blocking": false,
+   "category": "other",
+   "anchor": "It is testable by grep and cannot misfire on a person.",
+   "anchor2": null,
+   "refs": [
+    "D1"
+   ],
+   "claim": "The flag could be triggered by quoted text because no standalone-token rule is stated.",
+   "merge_row": "L11"
+  },
+  {
+   "key": "d2-r3:t1b-1:F22",
+   "reviewer": "t1b-1",
+   "fid": "F22",
+   "severity": "MINOR",
+   "blocking": false,
+   "category": "other",
+   "anchor": "prints nothing (SA-2, WC-8)",
+   "anchor2": null,
+   "refs": [
+    "AC-C1",
+    "AC-C5"
+   ],
+   "claim": "The grep commands are written with escaped pipes in a table and the deleted-line pattern misses lines starting with two hyphens.",
+   "merge_row": "L1"
+  },
+  {
+   "key": "d2-r3:t1b-1:F23",
+   "reviewer": "t1b-1",
+   "fid": "F23",
+   "severity": "MINOR",
+   "blocking": false,
+   "category": "other",
+   "anchor": "Every other section-3 line is carried from the inventories without a second read.",
+   "anchor2": null,
+   "refs": [
+    "header",
+    "UNVERIFIED 14"
+   ],
+   "claim": "Repository-side citations outside the workspace could not be checked in this review.",
+   "merge_row": "L12"
+  },
+  {
+   "key": "d2-r3:t2-1:F1",
+   "reviewer": "t2-1",
+   "fid": "F1",
+   "severity": "MAJOR",
+   "blocking": true,
+   "category": "contradiction",
+   "anchor": "Fix the contract filename to `<output>/adversarial/return-contract.yaml` (P1)",
+   "anchor2": "the command writes `<output-dir>/return-contract.yaml`",
+   "refs": [
+    "WC-4",
+    "section 3 intro",
+    "3.1 adversarial row",
+    "AC-1.4"
+   ],
+   "claim": "WC-4 fixes the contract at <output-dir>/return-contract.yaml, but the adversarial row fixes it at <output>/adversarial/return-contract.yaml, so a coordinator that opens the WC-4 path finds no file.",
+   "merge_row": "L1"
+  },
+  {
+   "key": "d2-r3:t2-1:F2",
+   "reviewer": "t2-1",
+   "fid": "F2",
+   "severity": "MAJOR",
+   "blocking": true,
+   "category": "unpassable-check",
+   "anchor": "step 4 uses the command's existing report file, since the contract arrives in P1",
+   "anchor2": "assert d['status'] in {'succeeded','partial','failed','blocked'}; assert d['command']",
+   "refs": [
+    "AC-0.4",
+    "7.2 step 4",
+    "3.1 workflow row",
+    "3.1 troubleshoot row"
+   ],
+   "claim": "Step 4 asserts YAML keys status and command on the command's existing report, but workflow's contract has no command key and troubleshoot's report is REPORT.md, so the check cannot pass as written.",
+   "merge_row": "L1"
+  },
+  {
+   "key": "d2-r3:t2-1:F3",
+   "reviewer": "t2-1",
+   "fid": "F3",
+   "severity": "MAJOR",
+   "blocking": false,
+   "category": "missing-requirement",
+   "anchor": "Write the contract for pre-creation STOPs too",
+   "anchor2": null,
+   "refs": [
+    "WC-4",
+    "3.1 workflow row",
+    "section 2.3"
+   ],
+   "claim": "WC-4 requires a contract on stops before any output exists and a known path, but the workflow row names no directory for a pre-creation STOP because the package id is created only after creation.",
+   "merge_row": "L1"
+  },
+  {
+   "key": "d2-r3:t2-1:F4",
+   "reviewer": "t2-1",
+   "fid": "F4",
+   "severity": "MAJOR",
+   "blocking": false,
+   "category": "missing-requirement",
+   "anchor": "analyze, build, business-panel, design, document, explain, index, test, load (usage line only)",
+   "anchor2": "Re-run overwrites its marked report | None",
+   "refs": [
+    "WC-4",
+    "SA-3",
+    "3.1 init-lite row",
+    "section 6 P1"
+   ],
+   "claim": "init-lite is in section 3.1 with no contract fix and appears in no phase's command list, so its WC-4 contract is never assigned and AC-1.1 cannot be met as the phases are written.",
+   "merge_row": "L1"
+  },
+  {
+   "key": "d2-r3:t2-1:F5",
+   "reviewer": "t2-1",
+   "fid": "F5",
+   "severity": "MAJOR",
+   "blocking": false,
+   "category": "other",
+   "anchor": "state that knowledge-base mode does not wait (whether it does is UNVERIFIED)",
+   "anchor2": "section 3 refuses or pins them under `--unattended` regardless",
+   "refs": [
+    "3.2 index row",
+    "UNVERIFIED 6"
+   ],
+   "claim": "UNVERIFIED item 6 says section 3 refuses or pins index's knowledge-base mode, but the index row only asks the worker to state that it does not wait, so a waiting mode is not guarded.",
+   "merge_row": "L10"
+  },
+  {
+   "key": "d2-r3:t2-1:F6",
+   "reviewer": "t2-1",
+   "fid": "F6",
+   "severity": "MAJOR",
+   "blocking": false,
+   "category": "other",
+   "anchor": "inside Claude Code's nesting limit",
+   "anchor2": null,
+   "refs": [
+    "3.2 tasklist row",
+    "UNVERIFIED items",
+    "1.4 item 3"
+   ],
+   "claim": "The tasklist row relies on nested reflect running inside the nesting limit, but tool availability inside nested subagents is UNVERIFIED in the inventories and is not listed in the spec's UNVERIFIED items.",
+   "merge_row": "L10"
+  },
+  {
+   "key": "d2-r3:t2-1:F7",
+   "reviewer": "t2-1",
+   "fid": "F7",
+   "severity": "MINOR",
+   "blocking": false,
+   "category": "other",
+   "anchor": "so it proves the nested route, not the direct route this spec requires",
+   "anchor2": "return contract `invocation_method:",
+   "refs": [
+    "E3",
+    "1.4 item 1",
+    "UNVERIFIED 1"
+   ],
+   "claim": "E3 cites a skill-direct return contract as worker evidence, while section 1.4 says the only end-to-end proof is the nested PR #329 run; the two statements are not reconciled.",
+   "merge_row": "L13"
+  },
+  {
+   "key": "d2-r3:t2-1:F8",
+   "reviewer": "t2-1",
+   "fid": "F8",
+   "severity": "MAJOR",
+   "blocking": false,
+   "category": "other",
+   "anchor": "(orchestration\\|worktree\\|terminal\\|agent)",
+   "anchor2": null,
+   "refs": [
+    "AC-C1",
+    "SA-2",
+    "WC-8"
+   ],
+   "claim": "In grep -E, the escaped alternation is a literal pipe, so AC-C1 never matches and passes regardless of Orca calls in the checked directories.",
+   "merge_row": "L1"
+  },
+  {
+   "key": "d2-r3:t2-1:F9",
+   "reviewer": "t2-1",
+   "fid": "F9",
+   "severity": "MINOR",
+   "blocking": false,
+   "category": "contradiction",
+   "anchor": "The only allowed mention of Orca in a changed command is as an example of a caller's question channel inside the contract file",
+   "anchor2": "src/superclaude/agents src/superclaude/core",
+   "refs": [
+    "SA-2",
+    "AC-C1",
+    "P0"
+   ],
+   "claim": "SA-2 permits an Orca mention in the contract file, which lives in src/superclaude/core, and AC-C1 greps that directory, so a permitted mention fails the common check.",
+   "merge_row": "L1"
+  },
+  {
+   "key": "d2-r3:t2-1:F10",
+   "reviewer": "t2-1",
+   "fid": "F10",
+   "severity": "MINOR",
+   "blocking": false,
+   "category": "other",
+   "anchor": "split into 10 ready today, 27 needing a change and 6 coordinator-only",
+   "anchor2": "stays a worker candidate only if the user accepts open decision D3",
+   "refs": [
+    "section 3 intro",
+    "section 4",
+    "D3",
+    "section 6 P4"
+   ],
+   "claim": "The 10/27/6 split is stated as settled, but the recommended D3 option would move pr-submit to coordinator-only and change the split to 10/26/7.",
+   "merge_row": "L14"
+  },
+  {
+   "key": "d2-r3:t2-2:F1",
+   "reviewer": "t2-2",
+   "fid": "F1",
+   "severity": "MAJOR",
+   "blocking": true,
+   "category": "contradiction",
+   "anchor": "A standalone default run writes the same files it writes today.",
+   "anchor2": "Fix the contract filename to `<output>/adversarial/return-contract.yaml` (P1)",
+   "refs": [
+    "SA-3",
+    "AC-1.4",
+    "3.1 adversarial"
+   ],
+   "claim": "A standalone adversarial run writes a different contract file after the 3.1 change, which SA-3 forbids.",
+   "merge_row": "L1"
+  },
+  {
+   "key": "d2-r3:t2-2:F2",
+   "reviewer": "t2-2",
+   "fid": "F2",
+   "severity": "MAJOR",
+   "blocking": true,
+   "category": "unpassable-check",
+   "anchor": "(orchestration\\|worktree\\|terminal\\|agent)",
+   "anchor2": "\\| grep -v '^src/superclaude/skills/ccsession-tag/'",
+   "refs": [
+    "AC-C1",
+    "SA-2",
+    "WC-8"
+   ],
+   "claim": "AC-C1 matches only the literal text with pipes and passes trailing pipe chars as file arguments, so it cannot catch an orca orchestration call.",
+   "merge_row": "L1"
+  },
+  {
+   "key": "d2-r3:t2-2:F3",
+   "reviewer": "t2-2",
+   "fid": "F3",
+   "severity": "MAJOR",
+   "blocking": true,
+   "category": "contradiction",
+   "anchor": "the exact command line including `--unattended`",
+   "anchor2": "These run as workers now if the brief uses the stated flags",
+   "refs": [
+    "2.3",
+    "3.1",
+    "P0",
+    "P1"
+   ],
+   "claim": "The 2.3 brief requires --unattended, which P1 adds, so the P0 ready-today runs cannot follow both rules.",
+   "merge_row": "L1"
+  },
+  {
+   "key": "d2-r3:t2-2:F4",
+   "reviewer": "t2-2",
+   "fid": "F4",
+   "severity": "MAJOR",
+   "blocking": true,
+   "category": "other",
+   "anchor": "`--outcome succeeded` otherwise, including `partial`",
+   "anchor2": "`status` (one of `succeeded`, `partial`, `failed`, `blocked`)",
+   "refs": [
+    "WC-4",
+    "WC-5"
+   ],
+   "claim": "A contract status outside the four values is reported to Orca as succeeded, although the report does not say succeeded.",
+   "merge_row": "L1"
+  },
+  {
+   "key": "d2-r3:t2-2:F5",
+   "reviewer": "t2-2",
+   "fid": "F5",
+   "severity": "MAJOR",
+   "blocking": false,
+   "category": "missing-requirement",
+   "anchor": "It is testable by grep and cannot misfire on a person.",
+   "anchor2": null,
+   "refs": [
+    "D1",
+    "SA-1"
+   ],
+   "claim": "The spec gives no rule for a --unattended string inside quoted content, so a grep-based switch can enable unattended mode by mistake.",
+   "merge_row": "L15"
+  },
+  {
+   "key": "d2-r3:t2-2:F6",
+   "reviewer": "t2-2",
+   "fid": "F6",
+   "severity": "MAJOR",
+   "blocking": false,
+   "category": "other",
+   "anchor": "Each gate resolves one of three ways, listed per command in section 3",
+   "anchor2": "the session may instead ask the coordinator once with the preamble's `ask` command",
+   "refs": [
+    "WC-2",
+    "WC-3"
+   ],
+   "claim": "WC-3 adds an ask-and-wait route that is neither (a), (b) nor (c), and the spec does not say whether it is allowed in unattended mode.",
+   "merge_row": "L1"
+  },
+  {
+   "key": "d2-r3:t2-2:F7",
+   "reviewer": "t2-2",
+   "fid": "F7",
+   "severity": "MAJOR",
+   "blocking": false,
+   "category": "unpassable-check",
+   "anchor": "every command in sections 3.1-3.2 has a `## Unattended mode` section",
+   "anchor2": "brainstorm | `--output <dir>`; never `--interactive`",
+   "refs": [
+    "AC-1.1",
+    "3.1"
+   ],
+   "claim": "AC-1.1 requires a section for brainstorm and init-lite, which the 3.1 rows leave unchanged.",
+   "merge_row": "L1"
+  },
+  {
+   "key": "d2-r3:t2-2:F8",
+   "reviewer": "t2-2",
+   "fid": "F8",
+   "severity": "MAJOR",
+   "blocking": false,
+   "category": "other",
+   "anchor": "its reflect fan-out runs one layer below the worker",
+   "anchor2": null,
+   "refs": [
+    "3.2 tasklist",
+    "WC-7",
+    "INV-B:210"
+   ],
+   "claim": "Stage 10.5 nests reflect two layers below the worker, and the spec's no-change verdict rests on the wrong depth.",
+   "merge_row": "L16"
+  },
+  {
+   "key": "d2-r3:t2-2:F9",
+   "reviewer": "t2-2",
+   "fid": "F9",
+   "severity": "MAJOR",
+   "blocking": false,
+   "category": "other",
+   "anchor": "How `plugins/superclaude/commands/` (which holds copies such as",
+   "anchor2": null,
+   "refs": [
+    "UNVERIFIED 8",
+    "AC-C2",
+    "AC-C5",
+    "SA-5"
+   ],
+   "claim": "The plugin command mirror is not covered by any acceptance check, so it can drift from src/.",
+   "merge_row": "L17"
+  },
+  {
+   "key": "d2-r3:t2-2:F10",
+   "reviewer": "t2-2",
+   "fid": "F10",
+   "severity": "MAJOR",
+   "blocking": false,
+   "category": "other",
+   "anchor": "PyYAML is a declared dependency, `pyproject.toml:38`",
+   "anchor2": null,
+   "refs": [
+    "7.2 step 4"
+   ],
+   "claim": "The live check imports PyYAML on an unverified dependency claim, so it fails if PyYAML is not declared.",
+   "merge_row": "L18"
+  },
+  {
+   "key": "d2-r3:t3-1:F1",
+   "reviewer": "t3-1",
+   "fid": "F1",
+   "severity": "MAJOR",
+   "blocking": true,
+   "category": "contradiction",
+   "anchor": "the command writes `<output-dir>/return-contract.yaml`, where",
+   "anchor2": "Fix the contract filename to `<output>/adversarial/return-contract.yaml` (P1)",
+   "refs": [
+    "WC-4",
+    "2.3",
+    "3.1 adversarial",
+    "3.1 workflow",
+    "3.1 tdd",
+    "7.2 step 4"
+   ],
+   "claim": "WC-4 fixes the contract at <output-dir>/return-contract.yaml but the adversarial row requires <output>/adversarial/return-contract.yaml, so a coordinator opening the WC-4 path finds no contract.",
+   "merge_row": "L1"
+  },
+  {
+   "key": "d2-r3:t3-1:F2",
+   "reviewer": "t3-1",
+   "fid": "F2",
+   "severity": "MAJOR",
+   "blocking": true,
+   "category": "contradiction",
+   "anchor": "Re-run overwrites its marked report",
+   "anchor2": "writes each run into a fresh output directory so a re-run starts clean",
+   "refs": [
+    "WC-6",
+    "3.1 init-lite"
+   ],
+   "claim": "The init-lite retry overwrites the first attempt's report, which WC-6 forbids for a command with no resume flag.",
+   "merge_row": "L1"
+  },
+  {
+   "key": "d2-r3:t3-1:F3",
+   "reviewer": "t3-1",
+   "fid": "F3",
+   "severity": "MAJOR",
+   "blocking": true,
+   "category": "unpassable-check",
+   "anchor": "use it as a step inside another worker's brief, not as its own Task",
+   "anchor2": "a report file would be an unrequested addition",
+   "refs": [
+    "AC-1.1",
+    "AC-1.2",
+    "3.2 load",
+    "6 P1",
+    "Decisions load"
+   ],
+   "claim": "AC-1.1 and AC-1.2 require load to have a contract section and its own live Task, which the load row and the Decision forbid, so the P1 phase cannot pass.",
+   "merge_row": "L1"
+  },
+  {
+   "key": "d2-r3:t3-1:F4",
+   "reviewer": "t3-1",
+   "fid": "F4",
+   "severity": "MAJOR",
+   "blocking": false,
+   "category": "missing-requirement",
+   "anchor": "the exact command line including `--unattended` and every flag section 3 lists as required",
+   "anchor2": "/sc:adversarial --compare <two files> --depth quick --output <dir>",
+   "refs": [
+    "2.3",
+    "AC-0.4",
+    "6 P0",
+    "3.1 Brief must pass"
+   ],
+   "claim": "Section 2.3 requires --unattended in every brief, but P0 defines no such flag and AC-0.4 runs commands without it, so the P0 rule is unstated.",
+   "merge_row": "L1"
+  },
+  {
+   "key": "d2-r3:t3-1:F5",
+   "reviewer": "t3-1",
+   "fid": "F5",
+   "severity": "MAJOR",
+   "blocking": false,
+   "category": "contradiction",
+   "anchor": "its reflect fan-out runs one layer below the worker, inside Claude Code's nesting limit",
+   "anchor2": null,
+   "refs": [
+    "3.2 tasklist",
+    "inventory/commands-b.md:210",
+    "inventory/commands-b.md:215",
+    "inventory/commands-a.md:112",
+    "Decisions inventory verdicts"
+   ],
+   "claim": "The tasklist row clears a nested reflect fan-out that the inventory marks needs-change and UNVERIFIED, and the spec does not record the disagreement.",
+   "merge_row": "L10"
+  },
+  {
+   "key": "d2-r3:t3-1:F6",
+   "reviewer": "t3-1",
+   "fid": "F6",
+   "severity": "MAJOR",
+   "blocking": false,
+   "category": "missing-requirement",
+   "anchor": "Launch setup, not commands",
+   "anchor2": "Any such prompt must fall back on its own well inside the readiness limit",
+   "refs": [
+    "WC-1",
+    "6 phases",
+    "AC-0.4"
+   ],
+   "claim": "WC-1 assigns its change to launch setup, which no phase or file in section 6 names, so the readiness requirement has no implementer.",
+   "merge_row": "L19"
+  },
+  {
+   "key": "d2-r3:t3-1:F7",
+   "reviewer": "t3-1",
+   "fid": "F7",
+   "severity": "MAJOR",
+   "blocking": false,
+   "category": "missing-requirement",
+   "anchor": "A command step that blocks a single tool call for longer than 5 minutes",
+   "anchor2": "A command's own Agent-tool fan-out stays as it is.",
+   "refs": [
+    "WC-7",
+    "WC-10",
+    "3.1 adversarial",
+    "3.2 tasklist"
+   ],
+   "claim": "WC-10 covers only Bash-style waits, so a long Agent-tool fan-out gives no heartbeat, although WC-10 requires one every 5 minutes.",
+   "merge_row": "L2"
+  },
+  {
+   "key": "d2-r3:t3-1:F8",
+   "reviewer": "t3-1",
+   "fid": "F8",
+   "severity": "MAJOR",
+   "blocking": false,
+   "category": "contradiction",
+   "anchor": "the session may instead ask the coordinator once with the preamble's `ask` command",
+   "anchor2": "`worker_done --outcome failed`; contract `status: blocked` with a non-empty `blocked_question`",
+   "refs": [
+    "WC-2",
+    "WC-3",
+    "AC-2.2"
+   ],
+   "claim": "WC-3 lets a blocked gate ask and wait instead of ending, so the AC-2.2 outcome is not fixed.",
+   "merge_row": "L1"
+  },
+  {
+   "key": "d2-r3:t3-1:F9",
+   "reviewer": "t3-1",
+   "fid": "F9",
+   "severity": "MAJOR",
+   "blocking": false,
+   "category": "missing-requirement",
+   "anchor": "installed to `~/.claude/WORKER-CONTRACT.md`",
+   "anchor2": "so the shared rules are written once",
+   "refs": [
+    "2.1",
+    "KNOWN_CORE_FILES",
+    "Unattended mode section"
+   ],
+   "claim": "The spec gives no behaviour for an unattended command when the installed contract file is missing.",
+   "merge_row": "L20"
+  },
+  {
+   "key": "d2-r3:t3-1:F10",
+   "reviewer": "t3-1",
+   "fid": "F10",
+   "severity": "MAJOR",
+   "blocking": false,
+   "category": "other",
+   "anchor": "The worker sends a heartbeat every 5 minutes while working.",
+   "anchor2": "4 minutes leaves a margin under the 5-minute heartbeat cadence",
+   "refs": [
+    "WC-10",
+    "Decisions wait size",
+    "evidence CAPS:130"
+   ],
+   "claim": "The 5-minute cadence is hard-coded although the spec's own evidence says the preamble sets it, so the 4-minute split may be wrong.",
+   "merge_row": "L2"
+  },
+  {
+   "key": "d2-r3:t3-1:F11",
+   "reviewer": "t3-1",
+   "fid": "F11",
+   "severity": "MAJOR",
+   "blocking": false,
+   "category": "unpassable-check",
+   "anchor": "no `return-contract.yaml` appears (SA-3)",
+   "anchor2": "`.dev/tasks/to-do/<id>/return-contract.yaml`",
+   "refs": [
+    "AC-1.3",
+    "SA-3",
+    "3.1 workflow",
+    "inventory/commands-a.md:35"
+   ],
+   "claim": "AC-1.3 requires no return-contract file from a plain run, which fails on a correct build of workflow or adversarial because they already write one.",
+   "merge_row": "L1"
+  },
+  {
+   "key": "d2-r3:t3-1:F12",
+   "reviewer": "t3-1",
+   "fid": "F12",
+   "severity": "MAJOR",
+   "blocking": false,
+   "category": "contradiction",
+   "anchor": "Two workers in one worktree must never write the same file.",
+   "anchor2": "output dir is fixed, so one audit per worktree at a time (WC-11)",
+   "refs": [
+    "WC-11",
+    "3.1 cleanup-audit",
+    "3.1 init-lite"
+   ],
+   "claim": "Fixed default paths let two workers in one worktree write the same file, which WC-11 forbids, and no duty to serialize is stated.",
+   "merge_row": "L1"
+  },
+  {
+   "key": "d2-r3:t3-1:F13",
+   "reviewer": "t3-1",
+   "fid": "F13",
+   "severity": "MAJOR",
+   "blocking": false,
+   "category": "missing-requirement",
+   "anchor": "`--outcome succeeded` otherwise, including `partial` and including an audit whose verdict is FAIL",
+   "anchor2": "`--outcome failed` when the report says `failed` or `blocked`, or no report exists",
+   "refs": [
+    "WC-4",
+    "WC-5",
+    "WC-6",
+    "Decisions status vocabulary"
+   ],
+   "claim": "WC-5 does not say what outcome a worker sends when the contract status is outside the four values.",
+   "merge_row": "L1"
+  },
+  {
+   "key": "d2-r3:t3-1:F14",
+   "reviewer": "t3-1",
+   "fid": "F14",
+   "severity": "MINOR",
+   "blocking": false,
+   "category": "other",
+   "anchor": "(orchestration\\|worktree\\|terminal\\|agent)",
+   "anchor2": null,
+   "refs": [
+    "AC-C1"
+   ],
+   "claim": "The raw grep in AC-C1 writes the alternation as an escaped bar, which GNU grep -E reads as a literal, so the check can pass vacuously.",
+   "merge_row": "L21"
+  },
+  {
+   "key": "d2-r3:t3-2:F1",
+   "reviewer": "t3-2",
+   "fid": "F1",
+   "severity": "CRITICAL",
+   "blocking": true,
+   "category": "unpassable-check",
+   "anchor": "every command in sections 3.1-3.2 has a `## Unattended mode` section naming `return-contract.yaml`",
+   "anchor2": "| load | no gate | none (see note) | n/a |",
+   "refs": [
+    "AC-1.1",
+    "WC-4",
+    "load row",
+    "init-lite row"
+   ],
+   "claim": "AC-1.1 requires a return-contract.yaml for every section 3.1-3.2 command, but the load and init-lite rows provide none, so AC-1.1 cannot pass as written.",
+   "merge_row": "L1"
+  },
+  {
+   "key": "d2-r3:t3-2:F2",
+   "reviewer": "t3-2",
+   "fid": "F2",
+   "severity": "CRITICAL",
+   "blocking": true,
+   "category": "contradiction",
+   "anchor": "make `--remediate` follow the existing headless auto-accept rule",
+   "anchor2": "Each gate resolves one of three ways, listed per command in section 3",
+   "refs": [
+    "WC-2",
+    "SA-6",
+    "UNVERIFIED 9",
+    "reflect row"
+   ],
+   "claim": "The reflect row auto-accepts remediation under --unattended, a fourth gate resolution that WC-2 forbids, and its headless trigger is left unspecified.",
+   "merge_row": "L1"
+  },
+  {
+   "key": "d2-r3:t3-2:F3",
+   "reviewer": "t3-2",
+   "fid": "F3",
+   "severity": "MAJOR",
+   "blocking": false,
+   "category": "other",
+   "anchor": "step 2 never shows `agentWait`",
+   "anchor2": "ask the coordinator once with the preamble's `ask` command, wait",
+   "refs": [
+    "WC-3",
+    "AC-2.2",
+    "7.2 step 2"
+   ],
+   "claim": "AC-2.2 treats any non-null agentWait as a failed gate, but a worker parked in a coordinator ask may also set agentWait, so the check cannot separate a stall from a correct ask.",
+   "merge_row": "L1"
+  },
+  {
+   "key": "d2-r3:t3-2:F4",
+   "reviewer": "t3-2",
+   "fid": "F4",
+   "severity": "MAJOR",
+   "blocking": false,
+   "category": "other",
+   "anchor": "writes each run into a fresh output directory so a re-run starts clean",
+   "anchor2": "where `<output-dir>` is the directory the coordinator passed",
+   "refs": [
+    "WC-4",
+    "WC-6",
+    "2.3"
+   ],
+   "claim": "It is undefined whether the command or the coordinator picks the fresh output directory on retry, which decides whether the WC-4 contract path is known before dispatch.",
+   "merge_row": "L1"
+  },
+  {
+   "key": "d2-r3:t3-2:F5",
+   "reviewer": "t3-2",
+   "fid": "F5",
+   "severity": "MAJOR",
+   "blocking": false,
+   "category": "other",
+   "anchor": "Default output paths carry a timestamp or the slug the coordinator passes",
+   "anchor2": "`PROJECT_INDEX.md` (location implied)",
+   "refs": [
+    "WC-11",
+    "index-repo row"
+   ],
+   "claim": "index-repo is ready today with a fixed PROJECT_INDEX.md output, so two index-repo workers in one worktree clobber one file, which WC-11 forbids.",
+   "merge_row": "L1"
+  },
+  {
+   "key": "d2-r3:t3-2:F6",
+   "reviewer": "t3-2",
+   "fid": "F6",
+   "severity": "MAJOR",
+   "blocking": false,
+   "category": "other",
+   "anchor": "A standalone default run writes the same files it writes today.",
+   "anchor2": "Write the contract for pre-creation STOPs too",
+   "refs": [
+    "SA-3",
+    "WC-4",
+    "workflow row",
+    "task row"
+   ],
+   "claim": "The workflow and task rows add contract files in default runs, which SA-3 forbids.",
+   "merge_row": "L1"
+  },
+  {
+   "key": "d2-r3:t3-2:F7",
+   "reviewer": "t3-2",
+   "fid": "F7",
+   "severity": "MAJOR",
+   "blocking": false,
+   "category": "other",
+   "anchor": "These run as workers now if the brief uses the stated flags",
+   "anchor2": "Uses only the 10 ready commands, so the coordinator gets value before any command changes",
+   "refs": [
+    "3.1",
+    "P0",
+    "AC-0.4",
+    "2.3"
+   ],
+   "claim": "The ready verdict is tested only in default mode, because the P0 runs cannot pass the --unattended flag that section 2.3 requires.",
+   "merge_row": "L1"
+  },
+  {
+   "key": "d2-r3:t3-2:F8",
+   "reviewer": "t3-2",
+   "fid": "F8",
+   "severity": "MAJOR",
+   "blocking": false,
+   "category": "other",
+   "anchor": "so a command run by a worker has the same tools as a command a person runs",
+   "anchor2": null,
+   "refs": [
+    "E2",
+    "CAPS:161",
+    "EVIDENCE.md:45"
+   ],
+   "claim": "The cited evidence shows worker startup and readiness but not tool parity, so the claim is overstated and carries no UNVERIFIED tag.",
+   "merge_row": "L13"
+  },
+  {
+   "key": "d2-r3:t3-2:F9",
+   "reviewer": "t3-2",
+   "fid": "F9",
+   "severity": "MAJOR",
+   "blocking": false,
+   "category": "other",
+   "anchor": "add an Orca section to `HOW-WE-WORK.md` and its two mirrored copies",
+   "anchor2": "prints nothing (SA-2, WC-8)",
+   "refs": [
+    "P0",
+    "AC-C1",
+    "SA-2"
+   ],
+   "claim": "AC-C1 greps the core directory, where P0 adds an Orca section, so the P0 text can fail AC-C1 without a stated exception.",
+   "merge_row": "L1"
+  },
+  {
+   "key": "d2-r3:t3-2:F10",
+   "reviewer": "t3-2",
+   "fid": "F10",
+   "severity": "MAJOR",
+   "blocking": false,
+   "category": "other",
+   "anchor": "Each phase's plan must resolve this before editing.",
+   "anchor2": "`make verify-sync` | exits 0 (SA-5)",
+   "refs": [
+    "UNVERIFIED 8",
+    "AC-C1-C5",
+    "CLAUDE.md src/superclaude grep"
+   ],
+   "claim": "The command-mirror question is deferred with no phase owning it, and the mandated src/superclaude hard-coding grep is missing from the common checks.",
+   "merge_row": "L17"
+  },
+  {
+   "key": "d2-r3:t3-2:F11",
+   "reviewer": "t3-2",
+   "fid": "F11",
+   "severity": "MAJOR",
+   "blocking": false,
+   "category": "missing-requirement",
+   "anchor": "the coordinator gets them by splitting the work into separate worker Tasks",
+   "anchor2": null,
+   "refs": [
+    "1.3",
+    "section 3"
+   ],
+   "claim": "The stated substitute for per-unit records names no split and no input path from split workers to a merged adversarial run.",
+   "merge_row": "L22"
+  },
+  {
+   "key": "d2-r3:t3-2:F12",
+   "reviewer": "t3-2",
+   "fid": "F12",
+   "severity": "MAJOR",
+   "blocking": false,
+   "category": "missing-requirement",
+   "anchor": "fixes to adversarial, cleanup-audit, index-repo, workflow",
+   "anchor2": "| init-lite | `--output <file>` |",
+   "refs": [
+    "section 6",
+    "brainstorm row",
+    "init-lite row"
+   ],
+   "claim": "brainstorm and init-lite appear in no phase list, so their phase and AC-1.1 status are unstated.",
+   "merge_row": "L1"
+  },
+  {
+   "key": "d2-r3:t3-2:F13",
+   "reviewer": "t3-2",
+   "fid": "F13",
+   "severity": "MINOR",
+   "blocking": false,
+   "category": "other",
+   "anchor": "are not counted by Orca's nesting limit",
+   "anchor2": null,
+   "refs": [
+    "E4",
+    "CAPS:155"
+   ],
+   "claim": "E4 states as established a subagent point that CAPS:155 marks UNVERIFIED.",
+   "merge_row": "L13"
+  },
+  {
+   "key": "d2-r3:t3-3:F1",
+   "reviewer": "t3-3",
+   "fid": "F1",
+   "severity": "MAJOR",
+   "blocking": true,
+   "category": "contradiction",
+   "anchor": "It has worked before: in the codegraph planning run, Orca workers invoked",
+   "anchor2": "The only end-to-end proof is the PR #329 run, and its brief told workers to run",
+   "refs": [
+    "E3",
+    "1.4",
+    "Decisions",
+    "UNVERIFIED-1"
+   ],
+   "claim": "E3 counts a skill-direct adversarial run as proof that Orca workers have worked, while section 1.4 and the UNVERIFIED list say no direct-route run was observed.",
+   "merge_row": "L6"
+  },
+  {
+   "key": "d2-r3:t3-3:F2",
+   "reviewer": "t3-3",
+   "fid": "F2",
+   "severity": "MAJOR",
+   "blocking": true,
+   "category": "contradiction",
+   "anchor": "Fix the contract filename to `<output>/adversarial/return-contract.yaml` (P1)",
+   "anchor2": "In unattended mode the command writes `<output-dir>/return-contract.yaml`",
+   "refs": [
+    "WC-4",
+    "3.1",
+    "AC-1.4"
+   ],
+   "claim": "WC-4 puts the adversarial contract directly under the output directory while the adversarial row puts it under output/adversarial, so the coordinator opens a path the worker does not write.",
+   "merge_row": "L1"
+  },
+  {
+   "key": "d2-r3:t3-3:F3",
+   "reviewer": "t3-3",
+   "fid": "F3",
+   "severity": "MAJOR",
+   "blocking": false,
+   "category": "other",
+   "anchor": "These run as workers now if the brief uses the stated flags",
+   "anchor2": null,
+   "refs": [
+    "1.4",
+    "3.1",
+    "inv-b:323"
+   ],
+   "claim": "The ten ready-today commands are classed as ready on file reading alone, which section 1.4 says is not end-to-end evidence.",
+   "merge_row": "L1"
+  },
+  {
+   "key": "d2-r3:t3-3:F4",
+   "reviewer": "t3-3",
+   "fid": "F4",
+   "severity": "MAJOR",
+   "blocking": false,
+   "category": "other",
+   "anchor": "so a command run by a worker has the same tools as a command a person runs",
+   "anchor2": null,
+   "refs": [
+    "E2",
+    "caps:161"
+   ],
+   "claim": "The tool-parity premise of the decision has no cited evidence, and the answered parenthetical goes beyond the quoted EVIDENCE line.",
+   "merge_row": "L13"
+  },
+  {
+   "key": "d2-r3:t3-3:F5",
+   "reviewer": "t3-3",
+   "fid": "F5",
+   "severity": "MAJOR",
+   "blocking": false,
+   "category": "missing-requirement",
+   "anchor": "Nothing in the launch path (wrapper, hook, startup command) may wait on a person",
+   "anchor2": null,
+   "refs": [
+    "WC-1",
+    "6",
+    "7",
+    "caps:49"
+   ],
+   "claim": "WC-1 names an owner outside the commands but no phase or check implements or tests the launch-path change, and the session-name prompt wording is not in the cited evidence.",
+   "merge_row": "L19"
+  },
+  {
+   "key": "d2-r3:t3-3:F6",
+   "reviewer": "t3-3",
+   "fid": "F6",
+   "severity": "MAJOR",
+   "blocking": false,
+   "category": "other",
+   "anchor": "trusts the coordinator to relay faithfully",
+   "anchor2": "The coordinator quotes the instruction in the brief and passes the command's explicit flag",
+   "refs": [
+    "D2",
+    "D4",
+    "WC-9"
+   ],
+   "claim": "D2 rejects a coordinator-relayed authority that D4 accepts for outward actions, and the spec does not explain the difference.",
+   "merge_row": "L23"
+  },
+  {
+   "key": "d2-r3:t3-3:F7",
+   "reviewer": "t3-3",
+   "fid": "F7",
+   "severity": "MAJOR",
+   "blocking": false,
+   "category": "other",
+   "anchor": "Each changed command adds a short `## Unattended mode` section that lists only its own gate resolutions",
+   "anchor2": "Existing lines change only where section 3 names a defect fix",
+   "refs": [
+    "SA-4",
+    "AC-C5",
+    "3.2",
+    "inv-b:47"
+   ],
+   "claim": "Gate conversions are additive only, so the original ask-the-user body text remains and the spec never says the unattended section overrides it.",
+   "merge_row": "L3"
+  },
+  {
+   "key": "d2-r3:t3-3:F8",
+   "reviewer": "t3-3",
+   "fid": "F8",
+   "severity": "MAJOR",
+   "blocking": false,
+   "category": "other",
+   "anchor": "src/superclaude/commands src/superclaude/skills src/superclaude/agents src/superclaude/core",
+   "anchor2": "The only allowed mention of Orca in a changed command is as an example of a caller's question channel inside the contract file",
+   "refs": [
+    "SA-2",
+    "AC-C1",
+    "P0"
+   ],
+   "claim": "AC-C1 scans core with no exclusion for the contract file, so the example SA-2 allows would fail the acceptance check.",
+   "merge_row": "L1"
+  },
+  {
+   "key": "d2-r3:t3-3:F9",
+   "reviewer": "t3-3",
+   "fid": "F9",
+   "severity": "MAJOR",
+   "blocking": false,
+   "category": "missing-requirement",
+   "anchor": "A retry worker (`worker-start --retry-of`) must not corrupt the first attempt's output.",
+   "anchor2": "the output directory, so the report path is known before dispatch (WC-4)",
+   "refs": [
+    "WC-6",
+    "2.3"
+   ],
+   "claim": "A retry brief may reuse the first attempt's output directory because section 2.3 does not require a new one.",
+   "merge_row": "L1"
+  },
+  {
+   "key": "d2-r3:t3-3:F10",
+   "reviewer": "t3-3",
+   "fid": "F10",
+   "severity": "MAJOR",
+   "blocking": false,
+   "category": "other",
+   "anchor": "Under `--unattended`, make `--remediate` follow the existing headless auto-accept rule",
+   "anchor2": "Each gate resolves one of three ways, listed per command in section 3",
+   "refs": [
+    "3.1 reflect",
+    "3.2 tasklist",
+    "SA-6",
+    "WC-2",
+    "inv-b:36"
+   ],
+   "claim": "Unattended reflect and tasklist auto-accept remediation under the headless rule with no stated limit.",
+   "merge_row": "L1"
+  },
+  {
+   "key": "d2-r3:t3-3:F11",
+   "reviewer": "t3-3",
+   "fid": "F11",
+   "severity": "MAJOR",
+   "blocking": false,
+   "category": "missing-requirement",
+   "anchor": "How `plugins/superclaude/commands/` (which holds copies such as `agent.md`",
+   "anchor2": "AC-C2 | `make verify-sync`",
+   "refs": [
+    "UNVERIFIED-8",
+    "7.1",
+    "AC-C2"
+   ],
+   "claim": "The plugin command mirror is deferred to each phase and no acceptance check covers it, so edited commands can drift from their plugin copies.",
+   "merge_row": "L24"
+  },
+  {
+   "key": "d2-r3:t3-4:F1",
+   "reviewer": "t3-4",
+   "fid": "F1",
+   "severity": "MAJOR",
+   "blocking": true,
+   "category": "contradiction",
+   "anchor": "Without `--unattended`, every prompt, approval gate, default flag value, output path and outward default stays as it is today",
+   "anchor2": "reconcile the flag surface the command calls unsupported with the flags the skill still defines",
+   "refs": [
+    "SA-1",
+    "SA-4",
+    "section 3.2 roadmap",
+    "section 3.2 validate-roadmap",
+    "section 3.2 validate-tests"
+   ],
+   "claim": "SA-1 forbids standalone default and prompt changes, but the roadmap, validate-roadmap and validate-tests rows apply such changes unconditionally and SA-4 permits defect fixes without saying they override SA-1.",
+   "merge_row": "L3"
+  },
+  {
+   "key": "d2-r3:t3-4:F2",
+   "reviewer": "t3-4",
+   "fid": "F2",
+   "severity": "MAJOR",
+   "blocking": true,
+   "category": "other",
+   "anchor": "(orchestration\\|worktree\\|terminal\\|agent)\\b",
+   "anchor2": "prints nothing (SA-2, WC-8)",
+   "refs": [
+    "AC-C1",
+    "SA-2",
+    "WC-8",
+    "P0"
+   ],
+   "claim": "AC-C1 uses an escaped pipe in ERE so it never matches any Orca call, which passes a violation of SA-2; once fixed it would fail the P0 deliverables in src/superclaude/core unless they are excluded.",
+   "merge_row": "L1"
+  },
+  {
+   "key": "d2-r3:t3-4:F3",
+   "reviewer": "t3-4",
+   "fid": "F3",
+   "severity": "MAJOR",
+   "blocking": false,
+   "category": "missing-requirement",
+   "anchor": "never calls `AskUserQuestion`, never ends its turn on a chat question",
+   "anchor2": null,
+   "refs": [
+    "WC-2",
+    "E2",
+    "section 6"
+   ],
+   "claim": "No requirement covers tool-permission prompts or the worker launch permission mode, so a worker can stall silently on a permission prompt.",
+   "merge_row": "L1"
+  },
+  {
+   "key": "d2-r3:t3-4:F4",
+   "reviewer": "t3-4",
+   "fid": "F4",
+   "severity": "MAJOR",
+   "blocking": false,
+   "category": "missing-requirement",
+   "anchor": "Launch setup, not commands",
+   "anchor2": null,
+   "refs": [
+    "WC-1",
+    "section 6"
+   ],
+   "claim": "WC-1 names an owner, launch setup, that no phase delivers.",
+   "merge_row": "L19"
+  },
+  {
+   "key": "d2-r3:t3-4:F5",
+   "reviewer": "t3-4",
+   "fid": "F5",
+   "severity": "MAJOR",
+   "blocking": false,
+   "category": "other",
+   "anchor": "A command step that blocks a single tool call for longer than 5 minutes",
+   "anchor2": "These run as workers now if the brief uses the stated flags",
+   "refs": [
+    "WC-10",
+    "section 3.1"
+   ],
+   "claim": "WC-10 applies to any single blocked tool call, but ready-today commands with Agent-tool fan-out are declared ready without a heartbeat check.",
+   "merge_row": "L2"
+  },
+  {
+   "key": "d2-r3:t3-4:F6",
+   "reviewer": "t3-4",
+   "fid": "F6",
+   "severity": "MAJOR",
+   "blocking": false,
+   "category": "other",
+   "anchor": "check --wait --types \"worker_done,escalation,question\" --timeout-ms 900000",
+   "anchor2": "at least once per 5 minutes",
+   "refs": [
+    "section 7.2 steps 2-3"
+   ],
+   "claim": "A 15-minute blocking check prevents the 5-minute worker-show cadence that step 2 requires.",
+   "merge_row": "L18"
+  },
+  {
+   "key": "d2-r3:t3-4:F7",
+   "reviewer": "t3-4",
+   "fid": "F7",
+   "severity": "MAJOR",
+   "blocking": false,
+   "category": "other",
+   "anchor": "step 4 uses the command's existing report file, since the contract arrives in P1",
+   "anchor2": "Fix the contract filename to `<output>/adversarial/return-contract.yaml` (P1)",
+   "refs": [
+    "AC-0.4",
+    "section 3.1 adversarial",
+    "INV-A:60"
+   ],
+   "claim": "The P0 smoke test checks a contract path that the adversarial skill does not fix until P1.",
+   "merge_row": "L1"
+  },
+  {
+   "key": "d2-r3:t3-4:F8",
+   "reviewer": "t3-4",
+   "fid": "F8",
+   "severity": "MAJOR",
+   "blocking": false,
+   "category": "other",
+   "anchor": "its brief told workers to run `/sc:adversarial` through an Agent-tool subagent",
+   "anchor2": "invocation_method: \"skill-direct\"",
+   "refs": [
+    "E3",
+    "section 1.4",
+    "INV-A:13"
+   ],
+   "claim": "The same codegraph run is cited as skill-direct evidence in E3 and as subagent-only evidence in 1.4, so the central decision's evidence is inconsistent.",
+   "merge_row": "L13"
+  },
+  {
+   "key": "d2-r3:t3-4:F9",
+   "reviewer": "t3-4",
+   "fid": "F9",
+   "severity": "MAJOR",
+   "blocking": false,
+   "category": "other",
+   "anchor": "inside Claude Code's nesting limit",
+   "anchor2": null,
+   "refs": [
+    "section 3.2 tasklist",
+    "section 1.4 gap 3",
+    "INV-A:14"
+   ],
+   "claim": "The nesting limit of three layers is cited but not applied; tasklist's nested reflect plus Tier 2 fan-out may exceed it.",
+   "merge_row": "L10"
+  },
+  {
+   "key": "d2-r3:t3-4:F10",
+   "reviewer": "t3-4",
+   "fid": "F10",
+   "severity": "MAJOR",
+   "blocking": false,
+   "category": "other",
+   "anchor": "re-invoke or resume the command with the answer as a flag",
+   "anchor2": "step 2 never shows `agentWait`",
+   "refs": [
+    "WC-2",
+    "WC-3",
+    "AC-2.2"
+   ],
+   "claim": "The ask-then-answer-as-flag path is undefined for most gates and conflicts with AC-2.2's no-agentWait condition.",
+   "merge_row": "L1"
+  },
+  {
+   "key": "d2-r3:t3-4:F11",
+   "reviewer": "t3-4",
+   "fid": "F11",
+   "severity": "MAJOR",
+   "blocking": false,
+   "category": "other",
+   "anchor": "split into 10 ready today, 27 needing a change and 6 coordinator-only",
+   "anchor2": "Coordinator or person only (recommended)",
+   "refs": [
+    "section 3",
+    "section 9 D3",
+    "section 4"
+   ],
+   "claim": "The 10/27/6 split counts pr-submit as a worker candidate although the recommended D3 removes it.",
+   "merge_row": "L25"
+  },
+  {
+   "key": "d2-r3:t3-4:F12",
+   "reviewer": "t3-4",
+   "fid": "F12",
+   "severity": "MINOR",
+   "blocking": false,
+   "category": "other",
+   "anchor": "so a stall is invisible",
+   "anchor2": null,
+   "refs": [
+    "WC-2",
+    "section 7.2 step 2",
+    "CAPS:129"
+   ],
+   "claim": "WC-2 says a stall is invisible, but the spec and the inventory say agentWait makes it visible.",
+   "merge_row": "L1"
+  }
+ ]
+}
