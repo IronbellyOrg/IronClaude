@@ -10,7 +10,9 @@ import pytest
 
 ROOT = Path(__file__).resolve().parents[2]
 SKILL = ROOT / "src/superclaude/skills/sc-issue-protocol"
-FALLBACK_LINE = "Handled by issue-worker-t2 (tier 2): tier1b is not available to this user."
+FALLBACK_LINE = (
+    "Handled by issue-worker-t2 (tier 2): tier1b is not available to this user."
+)
 
 DOCS = ["SKILL.md", "refs/tiers.md", "refs/claim.md", "refs/create.md"]
 
@@ -26,7 +28,9 @@ def test_doc_states_the_t1_to_t2_fallback(rel):
     assert "T1 -> T2 fallback" in text, f"{rel} lost the T1 -> T2 fallback wording"
 
 
-@pytest.mark.parametrize("rel", ["SKILL.md", "refs/tiers.md", "refs/claim.md", "refs/create.md"])
+@pytest.mark.parametrize(
+    "rel", ["SKILL.md", "refs/tiers.md", "refs/claim.md", "refs/create.md"]
+)
 def test_doc_names_the_stop_when_the_fallback_is_not_served(rel):
     assert "E-TIER-UNAVAILABLE" in _text(rel)
 
