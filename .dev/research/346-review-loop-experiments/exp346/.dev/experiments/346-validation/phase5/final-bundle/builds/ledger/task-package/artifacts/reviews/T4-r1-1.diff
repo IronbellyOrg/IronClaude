@@ -1,0 +1,690 @@
+diff --git a/src/superclaude/skills/sc-review-ledger/scripts/review_ledger.py b/src/superclaude/skills/sc-review-ledger/scripts/review_ledger.py
+index 20753a74..6152ae5f 100644
+--- a/src/superclaude/skills/sc-review-ledger/scripts/review_ledger.py
++++ b/src/superclaude/skills/sc-review-ledger/scripts/review_ledger.py
+@@ -2090,10 +2090,372 @@ def cmd_status(args) -> dict:
+         ],
+         snapshots_intact=snapshots_intact(ledger, state),
+         x_items=round_x_items(state, state["round"]),
++        metrics=metrics(ledger, state),
+         **extra,
+     )
+ 
+ 
++# ---------------------------------------------------------------- sweep, defer, metrics
++
++SWEEP_ROW_KEYS = ROW_INPUT_KEYS | {"challenges"}
++CM = {"CRITICAL", "MAJOR"}
++
++
++def sweep_copy(state: dict) -> dict | None:
++    """The latest sweep --prepare record (path, sha256, post_terminal_edit)."""
++    preps = [op["sweep_copy"] for op in state["ops"] if op.get("sweep_copy")]
++    return preps[-1] if preps else None
++
++
++def location_class(ledger: Ledger, state: dict, span) -> str:
++    """Where a sweep row sits: in a claimed row's span, in a kept unclaimed hunk of the
++    last fix cycle, or outside both (earlier cycles' hunks are not traced)."""
++    k = state["round"]
++    snap = f"r{k}"
++    if span is None:
++        return "outside_hunks"
++    for r in state["rows"]:
++        cur = current_span(r, snap)
++        if r.get("claims") and cur is not None and overlaps(span, cur):
++            return "in_claimed_span"
++    diff_path = ledger.root / "diffs" / f"c{k - 1}.json"
++    if k > 1 and diff_path.is_file():
++        for h in json.loads(diff_path.read_text(encoding="utf-8"))["hunks"]:
++            if not h["rewrap"] and not h["claimed_by"] and overlaps(h["new"], span):
++                return "in_unclaimed_hunk"
++    return "outside_hunks"
++
++
++def tails_intact(ledger: Ledger, state: dict) -> bool:
++    for d in state["decisions"]:
++        if d["kind"] != "review":
++            continue
++        rep = ledger.root / d["report"]
++        if not rep.is_file() or d["tail"] not in rep.read_text(encoding="utf-8"):
++            return False
++    return True
++
++
++def cmd_sweep(args) -> dict:
++    if args.prepare == bool(args.input):
++        usage("sweep needs exactly one of --prepare or --input F --report R")
++    if args.input and not args.report:
++        usage("sweep --input needs --report R")
++    if args.prepare:
++        if args.dry_run:
++            usage("--dry-run applies to sweep --input only")
++        return sweep_prepare(args)
++    read_only_input, got = input_reader(args.input)
++    report = Path(args.report)
++
++    def read() -> bytes:
++        if not report.is_file():
++            refuse(
++                "E-SCHEMA",
++                f"report not found: {report}",
++                EXIT_INPUT,
++                "write the report first",
++            )
++        return read_only_input() + b"\0" + canonical({"report": str(report.resolve())})
++
++    def apply(ledger: Ledger, state: dict):
++        if state["phase"] == "swept":
++            refuse(
++                "E-SWEEP-DONE",
++                "the sweep already ran for this loop",
++                EXIT_STATE,
++                "read verdict",
++            )
++        if state["phase"] != "terminal":
++            refuse(
++                "E-PHASE",
++                "the sweep runs only after a terminal close",
++                EXIT_STATE,
++                next_action(state),
++            )
++        copy = sweep_copy(state)
++        if copy is None:
++            refuse(
++                "E-PHASE", "run sweep --prepare first", EXIT_STATE, "sweep --prepare"
++            )
++        data = got["data"]
++        rows = (
++            data.get("rows")
++            if isinstance(data, dict) and set(data) <= {"rows"}
++            else None
++        )
++        if not isinstance(rows, list):
++            refuse(
++                "E-SCHEMA",
++                "sweep input must be an object with a 'rows' list",
++                EXIT_INPUT,
++                "fix the shape",
++            )
++        problems = []
++        for i, row in enumerate(rows):
++            if not isinstance(row, dict) or set(row) - SWEEP_ROW_KEYS:
++                problems.append(
++                    {
++                        "index": i,
++                        "code": "E-SCHEMA",
++                        "detail": f"keys {sorted(SWEEP_ROW_KEYS)}",
++                    }
++                )
++                continue
++            ch = row.get("challenges")
++            if (
++                ch is not None
++                and (row_by_id(state, ch) or {}).get("status") != "verified"
++            ):
++                problems.append(
++                    {
++                        "index": i,
++                        "code": "E-SCHEMA",
++                        "detail": f"challenges must name a verified row: {ch!r}",
++                    }
++                )
++        if problems:
++            refuse(
++                "E-SCHEMA",
++                problems,
++                EXIT_INPUT,
++                "fix the listed rows; nothing was written",
++            )
++        validate_rows(
++            [{k: v for k, v in r.items() if k != "challenges"} for r in rows],
++            PROFILES[state["profile"]]["grades"],
++        )
++        copy_text = (
++            Path(copy["path"]).read_text(encoding="utf-8")
++            if Path(copy["path"]).is_file()
++            else None
++        )
++        if copy_text is None or sha256_text(copy_text) != copy["sha256"]:
++            refuse(
++                "E-PHASE",
++                "the sweep copy is missing or changed; run sweep --prepare again",
++                EXIT_STATE,
++                "",
++            )
++        check_anchors(rows, copy_text)
++        snap_text = ledger.snapshot_path(f"r{state['round']}").read_text(
++            encoding="utf-8"
++        )
++        profile = PROFILES[state["profile"]]
++        new_ids, s_count = [], 0
++        for row in rows:
++            hits = locate(
++                snap_text, row["anchor"]
++            )  # sweep anchors are quoted from the copy
++            span = hits[0] if len(hits) == 1 else None
++            new = make_row(state, row, span, "sweep", "sweep", "sweep", [], "deferred")
++            new["at_snapshot"] = f"r{state['round']}"
++            new["would_block"] = profile["blocking"](row)
++            new["challenges"] = row.get("challenges")
++            new["location"] = location_class(ledger, state, span)
++            new["history"].append(
++                {"seq": state["seq"], "via": "sweep", "to": "deferred"}
++            )
++            state["rows"].append(new)
++            new_ids.append(new["id"])
++            if new["would_block"] or new["challenges"]:
++                s_count += 1
++        intact = tails_intact(ledger, state)
++        loop = loop_decision(state)
++        outcome = (
++            "ESCALATE" if loop == "ESCALATE" or s_count > 0 or not intact else "PASS"
++        )
++        sweep_rows = [r for r in state["rows"] if r["id"] in new_ids]
++        lines = [
++            "",
++            "<!-- review-ledger tail: written by review_ledger.py sweep; do not edit -->",
++            "## Review ledger sweep",
++            "",
++            "sweep",
++            "",
++            "| id | grade | rule | would block | challenges | location | anchor |",
++            "|---|---|---|---|---|---|---|",
++        ]
++        for r in sweep_rows:
++            lines.append(
++                f"| {r['id']} | {r['grade']} | {r.get('rule') or ''} | {'yes' if r['would_block'] else 'no'} "
++                f"| {r['challenges'] or ''} | {r['location']} | {flat(r['anchor']).replace('|', chr(92) + '|')} |"
++            )
++        lines += [
++            "",
++            f"delivery_outcome: {outcome} (loop={loop}, S={s_count}, tails_intact={str(intact).lower()})",
++            f"verdict: {'PASS' if outcome == 'PASS' else 'FAIL'}",
++        ]
++        tail = "\n".join(lines) + "\n"
++        state["decisions"].append(
++            {
++                "kind": "sweep",
++                "delivery_outcome": outcome,
++                "S": s_count,
++                "tails_intact": intact,
++                "report": os.path.relpath(report.resolve(), ledger.root.resolve()),
++                "tail": tail,
++                "tail_sha256": sha256_text(tail),
++                "seq": state["seq"],
++                "copy_sha256": copy["sha256"],
++            }
++        )
++        state["phase"] = "swept"
++        atomic_write(ledger.root / "inputs" / "sweep.json", got["payload"])
++
++        def after():
++            text = report.read_text(encoding="utf-8")
++            atomic_write(report, (text + tail).encode("utf-8"))
++
++        return {
++            "new_rows": new_ids,
++            "S": s_count,
++            "last_line": tail.rstrip("\n").splitlines()[-1],
++            "_after": after,
++        }
++
++    return mutate(args, "sweep", read, apply)
++
++
++def sweep_prepare(args) -> dict:
++    def read() -> bytes:
++        return canonical({"prepare": True, **live_binding(args)})
++
++    def apply(ledger: Ledger, state: dict):
++        if state["phase"] == "swept":
++            refuse(
++                "E-SWEEP-DONE",
++                "the sweep already ran for this loop",
++                EXIT_STATE,
++                "read verdict",
++            )
++        if state["phase"] != "terminal":
++            refuse(
++                "E-PHASE",
++                "the sweep runs only after a terminal close",
++                EXIT_STATE,
++                next_action(state),
++            )
++        doc = ledger.doc_path(state)
++        data = doc.read_bytes()
++        folder = Path(tempfile.mkdtemp(prefix="review-ledger-sweep-"))
++        copy = folder / doc.name
++        copy.write_bytes(data)
++        last_sha = state["snapshots"][f"r{state['round']}"]["sha256"]
++        record = {
++            "path": str(copy),
++            "sha256": sha256_bytes(data),
++            "post_terminal_edit": sha256_bytes(data) != last_sha,
++        }
++        return {
++            "copy": str(copy),
++            "post_terminal_edit": record["post_terminal_edit"],
++            "_op": {"sweep_copy": record},
++        }
++
++    return mutate(args, "sweep-prepare", read, apply)
++
++
++def cmd_defer(args) -> dict:
++    def read() -> bytes:
++        return canonical({"id": args.id, "quote": args.quote})
++
++    def apply(ledger: Ledger, state: dict):
++        if state["phase"] not in ("terminal", "swept"):
++            refuse(
++                "E-PHASE",
++                "defer records a user's words after the loop ended",
++                EXIT_STATE,
++                next_action(state),
++            )
++        row = row_by_id(state, args.id)
++        if row is None:
++            refuse("E-ILLEGAL", f"no row {args.id!r}", EXIT_INPUT, "")
++        if not args.quote.strip():
++            refuse("E-SCHEMA", "--quote must hold the user's words", EXIT_INPUT, "")
++        row["history"].append(
++            {
++                "seq": state["seq"],
++                "via": "defer",
++                "quote": args.quote,
++                "status": row["status"],
++            }
++        )
++        return {"row": row["id"], "status": row["status"]}
++
++    return mutate(args, "defer", read, apply)
++
++
++def metrics(ledger: Ledger, state: dict) -> dict:
++    rows = state["rows"]
++    loop_rows = [
++        r for r in rows if isinstance(r["round_found"], int) and r["scope"] == "in"
++    ]
++    u3 = sum(1 for r in loop_rows if r["grade"] in CM and r["status"] != "verified")
++    sweep_rows = [r for r in rows if r["round_found"] == "sweep"]
++    w = sum(1 for r in sweep_rows if r["grade"] in CM or r.get("challenges"))
++    o = sum(1 for r in rows if r["scope"] == "outside" and r["grade"] in CM)
++    floor = sum(
++        1
++        for r in rows
++        if r["round_found"] == 1
++        and r["grade"] in CM
++        and r["history"]
++        and r["history"][0].get("to") == "deferred"
++    )
++    per_cycle, minor_touched = [], {"answered": 0, "auto-claimed": 0}
++    deferred_ids = {r["id"] for r in rows if r["status"] == "deferred"}
++    for op in state["ops"]:
++        if op.get("cmd") != "begin" or "begin" not in op:
++            continue
++        cycle = op["round"]
++        unclaimed = op["begin"]["unclaimed"]
++        per_cycle.append(
++            {
++                "cycle": cycle,
++                "unclaimed_bytes": sum(
++                    u["bytes"] for u in unclaimed if not u["reverted"]
++                ),
++                "reverted_bytes": op["begin"]["reverted_bytes"],
++            }
++        )
++        diff_path = ledger.root / "diffs" / f"c{cycle}.json"
++        if diff_path.is_file():
++            for h in json.loads(diff_path.read_text(encoding="utf-8"))["hunks"]:
++                vias = {c["via"] for c in h["claimed_by"]}
++                touched = [rid for rid in h.get("touches", []) if rid in deferred_ids]
++                if touched and "answer" in vias:
++                    minor_touched["answered"] += len(touched)
++                elif touched and "auto" in vias:
++                    minor_touched["auto-claimed"] += len(touched)
++    claim_bytes = {
++        r["id"]: [{"cycle": c["cycle"], "bytes": c["bytes"]} for c in r["claims"]]
++        for r in rows
++        if r.get("claims")
++    }
++    doc = ledger.doc_path(state)
++    last = state["snapshots"][f"r{state['round']}"]["sha256"]
++    live = sha256_bytes(doc.read_bytes()) if doc.is_file() else None
++    terminal = state["phase"] in ("terminal", "swept")
++    return {
++        "U3": u3,
++        "W": w,
++        "O": o,
++        "deferred_floor": floor,
++        "headline_raw": u3 + w + o,
++        "per_cycle_bytes": per_cycle,
++        "claim_bytes": claim_bytes,
++        "minor_touched": minor_touched,
++        "scope_outside": sum(1 for r in rows if r["scope"] == "outside"),
++        "X": sum(len(op.get("x_items", [])) for op in state["ops"]),
++        "post_terminal_edit": {
++            "doc_sha256": live,
++            "last_snapshot_sha256": last,
++            "changed": terminal and live != last,
++        },
++    }
++
++
+ def verdict_of(state: dict) -> str:
+     if state["phase"] in ("find", "revise", "verify"):
+         return "CONTINUE"
+@@ -2233,6 +2595,34 @@ def build_parser() -> argparse.ArgumentParser:
+     mutation(sp)
+     sp.add_argument("--report", required=True)
+ 
++    sp = sub.add_parser(
++        "sweep",
++        help="once, after a terminal close: --prepare copies the document for a fresh "
++        "context; --input F --report R ingests its rows and sets the delivery outcome",
++    )
++    where(sp)
++    mutation(sp, dry=True)
++    sp.add_argument(
++        "--prepare",
++        action="store_true",
++        help="copy the live document to a new temporary folder",
++    )
++    sp.add_argument(
++        "--input",
++        help=".json {'rows': [...]}, or a .md report with one ledger-input block",
++    )
++    sp.add_argument(
++        "--report", help="the sweep report; the sweep tail is appended to it"
++    )
++
++    sp = sub.add_parser(
++        "defer", help="record a user's words on a row (no status change)"
++    )
++    where(sp)
++    mutation(sp)
++    sp.add_argument("--id", required=True, help="row id")
++    sp.add_argument("--quote", required=True, help="the user's words")
++
+     sp = sub.add_parser(
+         "status", help="read-only counts (and provisional hunks in phase revise)"
+     )
+@@ -2254,6 +2644,8 @@ COMMANDS = {
+     "revert-unclaimed": cmd_revert_unclaimed,
+     "verify": cmd_verify,
+     "close": cmd_close,
++    "sweep": cmd_sweep,
++    "defer": cmd_defer,
+     "status": cmd_status,
+ }
+ 
+diff --git a/tests/skills/fixtures/review-ledger/sweep-rows.json b/tests/skills/fixtures/review-ledger/sweep-rows.json
+new file mode 100644
+index 00000000..177106ea
+--- /dev/null
++++ b/tests/skills/fixtures/review-ledger/sweep-rows.json
+@@ -0,0 +1,5 @@
++{"rows": [
++  {"label": "S1", "grade": "CRITICAL", "anchor": "Logs are kept for seven days.", "finding": "No rotation rule for logs."},
++  {"label": "S2", "grade": "MINOR", "anchor": "It keeps one record per widget.", "finding": "Wording is loose."},
++  {"label": "S3", "grade": "MAJOR", "anchor": "the caller retries at most twice", "finding": "The bound is not justified.", "challenges": "R1"}
++]}
+diff --git a/tests/skills/test_review_ledger_script.py b/tests/skills/test_review_ledger_script.py
+index 947f3b31..fc1688fd 100644
+--- a/tests/skills/test_review_ledger_script.py
++++ b/tests/skills/test_review_ledger_script.py
+@@ -1294,3 +1294,253 @@ def test_verify_new_row_anchor_must_occur_once(tmp_path, anchor, code_name):
+         lp, {"answers": [ans("R1", "resolved", FIX_EV)], "new_rows": [new]}
+     )
+     assert code == 2 and out["error"] == code_name
++
++
++# ---------------------------------------------------------------- Task 4
++
++
++def review2_pass(lp: Loop):
++    round2(lp, rows=ONE_BLOCKER)
++    assert verify(lp, {"answers": [ans("R1", "resolved", FIX_EV)]})[0] == 0
++    assert lp.close(lp.report("r2.md"))[1]["loop_decision"] == "PASS"
++
++
++def sweep(lp: Loop, rows, report="sweep.md", **kw):
++    src = rows if isinstance(rows, Path) else lp.json_input(f"sweep-{lp.n}.json", rows)
++    rep = lp.report(report, "# Sweep\n")
++    return lp.mut("sweep", "--input", str(src), "--report", str(rep), **kw), rep
++
++
++def prepare(lp: Loop):
++    code, out = lp.mut("sweep", "--prepare")
++    assert code == 0, out
++    return out
++
++
++def test_verdict_pending_after_every_terminal_review(tmp_path):
++    a = tmp_path / "r1"
++    a.mkdir()
++    lp = Loop(a)
++    lp.round1(rows="find-empty.json")
++    assert lp.verdict()[0] == 12
++    b = tmp_path / "r2"
++    b.mkdir()
++    lp = Loop(b)
++    review2_pass(lp)
++    assert lp.verdict()[0] == 12
++    c = tmp_path / "r3"
++    c.mkdir()
++    lp = Loop(c)
++    round2(lp)
++    assert verify(lp, basic_answers())[0] == 0
++    lp.close(lp.report("r2.md"))
++    lp.edit(
++        text=lp.doc.read_text().replace(
++            "for 30 days.", "for 30 days, then purges them."
++        )
++    )
++    assert lp.begin()[0] == 0
++    assert (
++        verify(
++            lp,
++            {
++                "answers": [
++                    ans("R2", "open", R2_EV, reason="x"),
++                    ans("R3", "resolved", "then purges them"),
++                ]
++            },
++        )[0]
++        == 0
++    )
++    assert lp.close(lp.report("r3.md"))[1]["loop_decision"] == "ESCALATE"
++    assert lp.verdict()[0] == 12
++
++
++def test_blocking_sweep_row_escalates_delivery(tmp_path):
++    lp = Loop(tmp_path)
++    review2_pass(lp)
++    prepare(lp)
++    (code, out), rep = sweep(lp, json.loads((_FIX / "sweep-rows.json").read_text()))
++    assert code == 0, out
++    assert out["delivery_outcome"] == "ESCALATE"
++    lines = rep.read_text().rstrip("\n").splitlines()
++    assert (
++        lines[-1] == "verdict: FAIL"
++        and "sweep" in lines
++        and "review: 4 of 3" not in rep.read_text()
++    )
++    assert lp.verdict()[0] == 11
++    rows = [r for r in lp.state()["rows"] if r["round_found"] == "sweep"]
++    assert all(r["status"] == "deferred" for r in rows)
++    assert {r["location"] for r in rows} <= {
++        "in_claimed_span",
++        "in_unclaimed_hunk",
++        "outside_hunks",
++    }
++    assert next(r for r in rows if r["label"] == "S3")["location"] == "in_claimed_span"
++
++
++@pytest.mark.parametrize("review", [1, 2])
++def test_clean_sweep_after_loop_pass_gives_verdict_0(tmp_path, review):
++    lp = Loop(tmp_path)
++    if review == 1:
++        lp.round1(rows="find-empty.json")
++    else:
++        review2_pass(lp)
++    prepare(lp)
++    (code, out), rep = sweep(lp, {"rows": []})
++    assert code == 0 and out["delivery_outcome"] == "PASS"
++    assert rep.read_text().rstrip("\n").splitlines()[-1] == "verdict: PASS"
++    assert lp.verdict()[0] == 0
++
++
++def test_second_sweep_refused(tmp_path):
++    lp = Loop(tmp_path)
++    lp.round1(rows="find-empty.json")
++    prepare(lp)
++    assert sweep(lp, {"rows": []})[0][0] == 0
++    (code, out), _ = sweep(lp, {"rows": []}, report="again.md")
++    assert code == 3 and out["error"] == "E-SWEEP-DONE"
++
++
++def test_sweep_before_terminal_is_e_phase(tmp_path):
++    lp = Loop(tmp_path)
++    lp.round1()
++    code, out = lp.mut("sweep", "--prepare")
++    assert code == 3 and out["error"] == "E-PHASE"
++
++
++def test_prepare_copies_outside_the_ledger_and_flags_post_terminal_edits(tmp_path):
++    lp = Loop(tmp_path)
++    lp.round1(rows="find-empty.json")
++    lp.edit(text=lp.doc.read_text() + "\nAdded after the loop.\n")
++    out = prepare(lp)
++    copy = Path(out["copy"])
++    assert copy.is_file() and lp.ledger.resolve() not in copy.resolve().parents
++    assert copy.read_text() == lp.doc.read_text()
++    assert out["post_terminal_edit"] is True
++    assert lp.status()["metrics"]["post_terminal_edit"]["changed"] is True
++
++
++def test_defer_leaves_status_unchanged(tmp_path):
++    lp = Loop(tmp_path)
++    lp.round1(rows="find-basic.json")
++    code, out = lp.mut("defer", "--id", "R1", "--quote", "keep it")
++    assert code == 3 and out["error"] == "E-PHASE"
++    sub = tmp_path / "t"
++    sub.mkdir()
++    lp = Loop(sub)
++    review2_pass(lp)
++    code, out = lp.mut("defer", "--id", "R1", "--quote", "the owner accepts twice")
++    assert code == 0 and out["status"] == "verified"
++    r1 = by_id(lp.state())["R1"]
++    assert (
++        r1["status"] == "verified"
++        and r1["history"][-1]["quote"] == "the owner accepts twice"
++    )
++
++
++def test_two_claimed_rows_get_separate_claim_bytes(tmp_path):
++    lp = Loop(tmp_path)
++    round2(lp, fixture="doc-r2-two-rows.md")
++    cb = lp.status()["metrics"]["claim_bytes"]
++    assert set(cb) == {"R2", "R3"} and len(cb["R2"]) == 1 and len(cb["R3"]) == 1
++
++
++def test_headline_counts_deferred_outside_and_sweep_rows(tmp_path):
++    lp = Loop(tmp_path)
++    rows = [
++        {
++            "grade": "MAJOR",
++            "anchor": "It keeps one record per widget.",
++            "finding": "identity",
++        },
++        {
++            "grade": "MAJOR",
++            "anchor": R1_QUOTE,
++            "finding": "no retry budget",
++            "wrong_outcome": "retries forever",
++        },
++    ]
++    round2(lp, rows=rows)
++    outside = {
++        "grade": "CRITICAL",
++        "anchor": "Logs are kept for seven days.",
++        "finding": "x",
++    }
++    assert (
++        verify(lp, {"answers": [ans("R2", "resolved", FIX_EV)], "new_rows": [outside]})[
++            0
++        ]
++        == 0
++    )
++    assert lp.close(lp.report("r2.md"))[1]["loop_decision"] == "PASS"
++    prepare(lp)
++    assert (
++        sweep(
++            lp, {"rows": [{"grade": "MAJOR", "anchor": R3_EV, "finding": "purge rule"}]}
++        )[0][0]
++        == 0
++    )
++    m = lp.status()["metrics"]
++    assert (m["U3"], m["W"], m["O"], m["headline_raw"], m["deferred_floor"]) == (
++        1,
++        1,
++        1,
++        3,
++        1,
++    )
++
++
++def test_challenge_row_counts_once_in_w(tmp_path):
++    lp = Loop(tmp_path)
++    review2_pass(lp)
++    prepare(lp)
++    row = {"grade": "MAJOR", "anchor": FIX_EV, "finding": "bound", "challenges": "R1"}
++    (code, out), _ = sweep(lp, {"rows": [row]})
++    assert code == 0 and out["delivery_outcome"] == "ESCALATE"
++    assert lp.status()["metrics"]["W"] == 1
++
++
++def test_sweep_dry_run_writes_nothing(tmp_path):
++    lp = Loop(tmp_path)
++    review2_pass(lp)
++    prepare(lp)
++    src = lp.json_input("s.json", json.loads((_FIX / "sweep-rows.json").read_text()))
++    rep = lp.report("sweep.md", "# Sweep\n")
++    before = tree_digest(lp.ledger, lp.doc, rep, src)
++    code, out = run(
++        tmp_path,
++        "sweep",
++        "--doc",
++        "spec.md",
++        "--input",
++        str(src),
++        "--report",
++        str(rep),
++        "--dry-run",
++    )
++    assert (
++        code == 0 and out["dry_run"] is True and out["delivery_outcome"] == "ESCALATE"
++    )
++    assert tree_digest(lp.ledger, lp.doc, rep, src) == before
++
++
++def test_help_lists_every_subcommand():
++    text = subprocess.run(
++        [sys.executable, str(_SCRIPT), "--help"], capture_output=True, text=True
++    ).stdout
++    for name in (
++        "init",
++        "find",
++        "answer",
++        "begin",
++        "verify",
++        "close",
++        "sweep",
++        "status",
++        "verdict",
++        "revert-unclaimed",
++        "defer",
++    ):
++        assert name in text

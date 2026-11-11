@@ -1,0 +1,17 @@
+{
+ "finding": {
+  "title": "A restore overwrites production after one click",
+  "wrong_outcome": "an implementer who follows the stated text as written builds a restore that replaces the production database after a single click (`A restore overwrites the production database with the selected backup after one confirmation click.`, S:23), so one misclick destroys all writes made since the backup, which is wrong because it causes data loss."
+ },
+ "evidence": {
+  "e1": {
+   "text": "A restore overwrites the production database with the selected backup after one confirmation click.",
+   "line": 23,
+   "context": "R11. Backups are deleted by the cleanup job that runs at 03:00 UTC.\n\n## 5. Restore\nR12. A restore overwrites the production database with the selected backup after one confirmation click.\nR13. The confirmation click is the only check before a restore starts.\nR14. Incremental backups run every day at 01:00 UTC.\n"
+  }
+ },
+ "facts": {
+  "quotes_found_verbatim": true,
+  "evidence_count": 1
+ }
+}

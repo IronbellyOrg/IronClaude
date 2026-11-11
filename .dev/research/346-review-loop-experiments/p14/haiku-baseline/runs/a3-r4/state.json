@@ -1,0 +1,95 @@
+{
+ "run": "a3-r4",
+ "arm": 3,
+ "rep": 4,
+ "done": [
+  "R1",
+  "V1",
+  "R2",
+  "AUD",
+  "AUD2"
+ ],
+ "log": {
+  "R1": {
+   "output_exists": true,
+   "report_bytes": 17707,
+   "verdict": "FAIL",
+   "review_header": [
+    "1"
+   ],
+   "labels": {},
+   "blocking_ids": "B1",
+   "blocking_word_count": 9,
+   "spec_after": {
+    "bytes": 57763,
+    "lines": 285,
+    "sha256": "d3cdbe573e57303b9ce6c93d1fe98ba18fb7cb1a15773d926bf6a0c31425200d"
+   },
+   "output_tokens": 105132
+  },
+  "V1": {
+   "output_exists": true,
+   "report_bytes": 2588,
+   "spec_after": {
+    "bytes": 57870,
+    "lines": 285,
+    "sha256": "9bf4886e4a47262c5cf9c862441589e93e25942e3132e8035b411d7bd0318c5f"
+   },
+   "output_tokens": 15231
+  },
+  "R2": {
+   "output_exists": true,
+   "report_bytes": 8422,
+   "verdict": "PASS",
+   "review_header": [
+    "2"
+   ],
+   "labels": {},
+   "blocking_ids": "B1",
+   "blocking_word_count": 8,
+   "spec_after": {
+    "bytes": 57870,
+    "lines": 285,
+    "sha256": "9bf4886e4a47262c5cf9c862441589e93e25942e3132e8035b411d7bd0318c5f"
+   },
+   "output_tokens": 55192
+  },
+  "AUD": {
+   "output_exists": true,
+   "report_bytes": 41198,
+   "verdict": "FAIL",
+   "review_header": [
+    "1"
+   ],
+   "labels": {
+    "MAJOR": 28,
+    "CRITICAL": 5,
+    "MINOR": 6
+   },
+   "blocking_ids": "F-01, F-02, F-03",
+   "blocking_word_count": 16,
+   "spec_audited": {
+    "bytes": 57870
+   },
+   "output_tokens": 160971
+  },
+  "AUD2": {
+   "output_exists": true,
+   "report_bytes": 30896,
+   "verdict": "FAIL",
+   "review_header": [
+    "1"
+   ],
+   "labels": {
+    "CRITICAL": 2,
+    "MAJOR": 1
+   },
+   "blocking_ids": "B-01, B-02, B-03. Only these",
+   "blocking_word_count": 11,
+   "spec_audited": {
+    "bytes": 57870
+   },
+   "output_tokens": 50441
+  }
+ }
+}

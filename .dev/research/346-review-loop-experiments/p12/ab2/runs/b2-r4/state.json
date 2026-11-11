@@ -1,0 +1,207 @@
+{
+ "run": "b2-r4",
+ "design": "b2",
+ "rep": 4,
+ "stratum": "sonnet",
+ "loop_model": "sonnet",
+ "product_ref": "3d2fe006c00e71460ab7d56542fa01e29e7ce43e",
+ "cmd_sha": "e62e70b98e878cb4b60ba8f95f1cc3442a25e815828a3ef3d17a95b65ea97494",
+ "rules_sha": "e161284648a17d97e22715de0077e971857e78cf30dd3a41ca3ca126bec19ee3",
+ "done": [
+  "R1",
+  "VF1",
+  "V1",
+  "R2",
+  "AUD",
+  "AUD2"
+ ],
+ "log": {
+  "R1": {
+   "output_exists": true,
+   "stratum": "sonnet",
+   "report_bytes": 29925,
+   "verdict": "FAIL",
+   "review_header": [
+    "1"
+   ],
+   "labels": {
+    "CRITICAL": 2,
+    "MAJOR": 12,
+    "MINOR": 4
+   },
+   "blocking_ids": "F-1, F-2",
+   "blocking": [
+    {
+     "id": "F-1",
+     "heading": "### F-1 (blocking, CRITICAL). WC-4's contract path rule contradicts the briefs and fixes that the spec itself gives",
+     "theme": "T2",
+     "cited": [
+      62,
+      73,
+      83,
+      87,
+      90,
+      92,
+      182,
+      183,
+      200
+     ]
+    },
+    {
+     "id": "F-2",
+     "heading": "### F-2 (blocking, MAJOR with concrete wrong outcome). AC-1.1 and the P1 scope require a contract for `/sc:load`, which the spec says gets none",
+     "theme": "T1",
+     "cited": [
+      76,
+      112,
+      154,
+      159,
+      195,
+      265
+     ]
+    }
+   ],
+   "ids": [
+    "F-1",
+    "F-2"
+   ],
+   "spec_after": {
+    "bytes": 57763,
+    "lines": 285,
+    "sha256": "d3cdbe573e57303b9ce6c93d1fe98ba18fb7cb1a15773d926bf6a0c31425200d"
+   },
+   "output_tokens": 64236
+  },
+  "VF1": {
+   "finding_ids": [
+    "F-1",
+    "F-2"
+   ],
+   "output_exists": true,
+   "stratum": "sonnet",
+   "report_bytes": 3849,
+   "confirmed": [
+    "F-1",
+    "F-2"
+   ],
+   "rejected": {},
+   "parse_ok": true,
+   "output_tokens": 4589
+  },
+  "V1": {
+   "output_exists": true,
+   "stratum": "sonnet",
+   "report_bytes": 8371,
+   "spec_after": {
+    "bytes": 58375,
+    "lines": 285,
+    "sha256": "c9e2ff995f731358d2c486eecbe202f9c810da58a248e59a7c693464e08d5a7b"
+   },
+   "output_tokens": 14473
+  },
+  "R2": {
+   "output_exists": true,
+   "stratum": "sonnet",
+   "report_bytes": 23207,
+   "verdict": "PASS",
+   "review_header": [
+    "2"
+   ],
+   "labels": {},
+   "blocking_ids": null,
+   "blocking": [],
+   "ids": [],
+   "spec_after": {
+    "bytes": 58375,
+    "lines": 285,
+    "sha256": "c9e2ff995f731358d2c486eecbe202f9c810da58a248e59a7c693464e08d5a7b"
+   },
+   "output_tokens": 12347
+  },
+  "AUD": {
+   "output_exists": true,
+   "stratum": "sonnet",
+   "report_bytes": 13507,
+   "verdict": "PASS",
+   "review_header": [
+    "1"
+   ],
+   "labels": {
+    "MAJOR": 1
+   },
+   "blocking_ids": null,
+   "blocking": [],
+   "output_tokens": 22759
+  },
+  "AUD2": {
+   "output_exists": true,
+   "stratum": "sonnet",
+   "report_bytes": 19591,
+   "verdict": "FAIL",
+   "review_header": [
+    "1"
+   ],
+   "labels": {
+    "CRITICAL": 1,
+    "MAJOR": 1
+   },
+   "blocking_ids": "B1, B2. Reviser contract (restating CMD:263): revise only text a blocking finding names; add no rule, mechanism or section no blocking finding calls for; each added paragraph or table cites its finding id; prefer deleting or narrowing to adding; report the byte size before and after, with the bytes added and deleted per finding id. Leave Medium and minor findings alone. Candidate size before: 58375 bytes",
+   "blocking": [
+    {
+     "id": "B1",
+     "heading": "### B1. The P0 gate cannot pass as written (BLOCKING, CRITICAL)",
+     "theme": "T3",
+     "cited": [
+      43,
+      73,
+      79,
+      91,
+      92,
+      154,
+      159,
+      182,
+      194
+     ]
+    },
+    {
+     "id": "B2",
+     "heading": "### B2. P1 and AC-1.1 contradict D3(a), the pr-submit rows and the phase column (BLOCKING, MAJOR)",
+     "theme": "T1",
+     "cited": [
+      109,
+      113,
+      114,
+      139,
+      154,
+      159,
+      162,
+      195,
+      240
+     ]
+    }
+   ],
+   "output_tokens": 25571
+  }
+ },
+ "launched": {
+  "R1": "2026-11-10T05:12:36+00:00",
+  "VF1": "2026-11-10T05:22:01+00:00",
+  "V1": "2026-11-10T05:27:54+00:00",
+  "R2": "2026-11-10T05:33:42+00:00",
+  "AUD": "2026-11-10T05:39:51+00:00",
+  "AUD2": "2026-11-10T05:50:56+00:00"
+ },
+ "pending": [],
+ "noted_unactioned": [],
+ "loop_end": "PASS",
+ "manual": [],
+ "manual_ids": {},
+ "relaunch": {},
+ "lost": false,
+ "complete": true,
+ "final_spec": {
+  "bytes": 58375,
+  "lines": 285,
+  "sha256": "c9e2ff995f731358d2c486eecbe202f9c810da58a248e59a7c693464e08d5a7b"
+ }
+}

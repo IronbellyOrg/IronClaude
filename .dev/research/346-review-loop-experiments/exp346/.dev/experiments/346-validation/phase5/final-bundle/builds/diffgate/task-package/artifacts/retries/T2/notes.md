@@ -1,0 +1,3 @@
+9eb70f97089038b7ecaeea0b0458e48df64f9ebf
+A2 r2-1 F2.1 note src/superclaude/skills/sc-diffgate/scripts/diffgate.py:566 ac=scope n,n,n,n a via= anchor on the unchanged words of a changed line (a line inside another hunk) is accepted; the check is token-level, not line-level (constraint answer set aside: the quoted text is source.md wording, not byte-present in the plan Constraints or a task instruction).
+A2 r2-1 F2.2 minor src/superclaude/skills/sc-diffgate/scripts/diffgate.py:730 ac=scope n,n,n,n a finding with neither hunk= nor cites= whose anchor sits on changed text is recorded reason=pre-existing and origin=changed.

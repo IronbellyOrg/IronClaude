@@ -1,0 +1,98 @@
+{
+ "chunk": 14,
+ "defects": [
+  {
+   "local_id": "c14-d1",
+   "title": "AC-C1 uses escaped pipes, so raw command matches nothing and cannot fail",
+   "kind": "original",
+   "severity": "blocking",
+   "quote": "(orchestration\\|worktree\\|terminal\\|agent)\\b' src/superclaude/commands src/superclaude/skills",
+   "original_lines": [
+    172,
+    175,
+    176,
+    193
+   ],
+   "what_goes_wrong": "Copied as written, the ERE treats \\| as a literal bar so no real `orca orchestration ...` line matches (verified: exit 1, no output on `orca-ide worktree list`), and the `\\| grep -v` stage is not a shell pipe, so the SA-2/WC-8 gate passes vacuously; the same \\| shell-pipe form recurs in AC-C4, AC-C5 and AC-0.3. Some covered gids also raise the core-scope conflict (see c14-d3).",
+   "gids": [
+    124,
+    236,
+    254,
+    272,
+    286,
+    457,
+    480,
+    493
+   ],
+   "is_fixed_when": "AC-C1 (and the other checks using shell pipes) is given in a form that, copied from the raw file text, uses real `|` alternation and real pipes (for example in a fenced block) and is shown to match a planted `orca orchestration ...` line.",
+   "deletion_note": "No: deleting AC-C1 would leave SA-2 and WC-8 without any mechanical gate.",
+   "present_in_others_hint": "AC-C4 (line 175), AC-C5 (176) and AC-0.3 (193) use the same \\| shell-pipe form; SA-2 and WC-8 cite AC-C1 as their check."
+  },
+  {
+   "local_id": "c14-d2",
+   "title": "Additive-edit check '^-[^-]' misses deleted bullet and --- lines",
+   "kind": "original",
+   "severity": "blocking",
+   "quote": "`git diff -U0 master...HEAD -- src/superclaude/commands/<name>.md \\| grep -E '^-[^-]'`",
+   "original_lines": [
+    176,
+    193
+   ],
+   "what_goes_wrong": "A deleted markdown bullet `- x` or frontmatter `---` appears in a diff as `-- x` / `----`, whose second character is `-`, so the filter prints nothing and AC-C5/AC-0.3 report 'additive' after existing lines were removed or rewritten (verified in a scratch dir).",
+   "gids": [
+    194,
+    209,
+    271
+   ],
+   "is_fixed_when": "The additive-edit check flags any deleted line except the `--- a/<file>` diff header (for example by excluding only that header or using git diff --numstat deletions), so a removed bullet or `---` line makes it print output.",
+   "deletion_note": "No: removing the check would leave SA-1/SA-4/SA-5 unenforced.",
+   "present_in_others_hint": "Both AC-C5 (line 176) and AC-0.3 (line 193) use the filter; SA-4 and SA-5 are the requirements it guards."
+  },
+  {
+   "local_id": "c14-d3",
+   "title": "AC-C1 scans core/, where SA-2 allows and P0 requires Orca text",
+   "kind": "original",
+   "severity": "blocking",
+   "quote": "The only allowed mention of Orca in a changed command is as an example of a caller's question channel inside the contract file.",
+   "original_lines": [
+    147,
+    150,
+    158,
+    172,
+    52
+   ],
+   "what_goes_wrong": "AC-C1 greps src/superclaude/core (exempting only ccsession-tag) with pass condition 'prints nothing', yet SA-2 permits an Orca question-channel example in core/WORKER-CONTRACT.md (the spec's own example is `orca orchestration ask`, line 29) and P0 adds an Orca section to core/HOW-WE-WORK.md, so the common check fails on permitted content in every phase; SA-2 also says 'changed command' for a file that is not a command.",
+   "gids": [
+    224,
+    257,
+    302,
+    429,
+    440,
+    499
+   ],
+   "is_fixed_when": "AC-C1's scope matches SA-2 (commands, skills, agents only) or it names WORKER-CONTRACT.md and the HOW-WE-WORK Orca section as exempt, and SA-2 states whether core files are covered by the no-Orca-command rule.",
+   "deletion_note": "No: dropping core from the scan without saying so, or deleting the SA-2 allowance, only moves the conflict; the scope and the allowance must be stated consistently.",
+   "present_in_others_hint": "SA-2 (147), SA-5 (150), P0 row (158), contract file location (52), AC-C1 (172)."
+  },
+  {
+   "local_id": "c14-d4",
+   "title": "AC-C1 checks only four orca subcommands while SA-2 bans any orca command",
+   "kind": "original",
+   "severity": "medium",
+   "quote": "No command, skill or agent file runs an `orca` or `orca-ide` command",
+   "original_lines": [
+    147,
+    172
+   ],
+   "what_goes_wrong": "The AC-C1 pattern covers only orchestration, worktree, terminal and agent, so a file running `orca status`, `orca open` or `orca-ide skills get ...` (real commands per orca-capabilities.md) violates SA-2 yet passes the gate.",
+   "gids": [
+    265
+   ],
+   "is_fixed_when": "AC-C1's pattern matches any `orca`/`orca-ide` invocation (or the spec states that only these four verbs are banned and SA-2 is narrowed to match).",
+   "deletion_note": "No: deleting SA-2 or the check removes the standalone-use guarantee rather than aligning them.",
+   "present_in_others_hint": "SA-2 (147), WC-8 (66), non-goal 1 (213)."
+  }
+ ],
+ "unassigned_gids": [],
+ "extra_noticed": []
+}

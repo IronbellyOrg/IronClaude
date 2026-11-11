@@ -1,0 +1,116 @@
+{
+ "run": "l2-r1",
+ "arm": 3,
+ "design": "l2",
+ "stratum": "sonnet",
+ "rep": 1,
+ "done": [
+  "R1",
+  "V1",
+  "R2",
+  "AUD2",
+  "AUD"
+ ],
+ "log": {
+  "LINT1": {
+   "checks": "REF",
+   "findings": 0,
+   "sha256": "6a70e9a1255ee5d4652078e22f1d02b3383feeb5af682b9017b29610cb1b420a",
+   "spec_sha256": "d3cdbe573e57303b9ce6c93d1fe98ba18fb7cb1a15773d926bf6a0c31425200d"
+  },
+  "R1": {
+   "output_exists": true,
+   "report_bytes": 17171,
+   "verdict": "FAIL",
+   "review_header": [
+    "1"
+   ],
+   "labels": {
+    "CRITICAL": 1,
+    "MAJOR": 1
+   },
+   "blocking_ids": "REQ-1, REQ-2. Only these. The reviser reads this report, not the command, so the contract of `/sc:spec-panel` Review Loop bullet 6 is restated:",
+   "blocking_word_count": 8,
+   "spec_after": {
+    "bytes": 57763,
+    "lines": 285,
+    "sha256": "d3cdbe573e57303b9ce6c93d1fe98ba18fb7cb1a15773d926bf6a0c31425200d"
+   },
+   "stratum": "sonnet",
+   "model": "sonnet"
+  },
+  "V1": {
+   "output_exists": true,
+   "report_bytes": 3153,
+   "spec_after": {
+    "bytes": 58530,
+    "lines": 285,
+    "sha256": "746b5ffc5ac4b78a7e2053e0e341cc67756a46ac8a09ff6161b886dedded7fa2"
+   },
+   "stratum": "sonnet",
+   "model": "sonnet"
+  },
+  "LINT2": {
+   "checks": "REF",
+   "findings": 2,
+   "sha256": "a008528014b5fe6be221b30a5313648124ea735db397b1b51664ef29c4d94130",
+   "spec_sha256": "746b5ffc5ac4b78a7e2053e0e341cc67756a46ac8a09ff6161b886dedded7fa2"
+  },
+  "R2": {
+   "output_exists": true,
+   "report_bytes": 20697,
+   "verdict": "PASS",
+   "review_header": [
+    "2"
+   ],
+   "labels": {},
+   "blocking_ids": null,
+   "blocking_word_count": 6,
+   "spec_after": {
+    "bytes": 58530,
+    "lines": 285,
+    "sha256": "746b5ffc5ac4b78a7e2053e0e341cc67756a46ac8a09ff6161b886dedded7fa2"
+   },
+   "stratum": "sonnet",
+   "model": "sonnet"
+  },
+  "AUD2": {
+   "output_exists": true,
+   "report_bytes": 16053,
+   "verdict": "FAIL",
+   "review_header": [
+    "1"
+   ],
+   "labels": {
+    "CRITICAL": 2,
+    "MAJOR": 4
+   },
+   "blocking_ids": "F-1",
+   "blocking_word_count": 5,
+   "spec_audited": {
+    "bytes": 58530
+   },
+   "stratum": "sonnet",
+   "model": "sonnet"
+  },
+  "AUD": {
+   "output_exists": true,
+   "report_bytes": 27793,
+   "verdict": "PASS",
+   "review_header": [
+    "1"
+   ],
+   "labels": {
+    "MAJOR": 13,
+    "MINOR": 10
+   },
+   "blocking_ids": null,
+   "blocking_word_count": 4,
+   "spec_audited": {
+    "bytes": 58530
+   },
+   "stratum": "sonnet",
+   "model": "sonnet"
+  }
+ }
+}

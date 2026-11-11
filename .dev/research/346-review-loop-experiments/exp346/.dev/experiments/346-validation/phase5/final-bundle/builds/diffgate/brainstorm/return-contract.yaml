@@ -1,0 +1,52 @@
+contract_version: '1.0'
+status: partial
+seed_brief_path: .dev/brainstorms/346-diffgate/seed-brief.md
+merged_output_path: .dev/brainstorms/346-diffgate/merged-requirements.md
+convergence_score: 0.99
+adversarial_artifacts_dir: .dev/brainstorms/346-diffgate/nested/adversarial-1/adversarial/
+domain: code
+proposal_count: 3
+enrichment_used:
+- source: codebase
+  quality_tier: fallback_1
+- source: research-light
+  quality_tier: skipped
+- source: research-deep
+  quality_tier: skipped
+handoff_action: none
+handoff_output_path: null
+unresolved_conflicts:
+- 'Adversarial gate BLOCKED_BY_INVARIANTS: 7 HIGH invariants (INV-001, INV-004, INV-015, INV-016, INV-027, INV-034, INV-036) were resolved by adopting the probe''s resolutions in the merge, not by debate;
+  adversarial status partial.'
+- Diff point C-008 (surface granularity) unresolved by majority; the merge adopted the token-level eligibility common to all positions.
+- Codebase enrichment ran at fallback_1 (auggie codebase-retrieval unavailable in this session; Grep/Glob/Read used).
+worker_contract_version: '1'
+worker_status: partial
+command: '/sc:brainstorm "THEME diffgate (issue #346 ...)" --unattended --output .dev/brainstorms/346-diffgate --depth standard --proposals 3 --codebase --no-research --handoff none'
+report_path: .dev/brainstorms/346-diffgate/merged-requirements.md
+artifacts:
+- .dev/brainstorms/346-diffgate/seed-brief.md
+- .dev/brainstorms/346-diffgate/enrichment/codebase-context.md
+- .dev/brainstorms/346-diffgate/nested/adversarial-1/adversarial/
+- .dev/brainstorms/346-diffgate/nested/adversarial-1/return-contract.yaml
+- .dev/brainstorms/346-diffgate/nested/adversarial-1/adversarial/return-contract.yaml
+- .dev/brainstorms/346-diffgate/nested/adversarial-1/merged-output.md
+- .dev/brainstorms/346-diffgate/SPEC.md
+- .dev/brainstorms/346-diffgate/spec-review.md
+- .dev/brainstorms/346-diffgate/spec-review-round2.md
+- .dev/brainstorms/346-diffgate/spec-review-round3.md
+telemetry:
+  wave_durations_ms:
+    wave_0: 60000
+    wave_1: 90000
+    wave_2a: 300000
+    wave_2b: 30000
+    wave_3: 5640000
+    wave_4: 0
+  token_usage:
+    note: estimates; Wave 3 subagents reported about 3.3M tokens in total (variants 0.71M, diff analysis 0.23M, debate 1.12M, probe 0.23M, scoring 0.37M, merge 0.36M)
+  agent_spec: opus:architect:'prioritize maintainability and extension scaffolding for code domain',sonnet:refactorer:'focus on technical debt, simplification, and minimal-risk transformation paths',haiku:qa:'focus
+    on test surface, edge cases, regression risk, and acceptance criteria'
+  enrichment_artifact_sizes:
+    codebase-context.md: 4276
+  seed_brief_bytes: 7615

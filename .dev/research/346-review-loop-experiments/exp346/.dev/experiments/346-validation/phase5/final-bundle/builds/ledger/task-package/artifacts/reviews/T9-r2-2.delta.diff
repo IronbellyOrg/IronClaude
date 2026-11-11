@@ -1,0 +1,12 @@
+diff --git a/.dev/brainstorms/346-ledger/briefs/README.md b/.dev/brainstorms/346-ledger/briefs/README.md
+index 25279901..c09631d3 100644
+--- a/.dev/brainstorms/346-ledger/briefs/README.md
++++ b/.dev/brainstorms/346-ledger/briefs/README.md
+@@ -43,6 +43,6 @@ Used only when the sweep smoke check does not show that a dispatched worker can
+ 
+ As Arm B did (examples: `/home/coder/workspaces/worktrees/IronClaude/exp346-p1-logs/.dev/experiments/346-validation/phase5/arm-b-briefs/filled-flg-r1-T07.txt`, `filled-flg-r1-T08.txt`, `filled-flg-r1-T09.txt`, read-only), these per-replicate values are substituted at dispatch time and are not brief edits:
+ 
+-- finding counts and ids of the replicate's own reports: "24 round-1 findings" (T07), "N1-N13" and "the 2 overstated citations" (T08, T09), and the M1-M14 list, byte count and frozen-copy name of T10 if it were dispatched;
++- finding counts and ids of the replicate's own reports: "24 round-1 findings" (T07); "N1-N13" (T08, T09); "the 2 overstated citations" and "both citations" (T08) and "both overstated citations" (T09), which Arm B filled as "every overstated citation"; and the M1-M14 list, byte count and frozen-copy name of T10 if it were dispatched;
+ - the repo root `/home/coder/workspaces/worktrees/IronClaude/OrcaCLICommandRefactor-Specs` (replaced by the replicate's worktree);
+ - `<sweep copy path>` in `T09b-sweep-dispatch.txt`.

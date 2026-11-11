@@ -1,0 +1,38 @@
+{
+ "author_intent": {
+  "category": "synth-novel",
+  "expect": "defect",
+  "layer": "synthetic"
+ },
+ "case_id": "s0-24",
+ "category": "synth-novel",
+ "data_classes": [
+  "synthetic"
+ ],
+ "family": "uploader",
+ "group": "fam-uploader",
+ "packet": {
+  "defect": "UP-6 loads the whole archive into memory before sending, archives reach 500 MB, and UP-1 forbids holding more than 20 MB in RAM, so the uploader cannot satisfy UP-1 on a large archive.",
+  "doc": "offline/docs/doc-21b8337026.md",
+  "doc_sha256": "21b833702642f68059f9c2146bb3c4f5ee8dfd3c2d7a1db88c317ac0e7be7199",
+  "evidence_quotes": [
+   "The uploader must never hold more than 20 MB of its working data in RAM at any moment",
+   "The uploader loads the complete archive into memory, then signs it and sends it",
+   "archives of monorepo projects range up to 500 MB"
+  ],
+  "evidence_set": [
+   "P0005",
+   "P0013",
+   "P0010"
+  ]
+ },
+ "source": {
+  "kind": "synthetic",
+  "paths": [
+   "offline/docs/doc-21b8337026.md"
+  ],
+  "url": null
+ },
+ "split": "s0",
+ "variant": "synthetic"
+}

@@ -1,0 +1,28 @@
+{
+ "case_id": "syn-exp-4~omit",
+ "code_outcome": "OK",
+ "decision": "VERIFIER",
+ "qset_version": "e3-q1",
+ "result": {
+  "answers": {
+   "evidence_sufficient": {
+    "p": 0.62,
+    "type": "noul"
+   },
+   "outcome_follows": {
+    "p": 0.83,
+    "type": "noul"
+   }
+  },
+  "attempts": 1,
+  "error": null,
+  "latency_ms": 167,
+  "model": "jev-1.14.0",
+  "request_sha256": "b384932efdce420db1d92e709dfdf21a6841022e1765d90c3d6903b142c9fc1f",
+  "status": "ok",
+  "usage": {
+   "input_tokens": 616,
+   "output_tokens": 46
+  }
+ }
+}

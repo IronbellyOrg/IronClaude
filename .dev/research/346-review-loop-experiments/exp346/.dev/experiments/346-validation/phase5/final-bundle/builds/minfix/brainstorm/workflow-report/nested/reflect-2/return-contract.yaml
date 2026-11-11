@@ -1,0 +1,105 @@
+contract_version: "1.8.0"
+status: partial
+mode: pre
+tier_reached: 2
+report_path: /home/coder/workspaces/worktrees/IronClaude/bs346-minfix/.dev/brainstorms/346-minfix/workflow-report/nested/reflect-2/REPORT.md
+audit_log_path: /home/coder/workspaces/worktrees/IronClaude/bs346-minfix/.dev/brainstorms/346-minfix/workflow-report/nested/reflect-2/audit.log
+confidence_calibrated: 0.79
+escalation_rule_matched: 4
+onboarding_ran: false
+coverage_pct: null
+coverage_pct_union: 0.7324
+coverage_undefined: false
+coverage_degraded: parsed-sparse
+unmapped_requirements: []
+unmapped_requirements_union: [INF-001, INF-002, INF-003, INF-005, INF-008, INF-013, INF-024, INF-026, INF-027, INF-032, INF-033, INF-044, INF-054, INF-055, INF-056, INF-057, INF-064, INF-066, INF-074, INF-085, INF-087, INF-109, INF-113, INF-124, INF-125, INF-126, INF-129, INF-130, INF-131, INF-133, INF-134, INF-135, INF-136, INF-137, INF-138, INF-139, INF-140, INF-142]
+best_practice_grade: null
+implementation_coverage_pct: null
+missing_implementations: []
+hierarchy_slice_path: null
+hierarchy_coverage_pct: null
+input_tree_sha256: add8b86c384d9a4bebe6c5ed94093406757878f973ec6982ca03c728717e0525
+input_tree_file_count: 11
+input_tree_snapshot_path: /home/coder/workspaces/worktrees/IronClaude/bs346-minfix/.dev/brainstorms/346-minfix/workflow-report/nested/reflect-2/artifacts/input-snapshot.yaml
+input_drift_detected: false
+input_drift_diff: null
+citations_total: 154
+citations_revalidated: 94
+citations_dropped: 1
+citations_dropped_extrapolated: 2
+citations_inferred: 6
+citation_budget_policy: sampled
+evidence_validator_ran: true
+citation_revalidation_at_promotion: false
+reviewer_cards: [.dev/brainstorms/346-minfix/workflow-report/nested/reflect-2/reviewer-cards/reviewer-1-card.md, .dev/brainstorms/346-minfix/workflow-report/nested/reflect-2/reviewer-cards/reviewer-2-card.md, .dev/brainstorms/346-minfix/workflow-report/nested/reflect-2/reviewer-cards/reviewer-3-card.md]
+adversarial_artifacts_dir: .dev/brainstorms/346-minfix/workflow-report/nested/reflect-2/nested/adversarial-1/adversarial
+adversarial_convergence_score: 1.0
+adversarial_unavailable: false
+merge_method: adversarial
+t2_model_class_diversity: full
+t2_vendor_diversity: single
+t2_effective_diversity: model-only
+calibrator_diversity: degraded
+remediation_offered: false
+remediation_accepted: null
+task_file_path: null
+remediation_task_path: null
+remediation_plan_path: null
+handoff_memory_key: null
+cannot_validate_without_user_input: false
+regression_present: false
+unauthorized_deviation_present: false
+blocked_by_low_confidence: false
+spec_is_wrong: true   # source.md:46 vs :120 (the literal Fix Budget block omits two section 2.1 step-3 requirements)
+user_decision_required: true   # M-F2/M-F3 amend text the spec calls literal; owner sign-off needed
+needs_human_decision: false   # grounding-gaps.yaml not written (no evidence-insufficient findings)
+per_task_verdicts: []
+interaction_effects_scanned: false
+interaction_effects_findings: 0
+budget_forced_tier_downgrade: false
+budget_forced_stop: false
+budget_check_skipped: true
+forced_tier: null
+promotion_action: not-applicable
+promotion_adapter: null
+promotion_gate_passed: null
+verdict_summary: "FAIL: 4 blocking (M-F1 routing-refresh test edit + plan:119; M-F2 reviewer exit-2 retry; M-F3 review-3 escalation listing; M-F4 __pycache__ grep), 11 minor"
+worker_contract_version: "1"
+worker_status: partial
+command: "/sc:reflect --mode pre --spec .dev/tasks/to-do/TASK-WF-spec-20261108-181543/source.md --tasklist .dev/tasks/to-do/TASK-WF-spec-20261108-181543/TASK-WF-spec-20261108-181543.md --unattended --output .dev/brainstorms/346-minfix/workflow-report/nested/reflect-2/"
+artifacts:
+  - .dev/brainstorms/346-minfix/workflow-report/nested/reflect-2/artifacts/coverage-matrix.json
+  - .dev/brainstorms/346-minfix/workflow-report/nested/reflect-2/artifacts/inferred-requirements.yaml
+  - .dev/brainstorms/346-minfix/workflow-report/nested/reflect-2/artifacts/input-snapshot.yaml
+  - .dev/brainstorms/346-minfix/workflow-report/nested/reflect-2/artifacts/tier_decision.yaml
+  - .dev/brainstorms/346-minfix/workflow-report/nested/reflect-2/audit.log
+  - .dev/brainstorms/346-minfix/workflow-report/nested/reflect-2/nested/adversarial-1/adversarial/base-selection.md
+  - .dev/brainstorms/346-minfix/workflow-report/nested/reflect-2/nested/adversarial-1/adversarial/debate-transcript.md
+  - .dev/brainstorms/346-minfix/workflow-report/nested/reflect-2/nested/adversarial-1/adversarial/diff-analysis.md
+  - .dev/brainstorms/346-minfix/workflow-report/nested/reflect-2/nested/adversarial-1/adversarial/invariant-probe.md
+  - .dev/brainstorms/346-minfix/workflow-report/nested/reflect-2/nested/adversarial-1/adversarial/merge-log.md
+  - .dev/brainstorms/346-minfix/workflow-report/nested/reflect-2/nested/adversarial-1/adversarial/merged-verdict.yaml
+  - .dev/brainstorms/346-minfix/workflow-report/nested/reflect-2/nested/adversarial-1/adversarial/refactor-plan.md
+  - .dev/brainstorms/346-minfix/workflow-report/nested/reflect-2/nested/adversarial-1/adversarial/return-contract.yaml
+  - .dev/brainstorms/346-minfix/workflow-report/nested/reflect-2/nested/adversarial-1/adversarial/round1-v1.md
+  - .dev/brainstorms/346-minfix/workflow-report/nested/reflect-2/nested/adversarial-1/adversarial/round1-v2.md
+  - .dev/brainstorms/346-minfix/workflow-report/nested/reflect-2/nested/adversarial-1/adversarial/round1-v3.md
+  - .dev/brainstorms/346-minfix/workflow-report/nested/reflect-2/nested/adversarial-1/adversarial/round2-v1.md
+  - .dev/brainstorms/346-minfix/workflow-report/nested/reflect-2/nested/adversarial-1/adversarial/round2-v2.md
+  - .dev/brainstorms/346-minfix/workflow-report/nested/reflect-2/nested/adversarial-1/adversarial/round2-v3.md
+  - .dev/brainstorms/346-minfix/workflow-report/nested/reflect-2/nested/adversarial-1/adversarial/scoring-pass1.md
+  - .dev/brainstorms/346-minfix/workflow-report/nested/reflect-2/nested/adversarial-1/adversarial/scoring-pass2.md
+  - .dev/brainstorms/346-minfix/workflow-report/nested/reflect-2/nested/adversarial-1/adversarial/variant-1-original.md
+  - .dev/brainstorms/346-minfix/workflow-report/nested/reflect-2/nested/adversarial-1/adversarial/variant-2-original.md
+  - .dev/brainstorms/346-minfix/workflow-report/nested/reflect-2/nested/adversarial-1/adversarial/variant-3-original.md
+  - .dev/brainstorms/346-minfix/workflow-report/nested/reflect-2/nested/adversarial-1/merged-verdict.md
+  - .dev/brainstorms/346-minfix/workflow-report/nested/reflect-2/nested/adversarial-1/return-contract.yaml
+  - .dev/brainstorms/346-minfix/workflow-report/nested/reflect-2/reflection-card.yaml
+  - .dev/brainstorms/346-minfix/workflow-report/nested/reflect-2/return-contract.yaml.tmp
+  - .dev/brainstorms/346-minfix/workflow-report/nested/reflect-2/reviewer-briefs/reviewer-1.md
+  - .dev/brainstorms/346-minfix/workflow-report/nested/reflect-2/reviewer-briefs/reviewer-2.md
+  - .dev/brainstorms/346-minfix/workflow-report/nested/reflect-2/reviewer-briefs/reviewer-3.md
+  - .dev/brainstorms/346-minfix/workflow-report/nested/reflect-2/reviewer-cards/reviewer-1-card.md
+  - .dev/brainstorms/346-minfix/workflow-report/nested/reflect-2/reviewer-cards/reviewer-2-card.md
+  - .dev/brainstorms/346-minfix/workflow-report/nested/reflect-2/reviewer-cards/reviewer-3-card.md
+  - .dev/brainstorms/346-minfix/workflow-report/nested/reflect-2/t1-card.md

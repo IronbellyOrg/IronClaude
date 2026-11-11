@@ -1,0 +1,26 @@
+You are a worker in a controlled experiment. Follow these rules exactly.
+
+SANDBOX: work ONLY inside /tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p12/ab2/runs/b2-r6/vf1. Do not read, list, search or write any path outside that directory (no parent directories, no sibling directories, no other part of the filesystem, no git history).
+
+WORKSPACE: the directory /tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p12/ab2/runs/b2-r6/vf1/ws is the repo root for this task. Relative paths in the brief (such as .dev/orca-command-refactor/...) resolve there. There is no Orca, no live repository and no worker_done in this sandbox; a path:line citation you cannot check against a file inside the workspace is UNVERIFIED.
+
+HOME: for this task the shell home `~` resolves to /tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p12/ab2/runs/b2-r6/vf1/home. Files under /tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p12/ab2/runs/b2-r6/vf1/home are inside the sandbox and may be read; a path written with `~` means the same path under it.
+
+TOOLS: you may use Read, Grep, Glob, Edit, Write and Bash inside the sandbox. Edit or write only the files the brief assigns to you.
+
+BRIEF (verbatim, from the coordinator):
+Verify the blocking findings listed below against the candidate .dev/orca-command-refactor/specs/orca-worker-contract-spec.md (sha256 of the file). You see only the candidate and this finding list, not the review report or the reviewer's reasoning. For each finding, find every text it quotes or cites in the candidate yourself, with `grep -nF` or by reading the cited line, and copy what you found; when a finding names two texts that contradict, check both. State whether the quoted text exists as quoted and whether the stated wrong outcome follows from the candidate's text with no further assumption. Confirm a finding only if both hold; otherwise reject it with one sentence that names what is missing. Add no finding, regrade nothing and edit nothing. Write one table row per finding: id, found text, exists yes/no, outcome follows yes/no, confirm or reject, reason. End with one line `confirmed: <ids>`, or `confirmed: none`. Findings: 
+
+### B-1
+### B-1 (CRITICAL as labelled, blocking): WC-4 defines the contract location as a directory, but the briefs for tdd and init-lite pass a file
+- **Quoted texts.** SPEC:62: "`<output-dir>` is the directory the coordinator passed (`--output` / `--output-dir`)" and "known before dispatch". SPEC:90 (tdd): "Brief must pass: a precise component prompt, not a bare topic; `--output <file>`". SPEC:87 (init-lite): "Brief must pass: `--output <file>`". SPEC:200: "`/sc:tdd "auth" --unattended --output <file>` with a bare topic" must end with "contract `status: blocked` with a non-empty `blocked_question`". SPEC:183: step 4 runs `test -s <contract>`.
+- **Grading check.** An implementer who follows the stated text as written builds a tdd (and init-lite) `## Unattended mode` that writes `<output-dir>/return-contract.yaml`, but for these two commands the coordinator passes no directory, only a file, so the text gives no contract path; the only literal reading puts it at `<file>/return-contract.yaml`, a path below a regular file (or, if the writer creates parents before the TDD exists, a directory at the TDD's own path, which then blocks writing the TDD). That is wrong because WC-4 requires a path "known before dispatch", and AC-2.2 (SPEC:200) and step 4 (SPEC:183) cannot pass for tdd when its blocked contract has no defined path. Two stated texts contradict each other (a directory versus a file), so no further assumption is needed.
+
+### B-2
+### B-2 (CRITICAL as labelled, blocking): load is a P1 command that AC-1.2 must run live with a contract, but its row says it has no report and must not be its own Task
+- **Quoted texts.** SPEC:112 (load): Report "none (see note)", "use it as a step inside another worker's brief, not as its own Task", Phase "P1 (usage line only)". SPEC:265: "a report file would be an unrequested addition". SPEC:159: P1 includes "load (usage line only)". SPEC:196 (AC-1.2): "7.2 live check on each P1 command with `--unattended --output <dir>`". SPEC:182: step 3 passes only if "its report path is the WC-4 contract path". SPEC:183: step 4 `test -s <contract>`. SPEC:195 (AC-1.1): every command in sections 3.1-3.2 has a section "naming `return-contract.yaml`".
+- **Grading check.** An implementer who follows the stated text as written builds load with no contract and no report (SPEC:112, SPEC:265) and dispatches it as no Task of its own, and then runs AC-1.2, which includes load as a P1 command and requires a `worker_done` report path equal to a WC-4 contract and `test -s <contract>` to succeed. That is wrong because those steps can never pass for load; if the implementer instead adds a contract to satisfy AC-1.2, they break SPEC:112 and SPEC:265. Two stated texts contradict each other, so the sentence holds without a guess.
+
+Write your full reply to .dev/orca-command-refactor/review/verify-1.md. Do not edit anything else. Write only your output file.
+
+FINAL REPLY: after your output file is written, reply with only `DONE <path of your output file>`. Do not paste the report or any other text.

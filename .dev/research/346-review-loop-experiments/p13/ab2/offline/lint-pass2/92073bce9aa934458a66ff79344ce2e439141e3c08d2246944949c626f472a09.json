@@ -1,0 +1,96 @@
+{
+  "schema": "review-lint/1",
+  "doc_sha256": "92073bce9aa934458a66ff79344ce2e439141e3c08d2246944949c626f472a09",
+  "doc_bytes": 57873,
+  "checks": [
+    "REF",
+    "COUNT",
+    "KV",
+    "PHASE",
+    "PATH",
+    "RFC"
+  ],
+  "findings": [
+    {
+      "lint_id": "LINT-PATH-1",
+      "check": "PATH",
+      "class": "possible",
+      "lines": [
+        83,
+        83
+      ],
+      "quote": "| adversarial | `--output <dir>`; never `--interactive` | contract, but filename not fixed | `--pipeline-resume` (pipeline mode only); else fresh dir | Fix the contract filename to `<output>/advers...",
+      "other_lines": [
+        62,
+        62
+      ],
+      "message": "`<output>/adversarial/return-contract.yaml` has the basename of the template `<output-dir>/return-contract.yaml` (line 62) but fits none of them."
+    },
+    {
+      "lint_id": "LINT-PATH-2",
+      "check": "PATH",
+      "class": "possible",
+      "lines": [
+        92,
+        92
+      ],
+      "quote": "| workflow | `--handoff none` | `.dev/tasks/to-do/<id>/return-contract.yaml` | Fresh package each run | Write the contract for pre-creation STOPs too (WC-4 \"every outcome\") (P1) | `sk/sc-workflow-p...",
+      "other_lines": [
+        62,
+        62
+      ],
+      "message": "`.dev/tasks/to-do/<id>/return-contract.yaml` has the basename of the template `<output-dir>/return-contract.yaml` (line 62) but fits none of them."
+    },
+    {
+      "lint_id": "LINT-PHASE-1",
+      "check": "PHASE",
+      "class": "fact",
+      "lines": [
+        194,
+        194
+      ],
+      "quote": "| P0 | AC-0.4 | 7.2 live check on `/sc:troubleshoot \"<real symptom>\"`, `/sc:workflow \"<small change>\" --handoff none`, `/sc:adversarial --compare <two files> --depth quick --output <dir>`, each run...",
+      "other_lines": [
+        178,
+        178
+      ],
+      "message": "The P0 row (AC-0.4) refers to section 7.2, which uses WC-4 (P1); the rollout table first introduces each in a later phase."
+    },
+    {
+      "lint_id": "LINT-REF-1",
+      "check": "REF",
+      "class": "fact",
+      "lines": [
+        195,
+        195
+      ],
+      "quote": "| P1 | AC-1.1 | `uv run pytest tests/skills/test_worker_contract.py -q`; the test asserts that every command named in the P1 row of section 6, except `load` (usage-line fix only, no report file, se...",
+      "other_lines": null,
+      "message": "F-01 is referenced but never defined."
+    },
+    {
+      "lint_id": "LINT-PHASE-2",
+      "check": "PHASE",
+      "class": "fact",
+      "lines": [
+        195,
+        195
+      ],
+      "quote": "| P1 | AC-1.1 | `uv run pytest tests/skills/test_worker_contract.py -q`; the test asserts that every command named in the P1 row of section 6, except `load` (usage-line fix only, no report file, se...",
+      "other_lines": [
+        153,
+        153
+      ],
+      "message": "The P1 row (AC-1.1) refers to section 6, which uses WC-10 (P2), WC-9 (P2); the rollout table first introduces each in a later phase."
+    }
+  ],
+  "census": {
+    "rfc2119": {},
+    "rfc2119_total": {
+      "MUST": 0,
+      "SHALL": 0,
+      "SHOULD": 0,
+      "MAY": 0
+    }
+  }
+}

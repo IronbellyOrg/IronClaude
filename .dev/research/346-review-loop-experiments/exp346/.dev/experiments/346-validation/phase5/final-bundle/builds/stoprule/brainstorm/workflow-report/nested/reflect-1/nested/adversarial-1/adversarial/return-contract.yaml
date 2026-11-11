@@ -1,0 +1,11 @@
+return_contract:
+  merged_output_path: "/home/coder/workspaces/worktrees/IronClaude/bs346-stoprule/.dev/brainstorms/346-stoprule/workflow-report/nested/reflect-1/nested/adversarial-1/merged-verdict-card.md"
+  convergence_score: 0.97
+  artifacts_dir: "/home/coder/workspaces/worktrees/IronClaude/bs346-stoprule/.dev/brainstorms/346-stoprule/workflow-report/nested/reflect-1/nested/adversarial-1/adversarial"
+  status: "success"
+  base_variant: "variant-1 (reviewer-1 analyzer card)"
+  unresolved_conflicts: 0   # C-017 winner split only; severity agreed (not-a-defect)
+  fallback_mode: false
+  failure_stage: null
+  invocation_method: "skill-direct"
+  unaddressed_invariants: []   # 0 HIGH UNADDRESSED in invariant-probe.md (9 MEDIUM, 4 LOW logged)

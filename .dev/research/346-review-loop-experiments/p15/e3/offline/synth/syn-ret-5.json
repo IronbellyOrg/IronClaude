@@ -1,0 +1,28 @@
+{
+ "author_intent": {
+  "category": "omit",
+  "expected_blocking": "no",
+  "expected_code_outcome": "OK"
+ },
+ "case_id": "syn-ret-5",
+ "category": "omit",
+ "data_classes": [
+  "synthetic"
+ ],
+ "family": "syn-ret",
+ "group": "syn-ret",
+ "packet": {
+  "candidate_text": "# Data retention policy\n\n## 1. Purpose\nThis policy sets how long the platform keeps user data and how it deletes it. It applies to every service that stores data about a user.\n\n## 2. Categories\nR1. Account data (name, email address, password hash) is kept while the account is active.\nR2. Activity logs record sign-in time, IP address and the pages visited.\nR3. Activity logs are kept for 180 days and then deleted by the nightly purge job.\nR4. Support tickets are kept for 3 years after the ticket is closed.\nR5. Backups are encrypted and kept for 35 days.\n\n## 3. Deletion\nR6. When a user deletes the account, account data is removed within 30 days.\nR7. Deleted account data may remain in backups until the backups expire under R5.\nR8. A legal hold suspends deletion for the data it names until the hold is lifted.\nR9. The nightly purge job runs at 02:00 UTC and writes a summary line to the audit log.\nR10. Closed support tickets are deleted one year after closing.\n\n## 4. Exports\nR11. A user may request an export of their account data once per calendar month.\nR12. Activity logs are included in an export only when the user asks for them.\n\n## 5. Access\nR13. Only members of the data protection group may read activity logs older than 30 days.\nR14. The audit log is kept for 7 years.\nR15. Activity logs are kept for 90 days to limit exposure of IP addresses.\n\n## 6. Notes\nThe word kept means that the data can still be read by an authorized person. The word removed means that it can no longer be read by anyone.\nEach category above is owned by the team named in the data inventory.\nTime periods in this policy are measured from the moment the data was created or the event named in the requirement occurred.\nQuestions about this policy go to the data protection group.",
+  "finding_id": "F5",
+  "finding_section": "**F5. Medium. Expert: Wiegers (testability). Nobody is named who may place a legal hold**\n\n- Grading sentence: `A legal hold suspends deletion for the data it names until the hold is lifted.` (S:16) does not say who may place or lift a hold. The document never states this, so an implementer must invent a role.\n- Recommendation: name the role that places holds\n- Priority: High. Quality impact: nobody is named who may place a legal hold"
+ },
+ "source": {
+  "kind": "synthetic",
+  "paths": [
+   "cases_synth.py"
+  ],
+  "url": null
+ },
+ "split": "synth",
+ "variant": "base"
+}

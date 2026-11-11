@@ -1,0 +1,203 @@
+{
+ "schema": "p15-results/1",
+ "experiment": "E5",
+ "design_id": "p15-E5",
+ "generated_utc": "2026-11-10T06:25:28+00:00",
+ "decision_file": {
+  "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p15/e5/decision.toml",
+  "sha256": "094e2a1dedacc19d60978f884454a20cb929bf0d59eb82b9a591bc736d5c3e69"
+ },
+ "stage": "offline",
+ "status": "complete",
+ "rows": [
+  {
+   "arm": "E5-zero-call",
+   "arm_label": "Evidence-sufficiency routing: zero-call headroom on frozen audits",
+   "stratum": "offline",
+   "role": "offline-gate",
+   "n_planned": null,
+   "n_completed": 16,
+   "runs_dir": null,
+   "metrics": {
+    "BLK": null,
+    "AUD1": null,
+    "AUD2": null,
+    "A_mean": null,
+    "A_median": null,
+    "R_LOOP": null,
+    "B_mean": null,
+    "R_B": null,
+    "growth_mean_pct": null,
+    "growth_median_pct": null,
+    "loop_pass": null,
+    "escalations": null,
+    "reviews_mean": null,
+    "fix_cycles_mean": null
+   },
+   "design_metrics": {
+    "packets": 16,
+    "eligible": 11,
+    "code_determined_by_reason": {
+     "cap": 4,
+     "open_blocker": 0,
+     "unchanged_hash": 1,
+     "mandatory_policy": 0
+    },
+    "needs_assurance_yes": 10,
+    "needs_assurance_rate": 0.9090909090909091,
+    "headroom": 1,
+    "sensitivity_headroom": 2,
+    "unlabeled_eligible": 0,
+    "single_audit_eligible": 6,
+    "other_designs": {
+     "packets": 19,
+     "eligible": 11,
+     "code_determined_by_reason": {
+      "cap": 7,
+      "open_blocker": 0,
+      "unchanged_hash": 1,
+      "mandatory_policy": 0
+     },
+     "needs_assurance_yes": 11,
+     "needs_assurance_rate": 1.0,
+     "headroom": 0,
+     "sensitivity_headroom": 5,
+     "unlabeled_eligible": 0,
+     "single_audit_eligible": 0
+    },
+    "label_rule": "strict-any-audit-blocker"
+   },
+   "haiku": null,
+   "jev": {
+    "logical_calls": 0,
+    "status_counts": {},
+    "input_tokens": 0,
+    "usd": 0.0,
+    "model": "jev-1.14.0"
+   },
+   "verdict": "NO-GO-OFFLINE",
+   "rule": "headroom 1/11 (9.1%) < 2 packets or < 0.10",
+   "extension_used": false
+  },
+  {
+   "arm": "k5j",
+   "arm_label": "Jev assurance router (shadow-validated)",
+   "stratum": "sonnet",
+   "role": "test",
+   "n_planned": 6,
+   "n_completed": 0,
+   "runs_dir": null,
+   "metrics": {
+    "BLK": null,
+    "AUD1": null,
+    "AUD2": null,
+    "A_mean": null,
+    "A_median": null,
+    "R_LOOP": null,
+    "B_mean": null,
+    "R_B": null,
+    "growth_mean_pct": null,
+    "growth_median_pct": null,
+    "loop_pass": null,
+    "escalations": null,
+    "reviews_mean": null,
+    "fix_cycles_mean": null
+   },
+   "design_metrics": {},
+   "haiku": null,
+   "jev": {
+    "logical_calls": 0,
+    "status_counts": {},
+    "input_tokens": 0,
+    "usd": 0.0,
+    "model": "jev-1.14.0"
+   },
+   "verdict": "BLOCKED",
+   "rule": "zero-call headroom absent",
+   "extension_used": false
+  },
+  {
+   "arm": "k5r",
+   "arm_label": "Conventional assurance router",
+   "stratum": "sonnet",
+   "role": "control",
+   "n_planned": 6,
+   "n_completed": 0,
+   "runs_dir": null,
+   "metrics": {
+    "BLK": null,
+    "AUD1": null,
+    "AUD2": null,
+    "A_mean": null,
+    "A_median": null,
+    "R_LOOP": null,
+    "B_mean": null,
+    "R_B": null,
+    "growth_mean_pct": null,
+    "growth_median_pct": null,
+    "loop_pass": null,
+    "escalations": null,
+    "reviews_mean": null,
+    "fix_cycles_mean": null
+   },
+   "design_metrics": {},
+   "haiku": null,
+   "jev": {
+    "logical_calls": 0,
+    "status_counts": {},
+    "input_tokens": 0,
+    "usd": 0.0,
+    "model": "jev-1.14.0"
+   },
+   "verdict": "BLOCKED",
+   "rule": "zero-call headroom absent",
+   "extension_used": false
+  },
+  {
+   "arm": "k5s",
+   "arm_label": "Static routing (assurance whenever a slot remains)",
+   "stratum": "sonnet",
+   "role": "control",
+   "n_planned": 6,
+   "n_completed": 0,
+   "runs_dir": null,
+   "metrics": {
+    "BLK": null,
+    "AUD1": null,
+    "AUD2": null,
+    "A_mean": null,
+    "A_median": null,
+    "R_LOOP": null,
+    "B_mean": null,
+    "R_B": null,
+    "growth_mean_pct": null,
+    "growth_median_pct": null,
+    "loop_pass": null,
+    "escalations": null,
+    "reviews_mean": null,
+    "fix_cycles_mean": null
+   },
+   "design_metrics": {},
+   "haiku": null,
+   "jev": {
+    "logical_calls": 0,
+    "status_counts": {},
+    "input_tokens": 0,
+    "usd": 0.0,
+    "model": "jev-1.14.0"
+   },
+   "verdict": "BLOCKED",
+   "rule": "zero-call headroom absent",
+   "extension_used": false
+  }
+ ],
+ "blocked_downstream": [
+  {
+   "experiment": "E5 probe/replay/live",
+   "reason": "zero-call headroom absent (headroom 1/11 (9.1%) < 2 packets or < 0.10)"
+  }
+ ],
+ "notes": [
+  "Zero paid calls; labels come from the frozen Sonnet audits (strict any-audit-blocker); other-design packets are reported, not decisive."
+ ]
+}

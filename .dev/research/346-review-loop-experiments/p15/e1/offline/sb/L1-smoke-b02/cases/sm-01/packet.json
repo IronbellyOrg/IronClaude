@@ -1,0 +1,8 @@
+{
+ "case_id": "sm-01",
+ "finding": {
+  "heading": "### R1-1 Cleanup deletes the delivery log at once",
+  "body": "The cleanup section says that all delivery-log rows are deleted immediately when a delivery reaches the delivered state. The delivery log requirement keeps rows for 30 days. Cited: spec lines 17, 39 (before version).\nAn implementer who follows the cleanup section builds a worker that erases the delivery log of every delivered webhook at once, so customers can no longer see their deliveries.\nProtected requirement: line 17 (the 30-day log retention must hold)."
+ },
+ "full_diff": "--- before.md\n+++ after.md\n@@ -36,4 +36,4 @@\n \n ## 6. Cleanup\n \n-When a delivery reaches `DELIVERED`, the worker deletes all of its delivery-log rows immediately to save storage.\n+The worker erases every delivery-log row of a delivery as soon as that delivery reaches `DELIVERED`, so that storage is saved.\n"
+}

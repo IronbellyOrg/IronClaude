@@ -1,0 +1,3 @@
+**F-03. SA-2 permits an Orca mention that AC-C1 forbids.**
+SA-2 (line 147) says the only allowed Orca mention in a changed command is as an example of a question channel inside the contract file. The contract file is `src/superclaude/core/WORKER-CONTRACT.md` (§2.1). AC-C1 (line 172) greps `src/superclaude/core` for `orca(-ide) (orchestration|worktree|terminal|agent)` and requires no match, and its only exclusion is `skills/ccsession-tag`. An implementer who writes the SA-2 example into the contract file fails AC-C1, and §7 (line 167) says a phase passes only when every common check passes. The two statements contradict each other.
+Fix: exclude `src/superclaude/core/WORKER-CONTRACT.md` from AC-C1, or forbid Orca command text in the contract file.

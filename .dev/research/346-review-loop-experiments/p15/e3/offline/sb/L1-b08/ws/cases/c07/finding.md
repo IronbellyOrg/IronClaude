@@ -1,0 +1,11 @@
+#### F-2. AC-0.4 requires a WC-4 contract for P0 smoke runs, but P0 has no command edits and two of the three smoke commands write none at the WC-4 path
+- Severity label: MAJOR. Grade: blocking. Experts: Crispin (acceptance criteria), Adzic (concrete example fails), Wiegers (testability). Priority: High.
+- Stated texts:
+  - P0 is "no command edits" (S:158).
+  - AC-0.4: "steps 1-3 and 5-7 pass; step 4 uses the command's existing report file, since the contract arrives in P1 ... a failure here reopens section 1" (S:194).
+  - 7.2 step 3 pass condition: "its `--outcome` matches the contract's `status` under WC-5; its report path is the WC-4 contract path" (S:182). Step 4 is the only step AC-0.4 relaxes.
+  - WC-4 defines that path as `<output-dir>/return-contract.yaml` (S:62).
+  - Smoke command 1, troubleshoot: its report is `REPORT.md`, and `return-contract.yaml` is written "only when `--caller task-unified`" (`INV-B:242`; S:91 lists only `REPORT.md`). Smoke command 3, adversarial: the contract filename "is not fixed" until the P1 fix (S:83; `INV-A:35`, `INV-A:60`). Smoke command 2, workflow: its contract is at `.dev/tasks/to-do/<id>/return-contract.yaml` (S:92), a run-time id, not an `<output-dir>` the coordinator passed.
+- Grading sentence: An implementer who follows AC-0.4 and step 3 as written runs `/sc:troubleshoot` in P0 and must find a contract `status` and a report path equal to the WC-4 contract path; no such file exists (P0 edits no command, troubleshoot writes `REPORT.md`), so step 3 cannot pass, and AC-0.4 says that failure "reopens section 1". The wrong outcome is the spec's central decision being reopened by an inconsistency inside the spec's own check, not by any evidence about Orca workers.
+- Recommendation: make AC-0.4 step 3 name the command's existing report file for P0 (as it already does for step 4) and define the outcome check against that file's own verdict; keep the contract check for P1 onward.
+- Quality impact: the only live test of the decision (S:43, S:272) is unrunnable as written.

@@ -1,0 +1,2 @@
+src/superclaude/skills/sc-fix-audit/scripts/fix_audit.py
+tests/skills/test_fix_audit_script.py

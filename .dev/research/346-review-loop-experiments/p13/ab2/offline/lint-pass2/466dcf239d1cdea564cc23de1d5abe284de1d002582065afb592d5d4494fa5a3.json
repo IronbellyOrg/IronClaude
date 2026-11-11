@@ -1,0 +1,54 @@
+{
+  "schema": "review-lint/1",
+  "doc_sha256": "466dcf239d1cdea564cc23de1d5abe284de1d002582065afb592d5d4494fa5a3",
+  "doc_bytes": 59034,
+  "checks": [
+    "REF",
+    "COUNT",
+    "KV",
+    "PHASE",
+    "PATH",
+    "RFC"
+  ],
+  "findings": [
+    {
+      "lint_id": "LINT-PHASE-1",
+      "check": "PHASE",
+      "class": "fact",
+      "lines": [
+        194,
+        194
+      ],
+      "quote": "| P0 | AC-0.4 | 7.2 live check on `/sc:troubleshoot \"<real symptom>\"`, `/sc:workflow \"<small change>\" --handoff none`, `/sc:adversarial --compare <two files> --depth quick --output <dir>`, each run...",
+      "other_lines": [
+        178,
+        178
+      ],
+      "message": "The P0 row (AC-0.4) refers to section 7.2, which uses WC-4 (P1); the rollout table first introduces each in a later phase."
+    },
+    {
+      "lint_id": "LINT-PHASE-2",
+      "check": "PHASE",
+      "class": "fact",
+      "lines": [
+        195,
+        195
+      ],
+      "quote": "| P1 | AC-1.1 | `uv run pytest tests/skills/test_worker_contract.py -q`; the test asserts that every command whose section 3 phase is P1 has a `## Unattended mode` section naming `return-contract.y...",
+      "other_lines": [
+        75,
+        75
+      ],
+      "message": "The P1 row (AC-1.1) refers to section 3, which uses WC-10 (P2), WC-9 (P2); the rollout table first introduces each in a later phase."
+    }
+  ],
+  "census": {
+    "rfc2119": {},
+    "rfc2119_total": {
+      "MUST": 0,
+      "SHALL": 0,
+      "SHOULD": 0,
+      "MAY": 0
+    }
+  }
+}

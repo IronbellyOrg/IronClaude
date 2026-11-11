@@ -1,0 +1,32 @@
+{
+ "case_id": "syn-acc-2",
+ "code_outcome": "OK",
+ "decision": "CONFIRMED",
+ "qset_version": "e3-q1",
+ "result": {
+  "answers": {
+   "evidence_sufficient": {
+    "p": 0.96,
+    "type": "noul"
+   },
+   "outcome_follows": {
+    "p": 0.94,
+    "type": "noul"
+   },
+   "texts_conflict": {
+    "p": 0.97,
+    "type": "noul"
+   }
+  },
+  "attempts": 1,
+  "error": null,
+  "latency_ms": 177,
+  "model": "jev-1.14.0",
+  "request_sha256": "dc153c6489b1153a14991b00e3cbfb78ce01b2d597ac4ff982b1f3f10575aaad",
+  "status": "ok",
+  "usage": {
+   "input_tokens": 972,
+   "output_tokens": 64
+  }
+ }
+}

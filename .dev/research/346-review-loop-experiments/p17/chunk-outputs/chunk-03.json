@@ -1,0 +1,160 @@
+{
+ "chunk": 3,
+ "defects": [
+  {
+   "local_id": "c03-d1",
+   "title": "AC-1.1 and AC-1.2 demand a contract and live worker run for /sc:load, which has none",
+   "kind": "original",
+   "severity": "blocking",
+   "quote": "the test asserts that every command in sections 3.1-3.2 has a `## Unattended mode` section naming `return-contract.yaml` and `~/.claude/WORKER-CONTRACT.md`",
+   "what_goes_wrong": "/sc:load is a section 3.2 and P1 command whose row says Report none and use it as a brief step not its own Task, and Decisions say a report file would be unrequested, so AC-1.1 (section naming the contract) and AC-1.2 (7.2 step 3-4 needs worker_done and test -s on a contract) cannot pass for it without breaking its row.",
+   "gids": [
+    339,
+    347,
+    359,
+    366,
+    373,
+    385,
+    395,
+    450,
+    454,
+    464
+   ],
+   "is_fixed_when": "AC-1.1 and AC-1.2 (or whichever tests replace them) explicitly exclude /sc:load from the contract-section and live-check population (or the load row gives it a contract and the Decisions entry is reversed), so no stated check requires a load contract that another text forbids.",
+   "deletion_note": "No for deleting the load command; yes only if the fix is an explicit narrow exclusion of load from the two checks, which is the intended resolution; silently removing load from section 3.2 would drop its usage-line fix.",
+   "present_in_others_hint": "Section 3.2 load row (line 112), Decisions '/sc:load handling' (line 265), P1 Commands column (line 159), line 76 'Every changed command also gains the section', WC-4 'written on every outcome' (line 62), 7.2 steps 3-4 (lines 182-183), line 139 note.",
+   "original_lines": [
+    195
+   ]
+  },
+  {
+   "local_id": "c03-d2",
+   "title": "AC-1.1 and P1 flag scope cover P2-P4 commands, clashing with phase column and D3(a)",
+   "kind": "original",
+   "severity": "blocking",
+   "quote": "the `--unattended` flag accepted by every command in sections 3.1 and 3.2 (a no-op where a command has no gate)",
+   "what_goes_wrong": "P1 and AC-1.1 require the flag and a contract section on all 37 commands (including implement, post-release and pr-submit that wait for D2-D4, and under D3(a) get 'no pr-submit changes') while the P1 Commands column lists only 13, so P1's own gate cannot pass without deciding Phase 4 questions early or adding a pr-submit worker section D3(a) rejects.",
+   "gids": [
+    335,
+    426,
+    111,
+    138,
+    142,
+    45,
+    53,
+    63,
+    72,
+    348,
+    389,
+    264
+   ],
+   "is_fixed_when": "AC-1.1 and the P1 flag sentence are keyed to the phase column (each phase asserts only its own commands, P4 commands and pr-submit are tested only after D2-D4 and only if D3 is (b)) and every command in 3.1-3.2 is assigned to a phase, so no P1-gated check requires text that a later phase or decision owns.",
+   "deletion_note": "No: deleting AC-1.1 or the P4 rows would remove the check or the commands rather than reconcile the scope; a fix must still test each command in the phase that delivers it.",
+   "present_in_others_hint": "Line 154 and 225 'Phases 1-3 need no user decision', P4 row (line 162), D3(a) (line 240), line 139, section 4 intro (line 128), AC-1.2 (line 196), rows 109/113/114, 7.2 population.",
+   "original_lines": [
+    159
+   ]
+  },
+  {
+   "local_id": "c03-d3",
+   "title": "brainstorm and init-lite have 'None' fixes and no phase yet AC-1.1 requires their section",
+   "kind": "original",
+   "severity": "medium",
+   "quote": "The only command changes are the small fixes in the last column.",
+   "what_goes_wrong": "The 3.1 intro and the 'None' cells (lines 84, 87) say brainstorm and init-lite change nothing and the P1 Commands column omits them, but P1 scope and AC-1.1 require the flag, section and contract on every 3.1 command, so an implementer following the rows fails AC-1.1.",
+   "gids": [
+    381,
+    501
+   ],
+   "is_fixed_when": "Every 3.1 command, brainstorm and init-lite included, is assigned to a phase that adds its section and flag, and line 79 no longer says the only changes are the small fixes (or AC-1.1 excludes commands with no change).",
+   "deletion_note": "No: dropping the two commands from AC-1.1 without saying they are not run unattended would leave them without an unattended section, which WC-2 and 2.3 assume they have.",
+   "present_in_others_hint": "Lines 76, 79, 84, 87, 159, 195; the P1 Commands column and the 35-of-37 count.",
+   "original_lines": [
+    79
+   ]
+  },
+  {
+   "local_id": "c03-d4",
+   "title": "P1 accepts --unattended on gated commands before their gates are converted",
+   "kind": "original",
+   "severity": "medium",
+   "quote": "the `--unattended` flag accepted by every command in sections 3.1 and 3.2 (a no-op where a command has no gate)",
+   "what_goes_wrong": "After P1 a gated command (task, auggie-review, implement, pr-submit) accepts --unattended and AC-1.1 passes, yet it still prompts or posts until P2-P4, so the flag violates WC-2/WC-9 and a coordinator following section 2.3 gets a silent stall or an unprompted GitHub post.",
+   "gids": [
+    115,
+    293
+   ],
+   "is_fixed_when": "The spec says a gated command either refuses/blocks under --unattended or does not accept the flag until its own phase delivers its gate resolution, or delivers flag and gate conversion in the same phase.",
+   "deletion_note": "No: deleting WC-2 or the gated commands would hide the interim hazard rather than fix it.",
+   "present_in_others_hint": "WC-2 (line 60), WC-9 (line 67), section 2.3 (line 73), line 154 'each phase is independently useful', P2-P4 rows, AC-1.1.",
+   "original_lines": [
+    159
+   ]
+  },
+  {
+   "local_id": "c03-d5",
+   "title": "Contract location undefined for cleanup-audit, index-repo and troubleshoot (no output-dir flag)",
+   "kind": "original",
+   "severity": "medium",
+   "quote": "Name the `--pass all` final report; output dir is fixed, so one audit per worktree at a time (WC-11) (P1)",
+   "what_goes_wrong": "WC-4 puts the contract at the coordinator-passed <output-dir> and AC-1.2 runs P1 commands with --output <dir>, but the cleanup-audit and index-repo rows give a fixed or unstated location and add no output flag (and troubleshoot has only a timestamped default), so the contract path is not known before dispatch and the live check cannot pass as written.",
+   "gids": [
+    250
+   ],
+   "is_fixed_when": "Each of cleanup-audit, index-repo and troubleshoot either gains an output-dir flag in its row or states a fixed contract path, and AC-1.2/2.2 are narrowed to pass --output only where the command accepts it.",
+   "deletion_note": "No: removing the three commands or the WC-4 'known before dispatch' rule would not give the coordinator a contract path.",
+   "present_in_others_hint": "WC-4 (line 62), line 76 contract definition, rows 85, 86, 91, AC-1.2 (line 196), AC-2.2 (line 200), P1 scope 'output flags for commands that lack one' (line 159).",
+   "original_lines": [
+    85
+   ]
+  },
+  {
+   "local_id": "c03-d6",
+   "title": "Workflow contract path is id-based, unknown before dispatch, and undefined for pre-creation stops",
+   "kind": "original",
+   "severity": "medium",
+   "quote": "`.dev/tasks/to-do/<id>/return-contract.yaml` | Fresh package each run | Write the contract for pre-creation STOPs too (WC-4 \"every outcome\") (P1)",
+   "what_goes_wrong": "WC-4 requires the contract at the coordinator-known <output-dir>, but workflow's contract sits in a package directory whose id the workflow creates, and a pre-creation STOP has no id or package, so no path is given for the case P1 and AC-1.4 add.",
+   "gids": [
+    295
+   ],
+   "is_fixed_when": "The workflow row (or WC-4) states where the contract is written for pre-creation stops and how the coordinator learns or fixes the path before dispatch (an output flag or a fixed fallback path).",
+   "deletion_note": "No: dropping the pre-creation-STOP requirement would leave WC-4 'every outcome' unmet for workflow.",
+   "present_in_others_hint": "WC-4 (line 62), line 76, workflow row (line 92), AC-1.4 (line 198), 7.2 step 3 (line 182), AC-0.4.",
+   "original_lines": [
+    92
+   ]
+  }
+ ],
+ "unassigned_gids": [],
+ "extra_noticed": [
+  {
+   "local_id": "c03-x1",
+   "title": "AC-0.4 step 3 requires the WC-4 contract path that P0 smoke commands do not write",
+   "kind": "original",
+   "severity": "medium",
+   "quote": "steps 1-3 and 5-7 pass; step 4 uses the command's existing report file, since the contract arrives in P1",
+   "original_lines": [
+    194
+   ],
+   "what_goes_wrong": "7.2 step 3 passes only if the worker_done report path is the WC-4 contract path, yet AC-0.4 says steps 1-3 must pass while the contract arrives only in P1.",
+   "is_fixed_when": "AC-0.4 states that step 3's report-path condition uses the command's existing report file in P0.",
+   "deletion_note": "No: removing step 3 from P0 would drop the worker_done check.",
+   "present_in_others_hint": "Line 182 step 3, line 194."
+  },
+  {
+   "local_id": "c03-x2",
+   "title": "Adversarial contract path <output>/adversarial/ differs from the WC-4 path the coordinator derives",
+   "kind": "original",
+   "severity": "medium",
+   "quote": "Fix the contract filename to `<output>/adversarial/return-contract.yaml` (P1)",
+   "original_lines": [
+    83
+   ],
+   "what_goes_wrong": "Line 76 defines the contract as <output-dir>/return-contract.yaml, so a coordinator deriving the path from WC-4 looks one directory too high for adversarial (tentative; seen only in one multi-claim finding).",
+   "is_fixed_when": "WC-4/line 76 name adversarial's subdirectory as an exception or the row moves the contract to <output>/return-contract.yaml.",
+   "deletion_note": "No.",
+   "present_in_others_hint": "Line 62, 76, 83, 198."
+  }
+ ]
+}

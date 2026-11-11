@@ -1,0 +1,40 @@
+{
+ "author_intent": {
+  "category": "theme-T3",
+  "cluster": "D19",
+  "expect": "defect",
+  "layer": "real",
+  "theme": "T3"
+ },
+ "case_id": "s0-08",
+ "category": "theme-T3",
+ "data_classes": [
+  "s1_spec"
+ ],
+ "family": "s1-original",
+ "group": "s1-original",
+ "packet": {
+  "defect": "AC-0.4 requires steps 1-3 of the live check to pass in Phase 0, but step 3 needs the WC-4 contract path, which only Phase 1 introduces; Phase 0 makes no command edits.",
+  "doc": "offline/docs/doc-d3cdbe573e.md",
+  "doc_sha256": "d3cdbe573e57303b9ce6c93d1fe98ba18fb7cb1a15773d926bf6a0c31425200d",
+  "evidence_quotes": [
+   "steps 1-3 and 5-7 pass; step 4 uses the command's existing report file",
+   "its report path is the WC-4 contract path",
+   "| The WC-4 contract in unattended mode;"
+  ],
+  "evidence_set": [
+   "P0151",
+   "P0141",
+   "P0123"
+  ]
+ },
+ "source": {
+  "kind": "s1",
+  "paths": [
+   "offline/docs/doc-d3cdbe573e.md"
+  ],
+  "url": null
+ },
+ "split": "s0",
+ "variant": "real"
+}

@@ -1,0 +1,22 @@
+{
+ "finding": {
+  "title": "AC-0.4 claims a check it does not run. Line 194 says \"each run directly by the worker (no Agent-tool wrapper, verified in the step-5 transcript)\". Step 5 (line 184) searches only for `AskUserQuestion`., because the no-wrapper rule (WC-7, line 65) has no pass condition.",
+  "wrong_outcome": "AC-0.4 claims a check it does not run. Line 194 says \"each run directly by the worker (no Agent-tool wrapper, verified in the step-5 transcript)\". Step 5 (line 184) searches only for `AskUserQuestion`., because the no-wrapper rule (WC-7, line 65) has no pass condition."
+ },
+ "evidence": {
+  "e1": {
+   "text": "each run directly by the worker (no Agent-tool wrapper, verified in the step-5 transcript)",
+   "line": 194,
+   "context": "| P0 | AC-0.1 | `uv run python -c \"from superclaude.cli.install_core import KNOWN_CORE_FILES; assert 'WORKER-CONTRACT.md' in KNOWN_CORE_FILES\"` | exits 0 |\n| P0 | AC-0.2 | `cmp src/superclaude/core/HOW-WE-WORK.md plugins/superclaude/skills/sc-recommend/refs/HOW-WE-WORK.md` and the level-table test the repo already runs (`CLAUDE.md:334`) | identical; tests pass |\n| P0 | AC-0.3 | `git diff -U0 master...HEAD -- src/superclaude/core/HOW-WE-WORK.md \\| grep -E '^-[^-]'` | prints nothing: no existing routing row changed (SA-5) |\n| P0 | AC-0.4 | 7.2 live check on `/sc:troubleshoot \"<real symptom>\"`, `/sc:workflow \"<small change>\" --handoff none`, `/sc:adversarial --compare <two files> --depth quick --output <dir>`, each run directly by the worker (no Agent-tool wrapper, verified in the step-5 transcript) | steps 1-3 and 5-7 pass; step 4 uses the command's existing report file, since the contract arrives in P1. Record the results in the phase report; a failure here reopens section 1 |\n| P1 | AC-1.1 | `uv run pytest tests/skills/test_worker_contract.py -q`; the test asserts that every command in sections 3.1-3.2 has a `## Unattended mode` section naming `return-contract.yaml` and `~/.claude/WORKER-CONTRACT.md`, and that no section-4 command has one | passes |\n| P1 | AC-1.2 | 7.2 live check on each P1 command with `--unattended --output <dir>` | all steps pass |\n| P1 | AC-1.3 | For two P1 commands, run once in a plain session with no `--unattended` and no new output flag (for example `claude -p \"/sc:analyze src/superclaude/cli/install_core.py\"` in a scratch worktree), then `git status --short` | no `return-contract.yaml` appears (SA-3) |"
+  },
+  "e2": {
+   "text": "AskUserQuestion",
+   "line": 184,
+   "context": "2. While it runs, `ORCA orchestration worker-show --dispatch <dispatch_id> --json` at least once per 5 minutes. **Pass:** `observation.agentWait` is never non-null (a non-null value means the worker is parked on a prompt only a person can answer, `[H:worker-show]` Notes).\n3. `ORCA orchestration check --wait --types \"worker_done,escalation,question\" --timeout-ms 900000 --json` until `worker_done` arrives. **Pass:** exactly one `worker_done`; its `--outcome` matches the contract's `status` under WC-5; its report path is the WC-4 contract path.\n4. `test -s <contract>` and `uv run python -c \"import sys, yaml; d = yaml.safe_load(open(sys.argv[1])); assert d['status'] in {'succeeded','partial','failed','blocked'}; assert d['command']\" <contract>` (PyYAML is a declared dependency, `pyproject.toml:38`). **Pass:** both exit 0.\n5. `ORCA orchestration worker-read --dispatch <dispatch_id> --source transcript --json` and search the transcript for `AskUserQuestion`. **Pass:** no `AskUserQuestion` call.\n6. `git status --short`. **Pass:** only files under the brief's output directory (and the command's documented artifacts) appear.\n7. `ORCA orchestration worker-release` for the settled worker, then `ORCA orchestration worker-list --run <run_id> --terminal-state reclaimable --json` returns no rows (`CAPS:107-113`).\n"
+  }
+ },
+ "facts": {
+  "quotes_found_verbatim": true,
+  "evidence_count": 2
+ }
+}

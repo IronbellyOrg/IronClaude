@@ -1,0 +1,17 @@
+{
+ "evidence": {
+  "e1": {
+   "context": "R3. A backup job that is still running when the next one is due makes the next one wait until it finishes.",
+   "line": 6,
+   "text": "makes the next one wait until it finishes"
+  }
+ },
+ "facts": {
+  "evidence_count": 1,
+  "quotes_found_verbatim": true
+ },
+ "finding": {
+  "title": "A waiting backup is skipped",
+  "wrong_outcome": "an implementer who follows the stated text as written builds a scheduler that skips a due backup while the previous one runs, because `makes the next one wait until it finishes` (S:6), and the Sunday full backup is lost."
+ }
+}

@@ -1,0 +1,22 @@
+{
+ "finding": {
+  "title": "Support tickets are kept for 3 years and deleted after one year",
+  "wrong_outcome": "an implementer who follows the stated text as written builds a ticket store that keeps a closed ticket for 3 years (`Support tickets are kept for 3 years after the ticket is closed.`, S:10) and deletes the same ticket one year after closing (`Closed support tickets are deleted one year after closing.`, S:18). A ticket closed 18 months ago must be present and absent, so the retention test for tickets cannot pass."
+ },
+ "evidence": {
+  "e1": {
+   "text": "Support tickets are kept for 3 years after the ticket is closed.",
+   "line": 10,
+   "context": "R1. Account data (name, email address, password hash) is kept while the account is active.\nR2. Activity logs record sign-in time, IP address and the pages visited.\nR3. Activity logs are kept for 180 days and then deleted by the nightly purge job.\nR4. Support tickets are kept for 3 years after the ticket is closed.\nR5. Backups are encrypted and kept for 35 days.\n\n## 3. Deletion"
+  },
+  "e2": {
+   "text": "Closed support tickets are deleted one year after closing.",
+   "line": 18,
+   "context": "R7. Deleted account data may remain in backups until the backups expire under R5.\nR8. A legal hold suspends deletion for the data it names until the hold is lifted.\nR9. The nightly purge job runs at 02:00 UTC and writes a summary line to the audit log.\nR10. Closed support tickets are deleted one year after closing.\n\n## 4. Exports\nR11. A user may request an export of their account data once per calendar month."
+  }
+ },
+ "facts": {
+  "quotes_found_verbatim": true,
+  "evidence_count": 2
+ }
+}

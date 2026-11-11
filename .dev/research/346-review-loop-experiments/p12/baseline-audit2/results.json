@@ -1,0 +1,32 @@
+{
+ "a3-r1": {
+  "verdict": "FAIL",
+  "blocking_ids": "F1, F2. (The reviser reads this report, not the command.)",
+  "n_blocking": 2
+ },
+ "a3-r2": {
+  "verdict": "FAIL",
+  "blocking_ids": "B-1",
+  "n_blocking": 1
+ },
+ "a3-r3": {
+  "verdict": "FAIL",
+  "blocking_ids": "B1, B2**. This brief restates the command's reviser contract (`COMMAND:263`); the reviser reads this report, not the command",
+  "n_blocking": 2
+ },
+ "a3-r4": {
+  "verdict": "FAIL",
+  "blocking_ids": "B-01",
+  "n_blocking": 1
+ },
+ "a3-r5": {
+  "verdict": "FAIL",
+  "blocking_ids": "B-1",
+  "n_blocking": 1
+ },
+ "a3-r6": {
+  "verdict": "FAIL",
+  "blocking_ids": "B1, B2. Revision rules (restated from the Review Loop, bullet 6; the reviser reads this report, not the command): revise only text a blocking finding names; add no rule, mechanism or section no blocking finding calls for; each added paragraph or table cites its finding id; prefer deleting or narrowing to adding; report the byte size before and after, and the bytes added and deleted per finding id; leave Medium and minor findings alone; return the candidate once and do not award yourself a PASS",
+  "n_blocking": 2
+ }
+}

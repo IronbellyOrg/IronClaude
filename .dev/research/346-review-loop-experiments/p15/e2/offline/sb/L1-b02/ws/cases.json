@@ -1,0 +1,134 @@
+[
+ {
+  "case_id": "s0-09",
+  "document": "docs/doc-45a6f08755.md",
+  "proposed_defect": "SEC-1 expires a session token after 15 minutes without user input, but a full export runs up to 2 hours with no user input and the page authenticates every poll with that token, so the page loses access before the export finishes.",
+  "proposed_evidence": [
+   {
+    "quote": "A session token expires after 15 minutes without user input",
+    "lines": "9-9"
+   },
+   {
+    "quote": "The page polls the job endpoint every 10 seconds and authenticates each poll with the user's session token",
+    "lines": "19-19"
+   },
+   {
+    "quote": "A full-project export can run for up to 2 hours",
+    "lines": "18-18"
+   }
+  ]
+ },
+ {
+  "case_id": "s0-10",
+  "document": "docs/doc-89373904a1.md",
+  "proposed_defect": "LOG-1 says logs are kept for 7 days but LOG-2 says logs are kept for 30 days.",
+  "proposed_evidence": [
+   {
+    "quote": "Projects on the free tier keep logs for 7 days",
+    "lines": "9-9"
+   },
+   {
+    "quote": "Projects on the paid tier keep logs for 30 days",
+    "lines": "10-10"
+   }
+  ]
+ },
+ {
+  "case_id": "s0-11",
+  "document": "docs/doc-1ef4812f57.md",
+  "proposed_defect": "PAY-2 retries a timed-out capture three times following RTY-1, RTY-1 takes the retry budget from TIER-1, and TIER-1 gives capture a budget of 0 because a repeat could charge the customer twice.",
+  "proposed_evidence": [
+   {
+    "quote": "A capture that times out is retried three times following RTY-1",
+    "lines": "10-10"
+   },
+   {
+    "quote": "The number of retries for a call is the retry budget listed for its call type in TIER-1",
+    "lines": "16-16"
+   },
+   {
+    "quote": "| TIER-1 | capture | 0 |",
+    "lines": "26-26"
+   }
+  ]
+ },
+ {
+  "case_id": "s0-12",
+  "document": "docs/doc-d3cdbe573e.md",
+  "proposed_defect": "WC-9 and decision D4 make outward actions depend on a coordinator quoting the user's instruction in the brief, which no command can check, so nothing in the spec enforces that authorization.",
+  "proposed_evidence": [
+   {
+    "quote": "It turns on only through the command's own explicit flag written in the brief.",
+    "lines": "67-67"
+   },
+   {
+    "quote": "The coordinator quotes the instruction in the brief and passes the command's explicit flag",
+    "lines": "245-245"
+   }
+  ]
+ },
+ {
+  "case_id": "s0-13",
+  "document": "docs/doc-56332a4e1c.md",
+  "proposed_defect": "SA-7 says every command writes its report under `.dev/worker-reports/<slug>/` whatever its output flag says, but the cleanup-audit row fixes its report at `.claude-audit/pass<N>-summary.md` with a fixed output directory.",
+  "proposed_evidence": [
+   {
+    "quote": "every command writes its report under `.dev/worker-reports/<slug>/`, whatever its output flag says",
+    "lines": "152-152"
+   },
+   {
+    "quote": "`.claude-audit/pass<N>-summary.md`",
+    "lines": "85-85"
+   }
+  ]
+ },
+ {
+  "case_id": "s0-14",
+  "document": "docs/doc-b6fddf6478.md",
+  "proposed_defect": "GW-2 limits request bodies to 10 MB, but NGX-1 makes the proxy in front of the gateway reject bodies larger than 10 Mbit (1.25 MB), so bodies the gateway accepts never arrive.",
+  "proposed_evidence": [
+   {
+    "quote": "Request bodies are limited to 10 MB",
+    "lines": "10-10"
+   },
+   {
+    "quote": "The proxy in front of the gateway rejects bodies larger than 10 Mbit",
+    "lines": "16-16"
+   }
+  ]
+ },
+ {
+  "case_id": "s0-15",
+  "document": "docs/doc-ea77a5826b.md",
+  "proposed_defect": "WC-5 maps a `blocked` report to `worker_done --outcome failed`, but AC-2.2 expects `worker_done --outcome succeeded` for a run whose contract says `status: blocked`.",
+  "proposed_evidence": [
+   {
+    "quote": "`--outcome failed` when the report says `failed` or `blocked`",
+    "lines": "63-63"
+   },
+   {
+    "quote": "| `worker_done --outcome succeeded`; contract `status: blocked`",
+    "lines": "200-200"
+   }
+  ]
+ },
+ {
+  "case_id": "s0-16",
+  "document": "docs/doc-5055e0d59d.md",
+  "proposed_defect": "PAY-3 has the worker hold its lock for a 2-second capture (citing LOCK-2), LOCK-2 limits a lock to 5 ticks, and CFG-1 defines a tick as 100 milliseconds, so the lock lasts 500 ms and expires during the capture.",
+  "proposed_evidence": [
+   {
+    "quote": "A payment capture takes 2 seconds, and the worker holds its lock for the whole capture (LOCK-2)",
+    "lines": "11-11"
+   },
+   {
+    "quote": "A lock is held for at most 5 ticks (see CFG-1 for the tick)",
+    "lines": "17-17"
+   },
+   {
+    "quote": "One tick is 100 milliseconds",
+    "lines": "23-23"
+   }
+  ]
+ }
+]

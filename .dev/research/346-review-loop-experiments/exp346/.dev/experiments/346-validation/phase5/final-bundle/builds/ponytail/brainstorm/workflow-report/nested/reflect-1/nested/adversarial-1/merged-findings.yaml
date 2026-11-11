@@ -1,0 +1,309 @@
+# Provenance: This document was produced by /sc:adversarial
+# Base: Variant 3 (reviewer-3-card.yaml, refactorer, opus, C 0.81)
+# Merge date: 2026-11-08T19:05:00Z
+# Plan reviewed: .dev/tasks/to-do/TASK-WF-spec-20261108-181547/TASK-WF-spec-20261108-181547.md (plan:N); spec: source.md (src.md:N) in the same folder.
+
+# Source: Base (original, modified) — reviewer/persona/model_class header restructured into merged_from per Change #1
+merged_from:
+  - card: ../../reviewer-cards/reviewer-1-card.yaml
+    persona: analyzer
+    model_class: sonnet
+    calibrated_C: 0.76
+  - card: ../../reviewer-cards/reviewer-2-card.yaml
+    persona: qa
+    model_class: haiku
+    calibrated_C: 0.75
+  - card: ../../reviewer-cards/reviewer-3-card.yaml
+    persona: refactorer
+    model_class: opus
+    calibrated_C: 0.81
+
+# Source: Change #1 (merged schema header, S-001..S-003 unanimous)
+weighting: "calibrated C, not self_confidence"
+
+# Source: Change #1 (merged schema header)
+severity_rule: "blocking = the plan as written delivers wrong behaviour, misses a required in-scope deliverable, or two of its acceptance criteria cannot both pass; otherwise minor"
+
+findings:
+  # Source: Variant 1, R1-F1 — merged per Change #2 (recommendation costs from Invariant probe INV-005)
+  - id: F-01
+    severity: blocking
+    category: "necessary deviation (spec-inherited)"
+    cards: [1]
+    card_ids: [R1-F1]
+    plan_task: "Task 7, Task 8"
+    spec_ref: "source.md:180, source.md:238-239"
+    summary: "Task 8's drift pin (variant equals spec-panel.md line for line, minus enumerated differences) and its no-src pin cannot both pass, because spec-panel.md:220 contains `src/superclaude`."
+    evidence:
+      - "Task 8 requires the variant minus enumerated differences to equal spec-panel.md line for line AND no `src/superclaude` string in the variant; spec-panel.md:220 already contains `src/superclaude/examples/release-spec-template.md` (R1-F1)"
+      - "Task 7 differences (plan:134) do not touch line 220; plan:147 demands both pins (debate Round 1, V1 strength 1)"
+      - "conflict inherited from source.md:237-239 (R1-F1 calibration); src.md:237 vs :239 (debate Round 1, V1 table)"
+      - "INV-005: option (b) can only point at `~/.claude/templates/documents/release-spec-template.md`, whose source differs from `src/superclaude/examples/release-spec-template.md` (cmp: differ at byte 401, line 8), so the variant would behave differently on TDD input (against src.md:194 and plan:16 \"full copy\"); option (a) ships a new primitive referencing `src/superclaude/examples`, against the project CLAUDE.md rule and plan:29"
+    claim_tag: grounded
+    recommendation: "Owner call between two options, each with a stated cost: (a) scope the no-src pin: variant count of `src/superclaude` equals the original's (1), and the string is forbidden in the Fix Audit section, SKILL.md, the brief and fix_audit.py; cost: the variant ships a `src/superclaude/examples` reference, against plan:29 and the project CLAUDE.md rule; or (b) enumerate line 220 as a difference; cost: it can only point at the installed template, which differs from `src/superclaude/examples/release-spec-template.md`, so the variant changes TDD behaviour (against src.md:194, plan:16)."
+    debate:
+      consensus: "unanimous blocking; scoring matrix C-001 L3, winner V1, 95%; classification necessary deviation (spec-inherited) unanimous in Round 2"
+      dissent: "none (V2 labelled it drift (spec-inherited) in Round 1 and moved to necessary deviation in Round 2)"
+
+  # Source: Base (original, modified) R3-F2 — narrowed per Round 2 ("K6 cannot refuse" removed, conceded by V3); Variant 1, R1-F6 — merged per Change #3; Invariant probe INV-007 note per Change #3
+  - id: F-02
+    severity: blocking
+    category: drift
+    cards: [1, 3]
+    card_ids: [R3-F2, R1-F6]
+    plan_task: "Task 2, Task 3"
+    spec_ref: "source.md:39, source.md:218, source.md:231"
+    summary: "Task 2 records only the severity label and blocking flag per id, dropping the FR-8/FR-9 tag the spec protects, and its AC lacks the `MAJOR (FR-8 GAP)` graded-minor test."
+    evidence:
+      - "spec protects CRITICAL, FR-8, FR-9 ids regardless of blocking grade; Task 2 records only severity label and blocking flag per id, state.json has no FR-8/FR-9 marker (R3-F2)"
+      - "the plan holds no \"FR-8\"/\"FR-9\" string (grep, no hit); plan:55, 58 record only \"severity label (CRITICAL, MAJOR, MINOR or unknown) and the blocking flag\" (debate Round 1 V3 strength 1; Round 2 V1)"
+      - "`MAJOR (FR-8 GAP), minor` is recorded MAJOR/non-blocking with no tag, prepare cannot tell it from an ordinary minor id, the hunk is minor-only and K6 (src.md:218) lets it revert, which reverts a fix on an id the spec says is \"never closed\" and breaks src.md:140 (debate Round 2 V1)"
+      - "Task 2 AC omits the `MAJOR (FR-8 GAP)` graded-minor counts-as-protected test (R1-F6); AC plan:64 lacks the src.md:231 test (debate Round 2 V1)"
+      - "src.md:140: class A findings are \"protected by the FR-8 rule, so 0 reachable\": the FR-8 case is on the measured S1 path (debate Round 2 V2)"
+      - "INV-007: K4 compares `claimed` with \"the grade read from R\" (plan:74; src.md:216); a new tag changes that string and, unless K4 is pinned to the `fix-list.md` grade cell verbatim, every row fails K4; Review Loop bullet 2 (spec-panel.md:259) already makes FR-8/FR-9 blocking"
+    claim_tag: grounded
+    recommendation: "Task 2: carry the FR-8/FR-9 tag, either as a per-id protected flag in state.json or as a fix-list class or blocking flag set from Review Loop bullet 2 (spec-panel.md:259), and add the src.md:231 `MAJOR (FR-8 GAP)` test to the Task 2 AC; Task 3: add a CHECK_FAIL K6 case for reverting such an id; pin K4 to the `fix-list.md` grade cell so the tag does not fail every row (INV-007)."
+    debate:
+      consensus: "unanimous blocking after Round 2 (V2 conceded); scoring matrix C-005 L3, winner V3, 85%; X-003 blocking (narrowed), 85%"
+      dissent: "none after Round 2 (V2 held minor in Round 1); V3 accepted V1's narrower fix (flag or class) in Round 2"
+
+  # Source: Base (original, modified) R3-F1 — downgraded to minor and narrowed to `--unattended`/`--report-dir` per Round 1 V3 concession; Variant 1, R1-F2 — merged per Change #4
+  - id: F-03
+    severity: minor
+    category: drift
+    cards: [1, 3]
+    card_ids: [R3-F1, R1-F2]
+    plan_task: "Task 7, Task 8"
+    spec_ref: "source.md:180"
+    summary: "spec-panel.md:23 Usage line keeps `[--unattended] [--report-dir <dir>]`, defined only in the removed `## Unattended mode` section, and Tasks 7 and 8 do not handle it."
+    evidence:
+      - "plan Constraints say the variant omits `## Unattended mode` and does not support --unattended, but Task 7 only renames /sc:spec-panel on the two Usage lines (R3-F1); constraint at plan:26 (debate Round 1, V1 steelman of V3)"
+      - "spec-panel.md:23 Usage line carries `[--unattended] [--report-dir <dir>] [--improve]`, whose only definitions are in the removed section (spec-panel.md:455-459); Task 8 checks only the heading (R3-F1, R1-F2)"
+      - "minor: the guard keys on the section heading (WORKER-CONTRACT.md:17; case 2 refuses), no AC conflict, T08a never passes the flag (plan:202) (debate Round 1 V3 concession)"
+      - "`--improve` exists in person mode (spec-panel.md:35), so only `--unattended` and `--report-dir` are orphaned (debate Round 1 V3; Round 2 V1)"
+      - "INV-006: plan:134 copies src.md:194 verbatim (\"Without `--fix-audit` this command behaves exactly as `/sc:spec-panel`\"); with the Unattended removal and this fix the sentence is false and Task 8 (plan:147) does not catch it"
+    claim_tag: grounded
+    recommendation: "Task 7: drop `[--unattended] [--report-dir <dir>]` from variant Usage line 23 as an enumerated difference (keep `[--improve]`); Task 8: assert `--unattended` not in the variant and list the line-23 change as an allowed drift difference. Note INV-006: the Fix Audit sentence \"behaves exactly as /sc:spec-panel\" becomes false."
+    debate:
+      consensus: "unanimous minor (V3 conceded blocking); scoring matrix C-002 L2, winner V3 fix with V1 severity, 85%; X-001 minor, 85%"
+      dissent: none
+
+  # Source: Base (original, modified) R3-F3 — evidence and test recommendation widened; Variant 1, R1-F7 and Variant 2, QA-001 — merged per Change #5
+  - id: F-04
+    severity: minor
+    category: drift
+    cards: [1, 2, 3]
+    card_ids: [R3-F3, R1-F7, QA-001]
+    plan_task: "Task 5"
+    spec_ref: "source.md:183"
+    summary: "Task 5 gives exit 2 only for an unparseable table; source.md:183 also requires exit 2 for an inconsistent (DISAGREE) verdict."
+    evidence:
+      - "source.md:183 \"2 verdict unparseable or inconsistent (fail closed).\" (QA-001; R3-F3; R1-F7)"
+      - "TASK-WF-spec-20261108-181547.md:101 \"an unparseable table exits 2 with `verdict: FAIL`.\" (QA-001)"
+      - "TASK-WF-spec-20261108-181547.md:114 \"in `427` mode a disagreeing report line gives `consistency: DISAGREE` and the stricter line\" (QA-001)"
+      - "minor: the FAIL line is still forced (plan:101, 114); spec self-inconsistent (src.md:133 vs 183) (debate Round 1 V2 concession; scoring matrix C-003)"
+    claim_tag: grounded
+    recommendation: "Amend Task 5 to state that a DISAGREE-forced FAIL exits 2, with tests asserting the exit code and final FAIL line for a 427-mode disagreement and for a closed-minor id graded blocking by review 3."
+    debate:
+      consensus: "unanimous minor (V2 conceded blocking); scoring matrix C-003 L3, V1 = V3, 90%; X-002 minor, 90%"
+      dissent: none
+
+  # Source: Base (original, modified) R3-F4 — recommendation replaced per Change #6; Variant 1, R1-F4 — merged per Change #6; Invariant probe INV-008, INV-002 notes per Change #6
+  - id: F-05
+    severity: minor
+    category: drift
+    cards: [1, 3]
+    card_ids: [R3-F4, R1-F4]
+    plan_task: "Task 3, Task 5"
+    spec_ref: "source.md:130, source.md:218"
+    summary: "Task 5 builds the held set from every DOWNGRADE line in check.log, which Task 3 writes even on CHECK_FAIL, contradicting the Task 5 AC that with the audit skipped both counts are equal."
+    evidence:
+      - "Task 3 writes DOWNGRADE lines even on CHECK_FAIL; Task 5 builds the held set from every DOWNGRADE line; Task 5 AC says with the audit skipped both counts are equal (R3-F4, R1-F4)"
+      - "plan:74 + :104 vs :115 (debate Round 1, V1 strength 3)"
+      - "INV-008: with `skipped(check failed)` or APPLY_STOP the held set (plan:104) takes DOWNGRADE ids from a rejected audit and raises the registered owner count (plan:202) though the spec is byte-identical to the unaudited copy (src.md:267-272)"
+      - "INV-002: APPLY_STOP prints and exits 1 but writes nothing to `state.json` (plan:87)"
+    claim_tag: grounded
+    recommendation: "Task 5: count DOWNGRADE ids only when audit state is `applied(...)`, after APPLY_STOP records its state (INV-002); add CHECK_FAIL plus DOWNGRADE and APPLY_STOP plus DOWNGRADE fixtures."
+    debate:
+      consensus: "unanimous minor; scoring matrix C-004 L3, V1 = V3, 75%"
+      dissent: "dissent-by-probe: INV-008 argues the wrong-behaviour half of the blocking rule is met on failed-audit paths (inflated registered owner count); kept minor per debate consensus, not overridden by an undebated probe item"
+
+  # Source: Variant 2, QA-002 — merged per Change #7 (V1 Round 2 owner-count evidence; Invariant probe INV-011)
+  - id: F-06
+    severity: minor
+    category: "necessary deviation (spec-inherited)"
+    cards: [2]
+    card_ids: [QA-002]
+    plan_task: "Task 4"
+    spec_ref: "source.md:199"
+    summary: "Task 4 defines no recovery when readback or the apply-log/closed-minor writes fail after os.replace has already changed S."
+    evidence:
+      - "source.md:199 \"a failed step records `audit: skipped(<reason>)` and leaves the specification byte-identical\" (QA-002)"
+      - "TASK-WF-spec-20261108-181547.md:87 \"otherwise write a temp file in S's directory, `os.replace` it onto S, read it back and compare, then write `D/apply-log.md`\" (QA-002)"
+      - "TASK-WF-spec-20261108-181547.md:92 \"a bad last row leaves S byte-identical to `D/current-before-audit.md`\" (QA-002)"
+      - "re-run misses \"already applied\", re-runs check, K1 fails on S's changed sha256 (src.md:212), state.json records `skipped(check failed)` while S is modified (debate Round 1, V2 strength 1)"
+      - "if `closed-minor.txt` is never written, `verdict` reads closed as empty (plan:101), a reverted R2-MAJOR non-blocking id is not held, and the owner count drops, against plan:21 (debate Round 2 V1)"
+      - "minor: only an I/O fault right after a successful write of S triggers it; the plan follows the spec's own order (src.md:44), so both AC sets can pass (debate Round 2 V1; INV-011)"
+    claim_tag: INFERRED
+    recommendation: "Task 4: on any failure after the replace, restore S from `D/current-before-audit.md` and record `audit: skipped(apply failed)`, or write the metadata before the replace; add fault-injection tests for readback and each metadata write."
+    debate:
+      consensus: "unanimous minor after Round 2 (V2 conceded blocking); top minor, fix required; scoring matrix C-010 L3, 80%"
+      dissent: "classification 2/3 (X-004, 70%): V1 holds drift (spec-inherited)"
+
+  # Source: Base (original) R3-F5; Variant 1, R1-F9 part b — merged per Change #8
+  - id: F-07
+    severity: minor
+    category: drift
+    cards: [1, 3]
+    card_ids: [R3-F5, R1-F9]
+    plan_task: "Task 8, Task 9"
+    spec_ref: "source.md:174"
+    summary: "No task stages docs/ or .dev/tasks, though source.md:174 requires staging src/, tests/, docs/ and .dev/tasks."
+    evidence:
+      - "source.md:174 says stage src/, tests/, docs/ and .dev/tasks; Task 8 stages only src/ and tests/ paths; Task 9's docs file and .dev/tasks have no staging step (R3-F5)"
+      - "no task runs `git add .dev/tasks` (R1-F9, part b)"
+    claim_tag: grounded
+    recommendation: "Task 9: git add the design note; last task: git add .dev/tasks."
+    debate:
+      consensus: "unanimous minor; scoring matrix C-006 L2, winner V3, 85%"
+      dissent: none
+
+  # Source: Variant 1, R1-F9 part a — merged per Change #9 (V3 Round 2 evidence plan:29, 182)
+  - id: F-08
+    severity: minor
+    category: "necessary deviation (spec-inherited)"
+    cards: [1]
+    card_ids: [R1-F9]
+    plan_task: "Task 8, Task 11"
+    spec_ref: "source.md:239"
+    summary: "Task 8's no-src pin omits scripts/fix_audit.py, which Task 11 installs."
+    evidence:
+      - "No-src pin omits scripts/fix_audit.py (installed) (R1-F9, part a)"
+      - "src.md:239 omits fix_audit.py, but the project CLAUDE.md rule covers every installed primitive and plan:182 installs it (debate Round 2 V2)"
+      - "the plan's own rule at plan:29 covers \"no installed primitive\", and Task 11 installs fix_audit.py (plan:182); stays minor because plan:58 already requires a non-`src/superclaude` brief lookup (debate Round 2 V3)"
+    claim_tag: grounded
+    recommendation: "Add fix_audit.py to the no-src assertion."
+    debate:
+      consensus: "unanimous minor; scoring matrix C-007 L2, winner V1, 85%"
+      dissent: "classification 2/3: V1 holds drift (spec-inherited)"
+
+  # Source: Variant 1, R1-F5 — merged per Change #10
+  - id: F-09
+    severity: minor
+    category: regression
+    cards: [1]
+    card_ids: [R1-F5]
+    plan_task: "Task 2"
+    spec_ref: "source.md:50, source.md:182"
+    summary: "Task 2's brief-comparison test reads source.md from the package folder, a path that breaks when the package moves to .dev/tasks/done/."
+    evidence:
+      - "Task 2's brief-comparison test reads source.md from the package folder, which moves to .dev/tasks/done/ on completion (R1-F5)"
+      - "precedent tests/recommend/test_routing_refresh.py:118-121 globs `.dev/tasks/*/<pkg>/` (R1-F5)"
+    claim_tag: INFERRED
+    recommendation: "Embed the expected brief in the test or glob .dev/tasks/*/TASK-WF-spec-20261108-181547/source.md and skip when absent."
+    debate:
+      consensus: "unanimous minor; scoring matrix C-009 L2, winner V1, 75%"
+      dissent: "classification 2/3: V2 holds drift"
+
+# Source: Base (original, modified) R3-F6 — moved out of findings per Change #11; Variant 1, R1-F3 — merged per Change #11
+recorded_not_findings:
+  - id: N-01
+    category: "authorized expansion"
+    cards: [1, 3]
+    card_ids: [R3-F6, R1-F3]
+    plan_task: "Task 12"
+    spec_ref: "source.md:254"
+    summary: "Task 12 also copies T10-R3-reviser although the spec scopes briefs to T05-T09; the copy is authorized by owner ruling msg_2000b167e322."
+    evidence:
+      - "spec scopes briefs to T05-T09; Task 12 also copies T10-R3-reviser (R3-F6, R1-F3)"
+      - "owner ruling msg_2000b167e322 (coordinator, 2026-11-08: 'copy T05 to T10 into .dev/brainstorms/346-ponytail/briefs/') (R3-F6 orchestrator_note)"
+      - "the plan never cites msg_2000b167e322 (grep, no hit; T10 only at plan:199) (debate Round 2 V1)"
+    note: "The plan should cite the ruling at plan:193 and may label T10 control-arm reference only."
+    debate:
+      consensus: "unanimous after Round 2: not a finding, authorized expansion; scoring matrix C-008 L2, 85%; X-005 85%"
+      dissent: "none after Round 2 (V1 kept a minor note in Round 1, conceded)"
+
+# Source: Variant 1, R1-F8 — merged per Change #12
+dropped:
+  - id: D-01
+    cards: [1]
+    card_ids: [R1-F8]
+    summary: "Owner count could double-count a held id that review 3 also lists as a new finding."
+    reason: "calibrator not-confirmed (speculative; no evidence review 3 reuses R2 ids as new findings); V1 conceded; scoring matrix C-011 dropped, 90%"
+
+# Source: Invariant probe INV-001, INV-003, INV-002, INV-004 and LOW items — merged per Change #13 (not debated; caller must validate)
+probe_raised:
+  # Source: Invariant probe INV-001 — merged per Change #13
+  - id: P-01
+    invariant: INV-001
+    severity_candidate: blocking
+    cards: []
+    status: "not debated; caller must validate"
+    summary: "`verdict` cannot always find R2's blocking ids and labels in `D/state.json`: on the not-triggered and skip-guard paths it reaches review 3 and the verdict step with no grades."
+    evidence:
+      - "not-triggered writes only the audit state and \"change[s] nothing else\" (plan:50); skip guard \"writes `audit: skipped(ids not citable)` ... and stops\" (plan:57)"
+      - "`verdict` takes no R2 argument (plan:101; src.md:210 reads only `D/*` and R3) yet `prior_open` and the owner count need R2 grades and labels (plan:101, 104-106; src.md:131)"
+      - "an empty-diff or skipped audit still reaches review 3 and the verdict step (src.md:32, 200): crash, or a fail-closed FAIL on R2-minor rows T09 lists"
+  # Source: Invariant probe INV-003 — merged per Change #13
+  - id: P-02
+    invariant: INV-003
+    severity_candidate: blocking
+    cards: []
+    status: "not debated; caller must validate"
+    summary: "\"the script never turns a FAIL into a PASS\" conflicts with the any-severity rule: when only minor findings remain, the two rules give opposite final lines."
+    evidence:
+      - "any-severity prints the report line only as `t09-verdict:`, not cross-checked (plan:101; src.md:129); final line is PASS when \"open is empty and no DISAGREE\" (plan:109)"
+      - "AC plan:114 \"a report whose own line is FAIL never yields a final PASS\" has no mode qualifier; in S1 (recorder template, plan:202) T09 fails on any finding"
+      - "spec carries the same conflict (src.md:129 vs 134; src.md:270 intends the computed 427 pass as the clean-pass readout)"
+  # Source: Invariant probe INV-002 — merged per Change #13
+  - id: P-03
+    invariant: INV-002
+    severity_candidate: minor
+    cards: []
+    status: "not debated; caller must validate"
+    summary: "APPLY_STOP exits 1 without recording `audit: skipped(<reason>)`, though the shipped Fix Audit text says every failed step records it."
+    evidence:
+      - "APPLY_STOP prints and exits 1 but writes nothing to `state.json` (plan:87) while the shipped Fix Audit text says a failed step records `audit: skipped(<reason>)` (src.md:199, 45)"
+      - "`final-verdict.md` prints `audit: <state>` (plan:109) and T08a reports `state.json` (plan:205)"
+  # Source: Invariant probe INV-004 — merged per Change #13
+  - id: P-04
+    invariant: INV-004
+    severity_candidate: minor
+    cards: []
+    status: "not debated; caller must validate"
+    summary: "No verdict test expects `verdict: PASS`, and \"review 3 has no new findings\" (empty or absent table) is undefined."
+    evidence:
+      - "every case in AC plan:114-116 expects FAIL or a printed line; none expects `verdict: PASS`"
+      - "an empty or absent review-3 table, if treated as unparseable, exits 2 with FAIL (plan:101)"
+  # Source: Invariant probe INV-006, INV-009, INV-010, INV-012 (LOW, UNADDRESSED) — listed per Change #13
+  - low_items:
+      - id: INV-006
+        summary: "The copied Fix Audit sentence \"behaves exactly as /sc:spec-panel\" becomes false after the Unattended removal and the F-03 fix; Task 8 does not catch it."
+      - id: INV-009
+        summary: "The owner count counts only labelled CRITICAL or MAJOR findings, so an unknown-label finding is left out, unlike `new_blocking`, which fails closed."
+      - id: INV-010
+        summary: "A pure-deletion hunk cites no id, counts as unattributed toward the skip guard; safe but untested."
+      - id: INV-012
+        summary: "Hunks ignore whitespace-only lines, so reverting an insert hunk can leave added blank lines, against the exact-baseline-bytes AC."
+
+# Source: Base (original, modified) actively_checked — union with Variant 2 actively_checked per Change #14
+actively_checked:
+  - source: "reviewer 3 (base)"
+    text: "Brief, source.md and plan in full; spec-panel.md lines 1-30 and 250-274; WORKER-CONTRACT guard cases; test_review_severity_rule scan scope (git ls-files); test_routing_refresh.py:33, 647-648; install_skills sc-* rule; sc-implement private-index snapshot (T1 risk S2 not a defect)."
+  - source: "reviewer 2"
+    text: "Full 333-line spec, all 12 plan tasks, owner constraints and coverage matrix; rejected T1 Q1/Q2 as missing deliverables because Task 2 incorporates the full source test bullets."
+    note: "The dismissal of the FR-8 test gap (T1 Q1) was conceded in Round 2; see F-02."
+
+# Source: Variant 1, checked_sound — merged per Change #14
+checked_sound:
+  - "A1 (_POST_REFRESH_ADDITIONS necessary)"
+  - "A2 (Unattended removal forced by test_worker_contract.py:830-839)"
+  - "A3 (owner count in Constraints and Task 5)"
+
+# Source: Change #1 (debate_status from debate-transcript.md Convergence Assessment)
+debate_status:
+  convergence: "1.00 diff-point alignment"
+  status: BLOCKED_BY_INVARIANTS
+  blocked_by: [INV-001, INV-003]
+  rounds: "2 + 2.5"
+  depth: standard

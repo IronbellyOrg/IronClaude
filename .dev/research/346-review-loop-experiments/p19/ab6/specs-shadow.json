@@ -1,0 +1,261 @@
+[
+ {
+  "sid": "orig",
+  "arm": "original",
+  "run": "original",
+  "spec": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p17/in/spec-original.md",
+  "ledger_status": null
+ },
+ {
+  "sid": "s15",
+  "arm": "ab4",
+  "run": "d4-r5",
+  "spec": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p17/score/in/s15.md",
+  "ledger_status": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p17/score/out/s15.json"
+ },
+ {
+  "sid": "s25",
+  "arm": "pn1",
+  "run": "b1-r3",
+  "spec": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p17/score/in/s25.md",
+  "ledger_status": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p17/score/out/s25.json"
+ },
+ {
+  "sid": "s29",
+  "arm": "ab4",
+  "run": "d4-r2",
+  "spec": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p17/score/in/s29.md",
+  "ledger_status": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p17/score/out/s29.json"
+ },
+ {
+  "sid": "s33",
+  "arm": "pn1",
+  "run": "b1-r6",
+  "spec": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p17/score/in/s33.md",
+  "ledger_status": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p17/score/out/s33.json"
+ },
+ {
+  "sid": "s35",
+  "arm": "pn1",
+  "run": "b1-r4",
+  "spec": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p17/score/in/s35.md",
+  "ledger_status": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p17/score/out/s35.json"
+ },
+ {
+  "sid": "s38",
+  "arm": "ab4",
+  "run": "d4-r3",
+  "spec": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p17/score/in/s38.md",
+  "ledger_status": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p17/score/out/s38.json"
+ },
+ {
+  "sid": "s45",
+  "arm": "ab4",
+  "run": "d4-r1",
+  "spec": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p17/score/in/s45.md",
+  "ledger_status": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p17/score/out/s45.json"
+ },
+ {
+  "sid": "s47",
+  "arm": "pn1",
+  "run": "b1-r2",
+  "spec": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p17/score/in/s47.md",
+  "ledger_status": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p17/score/out/s47.json"
+ },
+ {
+  "sid": "s52",
+  "arm": "ab4",
+  "run": "d4-r6",
+  "spec": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p17/score/in/s52.md",
+  "ledger_status": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p17/score/out/s52.json"
+ },
+ {
+  "sid": "s62",
+  "arm": "pn1",
+  "run": "b1-r1",
+  "spec": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p17/score/in/s62.md",
+  "ledger_status": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p17/score/out/s62.json"
+ },
+ {
+  "sid": "s65",
+  "arm": "ab4",
+  "run": "d4-r4",
+  "spec": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p17/score/in/s65.md",
+  "ledger_status": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p17/score/out/s65.json"
+ },
+ {
+  "sid": "s66",
+  "arm": "pn1",
+  "run": "b1-r5",
+  "spec": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p17/score/in/s66.md",
+  "ledger_status": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p17/score/out/s66.json"
+ },
+ {
+  "sid": "s70",
+  "arm": "ab5-panel",
+  "run": "d5-r3",
+  "spec": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p17/score/in/s70.md",
+  "ledger_status": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p17/score/out/s70.json"
+ },
+ {
+  "sid": "s71",
+  "arm": "ab5-full",
+  "run": "d5f-r4",
+  "spec": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p17/score/in/s71.md",
+  "ledger_status": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p17/score/out/s71.json"
+ },
+ {
+  "sid": "s72",
+  "arm": "ab5-full",
+  "run": "d5f-r5",
+  "spec": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p17/score/in/s72.md",
+  "ledger_status": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p17/score/out/s72.json"
+ },
+ {
+  "sid": "s73",
+  "arm": "ab5-full",
+  "run": "d5f-r1",
+  "spec": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p17/score/in/s73.md",
+  "ledger_status": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p17/score/out/s73.json"
+ },
+ {
+  "sid": "s74",
+  "arm": "ab5-full",
+  "run": "d5f-r2",
+  "spec": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p17/score/in/s74.md",
+  "ledger_status": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p17/score/out/s74.json"
+ },
+ {
+  "sid": "s75",
+  "arm": "ab5-full",
+  "run": "d5f-r6",
+  "spec": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p17/score/in/s75.md",
+  "ledger_status": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p17/score/out/s75.json"
+ },
+ {
+  "sid": "s76",
+  "arm": "ab5-panel",
+  "run": "d5-r6",
+  "spec": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p17/score/in/s76.md",
+  "ledger_status": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p17/score/out/s76.json"
+ },
+ {
+  "sid": "s77",
+  "arm": "ab5-panel",
+  "run": "d5-r1",
+  "spec": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p17/score/in/s77.md",
+  "ledger_status": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p17/score/out/s77.json"
+ },
+ {
+  "sid": "s78",
+  "arm": "ab5-full",
+  "run": "d5f-r3",
+  "spec": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p17/score/in/s78.md",
+  "ledger_status": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p17/score/out/s78.json"
+ },
+ {
+  "sid": "s79",
+  "arm": "ab5-panel",
+  "run": "d5-r5",
+  "spec": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p17/score/in/s79.md",
+  "ledger_status": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p17/score/out/s79.json"
+ },
+ {
+  "sid": "s80",
+  "arm": "ab5-panel",
+  "run": "d5-r4",
+  "spec": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p17/score/in/s80.md",
+  "ledger_status": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p17/score/out/s80.json"
+ },
+ {
+  "sid": "s81",
+  "arm": "ab5-panel",
+  "run": "d5-r2",
+  "spec": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p17/score/in/s81.md",
+  "ledger_status": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p17/score/out/s81.json"
+ },
+ {
+  "sid": "s82",
+  "arm": "pn1d",
+  "run": "d1-r5",
+  "spec": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p17/score/in/s82.md",
+  "ledger_status": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p17/score/out/s82.json"
+ },
+ {
+  "sid": "s83",
+  "arm": "pn1d",
+  "run": "d1-r1",
+  "spec": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p17/score/in/s83.md",
+  "ledger_status": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p17/score/out/s83.json"
+ },
+ {
+  "sid": "s84",
+  "arm": "pn1m",
+  "run": "m1-r1",
+  "spec": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p17/score/in/s84.md",
+  "ledger_status": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p17/score/out/s84.json"
+ },
+ {
+  "sid": "s85",
+  "arm": "pn1m",
+  "run": "m1-r3",
+  "spec": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p17/score/in/s85.md",
+  "ledger_status": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p17/score/out/s85.json"
+ },
+ {
+  "sid": "s86",
+  "arm": "pn1d",
+  "run": "d1-r3",
+  "spec": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p17/score/in/s86.md",
+  "ledger_status": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p17/score/out/s86.json"
+ },
+ {
+  "sid": "s87",
+  "arm": "pn1m",
+  "run": "m1-r4",
+  "spec": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p17/score/in/s87.md",
+  "ledger_status": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p17/score/out/s87.json"
+ },
+ {
+  "sid": "s88",
+  "arm": "pn1d",
+  "run": "d1-r2",
+  "spec": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p17/score/in/s88.md",
+  "ledger_status": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p17/score/out/s88.json"
+ },
+ {
+  "sid": "s89",
+  "arm": "pn1d",
+  "run": "d1-r6",
+  "spec": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p17/score/in/s89.md",
+  "ledger_status": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p17/score/out/s89.json"
+ },
+ {
+  "sid": "s90",
+  "arm": "pn1m",
+  "run": "m1-r6",
+  "spec": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p17/score/in/s90.md",
+  "ledger_status": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p17/score/out/s90.json"
+ },
+ {
+  "sid": "s91",
+  "arm": "pn1d",
+  "run": "d1-r4",
+  "spec": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p17/score/in/s91.md",
+  "ledger_status": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p17/score/out/s91.json"
+ },
+ {
+  "sid": "s92",
+  "arm": "pn1m",
+  "run": "m1-r5",
+  "spec": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p17/score/in/s92.md",
+  "ledger_status": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p17/score/out/s92.json"
+ },
+ {
+  "sid": "s93",
+  "arm": "pn1m",
+  "run": "m1-r2",
+  "spec": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p17/score/in/s93.md",
+  "ledger_status": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p17/score/out/s93.json"
+ }
+]

@@ -1,0 +1,8 @@
+[{"design_id": "stage2-a3", "label": "Stage 2 arm 3 baseline (PR #484 rules)", "adapter": "baseline_sonnet"},
+ {"design_id": "p14-haiku-a3", "label": "Stage 2 arm 3 design, Haiku loop workers", "adapter": "baseline_haiku", "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p14/haiku-baseline"},
+ {"design_id": "p12-ab1", "label": "k=3 union + verify gate", "adapter": "p12_ab1", "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p12/ab1"},
+ {"design_id": "p12-ab2", "label": "verify-before-fix gate (k=1)", "adapter": "p12_ab2", "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p12/ab2"},
+ {"design_id": "p12-ab3", "label": "final whole-document gate", "adapter": "p12_ab3", "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p12/ab3"},
+ {"design_id": "p13-pn1", "label": "panel + merge + ledger", "adapter": "p13_ab1", "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p13/ab1"},
+ {"design_id": "p13-pn2", "label": "mechanical requirements lint", "adapter": "p13_ab2", "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p13/ab2"},
+ {"design_id": "p13-pn3", "label": "capture-recapture stop rule", "adapter": "p13_ab3", "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p13/ab3"}]

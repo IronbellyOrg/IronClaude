@@ -1,0 +1,17 @@
+{
+ "finding": {
+  "title": "Wiegers: \"well inside the readiness limit\" is not measurable.",
+  "wrong_outcome": "Wiegers: \"well inside the readiness limit\" is not measurable."
+ },
+ "evidence": {
+  "e1": {
+   "text": "well inside the readiness limit",
+   "line": 59,
+   "context": "\n| ID | Requirement | Owner | Evidence |\n|---|---|---|---|\n| WC-1 | **No prompt before the agent is ready.** Nothing in the launch path (wrapper, hook, startup command) may wait on a person before Claude's input box is ready. Any such prompt must fall back on its own well inside the readiness limit (default 60 s). | Launch setup, not commands | `EVIDENCE.md:39` (worker-start failed at `agent_readiness` behind a session-name prompt); `EVIDENCE.md:45,56` (passes with a 30 s fallback; above about 45 s it fails again); `CAPS:44-45` (60 s default, `--timeout-ms` per start) |\n| WC-2 | **No person-blocking step in unattended mode.** Under `--unattended` the command never calls `AskUserQuestion`, never ends its turn on a chat question or `[yes / no]` offer, and never says STOP AND WAIT. Each gate resolves one of three ways, listed per command in section 3: (a) a documented default; (b) a value the caller supplied as a flag; (c) **blocked**: the command writes its report with `status: blocked` and the exact question, and stops. | Command | Gates per command at `INV-A:76-83`, `INV-B:292`; a worker waiting on a prompt is \"healthy\", so a stall is invisible (`CAPS:52`, `CAPS:129`); a plain chat offer also stalls (`INV-A:62`) |\n| WC-3 | **Questions go to the coordinator, not to a local prompt.** When a gate would resolve as blocked and the worker session holds a preamble, the session may instead ask the coordinator once with the preamble's `ask` command, wait, then re-invoke or resume the command with the answer as a flag. On an `ask` timeout it resumes the same message ID and never creates a duplicate. No heartbeat is sent while blocked in `ask`. | Worker session | `CAPS:58-61` (`[H:ask]` lines 3-5, 23-24; `[G]` lines 80-82); `CAPS:64` (`[G:worker-contract]` lines 10-11) |\n| WC-4 | **One report file, known before dispatch, written on every outcome.** In unattended mode the command writes `<output-dir>/return-contract.yaml`, where `<output-dir>` is the directory the coordinator passed (`--output` / `--output-dir`). It follows the return-contract pattern several commands already use and carries at least: `status` (one of `succeeded`, `partial`, `failed`, `blocked`), `command` (the exact command line), `report_path` (the main human-readable deliverable, if any), `artifacts` (every other file written), and, when blocked, `blocked_question`. It is written on success, failure, blocked and partial outcomes, including stops before any other output exists. Commands that already write a contract keep their fields and add the missing ones. The worker passes the contract path as `worker_done --report-path`. Orca does not check the file, so the coordinator opens it. | Command writes; worker reports; coordinator reads | `CAPS:72-74` (`--report-path` only with real values); `CAPS:79` (Orca's handling of the file is UNVERIFIED); existing models: `sk/sc-workflow-protocol/refs/return-contract.md:3-19,41` via `INV-B:272`, `sk/sc-brainstorm-protocol/SKILL.md:335` via `INV-A:97` |"
+  }
+ },
+ "facts": {
+  "quotes_found_verbatim": true,
+  "evidence_count": 1
+ }
+}

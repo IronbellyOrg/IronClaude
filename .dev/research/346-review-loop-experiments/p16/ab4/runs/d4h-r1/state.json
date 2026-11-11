@@ -1,0 +1,489 @@
+{
+ "run": "d4h-r1",
+ "design": "d4",
+ "rep": 1,
+ "stratum": "haiku",
+ "loop_model": "haiku",
+ "frozen": {
+  "cmd_sha": "e62e70b98e878cb4b60ba8f95f1cc3442a25e815828a3ef3d17a95b65ea97494",
+  "rules_sha": "1a2e8ab6b9156760e72e47e31b2c126e5f8e82727e9ed90e9e60f48333bada8b",
+  "aud_cmd_sha": "e62e70b98e878cb4b60ba8f95f1cc3442a25e815828a3ef3d17a95b65ea97494",
+  "aud_rules_sha": "3eb772f944491720af24133267681e170510ba49949af1b08db913e9eeaddfb8",
+  "_comment": "cmd_sha: the /sc:spec-panel command (identical to the frozen audit command, aud_cmd_sha); rules_sha: ab1 rules + PN2 lint bullets + k=2 wording (make_rules.py); aud_rules_sha: the frozen audit rules (p11/rules.md)."
+ },
+ "cmd_sha": "e62e70b98e878cb4b60ba8f95f1cc3442a25e815828a3ef3d17a95b65ea97494",
+ "rules_sha": "1a2e8ab6b9156760e72e47e31b2c126e5f8e82727e9ed90e9e60f48333bada8b",
+ "done": [
+  "R1a",
+  "R1b",
+  "VF1",
+  "V1",
+  "R2",
+  "VF2",
+  "AUD2",
+  "AUD"
+ ],
+ "prepared": [
+  "R1a",
+  "R1b",
+  "VF1",
+  "V1",
+  "R2",
+  "VF2",
+  "AUD",
+  "AUD2"
+ ],
+ "transitioned": [
+  "R1a",
+  "R1b",
+  "VF1",
+  "V1",
+  "R2",
+  "VF2",
+  "AUD2",
+  "AUD"
+ ],
+ "log": {
+  "LINT1": {
+   "checks": [
+    "REF"
+   ],
+   "findings": 0,
+   "by_check": {},
+   "ids": [],
+   "sha256": "6a70e9a1255ee5d4652078e22f1d02b3383feeb5af682b9017b29610cb1b420a",
+   "spec_sha256": "d3cdbe573e57303b9ce6c93d1fe98ba18fb7cb1a15773d926bf6a0c31425200d",
+   "stratum": "haiku"
+  },
+  "R1a": {
+   "output_exists": true,
+   "report_bytes": 23907,
+   "verdict": "FAIL",
+   "review_header": [
+    "1"
+   ],
+   "labels": {
+    "CRITICAL": 1,
+    "MAJOR": 14,
+    "MINOR": 12
+   },
+   "blocking_ids": "F1, F2, F3, F4",
+   "blocking_word_count": 14,
+   "stratum": "haiku",
+   "model": "haiku",
+   "output_tokens": 77134
+  },
+  "R1b": {
+   "output_exists": true,
+   "report_bytes": 27921,
+   "verdict": "FAIL",
+   "review_header": [
+    "1"
+   ],
+   "labels": {
+    "MAJOR": 1
+   },
+   "blocking_ids": "B1, B2, B3, B4, B5, B6, B7",
+   "blocking_word_count": 8,
+   "stratum": "haiku",
+   "model": "haiku",
+   "output_tokens": 108204
+  },
+  "VF1": {
+   "output_exists": true,
+   "finding_ids": [
+    "M1",
+    "M2",
+    "M3",
+    "M4",
+    "M5",
+    "M6",
+    "M7",
+    "M8",
+    "M9",
+    "M10",
+    "M11"
+   ],
+   "report_bytes": 5141,
+   "confirmed": [
+    "M1",
+    "M2",
+    "M3",
+    "M4",
+    "M5",
+    "M6",
+    "M7",
+    "M8",
+    "M10",
+    "M11"
+   ],
+   "rejected": {
+    "M9": "The roadmap row sits in the table column headed \"Unattended-mode gate resolution (WC-2)\" (97), so the Y/n replacement is scoped to unattended mode and the candidate does not say it applies to a plain session."
+   },
+   "parse_ok": true,
+   "stratum": "haiku",
+   "model": "haiku",
+   "output_tokens": 17742
+  },
+  "V1": {
+   "output_exists": true,
+   "report_bytes": 7318,
+   "spec_after": {
+    "bytes": 60183,
+    "lines": 285,
+    "sha256": "84aa3fdce83498845e1a3cf58e05e4b1f83a15e38b34520e6f0393658bd74d26"
+   },
+   "stratum": "haiku",
+   "model": "haiku",
+   "output_tokens": 43432
+  },
+  "LINT2": {
+   "checks": [
+    "REF"
+   ],
+   "findings": 0,
+   "by_check": {},
+   "ids": [],
+   "sha256": "86cecda645c022d763b32c040a66be31ec2ccb7636d7ecaec7b4bbe6a6d13b31",
+   "spec_sha256": "84aa3fdce83498845e1a3cf58e05e4b1f83a15e38b34520e6f0393658bd74d26",
+   "stratum": "haiku"
+  },
+  "R2": {
+   "output_exists": true,
+   "report_bytes": 25459,
+   "verdict": "FAIL",
+   "review_header": [
+    "2"
+   ],
+   "labels": {},
+   "blocking_ids": "M1 (open: the cli-portify location at :62 and :105), R2.1, R2.2",
+   "blocking_word_count": 13,
+   "spec_after": {
+    "bytes": 60183,
+    "lines": 285,
+    "sha256": "84aa3fdce83498845e1a3cf58e05e4b1f83a15e38b34520e6f0393658bd74d26"
+   },
+   "stratum": "haiku",
+   "model": "haiku",
+   "output_tokens": 56596
+  },
+  "VF2": {
+   "output_exists": true,
+   "finding_ids": [
+    "M1"
+   ],
+   "report_bytes": 1448,
+   "confirmed": [],
+   "rejected": {
+    "M1": "The deferral is stated in the candidate itself, with an owner (P2) and a trigger (before the live check), and WC-4's default `<output-dir>/return-contract.yaml` applies to a row that names no path, so no wrong outcome follows from the text. The \"revise1.md:71\" cite is outside the candidate and cannot be checked in this sandbox."
+   },
+   "parse_ok": true,
+   "stratum": "haiku",
+   "model": "haiku",
+   "output_tokens": 6886
+  },
+  "AUD2": {
+   "output_exists": true,
+   "report_bytes": 21003,
+   "verdict": "FAIL",
+   "review_header": [
+    "1"
+   ],
+   "labels": {
+    "CRITICAL": 3
+   },
+   "blocking_ids": "B1, B2, B3. Restated contract (the reviser reads this report, not the command):",
+   "blocking_word_count": 7,
+   "spec_audited": {
+    "bytes": 60183
+   },
+   "stratum": "haiku",
+   "model": "sonnet",
+   "output_tokens": 37021
+  },
+  "AUD": {
+   "output_exists": true,
+   "report_bytes": 18585,
+   "verdict": "FAIL",
+   "review_header": [
+    "1"
+   ],
+   "labels": {
+    "MAJOR": 2,
+    "CRITICAL": 1
+   },
+   "blocking_ids": "F1, F2. Revise only text a blocking finding names; add no rule, mechanism or section that no blocking finding calls for; each added paragraph or table cites its finding id; prefer deleting or narrowing to adding; report the byte size before and after, and the bytes added and deleted per finding id. Leave Medium and minor findings alone. Return the candidate once and do not award yourself a PASS",
+   "blocking_word_count": 7,
+   "spec_audited": {
+    "bytes": 60183
+   },
+   "stratum": "haiku",
+   "model": "sonnet",
+   "output_tokens": 37443
+  }
+ },
+ "launched": {
+  "R1a": "2026-11-10T12:45:17+00:00",
+  "R1b": "2026-11-10T12:46:16+00:00",
+  "VF1": "2026-11-10T12:55:20+00:00",
+  "V1": "2026-11-10T12:57:14+00:00",
+  "R2": "2026-11-10T13:01:03+00:00",
+  "VF2": "2026-11-10T13:06:14+00:00",
+  "AUD": "2026-11-10T13:07:43+00:00",
+  "AUD2": "2026-11-10T13:07:43+00:00"
+ },
+ "noted_unactioned": [
+  {
+   "step": "VF1",
+   "id": "M9",
+   "theme": "other",
+   "cited": [
+    83,
+    118,
+    146,
+    149,
+    203
+   ],
+   "heading": "### B5. SA-1 forbids prompt changes without `--unattended`; the roadmap row removes the Y/n prompt unconditionally",
+   "reason": "The roadmap row sits in the table column headed \"Unattended-mode gate resolution (WC-2)\" (97), so the Y/n replacement is scoped to unattended mode and the candidate does not say it applies to a plain session."
+  },
+  {
+   "step": "VF2",
+   "id": "M1",
+   "theme": "other",
+   "cited": [],
+   "heading": "| M1 | open (deferred part) | :62, :83, :92 now name the paths; cli-portify is still unnamed at :62 and :105 | revise1.md:71 leaves the cli-portify location to P2. The reviser's deferral counts as open. |",
+   "reason": "The deferral is stated in the candidate itself, with an owner (P2) and a trigger (before the live check), and WC-4's default `<output-dir>/return-contract.yaml` applies to a row that names no path, so no wrong outcome follows from the text. The \"revise1.md:71\" cite is outside the candidate and cannot be checked in this sandbox."
+  }
+ ],
+ "loop_end": "VERIFIED-PASS",
+ "manual": [],
+ "relaunch": {},
+ "lost": false,
+ "complete": true,
+ "merge": {
+  "raw_count": 11,
+  "merged_count": 11,
+  "groups": [
+   {
+    "mid": "M1",
+    "theme": "T2",
+    "members": [
+     "round1-a.md/F1"
+    ],
+    "cited": [
+     62,
+     73,
+     83,
+     85,
+     87,
+     90,
+     92,
+     105
+    ],
+    "heading": "**F1. The contract path rule in WC-4 cannot be followed by the commands the spec lists.** Severity MAJOR. Grade: blocking. Expert: Wiegers (lead), Cockburn."
+   },
+   {
+    "mid": "M2",
+    "theme": "T3",
+    "members": [
+     "round1-a.md/F2"
+    ],
+    "cited": [
+     43,
+     44,
+     73,
+     158,
+     159,
+     180,
+     194
+    ],
+    "heading": "**F2. The P0 smoke runs use a brief that the contract says must carry `--unattended`, but P0 is before any command accepts that flag.** Severity MAJOR. Grade: blocking. Expert: Cockburn, Adzic."
+   },
+   {
+    "mid": "M3",
+    "theme": "other",
+    "members": [
+     "round1-a.md/F3"
+    ],
+    "cited": [
+     63,
+     183
+    ],
+    "heading": "**F3. WC-5 maps an empty or malformed contract to `succeeded`.** Severity MAJOR. Grade: blocking (FR-8 GAP with a concrete wrong outcome). Expert: Whittaker (FR-2.1 Zero/Empty), Wiegers."
+   },
+   {
+    "mid": "M4",
+    "theme": "other",
+    "members": [
+     "round1-a.md/F4"
+    ],
+    "cited": [
+     69,
+     86,
+     146
+    ],
+    "heading": "**F4. WC-11 changes default output paths without limiting the change to unattended runs, which contradicts SA-1.** Severity MAJOR. Grade: blocking. Expert: Wiegers (traceability), Fowler."
+   },
+   {
+    "mid": "M5",
+    "theme": "T3",
+    "members": [
+     "round1-b.md/B1"
+    ],
+    "cited": [
+     183,
+     194
+    ],
+    "heading": "### B1. AC-0.4 step 4 reads YAML keys from a Markdown report"
+   },
+   {
+    "mid": "M6",
+    "theme": "other",
+    "members": [
+     "round1-b.md/B2"
+    ],
+    "cited": [
+     158,
+     159,
+     160,
+     161,
+     162,
+     180,
+     181,
+     182,
+     183,
+     184,
+     185,
+     186,
+     194,
+     196,
+     201
+    ],
+    "heading": "### B2. Step 6 fails whenever the phase's own edits are uncommitted"
+   },
+   {
+    "mid": "M7",
+    "theme": "T3",
+    "members": [
+     "round1-b.md/B3"
+    ],
+    "cited": [
+     65,
+     184,
+     194
+    ],
+    "heading": "### B3. AC-0.4 requires \"no Agent-tool wrapper, verified in the step-5 transcript\", and step 5 does not test it"
+   },
+   {
+    "mid": "M8",
+    "theme": "other",
+    "members": [
+     "round1-b.md/B4"
+    ],
+    "cited": [
+     88,
+     100,
+     103,
+     110,
+     116,
+     122,
+     160,
+     200
+    ],
+    "heading": "### B4. AC-2.2 requires `status: blocked` for every P2 command, but six P2 commands have no blocked path"
+   },
+   {
+    "mid": "M9",
+    "theme": "other",
+    "members": [
+     "round1-b.md/B5"
+    ],
+    "cited": [
+     83,
+     118,
+     146,
+     149,
+     203
+    ],
+    "heading": "### B5. SA-1 forbids prompt changes without `--unattended`; the roadmap row removes the Y/n prompt unconditionally"
+   },
+   {
+    "mid": "M10",
+    "theme": "T2",
+    "members": [
+     "round1-b.md/B6"
+    ],
+    "cited": [
+     62,
+     112,
+     159,
+     195,
+     196,
+     265
+    ],
+    "heading": "### B6. `load` must write a contract (WC-4, AC-1.1, AC-1.2) but its row and decision say it writes no file"
+   },
+   {
+    "mid": "M11",
+    "theme": "T2",
+    "members": [
+     "round1-b.md/B7"
+    ],
+    "cited": [
+     62,
+     73,
+     92,
+     198
+    ],
+    "heading": "### B7. The workflow contract path conflicts with WC-4 and does not exist for a pre-creation STOP"
+   }
+  ],
+  "reviewers": {
+   "a": {
+    "verdict": "FAIL",
+    "sha256": "92bf2b5c18ede560458a50f5c8b243d0cc219695669278ee46d018c022240593",
+    "ids": [
+     "F1",
+     "F2",
+     "F3",
+     "F4"
+    ],
+    "themes": [
+     "T2",
+     "T3",
+     "other",
+     "other"
+    ]
+   },
+   "b": {
+    "verdict": "FAIL",
+    "sha256": "70bcaba9cc6756b379146599a9a34946ecca5351d1e7be0078abd08c95f15c63",
+    "ids": [
+     "B1",
+     "B2",
+     "B3",
+     "B4",
+     "B5",
+     "B6",
+     "B7"
+    ],
+    "themes": [
+     "T3",
+     "other",
+     "T3",
+     "other",
+     "other",
+     "T2",
+     "T2"
+    ]
+   }
+  },
+  "done": true
+ },
+ "final_spec": {
+  "bytes": 60183,
+  "lines": 285,
+  "sha256": "84aa3fdce83498845e1a3cf58e05e4b1f83a15e38b34520e6f0393658bd74d26"
+ }
+}

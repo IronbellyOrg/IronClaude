@@ -1,0 +1,41 @@
+input_tree_sha256: 3445e0a7b569b8b2f5d91419066be65053d201ebdc6b80a6d0d4f30c1464737b
+file_list:
+  - path: .dev/tasks/to-do/TASK-WF-spec-20261108-181547/TASK-WF-spec-20261108-181547.md
+    sha256: 78d23acb416238a5ddff1bf21ff8f5bae21df570baf86cd71f1827add7d250fc
+  - path: .dev/tasks/to-do/TASK-WF-spec-20261108-181547/source.md
+    sha256: dc0505b6364591cf1aab224417ee19fd3b675a6da54a31c34f30357289b542c1
+  - path: .claude/settings.json
+    sha256: 1f535104e6bb9145585a88418d0a094a4b38d6432e3b5fbd6226d550da33d41c
+  - path: /home/coder/workspaces/worktrees/IronClaude/exp346-p1-logs/.dev/experiments/346-validation/phase2/S1/briefs/task-text/T05-R1-reviewer-L11-699ae853.txt
+    sha256: 37e9006c2d404d66c3faa6d123aadb1c5a3196f6afc94d2684179b20ae3b03b0
+  - path: /tmp/impl/exp/s1/filled-flg-r1-T07.txt
+    sha256: e888ada95d4545f07ed994c4bc5157c2af0bd8d62366ccf16a439a89215d262a
+  - path: /tmp/impl/exp/s1/filled-flg-r1-T08.txt
+    sha256: 1cbc6518abd82b05057a7c6218ede70837952538be1068e2fe4a8d97799185dc
+  - path: /tmp/impl/exp/s1/filled-flg-r1-T09.txt
+    sha256: 4e50c8de28beabc84ec484be7081d6dd6faf144b6c4a60b37898556d00b6db51
+  - path: plugins/superclaude/commands/spec-panel.md
+    sha256: f1df5f7564495068e27519352699459206b9a02f3678ccf7c49ce6a2f9f90391
+  - path: src/superclaude/commands/spec-panel.md
+    sha256: 4115f2a979800af8b3ed8dee9d006cf3a97e25c5d9e02420cfee761e82cbe3c9
+  - path: src/superclaude/core/HOW-WE-WORK.md
+    sha256: 39902f7daeb824fce820d190ac28dc11bc1f6161309afbd4f0616050c003a58d
+  - path: src/superclaude/output-styles/pragmatic.md
+    sha256: ba551b7d3d7fe1d2881cb567271e6588b199a130ecee542ecd86c892a47b7489
+  - path: src/superclaude/skills/sc-implement-protocol/refs/managed-workspace.md
+    sha256: 179ffb8e54473a8ef8c9f9bebbd8c4cbb5169d64007b3977b40bb1379f40ef09
+  - path: src/superclaude/skills/sc-implement-protocol/refs/qa.md
+    sha256: 1c0aa9ef0b69ee0e65e5456d774f9151ee35178971e148be54e263b2ec83c8a5
+  - path: tests/commands/test_routing_plugin_parity.py
+    sha256: c362104ffdea66a1164d0903a251f3fb11e614c02c60258a3b476b7e16aaa123
+  - path: tests/recommend/test_routing_refresh.py
+    sha256: 6c8c123fbfc01a01bb67a9ff7a15cfa09049eb38866634cab6ab8edc7550f8db
+  - path: tests/skills/test_review_severity_rule.py
+    sha256: dc21823da962d14b40339e2081717177b3497b27b2a1e41f5637ed97ef10d961
+  - path: tests/skills/test_spec_panel_review_loop.py
+    sha256: e3bc8cb4924d184748dca8a8ebcabb74af41f0bc614eb80dae0a4b1ad31f1ae3
+  - path: tests/skills/test_worker_contract.py
+    sha256: 1fb7e9c7f96b31741a2082601ec3561737f57040075aae3be42e56f3991528cd
+  - path: tests/skills/test_workflow_archive.py
+    sha256: b01951e970b1ea086491c337940c723b637da04514a43077ca028d6fb8617edf
+file_count: 19

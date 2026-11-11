@@ -1,0 +1,103 @@
+{
+ "run": "a3d-r5",
+ "arm": 3,
+ "rep": 5,
+ "loop_model": "sonnet",
+ "done": [
+  "R1",
+  "V1",
+  "R2",
+  "AUD"
+ ],
+ "prepared": [
+  "R1",
+  "V1",
+  "R2",
+  "AUD",
+  "AUD2"
+ ],
+ "transitioned": [
+  "R1",
+  "V1",
+  "R2",
+  "AUD"
+ ],
+ "log": {
+  "R1": {
+   "output_exists": true,
+   "report_bytes": 19053,
+   "verdict": "FAIL",
+   "review_header": [
+    "1"
+   ],
+   "labels": {
+    "MAJOR": 2,
+    "CRITICAL": 1
+   },
+   "blocking_ids": "F-1, F-2, F-3",
+   "blocking_word_count": 6,
+   "spec_after": {
+    "bytes": 57763,
+    "lines": 285,
+    "sha256": "d3cdbe573e57303b9ce6c93d1fe98ba18fb7cb1a15773d926bf6a0c31425200d"
+   }
+  },
+  "V1": {
+   "output_exists": true,
+   "report_bytes": 2796,
+   "spec_after": {
+    "bytes": 58227,
+    "lines": 285,
+    "sha256": "fb9100899806def3c0456f91fd02f9793207fcb28f4789f5ae6d358a15a2ce5f"
+   }
+  },
+  "R2": {
+   "output_exists": true,
+   "report_bytes": 20626,
+   "verdict": "PASS",
+   "review_header": [
+    "2"
+   ],
+   "labels": {},
+   "blocking_ids": null,
+   "blocking_word_count": 9,
+   "spec_after": {
+    "bytes": 58227,
+    "lines": 285,
+    "sha256": "fb9100899806def3c0456f91fd02f9793207fcb28f4789f5ae6d358a15a2ce5f"
+   }
+  },
+  "AUD": {
+   "output_exists": true,
+   "report_bytes": 21295,
+   "verdict": "FAIL",
+   "review_header": [
+    "1"
+   ],
+   "labels": {
+    "CRITICAL": 2
+   },
+   "blocking_ids": "B-1, B-2",
+   "blocking_word_count": 6,
+   "spec_audited": {
+    "bytes": 58227
+   }
+  }
+ },
+ "launched": {
+  "R1": "2026-11-10T12:47:19+00:00",
+  "V1": "2026-11-10T12:54:34+00:00",
+  "R2": "2026-11-10T12:59:52+00:00",
+  "AUD": "2026-11-10T13:05:49+00:00",
+  "AUD2": "2026-11-10T13:13:34+00:00"
+ },
+ "relaunch": {},
+ "loop_end": "PASS",
+ "lost": false,
+ "complete": false,
+ "final_spec": {
+  "bytes": 58227,
+  "lines": 285,
+  "sha256": "fb9100899806def3c0456f91fd02f9793207fcb28f4789f5ae6d358a15a2ce5f"
+ }
+}

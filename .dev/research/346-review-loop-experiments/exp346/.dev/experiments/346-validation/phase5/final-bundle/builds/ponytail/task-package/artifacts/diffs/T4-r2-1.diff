@@ -1,0 +1,419 @@
+diff --git a/src/superclaude/skills/sc-fix-audit/scripts/fix_audit.py b/src/superclaude/skills/sc-fix-audit/scripts/fix_audit.py
+index 9255909b..1fa34300 100644
+--- a/src/superclaude/skills/sc-fix-audit/scripts/fix_audit.py
++++ b/src/superclaude/skills/sc-fix-audit/scripts/fix_audit.py
+@@ -1,9 +1,10 @@
+ #!/usr/bin/env python3
+ """Fix audit for one /sc:spec-panel-ponytail review loop (issue 346).
+ 
+-Subcommands: prepare, check (apply and verdict follow).
++Subcommands: prepare, check, apply (verdict follows).
+ Standard library only. Exit codes: 0 ok, not-triggered or skipped; 1 an
+-unreadable input after the trigger check, or a failed check.
++unreadable input after the trigger check, a failed check or a stopped apply
++(the spec is then byte-identical to D/current-before-audit.md).
+ """
+ 
+ from __future__ import annotations
+@@ -12,8 +13,10 @@ import argparse
+ import difflib
+ import hashlib
+ import json
++import os
+ import re
+ import sys
++import tempfile
+ from pathlib import Path
+ 
+ # [A-Z][A-Z0-9]*(-[A-Z0-9]+)*[0-9] as whole words: single hyphens allowed inside, so R2-1 and C-R3-15 match.
+@@ -711,21 +714,194 @@ def run_checks(d: Path, state: dict) -> tuple[list[tuple[str, str]], list[str],
+     return fails, logs, {"rows": rows, "edits": edits, "by_id": by_id, "dash": dash}
+ 
+ 
+-def cmd_check(a: argparse.Namespace) -> int:
+-    d = Path(a.dir)
+-    state = load_state(d)
++def not_ready(state: dict, verb: str) -> int | None:
++    """Exit code when there is nothing to check or apply, else None."""
+     audit = state.get("audit", "")
+-    if audit not in ("prepared", "checked"):
+-        print(f"nothing to check: audit: {audit}")
+-        return 0 if audit.startswith(("not-triggered", "skipped(ids")) else 1
+-    fails, logs, _ = run_checks(d, state)
++    if audit in ("prepared", "checked"):
++        return None
++    print(f"nothing to {verb}: audit: {audit}")
++    return 0 if audit.startswith(("not-triggered", "skipped(ids")) else 1
++
++
++def record_check(d: Path, state: dict) -> tuple[bool, dict]:
++    """Run K1-K10, write check.log and the audit state; True when the check passed."""
++    fails, logs, parsed = run_checks(d, state)
+     out = [f"CHECK_FAIL {rule} {row}" for rule, row in fails] or ["CHECK_OK"]
+     (d / "check.log").write_text("\n".join(out + logs) + "\n", encoding="utf-8")
+     state["audit"] = "skipped(check failed)" if fails else "checked"
+     write_state(d, state)
+     print("\n".join(out + logs))
+-    print(f"audit: {state['audit']}")
+-    return 1 if fails else 0
++    if fails:
++        print(f"audit: {state['audit']}")
++    return not fails, parsed
++
++
++def cmd_check(a: argparse.Namespace) -> int:
++    d = Path(a.dir)
++    state = load_state(d)
++    code = not_ready(state, "check")
++    if code is not None:
++        return code
++    ok, _ = record_check(d, state)
++    if ok:
++        print(f"audit: {state['audit']}")
++    return 0 if ok else 1
++
++
++# ---------- apply ----------
++
++STRENGTH = {"revert": 1, "shrink": 2, "keep": 3}  # keep over shrink over revert
++
++
++def atomic_write(path: Path, data: bytes) -> None:
++    """Temp file in the same folder, then os.replace; the mode of `path` is kept."""
++    fd, tmp = tempfile.mkstemp(dir=path.parent, prefix=f".{path.name}.", suffix=".tmp")
++    try:
++        with os.fdopen(fd, "wb") as f:
++            f.write(data)
++            f.flush()
++            os.fsync(f.fileno())
++        os.chmod(tmp, os.stat(path).st_mode & 0o7777)
++        os.replace(tmp, path)
++    finally:
++        if os.path.exists(tmp):
++            os.unlink(tmp)
++
++
++def cmd_apply(a: argparse.Namespace) -> int:
++    d = Path(a.dir)
++    state = load_state(d)
++    s, b = Path(state["current"]), Path(state["baseline"])
++    log_path = d / "apply-log.md"
++    if log_path.exists():
++        m = re.search(r"^sha256 after: ([0-9a-f]{64})$", read_text(log_path), re.M)
++        if m and s.exists() and sha256(s) == m.group(1):
++            print("already applied")
++            return 0
++    code = not_ready(state, "apply")
++    if code is not None:
++        return code
++    ok, parsed = record_check(d, state)
++    if not ok:
++        return 1
++
++    def stop(why: str) -> int:
++        state["audit"] = "skipped(apply stopped)"
++        write_state(d, state)
++        print(f"APPLY_STOP: nothing written ({why})")
++        print(f"audit: {state['audit']}")
++        return 1
++
++    stext, btext = read_text(s), read_text(b)
++    s_lines, b_lines = split_lines(stext), split_lines(btext)
++    s_off = line_offsets(s_lines)
++    ids, hunks = state["ids"], {h["id"]: h for h in state["hunks"]}
++    rows, edits, by_id = parsed["rows"], parsed["edits"], parsed["by_id"]
++
++    def rdef(h: dict) -> list[str]:
++        return [t for t in h["cited"] if t in ids]
++
++    verdicts: dict[str, list[str]] = {hid: [] for hid in hunks}
++    for r in rows:
++        for hid in r["hunk_ids"]:
++            verdicts.setdefault(hid, []).append(r["verdict"])
++    strongest = {hid: max(v, key=STRENGTH.get) for hid, v in verdicts.items() if v}
++    # a hunk goes back to B only when every id on it has verdict revert
++    reverted = {
++        hid
++        for hid, h in hunks.items()
++        if verdicts[hid]
++        and strongest[hid] == "revert"
++        and all(by_id.get(t, {}).get("verdict") == "revert" for t in rdef(h))
++    }
++    actions: list[tuple[int, int, str]] = []
++    log: list[str] = []
++    for hid in sorted(reverted, key=lambda x: hunks[x]["s"][0]):
++        h = hunks[hid]
++        old = "".join(s_lines[h["s"][0] : h["s"][1]])
++        new = "".join(
++            b_lines[h["b"][0] : h["b"][1]]
++        )  # the baseline lines, never model text
++        actions.append((s_off[h["s"][0]], s_off[h["s"][1]], new))
++        who = ",".join(rdef(h)) or "-"
++        log.append(
++            f"applied {who} {hid} revert bytes {len(old.encode())} -> {len(new.encode())}"
++        )
++    shrunk: set[str] = set()
++
++    def hunk_bytes(hid: str) -> int:
++        h = hunks.get(hid)
++        return len("".join(s_lines[h["s"][0] : h["s"][1]]).encode()) if h else 0
++
++    for r in rows:
++        rid = r["id"]
++        if r["verdict"] == "revert":
++            for hid in r["hunk_ids"]:
++                if hid not in reverted:
++                    n_b = hunk_bytes(hid)
++                    log.append(f"REVERT_SHARED {rid}")
++                    log.append(
++                        f"SKIP {rid} {hid} revert shared with a kept or shrunk id bytes {n_b} -> {n_b}"
++                    )
++        elif r["verdict"] == "keep":
++            for hid in r["hunk_ids"]:
++                n_b = hunk_bytes(hid)
++                log.append(f"SKIP {rid} {hid} keep bytes {n_b} -> {n_b}")
++    for n, e in enumerate(edits, 1):
++        tag = f"{e['id']} {e['hunk']} {e['op']} row {n}"
++        if strongest.get(e["hunk"]) != "shrink":
++            n_b = len(e["old"].encode())
++            log.append(
++                f"SKIP {tag} ({strongest.get(e['hunk'])} wins on {e['hunk']}) bytes {n_b} -> {n_b}"
++            )
++            continue
++        if stext.count(e["old"]) != 1:
++            return stop(f"{tag}: old does not occur exactly once")
++        pos = stext.index(e["old"])
++        actions.append((pos, pos + len(e["old"]), e["new"]))
++        shrunk.add(e["hunk"])
++        log.append(
++            f"applied {tag} bytes {len(e['old'].encode())} -> {len(e['new'].encode())}"
++        )
++    actions.sort()
++    for (a0, a1, _), (b0, b1, _) in zip(actions, actions[1:]):
++        if b0 < a1 or (a0 == b0 and (a0 == a1 or b0 == b1)):
++            return stop("two rows overlap")
++    new_text = stext
++    for start, end, repl in reversed(actions):  # bottom-up keeps earlier offsets valid
++        new_text = new_text[:start] + repl + new_text[end:]
++    data = new_text.encode("utf-8")
++    before = sha256(s)
++    try:
++        atomic_write(s, data)
++        if s.read_bytes() != data:
++            raise OSError("read-back differs")
++    except OSError as e:
++        atomic_write(s, (d / "current-before-audit.md").read_bytes())
++        return stop(f"write failed: {e}")
++    closed = [
++        f"{t} {ids[t]['label']}"
++        for t in sorted({t for h in hunks.values() for t in rdef(h)})
++        if all(hid in reverted for hid, h in hunks.items() if t in rdef(h))
++    ]
++    kept = len(hunks) - len(reverted) - len(shrunk - reverted)
++    summary = f"applied(reverted={len(reverted)}, shrunk={len(shrunk - reverted)}, kept={kept})"
++    applied = sum(ln.startswith("applied") for ln in log)
++    log += [
++        f"totals: applied={applied} skipped={sum(ln.startswith('SKIP') for ln in log)}",
++        f"sha256 before: {before}",
++        f"sha256 after: {sha256(s)}",
++        f"changed lines vs baseline before: {changed_lines(b_lines, s_lines)}",
++        f"changed lines vs baseline after: {changed_lines(b_lines, split_lines(new_text))}",
++    ]
++    (d / "apply-log.md").write_text("\n".join(log) + "\n", encoding="utf-8")
++    (d / "closed-minor.txt").write_text(
++        "".join(c + "\n" for c in closed), encoding="utf-8"
++    )
++    state["audit"] = summary
++    write_state(d, state)
++    print(f"audit: {summary}")
++    return 0
+ 
+ 
+ def main(argv: list[str] | None = None) -> int:
+@@ -747,6 +923,11 @@ def main(argv: list[str] | None = None) -> int:
+     )
+     c.add_argument("--dir", required=True)
+     c.set_defaults(fn=cmd_check)
++    ap_ = sub.add_parser(
++        "apply", help="re-check, then apply revert and edit rows all or nothing"
++    )
++    ap_.add_argument("--dir", required=True)
++    ap_.set_defaults(fn=cmd_apply)
+     a = ap.parse_args(argv)
+     return a.fn(a)
+ 
+diff --git a/tests/skills/test_fix_audit_script.py b/tests/skills/test_fix_audit_script.py
+index 94bd98e2..e57994cf 100644
+--- a/tests/skills/test_fix_audit_script.py
++++ b/tests/skills/test_fix_audit_script.py
+@@ -9,6 +9,7 @@ import ast
+ import filecmp
+ import importlib.util
+ import json
++import re
+ import subprocess
+ import sys
+ from pathlib import Path
+@@ -719,3 +720,162 @@ def test_changed_spec_sha_fails_k1(prepped):
+     res = run("check", "--dir", str(prepped))
+     assert res.returncode == 1 and fa.sha256(spec) == before
+     assert "CHECK_FAIL K1 spec sha256 changed" in (prepped / "check.log").read_text()
++
++
++# ---------- apply ----------
++
++
++def apply_(d: Path):
++    return run("apply", "--dir", str(d))
++
++
++def spec_of(d: Path) -> Path:
++    return Path(json.loads((d / "state.json").read_text())["current"])
++
++
++def test_apply_reverts_and_shrinks(prepped):
++    (prepped / "audit.md").write_text(audit_md(), encoding="utf-8")
++    res = apply_(prepped)
++    assert res.returncode == 0, res.stdout + res.stderr
++    assert "audit: applied(reverted=1, shrunk=1, kept=2)" in res.stdout
++    text = spec_of(prepped).read_text()
++    assert text.splitlines()[0] == "alpha one"  # H1 back to the exact baseline line
++    assert "delta four N3 gap\n" in text and "beta two N2 needed rule" in text
++    log = (prepped / "apply-log.md").read_text()
++    assert f"sha256 before: {fa.sha256(prepped / 'current-before-audit.md')}" in log
++    assert f"sha256 after: {fa.sha256(spec_of(prepped))}" in log
++    assert "changed lines vs baseline before: 4" in log
++    assert "changed lines vs baseline after: 3" in log
++    assert (prepped / "closed-minor.txt").read_text() == "N1 MINOR\n"
++    assert json.loads((prepped / "state.json").read_text())["audit"].startswith(
++        "applied("
++    )
++
++
++def test_revert_restores_exact_baseline_bytes(tmp_path):
++    base = "keep\r\nold line é\r\nend"
++    cur = "keep\r\nold line é N1 tweak\r\nend"
++    res, d, _ = prepare(
++        tmp_path, base, cur, report("| N1 | MINOR | non-blocking |\n"), disp=""
++    )
++    rows = {
++        "N1": "| N1 | H1 | minor | minor | no | none | revert | the added words change nothing at all |"
++    }
++    (d / "audit.md").write_text(audit_md(rows, []), encoding="utf-8")
++    assert apply_(d).returncode == 0
++    assert spec_of(d).read_bytes() == base.encode("utf-8")
++
++
++@pytest.mark.parametrize(
++    "base,cur",
++    [
++        ("a\r\nb gap\r\nc\r\n", "a\r\nb N3 gap fix\r\nc\r\n"),  # CRLF
++        ("é a\nb gap\nü c\n", "é a\nb N3 gap fix\nü c\n"),  # non-ASCII UTF-8
++        ("a\nb gap\nc", "a\nb N3 gap fix\nc"),  # no trailing newline
++    ],
++)
++def test_bytes_outside_the_edit_round_trip(tmp_path, base, cur):
++    """Only the edited span changes; line endings, encoding and the last newline stay."""
++    rep = report("| N3 | MAJOR (FR-8 GAP) | non-blocking |\n")
++    res, d, _ = prepare(tmp_path, base, cur, rep, disp="")
++    rows = {
++        "N3": "| N3 | H1 | minor | minor | yes | drop a word | shrink | one added word is extra |"
++    }
++    edits = [
++        {"id": "N3", "hunk": "H1", "op": "delete", "old": "N3 gap fix", "new": "N3 gap"}
++    ]
++    (d / "audit.md").write_text(audit_md(rows, edits), encoding="utf-8")
++    res = apply_(d)
++    assert res.returncode == 0 and "audit: applied(" in res.stdout, res.stdout
++    assert spec_of(d).read_bytes() == cur.replace("N3 gap fix", "N3 gap").encode(
++        "utf-8"
++    )
++
++
++def test_second_apply_is_already_applied(prepped):
++    (prepped / "audit.md").write_text(audit_md(), encoding="utf-8")
++    assert apply_(prepped).returncode == 0
++    after = spec_of(prepped).read_bytes()
++    log = (prepped / "apply-log.md").read_bytes()
++    res = apply_(prepped)
++    assert res.returncode == 0 and res.stdout.strip() == "already applied"
++    assert (
++        spec_of(prepped).read_bytes() == after
++        and (prepped / "apply-log.md").read_bytes() == log
++    )
++
++
++def test_no_temp_file_left(prepped):
++    (prepped / "audit.md").write_text(audit_md(), encoding="utf-8")
++    assert apply_(prepped).returncode == 0
++    assert not [
++        p.name for p in spec_of(prepped).parent.iterdir() if p.name.endswith(".tmp")
++    ]
++
++
++def test_bad_last_row_leaves_spec_untouched(prepped):
++    edits = CK_EDITS + [
++        {"id": "N3", "hunk": "H4", "op": "delete", "old": "not in the spec", "new": ""}
++    ]
++    (prepped / "audit.md").write_text(audit_md(None, edits), encoding="utf-8")
++    assert apply_(prepped).returncode == 1
++    assert (
++        spec_of(prepped).read_bytes()
++        == (prepped / "current-before-audit.md").read_bytes()
++    )
++
++
++def test_apply_stop_guard_writes_nothing(prepped, monkeypatch, capsys):
++    """Even if the check let a bad row through, apply's own exact-once guard stops."""
++    edits = CK_EDITS + [
++        {"id": "N3", "hunk": "H4", "op": "delete", "old": "k1\n", "new": ""}
++    ]
++    edits[-1]["old"] = "k"  # occurs several times in S
++    (prepped / "audit.md").write_text(audit_md(None, edits), encoding="utf-8")
++    real = fa.run_checks
++
++    def lenient(d, state):
++        _, logs, parsed = real(d, state)
++        return [], logs, parsed
++
++    monkeypatch.setattr(fa, "run_checks", lenient)
++    assert fa.main(["apply", "--dir", str(prepped)]) == 1
++    assert "APPLY_STOP: nothing written" in capsys.readouterr().out
++    assert (
++        spec_of(prepped).read_bytes()
++        == (prepped / "current-before-audit.md").read_bytes()
++    )
++    assert not (prepped / "apply-log.md").exists()
++
++
++def test_shared_hunk_is_not_reverted_and_not_closed(tmp_path):
++    base = "one\nk\ntwo\n"
++    cur = "one N1 N2 words\nk\ntwo N1 more\n"
++    rep = report("| N1 | MINOR | non-blocking |\n| N2 | MINOR | non-blocking |\n")
++    res, d, state = prepare(tmp_path, base, cur, rep, disp="")
++    assert [h["class"] for h in state["hunks"]] == ["minor-only", "minor-only"]
++    rows = {
++        "N1": "| N1 | H1, H2 | minor | minor | no | none | revert | the added words change nothing at all |",
++        "N2": "| N2 | H1 | minor | minor | yes | none | keep | wording only |",
++    }
++    (d / "audit.md").write_text(audit_md(rows, []), encoding="utf-8")
++    res = apply_(d)
++    assert res.returncode == 0, res.stdout
++    log = (d / "apply-log.md").read_text()
++    assert "REVERT_SHARED N1" in log.splitlines()
++    assert spec_of(d).read_text() == "one N1 N2 words\nk\ntwo\n"  # H2 reverted, H1 kept
++    assert (d / "closed-minor.txt").read_text() == ""
++
++
++def test_every_apply_log_row_has_id_and_bytes(prepped):
++    (prepped / "audit.md").write_text(audit_md(), encoding="utf-8")
++    assert apply_(prepped).returncode == 0
++    rows = [
++        ln
++        for ln in (prepped / "apply-log.md").read_text().splitlines()
++        if ln.split(" ", 1)[0] in ("applied", "already", "SKIP", "STOP")
++    ]
++    assert len(rows) == 4  # H1 revert, N2 keep, - keep, N3 edit
++    for ln in rows:
++        assert re.search(r" bytes [0-9]+ -> [0-9]+$", ln), ln
++        assert ln.split()[1] in ("N1", "N2", "N3", "-"), ln

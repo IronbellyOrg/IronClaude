@@ -1,0 +1,202 @@
+diff --git a/src/superclaude/skills/sc-fix-audit/scripts/fix_audit.py b/src/superclaude/skills/sc-fix-audit/scripts/fix_audit.py
+index bd6ebc3e..92eaaba5 100644
+--- a/src/superclaude/skills/sc-fix-audit/scripts/fix_audit.py
++++ b/src/superclaude/skills/sc-fix-audit/scripts/fix_audit.py
+@@ -14,13 +14,15 @@ import hashlib
+ import json
+ import re
+ import sys
+-from collections import Counter
+ from pathlib import Path
+ 
+ # [A-Z][A-Z0-9]*(-[A-Z0-9]+)*[0-9] as whole words: single hyphens allowed inside, so R2-1 and C-R3-15 match.
+-ID_RE = re.compile(
+-    r"(?<![\w-])([A-Z](?:[A-Z0-9]|-(?=[A-Z0-9]))*[0-9])(?!\w)(?!-[A-Z0-9])"
+-)
++ID_PAT = r"[A-Z](?:[A-Z0-9]|-(?=[A-Z0-9]))*[0-9]"
++ID_RE = re.compile(rf"(?<![\w-])({ID_PAT})(?!\w)(?!-[A-Z0-9])")
++LEAD_RE = re.compile(rf"(?:{ID_PAT})(?:\s*(?:,|/|&|\band\b)\s*(?:{ID_PAT}))*(?![\w-])")
++MARKER_RE = re.compile(r"^\s*(?:#+\s*)?(?:[-*+]\s+|[0-9]+[.)]\s+)?[*_`\s]*")
++YES_CELLS = {"yes", "y", "true"}
++NO_CELLS = {"no", "n", "false"}
+ RANGE_RE = re.compile(r"^([A-Z]+)([0-9]+)-\1([0-9]+)$")
+ FR_RE = re.compile(r"^FR-[0-9]+$")
+ PROTECTED_RE = re.compile(r"(?<![\w-])FR-[89](?![\w])")
+@@ -72,6 +74,26 @@ def id_tokens(text: str) -> list[str]:
+     return out
+ 
+ 
++def lead_ids(line: str) -> list[str]:
++    """Ids that open a prose line (after list, heading and bold markers), e.g. `**N3.**`, `C9:`."""
++    m = LEAD_RE.match(MARKER_RE.sub("", line, count=1))
++    return id_tokens(m.group()) if m else []
++
++
++def multiset_minus(a: list[str], b: list[str]) -> list[str]:
++    """Distinct tokens of a whose count in a exceeds their count in b."""
++    left: dict[str, int] = {}
++    for t in b:
++        left[t] = left.get(t, 0) + 1
++    out = set()
++    for t in a:
++        if left.get(t, 0):
++            left[t] -= 1
++        else:
++            out.add(t)
++    return sorted(out)
++
++
+ def table_cells(line: str) -> list[str] | None:
+     s = line.strip()
+     if not s.startswith("|"):
+@@ -122,32 +144,48 @@ def parse_report(text: str) -> dict:
+     seen: dict[str, dict] = {}
+     prior: list[list[str]] = []
+     in_prior = False
+-    for line in text.splitlines():
+-        if line.lstrip().startswith("#"):
+-            in_prior = bool(PRIOR_HEADING_RE.search(line))
+-            continue
++    header: list[str] | None = None
++    lines = text.splitlines()
++    for n, line in enumerate(lines):
+         cs = table_cells(line)
+-        if cs is not None and is_separator(cs):
+-            continue
+-        toks = id_tokens(cs[0] if cs else line)
++        status, bcell = "", None
++        if cs is None:
++            header = None
++            if line.lstrip().startswith("#"):
++                in_prior = bool(PRIOR_HEADING_RE.search(line))
++            # a prose record names its id(s) first; free text (totals, notes) defines nothing
++            toks = lead_ids(line)
++        else:
++            if is_separator(cs):
++                continue
++            nxt = table_cells(lines[n + 1]) if n + 1 < len(lines) else None
++            if nxt is not None and is_separator(nxt):
++                header = [c.lower() for c in cs]
++                continue
++            toks = id_tokens(cs[0])  # every id of the id cell, ranges expanded
++            status = next((c.lower() for c in cs[1:] if c.lower() in STATUS_WORDS), "")
++            col = next((i for i, h in enumerate(header or []) if "blocking" in h), None)
++            if col is not None and col < len(cs):
++                bcell = cs[col].lower()
+         toks = [t for t in toks if not FR_RE.match(t)]
+         if not toks:
+             continue
+-        rid = toks[0]
+-        status = next(
+-            (c.lower() for c in (cs or [])[1:] if c.lower() in STATUS_WORDS), ""
+-        )
+         label, blocking, fr = parse_grade(line, key)
++        if bcell in YES_CELLS:
++            blocking = True
++        elif bcell in NO_CELLS and blocking is None:
++            blocking = False
+         if in_prior or (status and label == "unknown" and blocking is None):
+-            prior.append([rid, status])
++            prior.extend([t, status] for t in toks)
+             continue
+         if label == "unknown" and blocking is None and not fr:
+             continue  # an incidental mention, not a graded record
+-        g = seen.setdefault(rid, {"label": "unknown", "flags": [], "fr": False})
+-        if LABEL_RANK[label] > LABEL_RANK[g["label"]]:
+-            g["label"] = label
+-        g["flags"].append(blocking)
+-        g["fr"] = g["fr"] or fr
++        for rid in toks:
++            g = seen.setdefault(rid, {"label": "unknown", "flags": [], "fr": False})
++            if LABEL_RANK[label] > LABEL_RANK[g["label"]]:
++                g["label"] = label
++            g["flags"].append(blocking)
++            g["fr"] = g["fr"] or fr
+     graded = {
+         rid: {
+             "label": g["label"],
+@@ -213,7 +251,8 @@ def disposition_lines(text: str, blocking_ids: set[str]) -> set[int]:
+             continue
+         if where is None:
+             low = [c.lower() for c in cs]
+-            where = low.index("where") if "where" in low else None
++            # the header may say `Where` or `Where (revised spec)`
++            where = next((i for i, c in enumerate(low) if c.startswith("where")), None)
+             continue
+         if is_separator(cs) or where >= len(cs):
+             continue
+@@ -305,9 +344,7 @@ def cmd_prepare(a: argparse.Namespace) -> int:
+     for h in hunks:
+         s_txt = "".join(s_lines[h["s"][0] : h["s"][1]])
+         b_txt = "".join(b_lines[h["b"][0] : h["b"][1]])
+-        h["cited"] = sorted(
+-            (Counter(id_tokens(s_txt)) - Counter(id_tokens(b_txt))).keys()
+-        )
++        h["cited"] = multiset_minus(id_tokens(s_txt), id_tokens(b_txt))
+         h["added"] = len(s_txt.encode("utf-8"))
+         h["removed"] = len(b_txt.encode("utf-8"))
+         h["class"] = classify(h, graded, set(prior_only), disp)
+diff --git a/tests/skills/test_fix_audit_script.py b/tests/skills/test_fix_audit_script.py
+index 03ee2fb8..2cade9f9 100644
+--- a/tests/skills/test_fix_audit_script.py
++++ b/tests/skills/test_fix_audit_script.py
+@@ -104,7 +104,6 @@ def test_script_imports_only_stdlib():
+     allowed = {
+         "__future__",
+         "argparse",
+-        "collections",
+         "difflib",
+         "hashlib",
+         "json",
+@@ -373,3 +372,51 @@ def test_unreadable_dispositions_exit_1(tmp_path):
+         str(tmp_path / "d"),
+     )
+     assert res.returncode == 1
++
++
++# ---------- report shapes of a real review-2 report (flg-r2 style) ----------
++
++FLG_R2_STYLE = (
++    R2_HEAD
++    + "## Part 1: Prior findings\n\n| id | fixed | status |\n|---|---|---|\n| F16 | no | open |\n\n"
++    + "## Part 2: New findings\n\n"
++    + "**N1.** MAJOR, blocking: the cap text is missing.\n"
++    + "N2 (MINOR, non-blocking): wording.\n"
++    + "Notes on citations (Part 2) are minor: C9 off by one, C12 and C13 stale.\n\n"
++    + "| id | where | severity | blocking |\n|---|---|---|---|\n"
++    + "| N7-N9 | 3.6 | MINOR | no |\n| C9, C12, C13 | Part 2 | MINOR | no |\n\n"
++    + "Totals: 1 CRITICAL, 5 MAJOR; WC-3 still MINOR; the still-open non-blocking F16.\n"
++    + R2_TAIL
++)
++
++
++def test_free_text_lines_define_no_id():
++    parsed = fa.parse_report(FLG_R2_STYLE)
++    assert "F16" not in parsed["graded"] and "WC-3" not in parsed["graded"]
++    assert ["F16", "open"] in parsed["prior"]
++
++
++def test_every_id_of_an_id_cell_is_graded():
++    g = fa.parse_report(FLG_R2_STYLE)["graded"]
++    for rid in ("C9", "C12", "C13", "N7", "N8", "N9"):
++        assert g[rid] == {"label": "MINOR", "blocking": False, "protected": False}, rid
++    assert g["N1"]["blocking"] is True and g["N2"]["blocking"] is False
++
++
++def test_where_column_with_suffix_is_found():
++    disp = "| id | change | Where (revised spec) |\n|---|---|---|\n| N1 | added rule | SPEC':5, SPEC':7-8 |\n| N2 | wording | SPEC':9 |\n"
++    assert fa.disposition_lines(disp, {"N1"}) == {5, 7, 8}
++
++
++def test_prepare_on_flg_r2_style_report(tmp_path):
++    base = "p1\nk1\np2\nk2\np3\n"
++    cur = "p1 C12 citation fixed\nk1\np2 F16 fix\nk2\np3 N1 rule\n"
++    disp = "| id | Where (revised spec) |\n|---|---|\n| N1 | SPEC':5 |\n"
++    res, d, state = prepare(tmp_path, base, cur, FLG_R2_STYLE, disp=disp)
++    assert res.returncode == 0, res.stderr
++    assert [h["class"] for h in state["hunks"]] == [
++        "minor-only",
++        "foreign-id",
++        "blocking-involved",
++    ]
++    assert state["prior_only"] == ["F16"]

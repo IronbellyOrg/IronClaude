@@ -1,0 +1,17 @@
+{
+ "schema": "jev-manifest/1",
+ "journal": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p15/e1/journal/jev-smoke.jsonl",
+ "counts": {
+  "smoke": {
+   "synthetic": {
+    "logical_calls": 34,
+    "input_tokens": 44886
+   }
+  }
+ },
+ "first_ts": "2026-11-10T07:14:01+00:00",
+ "last_ts": "2026-11-10T07:14:07+00:00",
+ "models": [
+  "jev-1.14.0"
+ ]
+}

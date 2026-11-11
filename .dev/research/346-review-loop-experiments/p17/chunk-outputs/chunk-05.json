@@ -1,0 +1,138 @@
+{
+ "chunk": 5,
+ "defects": [
+  {
+   "local_id": "c05-d1",
+   "title": "WC-4 single contract path contradicts adversarial, workflow and file-valued --output rows",
+   "kind": "original",
+   "severity": "blocking",
+   "quote": "In unattended mode the command writes `<output-dir>/return-contract.yaml`, where `<output-dir>` is the directory the coordinator passed (`--output` / `--output-dir`).",
+   "original_lines": [
+    62,
+    73,
+    83,
+    87,
+    90,
+    92,
+    182,
+    183,
+    196,
+    198,
+    200
+   ],
+   "what_goes_wrong": "WC-4 puts the contract at <output-dir>/return-contract.yaml known before dispatch, but the adversarial row moves it to <output>/adversarial/return-contract.yaml, workflow writes it into a run-generated .dev/tasks/to-do/<id>/ package with no passed directory (and no location at all for the pre-creation STOP the row requires), and tdd/init-lite pass --output <file> so <output-dir> is a file; 7.2 step 3-4, AC-1.2 and AC-2.2 then check a path where the file is not or cannot be, and WC-5 maps the missing report to failed.",
+   "gids": [
+    123,
+    131,
+    134,
+    143,
+    148,
+    185,
+    200,
+    216,
+    231,
+    253,
+    277,
+    349,
+    352,
+    357,
+    362,
+    375,
+    401,
+    424,
+    444,
+    473,
+    479,
+    312
+   ],
+   "is_fixed_when": "For adversarial, workflow (including a pre-creation STOP), tdd and init-lite the spec states one contract path that WC-4, the section 3.1 row, 2.3 and the 7.2 step 3-4 / AC-1.2 / AC-1.4 / AC-2.2 checks all agree on, and that path is either known from the brief before dispatch or WC-4/2.3/7.2 explicitly say the coordinator takes it from worker_done --report-path for that command.",
+   "deletion_note": "No: removing the contract requirement or dropping these ready commands from worker scope would remove the coordinator's only report read path rather than reconcile it; narrowing WC-4 to defer to per-row paths is a valid fix.",
+   "present_in_others_hint": "WC-4 (62), 2.3 brief (73), section 3 intro definition of Contract (76), rows adversarial (83), init-lite (87), tdd (90), workflow (92), spec-panel add --output (120), 7.2 steps 3-4 (182-183), AC-1.2 (196), AC-1.4 (198), AC-2.2 (200)."
+  },
+  {
+   "local_id": "c05-d2",
+   "title": "Commands with no output flag or generated report paths cannot meet WC-4 'known before dispatch'",
+   "kind": "original",
+   "severity": "blocking",
+   "quote": "contract naming the generated `claudedocs/research_*.md` path",
+   "original_lines": [
+    62,
+    73,
+    85,
+    86,
+    104,
+    105,
+    109,
+    115,
+    116,
+    117,
+    119,
+    121,
+    159,
+    182,
+    196,
+    201
+   ],
+   "what_goes_wrong": "cleanup-audit (fixed .claude-audit/), index-repo (brief passes none), research, recommend, review-translation, save, task, cli-portify (location unnamed), cli-eval (run-id dir) and implement (beside a slug ledger) gain no flag that sets the contract directory, so the brief cannot state the WC-4 path and AC-1.2 ('--unattended --output <dir>') / AC-2.3 7.2 step 3 ('report path is the WC-4 contract path') cannot be passed as written.",
+   "gids": [
+    364,
+    369,
+    203
+   ],
+   "is_fixed_when": "Every section 3 command that writes a contract either gains an output flag (or fixed stated path) from which WC-4 derives a contract path known before dispatch, or WC-4/2.3 and 7.2 steps 3-4 explicitly let the worker report a generated path via --report-path for that named command, and AC-1.2/AC-2.3 invoke each command with flags it actually accepts.",
+   "deletion_note": "Partly: removing a command from the worker/contract scope (and from AC-1.1/AC-1.2/AC-2.3) would remove the contradiction for that command, but only if section 3, P1/P2 scope and the checks all drop it consistently.",
+   "present_in_others_hint": "WC-4 (62), 2.3 (73), P1 scope 'output flags for commands that lack one' (159), rows 85, 86, 104, 105, 109, 115, 116, 117, 119, 121, 7.2 step 3-4 (182-183), AC-1.2 (196), AC-2.3 (201), AC-4.1 (208)."
+  },
+  {
+   "local_id": "c05-d3",
+   "title": "AC-0.4 P0 smoke check requires WC-4 contract before Phase 1 creates it",
+   "kind": "original",
+   "severity": "blocking",
+   "quote": "step 4 uses the command's existing report file, since the contract arrives in P1",
+   "original_lines": [
+    182,
+    183,
+    194,
+    91
+   ],
+   "what_goes_wrong": "AC-0.4 requires 7.2 step 3 to pass ('its --outcome matches the contract's status under WC-5; its report path is the WC-4 contract path') in P0, when no WC-4 contract exists, and step 4's YAML assertion on troubleshoot's markdown REPORT.md fails (verified: KeyError 'status'), so the P0 gate cannot pass for /sc:troubleshoot as written.",
+   "gids": [
+    392
+   ],
+   "is_fixed_when": "AC-0.4 states P0-specific pass conditions for steps 3 and 4 (which report path the worker passes and what is checked in place of the YAML contract assertion for each smoke command) that can be met by the commands' existing outputs.",
+   "deletion_note": "No: deleting AC-0.4 would drop the only check closing evidence gap 1.4(1); replacing its step 3-4 conditions is the fix.",
+   "present_in_others_hint": "7.2 steps 3-4 (182-183), section 1.4 gap 1 (43), P0 row (158), troubleshoot row (91), WC-5 (63)."
+  },
+  {
+   "local_id": "c05-d4",
+   "title": "a3-r6 revision: WC-4 names contracts for cleanup-audit/init-lite that no phase builds",
+   "kind": "introduced",
+   "severity": "blocking",
+   "quote": "a3-r6 final spec (p11/runs/a3-r6/aud/ws/.dev/orca-command-refactor/specs/orca-worker-contract-spec.md:76): \"adversarial, brainstorm, cleanup-audit, index-repo, init-lite and workflow gain none (REQ-2)\"; line 62: \"cleanup-audit `.claude-audit/return-contract.yaml` (fixed directory, no flag)\"",
+   "original_lines": [],
+   "what_goes_wrong": "The a3-r6 revision gives cleanup-audit and init-lite contract paths in WC-4 and a 2.3 retry that 'rewrites the contract there', yet removes their Unattended mode section and lists no contract work in P1, so the contract is never written and WC-5 ('no report exists') reports successful runs as failed.",
+   "gids": [
+    19
+   ],
+   "is_fixed_when": "Every command for which WC-4 or 2.3 names a contract path is also assigned contract-writing work in a named phase (and covered by AC-1.1 or an equivalent check), or WC-4/2.3/WC-5 state that those commands report their existing named file and how it maps to an outcome.",
+   "deletion_note": "Yes, if the WC-4 exception entries and the 2.3 cleanup-audit sentence are removed and the worker is told to report the existing named file; the original spec (P1 adds the contract to every 3.1/3.2 command) did not have this gap.",
+   "present_in_others_hint": "a3-r6 WC-4 (62), 2.3 (73), section 3 intro (76), 3.1 intro (79), P1 row (159), AC-1.1 (195), WC-5 (63)."
+  },
+  {
+   "local_id": "c05-d5",
+   "title": "b1-r3 revision: ready commands with no fix never get a contract, reported failed",
+   "kind": "introduced",
+   "severity": "blocking",
+   "quote": "b1-r3 final spec (p13/ab1/runs/b1-r3/aud/ws/.dev/orca-command-refactor/specs/orca-worker-contract-spec.md:76): \"`load` and the ready commands with no fix get neither.\"",
+   "original_lines": [],
+   "what_goes_wrong": "In the b1-r3 revision init-lite (and brainstorm) get no Unattended mode section or contract in any phase, while 3.1 says the worker reports the named file 'until Phase 1 adds the contract' and the revised WC-5 sends --outcome failed for an unparseable or unknown-status report, so a successful init-lite worker is always reported failed.",
+   "gids": [
+    260
+   ],
+   "is_fixed_when": "init-lite and every other 3.1 command with 'None' fix either gain a WC-4 contract in a named phase, or WC-5 states which non-contract report forms map to succeeded so a successful run is not reported failed.",
+   "deletion_note": "No: deleting init-lite from worker scope would contradict the 10-ready verdict; the fix is to assign the contract or define the mapping (the original spec's P1 covered every 3.1 command).",
+   "present_in_others_hint": "b1-r3 section 3 intro (76), 3.1 intro (79), init-lite row (87), brainstorm row (84), WC-5 (63), P1 row (159), AC-1.1 (195)."
+  }
+ ],
+ "unassigned_gids": []
+}

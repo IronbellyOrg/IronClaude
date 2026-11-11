@@ -1,0 +1,17 @@
+{
+ "finding": {
+  "title": "No rule for a refund on a failed charge",
+  "wrong_outcome": "No rule for a refund on a failed charge"
+ },
+ "evidence": {
+  "e1": {
+   "text": "A refund may be issued for any captured charge within 90 days of the capture date.",
+   "line": 13,
+   "context": "R4. After the third failed attempt the charge moves to state failed and the customer is notified by email.\n\n## 3. Refunds\nR5. A refund may be issued for any captured charge within 90 days of the capture date.\nR6. The refund amount may not exceed the captured amount minus refunds already issued for that charge.\nR7. A refund request older than 30 days after capture is rejected with the error code REFUND_EXPIRED.\nR8. Every refund creates one ledger entry of type refund in the same transaction as the state change."
+  }
+ },
+ "facts": {
+  "quotes_found_verbatim": true,
+  "evidence_count": 1
+ }
+}

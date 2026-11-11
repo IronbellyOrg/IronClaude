@@ -1,0 +1,15 @@
+46 packets, 12 flawed per Opus labels; top-12 by chance ~3.1
+original choice, packet                    AUC 0.490  flawed in top-12: 2  mean score 0.55
+original choice, options reversed          AUC 0.488  flawed in top-12: 2  mean score 0.57
+noul: empty result passes                  AUC 0.634  flawed in top-12: 5  mean score 0.59
+noul: needs unproduced output              AUC 0.517  flawed in top-12: 5  mean score 0.46
+noul: contradicts a cited row (max)        AUC 0.289  flawed in top-12: 0  mean score 0.10
+atomic combined (max of the three)         AUC 0.653  flawed in top-12: 5  mean score 0.73
+original choice, full spec                 AUC 0.402  flawed in top-12: 2  mean score 0.25
+noul: spec rule conflicts, full spec       AUC 0.580  flawed in top-12: 5  mean score 0.22
+noul: empty passes, full spec              AUC 0.624  flawed in top-12: 4  mean score 0.53
+choices packet/orig Counter({'cannot_pass': 26, 'can_pass': 14, 'cannot_discriminate': 5, 'insufficient': 1})
+choices packet/rev Counter({'cannot_pass': 24, 'can_pass': 17, 'cannot_discriminate': 5})
+choices spec/orig Counter({'can_pass': 44, 'cannot_pass': 2})
+order agreement orig vs reversed: 41 / 46
+flawed labels whose reason needs ids outside the packet: 8 of 12 | can_pass labels doing so: 3

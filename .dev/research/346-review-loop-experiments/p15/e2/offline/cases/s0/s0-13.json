@@ -1,0 +1,36 @@
+{
+ "author_intent": {
+  "category": "seed-path-collision",
+  "expect": "defect",
+  "layer": "seeded"
+ },
+ "case_id": "s0-13",
+ "category": "seed-path-collision",
+ "data_classes": [
+  "s1_spec"
+ ],
+ "family": "s1-edit-path",
+ "group": "s1-edit-path",
+ "packet": {
+  "defect": "SA-7 says every command writes its report under `.dev/worker-reports/<slug>/` whatever its output flag says, but the cleanup-audit row fixes its report at `.claude-audit/pass<N>-summary.md` with a fixed output directory.",
+  "doc": "offline/docs/doc-56332a4e1c.md",
+  "doc_sha256": "56332a4e1cba1156d875fcd99cb6ef63d1c936f6002bac6475b288ae70c5257c",
+  "evidence_quotes": [
+   "every command writes its report under `.dev/worker-reports/<slug>/`, whatever its output flag says",
+   "`.claude-audit/pass<N>-summary.md`"
+  ],
+  "evidence_set": [
+   "P0119",
+   "P0062"
+  ]
+ },
+ "source": {
+  "kind": "s1",
+  "paths": [
+   "offline/docs/doc-56332a4e1c.md"
+  ],
+  "url": null
+ },
+ "split": "s0",
+ "variant": "seeded"
+}

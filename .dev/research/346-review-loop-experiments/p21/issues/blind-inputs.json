@@ -1,0 +1,418 @@
+[
+ {
+  "id": "331|title",
+  "description": ": Automated Github Issue / Task Watcher and Routing Service"
+ },
+ {
+  "id": "390|title",
+  "description": "ccsession: start Claude through the shim without --dangerously-skip-permissions (read-only checkers such as reflect)"
+ },
+ {
+  "id": "412|title",
+  "description": "Agents must launch Claude(CLI) sessions instead of New Terminal"
+ },
+ {
+  "id": "444|full",
+  "description": "Evaluate the value, implications and unlocks or rethinks related to /sc:orchestrator having a Sub-Orchestrator or Coordinator mode. Evaluate the value, implications and potential unlocks or rethinks of a sub-orchestrator or coordinator mode for the proposed `/sc:orchestrator` command. Work within a worktree can call for aggressive parallel work in separate sessions and greater autonomy, while still requiring coordination and reporting to an orchestrator above. As an orchestrator, I want to evaluate a sub-orchestrator mode that can delegate work below and follow orders and report upward, so that parallel work in a worktree can have greater autonomy. Analyze the orchestration skill and the specifications and work for the new `/sc:orchestrator`. Evaluate a primitive potentially selected with `--sub`, including how its orchestrator behavior would vary to support delegation below and accountability above. Assess the implica"
+ },
+ {
+  "id": "444|title",
+  "description": "Evaluate the value, implications and unlocks or rethinks related to /sc:orchestrator having a Sub-Orchestrator or Coordinator mode"
+ },
+ {
+  "id": "488|title",
+  "description": "ccsession tiers: Tier 3 becomes Tier 2b, new Tier 3 (GLM 5.3, Grok 4.7, Qwen 3.8), Tier 4 adds Claude Haiku 5.5"
+ },
+ {
+  "id": "394|title",
+  "description": "Hook that enforces the launch level of claim-launched agents"
+ },
+ {
+  "id": "372|full",
+  "description": "Scratch probe (deep): origin_repo.py rejects ssh:// and user@ GitHub origin URLs. Scratch acceptance probe for /sc:issue (#302), safe to close. The sc-issue-protocol script `origin_repo.py` stops with `E-NO-ORIGIN` when the `origin` remote is a URL-style ssh URL (`ssh://<email>/owner/repo.git`) or an https URL with a user name (`<url> although both point at GitHub. - OS: Linux 6.8.0-147-generic (the machine where the codebase pass ran; the reporter's OS is not known yet) - Version: SuperClaude 5.0.0 (`pyproject.toml:7`), branch `ironbelly/feat-sc-issue-command`, commit `119622e3` `parse_origin_url` returns `None` for these GitHub origin URLs, so `read_origin` raises `E-NO-ORIGIN` and the script exits 1. Checked by calling `parse_origin_url` directly on commit `119622e3`: Both /sc:issue modes run this script in Wave 0, so `/sc:issue"
+ },
+ {
+  "id": "347|title",
+  "description": ": CCSession Doesn't respect worktree separation in suggested sessionlist upon new start/resume"
+ },
+ {
+  "id": "375|title",
+  "description": ": pr-submit status change feature"
+ },
+ {
+  "id": "363|title",
+  "description": "Build a Windows x64 self-hosted GitHub Actions runner on Proxmox for org projects"
+ },
+ {
+  "id": "371|full",
+  "description": "Scratch probe (standard): origin_repo.py rejects ssh:// and user@ GitHub origin URLs. Scratch acceptance probe for /sc:issue ([#302](<url> safe to close. The sc-issue-protocol helper `origin_repo.py` rejects GitHub origins written as `ssh://<email>/owner/repo.git` or `<url> returning `E-NO-ORIGIN` even though both identify GitHub repositories. - OS: Not known yet - Version: Not known yet The description reports `E-NO-ORIGIN` for both URL forms. Static inspection agrees: the origin parser accepts only plain HTTPS and scp-style SSH URLs, so neither reported form matches. The helper then treats the origin as non-GitHub and exits with status 1. This draft does not claim a runtime reproduction or a test pass. Both reported GitHub URL forms should resolve to `owner/repo`, just as the currentl"
+ },
+ {
+  "id": "302|full",
+  "description": "sc-issue command. - Review docs/developer-guide/SuperClaude-Developer-Guide-Commands-Skills-Agents.md and then invoke /sc:design to design the following. Fold in ALL comments below before invoking Brainstorm. Once done, invoke /sc:workflow and then execute with /sc:implement * Skill: /sc:issue * \\--claim <number> or <url> * Assigns user to it * Assigns user to corresponding clickup entity if it exists * Analyzes issue based on info on github * What time, complexity * Assumes context in issue body is out of date. Agent Builds and invokes prompt based on this assumption to first validate the information is accurate and complete, analyzes diffs and PR's since the issue creation dat and today for relevance to our issue or changes/updates needed, posts that as a reply. * If up to date and accurate proceeds on * "
+ },
+ {
+  "id": "421|title",
+  "description": "sc:pr-submit reports Codex clean and terminal_clean while Codex's security review is still running"
+ },
+ {
+  "id": "450|title",
+  "description": "Roll out the issue watcher: live test, shadow run, cron (follow-up to #331)"
+ },
+ {
+  "id": "438|title",
+  "description": "Make /sc:issue --create set issue types and fields instead of labels"
+ },
+ {
+  "id": "443|title",
+  "description": "ccsession tests pick a gateway port inside the shim port window and the launcher correctly refuses"
+ },
+ {
+  "id": "488|full",
+  "description": "ccsession tiers: Tier 3 becomes Tier 2b, new Tier 3 (GLM 5.3, Grok 4.7, Qwen 3.8), Tier 4 adds Claude Haiku 5.5. Rename the current Tier 3 to Tier 2b, create a new Tier 3 containing GLM 5.3, Grok 4.7 and Qwen 3.8, and set Tier 4 to GPT 6 Luna and Claude Haiku 5.5. The original request also specifies GLM 5.3 as the default for `claude-gw-tier3[1m]` with GPT 6.1 Terra as fallback; how that fits the revised tier membership needs clarification (open question 1). Final tier table (owner-confirmed; Grok 4.7 moved to Tier 4 by the owner; models in failover order, windows in brackets; gateway IDs are the assumed spellings, not checked against the live gateway): - Member rule: `*=tier2:tier2,tier2b,tier3,tier4`. GPT 6.1 Terra is in Tier 2b only. Tier 2 keeps Grok. - Meaning of \"fallback\": if GPT 6.1 Terra returns a 429 while the user has Tier 2b selected, the request is retried on GLM 5.3. - Where the slot co"
+ },
+ {
+  "id": "339|full",
+  "description": ":  Orchestrator - To Run and manage ALL sessions within a worktree. Orchestrated Sessions are overwhelming one you go above 5-6 concurrent sessions with our goal to scale up to 10-20 concurrent sessions Spam to orch agent taskes look long no sessions should be run interacted with manually, all through orchestrator main session goes into orchestrator mode, it gets designated as such to all child sessions who report back and relay their updates and questions through the orchestrator so the user doesn't need to go into the sessions every hour or two the orchestrator run sc:sessionsweep to determine which need to be closed nad runs sc:close on thatsession, or resume if it has timed out or has an econnrefused error, or reminds the user of any feedback needed to proceed.. Needs a safe prompt to ensure nothing of value(artifacts nd plans are not valuable) is lost"
+ },
+ {
+  "id": "404|title",
+  "description": "A full test run rewrites a tracked file in the repository"
+ },
+ {
+  "id": "375|full",
+  "description": ": pr-submit status change feature. When a pr is green but code reviews unfinished or being remediate users might merge before commits are pushed When the agent pushes and pr goes green but code review remediation work is ongoing and active agent changes status to draft or flags pr in some other way to prevent merging until remediation committed and pushed _No response_"
+ },
+ {
+  "id": "463|title",
+  "description": "Intelligent Jev or decision-model-based model and effort router: research"
+ },
+ {
+  "id": "330|title",
+  "description": ":  Ensure Ponytail is installed/added as a plugin on all workspaces"
+ },
+ {
+  "id": "408|full",
+  "description": "Gateway tier aliases lose context limits and duplicate model picker entries. UNCONFIRMED: The `claude-gw-tier1a` custom Opus model reportedly shows a 200k context limit instead of the gateway tier's stated 850k, and custom model entries reportedly duplicate gateway tier entries in `/model`. - OS: Not known yet - Version: Not known yet UNCONFIRMED, user-reported observations: With `claude-gw-tier1a` selected, the context limit is 200k, while the gateway Tier 1a entry shows 850k. The reported picker list is: 1. Default (recommended): Use the default model (currently Tier 1a: Claude Opus 5.5, Claude Sonnet 5.5) 2. claude-gw-tier1a (selected) | Custom Opus model 3. Claude Fable 5.1 | From gateway 4. claude-gw-tier1b | Custom Sonnet model 5. claude-gw-tier2 | Custom Haiku model 6. gpt-6.1-sol | model:gpt-6.1-sol context profile 7. Tier 0: Claude Fable 5.1, GPT 6 Astra |"
+ },
+ {
+  "id": "460|title",
+  "description": "TEST ONLY: #438 manual check (feature)"
+ },
+ {
+  "id": "407|full",
+  "description": "Users who should default to Tier 1b are defaulting to GPT 6.1 Sol. Users who should default to Tier 1b are reported to default to GPT 6.1 Sol instead. The precise launch conditions and whether the selection is an individual model or a tier are not known yet. - OS: Not known yet - Version: Not known yet Affected users are reported to default to GPT 6.1 Sol. Observed once on the coordinator's machine: after `/model` chose `Tier 1b: Claude Sonnet 5.5, GPT 6.1 Sol, Muse Wonder Full 1.0`, Claude Code printed `saved as your default for new sessions` and `ANTHROPIC_MODEL is set to gpt-6.1-sol - new sessions use that while it is set`. This is an observed symptom, not a verified cause. Users who should default to Tier 1b start on Tier 1b. 1. Not known yet. - Severity: Not known yet. - Blast Radius: Users who should default to Tier 1b; the number affected is not kn"
+ },
+ {
+  "id": "476|title",
+  "description": "sprint status and sprint logs advertise log reading but only print placeholders"
+ },
+ {
+  "id": "323|full",
+  "description": ": Replace Codememory-mcp with CodeGraph. Codememory to be replaced due to performance <url> Setup eval and test suite Detailed Resource & Performance Breakdown 1. [colbymchenry/codegraph](<url> (The Baseline Speed Standard) \u2022 Performance Profile: Its compiled Rust kernel handles large, complex multi-file structures at blinding speeds, achieving up to 2 GiB/s parsing throughput. In independent Claude Code A/B testing, it decreased total agent tool calls by 55% to 71% and trimmed wall-clock task latency by 20% to 49% [1.1, 1.2]. \u2022 Resource Footprint: Extremely lean. It handles database lookups over embedded SQLite in sub-millisecond windows [1.1]. Because it uses zero background machine learning or vector runtimes, it maintains an idle footprint of roughly 30M"
+ },
+ {
+  "id": "311|title",
+  "description": ": ccsession tier access from Coder groups instead of usernames"
+ },
+ {
+  "id": "461|title",
+  "description": "TEST ONLY: #438 manual check (bug)"
+ },
+ {
+  "id": "390|full",
+  "description": "ccsession: start Claude through the shim without --dangerously-skip-permissions (read-only checkers such as reflect). `ccsession` adds `--dangerously-skip-permissions --allowedTools=Grep` to every Claude it starts (`CC_CLAUDE_FLAGS` default, `src/superclaude/skills/ccsession-tag/ccsession:124`). The only way to change that is to set `CC_CLAUDE_FLAGS` to a different non-empty value; there is no way to start Claude through ccsession (shim, tier models, non-Claude models) with permission checks left on. Some callers deliberately want a Claude that can read but not change anything. `superclaude reflect` starts its audit child under a restricted reviewer profile that drops `--dangerously-skip-permissions` and `--tools default` so it \"cannot mutate the repo it audits\" (`src/superclaude/cli/reflect/runner.py:566`, `src/superclaude/cli/pipeline/process.py:150-154`). It becomes one when such a checker runs outside"
+ },
+ {
+  "id": "454|full",
+  "description": "Restore MCP tool access after the move behind the central LiteLLM proxy. Restore MCP tool access across all skills, scripts, commands and agents after the reported move of MCP servers behind the central LiteLLM proxy. Repository instructions still name direct MCP tools, while the reported session exposes differently named proxy tools; brainstorm enrichment fell back to weaker sources and the project Auggie server failed to reconnect. - OS: Not known yet - Version: Not known yet - Observed: 2026-11-08, in an Orca worker running `/sc:brainstorm` for issue #409, in this repository's checkout/worktree setup. Both enrichment steps in the reported brainstorm run fell back to a weaker mode. The codebase step recorded `auggie MCP not available in this session`; the research step recorded `Tavily and Context7 not available in the agent session`. The owner's `/mcp` run p"
+ },
+ {
+  "id": "408|title",
+  "description": "Gateway tier aliases lose context limits and duplicate model picker entries"
+ },
+ {
+  "id": "438|full",
+  "description": "Make /sc:issue --create set issue types and fields instead of labels. Change `/sc:issue --create` to use GitHub issue types and the Complexity issue field instead of `type:` and `complexity:` labels. The repository has neither of those label families, so the create workflow reports them as not applied. Issue #435 was filed with only the `bug` label and no issue type. The organization now offers issue types and a Complexity field, but the create workflow does not set them. As someone filing an issue with `/sc:issue --create`, I want its issue type and complexity set, so that the issue is classified using the organization's available metadata. Set the issue type and Complexity field when creating an issue, instead of requesting `type:` and `complexity:` labels. Map feature to Feature, bug to Bug, and tests to Test where it fits. Retain mode labels only if stil"
+ },
+ {
+  "id": "364|full",
+  "description": "Build a Linux arm64 self-hosted GitHub Actions runner (Proxmox arm64 or arm64 host) for org projects. On 2026-11-04 an audit of the <org> workflows found jobs that need ARM: IronOrca uses `ubuntu-24.04-arm` (about 11 jobs) plus `${{ matrix.os }}` matrices that may include ARM. The org has only Linux x64 self-hosted runners (labels `self-hosted`, `small`, `big`), so those jobs stay on GitHub-hosted runners for now. This issue is to build a Linux arm64 self-hosted runner, on Proxmox if practical, that IronOrca and other projects can use. Facts to weigh before building: - **An x86 Proxmox host cannot run arm64 VMs at useful speed.** They need full CPU emulation (QEMU TCG). A real arm64 runner needs arm64 hardware. - **Proxmox on arm64.** Proxmox VE 9.2 for arm64 was released on 5 August 2026. - Officially supported: enterprise NVIDIA Grace and NVIDIA Vera systems. - Best effort: other "
+ },
+ {
+  "id": "305|title",
+  "description": ":  [featRel] pr-submit Conflict Resolution"
+ },
+ {
+  "id": "429|title",
+  "description": ": post-release test suite or pre-release skill"
+ },
+ {
+  "id": "339|title",
+  "description": ":  Orchestrator - To Run and manage ALL sessions within a worktree"
+ },
+ {
+  "id": "384|full",
+  "description": "Primitives need to use ccsession model aliases instead of CC defaults. Have primitives (agents, commands and skills) select models through ccsession picker IDs or tier aliases such as `claude-gw-tier*`, rather than relying on Claude Code default aliases `opus`, `sonnet` and `haiku`. Default aliases depend on workspace configuration rather than specifying a ccsession tier. In the inspected workspace `haiku` resolves to `glm-5.3`, so it does not guarantee a particular worker tier (`src/superclaude/skills/sc-issue-protocol/refs/tiers.md:21-26`). Brainstorm currently defaults to the three Claude Code aliases, and the issue workflow explicitly avoids `haiku` with `--models opus,sonnet` (`src/superclaude/commands/brainstorm.md:56`, `src/superclaude/skills/sc-issue-protocol/refs/chains.md:21`). The Auggie review skill rejects gateway aliases for its `--revagent` opt"
+ },
+ {
+  "id": "302|title",
+  "description": "sc-issue command"
+ },
+ {
+  "id": "394|full",
+  "description": "Hook that enforces the launch level of claim-launched agents. Add a hook that enforces the permitted launch level in sessions started by `/sc:issue --claim --pipeline`. It must prevent the agent and its subagents from crossing the allowed boundary without relying on prompt instructions alone. The planned claim pipeline uses instructions in a launch prompt to stop agents at the appropriate boundary. An agent running with permission prompts off can ignore those instructions and perform implementation or submission actions that were not authorized. As a person claiming an issue, I want the launched agent's actions limited to the chosen level, so that work does not proceed or get submitted without authorization. Add a hook that reads launch state the agent cannot edit, identifies claim-launched sessions, and blocks disallowed actions across relevant tool"
+ },
+ {
+  "id": "409|full",
+  "description": "TUI Dashboard to Manage Orchestration at Scale. Create a human-observation terminal companion for Stably.ai Orca in the existing IronClaude/Coder environment. It is not <org>orca-cli/orca, a scheduler, or a session manager. One human supervising 5-10 orchestrators and 50-100 sessions/worktrees can miss important decisions, meaningful updates, and evidence in noisy chats. They need to distinguish verified outcomes from activity and understand what needs attention and why. As a human supervising orchestrators, I want a read-only view of attention, affected work, changes, and evidence, so that I can find decisions and inspect their supporting facts without confusing activity with outcomes. After a human selects a visual direction, develop an observer that shows attention items and reasons, affected missions/orchestrators/sessions/wor"
+ },
+ {
+  "id": "389|full",
+  "description": "ccsession prints its status lines on standard output, so superclaude eval reads the Claude version as 127.0.0. `ccsession` prints its status lines (`[ccsession] \u2026`) on standard output, the same channel programs read Claude's own output from. Today that only matters when someone runs ccsession directly. With Coder PR <org>/Coder#458, every `claude` call in a workspace goes through the `/usr/local/bin/claude` wrapper to `ccsession-orca` and then `ccsession`, so scripts that read `claude`'s output start receiving these lines first. Reproduced on `master` (`901f1181`) with the real `ccsession-orca` and a stand-in Claude that prints `2.1.318 (Claude Code)`. `ccsession-orca --version` writes this to standard output: ```text [ccsession] tier1b (Tier 1b: claude-sonnet-5-5, gpt-6.1-sol, muse-wonder-full-1.0): model claude-gw-tier1b[1m], context 850000, auto-compact window 850000 [ccsession] Shim alre"
+ },
+ {
+  "id": "441|full",
+  "description": "Build the L2 pre-push layer of the launch-level guard, then make a missing L2 a refusal. PR #432 (merged 2026-11-08) built the first layer (L1) of the launch-level guard for claim-launched agents, a hook that reads the text of each Bash command. It built no second layer (L2, a pre-push check). The PR body says so: \"The L2 pre-push layer is not built (`artifacts/l2-disposition.md`)\". The design says a missing L2 layer should make the launch refuse (rule IR-7). The PR did not do that: a refusal would switch off every governed claim and make the live observations impossible, so the launch only prints the warning `W-L2-ABSENT` and continues. The owner accepted \"warn now, refuse later\". Turning it into a refusal later is one line (`artifacts/ir7-consequence.md`). Why L2 matters: the L1 guard is text only. The Codex security review of PR #432 found that `cd ~/.claude/. && mv state s"
+ },
+ {
+  "id": "454|title",
+  "description": "Restore MCP tool access after the move behind the central LiteLLM proxy"
+ },
+ {
+  "id": "326|full",
+  "description": ": Embed more Git and PM related workflows into skills. Currently all users work in isolation. Updates are mostly manual if the user remembers to update the status of an issue or task /orca-cli: Create a new worktree/branch titled sc-git_v2 and create a new session called 'sc-git-v2-planning' to begin the work on the following 3 phases by running the following prompt: Invoke /orchestration to lay out and then execute a concrete multi-agent plan of investigation, validation and then planning of all of the work needed to accomplish the 3 planning phases below before implementation. the planning work of Each phase should be executed sequentially.. IE: Phase 2 start is dependent on Phase 1 completion and phase 3 on phase 2 - Review /sc:git and invoke /sc:design to spec out a full refactor of the command to adhere to all of the best practices contai"
+ },
+ {
+  "id": "435|title",
+  "description": "Flaky test: test_parallel_generate_runs_on_separate_threads compares reusable thread ids"
+ },
+ {
+  "id": "421|full",
+  "description": "sc:pr-submit reports Codex clean and terminal_clean while Codex's security review is still running. `/sc:pr-submit` treats Codex as finished when the `code_review` half of Codex's `codex-review-state:v1` marker is `completed`. Codex also runs a separate `security_review`, which starts at the same time, finishes 1.5 to 7.6 minutes after the code review, and posts its own formal review with its own findings. The monitor ignores `security_review` on purpose (`detection-contract.md:101`), so it reports `clean` while the security review is still `running`. Then Wave 8 (the CI wait) ends in `TERMINAL_CLEAN` without re-reading any review state. Result: a Codex security finding that arrives minutes after the \"clean\" is missed by the monitor, and an operator who trusts `terminal_clean` merges or stops with an open security finding. Every fact below was read from a live source on 2026-11-07 (sourc"
+ },
+ {
+  "id": "440|full",
+  "description": "The 1 second speed check for the launch-level guard never runs in CI. PR #432 (merged 2026-11-08, the launch-level guard for claim-launched agents, issue #394) has a speed test: T-SPD-5 in `tests/hooks/test_launch_level_guard.py` runs the guard on 64 KB commands and asserts every run takes under 1 second. The author measured 0.5 to 0.9 s on a quiet machine and once 1.23 s under parallel load, and left the limit unrelaxed (PR #432 body, owner decision 3). The final test code only asserts the limit when the environment variable `PYTEST_XDIST_WORKER` is not set. Otherwise it records \"NOT ASSERTED\" in its report row and passes. CI runs `pytest -v --tb=short --color=yes -n auto --maxfail=3 --ignore=tests/cli/test_verify_sync_hooks.py` (`.github/workflows/test.yml`, the \"Run tests\" step), and no other CI step runs that file without `-n`. So the 1 second limit is n"
+ },
+ {
+  "id": "462|full",
+  "description": "Opus 5.5 defaults in orchestrator-spawned sessions: honor the user default model for their Coder role. The user reports that orchestrators spawn a large majority of sessions with Opus 5.5 as the default. Investigate the selection path and brainstorm the refactoring needed to default to the user's configured default model, dependent on their role in Coder; the cause is not yet established. - OS: Not known yet - Version: Not known yet The user observes Opus 5.5 selected by default for sessions in worktrees including `exp346-v-ponytail` and `exp346-v-ledger`, and many others. The actual resolved model and launch configuration for these specific sessions have not been verified in this investigation. An unqualified session launch should use the user's default model, dependent on their role in Coder, rather than a fixed universal model or tier. Preserve explicit user model choices and enforce rol"
+ },
+ {
+  "id": "325|title",
+  "description": ":  Unified Rename Command"
+ },
+ {
+  "id": "476|full",
+  "description": "sprint status and sprint logs advertise log reading but only print placeholders. While following William's validation checklist for #354 on 2026-11-09, I checked the advertised behavior of `superclaude sprint status` and `superclaude sprint logs` (original finding O4). The installed program had reported version 5.0.0 during the startup check. The installed help promises: - `superclaude sprint status --help`: reads the execution log to display phase completion status, timing and current activity. It lists no required input. - `superclaude sprint logs --help`: shows the human-readable execution log, supports `--lines` (default 50), and offers `--follow` for new output. I tested a normal status query: ```bash superclaude sprint status; printf 'Exit status: %s\\n' \"$?\" ``` Observed output: ```text Status command not yet connected to active sprint. Exit status: 0 ``` I then "
+ },
+ {
+  "id": "389|title",
+  "description": "ccsession prints its status lines on standard output, so superclaude eval reads the Claude version as 127.0.0"
+ },
+ {
+  "id": "326|title",
+  "description": ": Embed more Git and PM related workflows into skills"
+ },
+ {
+  "id": "412|full",
+  "description": "Agents must launch Claude(CLI) sessions instead of New Terminal. Agents and orchestrators reportedly still choose `New Terminal` to create sessions, but that action now opens a normal terminal rather than a ccsession session. New sessions should be created with `Claude(CLI)` instead. - OS: Not known yet - Version: Not known yet The reporter says agents and orchestrators try to open `New Terminal`, which opens a normal terminal rather than a ccsession session. This behavior was not independently reproduced. Agents and orchestrators create new Claude sessions using `Claude(CLI)`, so the intended ccsession session starts instead of a normal terminal. 1. Ask an agent or orchestrator to create a new session. 2. Observe its choice of `New Terminal` and the resulting normal terminal, as reported. Exact setup and reproduction steps: Not known yet. - Severity: N"
+ },
+ {
+  "id": "435|full",
+  "description": "Flaky test: test_parallel_generate_runs_on_separate_threads compares reusable thread ids. `tests/roadmap/test_parallel.py::TestParallelGenerateGroup::test_parallel_generate_runs_on_separate_threads` intermittently fails on CI when it compares thread identifiers that can be reused after a thread finishes. - OS: GitHub Actions Linux runner; OS version not known yet. Local OS not known yet. - Version: Python 3.10.22 on the GitHub runner; Python 3.11 locally. Earlier PR 425 head `da271a56` passed. PR 425 run 42357948183 failed on attempts 1 and 2 because the set contained one repeated thread identifier. The test passed 5 of 5 local runs and passed on the earlier PR head. PR 425 does not touch the test file or the code under test. The test should reliably verify the parallel runner behavior without failing because an identifier is reused after a thread exits. 1. Run the test on the "
+ },
+ {
+  "id": "387|title",
+  "description": "Hook block-bare-python.sh misses python3 in an unquoted shell heredoc and in a coproc body"
+ },
+ {
+  "id": "387|full",
+  "description": "Hook block-bare-python.sh misses python3 in an unquoted shell heredoc and in a coproc body. PR #359 (merged as 605da2ff) added the PreToolUse hook that blocks bare `python`, `python3`, `pip` and `pip3` in Bash calls (issue #357). Three Augment and Codex review rounds fixed about a dozen scanner gaps (ANSI-C `$'\\160ython3'`, wrapper long options, `[[ ]]`, process substitution, backticks in `$(( ))`, `name()` definitions, `{fd}>` redirections). The monitor then stopped at its round limit with two Codex findings still open. Both reproduce on master (hook exit 0), and real bash runs `python3` in each: 1. Unquoted heredoc into a shell (Codex comment 4470604501, hook line about 139). Command, with the heredoc written as three lines: `bash <<EOF` / `echo '$(python3 -c 1)'` / `EOF`. The delimiter is unquoted, so the outer shell expands `$( )` before `bash` reads the body, and `python3` r"
+ },
+ {
+  "id": "315|title",
+  "description": ": Agent spawned worktree sessins stuck at CCSession Session Name prompt"
+ },
+ {
+  "id": "423|title",
+  "description": "Orchestrator v2 - Proactive Holistic"
+ },
+ {
+  "id": "431|title",
+  "description": "Orchestrator waits on workers that went quiet because its alive check relies on weak signals"
+ },
+ {
+  "id": "315|full",
+  "description": ": Agent spawned worktree sessins stuck at CCSession Session Name prompt. Linux _No response_ More of an issue than a bug. I think our CCSession default prompt to get a name might cause issues in the event that another agent creates a worktree and session, as they will not be able to proceed. They don't know, not even sure if they can, how to enter that session name and get into the session to do the work. I'm not exactly sure why the agents created these 2 worktrees tbh, but it will become more and more common so we'll need a way for agent sto be able to get past the prompt asking for the name <img width=\"1230\" height=\"1049\" alt=\"Image\" src=\"<url> />"
+ },
+ {
+  "id": "361|title",
+  "description": "pr-submit: late conflict re-sync during the CI wait (P3 of #305)"
+ },
+ {
+  "id": "450|full",
+  "description": "Roll out the issue watcher: live test, shadow run, cron (follow-up to #331). Issue #331 asked for a watcher that finds approved issues and starts `/sc:issue --claim <N>` in a new session. The code is built and merged: `superclaude issue-watch` (check-config, init-state, once, reset, status) in PR #447, with review fixes in PR #448. Everything was tested locally with faked `gh` and Orca (2655 tests in `tests/issue_watch`). Nothing was run live, nothing is scheduled, and the config ships with `enabled: false`. - Design: `docs/designs/issue-watcher.md` (follow-up list FU-1 to FU-12 is in section 16) - Owner runbook: `docs/designs/issue-watcher-setup.md` - Code: `src/superclaude/cli/issue_watch/`, tests: `tests/issue_watch/` (fixtures under `fixtures/_assumed_shape/` are guesses of gh and Orca output) - PRs: #447 (watcher), #448 (review fixes). Parent issue: #331 1. FU"
+ },
+ {
+  "id": "429|full",
+  "description": ": post-release test suite or pre-release skill. Prior to officially signing off on a release there needs to be a full real world set of tests done to confirm real world functionality matches intention and expected behavior. Likewise a QA pass.to the functionality is intentionally used either maliciously or improperly to try to find ways to break it or get it to do things it wasn't supposed to do As much as possible these tests should be agentically performed and delegated to human operators if that is determined to be the best or the only way to achieve conclusive results. To either add modules or Primitives to the existing Post release skill and command or to create a pre-release pipeline that delegates as much as possible through agents and creating work environments for testing as well as creating an issue with a run book for all of "
+ },
+ {
+  "id": "362|full",
+  "description": "Fall back to a GitHub-hosted runner when no self-hosted runner is online. On 2026-11-04 an audit of the <org> workflows (Coder, IronClaude, IronOrca) set out to move every job to the org's self-hosted runners. Each job would fall back to a GitHub-hosted runner only when no matching self-hosted runner is online. The owner kept the move to self-hosted and parked the fallback here. Findings so far: - **No built-in fallback.** GitHub Actions has no fallback runner; `runs-on` labels only queue a job until a matching runner picks it up. - **The candidate pattern.** A small first job on a hosted runner asks the REST API for an online self-hosted runner with the needed labels. It outputs a `runs-on` value, and later jobs use `runs-on: ${{ fromJSON(needs.<job>.outputs.<x>) }}`. Define it once, as a reusable workflow or composite action. - **Costs of that pattern.*"
+ },
+ {
+  "id": "456|title",
+  "description": "pr-submit waits the full timeout on an Augment review whose status marker is missing its closing brace"
+ },
+ {
+  "id": "331|full",
+  "description": ": Automated Github Issue / Task Watcher and Routing Service. People file issues and tasks in Github projects and repos - These issues need to be reviewed by and then speced out by a human before they can be executed - The issues need to be brought into orca/claude code manually, and a pipeline run Research existing solutions first - A microservice that sits and watches Github for any new issues based on a 5 minute timer - Issues need to be flagged/tagged specifically to trigger anything - Issue's need to be approved by a human before they can trigger anything - Issues must be in a Github project before they can trigger anything - Issues must be in Backlog status before they can trigger anything - Watcher must be able to communicate with an API or MCP layer on the Coder workspace and prompt the Projects Orchestrator with instructions for it to issue "
+ },
+ {
+  "id": "431|full",
+  "description": "Orchestrator waits on workers that went quiet because its alive check relies on weak signals. The orchestrator waits on workers that have gone quiet because its alive check relies on weak signals. In the observed run, stalled, idle or blocked workers and missed messages went unnoticed for extended periods. - OS: Linux 6.8.0 - Version: branch `docs/409-orca-dashboard-designs`; run `run_93bfa00cae2b`; 2026-11-07. In a run with six parallel workers, the coordinator relied on timer heartbeats with an unchanged \u201cimplementing\u201d status, one file's mtime, a helper agent name visible on screen, or the absence of a failure message. Cases were found late, by chance or by reading the worker's screen: 1. Issue #339's first session was stuck about 07:49\u201311:33, roughly four hours, with a full context window and thrashing autocompact. Timer-based \u201cimplementing\u201d heartbeats continued every few minute"
+ },
+ {
+  "id": "460|full",
+  "description": "TEST ONLY: #438 manual check (feature). Throwaway test issue for the #438 manual check. Safe to ignore; it is closed right after the check."
+ },
+ {
+  "id": "473|full",
+  "description": "install-skill help should use a valid skill in its examples. While following William's validation checklist for #354 on 2026-11-09, I reproduced the broken `install-skill` help example (original report finding O3). The installed program had reported version 5.0.0 during the startup check. `superclaude install-skill --help` advertises: ```text SKILL_NAME: Name of the skill to install (e.g., pm-agent) superclaude install-skill pm-agent superclaude install-skill pm-agent --target ~/.claude/skills --force ``` I created a fresh destination with `mktemp -d /tmp/skill-check.XXXXXX`, which returned `/tmp/skill-check.qvg72y`, then tested the advertised skill name without using the normal installation directory: ```bash superclaude install-skill pm-agent --target /tmp/skill-check.qvg72y; \\ printf 'Exit status: %s\\n' \"$?\" ``` Observed output: ```text \ud83d\udce6 Install"
+ },
+ {
+  "id": "362|title",
+  "description": "Fall back to a GitHub-hosted runner when no self-hosted runner is online"
+ },
+ {
+  "id": "311|full",
+  "description": ": ccsession tier access from Coder groups instead of usernames. Per-user ccsession tiers (<org>/IronClaude#310, with a Coder PR to follow) are set by a hand-edited line in Coder's central workspace env file (`templates/VSCode-AIDev02/aienv.d/defaults.sh`): ``` export CCSESSION_ACCESS=\"clay=tier1\" ``` Each entry names one Coder username, its start tier, and optionally its allowed tiers. Every access change is a Coder PR that edits that line. Entries go stale when people leave or change role, and a typo in the line stops ccsession for every listed user until it's fixed (fail closed, by design). Take tier access from **Coder groups** instead of usernames, so it's managed in the Coder admin screen (add or remove people from a group) with no file edits. 1. **Coder template:** pass the workspace owner's group names to the workspace (and to Orca termin"
+ },
+ {
+  "id": "305|full",
+  "description": ":  [featRel] pr-submit Conflict Resolution. Currently pr-submit has no specific workflows or processes to resolve merge conflicts The skill, it's refs and potentially an agent need to be built out to specifically handle this. Research the best practices around merge conflict resolution by invoking /sc:recommend --plugin and asking for the best examples of agents or skills that handle this. invoke /sc:analyze on the top 3, narrowing the focus specifically to conflict resolutions, summarizing the findings in a list of everything the skill or agent does and instructions on how to behave and itemize them. -- invoke /ponytail-review to assign an ROI value to each entry on a scale of 1-10 - invoke /sc:brainstorm to brainstom the best approach at adding the conflict resolution functionality. If new tool calls, new refs, new templates and/o"
+ },
+ {
+  "id": "363|full",
+  "description": "Build a Windows x64 self-hosted GitHub Actions runner on Proxmox for org projects. On 2026-11-04 an audit of the <org> workflows found jobs that need Windows: IronOrca uses `windows-2022` (about 10 jobs) plus `${{ matrix.os }}` matrices that include Windows. The org has only Linux x64 self-hosted runners (labels `self-hosted`, `small`, `big`), so those jobs stay on GitHub-hosted runners for now. This issue is to build a Windows x64 self-hosted runner on the Proxmox cluster that IronOrca and other projects can use. Facts to weigh before building: - **Public repos.** IronOrca and IronClaude are public. GitHub says self-hosted runners \"should almost never be used for public repositories\", because any fork pull request can run code on the runner. Org runner groups also block public repos unless \"Allow public repositories\" is turned on. Standard GitHub-hosted runners, "
+ },
+ {
+  "id": "370|full",
+  "description": "Scratch probe (quick): origin_repo.py rejects ssh:// and user@ GitHub origin URLs. Scratch acceptance probe for /sc:issue (#302), safe to close. `origin_repo.py` rejects GitHub origin URLs using `ssh://<email>/owner/repo.git` or `<url> - OS: Not known yet - Version: Not known yet The script exits with `E-NO-ORIGIN` for either URL form even though it points at GitHub. Both GitHub origin URL forms should resolve to `owner/repo` instead of producing `E-NO-ORIGIN`. 1. Set a repository's origin to either `ssh://<email>/owner/repo.git` or `<url> 2. Run the `/sc:issue` origin resolver in that repository. - Severity: Not known yet - Blast Radius: `/sc:issue` origin resolution for repositories using either URL form. ```text E-NO-ORIGIN: origin is not a GitHub URL ``` - `src/superclaude/skills/sc-issue-pro"
+ },
+ {
+  "id": "361|full",
+  "description": "pr-submit: late conflict re-sync during the CI wait (P3 of #305). Issue #305 (merge-conflict resolution for `/sc:pr-submit`) was researched, brainstormed and designed as phases. The release for #305 covers the precursor (create path at L1+ no longer rebases or halts when behind base), P0 (detect and report), P1 (Tier 1 mechanical resolution, the merge-commit publish machinery, Tier 3 halt) and P2 (Tier 2 text conflicts by stated intent, off by default). Phase P3, the late re-sync, was deliberately parked by a scope decision on 2026-11-04 and is this issue. P3 as specified: if the base branch moves and the PR becomes conflicting while `/sc:pr-submit` is already waiting on CI (Wave 8), detect it and run the Wave 8a conflict step once more. Concretely: `poll-ci-checks.sh` appends a `merge_state` field to its JSON line (after the existing keys); when the CI "
+ },
+ {
+  "id": "323|title",
+  "description": ": Replace Codememory-mcp with CodeGraph"
+ },
+ {
+  "id": "441|title",
+  "description": "Build the L2 pre-push layer of the launch-level guard, then make a missing L2 a refusal"
+ },
+ {
+  "id": "461|full",
+  "description": "TEST ONLY: #438 manual check (bug). Throwaway test issue for the #438 manual check. Safe to ignore; it is closed right after the check."
+ },
+ {
+  "id": "370|title",
+  "description": "Scratch probe (quick): origin_repo.py rejects ssh:// and user@ GitHub origin URLs"
+ },
+ {
+  "id": "325|full",
+  "description": ":  Unified Rename Command. Currently you can - rename a session but it doesn't rename the ccsession tag. - rename the ccsession tag but it doesn't rename the session - rename the ccession tag and the session but it doesn't rename the orca session name If you use /ccsession-tag or /orca-cli skills, they use 1000+ tokens each and whatever reasoning model A tool call that triggers all 3 and does not use any tokens if possible ie: instead of /rename or /ccsession-tag you do ! Rename and it is a bash script that fires off all of the stuff at once directly. In addition we'd likely want a skill anyways that just calls that script for agents or other people to know about bug preferred method would be a direct tool call with !"
+ },
+ {
+  "id": "401|title",
+  "description": "cli_portify run_with_timeout raises only after a hung step finishes, and no production step uses it"
+ },
+ {
+  "id": "371|title",
+  "description": "Scratch probe (standard): origin_repo.py rejects ssh:// and user@ GitHub origin URLs"
+ },
+ {
+  "id": "330|full",
+  "description": ":  Ensure Ponytail is installed/added as a plugin on all workspaces. Valuable skill missing Ensure the installer and update scripts always install this from plugin _No response_"
+ },
+ {
+  "id": "440|title",
+  "description": "The 1 second speed check for the launch-level guard never runs in CI"
+ },
+ {
+  "id": "465|title",
+  "description": "Verifier report delivery failure leaves implementation blocked without bounded recovery"
+ },
+ {
+  "id": "404|full",
+  "description": "A full test run rewrites a tracked file in the repository. A plain full test run rewrites the tracked `.dev/releases/current/cliEval/evidence/T02.15/perf.json` with host-specific performance measurements. `tests/cli/eval/test_perf_home_setup.py` defaults to that repository path instead of pytest's temporary directory, leaving an unrelated tracked-file change after the test passes. - OS: Linux 6.8.0-147-generic. - Version: SuperClaude 5.0.0 (`pyproject.toml:7`); branch `ironbelly/fix-perf-report-tracked-file`, base commit `80f36180`. With `T02_15_PERF_REPORT` unset, the HOME setup benchmark writes its JSON report into the repository's tracked evidence file on each run. The report includes timings, samples and host information, so ordinary local test execution changes release evidence even when the benchmark passes. The reporter observed this twice "
+ },
+ {
+  "id": "401|full",
+  "description": "cli_portify run_with_timeout raises only after a hung step finishes, and no production step uses it. `run_with_timeout` in the CLI Portify executor does not raise promptly when a worker exceeds its limit. Production step dispatch also does not call the helper, so the registered SC-001 and SC-002 limits are not enforced through it. - OS: Not known yet - Version: Python 3.10; branch `ci/parallel-python310-tests`. A 0.1-second limit raised `TimeoutError` only after 3.0 seconds when the worker blocked for 3 seconds. Four timeout tests each took 10.00 seconds in CI when their blocker waited 10 seconds; the current branch has shortened the blocker. The timeout should be reported near its configured limit rather than after a blocked worker finishes. The production validation and discovery steps should respect their respective 30- and 60-second budgets. 1. Run `uv run python`, import `threading` "
+ },
+ {
+  "id": "463|full",
+  "description": "Intelligent Jev or decision-model-based model and effort router: research. Research intelligent decision-model-based selection of the model and effort for a session, as a follow-on to the Opus-default and Tier1b-default investigation. Investigate how to choose the right model and effort for a session and whether existing routers can work with the session and proxy setup. As a session user, I want informed model and effort selection, so that the appropriate model is chosen for my session. Research existing model and effort routers before choosing a design. Consider Jev as a candidate decision model, but first verify its identity and capabilities. Examine the user-provided example <url> and find other relevant examples; its compatibility and implementation here are not established. - [ ] Produce a source-backed comparison "
+ },
+ {
+  "id": "473|title",
+  "description": "install-skill help should use a valid skill in its examples"
+ },
+ {
+  "id": "443|full",
+  "description": "ccsession tests pick a gateway port inside the shim port window and the launcher correctly refuses. Two ccsession tests failed intermittently in CI on the pull request for #394 (PR #432), and one of them also failed on master with no PR #432 code: `tests/unit/test_ccsession_tiers.py::test_a_busy_shim_is_never_stopped_by_a_new_launch` and `::test_upgraded_code_starts_a_new_shim_and_keeps_the_old`. The failure text is: `[ccsession] ERROR: <url> is a ccsession shim address (port <port>), not the gateway; refusing to start a shim that forwards to another shim` Seen at: port 40755 (run 42410320482, PR #432), port 40897 (run 42413903083, PR #432), port 38541 (master run 42380844690, commit f8305000). Both PR failures happened on the first launch of the test. Best-supported cause (not observed in CI): each test starts a stand-in gateway on a random port, then picks the shi"
+ },
+ {
+  "id": "384|title",
+  "description": "Primitives need to use ccsession model aliases instead of CC defaults"
+ },
+ {
+  "id": "472|full",
+  "description": "superclaude update help text omits session setup, templates and user setup. While following William's validation checklist for #354, I checked whether `superclaude update --help` describes all the operations in the update function. The installed program reports version 5.0.0. Its help lists core framework files, slash commands, agents, skills and hooks, but omits session setup, templates and user setup. I inspected the update function in `src/superclaude/cli/main.py` at the historical commit `5e513796` and in my current checkout, based on `933cf3a4f5fd3e4d8cce8f69c9168a2631574179`. Both descriptions omit those operations, while both implementations call `wire_ccsession()`, `install_templates(force=True)` and `install_user_setup(force=True)`. This finding is based on help output and code inspection. I did not execute an update, test the installers, or change the so"
+ },
+ {
+  "id": "364|title",
+  "description": "Build a Linux arm64 self-hosted GitHub Actions runner (Proxmox arm64 or arm64 host) for org projects"
+ },
+ {
+  "id": "409|title",
+  "description": "TUI Dashboard to Manage Orchestration at Scale"
+ },
+ {
+  "id": "462|title",
+  "description": "Opus 5.5 defaults in orchestrator-spawned sessions: honor the user default model for their Coder role"
+ },
+ {
+  "id": "372|title",
+  "description": "Scratch probe (deep): origin_repo.py rejects ssh:// and user@ GitHub origin URLs"
+ },
+ {
+  "id": "465|full",
+  "description": "Verifier report delivery failure leaves implementation blocked without bounded recovery. A native Agent qualitative verifier returned its assessment in chat while its required report remained incomplete, then declined to write it; a fresh retry also refused. The implementation task correctly stopped rather than accepting missing evidence, but the observed workflow had no automatic bounded recovery from this delivery incompatibility. - OS: Linux 6.8.0-147-generic, as supplied by the incident environment. - Version: IronClaude branch `ironbelly/issue-339-orchestrator-mode`, task package `TASK-RF-sweep-phase1-20261108-072653`; exact deployed agent runtime and injected instruction versions are not known yet. The original item 6.17 (`.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md:1095-1100`) requires a native Agent `rf-qa-qualitative` "
+ },
+ {
+  "id": "472|title",
+  "description": "superclaude update help text omits session setup, templates and user setup"
+ },
+ {
+  "id": "347|full",
+  "description": ": CCSession Doesn't respect worktree separation in suggested sessionlist upon new start/resume. Linux _No response_ Within the same project, but different worktrees open a new terminal in Orca. You will get the exact same session list to choose from We could enable a shortcut to filter by all sessions in the whole project however the default needs to list sessions specific to that worktree only by default to prevent people from opening sessions from a different worktree"
+ },
+ {
+  "id": "407|title",
+  "description": "Users who should default to Tier 1b are defaulting to GPT 6.1 Sol"
+ },
+ {
+  "id": "456|full",
+  "description": "pr-submit waits the full timeout on an Augment review whose status marker is missing its closing brace. On PR #455 (merged), `/sc:pr-submit --monitor 3` stalled for the full 600 second wait on a finished Augment review. The review was posted at 2026-11-08T18:15:01Z with the text \"Review completed with 1 suggestion\", but `classify()` returned `polling` on every poll until the wait ran out. Codex had already come back clean. The run recorded Augment as `reviewer_incomplete` and I handled its one finding by hand. Cause, found by replaying the classifier on the live PR data (`_completion_reviews` returned no completed review): - That review's status marker is not valid JSON. It ends `...\"session_url\":\"<url> -->` with no closing `}`. - `_cosmos_marker` (`src/superclaude/pr_submit/classifier.py:171`) catches the `JSONDecodeError`"
+ },
+ {
+  "id": "423|full",
+  "description": "Orchestrator v2 - Proactive Holistic. Agents working across workspaces need relevant knowledge from one another's work, research, failures and lessons learned. The Orchestrator should identify shared problems, reusable functionality and work that benefits from coordination, rather than treating each agent's work in isolation. As an Orchestrator supervising agents across workspaces, I want an up-to-date catalogue of their work and regular cross-agent reviews, so that relevant knowledge is shared, duplicate effort is identified and overlapping work can be coordinated proactively. Start with `/sc:brainstorm --depth deep --handoff design`. Treat this as v2, a separate future release after completion of the v1 orchestrator (#339), not an expansion of the v1 delivery scope. Each Orchestrator catalogues and uses knowledge of what all"
+ }
+]

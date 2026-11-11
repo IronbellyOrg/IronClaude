@@ -1,0 +1,7 @@
+| step | id | theme | verifier reason |
+|---|---|---|---|
+| VF1 | M1 | T1 | A section that names the contract can say load writes none, so AC-1.1 does not force a report file and 265 is not violated; the two texts do not contradict without the assumption that the section means a report. (M1.a, M1.b checked) |
+| VF1 | M4 | T1 | The claimed outcome (auggie-review or post-release still posts or installs after P1) is a phase-interim state of a phased plan, not a stated result; the text never says P1 ships the flag as live behavior, and the pr-submit/D3 part is the same issue as M5. (M4.a checked) |
+| VF1 | M5 | T1 | The claimed outcome (auggie-review or post-release still posts or installs after P1) is a phase-interim state of a phased plan, not a stated result; the text never says P1 ships the flag as live behavior, and the pr-submit/D3 part is the same issue as M5. (M4.a checked) |
+| VF1 | M1 | T1 | A section that names the contract can say load writes none, so AC-1.1 does not force a report file and 265 is not violated; the two texts do not contradict without the assumption that the section means a report. (M1.a, M1.b checked) |
+| VF1 | M4 | T1 | The claimed outcome (auggie-review or post-release still posts or installs after P1) is a phase-interim state of a phased plan, not a stated result; the text never says P1 ships the flag as live behavior, and the pr-submit/D3 part is the same issue as M5. (M4.a checked) |

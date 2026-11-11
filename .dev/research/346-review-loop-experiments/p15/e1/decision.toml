@@ -1,0 +1,94 @@
+# E1 decision constants (plan PLAN-E1E4 sections 2.3, 3.1, 3.2; contract J10.6).  Data, not code.  Written before any live data.
+# D2: cost rules use loop-only worker output tokens (Jev input tokens and USD are reported apart).
+# D6: no rule below stops, truncates or skips anything because of running token or dollar totals; the offline Jev budget is a
+#     pre-flight reservation (contract J4) and a failed draw is a fallback, never a stop.
+
+[baseline]                 # Stage 2 arm 3, n=6, each message id once
+a_base = 100424            # loop only
+audit_base = 69044         # one frozen audit
+b_base = 169468            # a_base + audit_base (R_B, reported only)
+b_blk = 1.50               # recomputed by analyze over the 12 audits; this is the stated value
+growth_mean_pct = 1.41
+growth_median_pct = 0.97   # per-run growth 0.36, 2.20, 0.75, 0.19, 1.19, 3.77
+loop_pass = "6/6"
+escalations = 0
+reviews_mean = 2.17
+a_median = 95106           # per-run loop 70,694; 109,207; 95,213; 81,415; 94,998; 151,017
+
+[d6]
+formula = "R_LOOP_limit = (L*169468 - 69044)/100424, rounded to 2 decimals"
+note = "Cost never stops, truncates or skips anything; cost clauses are post-hoc verdict clauses only."
+
+[strata]
+sonnet_n = 6
+haiku_n = 4
+haiku_model = "haiku"      # loop workers only; AUD/AUD2 always sonnet
+haiku_baseline = "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p14/haiku-baseline/results.json"
+haiku_failure_margin = 0.25
+
+[extension]
+extra_sonnet = 3           # D4: once, only from a Sonnet n=6 INCONCLUSIVE, for every fresh arm (E4 only)
+max_extensions = 1
+
+[validity]
+min_completed = 5          # per arm at n=6 (8 at n=9)
+aud_gap_max = 0.75
+
+[launch]
+max_concurrent = 6         # per experiment, both strata together
+block_seed = 0             # E1 is offline; E4 sets block_seed = 4 in its own decision.toml
+
+[jev]
+model = "jev-1.14.0"
+offline_ceiling_usd = 5.0
+offline_ceiling_input_tokens = 30000000
+live_ceiling_usd = 1.0
+
+[frozen]
+spec_sha = "d3cdbe573e57303b9ce6c93d1fe98ba18fb7cb1a15773d926bf6a0c31425200d"
+cmd_sha = "e62e70b98e878cb4b60ba8f95f1cc3442a25e815828a3ef3d17a95b65ea97494"
+rules_sha = "3eb772f944491720af24133267681e170510ba49949af1b08db913e9eeaddfb8"
+insertion_sha = ""         # E1 has no rules insertion (E4 pins its own)
+
+# ---------------------------------------------------------------- E1 specific
+[thresholds]               # plan 2.3 starting values (smoke, frozen now).  Calibrated values are fitted on the calibration split only.
+t_present_low = 0.3
+t_obl_high = 0.7
+t_contra_low = 0.3
+t_ctx_high = 0.7
+qset_version = "e1-q1"
+freeze_sha = ""            # sha256 of offline/calibration-freeze.json; written BEFORE any held-out call (session 2)
+
+[rules]
+# 3.1 smoke (40 cases)
+smoke_false_closure_stop = 1            # NO-GO-OFFLINE on this many false AUTO_CLOSE (truth closure_correct = no); one is enough
+smoke_blocked_on_model_mismatch = true  # any model_mismatch call -> BLOCKED
+smoke_unavailable_max_frac = 0.10       # more than this fraction of calls ending invalid/unavailable after retries -> BLOCKED
+# 3.2 calibration
+cal_grid_present_low = [0.05, 0.1, 0.2, 0.3]
+cal_grid_contra_low = [0.05, 0.1, 0.2, 0.3]
+cal_grid_obl_high = [0.7, 0.8, 0.9, 0.95]
+cal_grid_ctx_high = [0.7, 0.8, 0.9, 0.95]
+cal_false_close_max = 0                 # admissible policy: zero false AUTO_CLOSE on calibration, every variant counted
+cal_min_automation = 0.30               # no admissible policy at this automation -> NO-GO-OFFLINE (held-out not run)
+# 3.2 held-out (200 cases), exploratory gates (not guarantees)
+heldout_false_close_max = 0             # (a) real S1 stratum included
+heldout_min_automation = 0.30           # (b) AUTO_CLOSE / eligible
+heldout_min_cost_reduction = 0.20       # (c) 1 - checker tokens on FALLBACK packets / checker tokens on all eligible packets
+heldout_max_additional_false_open = 2   # (d) Jev path versus the conventional checker alone
+heldout_nonok_autoclose_max = 0         # (e)
+ci_upper_bound_rule_of_three = 3.0      # report: with 0/N the one-sided 95% upper bound is 3/N
+
+[offline]
+smoke_n = 40
+calibration_n = 120
+heldout_n = 200
+batch_size = 10                         # cases per labeler / checker batch
+smoke_case_id_seed = 7                  # opaque case ids sm-01..sm-40 (shuffled, no category in the id)
+smoke_batch_seed = 11                   # random.Random(11) shuffle across groups before batching (plan 4.4)
+split_seed = 14                         # split_groups(seed=14), session 2
+real_sample_seed = 14                   # stratified sample of real S1 packets, session 2
+real_stratum_max = 60
+labelers = ["L1:sonnet", "L2:haiku"]
+adjudicator = "sonnet"
+checker_model = "sonnet"

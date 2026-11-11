@@ -1,0 +1,22 @@
+{
+ "finding": {
+  "title": "AC-0.4 step 3 cannot pass in Phase 0",
+  "wrong_outcome": "AC-0.4 step 3 cannot pass in Phase 0"
+ },
+ "evidence": {
+  "e1": {
+   "text": "no command edits",
+   "line": 158,
+   "context": "\n| Phase | Scope | Commands | Why this order |\n|---|---|---|---|\n| **P0. Contract and live baseline** (no command edits) | Write `src/superclaude/core/WORKER-CONTRACT.md` (section 2 rules plus a coordinator brief template listing the section 3.1 flags), add it to `KNOWN_CORE_FILES`, add an Orca section to `HOW-WE-WORK.md` and its two mirrored copies, and add the static test file `tests/skills/test_worker_contract.py` (proposed name). Then run three ready commands as real Orca workers, invoked directly, to close evidence gap 1.4 (1). | Smoke runs: `/sc:troubleshoot` (no `--fix`), `/sc:workflow --handoff none`, `/sc:adversarial --output <dir>` | Uses only the 10 ready commands, so the coordinator gets value before any command changes, and the smoke runs test the decision before anything is built on it. |\n| **P1. Report files and commands with no gate** | The WC-4 contract in unattended mode; the `--unattended` flag accepted by every command in sections 3.1 and 3.2 (a no-op where a command has no gate); output flags for commands that lack one; the small fixes to ready commands. | analyze, build, business-panel, design, document, explain, index, test, load (usage line only); fixes to adversarial, cleanup-audit, index-repo, workflow | No person gate is involved, so each change is mechanical and gives every later phase a report file to check. |\n| **P2. Gate conversion** | Each default-on gate resolves per its section 3 row; WC-10 wait splitting for cli-eval. | auggie-review, cleanup, improve, cli-eval, cli-portify, recommend, research, review-translation, spec-panel, task, tasklist, reflect, release-split, tdd, troubleshoot | The main blocker class (`INV-A:96`, `INV-B:292`). These changes touch no safety rule and add no outward capability; where a command has an outward default (auggie-review posting, task's `commit`/`push` and committed TFEP report), P2 only turns it off under `--unattended` (WC-9). |\n| **P3. Interface drift and shared state** | Reconcile command and skill where they disagree; make memory writes parallel-safe. | roadmap, validate-roadmap, validate-tests, save | These are defects today regardless of Orca (`INV-B:294,296`); the coordinator cannot predict their report path until they are fixed. |"
+  },
+  "e2": {
+   "text": ".dev/tasks/to-do/<id>/return-contract.yaml",
+   "line": 92,
+   "context": "| release-split | spec-shaped input; default `--r1-scope`; never `--interactive` | `<output>/release-split-report.md` | `--resume-from <split-proposal-final.md>` | Under `--unattended`, the tasklist-input \"confirm with user\" and `--r1-scope custom` prompt resolve as blocked (P2) | `sk/sc-release-split-protocol/SKILL.md:88,120,175,402`; `INV-B:37,117-125` |\n| tdd | a precise component prompt, not a bare topic; `--output <file>` | the TDD at `--output` | `--resume <task-file>` | Under `--unattended`, the topic-only clarification and nested `/task` \"ask the user\" lines resolve as blocked (P2) | `sk/tdd/SKILL.md:48,52-61,190`; `sk/task/SKILL.md:49,114`; `cmd/tdd.md:29`; `INV-B:47,217-225` |\n| troubleshoot | no `--fix` | `REPORT.md` (`report_path`) | Fresh dir | Under `--unattended`, the `--depth deep` short-input STOP and the `--fix` offer resolve as blocked (P2) | `sk/sc-troubleshoot-protocol/SKILL.md:57,63-68,209`; `sk/sc-troubleshoot-protocol/refs/remediation-handoff.md:58`; `INV-B:49,237-245` |\n| workflow | `--handoff none` | `.dev/tasks/to-do/<id>/return-contract.yaml` | Fresh package each run | Write the contract for pre-creation STOPs too (WC-4 \"every outcome\") (P1) | `sk/sc-workflow-protocol/SKILL.md:58,66,72`; `sk/sc-workflow-protocol/refs/return-contract.md:3-19,39,41`; `INV-B:52,267-275` |\n\n### 3.2 Needs a change (27)\n\"Blocked\" means the WC-2 (c) resolution: write the contract with `status: blocked` and the question, then stop."
+  }
+ },
+ "facts": {
+  "quotes_found_verbatim": true,
+  "evidence_count": 2
+ }
+}

@@ -1,0 +1,7 @@
+### B-1. CRITICAL (blocking). P1's acceptance checks require a contract section that the spec's own `load` row removes.
+- Experts: Wiegers (traceability), Crispin (acceptance criteria), Fowler (count divergence).
+- Locations: `SPEC:112` (load: "Report: none", "use it as a step inside another worker's brief, not as its own Task", Phase "P1 (usage line only)"); `SPEC:159` (P1 lists "load (usage line only)"); `SPEC:265` (decision: "a report file would be an unrequested addition"); `SPEC:195` (AC-1.1); `SPEC:196` (AC-1.2); `SPEC:183` (7.2 step 4).
+- Grading check: An implementer who follows the stated text as written builds a `load.md` with only its usage line fixed, with no `## Unattended mode` section and no contract, and that build is wrong because AC-1.1 asserts every command in sections 3.1-3.2 has an `## Unattended mode` section naming `return-contract.yaml` and AC-1.2 runs the 7.2 live check on each P1 command (load is one), whose step 4 does `test -s <contract>`. Phase 1 cannot pass, and satisfying the checks means writing a contract the load row and Decisions say must not exist.
+- Count trace: 37 sections expected, 36 produced (diagram above). FR-19 classes a count mismatch CRITICAL.
+- Recommendation: make the checks and the rows agree. Either exclude `load` by name from AC-1.1 and AC-1.2, or change the `load` row so it gets a one-line section stating that it writes no contract. Rationale: AC-1.1 is a mechanical test, so a single exception in the prose fails it every time.
+- Priority: High. Quality impact: Consistency +1, Testability +1.

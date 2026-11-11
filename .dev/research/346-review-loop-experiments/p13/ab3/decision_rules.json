@@ -1,0 +1,36 @@
+{
+  "_comment": "All decision-rule constants for PN3 arm c3. Edit here, not in code. D1: thresholds unchanged. D2: token rules use LOOP-ONLY tokens (R_LOOP = loop / A_BASE); R_B is reported only. D3: Haiku stratum. D4: one adaptive extension.",
+  "design": "c3",
+  "cost_policy": "D6: cost is judged only after runs complete and enters only the final verdict; no loop, replicate, wave or experiment is ever stopped, truncated or skipped because of token or dollar cost. Caps on review count remain (not cost rules).",
+  "d6_formula": "R_LOOP_limit = (L*B_BASE - AUD_BASE)/A_BASE",
+  "A_BASE": 100424,
+  "AUD_BASE": 69044,
+  "B_BASE": 169468,
+  "B_BLK": 1.5,
+  "GROWTH_BASE_PCT": 1.41,
+  "sonnet": {
+    "n": 6,
+    "min_completed": 5,
+    "blk_drop_frac": 0.8,
+    "blk_adopt_frac": 0.5,
+    "pass_drop_below": 0.6666667,
+    "pass_adopt_at_least": 0.8333333,
+    "r_loop_drop_above": 4.88,
+    "_r_loop_drop_above_comment": "D6: R_LOOP_limit = (L*169468 - 69044)/100424 with L=3.3 (original limit on R_B = loop+audit) -> 4.88",
+    "r_loop_adopt_at_most": 3.53,
+    "_r_loop_adopt_at_most_comment": "D6: R_LOOP_limit = (L*169468 - 69044)/100424 with L=2.5 (original limit on R_B = loop+audit) -> 3.53",
+    "growth_adopt_at_most_pct": 2.82,
+    "aud_vs_aud2_max_diff": 0.75
+  },
+  "extension": {"enabled": true, "extra_sonnet_replicates": 3, "max_extensions": 1, "only_if": "INCONCLUSIVE"},
+  "haiku": {
+    "n": 4,
+    "baseline_results": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p14/haiku-baseline/results.json",
+    "required_ratio_below": 1.0,
+    "failure_rate_margin_over_baseline": 0.25,
+    "pooled_with_sonnet": false,
+    "audit_model": "sonnet"
+  },
+  "panel": {"template": "default", "environment": "anthropic-only", "cap_reviews": 3},
+  "stop_rule": {"open_blocking_must_be": 0, "unseen_upper95_below": 1.0}
+}

@@ -1,0 +1,28 @@
+{
+ "author_intent": {
+  "category": "crit",
+  "expected_blocking": "yes",
+  "expected_code_outcome": "EXCEPTION"
+ },
+ "case_id": "syn-acc-1",
+ "category": "crit",
+ "data_classes": [
+  "synthetic"
+ ],
+ "family": "syn-acc",
+ "group": "syn-acc",
+ "packet": {
+  "candidate_text": "# Access control requirements\n\n## 1. Roles\nR1. The system has three roles: viewer, editor and admin.\nR2. A viewer can read documents but cannot change them.\nR3. An editor can create and change documents but cannot delete them.\nR4. An admin can do everything an editor can do and can also delete documents and manage users.\n\n## 2. Sessions\nR5. A session expires after 30 minutes without activity.\nR6. After expiry the user must sign in again before any further request is accepted.\nR7. Admin sessions expire after 15 minutes without activity.\n\n## 3. Sharing\nR8. A document can be shared by link with people outside the organization only by an admin.\nR9. A shared link grants the viewer role on that single document.\nR10. Editors may share a document by link with anyone, to speed up collaboration.\nR11. Editors may delete documents that they created themselves.\n\n## 4. User management\nR12. Only an admin can create, disable or delete a user.\nR13. Disabling a user ends all of that user's sessions immediately.\nR14. The last remaining admin cannot be disabled or deleted.\nR15. When a user is deleted, the documents they own are deleted with them.\n\n## 5. Notes\nA document has exactly one owner, the user who created it. Teams share documents by adding people to the document, not by sharing a folder.\nRoles are assigned per user for the whole organization; there are no per-document roles.\nThe role names above are fixed by this document. A user has exactly one role at a time and a new user starts as a viewer.\nRequests that arrive without a valid session are answered with an authentication error and nothing else. This document does not cover the content of that error.\nThe audit trail of role changes is out of scope for this document and is described in the security overview.",
+  "finding_id": "F1",
+  "finding_section": "**F1. CRITICAL (blocking). Expert: Whittaker (Contradiction Attack). Sharing outside the organization is admin only and open to editors**\n\n- Grading sentence: an implementer who follows the stated text as written builds a share action that refuses editors (`A document can be shared by link with people outside the organization only by an admin.`, S:15) and allows editors to share with anyone (`Editors may share a document by link with anyone, to speed up collaboration.`, S:17). An editor sharing outside the organization must be refused and allowed, so either the boundary is open or the feature is dead, which is wrong for a security boundary.\n- Recommendation: make R10 inside the organization only\n- Priority: High. Quality impact: sharing outside the organization is admin only and open to e"
+ },
+ "source": {
+  "kind": "synthetic",
+  "paths": [
+   "cases_synth.py"
+  ],
+  "url": null
+ },
+ "split": "synth",
+ "variant": "base"
+}

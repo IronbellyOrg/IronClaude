@@ -1,0 +1,8 @@
+{
+ "case_id": "sm-33",
+ "finding": {
+  "heading": "### R1-1 Exports are written to a shared directory",
+  "body": "Both export rules write files to one shared directory, so the files of different tenants sit side by side and can be read by anyone who can read the directory. Cited: spec lines 17-19 (before version).\nAn implementer who follows EX-3 and EX-4 builds exports that every tenant can read because all files share one directory.\nProtected requirement: line 17 (tenant isolation must hold)."
+ },
+ "full_diff": "--- before.md\n+++ after.md\n@@ -15,7 +15,7 @@\n ## 3. Storage\n \n - **EX-2 Tenant isolation.** An export file can be read only by the tenant that requested it.\n-- **EX-3 API exports.** Exports requested through the API are written to the shared directory `/shared/exports/<date>/`.\n+- **EX-3 API exports.** Exports requested through the API are written to the tenant directory `/exports/<tenant>/<date>/`, which only that tenant can read. Both export paths now satisfy the tenant isolation rule.\n - **EX-4 Batch exports.** Exports produced by the nightly batch are written to the shared directory `/shared/exports/<date>/`.\n - **EX-5 Download link.** The requester receives a download link that is valid for 24 hours and that names the file.\n \n"
+}

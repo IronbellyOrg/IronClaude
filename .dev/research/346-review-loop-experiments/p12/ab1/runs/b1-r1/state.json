@@ -1,0 +1,376 @@
+{
+ "run": "b1-r1",
+ "design": "b1",
+ "rep": 1,
+ "stratum": "sonnet",
+ "loop_model": "sonnet",
+ "product_ref": "44f37e16d335a322e618b24c16ba387ffdfb47a1",
+ "cmd_sha": "e62e70b98e878cb4b60ba8f95f1cc3442a25e815828a3ef3d17a95b65ea97494",
+ "rules_sha": "ed219181156e47e6d70120730063e0b00081482d8a78b3d2633da188574ca829",
+ "done": [
+  "R1b",
+  "R1a",
+  "R1c",
+  "VF1",
+  "V1",
+  "R2",
+  "VF2",
+  "V2",
+  "R3",
+  "AUD",
+  "AUD2"
+ ],
+ "prepared": [
+  "R1a",
+  "R1b",
+  "R1c",
+  "VF1",
+  "V1",
+  "R2",
+  "VF2",
+  "V2",
+  "R3",
+  "AUD",
+  "AUD2"
+ ],
+ "transitioned": [
+  "R1b",
+  "R1a",
+  "R1c",
+  "VF1",
+  "V1",
+  "R2",
+  "VF2",
+  "V2",
+  "R3",
+  "AUD",
+  "AUD2"
+ ],
+ "log": {
+  "R1b": {
+   "output_exists": true,
+   "report_bytes": 13158,
+   "verdict": "FAIL",
+   "review_header": [
+    "1"
+   ],
+   "labels": {
+    "CRITICAL": 1
+   },
+   "blocking_ids": "- F1: AC-1.1 (spec line 195) and the P1 sweep (spec lines 76, 159) require a `## Unattended mode` section naming `return-contract.yaml` for every command in 3.1-3.2, while the `load` row (line 112) and Decision (line 265) say `load` writes no report and gets only a usage-line fix. Wrong outcome: P1's acceptance gate cannot pass without breaking one of the two stated texts",
+   "blocking_word_count": 7,
+   "output_tokens": 17845
+  },
+  "R1a": {
+   "output_exists": true,
+   "report_bytes": 18224,
+   "verdict": "FAIL",
+   "review_header": [
+    "1"
+   ],
+   "labels": {
+    "CRITICAL": 2,
+    "MAJOR": 2,
+    "MINOR": 1
+   },
+   "blocking_ids": "B1, B2",
+   "blocking_word_count": 8,
+   "output_tokens": 24453
+  },
+  "R1c": {
+   "output_exists": true,
+   "report_bytes": 19586,
+   "verdict": "FAIL",
+   "review_header": [
+    "1"
+   ],
+   "labels": {
+    "CRITICAL": 3,
+    "MAJOR": 1
+   },
+   "blocking_ids": "B1, B2",
+   "blocking_word_count": 8,
+   "output_tokens": 25373
+  },
+  "VF1": {
+   "output_exists": true,
+   "finding_ids": [
+    "M1",
+    "M2",
+    "M3",
+    "M4",
+    "M5"
+   ],
+   "report_bytes": 3022,
+   "confirmed": [
+    "M1",
+    "M2",
+    "M3",
+    "M4",
+    "M5"
+   ],
+   "rejected": {},
+   "parse_ok": true,
+   "output_tokens": 2609
+  },
+  "V1": {
+   "output_exists": true,
+   "report_bytes": 4315,
+   "spec_after": {
+    "bytes": 59220,
+    "lines": 285,
+    "sha256": "4608dec8f5f47699675938e131fc3f4f5f3fbb7915dd6eb492ed6df1a5933d83"
+   },
+   "output_tokens": 13487
+  },
+  "R2": {
+   "output_exists": true,
+   "report_bytes": 14803,
+   "verdict": "FAIL",
+   "review_header": [
+    "2"
+   ],
+   "labels": {
+    "CRITICAL": 1
+   },
+   "blocking_ids": "R2-1",
+   "blocking_word_count": 8,
+   "spec_after": {
+    "bytes": 59220,
+    "lines": 285,
+    "sha256": "4608dec8f5f47699675938e131fc3f4f5f3fbb7915dd6eb492ed6df1a5933d83"
+   },
+   "output_tokens": 11829
+  },
+  "VF2": {
+   "output_exists": true,
+   "finding_ids": [
+    "R2-1"
+   ],
+   "report_bytes": 1553,
+   "confirmed": [
+    "R2-1"
+   ],
+   "rejected": {},
+   "parse_ok": true,
+   "output_tokens": 1964
+  },
+  "V2": {
+   "output_exists": true,
+   "report_bytes": 1850,
+   "spec_after": {
+    "bytes": 59444,
+    "lines": 285,
+    "sha256": "eb7a9219ddeed9546c90120ee7c914556a7d57ba7d99b5a503bf74f7881bf609"
+   },
+   "output_tokens": 3390
+  },
+  "R3": {
+   "output_exists": true,
+   "report_bytes": 7539,
+   "verdict": "PASS",
+   "review_header": [
+    "3"
+   ],
+   "labels": {},
+   "blocking_ids": null,
+   "blocking_word_count": 6,
+   "spec_after": {
+    "bytes": 59444,
+    "lines": 285,
+    "sha256": "eb7a9219ddeed9546c90120ee7c914556a7d57ba7d99b5a503bf74f7881bf609"
+   },
+   "output_tokens": 6094
+  },
+  "AUD": {
+   "output_exists": true,
+   "report_bytes": 13964,
+   "verdict": "FAIL",
+   "review_header": [
+    "1"
+   ],
+   "labels": {
+    "CRITICAL": 1
+   },
+   "blocking_ids": "R-1",
+   "blocking_word_count": 6,
+   "spec_audited": {
+    "bytes": 59444
+   },
+   "output_tokens": 18986
+  },
+  "AUD2": {
+   "output_exists": true,
+   "report_bytes": 12848,
+   "verdict": "FAIL",
+   "review_header": [
+    "1"
+   ],
+   "labels": {
+    "MAJOR": 1,
+    "CRITICAL": 1
+   },
+   "blocking_ids": "F-1 only",
+   "blocking_word_count": 7,
+   "spec_audited": {
+    "bytes": 59444
+   },
+   "output_tokens": 19002
+  }
+ },
+ "launched": {
+  "R1a": "2026-11-10T07:25:34+00:00",
+  "R1b": "2026-11-10T07:25:34+00:00",
+  "R1c": "2026-11-10T07:25:34+00:00",
+  "VF1": "2026-11-10T07:33:54+00:00",
+  "V1": "2026-11-10T07:39:05+00:00",
+  "R2": "2026-11-10T07:44:51+00:00",
+  "VF2": "2026-11-10T07:50:07+00:00",
+  "V2": "2026-11-10T07:54:38+00:00",
+  "R3": "2026-11-10T07:59:44+00:00",
+  "AUD": "2026-11-10T08:05:17+00:00",
+  "AUD2": "2026-11-10T08:06:43+00:00"
+ },
+ "noted_unactioned": [],
+ "loop_end": "PASS",
+ "manual": [],
+ "relaunch": {},
+ "lost": false,
+ "complete": true,
+ "merge": {
+  "raw_count": 5,
+  "merged_count": 5,
+  "groups": [
+   {
+    "mid": "M1",
+    "theme": "T2",
+    "members": [
+     "round1-a.md/B1"
+    ],
+    "cited": [
+     62,
+     73,
+     83,
+     87,
+     90,
+     92,
+     182
+    ],
+    "heading": "### B1. CRITICAL (blocking). WC-4 fixes one contract location that the spec's own per-command rows contradict"
+   },
+   {
+    "mid": "M2",
+    "theme": "T1",
+    "members": [
+     "round1-a.md/B2"
+    ],
+    "cited": [
+     112,
+     154,
+     159,
+     160,
+     162,
+     195,
+     240,
+     265
+    ],
+    "heading": "### B2. CRITICAL (blocking). Phase 1 and its acceptance check demand work that other parts of the spec say must not happen"
+   },
+   {
+    "mid": "M3",
+    "theme": "T1",
+    "members": [
+     "round1-b.md/F1"
+    ],
+    "cited": [
+     62,
+     76,
+     87,
+     112,
+     159,
+     167,
+     195,
+     265
+    ],
+    "heading": "### F1 - CRITICAL-by-consequence, BLOCKING: AC-1.1 and the P1 sweep contradict the `/sc:load` row and its recorded Decision"
+   },
+   {
+    "mid": "M4",
+    "theme": "other",
+    "members": [
+     "round1-c.md/B1"
+    ],
+    "cited": [
+     60,
+     61,
+     73,
+     200,
+     208
+    ],
+    "heading": "### B1 (CRITICAL by label, blocking by consequence). WC-3 lets a blocked gate be answered by `ask`; AC-2.2 and AC-4.1 require the opposite outcome for the same input"
+   },
+   {
+    "mid": "M5",
+    "theme": "T2",
+    "members": [
+     "round1-c.md/B2"
+    ],
+    "cited": [
+     62,
+     73,
+     87,
+     90,
+     120,
+     148,
+     182,
+     195,
+     196,
+     200
+    ],
+    "heading": "### B2 (CRITICAL by label, blocking by consequence). WC-4 puts the report at `<output-dir>/return-contract.yaml`, but the spec's own rows pass file-valued `--output` for tdd, init-lite and spec-panel, and AC-2.2 tests tdd that way"
+   }
+  ],
+  "reviewers": {
+   "a": {
+    "verdict": "FAIL",
+    "sha256": "d47306cfbe33b8c6b1da30095e36a4f2566dbd619b10190dde0846cacb31c0b1",
+    "ids": [
+     "B1",
+     "B2"
+    ],
+    "themes": [
+     "T2",
+     "T1"
+    ]
+   },
+   "b": {
+    "verdict": "FAIL",
+    "sha256": "32028fc9f9f20d0d26587e3a277dcb989120393b1b434a62b17ef6c2af0cdea1",
+    "ids": [
+     "F1"
+    ],
+    "themes": [
+     "T1"
+    ]
+   },
+   "c": {
+    "verdict": "FAIL",
+    "sha256": "0d1e91c4c42d66c74da2d154ca6047dd7c12282d768995c0226d84a4a350c024",
+    "ids": [
+     "B1",
+     "B2"
+    ],
+    "themes": [
+     "other",
+     "T2"
+    ]
+   }
+  },
+  "done": true
+ },
+ "final_spec": {
+  "bytes": 59444,
+  "lines": 285,
+  "sha256": "eb7a9219ddeed9546c90120ee7c914556a7d57ba7d99b5a503bf74f7881bf609"
+ }
+}

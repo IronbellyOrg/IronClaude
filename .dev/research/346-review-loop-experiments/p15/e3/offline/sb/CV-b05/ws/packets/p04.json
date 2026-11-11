@@ -1,0 +1,17 @@
+{
+ "finding": {
+  "title": "Deleting a user deletes the documents they own",
+  "wrong_outcome": "an implementer who follows the stated text as written builds a user deletion that removes every document the user owns (`When a user is deleted, the documents they own are deleted with them.`, S:24), including documents shared with a team, and the team loses its data, which is wrong because the deletion destroys data other people rely on."
+ },
+ "evidence": {
+  "e1": {
+   "text": "When a user is deleted, the documents they own are deleted with them.",
+   "line": 24,
+   "context": "R12. Only an admin can create, disable or delete a user.\nR13. Disabling a user ends all of that user's sessions immediately.\nR14. The last remaining admin cannot be disabled or deleted.\nR15. When a user is deleted, the documents they own are deleted with them.\n\n## 5. Notes\nA document has exactly one owner, the user who created it. Teams share documents by adding people to the document, not by sharing a folder."
+  }
+ },
+ "facts": {
+  "quotes_found_verbatim": true,
+  "evidence_count": 1
+ }
+}

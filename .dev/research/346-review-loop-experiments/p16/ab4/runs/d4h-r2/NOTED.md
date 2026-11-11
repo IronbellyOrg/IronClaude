@@ -1,0 +1,8 @@
+| step | id | theme | verifier reason |
+|---|---|---|---|
+| VF1 | M3 | T1 | Both quotes exist, but AC-1.1 only requires the section to name the file, and a load section stating that it writes no contract names it without writing one; "fails AC-1.1" and "writes a report file" both need a further assumption about how the section is worded. |
+| VF1 | M5 | other | The quoted texts exist, but the outcome needs two index-repo workers in one worktree; line 73 states no default placement, and the default-sharing and parallel-wave facts are cited only to CAPS:115 and CAPS:86, which are outside this sandbox (UNVERIFIED). |
+| VF1 | M20 | T1 | The texts exist, and WC-11 itself does not contain the one-audit-at-a-time rule, but the outcome needs two index-repo workers in one worktree, which depends on the default placement cited only to CAPS:115 (outside the sandbox, UNVERIFIED) and is not stated in 2.3 (73). |
+| VF2 | M1 | T3 | AC-0.4 at :194 states the P0 override for step 3 itself, so a reader of the P0 gate is not left with contradicting instructions; the stated failure needs a reader who ignores that override. |
+| VF2 | M9 | T3 | Same override as M1. The claimed failure of step 4 on `/sc:troubleshoot` does not follow, because :194 defers step 4 to P1 ("step 4 is not evaluated until P1"). The phrase the finding attributes to :194 is not in the candidate. |
+| VF2 | N2 | T1 | The contradiction is real (3.1 gives brainstorm and init-lite no change, the P1 row at :159 gives them one). But AC-1.1 is scoped by "section 3 phase", and section 3.1 assigns no phase to these two commands. Failing AC-1.1 requires reading the section 6 P1 list into that scope, which is an extra assumption. The 10 and 27 header counts are not themselves a failing criterion. |

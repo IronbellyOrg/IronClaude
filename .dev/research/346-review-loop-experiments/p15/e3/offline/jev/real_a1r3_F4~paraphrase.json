@@ -1,0 +1,28 @@
+{
+ "case_id": "real_a1r3_F4~paraphrase",
+ "code_outcome": "OK",
+ "decision": "VERIFIER",
+ "qset_version": "e3-q1",
+ "result": {
+  "answers": {
+   "evidence_sufficient": {
+    "p": 0.07,
+    "type": "noul"
+   },
+   "outcome_follows": {
+    "p": 0.48,
+    "type": "noul"
+   }
+  },
+  "attempts": 1,
+  "error": null,
+  "latency_ms": 173,
+  "model": "jev-1.14.0",
+  "request_sha256": "2809b1020cf6a006372bed0964cfad30065460fd5e4272e283f6b235ee0f8382",
+  "status": "ok",
+  "usage": {
+   "input_tokens": 1961,
+   "output_tokens": 46
+  }
+ }
+}

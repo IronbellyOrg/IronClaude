@@ -1,0 +1,6 @@
+{"case_id": "a01", "blocking": "no", "reason": "R7 (line 12) states admin sessions expire after 15 minutes, so the claim that admin sessions last 30 minutes ignores a stated text and needs a guess about R5 versus R7 precedence."}
+{"case_id": "a02", "blocking": "yes", "reason": "R15 (line 24) states that deleting a user deletes the documents they own, and the notes (line 27) say teams share documents by adding people, so the stated text destroys data other people rely on."}
+{"case_id": "a03", "blocking": "no", "reason": "R3 (line 6) says the next job waits until the running one finishes, which does not skip it, so the claimed outcome does not follow from the quoted text."}
+{"case_id": "a04", "blocking": "yes", "reason": "R12 and R13 (lines 23-24) state that one click is the only check before the production database is overwritten, so a misclick destroys all writes made since the backup."}
+{"case_id": "a05", "blocking": "no", "reason": "R13 (line 24) explicitly and consistently with R8 states that security alerts are dropped above the limit, and no stated text requires them to be exempt, so this is a missing-restriction complaint."}
+{"case_id": "a06", "blocking": "yes", "reason": "R13 (line 27) says only the last four digits may be stored while R14 (line 28) lets support staff view the full card number, and both cannot hold."}

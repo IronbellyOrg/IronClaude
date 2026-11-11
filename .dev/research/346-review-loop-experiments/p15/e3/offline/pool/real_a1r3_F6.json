@@ -1,0 +1,29 @@
+{
+ "author_intent": {
+  "reviewer": "sonnet-or-panel",
+  "reviewer_blocking": true,
+  "run": "a1-r3"
+ },
+ "case_id": "real_a1r3_F6",
+ "category": "real",
+ "data_classes": [
+  "s1_spec",
+  "stage2_artifact"
+ ],
+ "family": "s1_first_review",
+ "group": "D14",
+ "packet": {
+  "candidate_sha": "d3cdbe573e57303b9ce6c93d1fe98ba18fb7cb1a15773d926bf6a0c31425200d",
+  "finding_id": "F6",
+  "finding_section": "**F6. No version or capability check, and no behavior for commands that will never support `--unattended`.** Severity MAJOR, blocking (FR-8 GAP row G1-6). Expert: Newman (backward compatibility and versioning). Spec: section 2.1, section 4, section 6 P1, section 2.3.\nIssue: commands install to other projects at whatever version is there (SPEC:34). A coordinator that passes `--unattended` to an older install gets a command that does not know the flag; slash-command arguments are free text, so the command runs attended and prompts, which is the silent stall WC-2 exists to prevent. Likewise section 4 says the six coordinator-only commands \"get no `--unattended` mode\" (SPEC:128) but not what happens if the flag is passed. Nothing in section 2.3 or section 7 tells the coordinator to confirm support first (for example that `~/.claude/WORKER-CONTRACT.md` exists and that the command's file contains the mode section).\nConcrete wrong outcome: a worker dispatched to a project with the pre-change install stalls on `AskUserQuestion` and the coordinator sees `agentWait` only after the fact.\nRecommendation: add a pre-dispatch support check to section 2.3 and a required refusal line for section-4 commands. Priority High. Quality impact: Completeness +1."
+ },
+ "source": {
+  "kind": "stage2",
+  "paths": [
+   "p11/runs/a1-r3/ws/.dev/orca-command-refactor/review/spec-panel.md"
+  ],
+  "url": null
+ },
+ "split": "pool",
+ "variant": "base"
+}

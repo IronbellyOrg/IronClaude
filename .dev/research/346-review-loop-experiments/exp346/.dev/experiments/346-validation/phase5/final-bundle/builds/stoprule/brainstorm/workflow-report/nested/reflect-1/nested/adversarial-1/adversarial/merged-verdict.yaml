@@ -1,0 +1,10 @@
+# Written by sc-reflect Wave 4 from the nested sc:adversarial merge (EV-1 on-disk gate input)
+merge_method: adversarial
+convergence_score: 0.97
+merged_output_path: /home/coder/workspaces/worktrees/IronClaude/bs346-stoprule/.dev/brainstorms/346-stoprule/workflow-report/nested/reflect-1/nested/adversarial-1/merged-verdict-card.md
+adversarial_contract: /home/coder/workspaces/worktrees/IronClaude/bs346-stoprule/.dev/brainstorms/346-stoprule/workflow-report/nested/reflect-1/nested/adversarial-1/adversarial/return-contract.yaml
+reviewer_cards: [/home/coder/workspaces/worktrees/IronClaude/bs346-stoprule/.dev/brainstorms/346-stoprule/workflow-report/nested/reflect-1/reviewer-cards/reviewer-1-card.yaml, /home/coder/workspaces/worktrees/IronClaude/bs346-stoprule/.dev/brainstorms/346-stoprule/workflow-report/nested/reflect-1/reviewer-cards/reviewer-2-card.yaml, /home/coder/workspaces/worktrees/IronClaude/bs346-stoprule/.dev/brainstorms/346-stoprule/workflow-report/nested/reflect-1/reviewer-cards/reviewer-3-card.yaml]
+blocking_findings: [C-003]
+minor_findings: [C-001, C-002, C-004, C-005, C-006, C-008, C-009, C-010, C-011, C-012, C-013, C-014, C-015, C-016, C-018, C-020, C-021, INV-005, INV-006, INV-007, INV-008, INV-009]
+not_a_defect: [C-007, C-017, C-019]
+deviation_counts: {authorized: 1, necessary: 1, drift: 1, regression: 0}

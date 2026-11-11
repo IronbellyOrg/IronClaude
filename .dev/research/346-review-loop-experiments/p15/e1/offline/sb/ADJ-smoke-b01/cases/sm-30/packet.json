@@ -1,0 +1,8 @@
+{
+ "case_id": "sm-30",
+ "finding": {
+  "heading": "### R1-1 Retry details allow 8 retries",
+  "body": "The retry details section allows up to 8 retries with exponential backoff. The retry policy requirement allows at most 5 retries. Cited: spec lines 13, 39 (before version).\nAn implementer who follows the retry details builds a worker that retries up to 8 times and so exceeds the 5 retries the retry policy allows.\nProtected requirement: line 13 (the retry policy cap must hold)."
+ },
+ "full_diff": "--- before.md\n+++ after.md\n@@ -26,6 +26,8 @@\n - The worker exposes the metric `webhook_delivery_total` labelled by final state (`DELIVERED`, `FAILED`, `GONE`).\n - A delivery stuck in `QUEUED` for more than 15 minutes raises the alert `WebhookQueueStuck`.\n \n+The worker retries a failed delivery up to 8 times with exponential backoff and marks it `FAILED` after the ninth failed attempt.\n+\n ## 5. Acceptance criteria\n \n 1. Registering `http://example.com/hook` returns `E_URL_SCHEME`.\n@@ -33,7 +35,3 @@\n 3. An endpoint that returns 410 receives exactly 1 request and the delivery is `GONE`.\n 4. A 300 KiB payload produces no request and the delivery is `FAILED` with reason `PAYLOAD_TOO_LARGE`.\n 5. No log line at any level contains the signing secret.\n-\n-## 6. Retry details\n-\n-The worker retries a failed delivery up to 8 times with exponential backoff and marks it `FAILED` after the ninth failed attempt.\n"
+}

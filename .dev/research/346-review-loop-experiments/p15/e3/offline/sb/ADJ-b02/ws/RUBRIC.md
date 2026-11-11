@@ -1,0 +1,4 @@
+For each finding decide with the grading check of the review rules: write "An implementer who follows the stated text as written builds X, and X is wrong because Y."
+blocking: yes only if that sentence holds with no further assumption: two stated texts contradict, a stated text causes data loss or breaks a security or safety boundary, or a stated text makes an acceptance criterion impossible to pass. no if the sentence needs a guess about the worse of two readings, if the finding is about a requirement the document never states (missing restriction, undefined state, unspecified edge case), if the quoted text does not exist as quoted, or if the outcome does not follow.
+Write one JSON line per finding to labels.jsonl: {"case_id", "blocking": "yes|no", "sentence": "<your grading sentence or why it fails>", "evidence": "<quotes with line numbers>", "confidence": "high|low"}.
+Judge only from the document. Severity labels in the finding are not evidence.

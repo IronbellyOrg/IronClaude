@@ -1,0 +1,204 @@
+{
+ "chunk": 14,
+ "name": "AC-C.2",
+ "findings": [
+  {
+   "gid": 124,
+   "kind": "first",
+   "arm": "ab1h",
+   "run": "b1h-r4",
+   "step": "r1c",
+   "fid": "B-2",
+   "final_spec_of_this_audit": "",
+   "heading": "#### B-2. AC-C1 cannot fail, so the SA-2 gate is non-functional (blocking)",
+   "body": "\n- Expert: Adzic (acceptance checks as examples), with Wiegers.\n- Quotes: AC-C1 is `grep -rnE '\\borca(-ide)?[[:space:]]+(orchestration\\|worktree\\|terminal\\|agent)\\b' ... \\| grep -v ...`, \"prints nothing (SA-2, WC-8)\" (`candidate:172`). SA-2 says the rule is \"a hard requirement on every phase\" (`candidate:142`). AC-C1 is listed under \"Common checks (every phase)\" (`candidate:169`).\n- Grading sentence: an implementer who runs AC-C1 as written, after putting `orca-ide worktree list` into a command file, gets empty output and records SA-2 and WC-8 as passed. That command then fails with `runtime_unavailable` outside Orca (`orca-capabilities.md:147`). This is checkable in the sandbox. The pattern inside single quotes is ERE, where `\\|` is a literal pipe, so the alternation never matches: `printf 'orca-ide worktree list\\n' | grep -nE '\\borca(-ide)?[[:space:]]+(orchestration\\|worktree\\|terminal\\|agent)\\b'` printed nothing and exited 1. The corrected form with `|` matched the same line and exited 0.\n- A second defect in the same line: in the raw source, the `\\|` before `grep -v` is not a shell pipe. In an unquoted shell `\\|` passes a literal `|` argument (run in the sandbox: `echo a \\| cat` printed `a | cat`). The second stage therefore fails with an error and never filters. The table-escape convention (`\\|` renders as `|` in a GFM table cell) explains the author's intent, but the worker reads the raw source, so the command as written is wrong in both places. The same `\\|` shell-pipe form appears in AC-C4 (`candidate:175`), AC-C5 (`candidate:176`) and AC-0.3 (`candidate:193`).\n- Recommendation: write the pipes and the alternation as plain `|` inside each code span, and move each check out of the table cell into a fenced block, so the raw text and the rendered text agree. Add a positive control to AC-C1: the check must match a planted line (for example `orca-ide worktree list`) before it is trusted.\n- Priority: High. Quality impact: high for SA-2 and WC-8, which are the only mechanical gates for them.\n"
+  },
+  {
+   "gid": 194,
+   "kind": "first",
+   "arm": "ab3",
+   "run": "b3-r1",
+   "step": "r1",
+   "fid": "F-03",
+   "final_spec_of_this_audit": "",
+   "heading": "| F-03 | MAJOR, blocking | The additive-edit check `grep -E '^-[^-]'` (AC-C5, AC-0.3) cannot see a deleted markdown bullet or a deleted `---` line |",
+   "body": ""
+  },
+  {
+   "gid": 209,
+   "kind": "first",
+   "arm": "ab3",
+   "run": "b3-r4",
+   "step": "r1",
+   "fid": "F-2",
+   "final_spec_of_this_audit": "",
+   "heading": "### F-2 (blocking, MAJOR): the \"additive edits\" checks AC-C5 and AC-0.3 cannot detect a deleted or rewritten bullet line",
+   "body": "- Expert: Adzic (an executable example), Whittaker (Zero/Empty Attack on the check).\n- Evidence. AC-C5 passes when `git diff -U0 master...HEAD -- <file> | grep -E '^-[^-]'` \"prints nothing: edits are additive\" (spec:176); AC-0.3 uses the same filter on `HOW-WE-WORK.md` for \"no existing routing row changed\" (spec:193). A deleted markdown bullet `- Will Not: edit files` appears in a diff as `-- Will Not: edit files`, whose second character is `-`, so `^-[^-]` skips it, as it skips a deleted `---` frontmatter line. Command and skill files are mostly bullets (the spec's own quotes, for example spec:60, 187). Run in the sandbox this review: `printf -- '--- a/x.md\\n+++ b/x.md\\n@@ -3 +3 @@\\n-- Will Not: edit files\\n+- Will Not: edit files unless asked\\n-| row | old |\\n+| row | new |\\n' | grep -E '^-[^-]'` printed only `-| row | old |`; the bullet deletion printed nothing.\n- Grading sentence. An implementer who runs AC-C5 as written gets an empty output (a pass) after rewriting an existing bullet such as a `Will Not` line, and the result is wrong because AC-C5 and AC-0.3 are the only mechanical guards for SA-1, SA-4 and SA-5 (spec:146, 149, 150), so the standalone-unchanged guarantee the spec calls a \"hard requirement on every phase\" (spec:142) is unenforced for the commonest line type.\n- Recommendation: replace the filter with one that excludes only the `--- a/` header, for example `grep -E '^-' | grep -vE '^--- (a/|/dev/null)'`, or count deletions with `git diff --numstat`. Rationale: a one-line correction of the stated command.\n- Priority: High. Quality impact: Testability +2.\n"
+  },
+  {
+   "gid": 224,
+   "kind": "first",
+   "arm": "ab3h",
+   "run": "b3h-r1",
+   "step": "r1",
+   "fid": "F-05",
+   "final_spec_of_this_audit": "",
+   "heading": "#### F-05 (BLOCKING) AC-C1 scans a directory that holds content the spec allows to name Orca",
+   "body": "- **Issue.** AC-C1 greps `src/superclaude/core` as well as commands, skills and agents (`specs/orca-worker-contract-spec.md:172`). SA-2 permits the contract file to name Orca's question channel (`:147`), and P0 adds an Orca section to `HOW-WE-WORK.md` in `core` (`:158`). The grep therefore fails on allowed content. The pattern is also written with `\\|` alternation inside `grep -E`, which the table cell's escaping makes ambiguous: copied literally, `\\|` in ERE is a literal pipe and the alternation silently matches nothing.\n- **Grading check.** The check cannot pass on the deliverable SA-2 permits, and as written it can pass vacuously. Blocking.\n- **Expert.** Nygard (gate reliability), Fowler (boundary).\n- **Recommendation.** Exclude `WORKER-CONTRACT.md` from AC-C1 by name, state that the HOW-WE-WORK section must not contain `orca` commands, and write the pattern as `(orchestration|worktree|terminal|agent)` in ERE with the code block not escaped.\n"
+  },
+  {
+   "gid": 236,
+   "kind": "first",
+   "arm": "ab3h",
+   "run": "b3h-r2",
+   "step": "r1",
+   "fid": "F-06",
+   "final_spec_of_this_audit": "",
+   "heading": "### F-06 [BLOCKING, MAJOR] The AC-C1 gate cannot fail, and its scope conflicts with P0",
+   "body": "- Expert: Wiegers (testability), Fowler (boundary).\n- Evidence: AC-C1 puts `\\|` inside a `grep -E` alternation (SPEC:172). In an extended regex `\\|` is a literal bar, so the pattern cannot match `orca orchestration`. Test in this sandbox: `printf 'orca orchestration task-create\\n' | grep -E '\\borca(-ide)?[[:space:]]+(orchestration\\|worktree\\|terminal\\|agent)\\b'` printed nothing and exited 1; the unescaped form `(orchestration|worktree|terminal|agent)` matched and exited 0.\n- Scope conflict: AC-C1 also covers `src/superclaude/core` (SPEC:172). P0 adds an Orca section to HOW-WE-WORK and writes a contract file in that directory (SPEC:158, SPEC:52, SPEC:150). SA-2 limits the no-Orca rule to commands, skills and agents (SPEC:147).\n- Grading sentence: An implementer who runs AC-C1 as written sees no output for any command that contains `orca orchestration`, so the gate passes a violation of SA-2 and WC-8 (SPEC:147, SPEC:66). An implementer who fixes only the escape makes the P0 core edits fail a gate that SA-2 does not require.\n- Recommendation: use `(orchestration|worktree|terminal|agent)`, scope AC-C1 to `src/superclaude/{commands,skills,agents}` to match SA-2, and name the contract file and routing guide as allowed. Add a positive control: a fixture line the check must catch, run as part of `tests/skills/test_worker_contract.py`.\n- Priority: High. Quality impact: the central boundary (\u00a71.1, SA-2, WC-8) is not enforced by any phase gate.\n"
+  },
+  {
+   "gid": 254,
+   "kind": "first",
+   "arm": "pn1",
+   "run": "b1-r1",
+   "step": "r1",
+   "fid": "L9",
+   "final_spec_of_this_audit": "",
+   "heading": "### L9",
+   "body": "\n#### L9.t2-1 (F3)\n\n- claim: In grep -E the escaped pipe is a literal, so AC-C1 never matches an Orca call and always passes, which hides an SA-2 violation.\n- anchor: \"\\\\borca(-ide)?[[:space:]]+(orchestration\\\\|worktree\\\\|terminal\\\\|agent)\\\\b\"\n\n#### L9.t3-2 (F6)\n\n- claim: The AC-C1 grep never matches a real orca orchestration line and matches only a literal pipe, so the common check passes whatever the commands contain and SA-2 is not enforced.\n- anchor: \"(orchestration\\\\|worktree\\\\|terminal\\\\|agent)\"\n"
+  },
+  {
+   "gid": 257,
+   "kind": "first",
+   "arm": "pn1",
+   "run": "b1-r2",
+   "step": "r1",
+   "fid": "L7",
+   "final_spec_of_this_audit": "",
+   "heading": "### L7",
+   "body": "\n#### L7.t1b-1 (F11)\n\n- claim: AC-C1 greps src/superclaude/core, where the P0 contract file and routing-guide Orca section may legitimately name orca commands.\n- anchor: \"prints nothing (SA-2, WC-8)\"\n- anchor2: \"The only allowed mention of Orca in a changed command is as an example of a caller's question channel inside the contract file.\"\n\n#### L7.t2-1 (F9)\n\n- claim: AC-C1 scans src/superclaude/core, where P0 must add an Orca section and where SA-2 permits Orca mentions, so the common check can fail on text the spec requires or allows.\n- anchor: \"prints nothing (SA-2, WC-8)\"\n- anchor2: \"The only allowed mention of Orca in a changed command is as an example\"\n\n#### L7.t3-1 (M1)\n\n- claim: In grep -E, `\\|` is a literal pipe, so AC-C1 never matches real orca invocations and passes vacuously; AC-C4 has the same escaping.\n- anchor: \"(orchestration\\\\|worktree\\\\|terminal\\\\|agent)\"\n\n#### L7.t3-2 (F3)\n\n- claim: In grep -E the escaped bar is literal, so AC-C1 never matches an Orca call and passes vacuously, letting a command break standalone use.\n- anchor: \"(orchestration\\\\|worktree\\\\|terminal\\\\|agent)\\\\b\"\n\n#### L7.t3-2 (F20)\n\n- claim: SA-2 is worded so that the rule for changed commands points at the contract file, which is not a changed command.\n- anchor: \"The only allowed mention of Orca in a changed command is as an example\"\n"
+  },
+  {
+   "gid": 265,
+   "kind": "first",
+   "arm": "pn1",
+   "run": "b1-r3",
+   "step": "r1",
+   "fid": "L5",
+   "final_spec_of_this_audit": "",
+   "heading": "### L5",
+   "body": "\n#### L5.t1b-1 (F15)\n\n- claim: AC-C1 scans core files that Phase 0 must fill with Orca text, and its escaped pipes make the grep pattern match nothing when copied.\n- anchor: \"prints nothing (SA-2, WC-8)\"\n- anchor2: \"add an Orca section to `HOW-WE-WORK.md` and its two mirrored copies\"\n\n#### L5.t2-1 (F3)\n\n- claim: As written, the escaped pipe is a literal, so AC-C1 never matches, even on a command that calls orca orchestration; the check passes a violation.\n- anchor: \"grep -rnE '\\\\borca(-ide)?[[:space:]]+(orchestration\\\\|worktree\\\\|terminal\\\\|agent)\\\\b'\"\n\n#### L5.t2-1 (F21)\n\n- claim: AC-C1 matches four verbs only, so most orca commands pass the SA-2 check.\n- anchor: \"No command, skill or agent file runs an `orca` or `orca-ide` command\"\n\n#### L5.t3-1 (F3)\n\n- claim: AC-C1 runs in every phase over src/superclaude/core and forbids Orca orchestration text that P0 requires there, so P0 cannot pass.\n- anchor: \"add an Orca section to `HOW-WE-WORK.md` and its two mirrored copies\"\n- anchor2: \"src/superclaude/agents src/superclaude/core\"\n\n#### L5.t3-1 (F4)\n\n- claim: AC-C1 matches only four orca subcommands, so a command running orca-ide status passes; in raw form the escaped alternation matches nothing.\n- anchor: \"No command, skill or agent file runs an `orca` or `orca-ide` command\"\n- anchor2: \"prints nothing (SA-2, WC-8)\"\n\n#### L5.t3-2 (F6)\n\n- claim: The AC-C1 grep uses an escaped alternation in an ERE, matches a literal pipe, and printed nothing on a positive control in the sandbox, so SA-2 is never checked.\n- anchor: \"(orchestration\\\\|worktree\\\\|terminal\\\\|agent)\"\n\n#### L5.t3-2 (F10)\n\n- claim: P0 writes the contract, the routing-guide section and a test file before its smoke runs, which its own rationale says must come first.\n- anchor: \"the smoke runs test the decision before anything is built on it\"\n\n#### L5.t3-2 (F17)\n\n- claim: AC-C1 also scans src/superclaude/core, where P0 adds an Orca section, and no exemption covers it.\n- anchor: \"src/superclaude/commands src/superclaude/skills src/superclaude/agents src/superclaude/core\"\n- anchor2: \"The only allowed mention of Orca in a changed command\"\n"
+  },
+  {
+   "gid": 271,
+   "kind": "first",
+   "arm": "pn1",
+   "run": "b1-r4",
+   "step": "r1",
+   "fid": "L2",
+   "final_spec_of_this_audit": "",
+   "heading": "### L2",
+   "body": "\n#### L2.t1b-1 (F4)\n\n- claim: The additive-edit check ignores deleted lines that begin with a dash because diff shows a deleted '- b' as '-- b', so an implementer deleting a bullet or --- line passes AC-C5.\n- anchor: \"git diff -U0 master...HEAD -- src/superclaude/commands/<name>.md \\\\| grep -E '^-[^-]'\"\n"
+  },
+  {
+   "gid": 272,
+   "kind": "first",
+   "arm": "pn1",
+   "run": "b1-r4",
+   "step": "r1",
+   "fid": "L4",
+   "final_spec_of_this_audit": "",
+   "heading": "### L4",
+   "body": "\n#### L4.t1b-1 (M7)\n\n- claim: AC-C1 scans core/ where P0 adds Orca text and misses orca status/open/skills.\n- anchor: \"prints nothing (SA-2, WC-8)\"\n\n#### L4.t2-1 (F5)\n\n- claim: An implementer who runs AC-C1 as written sees no output for a real orca orchestration call, because the escaped pipes are literal in grep -E, so the SA-2 check passes falsely.\n- anchor: \"(orchestration\\\\|worktree\\\\|terminal\\\\|agent)\"\n- anchor2: \"grep -v '^src/superclaude/skills/ccsession-tag/'\"\n\n#### L4.t3-1 (F12)\n\n- claim: AC-C1 as written never matches, so it passes whatever the commands contain.\n- anchor: \"prints nothing (SA-2, WC-8)\"\n\n#### L4.t3-2 (M8)\n\n- claim: The AC-C1 pattern is a literal pipe when copied verbatim so it can pass without checking, and once it works its scope fails the contract file that SA-2 allows to mention Orca.\n- anchor: \"grep -v '^src/superclaude/skills/ccsession-tag/'\"\n- anchor2: \"The only allowed mention of Orca in a changed command\"\n"
+  },
+  {
+   "gid": 286,
+   "kind": "first",
+   "arm": "pn1",
+   "run": "b1-r6",
+   "step": "r1",
+   "fid": "L13",
+   "final_spec_of_this_audit": "",
+   "heading": "### L13",
+   "body": "\n#### L13.t3-1 (F12)\n\n- claim: The AC-C1 pattern uses an escaped pipe that grep -E reads as a literal, so it can pass after an Orca call is added, and it scans core files that SA-2 allows to mention Orca.\n- anchor: \"(orchestration\\\\|worktree\\\\|terminal\\\\|agent)\"\n- anchor2: \"The only allowed mention of Orca in a changed command is as an example\"\n\n#### L13.t3-2 (F3)\n\n- claim: In grep -E the escaped pipe is a literal, so AC-C1 prints nothing for any input and cannot fail, leaving SA-2 and WC-8 without a working check.\n- anchor: \"(orchestration\\\\|worktree\\\\|terminal\\\\|agent)\"\n\n#### L13.t3-2 (F21)\n\n- claim: SA-2 and P0 permit Orca mentions in core files that AC-C1 would reject once fixed.\n- anchor: \"The only allowed mention of Orca in a changed command\"\n- anchor2: \"add an Orca section to `HOW-WE-WORK.md`\"\n"
+  },
+  {
+   "gid": 302,
+   "kind": "first",
+   "arm": "pn2",
+   "run": "l2-r4",
+   "step": "r1",
+   "fid": "F-2",
+   "final_spec_of_this_audit": "",
+   "heading": "**F-2 | MAJOR, blocking | Nygard, Wiegers | AC-C1 (every phase) forbids text that SA-2 and P0 require**",
+   "body": "- Stated texts. SA-2 allows an Orca mention \"as an example of a caller's question channel inside the contract file\" (spec:147). WC-3 tells the worker session to use \"the preamble's `ask` command\" and gives the brief template a role (spec:61, spec:158). P0 puts `WORKER-CONTRACT.md` in `src/superclaude/core/` and adds an Orca section to `HOW-WE-WORK.md`, also in `src/superclaude/core/` (spec:52, spec:158, spec:150). AC-C1 greps `src/superclaude/core` for `orca(-ide)? (orchestration|worktree|terminal|agent)` and excludes only `skills/ccsession-tag/`. Its pass condition is \"prints nothing\" (spec:172). It is a common check, so it applies to every phase (spec:167).\n- Sentence: An implementer who follows the stated text as written writes the contract file and the routing-guide Orca section with the literal command `orca orchestration ask` or `orca-ide orchestration ...`, as SA-2 permits. That is wrong because AC-C1 then prints those lines and every phase check fails. The alternative, writing no such literal, contradicts WC-3, the P0 brief template (spec:158) and the Orca section P0 adds to `HOW-WE-WORK.md` (spec:150), which exist to tell people and agents what to run. The spec also records that `HOW-WE-WORK.md` has zero Orca mentions today (spec:25), so the baseline hides the conflict.\n- Why blocking: two stated texts contradict (SA-2 allowance versus the AC-C1 pass condition).\n- Recommendation (Fowler): exclude `src/superclaude/core/WORKER-CONTRACT.md` and the Orca section of `HOW-WE-WORK.md` from AC-C1, or tighten AC-C1 to `commands`, `skills`, `agents` only, and say so in SA-2.\n- Priority: High.\n"
+  },
+  {
+   "gid": 429,
+   "kind": "first",
+   "arm": "ab4h",
+   "run": "d4h-r2",
+   "step": "r1b",
+   "fid": "B11",
+   "final_spec_of_this_audit": "",
+   "heading": "**B11. [BLOCKING, High] AC-C1 fails the contract text that SA-2 permits.** Experts: Fowler (boundaries), Whittaker (contradiction probe).",
+   "body": "- Cites: `S:147` (SA-2: \"The only allowed mention of Orca in a changed command is as an example of a caller's question channel inside the contract file\"); `S:172` (AC-C1 greps `src/superclaude/core` and excludes only `ccsession-tag`); `S:158` (P0 writes `src/superclaude/core/WORKER-CONTRACT.md`); `S:52` (the contract file is a core file).\n- Wrong outcome: \"An implementer who writes SA-2's permitted example, `orca orchestration ask`, into WORKER-CONTRACT.md fails AC-C1, which runs in every phase, so the implementer must choose between the two texts.\"\n- Recommendation: exclude `src/superclaude/core/WORKER-CONTRACT.md` from AC-C1, or forbid the example and restate SA-2 to match.\n"
+  },
+  {
+   "gid": 440,
+   "kind": "first",
+   "arm": "ab4h",
+   "run": "d4h-r3",
+   "step": "r1b",
+   "fid": "B-1",
+   "final_spec_of_this_audit": "",
+   "heading": "### B-1 (BLOCKING). AC-C1 forbids the Orca wording that the spec requires in core files",
+   "body": "- Expert: Karl Wiegers (lead), Gojko Adzic. Severity: CRITICAL under the blocking rule (two stated texts contradict).\n- Location: candidate:172 (AC-C1 scans `src/superclaude/core`); candidate:147 (SA-2: \"the only allowed mention of Orca ... is as an example of a caller's question channel inside the contract file\"); candidate:52 and :158 (the contract file is `src/superclaude/core/WORKER-CONTRACT.md`; P0 also adds \"an Orca section\" to `HOW-WE-WORK.md`, which is in core).\n- Issue: SA-2 permits an Orca example inside the contract file, and P0 requires an Orca section in the routing guide. AC-C1 pattern `\\borca(-ide)?[[:space:]]+(orchestration|worktree|terminal|agent)\\b` scans core and allows only ccsession-tag. A contract or routing section that shows the question channel (for example `orca orchestration ask`) makes AC-C1 fail. The spec never says core is exempt.\n- Grading check: \"An implementer who follows SA-2 and P0 writes `orca orchestration ask` as the example in `WORKER-CONTRACT.md` and an Orca section in `HOW-WE-WORK.md`, and AC-C1 then fails on those two files, because AC-C1 scans `src/superclaude/core` and the spec exempts nothing there, so P0 can never pass its common check.\"\n- Recommendation: exempt `src/superclaude/core/WORKER-CONTRACT.md` and the named HOW-WE-WORK section from AC-C1 by path and section, or move the example out of the scanned tree. Say in SA-2 whether core files are covered by the no-Orca-command rule.\n- Priority: High. Quality impact: P0 cannot pass its common check, so every later phase is blocked.\n"
+  },
+  {
+   "gid": 457,
+   "kind": "first",
+   "arm": "ab4h",
+   "run": "d4h-r4",
+   "step": "r1b",
+   "fid": "B5",
+   "final_spec_of_this_audit": "",
+   "heading": "### B5. AC-C1 cannot fail, and its scope conflicts with SA-2 and SA-5",
+   "body": "- Expert: Fowler (boundary integrity), Wiegers (testability). Severity: MAJOR, graded blocking because the only check of a named safety boundary cannot detect the violation it names.\n- Location: spec:172 (AC-C1), spec:147 (SA-2), spec:150 (SA-5), spec:180 (step 1, `ORCA` placeholder), spec:191-210 (phases that touch core).\n- Issue: The pattern is `grep -rnE '\\borca(-ide)?[[:space:]]+(orchestration\\|worktree\\|terminal\\|agent)\\b'`. In an -E pattern `\\|` is a literal bar, not alternation. The check therefore matches only the text \"orca orchestration|worktree|terminal|agent\" and cannot match a real Orca call. I reproduced this by piping sample lines through the same expression (no files written): the line \"orca orchestration worker-start\" was not printed, and with an unescaped `|` the same line was printed. The check is also case-sensitive, so `ORCA orchestration` (the placeholder in spec:180) is missed. Second, AC-C1 scans `src/superclaude/core` (spec:172), where SA-5 requires the routing guide to gain an Orca section (spec:150) and where the contract file is allowed to mention Orca (spec:147). Once the pattern is fixed, both permitted texts would fail AC-C1 whenever they name an `orca` command.\n- Grading sentence: An implementer who runs AC-C1 as written, in any phase, gets empty output whether or not a command contains `orca orchestration worker-start`, and then reports SA-2 and WC-8 as met; X is wrong because the only enforcement of the no-Orca-in-commands boundary can never fail.\n- Recommendation: Use `grep -rniE '\\borca(-ide)?[[:space:]]+(orchestration|worktree|terminal|agent)\\b'`, scan `commands`, `skills` and `agents` for the hard rule, and scan `core` only for paths other than `WORKER-CONTRACT.md` and the routing-guide Orca section. State those two exclusions in SA-2 and SA-5. Add a self-test: the check must match a planted line.\n- Priority: High. Quality impact: the boundary the spec relies on for standalone use (SA-2, spec:147) is unenforced.\n"
+  },
+  {
+   "gid": 480,
+   "kind": "first",
+   "arm": "haiku-base",
+   "run": "a3-r3",
+   "step": "r1",
+   "fid": "B2",
+   "final_spec_of_this_audit": "",
+   "heading": "### B2. Check AC-C1 is vacuous, and SA-2 contradicts it on the contract file and the HOW-WE-WORK section",
+   "body": "\n- Spec text: AC-C1 (line 172) is the common gate for every phase and must \"print nothing\". Its pattern is `\\borca(-ide)?[[:space:]]+(orchestration\\|worktree\\|terminal\\|agent)\\b` under `grep -E`. In ERE (GNU grep), `\\|` matches a literal pipe, not alternation. The check therefore never matches an Orca command.\n- Test run: `printf 'run orca orchestration task-create now\\n' | grep -nE '<AC-C1 pattern>'` exits 1 and prints nothing. The same pattern with an unescaped `|` matches the line (exit 0). So AC-C1 cannot fail on any violation of SA-2 or WC-8.\n- Contradicting text: SA-2 (line 147) allows an Orca mention \"inside the contract file\", and P0 (line 158) and SA-5 (line 150) require an Orca section in `src/superclaude/core/HOW-WE-WORK.md`. AC-C1 covers `src/superclaude/core` (line 172) with no exemption for either file. The spec therefore states that the contract file may mention Orca, and its own gate would flag that mention if the gate worked.\n- Grading sentence: an implementer who runs AC-C1 as written on a command that calls `orca orchestration task-create` gets no output and marks the check passed, although SA-2 (line 147) and WC-8 (line 66) forbid that call; the phase gate for SA-2 and WC-8 is therefore void.\n- Severity: blocking, because a gate that certifies a forbidden state is a wrong outcome of the spec as written.\n"
+  },
+  {
+   "gid": 493,
+   "kind": "first",
+   "arm": "haiku-base",
+   "run": "a3-r5",
+   "step": "r1",
+   "fid": "F-02",
+   "final_spec_of_this_audit": "",
+   "heading": "### F-02 (MAJOR, BLOCKING): the AC-C1 grep never matches, so the mechanical gate for SA-2 and WC-8 always passes",
+   "body": "\n- Location: spec line 172 (AC-C1, `grep -rnE '...(orchestration\\|worktree\\|terminal\\|agent)\\b' ...`); line 147 (SA-2); line 66 (WC-8); line 213 (non-goal 1).\n- Issue: under `grep -E` (ERE), `\\|` matches a literal `|`, not alternation. The pattern as written therefore matches no `orca orchestration`, `orca worktree` or `orca-ide terminal` text. I tested this in the sandbox with three sample lines: the spec's escaping returned exit 1 with no output; the same pattern with plain `|` matched all three.\n- Grading check: \"An implementer who runs AC-C1 as written gets empty output and records a pass, while a command still calls `orca orchestration`, and that is wrong because SA-2 is a hard requirement on every phase (line 142) and this is its only mechanical check.\" This holds with no added assumption.\n- Recommendation: change `\\|` to `|` (or use `grep -E` with `(orchestration|worktree|terminal|agent)`), then re-run the sample test and keep it as a fixture in `tests/skills/test_worker_contract.py`.\n- Expert: Fowler (fitness function for a boundary), Nygard (safety rule with a silent gate).\n"
+  },
+  {
+   "gid": 499,
+   "kind": "first",
+   "arm": "haiku-base",
+   "run": "a3-r6",
+   "step": "r1",
+   "fid": "F-01",
+   "final_spec_of_this_audit": "",
+   "heading": "### F-01 BLOCKING: AC-C1 cannot pass as written (Wiegers)",
+   "body": "- Locations: `spec:172` (AC-C1 greps `src/superclaude/core`), `spec:158` (P0 adds an Orca section to `core/HOW-WE-WORK.md`), `spec:150` (SA-5 says the routing guide gains an Orca section), `spec:147` (SA-2 allows an Orca mention in the core contract file), `spec:52` (contract file lives in `core`).\n- Sentence: An implementer who follows P0 and SA-2 writes Orca commands into the core guide and the contract file, AC-C1 then prints those lines, and the P0 check cannot pass.\n- Evidence: AC-C1 excludes only `skills/ccsession-tag/` (`spec:172`).\n- Recommendation: Narrow AC-C1 to commands, skills and agents, which is the scope SA-2 uses (`spec:147`), or list the core lines that are allowed to name Orca.\n- Priority: High.\n"
+  }
+ ]
+}

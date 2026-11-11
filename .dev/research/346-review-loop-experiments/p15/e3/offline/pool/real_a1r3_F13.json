@@ -1,0 +1,29 @@
+{
+ "author_intent": {
+  "reviewer": "sonnet-or-panel",
+  "reviewer_blocking": true,
+  "run": "a1-r3"
+ },
+ "case_id": "real_a1r3_F13",
+ "category": "real",
+ "data_classes": [
+  "s1_spec",
+  "stage2_artifact"
+ ],
+ "family": "s1_first_review",
+ "group": "D8",
+ "packet": {
+  "candidate_sha": "d3cdbe573e57303b9ce6c93d1fe98ba18fb7cb1a15773d926bf6a0c31425200d",
+  "finding_id": "F13",
+  "finding_section": "**F13. WC-9 authorization cannot be checked where it is applied.** Severity MAJOR, blocking (FR-8 GAP rows G4-2 and G4-4). Expert: Cockburn (who is the actor and what goal authorizes the action). Spec: section 2.2 WC-9, section 3.2 post-release, section 9 D4.\nIssue: WC-9 says outward actions turn on \"only through the command's own explicit flag written in the brief\" (SPEC:67), and D4(a) adds that the coordinator must \"quote the user's instruction\" (SPEC:245). A command sees the flag, never the brief, so the quote cannot be enforced anywhere; the only mechanical check is \"default is off\" (AC-2.4, AC-4.2). For post-release, the one command with four outward actions (VM, real-target install, commit, PR; SPEC:113), the spec offers one flag by name-less reference and leaves the decision open (D4).\nConcrete wrong outcome: an implementer adds a single `--allow-outward` flag to post-release. A coordinator that was told \"install it\" then also commits and opens a PR.\nRecommendation: require one flag per outward action class in the `## Unattended mode` sections (named in section 3 for post-release, auggie-review `--post-pr`, task `commit`/`push`), and move the \"quote the instruction\" duty to the coordinator side of section 2.3 where it can be reviewed. Priority High. Quality impact: Testability +1."
+ },
+ "source": {
+  "kind": "stage2",
+  "paths": [
+   "p11/runs/a1-r3/ws/.dev/orca-command-refactor/review/spec-panel.md"
+  ],
+  "url": null
+ },
+ "split": "pool",
+ "variant": "base"
+}

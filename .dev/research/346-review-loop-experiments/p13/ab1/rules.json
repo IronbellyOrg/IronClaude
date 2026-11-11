@@ -1,0 +1,61 @@
+{
+  "_comment": "Decision-rule constants for PN1 (pre-registered; owner decisions D1-D4 of 2026-11-10). Data, not code. D1: the three zones and thresholds are unchanged. D2: token rules apply to LOOP-ONLY output tokens (R_LOOP); the numeric limits are the plan's, now applied to R_LOOP.",
+  "baseline": {
+    "B_BLK": 1.5,
+    "B_GROWTH": 0.0141,
+    "B_PASS": 1.0,
+    "spec_bytes": 57763
+  },
+  "tokens": {
+    "convention": "loop-only",
+    "A_BASE": 100424,
+    "AUD_BASE": 69044,
+    "B_BASE": 169468,
+    "loop_steps_include_adjudication": true,
+    "dedupe": "message id counted once (max output_tokens)"
+  },
+  "decision": {
+    "drop1_blk_factor": 0.8,
+    "drop2_r_loop": 4.88,
+    "cost_hold_r_loop": 2.69,
+    "drop3_pass_min": 0.6666666667,
+    "drop3_growth_factor": 3,
+    "adopt_blk_factor": 0.5,
+    "adopt_pass_min": 0.8333333333,
+    "adopt_growth_max": 0.0282,
+    "adopt_block_ok_min": 0.9,
+    "min_completed_runs": 5,
+    "max_audit_gap": 0.75
+  },
+  "strata": {
+    "default": "sonnet",
+    "sonnet_runs": 6,
+    "haiku_runs": 4,
+    "haiku_model": "haiku",
+    "audit_model": "sonnet"
+  },
+  "haiku": {
+    "baseline_results": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p14/haiku-baseline/results.json",
+    "max_lost_rate_excess": 0.25
+  },
+  "extension": {
+    "base_replicates": 6,
+    "extra_replicates": 3,
+    "max_extensions": 1
+  },
+  "cost_limits_d6": {
+    "_comment": "D6: a limit L stated on R_B (loop+audit) becomes R_LOOP_limit = round((L*169468 - 69044)/100424, 2). The original L no longer applies to R_LOOP. Cost never stops a run (D6.2): these limits enter only the final, post-hoc verdict.",
+    "formula": "(L*B_BASE - AUD_BASE)/A_BASE",
+    "drop2_r_loop": {
+      "original_L": 3.3,
+      "value": 4.88,
+      "note": "DROP-2: plan limit R_TOK > 3.3 (arm-1 cost level) -> R_LOOP > 4.88"
+    },
+    "cost_hold_r_loop": {
+      "original_L": 2.0,
+      "value": 2.69,
+      "note": "COST-HOLD: report's pre-registered 'token cost <= 2x' -> R_LOOP > 2.69"
+    },
+    "mid_run_cost_checks": "none exist; no harness step reads running tokens to stop, abort, truncate or skip a run (D6.2). Token counts are read only after a step has finished."
+  }
+}

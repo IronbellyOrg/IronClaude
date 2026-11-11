@@ -1,0 +1,3 @@
+After T09 (review 3) finishes, the recorder runs from the S1 repo root:
+uv run --no-project python ~/.claude/skills/sc-fix-audit/scripts/fix_audit.py verdict --dir .dev/orca-command-refactor/review/fix-audit --report .dev/orca-command-refactor/review/spec-panel-round3.md --report-rule any-severity
+Registered readout (owner decision: findings the script defers or demotes stay open): the line "review-3 critical+major (owner count, held findings included): <n>" in .dev/orca-command-refactor/review/fix-audit/final-verdict.md is the review-3 critical+major count, the owner count.

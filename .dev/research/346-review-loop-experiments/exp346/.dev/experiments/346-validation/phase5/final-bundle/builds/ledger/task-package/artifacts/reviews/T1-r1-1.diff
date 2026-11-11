@@ -1,0 +1,1442 @@
+diff --git a/src/superclaude/skills/sc-review-ledger/scripts/review_ledger.py b/src/superclaude/skills/sc-review-ledger/scripts/review_ledger.py
+new file mode 100644
+index 00000000..c712c544
+--- /dev/null
++++ b/src/superclaude/skills/sc-review-ledger/scripts/review_ledger.py
+@@ -0,0 +1,930 @@
++#!/usr/bin/env python3
++"""review_ledger.py: the script-kept finding ledger for document review loops.
++
++The script is the only writer of the ledger. Models write small JSON inputs (or a
++report holding one fenced ``ledger-input`` block) and their own reports; the
++script validates and ingests them atomically. The actor is implied by the
++subcommand: there is no role flag, no event log and no version-control call
++(snapshots are plain copies, because a reviewed document may be untracked).
++
++Ledger folder: ``<doc dir>/<doc stem>.review-ledger/`` (or ``--ledger <dir>``),
++holding ``ledger.json``, ``snapshots/``, ``diffs/``, ``inputs/`` and ``.lock``.
++
++Output: one JSON object on stdout. Exit codes: 0 committed (whatever the
++decision), 1 usage, 2 row-level input refused, 3 state refused, 4 lock or
++sequence conflict. ``verdict`` alone exits 0 PASS, 10 CONTINUE, 11 ESCALATE,
++12 PENDING (the loop is terminal and the sweep has not run).
++"""
++
++from __future__ import annotations
++
++import argparse
++import fcntl
++import hashlib
++import json
++import os
++import re
++import sys
++import tempfile
++from pathlib import Path
++
++SCHEMA = 1
++CAP_REVIEWS = 3  # tied by a test to "at most 2 fix cycles (3 reviews)"
++
++GRADES_SPEC_PANEL = ("CRITICAL", "MAJOR", "MINOR")
++
++
++def _blocking_spec_panel(row: dict) -> bool:
++    grade = row["grade"]
++    rule = (row.get("rule") or "").strip().upper()
++    wrong = (row.get("wrong_outcome") or "").strip()
++    return (
++        grade == "CRITICAL"
++        or rule in {"FR-8", "FR-9"}
++        or (grade == "MAJOR" and bool(wrong))
++    )
++
++
++# One row per profile: grade vocabulary, blocking predicate, cap.
++PROFILES = {
++    "spec-panel": {
++        "grades": GRADES_SPEC_PANEL,
++        "blocking": _blocking_spec_panel,
++        "cap_reviews": CAP_REVIEWS,
++    },
++}
++
++PHASES = ("find", "revise", "verify", "terminal", "swept")
++EXIT_OK, EXIT_USAGE, EXIT_INPUT, EXIT_STATE, EXIT_CONFLICT = 0, 1, 2, 3, 4
++VERDICT_EXIT = {"PASS": 0, "CONTINUE": 10, "ESCALATE": 11, "PENDING": 12}
++ROW_INPUT_KEYS = {"grade", "rule", "wrong_outcome", "anchor", "finding", "label"}
++
++
++class Refusal(Exception):
++    def __init__(self, code: str, detail, exit_code: int, next_action: str = ""):
++        super().__init__(code)
++        self.code, self.detail, self.exit_code, self.next_action = (
++            code,
++            detail,
++            exit_code,
++            next_action,
++        )
++
++
++def refuse(code: str, detail, exit_code: int, next_action: str = "") -> None:
++    raise Refusal(code, detail, exit_code, next_action)
++
++
++# ---------------------------------------------------------------- utilities
++
++
++def sha256_bytes(data: bytes) -> str:
++    return hashlib.sha256(data).hexdigest()
++
++
++def canonical(obj) -> bytes:
++    return json.dumps(
++        obj, sort_keys=True, separators=(",", ":"), ensure_ascii=False
++    ).encode("utf-8")
++
++
++def body_digest(state: dict) -> str:
++    return sha256_bytes(
++        canonical({k: v for k, v in state.items() if k != "body_sha256"})
++    )
++
++
++def atomic_write(path: Path, data: bytes) -> None:
++    path.parent.mkdir(parents=True, exist_ok=True)
++    fd, tmp = tempfile.mkstemp(
++        dir=str(path.parent), prefix=f".{path.name}.", suffix=".tmp"
++    )
++    try:
++        with os.fdopen(fd, "wb") as fh:
++            fh.write(data)
++            fh.flush()
++            os.fsync(fh.fileno())
++        os.replace(tmp, path)
++    except BaseException:
++        if os.path.exists(tmp):
++            os.unlink(tmp)
++        raise
++
++
++def flat(text: str) -> str:
++    return " ".join(text.split())
++
++
++def locate(text: str, quote: str) -> list[tuple[int, int]]:
++    """Every occurrence of ``quote`` in ``text`` as a half-open 0-based line range.
++
++    Matching is whitespace-normalized, so a quote copied across a line wrap is
++    still found.
++    """
++    q = flat(quote)
++    if not q:
++        return []
++    chars: list[str] = []
++    line_of: list[int] = []
++    line = 0
++    prev_space = True
++    for ch in text:
++        if ch.isspace():
++            if not prev_space:
++                chars.append(" ")
++                line_of.append(line)
++                prev_space = True
++        else:
++            chars.append(ch)
++            line_of.append(line)
++            prev_space = False
++        if ch == "\n":
++            line += 1
++    norm = "".join(chars)
++    out = []
++    start = norm.find(q)
++    while start != -1:
++        end = start + len(q) - 1
++        out.append((line_of[start], line_of[end] + 1))
++        start = norm.find(q, start + 1)
++    return out
++
++
++# ---------------------------------------------------------------- ledger I/O
++
++
++class Ledger:
++    def __init__(self, root: Path):
++        self.root = root
++        self.state_path = root / "ledger.json"
++
++    def exists(self) -> bool:
++        return self.state_path.is_file()
++
++    def load(self) -> dict:
++        if not self.exists():
++            refuse(
++                "E-NO-LEDGER",
++                f"no ledger at {self.root}",
++                EXIT_STATE,
++                "pass --ledger or --doc for an existing ledger, or run init",
++            )
++        raw = self.state_path.read_bytes()
++        try:
++            state = json.loads(raw.decode("utf-8"))
++        except (UnicodeDecodeError, json.JSONDecodeError):
++            refuse(
++                "E-TAMPERED",
++                "ledger.json is not valid JSON",
++                EXIT_STATE,
++                "restore ledger.json; never hand-edit it",
++            )
++        if not isinstance(state, dict) or state.get("body_sha256") != body_digest(
++            state
++        ):
++            refuse(
++                "E-TAMPERED",
++                "ledger.json body_sha256 does not match its content",
++                EXIT_STATE,
++                "restore ledger.json; never hand-edit it",
++            )
++        return state
++
++    def save(self, state: dict) -> None:
++        state["body_sha256"] = body_digest(state)
++        atomic_write(
++            self.state_path,
++            json.dumps(state, indent=2, ensure_ascii=False).encode("utf-8") + b"\n",
++        )
++
++    def lock(self):
++        self.root.mkdir(parents=True, exist_ok=True)
++        fh = open(self.root / ".lock", "a+")
++        try:
++            fcntl.flock(fh.fileno(), fcntl.LOCK_EX | fcntl.LOCK_NB)
++        except BlockingIOError:
++            fh.close()
++            refuse(
++                "E-LOCKED",
++                f"another writer holds {self.root / '.lock'}",
++                EXIT_CONFLICT,
++                "wait for the other writer, read status, then retry",
++            )
++        return fh
++
++    def doc_path(self, state: dict) -> Path:
++        return (self.root / state["doc"]).resolve()
++
++    def snapshot_path(self, name: str) -> Path:
++        return self.root / "snapshots" / f"{name}.md"
++
++
++def ledger_root(args) -> Path:
++    if getattr(args, "ledger", None):
++        return Path(args.ledger)
++    doc = getattr(args, "doc", None)
++    if not doc:
++        usage("pass --ledger <dir> or --doc <document>")
++    d = Path(doc)
++    return d.parent / f"{d.stem}.review-ledger"
++
++
++def usage(msg: str) -> None:
++    refuse("E-USAGE", msg, EXIT_USAGE, "see --help")
++
++
++def read_input(path_str: str) -> tuple[object, bytes]:
++    """Read ``--input``: a .json file, or a .md report with one ``ledger-input`` block."""
++    path = Path(path_str)
++    if not path.is_file():
++        refuse(
++            "E-SCHEMA",
++            f"input file not found: {path}",
++            EXIT_INPUT,
++            "write the input file first",
++        )
++    text = path.read_text(encoding="utf-8")
++    if path.suffix == ".md":
++        blocks = re.findall(
++            r"^```ledger-input[ \t]*\n(.*?)^```[ \t]*$", text, re.M | re.S
++        )
++        if len(blocks) != 1:
++            refuse(
++                "E-SCHEMA",
++                f"{path} holds {len(blocks)} ledger-input blocks; exactly one is required",
++                EXIT_INPUT,
++                "put exactly one ```ledger-input fenced block in the report",
++            )
++        text = blocks[0]
++    elif path.suffix != ".json":
++        refuse(
++            "E-SCHEMA",
++            f"input must be a .json file or a .md report: {path}",
++            EXIT_INPUT,
++            "",
++        )
++    try:
++        data = json.loads(text)
++    except json.JSONDecodeError as exc:
++        refuse(
++            "E-SCHEMA", f"input is not valid JSON: {exc}", EXIT_INPUT, "fix the JSON"
++        )
++    return data, canonical(data)
++
++
++# ---------------------------------------------------------------- state helpers
++
++
++def new_state(doc_rel: str, profile: str) -> dict:
++    return {
++        "schema": SCHEMA,
++        "profile": profile,
++        "doc": doc_rel,
++        "cap_reviews": PROFILES[profile]["cap_reviews"],
++        "round": 1,
++        "fix_cycles": 0,
++        "phase": "find",
++        "seq": 0,
++        "snapshots": {},
++        "decisions": [],
++        "ops": [],
++        "rows": [],
++        "body_sha256": "",
++    }
++
++
++def review_header(state: dict) -> str:
++    return f"review: {state['round']} of {state['cap_reviews']}"
++
++
++def committed_ops(state: dict, cmd: str, rnd: int) -> list[dict]:
++    return [o for o in state["ops"] if o["cmd"] == cmd and o["round"] == rnd]
++
++
++def last_decision(state: dict, kind: str = "review") -> dict | None:
++    found = [d for d in state["decisions"] if d["kind"] == kind]
++    return found[-1] if found else None
++
++
++def u_count(state: dict) -> int:
++    return sum(
++        1
++        for r in state["rows"]
++        if r["blocking"]
++        and r["scope"] == "in"
++        and r["status"] in {"open", "fixed", "reopened"}
++    )
++
++
++def snapshots_intact(ledger: Ledger, state: dict) -> bool:
++    for name, meta in state["snapshots"].items():
++        p = ledger.snapshot_path(name)
++        if not p.is_file() or sha256_bytes(p.read_bytes()) != meta["sha256"]:
++            return False
++    return True
++
++
++def counts(state: dict) -> dict:
++    rows = state["rows"]
++    out = {
++        "rows": len(rows),
++        "blocking": sum(1 for r in rows if r["blocking"]),
++        "U": u_count(state),
++    }
++    for s in ("open", "fixed", "verified", "reopened", "deferred"):
++        out[s] = sum(1 for r in rows if r["status"] == s)
++    return out
++
++
++def loop_decision(state: dict) -> str | None:
++    d = last_decision(state)
++    return d["loop_decision"] if d else None
++
++
++def delivery_outcome(state: dict) -> str | None:
++    d = last_decision(state, "sweep")
++    return d["delivery_outcome"] if d else None
++
++
++def next_action(state: dict) -> str:
++    phase = state["phase"]
++    if phase == "find":
++        if committed_ops(state, "find", 1):
++            return "close --report <review report>"
++        return "run the panel, then find --input <report or json>"
++    if phase == "revise":
++        return "reviser edits the document; then begin --doc <document> for the next review"
++    if phase == "verify":
++        if committed_ops(state, "verify", state["round"]):
++            return "close --report <review report>"
++        return f"answer every row of plan-r{state['round']}.md, then verify --input <report or json>"
++    if phase == "terminal":
++        return "run the sweep once: sweep --prepare, then sweep --input <report> --report <report>"
++    return "done: read verdict"
++
++
++def result(state: dict, **extra) -> dict:
++    out = {
++        "ok": True,
++        "seq": state["seq"],
++        "phase": state["phase"],
++        "review": state["round"],
++        "fix_cycles": state["fix_cycles"],
++        "counts": counts(state),
++        "loop_decision": loop_decision(state),
++        "delivery_outcome": delivery_outcome(state),
++        "next_action": next_action(state),
++    }
++    out.update(extra)
++    return out
++
++
++def render_rows(state: dict) -> list[str]:
++    lines = [
++        "| id | grade | rule | blocking | status | scope | anchor |",
++        "|---|---|---|---|---|---|---|",
++    ]
++    for r in state["rows"]:
++        anchor = flat(r["anchor"]).replace("|", "\\|")
++        lines.append(
++            f"| {r['id']} | {r['grade']} | {r.get('rule') or ''} | {'yes' if r['blocking'] else 'no'} "
++            f"| {r['status']} | {r['scope']} | {anchor} |"
++        )
++    return lines
++
++
++# ---------------------------------------------------------------- mutation frame
++
++
++def mutate(args, cmd: str, payload_bytes: bytes, apply):
++    """Lock, load, check integrity, replay identical requests, check seq, apply, save."""
++    ledger = Ledger(ledger_root(args))
++    if not ledger.exists():
++        ledger.load()  # raises E-NO-LEDGER
++    fh = ledger.lock()
++    try:
++        state = ledger.load()
++        digest = sha256_bytes(cmd.encode() + b"\0" + payload_bytes)
++        for op in state["ops"]:
++            same_state = (op["phase_after"], op["round_after"]) == (
++                state["phase"],
++                state["round"],
++            )
++            if op["digest"] == digest and same_state:
++                return dict(op["result"], replayed=True)
++            if op["op"] == args.op and op["digest"] != digest:
++                refuse(
++                    "E-OP-CONFLICT",
++                    f"op id {args.op!r} was used for a different request",
++                    EXIT_CONFLICT,
++                    "use a new --op id",
++                )
++        if args.expect_seq != state["seq"]:
++            refuse(
++                "E-STALE-SEQ",
++                f"--expect-seq {args.expect_seq} but the ledger is at seq {state['seq']}",
++                EXIT_CONFLICT,
++                "read status, then retry with the current seq",
++            )
++        phase_before, round_before = state["phase"], state["round"]
++        state["seq"] += 1
++        extra = apply(ledger, state) or {}
++        out = result(state, **extra)
++        state["ops"].append(
++            {
++                "op": args.op,
++                "cmd": cmd,
++                "digest": digest,
++                "seq": state["seq"],
++                "phase_before": phase_before,
++                "round": round_before,
++                "phase_after": state["phase"],
++                "round_after": state["round"],
++                "result": out,
++            }
++        )
++        ledger.save(state)
++        post = getattr(apply, "after_save", None)
++        if post:
++            post()
++        return out
++    finally:
++        fh.close()
++
++
++def require_phase(state: dict, *phases: str) -> None:
++    if state["phase"] not in phases:
++        code = "E-TERMINAL" if state["phase"] in ("terminal", "swept") else "E-PHASE"
++        refuse(
++            code,
++            f"phase is {state['phase']}; this subcommand needs {' or '.join(phases)}",
++            EXIT_STATE,
++            next_action(state),
++        )
++
++
++# ---------------------------------------------------------------- subcommands
++
++
++def cmd_init(args) -> dict:
++    if args.profile not in PROFILES:
++        usage(f"unknown profile {args.profile!r}; known: {', '.join(PROFILES)}")
++    doc = Path(args.doc)
++    if not doc.is_file():
++        usage(f"document not found: {doc}")
++    ledger = Ledger(ledger_root(args))
++    archived = None
++    if ledger.root.exists():
++        if not args.archive_existing:
++            refuse(
++                "E-EXISTS",
++                f"a ledger already exists at {ledger.root}",
++                EXIT_STATE,
++                "continue it with begin, or rerun init with --archive-existing to start over",
++            )
++        fh = Ledger(ledger.root).lock()
++        try:
++            stamp = 1
++            while True:
++                target = ledger.root.with_name(f"{ledger.root.name}.archived-{stamp}")
++                if not target.exists():
++                    break
++                stamp += 1
++            os.rename(ledger.root, target)
++            archived = str(target.resolve())
++        finally:
++            fh.close()
++    fh = ledger.lock()
++    try:
++        for sub in ("snapshots", "diffs", "inputs"):
++            (ledger.root / sub).mkdir(parents=True, exist_ok=True)
++        data = doc.read_bytes()
++        atomic_write(ledger.snapshot_path("r1"), data)
++        state = new_state(
++            os.path.relpath(doc.resolve(), ledger.root.resolve()), args.profile
++        )
++        state["snapshots"]["r1"] = {"sha256": sha256_bytes(data), "bytes": len(data)}
++        state["seq"] = 1
++        out = result(
++            state,
++            review_header=review_header(state),
++            ledger=str(ledger.root),
++            archived=archived,
++        )
++        state["ops"].append(
++            {
++                "op": args.op or "init",
++                "cmd": "init",
++                "digest": "",
++                "seq": 1,
++                "phase_before": None,
++                "round": 1,
++                "phase_after": "find",
++                "round_after": 1,
++                "result": out,
++            }
++        )
++        ledger.save(state)
++        return out
++    finally:
++        fh.close()
++
++
++def validate_rows(data, grades) -> list[dict]:
++    if not isinstance(data, list):
++        refuse(
++            "E-SCHEMA",
++            "find input must be a JSON array of rows",
++            EXIT_INPUT,
++            "fix the input shape",
++        )
++    problems = []
++    for i, row in enumerate(data):
++        if not isinstance(row, dict):
++            problems.append(
++                {"index": i, "code": "E-SCHEMA", "detail": "row is not an object"}
++            )
++            continue
++        extra = set(row) - ROW_INPUT_KEYS
++        if extra:
++            problems.append(
++                {
++                    "index": i,
++                    "code": "E-SCHEMA",
++                    "detail": f"unknown keys {sorted(extra)}",
++                }
++            )
++        if row.get("grade") not in grades:
++            problems.append(
++                {
++                    "index": i,
++                    "code": "E-SCHEMA",
++                    "detail": f"grade must be one of {list(grades)}",
++                }
++            )
++        for key in ("anchor", "finding"):
++            if not isinstance(row.get(key), str) or not row.get(key).strip():
++                problems.append(
++                    {
++                        "index": i,
++                        "code": "E-SCHEMA",
++                        "detail": f"{key} must be a non-empty string",
++                    }
++                )
++        for key in ("rule", "wrong_outcome", "label"):
++            if row.get(key) is not None and not isinstance(row.get(key), str):
++                problems.append(
++                    {
++                        "index": i,
++                        "code": "E-SCHEMA",
++                        "detail": f"{key} must be a string or null",
++                    }
++                )
++    if problems:
++        refuse(
++            "E-SCHEMA", problems, EXIT_INPUT, "fix the listed rows; nothing was written"
++        )
++    return data
++
++
++def check_anchors(rows: list[dict], text: str) -> list[tuple[int, int]]:
++    spans, problems = [], []
++    for i, row in enumerate(rows):
++        hits = locate(text, row["anchor"])
++        if not hits:
++            problems.append(
++                {"index": i, "code": "E-ANCHOR", "detail": "anchor quote not found"}
++            )
++        elif len(hits) > 1:
++            problems.append(
++                {
++                    "index": i,
++                    "code": "E-ANCHOR-AMBIGUOUS",
++                    "detail": f"anchor occurs {len(hits)} times, at lines {[h[0] + 1 for h in hits]}",
++                }
++            )
++        else:
++            spans.append(hits[0])
++    if problems:
++        code = (
++            "E-ANCHOR"
++            if any(p["code"] == "E-ANCHOR" for p in problems)
++            else "E-ANCHOR-AMBIGUOUS"
++        )
++        refuse(
++            code,
++            problems,
++            EXIT_INPUT,
++            "quote each anchor exactly once from the reviewed text",
++        )
++    return spans
++
++
++def make_row(
++    state: dict, row: dict, span, rnd, origin: str, scope: str, caused_by, status: str
++) -> dict:
++    profile = PROFILES[state["profile"]]
++    rid = f"R{len(state['rows']) + 1}"
++    blocking = profile["blocking"](row) and scope == "in" and rnd != "sweep"
++    return {
++        "id": rid,
++        "label": row.get("label"),
++        "round_found": rnd,
++        "grade": row["grade"],
++        "rule": (row.get("rule") or None),
++        "wrong_outcome": (row.get("wrong_outcome") or ""),
++        "blocking": blocking,
++        "anchor": row["anchor"],
++        "at": list(span) if span else None,
++        "origin": origin,
++        "scope": scope,
++        "caused_by": list(caused_by),
++        "finding": row["finding"],
++        "status": status if status else ("open" if blocking else "deferred"),
++        "history": [],
++    }
++
++
++def cmd_find(args) -> dict:
++    data, payload = read_input(args.input)
++
++    def apply(ledger: Ledger, state: dict):
++        require_phase(state, "find")
++        if committed_ops(state, "find", 1):
++            refuse(
++                "E-PHASE",
++                "find already ran for review 1",
++                EXIT_STATE,
++                next_action(state),
++            )
++        rows = validate_rows(data, PROFILES[state["profile"]]["grades"])
++        text = ledger.snapshot_path("r1").read_text(encoding="utf-8")
++        spans = check_anchors(rows, text)
++        for row, span in zip(rows, spans):
++            new = make_row(state, row, span, 1, "find", "in", [], "")
++            new["history"].append(
++                {"seq": state["seq"], "via": "find", "to": new["status"]}
++            )
++            state["rows"].append(new)
++        atomic_write(ledger.root / "inputs" / "r1-find.json", payload)
++        return {}
++
++    return mutate(args, "find", payload, apply)
++
++
++def round_x_items(state: dict, k: int) -> list:
++    """X items of review k: cannot-verify answers, unmappable anchors, failed revert preimages."""
++    items = []
++    for op in state["ops"]:
++        if op["round_after"] == k and op["cmd"] in ("begin", "verify"):
++            items.extend(op.get("x_items", []))
++    return items
++
++
++def decide(ledger: Ledger, state: dict) -> dict:
++    k = state["round"]
++    x_items = round_x_items(state, k)
++    plan_answered = k == 1 or bool(committed_ops(state, "verify", k))
++    i_ok = snapshots_intact(ledger, state) and plan_answered
++    u = u_count(state)
++    if not i_ok or x_items:
++        decision = "ESCALATE"
++    elif u == 0:
++        decision = "PASS"
++    elif k < state["cap_reviews"]:
++        decision = "CONTINUE"
++    else:
++        decision = "ESCALATE"
++    return {"loop_decision": decision, "U": u, "X": len(x_items), "I": i_ok}
++
++
++def tail_text(state: dict, dec: dict) -> str:
++    blocking_ids = [
++        r["id"]
++        for r in state["rows"]
++        if r["blocking"]
++        and r["scope"] == "in"
++        and r["status"] in {"open", "fixed", "reopened"}
++    ]
++    lines = [
++        "",
++        "<!-- review-ledger tail: written by review_ledger.py close; do not edit -->",
++        "## Review ledger",
++        "",
++        review_header(state),
++        "",
++    ]
++    lines += render_rows(state)
++    lines.append("")
++    if dec["loop_decision"] == "CONTINUE":
++        lines += [
++            "### Reviser brief",
++            "",
++            f"Blocking rows to fix: {', '.join(blocking_ids)}",
++            "Revise only text a listed blocking row names; minor (deferred) rows are not answerable; "
++            "add no rule, mechanism or section no blocking row calls for; each added paragraph or table "
++            "cites its row id; report the byte size before and after.",
++            "",
++        ]
++    lines.append(
++        f"loop_decision: {dec['loop_decision']} (U={dec['U']}, X={dec['X']}, I={str(dec['I']).lower()})"
++    )
++    if dec["loop_decision"] == "CONTINUE":
++        lines.append("verdict: FAIL")
++    else:
++        lines.append(f"loop: {dec['loop_decision']} (sweep pending)")
++    return "\n".join(lines) + "\n"
++
++
++def cmd_close(args) -> dict:
++    report = Path(args.report)
++    if not report.is_file():
++        refuse(
++            "E-SCHEMA",
++            f"report not found: {report}",
++            EXIT_INPUT,
++            "write the report first",
++        )
++    payload = canonical({"report": str(report)})
++    pending = {}
++
++    def apply(ledger: Ledger, state: dict):
++        require_phase(state, "find", "verify")
++        k = state["round"]
++        if not committed_ops(
++            state, "find" if state["phase"] == "find" else "verify", k
++        ):
++            refuse(
++                "E-PHASE",
++                f"close needs a committed {state['phase']} in review {k}",
++                EXIT_STATE,
++                next_action(state),
++            )
++        dec = decide(ledger, state)
++        tail = tail_text(state, dec)
++        state["decisions"].append(
++            {
++                "kind": "review",
++                "round": k,
++                **dec,
++                "report": os.path.relpath(report.resolve(), ledger.root.resolve()),
++                "tail": tail,
++                "tail_sha256": sha256_bytes(tail.encode("utf-8")),
++                "seq": state["seq"],
++            }
++        )
++        state["phase"] = "revise" if dec["loop_decision"] == "CONTINUE" else "terminal"
++        pending["tail"] = tail
++        return {"decision": dec, "last_line": tail.rstrip("\n").splitlines()[-1]}
++
++    def after_save():
++        text = report.read_text(encoding="utf-8")
++        atomic_write(report, (text + pending["tail"]).encode("utf-8"))
++
++    apply.after_save = after_save
++    return mutate(args, "close", payload, apply)
++
++
++def cmd_status(args) -> dict:
++    ledger = Ledger(ledger_root(args))
++    state = ledger.load()
++    return result(
++        state,
++        review_header=review_header(state),
++        rows=[
++            {
++                k: r[k]
++                for k in (
++                    "id",
++                    "grade",
++                    "rule",
++                    "blocking",
++                    "status",
++                    "scope",
++                    "origin",
++                )
++            }
++            for r in state["rows"]
++        ],
++        snapshots_intact=snapshots_intact(ledger, state),
++    )
++
++
++def verdict_of(state: dict) -> str:
++    if state["phase"] in ("find", "revise", "verify"):
++        return "CONTINUE"
++    if state["phase"] == "terminal":
++        return "PENDING"
++    return delivery_outcome(state) or "PENDING"
++
++
++def cmd_verdict(args) -> tuple[dict, int]:
++    state = Ledger(ledger_root(args)).load()
++    v = verdict_of(state)
++    return {
++        "verdict": v,
++        "loop_decision": loop_decision(state),
++        "delivery_outcome": delivery_outcome(state),
++        "U": u_count(state),
++        "review": state["round"],
++        "phase": state["phase"],
++    }, VERDICT_EXIT[v]
++
++
++# ---------------------------------------------------------------- CLI
++
++
++class Parser(argparse.ArgumentParser):
++    def error(self, message):  # usage errors exit 1 with the JSON error shape
++        emit({"error": "E-USAGE", "detail": message, "next_action": "see --help"})
++        sys.exit(EXIT_USAGE)
++
++
++def emit(obj: dict) -> None:
++    sys.stdout.write(json.dumps(obj, ensure_ascii=False) + "\n")
++
++
++def build_parser() -> argparse.ArgumentParser:
++    p = Parser(
++        prog="review_ledger.py",
++        description="Script-kept finding ledger for document review loops.",
++    )
++    sub = p.add_subparsers(dest="cmd", required=True, parser_class=Parser)
++
++    def where(sp, doc_required=False):
++        sp.add_argument(
++            "--ledger",
++            help="ledger folder (default <doc dir>/<doc stem>.review-ledger/)",
++        )
++        sp.add_argument("--doc", required=doc_required, help="the reviewed document")
++
++    def mutation(sp):
++        sp.add_argument("--op", required=True, help="caller-chosen operation id")
++        sp.add_argument(
++            "--expect-seq",
++            type=int,
++            required=True,
++            help="the ledger seq the caller last read",
++        )
++
++    sp = sub.add_parser("init", help="create the ledger and snapshot r1 (review 1)")
++    where(sp, doc_required=True)
++    sp.add_argument("--profile", required=True)
++    sp.add_argument(
++        "--archive-existing",
++        action="store_true",
++        help="rename an existing ledger folder first",
++    )
++    sp.add_argument("--op", help="optional operation id")
++
++    sp = sub.add_parser("find", help="ingest review-1 rows (review 1)")
++    where(sp)
++    mutation(sp)
++    sp.add_argument(
++        "--input",
++        required=True,
++        help=".json rows, or a .md report with one ledger-input block",
++    )
++
++    sp = sub.add_parser(
++        "close", help="compute the loop decision and append the report tail"
++    )
++    where(sp)
++    mutation(sp)
++    sp.add_argument("--report", required=True)
++
++    sp = sub.add_parser("status", help="read-only counts")
++    where(sp)
++
++    sp = sub.add_parser(
++        "verdict",
++        help="read-only verdict; exit 0 PASS, 10 CONTINUE, 11 ESCALATE, 12 PENDING",
++    )
++    where(sp)
++    return p
++
++
++COMMANDS = {
++    "init": cmd_init,
++    "find": cmd_find,
++    "close": cmd_close,
++    "status": cmd_status,
++}
++
++
++def main(argv=None) -> int:
++    args = build_parser().parse_args(argv)
++    try:
++        if args.cmd == "verdict":
++            out, code = cmd_verdict(args)
++            emit(out)
++            return code
++        emit(COMMANDS[args.cmd](args))
++        return EXIT_OK
++    except Refusal as r:
++        emit({"error": r.code, "detail": r.detail, "next_action": r.next_action})
++        return r.exit_code
++
++
++if __name__ == "__main__":
++    sys.exit(main())
+diff --git a/tests/skills/test_review_ledger_script.py b/tests/skills/test_review_ledger_script.py
+new file mode 100644
+index 00000000..b6165730
+--- /dev/null
++++ b/tests/skills/test_review_ledger_script.py
+@@ -0,0 +1,383 @@
++"""Behaviour tests for the sc-review-ledger kernel (review_ledger.py).
++
++The script is loaded by path (as tests/skills/test_workflow_archive.py does) and
++its CLI is run through subprocess in tmp_path.
++
++Enforcement type: EXECUTABLE (script behaviour).
++"""
++
++from __future__ import annotations
++
++import fcntl
++import importlib.util
++import json
++import shutil
++import subprocess
++import sys
++from pathlib import Path
++
++import pytest
++
++_REPO = Path(__file__).resolve().parents[2]
++_SCRIPT = _REPO / "src/superclaude/skills/sc-review-ledger/scripts/review_ledger.py"
++_FIX = Path(__file__).resolve().parent / "fixtures" / "review-ledger"
++_spec = importlib.util.spec_from_file_location("review_ledger", _SCRIPT)
++rl = importlib.util.module_from_spec(_spec)
++_spec.loader.exec_module(rl)
++
++sys.path.insert(0, str(Path(__file__).resolve().parent))
++from test_review_severity_rule import CANONICAL_CAP_TEXT  # noqa: E402
++
++# ---------------------------------------------------------------- helpers
++
++
++def run(cwd: Path, *args: str) -> tuple[int, dict]:
++    proc = subprocess.run(
++        [sys.executable, str(_SCRIPT), *args], cwd=cwd, capture_output=True, text=True
++    )
++    out = proc.stdout.strip().splitlines()
++    return proc.returncode, (json.loads(out[-1]) if out else {})
++
++
++class Loop:
++    """A doc under tmp_path plus thin wrappers that track --op and --expect-seq."""
++
++    def __init__(self, tmp: Path, doc_fixture: str = "doc-r1.md"):
++        self.tmp = tmp
++        self.doc = tmp / "spec.md"
++        shutil.copy(_FIX / doc_fixture, self.doc)
++        self.ledger = tmp / "spec.review-ledger"
++        self.n = 0
++
++    def seq(self) -> int:
++        return json.loads((self.ledger / "ledger.json").read_text())["seq"]
++
++    def state(self) -> dict:
++        return json.loads((self.ledger / "ledger.json").read_text())
++
++    def init(self, *extra) -> tuple[int, dict]:
++        return run(
++            self.tmp, "init", "--doc", "spec.md", "--profile", "spec-panel", *extra
++        )
++
++    def mut(
++        self, cmd: str, *extra, op: str | None = None, seq: int | None = None
++    ) -> tuple[int, dict]:
++        self.n += 1
++        return run(
++            self.tmp,
++            cmd,
++            "--doc",
++            "spec.md",
++            "--op",
++            op or f"op{self.n}",
++            "--expect-seq",
++            str(self.seq() if seq is None else seq),
++            *extra,
++        )
++
++    def find(self, fixture_or_rows, **kw):
++        src = self.tmp / f"find-{self.n}.json"
++        if isinstance(fixture_or_rows, str):
++            shutil.copy(_FIX / fixture_or_rows, src)
++        else:
++            src.write_text(json.dumps(fixture_or_rows))
++        return self.mut("find", "--input", str(src), **kw)
++
++    def report(
++        self, name: str = "report.md", body: str = "# Review\n\n1. findings\n"
++    ) -> Path:
++        p = self.tmp / name
++        p.write_text(body)
++        return p
++
++    def close(self, report: Path, **kw):
++        return self.mut("close", "--report", str(report), **kw)
++
++    def verdict(self) -> tuple[int, dict]:
++        return run(self.tmp, "verdict", "--doc", "spec.md")
++
++
++def rows_by_label(state: dict) -> dict:
++    return {r["label"]: r for r in state["rows"]}
++
++
++# ---------------------------------------------------------------- Task 1
++
++
++def test_cap_reviews_tied_to_canonical_cap_text():
++    assert rl.CAP_REVIEWS == 3
++    assert "(3 reviews)" in CANONICAL_CAP_TEXT
++
++
++@pytest.mark.parametrize(
++    "label, blocking",
++    [("F1", True), ("F2", True), ("F3", True), ("F4", False), ("F5", False)],
++    ids=[
++        "critical",
++        "fr8-minor",
++        "major-with-wrong-outcome",
++        "major-without-wrong-outcome",
++        "minor",
++    ],
++)
++def test_blocking_formula(tmp_path, label, blocking):
++    lp = Loop(tmp_path)
++    assert lp.init()[0] == 0
++    code, out = lp.find("find-basic.json")
++    assert code == 0, out
++    row = rows_by_label(lp.state())[label]
++    assert row["blocking"] is blocking
++    assert row["status"] == ("open" if blocking else "deferred")
++
++
++def test_init_prints_review_header_and_snapshots(tmp_path):
++    lp = Loop(tmp_path)
++    code, out = lp.init()
++    assert code == 0 and out["review_header"] == "review: 1 of 3"
++    assert (lp.ledger / "snapshots" / "r1.md").read_bytes() == lp.doc.read_bytes()
++    for sub in ("snapshots", "diffs", "inputs"):
++        assert (lp.ledger / sub).is_dir()
++
++
++def test_init_refuses_existing_ledger(tmp_path):
++    lp = Loop(tmp_path)
++    lp.init()
++    code, out = lp.init()
++    assert code == 3 and out["error"] == "E-EXISTS"
++
++
++def test_archive_existing_keeps_old_folder(tmp_path):
++    lp = Loop(tmp_path)
++    lp.init()
++    lp.find("find-basic.json")
++    old = (lp.ledger / "ledger.json").read_bytes()
++    code, out = lp.init("--archive-existing")
++    assert code == 0, out
++    archived = Path(out["archived"])
++    assert archived.is_dir() and (archived / "ledger.json").read_bytes() == old
++    assert lp.state()["rows"] == []
++
++
++def test_find_refuses_missing_anchor(tmp_path):
++    lp = Loop(tmp_path)
++    lp.init()
++    rows = [
++        {
++            "grade": "MINOR",
++            "anchor": "This sentence is not in the document.",
++            "finding": "x",
++        }
++    ]
++    code, out = lp.find(rows)
++    assert code == 2 and out["error"] == "E-ANCHOR"
++    assert lp.state()["rows"] == []
++
++
++def test_find_refuses_repeated_anchor(tmp_path):
++    lp = Loop(tmp_path)
++    lp.init()
++    rows = [
++        {
++            "grade": "MINOR",
++            "anchor": "The cache is refreshed every hour.",
++            "finding": "x",
++        }
++    ]
++    code, out = lp.find(rows)
++    assert code == 2 and out["error"] == "E-ANCHOR-AMBIGUOUS"
++
++
++def test_find_refuses_bad_shape(tmp_path):
++    lp = Loop(tmp_path)
++    lp.init()
++    code, out = lp.find(
++        [{"grade": "SEVERE", "anchor": "Logs are kept for seven days.", "finding": "x"}]
++    )
++    assert code == 2 and out["error"] == "E-SCHEMA"
++    code, out = lp.find({"rows": []})
++    assert code == 2 and out["error"] == "E-SCHEMA"
++
++
++def test_second_find_refused_e_phase(tmp_path):
++    lp = Loop(tmp_path)
++    lp.init()
++    assert lp.find("find-basic.json")[0] == 0
++    code, out = lp.find(
++        [
++            {
++                "grade": "MINOR",
++                "anchor": "Logs are kept for seven days.",
++                "finding": "again",
++            }
++        ]
++    )
++    assert code == 3 and out["error"] == "E-PHASE"
++
++
++def test_empty_find_commits_zero_rows(tmp_path):
++    lp = Loop(tmp_path)
++    lp.init()
++    code, out = lp.find("find-empty.json")
++    assert code == 0 and out["counts"]["rows"] == 0
++    assert lp.state()["seq"] == 2
++
++
++def test_find_reads_one_ledger_input_block_from_a_report(tmp_path):
++    lp = Loop(tmp_path)
++    lp.init()
++    rows = json.loads((_FIX / "find-basic.json").read_text())
++    rep = lp.report(
++        "r1.md", "# Review\n\n```ledger-input\n" + json.dumps(rows) + "\n```\n"
++    )
++    code, out = lp.mut("find", "--input", str(rep))
++    assert code == 0, out
++    assert out["counts"]["rows"] == 5
++
++
++@pytest.mark.parametrize("blocks", [0, 2])
++def test_find_report_needs_exactly_one_block(tmp_path, blocks):
++    lp = Loop(tmp_path)
++    lp.init()
++    rep = lp.report("r1.md", "# Review\n" + "\n```ledger-input\n[]\n```\n" * blocks)
++    code, out = lp.mut("find", "--input", str(rep))
++    assert code == 2 and out["error"] == "E-SCHEMA"
++
++
++def test_hand_edit_is_refused_and_file_unchanged(tmp_path):
++    lp = Loop(tmp_path)
++    lp.init()
++    path = lp.ledger / "ledger.json"
++    edited = path.read_text().replace('"round": 1', '"round": 2', 1)
++    path.write_text(edited)
++    code, out = lp.find("find-basic.json", seq=1)
++    assert code == 3 and out["error"] == "E-TAMPERED"
++    assert path.read_text() == edited
++    code, out = run(tmp_path, "status", "--doc", "spec.md")
++    assert code == 3 and out["error"] == "E-TAMPERED"
++
++
++def test_identical_retry_under_new_op_id_returns_committed_result(tmp_path):
++    lp = Loop(tmp_path)
++    lp.init()
++    code1, out1 = lp.find("find-basic.json", op="first", seq=1)
++    code2, out2 = lp.find("find-basic.json", op="second", seq=1)
++    assert code1 == code2 == 0
++    assert out2["seq"] == out1["seq"] == 2 and out2.get("replayed") is True
++    assert lp.state()["seq"] == 2 and len(lp.state()["rows"]) == 5
++
++
++def test_stale_expect_seq_exits_4(tmp_path):
++    lp = Loop(tmp_path)
++    lp.init()
++    code, out = lp.find("find-basic.json", seq=0)
++    assert code == 4 and out["error"] == "E-STALE-SEQ"
++
++
++def test_second_writer_while_lock_held_exits_4(tmp_path):
++    lp = Loop(tmp_path)
++    lp.init()
++    with open(lp.ledger / ".lock", "a+") as fh:
++        fcntl.flock(fh.fileno(), fcntl.LOCK_EX | fcntl.LOCK_NB)
++        code, out = lp.find("find-basic.json")
++    assert code == 4 and out["error"] == "E-LOCKED"
++
++
++def test_close_continue_tail_ends_verdict_fail(tmp_path):
++    lp = Loop(tmp_path)
++    lp.init()
++    lp.find("find-basic.json")
++    rep = lp.report()
++    code, out = lp.close(rep)
++    assert code == 0 and out["loop_decision"] == "CONTINUE"
++    text = rep.read_text()
++    assert text.startswith("# Review\n\n1. findings\n")
++    lines = text.rstrip("\n").splitlines()
++    assert lines[-1] == "verdict: FAIL"
++    assert "review: 1 of 3" in lines
++    brief = next(line for line in lines if line.startswith("Blocking rows to fix:"))
++    labels = rows_by_label(lp.state())
++    assert brief == "Blocking rows to fix: " + ", ".join(
++        labels[x]["id"] for x in ("F1", "F2", "F3")
++    )
++    assert "byte size before and after" in text
++    code, v = lp.verdict()
++    assert code == 10 and v["verdict"] == "CONTINUE"
++    assert lp.state()["phase"] == "revise"
++
++
++def test_review1_pass_is_pending_until_the_sweep(tmp_path):
++    lp = Loop(tmp_path)
++    lp.init()
++    lp.find(
++        [
++            {
++                "grade": "MINOR",
++                "anchor": "Logs are kept for seven days.",
++                "finding": "vague",
++            }
++        ]
++    )
++    rep = lp.report()
++    code, out = lp.close(rep)
++    assert code == 0 and out["loop_decision"] == "PASS"
++    assert rep.read_text().rstrip("\n").splitlines()[-1] == "loop: PASS (sweep pending)"
++    assert "Reviser brief" not in rep.read_text()
++    code, v = lp.verdict()
++    assert code == 12 and v["verdict"] == "PENDING"
++
++
++def test_review1_escalate_when_snapshot_changed(tmp_path):
++    lp = Loop(tmp_path)
++    lp.init()
++    lp.find("find-basic.json")
++    (lp.ledger / "snapshots" / "r1.md").write_text("changed by hand\n")
++    rep = lp.report()
++    code, out = lp.close(rep)
++    assert (
++        code == 0
++        and out["loop_decision"] == "ESCALATE"
++        and out["decision"]["I"] is False
++    )
++    assert (
++        rep.read_text().rstrip("\n").splitlines()[-1]
++        == "loop: ESCALATE (sweep pending)"
++    )
++    assert lp.verdict()[0] == 12
++
++
++def test_close_before_find_refused(tmp_path):
++    lp = Loop(tmp_path)
++    lp.init()
++    code, out = lp.close(lp.report())
++    assert code == 3 and out["error"] == "E-PHASE"
++
++
++def test_no_role_flag_and_stdlib_only():
++    help_text = subprocess.run(
++        [sys.executable, str(_SCRIPT), "--help"], capture_output=True, text=True
++    ).stdout
++    assert "--role" not in help_text
++    src = _SCRIPT.read_text()
++    assert "subprocess" not in src and "--role" not in src
++    allowed = {
++        "argparse",
++        "fcntl",
++        "hashlib",
++        "json",
++        "os",
++        "re",
++        "sys",
++        "tempfile",
++        "difflib",
++        "shutil",
++        "pathlib",
++        "__future__",
++    }
++    imported = set()
++    for line in src.splitlines():
++        if line.startswith("import "):
++            imported.add(line.split()[1].split(".")[0])
++        elif line.startswith("from "):
++            imported.add(line.split()[1].split(".")[0])
++    assert imported <= allowed, imported - allowed
+diff --git a/tests/skills/fixtures/review-ledger/doc-r1.md b/tests/skills/fixtures/review-ledger/doc-r1.md
+new file mode 100644
+index 00000000..b09820b5
+--- /dev/null
++++ b/tests/skills/fixtures/review-ledger/doc-r1.md
+@@ -0,0 +1,24 @@
++# Widget service spec
++
++## 1. Scope
++
++The widget service stores widgets for the billing team. It keeps one record per widget.
++
++## 2. Requirements
++
++| ID | Requirement | Check |
++|---|---|---|
++| FR-1 | The service rejects a widget without an owner. | unit test |
++| FR-2 | The service keeps deleted widgets for 30 days. | unit test |
++
++The cache is refreshed every hour.
++
++## 3. Failure handling
++
++When the store is down, the service returns 503 to the caller. Retries are left to the caller.
++
++## 4. Operations
++
++The cache is refreshed every hour.
++
++Logs are kept for seven days.
+diff --git a/tests/skills/fixtures/review-ledger/find-basic.json b/tests/skills/fixtures/review-ledger/find-basic.json
+new file mode 100644
+index 00000000..ee2184bf
+--- /dev/null
++++ b/tests/skills/fixtures/review-ledger/find-basic.json
+@@ -0,0 +1,7 @@
++[
++  {"label": "F1", "grade": "CRITICAL", "rule": null, "wrong_outcome": "", "anchor": "When the store is down, the service returns 503 to the caller.", "finding": "No retry budget is stated for the caller."},
++  {"label": "F2", "grade": "MINOR", "rule": "FR-8", "wrong_outcome": "", "anchor": "The service rejects a widget without an owner.", "finding": "The guard has no boundary for an empty owner string."},
++  {"label": "F3", "grade": "MAJOR", "rule": null, "wrong_outcome": "An implementer deletes widgets at once.", "anchor": "The service keeps deleted widgets for 30 days.", "finding": "Deletion timing is unclear."},
++  {"label": "F4", "grade": "MAJOR", "rule": null, "wrong_outcome": "", "anchor": "It keeps one record per widget.", "finding": "Record identity is not defined."},
++  {"label": "F5", "grade": "MINOR", "rule": null, "wrong_outcome": "", "anchor": "Logs are kept for seven days.", "finding": "Log retention wording is vague."}
++]
+diff --git a/tests/skills/fixtures/review-ledger/find-empty.json b/tests/skills/fixtures/review-ledger/find-empty.json
+new file mode 100644
+index 00000000..fe51488c
+--- /dev/null
++++ b/tests/skills/fixtures/review-ledger/find-empty.json
+@@ -0,0 +1 @@
++[]
+diff --git a/.dev/tasks/to-do/TASK-WF-spec-20261108-181649/artifacts/untracked-before.txt b/.dev/tasks/to-do/TASK-WF-spec-20261108-181649/artifacts/untracked-before.txt
+deleted file mode 100644
+index 9d4c7030..00000000
+--- a/.dev/tasks/to-do/TASK-WF-spec-20261108-181649/artifacts/untracked-before.txt
++++ /dev/null
+@@ -1,61 +0,0 @@
+-A  .dev/tasks/to-do/TASK-WF-spec-20261108-181649/TASK-WF-spec-20261108-181649.md
+-A  .dev/tasks/to-do/TASK-WF-spec-20261108-181649/return-contract.yaml
+-A  .dev/tasks/to-do/TASK-WF-spec-20261108-181649/source.md
+-?? .dev/brainstorms/346-ledger/SPEC.md
+-?? .dev/brainstorms/346-ledger/enrichment/codebase-context.md
+-?? .dev/brainstorms/346-ledger/merged-requirements.md
+-?? .dev/brainstorms/346-ledger/nested/adversarial-1/adversarial/base-selection.md
+-?? .dev/brainstorms/346-ledger/nested/adversarial-1/adversarial/debate-transcript.md
+-?? .dev/brainstorms/346-ledger/nested/adversarial-1/adversarial/diff-analysis.md
+-?? .dev/brainstorms/346-ledger/nested/adversarial-1/adversarial/invariant-probe.md
+-?? .dev/brainstorms/346-ledger/nested/adversarial-1/adversarial/merge-log.md
+-?? .dev/brainstorms/346-ledger/nested/adversarial-1/adversarial/refactor-plan.md
+-?? .dev/brainstorms/346-ledger/nested/adversarial-1/adversarial/return-contract.yaml
+-?? .dev/brainstorms/346-ledger/nested/adversarial-1/adversarial/round1-advocate-A.md
+-?? .dev/brainstorms/346-ledger/nested/adversarial-1/adversarial/round1-advocate-B.md
+-?? .dev/brainstorms/346-ledger/nested/adversarial-1/adversarial/round1-advocate-C.md
+-?? .dev/brainstorms/346-ledger/nested/adversarial-1/adversarial/round2-rebuttal-A.md
+-?? .dev/brainstorms/346-ledger/nested/adversarial-1/adversarial/round2-rebuttal-B.md
+-?? .dev/brainstorms/346-ledger/nested/adversarial-1/adversarial/round2-rebuttal-C.md
+-?? .dev/brainstorms/346-ledger/nested/adversarial-1/adversarial/scoring-pass1.md
+-?? .dev/brainstorms/346-ledger/nested/adversarial-1/adversarial/scoring-pass2.md
+-?? .dev/brainstorms/346-ledger/nested/adversarial-1/adversarial/scoring-reeval.md
+-?? .dev/brainstorms/346-ledger/nested/adversarial-1/adversarial/variant-1-opus-architect.md
+-?? .dev/brainstorms/346-ledger/nested/adversarial-1/adversarial/variant-2-sonnet-analyzer.md
+-?? .dev/brainstorms/346-ledger/nested/adversarial-1/adversarial/variant-3-haiku-backend.md
+-?? .dev/brainstorms/346-ledger/nested/adversarial-1/merged-output.md
+-?? .dev/brainstorms/346-ledger/nested/adversarial-1/return-contract.yaml
+-?? .dev/brainstorms/346-ledger/return-contract.yaml
+-?? .dev/brainstorms/346-ledger/seed-brief.md
+-?? .dev/brainstorms/346-ledger/workflow-report/nested/reflect-1/REPORT.md
+-?? .dev/brainstorms/346-ledger/workflow-report/nested/reflect-1/artifacts/coverage-matrix.yaml
+-?? .dev/brainstorms/346-ledger/workflow-report/nested/reflect-1/artifacts/inferred-requirements.yaml
+-?? .dev/brainstorms/346-ledger/workflow-report/nested/reflect-1/artifacts/input-snapshot.yaml
+-?? .dev/brainstorms/346-ledger/workflow-report/nested/reflect-1/artifacts/tier_decision.yaml
+-?? .dev/brainstorms/346-ledger/workflow-report/nested/reflect-1/metrics.json
+-?? .dev/brainstorms/346-ledger/workflow-report/nested/reflect-1/nested/adversarial-1/adversarial/base-selection.md
+-?? .dev/brainstorms/346-ledger/workflow-report/nested/reflect-1/nested/adversarial-1/adversarial/debate-transcript.md
+-?? .dev/brainstorms/346-ledger/workflow-report/nested/reflect-1/nested/adversarial-1/adversarial/diff-analysis.md
+-?? .dev/brainstorms/346-ledger/workflow-report/nested/reflect-1/nested/adversarial-1/adversarial/invariant-probe.md
+-?? .dev/brainstorms/346-ledger/workflow-report/nested/reflect-1/nested/adversarial-1/adversarial/merge-log.md
+-?? .dev/brainstorms/346-ledger/workflow-report/nested/reflect-1/nested/adversarial-1/adversarial/merged-verdict.yaml
+-?? .dev/brainstorms/346-ledger/workflow-report/nested/reflect-1/nested/adversarial-1/adversarial/refactor-plan.md
+-?? .dev/brainstorms/346-ledger/workflow-report/nested/reflect-1/nested/adversarial-1/adversarial/return-contract.yaml
+-?? .dev/brainstorms/346-ledger/workflow-report/nested/reflect-1/nested/adversarial-1/adversarial/round1-variant-A.md
+-?? .dev/brainstorms/346-ledger/workflow-report/nested/reflect-1/nested/adversarial-1/adversarial/round1-variant-B.md
+-?? .dev/brainstorms/346-ledger/workflow-report/nested/reflect-1/nested/adversarial-1/adversarial/round2-variant-A.md
+-?? .dev/brainstorms/346-ledger/workflow-report/nested/reflect-1/nested/adversarial-1/adversarial/round2-variant-B.md
+-?? .dev/brainstorms/346-ledger/workflow-report/nested/reflect-1/nested/adversarial-1/adversarial/variant-1-original.md
+-?? .dev/brainstorms/346-ledger/workflow-report/nested/reflect-1/nested/adversarial-1/adversarial/variant-2-original.md
+-?? .dev/brainstorms/346-ledger/workflow-report/nested/reflect-1/nested/adversarial-1/return-contract.yaml
+-?? .dev/brainstorms/346-ledger/workflow-report/nested/reflect-1/reflection-card.yaml
+-?? .dev/brainstorms/346-ledger/workflow-report/nested/reflect-1/return-contract.yaml
+-?? .dev/brainstorms/346-ledger/workflow-report/nested/reflect-1/reviewer-briefs/reviewer-1.md
+-?? .dev/brainstorms/346-ledger/workflow-report/nested/reflect-1/reviewer-briefs/reviewer-2.md
+-?? .dev/brainstorms/346-ledger/workflow-report/nested/reflect-1/reviewer-cards/reviewer-1-card.yaml
+-?? .dev/brainstorms/346-ledger/workflow-report/nested/reflect-1/reviewer-cards/reviewer-2-card.yaml
+-?? .dev/brainstorms/346-ledger/workflow-report/nested/reflect-1/t1-card.md
+-?? .dev/brainstorms/346-ledger/workflow-report/return-contract.yaml
+-?? .dev/tasks/to-do/TASK-WF-spec-20261108-181649/artifacts/untracked-before.txt
+-?? .dev/tasks/to-do/TASK-WF-spec-20261108-181649/progress.md
+-?? docs/memory/reflect/deviation-patterns-bs346-ledger.md

@@ -1,0 +1,60 @@
+{
+  "schema": "review-lint/1",
+  "doc_sha256": "cc1009c39f64ee96a6f00833d08671bc3fa45654e0ce98d1aa13ec77bf232ddb",
+  "doc_bytes": 58894,
+  "checks": [
+    "REF",
+    "COUNT",
+    "KV",
+    "PHASE",
+    "PATH",
+    "RFC"
+  ],
+  "findings": [
+    {
+      "lint_id": "LINT-REF-1",
+      "check": "REF",
+      "class": "fact",
+      "lines": [
+        390,
+        390
+      ],
+      "quote": "| `docs/developer-guide/SuperClaude-Developer-Guide-Commands-Skills-Agents.md` | Section 4.1: the optional `model:` field also takes a full model ID or picker ID, and the Agent call's `model` param...",
+      "other_lines": null,
+      "message": "Section 4.1 is referenced but no heading has that number."
+    },
+    {
+      "lint_id": "LINT-REF-2",
+      "check": "REF",
+      "class": "fact",
+      "lines": [
+        390,
+        390
+      ],
+      "quote": "| `docs/developer-guide/SuperClaude-Developer-Guide-Commands-Skills-Agents.md` | Section 4.1: the optional `model:` field also takes a full model ID or picker ID, and the Agent call's `model` param...",
+      "other_lines": null,
+      "message": "Section 4.3 is referenced but no heading has that number."
+    },
+    {
+      "lint_id": "LINT-REF-3",
+      "check": "REF",
+      "class": "fact",
+      "lines": [
+        424,
+        424
+      ],
+      "quote": "3. Copy `src/superclaude/core/HOW-WE-WORK.md` byte-for-byte to `plugins/superclaude/skills/sc-recommend/refs/HOW-WE-WORK.md`; run `uv run pytest tests/core tests/commands` (developer guide section ...",
+      "other_lines": null,
+      "message": "Section 3.6 is referenced but no heading has that number."
+    }
+  ],
+  "census": {
+    "rfc2119": {},
+    "rfc2119_total": {
+      "MUST": 0,
+      "SHALL": 0,
+      "SHOULD": 0,
+      "MAY": 0
+    }
+  }
+}

@@ -1,0 +1,32 @@
+{
+ "case_id": "syn-ret-2~swap",
+ "code_outcome": "OK",
+ "decision": "CONFIRMED",
+ "qset_version": "e3-q1",
+ "result": {
+  "answers": {
+   "evidence_sufficient": {
+    "p": 0.89,
+    "type": "noul"
+   },
+   "outcome_follows": {
+    "p": 0.94,
+    "type": "noul"
+   },
+   "texts_conflict": {
+    "p": 0.89,
+    "type": "noul"
+   }
+  },
+  "attempts": 1,
+  "error": null,
+  "latency_ms": 174,
+  "model": "jev-1.14.0",
+  "request_sha256": "42c78017b07b83ebf5582f16f599ba7060c6740fed3893148ee43d533ff7cce7",
+  "status": "ok",
+  "usage": {
+   "input_tokens": 1040,
+   "output_tokens": 64
+  }
+ }
+}

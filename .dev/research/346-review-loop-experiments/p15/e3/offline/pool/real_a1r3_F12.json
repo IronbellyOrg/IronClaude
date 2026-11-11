@@ -1,0 +1,29 @@
+{
+ "author_intent": {
+  "reviewer": "sonnet-or-panel",
+  "reviewer_blocking": false,
+  "run": "a1-r3"
+ },
+ "case_id": "real_a1r3_F12",
+ "category": "real",
+ "data_classes": [
+  "s1_spec",
+  "stage2_artifact"
+ ],
+ "family": "s1_first_review",
+ "group": "D17",
+ "packet": {
+  "candidate_sha": "d3cdbe573e57303b9ce6c93d1fe98ba18fb7cb1a15773d926bf6a0c31425200d",
+  "finding_id": "F12",
+  "finding_section": "**F12. I can break this specification by Zero/Empty Attack and Sentinel Collision Attack on the report.** The invariant at **WC-4 and WC-5 (SPEC:62-63) and the check at SPEC:183** fails when **the report exists but is empty, unparseable, blocked without a question, or uses a status value outside the fixed set.** Severity MAJOR, blocking (FR-8 GAP rows G2-2, G2-4, G2-5). Expert: Whittaker.\nConcrete attack: the command crashes while writing and leaves a zero-byte `return-contract.yaml`. WC-5 sends `--outcome failed` only if \"no report exists\" (SPEC:63); the file exists, so the rule gives no answer. Second: `status: blocked` with an empty `blocked_question`; WC-4 requires the field \"when blocked\" but gives no non-empty rule, and only AC-2.2 asserts one (SPEC:200). Third: an existing contract that already uses another status word (finding 22) makes the assertion at SPEC:183 fail on a healthy run.\nRecommendation: in WC-5 replace \"no report exists\" by \"no parseable report with a `status` in the fixed set and, if blocked, a non-empty question\", and move the non-empty-question assertion into the common live check (7.2 step 4). Priority High. Quality impact: Testability +1."
+ },
+ "source": {
+  "kind": "stage2",
+  "paths": [
+   "p11/runs/a1-r3/ws/.dev/orca-command-refactor/review/spec-panel.md"
+  ],
+  "url": null
+ },
+ "split": "pool",
+ "variant": "base"
+}

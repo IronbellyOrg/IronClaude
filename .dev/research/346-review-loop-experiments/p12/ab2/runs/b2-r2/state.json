@@ -1,0 +1,238 @@
+{
+ "run": "b2-r2",
+ "design": "b2",
+ "rep": 2,
+ "stratum": "sonnet",
+ "loop_model": "sonnet",
+ "product_ref": "3d2fe006c00e71460ab7d56542fa01e29e7ce43e",
+ "cmd_sha": "e62e70b98e878cb4b60ba8f95f1cc3442a25e815828a3ef3d17a95b65ea97494",
+ "rules_sha": "e161284648a17d97e22715de0077e971857e78cf30dd3a41ca3ca126bec19ee3",
+ "done": [
+  "R1",
+  "VF1",
+  "V1",
+  "R2",
+  "AUD",
+  "AUD2"
+ ],
+ "log": {
+  "R1": {
+   "output_exists": true,
+   "stratum": "sonnet",
+   "report_bytes": 31307,
+   "verdict": "FAIL",
+   "review_header": [
+    "1",
+    "1"
+   ],
+   "labels": {
+    "CRITICAL": 5,
+    "MAJOR": 3
+   },
+   "blocking_ids": "B-1, B-2, B-3. Nothing else is to be touched",
+   "blocking": [
+    {
+     "id": "B-1",
+     "heading": "### B-1 (CRITICAL, blocking). WC-4's single contract location contradicts the rows that fix a different location",
+     "theme": "T2",
+     "cited": [
+      62,
+      63,
+      73,
+      83,
+      87,
+      90,
+      92,
+      182,
+      183,
+      196,
+      200
+     ]
+    },
+    {
+     "id": "B-2",
+     "heading": "### B-2 (CRITICAL, blocking). `load` is required to have no report file and also a contract section",
+     "theme": "other",
+     "cited": [
+      112,
+      159,
+      183,
+      195,
+      196,
+      265
+     ]
+    },
+    {
+     "id": "B-3",
+     "heading": "### B-3 (MAJOR, blocking). The P0 gate cannot pass as written, and a failure \"reopens section 1\"",
+     "theme": "T3",
+     "cited": [
+      91,
+      158,
+      182,
+      194
+     ]
+    }
+   ],
+   "ids": [
+    "B-1",
+    "B-2",
+    "B-3"
+   ],
+   "spec_after": {
+    "bytes": 57763,
+    "lines": 285,
+    "sha256": "d3cdbe573e57303b9ce6c93d1fe98ba18fb7cb1a15773d926bf6a0c31425200d"
+   },
+   "output_tokens": 56310
+  },
+  "VF1": {
+   "finding_ids": [
+    "B-1",
+    "B-2",
+    "B-3"
+   ],
+   "output_exists": true,
+   "stratum": "sonnet",
+   "report_bytes": 4104,
+   "confirmed": [
+    "B-1",
+    "B-2",
+    "B-3"
+   ],
+   "rejected": {},
+   "parse_ok": true,
+   "output_tokens": 6828
+  },
+  "V1": {
+   "output_exists": true,
+   "stratum": "sonnet",
+   "report_bytes": 5371,
+   "spec_after": {
+    "bytes": 58534,
+    "lines": 285,
+    "sha256": "68ce70455b6b30e6a44dbd6460d0688443a0dcdfe80ef873cfa87d79d9501aee"
+   },
+   "output_tokens": 15014
+  },
+  "R2": {
+   "output_exists": true,
+   "stratum": "sonnet",
+   "report_bytes": 30404,
+   "verdict": "PASS",
+   "review_header": [
+    "2",
+    "2"
+   ],
+   "labels": {},
+   "blocking_ids": "B-1, B-2, B-3",
+   "blocking": [],
+   "ids": [
+    "B-1",
+    "B-2",
+    "B-3"
+   ],
+   "spec_after": {
+    "bytes": 58534,
+    "lines": 285,
+    "sha256": "68ce70455b6b30e6a44dbd6460d0688443a0dcdfe80ef873cfa87d79d9501aee"
+   },
+   "output_tokens": 33974
+  },
+  "AUD": {
+   "output_exists": true,
+   "stratum": "sonnet",
+   "report_bytes": 20409,
+   "verdict": "FAIL",
+   "review_header": [
+    "1"
+   ],
+   "labels": {
+    "CRITICAL": 1
+   },
+   "blocking_ids": "B-1",
+   "blocking": [
+    {
+     "id": "B-1",
+     "heading": "### B-1 (CRITICAL as written, blocking): WC-4's closed exception list contradicts the rows it points to",
+     "theme": "T2",
+     "cited": [
+      61,
+      62,
+      64,
+      69,
+      73,
+      85,
+      86,
+      87,
+      90,
+      97,
+      109,
+      119,
+      159,
+      182,
+      196,
+      228,
+      234
+     ]
+    }
+   ],
+   "output_tokens": 36595
+  },
+  "AUD2": {
+   "output_exists": true,
+   "stratum": "sonnet",
+   "report_bytes": 15090,
+   "verdict": "FAIL",
+   "review_header": [
+    "1"
+   ],
+   "labels": {
+    "MAJOR": 1
+   },
+   "blocking_ids": "F-01 only. Restated contract: revise only the text F-01 names (S:154, S:159, S:195, with S:139/S:240 only to state pr-submit's position); add no rule, mechanism or section that F-01 does not call for; each added paragraph or table cites F-01; prefer deleting or narrowing to adding; report the byte size before and after and the bytes added and deleted per finding id; leave Medium and minor findings alone; do not award yourself a PASS",
+   "blocking": [
+    {
+     "id": "F-01",
+     "heading": "### F-01 (blocking, MAJOR) \u2014 AC-1.1 requires P1 to deliver work the spec assigns to P3/P4 and to undecided D2-D4",
+     "theme": "T1",
+     "cited": [
+      52,
+      128,
+      139,
+      154,
+      159,
+      160,
+      161,
+      162,
+      195,
+      225,
+      240
+     ]
+    }
+   ],
+   "output_tokens": 28319
+  }
+ },
+ "launched": {
+  "R1": "2026-11-10T05:12:36+00:00",
+  "VF1": "2026-11-10T05:21:32+00:00",
+  "V1": "2026-11-10T05:24:35+00:00",
+  "R2": "2026-11-10T05:30:50+00:00",
+  "AUD": "2026-11-10T05:38:50+00:00",
+  "AUD2": "2026-11-10T05:39:51+00:00"
+ },
+ "pending": [],
+ "noted_unactioned": [],
+ "loop_end": "PASS",
+ "manual": [],
+ "manual_ids": {},
+ "relaunch": {},
+ "lost": false,
+ "complete": true,
+ "final_spec": {
+  "bytes": 58534,
+  "lines": 285,
+  "sha256": "68ce70455b6b30e6a44dbd6460d0688443a0dcdfe80ef873cfa87d79d9501aee"
+ }
+}

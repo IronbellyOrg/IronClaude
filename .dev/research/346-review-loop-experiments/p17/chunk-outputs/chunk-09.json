@@ -1,0 +1,156 @@
+{
+ "chunk": 9,
+ "defects": [
+  {
+   "local_id": "c09-d1",
+   "title": "AC-0.4 requires step 3 contract status and WC-4 path that P0 cannot produce",
+   "kind": "original",
+   "severity": "blocking",
+   "quote": "steps 1-3 and 5-7 pass; step 4 uses the command's existing report file, since the contract arrives in P1",
+   "original_lines": [
+    182,
+    194,
+    62,
+    83,
+    91,
+    92,
+    154,
+    158,
+    159
+   ],
+   "what_goes_wrong": "AC-0.4 exempts only step 4, so step 3's clauses 'its `--outcome` matches the contract's `status` under WC-5; its report path is the WC-4 contract path' must pass in P0, but no smoke command writes <output-dir>/return-contract.yaml before P1 (troubleshoot writes REPORT.md, workflow writes under .dev/tasks/to-do/<id>/, adversarial's filename is not fixed), so the P0 gate cannot pass and by line 154 no later phase can start.",
+   "gids": [
+    23,
+    151,
+    322,
+    17,
+    119,
+    146,
+    319,
+    365,
+    413,
+    463,
+    4,
+    24,
+    55,
+    137,
+    165,
+    171,
+    240,
+    287,
+    290,
+    304,
+    331,
+    333,
+    338
+   ],
+   "is_fixed_when": "The P0 acceptance text states a step-3 pass condition that the unedited commands can meet (e.g. exactly one worker_done whose --report-path is the command's existing report file and whose --outcome matches that report's own status/verdict), with the WC-4 path and contract-status clauses applying only from the phase that adds the contract.",
+   "deletion_note": "No: deleting AC-0.4 or the P0 smoke runs removes the only live test of the section 1 decision (gap 1.4 (1)); a fix must keep a passable P0 live check.",
+   "present_in_others_hint": "7.2 step 3 (line 182); section 3.1 intro 'until Phase 1 adds the contract' (line 79), which is also wrong for troubleshoot/reflect/release-split/tdd whose rows say P2 (lines 88-91, 160) while P1 scope says the WC-4 contract arrives in P1 (line 159); 1.4 gap 1 (line 43)."
+  },
+  {
+   "local_id": "c09-d2",
+   "title": "AC-0.4 step 4 YAML status/command assertion fails on existing REPORT.md",
+   "kind": "original",
+   "severity": "blocking",
+   "quote": "assert d['status'] in {'succeeded','partial','failed','blocked'}; assert d['command']",
+   "original_lines": [
+    183,
+    194,
+    91,
+    83
+   ],
+   "what_goes_wrong": "AC-0.4 says step 4 'uses the command's existing report file', but step 4 runs yaml.safe_load and asserts 'status' and 'command' keys; for troubleshoot that file is the markdown REPORT.md (verified: a typical markdown report raises a YAML parse error, exit 1), and adversarial's/workflow's existing contracts are not stated to carry a 'command' key, so the carved-out step 4 cannot pass either.",
+   "gids": [
+    64
+   ],
+   "is_fixed_when": "For P0 (pre-contract) runs the spec gives step 4 a check the existing report files can pass (e.g. file exists and is non-empty) or explicitly drops step 4 until the contract exists, and keeps the YAML status/command assertion only for runs that write the WC-4 contract.",
+   "deletion_note": "Partly: dropping step 4 for P0 is an acceptable fix if stated explicitly, but deleting step 4 for all phases is not, since it is the only check that the WC-4 contract is well formed.",
+   "present_in_others_hint": "7.2 step 4 (line 183); AC-0.4 wording 'step 4 uses the command's existing report file' (line 194); section 3.1 'Report today' column (lines 83, 91, 92)."
+  },
+  {
+   "local_id": "c09-d3",
+   "title": "Brief must include --unattended, but P0 commands lack the flag until P1",
+   "kind": "original",
+   "severity": "medium",
+   "quote": "the exact command line including `--unattended` and every flag section 3 lists as required",
+   "original_lines": [
+    73,
+    79,
+    158,
+    159,
+    180,
+    194
+   ],
+   "what_goes_wrong": "7.2 step 1 builds the brief 'per section 2.3', which requires `--unattended` on the command line, while the flag is only added in P1, the 3.1 ready-today rows and the AC-0.4 command lines omit it, so the P0 brief rule contradicts AC-0.4 and an implementer must guess whether to pass a flag the commands do not yet implement.",
+   "gids": [
+    104,
+    175,
+    462,
+    489
+   ],
+   "is_fixed_when": "The spec states one rule for briefs before the flag exists (e.g. section 2.3 says `--unattended` is required from the phase that adds it and P0 briefs omit it), and the 7.2 step 1 / AC-0.4 command lines agree with that rule.",
+   "deletion_note": "No: deleting the --unattended requirement from section 2.3 entirely would leave P1+ briefs without the flag that selects unattended mode; only its phase scope should change.",
+   "present_in_others_hint": "Section 3.1 intro 'if the brief uses the stated flags' (line 79); P0 brief template in WORKER-CONTRACT.md 'listing the section 3.1 flags' (line 158); 7.2 step 1 (line 180)."
+  },
+  {
+   "local_id": "c09-d4",
+   "title": "Step 3 blocks 15 minutes while step 2 needs worker-show every 5 minutes",
+   "kind": "original",
+   "severity": "medium",
+   "quote": "`ORCA orchestration check --wait --types \"worker_done,escalation,question\" --timeout-ms 900000 --json` until `worker_done` arrives",
+   "original_lines": [
+    181,
+    182
+   ],
+   "what_goes_wrong": "A coordinator running the numbered steps in order sits in a single check --wait of up to 900 s, so it cannot run worker-show 'at least once per 5 minutes' as step 2 requires, and step 3 gives no handling when the wait returns a question or escalation instead of worker_done.",
+   "gids": [
+    160
+   ],
+   "is_fixed_when": "The live check states waits no longer than the worker-show interval (or explicitly runs them concurrently) so the 5-minute worker-show cadence is achievable, and says what the coordinator does when check returns a question or escalation.",
+   "deletion_note": "No: deleting the worker-show cadence removes the only stall detection (agentWait) the spec relies on.",
+   "present_in_others_hint": "WC-10 (line 68) uses a 4-minute wait cap for the same reason; WC-3 ask/question handling (line 61)."
+  },
+  {
+   "local_id": "c09-d5",
+   "title": "Step 6 git status fails on the phase's own uncommitted edits",
+   "kind": "original",
+   "severity": "medium",
+   "quote": "`git status --short`. **Pass:** only files under the brief's output directory (and the command's documented artifacts) appear.",
+   "original_lines": [
+    185,
+    158,
+    180
+   ],
+   "what_goes_wrong": "Workers start with --worktree current, so any uncommitted phase edits (e.g. P0's WORKER-CONTRACT.md, HOW-WE-WORK.md copies, test file) show up in git status and fail step 6, and no step says to commit or take a before-dispatch baseline.",
+   "gids": [
+    406
+   ],
+   "is_fixed_when": "Step 6 compares git status against a snapshot taken before dispatch (or the spec requires a clean committed tree before step 1), so only changes made by the worker are judged.",
+   "deletion_note": "No: deleting step 6 removes the check that the worker wrote only inside its output directory (WC-11).",
+   "present_in_others_hint": "AC-0.4, AC-1.2, AC-2.2 and other per-phase live checks that reuse step 6."
+  },
+  {
+   "local_id": "c09-d6",
+   "title": "AC-0.4 Agent-wrapper check has no stated step-5 pass condition",
+   "kind": "original",
+   "severity": "medium",
+   "quote": "each run directly by the worker (no Agent-tool wrapper, verified in the step-5 transcript)",
+   "original_lines": [
+    194,
+    184,
+    65,
+    43
+   ],
+   "what_goes_wrong": "Step 5 only searches the transcript for AskUserQuestion, so the step-5 procedure the AC-0.4 points to produces no evidence about an Agent-tool wrapper; the direct-route condition (WC-7, gap 1.4 (1)) has no defined test or pass condition.",
+   "gids": [
+    407,
+    423
+   ],
+   "is_fixed_when": "Step 5 (or AC-0.4) states a concrete transcript test for the direct route, e.g. no Agent/Task tool call whose prompt runs the /sc: command, and its pass condition.",
+   "deletion_note": "No: removing the direct-run requirement would drop the very point gap 1.4 (1) says P0 must prove.",
+   "present_in_others_hint": "WC-7 (line 65); 1.4 gap 1 (line 43)."
+  }
+ ],
+ "unassigned_gids": []
+}

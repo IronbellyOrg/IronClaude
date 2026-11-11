@@ -1,0 +1,17 @@
+{
+ "evidence": {
+  "e1": {
+   "context": "| WC-7 | **Run at the top level, never inside a subagent.** The worker runs the command directly in its own session; it never wraps the command in an Agent-tool subagent. Lifecycle messages (`heartbeat`, `ask`, `check`, `worker_done`) are sent only by that top-level session, never by a subagent. A command's own Agent-tool fan-out stays as it is. | Worker session | `sk/sc-pr-submit-protocol/SKILL.md:37-39` (top-level rule); `CAPS:159-161`; `INV-A:95` (nesting loses tools at Claude Code's depth limit) |\n| WC-8 | **No Orca fan-out from inside a command.** A command never calls `worker-start`, `dispatch` or `task-create`. Fan-out that needs Orca records is split into separate Tasks by the coordinator. | Command | `CAPS:97-102` (depth 1); `CAPS:103` (whether a depth-1 worker may `task-create` is UNVERIFIED) |\n| WC-9 | **No outward action unless the brief authorizes it.** Under `--unattended`, any default that pushes, opens a PR, posts to GitHub, installs, provisions or calls a paid external run is off. It turns on only through the command's own explicit flag written in the brief. | Command | `cmd/auggie-review.md:51-54` (posts by default, no prompt); `.dev/orca-command-refactor/README.md:31`; per-command outward actions in column (f) of the inventories |\n| WC-10 | **Liveness during long waits.** The worker sends a heartbeat every 5 minutes while working. A command step that blocks a single tool call for longer than 5 minutes (a poll wait, a long eval) must be split into waits of at most 4 minutes so the session can heartbeat between them. | Command (wait size); worker (heartbeat) | Cadence is from the dispatch preamble, not a guide (`CAPS:130`); pr-submit's 600 s is a cumulative per-wait budget made of repeated iterations (one foreground poll, then a sleep of at least `--poll-interval`), not one blocking call (`cmd/pr-submit.md:49`; `sk/sc-pr-submit-protocol/SKILL.md:46-64`); `sk/sc-cli-eval-protocol/SKILL.md:151-152` (eval timeouts up to 3600 s) via `INV-A:65` |\n| WC-11 | **Parallel-safe writes.** Two workers in one worktree must never write the same file. Default output paths carry a timestamp or the slug the coordinator passes; single-owner shared files (for example memory keys overwritten whole) are not written in unattended mode. | Command | `cmd/save.md:42-45`; `CAPS:115` (`[G:placement]` lines 8-11: workers share the current worktree by default) |\n| WC-12 | **Coordinator follow-ups are pulled, not pushed.** The worker runs `check` at natural checkpoints and once before `worker_done`; if `check` returns `consumer_fenced` it stops without sending `worker_done`. Commands need no change for this. | Worker session | `CAPS:66-67` (`[G:worker-contract]` lines 36-38, 49-52) |\n",
+   "line": 68,
+   "text": "longer than 5 minutes"
+  }
+ },
+ "facts": {
+  "evidence_count": 1,
+  "quotes_found_verbatim": true
+ },
+ "finding": {
+  "title": "(, FR-8 from guard G1). Nygard: WC-10 leaves a hole between 4 and 5 minutes and does not cover Monitor-driven waits.",
+  "wrong_outcome": "(, FR-8 from guard G1). Nygard: WC-10 leaves a hole between 4 and 5 minutes and does not cover Monitor-driven waits."
+ }
+}

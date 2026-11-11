@@ -1,0 +1,204 @@
+{
+ "chunk": 13,
+ "name": "AC-C.1",
+ "findings": [
+  {
+   "gid": 65,
+   "kind": "audit",
+   "arm": "ab1",
+   "run": "b1-r6",
+   "step": "aud2",
+   "fid": "B-2",
+   "final_spec_of_this_audit": "p12/ab1/runs/b1-r6/aud2/ws/.dev/orca-command-refactor/review/.dev/orca-command-refactor/specs/orca-worker-contract-spec.md",
+   "heading": "**B-2. MAJOR and blocking. The additive-edit check AC-C5 (and AC-0.3) passes when existing bullet lines are deleted. (Wiegers, Nygard)**",
+   "body": "- Grading sentence: an implementer who follows the stated text as written runs `git diff -U0 master...HEAD -- <file> | grep -E '^-[^-]'` (candidate `:176`, same pattern at `:193`) and gets no output when an existing line such as `- Foo` is deleted, because the diff shows it as `-- Foo`, which the `[^-]` excludes (reproduced: `printf -- '-- bullet deleted\\n' | grep -E '^-[^-]'` prints nothing; `-plain deleted` does match); so the check reports \"edits are additive\" for edits that remove standalone behaviour, and SA-4 and SA-1 (`:146,149`), declared a hard requirement on every phase (`:142`), are not actually enforced.\n- Commands and skills in this repo are mostly bullet-heavy markdown, so the escaped class is common, and blank-line deletions (`-` alone) also pass.\n- Recommendation: replace the pattern with a deleted-line count that excludes only the `---` header, for example `grep -E '^-' | grep -vE '^---( |$)'`. Priority High.\n- Quality impact: restores the check's meaning at one line of change.\n"
+  },
+  {
+   "gid": 127,
+   "kind": "audit",
+   "arm": "ab2",
+   "run": "b2-r1",
+   "step": "aud",
+   "fid": "B3",
+   "final_spec_of_this_audit": "p12/ab2/runs/b2-r1/aud/ws/.dev/orca-command-refactor/review/.dev/orca-command-refactor/specs/orca-worker-contract-spec.md",
+   "heading": "**B3. MAJOR, graded blocking. AC-C5 and AC-0.3 cannot detect deleted bullet lines, so \"additive\" can pass when it is not.**",
+   "body": "- Expert: Crispin (completeness), Whittaker (Zero/Empty attack on the check).\n- Grading sentence: an implementer who follows the stated text as written builds `git diff -U0 ... | grep -E '^-[^-]'` as the proof that edits are additive (SA-4, SA-5), and that is wrong because a deleted markdown bullet `- item` appears in a diff as `-- item`, which the pattern excludes.\n- Location: AC-C5 (spec:176) and AC-0.3 (spec:193).\n- Check: I ran the pattern over `-- item` / `--- a` / `- x`; it printed only `- x`, not `-- item`. Bullets and `---` frontmatter delimiters are used throughout command and skill files, so removing them passes the check. SA-4 (spec:149) and SA-1 rely on this check to show a person's behaviour is unchanged.\n- Recommendation: use a pattern that skips only the file headers, for example `grep -E '^-' | grep -vE '^--- '`, or `git diff --numstat` with a zero-deletions condition. Priority High.\n"
+  },
+  {
+   "gid": 173,
+   "kind": "audit",
+   "arm": "ab2h",
+   "run": "b2h-r3",
+   "step": "aud2",
+   "fid": "B-2",
+   "final_spec_of_this_audit": "p12/ab2/runs/b2h-r3/aud2/ws/.dev/orca-command-refactor/review/.dev/orca-command-refactor/specs/orca-worker-contract-spec.md",
+   "heading": "### B-2. AC-C5 and AC-0.3 cannot detect the deletions they are written to catch",
+   "body": "- Severity: MAJOR (blocking). Experts: Fowler (interface/gate design), Crispin (check validity), Whittaker (Divergence Attack on the check). Priority: High. Quality-impact: Testability, Safety of SA-1/SA-4.\n- Grading sentence: An implementer who runs AC-C5 (SPEC:176) and AC-0.3 (SPEC:193) as written gets \"prints nothing\" for a phase that deleted an existing Markdown bullet or a `---` line from a command file or from `HOW-WE-WORK.md`, and that is wrong because those checks are the only mechanical evidence for SA-4 (\"additive edits\", SPEC:149), SA-5 (\"no existing routing row changed\", SPEC:150), and through them SA-1, which SPEC:142 calls a hard requirement on every phase.\n- Evidence (tested, not assumed): in `git diff -U0` a removed line carries a leading `-`. A removed bullet `- old bullet` appears as `-- old bullet`, and a removed `---` appears as `----`. The expression `grep -E '^-[^-]'` rejects any line whose second character is `-`. I fed it `-- old bullet`, `-| old row |` and `----`: only the table row was printed. Command files are written mostly as bullets (see `command.md` structure), so the common deletion is the one the check misses.\n- Recommendation (narrow): replace the expression with one that excludes only the file header, for example `grep -E '^-' | grep -vE '^---[[:space:]]+[ab]/'`, or count removed lines with `git diff --numstat` and require the deleted count to be 0.\n"
+  },
+  {
+   "gid": 197,
+   "kind": "audit",
+   "arm": "ab3",
+   "run": "b3-r2",
+   "step": "aud2",
+   "fid": "F-1",
+   "final_spec_of_this_audit": "p12/ab3/runs/b3-r2/aud2/ws/.dev/orca-command-refactor/review/.dev/orca-command-refactor/specs/orca-worker-contract-spec.md",
+   "heading": "### F-1 [MAJOR, blocking] The additive-edit check AC-C5 (and AC-0.3) cannot detect deleted lines it claims to catch",
+   "body": "\n- Experts: Wiegers (testability), Whittaker (FR-2.2 divergence attack, FR-2.1 empty attack on the grep)\n- Location: `specs/orca-worker-contract-spec.md:176` (AC-C5), `:193` (AC-0.3); they enforce SA-1/SA-4/SA-5 (`:146,149,150`) and the \"additive\" claim of `:149`.\n- Grading sentence: An implementer who follows the stated text builds a gate that runs `git diff -U0 master...HEAD -- <file> | grep -E '^-[^-]'` and treats empty output as proof that edits are additive, and that is wrong because the pattern requires the second character after `-` to be a non-dash, so a deleted markdown list item (diff line `-- text`) or deleted `---` rule or frontmatter fence (diff line `----`) never matches.\n- Concrete attack: the baseline has `- keep`, `- gone`, `---`; the candidate keeps only `- keep`. I ran `diff -U0` on exactly that pair through `grep -E '^-[^-]'`: the output was empty and grep exited 1, so AC-C5 and AC-0.3 report \"prints nothing\" (pass) although two lines were deleted. Command files are heavily bulleted (the definition of this very command, `command.md`, has `- ` list lines throughout), so the commonest deletion goes unseen.\n- Why blocking: AC-C5 is the only mechanical check that SA-1 (standalone behavior unchanged), SA-4 and SA-5 (no routing row changed) hold in every phase (`:175-176`, `:193`); a passing check with a deletion is a concrete wrong outcome with no further assumption, and it hides the removal of a prompt, gate or `Will Not` rule from a person's standalone run.\n- Recommendation: narrow the pattern to flag every removed line, for example `grep -E '^-' | grep -vE '^---'` (header line only) or `git diff --numstat` with deleted count 0 for the file. Delete the `[^-]` clause; do not add a new mechanism.\n- Priority: High. Quality impact: restores the one gate behind SA-1.\n"
+  },
+  {
+   "gid": 214,
+   "kind": "audit",
+   "arm": "ab3",
+   "run": "b3-r6",
+   "step": "aud2",
+   "fid": "B-1",
+   "final_spec_of_this_audit": "p12/ab3/runs/b3-r6/aud2/ws/.dev/orca-command-refactor/review/.dev/orca-command-refactor/specs/orca-worker-contract-spec.md",
+   "heading": "### B-1 (MAJOR, blocking, High): AC-C5 passes when a line starting with `-` is deleted",
+   "body": "- Expert: Wiegers (testability), Adzic (concrete example).\n- Location: SPEC:176 (AC-C5), SPEC:193 (AC-0.3); depends on SA-4 (SPEC:149) and the P0 to P3 rollout.\n- Grading sentence: An implementer who follows AC-C5 as written runs `git diff -U0 ... | grep -E '^-[^-]'` and reads empty output as \"edits are additive\", and that is wrong because a unified-diff line for a deleted Markdown bullet `- item` is `-- item`, whose second character is `-`, so the pattern skips it; the same holds for a deleted `---` frontmatter delimiter or a deleted `--flag` line.\n- Concrete example (Adzic): a P2 edit removes the bullet `- Wait for user confirmation` from `cmd/cleanup.md`. The diff line is `-- Wait for user confirmation`. `grep -E '^-[^-]'` prints nothing, AC-C5 passes, and a standalone prompt (SA-1, SPEC:146) is gone.\n- Why it is a spec defect: AC-C5 is the only mechanical enforcement of the additive-edit rule SA-4 and the phase pass condition at SPEC:167 (\"a phase passes only when every check in its block and every common check passes\"). Command files are bullet-heavy, so the blind spot is the common case. AC-0.3 uses the same pattern for `HOW-WE-WORK.md`.\n- Recommendation: pass condition should list every deleted line except the `--- a/` file header, for example `grep -E '^-' | grep -vE '^--- '`.\n"
+  },
+  {
+   "gid": 228,
+   "kind": "audit",
+   "arm": "ab3h",
+   "run": "b3h-r2",
+   "step": "aud",
+   "fid": "B-03",
+   "final_spec_of_this_audit": "p12/ab3/runs/b3h-r2/aud/ws/.dev/orca-command-refactor/review/.dev/orca-command-refactor/specs/orca-worker-contract-spec.md",
+   "heading": "### B-03. The additive-edit gate AC-C5 (and AC-0.3) cannot see a deleted markdown bullet",
+   "body": "- Stated text: AC-C5 `git diff -U0 master...HEAD -- src/superclaude/commands/<name>.md | grep -E '^-[^-]'` must print nothing, \"edits are additive\" (S:176); AC-0.3 uses the same pattern for `HOW-WE-WORK.md` (S:198). SA-1 and SA-4 rest on it (\"keeps the diff reviewable and SA-1 checkable\", S:149).\n- Verified in the sandbox with a throw-away pair of files: deleting the bullet `- Modify source` produces the diff line `-- Modify source`, and `^-[^-]` does not match it; only the deleted table row `-| row | x |` was reported. The pattern excludes every removed line whose content starts with `-`, that is every removed markdown list item, which is the dominant form in command files (\"Will Not\" lists, INV-A:41, INV-A:100).\n- Grading sentence: An implementer who follows AC-C5 builds a gate that passes when an existing `Will Not` or other bullet is deleted. That is wrong because SA-4 requires existing lines to change only where section 3 names a defect fix, and AC-C5 is the only mechanical check of it (S:149, S:176).\n- Recommendation: `grep -E '^-' | grep -vE '^--- '` (header lines are `--- a/...`), or compare with `git diff --numstat` deletions. Change only the pattern.\n"
+  },
+  {
+   "gid": 261,
+   "kind": "audit",
+   "arm": "pn1",
+   "run": "b1-r3",
+   "step": "aud2",
+   "fid": "B1",
+   "final_spec_of_this_audit": "p13/ab1/runs/b1-r3/aud2/ws/.dev/orca-command-refactor/review/.dev/orca-command-refactor/specs/orca-worker-contract-spec.md",
+   "heading": "**B1. AC-C5 and AC-0.3 cannot detect a deleted bullet line, so the \"additive edits\" rule is not checkable** (CRITICAL as an acceptance defect; priority High; quality impact: Testability -3)",
+   "body": "- Expert: Crispin/Wiegers (testability), Whittaker (zero/empty attack on the check).\n- Stated text: SA-4 requires command-file edits to be additive (`spec:149`). AC-C5 checks it with `git diff -U0 master...HEAD -- src/superclaude/commands/<name>.md | grep -E '^-[^-]'` and passes on empty output (`spec:176`). AC-0.3 does the same for `HOW-WE-WORK.md` (`spec:201`).\n- An implementer who follows the stated text as written deletes a markdown bullet (`- text`) from a command file, runs AC-C5, sees empty output and records a pass, and that result is wrong because a deleted `- text` line appears in the diff as `-- text`, whose second character is `-`, which `[^-]` rejects. Reproduced: a file with `- keep` and `- drop me`, after removing `- drop me`, gave `-- drop me` in the diff and no output from the AC-C5 regex (exit 1). Command and routing files are largely bullet lists (the lines the inventory cites, for example `INV-B:31-65`, are bullet-heavy), so the most common deletion is the one the check misses. The same applies to a deleted YAML `---` line (diff line `----`).\n- Recommendation: replace the pattern with one that excludes only the file header, for example `grep -E '^-' | grep -vE '^--- '`, and apply the same fix at `spec:201`. Priority High.\n"
+  },
+  {
+   "gid": 276,
+   "kind": "audit",
+   "arm": "pn1",
+   "run": "b1-r5",
+   "step": "aud2",
+   "fid": "R-2",
+   "final_spec_of_this_audit": "p13/ab1/runs/b1-r5/aud2/ws/.dev/orca-command-refactor/review/.dev/orca-command-refactor/specs/orca-worker-contract-spec.md",
+   "heading": "### R-2 (blocking, MAJOR, Crispin/Whittaker): AC-C5 cannot detect deleted or edited bullet lines",
+   "body": "Grading sentence: an implementer who follows AC-C5 (SPEC:176, the \"edits are additive\" gate for SA-4, SPEC:149) builds a check `git diff -U0 ... | grep -E '^-[^-]'` that passes while existing lines are deleted, and that is wrong because a deleted markdown bullet `- foo` appears in a diff as `-- foo`, whose second character is `-`, so the pattern excludes it; the same holds for a deleted `---` frontmatter line (`----`) and for any edited bullet (its old half is `-- ...`).\n- Attack (Whittaker, sequence/sentinel collision, the `-` in the pattern is used as the diff marker and as content): reproduced here with `printf -- '-- foo\\n----\\n- x\\n-|row|\\n' | grep -E '^-[^-]'`, which prints only `- x` and `-|row|` (a removed `- x` bullet or removed `---` line is missed; only table rows and lines starting with other characters are caught).\n- Consequence: SA-1 (\"standalone behaviour exactly as today\", SPEC:146) is guarded for Phases 1-3 by this single mechanical check (SPEC:176, SPEC:149); command files are bullet-heavy, so an implementer can remove an existing prompt or default bullet and AC-C5 passes. AC-0.3 (SPEC:198) has the same pattern but its target is table rows in the routing guide (`-|...` is matched), so it is only partly exposed.\n- Recommendation: replace the filter by one that drops only the file header, for example `grep -E '^-' | grep -vE '^--- (a/|/dev/null)'`, and say that any removed line must be a section-3-named defect fix. This is a narrowing of one command, not new text elsewhere.\n- Priority: High.\n"
+  },
+  {
+   "gid": 316,
+   "kind": "audit",
+   "arm": "base-fresh",
+   "run": "a3d-r2",
+   "step": "aud",
+   "fid": "F-01",
+   "final_spec_of_this_audit": "p16/base-drift/runs/a3d-r2/aud/ws/.dev/orca-command-refactor/review/.dev/orca-command-refactor/specs/orca-worker-contract-spec.md",
+   "heading": "### F-01 (blocking) AC-C5 cannot detect deleted or rewritten bullet lines, so the \"additive\" guarantee is not enforced",
+   "body": "- Severity label: MAJOR. Grade: blocking. Expert: Wiegers (testability), Whittaker (Divergence attack). Priority: High.\n- Stated text: SA-1 and SA-4 make \"every prompt, approval gate, default flag value... stays as it is today\" a hard requirement on every phase (SPEC:142, 146, 149). AC-C5 is the check that proves it: `git diff -U0 master...HEAD -- src/superclaude/commands/<name>.md | grep -E '^-[^-]'`, pass condition \"prints nothing: edits are additive\" (SPEC:176).\n- Grading sentence: an implementer who runs AC-C5 as written treats \"prints nothing\" as proof that no existing line was deleted or rewritten. That proof is wrong, because a removed markdown bullet `- text` appears in `-U0` output as `-- text` and the pattern `^-[^-]` skips every line whose second character is `-`.\n- Evidence: pipe test run in the sandbox with input `-- bullet removed`, `-| table row removed`, `--- a/file`, `-plain removed`, `----`. The pattern printed only `-| table row removed` and `-plain removed`. The removed bullet and the removed `---` frontmatter delimiter (shown as `----`) passed unseen.\n- Consequence: gate text in command files is mostly bullets (for example the gate lines cited at SPEC:100-125). P2 is a gate-conversion phase (SPEC:160), and the natural implementation edits those existing bullets. Such an edit passes AC-C5 while breaking SA-1. The same pattern gives a false FAIL on a file that lacks a trailing newline, because the last line is reported as removed and re-added. AC-0.3 (SPEC:193) is not affected for table rows, which start with `|`.\n- Recommendation: replace the pattern with a test that counts deleted lines directly. For example, `git diff --numstat master...HEAD -- <file>` and require the deleted column to be 0, with the named defect fixes of SA-4 exempted by listing them. Keep the pass condition text. Quality impact: restores the only mechanical guard of the standalone-behaviour promise.\n"
+  },
+  {
+   "gid": 490,
+   "kind": "audit",
+   "arm": "haiku-base",
+   "run": "a3-r5",
+   "step": "aud2",
+   "fid": "B-1",
+   "final_spec_of_this_audit": "p14/haiku-baseline/runs/a3-r5/aud2/ws/.dev/orca-command-refactor/review/.dev/orca-command-refactor/specs/orca-worker-contract-spec.md",
+   "heading": "### B-1 (blocking) The \"additive edits only\" checks cannot see deleted bullet lines",
+   "body": "- Expert: Wiegers (testability), Whittaker (FR-2.1 degenerate input attack).\n- Stated text: AC-C5 (SPEC:176) and AC-0.3 (SPEC:199) pass when `git diff -U0 ... | grep -E '^-[^-]'` prints nothing, and SPEC:176 reads this as \"edits are additive\" and SPEC:199 as \"no existing routing row changed\".\n- An implementer who follows the stated text as written builds a check that stays silent when a markdown bullet line is deleted, and that check is wrong because a deleted line `- foo` appears in a unified diff as `-- foo`, whose second character is `-`, so `^-[^-]` does not match it. Demonstrated in the sandbox: `printf -- '-- a deleted bullet\\n-x changed\\n' | grep -E '^-[^-]'` printed only `-x changed`; exit 0, the bullet deletion was not reported. Command files and routing guides are bullet-heavy, and a deleted `---` frontmatter delimiter also escapes. SA-4 (SPEC:149), SA-5 (SPEC:150) and AC-C5 are the only mechanism that enforces \"additive\", so a phase can pass with existing lines removed. The spec already fixed the same class of mistake in AC-C1 (F-02, SPEC:178), so this is an unreviewed copy of the defect.\n- Recommendation (narrowest): match removed lines by diff header exclusion instead of by second character, e.g. `grep -E '^-' | grep -vE '^---[[:space:]]'`, or use `git diff --numstat` deleted-count equals 0 for the file; keep the sample-line gate test next to the F-02 fixture.\n- Priority: High. Quality impact: the additive guarantee (SA-1, SA-4) becomes unenforced.\n"
+  },
+  {
+   "gid": 507,
+   "kind": "audit",
+   "arm": "stage2",
+   "run": "a3-r4",
+   "step": "aud2",
+   "fid": "B-01",
+   "final_spec_of_this_audit": "p12/baseline-audit2/a3-r4/ws/.dev/orca-command-refactor/review/.dev/orca-command-refactor/specs/orca-worker-contract-spec.md",
+   "heading": "**B-01. AC-C5 and AC-0.3 cannot detect a deleted bullet line.**",
+   "body": "- Where: `AC-C5` (SPEC:176), used by SA-4 (SPEC:149) as the only mechanical test that \"edits are additive\"; `AC-0.3` (SPEC:193) uses the same pattern.\n- Severity: MAJOR. Grade: **blocking**. Expert: Whittaker (Sentinel Collision) confirmed by Crispin.\n- Grading sentence: An implementer who follows AC-C5 as written builds a check that prints nothing, and so passes, when an existing bullet line is deleted or rewritten, and that is wrong because SPEC:176 states that \"prints nothing\" means \"edits are additive\" and SPEC:149 and SPEC:146 depend on it to keep existing gates and boundaries unchanged.\n- Evidence: the pattern is `grep -E '^-[^-]'` on a `git diff -U0` (SPEC:176). A deleted markdown bullet `- Will Not: ...` appears in the diff as `-- Will Not: ...`; its second character is `-`, so `[^-]` rejects it. I ran the pattern on stdin with four diff lines: `-- Will Not: modify specs without consent` (not printed), `-foo plain line deleted` (printed), `----` (a deleted `---` rule, not printed), `-| table row deleted |` (printed). Command files are mostly bullet lists (for example the \"Will Not\" and \"Approval Required\" bullets cited at INV-A:43 and INV-A:52 and the Boundaries lists the spec relies on at SPEC:100, SPEC:110). The pattern was written to skip the `--- a/file` header, which is why it also skips every `- ` bullet.\n- Concrete state trace: before, `cmd/cleanup.md` contains `- Approval Required (prompts user first)` bullets; after a P2 edit that deletes one, `git diff -U0 master...HEAD -- src/superclaude/commands/cleanup.md | grep -E '^-[^-]'` prints nothing; AC-C5 passes; the approval gate is gone from standalone use, which SA-1 forbids (SPEC:146).\n- Recommendation: replace the pattern with one that excludes only the file header, for example `grep -E '^-' | grep -vE '^--- (a/|/dev/null)'` (or `git diff --numstat` and require the deleted-lines column to be 0 for files without a named defect fix). Rationale: a deleted-line count is independent of the line's first character.\n- Priority: High. Quality-impact estimate: Testability +2.\n"
+  },
+  {
+   "gid": 18,
+   "kind": "first",
+   "arm": "stage2",
+   "run": "a3-r5",
+   "step": "r1",
+   "fid": "F-3",
+   "final_spec_of_this_audit": "",
+   "heading": "#### F-3. AC-C5 and AC-0.3 use `grep -E '^-[^-]'`, which does not detect a deleted markdown bullet, so \"edits are additive\" is not proved",
+   "body": "- Severity label: MAJOR. Grade: blocking. Experts: Whittaker (zero/empty and sentinel attacks on the guard), Crispin (check completeness), Nygard. Priority: High.\n- Stated texts: AC-C5, every phase: `git diff -U0 master...HEAD -- src/superclaude/commands/<name>.md | grep -E '^-[^-]'` \"prints nothing: edits are additive\" (S:176); AC-0.3 uses the same pattern for HOW-WE-WORK.md (S:193). SA-4 and SA-1 depend on additivity (S:146, S:149).\n- Evidence: I ran the pattern on a sample diff holding a deleted bullet `-- Will Not: modify specs without consent` and a deleted prose line `-Plain removed line`. It printed only the prose line. A deleted bullet appears in a diff as `-` plus `- ...`, i.e. it starts `--`, which `[^-]` excludes. Command files carry their boundaries and gates as bullets (`command.md:471-481`; the inventories cite \"Will Not\" and approval-gate bullets throughout, for example `INV-A:35`, `INV-A:43`).\n- Grading sentence: An implementer who follows AC-C5 builds a gate that prints nothing and passes when a phase deletes an existing \"Will Not\" bullet or an approval-gate bullet from a command file, and that is wrong because AC-C5 is the spec's only mechanical proof that standalone behaviour (SA-1) and safety lines are untouched. (AC-0.3 is safe in practice because routing rows start with `|`; AC-C5 is not.)\n- Recommendation: replace the pattern with one that lists all removed lines (for example `grep -E '^-' | grep -vE '^---'` on the diff body) and say which removals the named defect fixes allow.\n- Quality impact: safety lines can disappear while every acceptance check passes.\n"
+  },
+  {
+   "gid": 60,
+   "kind": "first",
+   "arm": "ab1",
+   "run": "b1-r5",
+   "step": "r1b",
+   "fid": "F2",
+   "final_spec_of_this_audit": "",
+   "heading": "### F2 - MAJOR graded blocking - Fowler, Nygard, Whittaker",
+   "body": "**AC-C5, the check that enforces \"edits are additive\" (SA-1, SA-4), cannot see a deleted bullet line.**\n\nText: AC-C5 (candidate line 176): `git diff -U0 master...HEAD -- src/superclaude/commands/<name>.md | grep -E '^-[^-]'`, pass condition \"prints nothing: edits are additive\". SA-4 (line 149) depends on it: \"Command-file edits in Phases 1-3 are additive\".\n\nAttack (Whittaker, Sequence/Zero attack): the regex `^-[^-]` skips every removed line whose own text starts with `-`. A deleted markdown bullet `- foo` appears in a diff as `-- foo`, and a deleted frontmatter fence `---` appears as `----`. I ran `printf -- '-- removed bullet\\n-removed plain\\n--- a/file\\n-|row\\n' | grep -E '^-[^-]'` in the sandbox: it printed only `-removed plain` and `-|row`; the removed bullet and the file header were not printed. Command files are bullet-heavy lists (the command definition under review itself is, for example, the `- **Karl Wiegers**...` lists at its lines 53-66), so the common deletion goes unreported. AC-0.3 (line 193) uses the same regex but guards table rows that start with `|`, which are caught; only AC-C5 is affected.\n\nGrading check: An implementer who follows the stated text as written builds a check that prints nothing for a diff that deletes `- ` lines from a command file, and passes the \"additive\" phase gate, and X is wrong because the gate is meant to prove standalone behaviour (SA-1) is untouched, and a deleted prompt or flag bullet is exactly a standalone change it must catch.\n\nOrigin: the document's own text. (UNVERIFIED that any specific command file would be edited this way; the check's blind spot is shown by the run above and needs no further assumption.)\n"
+  },
+  {
+   "gid": 80,
+   "kind": "first",
+   "arm": "ab1h",
+   "run": "b1h-r1",
+   "step": "r1a",
+   "fid": "B4",
+   "final_spec_of_this_audit": "",
+   "heading": "### B4. AC-C1 matches nothing as written, and it cannot pass P0 as scoped (acceptance, SA-2)",
+   "body": "\n- Evidence: AC-C1 (`spec:172`) writes its alternation as `(orchestration\\|worktree\\|terminal\\|agent)` inside `grep -E`. In `grep -E`, `\\|` is a literal pipe, so the pattern never matches an Orca subcommand. The sandbox check in section 1 confirms this. The `\\` is a GFM table escape, so the rendered page looks correct and the raw text does not work.\n- AC-C1 scans `src/superclaude/core`, and its only exclusion is `ccsession-tag` (`spec:172`). P0 writes `src/superclaude/core/WORKER-CONTRACT.md` and adds an Orca section to `src/superclaude/core/HOW-WE-WORK.md` (`spec:158`). SA-2 allows an Orca mention \"inside the contract file\" (`spec:147`). AC-C1 has no exemption for it.\n- Grading sentence: an implementer who copies AC-C1 as written gets a check that passes any command calling `orca orchestration`, so SA-2 (a hard requirement, `spec:142`) is not enforced. An implementer who fixes the escaping, and writes the routing-guide section with any `orca orchestration` text as P0 asks, fails AC-C1 in P0. The stated texts contradict each other.\n- Recommendation: write the alternation unescaped. Exempt `WORKER-CONTRACT.md` and the `HOW-WE-WORK.md` section by name, or keep that section free of subcommand text. See also M11.\n"
+  },
+  {
+   "gid": 85,
+   "kind": "first",
+   "arm": "ab1h",
+   "run": "b1h-r1",
+   "step": "r1b",
+   "fid": "B5",
+   "final_spec_of_this_audit": "",
+   "heading": "**B5. AC-C1 forbids the Orca mention that SA-2 permits, and P0 writes that mention.** (Fowler; Newman)",
+   "body": "- Locations: SPEC:172 (AC-C1 greps `src/superclaude/core`), SPEC:147 (SA-2: \"the only allowed mention of Orca in a changed command is ... inside the contract file\"), SPEC:52 and SPEC:158 (the contract file is `src/superclaude/core/WORKER-CONTRACT.md`; P0 adds an Orca section to `HOW-WE-WORK.md`, also in core).\n- Grading sentence: an implementer who writes the contract file as SA-2 permits, naming the `orca orchestration ask` question channel, makes AC-C1 print a match over `src/superclaude/core`, so AC-C1 fails in P0 on text the spec allows.\n- Recommendation: either exclude `core/WORKER-CONTRACT.md` and the routing-guide Orca section from AC-C1 by name, or restate SA-2 so its allowance matches what AC-C1 scans.\n- Priority: High (blocks P0). Quality impact: medium.\n"
+  },
+  {
+   "gid": 96,
+   "kind": "first",
+   "arm": "ab1h",
+   "run": "b1h-r2",
+   "step": "r1a",
+   "fid": "REQ-1",
+   "final_spec_of_this_audit": "",
+   "heading": "### REQ-1 (blocking): the common acceptance check AC-C1 cannot pass in the phase that adds the contract",
+   "body": "\n- Severity: MAJOR. Expert: Wiegers (testability), Adzic (acceptance examples).\n- Location: `specs/orca-worker-contract-spec.md:172` (AC-C1 greps `src/superclaude/core` for Orca verbs and excludes only `ccsession-tag`). `:158` (P0 adds `src/superclaude/core/WORKER-CONTRACT.md` and an Orca section to `HOW-WE-WORK.md`). `:147` (SA-2 allows an Orca mention \"inside the contract file\" as an example of the question channel). `:150` (SA-5, routing-guide Orca section).\n- Issue: AC-C1 is a common check that every phase must pass (`:169-176`, \"A phase passes only when every check in its block and every common check passes\"). Its grep covers `src/superclaude/core`. P0 puts the contract file and an Orca section in that directory, and SA-2 expects the contract file to name the Orca question channel. Both produce `orca orchestration ...` text that AC-C1 matches. AC-C1 therefore fails at P0 by design.\n- Grading check: \"An implementer who follows the stated text as written builds the P0 contract file and the routing-guide Orca section, runs AC-C1, and gets a match, so P0 cannot pass; this is wrong because the common check is a stated pass condition for every phase.\" Blocking: an acceptance criterion cannot pass.\n- Recommendation: exclude `WORKER-CONTRACT.md` (and the Orca section, or name its file) from AC-C1, or change AC-C1 to forbid Orca verbs in command and skill files only, matching SA-2's wording. State the exclusion in one place.\n- Priority: High. Quality impact: testability 6 to 8 once fixed.\n"
+  },
+  {
+   "gid": 99,
+   "kind": "first",
+   "arm": "ab1h",
+   "run": "b1h-r2",
+   "step": "r1b",
+   "fid": "B2",
+   "final_spec_of_this_audit": "",
+   "heading": "### B2. CRITICAL. The AC-C1 grep cannot fail, so SA-2 and WC-8 have no working gate",
+   "body": "\n- **Issue.** AC-C1 (`spec:172`) uses `\\|` inside `grep -E`. In an extended regex `\\|` is a literal bar, not alternation. I ran the pattern as written against a violating line, `orca orchestration check --json`, and it printed nothing (exit 1). The same pattern with plain `|` matched (exit 0). AC-C1 therefore passes on any command that calls Orca.\n- **Grading sentence.** An implementer who adds `orca orchestration check` to a command and runs AC-C1 as written gets empty output and records SA-2 (`spec:147`) and WC-8 (`spec:66`) as passed.\n- **Expert.** Wiegers (acceptance check). Crispin (completeness of the check).\n- **Recommendation.** Use plain `|` inside the group. Add a positive control: the check must match a planted line in a scratch file. Re-run it before P0 is accepted.\n- **Priority.** High. **Quality impact.** High: the hard boundary in section 5 has no working check.\n"
+  },
+  {
+   "gid": 108,
+   "kind": "first",
+   "arm": "ab1h",
+   "run": "b1h-r3",
+   "step": "r1b",
+   "fid": "F1",
+   "final_spec_of_this_audit": "",
+   "heading": "**F1. MAJOR, blocking. Acceptance check AC-C1 cannot fail.** Expert: Wiegers (testability), Whittaker (FR-2.3 sentinel). `SPEC:172` is the only mechanical gate for SA-2 and WC-8: \"prints nothing (SA-2, WC-8)\". The check cannot fail, for two reasons. (a) The `\\|` alternation is a literal pipe in `gre",
+   "body": "Grading sentence: \"An implementer who runs AC-C1 exactly as written sees empty output on every tree, records pass, and a command that runs `orca-ide orchestration worker-start` also passes, which is wrong because SA-2 and WC-8 forbid it.\"\nRecommendation: match `\\borca(-ide|-cli)?\\b` case-insensitively, with an explicit allowlist for `ccsession-tag`, and add a self-test that the grep matches a planted sample line.\nPriority: High.\n"
+  }
+ ]
+}

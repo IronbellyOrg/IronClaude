@@ -1,0 +1,5 @@
+{"case_id": "sm-11", "truth": "yes", "author_intent": "no", "category": "C10", "variant": "v4"}
+{"case_id": "sm-15", "truth": "yes", "author_intent": "no", "category": "C10", "variant": "v3"}
+{"case_id": "sm-25", "truth": "yes", "author_intent": "no", "category": "C10", "variant": "v2"}
+{"case_id": "sm-32", "truth": "yes", "author_intent": "no", "category": "C10", "variant": "v1"}
+{"case_id": "sm-38", "truth": "undecidable", "author_intent": "no", "category": "C7", "variant": "v2"}

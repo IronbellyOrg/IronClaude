@@ -1,0 +1,171 @@
+{
+ "chunk": 17,
+ "name": "WC-5",
+ "findings": [
+  {
+   "gid": 100,
+   "kind": "first",
+   "arm": "ab1h",
+   "run": "b1h-r2",
+   "step": "r1b",
+   "fid": "B3",
+   "final_spec_of_this_audit": "",
+   "heading": "### B3. MAJOR. WC-5 reports `succeeded` for a contract that is empty, unreadable or has an unknown status",
+   "body": "\n- **Issue.** WC-5 sends `--outcome failed` only when the report says `failed` or `blocked`, or when no report exists. It sends `succeeded` \"otherwise\" (`spec:63`). A file that exists but is 0 bytes, is unparseable, or carries a status outside the four values matches neither failed trigger. Section 7.2 step 4 (`spec:183`) would catch it, but WC-5 does not.\n- **Grading sentence.** An implementer who follows WC-5 with a zero-byte `return-contract.yaml` sends `--outcome succeeded`, since the file exists and its status is neither failed nor blocked.\n- **Expert.** Whittaker, FR-2.1 Zero/Empty Attack. Nygard (guard boundary; see the table).\n- **Recommendation.** Send `failed` when the contract is empty, unparseable, or has a status outside `succeeded|partial|failed|blocked`. Write that into WC-5 itself.\n- **Priority.** High. **Quality impact.** High: a failed run reaches the coordinator as success, and dependents may start on it (M3).\n"
+  },
+  {
+   "gid": 110,
+   "kind": "first",
+   "arm": "ab1h",
+   "run": "b1h-r3",
+   "step": "r1b",
+   "fid": "F3",
+   "final_spec_of_this_audit": "",
+   "heading": "**F3. MAJOR, FR-8 GAP, blocking. The outcome rule turns invalid status into success.** Expert: Nygard (guard boundaries), Whittaker (FR-2.1 zero/invalid input). `SPEC:63` maps to `--outcome succeeded` \"otherwise\", after `failed` and `blocked`. `SPEC:62` allows exactly four status values. `CAPS:73` s",
+   "body": "Grading sentence: \"An implementer who follows WC-5 as written sends `--outcome succeeded` for a contract whose status is `done` or empty, and that is wrong because the contract does not state success.\"\nRecommendation: map only `succeeded` and `partial` to succeeded; map every other value, including unparseable or missing status, to failed. Add a planted-invalid-status case to P0 or P1 checks. Priority: High.\n"
+  },
+  {
+   "gid": 356,
+   "kind": "first",
+   "arm": "ab4",
+   "run": "d4-r2",
+   "step": "r1b",
+   "fid": "F1",
+   "final_spec_of_this_audit": "",
+   "heading": "### F1. CRITICAL (Adzic, Whittaker sequence attack). The P0 acceptance check cannot pass, which stops the whole rollout",
+   "body": "- Quoted texts: SPEC:158 \"P0 ... (no command edits)\"; SPEC:182 step 3 \"Pass: exactly one `worker_done`; its `--outcome` matches the contract's `status` under WC-5; its report path is the WC-4 contract path\"; SPEC:194 AC-0.4 \"steps 1-3 and 5-7 pass; step 4 uses the command's existing report file, since the contract arrives in P1\"; SPEC:73 \"the exact command line including `--unattended`\"; SPEC:167 \"A phase passes only when every check ... passes\"; SPEC:154 \"Later phases do not start until the earlier phase's checks ... pass\".\n- Wrong outcome: An implementer who follows the stated text as written runs the three P0 smoke commands with no command edits, so no command can write the WC-4 contract and `--unattended` does not exist yet. Step 3 requires \"the WC-4 contract path\" and a contract `status`, which cannot exist; AC-0.4 itself says the contract \"arrives in P1\" while requiring step 3 to pass. AC-0.4 therefore cannot pass, P0 never passes, and no later phase may start (SPEC:154). A second contradiction in the same check: AC-0.4 says the absence of an Agent-tool wrapper is \"verified in the step-5 transcript\" (SPEC:194), but step 5 only passes on \"no `AskUserQuestion` call\" (SPEC:184) and tests nothing about a wrapper, so that clause cannot be verified as written.\n- Attack trace: before = P0 repo, no `return-contract.yaml` writer for `/sc:troubleshoot` (it writes one only with `--caller task-unified`, INV-B:49) ; after step 3 = `worker_done --report-path REPORT.md`, which is not \"the WC-4 contract path\" => step 3 FAIL.\n- Recommendation: for AC-0.4 replace step 3's last two clauses with \"its report path is the command's existing report file named in 3.1\", drop `--unattended` from the P0 brief (SPEC:73 applies from P1), and move the wrapper check into a step that inspects the transcript for an Agent-tool call. Narrow, do not add.\n- Priority High.\n"
+  },
+  {
+   "gid": 403,
+   "kind": "first",
+   "arm": "ab4h",
+   "run": "d4h-r1",
+   "step": "r1a",
+   "fid": "F3",
+   "final_spec_of_this_audit": "",
+   "heading": "**F3. WC-5 maps an empty or malformed contract to `succeeded`.** Severity MAJOR. Grade: blocking (FR-8 GAP with a concrete wrong outcome). Expert: Whittaker (FR-2.1 Zero/Empty), Wiegers.",
+   "body": "- SPEC:63: `--outcome failed` only \"when the report says failed or blocked, or no report exists\"; `--outcome succeeded` \"otherwise\". SPEC:183 (step 4) treats an empty contract (`test -s`) as a failed check.\n- Grading sentence: an implementer who follows SPEC:63 as written sends `--outcome succeeded` for a zero-byte contract or for `status: done`, because neither is \"failed\", \"blocked\" or \"no report\"; SPEC:183 says the same file must not pass.\n- Recommendation: `succeeded` only for a parsed contract whose status is `succeeded` or `partial`; every other case (missing, empty, unparseable, unknown status) is `failed`. Priority: high. Quality impact: completeness.\n"
+  },
+  {
+   "gid": 431,
+   "kind": "first",
+   "arm": "ab4h",
+   "run": "d4h-r2",
+   "step": "r1b",
+   "fid": "B13",
+   "final_spec_of_this_audit": "",
+   "heading": "**B13. [BLOCKING, High] WC-5 maps a present but unparseable or empty contract to `succeeded`.**",
+   "body": "- Experts: Whittaker (zero/empty attack).\n- Cites: `S:63` (WC-5: `--outcome failed` only when \"the report says failed or blocked, or no report exists\"; otherwise `succeeded`); `CAPS:73` (outcome mandatory); `S:183` (step 4 parses the file, but WC-5 does not use step 4's result).\n- Wrong outcome: \"An implementer who follows WC-5 for a worker that writes a 0-byte contract after a failed run sends `--outcome succeeded`, because the file exists and is not `failed` or `blocked`.\" The coordinator reads `succeeded`.\n- Recommendation: \"`failed` when the report is absent, empty, unparseable or has a status outside the four values; `succeeded` only for `succeeded` or `partial`.\"\n"
+  },
+  {
+   "gid": 179,
+   "kind": "first",
+   "arm": "ab2h",
+   "run": "b2h-r3",
+   "step": "r1",
+   "fid": "F-05",
+   "final_spec_of_this_audit": "",
+   "heading": "### F-05 | MAJOR | BLOCKING | Expert: Whittaker (zero/empty attack, FR-2.1); see Adversarial Analysis A-1",
+   "body": "\n- Location: `SPEC:63` (WC-5), `SPEC:183` (7.2 step 4).\n- Issue: WC-5 sends `--outcome failed` \"when the report says failed or blocked, or no report exists\", and `succeeded` \"otherwise\" (`SPEC:63`). A contract that exists but is zero bytes, truncated, or has no `status` key matches none of the failed cases, so it falls to \"otherwise\". The validity check is in step 4 (`SPEC:183`), which runs after the coordinator has already settled the Task.\n- Grading sentence: An implementer who follows WC-5 literally sends `--outcome succeeded` for an empty or unparseable contract, and the Task settles as succeeded with no deliverable. Blocking because the stated rule produces a concrete wrong outcome.\n- Recommendation: Map \"exists but does not parse to one of the four `status` values\" to `failed`, and require step 4's parse check before `worker_done`.\n- Priority: High.\n"
+  },
+  {
+   "gid": 263,
+   "kind": "audit",
+   "arm": "pn1",
+   "run": "b1-r3",
+   "step": "aud2",
+   "fid": "B3",
+   "final_spec_of_this_audit": "p13/ab1/runs/b1-r3/aud2/ws/.dev/orca-command-refactor/review/.dev/orca-command-refactor/specs/orca-worker-contract-spec.md",
+   "heading": "**B3. WC-5's outcome rule contradicts section 3.1's \"ready today\" commands whose report is not a status file** (MAJOR, blocking; priority High; quality impact: Consistency -2)",
+   "body": "- Expert: Wiegers/Fowler.\n- Stated text: WC-5 allows `--outcome succeeded` \"only when the report parses and its `status` is `succeeded` or `partial`\" and sends \"a missing, empty, unparseable or unknown-status report\" to `failed` (`spec:63`). Section 3.1 lists ten commands that \"run as workers now\", and `init-lite` writes only a markdown audit (`.dev/superclaude/context-audit.md`), with fix \"None\" (`spec:87`; `INV-A:55`). Commands with fix \"None\" \"get neither\" the flag nor the section (`spec:76`), and WC-4 writes the contract only \"in unattended mode\" (`spec:62`). So init-lite never gets a status file, and the same holds for md-only ready commands in the interval before their phase (index-repo `PROJECT_INDEX.md`, cleanup-audit `pass<N>-summary.md`, tdd, troubleshoot `REPORT.md`, release-split) (`spec:82-92`).\n- An implementer who follows the stated text as written builds a worker that sends `--outcome failed` after a clean init-lite run, and that is wrong because the command succeeded and the coordinator would mark the Task failed and retry. The text 3.1 gives for the interim, \"the worker reports the named file until Phase 1 adds the contract\" (`spec:79`), says what path to report, not which outcome to send, and Phase 1 never adds a contract for init-lite. AC-0.4 carves out the YAML check for P0 only (`spec:202`).\n- Recommendation: add one WC-5 clause for commands with no status contract (outcome `succeeded` iff the named report file exists and is non-empty and the command ended without an error stop), or give init-lite and the ready commands without a contract the `--unattended` section and contract in P1. Priority High.\n"
+  },
+  {
+   "gid": 118,
+   "kind": "first",
+   "arm": "ab1h",
+   "run": "b1h-r4",
+   "step": "r1a",
+   "fid": "B3",
+   "final_spec_of_this_audit": "",
+   "heading": "**B3. The outcome mapping treats an empty or status-less contract as success.** Expert: Whittaker (FR-2.1 Zero/Empty), Wiegers. Severity: MAJOR, blocking (names a concrete wrong outcome).",
+   "body": "- Stated text: `--outcome failed` when the report says `failed` or `blocked`, or no report exists; `--outcome succeeded` otherwise (spec:63). Acceptance check step 4 (spec:183) tests `test -s` and a `status` value, but only after `worker_done` has already settled the Task (CAPS:77).\n- Grading sentence: An implementer who follows WC-5 as written sends `--outcome succeeded` for a 0-byte `return-contract.yaml` left by a worker killed mid-write, because the file exists and says neither `failed` nor `blocked`; the Task then settles as completed with no content (CAPS:77), and the ready view starts its dependents (CAPS:86).\n- Recommendation: `succeeded` only when the contract parses and has `status` in {`succeeded`, `partial`}; every other state (missing, empty, unparseable, no `status`) maps to `failed`. Also move the `test -s` check into the worker's own mapping.\n- Priority: High. Quality impact: silent success on crashed workers.\n"
+  },
+  {
+   "gid": 187,
+   "kind": "first",
+   "arm": "ab2h",
+   "run": "b2h-r4",
+   "step": "r1",
+   "fid": "B-5",
+   "final_spec_of_this_audit": "",
+   "heading": "### B-5 (BLOCKING): WC-5 maps an empty, truncated or unrecognised contract to `succeeded`",
+   "body": "- Issue: `spec:63` sends `--outcome failed` \"when the report says `failed` or `blocked`, or no report exists\" and `--outcome succeeded` \"otherwise\". A contract that exists but is empty, truncated (killed mid-write), unparseable, or has a `status` outside the four values in `spec:262` falls into \"otherwise\". The literal text therefore reports a crashed run as succeeded. Orca settles the Task on `succeeded` and then starts dependents (CAPS:76-77, CAPS:84-88).\n- Whittaker, FR-2.1 (Zero/Empty): \"I can break this specification by **Zero/Empty Attack**. The invariant at **WC-5 (spec:63)** fails when **the contract exists with zero bytes or a truncated body**. Concrete attack: the command is killed after creating `return-contract.yaml`; the file exists, the status is absent, the branch falls to 'otherwise', `worker_done --outcome succeeded` is sent, the Task settles `completed`, and a dependent Task runs on no output.\" Trace: before = crashed run; after = Task `completed`.\n- Sentence: \"An implementer who follows `spec:63` as written sends `succeeded` for an empty contract, and that is wrong because the run did not finish.\"\n- Severity: MAJOR, blocking (concrete wrong outcome from the literal text).\n- Expert: Nygard (failure modes), Whittaker (FR-2.1, FR-2.3), Hohpe (ordering and delivery).\n- Recommendation: default to `failed` for any contract that is missing, empty, unparseable, lacks `status`, or has a value outside the four. Keep `partial` as `succeeded` only for a parsed `partial`. Say so in the WC-5 text and add the case to AC-2.2.\n- Priority: High. Quality impact: high (silent success on a crash).\n"
+  },
+  {
+   "gid": 248,
+   "kind": "first",
+   "arm": "ab3h",
+   "run": "b3h-r4",
+   "step": "r1",
+   "fid": "R-5",
+   "final_spec_of_this_audit": "",
+   "heading": "### R-5. WC-5 maps an empty or malformed contract to success",
+   "body": "\n- Severity: MAJOR. Grade: BLOCKING. Experts: Whittaker (FR-2.1 Zero/Empty; FR-2.3 Sentinel), Wiegers (FR-8 GAP).\n- Locations: spec:63 (WC-5: \"`--outcome succeeded` otherwise, including `partial`\"), spec:62 (WC-4: `status` \"one of `succeeded`, `partial`, `failed`, `blocked`\"), spec:183 (\u00a77.2 step 4 checks status only when run), spec:263 (partial decision).\n- Attack (Whittaker, FR-2.1): the run crashes after creating `return-contract.yaml` as a zero-byte file, or writes `status: complete`. WC-5's default branch sends `succeeded`; Orca settles the Task as succeeded, and dependents with `--deps` start on no output (see A-1).\n- Grading sentence: \"An implementer who follows WC-5 sends `--outcome succeeded` for `status: complete`, because WC-5 sends every status except failed and blocked to succeeded, and that is wrong because WC-4 defines four valid statuses and `complete` is not one of them.\"\n- Recommendation: invert the default. `succeeded` only for an explicit `succeeded` or `partial`; any other, missing or empty status sends `failed` and writes a note that the contract is invalid.\n"
+  },
+  {
+   "gid": 274,
+   "kind": "audit",
+   "arm": "pn1",
+   "run": "b1-r5",
+   "step": "aud",
+   "fid": "F-1",
+   "final_spec_of_this_audit": "p13/ab1/runs/b1-r5/aud/ws/.dev/orca-command-refactor/review/.dev/orca-command-refactor/specs/orca-worker-contract-spec.md",
+   "heading": "### F-1 (blocking, MAJOR). WC-5 fails successful runs between Phase 1 and Phase 2 (Wiegers, Adzic, Whittaker Sequence Attack)",
+   "body": "\n- Location: SPEC:63 (WC-5), SPEC:79 (3.1 intro), SPEC:73 (2.3), SPEC:159-160 (P1/P2 scope), SPEC:88,89,90,91 (reflect, release-split, tdd, troubleshoot rows).\n- Grading sentence: An implementer who follows the stated text as written builds a worker that sends `--outcome failed` for a successful `/sc:tdd`, `/sc:release-split` or `/sc:troubleshoot` run made after Phase 1 passes and before Phase 2 is done, and that is wrong because the run produced its deliverable and only the contract file the spec itself defers to P2 is missing.\n- Contradicting texts:\n  - WC-5 (SPEC:63): \"From P1 on ... `--outcome failed` when the contract is absent, empty or unparseable, has no `status` or a value outside the four\". Only P0 is exempted.\n  - SPEC:79: ready commands \"report the named file until Phase 1 adds the contract\".\n  - SPEC:159 limits the `--unattended` flag and `## Unattended mode` section to the listed P1 commands \"and no others\"; tdd, release-split, troubleshoot and reflect are P2 (SPEC:160, rows at SPEC:88-91 mark their `--unattended` change \"(P2)\").\n  - SPEC:73: Phase 0 runs ready commands without `--unattended`; the flag arrives \"from the phase that gives the command its section\".\n  - SPEC:62 (WC-4): the contract is written \"in unattended mode\".\n- State trace: P1 accepted -> `/sc:tdd \"<component>\" --output <file>` dispatched without `--unattended` (the flag does not exist there yet) -> TDD written, no `return-contract.yaml` -> WC-5 literal: contract absent -> `worker_done --outcome failed`. The Task becomes `failed` and its dependents stay blocked (CAPS:90).\n- Also open under the same rule: `/sc:reflect` writes a contract today (INV-B:112) but its `status` vocabulary and `command` field are not shown to match the WC-4 four-value set. WC-4 says such a contract \"maps them\" and gives no mapping (SPEC:62), so WC-5 would read an unmapped value as outside the four and return `failed` (the mapping gap is M-3). Whether reflect's vocabulary matches is UNVERIFIED (not in the inventories).\n- Recommendation: narrow WC-5's \"From P1 on\" to \"for a command whose section 3 phase is done and a run made with `--unattended`\", or name the P0-style fallback (a non-empty deliverable file as the report, AC-0.4) for ready commands until their own phase. Do not add a rule; narrow the existing one. Priority High.\n"
+  },
+  {
+   "gid": 275,
+   "kind": "audit",
+   "arm": "pn1",
+   "run": "b1-r5",
+   "step": "aud2",
+   "fid": "R-1",
+   "final_spec_of_this_audit": "p13/ab1/runs/b1-r5/aud2/ws/.dev/orca-command-refactor/review/.dev/orca-command-refactor/specs/orca-worker-contract-spec.md",
+   "heading": "### R-1 (blocking, MAJOR, Wiegers): WC-5 fails successful runs of commands that have no contract until P2",
+   "body": "Grading sentence: an implementer who follows the stated text builds a coordinator that, from Phase 1 on, sends `--outcome failed` for every worker whose contract is absent (SPEC:63), and the stated phase plan gives `/sc:tdd`, `/sc:troubleshoot` and `/sc:release-split` no contract until Phase 2 (SPEC:160) while section 3.1 says they \"run as workers now\" (SPEC:79); a successful troubleshoot, tdd or release-split run between P1 and P2 is therefore reported failed, which is wrong because the run succeeded and left a usable report.\n- Contradicting texts: SPEC:63 (\"From P1 on (P0 runs have no contract ...) `--outcome failed` when the contract is absent\"); SPEC:79 (\"the worker reports the named file until Phase 1 adds the contract\"); SPEC:159 (P1 list contains none of tdd, troubleshoot, release-split); SPEC:160 (they are P2). SPEC:79 is itself wrong for these three: Phase 1 does not add their contract.\n- Evidence the contract is really absent: tdd's report is \"the TDD at --output\" (SPEC:90; INV-B:47 (d)); release-split's is `release-split-report.md` (SPEC:89; INV-B:37 (d)); troubleshoot writes `return-contract.yaml` only with `--caller task-unified` (INV-B:242), a flag the spec never mentions, and the 3.1 row names only `REPORT.md` (SPEC:91).\n- Recommendation: either state in WC-5 that the \"contract absent means failed\" rule applies per command from the phase that gives that command its contract (P1 list for P1 commands, P2 for the rest), with the interim report being the 3.1 file; or put the contract addition for tdd, troubleshoot and release-split into the phase that precedes any use of WC-5. Fix SPEC:79 to \"until the phase named in column Small fix/section 6\".\n- Priority: High. Quality impact: removes a false-failure window of two phases.\n"
+  },
+  {
+   "gid": 305,
+   "kind": "audit",
+   "arm": "pn2",
+   "run": "l2-r5",
+   "step": "aud2",
+   "fid": "F1",
+   "final_spec_of_this_audit": "p13/ab2/runs/l2-r5/aud2/ws/.dev/orca-command-refactor/review/.dev/orca-command-refactor/specs/orca-worker-contract-spec.md",
+   "heading": "### F1. BLOCKING, MAJOR (Wiegers, Crispin): the P0 acceptance check cannot pass as written",
+   "body": "- Grading sentence: an implementer who follows the stated text as written runs the P0 live check on `/sc:troubleshoot`, `/sc:workflow` and `/sc:adversarial` and builds a pass/fail verdict that can never be \"pass\". Step 3 of the live check requires \"its `--outcome` matches the contract's `status` under WC-5; its report path is the WC-4 contract path\" (SPEC:182). AC-0.4 requires \"steps 1-3 and 5-7 pass\" and relaxes only step 4 \"since the contract arrives in P1\" (SPEC:194). The WC-4 contract `<output-dir>/return-contract.yaml` is a P1 deliverable (SPEC:62, SPEC:159), and troubleshoot's report is `REPORT.md` (SPEC:91). So step 3 asks for a contract that AC-0.4 itself says does not exist yet. Phases do not advance until the earlier phase's checks pass (SPEC:154), so P0, and with it every later phase, cannot be declared done. The smoke runs are what the spec uses to test its own central decision (SPEC:43, SPEC:158), so the gap sits on the critical path.\n- Two stated texts contradict each other: SPEC:182 versus SPEC:194.\n- Recommendation: in AC-0.4 say that step 3 also uses the command's existing report file and its own status field (or none), not the WC-4 contract path. Narrow, do not add.\n- Priority: High. Quality impact: the evidence-gap closure promised at SPEC:43 and SPEC:272 cannot be certified.\n"
+  },
+  {
+   "gid": 313,
+   "kind": "audit",
+   "arm": "base-fresh",
+   "run": "a3d-r1",
+   "step": "aud",
+   "fid": "F-01",
+   "final_spec_of_this_audit": "p16/base-drift/runs/a3d-r1/aud/ws/.dev/orca-command-refactor/review/.dev/orca-command-refactor/specs/orca-worker-contract-spec.md",
+   "heading": "### F-01  CRITICAL, blocking. P0 cannot pass as written, and WC-5 gives a ready command with no contract the wrong outcome",
+   "body": "Experts: Wiegers (lead), Adzic. Priority: High. Quality impact: testability 5 to 8 if fixed.\n\nTexts that conflict:\n- WC-5 (`SPEC:63`): `--outcome failed` \"when the report says `failed` or `blocked`, or no report exists\"; `--outcome succeeded` otherwise. WC-4 (`SPEC:62`) defines the report as the `return-contract.yaml`.\n- Section 3.1 (`SPEC:79`): ready commands run as workers now and \"the worker reports the named file until the command's own phase adds the contract\". The named files are `REPORT.md` (troubleshoot, `SPEC:91`), the TDD (tdd), `PROJECT_INDEX.md` and so on, none of which carries a `status` field in the candidate or in the inventories (`INV-B:242`: troubleshoot writes `return-contract.yaml` only under `--caller task-unified`).\n- AC-0.4 (`SPEC:194`): run `/sc:troubleshoot` as a P0 smoke test and require \"steps 1-3 and 5-7 pass\". Step 3 (`SPEC:182`) passes only when \"its `--outcome` matches the contract's `status` under WC-5; its report path is the WC-4 contract path\". Only step 4 is relaxed (\"uses the command's existing report file, since the contract arrives in P1\").\n- Section 6 (`SPEC:154`, `SPEC:158`): \"Later phases do not start until the earlier phase's checks in section 7 pass\", and P0 is the gate that \"tests the decision before anything is built on it\".\n\nGrading sentence: An implementer who follows the stated text as written runs `/sc:troubleshoot` as the P0 smoke worker, which writes `REPORT.md` and no `return-contract.yaml` (its contract arrives in P2, `SPEC:160`, not P1 as AC-0.4 says); WC-5 then treats \"no report\" as `--outcome failed` for a run that succeeded, and step 3 cannot be satisfied because there is no WC-4 contract path to report; P0 therefore cannot pass, and by `SPEC:154` P1 to P4 never start. This holds with no further assumption: it follows from two stated texts (WC-5 / step 3 versus section 3.1 / AC-0.4) that cannot both be satisfied by the stated command behaviour, and from an acceptance criterion no run can pass.\n\nSame defect for the other ready commands whose contract is not yet written at the time they are used (adversarial's contract path is fixed only in P1, `SPEC:83`; tdd, reflect pre-P2).\n\nRecommendation (narrowest): in WC-5 state how the outcome is decided when the command has no contract yet (outcome from the worker's own reading of the named report file), and in AC-0.4 step 3 replace \"the contract's `status`\" and \"the WC-4 contract path\" with \"the named report file\" for P0, and correct \"arrives in P1\" to the phase that actually adds each command's contract.\n"
+  },
+  {
+   "gid": 345,
+   "kind": "first",
+   "arm": "ab4",
+   "run": "d4-r1",
+   "step": "r1a",
+   "fid": "B1",
+   "final_spec_of_this_audit": "",
+   "heading": "#### B1 (blocking) CRITICAL-as-graded-by-consequence. Wiegers + Crispin. The P0 acceptance check cannot pass as written, and the next phase cannot start until it does.",
+   "body": "- Quoted texts:\n  1. `spec:182` (7.2 step 3): \"**Pass:** exactly one `worker_done`; its `--outcome` matches the contract's `status` under WC-5; its report path is the WC-4 contract path.\"\n  2. `spec:194` (AC-0.4): \"steps 1-3 and 5-7 pass; step 4 uses the command's existing report file, since the contract arrives in P1.\"\n  3. `spec:79`: \"the worker reports the named file until Phase 1 adds the contract\"; `spec:91` troubleshoot reports `REPORT.md`; `spec:92` workflow's contract is `.dev/tasks/to-do/<id>/return-contract.yaml`; `spec:83` adversarial's contract \"filename not fixed\".\n  4. Gate: `spec:154` \"Later phases do not start until the earlier phase's checks in section 7 pass\"; `spec:167` \"A phase passes only when every check in its block and every common check passes.\"\n- Stated wrong outcome: An implementer who follows the stated text as written runs the three P0 smoke commands, and each worker sends `worker_done --report-path` with the file the command writes today (`REPORT.md` for troubleshoot, the workflow ledger contract, an unnamed adversarial contract). Step 3 then fails for each, because no contract has `status` yet under WC-4's `<output-dir>/return-contract.yaml` (`spec:62`) and the reported path is not \"the WC-4 contract path\". AC-0.4 says step 3 must pass, and only step 4 is carved out. So AC-0.4 cannot be passed, P0 can never pass, and `spec:154` bars P1. The two texts contradict each other with no further assumption.\n- Recommendation (narrow): in AC-0.4 carve out the \"WC-4 contract\" clauses of step 3 as well as step 4 (state that P0 compares `--outcome` with the command's own existing report), or move the \"contract path\" clause of step 3 into the P1+ checks. Delete rather than add.\n- Priority: High. Quality impact: removes an unpassable gate on the smoke runs that the spec says test its core decision (`spec:158`, `spec:43`).\n"
+  }
+ ]
+}

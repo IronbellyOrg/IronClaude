@@ -1,0 +1,144 @@
+{
+  "schema": "review-lint/1",
+  "doc_sha256": "a2b614530d4d2f9c44c81623f924ed82b9cee7814f0dfe24c94eeb8a08916f3b",
+  "doc_bytes": 62364,
+  "checks": [
+    "REF",
+    "COUNT",
+    "KV",
+    "PHASE",
+    "PATH",
+    "RFC"
+  ],
+  "findings": [
+    {
+      "lint_id": "LINT-REF-1",
+      "check": "REF",
+      "class": "fact",
+      "lines": [
+        88,
+        88
+      ],
+      "quote": "- **Context isolation**: Each subprocess receives only its prompt and `--file` inputs. No `--continue`, `--session`, or `--resume` flags are passed (FR-003, FR-023)",
+      "other_lines": null,
+      "message": "FR-003 is referenced but never defined."
+    },
+    {
+      "lint_id": "LINT-REF-2",
+      "check": "REF",
+      "class": "fact",
+      "lines": [
+        88,
+        88
+      ],
+      "quote": "- **Context isolation**: Each subprocess receives only its prompt and `--file` inputs. No `--continue`, `--session`, or `--resume` flags are passed (FR-003, FR-023)",
+      "other_lines": null,
+      "message": "FR-023 is referenced but never defined."
+    },
+    {
+      "lint_id": "LINT-REF-3",
+      "check": "REF",
+      "class": "fact",
+      "lines": [
+        92,
+        92
+      ],
+      "quote": "- **Pipeline diagnostics injection**: Executor-populated timing metadata is injected into extraction frontmatter post-subprocess (FR-033)",
+      "other_lines": null,
+      "message": "FR-033 is referenced but never defined (2 references)."
+    },
+    {
+      "lint_id": "LINT-REF-4",
+      "check": "REF",
+      "class": "fact",
+      "lines": [
+        142,
+        142
+      ],
+      "quote": "| `--allow-regeneration` | Flag | Off | Allow patches that exceed the diff-size threshold (FR-9). Use with caution. |",
+      "other_lines": null,
+      "message": "FR-9 is referenced but never defined."
+    },
+    {
+      "lint_id": "LINT-REF-5",
+      "check": "REF",
+      "class": "fact",
+      "lines": [
+        265,
+        265
+      ],
+      "quote": "Always exits 0 (NFR-006). Blocking issues are surfaced as yellow CLI warnings; the caller decides whether to treat them as hard failures.",
+      "other_lines": null,
+      "message": "NFR-006 is referenced but never defined."
+    },
+    {
+      "lint_id": "LINT-REF-6",
+      "check": "REF",
+      "class": "fact",
+      "lines": [
+        476,
+        476
+      ],
+      "quote": "- `cross_refs_resolve` — Internal cross-references resolve to existing headings (warning-only per OQ-001)",
+      "other_lines": null,
+      "message": "OQ-001 is referenced but never defined."
+    },
+    {
+      "lint_id": "LINT-REF-7",
+      "check": "REF",
+      "class": "fact",
+      "lines": [
+        655,
+        655
+      ],
+      "quote": "Note: `--no-validate` skips the post-pipeline validation subsystem only. It does **not** skip the spec-fidelity step (FR-010, AC-005).",
+      "other_lines": null,
+      "message": "AC-005 is referenced but never defined."
+    },
+    {
+      "lint_id": "LINT-REF-8",
+      "check": "REF",
+      "class": "fact",
+      "lines": [
+        655,
+        655
+      ],
+      "quote": "Note: `--no-validate` skips the post-pipeline validation subsystem only. It does **not** skip the spec-fidelity step (FR-010, AC-005).",
+      "other_lines": null,
+      "message": "FR-010 is referenced but never defined."
+    },
+    {
+      "lint_id": "LINT-REF-9",
+      "check": "REF",
+      "class": "fact",
+      "lines": [
+        742,
+        742
+      ],
+      "quote": "- `started_at` — ISO-8601 start timestamp",
+      "other_lines": null,
+      "message": "ISO-8601 is referenced but never defined (2 references)."
+    },
+    {
+      "lint_id": "LINT-REF-10",
+      "check": "REF",
+      "class": "fact",
+      "lines": [
+        1127,
+        1127
+      ],
+      "quote": "Each pipeline step uses a specialized prompt builder (defined in `prompts.py`). All prompt functions are **pure** — they accept concrete values, return strings, and perform no I/O (NFR-004).",
+      "other_lines": null,
+      "message": "NFR-004 is referenced but never defined."
+    }
+  ],
+  "census": {
+    "rfc2119": {},
+    "rfc2119_total": {
+      "MUST": 0,
+      "SHALL": 0,
+      "SHOULD": 0,
+      "MAY": 0
+    }
+  }
+}

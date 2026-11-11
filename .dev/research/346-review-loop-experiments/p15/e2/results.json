@@ -1,0 +1,192 @@
+{
+ "schema": "p15-results/1",
+ "experiment": "E2",
+ "design_id": "p15-E2",
+ "decision_file": {
+  "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p15/e2/decision.toml",
+  "sha256": "4f7f9645dae1019b924258e1da32e0d72f7fd0ba746559bf741f7a701cb6a28a"
+ },
+ "stage": "offline",
+ "status": "blocked",
+ "rows": [
+  {
+   "arm": "E2-stage0",
+   "arm_label": "Stage 0 headroom falsifier (static top-12 vs pooled must-read relations)",
+   "stratum": "offline",
+   "role": "offline-gate",
+   "n_planned": 24,
+   "n_completed": 24,
+   "runs_dir": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p15/e2/offline",
+   "metrics": {
+    "BLK": null,
+    "AUD1": null,
+    "AUD2": null,
+    "A_mean": null,
+    "A_median": null,
+    "R_LOOP": null,
+    "B_mean": null,
+    "R_B": null,
+    "growth_mean_pct": null,
+    "growth_median_pct": null,
+    "loop_pass": null,
+    "escalations": null,
+    "reviews_mean": null,
+    "fix_cycles_mean": null
+   },
+   "design_metrics": {
+    "H": 3,
+    "n_defect_cases": 16,
+    "n_clean_cases": 8,
+    "extraction_coverage": "16/16",
+    "candidate_coverage": "5/16",
+    "static_coverage": "2/16",
+    "candidate_pool_misses": 11,
+    "dropped": [
+     "s0-05",
+     "s0-06",
+     "s0-12",
+     "s0-20"
+    ],
+    "outcome": "GO-REPLAY"
+   },
+   "haiku": null,
+   "jev": {
+    "logical_calls": 0,
+    "status_counts": {},
+    "input_tokens": 0,
+    "usd": 0.0,
+    "model": "jev-1.14.0"
+   },
+   "verdict": "BLOCKED",
+   "rule": "GO-REPLAY: H=3 >= 1 of 16 defect cases. Candidate-pool misses 11 > 2: raise pool_cap or extend the prefilter BEFORE Stage 1 and rerun Stage 0.",
+   "extension_used": false
+  },
+  {
+   "arm": "h2j",
+   "arm_label": "Jev hints (first review)",
+   "stratum": "sonnet",
+   "role": "test",
+   "n_planned": 6,
+   "n_completed": 0,
+   "runs_dir": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p15/e2/runs",
+   "metrics": {
+    "BLK": null,
+    "AUD1": null,
+    "AUD2": null,
+    "A_mean": null,
+    "A_median": null,
+    "R_LOOP": null,
+    "B_mean": null,
+    "R_B": null,
+    "growth_mean_pct": null,
+    "growth_median_pct": null,
+    "loop_pass": null,
+    "escalations": null,
+    "reviews_mean": null,
+    "fix_cycles_mean": null
+   },
+   "design_metrics": {},
+   "haiku": null,
+   "jev": {
+    "logical_calls": 0,
+    "status_counts": {},
+    "input_tokens": 0,
+    "usd": 0.0,
+    "model": "jev-1.14.0"
+   },
+   "verdict": "BLOCKED",
+   "rule": "Stage 0 passed; Stage 1 replay (Session 2) and GO-LIVE gate not yet run",
+   "extension_used": false
+  },
+  {
+   "arm": "h2s",
+   "arm_label": "static hints (first review)",
+   "stratum": "sonnet",
+   "role": "control",
+   "n_planned": 6,
+   "n_completed": 0,
+   "runs_dir": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p15/e2/runs",
+   "metrics": {
+    "BLK": null,
+    "AUD1": null,
+    "AUD2": null,
+    "A_mean": null,
+    "A_median": null,
+    "R_LOOP": null,
+    "B_mean": null,
+    "R_B": null,
+    "growth_mean_pct": null,
+    "growth_median_pct": null,
+    "loop_pass": null,
+    "escalations": null,
+    "reviews_mean": null,
+    "fix_cycles_mean": null
+   },
+   "design_metrics": {},
+   "haiku": null,
+   "jev": {
+    "logical_calls": 0,
+    "status_counts": {},
+    "input_tokens": 0,
+    "usd": 0.0,
+    "model": "jev-1.14.0"
+   },
+   "verdict": "BLOCKED",
+   "rule": "Stage 0 passed; Stage 1 replay (Session 2) and GO-LIVE gate not yet run",
+   "extension_used": false
+  },
+  {
+   "arm": "h2r",
+   "arm_label": "conventional router hints (first review)",
+   "stratum": "sonnet",
+   "role": "control",
+   "n_planned": 6,
+   "n_completed": 0,
+   "runs_dir": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p15/e2/runs",
+   "metrics": {
+    "BLK": null,
+    "AUD1": null,
+    "AUD2": null,
+    "A_mean": null,
+    "A_median": null,
+    "R_LOOP": null,
+    "B_mean": null,
+    "R_B": null,
+    "growth_mean_pct": null,
+    "growth_median_pct": null,
+    "loop_pass": null,
+    "escalations": null,
+    "reviews_mean": null,
+    "fix_cycles_mean": null
+   },
+   "design_metrics": {},
+   "haiku": null,
+   "jev": {
+    "logical_calls": 0,
+    "status_counts": {},
+    "input_tokens": 0,
+    "usd": 0.0,
+    "model": "jev-1.14.0"
+   },
+   "verdict": "BLOCKED",
+   "rule": "Stage 0 passed; Stage 1 replay (Session 2) and GO-LIVE gate not yet run",
+   "extension_used": false
+  }
+ ],
+ "blocked_downstream": [
+  {
+   "experiment": "E2 Stage 1",
+   "reason": "pre-registered pool-miss rule unmet (11 > 2) after one a-priori prefilter extension"
+  },
+  {
+   "experiment": "E2 live",
+   "reason": "Stage 1 blocked; no further levers added after seeing outcomes"
+  }
+ ],
+ "notes": [
+  "Stage 0 uses no paid calls, no Jev, no workers beyond the labelers of the 24 cases.",
+  "Coordinator closure (not tuned): Stage 0 H=3/16 (GO-REPLAY on headroom) but candidate-pool misses stayed 11 > 2 after one a-priori prefilter extension (small-doc one-rare-word rule). The pre-registered rule requires misses <= 2 before Stage 1; no further levers were added after seeing the outcomes (that would tune to the 24 cases). E2 Stage 1 and live are therefore BLOCKED. Reopening needs an owner decision to amend the rule or accept pool misses as a shared limit."
+ ],
+ "generated_utc": "2026-11-10T07:27:21+00:00",
+ "closed_utc": "2026-11-10T07:28:19.988981+00:00"
+}

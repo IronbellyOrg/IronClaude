@@ -1,0 +1,28 @@
+{
+ "author_intent": {
+  "category": "omit",
+  "expected_blocking": "no",
+  "expected_code_outcome": "OK"
+ },
+ "case_id": "syn-exp-4",
+ "category": "omit",
+ "data_classes": [
+  "synthetic"
+ ],
+ "family": "syn-exp",
+ "group": "syn-exp",
+ "packet": {
+  "candidate_text": "# Export service requirements\n\n## 1. Output location\nR1. Exports are written to the directory named by the --out option.\nR2. If --out is not given, exports are written to the exports folder in the current working directory.\nR3. The service creates the output directory if it does not exist.\nR4. Existing files in the output directory are never overwritten; a numeric suffix is added to the new file name.\n\n## 2. File names\nR5. A file name has the form report-YYYYMMDD-NNN.csv, where NNN is a counter starting at 001.\nR6. The counter resets to 001 at midnight UTC.\nR7. When an export is retried, the retry reuses the file name of the failed attempt and overwrites the partial file.\n\n## 3. Formats\nR8. The default format is CSV with a header row.\nR9. With --format json the service writes one JSON array per file.\nR10. Dates in all formats use the ISO 8601 form in UTC.\n\n## 4. Limits\nR11. A single export file holds at most 100000 rows; larger results are split across files.\nR12. The service stops with exit code 2 if the output directory cannot be written.\n\n## 5. Cleanup\nR13. At the start of every run the service deletes every file older than 14 days from the output directory.\nR14. Files in the output directory that were not created by the service are never deleted.\n\n## 6. Notes\nThe service is a command line tool that runs once per invocation and keeps no state between runs other than the files it writes.\nRow counts include the header row. Exit code 0 means every requested file was written.\nThe service reads its data from the reporting database through a read-only account and never writes to that database.\nProgress is printed to standard error, one line per file written. Standard output stays empty so that scripts can pipe it.",
+  "finding_id": "F4",
+  "finding_section": "**F4. Medium. Expert: Wiegers (testability). Names of split files are not given**\n\n- Grading sentence: `larger results are split across files` (S:20) and the name form in S:10 do not say how the second file of one export is named. The document never states a rule for split file names, so an implementer must guess.\n- Recommendation: give the naming rule for split files\n- Priority: High. Quality impact: names of split files are not given"
+ },
+ "source": {
+  "kind": "synthetic",
+  "paths": [
+   "cases_synth.py"
+  ],
+  "url": null
+ },
+ "split": "base",
+ "variant": "base"
+}

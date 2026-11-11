@@ -1,0 +1,32 @@
+{
+ "case_id": "real_ha3r2_F_07~misleading",
+ "code_outcome": "OK",
+ "decision": "VERIFIER",
+ "qset_version": "e3-q1",
+ "result": {
+  "answers": {
+   "evidence_sufficient": {
+    "p": 0.06,
+    "type": "noul"
+   },
+   "outcome_follows": {
+    "p": 0.59,
+    "type": "noul"
+   },
+   "texts_conflict": {
+    "p": 0.26,
+    "type": "noul"
+   }
+  },
+  "attempts": 1,
+  "error": null,
+  "latency_ms": 184,
+  "model": "jev-1.14.0",
+  "request_sha256": "3913cd5b1459e63be723274a11c13a6773a46d83ad4cb45a8d6303ff0af1d9be",
+  "status": "ok",
+  "usage": {
+   "input_tokens": 1734,
+   "output_tokens": 64
+  }
+ }
+}

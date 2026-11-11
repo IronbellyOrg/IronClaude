@@ -1,0 +1,981 @@
+{
+ "a3-r1/k1": {
+  "run": "a3-r1",
+  "k": 1,
+  "decisions": [
+   "FAIL",
+   "PASS"
+  ],
+  "baseline": [
+   "FAIL",
+   "PASS"
+  ],
+  "match": true,
+  "log": [
+   {
+    "round": 1,
+    "verdict": "FAIL",
+    "decision": "REVISE",
+    "brief_ids": [
+     "L1"
+    ],
+    "new": [
+     "L1"
+    ],
+    "refound": [],
+    "regressed": [],
+    "cleared": [],
+    "block_ok": {
+     "t1b-1": true
+    },
+    "warnings": [],
+    "revise": {
+     "fixmap_ok": true,
+     "named_not_touched": [],
+     "rejected": [],
+     "resolved_check": [
+      "L1"
+     ],
+     "unknown": []
+    }
+   },
+   {
+    "round": 2,
+    "verdict": "PASS",
+    "decision": "PASS",
+    "brief_ids": [],
+    "new": [],
+    "refound": [],
+    "regressed": [],
+    "cleared": [
+     "L1"
+    ],
+    "block_ok": {
+     "t1b-1": true
+    },
+    "warnings": []
+   }
+  ],
+  "rows": [
+   [
+    "L1",
+    "resolved",
+    "single",
+    2
+   ]
+  ]
+ },
+ "a3-r2/k1": {
+  "run": "a3-r2",
+  "k": 1,
+  "decisions": [
+   "FAIL",
+   "PASS"
+  ],
+  "baseline": [
+   "FAIL",
+   "PASS"
+  ],
+  "match": true,
+  "log": [
+   {
+    "round": 1,
+    "verdict": "FAIL",
+    "decision": "REVISE",
+    "brief_ids": [
+     "L1",
+     "L2"
+    ],
+    "new": [
+     "L1",
+     "L2"
+    ],
+    "refound": [],
+    "regressed": [],
+    "cleared": [],
+    "block_ok": {
+     "t1b-1": true
+    },
+    "warnings": [],
+    "revise": {
+     "fixmap_ok": true,
+     "named_not_touched": [],
+     "rejected": [],
+     "resolved_check": [
+      "L1",
+      "L2"
+     ],
+     "unknown": []
+    }
+   },
+   {
+    "round": 2,
+    "verdict": "PASS",
+    "decision": "PASS",
+    "brief_ids": [],
+    "new": [],
+    "refound": [],
+    "regressed": [],
+    "cleared": [
+     "L1",
+     "L2"
+    ],
+    "block_ok": {
+     "t1b-1": true
+    },
+    "warnings": []
+   }
+  ],
+  "rows": [
+   [
+    "L1",
+    "resolved",
+    "single",
+    1
+   ],
+   [
+    "L2",
+    "resolved",
+    "single",
+    1
+   ]
+  ]
+ },
+ "a3-r3/k1": {
+  "run": "a3-r3",
+  "k": 1,
+  "decisions": [
+   "FAIL",
+   "PASS"
+  ],
+  "baseline": [
+   "FAIL",
+   "PASS"
+  ],
+  "match": true,
+  "log": [
+   {
+    "round": 1,
+    "verdict": "FAIL",
+    "decision": "REVISE",
+    "brief_ids": [
+     "L1",
+     "L2",
+     "L3"
+    ],
+    "new": [
+     "L1",
+     "L2",
+     "L3"
+    ],
+    "refound": [],
+    "regressed": [],
+    "cleared": [],
+    "block_ok": {
+     "t1b-1": true
+    },
+    "warnings": [],
+    "revise": {
+     "fixmap_ok": true,
+     "named_not_touched": [],
+     "rejected": [],
+     "resolved_check": [
+      "L1",
+      "L2",
+      "L3"
+     ],
+     "unknown": []
+    }
+   },
+   {
+    "round": 2,
+    "verdict": "PASS",
+    "decision": "PASS",
+    "brief_ids": [],
+    "new": [],
+    "refound": [],
+    "regressed": [],
+    "cleared": [
+     "L1",
+     "L2",
+     "L3"
+    ],
+    "block_ok": {
+     "t1b-1": true
+    },
+    "warnings": []
+   }
+  ],
+  "rows": [
+   [
+    "L1",
+    "resolved",
+    "single",
+    1
+   ],
+   [
+    "L2",
+    "resolved",
+    "single",
+    1
+   ],
+   [
+    "L3",
+    "resolved",
+    "single",
+    1
+   ]
+  ]
+ },
+ "a3-r4/k1": {
+  "run": "a3-r4",
+  "k": 1,
+  "decisions": [
+   "FAIL",
+   "PASS"
+  ],
+  "baseline": [
+   "FAIL",
+   "PASS"
+  ],
+  "match": true,
+  "log": [
+   {
+    "round": 1,
+    "verdict": "FAIL",
+    "decision": "REVISE",
+    "brief_ids": [
+     "L1"
+    ],
+    "new": [
+     "L1"
+    ],
+    "refound": [],
+    "regressed": [],
+    "cleared": [],
+    "block_ok": {
+     "t1b-1": true
+    },
+    "warnings": [],
+    "revise": {
+     "fixmap_ok": true,
+     "named_not_touched": [],
+     "rejected": [],
+     "resolved_check": [
+      "L1"
+     ],
+     "unknown": []
+    }
+   },
+   {
+    "round": 2,
+    "verdict": "PASS",
+    "decision": "PASS",
+    "brief_ids": [],
+    "new": [],
+    "refound": [],
+    "regressed": [],
+    "cleared": [
+     "L1"
+    ],
+    "block_ok": {
+     "t1b-1": true
+    },
+    "warnings": []
+   }
+  ],
+  "rows": [
+   [
+    "L1",
+    "resolved",
+    "single",
+    1
+   ]
+  ]
+ },
+ "a3-r5/k1": {
+  "run": "a3-r5",
+  "k": 1,
+  "decisions": [
+   "FAIL",
+   "PASS"
+  ],
+  "baseline": [
+   "FAIL",
+   "PASS"
+  ],
+  "match": true,
+  "log": [
+   {
+    "round": 1,
+    "verdict": "FAIL",
+    "decision": "REVISE",
+    "brief_ids": [
+     "L1",
+     "L2"
+    ],
+    "new": [
+     "L1",
+     "L2"
+    ],
+    "refound": [],
+    "regressed": [],
+    "cleared": [],
+    "block_ok": {
+     "t1b-1": true
+    },
+    "warnings": [],
+    "revise": {
+     "fixmap_ok": true,
+     "named_not_touched": [],
+     "rejected": [],
+     "resolved_check": [
+      "L1",
+      "L2"
+     ],
+     "unknown": []
+    }
+   },
+   {
+    "round": 2,
+    "verdict": "PASS",
+    "decision": "PASS",
+    "brief_ids": [],
+    "new": [],
+    "refound": [],
+    "regressed": [],
+    "cleared": [
+     "L1",
+     "L2"
+    ],
+    "block_ok": {
+     "t1b-1": true
+    },
+    "warnings": []
+   }
+  ],
+  "rows": [
+   [
+    "L1",
+    "resolved",
+    "single",
+    2
+   ],
+   [
+    "L2",
+    "resolved",
+    "single",
+    1
+   ]
+  ]
+ },
+ "a3-r6/k1": {
+  "run": "a3-r6",
+  "k": 1,
+  "decisions": [
+   "FAIL",
+   "FAIL",
+   "PASS"
+  ],
+  "baseline": [
+   "FAIL",
+   "FAIL",
+   "PASS"
+  ],
+  "match": true,
+  "log": [
+   {
+    "round": 1,
+    "verdict": "FAIL",
+    "decision": "REVISE",
+    "brief_ids": [
+     "L1",
+     "L2"
+    ],
+    "new": [
+     "L1",
+     "L2"
+    ],
+    "refound": [],
+    "regressed": [],
+    "cleared": [],
+    "block_ok": {
+     "t1b-1": true
+    },
+    "warnings": [],
+    "revise": {
+     "fixmap_ok": true,
+     "named_not_touched": [],
+     "rejected": [],
+     "resolved_check": [
+      "L1",
+      "L2"
+     ],
+     "unknown": []
+    }
+   },
+   {
+    "round": 2,
+    "verdict": "FAIL",
+    "decision": "REVISE",
+    "brief_ids": [
+     "L3"
+    ],
+    "new": [
+     "L3"
+    ],
+    "refound": [],
+    "regressed": [],
+    "cleared": [
+     "L1",
+     "L2"
+    ],
+    "block_ok": {
+     "t1b-1": true
+    },
+    "warnings": [],
+    "revise": {
+     "fixmap_ok": true,
+     "named_not_touched": [],
+     "rejected": [],
+     "resolved_check": [
+      "L3"
+     ],
+     "unknown": []
+    }
+   },
+   {
+    "round": 3,
+    "verdict": "PASS",
+    "decision": "PASS",
+    "brief_ids": [],
+    "new": [],
+    "refound": [],
+    "regressed": [],
+    "cleared": [
+     "L3"
+    ],
+    "block_ok": {
+     "t1b-1": true
+    },
+    "warnings": []
+   }
+  ],
+  "rows": [
+   [
+    "L1",
+    "resolved",
+    "single",
+    2
+   ],
+   [
+    "L2",
+    "resolved",
+    "single",
+    1
+   ],
+   [
+    "L3",
+    "resolved",
+    "single",
+    1
+   ]
+  ]
+ },
+ "a3-r1/k2": {
+  "run": "a3-r1",
+  "k": 2,
+  "decisions": [
+   "FAIL",
+   "PASS"
+  ],
+  "baseline": [
+   "FAIL",
+   "PASS"
+  ],
+  "match": true,
+  "log": [
+   {
+    "round": 1,
+    "verdict": "FAIL",
+    "decision": "REVISE",
+    "brief_ids": [
+     "L1"
+    ],
+    "new": [
+     "L1"
+    ],
+    "refound": [],
+    "regressed": [],
+    "cleared": [],
+    "block_ok": {
+     "t1b-1": true,
+     "t2-1": true
+    },
+    "warnings": [],
+    "revise": {
+     "fixmap_ok": true,
+     "named_not_touched": [],
+     "rejected": [],
+     "resolved_check": [
+      "L1"
+     ],
+     "unknown": []
+    }
+   },
+   {
+    "round": 2,
+    "verdict": "PASS",
+    "decision": "PASS",
+    "brief_ids": [],
+    "new": [],
+    "refound": [],
+    "regressed": [],
+    "cleared": [
+     "L1"
+    ],
+    "block_ok": {
+     "t1b-1": true,
+     "t2-1": true
+    },
+    "warnings": []
+   }
+  ],
+  "rows": [
+   [
+    "L1",
+    "resolved",
+    "overlap",
+    4
+   ]
+  ]
+ },
+ "a3-r2/k2": {
+  "run": "a3-r2",
+  "k": 2,
+  "decisions": [
+   "FAIL",
+   "PASS"
+  ],
+  "baseline": [
+   "FAIL",
+   "PASS"
+  ],
+  "match": true,
+  "log": [
+   {
+    "round": 1,
+    "verdict": "FAIL",
+    "decision": "REVISE",
+    "brief_ids": [
+     "L1",
+     "L2"
+    ],
+    "new": [
+     "L1",
+     "L2"
+    ],
+    "refound": [],
+    "regressed": [],
+    "cleared": [],
+    "block_ok": {
+     "t1b-1": true,
+     "t2-1": true
+    },
+    "warnings": [],
+    "revise": {
+     "fixmap_ok": true,
+     "named_not_touched": [],
+     "rejected": [],
+     "resolved_check": [
+      "L1",
+      "L2"
+     ],
+     "unknown": []
+    }
+   },
+   {
+    "round": 2,
+    "verdict": "PASS",
+    "decision": "PASS",
+    "brief_ids": [],
+    "new": [],
+    "refound": [],
+    "regressed": [],
+    "cleared": [
+     "L1",
+     "L2"
+    ],
+    "block_ok": {
+     "t1b-1": true,
+     "t2-1": true
+    },
+    "warnings": []
+   }
+  ],
+  "rows": [
+   [
+    "L1",
+    "resolved",
+    "overlap",
+    2
+   ],
+   [
+    "L2",
+    "resolved",
+    "overlap",
+    2
+   ]
+  ]
+ },
+ "a3-r3/k2": {
+  "run": "a3-r3",
+  "k": 2,
+  "decisions": [
+   "FAIL",
+   "PASS"
+  ],
+  "baseline": [
+   "FAIL",
+   "PASS"
+  ],
+  "match": true,
+  "log": [
+   {
+    "round": 1,
+    "verdict": "FAIL",
+    "decision": "REVISE",
+    "brief_ids": [
+     "L1",
+     "L2",
+     "L3"
+    ],
+    "new": [
+     "L1",
+     "L2",
+     "L3"
+    ],
+    "refound": [],
+    "regressed": [],
+    "cleared": [],
+    "block_ok": {
+     "t1b-1": true,
+     "t2-1": true
+    },
+    "warnings": [],
+    "revise": {
+     "fixmap_ok": true,
+     "named_not_touched": [],
+     "rejected": [],
+     "resolved_check": [
+      "L1",
+      "L2",
+      "L3"
+     ],
+     "unknown": []
+    }
+   },
+   {
+    "round": 2,
+    "verdict": "PASS",
+    "decision": "PASS",
+    "brief_ids": [],
+    "new": [],
+    "refound": [],
+    "regressed": [],
+    "cleared": [
+     "L1",
+     "L2",
+     "L3"
+    ],
+    "block_ok": {
+     "t1b-1": true,
+     "t2-1": true
+    },
+    "warnings": []
+   }
+  ],
+  "rows": [
+   [
+    "L1",
+    "resolved",
+    "overlap",
+    2
+   ],
+   [
+    "L2",
+    "resolved",
+    "overlap",
+    2
+   ],
+   [
+    "L3",
+    "resolved",
+    "overlap",
+    2
+   ]
+  ]
+ },
+ "a3-r4/k2": {
+  "run": "a3-r4",
+  "k": 2,
+  "decisions": [
+   "FAIL",
+   "PASS"
+  ],
+  "baseline": [
+   "FAIL",
+   "PASS"
+  ],
+  "match": true,
+  "log": [
+   {
+    "round": 1,
+    "verdict": "FAIL",
+    "decision": "REVISE",
+    "brief_ids": [
+     "L1"
+    ],
+    "new": [
+     "L1"
+    ],
+    "refound": [],
+    "regressed": [],
+    "cleared": [],
+    "block_ok": {
+     "t1b-1": true,
+     "t2-1": true
+    },
+    "warnings": [],
+    "revise": {
+     "fixmap_ok": true,
+     "named_not_touched": [],
+     "rejected": [],
+     "resolved_check": [
+      "L1"
+     ],
+     "unknown": []
+    }
+   },
+   {
+    "round": 2,
+    "verdict": "PASS",
+    "decision": "PASS",
+    "brief_ids": [],
+    "new": [],
+    "refound": [],
+    "regressed": [],
+    "cleared": [
+     "L1"
+    ],
+    "block_ok": {
+     "t1b-1": true,
+     "t2-1": true
+    },
+    "warnings": []
+   }
+  ],
+  "rows": [
+   [
+    "L1",
+    "resolved",
+    "overlap",
+    2
+   ]
+  ]
+ },
+ "a3-r5/k2": {
+  "run": "a3-r5",
+  "k": 2,
+  "decisions": [
+   "FAIL",
+   "PASS"
+  ],
+  "baseline": [
+   "FAIL",
+   "PASS"
+  ],
+  "match": true,
+  "log": [
+   {
+    "round": 1,
+    "verdict": "FAIL",
+    "decision": "REVISE",
+    "brief_ids": [
+     "L1",
+     "L2"
+    ],
+    "new": [
+     "L1",
+     "L2"
+    ],
+    "refound": [],
+    "regressed": [],
+    "cleared": [],
+    "block_ok": {
+     "t1b-1": true,
+     "t2-1": true
+    },
+    "warnings": [],
+    "revise": {
+     "fixmap_ok": true,
+     "named_not_touched": [],
+     "rejected": [],
+     "resolved_check": [
+      "L1",
+      "L2"
+     ],
+     "unknown": []
+    }
+   },
+   {
+    "round": 2,
+    "verdict": "PASS",
+    "decision": "PASS",
+    "brief_ids": [],
+    "new": [],
+    "refound": [],
+    "regressed": [],
+    "cleared": [
+     "L1",
+     "L2"
+    ],
+    "block_ok": {
+     "t1b-1": true,
+     "t2-1": true
+    },
+    "warnings": []
+   }
+  ],
+  "rows": [
+   [
+    "L1",
+    "resolved",
+    "overlap",
+    4
+   ],
+   [
+    "L2",
+    "resolved",
+    "overlap",
+    2
+   ]
+  ]
+ },
+ "a3-r6/k2": {
+  "run": "a3-r6",
+  "k": 2,
+  "decisions": [
+   "FAIL",
+   "FAIL",
+   "PASS"
+  ],
+  "baseline": [
+   "FAIL",
+   "FAIL",
+   "PASS"
+  ],
+  "match": true,
+  "log": [
+   {
+    "round": 1,
+    "verdict": "FAIL",
+    "decision": "REVISE",
+    "brief_ids": [
+     "L1",
+     "L2"
+    ],
+    "new": [
+     "L1",
+     "L2"
+    ],
+    "refound": [],
+    "regressed": [],
+    "cleared": [],
+    "block_ok": {
+     "t1b-1": true,
+     "t2-1": true
+    },
+    "warnings": [],
+    "revise": {
+     "fixmap_ok": true,
+     "named_not_touched": [],
+     "rejected": [],
+     "resolved_check": [
+      "L1",
+      "L2"
+     ],
+     "unknown": []
+    }
+   },
+   {
+    "round": 2,
+    "verdict": "FAIL",
+    "decision": "REVISE",
+    "brief_ids": [
+     "L3"
+    ],
+    "new": [
+     "L3"
+    ],
+    "refound": [],
+    "regressed": [],
+    "cleared": [
+     "L1",
+     "L2"
+    ],
+    "block_ok": {
+     "t1b-1": true,
+     "t2-1": true
+    },
+    "warnings": [],
+    "revise": {
+     "fixmap_ok": true,
+     "named_not_touched": [],
+     "rejected": [],
+     "resolved_check": [
+      "L3"
+     ],
+     "unknown": []
+    }
+   },
+   {
+    "round": 3,
+    "verdict": "PASS",
+    "decision": "PASS",
+    "brief_ids": [],
+    "new": [],
+    "refound": [],
+    "regressed": [],
+    "cleared": [
+     "L3"
+    ],
+    "block_ok": {
+     "t1b-1": true,
+     "t2-1": true
+    },
+    "warnings": []
+   }
+  ],
+  "rows": [
+   [
+    "L1",
+    "resolved",
+    "overlap",
+    4
+   ],
+   [
+    "L2",
+    "resolved",
+    "overlap",
+    2
+   ],
+   [
+    "L3",
+    "resolved",
+    "overlap",
+    2
+   ]
+  ]
+ }
+}

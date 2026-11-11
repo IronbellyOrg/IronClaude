@@ -1,0 +1,8 @@
+jev                    title decided 43/52  accuracy on decided 39/43 = 0.91  overall 0.75  {('feature', 'feature'): 17, ('bug', 'bug'): 22, ('bug', 'feature'): 3, ('feature', 'bug'): 1}
+jev                    full  decided 52/52  accuracy on decided 50/52 = 0.96  overall 0.96  {('feature', 'feature'): 26, ('bug', 'bug'): 24, ('feature', 'bug'): 1, ('bug', 'feature'): 1}
+jev p>=0.9             title decided 25/52  accuracy on decided 25/25 = 1.00  overall 0.48  {('bug', 'bug'): 18, ('feature', 'feature'): 7}
+jev p>=0.9             full  decided 36/52  accuracy on decided 36/36 = 1.00  overall 0.69  {('feature', 'feature'): 16, ('bug', 'bug'): 20}
+keyword rule           title decided 52/52  accuracy on decided 32/52 = 0.62  overall 0.62  {('feature', 'feature'): 26, ('bug', 'feature'): 19, ('bug', 'bug'): 6, ('feature', 'bug'): 1}
+keyword rule           full  decided 52/52  accuracy on decided 31/52 = 0.60  overall 0.60  {('feature', 'feature'): 15, ('bug', 'feature'): 9, ('bug', 'bug'): 16, ('feature', 'bug'): 12}
+sonnet                 title decided 49/52  accuracy on decided 49/49 = 1.00  overall 0.94  {('feature', 'feature'): 26, ('bug', 'bug'): 23}
+sonnet                 full  decided 50/52  accuracy on decided 49/50 = 0.98  overall 0.94  {('feature', 'feature'): 26, ('bug', 'bug'): 23, ('bug', 'feature'): 1}

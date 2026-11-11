@@ -1,0 +1,292 @@
+{
+ "chunk": 8,
+ "name": "WC-4.5",
+ "findings": [
+  {
+   "gid": 383,
+   "kind": "first",
+   "arm": "ab4",
+   "run": "d4-r5",
+   "step": "r1b",
+   "fid": "B1",
+   "final_spec_of_this_audit": "",
+   "heading": "### B1. CRITICAL (blocking): the contract path rule contradicts every command whose `--output` is a file",
+   "body": "- Experts: Wiegers, Adzic, Whittaker (Sentinel Collision / Divergence attack).\n- Stated text 1, spec:62 (WC-4): the command writes `<output-dir>/return-contract.yaml`, \"where `<output-dir>` is the directory the coordinator passed (`--output` / `--output-dir`)\", and the worker passes that path as `--report-path`.\n- Stated text 2, spec:90 (tdd, section 3.1): brief passes `--output <file>`; report is \"the TDD at `--output`\". spec:87 (init-lite): `--output <file>`. spec:120 (spec-panel): \"add `--output`\". spec:107 (document): \"require an explicit output\". spec:108 (explain): \"write the explanation to a file\". Inventory: `INV-B:47` (tdd: \"TDD file at `--output`\"), `INV-A:55` (init-lite: \"`.dev/superclaude/context-audit.md` or `--output`\").\n- Stated text 3, spec:200 (AC-2.2): the gate-trigger example `/sc:tdd \"auth\" --unattended --output <file>` must end with \"contract `status: blocked` with a non-empty `blocked_question`\", and spec:182 step 3 requires \"its report path is the WC-4 contract path\".\n- Grading sentence: an implementer who follows WC-4 as written builds a tdd (and init-lite, spec-panel, document) that writes `<file>/return-contract.yaml` next to a path that is a regular file, or a contract at no defined path, and that is wrong because `--output <file>` names a file, so no `<output-dir>` exists and AC-2.2 (spec:200) and live-check steps 3-4 (spec:182-183) cannot locate or read the contract.\n- Concrete attack (Whittaker, Divergence): input `--output .dev/x/tdd.md` -> WC-4 says \"directory\" -> the contract path is `.dev/x/tdd.md/return-contract.yaml`, which cannot be created when `tdd.md` is a file; the blocked case (a topic-only prompt, which is the AC-2.2 case) produces no TDD, so the path may be missing and the report is unreadable.\n- Recommendation: state one rule for file-valued `--output` (for example \"the contract goes in the parent directory, or in a separate caller-supplied `--report-dir`\") and apply it in WC-4, in the section 3 rows named above and in the AC-2.2 example.\n- Priority: High. Quality-impact estimate: removes a path ambiguity that blocks the check on at least 4 of the 37 worker-capable commands.\n"
+  },
+  {
+   "gid": 390,
+   "kind": "first",
+   "arm": "ab4",
+   "run": "d4-r6",
+   "step": "r1a",
+   "fid": "R1-B2",
+   "final_spec_of_this_audit": "",
+   "heading": "### R1-B2. CRITICAL (blocking): WC-4 puts the contract in `<output-dir>`, \"the directory the coordinator passed (`--output` / `--output-dir`)\", but section 3 and the acceptance checks pass `--output <file>` to the same commands.",
+   "body": "- Experts: Wiegers (testability), Adzic (concrete example), Whittaker (Divergence attack: the same flag is a file in one branch and a directory in the other).\n- Stated texts in conflict:\n  1. WC-4: \"writes `<output-dir>/return-contract.yaml`, where `<output-dir>` is the directory the coordinator passed (`--output` / `--output-dir`)\" (`...spec.md:62`).\n  2. Section 3.1, `tdd`: brief passes \"`--output <file>`\" and the report is \"the TDD at `--output`\" (`...spec.md:90`). `init-lite`: \"`--output <file>`\" (`...spec.md:87`). The inventory confirms the tdd output is a file: \"the final TDD at `--output` or `docs/[domain]/TDD_[COMPONENT-NAME].md`\" (`inventory/commands-b.md:222`).\n  3. AC-2.2 runs `/sc:tdd \"auth\" --unattended --output <file>` and expects \"contract `status: blocked` with a non-empty `blocked_question`\" (`...spec.md:200`). Live-check step 4 then runs `test -s <contract>` with no rule for where `<contract>` is when `--output` is a file (`...spec.md:183`).\n  4. Section 2.3 says the output directory is passed so \"the report path is known before dispatch\" (`...spec.md:73`).\n- Sentence: An implementer who follows WC-4 as written for `tdd` and `init-lite` takes the `--output` value (a file path such as `docs/auth/TDD_AUTH.md`) as `<output-dir>` and writes `docs/auth/TDD_AUTH.md/return-contract.yaml`, and X is wrong because that path is under an existing regular file, so the write fails, and no contract exists on the very `blocked` outcome AC-2.2 checks; the coordinator also cannot know the contract path before dispatch. No rule in the document says where the contract goes when `--output` is a file.\n- Fix direction: state one rule (for example `--output` file means the contract is a sibling `<file-stem>.return-contract.yaml`, or require `--report-dir` as a separate directory flag) and apply it in 3.1, 3.2 and 7.2.\n"
+  },
+  {
+   "gid": 494,
+   "kind": "first",
+   "arm": "haiku-base",
+   "run": "a3-r5",
+   "step": "r1",
+   "fid": "F-03",
+   "final_spec_of_this_audit": "",
+   "heading": "### F-03 (MAJOR, BLOCKING): WC-4 contract is not assigned to several commands it applies to",
+   "body": "\n- Location: spec line 62 (WC-4: every command \"writes `<output-dir>/return-contract.yaml` ... on success, failure, blocked and partial outcomes\"); line 79 (\"the worker reports the named file until Phase 1 adds the contract\"); line 159 (P1 scope: \"The WC-4 contract in unattended mode ... the --unattended flag accepted by every command in sections 3.1 and 3.2\"); P1 \"Commands\" column at line 159 names 13 commands only.\n- Issue: the rows assign no contract to init-lite (line 87, \"Small fix: None\"; `commands-a.md:55`, no contract), tdd (line 90; `commands-b.md:222`, report is the TDD file), troubleshoot (line 91; `commands-b.md:242`, `return-contract.yaml` only with `--caller task-unified`), release-split (line 89; `commands-b.md:122`, `release-split-report.md`), index-repo (line 86) and cleanup-audit (line 85), where P1 adds only a report name. Load (line 112, \"none\") and validate-tests (line 125) have no contract either. AC-1.2 (line 196) tests only \"each P1 command\", which does not include init-lite, tdd, troubleshoot or release-split.\n- Grading check: \"An implementer who follows the 3.1 'small fix' column and the P1 command list builds init-lite, tdd, troubleshoot and release-split without `return-contract.yaml`, and that is wrong because WC-4 requires the file on every outcome and line 79 says Phase 1 adds it.\" This holds with no added assumption: the P1 scope text and the row text contradict each other.\n- Recommendation: add a contract row for each of these commands, or state an explicit WC-4 exemption (with reason) for `load` and `validate-tests`. Reconcile the P1 \"Commands\" column with the P1 scope sentence.\n- Expert: Fowler (interface contract coverage), Wiegers (every requirement needs an owner).\n"
+  },
+  {
+   "gid": 37,
+   "kind": "audit",
+   "arm": "ab1",
+   "run": "b1-r3",
+   "step": "aud",
+   "fid": "F-1",
+   "final_spec_of_this_audit": "p12/ab1/runs/b1-r3/aud/ws/.dev/orca-command-refactor/review/.dev/orca-command-refactor/specs/orca-worker-contract-spec.md",
+   "heading": "### F-1 [MAJOR, blocking] The P0 acceptance check cannot pass as written",
+   "body": "Grading sentence: an implementer who follows the stated text as written builds the P0 live check so that step 3 requires \"its report path is the WC-4 contract path\" and \"its `--outcome` matches the contract's `status`\" (`S:182`), and AC-0.4 requires \"steps 1-3 and 5-7 pass\" (`S:194`) for `/sc:troubleshoot` and `/sc:adversarial`. X is wrong because the same spec says these two commands have no WC-4 contract at P0: troubleshoot reports `REPORT.md` and gets its contract only in P2 (`S:91`, `S:160`), adversarial's contract filename is not fixed until P1 (`S:83`, `S:159`, and INV-A \"adversarial, return-contract location\" note: two different locations in the earlier run), and `S:79` says the worker reports \"the named file until Phase 1 adds the contract\". Step 3 therefore fails for two of the three mandated smoke runs, and `S:154` (\"Later phases do not start until the earlier phase's checks in section 7 pass\") then blocks P1. AC-0.4 carves out only step 4 (\"step 4 uses the command's existing report file\"), not step 3.\n- Experts: Wiegers (testability), Adzic (the check as an executable example), Crispin.\n- Recommendation: narrow AC-0.4 to say that for P0 step 3 accepts the command's existing report file as `--report-path` and the outcome follows the report's own status (delete the contract clause for P0 rather than add a mechanism).\n- Priority: High. Quality impact: the evidence-gap closure the spec depends on (`S:43`, `S:272`) cannot be recorded as passed.\n"
+  },
+  {
+   "gid": 126,
+   "kind": "audit",
+   "arm": "ab2",
+   "run": "b2-r1",
+   "step": "aud",
+   "fid": "B2",
+   "final_spec_of_this_audit": "p12/ab2/runs/b2-r1/aud/ws/.dev/orca-command-refactor/review/.dev/orca-command-refactor/specs/orca-worker-contract-spec.md",
+   "heading": "**B2. CRITICAL (blocking). The WC-4 contract is required for every worker but no phase gives it to six of the ten \"ready\" commands, yet the acceptance checks demand it.**",
+   "body": "- Expert: Wiegers (traceability), Adzic (testability).\n- Grading sentence: an implementer who follows the stated text as written builds no contract for tdd, troubleshoot, release-split, init-lite and brainstorm, and reflect keeps whatever fields it has, and that is wrong because AC-2.3 requires a contract with `status` in the four-value set and a non-empty `command` for each of them. A stated text that an acceptance criterion cannot pass.\n- Stated texts: WC-4 (spec:62) requires `status` (four values), `command`, `report_path`, `artifacts` on every outcome and says commands that already write a contract \"keep their fields and add the missing ones\". The 3.1 header (spec:79) says \"the worker reports the named file until Phase 1 adds the contract\". The P1 row (spec:159) names only analyze, build, business-panel, design, document, explain, index, test, load and \"fixes to adversarial, cleanup-audit, index-repo, workflow\". The 3.1 rows for tdd (spec:90), troubleshoot (spec:91), release-split (spec:89), init-lite (spec:87) and brainstorm (spec:84, \"Small fix: None\") add no contract; reflect (spec:88) adds only a gate change. The P2 row (spec:160) and AC-2.1 (spec:199) cover gates only.\n- AC-2.3 (spec:201) says the happy-path run of each P2 command passes the 7.2 check, and 7.2 step 4 (spec:183) runs `yaml.safe_load` on the contract and asserts `d['status']` and `d['command']`. For tdd the only report is the TDD markdown, so the check fails or errors. For troubleshoot the report is `REPORT.md` (`commands-b.md:49`). Brainstorm's and reflect's existing contracts are not shown to carry `command` or the four-value `status`; the spec never checks.\n- Recommendation: add a row (or a clause in P1/P2) that adds the WC-4 contract to tdd, troubleshoot, release-split, init-lite, brainstorm and reflect, or narrow WC-4 and 7.2 step 4 to say which existing report satisfies them. Priority High.\n"
+  },
+  {
+   "gid": 249,
+   "kind": "audit",
+   "arm": "pn1",
+   "run": "b1-r1",
+   "step": "aud",
+   "fid": "B-1",
+   "final_spec_of_this_audit": "p13/ab1/runs/b1-r1/aud/ws/.dev/orca-command-refactor/review/.dev/orca-command-refactor/specs/orca-worker-contract-spec.md",
+   "heading": "### B-1 (MAJOR, blocking). The contract path is unknowable for commands that have no output flag, and WC-4 turns that into a guaranteed failure",
+   "body": "\n- Experts: Wiegers (traceability), Whittaker (Zero/Empty Attack and Divergence Attack), Crispin (acceptance cannot pass).\n- Priority: High. Quality impact: three of the ten \"ready\" commands cannot complete an unattended run as specified.\n- Grading sentence: An implementer who follows the stated text as written builds `--unattended` for `/sc:troubleshoot`, `/sc:cleanup-audit` and `/sc:index-repo` with no output flag, and WC-4 then makes every such run write nothing and end `failed`, because the same text says the brief passes no output directory (troubleshoot, index-repo) or no contract location exists (cleanup-audit). Acceptance criterion AC-1.2 cannot pass against flags that do not exist.\n- The two stated texts that contradict each other:\n  - WC-4 (spec:62): the contract is at `<output-dir>/return-contract.yaml`, where `<output-dir>` is \"the directory the coordinator passed (`--output` / `--output-dir`)\", and \"If the required output path is missing the command writes nothing and the worker ends `failed`\". WC-4 also requires the path \"known before dispatch\" (spec:62, 73).\n  - Section 3.1 (spec:85-86, 91): index-repo \"Brief must pass: none\"; cleanup-audit brief passes only `--pass <N>` and its output dir \"is fixed\"; troubleshoot brief passes \"no `--fix`\" and reports `REPORT.md`. None of the three rows adds an output flag or says where the contract goes. The only \"small fix\" for index-repo is \"State the output location\" (spec:86); the only fix for troubleshoot is the P2 gate conversion (spec:91).\n- Further evidence of the conflict:\n  - WC-6 (spec:64) names troubleshoot as having \"no output flag\" and points the brief at \"its timestamped default directory\" (`cmd/troubleshoot.md:56`, UNVERIFIED here), then says the coordinator \"makes new for every attempt (WC-4)\". A timestamped default cannot be named in a brief before dispatch.\n  - AC-1.2 (spec:196) runs \"each P1 command other than `load` with `--unattended --output <dir>`\". P1 contains index-repo and cleanup-audit (spec:159), which per spec:86 and 85 have no `--output`. The P1 scope sentence \"output flags for commands that lack one\" (spec:159) hints at adding them, but section 3.1 and WC-11 (spec:69, \"the fixed paths of cleanup-audit and index-repo\") say the opposite: fixed paths, no flag.\n  - AC-1.2 also passes `<dir>` to init-lite, whose flag takes a file (spec:62, 87).\n  - Inventory support: `INV-B:242` (troubleshoot has `return-contract.yaml` only with `--caller task-unified`); `INV-A:42` and `INV-A:53` (cleanup-audit and index-repo write to fixed locations).\n- Concrete attack (state trace): before: troubleshoot has no output flag; brief = `/sc:troubleshoot \"login fails\" --unattended` (the 3.1 brief plus the flag). Step: the command looks for `<output-dir>`, finds none. After: per WC-4 it writes nothing and the worker sends `worker_done --outcome failed` (WC-5: \"no readable report exists\"). The coordinator sees a failed Task for a diagnosis that may have completed and produced `REPORT.md`.\n- Recommendation: for each of troubleshoot, cleanup-audit, index-repo, either add an output flag in the phase that gives them `--unattended` (and say so in their 3.1 row), or define the contract location "
+  },
+  {
+   "gid": 299,
+   "kind": "audit",
+   "arm": "pn2",
+   "run": "l2-r4",
+   "step": "aud",
+   "fid": "F-2",
+   "final_spec_of_this_audit": "p13/ab2/runs/l2-r4/aud/ws/.dev/orca-command-refactor/review/.dev/orca-command-refactor/specs/orca-worker-contract-spec.md",
+   "heading": "### F-2 [MAJOR, blocking] (Wiegers, Crispin) The WC-4 contract and `--unattended` flag are required of ready commands that no phase gives them to",
+   "body": "\n- S:73 says the brief states \"the exact command line including `--unattended`\". S:79 says ready commands report their named file \"until Phase 1 adds the contract\". WC-4 requires the contract with `status` in the four-value set and `command` (S:62).\n- But S:159 limits the P1 contract work to the P1 row. S:160 limits P2 to \"each default-on gate resolves per its section 3 row\". The P2 rows for reflect, release-split, tdd and troubleshoot name only gate resolutions (S:88-91). The rows for brainstorm and init-lite name no change (S:84, S:87), and neither is in any phase (Quantity flow above).\n- Troubleshoot writes `return-contract.yaml` only with `--caller task-unified` (INV-B:242), tdd writes the TDD file only (INV-B:222), and release-split writes a markdown report (INV-B:122). None has a contract file in unattended mode.\n- Grading sentence: an implementer who follows the stated phase scope builds P2 for `/sc:troubleshoot` with a gate resolution and no contract file, and that is wrong because AC-2.3 requires \"7.2 passes with `--outcome succeeded`\" (S:201), and 7.2 step 4 asserts `test -s <contract>` and a parsed `status` and `command` (S:183). The same holds for AC-1.2 on adversarial, cleanup-audit, index-repo and workflow (S:196), whose fixes in S:83, S:85, S:86, S:92 add no `status` or `command` fields.\n- Recommendation: either list \"write the WC-4 contract in unattended mode\" in the P1/P2 scope for the named ready commands and add brainstorm and init-lite to a phase, or narrow AC-2.3 and AC-1.2 step 4 to the commands whose scope includes the contract.\n- Priority: High. Quality impact: closes a phase-exit check that cannot pass as written.\n\n=== ARCHITECTURE ANALYSIS ===\n\nNo blocking architecture finding. The decision (S:13-45), the rejected alternative (S:28-39) and the coordinator-only list (S:127-139) hold against the evidence in `CAPS:97-103,145-161` and `INV-A:90`, `INV-B:285-287`.\n\nWhittaker attacks (all graded below blocking):\n\n1. Sequence Attack on retry (WC-6, S:64). Setup: a P2 command with \"fresh dir\" is blocked at a gate, the coordinator retries with `worker-start --retry-of` and the same brief. Step trace: before, `<output-dir>` holds `return-contract.yaml` with `status: blocked`; after, the second run writes to the same directory, and the first attempt's file is overwritten or mixed. The text \"writes each run into a fresh output directory\" does not say who picks the directory. See M-2.\n2. Divergence Attack on tasklist (S:122). The spec resolves Stage 10.5 by passing `--unattended` to reflect so the headless auto-accept rule applies. The inventory recommended dropping `--remediate` (INV-B:215). Auto-accept starts a remediation chain with no person, and no acceptance check covers it. See M-3.\n3. Sentinel Collision on `--unattended` (guard table). A person typing the flag gets unattended behaviour with no way to answer a gate. See M-7.\n4. Accumulation Attack on shared paths (WC-11, S:69). Two workers in one worktree: cleanup-audit's output directory is fixed (S:85), and index-repo writes `PROJECT_INDEX.md` at the root (S:86). WC-11 says default paths carry a timestamp or slug, yet both are \"ready today\". See M-5.\n"
+  },
+  {
+   "gid": 337,
+   "kind": "audit",
+   "arm": "base-fresh",
+   "run": "a3d-r6",
+   "step": "aud",
+   "fid": "B1",
+   "final_spec_of_this_audit": "p16/base-drift/runs/a3d-r6/aud/ws/.dev/orca-command-refactor/review/.dev/orca-command-refactor/specs/orca-worker-contract-spec.md",
+   "heading": "**B1. MAJOR, graded BLOCKING. The P0 acceptance check cannot pass for the commands it names.**",
+   "body": "- Experts: Wiegers (testability), Adzic (example), Crispin.\n- Stated texts: `SPEC:182` (7.2 step 3) passes only when \"its report path is the WC-4 contract path\" and its `--outcome` \"matches the contract's `status`\". `SPEC:62` fixes the WC-4 contract path as `<output-dir>/return-contract.yaml`. `SPEC:194` (AC-0.4) runs 7.2 on `/sc:troubleshoot`, `/sc:workflow` and `/sc:adversarial` and requires \"steps 1-3 and 5-7 pass\"; it relaxes only step 4 (\"uses the command's existing report file, since the contract arrives in P1\"). `SPEC:91` says troubleshoot reports `REPORT.md` today; `SPEC:92` puts the workflow contract at `.dev/tasks/to-do/<id>/return-contract.yaml`; `SPEC:83` puts the adversarial contract at `<output>/adversarial/`. `SPEC:154` says later phases do not start until the earlier phase's checks pass.\n- Grading sentence: An implementer who follows the stated text as written runs step 3 on `/sc:troubleshoot` in P0, finds a `worker_done --report-path` of `REPORT.md` and no WC-4 contract to compare the outcome with, and step 3 fails; so AC-0.4 can never pass, and X (P0 -> P1 gating, `SPEC:154`) is wrong because the rollout stops on a check the same spec says cannot yet be satisfied. The same step fails for workflow and adversarial, whose contract paths differ from the WC-4 formula.\n- Recommendation: in AC-0.4, state that step 3 also uses the command's existing report file and existing status field (as step 4 does), and that the WC-4 path and outcome-to-contract match apply from P1. Narrow, no new mechanism.\n- Priority: High. Quality impact: Testability 5 -> 8.\n\n=== ARCHITECTURE ANALYSIS ===\n\nGrade key for the rest: each item below is Medium (warning, `follow-up candidates`); each needs the implementer to guess between readings, or is a requirement the document never states (`LOOP:31`).\n"
+  },
+  {
+   "gid": 83,
+   "kind": "first",
+   "arm": "ab1h",
+   "run": "b1h-r1",
+   "step": "r1b",
+   "fid": "B3",
+   "final_spec_of_this_audit": "",
+   "heading": "**B3. The P0 acceptance run cannot pass as written.** (Adzic; Wiegers)",
+   "body": "- Locations: SPEC:182 (7.2 step 3, pass: \"its report path is the WC-4 contract path\"), SPEC:194 (AC-0.4: \"steps 1-3 and 5-7 pass; step 4 uses the command's existing report file, since the contract arrives in P1\"), SPEC:159 (P1 is where WC-4 is delivered).\n- Grading sentence: an implementer who runs AC-0.4 in P0 on `/sc:troubleshoot` finds step 3 fails, because step 3 requires the WC-4 contract path and WC-4 does not exist until P1 (SPEC:159), while AC-0.4 says step 3 passes.\n- Recommendation: in AC-0.4, exempt step 3's contract-path check the same way step 4 is exempted, or move the whole 7.2 check to P1.\n- Priority: High. Quality impact: medium (P0 gate is blocked; the \"earlier failure reopens section 1\" rule then fires for a test-harness reason).\n"
+  },
+  {
+   "gid": 246,
+   "kind": "first",
+   "arm": "ab3h",
+   "run": "b3h-r4",
+   "step": "r1",
+   "fid": "R-3",
+   "final_spec_of_this_audit": "",
+   "heading": "### R-3. The WC-4 contract path cannot be known before dispatch for two commands",
+   "body": "\n- Severity: MAJOR. Grade: BLOCKING. Experts: Wiegers (traceability), Fowler (interface).\n- Locations: spec:62 (WC-4: `<output-dir>/return-contract.yaml`, \"known before dispatch\"), spec:83 (adversarial: `<output>/adversarial/return-contract.yaml`), spec:91 (troubleshoot), spec:92 (workflow: brief passes only `--handoff none`; path `.dev/tasks/to-do/<id>/return-contract.yaml`). Sources: INV-B:242 (troubleshoot contract only with `--caller task-unified`), INV-B:52.\n- Issue: WC-4 defines one path for every command. Adversarial's path is one level deeper. Workflow has no output-directory flag, so the rule has nothing to point at. Troubleshoot writes its contract only under a caller flag the brief does not pass.\n- Grading sentence: \"An implementer who follows WC-4 for workflow has no `<output-dir>` to write into, so the coordinator cannot know the contract path before dispatch, which WC-4 forbids, and the coordinator then opens no report and records the Task as failed under WC-5.\"\n- Recommendation: replace the single rule with one table of exact paths per command (WC-4 default, plus named exceptions for adversarial, workflow and troubleshoot), and state whether workflow gains an output flag.\n"
+  },
+  {
+   "gid": 452,
+   "kind": "first",
+   "arm": "ab4h",
+   "run": "d4h-r4",
+   "step": "r1a",
+   "fid": "B3",
+   "final_spec_of_this_audit": "",
+   "heading": "### B3. The WC-4 contract has no phase for release-split, tdd, troubleshoot or init-lite (Fowler, architecture)",
+   "body": "\n- **Issue.** The 3.1 intro says the ready commands report their named file \"until Phase 1 adds the contract\" (`spec:79`). P1 (`spec:159`) does not list release-split, tdd, troubleshoot or init-lite. Their rows give no contract: release-split reports `<output>/release-split-report.md` (`spec:89`; `INV-B:122`), tdd reports the TDD file (`spec:90`; `INV-B:222`), troubleshoot reports `REPORT.md` (`spec:91`), and init-lite writes `.dev/superclaude/context-audit.md` with \"Small fix: None\" (`spec:87`; `INV-A:55`). Their P2 fixes are prompt-gate changes only (`spec:89-91`), and P2's scope names gates only (`spec:160`). AC-2.3 runs 7.2 on each P2 command (`spec:201`), so step 4 (`spec:183`) fails for release-split, tdd and troubleshoot.\n- **Grading sentence.** An implementer who follows `spec:79` expects Phase 1 to add the contract to every ready command, then finds that P1 does not list these commands and P2 does not mention a contract, so AC-2.3 step 4 fails for three commands. This needs no assumption beyond the spec's own text.\n- **Expert.** Fowler (phase scope against interface).\n- **Recommendation.** Assign each 3.1 command's contract to a named phase in its row, and make the `spec:79` intro match.\n- **Priority.** High.\n"
+  },
+  {
+   "gid": 500,
+   "kind": "first",
+   "arm": "haiku-base",
+   "run": "a3-r6",
+   "step": "r1",
+   "fid": "F-02",
+   "final_spec_of_this_audit": "",
+   "heading": "### F-02 BLOCKING: WC-4 and WC-6 disagree on where a re-run writes its contract (Fowler)",
+   "body": "- Locations: `spec:62` (WC-4: the contract goes to `<output-dir>`, \"the directory the coordinator passed\", and the path is known before dispatch), `spec:64` (WC-6: the command \"writes each run into a fresh output directory so a re-run starts clean\"), `spec:73` (the coordinator's brief carries the output directory), `spec:91` (troubleshoot row: resume is \"Fresh dir\").\n- Sentence: An implementer who follows WC-6 writes a retry into a new directory, and WC-4 says the coordinator reads the contract where it passed the directory, so the coordinator opens the first attempt's contract (for example `status: failed`) and never sees the retry's result.\n- Recommendation: Choose one owner for the directory. Either the coordinator passes a fresh directory for each attempt (`--retry-of`, `CAPS:116`), which makes WC-6 a coordinator duty, or the command writes the retry under a subdirectory and WC-4 names the pointer file the coordinator reads.\n- Priority: High.\n"
+  },
+  {
+   "gid": 211,
+   "kind": "audit",
+   "arm": "ab3",
+   "run": "b3-r5",
+   "step": "aud2",
+   "fid": "B-1",
+   "final_spec_of_this_audit": "p12/ab3/runs/b3-r5/aud2/ws/.dev/orca-command-refactor/review/.dev/orca-command-refactor/specs/orca-worker-contract-spec.md",
+   "heading": "### B-1 | CRITICAL (blocking) | Wiegers, Nygard, Whittaker (Accumulation Attack) | priority High | quality impact: Consistency -2, Testability -1",
+   "body": "\n**Issue.** WC-4 fixes the contract file name `return-contract.yaml` and places it, for a file-valued `--output`, \"in the parent directory of the file\" (spec:62). Rows for init-lite (spec:87), tdd (spec:90) and spec-panel (spec:120) use exactly that rule, and the workflow pre-creation fallback is the single shared path `.dev/tasks/to-do/return-contract.yaml` (spec:92). WC-11 says \"Two workers in one worktree must never write the same file\" (spec:69), and the Orca model the spec adopts is parallel workers in one worktree by default (`CAPS:115`; spec:69). Section 2.3 tells the coordinator only to supply \"the output flag value\" and compute the contract path from it (spec:73); it says nothing about separate directories.\n\n**Grading sentence.** An implementer who follows the stated text as written builds init-lite, tdd and spec-panel workers that each write `<parent of --output>/return-contract.yaml`, so two parallel workers given `--output docs/tdd/a.md` and `--output docs/tdd/b.md` both write `docs/tdd/return-contract.yaml`; the later write replaces the earlier, and the earlier worker's `worker_done --report-path` then points at the other worker's status. That is wrong because WC-4 (one report per worker, \"written on every outcome\") and WC-11 (no shared file) contradict each other on this path, and the wrong file can turn a `blocked` or `failed` worker into a reported `succeeded` (WC-5 maps from the contract). Two stated texts contradict; no further assumption needed.\n\n**Attack trace (Whittaker).** Before: no contract. Worker A (tdd, blocked, status `blocked`) writes the file at t1. Worker B (tdd, succeeded) writes at t2. After: file says `succeeded`; A's `worker_done --outcome failed` (WC-5) now disagrees with the file the coordinator opens from A's `--report-path`.\n\n**Recommendation (narrow, no new mechanism).** Make the contract path a function of the output the brief already names, for example the file-valued `--output` gets `<output-stem>.return-contract.yaml`, or WC-4 requires the brief to give every worker its own output directory. Apply to the four rows above and to the workflow fallback. Prefer deleting the parent-directory rule over adding a rule.\n"
+  },
+  {
+   "gid": 282,
+   "kind": "audit",
+   "arm": "pn1",
+   "run": "b1-r6",
+   "step": "aud",
+   "fid": "F3",
+   "final_spec_of_this_audit": "p13/ab1/runs/b1-r6/aud/ws/.dev/orca-command-refactor/review/.dev/orca-command-refactor/specs/orca-worker-contract-spec.md",
+   "heading": "### F3 - BLOCKING (MAJOR label): the live-check script asserts `status` in the four-value set, but WC-4 gives some commands a separate `worker_status`",
+   "body": "- Experts: Adzic (examples), Wiegers (testability), Whittaker (Sentinel Collision Attack).\n- Priority: High.\n- Stated texts (spec lines): line 62 (WC-4): a command whose existing `status` uses other values, \"such as workflow's\", writes the four-value field as `worker_status`, \"which WC-5 and 7.2 read in place of `status` for it\". Line 188 (7.2 step 4): the check is `assert d['status'] in {'succeeded','partial','failed','blocked'}`. Line 187 (step 3): outcome \"matches the contract's `status` under WC-5\". Line 199 (AC-0.4): workflow is a P0 smoke command run against \"the command's existing report file\", and `INV-B:272` (via line 92) records that workflow's existing contract already has a `status` key.\n- Sentence: An implementer who follows the stated text as written runs step 4 on workflow's contract (in P0 against its existing file, in P1 against the added `worker_status`), and X is wrong because the script reads `d['status']`, which holds workflow's own vocabulary (the spec itself says it is not the four values), so the assertion fails even though the run is correct, and no stated text lets the check pass.\n- Whittaker, Sentinel Collision Attack: I can break this specification by **Sentinel Collision Attack**. The invariant at **line 188** fails when **the contract's `status` key is a legitimate value from the command's own vocabulary**. Concrete attack: state before = workflow contract `status: <its own value>`, `worker_status: succeeded`; step = the 7.2 step 4 command runs; state after = `AssertionError`, P0 and P1 fail for workflow although WC-4 and WC-5 were followed.\n- Recommendation (narrow): in 7.2 steps 3-4 read `d.get('worker_status', d['status'])`, naming the commands that use `worker_status`.\n"
+  },
+  {
+   "gid": 378,
+   "kind": "audit",
+   "arm": "ab4",
+   "run": "d4-r5",
+   "step": "aud",
+   "fid": "B-1",
+   "final_spec_of_this_audit": "p16/ab4/runs/d4-r5/aud/ws/.dev/orca-command-refactor/review/.dev/orca-command-refactor/specs/orca-worker-contract-spec.md",
+   "heading": "**B-1 \u2014 CRITICAL \u2014 Wiegers, Whittaker (Sequence/Divergence attack) \u2014 WC-4 puts the report file at a path two workers share, and WC-11 forbids that \u2014 priority High**",
+   "body": "\nLocation: WC-4 (SPEC:62) and WC-11 (SPEC:69).\n\nGrading check: An implementer who follows the stated text as written builds a contract path of `<parent directory of --output file>/return-contract.yaml` for `tdd`, `init-lite` and `spec-panel`, and `.dev/tasks/to-do/return-contract.yaml` for a `workflow` run that stops before an `<id>` exists, and that is wrong because WC-11 says \"Two workers in one worktree must never write the same file\", and the second worker's write replaces the first worker's contract.\n\nConcrete attack (state trace, Whittaker):\n1. Coordinator dispatches worker W1 `/sc:tdd \"auth service\" --unattended --output docs/arch/TDD_AUTH.md` and worker W2 `/sc:tdd \"billing\" --unattended --output docs/arch/TDD_BILLING.md` in one worktree (the default placement, CAPS:115, SPEC:69). The tdd default location is `docs/[domain]/TDD_[COMPONENT-NAME].md` (INV-B:222), so same-domain TDDs share a parent by default.\n2. WC-4 (SPEC:62): \"when `--output` names a file (tdd, init-lite, spec-panel), `<output-dir>` is that file's parent directory\". Both contracts go to `docs/arch/return-contract.yaml`.\n3. W1 finishes `succeeded`; W2 stops `blocked` (bare topic, SPEC:90). Before: W1's file says `succeeded`. After W2 writes: the single file says `blocked`.\n4. W1 sends `worker_done --outcome succeeded --report-path docs/arch/return-contract.yaml`. The coordinator opens that path (SPEC:62, 73), reads `blocked`, and by WC-5 and 7.2 step 3 sees an outcome that does not match the contract status. The same collision occurs with no setup at all for two `workflow` runs that both STOP before creating a package (SPEC:62: `.dev/tasks/to-do/` is a fixed path) and for two `init-lite` runs with default outputs (`.dev/superclaude/context-audit.md`, INV-A:55).\n5. Side effect: a tracked `docs/` directory gains a `return-contract.yaml` next to the deliverable.\n\nWhy the acceptance checks do not catch it: AC-1.2 and AC-2.2 run one worker at a time (SPEC:196, 200); AC-3.4 is the only two-worker check and it covers `save` only (SPEC:207).\n\nRecommendation (delete or narrow, no new mechanism): where `--output` names a file, name the contract `<output file stem>.return-contract.yaml` beside it, or require the coordinator to pass a per-worker directory; and give the pre-`<id>` workflow STOP a path that carries the slug or timestamp the coordinator passes (WC-11's own rule at SPEC:69).\n\nQuality impact: removes the only path in the spec where a correct implementation reports the wrong worker's status.\n"
+  },
+  {
+   "gid": 379,
+   "kind": "audit",
+   "arm": "ab4",
+   "run": "d4-r5",
+   "step": "aud2",
+   "fid": "F-01",
+   "final_spec_of_this_audit": "p16/ab4/runs/d4-r5/aud2/ws/.dev/orca-command-refactor/review/.dev/orca-command-refactor/specs/orca-worker-contract-spec.md",
+   "heading": "#### F-01 CRITICAL-by-consequence (blocking). WC-4 puts the report file in a directory that parallel workers share, which contradicts WC-11",
+   "body": "Expert: Nygard (lead), Whittaker (Sequence and Accumulation attacks), Fowler.\nTexts that contradict:\n- WC-4 (SPEC:62): \"when `--output` names a file (tdd, init-lite, spec-panel), `<output-dir>` is that file's parent directory\", and for `workflow` \"`.dev/tasks/to-do/` when a STOP comes before any `<id>` exists\". The report is always `<output-dir>/return-contract.yaml`.\n- WC-11 (SPEC:69): \"Two workers in one worktree must never write the same file.\"\n- 3.1 tdd row (SPEC:90) and INV-B:222: the default tdd output is `docs/[domain]/TDD_[COMPONENT-NAME].md`, so several TDD files normally sit in one directory.\n\nGrading sentence: An implementer who follows WC-4 as written builds a contract path equal to the parent directory of each `--output` file plus `return-contract.yaml`, and that is wrong because two workers whose `--output` files are siblings write the same contract file, so the coordinator reads the other worker's status.\n\nConcrete attack (Whittaker, Sequence plus Accumulation, state trace):\n1. Coordinator starts worker A with `/sc:tdd \"login\" --unattended --output docs/auth/TDD_LOGIN.md` and worker B with `/sc:tdd \"session\" --unattended --output docs/auth/TDD_SESSION.md`.\n2. Before: `docs/auth/` holds no `return-contract.yaml`. A finishes and writes `docs/auth/return-contract.yaml` with `status: succeeded`; A sends `worker_done --outcome succeeded --report-path docs/auth/return-contract.yaml`.\n3. B then fails and overwrites the same file with `status: failed`. After: the coordinator opens A's `--report-path` (WC-4 says the coordinator opens it, SPEC:62) and sees `failed`, so A's good TDD is treated as lost. The live check AC-1.2 step 3 (\"its `--outcome` matches the contract's `status`\", SPEC:182) fails for A.\n4. The same file is shared by every `workflow` worker that stops before a package id exists (`.dev/tasks/to-do/return-contract.yaml`), and by `init-lite` and `spec-panel` workers whose `--output` files share a directory.\n\nThe brief-side defence in 2.3 (SPEC:73, \"the output directory where the command takes one\") does not cure it, because for these three commands the directory is derived from a file path the spec itself makes the parent.\nQuality impact: High (the coordinator's only completion signal becomes wrong under parallel use, which is the design's purpose).\n"
+  },
+  {
+   "gid": 73,
+   "kind": "first",
+   "arm": "ab1",
+   "run": "b1-r6",
+   "step": "r1c",
+   "fid": "F3",
+   "final_spec_of_this_audit": "",
+   "heading": "### F3. BLOCKING (CRITICAL). WC-4's contract path cannot be known before dispatch for workflow, research and file-valued `--output` commands",
+   "body": "Experts: Wiegers (testability), Adzic (the 7.2 step has no path), Fowler (interface consistency).\nStated texts:\n1. SPEC:62 (WC-4): \"One report file, known before dispatch ... the command writes `<output-dir>/return-contract.yaml`, where `<output-dir>` is the directory the coordinator passed (`--output` / `--output-dir`)\". It must be written \"including stops before any other output exists\". SPEC:73: the brief states \"the output directory, so the report path is known before dispatch\".\n2. SPEC:92 (workflow, ready): brief passes `--handoff none` only; Report today `.dev/tasks/to-do/<id>/return-contract.yaml`; P1 fix \"Write the contract for pre-creation STOPs too\". `<id>` is generated by the command (INV-B:272: \"Not written for pre-creation STOPs\"); no directory is passed.\n3. SPEC:90 (tdd): brief passes `--output <file>`; report is \"the TDD at `--output`\". SPEC:200 (AC-2.2) runs `/sc:tdd \"auth\" --unattended --output <file>` and expects \"contract `status: blocked`\". A file path is not a directory.\n4. SPEC:116 (research): report \"contract naming the generated `claudedocs/research_*.md` path\"; no output flag, no directory.\n5. SPEC:183 (7.2 step 4): `test -s <contract>` and the YAML check, on \"the WC-4 contract path\" named in SPEC:182 (step 3).\nGrading check: An implementer who follows the stated text as written builds a coordinator brief and a 7.2 check for `workflow`, `research` and `tdd` in which `<output-dir>` is undefined: for workflow the directory is created by the command after the brief is sent; for research no directory exists; for tdd the passed value is a file. The coordinator then cannot compute the contract path before dispatch, WC-4's \"known before dispatch\" fails, and a pre-creation workflow STOP has no directory to hold the contract. Step 4 of the acceptance procedure and AC-1.4 (SPEC:198) cannot be evaluated.\nCorroboration outside the workspace: `CMD:460` and `CMD:23` show the real spec-panel avoiding exactly this clash by adding a separate directory flag, `--report-dir`, because \"`--output` is file-valued\". That text also shows SPEC:120 (\"add `--output`\") and INV-B:43 (no `--output` exists) are stale against the current command definition.\nRecommendation: define one coordinator-supplied directory argument for WC-4 (separate from file-valued `--output`) and say where workflow writes a pre-creation STOP contract.\n\n=== ARCHITECTURE ANALYSIS ===\n\nNo further blocking finding. Notes below are Medium or minor and never fail the review.\n\nFowler: the split (one shared core file plus a short per-command section, SPEC:52) is sound and keeps the \"no Orca calls in commands\" rule checkable (SA-2, SPEC:147). The partition of 43 commands is consistent with both inventories.\nNewman: the contract has no schema version, although the existing workflow contract is versioned (\"contract 1.1\", INV-B:272). WC-4 (SPEC:62) lists fields but no `contract_version`, so a later field addition cannot be detected by a coordinator (Medium, see FC-7).\nHohpe: the pull model (WC-12, SPEC:70; CAPS:66-67) and exactly-once `worker_done` (WC-5, SPEC:63) are correctly bounded by the Orca facts.\nNygard: failure paths are partly covered (WC-3 ask timeout, WC-6 retry, WC-10 liv"
+  },
+  {
+   "gid": 81,
+   "kind": "first",
+   "arm": "ab1h",
+   "run": "b1h-r1",
+   "step": "r1b",
+   "fid": "B1",
+   "final_spec_of_this_audit": "",
+   "heading": "**B1. The contract path rule is contradicted, and the workflow path is not known before dispatch.** (Wiegers lead; Fowler)",
+   "body": "- Locations: SPEC:62 (WC-4: `<output-dir>/return-contract.yaml`, \"known before dispatch\"), SPEC:73 (the coordinator's brief states the output directory), SPEC:83 (adversarial: fix the filename to `<output>/adversarial/return-contract.yaml`), SPEC:92 (workflow: `.dev/tasks/to-do/<id>/return-contract.yaml`, \"Fresh package each run\"; no output flag). Supporting: INV-B:52, INV-B:272 (the workflow package is created fresh per run).\n- Grading sentence: an implementer who follows WC-4 at SPEC:62 writes adversarial's contract to `<output>/return-contract.yaml`, but the row at SPEC:83 names `<output>/adversarial/return-contract.yaml`, so the path the coordinator computes from SPEC:73 and the file the worker writes differ. For workflow, the id is generated per run and SPEC:92 gives no flag that sets it, so the coordinator cannot know the path before dispatch, which WC-4 requires.\n- Recommendation: state one path rule. Either `<brief-output-dir>/return-contract.yaml` for every command, with the adversarial subfolder named as the output dir, or name the exact path per command. Give workflow an explicit `--output` or `--id` flag, or exempt it from WC-4 and say so.\n- Priority: High. Quality impact: high (the coordinator's `test -s` check, SPEC:183, and its outcome mapping then read the wrong file or none).\n"
+  },
+  {
+   "gid": 88,
+   "kind": "first",
+   "arm": "ab1h",
+   "run": "b1h-r1",
+   "step": "r1c",
+   "fid": "B3",
+   "final_spec_of_this_audit": "",
+   "heading": "### B3. The fixed contract path in WC-4 does not fit the ready commands, so AC-0.4 and AC-1.2 cannot pass for them",
+   "body": "\n- **Sentence.** An implementer who follows WC-4 (spec:62: `<output-dir>/return-contract.yaml`, known before dispatch) and the section 3.1 row for workflow (spec:92) finds that the workflow contract is `.dev/tasks/to-do/<id>/return-contract.yaml` (INV-B:272), where `<id>` is made by the command. The coordinator cannot know the path before dispatch, and no phase gives workflow an output directory. AC-0.4 step 3 (spec:182, spec:194) requires \"the WC-4 contract path\", so it cannot pass for workflow.\n- cleanup-audit (spec:85; INV-A:42) writes `.claude-audit/pass<N>-summary.md` into a fixed directory and writes no contract. index-repo (spec:86; INV-A:53) writes `PROJECT_INDEX.md` and takes no output flag. The candidate adds neither a contract nor an output flag to either, yet AC-1.2 (spec:196) runs step 4 (spec:183) on every P1 command with `--unattended --output <dir>`, and P1 (spec:159) lists both.\n- The two path rules also disagree for adversarial. spec:83 fixes its contract at `<output>/adversarial/return-contract.yaml`, while WC-4 (spec:62) puts the contract directly in `<output-dir>`. init-lite takes `--output <file>` (spec:87), so its \"output directory\" is a file, and WC-4 needs a directory.\n- **Expert.** Adzic and Wiegers (acceptance criteria that cannot be satisfied by the rule they test); Newman (contract location as a service interface).\n- **Recommendation.** Add an output directory and a contract write to workflow, cleanup-audit and index-repo, or move AC-0.4 and AC-1.2 to the commands that have one. Fix one path rule for adversarial and init-lite.\n- **Priority.** High. **Quality impact.** The coordinator cannot read a contract at the path the brief names for these commands.\n"
+  },
+  {
+   "gid": 168,
+   "kind": "first",
+   "arm": "ab2h",
+   "run": "b2h-r2",
+   "step": "r1",
+   "fid": "B-2",
+   "final_spec_of_this_audit": "",
+   "heading": "### B-2. The report path is not known before dispatch for three commands, and `--output` has two meanings (blocking)",
+   "body": "- WC-4 (`spec:62`) says `<output-dir>` is \"the directory the coordinator passed (`--output` / `--output-dir`)\". Section 2.3 (`spec:73`) depends on this: \"so the report path is known before dispatch (WC-4)\".\n- `/sc:workflow` (`spec:92`) writes `.dev/tasks/to-do/<id>/return-contract.yaml`, has \"Fresh package each run\", and takes no output flag (`spec:92`). The `<id>` is generated by the command (`.dev/orca-command-refactor/inventory/commands-b.md:272-273`). The path therefore cannot be given in the brief.\n- `/sc:tdd` (`spec:90`) takes `--output <file>` (`.dev/orca-command-refactor/inventory/commands-b.md:47`), so `<output-dir>` is undefined for it.\n- `/sc:spec-panel` (`spec:120`) says \"add `--output`; contract\". The spec-panel command definition that this review is run under (`command.md`, Unattended mode, line 460) says `--report-dir <dir>` is the only directory flag and \"`--output` is file-valued\". It also says a run without `--report-dir` is refused.\n- Grading sentence: An implementer who follows WC-4 and `spec:73` cannot give `/sc:workflow` a contract path before dispatch, because the id is generated, and passing `--output <dir>` to `/sc:spec-panel` is refused (`command.md:460`) and to `/sc:tdd` leaves the directory undefined. That is wrong because the coordinator's brief must carry the report path before dispatch.\n- Fix to consider: state one directory flag per command in section 3, or pass an explicit `--report-dir`/`--output-dir` that the brief sets; for workflow, add an output-directory input that the command must honor.\n"
+  },
+  {
+   "gid": 176,
+   "kind": "first",
+   "arm": "ab2h",
+   "run": "b2h-r3",
+   "step": "r1",
+   "fid": "F-02",
+   "final_spec_of_this_audit": "",
+   "heading": "### F-02 | MAJOR | BLOCKING | Expert: Fowler (interface design)",
+   "body": "\n- Location: `SPEC:62` (WC-4), `SPEC:73`, `SPEC:87`, `SPEC:90`, `SPEC:92`; `INV-B:47`, `INV-B:52`, `INV-B:273`; `INV-A:55`.\n- Issue: WC-4 requires `<output-dir>/return-contract.yaml`, where `<output-dir>` is what the coordinator passes, and says the path is \"known before dispatch\" (`SPEC:62`, repeated in `SPEC:73`). Two rows break this:\n  - `/sc:workflow` writes `.dev/tasks/to-do/<id>/return-contract.yaml` and \"Fresh package each run\" (`SPEC:92`). `INV-B:52` and `INV-B:273` describe the `<id>` and \"never overwrites or reuses\"; nothing in the spec says who sets `<id>` or when it is known.\n  - `/sc:tdd` and `/sc:init-lite` take `--output <file>` (`SPEC:90`, `SPEC:87`; `INV-B:47`, `INV-A:55`). A file has no directory to hold `return-contract.yaml`. WC-4 never says how a file-valued output maps to `<output-dir>`.\n- Grading sentence: An implementer who follows WC-4 for `tdd --output docs/x.md` writes the contract to `docs/x.md/return-contract.yaml`, and one who follows it for `workflow` cannot name the path before dispatch, so the coordinator opens a missing file and the worker's outcome becomes `failed` under WC-5 (`SPEC:63`). Two stated texts cannot both hold.\n- Recommendation: Define the contract location for every command: a directory flag for each contract writer, a rule that a file-valued output uses its parent directory, and an explicit `<id>` (or contract path) passed by the coordinator for `workflow`.\n- Priority: High. Quality impact: the coordinator cannot find contracts for two of the ten ready commands.\n"
+  },
+  {
+   "gid": 288,
+   "kind": "first",
+   "arm": "pn2",
+   "run": "l2-r1",
+   "step": "r1",
+   "fid": "REQ-1",
+   "final_spec_of_this_audit": "",
+   "heading": "### REQ-1 (CRITICAL as labelled; graded BLOCKING) WC-4 says the contract path is known before dispatch, but the workflow row puts it at a command-chosen path and gives pre-creation stops no location",
+   "body": "- Expert: Wiegers (traceability of the requirement to its rows), Adzic (the 7.2 example cannot be run for workflow)\n- Texts that contradict:\n  - WC-4 (`spec:62`): the report is `<output-dir>/return-contract.yaml`, \"known before dispatch\", \"written on success, failure, blocked and partial outcomes, including stops before any other output exists\". Section 2.3 (`spec:73`): the brief states \"the output directory, so the report path is known before dispatch (WC-4)\".\n  - Section 3.1 workflow row (`spec:92`): \"Brief must pass: `--handoff none`\" (no output flag), report today `.dev/tasks/to-do/<id>/return-contract.yaml`, small fix \"Write the contract for pre-creation STOPs too\". The inventory confirms the path embeds a command-generated `<id>` and that the skill \"never overwrites or reuses an existing package\" (`INV-B:272-273`). AC-1.4 (`spec:198`) only checks that \"workflow states the contract is written for pre-creation STOPs\", with no location.\n- Grading sentence: An implementer who follows the stated text as written builds a `/sc:workflow` that writes its contract into an `<id>` directory the command picks, which the coordinator's brief cannot name, and, for a stop before any package directory exists, to no stated location; that is wrong because WC-4 requires a single report file at a coordinator-passed directory, known before dispatch, on every outcome including pre-output stops, and 7.2 steps 3-4 (`spec:182-183`) require `worker_done`'s report path to equal that WC-4 contract path.\n- Recommendation: Narrow WC-4 or the workflow row so they agree. Either give workflow an output-directory flag used for the contract on every outcome, or state in WC-4 that for commands that mint their own package directory the contract path is the one the command prints, and name where a pre-creation STOP writes it.\n- Priority: High. Quality impact: workflow is one of the three P0 smoke runs (`spec:194`), so the first live check hits this.\n"
+  },
+  {
+   "gid": 358,
+   "kind": "first",
+   "arm": "ab4",
+   "run": "d4-r2",
+   "step": "r1b",
+   "fid": "F3",
+   "final_spec_of_this_audit": "",
+   "heading": "### F3. MAJOR (Hohpe, Nygard, Whittaker divergence attack). WC-4 gives no usable contract location for commands without a directory-valued output flag, yet P1 and P2 checks require one",
+   "body": "- Quoted texts: SPEC:62 (above) and SPEC:73 \"the output directory, so the report path is known before dispatch\"; SPEC:92 workflow: \"Write the contract for pre-creation STOPs too\"; the workflow contract lives at `.dev/tasks/to-do/<id>/` with `<id>` generated by the skill (`INV-B:52`, `INV-B:272`); SPEC:85 cleanup-audit \"output dir is fixed\"; SPEC:86 index-repo \"State the output location\"; SPEC:87 init-lite and SPEC:90 tdd pass `--output <file>`; SPEC:159 lists cleanup-audit, index-repo and workflow as P1 commands; SPEC:196 AC-1.2 \"7.2 live check on each P1 command with `--unattended --output <dir>`\"; SPEC:200 AC-2.2 example `/sc:tdd \"auth\" --unattended --output <file>`; SPEC:109 implement \"contract beside the ledger\" (ledger path `.dev/implement/<slug>/`, `INV-A:51`).\n- Wrong outcome: An implementer follows AC-1.2 and runs workflow, cleanup-audit and index-repo with `--unattended --output <dir>`. None of the three has a directory-valued `--output` in this spec, and workflow's contract directory does not exist until the command creates it (and for a pre-creation STOP it never exists). Step 3 (path known before dispatch, report path equals WC-4 path) and step 4 cannot be met. For AC-2.2 with `tdd`, `--output` is a file, so `<output-dir>/return-contract.yaml` is undefined and the test of `status: blocked` has no file to open. The check cannot pass as written for these commands.\n- Recommendation: for each command listed, add one cell stating where its contract goes (for example \"beside the `--output` file\" for tdd and init-lite; \"the fixed directory\" for cleanup-audit and index-repo; \"workflow: coordinator-supplied `--output`/id, or the contract is read from the printed path\") or remove the command from the AC-1.2 and AC-2.2 wording. Narrow WC-4 rather than add a mechanism.\n- Priority High.\n"
+  },
+  {
+   "gid": 374,
+   "kind": "first",
+   "arm": "ab4",
+   "run": "d4-r4",
+   "step": "r1b",
+   "fid": "F3",
+   "final_spec_of_this_audit": "",
+   "heading": "### F3. WC-4's \"known before dispatch\" output location cannot be met for cleanup-audit, index-repo, workflow, or file-valued `--output` commands, so AC-1.2/AC-2.x steps 3-4 cannot pass for them",
+   "body": "- WC-4 (line 62): the contract is `<output-dir>/return-contract.yaml`, \"where `<output-dir>` is the directory the coordinator passed (`--output` / `--output-dir`)\". Section 2.3 (line 73): \"the output directory, so the report path is known before dispatch\". AC-1.2 (line 196) runs each P1 command \"with `--unattended --output <dir>`\".\n- Counter-texts:\n  - `cleanup-audit`: \"output dir is fixed, so one audit per worktree at a time\" (line 85); the P1 fix only names the `--pass all` report, so it adds no `--output <dir>`.\n  - `index-repo`: \"State the output location\" (line 86); no output flag is added.\n  - `workflow`: the contract lives under `.dev/tasks/to-do/<id>/` (line 92), where `<id>` is generated by the command. The P1 fix is \"write the contract for pre-creation STOPs too\", and there is no `<id>` directory before creation, so that fix names no location.\n  - `tdd` and `init-lite`: their `--output` is a file (\"`--output <file>`\", lines 87, 90). `<output-dir>` is then undefined, so 7.2 step 4's `<contract>` has no defined path. Row 3.2 `spec-panel` (line 120, \"add `--output`\") has the same ambiguity.\n- Sentence: an implementer who follows WC-4 and AC-1.2 as written builds an `--output <dir>` and contract-location rule that these commands cannot meet. cleanup-audit, index-repo and workflow have no passable output directory, and tdd, init-lite and spec-panel take a file. The acceptance checks (7.2 steps 3-4) then fail for them, or the implementer invents a location per command.\n- This is the same defect as an AC that cannot pass. The invented location is exactly what WC-4's single path rule is meant to prevent.\n"
+  },
+  {
+   "gid": 411,
+   "kind": "first",
+   "arm": "ab4h",
+   "run": "d4h-r1",
+   "step": "r1b",
+   "fid": "B7",
+   "final_spec_of_this_audit": "",
+   "heading": "### B7. The workflow contract path conflicts with WC-4 and does not exist for a pre-creation STOP",
+   "body": "- Expert: Fowler and Hohpe (interfaces and report channels).\n- Location: SPEC:62 (WC-4: `<output-dir>/return-contract.yaml`, \"including stops before any other output exists\", and the path is known before dispatch), SPEC:92 (workflow row: `.dev/tasks/to-do/<id>/return-contract.yaml`; \"Write the contract for pre-creation STOPs too\"), SPEC:198 (AC-1.4). INV-B:272 (`.dev/tasks/to-do/<id>/`; not written for pre-creation STOPs). SPEC:73 (the coordinator must know the path before dispatch).\n- Grading sentence: An implementer who follows WC-4 writes a pre-creation STOP contract to `<output-dir>`, but workflow has no output flag in row SPEC:92, and the row's `<id>` directory does not exist before package creation, so the path the coordinator must know before dispatch (SPEC:73) is undefined for that case.\n- Priority: High. Quality impact: a blocked or failed workflow run leaves the coordinator no report to read.\n- Recommendation: give workflow a `--output` (or a fixed STOP-contract path) and state which location wins for each outcome.\n"
+  },
+  {
+   "gid": 437,
+   "kind": "first",
+   "arm": "ab4h",
+   "run": "d4h-r3",
+   "step": "r1a",
+   "fid": "B2",
+   "final_spec_of_this_audit": "",
+   "heading": "### B2. The contract path rule in WC-4 assumes a directory and a known path. Section 3 rows contradict it",
+   "body": "\n- Location: `spec:62` says `<output-dir>` is \"the directory the coordinator passed (`--output` / `--output-dir`)\". `spec:73` says the report path is \"known before dispatch (WC-4)\".\n- Contradicted by:\n  - `spec:87` init-lite takes `--output <file>`.\n  - `spec:90` tdd takes `--output <file>`, and `spec:200` (AC-2.2) uses `--output <file>` for tdd.\n  - `spec:85` cleanup-audit has a fixed output dir (`.claude-audit/`) and no flag (`INV-A:42`). The row says so.\n  - `spec:86` index-repo has no output flag, and its location is \"implied\" (`INV-A:53`).\n  - `spec:92` workflow writes `.dev/tasks/to-do/<id>/`, where `<id>` is made at run time (`INV-B:52`, `INV-B:272`).\n  - `spec:116` research writes a timestamped path \"generated at run time\" (`INV-B:132`).\n- Grading sentence: an implementer who follows WC-4 for tdd passes `--output <file>` and writes `<file>/return-contract.yaml`, which cannot be created. For cleanup-audit and index-repo there is no directory to pass, so the coordinator cannot open the contract before dispatch, as `spec:73` requires.\n- Fix direction: define the contract location for file-valued outputs (for example, a sibling file), and give cleanup-audit, index-repo, workflow and research an explicit output directory flag.\n"
+  }
+ ]
+}

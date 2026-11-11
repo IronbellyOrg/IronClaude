@@ -1,0 +1,362 @@
+{
+ "run": "b1-r3",
+ "design": "b1",
+ "rep": 3,
+ "stratum": "sonnet",
+ "loop_model": "sonnet",
+ "product_ref": "44f37e16d335a322e618b24c16ba387ffdfb47a1",
+ "cmd_sha": "e62e70b98e878cb4b60ba8f95f1cc3442a25e815828a3ef3d17a95b65ea97494",
+ "rules_sha": "ed219181156e47e6d70120730063e0b00081482d8a78b3d2633da188574ca829",
+ "done": [
+  "R1a",
+  "R1c",
+  "R1b",
+  "VF1",
+  "V1",
+  "R2",
+  "AUD",
+  "AUD2"
+ ],
+ "prepared": [
+  "R1a",
+  "R1b",
+  "R1c",
+  "VF1",
+  "V1",
+  "R2",
+  "AUD",
+  "AUD2"
+ ],
+ "transitioned": [
+  "R1a",
+  "R1c",
+  "R1b",
+  "VF1",
+  "V1",
+  "R2",
+  "AUD",
+  "AUD2"
+ ],
+ "log": {
+  "R1a": {
+   "output_exists": true,
+   "report_bytes": 13941,
+   "verdict": "FAIL",
+   "review_header": [
+    "1"
+   ],
+   "labels": {
+    "MAJOR": 4
+   },
+   "blocking_ids": "B1, B2, B3, B4",
+   "blocking_word_count": 8,
+   "output_tokens": 15391
+  },
+  "R1c": {
+   "output_exists": true,
+   "report_bytes": 18983,
+   "verdict": "FAIL",
+   "review_header": [
+    "1"
+   ],
+   "labels": {
+    "CRITICAL": 3,
+    "MAJOR": 1
+   },
+   "blocking_ids": "B1, WC-4, B2, P1, P4, D2, D4",
+   "blocking_word_count": 9,
+   "output_tokens": 21307
+  },
+  "R1b": {
+   "output_exists": true,
+   "report_bytes": 23329,
+   "verdict": "FAIL",
+   "review_header": [
+    "1"
+   ],
+   "labels": {
+    "MAJOR": 2,
+    "CRITICAL": 1
+   },
+   "blocking_ids": "F1, F2",
+   "blocking_word_count": 10,
+   "output_tokens": 49769
+  },
+  "VF1": {
+   "output_exists": true,
+   "finding_ids": [
+    "M1",
+    "M2",
+    "M3",
+    "M4",
+    "M5"
+   ],
+   "report_bytes": 3347,
+   "confirmed": [
+    "M1",
+    "M2",
+    "M3",
+    "M5"
+   ],
+   "rejected": {
+    "M4": "AC-1.1 only requires the section to name `return-contract.yaml`; a load section can name it and say none is written, so honouring S:112, S:265 and AC-1.1 together is possible and neither a contract nor an AC-1.1 failure is forced."
+   },
+   "parse_ok": true,
+   "output_tokens": 5011
+  },
+  "V1": {
+   "output_exists": true,
+   "report_bytes": 3330,
+   "spec_after": {
+    "bytes": 58733,
+    "lines": 285,
+    "sha256": "ad7680cf8b39696f9eede626f872afc9b90b8426c6886d766a44d4d26c306157"
+   },
+   "output_tokens": 8322
+  },
+  "R2": {
+   "output_exists": true,
+   "report_bytes": 25400,
+   "verdict": "PASS",
+   "review_header": [
+    "2"
+   ],
+   "labels": {
+    "MAJOR": 1
+   },
+   "blocking_ids": null,
+   "blocking_word_count": 6,
+   "spec_after": {
+    "bytes": 58733,
+    "lines": 285,
+    "sha256": "ad7680cf8b39696f9eede626f872afc9b90b8426c6886d766a44d4d26c306157"
+   },
+   "output_tokens": 29171
+  },
+  "AUD": {
+   "output_exists": true,
+   "report_bytes": 15037,
+   "verdict": "FAIL",
+   "review_header": [
+    "1"
+   ],
+   "labels": {
+    "MAJOR": 1
+   },
+   "blocking_ids": "F-1",
+   "blocking_word_count": 4,
+   "spec_audited": {
+    "bytes": 58733
+   },
+   "output_tokens": 22078
+  },
+  "AUD2": {
+   "output_exists": true,
+   "report_bytes": 19714,
+   "verdict": "PASS",
+   "review_header": [
+    "1"
+   ],
+   "labels": {
+    "MAJOR": 1,
+    "MINOR": 4
+   },
+   "blocking_ids": null,
+   "blocking_word_count": 5,
+   "spec_audited": {
+    "bytes": 58733
+   },
+   "output_tokens": 33494
+  }
+ },
+ "launched": {
+  "R1a": "2026-11-10T07:32:17+00:00",
+  "R1b": "2026-11-10T07:33:54+00:00",
+  "R1c": "2026-11-10T07:33:54+00:00",
+  "VF1": "2026-11-10T07:45:49+00:00",
+  "V1": "2026-11-10T07:50:44+00:00",
+  "R2": "2026-11-10T07:56:22+00:00",
+  "AUD": "2026-11-10T08:04:51+00:00",
+  "AUD2": "2026-11-10T08:04:51+00:00"
+ },
+ "noted_unactioned": [
+  {
+   "step": "VF1",
+   "id": "M4",
+   "theme": "T1",
+   "cited": [
+    62,
+    76,
+    112,
+    128,
+    148,
+    154,
+    159,
+    195,
+    265
+   ],
+   "heading": "### B4 (MAJOR, blocking, Wiegers / Adzic): AC-1.1 requires a contract-naming section in `/sc:load`, which section 3 and the Decisions table say has no report",
+   "reason": "AC-1.1 only requires the section to name `return-contract.yaml`; a load section can name it and say none is written, so honouring S:112, S:265 and AC-1.1 together is possible and neither a contract nor an AC-1.1 failure is forced."
+  }
+ ],
+ "loop_end": "PASS",
+ "manual": [],
+ "relaunch": {},
+ "lost": false,
+ "complete": true,
+ "merge": {
+  "raw_count": 8,
+  "merged_count": 5,
+  "groups": [
+   {
+    "mid": "M1",
+    "theme": "T1",
+    "members": [
+     "round1-a.md/B1"
+    ],
+    "cited": [
+     44,
+     60,
+     67,
+     73,
+     100,
+     103,
+     154,
+     159,
+     160,
+     195
+    ],
+    "heading": "### B1 (MAJOR, blocking, Fowler / Wiegers): Phase 1 ships `--unattended` on every command, while the gate and outward-action rules that give the flag its meaning arrive in P2 to P4"
+   },
+   {
+    "mid": "M2",
+    "theme": "T2",
+    "members": [
+     "round1-a.md/B2",
+     "round1-c.md/B1"
+    ],
+    "cited": [
+     62,
+     73,
+     83,
+     87,
+     90,
+     92,
+     120,
+     182,
+     198,
+     200
+    ],
+    "heading": "### B2 (MAJOR, blocking, Wiegers / Adzic): WC-4 puts the contract in an \"output directory\" but the tdd, init-lite and spec-panel rows pass `--output` as a file"
+   },
+   {
+    "mid": "M3",
+    "theme": "T2",
+    "members": [
+     "round1-a.md/B3",
+     "round1-b.md/F2"
+    ],
+    "cited": [
+     62,
+     73,
+     83,
+     92,
+     159,
+     182,
+     183,
+     194,
+     196,
+     198
+    ],
+    "heading": "### B3 (MAJOR, blocking, Cockburn / Wiegers): workflow and adversarial contract paths contradict the WC-4 location, and workflow's path is unknown before dispatch"
+   },
+   {
+    "mid": "M4",
+    "theme": "T1",
+    "members": [
+     "round1-a.md/B4",
+     "round1-b.md/F1"
+    ],
+    "cited": [
+     62,
+     76,
+     112,
+     128,
+     148,
+     154,
+     159,
+     195,
+     265
+    ],
+    "heading": "### B4 (MAJOR, blocking, Wiegers / Adzic): AC-1.1 requires a contract-naming section in `/sc:load`, which section 3 and the Decisions table say has no report"
+   },
+   {
+    "mid": "M5",
+    "theme": "T1",
+    "members": [
+     "round1-c.md/B2"
+    ],
+    "cited": [
+     44,
+     60,
+     109,
+     113,
+     114,
+     154,
+     159,
+     162,
+     195
+    ],
+    "heading": "### B2. CRITICAL (blocking): AC-1.1 requires Phase 1 to finish text that Phase 4 is stated to wait for"
+   }
+  ],
+  "reviewers": {
+   "a": {
+    "verdict": "FAIL",
+    "sha256": "6a694272454bdc32b713ef1805652cf51e425a1a649b8cece5d7c3f2457d3468",
+    "ids": [
+     "B1",
+     "B2",
+     "B3",
+     "B4"
+    ],
+    "themes": [
+     "T1",
+     "T2",
+     "T2",
+     "T1"
+    ]
+   },
+   "b": {
+    "verdict": "FAIL",
+    "sha256": "49a30beaaeda793adbacb9fe55ca28d41fc4a9e862c4ad700e198154ce718ac6",
+    "ids": [
+     "F1",
+     "F2"
+    ],
+    "themes": [
+     "T1",
+     "T2"
+    ]
+   },
+   "c": {
+    "verdict": "FAIL",
+    "sha256": "c7fee73e0a25d2e82c2e99c1de677c8cde73bbccd48c3849ed5c9d8f62c31a02",
+    "ids": [
+     "B1",
+     "B2"
+    ],
+    "themes": [
+     "T2",
+     "T1"
+    ]
+   }
+  },
+  "done": true
+ },
+ "final_spec": {
+  "bytes": 58733,
+  "lines": 285,
+  "sha256": "ad7680cf8b39696f9eede626f872afc9b90b8426c6886d766a44d4d26c306157"
+ }
+}

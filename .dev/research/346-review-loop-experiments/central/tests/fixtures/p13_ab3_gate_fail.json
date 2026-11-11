@@ -1,0 +1,6 @@
+{
+ "pass": false,
+ "F1": "FALSIFIED",
+ "F3": "not run",
+ "note": "F3 not run (no PN1 data): gate rests on F1 alone"
+}

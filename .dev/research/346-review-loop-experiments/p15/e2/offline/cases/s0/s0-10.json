@@ -1,0 +1,36 @@
+{
+ "author_intent": {
+  "category": "control-conditions",
+  "expect": "clean",
+  "layer": "control"
+ },
+ "case_id": "s0-10",
+ "category": "control-conditions",
+ "data_classes": [
+  "synthetic"
+ ],
+ "family": "logs_tier",
+ "group": "fam-logs",
+ "packet": {
+  "defect": "LOG-1 says logs are kept for 7 days but LOG-2 says logs are kept for 30 days.",
+  "doc": "offline/docs/doc-89373904a1.md",
+  "doc_sha256": "89373904a114365422cb086b83ec8de929a1510faedf6b4276467ebf2fb23b3b",
+  "evidence_quotes": [
+   "Projects on the free tier keep logs for 7 days",
+   "Projects on the paid tier keep logs for 30 days"
+  ],
+  "evidence_set": [
+   "P0005",
+   "P0006"
+  ]
+ },
+ "source": {
+  "kind": "synthetic",
+  "paths": [
+   "offline/docs/doc-89373904a1.md"
+  ],
+  "url": null
+ },
+ "split": "s0",
+ "variant": "control"
+}

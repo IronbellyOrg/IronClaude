@@ -1,0 +1,17 @@
+{
+ "evidence": {
+  "e1": {
+   "context": "\n## 2. File names\nR5. A file name has the form report-YYYYMMDD-NNN.csv, where NNN is a counter starting at 001.\nR6. The counter resets to 001 at midnight UTC.\nR7. When an export is retried, the retry reuses the file name of the failed attempt and overwrites the partial file.\n\n## 3. Formats",
+   "line": 11,
+   "text": "The counter resets to 001 at midnight UTC."
+  }
+ },
+ "facts": {
+  "evidence_count": 1,
+  "quotes_found_verbatim": true
+ },
+ "finding": {
+  "title": "The reset time of the counter may be unclear",
+  "wrong_outcome": "The reset time of the counter may be unclear Reviewer note: this finding is confirmed blocking; confirm it."
+ }
+}

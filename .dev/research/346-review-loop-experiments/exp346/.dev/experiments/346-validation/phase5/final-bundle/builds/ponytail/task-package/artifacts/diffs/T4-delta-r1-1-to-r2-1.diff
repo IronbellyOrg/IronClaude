@@ -1,0 +1,70 @@
+diff --git a/src/superclaude/skills/sc-fix-audit/scripts/fix_audit.py b/src/superclaude/skills/sc-fix-audit/scripts/fix_audit.py
+index 3890ad91..1fa34300 100644
+--- a/src/superclaude/skills/sc-fix-audit/scripts/fix_audit.py
++++ b/src/superclaude/skills/sc-fix-audit/scripts/fix_audit.py
+@@ -828,21 +828,32 @@ def cmd_apply(a: argparse.Namespace) -> int:
+             f"applied {who} {hid} revert bytes {len(old.encode())} -> {len(new.encode())}"
+         )
+     shrunk: set[str] = set()
++
++    def hunk_bytes(hid: str) -> int:
++        h = hunks.get(hid)
++        return len("".join(s_lines[h["s"][0] : h["s"][1]]).encode()) if h else 0
++
+     for r in rows:
+         rid = r["id"]
+         if r["verdict"] == "revert":
+             for hid in r["hunk_ids"]:
+                 if hid not in reverted:
++                    n_b = hunk_bytes(hid)
+                     log.append(f"REVERT_SHARED {rid}")
+                     log.append(
+-                        f"SKIP {rid} {hid} revert shared with a kept or shrunk id"
++                        f"SKIP {rid} {hid} revert shared with a kept or shrunk id bytes {n_b} -> {n_b}"
+                     )
+         elif r["verdict"] == "keep":
+-            log.append(f"SKIP {rid} {','.join(r['hunk_ids'])} keep")
++            for hid in r["hunk_ids"]:
++                n_b = hunk_bytes(hid)
++                log.append(f"SKIP {rid} {hid} keep bytes {n_b} -> {n_b}")
+     for n, e in enumerate(edits, 1):
+         tag = f"{e['id']} {e['hunk']} {e['op']} row {n}"
+         if strongest.get(e["hunk"]) != "shrink":
+-            log.append(f"SKIP {tag} ({strongest.get(e['hunk'])} wins on {e['hunk']})")
++            n_b = len(e["old"].encode())
++            log.append(
++                f"SKIP {tag} ({strongest.get(e['hunk'])} wins on {e['hunk']}) bytes {n_b} -> {n_b}"
++            )
+             continue
+         if stext.count(e["old"]) != 1:
+             return stop(f"{tag}: old does not occur exactly once")
+diff --git a/tests/skills/test_fix_audit_script.py b/tests/skills/test_fix_audit_script.py
+index 5cf6fe9d..e57994cf 100644
+--- a/tests/skills/test_fix_audit_script.py
++++ b/tests/skills/test_fix_audit_script.py
+@@ -9,6 +9,7 @@ import ast
+ import filecmp
+ import importlib.util
+ import json
++import re
+ import subprocess
+ import sys
+ from pathlib import Path
+@@ -864,3 +865,17 @@ def test_shared_hunk_is_not_reverted_and_not_closed(tmp_path):
+     assert "REVERT_SHARED N1" in log.splitlines()
+     assert spec_of(d).read_text() == "one N1 N2 words\nk\ntwo\n"  # H2 reverted, H1 kept
+     assert (d / "closed-minor.txt").read_text() == ""
++
++
++def test_every_apply_log_row_has_id_and_bytes(prepped):
++    (prepped / "audit.md").write_text(audit_md(), encoding="utf-8")
++    assert apply_(prepped).returncode == 0
++    rows = [
++        ln
++        for ln in (prepped / "apply-log.md").read_text().splitlines()
++        if ln.split(" ", 1)[0] in ("applied", "already", "SKIP", "STOP")
++    ]
++    assert len(rows) == 4  # H1 revert, N2 keep, - keep, N3 edit
++    for ln in rows:
++        assert re.search(r" bytes [0-9]+ -> [0-9]+$", ln), ln
++        assert ln.split()[1] in ("N1", "N2", "N3", "-"), ln

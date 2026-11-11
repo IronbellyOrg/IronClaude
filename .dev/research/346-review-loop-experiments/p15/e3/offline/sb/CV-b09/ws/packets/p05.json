@@ -1,0 +1,17 @@
+{
+ "finding": {
+  "title": "A waiting backup is skipped",
+  "wrong_outcome": "an implementer who follows the stated text as written builds a scheduler that skips a due backup while the previous one runs, because `makes the next one wait until it finishes` (S:6), and the Sunday full backup is lost."
+ },
+ "evidence": {
+  "e1": {
+   "text": "makes the next one wait until it finishes",
+   "line": 6,
+   "context": "## 1. Schedule\nR1. A full backup runs every Sunday at 01:00 UTC.\nR2. An incremental backup runs every other day at 01:00 UTC.\nR3. A backup job that is still running when the next one is due makes the next one wait until it finishes.\n\n## 2. Storage\nR4. Backups are written to the primary storage bucket."
+  }
+ },
+ "facts": {
+  "quotes_found_verbatim": true,
+  "evidence_count": 1
+ }
+}

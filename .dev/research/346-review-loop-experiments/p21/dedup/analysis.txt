@@ -1,0 +1,48 @@
+status Counter({'ok': 1864}) choices Counter({'different_defects': 1744, 'same_defect': 95, 'unclear': 25}) order agreement 923/932
+positives: same 31, same-or-overlap 54, pairs 932
+rule | vs same: tp fp fn prec rec | vs same-or-overlap: tp fp fn prec rec | n flagged
+jev both orders same | (26, 17, 5, 0.6, 0.84) | (31, 12, 23, 0.72, 0.57) | 43
+jev either order same | (28, 24, 3, 0.54, 0.9) | (34, 18, 20, 0.65, 0.63) | 52
+code: shared SPEC line | (28, 278, 3, 0.09, 0.9) | (45, 261, 9, 0.15, 0.83) | 306
+code: line jaccard>=0.3 | (23, 21, 8, 0.52, 0.74) | (31, 13, 23, 0.7, 0.57) | 44
+code: shared ref (merge-like) | (31, 428, 0, 0.07, 1.0) | (48, 411, 6, 0.1, 0.89) | 459
+jev min P(same)>=0.5 | (26, 17, 5, 0.6, 0.84) | (31, 12, 23, 0.72, 0.57) | 43
+jev min P(same)>=0.7 | (23, 12, 8, 0.66, 0.74) | (28, 7, 26, 0.8, 0.52) | 35
+jev min P(same)>=0.9 | (20, 4, 11, 0.83, 0.65) | (21, 3, 33, 0.88, 0.39) | 24
+same 31 median min P(same) 0.92 mean 0.8
+overlap 23 median min P(same) 0.09 mean 0.241
+diff 878 median min P(same) 0.0 mean 0.025
+AUC same vs diff (min P same) 0.992
+hard negatives (different defects, shared line): 261 jev says same (both orders): 10
+
+--- extra
+AUC jaccard same vs diff 0.927
+jev>=0.9 AND jacc>=0.1 (20, 3, 11, 0.87, 0.65) (21, 2, 33, 0.91, 0.39)
+jev>=0.9 AND jacc>=0.2 (20, 3, 11, 0.87, 0.65) (21, 2, 33, 0.91, 0.39)
+jev>=0.9 AND jacc>=0.3 (19, 3, 12, 0.86, 0.61) (20, 2, 34, 0.91, 0.37)
+jev>=0.9 OR jacc>=0.3 (24, 22, 7, 0.52, 0.77) (32, 14, 22, 0.7, 0.59)
+jev>=0.7 AND jacc>=0.1 (23, 11, 8, 0.68, 0.74) (28, 6, 26, 0.82, 0.52)
+jev>=0.7 AND jacc>=0.2 (23, 10, 8, 0.7, 0.74) (27, 6, 27, 0.82, 0.5)
+jev>=0.7 AND jacc>=0.3 (22, 8, 9, 0.73, 0.71) (26, 4, 28, 0.87, 0.48)
+jev>=0.7 OR jacc>=0.3 (24, 25, 7, 0.49, 0.77) (33, 16, 21, 0.67, 0.61)
+
+false positives at jev>=0.9 (vs same):
+38-45 ab1 DIFF ['D02'] ['D01'] jacc 0.357
+  A: ### B1 (MAJOR, blocking, Fowler / Wiegers): Phase 1 ships `--unattended` on every command, while the gate and outward-action rules that give the flag its meanin
+  B: ### B2. CRITICAL (blocking): AC-1.1 requires Phase 1 to finish text that Phase 4 is stated to wait for
+85-86 ab1h overlap ['D22'] ['D21', 'D22'] jacc 0.5
+  A: **B5. AC-C1 forbids the Orca mention that SA-2 permits, and P0 writes that mention.** (Fowler; Newman)
+  B: ### B1. The SA-2 exception, AC-C1 and the P0 Orca sections contradict each other
+413-421 ab4h DIFF ['D11'] ['D12'] jacc 0.333
+  A: ### F1. Phase 0 acceptance check cannot pass as written. BLOCKING. CRITICAL.
+  B: **B3. [BLOCKING, High] AC-0.4 cannot pass for the three P0 commands.**
+437-444 ab4h DIFF ['D09'] ['D06', 'D07', 'D08'] jacc 0.0
+  A: ### B2. The contract path rule in WC-4 assumes a directory and a known path. Section 3 rows contradict it
+  B: ### B-5 (BLOCKING). The WC-4 contract path is contradicted by the per-command rows, and several commands have no directory to write into
+
+misses (same, jev<0.5):
+39-40 ['D06', 'D07', 'D08', 'D09', 'D10'] 0.08 jacc 0.2 | ### B2 (MAJOR, blocking, Wiegers / Adzic): WC-4 puts the contract in an "output directory" but the tdd, init-l || ### B3 (MAJOR, blocking, Cockburn / Wiegers): workflow and adversarial contract paths contradict the WC-4 loca
+39-43 ['D06', 'D07', 'D08', 'D09', 'D10'] 0.36 jacc 0.25 | ### B2 (MAJOR, blocking, Wiegers / Adzic): WC-4 puts the contract in an "output directory" but the tdd, init-l || ### F2 - BLOCKING - Two different contract paths for the same command (adversarial, workflow) against WC-4 and
+58-61 ['D06', 'D07', 'D08', 'D09', 'D10'] 0.1 jacc 0.143 | ### F2. CRITICAL-in-effect, blocking: the `/sc:adversarial` contract path in section 3.1 contradicts the WC-4  || **B1. WC-4 puts the contract file in a directory the brief cannot name for several commands (CRITICAL, High)**
+80-85 ['D22'] 0.33 jacc 0.6 | ### B4. AC-C1 matches nothing as written, and it cannot pass P0 as scoped (acceptance, SA-2) || **B5. AC-C1 forbids the Orca mention that SA-2 permits, and P0 writes that mention.** (Fowler; Newman)
+390-393 ['D06'] 0.41 jacc 0.0 | ### R1-B2. CRITICAL (blocking): WC-4 puts the contract in `<output-dir>`, "the directory the coordinator passe || ### F3. MAJOR graded blocking. AC-2.2 and AC-2.3 need a WC-4 contract from commands that no phase makes write 

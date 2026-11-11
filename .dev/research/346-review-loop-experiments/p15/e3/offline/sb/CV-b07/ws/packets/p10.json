@@ -1,0 +1,17 @@
+{
+ "finding": {
+  "title": "AC-C5 and AC-0.3 use `grep -E '^-[^-]'`, which does not detect a deleted markdown bullet, so \"edits are additive\" is not proved",
+  "wrong_outcome": "An implementer who follows AC-C5 builds a gate that prints nothing and passes when a phase deletes an existing \"Will Not\" bullet or an approval-gate bullet from a command file, and that is wrong because AC-C5 is the spec's only mechanical proof that standalone behaviour (SA-1) and safety lines are untouched. (AC-0.3 is safe in practice because routing rows start with `|`; AC-C5 is not.)"
+ },
+ "evidence": {
+  "e1": {
+   "text": "grep -E '^-[^-]'",
+   "line": 176,
+   "context": "| AC-C2 | `make verify-sync` | exits 0 (SA-5) |\n| AC-C3 | Before the phase starts, save `uv run pytest tests/skills/ -q -rf` output as the baseline; after the phase, run it again | no test that passed in the baseline fails; new tests pass. A clean suite is not assumed (an earlier run saw pre-existing failures, `.dev/codegraph-migration/orchestration/README.md:42`) |\n| AC-C4 | `git diff --cached --name-only \\| grep '^\\.claude/' \\| grep -v '^\\.claude/settings\\.json$'` | prints nothing (`CLAUDE.md:16`) |\n| AC-C5 | For every command file the phase edits without a named defect fix (SA-4): `git diff -U0 master...HEAD -- src/superclaude/commands/<name>.md \\| grep -E '^-[^-]'` | prints nothing: edits are additive |\n\n### 7.2 Live worker check (used by P0-P4)\nFor each command under test, the coordinator runs:"
+  }
+ },
+ "facts": {
+  "quotes_found_verbatim": true,
+  "evidence_count": 1
+ }
+}

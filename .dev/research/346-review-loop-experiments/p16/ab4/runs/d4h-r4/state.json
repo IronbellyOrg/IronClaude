@@ -1,0 +1,507 @@
+{
+ "run": "d4h-r4",
+ "design": "d4",
+ "rep": 4,
+ "stratum": "haiku",
+ "loop_model": "haiku",
+ "frozen": {
+  "cmd_sha": "e62e70b98e878cb4b60ba8f95f1cc3442a25e815828a3ef3d17a95b65ea97494",
+  "rules_sha": "1a2e8ab6b9156760e72e47e31b2c126e5f8e82727e9ed90e9e60f48333bada8b",
+  "aud_cmd_sha": "e62e70b98e878cb4b60ba8f95f1cc3442a25e815828a3ef3d17a95b65ea97494",
+  "aud_rules_sha": "3eb772f944491720af24133267681e170510ba49949af1b08db913e9eeaddfb8",
+  "_comment": "cmd_sha: the /sc:spec-panel command (identical to the frozen audit command, aud_cmd_sha); rules_sha: ab1 rules + PN2 lint bullets + k=2 wording (make_rules.py); aud_rules_sha: the frozen audit rules (p11/rules.md)."
+ },
+ "cmd_sha": "e62e70b98e878cb4b60ba8f95f1cc3442a25e815828a3ef3d17a95b65ea97494",
+ "rules_sha": "1a2e8ab6b9156760e72e47e31b2c126e5f8e82727e9ed90e9e60f48333bada8b",
+ "done": [
+  "R1a",
+  "R1b",
+  "VF1",
+  "V1",
+  "R2",
+  "VF2",
+  "V2",
+  "R3",
+  "VF3",
+  "AUD2",
+  "AUD"
+ ],
+ "prepared": [
+  "R1a",
+  "R1b",
+  "VF1",
+  "V1",
+  "R2",
+  "VF2",
+  "V2",
+  "R3",
+  "VF3",
+  "AUD",
+  "AUD2"
+ ],
+ "transitioned": [
+  "R1a",
+  "R1b",
+  "VF1",
+  "V1",
+  "R2",
+  "VF2",
+  "V2",
+  "R3",
+  "VF3",
+  "AUD2",
+  "AUD"
+ ],
+ "log": {
+  "LINT1": {
+   "checks": [
+    "REF"
+   ],
+   "findings": 0,
+   "by_check": {},
+   "ids": [],
+   "sha256": "6a70e9a1255ee5d4652078e22f1d02b3383feeb5af682b9017b29610cb1b420a",
+   "spec_sha256": "d3cdbe573e57303b9ce6c93d1fe98ba18fb7cb1a15773d926bf6a0c31425200d",
+   "stratum": "haiku"
+  },
+  "R1a": {
+   "output_exists": true,
+   "report_bytes": 17061,
+   "verdict": "FAIL",
+   "review_header": [
+    "1"
+   ],
+   "labels": {},
+   "blocking_ids": "B1, B2, B3",
+   "blocking_word_count": 6,
+   "stratum": "haiku",
+   "model": "haiku",
+   "output_tokens": 70561
+  },
+  "R1b": {
+   "output_exists": true,
+   "report_bytes": 27874,
+   "verdict": "FAIL",
+   "review_header": [
+    "1"
+   ],
+   "labels": {
+    "MAJOR": 5
+   },
+   "blocking_ids": "B1, B2, B3, B4, B5 (the findings above, with their grading sentences). Revise only text a blocking finding names. Add no rule, mechanism or section that a blocking finding does not call for. Prefer deleting or narrowing to adding. Each added paragraph or table cites its finding id. Report the byte size before and after, and the bytes added and deleted per finding id. Medium and minor findings are not part of this brief",
+   "blocking_word_count": 16,
+   "stratum": "haiku",
+   "model": "haiku",
+   "output_tokens": 96030
+  },
+  "VF1": {
+   "output_exists": true,
+   "output_tokens": 18794,
+   "finding_ids": [
+    "M1",
+    "M2",
+    "M3",
+    "M4",
+    "M5",
+    "M6",
+    "M7"
+   ],
+   "report_bytes": 5333,
+   "confirmed": [
+    "M1",
+    "M2",
+    "M4",
+    "M5",
+    "M6",
+    "M7"
+   ],
+   "rejected": {
+    "M3": "The P1 Scope cell states \"The WC-4 contract in unattended mode\" with no command list, and line 79 says Phase 1 adds the contract to the ready commands. The four commands are therefore covered by that unqualified scope. The failure needs the P1 Commands column to be read as exhaustive for the contract, which is an extra assumption."
+   },
+   "parse_ok": true,
+   "stratum": "haiku",
+   "model": "haiku"
+  },
+  "V1": {
+   "output_exists": true,
+   "report_bytes": 6649,
+   "spec_after": {
+    "bytes": 62793,
+    "lines": 318,
+    "sha256": "7c8aa27b2871ce92c01502f179de64ec96be2031fdf14b1198dc4230f55a9adc"
+   },
+   "stratum": "haiku",
+   "model": "haiku",
+   "output_tokens": 39154
+  },
+  "LINT2": {
+   "checks": [
+    "REF"
+   ],
+   "findings": 0,
+   "by_check": {},
+   "ids": [],
+   "sha256": "7bd33ecb8823b9f35684c3ab424e7f427969d49fd661a2fd0aee7c22e3097587",
+   "spec_sha256": "7c8aa27b2871ce92c01502f179de64ec96be2031fdf14b1198dc4230f55a9adc",
+   "stratum": "haiku"
+  },
+  "R2": {
+   "output_exists": true,
+   "report_bytes": 26408,
+   "verdict": "FAIL",
+   "review_header": [
+    "2"
+   ],
+   "labels": {},
+   "blocking_ids": "M4, N1",
+   "blocking_word_count": 11,
+   "spec_after": {
+    "bytes": 62793,
+    "lines": 318,
+    "sha256": "7c8aa27b2871ce92c01502f179de64ec96be2031fdf14b1198dc4230f55a9adc"
+   },
+   "stratum": "haiku",
+   "model": "haiku",
+   "output_tokens": 43566
+  },
+  "VF2": {
+   "output_exists": true,
+   "finding_ids": [
+    "M4",
+    "N1"
+   ],
+   "report_bytes": 2027,
+   "confirmed": [
+    "M4",
+    "N1"
+   ],
+   "rejected": {},
+   "parse_ok": true,
+   "stratum": "haiku",
+   "model": "haiku",
+   "output_tokens": 7844
+  },
+  "V2": {
+   "output_exists": true,
+   "report_bytes": 5554,
+   "spec_after": {
+    "bytes": 63106,
+    "lines": 318,
+    "sha256": "5c1ab8696d3015841916a6b721ba37673ca41cc95d7518dd2f44d176aa42898f"
+   },
+   "stratum": "haiku",
+   "model": "haiku",
+   "output_tokens": 17885
+  },
+  "LINT3": {
+   "checks": [
+    "REF"
+   ],
+   "findings": 0,
+   "by_check": {},
+   "ids": [],
+   "sha256": "0f234547c6a9cc90e33eee26c9a0c5c8b42f79878639b7aba463b2bc1f84b593",
+   "spec_sha256": "5c1ab8696d3015841916a6b721ba37673ca41cc95d7518dd2f44d176aa42898f",
+   "stratum": "haiku"
+  },
+  "R3": {
+   "output_exists": true,
+   "report_bytes": 14150,
+   "verdict": "FAIL",
+   "review_header": [
+    "3"
+   ],
+   "labels": {},
+   "blocking_ids": null,
+   "blocking_word_count": 12,
+   "spec_after": {
+    "bytes": 63106,
+    "lines": 318,
+    "sha256": "5c1ab8696d3015841916a6b721ba37673ca41cc95d7518dd2f44d176aa42898f"
+   },
+   "stratum": "haiku",
+   "model": "haiku",
+   "output_tokens": 33438
+  },
+  "VF3": {
+   "output_exists": true,
+   "finding_ids": [
+    "N6"
+   ],
+   "report_bytes": 2334,
+   "confirmed": [
+    "N6"
+   ],
+   "rejected": {},
+   "parse_ok": true,
+   "stratum": "haiku",
+   "model": "haiku",
+   "output_tokens": 4568
+  },
+  "AUD2": {
+   "output_exists": true,
+   "report_bytes": 25451,
+   "verdict": "FAIL",
+   "review_header": [
+    "1"
+   ],
+   "labels": {
+    "CRITICAL": 1,
+    "MAJOR": 7,
+    "MINOR": 1
+   },
+   "blocking_ids": "F-01, F-02. Nothing else is to be touched",
+   "blocking_word_count": 17,
+   "spec_audited": {
+    "bytes": 63106
+   },
+   "stratum": "haiku",
+   "model": "sonnet",
+   "output_tokens": 46593
+  },
+  "AUD": {
+   "output_exists": true,
+   "report_bytes": 26858,
+   "verdict": "PASS",
+   "review_header": [
+    "1"
+   ],
+   "labels": {
+    "CRITICAL": 1
+   },
+   "blocking_ids": null,
+   "blocking_word_count": 8,
+   "spec_audited": {
+    "bytes": 63106
+   },
+   "stratum": "haiku",
+   "model": "sonnet",
+   "output_tokens": 57717
+  }
+ },
+ "launched": {
+  "R1a": "2026-11-10T12:58:44+00:00",
+  "R1b": "2026-11-10T12:59:49+00:00",
+  "VF1": "2026-11-10T13:11:14+00:00",
+  "V1": "2026-11-10T13:13:13+00:00",
+  "R2": "2026-11-10T13:16:36+00:00",
+  "VF2": "2026-11-10T13:20:36+00:00",
+  "V2": "2026-11-10T13:22:01+00:00",
+  "R3": "2026-11-10T13:24:17+00:00",
+  "VF3": "2026-11-10T13:27:58+00:00",
+  "AUD": "2026-11-10T13:28:41+00:00",
+  "AUD2": "2026-11-10T13:28:41+00:00"
+ },
+ "noted_unactioned": [
+  {
+   "step": "VF1",
+   "id": "M3",
+   "theme": "T2",
+   "cited": [
+    79,
+    87,
+    89,
+    90,
+    91,
+    159,
+    160,
+    183,
+    201
+   ],
+   "heading": "### B3. The WC-4 contract has no phase for release-split, tdd, troubleshoot or init-lite (Fowler, architecture)",
+   "reason": "The P1 Scope cell states \"The WC-4 contract in unattended mode\" with no command list, and line 79 says Phase 1 adds the contract to the ready commands. The four commands are therefore covered by that unqualified scope. The failure needs the P1 Commands column to be read as exhaustive for the contract, which is an extra assumption."
+  }
+ ],
+ "loop_end": "ESCALATED",
+ "manual": [
+  {
+   "step": "R3",
+   "ids": [
+    "N6"
+   ],
+   "raw": "N6"
+  }
+ ],
+ "relaunch": {},
+ "lost": false,
+ "complete": true,
+ "merge": {
+  "raw_count": 8,
+  "merged_count": 7,
+  "groups": [
+   {
+    "mid": "M1",
+    "theme": "T1",
+    "members": [
+     "round1-a.md/B1",
+     "round1-b.md/B2"
+    ],
+    "cited": [
+     62,
+     112,
+     159,
+     183,
+     195,
+     196,
+     265
+    ],
+    "heading": "### B1. /sc:load contradicts the contract rule and AC-1.2 (Wiegers, requirements)"
+   },
+   {
+    "mid": "M2",
+    "theme": "T3",
+    "members": [
+     "round1-a.md/B2"
+    ],
+    "cited": [
+     79,
+     91,
+     158,
+     182,
+     194
+    ],
+    "heading": "### B2. AC-0.4 step 3 cannot pass in P0 (Adzic, testability)"
+   },
+   {
+    "mid": "M3",
+    "theme": "T2",
+    "members": [
+     "round1-a.md/B3"
+    ],
+    "cited": [
+     79,
+     87,
+     89,
+     90,
+     91,
+     159,
+     160,
+     183,
+     201
+    ],
+    "heading": "### B3. The WC-4 contract has no phase for release-split, tdd, troubleshoot or init-lite (Fowler, architecture)"
+   },
+   {
+    "mid": "M4",
+    "theme": "T3",
+    "members": [
+     "round1-b.md/B1"
+    ],
+    "cited": [
+     43,
+     159,
+     182,
+     183,
+     194
+    ],
+    "heading": "### B1. AC-0.4 cannot pass in P0 as written (steps 3 and 4)"
+   },
+   {
+    "mid": "M5",
+    "theme": "T1",
+    "members": [
+     "round1-b.md/B3"
+    ],
+    "cited": [
+     79,
+     84,
+     87,
+     159,
+     195
+    ],
+    "heading": "### B3. Section 3.1 says the ready commands change only in the last column, but P1 and AC-1.1 require the flag on all of them"
+   },
+   {
+    "mid": "M6",
+    "theme": "other",
+    "members": [
+     "round1-b.md/B4"
+    ],
+    "cited": [
+     60,
+     100,
+     103,
+     110,
+     116,
+     118,
+     200
+    ],
+    "heading": "### B4. AC-2.2 cannot pass for five P2 commands whose gates resolve by default"
+   },
+   {
+    "mid": "M7",
+    "theme": "other",
+    "members": [
+     "round1-b.md/B5"
+    ],
+    "cited": [
+     147,
+     150,
+     172,
+     180,
+     191,
+     192,
+     193,
+     194,
+     195,
+     196,
+     197,
+     198,
+     199,
+     200,
+     201,
+     202,
+     203,
+     204,
+     205,
+     206,
+     207,
+     208,
+     209,
+     210
+    ],
+    "heading": "### B5. AC-C1 cannot fail, and its scope conflicts with SA-2 and SA-5"
+   }
+  ],
+  "reviewers": {
+   "a": {
+    "verdict": "FAIL",
+    "sha256": "7eada379ba2f5c04fc0b109ac220586175ad5801cc64d8d18595a17057f9b2be",
+    "ids": [
+     "B1",
+     "B2",
+     "B3"
+    ],
+    "themes": [
+     "T1",
+     "T3",
+     "T2"
+    ]
+   },
+   "b": {
+    "verdict": "FAIL",
+    "sha256": "20d91855bd76c7843b6192c55a1e05220019ae3d881768254eca879299025a39",
+    "ids": [
+     "B1",
+     "B2",
+     "B3",
+     "B4",
+     "B5"
+    ],
+    "themes": [
+     "T3",
+     "T1",
+     "T1",
+     "other",
+     "other"
+    ]
+   }
+  },
+  "done": true
+ },
+ "final_spec": {
+  "bytes": 63106,
+  "lines": 318,
+  "sha256": "5c1ab8696d3015841916a6b721ba37673ca41cc95d7518dd2f44d176aa42898f"
+ }
+}

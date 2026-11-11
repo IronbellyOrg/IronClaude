@@ -1,0 +1,257 @@
+diff --git a/.dev/brainstorms/346-stoprule/briefs/T05-R1-reviewer-L11-699ae853.txt b/.dev/brainstorms/346-stoprule/briefs/T05-R1-reviewer-L11-699ae853.txt
+new file mode 100644
+index 00000000..2158c580
+--- /dev/null
++++ b/.dev/brainstorms/346-stoprule/briefs/T05-R1-reviewer-L11-699ae853.txt
+@@ -0,0 +1 @@
++Task 5, independent review. You did not write the spec; review it adversarially. Run: /sc:spec-panel-stoprule @.dev/orca-command-refactor/specs/orca-worker-contract-spec.md --mode critique --focus requirements,architecture . Save the full panel result to .dev/orca-command-refactor/review/spec-panel.md, then add a numbered findings list (finding, severity, spec section, evidence path:line). Do NOT edit the spec. Acceptance: review/spec-panel.md exists with a numbered findings list and a PASS or FAIL verdict. Repo root: /home/coder/workspaces/worktrees/IronClaude/OrcaCLICommandRefactor-Specs. First read .dev/orca-command-refactor/README.md (shared goal, evidence and rules; they are binding). Ownership: write ONLY your output file(s); planning only, no edits to src/, tests/, docs/, .claude/, ~/.claude or Orca settings, no git commits/pushes/PRs. Cite path:line for every claim, mark unverified items UNVERIFIED, stub the output file first and fill it section by section. Finish with worker_done --report-path <your output file>.
+diff --git a/.dev/brainstorms/346-stoprule/briefs/T06-R1-reviser-L10-3bb70411.txt b/.dev/brainstorms/346-stoprule/briefs/T06-R1-reviser-L10-3bb70411.txt
+new file mode 100644
+index 00000000..a4706535
+--- /dev/null
++++ b/.dev/brainstorms/346-stoprule/briefs/T06-R1-reviser-L10-3bb70411.txt
+@@ -0,0 +1 @@
++Task 6, revise the spec. Inputs: .dev/orca-command-refactor/review/spec-panel.md and the spec. Change: verify each numbered finding against the evidence; apply confirmed findings to .dev/orca-command-refactor/specs/orca-worker-contract-spec.md; write .dev/orca-command-refactor/review/disposition.md with one row per finding: applied (where) or rejected (cited reason). Acceptance: every finding has a disposition row; the spec has no placeholder left. Report path: review/disposition.md. Repo root: /home/coder/workspaces/worktrees/IronClaude/OrcaCLICommandRefactor-Specs. First read .dev/orca-command-refactor/README.md (shared goal, evidence and rules; they are binding). Ownership: write ONLY your output file(s); planning only, no edits to src/, tests/, docs/, .claude/, ~/.claude or Orca settings, no git commits/pushes/PRs. Cite path:line for every claim, mark unverified items UNVERIFIED, stub the output file first and fill it section by section. Finish with worker_done --report-path <your output file>.
+diff --git a/.dev/brainstorms/346-stoprule/briefs/T07-R2-reviewer-L11-aff19d65.txt b/.dev/brainstorms/346-stoprule/briefs/T07-R2-reviewer-L11-aff19d65.txt
+new file mode 100644
+index 00000000..322a36f7
+--- /dev/null
++++ b/.dev/brainstorms/346-stoprule/briefs/T07-R2-reviewer-L11-aff19d65.txt
+@@ -0,0 +1 @@
++Task 7, independent re-review of the revised spec. You did not write or revise it; assume defects remain and look for them. Inputs: .dev/orca-command-refactor/specs/orca-worker-contract-spec.md (revised), .dev/orca-command-refactor/review/spec-panel.md (round-1 findings), .dev/orca-command-refactor/review/disposition.md, and the inventories under .dev/orca-command-refactor/inventory/. Change: (1) for each of the 24 round-1 findings, check the spec text actually resolves it, not just that disposition.md says so; (2) re-read every path:line citation added or changed by the revision against the live file or Orca --help/guide output and list wrong or overstated ones; (3) run /sc:spec-panel-stoprule @.dev/orca-command-refactor/specs/orca-worker-contract-spec.md --mode critique --focus requirements,architecture --re-review .dev/orca-command-refactor/review/spec-panel.md --baseline .dev/orca-command-refactor/specs/history/spec-v1-draft.md for new defects, including ones introduced by the revision. Output: .dev/orca-command-refactor/review/spec-panel-round2.md with a per-finding resolution table, a citation-check table, a numbered list of new findings (severity, section, evidence) and a binary PASS or FAIL verdict; any finding of any severity is FAIL. If PASS, include a Self-Audit naming what you checked. Acceptance: all three parts present with evidence. Repo root: /home/coder/workspaces/worktrees/IronClaude/OrcaCLICommandRefactor-Specs. First read .dev/orca-command-refactor/README.md (shared goal, evidence and rules; they are binding). Ownership: write ONLY your output file; planning only, no edits to the spec or any other file, no edits to src/, tests/, docs/, .claude/, ~/.claude or Orca settings, no git commits/pushes/PRs. Cite path:line for every claim, mark unverified items UNVERIFIED, stub the output file first and fill it section by section. Finish with worker_done --report-path <your output file>.
+diff --git a/.dev/brainstorms/346-stoprule/briefs/T08-R2-reviser-L10-66468bab.txt b/.dev/brainstorms/346-stoprule/briefs/T08-R2-reviser-L10-66468bab.txt
+new file mode 100644
+index 00000000..d7ffffab
+--- /dev/null
++++ b/.dev/brainstorms/346-stoprule/briefs/T08-R2-reviser-L10-66468bab.txt
+@@ -0,0 +1 @@
++Task 8, revise the spec for round-2 findings. Inputs: .dev/orca-command-refactor/review/spec-panel-round2.md (section 5, findings N1-N13, plus the 2 overstated citations in section 3), the spec .dev/orca-command-refactor/specs/orca-worker-contract-spec.md, the inventories under .dev/orca-command-refactor/inventory/. Change: verify each finding against live evidence; apply confirmed ones to the spec, fixing root causes so the related sections, worker-contract rules and acceptance checks agree with each other; do not reopen settled round-1 fixes unless a finding requires it. Write .dev/orca-command-refactor/review/disposition-round2.md with one row per finding and per overstated citation: applied (spec section and line) or rejected (cited reason). Ownership: edit ONLY the spec and write ONLY disposition-round2.md. Acceptance: every N1-N13 and both citations have a row; placeholder scan of the spec is clean. Report path: review/disposition-round2.md. Repo root: /home/coder/workspaces/worktrees/IronClaude/OrcaCLICommandRefactor-Specs. First read .dev/orca-command-refactor/README.md (shared goal, evidence and rules; they are binding). Planning only: no edits to src/, tests/, docs/, .claude/, ~/.claude or Orca settings, no git commits/pushes/PRs. Cite path:line for every claim, mark unverified items UNVERIFIED, stub any new output file first and fill it section by section. Finish with worker_done --report-path <your report file>.
+diff --git a/.dev/brainstorms/346-stoprule/briefs/T09-R3-reviewer-L11-1c9a7ec8.txt b/.dev/brainstorms/346-stoprule/briefs/T09-R3-reviewer-L11-1c9a7ec8.txt
+new file mode 100644
+index 00000000..5a7ef711
+--- /dev/null
++++ b/.dev/brainstorms/346-stoprule/briefs/T09-R3-reviewer-L11-1c9a7ec8.txt
+@@ -0,0 +1 @@
++Task 9, independent re-review round 3. You did not write or revise the spec; assume defects remain and look for them. Inputs: the spec .dev/orca-command-refactor/specs/orca-worker-contract-spec.md, review/spec-panel-round2.md, review/disposition-round2.md, inventories. Change: (1) for each round-2 finding N1-N13 and both overstated citations, check the spec text actually resolves it, not just the disposition; (2) re-read every path:line citation the round-2 revision added or changed against the live file or Orca --help/guide output; (3) run /sc:spec-panel-stoprule @.dev/orca-command-refactor/specs/orca-worker-contract-spec.md --mode critique --focus requirements,architecture --re-review .dev/orca-command-refactor/review/spec-panel-round2.md --baseline .dev/orca-command-refactor/specs/history/spec-v2-after-round1.md for new defects, including any introduced by this revision. Output: .dev/orca-command-refactor/review/spec-panel-round3.md with a resolution table, citation-check table, numbered new findings (severity, section, evidence) and a binary PASS or FAIL verdict; any finding of any severity is FAIL; on PASS include a Self-Audit naming what you checked. Ownership: write ONLY that file; do not edit the spec. Repo root: /home/coder/workspaces/worktrees/IronClaude/OrcaCLICommandRefactor-Specs. First read .dev/orca-command-refactor/README.md (shared goal, evidence and rules; they are binding). Planning only: no edits to src/, tests/, docs/, .claude/, ~/.claude or Orca settings, no git commits/pushes/PRs. Cite path:line for every claim, mark unverified items UNVERIFIED, stub any new output file first and fill it section by section. Finish with worker_done --report-path <your report file>.
+diff --git a/.dev/brainstorms/346-stoprule/briefs/T10-R3-reviser-L10-458bdc00.txt b/.dev/brainstorms/346-stoprule/briefs/T10-R3-reviser-L10-458bdc00.txt
+new file mode 100644
+index 00000000..f98da4e9
+--- /dev/null
++++ b/.dev/brainstorms/346-stoprule/briefs/T10-R3-reviser-L10-458bdc00.txt
+@@ -0,0 +1 @@
++Task 10, final constrained revision. Inputs: .dev/orca-command-refactor/review/spec-panel-round3.md (section 5, findings M1-M14), the spec .dev/orca-command-refactor/specs/orca-worker-contract-spec.md (v3, 92,194 bytes; frozen copy at specs/history/spec-v3-after-round2.md). Change: (A) apply three simplifications that replace mechanisms earlier revisions added: S1 cap any fan-in at the merge command's maximum of 10 inputs and delete the staged-merge rule; S2 run every live acceptance check in a fresh disposable worktree and delete the git status/-uall --ignored/find -newer snapshot machinery; S3 make every retry a new Task and delete the same-brief --retry-of rule and AC-1.7, adjusting rows that referenced them. (B) fix the remaining M1-M14 findings with the smallest wording change; mark findings made moot by S1-S3 as superseded. GUARDRAILS (binding): add no new rule, flag, field, section, acceptance check or mechanism unless a finding explicitly names it as missing; prefer deleting or narrowing text over adding it; do not touch text unrelated to M1-M14 or S1-S3; the spec must end strictly smaller than 92,194 bytes (report final size). Write .dev/orca-command-refactor/review/disposition-round3.md with one row per M1-M14 and S1-S3: applied (section and line), superseded (by which S), or rejected (cited reason), plus the final byte count. Ownership: edit ONLY the spec, write ONLY disposition-round3.md. Report path: review/disposition-round3.md. Repo root: /home/coder/workspaces/worktrees/IronClaude/OrcaCLICommandRefactor-Specs. First read .dev/orca-command-refactor/README.md (shared rules; binding). Planning only: no edits to src/, tests/, docs/, .claude/, ~/.claude or Orca settings, no git commits/pushes/PRs. Cite path:line for every claim, mark unverified items UNVERIFIED, stub any new output file first. Finish with worker_done --report-path <your report file>.
+diff --git a/.dev/brainstorms/346-stoprule/briefs/coordinator-before-review.md b/.dev/brainstorms/346-stoprule/briefs/coordinator-before-review.md
+new file mode 100644
+index 00000000..82e0765a
+--- /dev/null
++++ b/.dev/brainstorms/346-stoprule/briefs/coordinator-before-review.md
+@@ -0,0 +1,16 @@
++# Inserted coordinator step: before each review (stoprule arm)
++
++Placeholders: `<spec>` the spec under review; `<run dir>` the replicate's folder for coordinator files; `<N>` the review number (1, 2 or 3); `<report>` the review report to create (`review/spec-panel.md`, `review/spec-panel-round2.md`, `review/spec-panel-round3.md`); `<prior report>` the previous review's report; `<saved copy>` the copy of the spec the previous review saw, saved by `coordinator-fix-cycle.md` step 7 before the reviser ran. `<skill base>` is `~/.claude/skills/sc-spec-panel-stoprule-protocol`.
++
++Owner ruling: the reviewer session runs only script calls that write no file. This step runs `begin`, which writes the report, in the coordinator session.
++
++1. Review 2 or 3 only: check that `<saved copy>` exists and that `sha256sum <saved copy>` starts with the `spec=` value of `<prior report>`'s sentinel line (`<!-- stoprule v1 review=... spec=<12hex> ... -->`). If not, stop: the loop has no valid baseline.
++2. Run `begin`:
++   - review 1: `uv run --no-project python "<skill base>/scripts/stoprule.py" begin --report <report> --spec <spec>`
++   - review 2 or 3: `uv run --no-project python "<skill base>/scripts/stoprule.py" begin --report <report> --spec <spec> --re-review <prior report> --baseline <saved copy>`
++
++   Exit 0: continue. Exit 4: do not review; HALT and escalate to the user with the open blocking findings (the printed escalation, or "loop already ended" for a PASS). Exit 5: stop and report the printed reason.
++3. Re-check the sha256 of the three installed items against the run log (`INSTALL.md` section 3) and stop on any difference.
++4. Dispatch the reviewer with its template brief (`T05-R1-reviewer-L11-699ae853.txt`, `T07-R2-reviewer-L11-aff19d65.txt` or `T09-R3-reviewer-L11-1c9a7ec8.txt`), with the worktree path and per-run values filled in and no other change to the brief text. Its command line is `/sc:spec-panel-stoprule <spec> --mode critique --focus requirements,architecture` at review 1 and `/sc:spec-panel-stoprule <spec> --mode critique --focus requirements,architecture --re-review <prior report> --baseline <saved copy>` at reviews 2 and 3. Never pass `--unattended`: the variant has no `## Unattended mode` section.
++5. What the reviewer needs from `begin` is already in `<report>`: the `begin` record of the ledger block carries the changed hunks (`hunks`) and the prior blocking ids (`priors`), and the frozen rubric is `<skill base>/refs/rubric.md`. The reviewer adds its `claim`, `prior` and `checked` lines inside that block, self-checks with `seal --dry-run` (one repair turn), writes its prose, and writes no `verdict:` line. It does not run `check`: the report has no sentinel until `finalize`.
++6. When the reviewer returns, run `coordinator-fix-cycle.md`.
+diff --git a/.dev/brainstorms/346-stoprule/briefs/coordinator-fix-cycle.md b/.dev/brainstorms/346-stoprule/briefs/coordinator-fix-cycle.md
+new file mode 100644
+index 00000000..914ac183
+--- /dev/null
++++ b/.dev/brainstorms/346-stoprule/briefs/coordinator-fix-cycle.md
+@@ -0,0 +1,16 @@
++# Inserted coordinator step: after each review, and the fix cycle (stoprule arm)
++
++Placeholders: `<spec>`, `<report>`, `<N>`, `<run dir>` as in `coordinator-before-review.md`; `<Bn>` a batch id printed by `grade-prep`; `<k>` the reply attempt (1 or 2); `<disposition file>` the reviser's disposition file (`review/disposition.md` after review 1, `review/disposition-round2.md` after review 2). `<skill base>` is `~/.claude/skills/sc-spec-panel-stoprule-protocol`.
++
++Owner ruling: every call below that writes the report runs here, in the coordinator session, as its own step; the reviewer and the reviser run only calls that write no file.
++
++1. Seal: `uv run --no-project python "<skill base>/scripts/stoprule.py" seal --report <report> --spec <spec>`. On exit 3 run the same command once more: the second seal is final and records still-failing claims as `minor-form`. Exit 5: stop.
++2. Grade: run `uv run --no-project python "<skill base>/scripts/stoprule.py" grade-prep --report <report>`. For every printed batch make one Agent call, all calls in one message, with `subagent_type: finding-grader` and the prompt equal to the batch text from its `=== BATCH <Bn> ===` line to its `=== END BATCH <Bn> ===` line, unchanged. Save each reply verbatim as `<run dir>/grader-r<N>-<Bn>-<k>.txt` and apply it: `uv run --no-project python "<skill base>/scripts/stoprule.py" apply-grades --report <report> --batch <Bn> --reply <run dir>/grader-r<N>-<Bn>-<k>.txt`. On exit 3 run `grade-prep` again and re-send only that batch once (k = 2). If the Agent tool is unavailable, apply nothing: those claims stay `unconfirmed` and the verdict is FAIL `incomplete`.
++3. PASS-time audit, only when `uv run --no-project python "<skill base>/scripts/stoprule.py" verdict --report <report>` prints reason `incomplete` or `none` with no confirmed claim and no open prior (`audit-prep` refuses otherwise): run `audit-prep --report <report> --spec <spec>`, make one fresh general-purpose Agent call whose prompt is the printed `=== AUDIT ===` block, save the reply as `<run dir>/auditor-r<N>.txt`, and run `apply-audit --report <report> --reply <run dir>/auditor-r<N>.txt` (omit `--reply` if the auditor was unavailable).
++4. Finalize: `uv run --no-project python "<skill base>/scripts/stoprule.py" finalize --report <report> --grader-model sonnet --reviewer-model <reviewer model>`.
++5. Check: `uv run --no-project python "<skill base>/scripts/stoprule.py" check --report <report> --spec <spec>`. On exit 6 stop: the report is non-compliant and no reviser is dispatched. Record the last line of the report as the review's verdict.
++6. Stop the loop when the last line is `verdict: PASS`, or when `<N>` is 3 and the last line is `verdict: FAIL`: then hand the user the report's `## Escalation to the user` section. Never dispatch a fourth review.
++7. Before the reviser runs, save the spec this review saw: `cp <spec> <run dir>/baseline-r<N>.md`. It is the `<saved copy>` of the next review.
++8. Re-run step 5's `check` on the report (the report must not have changed since step 5). Then fill the reviser template's finding range from the report's Reviser brief: the `Reviser range:` line gives `D1-Dk`, or `NONE` with the brief's sentence "No confirmed blocking findings: make no spec edit". The reviser is pointed only at D1-Dk; the minor notes and the prose findings are not instructions.
++9. Dispatch the reviser with its template brief (`T06-R1-reviser-L10-3bb70411.txt` after review 1, `T08-R2-reviser-L10-66468bab.txt` after review 2) and the filled range. A reviser that writes a fix map writes it only inside its own disposition file.
++10. After the reviser: `uv run --no-project python "<skill base>/scripts/stoprule.py" check-disposition --report <report> --disposition <disposition file>`. Record every id it lists as applied outside D1..Dk (reported, never blocking). Then run `coordinator-before-review.md` for review `<N>+1`.
+diff --git a/.dev/brainstorms/346-stoprule/briefs/offline-demotion-audit.md b/.dev/brainstorms/346-stoprule/briefs/offline-demotion-audit.md
+new file mode 100644
+index 00000000..4d56fa7e
+--- /dev/null
++++ b/.dev/brainstorms/346-stoprule/briefs/offline-demotion-audit.md
+@@ -0,0 +1,16 @@
++# Recorder step: offline demotion audit, after both replicates (source spec section 5.3)
++
++Placeholders: `<reports>` every finalized review report of both replicates, space-separated; `<seed>` a fixed integer recorded in the run log before the draw; `<spec of report>` the spec version each sampled report reviewed (the `<saved copy>` of the next review, or the final spec for review 3); `<sample file>` and `<audit file>` output files of this step. `<skill base>` is `~/.claude/skills/sc-spec-panel-stoprule-protocol`.
++
++1. Draw the sample: `uv run --no-project python "<skill base>/scripts/stoprule.py" audit-sample --report <reports> --seed <seed> --owner-k 5 > <sample file>`. Each JSON line is one item with `report`, `id`, `status`, `claimed`, `stratum`, `p` (its inclusion probability) and `owner`. The strata are fixed by the script:
++   - `non-blocking`: 25% of the grader-`minor`, `minor-form` and `late-found` dispositions, minimum 2, at least 1 per non-empty sub-stratum;
++   - `confirmed`: 25% of the confirmed blockers, minimum 2;
++   - `resolved-prior`: 25% of the reviewer-`resolved` priors, minimum 2;
++   - `critical-demoted`: every claim the reviewer labelled CRITICAL that ended demoted (not random, `p=1.0`).
++2. Audit: one fresh general-purpose Agent call per report that has sampled items. Its prompt gives the full `<spec of report>`, the frozen rubric (`<skill base>/refs/rubric.md`) and, per sampled item, the claim's quote, span, outcome and evidence from the report's ledger, with no grader reason and no status. It asks, per item, "is this a blocking defect under the rubric?" and a JSON line `{"id":"<id>","real":true|false,"why":"<= 25 words"}`. Save the replies in `<audit file>`.
++3. Owner labels: the owner independently labels the 5 items with `owner: true`, the same question, without seeing the auditor's answer.
++4. Report:
++   - demotion error rate = auditor-says-blocking / audited demotions (items of the `non-blocking` and `critical-demoted` strata), weighted by `1/p` and also unweighted;
++   - auditor-owner agreement on the 5 owner items, as its own number;
++   - the confirmed and resolved-prior strata as a check of the other direction.
++5. Read the result against the pre-registered falsifier F2: an error rate above 20% over at least 8 audited demotions means the grader removes real defects. Fewer than 8 audited demotions: the accuracy claim is NOT ESTABLISHED, not passed. The audit never changes a recorded verdict.
+diff --git a/.dev/brainstorms/346-stoprule/briefs/recorder-after-review.md b/.dev/brainstorms/346-stoprule/briefs/recorder-after-review.md
+new file mode 100644
+index 00000000..68e64939
+--- /dev/null
++++ b/.dev/brainstorms/346-stoprule/briefs/recorder-after-review.md
+@@ -0,0 +1,13 @@
++# Recorder step: after each review, outside the loop (stoprule arm)
++
++Placeholders: `<report>` a finalized review report; `<review-3 report>` the replicate's review-3 report; `<transcript>` the session transcript (`.jsonl`) of the session that made the `finding-grader` Agent calls (under the owner ruling, the coordinator session; under `~/.claude/projects/<project folder>/<session id>.jsonl`); `<run log>` the replicate's validity record. `<skill base>` is `~/.claude/skills/sc-spec-panel-stoprule-protocol`.
++
++1. Grader integrity, per review: `uv run --no-project python "<skill base>/scripts/stoprule.py" verify-transcript --report <report> --transcript <transcript>`. Record the printed `grader-integrity: verified|mismatch|unverified` line in `<run log>` (metric M8). A `mismatch` voids the replicate. `unverified` means the transcript was missing or unreadable, or held no Agent tool result.
++2. Compliance, per review: `uv run --no-project python "<skill base>/scripts/stoprule.py" check --report <report>` must exit 0, and a second run must print the same line (metric M3; F4 if not).
++3. Owner measure, per replicate: `uv run --no-project python "<skill base>/scripts/stoprule.py" count --report <review-3 report>`. Record the three printed values:
++   - `m0_label_cm`: new review-3 findings whose reviewer label is CRITICAL or MAJOR, whatever the script did with them, carried priors excluded (metric M0, the pre-registered bar);
++   - `m0_deferred_cm`: the part of `m0_label_cm` the scripts deferred, demoted or withdrawn (final status not `confirmed` or `confirmed-audit`, or dropped from the ledger between the first and second `seal`);
++   - `m1_open_confirmed`: the sentinel `confirmed=` plus the frozen `unresolved-prior` count, one defect counted once (metric M1).
++
++   Owner decision: findings the scripts defer, demote or withdraw stay open for the success measure, so the review-3 critical+major count is `m0_label_cm`, deferred, demoted and withdrawn findings included. This never changes a recorded verdict.
++4. Growth, per fix cycle: `wc -c` of the spec before and after the reviser (metric M2). Reviser leak: the ids `check-disposition` listed (metric M5).
+diff --git a/.dev/brainstorms/346-stoprule/briefs/replay-gate.md b/.dev/brainstorms/346-stoprule/briefs/replay-gate.md
+new file mode 100644
+index 00000000..9a99407c
+--- /dev/null
++++ b/.dev/brainstorms/346-stoprule/briefs/replay-gate.md
+@@ -0,0 +1,16 @@
++# Pre-run replay gate, before any live stoprule run (source spec section 5.1)
++
++Placeholders: `<arm checkout>` each of the six existing A/B checkouts with a review-3 report: `exp346-ab-ctl-r1`, `exp346-ab-ctl-r2`, `exp346-ab-trt-r1`, `exp346-ab-trt-r2`, `exp346-ab-flg-r1`, `exp346-ab-flg-r2` under `/home/coder/workspaces/worktrees/IronClaude/` (read-only); `<gate dir>` a scratch folder for this gate; `<claims file>` the hand-transcribed claim lines of one report. `<skill base>` is `~/.claude/skills/sc-spec-panel-stoprule-protocol`.
++
++Purpose: before the live runs, check the grader against the review-3 reports the earlier arms already produced. The analyst's reading finds all 9 counted claims of control r1 (8) and flg-r2 (1) rubric-blocking, so a grader that demotes more than 3 of those 9 is miscalibrated and is fixed first.
++
++1. For each `<arm checkout>`, copy into `<gate dir>/<arm>/` the spec the round-3 review saw (`.dev/orca-command-refactor/specs/history/spec-v3-after-round2.md`), the spec the round-2 review saw (`spec-v2-after-round1.md`) and the round-3 report (`.dev/orca-command-refactor/review/spec-panel-round3.md`).
++2. Transcribe that report's blocking findings into `<claims file>` as `claim` lines, as `tests/skills/fixtures/stoprule/ctl-r1/review3-claims.jsonl` does for control r1 (which can be reused as is): the quote is a verbatim substring of the spec-v3 line the report cites for the finding, the label is the report's, the outcome is the report's statement of the wrong result.
++3. The old round-2 reports carry no stoprule sentinel, so write a scaffold review-2 report in `<gate dir>/<arm>/` the way the test helper `scaffold_review2_report` in `tests/skills/test_stoprule_script.py` does (sentinel `review=2/3`, `spec=` the sha256 prefix of spec-v2, the pinned rubric prefix, and a ledger whose recomputed verdict matches its last line). It stands in only for the missing sentinel.
++4. Run, with `<report>` = `<gate dir>/<arm>/replay-review3.md`:
++   - `uv run --no-project python "<skill base>/scripts/stoprule.py" begin --report <report> --spec <gate dir>/<arm>/spec-v3-after-round2.md --re-review <scaffold report> --baseline <gate dir>/<arm>/spec-v2-after-round1.md`
++   - add the `<claims file>` lines inside the report's ledger block;
++   - `seal --report <report> --spec <spec-v3>` (twice if it exits 3);
++   - `grade-prep --report <report>`, one `finding-grader` Agent call per batch, `apply-grades` per reply.
++5. `uv run --no-project python "<skill base>/scripts/stoprule.py" status --report <report>` lists each claim's status. Count, for control r1 and flg-r2 together, how many of the 9 counted claims did not end `confirmed` (`minor`, `minor-form`, `unconfirmed`; `late-found` is the ratchet, reported separately).
++6. Gate: more than 3 of the 9 demoted means the grader is miscalibrated: fix the grader prompt or the rubric (a rubric change is a new rubric version) and replay again before any live run. Record the counts for all six reports in the run log.
+diff --git a/.dev/tasks/to-do/TASK-WF-spec-20261108-181616/artifacts/t14-brief-diffs.txt b/.dev/tasks/to-do/TASK-WF-spec-20261108-181616/artifacts/t14-brief-diffs.txt
+new file mode 100644
+index 00000000..8eb5e92a
+--- /dev/null
++++ b/.dev/tasks/to-do/TASK-WF-spec-20261108-181616/artifacts/t14-brief-diffs.txt
+@@ -0,0 +1,70 @@
++# Task 14 Part A: diff of each S1 original (read-only) against its template
++# Originals: /home/coder/workspaces/worktrees/IronClaude/exp346-p1-logs/.dev/experiments/346-validation/phase2/S1/briefs/task-text
++
++## T05-R1-reviewer-L11-699ae853.txt
++$ diff <original> .dev/brainstorms/346-stoprule/briefs/T05-R1-reviewer-L11-699ae853.txt
++1c1
++< Task 5, independent review. You did not write the spec; review it adversarially. Run: /sc:spec-panel @.dev/orca-command-refactor/specs/orca-worker-contract-spec.md --mode critique --focus requirements,architecture . Save the full panel result to .dev/orca-command-refactor/review/spec-panel.md, then add a numbered findings list (finding, severity, spec section, evidence path:line). Do NOT edit the spec. Acceptance: review/spec-panel.md exists with a numbered findings list and a PASS or FAIL verdict. Repo root: /home/coder/workspaces/worktrees/IronClaude/OrcaCLICommandRefactor-Specs. First read .dev/orca-command-refactor/README.md (shared goal, evidence and rules; they are binding). Ownership: write ONLY your output file(s); planning only, no edits to src/, tests/, docs/, .claude/, ~/.claude or Orca settings, no git commits/pushes/PRs. Cite path:line for every claim, mark unverified items UNVERIFIED, stub the output file first and fill it section by section. Finish with worker_done --report-path <your output file>.
++---
++> Task 5, independent review. You did not write the spec; review it adversarially. Run: /sc:spec-panel-stoprule @.dev/orca-command-refactor/specs/orca-worker-contract-spec.md --mode critique --focus requirements,architecture . Save the full panel result to .dev/orca-command-refactor/review/spec-panel.md, then add a numbered findings list (finding, severity, spec section, evidence path:line). Do NOT edit the spec. Acceptance: review/spec-panel.md exists with a numbered findings list and a PASS or FAIL verdict. Repo root: /home/coder/workspaces/worktrees/IronClaude/OrcaCLICommandRefactor-Specs. First read .dev/orca-command-refactor/README.md (shared goal, evidence and rules; they are binding). Ownership: write ONLY your output file(s); planning only, no edits to src/, tests/, docs/, .claude/, ~/.claude or Orca settings, no git commits/pushes/PRs. Cite path:line for every claim, mark unverified items UNVERIFIED, stub the output file first and fill it section by section. Finish with worker_done --report-path <your output file>.
++diff exit=1
++$ git diff --no-index --word-diff=plain (changed words only)
++[-/sc:spec-panel-]
++{+/sc:spec-panel-stoprule+}
++reverse check (clause removed, name mapped back) equals the original: yes
++grep -c 'any finding of any severity is FAIL': original=0 template=0
++grep -c -- '--unattended': template=0
++
++## T06-R1-reviser-L10-3bb70411.txt
++$ diff <original> .dev/brainstorms/346-stoprule/briefs/T06-R1-reviser-L10-3bb70411.txt
++diff exit=0
++$ git diff --no-index --word-diff=plain (changed words only)
++reverse check (clause removed, name mapped back) equals the original: yes
++grep -c 'any finding of any severity is FAIL': original=0 template=0
++grep -c -- '--unattended': template=0
++
++## T07-R2-reviewer-L11-aff19d65.txt
++$ diff <original> .dev/brainstorms/346-stoprule/briefs/T07-R2-reviewer-L11-aff19d65.txt
++1c1
++< Task 7, independent re-review of the revised spec. You did not write or revise it; assume defects remain and look for them. Inputs: .dev/orca-command-refactor/specs/orca-worker-contract-spec.md (revised), .dev/orca-command-refactor/review/spec-panel.md (round-1 findings), .dev/orca-command-refactor/review/disposition.md, and the inventories under .dev/orca-command-refactor/inventory/. Change: (1) for each of the 24 round-1 findings, check the spec text actually resolves it, not just that disposition.md says so; (2) re-read every path:line citation added or changed by the revision against the live file or Orca --help/guide output and list wrong or overstated ones; (3) run /sc:spec-panel @.dev/orca-command-refactor/specs/orca-worker-contract-spec.md --mode critique --focus requirements,architecture for new defects, including ones introduced by the revision. Output: .dev/orca-command-refactor/review/spec-panel-round2.md with a per-finding resolution table, a citation-check table, a numbered list of new findings (severity, section, evidence) and a binary PASS or FAIL verdict; any finding of any severity is FAIL. If PASS, include a Self-Audit naming what you checked. Acceptance: all three parts present with evidence. Repo root: /home/coder/workspaces/worktrees/IronClaude/OrcaCLICommandRefactor-Specs. First read .dev/orca-command-refactor/README.md (shared goal, evidence and rules; they are binding). Ownership: write ONLY your output file; planning only, no edits to the spec or any other file, no edits to src/, tests/, docs/, .claude/, ~/.claude or Orca settings, no git commits/pushes/PRs. Cite path:line for every claim, mark unverified items UNVERIFIED, stub the output file first and fill it section by section. Finish with worker_done --report-path <your output file>.
++---
++> Task 7, independent re-review of the revised spec. You did not write or revise it; assume defects remain and look for them. Inputs: .dev/orca-command-refactor/specs/orca-worker-contract-spec.md (revised), .dev/orca-command-refactor/review/spec-panel.md (round-1 findings), .dev/orca-command-refactor/review/disposition.md, and the inventories under .dev/orca-command-refactor/inventory/. Change: (1) for each of the 24 round-1 findings, check the spec text actually resolves it, not just that disposition.md says so; (2) re-read every path:line citation added or changed by the revision against the live file or Orca --help/guide output and list wrong or overstated ones; (3) run /sc:spec-panel-stoprule @.dev/orca-command-refactor/specs/orca-worker-contract-spec.md --mode critique --focus requirements,architecture --re-review .dev/orca-command-refactor/review/spec-panel.md --baseline .dev/orca-command-refactor/specs/history/spec-v1-draft.md for new defects, including ones introduced by the revision. Output: .dev/orca-command-refactor/review/spec-panel-round2.md with a per-finding resolution table, a citation-check table, a numbered list of new findings (severity, section, evidence) and a binary PASS or FAIL verdict; any finding of any severity is FAIL. If PASS, include a Self-Audit naming what you checked. Acceptance: all three parts present with evidence. Repo root: /home/coder/workspaces/worktrees/IronClaude/OrcaCLICommandRefactor-Specs. First read .dev/orca-command-refactor/README.md (shared goal, evidence and rules; they are binding). Ownership: write ONLY your output file; planning only, no edits to the spec or any other file, no edits to src/, tests/, docs/, .claude/, ~/.claude or Orca settings, no git commits/pushes/PRs. Cite path:line for every claim, mark unverified items UNVERIFIED, stub the output file first and fill it section by section. Finish with worker_done --report-path <your output file>.
++diff exit=1
++$ git diff --no-index --word-diff=plain (changed words only)
++[-/sc:spec-panel-]
++{+/sc:spec-panel-stoprule+}
++{+--re-review .dev/orca-command-refactor/review/spec-panel.md --baseline .dev/orca-command-refactor/specs/history/spec-v1-draft.md+}
++reverse check (clause removed, name mapped back) equals the original: yes
++grep -c 'any finding of any severity is FAIL': original=1 template=1
++grep -c -- '--unattended': template=0
++
++## T08-R2-reviser-L10-66468bab.txt
++$ diff <original> .dev/brainstorms/346-stoprule/briefs/T08-R2-reviser-L10-66468bab.txt
++diff exit=0
++$ git diff --no-index --word-diff=plain (changed words only)
++reverse check (clause removed, name mapped back) equals the original: yes
++grep -c 'any finding of any severity is FAIL': original=0 template=0
++grep -c -- '--unattended': template=0
++
++## T09-R3-reviewer-L11-1c9a7ec8.txt
++$ diff <original> .dev/brainstorms/346-stoprule/briefs/T09-R3-reviewer-L11-1c9a7ec8.txt
++1c1
++< Task 9, independent re-review round 3. You did not write or revise the spec; assume defects remain and look for them. Inputs: the spec .dev/orca-command-refactor/specs/orca-worker-contract-spec.md, review/spec-panel-round2.md, review/disposition-round2.md, inventories. Change: (1) for each round-2 finding N1-N13 and both overstated citations, check the spec text actually resolves it, not just the disposition; (2) re-read every path:line citation the round-2 revision added or changed against the live file or Orca --help/guide output; (3) run /sc:spec-panel @.dev/orca-command-refactor/specs/orca-worker-contract-spec.md --mode critique --focus requirements,architecture for new defects, including any introduced by this revision. Output: .dev/orca-command-refactor/review/spec-panel-round3.md with a resolution table, citation-check table, numbered new findings (severity, section, evidence) and a binary PASS or FAIL verdict; any finding of any severity is FAIL; on PASS include a Self-Audit naming what you checked. Ownership: write ONLY that file; do not edit the spec. Repo root: /home/coder/workspaces/worktrees/IronClaude/OrcaCLICommandRefactor-Specs. First read .dev/orca-command-refactor/README.md (shared goal, evidence and rules; they are binding). Planning only: no edits to src/, tests/, docs/, .claude/, ~/.claude or Orca settings, no git commits/pushes/PRs. Cite path:line for every claim, mark unverified items UNVERIFIED, stub any new output file first and fill it section by section. Finish with worker_done --report-path <your report file>.
++---
++> Task 9, independent re-review round 3. You did not write or revise the spec; assume defects remain and look for them. Inputs: the spec .dev/orca-command-refactor/specs/orca-worker-contract-spec.md, review/spec-panel-round2.md, review/disposition-round2.md, inventories. Change: (1) for each round-2 finding N1-N13 and both overstated citations, check the spec text actually resolves it, not just the disposition; (2) re-read every path:line citation the round-2 revision added or changed against the live file or Orca --help/guide output; (3) run /sc:spec-panel-stoprule @.dev/orca-command-refactor/specs/orca-worker-contract-spec.md --mode critique --focus requirements,architecture --re-review .dev/orca-command-refactor/review/spec-panel-round2.md --baseline .dev/orca-command-refactor/specs/history/spec-v2-after-round1.md for new defects, including any introduced by this revision. Output: .dev/orca-command-refactor/review/spec-panel-round3.md with a resolution table, citation-check table, numbered new findings (severity, section, evidence) and a binary PASS or FAIL verdict; any finding of any severity is FAIL; on PASS include a Self-Audit naming what you checked. Ownership: write ONLY that file; do not edit the spec. Repo root: /home/coder/workspaces/worktrees/IronClaude/OrcaCLICommandRefactor-Specs. First read .dev/orca-command-refactor/README.md (shared goal, evidence and rules; they are binding). Planning only: no edits to src/, tests/, docs/, .claude/, ~/.claude or Orca settings, no git commits/pushes/PRs. Cite path:line for every claim, mark unverified items UNVERIFIED, stub any new output file first and fill it section by section. Finish with worker_done --report-path <your report file>.
++diff exit=1
++$ git diff --no-index --word-diff=plain (changed words only)
++[-/sc:spec-panel-]
++{+/sc:spec-panel-stoprule+}
++{+--re-review .dev/orca-command-refactor/review/spec-panel-round2.md --baseline .dev/orca-command-refactor/specs/history/spec-v2-after-round1.md+}
++reverse check (clause removed, name mapped back) equals the original: yes
++grep -c 'any finding of any severity is FAIL': original=1 template=1
++grep -c -- '--unattended': template=0
++
++## T10-R3-reviser-L10-458bdc00.txt
++$ diff <original> .dev/brainstorms/346-stoprule/briefs/T10-R3-reviser-L10-458bdc00.txt
++diff exit=0
++$ git diff --no-index --word-diff=plain (changed words only)
++reverse check (clause removed, name mapped back) equals the original: yes
++grep -c 'any finding of any severity is FAIL': original=0 template=0
++grep -c -- '--unattended': template=0
+diff --git a/.dev/tasks/to-do/TASK-WF-spec-20261108-181616/artifacts/t14-checks.txt b/.dev/tasks/to-do/TASK-WF-spec-20261108-181616/artifacts/t14-checks.txt
+new file mode 100644
+index 00000000..b62db60d
+--- /dev/null
++++ b/.dev/tasks/to-do/TASK-WF-spec-20261108-181616/artifacts/t14-checks.txt
+@@ -0,0 +1,26 @@
++$ ls .dev/brainstorms/346-stoprule/briefs
++T05-R1-reviewer-L11-699ae853.txt
++T06-R1-reviser-L10-3bb70411.txt
++T07-R2-reviewer-L11-aff19d65.txt
++T08-R2-reviser-L10-66468bab.txt
++T09-R3-reviewer-L11-1c9a7ec8.txt
++T10-R3-reviser-L10-458bdc00.txt
++coordinator-before-review.md
++coordinator-fix-cycle.md
++offline-demotion-audit.md
++recorder-after-review.md
++replay-gate.md
++coordinator-fix-cycle.md: D1-Dk=1 NONE=1 check-disposition=1
++recorder-after-review.md: m0_label_cm=3 m0_deferred_cm=1
++coordinator-before-review.md: --baseline=2; lines naming --unattended:
++14:4. Dispatch the reviewer with its template brief (`T05-R1-reviewer-L11-699ae853.txt`, `T07-R2-reviewer-L11-aff19d65.txt` or `T09-R3-revie
++src/superclaude in Part B files: 0
++skill path in Part B files: 5 of 5
++INSTALL.md lists: 11 of 11
++originals still match:
++37e9006c2d404d66c3faa6d123aadb1c5a3196f6afc94d2684179b20ae3b03b0  T05-R1-reviewer-L11-699ae853.txt
++28fdd09ed70b4bee5a3145efc37fc43b07f839d59756599588dbb6ea6b2ef30e  T06-R1-reviser-L10-3bb70411.txt
++2c8be40e94ab4c2fec29265bc16c633f35f99694a3ed3b97d62972b258960a59  T07-R2-reviewer-L11-aff19d65.txt
++33979d3604b303e593acc64d6a05943e6b873e5a391c9fa7422da3733c675178  T08-R2-reviser-L10-66468bab.txt
++77a254f5533a9ad05c8d9dc43ab4539dd16fb6ebf9a62d90c277d44d91b7efef  T09-R3-reviewer-L11-1c9a7ec8.txt
++11e9acc3a046d1d593c3d4c17165a2de377ae534cfde7eac4a93a11cb80f415e  T10-R3-reviser-L10-458bdc00.txt

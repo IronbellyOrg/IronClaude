@@ -1,0 +1,2 @@
+{"claims": [{"row": "R1", "action": "fixed", "hunks": [1], "reason": "added a retry bound"}],
+ "gaps": [{"text": "the retry bound also needs a line in section 4"}]}

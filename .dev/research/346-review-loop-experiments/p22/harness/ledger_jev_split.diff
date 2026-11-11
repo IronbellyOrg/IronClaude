@@ -1,0 +1,55 @@
+diff --git a/src/superclaude/cli/review/ledger.py b/src/superclaude/cli/review/ledger.py
+index 97b34c39..e26096a7 100644
+--- a/src/superclaude/cli/review/ledger.py
++++ b/src/superclaude/cli/review/ledger.py
+@@ -104,6 +104,41 @@ def _brief_ids(ledger: dict) -> list[str]:
+     ]
+ 
+ 
++def _round_clusters(findings, n):
++    """p22 experiment (Jev-split merge): when REVIEW_PAIR_ORACLE names a JSON file of {"<rid>:<fid>~<rid>:<fid>": P(same defect)},
++    round 1 links two findings only if the deterministic same_defect test matches AND the oracle gives P >= REVIEW_PAIR_THRESHOLD
++    (default 0.7). A pair missing from the oracle is not linked. Without the variable, or after round 1, behaviour is unchanged."""
++    import json as _json, os as _os
++    path = _os.environ.get("REVIEW_PAIR_ORACLE")
++    if not path or n != 1:
++        return fnd.cluster(findings)
++    oracle = _json.loads(open(path).read())
++    thr = float(_os.environ.get("REVIEW_PAIR_THRESHOLD", "0.7"))
++    def key(m):
++        return f"{m['_reviewer']}:{m['id']}"
++    parent = list(range(len(findings)))
++    def find(i):
++        while parent[i] != i:
++            parent[i] = parent[parent[i]]
++            i = parent[i]
++        return i
++    for i in range(len(findings)):
++        for j in range(i + 1, len(findings)):
++            a, b = findings[i], findings[j]
++            if fnd.same_defect(a, b) and oracle.get("~".join(sorted((key(a), key(b)))), 0.0) >= thr:
++                ri, rj = find(i), find(j)
++                if ri != rj:
++                    parent[max(ri, rj)] = min(ri, rj)
++    groups, order = {}, []
++    for i in range(len(findings)):
++        r = find(i)
++        if r not in groups:
++            groups[r] = []
++            order.append(r)
++        groups[r].append(findings[i])
++    return [groups[r] for r in order]
++
++
+ def merge_round(ledger: dict, doc_text: str, n: int, reviewers: Sequence[dict]) -> dict:
+     """Merge the reports of round n into the ledger and compute the verdict and decision.
+ 
+@@ -152,7 +187,7 @@ def merge_round(ledger: dict, doc_text: str, n: int, reviewers: Sequence[dict])
+     cleared: list[str] = []
+     cluster_info: list[dict] = []
+     members_by_lid: dict[str, list[dict]] = {}
+-    for group in fnd.cluster(all_findings):
++    for group in _round_clusters(all_findings, n):
+         match = None
+         for row in existing:
+             view = _view(row)

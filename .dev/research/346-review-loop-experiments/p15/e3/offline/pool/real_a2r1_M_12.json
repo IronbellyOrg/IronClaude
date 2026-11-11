@@ -1,0 +1,29 @@
+{
+ "author_intent": {
+  "reviewer": "sonnet-or-panel",
+  "reviewer_blocking": false,
+  "run": "a2-r1"
+ },
+ "case_id": "real_a2r1_M_12",
+ "category": "real",
+ "data_classes": [
+  "s1_spec",
+  "stage2_artifact"
+ ],
+ "family": "s1_first_review",
+ "group": "other:14",
+ "packet": {
+  "candidate_sha": "d3cdbe573e57303b9ce6c93d1fe98ba18fb7cb1a15773d926bf6a0c31425200d",
+  "finding_id": "M-12",
+  "finding_section": "**M-12 (MAJOR, graded Medium) AC-C1 can fail on content the candidate asks for.** Experts: Fowler, Adzic.\n- Sentence: an implementer who follows P0 adds an Orca section to `HOW-WE-WORK.md` and writes the contract file with a question-channel example (SPEC:158, SPEC:147, SPEC:150), both under `src/superclaude/core`, which AC-C1 requires to print nothing for `orca orchestration ...` and similar (SPEC:172); SA-2 allows the mention \"inside the contract file\" (SPEC:147).\n- Why Medium: it fails only if the text includes a literal command of those four verbs.\n- Recommendation: exclude the contract file and routing guide from AC-C1, or forbid literal command lines there. Also the checks in 7.1 are written with `\\|` in a table, which is only correct once rendered; copied raw they do not run."
+ },
+ "source": {
+  "kind": "stage2",
+  "paths": [
+   "p11/runs/a2-r1/ws/.dev/orca-command-refactor/review/round1.md"
+  ],
+  "url": null
+ },
+ "split": "pool",
+ "variant": "base"
+}

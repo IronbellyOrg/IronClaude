@@ -1,0 +1,1 @@
+- **N7.** "Phases 1-3 need no user decision" (`spec:154`) sits next to D4, which lists auggie-review `--post-pr` and task `commit`/`push`, both P2 rows (`spec:244`, `spec:100`, `spec:121`). `spec:225` says P0-P3 may proceed on the recommendations, so the two lines can be read together.

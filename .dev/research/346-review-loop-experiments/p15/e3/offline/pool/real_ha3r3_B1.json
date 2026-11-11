@@ -1,0 +1,29 @@
+{
+ "author_intent": {
+  "reviewer": "haiku",
+  "reviewer_blocking": true,
+  "run": "a3-r3"
+ },
+ "case_id": "real_ha3r3_B1",
+ "category": "real",
+ "data_classes": [
+  "s1_spec",
+  "stage2_artifact"
+ ],
+ "family": "s1_first_review",
+ "group": "T2:6",
+ "packet": {
+  "candidate_sha": "d3cdbe573e57303b9ce6c93d1fe98ba18fb7cb1a15773d926bf6a0c31425200d",
+  "finding_id": "B1",
+  "finding_section": "### B1. The contract path rule in WC-4 cannot hold for `/sc:workflow` (and the adversarial path disagrees)\n\n- Spec text: WC-4 requires \"in unattended mode the command writes `<output-dir>/return-contract.yaml`, where `<output-dir>` is the directory the coordinator passed\", written \"including stops before any other output exists\" (`.dev/orca-command-refactor/specs/orca-worker-contract-spec.md:62`). Section 2.3 requires the report path \"known before dispatch\" (line 73).\n- Contradicting text: the workflow row in section 3.1 gives the brief only `--handoff none` (line 92), and its contract is `.dev/tasks/to-do/<id>/return-contract.yaml`, a per-run package path (line 92; `INV-B:272`, `INV-B:267-275`). The adversarial row names `<output>/adversarial/return-contract.yaml` (line 83), a subdirectory that WC-4 does not allow (`INV-A:60`).\n- Grading sentence: an implementer who follows WC-4 as written makes `/sc:workflow` write `<output-dir>/return-contract.yaml`, but the brief supplies no output directory and the package `<id>` is created at run time, so the coordinator cannot know the path before dispatch (WC-4, line 73), and a pre-creation STOP has no `<id>` directory to write into, which AC-1.4 (line 198) requires workflow to satisfy.\n- Severity: blocking, because the two stated rules cannot both be met."
+ },
+ "source": {
+  "kind": "stage2",
+  "paths": [
+   "p14/haiku-baseline/runs/a3-r3/ws/.dev/orca-command-refactor/review/round1.md"
+  ],
+  "url": null
+ },
+ "split": "pool",
+ "variant": "base"
+}

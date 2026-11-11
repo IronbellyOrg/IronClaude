@@ -1,0 +1,15 @@
+$ grep -nE "uv run --no-project python \"<skill base>/scripts/stoprule.py\" (begin|seal|grade-prep|apply-grades|audit-prep|apply-audit|status|finalize|check) " SKILL.md
+19:| S0 begin | coordinator, before dispatching the reviewer | `uv run --no-project python "<skill base>/scripts/stoprule.py" begin --report
+21:| S2 self-check | reviewer | `uv run --no-project python "<skill base>/scripts/stoprule.py" seal --report <report> --spec <spec> --dry-ru
+22:| S2 seal | coordinator | `uv run --no-project python "<skill base>/scripts/stoprule.py" seal --report <report> --spec <spec>`; on exit 3
+23:| S3 grade-prep | coordinator | `uv run --no-project python "<skill base>/scripts/stoprule.py" grade-prep --report <report>` |
+25:| S5 apply-grades | coordinator | `uv run --no-project python "<skill base>/scripts/stoprule.py" apply-grades --report <report> --batch <
+26:| S6 audit-prep | coordinator, only when `verdict` shows no confirmed claim and no open prior | `uv run --no-project python "<skill base>
+27:| S7 apply-audit | coordinator | `uv run --no-project python "<skill base>/scripts/stoprule.py" apply-audit --report <report> --reply <au
+28:| S8 status | reviewer or coordinator | `uv run --no-project python "<skill base>/scripts/stoprule.py" status --report <report>`; the pro
+29:| S9 finalize | coordinator | `uv run --no-project python "<skill base>/scripts/stoprule.py" finalize --report <report> [--grader-model s
+30:| S10 check | reviewer last, coordinator again | `uv run --no-project python "<skill base>/scripts/stoprule.py" check --report <report> -
+$ grep -c src/superclaude SKILL.md
+0
+$ uv run python -c "...assert _has_corresponding_command(sc-spec-panel-stoprule-protocol) is False"
+exit 0

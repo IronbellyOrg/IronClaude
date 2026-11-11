@@ -1,0 +1,272 @@
+{
+ "run": "b3h-r3",
+ "design": "b3",
+ "stratum": "haiku",
+ "loop_model": "haiku",
+ "rep": 3,
+ "product_ref": "e924cc2b505da847c78d8580aa7daa17f4e15f2c",
+ "cmd_sha": "dbe23632d0d981289c2a33edaeee5e1ff7fb3babeff14940979e5d2486223099",
+ "rules_sha": "0bf6d28fbffb08a2ce62010bdabda114a80065090d9fb4fc24beaa06471e7408",
+ "done": [
+  "R1",
+  "V1",
+  "R2",
+  "V2",
+  "R3",
+  "G",
+  "GV",
+  "GR",
+  "AUD",
+  "AUD2"
+ ],
+ "log": {
+  "R1": {
+   "output_exists": true,
+   "stratum": "haiku",
+   "report_bytes": 24853,
+   "verdict": "FAIL",
+   "review_header": [
+    "1"
+   ],
+   "blocking_ids": "F-01, F-05",
+   "blocking": [
+    {
+     "id": "F-01",
+     "theme": "other",
+     "heading": "**F-01. BLOCKING. Two rows contradict WC-11 (Wiegers; Hohpe on shared resources).**"
+    },
+    {
+     "id": "F-05",
+     "theme": "T1",
+     "heading": "**F-05. BLOCKING. AC-1.1 requires a contract that the load row and the Decisions table forbid (Wiege"
+    }
+   ],
+   "spec_after": {
+    "bytes": 57763,
+    "lines": 285,
+    "sha256": "d3cdbe573e57303b9ce6c93d1fe98ba18fb7cb1a15773d926bf6a0c31425200d"
+   },
+   "output_tokens": 78431
+  },
+  "V1": {
+   "output_exists": true,
+   "stratum": "haiku",
+   "report_bytes": 6944,
+   "spec_after": {
+    "bytes": 58893,
+    "lines": 285,
+    "sha256": "b4832d456dbf9b742b18a39e1442803bd1c9b0e19aafedbf70079e7911d839c2"
+   },
+   "output_tokens": 32700
+  },
+  "R2": {
+   "output_exists": true,
+   "stratum": "haiku",
+   "report_bytes": 29186,
+   "verdict": "FAIL",
+   "review_header": [
+    "2"
+   ],
+   "blocking_ids": "F-19, WC-4, F-05, F-20, F-21, F-22, N-1",
+   "blocking": [
+    {
+     "id": "F-19",
+     "theme": "T2",
+     "heading": "### F-19. BLOCKING. origin=changed. WC-4 says every section-3 command writes the contract, but `load"
+    },
+    {
+     "id": "F-05",
+     "theme": "T2",
+     "heading": "| F-05 | AC-1.1 requires a contract for `load`, which the load row and Decisions forbid (`review/rou"
+    },
+    {
+     "id": "F-20",
+     "theme": "other",
+     "heading": "### F-20. MEDIUM. origin=changed (the line changed; the escaping predates the revision). AC-C1 canno"
+    },
+    {
+     "id": "F-21",
+     "theme": "other",
+     "heading": "### F-21. MEDIUM. origin=changed. The 2.3 two-worker rule does not say whether it covers sequential "
+    },
+    {
+     "id": "F-22",
+     "theme": "other",
+     "heading": "### F-22. MEDIUM. origin=changed. The new WC-3 answer limit and the 2.3 two-worker rule have no acce"
+    },
+    {
+     "id": "N-1",
+     "theme": "other",
+     "heading": "### N-1. minor. origin=changed. Unclear wording at `:85`"
+    }
+   ],
+   "spec_after": {
+    "bytes": 58893,
+    "lines": 285,
+    "sha256": "b4832d456dbf9b742b18a39e1442803bd1c9b0e19aafedbf70079e7911d839c2"
+   },
+   "output_tokens": 63668
+  },
+  "V2": {
+   "output_exists": true,
+   "stratum": "haiku",
+   "report_bytes": 3896,
+   "spec_after": {
+    "bytes": 58948,
+    "lines": 285,
+    "sha256": "d7b701458ccab1292a94ee6f2c84881cfc91dbf20d522f329d407123b072388d"
+   },
+   "output_tokens": 7705
+  },
+  "R3": {
+   "output_exists": true,
+   "stratum": "haiku",
+   "report_bytes": 11952,
+   "verdict": "PASS",
+   "review_header": [
+    "3"
+   ],
+   "blocking_ids": null,
+   "blocking": [],
+   "spec_after": {
+    "bytes": 58948,
+    "lines": 285,
+    "sha256": "d7b701458ccab1292a94ee6f2c84881cfc91dbf20d522f329d407123b072388d"
+   },
+   "output_tokens": 21334
+  },
+  "G": {
+   "output_exists": true,
+   "stratum": "haiku",
+   "report_bytes": 11770,
+   "verdict": "FAIL",
+   "review_header": [
+    "1"
+   ],
+   "blocking_ids": "GR-B1, GR-B2",
+   "blocking": [
+    {
+     "id": "B1",
+     "theme": "other",
+     "heading": ""
+    },
+    {
+     "id": "B2",
+     "theme": "other",
+     "heading": ""
+    }
+   ],
+   "output_tokens": 54988
+  },
+  "GV": {
+   "output_exists": true,
+   "stratum": "haiku",
+   "report_bytes": 4410,
+   "spec_after": {
+    "bytes": 59510,
+    "lines": 285,
+    "sha256": "92a25ab664b0803fb12bd23716793e4aba1f0dc0171d60f876c747679cfcf973"
+   },
+   "output_tokens": 14055
+  },
+  "GR": {
+   "output_exists": true,
+   "stratum": "haiku",
+   "report_bytes": 18149,
+   "verdict": "FAIL",
+   "review_header": [
+    "2"
+   ],
+   "blocking_ids": "GR-B1, GR-B3",
+   "blocking": [
+    {
+     "id": "B1",
+     "theme": "other",
+     "heading": ""
+    },
+    {
+     "id": "B3",
+     "theme": "other",
+     "heading": ""
+    }
+   ],
+   "header_expected": "2",
+   "spec_after": {
+    "bytes": 59510,
+    "lines": 285,
+    "sha256": "92a25ab664b0803fb12bd23716793e4aba1f0dc0171d60f876c747679cfcf973"
+   },
+   "output_tokens": 43386
+  },
+  "AUD": {
+   "output_exists": true,
+   "stratum": "haiku",
+   "report_bytes": 16213,
+   "verdict": "FAIL",
+   "review_header": [
+    "1"
+   ],
+   "blocking_ids": "F-1",
+   "blocking": [
+    {
+     "id": "F-1",
+     "theme": "T1",
+     "heading": "### F-1 (blocking) Phase 1 text contradicts WC-2 and section 2.3 for every command whose gate conver"
+    }
+   ],
+   "spec_audited": {
+    "bytes": 59510
+   },
+   "output_tokens": 21766
+  },
+  "AUD2": {
+   "output_exists": true,
+   "stratum": "haiku",
+   "report_bytes": 19955,
+   "verdict": "FAIL",
+   "review_header": [
+    "1"
+   ],
+   "blocking_ids": "B-1, B-2. (Only these ids.)",
+   "blocking": [
+    {
+     "id": "B-1",
+     "theme": "T1",
+     "heading": "### B-1 (CRITICAL, blocking) Wiegers / Cockburn: `--unattended` is made accepted by 36 commands in P"
+    },
+    {
+     "id": "B-2",
+     "theme": "T3",
+     "heading": "### B-2 (CRITICAL, blocking) Wiegers / Adzic: AC-0.4 cannot pass as written, and P0 gates the whole "
+    }
+   ],
+   "spec_audited": {
+    "bytes": 59510
+   },
+   "output_tokens": 32313
+  }
+ },
+ "launched": {
+  "R1": "2026-11-10T06:09:12+00:00",
+  "V1": "2026-11-10T06:19:22+00:00",
+  "R2": "2026-11-10T06:26:44+00:00",
+  "V2": "2026-11-10T06:34:53+00:00",
+  "R3": "2026-11-10T06:40:54+00:00",
+  "G": "2026-11-10T06:46:13+00:00",
+  "GV": "2026-11-10T06:54:51+00:00",
+  "GR": "2026-11-10T07:00:03+00:00",
+  "AUD": "2026-11-10T07:07:17+00:00",
+  "AUD2": "2026-11-10T07:07:17+00:00"
+ },
+ "noted_unactioned": [],
+ "loop_end": "GATE-LOOP-ESCALATED",
+ "manual": [],
+ "stall": {
+  "auto": false,
+  "pairs": [],
+  "gate_ids": [
+   "B1",
+   "B2"
+  ]
+ }
+}

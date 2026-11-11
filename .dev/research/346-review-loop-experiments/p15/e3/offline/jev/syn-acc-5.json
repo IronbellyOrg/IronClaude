@@ -1,0 +1,28 @@
+{
+ "case_id": "syn-acc-5",
+ "code_outcome": "OK",
+ "decision": "VERIFIER",
+ "qset_version": "e3-q1",
+ "result": {
+  "answers": {
+   "evidence_sufficient": {
+    "p": 0.61,
+    "type": "noul"
+   },
+   "outcome_follows": {
+    "p": 0.74,
+    "type": "noul"
+   }
+  },
+  "attempts": 1,
+  "error": null,
+  "latency_ms": 193,
+  "model": "jev-1.14.0",
+  "request_sha256": "8af0256e95a63c4f538d662e3eb383ca4b32ebea9655bf78dc2e0731a98c2e00",
+  "status": "ok",
+  "usage": {
+   "input_tokens": 765,
+   "output_tokens": 46
+  }
+ }
+}

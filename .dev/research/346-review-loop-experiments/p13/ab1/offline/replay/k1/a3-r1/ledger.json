@@ -1,0 +1,111 @@
+{
+ "schema": "review-ledger/1",
+ "doc": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/exp346/.dev/experiments/346-validation/phase2/S1/inputs/repo-overlay/.dev/orca-command-refactor/specs/orca-worker-contract-spec.md",
+ "cap_reviews": 3,
+ "rounds": [
+  {
+   "n": 1,
+   "doc_sha256": "d3cdbe573e57303b9ce6c93d1fe98ba18fb7cb1a15773d926bf6a0c31425200d",
+   "reviewers": [
+    {
+     "reviewer_id": "t1b-1",
+     "model": "replay",
+     "report": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p13/ab1/offline/replay/k1/a3-r1/round1-t1b-1.md",
+     "report_sha256": "30659dd79b5e3771f365674219c6b021b6cf3b011d9095118ade61250a59cd57",
+     "block_ok": true
+    }
+   ],
+   "verdict": "FAIL",
+   "decision": "REVISE",
+   "brief_ids": [
+    "L1"
+   ]
+  },
+  {
+   "n": 2,
+   "doc_sha256": "d1f34e4bb75f645e00e9b421dc8abdf0366d981ef45c7dfcc8f6689db8833a6a",
+   "reviewers": [
+    {
+     "reviewer_id": "t1b-1",
+     "model": "replay",
+     "report": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p13/ab1/offline/replay/k1/a3-r1/round2-t1b-1.md",
+     "report_sha256": "1da3467363a05c1a1919c55863ffeb8ac30a6562956f0c5b979ac69b28334792",
+     "block_ok": true
+    }
+   ],
+   "verdict": "PASS",
+   "decision": "PASS",
+   "brief_ids": []
+  }
+ ],
+ "rows": [
+  {
+   "lid": "L1",
+   "fp": "35760e7803fa697c",
+   "blocking": true,
+   "severity_max": "CRITICAL",
+   "category": "unpassable-check",
+   "confidence": "single",
+   "status": "resolved",
+   "anchor": "its report path is the WC-4 contract path",
+   "anchor2": "step 4 uses the command's existing report file, since the contract arrives in P1",
+   "span": [
+    181,
+    182
+   ],
+   "span2": [
+    193,
+    194
+   ],
+   "refs": [
+    "AC-0.4",
+    "AC-1.1",
+    "AC-1.2",
+    "P0",
+    "P1",
+    "WC-4"
+   ],
+   "claim": "The P0 check demands a contract the same row says does not exist before P1.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t1b-1",
+     "fid": "F1",
+     "blocking": true
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t1b-1",
+     "fid": "F2",
+     "blocking": true
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    },
+    {
+     "round": 1,
+     "event": "resolved_check"
+    },
+    {
+     "round": 2,
+     "event": "cleared"
+    },
+    {
+     "round": 2,
+     "event": "prior_note",
+     "reviewer_id": "t1b-1",
+     "status": "resolved"
+    },
+    {
+     "round": 2,
+     "event": "prior_note",
+     "reviewer_id": "t1b-1",
+     "status": "resolved"
+    }
+   ]
+  }
+ ]
+}

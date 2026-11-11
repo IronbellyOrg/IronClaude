@@ -1,0 +1,38 @@
+{
+ "author_intent": {
+  "category": "other-D7",
+  "cluster": "D7",
+  "expect": "defect",
+  "layer": "real",
+  "theme": "other"
+ },
+ "case_id": "s0-20",
+ "category": "other-D7",
+ "data_classes": [
+  "s1_spec"
+ ],
+ "family": "s1-original",
+ "group": "s1-original",
+ "packet": {
+  "defect": "WC-10 requires splitting only for single waits longer than 5 minutes but sets the split size at 4 minutes, so a 4.5-minute wait is allowed by WC-10 yet fails the 240 s limit in AC-4.3.",
+  "doc": "offline/docs/doc-d3cdbe573e.md",
+  "doc_sha256": "d3cdbe573e57303b9ce6c93d1fe98ba18fb7cb1a15773d926bf6a0c31425200d",
+  "evidence_quotes": [
+   "must be split into waits of at most 4 minutes",
+   "no single tool call exceeds 240 s"
+  ],
+  "evidence_set": [
+   "P0050",
+   "P0167"
+  ]
+ },
+ "source": {
+  "kind": "s1",
+  "paths": [
+   "offline/docs/doc-d3cdbe573e.md"
+  ],
+  "url": null
+ },
+ "split": "s0",
+ "variant": "real"
+}

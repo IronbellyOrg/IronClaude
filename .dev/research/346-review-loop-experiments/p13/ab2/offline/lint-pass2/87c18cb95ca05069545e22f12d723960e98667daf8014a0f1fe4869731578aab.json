@@ -1,0 +1,573 @@
+{
+  "schema": "review-lint/1",
+  "doc_sha256": "87c18cb95ca05069545e22f12d723960e98667daf8014a0f1fe4869731578aab",
+  "doc_bytes": 66323,
+  "checks": [
+    "REF",
+    "COUNT",
+    "KV",
+    "PHASE",
+    "PATH",
+    "RFC"
+  ],
+  "findings": [
+    {
+      "lint_id": "LINT-REF-1",
+      "check": "REF",
+      "class": "fact",
+      "lines": [
+        3,
+        3
+      ],
+      "quote": "**Status:** Implemented: `--pipeline` and `--submit` (PR #425). Issue #394 then changed the claim side of the launch: the IR-4 preflight refusal, the IR-7 warning and the release and layer lines of...",
+      "other_lines": null,
+      "message": "IR-4 is referenced but never defined (10 references)."
+    },
+    {
+      "lint_id": "LINT-REF-2",
+      "check": "REF",
+      "class": "fact",
+      "lines": [
+        3,
+        3
+      ],
+      "quote": "**Status:** Implemented: `--pipeline` and `--submit` (PR #425). Issue #394 then changed the claim side of the launch: the IR-4 preflight refusal, the IR-7 warning and the release and layer lines of...",
+      "other_lines": null,
+      "message": "IR-7 is referenced but never defined (5 references)."
+    },
+    {
+      "lint_id": "LINT-REF-3",
+      "check": "REF",
+      "class": "fact",
+      "lines": [
+        4,
+        4
+      ],
+      "quote": "**Update (issue #394):** the launch-level guard now exists and default D3 is replaced. When the guard is missing or not effective (`enforcement_preflight()`, hook IR-4; checked from the claim proce...",
+      "other_lines": null,
+      "message": "IR-3 is referenced but never defined (4 references)."
+    },
+    {
+      "lint_id": "LINT-REF-4",
+      "check": "REF",
+      "class": "fact",
+      "lines": [
+        11,
+        11
+      ],
+      "quote": "> **Amended 2026-11-08** (owner decisions recorded while planning `TASK-WF-enforceTheOwnerP-20261108-031809`): every Orca worktree gets an agent, and the session that creates a worktree owns its ag...",
+      "other_lines": null,
+      "message": "G-1 is referenced but never defined."
+    },
+    {
+      "lint_id": "LINT-REF-5",
+      "check": "REF",
+      "class": "fact",
+      "lines": [
+        48,
+        48
+      ],
+      "quote": "| P7 | The agent is started with `orca agent launch --agent claude --surface terminal`, a Claude CLI session. Never a plain terminal, and never `--surface chat` (a chat is not behind the shim). | #...",
+      "other_lines": null,
+      "message": "FR-22 is referenced but never defined (4 references)."
+    },
+    {
+      "lint_id": "LINT-REF-6",
+      "check": "REF",
+      "class": "fact",
+      "lines": [
+        58,
+        58
+      ],
+      "quote": "| Level state file | AD FR-31: the skill writes `<wt>/.dev/issues/<N>/pipeline.json` as the hook's input | **Not built.** The hook's input is a launch record outside the worktree (section 6). | The...",
+      "other_lines": null,
+      "message": "FR-31 is referenced but never defined."
+    },
+    {
+      "lint_id": "LINT-REF-7",
+      "check": "REF",
+      "class": "fact",
+      "lines": [
+        58,
+        58
+      ],
+      "quote": "| Level state file | AD FR-31: the skill writes `<wt>/.dev/issues/<N>/pipeline.json` as the hook's input | **Not built.** The hook's input is a launch record outside the worktree (section 6). | The...",
+      "other_lines": null,
+      "message": "IR-1 is referenced but never defined (5 references)."
+    },
+    {
+      "lint_id": "LINT-REF-8",
+      "check": "REF",
+      "class": "fact",
+      "lines": [
+        59,
+        59
+      ],
+      "quote": "| Git `pre-push` layer | AD FR-32: the claim installs a `pre-push` check in the new worktree | **Not built by the claim.** The hook feature's own installer owns it (hook design 19.2). The claim rep...",
+      "other_lines": null,
+      "message": "FR-32 is referenced but never defined."
+    },
+    {
+      "lint_id": "LINT-REF-9",
+      "check": "REF",
+      "class": "fact",
+      "lines": [
+        61,
+        61
+      ],
+      "quote": "| `launch_status` values | AD FR-30: `launched \\| failed \\| not_requested` | Adds `already_launched` | AD FR-27 needs a state for a re-claim that finds a `launch` entry. |",
+      "other_lines": null,
+      "message": "FR-27 is referenced but never defined (2 references)."
+    },
+    {
+      "lint_id": "LINT-REF-10",
+      "check": "REF",
+      "class": "fact",
+      "lines": [
+        61,
+        61
+      ],
+      "quote": "| `launch_status` values | AD FR-30: `launched \\| failed \\| not_requested` | Adds `already_launched` | AD FR-27 needs a state for a re-claim that finds a `launch` entry. |",
+      "other_lines": null,
+      "message": "FR-30 is referenced but never defined."
+    },
+    {
+      "lint_id": "LINT-REF-11",
+      "check": "REF",
+      "class": "fact",
+      "lines": [
+        62,
+        62
+      ],
+      "quote": "| Launch prompt | AD FR-22: one plain sentence, no leading `/` | The sentence is prefixed with the hook's marker `[sc-launch:v1:<nonce>] ` (hook IR-2). The prefix starts with `[`, so the no-leading...",
+      "other_lines": null,
+      "message": "IR-2 is referenced but never defined (3 references)."
+    },
+    {
+      "lint_id": "LINT-REF-12",
+      "check": "REF",
+      "class": "fact",
+      "lines": [
+        63,
+        63
+      ],
+      "quote": "| Create JSON shape | MR R2 UNVERIFIED | AD observed `result.worktree.{id, path, branch, ...}`. FR-20 (path from a row-id difference) stays; the field is not relied on. | The set difference works w...",
+      "other_lines": null,
+      "message": "FR-20 is referenced but never defined (2 references)."
+    },
+    {
+      "lint_id": "LINT-REF-13",
+      "check": "REF",
+      "class": "fact",
+      "lines": [
+        66,
+        66
+      ],
+      "quote": "| Unflagged claim | MR FR-3: byte-identical to today | Dropped. An unflagged claim is `--pipeline worktree`. | AD 4.3. |",
+      "other_lines": null,
+      "message": "FR-3 is referenced but never defined."
+    },
+    {
+      "lint_id": "LINT-REF-14",
+      "check": "REF",
+      "class": "fact",
+      "lines": [
+        67,
+        67
+      ],
+      "quote": "| `--worktree` with `--create` | MR FR-2 | `--pipeline` or `--submit` with `--create`: STOP `E-CLAIM-ONLY-FLAG`. | AD section 2. |",
+      "other_lines": null,
+      "message": "FR-2 is referenced but never defined."
+    },
+    {
+      "lint_id": "LINT-REF-15",
+      "check": "REF",
+      "class": "fact",
+      "lines": [
+        119,
+        119
+      ],
+      "quote": "The hook must read the level from state the launched agent cannot edit. Anything inside the worktree is editable by the agent, so the level never lives there. The claim script publishes a launch re...",
+      "other_lines": null,
+      "message": "IR-5 is referenced but never defined (2 references)."
+    },
+    {
+      "lint_id": "LINT-REF-16",
+      "check": "REF",
+      "class": "fact",
+      "lines": [
+        147,
+        147
+      ],
+      "quote": "1. `next-steps.md` gets its `Plan boundary: after step <K>` line (FR-26). `<K>` is the number of the last step before the first step whose command is `/sc:implement` or `/task` (default D7). In the...",
+      "other_lines": null,
+      "message": "FR-26 is referenced but never defined."
+    },
+    {
+      "lint_id": "LINT-REF-17",
+      "check": "REF",
+      "class": "fact",
+      "lines": [
+        150,
+        150
+      ],
+      "quote": "**Wave 6** posts the two comments as today; its step 4 (\"print the `next-steps.md` path and STOP\") is replaced by Waves 7 and 8 and the final output below. Wave 7 runs only after both comments are ...",
+      "other_lines": null,
+      "message": "FR-4 is referenced but never defined (2 references)."
+    },
+    {
+      "lint_id": "LINT-REF-18",
+      "check": "REF",
+      "class": "fact",
+      "lines": [
+        154,
+        154
+      ],
+      "quote": "Run `orca_worktree.py worktree --repo <R> --number <N> --base origin/<B> --source <D>` and read its JSON. Any failure is a warning, never a STOP (FR-10).",
+      "other_lines": null,
+      "message": "FR-10 is referenced but never defined (2 references)."
+    },
+    {
+      "lint_id": "LINT-REF-19",
+      "check": "REF",
+      "class": "fact",
+      "lines": [
+        156,
+        156
+      ],
+      "quote": "**Wave 8: launch (orchestrator).** Runs when `<L>` is not `none` and Wave 7 `status` is `created` or `reused` (FR-21): `orca_worktree.py launch --number <N> --source <D> --level <L> [--submit]`; re...",
+      "other_lines": null,
+      "message": "FR-21 is referenced but never defined (3 references)."
+    },
+    {
+      "lint_id": "LINT-REF-20",
+      "check": "REF",
+      "class": "fact",
+      "lines": [
+        164,
+        164
+      ],
+      "quote": "5. The return contract (section 10) and STOP. The claim `status` stays `success` through any Wave 7 or Wave 8 failure: the assignment and comments cannot be undone (AD 4.5, FR-10, FR-29).",
+      "other_lines": null,
+      "message": "FR-29 is referenced but never defined."
+    },
+    {
+      "lint_id": "LINT-REF-21",
+      "check": "REF",
+      "class": "fact",
+      "lines": [
+        168,
+        168
+      ],
+      "quote": "Python standard library only, run as `uv run --no-project python \"<skill base>/scripts/orca_worktree.py\" <subcommand> ...` (the `clickup_claim.py` pattern). One JSON object on stdout. Exit 0 for ev...",
+      "other_lines": null,
+      "message": "FR-5 is referenced but never defined."
+    },
+    {
+      "lint_id": "LINT-REF-22",
+      "check": "REF",
+      "class": "fact",
+      "lines": [
+        199,
+        199
+      ],
+      "quote": "| 2 | List. Unusable (FR-15): `ok != true`, `result.truncated == true`, `result.hostScope.omittedHostIds` non-empty, zero rows, or no row with `isMainWorktree: true` (field names verified on a live...",
+      "other_lines": null,
+      "message": "FR-15 is referenced but never defined (4 references)."
+    },
+    {
+      "lint_id": "LINT-REF-23",
+      "check": "REF",
+      "class": "fact",
+      "lines": [
+        201,
+        201
+      ],
+      "quote": "| 4 | No hit: `origin/<B>` must resolve (else `failed`, `W-ORIGIN-BASE-MISSING`, no create); a failed `git fetch origin` with the ref present continues with `W-ORIGIN-BASE-STALE` (FR-16). Create. O...",
+      "other_lines": null,
+      "message": "FR-16 is referenced but never defined."
+    },
+    {
+      "lint_id": "LINT-REF-24",
+      "check": "REF",
+      "class": "fact",
+      "lines": [
+        203,
+        203
+      ],
+      "quote": "| 6 | Post-condition (FR-17): `<wt>` exists, its git-common-dir equals `<main>`'s by `realpath`, and every `<D>` file is byte-identical at the destination or named in a warning; else `failed` with ...",
+      "other_lines": null,
+      "message": "FR-17 is referenced but never defined (2 references)."
+    },
+    {
+      "lint_id": "LINT-REF-25",
+      "check": "REF",
+      "class": "fact",
+      "lines": [
+        204,
+        204
+      ],
+      "quote": "| 7 | Only on `created` or `reused`, write `<D>/worktree.json` `{\"path\": \"<absolute>\", \"status\": \"created\\|reused\"}`. It keeps an existing `launch` entry. It is never copied. | FR-18 |",
+      "other_lines": null,
+      "message": "FR-18 is referenced but never defined."
+    },
+    {
+      "lint_id": "LINT-REF-26",
+      "check": "REF",
+      "class": "fact",
+      "lines": [
+        220,
+        220
+      ],
+      "quote": "| 6 | Shim check (FR-28): take the terminal handle (the first string value under a key `handle` in the launch JSON, found by a recursive walk, because the `agent launch` result shape is UNVERIFIED)...",
+      "other_lines": null,
+      "message": "FR-28 is referenced but never defined."
+    },
+    {
+      "lint_id": "LINT-REF-27",
+      "check": "REF",
+      "class": "fact",
+      "lines": [
+        223,
+        223
+      ],
+      "quote": "`worktree.json` is the only file the script writes besides the copy, the pending record and the rendered prompt. It never runs `git worktree add`, `orca worktree rm`, a commit, a push or a stage (F...",
+      "other_lines": null,
+      "message": "FR-12 is referenced but never defined."
+    },
+    {
+      "lint_id": "LINT-REF-28",
+      "check": "REF",
+      "class": "fact",
+      "lines": [
+        289,
+        289
+      ],
+      "quote": "| `W-LAUNCH-NOT-CCSESSION` | launch (status `launched`) | in none of the 5 tries does the screen show `[ccsession]` or the session-name question, or the tab title carry the `sc-launch-v1-...` sessi...",
+      "other_lines": null,
+      "message": "OB-5 is referenced but never defined (2 references)."
+    },
+    {
+      "lint_id": "LINT-REF-29",
+      "check": "REF",
+      "class": "fact",
+      "lines": [
+        289,
+        289
+      ],
+      "quote": "| `W-LAUNCH-NOT-CCSESSION` | launch (status `launched`) | in none of the 5 tries does the screen show `[ccsession]` or the session-name question, or the tab title carry the `sc-launch-v1-...` sessi...",
+      "other_lines": [
+        209,
+        209
+      ],
+      "message": "Step 6 of section 8.4 is referenced but section 8.4 has no numbered item 6."
+    },
+    {
+      "lint_id": "LINT-REF-30",
+      "check": "REF",
+      "class": "fact",
+      "lines": [
+        317,
+        317
+      ],
+      "quote": "| `docs/designs/sc-issue-command.md` | B2 row rewritten (section 2), new rows B16 to B18, and short \"Amended 2026-11-07\" notes in sections 1, 4, 7, 14, 16, 20 pointing to this design. Section 15's ...",
+      "other_lines": null,
+      "message": "Section 20 is referenced but no heading has that number."
+    },
+    {
+      "lint_id": "LINT-REF-31",
+      "check": "REF",
+      "class": "fact",
+      "lines": [
+        322,
+        322
+      ],
+      "quote": "Path rule: every new reference inside the primitives to another primitive uses the installed path and the script is called as `<skill base>/scripts/orca_worktree.py`, never a `src/superclaude/` pat...",
+      "other_lines": null,
+      "message": "FR-14 is referenced but never defined."
+    },
+    {
+      "lint_id": "LINT-REF-32",
+      "check": "REF",
+      "class": "fact",
+      "lines": [
+        344,
+        344
+      ],
+      "quote": "| LA-1 | exact launch argv equals section 8.4 step 5, `--prompt` starts with `[sc-launch:v1:` plus 32 hex characters and `] `, no leading `/`, no `--model`, no `--effort`, no link flag |",
+      "other_lines": [
+        209,
+        209
+      ],
+      "message": "Step 5 of section 8.4 is referenced but section 8.4 has no numbered item 5."
+    },
+    {
+      "lint_id": "LINT-REF-33",
+      "check": "REF",
+      "class": "fact",
+      "lines": [
+        369,
+        369
+      ],
+      "quote": "The old MR cases FO-5 and AC-5 (no `orca`) are not built; `preflight` PF-2 covers the only place a missing binary matters.",
+      "other_lines": null,
+      "message": "AC-5 is referenced but never defined."
+    },
+    {
+      "lint_id": "LINT-REF-34",
+      "check": "REF",
+      "class": "fact",
+      "lines": [
+        369,
+        369
+      ],
+      "quote": "The old MR cases FO-5 and AC-5 (no `orca`) are not built; `preflight` PF-2 covers the only place a missing binary matters.",
+      "other_lines": null,
+      "message": "FO-5 is referenced but never defined."
+    },
+    {
+      "lint_id": "LINT-REF-35",
+      "check": "REF",
+      "class": "fact",
+      "lines": [
+        407,
+        407
+      ],
+      "quote": "- Whether the launched session carries an Orca worker preamble. If it does, the worker contract's turn-off of outward actions (WC-9) and its `/sc:pr-submit` refusal would block `--submit`.",
+      "other_lines": null,
+      "message": "WC-9 is referenced but never defined."
+    },
+    {
+      "lint_id": "LINT-REF-36",
+      "check": "REF",
+      "class": "fact",
+      "lines": [
+        431,
+        431
+      ],
+      "quote": "**Observed runs** (owner steps after merge, on test issues only; **not run in this change**): OB-1 default claim: one new row at Orca's default location, `git merge-base HEAD origin/<B>` equals `gi...",
+      "other_lines": null,
+      "message": "OB-1 is referenced but never defined."
+    },
+    {
+      "lint_id": "LINT-REF-37",
+      "check": "REF",
+      "class": "fact",
+      "lines": [
+        431,
+        431
+      ],
+      "quote": "**Observed runs** (owner steps after merge, on test issues only; **not run in this change**): OB-1 default claim: one new row at Orca's default location, `git merge-base HEAD origin/<B>` equals `gi...",
+      "other_lines": null,
+      "message": "OB-2 is referenced but never defined."
+    },
+    {
+      "lint_id": "LINT-REF-38",
+      "check": "REF",
+      "class": "fact",
+      "lines": [
+        431,
+        431
+      ],
+      "quote": "**Observed runs** (owner steps after merge, on test issues only; **not run in this change**): OB-1 default claim: one new row at Orca's default location, `git merge-base HEAD origin/<B>` equals `gi...",
+      "other_lines": null,
+      "message": "OB-4 is referenced but never defined."
+    },
+    {
+      "lint_id": "LINT-REF-39",
+      "check": "REF",
+      "class": "fact",
+      "lines": [
+        431,
+        431
+      ],
+      "quote": "**Observed runs** (owner steps after merge, on test issues only; **not run in this change**): OB-1 default claim: one new row at Orca's default location, `git merge-base HEAD origin/<B>` equals `gi...",
+      "other_lines": null,
+      "message": "OB-6 is referenced but never defined."
+    },
+    {
+      "lint_id": "LINT-REF-40",
+      "check": "REF",
+      "class": "fact",
+      "lines": [
+        431,
+        431
+      ],
+      "quote": "**Observed runs** (owner steps after merge, on test issues only; **not run in this change**): OB-1 default claim: one new row at Orca's default location, `git merge-base HEAD origin/<B>` equals `gi...",
+      "other_lines": null,
+      "message": "OB-7 is referenced but never defined."
+    },
+    {
+      "lint_id": "LINT-REF-41",
+      "check": "REF",
+      "class": "fact",
+      "lines": [
+        431,
+        431
+      ],
+      "quote": "**Observed runs** (owner steps after merge, on test issues only; **not run in this change**): OB-1 default claim: one new row at Orca's default location, `git merge-base HEAD origin/<B>` equals `gi...",
+      "other_lines": null,
+      "message": "OB-8 is referenced but never defined."
+    },
+    {
+      "lint_id": "LINT-REF-42",
+      "check": "REF",
+      "class": "fact",
+      "lines": [
+        431,
+        431
+      ],
+      "quote": "**Observed runs** (owner steps after merge, on test issues only; **not run in this change**): OB-1 default claim: one new row at Orca's default location, `git merge-base HEAD origin/<B>` equals `gi...",
+      "other_lines": null,
+      "message": "OB-9 is referenced but never defined."
+    },
+    {
+      "lint_id": "LINT-REF-43",
+      "check": "REF",
+      "class": "fact",
+      "lines": [
+        440,
+        440
+      ],
+      "quote": "- **A2, fork safety of the launch prompt (B-3) [Tasks 5, 7].** Every gh call in the `submit` block names `--repo IronbellyOrg/IronClaude`; the open-PR check is `gh pr list --repo IronbellyOrg/IronC...",
+      "other_lines": null,
+      "message": "ST-12 is referenced but never defined (2 references)."
+    },
+    {
+      "lint_id": "LINT-REF-44",
+      "check": "REF",
+      "class": "fact",
+      "lines": [
+        445,
+        445
+      ],
+      "quote": "- **A7, pending records (m-5).** Pending launch records are consumed by the #394 guard when a session binds to one; an unconsumed record is never pruned (owner decision O-15), so unused records kee...",
+      "other_lines": null,
+      "message": "O-15 is referenced but never defined."
+    },
+    {
+      "lint_id": "LINT-REF-45",
+      "check": "REF",
+      "class": "fact",
+      "lines": [
+        452,
+        452
+      ],
+      "quote": "- **A9, launch state per worktree.** `launch` also writes `{path, launch}` to `sc-issue-launch-<N>.json` in the worktree's own git directory (`git -C <wt> rev-parse --absolute-git-dir`): untracked ...",
+      "other_lines": [
+        209,
+        209
+      ],
+      "message": "Step 2 of section 8.4 is referenced but section 8.4 has no numbered item 2."
+    }
+  ],
+  "census": {
+    "rfc2119": {},
+    "rfc2119_total": {
+      "MUST": 0,
+      "SHALL": 0,
+      "SHOULD": 0,
+      "MAY": 0
+    }
+  }
+}

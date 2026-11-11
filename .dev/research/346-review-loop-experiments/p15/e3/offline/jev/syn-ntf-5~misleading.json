@@ -1,0 +1,28 @@
+{
+ "case_id": "syn-ntf-5~misleading",
+ "code_outcome": "OK",
+ "decision": "VERIFIER",
+ "qset_version": "e3-q1",
+ "result": {
+  "answers": {
+   "evidence_sufficient": {
+    "p": 0.52,
+    "type": "noul"
+   },
+   "outcome_follows": {
+    "p": 0.67,
+    "type": "noul"
+   }
+  },
+  "attempts": 1,
+  "error": null,
+  "latency_ms": 182,
+  "model": "jev-1.14.0",
+  "request_sha256": "2b748e030e9ab02542923eee886e038649cf2189de33c229dd468a0af98822bb",
+  "status": "ok",
+  "usage": {
+   "input_tokens": 670,
+   "output_tokens": 46
+  }
+ }
+}

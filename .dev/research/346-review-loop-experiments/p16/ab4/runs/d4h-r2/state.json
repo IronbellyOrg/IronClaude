@@ -1,0 +1,737 @@
+{
+ "run": "d4h-r2",
+ "design": "d4",
+ "rep": 2,
+ "stratum": "haiku",
+ "loop_model": "haiku",
+ "frozen": {
+  "cmd_sha": "e62e70b98e878cb4b60ba8f95f1cc3442a25e815828a3ef3d17a95b65ea97494",
+  "rules_sha": "1a2e8ab6b9156760e72e47e31b2c126e5f8e82727e9ed90e9e60f48333bada8b",
+  "aud_cmd_sha": "e62e70b98e878cb4b60ba8f95f1cc3442a25e815828a3ef3d17a95b65ea97494",
+  "aud_rules_sha": "3eb772f944491720af24133267681e170510ba49949af1b08db913e9eeaddfb8",
+  "_comment": "cmd_sha: the /sc:spec-panel command (identical to the frozen audit command, aud_cmd_sha); rules_sha: ab1 rules + PN2 lint bullets + k=2 wording (make_rules.py); aud_rules_sha: the frozen audit rules (p11/rules.md)."
+ },
+ "cmd_sha": "e62e70b98e878cb4b60ba8f95f1cc3442a25e815828a3ef3d17a95b65ea97494",
+ "rules_sha": "1a2e8ab6b9156760e72e47e31b2c126e5f8e82727e9ed90e9e60f48333bada8b",
+ "done": [
+  "R1a",
+  "R1b",
+  "VF1",
+  "V1",
+  "R2",
+  "VF2",
+  "V2",
+  "R3",
+  "AUD2",
+  "AUD"
+ ],
+ "prepared": [
+  "R1a",
+  "R1b",
+  "VF1",
+  "V1",
+  "R2",
+  "VF2",
+  "V2",
+  "R3",
+  "AUD",
+  "AUD2"
+ ],
+ "transitioned": [
+  "R1a",
+  "R1b",
+  "VF1",
+  "V1",
+  "R2",
+  "VF2",
+  "V2",
+  "R3",
+  "AUD2",
+  "AUD"
+ ],
+ "log": {
+  "LINT1": {
+   "checks": [
+    "REF"
+   ],
+   "findings": 0,
+   "by_check": {},
+   "ids": [],
+   "sha256": "6a70e9a1255ee5d4652078e22f1d02b3383feeb5af682b9017b29610cb1b420a",
+   "spec_sha256": "d3cdbe573e57303b9ce6c93d1fe98ba18fb7cb1a15773d926bf6a0c31425200d",
+   "stratum": "haiku"
+  },
+  "R1a": {
+   "output_exists": true,
+   "report_bytes": 25086,
+   "verdict": "FAIL",
+   "review_header": [
+    "1"
+   ],
+   "labels": {
+    "CRITICAL": 7,
+    "MAJOR": 3,
+    "MINOR": 2
+   },
+   "blocking_ids": "F1, F2, F3, F4, F5, F6",
+   "blocking_word_count": 13,
+   "stratum": "haiku",
+   "model": "haiku",
+   "output_tokens": 93697
+  },
+  "R1b": {
+   "output_exists": true,
+   "report_bytes": 38291,
+   "verdict": "FAIL",
+   "review_header": [
+    "1"
+   ],
+   "labels": {
+    "MAJOR": 3,
+    "MINOR": 1
+   },
+   "blocking_ids": "B1, B2, B3, B4, B5, B6, B7, B8, B9, B10, B11, B12, B13, B14",
+   "blocking_word_count": 29,
+   "stratum": "haiku",
+   "model": "haiku",
+   "output_tokens": 115069
+  },
+  "VF1": {
+   "output_exists": true,
+   "finding_ids": [
+    "M1",
+    "M2",
+    "M3",
+    "M4",
+    "M5",
+    "M6",
+    "M7",
+    "M8",
+    "M9",
+    "M10",
+    "M11",
+    "M12",
+    "M13",
+    "M14",
+    "M15",
+    "M16",
+    "M17",
+    "M18",
+    "M19",
+    "M20"
+   ],
+   "report_bytes": 9951,
+   "confirmed": [
+    "M1",
+    "M2",
+    "M4",
+    "M6",
+    "M7",
+    "M8",
+    "M9",
+    "M10",
+    "M11",
+    "M12",
+    "M13",
+    "M14",
+    "M15",
+    "M16",
+    "M17",
+    "M18",
+    "M19"
+   ],
+   "rejected": {
+    "M3": "Both quotes exist, but AC-1.1 only requires the section to name the file, and a load section stating that it writes no contract names it without writing one; \"fails AC-1.1\" and \"writes a report file\" both need a further assumption about how the section is worded.",
+    "M5": "The quoted texts exist, but the outcome needs two index-repo workers in one worktree; line 73 states no default placement, and the default-sharing and parallel-wave facts are cited only to CAPS:115 and CAPS:86, which are outside this sandbox (UNVERIFIED).",
+    "M20": "The texts exist, and WC-11 itself does not contain the one-audit-at-a-time rule, but the outcome needs two index-repo workers in one worktree, which depends on the default placement cited only to CAPS:115 (outside the sandbox, UNVERIFIED) and is not stated in 2.3 (73)."
+   },
+   "parse_ok": true,
+   "stratum": "haiku",
+   "model": "haiku",
+   "output_tokens": 30607
+  },
+  "V1": {
+   "output_exists": true,
+   "report_bytes": 7503,
+   "spec_after": {
+    "bytes": 60613,
+    "lines": 285,
+    "sha256": "54648b506bfdcd80743a1d2154ba8247546181fddf2026636e6e105d2c2bbbc5"
+   },
+   "stratum": "haiku",
+   "model": "haiku",
+   "output_tokens": 54832
+  },
+  "LINT2": {
+   "checks": [
+    "REF"
+   ],
+   "findings": 0,
+   "by_check": {},
+   "ids": [],
+   "sha256": "75a999d7a11b1dc069c70721ce699638c1ba0334e31bca09933cd573a602017e",
+   "spec_sha256": "54648b506bfdcd80743a1d2154ba8247546181fddf2026636e6e105d2c2bbbc5",
+   "stratum": "haiku"
+  },
+  "R2": {
+   "output_exists": true,
+   "report_bytes": 28807,
+   "verdict": "FAIL",
+   "review_header": [
+    "2"
+   ],
+   "labels": {},
+   "blocking_ids": "M1, M9, M16, N1, N2",
+   "blocking_word_count": 10,
+   "spec_after": {
+    "bytes": 60613,
+    "lines": 285,
+    "sha256": "54648b506bfdcd80743a1d2154ba8247546181fddf2026636e6e105d2c2bbbc5"
+   },
+   "stratum": "haiku",
+   "model": "haiku",
+   "output_tokens": 37608
+  },
+  "VF2": {
+   "output_exists": true,
+   "finding_ids": [
+    "M1",
+    "M9",
+    "M16",
+    "N1",
+    "N2"
+   ],
+   "report_bytes": 3585,
+   "confirmed": [
+    "M16",
+    "N1"
+   ],
+   "rejected": {
+    "M1": "AC-0.4 at :194 states the P0 override for step 3 itself, so a reader of the P0 gate is not left with contradicting instructions; the stated failure needs a reader who ignores that override.",
+    "M9": "Same override as M1. The claimed failure of step 4 on `/sc:troubleshoot` does not follow, because :194 defers step 4 to P1 (\"step 4 is not evaluated until P1\"). The phrase the finding attributes to :194 is not in the candidate.",
+    "N2": "The contradiction is real (3.1 gives brainstorm and init-lite no change, the P1 row at :159 gives them one). But AC-1.1 is scoped by \"section 3 phase\", and section 3.1 assigns no phase to these two commands. Failing AC-1.1 requires reading the section 6 P1 list into that scope, which is an extra assumption. The 10 and 27 header counts are not themselves a failing criterion."
+   },
+   "parse_ok": true,
+   "stratum": "haiku",
+   "model": "haiku",
+   "output_tokens": 11426
+  },
+  "V2": {
+   "output_exists": true,
+   "report_bytes": 4160,
+   "spec_after": {
+    "bytes": 61127,
+    "lines": 285,
+    "sha256": "24e411dcd5b98e3947b103fd3ff76a76e2a8ddec93e2c6e4f42c03d1f20513c9"
+   },
+   "stratum": "haiku",
+   "model": "haiku",
+   "output_tokens": 12294
+  },
+  "LINT3": {
+   "checks": [
+    "REF"
+   ],
+   "findings": 0,
+   "by_check": {},
+   "ids": [],
+   "sha256": "c541a2870a261c97a143036cc8d3649ec4fff050fbdca77bfa9bcb6e26a4a8aa",
+   "spec_sha256": "24e411dcd5b98e3947b103fd3ff76a76e2a8ddec93e2c6e4f42c03d1f20513c9",
+   "stratum": "haiku"
+  },
+  "R3": {
+   "output_exists": true,
+   "report_bytes": 14709,
+   "verdict": "PASS",
+   "review_header": [
+    "3"
+   ],
+   "labels": {},
+   "blocking_ids": null,
+   "blocking_word_count": 10,
+   "spec_after": {
+    "bytes": 61127,
+    "lines": 285,
+    "sha256": "24e411dcd5b98e3947b103fd3ff76a76e2a8ddec93e2c6e4f42c03d1f20513c9"
+   },
+   "stratum": "haiku",
+   "model": "haiku",
+   "output_tokens": 35170
+  },
+  "AUD2": {
+   "output_exists": true,
+   "report_bytes": 19706,
+   "verdict": "FAIL",
+   "review_header": [
+    "1"
+   ],
+   "labels": {
+    "MAJOR": 2
+   },
+   "blocking_ids": "F1",
+   "blocking_word_count": 10,
+   "spec_audited": {
+    "bytes": 61127
+   },
+   "stratum": "haiku",
+   "model": "sonnet",
+   "output_tokens": 42295
+  },
+  "AUD": {
+   "output_exists": true,
+   "report_bytes": 31242,
+   "verdict": "PASS",
+   "review_header": [
+    "1"
+   ],
+   "labels": {
+    "MAJOR": 13,
+    "MINOR": 4,
+    "CRITICAL": 1
+   },
+   "blocking_ids": null,
+   "blocking_word_count": 10,
+   "spec_audited": {
+    "bytes": 61127
+   },
+   "stratum": "haiku",
+   "model": "sonnet",
+   "output_tokens": 51859
+  }
+ },
+ "launched": {
+  "R1a": "2026-11-10T12:50:51+00:00",
+  "R1b": "2026-11-10T12:51:46+00:00",
+  "VF1": "2026-11-10T13:01:03+00:00",
+  "V1": "2026-11-10T13:04:39+00:00",
+  "R2": "2026-11-10T13:11:14+00:00",
+  "VF2": "2026-11-10T13:14:55+00:00",
+  "V2": "2026-11-10T13:16:36+00:00",
+  "R3": "2026-11-10T13:18:22+00:00",
+  "AUD": "2026-11-10T13:22:01+00:00",
+  "AUD2": "2026-11-10T13:22:01+00:00"
+ },
+ "noted_unactioned": [
+  {
+   "step": "VF1",
+   "id": "M3",
+   "theme": "T1",
+   "cited": [
+    112,
+    159,
+    195,
+    265
+   ],
+   "heading": "### F3. /sc:load contradicts itself on whether it names the contract. BLOCKING. MAJOR.",
+   "reason": "Both quotes exist, but AC-1.1 only requires the section to name the file, and a load section stating that it writes no contract names it without writing one; \"fails AC-1.1\" and \"writes a report file\" both need a further assumption about how the section is worded."
+  },
+  {
+   "step": "VF1",
+   "id": "M5",
+   "theme": "other",
+   "cited": [
+    69,
+    73,
+    85,
+    86
+   ],
+   "heading": "### F5. Ready-today commands can write one file from two workers. BLOCKING. CRITICAL.",
+   "reason": "The quoted texts exist, but the outcome needs two index-repo workers in one worktree; line 73 states no default placement, and the default-sharing and parallel-wave facts are cited only to CAPS:115 and CAPS:86, which are outside this sandbox (UNVERIFIED)."
+  },
+  {
+   "step": "VF1",
+   "id": "M20",
+   "theme": "T1",
+   "cited": [
+    69,
+    85,
+    86,
+    87
+   ],
+   "heading": "**B14. [BLOCKING, High] WC-11 forbids a shared default file, but three ready-today or P1 rows keep one.**",
+   "reason": "The texts exist, and WC-11 itself does not contain the one-audit-at-a-time rule, but the outcome needs two index-repo workers in one worktree, which depends on the default placement cited only to CAPS:115 (outside the sandbox, UNVERIFIED) and is not stated in 2.3 (73)."
+  },
+  {
+   "step": "VF2",
+   "id": "M1",
+   "theme": "T3",
+   "cited": [
+    182
+   ],
+   "heading": "### M1 (open) and M9 (open): step 3 pass versus AC-0.4",
+   "reason": "AC-0.4 at :194 states the P0 override for step 3 itself, so a reader of the P0 gate is not left with contradicting instructions; the stated failure needs a reader who ignores that override."
+  },
+  {
+   "step": "VF2",
+   "id": "M9",
+   "theme": "T3",
+   "cited": [],
+   "heading": "| M9 | open | Same defect as M1, seen from AC-0.4 (:194). The P0 override is not carried into the step 3 pass text (:182). |",
+   "reason": "Same override as M1. The claimed failure of step 4 on `/sc:troubleshoot` does not follow, because :194 defers step 4 to P1 (\"step 4 is not evaluated until P1\"). The phrase the finding attributes to :194 is not in the candidate."
+  },
+  {
+   "step": "VF2",
+   "id": "N2",
+   "theme": "T1",
+   "cited": [],
+   "heading": "### N2 (new, origin=changed): brainstorm and init-lite in section 3.1 versus P1",
+   "reason": "The contradiction is real (3.1 gives brainstorm and init-lite no change, the P1 row at :159 gives them one). But AC-1.1 is scoped by \"section 3 phase\", and section 3.1 assigns no phase to these two commands. Failing AC-1.1 requires reading the section 6 P1 list into that scope, which is an extra assumption. The 10 and 27 header counts are not themselves a failing criterion."
+  }
+ ],
+ "loop_end": "PASS",
+ "manual": [],
+ "relaunch": {},
+ "lost": false,
+ "complete": true,
+ "merge": {
+  "raw_count": 20,
+  "merged_count": 20,
+  "groups": [
+   {
+    "mid": "M1",
+    "theme": "T3",
+    "members": [
+     "round1-a.md/F1"
+    ],
+    "cited": [
+     158,
+     159,
+     182,
+     194
+    ],
+    "heading": "### F1. Phase 0 acceptance check cannot pass as written. BLOCKING. CRITICAL."
+   },
+   {
+    "mid": "M2",
+    "theme": "T1",
+    "members": [
+     "round1-a.md/F2"
+    ],
+    "cited": [
+     84,
+     87,
+     159,
+     160,
+     161,
+     162,
+     195
+    ],
+    "heading": "### F2. Two commands needing a change are assigned to no phase, so AC-1.1 cannot pass. BLOCKING. CRITICAL."
+   },
+   {
+    "mid": "M3",
+    "theme": "T1",
+    "members": [
+     "round1-a.md/F3"
+    ],
+    "cited": [
+     112,
+     159,
+     195,
+     265
+    ],
+    "heading": "### F3. /sc:load contradicts itself on whether it names the contract. BLOCKING. MAJOR."
+   },
+   {
+    "mid": "M4",
+    "theme": "other",
+    "members": [
+     "round1-a.md/F4"
+    ],
+    "cited": [
+     64,
+     73,
+     87
+    ],
+    "heading": "### F4. The init-lite row breaks WC-6. BLOCKING. MAJOR."
+   },
+   {
+    "mid": "M5",
+    "theme": "other",
+    "members": [
+     "round1-a.md/F5"
+    ],
+    "cited": [
+     69,
+     73,
+     85,
+     86
+    ],
+    "heading": "### F5. Ready-today commands can write one file from two workers. BLOCKING. CRITICAL."
+   },
+   {
+    "mid": "M6",
+    "theme": "other",
+    "members": [
+     "round1-a.md/F6"
+    ],
+    "cited": [
+     61,
+     109,
+     234,
+     235,
+     236
+    ],
+    "heading": "### F6. WC-3 lets a coordinator's answer become the implement Ruling. BLOCKING. CRITICAL (safety boundary)."
+   },
+   {
+    "mid": "M7",
+    "theme": "other",
+    "members": [
+     "round1-b.md/B1"
+    ],
+    "cited": [
+     181,
+     182
+    ],
+    "heading": "**B1. [BLOCKING, High] Live-check steps 2 and 3 cannot both hold, and step 2 passes with no observation.**"
+   },
+   {
+    "mid": "M8",
+    "theme": "other",
+    "members": [
+     "round1-b.md/B2"
+    ],
+    "cited": [
+     61,
+     182
+    ],
+    "heading": "**B2. [BLOCKING, High] Step 3 has no branch for a worker `question` or `escalation`.**"
+   },
+   {
+    "mid": "M9",
+    "theme": "T3",
+    "members": [
+     "round1-b.md/B3"
+    ],
+    "cited": [
+     62,
+     182,
+     183,
+     194
+    ],
+    "heading": "**B3. [BLOCKING, High] AC-0.4 cannot pass for the three P0 commands.**"
+   },
+   {
+    "mid": "M10",
+    "theme": "T3",
+    "members": [
+     "round1-b.md/B4"
+    ],
+    "cited": [
+     73,
+     79,
+     159,
+     180,
+     194
+    ],
+    "heading": "**B4. [BLOCKING, High] P0 briefs must carry `--unattended`, which the spec adds only in P1.**"
+   },
+   {
+    "mid": "M11",
+    "theme": "T3",
+    "members": [
+     "round1-b.md/B5"
+    ],
+    "cited": [
+     43,
+     184,
+     194
+    ],
+    "heading": "**B5. [BLOCKING, High] AC-0.4 claims the direct-run condition is checked in step 5, but step 5 checks only AskUserQuestion.**"
+   },
+   {
+    "mid": "M12",
+    "theme": "T2",
+    "members": [
+     "round1-b.md/B6"
+    ],
+    "cited": [
+     62,
+     83,
+     92,
+     198
+    ],
+    "heading": "**B6. [BLOCKING, High] The WC-4 fixed-path rule conflicts with the per-command rows, and pre-creation output has no location.**"
+   },
+   {
+    "mid": "M13",
+    "theme": "other",
+    "members": [
+     "round1-b.md/B7"
+    ],
+    "cited": [
+     60,
+     103,
+     110,
+     116,
+     200
+    ],
+    "heading": "**B7. [BLOCKING, High] AC-2.2 requires a `blocked` outcome for every P2 gate, but WC-2 allows a documented default.**"
+   },
+   {
+    "mid": "M14",
+    "theme": "T1",
+    "members": [
+     "round1-b.md/B8"
+    ],
+    "cited": [
+     76,
+     77,
+     112,
+     159,
+     160,
+     161,
+     195,
+     196,
+     265
+    ],
+    "heading": "**B8. [BLOCKING, High] AC-1.1 and AC-1.2 cannot pass at P1, and `load` cannot produce a contract.**"
+   },
+   {
+    "mid": "M15",
+    "theme": "T1",
+    "members": [
+     "round1-b.md/B9"
+    ],
+    "cited": [
+     67,
+     100,
+     114,
+     159
+    ],
+    "heading": "**B9. [BLOCKING, High, outward action] P1 accepts `--unattended` on commands whose outward default is still on.**"
+   },
+   {
+    "mid": "M16",
+    "theme": "other",
+    "members": [
+     "round1-b.md/B10"
+    ],
+    "cited": [
+     67,
+     113,
+     209
+    ],
+    "heading": "**B10. [BLOCKING, High, outward action] AC-4.2 claims to check for no install or VM, and checks only commit and PR.**"
+   },
+   {
+    "mid": "M17",
+    "theme": "T3",
+    "members": [
+     "round1-b.md/B11"
+    ],
+    "cited": [
+     52,
+     147,
+     158,
+     172
+    ],
+    "heading": "**B11. [BLOCKING, High] AC-C1 fails the contract text that SA-2 permits.** Experts: Fowler (boundaries), Whittaker (contradiction probe)."
+   },
+   {
+    "mid": "M18",
+    "theme": "other",
+    "members": [
+     "round1-b.md/B12"
+    ],
+    "cited": [
+     167,
+     180,
+     182
+    ],
+    "heading": "**B12. [BLOCKING, High] The 7.2 commands omit the identity that the spec's own ORCA definition requires outside an Orca terminal.** Experts: Hohpe (messaging), Hightower (operations)."
+   },
+   {
+    "mid": "M19",
+    "theme": "other",
+    "members": [
+     "round1-b.md/B13"
+    ],
+    "cited": [
+     63,
+     183
+    ],
+    "heading": "**B13. [BLOCKING, High] WC-5 maps a present but unparseable or empty contract to `succeeded`.**"
+   },
+   {
+    "mid": "M20",
+    "theme": "T1",
+    "members": [
+     "round1-b.md/B14"
+    ],
+    "cited": [
+     69,
+     85,
+     86,
+     87
+    ],
+    "heading": "**B14. [BLOCKING, High] WC-11 forbids a shared default file, but three ready-today or P1 rows keep one.**"
+   }
+  ],
+  "reviewers": {
+   "a": {
+    "verdict": "FAIL",
+    "sha256": "25c5b2186f22a750832646bbfa090e3e16e6e6666864a80d0bc7e645f93e7afb",
+    "ids": [
+     "F1",
+     "F2",
+     "F3",
+     "F4",
+     "F5",
+     "F6"
+    ],
+    "themes": [
+     "T3",
+     "T1",
+     "T1",
+     "other",
+     "other",
+     "other"
+    ]
+   },
+   "b": {
+    "verdict": "FAIL",
+    "sha256": "1d8abef54ce17a00047e193add05620377d505b73fda25e4a05b9adfdd469b50",
+    "ids": [
+     "B1",
+     "B2",
+     "B3",
+     "B4",
+     "B5",
+     "B6",
+     "B7",
+     "B8",
+     "B9",
+     "B10",
+     "B11",
+     "B12",
+     "B13",
+     "B14"
+    ],
+    "themes": [
+     "other",
+     "other",
+     "T3",
+     "T3",
+     "T3",
+     "T2",
+     "other",
+     "T1",
+     "T1",
+     "other",
+     "T3",
+     "other",
+     "other",
+     "T1"
+    ]
+   }
+  },
+  "done": true
+ },
+ "final_spec": {
+  "bytes": 61127,
+  "lines": 285,
+  "sha256": "24e411dcd5b98e3947b103fd3ff76a76e2a8ddec93e2c6e4f42c03d1f20513c9"
+ }
+}

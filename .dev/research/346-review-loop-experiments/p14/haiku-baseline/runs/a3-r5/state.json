@@ -1,0 +1,131 @@
+{
+ "run": "a3-r5",
+ "arm": 3,
+ "rep": 5,
+ "done": [
+  "R1",
+  "V1",
+  "R2",
+  "V2",
+  "R3",
+  "AUD",
+  "AUD2"
+ ],
+ "log": {
+  "R1": {
+   "output_exists": true,
+   "report_bytes": 27865,
+   "verdict": "FAIL",
+   "review_header": [
+    "1"
+   ],
+   "labels": {
+    "MAJOR": 6,
+    "MINOR": 17,
+    "CRITICAL": 1
+   },
+   "blocking_ids": "F-01, F-02, F-03, F-04",
+   "blocking_word_count": 9,
+   "spec_after": {
+    "bytes": 57763,
+    "lines": 285,
+    "sha256": "d3cdbe573e57303b9ce6c93d1fe98ba18fb7cb1a15773d926bf6a0c31425200d"
+   },
+   "output_tokens": 162581
+  },
+  "V1": {
+   "output_exists": true,
+   "report_bytes": 5284,
+   "spec_after": {
+    "bytes": 59142,
+    "lines": 291,
+    "sha256": "013a84aaca6a86058868c7f7b79fe52a951e5bbb08547665cff18e7d59d845ed"
+   },
+   "output_tokens": 117487
+  },
+  "R2": {
+   "output_exists": true,
+   "report_bytes": 25421,
+   "verdict": "FAIL",
+   "review_header": [
+    "2"
+   ],
+   "labels": {
+    "MAJOR": 2,
+    "MINOR": 3
+   },
+   "blocking_ids": "F-01, F-03, F-02, F-04",
+   "blocking_word_count": 14,
+   "spec_after": {
+    "bytes": 59142,
+    "lines": 291,
+    "sha256": "013a84aaca6a86058868c7f7b79fe52a951e5bbb08547665cff18e7d59d845ed"
+   },
+   "output_tokens": 74042
+  },
+  "V2": {
+   "output_exists": true,
+   "report_bytes": 3972,
+   "spec_after": {
+    "bytes": 59413,
+    "lines": 291,
+    "sha256": "5dc5c21ad2cf82fb9524020aa4cd5b0bc6a285be451e62fe6377194b27c70222"
+   },
+   "output_tokens": 27645
+  },
+  "R3": {
+   "output_exists": true,
+   "report_bytes": 13562,
+   "verdict": "PASS",
+   "review_header": [
+    "3"
+   ],
+   "labels": {},
+   "blocking_ids": null,
+   "blocking_word_count": 13,
+   "spec_after": {
+    "bytes": 59413,
+    "lines": 291,
+    "sha256": "5dc5c21ad2cf82fb9524020aa4cd5b0bc6a285be451e62fe6377194b27c70222"
+   },
+   "output_tokens": 50243
+  },
+  "AUD": {
+   "output_exists": true,
+   "report_bytes": 32582,
+   "verdict": "FAIL",
+   "review_header": [
+    "1"
+   ],
+   "labels": {
+    "CRITICAL": 2,
+    "MAJOR": 13,
+    "MINOR": 1
+   },
+   "blocking_ids": null,
+   "blocking_word_count": 8,
+   "spec_audited": {
+    "bytes": 59413
+   },
+   "output_tokens": 123416
+  },
+  "AUD2": {
+   "output_exists": true,
+   "report_bytes": 17676,
+   "verdict": "FAIL",
+   "review_header": [
+    "1"
+   ],
+   "labels": {
+    "MAJOR": 5,
+    "MINOR": 6
+   },
+   "blocking_ids": "B-1, B-2",
+   "blocking_word_count": 10,
+   "spec_audited": {
+    "bytes": 59413
+   },
+   "output_tokens": 25338
+  }
+ }
+}

@@ -1,0 +1,187 @@
+{
+ "schema": "p15-results/1",
+ "experiment": "E1",
+ "design_id": "p15-E1",
+ "generated_utc": "2026-11-10T07:14:20+00:00",
+ "decision_file": {
+  "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p15/e1/decision.toml",
+  "sha256": "80a6923edec41ca47e62d8252695df9844084189449df4cdf68cab5f1ec0f116"
+ },
+ "stage": "offline",
+ "status": "complete",
+ "rows": [
+  {
+   "arm": "e1-smoke",
+   "arm_label": "E1 smoke gate (offline fix-closure replay)",
+   "stratum": "offline",
+   "role": "offline-gate",
+   "n_planned": 40,
+   "n_completed": 40,
+   "runs_dir": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p15/e1/offline",
+   "metrics": {
+    "BLK": null,
+    "AUD1": null,
+    "AUD2": null,
+    "A_mean": null,
+    "A_median": null,
+    "R_LOOP": null,
+    "B_mean": null,
+    "R_B": null,
+    "growth_mean_pct": null,
+    "growth_median_pct": null,
+    "loop_pass": null,
+    "escalations": null,
+    "reviews_mean": null,
+    "fix_cycles_mean": null
+   },
+   "design_metrics": {
+    "n_cases": 40,
+    "eligible": 34,
+    "auto_close": 12,
+    "automation_coverage": 0.35294117647058826,
+    "false_closures": [
+     "sm-19",
+     "sm-20",
+     "sm-24"
+    ],
+    "true_closures": [
+     "sm-03",
+     "sm-05",
+     "sm-12",
+     "sm-14",
+     "sm-26",
+     "sm-27",
+     "sm-28",
+     "sm-37"
+    ],
+    "model_mismatch_cases": [],
+    "failed_frac": 0.0,
+    "conventional_agreement": 0.9705882352941176,
+    "conventional_false_closures": [
+     "sm-20",
+     "sm-24"
+    ],
+    "perturbation_groups": 10,
+    "perturbation_consistent_exact": 9,
+    "perturbation_consistent_closing": 10,
+    "decision_counts": {
+     "FALLBACK": 22,
+     "AUTO_CLOSE": 12,
+     "NOT_ELIGIBLE": 4,
+     "OPEN": 2
+    },
+    "precheck_counts": {
+     "ok": 34,
+     "deps": 4,
+     "noop": 2
+    },
+    "cost_reduction": {
+     "reduction": 0.3562049355899478,
+     "tokens_all_eligible": 11049.0,
+     "tokens_fallback": 7113.291666666667
+    },
+    "latency_ms": {
+     "p50": 179.0,
+     "p95": 210.79999999999998
+    }
+   },
+   "haiku": null,
+   "jev": {
+    "logical_calls": 34,
+    "status_counts": {
+     "ok": 34
+    },
+    "input_tokens": 44886,
+    "usd": 0.001885,
+    "model": "jev-1.14.0"
+   },
+   "verdict": "NO-GO-OFFLINE",
+   "rule": "smoke STOP: false AUTO_CLOSE on ['sm-19', 'sm-20', 'sm-24'] (truth closure_correct = no)",
+   "extension_used": false
+  },
+  {
+   "arm": "f4b",
+   "arm_label": "Jev checker with conventional fallback (E4)",
+   "stratum": "sonnet",
+   "role": "test",
+   "n_planned": 6,
+   "n_completed": 0,
+   "runs_dir": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p15/e1/offline",
+   "metrics": {
+    "BLK": null,
+    "AUD1": null,
+    "AUD2": null,
+    "A_mean": null,
+    "A_median": null,
+    "R_LOOP": null,
+    "B_mean": null,
+    "R_B": null,
+    "growth_mean_pct": null,
+    "growth_median_pct": null,
+    "loop_pass": null,
+    "escalations": null,
+    "reviews_mean": null,
+    "fix_cycles_mean": null
+   },
+   "design_metrics": {},
+   "haiku": null,
+   "jev": {
+    "logical_calls": 0,
+    "status_counts": {},
+    "input_tokens": 0,
+    "usd": 0.0,
+    "model": "jev-1.14.0"
+   },
+   "verdict": "BLOCKED",
+   "rule": "E1 smoke: NO-GO-OFFLINE",
+   "extension_used": false
+  },
+  {
+   "arm": "f4c",
+   "arm_label": "conventional checker on every eligible packet (E4)",
+   "stratum": "sonnet",
+   "role": "control",
+   "n_planned": 6,
+   "n_completed": 0,
+   "runs_dir": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p15/e1/offline",
+   "metrics": {
+    "BLK": null,
+    "AUD1": null,
+    "AUD2": null,
+    "A_mean": null,
+    "A_median": null,
+    "R_LOOP": null,
+    "B_mean": null,
+    "R_B": null,
+    "growth_mean_pct": null,
+    "growth_median_pct": null,
+    "loop_pass": null,
+    "escalations": null,
+    "reviews_mean": null,
+    "fix_cycles_mean": null
+   },
+   "design_metrics": {},
+   "haiku": null,
+   "jev": {
+    "logical_calls": 0,
+    "status_counts": {},
+    "input_tokens": 0,
+    "usd": 0.0,
+    "model": "jev-1.14.0"
+   },
+   "verdict": "BLOCKED",
+   "rule": "E1 smoke: NO-GO-OFFLINE",
+   "extension_used": false
+  }
+ ],
+ "blocked_downstream": [
+  {
+   "experiment": "E4",
+   "reason": "E1 smoke: NO-GO-OFFLINE: smoke STOP: false AUTO_CLOSE on ['sm-19', 'sm-20', 'sm-24'] (truth closure_correct = no)"
+  }
+ ],
+ "notes": [
+  "qset e1-q1",
+  "exploratory gates, not guarantees"
+ ]
+}

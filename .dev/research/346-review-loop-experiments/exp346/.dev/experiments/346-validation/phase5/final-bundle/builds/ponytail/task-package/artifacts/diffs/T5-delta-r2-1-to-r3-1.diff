@@ -1,0 +1,120 @@
+diff --git a/src/superclaude/skills/sc-fix-audit/scripts/fix_audit.py b/src/superclaude/skills/sc-fix-audit/scripts/fix_audit.py
+index 27883d62..e69c3c26 100644
+--- a/src/superclaude/skills/sc-fix-audit/scripts/fix_audit.py
++++ b/src/superclaude/skills/sc-fix-audit/scripts/fix_audit.py
+@@ -912,23 +912,29 @@ CM = ("CRITICAL", "MAJOR")
+ 
+ 
+ def unlabelled_blocking(text: str) -> list[str]:
+-    """Ids of review-3 table rows outside the resolution table that are graded `blocking`
+-    but carry no severity label: parse_report needs a label, yet such a grade still counts."""
++    """Ids of review-3 table rows outside the resolution table that carry no severity
++    label and are not read as non-blocking: parse_report needs a label, but an unknown
++    grade still counts as blocking here (fail closed)."""
++    key = report_key(text)
+     out: list[str] = []
+     in_prior = False
+-    for line in text.splitlines():
++    lines = text.splitlines()
++    for n, line in enumerate(lines):
+         if line.lstrip().startswith("#"):
+             in_prior = bool(PRIOR_HEADING_RE.search(line))
+             continue
+         cs = table_cells(line)
+         if in_prior or not cs or is_separator(cs):
+             continue
++        nxt = table_cells(lines[n + 1]) if n + 1 < len(lines) else None
++        if nxt is not None and is_separator(nxt):
++            continue  # a header row
+         cell = cs[0].strip("*` ")
+         if not ID_CELL_RE.fullmatch(cell) or LABEL_RE.search(line):
+             continue
+         if any(c.lower() in STATUS_WORDS for c in cs[1:]):
+             continue
+-        if BLOCKING_RE.search(line.lower()):
++        if parse_grade(line, key)[1] is not False:
+             out += [t for t in id_tokens(cell) if not FR_RE.match(t)]
+     return out
+ 
+@@ -970,6 +976,11 @@ def cmd_verdict(a: argparse.Namespace) -> int:
+     prior, new = parsed["prior"], parsed["graded"]
+     if r3 and not prior:
+         unparseable.append("no resolution table rows in the review-3 report")
++    blank = [t for t, st in prior if not st]
++    if blank:
++        unparseable.append(
++            f"resolution rows without a status ({', '.join(sorted(STATUS_WORDS))}): {', '.join(blank)}"
++        )
+     report_line = last_line(r3)
+     m = VERDICT_RE.fullmatch(report_line)
+     if r3 and not m:
+@@ -988,7 +999,11 @@ def cmd_verdict(a: argparse.Namespace) -> int:
+     if a.report_rule == "427" and m and m.group(1) != computed:
+         disagree.append(f"report says {m.group(1)}, computed {computed}")
+     new_cm = sum(g["label"] in CM for g in new.values())
+-    held_cm = sum(ids.get(t, {}).get("label") in CM for t in held if t not in new)
++    # a held id is skipped only when new_cm already counts it, so the count never drops below the held total
++    held_cm = sum(
++        ids.get(t, {}).get("label") in CM and not (t in new and new[t]["label"] in CM)
++        for t in held
++    )
+ 
+     out.append(f"open blocking: {', '.join(open_ids) or 'none'}")
+     out.append(
+diff --git a/tests/skills/test_fix_audit_script.py b/tests/skills/test_fix_audit_script.py
+index 9d5fa023..902988c6 100644
+--- a/tests/skills/test_fix_audit_script.py
++++ b/tests/skills/test_fix_audit_script.py
+@@ -1088,3 +1088,52 @@ def test_unlabelled_blocking_row_in_review3_counts_as_open(applied):
+         applied, r3(RESOLVED, "| R3-2 | non-blocking | wording |\n", "verdict: PASS")
+     )
+     assert "open blocking: none" in lines and lines[-1] == "verdict: PASS"
++
++
++def _major_reverted(tmp_path):
++    return _run_audit(
++        tmp_path,
++        "| N1 | MAJOR | non-blocking |\n| N2 | MAJOR | blocking |\n",
++        {
++            "N1": "| N1 | H1 | minor | minor | no | none | revert | the added words change nothing at all |",
++            "N2": "| N2 | H2 | blocking | blocking | yes | none | keep | without it the rule is wrong for readers |",
++        },
++    )
++
++
++@pytest.mark.parametrize(
++    "row,counts",
++    [
++        (
++            "| N1 | MINOR | non-blocking |\n",
++            (0, 1),
++        ),  # relabelled minor by review 3: still held
++        (
++            "| N1 | MAJOR | non-blocking |\n",
++            (1, 1),
++        ),  # already counted by review 3: counted once
++    ],
++)
++def test_owner_count_held_id_relisted_by_review3(tmp_path, row, counts):
++    d = _major_reverted(tmp_path)
++    res, lines = verdict(d, r3("| N2 | yes | resolved |\n", row, "verdict: PASS"))
++    assert _owner(lines) == counts
++
++
++def test_resolution_row_without_status_is_unparseable(applied):
++    res, lines = verdict(
++        applied,
++        r3(
++            "| N2 | no | partially resolved |\n| N3 | yes | resolved |\n",
++            last="verdict: PASS",
++        ),
++    )
++    assert res.returncode == 2 and lines[-1] == "verdict: FAIL"
++    assert any(ln.startswith("unparseable:") and "N2" in ln for ln in lines)
++
++
++def test_ungraded_review3_row_counts_as_blocking(applied):
++    res, lines = verdict(
++        applied, r3(RESOLVED, "| R3-1 | - | missing anchor |\n", "verdict: PASS")
++    )
++    assert "open blocking: R3-1" in lines and lines[-1] == "verdict: FAIL"

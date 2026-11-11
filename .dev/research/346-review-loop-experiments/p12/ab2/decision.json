@@ -1,0 +1,38 @@
+{
+  "_comment": "Decision constants for A/B design 2 (verify-before-fix gate). Written once from plan sections 2-3 and owner decisions D1-D6; read by harness.py analyze. No threshold literal appears in code.",
+  "A_BASE": 100424,
+  "AUD_BASE": 69044,
+  "B_BASE": 169468,
+  "_B_BASE_comment": "B_BASE = A_BASE + AUD_BASE (loop + one audit). Reported only, never decides (D2).",
+  "N_SONNET": 6,
+  "N_HAIKU": 4,
+  "N_EXTEND": 3,
+  "B_PASS": "6/6",
+  "B_REV": 2.17,
+  "B_FIX_CYCLES": 1.17,
+  "B_GROWTH_PCT": 1.41,
+  "B_BLK": 1.50,
+  "B_AUDFAIL": "5/6",
+  "B_THEME": "5/6",
+  "_B_defaults_comment": "Single-audit defaults from section 2. analyze recomputes B_BLK, B_AUDFAIL and B_THEME over all existing baseline audits (audit 1 + $SP/p12/baseline-audit2) and uses those; the defaults apply (labelled PROVISIONAL) only if no second audit exists.",
+  "baseline_audit2_dir": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p12/baseline-audit2",
+  "baseline_runs_dir": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p11/runs",
+  "haiku_baseline_json": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p14/haiku-baseline/results.json",
+  "ab1_metrics_json": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p12/ab1/metrics.json",
+  "COST_LIMIT_R_LOOP": 1.42,
+  "_COST_LIMIT_comment": "D6: original limit L = 1.25 was stated against total tokens (R_B). R_LOOP_limit = (L * 169468 - 69044) / 100424 = (1.25 * 169468 - 69044) / 100424 = 1.4219 -> 1.42. Applies to DROP-2 and ADOPT. Judged only after runs complete (post-hoc); no mid-run cost check exists anywhere in the tooling.",
+  "rules": {
+    "DROP1_REJ_TRUE_RATE_GT": 0.10,
+    "DROP2_BLK_FACTOR_GT": 0.8,
+    "DROP3_BLK_FACTOR_GT": 1.33,
+    "ADOPT_BLK_FACTOR_LE": 1.0,
+    "ADOPT_REJ_MIN": 1,
+    "DROP3_PASS_MIN": {"6": 5, "9": 8},
+    "MIN_COMPLETED": {"6": 5, "9": 8},
+    "_comment": "DROP3_PASS_MIN: DROP-3 fires when loop PASS (PASS + VERIFIED-PASS) count is below this (5/6 at n=6, 8/9 at n=9). MIN_COMPLETED: fewer completed runs than this is INCONCLUSIVE."
+  },
+  "haiku": {
+    "HARNESS_FAIL_MARGIN": 0.25,
+    "_comment": "Haiku test harness-failure rate (runs lost or needing a MANUAL relaunch, per run) may be at most this far above the Haiku baseline's (3b)."
+  }
+}

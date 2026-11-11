@@ -1,0 +1,214 @@
+[
+ {
+  "packet_id": "sm-24",
+  "state": {
+   "after": {
+    "defect_text_still_verbatim": false,
+    "obligation_text_still_verbatim": true,
+    "passage": "- **DX-16 Money format.** Monetary amounts are handled as integers in the smallest currency unit and are rounded half up for display.\n- **DX-17 Metric names.** Metric names use lower-case words separated by underscores and end with the unit of the measured value.\n- **DX-18 Library updates.** Third-party libraries are checked for published security advisories once a month by the owning team.\n- **IN-3 Sequence.** Each region has its own invoice sequence, and every invoice number carries the code of its region.\n- **IN-4 Gap check.** The nightly reconciliation job reports every gap in the invoice sequence to the finance team.\n- **IN-5 Duplicate check.** The reconciliation job reports every number that appears twice in the shared sequence of all regions.\n- **DX-19 Interface docs.** Every public endpoint is described in the interface documentation before the release that contains it ships.\n- **DX-20 Support hours.** The support team answers tickets on business days between 08:00 and 18:00 in the local time of the customer.\n- **DX-21 Test data.** Test environments use generated data only and never contain copies of records that belong to real customers."
+   },
+   "before": {
+    "passage": "- **DX-17 Metric names.** Metric names use lower-case words separated by underscores and end with the unit of the measured value.\n- **DX-18 Library updates.** Third-party libraries are checked for published security advisories once a month by the owning team.\n- **IN-3 Sequence.** Invoice numbers are taken from one sequence that is shared by all regions, in the order in which invoices are issued.\n- **IN-4 Gap check.** The nightly reconciliation job reports every gap in the invoice sequence to the finance team.\n- **IN-5 Duplicate check.** The reconciliation job does not look for duplicate invoice numbers.\n- **DX-19 Interface docs.** Every public endpoint is described in the interface documentation before the release that contains it ships.\n- **DX-20 Support hours.** The support team answers tickets on business days between 08:00 and 18:00 in the local time of the customer.\n- **DX-21 Test data.** Test environments use generated data only and never contain copies of records that belong to real customers."
+   },
+   "defect": {
+    "summary": "R1-1 The nightly job never looks for duplicate numbers",
+    "wrong_outcome": "An implementer who follows IN-5 builds a reconciliation job that never reports two invoices with the same number."
+   },
+   "dependencies": {},
+   "diff": "@@ -29,9 +29,9 @@\n - **DX-16 Money format.** Monetary amounts are handled as integers in the smallest currency unit and are rounded half up for display.\n - **DX-17 Metric names.** Metric names use lower-case words separated by underscores and end with the unit of the measured value.\n - **DX-18 Library updates.** Third-party libraries are checked for published security advisories once a month by the owning team.\n-- **IN-3 Sequence.** Invoice numbers are taken from one sequence that is shared by all regions, in the order in which invoices are issued.\n+- **IN-3 Sequence.** Each region has its own invoice sequence, and every invoice number carries the code of its region.\n - **IN-4 Gap check.** The nightly reconciliation job reports every gap in the invoice sequence to the finance team.\n-- **IN-5 Duplicate check.** The reconciliation job does not look for duplicate invoice numbers.\n+- **IN-5 Duplicate check.** The reconciliation job reports every number that appears twice in the shared sequence of all regions.\n - **DX-19 Interface docs.** Every public endpoint is described in the interface documentation before the release that contains it ships.\n - **DX-20 Support hours.** The support team answers tickets on business days between 08:00 and 18:00 in the local time of the customer.\n - **DX-21 Test data.** Test environments use generated data only and never contain copies of records that belong to real customers.",
+   "obligation": {
+    "text": "- **IN-4 Gap check.** The nightly reconciliation job reports every gap in the invoice sequence to the finance team.",
+    "where": "before, line 33"
+   }
+  }
+ },
+ {
+  "packet_id": "sm-28",
+  "state": {
+   "after": {
+    "defect_text_still_verbatim": false,
+    "obligation_text_still_verbatim": true,
+    "passage": "## 3. Refunds\n\n- **RF-3 Refund obligation.** A customer who cancels an order or returns an item within the allowed window is refunded the full price paid for it, including shipping when the whole order is cancelled.\n- **RF-4 Refund method.** Money goes back to the payment method that was used for the order; the customer may ask for store credit in its place.\n- **RF-5 Processing time.** A refund is issued within 5 business days after the cancellation is confirmed or the returned item is received.\n- **RF-8 Partial returns.** When only some items of an order are returned, only the price of those items is refunded. Shipping is not refunded for partial returns."
+   },
+   "before": {
+    "passage": "## 3. Refunds\n\n- **RF-3 Refund obligation.** A customer who cancels an order or returns an item within the allowed window is refunded the full price paid for it, including shipping when the whole order is cancelled.\n- **RF-4 Refund method.** All refunds are issued as store credit.\n- **RF-5 Processing time.** A refund is issued within 5 business days after the cancellation is confirmed or the returned item is received.\n- **RF-8 Partial returns.** When only some items of an order are returned, only the price of those items is refunded. Shipping is not refunded for partial returns."
+   },
+   "defect": {
+    "summary": "R1-1 Refund method forces store credit",
+    "wrong_outcome": "An implementer who follows RF-4 builds a refund service that never returns money to the payment method of the customer."
+   },
+   "dependencies": {},
+   "diff": "@@ -16,7 +16,7 @@\n ## 3. Refunds\n \n - **RF-3 Refund obligation.** A customer who cancels an order or returns an item within the allowed window is refunded the full price paid for it, including shipping when the whole order is cancelled.\n-- **RF-4 Refund method.** All refunds are issued as store credit.\n+- **RF-4 Refund method.** Money goes back to the payment method that was used for the order; the customer may ask for store credit in its place.\n - **RF-5 Processing time.** A refund is issued within 5 business days after the cancellation is confirmed or the returned item is received.\n - **RF-8 Partial returns.** When only some items of an order are returned, only the price of those items is refunded. Shipping is not refunded for partial returns.\n ",
+   "obligation": {
+    "text": "- **RF-3 Refund obligation.** A customer who cancels an order or returns an item within the allowed window is refunded the full price paid for it, including shipping when the whole order is cancelled.",
+    "where": "before, line 18"
+   }
+  }
+ },
+ {
+  "packet_id": "sm-39",
+  "state": {
+   "after": {
+    "defect_text_still_verbatim": false,
+    "obligation_text_still_verbatim": false,
+    "passage": "## 3. Retention\n\n- **BK-3 Storage platform.** Copies of the data are managed by the storage platform.\n- **BK-5 Location.** Backups are stored in a different region from the production database.\n- **BK-6 Monitoring.** A backup that does not finish raises the alert `BackupLate` for the operations team."
+   },
+   "before": {
+    "passage": "## 3. Retention\n\n- **BK-3 Backup retention.** Nightly backups are kept for 35 days, so that data lost through an error that is found late can still be restored.\n- **BK-4 Backup overwrite.** Each nightly backup overwrites the backup of the previous night.\n- **BK-5 Location.** Backups are stored in a different region from the production database.\n- **BK-6 Monitoring.** A backup that does not finish raises the alert `BackupLate` for the operations team."
+   },
+   "defect": {
+    "summary": "R1-1 Backups are overwritten every night",
+    "wrong_outcome": "An implementer who follows BK-4 builds a backup job that keeps a single copy, so an error that is found after one day cannot be restored."
+   },
+   "dependencies": {},
+   "diff": "@@ -14,8 +14,7 @@\n \n ## 3. Retention\n \n-- **BK-3 Backup retention.** Nightly backups are kept for 35 days, so that data lost through an error that is found late can still be restored.\n-- **BK-4 Backup overwrite.** Each nightly backup overwrites the backup of the previous night.\n+- **BK-3 Storage platform.** Copies of the data are managed by the storage platform.\n - **BK-5 Location.** Backups are stored in a different region from the production database.\n - **BK-6 Monitoring.** A backup that does not finish raises the alert `BackupLate` for the operations team.\n ",
+   "obligation": {
+    "text": "- **BK-3 Backup retention.** Nightly backups are kept for 35 days, so that data lost through an error that is found late can still be restored.",
+    "where": "before, line 17"
+   }
+  }
+ },
+ {
+  "packet_id": "sm-13",
+  "state": {
+   "after": {
+    "defect_text_still_verbatim": false,
+    "obligation_text_still_verbatim": true,
+    "passage": "## 3. Enforcement\n\n- **RL-4 Limit.** Each API key may send at most 100 requests per minute.\n- **RL-5 Excess requests.** Requests above the limit are rejected with HTTP 429 and a `Retry-After` header. The server then repeats the rejected request on the client's behalf, as described in RL-2.\n- **RL-6 Counting.** A request is counted when the server has received it completely, whatever the result of the request.\n\n## 4. Operations"
+   },
+   "before": {
+    "passage": "## 3. Enforcement\n\n- **RL-4 Limit.** Each API key may send at most 100 requests per minute.\n- **RL-5 Excess requests.** Requests above the limit are queued silently and answered when capacity is free.\n- **RL-6 Counting.** A request is counted when the server has received it completely, whatever the result of the request.\n\n## 4. Operations"
+   },
+   "defect": {
+    "summary": "R1-1 Excess requests are held without telling the client",
+    "wrong_outcome": "An implementer who follows RL-5 builds a server that holds excess requests without a rejection, so clients cannot back off."
+   },
+   "dependencies": {
+    "d1": {
+     "text": "- **RL-2 Client-owned retries.** The server never retries or replays a request on behalf of a client. A rejected request is the client's to repeat.",
+     "where": "RL-2"
+    }
+   },
+   "diff": "@@ -17,7 +17,7 @@\n ## 3. Enforcement\n \n - **RL-4 Limit.** Each API key may send at most 100 requests per minute.\n-- **RL-5 Excess requests.** Requests above the limit are queued silently and answered when capacity is free.\n+- **RL-5 Excess requests.** Requests above the limit are rejected with HTTP 429 and a `Retry-After` header. The server then repeats the rejected request on the client's behalf, as described in RL-2.\n - **RL-6 Counting.** A request is counted when the server has received it completely, whatever the result of the request.\n \n ## 4. Operations",
+   "obligation": {
+    "text": "- **RL-4 Limit.** Each API key may send at most 100 requests per minute.",
+    "where": "before, line 19"
+   }
+  }
+ },
+ {
+  "packet_id": "sm-05",
+  "state": {
+   "after": {
+    "defect_text_still_verbatim": false,
+    "obligation_text_still_verbatim": true,
+    "passage": "## 3. Opt-out\n\n- **NO-2 Opt-out.** A customer who opts out of marketing notifications receives none of them, on any channel, from the moment the preference is saved.\n- **NO-3 Transactional messages.** Order confirmations, shipping updates and security alerts are not marketing notifications and are always sent. This revision keeps every opt-out obligation intact.\n- **NO-5 Unsubscribe link.** Every marketing e-mail contains a link that opts the customer out with one click and without a sign-in.\n\n## 4. Operations"
+   },
+   "before": {
+    "passage": "## 3. Opt-out\n\n- **NO-2 Opt-out.** A customer who opts out of marketing notifications receives none of them, on any channel, from the moment the preference is saved.\n- **NO-3 Transactional messages.** Order confirmations, shipping updates and security alerts are not marketing notifications and are always sent.\n- **NO-4 Purchase follow-ups.** Opted-out customers still receive marketing notifications about products they bought in the last 90 days.\n- **NO-5 Unsubscribe link.** Every marketing e-mail contains a link that opts the customer out with one click and without a sign-in.\n\n## 4. Operations"
+   },
+   "defect": {
+    "summary": "R1-1 Purchase follow-ups ignore the opt-out",
+    "wrong_outcome": "An implementer who follows NO-4 builds a sender that emails opted-out customers about their recent purchases."
+   },
+   "dependencies": {},
+   "diff": "@@ -15,8 +15,7 @@\n ## 3. Opt-out\n \n - **NO-2 Opt-out.** A customer who opts out of marketing notifications receives none of them, on any channel, from the moment the preference is saved.\n-- **NO-3 Transactional messages.** Order confirmations, shipping updates and security alerts are not marketing notifications and are always sent.\n-- **NO-4 Purchase follow-ups.** Opted-out customers still receive marketing notifications about products they bought in the last 90 days.\n+- **NO-3 Transactional messages.** Order confirmations, shipping updates and security alerts are not marketing notifications and are always sent. This revision keeps every opt-out obligation intact.\n - **NO-5 Unsubscribe link.** Every marketing e-mail contains a link that opts the customer out with one click and without a sign-in.\n \n ## 4. Operations",
+   "obligation": {
+    "text": "- **NO-2 Opt-out.** A customer who opts out of marketing notifications receives none of them, on any channel, from the moment the preference is saved.",
+    "where": "before, line 17"
+   }
+  }
+ },
+ {
+  "packet_id": "sm-30",
+  "state": {
+   "after": {
+    "defect_text_still_verbatim": true,
+    "obligation_text_still_verbatim": true,
+    "passage": "- The worker exposes the metric `webhook_delivery_total` labelled by final state (`DELIVERED`, `FAILED`, `GONE`).\n- A delivery stuck in `QUEUED` for more than 15 minutes raises the alert `WebhookQueueStuck`.\n\nThe worker retries a failed delivery up to 8 times with exponential backoff and marks it `FAILED` after the ninth failed attempt.\n\n## 5. Acceptance criteria\n\n1. Registering `http://example.com/hook` returns `E_URL_SCHEME`.\n...\n3. An endpoint that returns 410 receives exactly 1 request and the delivery is `GONE`.\n4. A 300 KiB payload produces no request and the delivery is `FAILED` with reason `PAYLOAD_TOO_LARGE`.\n5. No log line at any level contains the signing secret."
+   },
+   "before": {
+    "passage": "- **FR-1 Registration.** A customer registers one HTTPS endpoint URL per webhook. Plain HTTP URLs are rejected at registration with error `E_URL_SCHEME`.\n- **FR-2 Request timeout.** Each delivery attempt waits at most 10 seconds for a response. A timeout counts as a failed attempt.\n- **FR-3 Retry policy.** A failed attempt is retried at most 5 times (6 attempts in total). The delays between attempts are 1 minute, 5 minutes, 30 minutes, 2 hours and 12 hours. After the sixth failed attempt the delivery is marked `FAILED`.\n- **FR-4 Signing.** Every request carries an `X-Signature` header: the HMAC-SHA256 of the raw request body, keyed with the webhook's signing secret. The signing secret is never written to any log.\n- **FR-5 Idempotency key.** Every delivery has an idempotency key `delivery_id`, a UUID created when the event is first queued. The same `delivery_id` is sent on every retry in the `X-Delivery-Id` header, so a receiver can discard duplicates.\n- **FR-6 Success.** A response with a status code from 200 to 299 marks the delivery `DELIVERED`. Any other status code is a failed attempt, except 410, which marks the delivery `GONE` and stops retries.\n...\n## 6. Retry details\n\nThe worker retries a failed delivery up to 8 times with exponential backoff and marks it `FAILED` after the ninth failed attempt."
+   },
+   "defect": {
+    "summary": "R1-1 Retry details allow 8 retries",
+    "wrong_outcome": "An implementer who follows the retry details builds a worker that retries up to 8 times and so exceeds the 5 retries the retry policy allows."
+   },
+   "dependencies": {},
+   "diff": "@@ -26,6 +26,8 @@\n - The worker exposes the metric `webhook_delivery_total` labelled by final state (`DELIVERED`, `FAILED`, `GONE`).\n - A delivery stuck in `QUEUED` for more than 15 minutes raises the alert `WebhookQueueStuck`.\n \n+The worker retries a failed delivery up to 8 times with exponential backoff and marks it `FAILED` after the ninth failed attempt.\n+\n ## 5. Acceptance criteria\n \n 1. Registering `http://example.com/hook` returns `E_URL_SCHEME`.\n@@ -33,7 +35,3 @@\n 3. An endpoint that returns 410 receives exactly 1 request and the delivery is `GONE`.\n 4. A 300 KiB payload produces no request and the delivery is `FAILED` with reason `PAYLOAD_TOO_LARGE`.\n 5. No log line at any level contains the signing secret.\n-\n-## 6. Retry details\n-\n-The worker retries a failed delivery up to 8 times with exponential backoff and marks it `FAILED` after the ninth failed attempt.",
+   "obligation": {
+    "text": "- **FR-3 Retry policy.** A failed attempt is retried at most 5 times (6 attempts in total). The delays between attempts are 1 minute, 5 minutes, 30 minutes, 2 hours and 12 hours. After the sixth failed attempt the delivery is marked `FAILED`.",
+    "where": "before, line 13"
+   }
+  }
+ },
+ {
+  "packet_id": "sm-37",
+  "state": {
+   "after": {
+    "defect_text_still_verbatim": false,
+    "obligation_text_still_verbatim": true,
+    "passage": "## 3. Refunds\n\n- **RF-3 Refund obligation.** A customer who cancels an order or returns an item within the allowed window is refunded the full price paid for it, including shipping when the whole order is cancelled.\n- **RF-4 Refund method.** Refunds return to the original payment method. Store credit is issued only when the customer chooses it. This revision keeps every refund obligation intact.\n- **RF-5 Processing time.** A refund is issued within 5 business days after the cancellation is confirmed or the returned item is received.\n- **RF-8 Partial returns.** When only some items of an order are returned, only the price of those items is refunded. Shipping is not refunded for partial returns."
+   },
+   "before": {
+    "passage": "## 3. Refunds\n\n- **RF-3 Refund obligation.** A customer who cancels an order or returns an item within the allowed window is refunded the full price paid for it, including shipping when the whole order is cancelled.\n- **RF-4 Refund method.** All refunds are issued as store credit.\n- **RF-5 Processing time.** A refund is issued within 5 business days after the cancellation is confirmed or the returned item is received.\n- **RF-8 Partial returns.** When only some items of an order are returned, only the price of those items is refunded. Shipping is not refunded for partial returns."
+   },
+   "defect": {
+    "summary": "R1-1 Refund method forces store credit",
+    "wrong_outcome": "An implementer who follows RF-4 builds a refund service that never returns money to the payment method of the customer."
+   },
+   "dependencies": {},
+   "diff": "@@ -16,7 +16,7 @@\n ## 3. Refunds\n \n - **RF-3 Refund obligation.** A customer who cancels an order or returns an item within the allowed window is refunded the full price paid for it, including shipping when the whole order is cancelled.\n-- **RF-4 Refund method.** All refunds are issued as store credit.\n+- **RF-4 Refund method.** Refunds return to the original payment method. Store credit is issued only when the customer chooses it. This revision keeps every refund obligation intact.\n - **RF-5 Processing time.** A refund is issued within 5 business days after the cancellation is confirmed or the returned item is received.\n - **RF-8 Partial returns.** When only some items of an order are returned, only the price of those items is refunded. Shipping is not refunded for partial returns.\n ",
+   "obligation": {
+    "text": "- **RF-3 Refund obligation.** A customer who cancels an order or returns an item within the allowed window is refunded the full price paid for it, including shipping when the whole order is cancelled.",
+    "where": "before, line 18"
+   }
+  }
+ },
+ {
+  "packet_id": "sm-21",
+  "state": {
+   "after": {
+    "defect_text_still_verbatim": false,
+    "obligation_text_still_verbatim": true,
+    "passage": "- The worker exposes the metric `webhook_delivery_total` labelled by final state (`DELIVERED`, `FAILED`, `GONE`).\n- A delivery stuck in `QUEUED` for more than 15 minutes raises the alert `WebhookQueueStuck`.\n\nA failed delivery is retried by the worker up to 8 times with exponential backoff, and it is marked `FAILED` after the ninth failed attempt.\n\n## 5. Acceptance criteria\n\n1. Registering `http://example.com/hook` returns `E_URL_SCHEME`.\n...\n3. An endpoint that returns 410 receives exactly 1 request and the delivery is `GONE`.\n4. A 300 KiB payload produces no request and the delivery is `FAILED` with reason `PAYLOAD_TOO_LARGE`.\n5. No log line at any level contains the signing secret."
+   },
+   "before": {
+    "passage": "- **FR-1 Registration.** A customer registers one HTTPS endpoint URL per webhook. Plain HTTP URLs are rejected at registration with error `E_URL_SCHEME`.\n- **FR-2 Request timeout.** Each delivery attempt waits at most 10 seconds for a response. A timeout counts as a failed attempt.\n- **FR-3 Retry policy.** A failed attempt is retried at most 5 times (6 attempts in total). The delays between attempts are 1 minute, 5 minutes, 30 minutes, 2 hours and 12 hours. After the sixth failed attempt the delivery is marked `FAILED`.\n- **FR-4 Signing.** Every request carries an `X-Signature` header: the HMAC-SHA256 of the raw request body, keyed with the webhook's signing secret. The signing secret is never written to any log.\n- **FR-5 Idempotency key.** Every delivery has an idempotency key `delivery_id`, a UUID created when the event is first queued. The same `delivery_id` is sent on every retry in the `X-Delivery-Id` header, so a receiver can discard duplicates.\n- **FR-6 Success.** A response with a status code from 200 to 299 marks the delivery `DELIVERED`. Any other status code is a failed attempt, except 410, which marks the delivery `GONE` and stops retries.\n...\n## 6. Retry details\n\nThe worker retries a failed delivery up to 8 times with exponential backoff and marks it `FAILED` after the ninth failed attempt."
+   },
+   "defect": {
+    "summary": "R1-1 Retry details allow 8 retries",
+    "wrong_outcome": "An implementer who follows the retry details builds a worker that retries up to 8 times and so exceeds the 5 retries the retry policy allows."
+   },
+   "dependencies": {},
+   "diff": "@@ -26,6 +26,8 @@\n - The worker exposes the metric `webhook_delivery_total` labelled by final state (`DELIVERED`, `FAILED`, `GONE`).\n - A delivery stuck in `QUEUED` for more than 15 minutes raises the alert `WebhookQueueStuck`.\n \n+A failed delivery is retried by the worker up to 8 times with exponential backoff, and it is marked `FAILED` after the ninth failed attempt.\n+\n ## 5. Acceptance criteria\n \n 1. Registering `http://example.com/hook` returns `E_URL_SCHEME`.\n@@ -33,7 +35,3 @@\n 3. An endpoint that returns 410 receives exactly 1 request and the delivery is `GONE`.\n 4. A 300 KiB payload produces no request and the delivery is `FAILED` with reason `PAYLOAD_TOO_LARGE`.\n 5. No log line at any level contains the signing secret.\n-\n-## 6. Retry details\n-\n-The worker retries a failed delivery up to 8 times with exponential backoff and marks it `FAILED` after the ninth failed attempt.",
+   "obligation": {
+    "text": "- **FR-3 Retry policy.** A failed attempt is retried at most 5 times (6 attempts in total). The delays between attempts are 1 minute, 5 minutes, 30 minutes, 2 hours and 12 hours. After the sixth failed attempt the delivery is marked `FAILED`.",
+    "where": "before, line 13"
+   }
+  }
+ },
+ {
+  "packet_id": "sm-35",
+  "state": {
+   "after": {
+    "defect_text_still_verbatim": false,
+    "obligation_text_still_verbatim": true,
+    "passage": "- **DX-3 Date display.** Dates are shown in the format of the user's locale and are stored in UTC.\n- **DX-4 Time zones.** Scheduled times are entered in the user's time zone and converted to UTC before they are saved.\n- **PR-3 One-time use.** A password reset link can be used once. After a successful reset the link stops working.\n- **PR-4 Link lifetime.** A password reset link stays valid until it is used or until the customer asks for a newer link.\n- **DX-5 Log format.** Every service writes one JSON object per log line with a timestamp, a severity and a request identifier.\n- **DX-6 Log storage.** Application logs are kept for 14 days in hot storage and are then discarded by the logging platform.\n- **DX-7 Health endpoint.** Each service exposes a health endpoint that answers within one second and reports the state of its dependencies."
+   },
+   "before": {
+    "passage": "- **DX-2 Colour contrast.** Text and background colours keep a contrast ratio of at least 4.5 to 1 in every theme the product offers.\n- **DX-3 Date display.** Dates are shown in the format of the user's locale and are stored in UTC.\n- **DX-4 Time zones.** Scheduled times are entered in the user's time zone and converted to UTC before they are saved.\n- **PR-3 One-time use.** A password reset link can be used once. After a successful reset the link stops working.\n- **PR-4 Link lifetime.** A password reset link expires 30 minutes after it is sent.\n- **DX-5 Log format.** Every service writes one JSON object per log line with a timestamp, a severity and a request identifier.\n- **DX-6 Log storage.** Application logs are kept for 14 days in hot storage and are then discarded by the logging platform.\n- **DX-7 Health endpoint.** Each service exposes a health endpoint that answers within one second and reports the state of its dependencies."
+   },
+   "defect": {
+    "summary": "R1-1 Reset links live too long",
+    "wrong_outcome": "An implementer who follows PR-4 builds reset links that stay valid for days."
+   },
+   "dependencies": {},
+   "diff": "@@ -30,7 +30,7 @@\n - **DX-3 Date display.** Dates are shown in the format of the user's locale and are stored in UTC.\n - **DX-4 Time zones.** Scheduled times are entered in the user's time zone and converted to UTC before they are saved.\n - **PR-3 One-time use.** A password reset link can be used once. After a successful reset the link stops working.\n-- **PR-4 Link lifetime.** A password reset link expires 30 minutes after it is sent.\n+- **PR-4 Link lifetime.** A password reset link stays valid until it is used or until the customer asks for a newer link.\n - **DX-5 Log format.** Every service writes one JSON object per log line with a timestamp, a severity and a request identifier.\n - **DX-6 Log storage.** Application logs are kept for 14 days in hot storage and are then discarded by the logging platform.\n - **DX-7 Health endpoint.** Each service exposes a health endpoint that answers within one second and reports the state of its dependencies.",
+   "obligation": {
+    "text": "- **PR-3 One-time use.** A password reset link can be used once. After a successful reset the link stops working.",
+    "where": "before, line 32"
+   }
+  }
+ }
+]

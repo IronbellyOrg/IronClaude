@@ -1,0 +1,17 @@
+# ab6 design (outcome of the Jev debate; 3 Sonnet + 3 Opus judges agree)
+
+Base: the ab5 harness (ab4 + PN1 panel/merge/ADJ; `full` variant adds PN1's typed ledger). ab6 adds, with every Jev output NON-CONTROLLING (flag-only hint lines; any error or `insufficient` answer = no hint; caps 3 reviews / 2 fixes unchanged; Jev never writes a finding, a closure or PASS; Fable forbidden, Opus not used):
+
+Free (zero-Jev) changes, applied in BOTH ab6 arms:
+ F1 mechanical lint widened from REF-only to REF+PATH+PHASE, plus the D20 ('^-[^-]' grep) and D21 (table-escaped '\|') pitfall regexes; output marked "possible".
+ F2 the clean verifier may not REJECT a finding raised independently by >= 2 panel tiers; it may only mark it "VF-disputed" and pass it to V1 (tier provenance must be carried through the merge). It may still reject on a missing/false quote or a factual error.
+ F3 the V2 brief always carries the sentence "fix the governing rule, not only the quoted sentence" for blockers that survived V1; "named_not_touched" is noted per survivor.
+ F4 log the spec hash and open-blocker list at every provisional PASS (shadow data).
+
+Jev seams (arm ab6 only; arm ab6c = F1-F4 only, as the conventional control):
+ A2 acceptance-check observability: runs at the lint pre-pass (before the panel) and again on changed rows before R2/R3. Code first: widened lint, D20/D21 regexes, EXECUTE shell/grep/YAML check rows in a scratch copy. Only rows that pass all of that go to Jev: question `observability` {can_pass, cannot_pass, cannot_discriminate, insufficient}. Non-can_pass -> one UNVERIFIED line each in lint-N.md (max 8).
+ A1 obligation-to-criterion support: after the clean VF, before V1 (and again before R2/V2). Code pairs obligations (WC/section-3 rows) with acceptance criteria / phase gates / live-check steps by command, id and phase plus WC x AC pairing (cap 60 pairs); drops pairs already covered by a VF-accepted finding. Jev question `support` {supported, partial, unsupported, contradicts_or_defers, insufficient}. Hints: at most 12 non-supported pairs, flag-only, in the V1 brief, then re-run after V1 for V2 and the R2/R3 briefs.
+ A3 revision novelty: after an R2 FAIL, before V2. For each surviving blocker code first computes named_not_touched and line overlap with V1; only touched survivors go to Jev: `v1_attempt` {new_aspect, same_restated, no_relevant_change, insufficient}. One flag line per blocker into the V2 brief. A1 and A3 hints for V2 are merged by obligation id, capped at 15 lines total.
+
+Offline gates BEFORE any live ab6 run (judges' kill rules; ledger statuses are the truth, no model labels): 13 specs (original + the 6 ab4 and 6 PN1 finals, specs-13.json). A1: prefilter recall >= 70% of the relevant pairs; <= 8 false flags per spec (flags on defects the ledger marks FIXED/absent); must catch something beyond keyword-prefilter + widened lint; must not be tied by a same-packet Sonnet judge. A2: lint-first table over the check rows, same comparison. A3: blind relabel of the PN1 survivor cases; keep only if Jev separates resolved from failed cases beyond named_not_touched. Any seam that fails is dropped from the ab6 run (ab6 then runs with the surviving seams).
+Also triage test (Opus J1): sort the 117 residual blocking cells of the 12 finals into (a) already in the reviser's brief, (b) raised but rejected by VF/ADJ, (c) never raised; (c) is real headroom for A1/A2.

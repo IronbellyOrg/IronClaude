@@ -1,0 +1,622 @@
+diff --git asrc/superclaude/skills/sc-spec-panel-stoprule-protocol/scripts/stoprule.py b/src/superclaude/skills/sc-spec-panel-stoprule-protocol/scripts/stoprule.py
+index ce56b05a..ff726f30 100644
+--- asrc/superclaude/skills/sc-spec-panel-stoprule-protocol/scripts/stoprule.py
++++ b/src/superclaude/skills/sc-spec-panel-stoprule-protocol/scripts/stoprule.py
+@@ -1265,6 +1265,10 @@ def label_counts(records):
+         for cid, s in statuses.items()
+         if s["status"] in CONFIRMED and cid in by_id
+     }
++    # the same defect set as the sentinel confirmed= (compute_verdict), plus open priors
++    groups.update(
++        f"hunk:{a['hunk'][0]}-{a['hunk'][1]}" for a in audit_hunks_real(records)
++    )
+     groups.update(
+         p for p, s in frozen_priors(records).items() if s == "unresolved-prior"
+     )
+@@ -1744,6 +1748,171 @@ def cmd_verdict(args):
+     return EXIT_OK
+ 
+ 
++# --- recorder side: transcript, disposition, audit sample, owner count ------------------
++
++
++AGENT_TOOLS = ("Agent", "Task")
++
++
++def transcript_blocks(node, uses, results):
++    """Collect Agent tool_use ids and every tool_result (tool_use_id, text) of a record."""
++    if isinstance(node, dict):
++        if node.get("type") == "tool_use" and node.get("name") in AGENT_TOOLS:
++            uses.add(node.get("id"))
++        if node.get("type") == "tool_result":
++            content = node.get("content")
++            if isinstance(content, str):
++                text = content
++            elif isinstance(content, list):
++                text = "\n".join(
++                    c.get("text", "") for c in content if isinstance(c, dict)
++                )
++            else:
++                text = ""
++            results.append((node.get("tool_use_id"), text))
++        for value in node.values():
++            transcript_blocks(value, uses, results)
++    elif isinstance(node, list):
++        for value in node:
++            transcript_blocks(value, uses, results)
++
++
++def cmd_verify_transcript(args):
++    records = load_ledger(read_text(args.report))
++    raws = of_kind(records, "grade-raw")
++    uses, results = set(), []
++    try:
++        lines = pathlib.Path(args.transcript).read_text(encoding="utf-8").splitlines()
++        for line in lines:
++            if line.strip():
++                transcript_blocks(json.loads(line), uses, results)
++    except (OSError, UnicodeDecodeError, json.JSONDecodeError) as exc:
++        print(
++            f"grader-integrity: unverified (transcript missing or unparseable: {exc.__class__.__name__})"
++        )
++        return EXIT_OK
++    if not raws:
++        print("grader-integrity: unverified (the ledger holds no grade-raw record)")
++        return EXIT_OK
++    agent_results = [text for tid, text in results if tid in uses]
++    if not agent_results:
++        print(
++            "grader-integrity: unverified (the transcript holds no Agent tool result)"
++        )
++        return EXIT_OK
++    # each reply must sit whole inside one Agent tool result, never across results
++    missing = [
++        f"{r['batch']}#{r['attempt']}"
++        for r in raws
++        if not any(r["text"].strip() in text for text in agent_results)
++    ]
++    if missing:
++        print(
++            f"grader-integrity: mismatch ({', '.join(missing)} not found verbatim in any Agent tool result)"
++        )
++    else:
++        print(f"grader-integrity: verified ({len(raws)} grader replies found verbatim)")
++    return EXIT_OK
++
++
++def brief_mapping(report_text):
++    """display -> ledger id from the Reviser brief table finalize wrote."""
++    return dict(re.findall(r"^\| (D\d+) \| (\S+) \|$", report_text, flags=re.M))
++
++
++def cmd_check_disposition(args):
++    text = read_text(args.report)
++    records = load_ledger(text)
++    mapping = brief_mapping(text)
++    known = {c.get("id") for c in of_kind(records, "claim")} | set(
++        (first(records, "begin") or {}).get("priors", {})
++    )
++    applied = set()
++    # shortcut: a line counts as applied when it says "applied" and not "not applied", "unapplied" or "skipped"; upgrade if dispositions use another vocabulary
++    for line in read_text(args.disposition).splitlines():
++        if re.search(r"\bapplied\b", line, re.I) and not re.search(
++            r"\bnot applied\b|\bunapplied\b|\bskipped\b", line, re.I
++        ):
++            applied.update(
++                t
++                for t in re.findall(r"[A-Za-z][A-Za-z0-9]*-?\d+(?:-\d+)?", line)
++                if re.fullmatch(r"D\d+", t) or t in known
++            )
++    outside = sorted(
++        t for t in applied if (t not in mapping) and (t not in mapping.values())
++    )
++    print(
++        f"brief range: {', '.join(sorted(mapping, key=lambda d: int(d[1:]))) or 'NONE'}"
++    )
++    print(f"applied outside D1..Dk: {', '.join(outside) or 'none'}")
++    return EXIT_OK
++
++
++def sample_items(paths):
++    items = []
++    for path in paths:
++        records = load_ledger(read_text(path))
++        claims = {c["id"]: c for c in of_kind(records, "claim")}
++        for f in of_kind(records, "final"):
++            label = str(claims.get(f["id"], {}).get("claimed", "")).lower()
++            items.append(
++                {
++                    "report": str(path),
++                    "id": f["id"],
++                    "status": f["status"],
++                    "claimed": label,
++                }
++            )
++    return items
++
++
++def cmd_audit_sample(args):
++    """Stratified offline-audit sample (source.md section 5.3), seeded and reproducible."""
++    rng = random.Random(int(sha256_text(f"audit-sample|{args.seed}"), 16))
++    items = sample_items(args.report)
++    critical = [
++        i for i in items if i["claimed"] == "critical" and i["status"] in DEMOTED
++    ]
++    rest = [i for i in items if i not in critical]
++    strata = {
++        "non-blocking": [i for i in rest if i["status"] in DEMOTED],
++        "confirmed": [i for i in rest if i["status"] in CONFIRMED],
++        "resolved-prior": [i for i in rest if i["status"] == "resolved"],
++    }
++    drawn = [dict(i, stratum="critical-demoted", p=1.0) for i in critical]
++    for name, pool in strata.items():
++        if not pool:
++            continue
++        n = min(len(pool), max(2, -(-len(pool) // 4)))
++        subs = {s: [i for i in pool if i["status"] == s] for s in DEMOTED}
++        subs = {s: v for s, v in subs.items() if v} if name == "non-blocking" else {}
++        # non-blocking: one forced pick per non-empty sub-stratum, the remaining slots
++        # drawn uniformly from the unforced items; p is each item's exact probability
++        forced = [rng.choice(v) for v in subs.values()]
++        others = [i for i in pool if i not in forced]
++        slots = max(0, n - len(forced))
++        rng.shuffle(others)
++        share = slots / len(others) if others else 0.0
++        for i in forced + others[:slots]:
++            if subs:
++                size = len(subs[i["status"]])
++                p = 1 / size + (1 - 1 / size) * share
++            else:
++                p = n / len(pool)
++            drawn.append(dict(i, stratum=name, p=round(p, 4)))
++    owner = set(rng.sample(range(len(drawn)), min(args.owner_k, len(drawn))))
++    for n, item in enumerate(drawn):
++        print(json.dumps(dict(item, owner=n in owner), sort_keys=True))
++    return EXIT_OK
++
++
++def cmd_count(args):
++    lc = label_counts(load_ledger(read_text(args.report)))
++    for key in ("m0_label_cm", "m0_deferred_cm", "m1_open_confirmed"):
++        print(f"{key}={lc[key]}")
++    return EXIT_OK
++
++
+ # --- command line ------------------------------------------------------------------------
+ 
+ 
+@@ -1840,6 +2009,29 @@ def build_parser():
+         report,
+         ("--spec", {"help": "re-check quotes too when the spec is unchanged"}),
+     )
++    add(
++        "verify-transcript",
++        cmd_verify_transcript,
++        "recorder: are the grade-raw replies verbatim Agent tool results?",
++        report,
++        ("--transcript", {"required": True}),
++    )
++    add(
++        "check-disposition",
++        cmd_check_disposition,
++        "recorder: list ids the reviser applied outside D1..Dk",
++        report,
++        ("--disposition", {"required": True}),
++    )
++    add(
++        "audit-sample",
++        cmd_audit_sample,
++        "recorder: the seeded stratified offline-audit sample",
++        ("--report", {"required": True, "nargs": "+"}),
++        ("--seed", {"required": True}),
++        ("--owner-k", {"type": int, "default": 5, "dest": "owner_k"}),
++    )
++    add("count", cmd_count, "recorder: owner measure m0/m1 counts", report)
+     return p
+ 
+ 
+diff --git atests/skills/test_stoprule_script.py b/tests/skills/test_stoprule_script.py
+index c650ccfc..81ea977b 100644
+--- atests/skills/test_stoprule_script.py
++++ b/tests/skills/test_stoprule_script.py
+@@ -1578,3 +1578,316 @@ def test_edited_mark_or_begin_record_makes_check_exit_6(review2, tmp_path):
+     report.write_text(clean, encoding="utf-8")
+     edit_ledger(report, "begin", lambda r: dict(r, changed=r["changed"] + [5]))
+     assert run("check", "--report", report)[0] == 6
++
++
++# --- Task 6: recorder subcommands -------------------------------------------------------
++
++
++def graded_report(review1, tmp_path, decide=lambda cid: True):
++    spec, report = review1
++    sealed(report, spec, many_claims(2))
++    grade_all(report, tmp_path, decide)
++    return spec, report
++
++
++def transcript_with(tmp_path, texts, tool="Agent"):
++    """A session transcript: one tool_use per text (named tool) and its tool_result."""
++    path = tmp_path / "session.jsonl"
++    rows = [
++        {
++            "type": "assistant",
++            "message": {
++                "content": [{"type": "text", "text": "dispatching graders"}]
++                + [
++                    {"type": "tool_use", "id": f"t{n}", "name": tool, "input": {}}
++                    for n in range(len(texts))
++                ]
++            },
++        }
++    ]
++    rows += [
++        {
++            "type": "user",
++            "message": {
++                "content": [
++                    {
++                        "type": "tool_result",
++                        "tool_use_id": f"t{n}",
++                        "content": [{"type": "text", "text": t}],
++                    }
++                ]
++            },
++        }
++        for n, t in enumerate(texts)
++    ]
++    path.write_text("\n".join(json.dumps(r) for r in rows) + "\n", encoding="utf-8")
++    return path
++
++
++def test_verify_transcript_verified_mismatch_and_unverified(review1, tmp_path):
++    spec, report = graded_report(review1, tmp_path)
++    reply = records_of(report, "grade-raw")[0]["text"]
++    good = transcript_with(tmp_path, ["agent said:\n" + reply + "\nagentId: x"])
++    assert run("verify-transcript", "--report", report, "--transcript", good)[
++        1
++    ].startswith("grader-integrity: verified")
++    changed = reply.replace("B1 to B3", "B1 to B4", 1)
++    bad = transcript_with(tmp_path, [changed])
++    assert run("verify-transcript", "--report", report, "--transcript", bad)[
++        1
++    ].startswith("grader-integrity: mismatch")
++    code, out = run(
++        "verify-transcript",
++        "--report",
++        report,
++        "--transcript",
++        tmp_path / "missing.jsonl",
++    )
++    assert code == 0 and out.startswith("grader-integrity: unverified")
++
++
++def test_verify_transcript_counts_only_whole_agent_results(review1, tmp_path):
++    spec, report = graded_report(review1, tmp_path)
++    reply = records_of(report, "grade-raw")[0]["text"]
++    read_back = transcript_with(tmp_path, [reply], tool="Read")
++    out = run("verify-transcript", "--report", report, "--transcript", read_back)[1]
++    assert (
++        out.startswith("grader-integrity: unverified") and "no Agent tool result" in out
++    )
++    half = len(reply) // 2
++    split = transcript_with(tmp_path, [reply[:half], reply[half:]])
++    out = run("verify-transcript", "--report", report, "--transcript", split)[1]
++    assert out.startswith("grader-integrity: mismatch")
++    empty = tmp_path / "empty.jsonl"
++    empty.write_text("", encoding="utf-8")
++    out = run("verify-transcript", "--report", report, "--transcript", empty)[1]
++    assert out.startswith("grader-integrity: unverified")
++
++
++def test_check_disposition_lists_an_applied_id_outside_the_brief(review1, tmp_path):
++    spec, report = graded_report(review1, tmp_path)
++    finalize(report)
++    disp = tmp_path / "disposition.md"
++    disp.write_text(
++        "| D1 | applied |\n| D2 | applied |\n| D7 | applied |\n| R1-9 | not applied |\n",
++        encoding="utf-8",
++    )
++    code, out = run("check-disposition", "--report", report, "--disposition", disp)
++    assert code == 0
++    assert "brief range: D1, D2" in out and "applied outside D1..Dk: D7" in out
++
++
++def test_audit_sample_is_seeded_and_keeps_every_critical_demotion(tmp_path):
++    reports = []
++    for n in range(2):
++        folder = tmp_path / f"run{n}"
++        folder.mkdir()
++        spec = folder / "spec.md"
++        spec.write_text(spec_lines(12), encoding="utf-8")
++        report = folder / "report.md"
++        assert run("begin", "--report", report, "--spec", spec)[0] == 0
++        sealed(report, spec, many_claims(10))
++        grade_all(report, folder, lambda cid: cid.endswith(("1", "2")))
++        finalize(report)
++        reports.append(report)
++    a = run("audit-sample", "--report", *reports, "--seed", "7", "--owner-k", "5")
++    b = run("audit-sample", "--report", *reports, "--seed", "7", "--owner-k", "5")
++    assert a[0] == 0 and a == b
++    items = [json.loads(x) for x in a[1].splitlines()]
++    crit = {(i["report"], i["id"]) for i in items if i["stratum"] == "critical-demoted"}
++    expected = set()
++    for report in reports:
++        recs = sr.load_ledger(report.read_text())
++        claims = {c["id"]: c for c in recs if c["k"] == "claim"}
++        expected |= {
++            (str(report), f["id"])
++            for f in recs
++            if f["k"] == "final"
++            and f["status"] in sr.DEMOTED
++            and claims[f["id"]]["claimed"] == "critical"
++        }
++    assert crit == expected and expected
++    assert sum(i["owner"] for i in items) == 5
++    assert {i["stratum"] for i in items} >= {
++        "critical-demoted",
++        "non-blocking",
++        "confirmed",
++    }
++
++
++def test_count_reports_the_owner_measure_with_deferred_and_withdrawn(review2, tmp_path):
++    spec, report, _ = review2
++    add_reviewer_lines(
++        report,
++        [
++            claim(
++                "R2-1",
++                "now releases a locker only after the rider scans out",
++                claimed="major",
++            ),  # confirmed
++            claim(
++                "R2-2",
++                "Line 5: the Pedalbay kiosk rule number 5 applies",
++                claimed="critical",
++            ),  # late-found
++            claim(
++                "R2-3",
++                "refunds are paid to the original card within two days",
++                claimed="major",
++            ),  # grader minor
++            claim(
++                "R2-4", "Line 6: the Pedalbay kiosk rule number six", claimed="major"
++            ),  # minor-form
++            claim(
++                "R2-5", "Line 7: the Pedalbay kiosk rule number seven", claimed="major"
++            ),  # dropped, new
++            claim(
++                "R2-6",
++                "Line 8: the Pedalbay kiosk rule number eight",
++                claimed="major",
++                prior="R1-1",
++            ),  # dropped, carried
++            {
++                "k": "prior",
++                "id": "R1-1",
++                "status": "resolved",
++                "resolved_by": "now releases",
++            },
++        ],
++    )
++    assert run("seal", "--report", report, "--spec", spec)[0] == 3
++    replace_reviewer_lines(
++        report,
++        [
++            r
++            for r in sr.load_ledger(report.read_text())
++            if r["k"] in sr.REVIEWER_KINDS and r.get("id") not in ("R2-5", "R2-6")
++        ],
++    )
++    assert run("seal", "--report", report, "--spec", spec)[0] == 0
++    grade_all(report, tmp_path, lambda cid: cid == "R2-1")
++    code, out = run("count", "--report", report)
++    assert code == 0
++    assert out.splitlines() == [
++        "m0_label_cm=5",
++        "m0_deferred_cm=4",
++        "m1_open_confirmed=1",
++    ]
++
++
++def test_count_m1_counts_a_claim_linked_to_an_open_prior_once(review2, tmp_path):
++    spec, report, prior_quote = review2
++    sealed(
++        report,
++        spec,
++        [
++            claim(
++                "R2-1",
++                "now releases a locker only after the rider scans out",
++                prior="R1-1",
++            ),
++            {"k": "checked", "lines": "9"},
++            {"k": "prior", "id": "R1-1", "status": "open", "resolved_by": None},
++        ],
++    )
++    grade_all(report, tmp_path, lambda cid: True)
++    assert run("count", "--report", report)[1].splitlines()[2] == "m1_open_confirmed=1"
++
++
++def test_recorder_subcommands_write_nothing(review1, tmp_path):
++    spec, report = graded_report(review1, tmp_path)
++    finalize(report)
++    disp = tmp_path / "d.md"
++    disp.write_text("| D1 | applied |\n", encoding="utf-8")
++    before = snapshot(tmp_path)
++    for args in (
++        (
++            "verify-transcript",
++            "--report",
++            report,
++            "--transcript",
++            tmp_path / "none.jsonl",
++        ),
++        ("check-disposition", "--report", report, "--disposition", disp),
++        ("audit-sample", "--report", report, "--seed", "1"),
++        ("count", "--report", report),
++    ):
++        assert run(*args)[0] == 0
++    assert snapshot(tmp_path) == before
++
++
++def test_script_imports_only_the_allowed_standard_library_modules():
++    text = _SCRIPT.read_text(encoding="utf-8")
++    imports = [
++        line for line in text.splitlines() if line.startswith(("import ", "from "))
++    ]
++    assert imports == [
++        f"import {m}"
++        for m in (
++            "argparse",
++            "difflib",
++            "hashlib",
++            "json",
++            "pathlib",
++            "random",
++            "re",
++            "sys",
++        )
++    ]
++    assert (
++        "subprocess" not in text
++        and "urllib" not in text
++        and "src/superclaude" not in text
++    )
++
++
++def test_count_m1_includes_an_unclaimed_hunk_the_audit_judged_real(review1, tmp_path):
++    spec, report = graded_report(review1, tmp_path, decide=lambda cid: False)
++    items = sr.audit_items(sr.load_ledger(report.read_text()))
++    reply = tmp_path / "audit.txt"
++    reply.write_text(
++        "\n".join(
++            json.dumps({"aid": a, "real": a == "H1", "why": "real"}) for a in items
++        )
++        + "\n"
++    )
++    assert run("apply-audit", "--report", report, "--reply", reply)[0] == 0
++    text = finalize(report)
++    assert sr.parse_sentinel(text)["confirmed"] == "1"
++    assert run("count", "--report", report)[1].splitlines()[2] == "m1_open_confirmed=1"
++
++
++def test_audit_sample_records_exact_probabilities_for_unequal_sub_strata(tmp_path):
++    spec = tmp_path / "spec.md"
++    spec.write_text(spec_lines(12), encoding="utf-8")
++    report = tmp_path / "report.md"
++    assert run("begin", "--report", report, "--spec", spec)[0] == 0
++    seven = [
++        claim(
++            f"R1-{i}",
++            f"Line {i}: the Pedalbay kiosk rule number {i} applies",
++            claimed="major",
++        )
++        for i in range(1, 8)
++    ]
++    sealed(
++        report,
++        spec,
++        seven
++        + [
++            claim(
++                "R1-9", "Line 9: the Pedalbay kiosk rule number nine", claimed="major"
++            )
++        ],
++    )
++    grade_all(report, tmp_path, lambda cid: False)
++    finalize(report)
++    items = [
++        json.loads(x)
++        for x in run(
++            "audit-sample", "--report", report, "--seed", "3", "--owner-k", "0"
++        )[1].splitlines()
++    ]
++    assert len(items) == 2  # n = max(2, ceil(8 / 4)): one forced pick per sub-stratum
++    p = {i["status"]: i["p"] for i in items}
++    assert p == {"minor-form": 1.0, "minor": round(1 / 7, 4)}
+diff --git a/.dev/tasks/to-do/TASK-WF-spec-20261108-181616/artifacts/t6-pytest.log b/.dev/tasks/to-do/TASK-WF-spec-20261108-181616/artifacts/t6-pytest.log
+new file mode 100644
+index 00000000..f0adf32a
+--- /dev/null
++++ b/.dev/tasks/to-do/TASK-WF-spec-20261108-181616/artifacts/t6-pytest.log
+@@ -0,0 +1,78 @@
++============================= test session starts ==============================
++platform linux -- Python 3.11.15, pytest-9.2.0, pluggy-1.7.0 -- /home/coder/workspaces/worktrees/IronClaude/bs346-stoprule/.venv/bin/python
++SuperClaude: 5.0.0
++rootdir: /home/coder/workspaces/worktrees/IronClaude/bs346-stoprule
++configfile: pyproject.toml
++plugins: superclaude-5.0.0, anyio-4.16.0
++collecting ... collected 67 items
++
++tests/skills/test_stoprule_script.py::test_norm_drops_backticks_bold_and_collapses_whitespace PASSED [  1%]
++tests/skills/test_stoprule_script.py::test_changed_lines_ignores_whitespace_only_changes PASSED [  2%]
++tests/skills/test_stoprule_script.py::test_changed_lines_marks_lines_around_a_pure_deletion PASSED [  4%]
++tests/skills/test_stoprule_script.py::test_load_ledger_reads_the_fenced_json_lines PASSED [  5%]
++tests/skills/test_stoprule_script.py::test_begin_review1_opens_ledger_with_nonce_and_prints_rubric PASSED [  7%]
++tests/skills/test_stoprule_script.py::test_begin_exits_4_on_prior_review3_fail PASSED [  8%]
++tests/skills/test_stoprule_script.py::test_begin_exits_4_with_loop_ended_on_prior_review3_pass PASSED [ 10%]
++tests/skills/test_stoprule_script.py::test_begin_exits_5_on_rubric_drift PASSED [ 11%]
++tests/skills/test_stoprule_script.py::test_begin_exits_5_on_baseline_hash_mismatch PASSED [ 13%]
++tests/skills/test_stoprule_script.py::test_begin_exits_5_on_re_review_report_without_sentinel PASSED [ 14%]
++tests/skills/test_stoprule_script.py::test_begin_derives_review_number_from_prior_sentinel PASSED [ 16%]
++tests/skills/test_stoprule_script.py::test_non_verbatim_quote_exits_3_then_ends_minor_form PASSED [ 17%]
++tests/skills/test_stoprule_script.py::test_non_unique_quote_exits_3 PASSED [ 19%]
++tests/skills/test_stoprule_script.py::test_short_quote_fails PASSED      [ 20%]
++tests/skills/test_stoprule_script.py::test_short_outcome_fails PASSED    [ 22%]
++tests/skills/test_stoprule_script.py::test_valid_claim_seals_first_time_with_ratchet_off PASSED [ 23%]
++tests/skills/test_stoprule_script.py::test_quote_outside_changed_lines_without_prior_is_late_found PASSED [ 25%]
++tests/skills/test_stoprule_script.py::test_valid_and_invalid_prior_links PASSED [ 26%]
++tests/skills/test_stoprule_script.py::test_uncovered_hunk_is_recorded_as_uncovered PASSED [ 28%]
++tests/skills/test_stoprule_script.py::test_claim_dropped_between_seals_keeps_its_form_line PASSED [ 29%]
++tests/skills/test_stoprule_script.py::test_evidence_path_with_dotdot_is_refused PASSED [ 31%]
++tests/skills/test_stoprule_script.py::test_evidence_is_read_back_and_live_entries_are_unverified PASSED [ 32%]
++tests/skills/test_stoprule_script.py::test_seal_refuses_a_second_seal PASSED [ 34%]
++tests/skills/test_stoprule_script.py::test_batches_hold_at_most_6_claims_and_exactly_2_canaries PASSED [ 35%]
++tests/skills/test_stoprule_script.py::test_printed_batch_has_no_label_spec_path_or_claimed_key PASSED [ 37%]
++tests/skills/test_stoprule_script.py::test_same_seed_gives_same_batch_order PASSED [ 38%]
++tests/skills/test_stoprule_script.py::test_frozen_prior_is_never_batched PASSED [ 40%]
++tests/skills/test_stoprule_script.py::test_good_reply_confirms_and_minor_grades PASSED [ 41%]
++tests/skills/test_stoprule_script.py::test_bad_grader_reply_and_wrong_canary_are_rejected PASSED [ 43%]
++tests/skills/test_stoprule_script.py::test_over_25_word_why_is_rejected PASSED [ 44%]
++tests/skills/test_stoprule_script.py::test_two_bad_replies_leave_claims_unconfirmed PASSED [ 46%]
++tests/skills/test_stoprule_script.py::test_late_found_claim_graded_blocking_stays_late_found PASSED [ 47%]
++tests/skills/test_stoprule_script.py::test_audit_real_true_turns_a_claim_into_confirmed_audit PASSED [ 49%]
++tests/skills/test_stoprule_script.py::test_audit_prep_refuses_when_a_claim_is_confirmed PASSED [ 50%]
++tests/skills/test_stoprule_script.py::test_missing_auditor_reply_is_recorded_invalid PASSED [ 52%]
++tests/skills/test_stoprule_script.py::test_dry_run_writes_nothing_for_every_writing_subcommand PASSED [ 53%]
++tests/skills/test_stoprule_script.py::test_usage_error_exits_5 PASSED    [ 55%]
++tests/skills/test_stoprule_script.py::test_audit_real_true_on_an_unclaimed_hunk_is_a_confirmed_audit_defect PASSED [ 56%]
++tests/skills/test_stoprule_script.py::test_verdict_table_pass_needs_the_audit_and_ignores_minor_form PASSED [ 58%]
++tests/skills/test_stoprule_script.py::test_verdict_table_fail_reasons PASSED [ 59%]
++tests/skills/test_stoprule_script.py::test_status_and_verdict_subcommands_print_the_computed_state PASSED [ 61%]
++tests/skills/test_stoprule_script.py::test_check_passes_on_a_fresh_report_and_is_repeatable PASSED [ 62%]
++tests/skills/test_stoprule_script.py::test_ledger_edited_after_seal_makes_check_exit_6 PASSED [ 64%]
++tests/skills/test_stoprule_script.py::test_grade_raw_changed_after_apply_grades_makes_check_exit_6 PASSED [ 65%]
++tests/skills/test_stoprule_script.py::test_hand_typed_verdict_or_missing_sentinel_fails PASSED [ 67%]
++tests/skills/test_stoprule_script.py::test_edited_computed_block_makes_check_exit_6 PASSED [ 68%]
++tests/skills/test_stoprule_script.py::test_incomplete_only_fail_gives_the_none_brief PASSED [ 70%]
++tests/skills/test_stoprule_script.py::test_reviser_brief_puts_priors_after_new_claims PASSED [ 71%]
++tests/skills/test_stoprule_script.py::test_two_claims_on_one_prior_are_counted_once PASSED [ 73%]
++tests/skills/test_stoprule_script.py::test_label_count_line_counts_a_critical_late_found_claim PASSED [ 74%]
++tests/skills/test_stoprule_script.py::test_review3_escalation_holds_cap_sentence_and_unadjudicated_items PASSED [ 76%]
++tests/skills/test_stoprule_script.py::test_review3_escalation_lists_a_grader_demoted_claim PASSED [ 77%]
++tests/skills/test_stoprule_script.py::test_begin_exits_5_on_prior_verdict_mismatch PASSED [ 79%]
++tests/skills/test_stoprule_script.py::test_finalize_and_check_dry_run_write_nothing PASSED [ 80%]
++tests/skills/test_stoprule_script.py::test_deleted_uncovered_record_makes_check_exit_6 PASSED [ 82%]
++tests/skills/test_stoprule_script.py::test_flipped_audit_record_makes_check_exit_6 PASSED [ 83%]
++tests/skills/test_stoprule_script.py::test_edited_mark_or_begin_record_makes_check_exit_6 PASSED [ 85%]
++tests/skills/test_stoprule_script.py::test_verify_transcript_verified_mismatch_and_unverified PASSED [ 86%]
++tests/skills/test_stoprule_script.py::test_verify_transcript_counts_only_whole_agent_results PASSED [ 88%]
++tests/skills/test_stoprule_script.py::test_check_disposition_lists_an_applied_id_outside_the_brief PASSED [ 89%]
++tests/skills/test_stoprule_script.py::test_audit_sample_is_seeded_and_keeps_every_critical_demotion PASSED [ 91%]
++tests/skills/test_stoprule_script.py::test_count_reports_the_owner_measure_with_deferred_and_withdrawn PASSED [ 92%]
++tests/skills/test_stoprule_script.py::test_count_m1_counts_a_claim_linked_to_an_open_prior_once PASSED [ 94%]
++tests/skills/test_stoprule_script.py::test_recorder_subcommands_write_nothing PASSED [ 95%]
++tests/skills/test_stoprule_script.py::test_script_imports_only_the_allowed_standard_library_modules PASSED [ 97%]
++tests/skills/test_stoprule_script.py::test_count_m1_includes_an_unclaimed_hunk_the_audit_judged_real PASSED [ 98%]
++tests/skills/test_stoprule_script.py::test_audit_sample_records_exact_probabilities_for_unequal_sub_strata PASSED [100%]
++
++============================= 67 passed in 15.57s ==============================
++rc=0

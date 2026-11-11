@@ -1,0 +1,17 @@
+{
+ "finding": {
+  "title": "ISO 8601 has several forms",
+  "wrong_outcome": "an implementer who follows the stated text as written builds dates as 2026-11-10T00:00:00Z (`Dates in all formats use the ISO 8601 form in UTC.`, S:17), and that is wrong because ISO 8601 also allows a basic form without dashes."
+ },
+ "evidence": {
+  "e1": {
+   "text": "Dates in all formats use the ISO 8601 form in UTC.",
+   "line": 17,
+   "context": "## 3. Formats\nR8. The default format is CSV with a header row.\nR9. With --format json the service writes one JSON array per file.\nR10. Dates in all formats use the ISO 8601 form in UTC.\n\n## 4. Limits\nR11. A single export file holds at most 100000 rows; larger results are split across files."
+  }
+ },
+ "facts": {
+  "quotes_found_verbatim": true,
+  "evidence_count": 1
+ }
+}

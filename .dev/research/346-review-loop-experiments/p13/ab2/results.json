@@ -1,0 +1,409 @@
+{
+ "decision": "INCONCLUSIVE",
+ "sonnet_verdict": "INCONCLUSIVE",
+ "reasons": [
+  "no DROP condition and not all ADOPT conditions (noise band)"
+ ],
+ "summary": {
+  "n_planned": 6,
+  "n_completed": 6,
+  "BLK_T": 1.3333333333333333,
+  "AUD_mean": 1.0,
+  "AUD2_mean": 1.6666666666666667,
+  "PASS_T": 1.0,
+  "GROWTH_T": 0.8353098003912539,
+  "loop_tokens": 47033.333333333336,
+  "one_audit_tokens": 28967.916666666668,
+  "R_LOOP": 0.4683475397647309,
+  "R_B": 0.4484696225836146,
+  "THEME_T": 0.5833333333333334,
+  "THEME_B": 0.8333333333333334,
+  "R1_tokens": 29207.666666666668
+ },
+ "baseline": {
+  "B_BLK_recomputed": 1.5,
+  "THEME_B": 0.8333333333333334,
+  "audits": 12
+ },
+ "haiku": {
+  "n_planned": 0,
+  "n_completed": 0,
+  "status": "pending",
+  "reason": "no Haiku runs yet"
+ },
+ "next_action": "EXTEND: run `harness.py extend` once (D4), then re-run analyze at n=9",
+ "extension_used": false,
+ "runs": {
+  "sonnet": [
+   {
+    "run": "l2-r1",
+    "stratum": "sonnet",
+    "completed": true,
+    "final_verdict": "PASS",
+    "reviews": 2,
+    "pass": true,
+    "growth_pct": 1.327839620518325,
+    "loop_tokens": 54208,
+    "r1_tokens": 31032,
+    "aud_tokens": [
+     47378,
+     26802
+    ],
+    "one_audit_tokens": 37090.0,
+    "audits": [
+     {
+      "source": "l2-r1/AUD",
+      "verdict": "PASS",
+      "blocking": 0,
+      "ids": [],
+      "themes": []
+     },
+     {
+      "source": "l2-r1/AUD2",
+      "verdict": "FAIL",
+      "blocking": 1,
+      "ids": [
+       "F-1"
+      ],
+      "themes": [
+       "T3"
+      ]
+     }
+    ],
+    "lint": {
+     "LINT1": {
+      "checks": "REF",
+      "findings": 0,
+      "sha256": "6a70e9a1255ee5d4652078e22f1d02b3383feeb5af682b9017b29610cb1b420a",
+      "spec_sha256": "d3cdbe573e57303b9ce6c93d1fe98ba18fb7cb1a15773d926bf6a0c31425200d"
+     },
+     "LINT2": {
+      "checks": "REF",
+      "findings": 2,
+      "sha256": "a008528014b5fe6be221b30a5313648124ea735db397b1b51664ef29c4d94130",
+      "spec_sha256": "746b5ffc5ac4b78a7e2053e0e341cc67756a46ac8a09ff6161b886dedded7fa2"
+     }
+    },
+    "tokens_by_step": {
+     "R1": 31032,
+     "V1": 8508,
+     "R2": 14668,
+     "AUD": 47378,
+     "AUD2": 26802
+    }
+   },
+   {
+    "run": "l2-r2",
+    "stratum": "sonnet",
+    "completed": true,
+    "final_verdict": "PASS",
+    "reviews": 2,
+    "pass": true,
+    "growth_pct": 0.567837543063899,
+    "loop_tokens": 43213,
+    "r1_tokens": 24492,
+    "aud_tokens": [
+     27489,
+     21719
+    ],
+    "one_audit_tokens": 24604.0,
+    "audits": [
+     {
+      "source": "l2-r2/AUD",
+      "verdict": "PASS",
+      "blocking": 0,
+      "ids": [],
+      "themes": []
+     },
+     {
+      "source": "l2-r2/AUD2",
+      "verdict": "FAIL",
+      "blocking": 2,
+      "ids": [
+       "B-1",
+       "B-2"
+      ],
+      "themes": [
+       "T3",
+       "T2"
+      ]
+     }
+    ],
+    "lint": {
+     "LINT1": {
+      "checks": "REF",
+      "findings": 0,
+      "sha256": "6a70e9a1255ee5d4652078e22f1d02b3383feeb5af682b9017b29610cb1b420a",
+      "spec_sha256": "d3cdbe573e57303b9ce6c93d1fe98ba18fb7cb1a15773d926bf6a0c31425200d"
+     },
+     "LINT2": {
+      "checks": "REF",
+      "findings": 2,
+      "sha256": "b9cb56771d9fe53a713fb203fd0e326d8c7beb8046fe73af54518f28b26b9853",
+      "spec_sha256": "0686b734a23ad02747840178fa995a98e02d1dad4e7ef5e12322d1cb7ce8879d"
+     }
+    },
+    "tokens_by_step": {
+     "R1": 24492,
+     "V1": 6039,
+     "R2": 12682,
+     "AUD": 27489,
+     "AUD2": 21719
+    }
+   },
+   {
+    "run": "l2-r3",
+    "stratum": "sonnet",
+    "completed": true,
+    "final_verdict": "PASS",
+    "reviews": 2,
+    "pass": true,
+    "growth_pct": 1.1425999342139432,
+    "loop_tokens": 50786,
+    "r1_tokens": 33878,
+    "aud_tokens": [
+     27433,
+     19073
+    ],
+    "one_audit_tokens": 23253.0,
+    "audits": [
+     {
+      "source": "l2-r3/AUD",
+      "verdict": "PASS",
+      "blocking": 0,
+      "ids": [],
+      "themes": []
+     },
+     {
+      "source": "l2-r3/AUD2",
+      "verdict": "FAIL",
+      "blocking": 2,
+      "ids": [
+       "B1",
+       "B2"
+      ],
+      "themes": [
+       "T1",
+       "T2"
+      ]
+     }
+    ],
+    "lint": {
+     "LINT1": {
+      "checks": "REF",
+      "findings": 0,
+      "sha256": "6a70e9a1255ee5d4652078e22f1d02b3383feeb5af682b9017b29610cb1b420a",
+      "spec_sha256": "d3cdbe573e57303b9ce6c93d1fe98ba18fb7cb1a15773d926bf6a0c31425200d"
+     },
+     "LINT2": {
+      "checks": "REF",
+      "findings": 2,
+      "sha256": "ba62293f29c9033e132c6495b93b06957190e2b28cf33e2f635a7bfdeccdd114",
+      "spec_sha256": "032a73216d9fa2a2e58b2be6fa0c2ed6374df75cb60076a9b7d7f4bd03d07a67"
+     }
+    },
+    "tokens_by_step": {
+     "R1": 33878,
+     "V1": 5677,
+     "R2": 11231,
+     "AUD": 27433,
+     "AUD2": 19073
+    }
+   },
+   {
+    "run": "l2-r4",
+    "stratum": "sonnet",
+    "completed": true,
+    "final_verdict": "PASS",
+    "reviews": 2,
+    "pass": true,
+    "growth_pct": 0.7288402610667728,
+    "loop_tokens": 30082,
+    "r1_tokens": 13255,
+    "aud_tokens": [
+     22378,
+     25617
+    ],
+    "one_audit_tokens": 23997.5,
+    "audits": [
+     {
+      "source": "l2-r4/AUD",
+      "verdict": "FAIL",
+      "blocking": 2,
+      "ids": [
+       "F-1",
+       "F-2"
+      ],
+      "themes": [
+       "T2",
+       "T2"
+      ]
+     },
+     {
+      "source": "l2-r4/AUD2",
+      "verdict": "FAIL",
+      "blocking": 1,
+      "ids": [
+       "B-1"
+      ],
+      "themes": [
+       "T2"
+      ]
+     }
+    ],
+    "lint": {
+     "LINT1": {
+      "checks": "REF",
+      "findings": 0,
+      "sha256": "6a70e9a1255ee5d4652078e22f1d02b3383feeb5af682b9017b29610cb1b420a",
+      "spec_sha256": "d3cdbe573e57303b9ce6c93d1fe98ba18fb7cb1a15773d926bf6a0c31425200d"
+     },
+     "LINT2": {
+      "checks": "REF",
+      "findings": 2,
+      "sha256": "c17ee81ea0d25cef3f7fbf6c68b8f1cf0c8f97fec4e530fc6b8365c2ff5d6693",
+      "spec_sha256": "64ace65d5ab1437b097ef30b7325e413a6e90e0ea575952d431a0fa4c73ce23e"
+     }
+    },
+    "tokens_by_step": {
+     "R1": 13255,
+     "V1": 5311,
+     "R2": 11516,
+     "AUD": 22378,
+     "AUD2": 25617
+    }
+   },
+   {
+    "run": "l2-r5",
+    "stratum": "sonnet",
+    "completed": true,
+    "final_verdict": "PASS",
+    "reviews": 2,
+    "pass": true,
+    "growth_pct": 0.18004605023977285,
+    "loop_tokens": 47821,
+    "r1_tokens": 35915,
+    "aud_tokens": [
+     43659,
+     30196
+    ],
+    "one_audit_tokens": 36927.5,
+    "audits": [
+     {
+      "source": "l2-r5/AUD",
+      "verdict": "FAIL",
+      "blocking": 2,
+      "ids": [
+       "F-1",
+       "F-2"
+      ],
+      "themes": [
+       "T2",
+       "T3"
+      ]
+     },
+     {
+      "source": "l2-r5/AUD2",
+      "verdict": "FAIL",
+      "blocking": 1,
+      "ids": [
+       "F1"
+      ],
+      "themes": [
+       "T3"
+      ]
+     }
+    ],
+    "lint": {
+     "LINT1": {
+      "checks": "REF",
+      "findings": 0,
+      "sha256": "6a70e9a1255ee5d4652078e22f1d02b3383feeb5af682b9017b29610cb1b420a",
+      "spec_sha256": "d3cdbe573e57303b9ce6c93d1fe98ba18fb7cb1a15773d926bf6a0c31425200d"
+     },
+     "LINT2": {
+      "checks": "REF",
+      "findings": 1,
+      "sha256": "7d727f3320f735feded6f475ca2d5791b359a656d73f12ef72f8f699110c8761",
+      "spec_sha256": "6df71d66ba77941856614e39ef7598d78d9d296b701f694093bc4d5e6d1b9394"
+     }
+    },
+    "tokens_by_step": {
+     "R1": 35915,
+     "V1": 2692,
+     "R2": 9214,
+     "AUD": 43659,
+     "AUD2": 30196
+    }
+   },
+   {
+    "run": "l2-r6",
+    "stratum": "sonnet",
+    "completed": true,
+    "final_verdict": "PASS",
+    "reviews": 2,
+    "pass": true,
+    "growth_pct": 1.0646953932448107,
+    "loop_tokens": 56090,
+    "r1_tokens": 36674,
+    "aud_tokens": [
+     27637,
+     28234
+    ],
+    "one_audit_tokens": 27935.5,
+    "audits": [
+     {
+      "source": "l2-r6/AUD",
+      "verdict": "FAIL",
+      "blocking": 2,
+      "ids": [
+       "B-1",
+       "B-2"
+      ],
+      "themes": [
+       "T1",
+       "T2"
+      ]
+     },
+     {
+      "source": "l2-r6/AUD2",
+      "verdict": "FAIL",
+      "blocking": 3,
+      "ids": [
+       "B-1",
+       "B-2",
+       "B-3"
+      ],
+      "themes": [
+       "T2",
+       "T1",
+       "T1"
+      ]
+     }
+    ],
+    "lint": {
+     "LINT1": {
+      "checks": "REF",
+      "findings": 0,
+      "sha256": "6a70e9a1255ee5d4652078e22f1d02b3383feeb5af682b9017b29610cb1b420a",
+      "spec_sha256": "d3cdbe573e57303b9ce6c93d1fe98ba18fb7cb1a15773d926bf6a0c31425200d"
+     },
+     "LINT2": {
+      "checks": "REF",
+      "findings": 0,
+      "sha256": "24a2b1c99ca41aa6a9b42f64b772b9efa15b6d887c32ac2af7a4f6b177be3796",
+      "spec_sha256": "e83580105a91cbd66307f4ec8d971d860124f6e64bbad15157d508a0bfc3be1e"
+     }
+    },
+    "tokens_by_step": {
+     "R1": 36674,
+     "V1": 5618,
+     "R2": 13798,
+     "AUD": 27637,
+     "AUD2": 28234
+    }
+   }
+  ],
+  "haiku": []
+ }
+}

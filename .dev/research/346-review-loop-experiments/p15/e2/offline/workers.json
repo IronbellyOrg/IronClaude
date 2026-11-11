@@ -1,0 +1,187 @@
+{
+ "steps": [
+  {
+   "status": "done",
+   "relaunch": 0,
+   "id": "L1-b01",
+   "kind": "label",
+   "model": "sonnet",
+   "prompt": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p15/e2/offline/prompts/L1-b01.md",
+   "out": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p15/e2/offline/sb/L1-b01/ws/labels.jsonl",
+   "batch": 1,
+   "role": "L1",
+   "cases": [
+    "s0-01",
+    "s0-02",
+    "s0-03",
+    "s0-04",
+    "s0-05",
+    "s0-06",
+    "s0-07",
+    "s0-08"
+   ],
+   "launched_at": 1794293903.730184
+  },
+  {
+   "status": "done",
+   "relaunch": 0,
+   "id": "L2-b01",
+   "kind": "label",
+   "model": "haiku",
+   "prompt": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p15/e2/offline/prompts/L2-b01.md",
+   "out": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p15/e2/offline/sb/L2-b01/ws/labels.jsonl",
+   "batch": 1,
+   "role": "L2",
+   "cases": [
+    "s0-01",
+    "s0-02",
+    "s0-03",
+    "s0-04",
+    "s0-05",
+    "s0-06",
+    "s0-07",
+    "s0-08"
+   ],
+   "launched_at": 1794293903.7301881
+  },
+  {
+   "status": "done",
+   "relaunch": 0,
+   "id": "L1-b02",
+   "kind": "label",
+   "model": "sonnet",
+   "prompt": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p15/e2/offline/prompts/L1-b02.md",
+   "out": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p15/e2/offline/sb/L1-b02/ws/labels.jsonl",
+   "batch": 2,
+   "role": "L1",
+   "cases": [
+    "s0-09",
+    "s0-10",
+    "s0-11",
+    "s0-12",
+    "s0-13",
+    "s0-14",
+    "s0-15",
+    "s0-16"
+   ],
+   "launched_at": 1794293903.73019
+  },
+  {
+   "status": "done",
+   "relaunch": 0,
+   "id": "L2-b02",
+   "kind": "label",
+   "model": "haiku",
+   "prompt": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p15/e2/offline/prompts/L2-b02.md",
+   "out": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p15/e2/offline/sb/L2-b02/ws/labels.jsonl",
+   "batch": 2,
+   "role": "L2",
+   "cases": [
+    "s0-09",
+    "s0-10",
+    "s0-11",
+    "s0-12",
+    "s0-13",
+    "s0-14",
+    "s0-15",
+    "s0-16"
+   ],
+   "launched_at": 1794293903.7301915
+  },
+  {
+   "status": "done",
+   "relaunch": 0,
+   "id": "L1-b03",
+   "kind": "label",
+   "model": "sonnet",
+   "prompt": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p15/e2/offline/prompts/L1-b03.md",
+   "out": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p15/e2/offline/sb/L1-b03/ws/labels.jsonl",
+   "batch": 3,
+   "role": "L1",
+   "cases": [
+    "s0-17",
+    "s0-18",
+    "s0-19",
+    "s0-20",
+    "s0-21",
+    "s0-22",
+    "s0-23",
+    "s0-24"
+   ],
+   "launched_at": 1794293903.7301924
+  },
+  {
+   "status": "done",
+   "relaunch": 0,
+   "id": "L2-b03",
+   "kind": "label",
+   "model": "haiku",
+   "prompt": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p15/e2/offline/prompts/L2-b03.md",
+   "out": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p15/e2/offline/sb/L2-b03/ws/labels.jsonl",
+   "batch": 3,
+   "role": "L2",
+   "cases": [
+    "s0-17",
+    "s0-18",
+    "s0-19",
+    "s0-20",
+    "s0-21",
+    "s0-22",
+    "s0-23",
+    "s0-24"
+   ],
+   "launched_at": 1794293903.7301934
+  },
+  {
+   "status": "done",
+   "relaunch": 0,
+   "id": "ADJ-b01",
+   "kind": "adjudicate",
+   "model": "sonnet",
+   "prompt": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p15/e2/offline/prompts/ADJ-b01.md",
+   "out": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p15/e2/offline/sb/ADJ-b01/ws/adjudication.jsonl",
+   "batch": 1,
+   "role": "ADJ",
+   "cases": [
+    "s0-05",
+    "s0-06",
+    "s0-08"
+   ],
+   "launched_at": 1794294077.7591903
+  },
+  {
+   "status": "done",
+   "relaunch": 0,
+   "id": "ADJ-b02",
+   "kind": "adjudicate",
+   "model": "sonnet",
+   "prompt": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p15/e2/offline/prompts/ADJ-b02.md",
+   "out": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p15/e2/offline/sb/ADJ-b02/ws/adjudication.jsonl",
+   "batch": 2,
+   "role": "ADJ",
+   "cases": [
+    "s0-11",
+    "s0-13"
+   ],
+   "launched_at": 1794294077.7591937
+  },
+  {
+   "status": "done",
+   "relaunch": 0,
+   "id": "ADJ-b03",
+   "kind": "adjudicate",
+   "model": "sonnet",
+   "prompt": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p15/e2/offline/prompts/ADJ-b03.md",
+   "out": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p15/e2/offline/sb/ADJ-b03/ws/adjudication.jsonl",
+   "batch": 3,
+   "role": "ADJ",
+   "cases": [
+    "s0-20",
+    "s0-21",
+    "s0-22",
+    "s0-23"
+   ],
+   "launched_at": 1794294077.759195
+  }
+ ]
+}

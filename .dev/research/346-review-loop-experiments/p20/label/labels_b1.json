@@ -1,0 +1,101 @@
+{
+ "batch": 1,
+ "labels": [
+  {
+   "label_id": "L01",
+   "label": "cannot_pass",
+   "confidence": 0.5,
+   "reason": "For the nine blocked commands the pass needs `worker_done --outcome failed` and `status: blocked`, but this spec's WC-3 lets a worker holding a preamble \"ask the coordinator once ... then re-invoke or resume the command with the answer as a flag\" and nothing in the row forbids that, so a correct worker can resolve the gate and succeed. The 7.2 run gives it a preamble, so the stated blocked outcome is not what a conforming implementation is bound to produce."
+  },
+  {
+   "label_id": "L04",
+   "label": "can_pass",
+   "confidence": 0.7,
+   "reason": "A happy-path 7.2 run with all required flags can end in `--outcome succeeded`. The cli-eval extra conditions are AC-4.3's observable transcript tests (\"heartbeats arrive at most 5 minutes apart\", \"no single Bash wait exceeds 240 s\"), which WC-10 makes required behaviour."
+  },
+  {
+   "label_id": "L07",
+   "label": "can_pass",
+   "confidence": 0.75,
+   "reason": "SA-2 allows Orca text \"only under `src/superclaude/core/`\" and in the plugin copy, and neither is scanned. E5 puts the baseline at zero outside `ccsession-tag`, so a conforming tree prints nothing, and any Orca mention in commands, skills or agents makes the grep print."
+  },
+  {
+   "label_id": "L10",
+   "label": "can_pass",
+   "confidence": 0.65,
+   "reason": "Adding per-gate assertions plus AC-1.1's section assertion for each P2 command is a concrete pytest that a P2-complete tree can pass. A missing gate flag such as `--no-post-pr` would fail it."
+  },
+  {
+   "label_id": "L13",
+   "label": "can_pass",
+   "confidence": 0.75,
+   "reason": "Polling `check --wait` with a recorded limit can observe exactly one `worker_done`, and its outcome and report path can be compared with WC-5 and WC-4. A wrong outcome or path fails. The command was not run here only because it needs Orca, which is not a defect."
+  },
+  {
+   "label_id": "L16",
+   "label": "cannot_pass",
+   "confidence": 0.6,
+   "reason": "The test asserts that \"every command in sections 3.1-3.2 except load\" has a `## Unattended mode` section at P1, but P1 edits only \"analyze, build, business-panel, design, document, explain, index, test\" plus fixes. Section 3.2's gated commands get their section in P2-P4 (SA-4: \"Phases 1-3\"), so at P1 the assertion fails on a correct tree."
+  },
+  {
+   "label_id": "L19",
+   "label": "can_pass",
+   "confidence": 0.7,
+   "reason": "The grep on the adversarial SKILL.md shows its one fixed contract path. The workflow ref is identifiable from the section 3 row (`sk/sc-workflow-protocol/refs/return-contract.md`, \"a stop before the package exists has no contract\"), so both conditions can be observed. The fixture's exit 2 only reflects a missing file there."
+  },
+  {
+   "label_id": "L22",
+   "label": "cannot_pass",
+   "confidence": 0.6,
+   "reason": "The grep scans `src/superclaude/core`, where P0 writes WORKER-CONTRACT.md with \"a coordinator brief template\" and an Orca section in HOW-WE-WORK.md. SA-2 explicitly allows an Orca example of \"a caller's question channel inside the contract file\" (`orca orchestration ask`), which matches the pattern, so a conforming tree prints lines."
+  },
+  {
+   "label_id": "L25",
+   "label": "can_pass",
+   "confidence": 0.55,
+   "reason": "Excluding `WORKER-CONTRACT.md` and `HOW-WE-WORK.md` removes the two files where SA-2 places Orca text, so a conforming tree can print nothing, and any `orca orchestration|worktree|terminal|agent` text in a command, skill or agent prints. A small residual risk is the Orca entry P0 adds to the level table in core/CLAUDE.md, which is not excluded."
+  },
+  {
+   "label_id": "L28",
+   "label": "can_pass",
+   "confidence": 0.55,
+   "reason": "With \"a brief that forbids `ask`\", a worker that follows WC-3's optional (\"may\") ask path by not asking settles the gate blocked, which gives `--outcome failed` and `status: blocked` with a `blocked_question`. \"Step 2 never shows `agentWait`\" reads as shorthand for 7.2#2's non-null value, though its literal wording sits uneasily with \"present and null in every observation\"."
+  },
+  {
+   "label_id": "L31",
+   "label": "cannot_pass",
+   "confidence": 0.6,
+   "reason": "The positive control works (`grep -c` prints 1), but the main grep scans `src/superclaude/core`, where P0 writes the contract file and HOW-WE-WORK Orca section. SA-2 allows \"an example of a caller's question channel inside the contract file\" (`orca orchestration ask`), which matches the pattern, so a conforming tree does not print nothing."
+  },
+  {
+   "label_id": "L34",
+   "label": "cannot_discriminate",
+   "confidence": 0.6,
+   "reason": "\"no `return-contract.yaml` appears\" in `git status --short` is also satisfied when the `claude -p` run fails or does nothing. It is also satisfied when a contract lands in a new untracked directory, which `git status --short` collapses to `?? dir/`, so a pass does not prove SA-3."
+  },
+  {
+   "label_id": "L37",
+   "label": "can_pass",
+   "confidence": 0.7,
+   "reason": "WC-3 here closes the ask path explicitly (\"unless the brief says not to ask\"), so a gate-trigger run briefed not to ask must end blocked: `--outcome failed`, `status: blocked`, a non-empty `blocked_question`. 7.2#2's \"never non-null\" agentWait is observable."
+  },
+  {
+   "label_id": "L40",
+   "label": "can_pass",
+   "confidence": 0.8,
+   "reason": "`test -s` and the PyYAML assertion on `status` in the four values plus a non-empty `command` run on any real contract. PyYAML is declared (`pyyaml>=6.0`), and an empty or malformed contract fails."
+  },
+  {
+   "label_id": "L43",
+   "label": "can_pass",
+   "confidence": 0.8,
+   "reason": "`git diff --cached --name-only -- .claude ':!.claude/settings.json'` lists any staged `.claude` path other than settings.json, so it prints nothing only when no mirror is staged. A staged mirror would print and fail."
+  },
+  {
+   "label_id": "L46",
+   "label": "cannot_discriminate",
+   "confidence": 0.6,
+   "reason": "\"no `return-contract.yaml` appears\" after `git status --short` also holds when the `claude -p` run fails or never writes anything. It also holds when a stray contract is written inside a new untracked or ignored directory, which `--short` shows only as `?? dir/` or not at all, so a pass proves nothing."
+  }
+ ]
+}

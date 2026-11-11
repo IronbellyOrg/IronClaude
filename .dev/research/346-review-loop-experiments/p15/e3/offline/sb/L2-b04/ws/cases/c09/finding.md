@@ -1,0 +1,16 @@
+**F14. I can break this specification by Divergence Attack on gate resolution.** The invariant at **WC-2 (SPEC:60)** fails when **several gates block one run, or a caller flag and a documented default disagree.** Severity MAJOR, blocking (FR-8 GAP rows G5-4 and G5-5). Expert: Whittaker.
+Concrete attack: `/sc:cli-eval run --unattended` with no `--suite`: the suite menu, the safety-flag confirmation and the W0 "confirm with the user" are three gates (INV-A:44, SPEC:104). The contract has a single `blocked_question`, so the coordinator answers one, re-invokes, and meets the next; with no resume ("fresh dir", SPEC:104) each round restarts from zero. For precedence: research pins `--strategy planning` as the documented default (SPEC:116) and the caller passes `--strategy intent`; WC-2 lists "(a) a documented default; (b) a value the caller supplied" with no order, so an implementer may let the default win and ignore the caller.
+Recommendation: state precedence (caller flag, then documented default, then blocked) and let `blocked_question` hold a list of all unresolved gates found at the point of stopping. Priority Medium. Quality impact: Completeness +1.
+
+=== CONSENSUS AND DISAGREEMENTS ===
+
+Consensus points:
+- The central decision, the rejected alternative and the honest statement of evidence gaps (section 1.4) are the strongest parts of the spec. No expert asks to reopen the decision.
+- The decisive weaknesses are in the mechanisms that make the decision usable: where the report goes (F4, F3, F12), how the switch is recognized and passed on (F11, F6, F7), how the worker starts the command (F5), and whether the acceptance checks can pass or detect failure (F1, F8, F9).
+- Phases and checks need to be reconciled with section 3 before the phases can be gated on them (F1, F2, F16).
+
+Disagreements:
+- Nygard would also require a heartbeat rule for fan-out batches; Whittaker argues the heartbeat rule should be dropped if Orca does not use heartbeat age (UNVERIFIED, CAPS:130). Left as finding 10 with both options.
+- Wiegers wants the F15 traceability table to be mandatory; Crispin would accept the test file alone. Graded minor, so it does not block.
+
+Positive checks (nothing to fix): the 10 / 27 / 6 split re-counts correctly from the rows; the phase column of section 3 sums to the P1-P4 lists; the inventory citations I spot-checked match; the open decisions D1-D5 each carry options and a recommendation; Decisions and UNVERIFIED sections exist as the README requires (README:36, README:32).

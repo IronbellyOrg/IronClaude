@@ -1,0 +1,51 @@
+{
+ "author_intent": {
+  "inherits": "real_a2r2_M10",
+  "perturbation": "swap"
+ },
+ "base_case_id": "real_a2r2_M10",
+ "case_id": "real_a2r2_M10~swap",
+ "category": "real",
+ "confirmable_from_packet": "yes",
+ "data_classes": [
+  "s1_spec",
+  "stage2_artifact"
+ ],
+ "family": "s1_first_review",
+ "group": "other:6",
+ "packet": {
+  "base_case_id": "real_a2r2_M10",
+  "code_outcome": "OK",
+  "state": {
+   "evidence": {
+    "e1": {
+     "context": "| adversarial | `--output <dir>`; never `--interactive` | contract, but filename not fixed | `--pipeline-resume` (pipeline mode only); else fresh dir | Fix the contract filename to `<output>/adversarial/return-contract.yaml` (P1) | `sk/sc-adversarial-protocol/SKILL.md:427-429,605,1908,2806-2833`; `INV-A:35,60-61` |\n| brainstorm | `--output <dir>`; never `--interactive` | `<output>/return-contract.yaml` | `--resume-from <seed-brief>` | None | `sk/sc-brainstorm-protocol/SKILL.md:134,335`; `cmd/brainstorm.md:59-63`; `INV-A:39` |\n| cleanup-audit | `--pass <N>` (single pass) | `.claude-audit/pass<N>-summary.md` | `progress.json` checkpoint | Name the `--pass all` final report; output dir is fixed, so one audit per worktree at a time (WC-11) (P1) | `sk/sc-cleanup-audit-protocol/SKILL.md:76,113`; `cmd/cleanup-audit.md:112-117`; `INV-A:42` |\n| index-repo | none | `PROJECT_INDEX.md` (location implied) | `mode=update` | State the output location (P1) | `cmd/index-repo.md:72,140-144,170-173`; `INV-A:53` |\n| init-lite | `--output <file>` | `.dev/superclaude/context-audit.md` or `--output` | Re-run overwrites its marked report | None | `cmd/init-lite.md:32`; `sk/sc-init-lite-protocol/SKILL.md:66,70`; `INV-A:55` |\n| reflect | no `--remediate`; `--no-promote` when the coordinator owns folder moves | `<output>/return-contract.yaml` | Fresh dir (`--promote-resume` covers promotion only) | Under `--unattended`, make `--remediate` follow the existing headless auto-accept rule instead of the `[yes / no]` prompt (P2) | `sk/sc-reflect-protocol/SKILL.md:659`; `sk/sc-reflect-protocol/refs/remediation-handoff.md:228,239-247`; `cmd/reflect.md:101,110`; `INV-B:36,107-115` |\n| release-split | spec-shaped input; default `--r1-scope`; never `--interactive` | `<output>/release-split-report.md` | `--resume-from <split-proposal-final.md>` | Under `--unattended`, the tasklist-input \"confirm with user\" and `--r1-scope custom` prompt resolve as blocked (P2) | `sk/sc-release-split-protocol/SKILL.md:88,120,175,402`; `INV-B:37,117-125` |",
+     "line": 86,
+     "text": "PROJECT_INDEX.md"
+    },
+    "e2": {
+     "context": "|---|---|---|---|---|---|\n| adversarial | `--output <dir>`; never `--interactive` | contract, but filename not fixed | `--pipeline-resume` (pipeline mode only); else fresh dir | Fix the contract filename to `<output>/adversarial/return-contract.yaml` (P1) | `sk/sc-adversarial-protocol/SKILL.md:427-429,605,1908,2806-2833`; `INV-A:35,60-61` |\n| brainstorm | `--output <dir>`; never `--interactive` | `<output>/return-contract.yaml` | `--resume-from <seed-brief>` | None | `sk/sc-brainstorm-protocol/SKILL.md:134,335`; `cmd/brainstorm.md:59-63`; `INV-A:39` |\n| cleanup-audit | `--pass <N>` (single pass) | `.claude-audit/pass<N>-summary.md` | `progress.json` checkpoint | Name the `--pass all` final report; output dir is fixed, so one audit per worktree at a time (WC-11) (P1) | `sk/sc-cleanup-audit-protocol/SKILL.md:76,113`; `cmd/cleanup-audit.md:112-117`; `INV-A:42` |\n| index-repo | none | `PROJECT_INDEX.md` (location implied) | `mode=update` | State the output location (P1) | `cmd/index-repo.md:72,140-144,170-173`; `INV-A:53` |\n| init-lite | `--output <file>` | `.dev/superclaude/context-audit.md` or `--output` | Re-run overwrites its marked report | None | `cmd/init-lite.md:32`; `sk/sc-init-lite-protocol/SKILL.md:66,70`; `INV-A:55` |\n| reflect | no `--remediate`; `--no-promote` when the coordinator owns folder moves | `<output>/return-contract.yaml` | Fresh dir (`--promote-resume` covers promotion only) | Under `--unattended`, make `--remediate` follow the existing headless auto-accept rule instead of the `[yes / no]` prompt (P2) | `sk/sc-reflect-protocol/SKILL.md:659`; `sk/sc-reflect-protocol/refs/remediation-handoff.md:228,239-247`; `cmd/reflect.md:101,110`; `INV-B:36,107-115` |",
+     "line": 85,
+     "text": ".claude-audit/"
+    }
+   },
+   "facts": {
+    "evidence_count": 2,
+    "quotes_found_verbatim": true
+   },
+   "finding": {
+    "title": "graded. WC-11 is unscoped and conflicts with the fixed-path rows (G5 row 6)",
+    "wrong_outcome": "An implementer who follows WC-11 as written must change fixed default paths that three rows leave alone; which text wins is a guess, so."
+   }
+  }
+ },
+ "source": {
+  "kind": "stage2",
+  "paths": [
+   "p11/runs/a2-r2/ws/.dev/orca-command-refactor/review/round1.md"
+  ],
+  "url": null
+ },
+ "split": "perturb",
+ "variant": "swap"
+}

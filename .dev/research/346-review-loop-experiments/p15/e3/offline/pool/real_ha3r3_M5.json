@@ -1,0 +1,29 @@
+{
+ "author_intent": {
+  "reviewer": "haiku",
+  "reviewer_blocking": false,
+  "run": "a3-r3"
+ },
+ "case_id": "real_ha3r3_M5",
+ "category": "real",
+ "data_classes": [
+  "s1_spec",
+  "stage2_artifact"
+ ],
+ "family": "s1_first_review",
+ "group": "T3:6",
+ "packet": {
+  "candidate_sha": "d3cdbe573e57303b9ce6c93d1fe98ba18fb7cb1a15773d926bf6a0c31425200d",
+  "finding_id": "M5",
+  "finding_section": "- **M5. AC-0.4 claims a check it does not run.** Line 194 says \"each run directly by the worker (no Agent-tool wrapper, verified in the step-5 transcript)\". Step 5 (line 184) searches only for `AskUserQuestion`. Medium, because the no-wrapper rule (WC-7, line 65) has no pass condition."
+ },
+ "source": {
+  "kind": "stage2",
+  "paths": [
+   "p14/haiku-baseline/runs/a3-r3/ws/.dev/orca-command-refactor/review/round1.md"
+  ],
+  "url": null
+ },
+ "split": "pool",
+ "variant": "base"
+}

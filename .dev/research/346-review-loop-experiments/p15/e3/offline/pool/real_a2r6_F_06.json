@@ -1,0 +1,29 @@
+{
+ "author_intent": {
+  "reviewer": "sonnet-or-panel",
+  "reviewer_blocking": false,
+  "run": "a2-r6"
+ },
+ "case_id": "real_a2r6_F_06",
+ "category": "real",
+ "data_classes": [
+  "s1_spec",
+  "stage2_artifact"
+ ],
+ "family": "s1_first_review",
+ "group": "other:12",
+ "packet": {
+  "candidate_sha": "d3cdbe573e57303b9ce6c93d1fe98ba18fb7cb1a15773d926bf6a0c31425200d",
+  "finding_id": "F-06",
+  "finding_section": "**F-06** MAJOR label, graded **Medium**. Expert: Wiegers (state assumptions), Nygard.\n- Issue: the tasklist row is accepted on an unverified nesting assumption, and one of its stops has no resolution.\n- Grading sentence: An implementer who follows the tasklist row (spec:122: \"none\" beyond passing `--unattended` to each reflect) builds Stage 10.5 as it is today with reflect headless, and that is wrong if nested spawning does not work or if reflect's `needs_human_decision` HALT (INV-B:209) is reached; the first depends on facts INV-B:210 and INV-B:322 mark UNVERIFIED and the second on a stop the row never names, so the grade needs a guess.\n- The row states the fan-out \"runs one layer below the worker, inside Claude Code's nesting limit, `INV-A:14`\", while INV-B:215 recommends running the per-phase reflect at the worker's top level, and the Decisions row (spec:268) says nothing read contradicts a verdict. Under the headless rule remediation is auto-accepted (INV-B:109), so a tasklist worker would also run corrective hand-offs; the row does not say so.\n- Recommendation: list the HALT as a blocked resolution, and cite why the INV-B recommendation was not followed.\n- Priority: Medium. Quality impact: Completeness +1."
+ },
+ "source": {
+  "kind": "stage2",
+  "paths": [
+   "p11/runs/a2-r6/ws/.dev/orca-command-refactor/review/round1.md"
+  ],
+  "url": null
+ },
+ "split": "pool",
+ "variant": "base"
+}

@@ -1,0 +1,1 @@
+- **N4.** Section 4's last sentence says pr-submit "stays a worker candidate only if the user accepts open decision D3" (`spec:139`); D3 has two options and only (b) makes it a worker.

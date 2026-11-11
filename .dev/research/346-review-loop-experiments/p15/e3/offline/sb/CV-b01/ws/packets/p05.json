@@ -1,0 +1,17 @@
+{
+ "finding": {
+  "title": "No definition of a passing restore test",
+  "wrong_outcome": "No definition of a passing restore test"
+ },
+ "evidence": {
+  "e1": {
+   "text": "After each full backup a restore test restores it into an isolated environment.",
+   "line": 15,
+   "context": "R7. Backups in the secondary region are kept for 90 days.\n\n## 3. Verification\nR8. After each full backup a restore test restores it into an isolated environment.\nR9. A failed restore test raises an alert to the on-call engineer.\n\n## 4. Retention exceptions"
+  }
+ },
+ "facts": {
+  "quotes_found_verbatim": true,
+  "evidence_count": 1
+ }
+}

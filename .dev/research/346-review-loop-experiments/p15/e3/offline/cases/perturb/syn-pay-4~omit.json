@@ -1,0 +1,45 @@
+{
+ "author_intent": {
+  "inherits": "syn-pay-4",
+  "perturbation": "omit"
+ },
+ "base_case_id": "syn-pay-4",
+ "case_id": "syn-pay-4~omit",
+ "category": "nit",
+ "confirmable_from_packet": "no",
+ "data_classes": [
+  "synthetic"
+ ],
+ "family": "syn-pay",
+ "group": "syn-pay",
+ "packet": {
+  "base_case_id": "syn-pay-4",
+  "code_outcome": "OK",
+  "state": {
+   "evidence": {
+    "e1": {
+     "context": "R10. The ledger is the source of truth for balances; the daily report is derived from it.",
+     "line": 20,
+     "text": "the daily report is derived from it"
+    }
+   },
+   "facts": {
+    "evidence_count": 1,
+    "quotes_found_verbatim": true
+   },
+   "finding": {
+    "title": "The meaning of derived is not defined",
+    "wrong_outcome": "an implementer who follows the stated text as written builds the daily report as a query over the ledger (`the daily report is derived from it`, S:20), and that is wrong because derived does not say whether the report is a view or a stored copy."
+   }
+  }
+ },
+ "source": {
+  "kind": "synthetic",
+  "paths": [
+   "cases_synth.py"
+  ],
+  "url": null
+ },
+ "split": "perturb",
+ "variant": "omit"
+}

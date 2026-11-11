@@ -1,0 +1,1114 @@
+{
+ "pass1": {
+  "pass": "1 (literal, as written in the plan)",
+  "checks": {
+   "REF": {
+    "MP": 0.36666666666666664,
+    "true": 11,
+    "adjudicated": 30,
+    "distinct": null,
+    "MP_weighted": 0.3783783783783784,
+    "MP_defect": 0.03333333333333333,
+    "audit_relevant_true": 1,
+    "MP_orig_only": [
+     0,
+     0
+    ],
+    "flags": {
+     "orig": 20,
+     "final": 362,
+     "hist": 133,
+     "ref": 80,
+     "other": 230
+    },
+    "CLEAN": 0,
+    "pos": {
+     "seeded": [
+      [
+       "S1 retry 8 vs FR-3 5",
+       false
+      ],
+      [
+       "S2 delete log rows vs FR-7 30-day retention",
+       false
+      ],
+      [
+       "S3 signing secret logged vs FR-4/accept-5",
+       false
+      ]
+     ],
+     "cand_deletion": [
+      [
+       "FR-5 removed, delivery_id still used",
+       false
+      ]
+     ],
+     "cand_regression": [
+      [
+       "8 retries vs FR-3 (5)",
+       false
+      ]
+     ]
+    },
+    "HIT_final": {
+     "T1": [
+      6,
+      6
+     ],
+     "T2": [
+      9,
+      9
+     ],
+     "T3": [
+      2,
+      2
+     ]
+    },
+    "HIT_orig": {
+     "T1": [
+      12,
+      12
+     ],
+     "T2": [
+      6,
+      6
+     ],
+     "T3": [
+      6,
+      6
+     ]
+    },
+    "HITn_final": {
+     "T1": [
+      6,
+      6
+     ],
+     "T2": [
+      8,
+      9
+     ],
+     "T3": [
+      1,
+      2
+     ]
+    },
+    "HITn_orig": {
+     "T1": [
+      11,
+      12
+     ],
+     "T2": [
+      4,
+      6
+     ],
+     "T3": [
+      6,
+      6
+     ]
+    },
+    "catalog": {
+     "caught": [
+      "D12",
+      "D19"
+     ],
+     "n": 12
+    }
+   },
+   "COUNT": {
+    "MP": 0.0,
+    "true": 0,
+    "adjudicated": 7,
+    "distinct": null,
+    "MP_weighted": 0.0,
+    "MP_defect": 0.0,
+    "audit_relevant_true": 0,
+    "MP_orig_only": [
+     0,
+     0
+    ],
+    "flags": {
+     "final": 1,
+     "hist": 3,
+     "ref": 1,
+     "other": 2
+    },
+    "CLEAN": 0,
+    "pos": {
+     "seeded": [
+      [
+       "S1 retry 8 vs FR-3 5",
+       false
+      ],
+      [
+       "S2 delete log rows vs FR-7 30-day retention",
+       false
+      ],
+      [
+       "S3 signing secret logged vs FR-4/accept-5",
+       false
+      ]
+     ],
+     "cand_deletion": [
+      [
+       "FR-5 removed, delivery_id still used",
+       false
+      ]
+     ],
+     "cand_regression": [
+      [
+       "8 retries vs FR-3 (5)",
+       false
+      ]
+     ]
+    },
+    "HIT_final": {
+     "T1": [
+      0,
+      6
+     ],
+     "T2": [
+      0,
+      9
+     ],
+     "T3": [
+      0,
+      2
+     ]
+    },
+    "HIT_orig": {
+     "T1": [
+      0,
+      12
+     ],
+     "T2": [
+      0,
+      6
+     ],
+     "T3": [
+      0,
+      6
+     ]
+    },
+    "HITn_final": {
+     "T1": [
+      0,
+      6
+     ],
+     "T2": [
+      0,
+      9
+     ],
+     "T3": [
+      0,
+      2
+     ]
+    },
+    "HITn_orig": {
+     "T1": [
+      0,
+      12
+     ],
+     "T2": [
+      0,
+      6
+     ],
+     "T3": [
+      0,
+      6
+     ]
+    },
+    "catalog": {
+     "caught": [],
+     "n": 12
+    }
+   },
+   "KV": {
+    "MP": 0.0,
+    "true": 0,
+    "adjudicated": 26,
+    "distinct": null,
+    "MP_weighted": 0.0,
+    "MP_defect": 0.0,
+    "audit_relevant_true": 0,
+    "MP_orig_only": [
+     0,
+     0
+    ],
+    "flags": {
+     "final": 2,
+     "hist": 1,
+     "other": 23
+    },
+    "CLEAN": 0,
+    "pos": {
+     "seeded": [
+      [
+       "S1 retry 8 vs FR-3 5",
+       false
+      ],
+      [
+       "S2 delete log rows vs FR-7 30-day retention",
+       false
+      ],
+      [
+       "S3 signing secret logged vs FR-4/accept-5",
+       false
+      ]
+     ],
+     "cand_deletion": [
+      [
+       "FR-5 removed, delivery_id still used",
+       false
+      ]
+     ],
+     "cand_regression": [
+      [
+       "8 retries vs FR-3 (5)",
+       false
+      ]
+     ]
+    },
+    "HIT_final": {
+     "T1": [
+      0,
+      6
+     ],
+     "T2": [
+      0,
+      9
+     ],
+     "T3": [
+      0,
+      2
+     ]
+    },
+    "HIT_orig": {
+     "T1": [
+      0,
+      12
+     ],
+     "T2": [
+      0,
+      6
+     ],
+     "T3": [
+      0,
+      6
+     ]
+    },
+    "HITn_final": {
+     "T1": [
+      0,
+      6
+     ],
+     "T2": [
+      0,
+      9
+     ],
+     "T3": [
+      0,
+      2
+     ]
+    },
+    "HITn_orig": {
+     "T1": [
+      0,
+      12
+     ],
+     "T2": [
+      0,
+      6
+     ],
+     "T3": [
+      0,
+      6
+     ]
+    },
+    "catalog": {
+     "caught": [],
+     "n": 12
+    }
+   },
+   "PHASE": {
+    "MP": 0.0,
+    "true": 0,
+    "adjudicated": 4,
+    "distinct": null,
+    "MP_weighted": 0.0,
+    "MP_defect": 0.0,
+    "audit_relevant_true": 0,
+    "MP_orig_only": [
+     0,
+     0
+    ],
+    "flags": {
+     "final": 5,
+     "hist": 1
+    },
+    "CLEAN": 0,
+    "pos": {
+     "seeded": [
+      [
+       "S1 retry 8 vs FR-3 5",
+       false
+      ],
+      [
+       "S2 delete log rows vs FR-7 30-day retention",
+       false
+      ],
+      [
+       "S3 signing secret logged vs FR-4/accept-5",
+       false
+      ]
+     ],
+     "cand_deletion": [
+      [
+       "FR-5 removed, delivery_id still used",
+       false
+      ]
+     ],
+     "cand_regression": [
+      [
+       "8 retries vs FR-3 (5)",
+       false
+      ]
+     ]
+    },
+    "HIT_final": {
+     "T1": [
+      0,
+      6
+     ],
+     "T2": [
+      1,
+      9
+     ],
+     "T3": [
+      0,
+      2
+     ]
+    },
+    "HIT_orig": {
+     "T1": [
+      0,
+      12
+     ],
+     "T2": [
+      0,
+      6
+     ],
+     "T3": [
+      0,
+      6
+     ]
+    },
+    "HITn_final": {
+     "T1": [
+      0,
+      6
+     ],
+     "T2": [
+      1,
+      9
+     ],
+     "T3": [
+      0,
+      2
+     ]
+    },
+    "HITn_orig": {
+     "T1": [
+      0,
+      12
+     ],
+     "T2": [
+      0,
+      6
+     ],
+     "T3": [
+      0,
+      6
+     ]
+    },
+    "catalog": {
+     "caught": [],
+     "n": 12
+    }
+   },
+   "PATH": {
+    "MP": 0.0,
+    "true": 0,
+    "adjudicated": 30,
+    "distinct": null,
+    "MP_weighted": 0.0,
+    "MP_defect": 0.0,
+    "audit_relevant_true": 0,
+    "MP_orig_only": [
+     0,
+     0
+    ],
+    "flags": {
+     "orig": 4,
+     "final": 155,
+     "hist": 60,
+     "ref": 45
+    },
+    "CLEAN": 0,
+    "pos": {
+     "seeded": [
+      [
+       "S1 retry 8 vs FR-3 5",
+       false
+      ],
+      [
+       "S2 delete log rows vs FR-7 30-day retention",
+       false
+      ],
+      [
+       "S3 signing secret logged vs FR-4/accept-5",
+       false
+      ]
+     ],
+     "cand_deletion": [
+      [
+       "FR-5 removed, delivery_id still used",
+       false
+      ]
+     ],
+     "cand_regression": [
+      [
+       "8 retries vs FR-3 (5)",
+       false
+      ]
+     ]
+    },
+    "HIT_final": {
+     "T1": [
+      6,
+      6
+     ],
+     "T2": [
+      7,
+      9
+     ],
+     "T3": [
+      1,
+      2
+     ]
+    },
+    "HIT_orig": {
+     "T1": [
+      12,
+      12
+     ],
+     "T2": [
+      5,
+      6
+     ],
+     "T3": [
+      6,
+      6
+     ]
+    },
+    "HITn_final": {
+     "T1": [
+      6,
+      6
+     ],
+     "T2": [
+      7,
+      9
+     ],
+     "T3": [
+      1,
+      2
+     ]
+    },
+    "HITn_orig": {
+     "T1": [
+      11,
+      12
+     ],
+     "T2": [
+      5,
+      6
+     ],
+     "T3": [
+      6,
+      6
+     ]
+    },
+    "catalog": {
+     "caught": [
+      "D1",
+      "D2",
+      "D10",
+      "D12",
+      "D19"
+     ],
+     "n": 12
+    }
+   }
+  },
+  "census_orig": {
+   "MUST": 0,
+   "SHALL": 0,
+   "SHOULD": 0,
+   "MAY": 0
+  },
+  "findings_total": 1128
+ },
+ "pass2": {
+  "pass": "2 (after one tuning pass; the shipped lint)",
+  "checks": {
+   "REF": {
+    "MP": 0.9666666666666667,
+    "true": 29,
+    "adjudicated": 30,
+    "distinct": null,
+    "MP_weighted": 0.967741935483871,
+    "MP_defect": 0.0,
+    "audit_relevant_true": 0,
+    "MP_orig_only": [
+     0,
+     0
+    ],
+    "flags": {
+     "final": 52,
+     "hist": 25,
+     "other": 193
+    },
+    "CLEAN": 0,
+    "pos": {
+     "seeded": [
+      [
+       "S1 retry 8 vs FR-3 5",
+       false
+      ],
+      [
+       "S2 delete log rows vs FR-7 30-day retention",
+       false
+      ],
+      [
+       "S3 signing secret logged vs FR-4/accept-5",
+       false
+      ]
+     ],
+     "cand_deletion": [
+      [
+       "FR-5 removed, delivery_id still used",
+       false
+      ]
+     ],
+     "cand_regression": [
+      [
+       "8 retries vs FR-3 (5)",
+       false
+      ]
+     ]
+    },
+    "HIT_final": {
+     "T1": [
+      3,
+      6
+     ],
+     "T2": [
+      6,
+      9
+     ],
+     "T3": [
+      0,
+      2
+     ]
+    },
+    "HIT_orig": {
+     "T1": [
+      0,
+      12
+     ],
+     "T2": [
+      0,
+      6
+     ],
+     "T3": [
+      0,
+      6
+     ]
+    },
+    "HITn_final": {
+     "T1": [
+      3,
+      6
+     ],
+     "T2": [
+      4,
+      9
+     ],
+     "T3": [
+      0,
+      2
+     ]
+    },
+    "HITn_orig": {
+     "T1": [
+      0,
+      12
+     ],
+     "T2": [
+      0,
+      6
+     ],
+     "T3": [
+      0,
+      6
+     ]
+    },
+    "catalog": {
+     "caught": [],
+     "n": 12
+    }
+   },
+   "COUNT": {
+    "MP": null,
+    "true": 0,
+    "adjudicated": 0,
+    "distinct": null,
+    "MP_weighted": null,
+    "MP_defect": null,
+    "audit_relevant_true": 0,
+    "MP_orig_only": [
+     0,
+     0
+    ],
+    "flags": {},
+    "CLEAN": 0,
+    "pos": {
+     "seeded": [
+      [
+       "S1 retry 8 vs FR-3 5",
+       false
+      ],
+      [
+       "S2 delete log rows vs FR-7 30-day retention",
+       false
+      ],
+      [
+       "S3 signing secret logged vs FR-4/accept-5",
+       false
+      ]
+     ],
+     "cand_deletion": [
+      [
+       "FR-5 removed, delivery_id still used",
+       false
+      ]
+     ],
+     "cand_regression": [
+      [
+       "8 retries vs FR-3 (5)",
+       false
+      ]
+     ]
+    },
+    "HIT_final": {
+     "T1": [
+      0,
+      6
+     ],
+     "T2": [
+      0,
+      9
+     ],
+     "T3": [
+      0,
+      2
+     ]
+    },
+    "HIT_orig": {
+     "T1": [
+      0,
+      12
+     ],
+     "T2": [
+      0,
+      6
+     ],
+     "T3": [
+      0,
+      6
+     ]
+    },
+    "HITn_final": {
+     "T1": [
+      0,
+      6
+     ],
+     "T2": [
+      0,
+      9
+     ],
+     "T3": [
+      0,
+      2
+     ]
+    },
+    "HITn_orig": {
+     "T1": [
+      0,
+      12
+     ],
+     "T2": [
+      0,
+      6
+     ],
+     "T3": [
+      0,
+      6
+     ]
+    },
+    "catalog": {
+     "caught": [],
+     "n": 12
+    }
+   },
+   "KV": {
+    "MP": 0.0,
+    "true": 0,
+    "adjudicated": 3,
+    "distinct": null,
+    "MP_weighted": 0.0,
+    "MP_defect": 0.0,
+    "audit_relevant_true": 0,
+    "MP_orig_only": [
+     0,
+     0
+    ],
+    "flags": {
+     "final": 1,
+     "ref": 2,
+     "pos": 2
+    },
+    "CLEAN": 0,
+    "pos": {
+     "seeded": [
+      [
+       "S1 retry 8 vs FR-3 5",
+       true
+      ],
+      [
+       "S2 delete log rows vs FR-7 30-day retention",
+       true
+      ],
+      [
+       "S3 signing secret logged vs FR-4/accept-5",
+       true
+      ]
+     ],
+     "cand_deletion": [
+      [
+       "FR-5 removed, delivery_id still used",
+       false
+      ]
+     ],
+     "cand_regression": [
+      [
+       "8 retries vs FR-3 (5)",
+       true
+      ]
+     ]
+    },
+    "HIT_final": {
+     "T1": [
+      0,
+      6
+     ],
+     "T2": [
+      0,
+      9
+     ],
+     "T3": [
+      0,
+      2
+     ]
+    },
+    "HIT_orig": {
+     "T1": [
+      0,
+      12
+     ],
+     "T2": [
+      0,
+      6
+     ],
+     "T3": [
+      0,
+      6
+     ]
+    },
+    "HITn_final": {
+     "T1": [
+      0,
+      6
+     ],
+     "T2": [
+      0,
+      9
+     ],
+     "T3": [
+      0,
+      2
+     ]
+    },
+    "HITn_orig": {
+     "T1": [
+      0,
+      12
+     ],
+     "T2": [
+      0,
+      6
+     ],
+     "T3": [
+      0,
+      6
+     ]
+    },
+    "catalog": {
+     "caught": [],
+     "n": 12
+    }
+   },
+   "PHASE": {
+    "MP": 0.02857142857142857,
+    "true": 1,
+    "adjudicated": 35,
+    "distinct": null,
+    "MP_weighted": 0.2631578947368421,
+    "MP_defect": 0.02857142857142857,
+    "audit_relevant_true": 1,
+    "MP_orig_only": [
+     1,
+     1
+    ],
+    "flags": {
+     "orig": 1,
+     "final": 30,
+     "hist": 9,
+     "ref": 17
+    },
+    "CLEAN": 0,
+    "pos": {
+     "seeded": [
+      [
+       "S1 retry 8 vs FR-3 5",
+       false
+      ],
+      [
+       "S2 delete log rows vs FR-7 30-day retention",
+       false
+      ],
+      [
+       "S3 signing secret logged vs FR-4/accept-5",
+       false
+      ]
+     ],
+     "cand_deletion": [
+      [
+       "FR-5 removed, delivery_id still used",
+       false
+      ]
+     ],
+     "cand_regression": [
+      [
+       "8 retries vs FR-3 (5)",
+       false
+      ]
+     ]
+    },
+    "HIT_final": {
+     "T1": [
+      6,
+      6
+     ],
+     "T2": [
+      8,
+      9
+     ],
+     "T3": [
+      2,
+      2
+     ]
+    },
+    "HIT_orig": {
+     "T1": [
+      11,
+      12
+     ],
+     "T2": [
+      6,
+      6
+     ],
+     "T3": [
+      6,
+      6
+     ]
+    },
+    "HITn_final": {
+     "T1": [
+      6,
+      6
+     ],
+     "T2": [
+      5,
+      9
+     ],
+     "T3": [
+      1,
+      2
+     ]
+    },
+    "HITn_orig": {
+     "T1": [
+      11,
+      12
+     ],
+     "T2": [
+      1,
+      6
+     ],
+     "T3": [
+      6,
+      6
+     ]
+    },
+    "catalog": {
+     "caught": [
+      "D12",
+      "D16",
+      "D19"
+     ],
+     "n": 12
+    }
+   },
+   "PATH": {
+    "MP": 0.1111111111111111,
+    "true": 2,
+    "adjudicated": 18,
+    "distinct": null,
+    "MP_weighted": 0.48484848484848486,
+    "MP_defect": 0.1111111111111111,
+    "audit_relevant_true": 2,
+    "MP_orig_only": [
+     2,
+     2
+    ],
+    "flags": {
+     "orig": 2,
+     "final": 22,
+     "hist": 5,
+     "ref": 4
+    },
+    "CLEAN": 0,
+    "pos": {
+     "seeded": [
+      [
+       "S1 retry 8 vs FR-3 5",
+       false
+      ],
+      [
+       "S2 delete log rows vs FR-7 30-day retention",
+       false
+      ],
+      [
+       "S3 signing secret logged vs FR-4/accept-5",
+       false
+      ]
+     ],
+     "cand_deletion": [
+      [
+       "FR-5 removed, delivery_id still used",
+       false
+      ]
+     ],
+     "cand_regression": [
+      [
+       "8 retries vs FR-3 (5)",
+       false
+      ]
+     ]
+    },
+    "HIT_final": {
+     "T1": [
+      4,
+      6
+     ],
+     "T2": [
+      8,
+      9
+     ],
+     "T3": [
+      0,
+      2
+     ]
+    },
+    "HIT_orig": {
+     "T1": [
+      12,
+      12
+     ],
+     "T2": [
+      6,
+      6
+     ],
+     "T3": [
+      4,
+      6
+     ]
+    },
+    "HITn_final": {
+     "T1": [
+      0,
+      6
+     ],
+     "T2": [
+      7,
+      9
+     ],
+     "T3": [
+      0,
+      2
+     ]
+    },
+    "HITn_orig": {
+     "T1": [
+      4,
+      12
+     ],
+     "T2": [
+      4,
+      6
+     ],
+     "T3": [
+      4,
+      6
+     ]
+    },
+    "catalog": {
+     "caught": [
+      "D1",
+      "D2",
+      "D10"
+     ],
+     "n": 12
+    }
+   }
+  },
+  "census_orig": {
+   "MUST": 0,
+   "SHALL": 0,
+   "SHOULD": 0,
+   "MAY": 0
+  },
+  "findings_total": 365
+ }
+}

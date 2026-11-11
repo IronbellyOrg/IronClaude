@@ -1,0 +1,29 @@
+{
+ "author_intent": {
+  "reviewer": "sonnet-or-panel",
+  "reviewer_blocking": true,
+  "run": "a1-r3"
+ },
+ "case_id": "real_a1r3_F2",
+ "category": "real",
+ "data_classes": [
+  "s1_spec",
+  "stage2_artifact"
+ ],
+ "family": "s1_first_review",
+ "group": "D3",
+ "packet": {
+  "candidate_sha": "d3cdbe573e57303b9ce6c93d1fe98ba18fb7cb1a15773d926bf6a0c31425200d",
+  "finding_id": "F2",
+  "finding_section": "**F2. I can break this specification by Sequence Attack.** The invariant at **section 6 P1 versus section 3 rows (SPEC:159 against SPEC:99-125)** fails when **a command accepts `--unattended` in a phase before its gate rows are converted.** Severity MAJOR, blocking (concrete attack below). Expert: Whittaker.\nConcrete attack: before P1, `/sc:auggie-review <PR> --unattended` is an unknown token. P1 says \"the `--unattended` flag accepted by every command in sections 3.1 and 3.2 (a no-op where a command has no gate)\" (SPEC:159). auggie-review has a gate and a posting default, and its row is delivered in P2 (SPEC:100, SPEC:160). State trace: after P1 the flag is accepted, the row's \"implies `--no-post-pr` and `--no-remediation-offer`\" does not exist yet, so a coordinator that was told by P0's brief template to pass `--unattended` gets `gh pr review --comment` posted to GitHub and then a plain-chat remediation offer that stalls. The same holds for cleanup, improve, task (commit/push default), cli-eval and every other P2-P4 command, and the stall is silent (CAPS:52, CAPS:129). The spec's own invariant \"no outward action unless authorized\" (WC-9) is broken by its phase order.\nRecommendation: restrict P1 so that a command accepts `--unattended` only in the phase that also converts its gates, or make a command with an unconverted gate refuse the flag, and say which. Priority High. Quality impact: Consistency +1."
+ },
+ "source": {
+  "kind": "stage2",
+  "paths": [
+   "p11/runs/a1-r3/ws/.dev/orca-command-refactor/review/spec-panel.md"
+  ],
+  "url": null
+ },
+ "split": "base",
+ "variant": "base"
+}

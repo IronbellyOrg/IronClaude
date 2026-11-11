@@ -1,0 +1,162 @@
+[
+ {
+  "chunk": 0,
+  "name": "AC-1.1",
+  "n": 31,
+  "model": "opus",
+  "crit_share": 0.48,
+  "grep": 0
+ },
+ {
+  "chunk": 1,
+  "name": "AC-1.2",
+  "n": 31,
+  "model": "opus",
+  "crit_share": 0.45,
+  "grep": 0
+ },
+ {
+  "chunk": 2,
+  "name": "AC-1.3",
+  "n": 31,
+  "model": "opus",
+  "crit_share": 0.39,
+  "grep": 0
+ },
+ {
+  "chunk": 3,
+  "name": "AC-1.4",
+  "n": 28,
+  "model": "sonnet",
+  "crit_share": 0.29,
+  "grep": 1
+ },
+ {
+  "chunk": 4,
+  "name": "WC-4.1",
+  "n": 28,
+  "model": "opus",
+  "crit_share": 0.39,
+  "grep": 1
+ },
+ {
+  "chunk": 5,
+  "name": "WC-4.2",
+  "n": 28,
+  "model": "opus",
+  "crit_share": 0.21,
+  "grep": 0
+ },
+ {
+  "chunk": 6,
+  "name": "WC-4.3",
+  "n": 28,
+  "model": "sonnet",
+  "crit_share": 0.18,
+  "grep": 0
+ },
+ {
+  "chunk": 7,
+  "name": "WC-4.4",
+  "n": 28,
+  "model": "opus",
+  "crit_share": 0.36,
+  "grep": 0
+ },
+ {
+  "chunk": 8,
+  "name": "WC-4.5",
+  "n": 26,
+  "model": "opus",
+  "crit_share": 0.31,
+  "grep": 0
+ },
+ {
+  "chunk": 9,
+  "name": "AC-0.1",
+  "n": 32,
+  "model": "opus",
+  "crit_share": 0.34,
+  "grep": 0
+ },
+ {
+  "chunk": 10,
+  "name": "AC-0.2",
+  "n": 32,
+  "model": "sonnet",
+  "crit_share": 0.22,
+  "grep": 0
+ },
+ {
+  "chunk": 11,
+  "name": "WC-2",
+  "n": 19,
+  "model": "opus",
+  "crit_share": 0.32,
+  "grep": 0
+ },
+ {
+  "chunk": 12,
+  "name": "AC-2",
+  "n": 29,
+  "model": "sonnet",
+  "crit_share": 0.14,
+  "grep": 1
+ },
+ {
+  "chunk": 13,
+  "name": "AC-C.1",
+  "n": 18,
+  "model": "sonnet",
+  "crit_share": 0.11,
+  "grep": 18
+ },
+ {
+  "chunk": 14,
+  "name": "AC-C.2",
+  "n": 18,
+  "model": "sonnet",
+  "crit_share": 0.06,
+  "grep": 17
+ },
+ {
+  "chunk": 15,
+  "name": "WC-3",
+  "n": 21,
+  "model": "opus",
+  "crit_share": 0.52,
+  "grep": 0
+ },
+ {
+  "chunk": 16,
+  "name": "misc",
+  "n": 15,
+  "model": "sonnet",
+  "crit_share": 0.07,
+  "grep": 0
+ },
+ {
+  "chunk": 17,
+  "name": "WC-5",
+  "n": 15,
+  "model": "sonnet",
+  "crit_share": 0.2,
+  "grep": 0
+ },
+ {
+  "chunk": 18,
+  "name": "WC-11",
+  "n": 19,
+  "model": "sonnet",
+  "crit_share": 0.08,
+  "grep": 0
+ },
+ {
+  "chunk": 19,
+  "name": "small.1",
+  "n": 34,
+  "model": "opus",
+  "crit_share": 0.21,
+  "grep": 4
+ }
+]

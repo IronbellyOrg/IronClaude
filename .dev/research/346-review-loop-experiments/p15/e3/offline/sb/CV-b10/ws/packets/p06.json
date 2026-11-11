@@ -1,0 +1,17 @@
+{
+ "finding": {
+  "title": "Exports never include activity logs",
+  "wrong_outcome": "an implementer who follows the stated text as written builds an export that never includes activity logs, because `Activity logs are included in an export only when the user asks for them.` (S:22), and that is wrong because users cannot get their logs."
+ },
+ "evidence": {
+  "e1": {
+   "text": "Activity logs are included in an export only when the user asks for them.",
+   "line": 22,
+   "context": "\n## 4. Exports\nR11. A user may request an export of their account data once per calendar month.\nR12. Activity logs are included in an export only when the user asks for them.\n\n## 5. Access\nR13. Only members of the data protection group may read activity logs older than 30 days."
+  }
+ },
+ "facts": {
+  "quotes_found_verbatim": true,
+  "evidence_count": 1
+ }
+}

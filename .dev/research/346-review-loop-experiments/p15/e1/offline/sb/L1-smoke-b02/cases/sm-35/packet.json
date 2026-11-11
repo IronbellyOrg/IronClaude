@@ -1,0 +1,8 @@
+{
+ "case_id": "sm-35",
+ "finding": {
+  "heading": "### R1-1 Reset links live too long",
+  "body": "An earlier version let the reset link live for days. The lifetime rule is meant to keep the link short-lived. Cited: spec lines 32-33 (before version).\nAn implementer who follows PR-4 builds reset links that stay valid for days.\nProtected requirement: line 32 (one-time use must hold)."
+ },
+ "full_diff": "--- before.md\n+++ after.md\n@@ -30,7 +30,7 @@\n - **DX-3 Date display.** Dates are shown in the format of the user's locale and are stored in UTC.\n - **DX-4 Time zones.** Scheduled times are entered in the user's time zone and converted to UTC before they are saved.\n - **PR-3 One-time use.** A password reset link can be used once. After a successful reset the link stops working.\n-- **PR-4 Link lifetime.** A password reset link expires 30 minutes after it is sent.\n+- **PR-4 Link lifetime.** A password reset link stays valid until it is used or until the customer asks for a newer link.\n - **DX-5 Log format.** Every service writes one JSON object per log line with a timestamp, a severity and a request identifier.\n - **DX-6 Log storage.** Application logs are kept for 14 days in hot storage and are then discarded by the logging platform.\n - **DX-7 Health endpoint.** Each service exposes a health endpoint that answers within one second and reports the state of its dependencies.\n"
+}

@@ -1,0 +1,13 @@
+diff --git a/.dev/brainstorms/346-ledger/INSTALL.md b/.dev/brainstorms/346-ledger/INSTALL.md
+index f74a33ca..e5170f08 100644
+--- a/.dev/brainstorms/346-ledger/INSTALL.md
++++ b/.dev/brainstorms/346-ledger/INSTALL.md
+@@ -22,7 +22,7 @@ sha256sum ~/.claude/commands/sc/spec-panel-ledger.md \
+   ~/.claude/skills/sc-review-ledger/scripts/review_ledger.py
+ ```
+ 
+-Record the three `sha256sum` lines in the install watcher. Nothing else in `~/.claude/` changes: `~/.claude/commands/sc/spec-panel.md` stays as it is, and no `superclaude install` runs. Every worker host that runs the ledger steps needs `uv` (every call is `uv run --no-project python "<skill base>/scripts/review_ledger.py" ...`, with `<skill base>` = `~/.claude/skills/sc-review-ledger`).
++Record the three `sha256sum` lines in the install watcher. Nothing else in `~/.claude/` changes: `~/.claude/commands/sc/spec-panel.md` stays as it is, and no `superclaude install` runs. Every worker host needs `uv`: the hosts that run the ledger steps, and also the review and reviser hosts, whose sessions may run `status`, `verdict` and `--dry-run` checks (every call is `uv run --no-project python "<skill base>/scripts/review_ledger.py" ...`, with `<skill base>` = `~/.claude/skills/sc-review-ledger`).
+ 
+ ## The variant's base
+ 

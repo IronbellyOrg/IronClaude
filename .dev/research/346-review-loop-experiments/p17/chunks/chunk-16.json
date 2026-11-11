@@ -1,0 +1,171 @@
+{
+ "chunk": 16,
+ "name": "misc",
+ "findings": [
+  {
+   "gid": 149,
+   "kind": "audit",
+   "arm": "ab2",
+   "run": "b2-r6",
+   "step": "aud",
+   "fid": "R-1",
+   "final_spec_of_this_audit": "p12/ab2/runs/b2-r6/aud/ws/.dev/orca-command-refactor/review/.dev/orca-command-refactor/specs/orca-worker-contract-spec.md",
+   "heading": "",
+   "body": ""
+  },
+  {
+   "gid": 198,
+   "kind": "audit",
+   "arm": "ab3",
+   "run": "b3-r2",
+   "step": "aud2",
+   "fid": "C5",
+   "final_spec_of_this_audit": "p12/ab3/runs/b3-r2/aud2/ws/.dev/orca-command-refactor/review/.dev/orca-command-refactor/specs/orca-worker-contract-spec.md",
+   "heading": "",
+   "body": ""
+  },
+  {
+   "gid": 229,
+   "kind": "audit",
+   "arm": "ab3h",
+   "run": "b3h-r2",
+   "step": "aud2",
+   "fid": "B1",
+   "final_spec_of_this_audit": "p12/ab3/runs/b3h-r2/aud2/ws/.dev/orca-command-refactor/review/.dev/orca-command-refactor/specs/orca-worker-contract-spec.md",
+   "heading": "",
+   "body": ""
+  },
+  {
+   "gid": 230,
+   "kind": "audit",
+   "arm": "ab3h",
+   "run": "b3h-r2",
+   "step": "aud2",
+   "fid": "B2",
+   "final_spec_of_this_audit": "p12/ab3/runs/b3h-r2/aud2/ws/.dev/orca-command-refactor/review/.dev/orca-command-refactor/specs/orca-worker-contract-spec.md",
+   "heading": "",
+   "body": ""
+  },
+  {
+   "gid": 283,
+   "kind": "audit",
+   "arm": "pn1",
+   "run": "b1-r6",
+   "step": "aud2",
+   "fid": "F-1",
+   "final_spec_of_this_audit": "p13/ab1/runs/b1-r6/aud2/ws/.dev/orca-command-refactor/review/.dev/orca-command-refactor/specs/orca-worker-contract-spec.md",
+   "heading": "",
+   "body": ""
+  },
+  {
+   "gid": 324,
+   "kind": "audit",
+   "arm": "base-fresh",
+   "run": "a3d-r4",
+   "step": "aud",
+   "fid": "B1",
+   "final_spec_of_this_audit": "p16/base-drift/runs/a3d-r4/aud/ws/.dev/orca-command-refactor/review/.dev/orca-command-refactor/specs/orca-worker-contract-spec.md",
+   "heading": "",
+   "body": ""
+  },
+  {
+   "gid": 325,
+   "kind": "audit",
+   "arm": "base-fresh",
+   "run": "a3d-r4",
+   "step": "aud",
+   "fid": "B2",
+   "final_spec_of_this_audit": "p16/base-drift/runs/a3d-r4/aud/ws/.dev/orca-command-refactor/review/.dev/orca-command-refactor/specs/orca-worker-contract-spec.md",
+   "heading": "",
+   "body": ""
+  },
+  {
+   "gid": 466,
+   "kind": "audit",
+   "arm": "haiku-base",
+   "run": "a3-r2",
+   "step": "aud",
+   "fid": "AUD-01",
+   "final_spec_of_this_audit": "p14/haiku-baseline/runs/a3-r2/aud/ws/.dev/orca-command-refactor/review/.dev/orca-command-refactor/specs/orca-worker-contract-spec.md",
+   "heading": "",
+   "body": ""
+  },
+  {
+   "gid": 467,
+   "kind": "audit",
+   "arm": "haiku-base",
+   "run": "a3-r2",
+   "step": "aud",
+   "fid": "AUD-02",
+   "final_spec_of_this_audit": "p14/haiku-baseline/runs/a3-r2/aud/ws/.dev/orca-command-refactor/review/.dev/orca-command-refactor/specs/orca-worker-contract-spec.md",
+   "heading": "",
+   "body": ""
+  },
+  {
+   "gid": 468,
+   "kind": "audit",
+   "arm": "haiku-base",
+   "run": "a3-r2",
+   "step": "aud",
+   "fid": "AUD-03",
+   "final_spec_of_this_audit": "p14/haiku-baseline/runs/a3-r2/aud/ws/.dev/orca-command-refactor/review/.dev/orca-command-refactor/specs/orca-worker-contract-spec.md",
+   "heading": "",
+   "body": ""
+  },
+  {
+   "gid": 59,
+   "kind": "first",
+   "arm": "ab1",
+   "run": "b1-r5",
+   "step": "r1b",
+   "fid": "F1",
+   "final_spec_of_this_audit": "",
+   "heading": "### F1 - CRITICAL (blocking) - Wiegers, Adzic, Cockburn",
+   "body": ""
+  },
+  {
+   "gid": 266,
+   "kind": "first",
+   "arm": "pn1",
+   "run": "b1-r3",
+   "step": "r1",
+   "fid": "L7",
+   "final_spec_of_this_audit": "",
+   "heading": "### L7",
+   "body": "\n#### L7.t2-1 (F1)\n\n- claim: Following step 3 with its 900000 ms timeout leaves 15 minutes between worker-show observations, which step 2 forbids.\n- anchor: \"ORCA orchestration check --wait --types \\\"worker_done,escalation,question\\\" --timeout-ms 900000 --json\"\n- anchor2: \"at least once per 5 minutes\"\n"
+  },
+  {
+   "gid": 279,
+   "kind": "first",
+   "arm": "pn1",
+   "run": "b1-r5",
+   "step": "r1",
+   "fid": "L16",
+   "final_spec_of_this_audit": "",
+   "heading": "### L16",
+   "body": "\n#### L16.t3-2 (F3)\n\n- claim: Section 1.4 says PR #329 is the only end-to-end proof and no direct-route run was observed, while E3 cites a skill-direct worker contract.\n- anchor: \"The only end-to-end proof is the PR #329 run\"\n- anchor2: \"invocation_method: \\\"skill-direct\\\"\"\n"
+  },
+  {
+   "gid": 354,
+   "kind": "first",
+   "arm": "ab4",
+   "run": "d4-r2",
+   "step": "r1a",
+   "fid": "M1",
+   "final_spec_of_this_audit": "",
+   "heading": "",
+   "body": ""
+  },
+  {
+   "gid": 355,
+   "kind": "first",
+   "arm": "ab4",
+   "run": "d4-r2",
+   "step": "r1a",
+   "fid": "M12",
+   "final_spec_of_this_audit": "",
+   "heading": "",
+   "body": ""
+  }
+ ]
+}

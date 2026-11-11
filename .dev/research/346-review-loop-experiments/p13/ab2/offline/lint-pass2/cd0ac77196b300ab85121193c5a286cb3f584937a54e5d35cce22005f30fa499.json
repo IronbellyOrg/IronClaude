@@ -1,0 +1,84 @@
+{
+  "schema": "review-lint/1",
+  "doc_sha256": "cd0ac77196b300ab85121193c5a286cb3f584937a54e5d35cce22005f30fa499",
+  "doc_bytes": 47982,
+  "checks": [
+    "REF",
+    "COUNT",
+    "KV",
+    "PHASE",
+    "PATH",
+    "RFC"
+  ],
+  "findings": [
+    {
+      "lint_id": "LINT-REF-1",
+      "check": "REF",
+      "class": "fact",
+      "lines": [
+        286,
+        286
+      ],
+      "quote": "6. Requirements use FR-001/NFR-001 ID numbering with priority and acceptance criteria",
+      "other_lines": null,
+      "message": "FR-001 is referenced but never defined (2 references)."
+    },
+    {
+      "lint_id": "LINT-REF-2",
+      "check": "REF",
+      "class": "fact",
+      "lines": [
+        286,
+        286
+      ],
+      "quote": "6. Requirements use FR-001/NFR-001 ID numbering with priority and acceptance criteria",
+      "other_lines": null,
+      "message": "NFR-001 is referenced but never defined (2 references)."
+    },
+    {
+      "lint_id": "LINT-REF-3",
+      "check": "REF",
+      "class": "fact",
+      "lines": [
+        289,
+        289
+      ],
+      "quote": "9. Stale documentation discrepancies surfaced in Open Questions (Section 22)",
+      "other_lines": null,
+      "message": "Section 22 is referenced but no heading has that number."
+    },
+    {
+      "lint_id": "LINT-REF-4",
+      "check": "REF",
+      "class": "fact",
+      "lines": [
+        317,
+        317
+      ],
+      "quote": "9. Alternative 0: Do Nothing is present in Alternatives Considered (Section 21)",
+      "other_lines": null,
+      "message": "Section 21 is referenced but no heading has that number."
+    },
+    {
+      "lint_id": "LINT-REF-5",
+      "check": "REF",
+      "class": "fact",
+      "lines": [
+        560,
+        560
+      ],
+      "quote": "Commit locally first. Run `/security-review` only if login, permissions, secrets, user input, or file paths changed. Push only after your lead approves, then run `/sc:pr-submit`. It fixes the confi...",
+      "other_lines": null,
+      "message": "Section 3.11 is referenced but no heading has that number."
+    }
+  ],
+  "census": {
+    "rfc2119": {},
+    "rfc2119_total": {
+      "MUST": 0,
+      "SHALL": 0,
+      "SHOULD": 0,
+      "MAY": 0
+    }
+  }
+}

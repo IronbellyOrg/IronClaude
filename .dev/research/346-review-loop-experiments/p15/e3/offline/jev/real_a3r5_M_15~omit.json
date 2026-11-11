@@ -1,0 +1,28 @@
+{
+ "case_id": "real_a3r5_M_15~omit",
+ "code_outcome": "OK",
+ "decision": "VERIFIER",
+ "qset_version": "e3-q1",
+ "result": {
+  "answers": {
+   "evidence_sufficient": {
+    "p": 0.07,
+    "type": "noul"
+   },
+   "outcome_follows": {
+    "p": 0.41,
+    "type": "noul"
+   }
+  },
+  "attempts": 1,
+  "error": null,
+  "latency_ms": 170,
+  "model": "jev-1.14.0",
+  "request_sha256": "ee1b9afb964bf443dbc0e5ec9594fc4ea712df195fd82d4d30da08b2493a3b88",
+  "status": "ok",
+  "usage": {
+   "input_tokens": 1711,
+   "output_tokens": 46
+  }
+ }
+}

@@ -1,0 +1,17 @@
+{
+ "finding": {
+  "title": "The summary line is not specified",
+  "wrong_outcome": "an implementer who follows the stated text as written builds the purge job to write one line saying the job ran (`writes a summary line to the audit log`, S:17), and that is wrong because the line may need counts of deleted rows."
+ },
+ "evidence": {
+  "e1": {
+   "text": "writes a summary line to the audit log",
+   "line": 17,
+   "context": "R6. When a user deletes the account, account data is removed within 30 days.\nR7. Deleted account data may remain in backups until the backups expire under R5.\nR8. A legal hold suspends deletion for the data it names until the hold is lifted.\nR9. The nightly purge job runs at 02:00 UTC and writes a summary line to the audit log.\nR10. Closed support tickets are deleted one year after closing.\n\n## 4. Exports"
+  }
+ },
+ "facts": {
+  "quotes_found_verbatim": true,
+  "evidence_count": 1
+ }
+}

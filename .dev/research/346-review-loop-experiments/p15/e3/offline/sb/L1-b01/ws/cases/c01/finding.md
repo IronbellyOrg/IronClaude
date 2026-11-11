@@ -1,0 +1,6 @@
+**F-06** MAJOR label, graded **Medium**. Expert: Wiegers (state assumptions), Nygard.
+- Issue: the tasklist row is accepted on an unverified nesting assumption, and one of its stops has no resolution.
+- Grading sentence: An implementer who follows the tasklist row (spec:122: "none" beyond passing `--unattended` to each reflect) builds Stage 10.5 as it is today with reflect headless, and that is wrong if nested spawning does not work or if reflect's `needs_human_decision` HALT (INV-B:209) is reached; the first depends on facts INV-B:210 and INV-B:322 mark UNVERIFIED and the second on a stop the row never names, so the grade needs a guess.
+- The row states the fan-out "runs one layer below the worker, inside Claude Code's nesting limit, `INV-A:14`", while INV-B:215 recommends running the per-phase reflect at the worker's top level, and the Decisions row (spec:268) says nothing read contradicts a verdict. Under the headless rule remediation is auto-accepted (INV-B:109), so a tasklist worker would also run corrective hand-offs; the row does not say so.
+- Recommendation: list the HALT as a blocked resolution, and cite why the INV-B recommendation was not followed.
+- Priority: Medium. Quality impact: Completeness +1.

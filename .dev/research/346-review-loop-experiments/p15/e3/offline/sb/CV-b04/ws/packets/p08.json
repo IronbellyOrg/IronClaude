@@ -1,0 +1,22 @@
+{
+ "finding": {
+  "title": "Incremental backups run every other day and every day",
+  "wrong_outcome": "an implementer who follows the stated text as written builds a scheduler that runs an incremental backup on Monday, skips Tuesday (`An incremental backup runs every other day at 01:00 UTC.`, S:5) and runs on Tuesday as well (`Incremental backups run every day at 01:00 UTC.`, S:25). Tuesday's job must run and not run, so the schedule test cannot pass."
+ },
+ "evidence": {
+  "e1": {
+   "text": "An incremental backup runs every other day at 01:00 UTC.",
+   "line": 5,
+   "context": "\n## 1. Schedule\nR1. A full backup runs every Sunday at 01:00 UTC.\nR2. An incremental backup runs every other day at 01:00 UTC.\nR3. A backup job that is still running when the next one is due makes the next one wait until it finishes.\n\n## 2. Storage"
+  },
+  "e2": {
+   "text": "Incremental backups run every day at 01:00 UTC.",
+   "line": 25,
+   "context": "## 5. Restore\nR12. A restore overwrites the production database with the selected backup after one confirmation click.\nR13. The confirmation click is the only check before a restore starts.\nR14. Incremental backups run every day at 01:00 UTC.\n\n## 6. Notes\nThe production database is a single primary with one standby. Backups are taken from the standby so that the primary is not slowed down."
+  }
+ },
+ "facts": {
+  "quotes_found_verbatim": true,
+  "evidence_count": 2
+ }
+}

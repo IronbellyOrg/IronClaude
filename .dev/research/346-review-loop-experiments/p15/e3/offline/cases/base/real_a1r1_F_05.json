@@ -1,0 +1,29 @@
+{
+ "author_intent": {
+  "reviewer": "sonnet-or-panel",
+  "reviewer_blocking": true,
+  "run": "a1-r1"
+ },
+ "case_id": "real_a1r1_F_05",
+ "category": "real",
+ "data_classes": [
+  "s1_spec",
+  "stage2_artifact"
+ ],
+ "family": "s1_first_review",
+ "group": "D5",
+ "packet": {
+  "candidate_sha": "d3cdbe573e57303b9ce6c93d1fe98ba18fb7cb1a15773d926bf6a0c31425200d",
+  "finding_id": "F-05",
+  "finding_section": "**F-05 (MAJOR, blocking; FR-8 from guard G2). Sam Newman: the fixed status vocabulary was never checked against the contracts that already exist.**\n- Issue: WC-4 fixes `status` to `succeeded|partial|failed|blocked` and says commands that already write a contract \"keep their fields and add the missing ones\" (SPEC:62); the Decisions row chooses the fixed set over each command's own statuses (SPEC:262). The existing writers are workflow (contract 1.1, INV-B:272), reflect (INV-B:112), brainstorm (INV-A:39), adversarial (INV-A:35, INV-A:60) and, for `--caller task-unified`, troubleshoot (INV-B:242). Their `status` values are not listed anywhere in the spec or the inventories; the spec re-read only their locations (SPEC:11). Step 4 of 7.2 asserts the four values for every command (SPEC:183).\n- Concrete scenario: if workflow or adversarial emits a different value, the live check fails; renaming it breaks the commands that consume those contracts (adversarial's contract is \"returned when invoked by another command\", INV-A:60), contrary to SA-1 and SA-4 (SPEC:146, SPEC:149). Which vocabularies exist is UNVERIFIED (sources not in the sandbox). Also unspecified: a report file that exists but is empty or does not parse (guard G2 row 1); WC-5 covers only \"no report exists\" (SPEC:63).\n- Recommendation: add a short inventory of existing `status` vocabularies and either map them or add a separate `worker_status` field; add a rule for empty or unparseable reports (treated as no report, outcome failed). Priority: High."
+ },
+ "source": {
+  "kind": "stage2",
+  "paths": [
+   "p11/runs/a1-r1/ws/.dev/orca-command-refactor/review/spec-panel.md"
+  ],
+  "url": null
+ },
+ "split": "base",
+ "variant": "base"
+}

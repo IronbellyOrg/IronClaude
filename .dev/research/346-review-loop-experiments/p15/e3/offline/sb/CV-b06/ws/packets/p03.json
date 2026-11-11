@@ -1,0 +1,17 @@
+{
+ "evidence": {
+  "e1": {
+   "context": "| SA-6 | The existing headless rule of `/sc:reflect` under `claude --print` keeps working exactly as today; `--unattended` reuses it and does not replace it. | The reflect wrapper depends on it. | `sk/sc-reflect-protocol/refs/remediation-handoff.md:239-247`; `sk/sc-reflect-protocol/SKILL.md:320-322` |\n\n## 6. Phased rollout\nEach phase is independently useful and leaves standalone behaviour unchanged (section 5). Later phases do not start until the earlier phase's checks in section 7 pass. Phases 1-3 need no user decision; Phase 4 waits for answers to D2-D4.\n\n| Phase | Scope | Commands | Why this order |\n|---|---|---|---|",
+   "line": 154,
+   "text": "Phases 1-3 need no user decision"
+  }
+ },
+ "facts": {
+  "evidence_count": 1,
+  "quotes_found_verbatim": true
+ },
+ "finding": {
+  "title": "\"Phases 1-3 need no user decision\" (`spec:154`) sits next to D4, which lists auggie-review `--post-pr` and task `commit`/`push`, both P2 rows (`spec:244`, `spec:100`, `spec:121`). `spec:225` says P0-P3 may proceed on the recommendations, so the two lines can be read together.",
+  "wrong_outcome": "\"Phases 1-3 need no user decision\" (`spec:154`) sits next to D4, which lists auggie-review `--post-pr` and task `commit`/`push`, both P2 rows (`spec:244`, `spec:100`, `spec:121`). `spec:225` says P0-P3 may proceed on the recommendations, so the two lines can be read together. Reviewer note: this finding is confirmed blocking; confirm it."
+ }
+}

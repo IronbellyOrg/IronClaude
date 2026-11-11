@@ -1,0 +1,22 @@
+{
+ "evidence": {
+  "e1": {
+   "context": "## 2. Charges\nR1. A charge is created in state pending and moves to captured only after the card network confirms the authorization.\nR2. A captured charge is never modified; a correction is made by a new refund entry.\nR3. The service retries a failed capture up to 3 times, with 10 minutes between attempts.\nR4. After the third failed attempt the charge moves to state failed and the customer is notified by email.\n\n## 3. Refunds",
+   "line": 9,
+   "text": "The service retries a failed capture up to 3 times, with 10 minutes between attempts."
+  },
+  "e2": {
+   "context": "R1. A charge is created in state pending and moves to captured only after the card network confirms the authorization.\nR2. A captured charge is never modified; a correction is made by a new refund entry.\nR3. The service retries a failed capture up to 3 times, with 10 minutes between attempts.\nR4. After the third failed attempt the charge moves to state failed and the customer is notified by email.\n\n## 3. Refunds\nR5. A refund may be issued for any captured charge within 90 days of the capture date.",
+   "line": 10,
+   "text": "After the third failed attempt the charge moves to state failed"
+  }
+ },
+ "facts": {
+  "evidence_count": 2,
+  "quotes_found_verbatim": true
+ },
+ "finding": {
+  "title": "Retries and the failed state disagree",
+  "wrong_outcome": "an implementer who follows the stated text as written builds a service that marks the charge failed after the first failed capture, because `After the third failed attempt the charge moves to state failed` (S:10) is read next to `The service retries a failed capture up to 3 times, with 10 minutes between attempts.` (S:9), and the charge is wrong because the retries never run."
+ }
+}

@@ -1,0 +1,302 @@
+[
+ {
+  "label_id": "L02",
+  "spec_path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p17/score/in/s91.md",
+  "check": {
+   "id": "7.2#3",
+   "phase": "7.2",
+   "text": "`ORCA orchestration check --wait --types \"worker_done,escalation,question\" --timeout-ms 900000 --json` until `worker_done` arrives.",
+   "pass_condition": "exactly one `worker_done`; its `--outcome` matches the contract's `status` under WC-5 (in P0, with no contract, `failed` when the command's existing report file named in 3.1 is missing or empty, else `succeeded`); its report path is the contract path (from P1) or, in P0, the command's existing report file named in 3.1."
+  },
+  "cited": [
+   {
+    "id": "WC-5",
+    "text": "Outcome mapping. The worker sends `worker_done` exactly once from its own top-level session. `--outcome failed` when the report says `failed` or `blocked`, or no report exists, or it is empty, unparseable or has a `status` outside the four values; `--outcome succeeded` for `succeeded` and `partial`. A `verdict: FAIL` does not make the run failed (the audit ran) and is carried in the contract's `verdict` field, not only in prose. The first sentence of the body states the report's status and verdict."
+   }
+  ],
+  "code_stage": {
+   "lint_widened_ref_path_phase": "no finding on this row",
+   "pitfall_regexes_d20_d21": "no match",
+   "scratch_execution": "ORCA orchestration check --wait --types \"worker_done,escalation,question\" --timeout-ms 900000 --json: not executed: command `ORCA` is not run offline"
+  }
+ },
+ {
+  "label_id": "L05",
+  "spec_path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p17/in/spec-original.md",
+  "check": {
+   "id": "AC-3.2",
+   "phase": "P3",
+   "text": "`/sc:roadmap <spec> --unattended --output <dir>` with an existing `<dir>/.session-memory.md` and no resume flag",
+   "pass_condition": "starts fresh, no `[Y/n]` in the transcript, contract written"
+  },
+  "cited": [],
+  "code_stage": {
+   "lint_widened_ref_path_phase": "no finding on this row",
+   "pitfall_regexes_d20_d21": "no match",
+   "scratch_execution": "the row has no shell command to run"
+  }
+ },
+ {
+  "label_id": "L08",
+  "spec_path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p17/in/spec-original.md",
+  "check": {
+   "id": "AC-2.5",
+   "phase": "P2",
+   "text": "A person runs `/sc:cli-eval run` and `/sc:cleanup <dir> --interactive` in a plain session (manual check)",
+   "pass_condition": "the suite menu and the approval prompts appear exactly as before (SA-1)"
+  },
+  "cited": [
+   {
+    "id": "SA-1",
+    "text": "Without `--unattended`, every prompt, approval gate, default flag value, output path and outward default stays as it is today, including the auggie-review PR posting default and every `AskUserQuestion`."
+   }
+  ],
+  "code_stage": {
+   "lint_widened_ref_path_phase": "no finding on this row",
+   "pitfall_regexes_d20_d21": "no match",
+   "scratch_execution": "the row has no shell command to run"
+  }
+ },
+ {
+  "label_id": "L11",
+  "spec_path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p17/in/spec-original.md",
+  "check": {
+   "id": "7.2#6",
+   "phase": "7.2",
+   "text": "`git status --short`.",
+   "pass_condition": "only files under the brief's output directory (and the command's documented artifacts) appear."
+  },
+  "cited": [],
+  "code_stage": {
+   "lint_widened_ref_path_phase": "no finding on this row",
+   "pitfall_regexes_d20_d21": "no match",
+   "scratch_execution": "git status --short: clean fixture: exit 0, stdout empty"
+  }
+ },
+ {
+  "label_id": "L14",
+  "spec_path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p17/score/in/s92.md",
+  "check": {
+   "id": "AC-2.3",
+   "phase": "P2",
+   "text": "Happy-path run per P2 command with every required flag in the brief, except cli-portify and review-translation, whose gates only block (L1)",
+   "pass_condition": "7.2 passes with `--outcome succeeded`"
+  },
+  "cited": [],
+  "code_stage": {
+   "lint_widened_ref_path_phase": "no finding on this row",
+   "pitfall_regexes_d20_d21": "no match",
+   "scratch_execution": "the row has no shell command to run"
+  }
+ },
+ {
+  "label_id": "L17",
+  "spec_path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p17/score/in/s77.md",
+  "check": {
+   "id": "AC-1.4",
+   "phase": "P1",
+   "text": "`grep -n 'return-contract.yaml' src/superclaude/skills/sc-adversarial-protocol/SKILL.md` and the workflow return-contract ref",
+   "pass_condition": "adversarial names `<output>/return-contract.yaml`; workflow writes `<output>/return-contract.yaml` on every outcome, pre-creation STOPs included (M1, M8)"
+  },
+  "cited": [],
+  "code_stage": {
+   "lint_widened_ref_path_phase": "no finding on this row",
+   "pitfall_regexes_d20_d21": "no match",
+   "scratch_execution": "grep -n 'return-contract.yaml' src/superclaude/skills/sc-adversarial-protocol/SKILL.md: clean fixture: exit 2, stdout empty"
+  }
+ },
+ {
+  "label_id": "L20",
+  "spec_path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p17/score/in/s73.md",
+  "check": {
+   "id": "AC-3.5",
+   "phase": "P3",
+   "text": "7.2 live check on each P3 command with `--unattended` and an output directory per WC-4",
+   "pass_condition": "all steps pass"
+  },
+  "cited": [
+   {
+    "id": "WC-4",
+    "text": "One report file, known before dispatch, written on every outcome. In unattended mode the command writes `<output-dir>/return-contract.yaml`, where `<output-dir>` is the directory the coordinator passed in the brief: `--output-dir`, a directory-valued `--output`, or the directory that holds a file-valued `--output`, which no other worker may use (WC-11); a command with none of these gains `--output-dir` in the phase of its row. If the brief carries no output location the path cannot be formed: the command writes no file, ends with the question or error in chat, and the worker puts it in the `w\u2026"
+   }
+  ],
+  "code_stage": {
+   "lint_widened_ref_path_phase": "no finding on this row",
+   "pitfall_regexes_d20_d21": "no match",
+   "scratch_execution": "the row has no shell command to run"
+  }
+ },
+ {
+  "label_id": "L23",
+  "spec_path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p17/score/in/s91.md",
+  "check": {
+   "id": "AC-C1",
+   "phase": "C",
+   "text": "`grep -rnE --exclude-dir=ccsession-tag -e '\\borca(-ide)?[[:space:]]+orchestration' -e '\\borca(-ide)?[[:space:]]+worktree' -e '\\borca(-ide)?[[:space:]]+terminal' -e '\\borca(-ide)?[[:space:]]+agent' src/superclaude/commands src/superclaude/skills src/superclaude/agents`",
+   "pass_condition": "prints nothing (SA-2, WC-8)"
+  },
+  "cited": [
+   {
+    "id": "SA-2",
+    "text": "No command, skill or agent file runs an `orca` or `orca-ide` command, and none requires Orca to be installed or running. The contract file and the routing guide's Orca section (P0, both in `src/superclaude/core/`) are coordinator-side documents and may name Orca commands."
+   },
+   {
+    "id": "WC-8",
+    "text": "No Orca fan-out from inside a command. A command never calls `worker-start`, `dispatch` or `task-create`. Fan-out that needs Orca records is split into separate Tasks by the coordinator."
+   }
+  ],
+  "code_stage": {
+   "lint_widened_ref_path_phase": "no finding on this row",
+   "pitfall_regexes_d20_d21": "no match",
+   "scratch_execution": "grep -rnE --exclude-dir=ccsession-tag -e '\\borca(-ide)?[[:space:]]+orchestration' -e '\\borca(-ide)?[[:space:]]+worktree' -e '\\borca(-ide)?[[:space:]]+terminal'\u2026"
+  }
+ },
+ {
+  "label_id": "L26",
+  "spec_path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p17/score/in/s62.md",
+  "check": {
+   "id": "AC-C1",
+   "phase": "C",
+   "text": "`grep -rnE -e '\\borca(-ide)?[[:space:]]+orchestration\\b' -e '\\borca(-ide)?[[:space:]]+worktree\\b' -e '\\borca(-ide)?[[:space:]]+terminal\\b' -e '\\borca(-ide)?[[:space:]]+agent\\b' --exclude-dir=ccsession-tag --exclude=WORKER-CONTRACT.md --exclude=HOW-WE-WORK.md src/superclaude/commands src/superclaude/skills src/superclaude/agents src/superclaude/core`",
+   "pass_condition": "prints nothing (SA-2, WC-8)"
+  },
+  "cited": [
+   {
+    "id": "SA-2",
+    "text": "No command, skill or agent file runs an `orca` or `orca-ide` command, and none requires Orca to be installed or running. The only `src/superclaude/` files that may show an `orca` command line are `core/WORKER-CONTRACT.md` and the Orca section of `core/HOW-WE-WORK.md` (AC-C1 excludes that file whole; AC-0.3 guards its existing rows), as examples of a caller's channel."
+   },
+   {
+    "id": "WC-8",
+    "text": "No Orca fan-out from inside a command. A command never calls `worker-start`, `dispatch` or `task-create`. Fan-out that needs Orca records is split into separate Tasks by the coordinator."
+   }
+  ],
+  "code_stage": {
+   "lint_widened_ref_path_phase": "no finding on this row",
+   "pitfall_regexes_d20_d21": "no match",
+   "scratch_execution": "grep -rnE -e '\\borca(-ide)?[[:space:]]+orchestration\\b' -e '\\borca(-ide)?[[:space:]]+worktree\\b' -e '\\borca(-ide)?[[:space:]]+terminal\\b' -e '\\borca(-ide)?[[:s\u2026"
+  }
+ },
+ {
+  "label_id": "L29",
+  "spec_path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p17/score/in/s75.md",
+  "check": {
+   "id": "AC-2.5",
+   "phase": "P2",
+   "text": "A person runs `/sc:cli-eval run`, `/sc:cleanup <dir> --interactive` and `/sc:auggie-review <PR>` (scratch fork PR, AC-2.4 counts before and after) in a plain session (manual check)",
+   "pass_condition": "the suite menu and the approval prompts appear exactly as before, and the auggie-review counts rise as they do today (SA-1)"
+  },
+  "cited": [
+   {
+    "id": "AC-2.4",
+    "text": "`/sc:auggie-review <PR> --unattended` on a fork PR; before and after, `gh api repos/<fork-repo>/pulls/<PR>/reviews --jq length` and `.../pulls/<PR>/comments --jq length` => both counts unchanged (WC-9)"
+   },
+   {
+    "id": "SA-1",
+    "text": "Without `--unattended`, every prompt, approval gate, default flag value, output path and outward default stays as it is today, including the auggie-review PR posting default and every `AskUserQuestion`."
+   }
+  ],
+  "code_stage": {
+   "lint_widened_ref_path_phase": "no finding on this row",
+   "pitfall_regexes_d20_d21": "no match",
+   "scratch_execution": "the row has no shell command to run"
+  }
+ },
+ {
+  "label_id": "L32",
+  "spec_path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p17/score/in/s88.md",
+  "check": {
+   "id": "7.2#6",
+   "phase": "7.2",
+   "text": "`git status --short`.",
+   "pass_condition": "only files under the brief's output directory (and the command's documented artifacts, or the target files the brief names for a command that edits source) appear."
+  },
+  "cited": [],
+  "code_stage": {
+   "lint_widened_ref_path_phase": "no finding on this row",
+   "pitfall_regexes_d20_d21": "no match",
+   "scratch_execution": "git status --short: clean fixture: exit 0, stdout empty"
+  }
+ },
+ {
+  "label_id": "L35",
+  "spec_path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p17/score/in/s25.md",
+  "check": {
+   "id": "7.2#6",
+   "phase": "7.2",
+   "text": "`git status --short` (single-worker run, no other edit in the worktree).",
+   "pass_condition": "only files under the brief's output directory (and the command's documented artifacts) appear."
+  },
+  "cited": [],
+  "code_stage": {
+   "lint_widened_ref_path_phase": "no finding on this row",
+   "pitfall_regexes_d20_d21": "no match",
+   "scratch_execution": "git status --short: clean fixture: exit 0, stdout empty"
+  }
+ },
+ {
+  "label_id": "L38",
+  "spec_path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p17/score/in/s93.md",
+  "check": {
+   "id": "AC-0.4",
+   "phase": "P0",
+   "text": "7.2 live check on `/sc:troubleshoot \"<real symptom>\"`, `/sc:workflow \"<small change>\" --handoff none`, `/sc:adversarial --compare <two files> --depth quick --output <dir>`, each run directly by the worker (no Agent-tool wrapper, verified in the step-5 transcript)",
+   "pass_condition": "steps 1, 2 and 5-7 pass; in step 3 the report path is the command's existing report file and `--outcome succeeded` is expected when that file exists and is non-empty (neither `--unattended` nor the contract exists before P1); step 4 is skipped. Record the results in the phase report; a failure here reopens section 1"
+  },
+  "cited": [
+   {
+    "id": "7.2#3",
+    "text": "`ORCA orchestration check --wait --types \"worker_done,escalation,question\" --timeout-ms 900000 --json` until `worker_done` arrives. => exactly one `worker_done`; its `--outcome` matches the contract's `status` under WC-5; its report path is the `<report-dir>/return-contract.yaml` named in the brief."
+   },
+   {
+    "id": "7.2#4",
+    "text": "`test -s <contract>` and `uv run python -c \"import sys, yaml; d = yaml.safe_load(open(sys.argv[1])); assert d['status'] in {'succeeded','partial','failed','blocked'}; assert d['command']\" <contract>` (PyYAML is a declared dependency, `pyproject.toml:38`). => both exit 0."
+   }
+  ],
+  "code_stage": {
+   "lint_widened_ref_path_phase": "no finding on this row",
+   "pitfall_regexes_d20_d21": "no match",
+   "scratch_execution": "the row has no shell command to run"
+  }
+ },
+ {
+  "label_id": "L41",
+  "spec_path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p17/score/in/s84.md",
+  "check": {
+   "id": "AC-C1",
+   "phase": "C",
+   "text": "`grep -rnE '\\borca(-ide)?[[:space:]]+[a-z]' --exclude-dir=ccsession-tag src/superclaude/commands src/superclaude/skills src/superclaude/agents src/superclaude/core/WORKER-CONTRACT.md`",
+   "pass_condition": "prints nothing (SA-2, WC-8); the routing guide's Orca section is outside the scan on purpose [L4]"
+  },
+  "cited": [
+   {
+    "id": "SA-2",
+    "text": "No command, skill or agent file runs an `orca` or `orca-ide` command, and none requires Orca to be installed or running. `src/superclaude/core/WORKER-CONTRACT.md` names no Orca command either. The routing guide's Orca section (SA-5, P0) addresses the coordinator and is the only core text that may [L4]."
+   },
+   {
+    "id": "WC-8",
+    "text": "No Orca fan-out from inside a command. A command never calls `worker-start`, `dispatch` or `task-create`. Fan-out that needs Orca records is split into separate Tasks by the coordinator."
+   }
+  ],
+  "code_stage": {
+   "lint_widened_ref_path_phase": "no finding on this row",
+   "pitfall_regexes_d20_d21": "no match",
+   "scratch_execution": "grep -rnE '\\borca(-ide)?[[:space:]]+[a-z]' --exclude-dir=ccsession-tag src/superclaude/commands src/superclaude/skills src/superclaude/agents src/superclaude/c\u2026"
+  }
+ },
+ {
+  "label_id": "L44",
+  "spec_path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p17/score/in/s89.md",
+  "check": {
+   "id": "7.2#6",
+   "phase": "7.2",
+   "text": "`git status --short`, with no other worker active in the worktree (L1).",
+   "pass_condition": "only files under the brief's output directory (and the command's documented artifacts) appear."
+  },
+  "cited": [],
+  "code_stage": {
+   "lint_widened_ref_path_phase": "no finding on this row",
+   "pitfall_regexes_d20_d21": "no match",
+   "scratch_execution": "git status --short: clean fixture: exit 0, stdout empty"
+  }
+ }
+]

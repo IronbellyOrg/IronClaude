@@ -1,0 +1,540 @@
+{
+ "run": "b1h-r1",
+ "design": "b1",
+ "rep": 1,
+ "stratum": "haiku",
+ "loop_model": "haiku",
+ "product_ref": "44f37e16d335a322e618b24c16ba387ffdfb47a1",
+ "cmd_sha": "e62e70b98e878cb4b60ba8f95f1cc3442a25e815828a3ef3d17a95b65ea97494",
+ "rules_sha": "ed219181156e47e6d70120730063e0b00081482d8a78b3d2633da188574ca829",
+ "done": [
+  "R1a",
+  "R1b",
+  "R1c",
+  "VF1",
+  "V1",
+  "R2",
+  "VF2",
+  "V2",
+  "R3",
+  "VF3",
+  "AUD2",
+  "AUD"
+ ],
+ "prepared": [
+  "R1a",
+  "R1b",
+  "R1c",
+  "VF1",
+  "V1",
+  "R2",
+  "VF2",
+  "V2",
+  "R3",
+  "VF3",
+  "AUD",
+  "AUD2"
+ ],
+ "transitioned": [
+  "R1a",
+  "R1b",
+  "R1c",
+  "VF1",
+  "V1",
+  "R2",
+  "VF2",
+  "V2",
+  "R3",
+  "VF3",
+  "AUD2",
+  "AUD"
+ ],
+ "log": {
+  "R1a": {
+   "output_exists": true,
+   "report_bytes": 20599,
+   "verdict": "FAIL",
+   "review_header": [
+    "1"
+   ],
+   "labels": {
+    "CRITICAL": 1
+   },
+   "blocking_ids": "B1, B2, B3, B4",
+   "blocking_word_count": 6,
+   "output_tokens": 81337
+  },
+  "R1b": {
+   "output_exists": true,
+   "report_bytes": 24143,
+   "verdict": "FAIL",
+   "review_header": [
+    "1"
+   ],
+   "labels": {
+    "MAJOR": 4
+   },
+   "blocking_ids": "B1, B2, B3, B4, B5",
+   "blocking_word_count": 11,
+   "output_tokens": 78409
+  },
+  "R1c": {
+   "output_exists": true,
+   "report_bytes": 19466,
+   "verdict": "FAIL",
+   "review_header": [
+    "1"
+   ],
+   "labels": {},
+   "blocking_ids": "B1, B2, B3**. Do not start a revision until the VERIFY reply confirms these ids (this report confirms nothing itself)",
+   "blocking_word_count": 11,
+   "output_tokens": 89185
+  },
+  "VF1": {
+   "output_exists": true,
+   "finding_ids": [
+    "M1",
+    "M2",
+    "M3",
+    "M4",
+    "M5",
+    "M6",
+    "M7",
+    "M8",
+    "M9",
+    "M10"
+   ],
+   "report_bytes": 7714,
+   "confirmed": [
+    "M1",
+    "M2",
+    "M3",
+    "M4",
+    "M5",
+    "M6",
+    "M7",
+    "M8",
+    "M9",
+    "M10"
+   ],
+   "rejected": {},
+   "parse_ok": true,
+   "output_tokens": 29066
+  },
+  "V1": {
+   "output_exists": true,
+   "report_bytes": 6696,
+   "spec_after": {
+    "bytes": 59812,
+    "lines": 293,
+    "sha256": "260c7c0ee1cfff6f147fa7f24960981dd4f6f1f953afdeef2b24a0b090d875da"
+   },
+   "output_tokens": 34777
+  },
+  "R2": {
+   "output_exists": true,
+   "report_bytes": 27044,
+   "verdict": "FAIL",
+   "review_header": [
+    "2"
+   ],
+   "labels": {},
+   "blocking_ids": "N1, N2, N3. (All prior blocking ids M1 to M10 are resolved, so none is listed.)",
+   "blocking_word_count": 16,
+   "spec_after": {
+    "bytes": 59812,
+    "lines": 293,
+    "sha256": "260c7c0ee1cfff6f147fa7f24960981dd4f6f1f953afdeef2b24a0b090d875da"
+   },
+   "output_tokens": 52306
+  },
+  "VF2": {
+   "output_exists": true,
+   "finding_ids": [
+    "N1",
+    "N2",
+    "N3"
+   ],
+   "report_bytes": 3316,
+   "confirmed": [
+    "N1",
+    "N2"
+   ],
+   "rejected": {
+    "N3": "Step 6 applies its pass rule only to a \"report-only command\". The candidate never classifies `/sc:workflow` or `/sc:troubleshoot` as report-only. spec:193 names only edit-in-place (cleanup, improve) as the other class, and neither command is placed in it. The failure needs that unstated classification. Also, spec:158 lists `/sc:adversarial --output <dir>` as a smoke run, so the finding's \"P0 smoke runs use no output flag\" is true only for the troubleshoot and workflow runs. The `INV-B:242` default-output claim for troubleshoot is UNVERIFIED here."
+   },
+   "parse_ok": true,
+   "output_tokens": 9667
+  },
+  "V2": {
+   "output_exists": true,
+   "report_bytes": 4459,
+   "spec_after": {
+    "bytes": 60176,
+    "lines": 293,
+    "sha256": "1a2d2f425ac57ef3f2392d0bfdf09996e8bf26606b0e7b94ee731ab5d177867d"
+   },
+   "output_tokens": 11673
+  },
+  "R3": {
+   "output_exists": true,
+   "report_bytes": 19503,
+   "verdict": "FAIL",
+   "review_header": [
+    "3"
+   ],
+   "labels": {},
+   "blocking_ids": null,
+   "blocking_word_count": 15,
+   "spec_after": {
+    "bytes": 60176,
+    "lines": 293,
+    "sha256": "1a2d2f425ac57ef3f2392d0bfdf09996e8bf26606b0e7b94ee731ab5d177867d"
+   },
+   "output_tokens": 45038
+  },
+  "VF3": {
+   "output_exists": true,
+   "finding_ids": [
+    "N2",
+    "N4"
+   ],
+   "report_bytes": 2757,
+   "confirmed": [
+    "N2",
+    "N4"
+   ],
+   "rejected": {},
+   "parse_ok": true,
+   "output_tokens": 9648
+  },
+  "AUD2": {
+   "output_exists": true,
+   "report_bytes": 12835,
+   "verdict": "FAIL",
+   "review_header": [
+    "1"
+   ],
+   "labels": {
+    "CRITICAL": 1,
+    "MAJOR": 1
+   },
+   "blocking_ids": "F1",
+   "blocking_word_count": 4,
+   "spec_audited": {
+    "bytes": 60176
+   },
+   "output_tokens": 19626
+  },
+  "AUD": {
+   "output_exists": true,
+   "report_bytes": 21074,
+   "verdict": "FAIL",
+   "review_header": [
+    "1"
+   ],
+   "labels": {
+    "CRITICAL": 2,
+    "MAJOR": 1
+   },
+   "blocking_ids": "B-1, B-2",
+   "blocking_word_count": 5,
+   "spec_audited": {
+    "bytes": 60176
+   },
+   "output_tokens": 32905
+  }
+ },
+ "launched": {
+  "R1a": "2026-11-10T08:17:30+00:00",
+  "R1b": "2026-11-10T08:18:24+00:00",
+  "R1c": "2026-11-10T08:20:07+00:00",
+  "VF1": "2026-11-10T08:30:19+00:00",
+  "V1": "2026-11-10T08:36:13+00:00",
+  "R2": "2026-11-10T08:43:16+00:00",
+  "VF2": "2026-11-10T08:50:41+00:00",
+  "V2": "2026-11-10T08:56:03+00:00",
+  "R3": "2026-11-10T09:00:31+00:00",
+  "VF3": "2026-11-10T09:08:33+00:00",
+  "AUD": "2026-11-10T09:13:29+00:00",
+  "AUD2": "2026-11-10T09:13:29+00:00"
+ },
+ "noted_unactioned": [
+  {
+   "step": "VF1",
+   "id": "M10",
+   "theme": "T3",
+   "cited": [
+    62,
+    83,
+    85,
+    86,
+    87,
+    92,
+    159,
+    182,
+    183,
+    194,
+    196
+   ],
+   "heading": "### B3. The fixed contract path in WC-4 does not fit the ready commands, so AC-0.4 and AC-1.2 cannot pass for them",
+   "reason": "Confirmed on three points. (1) Workflow path is not known before dispatch, because the 3.1 row keeps the `<id>` path and nothing says P1's output flag moves it. (2) Adversarial's fixed subfolder (line 83) contradicts WC-4's directory (line 62). (3) init-lite's file-valued `--output` (line 87) cannot be a WC-4 output directory. Rejected sub-claims: \"no phase gives workflow an output directory\" is contradicted by the P1 bullet \"output flags for commands that lack one\" (line 159), and \"adds neither a contract nor an output flag\" for cleanup-audit and index-repo is contradicted by the P1 blanket \"The WC-4 contract in unattended mode\" and output-flag bullets (line 159)."
+  },
+  {
+   "step": "VF2",
+   "id": "N3",
+   "theme": "T3",
+   "cited": [
+    92,
+    158,
+    193,
+    202
+   ],
+   "heading": "### N3 (blocking, origin=changed; regression introduced by the revision of step 6)",
+   "reason": "Step 6 applies its pass rule only to a \"report-only command\". The candidate never classifies `/sc:workflow` or `/sc:troubleshoot` as report-only. spec:193 names only edit-in-place (cleanup, improve) as the other class, and neither command is placed in it. The failure needs that unstated classification. Also, spec:158 lists `/sc:adversarial --output <dir>` as a smoke run, so the finding's \"P0 smoke runs use no output flag\" is true only for the troubleshoot and workflow runs. The `INV-B:242` default-output claim for troubleshoot is UNVERIFIED here."
+  }
+ ],
+ "loop_end": "ESCALATED",
+ "manual": [
+  {
+   "step": "R3",
+   "ids": [
+    "N2",
+    "N4"
+   ],
+   "raw": "N2, N4"
+  }
+ ],
+ "relaunch": {},
+ "lost": false,
+ "complete": true,
+ "merge": {
+  "raw_count": 12,
+  "merged_count": 10,
+  "groups": [
+   {
+    "mid": "M1",
+    "theme": "T2",
+    "members": [
+     "round1-a.md/B1"
+    ],
+    "cited": [
+     62,
+     73,
+     85,
+     86,
+     87,
+     90,
+     183,
+     200
+    ],
+    "heading": "### B1. Contract directory is undefined for file-valued or fixed-path commands (requirements, WC-4)"
+   },
+   {
+    "mid": "M2",
+    "theme": "T3",
+    "members": [
+     "round1-a.md/B2"
+    ],
+    "cited": [
+     83,
+     91,
+     158,
+     183,
+     194
+    ],
+    "heading": "### B2. AC-0.4 step 4 cannot pass for the P0 smoke commands (acceptance)"
+   },
+   {
+    "mid": "M3",
+    "theme": "T1",
+    "members": [
+     "round1-a.md/B3"
+    ],
+    "cited": [
+     52,
+     79,
+     159,
+     195
+    ],
+    "heading": "### B3. Section 3.1 says ready commands change only in one column, which contradicts P1 and AC-1.1 (requirements)"
+   },
+   {
+    "mid": "M4",
+    "theme": "T3",
+    "members": [
+     "round1-a.md/B4",
+     "round1-b.md/B5",
+     "round1-c.md/B1"
+    ],
+    "cited": [
+     52,
+     142,
+     147,
+     150,
+     158,
+     170,
+     172
+    ],
+    "heading": "### B4. AC-C1 matches nothing as written, and it cannot pass P0 as scoped (acceptance, SA-2)"
+   },
+   {
+    "mid": "M5",
+    "theme": "T2",
+    "members": [
+     "round1-b.md/B1"
+    ],
+    "cited": [
+     62,
+     73,
+     83,
+     92,
+     183
+    ],
+    "heading": "**B1. The contract path rule is contradicted, and the workflow path is not known before dispatch.** (Wiegers lead; Fowler)"
+   },
+   {
+    "mid": "M6",
+    "theme": "other",
+    "members": [
+     "round1-b.md/B2"
+    ],
+    "cited": [
+     61,
+     109,
+     208,
+     233,
+     234,
+     235,
+     236
+    ],
+    "heading": "**B2. WC-3 lets a coordinator's answer resume a command past a safety gate.** (Wiegers lead; Whittaker)"
+   },
+   {
+    "mid": "M7",
+    "theme": "T3",
+    "members": [
+     "round1-b.md/B3"
+    ],
+    "cited": [
+     159,
+     182,
+     194
+    ],
+    "heading": "**B3. The P0 acceptance run cannot pass as written.** (Adzic; Wiegers)"
+   },
+   {
+    "mid": "M8",
+    "theme": "other",
+    "members": [
+     "round1-b.md/B4"
+    ],
+    "cited": [
+     103,
+     110,
+     160,
+     185,
+     201
+    ],
+    "heading": "**B4. Step 6 cannot pass for edit-in-place commands, including their P2 happy path.** (Wiegers; Cockburn)"
+   },
+   {
+    "mid": "M9",
+    "theme": "T3",
+    "members": [
+     "round1-c.md/B2"
+    ],
+    "cited": [
+     73,
+     76,
+     79,
+     84,
+     87,
+     158,
+     159,
+     180,
+     194,
+     195
+    ],
+    "heading": "### B2. The ready tier (section 3.1) says no command changes, but section 2.3, P0, P1 and AC-1.1 require them"
+   },
+   {
+    "mid": "M10",
+    "theme": "T3",
+    "members": [
+     "round1-c.md/B3"
+    ],
+    "cited": [
+     62,
+     83,
+     85,
+     86,
+     87,
+     92,
+     159,
+     182,
+     183,
+     194,
+     196
+    ],
+    "heading": "### B3. The fixed contract path in WC-4 does not fit the ready commands, so AC-0.4 and AC-1.2 cannot pass for them"
+   }
+  ],
+  "reviewers": {
+   "a": {
+    "verdict": "FAIL",
+    "sha256": "e6ba15adaae5a6081adaab90bac2e3df65d77d79c1df7a0e639371658ebd95f9",
+    "ids": [
+     "B1",
+     "B2",
+     "B3",
+     "B4"
+    ],
+    "themes": [
+     "T2",
+     "T3",
+     "T1",
+     "T3"
+    ]
+   },
+   "b": {
+    "verdict": "FAIL",
+    "sha256": "49a08cf69b1354c9c04befea11352b267d5356b01b92742e1704623d6c376208",
+    "ids": [
+     "B1",
+     "B2",
+     "B3",
+     "B4",
+     "B5"
+    ],
+    "themes": [
+     "T2",
+     "other",
+     "T3",
+     "other",
+     "T3"
+    ]
+   },
+   "c": {
+    "verdict": "FAIL",
+    "sha256": "3101ff6bbfe1055be179530bccc35f13d66c6386dd9a807265678375382da531",
+    "ids": [
+     "B1",
+     "B2",
+     "B3"
+    ],
+    "themes": [
+     "T3",
+     "T3",
+     "T3"
+    ]
+   }
+  },
+  "done": true
+ },
+ "final_spec": {
+  "bytes": 60176,
+  "lines": 293,
+  "sha256": "1a2d2f425ac57ef3f2392d0bfdf09996e8bf26606b0e7b94ee731ab5d177867d"
+ }
+}

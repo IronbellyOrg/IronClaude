@@ -1,0 +1,29 @@
+{
+ "author_intent": {
+  "reviewer": "haiku",
+  "reviewer_blocking": true,
+  "run": "a3-r6"
+ },
+ "case_id": "real_ha3r6_F_01",
+ "category": "real",
+ "data_classes": [
+  "s1_spec",
+  "stage2_artifact"
+ ],
+ "family": "s1_first_review",
+ "group": "other:5",
+ "packet": {
+  "candidate_sha": "d3cdbe573e57303b9ce6c93d1fe98ba18fb7cb1a15773d926bf6a0c31425200d",
+  "finding_id": "F-01",
+  "finding_section": "### F-01 BLOCKING: AC-C1 cannot pass as written (Wiegers)\n- Locations: `spec:172` (AC-C1 greps `src/superclaude/core`), `spec:158` (P0 adds an Orca section to `core/HOW-WE-WORK.md`), `spec:150` (SA-5 says the routing guide gains an Orca section), `spec:147` (SA-2 allows an Orca mention in the core contract file), `spec:52` (contract file lives in `core`).\n- Sentence: An implementer who follows P0 and SA-2 writes Orca commands into the core guide and the contract file, AC-C1 then prints those lines, and the P0 check cannot pass.\n- Evidence: AC-C1 excludes only `skills/ccsession-tag/` (`spec:172`).\n- Recommendation: Narrow AC-C1 to commands, skills and agents, which is the scope SA-2 uses (`spec:147`), or list the core lines that are allowed to name Orca.\n- Priority: High."
+ },
+ "source": {
+  "kind": "stage2",
+  "paths": [
+   "p14/haiku-baseline/runs/a3-r6/ws/.dev/orca-command-refactor/review/round1.md"
+  ],
+  "url": null
+ },
+ "split": "pool",
+ "variant": "base"
+}

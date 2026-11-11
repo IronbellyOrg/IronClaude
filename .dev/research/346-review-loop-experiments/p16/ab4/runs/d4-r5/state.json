@@ -1,0 +1,408 @@
+{
+ "run": "d4-r5",
+ "design": "d4",
+ "rep": 5,
+ "stratum": "sonnet",
+ "loop_model": "sonnet",
+ "frozen": {
+  "cmd_sha": "e62e70b98e878cb4b60ba8f95f1cc3442a25e815828a3ef3d17a95b65ea97494",
+  "rules_sha": "1a2e8ab6b9156760e72e47e31b2c126e5f8e82727e9ed90e9e60f48333bada8b",
+  "aud_cmd_sha": "e62e70b98e878cb4b60ba8f95f1cc3442a25e815828a3ef3d17a95b65ea97494",
+  "aud_rules_sha": "3eb772f944491720af24133267681e170510ba49949af1b08db913e9eeaddfb8",
+  "_comment": "cmd_sha: the /sc:spec-panel command (identical to the frozen audit command, aud_cmd_sha); rules_sha: ab1 rules + PN2 lint bullets + k=2 wording (make_rules.py); aud_rules_sha: the frozen audit rules (p11/rules.md)."
+ },
+ "cmd_sha": "e62e70b98e878cb4b60ba8f95f1cc3442a25e815828a3ef3d17a95b65ea97494",
+ "rules_sha": "1a2e8ab6b9156760e72e47e31b2c126e5f8e82727e9ed90e9e60f48333bada8b",
+ "done": [
+  "R1a",
+  "R1b",
+  "VF1",
+  "V1",
+  "R2",
+  "AUD2",
+  "AUD"
+ ],
+ "prepared": [
+  "R1a",
+  "R1b",
+  "VF1",
+  "V1",
+  "R2",
+  "AUD",
+  "AUD2"
+ ],
+ "transitioned": [
+  "R1a",
+  "R1b",
+  "VF1",
+  "V1",
+  "R2",
+  "AUD2",
+  "AUD"
+ ],
+ "log": {
+  "LINT1": {
+   "checks": [
+    "REF"
+   ],
+   "findings": 0,
+   "by_check": {},
+   "ids": [],
+   "sha256": "6a70e9a1255ee5d4652078e22f1d02b3383feeb5af682b9017b29610cb1b420a",
+   "spec_sha256": "d3cdbe573e57303b9ce6c93d1fe98ba18fb7cb1a15773d926bf6a0c31425200d",
+   "stratum": "sonnet"
+  },
+  "R1a": {
+   "output_exists": true,
+   "report_bytes": 17433,
+   "verdict": "FAIL",
+   "review_header": [
+    "1"
+   ],
+   "labels": {
+    "MAJOR": 5,
+    "MINOR": 1
+   },
+   "blocking_ids": "F-1, F-2. (Pending the coordinator's MERGE and VERIFY steps.)",
+   "blocking_word_count": 11,
+   "stratum": "sonnet",
+   "model": "sonnet",
+   "output_tokens": 33740
+  },
+  "R1b": {
+   "output_exists": true,
+   "report_bytes": 25661,
+   "verdict": "FAIL",
+   "review_header": [
+    "1"
+   ],
+   "labels": {
+    "CRITICAL": 2,
+    "MAJOR": 4
+   },
+   "blocking_ids": "B1, B2, B3, B4, B5, B6",
+   "blocking_word_count": 14,
+   "stratum": "sonnet",
+   "model": "sonnet",
+   "output_tokens": 25473
+  },
+  "VF1": {
+   "output_exists": true,
+   "finding_ids": [
+    "M1",
+    "M2",
+    "M3",
+    "M4",
+    "M5",
+    "M6",
+    "M7"
+   ],
+   "report_bytes": 4528,
+   "confirmed": [
+    "M1",
+    "M2",
+    "M3",
+    "M4",
+    "M5"
+   ],
+   "rejected": {
+    "M6": "AC-2.3 does not say single run, and the row does not say what `--resume <contract>` does after an approval, so \"no input can reach succeeded\" needs an assumption the text does not state.",
+    "M7": "AC-4.2 says \"no authorization flags\", not \"no pre-tag choice\", and WC-4 says \"at least\", so a skipped-step list is not excluded; the stated failure needs the assumptions that the pre-tag choice is absent and that no extra field is allowed."
+   },
+   "parse_ok": true,
+   "stratum": "sonnet",
+   "model": "sonnet",
+   "output_tokens": 6441
+  },
+  "V1": {
+   "output_exists": true,
+   "report_bytes": 3850,
+   "spec_after": {
+    "bytes": 59005,
+    "lines": 285,
+    "sha256": "a6e5c8f0ff0545238ba19f3f7d98a7d4329bb51a628932a5ec8669cc448da770"
+   },
+   "stratum": "sonnet",
+   "model": "sonnet",
+   "output_tokens": 7612
+  },
+  "LINT2": {
+   "checks": [
+    "REF"
+   ],
+   "findings": 0,
+   "by_check": {},
+   "ids": [],
+   "sha256": "eec4ab821cead01d6ee1588d6043d29250757c4cb85e636b2f850fd3c18fa6b2",
+   "spec_sha256": "a6e5c8f0ff0545238ba19f3f7d98a7d4329bb51a628932a5ec8669cc448da770",
+   "stratum": "sonnet"
+  },
+  "R2": {
+   "output_exists": true,
+   "report_bytes": 20735,
+   "verdict": "PASS",
+   "review_header": [
+    "2"
+   ],
+   "labels": {
+    "CRITICAL": 1,
+    "MAJOR": 1
+   },
+   "blocking_ids": "none. No revision is requested. Rules (restating the Review Loop's Reviser contract, for any later use): revise only text a blocking finding names; add no rule, mechanism or section no blocking finding calls for; each added paragraph or table cites its finding id; prefer deleting or narrowing to adding; report the byte size before and after, with the bytes added and deleted per finding id. Medium and minor findings (N1-N5) are not part of any Reviser brief",
+   "blocking_word_count": 10,
+   "spec_after": {
+    "bytes": 59005,
+    "lines": 285,
+    "sha256": "a6e5c8f0ff0545238ba19f3f7d98a7d4329bb51a628932a5ec8669cc448da770"
+   },
+   "stratum": "sonnet",
+   "model": "sonnet",
+   "output_tokens": 23050
+  },
+  "AUD2": {
+   "output_exists": true,
+   "report_bytes": 19030,
+   "verdict": "FAIL",
+   "review_header": [
+    "1"
+   ],
+   "labels": {
+    "CRITICAL": 1,
+    "MAJOR": 1
+   },
+   "blocking_ids": "F-01, F-02. Rules for the reviser (restating the review loop, bullet 6; the reviser reads this report, not the command):",
+   "blocking_word_count": 9,
+   "spec_audited": {
+    "bytes": 59005
+   },
+   "stratum": "sonnet",
+   "model": "sonnet",
+   "output_tokens": 28278
+  },
+  "AUD": {
+   "output_exists": true,
+   "report_bytes": 23067,
+   "verdict": "FAIL",
+   "review_header": [
+    "1"
+   ],
+   "labels": {
+    "CRITICAL": 2,
+    "MAJOR": 4
+   },
+   "blocking_ids": "B-1",
+   "blocking_word_count": 7,
+   "spec_audited": {
+    "bytes": 59005
+   },
+   "stratum": "sonnet",
+   "model": "sonnet",
+   "output_tokens": 38193
+  }
+ },
+ "launched": {
+  "R1a": "2026-11-10T12:27:57+00:00",
+  "R1b": "2026-11-10T12:30:06+00:00",
+  "VF1": "2026-11-10T12:33:57+00:00",
+  "V1": "2026-11-10T12:36:26+00:00",
+  "R2": "2026-11-10T12:44:37+00:00",
+  "AUD": "2026-11-10T12:48:12+00:00",
+  "AUD2": "2026-11-10T12:48:12+00:00"
+ },
+ "noted_unactioned": [
+  {
+   "step": "VF1",
+   "id": "M6",
+   "theme": "other",
+   "cited": [
+    105,
+    201
+   ],
+   "heading": "### B5. MAJOR (blocking): AC-2.3 cannot pass for `/sc:cli-portify`",
+   "reason": "AC-2.3 does not say single run, and the row does not say what `--resume <contract>` does after an approval, so \"no input can reach succeeded\" needs an assumption the text does not state."
+  },
+  {
+   "step": "VF1",
+   "id": "M7",
+   "theme": "other",
+   "cited": [
+    62,
+    113,
+    209
+   ],
+   "heading": "### B6. MAJOR (blocking): AC-4.2 expects skipped-step reporting from a run that the post-release row blocks first",
+   "reason": "AC-4.2 says \"no authorization flags\", not \"no pre-tag choice\", and WC-4 says \"at least\", so a skipped-step list is not excluded; the stated failure needs the assumptions that the pre-tag choice is absent and that no extra field is allowed."
+  }
+ ],
+ "loop_end": "PASS",
+ "manual": [],
+ "relaunch": {},
+ "lost": false,
+ "complete": true,
+ "merge": {
+  "raw_count": 8,
+  "merged_count": 7,
+  "groups": [
+   {
+    "mid": "M1",
+    "theme": "T1",
+    "members": [
+     "round1-a.md/F-1"
+    ],
+    "cited": [
+     76,
+     79,
+     84,
+     87,
+     112,
+     159,
+     195,
+     265
+    ],
+    "heading": "### F-1 [MAJOR, blocking] Acceptance check AC-1.1 requires a contract section on commands that section 3 says get none"
+   },
+   {
+    "mid": "M2",
+    "theme": "T2",
+    "members": [
+     "round1-a.md/F-2",
+     "round1-b.md/B1"
+    ],
+    "cited": [
+     62,
+     73,
+     87,
+     90,
+     92,
+     107,
+     108,
+     120,
+     182,
+     183,
+     198,
+     200
+    ],
+    "heading": "### F-2 [MAJOR, blocking] WC-4 defines the report path from a coordinator-passed directory, yet several commands take a file, and two acceptance criteria depend on that path"
+   },
+   {
+    "mid": "M3",
+    "theme": "T3",
+    "members": [
+     "round1-b.md/B2"
+    ],
+    "cited": [
+     62,
+     73,
+     83,
+     91,
+     92,
+     159,
+     182,
+     194
+    ],
+    "heading": "### B2. CRITICAL (blocking): AC-0.4 requires a contract that does not exist in Phase 0"
+   },
+   {
+    "mid": "M4",
+    "theme": "T1",
+    "members": [
+     "round1-b.md/B3"
+    ],
+    "cited": [
+     112,
+     159,
+     183,
+     195,
+     196,
+     265
+    ],
+    "heading": "### B3. MAJOR (blocking): AC-1.1 and AC-1.2 cannot pass for `/sc:load`"
+   },
+   {
+    "mid": "M5",
+    "theme": "other",
+    "members": [
+     "round1-b.md/B4"
+    ],
+    "cited": [
+     88,
+     89,
+     90,
+     100,
+     103,
+     110,
+     116,
+     122,
+     160,
+     200
+    ],
+    "heading": "### B4. MAJOR (blocking): AC-2.2 demands a `blocked` contract from P2 commands whose gate does not resolve as blocked"
+   },
+   {
+    "mid": "M6",
+    "theme": "other",
+    "members": [
+     "round1-b.md/B5"
+    ],
+    "cited": [
+     105,
+     201
+    ],
+    "heading": "### B5. MAJOR (blocking): AC-2.3 cannot pass for `/sc:cli-portify`"
+   },
+   {
+    "mid": "M7",
+    "theme": "other",
+    "members": [
+     "round1-b.md/B6"
+    ],
+    "cited": [
+     62,
+     113,
+     209
+    ],
+    "heading": "### B6. MAJOR (blocking): AC-4.2 expects skipped-step reporting from a run that the post-release row blocks first"
+   }
+  ],
+  "reviewers": {
+   "a": {
+    "verdict": "FAIL",
+    "sha256": "2b336029cfd53930e600a5fb4aab93a7c9b0c90caf43f6269f828f85e72a47ee",
+    "ids": [
+     "F-1",
+     "F-2"
+    ],
+    "themes": [
+     "T1",
+     "T2"
+    ]
+   },
+   "b": {
+    "verdict": "FAIL",
+    "sha256": "373bbda2cfdc8a4fafe2fd8a2ee838d161c34c9125bf6a496ff3ac7771bcd12a",
+    "ids": [
+     "B1",
+     "B2",
+     "B3",
+     "B4",
+     "B5",
+     "B6"
+    ],
+    "themes": [
+     "T2",
+     "T3",
+     "T1",
+     "other",
+     "other",
+     "other"
+    ]
+   }
+  },
+  "done": true
+ },
+ "final_spec": {
+  "bytes": 59005,
+  "lines": 285,
+  "sha256": "a6e5c8f0ff0545238ba19f3f7d98a7d4329bb51a628932a5ec8669cc448da770"
+ }
+}

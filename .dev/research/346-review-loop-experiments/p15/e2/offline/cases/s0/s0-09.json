@@ -1,0 +1,38 @@
+{
+ "author_intent": {
+  "category": "synth-novel",
+  "expect": "defect",
+  "layer": "synthetic"
+ },
+ "case_id": "s0-09",
+ "category": "synth-novel",
+ "data_classes": [
+  "synthetic"
+ ],
+ "family": "export",
+ "group": "fam-export",
+ "packet": {
+  "defect": "SEC-1 expires a session token after 15 minutes without user input, but a full export runs up to 2 hours with no user input and the page authenticates every poll with that token, so the page loses access before the export finishes.",
+  "doc": "offline/docs/doc-45a6f08755.md",
+  "doc_sha256": "45a6f08755d27a8b034992563ca61204c69341a6f00d236f92109b75f925beb4",
+  "evidence_quotes": [
+   "A session token expires after 15 minutes without user input",
+   "The page polls the job endpoint every 10 seconds and authenticates each poll with the user's session token",
+   "A full-project export can run for up to 2 hours"
+  ],
+  "evidence_set": [
+   "P0005",
+   "P0013",
+   "P0012"
+  ]
+ },
+ "source": {
+  "kind": "synthetic",
+  "paths": [
+   "offline/docs/doc-45a6f08755.md"
+  ],
+  "url": null
+ },
+ "split": "s0",
+ "variant": "synthetic"
+}

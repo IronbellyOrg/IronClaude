@@ -1,0 +1,9 @@
+# Verification 1
+
+Candidate: .dev/orca-command-refactor/specs/orca-worker-contract-spec.md (sha256 d3cdbe573e57303b9ce6c93d1fe98ba18fb7cb1a15773d926bf6a0c31425200d, 285 lines)
+
+| id | found text | exists | outcome follows | confirm/reject | reason |
+|---|---|---|---|---|---|
+| B-1 | S:195 (grep -nF): "the test asserts that every command in sections 3.1-3.2 has a `## Unattended mode` section naming `return-contract.yaml` and `~/.claude/WORKER-CONTRACT.md`, and that no section-4 command has one". S:76: "Every changed command also gains the `## Unattended mode` section (section 2.1)." S:112 (inside section 3.2, which starts at S:94): "\| load \| no gate \| none (see note) \| n/a \| none: use it as a step inside another worker's brief, not as its own Task; separately, `--checkpoint` is missing from its Usage line \| ... \| P1 (usage line only) \|". S:265: "Use it inside a brief: its only output is context for the current session (`INV-B:65`); a report file would be an unrequested addition. Only its usage-line defect is fixed." Also S:159 (P1) lists "load (usage line only)" while saying `--unattended` is accepted by every command in sections 3.1 and 3.2; S:139 keeps `/sc:load` in section 3, not section 4. No text exempts load from AC-1.1. | yes (all four quoted texts exist as quoted; load is in section 3.2) | yes. Following S:112, S:159 and S:265 as written gives load only a usage-line fix, no report file and no `## Unattended mode` section, so the S:195 test over every section 3.1-3.2 command fails on load. Adding the section to satisfy S:195 (and S:76) contradicts "none (see note)", "usage line only" and "Only its usage-line defect is fixed". Both readings follow from the text with no further assumption. | confirm | Both conditions hold: the texts exist and AC-1.1 cannot pass while the load row and Decision hold as written. |
+
+confirmed: B-1

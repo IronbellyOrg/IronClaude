@@ -1,0 +1,96 @@
+{
+  "schema": "review-lint/1",
+  "doc_sha256": "5c71b428b4d2d0ad66f5a6e7c3a9fb25a7458b1ff13d53ff2b02b5abd66e9de9",
+  "doc_bytes": 69721,
+  "checks": [
+    "REF",
+    "COUNT",
+    "KV",
+    "PHASE",
+    "PATH",
+    "RFC"
+  ],
+  "findings": [
+    {
+      "lint_id": "LINT-REF-1",
+      "check": "REF",
+      "class": "fact",
+      "lines": [
+        381,
+        381
+      ],
+      "quote": "No level merges anything: people review and merge. The agent starts behind the ccsession shim (the claim warns with `W-LAUNCH-NOT-CCSESSION` if it cannot confirm that). The launch-level guard (issu...",
+      "other_lines": null,
+      "message": "Section 11 is referenced but no heading has that number."
+    },
+    {
+      "lint_id": "LINT-REF-2",
+      "check": "REF",
+      "class": "fact",
+      "lines": [
+        381,
+        381
+      ],
+      "quote": "No level merges anything: people review and merge. The agent starts behind the ccsession shim (the claim warns with `W-LAUNCH-NOT-CCSESSION` if it cannot confirm that). The launch-level guard (issu...",
+      "other_lines": null,
+      "message": "Section 14 is referenced but no heading has that number."
+    },
+    {
+      "lint_id": "LINT-REF-3",
+      "check": "REF",
+      "class": "fact",
+      "lines": [
+        413,
+        413
+      ],
+      "quote": "**When to use:** Load project memory from the `.superclaude/memory/` files (project context, memories and checkpoints) at the start of a session. It is not a way to resume work: to continue a task,...",
+      "other_lines": null,
+      "message": "Section 3.12 is referenced but no heading has that number (2 references)."
+    },
+    {
+      "lint_id": "LINT-REF-4",
+      "check": "REF",
+      "class": "fact",
+      "lines": [
+        1097,
+        1097
+      ],
+      "quote": "**When to use:** Code works, but you want to make it better in a small, contained area. Commit first and review `git diff` afterwards; for a large or structural refactor, write a spec, run `/sc:wor...",
+      "other_lines": null,
+      "message": "Section 3.7 is referenced but no heading has that number (2 references)."
+    },
+    {
+      "lint_id": "LINT-REF-5",
+      "check": "REF",
+      "class": "fact",
+      "lines": [
+        1471,
+        1471
+      ],
+      "quote": "**When to use:** Audit a proposed plan against its spec before execution (UC-1), or audit completed work for adherence and deviations after execution (UC-2). Reviewer-side, structurally-independent...",
+      "other_lines": null,
+      "message": "UC-1 is referenced but never defined."
+    },
+    {
+      "lint_id": "LINT-REF-6",
+      "check": "REF",
+      "class": "fact",
+      "lines": [
+        1471,
+        1471
+      ],
+      "quote": "**When to use:** Audit a proposed plan against its spec before execution (UC-1), or audit completed work for adherence and deviations after execution (UC-2). Reviewer-side, structurally-independent...",
+      "other_lines": null,
+      "message": "UC-2 is referenced but never defined."
+    }
+  ],
+  "census": {
+    "rfc2119": {},
+    "rfc2119_total": {
+      "MUST": 0,
+      "SHALL": 0,
+      "SHOULD": 0,
+      "MAY": 0
+    }
+  }
+}

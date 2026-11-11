@@ -1,0 +1,1604 @@
+{
+ "schema": "review-ledger/1",
+ "doc": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p22/pn1c/runs/c3-r1/ws/.dev/orca-command-refactor/specs/orca-worker-contract-spec.md",
+ "cap_reviews": 3,
+ "rounds": [
+  {
+   "n": 1,
+   "doc_sha256": "d3cdbe573e57303b9ce6c93d1fe98ba18fb7cb1a15773d926bf6a0c31425200d",
+   "reviewers": [
+    {
+     "reviewer_id": "t1b-1",
+     "model": "claude-sonnet-5-5",
+     "report": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p22/pn1c/runs/c3-r1/ws/.dev/orca-command-refactor/review/round1-t1b-1.md",
+     "report_sha256": "ed8cba9ef8a1890265588cc2717da6703d5890e29aa5402ff057cd0526632346",
+     "block_ok": true
+    },
+    {
+     "reviewer_id": "t2-1",
+     "model": "claude-haiku-5-5",
+     "report": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p22/pn1c/runs/c3-r1/ws/.dev/orca-command-refactor/review/round1-t2-1.md",
+     "report_sha256": "ccfb6a9cb6a26ef569d765675f47eac7b4783b4a8646ba0d4457eb986dd17c96",
+     "block_ok": true
+    },
+    {
+     "reviewer_id": "t2-2",
+     "model": "claude-haiku-5-5",
+     "report": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p22/pn1c/runs/c3-r1/ws/.dev/orca-command-refactor/review/round1-t2-2.md",
+     "report_sha256": "5460b96e3f50d650ba809fd22b97a6b26859c823d5a02438ae66dc3f0888e001",
+     "block_ok": true
+    },
+    {
+     "reviewer_id": "t3-1",
+     "model": "claude-haiku-5-5",
+     "report": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p22/pn1c/runs/c3-r1/ws/.dev/orca-command-refactor/review/round1-t3-1.md",
+     "report_sha256": "5bd54b1678d676c194aa921de86d817fedbbf38938e7e33b5630c4f42dc9fbb5",
+     "block_ok": true
+    },
+    {
+     "reviewer_id": "t3-2",
+     "model": "claude-haiku-5-5",
+     "report": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p22/pn1c/runs/c3-r1/ws/.dev/orca-command-refactor/review/round1-t3-2.md",
+     "report_sha256": "26988f7af100aadf88613e804671fdfdad7917fda20c5d275198e004d92286fa",
+     "block_ok": true
+    },
+    {
+     "reviewer_id": "t3-3",
+     "model": "claude-haiku-5-5",
+     "report": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p22/pn1c/runs/c3-r1/ws/.dev/orca-command-refactor/review/round1-t3-3.md",
+     "report_sha256": "ef31ce009522da0aa15dca365a3d2c4c9bc1d651a31995d4934ed9a1fa96d18d",
+     "block_ok": true
+    },
+    {
+     "reviewer_id": "t3-4",
+     "model": "claude-haiku-5-5",
+     "report": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p22/pn1c/runs/c3-r1/ws/.dev/orca-command-refactor/review/round1-t3-4.md",
+     "report_sha256": "f7d83e7d87c2a13045f8eed65261ed00be8b9635da8b2e5ed69aaa8e0b853c06",
+     "block_ok": true
+    }
+   ],
+   "verdict": "FAIL",
+   "decision": "REVISE",
+   "brief_ids": [
+    "L1",
+    "L2",
+    "L8",
+    "L11"
+   ]
+  },
+  {
+   "n": 2,
+   "doc_sha256": "89e288538d77f45ae467600f4a11882bbc785a54c8080abe4d8a15d6648679b9",
+   "reviewers": [
+    {
+     "reviewer_id": "t1b-1",
+     "model": "claude-sonnet-5-5",
+     "report": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p22/pn1c/runs/c3-r1/ws/.dev/orca-command-refactor/review/round2-t1b-1.md",
+     "report_sha256": "89c70aa724731ea8a81cff044718e6c6b336e90303a14dfea96674d0748a91a4",
+     "block_ok": true
+    }
+   ],
+   "verdict": "FAIL",
+   "decision": "REVISE",
+   "brief_ids": [
+    "L1"
+   ]
+  },
+  {
+   "n": 3,
+   "doc_sha256": "2bd4a77186ce8fc31bf92e0cd59e436c6bfe88644f71595c5e86045b42bec385",
+   "reviewers": [
+    {
+     "reviewer_id": "t1b-1",
+     "model": "claude-sonnet-5-5",
+     "report": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p22/pn1c/runs/c3-r1/ws/.dev/orca-command-refactor/review/round3-t1b-1.md",
+     "report_sha256": "d769e6701d9241608e068f6c795f59ff694961c9337edcd47eafdc6249da0454",
+     "block_ok": true
+    }
+   ],
+   "verdict": "FAIL",
+   "decision": "ESCALATE",
+   "brief_ids": [
+    "L1"
+   ]
+  }
+ ],
+ "rows": [
+  {
+   "lid": "L1",
+   "fp": "829cd41a04804e3d",
+   "blocking": true,
+   "severity_max": "CRITICAL",
+   "category": "safety",
+   "confidence": "overlap",
+   "status": "regressed",
+   "anchor": "the `--unattended` flag accepted by every command in sections 3.1 and 3.2 (a no-op where a command has no gate)",
+   "anchor2": "Under `--unattended`, any default that pushes, opens a PR, posts to GitHub, installs, provisions or calls a paid external run is off.",
+   "span": [
+    158,
+    159
+   ],
+   "span2": [
+    66,
+    67
+   ],
+   "refs": [
+    "2.3",
+    "3.1",
+    "3.2",
+    "7.2",
+    "AC-0.4",
+    "AC-1.1",
+    "AC-1.4",
+    "AC-2.2",
+    "P0",
+    "P1",
+    "P2",
+    "P4",
+    "SA-1",
+    "SA-3",
+    "SA-4",
+    "SA-6",
+    "WC-11",
+    "WC-2",
+    "WC-3",
+    "WC-4",
+    "WC-5",
+    "WC-6",
+    "WC-9"
+   ],
+   "claim": "P1 makes --unattended accepted on 37 commands while auggie-review posting (P2) and post-release, pr-submit and implement outward defaults (P4) are still on, so a coordinator that follows 2.3 gets a GitHub post or push despite --unattended.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t1b-1",
+     "fid": "F1",
+     "blocking": true
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t1b-1",
+     "fid": "F2",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t1b-1",
+     "fid": "F3",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t1b-1",
+     "fid": "F4",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t1b-1",
+     "fid": "F5",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t1b-1",
+     "fid": "F7",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t1b-1",
+     "fid": "F12",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t1b-1",
+     "fid": "F13",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t2-1",
+     "fid": "F1",
+     "blocking": true
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t2-1",
+     "fid": "F3",
+     "blocking": true
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t2-1",
+     "fid": "F4",
+     "blocking": true
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t2-1",
+     "fid": "F5",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t2-1",
+     "fid": "F8",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t2-1",
+     "fid": "F11",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t2-1",
+     "fid": "F12",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t2-1",
+     "fid": "F15",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t2-2",
+     "fid": "F1",
+     "blocking": true
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t2-2",
+     "fid": "F2",
+     "blocking": true
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t2-2",
+     "fid": "F3",
+     "blocking": true
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t2-2",
+     "fid": "F4",
+     "blocking": true
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t2-2",
+     "fid": "F5",
+     "blocking": true
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t2-2",
+     "fid": "M1",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t2-2",
+     "fid": "M2",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t2-2",
+     "fid": "M6",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t2-2",
+     "fid": "M7",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t2-2",
+     "fid": "M8",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t3-1",
+     "fid": "F1",
+     "blocking": true
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t3-1",
+     "fid": "F2",
+     "blocking": true
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t3-1",
+     "fid": "F3",
+     "blocking": true
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t3-1",
+     "fid": "F6",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t3-1",
+     "fid": "F7",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t3-1",
+     "fid": "F9",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t3-1",
+     "fid": "F11",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t3-2",
+     "fid": "F1",
+     "blocking": true
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t3-2",
+     "fid": "F2",
+     "blocking": true
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t3-2",
+     "fid": "F3",
+     "blocking": true
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t3-2",
+     "fid": "F6",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t3-2",
+     "fid": "F7",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t3-2",
+     "fid": "F8",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t3-2",
+     "fid": "F9",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t3-2",
+     "fid": "F13",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t3-3",
+     "fid": "F1",
+     "blocking": true
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t3-3",
+     "fid": "F3",
+     "blocking": true
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t3-3",
+     "fid": "F4",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t3-3",
+     "fid": "F5",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t3-3",
+     "fid": "F7",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t3-3",
+     "fid": "F11",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t3-3",
+     "fid": "F16",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t3-4",
+     "fid": "F1",
+     "blocking": true
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t3-4",
+     "fid": "F3",
+     "blocking": true
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t3-4",
+     "fid": "F4",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t3-4",
+     "fid": "F6",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t3-4",
+     "fid": "F7",
+     "blocking": false
+    },
+    {
+     "round": 2,
+     "reviewer_id": "t1b-1",
+     "fid": "N1",
+     "blocking": false
+    },
+    {
+     "round": 2,
+     "reviewer_id": "t1b-1",
+     "fid": "N2",
+     "blocking": false
+    },
+    {
+     "round": 2,
+     "reviewer_id": "t1b-1",
+     "fid": "N4",
+     "blocking": false
+    },
+    {
+     "round": 2,
+     "reviewer_id": "t1b-1",
+     "fid": "N6",
+     "blocking": false
+    },
+    {
+     "round": 2,
+     "reviewer_id": "t1b-1",
+     "fid": "N8",
+     "blocking": false
+    },
+    {
+     "round": 2,
+     "reviewer_id": "t1b-1",
+     "fid": "N9",
+     "blocking": false
+    },
+    {
+     "round": 2,
+     "reviewer_id": "t1b-1",
+     "fid": "N10",
+     "blocking": false
+    },
+    {
+     "round": 2,
+     "reviewer_id": "t1b-1",
+     "fid": "N11",
+     "blocking": false
+    },
+    {
+     "round": 2,
+     "reviewer_id": "t1b-1",
+     "fid": "N7",
+     "blocking": false
+    },
+    {
+     "round": 3,
+     "reviewer_id": "t1b-1",
+     "fid": "L24",
+     "blocking": false
+    },
+    {
+     "round": 3,
+     "reviewer_id": "t1b-1",
+     "fid": "L25",
+     "blocking": false
+    },
+    {
+     "round": 3,
+     "reviewer_id": "t1b-1",
+     "fid": "L26",
+     "blocking": false
+    },
+    {
+     "round": 3,
+     "reviewer_id": "t1b-1",
+     "fid": "L27",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    },
+    {
+     "round": 1,
+     "event": "resolved_check"
+    },
+    {
+     "round": 2,
+     "event": "refound"
+    },
+    {
+     "round": 2,
+     "event": "refound"
+    },
+    {
+     "round": 2,
+     "event": "prior_note",
+     "reviewer_id": "t1b-1",
+     "status": "resolved"
+    },
+    {
+     "round": 2,
+     "event": "named_not_touched"
+    },
+    {
+     "round": 3,
+     "event": "refound"
+    },
+    {
+     "round": 3,
+     "event": "refound"
+    },
+    {
+     "round": 3,
+     "event": "prior_note",
+     "reviewer_id": "t1b-1",
+     "status": "resolved"
+    }
+   ]
+  },
+  {
+   "lid": "L2",
+   "fp": "f755a2365b7ceb23",
+   "blocking": true,
+   "severity_max": "MAJOR",
+   "category": "contradiction",
+   "confidence": "overlap",
+   "status": "resolved",
+   "anchor": "The only allowed mention of Orca in a changed command is as an example of a caller's question channel inside the contract file.",
+   "anchor2": "add an Orca section to `HOW-WE-WORK.md` and its two mirrored copies",
+   "span": [
+    146,
+    147
+   ],
+   "span2": [
+    157,
+    158
+   ],
+   "refs": [
+    "AC-0.3",
+    "P0",
+    "SA-2",
+    "SA-5",
+    "WC-8"
+   ],
+   "claim": "AC-C1 greps src/superclaude/core for Orca commands and wants no output, while P0 and SA-2 put Orca text into two core files.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t1b-1",
+     "fid": "F6",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t2-1",
+     "fid": "F2",
+     "blocking": true
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t2-1",
+     "fid": "F9",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t2-2",
+     "fid": "M3",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t3-1",
+     "fid": "F4",
+     "blocking": true
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t3-2",
+     "fid": "F5",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t3-3",
+     "fid": "F2",
+     "blocking": true
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    },
+    {
+     "round": 1,
+     "event": "resolved_check"
+    },
+    {
+     "round": 2,
+     "event": "cleared"
+    },
+    {
+     "round": 2,
+     "event": "prior_note",
+     "reviewer_id": "t1b-1",
+     "status": "resolved"
+    },
+    {
+     "round": 3,
+     "event": "prior_note",
+     "reviewer_id": "t1b-1",
+     "status": "resolved"
+    }
+   ]
+  },
+  {
+   "lid": "L3",
+   "fp": "95ead8a607676663",
+   "blocking": false,
+   "severity_max": "MAJOR",
+   "category": "missing-requirement",
+   "confidence": "overlap",
+   "status": "open",
+   "anchor": "write only the per-session keys (`<key>-<session-or-timestamp>.md`), never the single-owner keys",
+   "anchor2": null,
+   "span": [
+    118,
+    119
+   ],
+   "span2": null,
+   "refs": [
+    "3.2",
+    "P3"
+   ],
+   "claim": "Files saved under per-session keys are not read by /sc:load, which reads <key>.md, and no reader is named.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t1b-1",
+     "fid": "F8",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t1b-1",
+     "fid": "F10",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t1b-1",
+     "fid": "F19",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t2-2",
+     "fid": "M5",
+     "blocking": false
+    },
+    {
+     "round": 2,
+     "reviewer_id": "t1b-1",
+     "fid": "N5",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    },
+    {
+     "round": 2,
+     "event": "refound"
+    }
+   ]
+  },
+  {
+   "lid": "L4",
+   "fp": "8431ceaafd288bef",
+   "blocking": false,
+   "severity_max": "MAJOR",
+   "category": "unpassable-check",
+   "confidence": "single",
+   "status": "open",
+   "anchor": "each of the three approval gates resolves as blocked with the artifact to review named in the contract",
+   "anchor2": "Happy-path run per P2 command with every required flag in the brief",
+   "span": [
+    104,
+    105
+   ],
+   "span2": [
+    200,
+    201
+   ],
+   "refs": [
+    "3.2",
+    "AC-2.3",
+    "P2"
+   ],
+   "claim": "cli-portify has no input that approves a gate, so the happy-path check has no flag that lets it succeed.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t1b-1",
+     "fid": "F9",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L5",
+   "fp": "b3a702eba8ea897c",
+   "blocking": false,
+   "severity_max": "MAJOR",
+   "category": "missing-requirement",
+   "confidence": "overlap",
+   "status": "open",
+   "anchor": "posting returns only with an explicit `--post-pr` in the brief (WC-9)",
+   "anchor2": null,
+   "span": [
+    99,
+    100
+   ],
+   "span2": null,
+   "refs": [
+    "3.2",
+    "WC-9"
+   ],
+   "claim": "The inventory shows only --no-post-pr, so the --post-pr flag the row depends on is not listed as new.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t1b-1",
+     "fid": "F11",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t3-3",
+     "fid": "F8",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L6",
+   "fp": "cc6c7f6428dc3687",
+   "blocking": false,
+   "severity_max": "MAJOR",
+   "category": "missing-requirement",
+   "confidence": "single",
+   "status": "open",
+   "anchor": "the behaviour a command switches to when its caller passes `--unattended`",
+   "anchor2": null,
+   "span": [
+    50,
+    51
+   ],
+   "span2": null,
+   "refs": [
+    "2.1"
+   ],
+   "claim": "A quoted occurrence of the flag in a prompt is not distinguished from the control flag.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t1b-1",
+     "fid": "F14",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L7",
+   "fp": "27cbf7c085262da0",
+   "blocking": false,
+   "severity_max": "MAJOR",
+   "category": "other",
+   "confidence": "overlap",
+   "status": "open",
+   "anchor": "(passes with a 30 s fallback; above about 45 s it fails again)",
+   "anchor2": null,
+   "span": [
+    58,
+    59
+   ],
+   "span2": null,
+   "refs": [
+    "WC-1"
+   ],
+   "claim": "The 45 s figure came from a 45 s limit, not the 60 s default, so the sentence mixes two limits.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t1b-1",
+     "fid": "F15",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t2-1",
+     "fid": "F6",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L8",
+   "fp": "d1413164061dcb64",
+   "blocking": true,
+   "severity_max": "MAJOR",
+   "category": "other",
+   "confidence": "overlap",
+   "status": "resolved",
+   "anchor": "must be split into waits of at most 4 minutes",
+   "anchor2": "no single tool call exceeds 240 s",
+   "span": [
+    67,
+    68
+   ],
+   "span2": [
+    209,
+    210
+   ],
+   "refs": [
+    "AC-4.3",
+    "WC-10"
+   ],
+   "claim": "The split trigger is 5 minutes and the check is 240 s, so a 4 to 5 minute call is allowed and still fails the check.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t1b-1",
+     "fid": "F16",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t2-1",
+     "fid": "m2",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t3-1",
+     "fid": "F5",
+     "blocking": true
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    },
+    {
+     "round": 1,
+     "event": "resolved_check"
+    },
+    {
+     "round": 2,
+     "event": "cleared"
+    },
+    {
+     "round": 2,
+     "event": "prior_note",
+     "reviewer_id": "t1b-1",
+     "status": "resolved"
+    },
+    {
+     "round": 3,
+     "event": "prior_note",
+     "reviewer_id": "t1b-1",
+     "status": "resolved"
+    }
+   ]
+  },
+  {
+   "lid": "L9",
+   "fp": "fa52af7ee6bbc124",
+   "blocking": false,
+   "severity_max": "MINOR",
+   "category": "other",
+   "confidence": "single",
+   "status": "open",
+   "anchor": "Worker, with pre-authorization.** Apply the section 3 row",
+   "anchor2": null,
+   "span": [
+    240,
+    241
+   ],
+   "span2": null,
+   "refs": [],
+   "claim": "Option (b) omits that pr-submit states Will Not run headless (INV-B:90).",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t1b-1",
+     "fid": "F17",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L10",
+   "fp": "6806cb87bf795801",
+   "blocking": false,
+   "severity_max": "MAJOR",
+   "category": "other",
+   "confidence": "overlap",
+   "status": "open",
+   "anchor": "`CAPS:161` (`[H:worker-start]` line 38, `--agent claude`)",
+   "anchor2": null,
+   "span": [
+    21,
+    22
+   ],
+   "span2": null,
+   "refs": [],
+   "claim": "CAPS:161 is the pr-submit top-level quote; the agent ids are at CAPS:136.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t1b-1",
+     "fid": "F18",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t3-1",
+     "fid": "F10",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t3-2",
+     "fid": "F11",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t3-2",
+     "fid": "F12",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t3-3",
+     "fid": "F13",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t3-3",
+     "fid": "F14",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t3-4",
+     "fid": "F8",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L11",
+   "fp": "09465538cbd7d261",
+   "blocking": true,
+   "severity_max": "MAJOR",
+   "category": "missing-requirement",
+   "confidence": "overlap",
+   "status": "resolved",
+   "anchor": "until `worker_done` arrives",
+   "anchor2": null,
+   "span": [
+    180,
+    181
+   ],
+   "span2": null,
+   "refs": [],
+   "claim": "Step 3 waits on question and escalation messages but names only worker_done as the stop condition, so a question in the wait has no defined action.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t2-1",
+     "fid": "F7",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t2-1",
+     "fid": "F10",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t3-2",
+     "fid": "F4",
+     "blocking": true
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t3-3",
+     "fid": "F6",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t3-4",
+     "fid": "F2",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    },
+    {
+     "round": 1,
+     "event": "resolved_check"
+    },
+    {
+     "round": 2,
+     "event": "cleared"
+    },
+    {
+     "round": 2,
+     "event": "prior_note",
+     "reviewer_id": "t1b-1",
+     "status": "resolved"
+    },
+    {
+     "round": 3,
+     "event": "prior_note",
+     "reviewer_id": "t1b-1",
+     "status": "resolved"
+    }
+   ]
+  },
+  {
+   "lid": "L12",
+   "fp": "3620c2d5fd2e6b5b",
+   "blocking": false,
+   "severity_max": "MAJOR",
+   "category": "missing-requirement",
+   "confidence": "single",
+   "status": "open",
+   "anchor": "How `plugins/superclaude/commands/` (which holds copies such as `agent.md`",
+   "anchor2": "`make verify-sync` | exits 0 (SA-5)",
+   "span": [
+    278,
+    279
+   ],
+   "span2": [
+    172,
+    173
+   ],
+   "refs": [
+    "P1",
+    "P4",
+    "SA-5"
+   ],
+   "claim": "No acceptance check covers the plugin command mirror, and the update rule is left unresolved, so edits in P1-P4 can leave the mirror stale without any check failing.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t2-1",
+     "fid": "F13",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L13",
+   "fp": "d89d518e936b7cb3",
+   "blocking": false,
+   "severity_max": "MAJOR",
+   "category": "other",
+   "confidence": "overlap",
+   "status": "open",
+   "anchor": "dispatch only inside an IronClaude checkout (hardcoded template path)",
+   "anchor2": null,
+   "span": [
+    104,
+    105
+   ],
+   "span2": null,
+   "refs": [],
+   "claim": "The cli-portify row keeps a hardcoded src/superclaude/examples path in an installed skill, which the project rule forbids, and the spec neither mentions the rule nor adds the fix.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t2-1",
+     "fid": "F14",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t3-3",
+     "fid": "F12",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t3-3",
+     "fid": "F15",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t3-4",
+     "fid": "F5",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L14",
+   "fp": "1c318dd15759e61e",
+   "blocking": false,
+   "severity_max": "MINOR",
+   "category": "other",
+   "confidence": "overlap",
+   "status": "open",
+   "anchor": "`PROJECT_INDEX.md` (location implied)",
+   "anchor2": null,
+   "span": [
+    85,
+    86
+   ],
+   "span2": null,
+   "refs": [],
+   "claim": "The index-repo ready verdict rests on an output location the inventory marks UNVERIFIED.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t2-1",
+     "fid": "m1",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t3-3",
+     "fid": "F9",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L15",
+   "fp": "5a2b2fe110e6d4ff",
+   "blocking": false,
+   "severity_max": "MINOR",
+   "category": "missing-requirement",
+   "confidence": "single",
+   "status": "open",
+   "anchor": "The worker runs `check` at natural checkpoints",
+   "anchor2": null,
+   "span": [
+    69,
+    70
+   ],
+   "span2": null,
+   "refs": [
+    "WC-12"
+   ],
+   "claim": "The checkpoints for check are not named, so the rule cannot be tested.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t2-1",
+     "fid": "m3",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L16",
+   "fp": "e8664ac127138351",
+   "blocking": false,
+   "severity_max": "MINOR",
+   "category": "other",
+   "confidence": "single",
+   "status": "open",
+   "anchor": "The only end-to-end proof is the PR #329 run",
+   "anchor2": "It has worked before: in the codegraph planning run",
+   "span": [
+    42,
+    43
+   ],
+   "span2": [
+    22,
+    23
+   ],
+   "refs": [
+    "1.2",
+    "1.4"
+   ],
+   "claim": "The claim that PR #329 is the only end-to-end proof conflicts with E3's skill-direct evidence.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t2-2",
+     "fid": "M4",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L17",
+   "fp": "bf68e48549972064",
+   "blocking": false,
+   "severity_max": "MAJOR",
+   "category": "other",
+   "confidence": "overlap",
+   "status": "open",
+   "anchor": "is replaced by the explicit resume flag (resume only when passed)",
+   "anchor2": "Without `--unattended`, every prompt, approval gate, default flag value, output path and outward default stays as it is today",
+   "span": [
+    117,
+    118
+   ],
+   "span2": [
+    145,
+    146
+   ],
+   "refs": [
+    "SA-1"
+   ],
+   "claim": "The roadmap row removes the [Y/n] resume prompt without saying it applies only under --unattended, which SA-1 would forbid for standalone runs.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t3-1",
+     "fid": "F8",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t3-3",
+     "fid": "F10",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L18",
+   "fp": "b38185384b0e7bc4",
+   "blocking": false,
+   "severity_max": "MINOR",
+   "category": "other",
+   "confidence": "single",
+   "status": "open",
+   "anchor": "The 43 commands in `cmd/` (21 in `INV-A:3`, 22 in `INV-B:3`)",
+   "anchor2": null,
+   "span": [
+    75,
+    76
+   ],
+   "span2": null,
+   "refs": [],
+   "claim": "The 43-command census cannot be checked here, and sc:graph, sc:impact and sc:issue appear in the session command list but in neither inventory (UNVERIFIED for this revision).",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t3-1",
+     "fid": "F12",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L19",
+   "fp": "68ed1429d27976f0",
+   "blocking": false,
+   "severity_max": "MINOR",
+   "category": "other",
+   "confidence": "single",
+   "status": "open",
+   "anchor": "only files under the brief's output directory",
+   "anchor2": null,
+   "span": [
+    184,
+    185
+   ],
+   "span2": null,
+   "refs": [
+    "WC-11"
+   ],
+   "claim": "git status cannot separate this worker's files from other workers in a shared worktree.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t3-2",
+     "fid": "F10",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L20",
+   "fp": "aa6b1a4b765bd2f0",
+   "blocking": false,
+   "severity_max": "MINOR",
+   "category": "unpassable-check",
+   "confidence": "single",
+   "status": "open",
+   "anchor": "the contract lists each skipped outward step",
+   "anchor2": null,
+   "span": [
+    208,
+    209
+   ],
+   "span2": null,
+   "refs": [
+    "AC-4.2"
+   ],
+   "claim": "If post-release blocks before any step because the pre-tag choice is missing, no step is skipped and AC-4.2 has nothing to check; the AC does not say which path it tests.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t3-3",
+     "fid": "F17",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L21",
+   "fp": "32d1cd78cf257017",
+   "blocking": false,
+   "severity_max": "MAJOR",
+   "category": "other",
+   "confidence": "single",
+   "status": "open",
+   "anchor": "a non-null value means the worker is parked on a prompt only a person can answer",
+   "anchor2": null,
+   "span": [
+    180,
+    181
+   ],
+   "span2": null,
+   "refs": [
+    "WC-3"
+   ],
+   "claim": "A healthy worker waiting on a coordinator ask may fail the stall check, and the spec does not say whether ask waits set agentWait.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t3-4",
+     "fid": "F9",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L22",
+   "fp": "51684ed610fcbfe7",
+   "blocking": false,
+   "severity_max": "MINOR",
+   "category": "other",
+   "confidence": "single",
+   "status": "open",
+   "anchor": "use it as a step inside another worker's brief, not as its own Task",
+   "anchor2": null,
+   "span": [
+    111,
+    112
+   ],
+   "span2": null,
+   "refs": [
+    "4"
+   ],
+   "claim": "The load row counts as a needs-change worker row although its only change is a usage-line fix.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t3-4",
+     "fid": "F10",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L23",
+   "fp": "0a2c2c79d47e8f24",
+   "blocking": false,
+   "severity_max": "MAJOR",
+   "category": "contradiction",
+   "confidence": "single",
+   "status": "open",
+   "anchor": "`--handoff none`; `--output-dir <dir>` [L1]",
+   "anchor2": "7.2 live check on each P1 command with `--unattended --output <dir>`",
+   "span": [
+    91,
+    92
+   ],
+   "span2": [
+    195,
+    196
+   ],
+   "refs": [
+    "2.3",
+    "3.1",
+    "AC-0.4",
+    "AC-1.2",
+    "P1"
+   ],
+   "claim": "The workflow row requires a flag that exists only from P1 and AC-1.2 passes the wrong output flag to workflow, init-lite, cleanup-audit, index-repo and load.",
+   "members": [
+    {
+     "round": 2,
+     "reviewer_id": "t1b-1",
+     "fid": "N3",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 2,
+     "event": "opened"
+    }
+   ]
+  }
+ ]
+}

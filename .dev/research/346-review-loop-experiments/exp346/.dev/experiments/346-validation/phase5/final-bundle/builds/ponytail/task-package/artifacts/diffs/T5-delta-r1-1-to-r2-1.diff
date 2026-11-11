@@ -1,0 +1,98 @@
+diff --git a/src/superclaude/skills/sc-fix-audit/scripts/fix_audit.py b/src/superclaude/skills/sc-fix-audit/scripts/fix_audit.py
+index 2dc67640..27883d62 100644
+--- a/src/superclaude/skills/sc-fix-audit/scripts/fix_audit.py
++++ b/src/superclaude/skills/sc-fix-audit/scripts/fix_audit.py
+@@ -911,6 +911,28 @@ VERDICT_RE = re.compile(r"verdict: (PASS|FAIL)")
+ CM = ("CRITICAL", "MAJOR")
+ 
+ 
++def unlabelled_blocking(text: str) -> list[str]:
++    """Ids of review-3 table rows outside the resolution table that are graded `blocking`
++    but carry no severity label: parse_report needs a label, yet such a grade still counts."""
++    out: list[str] = []
++    in_prior = False
++    for line in text.splitlines():
++        if line.lstrip().startswith("#"):
++            in_prior = bool(PRIOR_HEADING_RE.search(line))
++            continue
++        cs = table_cells(line)
++        if in_prior or not cs or is_separator(cs):
++            continue
++        cell = cs[0].strip("*` ")
++        if not ID_CELL_RE.fullmatch(cell) or LABEL_RE.search(line):
++            continue
++        if any(c.lower() in STATUS_WORDS for c in cs[1:]):
++            continue
++        if BLOCKING_RE.search(line.lower()):
++            out += [t for t in id_tokens(cell) if not FR_RE.match(t)]
++    return out
++
++
+ def cmd_verdict(a: argparse.Namespace) -> int:
+     """Compute review 3's verdict from files; never turns a FAIL into a PASS."""
+     d = Path(a.dir)
+@@ -938,8 +960,8 @@ def cmd_verdict(a: argparse.Namespace) -> int:
+             if ln.startswith("DOWNGRADE ")
+         ]
+     # owner decision: deferred (closed) and demoted (DOWNGRADE) findings stay open in the
+-    # owner count; DOWNGRADE lines count only when the audit applied (a failed check changed nothing)
+-    held = closed + [t for t in downgrades if applied and t not in closed]
++    # owner count, whatever the audit state; nothing here lowers it
++    held = closed + [t for t in dict.fromkeys(downgrades) if t not in closed]
+     try:
+         r3 = read_text(Path(a.report))
+     except (OSError, UnicodeDecodeError) as e:
+@@ -955,7 +977,11 @@ def cmd_verdict(a: argparse.Namespace) -> int:
+ 
+     listed_open = [t for t, st in prior if st in ("open", "regressed")]
+     prior_open = [t for t in listed_open if ids.get(t, {}).get("blocking")]
+-    new_blocking = [t for t, g in new.items() if g["blocking"]]
++    new_blocking = list(
++        dict.fromkeys(
++            [t for t, g in new.items() if g["blocking"]] + unlabelled_blocking(r3)
++        )
++    )
+     open_ids = list(dict.fromkeys(prior_open + new_blocking))
+     disagree = [t for t in closed if t in new_blocking]
+     computed = "FAIL" if open_ids else "PASS"
+diff --git a/tests/skills/test_fix_audit_script.py b/tests/skills/test_fix_audit_script.py
+index 02fa997a..9d5fa023 100644
+--- a/tests/skills/test_fix_audit_script.py
++++ b/tests/skills/test_fix_audit_script.py
+@@ -1050,6 +1050,17 @@ def test_owner_count_reverted_minor_adds_nothing(applied):
+ 
+ 
+ def test_owner_count_equal_when_audit_skipped(tmp_path):
++    rep = report("| N1 | MAJOR | non-blocking |\n")
++    res, d, state = prepare(tmp_path, "a\nk\nb\n", "a x\nk\nb y\n", rep, disp="")
++    assert (
++        state["audit"] == "skipped(ids not citable)" and not (d / "check.log").exists()
++    )
++    res, lines = verdict(d, r3("| N1 | no | open |\n", NEW_CM, "verdict: FAIL"))
++    new, own = _owner(lines)
++    assert new == own == 1
++
++
++def test_downgrade_counts_even_when_the_check_failed(tmp_path):
+     d = _run_audit(
+         tmp_path,
+         "| N1 | MINOR | non-blocking |\n| N2 | CRITICAL | blocking |\n",
+@@ -1064,5 +1075,16 @@ def test_owner_count_equal_when_audit_skipped(tmp_path):
+         and "DOWNGRADE N2" in (d / "check.log").read_text()
+     )
+     res, lines = verdict(d, r3("| N2 | yes | resolved |\n", NEW_CM, "verdict: FAIL"))
+-    new, own = _owner(lines)
+-    assert new == own == 1
++    assert _owner(lines) == (1, 2)
++    assert "held open (deferred or demoted): N2 CRITICAL" in lines
++
++
++def test_unlabelled_blocking_row_in_review3_counts_as_open(applied):
++    res, lines = verdict(
++        applied, r3(RESOLVED, "| R3-1 | blocking | missing anchor |\n", "verdict: PASS")
++    )
++    assert "open blocking: R3-1" in lines and lines[-1] == "verdict: FAIL"
++    res, lines = verdict(
++        applied, r3(RESOLVED, "| R3-2 | non-blocking | wording |\n", "verdict: PASS")
++    )
++    assert "open blocking: none" in lines and lines[-1] == "verdict: PASS"

@@ -1,0 +1,45 @@
+{
+ "author_intent": {
+  "inherits": "syn-ret-3",
+  "perturbation": "paraphrase"
+ },
+ "base_case_id": "syn-ret-3",
+ "case_id": "syn-ret-3~paraphrase",
+ "category": "false",
+ "confirmable_from_packet": "yes",
+ "data_classes": [
+  "synthetic"
+ ],
+ "family": "syn-ret",
+ "group": "syn-ret",
+ "packet": {
+  "base_case_id": "syn-ret-3",
+  "code_outcome": "OK",
+  "state": {
+   "evidence": {
+    "e1": {
+     "context": "\n## 4. Exports\nR11. A user may request an export of their account data once per calendar month.\nR12. Activity logs are included in an export only when the user asks for them.\n\n## 5. Access\nR13. Only members of the data protection group may read activity logs older than 30 days.",
+     "line": 22,
+     "text": "Activity logs are included in an export only when the user asks for them."
+    }
+   },
+   "facts": {
+    "evidence_count": 1,
+    "quotes_found_verbatim": true
+   },
+   "finding": {
+    "title": "Exports never include activity logs",
+    "wrong_outcome": "Because users is unable to get their logs, anyone who follows the text as given to the letter ends up with an export that at no point includes activity logs, because `Activity logs are included in an export solely when the user asks for them.` (S:22); that is therefore wrong."
+   }
+  }
+ },
+ "source": {
+  "kind": "synthetic",
+  "paths": [
+   "cases_synth.py"
+  ],
+  "url": null
+ },
+ "split": "perturb",
+ "variant": "paraphrase"
+}

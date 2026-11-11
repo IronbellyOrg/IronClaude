@@ -1,0 +1,29 @@
+{
+ "author_intent": {
+  "reviewer": "sonnet-or-panel",
+  "reviewer_blocking": false,
+  "run": "a3-r3"
+ },
+ "case_id": "real_a3r3_F6",
+ "category": "real",
+ "data_classes": [
+  "s1_spec",
+  "stage2_artifact"
+ ],
+ "family": "s1_first_review",
+ "group": "other:10",
+ "packet": {
+  "candidate_sha": "d3cdbe573e57303b9ce6c93d1fe98ba18fb7cb1a15773d926bf6a0c31425200d",
+  "finding_id": "F6",
+  "finding_section": "### F6. Medium. The `/sc:index` row tells the implementer to document a claim the inventory marks UNVERIFIED\n- Expert: Wiegers.\n- Evidence: SPEC:111 (\"state that knowledge-base mode does not wait (whether it does is UNVERIFIED)\"); INV-A:54 and INV-A:113 (the file does not say). Writing the statement without checking it can leave a command that claims not to wait and does.\n- Recommendation: make the row \"check whether it waits; if so, refuse the mode under `--unattended`\" (same pattern as business-panel, SPEC:102).\n- Priority: Medium."
+ },
+ "source": {
+  "kind": "stage2",
+  "paths": [
+   "p11/runs/a3-r3/ws/.dev/orca-command-refactor/review/round1.md"
+  ],
+  "url": null
+ },
+ "split": "pool",
+ "variant": "base"
+}

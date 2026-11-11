@@ -1,0 +1,29 @@
+{
+ "author_intent": {
+  "reviewer": "sonnet-or-panel",
+  "reviewer_blocking": true,
+  "run": "a1-r3"
+ },
+ "case_id": "real_a1r3_F8",
+ "category": "real",
+ "data_classes": [
+  "s1_spec",
+  "stage2_artifact"
+ ],
+ "family": "s1_first_review",
+ "group": "D16",
+ "packet": {
+  "candidate_sha": "d3cdbe573e57303b9ce6c93d1fe98ba18fb7cb1a15773d926bf6a0c31425200d",
+  "finding_id": "F8",
+  "finding_section": "**F8. The additive-edit check AC-C5 (and AC-0.3) is wrong in both directions.** Severity MAJOR, blocking (concrete wrong outcome below). Expert: Crispin (check validity). Spec: section 7.1 AC-C5, section 7.3 AC-0.3, SA-4.\nIssue: the check is `git diff -U0 ... | grep -E '^-[^-]'` and \"prints nothing\" means additive (SPEC:176, SPEC:193). I ran it on sample diff lines: a removed list item appears in a diff as `-- text` and is not matched, a removed frontmatter fence `---` is not matched, and a removed prose line `-text` is matched. Most lines in these command files are list items or frontmatter, so deleted bullets pass the check. In the other direction, adding `--unattended` to an existing Usage line or `argument-hint` removes and re-adds that line, so it would fail the check, yet SA-4 permits changed existing lines only where section 3 names a defect fix (SPEC:149), and only load's usage line is named. The flag therefore cannot be documented in the place `/sc:help` reads without breaking a gate.\nConcrete wrong outcome: an implementer deletes a \"Will Not\" bullet from a command and AC-C5 reports success.\nRecommendation: replace the pattern with `grep '^-' | grep -v '^---'` on the diff body (excluding only the `--- a/path` file header), and add the Usage and `argument-hint` lines to the permitted-change list in SA-4. Priority High. Quality impact: Testability +2."
+ },
+ "source": {
+  "kind": "stage2",
+  "paths": [
+   "p11/runs/a1-r3/ws/.dev/orca-command-refactor/review/spec-panel.md"
+  ],
+  "url": null
+ },
+ "split": "pool",
+ "variant": "base"
+}

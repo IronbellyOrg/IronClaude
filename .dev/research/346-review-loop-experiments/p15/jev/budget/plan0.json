@@ -1,0 +1,28 @@
+{
+ "experiment": "plan0",
+ "ceiling_usd": 0.1,
+ "ceiling_input_tokens": 2000000,
+ "spent_tokens": 1248,
+ "spent_usd": 5.2416e-05,
+ "reserved": {},
+ "draws": {
+  "d000001": {
+   "phase": "probe",
+   "est": 179,
+   "actual": 330,
+   "usage_missing": false
+  },
+  "d000002": {
+   "phase": "probe",
+   "est": 426,
+   "actual": 459,
+   "usage_missing": false
+  },
+  "d000003": {
+   "phase": "probe",
+   "est": 426,
+   "actual": 459,
+   "usage_missing": false
+  }
+ }
+}

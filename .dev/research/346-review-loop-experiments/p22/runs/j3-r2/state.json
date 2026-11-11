@@ -1,0 +1,1977 @@
+{
+ "run": "j3-r2",
+ "arm": 3,
+ "design": "j3",
+ "stratum": "sonnet",
+ "rep": 2,
+ "round": 3,
+ "phase": "complete",
+ "launched": {
+  "R1.t1b-1": {
+   "alias": "sonnet",
+   "prompt": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p22/pn1j/runs/j3-r2/PROMPT-R1.t1b-1.md",
+   "t": "2026-11-11T12:18:31Z",
+   "t_epoch": 1794399511.5280743
+  },
+  "R1.t2-1": {
+   "alias": "haiku",
+   "prompt": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p22/pn1j/runs/j3-r2/PROMPT-R1.t2-1.md",
+   "t": "2026-11-11T12:18:31Z",
+   "t_epoch": 1794399511.5282876
+  },
+  "R1.t2-2": {
+   "alias": "haiku",
+   "prompt": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p22/pn1j/runs/j3-r2/PROMPT-R1.t2-2.md",
+   "t": "2026-11-11T12:23:21Z",
+   "t_epoch": 1794399801.7431943
+  },
+  "R1.t3-1": {
+   "alias": "haiku",
+   "prompt": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p22/pn1j/runs/j3-r2/PROMPT-R1.t3-1.md",
+   "t": "2026-11-11T12:23:21Z",
+   "t_epoch": 1794399801.743571
+  },
+  "R1.t3-2": {
+   "alias": "haiku",
+   "prompt": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p22/pn1j/runs/j3-r2/PROMPT-R1.t3-2.md",
+   "t": "2026-11-11T12:23:44Z",
+   "t_epoch": 1794399824.467489
+  },
+  "R1.t3-3": {
+   "alias": "haiku",
+   "prompt": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p22/pn1j/runs/j3-r2/PROMPT-R1.t3-3.md",
+   "t": "2026-11-11T12:24:24Z",
+   "t_epoch": 1794399864.7350225
+  },
+  "R1.t3-4": {
+   "alias": "haiku",
+   "prompt": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p22/pn1j/runs/j3-r2/PROMPT-R1.t3-4.md",
+   "t": "2026-11-11T12:24:24Z",
+   "t_epoch": 1794399864.7347572
+  },
+  "ADJ": {
+   "alias": "sonnet",
+   "prompt": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p22/pn1j/runs/j3-r2/PROMPT-ADJ.md",
+   "t": "2026-11-11T12:30:27Z",
+   "t_epoch": 1794400227.155713
+  },
+  "V1": {
+   "alias": "sonnet",
+   "prompt": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p22/pn1j/runs/j3-r2/PROMPT-V1.md",
+   "t": "2026-11-11T12:30:43Z",
+   "t_epoch": 1794400243.4324324
+  },
+  "R2.t1b-1": {
+   "alias": "sonnet",
+   "prompt": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p22/pn1j/runs/j3-r2/PROMPT-R2.t1b-1.md",
+   "t": "2026-11-11T12:34:27Z",
+   "t_epoch": 1794400467.8293
+  },
+  "V2": {
+   "alias": "sonnet",
+   "prompt": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p22/pn1j/runs/j3-r2/PROMPT-V2.md",
+   "t": "2026-11-11T12:39:57Z",
+   "t_epoch": 1794400797.251883
+  },
+  "R3.t1b-1": {
+   "alias": "sonnet",
+   "prompt": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p22/pn1j/runs/j3-r2/PROMPT-R3.t1b-1.md",
+   "t": "2026-11-11T12:43:13Z",
+   "t_epoch": 1794400993.2974205
+  },
+  "AUD": {
+   "alias": "sonnet",
+   "prompt": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p22/pn1j/runs/j3-r2/PROMPT-AUD.md",
+   "t": "2026-11-11T12:50:53Z",
+   "t_epoch": 1794401453.1536067
+  },
+  "AUD2": {
+   "alias": "sonnet",
+   "prompt": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p22/pn1j/runs/j3-r2/PROMPT-AUD2.md",
+   "t": "2026-11-11T12:51:18Z",
+   "t_epoch": 1794401478.4252148
+  }
+ },
+ "done": [
+  "R1.t1b-1",
+  "R1.t2-1",
+  "R1.t2-2",
+  "R1.t3-2",
+  "R1.t3-1",
+  "R1.t3-4",
+  "R1.t3-3",
+  "ADJ",
+  "V1",
+  "R2.t1b-1",
+  "V2",
+  "R3.t1b-1",
+  "AUD2",
+  "AUD"
+ ],
+ "lost": [],
+ "retries": {},
+ "log": {
+  "R1.t1b-1": {
+   "verdict": "FAIL",
+   "block_ok": true,
+   "findings": 15,
+   "blocking": 3,
+   "by_severity": {
+    "CRITICAL": 0,
+    "MAJOR": 11,
+    "MINOR": 4
+   },
+   "errors": [],
+   "tokens": {
+    "out": 38491,
+    "model": "claude-sonnet-5-5",
+    "wall_s": 314.8,
+    "in": 28,
+    "cache_read": 1874076,
+    "cache_write": 200038
+   },
+   "task": {
+    "cross_refs": 138,
+    "doc_bytes": 57763,
+    "doc_format": "markdown",
+    "doc_lines": 285,
+    "doc_sha256": "d3cdbe573e57303b9ce6c93d1fe98ba18fb7cb1a15773d926bf6a0c31425200d",
+    "ids_defined": 23,
+    "language": "en",
+    "max_heading_depth": 3,
+    "review_kind": "first",
+    "rfc2119": 0,
+    "sections": 25,
+    "specialization": "software-spec",
+    "table_rows": 112,
+    "tables": 11
+   },
+   "alias": "sonnet",
+   "report_bytes": 23675
+  },
+  "R1.t2-1": {
+   "verdict": "FAIL",
+   "block_ok": false,
+   "findings": 11,
+   "blocking": 3,
+   "by_severity": {
+    "CRITICAL": 0,
+    "MAJOR": 10,
+    "MINOR": 1
+   },
+   "errors": [
+    {
+     "line": 93,
+     "msg": "claim must have at most 300 characters"
+    }
+   ],
+   "tokens": {
+    "out": 82760,
+    "model": "claude-haiku-5-5",
+    "wall_s": 362.0,
+    "in": 18,
+    "cache_read": 924671,
+    "cache_write": 402407
+   },
+   "task": {
+    "cross_refs": 138,
+    "doc_bytes": 57763,
+    "doc_format": "markdown",
+    "doc_lines": 285,
+    "doc_sha256": "d3cdbe573e57303b9ce6c93d1fe98ba18fb7cb1a15773d926bf6a0c31425200d",
+    "ids_defined": 23,
+    "language": "en",
+    "max_heading_depth": 3,
+    "review_kind": "first",
+    "rfc2119": 0,
+    "sections": 25,
+    "specialization": "software-spec",
+    "table_rows": 112,
+    "tables": 11
+   },
+   "alias": "haiku",
+   "report_bytes": 21359
+  },
+  "R1.t2-2": {
+   "verdict": "FAIL",
+   "block_ok": true,
+   "findings": 12,
+   "blocking": 2,
+   "by_severity": {
+    "CRITICAL": 0,
+    "MAJOR": 6,
+    "MINOR": 6
+   },
+   "errors": [],
+   "tokens": {
+    "out": 50761,
+    "model": "claude-haiku-5-5",
+    "wall_s": 232.1,
+    "in": 18,
+    "cache_read": 1166814,
+    "cache_write": 184740
+   },
+   "task": {
+    "cross_refs": 138,
+    "doc_bytes": 57763,
+    "doc_format": "markdown",
+    "doc_lines": 285,
+    "doc_sha256": "d3cdbe573e57303b9ce6c93d1fe98ba18fb7cb1a15773d926bf6a0c31425200d",
+    "ids_defined": 23,
+    "language": "en",
+    "max_heading_depth": 3,
+    "review_kind": "first",
+    "rfc2119": 0,
+    "sections": 25,
+    "specialization": "software-spec",
+    "table_rows": 112,
+    "tables": 11
+   },
+   "alias": "haiku",
+   "report_bytes": 18775
+  },
+  "R1.t3-2": {
+   "verdict": "FAIL",
+   "block_ok": true,
+   "findings": 14,
+   "blocking": 2,
+   "by_severity": {
+    "CRITICAL": 0,
+    "MAJOR": 11,
+    "MINOR": 3
+   },
+   "errors": [],
+   "tokens": {
+    "out": 53493,
+    "model": "claude-haiku-5-5",
+    "wall_s": 252.8,
+    "in": 22,
+    "cache_read": 1462830,
+    "cache_write": 186603
+   },
+   "task": {
+    "cross_refs": 138,
+    "doc_bytes": 57763,
+    "doc_format": "markdown",
+    "doc_lines": 285,
+    "doc_sha256": "d3cdbe573e57303b9ce6c93d1fe98ba18fb7cb1a15773d926bf6a0c31425200d",
+    "ids_defined": 23,
+    "language": "en",
+    "max_heading_depth": 3,
+    "review_kind": "first",
+    "rfc2119": 0,
+    "sections": 25,
+    "specialization": "software-spec",
+    "table_rows": 112,
+    "tables": 11
+   },
+   "alias": "haiku",
+   "report_bytes": 23897
+  },
+  "R1.t3-1": {
+   "verdict": "FAIL",
+   "block_ok": true,
+   "findings": 17,
+   "blocking": 7,
+   "by_severity": {
+    "CRITICAL": 3,
+    "MAJOR": 12,
+    "MINOR": 2
+   },
+   "errors": [],
+   "tokens": {
+    "out": 71936,
+    "model": "claude-haiku-5-5",
+    "wall_s": 330.2,
+    "in": 22,
+    "cache_read": 1551840,
+    "cache_write": 204220
+   },
+   "task": {
+    "cross_refs": 138,
+    "doc_bytes": 57763,
+    "doc_format": "markdown",
+    "doc_lines": 285,
+    "doc_sha256": "d3cdbe573e57303b9ce6c93d1fe98ba18fb7cb1a15773d926bf6a0c31425200d",
+    "ids_defined": 23,
+    "language": "en",
+    "max_heading_depth": 3,
+    "review_kind": "first",
+    "rfc2119": 0,
+    "sections": 25,
+    "specialization": "software-spec",
+    "table_rows": 112,
+    "tables": 11
+   },
+   "alias": "haiku",
+   "report_bytes": 34517
+  },
+  "R1.t3-4": {
+   "verdict": "FAIL",
+   "block_ok": true,
+   "findings": 13,
+   "blocking": 4,
+   "by_severity": {
+    "CRITICAL": 1,
+    "MAJOR": 8,
+    "MINOR": 4
+   },
+   "errors": [],
+   "tokens": {
+    "out": 64613,
+    "model": "claude-haiku-5-5",
+    "wall_s": 283.1,
+    "in": 16,
+    "cache_read": 866769,
+    "cache_write": 197557
+   },
+   "task": {
+    "cross_refs": 138,
+    "doc_bytes": 57763,
+    "doc_format": "markdown",
+    "doc_lines": 285,
+    "doc_sha256": "d3cdbe573e57303b9ce6c93d1fe98ba18fb7cb1a15773d926bf6a0c31425200d",
+    "ids_defined": 23,
+    "language": "en",
+    "max_heading_depth": 3,
+    "review_kind": "first",
+    "rfc2119": 0,
+    "sections": 25,
+    "specialization": "software-spec",
+    "table_rows": 112,
+    "tables": 11
+   },
+   "alias": "haiku",
+   "report_bytes": 18912
+  },
+  "R1.t3-3": {
+   "verdict": "FAIL",
+   "block_ok": true,
+   "findings": 12,
+   "blocking": 3,
+   "by_severity": {
+    "CRITICAL": 3,
+    "MAJOR": 8,
+    "MINOR": 1
+   },
+   "errors": [],
+   "tokens": {
+    "out": 70799,
+    "model": "claude-haiku-5-5",
+    "wall_s": 330.7,
+    "in": 24,
+    "cache_read": 1772513,
+    "cache_write": 204454
+   },
+   "task": {
+    "cross_refs": 138,
+    "doc_bytes": 57763,
+    "doc_format": "markdown",
+    "doc_lines": 285,
+    "doc_sha256": "d3cdbe573e57303b9ce6c93d1fe98ba18fb7cb1a15773d926bf6a0c31425200d",
+    "ids_defined": 23,
+    "language": "en",
+    "max_heading_depth": 3,
+    "review_kind": "first",
+    "rfc2119": 0,
+    "sections": 25,
+    "specialization": "software-spec",
+    "table_rows": 112,
+    "tables": 11
+   },
+   "alias": "haiku",
+   "report_bytes": 19677
+  },
+  "JEV1": {
+   "findings": 94,
+   "candidate_pairs": 314,
+   "answered": 314,
+   "linked": 31,
+   "failed": 0,
+   "usd": 0.007930692000000001,
+   "tokens": 188826,
+   "wall_s": 8.6
+  },
+  "M1": {
+   "block_ok": {
+    "t1b-1": true,
+    "t2-1": false,
+    "t2-2": true,
+    "t3-1": true,
+    "t3-2": true,
+    "t3-3": true,
+    "t3-4": true
+   },
+   "brief_ids": [
+    "L1",
+    "L2",
+    "L3",
+    "L5",
+    "L15",
+    "L16",
+    "L17",
+    "L21",
+    "L25",
+    "L26",
+    "L36",
+    "L37",
+    "L38",
+    "L39",
+    "L40",
+    "L48"
+   ],
+   "cleared": [],
+   "clusters": [
+    {
+     "event": "opened",
+     "lid": "L1",
+     "members": [
+      {
+       "blocking": true,
+       "fid": "F1",
+       "reviewer_id": "t1b-1"
+      },
+      {
+       "blocking": true,
+       "fid": "F1",
+       "reviewer_id": "t3-3"
+      },
+      {
+       "blocking": true,
+       "fid": "F2",
+       "reviewer_id": "t3-4"
+      }
+     ]
+    },
+    {
+     "event": "opened",
+     "lid": "L2",
+     "members": [
+      {
+       "blocking": true,
+       "fid": "F2",
+       "reviewer_id": "t1b-1"
+      }
+     ]
+    },
+    {
+     "event": "opened",
+     "lid": "L3",
+     "members": [
+      {
+       "blocking": true,
+       "fid": "F3",
+       "reviewer_id": "t1b-1"
+      },
+      {
+       "blocking": true,
+       "fid": "F1",
+       "reviewer_id": "t3-1"
+      },
+      {
+       "blocking": true,
+       "fid": "F1",
+       "reviewer_id": "t3-2"
+      },
+      {
+       "blocking": true,
+       "fid": "F3",
+       "reviewer_id": "t3-3"
+      },
+      {
+       "blocking": false,
+       "fid": "F9",
+       "reviewer_id": "t3-4"
+      }
+     ]
+    },
+    {
+     "event": "opened",
+     "lid": "L4",
+     "members": [
+      {
+       "blocking": false,
+       "fid": "F4",
+       "reviewer_id": "t1b-1"
+      }
+     ]
+    },
+    {
+     "event": "opened",
+     "lid": "L5",
+     "members": [
+      {
+       "blocking": false,
+       "fid": "F5",
+       "reviewer_id": "t1b-1"
+      },
+      {
+       "blocking": true,
+       "fid": "F3",
+       "reviewer_id": "t3-4"
+      }
+     ]
+    },
+    {
+     "event": "opened",
+     "lid": "L6",
+     "members": [
+      {
+       "blocking": false,
+       "fid": "F6",
+       "reviewer_id": "t1b-1"
+      },
+      {
+       "blocking": false,
+       "fid": "F3",
+       "reviewer_id": "t3-2"
+      }
+     ]
+    },
+    {
+     "event": "opened",
+     "lid": "L7",
+     "members": [
+      {
+       "blocking": false,
+       "fid": "F7",
+       "reviewer_id": "t1b-1"
+      }
+     ]
+    },
+    {
+     "event": "opened",
+     "lid": "L8",
+     "members": [
+      {
+       "blocking": false,
+       "fid": "F8",
+       "reviewer_id": "t1b-1"
+      }
+     ]
+    },
+    {
+     "event": "opened",
+     "lid": "L9",
+     "members": [
+      {
+       "blocking": false,
+       "fid": "F9",
+       "reviewer_id": "t1b-1"
+      }
+     ]
+    },
+    {
+     "event": "opened",
+     "lid": "L10",
+     "members": [
+      {
+       "blocking": false,
+       "fid": "F10",
+       "reviewer_id": "t1b-1"
+      }
+     ]
+    },
+    {
+     "event": "opened",
+     "lid": "L11",
+     "members": [
+      {
+       "blocking": false,
+       "fid": "F11",
+       "reviewer_id": "t1b-1"
+      },
+      {
+       "blocking": false,
+       "fid": "F5",
+       "reviewer_id": "t2-1"
+      },
+      {
+       "blocking": false,
+       "fid": "F15",
+       "reviewer_id": "t3-1"
+      },
+      {
+       "blocking": false,
+       "fid": "F9",
+       "reviewer_id": "t3-2"
+      }
+     ]
+    },
+    {
+     "event": "opened",
+     "lid": "L12",
+     "members": [
+      {
+       "blocking": false,
+       "fid": "F12",
+       "reviewer_id": "t1b-1"
+      }
+     ]
+    },
+    {
+     "event": "opened",
+     "lid": "L13",
+     "members": [
+      {
+       "blocking": false,
+       "fid": "F13",
+       "reviewer_id": "t1b-1"
+      }
+     ]
+    },
+    {
+     "event": "opened",
+     "lid": "L14",
+     "members": [
+      {
+       "blocking": false,
+       "fid": "F15",
+       "reviewer_id": "t1b-1"
+      }
+     ]
+    },
+    {
+     "event": "opened",
+     "lid": "L15",
+     "members": [
+      {
+       "blocking": false,
+       "fid": "F16",
+       "reviewer_id": "t1b-1"
+      },
+      {
+       "blocking": true,
+       "fid": "F3",
+       "reviewer_id": "t2-1"
+      },
+      {
+       "blocking": false,
+       "fid": "F3",
+       "reviewer_id": "t2-2"
+      },
+      {
+       "blocking": false,
+       "fid": "F10",
+       "reviewer_id": "t3-1"
+      },
+      {
+       "blocking": true,
+       "fid": "F11",
+       "reviewer_id": "t3-1"
+      },
+      {
+       "blocking": false,
+       "fid": "F10",
+       "reviewer_id": "t3-2"
+      },
+      {
+       "blocking": false,
+       "fid": "F7",
+       "reviewer_id": "t3-3"
+      }
+     ]
+    },
+    {
+     "event": "opened",
+     "lid": "L16",
+     "members": [
+      {
+       "blocking": true,
+       "fid": "F1",
+       "reviewer_id": "t2-1"
+      }
+     ]
+    },
+    {
+     "event": "opened",
+     "lid": "L17",
+     "members": [
+      {
+       "blocking": true,
+       "fid": "F2",
+       "reviewer_id": "t2-1"
+      }
+     ]
+    },
+    {
+     "event": "opened",
+     "lid": "L18",
+     "members": [
+      {
+       "blocking": false,
+       "fid": "F6",
+       "reviewer_id": "t2-1"
+      }
+     ]
+    },
+    {
+     "event": "opened",
+     "lid": "L19",
+     "members": [
+      {
+       "blocking": false,
+       "fid": "F7",
+       "reviewer_id": "t2-1"
+      },
+      {
+       "blocking": false,
+       "fid": "F7",
+       "reviewer_id": "t3-1"
+      }
+     ]
+    },
+    {
+     "event": "opened",
+     "lid": "L20",
+     "members": [
+      {
+       "blocking": false,
+       "fid": "F8",
+       "reviewer_id": "t2-1"
+      },
+      {
+       "blocking": false,
+       "fid": "F7",
+       "reviewer_id": "t3-4"
+      }
+     ]
+    },
+    {
+     "event": "opened",
+     "lid": "L21",
+     "members": [
+      {
+       "blocking": false,
+       "fid": "F9",
+       "reviewer_id": "t2-1"
+      },
+      {
+       "blocking": true,
+       "fid": "F2",
+       "reviewer_id": "t3-3"
+      },
+      {
+       "blocking": true,
+       "fid": "F1",
+       "reviewer_id": "t3-4"
+      }
+     ]
+    },
+    {
+     "event": "opened",
+     "lid": "L22",
+     "members": [
+      {
+       "blocking": false,
+       "fid": "F10",
+       "reviewer_id": "t2-1"
+      }
+     ]
+    },
+    {
+     "event": "opened",
+     "lid": "L23",
+     "members": [
+      {
+       "blocking": false,
+       "fid": "F11",
+       "reviewer_id": "t2-1"
+      }
+     ]
+    },
+    {
+     "event": "opened",
+     "lid": "L24",
+     "members": [
+      {
+       "blocking": false,
+       "fid": "F12",
+       "reviewer_id": "t2-1"
+      }
+     ]
+    },
+    {
+     "event": "opened",
+     "lid": "L25",
+     "members": [
+      {
+       "blocking": true,
+       "fid": "F1",
+       "reviewer_id": "t2-2"
+      }
+     ]
+    },
+    {
+     "event": "opened",
+     "lid": "L26",
+     "members": [
+      {
+       "blocking": true,
+       "fid": "F2",
+       "reviewer_id": "t2-2"
+      }
+     ]
+    },
+    {
+     "event": "opened",
+     "lid": "L27",
+     "members": [
+      {
+       "blocking": false,
+       "fid": "F4",
+       "reviewer_id": "t2-2"
+      }
+     ]
+    },
+    {
+     "event": "opened",
+     "lid": "L28",
+     "members": [
+      {
+       "blocking": false,
+       "fid": "F5",
+       "reviewer_id": "t2-2"
+      }
+     ]
+    },
+    {
+     "event": "opened",
+     "lid": "L29",
+     "members": [
+      {
+       "blocking": false,
+       "fid": "F6",
+       "reviewer_id": "t2-2"
+      }
+     ]
+    },
+    {
+     "event": "opened",
+     "lid": "L30",
+     "members": [
+      {
+       "blocking": false,
+       "fid": "F7",
+       "reviewer_id": "t2-2"
+      }
+     ]
+    },
+    {
+     "event": "opened",
+     "lid": "L31",
+     "members": [
+      {
+       "blocking": false,
+       "fid": "F8",
+       "reviewer_id": "t2-2"
+      }
+     ]
+    },
+    {
+     "event": "opened",
+     "lid": "L32",
+     "members": [
+      {
+       "blocking": false,
+       "fid": "F9",
+       "reviewer_id": "t2-2"
+      }
+     ]
+    },
+    {
+     "event": "opened",
+     "lid": "L33",
+     "members": [
+      {
+       "blocking": false,
+       "fid": "F10",
+       "reviewer_id": "t2-2"
+      }
+     ]
+    },
+    {
+     "event": "opened",
+     "lid": "L34",
+     "members": [
+      {
+       "blocking": false,
+       "fid": "F11",
+       "reviewer_id": "t2-2"
+      }
+     ]
+    },
+    {
+     "event": "opened",
+     "lid": "L35",
+     "members": [
+      {
+       "blocking": false,
+       "fid": "F12",
+       "reviewer_id": "t2-2"
+      }
+     ]
+    },
+    {
+     "event": "opened",
+     "lid": "L36",
+     "members": [
+      {
+       "blocking": true,
+       "fid": "F2",
+       "reviewer_id": "t3-1"
+      },
+      {
+       "blocking": true,
+       "fid": "F4",
+       "reviewer_id": "t3-4"
+      }
+     ]
+    },
+    {
+     "event": "opened",
+     "lid": "L37",
+     "members": [
+      {
+       "blocking": true,
+       "fid": "F3",
+       "reviewer_id": "t3-1"
+      }
+     ]
+    },
+    {
+     "event": "opened",
+     "lid": "L38",
+     "members": [
+      {
+       "blocking": true,
+       "fid": "F4",
+       "reviewer_id": "t3-1"
+      },
+      {
+       "blocking": false,
+       "fid": "F6",
+       "reviewer_id": "t3-2"
+      },
+      {
+       "blocking": false,
+       "fid": "F7",
+       "reviewer_id": "t3-2"
+      }
+     ]
+    },
+    {
+     "event": "opened",
+     "lid": "L39",
+     "members": [
+      {
+       "blocking": true,
+       "fid": "F5",
+       "reviewer_id": "t3-1"
+      }
+     ]
+    },
+    {
+     "event": "opened",
+     "lid": "L40",
+     "members": [
+      {
+       "blocking": true,
+       "fid": "F6",
+       "reviewer_id": "t3-1"
+      }
+     ]
+    },
+    {
+     "event": "opened",
+     "lid": "L41",
+     "members": [
+      {
+       "blocking": false,
+       "fid": "F8",
+       "reviewer_id": "t3-1"
+      }
+     ]
+    },
+    {
+     "event": "opened",
+     "lid": "L42",
+     "members": [
+      {
+       "blocking": false,
+       "fid": "F9",
+       "reviewer_id": "t3-1"
+      }
+     ]
+    },
+    {
+     "event": "opened",
+     "lid": "L43",
+     "members": [
+      {
+       "blocking": false,
+       "fid": "F12",
+       "reviewer_id": "t3-1"
+      }
+     ]
+    },
+    {
+     "event": "opened",
+     "lid": "L44",
+     "members": [
+      {
+       "blocking": false,
+       "fid": "F13",
+       "reviewer_id": "t3-1"
+      }
+     ]
+    },
+    {
+     "event": "opened",
+     "lid": "L45",
+     "members": [
+      {
+       "blocking": false,
+       "fid": "F14",
+       "reviewer_id": "t3-1"
+      }
+     ]
+    },
+    {
+     "event": "opened",
+     "lid": "L46",
+     "members": [
+      {
+       "blocking": false,
+       "fid": "F16",
+       "reviewer_id": "t3-1"
+      }
+     ]
+    },
+    {
+     "event": "opened",
+     "lid": "L47",
+     "members": [
+      {
+       "blocking": false,
+       "fid": "F17",
+       "reviewer_id": "t3-1"
+      }
+     ]
+    },
+    {
+     "event": "opened",
+     "lid": "L48",
+     "members": [
+      {
+       "blocking": true,
+       "fid": "F2",
+       "reviewer_id": "t3-2"
+      }
+     ]
+    },
+    {
+     "event": "opened",
+     "lid": "L49",
+     "members": [
+      {
+       "blocking": false,
+       "fid": "F4",
+       "reviewer_id": "t3-2"
+      }
+     ]
+    },
+    {
+     "event": "opened",
+     "lid": "L50",
+     "members": [
+      {
+       "blocking": false,
+       "fid": "F5",
+       "reviewer_id": "t3-2"
+      }
+     ]
+    },
+    {
+     "event": "opened",
+     "lid": "L51",
+     "members": [
+      {
+       "blocking": false,
+       "fid": "F8",
+       "reviewer_id": "t3-2"
+      }
+     ]
+    },
+    {
+     "event": "opened",
+     "lid": "L52",
+     "members": [
+      {
+       "blocking": false,
+       "fid": "F11",
+       "reviewer_id": "t3-2"
+      },
+      {
+       "blocking": false,
+       "fid": "F5",
+       "reviewer_id": "t3-3"
+      }
+     ]
+    },
+    {
+     "event": "opened",
+     "lid": "L53",
+     "members": [
+      {
+       "blocking": false,
+       "fid": "F12",
+       "reviewer_id": "t3-2"
+      }
+     ]
+    },
+    {
+     "event": "opened",
+     "lid": "L54",
+     "members": [
+      {
+       "blocking": false,
+       "fid": "F13",
+       "reviewer_id": "t3-2"
+      }
+     ]
+    },
+    {
+     "event": "opened",
+     "lid": "L55",
+     "members": [
+      {
+       "blocking": false,
+       "fid": "F14",
+       "reviewer_id": "t3-2"
+      }
+     ]
+    },
+    {
+     "event": "opened",
+     "lid": "L56",
+     "members": [
+      {
+       "blocking": false,
+       "fid": "F4",
+       "reviewer_id": "t3-3"
+      }
+     ]
+    },
+    {
+     "event": "opened",
+     "lid": "L57",
+     "members": [
+      {
+       "blocking": false,
+       "fid": "F6",
+       "reviewer_id": "t3-3"
+      }
+     ]
+    },
+    {
+     "event": "opened",
+     "lid": "L58",
+     "members": [
+      {
+       "blocking": false,
+       "fid": "F8",
+       "reviewer_id": "t3-3"
+      }
+     ]
+    },
+    {
+     "event": "opened",
+     "lid": "L59",
+     "members": [
+      {
+       "blocking": false,
+       "fid": "F9",
+       "reviewer_id": "t3-3"
+      }
+     ]
+    },
+    {
+     "event": "opened",
+     "lid": "L60",
+     "members": [
+      {
+       "blocking": false,
+       "fid": "F10",
+       "reviewer_id": "t3-3"
+      }
+     ]
+    },
+    {
+     "event": "opened",
+     "lid": "L61",
+     "members": [
+      {
+       "blocking": false,
+       "fid": "F11",
+       "reviewer_id": "t3-3"
+      }
+     ]
+    },
+    {
+     "event": "opened",
+     "lid": "L62",
+     "members": [
+      {
+       "blocking": false,
+       "fid": "F12",
+       "reviewer_id": "t3-3"
+      }
+     ]
+    },
+    {
+     "event": "opened",
+     "lid": "L63",
+     "members": [
+      {
+       "blocking": false,
+       "fid": "F5",
+       "reviewer_id": "t3-4"
+      }
+     ]
+    },
+    {
+     "event": "opened",
+     "lid": "L64",
+     "members": [
+      {
+       "blocking": false,
+       "fid": "F6",
+       "reviewer_id": "t3-4"
+      }
+     ]
+    },
+    {
+     "event": "opened",
+     "lid": "L65",
+     "members": [
+      {
+       "blocking": false,
+       "fid": "F8",
+       "reviewer_id": "t3-4"
+      }
+     ]
+    },
+    {
+     "event": "opened",
+     "lid": "L66",
+     "members": [
+      {
+       "blocking": false,
+       "fid": "F10",
+       "reviewer_id": "t3-4"
+      }
+     ]
+    },
+    {
+     "event": "opened",
+     "lid": "L67",
+     "members": [
+      {
+       "blocking": false,
+       "fid": "F11",
+       "reviewer_id": "t3-4"
+      }
+     ]
+    },
+    {
+     "event": "opened",
+     "lid": "L68",
+     "members": [
+      {
+       "blocking": false,
+       "fid": "F12",
+       "reviewer_id": "t3-4"
+      }
+     ]
+    },
+    {
+     "event": "opened",
+     "lid": "L69",
+     "members": [
+      {
+       "blocking": false,
+       "fid": "F13",
+       "reviewer_id": "t3-4"
+      }
+     ]
+    }
+   ],
+   "decision": "REVISE",
+   "new": [
+    "L1",
+    "L2",
+    "L3",
+    "L4",
+    "L5",
+    "L6",
+    "L7",
+    "L8",
+    "L9",
+    "L10",
+    "L11",
+    "L12",
+    "L13",
+    "L14",
+    "L15",
+    "L16",
+    "L17",
+    "L18",
+    "L19",
+    "L20",
+    "L21",
+    "L22",
+    "L23",
+    "L24",
+    "L25",
+    "L26",
+    "L27",
+    "L28",
+    "L29",
+    "L30",
+    "L31",
+    "L32",
+    "L33",
+    "L34",
+    "L35",
+    "L36",
+    "L37",
+    "L38",
+    "L39",
+    "L40",
+    "L41",
+    "L42",
+    "L43",
+    "L44",
+    "L45",
+    "L46",
+    "L47",
+    "L48",
+    "L49",
+    "L50",
+    "L51",
+    "L52",
+    "L53",
+    "L54",
+    "L55",
+    "L56",
+    "L57",
+    "L58",
+    "L59",
+    "L60",
+    "L61",
+    "L62",
+    "L63",
+    "L64",
+    "L65",
+    "L66",
+    "L67",
+    "L68",
+    "L69"
+   ],
+   "refound": [],
+   "regressed": [],
+   "verdict": "FAIL",
+   "warnings": [
+    "t2-1: findings block problem (1 error(s)), first: claim must have at most 300 characters"
+   ]
+  },
+  "ADJ": {
+   "output_exists": true,
+   "tokens": {
+    "out": 20363,
+    "model": "claude-sonnet-5-5",
+    "wall_s": 191.6,
+    "in": 20,
+    "cache_read": 1007215,
+    "cache_write": 90464
+   },
+   "alias": "sonnet",
+   "report_bytes": 12423
+  },
+  "V1": {
+   "output_exists": true,
+   "tokens": {
+    "out": 23951,
+    "model": "claude-sonnet-5-5",
+    "wall_s": 206.2,
+    "in": 24,
+    "cache_read": 1322429,
+    "cache_write": 110944
+   },
+   "alias": "sonnet",
+   "report_bytes": 7967,
+   "spec_after": {
+    "bytes": 59826,
+    "lines": 285,
+    "sha256": "da4cd912171cc74212b88740d863db34d42fb2a683b70adacae94853b3fa183d"
+   }
+  },
+  "L1": {
+   "fixmap_ok": true,
+   "named_not_touched": [],
+   "rejected": [],
+   "resolved_check": [
+    "L1",
+    "L2",
+    "L3",
+    "L5",
+    "L15",
+    "L16",
+    "L17",
+    "L21",
+    "L25",
+    "L26",
+    "L36",
+    "L37",
+    "L38",
+    "L39",
+    "L40",
+    "L48"
+   ],
+   "unknown": []
+  },
+  "R2.t1b-1": {
+   "verdict": "PASS",
+   "block_ok": true,
+   "findings": 10,
+   "blocking": 0,
+   "by_severity": {
+    "CRITICAL": 0,
+    "MAJOR": 8,
+    "MINOR": 2
+   },
+   "errors": [],
+   "tokens": {
+    "out": 39834,
+    "model": "claude-sonnet-5-5",
+    "wall_s": 314.4,
+    "in": 26,
+    "cache_read": 1595493,
+    "cache_write": 146503
+   },
+   "task": {
+    "cross_refs": 160,
+    "doc_bytes": 59826,
+    "doc_format": "markdown",
+    "doc_lines": 285,
+    "doc_sha256": "da4cd912171cc74212b88740d863db34d42fb2a683b70adacae94853b3fa183d",
+    "ids_defined": 23,
+    "language": "en",
+    "max_heading_depth": 3,
+    "review_kind": "re-review",
+    "rfc2119": 0,
+    "sections": 25,
+    "specialization": "software-spec",
+    "table_rows": 112,
+    "tables": 11
+   },
+   "alias": "sonnet",
+   "report_bytes": 42271
+  },
+  "M2": {
+   "block_ok": {
+    "t1b-1": true
+   },
+   "brief_ids": [
+    "L1",
+    "L3",
+    "L21"
+   ],
+   "cleared": [
+    "L2",
+    "L5",
+    "L15",
+    "L16",
+    "L17",
+    "L25",
+    "L26",
+    "L36",
+    "L37",
+    "L38",
+    "L39",
+    "L40",
+    "L48"
+   ],
+   "clusters": [
+    {
+     "event": "regressed",
+     "lid": "L1",
+     "members": [
+      {
+       "blocking": false,
+       "fid": "F1",
+       "reviewer_id": "t1b-1"
+      },
+      {
+       "blocking": false,
+       "fid": "F2",
+       "reviewer_id": "t1b-1"
+      },
+      {
+       "blocking": false,
+       "fid": "F6",
+       "reviewer_id": "t1b-1"
+      },
+      {
+       "blocking": false,
+       "fid": "F8",
+       "reviewer_id": "t1b-1"
+      }
+     ]
+    },
+    {
+     "event": "regressed",
+     "lid": "L3",
+     "members": [
+      {
+       "blocking": false,
+       "fid": "F3",
+       "reviewer_id": "t1b-1"
+      },
+      {
+       "blocking": false,
+       "fid": "F4",
+       "reviewer_id": "t1b-1"
+      }
+     ]
+    },
+    {
+     "event": "refound",
+     "lid": "L27",
+     "members": [
+      {
+       "blocking": false,
+       "fid": "F5",
+       "reviewer_id": "t1b-1"
+      }
+     ]
+    },
+    {
+     "event": "refound",
+     "lid": "L3",
+     "members": [
+      {
+       "blocking": false,
+       "fid": "F7",
+       "reviewer_id": "t1b-1"
+      }
+     ]
+    },
+    {
+     "event": "regressed",
+     "lid": "L21",
+     "members": [
+      {
+       "blocking": false,
+       "fid": "F9",
+       "reviewer_id": "t1b-1"
+      }
+     ]
+    },
+    {
+     "event": "opened",
+     "lid": "L70",
+     "members": [
+      {
+       "blocking": false,
+       "fid": "F10",
+       "reviewer_id": "t1b-1"
+      }
+     ]
+    }
+   ],
+   "decision": "REVISE",
+   "new": [
+    "L70"
+   ],
+   "refound": [
+    "L1",
+    "L3",
+    "L27",
+    "L3",
+    "L21"
+   ],
+   "regressed": [
+    "L1",
+    "L3",
+    "L21"
+   ],
+   "verdict": "FAIL",
+   "warnings": []
+  },
+  "V2": {
+   "output_exists": true,
+   "tokens": {
+    "out": 19246,
+    "model": "claude-sonnet-5-5",
+    "wall_s": 180.0,
+    "in": 38,
+    "cache_read": 2417299,
+    "cache_write": 113913
+   },
+   "alias": "sonnet",
+   "report_bytes": 6485,
+   "spec_after": {
+    "bytes": 61161,
+    "lines": 285,
+    "sha256": "8e04830f30f12e5880b287bc0ce1e2b366b89a949faf362b930d9ead240bdf7a"
+   }
+  },
+  "L2": {
+   "fixmap_ok": true,
+   "named_not_touched": [
+    "L1"
+   ],
+   "rejected": [],
+   "resolved_check": [
+    "L3",
+    "L21"
+   ],
+   "unknown": []
+  },
+  "R3.t1b-1": {
+   "verdict": "PASS",
+   "block_ok": true,
+   "findings": 8,
+   "blocking": 0,
+   "by_severity": {
+    "CRITICAL": 0,
+    "MAJOR": 6,
+    "MINOR": 2
+   },
+   "errors": [],
+   "tokens": {
+    "out": 57117,
+    "model": "claude-sonnet-5-5",
+    "wall_s": 438.2,
+    "in": 38,
+    "cache_read": 2833110,
+    "cache_write": 159762
+   },
+   "task": {
+    "cross_refs": 165,
+    "doc_bytes": 61161,
+    "doc_format": "markdown",
+    "doc_lines": 285,
+    "doc_sha256": "8e04830f30f12e5880b287bc0ce1e2b366b89a949faf362b930d9ead240bdf7a",
+    "ids_defined": 23,
+    "language": "en",
+    "max_heading_depth": 3,
+    "review_kind": "re-review",
+    "rfc2119": 0,
+    "sections": 25,
+    "specialization": "software-spec",
+    "table_rows": 112,
+    "tables": 11
+   },
+   "alias": "sonnet",
+   "report_bytes": 47321
+  },
+  "M3": {
+   "block_ok": {
+    "t1b-1": true
+   },
+   "brief_ids": [
+    "L1",
+    "L3",
+    "L21"
+   ],
+   "cleared": [],
+   "clusters": [
+    {
+     "event": "regressed",
+     "lid": "L3",
+     "members": [
+      {
+       "blocking": false,
+       "fid": "N1",
+       "reviewer_id": "t1b-1"
+      },
+      {
+       "blocking": false,
+       "fid": "N2",
+       "reviewer_id": "t1b-1"
+      },
+      {
+       "blocking": false,
+       "fid": "N6",
+       "reviewer_id": "t1b-1"
+      },
+      {
+       "blocking": false,
+       "fid": "N7",
+       "reviewer_id": "t1b-1"
+      },
+      {
+       "blocking": false,
+       "fid": "N8",
+       "reviewer_id": "t1b-1"
+      }
+     ]
+    },
+    {
+     "event": "refound",
+     "lid": "L3",
+     "members": [
+      {
+       "blocking": false,
+       "fid": "N3",
+       "reviewer_id": "t1b-1"
+      }
+     ]
+    },
+    {
+     "event": "opened",
+     "lid": "L71",
+     "members": [
+      {
+       "blocking": false,
+       "fid": "N4",
+       "reviewer_id": "t1b-1"
+      }
+     ]
+    },
+    {
+     "event": "regressed",
+     "lid": "L21",
+     "members": [
+      {
+       "blocking": false,
+       "fid": "N5",
+       "reviewer_id": "t1b-1"
+      }
+     ]
+    }
+   ],
+   "decision": "ESCALATE",
+   "new": [
+    "L71"
+   ],
+   "refound": [
+    "L3",
+    "L3",
+    "L21"
+   ],
+   "regressed": [
+    "L3",
+    "L21"
+   ],
+   "verdict": "FAIL",
+   "warnings": []
+  },
+  "AUD2": {
+   "output_exists": true,
+   "tokens": {
+    "out": 39538,
+    "model": "claude-sonnet-5-5",
+    "wall_s": 350.7,
+    "in": 32,
+    "cache_read": 2065488,
+    "cache_write": 163339
+   },
+   "alias": "sonnet",
+   "report_bytes": 18723,
+   "verdict": "FAIL",
+   "blocking_ids": [
+    "B1"
+   ],
+   "blocking_tags": [
+    [
+     "B1",
+     "T2"
+    ]
+   ],
+   "spec_audited": {
+    "bytes": 61161
+   }
+  },
+  "AUD": {
+   "output_exists": true,
+   "tokens": {
+    "out": 60891,
+    "model": "claude-sonnet-5-5",
+    "wall_s": 464.0,
+    "in": 26,
+    "cache_read": 1590851,
+    "cache_write": 324461
+   },
+   "alias": "sonnet",
+   "report_bytes": 27926,
+   "verdict": "PASS",
+   "blocking_ids": [],
+   "blocking_tags": [],
+   "spec_audited": {
+    "bytes": 61161
+   }
+  }
+ },
+ "ingested_reviewers": [],
+ "telemetry_ids": {
+  "R1.t1b-1": "4ea2b9d23b7049b9a7ffcd6d51eeca09",
+  "R1.t2-1": "b8ab36ae782d4e499e57d842ae17af72",
+  "R1.t2-2": "13131a111e4141f68fa10becbcfc7e3d",
+  "R1.t3-1": "e51b450137da4ad7876c10b3322364df",
+  "R1.t3-2": "e15b12714a2e4ffaac77bb3598100b6d",
+  "R1.t3-3": "57f039d2e04d400aad83131b829ed246",
+  "R1.t3-4": "37aa6bc0ba0d4047a09c66a4cab674ba",
+  "R2.t1b-1": "aa0521d3671245239f24b6d65bc7d135",
+  "R3.t1b-1": "e149c6f2e4404d3cacbc46d4c5213326"
+ },
+ "created": "2026-11-11T12:18:25Z",
+ "panel": {
+  "environment": "anthropic-only",
+  "review_kind": "first",
+  "reviewers": [
+   {
+    "alias": "claude-gw-tier1b[1m]",
+    "fallback_depth": 0,
+    "fallbacks": [],
+    "launch": "sonnet",
+    "model": "claude-sonnet-5-5",
+    "model_name": "Claude Sonnet 5.5",
+    "reviewer_id": "t1b-1",
+    "seed": null,
+    "slot_id": "t1b",
+    "stand_in": false,
+    "strategy": "fixed",
+    "tier": "tier1b"
+   },
+   {
+    "alias": "claude-gw-tier2[1m]",
+    "fallback_depth": 0,
+    "fallbacks": [],
+    "launch": "haiku",
+    "model": "claude-haiku-5-5",
+    "model_name": "Claude Haiku 5.5",
+    "reviewer_id": "t2-1",
+    "seed": "2901559964|t2|1",
+    "slot_id": "t2",
+    "stand_in": true,
+    "strategy": "random",
+    "tier": "tier2"
+   },
+   {
+    "alias": "claude-gw-tier2[1m]",
+    "fallback_depth": 0,
+    "fallbacks": [],
+    "launch": "haiku",
+    "model": "claude-haiku-5-5",
+    "model_name": "Claude Haiku 5.5",
+    "reviewer_id": "t2-2",
+    "seed": "2901559964|t2|2",
+    "slot_id": "t2",
+    "stand_in": true,
+    "strategy": "random",
+    "tier": "tier2"
+   },
+   {
+    "alias": "claude-gw-tier3[1m]",
+    "fallback_depth": 0,
+    "fallbacks": [],
+    "launch": "haiku",
+    "model": "claude-haiku-5-5",
+    "model_name": "Claude Haiku 5.5",
+    "reviewer_id": "t3-1",
+    "seed": "2901559964|t3|1",
+    "slot_id": "t3",
+    "stand_in": true,
+    "strategy": "random",
+    "tier": "tier3"
+   },
+   {
+    "alias": "claude-gw-tier3[1m]",
+    "fallback_depth": 0,
+    "fallbacks": [],
+    "launch": "haiku",
+    "model": "claude-haiku-5-5",
+    "model_name": "Claude Haiku 5.5",
+    "reviewer_id": "t3-2",
+    "seed": "2901559964|t3|2",
+    "slot_id": "t3",
+    "stand_in": true,
+    "strategy": "random",
+    "tier": "tier3"
+   },
+   {
+    "alias": "claude-gw-tier3[1m]",
+    "fallback_depth": 0,
+    "fallbacks": [],
+    "launch": "haiku",
+    "model": "claude-haiku-5-5",
+    "model_name": "Claude Haiku 5.5",
+    "reviewer_id": "t3-3",
+    "seed": "2901559964|t3|3",
+    "slot_id": "t3",
+    "stand_in": true,
+    "strategy": "random",
+    "tier": "tier3"
+   },
+   {
+    "alias": "claude-gw-tier3[1m]",
+    "fallback_depth": 0,
+    "fallbacks": [],
+    "launch": "haiku",
+    "model": "claude-haiku-5-5",
+    "model_name": "Claude Haiku 5.5",
+    "reviewer_id": "t3-4",
+    "seed": "2901559964|t3|4",
+    "slot_id": "t3",
+    "stand_in": true,
+    "strategy": "random",
+    "tier": "tier3"
+   }
+  ],
+  "run_id": "j3-r2",
+  "schema": "review-panel-resolution/1",
+  "template_id": "pn1d",
+  "template_sha256": "c083de8d2b9191b59b201c6aac22d810fe4e2331f266194c8aade3b368e34153",
+  "template_version": "1.0.0",
+  "tiers_sha256": "8c771b37fe765f4dc6c7fcbc9d18a9ff5d4091f39796fdabe851ab535190e39e",
+  "tiers_version": "1.0.0"
+ },
+ "panel_rr": {
+  "environment": "anthropic-only",
+  "review_kind": "re-review",
+  "reviewers": [
+   {
+    "alias": "claude-gw-tier1b[1m]",
+    "fallback_depth": 0,
+    "fallbacks": [],
+    "launch": "sonnet",
+    "model": "claude-sonnet-5-5",
+    "model_name": "Claude Sonnet 5.5",
+    "reviewer_id": "t1b-1",
+    "seed": null,
+    "slot_id": "t1b",
+    "stand_in": false,
+    "strategy": "fixed",
+    "tier": "tier1b"
+   }
+  ],
+  "run_id": "j3-r2",
+  "schema": "review-panel-resolution/1",
+  "template_id": "pn1d",
+  "template_sha256": "c083de8d2b9191b59b201c6aac22d810fe4e2331f266194c8aade3b368e34153",
+  "template_version": "1.0.0",
+  "tiers_sha256": "8c771b37fe765f4dc6c7fcbc9d18a9ff5d4091f39796fdabe851ab535190e39e",
+  "tiers_version": "1.0.0"
+ },
+ "final": {
+  "reviews": 3,
+  "decision": "ESCALATE",
+  "final_bytes": 61161,
+  "final_sha256": "8e04830f30f12e5880b287bc0ce1e2b366b89a949faf362b930d9ead240bdf7a",
+  "growth": 0.05882658449180278
+ }
+}

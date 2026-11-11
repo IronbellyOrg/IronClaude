@@ -1,0 +1,6 @@
+{"run": "a3-r1", "step": "AUD2", "event": "launch", "model": "sonnet", "ts": 1794312774.5360231}
+{"run": "a3-r2", "step": "AUD2", "event": "launch", "model": "sonnet", "ts": 1794312774.5361693}
+{"run": "a3-r3", "step": "AUD2", "event": "launch", "model": "sonnet", "ts": 1794312774.536286}
+{"run": "a3-r4", "step": "AUD2", "event": "launch", "model": "sonnet", "ts": 1794312774.536399}
+{"run": "a3-r5", "step": "AUD2", "event": "launch", "model": "sonnet", "ts": 1794312774.5365078}
+{"run": "a3-r6", "step": "AUD2", "event": "launch", "model": "sonnet", "ts": 1794312774.536619}

@@ -1,0 +1,17 @@
+{
+ "finding": {
+  "title": "The meaning of derived is not defined",
+  "wrong_outcome": "an implementer who follows the stated text as written builds the daily report as a query over the ledger (`the daily report is derived from it`, S:20), and that is wrong because derived does not say whether the report is a view or a stored copy."
+ },
+ "evidence": {
+  "e1": {
+   "text": "the daily report is derived from it",
+   "line": 20,
+   "context": "\n## 4. Ledger\nR9. Ledger entries are append-only and carry the charge identifier, the amount in minor units and the UTC timestamp.\nR10. The ledger is the source of truth for balances; the daily report is derived from it.\n\n## 5. Reports\nR11. The daily report lists every captured charge and every refund of the previous UTC day."
+  }
+ },
+ "facts": {
+  "quotes_found_verbatim": true,
+  "evidence_count": 1
+ }
+}

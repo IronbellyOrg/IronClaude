@@ -1,0 +1,230 @@
+{
+ "schema": "review-ledger/1",
+ "doc": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/exp346/.dev/experiments/346-validation/phase2/S1/inputs/repo-overlay/.dev/orca-command-refactor/specs/orca-worker-contract-spec.md",
+ "cap_reviews": 3,
+ "rounds": [
+  {
+   "n": 1,
+   "doc_sha256": "d3cdbe573e57303b9ce6c93d1fe98ba18fb7cb1a15773d926bf6a0c31425200d",
+   "reviewers": [
+    {
+     "reviewer_id": "t1b-1",
+     "model": "replay",
+     "report": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p13/ab1/offline/replay/k1/a3-r6/round1-t1b-1.md",
+     "report_sha256": "f6b6bb8f54ce5c756a26753306d4219745d16bb1a4613cedbba6539e2b0d9426",
+     "block_ok": true
+    }
+   ],
+   "verdict": "FAIL",
+   "decision": "REVISE",
+   "brief_ids": [
+    "L1",
+    "L2"
+   ]
+  },
+  {
+   "n": 2,
+   "doc_sha256": "cf9b3e748906ea7675896ba4ee5a7993c98b0ab7a8ec22a0e9311df04e7ebb69",
+   "reviewers": [
+    {
+     "reviewer_id": "t1b-1",
+     "model": "replay",
+     "report": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p13/ab1/offline/replay/k1/a3-r6/round2-t1b-1.md",
+     "report_sha256": "9452b74a449599d10730f9ce917e06f00176e20dd0254978fb39f93b2d4dd40f",
+     "block_ok": true
+    }
+   ],
+   "verdict": "FAIL",
+   "decision": "REVISE",
+   "brief_ids": [
+    "L3"
+   ]
+  },
+  {
+   "n": 3,
+   "doc_sha256": "83f24502ee791d296bebd644adce8eba84b0a7bccbb076f090415ba276880733",
+   "reviewers": [
+    {
+     "reviewer_id": "t1b-1",
+     "model": "replay",
+     "report": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p13/ab1/offline/replay/k1/a3-r6/round3-t1b-1.md",
+     "report_sha256": "1337871a9b5bffc8bc87e1e646ee6730462969337569e28369c1d12975340a5c",
+     "block_ok": true
+    }
+   ],
+   "verdict": "PASS",
+   "decision": "PASS",
+   "brief_ids": []
+  }
+ ],
+ "rows": [
+  {
+   "lid": "L1",
+   "fp": "20f8678d66de06cf",
+   "blocking": true,
+   "severity_max": "CRITICAL",
+   "category": "unpassable-check",
+   "confidence": "single",
+   "status": "resolved",
+   "anchor": "where `<output-dir>` is the directory the coordinator passed (`--output` / `--output-dir`)",
+   "anchor2": "not a bare topic; `--output <file>` | the TDD at `--output`",
+   "span": [
+    61,
+    62
+   ],
+   "span2": [
+    89,
+    90
+   ],
+   "refs": [
+    "AC-2.3",
+    "WC-4",
+    "WC-6"
+   ],
+   "claim": "The report-location rule cannot be applied to a dozen commands the spec lists.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t1b-1",
+     "fid": "REQ-1",
+     "blocking": true
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t1b-1",
+     "fid": "ARCH-1",
+     "blocking": true
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    },
+    {
+     "round": 1,
+     "event": "resolved_check"
+    },
+    {
+     "round": 2,
+     "event": "cleared"
+    },
+    {
+     "round": 2,
+     "event": "prior_note",
+     "reviewer_id": "t1b-1",
+     "status": "resolved"
+    },
+    {
+     "round": 2,
+     "event": "prior_note",
+     "reviewer_id": "t1b-1",
+     "status": "resolved"
+    }
+   ]
+  },
+  {
+   "lid": "L2",
+   "fp": "c8bfb0950693dca1",
+   "blocking": true,
+   "severity_max": "MAJOR",
+   "category": "contradiction",
+   "confidence": "single",
+   "status": "resolved",
+   "anchor": "every command in sections 3.1-3.2 has a `## Unattended mode` section naming `return-contract.yaml`",
+   "anchor2": "the `--unattended` flag accepted by every command in sections 3.1 and 3.2 (a no-op where a command has no gate)",
+   "span": [
+    194,
+    195
+   ],
+   "span2": [
+    158,
+    159
+   ],
+   "refs": [
+    "AC-1.1"
+   ],
+   "claim": "AC-1.1 requires edits that the rows forbid or schedule for later phases.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t1b-1",
+     "fid": "REQ-2",
+     "blocking": true
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    },
+    {
+     "round": 1,
+     "event": "resolved_check"
+    },
+    {
+     "round": 2,
+     "event": "cleared"
+    },
+    {
+     "round": 2,
+     "event": "prior_note",
+     "reviewer_id": "t1b-1",
+     "status": "resolved"
+    }
+   ]
+  },
+  {
+   "lid": "L3",
+   "fp": "e148090afa460d9f",
+   "blocking": true,
+   "severity_max": "CRITICAL",
+   "category": "contradiction",
+   "confidence": "single",
+   "status": "resolved",
+   "anchor": "never reused from an earlier dispatch of the same Task, a `--retry-of` retry included",
+   "anchor2": "the explicit resume flag (resume only when passed)",
+   "span": [
+    72,
+    73
+   ],
+   "span2": [
+    117,
+    118
+   ],
+   "refs": [
+    "AC-3.2",
+    "WC-6"
+   ],
+   "claim": "Section 2.3 forbids reusing the output directory on a retry, but WC-6 and the roadmap row need the state kept in it.",
+   "members": [
+    {
+     "round": 2,
+     "reviewer_id": "t1b-1",
+     "fid": "NEW-1",
+     "blocking": true
+    }
+   ],
+   "history": [
+    {
+     "round": 2,
+     "event": "opened"
+    },
+    {
+     "round": 2,
+     "event": "resolved_check"
+    },
+    {
+     "round": 3,
+     "event": "cleared"
+    },
+    {
+     "round": 3,
+     "event": "prior_note",
+     "reviewer_id": "t1b-1",
+     "status": "resolved"
+    }
+   ]
+  }
+ ]
+}

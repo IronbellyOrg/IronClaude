@@ -1,0 +1,8 @@
+{
+ "case_id": "sm-14",
+ "finding": {
+  "heading": "### R1-1 Purchase follow-ups ignore the opt-out",
+  "body": "The purchase follow-up rule keeps sending marketing notifications to opted-out customers. It contradicts the opt-out rule, which says an opted-out customer receives none. Cited: spec lines 32, 34 (before version).\nAn implementer who follows NO-4 builds a sender that emails opted-out customers about their recent purchases.\nProtected requirement: line 32 (the opt-out must hold)."
+ },
+ "full_diff": "--- before.md\n+++ after.md\n@@ -31,7 +31,6 @@\n - **DX-3 Date display.** Dates are shown in the format of the user's locale and are stored in UTC.\n - **NO-2 Opt-out.** A customer who opts out of marketing notifications receives none of them, on any channel, from the moment the preference is saved.\n - **NO-3 Transactional messages.** Order confirmations, shipping updates and security alerts are not marketing notifications and are always sent.\n-- **NO-4 Purchase follow-ups.** Opted-out customers still receive marketing notifications about products they bought in the last 90 days.\n - **DX-4 Time zones.** Scheduled times are entered in the user's time zone and converted to UTC before they are saved.\n - **DX-5 Log format.** Every service writes one JSON object per log line with a timestamp, a severity and a request identifier.\n - **DX-6 Log storage.** Application logs are kept for 14 days in hot storage and are then discarded by the logging platform.\n"
+}

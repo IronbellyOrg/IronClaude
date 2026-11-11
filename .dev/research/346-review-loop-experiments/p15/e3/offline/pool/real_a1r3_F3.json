@@ -1,0 +1,29 @@
+{
+ "author_intent": {
+  "reviewer": "sonnet-or-panel",
+  "reviewer_blocking": true,
+  "run": "a1-r3"
+ },
+ "case_id": "real_a1r3_F3",
+ "category": "real",
+ "data_classes": [
+  "s1_spec",
+  "stage2_artifact"
+ ],
+ "family": "s1_first_review",
+ "group": "D2",
+ "packet": {
+  "candidate_sha": "d3cdbe573e57303b9ce6c93d1fe98ba18fb7cb1a15773d926bf6a0c31425200d",
+  "finding_id": "F3",
+  "finding_section": "**F3. I can break this specification by Sequence Attack and Accumulation Attack on retries.** The invariant at **WC-4 \"known before dispatch\" with WC-6 \"fresh output directory\" (SPEC:62, SPEC:64, SPEC:73)** fails when **a retry worker reuses the first attempt's Task.** Severity MAJOR, blocking (FR-8 GAP row G2-6). Expert: Whittaker.\nConcrete attack: the coordinator creates Task T with `--output .dev/x/run1/`. Attempt 1 (dispatch D1) writes `run1/return-contract.yaml` with `status: failed` and later dies. The coordinator starts `worker-start --task T --retry-of D1` (CAPS:116). Before: `run1/` holds the old contract. Attempt 2 reuses the same Task text, so the same directory; it crashes before writing. After: `run1/return-contract.yaml` still says `failed` (or `succeeded` from an earlier success when a retry is requested for a different reason) and the coordinator reads a stale outcome. For commands with no resume flag WC-6 prescribes a \"fresh output directory\", but that directory is part of the Task spec and is fixed (SPEC:73); the spec never says the coordinator may change it for a retry, and whether it can is UNVERIFIED (not in CAPS). Commands with fixed output (cleanup-audit `.claude-audit/`, index-repo `PROJECT_INDEX.md`, init-lite, SPEC:85-87) cannot take a fresh directory at all.\nRecommendation: require each unattended command to delete or overwrite its contract with `status: running` before doing anything else, state how the coordinator gives a retry a new output path (a new Task or a changed brief), and list the fixed-output commands as \"one attempt at a time per worktree\". Priority High. Quality impact: Testability +1."
+ },
+ "source": {
+  "kind": "stage2",
+  "paths": [
+   "p11/runs/a1-r3/ws/.dev/orca-command-refactor/review/spec-panel.md"
+  ],
+  "url": null
+ },
+ "split": "pool",
+ "variant": "base"
+}

@@ -1,0 +1,13 @@
+selected_tier: 2
+fired_rule_number: 4
+coverage_degraded: parsed-sparse
+surface_unreached: null
+composite_score: 6
+per_signal_breakdown:
+  scope_size: 2
+  task_count: 2
+  blast_radius: 1
+  spec_density: 1
+  ambiguity_signals: 0
+escalation_reason: "S_domains 3 (code, tests, docs) >= 3 (rule 4); coverage_degraded=parsed-sparse table-wide pre-filter forbids a T1 stop; also S_dev_density 0.211 > 0.20 (rule 5); S_scope 12 tasks > 10"
+t2_model_class_diversity: full

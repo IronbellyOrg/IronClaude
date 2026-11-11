@@ -1,0 +1,142 @@
+{
+ "chunk": 18,
+ "defects": [
+  {
+   "local_id": "c18-d1",
+   "title": "Fixed output paths on ready-today rows (cleanup-audit, index-repo) break WC-11 with no coordinator rule",
+   "kind": "original",
+   "severity": "blocking",
+   "quote": "Two workers in one worktree must never write the same file. Default output paths carry a timestamp or the slug the coordinator passes",
+   "original_lines": [
+    69,
+    73,
+    85,
+    86,
+    159
+   ],
+   "what_goes_wrong": "Section 3.1 keeps cleanup-audit (fixed .claude-audit/ dir and progress.json, 'one audit per worktree at a time') and index-repo (fixed PROJECT_INDEX.md, brief passes none, fix only 'state the output location') as ready, so two such workers in the default shared worktree overwrite each other, which WC-11 forbids, and neither section 2.3 nor any AC contains the serialization rule the cleanup-audit row cites.",
+   "gids": [
+    170,
+    495,
+    105,
+    121,
+    241,
+    285,
+    417,
+    475,
+    225,
+    237,
+    259,
+    432
+   ],
+   "is_fixed_when": "Either cleanup-audit and index-repo take a coordinator-passed per-run output path/slug that the brief column and a P1 change require, or section 2.3 (and the brief template) states a coordinator obligation not to run two such Tasks in one worktree, with a check that covers it.",
+   "deletion_note": "No: deleting WC-11 or relabelling the rows to 'needs change' without giving them a per-run path or a stated serialization rule would hide the clash instead of resolving it (moving them out of 'ready' with a P1 per-run path is a fix).",
+   "present_in_others_hint": "Section 3.1 rows (cleanup-audit line 85, index-repo line 86), section 2.3 brief contents (line 73), P1 scope (line 159), count 'ready today 10' at line 75; also the coordinator rule for code-writing commands sharing a worktree. Note: init-lite is NOT part of this defect because its brief passes --output <file>."
+  },
+  {
+   "local_id": "c18-d2",
+   "title": "WC-11 default-path rule is not scoped to unattended mode and contradicts SA-1",
+   "kind": "original",
+   "severity": "medium",
+   "quote": "Default output paths carry a timestamp or the slug the coordinator passes",
+   "original_lines": [
+    69,
+    146,
+    148
+   ],
+   "what_goes_wrong": "WC-11's first clause (and WC-10's wait splitting) has no unattended scope, while SA-1 says that without --unattended every output path stays as it is today, so an implementer must guess whether standalone /sc:index-repo etc. get timestamped default names.",
+   "gids": [
+    404
+   ],
+   "is_fixed_when": "WC-11 (and every WC rule that changes defaults) states that it applies only under --unattended or to a coordinator-passed path, or section 2.2 carries one sentence scoping WC-2 to WC-12 to unattended runs and SA-1 is cross-referenced.",
+   "deletion_note": "No: deleting WC-11 would drop the parallel-safe-writes requirement (defect c18-d1); the fix is adding a scope sentence.",
+   "present_in_others_hint": "WC-10 (line 68) wait splitting, section 2.2 intro (line 54), SA-1 (line 146), SA-3 (line 148)."
+  },
+  {
+   "local_id": "c18-d3",
+   "title": "P1 adds --unattended to every 3.1/3.2 command before P2/P4 make it safe or decided",
+   "kind": "original",
+   "severity": "blocking",
+   "quote": "the `--unattended` flag accepted by every command in sections 3.1 and 3.2 (a no-op where a command has no gate)",
+   "original_lines": [
+    67,
+    60,
+    100,
+    113,
+    114,
+    109,
+    121,
+    154,
+    159,
+    160,
+    162,
+    195,
+    240
+   ],
+   "what_goes_wrong": "After P1 the flag exists on auggie-review, task, post-release, pr-submit and implement while their gate and outward-default resolutions land only in P2 or P4, so /sc:auggie-review <PR> --unattended still posts to the PR (WC-9 violated), AC-1.1 requires an Unattended section on commands whose design waits for D2-D4 (and pr-submit under recommended D3(a) gets no changes), and no P1 check catches it.",
+   "gids": [
+    180,
+    52,
+    94,
+    427
+   ],
+   "is_fixed_when": "P1 and AC-1.1 name only the commands whose gate and outward rows are converted in P1 (each later phase adds the flag/section to its own commands), or the spec says the flag on a not-yet-converted gated command refuses to run with status blocked until its phase lands.",
+   "deletion_note": "Deleting 'every command in sections 3.1 and 3.2' from P1 and AC-1.1 and naming the P1 list is the fix; deleting WC-9 or the per-command rows would not be.",
+   "present_in_others_hint": "Phase table lines 159-162, AC-1.1 (line 195), section 3.2 phase column for auggie-review/task/post-release/pr-submit/implement, D3 line 240, line 154 ('Phases 1-3 need no user decision'), line 139."
+  },
+  {
+   "local_id": "c18-d4",
+   "title": "E3 skill-direct citation vs section 1.4 'proves the nested route' read as contradiction",
+   "kind": "not-a-defect",
+   "severity": "minor",
+   "quote": "so it proves the nested route, not the direct route this spec requires",
+   "original_lines": [
+    23,
+    43
+   ],
+   "what_goes_wrong": "No wrong outcome: E3 only claims workers invoked /sc:adversarial and it landed as PR #329, and 1.4 qualifies that run as nested-route evidence; no text claims direct-route proof, and no build step or AC depends on the wording (fails test (b)).",
+   "gids": [
+    447
+   ],
+   "is_fixed_when": "n/a (not a defect)",
+   "deletion_note": "n/a",
+   "present_in_others_hint": "INV-A:13 and :35 phrase the skill-direct contract as direct-worker proof, but those are inventory files, not the spec."
+  },
+  {
+   "local_id": "c18-d5",
+   "title": "Troubleshoot 'ready' brief omits the --depth deep short-input STOP that stalls a worker",
+   "kind": "original",
+   "severity": "medium",
+   "quote": "Under `--unattended`, the `--depth deep` short-input STOP and the `--fix` offer resolve as blocked (P2)",
+   "original_lines": [
+    79,
+    91
+   ],
+   "what_goes_wrong": "Section 3.1 says troubleshoot runs as a worker now if the brief uses the stated flags, but the stated brief constraint is only 'no --fix', so a brief with --depth deep and a short symptom ends its turn asking a person and stalls with no worker_done until P2 (and --unattended does not exist before P1).",
+   "gids": [
+    268
+   ],
+   "is_fixed_when": "The troubleshoot 'Brief must pass' cell (and the P0 brief template) also excludes --depth deep with a short (<10 words) input until the P2 fix, or the row stops calling it ready without that condition.",
+   "deletion_note": "No: deleting the P2 fix or the STOP mention leaves the stall; the brief condition must be added.",
+   "present_in_others_hint": "Section 3.1 intro line 79, P0 brief template (line 158), AC-0.4 smoke run (line 194), INV-B:239."
+  }
+ ],
+ "unassigned_gids": [],
+ "extra_noticed": [
+  {
+   "local_id": "c18-x1",
+   "title": "WC-3 optional ask route can make the AC-2.2 gate-trigger run end succeeded",
+   "kind": "original",
+   "severity": "medium",
+   "quote": "the session may instead ask the coordinator once",
+   "original_lines": [
+    61,
+    200
+   ],
+   "what_goes_wrong": "WC-3 lets a worker session with a preamble ask instead of resolving blocked, but AC-2.2 expects worker_done failed and contract status blocked on every gate-trigger run, so a permitted ask-and-resume path makes the live check fail unless the brief forbids ask (not stated).",
+   "is_fixed_when": "AC-2.2 or the section 2.3 brief says the gate-trigger run's brief forbids the ask route (or AC-2.2 accepts the ask-then-answered outcome).",
+   "deletion_note": "No: removing WC-3 changes the design; the fix is aligning the check or the brief.",
+   "present_in_others_hint": "WC-3 (line 61), AC-2.2 (line 200), section 2.3 (line 73). Raised inside gid 285 (F4, F7), not placed in a defect's gids."
+  }
+ ]
+}

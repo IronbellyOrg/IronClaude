@@ -1,0 +1,25 @@
+{
+ "schema": "jev-manifest/1",
+ "journal": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p15/e3/journal/jev-falsifier.jsonl",
+ "counts": {
+  "falsifier": {
+   "s1_spec": {
+    "logical_calls": 50,
+    "input_tokens": 89481
+   },
+   "stage2_artifact": {
+    "logical_calls": 50,
+    "input_tokens": 89481
+   },
+   "synthetic": {
+    "logical_calls": 46,
+    "input_tokens": 36852
+   }
+  }
+ },
+ "first_ts": "2026-11-10T07:24:31+00:00",
+ "last_ts": "2026-11-10T07:24:48+00:00",
+ "models": [
+  "jev-1.14.0"
+ ]
+}

@@ -1,0 +1,22 @@
+{
+ "finding": {
+  "title": "Editors can and cannot delete documents",
+  "wrong_outcome": "an implementer who follows the stated text as written builds a delete check that refuses editors (`An editor can create and change documents but cannot delete them.`, S:6) and allows an editor to delete documents they created (`Editors may delete documents that they created themselves.`, S:18). An editor deleting their own document must be refused and allowed at the same time."
+ },
+ "evidence": {
+  "e1": {
+   "text": "An editor can create and change documents but cannot delete them.",
+   "line": 6,
+   "context": "## 1. Roles\nR1. The system has three roles: viewer, editor and admin.\nR2. A viewer can read documents but cannot change them.\nR3. An editor can create and change documents but cannot delete them.\nR4. An admin can do everything an editor can do and can also delete documents and manage users.\n\n## 2. Sessions"
+  },
+  "e2": {
+   "text": "Editors may delete documents that they created themselves.",
+   "line": 18,
+   "context": "R8. A document can be shared by link with people outside the organization only by an admin.\nR9. A shared link grants the viewer role on that single document.\nR10. Editors may share a document by link with anyone, to speed up collaboration.\nR11. Editors may delete documents that they created themselves.\n\n## 4. User management\nR12. Only an admin can create, disable or delete a user."
+  }
+ },
+ "facts": {
+  "quotes_found_verbatim": true,
+  "evidence_count": 2
+ }
+}

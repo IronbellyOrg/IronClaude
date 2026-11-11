@@ -1,0 +1,290 @@
+{
+ "run": "b2-r3",
+ "design": "b2",
+ "rep": 3,
+ "stratum": "sonnet",
+ "loop_model": "sonnet",
+ "product_ref": "3d2fe006c00e71460ab7d56542fa01e29e7ce43e",
+ "cmd_sha": "e62e70b98e878cb4b60ba8f95f1cc3442a25e815828a3ef3d17a95b65ea97494",
+ "rules_sha": "e161284648a17d97e22715de0077e971857e78cf30dd3a41ca3ca126bec19ee3",
+ "done": [
+  "R1",
+  "VF1",
+  "V1",
+  "R2",
+  "VF2",
+  "V2",
+  "R3",
+  "AUD",
+  "AUD2"
+ ],
+ "log": {
+  "R1": {
+   "output_exists": true,
+   "stratum": "sonnet",
+   "report_bytes": 27136,
+   "verdict": "FAIL",
+   "review_header": [
+    "1"
+   ],
+   "labels": {
+    "CRITICAL": 3,
+    "MAJOR": 13,
+    "MINOR": 1
+   },
+   "blocking_ids": "B-1, P1",
+   "blocking": [
+    {
+     "id": "B-1",
+     "heading": "### B-1 (MAJOR, blocking, priority High, Wiegers)",
+     "theme": "T1",
+     "cited": [
+      76,
+      112,
+      195,
+      265
+     ]
+    }
+   ],
+   "ids": [
+    "B-1"
+   ],
+   "spec_after": {
+    "bytes": 57763,
+    "lines": 285,
+    "sha256": "d3cdbe573e57303b9ce6c93d1fe98ba18fb7cb1a15773d926bf6a0c31425200d"
+   },
+   "output_tokens": 57085
+  },
+  "VF1": {
+   "finding_ids": [
+    "B-1"
+   ],
+   "output_exists": true,
+   "stratum": "sonnet",
+   "report_bytes": 1871,
+   "confirmed": [
+    "B-1"
+   ],
+   "rejected": {},
+   "parse_ok": true,
+   "output_tokens": 2363
+  },
+  "V1": {
+   "output_exists": true,
+   "stratum": "sonnet",
+   "report_bytes": 3930,
+   "spec_after": {
+    "bytes": 57803,
+    "lines": 285,
+    "sha256": "5082997e7df1eb90f5c3852b329722d02c4c86bb728e0f29c56b6b9bb7dfa478"
+   },
+   "output_tokens": 6318
+  },
+  "R2": {
+   "output_exists": true,
+   "stratum": "sonnet",
+   "report_bytes": 19648,
+   "verdict": "FAIL",
+   "review_header": [
+    "2"
+   ],
+   "labels": {
+    "MAJOR": 1
+   },
+   "blocking_ids": "M-15, N-6, N-7, B-2, WC-4",
+   "blocking": [
+    {
+     "id": "M-15",
+     "heading": "### M-15 (MAJOR label, Medium, priority Low, Adzic), origin=unchanged, quotes the changed line",
+     "theme": "T2",
+     "cited": [
+      62,
+      112,
+      159,
+      182,
+      183,
+      195,
+      196
+     ]
+    },
+    {
+     "id": "N-6",
+     "heading": "| N-6 | minor | changed | Wiegers | the review id `(B-1)` sits inside two normative sentences, so a test author meets an id the spec never defines | S:76, S:195 |",
+     "theme": "other",
+     "cited": [
+      76,
+      195
+     ]
+    },
+    {
+     "id": "N-7",
+     "heading": "| N-7 | minor | unchanged | Wiegers | S:52 \"Each changed command adds a short `## Unattended mode` section\" has no `load` exception; S:76 carries it | S:52, S:76 |",
+     "theme": "other",
+     "cited": [
+      52,
+      76
+     ]
+    },
+    {
+     "id": "B-2",
+     "heading": "### B-2 (open, blocking, priority High, Fowler)",
+     "theme": "T2",
+     "cited": [
+      62,
+      87,
+      90,
+      183,
+      200
+     ]
+    }
+   ],
+   "ids": [
+    "B-2"
+   ],
+   "spec_after": {
+    "bytes": 57803,
+    "lines": 285,
+    "sha256": "5082997e7df1eb90f5c3852b329722d02c4c86bb728e0f29c56b6b9bb7dfa478"
+   },
+   "output_tokens": 26117
+  },
+  "VF2": {
+   "finding_ids": [
+    "B-2"
+   ],
+   "output_exists": true,
+   "stratum": "sonnet",
+   "report_bytes": 1041,
+   "confirmed": [
+    "B-2"
+   ],
+   "rejected": {},
+   "parse_ok": true,
+   "output_tokens": 1779
+  },
+  "V2": {
+   "output_exists": true,
+   "stratum": "sonnet",
+   "report_bytes": 1970,
+   "spec_after": {
+    "bytes": 58026,
+    "lines": 285,
+    "sha256": "de92cfbd1e91f7c9b127746790c558a078c2ca7c0cfa873d862dfcbd0dab1bb9"
+   },
+   "output_tokens": 3814
+  },
+  "R3": {
+   "output_exists": true,
+   "stratum": "sonnet",
+   "report_bytes": 19359,
+   "verdict": "PASS",
+   "review_header": [
+    "3"
+   ],
+   "labels": {
+    "MAJOR": 1
+   },
+   "blocking_ids": null,
+   "blocking": [],
+   "ids": [],
+   "spec_after": {
+    "bytes": 58026,
+    "lines": 285,
+    "sha256": "de92cfbd1e91f7c9b127746790c558a078c2ca7c0cfa873d862dfcbd0dab1bb9"
+   },
+   "output_tokens": 14085
+  },
+  "AUD": {
+   "output_exists": true,
+   "stratum": "sonnet",
+   "report_bytes": 26401,
+   "verdict": "PASS",
+   "review_header": [
+    "1"
+   ],
+   "labels": {
+    "MAJOR": 1,
+    "CRITICAL": 1
+   },
+   "blocking_ids": null,
+   "blocking": [],
+   "output_tokens": 42679
+  },
+  "AUD2": {
+   "output_exists": true,
+   "stratum": "sonnet",
+   "report_bytes": 23186,
+   "verdict": "FAIL",
+   "review_header": [
+    "1"
+   ],
+   "labels": {
+    "CRITICAL": 2,
+    "MAJOR": 13,
+    "MINOR": 1
+   },
+   "blocking_ids": "B1, B2",
+   "blocking": [
+    {
+     "id": "B1",
+     "heading": "### B1. CRITICAL (blocking). Phase-0 gate AC-0.4 cannot pass, so no later phase can start",
+     "theme": "T3",
+     "cited": [
+      83,
+      92,
+      154,
+      158,
+      159,
+      182,
+      194
+     ]
+    },
+    {
+     "id": "B2",
+     "heading": "### B2. CRITICAL (blocking). AC-1.1 and the P1 scope require work on commands that no phase, or a conditional phase, owns",
+     "theme": "T1",
+     "cited": [
+      60,
+      67,
+      76,
+      84,
+      87,
+      100,
+      114,
+      154,
+      159,
+      162,
+      195,
+      240
+     ]
+    }
+   ],
+   "output_tokens": 39404
+  }
+ },
+ "launched": {
+  "R1": "2026-11-10T05:12:36+00:00",
+  "VF1": "2026-11-10T05:21:32+00:00",
+  "V1": "2026-11-10T05:24:35+00:00",
+  "R2": "2026-11-10T05:29:03+00:00",
+  "VF2": "2026-11-10T05:35:54+00:00",
+  "V2": "2026-11-10T05:42:02+00:00",
+  "R3": "2026-11-10T05:46:09+00:00",
+  "AUD": "2026-11-10T05:53:01+00:00",
+  "AUD2": "2026-11-10T06:00:26+00:00"
+ },
+ "pending": [],
+ "noted_unactioned": [],
+ "loop_end": "PASS",
+ "manual": [],
+ "manual_ids": {},
+ "relaunch": {},
+ "lost": false,
+ "complete": true,
+ "final_spec": {
+  "bytes": 58026,
+  "lines": 285,
+  "sha256": "de92cfbd1e91f7c9b127746790c558a078c2ca7c0cfa873d862dfcbd0dab1bb9"
+ }
+}

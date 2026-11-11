@@ -1,0 +1,12 @@
+{
+ "groups": 55,
+ "n": 90,
+ "reports": 21,
+ "reviewer_blocking": 47,
+ "reviewer_other": 43,
+ "skipped": {
+  "no_verbatim_quote": 68,
+  "pruned": 158,
+  "too_short": 4
+ }
+}

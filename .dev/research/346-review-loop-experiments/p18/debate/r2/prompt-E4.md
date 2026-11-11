@@ -1,0 +1,6 @@
+You are the ADVOCATE for E4 in round 2 of an adversarial debate. Read /tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p18/debate/BRIEF.md, then ALL five round-1 papers in /tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p18/debate/r1/ (E1.md ... E5.md). Verify any number or file claim you plan to rely on or attack by opening the cited file (grep/Read); a rebuttal built on an unchecked claim loses.
+Write a rebuttal for E4, at most 800 words:
+1. For each of the four OTHER integrations: its strongest claim, then your best attack (a factual error, a gate result it ignores, overlap with something already in ab5 or with another integration, a cost it hides, an unmeasurable prediction). One short paragraph each; cite file paths and numbers.
+2. Defence: the attacks that other papers made on E4 (or that you can foresee) and your answer; concede what is true.
+3. Your final recommendation: the top 3 integrations (ordered) for ab5, even if E4 is not among them, with one sentence each. If you now think E4 should be dropped, say so.
+Write to /tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p18/debate/r2/E4.md. Do not modify anything else. Final reply: DONE <path>.

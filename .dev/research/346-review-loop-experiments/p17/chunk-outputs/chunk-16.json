@@ -1,0 +1,213 @@
+{
+ "chunk": 16,
+ "defects": [
+  {
+   "local_id": "c16-d1",
+   "title": "P1 scope and AC-1.1 require unattended section from every 3.1-3.2 command",
+   "kind": "original",
+   "severity": "blocking",
+   "quote": "asserts that every command in sections 3.1-3.2 has a `## Unattended mode` section naming `return-contract.yaml` and `~/.claude/WORKER-CONTRACT.md`",
+   "original_lines": [
+    159,
+    195,
+    76,
+    79,
+    84,
+    87,
+    112,
+    139,
+    154,
+    162,
+    240,
+    265
+   ],
+   "what_goes_wrong": "AC-1.1 and the P1 scope demand a contract-naming Unattended section and flag on every 3.1-3.2 command (load, brainstorm, init-lite, and P2-P4 commands including pr-submit under D3(a)) while the rows say those get no change, no report file, or wait for D2-D4, so the P1 test cannot pass without contradicted edits, and a flag shipped early leaves gates and WC-9 outward defaults unresolved.",
+   "gids": [
+    149,
+    230,
+    467,
+    59,
+    354
+   ],
+   "is_fixed_when": "The P1 scope sentence and the AC-1.1 assertion list only the commands whose section-3 phase (or small fix) is P1, with each later phase adding its own commands to the test, and no command whose row says 'None', 'no report' or 'wait for D2-D4/D3(a)' is required to carry the section in P1.",
+   "deletion_note": "Narrowing the P1 scope and AC-1.1 to the P1 commands is the intended fix; deleting the AC-1.1 test altogether or the Unattended-mode requirement would drop the only mechanical check of the section requirement and not count.",
+   "present_in_others_hint": "Section 3.1 lead-in (line 79), section 2.1 'each changed command adds a short section', P1 row (159), Decisions row on /sc:load (265), D3(a) (240) and section 4/139 on pr-submit, AC-1.2 (see c16-d4), per-phase test rows AC-2.1."
+  },
+  {
+   "local_id": "c16-d2",
+   "title": "P0 check AC-0.4 requires step 3 to match a WC-4 contract that does not yet exist",
+   "kind": "original",
+   "severity": "blocking",
+   "quote": "steps 1-3 and 5-7 pass; step 4 uses the command's existing report file, since the contract arrives in P1",
+   "original_lines": [
+    194,
+    182,
+    183,
+    83,
+    91,
+    154
+   ],
+   "what_goes_wrong": "AC-0.4 relaxes only step 4 while step 3 still demands that the report path be the WC-4 contract path and the outcome match the contract's status, which troubleshoot (REPORT.md) and adversarial (unfixed contract filename) cannot satisfy before P1, so the P0 gate that blocks all later phases and 'reopens section 1' fails for a check defect.",
+   "gids": [
+    229,
+    324,
+    468
+   ],
+   "is_fixed_when": "AC-0.4 states that for P0 both step 3's report-path/outcome comparison and step 4 use each command's existing report file (and status source), or the P0 commands are limited to ones that already write a WC-4-shaped contract.",
+   "deletion_note": "No: deleting AC-0.4 or the P0 smoke runs would remove the only evidence for closing gap 1.4(1); the check must be corrected, not removed.",
+   "present_in_others_hint": "7.2 steps 3-4 (182-183), P0 row 158, section 3.1 lead-in 'reports the named file until Phase 1' (79), rows 83/91/92, section 1.4 (43)."
+  },
+  {
+   "local_id": "c16-d3",
+   "title": "Additive-edit grep '^-[^-]' misses removed list items and --- lines",
+   "kind": "original",
+   "severity": "blocking",
+   "quote": "git diff -U0 master...HEAD -- src/superclaude/commands/<name>.md \\| grep -E '^-[^-]'",
+   "original_lines": [
+    176,
+    193,
+    149,
+    150
+   ],
+   "what_goes_wrong": "A deleted markdown list item appears in the diff as '-- text' and a deleted '---' as '----', neither matches '^-[^-]' (verified in a scratch dir: grep printed nothing and exited 1), so AC-C5 and AC-0.3 pass while lines are deleted, defeating the SA-1/SA-4/SA-5 'additive' guarantee.",
+   "gids": [
+    198
+   ],
+   "is_fixed_when": "AC-C5 and AC-0.3 use a pattern or method that flags every removed content line (for example excluding only the '--- a/' header line, or requiring zero deleted lines via git diff --numstat), so a deleted '- item' line makes the check print something.",
+   "deletion_note": "No: removing the check would lose the only mechanical test of SA-1/SA-4; the pattern must be fixed.",
+   "present_in_others_hint": "AC-C5 (176) and AC-0.3 (193); SA-4 (149) and SA-5 (150) wording that cites them. Note gid 198 was parsed with fid 'C5' from the heading 'AC-C5'; the actual blocking finding in that audit is F-1 (this defect)."
+  },
+  {
+   "local_id": "c16-d4",
+   "title": "AC-1.2 live check on every P1 command cannot pass for load",
+   "kind": "original",
+   "severity": "blocking",
+   "quote": "7.2 live check on each P1 command with `--unattended --output <dir>`",
+   "original_lines": [
+    196,
+    159,
+    112,
+    183,
+    265
+   ],
+   "what_goes_wrong": "P1 includes load (usage line only), which writes no contract and takes no --output and is 'not its own Task', so 7.2 step 4 (test -s <contract>, status/command assertions) cannot pass for it and the phase gate 'every check in its block' cannot open.",
+   "gids": [
+    325
+   ],
+   "is_fixed_when": "AC-1.2 names the P1 commands it applies to and excludes load (or load is given a contract and an output path), and every command it covers has an output flag the P1 row adds.",
+   "deletion_note": "Dropping AC-1.2 entirely would not count; excluding or correctly scoping load while keeping the live check for the other P1 commands is the fix.",
+   "present_in_others_hint": "P1 row (159), load row (112) and Decisions row (265), AC-1.1 (195), 7.2 step 4 (183), cleanup-audit/index-repo output flags (85,86)."
+  },
+  {
+   "local_id": "c16-d5",
+   "title": "7.2 step 3 blocking wait of 15 minutes conflicts with step 2 observation cadence",
+   "kind": "original",
+   "severity": "medium",
+   "quote": "`ORCA orchestration check --wait --types \"worker_done,escalation,question\" --timeout-ms 900000 --json` until `worker_done` arrives",
+   "original_lines": [
+    181,
+    182
+   ],
+   "what_goes_wrong": "A coordinator that runs step 3 as written is blocked in one call for up to 15 minutes, so it cannot run worker-show 'at least once per 5 minutes' (step 2) and can miss a non-null agentWait, unless it assumes the two steps run concurrently or lowers the timeout, neither of which is stated.",
+   "gids": [
+    266
+   ],
+   "is_fixed_when": "Step 3 uses a timeout of at most 5 minutes (or less than the step 2 cadence) in a loop interleaved with worker-show, or the text states that step 2 runs concurrently with step 3.",
+   "deletion_note": "No: deleting the agentWait check removes the stall detection WC-2 relies on; deleting the wait removes the completion check.",
+   "present_in_others_hint": "AC-4.3 (210) heartbeat/240 s language, WC-10 (68), the 'until worker_done arrives' loop wording."
+  },
+  {
+   "local_id": "c16-d6",
+   "title": "WC-3 relay re-invocation hits the revised non-empty --output refusal",
+   "kind": "introduced",
+   "severity": "blocking",
+   "quote": "a command with no resume flag refuses a non-empty `--output` directory: it stops before writing into it, writes no contract there",
+   "original_lines": [
+    61,
+    64,
+    73
+   ],
+   "what_goes_wrong": "In run a3-r2 (p14/haiku-baseline) the revised section 2.3 makes a no-resume command refuse a non-empty --output with no contract, but WC-3 still says the worker re-invokes the command with the answer after a blocked run that already wrote return-contract.yaml into that directory, so the relayed re-run is refused and ends failed. Revised text from p14/haiku-baseline/runs/a3-r2/aud/ws/.dev/orca-command-refactor/specs/orca-worker-contract-spec.md line 73, against line 61 'then re-invoke or resume the command with the answer as a flag'. (The original has the milder gap that WC-3's re-invocation directory is unspecified against WC-6, a medium issue.)",
+   "gids": [
+    466
+   ],
+   "is_fixed_when": "The spec says that a WC-3 re-invocation after a blocked run uses a new --output directory (or a resume flag), or that the refusal does not apply to a directory holding only a blocked-status contract.",
+   "deletion_note": "No: deleting the refusal rule reopens the retry-corruption hazard (WC-6) and deleting WC-3 drops the question relay.",
+   "present_in_others_hint": "WC-3 (61), WC-6 (64), section 2.3 retry paragraph (73) in the revised spec, section 3.2 'fresh dir' rows."
+  },
+  {
+   "local_id": "c16-d7",
+   "title": "WC-4 worker_status carve-out not applied in 7.2 step 4 literal command",
+   "kind": "introduced",
+   "severity": "medium",
+   "quote": "which WC-5 and 7.2 read in place of `status` for it",
+   "original_lines": [
+    62,
+    63,
+    183
+   ],
+   "what_goes_wrong": "In run b1-r6 (p13/ab1) the revised WC-4 says a command whose existing status values differ (workflow) writes the four-value field as worker_status and that WC-5 and 7.2 read it instead, but the revised 7.2 step 3/4 and WC-5 text still assert d['status'] in the four values, so the literal check fails or passes by accident for workflow. Revised text from p13/ab1/runs/b1-r6/aud2/ws/.dev/orca-command-refactor/specs/orca-worker-contract-spec.md lines 62, 187-188. Not in the original, where workflow's status values are unverified.",
+   "gids": [
+    283
+   ],
+   "is_fixed_when": "Step 3, step 4 and WC-5 all name the same key, for example 'worker_status where present, else status', or the carve-out is removed.",
+   "deletion_note": "Removing the carve-out would also fix it only if workflow's existing status values are shown to be inside the four-value set; otherwise no.",
+   "present_in_others_hint": "WC-4 (62), WC-5 (63), 7.2 steps 3-4 (187-188), workflow row (92), AC-1.2."
+  },
+  {
+   "local_id": "c16-d8",
+   "title": "Claimed contradiction between section 1.4 and E3 skill-direct evidence",
+   "kind": "not-a-defect",
+   "severity": "minor",
+   "quote": "The only end-to-end proof is the PR #329 run",
+   "original_lines": [
+    23,
+    43
+   ],
+   "what_goes_wrong": "Nothing: section 1.4 states the PR #329 run proves the nested route not the direct route, and E3 only claims Orca workers invoked /sc:adversarial and cites the contract; an implementer gets no wrong outcome, so condition (b) fails (at most a wording clash with the inventory's 'skill-direct' label).",
+   "gids": [
+    279
+   ],
+   "is_fixed_when": "n/a (false positive); optionally E3 notes that 'skill-direct' came from a subagent-run.",
+   "deletion_note": "n/a",
+   "present_in_others_hint": "E3 (23), 1.4 point 1 (43), UNVERIFIED item 1 (272)."
+  },
+  {
+   "local_id": "c16-d9",
+   "title": "Reported gap in P0 step 4 is already acknowledged by the spec",
+   "kind": "not-a-defect",
+   "severity": "minor",
+   "quote": "step 4 uses the command's existing report file, since the contract arrives in P1",
+   "original_lines": [
+    194
+   ],
+   "what_goes_wrong": "Nothing beyond what c16-d2 covers: the finding (M12) only says P0 step 4 is not the same check as later phases and notes the spec already says so, so it names no wrong outcome by itself; condition (b) fails.",
+   "gids": [
+    355
+   ],
+   "is_fixed_when": "n/a (false positive); the real P0 defect is c16-d2.",
+   "deletion_note": "n/a",
+   "present_in_others_hint": "AC-0.4 (194)."
+  }
+ ],
+ "unassigned_gids": [],
+ "extra_noticed": [
+  {
+   "local_id": "c16-x1",
+   "title": "AC-C1 scans core, where the allowed contract-file Orca example would match it",
+   "kind": "original",
+   "severity": "medium",
+   "quote": "The only allowed mention of Orca in a changed command is as an example of a caller's question channel inside the contract file.",
+   "original_lines": [
+    147,
+    172,
+    158,
+    61
+   ],
+   "what_goes_wrong": "SA-2 allows the contract file (src/superclaude/core/WORKER-CONTRACT.md) to show Orca's ask command, but AC-C1 requires no match of 'orca(-ide) orchestration|worktree|terminal|agent' under src/superclaude/core, so a natural example 'orca orchestration ask' fails the common check unless the author assumes an exemption.",
+   "is_fixed_when": "AC-C1 exempts WORKER-CONTRACT.md and the HOW-WE-WORK.md Orca section, or SA-2/WC-3 forbid writing a literal orca command string there.",
+   "deletion_note": "No: deleting AC-C1 removes the SA-2/WC-8 check.",
+   "present_in_others_hint": "SA-2 (147), WC-3 (61), P0 row (158), AC-C1 (172)."
+  }
+ ]
+}

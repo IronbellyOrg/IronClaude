@@ -1,0 +1,93 @@
+{
+  "id": "60c25f93-7e44-4221-9b5c-ae4e52bfa4b3",
+  "ok": true,
+  "result": {
+    "runId": "run_58af03dbfa92",
+    "taskId": "task_70b58abda86e",
+    "dispatchId": "ctx_98a2422e443b",
+    "state": "ready",
+    "stage": "input_accepted",
+    "turnStart": "observed",
+    "setup": {
+      "requested": "run",
+      "effective": "run",
+      "source": "orchestration_default",
+      "hookFound": false,
+      "startupPolicy": "start-immediately",
+      "state": "not_configured"
+    },
+    "launch": {
+      "requested": {
+        "agent": "claude",
+        "model": "claude-opus-5-5",
+        "effort": null
+      },
+      "effective": {
+        "agent": "claude",
+        "model": "claude-opus-5-5",
+        "effort": null
+      }
+    },
+    "mode": {
+      "mode": "terminal",
+      "preferred": "terminal",
+      "reason": "user_default",
+      "detail": "Started a terminal agent worker, the default for new agent tabs in your settings."
+    },
+    "timeoutMs": 60000,
+    "effects": [
+      {
+        "kind": "worktree",
+        "action": "created_top_level",
+        "id": "de550e99-fa3c-42e2-abfe-1d092771c759::/home/coder/workspaces/worktrees/IronClaude/bs346-diffgate",
+        "name": "bs346-diffgate"
+      },
+      {
+        "kind": "terminal",
+        "role": "agent",
+        "action": "created",
+        "id": "term_34c0b563-790b-43ce-b7cd-86662c3cd988",
+        "tabId": "79962a70-59a3-4a96-8046-3fe6c6a48508",
+        "leafId": "9599b74a-74a0-4c5f-8adf-664c4db0cddd"
+      },
+      {
+        "kind": "setup",
+        "action": "run",
+        "requested": "run",
+        "effective": "run",
+        "source": "orchestration_default",
+        "hookFound": false,
+        "startupPolicy": "start-immediately",
+        "state": "not_configured"
+      },
+      {
+        "kind": "dispatch_input",
+        "role": "agent",
+        "id": "term_34c0b563-790b-43ce-b7cd-86662c3cd988",
+        "state": "accepted"
+      }
+    ],
+    "prompt": {
+      "requestId": "f8dc8f4b-e604-44e6-9ab6-59205d9260f5",
+      "stages": [
+        "input_accepted",
+        "turn_started"
+      ],
+      "provider": "claude",
+      "observation": "supported",
+      "processIncarnation": "d2c30658-9d40-4567-a0a9-5dbaebf3acc8",
+      "generation": 371,
+      "baselineWorkingSequence": 0,
+      "baselineExplicitWorkingStartedAt": null,
+      "baselinePermissionSequence": 0
+    },
+    "residualResources": [],
+    "mutation": {
+      "requestId": "f8dc8f4b-e604-44e6-9ab6-59205d9260f5",
+      "replayed": false
+    }
+  },
+  "_meta": {
+    "runtimeId": "93e79a07-81c4-4ec7-a938-8038a2f29ed3"
+  }
+}

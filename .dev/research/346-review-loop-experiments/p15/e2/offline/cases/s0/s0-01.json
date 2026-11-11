@@ -1,0 +1,36 @@
+{
+ "author_intent": {
+  "category": "seed-impossible-check",
+  "expect": "defect",
+  "layer": "seeded"
+ },
+ "case_id": "s0-01",
+ "category": "seed-impossible-check",
+ "data_classes": [
+  "s1_spec"
+ ],
+ "family": "s1-edit-check",
+ "group": "s1-edit-check",
+ "packet": {
+  "defect": "AC-1.2 passes only if all steps of the 7.2 live check pass and the contract's `status` is `running` at step 4, but step 4 asserts that `status` is one of succeeded, partial, failed or blocked.",
+  "doc": "offline/docs/doc-af30badcbd.md",
+  "doc_sha256": "af30badcbdcb5ed0cae716ec75f1eb97b9224661f807141b7b54c0a1e0cf3193",
+  "evidence_quotes": [
+   "all steps pass, and at step 4 the contract's `status` is `running`",
+   "assert d['status'] in {'succeeded','partial','failed','blocked'}"
+  ],
+  "evidence_set": [
+   "P0153",
+   "P0142"
+  ]
+ },
+ "source": {
+  "kind": "s1",
+  "paths": [
+   "offline/docs/doc-af30badcbd.md"
+  ],
+  "url": null
+ },
+ "split": "s0",
+ "variant": "seeded"
+}

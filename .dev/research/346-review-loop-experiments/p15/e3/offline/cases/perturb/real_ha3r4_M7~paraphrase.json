@@ -1,0 +1,46 @@
+{
+ "author_intent": {
+  "inherits": "real_ha3r4_M7",
+  "perturbation": "paraphrase"
+ },
+ "base_case_id": "real_ha3r4_M7",
+ "case_id": "real_ha3r4_M7~paraphrase",
+ "category": "real",
+ "confirmable_from_packet": "yes",
+ "data_classes": [
+  "s1_spec",
+  "stage2_artifact"
+ ],
+ "family": "s1_first_review",
+ "group": "other:11",
+ "packet": {
+  "base_case_id": "real_ha3r4_M7",
+  "code_outcome": "OK",
+  "state": {
+   "evidence": {
+    "e1": {
+     "context": "| post-release | require an explicit `--output` and an explicit pre-tag choice, else blocked; VM, real-target install, commit and PR off unless the brief authorizes them (open decision D4) | contract pointing at `post-release-report.md` (its RESULT header already has `report_path`) | fresh dir (additive mode is a cross-release delta, not a resume) | none | `sk/sc-post-release-protocol/SKILL.md:71-75,95-99,129-131,221-235,266-276,292,324,340,351`; `cmd/post-release.md:36`; `INV-B:33,77-85` | P4 |\n| pr-submit | `--monitor 1` refused under `--unattended`; operator HALTs resolve as blocked (the worker may use `ask` or `escalation`); never run as a subagent | add a markdown summary and contract beside `monitor-run-<PR>.jsonl` | `--resume <run-log.jsonl>` | the 600 s default is a cumulative per-wait budget over poll-then-sleep iterations, so the session can already heartbeat between iterations; confirm each single iteration (poll script runtime plus sleep) stays under 4 minutes (WC-10; poll script runtime UNVERIFIED); outward actions per open decision D3 | `sk/sc-pr-submit-protocol/SKILL.md:37-39,46-64,66-68,141,170,189-197,237-246`; `cmd/pr-submit.md:25,39,49,55-56`; `INV-B:34,87-95` | P4 |\n| recommend | the one clarifying question resolves as blocked | write the handoff envelope to a file; contract | n/a (cache hints only) | none | `cmd/recommend.md:44`; `sk/sc-recommend/SKILL.md:30-33,65-67,160`; `INV-B:35,97-105` | P2 |\n| research | `--unattended` pins `--strategy planning` (the strategy that runs without clarification) | contract naming the generated `claudedocs/research_*.md` path | fresh file | none | `cmd/research.md:25,103,123-132`; `src/superclaude/agents/deep-research-agent.md:40-56`; `INV-B:38,127-135` | P2 |\n| review-translation | Phase 1 needs a pre-confirmed context input in the brief, else write the context summary and resolve as blocked; Phase 7 defaults to \"skip implementation\" | contract pointing at the `reports/localization/` files | add a resume input, or fresh run | none | `cmd/review-translation.md:104,106-111`; `sk/sc-review-translation-protocol/SKILL.md:44,76,174-183,217`; `INV-B:39,137-145` | P2 |\n| roadmap | the \"Resume? [Y/n]\" prompt is replaced by the explicit resume flag (resume only when passed); `--interactive` refused | contract pointing at `roadmap.md` and siblings | reconcile the command's `--resume` (`.roadmap-state.json`) with the skill's `.session-memory.md` resume | reconcile the flag surface the command calls unsupported with the flags the skill still defines | `cmd/roadmap.md:29,40,46-48,98`; `sk/sc-roadmap-protocol/SKILL.md:46-50,69-82,231,243,420-438`; `INV-B:40,147-155` | P3 |\n| save | write only the per-session keys (`<key>-<session-or-timestamp>.md`), never the single-owner keys | contract naming the file written | it writes resume state | none | `cmd/save.md:42-45`; `INV-B:41,157-165` | P3 |",
+     "line": 116,
+     "text": "--strategy planning"
+    }
+   },
+   "facts": {
+    "evidence_count": 1,
+    "quotes_found_verbatim": true
+   },
+   "finding": {
+    "title": "The research row pins `--strategy planning` on a persona file the inventory did not verify. Expert: Cockburn (behavior under the pin).",
+    "wrong_outcome": "Put differently: the research row pins `--strategy planning` on a persona file the inventory did not verify. Expert: Cockburn (behavior under the pin)."
+   }
+  }
+ },
+ "source": {
+  "kind": "stage2",
+  "paths": [
+   "p14/haiku-baseline/runs/a3-r4/ws/.dev/orca-command-refactor/review/round1.md"
+  ],
+  "url": null
+ },
+ "split": "perturb",
+ "variant": "paraphrase"
+}

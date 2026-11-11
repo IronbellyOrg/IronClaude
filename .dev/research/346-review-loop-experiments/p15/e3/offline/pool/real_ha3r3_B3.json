@@ -1,0 +1,29 @@
+{
+ "author_intent": {
+  "reviewer": "haiku",
+  "reviewer_blocking": true,
+  "run": "a3-r3"
+ },
+ "case_id": "real_ha3r3_B3",
+ "category": "real",
+ "data_classes": [
+  "s1_spec",
+  "stage2_artifact"
+ ],
+ "family": "s1_first_review",
+ "group": "T3:18",
+ "packet": {
+  "candidate_sha": "d3cdbe573e57303b9ce6c93d1fe98ba18fb7cb1a15773d926bf6a0c31425200d",
+  "finding_id": "B3",
+  "finding_section": "### B3. AC-0.4 cannot pass in P0 as written\n\n- Spec text: AC-0.4 (line 194) says \"steps 1-3 and 5-7 pass; step 4 uses the command's existing report file, since the contract arrives in P1\". Step 3 (line 182) requires \"its report path is the WC-4 contract path\". Step 4 (line 183) asserts `d['status']` in a YAML contract and `d['command']`.\n- Failure on `/sc:troubleshoot`: the no-`--fix` run writes `REPORT.md` as its `report_path`, and writes `return-contract.yaml` only with `--caller task-unified` (`INV-B:49`, `INV-B:242`). `REPORT.md` is not a YAML contract, so step 4 fails. Step 3 also fails, because the WC-4 contract path does not exist until P1.\n- Failure on `/sc:workflow`: its contract has `status`, `plan_path` and `reflect_report_path` (`INV-B:272`) and no `command` key, so the `d['command']` assertion fails in P0.\n- Grading sentence: an implementer who runs the P0 smoke test as written gets a failed step 3 and step 4 on two of the three named commands, and the spec says a failure \"reopens section 1\" (line 194), so P0 cannot pass.\n- Severity: blocking, because P0 is the gate for the whole decision."
+ },
+ "source": {
+  "kind": "stage2",
+  "paths": [
+   "p14/haiku-baseline/runs/a3-r3/ws/.dev/orca-command-refactor/review/round1.md"
+  ],
+  "url": null
+ },
+ "split": "pool",
+ "variant": "base"
+}

@@ -1,0 +1,1 @@
+- **M-02. Refusal stated as fact (R1, line 33).** "would be refused with `nested_worker_depth_exceeded`" is written as fact. The same cell says the enforcing call sites were not traced (CAPS:103). Write "presumed refused".

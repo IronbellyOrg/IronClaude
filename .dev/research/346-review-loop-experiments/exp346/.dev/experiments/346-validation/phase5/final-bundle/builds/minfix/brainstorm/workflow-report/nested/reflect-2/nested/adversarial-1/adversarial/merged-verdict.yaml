@@ -1,0 +1,16 @@
+# Structured rendering of the adversarial merge result for the sc-reflect Wave 4 EV-1 check.
+# Written by the reflect orchestrator from ../merged-verdict.md (the merge-executor's output); it adds no finding.
+merge_method: adversarial
+merged_output_path: .dev/brainstorms/346-minfix/workflow-report/nested/reflect-2/nested/adversarial-1/merged-verdict.md
+verdict: FAIL
+convergence_score: 1.0
+convergence_status: BLOCKED_BY_INVARIANTS
+base_variant: reviewer-1 (sonnet, analyzer)
+reviewer_cards: 3
+blocking:
+  - {id: M-F1, topic: "tests/recommend/test_routing_refresh.py breaks; plan:119 must allow the one test edit", sources: [R1-F1, R3-F1, INV-001]}
+  - {id: M-F2, topic: "reviewer-side exit-2 retry (source.md:46) missing from shipped Fix Budget text", sources: [R2-F1]}
+  - {id: M-F3, topic: "review-3 escalation must list budget escalations and GRADE-CONFLICT ids (source.md:46)", sources: [INV-003, T1 INF-032]}
+  - {id: M-F4, topic: "__pycache__ .pyc makes Task 4 grep unpassable", sources: [R3-F3, INV-005]}
+minor: [M-F5, M-F6, M-F7, M-F8, M-F9, M-F10, M-F11, M-F12, M-F13, M-F14, M-F15]
+excluded: [X-002]

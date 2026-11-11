@@ -1,0 +1,17 @@
+{
+ "finding": {
+  "title": "Names of split files are not given",
+  "wrong_outcome": "Names of split files are not given"
+ },
+ "evidence": {
+  "e1": {
+   "text": "larger results are split across files",
+   "line": 20,
+   "context": "R10. Dates in all formats use the ISO 8601 form in UTC.\n\n## 4. Limits\nR11. A single export file holds at most 100000 rows; larger results are split across files.\nR12. The service stops with exit code 2 if the output directory cannot be written.\n\n## 5. Cleanup"
+  }
+ },
+ "facts": {
+  "quotes_found_verbatim": true,
+  "evidence_count": 1
+ }
+}

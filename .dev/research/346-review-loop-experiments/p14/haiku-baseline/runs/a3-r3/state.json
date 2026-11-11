@@ -1,0 +1,92 @@
+{
+ "run": "a3-r3",
+ "arm": 3,
+ "rep": 3,
+ "done": [
+  "R1",
+  "V1",
+  "R2",
+  "AUD",
+  "AUD2"
+ ],
+ "log": {
+  "R1": {
+   "output_exists": true,
+   "report_bytes": 14299,
+   "verdict": "FAIL",
+   "review_header": [
+    "1"
+   ],
+   "labels": {},
+   "blocking_ids": "B1, B2, B3, B4",
+   "blocking_word_count": 10,
+   "spec_after": {
+    "bytes": 57763,
+    "lines": 285,
+    "sha256": "d3cdbe573e57303b9ce6c93d1fe98ba18fb7cb1a15773d926bf6a0c31425200d"
+   },
+   "output_tokens": 100261
+  },
+  "V1": {
+   "output_exists": true,
+   "report_bytes": 5709,
+   "spec_after": {
+    "bytes": 60320,
+    "lines": 296,
+    "sha256": "90517bb8b39156a6ae96df698dafb7e24324de3cb8682a343273a1cbd2cce875"
+   },
+   "output_tokens": 157540
+  },
+  "R2": {
+   "output_exists": true,
+   "report_bytes": 25142,
+   "verdict": "PASS",
+   "review_header": [
+    "2"
+   ],
+   "labels": {},
+   "blocking_ids": null,
+   "blocking_word_count": 9,
+   "spec_after": {
+    "bytes": 60320,
+    "lines": 296,
+    "sha256": "90517bb8b39156a6ae96df698dafb7e24324de3cb8682a343273a1cbd2cce875"
+   },
+   "output_tokens": 141486
+  },
+  "AUD": {
+   "output_exists": true,
+   "report_bytes": 29872,
+   "verdict": "FAIL",
+   "review_header": [
+    "1"
+   ],
+   "labels": {
+    "CRITICAL": 1
+   },
+   "blocking_ids": "B-1",
+   "blocking_word_count": 13,
+   "spec_audited": {
+    "bytes": 60320
+   },
+   "output_tokens": 149453
+  },
+  "AUD2": {
+   "output_exists": true,
+   "report_bytes": 22180,
+   "verdict": "FAIL",
+   "review_header": [
+    "1"
+   ],
+   "labels": {
+    "CRITICAL": 1
+   },
+   "blocking_ids": "B-01",
+   "blocking_word_count": 6,
+   "spec_audited": {
+    "bytes": 60320
+   },
+   "output_tokens": 57456
+  }
+ }
+}

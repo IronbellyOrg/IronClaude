@@ -1,0 +1,135 @@
+{
+  "schema": "review-lint/1",
+  "doc_sha256": "5d3d225a6ef33d0f0c3eb9b745dd4e780b4ca5a0b2dd745dd00ce966449d2b61",
+  "doc_bytes": 58448,
+  "checks": [
+    "REF",
+    "COUNT",
+    "KV",
+    "PHASE",
+    "PATH",
+    "RFC"
+  ],
+  "findings": [
+    {
+      "lint_id": "LINT-REF-1",
+      "check": "REF",
+      "class": "fact",
+      "lines": [
+        73,
+        73
+      ],
+      "quote": "The contract only works if the brief carries what the command would otherwise ask a person. For each Task the coordinator's brief states: the exact command line including `--unattended` once the co...",
+      "other_lines": null,
+      "message": "F-1 is referenced but never defined (5 references)."
+    },
+    {
+      "lint_id": "LINT-PATH-1",
+      "check": "PATH",
+      "class": "possible",
+      "lines": [
+        83,
+        83
+      ],
+      "quote": "| adversarial | `--output <dir>`; never `--interactive` | contract, but filename not fixed | `--pipeline-resume` (pipeline mode only); else fresh dir | Fix the contract filename to `<output>/advers...",
+      "other_lines": [
+        62,
+        62
+      ],
+      "message": "`<output>/adversarial/return-contract.yaml` has the basename of the template `<output-dir>/return-contract.yaml` (line 62) but fits none of them."
+    },
+    {
+      "lint_id": "LINT-PATH-2",
+      "check": "PATH",
+      "class": "possible",
+      "lines": [
+        92,
+        92
+      ],
+      "quote": "| workflow | `--handoff none` | `.dev/tasks/to-do/<id>/return-contract.yaml` | Fresh package each run | Write the contract for pre-creation STOPs too (WC-4 \"every outcome\") (P1) | `sk/sc-workflow-p...",
+      "other_lines": [
+        62,
+        62
+      ],
+      "message": "`.dev/tasks/to-do/<id>/return-contract.yaml` has the basename of the template `<output-dir>/return-contract.yaml` (line 62) but fits none of them."
+    },
+    {
+      "lint_id": "LINT-REF-2",
+      "check": "REF",
+      "class": "fact",
+      "lines": [
+        176,
+        176
+      ],
+      "quote": "| AC-C5 | For every command file the phase edits without a named defect fix (SA-4): `git diff -U0 master...HEAD -- src/superclaude/commands/<name>.md \\| grep -E '^-' \\| grep -v '^--- a/'` (F-3: lis...",
+      "other_lines": null,
+      "message": "F-3 is referenced but never defined (2 references)."
+    },
+    {
+      "lint_id": "LINT-REF-3",
+      "check": "REF",
+      "class": "fact",
+      "lines": [
+        194,
+        194
+      ],
+      "quote": "| P0 | AC-0.4 | 7.2 live check on `/sc:troubleshoot \"<real symptom>\"`, `/sc:workflow \"<small change>\" --handoff none`, `/sc:adversarial --compare <two files> --depth quick --output <dir>`, each run...",
+      "other_lines": null,
+      "message": "F-2 is referenced but never defined."
+    },
+    {
+      "lint_id": "LINT-PHASE-1",
+      "check": "PHASE",
+      "class": "fact",
+      "lines": [
+        194,
+        194
+      ],
+      "quote": "| P0 | AC-0.4 | 7.2 live check on `/sc:troubleshoot \"<real symptom>\"`, `/sc:workflow \"<small change>\" --handoff none`, `/sc:adversarial --compare <two files> --depth quick --output <dir>`, each run...",
+      "other_lines": [
+        178,
+        178
+      ],
+      "message": "The P0 row (AC-0.4) refers to section 7.2, which uses WC-4 (P1); the rollout table first introduces each in a later phase."
+    },
+    {
+      "lint_id": "LINT-PATH-3",
+      "check": "PATH",
+      "class": "possible",
+      "lines": [
+        194,
+        194
+      ],
+      "quote": "| P0 | AC-0.4 | 7.2 live check on `/sc:troubleshoot \"<real symptom>\"`, `/sc:workflow \"<small change>\" --handoff none`, `/sc:adversarial --compare <two files> --depth quick --output <dir>`, each run...",
+      "other_lines": [
+        62,
+        62
+      ],
+      "message": "`.dev/tasks/to-do/<id>/return-contract.yaml` has the basename of the template `<output-dir>/return-contract.yaml` (line 62) but fits none of them."
+    },
+    {
+      "lint_id": "LINT-PHASE-2",
+      "check": "PHASE",
+      "class": "fact",
+      "lines": [
+        195,
+        195
+      ],
+      "quote": "| P1 | AC-1.1 | `uv run pytest tests/skills/test_worker_contract.py -q`; the test asserts that every command in the P1 row of section 6 except load (F-1) has a `## Unattended mode` section naming `...",
+      "other_lines": [
+        153,
+        153
+      ],
+      "message": "The P1 row (AC-1.1) refers to section 6, which uses WC-10 (P2), WC-9 (P2); the rollout table first introduces each in a later phase."
+    }
+  ],
+  "census": {
+    "rfc2119": {},
+    "rfc2119_total": {
+      "MUST": 0,
+      "SHALL": 0,
+      "SHOULD": 0,
+      "MAY": 0
+    }
+  }
+}

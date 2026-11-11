@@ -1,0 +1,87 @@
+{
+  "schema": "review-lint/1",
+  "doc_sha256": "83f24502ee791d296bebd644adce8eba84b0a7bccbb076f090415ba276880733",
+  "doc_bytes": 59941,
+  "checks": [
+    "REF",
+    "COUNT",
+    "KV",
+    "PHASE",
+    "PATH",
+    "RFC"
+  ],
+  "findings": [
+    {
+      "lint_id": "LINT-REF-1",
+      "check": "REF",
+      "class": "fact",
+      "lines": [
+        62,
+        62
+      ],
+      "quote": "| WC-4 | **One report file, known before dispatch, written on every outcome.** In unattended mode the command writes `<output-dir>/return-contract.yaml`, where `<output-dir>` is the directory the c...",
+      "other_lines": null,
+      "message": "REQ-1 is referenced but never defined (7 references)."
+    },
+    {
+      "lint_id": "LINT-REF-2",
+      "check": "REF",
+      "class": "fact",
+      "lines": [
+        64,
+        64
+      ],
+      "quote": "| WC-6 | **Resume or safe re-run.** A retry worker (`worker-start --retry-of`) must not corrupt the first attempt's output. A command either resumes from its on-disk state when given its resume fla...",
+      "other_lines": null,
+      "message": "ARCH-1 is referenced but never defined (3 references)."
+    },
+    {
+      "lint_id": "LINT-REF-3",
+      "check": "REF",
+      "class": "fact",
+      "lines": [
+        73,
+        73
+      ],
+      "quote": "The contract only works if the brief carries what the command would otherwise ask a person. For each Task the coordinator's brief states: the exact command line including `--unattended` (except for...",
+      "other_lines": null,
+      "message": "NEW-1 is referenced but never defined."
+    },
+    {
+      "lint_id": "LINT-REF-4",
+      "check": "REF",
+      "class": "fact",
+      "lines": [
+        73,
+        73
+      ],
+      "quote": "The contract only works if the brief carries what the command would otherwise ask a person. For each Task the coordinator's brief states: the exact command line including `--unattended` (except for...",
+      "other_lines": null,
+      "message": "REQ-2 is referenced but never defined (4 references)."
+    },
+    {
+      "lint_id": "LINT-PHASE-1",
+      "check": "PHASE",
+      "class": "fact",
+      "lines": [
+        194,
+        194
+      ],
+      "quote": "| P0 | AC-0.4 | 7.2 live check on `/sc:troubleshoot \"<real symptom>\"`, `/sc:workflow \"<small change>\" --handoff none`, `/sc:adversarial --compare <two files> --depth quick --output <dir>`, each run...",
+      "other_lines": [
+        178,
+        178
+      ],
+      "message": "The P0 row (AC-0.4) refers to section 7.2, which uses WC-4 (P1); the rollout table first introduces each in a later phase."
+    }
+  ],
+  "census": {
+    "rfc2119": {},
+    "rfc2119_total": {
+      "MUST": 0,
+      "SHALL": 0,
+      "SHOULD": 0,
+      "MAY": 0
+    }
+  }
+}

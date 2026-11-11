@@ -1,0 +1,28 @@
+{
+ "case_id": "syn-ntf-5",
+ "code_outcome": "OK",
+ "decision": "VERIFIER",
+ "qset_version": "e3-q1",
+ "result": {
+  "answers": {
+   "evidence_sufficient": {
+    "p": 0.72,
+    "type": "noul"
+   },
+   "outcome_follows": {
+    "p": 0.69,
+    "type": "noul"
+   }
+  },
+  "attempts": 1,
+  "error": null,
+  "latency_ms": 199,
+  "model": "jev-1.14.0",
+  "request_sha256": "4d2cfed10fa030a0f01e69d3c946e951ed198b05bb06410d6c358733a2b729f6",
+  "status": "ok",
+  "usage": {
+   "input_tokens": 656,
+   "output_tokens": 46
+  }
+ }
+}

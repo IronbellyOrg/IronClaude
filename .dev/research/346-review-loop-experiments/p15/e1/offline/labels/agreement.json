@@ -1,0 +1,27 @@
+{
+ "fields": {
+  "resolved": {
+   "raw": 0.975,
+   "kappa": 0.9484536082474226,
+   "n": 40
+  },
+  "obligation_preserved": {
+   "raw": 1.0,
+   "kappa": 1.0,
+   "n": 40
+  },
+  "new_conflict": {
+   "raw": 0.825,
+   "kappa": 0.6373056994818651,
+   "n": 40
+  },
+  "closure_correct": {
+   "raw": 1.0,
+   "kappa": 1.0,
+   "n": 40
+  }
+ },
+ "kappa_below_0.4": [],
+ "n_l1": 40,
+ "n_l2": 40
+}

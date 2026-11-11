@@ -1,0 +1,8 @@
+{
+ "case_id": "sm-29",
+ "finding": {
+  "heading": "### R1-1 Reset links live too long",
+  "body": "An earlier version let the reset link live for days. The lifetime rule is meant to keep the link short-lived. Cited: spec lines 17-18 (before version).\nAn implementer who follows PR-4 builds reset links that stay valid for days.\nProtected requirement: line 17 (one-time use must hold)."
+ },
+ "full_diff": "--- before.md\n+++ after.md\n@@ -15,7 +15,7 @@\n ## 3. The link\n \n - **PR-3 One-time use.** A password reset link can be used once. After a successful reset the link stops working.\n-- **PR-4 Link lifetime.** A password reset link expires 30 minutes after it is sent.\n+- **PR-4 Link lifetime.** A reset link remains usable for as long as it has not been used and no newer link has been requested.\n - **PR-5 Token.** The link carries a random token of at least 32 bytes. Only a hash of the token is stored by the service.\n \n ## 4. After the reset\n"
+}

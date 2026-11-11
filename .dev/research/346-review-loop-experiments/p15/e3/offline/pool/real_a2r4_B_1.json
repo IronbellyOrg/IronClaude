@@ -1,0 +1,29 @@
+{
+ "author_intent": {
+  "reviewer": "sonnet-or-panel",
+  "reviewer_blocking": true,
+  "run": "a2-r4"
+ },
+ "case_id": "real_a2r4_B_1",
+ "category": "real",
+ "data_classes": [
+  "s1_spec",
+  "stage2_artifact"
+ ],
+ "family": "s1_first_review",
+ "group": "D12",
+ "packet": {
+  "candidate_sha": "d3cdbe573e57303b9ce6c93d1fe98ba18fb7cb1a15773d926bf6a0c31425200d",
+  "finding_id": "B-1",
+  "finding_section": "### B-1. CRITICAL (blocking). P1's acceptance checks require a contract section that the spec's own `load` row removes.\n- Experts: Wiegers (traceability), Crispin (acceptance criteria), Fowler (count divergence).\n- Locations: `SPEC:112` (load: \"Report: none\", \"use it as a step inside another worker's brief, not as its own Task\", Phase \"P1 (usage line only)\"); `SPEC:159` (P1 lists \"load (usage line only)\"); `SPEC:265` (decision: \"a report file would be an unrequested addition\"); `SPEC:195` (AC-1.1); `SPEC:196` (AC-1.2); `SPEC:183` (7.2 step 4).\n- Grading check: An implementer who follows the stated text as written builds a `load.md` with only its usage line fixed, with no `## Unattended mode` section and no contract, and that build is wrong because AC-1.1 asserts every command in sections 3.1-3.2 has an `## Unattended mode` section naming `return-contract.yaml` and AC-1.2 runs the 7.2 live check on each P1 command (load is one), whose step 4 does `test -s <contract>`. Phase 1 cannot pass, and satisfying the checks means writing a contract the load row and Decisions say must not exist.\n- Count trace: 37 sections expected, 36 produced (diagram above). FR-19 classes a count mismatch CRITICAL.\n- Recommendation: make the checks and the rows agree. Either exclude `load` by name from AC-1.1 and AC-1.2, or change the `load` row so it gets a one-line section stating that it writes no contract. Rationale: AC-1.1 is a mechanical test, so a single exception in the prose fails it every time.\n- Priority: High. Quality impact: Consistency +1, Testability +1."
+ },
+ "source": {
+  "kind": "stage2",
+  "paths": [
+   "p11/runs/a2-r4/ws/.dev/orca-command-refactor/review/round1.md"
+  ],
+  "url": null
+ },
+ "split": "pool",
+ "variant": "base"
+}

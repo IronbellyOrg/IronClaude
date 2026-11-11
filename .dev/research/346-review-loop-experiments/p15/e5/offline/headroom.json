@@ -1,0 +1,1804 @@
+{
+ "generated_utc": "2026-11-10T06:25:28+00:00",
+ "verdict": "NO-GO-OFFLINE",
+ "rule": "headroom 1/11 (9.1%) < 2 packets or < 0.10",
+ "decisive": {
+  "packets": 16,
+  "eligible": 11,
+  "code_determined_by_reason": {
+   "cap": 4,
+   "open_blocker": 0,
+   "unchanged_hash": 1,
+   "mandatory_policy": 0
+  },
+  "needs_assurance_yes": 10,
+  "needs_assurance_rate": 0.9090909090909091,
+  "headroom": 1,
+  "sensitivity_headroom": 2,
+  "unlabeled_eligible": 0,
+  "single_audit_eligible": 6
+ },
+ "other_designs": {
+  "packets": 19,
+  "eligible": 11,
+  "code_determined_by_reason": {
+   "cap": 7,
+   "open_blocker": 0,
+   "unchanged_hash": 1,
+   "mandatory_policy": 0
+  },
+  "needs_assurance_yes": 11,
+  "needs_assurance_rate": 1.0,
+  "headroom": 0,
+  "sensitivity_headroom": 5,
+  "unlabeled_eligible": 0,
+  "single_audit_eligible": 0
+ },
+ "rows": [
+  {
+   "run": "a2-r1",
+   "design": "stage2-a2",
+   "stratum": "p11",
+   "review_k": 2,
+   "slots_remaining": 1,
+   "fix_cycles_used": 1,
+   "spec_sha_at_pass": "f42ebd1cb0922207da16c10e49e26f992ea80bee8c020e73ba1dacefbcfd5f95",
+   "changed_since_last_whole_review": true,
+   "open_blockers": 0,
+   "parsed_ids_in_pass_report": 0,
+   "followups": 2,
+   "verdict_source": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p11/runs/a2-r1/ws/.dev/orca-command-refactor/review/round2.md",
+   "pass_step": "R2",
+   "delivered_matches_pass": true,
+   "mandatory_policy": false,
+   "source": "p11",
+   "audit_paths": [
+    "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p11/runs/a2-r1/aud/ws/.dev/orca-command-refactor/review/audit.md"
+   ],
+   "label": "yes",
+   "sens_label": "yes",
+   "n_audits": 1,
+   "single_audit": true,
+   "audits": [
+    {
+     "verdict": "FAIL",
+     "blocking": 2,
+     "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p11/runs/a2-r1/aud/ws/.dev/orca-command-refactor/review/audit.md"
+    }
+   ],
+   "fail_unparsed": 0,
+   "code_determined": null,
+   "eligible": true,
+   "labeled": true,
+   "static_route": "assurance",
+   "min_route": "assurance",
+   "headroom": false,
+   "sens_headroom": false
+  },
+  {
+   "run": "a2-r2",
+   "design": "stage2-a2",
+   "stratum": "p11",
+   "review_k": 3,
+   "slots_remaining": 0,
+   "fix_cycles_used": 2,
+   "spec_sha_at_pass": "bbc5da09c16d99c761039d7df263e9ff3629635be3ec1f834b924b06575af75f",
+   "changed_since_last_whole_review": true,
+   "open_blockers": 0,
+   "parsed_ids_in_pass_report": 0,
+   "followups": 8,
+   "verdict_source": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p11/runs/a2-r2/ws/.dev/orca-command-refactor/review/round3.md",
+   "pass_step": "R3",
+   "delivered_matches_pass": true,
+   "mandatory_policy": false,
+   "source": "p11",
+   "audit_paths": [
+    "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p11/runs/a2-r2/aud/ws/.dev/orca-command-refactor/review/audit.md"
+   ],
+   "label": "yes",
+   "sens_label": "yes",
+   "n_audits": 1,
+   "single_audit": true,
+   "audits": [
+    {
+     "verdict": "FAIL",
+     "blocking": 2,
+     "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p11/runs/a2-r2/aud/ws/.dev/orca-command-refactor/review/audit.md"
+    }
+   ],
+   "fail_unparsed": 0,
+   "code_determined": "cap",
+   "eligible": false,
+   "labeled": true,
+   "static_route": "deliver",
+   "min_route": null,
+   "headroom": false,
+   "sens_headroom": false
+  },
+  {
+   "run": "a2-r3",
+   "design": "stage2-a2",
+   "stratum": "p11",
+   "review_k": 1,
+   "slots_remaining": 2,
+   "fix_cycles_used": 0,
+   "spec_sha_at_pass": "d3cdbe573e57303b9ce6c93d1fe98ba18fb7cb1a15773d926bf6a0c31425200d",
+   "changed_since_last_whole_review": false,
+   "open_blockers": 0,
+   "parsed_ids_in_pass_report": 0,
+   "followups": 11,
+   "verdict_source": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p11/runs/a2-r3/ws/.dev/orca-command-refactor/review/round1.md",
+   "pass_step": "R1",
+   "delivered_matches_pass": true,
+   "mandatory_policy": false,
+   "source": "p11",
+   "audit_paths": [
+    "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p11/runs/a2-r3/aud/ws/.dev/orca-command-refactor/review/audit.md"
+   ],
+   "label": "yes",
+   "sens_label": "yes",
+   "n_audits": 1,
+   "single_audit": true,
+   "audits": [
+    {
+     "verdict": "FAIL",
+     "blocking": 3,
+     "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p11/runs/a2-r3/aud/ws/.dev/orca-command-refactor/review/audit.md"
+    }
+   ],
+   "fail_unparsed": 0,
+   "code_determined": "unchanged_hash",
+   "eligible": false,
+   "labeled": true,
+   "static_route": "assurance",
+   "min_route": null,
+   "headroom": false,
+   "sens_headroom": false
+  },
+  {
+   "run": "a2-r4",
+   "design": "stage2-a2",
+   "stratum": "p11",
+   "review_k": 2,
+   "slots_remaining": 1,
+   "fix_cycles_used": 1,
+   "spec_sha_at_pass": "7d31f7c49bc684b022504fe6730429f5c5b09ff3a76841344026b64dde9565a6",
+   "changed_since_last_whole_review": true,
+   "open_blockers": 0,
+   "parsed_ids_in_pass_report": 0,
+   "followups": 0,
+   "verdict_source": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p11/runs/a2-r4/ws/.dev/orca-command-refactor/review/round2.md",
+   "pass_step": "R2",
+   "delivered_matches_pass": true,
+   "mandatory_policy": false,
+   "source": "p11",
+   "audit_paths": [
+    "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p11/runs/a2-r4/aud/ws/.dev/orca-command-refactor/review/audit.md"
+   ],
+   "label": "yes",
+   "sens_label": "yes",
+   "n_audits": 1,
+   "single_audit": true,
+   "audits": [
+    {
+     "verdict": "FAIL",
+     "blocking": 3,
+     "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p11/runs/a2-r4/aud/ws/.dev/orca-command-refactor/review/audit.md"
+    }
+   ],
+   "fail_unparsed": 0,
+   "code_determined": null,
+   "eligible": true,
+   "labeled": true,
+   "static_route": "assurance",
+   "min_route": "assurance",
+   "headroom": false,
+   "sens_headroom": false
+  },
+  {
+   "run": "a2-r5",
+   "design": "stage2-a2",
+   "stratum": "p11",
+   "review_k": 2,
+   "slots_remaining": 1,
+   "fix_cycles_used": 1,
+   "spec_sha_at_pass": "7cfc46955e89212267b7b42612208b7b453942bd61bda42b47e3e96f605b89ff",
+   "changed_since_last_whole_review": true,
+   "open_blockers": 0,
+   "parsed_ids_in_pass_report": 0,
+   "followups": 0,
+   "verdict_source": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p11/runs/a2-r5/ws/.dev/orca-command-refactor/review/round2.md",
+   "pass_step": "R2",
+   "delivered_matches_pass": true,
+   "mandatory_policy": false,
+   "source": "p11",
+   "audit_paths": [
+    "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p11/runs/a2-r5/aud/ws/.dev/orca-command-refactor/review/audit.md"
+   ],
+   "label": "yes",
+   "sens_label": "yes",
+   "n_audits": 1,
+   "single_audit": true,
+   "audits": [
+    {
+     "verdict": "FAIL",
+     "blocking": 1,
+     "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p11/runs/a2-r5/aud/ws/.dev/orca-command-refactor/review/audit.md"
+    }
+   ],
+   "fail_unparsed": 0,
+   "code_determined": null,
+   "eligible": true,
+   "labeled": true,
+   "static_route": "assurance",
+   "min_route": "assurance",
+   "headroom": false,
+   "sens_headroom": false
+  },
+  {
+   "run": "a2-r6",
+   "design": "stage2-a2",
+   "stratum": "p11",
+   "review_k": 2,
+   "slots_remaining": 1,
+   "fix_cycles_used": 1,
+   "spec_sha_at_pass": "5214f80e3dc9557f5cf50e915b26edd24f7757a9ce7975ec766b78482cde7fd6",
+   "changed_since_last_whole_review": true,
+   "open_blockers": 0,
+   "parsed_ids_in_pass_report": 0,
+   "followups": 0,
+   "verdict_source": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p11/runs/a2-r6/ws/.dev/orca-command-refactor/review/round2.md",
+   "pass_step": "R2",
+   "delivered_matches_pass": true,
+   "mandatory_policy": false,
+   "source": "p11",
+   "audit_paths": [
+    "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p11/runs/a2-r6/aud/ws/.dev/orca-command-refactor/review/audit.md"
+   ],
+   "label": "no",
+   "sens_label": "no",
+   "n_audits": 1,
+   "single_audit": true,
+   "audits": [
+    {
+     "verdict": "PASS",
+     "blocking": 0,
+     "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p11/runs/a2-r6/aud/ws/.dev/orca-command-refactor/review/audit.md"
+    }
+   ],
+   "fail_unparsed": 0,
+   "code_determined": null,
+   "eligible": true,
+   "labeled": true,
+   "static_route": "assurance",
+   "min_route": "deliver",
+   "headroom": true,
+   "sens_headroom": true
+  },
+  {
+   "run": "a3-r1",
+   "design": "stage2-a3",
+   "stratum": "p11",
+   "review_k": 2,
+   "slots_remaining": 1,
+   "fix_cycles_used": 1,
+   "spec_sha_at_pass": "d1f34e4bb75f645e00e9b421dc8abdf0366d981ef45c7dfcc8f6689db8833a6a",
+   "changed_since_last_whole_review": true,
+   "open_blockers": 0,
+   "parsed_ids_in_pass_report": 0,
+   "followups": 3,
+   "verdict_source": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p11/runs/a3-r1/ws/.dev/orca-command-refactor/review/round2.md",
+   "pass_step": "R2",
+   "delivered_matches_pass": true,
+   "mandatory_policy": false,
+   "source": "p11",
+   "audit_paths": [
+    "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p11/runs/a3-r1/aud/ws/.dev/orca-command-refactor/review/audit.md",
+    "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p12/baseline-audit2/a3-r1/ws/.dev/orca-command-refactor/review/audit.md"
+   ],
+   "label": "yes",
+   "sens_label": "yes",
+   "n_audits": 2,
+   "single_audit": false,
+   "audits": [
+    {
+     "verdict": "FAIL",
+     "blocking": 2,
+     "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p11/runs/a3-r1/aud/ws/.dev/orca-command-refactor/review/audit.md"
+    },
+    {
+     "verdict": "FAIL",
+     "blocking": 2,
+     "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p12/baseline-audit2/a3-r1/ws/.dev/orca-command-refactor/review/audit.md"
+    }
+   ],
+   "fail_unparsed": 0,
+   "code_determined": null,
+   "eligible": true,
+   "labeled": true,
+   "static_route": "assurance",
+   "min_route": "assurance",
+   "headroom": false,
+   "sens_headroom": false
+  },
+  {
+   "run": "a3-r2",
+   "design": "stage2-a3",
+   "stratum": "p11",
+   "review_k": 2,
+   "slots_remaining": 1,
+   "fix_cycles_used": 1,
+   "spec_sha_at_pass": "466dcf239d1cdea564cc23de1d5abe284de1d002582065afb592d5d4494fa5a3",
+   "changed_since_last_whole_review": true,
+   "open_blockers": 0,
+   "parsed_ids_in_pass_report": 2,
+   "followups": 9,
+   "verdict_source": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p11/runs/a3-r2/ws/.dev/orca-command-refactor/review/round2.md",
+   "pass_step": "R2",
+   "delivered_matches_pass": true,
+   "mandatory_policy": false,
+   "source": "p11",
+   "audit_paths": [
+    "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p11/runs/a3-r2/aud/ws/.dev/orca-command-refactor/review/audit.md",
+    "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p12/baseline-audit2/a3-r2/ws/.dev/orca-command-refactor/review/audit.md"
+   ],
+   "label": "yes",
+   "sens_label": "yes",
+   "n_audits": 2,
+   "single_audit": false,
+   "audits": [
+    {
+     "verdict": "FAIL",
+     "blocking": 2,
+     "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p11/runs/a3-r2/aud/ws/.dev/orca-command-refactor/review/audit.md"
+    },
+    {
+     "verdict": "FAIL",
+     "blocking": 1,
+     "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p12/baseline-audit2/a3-r2/ws/.dev/orca-command-refactor/review/audit.md"
+    }
+   ],
+   "fail_unparsed": 0,
+   "code_determined": null,
+   "eligible": true,
+   "labeled": true,
+   "static_route": "assurance",
+   "min_route": "assurance",
+   "headroom": false,
+   "sens_headroom": false
+  },
+  {
+   "run": "a3-r3",
+   "design": "stage2-a3",
+   "stratum": "p11",
+   "review_k": 2,
+   "slots_remaining": 1,
+   "fix_cycles_used": 1,
+   "spec_sha_at_pass": "0af4c9147b1078d164edae3da1719df0954c532ee06138e07f894bc91e1ab096",
+   "changed_since_last_whole_review": true,
+   "open_blockers": 0,
+   "parsed_ids_in_pass_report": 0,
+   "followups": 3,
+   "verdict_source": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p11/runs/a3-r3/ws/.dev/orca-command-refactor/review/round2.md",
+   "pass_step": "R2",
+   "delivered_matches_pass": true,
+   "mandatory_policy": false,
+   "source": "p11",
+   "audit_paths": [
+    "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p11/runs/a3-r3/aud/ws/.dev/orca-command-refactor/review/audit.md",
+    "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p12/baseline-audit2/a3-r3/ws/.dev/orca-command-refactor/review/audit.md"
+   ],
+   "label": "yes",
+   "sens_label": "yes",
+   "n_audits": 2,
+   "single_audit": false,
+   "audits": [
+    {
+     "verdict": "FAIL",
+     "blocking": 2,
+     "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p11/runs/a3-r3/aud/ws/.dev/orca-command-refactor/review/audit.md"
+    },
+    {
+     "verdict": "FAIL",
+     "blocking": 2,
+     "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p12/baseline-audit2/a3-r3/ws/.dev/orca-command-refactor/review/audit.md"
+    }
+   ],
+   "fail_unparsed": 0,
+   "code_determined": null,
+   "eligible": true,
+   "labeled": true,
+   "static_route": "assurance",
+   "min_route": "assurance",
+   "headroom": false,
+   "sens_headroom": false
+  },
+  {
+   "run": "a3-r4",
+   "design": "stage2-a3",
+   "stratum": "p11",
+   "review_k": 2,
+   "slots_remaining": 1,
+   "fix_cycles_used": 1,
+   "spec_sha_at_pass": "92073bce9aa934458a66ff79344ce2e439141e3c08d2246944949c626f472a09",
+   "changed_since_last_whole_review": true,
+   "open_blockers": 0,
+   "parsed_ids_in_pass_report": 0,
+   "followups": 0,
+   "verdict_source": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p11/runs/a3-r4/ws/.dev/orca-command-refactor/review/round2.md",
+   "pass_step": "R2",
+   "delivered_matches_pass": true,
+   "mandatory_policy": false,
+   "source": "p11",
+   "audit_paths": [
+    "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p11/runs/a3-r4/aud/ws/.dev/orca-command-refactor/review/audit.md",
+    "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p12/baseline-audit2/a3-r4/ws/.dev/orca-command-refactor/review/audit.md"
+   ],
+   "label": "yes",
+   "sens_label": "yes",
+   "n_audits": 2,
+   "single_audit": false,
+   "audits": [
+    {
+     "verdict": "FAIL",
+     "blocking": 2,
+     "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p11/runs/a3-r4/aud/ws/.dev/orca-command-refactor/review/audit.md"
+    },
+    {
+     "verdict": "FAIL",
+     "blocking": 1,
+     "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p12/baseline-audit2/a3-r4/ws/.dev/orca-command-refactor/review/audit.md"
+    }
+   ],
+   "fail_unparsed": 0,
+   "code_determined": null,
+   "eligible": true,
+   "labeled": true,
+   "static_route": "assurance",
+   "min_route": "assurance",
+   "headroom": false,
+   "sens_headroom": false
+  },
+  {
+   "run": "a3-r5",
+   "design": "stage2-a3",
+   "stratum": "p11",
+   "review_k": 2,
+   "slots_remaining": 1,
+   "fix_cycles_used": 1,
+   "spec_sha_at_pass": "5d3d225a6ef33d0f0c3eb9b745dd4e780b4ca5a0b2dd745dd00ce966449d2b61",
+   "changed_since_last_whole_review": true,
+   "open_blockers": 0,
+   "parsed_ids_in_pass_report": 0,
+   "followups": 3,
+   "verdict_source": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p11/runs/a3-r5/ws/.dev/orca-command-refactor/review/round2.md",
+   "pass_step": "R2",
+   "delivered_matches_pass": true,
+   "mandatory_policy": false,
+   "source": "p11",
+   "audit_paths": [
+    "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p11/runs/a3-r5/aud/ws/.dev/orca-command-refactor/review/audit.md",
+    "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p12/baseline-audit2/a3-r5/ws/.dev/orca-command-refactor/review/audit.md"
+   ],
+   "label": "yes",
+   "sens_label": "no",
+   "n_audits": 2,
+   "single_audit": false,
+   "audits": [
+    {
+     "verdict": "PASS",
+     "blocking": 0,
+     "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p11/runs/a3-r5/aud/ws/.dev/orca-command-refactor/review/audit.md"
+    },
+    {
+     "verdict": "FAIL",
+     "blocking": 1,
+     "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p12/baseline-audit2/a3-r5/ws/.dev/orca-command-refactor/review/audit.md"
+    }
+   ],
+   "fail_unparsed": 0,
+   "code_determined": null,
+   "eligible": true,
+   "labeled": true,
+   "static_route": "assurance",
+   "min_route": "assurance",
+   "headroom": false,
+   "sens_headroom": true
+  },
+  {
+   "run": "a3-r6",
+   "design": "stage2-a3",
+   "stratum": "p11",
+   "review_k": 3,
+   "slots_remaining": 0,
+   "fix_cycles_used": 2,
+   "spec_sha_at_pass": "83f24502ee791d296bebd644adce8eba84b0a7bccbb076f090415ba276880733",
+   "changed_since_last_whole_review": true,
+   "open_blockers": 0,
+   "parsed_ids_in_pass_report": 0,
+   "followups": 0,
+   "verdict_source": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p11/runs/a3-r6/ws/.dev/orca-command-refactor/review/round3.md",
+   "pass_step": "R3",
+   "delivered_matches_pass": true,
+   "mandatory_policy": false,
+   "source": "p11",
+   "audit_paths": [
+    "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p11/runs/a3-r6/aud/ws/.dev/orca-command-refactor/review/audit.md",
+    "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p12/baseline-audit2/a3-r6/ws/.dev/orca-command-refactor/review/audit.md"
+   ],
+   "label": "yes",
+   "sens_label": "yes",
+   "n_audits": 2,
+   "single_audit": false,
+   "audits": [
+    {
+     "verdict": "FAIL",
+     "blocking": 1,
+     "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p11/runs/a3-r6/aud/ws/.dev/orca-command-refactor/review/audit.md"
+    },
+    {
+     "verdict": "FAIL",
+     "blocking": 2,
+     "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p12/baseline-audit2/a3-r6/ws/.dev/orca-command-refactor/review/audit.md"
+    }
+   ],
+   "fail_unparsed": 0,
+   "code_determined": "cap",
+   "eligible": false,
+   "labeled": true,
+   "static_route": "deliver",
+   "min_route": null,
+   "headroom": false,
+   "sens_headroom": false
+  },
+  {
+   "run": "a3-r2",
+   "design": "p14-haiku-a3",
+   "stratum": "p14",
+   "review_k": 3,
+   "slots_remaining": 0,
+   "fix_cycles_used": 2,
+   "spec_sha_at_pass": "284cc6b74e9164675f12bdb0a33d7d0c5edf49544b271cb956ec89ae5853237e",
+   "changed_since_last_whole_review": true,
+   "open_blockers": 0,
+   "parsed_ids_in_pass_report": 0,
+   "followups": 2,
+   "verdict_source": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p14/haiku-baseline/runs/a3-r2/ws/.dev/orca-command-refactor/review/round3.md",
+   "pass_step": "R3",
+   "delivered_matches_pass": true,
+   "mandatory_policy": false,
+   "source": "p14",
+   "audit_paths": [
+    "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p14/haiku-baseline/runs/a3-r2/aud/ws/.dev/orca-command-refactor/review/audit.md"
+   ],
+   "label": "yes",
+   "sens_label": "yes",
+   "n_audits": 1,
+   "single_audit": true,
+   "audits": [
+    {
+     "verdict": "FAIL",
+     "blocking": 3,
+     "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p14/haiku-baseline/runs/a3-r2/aud/ws/.dev/orca-command-refactor/review/audit.md"
+    }
+   ],
+   "fail_unparsed": 0,
+   "code_determined": "cap",
+   "eligible": false,
+   "labeled": true,
+   "static_route": "deliver",
+   "min_route": null,
+   "headroom": false,
+   "sens_headroom": false
+  },
+  {
+   "run": "a3-r3",
+   "design": "p14-haiku-a3",
+   "stratum": "p14",
+   "review_k": 2,
+   "slots_remaining": 1,
+   "fix_cycles_used": 1,
+   "spec_sha_at_pass": "90517bb8b39156a6ae96df698dafb7e24324de3cb8682a343273a1cbd2cce875",
+   "changed_since_last_whole_review": true,
+   "open_blockers": 0,
+   "parsed_ids_in_pass_report": 0,
+   "followups": 2,
+   "verdict_source": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p14/haiku-baseline/runs/a3-r3/ws/.dev/orca-command-refactor/review/round2.md",
+   "pass_step": "R2",
+   "delivered_matches_pass": true,
+   "mandatory_policy": false,
+   "source": "p14",
+   "audit_paths": [
+    "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p14/haiku-baseline/runs/a3-r3/aud/ws/.dev/orca-command-refactor/review/audit.md"
+   ],
+   "label": "yes",
+   "sens_label": "yes",
+   "n_audits": 1,
+   "single_audit": true,
+   "audits": [
+    {
+     "verdict": "FAIL",
+     "blocking": 1,
+     "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p14/haiku-baseline/runs/a3-r3/aud/ws/.dev/orca-command-refactor/review/audit.md"
+    }
+   ],
+   "fail_unparsed": 0,
+   "code_determined": null,
+   "eligible": true,
+   "labeled": true,
+   "static_route": "assurance",
+   "min_route": "assurance",
+   "headroom": false,
+   "sens_headroom": false
+  },
+  {
+   "run": "a3-r4",
+   "design": "p14-haiku-a3",
+   "stratum": "p14",
+   "review_k": 2,
+   "slots_remaining": 1,
+   "fix_cycles_used": 1,
+   "spec_sha_at_pass": "9bf4886e4a47262c5cf9c862441589e93e25942e3132e8035b411d7bd0318c5f",
+   "changed_since_last_whole_review": true,
+   "open_blockers": 0,
+   "parsed_ids_in_pass_report": 0,
+   "followups": 3,
+   "verdict_source": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p14/haiku-baseline/runs/a3-r4/ws/.dev/orca-command-refactor/review/round2.md",
+   "pass_step": "R2",
+   "delivered_matches_pass": true,
+   "mandatory_policy": false,
+   "source": "p14",
+   "audit_paths": [
+    "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p14/haiku-baseline/runs/a3-r4/aud/ws/.dev/orca-command-refactor/review/audit.md"
+   ],
+   "label": "yes",
+   "sens_label": "yes",
+   "n_audits": 1,
+   "single_audit": true,
+   "audits": [
+    {
+     "verdict": "FAIL",
+     "blocking": 3,
+     "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p14/haiku-baseline/runs/a3-r4/aud/ws/.dev/orca-command-refactor/review/audit.md"
+    }
+   ],
+   "fail_unparsed": 0,
+   "code_determined": null,
+   "eligible": true,
+   "labeled": true,
+   "static_route": "assurance",
+   "min_route": "assurance",
+   "headroom": false,
+   "sens_headroom": false
+  },
+  {
+   "run": "a3-r5",
+   "design": "p14-haiku-a3",
+   "stratum": "p14",
+   "review_k": 3,
+   "slots_remaining": 0,
+   "fix_cycles_used": 2,
+   "spec_sha_at_pass": "5dc5c21ad2cf82fb9524020aa4cd5b0bc6a285be451e62fe6377194b27c70222",
+   "changed_since_last_whole_review": true,
+   "open_blockers": 0,
+   "parsed_ids_in_pass_report": 0,
+   "followups": 5,
+   "verdict_source": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p14/haiku-baseline/runs/a3-r5/ws/.dev/orca-command-refactor/review/round3.md",
+   "pass_step": "R3",
+   "delivered_matches_pass": true,
+   "mandatory_policy": false,
+   "source": "p14",
+   "audit_paths": [
+    "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p14/haiku-baseline/runs/a3-r5/aud/ws/.dev/orca-command-refactor/review/audit.md"
+   ],
+   "label": "no",
+   "sens_label": "yes",
+   "n_audits": 1,
+   "single_audit": true,
+   "audits": [
+    {
+     "verdict": "FAIL",
+     "blocking": 0,
+     "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p14/haiku-baseline/runs/a3-r5/aud/ws/.dev/orca-command-refactor/review/audit.md"
+    }
+   ],
+   "fail_unparsed": 1,
+   "code_determined": "cap",
+   "eligible": false,
+   "labeled": true,
+   "static_route": "deliver",
+   "min_route": null,
+   "headroom": false,
+   "sens_headroom": false
+  },
+  {
+   "run": "b2-r1",
+   "design": "p12-ab2",
+   "stratum": "other",
+   "review_k": 2,
+   "slots_remaining": 1,
+   "fix_cycles_used": 1,
+   "spec_sha_at_pass": "395733f7a06e7778fe5ef57a893a4bf2e96dc6f3da91a7e9826eea38dedbd783",
+   "changed_since_last_whole_review": true,
+   "open_blockers": 0,
+   "parsed_ids_in_pass_report": 6,
+   "followups": 0,
+   "verdict_source": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p12/ab2/runs/b2-r1/ws/.dev/orca-command-refactor/review/round2.md",
+   "pass_step": "R2",
+   "delivered_matches_pass": true,
+   "mandatory_policy": false,
+   "source": "p12-ab2",
+   "audit_paths": [
+    "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p12/ab2/runs/b2-r1/aud/ws/.dev/orca-command-refactor/review/audit.md",
+    "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p12/ab2/runs/b2-r1/aud2/ws/.dev/orca-command-refactor/review/audit.md"
+   ],
+   "label": "yes",
+   "sens_label": "yes",
+   "n_audits": 2,
+   "single_audit": false,
+   "audits": [
+    {
+     "verdict": "FAIL",
+     "blocking": 3,
+     "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p12/ab2/runs/b2-r1/aud/ws/.dev/orca-command-refactor/review/audit.md"
+    },
+    {
+     "verdict": "FAIL",
+     "blocking": 2,
+     "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p12/ab2/runs/b2-r1/aud2/ws/.dev/orca-command-refactor/review/audit.md"
+    }
+   ],
+   "fail_unparsed": 0,
+   "code_determined": null,
+   "eligible": true,
+   "labeled": true,
+   "static_route": "assurance",
+   "min_route": "assurance",
+   "headroom": false,
+   "sens_headroom": false
+  },
+  {
+   "run": "b2-r2",
+   "design": "p12-ab2",
+   "stratum": "other",
+   "review_k": 2,
+   "slots_remaining": 1,
+   "fix_cycles_used": 1,
+   "spec_sha_at_pass": "68ce70455b6b30e6a44dbd6460d0688443a0dcdfe80ef873cfa87d79d9501aee",
+   "changed_since_last_whole_review": true,
+   "open_blockers": 0,
+   "parsed_ids_in_pass_report": 3,
+   "followups": 3,
+   "verdict_source": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p12/ab2/runs/b2-r2/ws/.dev/orca-command-refactor/review/round2.md",
+   "pass_step": "R2",
+   "delivered_matches_pass": true,
+   "mandatory_policy": false,
+   "source": "p12-ab2",
+   "audit_paths": [
+    "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p12/ab2/runs/b2-r2/aud/ws/.dev/orca-command-refactor/review/audit.md",
+    "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p12/ab2/runs/b2-r2/aud2/ws/.dev/orca-command-refactor/review/audit.md"
+   ],
+   "label": "yes",
+   "sens_label": "yes",
+   "n_audits": 2,
+   "single_audit": false,
+   "audits": [
+    {
+     "verdict": "FAIL",
+     "blocking": 1,
+     "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p12/ab2/runs/b2-r2/aud/ws/.dev/orca-command-refactor/review/audit.md"
+    },
+    {
+     "verdict": "FAIL",
+     "blocking": 1,
+     "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p12/ab2/runs/b2-r2/aud2/ws/.dev/orca-command-refactor/review/audit.md"
+    }
+   ],
+   "fail_unparsed": 0,
+   "code_determined": null,
+   "eligible": true,
+   "labeled": true,
+   "static_route": "assurance",
+   "min_route": "assurance",
+   "headroom": false,
+   "sens_headroom": false
+  },
+  {
+   "run": "b2-r3",
+   "design": "p12-ab2",
+   "stratum": "other",
+   "review_k": 3,
+   "slots_remaining": 0,
+   "fix_cycles_used": 2,
+   "spec_sha_at_pass": "de92cfbd1e91f7c9b127746790c558a078c2ca7c0cfa873d862dfcbd0dab1bb9",
+   "changed_since_last_whole_review": true,
+   "open_blockers": 0,
+   "parsed_ids_in_pass_report": 0,
+   "followups": 0,
+   "verdict_source": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p12/ab2/runs/b2-r3/ws/.dev/orca-command-refactor/review/round3.md",
+   "pass_step": "R3",
+   "delivered_matches_pass": true,
+   "mandatory_policy": false,
+   "source": "p12-ab2",
+   "audit_paths": [
+    "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p12/ab2/runs/b2-r3/aud/ws/.dev/orca-command-refactor/review/audit.md",
+    "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p12/ab2/runs/b2-r3/aud2/ws/.dev/orca-command-refactor/review/audit.md"
+   ],
+   "label": "yes",
+   "sens_label": "no",
+   "n_audits": 2,
+   "single_audit": false,
+   "audits": [
+    {
+     "verdict": "PASS",
+     "blocking": 0,
+     "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p12/ab2/runs/b2-r3/aud/ws/.dev/orca-command-refactor/review/audit.md"
+    },
+    {
+     "verdict": "FAIL",
+     "blocking": 2,
+     "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p12/ab2/runs/b2-r3/aud2/ws/.dev/orca-command-refactor/review/audit.md"
+    }
+   ],
+   "fail_unparsed": 0,
+   "code_determined": "cap",
+   "eligible": false,
+   "labeled": true,
+   "static_route": "deliver",
+   "min_route": null,
+   "headroom": false,
+   "sens_headroom": false
+  },
+  {
+   "run": "b2-r4",
+   "design": "p12-ab2",
+   "stratum": "other",
+   "review_k": 2,
+   "slots_remaining": 1,
+   "fix_cycles_used": 1,
+   "spec_sha_at_pass": "c9e2ff995f731358d2c486eecbe202f9c810da58a248e59a7c693464e08d5a7b",
+   "changed_since_last_whole_review": true,
+   "open_blockers": 0,
+   "parsed_ids_in_pass_report": 0,
+   "followups": 0,
+   "verdict_source": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p12/ab2/runs/b2-r4/ws/.dev/orca-command-refactor/review/round2.md",
+   "pass_step": "R2",
+   "delivered_matches_pass": true,
+   "mandatory_policy": false,
+   "source": "p12-ab2",
+   "audit_paths": [
+    "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p12/ab2/runs/b2-r4/aud/ws/.dev/orca-command-refactor/review/audit.md",
+    "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p12/ab2/runs/b2-r4/aud2/ws/.dev/orca-command-refactor/review/audit.md"
+   ],
+   "label": "yes",
+   "sens_label": "no",
+   "n_audits": 2,
+   "single_audit": false,
+   "audits": [
+    {
+     "verdict": "PASS",
+     "blocking": 0,
+     "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p12/ab2/runs/b2-r4/aud/ws/.dev/orca-command-refactor/review/audit.md"
+    },
+    {
+     "verdict": "FAIL",
+     "blocking": 2,
+     "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p12/ab2/runs/b2-r4/aud2/ws/.dev/orca-command-refactor/review/audit.md"
+    }
+   ],
+   "fail_unparsed": 0,
+   "code_determined": null,
+   "eligible": true,
+   "labeled": true,
+   "static_route": "assurance",
+   "min_route": "assurance",
+   "headroom": false,
+   "sens_headroom": true
+  },
+  {
+   "run": "b2-r5",
+   "design": "p12-ab2",
+   "stratum": "other",
+   "review_k": 2,
+   "slots_remaining": 1,
+   "fix_cycles_used": 1,
+   "spec_sha_at_pass": "363aad34a552033a79d2d651495b742507e757c6d9545270ee860f0bf999e142",
+   "changed_since_last_whole_review": true,
+   "open_blockers": 0,
+   "parsed_ids_in_pass_report": 0,
+   "followups": 0,
+   "verdict_source": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p12/ab2/runs/b2-r5/ws/.dev/orca-command-refactor/review/round2.md",
+   "pass_step": "R2",
+   "delivered_matches_pass": true,
+   "mandatory_policy": false,
+   "source": "p12-ab2",
+   "audit_paths": [
+    "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p12/ab2/runs/b2-r5/aud/ws/.dev/orca-command-refactor/review/audit.md",
+    "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p12/ab2/runs/b2-r5/aud2/ws/.dev/orca-command-refactor/review/audit.md"
+   ],
+   "label": "yes",
+   "sens_label": "no",
+   "n_audits": 2,
+   "single_audit": false,
+   "audits": [
+    {
+     "verdict": "PASS",
+     "blocking": 0,
+     "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p12/ab2/runs/b2-r5/aud/ws/.dev/orca-command-refactor/review/audit.md"
+    },
+    {
+     "verdict": "FAIL",
+     "blocking": 1,
+     "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p12/ab2/runs/b2-r5/aud2/ws/.dev/orca-command-refactor/review/audit.md"
+    }
+   ],
+   "fail_unparsed": 0,
+   "code_determined": null,
+   "eligible": true,
+   "labeled": true,
+   "static_route": "assurance",
+   "min_route": "assurance",
+   "headroom": false,
+   "sens_headroom": true
+  },
+  {
+   "run": "b2-r6",
+   "design": "p12-ab2",
+   "stratum": "other",
+   "review_k": 2,
+   "slots_remaining": 1,
+   "fix_cycles_used": 1,
+   "spec_sha_at_pass": "89aa60a626c2210c7e3cd02a711923cbaf3990a333b6398f744d27073b0d61ba",
+   "changed_since_last_whole_review": true,
+   "open_blockers": 0,
+   "parsed_ids_in_pass_report": 2,
+   "followups": 0,
+   "verdict_source": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p12/ab2/runs/b2-r6/ws/.dev/orca-command-refactor/review/round2.md",
+   "pass_step": "R2",
+   "delivered_matches_pass": true,
+   "mandatory_policy": false,
+   "source": "p12-ab2",
+   "audit_paths": [
+    "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p12/ab2/runs/b2-r6/aud/ws/.dev/orca-command-refactor/review/audit.md",
+    "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p12/ab2/runs/b2-r6/aud2/ws/.dev/orca-command-refactor/review/audit.md"
+   ],
+   "label": "yes",
+   "sens_label": "yes",
+   "n_audits": 2,
+   "single_audit": false,
+   "audits": [
+    {
+     "verdict": "FAIL",
+     "blocking": 1,
+     "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p12/ab2/runs/b2-r6/aud/ws/.dev/orca-command-refactor/review/audit.md"
+    },
+    {
+     "verdict": "FAIL",
+     "blocking": 3,
+     "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p12/ab2/runs/b2-r6/aud2/ws/.dev/orca-command-refactor/review/audit.md"
+    }
+   ],
+   "fail_unparsed": 0,
+   "code_determined": null,
+   "eligible": true,
+   "labeled": true,
+   "static_route": "assurance",
+   "min_route": "assurance",
+   "headroom": false,
+   "sens_headroom": false
+  },
+  {
+   "run": "b3-r1",
+   "design": "p12-ab3",
+   "stratum": "other",
+   "review_k": 3,
+   "slots_remaining": 0,
+   "fix_cycles_used": 1,
+   "spec_sha_at_pass": "f3f06d442b7ecafec248d6a15af6b7f95431da195ed53de987f98ee1119f1751",
+   "changed_since_last_whole_review": false,
+   "open_blockers": 0,
+   "parsed_ids_in_pass_report": 0,
+   "followups": 0,
+   "verdict_source": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p12/ab3/runs/b3-r1/ws/.dev/orca-command-refactor/review/gate.md",
+   "pass_step": "G",
+   "delivered_matches_pass": true,
+   "mandatory_policy": false,
+   "source": "p12-ab3",
+   "audit_paths": [
+    "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p12/ab3/runs/b3-r1/aud/ws/.dev/orca-command-refactor/review/audit.md",
+    "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p12/ab3/runs/b3-r1/aud2/ws/.dev/orca-command-refactor/review/audit.md"
+   ],
+   "label": "yes",
+   "sens_label": "yes",
+   "n_audits": 2,
+   "single_audit": false,
+   "audits": [
+    {
+     "verdict": "FAIL",
+     "blocking": 2,
+     "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p12/ab3/runs/b3-r1/aud/ws/.dev/orca-command-refactor/review/audit.md"
+    },
+    {
+     "verdict": "FAIL",
+     "blocking": 2,
+     "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p12/ab3/runs/b3-r1/aud2/ws/.dev/orca-command-refactor/review/audit.md"
+    }
+   ],
+   "fail_unparsed": 0,
+   "code_determined": "cap",
+   "eligible": false,
+   "labeled": true,
+   "static_route": "deliver",
+   "min_route": null,
+   "headroom": false,
+   "sens_headroom": false
+  },
+  {
+   "run": "b3-r2",
+   "design": "p12-ab3",
+   "stratum": "other",
+   "review_k": 4,
+   "slots_remaining": 0,
+   "fix_cycles_used": 1,
+   "spec_sha_at_pass": "3df6411553609a3781774f54ed644139d6073eeb6265fab7bf239562e2658b99",
+   "changed_since_last_whole_review": true,
+   "open_blockers": 0,
+   "parsed_ids_in_pass_report": 1,
+   "followups": 3,
+   "verdict_source": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p12/ab3/runs/b3-r2/ws/.dev/orca-command-refactor/review/gate-round2.md",
+   "pass_step": "GR",
+   "delivered_matches_pass": true,
+   "mandatory_policy": false,
+   "source": "p12-ab3",
+   "audit_paths": [
+    "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p12/ab3/runs/b3-r2/aud/ws/.dev/orca-command-refactor/review/audit.md",
+    "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p12/ab3/runs/b3-r2/aud2/ws/.dev/orca-command-refactor/review/audit.md"
+   ],
+   "label": "yes",
+   "sens_label": "yes",
+   "n_audits": 2,
+   "single_audit": false,
+   "audits": [
+    {
+     "verdict": "FAIL",
+     "blocking": 1,
+     "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p12/ab3/runs/b3-r2/aud/ws/.dev/orca-command-refactor/review/audit.md"
+    },
+    {
+     "verdict": "FAIL",
+     "blocking": 2,
+     "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p12/ab3/runs/b3-r2/aud2/ws/.dev/orca-command-refactor/review/audit.md"
+    }
+   ],
+   "fail_unparsed": 0,
+   "code_determined": "cap",
+   "eligible": false,
+   "labeled": true,
+   "static_route": "deliver",
+   "min_route": null,
+   "headroom": false,
+   "sens_headroom": false
+  },
+  {
+   "run": "b3-r3",
+   "design": "p12-ab3",
+   "stratum": "other",
+   "review_k": 4,
+   "slots_remaining": 0,
+   "fix_cycles_used": 1,
+   "spec_sha_at_pass": "0962971bc5e9e3d54fa29ae20237450890eefb0d54ec5b262606d398c0bb57e2",
+   "changed_since_last_whole_review": true,
+   "open_blockers": 0,
+   "parsed_ids_in_pass_report": 0,
+   "followups": 0,
+   "verdict_source": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p12/ab3/runs/b3-r3/ws/.dev/orca-command-refactor/review/gate-round2.md",
+   "pass_step": "GR",
+   "delivered_matches_pass": true,
+   "mandatory_policy": false,
+   "source": "p12-ab3",
+   "audit_paths": [
+    "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p12/ab3/runs/b3-r3/aud/ws/.dev/orca-command-refactor/review/audit.md",
+    "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p12/ab3/runs/b3-r3/aud2/ws/.dev/orca-command-refactor/review/audit.md"
+   ],
+   "label": "yes",
+   "sens_label": "yes",
+   "n_audits": 2,
+   "single_audit": false,
+   "audits": [
+    {
+     "verdict": "FAIL",
+     "blocking": 1,
+     "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p12/ab3/runs/b3-r3/aud/ws/.dev/orca-command-refactor/review/audit.md"
+    },
+    {
+     "verdict": "FAIL",
+     "blocking": 1,
+     "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p12/ab3/runs/b3-r3/aud2/ws/.dev/orca-command-refactor/review/audit.md"
+    }
+   ],
+   "fail_unparsed": 0,
+   "code_determined": "cap",
+   "eligible": false,
+   "labeled": true,
+   "static_route": "deliver",
+   "min_route": null,
+   "headroom": false,
+   "sens_headroom": false
+  },
+  {
+   "run": "b3-r4",
+   "design": "p12-ab3",
+   "stratum": "other",
+   "review_k": 4,
+   "slots_remaining": 0,
+   "fix_cycles_used": 1,
+   "spec_sha_at_pass": "79f7d923a8aec892c0aa73658332d8e091d8ce46bc45e64a342ab24dea176c15",
+   "changed_since_last_whole_review": true,
+   "open_blockers": 0,
+   "parsed_ids_in_pass_report": 0,
+   "followups": 3,
+   "verdict_source": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p12/ab3/runs/b3-r4/ws/.dev/orca-command-refactor/review/gate-round2.md",
+   "pass_step": "GR",
+   "delivered_matches_pass": true,
+   "mandatory_policy": false,
+   "source": "p12-ab3",
+   "audit_paths": [
+    "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p12/ab3/runs/b3-r4/aud/ws/.dev/orca-command-refactor/review/audit.md",
+    "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p12/ab3/runs/b3-r4/aud2/ws/.dev/orca-command-refactor/review/audit.md"
+   ],
+   "label": "yes",
+   "sens_label": "yes",
+   "n_audits": 2,
+   "single_audit": false,
+   "audits": [
+    {
+     "verdict": "FAIL",
+     "blocking": 1,
+     "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p12/ab3/runs/b3-r4/aud/ws/.dev/orca-command-refactor/review/audit.md"
+    },
+    {
+     "verdict": "FAIL",
+     "blocking": 1,
+     "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p12/ab3/runs/b3-r4/aud2/ws/.dev/orca-command-refactor/review/audit.md"
+    }
+   ],
+   "fail_unparsed": 0,
+   "code_determined": "cap",
+   "eligible": false,
+   "labeled": true,
+   "static_route": "deliver",
+   "min_route": null,
+   "headroom": false,
+   "sens_headroom": false
+  },
+  {
+   "run": "b3-r5",
+   "design": "p12-ab3",
+   "stratum": "other",
+   "review_k": 4,
+   "slots_remaining": 0,
+   "fix_cycles_used": 1,
+   "spec_sha_at_pass": "7dee641ad4c0ea491b648c4d2ff91374c68f0b6c2b89647e79c56e099f02c9e8",
+   "changed_since_last_whole_review": true,
+   "open_blockers": 0,
+   "parsed_ids_in_pass_report": 0,
+   "followups": 0,
+   "verdict_source": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p12/ab3/runs/b3-r5/ws/.dev/orca-command-refactor/review/gate-round2.md",
+   "pass_step": "GR",
+   "delivered_matches_pass": true,
+   "mandatory_policy": false,
+   "source": "p12-ab3",
+   "audit_paths": [
+    "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p12/ab3/runs/b3-r5/aud/ws/.dev/orca-command-refactor/review/audit.md",
+    "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p12/ab3/runs/b3-r5/aud2/ws/.dev/orca-command-refactor/review/audit.md"
+   ],
+   "label": "yes",
+   "sens_label": "yes",
+   "n_audits": 2,
+   "single_audit": false,
+   "audits": [
+    {
+     "verdict": "FAIL",
+     "blocking": 0,
+     "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p12/ab3/runs/b3-r5/aud/ws/.dev/orca-command-refactor/review/audit.md"
+    },
+    {
+     "verdict": "FAIL",
+     "blocking": 2,
+     "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p12/ab3/runs/b3-r5/aud2/ws/.dev/orca-command-refactor/review/audit.md"
+    }
+   ],
+   "fail_unparsed": 1,
+   "code_determined": "cap",
+   "eligible": false,
+   "labeled": true,
+   "static_route": "deliver",
+   "min_route": null,
+   "headroom": false,
+   "sens_headroom": false
+  },
+  {
+   "run": "b3-r6",
+   "design": "p12-ab3",
+   "stratum": "other",
+   "review_k": 3,
+   "slots_remaining": 0,
+   "fix_cycles_used": 1,
+   "spec_sha_at_pass": "361193fc0635fb15c8c62bef7845f79c10650c2ce1378fb6cefbbb9b882a7ae8",
+   "changed_since_last_whole_review": false,
+   "open_blockers": 0,
+   "parsed_ids_in_pass_report": 0,
+   "followups": 6,
+   "verdict_source": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p12/ab3/runs/b3-r6/ws/.dev/orca-command-refactor/review/gate.md",
+   "pass_step": "G",
+   "delivered_matches_pass": true,
+   "mandatory_policy": false,
+   "source": "p12-ab3",
+   "audit_paths": [
+    "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p12/ab3/runs/b3-r6/aud/ws/.dev/orca-command-refactor/review/audit.md",
+    "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p12/ab3/runs/b3-r6/aud2/ws/.dev/orca-command-refactor/review/audit.md"
+   ],
+   "label": "yes",
+   "sens_label": "no",
+   "n_audits": 2,
+   "single_audit": false,
+   "audits": [
+    {
+     "verdict": "PASS",
+     "blocking": 0,
+     "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p12/ab3/runs/b3-r6/aud/ws/.dev/orca-command-refactor/review/audit.md"
+    },
+    {
+     "verdict": "FAIL",
+     "blocking": 2,
+     "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p12/ab3/runs/b3-r6/aud2/ws/.dev/orca-command-refactor/review/audit.md"
+    }
+   ],
+   "fail_unparsed": 0,
+   "code_determined": "cap",
+   "eligible": false,
+   "labeled": true,
+   "static_route": "deliver",
+   "min_route": null,
+   "headroom": false,
+   "sens_headroom": false
+  },
+  {
+   "run": "b1-r3",
+   "design": "p13-pn1",
+   "stratum": "other",
+   "review_k": 2,
+   "slots_remaining": 1,
+   "fix_cycles_used": 1,
+   "spec_sha_at_pass": "9cef9de023524eef0ec002f54d934b470019f03f17a77205bff3ed6600c2b9c7",
+   "changed_since_last_whole_review": false,
+   "open_blockers": 0,
+   "parsed_ids_in_pass_report": 0,
+   "followups": 0,
+   "verdict_source": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p13/ab1/runs/b1-r3/ws/.dev/orca-command-refactor/review/round2.md",
+   "pass_step": "M2",
+   "delivered_matches_pass": true,
+   "mandatory_policy": false,
+   "source": "p13-ab1",
+   "audit_paths": [
+    "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p13/ab1/runs/b1-r3/aud/ws/.dev/orca-command-refactor/review/audit.md",
+    "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p13/ab1/runs/b1-r3/aud2/ws/.dev/orca-command-refactor/review/audit.md"
+   ],
+   "label": "yes",
+   "sens_label": "yes",
+   "n_audits": 2,
+   "single_audit": false,
+   "audits": [
+    {
+     "verdict": "FAIL",
+     "blocking": 1,
+     "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p13/ab1/runs/b1-r3/aud/ws/.dev/orca-command-refactor/review/audit.md"
+    },
+    {
+     "verdict": "FAIL",
+     "blocking": 3,
+     "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p13/ab1/runs/b1-r3/aud2/ws/.dev/orca-command-refactor/review/audit.md"
+    }
+   ],
+   "fail_unparsed": 0,
+   "code_determined": "unchanged_hash",
+   "eligible": false,
+   "labeled": true,
+   "static_route": "assurance",
+   "min_route": null,
+   "headroom": false,
+   "sens_headroom": false
+  },
+  {
+   "run": "l2-r1",
+   "design": "p13-pn2",
+   "stratum": "other",
+   "review_k": 2,
+   "slots_remaining": 1,
+   "fix_cycles_used": 1,
+   "spec_sha_at_pass": "746b5ffc5ac4b78a7e2053e0e341cc67756a46ac8a09ff6161b886dedded7fa2",
+   "changed_since_last_whole_review": true,
+   "open_blockers": 0,
+   "parsed_ids_in_pass_report": 0,
+   "followups": 0,
+   "verdict_source": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p13/ab2/runs/l2-r1/ws/.dev/orca-command-refactor/review/round2.md",
+   "pass_step": "R2",
+   "delivered_matches_pass": true,
+   "mandatory_policy": false,
+   "source": "p13-ab2",
+   "audit_paths": [
+    "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p13/ab2/runs/l2-r1/aud/ws/.dev/orca-command-refactor/review/audit.md",
+    "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p13/ab2/runs/l2-r1/aud2/ws/.dev/orca-command-refactor/review/audit.md"
+   ],
+   "label": "yes",
+   "sens_label": "no",
+   "n_audits": 2,
+   "single_audit": false,
+   "audits": [
+    {
+     "verdict": "PASS",
+     "blocking": 0,
+     "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p13/ab2/runs/l2-r1/aud/ws/.dev/orca-command-refactor/review/audit.md"
+    },
+    {
+     "verdict": "FAIL",
+     "blocking": 1,
+     "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p13/ab2/runs/l2-r1/aud2/ws/.dev/orca-command-refactor/review/audit.md"
+    }
+   ],
+   "fail_unparsed": 0,
+   "code_determined": null,
+   "eligible": true,
+   "labeled": true,
+   "static_route": "assurance",
+   "min_route": "assurance",
+   "headroom": false,
+   "sens_headroom": true
+  },
+  {
+   "run": "l2-r2",
+   "design": "p13-pn2",
+   "stratum": "other",
+   "review_k": 2,
+   "slots_remaining": 1,
+   "fix_cycles_used": 1,
+   "spec_sha_at_pass": "0686b734a23ad02747840178fa995a98e02d1dad4e7ef5e12322d1cb7ce8879d",
+   "changed_since_last_whole_review": true,
+   "open_blockers": 0,
+   "parsed_ids_in_pass_report": 0,
+   "followups": 5,
+   "verdict_source": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p13/ab2/runs/l2-r2/ws/.dev/orca-command-refactor/review/round2.md",
+   "pass_step": "R2",
+   "delivered_matches_pass": true,
+   "mandatory_policy": false,
+   "source": "p13-ab2",
+   "audit_paths": [
+    "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p13/ab2/runs/l2-r2/aud/ws/.dev/orca-command-refactor/review/audit.md",
+    "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p13/ab2/runs/l2-r2/aud2/ws/.dev/orca-command-refactor/review/audit.md"
+   ],
+   "label": "yes",
+   "sens_label": "no",
+   "n_audits": 2,
+   "single_audit": false,
+   "audits": [
+    {
+     "verdict": "PASS",
+     "blocking": 0,
+     "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p13/ab2/runs/l2-r2/aud/ws/.dev/orca-command-refactor/review/audit.md"
+    },
+    {
+     "verdict": "FAIL",
+     "blocking": 2,
+     "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p13/ab2/runs/l2-r2/aud2/ws/.dev/orca-command-refactor/review/audit.md"
+    }
+   ],
+   "fail_unparsed": 0,
+   "code_determined": null,
+   "eligible": true,
+   "labeled": true,
+   "static_route": "assurance",
+   "min_route": "assurance",
+   "headroom": false,
+   "sens_headroom": true
+  },
+  {
+   "run": "l2-r3",
+   "design": "p13-pn2",
+   "stratum": "other",
+   "review_k": 2,
+   "slots_remaining": 1,
+   "fix_cycles_used": 1,
+   "spec_sha_at_pass": "032a73216d9fa2a2e58b2be6fa0c2ed6374df75cb60076a9b7d7f4bd03d07a67",
+   "changed_since_last_whole_review": true,
+   "open_blockers": 0,
+   "parsed_ids_in_pass_report": 0,
+   "followups": 8,
+   "verdict_source": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p13/ab2/runs/l2-r3/ws/.dev/orca-command-refactor/review/round2.md",
+   "pass_step": "R2",
+   "delivered_matches_pass": true,
+   "mandatory_policy": false,
+   "source": "p13-ab2",
+   "audit_paths": [
+    "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p13/ab2/runs/l2-r3/aud/ws/.dev/orca-command-refactor/review/audit.md",
+    "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p13/ab2/runs/l2-r3/aud2/ws/.dev/orca-command-refactor/review/audit.md"
+   ],
+   "label": "yes",
+   "sens_label": "no",
+   "n_audits": 2,
+   "single_audit": false,
+   "audits": [
+    {
+     "verdict": "PASS",
+     "blocking": 0,
+     "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p13/ab2/runs/l2-r3/aud/ws/.dev/orca-command-refactor/review/audit.md"
+    },
+    {
+     "verdict": "FAIL",
+     "blocking": 2,
+     "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p13/ab2/runs/l2-r3/aud2/ws/.dev/orca-command-refactor/review/audit.md"
+    }
+   ],
+   "fail_unparsed": 0,
+   "code_determined": null,
+   "eligible": true,
+   "labeled": true,
+   "static_route": "assurance",
+   "min_route": "assurance",
+   "headroom": false,
+   "sens_headroom": true
+  },
+  {
+   "run": "l2-r4",
+   "design": "p13-pn2",
+   "stratum": "other",
+   "review_k": 2,
+   "slots_remaining": 1,
+   "fix_cycles_used": 1,
+   "spec_sha_at_pass": "64ace65d5ab1437b097ef30b7325e413a6e90e0ea575952d431a0fa4c73ce23e",
+   "changed_since_last_whole_review": true,
+   "open_blockers": 0,
+   "parsed_ids_in_pass_report": 0,
+   "followups": 3,
+   "verdict_source": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p13/ab2/runs/l2-r4/ws/.dev/orca-command-refactor/review/round2.md",
+   "pass_step": "R2",
+   "delivered_matches_pass": true,
+   "mandatory_policy": false,
+   "source": "p13-ab2",
+   "audit_paths": [
+    "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p13/ab2/runs/l2-r4/aud/ws/.dev/orca-command-refactor/review/audit.md",
+    "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p13/ab2/runs/l2-r4/aud2/ws/.dev/orca-command-refactor/review/audit.md"
+   ],
+   "label": "yes",
+   "sens_label": "yes",
+   "n_audits": 2,
+   "single_audit": false,
+   "audits": [
+    {
+     "verdict": "FAIL",
+     "blocking": 2,
+     "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p13/ab2/runs/l2-r4/aud/ws/.dev/orca-command-refactor/review/audit.md"
+    },
+    {
+     "verdict": "FAIL",
+     "blocking": 1,
+     "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p13/ab2/runs/l2-r4/aud2/ws/.dev/orca-command-refactor/review/audit.md"
+    }
+   ],
+   "fail_unparsed": 0,
+   "code_determined": null,
+   "eligible": true,
+   "labeled": true,
+   "static_route": "assurance",
+   "min_route": "assurance",
+   "headroom": false,
+   "sens_headroom": false
+  },
+  {
+   "run": "l2-r5",
+   "design": "p13-pn2",
+   "stratum": "other",
+   "review_k": 2,
+   "slots_remaining": 1,
+   "fix_cycles_used": 1,
+   "spec_sha_at_pass": "6df71d66ba77941856614e39ef7598d78d9d296b701f694093bc4d5e6d1b9394",
+   "changed_since_last_whole_review": true,
+   "open_blockers": 0,
+   "parsed_ids_in_pass_report": 0,
+   "followups": 0,
+   "verdict_source": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p13/ab2/runs/l2-r5/ws/.dev/orca-command-refactor/review/round2.md",
+   "pass_step": "R2",
+   "delivered_matches_pass": true,
+   "mandatory_policy": false,
+   "source": "p13-ab2",
+   "audit_paths": [
+    "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p13/ab2/runs/l2-r5/aud/ws/.dev/orca-command-refactor/review/audit.md",
+    "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p13/ab2/runs/l2-r5/aud2/ws/.dev/orca-command-refactor/review/audit.md"
+   ],
+   "label": "yes",
+   "sens_label": "yes",
+   "n_audits": 2,
+   "single_audit": false,
+   "audits": [
+    {
+     "verdict": "FAIL",
+     "blocking": 2,
+     "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p13/ab2/runs/l2-r5/aud/ws/.dev/orca-command-refactor/review/audit.md"
+    },
+    {
+     "verdict": "FAIL",
+     "blocking": 1,
+     "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p13/ab2/runs/l2-r5/aud2/ws/.dev/orca-command-refactor/review/audit.md"
+    }
+   ],
+   "fail_unparsed": 0,
+   "code_determined": null,
+   "eligible": true,
+   "labeled": true,
+   "static_route": "assurance",
+   "min_route": "assurance",
+   "headroom": false,
+   "sens_headroom": false
+  },
+  {
+   "run": "l2-r6",
+   "design": "p13-pn2",
+   "stratum": "other",
+   "review_k": 2,
+   "slots_remaining": 1,
+   "fix_cycles_used": 1,
+   "spec_sha_at_pass": "e83580105a91cbd66307f4ec8d971d860124f6e64bbad15157d508a0bfc3be1e",
+   "changed_since_last_whole_review": true,
+   "open_blockers": 0,
+   "parsed_ids_in_pass_report": 6,
+   "followups": 3,
+   "verdict_source": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p13/ab2/runs/l2-r6/ws/.dev/orca-command-refactor/review/round2.md",
+   "pass_step": "R2",
+   "delivered_matches_pass": true,
+   "mandatory_policy": false,
+   "source": "p13-ab2",
+   "audit_paths": [
+    "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p13/ab2/runs/l2-r6/aud/ws/.dev/orca-command-refactor/review/audit.md",
+    "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p13/ab2/runs/l2-r6/aud2/ws/.dev/orca-command-refactor/review/audit.md"
+   ],
+   "label": "yes",
+   "sens_label": "yes",
+   "n_audits": 2,
+   "single_audit": false,
+   "audits": [
+    {
+     "verdict": "FAIL",
+     "blocking": 2,
+     "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p13/ab2/runs/l2-r6/aud/ws/.dev/orca-command-refactor/review/audit.md"
+    },
+    {
+     "verdict": "FAIL",
+     "blocking": 3,
+     "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p13/ab2/runs/l2-r6/aud2/ws/.dev/orca-command-refactor/review/audit.md"
+    }
+   ],
+   "fail_unparsed": 0,
+   "code_determined": null,
+   "eligible": true,
+   "labeled": true,
+   "static_route": "assurance",
+   "min_route": "assurance",
+   "headroom": false,
+   "sens_headroom": false
+  }
+ ],
+ "escalated": [
+  {
+   "run": "a1-r1",
+   "design": "stage2-a1",
+   "stratum": "p11",
+   "reviews": 3,
+   "last_review": "R3",
+   "last_verdict": "FAIL",
+   "source": "p11",
+   "audit_paths": [
+    "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p11/runs/a1-r1/aud/ws/.dev/orca-command-refactor/review/audit.md"
+   ]
+  },
+  {
+   "run": "a1-r2",
+   "design": "stage2-a1",
+   "stratum": "p11",
+   "reviews": 3,
+   "last_review": "R3",
+   "last_verdict": "FAIL",
+   "source": "p11",
+   "audit_paths": [
+    "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p11/runs/a1-r2/aud/ws/.dev/orca-command-refactor/review/audit.md"
+   ]
+  },
+  {
+   "run": "a1-r3",
+   "design": "stage2-a1",
+   "stratum": "p11",
+   "reviews": 3,
+   "last_review": "R3",
+   "last_verdict": "FAIL",
+   "source": "p11",
+   "audit_paths": [
+    "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p11/runs/a1-r3/aud/ws/.dev/orca-command-refactor/review/audit.md"
+   ]
+  },
+  {
+   "run": "a3-r1",
+   "design": "p14-haiku-a3",
+   "stratum": "p14",
+   "reviews": 3,
+   "last_review": "R3",
+   "last_verdict": "FAIL",
+   "source": "p14",
+   "audit_paths": [
+    "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p14/haiku-baseline/runs/a3-r1/aud/ws/.dev/orca-command-refactor/review/audit.md"
+   ]
+  },
+  {
+   "run": "a3-r6",
+   "design": "p14-haiku-a3",
+   "stratum": "p14",
+   "reviews": 3,
+   "last_review": "R3",
+   "last_verdict": "FAIL",
+   "source": "p14",
+   "audit_paths": [
+    "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p14/haiku-baseline/runs/a3-r6/aud/ws/.dev/orca-command-refactor/review/audit.md"
+   ]
+  },
+  {
+   "run": "b1-r1",
+   "design": "p13-pn1",
+   "stratum": "other",
+   "reviews": 3,
+   "last_review": "M3",
+   "last_verdict": "FAIL",
+   "source": "p13-ab1",
+   "audit_paths": [
+    "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p13/ab1/runs/b1-r1/aud/ws/.dev/orca-command-refactor/review/audit.md",
+    "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p13/ab1/runs/b1-r1/aud2/ws/.dev/orca-command-refactor/review/audit.md"
+   ]
+  },
+  {
+   "run": "b1-r2",
+   "design": "p13-pn1",
+   "stratum": "other",
+   "reviews": 3,
+   "last_review": "M3",
+   "last_verdict": "FAIL",
+   "source": "p13-ab1",
+   "audit_paths": [
+    "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p13/ab1/runs/b1-r2/aud/ws/.dev/orca-command-refactor/review/audit.md",
+    "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p13/ab1/runs/b1-r2/aud2/ws/.dev/orca-command-refactor/review/audit.md"
+   ]
+  }
+ ],
+ "excluded": [
+  {
+   "run": "b1-r1",
+   "source": "p12-ab1",
+   "reason": "audits available 0 < 2"
+  },
+  {
+   "run": "b1-r2",
+   "source": "p12-ab1",
+   "reason": "audits available 0 < 2"
+  },
+  {
+   "run": "b1-r3",
+   "source": "p12-ab1",
+   "reason": "audits available 0 < 2"
+  },
+  {
+   "run": "b1-r4",
+   "source": "p12-ab1",
+   "reason": "audits available 0 < 2"
+  },
+  {
+   "run": "b1-r5",
+   "source": "p12-ab1",
+   "reason": "audits available 0 < 2"
+  },
+  {
+   "run": "b1-r6",
+   "source": "p12-ab1",
+   "reason": "audits available 0 < 2"
+  },
+  {
+   "run": "b1h-r1",
+   "source": "p12-ab1",
+   "reason": "audits available 0 < 2"
+  },
+  {
+   "run": "b1h-r2",
+   "source": "p12-ab1",
+   "reason": "audits available 0 < 2"
+  },
+  {
+   "run": "b1h-r3",
+   "source": "p12-ab1",
+   "reason": "audits available 0 < 2"
+  },
+  {
+   "run": "b1h-r4",
+   "source": "p12-ab1",
+   "reason": "audits available 0 < 2"
+  },
+  {
+   "run": "b2h-r1",
+   "source": "p12-ab2",
+   "reason": "audits available 0 < 2"
+  },
+  {
+   "run": "b2h-r2",
+   "source": "p12-ab2",
+   "reason": "audits available 0 < 2"
+  },
+  {
+   "run": "b2h-r3",
+   "source": "p12-ab2",
+   "reason": "audits available 0 < 2"
+  },
+  {
+   "run": "b2h-r4",
+   "source": "p12-ab2",
+   "reason": "audits available 0 < 2"
+  },
+  {
+   "run": "b3h-r1",
+   "source": "p12-ab3",
+   "reason": "audits available 0 < 2"
+  },
+  {
+   "run": "b3h-r2",
+   "source": "p12-ab3",
+   "reason": "audits available 0 < 2"
+  },
+  {
+   "run": "b3h-r3",
+   "source": "p12-ab3",
+   "reason": "audits available 0 < 2"
+  },
+  {
+   "run": "b3h-r4",
+   "source": "p12-ab3",
+   "reason": "audits available 0 < 2"
+  },
+  {
+   "run": "b1-r4",
+   "source": "p13-ab1",
+   "reason": "audits available 0 < 2"
+  },
+  {
+   "run": "b1-r5",
+   "source": "p13-ab1",
+   "reason": "audits available 0 < 2"
+  },
+  {
+   "run": "b1-r6",
+   "source": "p13-ab1",
+   "reason": "audits available 0 < 2"
+  },
+  {
+   "run": "b1h-r1",
+   "source": "p13-ab1",
+   "reason": "audits available 0 < 2"
+  },
+  {
+   "run": "b1h-r2",
+   "source": "p13-ab1",
+   "reason": "audits available 0 < 2"
+  },
+  {
+   "run": "b1h-r3",
+   "source": "p13-ab1",
+   "reason": "audits available 0 < 2"
+  },
+  {
+   "run": "b1h-r4",
+   "source": "p13-ab1",
+   "reason": "audits available 0 < 2"
+  }
+ ]
+}

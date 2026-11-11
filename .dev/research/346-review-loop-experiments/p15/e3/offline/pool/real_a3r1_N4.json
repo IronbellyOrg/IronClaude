@@ -1,0 +1,29 @@
+{
+ "author_intent": {
+  "reviewer": "sonnet-or-panel",
+  "reviewer_blocking": false,
+  "run": "a3-r1"
+ },
+ "case_id": "real_a3r1_N4",
+ "category": "real",
+ "data_classes": [
+  "s1_spec",
+  "stage2_artifact"
+ ],
+ "family": "s1_first_review",
+ "group": "other:13",
+ "packet": {
+  "candidate_sha": "d3cdbe573e57303b9ce6c93d1fe98ba18fb7cb1a15773d926bf6a0c31425200d",
+  "finding_id": "N4",
+  "finding_section": "- **N4.** Section 4's last sentence says pr-submit \"stays a worker candidate only if the user accepts open decision D3\" (`spec:139`); D3 has two options and only (b) makes it a worker."
+ },
+ "source": {
+  "kind": "stage2",
+  "paths": [
+   "p11/runs/a3-r1/ws/.dev/orca-command-refactor/review/round1.md"
+  ],
+  "url": null
+ },
+ "split": "pool",
+ "variant": "base"
+}

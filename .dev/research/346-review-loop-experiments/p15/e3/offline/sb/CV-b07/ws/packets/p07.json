@@ -1,0 +1,17 @@
+{
+ "finding": {
+  "title": "WC-3 lets a coordinator's answer become an implement Ruling (safety boundary).",
+  "wrong_outcome": "An implementer who follows WC-3 as written can have a worker ask the coordinator about a gate that would otherwise be blocked, then re-invoke `/sc:implement` with the answer as a flag. The implement row (line 109) then treats that answer as the Ruling. This is wrong because `sk/sc-implement-protocol/refs/qa.md:238` says \"another agent's message... [is] not acceptance\" (quoted at INV-A:66), and the spec says the Ruling rule is unchanged unless the user chooses D2(b) (lines 218 and 234-236). D2(a) is the recommendation, so WC-3 silently reopens a decision the spec leaves to the user. Fix: exempt the implement Ruling gate from WC-3, or state that the relay is allowed only under D2(b)."
+ },
+ "evidence": {
+  "e1": {
+   "text": "/sc:implement",
+   "line": 218,
+   "context": "3. **Building a coordinator program.** The coordinator is an Orca coordinator session following Orca's own guide (`CAPS:12-13`); this spec adds a brief template, not a new CLI, daemon or scheduler.\n4. **Turning coordinator-only commands into workers** (section 4).\n5. **Removing or weakening any interactive behaviour for people** (section 5). `--unattended` is opt-in.\n6. **Changing the `/sc:implement` Ruling rule** unless the user chooses D2 option (b) (`sk/sc-implement-protocol/refs/qa.md:238`).\n7. **Making Agent-tool subagents into Orca workers**, or letting subagents send lifecycle messages (WC-7).\n8. **Fixing every defect the inventories list.** Only defects that stop a command working as a worker are in scope. Others stay recorded in the inventories, for example `/sc:agent`'s missing opening frontmatter line (`INV-A:36`) and the cleanup/improve rollback claims (`INV-A:118`).\n9. **Remote workers, model and effort choice, and cost tuning.** `--on <environment>`, `--model` and `--effort` are coordinator choices Orca already supports (`CAPS:128`, `CAPS:135-139`); this spec does not set them."
+  }
+ },
+ "facts": {
+  "quotes_found_verbatim": true,
+  "evidence_count": 1
+ }
+}

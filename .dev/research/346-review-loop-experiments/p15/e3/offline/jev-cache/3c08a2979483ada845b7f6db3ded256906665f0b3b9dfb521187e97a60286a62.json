@@ -1,0 +1,1 @@
+{"status": "ok", "error": null, "answers": {"evidence_sufficient": {"type": "noul", "p": 0.42}, "outcome_follows": {"type": "noul", "p": 0.97}}, "usage": {"input_tokens": 748, "output_tokens": 46}, "model": "jev-1.14.0", "attempts": 1, "latency_ms": 185, "request_sha256": "3c08a2979483ada845b7f6db3ded256906665f0b3b9dfb521187e97a60286a62"}

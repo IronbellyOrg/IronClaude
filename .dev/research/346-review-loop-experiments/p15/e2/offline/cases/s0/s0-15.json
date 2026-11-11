@@ -1,0 +1,36 @@
+{
+ "author_intent": {
+  "category": "seed-contradiction",
+  "expect": "defect",
+  "layer": "seeded"
+ },
+ "case_id": "s0-15",
+ "category": "seed-contradiction",
+ "data_classes": [
+  "s1_spec"
+ ],
+ "family": "s1-edit-outcome",
+ "group": "s1-edit-outcome",
+ "packet": {
+  "defect": "WC-5 maps a `blocked` report to `worker_done --outcome failed`, but AC-2.2 expects `worker_done --outcome succeeded` for a run whose contract says `status: blocked`.",
+  "doc": "offline/docs/doc-ea77a5826b.md",
+  "doc_sha256": "ea77a5826b42a23e4e02ded4596447ad52565c4bf068f48c9383935ac4adbd66",
+  "evidence_quotes": [
+   "`--outcome failed` when the report says `failed` or `blocked`",
+   "| `worker_done --outcome succeeded`; contract `status: blocked`"
+  ],
+  "evidence_set": [
+   "P0045",
+   "P0157"
+  ]
+ },
+ "source": {
+  "kind": "s1",
+  "paths": [
+   "offline/docs/doc-ea77a5826b.md"
+  ],
+  "url": null
+ },
+ "split": "s0",
+ "variant": "seeded"
+}

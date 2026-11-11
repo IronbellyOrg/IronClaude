@@ -1,0 +1,350 @@
+[
+ {
+  "label_id": "L01",
+  "spec_path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p17/score/in/s52.md",
+  "check": {
+   "id": "AC-2.2",
+   "phase": "P2",
+   "text": "Gate-trigger run per P2 command whose section 3 row says \"blocked\" (recommend, cli-eval, cli-portify, review-translation, spec-panel, task, tdd, troubleshoot, release-split): a 7.2 live check with input that hits the gate (for example `/sc:tdd \"auth\" --unattended --output <file>` with a bare topic; `/sc:cli-eval run --unattended` with no `--suite`). For auggie-review, cleanup, improve, research, reflect and tasklist, whose rows apply a default, the same run with input that reaches the gate (M6)",
+   "pass_condition": "blocked commands: `worker_done --outcome failed`; contract `status: blocked` with a non-empty `blocked_question`. The six default commands: `--outcome succeeded` with the row's default visible in the contract or report (flags implied, items listed unapplied, strategy pinned, headless rule followed, `--unattended` passed to reflect) (M6). Step 2 never shows `agentWait`"
+  },
+  "cited": [
+   {
+    "id": "7.2#2",
+    "text": "While it runs, `ORCA orchestration worker-show --dispatch <dispatch_id> --json` at least once per 5 minutes. => `observation.agentWait` is never non-null (a non-null value means the worker is parked on a prompt only a person can answer, `[H:worker-show]` Notes)."
+   }
+  ],
+  "code_stage": {
+   "lint_widened_ref_path_phase": "no finding on this row",
+   "pitfall_regexes_d20_d21": "no match",
+   "scratch_execution": "the row has no shell command to run"
+  }
+ },
+ {
+  "label_id": "L04",
+  "spec_path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p17/score/in/s72.md",
+  "check": {
+   "id": "AC-2.3",
+   "phase": "P2",
+   "text": "Happy-path run per P2 command with every required flag in the brief",
+   "pass_condition": "7.2 passes with `--outcome succeeded`; for cli-eval also the wait and heartbeat conditions of AC-4.3 (WC-10)"
+  },
+  "cited": [
+   {
+    "id": "AC-4.3",
+    "text": "If D3 allows pr-submit as a worker: one 7.2 run on a scratch fork PR; `worker-read` transcript inspected for Bash waits => heartbeats arrive at most 5 minutes apart outside the command's own Agent-tool calls; no single Bash wait exceeds 240 s; a markdown summary and contract exist beside `monitor-run-<PR>.jsonl`; the PR URL starts with `<repo-url>"
+   },
+   {
+    "id": "WC-10",
+    "text": "Liveness during long waits. The worker sends a heartbeat every 5 minutes while working. A command step that blocks a single Bash call for 5 minutes or longer (a poll wait, a long eval; Agent-tool calls are not split, WC-7) must be split into waits of at most 4 minutes so the session can heartbeat between them."
+   }
+  ],
+  "code_stage": {
+   "lint_widened_ref_path_phase": "no finding on this row",
+   "pitfall_regexes_d20_d21": "no match",
+   "scratch_execution": "the row has no shell command to run"
+  }
+ },
+ {
+  "label_id": "L07",
+  "spec_path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p17/score/in/s83.md",
+  "check": {
+   "id": "AC-C1",
+   "phase": "C",
+   "text": "`grep -rniE --exclude-dir=ccsession-tag '\\borca(-ide)?\\b' src/superclaude/commands src/superclaude/skills src/superclaude/agents`",
+   "pass_condition": "prints nothing (SA-2, WC-8): any mention of Orca fails, and today's baseline is zero outside `ccsession-tag` (E5); `core` is not scanned because SA-2 allows Orca text there"
+  },
+  "cited": [
+   {
+    "id": "SA-2",
+    "text": "No command, skill or agent file runs an `orca` or `orca-ide` command, and none requires Orca to be installed or running. Orca may be mentioned only under `src/superclaude/core/` and in the byte-identical routing-guide copy at `plugins/superclaude/skills/sc-recommend/refs/HOW-WE-WORK.md` that AC-0.2 requires: the contract file's example of a caller's question channel and the routing guide's Orca section (SA-5)."
+   },
+   {
+    "id": "WC-8",
+    "text": "No Orca fan-out from inside a command. A command never calls `worker-start`, `dispatch` or `task-create`. Fan-out that needs Orca records is split into separate Tasks by the coordinator."
+   }
+  ],
+  "code_stage": {
+   "lint_widened_ref_path_phase": "no finding on this row",
+   "pitfall_regexes_d20_d21": "no match",
+   "scratch_execution": "grep -rniE --exclude-dir=ccsession-tag '\\borca(-ide)?\\b' src/superclaude/commands src/superclaude/skills src/superclaude/agents: clean fixture: exit 1, stdout\u2026"
+  }
+ },
+ {
+  "label_id": "L10",
+  "spec_path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p17/score/in/s85.md",
+  "check": {
+   "id": "AC-2.1",
+   "phase": "P2",
+   "text": "`test_worker_contract.py` gains one assertion per gate listed in the section 3 row, for example the auggie-review section names both `--no-post-pr` and `--no-remediation-offer`, plus AC-1.1's assertion for each P2 command (L1)",
+   "pass_condition": "passes"
+  },
+  "cited": [
+   {
+    "id": "AC-1.1",
+    "text": "`uv run pytest tests/skills/test_worker_contract.py -q`; the test asserts that every P1 command except `load` has a `## Unattended mode` section naming `return-contract.yaml` (adversarial and workflow: their own paths) and `~/.claude/WORKER-CONTRACT.md`, and that `load` and no section-4 command has one (L1) => passes"
+   }
+  ],
+  "code_stage": {
+   "lint_widened_ref_path_phase": "no finding on this row",
+   "pitfall_regexes_d20_d21": "no match",
+   "scratch_execution": "the row has no shell command to run"
+  }
+ },
+ {
+  "label_id": "L13",
+  "spec_path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p17/score/in/s83.md",
+  "check": {
+   "id": "7.2#3",
+   "phase": "7.2",
+   "text": "`ORCA orchestration check --wait --types \"worker_done,escalation,question\" --timeout-ms 240000 --json`, repeated with step 2 run between repeats, until `worker_done` arrives or the time limit the coordinator recorded before dispatch passes (the limit exceeds the command's longest documented wait, for example cli-eval's eval timeouts up to 3600 s, `INV-A:65`).",
+   "pass_condition": "exactly one `worker_done` before the limit; its `--outcome` matches the contract's `status` under WC-5; its report path is the WC-4 contract path."
+  },
+  "cited": [
+   {
+    "id": "WC-5",
+    "text": "Outcome mapping. The worker sends `worker_done` exactly once from its own top-level session. `--outcome failed` when the report says `failed` or `blocked`, or no report exists, or the report is empty, unparseable, lacks `status` or `command`, or has a status outside the four values; `--outcome succeeded` otherwise, including `partial` and including an audit whose verdict is FAIL (the audit itself succeeded). This rule applies to the WC-4 contract; before a phase adds it, the P0 smoke runs use the AC-0.4 rule. The first sentence of the body states the report's status and verdict."
+   },
+   {
+    "id": "WC-4",
+    "text": "One report file, known before dispatch, written on every outcome. In unattended mode the command writes `return-contract.yaml` at the path its section 3 row gives. The default is `<output-dir>/return-contract.yaml`, where `<output-dir>` is the directory the coordinator passed (`--output` / `--output-dir`); when that flag takes a file (for example tdd) the contract is that file's path with `.return-contract.yaml` appended, so two workers never share a contract path. The one exception is workflow, which creates its `<id>` package directory itself and lists no flag that sets it (`INV-B:52,267-27\u2026"
+   }
+  ],
+  "code_stage": {
+   "lint_widened_ref_path_phase": "no finding on this row",
+   "pitfall_regexes_d20_d21": "no match",
+   "scratch_execution": "ORCA orchestration check --wait --types \"worker_done,escalation,question\" --timeout-ms 240000 --json: not executed: command `ORCA` is not run offline"
+  }
+ },
+ {
+  "label_id": "L16",
+  "spec_path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p17/score/in/s33.md",
+  "check": {
+   "id": "AC-1.1",
+   "phase": "P1",
+   "text": "`uv run pytest tests/skills/test_worker_contract.py -q`; the test asserts that every command in sections 3.1-3.2 except load has a `## Unattended mode` section naming `return-contract.yaml` and `~/.claude/WORKER-CONTRACT.md`, and that no section-4 command has one",
+   "pass_condition": "passes"
+  },
+  "cited": [],
+  "code_stage": {
+   "lint_widened_ref_path_phase": "no finding on this row",
+   "pitfall_regexes_d20_d21": "no match",
+   "scratch_execution": "uv run pytest tests/skills/test_worker_contract.py -q: not executed: command `uv` is not run offline"
+  }
+ },
+ {
+  "label_id": "L19",
+  "spec_path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p17/score/in/s47.md",
+  "check": {
+   "id": "AC-1.4",
+   "phase": "P1",
+   "text": "`grep -n 'return-contract.yaml' src/superclaude/skills/sc-adversarial-protocol/SKILL.md` and the workflow return-contract ref",
+   "pass_condition": "adversarial names one fixed path; workflow states that a stop before package creation writes no contract"
+  },
+  "cited": [],
+  "code_stage": {
+   "lint_widened_ref_path_phase": "no finding on this row",
+   "pitfall_regexes_d20_d21": "no match",
+   "scratch_execution": "grep -n 'return-contract.yaml' src/superclaude/skills/sc-adversarial-protocol/SKILL.md: clean fixture: exit 2, stdout empty"
+  }
+ },
+ {
+  "label_id": "L22",
+  "spec_path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p17/score/in/s85.md",
+  "check": {
+   "id": "AC-C1",
+   "phase": "C",
+   "text": "`grep -rnE --exclude-dir=ccsession-tag -e '\\borca(-ide)?[[:space:]]+orchestration\\b' -e '\\borca(-ide)?[[:space:]]+worktree\\b' -e '\\borca(-ide)?[[:space:]]+terminal\\b' -e '\\borca(-ide)?[[:space:]]+agent\\b' src/superclaude/commands src/superclaude/skills src/superclaude/agents src/superclaude/core`",
+   "pass_condition": "prints nothing (SA-2, WC-8; L4: no pipe inside the pattern)"
+  },
+  "cited": [
+   {
+    "id": "SA-2",
+    "text": "No command, skill or agent file runs an `orca` or `orca-ide` command, and none requires Orca to be installed or running. The only allowed mention of Orca in a changed command is as an example of a caller's question channel inside the contract file."
+   },
+   {
+    "id": "WC-8",
+    "text": "No Orca fan-out from inside a command. A command never calls `worker-start`, `dispatch` or `task-create`. Fan-out that needs Orca records is split into separate Tasks by the coordinator."
+   }
+  ],
+  "code_stage": {
+   "lint_widened_ref_path_phase": "no finding on this row",
+   "pitfall_regexes_d20_d21": "no match",
+   "scratch_execution": "grep -rnE --exclude-dir=ccsession-tag -e '\\borca(-ide)?[[:space:]]+orchestration\\b' -e '\\borca(-ide)?[[:space:]]+worktree\\b' -e '\\borca(-ide)?[[:space:]]+termi\u2026"
+  }
+ },
+ {
+  "label_id": "L25",
+  "spec_path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p17/score/in/s88.md",
+  "check": {
+   "id": "AC-C1",
+   "phase": "C",
+   "text": "`grep -rnE --exclude-dir=ccsession-tag --exclude=WORKER-CONTRACT.md --exclude=HOW-WE-WORK.md -e '\\borca(-ide)?[[:space:]]+orchestration\\b' -e '\\borca(-ide)?[[:space:]]+worktree\\b' -e '\\borca(-ide)?[[:space:]]+terminal\\b' -e '\\borca(-ide)?[[:space:]]+agent\\b' src/superclaude/commands src/superclaude/skills src/superclaude/agents src/superclaude/core`",
+   "pass_condition": "prints nothing (SA-2, WC-8). The two excluded files are where P0 writes Orca text for the coordinator; no worker runs them"
+  },
+  "cited": [
+   {
+    "id": "SA-2",
+    "text": "No command, skill or agent file runs an `orca` or `orca-ide` command, and none requires Orca to be installed or running. Orca is named only in the contract file and the routing guide's Orca section (P0), as the example of a caller."
+   },
+   {
+    "id": "WC-8",
+    "text": "No Orca fan-out from inside a command. A command never calls `worker-start`, `dispatch` or `task-create`. Fan-out that needs Orca records is split into separate Tasks by the coordinator."
+   }
+  ],
+  "code_stage": {
+   "lint_widened_ref_path_phase": "no finding on this row",
+   "pitfall_regexes_d20_d21": "no match",
+   "scratch_execution": "grep -rnE --exclude-dir=ccsession-tag --exclude=WORKER-CONTRACT.md --exclude=HOW-WE-WORK.md -e '\\borca(-ide)?[[:space:]]+orchestration\\b' -e '\\borca(-ide)?[[:s\u2026"
+  }
+ },
+ {
+  "label_id": "L28",
+  "spec_path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p17/score/in/s93.md",
+  "check": {
+   "id": "AC-2.2",
+   "phase": "P2",
+   "text": "Gate-trigger run per P2 command: a 7.2 live check with input that hits the gate and a brief that forbids `ask` (WC-3) (for example `/sc:tdd \"auth\" --unattended --output <file>` with a bare topic; `/sc:cli-eval run --unattended` with no `--suite`)",
+   "pass_condition": "`worker_done --outcome failed`; contract `status: blocked` with a non-empty `blocked_question`; step 2 never shows `agentWait`"
+  },
+  "cited": [
+   {
+    "id": "WC-3",
+    "text": "Questions go to the coordinator, not to a local prompt. When a gate would resolve as blocked and the worker session holds a preamble, the session may instead ask the coordinator once with the preamble's `ask` command, wait, then re-invoke or resume the command with the answer as a flag. This path is closed, and the gate ends blocked, for a gate whose row names no flag that carries the answer, for the `/sc:implement` Ruling (D2 (a)) and for an outward-action authorization the brief did not give (WC-9, D4). On an `ask` timeout it resumes the same message ID and never creates a duplicate; after\u2026"
+   },
+   {
+    "id": "7.2#2",
+    "text": "While it runs, `ORCA orchestration worker-show --dispatch <dispatch_id> --json` at least once per 5 minutes. => `observation.agentWait` is present and null in every observation (non-null means the worker is parked on a prompt only a person can answer; an absent field means Orca never looked, so that observation does not count and is repeated; `CAPS:129`)."
+   }
+  ],
+  "code_stage": {
+   "lint_widened_ref_path_phase": "no finding on this row",
+   "pitfall_regexes_d20_d21": "no match",
+   "scratch_execution": "the row has no shell command to run"
+  }
+ },
+ {
+  "label_id": "L31",
+  "spec_path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p17/score/in/s79.md",
+  "check": {
+   "id": "AC-C1",
+   "phase": "C",
+   "text": "`grep -rnE --exclude-dir=ccsession-tag -e '\\borca(-ide)?[[:space:]]+orchestration\\b' -e '\\borca(-ide)?[[:space:]]+worktree\\b' -e '\\borca(-ide)?[[:space:]]+terminal\\b' -e '\\borca(-ide)?[[:space:]]+agent\\b' src/superclaude/commands src/superclaude/skills src/superclaude/agents src/superclaude/core`",
+   "pass_condition": "prints nothing (SA-2, WC-8). Positive control, run once: `grep -cE -e '\\borca(-ide)?[[:space:]]+orchestration\\b' <<< 'orca-ide orchestration worker-start --task x'` prints `1`"
+  },
+  "cited": [
+   {
+    "id": "SA-2",
+    "text": "No command, skill or agent file runs an `orca` or `orca-ide` command, and none requires Orca to be installed or running. The only allowed mention of Orca in a changed command is as an example of a caller's question channel inside the contract file."
+   },
+   {
+    "id": "WC-8",
+    "text": "No Orca fan-out from inside a command. A command never calls `worker-start`, `dispatch` or `task-create`. Fan-out that needs Orca records is split into separate Tasks by the coordinator."
+   }
+  ],
+  "code_stage": {
+   "lint_widened_ref_path_phase": "no finding on this row",
+   "pitfall_regexes_d20_d21": "no match",
+   "scratch_execution": "grep -rnE --exclude-dir=ccsession-tag -e '\\borca(-ide)?[[:space:]]+orchestration\\b' -e '\\borca(-ide)?[[:space:]]+worktree\\b' -e '\\borca(-ide)?[[:space:]]+termi\u2026"
+  }
+ },
+ {
+  "label_id": "L34",
+  "spec_path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p17/score/in/s89.md",
+  "check": {
+   "id": "AC-1.3",
+   "phase": "P1",
+   "text": "For two P1 commands, run once in a plain session with no `--unattended` and no new output flag (for example `claude -p \"/sc:analyze src/superclaude/cli/install_core.py\"` in a scratch worktree), then `git status --short`",
+   "pass_condition": "no `return-contract.yaml` appears (SA-3)"
+  },
+  "cited": [
+   {
+    "id": "SA-3",
+    "text": "The new contract file is written only in unattended mode; a new report file is written only in unattended mode or when the caller passes the new output flag (L1). A standalone default run writes the same files it writes today."
+   }
+  ],
+  "code_stage": {
+   "lint_widened_ref_path_phase": "no finding on this row",
+   "pitfall_regexes_d20_d21": "no match",
+   "scratch_execution": "claude -p \"/sc:analyze src/superclaude/cli/install_core.py\": not executed: command `claude` is not run offline; git status --short: clean fixture: exit 0, stdout empty"
+  }
+ },
+ {
+  "label_id": "L37",
+  "spec_path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p17/score/in/s47.md",
+  "check": {
+   "id": "AC-2.2",
+   "phase": "P2",
+   "text": "Gate-trigger run per P2 command: a 7.2 live check, briefed not to use `ask` (WC-3) [L1], with input that hits the gate (for example `/sc:tdd \"auth\" --unattended --output <file>` with a bare topic; `/sc:cli-eval run --unattended` with no `--suite`)",
+   "pass_condition": "`worker_done --outcome failed`; contract `status: blocked` with a non-empty `blocked_question`; step 2 never shows `agentWait`"
+  },
+  "cited": [
+   {
+    "id": "WC-3",
+    "text": "Questions go to the coordinator, not to a local prompt. When a gate would resolve as blocked and the worker session holds a preamble, the session may instead ask the coordinator once with the preamble's `ask` command, wait, then re-invoke or resume the command with the answer as a flag, unless the brief says not to ask or the gate is implement's `E-HALT-QA` / `E-NO-RULING`, which always stop blocked (D2) [L1]. On an `ask` timeout it resumes the same message ID and never creates a duplicate. No heartbeat is sent while blocked in `ask`."
+   },
+   {
+    "id": "7.2#2",
+    "text": "While it runs, `ORCA orchestration worker-show --dispatch <dispatch_id> --json` at least once per 5 minutes. => `observation.agentWait` is never non-null (a non-null value means the worker is parked on a prompt only a person can answer, `[H:worker-show]` Notes)."
+   }
+  ],
+  "code_stage": {
+   "lint_widened_ref_path_phase": "no finding on this row",
+   "pitfall_regexes_d20_d21": "no match",
+   "scratch_execution": "the row has no shell command to run"
+  }
+ },
+ {
+  "label_id": "L40",
+  "spec_path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p17/score/in/s91.md",
+  "check": {
+   "id": "7.2#4",
+   "phase": "7.2",
+   "text": "`test -s <contract>` and `uv run python -c \"import sys, yaml; d = yaml.safe_load(open(sys.argv[1])); assert d['status'] in {'succeeded','partial','failed','blocked'}; assert d['command']\" <contract>` (PyYAML is a declared dependency, `pyproject.toml:38`).",
+   "pass_condition": "both exit 0 (in P0, with no contract yet, only `test -s <report file>`)."
+  },
+  "cited": [],
+  "code_stage": {
+   "lint_widened_ref_path_phase": "no finding on this row",
+   "pitfall_regexes_d20_d21": "no match",
+   "scratch_execution": "test -s <contract>: not executed: placeholder in command; uv run python -c \"import sys, yaml; d = yaml.safe_load(open(sys.argv[1])); assert d['status'] in {'succeeded','partial','failed','blocked'}; assert d['command'\u2026"
+  }
+ },
+ {
+  "label_id": "L43",
+  "spec_path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p17/score/in/s47.md",
+  "check": {
+   "id": "AC-C4",
+   "phase": "C",
+   "text": "`git diff --cached --name-only -- .claude ':!.claude/settings.json'`",
+   "pass_condition": "prints nothing (`CLAUDE.md:16`)"
+  },
+  "cited": [],
+  "code_stage": {
+   "lint_widened_ref_path_phase": "no finding on this row",
+   "pitfall_regexes_d20_d21": "no match",
+   "scratch_execution": "git diff --cached --name-only -- .claude ':!.claude/settings.json': clean fixture: exit 0, stdout empty"
+  }
+ },
+ {
+  "label_id": "L46",
+  "spec_path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p17/score/in/s86.md",
+  "check": {
+   "id": "AC-1.3",
+   "phase": "P1",
+   "text": "For `/sc:analyze` and `/sc:build`, which write no contract today, run once in a plain session with no `--unattended` and no new output flag (for example `claude -p \"/sc:analyze src/superclaude/cli/install_core.py\"` in a scratch worktree), then `git status --short`",
+   "pass_condition": "no `return-contract.yaml` appears (SA-3)"
+  },
+  "cited": [
+   {
+    "id": "SA-3",
+    "text": "The new contract file and report files are written only in unattended mode or when the caller passes the new output flag. A standalone default run writes the same files it writes today."
+   }
+  ],
+  "code_stage": {
+   "lint_widened_ref_path_phase": "no finding on this row",
+   "pitfall_regexes_d20_d21": "no match",
+   "scratch_execution": "claude -p \"/sc:analyze src/superclaude/cli/install_core.py\": not executed: command `claude` is not run offline; git status --short: clean fixture: exit 0, stdout empty"
+  }
+ }
+]

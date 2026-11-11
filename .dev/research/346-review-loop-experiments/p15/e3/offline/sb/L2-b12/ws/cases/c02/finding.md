@@ -1,0 +1,1 @@
+- **M5. AC-0.4 claims a check it does not run.** Line 194 says "each run directly by the worker (no Agent-tool wrapper, verified in the step-5 transcript)". Step 5 (line 184) searches only for `AskUserQuestion`. Medium, because the no-wrapper rule (WC-7, line 65) has no pass condition.

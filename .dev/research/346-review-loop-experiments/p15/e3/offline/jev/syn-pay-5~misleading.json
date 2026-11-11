@@ -1,0 +1,28 @@
+{
+ "case_id": "syn-pay-5~misleading",
+ "code_outcome": "OK",
+ "decision": "VERIFIER",
+ "qset_version": "e3-q1",
+ "result": {
+  "answers": {
+   "evidence_sufficient": {
+    "p": 0.63,
+    "type": "noul"
+   },
+   "outcome_follows": {
+    "p": 0.46,
+    "type": "noul"
+   }
+  },
+  "attempts": 1,
+  "error": null,
+  "latency_ms": 243,
+  "model": "jev-1.14.0",
+  "request_sha256": "8d9d10c2bf60d93403d8b980a2e2b281d782fbc5975ee53985a1a6106c0f474f",
+  "status": "ok",
+  "usage": {
+   "input_tokens": 738,
+   "output_tokens": 46
+  }
+ }
+}

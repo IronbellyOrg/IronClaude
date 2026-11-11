@@ -1,0 +1,240 @@
+{
+ "_comment": "Decision constants for experiment ab5 (design d5: lint pre-pass + PN1 four-reviewer panel + deterministic merge + ADJ + cleaned VERIFY). Rule constants copied unchanged from ab4/decision.json (= ab1 plan sections 2-3, owner decisions D2-D4, D6). Read by harness.py analyze; no threshold literal lives in code. Cost is judged only after runs complete (D6): no run is ever stopped or skipped on token cost.",
+ "A_BASE": 100424,
+ "_comment_A_BASE": "baseline mean LOOP output tokens (loop only; deduplicated by message id). R_LOOP = LOOP_T / A_BASE decides cost.",
+ "AUD_BASE": 69044,
+ "B_BASE": 169468,
+ "_comment_B_BASE": "baseline loop + one audit; R_B = TOK_T / B_BASE is reported only, never decides.",
+ "SPEC_BYTES": 57763,
+ "B_DEFAULT": {
+  "B_BLK": 1.5,
+  "B_AUDFAIL": [
+   5,
+   6
+  ],
+  "B_THEME": [
+   5,
+   6
+  ],
+  "B_GROWTH": 0.0141,
+  "B_PASS": [
+   6,
+   6
+  ]
+ },
+ "_comment_B_DEFAULT": "single-audit baseline values of section 2; recomputed over 12 audits when baseline-audit2 exists (else every comparison is PROVISIONAL).",
+ "N_SONNET": 6,
+ "N_HAIKU": 4,
+ "N_EXTEND": 3,
+ "MIN_COMPLETED": {
+  "6": 5,
+  "9": 8
+ },
+ "_comment_MIN_COMPLETED": "fewer completed Sonnet runs than this gives INCONCLUSIVE (5 of 6, 8 of 9).",
+ "rules": {
+  "DROP1_BLK_FACTOR": 0.8,
+  "DROP2_RLOOP_LIMIT": 2.69,
+  "_comment_DROP2_RLOOP_LIMIT": "D6 conversion: R_LOOP_limit = (L*169468 - 69044)/100424 with original L = 2.0 on R_B (loop + audit) -> 2.6875, rounded 2.69. Replaces the plan's R_LOOP > 2.0. Post-hoc verdict clause only, never a mid-run stop.",
+  "DROP2_BLK_FACTOR": 0.5,
+  "DROP3_REJ_RATE": 0.5,
+  "DROP4_PASS_MIN": {
+   "6": 5,
+   "9": 8
+  },
+  "_comment_DROP4_PASS_MIN": "DROP-4 fires when loop PASS count < this (5/6 at n=6, 8/9 at n=9).",
+  "DROP4_GROWTH_FACTOR": 3,
+  "ADOPT_BLK_FACTOR": 0.5,
+  "ADOPT_AUDFAIL_FACTOR": 0.5,
+  "_comment_ADOPT_AUDFAIL_FACTOR": "audit FAIL count <= floor(factor * B_AUDFAIL * n_audits): 5/12 at n=6, 7/18 at n=9.",
+  "ADOPT_GROWTH_FACTOR": 2
+ },
+ "haiku": {
+  "baseline_path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p14/haiku-baseline/results.json",
+  "harness_fail_margin": 0.25,
+  "_comment_harness_fail_margin": "ADOPT needs Haiku harness-failure rate <= Haiku baseline rate + this (one run in four), and 1 - HR > 0."
+ },
+ "baseline_audit2_path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p12/baseline-audit2",
+ "ab1_metrics_path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p12/ab1/metrics.json",
+ "LOOP_INCLUDES_ADJ": true,
+ "_comment_LOOP_INCLUDES_ADJ": "PN1 rules.json tokens.loop_steps_include_adjudication = true (D2 counts the adjudication worker in the loop). analyze reports LOOP with and without ADJ; the decision uses this flag.",
+ "MAX_CONCURRENT_RUNS": 6,
+ "_comment_MAX_CONCURRENT_RUNS": "at most this many runs have workers in flight at once; inside a run every prepared step is launched (up to 4 parallel R1 panel launches, ADJ in parallel with VF1, AUD with AUD2). Env AB_MAX overrides.",
+ "HAIKU_ENABLED": false,
+ "_comment_HAIKU_ENABLED": "BRIEF: the Haiku stratum is not built in ab5. The code path (names, expected models, analysis) is kept; build --stratum haiku refuses while this is false.",
+ "frozen": {
+  "cmd_sha": "e62e70b98e878cb4b60ba8f95f1cc3442a25e815828a3ef3d17a95b65ea97494",
+  "rules_sha": "99a3ccacc338e1978e588f7248c416be96a6e7f81b4e1e81273e1532789c0595",
+  "aud_cmd_sha": "e62e70b98e878cb4b60ba8f95f1cc3442a25e815828a3ef3d17a95b65ea97494",
+  "aud_rules_sha": "3eb772f944491720af24133267681e170510ba49949af1b08db913e9eeaddfb8",
+  "rules_ab1_sha": "ed219181156e47e6d70120730063e0b00081482d8a78b3d2633da188574ca829",
+  "rules_pn2_sha": "bd0bb32fe868ed20f2232e562c4c8bfbcf4bbbbaf4f89ee64bb951853df69434",
+  "panel_template_sha": "b44bb963be18fd86f36cc163e97393d98627cd630200e633b07ec81cbab8ab17",
+  "panel_tiers_sha": "d67acc15ec0d3483704cbaa1fd748bed42fe1f22ef1b2dd8ade199aca73e1b3c",
+  "panel_code_sha": "f8da73b3170c29df70074c81f1ec87f4cba339d29cfe5f2f8c22b0d200ecd1ac",
+  "_comment": "cmd_sha: the /sc:spec-panel command (identical to the frozen audit command, aud_cmd_sha; same file and sha as ab4 and PN1). rules_sha: ab1 rules + PN2 lint bullets + four-review wording (make_rules.py). aud_rules_sha: frozen audit rules (p11/rules.md, as ab4/PN1). panel_*: PN1 product panel template, tier table (MODEL-TIERS) and resolver code, byte copies of p13/clones/pn1/src/superclaude/cli/review/{data/*.json,panel.py}.",
+  "rules_full_sha": "b3516c759cced064fcc52e7514f1295b69fe9226ffe188b9904f79685477ff04",
+  "rules_pn1_sha": "3ce0c804ccd58428f08881ddcc92f97afe89aef6029a19b87309dd72df84d796",
+  "pn1_vendor": {
+   "findings.py": "3b7fa1a59ed868e8dee825721924301b234bb0f65313874623fbef2173f60185",
+   "ledger.py": "c51dbf411427b7d2de4bd0dc09706867391138ada95767ac71d9157aa3a88e94",
+   "merge_cmd.py": "3a2617d8fc0136d88694128d8cd84624898f0f6779d14c32ccb35a479a730573",
+   "ledger_cmd.py": "215c6df99fb74ab772463037a51ee7e07f102819aeceebef06bb9ce8a64a8f27",
+   "__init__.py": "cdfacb011b0a5062c207d48691abfaa1a648e6f1820043eef51fdc1b06cb2072"
+  },
+  "_comment_full": "rules_full_sha: PN1 product rules (rules-pn1.md = the file PN1 reviewers read, sha rules_pn1_sha) + PN2 lint bullets (make_rules.full_rules). pn1_vendor: byte copies of p13/clones/pn1/src/superclaude/cli/review/{findings,ledger,merge_cmd,ledger_cmd}.py; __init__.py is an ab5 shim (the PN1 one imports click and registers commands). merge_cmd.py / ledger_cmd.py are kept for reference only: ab5 calls ledger.merge_round / render_merged_report / apply_revision / defer and findings.parse_block / parse_fixmap in-process exactly as those two click commands do.",
+  "pn1_panel_template_sha": "fc76143fd8c696ce4be4ddb7a587632e725358eb87363975ea04e44d8702bbbf"
+ },
+ "panel": {
+  "environment": "anthropic-only",
+  "reviewers": [
+   "t1b-1",
+   "t2-1",
+   "t3-1",
+   "t4-1"
+  ],
+  "sweep_reviewer": "t1b-1",
+  "adj_model": {
+   "sonnet": "sonnet",
+   "haiku": "haiku"
+  },
+  "max_lost_reviewers": 1,
+  "_comment": "Panel (owner correction 2026-11-10): ab5 template frozen/review-panel.ab5.json = one reviewer per tier t1b, t2, t3, t4 (PN1's default was t1b, t2, t3, t3), resolved per run with the PN1 resolver (pn1_panel.resolve) and the PN1 tier table, environment anthropic-only. Mock: t1b-1 -> Sonnet 5.5 (real), t2-1 / t3-1 / t4-1 -> Haiku 5.5 stand-ins (stand_in=true): the same compute as PN1's 1 Sonnet + 3 Haiku, only the slot labels change. The AC sweep sentence goes only on t1b-1. A run survives one lost panel reviewer; two lost lose the run (PN1). ADJ model: Sonnet 5.5 (OWNER RULE: Fable / Tier 0 forbidden; PN1 used fable, so this is a changed condition), Haiku in the Haiku stratum.",
+  "template": "review-panel.ab5.json",
+  "pn1_template": "review-panel.default.json"
+ },
+ "lint": {
+  "checks": "REF",
+  "_comment": "PN2 live check set (offline pass 2: REF is the only check with MP>=0.8 and CLEAN=0); code copied unchanged to reqlint.py (p13/clones/pn2 lint.py, product ref 448048ae)."
+ },
+ "names": {
+  "panel": {
+   "sonnet": "d5-r1..r6",
+   "haiku": "d5h-r1..r4 (not built)",
+   "extension": "d5-r7..r9"
+  },
+  "full": {
+   "sonnet": "d5f-r1..r6",
+   "haiku": "d5fh-r1..r4 (not built)",
+   "extension": "d5f-r7..r9"
+  }
+ },
+ "final_spec": "runs/<run>/aud/ws/.dev/orca-command-refactor/specs/orca-worker-contract-spec.md",
+ "FRESH_LOOP_BASE": 53623,
+ "_comment_FRESH_LOOP_BASE": "coordinator 2026-11-10: fresh-baseline loop output tokens; analyze reports three headline ratios against it (total loop, primary lane only, primary + adjudicator). Reported only; the pre-registered decide() still uses A_BASE.",
+ "lanes": {
+  "_comment": "Lanes by PANEL SLOT for first-review steps (R1.<slot>-<i>) and by step otherwise; data. Owner correction 2026-11-10: primary = slot t1b + VF / revise / re-review / ADJ steps (all on Sonnet); tier234 = slots t2, t3, t4 (parallel other-provider lane, Haiku stand-ins in the mock), reported per slot with the live model beside the stand-in used; audit = AUD/AUD2, excluded from every loop total. ADJ is inside the primary lane but also shown as its own column so it stays visible.",
+  "primary": {
+   "slots": [
+    "t1b"
+   ],
+   "steps": [
+    "ADJ",
+    "VF1",
+    "V1",
+    "R2",
+    "VF2",
+    "V2",
+    "R3",
+    "VF3"
+   ]
+  },
+  "tier234": {
+   "slots": [
+    "t2",
+    "t3",
+    "t4"
+   ],
+   "steps": []
+  },
+  "audit": {
+   "slots": [],
+   "steps": [
+    "AUD",
+    "AUD2"
+   ]
+  },
+  "default": "primary",
+  "loop_lanes": [
+   "primary",
+   "tier234"
+  ],
+  "_labels": {
+   "primary": "primary (Sonnet)",
+   "tier234": "parallel other-provider",
+   "audit": "audits (Sonnet, excluded)"
+  }
+ },
+ "FORBIDDEN_MODELS": {
+  "patterns": [
+   "fable",
+   "tier0",
+   "opus"
+  ],
+  "_comment": "OWNER RULE 2026-11-10: Fable (Tier 0) is strictly forbidden; Opus 5.5 (Tier 1a) is the highest tier allowed and ab5 uses it for no step. build() and expected_model() refuse any step / panel slot whose model or alias matches one of these (case-insensitive)."
+ },
+ "variants": {
+  "panel": {
+   "prefix": "d5",
+   "rules": "rules.md",
+   "rules_sha": "rules_sha",
+   "_comment": "BRIEF.md: ab4 + PN1 panel + ab4-style merge over the four reports (cleaned blocks) + ADJ + clean VF."
+  },
+  "full": {
+   "prefix": "d5f",
+   "rules": "rules-full.md",
+   "rules_sha": "rules_full_sha",
+   "_comment": "owner change 2026-11-10: ab4 + everything in PN1: panel, PN1 merge with the typed ledger, ADJ over ledger rows, ledger-driven revise, PN1 re-review sandboxes/inputs; ab4 layers on top (lint, AC sweep on t1b-1, cleaned blocks, clean VF, confirmed line, ids_from cross-check, token matcher)."
+  }
+ },
+ "ADJ_GATES_VF1": false,
+ "_comment_ADJ_GATES_VF1": "false (default): ADJ is prepared with VF1 and runs beside it (PN1 ran ADJ beside V1); ADJ feeds no loop decision, so order only changes wall time. true: VF1 waits until ADJ is done (strict panel -> merge -> ADJ -> VF order).",
+ "live_alias_map": {
+  "_comment": "OWNER 2026-11-10 (corrected): gateway alias -> LIVE model, data only. Mock -> live = this map + reviewer_models.stand_in=false, nothing else. tier1a is a documented alias only: the ab5 panel has no t1a slot (Opus is not in the panel).",
+  "claude-gw-tier1a[1m]": {
+   "model": "claude-opus-5-5",
+   "name": "Opus 5.5",
+   "launch": "opus",
+   "used_by_panel": false,
+   "note": "documented only; allowed ceiling, not used"
+  },
+  "claude-gw-tier1b[1m]": {
+   "model": "claude-sonnet-5-5",
+   "name": "Sonnet 5.5",
+   "launch": "sonnet",
+   "failover": [
+    "gpt-6.1-sol",
+    "muse-wonder-full-1.0"
+   ],
+   "failover_names": [
+    "GPT-6.1 Sol",
+    "Muse Wonder Full 1.0"
+   ]
+  },
+  "claude-gw-tier2[1m]": {
+   "model": "gpt-6.1-sol",
+   "name": "GPT-6.1 Sol",
+   "launch": "claude-gw-tier2[1m]"
+  },
+  "claude-gw-tier3[1m]": {
+   "model": "terra_or_glm5_3",
+   "name": "GPT-6.1 Terra (likely GLM-5.3 in practice)",
+   "launch": "claude-gw-tier3[1m]",
+   "candidates": [
+    "gpt-6.1-terra",
+    "glm-5.3"
+   ]
+  },
+  "claude-gw-tier4[1m]": {
+   "model": "gpt-6-luna",
+   "name": "GPT-6 Luna",
+   "launch": "claude-gw-tier4[1m]",
+   "class": "Budget",
+   "intelligence": 38.1,
+   "note": "MODEL-TIERS 'Budget', notably weaker than the other panel models"
+  }
+ },
+ "reviewer_models": {
+  "stand_in": true,
+  "_comment": "true = CURRENT mock run: the panel resolves exactly as PN1 (pn1_panel + frozen tier table, anthropic-only): t1b -> the real primary model, t2/t3 slots -> Haiku stand-ins carrying stand_in=true in panel.json, state and telemetry; each reviewer also records live_model / live_name from live_alias_map for labels. false = LIVE: every reviewer's model / model_name / launch come from live_alias_map[alias] and stand_in=false."
+ }
+}

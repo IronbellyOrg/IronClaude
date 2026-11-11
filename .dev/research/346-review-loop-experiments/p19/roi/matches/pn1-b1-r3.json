@@ -1,0 +1,742 @@
+{
+ "run": "pn1-b1-r3",
+ "reviewers": {
+  "t1b-1": [
+   {
+    "fid": "F1",
+    "heading": "Phase 1 scope and AC-1.1 contradict the per-command phase assignment",
+    "severity_claimed": "blocking",
+    "defect": "D01",
+    "also": "D02",
+    "confidence": "high",
+    "note": "P1 scope/AC-1.1 cover all 37 commands while P1 edits 13; also notes interim flag-before-gate stall."
+   },
+   {
+    "fid": "F2",
+    "heading": "WC-4 names a directory, but several output flags are files",
+    "severity_claimed": "non-blocking",
+    "defect": "D06",
+    "also": null,
+    "confidence": "high",
+    "note": "tdd/init-lite/spec-panel take file-valued --output so <output-dir> contract path is undefined."
+   },
+   {
+    "fid": "F3",
+    "heading": "the adversarial contract path contradicts the WC-4 definition",
+    "severity_claimed": "non-blocking",
+    "defect": "D07",
+    "also": null,
+    "confidence": "high",
+    "note": "adversarial row fixes <output>/adversarial/return-contract.yaml vs WC-4 path."
+   },
+   {
+    "fid": "F4",
+    "heading": "the WC-5 outcome mapping has an unstated 'report exists but unusable' state, and the contract carrie",
+    "severity_claimed": "non-blocking",
+    "defect": "D29",
+    "also": null,
+    "confidence": "high",
+    "note": "empty/truncated/out-of-vocab report maps to succeeded; verdict-field part is extra."
+   },
+   {
+    "fid": "F5",
+    "heading": "AC-0.4 step 3 cannot pass in Phase 0 as written",
+    "severity_claimed": "non-blocking",
+    "defect": "D11",
+    "also": null,
+    "confidence": "high",
+    "note": "step 3 requires WC-4 contract path/status in P0 before any contract exists."
+   },
+   {
+    "fid": "F6",
+    "heading": "retry and re-run can overwrite the first attempt, and a stale contract can be read as new",
+    "severity_claimed": "non-blocking",
+    "defect": "D33",
+    "also": null,
+    "confidence": "medium",
+    "note": "WC-6 fresh directory vs WC-4 known-before-dispatch path; no rule who makes dir fresh; AC-3.2."
+   },
+   {
+    "fid": "F7",
+    "heading": "WC-3 lets the worker ask instead of ending, which AC-2.2 does not allow for",
+    "severity_claimed": "non-blocking",
+    "defect": "D26",
+    "also": null,
+    "confidence": "high",
+    "note": "optional ask path makes AC-2.2 expected failed/blocked non-deterministic."
+   },
+   {
+    "fid": "F8",
+    "heading": "section 1.4 point 2 asserts what it cannot show",
+    "severity_claimed": "non-blocking",
+    "defect": "NONE_INVALID",
+    "also": null,
+    "confidence": "medium",
+    "note": "Speculative readiness concern the reviewer could not verify; spec says design survives either way."
+   },
+   {
+    "fid": "F9",
+    "heading": "WC-9 authorisation switches are undefined for several commands",
+    "severity_claimed": "non-blocking",
+    "defect": "NONE_VALID",
+    "also": null,
+    "confidence": "low",
+    "note": "task commit/push and post-release rows say 'authorized' with no named flag although WC-9 requires an explicit flag; not in ledger."
+   },
+   {
+    "fid": "F10",
+    "heading": "several requirements have no acceptance check",
+    "severity_claimed": "non-blocking",
+    "defect": "NONE_VALID",
+    "also": null,
+    "confidence": "low",
+    "note": "WC-1/3/6/12 have no check in section 7; coverage gap, spec does not claim one check per WC."
+   },
+   {
+    "fid": "F11",
+    "heading": "WC-11 says 'never', but rows accept shared fixed paths",
+    "severity_claimed": "non-blocking",
+    "defect": "D31",
+    "also": null,
+    "confidence": "high",
+    "note": "cleanup-audit/index-repo fixed paths with one-at-a-time rule absent from section 2.3."
+   },
+   {
+    "fid": "F12",
+    "heading": "no requirement on tool-permission prompts in a worker",
+    "severity_claimed": "non-blocking",
+    "defect": "NONE_INVALID",
+    "also": null,
+    "confidence": "medium",
+    "note": "Unverified added requirement; reviewer admits it cannot verify."
+   },
+   {
+    "fid": "F13",
+    "heading": "contract vocabulary, versioning and name collisions",
+    "severity_claimed": "non-blocking",
+    "defect": "NONE_INVALID",
+    "also": null,
+    "confidence": "medium",
+    "note": "Speculative vocabulary/version concerns; no concrete failing spec text."
+   },
+   {
+    "fid": "F14",
+    "heading": "unverifiable flag names and a stale 'nothing calls Orca' premise",
+    "severity_claimed": "non-blocking",
+    "defect": "NONE_INVALID",
+    "also": null,
+    "confidence": "medium",
+    "note": "Flag existence and E5 staleness are explicitly UNVERIFIED by reviewer."
+   },
+   {
+    "fid": "F15",
+    "heading": "AC-C1 scope and form",
+    "severity_claimed": "non-blocking",
+    "defect": "D22",
+    "also": "D21",
+    "confidence": "high",
+    "note": "AC-C1 scans core where P0 adds Orca section; escaped pipes also noted."
+   },
+   {
+    "fid": "F16",
+    "heading": "wait thresholds differ between WC-10 and AC-4.3",
+    "severity_claimed": "non-blocking",
+    "defect": "D44",
+    "also": null,
+    "confidence": "high",
+    "note": "270 s call obeys WC-10 and fails AC-4.3."
+   },
+   {
+    "fid": "F17",
+    "heading": "small notes",
+    "severity_claimed": "non-blocking",
+    "defect": "NONE_INVALID",
+    "also": null,
+    "confidence": "medium",
+    "note": "Labelling/citation nits and pr-submit counting; no concrete failure."
+   }
+  ],
+  "t2-1": [
+   {
+    "fid": "F1",
+    "heading": "acceptance step 2 contradicts step 3",
+    "severity_claimed": "blocking",
+    "defect": "D15",
+    "also": null,
+    "confidence": "high",
+    "note": "15-minute check --wait defeats worker-show every 5 minutes."
+   },
+   {
+    "fid": "F2",
+    "heading": "load and init-lite do not satisfy WC-4 or AC-1.1",
+    "severity_claimed": "blocking",
+    "defect": "D03",
+    "also": "D04",
+    "confidence": "high",
+    "note": "load has no contract yet AC-1.1 requires section; init-lite/brainstorm in no phase."
+   },
+   {
+    "fid": "F3",
+    "heading": "AC-C1 cannot match as written",
+    "severity_claimed": "blocking",
+    "defect": "D21",
+    "also": null,
+    "confidence": "high",
+    "note": "escaped \\| is literal in ERE so check passes vacuously."
+   },
+   {
+    "fid": "F4",
+    "heading": "the nesting claim for tasklist is misstated and rests on a source that marks it UNVERIFIED",
+    "severity_claimed": "non-blocking",
+    "defect": "NONE_INVALID",
+    "also": null,
+    "confidence": "medium",
+    "note": "Depth speculation resting on UNVERIFIED sources."
+   },
+   {
+    "fid": "F5",
+    "heading": "E4 says subagents are not counted by Orca's limit, which CAPS:155 leaves UNVERIFIED",
+    "severity_claimed": "non-blocking",
+    "defect": "NONE_INVALID",
+    "also": null,
+    "confidence": "medium",
+    "note": "Wording nit; spec UNVERIFIED list already covers subagent behaviour."
+   },
+   {
+    "fid": "F6",
+    "heading": "the claim that heavy fan-out can be split into Tasks is not achievable for several commands",
+    "severity_claimed": "non-blocking",
+    "defect": "NONE_INVALID",
+    "also": null,
+    "confidence": "medium",
+    "note": "WC-8 only concerns fan-out needing Orca records; not a defect."
+   },
+   {
+    "fid": "F7",
+    "heading": "output directories are not required to be unique per Task",
+    "severity_claimed": "non-blocking",
+    "defect": "D33",
+    "also": "D31",
+    "confidence": "low",
+    "note": "Section 2.3 lacks distinct-dir-per-dispatch rule; overlap with retry/collision defects only partial."
+   },
+   {
+    "fid": "F8",
+    "heading": "an answered ask has no defined contract path",
+    "severity_claimed": "non-blocking",
+    "defect": "D33",
+    "also": null,
+    "confidence": "medium",
+    "note": "Fresh-dir re-run after answered ask vs WC-4 pre-dispatch path."
+   },
+   {
+    "fid": "F9",
+    "heading": "no coordinator rule for a stalled worker",
+    "severity_claimed": "non-blocking",
+    "defect": "NONE_INVALID",
+    "also": null,
+    "confidence": "low",
+    "note": "Coordinator behaviour beyond the contract's scope; not a flaw in stated text."
+   },
+   {
+    "fid": "F10",
+    "heading": "concurrent code-editing workers in one worktree are not covered",
+    "severity_claimed": "non-blocking",
+    "defect": "NONE_INVALID",
+    "also": null,
+    "confidence": "low",
+    "note": "Design speculation; worktree placement is in the brief per 2.3."
+   },
+   {
+    "fid": "F11",
+    "heading": "SA-1 says every prompt stays, but WC-1 changes a launch prompt for people",
+    "severity_claimed": "non-blocking",
+    "defect": "NONE_INVALID",
+    "also": null,
+    "confidence": "medium",
+    "note": "SA-1 is scoped to commands; WC-1 owner is launch setup, not commands."
+   },
+   {
+    "fid": "F12",
+    "heading": "status vocabulary for existing contracts is not defined",
+    "severity_claimed": "non-blocking",
+    "defect": "D29",
+    "also": null,
+    "confidence": "medium",
+    "note": "Missing/other status has no WC-5 mapping, so it falls to succeeded."
+   },
+   {
+    "fid": "F13",
+    "heading": "--unattended passed to a coordinator-only command is unspecified",
+    "severity_claimed": "non-blocking",
+    "defect": "NONE_INVALID",
+    "also": null,
+    "confidence": "medium",
+    "note": "Coordinator-only commands are never dispatched; marginal."
+   },
+   {
+    "fid": "F14",
+    "heading": "reflect's auto-accept under --unattended lets a command approve its own remediation",
+    "severity_claimed": "non-blocking",
+    "defect": "NONE_INVALID",
+    "also": null,
+    "confidence": "medium",
+    "note": "Opinion on a deliberate SA-6 headless reuse; reviewer says risk is bounded."
+   },
+   {
+    "fid": "F15",
+    "heading": "a brief pasted by a person with --unattended silences prompts",
+    "severity_claimed": "non-blocking",
+    "defect": "NONE_INVALID",
+    "also": null,
+    "confidence": "medium",
+    "note": "Speculative misuse scenario."
+   },
+   {
+    "fid": "F16",
+    "heading": "WC-4 states as fact what the spec itself lists as UNVERIFIED",
+    "severity_claimed": "non-blocking",
+    "defect": "NONE_INVALID",
+    "also": null,
+    "confidence": "medium",
+    "note": "Wording nit; spec UNVERIFIED item 3 states the assumption."
+   },
+   {
+    "fid": "F17",
+    "heading": "the output flag is named three ways",
+    "severity_claimed": "non-blocking",
+    "defect": "D06",
+    "also": null,
+    "confidence": "medium",
+    "note": "--output file vs dir; WC-4 directory assumption for file-valued flag."
+   },
+   {
+    "fid": "F18",
+    "heading": "section 1.1 says the change is limited to the contract, but section 3 includes other defect fixes",
+    "severity_claimed": "non-blocking",
+    "defect": "D42",
+    "also": null,
+    "confidence": "high",
+    "note": "Same line 16 vs section 3/SA-4 contradiction."
+   },
+   {
+    "fid": "F19",
+    "heading": "P4 lists pr-submit although D3 (a) recommends no change",
+    "severity_claimed": "non-blocking",
+    "defect": "NONE_INVALID",
+    "also": null,
+    "confidence": "low",
+    "note": "Spec says pr-submit is worker candidate only if D3 accepted; minor wording."
+   },
+   {
+    "fid": "F20",
+    "heading": "AC-1.3 tests a headless run and calls it a plain session",
+    "severity_claimed": "non-blocking",
+    "defect": "NONE_INVALID",
+    "also": null,
+    "confidence": "medium",
+    "note": "Print-mode run is a plain session; SA-6 concerns only reflect."
+   },
+   {
+    "fid": "F21",
+    "heading": "AC-C1 covers four verbs, but SA-2 forbids every orca or orca-ide command",
+    "severity_claimed": "non-blocking",
+    "defect": "D23",
+    "also": null,
+    "confidence": "high",
+    "note": "Exact D23."
+   },
+   {
+    "fid": "F22",
+    "heading": "a stall is invisible overstates the evidence",
+    "severity_claimed": "non-blocking",
+    "defect": "NONE_INVALID",
+    "also": null,
+    "confidence": "high",
+    "note": "Wording nit."
+   },
+   {
+    "fid": "F23",
+    "heading": "the WC-10 trigger does not match its rationale",
+    "severity_claimed": "non-blocking",
+    "defect": "NONE_INVALID",
+    "also": null,
+    "confidence": "medium",
+    "note": "4:59 call is under 5 min so heartbeat still fits; not the D44 AC-4.3 conflict."
+   }
+  ],
+  "t3-1": [
+   {
+    "fid": "F1",
+    "heading": "WC-4 'known before dispatch' is not met by the rows it governs",
+    "severity_claimed": "blocking",
+    "defect": "D08",
+    "also": "D10",
+    "confidence": "high",
+    "note": "workflow generated <id>, research generated path, init-lite file output; workflow pre-creation STOP location."
+   },
+   {
+    "fid": "F2",
+    "heading": "section 3.1 says ready commands change only by small fixes, but P1 and AC-1.1 require the flag in al",
+    "severity_claimed": "blocking",
+    "defect": "D04",
+    "also": "D01",
+    "confidence": "high",
+    "note": "Quotes line 79 'only command changes are the small fixes' vs AC-1.1; brainstorm/init-lite."
+   },
+   {
+    "fid": "F3",
+    "heading": "AC-C1 forbids text that P0 requires",
+    "severity_claimed": "blocking",
+    "defect": "D22",
+    "also": null,
+    "confidence": "high",
+    "note": "AC-C1 scans core where P0 adds Orca section and SA-2 allows example."
+   },
+   {
+    "fid": "F4",
+    "heading": "AC-C1 misses Orca calls that SA-2 forbids, and in raw form matches nothing",
+    "severity_claimed": "blocking",
+    "defect": "D23",
+    "also": "D21",
+    "confidence": "high",
+    "note": "Four-verb pattern plus escaped alternation."
+   },
+   {
+    "fid": "F5",
+    "heading": "WC-5 maps any unrecognised or empty report to succeeded",
+    "severity_claimed": "blocking",
+    "defect": "D29",
+    "also": null,
+    "confidence": "high",
+    "note": "Exact D29."
+   },
+   {
+    "fid": "F6",
+    "heading": "E3 cites a direct-route run, while section 1.4 and UNVERIFIED item 1 say none was observed",
+    "severity_claimed": "blocking",
+    "defect": "NONE_INVALID",
+    "also": null,
+    "confidence": "medium",
+    "note": "Spec section 1.4 explicitly explains the evidence; claimed contradiction rests on inventory interpretation."
+   },
+   {
+    "fid": "F7",
+    "heading": "troubleshoot is 'ready' with a brief that still allows a worker stall",
+    "severity_claimed": "blocking",
+    "defect": "D36",
+    "also": null,
+    "confidence": "high",
+    "note": "--depth deep short-input STOP stays unconverted until P2."
+   },
+   {
+    "fid": "F8",
+    "heading": "no rule for a coordinator reading blocked or partial",
+    "severity_claimed": "non-blocking",
+    "defect": "NONE_INVALID",
+    "also": null,
+    "confidence": "medium",
+    "note": "Coordinator policy beyond the contract; partial mapping is a stated decision."
+   },
+   {
+    "fid": "F9",
+    "heading": "the WC-10 wait threshold has two readings",
+    "severity_claimed": "non-blocking",
+    "defect": "NONE_INVALID",
+    "also": null,
+    "confidence": "medium",
+    "note": "Internal 5 vs 4 minute reading is coherent; not the AC-4.3 conflict."
+   },
+   {
+    "fid": "F10",
+    "heading": "the pr-submit 600 s reading is stated against the inventory",
+    "severity_claimed": "non-blocking",
+    "defect": "NONE_INVALID",
+    "also": null,
+    "confidence": "medium",
+    "note": "Spec re-read and addresses this; UNVERIFIED item 12."
+   },
+   {
+    "fid": "F11",
+    "heading": "the tasklist no-change depends on an unverified nesting depth",
+    "severity_claimed": "non-blocking",
+    "defect": "NONE_INVALID",
+    "also": null,
+    "confidence": "medium",
+    "note": "Depth speculation."
+   },
+   {
+    "fid": "F12",
+    "heading": "the ask and stall policy has no bound",
+    "severity_claimed": "non-blocking",
+    "defect": "NONE_INVALID",
+    "also": null,
+    "confidence": "low",
+    "note": "Unbounded wait is Orca/coordinator policy; weak overlap with D26 only."
+   },
+   {
+    "fid": "F13",
+    "heading": "WC-11 is not met by fixed default paths",
+    "severity_claimed": "non-blocking",
+    "defect": "D31",
+    "also": null,
+    "confidence": "high",
+    "note": "index-repo/init-lite/cleanup-audit fixed paths with no serialization rule."
+   },
+   {
+    "fid": "F14",
+    "heading": "several requirements have no owner or check",
+    "severity_claimed": "non-blocking",
+    "defect": "NONE_VALID",
+    "also": null,
+    "confidence": "low",
+    "note": "WC-1 has no owning phase and WC-3/6/10/11 no check; coverage gap."
+   },
+   {
+    "fid": "F15",
+    "heading": "the explicit --post-pr flag is not evidenced",
+    "severity_claimed": "non-blocking",
+    "defect": "NONE_INVALID",
+    "also": null,
+    "confidence": "medium",
+    "note": "Unverifiable flag existence."
+   },
+   {
+    "fid": "F16",
+    "heading": "the sentinel --unattended in quoted content is not addressed",
+    "severity_claimed": "non-blocking",
+    "defect": "NONE_INVALID",
+    "also": null,
+    "confidence": "medium",
+    "note": "Speculative."
+   },
+   {
+    "fid": "F17",
+    "heading": "pr-submit --monitor 0 and --monitor 2 are unspecified",
+    "severity_claimed": "non-blocking",
+    "defect": "NONE_INVALID",
+    "also": null,
+    "confidence": "medium",
+    "note": "Unverified, reviewer says depends on skill."
+   },
+   {
+    "fid": "F18",
+    "heading": "an older install has no ~/.claude/WORKER-CONTRACT.md",
+    "severity_claimed": "non-blocking",
+    "defect": "NONE_INVALID",
+    "also": null,
+    "confidence": "medium",
+    "note": "Install-compat opinion."
+   },
+   {
+    "fid": "F19",
+    "heading": "the plugin mirror is not in the phases",
+    "severity_claimed": "non-blocking",
+    "defect": "NONE_INVALID",
+    "also": null,
+    "confidence": "medium",
+    "note": "Spec UNVERIFIED item 8 already assigns resolution to each phase plan."
+   },
+   {
+    "fid": "F20",
+    "heading": "WC-4 states as fact that Orca does not check the report file",
+    "severity_claimed": "non-blocking",
+    "defect": "NONE_INVALID",
+    "also": null,
+    "confidence": "medium",
+    "note": "Wording nit."
+   },
+   {
+    "fid": "F21",
+    "heading": "E2 claims identical tools without evidence",
+    "severity_claimed": "non-blocking",
+    "defect": "NONE_INVALID",
+    "also": null,
+    "confidence": "medium",
+    "note": "Wording nit."
+   }
+  ],
+  "t3-2": [
+   {
+    "fid": "F1",
+    "heading": "P0 step 4 cannot pass on the commands P0 names",
+    "severity_claimed": "blocking",
+    "defect": "D12",
+    "also": null,
+    "confidence": "high",
+    "note": "YAML status/command assertion on REPORT.md and workflow contract."
+   },
+   {
+    "fid": "F2",
+    "heading": "AC-1.1 requires a section that P1 does not add",
+    "severity_claimed": "blocking",
+    "defect": "D01",
+    "also": "D04",
+    "confidence": "high",
+    "note": "AC-1.1 over all 37 vs P1 13 commands; brainstorm/init-lite."
+   },
+   {
+    "fid": "F3",
+    "heading": "Section 1.1 limits command changes to section 2, but section 3 requires others",
+    "severity_claimed": "blocking",
+    "defect": "D42",
+    "also": null,
+    "confidence": "high",
+    "note": "Exact D42."
+   },
+   {
+    "fid": "F4",
+    "heading": "Init-lite's re-run overwrites the first attempt's report",
+    "severity_claimed": "blocking",
+    "defect": "D32",
+    "also": null,
+    "confidence": "high",
+    "note": "Exact D32."
+   },
+   {
+    "fid": "F5",
+    "heading": "Index-repo is ready today despite a fixed default output",
+    "severity_claimed": "blocking",
+    "defect": "D31",
+    "also": null,
+    "confidence": "high",
+    "note": "Fixed PROJECT_INDEX.md vs WC-11; also cleanup-audit."
+   },
+   {
+    "fid": "F6",
+    "heading": "AC-C1 cannot fail",
+    "severity_claimed": "blocking",
+    "defect": "D21",
+    "also": null,
+    "confidence": "high",
+    "note": "Escaped alternation reproduced; no match."
+   },
+   {
+    "fid": "F7",
+    "heading": "The P0 nested-route check does not test the nested route",
+    "severity_claimed": "blocking",
+    "defect": "D14",
+    "also": null,
+    "confidence": "high",
+    "note": "Step 5 only searches AskUserQuestion."
+   },
+   {
+    "fid": "F8",
+    "heading": "Any unrecognized status is reported as success",
+    "severity_claimed": "blocking",
+    "defect": "D29",
+    "also": null,
+    "confidence": "high",
+    "note": "Empty/misspelt status goes to otherwise=succeeded."
+   },
+   {
+    "fid": "F9",
+    "heading": "The launch-path hazard has no owner",
+    "severity_claimed": "non-blocking",
+    "defect": "NONE_VALID",
+    "also": null,
+    "confidence": "low",
+    "note": "WC-1 owner has no phase or check; coverage gap."
+   },
+   {
+    "fid": "F10",
+    "heading": "P0 builds before it tests",
+    "severity_claimed": "non-blocking",
+    "defect": "NONE_INVALID",
+    "also": null,
+    "confidence": "medium",
+    "note": "Stylistic ordering rationale; files are P0's own deliverables."
+   },
+   {
+    "fid": "F11",
+    "heading": "a FAIL audit is sent as succeeded",
+    "severity_claimed": "non-blocking",
+    "defect": "NONE_INVALID",
+    "also": null,
+    "confidence": "medium",
+    "note": "Stated deliberate decision."
+   },
+   {
+    "fid": "F12",
+    "heading": "Local mutations sit outside WC-9",
+    "severity_claimed": "non-blocking",
+    "defect": "NONE_INVALID",
+    "also": null,
+    "confidence": "medium",
+    "note": "Scope opinion; reflect handled by brief flags."
+   },
+   {
+    "fid": "F13",
+    "heading": "Nested skills do not receive --unattended",
+    "severity_claimed": "non-blocking",
+    "defect": "NONE_INVALID",
+    "also": null,
+    "confidence": "medium",
+    "note": "tdd row already lists the nested /task lines with sk/task evidence."
+   },
+   {
+    "fid": "F14",
+    "heading": "The shared-worktree git check fails correct runs",
+    "severity_claimed": "non-blocking",
+    "defect": "D17",
+    "also": null,
+    "confidence": "high",
+    "note": "Step 6 has no pre-dispatch baseline."
+   },
+   {
+    "fid": "F15",
+    "heading": "Step 2 may fail a permitted ask",
+    "severity_claimed": "non-blocking",
+    "defect": "NONE_INVALID",
+    "also": null,
+    "confidence": "low",
+    "note": "Orca behaviour UNVERIFIED; speculative."
+   },
+   {
+    "fid": "F16",
+    "heading": "One file name, several schemas",
+    "severity_claimed": "non-blocking",
+    "defect": "NONE_INVALID",
+    "also": null,
+    "confidence": "medium",
+    "note": "Versioning suggestion."
+   },
+   {
+    "fid": "F17",
+    "heading": "The AC-C1 scope reaches core",
+    "severity_claimed": "non-blocking",
+    "defect": "D22",
+    "also": null,
+    "confidence": "high",
+    "note": "AC-C1 scans core where P0 adds Orca section."
+   },
+   {
+    "fid": "F18",
+    "heading": "Ready today rests on unconfirmed facts",
+    "severity_claimed": "non-blocking",
+    "defect": "NONE_INVALID",
+    "also": null,
+    "confidence": "medium",
+    "note": "Spec itself marks relevant items UNVERIFIED; P0 tests them."
+   },
+   {
+    "fid": "F19",
+    "heading": "Mutual exclusion is not encoded",
+    "severity_claimed": "non-blocking",
+    "defect": "D31",
+    "also": null,
+    "confidence": "high",
+    "note": "cleanup-audit one-at-a-time rule not enforced in 2.3/ACs."
+   },
+   {
+    "fid": "F20",
+    "heading": "Two unresolved gates have no rule",
+    "severity_claimed": "non-blocking",
+    "defect": "NONE_INVALID",
+    "also": null,
+    "confidence": "medium",
+    "note": "Edge speculation; singular question wording."
+   }
+  ]
+ }
+}

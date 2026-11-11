@@ -1,0 +1,14 @@
+# Verification 2: blocking findings against the candidate
+
+Candidate: `.dev/orca-command-refactor/specs/orca-worker-contract-spec.md`
+sha256: `0e53b436d774ed5d6bf97ec9ffac93472d2f0ec0eb53b20ecebda159b8c5d3e2` (285 lines)
+
+Citations to `INV-A`, `INV-B`, `CAPS`, `EVIDENCE` and `cmd/` files point outside this workspace, so they are UNVERIFIED here. Findings are checked against the candidate's own text.
+
+| id | found text | exists | outcome follows | confirm or reject | reason |
+|---|---|---|---|---|---|
+| M6 | Line 194: "the YAML key check applies only to workflow's existing contract, which has `status` and no `command` key (`INV-B:272`)". Line 183: "assert d['status'] in {...}; assert d['command']". | yes | yes | confirm | The candidate's own text says workflow's contract has no `command` key, yet line 183 asserts `d['command']`. Read literally, line 194 applies the line 183 key check to workflow, so it raises KeyError on a correct run. The `INV-B:272` citation is UNVERIFIED here, but the contradiction rests on the candidate's text alone. |
+| M6.a | Line 73: "the brief states: the exact command line including `--unattended`". Line 180: "brief per 2.3". Line 182: "its report path is the WC-4 contract path". Line 183: asserts `d['status']` and `d['command']`. Line 194: "each run directly by the worker (no Agent-tool wrapper, verified in the step-5 transcript)". Lines 62, 158-159: WC-4 unattended-only, P1. Line 184: step 5 searches only for `AskUserQuestion`. The quote "uses the command's existing report file, since the contract arrives in P1" does not appear. | partly (the last quote is absent; the other quotes exist in substance) | no | reject | Line 194 already covers the flag, step 3 and step 4. It states "the P0 briefs omit `--unattended`", "Step 3 passes when `worker_done` arrives and its report path is the command's existing report", and "Step 4 is replaced by `test -s <existing report>`", so P0 does not need the flag or the WC-4 path. The remaining workflow `command` KeyError is the M6 defect, which is confirmed on its own. The no-wrapper point is a real gap (line 194 says step 5 shows no Agent-tool call, but step 5 searches only for `AskUserQuestion`), but it leaves P0 without a check, not unable to pass, so the stated wrong outcome does not follow. |
+| N1 | Line 76: "cleanup-audit and index-repo gain `--output-dir <dir>` in P1". Line 85: "output dir is fixed, so one audit per worktree at a time (WC-11) (P1)". | yes | yes | confirm | Both quotes exist verbatim. Both sit in the P1 scope of the cleanup-audit change: line 76 adds an output flag in P1, while the line 85 fix in P1 says the output directory is fixed. Those two P1 instructions for the same directory conflict on their face. The reading that row 85's "fixed" describes only the current state is an extra assumption, and the row's own "(P1)" tag points the other way. |
+
+confirmed: M6, N1

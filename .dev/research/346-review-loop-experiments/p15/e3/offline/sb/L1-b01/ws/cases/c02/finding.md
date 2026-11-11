@@ -1,0 +1,7 @@
+### F-04 (MAJOR, BLOCKING): cleanup-audit is ready to run as a worker only if two workers cannot share a worktree, and the spec does not enforce that
+
+- Location: line 85 (cleanup-audit row: output dir "is fixed, so one audit per worktree at a time (WC-11)"); line 69 (WC-11: "Two workers in one worktree must never write the same file. Default output paths carry a timestamp or the slug the coordinator passes"); line 73 (2.3: the brief's contents, which contain no concurrency rule); `commands-a.md:42` (`.claude-audit/pass<N>-summary.md` and `progress.json` are fixed paths).
+- Issue: cleanup-audit's default paths carry neither a timestamp nor a slug, so WC-11 is not met. The row cites WC-11 for a "one at a time" rule that WC-11 does not contain, and no brief rule or AC enforces it.
+- Grading check: "An implementer who follows the cleanup-audit row dispatches two audit workers into one worktree; the second overwrites `progress.json`, and that is wrong because the resume checkpoint is lost and WC-11 says two workers must never write the same file." This holds with no added assumption: the row's stated mitigation is not in any rule the coordinator applies.
+- Recommendation: give cleanup-audit a per-run output path in P1 (a slug the coordinator passes), or add the one-at-a-time rule to section 2.3 and an AC that checks it.
+- Expert: Nygard (data loss on concurrent writes), Hohpe (shared-state ordering).

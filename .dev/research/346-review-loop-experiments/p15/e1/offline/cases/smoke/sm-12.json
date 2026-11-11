@@ -1,0 +1,62 @@
+{
+ "author_intent": {
+  "category_name": "correct full fix",
+  "closure_correct": "yes",
+  "expect_auto_close": true,
+  "expected_precheck": "ok"
+ },
+ "case_id": "sm-12",
+ "category": "C1",
+ "data_classes": [
+  "synthetic"
+ ],
+ "family": "refunds",
+ "group": "G-refunds",
+ "packet": {
+  "inputs": {
+   "after_text": "# Order Refund Policy\n\nStatus: Draft for review. Owner: Payments team.\n\n## 1. Purpose\n\nThis policy describes how the shop refunds customers for orders that are cancelled or returned. It is written for the engineers who build the refund service and for the support staff who use it.\n\n## 2. General rules\n\n- **RF-1 Scope.** The policy applies to orders placed in the web shop and in the mobile app. Orders placed through marketplaces follow the marketplace rules.\n- **RF-2 Cancellation window.** A customer can cancel an order until the carrier has scanned the parcel for the first time. After that the return process applies.\n- **RF-6 Return window.** A customer can return an item within 30 days after delivery, provided the item is unused and in its original packaging.\n- **RF-7 Order lookup.** Support staff identify an order by its order number and the name of the customer, and they see the payment method that was used.\n\n## 3. Refunds\n\n- **RF-3 Refund obligation.** A customer who cancels an order or returns an item within the allowed window is refunded the full price paid for it, including shipping when the whole order is cancelled.\n- **RF-4 Refund method.** Refunds return to the original payment method. Store credit is issued only when the customer chooses it.\n- **RF-5 Processing time.** A refund is issued within 5 business days after the cancellation is confirmed or the returned item is received.\n- **RF-8 Partial returns.** When only some items of an order are returned, only the price of those items is refunded. Shipping is not refunded for partial returns.\n\n## 4. Support and reporting\n\n- **RF-9 Refund log.** Every refund is recorded with the order number, the amount, the method and the staff member or system that issued it.\n- **RF-10 Monthly report.** Finance receives a monthly report of the total value refunded, grouped by reason.\n- **RF-11 Fraud review.** A customer with more than five refunds in 90 days is flagged for manual review before the next refund is issued.\n\n## 5. Acceptance criteria\n\n1. Cancelling an unshipped order refunds the full price plus shipping.\n2. Returning one item of a three-item order refunds only that item.\n3. Every refund appears in the refund log with the method used.\n",
+   "before_text": "# Order Refund Policy\n\nStatus: Draft for review. Owner: Payments team.\n\n## 1. Purpose\n\nThis policy describes how the shop refunds customers for orders that are cancelled or returned. It is written for the engineers who build the refund service and for the support staff who use it.\n\n## 2. General rules\n\n- **RF-1 Scope.** The policy applies to orders placed in the web shop and in the mobile app. Orders placed through marketplaces follow the marketplace rules.\n- **RF-2 Cancellation window.** A customer can cancel an order until the carrier has scanned the parcel for the first time. After that the return process applies.\n- **RF-6 Return window.** A customer can return an item within 30 days after delivery, provided the item is unused and in its original packaging.\n- **RF-7 Order lookup.** Support staff identify an order by its order number and the name of the customer, and they see the payment method that was used.\n\n## 3. Refunds\n\n- **RF-3 Refund obligation.** A customer who cancels an order or returns an item within the allowed window is refunded the full price paid for it, including shipping when the whole order is cancelled.\n- **RF-4 Refund method.** All refunds are issued as store credit.\n- **RF-5 Processing time.** A refund is issued within 5 business days after the cancellation is confirmed or the returned item is received.\n- **RF-8 Partial returns.** When only some items of an order are returned, only the price of those items is refunded. Shipping is not refunded for partial returns.\n\n## 4. Support and reporting\n\n- **RF-9 Refund log.** Every refund is recorded with the order number, the amount, the method and the staff member or system that issued it.\n- **RF-10 Monthly report.** Finance receives a monthly report of the total value refunded, grouped by reason.\n- **RF-11 Fraud review.** A customer with more than five refunds in 90 days is flagged for manual review before the next refund is issued.\n\n## 5. Acceptance criteria\n\n1. Cancelling an unshipped order refunds the full price plus shipping.\n2. Returning one item of a three-item order refunds only that item.\n3. Every refund appears in the refund log with the method used.\n",
+   "finding": {
+    "body": "The refund method rule says that every refund is paid out as store credit. That conflicts with the purpose of the policy, which is to give customers their money back. Cited: spec lines 18-19 (before version).\nAn implementer who follows RF-4 builds a refund service that never returns money to the payment method of the customer.\nProtected requirement: line 18 (the refund obligation must hold).",
+    "heading": "### R1-1 Refund method forces store credit",
+    "id": "R1-1",
+    "review": "R1",
+    "run": "smoke"
+   },
+   "history": {
+    "previously_closed": false,
+    "recorded_before_sha": "e683af68925450d980201b93bd1e497818e493e9186c0881d329af6ac761af85"
+   }
+  },
+  "n_deps": 0,
+  "precheck": "ok",
+  "reason": "eligible",
+  "state": {
+   "after": {
+    "defect_text_still_verbatim": false,
+    "obligation_text_still_verbatim": true,
+    "passage": "## 3. Refunds\n\n- **RF-3 Refund obligation.** A customer who cancels an order or returns an item within the allowed window is refunded the full price paid for it, including shipping when the whole order is cancelled.\n- **RF-4 Refund method.** Refunds return to the original payment method. Store credit is issued only when the customer chooses it.\n- **RF-5 Processing time.** A refund is issued within 5 business days after the cancellation is confirmed or the returned item is received.\n- **RF-8 Partial returns.** When only some items of an order are returned, only the price of those items is refunded. Shipping is not refunded for partial returns."
+   },
+   "before": {
+    "passage": "## 3. Refunds\n\n- **RF-3 Refund obligation.** A customer who cancels an order or returns an item within the allowed window is refunded the full price paid for it, including shipping when the whole order is cancelled.\n- **RF-4 Refund method.** All refunds are issued as store credit.\n- **RF-5 Processing time.** A refund is issued within 5 business days after the cancellation is confirmed or the returned item is received.\n- **RF-8 Partial returns.** When only some items of an order are returned, only the price of those items is refunded. Shipping is not refunded for partial returns."
+   },
+   "defect": {
+    "summary": "R1-1 Refund method forces store credit",
+    "wrong_outcome": "An implementer who follows RF-4 builds a refund service that never returns money to the payment method of the customer."
+   },
+   "dependencies": {},
+   "diff": "@@ -16,7 +16,7 @@\n ## 3. Refunds\n \n - **RF-3 Refund obligation.** A customer who cancels an order or returns an item within the allowed window is refunded the full price paid for it, including shipping when the whole order is cancelled.\n-- **RF-4 Refund method.** All refunds are issued as store credit.\n+- **RF-4 Refund method.** Refunds return to the original payment method. Store credit is issued only when the customer chooses it.\n - **RF-5 Processing time.** A refund is issued within 5 business days after the cancellation is confirmed or the returned item is received.\n - **RF-8 Partial returns.** When only some items of an order are returned, only the price of those items is refunded. Shipping is not refunded for partial returns.\n ",
+   "obligation": {
+    "text": "- **RF-3 Refund obligation.** A customer who cancels an order or returns an item within the allowed window is refunded the full price paid for it, including shipping when the whole order is cancelled.",
+    "where": "before, line 18"
+   }
+  }
+ },
+ "source": {
+  "kind": "synthetic",
+  "paths": [],
+  "url": null
+ },
+ "split": "smoke",
+ "variant": "v1"
+}

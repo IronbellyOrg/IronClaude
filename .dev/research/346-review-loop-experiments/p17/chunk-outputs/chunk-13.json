@@ -1,0 +1,76 @@
+{
+ "chunk": 13,
+ "defects": [
+  {
+   "local_id": "c13-d1",
+   "title": "AC-C5 and AC-0.3 grep '^-[^-]' misses deleted bullets and --- lines",
+   "kind": "original",
+   "severity": "blocking",
+   "quote": "git diff -U0 master...HEAD -- src/superclaude/commands/<name>.md \\| grep -E '^-[^-]'` | prints nothing: edits are additive",
+   "original_lines": [
+    149,
+    176,
+    193
+   ],
+   "what_goes_wrong": "A removed markdown bullet '- x' appears in git diff -U0 as '-- x' (and a removed '---' as '----'), which '^-[^-]' skips, so the additive-edit gate prints nothing and passes while existing bullets or frontmatter lines are deleted, leaving SA-1/SA-4/SA-5 unenforced (reproduced in a scratch git repo: baseline '- keep','- gone','---', branch keeps only '- keep' -> diff shows '-- gone' and '----', grep prints nothing, exit 1).",
+   "gids": [
+    65,
+    127,
+    173,
+    197,
+    214,
+    228,
+    261,
+    276,
+    316,
+    490,
+    507,
+    18,
+    60
+   ],
+   "is_fixed_when": "The AC-C5 and AC-0.3 commands (or their replacement) report non-empty/failing output for any deleted line whose text starts with '-' (e.g. a removed '- bullet' or '---'), excluding only the '--- a/...' file-header line, for example via grep -E '^-' | grep -vE '^--- ' or a git diff --numstat deleted-count of 0.",
+   "deletion_note": "No: deleting AC-C5/AC-0.3 would leave SA-4 and SA-5 ('additive', 'no existing routing row changed') with no mechanical check; the pass condition must stay and the pattern be corrected.",
+   "present_in_others_hint": "Same pattern appears at AC-0.3 (line 193); SA-4 (149) and SA-5 (150) rely on both; any later copy of the pattern in a revised spec."
+  },
+  {
+   "local_id": "c13-d2",
+   "title": "AC-C1 grep alternation written with \\| (table escape) said to match nothing",
+   "kind": "not-a-defect",
+   "severity": "minor",
+   "quote": "grep -rnE '\\borca(-ide)?[[:space:]]+(orchestration\\|worktree\\|terminal\\|agent)\\b' src/superclaude/commands src/superclaude/skills src/superclaude/agents src/superclaude/core",
+   "original_lines": [
+    172
+   ],
+   "what_goes_wrong": "Claimed: in raw grep -E '\\|' is a literal bar, so AC-C1 never matches (true if pasted raw: reproduced), but the spec is a GFM table where '\\|' is the standard cell escape rendered as '|', used identically in AC-C4, AC-C5, AC-0.3 and the pipeline '\\| grep -v', so check (b) fails: a reader of the rendered table gets a working command.",
+   "gids": [
+    99,
+    108
+   ],
+   "is_fixed_when": "AC-C1 as an executable command contains an unescaped alternation that matches a planted 'orca orchestration check' line (only relevant if the spec is consumed as raw text rather than rendered markdown).",
+   "deletion_note": "No: removing AC-C1 would drop the only mechanical check of SA-2/WC-8.",
+   "present_in_others_hint": "All table-embedded shell commands using '\\|' (AC-C4, AC-C5, AC-0.3, AC-1.x) share the same convention; a raw-text consumer would need all of them unescaped."
+  },
+  {
+   "local_id": "c13-d3",
+   "title": "AC-C1 scans core, where P0 writes Orca-mentioning contract and routing section",
+   "kind": "original",
+   "severity": "medium",
+   "quote": "The only allowed mention of Orca in a changed command is as an example of a caller's question channel inside the contract file.",
+   "original_lines": [
+    147,
+    158,
+    172
+   ],
+   "what_goes_wrong": "AC-C1 must print nothing over src/superclaude/core (excluding only ccsession-tag) in every phase, yet P0 adds WORKER-CONTRACT.md and an Orca section to HOW-WE-WORK.md in core and SA-2 permits an Orca mention in the contract file, so any 'orca orchestration/worktree/terminal/agent' wording there fails AC-C1 and the spec neither exempts those files nor forbids such wording.",
+   "gids": [
+    80,
+    85,
+    96
+   ],
+   "is_fixed_when": "AC-C1 explicitly exempts WORKER-CONTRACT.md and the HOW-WE-WORK.md Orca section (or narrows its scan to command, skill and agent files), or SA-2/P0 state that those files must avoid the 'orca <subcommand>' text AC-C1 matches.",
+   "deletion_note": "No: dropping src/superclaude/core from the scan or removing AC-C1 would only be a fix if SA-2's scope is restated to match; deleting the contract file or Orca section would remove P0's deliverable.",
+   "present_in_others_hint": "SA-2 (147), P0 row (158), SA-5 (150) Orca section in routing guide and its two mirrored copies (plugins/superclaude/skills/sc-recommend/refs/HOW-WE-WORK.md, src/superclaude/core/CLAUDE.md level table), AC-0.2."
+  }
+ ],
+ "unassigned_gids": []
+}

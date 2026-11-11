@@ -1,0 +1,62 @@
+{
+ "author_intent": {
+  "category_name": "deleted obligation",
+  "closure_correct": "no",
+  "expect_auto_close": false,
+  "expected_precheck": "ok"
+ },
+ "case_id": "sm-09",
+ "category": "C3",
+ "data_classes": [
+  "synthetic"
+ ],
+ "family": "backup_schedule",
+ "group": "G-backup_schedule",
+ "packet": {
+  "inputs": {
+   "after_text": "# Database Backup Policy\n\nStatus: Draft for review. Owner: Operations team.\n\n## 1. Purpose\n\nThis policy states how the production data of the order system is backed up and restored. It is written for the operations team and for the engineers who maintain the backup jobs.\n\n## 2. Scope and schedule\n\n- **BK-1 Scope.** The policy covers the production database of the order system and the object store that holds uploaded documents.\n- **BK-2 Schedule.** A full backup starts every night at 02:00 UTC and must finish before 05:00 UTC.\n- **BK-7 Encryption.** Backups are encrypted with a key that is held by the security team and rotated once a year.\n\n## 3. Retention\n\n- **BK-5 Location.** Backups are stored in a different region from the production database.\n- **BK-6 Monitoring.** A backup that does not finish raises the alert `BackupLate` for the operations team.\n\n## 4. Restore\n\n- **BK-8 Restore test.** Once a quarter the operations team restores the latest backup into a test environment and compares row counts with production.\n- **BK-9 Restore time.** A restore of the production database must be possible within four hours of the decision to restore.\n- **BK-10 Access.** Only members of the operations team can start a restore, and each restore is recorded with the name of the person who started it.\n- **BK-11 Reporting.** Every month the operations team sends the management a short report that lists the backup runs, the failures, the length of each run and the time each restore test took.\n\n## 5. Acceptance criteria\n\n1. After three nightly runs, the backup from three nights ago can be restored.\n2. A backup that overruns 05:00 UTC raises `BackupLate`.\n3. A restore into the test environment finishes within four hours.\n",
+   "before_text": "# Database Backup Policy\n\nStatus: Draft for review. Owner: Operations team.\n\n## 1. Purpose\n\nThis policy states how the production data of the order system is backed up and restored. It is written for the operations team and for the engineers who maintain the backup jobs.\n\n## 2. Scope and schedule\n\n- **BK-1 Scope.** The policy covers the production database of the order system and the object store that holds uploaded documents.\n- **BK-2 Schedule.** A full backup starts every night at 02:00 UTC and must finish before 05:00 UTC.\n- **BK-7 Encryption.** Backups are encrypted with a key that is held by the security team and rotated once a year.\n\n## 3. Retention\n\n- **BK-3 Backup retention.** Nightly backups are kept for 35 days, so that data lost through an error that is found late can still be restored.\n- **BK-4 Backup overwrite.** Each nightly backup overwrites the backup of the previous night.\n- **BK-5 Location.** Backups are stored in a different region from the production database.\n- **BK-6 Monitoring.** A backup that does not finish raises the alert `BackupLate` for the operations team.\n\n## 4. Restore\n\n- **BK-8 Restore test.** Once a quarter the operations team restores the latest backup into a test environment and compares row counts with production.\n- **BK-9 Restore time.** A restore of the production database must be possible within four hours of the decision to restore.\n- **BK-10 Access.** Only members of the operations team can start a restore, and each restore is recorded with the name of the person who started it.\n- **BK-11 Reporting.** Every month the operations team sends the management a short report that lists the backup runs, the failures, the length of each run and the time each restore test took.\n\n## 5. Acceptance criteria\n\n1. After three nightly runs, the backup from three nights ago can be restored.\n2. A backup that overruns 05:00 UTC raises `BackupLate`.\n3. A restore into the test environment finishes within four hours.\n",
+   "finding": {
+    "body": "The overwrite rule replaces each backup with the next one, which contradicts the retention rule that keeps nightly backups for 35 days. Cited: spec lines 17-18 (before version).\nAn implementer who follows BK-4 builds a backup job that keeps a single copy, so an error that is found after one day cannot be restored.\nProtected requirement: line 17 (the 35-day retention must hold).",
+    "heading": "### R1-1 Backups are overwritten every night",
+    "id": "R1-1",
+    "review": "R1",
+    "run": "smoke"
+   },
+   "history": {
+    "previously_closed": false,
+    "recorded_before_sha": "417f21b5f70ec6a8330c4ce667ae2c28815b9b569acadbe0a2ea03cf63831b9b"
+   }
+  },
+  "n_deps": 0,
+  "precheck": "ok",
+  "reason": "eligible",
+  "state": {
+   "after": {
+    "defect_text_still_verbatim": false,
+    "obligation_text_still_verbatim": false,
+    "passage": "## 3. Retention\n\n- **BK-5 Location.** Backups are stored in a different region from the production database.\n- **BK-6 Monitoring.** A backup that does not finish raises the alert `BackupLate` for the operations team."
+   },
+   "before": {
+    "passage": "## 3. Retention\n\n- **BK-3 Backup retention.** Nightly backups are kept for 35 days, so that data lost through an error that is found late can still be restored.\n- **BK-4 Backup overwrite.** Each nightly backup overwrites the backup of the previous night.\n- **BK-5 Location.** Backups are stored in a different region from the production database.\n- **BK-6 Monitoring.** A backup that does not finish raises the alert `BackupLate` for the operations team."
+   },
+   "defect": {
+    "summary": "R1-1 Backups are overwritten every night",
+    "wrong_outcome": "An implementer who follows BK-4 builds a backup job that keeps a single copy, so an error that is found after one day cannot be restored."
+   },
+   "dependencies": {},
+   "diff": "@@ -14,8 +14,6 @@\n \n ## 3. Retention\n \n-- **BK-3 Backup retention.** Nightly backups are kept for 35 days, so that data lost through an error that is found late can still be restored.\n-- **BK-4 Backup overwrite.** Each nightly backup overwrites the backup of the previous night.\n - **BK-5 Location.** Backups are stored in a different region from the production database.\n - **BK-6 Monitoring.** A backup that does not finish raises the alert `BackupLate` for the operations team.\n ",
+   "obligation": {
+    "text": "- **BK-3 Backup retention.** Nightly backups are kept for 35 days, so that data lost through an error that is found late can still be restored.",
+    "where": "before, line 17"
+   }
+  }
+ },
+ "source": {
+  "kind": "synthetic",
+  "paths": [],
+  "url": null
+ },
+ "split": "smoke",
+ "variant": "v1"
+}

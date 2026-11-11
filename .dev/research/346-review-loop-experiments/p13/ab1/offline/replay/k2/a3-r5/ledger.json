@@ -1,0 +1,211 @@
+{
+ "schema": "review-ledger/1",
+ "doc": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/exp346/.dev/experiments/346-validation/phase2/S1/inputs/repo-overlay/.dev/orca-command-refactor/specs/orca-worker-contract-spec.md",
+ "cap_reviews": 3,
+ "rounds": [
+  {
+   "n": 1,
+   "doc_sha256": "d3cdbe573e57303b9ce6c93d1fe98ba18fb7cb1a15773d926bf6a0c31425200d",
+   "reviewers": [
+    {
+     "reviewer_id": "t1b-1",
+     "model": "replay",
+     "report": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p13/ab1/offline/replay/k2/a3-r5/round1-t1b-1.md",
+     "report_sha256": "96dee813a7a2eda76d2819474a9ca78f29c9f949c60afb3dd334456bb2bacb40",
+     "block_ok": true
+    },
+    {
+     "reviewer_id": "t2-1",
+     "model": "replay",
+     "report": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p13/ab1/offline/replay/k2/a3-r5/round1-t2-1.md",
+     "report_sha256": "96dee813a7a2eda76d2819474a9ca78f29c9f949c60afb3dd334456bb2bacb40",
+     "block_ok": true
+    }
+   ],
+   "verdict": "FAIL",
+   "decision": "REVISE",
+   "brief_ids": [
+    "L1",
+    "L2"
+   ]
+  },
+  {
+   "n": 2,
+   "doc_sha256": "5d3d225a6ef33d0f0c3eb9b745dd4e780b4ca5a0b2dd745dd00ce966449d2b61",
+   "reviewers": [
+    {
+     "reviewer_id": "t1b-1",
+     "model": "replay",
+     "report": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p13/ab1/offline/replay/k2/a3-r5/round2-t1b-1.md",
+     "report_sha256": "2d2421d1458e062205023404bf913472a5e33024dda874cf92d258d02fe58150",
+     "block_ok": true
+    },
+    {
+     "reviewer_id": "t2-1",
+     "model": "replay",
+     "report": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p13/ab1/offline/replay/k2/a3-r5/round2-t2-1.md",
+     "report_sha256": "2d2421d1458e062205023404bf913472a5e33024dda874cf92d258d02fe58150",
+     "block_ok": true
+    }
+   ],
+   "verdict": "PASS",
+   "decision": "PASS",
+   "brief_ids": []
+  }
+ ],
+ "rows": [
+  {
+   "lid": "L1",
+   "fp": "976d2d736348c06c",
+   "blocking": true,
+   "severity_max": "MAJOR",
+   "category": "contradiction",
+   "confidence": "overlap",
+   "status": "resolved",
+   "anchor": "the `--unattended` flag accepted by every command in sections 3.1 and 3.2 (a no-op where a command has no gate)",
+   "anchor2": "every command in sections 3.1-3.2 has a `## Unattended mode` section naming `return-contract.yaml`",
+   "span": [
+    158,
+    159
+   ],
+   "span2": [
+    192,
+    193
+   ],
+   "refs": [
+    "AC-0.4",
+    "AC-1.1",
+    "P0",
+    "P1",
+    "WC-2",
+    "WC-4",
+    "WC-9"
+   ],
+   "claim": "P1 adds the flag to commands whose gates and outward defaults are still on until later phases.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t1b-1",
+     "fid": "F-1",
+     "blocking": true
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t1b-1",
+     "fid": "F-2",
+     "blocking": true
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t2-1",
+     "fid": "F-1",
+     "blocking": true
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t2-1",
+     "fid": "F-2",
+     "blocking": true
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    },
+    {
+     "round": 1,
+     "event": "resolved_check"
+    },
+    {
+     "round": 2,
+     "event": "cleared"
+    },
+    {
+     "round": 2,
+     "event": "prior_note",
+     "reviewer_id": "t1b-1",
+     "status": "resolved"
+    },
+    {
+     "round": 2,
+     "event": "prior_note",
+     "reviewer_id": "t1b-1",
+     "status": "resolved"
+    },
+    {
+     "round": 2,
+     "event": "prior_note",
+     "reviewer_id": "t2-1",
+     "status": "resolved"
+    },
+    {
+     "round": 2,
+     "event": "prior_note",
+     "reviewer_id": "t2-1",
+     "status": "resolved"
+    }
+   ]
+  },
+  {
+   "lid": "L2",
+   "fp": "96dd53dfd541feba",
+   "blocking": true,
+   "severity_max": "MAJOR",
+   "category": "other",
+   "confidence": "overlap",
+   "status": "resolved",
+   "anchor": "grep -E '^-[^-]'",
+   "anchor2": null,
+   "span": [
+    175,
+    176
+   ],
+   "span2": null,
+   "refs": [
+    "AC-0.3"
+   ],
+   "claim": "The additive-edit check does not detect a deleted bullet.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t1b-1",
+     "fid": "F-3",
+     "blocking": true
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t2-1",
+     "fid": "F-3",
+     "blocking": true
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    },
+    {
+     "round": 1,
+     "event": "resolved_check"
+    },
+    {
+     "round": 2,
+     "event": "cleared"
+    },
+    {
+     "round": 2,
+     "event": "prior_note",
+     "reviewer_id": "t1b-1",
+     "status": "resolved"
+    },
+    {
+     "round": 2,
+     "event": "prior_note",
+     "reviewer_id": "t2-1",
+     "status": "resolved"
+    }
+   ]
+  }
+ ]
+}

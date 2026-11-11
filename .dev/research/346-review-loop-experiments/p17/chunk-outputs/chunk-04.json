@@ -1,0 +1,166 @@
+{
+ "chunk": 4,
+ "defects": [
+  {
+   "local_id": "c04-d1",
+   "title": "WC-4 single contract location contradicts per-command rows and live-check steps",
+   "kind": "original",
+   "severity": "blocking",
+   "quote": "In unattended mode the command writes `<output-dir>/return-contract.yaml`, where `<output-dir>` is the directory the coordinator passed (`--output` / `--output-dir`).",
+   "original_lines": [
+    62,
+    73,
+    76,
+    83,
+    85,
+    86,
+    87,
+    90,
+    92,
+    109,
+    116,
+    119,
+    120,
+    182,
+    183,
+    196,
+    198,
+    200
+   ],
+   "what_goes_wrong": "WC-4/2.3 promise one contract path `<output-dir>/return-contract.yaml` known before dispatch, but adversarial's row fixes `<output>/adversarial/return-contract.yaml`, workflow's path contains a run-generated `<id>` (and a pre-creation STOP has no directory), tdd/init-lite (and spec-panel) take a file-valued `--output`, and cleanup-audit, index-repo, research, save, implement, task, cli-eval and others get no directory flag, so 7.2 steps 3-4 (`report path is the WC-4 contract path`, `test -s <contract>`), AC-1.2 (`--output <dir>` on every P1 command) and AC-2.2 (`/sc:tdd ... --output <file>`) cannot pass and the coordinator opens a nonexistent file and records success as failed.",
+   "gids": [
+    14,
+    496,
+    36,
+    382,
+    9,
+    132,
+    152,
+    158,
+    174,
+    298,
+    303,
+    342,
+    448,
+    488,
+    506,
+    25,
+    31,
+    33,
+    40,
+    43,
+    58,
+    92
+   ],
+   "is_fixed_when": "For every worker-capable command the spec states one exact contract path (or a rule that yields it) that the coordinator can derive from the brief before dispatch or is explicitly told to read from worker_done, covering: adversarial (one path consistent between WC-4, its row and AC-1.4), workflow (including where or whether a pre-creation STOP writes), file-valued --output commands (tdd, init-lite, spec-panel), and commands with no output flag (cleanup-audit, index-repo, research, save, implement, task, cli-eval, etc.); and 7.2 steps 3-4, AC-1.2 and AC-2.2 use only flags those commands actually take.",
+   "deletion_note": "No: removing the contract requirement or the affected commands from the P1/P2 checks would drop the coordinator's only machine-readable result channel; deleting only the generic 'known before dispatch' claim is acceptable if per-command paths replace it.",
+   "present_in_others_hint": "WC-4 (line 62), section 2.3 (73), section 3 intro definition of 'Contract' (76), 3.1 rows adversarial/cleanup-audit/index-repo/init-lite/tdd/workflow (83-92), 3.2 rows implement/research/save/spec-panel/task/cli-eval/recommend/review-translation (104-125), 7.2 steps 3-4 (182-183), AC-1.2 (196), AC-1.4 (198), AC-2.2 (200), WC-11 (contract collision once a file-output rule is chosen)."
+  },
+  {
+   "local_id": "c04-d2",
+   "title": "P0 smoke check requires WC-4 contract path that only exists after P1",
+   "kind": "original",
+   "severity": "blocking",
+   "quote": "steps 1-3 and 5-7 pass; step 4 uses the command's existing report file, since the contract arrives in P1",
+   "original_lines": [
+    154,
+    158,
+    182,
+    194
+   ],
+   "what_goes_wrong": "AC-0.4 relaxes only step 4, yet requires 7.2 step 3 ('its report path is the WC-4 contract path'; outcome matches 'the contract's status') to pass in P0 when no command writes the WC-4 contract yet, so P0 cannot pass and, per line 154, P1 can never start.",
+   "gids": [
+    2,
+    245
+   ],
+   "is_fixed_when": "AC-0.4 (or 7.2 step 3) states a P0 form of step 3 that compares the report path and outcome against the command's existing report file (or excludes step 3 from P0), so every step AC-0.4 requires can pass with no command edits.",
+   "deletion_note": "No: deleting AC-0.4's live runs would remove the only test of the decision (gap 1.4(1)); excluding or rewording step 3 for P0 is the fix.",
+   "present_in_others_hint": "7.2 step 3 (182), AC-0.4 (194), section 3.1 intro 'until Phase 1 adds the contract' (79), UNVERIFIED item 1 (272)."
+  },
+  {
+   "local_id": "c04-d3",
+   "title": "WC-6 fresh-dir retry conflicts with WC-4 coordinator-passed contract directory",
+   "kind": "original",
+   "severity": "medium",
+   "quote": "or, if it has none, writes each run into a fresh output directory so a re-run starts clean",
+   "original_lines": [
+    62,
+    64,
+    73
+   ],
+   "what_goes_wrong": "WC-4 makes the command write the contract in the directory the coordinator passed, WC-6 makes a command with no resume flag write each run into a fresh directory, and section 2.3 never requires a distinct directory per dispatch, so a --retry-of brief reusing the same --output either overwrites the first attempt (violating WC-6) or writes elsewhere (violating WC-4) and the coordinator may read the stale blocked contract.",
+   "gids": [
+    22
+   ],
+   "is_fixed_when": "The spec states that the coordinator passes a distinct output directory for every dispatch including --retry-of retries (except where a retry resumes from on-disk state), and WC-6's 'fresh output directory' is defined as that passed directory.",
+   "deletion_note": "No: deleting WC-6 would allow retries to corrupt the first attempt's output, which is the risk it guards.",
+   "present_in_others_hint": "Section 2.3 brief contents (73), 'Fresh dir' cells in sections 3.1/3.2, AC-2.2 (no retry case exercised)."
+  },
+  {
+   "local_id": "c04-d4",
+   "title": "File-output parent-directory contract rule lets parallel workers overwrite each other",
+   "kind": "introduced",
+   "severity": "blocking",
+   "quote": "`<output-dir>` is the directory the coordinator passed (`--output` / `--output-dir`, or the directory of the file when `--output` is a file)",
+   "original_lines": [],
+   "what_goes_wrong": "(Introduced in revised spec p12/ab1/runs/b1-r2/aud/ws/.dev/orca-command-refactor/specs/orca-worker-contract-spec.md:62) Two tdd/spec-panel workers with file outputs in the same directory both write `<dir>/return-contract.yaml`, violating WC-11 ('never write the same file') and letting the coordinator read the other worker's status.",
+   "gids": [
+    30
+   ],
+   "is_fixed_when": "For a file-valued --output the contract path is unique per output file (e.g. `<file>.return-contract.yaml`) or the brief must give each worker a distinct directory, so no two workers can share a contract path.",
+   "deletion_note": "No: removing the file-output clause reopens c04-d1 (no location for file-valued outputs).",
+   "present_in_others_hint": "WC-11, section 2.3 brief, tdd/init-lite/spec-panel rows.",
+   "revised_file": "p12/ab1/runs/b1-r2/aud/ws/.dev/orca-command-refactor/specs/orca-worker-contract-spec.md:62"
+  },
+  {
+   "local_id": "c04-d5",
+   "title": "Revised no-output-path refusal clause makes save and cli-eval checks fail",
+   "kind": "introduced",
+   "severity": "blocking",
+   "quote": "If the brief gives no output path and this paragraph names none, the command stops with a chat-only refusal that names the missing flag and writes no file",
+   "original_lines": [],
+   "what_goes_wrong": "(Introduced in revised spec p12/baseline-audit2/a3-r6/ws/.dev/orca-command-refactor/specs/orca-worker-contract-spec.md:62) save, cli-eval, research, recommend, review-translation, task and explain get no output flag in their rows and are not in WC-4's exception list, so under the revised clause `/sc:save --unattended` (AC-3.4) and `/sc:cli-eval run --unattended` (AC-2.2) refuse and write no file, contradicting those checks' expected per-session files and blocked contract.",
+   "gids": [
+    509
+   ],
+   "is_fixed_when": "Every command whose acceptance check runs it unattended has either an output flag named in its row or a fixed contract path in WC-4, so the refusal clause never fires for the commands and inputs used in AC-2.2, AC-3.4 and the other checks.",
+   "deletion_note": "Deleting the refusal clause alone would not fix it: those commands would again have no contract location (c04-d1).",
+   "present_in_others_hint": "3.2 rows save, cli-eval, research, recommend, review-translation, task, explain; AC-2.2; AC-3.4.",
+   "revised_file": "p12/baseline-audit2/a3-r6/ws/.dev/orca-command-refactor/specs/orca-worker-contract-spec.md:62"
+  },
+  {
+   "local_id": "c04-d6",
+   "title": "Revised spec names contracts for ready commands that never gain unattended mode",
+   "kind": "introduced",
+   "severity": "blocking",
+   "quote": "adversarial, brainstorm, cleanup-audit, index-repo, init-lite and workflow gain none (REQ-2)",
+   "original_lines": [],
+   "what_goes_wrong": "(Introduced in revised spec p12/baseline-audit2/a3-r6/ws/.dev/orca-command-refactor/specs/orca-worker-contract-spec.md:76) WC-4 in the revision names contract paths for cleanup-audit and init-lite written 'in unattended mode', yet those commands get no Unattended section or contract in any phase (and index-repo has no path at all), so the coordinator's expected report path never exists and WC-5 reports successful runs as failed.",
+   "gids": [
+    510
+   ],
+   "is_fixed_when": "For each 3.1 command, either a phase adds the contract the WC-4 text names, or WC-4 and 7.2 step 3 state that the worker reports the command's existing named file instead; no command has an expected contract path that no phase creates.",
+   "deletion_note": "Removing those commands' paths from WC-4 counts as a fix only if 7.2 step 3 and section 2.3 then name their existing report file as the report path.",
+   "present_in_others_hint": "Revised lines 73, 76, 79, 159, 182 of that file; 3.1 rows cleanup-audit, index-repo, init-lite.",
+   "revised_file": "p12/baseline-audit2/a3-r6/ws/.dev/orca-command-refactor/specs/orca-worker-contract-spec.md:76"
+  }
+ ],
+ "unassigned_gids": [],
+ "extra_noticed": [
+  {
+   "local_id": "c04-x1",
+   "title": "AC-1.1 requires Unattended section on unchanged ready commands",
+   "kind": "original",
+   "severity": "medium",
+   "quote": "the test asserts that every command in sections 3.1-3.2 has a `## Unattended mode` section naming `return-contract.yaml` and `~/.claude/WORKER-CONTRACT.md`",
+   "original_lines": [
+    76,
+    195
+   ],
+   "what_goes_wrong": "Line 76 gives the section only to 'every changed command', while brainstorm and init-lite rows say 'None' for changes, yet AC-1.1 asserts every 3.1-3.2 command has the section, so an implementer must guess whether unchanged ready commands are edited.",
+   "is_fixed_when": "The set of commands that gain the Unattended section is stated once and AC-1.1 asserts exactly that set.",
+   "deletion_note": "No: dropping AC-1.1 would leave the section unchecked.",
+   "present_in_others_hint": "Section 3 intro (76), 3.1 small-fix column, P1 scope (159)."
+  }
+ ]
+}

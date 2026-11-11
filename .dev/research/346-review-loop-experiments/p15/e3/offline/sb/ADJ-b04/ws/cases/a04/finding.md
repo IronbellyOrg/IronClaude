@@ -1,0 +1,6 @@
+**B1. Two stated rules contradict each other on whether Phase 0 briefs carry `--unattended`.** Expert: Wiegers (requirements consistency); Fowler (interface contract).
+- Section 2.3 says each Task brief "states the exact command line including `--unattended`" (SPEC:73). Acceptance check AC-0.4 builds its brief "per section 2.3" (SPEC:180, SPEC:194).
+- Phase 0 makes "no command edits" (SPEC:158), and the `--unattended` flag is added only in P1 (SPEC:159). The ready-today table says briefs pass "the stated flags", and its brief column lists no `--unattended` (SPEC:79, SPEC:81-92). So the flag is required by one rule and absent from the phase that runs the same commands.
+- Sentence that holds with no further assumption: an implementer who follows section 2.3 writes `--unattended` into the P0 brief for `/sc:troubleshoot` or `/sc:workflow`, neither of which implements it until P1. The P0 smoke run then does not exercise the worker contract that AC-0.4 claims to test, and the section 1.4 gap 1 test (SPEC:43) is not performed.
+- Recommendation: state in section 2.3 that `--unattended` is required from P1, and that P0 briefs omit it; or move the AC-0.4 brief rule to P1. Either change makes the two rules agree.
+- Priority: High. Blocking under the two-rules-contradict class.

@@ -1,0 +1,20 @@
+contract_version: "1.8.0"
+status: partial
+mode: pre
+tier_reached: 1
+report_path: null
+audit_log_path: /home/coder/workspaces/worktrees/IronClaude/bs346-minfix/.dev/brainstorms/346-minfix/workflow-report/nested/reflect-1/audit.log
+input_tree_sha256: 16e19825a9faa33298bf2e3e065ae3aef1e0331411bd9a465f80572c43bd5ed5
+input_tree_snapshot_path: /home/coder/workspaces/worktrees/IronClaude/bs346-minfix/.dev/brainstorms/346-minfix/workflow-report/nested/reflect-1/artifacts/input-snapshot.yaml
+input_drift_detected: true
+input_drift_diff:
+  - path: .dev/tasks/to-do/TASK-WF-spec-20261108-181543/TASK-WF-spec-20261108-181543.md
+    change_kind: modified
+stop_reason: "input_drift: the plan was edited during Wave 1 to apply coordinator rulings msg_e91c51d66046 and msg_6d9353a2426f; the run stopped and was replaced by reflect-2 (its Pass-2 extraction of the unchanged spec was reused there)"
+worker_contract_version: "1"
+worker_status: partial
+command: "/sc:reflect --mode pre --spec .dev/tasks/to-do/TASK-WF-spec-20261108-181543/source.md --tasklist .dev/tasks/to-do/TASK-WF-spec-20261108-181543/TASK-WF-spec-20261108-181543.md --unattended --output .dev/brainstorms/346-minfix/workflow-report/nested/reflect-1/"
+artifacts:
+  - .dev/brainstorms/346-minfix/workflow-report/nested/reflect-1/audit.log
+  - .dev/brainstorms/346-minfix/workflow-report/nested/reflect-1/artifacts/input-snapshot.yaml
+  - .dev/brainstorms/346-minfix/workflow-report/nested/reflect-1/artifacts/inferred-requirements.yaml

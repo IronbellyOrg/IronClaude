@@ -1,0 +1,36 @@
+{
+ "author_intent": {
+  "category": "control-conditions",
+  "expect": "clean",
+  "layer": "control"
+ },
+ "case_id": "s0-07",
+ "category": "control-conditions",
+ "data_classes": [
+  "synthetic"
+ ],
+ "family": "multipart",
+ "group": "fam-multipart",
+ "packet": {
+  "defect": "STO-1 requires uploads over 5 GB to use multipart upload, but STO-2 rejects uploads over 5 GB.",
+  "doc": "offline/docs/doc-ca0cde3a5b.md",
+  "doc_sha256": "ca0cde3a5bf1796f2559195c0daa53ff51639e3daf219aece32b062e24430aa9",
+  "evidence_quotes": [
+   "Uploads over 5 GB must use multipart upload",
+   "Uploads over 5 GB are rejected on the free plan"
+  ],
+  "evidence_set": [
+   "P0005",
+   "P0006"
+  ]
+ },
+ "source": {
+  "kind": "synthetic",
+  "paths": [
+   "offline/docs/doc-ca0cde3a5b.md"
+  ],
+  "url": null
+ },
+ "split": "s0",
+ "variant": "control"
+}

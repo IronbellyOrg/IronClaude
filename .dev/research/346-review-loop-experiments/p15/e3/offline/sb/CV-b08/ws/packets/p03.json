@@ -1,0 +1,17 @@
+{
+ "finding": {
+  "title": "The channel rule may surprise users",
+  "wrong_outcome": "The channel rule may surprise users"
+ },
+ "evidence": {
+  "e1": {
+   "text": "A notification is sent over exactly one channel: email, SMS or push.",
+   "line": 4,
+   "context": "# Notification rules\n\n## 1. Channels\nR1. A notification is sent over exactly one channel: email, SMS or push.\nR2. The channel is chosen by the user preference stored in the profile.\nR3. If the preferred channel fails, the notification is not sent over another channel.\n"
+  }
+ },
+ "facts": {
+  "quotes_found_verbatim": true,
+  "evidence_count": 1
+ }
+}

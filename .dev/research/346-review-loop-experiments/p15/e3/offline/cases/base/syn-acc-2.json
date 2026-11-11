@@ -1,0 +1,28 @@
+{
+ "author_intent": {
+  "category": "contr",
+  "expected_blocking": "yes",
+  "expected_code_outcome": "OK"
+ },
+ "case_id": "syn-acc-2",
+ "category": "contr",
+ "data_classes": [
+  "synthetic"
+ ],
+ "family": "syn-acc",
+ "group": "syn-acc",
+ "packet": {
+  "candidate_text": "# Access control requirements\n\n## 1. Roles\nR1. The system has three roles: viewer, editor and admin.\nR2. A viewer can read documents but cannot change them.\nR3. An editor can create and change documents but cannot delete them.\nR4. An admin can do everything an editor can do and can also delete documents and manage users.\n\n## 2. Sessions\nR5. A session expires after 30 minutes without activity.\nR6. After expiry the user must sign in again before any further request is accepted.\nR7. Admin sessions expire after 15 minutes without activity.\n\n## 3. Sharing\nR8. A document can be shared by link with people outside the organization only by an admin.\nR9. A shared link grants the viewer role on that single document.\nR10. Editors may share a document by link with anyone, to speed up collaboration.\nR11. Editors may delete documents that they created themselves.\n\n## 4. User management\nR12. Only an admin can create, disable or delete a user.\nR13. Disabling a user ends all of that user's sessions immediately.\nR14. The last remaining admin cannot be disabled or deleted.\nR15. When a user is deleted, the documents they own are deleted with them.\n\n## 5. Notes\nA document has exactly one owner, the user who created it. Teams share documents by adding people to the document, not by sharing a folder.\nRoles are assigned per user for the whole organization; there are no per-document roles.\nThe role names above are fixed by this document. A user has exactly one role at a time and a new user starts as a viewer.\nRequests that arrive without a valid session are answered with an authentication error and nothing else. This document does not cover the content of that error.\nThe audit trail of role changes is out of scope for this document and is described in the security overview.",
+  "finding_id": "F2",
+  "finding_section": "**F2. MAJOR, blocking. Expert: Wiegers (testability). Editors can and cannot delete documents**\n\n- Grading sentence: an implementer who follows the stated text as written builds a delete check that refuses editors (`An editor can create and change documents but cannot delete them.`, S:6) and allows an editor to delete documents they created (`Editors may delete documents that they created themselves.`, S:18). An editor deleting their own document must be refused and allowed at the same time.\n- Recommendation: pick one rule\n- Priority: High. Quality impact: editors can and cannot delete documents"
+ },
+ "source": {
+  "kind": "synthetic",
+  "paths": [
+   "cases_synth.py"
+  ],
+  "url": null
+ },
+ "split": "base",
+ "variant": "base"
+}
