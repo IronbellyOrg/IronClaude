@@ -2,7 +2,7 @@
 id: "GFXAI-JEV-LITELLM-GATEWAY"
 title: "Jev through the LiteLLM gateway: provisioning, key handling and rollback"
 description: "How to expose TypeSafe Jev to Coder workspaces through the LiteLLM gateway, where each piece is provisioned, and how to verify, rotate and roll back."
-version: "0.4"
+version: "0.5"
 status: "🟡 Draft"
 type: "📘 Operational Guide"
 priority: "▶️ Medium"
@@ -23,7 +23,7 @@ template_schema_doc: ".claude/templates/documents/operational_guide_template.md"
 > **WHY:** The #346 experiments used Jev with a vendor key on one machine. A shared setup must not copy that key into every workspace, and must be switchable off.
 > **HOW TO USE:** Platform owners follow Phases 1 to 5 once; workspace users need only Phase 3's two variables. Read the evidence-status legend first: several gateway facts are **unverified** because the LiteLLM and Coder configuration is not in this repository.
 
-**Evidence-status legend.** `[CODE-VERIFIED]` = read in our client code or probe output. File citations such as `config.py:2` are relative to `.dev/research/346-review-loop-experiments/p15/jev/jevlib/` (probe output: `.../p15/jev/probe-result.json`; privacy scrub: `.../p19/ab6/seamlib.py`). `[UNVERIFIED]` = taken from a web search summary or general knowledge; the page could not be opened from the authoring session (`docs.litellm.ai` was unreachable). Confirm every `[UNVERIFIED]` line against your deployed LiteLLM version before relying on it.
+**Evidence-status legend.** `[CODE-VERIFIED]` = read in our client code or probe output. File citations such as `config.py:2` are relative to `.dev/research/346-review-loop-experiments/p15/jev/jevlib/` (probe output: `.../p15/jev/probe-result.json`; privacy scrub: `.../p19/ab6/seamlib.py`). `[LITELLM TEXT]` = from the LiteLLM TypeSafe Jev text the owner pasted on 2026-11-11 (route, key variable, pricing, behaviour); not yet exercised against our gateway. `[UNVERIFIED]` = general knowledge or a web summary; confirm against your deployed LiteLLM version.
 
 ## Document Information
 
@@ -45,15 +45,15 @@ template_schema_doc: ".claude/templates/documents/operational_guide_template.md"
 
 | Item | Value | Status |
 |---|---|---|
-| Endpoint | `https://api.typesafe.ai/v1/systemone` | `[CODE-VERIFIED]` `jevlib/config.py:2` |
+| Endpoint | `https://api.typesafe.ai/v1/systemone` (through LiteLLM: `<proxy>/typesafe/v1/systemone`) | `[CODE-VERIFIED]` `jevlib/config.py:2`; gateway route `[LITELLM TEXT]` |
 | Model id sent | `jev-1.14.0` (aliases are never sent) | `[CODE-VERIFIED]` `config.py:3` |
 | Auth | `Authorization: Bearer <key>` | `[CODE-VERIFIED]` `client.py:148` |
 | Request | `{"model", "state", "questions"}`; question types `noul` (true/false) or `choice` (2 to 255 options) | `[CODE-VERIFIED]` `questions.py:53-90` |
 | Response check | returned `model` must equal the requested model, else `model_mismatch`; choice probabilities must sum to 1 within 0.02 | `[CODE-VERIFIED]` `validate.py:32`, `config.py:15` |
 | Key variable | `JEV_API_KEY` (owner rule; the vendor's own variable name is not used by our client) | `[CODE-VERIFIED]` `config.py:4` |
-| Cost and latency | about $0.00005 and 160 to 380 ms per call in the probe | `[CODE-VERIFIED]` `probe-result.json` |
+| Cost and latency | $0.042 per 1M input tokens, no output charge (matches `config.py` and `[LITELLM TEXT]`); about $0.00005 and 160 to 380 ms per call in the probe | `[CODE-VERIFIED]` `probe-result.json` |
 | Privacy guard | client refuses packets with owner names, absolute home paths or GitHub URLs | `[CODE-VERIFIED]` ab6 `seamlib.py` scrub rules |
-| Streaming | not offered | `[UNVERIFIED]` |
+| Streaming | not described in the LiteLLM text; our client does not stream | `[UNVERIFIED]` |
 
 Jev is a decision API, not a chat model: it returns typed answers with probabilities, so it does not go through `/chat/completions`.
 
@@ -92,54 +92,64 @@ Not in the installer: `superclaude install` copies commands, agents, skills, hoo
 
 ## 3. Phase 1: Add the Jev route to the gateway
 
-Try A first: the gateway was updated recently, so native support is likely (confirm the version in Prerequisite 3). Use B if A is missing or cannot pin the model id. Both keep the key on the gateway.
+LiteLLM has a native TypeSafe Jev pass-through `[LITELLM TEXT]` (launched in `v1.103.0-rc`; the gateway was updated recently, so it should be present). Clients call the gateway with a LiteLLM virtual key only; the TypeSafe key is set once on the proxy.
 
-### Step 1.1: Store the vendor key as a gateway secret
+### Step 1.1: Set the vendor key on the gateway
 
-Set `TYPESAFE_API_KEY` in the gateway's environment or secret store (the name LiteLLM's native provider is reported to read `[UNVERIFIED]`; using it for option B too means moving from B to A needs no secret change). Do not put it in `config.yaml`.
+Set `TYPESAFE_API_KEY` in the gateway's environment or secret store and restart or reload the proxy `[LITELLM TEXT]`. No `config.yaml` entry is described for the native route. Do not put the key in a config file or in this repository.
 
-Expected: `printenv TYPESAFE_API_KEY | wc -c` on the gateway process shows a non-zero length (never print the value).
+Expected: `printenv TYPESAFE_API_KEY | wc -c` in the gateway process shows a non-zero length (never print the value).
 
-### Step 1.2A: Native provider (preferred when available)
+### Step 1.2: Find the route prefix
 
-LiteLLM's provider list reportedly includes TypeSafe Jev (example model `typesafe/jev-latest`, routes `/v1/systemone` and `/v1/decisions`) `[UNVERIFIED]`. Follow the LiteLLM page `pass_through/typesafe` for the exact config entry of your version; do not copy a snippet from this guide.
-
-> **Important:** configure the route so requests carry the model id `jev-1.14.0`, not `jev-latest`. Our client rejects any response whose `model` differs from the one it asked for (`validate.py:32`), so a gateway that rewrites or aliases the model name will make every call fail with `model_mismatch`. If the gateway cannot return the pinned id, either relax the check deliberately in the client or use option B.
-
-### Step 1.2B: Generic pass-through (fallback)
-
-LiteLLM's generic pass-through lets the gateway forward a path to an upstream URL and attach the upstream key `[UNVERIFIED]` (shape from general knowledge; confirm field names in your version's docs):
-
-```yaml
-general_settings:
-  pass_through_endpoints:
-    - path: "/jev/v1/systemone"
-      target: "https://api.typesafe.ai/v1/systemone"
-      headers:
-        Authorization: "bearer os.environ/TYPESAFE_API_KEY"
-        content-type: "application/json"
-      auth: true            # require a LiteLLM virtual key on this route
-```
-
-Reload the gateway after editing (method depends on how it is deployed).
-
-### Step 1.3: Smoke-test from the gateway host
-
-Use any valid virtual key (Phase 2 creates a scoped one; a temporary admin key works for this one test). Replace `$ROUTE` with `/jev/v1/systemone` (B) or the native route (A):
+The native route is `<proxy>/typesafe/v1/systemone`; any path under `/typesafe/` is forwarded, so `GET <proxy>/typesafe/v1/models` lists the available models `[LITELLM TEXT]`. Our workspaces reach the gateway as `http://192.168.133.101:4000/cli`; whether `/cli` also fronts `/typesafe/...` is **unverified**. Use a free call to find out (a virtual key from Phase 2, or a temporary admin key):
 
 ```bash
-curl -sS "$GATEWAY$ROUTE" \
+GW=http://192.168.133.101:4000
+for pfx in /cli ""; do
+  printf '%s -> ' "$pfx"
+  curl -sS -o /dev/null -w '%{http_code}\n' -H "Authorization: Bearer $VIRTUAL_KEY" "$GW$pfx/typesafe/v1/models"
+done
+```
+
+Expected: one prefix returns 200. Use that prefix in `JEV_API_URL`: today the Coder template builds `http://192.168.133.101:4000/cli/typesafe/v1/systemone` (Coder PR #496); if only the empty prefix works, change `llm-env.tf` and test 60 together.
+
+### Step 1.3: Smoke-test the decision route
+
+Replace `$BASE` with the working prefix from Step 1.2. This uses synthetic data only:
+
+```bash
+curl -sS "$GW$BASE/typesafe/v1/systemone" \
   -H "Authorization: Bearer $VIRTUAL_KEY" -H "Content-Type: application/json" \
   -d '{"model":"jev-1.14.0","state":{"order":{"promised":"2026-01-10","arrived":"2026-01-12"}},
        "questions":{"arrived_late":{"type":"noul","instructions":"Did the order arrive after the promised date?",
        "criteria":{"true":"The arrival date is later than the promised date.","false":"The arrival date is on or before the promised date."}}}}'
 ```
 
-Expected: HTTP 200; JSON with `"model": "jev-1.14.0"` and an answer for `arrived_late` with a true probability near 1. Note the request uses synthetic data only.
+Expected: HTTP 200 and TypeSafe's own, unchanged response `[LITELLM TEXT]` with `"model": "jev-1.14.0"` and a `true` probability near 1. The LiteLLM example sends `"model": "jev-latest"`; our client pins `jev-1.14.0` instead and rejects any response whose `model` differs (`validate.py:32`). If your gateway returns a different id, stop and decide whether to relax that check deliberately.
+
+> **Note:** LiteLLM logs spend under the versioned model TypeSafe reports (`typesafe/jev-1.13.0` in its text, even for `jev-latest`) `[LITELLM TEXT]`; expect the log entry under whatever the vendor reports for the id you sent.
+
+### Fallback: generic pass-through
+
+Only if the native route is missing. LiteLLM's generic pass-through forwards a path to an upstream URL and attaches the key `[UNVERIFIED]` (confirm field names in your version's docs):
+
+```yaml
+general_settings:
+  pass_through_endpoints:
+    - path: "/typesafe/v1/systemone"
+      target: "https://api.typesafe.ai/v1/systemone"
+      headers:
+        Authorization: "bearer os.environ/TYPESAFE_API_KEY"
+        content-type: "application/json"
+      auth: true
+```
+
+Using the same `/typesafe/v1/systemone` path keeps `JEV_API_URL` unchanged.
 
 ### Phase 1 Verification Checkpoint
 - [ ] Gateway has `TYPESAFE_API_KEY` and no copy of the key exists in the repo or any workspace
-- [ ] The smoke test returned 200 with the pinned model id
+- [ ] `GET .../typesafe/v1/models` returned 200 on one prefix and the smoke test returned 200 with the pinned model id
 - [ ] A request with no `Authorization` header returns 401 or 403, not a Jev answer
 
 ---
@@ -166,7 +176,7 @@ Fields `key_alias`, `max_budget`, `budget_duration` and `metadata` are standard 
 
 ### Step 2.3: Check that spend is recorded
 
-Open the gateway's spend or request log for the key. Expected: the smoke-test request appears. For a pass-through route the cost may need a per-request cost setting to show non-zero `[UNVERIFIED]`; at about $0.00005 a call, budgets are better enforced by request count or an alert than by dollars.
+Open the gateway's spend or request log for the key. Expected: the smoke-test request appears, with cost tracked at $0.042 per 1M input tokens and logged under the versioned model TypeSafe reports `[LITELLM TEXT]`. At about $0.00005 a call, the dollar cap is rarely the binding limit; keep the alert thresholds from Step 2.0.
 
 ### Phase 2 Verification Checkpoint
 - [ ] Key exists with a budget and alias
@@ -183,12 +193,12 @@ Implemented in `IronbellyOrg/Coder` PR #496 (branch `jev-gateway-url-346`), foll
 
 | Variable | Set by | Value |
 |---|---|---|
-| `JEV_API_URL` | Template (`llm-env.tf`, `coder_env.jev_api_url`) for every workspace | `${local.litellm_base_url}${local.jev_api_route}` = `http://192.168.133.101:4000/cli/v1/systemone` today; never the vendor host |
+| `JEV_API_URL` | Template (`llm-env.tf`, `coder_env.jev_api_url`) for every workspace | `${local.litellm_base_url}${local.jev_api_route}` = `http://192.168.133.101:4000/cli/typesafe/v1/systemone` today (prefix to confirm, Step 1.2); never the vendor host |
 | `JEV_API_KEY` | The user, as a Coder secret: `printf %s "$JEV_API_KEY" \| coder secret create jev --env JEV_API_KEY` | the user's Jev virtual key from Phase 2 (a secret, never in the template) |
 
 > **Note:** `JEV_API_KEY` in a workspace is a gateway virtual key, not the vendor key. If it leaks, revoke it in the gateway (Phase 4 rollback); the vendor key is untouched. A user with no `jev` secret has the URL but no key, so the client refuses to call (`KeyMissing`): Jev is off per user by default.
 
-> **Important:** `jev_api_route` (`/v1/systemone`) must equal the route you configured in Phase 1. The path is unverified against the live gateway. If the gateway uses another path (for example `/jev/v1/systemone` from option B), change `jev_api_route` in `llm-env.tf` and the pin in contract test 60 together.
+> **Important:** `jev_api_route` is `/typesafe/v1/systemone` (LiteLLM's native route `[LITELLM TEXT]`). Whether the `/cli` prefix in `litellm_base_url` also fronts it is checked in Step 1.2. If only the unprefixed path works, change `llm-env.tf` (and the pin in contract test 60) in the same PR.
 
 ### Step 3.2: Client override (done)
 
@@ -226,12 +236,12 @@ Run the repo's key scan (`p15/jev/keyscan.py` in the experiment tree) over any d
 
 | Symptom | Cause | Solution |
 |---|---|---|
-| Client raises `model_mismatch` | The gateway returned a different model id (alias such as `jev-latest`) | Pin `jev-1.14.0` on the route, or use option B (Step 1.2) |
+| Client raises `model_mismatch` | The response `model` differs from the id sent (the LiteLLM text says the response is TypeSafe's own, so check what you sent and what the vendor lists at `GET .../typesafe/v1/models`) | Send an id the vendor lists; update `MODEL` in `config.py` only deliberately |
 | 401 or 403 from the route | Missing or revoked virtual key, or the route requires auth and the key lacks permission | Check the key in the admin UI; regenerate (Phase 2) |
-| 404 from the route | Route path differs from the one the client builds (option A route names vs option B `path`) | Align `JEV_API_URL` with the configured path exactly |
+| 404 from the route | Wrong prefix (`/cli` or none) or path | Re-run Step 1.2; align `JEV_API_URL` (and the Coder template) with the prefix that returns 200 |
 | 502/504 from the gateway | Gateway cannot reach `api.typesafe.ai` or the upstream timed out | Prerequisite 5; client timeout is 20 s with one retry (`config.py:10-12`) |
 | 400 from upstream | Request not accepted: positional option names, more than 255 options, or a malformed `state` | Client-side validation covers these (`questions.py:53-90`); reproduce with the Step 1.3 body |
-| Calls succeed but spend shows 0 | Pass-through cost is not computed by default `[UNVERIFIED]` | Use request counts or a per-request cost setting; see Step 2.3 |
+| Calls succeed but spend shows 0 | The LiteLLM text says cost is tracked ($0.042 per 1M input tokens); a zero means the call did not go through the native route | Confirm the URL uses `/typesafe/` and the proxy has `TYPESAFE_API_KEY`; see Step 2.3 |
 | Privacy-guard refusal in the client | Packet contained an owner name, home path or GitHub URL | Fix the packet; do not disable the guard |
 
 ---
@@ -260,6 +270,7 @@ Run the repo's key scan (`p15/jev/keyscan.py` in the experiment tree) over any d
 | Item | Value |
 |---|---|
 | Upstream | `https://api.typesafe.ai/v1/systemone`, bearer key |
+| Gateway route | `<proxy>/typesafe/v1/systemone` (list models: `GET <proxy>/typesafe/v1/models`) |
 | Model id | `jev-1.14.0` |
 | Gateway secret | `TYPESAFE_API_KEY` |
 | Workspace variables | `JEV_API_URL` (template, Coder PR #496), `JEV_API_KEY` (user's `jev` Coder secret, virtual key) |
@@ -268,12 +279,12 @@ Run the repo's key scan (`p15/jev/keyscan.py` in the experiment tree) over any d
 
 ## 10. Next Steps and open items
 
-- [ ] Confirm the LiteLLM version and the native Jev route against `docs.litellm.ai` (blocked for the authoring session; the gateway was updated recently).
+- [ ] Record the gateway's LiteLLM version (needs `v1.103.0` or later for native Jev `[LITELLM TEXT]`).
 - [x] Budget owner: Ryan Wiancko, company-wide.
 - [ ] Budget owner to set the monthly cap and alert thresholds (Step 2.0).
 - [x] `JEV_API_URL` override added to the client (Step 3.2).
 - [x] Coder template change: IronbellyOrg/Coder PR #496 (review and merge).
-- [ ] Verify the gateway route path against `jev_api_route` (Step 3.1).
+- [ ] Run Step 1.2 to confirm the `/cli` prefix before merging Coder PR #496.
 - [ ] Re-evaluate enabling Jev only after a seam passes a precision gate against independent labels.
 
 ## Document History
@@ -284,3 +295,4 @@ Run the repo's key scan (`p15/jev/keyscan.py` in the experiment tree) over any d
 | 2026-11-11 | 0.2 | Claude Code | Record recent LiteLLM update, company-wide budget owner, budget step |
 | 2026-11-11 | 0.3 | Claude Code | Client `JEV_API_URL` override implemented |
 | 2026-11-11 | 0.4 | Claude Code | Coder wiring implemented as template URL plus per-user secret (Coder PR #496) |
+| 2026-11-11 | 0.5 | Claude Code | Route corrected to LiteLLM's native `/typesafe/v1/systemone` from the owner-supplied LiteLLM text; prefix check added |
