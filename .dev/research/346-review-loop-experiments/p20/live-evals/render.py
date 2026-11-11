@@ -88,7 +88,7 @@ def panels(a):
         obj = {"schema": "review-panel/1", "template_id": p["id"].lower()[:32], "version": "1.0.0", "description": p["why"],
                "distinct_across_slots": True, "apply_to": ["first"], "slots": p["slots"]}
         (out / f"{p['id']}.panel.json").write_text(json.dumps(obj, indent=2))
-        if p.get("needs_t2b") and not a.t2b_models:
+        if p.get("needs_t2b") and not a.t2b_models and not (tiers and tiers["aliases"].get("tier2b", {}).get("models")):
             print(f"note: {p['id']} needs --t2b-models before it can resolve on the gateway")
     print(f"wrote {len(COMBOS['panels'])} panel templates to {out}; validate each with: superclaude review panel validate FILE")
 

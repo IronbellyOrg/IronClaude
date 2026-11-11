@@ -1,46 +1,387 @@
 {
-  "_comment": "Live eval design for the #346 review panel. Stage A profiles single models; Stage B screens panel compositions by simulation (simulate.py); Stage C confirms the shortlist end to end. Slots use the review-panel/1 vocabulary (tier, count, strategy); a slot may pin models with 'models' for the simulator and for eval-only tier files (render.py writes them). tier2b models (2026-11-11): gpt-6.1-terra, glm-5.3, Qwen3.8-max, muse-wonder-1.0; the gateway alias must exist before a t2b panel runs live.",
+  "_comment": "Live eval design for the #346 review panel. Stage A profiles single models; Stage B screens panel compositions by simulation (simulate.py); Stage C confirms the shortlist end to end. Slots use the review-panel/1 vocabulary (tier, count, strategy); a slot may pin models with 'models' for the simulator and for eval-only tier files (render.py writes them). Tier layout after issue 488 (2026-11-11): tier2b = gpt-6.1-terra, glm-5.3, Qwen3.8-max, muse-wonder-1.0; tier3 = glm-5.3, Qwen3.8-max; tier4 = gpt-6-luna, claude-haiku-5-5, grok-4.7. tier2b models: gpt-6.1-terra, glm-5.3, Qwen3.8-max, muse-wonder-1.0; the gateway alias must exist before a t2b panel runs live.",
   "models": [
-    {"id": "claude-sonnet-5-5",    "tiers": ["tier1a", "tier1b"], "stage_a": true},
-    {"id": "gpt-6.1-sol",          "tiers": ["tier1b", "tier2"],  "stage_a": true},
-    {"id": "muse-wonder-full-1.0", "tiers": ["tier1b"],           "stage_a": true},
-    {"id": "glm-5.3",              "tiers": ["tier2", "tier3"],   "stage_a": true},
-    {"id": "grok-4.7",             "tiers": ["tier2", "tier3"],   "stage_a": true},
-    {"id": "Qwen3.8-max",          "tiers": ["tier2", "tier3"],   "stage_a": true},
-    {"id": "muse-wonder-1.0",      "tiers": ["tier2", "tier3"],   "stage_a": true},
-    {"id": "muse-spark-1.3",       "tiers": ["tier2", "tier3"],   "stage_a": true},
-    {"id": "gpt-6.1-terra",        "tiers": ["tier3"],            "stage_a": true},
-    {"id": "gpt-6-luna",           "tiers": ["tier4"],            "stage_a": true},
-    {"id": "claude-haiku-5-5",     "tiers": [],                   "stage_a": true, "note": "bridge to every earlier experiment (the stand-in model); keep so live numbers can be compared with the Haiku data"},
-    {"id": "claude-opus-5-5",      "tiers": ["tier1a"],           "stage_a": false, "note": "optional, expensive; profile only if the owner approves"}
+    {
+      "id": "claude-sonnet-5-5",
+      "tiers": [
+        "tier1a",
+        "tier1b"
+      ],
+      "stage_a": true
+    },
+    {
+      "id": "gpt-6.1-sol",
+      "tiers": [
+        "tier1b",
+        "tier2"
+      ],
+      "stage_a": true
+    },
+    {
+      "id": "muse-wonder-full-1.0",
+      "tiers": [
+        "tier1b"
+      ],
+      "stage_a": true
+    },
+    {
+      "id": "glm-5.3",
+      "tiers": [
+        "tier2",
+        "tier2b",
+        "tier3"
+      ],
+      "stage_a": true
+    },
+    {
+      "id": "grok-4.7",
+      "tiers": [
+        "tier2",
+        "tier4"
+      ],
+      "stage_a": true
+    },
+    {
+      "id": "Qwen3.8-max",
+      "tiers": [
+        "tier2",
+        "tier2b",
+        "tier3"
+      ],
+      "stage_a": true
+    },
+    {
+      "id": "muse-wonder-1.0",
+      "tiers": [
+        "tier2",
+        "tier2b"
+      ],
+      "stage_a": true
+    },
+    {
+      "id": "muse-spark-1.3",
+      "tiers": [
+        "tier2"
+      ],
+      "stage_a": true
+    },
+    {
+      "id": "gpt-6.1-terra",
+      "tiers": [
+        "tier2b"
+      ],
+      "stage_a": true
+    },
+    {
+      "id": "gpt-6-luna",
+      "tiers": [
+        "tier4"
+      ],
+      "stage_a": true
+    },
+    {
+      "id": "claude-haiku-5-5",
+      "tiers": [
+        "tier4"
+      ],
+      "stage_a": true,
+      "note": "a real live Tier 4 model since the issue 488 layout (also the stand-in model in every earlier experiment, so live numbers compare directly with the Haiku data)"
+    },
+    {
+      "id": "claude-opus-5-5",
+      "tiers": [
+        "tier1a"
+      ],
+      "stage_a": false,
+      "note": "optional, expensive; profile only if the owner approves"
+    }
   ],
   "stage_a": {
     "reports_per_model": 3,
     "task": "first-round review of spec S1 (prompts/01-stage-a-reviewer.md), report only, no revision",
     "output": "one findings report per (model, rep); matcher maps findings to ledger defects D01-D44 (prompts/02-stage-a-matcher.md)",
-    "also_record": ["output tokens", "wall seconds", "the model id the gateway actually served (not the requested alias)"]
+    "also_record": [
+      "output tokens",
+      "wall seconds",
+      "the model id the gateway actually served (not the requested alias)"
+    ]
   },
   "panels": [
-    {"id": "C0-default4",        "why": "control: the packaged default panel", "slots": [
-      {"slot_id": "t1b", "tier": "tier1b", "count": 1, "strategy": "fixed"}, {"slot_id": "t2", "tier": "tier2", "count": 1, "strategy": "random"}, {"slot_id": "t3", "tier": "tier3", "count": 2, "strategy": "random"}]},
-    {"id": "C1-live7",           "why": "the requested live panel", "needs_t2b": true, "slots": [
-      {"slot_id": "t1b", "tier": "tier1b", "count": 1, "strategy": "fixed"}, {"slot_id": "t2", "tier": "tier2", "count": 1, "strategy": "random"}, {"slot_id": "t2b", "tier": "tier2b", "count": 1, "strategy": "random"}, {"slot_id": "t3", "tier": "tier3", "count": 2, "strategy": "random"}, {"slot_id": "t4", "tier": "tier4", "count": 2, "strategy": "random"}]},
-    {"id": "C2-live7-no-t4",     "why": "is the weak budget tier worth its two slots?", "needs_t2b": true, "slots": [
-      {"slot_id": "t1b", "tier": "tier1b", "count": 1, "strategy": "fixed"}, {"slot_id": "t2", "tier": "tier2", "count": 1, "strategy": "random"}, {"slot_id": "t2b", "tier": "tier2b", "count": 1, "strategy": "random"}, {"slot_id": "t3", "tier": "tier3", "count": 2, "strategy": "random"}]},
-    {"id": "C3-t4-to-t3",        "why": "same size as live7, the two t4 slots become t3", "needs_t2b": true, "slots": [
-      {"slot_id": "t1b", "tier": "tier1b", "count": 1, "strategy": "fixed"}, {"slot_id": "t2", "tier": "tier2", "count": 1, "strategy": "random"}, {"slot_id": "t2b", "tier": "tier2b", "count": 1, "strategy": "random"}, {"slot_id": "t3", "tier": "tier3", "count": 4, "strategy": "random"}]},
-    {"id": "C4-wide-t3",         "why": "all parallel reviewers from tier 3", "slots": [
-      {"slot_id": "t1b", "tier": "tier1b", "count": 1, "strategy": "fixed"}, {"slot_id": "t3", "tier": "tier3", "count": 4, "strategy": "random"}]},
-    {"id": "C5-second-frontier", "why": "a second frontier reviewer (random tier 1b) instead of a t4 pair", "slots": [
-      {"slot_id": "t1b", "tier": "tier1b", "count": 1, "strategy": "fixed"}, {"slot_id": "f2", "tier": "tier1b", "count": 1, "strategy": "random"}, {"slot_id": "t2", "tier": "tier2", "count": 1, "strategy": "random"}, {"slot_id": "t3", "tier": "tier3", "count": 2, "strategy": "random"}]},
-    {"id": "C6-frontier-heavy",  "why": "cost-matched to 3 Sonnet + 3 cheap (the pn1m shape): three frontier plus three cheap", "slots": [
-      {"slot_id": "t1b", "tier": "tier1b", "count": 1, "strategy": "fixed"}, {"slot_id": "f2", "tier": "tier1b", "count": 2, "strategy": "random"}, {"slot_id": "t2", "tier": "tier2", "count": 1, "strategy": "random"}, {"slot_id": "t3", "tier": "tier3", "count": 2, "strategy": "random"}]},
-    {"id": "C7-wide8",           "why": "maximum width the schema allows", "needs_t2b": true, "slots": [
-      {"slot_id": "t1b", "tier": "tier1b", "count": 1, "strategy": "fixed"}, {"slot_id": "t2", "tier": "tier2", "count": 1, "strategy": "random"}, {"slot_id": "t2b", "tier": "tier2b", "count": 1, "strategy": "random"}, {"slot_id": "t3", "tier": "tier3", "count": 3, "strategy": "random"}, {"slot_id": "t4", "tier": "tier4", "count": 2, "strategy": "random"}]},
-    {"id": "C8-minimal",         "why": "cheapest credible panel", "slots": [
-      {"slot_id": "t1b", "tier": "tier1b", "count": 1, "strategy": "fixed"}, {"slot_id": "t3", "tier": "tier3", "count": 2, "strategy": "random"}]},
-    {"id": "C9-t2-wide",         "why": "tier 2 only for the parallel reviewers", "slots": [
-      {"slot_id": "t1b", "tier": "tier1b", "count": 1, "strategy": "fixed"}, {"slot_id": "t2", "tier": "tier2", "count": 4, "strategy": "random"}]}
+    {
+      "id": "C0-default4",
+      "why": "control: the packaged default panel",
+      "slots": [
+        {
+          "slot_id": "t1b",
+          "tier": "tier1b",
+          "count": 1,
+          "strategy": "fixed"
+        },
+        {
+          "slot_id": "t2",
+          "tier": "tier2",
+          "count": 1,
+          "strategy": "random"
+        },
+        {
+          "slot_id": "t3",
+          "tier": "tier3",
+          "count": 2,
+          "strategy": "random"
+        }
+      ]
+    },
+    {
+      "id": "C1-live7",
+      "why": "the requested live panel",
+      "needs_t2b": true,
+      "slots": [
+        {
+          "slot_id": "t1b",
+          "tier": "tier1b",
+          "count": 1,
+          "strategy": "fixed"
+        },
+        {
+          "slot_id": "t2",
+          "tier": "tier2",
+          "count": 1,
+          "strategy": "random"
+        },
+        {
+          "slot_id": "t2b",
+          "tier": "tier2b",
+          "count": 1,
+          "strategy": "random"
+        },
+        {
+          "slot_id": "t3",
+          "tier": "tier3",
+          "count": 2,
+          "strategy": "random"
+        },
+        {
+          "slot_id": "t4",
+          "tier": "tier4",
+          "count": 2,
+          "strategy": "random"
+        }
+      ]
+    },
+    {
+      "id": "C2-live7-no-t4",
+      "why": "is the weak budget tier worth its two slots?",
+      "needs_t2b": true,
+      "slots": [
+        {
+          "slot_id": "t1b",
+          "tier": "tier1b",
+          "count": 1,
+          "strategy": "fixed"
+        },
+        {
+          "slot_id": "t2",
+          "tier": "tier2",
+          "count": 1,
+          "strategy": "random"
+        },
+        {
+          "slot_id": "t2b",
+          "tier": "tier2b",
+          "count": 1,
+          "strategy": "random"
+        },
+        {
+          "slot_id": "t3",
+          "tier": "tier3",
+          "count": 2,
+          "strategy": "random"
+        }
+      ]
+    },
+    {
+      "id": "C3-t4-to-t2",
+      "why": "same size as live7, the two t4 slots become t2 (tier3 now holds only two models, so extra t3 slots would repeat)",
+      "needs_t2b": true,
+      "slots": [
+        {
+          "slot_id": "t1b",
+          "tier": "tier1b",
+          "count": 1,
+          "strategy": "fixed"
+        },
+        {
+          "slot_id": "t2",
+          "tier": "tier2",
+          "count": 3,
+          "strategy": "random"
+        },
+        {
+          "slot_id": "t2b",
+          "tier": "tier2b",
+          "count": 1,
+          "strategy": "random"
+        },
+        {
+          "slot_id": "t3",
+          "tier": "tier3",
+          "count": 2,
+          "strategy": "random"
+        }
+      ]
+    },
+    {
+      "id": "C4-wide-t2b",
+      "why": "all parallel reviewers from tier 2b (four distinct models)",
+      "slots": [
+        {
+          "slot_id": "t1b",
+          "tier": "tier1b",
+          "count": 1,
+          "strategy": "fixed"
+        },
+        {
+          "slot_id": "t2b",
+          "tier": "tier2b",
+          "count": 4,
+          "strategy": "random"
+        }
+      ],
+      "needs_t2b": true
+    },
+    {
+      "id": "C5-second-frontier",
+      "why": "a second frontier reviewer (random tier 1b) instead of a t4 pair",
+      "slots": [
+        {
+          "slot_id": "t1b",
+          "tier": "tier1b",
+          "count": 1,
+          "strategy": "fixed"
+        },
+        {
+          "slot_id": "f2",
+          "tier": "tier1b",
+          "count": 1,
+          "strategy": "random"
+        },
+        {
+          "slot_id": "t2",
+          "tier": "tier2",
+          "count": 1,
+          "strategy": "random"
+        },
+        {
+          "slot_id": "t3",
+          "tier": "tier3",
+          "count": 2,
+          "strategy": "random"
+        }
+      ]
+    },
+    {
+      "id": "C6-frontier-heavy",
+      "why": "cost-matched to 3 Sonnet + 3 cheap (the pn1m shape): three frontier plus three cheap",
+      "slots": [
+        {
+          "slot_id": "t1b",
+          "tier": "tier1b",
+          "count": 1,
+          "strategy": "fixed"
+        },
+        {
+          "slot_id": "f2",
+          "tier": "tier1b",
+          "count": 2,
+          "strategy": "random"
+        },
+        {
+          "slot_id": "t2",
+          "tier": "tier2",
+          "count": 1,
+          "strategy": "random"
+        },
+        {
+          "slot_id": "t3",
+          "tier": "tier3",
+          "count": 2,
+          "strategy": "random"
+        }
+      ]
+    },
+    {
+      "id": "C7-wide8",
+      "why": "maximum width the schema allows; every pool large enough for distinct draws (t3 has two models, t4 three)",
+      "needs_t2b": true,
+      "slots": [
+        {
+          "slot_id": "t1b",
+          "tier": "tier1b",
+          "count": 1,
+          "strategy": "fixed"
+        },
+        {
+          "slot_id": "t2",
+          "tier": "tier2",
+          "count": 1,
+          "strategy": "random"
+        },
+        {
+          "slot_id": "t2b",
+          "tier": "tier2b",
+          "count": 1,
+          "strategy": "random"
+        },
+        {
+          "slot_id": "t3",
+          "tier": "tier3",
+          "count": 2,
+          "strategy": "random"
+        },
+        {
+          "slot_id": "t4",
+          "tier": "tier4",
+          "count": 3,
+          "strategy": "random"
+        }
+      ]
+    },
+    {
+      "id": "C8-minimal",
+      "why": "cheapest credible panel",
+      "slots": [
+        {
+          "slot_id": "t1b",
+          "tier": "tier1b",
+          "count": 1,
+          "strategy": "fixed"
+        },
+        {
+          "slot_id": "t3",
+          "tier": "tier3",
+          "count": 2,
+          "strategy": "random"
+        }
+      ]
+    },
+    {
+      "id": "C9-t2-wide",
+      "why": "tier 2 only for the parallel reviewers",
+      "slots": [
+        {
+          "slot_id": "t1b",
+          "tier": "tier1b",
+          "count": 1,
+          "strategy": "fixed"
+        },
+        {
+          "slot_id": "t2",
+          "tier": "tier2",
+          "count": 4,
+          "strategy": "random"
+        }
+      ]
+    }
   ],
   "stage_b": {
     "tool": "simulate.py",
