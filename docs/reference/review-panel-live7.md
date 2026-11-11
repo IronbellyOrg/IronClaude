@@ -10,7 +10,7 @@ Issue #346. This page records the panel shape for the live gateway, the `tier2b`
 | `t2` | `tier2` | 1 | random | parallel reviewer |
 | `t2b` | `tier2b` | 1 | random | parallel reviewer |
 | `t3` | `tier3` | 2 | random | parallel reviewers |
-| `t4` | `tier4` | 2 | random | parallel reviewers (the tier lists one model, so both draws are that model) |
+| `t4` | `tier4` | 2 | random | parallel reviewers drawn from GPT-6 Luna, Claude Haiku 5.5 and Grok 4.7 (`distinct_across_slots` keeps the two draws different) |
 
 Seven reviewers, one Sonnet anchor and six parallel. The file is `src/superclaude/cli/review/data/review-panel.live7.json`; the packaged default panel (4 reviewers) is unchanged.
 
@@ -31,7 +31,7 @@ Pooled over both batches the extra Haiku reviewers add about 3 fixed defects per
 
 Tier 3 is now only GLM 5.3 and Qwen 3.8 Max, and Tier 4 is GPT-6 Luna, Claude Haiku 5.5 and Grok 4.7 (issue 488 layout). `tier2b` adds Terra and Muse Wonder 1.0 beyond what `t3` can draw; with `distinct_across_slots` the draws still differ where the pools allow. Whether the slot earns its place is a question for the live evals.
 
-Before the panel works on the gateway, the alias must exist there: add `claude-gw-tier2b` to the LiteLLM model list and to the Coder env slots, and add Tier 2b to `src/superclaude/skills/ccsession-tag/MODEL-TIERS.md` and `ccsession-models.json` (those three change together). Not done by this change.
+No LiteLLM gateway entry is needed: the `claude-gw-*` aliases are built in the workspace by the ccsession shim (`local-gateway-alias-proxy.py`) from `ccsession-models.json` on master and the workspace's `T<N>Model0M` env slots. This change adds Tier 2b to `MODEL-TIERS.md` and `ccsession-models.json`; the workspace needs the Coder central defaults that carry the Tier 2b slots (20261110-1 or later), and the gateway must serve the real model ids listed above.
 
 A tier can still be declared as a placeholder (`"placeholder": true` with an empty `models` list): it validates, takes the environment's stand-in where one exists, and otherwise fails closed with `no model available for <tier> (placeholder tier: ...)`.
 
@@ -39,7 +39,7 @@ A tier can still be declared as a placeholder (`"placeholder": true` with an emp
 
 ```bash
 superclaude review panel resolve --template @live7 --env anthropic-only --run-id demo
-superclaude review panel resolve --template @live7 --env gateway --run-id demo   # seven reviewers; needs the tier2b alias on the gateway to run
+superclaude review panel resolve --template @live7 --env gateway --run-id demo   # seven reviewers; needs the Tier 2b slots in the workspace to run
 ```
 
 `@NAME` selects a packaged template `review-panel.NAME.json`. `SUPERCLAUDE_REVIEW_PANEL=@live7` does the same for every review command, and a project file `.superclaude/review-panel.json` still takes precedence over the packaged default as before.
