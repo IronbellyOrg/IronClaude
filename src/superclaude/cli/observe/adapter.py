@@ -179,6 +179,18 @@ def _kill_group(proc: subprocess.Popen) -> None:
         pass
 
 
+_ACTIVE: set = set()  # Popen objects of in-flight production_runner calls
+_ACTIVE_LOCK = threading.Lock()
+
+
+def cancel_active() -> None:
+    """Kill and reap every in-flight Orca call (the observer is quitting)."""
+    with _ACTIVE_LOCK:
+        procs = list(_ACTIVE)
+    for proc in procs:
+        _kill_group(proc)
+
+
 def production_runner(argv: list, timeout: float) -> tuple[int, str, str]:
     """Run ``argv`` with no shell, in its own session; return (returncode, stdout, stderr).
 
@@ -196,7 +208,16 @@ def production_runner(argv: list, timeout: float) -> tuple[int, str, str]:
         )
     except OSError as exc:
         raise RunnerFailure("spawn-error", str(exc)) from exc
+    with _ACTIVE_LOCK:
+        _ACTIVE.add(proc)  # so ``cancel_active`` can reap it when the observer quits
+    try:
+        return _drive(proc, timeout)
+    finally:
+        with _ACTIVE_LOCK:
+            _ACTIVE.discard(proc)
 
+
+def _drive(proc: subprocess.Popen, timeout: float) -> tuple[int, str, str]:
     out_chunks: list[bytes] = []
     err_chunks: list[bytes] = []
     state = {"out": 0, "err": 0, "overflow": False}
@@ -305,7 +326,13 @@ class LiveSource:
         self._discover = discover
         self.per_call_timeout = per_call_timeout
         self._discovered = False
+        self._cancelled = threading.Event()
         self.orca: str | None = None
+
+    def cancel(self) -> None:
+        """Stop reading for good: no further call starts and an in-flight one is killed."""
+        self._cancelled.set()
+        cancel_active()
 
     def discover(self) -> bool:
         """Run binary discovery once; True when a validated Orca CLI was found."""
@@ -346,7 +373,7 @@ class LiveSource:
         calls = 0
         while True:
             remaining = budget_deadline - clock.monotonic()
-            if remaining <= 0:
+            if remaining <= 0 or self._cancelled.is_set():
                 return self._stop(pages, "overrun", "", calls)
             try:
                 argv = build_argv(self.orca, run_id, cursor)

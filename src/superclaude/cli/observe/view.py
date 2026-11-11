@@ -58,8 +58,9 @@ KEYS_LINE = "Up/Down j/k move  Enter detail  Esc back  / filter  h historical  m
 FROZEN_MARKER = "FROZEN"  # fixture mode only; no other state overrides it (T34)
 INSPECTOR_TITLE = "INSPECTOR"
 INSPECTOR_HELP = "Esc back  j/k move  d/u scroll  e export  q quit"
-INSPECTOR_ABOVE_TEXT = "{n} fields above (u)"
-INSPECTOR_BELOW_TEXT = "{n} more fields below (d)"
+INSPECTOR_ABOVE_TEXT = "{n} lines above (u)"
+INSPECTOR_BELOW_TEXT = "{n} more lines below (d)"
+INSPECTOR_SCROLL_STEP = 3  # lines per d/u press
 NO_MATCH_TEXT = "no rows match the filter or the historical setting"
 SOURCE_COUNT_KEYS = ("active", "reclaimable", "retained", "released")
 UNAVAILABLE_FACTS = ("report status", "acceptance", "tests", "approval")
@@ -719,6 +720,15 @@ def _move(session: Session, view: View, step: int) -> Session:
     )
 
 
+def inspector_line_bound(fields: tuple[tuple[str, str], ...]) -> int:
+    """An upper bound on the wrapped inspector lines at the narrowest width (80 columns).
+
+    The view knows no width, so the scroll limit uses this; the renderer clamps to the real
+    count, so an overshoot only costs a press or two of ``u`` at the end.
+    """
+    return sum(-(-(len(label) + 2 + len(value)) // 60) or 1 for label, value in fields)
+
+
 def _filter_key(session: Session, key: Key) -> Session:
     if key.name == "text":
         return replace(session, filter_text=session.filter_text + key.char)
@@ -745,8 +755,9 @@ def apply_key(
     if name == "down" or char == "j":
         return _move(session, view, 1), Effect.NONE
     if inspecting and char in ("d", "u") and view.inspector:
-        top = session.inspector_scroll + (1 if char == "d" else -1)
-        top = min(max(top, 0), len(view.inspector) - 1)
+        step = INSPECTOR_SCROLL_STEP if char == "d" else -INSPECTOR_SCROLL_STEP
+        top = session.inspector_scroll + step
+        top = min(max(top, 0), max(inspector_line_bound(view.inspector) - 1, 0))
         return replace(session, inspector_scroll=top), Effect.NONE
     if char == "q":
         return replace(session), Effect.QUIT

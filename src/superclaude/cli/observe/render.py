@@ -243,40 +243,38 @@ def _header_lines(columns: list[tuple[str, int]], policy: TerminalPolicy) -> lis
 
 
 def _inspector_lines(view: View, policy: TerminalPolicy, budget: int) -> list[str]:
-    """The title, then whole fields from ``view.inspector_scroll`` on while they fit ``budget`` lines.
+    """The title, then the field lines from ``view.inspector_scroll`` on, never more than ``budget`` lines.
 
-    Hidden fields are counted in an "above" and a "below" line, so every field stays reachable (d/u).
+    The scroll is in wrapped lines, so a field taller than the screen is still readable (d/u);
+    "above" and "below" lines count what is hidden and are inside the budget.
     """
     selected = view.selected
     title = f"{INSPECTOR_TITLE}  {selected.dispatch_id if selected else ''}"
     lines = wrap(title, policy.width, policy)
-    blocks: list[list[str]] = []
+    body: list[str] = []
     for label, value in view.inspector or ():
         first, *rest = wrap(f"{label}: {value}", policy.width, policy)
-        block = [first]
+        body.append(first)
         for continuation in rest:  # continuation lines are indented two cells
-            block.extend(
+            body.extend(
                 "  " + part
                 for part in wrap(continuation, max(policy.width - 2, 1), policy)
             )
-        blocks.append(block)
-    start = min(max(view.inspector_scroll, 0), max(len(blocks) - 1, 0))
+    room = max(budget - len(lines), 1)
+    # never scroll past the point where the last line is on screen under an "above" line
+    start = min(max(view.inspector_scroll, 0), max(len(body) - max(room - 1, 1), 0))
+    space = room - (1 if start else 0)
+    if len(body) - start <= space:
+        shown, below = body[start:], 0
+    else:
+        take = max(space - 1, 1)  # one line kept for the "below" text
+        shown, below = body[start : start + take], len(body) - start - take
     if start:
         lines += wrap(INSPECTOR_ABOVE_TEXT.format(n=start), policy.width, policy)
-    room = budget - len(lines)
-    shown = 0
-    for index, block in enumerate(blocks[start:], start):
-        last = index == len(blocks) - 1
-        need = len(block) + (0 if last else 1)  # keep one line for the "below" text
-        if shown and need > room:
-            break
-        lines += block
-        room -= len(block)
-        shown += 1
-    hidden = len(blocks) - start - shown
-    if hidden:
-        lines += wrap(INSPECTOR_BELOW_TEXT.format(n=hidden), policy.width, policy)
-    return lines
+    lines += shown
+    if below:
+        lines += wrap(INSPECTOR_BELOW_TEXT.format(n=below), policy.width, policy)
+    return lines[: max(budget, 1)]
 
 
 def _notes(view: View) -> list[str]:

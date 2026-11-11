@@ -249,6 +249,9 @@ class Collector:
 
     def stop(self) -> None:
         self._stop.set()
+        cancel = getattr(self._source, "cancel", None)
+        if cancel is not None:
+            cancel()  # kill an in-flight Orca call so quitting never leaves it running
         thread = self._thread
         if thread is not None:
             thread.join(timeout=JOIN_TIMEOUT)
