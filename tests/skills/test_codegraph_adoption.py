@@ -246,3 +246,49 @@ def test_reflect_envelope_names_bash():
 def test_reflect_commands_mcp_servers_gain_codegraph(path):
     line = next(ln for ln in _text(path).splitlines() if ln.startswith("mcp-servers:"))
     assert "codegraph" in line
+
+
+_ISSUE_504_COMMANDS = [
+    _SRC / "commands" / name
+    for name in ("analyze.md", "design.md", "implement.md", "workflow.md")
+]
+_ISSUE_504_SKILLS = [
+    _SRC / "skills" / "sc-implement-protocol" / "SKILL.md",
+    _SRC / "skills" / "sc-workflow-protocol" / "SKILL.md",
+]
+
+
+@pytest.mark.parametrize("path", _ISSUE_504_COMMANDS, ids=_rel)
+def test_issue_504_commands_list_codegraph_and_one_readiness_check(path):
+    """analyze, design, implement and workflow gained codegraph (issue #504)."""
+    text = _text(path)
+    line = next(ln for ln in text.splitlines() if ln.startswith("mcp-servers:"))
+    assert "codegraph" in line, f"{_rel(path)} mcp-servers lacks codegraph"
+    assert "index_state" in text and "fresh" in text, (
+        f"{_rel(path)} lacks fresh-only rule"
+    )
+
+
+@pytest.mark.parametrize("path", _ISSUE_504_SKILLS, ids=_rel)
+def test_issue_504_skills_allow_the_codegraph_tools_and_pass_run_state(path):
+    text = _text(path)
+    front = text.split("---", 2)[1]
+    allowed = re.search(r"^allowed-tools:\s*(.*)$", front, re.M).group(1)
+    for tool in ("status", "search", "node", "callers", "callees", "impact"):
+        assert f"mcp__codegraph__codegraph_{tool}" in allowed, (
+            f"{_rel(path)} lacks {tool}"
+        )
+    for field in _STATE_FIELDS:
+        assert field in text, f"{_rel(path)} does not mention {field}"
+
+
+def test_workflow_command_plugin_mirror_matches_src():
+    src = _SRC / "commands" / "workflow.md"
+    assert _text(src) == _text(_PLUGIN / "commands" / "workflow.md")
+
+
+def test_analyze_gates_codegraph_on_access_as_well_as_index_state():
+    """A fresh index with access cli or none must not reach codegraph_files (PR 511)."""
+    text = _text(_SRC / "commands" / "analyze.md")
+    assert "`access: mcp`" in text
+    assert "`access: none`" in text and "Glob, Grep and Read" in text

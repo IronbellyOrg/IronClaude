@@ -3,7 +3,7 @@ name: analyze
 description: "Comprehensive code analysis across quality, security, performance, and architecture domains"
 category: utility
 complexity: basic
-mcp-servers: []
+mcp-servers: [codegraph]
 personas: []
 ---
 
@@ -27,11 +27,13 @@ personas: []
 
 ## Behavioral Flow
 
-1. **Discover**: Categorize source files using language detection and project analysis
-2. **Scan**: Apply domain-specific analysis techniques and pattern matching
-3. **Evaluate**: Generate prioritized findings with severity ratings and impact assessment
+Before step 1, run the codegraph readiness check exactly once per run, as section 2 of `~/.claude/CODEGRAPH.md` describes. Keep `index_state`, `access`, `checked_at` and `worktree_root` for the whole run and do not repeat the check. Below, "`index_state: fresh`" means `index_state: fresh` with `access: mcp` (the lookup tools are listed); with `access: cli` or `access: none` every step stays on Glob, Grep and Read, and no codegraph tool, including `codegraph_files`, is called.
+
+1. **Discover**: Categorize source files using language detection and project analysis. When `index_state: fresh`, first call `codegraph_files {format:"grouped", maxDepth:2}` for the layout and `codegraph_search` to locate the target's symbols
+2. **Scan**: Apply domain-specific analysis techniques and pattern matching. When `index_state: fresh`, first call `codegraph_node` (symbol body with `includeCode:true`, file outline with `symbolsOnly:true`), `codegraph_callers` and `codegraph_callees` for call paths (security: entry points to sinks; performance: hot-path callers)
+3. **Evaluate**: Generate prioritized findings with severity ratings and impact assessment. When `index_state: fresh`, use `codegraph_impact` and `codegraph_callers` as dependency and blast-radius evidence for architecture and quality findings (dead-code candidates are leads only)
 4. **Recommend**: Create actionable recommendations with implementation guidance
-5. **Report**: Present comprehensive analysis with metrics and improvement roadmap
+5. **Report**: Present comprehensive analysis with metrics and improvement roadmap, with one line `Codegraph: index_state=<state>, checked_at=<UTC>; degraded: <graph:* tokens or none>` (a missing or stale graph leaves the run succeeded once the report is written)
 
 Key behaviors:
 
@@ -47,6 +49,7 @@ Key behaviors:
 - **Read**: Source code inspection and configuration analysis
 - **Bash**: External analysis tool execution and validation
 - **Write**: Report generation and metrics documentation
+- **codegraph** (`mcp__codegraph__codegraph_status` once; then `_search`, `_node`, `_callers`, `_callees`, `_impact`, `_files`): used only when `index_state: fresh`, always before the matching Glob/Grep/Read step, which stays the floor
 
 ## Key Patterns
 
@@ -54,6 +57,17 @@ Key behaviors:
 - **Pattern Recognition**: Language detection → appropriate analysis techniques
 - **Severity Assessment**: Issue classification → prioritized recommendations
 - **Report Generation**: Analysis results → structured documentation
+
+## Codegraph (optional)
+
+Full rules: `~/.claude/CODEGRAPH.md` (read it when you use codegraph). This section is the short form for `/sc:analyze`.
+
+- **Readiness**: the single check named before step 1 of the Behavioral Flow; never repeat it. `SUPERCLAUDE_CODEGRAPH_PRIMITIVES=off` means `graph:disabled`.
+- **Use only when `index_state: fresh` and `access: mcp`.** Otherwise continue on Glob, Grep and Read, add the matching `graph:*` token to the report's Codegraph line, and go on: never halt, never ask. A missing, stale or failing graph never fails the run (it is succeeded once the report is written).
+- **Leads, not citations**: re-Read a `file:line` before citing it; an empty result is not a "no callers" finding; caller rows give the definition line, so confirm the call site (guide section 5) before citing; a caller list shorter than its total is `graph:truncated`.
+- **Read-only**: never run `codegraph init`, `index`, `sync`, `explore` or `context`.
+- **Names**: exact tool names `mcp__codegraph__codegraph_<tool>`, with `projectPath` set to `worktree_root` on every call.
+- **Subagents** (if the run fans out): the brief carries `index_state`, `checked_at` and `worktree_root`; they call codegraph only when `index_state: fresh`.
 
 ## Examples
 

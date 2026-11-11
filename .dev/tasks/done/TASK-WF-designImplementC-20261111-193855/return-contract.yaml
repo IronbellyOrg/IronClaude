@@ -1,0 +1,14 @@
+contract_version: "1.1"
+status: success
+slug: TASK-WF-designImplementC-20261111-193855
+plan_path: ./TASK-WF-designImplementC-20261111-193855.md
+source_path: ./source.md
+source_origin: .dev/issues/504/design-implement-codegraph.md
+strategy: systematic
+depth: quick
+handoff_action: none
+handoff_output_path: null
+reflect_status: partial
+reflect_report_path: /home/coder/workspaces/worktrees/IronClaude/issue-504/.dev/reflect/pre-designImplementC-20261111194010/REPORT.md
+unresolved:
+  - "reflect ran as one orchestrator-only Tier 1 pass (no reviewer ensemble, calibrator or evidence-validator), so reflect_status is partial"

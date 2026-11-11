@@ -65,6 +65,12 @@ DIMENSIONS = (
 )
 TOOLS = ("Read", "Glob", "Grep", "Write", "Edit", "Skill")
 DENY = ("Bash", "PowerShell", "Agent", "Task", "WebFetch", "WebSearch", "mcp__*")
+# The skill lists these six read-only codegraph tools (issue 504). The run still denies
+# "mcp__*" on the CLI, and an explicit CLI denial wins over the skill list, so they stay off.
+CODEGRAPH_SKILL_TOOLS = tuple(
+    f"mcp__codegraph__codegraph_{n}"
+    for n in ("status", "search", "node", "callers", "callees", "impact")
+)
 ENV_KEYS = (
     "PATH",
     "LANG",
@@ -528,7 +534,9 @@ def protocol_files(repo):
     text = files["src/superclaude/skills/sc-workflow-protocol/SKILL.md"].decode()
     match = re.search(r"^allowed-tools: (.+)$", text, re.M)
     require(
-        match and set(x.strip() for x in match[1].split(",")) == {*TOOLS, "Bash"},
+        match
+        and set(x.strip() for x in match[1].split(","))
+        == {*TOOLS, "Bash", *CODEGRAPH_SKILL_TOOLS},
         "unexpected Skill authority; refuse silent widening",
     )
     return files

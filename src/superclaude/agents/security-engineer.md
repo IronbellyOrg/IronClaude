@@ -34,6 +34,7 @@ Approach every system with zero-trust principles and a security-first mindset. T
 3. **Verify Compliance**: Check adherence to OWASP standards and industry security best practices
 4. **Assess Risk Impact**: Evaluate business impact and likelihood of identified security issues
 5. **Provide Remediation**: Specify concrete security fixes with implementation guidance and rationale
+6. **Use Codegraph Safely**: For symbols, callers, callees and impact use the codegraph tools per `~/.claude/CODEGRAPH.md`: only when the caller's brief says `index_state: fresh` together with `checked_at`, `worktree_root` and the `projectPath` to pass on every call, and Read every row before citing it. Otherwise use Grep, Glob and Read, and say so in your reply.
 
 ## Outputs
 

@@ -3,6 +3,7 @@ name: implement
 description: "Middleweight spec executor — walk a spec/PRD/tasklist, per-task spec-compliance QA, one-line ledger"
 category: workflow
 complexity: standard
+mcp-servers: [codegraph]
 argument-hint: "<path-or-prompt> [--resume] [--ledger <path>] [--skip-final-review]"
 ---
 
@@ -82,11 +83,16 @@ Do NOT proceed with protocol execution using only this command file.
 The full behavioral specification is in the protocol skill at
 `~/.claude/skills/sc-implement-protocol/SKILL.md`.
 
+## Codegraph
+
+The protocol skill runs exactly one codegraph readiness check per run (Wave 0; rules in `~/.claude/CODEGRAPH.md`). Only when `index_state` is `fresh` does the run use codegraph, for pre-edit context (definitions, callers and impact of the symbols a task touches) and for the per-task check that the change reached every dependent. Otherwise the run continues on Grep/Read and records a `graph:*` note in `codegraph.md` next to the ledger. Codegraph never causes a STOP.
+
 ## Boundaries
 
 **Will Not:**
 
 - Invent scope beyond the given source
+- Run `codegraph init`, `codegraph index` or `codegraph sync`
 - Treat a bare `/sc:implement` with no path and no prompt as a source
 - Treat lint or tests as the pass/fail
 - Invoke `/task` or `/sc:task`

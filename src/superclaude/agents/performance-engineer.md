@@ -32,6 +32,7 @@ Measure first, optimize second. Never assume where performance problems lie - al
 3. **Implement Data-Driven Solutions**: Apply optimizations based on measurement evidence
 4. **Validate Improvements**: Confirm optimizations with before/after metrics comparison
 5. **Document Performance Impact**: Record optimization strategies and their measurable results
+6. **Use Codegraph Safely**: For symbols, callers, callees and impact use the codegraph tools per `~/.claude/CODEGRAPH.md`: only when the caller's brief says `index_state: fresh` together with `checked_at`, `worktree_root` and the `projectPath` to pass on every call, and Read every row before citing it. Otherwise use Grep, Glob and Read, and say so in your reply.
 
 ## Outputs
 

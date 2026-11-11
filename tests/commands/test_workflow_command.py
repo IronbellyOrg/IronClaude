@@ -60,9 +60,9 @@ def test_skill_and_five_refs_exist():
         assert (_SKILL / "refs" / name).is_file(), name
 
 
-def test_mcp_servers_empty():
+def test_mcp_servers_codegraph_only():
     text = _CMD.read_text(encoding="utf-8")
-    assert "mcp-servers: []" in text
+    assert "mcp-servers: [codegraph]" in text
     assert "morphllm" not in text
 
 

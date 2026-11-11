@@ -1,0 +1,1 @@
+Add the shared codegraph rule (use codegraph only when the caller passes index_state: fresh with checked_at, worktree_root and projectPath; otherwise Grep/Glob/Read) to the ten general-purpose agent files listed in .dev/issues/504/issue-summary.md, following the wording in troubleshoot-analyst.md, reflect-reviewer.md, reuse-auditor.md and auggie-reviewer.md

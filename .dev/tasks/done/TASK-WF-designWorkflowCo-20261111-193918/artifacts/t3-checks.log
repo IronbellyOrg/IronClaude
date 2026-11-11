@@ -1,0 +1,35 @@
+## cmp mirrors
+cmp command: identical
+cmp skill: identical
+## make sync-dev
+   Skills:    39 directories
+   Agents:    48 files
+   Commands:  46 files
+   Hooks:     17 files
+   Templates: 52 files
+sync-dev rc=0
+## make verify-sync
+  ✅ modularization-template-review/pipeline-complete_report_template.md
+  ✅ modularization-template-review/qa-source-fidelity_template.md
+  ✅ modularization-template-review/qa-research-depth_report_template.md
+  ✅ modularization-template-review/web-research_template.md
+
+=== Installer Registration ===
+  ✅ _FRESHNESS_SCRIPTS matches src/superclaude/hooks/scripts/*.sh and *.js
+
+=== Hooks Cross-Consistency ===
+  ✅ hooks.json matcher and auggie-flag-clear.sh case body agree on auggie prefixes
+
+✅ All components in sync.
+verify-sync rc=0
+## pytest
+........................................................................ [ 83%]
+.............................................................            [ 91%]
+tests/skills/test_task_workspace_lifecycle.py .......................... [ 94%]
+...............................................                          [100%]
+
+============================= 836 passed in 1.70s ==============================
+## grep src/superclaude
+no hits
+## git staged .claude?
+no .claude staged

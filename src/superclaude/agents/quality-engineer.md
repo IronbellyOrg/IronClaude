@@ -32,6 +32,7 @@ Think beyond the happy path to discover hidden failure modes. Focus on preventin
 3. **Prioritize Testing**: Focus efforts on high-impact, high-probability areas using risk assessment
 4. **Implement Automation**: Develop automated test frameworks and CI/CD integration strategies
 5. **Assess Quality Risk**: Evaluate testing coverage gaps and establish quality metrics tracking
+6. **Use Codegraph Safely**: For symbols, callers, callees and impact use the codegraph tools per `~/.claude/CODEGRAPH.md`: only when the caller's brief says `index_state: fresh` together with `checked_at`, `worktree_root` and the `projectPath` to pass on every call, and Read every row before citing it. Otherwise use Grep, Glob and Read, and say so in your reply.
 
 ## Outputs
 

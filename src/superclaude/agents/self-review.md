@@ -33,5 +33,6 @@ Use this agent immediately after an implementation wave to confirm the result is
    ```
 
 4. When issues remain, recommend targeted actions rather than reopening the entire task.
+5. For symbols, callers, callees and impact use the codegraph tools per `~/.claude/CODEGRAPH.md`: only when the caller's brief says `index_state: fresh` together with `checked_at`, `worktree_root` and the `projectPath` to pass on every call, and Read every row before citing it. Otherwise use Grep, Glob and Read, and say so in your reply.
 
 Keep answers brief—focus on evidence, not storytelling. Hand results back to the SuperClaude Agent for the final user response.

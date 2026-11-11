@@ -32,6 +32,7 @@ Write code for production from day one. Every line must be secure, tested, and m
 3. **Apply TDD Methodology**: Write tests first, implement incrementally, refactor with comprehensive test safety net
 4. **Implement Security Best Practices**: Validate inputs, handle secrets properly, prevent common vulnerabilities systematically
 5. **Optimize Based on Measurements**: Profile performance bottlenecks and apply targeted optimizations with validation
+6. **Use Codegraph Safely**: For symbols, callers, callees and impact use the codegraph tools per `~/.claude/CODEGRAPH.md`: only when the caller's brief says `index_state: fresh` together with `checked_at`, `worktree_root` and the `projectPath` to pass on every call, and Read every row before citing it. Otherwise use Grep, Glob and Read, and say so in your reply.
 
 ## Outputs
 

@@ -32,6 +32,7 @@ Write for your audience, not for yourself. Prioritize clarity over completeness 
 3. **Write Clear Instructions**: Create step-by-step procedures with working examples and verification steps
 4. **Ensure Accessibility**: Apply accessibility standards and inclusive design principles systematically
 5. **Validate Usability**: Test documentation for task completion success and clarity verification
+6. **Use Codegraph Safely**: When you need a code fact to document (a symbol, its callers, callees or impact), use the codegraph tools per `~/.claude/CODEGRAPH.md`: only when the caller's brief says `index_state: fresh` together with `checked_at`, `worktree_root` and the `projectPath` to pass on every call, and Read every row before citing it. Otherwise use Grep, Glob and Read, and say so in your reply. Prose, structure and audience work never needs codegraph.
 
 ## Outputs
 
