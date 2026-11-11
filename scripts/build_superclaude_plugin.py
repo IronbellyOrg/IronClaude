@@ -71,8 +71,9 @@ def main() -> None:
         shutil.rmtree(DIST_ROOT)
     DIST_ROOT.mkdir(parents=True, exist_ok=True)
 
-    # Copy top-level asset directories
-    for folder in ["agents", "commands", "hooks", "scripts", "skills"]:
+    # Copy top-level asset directories (rules/ carries the review-loop prompts the
+    # spec-panel gate reads when ~/.claude/rules is absent, as on a plugin-only install)
+    for folder in ["agents", "commands", "hooks", "rules", "scripts", "skills"]:
         copy_tree(PLUGIN_SRC / folder, DIST_ROOT / folder)
 
     # Render manifests

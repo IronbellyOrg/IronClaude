@@ -124,3 +124,17 @@ def test_installer_ships_the_rules_file(tmp_path):
     assert (
         tmp_path / ".claude/rules/prompts/document_review_loop_prompts.md"
     ).is_file()
+
+
+def test_plugin_bundles_the_rules_file_and_the_gate_falls_back_to_it():
+    # Plugin-only installs get no ~/.claude/rules; the plugin carries a byte copy.
+    bundled = (
+        _REPO / "plugins/superclaude/rules/prompts/document_review_loop_prompts.md"
+    )
+    assert bundled.read_bytes() == RULES_FILE.read_bytes()
+    para = _gate_paragraph("plugins/superclaude/commands/spec-panel.md")
+    assert (
+        "`${CLAUDE_PLUGIN_ROOT}/rules/prompts/document_review_loop_prompts.md`" in para
+    )
+    build = (_REPO / "scripts/build_superclaude_plugin.py").read_text(encoding="utf-8")
+    assert '"rules"' in build

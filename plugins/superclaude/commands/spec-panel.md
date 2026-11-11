@@ -263,7 +263,7 @@ When `--focus correctness` is active, the panel MUST produce a State Variable Re
 
 ## Review-loop prompts (hard gate)
 
-Before any re-review, and before you write or accept a review or revise brief for this command, read `~/.claude/rules/prompts/document_review_loop_prompts.md` in full and follow its prompt for your task step by step; if it cannot be read, return `incomplete` and review nothing.
+Before any re-review, and before you write or accept a review or revise brief for this command, read `~/.claude/rules/prompts/document_review_loop_prompts.md` in full and follow its prompt for your task step by step (when that file is absent, as on a plugin-only install, read the bundled copy `${CLAUDE_PLUGIN_ROOT}/rules/prompts/document_review_loop_prompts.md` instead); if neither can be read, return `incomplete` and review nothing.
 
 ## Output Formats
 
