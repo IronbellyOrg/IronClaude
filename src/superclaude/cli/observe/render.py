@@ -242,9 +242,7 @@ def _header_lines(columns: list[tuple[str, int]], policy: TerminalPolicy) -> lis
 # -- screens -------------------------------------------------------------------------------------------------
 
 
-def _inspector_lines(
-    view: View, policy: TerminalPolicy, budget: int
-) -> list[str]:
+def _inspector_lines(view: View, policy: TerminalPolicy, budget: int) -> list[str]:
     """The title, then whole fields from ``view.inspector_scroll`` on while they fit ``budget`` lines.
 
     Hidden fields are counted in an "above" and a "below" line, so every field stays reachable (d/u).

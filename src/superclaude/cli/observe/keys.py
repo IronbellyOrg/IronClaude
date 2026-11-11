@@ -195,7 +195,15 @@ class KeySource:
         return self._take_utf8(b0)
 
     def _take_utf8(self, lead: int) -> object:
-        need = 2 if lead >> 5 == 0b110 else 3 if lead >> 4 == 0b1110 else 4 if lead >> 3 == 0b11110 else 1
+        need = (
+            2
+            if lead >> 5 == 0b110
+            else 3
+            if lead >> 4 == 0b1110
+            else 4
+            if lead >> 3 == 0b11110
+            else 1
+        )
         raw = bytes([lead]) + self._buf[: need - 1]
         if len(raw) < need:
             self._buf = bytes([lead]) + self._buf

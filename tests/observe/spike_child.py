@@ -28,7 +28,9 @@ class _Screen:
         self.log = log
         self.repaints = 0
 
-    def __rich_console__(self, console: Console, options: ConsoleOptions) -> RenderResult:
+    def __rich_console__(
+        self, console: Console, options: ConsoleOptions
+    ) -> RenderResult:
         self.repaints += 1
         size = f"{options.size.width}x{options.size.height}"
         self.log.write(f"repaint n={self.repaints} size={size}")

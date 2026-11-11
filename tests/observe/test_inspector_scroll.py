@@ -39,7 +39,9 @@ def test_scrolling_with_d_reaches_every_inspector_field(fake_clock):
     seen = set()
     for step in range(len(view.inspector)):
         current = fixture_view(
-            "base", fake_clock, Session(**{**session.__dict__, "inspector_scroll": step})
+            "base",
+            fake_clock,
+            Session(**{**session.__dict__, "inspector_scroll": step}),
         )
         lines = screen_lines(current, policy_for(80, HEIGHT))
         assert len(lines) <= HEIGHT
