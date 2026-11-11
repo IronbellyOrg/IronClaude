@@ -205,6 +205,52 @@ def test_missing_tier_variable_is_named(tmp_path: Path, monkeypatch) -> None:
         models.resolve_tiers()
 
 
+def test_shipped_data_defines_tier2b_between_tier2_and_tier3() -> None:
+    data = json.loads(models.BUNDLED.read_text())
+    assert list(data["tiers"]) == [
+        "tier0",
+        "tier1a",
+        "tier1b",
+        "tier2",
+        "tier2b",
+        "tier3",
+        "tier4",
+    ]
+    slots = {k: v["models_env"] for k, v in data["tiers"].items()}
+    assert slots["tier2b"] == [f"T2bModel0{i}" for i in range(1, 5)]
+    assert slots["tier3"] == ["T3Model01", "T3Model02"]
+    assert slots["tier4"] == [f"T4Model0{i}" for i in range(1, 4)]
+
+
+def test_workspace_env_without_t2b_slots_names_the_missing_slot(
+    tmp_path: Path, monkeypatch
+) -> None:
+    # Merge-order hazard (issue 488): this JSON reaches every workspace from
+    # master, so a workspace still on the pre-20261110-1 env file fails loudly
+    # and names the slot instead of silently dropping the tier.
+    lines = [
+        ln
+        for ln in TIER_BLOCK.splitlines(keepends=True)
+        if not ln.startswith(("export T2bModel", "export T2b_WINDOW"))
+    ]
+    monkeypatch.setenv(
+        "AIDEV_AI_DEFAULTS_PATH", str(_defaults(tmp_path, "".join(lines)))
+    )
+    with pytest.raises(ValueError, match="T2bModel01 is not set"):
+        models.resolve_tiers()
+
+
+def test_tier_rule_naming_tier2b_needs_it_defined(tmp_path: Path, monkeypatch) -> None:
+    text = TIER_BLOCK + 'export CCSESSION_ACCESS="bob=tier2b:tier2b,tier3"\n'
+    monkeypatch.setenv("AIDEV_AI_DEFAULTS_PATH", str(_defaults(tmp_path, text)))
+    monkeypatch.setenv("CODER_WORKSPACE_OWNER_NAME", "bob")
+    assert list(models.resolve_tiers()) == ["tier2b", "tier3"]
+    data = json.loads(models.BUNDLED.read_text())
+    del data["tiers"]["tier2b"]
+    with pytest.raises(ValueError, match="tier2b is not a defined tier"):
+        models.resolve_tiers(data)
+
+
 def test_named_model_window_comes_from_its_tier_slot(
     tmp_path: Path, monkeypatch
 ) -> None:
