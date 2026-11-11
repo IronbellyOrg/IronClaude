@@ -31,11 +31,14 @@ Status as of this document. Facts marked **[checked]** were read from the repos 
 
 Do not go to step C until every workspace passes. A workspace without the T2b slots stops its tier-mode ccsession launch with `T2bModel01 is not set (needed by tier2b)`.
 
-### B. Gateway: add the `claude-gw-tier2b` alias **[not checked: I have not seen your LiteLLM config]**
+### B. Gateway: only the real model ids need to exist (no alias to add)
 
-1. Add a `claude-gw-tier2b` model entry beside `claude-gw-tier3` in the LiteLLM config, with the same routing style as the other tier aliases, and the four models in this failover order: `gpt-6.1-terra`, `glm-5.3`, `Qwen3.8-max`, `muse-wonder-1.0`.
-2. Verify each upstream model id actually exists on the gateway (issue 488 open item "gateway id verification"). Request each once through the alias and confirm the returned model.
-3. Confirm Tier 3 (`glm-5.3`, `Qwen3.8-max`) and Tier 4 (`gpt-6-luna`, `claude-haiku-5-5`, `grok-4.7`) still resolve.
+`claude-gw-tier2b` is **not** a LiteLLM entry. The ccsession shim (`src/superclaude/skills/ccsession-tag/local-gateway-alias-proxy.py`) builds every `claude-gw-tier<N>` alias itself from `ccsession-models.json` on `master` (#493) plus the workspace env slots (Coder release `20261110-1`), swaps the alias for the real model id, and fails over down the list. So the Tier 2b "gateway work" is:
+
+1. Confirm the gateway serves the four real ids: `gpt-6.1-terra`, `glm-5.3`, `Qwen3.8-max`, `muse-wonder-1.0` (issue 488 open item "gateway id verification"). They are listed in `GET <gateway>/v1/models`, or request each once and check the returned model.
+2. Confirm the Tier 3 and Tier 4 ids still resolve: `glm-5.3`, `Qwen3.8-max`, `gpt-6-luna`, `claude-haiku-5-5`, `grok-4.7`.
+
+Nothing else to add on the gateway. (Some docs, including `review-panel-live7.md` and the live-evals README, say the alias "must exist on the LiteLLM gateway"; that is wrong and should be corrected.)
 
 ### C. Land #493 (ccsession data), then promote to master
 
