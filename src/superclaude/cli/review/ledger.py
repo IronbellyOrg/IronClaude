@@ -297,6 +297,13 @@ def apply_revision(
     if not ledger["rounds"]:
         raise LedgerError("no review round has been merged yet")
     n = ledger["rounds"][-1]["n"]
+    expected = ledger["rounds"][-1].get("doc_sha256")
+    if expected and sha256_text(old_text) != expected:
+        # Spans index the reviewed text; mapping them through a diff of any other text would
+        # mark unrelated rows touched and could clear them on the next round.
+        raise LedgerError(
+            f"--old is not the document round {n} reviewed (sha256 mismatch); the ledger was not changed"
+        )
     ops = fnd.opcodes(old_text, new_text)
     out: dict[str, list[str]] = {
         "resolved_check": [],

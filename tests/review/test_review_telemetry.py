@@ -398,3 +398,12 @@ def test_outcome_with_a_conflicting_stratum_is_excluded_and_counted(tmp_path):
         "select stratum, sum_confirmed_tp from model_scores order by stratum"
     ).fetchall()
     assert rows == [("sonnet", 3)]  # 1 + 2, never the haiku-tagged 5
+
+
+def test_context_takes_short_labels_only():
+    ok = reviewer_record(context={"experiment": "p22", "x": 1.5})
+    assert tel.validate_record(ok) == []
+    assert tel.validate_record(
+        reviewer_record(context={"quote": "the worker deletes all of its rows"})
+    )
+    assert tel.validate_record(reviewer_record(context={"nested": {"a": 1}}))

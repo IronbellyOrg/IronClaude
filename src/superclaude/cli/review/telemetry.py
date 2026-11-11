@@ -237,6 +237,18 @@ def validate_record(rec: Any) -> list[str]:
                 errors.append("output.by_severity must hold CRITICAL, MAJOR and MINOR")
         if "context" in rec and not isinstance(rec["context"], dict):
             errors.append("context must be an object")
+        elif isinstance(rec.get("context"), dict):
+            # Context labels the run (experiment, arm, replicate); short scalars only, so no
+            # document text, quote or claim can ride along into the store.
+            for key, value in rec["context"].items():
+                if not _RUN_ID.match(str(key)) or not (
+                    value is None
+                    or isinstance(value, (bool, int, float))
+                    or (isinstance(value, str) and _RUN_ID.match(value))
+                ):
+                    errors.append(
+                        f"context.{key} must be a short label or number, not text"
+                    )
         if "round" in rec and (
             not isinstance(rec["round"], int) or isinstance(rec["round"], bool)
         ):

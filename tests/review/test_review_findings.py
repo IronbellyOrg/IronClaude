@@ -307,3 +307,11 @@ def test_map_span_and_hunks_touch():
     )  # zero-width hunk at p=1 touches spans with start <= 1 <= end
     assert fnd.hunks_touch((1, 2), ins) is True
     assert fnd.hunks_touch((2, 3), ins) is False
+
+
+def test_shared_fingerprint_without_refs_is_not_one_defect():
+    # No refs: the fingerprint is the section alone, so two far-apart findings must not merge on it.
+    a = {"fp": "sec", "span": (10, 11), "span2": None, "refs_norm": []}
+    b = {"fp": "sec", "span": (40, 41), "span2": None, "refs_norm": []}
+    assert not fnd.same_defect(a, b)
+    assert fnd.same_defect(a, dict(b, span=(12, 12)))  # still merged when near

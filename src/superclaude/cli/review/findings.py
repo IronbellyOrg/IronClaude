@@ -366,7 +366,9 @@ def _spans(x: dict) -> list[tuple[int, int]]:
 
 def same_defect(a: dict, b: dict) -> bool:
     """Two findings (or a finding and a ledger row view) describe the same defect on one document version."""
-    if a.get("fp") and a.get("fp") == b.get("fp"):
+    # A shared fingerprint means the same section and the same requirement refs; with no refs it
+    # only means the same section, which is not evidence of one defect, so fall through to spans.
+    if a.get("fp") and a.get("fp") == b.get("fp") and a.get("refs_norm"):
         return True
     ra, rb = set(a.get("refs_norm") or []), set(b.get("refs_norm") or [])
     if ra & rb or (not ra and not rb):

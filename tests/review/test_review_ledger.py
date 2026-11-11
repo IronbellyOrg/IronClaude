@@ -497,3 +497,16 @@ def test_refound_row_takes_the_current_finding_span():
     ldg.merge_round(led, SEEDED, 2, [rev("t1b-1", fl("H1", A_S3, ["FR-4"]))])
     assert events(led, "L4")[-1] == "refound"
     assert row["span"] == located
+
+
+def test_revision_from_a_text_other_than_the_reviewed_one_is_refused():
+    led, _ = round1()
+    before = json.dumps(led, sort_keys=True)
+    with pytest.raises(ldg.LedgerError, match="sha256 mismatch"):
+        ldg.apply_revision(
+            led,
+            CLEAN,
+            revised(SEEDED),
+            [{"id": "L1", "action": "applied", "reason": "r"}],
+        )
+    assert json.dumps(led, sort_keys=True) == before
