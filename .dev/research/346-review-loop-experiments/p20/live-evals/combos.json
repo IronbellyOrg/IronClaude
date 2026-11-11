@@ -1,5 +1,5 @@
 {
-  "_comment": "Live eval design for the #346 review panel. Stage A profiles single models; Stage B screens panel compositions by simulation (simulate.py); Stage C confirms the shortlist end to end. Slots use the review-panel/1 vocabulary (tier, count, strategy); a slot may pin models with 'models' for the simulator and for eval-only tier files (render.py writes them). tier2b models are NOT known yet: set T2B_MODELS before any panel with a t2b slot.",
+  "_comment": "Live eval design for the #346 review panel. Stage A profiles single models; Stage B screens panel compositions by simulation (simulate.py); Stage C confirms the shortlist end to end. Slots use the review-panel/1 vocabulary (tier, count, strategy); a slot may pin models with 'models' for the simulator and for eval-only tier files (render.py writes them). tier2b models (2026-11-11): gpt-6.1-terra, glm-5.3, Qwen3.8-max, muse-wonder-1.0; the gateway alias must exist before a t2b panel runs live.",
   "models": [
     {"id": "claude-sonnet-5-5",    "tiers": ["tier1a", "tier1b"], "stage_a": true},
     {"id": "gpt-6.1-sol",          "tiers": ["tier1b", "tier2"],  "stage_a": true},

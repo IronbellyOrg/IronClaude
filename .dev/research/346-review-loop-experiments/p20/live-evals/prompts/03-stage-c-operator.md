@@ -4,7 +4,7 @@ You operate the PN1 review loop for the shortlisted panels. Read `p20/live-evals
 
 Setup, once:
 1. Check out the PR branch that holds the panel code (`346Claude-pn4-live-panel-7slot` or its merge) so `uv run superclaude review panel resolve` works, and note its commit SHA in `stage-c/RUN-INFO.md`.
-2. `render.py panels --out stage-c/panels --t2b-models <ids from the owner> --tiers <the tier file of that checkout>`; validate every shortlisted panel with `superclaude review panel validate`.
+2. `render.py panels --out stage-c/panels --tiers <the tier file of that checkout>` (tier2b already lists Terra, GLM 5.3, Qwen3.8-max, Muse Wonder 1.0; pass `--t2b-models` only to override); validate every shortlisted panel with `superclaude review panel validate`.
 3. `render.py schedule --out stage-c/schedule.json --reps 6 --seed <seed from RUN-INFO> --panels <shortlist ids>`.
 
 For each run in `schedule.json`, in order, holding the number of runs in flight constant at the value in `RUN-INFO.md`:
