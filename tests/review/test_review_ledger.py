@@ -338,22 +338,51 @@ def test_prior_lines_never_change_a_status():
     )
 
 
-def test_unparseable_block_does_not_clear_resolved_check_rows():
+def _broken(rid="t1b-1", text="review: 2 of 3\nverdict: PASS\n"):
+    return {"reviewer_id": rid, "model": "m", "report_path": "r.md", "text": text}
+
+
+def test_round_with_no_valid_block_is_refused_and_changes_nothing():
+    """Review finding (Codex P1): an invalid review must never certify PASS."""
     led, _ = round1()
     new = revised(SEEDED)
     ldg.apply_revision(
         led, SEEDED, new, [{"id": "L1", "action": "applied", "reason": "r"}]
     )
-    broken = {
-        "reviewer_id": "t1b-1",
-        "model": "m",
-        "report_path": "r.md",
-        "text": "review: 2 of 3\nverdict: PASS\n",
-    }
-    res = ldg.merge_round(led, new, 2, [broken])
-    assert res["block_ok"] == {"t1b-1": False}
+    before = json.dumps(led, sort_keys=True)
+    with pytest.raises(
+        ldg.LedgerError, match="no reviewer produced a valid findings block"
+    ):
+        ldg.merge_round(led, new, 2, [_broken()])
+    assert (
+        json.dumps(led, sort_keys=True) == before
+    )  # no round recorded, no row cleared
     assert status(led)["L1"] == "resolved_check"
+    assert len(led["rounds"]) == 1
+
+
+def test_first_round_with_no_valid_block_is_refused_not_pass():
+    led = ldg.new_ledger("d.md")
+    for text in (
+        "review: 1 of 3\nincomplete\n",  # no findings block at all
+        "review: 1 of 3\n\n## Findings block\n\n```findings-v1\n{not json\n```\n",
+        "review: 1 of 3\n\n## Findings block\n\n```findings-v1\n",  # truncated, never closed
+    ):
+        with pytest.raises(ldg.LedgerError):
+            ldg.merge_round(led, SEEDED, 1, [_broken(text=text)])
+    assert led["rounds"] == [] and led["rows"] == []
+
+
+def test_one_valid_block_is_enough_and_the_invalid_reviewer_is_reported():
+    led, _ = round1()
+    new = revised(SEEDED)
+    ldg.apply_revision(
+        led, SEEDED, new, [{"id": "L1", "action": "applied", "reason": "r"}]
+    )
+    res = ldg.merge_round(led, new, 2, [rev("t1b-1"), _broken("t2-1")])
+    assert res["block_ok"] == {"t1b-1": True, "t2-1": False}
     assert res["warnings"]
+    assert status(led)["L1"] == "resolved"
 
 
 def test_round_cannot_be_merged_twice_or_out_of_order():

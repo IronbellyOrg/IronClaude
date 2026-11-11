@@ -51,7 +51,8 @@ def test_d_then_fix_map_then_e_come_before_never():
     assert d < fix < e < never
     assert ls[d - 1] == "" and ls[never - 1] == ""
     assert ls[e - 1] == ""
-    assert "only that script changes a finding's status" in "\n".join(ls[e:never])
+    assert "Only these scripts change a finding's status" in "\n".join(ls[e:never])
+    assert "superclaude review ledger revise --ledger" in "\n".join(ls[e:never])
     assert (
         "If the `superclaude` command is not installed, run one reviewer and say so in the loop summary."
         in TEXT

@@ -346,3 +346,30 @@ def test_telemetry_commands(tmp_path):
     db = tmp_path / "x.sqlite"
     res = run("review", "telemetry", "load", "--dir", str(d), "--db", str(db))
     assert res.exit_code == 0 and db.is_file()
+
+
+def test_merge_refuses_a_round_with_no_valid_block_and_writes_nothing(tmp_path):
+    doc = tmp_path / "d.md"
+    doc.write_text(SEEDED)
+    rep = tmp_path / "r.md"
+    rep.write_text(
+        "review: 1 of 3\n\n## Findings block\n\n```findings-v1\n"
+    )  # truncated
+    ledger, out = tmp_path / "ledger.json", tmp_path / "merged.md"
+    res = run(
+        "review",
+        "merge",
+        "--ledger",
+        str(ledger),
+        "--doc",
+        str(doc),
+        "--round",
+        "1",
+        "--report",
+        f"t1b-1={rep}",
+        "--out",
+        str(out),
+    )
+    assert res.exit_code != 0
+    assert "no reviewer produced a valid findings block" in res.output
+    assert not ledger.exists() and not out.exists()

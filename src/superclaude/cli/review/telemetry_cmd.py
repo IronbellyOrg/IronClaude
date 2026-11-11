@@ -92,6 +92,7 @@ def load_cmd(directory, db) -> None:
                 "reviewer_runs": counts["reviewer_runs"],
                 "outcomes": counts["outcomes"],
                 "invalid": len(counts["invalid"]),
+                "stratum_conflicts": counts["stratum_conflicts"],
             }
         )
     )

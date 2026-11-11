@@ -360,6 +360,7 @@ SELECT r.model_observed AS model_observed, r.slot_tier AS slot_tier, r.slot_stan
 FROM reviewer_runs r
 LEFT JOIN outcomes o
        ON o.reviewer_record_id = r.record_id
+      AND (o.stratum IS NULL OR o.stratum IS r.stratum)
       AND o.record_id NOT IN (SELECT supersedes FROM outcomes WHERE supersedes IS NOT NULL)
 WHERE r.record_id NOT IN (SELECT supersedes FROM reviewer_runs WHERE supersedes IS NOT NULL)
 GROUP BY r.model_observed, r.slot_tier, r.slot_stand_in, r.stratum, o.truth_basis
@@ -422,6 +423,12 @@ def load(directory: str | Path, db_path: str | Path) -> dict:
                 counts["outcomes"] += cur.rowcount
         con.execute("DROP VIEW IF EXISTS model_scores")
         con.execute(_VIEW)
+        # Strata are never pooled: an outcome tagged with a stratum other than its reviewer run's is left out of
+        # model_scores; count it so the conflict is visible instead of silently shifting a cohort total.
+        counts["stratum_conflicts"] = con.execute(
+            "SELECT COUNT(*) FROM outcomes o JOIN reviewer_runs r ON o.reviewer_record_id = r.record_id "
+            "WHERE o.stratum IS NOT NULL AND o.stratum IS NOT r.stratum"
+        ).fetchone()[0]
         con.commit()
         return counts
     finally:
