@@ -542,3 +542,25 @@ def test_refound_as_nonblocking_stops_failing_the_review():
     )
     row = next(r for r in led["rows"] if r["lid"] == "L1")
     assert row["blocking"] is False and "L1" not in res["brief_ids"]
+
+
+def test_a_late_nonblocking_cluster_cannot_mask_a_blocking_one():
+    # Two clusters of one round (disjoint refs) both match the same row; the row stays
+    # blocking while any current cluster is blocking, whatever order they arrive in.
+    led = ldg.new_ledger("d.md")
+    ldg.merge_round(led, SEEDED, 1, [rev("t1b-1", fl("F1", A_S1, ["FR-3", "FR-4"]))])
+    res = ldg.merge_round(
+        led,
+        SEEDED,
+        2,
+        [
+            rev(
+                "t1b-1",
+                fl("H1", A_S1, ["FR-3"]),
+                fl("H2", A_S1, ["FR-4"], blocking=False, severity="MINOR"),
+            )
+        ],
+    )
+    row = next(r for r in led["rows"] if r["lid"] == "L1")
+    assert row["blocking"] is True and res["brief_ids"] == ["L1"]
+    assert res["verdict"] == "FAIL"

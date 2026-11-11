@@ -210,7 +210,12 @@ def merge_round(ledger: dict, doc_text: str, n: int, reviewers: Sequence[dict]) 
             # The current report's classification decides: a defect a reviewer now keeps only
             # as a warning or note no longer fails the review. Earlier blocking calls stay in
             # members and severity_max as history.
-            row["blocking"] = any(m["blocking"] for m in group)
+            current = any(m["blocking"] for m in group)
+            # Several clusters of one round can match the same row: combine them, so a
+            # nonblocking cluster reported last cannot mask a blocking one.
+            row["blocking"] = (
+                (row["blocking"] or current) if row["lid"] in refound else current
+            )
             row["severity_max"] = max(
                 [row["severity_max"], *[m["severity"] for m in group]],
                 key=lambda s: _SEV_RANK[s],
