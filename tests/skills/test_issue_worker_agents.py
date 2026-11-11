@@ -21,7 +21,7 @@ MODELS = ROOT / "src/superclaude/skills/ccsession-tag/ccsession-models.json"
 WORKERS = {
     "issue-worker-t3": ("claude-gw-tier3", "tier3"),
     "issue-worker-t2": ("claude-gw-tier2", "tier2"),
-    "issue-worker-t1": ("claude-gw-tier1a", "tier1a"),
+    "issue-worker-t1": ("claude-gw-tier1b", "tier1b"),
 }
 
 _GH_WRITE_FAMILY = re.compile(r"\bgh\s+(issue|pr|label)\b")

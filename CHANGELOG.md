@@ -4,6 +4,11 @@ All notable changes to IronClaude are documented in this file.
 
 ## [Unreleased]
 
+### /sc:issue: T1 workers move to tier1b, with a tier-2 fallback for users who cannot see tier 1
+
+- `issue-worker-t1` now pins `claude-gw-tier1b` instead of `claude-gw-tier1a`. The skill's tier map, claim and tier refs, the four medium and complex chain rows, the `next-steps.md` template, the pin tests and the `sc-issue-command` design doc follow. The `opus` alias mapping and every ccsession file are unchanged.
+- Users in the Coder role Member see only tiers 2 to 4, so the proxy refuses `claude-gw-tier1b` with an HTTP 400. A failed `issue-worker-t1` spawn is now retried once with `issue-worker-t2` (same job, inputs and output paths, no `model` parameter) instead of stopping with `E-TIER-UNAVAILABLE` after the issue was already assigned. The T2 file, the accuracy-check comment and `issue-summary.md` (claim), or `flags.md` or `draft-notes.md` (create), carry `Handled by issue-worker-t2 (tier 2): tier1b is not available to this user.` `E-TIER-UNAVAILABLE` still stops a T3 or T2 spawn that is not served and a T2 fallback that is not served; there is still no alias fallback. The `next-steps.md` `/model` line tells such users to use `claude-gw-tier2`.
+
 ### ccsession tiers: Tier 2b, a two-model Tier 3 and a three-model Tier 4 (IronClaude issue 488)
 
 - `ccsession-models.json` (2026-11-11.1) adds `tier2b` (`T2bModel01`-`T2bModel04`: GPT-6.1 Terra, GLM-5.3, Qwen3.8 Max, Muse Wonder 1.0), cuts `tier3` to `T3Model01`-`T3Model02` (GLM-5.3, Qwen3.8 Max) and grows `tier4` to `T4Model01`-`T4Model03` (GPT-6 Luna, Claude Haiku 5.5, Grok 4.7), and adds the display name "Claude Haiku 5.5". The models and windows come from the Coder env file; this is the data that names them.

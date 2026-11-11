@@ -54,7 +54,7 @@ Every row is binding. "Owner" is the issue author's comments of 2026-10-30; "Com
 | Complex feature: `---research deep` | Typo | `--research deep` |
 | Feature/bug "T0 models" for medium/complex, "T1" for simple | Owner later limited brainstorm and implement work to T1 or T2 (B14) | Simple -> T2, medium and complex -> T1 (default D6) |
 | `/sc:analyze` "standard" depth | `/sc:analyze` accepts only `--depth quick|deep` | Standard runs `/sc:analyze` with no `--depth` |
-| Example picker ID `claude-gw-tier1` | No such tier ships; tiers are `tier0`, `tier1a`, `tier1b`, `tier2`, `tier3`, `tier4` (`src/superclaude/skills/ccsession-tag/ccsession-models.json`) | T1 -> `claude-gw-tier1a` (default D3) |
+| Example picker ID `claude-gw-tier1` | No such tier ships; tiers are `tier0`, `tier1a`, `tier1b`, `tier2`, `tier3`, `tier4` (`src/superclaude/skills/ccsession-tag/ccsession-models.json`) | T1 -> `claude-gw-tier1b` (default D3) |
 | "spawn ... with Haiku" | The `haiku` alias follows `ANTHROPIC_DEFAULT_HAIKU_MODEL`; on this workspace it is `glm-5.3`, not Haiku. The Agent tool's `model` parameter takes only aliases | Pin `claude-gw-tier3` in agent frontmatter and never pass `model` on the Agent call (section 6) |
 | Rule 10 of the distributed `CLAUDE.md` (file issues from `ISSUE-HANDOFF.md` / `ISSUE-BACKLOG.md`) | Different templates | Unchanged; `/sc:issue --create` uses its own four templates (B5). Rule 10 still covers issues filed outside `/sc:issue` |
 | `tests/cli/test_issue_body_templates.py::test_no_issue_skill_or_command_added` | Asserts no `sc-issue*` skill and no `issue.md` command exist | Replace that one test (section 16) |
@@ -102,7 +102,7 @@ skills/sc-issue-protocol/SKILL.md  (orchestrator; the only place that writes to 
   |
   |-- Agent: issue-worker-t3  (model: claude-gw-tier3)  lookup on claim and create; quick-depth body
   |-- Agent: issue-worker-t2  (model: claude-gw-tier2)  accuracy check, summary; quick flag choice (flag missing); standard flag validation (flags given); standard body
-  |-- Agent: issue-worker-t1  (model: claude-gw-tier1a) complex accuracy check; standard/deep flag choice (flag missing); deep flag variant; deep body
+  |-- Agent: issue-worker-t1  (model: claude-gw-tier1b) complex accuracy check; standard/deep flag choice (flag missing); deep flag variant; deep body
   |-- Skill: sc-recommend     (picks the starting chain and depth; claim only)
   |-- Skill: sc:adversarial-protocol (create --depth deep with all flags given)
   v
@@ -124,7 +124,7 @@ Tier map (default D3):
 |---|---|---|
 | T3 | `claude-gw-tier3` | `issue-worker-t3`: the first lookup on every claim and create (B13); quick-depth issue body |
 | T2 | `claude-gw-tier2` | `issue-worker-t2`: accuracy check and summary on simple/medium claims; flag choice at quick depth when a flag is missing; validation of user-given flags at standard depth; standard-depth body. Next-step chains for simple work (B14) |
-| T1 | `claude-gw-tier1a` | `issue-worker-t1`: accuracy check and summary on complex claims; flag choice at standard/deep depth when a flag is missing; the independent flag variant for the deep adversarial check; deep body. Next-step chains for medium and complex work (B14) |
+| T1 | `claude-gw-tier1b` | `issue-worker-t1`: accuracy check and summary on complex claims; flag choice at standard/deep depth when a flag is missing; the independent flag variant for the deep adversarial check; deep body. Next-step chains for medium and complex work (B14) |
 
 How pinning works (verified against the Claude Code subagent docs, `https://code.claude.com/docs/en/sub-agents`, read 2026-11-04):
 
@@ -139,7 +139,7 @@ Therefore:
 - `SKILL.md` and every ref state: spawn workers with `subagent_type: issue-worker-t<N>` and **never pass the `model` parameter**.
 - An installed mod whose `agent.spawn` hook sets a model overrides the pin (same docs page). The skill does not try to detect this; `refs/tiers.md` states it so an operator knows where to look.
 - If a spawn fails because the picker ID is not served (for example, outside a ccsession tier workspace), the skill STOPs with `E-TIER-UNAVAILABLE`, naming the agent file and picker ID. It does not fall back to an alias (default D4).
-- The T1/T2 tier for the next-step chains is written into `next-steps.md` as a `/model claude-gw-tier1a` or `/model claude-gw-tier2` line before the chain, because the user runs the chain in their own session (B2, B14).
+- The T1/T2 tier for the next-step chains is written into `next-steps.md` as a `/model claude-gw-tier1b` or `/model claude-gw-tier2` line before the chain, because the user runs the chain in their own session (B2, B14).
 
 ## 7. `--claim` flow
 
@@ -236,11 +236,11 @@ These are the default rows `refs/chains.md` carries and passes to `/sc:recommend
 | Type / complexity | Tier line | Chain |
 |---|---|---|
 | Feature, simple | `/model claude-gw-tier2` | 1. `/sc:brainstorm "<topic> @<S>" --depth quick --models opus,sonnet` (no `--handoff`)<br>2. `/sc:workflow <brainstorm dir>/merged-requirements.md --depth quick --handoff none`<br>3. `/sc:implement <plan path printed by step 2>` |
-| Feature, medium | `/model claude-gw-tier1a` | 1. `/sc:brainstorm "<topic> @<S>" --blind --models opus,sonnet`<br>2. `/sc:design <brainstorm dir>/merged-requirements.md --type <architecture\|api\|component\|database> --format spec`<br>3. `/sc:workflow <design doc> --depth standard --handoff none`<br>4. `/sc:implement <plan path>` |
-| Feature, complex | `/model claude-gw-tier1a` | 1. `/sc:brainstorm "<topic> @<S>" --depth deep --research deep --codebase --blind --models opus,sonnet`<br>2. `/sc:design <merged-requirements.md> --type <...> --format spec`<br>3. `/sc:workflow <design doc> --depth deep --handoff none`<br>4. `/sc:implement <plan path>` |
+| Feature, medium | `/model claude-gw-tier1b` | 1. `/sc:brainstorm "<topic> @<S>" --blind --models opus,sonnet`<br>2. `/sc:design <brainstorm dir>/merged-requirements.md --type <architecture\|api\|component\|database> --format spec`<br>3. `/sc:workflow <design doc> --depth standard --handoff none`<br>4. `/sc:implement <plan path>` |
+| Feature, complex | `/model claude-gw-tier1b` | 1. `/sc:brainstorm "<topic> @<S>" --depth deep --research deep --codebase --blind --models opus,sonnet`<br>2. `/sc:design <merged-requirements.md> --type <...> --format spec`<br>3. `/sc:workflow <design doc> --depth deep --handoff none`<br>4. `/sc:implement <plan path>` |
 | Bug, simple | `/model claude-gw-tier2` | 1. `/sc:troubleshoot "<symptom>" --depth quick --context <S> --scope <scope>`<br>2. `/sc:implement <REPORT.md path printed by step 1>` |
-| Bug, medium | `/model claude-gw-tier1a` | 1. `/sc:troubleshoot "<symptom>" --fix --context <S> --scope <scope>` (plan route: after the report it offers to build the `/sc:workflow` package; the user accepts, and it then prints the `/sc:implement` command)<br>2. `/sc:implement <plan path printed by step 1>` |
-| Bug, complex | `/model claude-gw-tier1a` | 1. `/sc:troubleshoot "<symptom>" --depth deep --fix --context <S> --scope <scope>` (MDTM route: after the report it offers to build the task file with `task-builder`; the user accepts, and it then prints the `/task` command)<br>2. `/task <task file path printed by step 1>` |
+| Bug, medium | `/model claude-gw-tier1b` | 1. `/sc:troubleshoot "<symptom>" --fix --context <S> --scope <scope>` (plan route: after the report it offers to build the `/sc:workflow` package; the user accepts, and it then prints the `/sc:implement` command)<br>2. `/sc:implement <plan path printed by step 1>` |
+| Bug, complex | `/model claude-gw-tier1b` | 1. `/sc:troubleshoot "<symptom>" --depth deep --fix --context <S> --scope <scope>` (MDTM route: after the report it offers to build the task file with `task-builder`; the user accepts, and it then prints the `/task` command)<br>2. `/task <task file path printed by step 1>` |
 
 Notes:
 - `--depth quick` with `--fix` is a STOP in `/sc:troubleshoot`, so the simple bug row has no `--fix` and hands the report to `/sc:implement` (issue body: "Hand the output directly off ... /sc:implement").
@@ -383,7 +383,7 @@ All under `src/superclaude/` unless stated. Nothing under `.claude/` is edited o
 | `src/superclaude/skills/sc-issue-protocol/scripts/origin_repo.py` | Section 13: runs `git remote get-url origin` and prints `owner/repo`; standard library only; exits non-zero with `E-NO-ORIGIN` otherwise. Wave 0 of both modes calls it, so the parsing is tested code rather than prose |
 | `src/superclaude/agents/issue-worker-t3.md` | `model: claude-gw-tier3`; `tools: Read, Grep, Glob, Write, Bash`; read-only on GitHub and code; writes only under `.dev/issues/`; returns its file path |
 | `src/superclaude/agents/issue-worker-t2.md` | Same shape, `model: claude-gw-tier2` |
-| `src/superclaude/agents/issue-worker-t1.md` | Same shape, `model: claude-gw-tier1a` |
+| `src/superclaude/agents/issue-worker-t1.md` | Same shape, `model: claude-gw-tier1b` |
 
 Path rule: inside these primitives every reference to another primitive uses the installed path (`~/.claude/commands/sc/analyze.md`, `~/.claude/skills/sc-issue-protocol/...`, `~/.claude/agents/issue-worker-t3.md`) and, for existence checks, also accepts the project `.claude/` copy (agents: project `.claude/agents/` wins; skills: `~/.claude/skills/` wins). No `src/superclaude/...` path appears in them; the pre-commit check is `grep -rn 'src/superclaude' src/superclaude/{commands,skills,agents,core,hooks}`.
 
@@ -413,7 +413,7 @@ New and changed tests, all run with `uv run pytest`.
 |---|---|
 | `tests/commands/test_issue_command.py` (new) | Command frontmatter fields; Options table lists exactly `--claim`, `--create`, `--depth`, `--mode`, `--type` with the allowed values of section 4; Activation names `Skill sc:issue-protocol`; no `src/superclaude/` path; no `--repo` flag; the command file and `SKILL.md` each carry the one-line rule-10 note of D26 |
 | `tests/skills/test_issue_protocol.py` (new) | `SKILL.md` frontmatter and size (<500 lines); every ref and template named in `SKILL.md` exists and vice versa; the spawn rule text ("never pass the `model` parameter") is present; every posted template ends with its marker; the four issue templates carry the section headings of section 10 in order and contain no `ClickUp` text; every `/sc:*` flag in `refs/chains.md` exists in the installed-or-source command file it names (same check style as `test_every_notes_flag_exists_in_its_command`); `refs/chains.md` contains no `--handoff tasklist` and no `--handoff design` on a brainstorm step; no `src/superclaude/` path in any file of the skill |
-| `tests/skills/test_issue_worker_agents.py` (new) | The three agent files exist with `model:` equal to `claude-gw-tier3`, `claude-gw-tier2`, `claude-gw-tier1a`; each picker ID's tier key exists in `src/superclaude/skills/ccsession-tag/ccsession-models.json`; tools exclude `Edit`; body states read-only GitHub and write-only-under-`.dev/issues/` |
+| `tests/skills/test_issue_worker_agents.py` (new) | The three agent files exist with `model:` equal to `claude-gw-tier3`, `claude-gw-tier2`, `claude-gw-tier1b`; each picker ID's tier key exists in `src/superclaude/skills/ccsession-tag/ccsession-models.json`; tools exclude `Edit`; body states read-only GitHub and write-only-under-`.dev/issues/` |
 | `tests/skills/test_clickup_claim.py` (new) | `clickup_claim.py` with `urllib` patched: skipped without token; skipped without workspace; GitHub-link match beats title match; title match only as a whole `#N` token (`#3020` does not match `#302`); ambiguous returns candidates and makes no PUT; already-assigned makes no PUT; assign sends `{"assignees": {"add": [id]}}`; 401 -> `auth`; 429 retried once; page cap honoured, and a search stopped by the cap gives `error`/`page_cap` with no PUT (added 2026-11-04); the token never appears in stdout or stderr; bad arguments exit 2 |
 | `tests/skills/test_issue_repo_resolution.py` (new) | `scripts/origin_repo.py`: https, ssh, `.git` suffix and trailing `/` parsed to `owner/repo`; non-GitHub URL and missing `origin` exit non-zero; it reads only `origin` |
 | `tests/cli/test_issue_body_templates.py` (changed) | `test_no_issue_skill_or_command_added` becomes `test_issue_command_and_skill_are_the_only_issue_primitives`: `src/superclaude/commands/issue.md` and `src/superclaude/skills/sc-issue-protocol/` exist, and no other `sc-issue*` skill or `issue.md` command exists |
@@ -439,7 +439,7 @@ Each is a **design default**: a choice made where the issue and comments are sil
 |---|---|---|
 | D1 | This design lives at `docs/designs/sc-issue-command.md` | The existing design-doc folder (`docs/designs/prd-spec-flag.md`) |
 | D2 | ClickUp task match: (1) the issue URL in the task description or a custom field, then (2) `#<N>` as a whole token in the title; exactly one match required, else no assignment | Owner asked for a default; a GitHub link is the least ambiguous signal, the title number is the common fallback, and a title text search was rejected as too loose |
-| D3 | T3 = `claude-gw-tier3`, T2 = `claude-gw-tier2`, T1 = `claude-gw-tier1a` | `claude-gw-tier1` does not exist; `tier1a` is the first T1 tier in `ccsession-models.json` |
+| D3 | T3 = `claude-gw-tier3`, T2 = `claude-gw-tier2`, T1 = `claude-gw-tier1b` | `claude-gw-tier1` does not exist; `tier1b` is the T1 tier the issue workers use (it was `tier1a` until 2026-11-11) |
 | D4 | No alias fallback when a picker ID is not served: STOP `E-TIER-UNAVAILABLE` | A fallback to `haiku` can land on a non-Claude model (`glm-5.3` here), defeating B13 |
 | D5 | Complexity and effort rubric: simple = up to 4 hours in one area; medium = over 4 up to 16 hours; complex = over 16 hours, more than one subsystem, or a security/data-migration change. Effort is recorded in hours | B3 needs hours; the bands give the worker a fixed scale |
 | D6 | Next-step tier: simple -> T2, medium and complex -> T1 (bugs and features alike) | B14 ("T1 or T2 by complexity") replaces the issue body's T0 rows |
