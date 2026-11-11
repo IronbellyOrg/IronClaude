@@ -174,7 +174,8 @@ core/ib_agent_core.md core/quality_gates.md core/report_templating.md
 core/tool_selection.md prompts/agent_library.md
 prompts/automated_qa_workflow_qa_prompt.md
 prompts/automated_qa_workflow_worker_prompt.md prompts/doc_code_analyst_qa_prompt.md
-prompts/doc_code_analyst_worker_prompt.md prompts/documentation_expert_qa_prompt.md
+prompts/doc_code_analyst_worker_prompt.md prompts/document_review_loop_prompts.md
+prompts/documentation_expert_qa_prompt.md
 prompts/documentation_expert_worker_prompt.md prompts/recruiting_expert_qa_prompt.md
 prompts/recruiting_expert_worker_prompt.md
 """

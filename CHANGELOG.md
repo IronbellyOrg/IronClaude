@@ -4,6 +4,12 @@ All notable changes to IronClaude are documented in this file.
 
 ## [Unreleased]
 
+### ccsession tiers: Tier 2b, a two-model Tier 3 and a three-model Tier 4 (IronClaude issue 488)
+
+- `ccsession-models.json` (2026-11-11.1) adds `tier2b` (`T2bModel01`-`T2bModel04`: GPT-6.1 Terra, GLM-5.3, Qwen3.8 Max, Muse Wonder 1.0), cuts `tier3` to `T3Model01`-`T3Model02` (GLM-5.3, Qwen3.8 Max) and grows `tier4` to `T4Model01`-`T4Model03` (GPT-6 Luna, Claude Haiku 5.5, Grok 4.7), and adds the display name "Claude Haiku 5.5". The models and windows come from the Coder env file; this is the data that names them.
+- **Merge order, do not skip:** this change must reach `master` only after Coder central defaults release `20261110-1` (Coder PR 495) is installed in every workspace, running and stopped. Every launch fetches this file from `master`, and a launch in tier mode stops when a slot the file names is unset ("T2bModel01 is not set (needed by tier2b)"). The Coder member rule gains `tier2b` only after this file is live (Coder release B); until then members' Tier 3 is GLM and Qwen only and Terra is in no member tier.
+- Not in this change (open in issue 488): the `issue-worker-t3` pin, the `haiku` alias, the retry-ladder rung that reads `T3Model01`, and the historical design docs.
+
 ### ccsession: retry temporary failures, then switch; named-model fallback (#392)
 
 #### Fixed (ccsession failover)

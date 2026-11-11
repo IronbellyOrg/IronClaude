@@ -1,6 +1,6 @@
 {
   "schema": 2,
-  "version": "2026-10-28.1",
+  "version": "2026-11-11.1",
   "profiles": {
     "claude": {
       "aliases": [],
@@ -101,21 +101,28 @@
         "T2Model06"
       ]
     },
+    "tier2b": {
+      "label": "Tier 2b",
+      "models_env": [
+        "T2bModel01",
+        "T2bModel02",
+        "T2bModel03",
+        "T2bModel04"
+      ]
+    },
     "tier3": {
       "label": "Tier 3",
       "models_env": [
         "T3Model01",
-        "T3Model02",
-        "T3Model03",
-        "T3Model04",
-        "T3Model05",
-        "T3Model06"
+        "T3Model02"
       ]
     },
     "tier4": {
       "label": "Tier 4",
       "models_env": [
-        "T4Model01"
+        "T4Model01",
+        "T4Model02",
+        "T4Model03"
       ]
     }
   },
@@ -167,7 +174,8 @@
       "muse-wonder-full-1.0": "Muse Wonder Full 1.0",
       "muse-wonder-1.0": "Muse Wonder 1.0",
       "gpt-6.1-terra": "GPT 6.1 Terra",
-      "glm-5.3": "GLM 5.3"
+      "glm-5.3": "GLM 5.3",
+      "claude-haiku-5-5": "Claude Haiku 5.5"
     }
   }
 }

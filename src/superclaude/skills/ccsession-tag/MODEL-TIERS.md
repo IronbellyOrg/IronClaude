@@ -3,8 +3,9 @@
 One place to see which model sits in which tier, and the evals and prices that put it there.
 
 - **Scores and prices checked:** 2026-09-30 (Muse Wonder rows: 2026-10-14).
-- **Tiers last changed:** 2026-10-28 (owner's new layout: Tier 1 split into 1a and 1b, GPT-6.1 Sol
-  added to Tier 2, new Tier 3 led by GPT-6.1 Terra, GPT-6 Luna moved to Tier 4).
+- **Tiers last changed:** 2026-11-11 (owner decisions of 2026-11-10 and 2026-11-11, IronClaude issue 488 and Coder
+  issue 494: new Tier 2b, Tier 3 cut to GLM-5.3 and Qwen3.8 Max, Tier 4 adds Claude Haiku 5.5 and Grok 4.7).
+  Before that 2026-10-28 (Tier 1 split into 1a and 1b, GPT-6.1 Sol added to Tier 2, GPT-6 Luna moved to Tier 4).
 - **Where tiers actually take effect:** the Coder workspace env, `IronbellyOrg/Coder` file
   `templates/VSCode-AIDev02/aienv.d/defaults.sh` (`T<N>Model0<M>` slots, for example `T1aModel01`). ccsession profiles live
   in `ccsession-models.json` next to this file. This page is the reasoning behind both; when a tier
@@ -38,8 +39,9 @@ individual entries): 850K for each model except Grok 4.7 (500K).
 | **Tier 1a** | Claude frontier. | Claude Opus 5.5 (`claude-opus-5-5`), Claude Sonnet 5.5 (`claude-sonnet-5-5`) | 56.0-57.6 | $2.00-4.00 / $0.20 / $10.00-20.00 | 850K | `claude` (Opus) |
 | **Tier 1b** | Frontier mix. Start tier for roles above Member. | Claude Sonnet 5.5 (`claude-sonnet-5-5`), GPT-6.1 Sol (`gpt-6.1-sol`), Muse Wonder Full 1.0 (`muse-wonder-full-1.0`) | 51.8-56.0 | $2.00 / $0.10-0.20 / $10.00; Muse Wonder Full on subscription | 850K | `gpt` (6.1 Sol), `wonderfull` |
 | **Tier 2** | Strong and cheap. Start tier for Members. | GPT-6.1 Sol (`gpt-6.1-sol`), GLM-5.3 (`glm-5.3`), Grok 4.7 (`grok-4.7`), Qwen3.8 Max (`Qwen3.8-max`), Muse Wonder 1.0 (`muse-wonder-1.0`), Muse Spark 1.3 (`muse-spark-1.3`) | 44.8-52 | $1.25-2.00 / $0.10-0.50 / $4.25-10.00; Muse Wonder on subscription | 500K | `grok`, `qwen`, `glm`, `muse`, `wonder` |
-| **Tier 3** | Strong and cheap, GPT-6.1 Terra first. | GPT-6.1 Terra (`gpt-6.1-terra`), GLM-5.3 (`glm-5.3`), Grok 4.7 (`grok-4.7`), Qwen3.8 Max (`Qwen3.8-max`), Muse Wonder 1.0 (`muse-wonder-1.0`), Muse Spark 1.3 (`muse-spark-1.3`) | 44.8-52 (GPT-6.1 Terra not scored yet) | $1.25-2.00 / $0.15-0.50 / $4.25-6.00 (Terra not priced yet); Muse Wonder on subscription | 500K | none |
-| **Tier 4** | Budget. Bulk and low-stakes work. | GPT-6 Luna (`gpt-6-luna`) | 38.1 | $0.10 / $0.01 / $0.50 | 500K | none |
+| **Tier 2b** | Review-panel and fallback tier: the old Tier 3 list without Grok 4.7 and Muse Spark 1.3. If GPT-6.1 Terra returns a 429 the request is retried on GLM-5.3 (owner, 2026-11-11). | GPT-6.1 Terra (`gpt-6.1-terra`), GLM-5.3 (`glm-5.3`), Qwen3.8 Max (`Qwen3.8-max`), Muse Wonder 1.0 (`muse-wonder-1.0`) | 44.8-52 (GPT-6.1 Terra not scored yet) | $1.40-4.00 / $0.20-0.26 / $4.40-20.00 (Terra not priced yet); Muse Wonder on subscription | 900K | none |
+| **Tier 3** | Strong and cheap, GLM-5.3 first. | GLM-5.3 (`glm-5.3`), Qwen3.8 Max (`Qwen3.8-max`) | 44.8-45.4 | $1.40-1.65 / $0.206-0.26 / $4.40-4.951 | 900K | none |
+| **Tier 4** | Budget. Bulk and low-stakes work. | GPT-6 Luna (`gpt-6-luna`), Claude Haiku 5.5 (`claude-haiku-5-5`, unscored, placed by the owner), Grok 4.7 (`grok-4.7`, last because its own window is 500K) | 38.1 (Luna); Haiku 5.5 not scored yet | $0.10 / $0.01 / $0.50 (Luna); Haiku 5.5 not priced here yet | 500K | none |
 
 **Note on Tier 0 versus Tier 1a.** Tier 0 is a price category, not a capability step: Opus 5.5 and
 Sonnet 5.5 outscore both Tier 0 models on overall intelligence. Tier 0 is kept for the cases where
@@ -52,7 +54,7 @@ Argon (Tier 1 watchlist, limited access). See section 2.
 
 **Subscription models.** Muse Wonder Full and Muse Wonder are covered by the Muse Code
 subscription, so their per-token price does not count against them. Muse Wonder sits in Tiers 2
-and 3 rather than Tier 1b even though it scores 52.
+and 2b rather than Tier 1b even though it scores 52.
 
 **Label history.** The original research labelled these tiers X, 0, 1, 3 (premium, frontier,
 strong, budget) plus an empty "2". The deployed names above are what the env and ccsession use.
@@ -71,15 +73,15 @@ tier, waiting on gateway access), **Removed** (superseded by a newer model from 
 | Claude Fable 5.1 [a] | Anthropic | **Tier 0** | 53.4 | 59.1 | 52.0 | $10.00 | $0.25 | $50.00 | $7.63 | yes |
 | GPT-6 Astra | OpenAI | **Tier 0** | 52.7 | 54.7 | 59.1 | $10.00 | $1.00 | $50.00 | $3.26 | yes |
 | Gemini 4 Argon (High) [b] | Google | Candidate (Tier 1 watchlist) | 52.6 | 57.1 | 57.1 | $2.00 | $0.10 | $10.00 | n/a | no |
-| Muse Wonder (Max) [h] | Meta | **Tier 2, 3** | 52 | 50 | 52.0 | $4.00 | $0.20 | $20.00 | $4.52 | yes |
+| Muse Wonder (Max) [h] | Meta | **Tier 2, 2b** | 52 | 50 | 52.0 | $4.00 | $0.20 | $20.00 | $4.52 | yes |
 | GPT-6.1 Sol | OpenAI | **Tier 1b, 2** | 51.8 | 52.9 | 56.1 | $2.00 | $0.10 | $10.00 | $0.72 | yes |
-| Muse Spark 1.3 | Meta | **Tier 2, 3** | 48.1 | 48.7 | 33.3 | $1.25 | $0.15 | $4.25 | $1.60 | yes |
+| Muse Spark 1.3 | Meta | **Tier 2** | 48.1 | 48.7 | 33.3 | $1.25 | $0.15 | $4.25 | $1.60 | yes |
 | GPT-6 Sol | OpenAI | Removed | 47.5 | 47.9 | 43.9 | $2.00 | $0.20 | $10.00 | $1.05 | yes |
 | GPT-5.6 Sol | OpenAI | Removed | 47.0 | 49.5 | 39.9 | $4.00 | $0.40 | $20.00 | $1.99 | yes |
-| Grok 4.7 [c] | xAI | **Tier 2, 3** | 46.4 | 43.1 | 25.8 | $2.00 | $0.50 | $6.00 | $3.74 | yes |
+| Grok 4.7 [c] | xAI | **Tier 2, 4** | 46.4 | 43.1 | 25.8 | $2.00 | $0.50 | $6.00 | $3.74 | yes |
 | MiMo-V2.6-Pro | Xiaomi | Candidate (Tier 2) | 46.3 | 49.4 | 34.8 | $0.435 | $0.0036 | $0.87 | n/a | no |
-| Qwen3.8 Max (0902) [d] | Alibaba | **Tier 2, 3** | 45.4 | 43.1 | 38.9 | $1.65 | $0.206 | $4.951 | $5.41 | yes |
-| GLM-5.3 | Z AI | **Tier 2, 3** | 44.8 | 42.3 | 41.9 | $1.40 | $0.26 | $4.40 | $2.01 | yes |
+| Qwen3.8 Max (0902) [d] | Alibaba | **Tier 2, 2b, 3** | 45.4 | 43.1 | 38.9 | $1.65 | $0.206 | $4.951 | $5.41 | yes |
+| GLM-5.3 | Z AI | **Tier 2, 2b, 3** | 44.8 | 42.3 | 41.9 | $1.40 | $0.26 | $4.40 | $2.01 | yes |
 | Step 5 Preview | StepFun | Excluded | 43.7 | 46.5 | 33.3 | $1.00 | $0.05 | $2.70 | n/a | no |
 | Kimi K3 (Max) | Moonshot | Excluded | 43.6 | 46.9 | 12.6 | $3.00 | $0.30 | $15.00 | n/a | no |
 | GPT-5.6 Terra | OpenAI | Removed | 42.1 | 42.9 | 35.4 | $2.00 | $0.20 | $12.00 | $1.40 | yes |
@@ -117,6 +119,7 @@ Only providers with a model in a tier are shown; candidates and excluded provide
 | Claude Opus 5.5 [a] | **Tier 1a** | 57.6 | 61.4 | 59.6 | $4.00 | $0.20 | $20.00 | $5.98 |
 | Claude Sonnet 5.5 [a] | **Tier 1a, 1b** | 56.0 | 55.0 | 63.6 | $2.00 | $0.20 | $10.00 | $7.62 |
 | Claude Fable 5.1 [a] | **Tier 0** | 53.4 | 59.1 | 52.0 | $10.00 | $0.25 | $50.00 | $7.63 |
+| Claude Haiku 5.5 | **Tier 4** (owner placement, unscored) | n/a | n/a | n/a | n/a | n/a | n/a | n/a |
 | Claude Opus 4.8 | Removed | 41.8 | 48.7 | 21.7 | $5.00 | $0.50 | $25.00 | $4.08 |
 | Claude Opus 4.7 | Removed | 40.7 | 42.3 | n/a | $5.00 | $0.50 | $25.00 | n/a |
 | Claude Haiku 4.5 (reasoning) | Excluded | 16.9 | 10.4 | 0.0 | $1.00 | $0.10 | $5.00 | n/a |
@@ -126,16 +129,16 @@ Only providers with a model in a tier are shown; candidates and excluded provide
 | Model | Status | Intelligence | HLE % | Terminal 4.0 % | Input | Cached | Output | AA $/task |
 |---|---|---|---|---|---|---|---|---|
 | Muse Wonder Full (Max) [h] | **Tier 1b** | 56 | 54 | 57.1 | subscription | subscription | subscription | n/a |
-| Muse Wonder (Max) [h] | **Tier 2, 3** | 52 | 50 | 52.0 | $4.00 | $0.20 | $20.00 | $4.52 |
-| Muse Spark 1.3 | **Tier 2, 3** | 48.1 | 48.7 | 33.3 | $1.25 | $0.15 | $4.25 | $1.60 |
+| Muse Wonder (Max) [h] | **Tier 2, 2b** | 52 | 50 | 52.0 | $4.00 | $0.20 | $20.00 | $4.52 |
+| Muse Spark 1.3 | **Tier 2** | 48.1 | 48.7 | 33.3 | $1.25 | $0.15 | $4.25 | $1.60 |
 
 **xAI, Alibaba, Z AI**
 
 | Model | Status | Intelligence | HLE % | Terminal 4.0 % | Input | Cached | Output | AA $/task |
 |---|---|---|---|---|---|---|---|---|
-| Grok 4.7 [c] | **Tier 2, 3** | 46.4 | 43.1 | 25.8 | $2.00 | $0.50 | $6.00 | $3.74 |
-| Qwen3.8 Max (0902) [d] | **Tier 2, 3** | 45.4 | 43.1 | 38.9 | $1.65 | $0.206 | $4.951 | $5.41 |
-| GLM-5.3 | **Tier 2, 3** | 44.8 | 42.3 | 41.9 | $1.40 | $0.26 | $4.40 | $2.01 |
+| Grok 4.7 [c] | **Tier 2, 4** | 46.4 | 43.1 | 25.8 | $2.00 | $0.50 | $6.00 | $3.74 |
+| Qwen3.8 Max (0902) [d] | **Tier 2, 2b, 3** | 45.4 | 43.1 | 38.9 | $1.65 | $0.206 | $4.951 | $5.41 |
+| GLM-5.3 | **Tier 2, 2b, 3** | 44.8 | 42.3 | 41.9 | $1.40 | $0.26 | $4.40 | $2.01 |
 | GLM-5.3-Flash | Candidate | 41.8 | 39.9 | 32.8 | $0.15 | $0.03 | $0.50 | n/a |
 
 ## 4. Removed and excluded models
@@ -213,4 +216,6 @@ Footnotes:
   models are covered by the Muse Code subscription. Muse Wonder's listed prices are Meta's public
   API rates, shown for comparison only. Gateway ids: `muse-wonder-full-1.0`, `muse-wonder-1.0` (each also
   has a `-contributor` copy). Both have 1M context.
-- **Unscored:** the gateway also serves `claude-haiku-5-5`, which this page has no scores for yet.
+- **Unscored:** `claude-haiku-5-5` and `gpt-6.1-terra` have no scores or prices on this page yet. Claude Haiku 5.5 sits in
+  Tier 4 by the owner's decision of 2026-11-10 (an exception to placement rules 1 and 2, which would hold
+  an unscored model back); score it and revisit. Claude Haiku 4.5 stays Excluded in section 4.

@@ -441,6 +441,12 @@ ccsession notes --tier tier1a         # a specific tier (tier1a and 1a both work
 ccsession notes --model gpt-6-astra   # start on this model; fallback within its tier
 ```
 
+The defined tiers are Tier 0, 1a, 1b, 2, 2b, 3 and 4. Tier 2b (picker id
+`claude-gw-tier2b[1m]`, slots `T2bModel01` to `T2bModel04`, window `T2b_WINDOW`) holds
+GPT-6.1 Terra, GLM-5.3, Qwen3.8 Max and Muse Wonder 1.0. A tier whose slots the
+workspace env file does not set stops tier-mode launches, so the env file must carry
+a tier before this data names it (see `MODEL-TIERS.md`, "How to update this page").
+
 | | What happens |
 |---|---|
 | Picker (`/model`) | Shows the tiers (Tier 0, Tier 1a, ...), each with its models; with `+models` in the owner's rule, also each model on its own, in `CCSESSION_MODEL_ORDER` order |
