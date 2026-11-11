@@ -400,3 +400,10 @@ def test_packaged_defaults_are_read_through_importlib_resources():
     root = Path(pnl.__file__).parent / "data"
     assert (root / "review-panel.default.json").is_file()
     assert (root / "review-tiers.default.json").is_file()
+
+
+def test_round_robin_skips_excluded_models_when_another_is_free():
+    r = pnl.resolve_slot(["a", "b", "c"], "round_robin", 0, "all", [], exclude=("a",))
+    assert r["model"] == "b"
+    only = pnl.resolve_slot(["a"], "round_robin", 0, "all", [], exclude=("a",))
+    assert only["model"] == "a"

@@ -485,3 +485,15 @@ def test_escalate_still_prints_verdict_fail():
     text = ldg.render_merged_report(led, res, doc_path="d.md", doc_text=SEEDED, n=3)
     assert text.splitlines()[-1] == "verdict: FAIL"
     assert text.splitlines()[0] == "review: 3 of 3"
+
+
+def test_refound_row_takes_the_current_finding_span():
+    # A revision can map a span onto the start of a longer replacement; the next report that
+    # re-finds the defect farther down must re-anchor the row, or a later fix is never seen.
+    led, _ = round1()
+    row = next(r for r in led["rows"] if r["lid"] == "L4")
+    located = list(row["span"])
+    row["span"] = [located[0] - 1, located[0] - 1]
+    ldg.merge_round(led, SEEDED, 2, [rev("t1b-1", fl("H1", A_S3, ["FR-4"]))])
+    assert events(led, "L4")[-1] == "refound"
+    assert row["span"] == located

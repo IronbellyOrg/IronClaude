@@ -405,7 +405,8 @@ def resolve_slot(
         pool = [m for m in candidates if m not in set(exclude)] or candidates
         model = random.Random(seed).choice(pool)
     elif strategy == "round_robin":
-        model = candidates[int(seed) % len(candidates)]
+        pool = [m for m in candidates if m not in set(exclude)] or candidates
+        model = pool[int(seed) % len(pool)]
     else:
         raise ValueError(f"unknown strategy {strategy!r}")
     k = candidates.index(model)

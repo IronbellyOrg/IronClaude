@@ -213,6 +213,14 @@ def merge_round(ledger: dict, doc_text: str, n: int, reviewers: Sequence[dict]) 
                 key=lambda s: _SEV_RANK[s],
             )
             row["confidence"] = _confidence(row)
+            # Re-anchor on the current report: a mapped span can point at the start of a
+            # longer replacement while the defect now sits farther down it.
+            current = next((m for m in group if m["span"]), None)
+            if current is not None:
+                row["anchor"] = current["anchor"]
+                row["anchor2"] = current.get("anchor2")
+                row["span"] = list(current["span"])
+                row["span2"] = list(current["span2"]) if current["span2"] else None
             row["history"].append({"round": n, "event": "refound"})
             refound.append(row["lid"])
             event = "refound"
