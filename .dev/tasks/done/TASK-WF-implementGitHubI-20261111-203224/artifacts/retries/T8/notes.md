@@ -1,0 +1,2 @@
+a066ff74f53e8ec2ede8648da6c8d660d246d04a
+A1 r1-1 F1.1 minor tests/skills/test_worker_contract.py:46 ac=scope n,n,n,n The RULE_PHRASES entry reinvocation-keeps-every-token pins the longer phrase that matches only the preflight subsection; the short phrase `re-invocation keeps every token` is pinned only inside the section-scoped preflight test, so the brief guard paragraph (contract line 22) has no pin of its own for it.

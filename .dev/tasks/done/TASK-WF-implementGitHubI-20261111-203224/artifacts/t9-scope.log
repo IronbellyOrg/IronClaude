@@ -1,0 +1,10 @@
+# staged .claude paths (expect 0):
+0
+# added lines containing src/superclaude/ in the five edited files (expect 0):
+0
+# git diff --name-only origin/master, non-.dev paths:
+docs/developer-guide/SuperClaude-Developer-Guide-Commands-Skills-Agents.md
+plugins/superclaude/skills/sc-recommend/refs/HOW-WE-WORK.md
+src/superclaude/core/HOW-WE-WORK.md
+src/superclaude/core/WORKER-CONTRACT.md
+tests/skills/test_worker_contract.py

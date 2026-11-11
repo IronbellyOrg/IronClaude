@@ -141,12 +141,6 @@ RULE_PHRASES = {
             "`--outcome failed` when the contract's `worker_status` is `failed` or `blocked`, or no contract exists"
         ],
     ),
-    "WC-5-P0-override": (
-        "WC-5",
-        [
-            "a brief that states the AC-0.4 report file and outcome rule replaces this mapping for that Task"
-        ],
-    ),
     "WC-7": ("WC-7", ["Run at the top level, never inside a subagent"]),
     "WC-12": (
         "WC-12",
@@ -256,7 +250,6 @@ RULE_PHRASES = {
         None,
         [
             "The contract only works if the brief carries what the command would otherwise ask a person",
-            "at P0 only, the command's report file and the outcome rule AC-0.4 gives for it (WC-5)",
         ],
     ),
     "brief-layout": (None, ["so the Task text never starts with `/sc:`"]),
@@ -361,14 +354,61 @@ RULE_PHRASES = {
         None,
         [
             "## 5. Coordinator brief template",
-            '`--report-dir` is marked "from P1": no command accepts it at P0',
-            "P0 only: Report file: <the command's report file under AC-0.4>.",
+            "Command: /sc:<name> <arguments> --unattended",
         ],
     ),
     "brief-chain-line": (
         None,
         [
             "Chain: run every Command: line in one turn without stopping between them (WC-14); write a handoff file after each (WC-15); send ack lines for coordinator answers (WC-12).",
+        ],
+    ),
+    "coordinator-preflight": (
+        None,
+        [
+            "### Before the first task-create for a command",
+            "the coordinator decides by the two-copy test",
+            "`.claude/commands/sc/<name>.md` and `~/.claude/commands/sc/<name>.md`",
+            "A run of that command that needs a person at a gate is a person-in-the-loop run, not a worker.",
+        ],
+    ),
+    "reinvocation-keeps-every-token": (
+        None,
+        [
+            "re-invocation keeps every token of the `Command:` line and only adds the answer",
+        ],
+    ),
+    "positive-default": (
+        None,
+        [
+            "on every `Command:` line, for each step and never as a session-wide setting",
+            'unless the two-copy test in "Before the first task-create for a command" (section 4) fails for that command',
+        ],
+    ),
+    "flag-drops": (
+        None,
+        [
+            "skip every approval-required item and list it as not applied",
+            "`/sc:test` ends `succeeded` even when its suite fails",
+            "`/sc:research` is forced to `--strategy planning`",
+            "`/sc:workflow` skips `--handoff implement`",
+            "every push, PR, comment and other outward action is off (WC-9)",
+        ],
+    ),
+    "skill-call-and-person-in-the-loop": (
+        None,
+        [
+            "A command is started through its Skill call (WC-7)",
+            "A person-in-the-loop run is not a worker",
+        ],
+    ),
+    "guard-refusal-repairs": (
+        None,
+        [
+            "(coordinator: add --unattended and exactly one report directory to this Command: line, then create a new Task)",
+            "(coordinator: refresh ~/.claude if its copy is stale, or drop --unattended for this command, then create a new Task)",
+            "(coordinator: refresh the stale copy named in <paths>, normally ~/.claude, then create a new Task)",
+            "A refusal is report-only: the worker never installs or refreshes a command copy and never rewrites its own brief",
         ],
     ),
 }
@@ -1005,6 +1045,36 @@ def test_p2_brief_check_fails_when_the_bullet_drops_a_command(name):
 def test_nested_result_check_fails_when_a_phrase_is_removed(phrase):
     with pytest.raises(AssertionError):
         _check_nested_result_rule(_contract().replace(phrase, ""))
+
+
+_PREFLIGHT_HEADING = "### Before the first task-create for a command"
+_PREFLIGHT_PHRASES = (
+    "the coordinator decides by the two-copy test",
+    "re-invocation keeps every token",
+)
+
+
+def _check_preflight_section(text: str) -> None:
+    """Both coordinator pins sit inside the numbered preflight subsection, not above it."""
+    assert text.count(_PREFLIGHT_HEADING) == 1, (
+        "preflight heading not found exactly once"
+    )
+    body = text.split(_PREFLIGHT_HEADING, 1)[1].split("\n### ", 1)[0]
+    for phrase in _PREFLIGHT_PHRASES:
+        assert phrase in body, f"preflight subsection lacks: {phrase}"
+    assert re.search(r"^1\. .*\n2\. .*\n3\. ", body, re.M), (
+        "preflight steps are not numbered"
+    )
+
+
+def test_preflight_subsection_holds_the_coordinator_pins():
+    _check_preflight_section(_contract())
+
+
+@pytest.mark.parametrize("phrase", _PREFLIGHT_PHRASES)
+def test_preflight_check_fails_when_a_pin_is_removed(phrase):
+    with pytest.raises(AssertionError):
+        _check_preflight_section(_contract().replace(phrase, ""))
 
 
 def test_unattended_sections_match_the_listed_commands():
