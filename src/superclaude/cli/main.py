@@ -565,5 +565,9 @@ from superclaude.cli.issue_watch.cli import issue_watch_group  # noqa: E402,I001
 main.add_command(issue_watch_group, name="issue-watch")
 
 
+from superclaude.cli.review import review_group  # noqa: E402,I001  # intentional: deferred subcommand registration to avoid circular imports
+
+main.add_command(review_group, name="review")
+
 if __name__ == "__main__":
     main()

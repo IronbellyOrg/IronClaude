@@ -1,0 +1,13 @@
+{
+  "schema": "review-panel/1",
+  "template_id": "default",
+  "version": "1.0.0",
+  "description": "Production review panel: 2x Tier 3 + 1x Tier 2 + 1x Tier 1b parallel independent reviewers; Tier 1b is the fixed anchor.",
+  "distinct_across_slots": true,
+  "apply_to": ["first"],
+  "slots": [
+    {"slot_id": "t1b", "tier": "tier1b", "count": 1, "strategy": "fixed"},
+    {"slot_id": "t2", "tier": "tier2", "count": 1, "strategy": "random"},
+    {"slot_id": "t3", "tier": "tier3", "count": 2, "strategy": "random"}
+  ]
+}
