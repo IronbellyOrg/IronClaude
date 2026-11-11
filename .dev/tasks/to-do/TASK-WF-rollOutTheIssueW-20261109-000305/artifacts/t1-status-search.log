@@ -1,0 +1,10 @@
+Task 1 status search and line-count evidence
+$ grep -n nothing implemented docs/designs/issue-watcher.md
+(no matches)
+exit=1 (expected no matches)
+$ grep -n -i -E not implemented|design only|not yet built docs/designs/issue-watcher.md
+(no matches)
+exit=1 (expected no matches)
+line_count before=935 after=935 PASS
+status: **Status:** Implemented and merged in PRs #447 and #448; never run live; `enabled` ships as `false`; no schedule is installed. Next: the owner-run live test (FU-1), section 14.1 of [issue-watcher-setup.md](issue-watcher-setup.md) (`docs/designs/issue-watcher-setup.md`).
+Confidence: documentation-only change; live source and plan agree. No external API change. Auggie codebase-retrieval unavailable in this session; codegraph and dedicated Read/Grep used.

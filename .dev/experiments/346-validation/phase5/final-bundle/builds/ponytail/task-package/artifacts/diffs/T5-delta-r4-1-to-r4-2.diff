@@ -1,0 +1,82 @@
+diff --git a/src/superclaude/skills/sc-fix-audit/scripts/fix_audit.py b/src/superclaude/skills/sc-fix-audit/scripts/fix_audit.py
+index 3591a4c54..f99b133b2 100644
+--- a/src/superclaude/skills/sc-fix-audit/scripts/fix_audit.py
++++ b/src/superclaude/skills/sc-fix-audit/scripts/fix_audit.py
+@@ -958,6 +958,37 @@ def unlabelled_blocking(text: str, r2_ids: set[str] = frozenset()) -> list[str]:
+     return out
+ 
+ 
++def closed_blocking_rows(text: str, closed: set[str]) -> list[str]:
++    """Closed ids that a review-3 table row grades blocking explicitly, in any section,
++    the resolution table included (a bare label stays a note; only a positive blocking
++    grade is a relabelling dispute)."""
++    key = report_key(text)
++    hits: list[str] = []
++    header: list[str] | None = None
++    lines = text.splitlines()
++    for n, line in enumerate(lines):
++        cs = table_cells(line)
++        if not cs:
++            header = None
++            continue
++        if is_separator(cs):
++            continue
++        nxt = table_cells(lines[n + 1]) if n + 1 < len(lines) else None
++        if nxt is not None and is_separator(nxt):
++            header = [c.lower() for c in cs]
++            continue
++        cell = cs[0].strip("*` ")
++        if not ID_CELL_RE.fullmatch(cell):
++            continue
++        blocking = parse_grade(line, key)[1] is True
++        col = next((i for i, h in enumerate(header or []) if "blocking" in h), None)
++        if col is not None and col < len(cs) and cs[col].lower() in YES_CELLS:
++            blocking = True
++        if blocking:
++            hits += [t for t in id_tokens(cell) if t in closed]
++    return list(dict.fromkeys(hits))
++
++
+ def cmd_verdict(a: argparse.Namespace) -> int:
+     """Compute review 3's verdict from files; never turns a FAIL into a PASS."""
+     d = Path(a.dir)
+@@ -1014,7 +1045,12 @@ def cmd_verdict(a: argparse.Namespace) -> int:
+         )
+     )
+     open_ids = list(dict.fromkeys(prior_open + new_blocking))
+-    disagree = [t for t in closed if t in new_blocking]
++    disagree = list(
++        dict.fromkeys(
++            [t for t in closed if t in new_blocking]
++            + closed_blocking_rows(r3, set(closed))
++        )
++    )
+     computed = "FAIL" if open_ids else "PASS"
+     if a.report_rule == "427" and m and m.group(1) != computed:
+         disagree.append(f"report says {m.group(1)}, computed {computed}")
+diff --git a/tests/skills/test_fix_audit_script.py b/tests/skills/test_fix_audit_script.py
+index 587eaaf01..3ecb9df52 100644
+--- a/tests/skills/test_fix_audit_script.py
++++ b/tests/skills/test_fix_audit_script.py
+@@ -1176,3 +1176,21 @@ def test_blocking_column_yes_and_no_on_closed_id(applied):
+         and "open blocking: none" in lines
+         and lines[-1] == "verdict: PASS"
+     )
++
++
++@pytest.mark.parametrize("rule", ["427", "any-severity"])
++@pytest.mark.parametrize(
++    "row", ["| N1 | blocking | open |\n", "| N1 | MINOR, B | open |\n"]
++)
++def test_closed_id_graded_blocking_in_resolution_table_disagrees(applied, rule, row):
++    res, lines = verdict(applied, r3(RESOLVED + row, last="verdict: PASS"), rule)
++    assert res.returncode == 2 and lines[-1] == "verdict: FAIL"
++    assert any(ln.startswith("consistency: DISAGREE") for ln in lines)
++
++
++def test_closed_id_with_bare_label_in_resolution_table_stays_a_note(applied):
++    res, lines = verdict(
++        applied, r3(RESOLVED + "| N1 | MINOR | open |\n", last="verdict: PASS")
++    )
++    assert res.returncode == 0 and lines[-1] == "verdict: PASS"
++    assert "closed-minor, listed open: N1" in lines

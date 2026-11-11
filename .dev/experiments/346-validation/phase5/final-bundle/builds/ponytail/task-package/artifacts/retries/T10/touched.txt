@@ -1,0 +1,4 @@
+.claude/commands/sc/spec-panel-ponytail.md
+.claude/skills/sc-fix-audit/SKILL.md
+.claude/skills/sc-fix-audit/refs/auditor-brief.md
+.claude/skills/sc-fix-audit/scripts/fix_audit.py

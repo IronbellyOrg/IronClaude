@@ -1,0 +1,76 @@
+{
+  "id": "fd79b28d-0a60-4b84-a324-79a36a84335d",
+  "ok": true,
+  "result": {
+    "worktree": {
+      "id": "de550e99-fa3c-42e2-abfe-1d092771c759::/home/coder/workspaces/worktrees/IronClaude/p0-live-adversarial",
+      "identity": {
+        "key": "wt2:local:5f94ab6b-daed-4780-8705-f0b8bae0e656",
+        "executionHostId": "local",
+        "instanceId": "5f94ab6b-daed-4780-8705-f0b8bae0e656"
+      },
+      "instanceId": "5f94ab6b-daed-4780-8705-f0b8bae0e656",
+      "repoId": "de550e99-fa3c-42e2-abfe-1d092771c759",
+      "projectId": "github:superclaude-org/superclaude_framework",
+      "hostId": "local",
+      "projectHostSetupId": "de550e99-fa3c-42e2-abfe-1d092771c759",
+      "creatorProvenance": {
+        "kind": "host"
+      },
+      "path": "/home/coder/workspaces/worktrees/IronClaude/p0-live-adversarial",
+      "head": "8db29f1165508187b7a14a48f2f66793e269d596",
+      "branch": "refs/heads/ironbelly/p0-live-adversarial",
+      "isBare": false,
+      "isMainWorktree": false,
+      "displayName": "p0-live-adversarial",
+      "displayNameMode": "fixed",
+      "comment": "",
+      "linkedIssue": null,
+      "linkedPR": null,
+      "linkedLinearIssue": null,
+      "linkedLinearIssueWorkspaceId": null,
+      "linkedLinearIssueOrganizationUrlKey": null,
+      "linkedGitLabMR": null,
+      "linkedGitLabIssue": null,
+      "linkedBitbucketPR": null,
+      "linkedAzureDevOpsPR": null,
+      "linkedGiteaPR": null,
+      "linkedWorkItem": null,
+      "linkedTaskSourceContext": null,
+      "isArchived": false,
+      "isUnread": false,
+      "isPinned": false,
+      "sortOrder": 1793781058052,
+      "lastActivityAt": 1793781058052,
+      "createdAt": 1793781058052,
+      "cliProvenance": {
+        "kind": "created-by-cli",
+        "createdAt": 1793781056549,
+        "callerTerminalHandle": "term_cddf23a9-82f5-45ee-a9b8-1fdd61d80197"
+      },
+      "baseRef": "refs/heads/ironbelly/OrcaCLICommandRefactor-Specs",
+      "workspaceStatus": "in-progress",
+      "parentWorktreeId": null,
+      "childWorktreeIds": [],
+      "lineage": null,
+      "workspaceLineage": null,
+      "git": {
+        "path": "/home/coder/workspaces/worktrees/IronClaude/p0-live-adversarial",
+        "head": "8db29f1165508187b7a14a48f2f66793e269d596",
+        "branch": "refs/heads/ironbelly/p0-live-adversarial",
+        "isBare": false,
+        "isMainWorktree": false
+      }
+    },
+    "lineage": null,
+    "workspaceLineage": null,
+    "warnings": [],
+    "catalogVersion": {
+      "epoch": "ff393474-d39e-4a7b-8122-190444f1d09c",
+      "sequence": 191
+    }
+  },
+  "_meta": {
+    "runtimeId": "c04240e6-4b7f-4f4b-bbab-e970a9957961"
+  }
+}

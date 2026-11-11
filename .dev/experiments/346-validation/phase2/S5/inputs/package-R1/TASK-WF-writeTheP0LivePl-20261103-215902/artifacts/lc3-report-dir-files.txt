@@ -1,0 +1,14 @@
+.dev/p0-live/adversarial/adversarial/base-selection.md
+.dev/p0-live/adversarial/adversarial/debate-transcript.md
+.dev/p0-live/adversarial/adversarial/diff-analysis.md
+.dev/p0-live/adversarial/adversarial/merge-log.md
+.dev/p0-live/adversarial/adversarial/refactor-plan-review.md
+.dev/p0-live/adversarial/adversarial/refactor-plan.md
+.dev/p0-live/adversarial/adversarial/return-contract.yaml
+.dev/p0-live/adversarial/adversarial/rounds/r1-variant-1.md
+.dev/p0-live/adversarial/adversarial/rounds/r1-variant-2.md
+.dev/p0-live/adversarial/adversarial/scoring/qual-pass-1.md
+.dev/p0-live/adversarial/adversarial/scoring/qual-pass-2.md
+.dev/p0-live/adversarial/adversarial/variant-1-original.md
+.dev/p0-live/adversarial/adversarial/variant-2-original.md
+.dev/p0-live/adversarial/merged-output.md

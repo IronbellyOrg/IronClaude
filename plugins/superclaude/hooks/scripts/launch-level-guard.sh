@@ -92,7 +92,7 @@ ll_say() {
         w='Its prompt text arrives later as a new turn and could look like a person replying approved.'
         y='Wait until the person approves the plan, or use a background task or a monitor instead.' ;;
     LL-TAMPER)
-        b='touching the launch-level state, the Claude Code settings or hooks, a git configuration file, or reinstalling the hooks.'
+        b='touching the launch-level state, the Claude Code settings or hooks, a git configuration file or the git pre-push hook, or reinstalling the hooks.'
         w='The session must not change its own limits.'
         y="Ask the person. To release this session they run, in their own terminal: rm \"$LL_STORE/sessions/$LL_SID\" \"$LL_STORE/sessions/$LL_SID.ok\"" ;;
     LL-SKILL)
@@ -704,6 +704,12 @@ if [ "$LL_BRANCH" = tool ]; then
     # built from LL_S1 and LL_S2, so this text never names it joined.
     case $LL_TT in
     *"$LL_S1/$LL_S2"* | *.claude/settings* | *.claude/hooks* | *disableAllHooks* | *.gitconfig* | *.git/config* | *.config/git*) LL_CLASSES+='TAMPER ' ;;
+    esac
+    # FR-050..FR-052 (#441): the git pre-push hook, its data file, --no-verify
+    # and hook config, lowercased so case changes do not slip past. The config
+    # transports (--config-env, GIT_CONFIG_*) are left to their L1 classes (SD-2).
+    case ${LL_TT,,} in
+    *.git/hooks* | *hooks/pre-push* | *pre-push.launch-level* | *--no-verify* | *hookspath* | *hook.pre-push*) LL_CLASSES+='TAMPER ' ;;
     esac
     # A dot segment, a doubled slash or a ".." after the config directory can
     # reach the store without naming it joined (cd ~/.claude/. && mv state x).

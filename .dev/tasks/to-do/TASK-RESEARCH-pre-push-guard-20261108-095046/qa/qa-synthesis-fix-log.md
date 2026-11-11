@@ -1,0 +1,20 @@
+# Synthesis Gate (Gate 2) Fix Log
+
+Input: `qa/qa-consolidated-findings-phase5-cycle0.md`. Only synthesis files and this log were edited. No agent was spawned and no git experiment was run.
+
+## Cycle 0
+
+| # | Finding | Fix applied (file and section) | Evidence used | Status |
+|---|---------|--------------------------------|---------------|--------|
+| B1 | Stdin record order is stated in contradictory ways; synth-03 calls G-24 resolved by command-line order; synth-04 row 22 misattributes; §9.4 has no row | synth-01 §2.5(a) diagram and order table row, Open Questions item 5; synth-02 G-24, W1-21; synth-03 Gap mapping G-24; synth-04 row 22, new §9.4 row "Stdin record order (G-24)". All say order is undocumented, observed both ways, and the hook scans every record | research/04 E7 (line 549), E9 (line 702), E19, E24 (line 1339); research/web-01 G3 (line 226), Area I (line 428), Key Findings (line 471) | FIXED |
+| B2 | IR-7 status inconsistent; synth-03 Phase 4.4 conditional and OQ-7 re-asks a decided question | synth-03 §7 "Launch refusal versus warning", diagram, Phase 4.4 (refusal behind a default-off switch, own commit), new Phase 6.11 (both switch states), Phase 7.5, G-17 mapping, Integration Checklist, OQ-7 (mechanism and turn-on criterion only); synth-02 G-17 Target State, DOC-5 | seed-brief lines 68 and 77; synth-04 R3 and row 12 | FIXED |
+| B3 | Three different stdin rules across files | synth-02 T-6, T-10, §3.3 table and diagram, SC-12, SC-13, G-42; synth-03 Phase 1.7, Phase 6.2, Integration Checklist; synth-04 row 32 narrowed to "confirm the rule". One rule: governed/unknown/no-verdict read to EOF before an allow, a refusal may exit at the first protected record (EPIPE tolerated), ordinary/released exit 0 without reading | web-01 Area I (transport.c 1327-1329, lines 421/431); synth-02 T-10; D19-26; gaps-and-questions G-42 (line 52) | FIXED |
+| B4 | L1-8 (`gh $'\x61pi'`) has no Section 8 step; Gap mapping covers only G-1..G-43 | synth-03 Phase 5.4 adds L1-7 and L1-8; Phase 5.5 adds DOC-9 (line 56); new table "Gap mapping (BP-, L1- and DOC- families)" maps BP-1..14, L1-1..10, DOC-1..11 to a Phase step, "covered by G-n" or "no step: L1 already refuses" | research/02 line 185 (L1-8 PARTIAL), 02 Stale Documentation; synth-02 §4.2-§4.4 rows (lines 220-264) | FIXED |
+| B5 | synth-03 presents open owner decisions (U28 install point, ownership marker, identity-script location) as settled | synth-03 Phases 1.3, 2.4, 2.5, 2.7, 4.1 labelled "proposed; conditional on OQ-n"; Integration Checklist items; new OQ-18 (U28), OQ-19 (marker), OQ-20 (identity-script location and missing-script behaviour), cross-referenced to synth-04 rows 15, 14, 2 | seed-brief lines 75, 76, 78; synth-04 rows 2, 14, 15 | FIXED |
+| B6 | API/smart-HTTP/library bypass has three statuses | One status, "Documented externally (web-01 H/J); not confirmed at runtime", in synth-01 D19-30 row and Open Questions item 1; synth-02 D19-30, G-1, G-2, §4.5, §5.5; synth-03 G-1/G-2 mapping; synth-04 R4/R5 ("resolved by documentation") and row 11 | web-01 Areas H/J (lines 250-371), J10, J11; libraries not installed (synth-04 row 36) | FIXED |
+| B7 | "2.47.3 or later" generalised without citation | synth-02 §5.5 Version risk; synth-03 Phase 6.10 (records `git --version`, re-test triggers), new Phase 7.8 (design §19 text); synth-04 rows 34 and 40. Wording: tested on 2.47.3; re-run the Phase 6 real-git suite before relying on any version at or above 2.54.0 and when 2.98.0 ships | web-01 F1/F2, recommendation 7, version lines 407-410 and 522; synth-02 §5.3 | FIXED |
+| B8 | synth-01 §1 L1 row claims every non-canonical push spelling is refused | synth-01 §1 L1 row reworded to "the non-canonical push spellings it recognises (LL-PUSH-FORM)" with the known misses listed | research/02 §5 (guard lines 659-669, 731-732), 02 Gaps; synth-01 §2 coverage table | FIXED |
+
+MINOR findings N1-N12 are recorded as notes in the consolidated findings and were not fixed, per the review severity rule.
+
+Blocking findings: 8 FIXED, 0 NOT FIXED.

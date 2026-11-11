@@ -1,0 +1,6 @@
+3851253a08fdc4892244403619b23ce7e7a12ffc
+family=missing-test-case form="an FR-102 forgery case (wrong uid, wrong mode of the hook entry) with no test and no matching check in _l2_entry_verdict"
+grep: grep -n -E 'st_uid|0o022|geteuid' src/superclaude/skills/sc-issue-protocol/scripts/orca_worktree.py tests/skills/test_issue_l2_install.py
+before: orca_worktree.py:1184-1185 (data-file uid/mode check only), orca_worktree.py:1334 (hooks-directory check), test_issue_l2_install.py:242,307-309 (geteuid shift on the hooks directory only); no uid or mode check on the hook entry and no wrong-mode or wrong-uid hook test
+coupled: src/superclaude/skills/sc-issue-protocol/scripts/orca_worktree.py (_l2_entry_verdict), plugins mirror if any, tests/skills/test_issue_l2_install.py (FORGERIES, :241-242 comment), commit B body (D-3 divergence)
+after: orca_worktree.py:1217 (hook entry uid check, conflict "wrong owner") and :1219 (hook entry mode check, conflict "group or other writable"); test_issue_l2_install.py FORGERIES gain group-writable (0o775) and world-writable (0o777); :252-266 test_wrong_uid_never_owned (hook and data file chown to 65534, skipif without root, U-7); :269-276 test_wrong_uid_of_hook_entry_without_root (faked geteuid on _l2_entry_verdict); :344-346 hooks-directory test unchanged; no plugins mirror of orca_worktree.py exists

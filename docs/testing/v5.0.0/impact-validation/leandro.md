@@ -140,10 +140,12 @@ superclaude install --list | grep -iE 'codegraph|User registration|Ready for Ser
 superclaude doctor --verbose | grep -iE 'codegraph|legacy|retired'
 ls ~/.claude/ORCHESTRATOR.md ~/.claude/COMMANDS.md ~/.claude/PERSONAS.md ~/.claude/MODES.md ~/.claude/FLAGS.md ~/.claude/MCP.md 2>/dev/null
 ls -d ~/.claude/skills/codebase-memory 2>/dev/null
-cmp ~/.claude/CLAUDE.md <path to an IronClaude clone at master>/src/superclaude/core/CLAUDE.md && echo "CLAUDE.md is the 5.0.0 copy"
+ls ~/.claude/CODEGRAPH.md 2>/dev/null
 ```
 
+Do not compare `~/.claude/CLAUDE.md` with IronClaude's own `CLAUDE.md`. On a Coder workspace `~/.claude/CLAUDE.md` is the secret-handling file the workspace copies in at startup, so the comparison reports "differs" on every workspace, upgraded or not. Do not use `~/.claude/HOW-WE-WORK.md` as a 5.0.0 marker either: it has been installed since 4.3.5 (added in commit `051f39fe`, 2026-10-14). `~/.claude/CODEGRAPH.md` is the file that only a 5.0.0 install has.
+
 - **Baseline:** none exists. This first run is the baseline.
-- **A fully upgraded workspace shows:** version 5.0.0, a `User registration:` line that is not `absent`, `Ready for Serena retirement: yes`, and no `no codegraph registration` line.
+- **A fully upgraded workspace shows:** version 5.0.0, `~/.claude/CODEGRAPH.md` present, a `User registration:` line that is not `absent`, `Ready for Serena retirement: yes`, and no `no codegraph registration` line.
 - **Pass:** list every half-upgraded workspace on #354 and tell its owner. On 2026-12-16 none should remain. Leftover retired core files and the `codebase-memory` skill are harmless. List them and let the owner decide.
 - **What to tell the owner:** the runbook says to run `superclaude install --force`. On a Coder workspace the IronClaude version comes from the workspace image, so `install --force` would only reinstall the old baked version. The likely fix is to update the workspace to the current template version and restart it, as the image changelog describes for other changes. This is an inference, so confirm it with Clay before you tell anyone.

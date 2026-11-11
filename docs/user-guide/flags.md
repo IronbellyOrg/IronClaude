@@ -225,10 +225,12 @@ Opt in only for PRs from collaborators trusted with your credentials: lock regen
 | `--claim` | Claim an existing issue on the origin repo | Issue number (`302`, `#302`) or issue URL |
 | `--create` | File a new issue | Text, or `@path` to a file holding the description |
 | `--depth` | How hard create mode checks your flags and fills the body (create only) | `quick` (default), `standard`, `deep` |
-| `--mode` | Feature or bug template and label (create only) | `feature`, `bug`; chosen by a worker when omitted |
-| `--type` | Area of the change, mapped to a `type: <value>` label (create only) | `cicd`, `command`, `skill`, `agent`, `hook`, `cli`, `core`, `docs`, `tests`, `install`, `other`; chosen by a worker when omitted |
+| `--mode` | Feature or bug template, issue type (Feature or Bug) and mode label (create only) | `feature`, `bug`; chosen by a worker when omitted |
+| `--type` | Area of the change; a feature in `tests` gets the issue type Test, otherwise it is recorded in `flags.md` and no label is applied (create only) | `cicd`, `command`, `skill`, `agent`, `hook`, `cli`, `core`, `docs`, `tests`, `install`, `other`; chosen by a worker when omitted |
 
 Pass exactly one of `--claim` and `--create`. There is no repository flag: the repository is always `origin`.
+
+On `--create` the command sets the GitHub issue type and the Complexity issue field of your organization (Simple, Medium or Complex, from `--depth`: quick, standard or deep), applies the `enhancement` or `bug` mode label when the repository has it, and lists anything it could not set in the final output. It never creates a label, an issue type or an issue field.
 
 ## Advanced Control Flags
 

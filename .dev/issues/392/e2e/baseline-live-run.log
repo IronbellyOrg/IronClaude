@@ -1,0 +1,11 @@
+Traceback (most recent call last):
+  File "/home/coder/workspaces/worktrees/IronClaude/ccsession-failover-392/.dev/issues/392/e2e/run.py", line 359, in <module>
+    main()
+    ~~~~^^
+  File "/home/coder/workspaces/worktrees/IronClaude/ccsession-failover-392/.dev/issues/392/e2e/run.py", line 300, in main
+    claude(base, model, args.label + "-" + label)
+    ~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/coder/workspaces/worktrees/IronClaude/ccsession-failover-392/.dev/issues/392/e2e/run.py", line 264, in claude
+    assert result.returncode == 0, (
+           ^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: baseline-live-named: Claude exited 1; see evidence file

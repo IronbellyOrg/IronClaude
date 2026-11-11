@@ -91,6 +91,9 @@ _FRESHNESS_SCRIPTS = [
     # UserPromptSubmit + PreToolUse launch-level guard (L1); ordinary sessions
     # are allowed, only a bound governed session is restricted.
     "launch-level-guard.sh",
+    # L2 git pre-push hook source; installed into a worktree's hooks/pre-push
+    # by the Orca launcher, never registered in settings.json.
+    "launch-level-pre-push.sh",
 ]
 _LEGACY_SCRIPTS = ["session-init.sh"]
 

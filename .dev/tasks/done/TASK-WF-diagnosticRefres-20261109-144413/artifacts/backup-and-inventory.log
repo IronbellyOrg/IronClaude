@@ -1,0 +1,5 @@
+Traceback (most recent call last):
+  File "/home/coder/workspaces/worktrees/IronClaude/issue-441/.dev/tasks/to-do/TASK-WF-diagnosticRefres-20261109-144413/artifacts/compatibility_state.py", line 91, in <module>
+    assert drift==EXPECTED_DRIFT,drift
+           ^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ['.', 'SKILL.md', 'refs', 'refs/agent-assertions.md', 'refs/calibrator-eval-cases.md', 'refs/contract-enumeration.md', 'refs/diagnosability-audit.md', 'refs/doc-discovery.md', 'refs/effective-input-proof.md', 'refs/environment-deltas.md', 'refs/escalation-rubric.md', 'refs/hardening-output-contract.md', 'refs/hypothesis-card-template.md', 'refs/pipeline-hardening-closure.md', 'refs/primitive-differential.md', 'refs/probe-packs', 'refs/probe-packs/read-parse.md', 'refs/remediation-handoff.md', 'refs/report-template.md', 'refs/runtime-entrypoint-verification.md', 'refs/triage-checklist.md', 'refs/unmask-and-sweep.md']

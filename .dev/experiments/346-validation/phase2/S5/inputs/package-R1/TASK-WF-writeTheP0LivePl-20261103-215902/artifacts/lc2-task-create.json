@@ -1,0 +1,30 @@
+{
+  "id": "392645f9-8af8-47c0-8622-c9e5a445f152",
+  "ok": true,
+  "result": {
+    "task": {
+      "id": "task_5a4ffbe5ddcd",
+      "run_id": "run_0f9350decd8c",
+      "parent_id": null,
+      "created_by_terminal_handle": "term_cddf23a9-82f5-45ee-a9b8-1fdd61d80197",
+      "created_by_pane_key": "c1e9407e-bfa1-4701-8c09-5286eb1435e4:1f2bf574-5645-49fb-8527-eaeea2e5853e",
+      "created_by_process_incarnation": "de550e99-fa3c-42e2-abfe-1d092771c759::/home/coder/workspaces/worktrees/IronClaude/OrcaCLICommandRefactor-Specs@@9943ddb7:ed4d0ccc-4758-4b15-9c71-628a6820d14f",
+      "created_by_run_generation": 1,
+      "task_title": "P0 live check 2: workflow",
+      "display_name": "P0 live check 2: workflow",
+      "spec": "Guard: before running anything, check every Command: line below under the brief guard in ~/.claude/WORKER-CONTRACT.md; on a refusal run nothing and send worker_done --outcome failed with a body starting \"guard refused:\".\nOn a blocked gate: report blocked\nLocal commit: not authorized\nReport directory: the one new TASK-WF-* package directory this run creates under .dev/tasks/to-do/ (workflow takes no report-directory flag at P0)\nWorktree: disposable worktree created by Orca from ironbelly/OrcaCLICommandRefactor-Specs for this check only; you are its only writer.\nOutward actions: none; the coordinator performs every push, PR, comment, install and paid run.\nP0 only: Report file: the return-contract.yaml in the one new TASK-WF-* package directory this run creates under .dev/tasks/to-do/, with the status in its top-level status key; a package that existed before this run never counts. Outcome rule: --outcome failed when the file is missing or empty, or its status is failed or blocked; otherwise --outcome succeeded. This rule replaces the WC-5 mapping for this Task.\nCommand: /sc:workflow \"Add one sentence to the Installation section of README.md stating that superclaude install --force overwrites files that already exist in ~/.claude\" --handoff none",
+      "status": "ready",
+      "deps": "[]",
+      "result": null,
+      "created_at": "2026-11-04 06:58:02",
+      "completed_at": null
+    },
+    "mutation": {
+      "requestId": "07c9590b-2867-45b0-a361-82a8aea8d9fd",
+      "replayed": false
+    }
+  },
+  "_meta": {
+    "runtimeId": "c04240e6-4b7f-4f4b-bbab-e970a9957961"
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "verdict":"PASS",
+  "scope":"New narrowed plan reflection only, not installation or execution readiness",
+  "scores":{
+    "citation_grounding":{"score":1.0,"evidence":"All cited source/plan/installer46-55 ranges verified; planned controls P28,30,34,43,45,48-50 match, no execution success claimed"},
+    "coverage_completeness":{"score":1.0,"evidence":"Full source/plan independently read, all12 requirements substantively mapped, intro covered, no furtherINF"},
+    "deviation_classification_clarity":{"score":1.0,"evidence":"Two Aligned controls and one minor Refinement; no planned-control falsely called executed regression"},
+    "risk_surface_coverage":{"score":1.0,"evidence":"Wrong source/target/symlink, incomplete backup, drift, destructivecopy failure, collateral changes, unavailable worker and false readiness covered P28-35,43,48-50"},
+    "recommendation_actionability":{"score":1.0,"evidence":"P45 names compatibility-review.json, parent persistence before consumption, no expanded permissions"}
+  },
+  "arithmetic_mean":1.0,
+  "formula":"(1+1+1+1+1)/5",
+  "findings":[{"severity":"minor","evidence":"coverage-matrix.json:108","finding":"inference_pass stale pending although independent full-source check done; coverage independently verified"}],
+  "tier_recommendation":"T1 STOP candidate; parent must apply structural signals/domain count before final tier",
+  "calibrator_diversity":"degraded",
+  "limits":["Read-only; no commands/tests/install/writes/delegation","No runtime baseline, backup, installation or test outcome verified","Old failed checks/scores unchanged","Only singleton permitted model, no heterogeneous claim"],
+  "parent_disposition":"Updated only stale inference_pass metadata to completed from actual two independent responses; plan/source and initial failures unchanged. No installation proof inferred."
+}

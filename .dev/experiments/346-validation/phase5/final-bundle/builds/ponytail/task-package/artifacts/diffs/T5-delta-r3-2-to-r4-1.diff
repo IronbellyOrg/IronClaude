@@ -1,0 +1,91 @@
+diff --git a/src/superclaude/skills/sc-fix-audit/scripts/fix_audit.py b/src/superclaude/skills/sc-fix-audit/scripts/fix_audit.py
+index 986808b7..3591a4c5 100644
+--- a/src/superclaude/skills/sc-fix-audit/scripts/fix_audit.py
++++ b/src/superclaude/skills/sc-fix-audit/scripts/fix_audit.py
+@@ -914,29 +914,46 @@ CM = ("CRITICAL", "MAJOR")
+ def unlabelled_blocking(text: str, r2_ids: set[str] = frozenset()) -> list[str]:
+     """Ids of review-3 table rows outside the resolution table that carry no severity
+     label and are not read as non-blocking: parse_report needs a label, but an unknown
+-    grade still counts as blocking here (fail closed). A status-word row is a
+-    resolution row only when all its ids are review-2 ids."""
++    grade still counts as blocking here (fail closed). A status-word row of review-2
++    ids is a resolution note only when it does not grade them blocking."""
+     key = report_key(text)
+     out: list[str] = []
+     in_prior = False
++    header: list[str] | None = None
+     lines = text.splitlines()
+     for n, line in enumerate(lines):
+         if line.lstrip().startswith("#"):
+-            in_prior = bool(PRIOR_HEADING_RE.search(line))
++            in_prior, header = bool(PRIOR_HEADING_RE.search(line)), None
+             continue
+         cs = table_cells(line)
+-        if in_prior or not cs or is_separator(cs):
++        if not cs:
++            header = None
++            continue
++        if in_prior or is_separator(cs):
+             continue
+         nxt = table_cells(lines[n + 1]) if n + 1 < len(lines) else None
+         if nxt is not None and is_separator(nxt):
++            header = [c.lower() for c in cs]
+             continue  # a header row
+         cell = cs[0].strip("*` ")
+         if not ID_CELL_RE.fullmatch(cell) or LABEL_RE.search(line):
+             continue
+         toks = [t for t in id_tokens(cell) if not FR_RE.match(t)]
+-        if any(c.lower() in STATUS_WORDS for c in cs[1:]) and set(toks) <= r2_ids:
++        blocking = parse_grade(line, key)[1]
++        col = next((i for i, h in enumerate(header or []) if "blocking" in h), None)
++        if col is not None and col < len(cs):
++            if cs[col].lower() in YES_CELLS:
++                blocking = True
++            elif cs[col].lower() in NO_CELLS and blocking is None:
++                blocking = False
++        # a row that grades its ids blocking is a finding, never a resolution note
++        if (
++            blocking is not True
++            and any(c.lower() in STATUS_WORDS for c in cs[1:])
++            and set(toks) <= r2_ids
++        ):
+             continue
+-        if parse_grade(line, key)[1] is not False:
++        if blocking is not False:
+             out += toks
+     return out
+ 
+diff --git a/tests/skills/test_fix_audit_script.py b/tests/skills/test_fix_audit_script.py
+index 34e95bd6..587eaaf0 100644
+--- a/tests/skills/test_fix_audit_script.py
++++ b/tests/skills/test_fix_audit_script.py
+@@ -1150,3 +1150,29 @@ def test_new_review3_row_with_status_word_counts_as_blocking(applied, row):
+ def test_review2_id_row_with_status_word_is_not_a_new_finding(applied):
+     res, lines = verdict(applied, r3(RESOLVED, "| N1 | no | open |\n", "verdict: PASS"))
+     assert "open blocking: none" in lines and lines[-1] == "verdict: PASS"
++
++
++@pytest.mark.parametrize("rule", ["427", "any-severity"])
++def test_closed_id_graded_blocking_with_status_word_disagrees(applied, rule):
++    res, lines = verdict(
++        applied, r3(RESOLVED, "| N1 | blocking | open |\n", "verdict: PASS"), rule
++    )
++    assert res.returncode == 2 and lines[-1] == "verdict: FAIL"
++    assert any(ln.startswith("consistency: DISAGREE") for ln in lines)
++
++
++def test_blocking_column_yes_and_no_on_closed_id(applied):
++    swap = ("| id | severity | grade |", "| id | blocking | status |")
++    res, lines = verdict(
++        applied, r3(RESOLVED, "| N1 | yes | open |\n", "verdict: PASS").replace(*swap)
++    )
++    assert res.returncode == 2 and lines[-1] == "verdict: FAIL"
++    assert any(ln.startswith("consistency: DISAGREE") for ln in lines)
++    res, lines = verdict(
++        applied, r3(RESOLVED, "| N1 | no | open |\n", "verdict: PASS").replace(*swap)
++    )
++    assert (
++        res.returncode == 0
++        and "open blocking: none" in lines
++        and lines[-1] == "verdict: PASS"
++    )

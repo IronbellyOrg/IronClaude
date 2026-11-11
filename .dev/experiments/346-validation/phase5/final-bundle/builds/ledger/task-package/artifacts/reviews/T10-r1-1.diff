@@ -1,0 +1,224 @@
+diff --git a/.dev/brainstorms/346-ledger/briefs/ledger-steps/L-begin.txt b/.dev/brainstorms/346-ledger/briefs/ledger-steps/L-begin.txt
+new file mode 100644
+index 00000000..2f7ea542
+--- /dev/null
++++ b/.dev/brainstorms/346-ledger/briefs/ledger-steps/L-begin.txt
+@@ -0,0 +1 @@
++Ledger step L-begin (after T06, and again after T08) (inserted coordinator step, issue 346 theme ledger; S1 arm "led"). Repo root: <repo root>. Invoke Skill sc-review-ledger: its SKILL.md is in ~/.claude/skills/sc-review-ledger/ first, else the project .claude/skills/sc-review-ledger/; <skill base> below is that folder. Run these commands from the repo root, in order, and nothing else; <seq> is the "seq" value the previous command (or `status`) printed, and <rep> is the replicate name (for example led-r1). (1) `uv run --no-project python "<skill base>/scripts/review_ledger.py" status --ledger .dev/orca-command-refactor/specs/orca-worker-contract-spec.review-ledger`; (2) only when the reviser's disposition file holds one ledger-input block of answer claims: `uv run --no-project python "<skill base>/scripts/review_ledger.py" answer --ledger .dev/orca-command-refactor/specs/orca-worker-contract-spec.review-ledger --input <disposition file> --op <rep>-c<k>-answer --expect-seq <seq>`; (3) `uv run --no-project python "<skill base>/scripts/review_ledger.py" begin --ledger .dev/orca-command-refactor/specs/orca-worker-contract-spec.review-ledger --doc .dev/orca-command-refactor/specs/orca-worker-contract-spec.md --revert-unclaimed --op <rep>-r<k+1>-begin --expect-seq <seq>`. --revert-unclaimed is copied from the run line of the next review brief (T07 or T09, which carry it): that flag is the consent for the reverts of this one begin and is never stored; drop it only if the next review brief has no --revert-unclaimed. If begin refuses E-REPORT-EDITED, run `uv run --no-project python "<skill base>/scripts/review_ledger.py" close --ledger .dev/orca-command-refactor/specs/orca-worker-contract-spec.review-ledger --report <last review report> --op <rep>-r<k>-retail --expect-seq <seq>` to re-append the stored tail, then run begin again; (4) `uv run --no-project python "<skill base>/scripts/review_ledger.py" status --ledger .dev/orca-command-refactor/specs/orca-worker-contract-spec.review-ledger`; name .dev/orca-command-refactor/specs/orca-worker-contract-spec.review-ledger/plan-r<k+1>.md (k+1 = the review printed) in the worker_done body for the next review. Edit nothing by hand: never edit ledger.json, a snapshot, the spec or any report. Any refusal or non-zero exit (other than the verdict exit codes 0, 10, 11 and 12 of `verdict`) stops this step: send an escalation with the script's JSON output and do not retry with a changed input. Planning only: no edits to src/, tests/, docs/, .claude/, ~/.claude or Orca settings, no git commits/pushes/PRs. Finish with worker_done --report-path .dev/orca-command-refactor/specs/orca-worker-contract-spec.review-ledger/ledger.json and put the last `status` JSON in the body.
+diff --git a/.dev/brainstorms/346-ledger/briefs/ledger-steps/L-find-close.txt b/.dev/brainstorms/346-ledger/briefs/ledger-steps/L-find-close.txt
+new file mode 100644
+index 00000000..f0713155
+--- /dev/null
++++ b/.dev/brainstorms/346-ledger/briefs/ledger-steps/L-find-close.txt
+@@ -0,0 +1 @@
++Ledger step L-find-close (after T05) (inserted coordinator step, issue 346 theme ledger; S1 arm "led"). Repo root: <repo root>. Invoke Skill sc-review-ledger: its SKILL.md is in ~/.claude/skills/sc-review-ledger/ first, else the project .claude/skills/sc-review-ledger/; <skill base> below is that folder. Run these commands from the repo root, in order, and nothing else; <seq> is the "seq" value the previous command (or `status`) printed, and <rep> is the replicate name (for example led-r1). (1) `uv run --no-project python "<skill base>/scripts/review_ledger.py" status --ledger .dev/orca-command-refactor/specs/orca-worker-contract-spec.review-ledger`; (2) `uv run --no-project python "<skill base>/scripts/review_ledger.py" find --ledger .dev/orca-command-refactor/specs/orca-worker-contract-spec.review-ledger --input .dev/orca-command-refactor/review/spec-panel.md --op <rep>-r1-find --expect-seq <seq>` (the input is the T05 report; the script reads its one ledger-input block); (3) `uv run --no-project python "<skill base>/scripts/review_ledger.py" close --ledger .dev/orca-command-refactor/specs/orca-worker-contract-spec.review-ledger --report .dev/orca-command-refactor/review/spec-panel.md --op <rep>-r1-close --expect-seq <seq>`; (4) `uv run --no-project python "<skill base>/scripts/review_ledger.py" verdict --ledger .dev/orca-command-refactor/specs/orca-worker-contract-spec.review-ledger`: exit 10 means CONTINUE (dispatch T06 next), exit 12 means the loop ended at review 1 (skip T06 to T09 and run the sweep route next, README.md). Edit nothing by hand: never edit ledger.json, a snapshot, the spec or any report. Any refusal or non-zero exit (other than the verdict exit codes 0, 10, 11 and 12 of `verdict`) stops this step: send an escalation with the script's JSON output and do not retry with a changed input. Planning only: no edits to src/, tests/, docs/, .claude/, ~/.claude or Orca settings, no git commits/pushes/PRs. Finish with worker_done --report-path .dev/orca-command-refactor/specs/orca-worker-contract-spec.review-ledger/ledger.json and put the last `status` JSON in the body.
+diff --git a/.dev/brainstorms/346-ledger/briefs/ledger-steps/L-sweep-ingest.txt b/.dev/brainstorms/346-ledger/briefs/ledger-steps/L-sweep-ingest.txt
+new file mode 100644
+index 00000000..fb3fa37d
+--- /dev/null
++++ b/.dev/brainstorms/346-ledger/briefs/ledger-steps/L-sweep-ingest.txt
+@@ -0,0 +1 @@
++Ledger step L-sweep-ingest (after T09b, fallback route) (inserted coordinator step, issue 346 theme ledger; S1 arm "led"). Repo root: <repo root>. Invoke Skill sc-review-ledger: its SKILL.md is in ~/.claude/skills/sc-review-ledger/ first, else the project .claude/skills/sc-review-ledger/; <skill base> below is that folder. Run these commands from the repo root, in order, and nothing else; <seq> is the "seq" value the previous command (or `status`) printed, and <rep> is the replicate name (for example led-r1). (1) `uv run --no-project python "<skill base>/scripts/review_ledger.py" status --ledger .dev/orca-command-refactor/specs/orca-worker-contract-spec.review-ledger`; (2) `uv run --no-project python "<skill base>/scripts/review_ledger.py" sweep --ledger .dev/orca-command-refactor/specs/orca-worker-contract-spec.review-ledger --input .dev/orca-command-refactor/review/spec-panel-sweep.md --report .dev/orca-command-refactor/review/spec-panel-sweep.md --op <rep>-sweep --expect-seq <seq>`; (3) `uv run --no-project python "<skill base>/scripts/review_ledger.py" status --ledger .dev/orca-command-refactor/specs/orca-worker-contract-spec.review-ledger` and `uv run --no-project python "<skill base>/scripts/review_ledger.py" verdict --ledger .dev/orca-command-refactor/specs/orca-worker-contract-spec.review-ledger` (0 PASS or 11 ESCALATE). Edit nothing by hand: never edit ledger.json, a snapshot, the spec or any report. Any refusal or non-zero exit (other than the verdict exit codes 0, 10, 11 and 12 of `verdict`) stops this step: send an escalation with the script's JSON output and do not retry with a changed input. Planning only: no edits to src/, tests/, docs/, .claude/, ~/.claude or Orca settings, no git commits/pushes/PRs. Finish with worker_done --report-path .dev/orca-command-refactor/specs/orca-worker-contract-spec.review-ledger/ledger.json and put the last `status` JSON in the body.
+diff --git a/.dev/brainstorms/346-ledger/briefs/ledger-steps/L-sweep-prepare.txt b/.dev/brainstorms/346-ledger/briefs/ledger-steps/L-sweep-prepare.txt
+new file mode 100644
+index 00000000..0f5b040c
+--- /dev/null
++++ b/.dev/brainstorms/346-ledger/briefs/ledger-steps/L-sweep-prepare.txt
+@@ -0,0 +1 @@
++Ledger step L-sweep-prepare (after a terminal close, fallback route, before T09b) (inserted coordinator step, issue 346 theme ledger; S1 arm "led"). Repo root: <repo root>. Invoke Skill sc-review-ledger: its SKILL.md is in ~/.claude/skills/sc-review-ledger/ first, else the project .claude/skills/sc-review-ledger/; <skill base> below is that folder. Run these commands from the repo root, in order, and nothing else; <seq> is the "seq" value the previous command (or `status`) printed, and <rep> is the replicate name (for example led-r1). (1) `uv run --no-project python "<skill base>/scripts/review_ledger.py" status --ledger .dev/orca-command-refactor/specs/orca-worker-contract-spec.review-ledger`; (2) `uv run --no-project python "<skill base>/scripts/review_ledger.py" sweep --ledger .dev/orca-command-refactor/specs/orca-worker-contract-spec.review-ledger --prepare --op <rep>-sweep-prepare --expect-seq <seq>`; put the printed copy path in the worker_done body: the coordinator fills it into T09b-sweep-dispatch.txt. Edit nothing by hand: never edit ledger.json, a snapshot, the spec or any report. Any refusal or non-zero exit (other than the verdict exit codes 0, 10, 11 and 12 of `verdict`) stops this step: send an escalation with the script's JSON output and do not retry with a changed input. Planning only: no edits to src/, tests/, docs/, .claude/, ~/.claude or Orca settings, no git commits/pushes/PRs. Finish with worker_done --report-path .dev/orca-command-refactor/specs/orca-worker-contract-spec.review-ledger/ledger.json and put the last `status` JSON in the body.
+diff --git a/.dev/brainstorms/346-ledger/briefs/ledger-steps/L-sweep-subagent.txt b/.dev/brainstorms/346-ledger/briefs/ledger-steps/L-sweep-subagent.txt
+new file mode 100644
+index 00000000..c8dd9f2c
+--- /dev/null
++++ b/.dev/brainstorms/346-ledger/briefs/ledger-steps/L-sweep-subagent.txt
+@@ -0,0 +1 @@
++Ledger step L-sweep-subagent (after a terminal close, subagent route) (inserted coordinator step, issue 346 theme ledger; S1 arm "led"). Repo root: <repo root>. Invoke Skill sc-review-ledger: its SKILL.md is in ~/.claude/skills/sc-review-ledger/ first, else the project .claude/skills/sc-review-ledger/; <skill base> below is that folder. Run these commands from the repo root, in order, and nothing else; <seq> is the "seq" value the previous command (or `status`) printed, and <rep> is the replicate name (for example led-r1). (1) `uv run --no-project python "<skill base>/scripts/review_ledger.py" status --ledger .dev/orca-command-refactor/specs/orca-worker-contract-spec.review-ledger`; (2) `uv run --no-project python "<skill base>/scripts/review_ledger.py" sweep --ledger .dev/orca-command-refactor/specs/orca-worker-contract-spec.review-ledger --prepare --op <rep>-sweep-prepare --expect-seq <seq>`; it prints the copy path; (3) spawn one fresh Agent-tool subagent with this prompt and nothing else: "Run: /sc:spec-panel-ledger @<printed copy path> --mode critique --focus requirements,architecture --sweep . Write .dev/orca-command-refactor/review/spec-panel-sweep.md under the repo root with numbered findings (severity, section, evidence) and the one ledger-input block the command asks for. Do not open .dev/orca-command-refactor/specs/orca-worker-contract-spec.review-ledger or any file in it."; while the subagent runs, keep sending this step's 5-minute heartbeat; (4) `uv run --no-project python "<skill base>/scripts/review_ledger.py" sweep --ledger .dev/orca-command-refactor/specs/orca-worker-contract-spec.review-ledger --input .dev/orca-command-refactor/review/spec-panel-sweep.md --report .dev/orca-command-refactor/review/spec-panel-sweep.md --op <rep>-sweep --expect-seq <seq>`; (5) `uv run --no-project python "<skill base>/scripts/review_ledger.py" status --ledger .dev/orca-command-refactor/specs/orca-worker-contract-spec.review-ledger` and `uv run --no-project python "<skill base>/scripts/review_ledger.py" verdict --ledger .dev/orca-command-refactor/specs/orca-worker-contract-spec.review-ledger` (0 PASS or 11 ESCALATE). Edit nothing by hand: never edit ledger.json, a snapshot, the spec or any report. Any refusal or non-zero exit (other than the verdict exit codes 0, 10, 11 and 12 of `verdict`) stops this step: send an escalation with the script's JSON output and do not retry with a changed input. Planning only: no edits to src/, tests/, docs/, .claude/, ~/.claude or Orca settings, no git commits/pushes/PRs. Finish with worker_done --report-path .dev/orca-command-refactor/specs/orca-worker-contract-spec.review-ledger/ledger.json and put the last `status` JSON in the body.
+diff --git a/.dev/brainstorms/346-ledger/briefs/ledger-steps/L-verify-close.txt b/.dev/brainstorms/346-ledger/briefs/ledger-steps/L-verify-close.txt
+new file mode 100644
+index 00000000..943c5d24
+--- /dev/null
++++ b/.dev/brainstorms/346-ledger/briefs/ledger-steps/L-verify-close.txt
+@@ -0,0 +1 @@
++Ledger step L-verify-close (after T07, and again after T09) (inserted coordinator step, issue 346 theme ledger; S1 arm "led"). Repo root: <repo root>. Invoke Skill sc-review-ledger: its SKILL.md is in ~/.claude/skills/sc-review-ledger/ first, else the project .claude/skills/sc-review-ledger/; <skill base> below is that folder. Run these commands from the repo root, in order, and nothing else; <seq> is the "seq" value the previous command (or `status`) printed, and <rep> is the replicate name (for example led-r1). (1) `uv run --no-project python "<skill base>/scripts/review_ledger.py" status --ledger .dev/orca-command-refactor/specs/orca-worker-contract-spec.review-ledger`; (2) `uv run --no-project python "<skill base>/scripts/review_ledger.py" verify --ledger .dev/orca-command-refactor/specs/orca-worker-contract-spec.review-ledger --input <review output file> --op <rep>-r<k>-verify --expect-seq <seq>` (the review output file is review/spec-panel-round2.md after T07 and review/spec-panel-round3.md after T09); (3) `uv run --no-project python "<skill base>/scripts/review_ledger.py" close --ledger .dev/orca-command-refactor/specs/orca-worker-contract-spec.review-ledger --report <review output file> --op <rep>-r<k>-close --expect-seq <seq>`; (4) `uv run --no-project python "<skill base>/scripts/review_ledger.py" verdict --ledger .dev/orca-command-refactor/specs/orca-worker-contract-spec.review-ledger`: exit 10 means CONTINUE (dispatch the next reviser), exit 12 means the loop is terminal (skip the remaining T08 to T09 dispatches and run the sweep route next, README.md). Edit nothing by hand: never edit ledger.json, a snapshot, the spec or any report. Any refusal or non-zero exit (other than the verdict exit codes 0, 10, 11 and 12 of `verdict`) stops this step: send an escalation with the script's JSON output and do not retry with a changed input. Planning only: no edits to src/, tests/, docs/, .claude/, ~/.claude or Orca settings, no git commits/pushes/PRs. Finish with worker_done --report-path .dev/orca-command-refactor/specs/orca-worker-contract-spec.review-ledger/ledger.json and put the last `status` JSON in the body.
+diff --git a/.dev/brainstorms/346-ledger/briefs/ledger-steps/L0-init.txt b/.dev/brainstorms/346-ledger/briefs/ledger-steps/L0-init.txt
+new file mode 100644
+index 00000000..49db407c
+--- /dev/null
++++ b/.dev/brainstorms/346-ledger/briefs/ledger-steps/L0-init.txt
+@@ -0,0 +1 @@
++Ledger step L0-init (before T05) (inserted coordinator step, issue 346 theme ledger; S1 arm "led"). Repo root: <repo root>. Invoke Skill sc-review-ledger: its SKILL.md is in ~/.claude/skills/sc-review-ledger/ first, else the project .claude/skills/sc-review-ledger/; <skill base> below is that folder. Run these commands from the repo root, in order, and nothing else; <seq> is the "seq" value the previous command (or `status`) printed, and <rep> is the replicate name (for example led-r1). (1) `uv run --no-project python "<skill base>/scripts/review_ledger.py" init --doc .dev/orca-command-refactor/specs/orca-worker-contract-spec.md --profile spec-panel --ledger .dev/orca-command-refactor/specs/orca-worker-contract-spec.review-ledger --op <rep>-init` (a rerun of an aborted replicate adds --archive-existing, which renames the old ledger folder and deletes nothing); (2) `uv run --no-project python "<skill base>/scripts/review_ledger.py" status --ledger .dev/orca-command-refactor/specs/orca-worker-contract-spec.review-ledger`; it must print phase find and review 1. Edit nothing by hand: never edit ledger.json, a snapshot, the spec or any report. Any refusal or non-zero exit (other than the verdict exit codes 0, 10, 11 and 12 of `verdict`) stops this step: send an escalation with the script's JSON output and do not retry with a changed input. Planning only: no edits to src/, tests/, docs/, .claude/, ~/.claude or Orca settings, no git commits/pushes/PRs. Finish with worker_done --report-path .dev/orca-command-refactor/specs/orca-worker-contract-spec.review-ledger/ledger.json and put the last `status` JSON in the body.
+diff --git a/.dev/brainstorms/346-ledger/briefs/ledger-steps/README.md b/.dev/brainstorms/346-ledger/briefs/ledger-steps/README.md
+new file mode 100644
+index 00000000..1765f434
+--- /dev/null
++++ b/.dev/brainstorms/346-ledger/briefs/ledger-steps/README.md
+@@ -0,0 +1,38 @@
++# Coordinator ledger steps for the S1 ledger arm (issue 346, theme ledger)
++
++Owner ruling (2026-11-08): every script write (`init`, `find`, `answer`, `begin` with its scripted spec revert, `verify`, `close`, `sweep`) is done by a separate ledger step that the coordinator runs between the S1 brief tasks, itself or as an inserted dispatch, with the brief templates in this folder. The verbatim S1 review and reviser briefs (`../`) allow their sessions to write only their own output files, so those sessions never run a call that writes a file: they read files the script wrote (`ledger.json`, `plan-r<k>.md`, a `close` tail), may run only `status`, `verdict` and `--dry-run` calls (Option A ruling; these write no file), and hand their rows over in one fenced `ledger-input` block inside their own report (a reviser: inside its own disposition file). No template here asks a review or reviser session to run anything.
++
++Placeholders in the templates: `<repo root>` (the replicate's worktree), `<rep>` (the replicate name, for example `led-r1`), `<seq>` (the `seq` the previous call printed), `<k>` (the review number), `<skill base>` (the installed `~/.claude/skills/sc-review-ledger`, else the project `.claude/skills/sc-review-ledger`), `<disposition file>`, `<review output file>`, `<last review report>`.
++
++## Dispatch order
++
++1. `L0-init.txt`
++2. T05 (review 1, `../T05-R1-reviewer-L11-699ae853.txt`)
++3. `L-find-close.txt`
++4. T06 (revise 1, `../T06-R1-reviser-L10-3bb70411.txt`)
++5. `L-begin.txt` (review 2 starts: snapshot r2, diff, auto-claim, scripted revert with the flag copied from T07)
++6. T07 (review 2, `../T07-R2-reviewer-L11-aff19d65.txt`)
++7. `L-verify-close.txt`
++8. T08 (revise 2, `../T08-R2-reviser-L10-66468bab.txt`)
++9. `L-begin.txt` (review 3 starts; flag copied from T09)
++10. T09 (review 3, `../T09-R3-reviewer-L11-1c9a7ec8.txt`)
++11. `L-verify-close.txt`
++12. The sweep route (below). T10 is not dispatched: review 3 always ends the loop.
++
++**Skip rule.** After any `close` whose `verdict` exits 12 (the loop is terminal at review 1 or 2: PASS or ESCALATE), the remaining T06 to T09 dispatches and their ledger steps are skipped and the sweep route runs next. A review-1 PASS is swept too; the sweep is never skipped. Exit 10 means CONTINUE: dispatch the next reviser.
++
++## Sweep route
++
++The sweep runs once after the terminal `close`, in a context that never opens the ledger folder, on the copy `sweep --prepare` prints.
++
++- **Smoke check, recorded before replicate 1.** Dispatch one throwaway worker with the ledger-step wrapper of `L-sweep-subagent.txt`; it must spawn an Agent-tool subagent whose run lasts longer than 5 minutes, while the worker keeps sending its 5-minute heartbeat the whole time. Record the result (spawned yes/no, heartbeats seen during the subagent run, subagent run time) before replicate 1.
++- **Subagent route** (only when the smoke check passed): `L-sweep-subagent.txt`, one dispatch, still 5 S1 dispatches in all.
++- **Fallback route** (when the smoke check failed or was not run): `L-sweep-prepare.txt`, then `../T09b-sweep-dispatch.txt` with the printed copy path filled in, then `L-sweep-ingest.txt`. T09b is a sixth dispatch, declared as a deviation.
++
++After the sweep, `verdict` exits 0 (delivery PASS) or 11 (delivery ESCALATE).
++
++## Recovery
++
++- **`E-REPORT-EDITED`** from `begin` (a review report no longer ends with the tail `close` appended): run `close --report <that report>` with the next `--expect-seq`; it re-appends the stored tail without a new decision. Then run `begin` again (`L-begin.txt` says this).
++- **Any other refusal** stops the step; the step escalates with the script's JSON output and never retries with a changed input or edits the ledger by hand.
++- **Rerun of an aborted replicate:** `L0-init.txt` with `--archive-existing` (renames the old ledger folder; never a manual delete).
+diff --git a/.dev/tasks/to-do/TASK-WF-spec-20261108-181649/artifacts/t10-checks.log b/.dev/tasks/to-do/TASK-WF-spec-20261108-181649/artifacts/t10-checks.log
+new file mode 100644
+index 00000000..778ccec4
+--- /dev/null
++++ b/.dev/tasks/to-do/TASK-WF-spec-20261108-181649/artifacts/t10-checks.log
+@@ -0,0 +1,14 @@
++subcommand answer listed by --help
++subcommand begin listed by --help
++subcommand close listed by --help
++subcommand find listed by --help
++subcommand init listed by --help
++subcommand status listed by --help
++subcommand sweep listed by --help
++subcommand verdict listed by --help
++subcommand verify listed by --help
++.dev/brainstorms/346-ledger/briefs/ledger-steps/L-sweep-subagent.txt
++.dev/brainstorms/346-ledger/briefs/ledger-steps/README.md
++1:revert-unclaimed --op
++1:revert-unclaimed is
++2
+diff --git a/.dev/tasks/to-do/TASK-WF-spec-20261108-181649/artifacts/t10-sim.log b/.dev/tasks/to-do/TASK-WF-spec-20261108-181649/artifacts/t10-sim.log
+new file mode 100644
+index 00000000..b407cfce
+--- /dev/null
++++ b/.dev/tasks/to-do/TASK-WF-spec-20261108-181649/artifacts/t10-sim.log
+@@ -0,0 +1,42 @@
++## L0-init
++{"ok": true, "seq": 1, "phase": "find", "review": 1, "fix_cycles": 0, "counts": {"rows": 0, "blocking": 0, "U": 0, "X": 0, "open": 0, "fixed": 0, "verified": 0, "reopened": 0, "deferred": 0}, "loop_decision": null, "delivery_outcome": null, "next_action": "run the panel, then find --input <report or json>", "review_header": "review: 1 of 3", "ledger": ".dev/orca-command-refactor/specs/orca-worker-contract-spec.review-ledger", "archived": null}
++## L-find-close
++{"ok": true, "seq": 2, "phase": "find", "review": 1, "fix_cycles": 0, "counts": {"rows": 5, "blocking": 3, "U": 3, "X": 0, "open": 3, "fixed": 0, "verified": 0, "reopened": 0, "deferred": 2}, "loop_decision": null, "delivery_outcome": null, "next_action": "close --report <review report>"}
++{"ok": true, "seq": 3, "phase": "revise", "review": 1, "fix_cycles": 0, "counts": {"rows": 5, "blocking": 3, "U": 3, "X": 0, "open": 3, "fixed": 0, "verified": 0, "reopened": 0, "deferred": 2}, "loop_decision": "CONTINUE", "delivery_outcome": null, "next_action": "reviser edits the document; then begin --doc <document> for the next review", "decision": {"loop_decision": "CONTINUE", "U": 3, "X": 0, "I": true}, "last_line": "verdict: FAIL"}
++{"verdict": "CONTINUE", "loop_decision": "CONTINUE", "delivery_outcome": null, "U": 3, "review": 1, "phase": "revise"}
++verdict exit 10
++## T06 stand-in: reviser edits R1's paragraph and one unrelated line
++## L-begin
++{"ok": true, "seq": 4, "phase": "verify", "review": 2, "fix_cycles": 1, "counts": {"rows": 5, "blocking": 3, "U": 3, "X": 0, "open": 2, "fixed": 1, "verified": 0, "reopened": 0, "deferred": 2}, "loop_decision": "CONTINUE", "delivery_outcome": null, "next_action": "answer every row of plan-r2.md, then verify --input <report or json>", "review_header": "review: 2 of 3", "plan": ".dev/orca-command-refactor/specs/orca-worker-contract-spec.review-ledger/plan-r2.md", "hunks": 1, "auto_claimed": [1], "unclaimed": [{"id": "c1-reverted-1", "bytes": 41, "reverted": true}, {"id": "c1-reverted-3", "bytes": 41, "reverted": true}], "reverted_bytes": 82, "dropped_claims": [], "hunks_large": false}
++## L-verify-close
++{"ok": true, "seq": 5, "phase": "verify", "review": 2, "fix_cycles": 1, "counts": {"rows": 5, "blocking": 3, "U": 2, "X": 0, "open": 2, "fixed": 0, "verified": 1, "reopened": 0, "deferred": 2}, "loop_decision": "CONTINUE", "delivery_outcome": null, "next_action": "close --report <review report>", "new_rows": [], "dry_run": true, "would_write": [".dev/orca-command-refactor/specs/orca-worker-contract-spec.review-ledger/inputs/r2-verify.json"]}
++{"ok": true, "seq": 5, "phase": "verify", "review": 2, "fix_cycles": 1, "counts": {"rows": 5, "blocking": 3, "U": 2, "X": 0, "open": 2, "fixed": 0, "verified": 1, "reopened": 0, "deferred": 2}, "loop_decision": "CONTINUE", "delivery_outcome": null, "next_action": "close --report <review report>", "new_rows": []}
++{"ok": true, "seq": 6, "phase": "revise", "review": 2, "fix_cycles": 1, "counts": {"rows": 5, "blocking": 3, "U": 2, "X": 0, "open": 2, "fixed": 0, "verified": 1, "reopened": 0, "deferred": 2}, "loop_decision": "CONTINUE", "delivery_outcome": null, "next_action": "reviser edits the document; then begin --doc <document> for the next review", "decision": {"loop_decision": "CONTINUE", "U": 2, "X": 0, "I": true}, "last_line": "verdict: FAIL"}
++{"verdict": "CONTINUE", "loop_decision": "CONTINUE", "delivery_outcome": null, "U": 2, "review": 2, "phase": "revise"}
++verdict exit 10
++## T08 stand-in: no edits; L-begin; T09 stand-in answers; L-verify-close
++{"ok": true, "seq": 7, "phase": "verify", "review": 3, "fix_cycles": 2, "counts": {"rows": 5, "blocking": 3, "U": 2, "X": 0, "open": 2, "fixed": 0, "verified": 1, "reopened": 0, "deferred": 2}, "loop_decision": "CONTINUE", "delivery_outcome": null, "next_action": "answer every row of plan-r3.md, then verify --input <report or json>", "review_header": "review: 3 of 3", "plan": ".dev/orca-command-refactor/specs/orca-worker-contract-spec.review-ledger/plan-r3.md", "hunks": 0, "auto_claimed": [], "unclaimed": [], "reverted_bytes": 0, "dropped_claims": [], "hunks_large": false}
++{"ok": true, "seq": 8, "phase": "verify", "review": 3, "fix_cycles": 2, "counts": {"rows": 5, "blocking": 3, "U": 2, "X": 0, "open": 2, "fixed": 0, "verified": 1, "reopened": 0, "deferred": 2}, "loop_decision": "CONTINUE", "delivery_outcome": null, "next_action": "close --report <review report>", "new_rows": []}
++{"ok": true, "seq": 9, "phase": "terminal", "review": 3, "fix_cycles": 2, "counts": {"rows": 5, "blocking": 3, "U": 2, "X": 0, "open": 2, "fixed": 0, "verified": 1, "reopened": 0, "deferred": 2}, "loop_decision": "ESCALATE", "delivery_outcome": null, "next_action": "run the sweep once: sweep --prepare, then sweep --input <report> --report <report>", "decision": {"loop_decision": "ESCALATE", "U": 2, "X": 0, "I": true}, "last_line": "loop: ESCALATE (sweep pending)"}
++{"verdict": "PENDING", "loop_decision": "ESCALATE", "delivery_outcome": null, "U": 2, "review": 3, "phase": "terminal"}
++verdict exit 12
++## L-sweep-prepare
++{"ok": true, "seq": 10, "phase": "terminal", "review": 3, "fix_cycles": 2, "counts": {"rows": 5, "blocking": 3, "U": 2, "X": 0, "open": 2, "fixed": 0, "verified": 1, "reopened": 0, "deferred": 2}, "loop_decision": "ESCALATE", "delivery_outcome": null, "next_action": "run the sweep once: sweep --prepare, then sweep --input <report> --report <report>", "copy": "/tmp/review-ledger-sweep-24diz7ir/orca-worker-contract-spec.md", "post_terminal_edit": false}
++## L-sweep-ingest
++{"ok": true, "seq": 11, "phase": "swept", "review": 3, "fix_cycles": 2, "counts": {"rows": 5, "blocking": 3, "U": 2, "X": 0, "open": 2, "fixed": 0, "verified": 1, "reopened": 0, "deferred": 2}, "loop_decision": "ESCALATE", "delivery_outcome": "ESCALATE", "next_action": "done: read verdict", "new_rows": [], "S": 0, "last_line": "verdict: FAIL"}
++{"verdict": "ESCALATE", "loop_decision": "ESCALATE", "delivery_outcome": "ESCALATE", "U": 2, "review": 3, "phase": "swept"}
++verdict exit 11
++## tails
++==> .dev/orca-command-refactor/review/spec-panel.md <==
++verdict: FAIL
++
++==> .dev/orca-command-refactor/review/spec-panel-round2.md <==
++verdict: FAIL
++
++==> .dev/orca-command-refactor/review/spec-panel-round3.md <==
++loop: ESCALATE (sweep pending)
++
++==> .dev/orca-command-refactor/review/spec-panel-sweep.md <==
++verdict: FAIL
++unclaimed edit still in spec (0 = reverted by begin --revert-unclaimed): 0
++SIM OK
+diff --git a/.dev/tasks/to-do/TASK-WF-spec-20261108-181649/artifacts/t10-sim.sh b/.dev/tasks/to-do/TASK-WF-spec-20261108-181649/artifacts/t10-sim.sh
+new file mode 100644
+index 00000000..511955db
+--- /dev/null
++++ b/.dev/tasks/to-do/TASK-WF-spec-20261108-181649/artifacts/t10-sim.sh
+@@ -0,0 +1,57 @@
++#!/usr/bin/env bash
++# Run the ledger-step command lines (L0-init, L-find-close, L-begin, L-verify-close, L-sweep-prepare/ingest)
++# against a scratch repo in a new temp folder. Prints each command's JSON; exits non-zero on the first failure.
++set -euo pipefail
++REPO=/home/coder/workspaces/worktrees/IronClaude/bs346-ledger
++RL="uv run --no-project python $REPO/src/superclaude/skills/sc-review-ledger/scripts/review_ledger.py"
++W=$(mktemp -d /tmp/bs346-sim.XXXXXX)
++trap 'rm -rf "$W"' EXIT
++cd "$W"
++mkdir -p .dev/orca-command-refactor/specs .dev/orca-command-refactor/review
++SPEC=.dev/orca-command-refactor/specs/orca-worker-contract-spec.md
++LED=.dev/orca-command-refactor/specs/orca-worker-contract-spec.review-ledger
++cp "$REPO/tests/skills/fixtures/review-ledger/doc-r1.md" "$SPEC"
++seq() { $RL status --ledger "$LED" | uv run --no-project python -c 'import json,sys; print(json.load(sys.stdin)["seq"])'; }
++echo "## L0-init"; $RL init --doc "$SPEC" --profile spec-panel --ledger "$LED" --op sim-init
++R1=.dev/orca-command-refactor/review/spec-panel.md
++{ echo "# Review 1"; echo; echo '```ledger-input'; cat "$REPO/tests/skills/fixtures/review-ledger/find-basic.json"; echo '```'; } > "$R1"
++echo "## L-find-close"
++$RL find --ledger "$LED" --input "$R1" --op sim-r1-find --expect-seq "$(seq)"
++$RL close --ledger "$LED" --report "$R1" --op sim-r1-close --expect-seq "$(seq)"
++set +e; $RL verdict --ledger "$LED"; echo "verdict exit $?"; set -e
++echo "## T06 stand-in: reviser edits R1's paragraph and one unrelated line"
++cp "$REPO/tests/skills/fixtures/review-ledger/doc-r2-fix.md" "$SPEC"
++sed -i 's/The cache is refreshed every hour./The cache is refreshed every ten minutes./' "$SPEC"
++echo "## L-begin"
++$RL begin --ledger "$LED" --doc "$SPEC" --revert-unclaimed --op sim-r2-begin --expect-seq "$(seq)"
++R2=.dev/orca-command-refactor/review/spec-panel-round2.md
++{ echo "# Review 2"; echo; echo '```ledger-input'
++  echo '{"answers": [{"row": "R1", "result": "resolved", "evidence": "the caller retries at most twice", "touched_ok": "yes"},'
++  echo ' {"row": "R2", "result": "open", "evidence": "The service rejects a widget without an owner.", "touched_ok": "yes", "reason": "not fixed"},'
++  echo ' {"row": "R3", "result": "open", "evidence": "The service keeps deleted widgets for 30 days.", "touched_ok": "yes", "reason": "not fixed"}]}'
++  echo '```'; } > "$R2"
++echo "## L-verify-close"
++$RL verify --ledger "$LED" --input "$R2" --dry-run
++$RL verify --ledger "$LED" --input "$R2" --op sim-r2-verify --expect-seq "$(seq)"
++$RL close --ledger "$LED" --report "$R2" --op sim-r2-close --expect-seq "$(seq)"
++set +e; $RL verdict --ledger "$LED"; echo "verdict exit $?"; set -e
++echo "## T08 stand-in: no edits; L-begin; T09 stand-in answers; L-verify-close"
++$RL begin --ledger "$LED" --doc "$SPEC" --revert-unclaimed --op sim-r3-begin --expect-seq "$(seq)"
++R3=.dev/orca-command-refactor/review/spec-panel-round3.md
++{ echo "# Review 3"; echo; echo '```ledger-input'
++  echo '{"answers": [{"row": "R2", "result": "open", "evidence": "The service rejects a widget without an owner.", "touched_ok": "yes", "reason": "x"},'
++  echo ' {"row": "R3", "result": "open", "evidence": "The service keeps deleted widgets for 30 days.", "touched_ok": "yes", "reason": "x"}]}'
++  echo '```'; } > "$R3"
++$RL verify --ledger "$LED" --input "$R3" --op sim-r3-verify --expect-seq "$(seq)"
++$RL close --ledger "$LED" --report "$R3" --op sim-r3-close --expect-seq "$(seq)"
++set +e; $RL verdict --ledger "$LED"; echo "verdict exit $?"; set -e
++echo "## L-sweep-prepare"
++$RL sweep --ledger "$LED" --prepare --op sim-sweep-prepare --expect-seq "$(seq)"
++SW=.dev/orca-command-refactor/review/spec-panel-sweep.md
++{ echo "# Sweep"; echo; echo '```ledger-input'; echo '{"rows": []}'; echo '```'; } > "$SW"
++echo "## L-sweep-ingest"
++$RL sweep --ledger "$LED" --input "$SW" --report "$SW" --op sim-sweep --expect-seq "$(seq)"
++set +e; $RL verdict --ledger "$LED"; echo "verdict exit $?"; set -e
++echo "## tails"; tail -n 1 "$R1" "$R2" "$R3" "$SW"
++echo "unclaimed edit still in spec (0 = reverted by begin --revert-unclaimed): $(grep -c "every ten minutes" "$SPEC" || true)"
++echo "SIM OK"

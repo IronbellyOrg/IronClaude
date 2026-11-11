@@ -1,0 +1,33 @@
+============================= test session starts ==============================
+platform linux -- Python 3.11.15, pytest-9.2.0, pluggy-1.7.0 -- /home/coder/workspaces/worktrees/IronClaude/issue-438/.venv/bin/python
+SuperClaude: 5.0.0
+rootdir: /home/coder/workspaces/worktrees/IronClaude/issue-438
+configfile: pyproject.toml
+plugins: superclaude-5.0.0, anyio-4.16.0
+collecting ... collected 116 items / 94 deselected / 22 selected
+
+tests/commands/test_issue_command.py::test_frontmatter_fields PASSED     [  4%]
+tests/commands/test_issue_command.py::test_st3_version_is_1_1_0 PASSED   [  9%]
+tests/commands/test_issue_command.py::test_st1_options_table_lists_exactly_the_seven_flags PASSED [ 13%]
+tests/commands/test_issue_command.py::test_options_table_allowed_values[--depth] PASSED [ 18%]
+tests/commands/test_issue_command.py::test_options_table_allowed_values[--mode] PASSED [ 22%]
+tests/commands/test_issue_command.py::test_options_table_allowed_values[--pipeline] PASSED [ 27%]
+tests/commands/test_issue_command.py::test_options_table_allowed_values[--type] PASSED [ 31%]
+tests/commands/test_issue_command.py::test_option_defaults PASSED        [ 36%]
+tests/commands/test_issue_command.py::test_no_repo_dry_run_or_preview_flag PASSED [ 40%]
+tests/commands/test_issue_command.py::test_stop_rules_come_before_activation PASSED [ 45%]
+tests/commands/test_issue_command.py::test_st2_pipeline_and_submit_stop_rules_come_after_the_old_ones PASSED [ 50%]
+tests/commands/test_issue_command.py::test_st3_will_not_names_what_the_command_never_runs_itself PASSED [ 54%]
+tests/commands/test_issue_command.py::test_claim_outputs_and_examples_cover_the_new_flags PASSED [ 59%]
+tests/commands/test_issue_command.py::test_activation_names_the_skill PASSED [ 63%]
+tests/commands/test_issue_command.py::test_no_source_tree_path PASSED    [ 68%]
+tests/commands/test_issue_command.py::test_rule_10_line_is_carried_verbatim[command] PASSED [ 72%]
+tests/commands/test_issue_command.py::test_rule_10_line_is_carried_verbatim[skill] PASSED [ 77%]
+tests/skills/test_issue_protocol.py::test_st4_markdown_orca_command_lines_have_no_forbidden_flag PASSED [ 81%]
+tests/skills/test_issue_protocol.py::test_st9_final_output_prints_the_hand_command_the_remedy_line_promises PASSED [ 86%]
+tests/skills/test_issue_protocol.py::test_st11_no_source_tree_path_in_the_command_file PASSED [ 90%]
+tests/skills/test_issue_protocol.py::test_skill_will_and_will_not_match_the_command_file PASSED [ 95%]
+tests/skills/test_issue_protocol.py::test_every_chain_flag_exists_in_its_command PASSED [100%]
+
+====================== 22 passed, 94 deselected in 0.16s =======================
+rc=0

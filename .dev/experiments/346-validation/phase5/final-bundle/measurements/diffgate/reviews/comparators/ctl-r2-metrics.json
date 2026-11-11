@@ -1,0 +1,1450 @@
+{
+  "scenario": "S1",
+  "incident": "I1 Orca worker-contract spec review loop (issue 346 origin)",
+  "arm": "control (user-level spec-panel.md = pre-427 text, 462 lines, sha256[:12] e7b1a2c66f96)",
+  "replicate": "ctl-r2",
+  "worktree": "/home/coder/workspaces/worktrees/IronClaude/exp346-ab-ctl-r2",
+  "branch": "ironbelly/exp346-ab-ctl-r2",
+  "repo_head": "2cb683f5c1f0dfbd3c5f169a8b64a432931f718e (same as the original base; nothing committed)",
+  "recorded_by": "phase-4 recorder; measurement only, no verdict",
+  "metric_definitions": "DECISIONS.md D5 and D6/D10; baseline shape from phase2/S1/baseline-metrics.json; same counting rules as REPLAY.md section 6",
+  "key_to_provenance": {
+    "read": "taken from text the report/log states (line given)",
+    "counted": "counted by scripts/analyze_reports.py or analyze_sessions.py from the files/logs (same rule every round)",
+    "re-derived": "grouped or computed by the recorder from counted/read values",
+    "pointer_keys": "SESS=~/.claude/projects/-home-coder-workspaces-worktrees-IronClaude-exp346-ab-ctl-r2/<session>.jsonl; RV=reviews/ in this folder (cp -p copies); OUT=scripts/out/"
+  },
+  "proxy_definition": {
+    "blocking_grade_proxy": "CRITICAL + MAJOR (same as baseline). In this arm the reports ALSO grade blocking/minor; blocking = CRITICAL+MAJOR in every report, so blocking == critical_plus_major here.",
+    "provenance": "read (reports state the mapping: spec-panel.md Decisions row 'Severity scale', spec-panel-round2.md section 4 header, spec-panel-round3.md section 4 header)"
+  },
+  "m1_rounds_until_clean_pass": {
+    "value": null,
+    "reason_null": "no PASS in 3 reviews: FAIL, FAIL, FAIL; the arm stops after the 3rd review by design (3 reviews, 2 revises)",
+    "reviews_run_in_core_loop": 3,
+    "verdict_lines": {
+      "R1": {
+        "report": "reviews/review-1-spec-panel.md",
+        "line": 16,
+        "text": "**FAIL.** 12 blocking findings (all MAJOR, none CRITICAL) and 9 minor findings; see section 9. The decision in section 1 of the spec (Orca coordinates, commands stay the units of work) holds up: the depth-1 evidence (`CAPS:97-101`), the pane-bound `worker_done",
+        "yaml_line_166": "verdict: FAIL"
+      },
+      "R2": {
+        "report": "reviews/review-2-spec-panel-round2.md",
+        "line": 239,
+        "text": "**FAIL.**",
+        "explained_line_241": "The brief's rule is that any finding of any severity is FAIL; on the stricter blocking-only reading it is still FAIL, because 7 findings are blocking (N1 CRITICAL; N2-N7 MAJOR). The round-1 work holds: 18 of 21 findings are resolved in the spec text, F3's fix "
+      },
+      "R3": {
+        "report": "reviews/review-3-spec-panel-round3.md",
+        "line": 201,
+        "text": "**FAIL.**",
+        "explained_line_203": "The brief's rule is that any finding of any severity is FAIL; on the blocking-only reading it is still FAIL, because 4 findings are blocking (R3-1 CRITICAL; R3-2, R3-3, R3-7 MAJOR). The round-2 work holds: every one of N1-N17 and C7, C11, C13, C30 is resolved "
+      }
+    },
+    "provenance": "read"
+  },
+  "rounds": [
+    {
+      "round": "R1",
+      "review": {
+        "task": "task_65dbfc7e2e2d",
+        "dispatch": "ctx_46e3a67b4d06",
+        "session": "138dfa15-7c9a-4cc6-9838-add4c6e2eae0",
+        "brief": "phase2/S1/briefs/task-text/T05-R1-reviewer-L11-699ae853.txt (verbatim, repo root replaced)",
+        "tool_mode": "Skill sc:spec-panel called (SESS/138dfa15 line 43, 2026-11-08T05:07:31Z, args @.dev/orca-command-refactor/specs/orca-worker-contract-spec.md --mode critique --focus requirements,architecture); no read of a spec-panel command file by Bash/Read",
+        "called_Skill_sc_spec_panel": true,
+        "read_command_file_before_skill": false,
+        "skill_text_loaded": {
+          "chars": 32491,
+          "lines": 456,
+          "contains_Review_Loop_heading": false,
+          "contains_re_review_flag": false,
+          "sha256_12": "b9a1a5377a62",
+          "matches_pre427_body": true
+        },
+        "severity_rule": "brief states none; reviewer graded MAJOR/CRITICAL blocking and MINOR a note and failed the review on 12 blocking (spec-panel.md Decisions 'Severity scale', line 234)",
+        "verdict": "FAIL",
+        "v1_markers": {
+          "header_review_N_of_3": "absent",
+          "heading_Reviser_brief": "absent",
+          "last_line_is_verdict_PASS_or_FAIL": "absent",
+          "last_nonblank_line_starts": "Checked actively: the citation spot-checks listed in section 2; the count arithm",
+          "lines_starting_with_verdict_colon": [],
+          "text_Review_Loop_in_report": false
+        }
+      },
+      "revise": {
+        "task": "task_813302f499f0",
+        "dispatch": "ctx_9c5eeb8e8d15",
+        "session": "9da20c5b-1fbc-4017-a995-4bcc3fe29fb0",
+        "brief": "T06-R1-reviser-L10-3bb70411.txt",
+        "disposition": "21 of 21 applied, 0 rejected (12 blocking + 9 minor)",
+        "pointer": "reviews/disposition-1-after-review-1.md:21",
+        "applied": 21,
+        "rejected": 0,
+        "applied_by_severity": {
+          "CRITICAL": 0,
+          "MAJOR": 12,
+          "MINOR": 9,
+          "CITATION": 0
+        },
+        "minor_findings_acted_on": 9,
+        "minor_findings_total": 9,
+        "disposition_rows_citing_or_reusing_master (loose regex on the Disposition column)": {
+          "count": 12,
+          "ids": [
+            "F1",
+            "F2",
+            "F3",
+            "F4",
+            "F5",
+            "F6",
+            "F7",
+            "F8",
+            "F9",
+            "F10",
+            "F11",
+            "F12"
+          ]
+        },
+        "reviser_spawned_own_sub_review": true,
+        "sub_review": {
+          "agent_type": "reflect-reviewer",
+          "model": [
+            "claude-sonnet-5-5"
+          ],
+          "spawned_at_jsonl_line": 889,
+          "spawn_ts": "2026-11-08T05:26:11Z",
+          "description": "Adversarial check of spec revision",
+          "wall_min": 9.2,
+          "tool_calls": 41,
+          "verdict_as_written_in_disposition": "FAIL, 2 blocking and 7 minor problems (disposition.md:68)",
+          "table_rows_graded": {
+            "blocking": 2,
+            "minor": 7
+          },
+          "actions": {
+            "fixed": 9,
+            "not_changed": 0
+          },
+          "second_round_run": false,
+          "was_spec_panel_skill_used": false
+        }
+      },
+      "M2": {
+        "findings_total": 21,
+        "critical": 0,
+        "major": 12,
+        "minor_label": 9,
+        "blocking": 12,
+        "minor": 9,
+        "critical_plus_major": 12,
+        "ids_by_severity": {
+          "CRITICAL": [],
+          "MAJOR": [
+            "F1",
+            "F2",
+            "F3",
+            "F4",
+            "F5",
+            "F6",
+            "F7",
+            "F8",
+            "F9",
+            "F10",
+            "F11",
+            "F12"
+          ],
+          "MINOR": [
+            "F13",
+            "F14",
+            "F15",
+            "F16",
+            "F17",
+            "F18",
+            "F19",
+            "F20",
+            "F21"
+          ]
+        },
+        "provenance": "read (report line 16: '12 blocking findings (all MAJOR, none CRITICAL) and 9 minor findings') and counted from the section-9 table (spec-panel.md:208-228)"
+      },
+      "M2_grading_note": "blocking/minor grading and CRITICAL/MAJOR/MINOR labels are both printed by the report; blocking = CRITICAL+MAJOR",
+      "M3": {
+        "value": null,
+        "reason_null": "first review; there is no previous fix",
+        "provenance": "n/a"
+      },
+      "M4": {
+        "bytes_at_review_start": 57763,
+        "lines_at_review_start": 285,
+        "words_at_review_start": 8148,
+        "bytes_after_revise": 76214,
+        "lines_after_revise": 325,
+        "words_after_revise": 10730,
+        "growth_percent_this_round": 31.9,
+        "growth_percent_cumulative_vs_v1": 31.9,
+        "provenance": "counted (wc -c -l and word split of reviews/spec-v1-start.md and reviews/spec-v2-after-round1.md); percent re-derived on bytes (baseline rule)"
+      },
+      "M5": {
+        "review_session": {
+          "session": "138dfa15-7c9a-4cc6-9838-add4c6e2eae0",
+          "first_ts": "2026-11-08T05:07:22.992Z",
+          "last_ts": "2026-11-08T05:15:30.730Z",
+          "wall_min": 8.1,
+          "tool_calls": 28,
+          "assistant_turns": 22,
+          "output_tokens": 50982,
+          "input_tokens_uncached": 44,
+          "cache_creation_tokens": 203283,
+          "cache_read_tokens": 4981860,
+          "model": [
+            "claude-opus-5-5"
+          ],
+          "claude_code_version": [
+            "2.1.319"
+          ],
+          "heartbeats_sent": 3,
+          "worker_done_ts": "2026-11-08T05:15:21.938Z",
+          "worker_done_jsonl_line": 379,
+          "subagents": []
+        },
+        "revise_session": {
+          "session": "9da20c5b-1fbc-4017-a995-4bcc3fe29fb0",
+          "first_ts": "2026-11-08T05:16:17.438Z",
+          "last_ts": "2026-11-08T05:38:35.105Z",
+          "wall_min": 22.3,
+          "tool_calls": 126,
+          "assistant_turns": 60,
+          "output_tokens": 80092,
+          "input_tokens_uncached": 120,
+          "cache_creation_tokens": 249466,
+          "cache_read_tokens": 14729886,
+          "model": [
+            "claude-opus-5-5"
+          ],
+          "claude_code_version": [
+            "2.1.319"
+          ],
+          "heartbeats_sent": 4,
+          "worker_done_ts": "2026-11-08T05:38:26.488Z",
+          "worker_done_jsonl_line": 1289,
+          "subagents": [
+            {
+              "file": "9da20c5b-1fbc-4017-a995-4bcc3fe29fb0/subagents/agent-ad466f5dda08d373a.jsonl",
+              "agent_type": "reflect-reviewer",
+              "description": "Adversarial check of spec revision",
+              "model": [
+                "claude-sonnet-5-5"
+              ],
+              "wall_min": 9.2,
+              "tool_calls": 41,
+              "assistant_turns": 13,
+              "output_tokens": 30154,
+              "input_tokens_uncached": 26,
+              "cache_creation_tokens": 207243,
+              "cache_read_tokens": 1185734,
+              "tool_name_counts": {
+                "Read": 21,
+                "Grep": 18,
+                "Glob": 2
+              },
+              "skill_calls": 0
+            }
+          ]
+        },
+        "round_total_sessions_only": {
+          "tool_calls": 154,
+          "output_tokens": 131074
+        },
+        "round_total_incl_reviser_subagent": {
+          "tool_calls": 195,
+          "output_tokens": 161228
+        },
+        "provenance": "counted by jq-equivalent in analyze_sessions.py (unique tool_use ids; last usage per assistant message id; wall = first to last user/assistant timestamp)"
+      },
+      "origin_master_exposure": {
+        "findings": {
+          "findings_citing_origin_master_strict": {
+            "count": 1,
+            "ids": [
+              "F7"
+            ]
+          },
+          "findings_citing_origin_master_or_the_word_master": {
+            "count": 1,
+            "ids": [
+              "F7"
+            ]
+          },
+          "of_which_blocking_strict": {
+            "count": 1,
+            "ids": [
+              "F7"
+            ]
+          },
+          "findings_naming_new_master_commands_graph_impact_issue": {
+            "count": 1,
+            "ids": [
+              "F7"
+            ]
+          },
+          "rule": "strict = finding text contains master: | origin/master | WORKER-CONTRACT | MWC (regex over the finding's whole text incl. evidence); loose = strict or the word 'master'; 'reuse' of master content that is not cited by name cannot be measured mechanically"
+        },
+        "tool_calls_reading_master_in_review_session": {
+          "label": "R1-review",
+          "peek_calls": 2,
+          "origin_master_calls": 2,
+          "wc_calls": 1,
+          "newcmd_calls": 1,
+          "memory_note_calls": 1,
+          "other_checkout_calls": 0,
+          "other_wt_key_calls": 0,
+          "own_msg": 1
+        },
+        "tool_calls_reading_master_in_revise_session": {
+          "label": "R1-revise",
+          "peek_calls": 10,
+          "origin_master_calls": 8,
+          "wc_calls": 5,
+          "newcmd_calls": 4,
+          "memory_note_calls": 2,
+          "other_checkout_calls": 0,
+          "other_wt_key_calls": 0,
+          "own_msg": 1
+        },
+        "tool_calls_reading_master_in_revise_subagent": {
+          "label": "R1-revise/subagent",
+          "peek_calls": 8,
+          "origin_master_calls": 0,
+          "wc_calls": 7,
+          "newcmd_calls": 1,
+          "memory_note_calls": 1,
+          "other_checkout_calls": 7,
+          "other_wt_key_calls": 0,
+          "own_msg": 0
+        }
+      }
+    },
+    {
+      "round": "R2",
+      "review": {
+        "task": "task_97dfc5ca58de",
+        "dispatch": "ctx_f6f599666e9b",
+        "session": "7b8ae33c-ac4d-4446-93ef-9f0c73b217a4",
+        "brief": "phase2/S1/briefs/templates/T07-R2-reviewer.TEMPLATE.txt with {{R1_COUNT}}=21 and repo root replaced",
+        "tool_mode": "Skill sc:spec-panel called (SESS/7b8ae33c line 166, 2026-11-08T05:40:00Z) AFTER Bash reads of the user-level command file (lines 142 'cat ~/.claude/commands/sc/spec-panel.md | head -60' 05:39:51Z and 157 'grep/wc' 05:39:57Z)",
+        "called_Skill_sc_spec_panel": true,
+        "read_command_file_before_skill": true,
+        "skill_text_loaded": {
+          "chars": 32491,
+          "lines": 456,
+          "contains_Review_Loop_heading": false,
+          "contains_re_review_flag": false,
+          "sha256_12": "b9a1a5377a62",
+          "matches_pre427_body": true
+        },
+        "severity_rule": "brief: any finding of any severity is FAIL; reviewer followed the brief and also reported blocking (7) separately (spec-panel-round2.md:248)",
+        "verdict": "FAIL",
+        "v1_markers": {
+          "header_review_N_of_3": "absent",
+          "heading_Reviser_brief": "absent",
+          "last_line_is_verdict_PASS_or_FAIL": "absent",
+          "last_nonblank_line_starts": "7. The 11 P1 live rows behind F8 remain known only from the memory note (`p1-c5-",
+          "lines_starting_with_verdict_colon": [],
+          "text_Review_Loop_in_report": false
+        },
+        "resolution_of_round1_findings_as_stated": "18 of 21 resolved in the spec text; F5 and F16 partly (spec-panel-round2.md:241)",
+        "citation_check": {
+          "groups_checked": 32,
+          "correct": 28,
+          "wrong_or_overstated": 4,
+          "ids": [
+            "C7 wrong line",
+            "C11",
+            "C13",
+            "C30 overstated"
+          ],
+          "pointer": "spec-panel-round2.md:82 (summary line in section 2)",
+          "note": "the 4 are counted separately from the 17 findings, like the baseline's 2 extra_overstated_citations; the report says each is also recorded inside a section-4 finding (N5, N2, N15, N16)"
+        }
+      },
+      "revise": {
+        "task": "task_2afabd8e6a89",
+        "dispatch": "ctx_e0ddca8438bf",
+        "session": "cd076538-4cd2-498b-9d60-c2e3aba6cc7f",
+        "brief": "templates/T08-R2-reviser.TEMPLATE.txt with R2_FIRST_ID=N1, R2_LAST_ID=N17, R2_CITATION_COUNT=4",
+        "disposition": "21 rows applied (17 findings + 4 citations), 0 rejected; one sub-point inside N5 rejected (master's exclusion of git-ignored paths from artifacts)",
+        "pointer": "reviews/disposition-2-after-review-2.md:20",
+        "applied_rows": 21,
+        "rejected_rows": 0,
+        "rows_with_rejected_subpoint": [
+          "N5"
+        ],
+        "applied_by_severity": {
+          "CRITICAL": 1,
+          "MAJOR": 6,
+          "MINOR": 10,
+          "CITATION": 4
+        },
+        "minor_findings_acted_on": 10,
+        "minor_findings_total": 10,
+        "citation_rows_acted_on": 4,
+        "disposition_rows_citing_or_reusing_master (loose regex on the Disposition column)": {
+          "count": 11,
+          "ids": [
+            "N2",
+            "N4",
+            "N5",
+            "N8",
+            "N10",
+            "N12",
+            "N15",
+            "N17",
+            "C7",
+            "C11",
+            "C13"
+          ]
+        },
+        "reviser_spawned_own_sub_review": true,
+        "sub_review": {
+          "agent_type": "reflect-reviewer",
+          "model": [
+            "claude-sonnet-5-5"
+          ],
+          "spawned_at_jsonl_line": 776,
+          "spawn_ts": "2026-11-08T05:59:50Z",
+          "description": "Independent review of round-2 revision",
+          "wall_min": 8.4,
+          "tool_calls": 57,
+          "verdict_as_written_in_disposition": "FAIL, 6 blocking and 13 minor problems (disposition-round2.md:74)",
+          "table_rows_graded": {
+            "blocking": 6,
+            "minor": 11
+          },
+          "actions": {
+            "fixed": 15,
+            "not_changed": 2
+          },
+          "second_round_run": false,
+          "was_spec_panel_skill_used": false
+        }
+      },
+      "M2": {
+        "findings_total": 17,
+        "critical": 1,
+        "major": 6,
+        "minor_label": 10,
+        "blocking": 7,
+        "minor": 10,
+        "critical_plus_major": 7,
+        "ids_by_severity": {
+          "CRITICAL": [
+            "N1"
+          ],
+          "MAJOR": [
+            "N2",
+            "N3",
+            "N4",
+            "N5",
+            "N6",
+            "N7"
+          ],
+          "MINOR": [
+            "N8",
+            "N9",
+            "N10",
+            "N11",
+            "N12",
+            "N13",
+            "N14",
+            "N15",
+            "N16",
+            "N17"
+          ]
+        },
+        "provenance": "read (report line 236: 'Count: 17 new findings: 1 CRITICAL, 6 MAJOR (7 blocking), 10 MINOR') and counted from section 4 (spec-panel-round2.md:218-234)"
+      },
+      "M2_extra": {
+        "citation_errors_not_counted_as_findings": 4
+      },
+      "M3": {
+        "basis": "per-finding tags 'Introduced by' / 'Residual of' plus the report's own count line (spec-panel-round2.md:236)",
+        "caused_by_previous_revision_strict": 6,
+        "strict_ids": [
+          "N1",
+          "N2",
+          "N12",
+          "N15",
+          "N16",
+          "N17"
+        ],
+        "partial_revision_caused": 3,
+        "partial_ids": [
+          "N5 (the 'Same rules as MWC:32-39' claim inside it)",
+          "N3 (residual of F5)",
+          "N8 (residual of F16)"
+        ],
+        "pre_existing_not_raised_before": 8,
+        "pre_existing_ids": [
+          "N4",
+          "N6",
+          "N7",
+          "N9",
+          "N10",
+          "N11",
+          "N13",
+          "N14"
+        ],
+        "of": 17,
+        "share_strict": 0.353,
+        "share_strict_plus_partial": 0.529,
+        "tags_only_variant": {
+          "strict": 3,
+          "partial": 2,
+          "untagged_on_the_finding_line": 12,
+          "note": "N15, N16, N17 are named as 'introduced' only in the count line; N5's claim likewise"
+        },
+        "also_stated": "report line 236: 'Introduced by the revision: N1, N2, N12, N15, N16, N17 and the Same rules as MWC:32-39 claim inside N5. The rest pre-date it but were not raised in round 1.'",
+        "provenance": "read from tags and the count line; grouping into strict/partial/pre-existing re-derived by the recorder"
+      },
+      "M4": {
+        "bytes_at_review_start": 76214,
+        "lines_at_review_start": 325,
+        "words_at_review_start": 10730,
+        "bytes_after_revise": 97814,
+        "lines_after_revise": 362,
+        "words_after_revise": 13895,
+        "growth_percent_this_round": 28.3,
+        "growth_percent_cumulative_vs_v1": 69.3,
+        "provenance": "counted (reviews/spec-v2-after-round1.md, spec-v3-after-round2.md); percent re-derived on bytes"
+      },
+      "M5": {
+        "review_session": {
+          "session": "7b8ae33c-ac4d-4446-93ef-9f0c73b217a4",
+          "first_ts": "2026-11-08T05:39:22.026Z",
+          "last_ts": "2026-11-08T05:49:50.013Z",
+          "wall_min": 10.5,
+          "tool_calls": 31,
+          "assistant_turns": 29,
+          "output_tokens": 67821,
+          "input_tokens_uncached": 58,
+          "cache_creation_tokens": 227706,
+          "cache_read_tokens": 6295631,
+          "model": [
+            "claude-opus-5-5"
+          ],
+          "claude_code_version": [
+            "2.1.319"
+          ],
+          "heartbeats_sent": 2,
+          "worker_done_ts": "2026-11-08T05:49:39.830Z",
+          "worker_done_jsonl_line": 463,
+          "subagents": []
+        },
+        "revise_session": {
+          "session": "cd076538-4cd2-498b-9d60-c2e3aba6cc7f",
+          "first_ts": "2026-11-08T05:50:38.859Z",
+          "last_ts": "2026-11-08T06:11:37.745Z",
+          "wall_min": 21.0,
+          "tool_calls": 125,
+          "assistant_turns": 49,
+          "output_tokens": 78865,
+          "input_tokens_uncached": 98,
+          "cache_creation_tokens": 268806,
+          "cache_read_tokens": 12566251,
+          "model": [
+            "claude-opus-5-5"
+          ],
+          "claude_code_version": [
+            "2.1.319"
+          ],
+          "heartbeats_sent": 6,
+          "worker_done_ts": "2026-11-08T06:11:26.630Z",
+          "worker_done_jsonl_line": 1195,
+          "subagents": [
+            {
+              "file": "cd076538-4cd2-498b-9d60-c2e3aba6cc7f/subagents/agent-a10044bcff5025a0e.jsonl",
+              "agent_type": "reflect-reviewer",
+              "description": "Independent review of round-2 revision",
+              "model": [
+                "claude-sonnet-5-5"
+              ],
+              "wall_min": 8.4,
+              "tool_calls": 57,
+              "assistant_turns": 18,
+              "output_tokens": 69607,
+              "input_tokens_uncached": 36,
+              "cache_creation_tokens": 214496,
+              "cache_read_tokens": 2533170,
+              "tool_name_counts": {
+                "Read": 40,
+                "Grep": 16,
+                "Glob": 1
+              },
+              "skill_calls": 0
+            }
+          ]
+        },
+        "round_total_sessions_only": {
+          "tool_calls": 156,
+          "output_tokens": 146686
+        },
+        "round_total_incl_reviser_subagent": {
+          "tool_calls": 213,
+          "output_tokens": 216293
+        },
+        "provenance": "counted (same method as R1)"
+      },
+      "origin_master_exposure": {
+        "findings": {
+          "findings_citing_origin_master_strict": {
+            "count": 12,
+            "ids": [
+              "N1",
+              "N2",
+              "N3",
+              "N4",
+              "N5",
+              "N9",
+              "N10",
+              "N12",
+              "N13",
+              "N15",
+              "N16",
+              "N17"
+            ]
+          },
+          "findings_citing_origin_master_or_the_word_master": {
+            "count": 12,
+            "ids": [
+              "N1",
+              "N2",
+              "N3",
+              "N4",
+              "N5",
+              "N9",
+              "N10",
+              "N12",
+              "N13",
+              "N15",
+              "N16",
+              "N17"
+            ]
+          },
+          "of_which_blocking_strict": {
+            "count": 5,
+            "ids": [
+              "N1",
+              "N2",
+              "N3",
+              "N4",
+              "N5"
+            ]
+          },
+          "findings_naming_new_master_commands_graph_impact_issue": {
+            "count": 3,
+            "ids": [
+              "N5",
+              "N13",
+              "N17"
+            ]
+          },
+          "rule": "strict = finding text contains master: | origin/master | WORKER-CONTRACT | MWC (regex over the finding's whole text incl. evidence); loose = strict or the word 'master'; 'reuse' of master content that is not cited by name cannot be measured mechanically"
+        },
+        "tool_calls_reading_master_in_review_session": {
+          "label": "R2-review",
+          "peek_calls": 4,
+          "origin_master_calls": 4,
+          "wc_calls": 3,
+          "newcmd_calls": 2,
+          "memory_note_calls": 1,
+          "other_checkout_calls": 1,
+          "other_wt_key_calls": 1,
+          "own_msg": 1
+        },
+        "tool_calls_reading_master_in_revise_session": {
+          "label": "R2-revise",
+          "peek_calls": 2,
+          "origin_master_calls": 2,
+          "wc_calls": 1,
+          "newcmd_calls": 1,
+          "memory_note_calls": 0,
+          "other_checkout_calls": 0,
+          "other_wt_key_calls": 0,
+          "own_msg": 1
+        },
+        "tool_calls_reading_master_in_revise_subagent": {
+          "label": "R2-revise/subagent",
+          "peek_calls": 0,
+          "origin_master_calls": 0,
+          "wc_calls": 0,
+          "newcmd_calls": 0,
+          "memory_note_calls": 1,
+          "other_checkout_calls": 0,
+          "other_wt_key_calls": 0,
+          "own_msg": 0
+        }
+      }
+    },
+    {
+      "round": "R3",
+      "review": {
+        "task": "task_ad9e29c3c0ad",
+        "dispatch": "ctx_09b4c2704522",
+        "session": "8bdeba6e-b9a2-459c-8507-e1727c1c55b1",
+        "brief": "templates/T09-R3-reviewer.TEMPLATE.txt with R2_FIRST_ID=N1, R2_LAST_ID=N17",
+        "tool_mode": "Skill sc:spec-panel called (SESS/8bdeba6e line 338, 2026-11-08T06:18:32Z) AFTER a Bash read of the user-level command file (line 58, 06:12:33Z: grep/sed of ~/.claude/commands/sc/spec-panel.md)",
+        "called_Skill_sc_spec_panel": true,
+        "read_command_file_before_skill": true,
+        "skill_text_loaded": {
+          "chars": 32491,
+          "lines": 456,
+          "contains_Review_Loop_heading": false,
+          "contains_re_review_flag": false,
+          "sha256_12": "b9a1a5377a62",
+          "matches_pre427_body": true
+        },
+        "severity_rule": "brief: any finding of any severity is FAIL; reviewer followed the brief and reported blocking (4) separately (spec-panel-round3.md:208)",
+        "verdict": "FAIL",
+        "v1_markers": {
+          "header_review_N_of_3": "absent",
+          "heading_Reviser_brief": "absent",
+          "last_line_is_verdict_PASS_or_FAIL": "absent",
+          "last_nonblank_line_starts": "7. Carried from the spec and still open: whether a worker blocked in `ask` shows",
+          "lines_starting_with_verdict_colon": [],
+          "text_Review_Loop_in_report": false
+        },
+        "resolution_of_round2_items_as_stated": "all 21 items (N1-N17 + C7, C11, C13, C30) resolved in the spec text (spec-panel-round3.md:43)",
+        "citation_check": {
+          "groups_checked": 27,
+          "correct": 25,
+          "wrong_or_overstated": 2,
+          "pointer": "spec-panel-round3.md summary line in section 2 (CAPS:115 wrong line; 2.4 completeness claim overstated)"
+        }
+      },
+      "revise": null,
+      "revise_note": "not run: the arm stops after the 3rd review (core loop = 3 reviews, 2 revises)",
+      "M2": {
+        "findings_total": 7,
+        "critical": 1,
+        "major": 3,
+        "minor_label": 3,
+        "blocking": 4,
+        "minor": 3,
+        "critical_plus_major": 4,
+        "ids_by_severity": {
+          "CRITICAL": [
+            "R3-1"
+          ],
+          "MAJOR": [
+            "R3-2",
+            "R3-3",
+            "R3-7"
+          ],
+          "MINOR": [
+            "R3-4",
+            "R3-5",
+            "R3-6"
+          ]
+        },
+        "provenance": "read (report line 198: 'Count: 7 new findings: 1 CRITICAL, 3 MAJOR (4 blocking), 3 MINOR') and counted from section 4 (spec-panel-round3.md:190-196). This is the LAST ROUND for D6(a)."
+      },
+      "M3": {
+        "basis": "per-finding tags and the report's count line (spec-panel-round3.md:198)",
+        "caused_by_previous_revision_strict_from_tags": 2,
+        "strict_ids": [
+          "R3-1",
+          "R3-7"
+        ],
+        "partial_revision_caused": 2,
+        "partial_ids": [
+          "R3-3 (residual of N6)",
+          "R3-5 (residual of N17)"
+        ],
+        "pre_existing": 2,
+        "pre_existing_ids": [
+          "R3-2 (pre-dates both revisions)",
+          "R3-4 (pre-dates round 2)"
+        ],
+        "untagged": 1,
+        "untagged_ids": [
+          "R3-6 (AC-1.5; no origin stated by the reviewer)"
+        ],
+        "of": 7,
+        "share_strict_from_tags": 0.286,
+        "share_strict_plus_partial_from_tags": 0.571,
+        "re_derived_variant_R3_6_as_strict": {
+          "strict": 3,
+          "partial": 2,
+          "pre_existing": 2,
+          "share_strict": 0.429,
+          "share_strict_plus_partial": 0.714,
+          "reason": "AC-1.5 is added by the round-2 N4 fix (disposition-round2.md N4 row 'new live check AC-1.5'; R3 resolution table row N4 lists AC-1.5)"
+        },
+        "provenance": "read from tags and the count line; grouping re-derived by the recorder; R3-6 variant re-derived"
+      },
+      "M4": {
+        "bytes_at_review_start": 97814,
+        "lines_at_review_start": 362,
+        "words_at_review_start": 13895,
+        "bytes_after_revise": null,
+        "growth_percent_this_round": null,
+        "growth_percent_at_start_of_round_3_vs_v1": 69.3,
+        "final_spec_identical_to_v3": true,
+        "provenance": "counted; the final spec equals v3 (sha256 equal) because no third revision was run"
+      },
+      "M5": {
+        "review_session": {
+          "session": "8bdeba6e-b9a2-459c-8507-e1727c1c55b1",
+          "first_ts": "2026-11-08T06:12:24.134Z",
+          "last_ts": "2026-11-08T06:22:48.436Z",
+          "wall_min": 10.4,
+          "tool_calls": 32,
+          "assistant_turns": 28,
+          "output_tokens": 65694,
+          "input_tokens_uncached": 56,
+          "cache_creation_tokens": 255152,
+          "cache_read_tokens": 6835352,
+          "model": [
+            "claude-opus-5-5"
+          ],
+          "claude_code_version": [
+            "2.1.319"
+          ],
+          "heartbeats_sent": 2,
+          "worker_done_ts": "2026-11-08T06:22:38.507Z",
+          "worker_done_jsonl_line": 470,
+          "subagents": []
+        },
+        "revise_session": null,
+        "round_total_sessions_only": {
+          "tool_calls": 32,
+          "output_tokens": 65694
+        },
+        "provenance": "counted (same method as R1)"
+      },
+      "origin_master_exposure": {
+        "findings": {
+          "findings_citing_origin_master_strict": {
+            "count": 3,
+            "ids": [
+              "R3-1",
+              "R3-2",
+              "R3-5"
+            ]
+          },
+          "findings_citing_origin_master_or_the_word_master": {
+            "count": 3,
+            "ids": [
+              "R3-1",
+              "R3-2",
+              "R3-5"
+            ]
+          },
+          "of_which_blocking_strict": {
+            "count": 2,
+            "ids": [
+              "R3-1",
+              "R3-2"
+            ]
+          },
+          "findings_naming_new_master_commands_graph_impact_issue": {
+            "count": 1,
+            "ids": [
+              "R3-2"
+            ]
+          },
+          "rule": "strict = finding text contains master: | origin/master | WORKER-CONTRACT | MWC (regex over the finding's whole text incl. evidence); loose = strict or the word 'master'; 'reuse' of master content that is not cited by name cannot be measured mechanically"
+        },
+        "tool_calls_reading_master_in_review_session": {
+          "label": "R3-review",
+          "peek_calls": 8,
+          "origin_master_calls": 8,
+          "wc_calls": 1,
+          "newcmd_calls": 3,
+          "memory_note_calls": 1,
+          "other_checkout_calls": 0,
+          "other_wt_key_calls": 0,
+          "own_msg": 1
+        }
+      }
+    }
+  ],
+  "growth_summary_for_D6b": {
+    "this_arm_growth_after_two_fix_cycles_percent_bytes": 69.3,
+    "this_arm_growth_after_two_fix_cycles_percent_lines": 27.0,
+    "this_arm_growth_after_two_fix_cycles_percent_words": 70.5,
+    "baseline_growth_after_two_fix_cycles_percent_bytes": 59.6,
+    "baseline_growth_lines_percent": 45.3,
+    "baseline_growth_words_percent": 63.8,
+    "D6b_threshold_percent": 41.7,
+    "arithmetic": "69.3 vs threshold 41.7 (70% of 59.6)",
+    "step_growth_percent": {
+      "R1_revise": 31.9,
+      "R2_revise": 28.3
+    },
+    "provenance": "re-derived from M4; baseline numbers read from baseline-metrics.json"
+  },
+  "D6a_arithmetic": {
+    "baseline_R3_critical_plus_major": 8,
+    "half_of_baseline": 4.0,
+    "this_arm_R3_critical_plus_major": 4,
+    "this_arm_R3_any_severity": 7,
+    "baseline_R3_any_severity": 14,
+    "half_of_baseline_any_severity": 7.0,
+    "clean_pass_in_fewer_rounds": false,
+    "no_verdict": true
+  },
+  "spec_sizes": {
+    "v1_start": {
+      "path": "/home/coder/workspaces/worktrees/IronClaude/exp346-p1-logs/.dev/experiments/346-validation/phase2/S1/inputs/repo-overlay/.dev/orca-command-refactor/specs/orca-worker-contract-spec.md",
+      "bytes": 57763,
+      "lines": 285,
+      "words": 8148,
+      "sha256": "d3cdbe573e57303b9ce6c93d1fe98ba18fb7cb1a15773d926bf6a0c31425200d"
+    },
+    "v2_after_round1": {
+      "path": "/home/coder/workspaces/worktrees/IronClaude/exp346-ab-ctl-r2/.dev/orca-command-refactor/specs/history/spec-v2-after-round1.md",
+      "bytes": 76214,
+      "lines": 325,
+      "words": 10730,
+      "sha256": "3b21677c64f08b1a7e27a0b2504badffb84f34f1e56bfa8cdb9bc17c505b76f0"
+    },
+    "v3_after_round2": {
+      "path": "/home/coder/workspaces/worktrees/IronClaude/exp346-ab-ctl-r2/.dev/orca-command-refactor/specs/history/spec-v3-after-round2.md",
+      "bytes": 97814,
+      "lines": 362,
+      "words": 13895,
+      "sha256": "c8634e01b9da310e82fb9cab618ec03930781f23285e5655fb42610e7003a111"
+    },
+    "final": {
+      "path": "/home/coder/workspaces/worktrees/IronClaude/exp346-ab-ctl-r2/.dev/orca-command-refactor/specs/orca-worker-contract-spec.md",
+      "bytes": 97814,
+      "lines": 362,
+      "words": 13895,
+      "sha256": "c8634e01b9da310e82fb9cab618ec03930781f23285e5655fb42610e7003a111"
+    },
+    "growth": {
+      "step_R1_revise_v1_to_v2_percent": 31.9,
+      "step_R2_revise_v2_to_v3_percent": 28.3,
+      "cumulative_vs_v1_after_R1_percent": 31.9,
+      "cumulative_vs_v1_after_R2_percent": 69.3,
+      "final_vs_v3_identical": true,
+      "lines_growth_cumulative_after_R2_percent": 27.0
+    },
+    "v1_manifest_line": [
+      "d3cdbe573e57303b9ce6c93d1fe98ba18fb7cb1a15773d926bf6a0c31425200d  repo-overlay/.dev/orca-command-refactor/specs/orca-worker-contract-spec.md"
+    ]
+  },
+  "review_loop_totals": {
+    "wall_min_sum_of_session_wall_times": 72.3,
+    "main_session_tool_calls": 342,
+    "subagent_tool_calls": 98,
+    "main_session_output_tokens": 343454,
+    "subagent_output_tokens": 99761,
+    "reviews_of_the_document_in_total": {
+      "spec_panel_reviews": 3,
+      "reviser_sub_reviews_by_reflect_reviewer_subagent": 2
+    }
+  },
+  "origin_master_exposure_totals": {
+    "tool_calls_per_log": {
+      "R1-review": {
+        "label": "R1-review",
+        "peek_calls": 2,
+        "origin_master_calls": 2,
+        "wc_calls": 1,
+        "newcmd_calls": 1,
+        "memory_note_calls": 1,
+        "other_checkout_calls": 0,
+        "other_wt_key_calls": 0,
+        "own_msg": 1
+      },
+      "R1-revise": {
+        "label": "R1-revise",
+        "peek_calls": 10,
+        "origin_master_calls": 8,
+        "wc_calls": 5,
+        "newcmd_calls": 4,
+        "memory_note_calls": 2,
+        "other_checkout_calls": 0,
+        "other_wt_key_calls": 0,
+        "own_msg": 1
+      },
+      "R1-revise/subagent": {
+        "label": "R1-revise/subagent",
+        "peek_calls": 8,
+        "origin_master_calls": 0,
+        "wc_calls": 7,
+        "newcmd_calls": 1,
+        "memory_note_calls": 1,
+        "other_checkout_calls": 7,
+        "other_wt_key_calls": 0,
+        "own_msg": 0
+      },
+      "R2-review": {
+        "label": "R2-review",
+        "peek_calls": 4,
+        "origin_master_calls": 4,
+        "wc_calls": 3,
+        "newcmd_calls": 2,
+        "memory_note_calls": 1,
+        "other_checkout_calls": 1,
+        "other_wt_key_calls": 1,
+        "own_msg": 1
+      },
+      "R2-revise": {
+        "label": "R2-revise",
+        "peek_calls": 2,
+        "origin_master_calls": 2,
+        "wc_calls": 1,
+        "newcmd_calls": 1,
+        "memory_note_calls": 0,
+        "other_checkout_calls": 0,
+        "other_wt_key_calls": 0,
+        "own_msg": 1
+      },
+      "R2-revise/subagent": {
+        "label": "R2-revise/subagent",
+        "peek_calls": 0,
+        "origin_master_calls": 0,
+        "wc_calls": 0,
+        "newcmd_calls": 0,
+        "memory_note_calls": 1,
+        "other_checkout_calls": 0,
+        "other_wt_key_calls": 0,
+        "own_msg": 0
+      },
+      "R3-review": {
+        "label": "R3-review",
+        "peek_calls": 8,
+        "origin_master_calls": 8,
+        "wc_calls": 1,
+        "newcmd_calls": 3,
+        "memory_note_calls": 1,
+        "other_checkout_calls": 0,
+        "other_wt_key_calls": 0,
+        "own_msg": 1
+      }
+    },
+    "spec_panel_findings_citing_master_strict_by_round": {
+      "R1": 1,
+      "R2": 12,
+      "R3": 3
+    }
+  },
+  "v4_task_text_check": {
+    "R1-review": {
+      "brief_source": "task-text/T05-R1-reviewer-L11-699ae853.txt",
+      "repo_root_occurrences_in_brief": 1,
+      "placeholders_filled": {},
+      "dispatched_equals_brief_after_listed_substitutions": true,
+      "only_difference_is_trailing_newline": true,
+      "unfilled_placeholders_in_dispatched": [],
+      "dispatched_chars": 1016,
+      "expected_chars": 1017,
+      "my_sha256_16_of_dispatched": "0fa13b4c8517706c",
+      "log_hash": "d2439c6d529033e7",
+      "log_hash_reproduced_by": [
+        "sha256/exp_raw",
+        "sha256/nl"
+      ]
+    },
+    "R1-revise": {
+      "brief_source": "task-text/T06-R1-reviser-L10-3bb70411.txt",
+      "repo_root_occurrences_in_brief": 1,
+      "placeholders_filled": {},
+      "dispatched_equals_brief_after_listed_substitutions": true,
+      "only_difference_is_trailing_newline": true,
+      "unfilled_placeholders_in_dispatched": [],
+      "dispatched_chars": 1001,
+      "expected_chars": 1002,
+      "my_sha256_16_of_dispatched": "0566b9d452ab1c3c",
+      "log_hash": "47b69cf91c1ef8c5",
+      "log_hash_reproduced_by": [
+        "sha256/exp_raw",
+        "sha256/nl"
+      ]
+    },
+    "R2-review": {
+      "brief_source": "templates/T07-R2-reviewer.TEMPLATE.txt",
+      "repo_root_occurrences_in_brief": 1,
+      "placeholders_filled": {
+        "{{R1_COUNT}}": "21"
+      },
+      "dispatched_equals_brief_after_listed_substitutions": true,
+      "only_difference_is_trailing_newline": true,
+      "unfilled_placeholders_in_dispatched": [],
+      "dispatched_chars": 1781,
+      "expected_chars": 1782,
+      "my_sha256_16_of_dispatched": "8e9e0972e9a3f4de",
+      "log_hash": "cd093b77087676ee",
+      "log_hash_reproduced_by": [
+        "sha256/exp_raw",
+        "sha256/nl"
+      ]
+    },
+    "R2-revise": {
+      "brief_source": "templates/T08-R2-reviser.TEMPLATE.txt",
+      "repo_root_occurrences_in_brief": 1,
+      "placeholders_filled": {
+        "{{R2_FIRST_ID}}": "N1",
+        "{{R2_LAST_ID}}": "N17",
+        "{{R2_CITATION_COUNT}}": "4"
+      },
+      "dispatched_equals_brief_after_listed_substitutions": true,
+      "only_difference_is_trailing_newline": true,
+      "unfilled_placeholders_in_dispatched": [],
+      "dispatched_chars": 1446,
+      "expected_chars": 1447,
+      "my_sha256_16_of_dispatched": "f6dfd81ef415c020",
+      "log_hash": "90a7134f914be670",
+      "log_hash_reproduced_by": [
+        "sha256/exp_raw",
+        "sha256/nl"
+      ]
+    },
+    "R3-review": {
+      "brief_source": "templates/T09-R3-reviewer.TEMPLATE.txt",
+      "repo_root_occurrences_in_brief": 1,
+      "placeholders_filled": {
+        "{{R2_FIRST_ID}}": "N1",
+        "{{R2_LAST_ID}}": "N17"
+      },
+      "dispatched_equals_brief_after_listed_substitutions": true,
+      "only_difference_is_trailing_newline": true,
+      "unfilled_placeholders_in_dispatched": [],
+      "dispatched_chars": 1551,
+      "expected_chars": 1552,
+      "my_sha256_16_of_dispatched": "1d204f38bc865621",
+      "log_hash": "34b72b3974c5a9e4",
+      "log_hash_reproduced_by": [
+        "sha256/exp_raw",
+        "sha256/nl"
+      ]
+    }
+  },
+  "not_recoverable": [
+    {
+      "item": "coordinator tokens/tool calls",
+      "reason": "the coordinator is a different session"
+    },
+    {
+      "item": "per-finding 427-style re-grade of the baseline",
+      "reason": "not done; the proxy CRITICAL+MAJOR is used for both"
+    },
+    {
+      "item": "whether a finding 'reuses' master content without naming it",
+      "reason": "not mechanically measurable; only named citations are counted"
+    },
+    {
+      "item": "tool-result content read by the workers",
+      "reason": "V3 counts tool CALLS (inputs); what came back was not scanned except where a finding or disposition quotes it"
+    }
+  ],
+  "baseline_reference": {
+    "source": "phase2/S1/baseline-metrics.json (copied values; provenance as stated there)",
+    "rounds": {
+      "R1": {
+        "findings_total": 24,
+        "critical": 3,
+        "major": 15,
+        "minor": 6,
+        "critical_plus_major": 18,
+        "extra_overstated_citations": null,
+        "bytes_at_review_start": 57763,
+        "bytes_after_revise": 82643,
+        "lines_at_review_start": 285,
+        "lines_after_revise": 402,
+        "words_at_review_start": 8148,
+        "words_after_revise": 11877,
+        "growth_percent_this_round": 43.1,
+        "growth_percent_cumulative_vs_v1": 43.1,
+        "review_tool": "Skill sc:spec-panel (PJ/699ae853 L56)",
+        "review_verdict": "FAIL",
+        "disposition": "24 of 24 applied, 0 rejected",
+        "review_session_M5": {
+          "tool_calls": 27,
+          "assistant_turns": 15,
+          "output_tokens": 45291,
+          "input_tokens_uncached": 30,
+          "cache_creation_tokens": 162188,
+          "cache_read_tokens": 2815487,
+          "duration_min": 7.0
+        },
+        "revise_session_M5": {
+          "tool_calls": 77,
+          "assistant_turns": 39,
+          "output_tokens": 75808,
+          "input_tokens_uncached": 78,
+          "cache_creation_tokens": 305451,
+          "cache_read_tokens": 8599534,
+          "duration_min": 12.3
+        },
+        "round_total_M5": {
+          "tool_calls": 104,
+          "output_tokens": 121099
+        },
+        "M3": {
+          "value": null,
+          "reason_null": "first review; there is no previous fix",
+          "provenance": "n/a"
+        }
+      },
+      "R2": {
+        "findings_total": 13,
+        "critical": 1,
+        "major": 9,
+        "minor": 3,
+        "critical_plus_major": 10,
+        "extra_overstated_citations": 2,
+        "bytes_at_review_start": 82643,
+        "bytes_after_revise": 92194,
+        "lines_at_review_start": 402,
+        "lines_after_revise": 414,
+        "words_at_review_start": 11877,
+        "words_after_revise": 13350,
+        "growth_percent_this_round": 11.6,
+        "growth_percent_cumulative_vs_v1": 59.6,
+        "review_tool": "command file read and followed by hand, NO Skill call (PJ/aff19d65 L39",
+        "review_verdict": "FAIL",
+        "disposition": "15 of 15 applied (13 findings + 2 overstated citations), 0 rejected",
+        "review_session_M5": {
+          "tool_calls": 38,
+          "assistant_turns": 31,
+          "output_tokens": 77189,
+          "input_tokens_uncached": 62,
+          "cache_creation_tokens": 319976,
+          "cache_read_tokens": 7381505,
+          "duration_min": 18.6
+        },
+        "revise_session_M5": {
+          "tool_calls": 63,
+          "assistant_turns": 25,
+          "output_tokens": 53365,
+          "input_tokens_uncached": 50,
+          "cache_creation_tokens": 270981,
+          "cache_read_tokens": 5544884,
+          "duration_min": 7.9
+        },
+        "round_total_M5": {
+          "tool_calls": 101,
+          "output_tokens": 130554
+        },
+        "M3": {
+          "caused_by_previous_revision_count": 13,
+          "of": 13,
+          "share": 1.0,
+          "also_stated": "reviewer: for 10 of the 24 round-1 fixes the fix introduced or exposed a new defect (BO/spec-panel-round2.md:9)",
+          "provenance": "read: the reviewer states 'All 13 were introduced or exposed by the revision; none repeats a round-1 finding' (BO/spec-panel-round2.md:250). Not re-derived per finding."
+        }
+      },
+      "R3": {
+        "findings_total": 14,
+        "critical": 0,
+        "major": 8,
+        "minor": 6,
+        "critical_plus_major": 8,
+        "extra_overstated_citations": null,
+        "bytes_at_review_start": 92194,
+        "bytes_after_revise": 89089,
+        "lines_at_review_start": 414,
+        "lines_after_revise": 405,
+        "words_at_review_start": 13350,
+        "words_after_revise": null,
+        "growth_percent_this_round": -3.4,
+        "growth_percent_cumulative_vs_v1": 54.2,
+        "review_tool": "command file read and followed by hand, NO Skill call (PJ/1c9a7ec8 L14",
+        "review_verdict": "FAIL",
+        "disposition": "S1-S3 applied; 9 of M1-M14 applied (M1 in part); M5, M6, M7, M8, M11 superseded by S1-S3; reviser's own diff check found",
+        "review_session_M5": {
+          "tool_calls": 57,
+          "assistant_turns": 36,
+          "output_tokens": 82751,
+          "input_tokens_uncached": 72,
+          "cache_creation_tokens": 270451,
+          "cache_read_tokens": 9345410,
+          "duration_min": 12.8
+        },
+        "revise_session_M5": {
+          "tool_calls": 69,
+          "assistant_turns": 34,
+          "output_tokens": 46633,
+          "input_tokens_uncached": 68,
+          "cache_creation_tokens": 188946,
+          "cache_read_tokens": 7419746,
+          "duration_min": 8.5
+        },
+        "round_total_M5": {
+          "tool_calls": 126,
+          "output_tokens": 129384
+        },
+        "M3": {
+          "strict_caused_by_named_previous_fix": 10,
+          "partial_revision_caused": 3,
+          "pre_existing": 1,
+          "of": 14,
+          "share_strict": 0.714,
+          "share_strict_plus_partial": 0.929,
+          "ids": {
+            "strict": [
+              "M2 (N7)",
+              "M3 (N6)",
+              "M5 (N5)",
+              "M6 (N2)",
+              "M7 (N11)",
+              "M8 (N2)",
+              "M9 (N9)",
+              "M10 (N6/N10 edits)",
+              "M13 (N1)",
+              "M14 (N4)"
+            ],
+            "partial": [
+              "M1 (gap predates; revision added two rules without checks)",
+              "M4 (conflict predates; revision made init-lite the subject of AC-1.7)",
+              "M11 (token predates; revision rewrote step 0 and added a file)"
+            ],
+            "pre_existing": [
+              "M12 (unchanged line, not raised before)"
+            ]
+          },
+          "also_stated": "reviewer: for 8 of the 13 round-2 fixes the fix introduced or exposed a new defect (BO/spec-panel-round3.md:8)",
+          "provenance": "read: the reviewer's per-finding 'Origin:' tags (BO/spec-panel-round3.md:247-260); the grouping into strict/partial/pre-existing is re-derived by the analyst"
+        }
+      }
+    },
+    "growth_after_two_fix_cycles_percent_bytes": 59.6,
+    "growth_after_three_revisions_percent_bytes": 54.2,
+    "grading_rule": "binary any-severity FAIL in all 3 baseline reviews (no blocking/minor grading); proxy = CRITICAL+MAJOR",
+    "reviser_sub_reviews": "not recorded in baseline-metrics.json"
+  },
+  "comparison_arithmetic": {
+    "note": "arithmetic only; no verdict. Thresholds are D6 (a) and (b) from DECISIONS.md applied to the baseline numbers above.",
+    "D6a_last_round": {
+      "baseline_R3_critical_plus_major": 8,
+      "fifty_percent_of_it": 4.0,
+      "ctl_r2_R3_critical_plus_major": 4,
+      "ctl_r2_le_threshold": true,
+      "difference_to_threshold": 0.0,
+      "any_severity": {
+        "baseline_R3": 14,
+        "fifty_percent": 7.0,
+        "ctl_r2_R3": 7,
+        "ctl_r2_le": true
+      },
+      "if_R3_7_were_graded_MINOR_proxy_would_be": 3,
+      "clean_pass_in_fewer_rounds": false
+    },
+    "D6b_growth_after_two_fix_cycles": {
+      "bytes": {
+        "baseline_percent": 59.6,
+        "seventy_percent_of_it": 41.7,
+        "ctl_r2_percent": 69.3,
+        "ctl_r2_le_threshold": false,
+        "ctl_r2_as_percent_of_baseline_growth": 116.3
+      },
+      "lines": {
+        "baseline_percent": 45.3,
+        "ctl_r2_percent": 27.0,
+        "seventy_percent_of_baseline": 31.7,
+        "ctl_r2_le": true
+      },
+      "words": {
+        "baseline_percent": 63.8,
+        "ctl_r2_percent": 70.5,
+        "seventy_percent_of_baseline": 44.7,
+        "ctl_r2_le": false
+      },
+      "basis_note": "D6(b) in baseline-metrics.json is stated on bytes; lines and words are shown because they point the other way for lines"
+    },
+    "D6c_spread_between_replicates": "not computable here: needs ctl-r1 (another recorder)",
+    "fix_induced_share": {
+      "baseline_R2": {
+        "value": 1.0,
+        "basis": "reviewer statement, 13 of 13"
+      },
+      "baseline_R3": {
+        "strict": 0.714,
+        "strict_plus_partial": 0.929,
+        "basis": "per-finding Origin tags, grouping re-derived (10 strict, 3 partial, 1 pre-existing of 14)"
+      },
+      "ctl_r2_R2": {
+        "strict": 0.353,
+        "strict_plus_partial": 0.529,
+        "basis": "tags + count line (6 strict, 3 partial, 8 pre-existing of 17)"
+      },
+      "ctl_r2_R3": {
+        "strict_from_tags": 0.286,
+        "strict_plus_partial_from_tags": 0.571,
+        "strict_with_R3_6_rederived": 0.429,
+        "strict_plus_partial_with_R3_6_rederived": 0.714,
+        "basis": "tags + count line; 2 strict, 2 partial, 2 pre-existing, 1 untagged of 7"
+      }
+    },
+    "effort": {
+      "baseline_round_totals_review_plus_revise": {
+        "R1": {
+          "tool_calls": 104,
+          "output_tokens": 121099
+        },
+        "R2": {
+          "tool_calls": 101,
+          "output_tokens": 130554
+        },
+        "R3": {
+          "tool_calls": 126,
+          "output_tokens": 129384
+        }
+      },
+      "ctl_r2_round_totals_sessions_only": {
+        "R1": {
+          "tool_calls": 154,
+          "output_tokens": 131074
+        },
+        "R2": {
+          "tool_calls": 156,
+          "output_tokens": 146686
+        },
+        "R3_review_only": {
+          "tool_calls": 32,
+          "output_tokens": 65694
+        }
+      },
+      "baseline_R3_review_only": {
+        "tool_calls": 57,
+        "output_tokens": 82751,
+        "duration_min": 12.8
+      },
+      "wall_min_baseline_review_revise": {
+        "R1": [
+          7.0,
+          12.3
+        ],
+        "R2": [
+          18.6,
+          7.9
+        ],
+        "R3": [
+          12.8,
+          8.5
+        ]
+      },
+      "wall_min_ctl_r2_review_revise": {
+        "R1": [
+          8.1,
+          22.3
+        ],
+        "R2": [
+          10.5,
+          21.0
+        ],
+        "R3": [
+          10.4,
+          null
+        ]
+      }
+    }
+  }
+}

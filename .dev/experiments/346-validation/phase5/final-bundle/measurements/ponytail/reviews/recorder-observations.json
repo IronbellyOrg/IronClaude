@@ -1,0 +1,12 @@
+{
+  "recording_date": "2026-11-09",
+  "git_status_short": ["?? .dev/experiments/", "?? .dev/orca-command-refactor/"],
+  "git_diff_name_only": [],
+  "git_diff_cached_name_only": [],
+  "head": "2cb683f5c1f0dfbd3c5f169a8b64a432931f718e",
+  "orca_build_at_recording": "1.4.245-aidev02.780594c521aa",
+  "master_worker_contract_sha256_at_recording": "5fbf2f2e201bd40c98d21348814f5b94d3dadc48697722fed1fa8e031b6f7698",
+  "master_worker_contract_present": true,
+  "source": "Observed read-only git status/diff/log, orca-ide --version and sha256sum calls in recorder session 55d14d65-e52e-41fd-8a00-31627b95adec; not an attestation of uninterrupted earlier state",
+  "recorder_scope": "No new model review, source edits, parser repair, staging, commit, push, install or publication. Writes restricted to this ponytail evidence-package folder."
+}

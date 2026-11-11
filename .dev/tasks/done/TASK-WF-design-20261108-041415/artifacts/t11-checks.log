@@ -1,0 +1,19 @@
+== byte compare of the guide and its plugin mirror
+IDENTICAL
+== old phrase in the three files (expect none)
+none found
+== new phrase
+src/superclaude/core/HOW-WE-WORK.md:1
+plugins/superclaude/skills/sc-recommend/refs/HOW-WE-WORK.md:1
+== tests that read the guide and the mirror
+tests/cli/test_how_we_work_install.py
+tests/commands/test_help_command.py
+tests/commands/test_routing_plugin_parity.py
+tests/core/test_claude_md_routing_block.py
+tests/core/test_how_we_work_routing_table.py
+tests/docs/test_onboarding_deck.py
+tests/recommend/test_cache.py
+tests/recommend/test_routing_refresh.py
+tests/skills/test_sc_recommend_routing_contract.py
+tests/skills/test_spec_panel_review_loop.py
+tests/unit/test_cli_install.py

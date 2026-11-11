@@ -1,0 +1,6 @@
+{
+  "installer_module": "/home/coder/workspaces/worktrees/IronClaude/issue-441/src/superclaude/cli/install_skill.py",
+  "source": "/home/coder/workspaces/worktrees/IronClaude/issue-441/src/superclaude/skills/sc-troubleshoot-protocol",
+  "target": "/home/coder/.claude/skills/sc-troubleshoot-protocol",
+  "verified": true
+}

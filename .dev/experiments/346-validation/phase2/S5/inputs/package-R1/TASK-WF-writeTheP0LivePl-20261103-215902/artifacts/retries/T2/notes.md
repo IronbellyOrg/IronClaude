@@ -1,0 +1,3 @@
+554bb61c2b82de6c7ee26984bbcb5303f2bd28d1
+A1 r1-1 F2.1 note .dev/tasks/to-do/TASK-WF-writeTheP0LivePl-20261103-215902/artifacts/lc1-step5.md:26 ac=scope amiss:n,false:n,harm:n,constraint:n Step 5 condition 4 (heartbeat gaps of 7.5 and 6.4 min) is PASS only under the broad reading of WORKER-CONTRACT.md:44; under the literal wording the check would FAIL; carried to the phase report
+A1 r1-1 F2.2 minor .dev/tasks/to-do/TASK-WF-writeTheP0LivePl-20261103-215902/artifacts/lc1-step5.md:13 ac=scope amiss:n,false:n,harm:n,constraint:n Step 5 used the worker session file instead of a full worker-read pass (disclosed); the 68-command list, the Step 6 find output and the audit.log ignore claim were not saved as files

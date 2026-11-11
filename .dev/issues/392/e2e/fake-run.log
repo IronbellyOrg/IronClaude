@@ -1,0 +1,3 @@
+PASS: tier: ['gpt-6.1-sol', 'gpt-6.1-sol', 'gpt-6.1-sol', 'glm-5.3']
+PASS: named: ['claude-opus-5-5', 'claude-sonnet-5-5']
+PASS: stream-error: ['gpt-6.1-sol', 'gpt-6.1-sol']

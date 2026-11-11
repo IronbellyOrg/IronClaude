@@ -1,0 +1,472 @@
+---
+name: spec-panel-armb
+description: "Multi-expert specification review and improvement using renowned specification and software engineering experts"
+category: analysis
+complexity: enhanced
+mcp-servers: [context7]
+personas: [technical-writer, system-architect, quality-engineer]
+---
+
+# /sc:spec-panel - Expert Specification Review Panel
+
+## Triggers
+
+- Specification quality review and improvement requests
+- Technical documentation validation and enhancement needs
+- Requirements analysis and completeness verification
+- Professional specification writing guidance and mentoring
+
+## Usage
+
+```text
+/sc:spec-panel [specification_content|@file] [--mode discussion|critique|socratic] [--experts "name1,name2"] [--focus area1,area2,...] [--iterations N] [--format standard|structured|detailed] [--re-review <prior-findings-file> --baseline <saved-copy>]
+```
+
+Focus areas (comma-separated, one or more): `requirements`, `architecture`, `testing`, `compliance`, `correctness`
+
+## Behavioral Flow
+
+1. **Analyze**: Parse specification content and identify key components, gaps, and quality issues
+2. **Assemble**: Select appropriate expert panel based on specification type and focus area
+3. **Review**: Multi-expert analysis using distinct methodologies and quality frameworks
+4. **Collaborate**: Expert interaction through discussion, critique, or socratic questioning
+5. **Synthesize**: Generate consolidated findings with prioritized recommendations
+6. **Improve**: Create enhanced specification incorporating expert feedback and best practices
+6a. **TDD Input Detection** (conditional — TDD input detected): If the input document is a TDD (detected by 4-signal weighted scoring with threshold ≥ 5: numbered headings `## N.` ≥20 = +3/≥15 = +2/≥10 = +1, TDD-exclusive frontmatter `parent_doc`/`coordinator` +2 each, TDD section names like "Data Models"/"API Specifications"/"Component Inventory" +1 each, "Technical Design Document" in first 1000 chars +2), scope the improved output to a single release increment using `target_release` from TDD frontmatter. If `target_release` is empty or absent, ask the user to specify the target release before proceeding.
+6b. **Downstream Roadmap Frontmatter** (conditional — output intended for sc:roadmap): If the user's intent is to feed the output into sc:roadmap (indicated by user instruction or by `--downstream roadmap` flag), ensure the output document contains the following frontmatter fields populated from the TDD frontmatter or computed from TDD content analysis: `spec_type` (copy from TDD; if absent, infer from content), `complexity_score` (copy if populated; else leave as placeholder), `complexity_class` (copy if populated; else leave as placeholder), `target_release` (copy from TDD), `feature_id` (copy from TDD).
+6c. **PRD Input Detection** (conditional — PRD input detected): If the input document is a PRD (detected by presence of `## User Personas` heading OR `## Jobs To Be Done` heading OR YAML frontmatter `type` contains "Product Requirements Document" OR 3+ PRD section headings: "Market Analysis", "User Stories", "Success Metrics", "Go-to-Market", "Stakeholder Requirements", "Competitive Landscape"), validate completeness of personas, stories, acceptance criteria and assess business alignment. Unlike TDD input, PRD input does NOT require `target_release` scoping since PRDs describe full product scope.
+6d. **Downstream Roadmap Frontmatter for PRD** (conditional — PRD output intended for sc:roadmap): Ensure the output document contains: `spec_type: "product-requirements"`, `complexity_score` (computed from PRD scope breadth), `target_audience` (derived from User Personas), `success_metrics_count` (count from Success Metrics section). Expert panel adjustments: Wiegers emphasizes traceability from user stories to FRs, Cockburn validates user story structure (actor-goal-acceptance_criteria), Adzic checks metric measurability, Fowler/Newman assess architectural sufficiency for stated product scope.
+
+Key behaviors:
+
+- Multi-expert perspective analysis with distinct methodologies and quality frameworks
+- Intelligent expert selection based on specification domain and focus requirements
+- Structured review process with evidence-based recommendations and improvement guidance
+- Iterative improvement cycles with quality validation and progress tracking
+
+## Expert Panel System
+
+### Core Specification Experts
+
+- **Karl Wiegers** (Requirements Engineering): SMART criteria, testability analysis, stakeholder validation. Critique: "Lacks measurable acceptance criteria — how would you validate compliance in production?"
+- **Gojko Adzic** (Specification by Example): Given/When/Then scenarios, example-driven requirements, collaborative specification. Critique: "Can you provide concrete examples demonstrating this in real-world scenarios?"
+- **Alistair Cockburn** (Use Cases): Goal-oriented analysis, primary actor identification, scenario modeling. Critique: "Who is the primary stakeholder and what business goal are they trying to achieve?"
+- **Martin Fowler** (Architecture & Design): Interface segregation, bounded contexts, refactoring patterns. Critique: "This interface violates single responsibility — consider separating concerns."
+
+### Technical Architecture Experts
+
+- **Michael Nygard** (Release It! / Reliability): Failure mode analysis, circuit breaker patterns, operational excellence. Critique: "What happens when this fails? Where are the monitoring and recovery mechanisms?"
+- **Sam Newman** (Microservices): Service decomposition, API versioning, distributed system patterns. Critique: "How does this handle service evolution and backward compatibility?"
+- **Gregor Hohpe** (Enterprise Integration): Message-driven architecture, integration patterns, event-driven design. Critique: "What's the message exchange pattern — how do you handle ordering and delivery guarantees?"
+
+### Quality & Testing Experts
+
+- **Lisa Crispin** (Agile Testing): Whole-team testing, risk-based testing, quality attribute specification. Critique: "How would the testing team validate this — what are the edge cases and failure scenarios?"
+- **Janet Gregory** (Testing Advocacy): Specification workshops, three amigos, quality conversation facilitation. Critique: "Did the whole team participate? Are quality expectations clearly defined?"
+
+### Adversarial Testing Expert
+
+**James Whittaker** - Adversarial Testing Pioneer
+
+- **Domain**: Attack surface analysis, boundary exploitation, degenerate input generation, guard condition probing
+- **Methodology**: Systematic attack-based testing using five attack methodologies to expose specification gaps before implementation
+- **Attack Methodologies**:
+  - **FR-2.1 Zero/Empty Attack**: For every input, argument, and collection in the specification: what happens when the value is zero, empty, null, or negative? Probe every guard condition and default value assumption with degenerate inputs.
+  - **FR-2.2 Divergence Attack**: Where does the specification define behavior that diverges based on a condition? For each branch: what if the condition evaluates to the boundary between branches? What if both branches could apply simultaneously?
+  - **FR-2.3 Sentinel Collision Attack**: Identify every sentinel value, magic number, reserved constant, and special-case flag. What happens when a legitimate input collides with a sentinel value? Does the specification distinguish user data from control signals?
+  - **FR-2.4 Sequence Attack**: For every multi-step process, pipeline, or state machine: what happens when steps execute out of order, are repeated, or are skipped? Does the specification enforce ordering invariants, and if so, what breaks them?
+  - **FR-2.5 Accumulation Attack**: For every counter, collection, buffer, or aggregate: what happens at accumulation boundaries (overflow, underflow, maximum capacity)? Does the specification define behavior at resource exhaustion points?
+- **Critique Focus**: "I can break this specification by [attack]. The invariant at [location] fails when [condition]. Concrete attack: [scenario with state trace]."
+- **Output Format** (FR-3): Each finding uses the template: "I can break this specification by **[attack methodology name]**. The invariant at **[section/requirement location]** fails when **[specific triggering condition]**. Concrete attack: **[step-by-step scenario with before/after state trace]**." Severity classification uses existing panel system: CRITICAL (specification is provably wrong), MAJOR (specification is ambiguous or incomplete under attack), MINOR (specification could be clearer but behavior is inferrable).
+- **Activation**: Active in every panel review; positioned after Fowler and Nygard in review sequence to leverage architectural and resilience context
+- **Review Order**: 11 (after Fowler at 4 and Nygard at 5)
+- **Scope Boundary**: Focuses exclusively on specification correctness through adversarial probing. Does NOT cover resilience patterns or operational failure modes (Nygard's domain) or testing strategy, coverage, or quality practices (Crispin's domain).
+
+### Modern Software Experts
+
+- **Kelsey Hightower** (Cloud Native): Cloud-native patterns, infrastructure automation, operational observability. Critique: "How does this handle cloud-native deployment and operational concerns?"
+
+## MCP Integration
+
+- **Native reasoning**: Primary engine for expert panel coordination, structured analysis, and iterative improvement
+- **Context7 MCP**: Auto-activated for specification patterns, documentation standards, and industry best practices
+- **Technical Writer Persona**: Activated for professional specification writing and documentation quality
+- **System Architect Persona**: Activated for architectural analysis and system design validation
+- **Quality Engineer Persona**: Activated for quality assessment and testing strategy validation
+
+## Expert Review Sequence
+
+The panel reviews specifications in the following fixed order. Each expert builds on the context established by previous reviewers.
+
+1. **Karl Wiegers** - Requirements quality foundation
+2. **Gojko Adzic** - Specification by example and testability
+3. **Alistair Cockburn** - Use case and stakeholder analysis
+4. **Martin Fowler** - Architecture and interface design
+5. **Michael Nygard** - Reliability and failure mode analysis
+6. **James Whittaker** - Adversarial attack-based specification probing (leverages Fowler's architectural context and Nygard's resilience analysis)
+7. **Sam Newman** - Service boundaries and API evolution
+8. **Gregor Hohpe** - Integration patterns and data flow
+9. **Lisa Crispin** - Testing strategy and acceptance criteria
+10. **Janet Gregory** - Specification workshops and quality practices
+11. **Kelsey Hightower** - Cloud-native and operational concerns
+
+## Analysis Modes
+
+### Discussion Mode (`--mode discussion`)
+
+Collaborative improvement through expert dialogue. Pattern: sequential expert commentary building on prior insights; cross-expert validation; consensus building; collaborative solution development. Output: a dialogue transcript where each expert speaks in turn (`<EXPERT_NAME>: "<commentary>"`), framed by the Behavioral Flow's review sequence.
+
+### Critique Mode (`--mode critique`)
+
+Systematic review with severity-classified findings and priority rankings. Structure per finding: issue identification → severity (CRITICAL/MAJOR/MINOR) → expert attribution → recommendation with rationale → priority (High/Medium/Low) → quality-impact estimate. Output groups findings by analysis bucket (`=== REQUIREMENTS ANALYSIS ===`, `=== ARCHITECTURE ANALYSIS ===`, etc.).
+
+### Socratic Mode (`--mode socratic`)
+
+Learning-focused questioning to deepen understanding. Question categories: foundational understanding, stakeholder/purpose clarification, assumption identification, alternative approach exploration. Output: a sequence of expert-attributed questions designed to elicit reflection rather than provide answers (`<EXPERT_NAME>: "<question>"`).
+
+## Focus Areas
+
+### Requirements Focus (`--focus requirements`)
+
+**Expert Panel**: Wiegers (lead), Adzic, Cockburn
+**Analysis Areas**:
+
+- Requirement clarity, completeness, and consistency
+- Testability and measurability assessment
+- Stakeholder needs alignment and validation
+- Acceptance criteria quality and coverage
+- Requirements traceability and verification
+
+### Architecture Focus (`--focus architecture`)
+
+**Expert Panel**: Fowler (lead), Newman, Hohpe, Nygard
+**Analysis Areas**:
+
+- Interface design quality and consistency
+- System boundary definitions and service decomposition
+- Scalability and maintainability characteristics
+- Design pattern appropriateness and implementation
+- Integration and communication specifications
+
+### Testing Focus (`--focus testing`)
+
+**Expert Panel**: Crispin (lead), Gregory, Adzic
+**Analysis Areas**:
+
+- Test strategy and coverage requirements
+- Quality attribute specifications and validation
+- Edge case identification and handling
+- Acceptance criteria and definition of done
+- Test automation and continuous validation
+
+### Compliance Focus (`--focus compliance`)
+
+**Expert Panel**: Wiegers (lead), Nygard, Hightower
+**Analysis Areas**:
+
+- Regulatory requirement coverage and validation
+- Security specifications and threat modeling
+- Operational requirements and observability
+- Audit trail and compliance verification
+- Risk assessment and mitigation strategies
+
+### Correctness Focus (`--focus correctness`)
+
+**Expert Panel**: Nygard (lead), Fowler, Adzic, Crispin, Whittaker
+**Analysis Areas**:
+
+- Execution correctness of stateful specifications
+- State variable lifecycle and invariant preservation
+- Guard condition completeness and boundary behavior
+- Pipeline data flow integrity and count conservation
+- Degenerate input handling and edge case coverage
+
+**Mandatory Outputs**:
+
+- State Variable Registry (see FR-15.1 template below)
+- Guard Condition Boundary Table (always produced, not trigger-gated, when `--focus correctness` is active)
+- Pipeline Flow Diagram (produced when pipelines are present, annotated with counts at each stage)
+
+**Auto-Suggestion**: Panel recommends `--focus correctness` when specification introduces 3+ mutable state variables, contains guard conditions with numeric thresholds, or describes pipeline/filter operations. Suggestion is advisory-only (recommendation in output, not forced activation). Target false positive rate <30% per NFR-8; measurement deferred to Gate B (T05.02).
+
+#### Modified Expert Behaviors Under Correctness Focus
+
+The following behavior shifts are **additive** -- they extend each expert's standard methodology when `--focus correctness` is active. Standard behaviors remain unchanged.
+
+**FR-14.1 Wiegers (Correctness Shift)**: Identifies implicit state assumptions in requirements. For each requirement referencing mutable state, Wiegers flags whether the initial value, valid range, and invariant are explicitly specified or assumed.
+
+**FR-14.2 Fowler (Correctness Shift)**: Annotates data flow with count divergence analysis. For each transformation, Fowler documents input count, output count, and whether the specification accounts for count differences (filtering, aggregation, fan-out).
+
+**FR-14.3 Nygard (Correctness Shift)**: Extends guard boundary analysis to include zero/empty cases. For every guard condition, Nygard verifies the specification defines behavior for zero, empty, null, and negative inputs -- not just typical and maximum values.
+
+**FR-14.4 Adzic (Correctness Shift)**: Produces state-annotated Given/When/Then scenarios with degenerate inputs. Each scenario includes explicit before/after state traces and at least one degenerate input variant (zero, empty, boundary).
+
+**FR-14.5 Crispin (Correctness Shift)**: Generates boundary value test cases for every guard condition and state variable. Test cases cover: below minimum, at minimum, typical, at maximum, above maximum, and degenerate (zero/empty/null).
+
+**FR-14.6 Whittaker (Correctness Shift)**: Applies all five attack methodologies against each identified invariant. Under correctness focus, Whittaker produces a minimum of one attack per methodology per invariant, rather than selecting the most impactful attacks.
+
+#### State Variable Registry (FR-15.1)
+
+When `--focus correctness` is active, the panel MUST produce a State Variable Registry cataloging every mutable variable identified in the specification.
+
+| Variable Name | Type | Initial Value | Invariant | Read Operations | Write Operations |
+|---------------|------|---------------|-----------|-----------------|------------------|
+| `<var_name>` | `<type>` | `<initial>` | `<constraint that must always hold>` | `<operations that read this variable>` | `<operations that modify this variable>` |
+
+## Tool Coordination
+
+- **Read**: Specification content analysis and parsing; `src/superclaude/examples/release-spec-template.md` — read when generating scoped release spec output from TDD input (Step 6b / `--downstream roadmap` mode)
+- **Native reasoning**: Expert panel coordination and iterative analysis
+- **Context7**: Specification patterns and industry best practices
+- **Grep**: Cross-reference validation and consistency checking
+- **Write**: Improved specification generation and report creation
+- **MultiEdit**: Collaborative specification enhancement and refinement
+
+## Iterative Improvement Process
+
+### Single Iteration (Default)
+
+1. **Initial Analysis**: Expert panel reviews specification
+2. **Issue Identification**: Systematic problem and gap identification
+3. **Improvement Recommendations**: Specific, actionable enhancement suggestions
+4. **Priority Ranking**: Critical path and impact-based prioritization
+
+### Multi-Iteration (`--iterations N`)
+
+**Iteration 1**: Structural and fundamental issues
+
+- Requirements clarity and completeness
+- Architecture consistency and boundaries
+- Major gaps and critical problems
+
+**Iteration 2**: Detail refinement and enhancement
+
+- Specific improvement implementation
+- Edge case handling and error scenarios
+- Quality attribute specifications
+
+**Iteration 3**: Polish and optimization
+
+- Documentation quality and clarity
+- Example and scenario enhancement
+- Final validation and consistency checks
+
+## Review Loop
+
+1. **Mode**: `--re-review` applies to `--mode critique` only; without both `--re-review` and `--baseline` the run is a first review of the full document, with `baseline: missing` noted if only one was given; if a named file is unreadable or empty, or the prior report has no `review: N of 3` header, stop and say which, and never fall back to a first review.
+2. **Grading**: CRITICAL and FR-8/FR-9 findings are blocking; MINOR is minor; a MAJOR is blocking only if it names a concrete wrong outcome an implementer would produce, otherwise minor; minor findings are notes and never trigger a revision.
+3. **Verdict**: a critique-mode report's last line is `verdict: PASS` (minor notes allowed) or `verdict: FAIL` (a blocking finding is open).
+4. **Cap**: at most 2 fix cycles (3 reviews), then escalate to the user with the open blocking findings; the report header is `review: N of 3`, where N is the prior report's N plus 1 (1 for a first review); a prior-findings file at `review: 3` (a higher value counts as 3) with `verdict: FAIL` means do not review (this check runs before the first-review default of bullet 1), HALT and escalate to the user with the open blocking findings; every run is one review whatever `--iterations` says, and with `--re-review` the command ignores `--iterations`, skips the Improve step and writes no revised specification; Iteration 2 and 3 themes set order of attention, not a mandate to add text. The coordinator keeps the review count, the prior-findings file and the saved copy; without them the run is a first review.
+5. **Re-review output**: first a table of prior blocking findings `resolved|open|regressed` (`regressed` = a finding the prior report marked resolved that fails again); then findings on lines changed against the baseline, ignoring whitespace-only changes, each with `origin=changed|unchanged`; an `origin=unchanged` finding is a minor note unless it quotes the changed line that depends on it; in a re-review FR-8 to FR-10 and the Guard Condition Boundary Table cover guards on changed lines only; an empty diff leaves every prior blocking finding open and still counts as a review. The re-check of prior blocking findings follows steps 1-5 of the Process of the Fix Cycle phase in the project `.claude/agents/rf-qa.md` first, else `~/.claude/agents/rf-qa.md`; the rules in this section apply on top of it and stand alone when that file is unread.
+6. **Reviser contract**: the report carries a `Reviser brief` just above the final `verdict:` line, listing only blocking finding ids and restating this bullet (the reviser reads the report, not the command), and omits it at `review: 3`, where the run escalates instead; revise only text a blocking finding names; add no rule, mechanism or section no blocking finding calls for; each added paragraph or table cites its finding id; the reviser reports the byte size before and after.
+7. **Precedence**: a brief may narrow this scope; it may not widen it past the changed lines and the prior blocking findings, and may not grade a minor finding as blocking.
+
+## Output Formats
+
+### Standard Format (`--format standard`)
+
+YAML output with these top-level keys: `specification_review` (metadata: original_spec, review_date, expert_panel, focus_areas), `quality_assessment` (overall_score + per-dimension scores 0-10), `critical_issues` (list of {category, severity, expert, issue, recommendation}), `expert_consensus` (consensus bullets), `improvement_roadmap` (immediate / short_term / long_term lists), and `adversarial_analysis` (Whittaker findings: attack methodology, severity, invariant location, triggering condition, state-trace scenario).
+
+### Structured Format (`--format structured`)
+
+Token-efficient format using SuperClaude symbol system for concise communication. Includes Adversarial Analysis section with attack findings in compressed symbol notation.
+
+### Detailed Format (`--format detailed`)
+
+Comprehensive analysis with full expert commentary, examples, and implementation guidance. Includes Adversarial Analysis section with full state traces, attack methodology reasoning, and remediation suggestions per finding.
+
+## Output — When Input Is a TDD
+
+**(a) Review document (default):** Structured review document in the selected `--format` mode. Expert analysis covers TDD sections §5 Technical Requirements, §6 Architecture, §7 Data Models, §8 API Specifications, §13 Security Considerations, §15 Testing Strategy, and §20 Risks & Mitigations.
+
+**(b) Scoped release spec (when `--downstream roadmap` or when user requests):** Document in `release-spec-template.md` format covering sections relevant to `target_release` from TDD frontmatter. Scoped spec extracts FRs from TDD §5.1, NFRs from TDD §5.2, architecture decisions from TDD §6.4, risks from TDD §20, test plan from TDD §15, migration plan from TDD §19. YAML frontmatter populated from TDD frontmatter fields.
+
+**Note:** spec-panel does not CREATE a spec from raw instructions (Boundaries constraint unchanged). The TDD-to-spec capability requires an existing, substantially populated TDD as input.
+
+## Output — When Input Is a PRD
+
+**(a) Review document (default):** Structured review document in the selected `--format` mode. Expert analysis covers PRD sections: Product Overview, User Personas (S7), User Stories/JTBD (S6), Functional Requirements (S14), Non-Functional Requirements (S14), Success Metrics (S19), Risk Analysis (S20), Scope Definition (S12), and Legal/Compliance (S17).
+
+**(b) Scoped release spec (when `--downstream roadmap` or when user requests):** Document in `release-spec-template.md` format covering sections relevant to the PRD's scope. Scoped spec extracts FRs from PRD user stories, NFRs from PRD technical requirements, scope boundaries from S12, success criteria from S19, and compliance constraints from S17. YAML frontmatter populated with `spec_type: "product-requirements"`, `target_audience`, and `success_metrics_count`.
+
+**Expert panel adjustments for PRD input:**
+
+- **Wiegers**: Emphasizes traceability — every user story should map to at least one FR; every FR should trace to a user need
+- **Cockburn**: Validates user story structure — actor/goal/acceptance_criteria format, appropriate granularity, testable criteria
+- **Adzic**: Checks metric measurability — each success metric should have a concrete measurement method, target threshold, and data source
+- **Fowler/Newman**: Assess architectural sufficiency — whether the stated product scope is achievable given architectural constraints and technical requirements
+
+---
+
+## Mandatory Output Artifacts
+
+Mandatory output artifacts are structured tables and registries that the panel MUST produce when specific conditions are detected in the specification under review. These artifacts are triggered by the presence of conditional logic, threshold checks, boolean guards, or sentinel value comparisons in the specification. When triggered, these artifacts are hard gates: the panel MUST complete them before generating synthesis output.
+
+### Guard Condition Boundary Table
+
+**Trigger**: Any specification containing conditional logic, threshold checks, boolean guards, or sentinel value comparisons activates this table. When no guard conditions are identified, the section states "No guard conditions identified" and does not block synthesis.
+
+**Responsibility**: Nygard (lead construction), Crispin (completeness validation), Whittaker (adversarial attack on entries). All three experts participate when the boundary table is triggered.
+
+**Template** (7 columns, minimum 6 input condition rows per guard):
+
+| Guard | Location | Input Condition | Variable Value | Guard Result | Specified Behavior | Status |
+|-------|----------|-----------------|----------------|--------------|-------------------|--------|
+| `<guard_name>` | `<section/requirement>` | Zero/Empty | `0`, `""`, `null`, `[]` | `<true/false>` | `<what spec says happens>` | OK/GAP |
+| `<guard_name>` | `<section/requirement>` | One/Minimal | `1`, `"a"`, `[x]` | `<true/false>` | `<what spec says happens>` | OK/GAP |
+| `<guard_name>` | `<section/requirement>` | Typical | `<representative value>` | `<true/false>` | `<what spec says happens>` | OK/GAP |
+| `<guard_name>` | `<section/requirement>` | Maximum/Overflow | `MAX_INT`, `<capacity+1>` | `<true/false>` | `<what spec says happens>` | OK/GAP |
+| `<guard_name>` | `<section/requirement>` | Sentinel Value Match | `<sentinel>` | `<true/false>` | `<what spec says happens>` | OK/GAP |
+| `<guard_name>` | `<section/requirement>` | Legitimate Edge Case | `<edge value>` | `<true/false>` | `<what spec says happens>` | OK/GAP |
+
+#### Completion Criteria (Hard Gates)
+
+These rules are **hard gates**, not advisory recommendations. They block synthesis output unconditionally.
+
+1. **FR-8: GAP Status Rule**: Any cell in the Status column containing "GAP" automatically generates a finding with **MAJOR** severity minimum.
+2. **FR-9: Blank Behavior Rule**: Any blank or "unspecified" entry in the Specified Behavior column is classified as **MAJOR** severity minimum.
+3. **FR-10: Synthesis-Blocking Gate**: The Guard Condition Boundary Table MUST be complete (all cells populated, all guards enumerated) before synthesis output is generated. An incomplete table blocks synthesis output. This is a hard gate, not advisory.
+
+#### Downstream Propagation
+
+The boundary table output is formatted as structured markdown (not prose) per NFR-5 for machine-parseable downstream consumption.
+
+- **Consumer**: `sc:adversarial` AD-1 (invariant probe round)
+- **Format**: Structured markdown table with the 7 columns defined above
+- **Priority Targeting**: Entries with Status = "GAP" become priority targets for AD-1 invariant probing. GAP entries are propagated as high-priority invariant candidates.
+- **Cross-Command Integration**: See Review Heuristics > Downstream Integration Wiring for full integration point documentation.
+
+## Review Heuristics
+
+### Pipeline Dimensional Analysis
+
+Heuristic for detecting multi-stage data pipelines where output counts may diverge from input counts, potentially introducing correctness bugs.
+
+#### Trigger Condition (FR-17)
+
+Pipeline Dimensional Analysis activates when the specification under review describes a data flow with **2 or more stages** where the output count of one stage may differ from its input count (filtering, aggregation, fan-out, deduplication). The heuristic does **not** trigger on CRUD-only specifications (simple create/read/update/delete operations with no multi-stage data transformation).
+
+#### Expert Responsibility Assignments
+
+- **Fowler**: Leads pipeline identification and count annotation. Identifies all multi-stage data flows and annotates each stage with input count (N) and output count (M).
+- **Whittaker**: Attacks each count divergence point. For every stage where N != M, Whittaker applies divergence and accumulation attacks to probe whether downstream consumers handle the count difference correctly.
+
+#### 4-Step Analysis Process (FR-18)
+
+1. **Pipeline Detection** (Fowler leads): Identify all multi-stage data flows in the specification. A pipeline is any sequence of transformations where data passes through 2+ processing stages. Document the pipeline topology.
+
+2. **Quantity Annotation** (Fowler leads): For each pipeline stage, annotate the expected input count (N) and output count (M). Flag stages where N != M (filters, aggregators, fan-out operations, deduplicators).
+
+3. **Downstream Tracing** (Fowler + Whittaker): For each stage where N != M, trace which downstream consumers use the output. Verify that each consumer's specification accounts for the count difference. Flag consumers that assume input count == original count.
+
+4. **Consistency Check** (Whittaker leads): For every identified count mismatch, verify that the specification explicitly handles the divergence. Flag any mismatch where the specification assumes count conservation (e.g., "process all N items" after a filter that may reduce count to M < N).
+
+#### Severity Classification (FR-19)
+
+Any dimensional mismatch identified by the Consistency Check is classified as **CRITICAL** severity. The finding MUST include a concrete scenario demonstrating the mismatch with specific count values (e.g., "10 items enter filter, 7 pass, but downstream batch processor assumes 10").
+
+#### Quantity Flow Diagram (FR-21)
+
+When Pipeline Dimensional Analysis triggers, the panel MUST produce a Quantity Flow Diagram as an output artifact. The diagram:
+
+- Shows counts at each pipeline stage (N in -> M out)
+- Annotates which count each downstream consumer uses
+- Highlights divergence points where N != M
+- Uses structured text format for machine-parseability
+
+**Template**:
+
+```text
+[Source: N items] --> [Stage 1: Filter] --> [N' items (N' <= N)]
+                                              |
+                                              v
+                                        [Stage 2: Transform] --> [N' items]
+                                              |
+                                              v
+                                        [Consumer A: expects N' items]
+                                        [Consumer B: expects N items] <-- MISMATCH
+```
+
+#### Downstream Integration Wiring
+
+The following integration points connect spec-panel outputs to downstream SuperClaude commands:
+
+| Source | Target | Integration Point | Data Flow |
+|--------|--------|-------------------|-----------|
+| SP-3 (Guard Condition Boundary Table) | `sc:adversarial` AD-1 | Invariant probe input | GAP entries become priority invariant candidates for adversarial probing |
+| SP-2 (Whittaker Attack Findings) | `sc:adversarial` AD-2 | Assumption challenge input | Attack findings feed the assumption identification round |
+| SP-1 (Correctness Focus findings) | `sc:adversarial` AD-5 | Edge case input | Correctness findings inform adversarial edge case generation |
+| SP-4 (Quantity Flow Diagram) | `sc:roadmap` RM-3 | Risk input | Dimensional mismatches inform risk-weighted roadmap prioritization |
+| SP-2 (Whittaker Assumptions) | `sc:roadmap` RM-2 | Assumption input | Identified assumptions feed roadmap assumption tracking |
+
+**Format**: All integration outputs use structured markdown (not prose) per NFR-5 for machine-parseable downstream consumption.
+
+## Examples
+
+```bash
+# API specification review (critique mode, requirements + architecture focus)
+/sc:spec-panel @auth_api.spec.yml --mode critique --focus requirements,architecture
+
+# Requirements workshop (discussion mode, curated expert subset)
+/sc:spec-panel "user story content" --mode discussion --experts "wiegers,adzic,cockburn"
+
+# Architecture validation (socratic mode for deep questioning)
+/sc:spec-panel @microservice.spec.yml --mode socratic --focus architecture
+
+# Iterative improvement (multi-iteration with detailed format)
+/sc:spec-panel @complex_system.spec.yml --iterations 3 --format detailed
+
+# Compliance review (compliance focus with security-leaning experts)
+/sc:spec-panel @security_requirements.yml --focus compliance --experts "wiegers,nygard"
+```
+
+## Integration Patterns
+
+```bash
+# Workflow with /sc:code-to-spec: generate spec → review → refine
+/sc:code-to-spec ./authentication_service --type api --format yaml
+/sc:spec-panel @generated_auth_spec.yml --mode critique --focus requirements,testing
+/sc:spec-panel @improved_auth_spec.yml --mode discussion --iterations 2
+
+# Learning workflow: socratic → discussion → critique
+/sc:spec-panel @my_first_spec.yml --mode socratic --iterations 2
+/sc:spec-panel @revised_spec.yml --mode discussion --focus requirements
+/sc:spec-panel @final_spec.yml --mode critique --format detailed
+```
+
+## Quality Assurance Features
+
+- **Expert Validation**: cross-expert consistency checking, methodology alignment, quality-metric calculation, recommendation prioritization
+- **Quality Metrics (0-10)**: Clarity (language precision), Completeness (coverage), Testability (measurability), Consistency (internal coherence)
+- **Continuous Improvement**: pattern recognition from successful improvements, recommendation effectiveness tracking, quality trend analysis, best-practice library development
+
+## Advanced Features
+
+- **Custom Expert Panels**: domain-specific expert selection, industry-specific methodology, custom quality criteria
+- **Dev Workflow Integration**: CI/CD spec validation, VCS spec evolution tracking, IDE inline quality feedback, automated quality-gate enforcement
+- **Learning and Mentoring**: progressive skill tracking, spec-writing pattern teaching, best-practice library sharing, educational/mentoring mode
+
+## Boundaries
+
+**Will:**
+
+- Provide expert-level specification review and improvement guidance
+- Generate specific, actionable recommendations with priority rankings
+- Support multiple analysis modes for different use cases and learning objectives
+- Integrate with specification generation tools for comprehensive workflow support
+
+**Will Not:**
+
+- Replace human judgment and domain expertise in critical decisions
+- Modify specifications without explicit user consent and validation
+- Generate specifications from scratch without existing content or context
+- Provide legal or regulatory compliance guarantees beyond analysis guidance
+
+**Output**: Expert review document containing:
+
+- Multi-expert analysis (11 simulated experts)
+- Specific, actionable recommendations
+- Consensus points and disagreements
+- Priority-ranked improvements
+
+**Next Step**: After review, incorporate feedback into spec, then use `/sc:design` for architecture or `/sc:implement` for coding.

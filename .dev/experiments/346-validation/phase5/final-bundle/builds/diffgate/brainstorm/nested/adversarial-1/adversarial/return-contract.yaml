@@ -1,0 +1,23 @@
+return_contract:
+  merged_output_path: ".dev/brainstorms/346-diffgate/nested/adversarial-1/merged-output.md"
+  convergence_score: 0.99
+  artifacts_dir: ".dev/brainstorms/346-diffgate/nested/adversarial-1/adversarial/"
+  status: "partial"
+  base_variant: "sonnet:refactorer"
+  unresolved_conflicts: 1
+  fallback_mode: false
+  failure_stage: null
+  invocation_method: "skill-direct"
+  unaddressed_invariants:
+    - {id: "INV-001", category: "state_variables", assumption: "After a structural stop the loop can resume on the same ledger", severity: "HIGH"}
+    - {id: "INV-004", category: "state_variables", assumption: "Every prior blocking finding can leave the open set by a legitimate path", severity: "HIGH"}
+    - {id: "INV-015", category: "count_divergence", assumption: "The R3 proxy is counted the same way in every arm", severity: "HIGH"}
+    - {id: "INV-016", category: "count_divergence", assumption: "F1 distinguishes a wrong lever in the treatment arm", severity: "HIGH"}
+    - {id: "INV-027", category: "interaction_effects", assumption: "The derived verdict stays the report's last line after the deferred list is added", severity: "HIGH"}
+    - {id: "INV-034", category: "sufficiency_challenge", assumption: "The S1 result can be attributed to the script rather than the changed brief prose", severity: "HIGH"}
+    - {id: "INV-036", category: "sufficiency_challenge", assumption: "S1 as pre-registered can return a positive result", severity: "HIGH"}
+  notes:
+    - "Point agreement 68 of 69 (0.99); gate status BLOCKED_BY_INVARIANTS after Round 2.5; Round 3 skipped at depth=standard."
+    - "Each HIGH invariant above was resolved in the merge by adopting the probe's stated Resolution (refactor-plan.md Changes 15, 18, 22, 30, 31, 32, 33; marked 'adopted from invariant probe (not debated)')."
+    - "Unresolved diff point: C-008 (surface granularity); every position contained the token-level eligibility the merge adopted (Change 9)."
+    - "Base selected by tiebreaker: C 0.8648, B 0.8527 (within 5%); B won 36 debate points to C's 23."

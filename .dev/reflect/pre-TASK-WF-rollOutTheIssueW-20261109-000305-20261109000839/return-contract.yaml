@@ -1,0 +1,108 @@
+contract_version: "1.8.0"
+status: partial
+mode: pre
+tier_reached: 2
+report_path: /home/coder/workspaces/worktrees/IronClaude/issue-450/.dev/reflect/pre-TASK-WF-rollOutTheIssueW-20261109-000305-20261109000839/REPORT.md
+audit_log_path: /home/coder/workspaces/worktrees/IronClaude/issue-450/.dev/reflect/pre-TASK-WF-rollOutTheIssueW-20261109-000305-20261109000839/audit.log
+confidence_calibrated: 0.72
+confidence_aggregation: conservative minimum of reviewer calibrations, not a new measurement
+escalation_rule_matched: 6
+onboarding_ran: false
+coverage_pct: null
+coverage_pct_union: 1.0
+coverage_undefined: false
+coverage_degraded: parsed-sparse
+unmapped_requirements: []
+unmapped_requirements_union: []
+parsed_requirement_count: 0
+inferred_requirement_count_original: 10
+inferred_requirement_count_surviving: 8
+inferred_requirements_dropped: [INF-002, INF-003]
+S_dev_density: 0.0
+coverage_interpretation: structural matching over surviving extraction only, not complete source extraction or every-fixture satisfaction
+best_practice_grade: null
+implementation_coverage_pct: null
+missing_implementations: []
+hierarchy_slice_path: null
+hierarchy_coverage_pct: null
+tasklist_completion_pct: null
+deviation_count_by_class: {authorized: 0, necessary: 0, drift: 0, regression: 0}
+deviation_register_path: null
+grounding_gaps_path: null
+third_party_api_grounding: []
+third_party_api_verified: false
+verification_ran: false
+verification_invocations: 0
+verification_failures: 0
+verification_regressions_detected: 0
+verification_skip_reason: read-only-project
+verification_scope_note: pre-execution planning only; structural diagnostics ran, no product tests or runtime verification
+input_sha256:
+  tasklist: 28d7a3f5e4079b0feeeb6748a05e1b9cea0d6b5d3c3bc22b77fdd1a772215d3c
+  spec: 38d8938493795fe977b3d7b1c771bf8b09c117df43de05694fc0bd25bbd8fbb8
+input_tree_sha256: null
+input_tree_file_count: 10
+input_tree_snapshot_path: /home/coder/workspaces/worktrees/IronClaude/issue-450/.dev/reflect/pre-TASK-WF-rollOutTheIssueW-20261109-000305-20261109000839/artifacts/input-snapshot.yaml
+input_drift_detected: false
+input_drift_diff: []
+input_integrity_degraded: true
+full_linked_tree_discovery_verified: false
+recorded_input_list_sha256: 61cd5eb5679ce8be366301e0142405345ebf136384cc3e5fba985b2aa0e06b10
+input_integrity_evidence_path: /home/coder/workspaces/worktrees/IronClaude/issue-450/.dev/reflect/pre-TASK-WF-rollOutTheIssueW-20261109-000305-20261109000839/artifacts/input-integrity-check.yaml
+citations_total: 20
+citations_revalidated: 20
+citations_dropped: 2
+citations_dropped_extrapolated: 2
+citations_inferred: 0
+citation_budget_policy: full_reread
+evidence_validator_ran: true
+evidence_validation_path: /home/coder/workspaces/worktrees/IronClaude/issue-450/.dev/reflect/pre-TASK-WF-rollOutTheIssueW-20261109-000305-20261109000839/evidence-validation.md
+citation_revalidation_at_promotion: false
+reviewer_cards:
+  - reviewer-cards/reviewer-1-card.yaml
+  - reviewer-cards/reviewer-2-card.yaml
+reviewer_briefs_materialized: 2
+adversarial_artifacts_dir: /home/coder/workspaces/worktrees/IronClaude/issue-450/.dev/reflect/pre-TASK-WF-rollOutTheIssueW-20261109-000305-20261109000839/adversarial/adversarial
+adversarial_convergence_score: 1.0
+convergence_score: 1.0
+adversarial_unavailable: false
+merge_method: adversarial
+t2_model_class_diversity: full
+t2_vendor_diversity: single
+t2_effective_diversity: model-only
+calibrator_diversity: degraded
+vendor_diversity: single
+unaddressed_high_invariants: []
+unaddressed_medium_invariants: [INV-009, INV-011]
+retained_plan_gaps: [F1, F2, F4, QA-02, QA-03, QA-04]
+retained_severity_counts: {medium: 5, low: 1}
+remediation_offered: false
+remediation_task_path: null
+remediation_plan_path: null
+handoff_memory_key: null
+cannot_validate_without_user_input: false
+regression_present: false
+unauthorized_deviation_present: false
+blocked_by_low_confidence: false
+spec_is_wrong: false
+user_decision_required: false
+needs_human_decision: false
+per_task_verdicts: []
+interaction_effects_scanned: false
+interaction_effects_findings: 0
+budget_forced_tier_downgrade: false
+budget_forced_stop: false
+budget_check_skipped: true
+forced_tier: null
+promotion_action: not-applicable
+promotion_adapter: none
+promotion_gate_passed: null
+memory_persisted: false
+memory_skip_reason: worker brief forbids documentation changes outside review output
+plan_modified_from_findings: false
+implementation_started: false
+owner_run_actions_executed: false
+partial_reasons:
+  - Two invalid inferred-requirement quotations were dropped, never silently repaired.
+  - Two medium invariant residuals remain visible as review limitations.
+  - Ten recorded input hashes are unchanged, but full linked-tree discovery was not proven.

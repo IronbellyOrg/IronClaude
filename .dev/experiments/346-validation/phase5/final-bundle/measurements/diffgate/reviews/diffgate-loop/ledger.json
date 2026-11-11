@@ -1,0 +1,8659 @@
+{
+ "closed": true,
+ "doc": "/home/coder/workspaces/worktrees/IronClaude/exp346-v-diffgate/.dev/orca-command-refactor/specs/orca-worker-contract-spec.md",
+ "format": "diffgate/1",
+ "halt": "escalate",
+ "profile": "spec-panel",
+ "review": 3,
+ "reviews": {
+  "1": {
+   "chains": {},
+   "check": {
+    "degrade": false,
+    "report_sha": "d5cc21d5ac1d423fdebaa39a61f381e318292e489c1d73a266317a00c89a700d",
+    "result": {
+     "acceptance": "clean",
+     "blocking": 7,
+     "blocking_ids": [
+      "R1.1",
+      "R1.2",
+      "R1.3",
+      "R1.4",
+      "R1.5",
+      "R1.6",
+      "R1.7"
+     ],
+     "chains": {
+      "R1.1": [
+       "R1.1"
+      ],
+      "R1.2": [
+       "R1.2"
+      ],
+      "R1.3": [
+       "R1.3"
+      ],
+      "R1.4": [
+       "R1.4"
+      ],
+      "R1.5": [
+       "R1.5"
+      ],
+      "R1.6": [
+       "R1.6"
+      ],
+      "R1.7": [
+       "R1.7"
+      ]
+     },
+     "deferred": [],
+     "degraded": false,
+     "findings": [
+      {
+       "anchor": "where `<output-dir>` is the directory the coordinator passed (`--output` / `--output-dir`)",
+       "at": [
+        62,
+        62
+       ],
+       "blocking": true,
+       "chain": [
+        "R1.1"
+       ],
+       "cites": null,
+       "demoted": false,
+       "fr": 8,
+       "hunk": null,
+       "id": "R1.1",
+       "origin": "full",
+       "outcome": "a brief that passes --output to /sc:workflow stops with E-LEGACY and writes no contract, and for tdd or init-lite the coordinator opens <file>/return-contract.yaml, which cannot exist",
+       "sev": "major",
+       "side": null,
+       "status": "open",
+       "text": "WC-4 report location is unknowable or undefined for workflow, tdd, init-lite and a missing flag",
+       "via": null
+      },
+      {
+       "anchor": "Commands that already write a contract keep their fields and add the missing ones",
+       "at": [
+        62,
+        62
+       ],
+       "blocking": true,
+       "chain": [
+        "R1.2"
+       ],
+       "cites": null,
+       "demoted": false,
+       "fr": 8,
+       "hunk": null,
+       "id": "R1.2",
+       "origin": "full",
+       "outcome": "a correct adversarial or workflow run keeps status success (adversarial nested under return_contract), so 7.2 step 4 raises KeyError or fails the status assert",
+       "sev": "major",
+       "side": null,
+       "status": "open",
+       "text": "the new status field collides with existing contract status fields",
+       "via": null
+      },
+      {
+       "anchor": "writes each run into a fresh output directory so a re-run starts clean",
+       "at": [
+        64,
+        64
+       ],
+       "blocking": true,
+       "chain": [
+        "R1.3"
+       ],
+       "cites": null,
+       "demoted": false,
+       "fr": 8,
+       "hunk": null,
+       "id": "R1.3",
+       "origin": "full",
+       "outcome": "a --retry-of worker given the same brief overwrites the first attempt's output, or writes elsewhere so worker_done --report-path differs from the path recorded at dispatch",
+       "sev": "major",
+       "side": null,
+       "status": "open",
+       "text": "WC-6 fresh directory conflicts with the brief-fixed directory of WC-4",
+       "via": null
+      },
+      {
+       "anchor": "The worker runs the command directly in its own session; it never wraps the command in an Agent-tool subagent.",
+       "at": [
+        65,
+        65
+       ],
+       "blocking": true,
+       "chain": [
+        "R1.4"
+       ],
+       "cites": null,
+       "demoted": false,
+       "fr": null,
+       "hunk": null,
+       "id": "R1.4",
+       "origin": "full",
+       "outcome": "a worker that reads the command file and performs the protocol from memory without the Skill call passes AC-0.4 and AC-1.2",
+       "sev": "major",
+       "side": null,
+       "status": "open",
+       "text": "WC-7 does not require the Skill invocation and no check detects its absence",
+       "via": null
+      },
+      {
+       "anchor": "src/superclaude/agents src/superclaude/core",
+       "at": [
+        172,
+        172
+       ],
+       "blocking": true,
+       "chain": [
+        "R1.5"
+       ],
+       "cites": null,
+       "demoted": false,
+       "fr": null,
+       "hunk": null,
+       "id": "R1.5",
+       "origin": "full",
+       "outcome": "the P0 WORKER-CONTRACT.md quoting the preamble's orca orchestration ask line, as SA-2 allows, makes AC-C1 print a hit, so P0 cannot pass",
+       "sev": "major",
+       "side": null,
+       "status": "open",
+       "text": "AC-C1 scans the folder that holds the contract file SA-2 lets mention Orca",
+       "via": null
+      },
+      {
+       "anchor": "has a `## Unattended mode` section naming `return-contract.yaml`",
+       "at": [
+        195,
+        195
+       ],
+       "blocking": true,
+       "chain": [
+        "R1.6"
+       ],
+       "cites": null,
+       "demoted": false,
+       "fr": null,
+       "hunk": null,
+       "id": "R1.6",
+       "origin": "full",
+       "outcome": "AC-1.1 fails for /sc:load, or the implementer adds a contract to load against its row and the Decisions table",
+       "sev": "major",
+       "side": null,
+       "status": "open",
+       "text": "load has no report but AC-1.1 requires one",
+       "via": null
+      },
+      {
+       "anchor": "a person never types it",
+       "at": [
+        228,
+        228
+       ],
+       "blocking": true,
+       "chain": [
+        "R1.7"
+       ],
+       "cites": null,
+       "demoted": false,
+       "fr": 8,
+       "hunk": null,
+       "id": "R1.7",
+       "origin": "full",
+       "outcome": "a person's /sc:troubleshoot run whose quoted topic contains --unattended loses its prompts and gets a contract file, breaking SA-1 and SA-3",
+       "sev": "major",
+       "side": null,
+       "status": "open",
+       "text": "no parse rule for the --unattended token",
+       "via": null
+      },
+      {
+       "anchor": "The only command changes are the small fixes in the last column.",
+       "at": [
+        79,
+        79
+       ],
+       "blocking": false,
+       "chain": [
+        "R1.8"
+       ],
+       "cites": null,
+       "demoted": false,
+       "fr": null,
+       "hunk": null,
+       "id": "R1.8",
+       "origin": "full",
+       "outcome": null,
+       "sev": "minor",
+       "side": null,
+       "status": "minor",
+       "text": "3.1 understates the P1 edits to ready commands",
+       "via": null
+      },
+      {
+       "anchor": "OrcaCLICommandRefactor-Specs",
+       "at": [
+        4,
+        4
+       ],
+       "blocking": false,
+       "chain": [
+        "R1.9"
+       ],
+       "cites": null,
+       "demoted": false,
+       "fr": null,
+       "hunk": null,
+       "id": "R1.9",
+       "origin": "full",
+       "outcome": null,
+       "sev": "minor",
+       "side": null,
+       "status": "minor",
+       "text": "stated repo root is missing and origin/master has moved past the baseline",
+       "via": null
+      },
+      {
+       "anchor": "A command step that blocks a single tool call for longer than 5 minutes",
+       "at": [
+        68,
+        68
+       ],
+       "blocking": false,
+       "chain": [
+        "R1.10"
+       ],
+       "cites": null,
+       "demoted": false,
+       "fr": null,
+       "hunk": null,
+       "id": "R1.10",
+       "origin": "full",
+       "outcome": null,
+       "sev": "minor",
+       "side": null,
+       "status": "minor",
+       "text": "WC-10 literally covers unsplittable Agent-tool calls",
+       "via": null
+      },
+      {
+       "anchor": "at least once per 5 minutes",
+       "at": [
+        181,
+        181
+       ],
+       "blocking": false,
+       "chain": [
+        "R1.11"
+       ],
+       "cites": null,
+       "demoted": false,
+       "fr": null,
+       "hunk": null,
+       "id": "R1.11",
+       "origin": "full",
+       "outcome": null,
+       "sev": "minor",
+       "side": null,
+       "status": "minor",
+       "text": "step 2 cadence cannot run during the 900 s step-3 wait",
+       "via": null
+      },
+      {
+       "anchor": "search the transcript for `AskUserQuestion`",
+       "at": [
+        184,
+        184
+       ],
+       "blocking": false,
+       "chain": [
+        "R1.12"
+       ],
+       "cites": null,
+       "demoted": false,
+       "fr": null,
+       "hunk": null,
+       "id": "R1.12",
+       "origin": "full",
+       "outcome": null,
+       "sev": "minor",
+       "side": null,
+       "status": "minor",
+       "text": "transcript content for tool calls is UNVERIFIED",
+       "via": null
+      },
+      {
+       "anchor": "it stops without sending `worker_done`",
+       "at": [
+        70,
+        70
+       ],
+       "blocking": false,
+       "chain": [
+        "R1.13"
+       ],
+       "cites": null,
+       "demoted": false,
+       "fr": null,
+       "hunk": null,
+       "id": "R1.13",
+       "origin": "full",
+       "outcome": null,
+       "sev": "minor",
+       "side": null,
+       "status": "minor",
+       "text": "WC-5 exactly-once lacks the fenced exception",
+       "via": null
+      }
+     ],
+     "held": {},
+     "open_blocking": [
+      {
+       "anchor": "where `<output-dir>` is the directory the coordinator passed (`--output` / `--output-dir`)",
+       "at": [
+        62,
+        62
+       ],
+       "chain": [
+        "R1.1"
+       ],
+       "hunk": null,
+       "id": "R1.1",
+       "sev": "major",
+       "text": "WC-4 report location is unknowable or undefined for workflow, tdd, init-lite and a missing flag"
+      },
+      {
+       "anchor": "Commands that already write a contract keep their fields and add the missing ones",
+       "at": [
+        62,
+        62
+       ],
+       "chain": [
+        "R1.2"
+       ],
+       "hunk": null,
+       "id": "R1.2",
+       "sev": "major",
+       "text": "the new status field collides with existing contract status fields"
+      },
+      {
+       "anchor": "writes each run into a fresh output directory so a re-run starts clean",
+       "at": [
+        64,
+        64
+       ],
+       "chain": [
+        "R1.3"
+       ],
+       "hunk": null,
+       "id": "R1.3",
+       "sev": "major",
+       "text": "WC-6 fresh directory conflicts with the brief-fixed directory of WC-4"
+      },
+      {
+       "anchor": "The worker runs the command directly in its own session; it never wraps the command in an Agent-tool subagent.",
+       "at": [
+        65,
+        65
+       ],
+       "chain": [
+        "R1.4"
+       ],
+       "hunk": null,
+       "id": "R1.4",
+       "sev": "major",
+       "text": "WC-7 does not require the Skill invocation and no check detects its absence"
+      },
+      {
+       "anchor": "src/superclaude/agents src/superclaude/core",
+       "at": [
+        172,
+        172
+       ],
+       "chain": [
+        "R1.5"
+       ],
+       "hunk": null,
+       "id": "R1.5",
+       "sev": "major",
+       "text": "AC-C1 scans the folder that holds the contract file SA-2 lets mention Orca"
+      },
+      {
+       "anchor": "has a `## Unattended mode` section naming `return-contract.yaml`",
+       "at": [
+        195,
+        195
+       ],
+       "chain": [
+        "R1.6"
+       ],
+       "hunk": null,
+       "id": "R1.6",
+       "sev": "major",
+       "text": "load has no report but AC-1.1 requires one"
+      },
+      {
+       "anchor": "a person never types it",
+       "at": [
+        228,
+        228
+       ],
+       "chain": [
+        "R1.7"
+       ],
+       "hunk": null,
+       "id": "R1.7",
+       "sev": "major",
+       "text": "no parse rule for the --unattended token"
+      }
+     ],
+     "priors": [],
+     "proxy_all": 7,
+     "proxy_ids": [
+      "R1.1",
+      "R1.2",
+      "R1.3",
+      "R1.4",
+      "R1.5",
+      "R1.6",
+      "R1.7"
+     ],
+     "review": 1,
+     "scoped": {},
+     "verdict": "FAIL",
+     "verdict_line": "verdict: FAIL"
+    }
+   },
+   "coverage": null,
+   "declined": [],
+   "doc_sha": "d3cdbe573e57303b9ce6c93d1fe98ba18fb7cb1a15773d926bf6a0c31425200d",
+   "finding_rejects": 0,
+   "fix": {
+    "accepted": true,
+    "declined": {},
+    "doc_sha": "6c68d0ece899759096d1d8e35226720deeb59e96e771d6f47232364e4a628d17",
+    "failed_runs": 0,
+    "fix_rejected": false,
+    "map": "doc_sha: 6c68d0ece899759096d1d8e35226720deeb59e96e771d6f47232364e4a628d17\nH2.1 R1.7\nH2.2 R1.2,R1.1,R1.3,R1.4\nH2.3 R1.1,R1.3\nH2.4 R1.1,R1.3\nH2.5 R1.1\nH2.6 R1.1\nH2.7 R1.2\nH2.8 R1.5\nH2.9 R1.1\nH2.10 R1.5\nH2.11 R1.2,R1.4\nH2.12 R1.4,R1.6\nH2.13 R1.1,R1.2\nH2.14 R1.2\nH2.15 R1.7,R1.1\nH2.16 R1.2",
+    "owners": {
+     "H2.1": [
+      "R1.7"
+     ],
+     "H2.10": [
+      "R1.5"
+     ],
+     "H2.11": [
+      "R1.2",
+      "R1.4"
+     ],
+     "H2.12": [
+      "R1.4",
+      "R1.6"
+     ],
+     "H2.13": [
+      "R1.1",
+      "R1.2"
+     ],
+     "H2.14": [
+      "R1.2"
+     ],
+     "H2.15": [
+      "R1.7",
+      "R1.1"
+     ],
+     "H2.16": [
+      "R1.2"
+     ],
+     "H2.2": [
+      "R1.2",
+      "R1.1",
+      "R1.3",
+      "R1.4"
+     ],
+     "H2.3": [
+      "R1.1",
+      "R1.3"
+     ],
+     "H2.4": [
+      "R1.1",
+      "R1.3"
+     ],
+     "H2.5": [
+      "R1.1"
+     ],
+     "H2.6": [
+      "R1.1"
+     ],
+     "H2.7": [
+      "R1.2"
+     ],
+     "H2.8": [
+      "R1.5"
+     ],
+     "H2.9": [
+      "R1.1"
+     ]
+    }
+   },
+   "held": {},
+   "hunks": [],
+   "ignored": 0,
+   "owners": {},
+   "priors": [],
+   "rebegin": false,
+   "scoped": {},
+   "structural_failures": 0
+  },
+  "2": {
+   "chains": {
+    "R1.1": [
+     "R1.1"
+    ],
+    "R1.2": [
+     "R1.2"
+    ],
+    "R1.3": [
+     "R1.3"
+    ],
+    "R1.4": [
+     "R1.4"
+    ],
+    "R1.5": [
+     "R1.5"
+    ],
+    "R1.6": [
+     "R1.6"
+    ],
+    "R1.7": [
+     "R1.7"
+    ]
+   },
+   "check": {
+    "degrade": false,
+    "report_sha": "030b8a5f773a049c0d0719e23990a4326f35df0590ef3ec2fa8e6c15fcc1b786",
+    "result": {
+     "acceptance": "clean",
+     "blocking": 3,
+     "blocking_ids": [
+      "R2.1",
+      "R2.2",
+      "R1.3"
+     ],
+     "chains": {
+      "R1.3": [
+       "R1.3"
+      ],
+      "R2.1": [
+       "R1.1",
+       "R2.1"
+      ],
+      "R2.2": [
+       "R1.2",
+       "R2.2"
+      ]
+     },
+     "deferred": [],
+     "degraded": false,
+     "findings": [
+      {
+       "anchor": "each P1 command with `--unattended --output <dir>`",
+       "at": [
+        196,
+        196
+       ],
+       "blocking": true,
+       "chain": [
+        "R1.1",
+        "R2.1"
+       ],
+       "cites": null,
+       "demoted": false,
+       "fr": null,
+       "hunk": null,
+       "id": "R2.1",
+       "origin": "unchanged",
+       "outcome": "the AC-1.2 run of the P1 workflow fix stops with E-LEGACY and sends --outcome failed, and the /sc:load run writes no contract so 7.2 steps 3-4 fail, so P1 cannot pass or the implementer adds a load contract against its row",
+       "sev": "major",
+       "side": null,
+       "status": "open",
+       "text": "AC-1.2 passes --output to workflow and runs the contract check on load",
+       "via": "H2.6"
+      },
+      {
+       "anchor": "matches the contract's `worker_status` under WC-5 (R1.2)",
+       "at": [
+        182,
+        182
+       ],
+       "blocking": true,
+       "chain": [
+        "R1.2",
+        "R2.2"
+       ],
+       "cites": null,
+       "demoted": false,
+       "fr": null,
+       "hunk": "H2.11",
+       "id": "R2.2",
+       "origin": "changed",
+       "outcome": "AC-0.4 requires step 3 in P0, when no command writes worker_status, so all three P0 smoke runs fail step 3 and section 1 is reopened on a false signal",
+       "sev": "major",
+       "side": null,
+       "status": "open",
+       "text": "step 3 needs worker_status that no P0 command writes",
+       "via": null
+      },
+      {
+       "anchor": "AC-C1 excludes that one file (R1.5)",
+       "at": [
+        147,
+        147
+       ],
+       "blocking": false,
+       "chain": [
+        "R1.5",
+        "R2.3"
+       ],
+       "cites": null,
+       "demoted": false,
+       "fr": null,
+       "hunk": "H2.8",
+       "id": "R2.3",
+       "origin": "changed",
+       "outcome": null,
+       "sev": "minor",
+       "side": null,
+       "status": "minor",
+       "text": "SA-2 now forbids the ccsession-tag Orca use that AC-C1 also excludes",
+       "via": null
+      },
+      {
+       "anchor": "so a person's run cannot switch by accident (R1.7)",
+       "at": [
+        51,
+        51
+       ],
+       "blocking": false,
+       "chain": [
+        "R1.7",
+        "R2.4"
+       ],
+       "cites": null,
+       "demoted": false,
+       "fr": null,
+       "hunk": "H2.1",
+       "id": "R2.4",
+       "origin": "changed",
+       "outcome": null,
+       "sev": "minor",
+       "side": null,
+       "status": "minor",
+       "text": "an unquoted free-text topic containing the token still switches the mode",
+       "via": null
+      },
+      {
+       "anchor": "the question itself stays recorded in the Run (`CAPS:58`)",
+       "at": [
+        64,
+        64
+       ],
+       "blocking": false,
+       "chain": [
+        "R1.2",
+        "R2.5"
+       ],
+       "cites": null,
+       "demoted": false,
+       "fr": null,
+       "hunk": "H2.2",
+       "id": "R2.5",
+       "origin": "changed",
+       "outcome": null,
+       "sev": "minor",
+       "side": null,
+       "status": "minor",
+       "text": "CAPS:58 does not state the recorded-question fact",
+       "via": null
+      }
+     ],
+     "held": {},
+     "open_blocking": [
+      {
+       "anchor": "each P1 command with `--unattended --output <dir>`",
+       "at": [
+        196,
+        196
+       ],
+       "chain": [
+        "R1.1",
+        "R2.1"
+       ],
+       "hunk": null,
+       "id": "R2.1",
+       "sev": "major",
+       "text": "AC-1.2 passes --output to workflow and runs the contract check on load"
+      },
+      {
+       "anchor": "matches the contract's `worker_status` under WC-5 (R1.2)",
+       "at": [
+        182,
+        182
+       ],
+       "chain": [
+        "R1.2",
+        "R2.2"
+       ],
+       "hunk": "H2.11",
+       "id": "R2.2",
+       "sev": "major",
+       "text": "step 3 needs worker_status that no P0 command writes"
+      },
+      {
+       "anchor": "writes each run into a fresh output directory so a re-run starts clean",
+       "at": [
+        64,
+        64
+       ],
+       "chain": [
+        "R1.3"
+       ],
+       "hunk": null,
+       "id": "R1.3",
+       "sev": "major",
+       "status": "open",
+       "text": "WC-6 fresh directory conflicts with the brief-fixed directory of WC-4"
+      }
+     ],
+     "priors": [
+      {
+       "anchor": "where `<output-dir>` is the directory the coordinator passed (`--output` / `--output-dir`)",
+       "at": [
+        62,
+        62
+       ],
+       "by": "H2.2",
+       "chain": [
+        "R1.1"
+       ],
+       "hunk": null,
+       "id": "R1.1",
+       "sev": "major",
+       "status": "resolved",
+       "text": "WC-4 report location is unknowable or undefined for workflow, tdd, init-lite and a missing flag"
+      },
+      {
+       "anchor": "Commands that already write a contract keep their fields and add the missing ones",
+       "at": [
+        62,
+        62
+       ],
+       "by": "H2.2",
+       "chain": [
+        "R1.2"
+       ],
+       "hunk": null,
+       "id": "R1.2",
+       "sev": "major",
+       "status": "resolved",
+       "text": "the new status field collides with existing contract status fields"
+      },
+      {
+       "anchor": "writes each run into a fresh output directory so a re-run starts clean",
+       "at": [
+        64,
+        64
+       ],
+       "by": null,
+       "chain": [
+        "R1.3"
+       ],
+       "hunk": null,
+       "id": "R1.3",
+       "sev": "major",
+       "status": "open",
+       "text": "WC-6 fresh directory conflicts with the brief-fixed directory of WC-4"
+      },
+      {
+       "anchor": "The worker runs the command directly in its own session; it never wraps the command in an Agent-tool subagent.",
+       "at": [
+        65,
+        65
+       ],
+       "by": "H2.2",
+       "chain": [
+        "R1.4"
+       ],
+       "hunk": null,
+       "id": "R1.4",
+       "sev": "major",
+       "status": "resolved",
+       "text": "WC-7 does not require the Skill invocation and no check detects its absence"
+      },
+      {
+       "anchor": "src/superclaude/agents src/superclaude/core",
+       "at": [
+        172,
+        172
+       ],
+       "by": "H2.10",
+       "chain": [
+        "R1.5"
+       ],
+       "hunk": null,
+       "id": "R1.5",
+       "sev": "major",
+       "status": "resolved",
+       "text": "AC-C1 scans the folder that holds the contract file SA-2 lets mention Orca"
+      },
+      {
+       "anchor": "has a `## Unattended mode` section naming `return-contract.yaml`",
+       "at": [
+        195,
+        195
+       ],
+       "by": "H2.12",
+       "chain": [
+        "R1.6"
+       ],
+       "hunk": null,
+       "id": "R1.6",
+       "sev": "major",
+       "status": "resolved",
+       "text": "load has no report but AC-1.1 requires one"
+      },
+      {
+       "anchor": "a person never types it",
+       "at": [
+        228,
+        228
+       ],
+       "by": "H2.1",
+       "chain": [
+        "R1.7"
+       ],
+       "hunk": null,
+       "id": "R1.7",
+       "sev": "major",
+       "status": "resolved",
+       "text": "no parse rule for the --unattended token"
+      }
+     ],
+     "proxy_all": 3,
+     "proxy_ids": [
+      "R1.3",
+      "R2.1",
+      "R2.2"
+     ],
+     "review": 2,
+     "scoped": {},
+     "verdict": "FAIL",
+     "verdict_line": "verdict: FAIL"
+    }
+   },
+   "coverage": 0.0842,
+   "declined": [],
+   "doc_sha": "6c68d0ece899759096d1d8e35226720deeb59e96e771d6f47232364e4a628d17",
+   "finding_rejects": 0,
+   "fix": {
+    "accepted": true,
+    "declined": {},
+    "doc_sha": "75a628e35b00eb23bde80d0190f6cf735f3b298c8f3b228caf05f65ee094ac9a",
+    "failed_runs": 0,
+    "fix_rejected": false,
+    "map": "doc_sha: 75a628e35b00eb23bde80d0190f6cf735f3b298c8f3b228caf05f65ee094ac9a\nH3.1 R1.3\nH3.2 R1.3\nH3.3 R1.3\nH3.4 R2.2,R2.1",
+    "owners": {
+     "H3.1": [
+      "R1.3"
+     ],
+     "H3.2": [
+      "R1.3"
+     ],
+     "H3.3": [
+      "R1.3"
+     ],
+     "H3.4": [
+      "R2.2",
+      "R2.1"
+     ]
+    }
+   },
+   "held": {},
+   "hunks": [
+    {
+     "changed": [
+      [
+       51,
+       285,
+       288,
+       "The"
+      ],
+      [
+       51,
+       289,
+       293,
+       "mode"
+      ],
+      [
+       51,
+       294,
+       296,
+       "is"
+      ],
+      [
+       51,
+       297,
+       299,
+       "on"
+      ],
+      [
+       51,
+       300,
+       304,
+       "only"
+      ],
+      [
+       51,
+       305,
+       309,
+       "when"
+      ],
+      [
+       51,
+       310,
+       324,
+       "`--unattended`"
+      ],
+      [
+       51,
+       325,
+       327,
+       "is"
+      ],
+      [
+       51,
+       328,
+       329,
+       "a"
+      ],
+      [
+       51,
+       330,
+       340,
+       "standalone"
+      ],
+      [
+       51,
+       341,
+       349,
+       "argument"
+      ],
+      [
+       51,
+       350,
+       355,
+       "token"
+      ],
+      [
+       51,
+       356,
+       363,
+       "outside"
+      ],
+      [
+       51,
+       364,
+       367,
+       "any"
+      ],
+      [
+       51,
+       368,
+       374,
+       "quoted"
+      ],
+      [
+       51,
+       375,
+       384,
+       "argument;"
+      ],
+      [
+       51,
+       385,
+       388,
+       "the"
+      ],
+      [
+       51,
+       389,
+       393,
+       "same"
+      ],
+      [
+       51,
+       394,
+       398,
+       "text"
+      ],
+      [
+       51,
+       399,
+       405,
+       "inside"
+      ],
+      [
+       51,
+       406,
+       407,
+       "a"
+      ],
+      [
+       51,
+       408,
+       414,
+       "quoted"
+      ],
+      [
+       51,
+       415,
+       420,
+       "topic"
+      ],
+      [
+       51,
+       421,
+       423,
+       "or"
+      ],
+      [
+       51,
+       424,
+       430,
+       "prompt"
+      ],
+      [
+       51,
+       431,
+       435,
+       "(for"
+      ],
+      [
+       51,
+       436,
+       443,
+       "example"
+      ],
+      [
+       51,
+       444,
+       461,
+       "`/sc:troubleshoot"
+      ],
+      [
+       51,
+       462,
+       466,
+       "\"the"
+      ],
+      [
+       51,
+       467,
+       473,
+       "worker"
+      ],
+      [
+       51,
+       474,
+       481,
+       "ignores"
+      ],
+      [
+       51,
+       482,
+       497,
+       "--unattended\"`)"
+      ],
+      [
+       51,
+       498,
+       500,
+       "is"
+      ],
+      [
+       51,
+       501,
+       505,
+       "part"
+      ],
+      [
+       51,
+       506,
+       508,
+       "of"
+      ],
+      [
+       51,
+       509,
+       513,
+       "that"
+      ],
+      [
+       51,
+       514,
+       522,
+       "argument"
+      ],
+      [
+       51,
+       523,
+       526,
+       "and"
+      ],
+      [
+       51,
+       527,
+       533,
+       "leaves"
+      ],
+      [
+       51,
+       534,
+       537,
+       "the"
+      ],
+      [
+       51,
+       538,
+       542,
+       "mode"
+      ],
+      [
+       51,
+       543,
+       547,
+       "off,"
+      ],
+      [
+       51,
+       548,
+       550,
+       "so"
+      ],
+      [
+       51,
+       551,
+       552,
+       "a"
+      ],
+      [
+       51,
+       553,
+       561,
+       "person's"
+      ],
+      [
+       51,
+       562,
+       565,
+       "run"
+      ],
+      [
+       51,
+       566,
+       572,
+       "cannot"
+      ],
+      [
+       51,
+       573,
+       579,
+       "switch"
+      ],
+      [
+       51,
+       580,
+       582,
+       "by"
+      ],
+      [
+       51,
+       583,
+       591,
+       "accident"
+      ],
+      [
+       51,
+       592,
+       599,
+       "(R1.7)."
+      ]
+     ],
+     "first": 51,
+     "id": "H2.1",
+     "last": 51,
+     "new": [
+      51,
+      51
+     ],
+     "old": [
+      51,
+      51
+     ],
+     "removed": [],
+     "section": "2.1 Terms",
+     "structural": false
+    },
+    {
+     "changed": [
+      [
+       60,
+       405,
+       420,
+       "`worker_status:"
+      ],
+      [
+       60,
+       430,
+       436,
+       "(R1.2)"
+      ],
+      [
+       62,
+       117,
+       153,
+       "`<report-dir>/return-contract.yaml`,"
+      ],
+      [
+       62,
+       160,
+       174,
+       "`<report-dir>`"
+      ],
+      [
+       62,
+       196,
+       201,
+       "brief"
+      ],
+      [
+       62,
+       202,
+       208,
+       "passes"
+      ],
+      [
+       62,
+       209,
+       213,
+       "with"
+      ],
+      [
+       62,
+       214,
+       217,
+       "the"
+      ],
+      [
+       62,
+       218,
+       221,
+       "new"
+      ],
+      [
+       62,
+       222,
+       226,
+       "flag"
+      ],
+      [
+       62,
+       227,
+       240,
+       "`--report-dir"
+      ],
+      [
+       62,
+       241,
+       247,
+       "<dir>`"
+      ],
+      [
+       62,
+       248,
+       255,
+       "(R1.1)."
+      ],
+      [
+       62,
+       256,
+       270,
+       "`--report-dir`"
+      ],
+      [
+       62,
+       271,
+       273,
+       "is"
+      ],
+      [
+       62,
+       274,
+       282,
+       "separate"
+      ],
+      [
+       62,
+       283,
+       287,
+       "from"
+      ],
+      [
+       62,
+       288,
+       291,
+       "the"
+      ],
+      [
+       62,
+       292,
+       301,
+       "command's"
+      ],
+      [
+       62,
+       302,
+       305,
+       "own"
+      ],
+      [
+       62,
+       306,
+       312,
+       "output"
+      ],
+      [
+       62,
+       313,
+       319,
+       "flags,"
+      ],
+      [
+       62,
+       320,
+       325,
+       "which"
+      ],
+      [
+       62,
+       326,
+       330,
+       "keep"
+      ],
+      [
+       62,
+       331,
+       336,
+       "their"
+      ],
+      [
+       62,
+       337,
+       344,
+       "meaning"
+      ],
+      [
+       62,
+       345,
+       356,
+       "(workflow's"
+      ],
+      [
+       62,
+       357,
+       366,
+       "generated"
+      ],
+      [
+       62,
+       367,
+       375,
+       "package,"
+      ],
+      [
+       62,
+       376,
+       379,
+       "the"
+      ],
+      [
+       62,
+       380,
+       391,
+       "file-valued"
+      ],
+      [
+       62,
+       392,
+       402,
+       "`--output`"
+      ],
+      [
+       62,
+       403,
+       405,
+       "of"
+      ],
+      [
+       62,
+       406,
+       409,
+       "tdd"
+      ],
+      [
+       62,
+       410,
+       413,
+       "and"
+      ],
+      [
+       62,
+       414,
+       424,
+       "init-lite,"
+      ],
+      [
+       62,
+       425,
+       438,
+       "adversarial's"
+      ],
+      [
+       62,
+       439,
+       464,
+       "`<output>/adversarial/`),"
+      ],
+      [
+       62,
+       465,
+       467,
+       "so"
+      ],
+      [
+       62,
+       468,
+       471,
+       "the"
+      ],
+      [
+       62,
+       472,
+       476,
+       "path"
+      ],
+      [
+       62,
+       477,
+       479,
+       "is"
+      ],
+      [
+       62,
+       480,
+       485,
+       "known"
+      ],
+      [
+       62,
+       486,
+       492,
+       "before"
+      ],
+      [
+       62,
+       493,
+       501,
+       "dispatch"
+      ],
+      [
+       62,
+       502,
+       505,
+       "for"
+      ],
+      [
+       62,
+       506,
+       511,
+       "every"
+      ],
+      [
+       62,
+       512,
+       520,
+       "command."
+      ],
+      [
+       62,
+       521,
+       524,
+       "The"
+      ],
+      [
+       62,
+       525,
+       532,
+       "command"
+      ],
+      [
+       62,
+       533,
+       540,
+       "creates"
+      ],
+      [
+       62,
+       541,
+       544,
+       "the"
+      ],
+      [
+       62,
+       545,
+       554,
+       "directory"
+      ],
+      [
+       62,
+       555,
+       557,
+       "if"
+      ],
+      [
+       62,
+       558,
+       560,
+       "it"
+      ],
+      [
+       62,
+       561,
+       563,
+       "is"
+      ],
+      [
+       62,
+       564,
+       572,
+       "missing."
+      ],
+      [
+       62,
+       573,
+       575,
+       "If"
+      ],
+      [
+       62,
+       576,
+       590,
+       "`--unattended`"
+      ],
+      [
+       62,
+       591,
+       593,
+       "is"
+      ],
+      [
+       62,
+       594,
+       599,
+       "given"
+      ],
+      [
+       62,
+       600,
+       607,
+       "without"
+      ],
+      [
+       62,
+       608,
+       623,
+       "`--report-dir`,"
+      ],
+      [
+       62,
+       624,
+       627,
+       "the"
+      ],
+      [
+       62,
+       628,
+       635,
+       "command"
+      ],
+      [
+       62,
+       636,
+       640,
+       "does"
+      ],
+      [
+       62,
+       641,
+       643,
+       "no"
+      ],
+      [
+       62,
+       644,
+       649,
+       "work,"
+      ],
+      [
+       62,
+       650,
+       656,
+       "writes"
+      ],
+      [
+       62,
+       657,
+       664,
+       "nothing"
+      ],
+      [
+       62,
+       665,
+       668,
+       "and"
+      ],
+      [
+       62,
+       669,
+       674,
+       "stops"
+      ],
+      [
+       62,
+       675,
+       679,
+       "with"
+      ],
+      [
+       62,
+       680,
+       682,
+       "an"
+      ],
+      [
+       62,
+       683,
+       688,
+       "error"
+      ],
+      [
+       62,
+       689,
+       695,
+       "naming"
+      ],
+      [
+       62,
+       696,
+       699,
+       "the"
+      ],
+      [
+       62,
+       700,
+       707,
+       "missing"
+      ],
+      [
+       62,
+       708,
+       713,
+       "flag;"
+      ],
+      [
+       62,
+       714,
+       717,
+       "the"
+      ],
+      [
+       62,
+       718,
+       724,
+       "worker"
+      ],
+      [
+       62,
+       725,
+       729,
+       "then"
+      ],
+      [
+       62,
+       730,
+       733,
+       "has"
+      ],
+      [
+       62,
+       734,
+       736,
+       "no"
+      ],
+      [
+       62,
+       737,
+       744,
+       "report,"
+      ],
+      [
+       62,
+       745,
+       747,
+       "so"
+      ],
+      [
+       62,
+       748,
+       752,
+       "WC-5"
+      ],
+      [
+       62,
+       753,
+       758,
+       "sends"
+      ],
+      [
+       62,
+       759,
+       769,
+       "`--outcome"
+      ],
+      [
+       62,
+       770,
+       777,
+       "failed`"
+      ],
+      [
+       62,
+       778,
+       785,
+       "(R1.1)."
+      ],
+      [
+       62,
+       786,
+       789,
+       "The"
+      ],
+      [
+       62,
+       790,
+       794,
+       "file"
+      ],
+      [
+       62,
+       882,
+       897,
+       "`worker_status`"
+      ],
+      [
+       62,
+       1079,
+       1087,
+       "written,"
+      ],
+      [
+       62,
+       1088,
+       1097,
+       "including"
+      ],
+      [
+       62,
+       1098,
+       1101,
+       "the"
+      ],
+      [
+       62,
+       1102,
+       1111,
+       "command's"
+      ],
+      [
+       62,
+       1112,
+       1115,
+       "own"
+      ],
+      [
+       62,
+       1116,
+       1124,
+       "contract"
+      ],
+      [
+       62,
+       1125,
+       1129,
+       "when"
+      ],
+      [
+       62,
+       1130,
+       1132,
+       "it"
+      ],
+      [
+       62,
+       1133,
+       1137,
+       "lies"
+      ],
+      [
+       62,
+       1138,
+       1149,
+       "elsewhere),"
+      ],
+      [
+       62,
+       1189,
+       1192,
+       "The"
+      ],
+      [
+       62,
+       1193,
+       1198,
+       "field"
+      ],
+      [
+       62,
+       1199,
+       1201,
+       "is"
+      ],
+      [
+       62,
+       1202,
+       1218,
+       "`worker_status`,"
+      ],
+      [
+       62,
+       1219,
+       1222,
+       "not"
+      ],
+      [
+       62,
+       1223,
+       1232,
+       "`status`,"
+      ],
+      [
+       62,
+       1233,
+       1240,
+       "because"
+      ],
+      [
+       62,
+       1241,
+       1249,
+       "existing"
+      ],
+      [
+       62,
+       1250,
+       1259,
+       "contracts"
+      ],
+      [
+       62,
+       1260,
+       1267,
+       "already"
+      ],
+      [
+       62,
+       1268,
+       1271,
+       "use"
+      ],
+      [
+       62,
+       1272,
+       1280,
+       "`status`"
+      ],
+      [
+       62,
+       1281,
+       1285,
+       "with"
+      ],
+      [
+       62,
+       1286,
+       1291,
+       "other"
+      ],
+      [
+       62,
+       1292,
+       1298,
+       "values"
+      ],
+      [
+       62,
+       1299,
+       1306,
+       "(R1.2)."
+      ],
+      [
+       62,
+       1307,
+       1308,
+       "A"
+      ],
+      [
+       62,
+       1309,
+       1316,
+       "command"
+      ],
+      [
+       62,
+       1317,
+       1321,
+       "that"
+      ],
+      [
+       62,
+       1322,
+       1329,
+       "already"
+      ],
+      [
+       62,
+       1330,
+       1336,
+       "writes"
+      ],
+      [
+       62,
+       1337,
+       1338,
+       "a"
+      ],
+      [
+       62,
+       1339,
+       1347,
+       "contract"
+      ],
+      [
+       62,
+       1348,
+       1353,
+       "keeps"
+      ],
+      [
+       62,
+       1354,
+       1356,
+       "it"
+      ],
+      [
+       62,
+       1357,
+       1360,
+       "and"
+      ],
+      [
+       62,
+       1361,
+       1364,
+       "all"
+      ],
+      [
+       62,
+       1365,
+       1368,
+       "its"
+      ],
+      [
+       62,
+       1369,
+       1375,
+       "fields"
+      ],
+      [
+       62,
+       1376,
+       1386,
+       "unchanged;"
+      ],
+      [
+       62,
+       1387,
+       1391,
+       "when"
+      ],
+      [
+       62,
+       1392,
+       1396,
+       "that"
+      ],
+      [
+       62,
+       1397,
+       1407,
+       "contract's"
+      ],
+      [
+       62,
+       1408,
+       1412,
+       "path"
+      ],
+      [
+       62,
+       1413,
+       1415,
+       "is"
+      ],
+      [
+       62,
+       1416,
+       1452,
+       "`<report-dir>/return-contract.yaml`,"
+      ],
+      [
+       62,
+       1453,
+       1455,
+       "it"
+      ],
+      [
+       62,
+       1456,
+       1460,
+       "adds"
+      ],
+      [
+       62,
+       1461,
+       1464,
+       "the"
+      ],
+      [
+       62,
+       1465,
+       1471,
+       "fields"
+      ],
+      [
+       62,
+       1472,
+       1477,
+       "above"
+      ],
+      [
+       62,
+       1478,
+       1480,
+       "as"
+      ],
+      [
+       62,
+       1481,
+       1484,
+       "new"
+      ],
+      [
+       62,
+       1485,
+       1494,
+       "top-level"
+      ],
+      [
+       62,
+       1495,
+       1500,
+       "keys,"
+      ],
+      [
+       62,
+       1501,
+       1510,
+       "otherwise"
+      ],
+      [
+       62,
+       1511,
+       1513,
+       "it"
+      ],
+      [
+       62,
+       1514,
+       1520,
+       "writes"
+      ],
+      [
+       62,
+       1521,
+       1524,
+       "the"
+      ],
+      [
+       62,
+       1525,
+       1529,
+       "WC-4"
+      ],
+      [
+       62,
+       1530,
+       1534,
+       "file"
+      ],
+      [
+       62,
+       1535,
+       1546,
+       "separately."
+      ],
+      [
+       62,
+       1547,
+       1550,
+       "The"
+      ],
+      [
+       62,
+       1551,
+       1558,
+       "command"
+      ],
+      [
+       62,
+       1559,
+       1563,
+       "sets"
+      ],
+      [
+       62,
+       1564,
+       1579,
+       "`worker_status`"
+      ],
+      [
+       62,
+       1580,
+       1584,
+       "from"
+      ],
+      [
+       62,
+       1585,
+       1588,
+       "its"
+      ],
+      [
+       62,
+       1589,
+       1592,
+       "own"
+      ],
+      [
+       62,
+       1593,
+       1600,
+       "result:"
+      ],
+      [
+       62,
+       1601,
+       1610,
+       "`success`"
+      ],
+      [
+       62,
+       1611,
+       1612,
+       "\u2192"
+      ],
+      [
+       62,
+       1613,
+       1625,
+       "`succeeded`;"
+      ],
+      [
+       62,
+       1626,
+       1635,
+       "`partial`"
+      ],
+      [
+       62,
+       1636,
+       1637,
+       "\u2192"
+      ],
+      [
+       62,
+       1638,
+       1648,
+       "`partial`;"
+      ],
+      [
+       62,
+       1649,
+       1650,
+       "a"
+      ],
+      [
+       62,
+       1651,
+       1655,
+       "WC-2"
+      ],
+      [
+       62,
+       1656,
+       1659,
+       "(c)"
+      ],
+      [
+       62,
+       1660,
+       1664,
+       "gate"
+      ],
+      [
+       62,
+       1665,
+       1669,
+       "stop"
+      ],
+      [
+       62,
+       1670,
+       1671,
+       "\u2192"
+      ],
+      [
+       62,
+       1672,
+       1682,
+       "`blocked`;"
+      ],
+      [
+       62,
+       1683,
+       1691,
+       "`failed`"
+      ],
+      [
+       62,
+       1692,
+       1694,
+       "or"
+      ],
+      [
+       62,
+       1695,
+       1698,
+       "any"
+      ],
+      [
+       62,
+       1699,
+       1704,
+       "other"
+      ],
+      [
+       62,
+       1705,
+       1709,
+       "stop"
+      ],
+      [
+       62,
+       1710,
+       1715,
+       "value"
+      ],
+      [
+       62,
+       1716,
+       1720,
+       "(for"
+      ],
+      [
+       62,
+       1721,
+       1728,
+       "example"
+      ],
+      [
+       62,
+       1729,
+       1738,
+       "reflect's"
+      ],
+      [
+       62,
+       1739,
+       1762,
+       "`stopped-precondition`)"
+      ],
+      [
+       62,
+       1763,
+       1764,
+       "\u2192"
+      ],
+      [
+       62,
+       1765,
+       1773,
+       "`failed`"
+      ],
+      [
+       62,
+       1774,
+       1781,
+       "(R1.2)."
+      ],
+      [
+       62,
+       1887,
+       1893,
+       "exists"
+      ],
+      [
+       62,
+       1894,
+       1898,
+       "(for"
+      ],
+      [
+       62,
+       1899,
+       1908,
+       "workflow,"
+      ],
+      [
+       62,
+       1909,
+       1912,
+       "the"
+      ],
+      [
+       62,
+       1913,
+       1925,
+       "pre-creation"
+      ],
+      [
+       62,
+       1926,
+       1931,
+       "STOPs"
+      ],
+      [
+       62,
+       1943,
+       1945,
+       "no"
+      ],
+      [
+       62,
+       1946,
+       1953,
+       "package"
+      ],
+      [
+       62,
+       1954,
+       1963,
+       "contract,"
+      ],
+      [
+       62,
+       1964,
+       1970,
+       "R1.1)."
+      ],
+      [
+       62,
+       2398,
+       2409,
+       "`INV-A:97`;"
+      ],
+      [
+       62,
+       2410,
+       2414,
+       "R1.1"
+      ],
+      [
+       62,
+       2415,
+       2421,
+       "output"
+      ],
+      [
+       62,
+       2422,
+       2428,
+       "flags:"
+      ],
+      [
+       62,
+       2429,
+       2470,
+       "`sk/sc-workflow-protocol/SKILL.md:24,44`,"
+      ],
+      [
+       62,
+       2471,
+       2524,
+       "`sk/sc-workflow-protocol/refs/return-contract.md:39`,"
+      ],
+      [
+       62,
+       2525,
+       2541,
+       "`cmd/tdd.md:49`,"
+      ],
+      [
+       62,
+       2542,
+       2564,
+       "`cmd/init-lite.md:32`;"
+      ],
+      [
+       62,
+       2565,
+       2569,
+       "R1.2"
+      ],
+      [
+       62,
+       2570,
+       2578,
+       "existing"
+      ],
+      [
+       62,
+       2579,
+       2587,
+       "`status`"
+      ],
+      [
+       62,
+       2588,
+       2595,
+       "values:"
+      ],
+      [
+       62,
+       2596,
+       2648,
+       "`sk/sc-workflow-protocol/refs/return-contract.md:7`,"
+      ],
+      [
+       62,
+       2649,
+       2695,
+       "`sk/sc-adversarial-protocol/SKILL.md:432,436`,"
+      ],
+      [
+       62,
+       2696,
+       2733,
+       "`sk/sc-reflect-protocol/SKILL.md:250`"
+      ],
+      [
+       63,
+       134,
+       142,
+       "report's"
+      ],
+      [
+       63,
+       143,
+       158,
+       "`worker_status`"
+      ],
+      [
+       63,
+       159,
+       161,
+       "is"
+      ],
+      [
+       63,
+       174,
+       183,
+       "`blocked`"
+      ],
+      [
+       63,
+       184,
+       191,
+       "(R1.2),"
+      ],
+      [
+       64,
+       220,
+       227,
+       "re-runs"
+      ],
+      [
+       64,
+       228,
+       233,
+       "clean"
+      ],
+      [
+       64,
+       234,
+       238,
+       "into"
+      ],
+      [
+       64,
+       239,
+       242,
+       "new"
+      ],
+      [
+       64,
+       243,
+       255,
+       "directories."
+      ],
+      [
+       64,
+       256,
+       259,
+       "The"
+      ],
+      [
+       64,
+       260,
+       272,
+       "coordinator,"
+      ],
+      [
+       64,
+       273,
+       276,
+       "not"
+      ],
+      [
+       64,
+       277,
+       280,
+       "the"
+      ],
+      [
+       64,
+       281,
+       289,
+       "command,"
+      ],
+      [
+       64,
+       290,
+       297,
+       "chooses"
+      ],
+      [
+       64,
+       298,
+       303,
+       "those"
+      ],
+      [
+       64,
+       304,
+       316,
+       "directories:"
+      ],
+      [
+       64,
+       322,
+       331,
+       "attempt's"
+      ],
+      [
+       64,
+       332,
+       338,
+       "brief,"
+      ],
+      [
+       64,
+       341,
+       353,
+       "`--retry-of`"
+      ],
+      [
+       64,
+       354,
+       359,
+       "retry"
+      ],
+      [
+       64,
+       360,
+       369,
+       "included,"
+      ],
+      [
+       64,
+       370,
+       375,
+       "names"
+      ],
+      [
+       64,
+       376,
+       377,
+       "a"
+      ],
+      [
+       64,
+       378,
+       381,
+       "new"
+      ],
+      [
+       64,
+       382,
+       396,
+       "`--report-dir`"
+      ],
+      [
+       64,
+       397,
+       401,
+       "and,"
+      ],
+      [
+       64,
+       402,
+       405,
+       "for"
+      ],
+      [
+       64,
+       406,
+       407,
+       "a"
+      ],
+      [
+       64,
+       408,
+       415,
+       "command"
+      ],
+      [
+       64,
+       416,
+       423,
+       "without"
+      ],
+      [
+       64,
+       424,
+       431,
+       "resume,"
+      ],
+      [
+       64,
+       432,
+       433,
+       "a"
+      ],
+      [
+       64,
+       434,
+       437,
+       "new"
+      ],
+      [
+       64,
+       445,
+       454,
+       "location,"
+      ],
+      [
+       64,
+       458,
+       461,
+       "the"
+      ],
+      [
+       64,
+       462,
+       467,
+       "first"
+      ],
+      [
+       64,
+       468,
+       477,
+       "attempt's"
+      ],
+      [
+       64,
+       478,
+       483,
+       "files"
+      ],
+      [
+       64,
+       484,
+       488,
+       "stay"
+      ],
+      [
+       64,
+       489,
+       491,
+       "as"
+      ],
+      [
+       64,
+       492,
+       496,
+       "they"
+      ],
+      [
+       64,
+       497,
+       501,
+       "were"
+      ],
+      [
+       64,
+       502,
+       505,
+       "and"
+      ],
+      [
+       64,
+       506,
+       509,
+       "the"
+      ],
+      [
+       64,
+       510,
+       516,
+       "report"
+      ],
+      [
+       64,
+       517,
+       521,
+       "path"
+      ],
+      [
+       64,
+       522,
+       524,
+       "is"
+      ],
+      [
+       64,
+       525,
+       533,
+       "recorded"
+      ],
+      [
+       64,
+       534,
+       540,
+       "before"
+      ],
+      [
+       64,
+       541,
+       549,
+       "dispatch"
+      ],
+      [
+       64,
+       550,
+       557,
+       "(R1.3)."
+      ],
+      [
+       64,
+       558,
+       559,
+       "A"
+      ],
+      [
+       64,
+       560,
+       564,
+       "WC-3"
+      ],
+      [
+       64,
+       565,
+       578,
+       "re-invocation"
+      ],
+      [
+       64,
+       579,
+       585,
+       "inside"
+      ],
+      [
+       64,
+       586,
+       589,
+       "one"
+      ],
+      [
+       64,
+       590,
+       596,
+       "worker"
+      ],
+      [
+       64,
+       597,
+       599,
+       "is"
+      ],
+      [
+       64,
+       600,
+       603,
+       "the"
+      ],
+      [
+       64,
+       604,
+       608,
+       "same"
+      ],
+      [
+       64,
+       609,
+       617,
+       "attempt:"
+      ],
+      [
+       64,
+       618,
+       620,
+       "it"
+      ],
+      [
+       64,
+       621,
+       627,
+       "reuses"
+      ],
+      [
+       64,
+       628,
+       632,
+       "that"
+      ],
+      [
+       64,
+       633,
+       642,
+       "attempt's"
+      ],
+      [
+       64,
+       643,
+       655,
+       "directories,"
+      ],
+      [
+       64,
+       656,
+       659,
+       "and"
+      ],
+      [
+       64,
+       660,
+       663,
+       "its"
+      ],
+      [
+       64,
+       664,
+       670,
+       "report"
+      ],
+      [
+       64,
+       671,
+       679,
+       "replaces"
+      ],
+      [
+       64,
+       680,
+       683,
+       "the"
+      ],
+      [
+       64,
+       684,
+       693,
+       "`blocked`"
+      ],
+      [
+       64,
+       694,
+       700,
+       "report"
+      ],
+      [
+       64,
+       701,
+       703,
+       "of"
+      ],
+      [
+       64,
+       704,
+       707,
+       "the"
+      ],
+      [
+       64,
+       708,
+       713,
+       "first"
+      ],
+      [
+       64,
+       714,
+       725,
+       "invocation;"
+      ],
+      [
+       64,
+       726,
+       729,
+       "the"
+      ],
+      [
+       64,
+       730,
+       738,
+       "question"
+      ],
+      [
+       64,
+       739,
+       745,
+       "itself"
+      ],
+      [
+       64,
+       746,
+       751,
+       "stays"
+      ],
+      [
+       64,
+       752,
+       760,
+       "recorded"
+      ],
+      [
+       64,
+       761,
+       763,
+       "in"
+      ],
+      [
+       64,
+       764,
+       767,
+       "the"
+      ],
+      [
+       64,
+       768,
+       771,
+       "Run"
+      ],
+      [
+       64,
+       772,
+       783,
+       "(`CAPS:58`)"
+      ],
+      [
+       64,
+       784,
+       791,
+       "(R1.3)."
+      ],
+      [
+       64,
+       845,
+       852,
+       "(resume"
+      ],
+      [
+       64,
+       853,
+       855,
+       "or"
+      ],
+      [
+       64,
+       856,
+       861,
+       "clean"
+      ],
+      [
+       64,
+       862,
+       870,
+       "re-run);"
+      ],
+      [
+       64,
+       871,
+       882,
+       "coordinator"
+      ],
+      [
+       64,
+       883,
+       895,
+       "(directories"
+      ],
+      [
+       64,
+       896,
+       899,
+       "per"
+      ],
+      [
+       64,
+       900,
+       908,
+       "attempt,"
+      ],
+      [
+       64,
+       909,
+       914,
+       "R1.3)"
+      ],
+      [
+       65,
+       348,
+       352,
+       "When"
+      ],
+      [
+       65,
+       353,
+       356,
+       "the"
+      ],
+      [
+       65,
+       357,
+       366,
+       "command's"
+      ],
+      [
+       65,
+       367,
+       371,
+       "file"
+      ],
+      [
+       65,
+       372,
+       376,
+       "says"
+      ],
+      [
+       65,
+       377,
+       379,
+       "to"
+      ],
+      [
+       65,
+       380,
+       386,
+       "invoke"
+      ],
+      [
+       65,
+       387,
+       388,
+       "a"
+      ],
+      [
+       65,
+       389,
+       395,
+       "skill,"
+      ],
+      [
+       65,
+       396,
+       399,
+       "the"
+      ],
+      [
+       65,
+       400,
+       406,
+       "worker"
+      ],
+      [
+       65,
+       407,
+       412,
+       "loads"
+      ],
+      [
+       65,
+       413,
+       417,
+       "that"
+      ],
+      [
+       65,
+       418,
+       423,
+       "skill"
+      ],
+      [
+       65,
+       424,
+       428,
+       "with"
+      ],
+      [
+       65,
+       429,
+       432,
+       "the"
+      ],
+      [
+       65,
+       433,
+       438,
+       "Skill"
+      ],
+      [
+       65,
+       439,
+       443,
+       "tool"
+      ],
+      [
+       65,
+       444,
+       450,
+       "before"
+      ],
+      [
+       65,
+       451,
+       454,
+       "any"
+      ],
+      [
+       65,
+       455,
+       460,
+       "other"
+      ],
+      [
+       65,
+       461,
+       466,
+       "step,"
+      ],
+      [
+       65,
+       467,
+       469,
+       "as"
+      ],
+      [
+       65,
+       470,
+       471,
+       "a"
+      ],
+      [
+       65,
+       472,
+       480,
+       "person's"
+      ],
+      [
+       65,
+       481,
+       487,
+       "`/sc:`"
+      ],
+      [
+       65,
+       488,
+       495,
+       "message"
+      ],
+      [
+       65,
+       496,
+       502,
+       "would;"
+      ],
+      [
+       65,
+       503,
+       510,
+       "reading"
+      ],
+      [
+       65,
+       511,
+       514,
+       "the"
+      ],
+      [
+       65,
+       515,
+       522,
+       "command"
+      ],
+      [
+       65,
+       523,
+       527,
+       "file"
+      ],
+      [
+       65,
+       528,
+       531,
+       "and"
+      ],
+      [
+       65,
+       532,
+       542,
+       "performing"
+      ],
+      [
+       65,
+       543,
+       546,
+       "the"
+      ],
+      [
+       65,
+       547,
+       555,
+       "protocol"
+      ],
+      [
+       65,
+       556,
+       560,
+       "from"
+      ],
+      [
+       65,
+       561,
+       567,
+       "memory"
+      ],
+      [
+       65,
+       568,
+       572,
+       "does"
+      ],
+      [
+       65,
+       573,
+       576,
+       "not"
+      ],
+      [
+       65,
+       577,
+       584,
+       "satisfy"
+      ],
+      [
+       65,
+       585,
+       590,
+       "WC-7,"
+      ],
+      [
+       65,
+       591,
+       598,
+       "because"
+      ],
+      [
+       65,
+       599,
+       602,
+       "the"
+      ],
+      [
+       65,
+       603,
+       609,
+       "repo's"
+      ],
+      [
+       65,
+       610,
+       615,
+       "Skill"
+      ],
+      [
+       65,
+       616,
+       620,
+       "rule"
+      ],
+      [
+       65,
+       621,
+       626,
+       "fires"
+      ],
+      [
+       65,
+       627,
+       631,
+       "only"
+      ],
+      [
+       65,
+       632,
+       634,
+       "on"
+      ],
+      [
+       65,
+       635,
+       636,
+       "a"
+      ],
+      [
+       65,
+       637,
+       644,
+       "message"
+      ],
+      [
+       65,
+       645,
+       649,
+       "that"
+      ],
+      [
+       65,
+       650,
+       656,
+       "starts"
+      ],
+      [
+       65,
+       657,
+       661,
+       "with"
+      ],
+      [
+       65,
+       662,
+       669,
+       "`/sc:`,"
+      ],
+      [
+       65,
+       670,
+       675,
+       "which"
+      ],
+      [
+       65,
+       676,
+       677,
+       "a"
+      ],
+      [
+       65,
+       678,
+       694,
+       "preamble-wrapped"
+      ],
+      [
+       65,
+       695,
+       700,
+       "brief"
+      ],
+      [
+       65,
+       701,
+       706,
+       "never"
+      ],
+      [
+       65,
+       707,
+       709,
+       "is"
+      ],
+      [
+       65,
+       710,
+       717,
+       "(R1.4)."
+      ],
+      [
+       65,
+       737,
+       772,
+       "`src/superclaude/core/CLAUDE.md:73`"
+      ],
+      [
+       65,
+       773,
+       779,
+       "(Skill"
+      ],
+      [
+       65,
+       780,
+       785,
+       "rule,"
+      ],
+      [
+       65,
+       786,
+       792,
+       "R1.4);"
+      ]
+     ],
+     "first": 60,
+     "id": "H2.2",
+     "last": 65,
+     "new": [
+      60,
+      65
+     ],
+     "old": [
+      60,
+      65
+     ],
+     "removed": [
+      [
+       60,
+       405,
+       413,
+       "`status:"
+      ],
+      [
+       62,
+       117,
+       153,
+       "`<output-dir>/return-contract.yaml`,"
+      ],
+      [
+       62,
+       160,
+       174,
+       "`<output-dir>`"
+      ],
+      [
+       62,
+       196,
+       207,
+       "coordinator"
+      ],
+      [
+       62,
+       208,
+       214,
+       "passed"
+      ],
+      [
+       62,
+       215,
+       226,
+       "(`--output`"
+      ],
+      [
+       62,
+       227,
+       228,
+       "/"
+      ],
+      [
+       62,
+       229,
+       245,
+       "`--output-dir`)."
+      ],
+      [
+       62,
+       246,
+       248,
+       "It"
+      ],
+      [
+       62,
+       336,
+       344,
+       "`status`"
+      ],
+      [
+       62,
+       526,
+       535,
+       "written),"
+      ],
+      [
+       62,
+       680,
+       687,
+       "exists."
+      ],
+      [
+       62,
+       688,
+       696,
+       "Commands"
+      ],
+      [
+       62,
+       702,
+       709,
+       "already"
+      ],
+      [
+       62,
+       716,
+       717,
+       "a"
+      ],
+      [
+       62,
+       718,
+       726,
+       "contract"
+      ],
+      [
+       62,
+       727,
+       731,
+       "keep"
+      ],
+      [
+       62,
+       732,
+       737,
+       "their"
+      ],
+      [
+       62,
+       738,
+       744,
+       "fields"
+      ],
+      [
+       62,
+       745,
+       748,
+       "and"
+      ],
+      [
+       62,
+       749,
+       752,
+       "add"
+      ],
+      [
+       62,
+       753,
+       756,
+       "the"
+      ],
+      [
+       62,
+       757,
+       764,
+       "missing"
+      ],
+      [
+       62,
+       765,
+       770,
+       "ones."
+      ],
+      [
+       62,
+       1198,
+       1208,
+       "`INV-A:97`"
+      ],
+      [
+       63,
+       134,
+       140,
+       "report"
+      ],
+      [
+       63,
+       141,
+       145,
+       "says"
+      ],
+      [
+       63,
+       158,
+       168,
+       "`blocked`,"
+      ],
+      [
+       64,
+       220,
+       226,
+       "writes"
+      ],
+      [
+       64,
+       232,
+       235,
+       "run"
+      ],
+      [
+       64,
+       236,
+       240,
+       "into"
+      ],
+      [
+       64,
+       243,
+       248,
+       "fresh"
+      ],
+      [
+       64,
+       256,
+       265,
+       "directory"
+      ],
+      [
+       64,
+       269,
+       270,
+       "a"
+      ],
+      [
+       64,
+       271,
+       277,
+       "re-run"
+      ],
+      [
+       64,
+       278,
+       284,
+       "starts"
+      ],
+      [
+       64,
+       285,
+       291,
+       "clean."
+      ]
+     ],
+     "section": "2.2 Requirements",
+     "structural": false
+    },
+    {
+     "changed": [
+      [
+       73,
+       230,
+       231,
+       "a"
+      ],
+      [
+       73,
+       232,
+       238,
+       "report"
+      ],
+      [
+       73,
+       239,
+       248,
+       "directory"
+      ],
+      [
+       73,
+       249,
+       255,
+       "passed"
+      ],
+      [
+       73,
+       256,
+       258,
+       "as"
+      ],
+      [
+       73,
+       259,
+       274,
+       "`--report-dir`,"
+      ],
+      [
+       73,
+       275,
+       278,
+       "new"
+      ],
+      [
+       73,
+       279,
+       282,
+       "for"
+      ],
+      [
+       73,
+       283,
+       287,
+       "each"
+      ],
+      [
+       73,
+       288,
+       295,
+       "attempt"
+      ],
+      [
+       73,
+       296,
+       305,
+       "including"
+      ],
+      [
+       73,
+       306,
+       314,
+       "retries,"
+      ],
+      [
+       73,
+       350,
+       359,
+       "dispatch,"
+      ],
+      [
+       73,
+       360,
+       363,
+       "and"
+      ],
+      [
+       73,
+       364,
+       367,
+       "for"
+      ],
+      [
+       73,
+       368,
+       369,
+       "a"
+      ],
+      [
+       73,
+       370,
+       377,
+       "command"
+      ],
+      [
+       73,
+       378,
+       385,
+       "without"
+      ],
+      [
+       73,
+       386,
+       392,
+       "resume"
+      ],
+      [
+       73,
+       393,
+       394,
+       "a"
+      ],
+      [
+       73,
+       395,
+       398,
+       "new"
+      ],
+      [
+       73,
+       399,
+       405,
+       "output"
+      ],
+      [
+       73,
+       406,
+       414,
+       "location"
+      ],
+      [
+       73,
+       415,
+       418,
+       "per"
+      ],
+      [
+       73,
+       419,
+       426,
+       "attempt"
+      ],
+      [
+       73,
+       427,
+       429,
+       "as"
+      ],
+      [
+       73,
+       430,
+       434,
+       "well"
+      ],
+      [
+       73,
+       435,
+       441,
+       "(WC-4,"
+      ],
+      [
+       73,
+       442,
+       447,
+       "WC-6;"
+      ],
+      [
+       73,
+       448,
+       453,
+       "R1.1,"
+      ],
+      [
+       73,
+       454,
+       460,
+       "R1.3);"
+      ]
+     ],
+     "first": 73,
+     "id": "H2.3",
+     "last": 73,
+     "new": [
+      73,
+      73
+     ],
+     "old": [
+      73,
+      73
+     ],
+     "removed": [
+      [
+       73,
+       230,
+       233,
+       "the"
+      ],
+      [
+       73,
+       234,
+       240,
+       "output"
+      ],
+      [
+       73,
+       241,
+       251,
+       "directory,"
+      ],
+      [
+       73,
+       287,
+       295,
+       "dispatch"
+      ],
+      [
+       73,
+       296,
+       303,
+       "(WC-4);"
+      ]
+     ],
+     "section": "2.3 What the coordinator owes each worker",
+     "structural": false
+    },
+    {
+     "changed": [
+      [
+       76,
+       280,
+       316,
+       "`<report-dir>/return-contract.yaml`,"
+      ],
+      [
+       76,
+       317,
+       324,
+       "written"
+      ],
+      [
+       76,
+       325,
+       327,
+       "to"
+      ],
+      [
+       76,
+       328,
+       331,
+       "the"
+      ],
+      [
+       76,
+       332,
+       346,
+       "`--report-dir`"
+      ],
+      [
+       76,
+       347,
+       352,
+       "every"
+      ],
+      [
+       76,
+       353,
+       358,
+       "brief"
+      ],
+      [
+       76,
+       359,
+       365,
+       "passes"
+      ],
+      [
+       76,
+       366,
+       373,
+       "(R1.1)."
+      ],
+      [
+       76,
+       374,
+       380,
+       "\"Fresh"
+      ],
+      [
+       76,
+       381,
+       385,
+       "dir\""
+      ],
+      [
+       76,
+       386,
+       388,
+       "in"
+      ],
+      [
+       76,
+       389,
+       390,
+       "a"
+      ],
+      [
+       76,
+       391,
+       397,
+       "Resume"
+      ],
+      [
+       76,
+       398,
+       404,
+       "column"
+      ],
+      [
+       76,
+       405,
+       410,
+       "means"
+      ],
+      [
+       76,
+       411,
+       414,
+       "the"
+      ],
+      [
+       76,
+       415,
+       426,
+       "coordinator"
+      ],
+      [
+       76,
+       427,
+       432,
+       "names"
+      ],
+      [
+       76,
+       433,
+       434,
+       "a"
+      ],
+      [
+       76,
+       435,
+       438,
+       "new"
+      ],
+      [
+       76,
+       439,
+       445,
+       "output"
+      ],
+      [
+       76,
+       446,
+       454,
+       "location"
+      ],
+      [
+       76,
+       455,
+       457,
+       "in"
+      ],
+      [
+       76,
+       458,
+       462,
+       "each"
+      ],
+      [
+       76,
+       463,
+       472,
+       "attempt's"
+      ],
+      [
+       76,
+       473,
+       478,
+       "brief"
+      ],
+      [
+       76,
+       479,
+       485,
+       "(WC-6,"
+      ],
+      [
+       76,
+       486,
+       492,
+       "R1.3)."
+      ]
+     ],
+     "first": 76,
+     "id": "H2.4",
+     "last": 76,
+     "new": [
+      76,
+      76
+     ],
+     "old": [
+      76,
+      76
+     ],
+     "removed": [
+      [
+       76,
+       280,
+       316,
+       "`<output-dir>/return-contract.yaml`."
+      ]
+     ],
+     "section": "3. Per-command changes",
+     "structural": false
+    },
+    {
+     "changed": [
+      [
+       83,
+       156,
+       159,
+       "its"
+      ],
+      [
+       83,
+       160,
+       163,
+       "own"
+      ],
+      [
+       83,
+       185,
+       229,
+       "`<output>/adversarial/return-contract.yaml`;"
+      ],
+      [
+       83,
+       230,
+       233,
+       "the"
+      ],
+      [
+       83,
+       234,
+       238,
+       "WC-4"
+      ],
+      [
+       83,
+       239,
+       245,
+       "report"
+      ],
+      [
+       83,
+       246,
+       251,
+       "still"
+      ],
+      [
+       83,
+       252,
+       256,
+       "goes"
+      ],
+      [
+       83,
+       257,
+       259,
+       "to"
+      ],
+      [
+       83,
+       260,
+       274,
+       "`--report-dir`"
+      ],
+      [
+       83,
+       275,
+       281,
+       "(R1.1)"
+      ]
+     ],
+     "first": 83,
+     "id": "H2.5",
+     "last": 83,
+     "new": [
+      83,
+      83
+     ],
+     "old": [
+      83,
+      83
+     ],
+     "removed": [
+      [
+       83,
+       156,
+       159,
+       "the"
+      ],
+      [
+       83,
+       181,
+       224,
+       "`<output>/adversarial/return-contract.yaml`"
+      ]
+     ],
+     "section": "3.1 Ready today (10)",
+     "structural": false
+    },
+    {
+     "changed": [
+      [
+       92,
+       24,
+       30,
+       "none`;"
+      ],
+      [
+       92,
+       31,
+       36,
+       "never"
+      ],
+      [
+       92,
+       37,
+       47,
+       "`--output`"
+      ],
+      [
+       92,
+       48,
+       57,
+       "(retired,"
+      ],
+      [
+       92,
+       58,
+       69,
+       "`E-LEGACY`,"
+      ],
+      [
+       92,
+       70,
+       75,
+       "R1.1)"
+      ],
+      [
+       92,
+       150,
+       155,
+       "Under"
+      ],
+      [
+       92,
+       156,
+       171,
+       "`--unattended`,"
+      ],
+      [
+       92,
+       172,
+       177,
+       "write"
+      ],
+      [
+       92,
+       182,
+       186,
+       "WC-4"
+      ],
+      [
+       92,
+       187,
+       193,
+       "report"
+      ],
+      [
+       92,
+       194,
+       196,
+       "to"
+      ],
+      [
+       92,
+       197,
+       211,
+       "`--report-dir`"
+      ],
+      [
+       92,
+       212,
+       214,
+       "on"
+      ],
+      [
+       92,
+       215,
+       220,
+       "every"
+      ],
+      [
+       92,
+       221,
+       229,
+       "outcome,"
+      ],
+      [
+       92,
+       230,
+       239,
+       "including"
+      ],
+      [
+       92,
+       240,
+       243,
+       "the"
+      ],
+      [
+       92,
+       263,
+       267,
+       "that"
+      ],
+      [
+       92,
+       268,
+       273,
+       "write"
+      ],
+      [
+       92,
+       274,
+       276,
+       "no"
+      ],
+      [
+       92,
+       277,
+       284,
+       "package"
+      ],
+      [
+       92,
+       285,
+       293,
+       "contract"
+      ],
+      [
+       92,
+       294,
+       300,
+       "(R1.1)"
+      ],
+      [
+       92,
+       308,
+       355,
+       "`sk/sc-workflow-protocol/SKILL.md:24,58,66,72`;"
+      ]
+     ],
+     "first": 92,
+     "id": "H2.6",
+     "last": 92,
+     "new": [
+      92,
+      92
+     ],
+     "old": [
+      92,
+      92
+     ],
+     "removed": [
+      [
+       92,
+       24,
+       29,
+       "none`"
+      ],
+      [
+       92,
+       104,
+       109,
+       "Write"
+      ],
+      [
+       92,
+       114,
+       122,
+       "contract"
+      ],
+      [
+       92,
+       123,
+       126,
+       "for"
+      ],
+      [
+       92,
+       146,
+       149,
+       "too"
+      ],
+      [
+       92,
+       150,
+       155,
+       "(WC-4"
+      ],
+      [
+       92,
+       156,
+       162,
+       "\"every"
+      ],
+      [
+       92,
+       163,
+       172,
+       "outcome\")"
+      ],
+      [
+       92,
+       180,
+       224,
+       "`sk/sc-workflow-protocol/SKILL.md:58,66,72`;"
+      ]
+     ],
+     "section": "3.1 Ready today (10)",
+     "structural": false
+    },
+    {
+     "changed": [
+      [
+       95,
+       65,
+       80,
+       "`worker_status:"
+      ],
+      [
+       95,
+       90,
+       96,
+       "(R1.2)"
+      ]
+     ],
+     "first": 95,
+     "id": "H2.7",
+     "last": 95,
+     "new": [
+      95,
+      95
+     ],
+     "old": [
+      95,
+      95
+     ],
+     "removed": [
+      [
+       95,
+       65,
+       73,
+       "`status:"
+      ]
+     ],
+     "section": "3.2 Needs a change (27)",
+     "structural": false
+    },
+    {
+     "changed": [
+      [
+       147,
+       166,
+       172,
+       "inside"
+      ],
+      [
+       147,
+       173,
+       176,
+       "the"
+      ],
+      [
+       147,
+       177,
+       185,
+       "contract"
+      ],
+      [
+       147,
+       186,
+       191,
+       "file,"
+      ],
+      [
+       147,
+       220,
+       228,
+       "channels"
+      ],
+      [
+       147,
+       229,
+       232,
+       "for"
+      ],
+      [
+       147,
+       233,
+       243,
+       "questions,"
+      ],
+      [
+       147,
+       244,
+       251,
+       "reports"
+      ],
+      [
+       147,
+       252,
+       255,
+       "and"
+      ],
+      [
+       147,
+       256,
+       262,
+       "checks"
+      ],
+      [
+       147,
+       263,
+       269,
+       "(WC-3,"
+      ],
+      [
+       147,
+       270,
+       275,
+       "WC-5,"
+      ],
+      [
+       147,
+       276,
+       283,
+       "WC-12);"
+      ],
+      [
+       147,
+       284,
+       289,
+       "AC-C1"
+      ],
+      [
+       147,
+       290,
+       298,
+       "excludes"
+      ],
+      [
+       147,
+       299,
+       303,
+       "that"
+      ],
+      [
+       147,
+       304,
+       307,
+       "one"
+      ],
+      [
+       147,
+       308,
+       312,
+       "file"
+      ],
+      [
+       147,
+       313,
+       320,
+       "(R1.5)."
+      ]
+     ],
+     "first": 147,
+     "id": "H2.8",
+     "last": 147,
+     "new": [
+      147,
+      147
+     ],
+     "old": [
+      147,
+      147
+     ],
+     "removed": [
+      [
+       147,
+       163,
+       165,
+       "in"
+      ],
+      [
+       147,
+       166,
+       167,
+       "a"
+      ],
+      [
+       147,
+       168,
+       175,
+       "changed"
+      ],
+      [
+       147,
+       176,
+       183,
+       "command"
+      ],
+      [
+       147,
+       215,
+       223,
+       "question"
+      ],
+      [
+       147,
+       224,
+       231,
+       "channel"
+      ],
+      [
+       147,
+       232,
+       238,
+       "inside"
+      ],
+      [
+       147,
+       239,
+       242,
+       "the"
+      ],
+      [
+       147,
+       243,
+       251,
+       "contract"
+      ],
+      [
+       147,
+       252,
+       257,
+       "file."
+      ]
+     ],
+     "section": "5. Standalone use without Orca keeps working unchanged",
+     "structural": false
+    },
+    {
+     "changed": [
+      [
+       167,
+       190,
+       195,
+       "Every"
+      ],
+      [
+       167,
+       196,
+       210,
+       "`--unattended`"
+      ],
+      [
+       167,
+       211,
+       214,
+       "run"
+      ],
+      [
+       167,
+       215,
+       217,
+       "in"
+      ],
+      [
+       167,
+       218,
+       223,
+       "these"
+      ],
+      [
+       167,
+       224,
+       230,
+       "checks"
+      ],
+      [
+       167,
+       231,
+       235,
+       "also"
+      ],
+      [
+       167,
+       236,
+       242,
+       "passes"
+      ],
+      [
+       167,
+       243,
+       256,
+       "`--report-dir"
+      ],
+      [
+       167,
+       257,
+       263,
+       "<dir>`"
+      ],
+      [
+       167,
+       264,
+       270,
+       "(WC-4,"
+      ],
+      [
+       167,
+       271,
+       277,
+       "R1.1)."
+      ]
+     ],
+     "first": 167,
+     "id": "H2.9",
+     "last": 167,
+     "new": [
+      167,
+      167
+     ],
+     "old": [
+      167,
+      167
+     ],
+     "removed": [],
+     "section": "7. Acceptance checks per phase",
+     "structural": false
+    },
+    {
+     "changed": [
+      [
+       172,
+       196,
+       236,
+       "'^src/superclaude/skills/ccsession-tag/'"
+      ],
+      [
+       172,
+       237,
+       239,
+       "\\|"
+      ],
+      [
+       172,
+       240,
+       244,
+       "grep"
+      ],
+      [
+       172,
+       245,
+       247,
+       "-v"
+      ],
+      [
+       172,
+       248,
+       293,
+       "'^src/superclaude/core/WORKER-CONTRACT\\.md:'`"
+      ],
+      [
+       172,
+       318,
+       324,
+       "WC-8);"
+      ],
+      [
+       172,
+       325,
+       328,
+       "the"
+      ],
+      [
+       172,
+       329,
+       337,
+       "contract"
+      ],
+      [
+       172,
+       338,
+       342,
+       "file"
+      ],
+      [
+       172,
+       343,
+       345,
+       "is"
+      ],
+      [
+       172,
+       346,
+       354,
+       "excluded"
+      ],
+      [
+       172,
+       355,
+       362,
+       "because"
+      ],
+      [
+       172,
+       363,
+       367,
+       "SA-2"
+      ],
+      [
+       172,
+       368,
+       372,
+       "lets"
+      ],
+      [
+       172,
+       373,
+       375,
+       "it"
+      ],
+      [
+       172,
+       376,
+       380,
+       "name"
+      ],
+      [
+       172,
+       381,
+       384,
+       "the"
+      ],
+      [
+       172,
+       385,
+       393,
+       "caller's"
+      ],
+      [
+       172,
+       394,
+       398,
+       "Orca"
+      ],
+      [
+       172,
+       399,
+       407,
+       "channels"
+      ],
+      [
+       172,
+       408,
+       414,
+       "(R1.5)"
+      ]
+     ],
+     "first": 172,
+     "id": "H2.10",
+     "last": 172,
+     "new": [
+      172,
+      172
+     ],
+     "old": [
+      172,
+      172
+     ],
+     "removed": [
+      [
+       172,
+       196,
+       237,
+       "'^src/superclaude/skills/ccsession-tag/'`"
+      ],
+      [
+       172,
+       262,
+       267,
+       "WC-8)"
+      ]
+     ],
+     "section": "7.1 Common checks (every phase)",
+     "structural": false
+    },
+    {
+     "changed": [
+      [
+       182,
+       211,
+       226,
+       "`worker_status`"
+      ],
+      [
+       182,
+       233,
+       237,
+       "WC-5"
+      ],
+      [
+       182,
+       238,
+       245,
+       "(R1.2);"
+      ],
+      [
+       183,
+       111,
+       129,
+       "d['worker_status']"
+      ],
+      [
+       183,
+       244,
+       264,
+       "`pyproject.toml:38`;"
+      ],
+      [
+       183,
+       265,
+       270,
+       "field"
+      ],
+      [
+       183,
+       271,
+       275,
+       "name"
+      ],
+      [
+       183,
+       276,
+       279,
+       "per"
+      ],
+      [
+       183,
+       280,
+       285,
+       "WC-4,"
+      ],
+      [
+       183,
+       286,
+       292,
+       "R1.2)."
+      ],
+      [
+       184,
+       118,
+       135,
+       "`AskUserQuestion`"
+      ],
+      [
+       184,
+       136,
+       140,
+       "and,"
+      ],
+      [
+       184,
+       141,
+       145,
+       "when"
+      ],
+      [
+       184,
+       146,
+       149,
+       "the"
+      ],
+      [
+       184,
+       150,
+       159,
+       "command's"
+      ],
+      [
+       184,
+       160,
+       164,
+       "file"
+      ],
+      [
+       184,
+       165,
+       170,
+       "names"
+      ],
+      [
+       184,
+       171,
+       172,
+       "a"
+      ],
+      [
+       184,
+       173,
+       179,
+       "skill,"
+      ],
+      [
+       184,
+       180,
+       183,
+       "for"
+      ],
+      [
+       184,
+       184,
+       187,
+       "the"
+      ],
+      [
+       184,
+       188,
+       193,
+       "Skill"
+      ],
+      [
+       184,
+       194,
+       198,
+       "tool"
+      ],
+      [
+       184,
+       199,
+       203,
+       "call"
+      ],
+      [
+       184,
+       204,
+       208,
+       "that"
+      ],
+      [
+       184,
+       209,
+       214,
+       "loads"
+      ],
+      [
+       184,
+       215,
+       218,
+       "it."
+      ],
+      [
+       184,
+       250,
+       255,
+       "call,"
+      ],
+      [
+       184,
+       256,
+       259,
+       "and"
+      ],
+      [
+       184,
+       260,
+       264,
+       "that"
+      ],
+      [
+       184,
+       265,
+       270,
+       "Skill"
+      ],
+      [
+       184,
+       271,
+       275,
+       "call"
+      ],
+      [
+       184,
+       276,
+       283,
+       "appears"
+      ],
+      [
+       184,
+       284,
+       290,
+       "before"
+      ],
+      [
+       184,
+       291,
+       294,
+       "the"
+      ],
+      [
+       184,
+       295,
+       304,
+       "command's"
+      ],
+      [
+       184,
+       305,
+       310,
+       "first"
+      ],
+      [
+       184,
+       311,
+       317,
+       "output"
+      ],
+      [
+       184,
+       318,
+       324,
+       "(WC-7,"
+      ],
+      [
+       184,
+       325,
+       331,
+       "R1.4)."
+      ]
+     ],
+     "first": 182,
+     "id": "H2.11",
+     "last": 184,
+     "new": [
+      182,
+      184
+     ],
+     "old": [
+      182,
+      184
+     ],
+     "removed": [
+      [
+       182,
+       211,
+       219,
+       "`status`"
+      ],
+      [
+       182,
+       226,
+       231,
+       "WC-5;"
+      ],
+      [
+       183,
+       111,
+       122,
+       "d['status']"
+      ],
+      [
+       183,
+       237,
+       258,
+       "`pyproject.toml:38`)."
+      ],
+      [
+       184,
+       118,
+       136,
+       "`AskUserQuestion`."
+      ],
+      [
+       184,
+       168,
+       173,
+       "call."
+      ]
+     ],
+     "section": "7.2 Live worker check (used by P0-P4)",
+     "structural": false
+    },
+    {
+     "changed": [
+      [
+       194,
+       245,
+       248,
+       "and"
+      ],
+      [
+       194,
+       249,
+       252,
+       "the"
+      ],
+      [
+       194,
+       253,
+       262,
+       "command's"
+      ],
+      [
+       194,
+       263,
+       268,
+       "skill"
+      ],
+      [
+       194,
+       269,
+       275,
+       "loaded"
+      ],
+      [
+       194,
+       276,
+       280,
+       "with"
+      ],
+      [
+       194,
+       281,
+       284,
+       "the"
+      ],
+      [
+       194,
+       285,
+       290,
+       "Skill"
+      ],
+      [
+       194,
+       291,
+       296,
+       "tool,"
+      ],
+      [
+       194,
+       297,
+       301,
+       "both"
+      ],
+      [
+       194,
+       325,
+       336,
+       "transcript;"
+      ],
+      [
+       194,
+       337,
+       342,
+       "R1.4)"
+      ],
+      [
+       195,
+       129,
+       135,
+       "except"
+      ],
+      [
+       195,
+       136,
+       146,
+       "`/sc:load`"
+      ],
+      [
+       195,
+       147,
+       150,
+       "(no"
+      ],
+      [
+       195,
+       151,
+       158,
+       "report,"
+      ],
+      [
+       195,
+       159,
+       162,
+       "per"
+      ],
+      [
+       195,
+       163,
+       166,
+       "its"
+      ],
+      [
+       195,
+       167,
+       170,
+       "3.2"
+      ],
+      [
+       195,
+       171,
+       174,
+       "row"
+      ],
+      [
+       195,
+       175,
+       178,
+       "and"
+      ],
+      [
+       195,
+       179,
+       182,
+       "the"
+      ],
+      [
+       195,
+       183,
+       192,
+       "Decisions"
+      ],
+      [
+       195,
+       193,
+       199,
+       "table,"
+      ],
+      [
+       195,
+       200,
+       205,
+       "R1.6)"
+      ]
+     ],
+     "first": 194,
+     "id": "H2.12",
+     "last": 195,
+     "new": [
+      194,
+      195
+     ],
+     "old": [
+      194,
+      195
+     ],
+     "removed": [
+      [
+       194,
+       268,
+       279,
+       "transcript)"
+      ]
+     ],
+     "section": "7.3 Per-phase checks",
+     "structural": false
+    },
+    {
+     "changed": [
+      [
+       198,
+       198,
+       212,
+       "`--report-dir`"
+      ],
+      [
+       198,
+       213,
+       219,
+       "report"
+      ],
+      [
+       198,
+       254,
+       260,
+       "(R1.1)"
+      ],
+      [
+       200,
+       268,
+       283,
+       "`worker_status:"
+      ],
+      [
+       200,
+       293,
+       299,
+       "(R1.2)"
+      ]
+     ],
+     "first": 198,
+     "id": "H2.13",
+     "last": 200,
+     "new": [
+      198,
+      200
+     ],
+     "old": [
+      198,
+      200
+     ],
+     "removed": [
+      [
+       198,
+       198,
+       206,
+       "contract"
+      ],
+      [
+       200,
+       268,
+       276,
+       "`status:"
+      ]
+     ],
+     "section": "7.3 Per-phase checks",
+     "structural": false
+    },
+    {
+     "changed": [
+      [
+       208,
+       145,
+       160,
+       "`worker_status:"
+      ],
+      [
+       208,
+       161,
+       169,
+       "blocked`"
+      ],
+      [
+       208,
+       170,
+       177,
+       "(R1.2);"
+      ]
+     ],
+     "first": 208,
+     "id": "H2.14",
+     "last": 208,
+     "new": [
+      208,
+      208
+     ],
+     "old": [
+      208,
+      208
+     ],
+     "removed": [
+      [
+       208,
+       145,
+       153,
+       "`status:"
+      ],
+      [
+       208,
+       154,
+       163,
+       "blocked`;"
+      ]
+     ],
+     "section": "7.3 Per-phase checks",
+     "structural": false
+    },
+    {
+     "changed": [
+      [
+       228,
+       121,
+       125,
+       "line"
+      ],
+      [
+       228,
+       126,
+       128,
+       "as"
+      ],
+      [
+       228,
+       131,
+       141,
+       "standalone"
+      ],
+      [
+       228,
+       142,
+       148,
+       "token;"
+      ],
+      [
+       228,
+       149,
+       153,
+       "text"
+      ],
+      [
+       228,
+       154,
+       160,
+       "inside"
+      ],
+      [
+       228,
+       161,
+       162,
+       "a"
+      ],
+      [
+       228,
+       163,
+       171,
+       "person's"
+      ],
+      [
+       228,
+       172,
+       178,
+       "quoted"
+      ],
+      [
+       228,
+       179,
+       187,
+       "argument"
+      ],
+      [
+       228,
+       194,
+       200,
+       "counts"
+      ],
+      [
+       228,
+       201,
+       207,
+       "(parse"
+      ],
+      [
+       228,
+       208,
+       212,
+       "rule"
+      ],
+      [
+       228,
+       213,
+       215,
+       "in"
+      ],
+      [
+       228,
+       216,
+       223,
+       "section"
+      ],
+      [
+       228,
+       224,
+       228,
+       "2.1,"
+      ],
+      [
+       228,
+       229,
+       235,
+       "R1.7)."
+      ],
+      [
+       228,
+       290,
+       302,
+       "--report-dir"
+      ]
+     ],
+     "first": 228,
+     "id": "H2.15",
+     "last": 228,
+     "new": [
+      228,
+      228
+     ],
+     "old": [
+      228,
+      228
+     ],
+     "removed": [
+      [
+       228,
+       121,
+       126,
+       "line;"
+      ],
+      [
+       228,
+       129,
+       135,
+       "person"
+      ],
+      [
+       228,
+       142,
+       147,
+       "types"
+      ],
+      [
+       228,
+       148,
+       151,
+       "it."
+      ],
+      [
+       228,
+       206,
+       214,
+       "--output"
+      ]
+     ],
+     "section": "9. Open decisions for the user",
+     "structural": false
+    },
+    {
+     "changed": [
+      [
+       262,
+       123,
+       131,
+       "blocked`"
+      ],
+      [
+       262,
+       132,
+       134,
+       "in"
+      ],
+      [
+       262,
+       135,
+       138,
+       "its"
+      ],
+      [
+       262,
+       139,
+       142,
+       "own"
+      ],
+      [
+       262,
+       143,
+       148,
+       "field"
+      ],
+      [
+       262,
+       149,
+       165,
+       "`worker_status`,"
+      ],
+      [
+       262,
+       166,
+       173,
+       "because"
+      ],
+      [
+       262,
+       174,
+       182,
+       "existing"
+      ],
+      [
+       262,
+       183,
+       192,
+       "contracts"
+      ],
+      [
+       262,
+       193,
+       200,
+       "already"
+      ],
+      [
+       262,
+       201,
+       204,
+       "use"
+      ],
+      [
+       262,
+       205,
+       213,
+       "`status`"
+      ],
+      [
+       262,
+       214,
+       220,
+       "(WC-4,"
+      ],
+      [
+       262,
+       221,
+       227,
+       "R1.2),"
+      ]
+     ],
+     "first": 262,
+     "id": "H2.16",
+     "last": 262,
+     "new": [
+      262,
+      262
+     ],
+     "old": [
+      262,
+      262
+     ],
+     "removed": [
+      [
+       262,
+       123,
+       132,
+       "blocked`,"
+      ]
+     ],
+     "section": "Decisions",
+     "structural": false
+    }
+   ],
+   "ignored": 0,
+   "owners": {
+    "H2.1": [
+     "R1.7"
+    ],
+    "H2.10": [
+     "R1.5"
+    ],
+    "H2.11": [
+     "R1.2",
+     "R1.4"
+    ],
+    "H2.12": [
+     "R1.4",
+     "R1.6"
+    ],
+    "H2.13": [
+     "R1.1",
+     "R1.2"
+    ],
+    "H2.14": [
+     "R1.2"
+    ],
+    "H2.15": [
+     "R1.7",
+     "R1.1"
+    ],
+    "H2.16": [
+     "R1.2"
+    ],
+    "H2.2": [
+     "R1.2",
+     "R1.1",
+     "R1.3",
+     "R1.4"
+    ],
+    "H2.3": [
+     "R1.1",
+     "R1.3"
+    ],
+    "H2.4": [
+     "R1.1",
+     "R1.3"
+    ],
+    "H2.5": [
+     "R1.1"
+    ],
+    "H2.6": [
+     "R1.1"
+    ],
+    "H2.7": [
+     "R1.2"
+    ],
+    "H2.8": [
+     "R1.5"
+    ],
+    "H2.9": [
+     "R1.1"
+    ]
+   },
+   "priors": [
+    {
+     "anchor": "where `<output-dir>` is the directory the coordinator passed (`--output` / `--output-dir`)",
+     "at": [
+      62,
+      62
+     ],
+     "chain": [
+      "R1.1"
+     ],
+     "hunk": null,
+     "id": "R1.1",
+     "sev": "major",
+     "text": "WC-4 report location is unknowable or undefined for workflow, tdd, init-lite and a missing flag"
+    },
+    {
+     "anchor": "Commands that already write a contract keep their fields and add the missing ones",
+     "at": [
+      62,
+      62
+     ],
+     "chain": [
+      "R1.2"
+     ],
+     "hunk": null,
+     "id": "R1.2",
+     "sev": "major",
+     "text": "the new status field collides with existing contract status fields"
+    },
+    {
+     "anchor": "writes each run into a fresh output directory so a re-run starts clean",
+     "at": [
+      64,
+      64
+     ],
+     "chain": [
+      "R1.3"
+     ],
+     "hunk": null,
+     "id": "R1.3",
+     "sev": "major",
+     "text": "WC-6 fresh directory conflicts with the brief-fixed directory of WC-4"
+    },
+    {
+     "anchor": "The worker runs the command directly in its own session; it never wraps the command in an Agent-tool subagent.",
+     "at": [
+      65,
+      65
+     ],
+     "chain": [
+      "R1.4"
+     ],
+     "hunk": null,
+     "id": "R1.4",
+     "sev": "major",
+     "text": "WC-7 does not require the Skill invocation and no check detects its absence"
+    },
+    {
+     "anchor": "src/superclaude/agents src/superclaude/core",
+     "at": [
+      172,
+      172
+     ],
+     "chain": [
+      "R1.5"
+     ],
+     "hunk": null,
+     "id": "R1.5",
+     "sev": "major",
+     "text": "AC-C1 scans the folder that holds the contract file SA-2 lets mention Orca"
+    },
+    {
+     "anchor": "has a `## Unattended mode` section naming `return-contract.yaml`",
+     "at": [
+      195,
+      195
+     ],
+     "chain": [
+      "R1.6"
+     ],
+     "hunk": null,
+     "id": "R1.6",
+     "sev": "major",
+     "text": "load has no report but AC-1.1 requires one"
+    },
+    {
+     "anchor": "a person never types it",
+     "at": [
+      228,
+      228
+     ],
+     "chain": [
+      "R1.7"
+     ],
+     "hunk": null,
+     "id": "R1.7",
+     "sev": "major",
+     "text": "no parse rule for the --unattended token"
+    }
+   ],
+   "rebegin": false,
+   "scoped": {},
+   "structural_failures": 0
+  },
+  "3": {
+   "chains": {
+    "R1.3": [
+     "R1.3"
+    ],
+    "R2.1": [
+     "R1.1",
+     "R2.1"
+    ],
+    "R2.2": [
+     "R1.2",
+     "R2.2"
+    ]
+   },
+   "check": {
+    "degrade": false,
+    "report_sha": "69a679d8c21fc7cfb4dcea08faaa200cba782b7a113415764c009e070494798f",
+    "result": {
+     "acceptance": "clean",
+     "blocking": 2,
+     "blocking_ids": [
+      "R3.1",
+      "R3.2"
+     ],
+     "chains": {
+      "R3.1": [
+       "R1.3",
+       "R3.1"
+      ],
+      "R3.2": [
+       "R1.2",
+       "R2.2",
+       "R3.2"
+      ]
+     },
+     "deferred": [],
+     "degraded": false,
+     "findings": [
+      {
+       "anchor": "so it receives the first attempt's brief",
+       "at": [
+        64,
+        64
+       ],
+       "blocking": true,
+       "chain": [
+        "R1.3",
+        "R3.1"
+       ],
+       "cites": null,
+       "demoted": false,
+       "fr": 8,
+       "hunk": "H3.1",
+       "id": "R3.1",
+       "origin": "changed",
+       "outcome": "a retry of a command whose resume needs an explicit flag runs the same command line without that flag, and because the command has resume the coordinator leaves its output location in place, so the retry neither resumes nor writes to a fresh location; a roadmap retry starts fresh in attempt 1's --output directory and overwrites roadmap.md",
+       "sev": "major",
+       "side": null,
+       "status": "open",
+       "text": "a fixed retry brief cannot carry the resume flag WC-6 relies on",
+       "via": null
+      },
+      {
+       "anchor": "step 4 uses that existing report file",
+       "at": [
+        194,
+        194
+       ],
+       "blocking": true,
+       "chain": [
+        "R1.2",
+        "R2.2",
+        "R3.2"
+       ],
+       "cites": null,
+       "demoted": false,
+       "fr": 8,
+       "hunk": "H3.4",
+       "id": "R3.2",
+       "origin": "changed",
+       "outcome": "step 4 asserts d['worker_status'] on the existing report, which none of the three P0 commands writes, so all three AC-0.4 smoke runs fail step 4 and section 1 is reopened on a false signal",
+       "sev": "major",
+       "side": null,
+       "status": "open",
+       "text": "P0 step 4 runs the worker_status assertion on a file without that field",
+       "via": null
+      },
+      {
+       "anchor": "plus the flags that command's section 3 row requires",
+       "at": [
+        196,
+        196
+       ],
+       "blocking": false,
+       "chain": [
+        "R1.2",
+        "R2.2",
+        "R3.3"
+       ],
+       "cites": null,
+       "demoted": false,
+       "fr": null,
+       "hunk": "H3.4",
+       "id": "R3.3",
+       "origin": "changed",
+       "outcome": null,
+       "sev": "minor",
+       "side": null,
+       "status": "minor",
+       "text": "section 3.2 rows have no Brief must pass column, so AC-1.2's flags are inferred",
+       "via": null
+      }
+     ],
+     "held": {},
+     "open_blocking": [
+      {
+       "anchor": "so it receives the first attempt's brief",
+       "at": [
+        64,
+        64
+       ],
+       "chain": [
+        "R1.3",
+        "R3.1"
+       ],
+       "hunk": "H3.1",
+       "id": "R3.1",
+       "sev": "major",
+       "text": "a fixed retry brief cannot carry the resume flag WC-6 relies on"
+      },
+      {
+       "anchor": "step 4 uses that existing report file",
+       "at": [
+        194,
+        194
+       ],
+       "chain": [
+        "R1.2",
+        "R2.2",
+        "R3.2"
+       ],
+       "hunk": "H3.4",
+       "id": "R3.2",
+       "sev": "major",
+       "text": "P0 step 4 runs the worker_status assertion on a file without that field"
+      }
+     ],
+     "priors": [
+      {
+       "anchor": "each P1 command with `--unattended --output <dir>`",
+       "at": [
+        196,
+        196
+       ],
+       "by": "H3.4",
+       "chain": [
+        "R1.1",
+        "R2.1"
+       ],
+       "hunk": null,
+       "id": "R2.1",
+       "sev": "major",
+       "status": "resolved",
+       "text": "AC-1.2 passes --output to workflow and runs the contract check on load"
+      },
+      {
+       "anchor": "matches the contract's `worker_status` under WC-5 (R1.2)",
+       "at": [
+        182,
+        182
+       ],
+       "by": "H3.4",
+       "chain": [
+        "R1.2",
+        "R2.2"
+       ],
+       "hunk": "H2.11",
+       "id": "R2.2",
+       "sev": "major",
+       "status": "resolved",
+       "text": "step 3 needs worker_status that no P0 command writes"
+      },
+      {
+       "anchor": "writes each run into a fresh output directory so a re-run starts clean",
+       "at": [
+        64,
+        64
+       ],
+       "by": "H3.1",
+       "chain": [
+        "R1.3"
+       ],
+       "hunk": null,
+       "id": "R1.3",
+       "sev": "major",
+       "status": "resolved",
+       "text": "WC-6 fresh directory conflicts with the brief-fixed directory of WC-4"
+      }
+     ],
+     "proxy_all": 2,
+     "proxy_ids": [
+      "R3.1",
+      "R3.2"
+     ],
+     "review": 3,
+     "scoped": {},
+     "verdict": "FAIL",
+     "verdict_line": "verdict: FAIL"
+    }
+   },
+   "coverage": 0.0175,
+   "declined": [],
+   "doc_sha": "75a628e35b00eb23bde80d0190f6cf735f3b298c8f3b228caf05f65ee094ac9a",
+   "finding_rejects": 0,
+   "fix": null,
+   "held": {},
+   "hunks": [
+    {
+     "changed": [
+      [
+       64,
+       228,
+       234,
+       "clean."
+      ],
+      [
+       64,
+       235,
+       236,
+       "A"
+      ],
+      [
+       64,
+       237,
+       249,
+       "`--retry-of`"
+      ],
+      [
+       64,
+       250,
+       255,
+       "retry"
+      ],
+      [
+       64,
+       256,
+       262,
+       "reuses"
+      ],
+      [
+       64,
+       263,
+       266,
+       "the"
+      ],
+      [
+       64,
+       267,
+       273,
+       "failed"
+      ],
+      [
+       64,
+       274,
+       278,
+       "Task"
+      ],
+      [
+       64,
+       279,
+       282,
+       "and"
+      ],
+      [
+       64,
+       283,
+       286,
+       "its"
+      ],
+      [
+       64,
+       287,
+       292,
+       "spec,"
+      ],
+      [
+       64,
+       293,
+       295,
+       "so"
+      ],
+      [
+       64,
+       296,
+       298,
+       "it"
+      ],
+      [
+       64,
+       299,
+       307,
+       "receives"
+      ],
+      [
+       64,
+       308,
+       311,
+       "the"
+      ],
+      [
+       64,
+       312,
+       317,
+       "first"
+      ],
+      [
+       64,
+       318,
+       327,
+       "attempt's"
+      ],
+      [
+       64,
+       328,
+       334,
+       "brief,"
+      ],
+      [
+       64,
+       335,
+       349,
+       "`--report-dir`"
+      ],
+      [
+       64,
+       350,
+       359,
+       "included:"
+      ],
+      [
+       64,
+       360,
+       362,
+       "no"
+      ],
+      [
+       64,
+       363,
+       367,
+       "Orca"
+      ],
+      [
+       64,
+       368,
+       372,
+       "verb"
+      ],
+      [
+       64,
+       373,
+       380,
+       "changes"
+      ],
+      [
+       64,
+       381,
+       382,
+       "a"
+      ],
+      [
+       64,
+       383,
+       389,
+       "Task's"
+      ],
+      [
+       64,
+       390,
+       395,
+       "spec,"
+      ],
+      [
+       64,
+       396,
+       399,
+       "and"
+      ],
+      [
+       64,
+       400,
+       401,
+       "a"
+      ],
+      [
+       64,
+       406,
+       410,
+       "Task"
+      ],
+      [
+       64,
+       411,
+       416,
+       "would"
+      ],
+      [
+       64,
+       417,
+       422,
+       "route"
+      ],
+      [
+       64,
+       423,
+       429,
+       "around"
+      ],
+      [
+       64,
+       430,
+       433,
+       "the"
+      ],
+      [
+       64,
+       434,
+       441,
+       "circuit"
+      ],
+      [
+       64,
+       442,
+       449,
+       "breaker"
+      ],
+      [
+       64,
+       450,
+       457,
+       "(R1.3)."
+      ],
+      [
+       64,
+       492,
+       501,
+       "therefore"
+      ],
+      [
+       64,
+       502,
+       507,
+       "keeps"
+      ],
+      [
+       64,
+       508,
+       516,
+       "attempts"
+      ],
+      [
+       64,
+       517,
+       523,
+       "apart:"
+      ],
+      [
+       64,
+       524,
+       530,
+       "before"
+      ],
+      [
+       64,
+       531,
+       533,
+       "it"
+      ],
+      [
+       64,
+       534,
+       538,
+       "runs"
+      ],
+      [
+       64,
+       539,
+       552,
+       "`worker-start"
+      ],
+      [
+       64,
+       553,
+       563,
+       "--retry-of"
+      ],
+      [
+       64,
+       564,
+       579,
+       "<dispatch_id>`,"
+      ],
+      [
+       64,
+       580,
+       582,
+       "it"
+      ],
+      [
+       64,
+       583,
+       590,
+       "renames"
+      ],
+      [
+       64,
+       591,
+       594,
+       "the"
+      ],
+      [
+       64,
+       595,
+       601,
+       "failed"
+      ],
+      [
+       64,
+       612,
+       647,
+       "`<report-dir>/return-contract.yaml`"
+      ],
+      [
+       64,
+       648,
+       650,
+       "to"
+      ],
+      [
+       64,
+       651,
+       687,
+       "`return-contract.<dispatch_id>.yaml`"
+      ],
+      [
+       64,
+       723,
+       730,
+       "renames"
+      ],
+      [
+       64,
+       731,
+       735,
+       "that"
+      ],
+      [
+       64,
+       736,
+       745,
+       "attempt's"
+      ],
+      [
+       64,
+       746,
+       752,
+       "output"
+      ],
+      [
+       64,
+       753,
+       761,
+       "location"
+      ],
+      [
+       64,
+       762,
+       764,
+       "to"
+      ],
+      [
+       64,
+       765,
+       792,
+       "`<location>.<dispatch_id>`,"
+      ],
+      [
+       64,
+       793,
+       798,
+       "using"
+      ],
+      [
+       64,
+       799,
+       802,
+       "the"
+      ],
+      [
+       64,
+       803,
+       809,
+       "failed"
+      ],
+      [
+       64,
+       810,
+       820,
+       "Dispatch's"
+      ],
+      [
+       64,
+       821,
+       824,
+       "ID."
+      ],
+      [
+       64,
+       825,
+       828,
+       "The"
+      ],
+      [
+       64,
+       829,
+       834,
+       "retry"
+      ],
+      [
+       64,
+       835,
+       839,
+       "then"
+      ],
+      [
+       64,
+       840,
+       846,
+       "writes"
+      ],
+      [
+       64,
+       847,
+       850,
+       "the"
+      ],
+      [
+       64,
+       851,
+       856,
+       "paths"
+      ],
+      [
+       64,
+       857,
+       860,
+       "the"
+      ],
+      [
+       64,
+       861,
+       866,
+       "brief"
+      ],
+      [
+       64,
+       867,
+       875,
+       "recorded"
+      ],
+      [
+       64,
+       876,
+       882,
+       "before"
+      ],
+      [
+       64,
+       883,
+       891,
+       "dispatch"
+      ],
+      [
+       64,
+       892,
+       896,
+       "into"
+      ],
+      [
+       64,
+       899,
+       907,
+       "location"
+      ],
+      [
+       64,
+       908,
+       912,
+       "that"
+      ],
+      [
+       64,
+       913,
+       918,
+       "holds"
+      ],
+      [
+       64,
+       919,
+       921,
+       "no"
+      ],
+      [
+       64,
+       922,
+       929,
+       "earlier"
+      ],
+      [
+       64,
+       930,
+       937,
+       "output,"
+      ],
+      [
+       64,
+       938,
+       941,
+       "and"
+      ],
+      [
+       64,
+       973,
+       979,
+       "intact"
+      ],
+      [
+       64,
+       980,
+       985,
+       "under"
+      ],
+      [
+       64,
+       990,
+       993,
+       "new"
+      ],
+      [
+       64,
+       994,
+       999,
+       "names"
+      ],
+      [
+       64,
+       1000,
+       1007,
+       "(R1.3)."
+      ],
+      [
+       64,
+       1008,
+       1014,
+       "Orca's"
+      ],
+      [
+       64,
+       1015,
+       1020,
+       "guide"
+      ],
+      [
+       64,
+       1021,
+       1027,
+       "allows"
+      ],
+      [
+       64,
+       1028,
+       1029,
+       "a"
+      ],
+      [
+       64,
+       1030,
+       1035,
+       "retry"
+      ],
+      [
+       64,
+       1036,
+       1040,
+       "only"
+      ],
+      [
+       64,
+       1041,
+       1043,
+       "of"
+      ],
+      [
+       64,
+       1044,
+       1045,
+       "a"
+      ],
+      [
+       64,
+       1046,
+       1056,
+       "positively"
+      ],
+      [
+       64,
+       1057,
+       1063,
+       "proven"
+      ],
+      [
+       64,
+       1064,
+       1070,
+       "failed"
+      ],
+      [
+       64,
+       1071,
+       1073,
+       "or"
+      ],
+      [
+       64,
+       1074,
+       1081,
+       "stopped"
+      ],
+      [
+       64,
+       1082,
+       1090,
+       "attempt,"
+      ],
+      [
+       64,
+       1091,
+       1093,
+       "so"
+      ],
+      [
+       64,
+       1094,
+       1097,
+       "the"
+      ],
+      [
+       64,
+       1098,
+       1103,
+       "first"
+      ],
+      [
+       64,
+       1104,
+       1111,
+       "attempt"
+      ],
+      [
+       64,
+       1112,
+       1114,
+       "no"
+      ],
+      [
+       64,
+       1115,
+       1121,
+       "longer"
+      ],
+      [
+       64,
+       1122,
+       1128,
+       "writes"
+      ],
+      [
+       64,
+       1129,
+       1133,
+       "when"
+      ],
+      [
+       64,
+       1134,
+       1137,
+       "its"
+      ],
+      [
+       64,
+       1138,
+       1143,
+       "files"
+      ],
+      [
+       64,
+       1144,
+       1147,
+       "are"
+      ],
+      [
+       64,
+       1148,
+       1155,
+       "renamed"
+      ],
+      [
+       64,
+       1378,
+       1392,
+       "(`CAPS:59-60`)"
+      ],
+      [
+       64,
+       1492,
+       1500,
+       "(renames"
+      ],
+      [
+       64,
+       1501,
+       1502,
+       "a"
+      ],
+      [
+       64,
+       1503,
+       1509,
+       "failed"
+      ],
+      [
+       64,
+       1510,
+       1519,
+       "attempt's"
+      ],
+      [
+       64,
+       1520,
+       1525,
+       "files"
+      ],
+      [
+       64,
+       1526,
+       1532,
+       "before"
+      ],
+      [
+       64,
+       1533,
+       1534,
+       "a"
+      ],
+      [
+       64,
+       1535,
+       1541,
+       "retry,"
+      ],
+      [
+       64,
+       1590,
+       1595,
+       "R1.3,"
+      ],
+      [
+       64,
+       1596,
+       1600,
+       "Orca"
+      ],
+      [
+       64,
+       1601,
+       1608,
+       "1.4.245"
+      ],
+      [
+       64,
+       1609,
+       1613,
+       "read"
+      ],
+      [
+       64,
+       1614,
+       1625,
+       "2026-11-09:"
+      ],
+      [
+       64,
+       1626,
+       1631,
+       "`orca"
+      ],
+      [
+       64,
+       1632,
+       1645,
+       "orchestration"
+      ],
+      [
+       64,
+       1646,
+       1658,
+       "worker-start"
+      ],
+      [
+       64,
+       1659,
+       1666,
+       "--help`"
+      ],
+      [
+       64,
+       1667,
+       1672,
+       "Notes"
+      ],
+      [
+       64,
+       1673,
+       1685,
+       "(\"--retry-of"
+      ],
+      [
+       64,
+       1686,
+       1691,
+       "needs"
+      ],
+      [
+       64,
+       1692,
+       1698,
+       "--task"
+      ],
+      [
+       64,
+       1699,
+       1705,
+       "naming"
+      ],
+      [
+       64,
+       1706,
+       1709,
+       "the"
+      ],
+      [
+       64,
+       1710,
+       1716,
+       "failed"
+      ],
+      [
+       64,
+       1717,
+       1721,
+       "Task"
+      ],
+      [
+       64,
+       1722,
+       1729,
+       "(--spec"
+      ],
+      [
+       64,
+       1730,
+       1737,
+       "creates"
+      ],
+      [
+       64,
+       1738,
+       1739,
+       "a"
+      ],
+      [
+       64,
+       1740,
+       1743,
+       "new"
+      ],
+      [
+       64,
+       1744,
+       1751,
+       "one)\"),"
+      ],
+      [
+       64,
+       1752,
+       1757,
+       "`orca"
+      ],
+      [
+       64,
+       1758,
+       1771,
+       "orchestration"
+      ],
+      [
+       64,
+       1772,
+       1783,
+       "task-update"
+      ],
+      [
+       64,
+       1784,
+       1791,
+       "--help`"
+      ],
+      [
+       64,
+       1792,
+       1797,
+       "Usage"
+      ],
+      [
+       64,
+       1798,
+       1803,
+       "(only"
+      ],
+      [
+       64,
+       1804,
+       1814,
+       "`--status`"
+      ],
+      [
+       64,
+       1815,
+       1818,
+       "and"
+      ],
+      [
+       64,
+       1819,
+       1831,
+       "`--result`),"
+      ],
+      [
+       64,
+       1832,
+       1837,
+       "`orca"
+      ],
+      [
+       64,
+       1838,
+       1852,
+       "orchestration`"
+      ],
+      [
+       64,
+       1853,
+       1858,
+       "guide"
+      ],
+      [
+       64,
+       1859,
+       1868,
+       "reference"
+      ],
+      [
+       64,
+       1869,
+       1891,
+       "`recovery-and-cleanup`"
+      ],
+      [
+       64,
+       1892,
+       1896,
+       "line"
+      ],
+      [
+       64,
+       1897,
+       1900,
+       "112"
+      ],
+      [
+       64,
+       1901,
+       1908,
+       "(\"Retry"
+      ],
+      [
+       64,
+       1909,
+       1913,
+       "only"
+      ],
+      [
+       64,
+       1914,
+       1915,
+       "a"
+      ],
+      [
+       64,
+       1916,
+       1926,
+       "positively"
+      ],
+      [
+       64,
+       1927,
+       1933,
+       "proven"
+      ],
+      [
+       64,
+       1934,
+       1940,
+       "failed"
+      ],
+      [
+       64,
+       1941,
+       1943,
+       "or"
+      ],
+      [
+       64,
+       1944,
+       1951,
+       "stopped"
+      ],
+      [
+       64,
+       1952,
+       1962,
+       "attempt\");"
+      ]
+     ],
+     "first": 64,
+     "id": "H3.1",
+     "last": 64,
+     "new": [
+      64,
+      64
+     ],
+     "old": [
+      64,
+      64
+     ],
+     "removed": [
+      [
+       64,
+       228,
+       233,
+       "clean"
+      ],
+      [
+       64,
+       234,
+       238,
+       "into"
+      ],
+      [
+       64,
+       243,
+       255,
+       "directories."
+      ],
+      [
+       64,
+       290,
+       297,
+       "chooses"
+      ],
+      [
+       64,
+       298,
+       303,
+       "those"
+      ],
+      [
+       64,
+       304,
+       316,
+       "directories:"
+      ],
+      [
+       64,
+       317,
+       321,
+       "each"
+      ],
+      [
+       64,
+       332,
+       338,
+       "brief,"
+      ],
+      [
+       64,
+       339,
+       340,
+       "a"
+      ],
+      [
+       64,
+       341,
+       353,
+       "`--retry-of`"
+      ],
+      [
+       64,
+       354,
+       359,
+       "retry"
+      ],
+      [
+       64,
+       360,
+       369,
+       "included,"
+      ],
+      [
+       64,
+       370,
+       375,
+       "names"
+      ],
+      [
+       64,
+       376,
+       377,
+       "a"
+      ],
+      [
+       64,
+       378,
+       381,
+       "new"
+      ],
+      [
+       64,
+       382,
+       396,
+       "`--report-dir`"
+      ],
+      [
+       64,
+       434,
+       437,
+       "new"
+      ],
+      [
+       64,
+       438,
+       444,
+       "output"
+      ],
+      [
+       64,
+       445,
+       454,
+       "location,"
+      ],
+      [
+       64,
+       455,
+       457,
+       "so"
+      ],
+      [
+       64,
+       489,
+       491,
+       "as"
+      ],
+      [
+       64,
+       492,
+       496,
+       "they"
+      ],
+      [
+       64,
+       497,
+       501,
+       "were"
+      ],
+      [
+       64,
+       502,
+       505,
+       "and"
+      ],
+      [
+       64,
+       510,
+       516,
+       "report"
+      ],
+      [
+       64,
+       517,
+       521,
+       "path"
+      ],
+      [
+       64,
+       522,
+       524,
+       "is"
+      ],
+      [
+       64,
+       525,
+       533,
+       "recorded"
+      ],
+      [
+       64,
+       534,
+       540,
+       "before"
+      ],
+      [
+       64,
+       541,
+       549,
+       "dispatch"
+      ],
+      [
+       64,
+       772,
+       783,
+       "(`CAPS:58`)"
+      ],
+      [
+       64,
+       883,
+       895,
+       "(directories"
+      ],
+      [
+       64,
+       896,
+       899,
+       "per"
+      ],
+      [
+       64,
+       900,
+       908,
+       "attempt,"
+      ]
+     ],
+     "section": "2.2 Requirements",
+     "structural": false
+    },
+    {
+     "changed": [
+      [
+       73,
+       310,
+       318,
+       "dispatch"
+      ],
+      [
+       73,
+       323,
+       328,
+       "stays"
+      ],
+      [
+       73,
+       329,
+       332,
+       "the"
+      ],
+      [
+       73,
+       333,
+       337,
+       "same"
+      ],
+      [
+       73,
+       344,
+       356,
+       "`--retry-of`"
+      ],
+      [
+       73,
+       357,
+       363,
+       "retry,"
+      ],
+      [
+       73,
+       364,
+       369,
+       "which"
+      ],
+      [
+       73,
+       370,
+       376,
+       "reuses"
+      ],
+      [
+       73,
+       377,
+       381,
+       "this"
+      ],
+      [
+       73,
+       382,
+       387,
+       "brief"
+      ],
+      [
+       73,
+       604,
+       621,
+       "(`CAPS:107-113`);"
+      ],
+      [
+       73,
+       622,
+       628,
+       "before"
+      ],
+      [
+       73,
+       629,
+       630,
+       "a"
+      ],
+      [
+       73,
+       631,
+       643,
+       "`--retry-of`"
+      ],
+      [
+       73,
+       644,
+       649,
+       "retry"
+      ],
+      [
+       73,
+       650,
+       652,
+       "it"
+      ],
+      [
+       73,
+       653,
+       660,
+       "renames"
+      ],
+      [
+       73,
+       661,
+       664,
+       "the"
+      ],
+      [
+       73,
+       665,
+       671,
+       "failed"
+      ],
+      [
+       73,
+       672,
+       681,
+       "attempt's"
+      ],
+      [
+       73,
+       682,
+       688,
+       "report"
+      ],
+      [
+       73,
+       689,
+       693,
+       "and,"
+      ],
+      [
+       73,
+       694,
+       697,
+       "for"
+      ],
+      [
+       73,
+       698,
+       699,
+       "a"
+      ],
+      [
+       73,
+       700,
+       707,
+       "command"
+      ],
+      [
+       73,
+       708,
+       715,
+       "without"
+      ],
+      [
+       73,
+       716,
+       723,
+       "resume,"
+      ],
+      [
+       73,
+       724,
+       727,
+       "its"
+      ],
+      [
+       73,
+       728,
+       734,
+       "output"
+      ],
+      [
+       73,
+       735,
+       743,
+       "location"
+      ],
+      [
+       73,
+       744,
+       750,
+       "(WC-6,"
+      ],
+      [
+       73,
+       751,
+       757,
+       "R1.3)."
+      ]
+     ],
+     "first": 73,
+     "id": "H3.2",
+     "last": 73,
+     "new": [
+      73,
+      73
+     ],
+     "old": [
+      73,
+      73
+     ],
+     "removed": [
+      [
+       73,
+       275,
+       278,
+       "new"
+      ],
+      [
+       73,
+       279,
+       282,
+       "for"
+      ],
+      [
+       73,
+       283,
+       287,
+       "each"
+      ],
+      [
+       73,
+       288,
+       295,
+       "attempt"
+      ],
+      [
+       73,
+       296,
+       305,
+       "including"
+      ],
+      [
+       73,
+       306,
+       314,
+       "retries,"
+      ],
+      [
+       73,
+       350,
+       359,
+       "dispatch,"
+      ],
+      [
+       73,
+       370,
+       377,
+       "command"
+      ],
+      [
+       73,
+       378,
+       385,
+       "without"
+      ],
+      [
+       73,
+       386,
+       392,
+       "resume"
+      ],
+      [
+       73,
+       393,
+       394,
+       "a"
+      ],
+      [
+       73,
+       395,
+       398,
+       "new"
+      ],
+      [
+       73,
+       399,
+       405,
+       "output"
+      ],
+      [
+       73,
+       406,
+       414,
+       "location"
+      ],
+      [
+       73,
+       415,
+       418,
+       "per"
+      ],
+      [
+       73,
+       419,
+       426,
+       "attempt"
+      ],
+      [
+       73,
+       427,
+       429,
+       "as"
+      ],
+      [
+       73,
+       430,
+       434,
+       "well"
+      ],
+      [
+       73,
+       651,
+       668,
+       "(`CAPS:107-113`)."
+      ]
+     ],
+     "section": "2.3 What the coordinator owes each worker",
+     "structural": false
+    },
+    {
+     "changed": [
+      [
+       76,
+       415,
+       422,
+       "command"
+      ],
+      [
+       76,
+       423,
+       426,
+       "has"
+      ],
+      [
+       76,
+       427,
+       429,
+       "no"
+      ],
+      [
+       76,
+       430,
+       437,
+       "resume:"
+      ],
+      [
+       76,
+       438,
+       444,
+       "before"
+      ],
+      [
+       76,
+       445,
+       446,
+       "a"
+      ],
+      [
+       76,
+       447,
+       452,
+       "retry"
+      ],
+      [
+       76,
+       453,
+       456,
+       "the"
+      ],
+      [
+       76,
+       469,
+       476,
+       "renames"
+      ],
+      [
+       76,
+       477,
+       480,
+       "the"
+      ],
+      [
+       76,
+       481,
+       487,
+       "failed"
+      ],
+      [
+       76,
+       488,
+       497,
+       "attempt's"
+      ],
+      [
+       76,
+       505,
+       514,
+       "location,"
+      ],
+      [
+       76,
+       515,
+       517,
+       "so"
+      ],
+      [
+       76,
+       518,
+       521,
+       "the"
+      ],
+      [
+       76,
+       522,
+       527,
+       "retry"
+      ],
+      [
+       76,
+       528,
+       534,
+       "writes"
+      ],
+      [
+       76,
+       535,
+       539,
+       "into"
+      ],
+      [
+       76,
+       540,
+       542,
+       "an"
+      ],
+      [
+       76,
+       543,
+       548,
+       "empty"
+      ],
+      [
+       76,
+       549,
+       552,
+       "one"
+      ]
+     ],
+     "first": 76,
+     "id": "H3.3",
+     "last": 76,
+     "new": [
+      76,
+      76
+     ],
+     "old": [
+      76,
+      76
+     ],
+     "removed": [
+      [
+       76,
+       427,
+       432,
+       "names"
+      ],
+      [
+       76,
+       433,
+       434,
+       "a"
+      ],
+      [
+       76,
+       435,
+       438,
+       "new"
+      ],
+      [
+       76,
+       446,
+       454,
+       "location"
+      ],
+      [
+       76,
+       455,
+       457,
+       "in"
+      ],
+      [
+       76,
+       458,
+       462,
+       "each"
+      ],
+      [
+       76,
+       463,
+       472,
+       "attempt's"
+      ],
+      [
+       76,
+       473,
+       478,
+       "brief"
+      ]
+     ],
+     "section": "3. Per-command changes",
+     "structural": false
+    },
+    {
+     "changed": [
+      [
+       194,
+       363,
+       368,
+       "pass,"
+      ],
+      [
+       194,
+       369,
+       373,
+       "with"
+      ],
+      [
+       194,
+       374,
+       377,
+       "the"
+      ],
+      [
+       194,
+       378,
+       380,
+       "P0"
+      ],
+      [
+       194,
+       381,
+       392,
+       "differences"
+      ],
+      [
+       194,
+       393,
+       397,
+       "that"
+      ],
+      [
+       194,
+       398,
+       401,
+       "the"
+      ],
+      [
+       194,
+       402,
+       411,
+       "contract,"
+      ],
+      [
+       194,
+       412,
+       426,
+       "`--unattended`"
+      ],
+      [
+       194,
+       427,
+       430,
+       "and"
+      ],
+      [
+       194,
+       431,
+       445,
+       "`--report-dir`"
+      ],
+      [
+       194,
+       446,
+       452,
+       "arrive"
+      ],
+      [
+       194,
+       453,
+       457,
+       "only"
+      ],
+      [
+       194,
+       458,
+       460,
+       "in"
+      ],
+      [
+       194,
+       461,
+       464,
+       "P1:"
+      ],
+      [
+       194,
+       465,
+       468,
+       "the"
+      ],
+      [
+       194,
+       469,
+       475,
+       "step-1"
+      ],
+      [
+       194,
+       476,
+       481,
+       "brief"
+      ],
+      [
+       194,
+       482,
+       489,
+       "carries"
+      ],
+      [
+       194,
+       490,
+       493,
+       "the"
+      ],
+      [
+       194,
+       494,
+       501,
+       "command"
+      ],
+      [
+       194,
+       502,
+       506,
+       "line"
+      ],
+      [
+       194,
+       507,
+       512,
+       "shown"
+      ],
+      [
+       194,
+       513,
+       518,
+       "here,"
+      ],
+      [
+       194,
+       519,
+       523,
+       "with"
+      ],
+      [
+       194,
+       524,
+       531,
+       "neither"
+      ],
+      [
+       194,
+       532,
+       537,
+       "flag;"
+      ],
+      [
+       194,
+       543,
+       544,
+       "3"
+      ],
+      [
+       194,
+       545,
+       551,
+       "checks"
+      ],
+      [
+       194,
+       552,
+       556,
+       "only"
+      ],
+      [
+       194,
+       557,
+       561,
+       "that"
+      ],
+      [
+       194,
+       562,
+       569,
+       "exactly"
+      ],
+      [
+       194,
+       570,
+       573,
+       "one"
+      ],
+      [
+       194,
+       574,
+       587,
+       "`worker_done`"
+      ],
+      [
+       194,
+       588,
+       595,
+       "arrives"
+      ],
+      [
+       194,
+       596,
+       599,
+       "and"
+      ],
+      [
+       194,
+       600,
+       604,
+       "that"
+      ],
+      [
+       194,
+       605,
+       608,
+       "its"
+      ],
+      [
+       194,
+       609,
+       615,
+       "report"
+      ],
+      [
+       194,
+       616,
+       620,
+       "path"
+      ],
+      [
+       194,
+       621,
+       626,
+       "names"
+      ],
+      [
+       194,
+       663,
+       666,
+       "not"
+      ],
+      [
+       194,
+       667,
+       682,
+       "`worker_status`"
+      ],
+      [
+       194,
+       683,
+       685,
+       "or"
+      ],
+      [
+       194,
+       690,
+       694,
+       "WC-4"
+      ],
+      [
+       194,
+       695,
+       700,
+       "path;"
+      ],
+      [
+       194,
+       701,
+       705,
+       "step"
+      ],
+      [
+       194,
+       706,
+       707,
+       "4"
+      ],
+      [
+       194,
+       708,
+       712,
+       "uses"
+      ],
+      [
+       194,
+       713,
+       717,
+       "that"
+      ],
+      [
+       194,
+       718,
+       726,
+       "existing"
+      ],
+      [
+       194,
+       727,
+       733,
+       "report"
+      ],
+      [
+       194,
+       734,
+       738,
+       "file"
+      ],
+      [
+       194,
+       739,
+       746,
+       "(R2.2)."
+      ],
+      [
+       196,
+       50,
+       56,
+       "except"
+      ],
+      [
+       196,
+       57,
+       67,
+       "`/sc:load`"
+      ],
+      [
+       196,
+       68,
+       71,
+       "(no"
+      ],
+      [
+       196,
+       72,
+       79,
+       "report,"
+      ],
+      [
+       196,
+       80,
+       82,
+       "as"
+      ],
+      [
+       196,
+       83,
+       85,
+       "in"
+      ],
+      [
+       196,
+       86,
+       94,
+       "AC-1.1),"
+      ],
+      [
+       196,
+       100,
+       103,
+       "the"
+      ],
+      [
+       196,
+       104,
+       109,
+       "brief"
+      ],
+      [
+       196,
+       110,
+       113,
+       "per"
+      ],
+      [
+       196,
+       114,
+       121,
+       "section"
+      ],
+      [
+       196,
+       122,
+       126,
+       "2.3:"
+      ],
+      [
+       196,
+       141,
+       153,
+       "--report-dir"
+      ],
+      [
+       196,
+       161,
+       165,
+       "plus"
+      ],
+      [
+       196,
+       166,
+       169,
+       "the"
+      ],
+      [
+       196,
+       170,
+       175,
+       "flags"
+      ],
+      [
+       196,
+       176,
+       180,
+       "that"
+      ],
+      [
+       196,
+       181,
+       190,
+       "command's"
+      ],
+      [
+       196,
+       191,
+       198,
+       "section"
+      ],
+      [
+       196,
+       199,
+       200,
+       "3"
+      ],
+      [
+       196,
+       201,
+       204,
+       "row"
+      ],
+      [
+       196,
+       205,
+       214,
+       "requires,"
+      ],
+      [
+       196,
+       215,
+       220,
+       "which"
+      ],
+      [
+       196,
+       221,
+       224,
+       "for"
+      ],
+      [
+       196,
+       225,
+       233,
+       "workflow"
+      ],
+      [
+       196,
+       234,
+       237,
+       "are"
+      ],
+      [
+       196,
+       238,
+       248,
+       "`--handoff"
+      ],
+      [
+       196,
+       249,
+       254,
+       "none`"
+      ],
+      [
+       196,
+       255,
+       258,
+       "and"
+      ],
+      [
+       196,
+       259,
+       264,
+       "never"
+      ],
+      [
+       196,
+       265,
+       275,
+       "`--output`"
+      ],
+      [
+       196,
+       276,
+       282,
+       "(R2.1)"
+      ]
+     ],
+     "first": 194,
+     "id": "H3.4",
+     "last": 196,
+     "new": [
+      194,
+      196
+     ],
+     "old": [
+      194,
+      196
+     ],
+     "removed": [
+      [
+       194,
+       363,
+       368,
+       "pass;"
+      ],
+      [
+       194,
+       374,
+       375,
+       "4"
+      ],
+      [
+       194,
+       376,
+       380,
+       "uses"
+      ],
+      [
+       194,
+       417,
+       422,
+       "since"
+      ],
+      [
+       194,
+       427,
+       435,
+       "contract"
+      ],
+      [
+       194,
+       436,
+       443,
+       "arrives"
+      ],
+      [
+       194,
+       444,
+       446,
+       "in"
+      ],
+      [
+       194,
+       447,
+       450,
+       "P1."
+      ],
+      [
+       196,
+       69,
+       77,
+       "--output"
+      ]
+     ],
+     "section": "7.3 Per-phase checks",
+     "structural": false
+    }
+   ],
+   "ignored": 0,
+   "owners": {
+    "H3.1": [
+     "R1.3"
+    ],
+    "H3.2": [
+     "R1.3"
+    ],
+    "H3.3": [
+     "R1.3"
+    ],
+    "H3.4": [
+     "R2.2",
+     "R2.1"
+    ]
+   },
+   "priors": [
+    {
+     "anchor": "each P1 command with `--unattended --output <dir>`",
+     "at": [
+      196,
+      196
+     ],
+     "chain": [
+      "R1.1",
+      "R2.1"
+     ],
+     "hunk": null,
+     "id": "R2.1",
+     "sev": "major",
+     "text": "AC-1.2 passes --output to workflow and runs the contract check on load"
+    },
+    {
+     "anchor": "matches the contract's `worker_status` under WC-5 (R1.2)",
+     "at": [
+      182,
+      182
+     ],
+     "chain": [
+      "R1.2",
+      "R2.2"
+     ],
+     "hunk": "H2.11",
+     "id": "R2.2",
+     "sev": "major",
+     "text": "step 3 needs worker_status that no P0 command writes"
+    },
+    {
+     "anchor": "writes each run into a fresh output directory so a re-run starts clean",
+     "at": [
+      64,
+      64
+     ],
+     "chain": [
+      "R1.3"
+     ],
+     "hunk": null,
+     "id": "R1.3",
+     "sev": "major",
+     "text": "WC-6 fresh directory conflicts with the brief-fixed directory of WC-4"
+    }
+   ],
+   "rebegin": false,
+   "scoped": {},
+   "structural_failures": 0
+  }
+ }
+}

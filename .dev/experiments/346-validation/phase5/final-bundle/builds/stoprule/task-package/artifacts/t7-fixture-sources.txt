@@ -1,0 +1,42 @@
+# Task 7 fixture sources (read-only copies from the control replicate r1 of the S1 A/B)
+
+Source checkout: /home/coder/workspaces/worktrees/IronClaude/exp346-ab-ctl-r1/.dev/orca-command-refactor (read-only)
+
+| fixture file | original path | sha256 |
+|---|---|---|
+| tests/skills/fixtures/stoprule/ctl-r1/spec-v2.md | /home/coder/workspaces/worktrees/IronClaude/exp346-ab-ctl-r1/.dev/orca-command-refactor/specs/history/spec-v2-after-round1.md | 85ac96b46cebba0f9a2d16f0d5632e25c91ec251fcf800738c3f358d3a163f15 |
+| tests/skills/fixtures/stoprule/ctl-r1/spec-v3.md | /home/coder/workspaces/worktrees/IronClaude/exp346-ab-ctl-r1/.dev/orca-command-refactor/specs/history/spec-v3-after-round2.md | fbe196a7033275eace865af8fe1f4d5aa8534c83514be49876fd76da3e84cb03 |
+| tests/skills/fixtures/stoprule/ctl-r1/review3-claims.jsonl | hand-transcribed from /home/coder/workspaces/worktrees/IronClaude/exp346-ab-ctl-r1/.dev/orca-command-refactor/review/spec-panel-round3.md | cbba559aff1ce05d21fd3720d54028ec76180c863ba65925c5d53ee10b0bc11f (the report) |
+
+Copies verified identical: spec-v2 ok spec-v3 ok. spec-v3 equals the round-3 input (/home/coder/workspaces/worktrees/IronClaude/exp346-ab-ctl-r1/.dev/orca-command-refactor/specs/orca-worker-contract-spec.md has the same sha256).
+
+## Transcription (quote rule, reflect C-012)
+
+The 8 review-3 blocking findings are R3-1 to R3-6, R3-8 and R3-9 (spec-panel-round3.md:196, the Verdict). Each claim quotes a verbatim substring of the spec-v3 line the round-3 report cites first for that finding (its SPEC:N, Part 3 text and numbered-findings rows at spec-panel-round3.md:181-189); reviewer label MAJOR for all (the report records them MAJOR); the outcome is condensed from that finding's Part 3 paragraph and its numbered-findings row.
+
+| claim | cited line (spec-v3) | quote |
+|---|---|---|
+| R3-1 | SPEC:64 | is total: every own value a command documents today has a row |
+| R3-2 | SPEC:88 | the rule tasklist's reflect gate already applies |
+| R3-3 | SPEC:227 | every file created or modified since step 0, tracked, untracked or gitignored |
+| R3-4 | SPEC:245 | Gate-trigger run per P2 command |
+| R3-5 | SPEC:75 | the exact command line including `--unattended` and every flag section 3 lists as required |
+| R3-6 | SPEC:179 | only confirms the installed copies match |
+| R3-8 | SPEC:210 | git diff -U0 --word-diff=porcelain master...HEAD -- src/superclaude/commands/<name>.md |
+| R3-9 | SPEC:238 | steps P, 0-3 and 5-7 pass, with step 3's report path being the |
+
+## Computed ratchet split (begin --re-review <scaffold> --baseline spec-v2.md, then seal; no grader)
+
+R3-1: quote lines [64] form_issue=None anchored=True
+R3-2: quote lines [88] form_issue=None anchored=True
+R3-3: quote lines [227] form_issue=None anchored=True
+R3-4: quote lines [245] form_issue=None anchored=True
+R3-5: quote lines [75] form_issue=None anchored=True
+R3-6: quote lines [179] form_issue=None anchored=True
+R3-8: quote lines [210] form_issue=None anchored=True
+R3-9: quote lines [238] form_issue=None anchored=True
+changed hunks v2->v3: 28; changed lines: 88
+
+Result: 8 anchored, 0 late-found. The independent check (is the claim's quoted spec-v3 line present verbatim in spec-v2.md?) also gives 8 anchored, 0 late-found (review3-expected.json), and the replay test asserts the two agree.
+
+This differs from the prediction in source.md sections 2.6 and 5.4 (5 anchored, 3 late-found). Every cited line was rewritten by fix 2, including R3-8, which the round-3 report says was 'present in the round-2 input, not flagged then' (spec-panel-round3.md:188): fix 2 moved its `master...HEAD` base from the AC-C5 table row (spec-v2.md:177) into a new code block (spec-v3.md:207-215), so the quoted line is new text and a line-level ratchet anchors it. Two quotes (R3-4 and R3-5) occur verbatim in spec-v2.md as substrings of lines that changed. The test also adds one control claim on a v3 line unchanged since v2, which comes out late-found, so the late-found branch runs on the real files.

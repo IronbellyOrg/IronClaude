@@ -1,0 +1,32 @@
+diff --git a/docs/designs/issue-watcher.md b/docs/designs/issue-watcher.md
+index acf478e99..c7cde0ed4 100644
+--- a/docs/designs/issue-watcher.md
++++ b/docs/designs/issue-watcher.md
+@@ -154,7 +154,8 @@ Unknown keys are rejected (exit 2), so a typo such as `enable` cannot silently l
+ 
+ | Code | Meaning | Reasons that produce it |
+ |---|---|---|
+-| 0 | Cycle complete (any number of launches), `disabled`, `disabled_mid_cycle`, `not_enabled` | `disabled`, `disabled_mid_cycle`, `not_enabled`; every skip reason |
++| 0 | Cycle complete (any number of launches), `disabled`, `disabled_mid_cycle`, `not_enabled` | `cycle_complete`, `disabled`, `disabled_mid_cycle`, `not_enabled`; every skip reason |
++| 1 | An unexpected exception out of the cycle, written by `once` only ([PROPOSAL]) | `cycle_crashed` |
+ | 2 | Usage, config, platform, origin, Orca probe | `config_invalid`, `approvers_invalid`, `platform_unsupported`, `worktree_invalid`, `origin_mismatch`, `orca_not_found`, `account_id_mismatch` |
+ | 3 | GitHub auth, scope, timeout, non-JSON | `login_invalid`, `gh_auth_failed`, `gh_timeout`, `gh_non_json`, `project_read_failed` |
+ | 4 | Discovery truncated or duplicated | `truncated`, `discovery_duplicate` |
+@@ -706,7 +707,7 @@ One JSON object per line, written with one `os.write` on an `O_WRONLY | O_APPEND
+ | `cycle_id` | yes | yes | yes | `uuid4().hex` |
+ | `dry_run` | yes | yes | yes | bool |
+ | `exit` | yes | no | no | int |
+-| `reason` | yes | yes | yes | enum (spec reason table) |
++| `reason` | yes | yes | yes | enum (`audit.REASON_TABLE`, 59 names) |
+ | `gh_calls`, `duration_ms` | yes | no | no | int |
+ | `issue` | no | yes | optional | int |
+ | `state` | no | yes, when an entry was written | no | enum |
+@@ -715,7 +716,7 @@ One JSON object per line, written with one `os.write` on an `O_WRONLY | O_APPEND
+ | `clock_skew_s` | yes | no | `clock_skew` warning | int |
+ | `note` | no | `"re-approved"` when the approval event changed | no | str |
+ 
+-`rate_remaining`, titles, bodies, label names and stderr text are never keys (NFR-006, T11). `audit.REASONS` is a `frozenset` equal to the spec's reason table; `audit.line(...)` raises `ValueError` on any other reason, so a typo fails the first test that hits it.
++`rate_remaining`, titles, bodies, label names and stderr text are never keys (NFR-006, T11). `audit.REASONS` is a `frozenset` of the 59 keys of `audit.REASON_TABLE`, which are the spec's reason table plus the two [PROPOSAL] names `cycle_complete` and `cycle_crashed` added during the build (the full table, grouped by exit code, is in section 10.2 of [issue-watcher-setup.md](issue-watcher-setup.md)); `audit.line(...)` raises `ValueError` on any other reason, so a typo fails the first test that hits it.
+ 
+ Rotation (`AuditLog.rotate_if_needed`, called only with the lock held): if `audit.jsonl` is at least 5 MiB, `os.replace` `.3` to `.4`, `.2` to `.3`, `.1` to `.2`, current to `.1`, then a directory fsync. The exit-75 path appends and never rotates.
+ 

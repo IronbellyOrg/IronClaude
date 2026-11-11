@@ -1045,9 +1045,15 @@ def test_errors_outside_the_rules_pass_back_unchanged(shim, reply) -> None:
     gateway, start, _ = shim
     base = start()
     gateway.script["muse-spark-1.3"] = [reply]
+    for _ in range(2):
+        assert _ask(base, "claude-gw-tier2") == reply
     status, body = _ask(base, "claude-gw-tier2")
-    assert (status, body) == reply
-    assert gateway.models_called() == ["muse-spark-1.3"]
+    if reply in (RATE_LIMITED, SERVER_ERROR):
+        assert status == 200 and b"grok-4.7" in body
+        assert gateway.models_called() == ["muse-spark-1.3"] * 3 + ["grok-4.7"]
+    else:
+        assert (status, body) == reply
+        assert gateway.models_called() == ["muse-spark-1.3"] * 3
 
 
 def test_backup_too_small_for_the_tier_is_never_used(shim) -> None:
@@ -1160,12 +1166,14 @@ def test_unreachable_gateway_is_not_a_switch(shim, tmp_path) -> None:
     assert upstream.encode() in body
 
 
-def test_named_model_has_no_failover(shim) -> None:
+def test_named_model_uses_its_best_position_tier(shim) -> None:
     gateway, start, _ = shim
     base = start()
     gateway.script["gpt-6.1-sol"] = [COOLING]
     status, _ = _ask(base, "gpt-6.1-sol")
-    assert status == 429 and gateway.models_called() == ["gpt-6.1-sol"]
+    # Fixture Sol is second in 1b, sixth in 2; Sonnet is 1b's first backup.
+    assert status == 200
+    assert gateway.models_called() == ["gpt-6.1-sol", "claude-sonnet-5-5"]
 
 
 def test_changed_env_file_applies_to_a_running_shim(shim, tmp_path) -> None:
@@ -2247,10 +2255,13 @@ def test_every_shim_launch_gets_the_port_for_its_settings(
     expected = models.shim_port(4010)
     assert expected != 4010
     try:
-        _, url = _real_launch(
+        out, url = _real_launch(
             tmp_path, None, "--shim", upstream=gateway.url, CCSESSION_TIERS="0"
         )
-        assert url == f"http://127.0.0.1:{expected}"
+        assert url in {
+            f"http://127.0.0.1:{expected + models.SHIM_PORT_STEP * attempt}"
+            for attempt in range(models.SHIM_PORT_ATTEMPTS)
+        }, out
     finally:
         subprocess.run(
             ["pkill", "-f", str(tmp_path / "shim-under-test.py")], check=False
@@ -3468,3 +3479,343 @@ def test_in_my_tiers_command_is_silent_and_exit_coded(tmp_path: Path) -> None:
         proc = run(model)
         assert proc.returncode == code, (model, proc.stderr)
         assert proc.stdout == "" and proc.stderr == ""
+
+
+# --- issue 392: retry-then-switch, named fallback, kept logs --------------------
+
+
+@pytest.mark.parametrize("status", [408, 429, 500, 502, 503, 504])
+def test_server_failures_retry_twice_then_switch(shim, status) -> None:
+    gateway, start, log = shim
+    base = start()
+    reply = (status, SERVER_ERROR[1])
+    gateway.script["muse-spark-1.3"] = [reply]
+    for _ in range(2):
+        assert _ask(base, "claude-gw-tier2") == reply
+    code, body = _ask(base, "claude-gw-tier2")
+    assert code == 200 and b"grok-4.7" in body
+    assert gateway.models_called() == ["muse-spark-1.3"] * 3 + ["grok-4.7"]
+    _ask(base, "claude-gw-tier2")
+    assert gateway.models_called()[-1] == "grok-4.7"
+    text = log.read_text()
+    assert "kind=server count=1" in text and "kind=server count=3" in text
+    assert "park_seconds=300" in text and "Internal server error" in text
+
+
+def test_success_resets_consecutive_failures(shim) -> None:
+    gateway, start, _ = shim
+    base = start()
+    gateway.script["muse-spark-1.3"] = [
+        SERVER_ERROR,
+        SERVER_ERROR,
+        None,
+        SERVER_ERROR,
+        SERVER_ERROR,
+        SERVER_ERROR,
+    ]
+    assert [_ask(base, "claude-gw-tier2")[0] for _ in range(6)] == [
+        500,
+        500,
+        200,
+        500,
+        500,
+        200,
+    ]
+    assert gateway.models_called() == ["muse-spark-1.3"] * 6 + ["grok-4.7"]
+
+
+@pytest.mark.parametrize("fault", [TOO_LONG, (400, b"malformed"), (413, b"too large")])
+def test_request_faults_never_count_or_reset_server_failures(shim, fault) -> None:
+    gateway, start, log = shim
+    base = start()
+    gateway.script["muse-spark-1.3"] = [
+        SERVER_ERROR,
+        fault,
+        fault,
+        fault,
+        SERVER_ERROR,
+        SERVER_ERROR,
+    ]
+    assert _ask(base, "claude-gw-tier2") == SERVER_ERROR
+    for _ in range(3):
+        assert _ask(base, "claude-gw-tier2") == fault
+    assert _ask(base, "claude-gw-tier2") == SERVER_ERROR
+    assert _ask(base, "claude-gw-tier2")[0] == 200
+    assert "kind=request count=1" in log.read_text()
+
+
+def test_growing_parks_with_injected_clock(monkeypatch) -> None:
+    module = runpy.run_path(str(SKILL_DIR / "local-gateway-alias-proxy.py"))
+    state = module["cool_down"].__globals__
+    now = [1000.0]
+    monkeypatch.setattr(state["time"], "time", lambda: now[0])
+    failed = module["model_failed"]
+    for duration in (300, 600, 1200, 2400, 3600, 3600):
+        assert failed("m1") == (1, 0)
+        assert failed("m1") == (2, 0)
+        assert failed("m1") == (3, now[0] + duration)
+        assert module["cooling_until"]("m1") == now[0] + duration
+        now[0] += duration + 1
+        assert module["cooling_until"]("m1") == 0
+    module["model_succeeded"]("m1")
+    assert failed("m1", immediate=True) == (1, now[0] + 300)
+    now[0] += 301
+    assert failed("m1", immediate=True) == (1, now[0] + 600)
+    module["model_succeeded"]("m2")
+    now[0] += 601
+    assert failed("m1", immediate=True) == (1, now[0] + 1200)
+
+
+def test_cut_off_errors_count_then_switch(shim) -> None:
+    _, start, _ = shim
+
+    def respond(conn, model):
+        if model == "muse-spark-1.3":
+            conn.sendall(b"HTTP/1.0 500 Error\r\nContent-Length: 500\r\n\r\ncut")
+        else:
+            conn.sendall(b"HTTP/1.0 200 OK\r\n\r\n" + OK_SSE % model.encode())
+
+    gateway = RawGateway(respond)
+    try:
+        base = start(GW_PROXY_UPSTREAM=gateway.url)
+        for _ in range(2):
+            status, body = _ask(base, "claude-gw-tier2")
+            assert status == 502 and b"cut off" in body
+        assert _ask(base, "claude-gw-tier2")[0] == 200
+        assert gateway.calls == ["muse-spark-1.3"] * 3 + ["grok-4.7"]
+    finally:
+        gateway.close()
+
+
+@pytest.mark.parametrize("requested", ["claude-opus-5-5", "claude-opus-5-5[1m]"])
+def test_named_models_switch_and_share_parks_with_tiers(shim, requested) -> None:
+    gateway, start, _ = shim
+    base = start()
+    gateway.script["claude-opus-5-5"] = [COOLING]
+    assert _ask(base, requested)[0] == 200
+    assert gateway.models_called() == ["claude-opus-5-5", "claude-sonnet-5-5"]
+    assert _ask(base, requested)[0] == 200
+    assert _ask(base, "claude-gw-tier1a")[0] == 200
+    assert gateway.models_called()[2:] == ["claude-sonnet-5-5"] * 2
+
+
+def test_named_best_position_and_window_are_respected(shim) -> None:
+    gateway, start, _ = shim
+    base = start()
+    gateway.script["claude-sonnet-5-5"] = [COOLING]
+    assert _ask(base, "claude-sonnet-5-5")[0] == 200
+    # Sonnet is first in 1b, second in 1a. Sol has a smaller window, so skip it.
+    assert gateway.models_called() == ["claude-sonnet-5-5", "muse-wonder-full-1.0"]
+
+
+def test_named_best_position_beats_tier_order(shim) -> None:
+    gateway, start, log = shim
+    base = start()
+    gateway.script["glm-5.3"] = [COOLING]
+    assert _ask(base, "claude-gw-glm-5.3[1m]")[0] == 200
+    assert gateway.models_called() == ["glm-5.3", "Qwen3.8-max"]
+    assert "TIER tier3:" in log.read_text()
+
+
+def test_named_tie_uses_higher_tier(shim) -> None:
+    gateway, start, log = shim
+    # glm-5.3 is T3Model01 (first in tier3); putting it first in tier2 too
+    # makes a tie on list position, which the higher tier (tier2) wins.
+    defaults = TIER_BLOCK.replace("T2Model01=muse-spark-1.3", "T2Model01=glm-5.3")
+    defaults = defaults.replace("T2Model01_WINDOW=950000", "T2Model01_WINDOW=1000000")
+    base = start(defaults)
+    gateway.script["glm-5.3"] = [COOLING]
+    assert _ask(base, "claude-gw-glm-5.3")[0] == 200
+    assert gateway.models_called() == ["glm-5.3", "Qwen3.8-max"]
+    assert "TIER tier2:" in log.read_text()
+
+
+def test_named_model_outside_allowed_tiers_has_no_fallback(shim) -> None:
+    gateway, start, _ = shim
+    defaults = TIER_BLOCK + 'export CCSESSION_TIER_RULES="*=tier2:tier2,tier3,tier4"\n'
+    base = start(defaults)
+    gateway.script["claude-opus-5-5"] = [COOLING]
+    assert _ask(base, "claude-opus-5-5") == COOLING
+    assert gateway.models_called() == ["claude-opus-5-5"]
+
+
+def test_named_model_chooses_only_allowed_tiers(shim) -> None:
+    gateway, start, _ = shim
+    # grok-4.7 holds a better position in tier2 (T2Model02) than in tier4
+    # (T4Model03), but only tier4 is allowed, so its list is used.
+    defaults = TIER_BLOCK + 'export CCSESSION_TIER_RULES="*=tier4:tier4"\n'
+    base = start(defaults)
+    gateway.script["grok-4.7"] = [COOLING]
+    assert _ask(base, "claude-gw-grok-4.7")[0] == 200
+    assert gateway.models_called() == ["grok-4.7", "gpt-6-luna"]
+
+
+@pytest.mark.parametrize("tier_mode", ["0", "1"])
+def test_unknown_named_model_stays_plain_forwarded(shim, tier_mode) -> None:
+    gateway, start, _ = shim
+    base = start(CCSESSION_TIERS=tier_mode)
+    gateway.script["kimi-k3"] = [SERVER_ERROR]
+    for _ in range(4):
+        assert _ask(base, "claude-gw-kimi-k3") == SERVER_ERROR
+    assert gateway.models_called() == ["kimi-k3"] * 4
+
+
+@pytest.mark.parametrize("kind", ["overloaded_error", "api_error"])
+def test_stream_error_events_are_passed_through_without_switch(shim, kind) -> None:
+    gateway, start, _ = shim
+    base = start()
+    body = (
+        b"event: error\ndata: "
+        + json.dumps(
+            {"type": "error", "error": {"type": kind, "message": "busy"}}
+        ).encode()
+        + b"\n\n"
+    )
+    gateway.script["muse-spark-1.3"] = [
+        (200, body, {"Content-Type": "text/event-stream"})
+    ]
+    for _ in range(4):
+        assert _ask(base, "claude-gw-tier2") == (200, body)
+    assert gateway.models_called() == ["muse-spark-1.3"] * 4
+
+
+def test_kept_log_defaults_rotates_and_excludes_request_secrets(
+    shim, monkeypatch, tmp_path
+) -> None:
+    gateway, start, _ = shim
+    monkeypatch.delenv("GW_PROXY_LOGFILE", raising=False)
+    base = start()
+    private = os.urandom(16).hex()
+    request = urllib.request.Request(
+        base + "/v1/messages?private=" + private,
+        data=json.dumps(
+            {
+                "model": "claude-gw-tier2",
+                "stream": True,
+                "messages": [{"role": "user", "content": private}],
+            }
+        ).encode(),
+        headers={"Authorization": "Bearer " + private, "x-api-key": private},
+    )
+    gateway.script["muse-spark-1.3"] = [COOLING]
+    with urllib.request.urlopen(request, timeout=10) as reply:
+        reply.read()
+    path = Path(os.environ["XDG_CACHE_HOME"]) / "ccsession" / "proxy.log"
+    assert path.exists()
+    text = path.read_text()
+    assert "kind=usage" in text and "grok-4.7" in text
+    assert private not in text and "Authorization" not in text and "Bearer" not in text
+    monkeypatch.setenv("GW_PROXY_LOGFILE", str(tmp_path / "rotate.log"))
+    module = runpy.run_path(str(SKILL_DIR / "local-gateway-alias-proxy.py"))
+    for _ in range(650):
+        module["audit"]("rotation " + "x" * 8192)
+    rotated = tmp_path / "rotate.log.1"
+    assert rotated.exists() and rotated.stat().st_size <= 5 * 1024 * 1024
+    assert (tmp_path / "rotate.log").stat().st_size <= 5 * 1024 * 1024
+    assert not (tmp_path / "rotate.log.2").exists()
+
+
+@pytest.mark.parametrize(
+    "setting",
+    [
+        "CCSESSION_FAILS_BEFORE_SWITCH",
+        "CCSESSION_PARK_SECONDS",
+        "CCSESSION_PARK_MAX_SECONDS",
+    ],
+)
+def test_new_failure_settings_get_their_own_shim(setting, monkeypatch) -> None:
+    before = models.settings_digest()
+    monkeypatch.setenv(setting, "7")
+    assert models.settings_digest() != before
+
+
+def test_custom_failure_threshold_and_expiry(shim) -> None:
+    gateway, start, log = shim
+    base = start(
+        CCSESSION_FAILS_BEFORE_SWITCH="2",
+        CCSESSION_PARK_SECONDS="0.1",
+        CCSESSION_PARK_MAX_SECONDS="0.2",
+    )
+    gateway.script["muse-spark-1.3"] = [
+        SERVER_ERROR,
+        SERVER_ERROR,
+        None,
+        SERVER_ERROR,
+        SERVER_ERROR,
+    ]
+    assert _ask(base, "claude-gw-tier2") == SERVER_ERROR
+    assert _ask(base, "claude-gw-tier2")[0] == 200
+    time.sleep(0.15)
+    assert b"muse-spark-1.3" in _ask(base, "claude-gw-tier2")[1]
+    assert _ask(base, "claude-gw-tier2") == SERVER_ERROR
+    assert _ask(base, "claude-gw-tier2")[0] == 200
+    assert "kind=server count=2" in log.read_text()
+
+
+def test_server_counts_are_shared_by_named_and_tier_requests(shim) -> None:
+    gateway, start, _ = shim
+    base = start()
+    gateway.script["claude-opus-5-5"] = [SERVER_ERROR]
+    assert _ask(base, "claude-opus-5-5") == SERVER_ERROR
+    assert _ask(base, "claude-gw-tier1a") == SERVER_ERROR
+    assert _ask(base, "claude-opus-5-5")[0] == 200
+    assert gateway.models_called() == ["claude-opus-5-5"] * 3 + ["claude-sonnet-5-5"]
+
+
+def test_unwritable_log_does_not_break_requests(shim, tmp_path) -> None:
+    gateway, start, _ = shim
+    blocker = tmp_path / "not-a-directory"
+    blocker.write_text("not a log folder")
+    base = start(GW_PROXY_LOGFILE=str(blocker / "proxy.log"))
+    gateway.script["muse-spark-1.3"] = [COOLING]
+    assert _ask(base, "claude-gw-tier2")[0] == 200
+
+
+def test_logs_redact_credentials_echoed_in_gateway_errors(
+    shim, monkeypatch, tmp_path
+) -> None:
+    gateway, start, log = shim
+    credential = os.urandom(24).hex()
+    monkeypatch.setenv("ANTHROPIC_AUTH_TOKEN", credential)
+    gateway.script["muse-spark-1.3"] = [
+        (
+            500,
+            json.dumps(
+                {
+                    "error": {
+                        "message": "Internal server error " + credential,
+                        "type": "api_error",
+                    },
+                    "unrelated": "do-not-log-this-reply-field",
+                }
+            ).encode(),
+        )
+    ]
+    base = start(GW_PROXY_LOGFILE=str(tmp_path / "audit.log"))
+    _ask(base, "claude-gw-tier2")
+    for path in (log, tmp_path / "audit.log"):
+        text = path.read_text()
+        assert credential not in text
+        assert "do-not-log-this-reply-field" not in text
+        assert "<REDACTED>" in text
+
+
+def test_plain_forwarding_preserves_unknown_suffix_and_body(shim) -> None:
+    gateway, start, _ = shim
+    base = start(CCSESSION_TIERS="0")
+    assert _ask(base, "unknown-model[1m]")[0] == 200
+    assert gateway.models_called() == ["unknown-model[1m]"]
+
+
+def test_inflight_failures_do_not_multiply_an_existing_park(monkeypatch) -> None:
+    module = runpy.run_path(str(SKILL_DIR / "local-gateway-alias-proxy.py"))
+    state = module["cool_down"].__globals__
+    now = [1000.0]
+    monkeypatch.setattr(state["time"], "time", lambda: now[0])
+    failed = module["model_failed"]
+    first = failed("m1", immediate=True)[1]
+    for _ in range(8):
+        failed("m1", immediate=True)
+    assert module["cooling_until"]("m1") == first == 1300
+    now[0] = 1301
+    assert failed("m1", immediate=True)[1] == 1901

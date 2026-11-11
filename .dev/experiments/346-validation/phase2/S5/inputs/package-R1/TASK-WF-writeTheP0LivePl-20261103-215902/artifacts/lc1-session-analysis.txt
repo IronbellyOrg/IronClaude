@@ -1,0 +1,92 @@
+# lc1 session analysis (supplementary to worker-read; see lc1-step5.md)
+session file: /home/coder/.claude/projects/-home-coder-workspaces-worktrees-IronClaude-p0-live-troubleshoot/1f67f909-bb49-4ef5-ac82-85648989c522.jsonl
+sha256 at analysis time: f7eb35e22edeb70afe5eccccfd31771bc8dd29716732006f6152c0b31cdbf747  size: 6877095 bytes
+worker-read cursor position p=6876333 (decoded from lc1-transcript-1.json nextCursor); file had grown by 762 bytes since
+
+## tool calls by name (all 250 top-level assistant messages; isSidechain=false for all)
+     44 Bash
+     43 Write
+     22 Read
+     22 Agent
+      8 Edit
+      6 Grep
+      3 mcp__context7__query-docs
+      2 Skill
+      1 mcp__tavily__tavily_search
+      1 mcp__context7__resolve-library-id
+      1 mcp__codegraph__codegraph_status
+      1 mcp__codegraph__codegraph_callers
+      1 TaskStop
+      1 SendMessage
+
+## Skill calls
+2026-11-04T06:03:20.276Z sidechain=false skill=sc-troubleshoot-protocol
+2026-11-04T06:21:01.989Z sidechain=false skill=sc-adversarial-protocol
+
+## orca orchestration commands (top-level; no subagent session ran any)
+2026-11-04T06:03:19.104Z orca orchestration send --from term_9e8c7204-7c7d-4b03-877d-e8b9b275c271 --type heartbeat
+2026-11-04T06:04:07.183Z orca orchestration send --from term_9e8c7204-7c7d-4b03-877d-e8b9b275c271 --type heartbeat
+2026-11-04T06:07:10.359Z orca orchestration send --from term_9e8c7204-7c7d-4b03-877d-e8b9b275c271 --type heartbeat
+2026-11-04T06:09:03.889Z orca orchestration send --from term_9e8c7204-7c7d-4b03-877d-e8b9b275c271 --type heartbeat
+2026-11-04T06:11:35.775Z orca orchestration send --from term_9e8c7204-7c7d-4b03-877d-e8b9b275c271 --type heartbeat
+2026-11-04T06:14:30.021Z orca orchestration send --from term_9e8c7204-7c7d-4b03-877d-e8b9b275c271 --type heartbeat
+2026-11-04T06:17:02.804Z orca orchestration send --from term_9e8c7204-7c7d-4b03-877d-e8b9b275c271 --type heartbeat
+2026-11-04T06:20:13.032Z orca orchestration send --from term_9e8c7204-7c7d-4b03-877d-e8b9b275c271 --type heartbeat
+2026-11-04T06:20:59.456Z orca orchestration send --from term_9e8c7204-7c7d-4b03-877d-e8b9b275c271 --type heartbeat
+2026-11-04T06:21:39.155Z orca orchestration send --from term_9e8c7204-7c7d-4b03-877d-e8b9b275c271 --type heartbeat
+2026-11-04T06:29:09.199Z orca orchestration send --from term_9e8c7204-7c7d-4b03-877d-e8b9b275c271 --type heartbeat
+2026-11-04T06:31:29.628Z orca orchestration send --from term_9e8c7204-7c7d-4b03-877d-e8b9b275c271 --type heartbeat
+2026-11-04T06:37:51.635Z orca orchestration send --from term_9e8c7204-7c7d-4b03-877d-e8b9b275c271 --type heartbeat
+2026-11-04T06:40:41.141Z orca orchestration send --from term_9e8c7204-7c7d-4b03-877d-e8b9b275c271 --type heartbeat
+2026-11-04T06:44:43.344Z orca orchestration send --from term_9e8c7204-7c7d-4b03-877d-e8b9b275c271 --type heartbeat
+2026-11-04T06:48:34.495Z orca orchestration check --terminal term_9e8c7204-7c7d-4b03-877d-e8b9b275c271
+2026-11-04T06:48:42.905Z orca orchestration send --from term_9e8c7204-7c7d-4b03-877d-e8b9b275c271 --type worker_done
+
+## heartbeat script output (lc1-session-analysis-hb.py)
+first tool call 06:03:08 heartbeats ['06:03:19', '06:04:07', '06:07:10', '06:09:03', '06:11:35', '06:14:30', '06:17:02', '06:20:13', '06:20:59', '06:21:39', '06:29:09', '06:31:29', '06:37:51', '06:40:41', '06:44:43']
+Agent 06:05:30 -> 06:05:30 bg=None troubleshoot-analyst Wave 1.5 branch A release docs
+Agent 06:05:38 -> 06:05:38 bg=None troubleshoot-analyst Wave 1.5 branch B architecture docs
+Agent 06:05:44 -> 06:05:44 bg=None troubleshoot-analyst Wave 1.5 branch C restrictions
+Agent 06:07:17 -> 06:07:17 bg=None troubleshoot-analyst Wave 1.6 branch A log calls
+Agent 06:07:24 -> 06:07:24 bg=None troubleshoot-analyst Wave 1.6 branch B log config
+Agent 06:09:14 -> 06:09:14 bg=None troubleshoot-analyst Wave 1.7 Tier 1 hypothesis card
+Agent 06:11:30 -> 06:11:30 bg=None confidence-calibrator Calibrate Tier 1 hypothesis card
+Agent 06:14:04 -> 06:14:04 bg=None troubleshoot-analyst Tier 2 quality-engineer hypothesis
+Agent 06:14:14 -> 06:14:14 bg=None troubleshoot-analyst Tier 2 root-cause-analyst hypothesis
+Agent 06:14:22 -> 06:14:22 bg=None troubleshoot-analyst Tier 2 refactoring-expert hypothesis
+Agent 06:17:10 -> 06:17:10 bg=None confidence-calibrator Calibrate quality-engineer card
+Agent 06:17:16 -> 06:17:16 bg=None confidence-calibrator Calibrate root-cause-analyst card
+Agent 06:17:21 -> 06:17:21 bg=None confidence-calibrator Calibrate refactoring-expert card
+Agent 06:21:35 -> 06:21:35 bg=None debate-orchestrator Adversarial Step 1 diff analysis
+Agent 06:26:00 -> 06:26:00 bg=None general-purpose Advocate for Variant 1 (make install)
+Agent 06:26:07 -> 06:26:07 bg=None general-purpose Advocate for Variant 2 (guard)
+Agent 06:26:14 -> 06:26:14 bg=None general-purpose Advocate for Variant 3 (dependency group)
+Agent 06:26:21 -> 06:26:21 bg=None general-purpose Advocate for Variant 4 (--extra dev)
+Agent 06:29:31 -> 06:29:31 bg=None debate-orchestrator Adversarial Steps 3-4 scoring and plan
+Agent 06:37:48 -> 06:37:48 bg=None merge-executor Adversarial Step 5 merge execution
+Agent 06:40:37 -> 06:40:37 bg=None troubleshoot-analyst Wave 4 self-review of merged fix
+Agent 06:44:40 -> 06:44:40 bg=None evidence-validator Wave 5 evidence validation
+gaps between consecutive heartbeats (minutes): [0.8, 3.1, 1.9, 2.5, 2.9, 2.5, 3.2, 0.8, 0.7, 7.5, 2.3, 6.4, 2.8, 4.0]
+worker_done at ['06:48:42']
+first heartbeat after first tool call: 0.2 min
+
+## heartbeat gaps with subagent run time removed (cadence 5 min)
+Subagent run interval = first to last timestamp of its own session file (22 subagent files); merged into 12 intervals
+from -> to           gap min agent min non-agent min
+06:03:04 -> 06:03:19      0.2       0.0           0.2
+06:03:19 -> 06:04:07      0.8       0.0           0.8
+06:04:07 -> 06:07:10      3.1       0.9           2.2
+06:07:10 -> 06:09:03      1.9       0.8           1.1
+06:09:03 -> 06:11:35      2.5       1.5           1.1
+06:11:35 -> 06:14:30      2.9       2.1           0.9
+06:14:30 -> 06:17:02      2.5       1.5           1.0
+06:17:02 -> 06:20:13      3.2       2.6           0.6
+06:20:13 -> 06:20:59      0.8       0.0           0.8
+06:20:59 -> 06:21:39      0.7       0.1           0.6
+06:21:39 -> 06:29:09      7.5       5.4           2.1
+06:29:09 -> 06:31:29      2.3       2.0           0.4
+06:31:29 -> 06:37:51      6.4       6.1           0.3
+06:37:51 -> 06:40:41      2.8       2.4           0.4
+06:40:41 -> 06:44:43      4.0       1.8           2.2
+06:44:43 -> 06:48:42      4.0       2.2           1.8
+max non-agent stretch since the last heartbeat (or since the brief): 2.2 min

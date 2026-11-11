@@ -1,0 +1,1890 @@
+diff --git a/src/superclaude/skills/sc-review-ledger/scripts/review_ledger.py b/src/superclaude/skills/sc-review-ledger/scripts/review_ledger.py
+index 13a38fef..5849540a 100644
+--- a/src/superclaude/skills/sc-review-ledger/scripts/review_ledger.py
++++ b/src/superclaude/skills/sc-review-ledger/scripts/review_ledger.py
+@@ -14,9 +14,14 @@ Output: one JSON object on stdout. Exit codes: 0 committed (whatever the
+ decision), 1 usage, 2 row-level input refused, 3 state refused, 4 lock or
+ sequence conflict. ``verdict`` alone exits 0 PASS, 10 CONTINUE, 11 ESCALATE,
+ 12 PENDING (the loop is terminal and the sweep has not run).
++
++``--dry-run`` (on the input-taking subcommands) validates the input against the
++current ledger and prints the would-be result; it takes no lock and writes no
++file anywhere.
+ """
+ 
+ import argparse
++import difflib
+ import fcntl
+ import hashlib
+ import json
+@@ -28,6 +33,7 @@ from pathlib import Path
+ 
+ SCHEMA = 1
+ CAP_REVIEWS = 3  # tied by a test to "at most 2 fix cycles (3 reviews)"
++HUNKS_LARGE_SHARE = 0.4  # changed lines above this share of the document: HUNKS_LARGE
+ 
+ GRADES_SPEC_PANEL = ("CRITICAL", "MAJOR", "MINOR")
+ 
+@@ -56,6 +62,11 @@ PHASES = ("find", "revise", "verify", "terminal", "swept")
+ EXIT_OK, EXIT_USAGE, EXIT_INPUT, EXIT_STATE, EXIT_CONFLICT = 0, 1, 2, 3, 4
+ VERDICT_EXIT = {"PASS": 0, "CONTINUE": 10, "ESCALATE": 11, "PENDING": 12}
+ ROW_INPUT_KEYS = {"grade", "rule", "wrong_outcome", "anchor", "finding", "label"}
++ANSWER_ACTIONS = ("fixed", "not-fixed", "disputed")
++LIVE_STATUSES = {"open", "fixed", "reopened"}
++
++# --dry-run: atomic_write records the path instead of writing.
++_DRY = {"on": False, "would_write": []}
+ 
+ 
+ class Refusal(Exception):
+@@ -80,6 +91,10 @@ def sha256_bytes(data: bytes) -> str:
+     return hashlib.sha256(data).hexdigest()
+ 
+ 
++def sha256_text(text: str) -> str:
++    return sha256_bytes(text.encode("utf-8"))
++
++
+ def canonical(obj) -> bytes:
+     return json.dumps(
+         obj, sort_keys=True, separators=(",", ":"), ensure_ascii=False
+@@ -93,6 +108,9 @@ def body_digest(state: dict) -> str:
+ 
+ 
+ def atomic_write(path: Path, data: bytes) -> None:
++    if _DRY["on"]:
++        _DRY["would_write"].append(str(path))
++        return
+     path.parent.mkdir(parents=True, exist_ok=True)
+     fd, tmp = tempfile.mkstemp(
+         dir=str(path.parent), prefix=f".{path.name}.", suffix=".tmp"
+@@ -148,6 +166,155 @@ def locate(text: str, quote: str) -> list[tuple[int, int]]:
+     return out
+ 
+ 
++# ---------------------------------------------------------------- diff, units, spans
++
++LIST_ITEM = re.compile(r"^\s*(?:[-*+]|\d+[.)])\s")
++
++
++def overlaps(a, b) -> bool:
++    """Half-open line ranges; a zero-width range at p overlaps [s, e) when s <= p <= e."""
++    a1, a2 = a
++    b1, b2 = b
++    if a1 == a2:
++        return b1 <= a1 <= b2
++    if b1 == b2:
++        return a1 <= b1 <= a2
++    return a1 < b2 and b1 < a2
++
++
++def units(lines: list[str]) -> list[tuple[int, int]]:
++    """Admission units: maximal runs of non-blank lines, except that each table
++    row (a line starting ``|``) and each list item (with its continuation lines)
++    is its own unit."""
++    out: list[tuple[int, int]] = []
++    cur = None
++    for i, line in enumerate(lines):
++        s = line.strip()
++        if not s:
++            if cur:
++                out.append(tuple(cur))
++                cur = None
++            continue
++        if s.startswith("|"):
++            if cur:
++                out.append(tuple(cur))
++                cur = None
++            out.append((i, i + 1))
++            continue
++        if LIST_ITEM.match(line):
++            if cur:
++                out.append(tuple(cur))
++            cur = [i, i + 1]
++            continue
++        if cur:
++            cur[1] = i + 1
++        else:
++            cur = [i, i + 1]
++    if cur:
++        out.append(tuple(cur))
++    return out
++
++
++def widen(span, unit_list) -> tuple[int, int]:
++    """Widen a span to the admission units it overlaps."""
++    s, e = span
++    hit = [u for u in unit_list if overlaps((s, e), u)]
++    if not hit:
++        return (s, e)
++    return (min(s, min(u[0] for u in hit)), max(e, max(u[1] for u in hit)))
++
++
++def diff_lines(old: list[str], new: list[str]):
++    """Whitespace-insensitive line diff (autojunk off). Returns (hunks, opcodes)."""
++    sm = difflib.SequenceMatcher(
++        None, [flat(x) for x in old], [flat(x) for x in new], autojunk=False
++    )
++    opcodes = sm.get_opcodes()
++    old_units, new_units = units(old), units(new)
++    hunks = []
++    for tag, i1, i2, j1, j2 in opcodes:
++        if tag == "equal":
++            continue
++        old_t, new_t = "\n".join(old[i1:i2]), "\n".join(new[j1:j2])
++        uo = [u for u in old_units if overlaps((i1, i2), u)]
++        un = [u for u in new_units if overlaps((j1, j2), u)]
++        o_par = flat("\n".join("\n".join(old[a:b]) for a, b in uo))
++        n_par = flat("\n".join("\n".join(new[a:b]) for a, b in un))
++        hunks.append(
++            {
++                "n": len(hunks) + 1,
++                "old": [i1, i2],
++                "new": [j1, j2],
++                "old_text": old_t,
++                "new_text": new_t,
++                "old_bytes": len(old_t.encode("utf-8")),
++                "new_bytes": len(new_t.encode("utf-8")),
++                "bytes": max(len(old_t.encode("utf-8")), len(new_t.encode("utf-8"))),
++                "key": f"{i1}:{i2}:{sha256_text(new_t)[:16]}",
++                "rewrap": bool(uo) and bool(un) and o_par == n_par,
++            }
++        )
++    return hunks, opcodes
++
++
++def map_pos(i: int, opcodes) -> int:
++    for tag, i1, i2, j1, j2 in opcodes:
++        if tag == "equal" and i1 <= i < i2:
++            return j1 + (i - i1)
++        if i < i1:
++            return j1
++    return opcodes[-1][4] if opcodes else i
++
++
++def map_span(span, opcodes, hunks, new_text: str, anchor: str):
++    """Relocate a row's span from the old snapshot into the new text.
++
++    Returns (span or None, method); method is unchanged, exact, rewritten-in-hunk,
++    missing or ambiguous.
++    """
++    s, e = span
++    touching = [h for h in hunks if overlaps(h["old"], (s, e))]
++    if not touching:
++        if s == e:
++            p = map_pos(s, opcodes)
++            return (p, p), "unchanged"
++        return (map_pos(s, opcodes), map_pos(e - 1, opcodes) + 1), "unchanged"
++    occ = locate(new_text, anchor)
++    region = (min(h["new"][0] for h in touching), max(h["new"][1] for h in touching))
++    if len(occ) == 1:
++        return occ[0], "exact"
++    if len(occ) > 1:
++        inside = [o for o in occ if overlaps(o, region)]
++        if len(inside) == 1:
++            return inside[0], "exact"
++        return None, "ambiguous"
++    covered = all(
++        any(h["old"][0] <= i < h["old"][1] for h in touching) for i in range(s, e)
++    )
++    if covered:
++        return region, "rewritten-in-hunk"
++    return None, "missing"
++
++
++def revert_hunks(lines: list[str], hunks: list[dict], old: list[str]):
++    """Restore each hunk's old text, preimage-checked. Returns (lines, reverted, failed)."""
++    out = list(lines)
++    reverted, failed = [], []
++    for h in sorted(hunks, key=lambda x: x["new"][0], reverse=True):
++        j1, j2 = h["new"]
++        if "\n".join(out[j1:j2]) != h["new_text"]:
++            failed.append(h["n"])
++            continue
++        out[j1:j2] = old[h["old"][0] : h["old"][1]]
++        reverted.append(h["n"])
++    return out, sorted(reverted), sorted(failed)
++
++
++def join_lines(lines: list[str], trailing_newline: bool) -> str:
++    text = "\n".join(lines)
++    return text + "\n" if trailing_newline and lines else text
++
++
+ # ---------------------------------------------------------------- ledger I/O
+ 
+ 
+@@ -308,9 +475,7 @@ def u_count(state: dict) -> int:
+     return sum(
+         1
+         for r in state["rows"]
+-        if r["blocking"]
+-        and r["scope"] == "in"
+-        and r["status"] in {"open", "fixed", "reopened"}
++        if r["blocking"] and r["scope"] == "in" and r["status"] in LIVE_STATUSES
+     )
+ 
+ 
+@@ -322,12 +487,23 @@ def snapshots_intact(ledger: Ledger, state: dict) -> bool:
+     return True
+ 
+ 
++def round_x_items(state: dict, k: int) -> list:
++    """X items of review k: cannot-verify answers, unmappable anchors, failed revert preimages."""
++    return [
++        item
++        for op in state["ops"]
++        for item in op.get("x_items", [])
++        if item["round"] == k
++    ]
++
++
+ def counts(state: dict) -> dict:
+     rows = state["rows"]
+     out = {
+         "rows": len(rows),
+         "blocking": sum(1 for r in rows if r["blocking"]),
+         "U": u_count(state),
++        "X": len(round_x_items(state, state["round"])),
+     }
+     for s in ("open", "fixed", "verified", "reopened", "deferred"):
+         out[s] = sum(1 for r in rows if r["status"] == s)
+@@ -391,14 +567,81 @@ def render_rows(state: dict) -> list[str]:
+     return lines
+ 
+ 
++def row_by_id(state: dict, rid: str) -> dict | None:
++    return next((r for r in state["rows"] if r["id"] == rid), None)
++
++
++def current_span(row: dict, snap: str):
++    """The row's span in snapshot ``snap`` (None when it could not be mapped there)."""
++    for m in reversed(row.get("mappings", [])):
++        if m["snapshot"] == snap:
++            return tuple(m["span"]) if m["span"] is not None else None
++    if row.get("at_snapshot", "r1") == snap and row.get("at") is not None:
++        return tuple(row["at"])
++    return None
++
++
++def last_snapshot(state: dict) -> str:
++    return f"r{state['round']}"
++
++
++def doc_lines(text: str) -> list[str]:
++    return text.splitlines()
++
++
++def provisional(ledger: Ledger, state: dict):
++    """Hunks between the last snapshot and the live document (phase revise)."""
++    old = ledger.snapshot_path(last_snapshot(state)).read_text(encoding="utf-8")
++    live = ledger.doc_path(state).read_text(encoding="utf-8")
++    hunks, opcodes = diff_lines(doc_lines(old), doc_lines(live))
++    return old, live, hunks, opcodes
++
++
++def stored_answers(state: dict) -> list[dict]:
++    """Reviser claims stored by answer in the current revise phase."""
++    return [
++        c
++        for op in committed_ops(state, "answer", state["round"])
++        for c in op.get("claims", [])
++    ]
++
++
+ # ---------------------------------------------------------------- mutation frame
+ 
+ 
+ def mutate(args, cmd: str, read_payload, apply):
+-    """Check integrity, read the input, lock, reload, replay identical requests, check seq, apply, save."""
++    """Check integrity, read the input, lock, reload, replay identical requests, check seq, apply, save.
++
++    With --dry-run: no lock, no replay, no write; the would-be result is printed.
++    """
+     ledger = Ledger(ledger_root(args))
+     ledger.load()  # E-NO-LEDGER or E-TAMPERED before anything else is read or locked
+     payload_bytes = read_payload()
++    if getattr(args, "dry_run", False):
++        state = ledger.load()
++        _DRY["on"], _DRY["would_write"] = True, []
++        try:
++            state["seq"] += 1
++            extra = apply(ledger, state) or {}
++            state["ops"].append(
++                {
++                    "cmd": cmd,
++                    "op": None,
++                    "digest": "",
++                    "round": state["round"],
++                    "round_after": state["round"],
++                    "phase_after": state["phase"],
++                    **extra.pop("_op", {}),
++                }
++            )
++            extra.pop("_after", None)
++            return result(
++                state, **extra, dry_run=True, would_write=list(_DRY["would_write"])
++            )
++        finally:
++            _DRY["on"] = False
++    if args.op is None or args.expect_seq is None:
++        usage("--op and --expect-seq are required unless --dry-run is given")
+     fh = ledger.lock()
+     try:
+         state = ledger.load()
+@@ -408,7 +651,12 @@ def mutate(args, cmd: str, read_payload, apply):
+                 state["phase"],
+                 state["round"],
+             )
+-            if op["digest"] == digest and same_state:
++            # an op that changed the document replays only while the document is as it left it
++            doc_unchanged = op.get("doc_after") in (
++                None,
++                live_binding(args)["doc_sha256"],
++            )
++            if op["digest"] == digest and same_state and doc_unchanged:
+                 return dict(op["result"], replayed=True)
+             if op["op"] == args.op and op["digest"] != digest:
+                 refuse(
+@@ -427,24 +675,25 @@ def mutate(args, cmd: str, read_payload, apply):
+         phase_before, round_before = state["phase"], state["round"]
+         state["seq"] += 1
+         extra = apply(ledger, state) or {}
++        op_data = extra.pop("_op", {})
++        after = extra.pop("_after", None)
++        entry = {
++            "op": args.op,
++            "cmd": cmd,
++            "digest": digest,
++            "seq": state["seq"],
++            "phase_before": phase_before,
++            "round": round_before,
++            "phase_after": state["phase"],
++            "round_after": state["round"],
++            **op_data,
++        }
++        state["ops"].append(entry)  # before result(), so counts see this op's X items
+         out = result(state, **extra)
+-        state["ops"].append(
+-            {
+-                "op": args.op,
+-                "cmd": cmd,
+-                "digest": digest,
+-                "seq": state["seq"],
+-                "phase_before": phase_before,
+-                "round": round_before,
+-                "phase_after": state["phase"],
+-                "round_after": state["round"],
+-                "result": out,
+-            }
+-        )
++        entry["result"] = out
+         ledger.save(state)
+-        post = getattr(apply, "after_save", None)
+-        if post:
+-            post()
++        if after:
++            after()
+         return out
+     finally:
+         fh.close()
+@@ -461,6 +710,17 @@ def require_phase(state: dict, *phases: str) -> None:
+         )
+ 
+ 
++def input_reader(path_str: str):
++    """Return (read, got): read() parses --input after the ledger hash check."""
++    got: dict = {}
++
++    def read() -> bytes:
++        got["data"], got["payload"] = read_input(path_str)
++        return got["payload"]
++
++    return read, got
++
++
+ # ---------------------------------------------------------------- subcommands
+ 
+ 
+@@ -634,26 +894,18 @@ def make_row(
+         "blocking": blocking,
+         "anchor": row["anchor"],
+         "at": list(span) if span else None,
++        "at_snapshot": f"r{rnd}" if isinstance(rnd, int) else None,
+         "origin": origin,
+         "scope": scope,
+         "caused_by": list(caused_by),
+         "finding": row["finding"],
+         "status": status if status else ("open" if blocking else "deferred"),
++        "mappings": [],
++        "claims": [],
+         "history": [],
+     }
+ 
+ 
+-def input_reader(path_str: str):
+-    """Return (read, got): read() parses --input after the ledger hash check."""
+-    got: dict = {}
+-
+-    def read() -> bytes:
+-        got["data"], got["payload"] = read_input(path_str)
+-        return got["payload"]
+-
+-    return read, got
+-
+-
+ def cmd_find(args) -> dict:
+     read, got = input_reader(args.input)
+ 
+@@ -682,13 +934,649 @@ def cmd_find(args) -> dict:
+     return mutate(args, "find", read, apply)
+ 
+ 
+-def round_x_items(state: dict, k: int) -> list:
+-    """X items of review k: cannot-verify answers, unmappable anchors, failed revert preimages."""
+-    items = []
+-    for op in state["ops"]:
+-        if op["round_after"] == k and op["cmd"] in ("begin", "verify"):
+-            items.extend(op.get("x_items", []))
+-    return items
++def check_claims(
++    ledger: Ledger, state: dict, data
++) -> tuple[list[dict], list[dict], list]:
++    """Validate an answer input against the provisional hunks. Returns (claims, gaps, hunks)."""
++    if (
++        not isinstance(data, dict)
++        or set(data) - {"claims", "gaps"}
++        or not isinstance(data.get("claims", []), list)
++    ):
++        refuse(
++            "E-SCHEMA",
++            "answer input must be an object with a 'claims' list and an optional 'gaps' list",
++            EXIT_INPUT,
++            "fix the input shape",
++        )
++    gaps = data.get("gaps", [])
++    if not isinstance(gaps, list) or any(
++        not isinstance(g, dict) or not str(g.get("text", "")).strip() for g in gaps
++    ):
++        refuse(
++            "E-SCHEMA",
++            "each gap entry needs a non-empty 'text'",
++            EXIT_INPUT,
++            "fix the gaps list",
++        )
++    old, _live, hunks, _ops = provisional(ledger, state)
++    old_lines = doc_lines(old)
++    unit_list = units(old_lines)
++    snap = last_snapshot(state)
++    problems, claims = [], []
++    for i, c in enumerate(data.get("claims", [])):
++        if (
++            not isinstance(c, dict)
++            or c.get("action") not in ANSWER_ACTIONS
++            or not isinstance(c.get("row"), str)
++        ):
++            problems.append(
++                {
++                    "index": i,
++                    "code": "E-SCHEMA",
++                    "detail": f"each claim needs 'row' and 'action' in {list(ANSWER_ACTIONS)}",
++                }
++            )
++            continue
++        row = row_by_id(state, c["row"])
++        if (
++            row is None
++            or not row["blocking"]
++            or row["scope"] != "in"
++            or row["status"] not in {"open", "reopened"}
++        ):
++            problems.append(
++                {
++                    "index": i,
++                    "code": "E-ILLEGAL",
++                    "detail": f"{c['row']} is not a listed open blocking row (deferred and minor rows are "
++                    "not answerable)",
++                }
++            )
++            continue
++        if c["action"] != "fixed":
++            if not str(c.get("reason", "")).strip():
++                problems.append(
++                    {
++                        "index": i,
++                        "code": "E-SCHEMA",
++                        "detail": f"{c['action']} needs a 'reason'",
++                    }
++                )
++                continue
++            claims.append(
++                {
++                    "row": row["id"],
++                    "action": c["action"],
++                    "keys": [],
++                    "reason": c["reason"],
++                }
++            )
++            continue
++        nums = c.get("hunks")
++        if (
++            not isinstance(nums, list)
++            or not nums
++            or any(not isinstance(n, int) or not 1 <= n <= len(hunks) for n in nums)
++        ):
++            problems.append(
++                {
++                    "index": i,
++                    "code": "E-SCHEMA",
++                    "detail": f"'hunks' must list provisional hunk numbers 1..{len(hunks)} (see status)",
++                }
++            )
++            continue
++        span = current_span(row, snap)
++        if span is None:
++            problems.append(
++                {
++                    "index": i,
++                    "code": "E-ILLEGAL",
++                    "detail": f"{row['id']} has no mapped span",
++                }
++            )
++            continue
++        claimed = [hunks[n - 1] for n in nums]
++        wide = widen(span, unit_list)
++        if not any(overlaps(h["old"], span) for h in claimed):
++            problems.append(
++                {
++                    "index": i,
++                    "code": "E-FIXED-NO-EDIT",
++                    "detail": f"no claimed hunk changes text inside {row['id']}'s span",
++                }
++            )
++            continue
++        too_wide = [
++            h["n"]
++            for h in claimed
++            if not (wide[0] <= h["old"][0] and h["old"][1] <= wide[1])
++        ]
++        if too_wide:
++            problems.append(
++                {
++                    "index": i,
++                    "code": "E-CLAIM-WIDE",
++                    "detail": f"hunks {too_wide} reach beyond {row['id']}'s paragraph",
++                }
++            )
++            continue
++        claims.append(
++            {
++                "row": row["id"],
++                "action": "fixed",
++                "keys": [h["key"] for h in claimed],
++                "reason": c.get("reason", ""),
++            }
++        )
++    if problems:
++        order = ("E-SCHEMA", "E-ILLEGAL", "E-FIXED-NO-EDIT", "E-CLAIM-WIDE")
++        code = next(o for o in order if any(p["code"] == o for p in problems))
++        refuse(code, problems, EXIT_INPUT, "fix the listed claims; nothing was written")
++    return claims, gaps, hunks
++
++
++def live_binding(args) -> dict:
++    """The live document's sha256 and the round: part of every request whose result
++    depends on the document, so a call after a new edit is a new request, not a replay."""
++    ledger = Ledger(ledger_root(args))
++    state = ledger.load()
++    doc = ledger.doc_path(state)
++    return {
++        "doc_sha256": sha256_bytes(doc.read_bytes()) if doc.is_file() else None,
++        "round": state["round"],
++    }
++
++
++def cmd_answer(args) -> dict:
++    read_only_input, got = input_reader(args.input)
++
++    def read() -> bytes:
++        return read_only_input() + b"\0" + canonical(live_binding(args))
++
++    def apply(ledger: Ledger, state: dict):
++        require_phase(state, "revise")
++        claims, gaps, _hunks = check_claims(ledger, state, got["data"])
++        for c in claims:
++            if c["action"] == "disputed":
++                row_by_id(state, c["row"])["history"].append(
++                    {
++                        "seq": state["seq"],
++                        "via": "answer",
++                        "dispute": c["reason"],
++                        "round": state["round"],
++                    }
++                )
++        atomic_write(
++            ledger.root / "inputs" / f"c{state['round']}-answers-{state['seq']}.json",
++            got["payload"],
++        )
++        doc_after = sha256_bytes(ledger.doc_path(state).read_bytes())
++        return {
++            "claims": claims,
++            "gaps": gaps,
++            "_op": {"claims": claims, "gaps": gaps, "doc_after": doc_after},
++        }
++
++    return mutate(args, "answer", read, apply)
++
++
++def cmd_revert_unclaimed(args) -> dict:
++    target = {}
++
++    def read() -> bytes:
++        return canonical({"hunk": args.hunk, **live_binding(args)})
++
++    def apply(ledger: Ledger, state: dict):
++        if state["phase"] != "revise":  # every other phase, terminal ones included
++            refuse(
++                "E-PHASE",
++                f"phase is {state['phase']}; revert-unclaimed runs only in phase revise",
++                EXIT_STATE,
++                next_action(state),
++            )
++        old, live, hunks, _ops = provisional(ledger, state)
++        claimed = {k for c in stored_answers(state) for k in c["keys"]}
++        unclaimed = [h for h in hunks if not h["rewrap"] and h["key"] not in claimed]
++        gone = []
++        if args.hunk is not None:
++            # --hunk is the key status printed, so the caller reverts the hunk it saw
++            match = [h for h in hunks if h["key"] == args.hunk]
++            if match and match[0] not in unclaimed:
++                refuse(
++                    "E-ILLEGAL",
++                    f"hunk {args.hunk} is claimed or a rewrap",
++                    EXIT_INPUT,
++                    "",
++                )
++            if not match:
++                gone = [
++                    args.hunk
++                ]  # the hunk the caller saw no longer exists: failed preimage
++            unclaimed = match
++        current = reread_doc(ledger.doc_path(state))
++        if current != live:  # the document changed after the hunks were computed
++            lines, reverted, failed = doc_lines(live), [], [h["n"] for h in unclaimed]
++        else:
++            lines, reverted, failed = revert_hunks(
++                doc_lines(live), unclaimed, doc_lines(old)
++            )
++        failed = failed + gone
++        restored = sum(h["new_bytes"] for h in unclaimed if h["n"] in reverted)
++        if reverted:
++            atomic_write(
++                ledger.doc_path(state),
++                join_lines(lines, live.endswith("\n")).encode("utf-8"),
++            )
++        x_items = [
++            {"round": state["round"] + 1, "kind": "revert-preimage", "hunk": n}
++            for n in failed
++        ]
++        target["n"] = len(reverted)
++        after_text = join_lines(lines, live.endswith("\n")) if reverted else live
++        return {
++            "reverted": reverted,
++            "failed": failed,
++            "restored_bytes": restored,
++            "_op": {"x_items": x_items, "doc_after": sha256_text(after_text)},
++        }
++
++    return mutate(args, "revert-unclaimed", read, apply)
++
++
++def render_plan(
++    state: dict,
++    k: int,
++    rows_info: dict,
++    hunks: list,
++    unclaimed: list,
++    rewraps: list,
++    gaps: list,
++    dropped: list,
++    hunks_large: bool,
++    doc_rel: str,
++    snap_sha: str,
++) -> str:
++    def rng(r):
++        return (
++            f"lines {r[0] + 1}-{r[1]}" if r[1] > r[0] else f"empty at line {r[0] + 1}"
++        )
++
++    def fence(text):
++        return ["```text", text, "```"]
++
++    lines = [
++        f"# Ledger plan for review {k}",
++        "",
++        f"review: {k} of {state['cap_reviews']}",
++        f"document: {doc_rel}; snapshot snapshots/r{k}.md sha256 {snap_sha}",
++        "",
++    ]
++    if hunks_large:
++        lines += [
++            "HUNKS_LARGE: changed lines exceed 40% of the document; verify degrades toward a full review.",
++            "",
++        ]
++    lines += ["## Rows to answer", ""]
++    plan_rows = [
++        r
++        for r in state["rows"]
++        if r["blocking"] and r["scope"] == "in" and r["status"] in LIVE_STATUSES
++    ]
++    if not plan_rows:
++        lines += ["(none)", ""]
++    for r in plan_rows:
++        info = rows_info.get(r["id"], {})
++        lines += [
++            f"### {r['id']}: {r['grade']}, rule {r.get('rule') or '-'}, status {r['status']}",
++            "",
++            f"- finding: {flat(r['finding'])}",
++            f"- wrong outcome: {flat(r['wrong_outcome']) or '-'}",
++            f"- old anchor: {flat(r['anchor'])}",
++        ]
++        span = info.get("span")
++        lines.append(
++            f"- span in r{k}: {rng(span)}"
++            if span is not None
++            else f"- span in r{k}: unmappable ({info.get('method')})"
++        )
++        for n, via in info.get("hunks", []):
++            h = hunks[n - 1]
++            lines += (
++                [
++                    f"- hunk c{k - 1}#{n} (claimed by {via}), r{k - 1} {rng(h['old'])} -> r{k} {rng(h['new'])}",
++                    "",
++                    "old text:",
++                ]
++                + fence(h["old_text"])
++                + ["new text:"]
++                + fence(h["new_text"])
++            )
++        lines.append("")
++    lines += ["## Unclaimed hunks", ""]
++    if not unclaimed:
++        lines += ["(none)", ""]
++    for u in unclaimed:
++        lines += [
++            f"- {u['id']}: r{k - 1} {rng(u['old'])}, bytes {u['bytes']}, "
++            f"{'reverted' if u['reverted'] else 'kept in the document'}",
++            "",
++            "old text:",
++        ]
++        lines += fence(u["old_text"]) + ["new text:"] + fence(u["new_text"]) + [""]
++    if rewraps:
++        lines += ["## Whitespace-only rewraps (not unclaimed, not claims)", ""]
++        lines += [f"- c{k - 1}#{h['n']}: r{k} {rng(h['new'])}" for h in rewraps] + [""]
++    if gaps:
++        lines += (
++            ["## Reviser gap entries", ""]
++            + [f"- {flat(g['text'])}" for g in gaps]
++            + [""]
++        )
++    if dropped:
++        lines += ["## Reviser claims dropped (their hunk changed after answer)", ""]
++        lines += [f"- {d['row']}: {d['key']}" for d in dropped] + [""]
++    return "\n".join(lines)
++
++
++def cmd_begin(args) -> dict:
++    pending = {}
++
++    def read() -> bytes:
++        doc = Path(args.doc)
++        if not doc.is_file():
++            usage(f"document not found: {doc}")
++        return canonical(
++            {
++                "doc": sha256_bytes(doc.read_bytes()),
++                "revert": bool(args.revert_unclaimed),
++            }
++        )
++
++    def apply(ledger: Ledger, state: dict):
++        if (
++            state["round"] >= state["cap_reviews"]
++            or state["fix_cycles"] >= state["cap_reviews"] - 1
++        ):
++            refuse(
++                "E-CAP",
++                f"review {state['round']} was the last of {state['cap_reviews']}; no fourth review "
++                "and no third fix cycle",
++                EXIT_STATE,
++                "escalate to the user with the open blocking findings",
++            )
++        require_phase(state, "revise")
++        doc = ledger.doc_path(state)
++        if Path(args.doc).resolve() != doc:
++            usage(f"--doc {args.doc} is not the ledger's document {doc}")
++        k_old, k = state["round"], state["round"] + 1
++        old_text = ledger.snapshot_path(f"r{k_old}").read_text(encoding="utf-8")
++        live_text = doc.read_text(encoding="utf-8")
++        old, live = doc_lines(old_text), doc_lines(live_text)
++        d1, _ = diff_lines(old, live)
++        unit_list = units(old)
++        by_key = {h["key"]: h for h in d1}
++        claimed_by: dict[int, list] = {}
++        dropped = []
++        answers = stored_answers(state)
++        for c in answers:
++            for key in c["keys"]:
++                if key in by_key:
++                    claimed_by.setdefault(by_key[key]["n"], []).append(
++                        (c["row"], "answer")
++                    )
++                else:
++                    dropped.append({"row": c["row"], "key": key})
++        open_rows = [
++            r
++            for r in state["rows"]
++            if r["blocking"]
++            and r["scope"] == "in"
++            and r["status"] in {"open", "reopened"}
++        ]
++        for h in d1:
++            if h["rewrap"] or h["n"] in claimed_by:
++                continue
++            for r in open_rows:
++                span = current_span(r, f"r{k_old}")
++                if span is not None and overlaps(h["old"], widen(span, unit_list)):
++                    claimed_by.setdefault(h["n"], []).append((r["id"], "auto"))
++        unclaimed = [h for h in d1 if not h["rewrap"] and h["n"] not in claimed_by]
++        x_items, reverted, failed = [], [], []
++        final = live
++        if args.revert_unclaimed and unclaimed:
++            if (
++                reread_doc(doc) != live_text
++            ):  # preimage: the document changed while begin ran
++                failed = [h["n"] for h in unclaimed]
++            else:
++                final, reverted, failed = revert_hunks(live, unclaimed, old)
++            x_items += [
++                {"round": k, "kind": "revert-preimage", "hunk": f"c{k_old}#{n}"}
++                for n in failed
++            ]
++        final_text = (
++            join_lines(final, live_text.endswith("\n")) if reverted else live_text
++        )
++        # committed hunks: old snapshot vs the text this review sees
++        d2, opcodes = diff_lines(old, doc_lines(final_text))
++        key_of_d1 = {h["n"]: h["key"] for h in d1}
++        d2_by_key = {h["key"]: h for h in d2}
++
++        def d2_for(n1):
++            h = d2_by_key.get(key_of_d1[n1])
++            if h is None:
++                h = next(
++                    (
++                        x
++                        for x in d2
++                        if overlaps(
++                            x["old"], next(y for y in d1 if y["n"] == n1)["old"]
++                        )
++                    ),
++                    None,
++                )
++            return h
++
++        hunk_claims: dict[int, list] = {}
++        for n1, who in claimed_by.items():
++            h = d2_for(n1)
++            if h is not None:
++                hunk_claims.setdefault(h["n"], []).extend(who)
++        rows_info: dict[str, dict] = {}
++        fixed_by: dict[str, list] = {}
++        for n, who in hunk_claims.items():
++            for rid, via in who:
++                fixed_by.setdefault(rid, []).append((n, via))
++        # relocate every row into the new snapshot
++        for r in state["rows"]:
++            span = current_span(r, f"r{k_old}")
++            if span is None:
++                continue
++            new_span, method = map_span(span, opcodes, d2, final_text, r["anchor"])
++            r["mappings"].append(
++                {
++                    "snapshot": f"r{k}",
++                    "span": list(new_span) if new_span else None,
++                    "method": method,
++                }
++            )
++            rows_info[r["id"]] = {
++                "span": new_span,
++                "method": method,
++                "hunks": fixed_by.get(r["id"], []),
++            }
++            needs_verify = (
++                r["blocking"]
++                and r["scope"] == "in"
++                and r["status"] in LIVE_STATUSES | {"verified"}
++            )
++            if new_span is None and needs_verify:
++                x_items.append(
++                    {
++                        "round": k,
++                        "kind": "unmappable-anchor",
++                        "row": r["id"],
++                        "method": method,
++                    }
++                )
++        for r in state["rows"]:
++            if r["id"] in fixed_by and r["status"] in {"open", "reopened"}:
++                r["claims"].append(
++                    {
++                        "cycle": k_old,
++                        "via": sorted({v for _, v in fixed_by[r["id"]]}),
++                        "hunks": [f"c{k_old}#{n}" for n, _ in fixed_by[r["id"]]],
++                        "bytes": sum(d2[n - 1]["bytes"] for n, _ in fixed_by[r["id"]]),
++                    }
++                )
++                r["history"].append(
++                    {
++                        "seq": state["seq"],
++                        "via": "begin",
++                        "from": r["status"],
++                        "to": "fixed",
++                        "claimed_by": sorted({v for _, v in fixed_by[r["id"]]}),
++                    }
++                )
++                r["status"] = "fixed"
++            elif r["status"] == "verified":
++                span = current_span(r, f"r{k_old}")
++                if span is not None and any(
++                    overlaps(h["old"], span) for h in d2 if not h["rewrap"]
++                ):
++                    r["history"].append(
++                        {
++                            "seq": state["seq"],
++                            "via": "begin",
++                            "from": "verified",
++                            "to": "fixed",
++                            "reason": "a hunk of this round touches the verified span",
++                        }
++                    )
++                    r["status"] = "fixed"
++                    rows_info.setdefault(r["id"], {})["hunks"] = [
++                        (h["n"], "touch")
++                        for h in d2
++                        if overlaps(h["old"], span) and not h["rewrap"]
++                    ]
++        changed = sum(
++            max(h["old"][1] - h["old"][0], h["new"][1] - h["new"][0])
++            for h in d2
++            if not h["rewrap"]
++        )
++        hunks_large = changed > HUNKS_LARGE_SHARE * max(
++            len(old), len(doc_lines(final_text)), 1
++        )
++        unclaimed_out = []
++        for h in unclaimed:
++            kept = d2_for(h["n"]) if h["n"] not in reverted else None
++            unclaimed_out.append(
++                {
++                    "id": f"c{k_old}#{kept['n']}"
++                    if kept
++                    else f"c{k_old}-reverted-{h['n']}",
++                    "old": h["old"],
++                    "new": h["new"],
++                    "bytes": h["bytes"],
++                    "old_text": h["old_text"],
++                    "new_text": h["new_text"],
++                    "reverted": h["n"] in reverted,
++                }
++            )
++        rewraps = [h for h in d2 if h["rewrap"]]
++        gaps = [
++            g
++            for op in committed_ops(state, "answer", k_old)
++            for g in op.get("gaps", [])
++        ]
++        for h in d2:
++            h["claimed_by"] = [
++                {"row": rid, "via": via} for rid, via in hunk_claims.get(h["n"], [])
++            ]
++            h["touches"] = [
++                r["id"]
++                for r in state["rows"]
++                if current_span(r, f"r{k_old}") is not None
++                and overlaps(h["old"], current_span(r, f"r{k_old}"))
++            ]
++        snap_bytes = final_text.encode("utf-8")
++        state["snapshots"][f"r{k}"] = {
++            "sha256": sha256_bytes(snap_bytes),
++            "bytes": len(snap_bytes),
++        }
++        state["round"], state["fix_cycles"], state["phase"] = (
++            k,
++            state["fix_cycles"] + 1,
++            "verify",
++        )
++        plan = render_plan(
++            state,
++            k,
++            rows_info,
++            d2,
++            unclaimed_out,
++            rewraps,
++            gaps,
++            dropped,
++            hunks_large,
++            state["doc"],
++            sha256_bytes(snap_bytes),
++        )
++        diff_doc = {
++            "from": f"r{k_old}",
++            "to": f"r{k}",
++            "hunks": d2,
++            "unclaimed": unclaimed_out,
++            "reverted": reverted,
++            "failed_reverts": failed,
++            "hunks_large": hunks_large,
++        }
++        if reverted:
++            atomic_write(doc, snap_bytes)
++        atomic_write(ledger.snapshot_path(f"r{k}"), snap_bytes)
++        atomic_write(
++            ledger.root / "diffs" / f"c{k_old}.json",
++            json.dumps(diff_doc, indent=2).encode("utf-8"),
++        )
++        atomic_write(ledger.root / f"plan-r{k}.md", plan.encode("utf-8"))
++        pending["k"] = k
++        summary = {
++            "review_header": review_header(state),
++            "plan": str(ledger.root / f"plan-r{k}.md"),
++            "hunks": len(d2),
++            "auto_claimed": sorted(
++                {n for n, w in hunk_claims.items() if any(v == "auto" for _, v in w)}
++            ),
++            "unclaimed": [
++                {"id": u["id"], "bytes": u["bytes"], "reverted": u["reverted"]}
++                for u in unclaimed_out
++            ],
++            "reverted_bytes": sum(u["bytes"] for u in unclaimed_out if u["reverted"]),
++            "dropped_claims": dropped,
++            "hunks_large": hunks_large,
++        }
++        return {
++            **summary,
++            "_op": {
++                "x_items": x_items,
++                "begin": {
++                    "unclaimed": [
++                        {k2: u[k2] for k2 in ("id", "bytes", "reverted")}
++                        for u in unclaimed_out
++                    ],
++                    "reverted_bytes": summary["reverted_bytes"],
++                },
++            },
++        }
++
++    return mutate(args, "begin", read, apply)
++
++
++def reread_doc(doc: Path) -> str:
++    """Read the live document again right before a revert (preimage check)."""
++    return doc.read_text(encoding="utf-8")
+ 
+ 
+ def decide(ledger: Ledger, state: dict) -> dict:
+@@ -712,9 +1600,7 @@ def tail_text(state: dict, dec: dict) -> str:
+     blocking_ids = [
+         r["id"]
+         for r in state["rows"]
+-        if r["blocking"]
+-        and r["scope"] == "in"
+-        and r["status"] in {"open", "fixed", "reopened"}
++        if r["blocking"] and r["scope"] == "in" and r["status"] in LIVE_STATUSES
+     ]
+     lines = [
+         "",
+@@ -748,7 +1634,6 @@ def tail_text(state: dict, dec: dict) -> str:
+ 
+ def cmd_close(args) -> dict:
+     report = Path(args.report)
+-    pending = {}
+ 
+     def read() -> bytes:
+         if not report.is_file():
+@@ -786,20 +1671,39 @@ def cmd_close(args) -> dict:
+             }
+         )
+         state["phase"] = "revise" if dec["loop_decision"] == "CONTINUE" else "terminal"
+-        pending["tail"] = tail
+-        return {"decision": dec, "last_line": tail.rstrip("\n").splitlines()[-1]}
+ 
+-    def after_save():
+-        text = report.read_text(encoding="utf-8")
+-        atomic_write(report, (text + pending["tail"]).encode("utf-8"))
++        def after():
++            text = report.read_text(encoding="utf-8")
++            atomic_write(report, (text + tail).encode("utf-8"))
++
++        return {
++            "decision": dec,
++            "last_line": tail.rstrip("\n").splitlines()[-1],
++            "_after": after,
++        }
+ 
+-    apply.after_save = after_save
+     return mutate(args, "close", read, apply)
+ 
+ 
+ def cmd_status(args) -> dict:
+     ledger = Ledger(ledger_root(args))
+     state = ledger.load()
++    extra = {}
++    if state["phase"] == "revise":
++        _old, _live, hunks, _ops = provisional(ledger, state)
++        claimed = {k for c in stored_answers(state) for k in c["keys"]}
++        extra["provisional_hunks"] = [
++            {
++                "n": h["n"],
++                "old": h["old"],
++                "new": h["new"],
++                "bytes": h["bytes"],
++                "rewrap": h["rewrap"],
++                "key": h["key"],
++                "claimed": h["key"] in claimed,
++            }
++            for h in hunks
++        ]
+     return result(
+         state,
+         review_header=review_header(state),
+@@ -819,6 +1723,8 @@ def cmd_status(args) -> dict:
+             for r in state["rows"]
+         ],
+         snapshots_intact=snapshots_intact(ledger, state),
++        x_items=round_x_items(state, state["round"]),
++        **extra,
+     )
+ 
+ 
+@@ -870,14 +1776,21 @@ def build_parser() -> argparse.ArgumentParser:
+         )
+         sp.add_argument("--doc", required=doc_required, help="the reviewed document")
+ 
+-    def mutation(sp):
+-        sp.add_argument("--op", required=True, help="caller-chosen operation id")
++    def mutation(sp, dry=False):
++        sp.add_argument(
++            "--op", help="caller-chosen operation id (required unless --dry-run)"
++        )
+         sp.add_argument(
+             "--expect-seq",
+             type=int,
+-            required=True,
+-            help="the ledger seq the caller last read",
++            help="the ledger seq the caller last read (required unless --dry-run)",
+         )
++        if dry:
++            sp.add_argument(
++                "--dry-run",
++                action="store_true",
++                help="validate and print the would-be result; take no lock and write no file",
++            )
+ 
+     sp = sub.add_parser("init", help="create the ledger and snapshot r1 (review 1)")
+     where(sp, doc_required=True)
+@@ -891,13 +1804,48 @@ def build_parser() -> argparse.ArgumentParser:
+ 
+     sp = sub.add_parser("find", help="ingest review-1 rows (review 1)")
+     where(sp)
+-    mutation(sp)
++    mutation(sp, dry=True)
+     sp.add_argument(
+         "--input",
+         required=True,
+         help=".json rows, or a .md report with one ledger-input block",
+     )
+ 
++    sp = sub.add_parser(
++        "answer",
++        help="reviser claims: provisional hunks per blocking row, gap entries (optional)",
++    )
++    where(sp)
++    mutation(sp, dry=True)
++    sp.add_argument(
++        "--input",
++        required=True,
++        help=".json claims, or a .md file with one ledger-input block",
++    )
++
++    sp = sub.add_parser(
++        "begin",
++        help="start review 2 or 3: snapshot, diff, auto-claim, optional revert, plan file",
++    )
++    where(sp, doc_required=True)
++    mutation(sp)
++    sp.add_argument(
++        "--revert-unclaimed",
++        action="store_true",
++        help="consent for this invocation only: restore hunks no blocking row claims",
++    )
++
++    sp = sub.add_parser(
++        "revert-unclaimed",
++        help="restore unclaimed provisional hunks in the document (phase revise)",
++    )
++    where(sp)
++    mutation(sp)
++    sp.add_argument(
++        "--hunk",
++        help="the key of one provisional hunk, as status lists it (default: every unclaimed hunk)",
++    )
++
+     sp = sub.add_parser(
+         "close", help="compute the loop decision and append the report tail"
+     )
+@@ -905,7 +1853,9 @@ def build_parser() -> argparse.ArgumentParser:
+     mutation(sp)
+     sp.add_argument("--report", required=True)
+ 
+-    sp = sub.add_parser("status", help="read-only counts")
++    sp = sub.add_parser(
++        "status", help="read-only counts (and provisional hunks in phase revise)"
++    )
+     where(sp)
+ 
+     sp = sub.add_parser(
+@@ -919,6 +1869,9 @@ def build_parser() -> argparse.ArgumentParser:
+ COMMANDS = {
+     "init": cmd_init,
+     "find": cmd_find,
++    "answer": cmd_answer,
++    "begin": cmd_begin,
++    "revert-unclaimed": cmd_revert_unclaimed,
+     "close": cmd_close,
+     "status": cmd_status,
+ }
+diff --git a/tests/skills/fixtures/review-ledger/answer-basic.json b/tests/skills/fixtures/review-ledger/answer-basic.json
+new file mode 100644
+index 00000000..bcef6252
+--- /dev/null
++++ b/tests/skills/fixtures/review-ledger/answer-basic.json
+@@ -0,0 +1,2 @@
++{"claims": [{"row": "R1", "action": "fixed", "hunks": [1], "reason": "added a retry bound"}],
++ "gaps": [{"text": "the retry bound also needs a line in section 4"}]}
+diff --git a/tests/skills/fixtures/review-ledger/doc-r2-delete.md b/tests/skills/fixtures/review-ledger/doc-r2-delete.md
+new file mode 100644
+index 00000000..a75a7b35
+--- /dev/null
++++ b/tests/skills/fixtures/review-ledger/doc-r2-delete.md
+@@ -0,0 +1,22 @@
++# Widget service spec
++
++## 1. Scope
++
++The widget service stores widgets for the billing team. It keeps one record per widget.
++
++## 2. Requirements
++
++| ID | Requirement | Check |
++|---|---|---|
++| FR-1 | The service rejects a widget without an owner. | unit test |
++| FR-2 | The service keeps deleted widgets for 30 days. | unit test |
++
++## 3. Failure handling
++
++When the store is down, the service returns 503 to the caller. Retries are left to the caller.
++
++## 4. Operations
++
++The cache is refreshed every hour.
++
++Logs are kept for fourteen days.
+diff --git a/tests/skills/fixtures/review-ledger/doc-r2-fix.md b/tests/skills/fixtures/review-ledger/doc-r2-fix.md
+new file mode 100644
+index 00000000..2c178d0f
+--- /dev/null
++++ b/tests/skills/fixtures/review-ledger/doc-r2-fix.md
+@@ -0,0 +1,24 @@
++# Widget service spec
++
++## 1. Scope
++
++The widget service stores widgets for the billing team. It keeps one record per widget.
++
++## 2. Requirements
++
++| ID | Requirement | Check |
++|---|---|---|
++| FR-1 | The service rejects a widget without an owner. | unit test |
++| FR-2 | The service keeps deleted widgets for 30 days. | unit test |
++
++The cache is refreshed every hour.
++
++## 3. Failure handling
++
++When the store is down, the service returns 503 to the caller and the caller retries at most twice.
++
++## 4. Operations
++
++The cache is refreshed every hour.
++
++Logs are kept for seven days.
+diff --git a/tests/skills/fixtures/review-ledger/doc-r2-outside.md b/tests/skills/fixtures/review-ledger/doc-r2-outside.md
+new file mode 100644
+index 00000000..8fa45550
+--- /dev/null
++++ b/tests/skills/fixtures/review-ledger/doc-r2-outside.md
+@@ -0,0 +1,24 @@
++# Widget service spec
++
++## 1. Scope
++
++The widget service stores widgets for the billing team. It keeps one record per widget.
++
++## 2. Requirements
++
++| ID | Requirement | Check |
++|---|---|---|
++| FR-1 | The service rejects a widget without an owner. | unit test |
++| FR-2 | The service keeps deleted widgets for 30 days. | unit test |
++
++The cache is refreshed every ten minutes.
++
++## 3. Failure handling
++
++When the store is down, the service returns 503 to the caller. Retries are left to the caller.
++
++## 4. Operations
++
++The cache is refreshed every hour.
++
++Logs are kept for seven days.
+diff --git a/tests/skills/fixtures/review-ledger/doc-r2-rewrap.md b/tests/skills/fixtures/review-ledger/doc-r2-rewrap.md
+new file mode 100644
+index 00000000..0a6a4196
+--- /dev/null
++++ b/tests/skills/fixtures/review-ledger/doc-r2-rewrap.md
+@@ -0,0 +1,25 @@
++# Widget service spec
++
++## 1. Scope
++
++The widget service stores widgets for the billing team. It keeps one record per widget.
++
++## 2. Requirements
++
++| ID | Requirement | Check |
++|---|---|---|
++| FR-1 | The service rejects a widget without an owner. | unit test |
++| FR-2 | The service keeps deleted widgets for 30 days. | unit test |
++
++The cache is refreshed every hour.
++
++## 3. Failure handling
++
++When the store is down, the service returns 503
++to the caller. Retries are left to the caller.
++
++## 4. Operations
++
++The cache is refreshed every hour.
++
++Logs are kept for seven days.
+diff --git a/tests/skills/fixtures/review-ledger/doc-r2-two-rows.md b/tests/skills/fixtures/review-ledger/doc-r2-two-rows.md
+new file mode 100644
+index 00000000..cc2b736c
+--- /dev/null
++++ b/tests/skills/fixtures/review-ledger/doc-r2-two-rows.md
+@@ -0,0 +1,24 @@
++# Widget service spec
++
++## 1. Scope
++
++The widget service stores widgets for the billing team. It keeps one record per widget.
++
++## 2. Requirements
++
++| ID | Requirement | Check |
++|---|---|---|
++| FR-1 | The service rejects a widget whose owner is missing or empty. | unit test |
++| FR-2 | The service keeps deleted widgets for 30 days, then purges them. | unit test |
++
++The cache is refreshed every hour.
++
++## 3. Failure handling
++
++When the store is down, the service returns 503 to the caller. Retries are left to the caller.
++
++## 4. Operations
++
++The cache is refreshed every hour.
++
++Logs are kept for seven days.
+diff --git a/tests/skills/test_review_ledger_script.py b/tests/skills/test_review_ledger_script.py
+index f880b31c..b6bb52a9 100644
+--- a/tests/skills/test_review_ledger_script.py
++++ b/tests/skills/test_review_ledger_script.py
+@@ -97,11 +97,54 @@ class Loop:
+     def verdict(self) -> tuple[int, dict]:
+         return run(self.tmp, "verdict", "--doc", "spec.md")
+ 
++    def status(self) -> dict:
++        return run(self.tmp, "status", "--doc", "spec.md")[1]
++
++    def json_input(self, name: str, data) -> Path:
++        p = self.tmp / name
++        p.write_text(json.dumps(data))
++        return p
++
++    def edit(self, fixture: str | None = None, text: str | None = None) -> None:
++        if fixture:
++            shutil.copy(_FIX / fixture, self.doc)
++        else:
++            self.doc.write_text(text)
++
++    def begin(self, *extra, **kw):
++        return self.mut("begin", *extra, **kw)
++
++    def answer(self, data, **kw):
++        src = (
++            self.json_input(f"answer-{self.n}.json", data)
++            if not isinstance(data, Path)
++            else data
++        )
++        return self.mut("answer", "--input", str(src), **kw)
++
++    def round1(self, rows="find-basic.json") -> Path:
++        """init, find and close review 1 (CONTINUE with find-basic.json)."""
++        assert self.init()[0] == 0
++        assert self.find(rows)[0] == 0
++        rep = self.report("r1.md")
++        assert self.close(rep)[0] == 0
++        return rep
++
+ 
+ def rows_by_label(state: dict) -> dict:
+     return {r["label"]: r for r in state["rows"]}
+ 
+ 
++def tree_digest(*paths: Path) -> dict:
++    """Every file under the given paths, name -> bytes (a dry run must leave it unchanged)."""
++    out = {}
++    for p in paths:
++        files = [p] if p.is_file() else sorted(x for x in p.rglob("*") if x.is_file())
++        for f in files:
++            out[str(f)] = f.read_bytes()
++    return out
++
++
+ # ---------------------------------------------------------------- Task 1
+ 
+ 
+@@ -396,3 +439,407 @@ def test_no_role_flag_and_stdlib_only():
+         elif line.startswith("from "):
+             imported.add(line.split()[1].split(".")[0])
+     assert imported <= allowed, imported - allowed
++
++
++# ---------------------------------------------------------------- Task 2
++
++
++def by_id(state: dict) -> dict:
++    return {r["id"]: r for r in state["rows"]}
++
++
++def diff_doc(lp: Loop, cycle: int = 1) -> dict:
++    return json.loads((lp.ledger / "diffs" / f"c{cycle}.json").read_text())
++
++
++@pytest.mark.parametrize(
++    "fixture, claimers",
++    [
++        ("doc-r2-outside.md", []),
++        ("doc-r2-fix.md", ["R1"]),
++        ("doc-r2-two-rows.md", ["R2", "R3"]),
++    ],
++    ids=["zero-rows", "one-row", "two-rows"],
++)
++def test_auto_claim_zero_one_two_rows(tmp_path, fixture, claimers):
++    lp = Loop(tmp_path)
++    lp.round1()
++    lp.edit(fixture)
++    code, out = lp.begin()
++    assert code == 0, out
++    hunks = diff_doc(lp)["hunks"]
++    assert len(hunks) == 1
++    assert sorted(c["row"] for c in hunks[0]["claimed_by"]) == claimers
++    assert all(c["via"] == "auto" for c in hunks[0]["claimed_by"])
++    rows = by_id(lp.state())
++    for rid in ("R1", "R2", "R3"):
++        assert rows[rid]["status"] == ("fixed" if rid in claimers else "open")
++    assert (len(out["unclaimed"]) == 1) is (not claimers)
++    assert out["review_header"] == "review: 2 of 3" and lp.state()["phase"] == "verify"
++
++
++def test_pure_rewrap_is_admitted_not_unclaimed(tmp_path):
++    lp = Loop(tmp_path)
++    lp.round1()
++    lp.edit("doc-r2-rewrap.md")
++    code, out = lp.begin("--revert-unclaimed")
++    assert code == 0, out
++    assert out["unclaimed"] == [] and out["reverted_bytes"] == 0
++    assert by_id(lp.state())["R1"]["status"] == "open"
++    assert lp.doc.read_text() == (_FIX / "doc-r2-rewrap.md").read_text()
++    assert "Whitespace-only rewraps" in (lp.ledger / "plan-r2.md").read_text()
++
++
++def test_table_row_is_its_own_admission_unit(tmp_path):
++    lp = Loop(tmp_path)
++    lp.round1()
++    lp.edit(
++        text=lp.doc.read_text().replace(
++            "for 30 days.", "for 30 days, then purges them."
++        )
++    )
++    assert lp.begin()[0] == 0
++    rows = by_id(lp.state())
++    assert rows["R3"]["status"] == "fixed" and rows["R2"]["status"] == "open"
++
++
++def test_unclaimed_hunk_kept_without_flag_restored_with_it(tmp_path):
++    for flag, expect in (
++        ([], "doc-r2-outside.md"),
++        (["--revert-unclaimed"], "doc-r1.md"),
++    ):
++        sub = tmp_path / ("flag" if flag else "noflag")
++        sub.mkdir()
++        lp = Loop(sub)
++        lp.round1()
++        lp.edit("doc-r2-outside.md")
++        code, out = lp.begin(*flag)
++        assert code == 0, out
++        assert lp.doc.read_text() == (_FIX / expect).read_text()
++        assert (lp.ledger / "snapshots" / "r2.md").read_text() == lp.doc.read_text()
++        assert out["unclaimed"][0]["reverted"] is bool(flag)
++        assert out["unclaimed"][0]["bytes"] == len(
++            "The cache is refreshed every ten minutes."
++        )
++
++
++def test_failed_preimage_counts_in_x(tmp_path, monkeypatch, capsys):
++    lp = Loop(tmp_path)
++    lp.round1()
++    lp.edit("doc-r2-outside.md")
++    monkeypatch.chdir(tmp_path)
++    monkeypatch.setattr(rl, "reread_doc", lambda doc: "changed while begin ran\n")
++    code = rl.main(
++        [
++            "begin",
++            "--doc",
++            "spec.md",
++            "--op",
++            "b1",
++            "--expect-seq",
++            str(lp.seq()),
++            "--revert-unclaimed",
++        ]
++    )
++    out = json.loads(capsys.readouterr().out.strip().splitlines()[-1])
++    assert code == 0 and out["counts"]["X"] == 1
++    assert out["unclaimed"][0]["reverted"] is False
++    assert lp.doc.read_text() == (_FIX / "doc-r2-outside.md").read_text()
++    assert lp.status()["x_items"][0]["kind"] == "revert-preimage"
++
++
++def test_zero_hunk_round_writes_plan_and_counts_as_review(tmp_path):
++    lp = Loop(tmp_path)
++    lp.round1()
++    code, out = lp.begin()
++    assert code == 0 and out["hunks"] == 0
++    st = lp.state()
++    assert st["round"] == 2 and st["fix_cycles"] == 1
++    plan = (lp.ledger / "plan-r2.md").read_text()
++    assert "review: 2 of 3" in plan and "### R1:" in plan
++
++
++def test_half_open_ranges_and_deletion_tombstone(tmp_path):
++    assert rl.overlaps((3, 3), (3, 5)) and rl.overlaps((5, 5), (3, 5))
++    assert not rl.overlaps((6, 6), (3, 5)) and not rl.overlaps((5, 7), (3, 5))
++    assert rl.overlaps((4, 6), (3, 5))
++    lp = Loop(tmp_path)
++    lp.round1()
++    lp.edit("doc-r2-delete.md")
++    assert lp.begin()[0] == 0
++    hunks = diff_doc(lp)["hunks"]
++    deletion, last = hunks
++    assert deletion["old"] == [13, 15] and deletion["new"] == [13, 13]
++    assert last["old"] == [23, 24] and last["new"] == [21, 22]
++    assert "R5" in last["touches"] and last["claimed_by"] == []
++    r5 = by_id(lp.state())["R5"]
++    assert r5["mappings"][-1]["span"] == [21, 22]
++
++
++def test_anchor_relocation_missing_and_ambiguous(tmp_path):
++    wrapped = "# Spec\n\nThe archive keeps every invoice\nfor seven years after payment.\n\nOther text.\n"
++    lp = Loop(tmp_path)
++    lp.edit(text=wrapped)
++    lp.init()
++    lp.find(
++        [
++            {
++                "grade": "CRITICAL",
++                "anchor": "The archive keeps every invoice for seven years after payment.",
++                "finding": "retention basis missing",
++            }
++        ]
++    )
++    lp.close(lp.report())
++    lp.edit(text=wrapped.replace("for seven years", "for ten years"))
++    code, out = lp.begin()
++    assert code == 0 and out["counts"]["X"] == 1
++    assert by_id(lp.state())["R1"]["mappings"][-1] == {
++        "snapshot": "r2",
++        "span": None,
++        "method": "missing",
++    }
++
++    sub = tmp_path / "amb"
++    sub.mkdir()
++    lp = Loop(sub)
++    lp.round1()
++    quote = "When the store is down, the service returns 503 to the caller."
++    lp.edit(
++        text=lp.doc.read_text().replace(
++            quote + " Retries are left to the caller.", quote + " " + quote
++        )
++    )
++    code, out = lp.begin()
++    assert code == 0 and out["counts"]["X"] == 1
++    assert by_id(lp.state())["R1"]["mappings"][-1]["method"] == "ambiguous"
++
++
++def test_answer_refusals(tmp_path):
++    lp = Loop(tmp_path)
++    lp.round1()
++    lp.edit(
++        text=(_FIX / "doc-r2-fix.md")
++        .read_text()
++        .replace("every hour.", "every minute.", 1)
++    )
++    hunks = {h["n"]: h for h in lp.status()["provisional_hunks"]}
++    assert len(hunks) == 2  # hunk 1: the cache line (13), hunk 2: R1's paragraph (17)
++    code, out = lp.answer({"claims": [{"row": "R4", "action": "fixed", "hunks": [1]}]})
++    assert code == 2 and out["error"] == "E-ILLEGAL"
++    code, out = lp.answer(
++        {"claims": [{"row": "R1", "action": "fixed", "hunks": [1, 2]}]}
++    )
++    assert code == 2 and out["error"] == "E-CLAIM-WIDE"
++    code, out = lp.answer({"claims": [{"row": "R2", "action": "fixed", "hunks": [2]}]})
++    assert code == 2 and out["error"] == "E-FIXED-NO-EDIT"
++    code, out = lp.answer({"claims": [{"row": "R1", "action": "fixed", "hunks": [2]}]})
++    assert code == 0, out
++    code, out = lp.begin()
++    assert code == 0
++    claimed = [h for h in diff_doc(lp)["hunks"] if h["claimed_by"]]
++    assert claimed[0]["claimed_by"] == [{"row": "R1", "via": "answer"}]
++
++
++def test_answer_basic_fixture_and_disposition_block(tmp_path):
++    lp = Loop(tmp_path)
++    lp.round1()
++    lp.edit("doc-r2-fix.md")
++    data = json.loads((_FIX / "answer-basic.json").read_text())
++    disposition = lp.report(
++        "disposition.md",
++        "# Disposition\n\n```ledger-input\n" + json.dumps(data) + "\n```\n",
++    )
++    code, out = lp.answer(disposition)
++    assert code == 0 and out["claims"][0]["row"] == "R1" and out["gaps"]
++    assert lp.begin()[0] == 0
++    assert (
++        "the retry bound also needs a line in section 4"
++        in (lp.ledger / "plan-r2.md").read_text()
++    )
++
++
++def test_revert_unclaimed_in_revise_and_e_phase_in_verify(tmp_path):
++    lp = Loop(tmp_path)
++    lp.round1()
++    lp.edit("doc-r2-outside.md")
++    (hunk,) = lp.status()["provisional_hunks"]
++    code, out = lp.mut("revert-unclaimed", "--hunk", hunk["key"])
++    assert code == 0 and out["reverted"] == [1] and out["restored_bytes"] > 0
++    assert lp.doc.read_text() == (_FIX / "doc-r1.md").read_text()
++    assert lp.begin()[0] == 0
++    code, out = lp.mut("revert-unclaimed")
++    assert code == 3 and out["error"] == "E-PHASE"
++
++
++def test_revert_unclaimed_hunk_seen_in_status_is_preimage_checked(
++    tmp_path, monkeypatch, capsys
++):
++    lp = Loop(tmp_path)
++    lp.round1()
++    lp.edit("doc-r2-outside.md")
++    (seen,) = lp.status()["provisional_hunks"]
++    # the document changes after status: the hunk the caller saw is gone, nothing is reverted
++    lp.edit(text=(_FIX / "doc-r2-fix.md").read_text())
++    code, out = lp.mut("revert-unclaimed", "--hunk", seen["key"])
++    assert code == 0 and out["reverted"] == [] and out["failed"] == [seen["key"]]
++    assert lp.doc.read_text() == (_FIX / "doc-r2-fix.md").read_text()
++    # the document changes between the diff and the write: every revert fails its preimage
++    lp.edit("doc-r2-outside.md")
++    monkeypatch.chdir(tmp_path)
++    monkeypatch.setattr(rl, "reread_doc", lambda doc: "changed meanwhile\n")
++    code = rl.main(
++        [
++            "revert-unclaimed",
++            "--doc",
++            "spec.md",
++            "--op",
++            "r2",
++            "--expect-seq",
++            str(lp.seq()),
++        ]
++    )
++    out = json.loads(capsys.readouterr().out.strip().splitlines()[-1])
++    assert code == 0 and out["reverted"] == [] and out["failed"] == [1]
++    assert lp.doc.read_text() == (_FIX / "doc-r2-outside.md").read_text()
++
++
++def test_revert_unclaimed_refuses_e_phase_when_terminal(tmp_path):
++    lp = Loop(tmp_path)
++    lp.round1(rows="find-empty.json")
++    code, out = lp.mut("revert-unclaimed")
++    assert code == 3 and out["error"] == "E-PHASE"
++
++
++def test_e_terminal_after_review1_terminal_close(tmp_path):
++    lp = Loop(tmp_path)
++    lp.round1(rows="find-empty.json")
++    assert lp.state()["phase"] == "terminal"
++    code, out = lp.begin()
++    assert code == 3 and out["error"] == "E-TERMINAL"
++    code, out = lp.answer({"claims": []})
++    assert code == 3 and out["error"] == "E-TERMINAL"
++
++
++def test_hunks_large(tmp_path):
++    lp = Loop(tmp_path)
++    lp.round1()
++    lp.edit(text="\n".join(f"Rewritten line {i}." for i in range(30)) + "\n")
++    code, out = lp.begin()
++    assert code == 0 and out["hunks_large"] is True
++    assert "HUNKS_LARGE" in (lp.ledger / "plan-r2.md").read_text()
++
++
++def test_plan_names_open_blocking_rows_and_unclaimed_bytes(tmp_path):
++    lp = Loop(tmp_path)
++    lp.round1()
++    lp.edit(
++        text=(_FIX / "doc-r2-fix.md")
++        .read_text()
++        .replace("every ten", "every ten")
++        .replace(
++            "The cache is refreshed every hour.\n\n## 3",
++            "The cache is refreshed every ten minutes.\n\n## 3",
++        )
++    )
++    code, out = lp.begin()
++    assert code == 0
++    plan = (lp.ledger / "plan-r2.md").read_text()
++    for rid in ("R1", "R2", "R3"):
++        assert f"### {rid}:" in plan
++    assert "### R4:" not in plan and "### R5:" not in plan
++    (unc,) = out["unclaimed"]
++    assert f"- {unc['id']}: " in plan and f"bytes {unc['bytes']}" in plan
++
++
++def test_dry_run_find_and_answer_write_nothing(tmp_path):
++    lp = Loop(tmp_path)
++    lp.init()
++    rows = json.loads((_FIX / "find-basic.json").read_text())
++    rep = lp.report(
++        "r1.md", "# Review\n\n```ledger-input\n" + json.dumps(rows) + "\n```\n"
++    )
++    before = tree_digest(lp.ledger, lp.doc, rep)
++    code, out = run(
++        tmp_path, "find", "--doc", "spec.md", "--input", str(rep), "--dry-run"
++    )
++    assert code == 0 and out["dry_run"] is True and out["counts"]["rows"] == 5
++    assert tree_digest(lp.ledger, lp.doc, rep) == before
++    code, out = run(
++        tmp_path,
++        "find",
++        "--doc",
++        "spec.md",
++        "--input",
++        str(
++            lp.json_input(
++                "bad.json",
++                [{"grade": "MINOR", "anchor": "not in the doc", "finding": "x"}],
++            )
++        ),
++        "--dry-run",
++    )
++    assert code == 2 and out["error"] == "E-ANCHOR"
++    assert lp.find("find-basic.json")[0] == 0 and lp.close(rep)[0] == 0
++    lp.edit("doc-r2-fix.md")
++    disp = lp.report(
++        "disposition.md",
++        "```ledger-input\n" + (_FIX / "answer-basic.json").read_text() + "\n```\n",
++    )
++    before = tree_digest(lp.ledger, lp.doc, disp)
++    code, out = run(
++        tmp_path, "answer", "--doc", "spec.md", "--input", str(disp), "--dry-run"
++    )
++    assert code == 0 and out["dry_run"] is True and out["claims"][0]["row"] == "R1"
++    assert tree_digest(lp.ledger, lp.doc, disp) == before
++
++
++def test_repeat_revert_after_a_new_edit_is_not_a_replay(tmp_path):
++    lp = Loop(tmp_path)
++    lp.round1()
++    lp.edit("doc-r2-outside.md")
++    code, out = lp.mut("revert-unclaimed")
++    assert code == 0 and out["reverted"] == [1]
++    lp.edit("doc-r2-outside.md")  # the reviser makes the same edit again
++    seq = lp.seq()
++    code, out = lp.mut("revert-unclaimed")
++    assert code == 0 and out.get("replayed") is not True and out["seq"] == seq + 1
++    assert lp.doc.read_text() == (_FIX / "doc-r1.md").read_text()
++
++
++def test_repeat_answer_after_a_new_edit_is_not_a_replay(tmp_path):
++    lp = Loop(tmp_path)
++    lp.round1()
++    claim = {"claims": [{"row": "R1", "action": "fixed", "hunks": [1]}]}
++    lp.edit("doc-r2-fix.md")
++    assert lp.answer(claim)[0] == 0
++    lp.edit(
++        text=(_FIX / "doc-r2-fix.md")
++        .read_text()
++        .replace("at most twice", "at most three times")
++    )
++    seq = lp.seq()
++    code, out = lp.answer(claim)
++    assert code == 0 and out.get("replayed") is not True and out["seq"] == seq + 1
++
++
++def test_revert_retry_after_commit_is_stale_not_a_false_replay(tmp_path):
++    lp = Loop(tmp_path)
++    lp.round1()
++    lp.edit("doc-r2-outside.md")
++    seq = lp.seq()
++    assert lp.mut("revert-unclaimed", op="a", seq=seq)[0] == 0
++    # the committed revert changed the document, so the same request is a new one: stale seq
++    code, out = lp.mut("revert-unclaimed", op="b", seq=seq)
++    assert code == 4 and out["error"] == "E-STALE-SEQ"
++
++
++def test_identical_answer_retry_is_replayed_while_document_unchanged(tmp_path):
++    lp = Loop(tmp_path)
++    lp.round1()
++    lp.edit("doc-r2-fix.md")
++    claim = {"claims": [{"row": "R1", "action": "fixed", "hunks": [1]}]}
++    seq = lp.seq()
++    c1, o1 = lp.answer(claim, op="a", seq=seq)
++    c2, o2 = lp.answer(claim, op="b", seq=seq)
++    assert c1 == c2 == 0 and o2.get("replayed") is True and o2["seq"] == o1["seq"]

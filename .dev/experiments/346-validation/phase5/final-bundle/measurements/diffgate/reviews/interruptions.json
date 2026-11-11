@@ -1,0 +1,60 @@
+{
+  "R1-review": {
+    "observed_error_to_next_response": [],
+    "minutes": 0,
+    "work_minutes_after_subtraction": 7.4959999999999996,
+    "note": "Wall-time residual, not CPU or exclusive model work; failed-request waiting before first terminal error is not recoverable."
+  },
+  "R1-revise": {
+    "observed_error_to_next_response": [],
+    "minutes": 0,
+    "work_minutes_after_subtraction": 5.1834999999999996,
+    "note": "Wall-time residual, not CPU or exclusive model work; failed-request waiting before first terminal error is not recoverable."
+  },
+  "R2-review": {
+    "observed_error_to_next_response": [],
+    "minutes": 0,
+    "work_minutes_after_subtraction": 7.951966666666666,
+    "note": "Wall-time residual, not CPU or exclusive model work; failed-request waiting before first terminal error is not recoverable."
+  },
+  "R2-revise": {
+    "observed_error_to_next_response": [],
+    "minutes": 0,
+    "work_minutes_after_subtraction": 5.397983333333333,
+    "note": "Wall-time residual, not CPU or exclusive model work; failed-request waiting before first terminal error is not recoverable."
+  },
+  "R3-review": {
+    "observed_error_to_next_response": [],
+    "minutes": 0,
+    "work_minutes_after_subtraction": 6.8650166666666665,
+    "note": "Wall-time residual, not CPU or exclusive model work; failed-request waiting before first terminal error is not recoverable."
+  },
+  "retired-audit": {
+    "observed_error_to_next_response": [
+      {
+        "start_line": 145,
+        "start": "2026-11-09T00:35:08.339Z",
+        "end_line": 189,
+        "end": "2026-11-09T01:18:23.211Z",
+        "minutes": 43.24786666666667
+      }
+    ],
+    "minutes": 43.24786666666667,
+    "work_minutes_after_subtraction": 21.464083333333335,
+    "note": "Wall-time residual, not CPU or exclusive model work; failed-request waiting before first terminal error is not recoverable."
+  },
+  "frozen-audit": {
+    "observed_error_to_next_response": [
+      {
+        "start_line": 51,
+        "start": "2026-11-09T01:34:44.565Z",
+        "end_line": 77,
+        "end": "2026-11-09T01:35:27.813Z",
+        "minutes": 0.7208
+      }
+    ],
+    "minutes": 0.7208,
+    "work_minutes_after_subtraction": 21.846333333333334,
+    "note": "Wall-time residual, not CPU or exclusive model work; failed-request waiting before first terminal error is not recoverable."
+  }
+}

@@ -1,0 +1,13 @@
+You are building the spec-to-tasklist coverage matrix for a pre-execution review (sc:reflect UC-1, Wave 1B, Step 1B.0). Read-only except the one output file below. Assume the plan has mistakes and look for them.
+
+Inputs (read both in full):
+- Spec: /home/coder/workspaces/IronClaude/.dev/worktrees/review-severity-rule/.dev/tasks/to-do/TASK-WF-removeTheAnyIssu-20261102-042031/source.md
+- Tasklist: /home/coder/workspaces/IronClaude/.dev/worktrees/review-severity-rule/.dev/tasks/to-do/TASK-WF-removeTheAnyIssu-20261102-042031/TASK-WF-removeTheAnyIssu-20261102-042031.md
+- Supporting site lists the tasks rely on: .dev/review-severity-rule/inventory.md and .dev/review-severity-rule/cap-sites.md (paths relative to /home/coder/workspaces/IronClaude/.dev/worktrees/review-severity-rule). Context: this plan regenerates an earlier one whose review found 11 blocking findings listed in .dev/reflect/pre-removeTheAnyIssu-20261101225845/adversarial/merged-verdict.md; check that each B-01..B-11 fix actually landed in a task.
+
+Algorithm:
+- Pass 1: parsed ids match \b(R-\d+|REQ-\d+|SPEC-\d+|T-\d+)\b in the spec; each owns its list item. Match a parsed id to every task whose text contains that literal token. match_method exact or none.
+- Pass 2: requirement-shaped content outside the parsed list items (constraints paragraph, sources sentence) becomes INF-001.. with a verbatim quote (max 2 sentences) and spec file:line; match by content-word containment (>= 0.6 of content words inside one task item). Note whether the plan Constraints carry it.
+- Substance: for each R-id and each B-01..B-11, does a task actually deliver it, and would that task's acceptance criteria catch a failure? Check that every acceptance command can pass (for example grep patterns that would also match text the task is told to keep, tests that read .claude mirrors, ordering where a later task's edit breaks an earlier task's check). Cite tasklist line numbers and repo file:line.
+
+Write the result to /home/coder/workspaces/IronClaude/.dev/worktrees/review-severity-rule/.dev/reflect/pre-removeTheAnyIssu-20261102042426/artifacts/coverage-matrix.yaml with: parsed_count, inferred_count, rows (requirement_id, source, quote for INF rows, citation, matched_task_ids, match_method, substance_gaps), b_findings_check (B-01..B-11: task id, landed yes/no, note), coverage_pct, coverage_pct_union, unmapped_requirements, unmapped_requirements_union. Create the file with a header first, then fill it. Return an 8-line summary with every substance gap and its citation. Do not edit any other file.

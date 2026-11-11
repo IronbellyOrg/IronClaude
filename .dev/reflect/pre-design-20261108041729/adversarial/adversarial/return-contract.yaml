@@ -1,0 +1,14 @@
+return_contract:
+  merged_output_path: ".dev/reflect/pre-design-20261108041729/adversarial/merged-reviewer-verdict.md"
+  convergence_score: 1.0
+  artifacts_dir: ".dev/reflect/pre-design-20261108041729/adversarial/adversarial"
+  status: "success"
+  base_variant: "opus:refactorer"
+  unresolved_conflicts: 0
+  fallback_mode: false
+  failure_stage: null
+  invocation_method: "skill-direct"
+  unaddressed_invariants: []   # Round 2.5 invariant probe skipped at --depth quick
+  notes:
+    - "position-bias dual pass degraded to a single orchestrator pass (base-selection.md)"
+    - "Round 2 and Round 3 skipped at depth quick"

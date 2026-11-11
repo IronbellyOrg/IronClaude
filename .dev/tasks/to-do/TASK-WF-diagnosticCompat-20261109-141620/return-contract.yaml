@@ -1,0 +1,18 @@
+{
+  "contract_version": "1.1",
+  "status": "success",
+  "slug": "TASK-WF-diagnosticCompat-20261109-141620",
+  "plan_path": "./TASK-WF-diagnosticCompat-20261109-141620.md",
+  "source_path": "./source.md",
+  "source_origin": ".dev/issues/441/diagnostic-compat-request.md",
+  "strategy": "systematic",
+  "depth": "quick",
+  "handoff_action": "none",
+  "handoff_output_path": null,
+  "reflect_status": "partial",
+  "reflect_report_path": "/home/coder/workspaces/worktrees/IronClaude/issue-441/.dev/tasks/to-do/TASK-WF-diagnosticCompat-20261109-141620/artifacts/reflect-pre/REPORT.md",
+  "unresolved": [
+    "Advisory check reports broad-copy risk and incomplete item coverage; do not execute this plan as written. Preserve it; create new narrowed plan from diagnostic-refresh-checked-request.md.",
+    "Only explicit Tier1b helpers allowed; model diversity degraded, no Opus fallback."
+  ]
+}

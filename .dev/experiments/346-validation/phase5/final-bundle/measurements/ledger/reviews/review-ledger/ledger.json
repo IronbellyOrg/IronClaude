@@ -1,0 +1,3623 @@
+{
+  "schema": 1,
+  "profile": "spec-panel",
+  "doc": "../orca-worker-contract-spec.md",
+  "cap_reviews": 3,
+  "round": 3,
+  "fix_cycles": 2,
+  "phase": "swept",
+  "seq": 13,
+  "snapshots": {
+    "r1": {
+      "sha256": "d3cdbe573e57303b9ce6c93d1fe98ba18fb7cb1a15773d926bf6a0c31425200d",
+      "bytes": 57763
+    },
+    "r2": {
+      "sha256": "347e32c26f7dc0249df835d8c2557045b60ed7a19c1f3e2a290fd0321234d9bd",
+      "bytes": 66484
+    },
+    "r3": {
+      "sha256": "030b7a941cd3498bf3c568232ae039ba2e267bd99c86417708f47add4d6a4e0c",
+      "bytes": 70565
+    }
+  },
+  "decisions": [
+    {
+      "kind": "review",
+      "round": 1,
+      "loop_decision": "CONTINUE",
+      "U": 13,
+      "X": 0,
+      "I": true,
+      "report": "../../review/spec-panel.md",
+      "tail": "\n<!-- review-ledger tail: written by review_ledger.py close; do not edit -->\n## Review ledger\n\nreview: 1 of 3\n\n| id | grade | rule | blocking | status | scope | anchor |\n|---|---|---|---|---|---|---|\n| R1 | MAJOR | WC-4 | yes | open | in | Write the contract for pre-creation STOPs too |\n| R2 | MAJOR | FR-8 | yes | open | in | Commands that already write a contract keep their fields and add the missing ones. |\n| R3 | MAJOR | FR-8 | yes | open | in | `REPORT.md` (`report_path`) |\n| R4 | MAJOR | WC-4 | yes | open | in | where `<output-dir>` is the directory the coordinator passed (`--output` / `--output-dir`) |\n| R5 | MAJOR | WC-4 | yes | open | in | Fix the contract filename to `<output>/adversarial/return-contract.yaml` |\n| R6 | MAJOR | AC-0.4 | yes | open | in | step 4 uses the command's existing report file, since the contract arrives in P1 |\n| R7 | MAJOR | WC-6 | yes | open | in | writes each run into a fresh output directory so a re-run starts clean |\n| R8 | MAJOR | WC-3 | yes | open | in | then re-invoke or resume the command with the answer as a flag |\n| R9 | MAJOR | WC-9 | yes | open | in | (a no-op where a command has no gate) |\n| R10 | MAJOR | WC-7 | yes | open | in | it never wraps the command in an Agent-tool subagent |\n| R11 | MAJOR | FR-8 | yes | open | in | A command step that blocks a single tool call for longer than 5 minutes (a poll wait, a long eval) |\n| R12 | MAJOR | WC-11 | yes | open | in | only files under the brief's output directory (and the command's documented artifacts) appear |\n| R13 | MAJOR | SA-4 | yes | open | in | src/superclaude/commands/<name>.md |\n| R14 | MINOR |  | no | deferred | in | The first sentence of the body states the report's status and verdict. |\n| R15 | MINOR |  | no | deferred | in | Launch setup, not commands |\n| R16 | MINOR |  | no | deferred | in | Repo root: /home/coder/workspaces/worktrees/IronClaude/OrcaCLICommandRefactor-Specs. |\n| R17 | MINOR |  | no | deferred | in | prints nothing (SA-2, WC-8) |\n\n### Reviser brief\n\nBlocking rows to fix: R1, R2, R3, R4, R5, R6, R7, R8, R9, R10, R11, R12, R13\nRevise only text a listed blocking row names; minor (deferred) rows are not answerable; add no rule, mechanism or section no blocking row calls for; each added paragraph or table cites its row id; report the byte size before and after.\n\nloop_decision: CONTINUE (U=13, X=0, I=true)\nverdict: FAIL\n",
+      "tail_sha256": "667a966614014ecab9643ac3e1633be129a2ec1498a8abf6ebf6db98cd60c646",
+      "seq": 3
+    },
+    {
+      "kind": "review",
+      "round": 2,
+      "loop_decision": "CONTINUE",
+      "U": 7,
+      "X": 0,
+      "I": true,
+      "report": "../../review/spec-panel-round2.md",
+      "tail": "\n<!-- review-ledger tail: written by review_ledger.py close; do not edit -->\n## Review ledger\n\nreview: 2 of 3\n\n| id | grade | rule | blocking | status | scope | anchor |\n|---|---|---|---|---|---|---|\n| R1 | MAJOR | WC-4 | yes | verified | in | Write the contract for pre-creation STOPs too |\n| R2 | MAJOR | FR-8 | yes | verified | in | Commands that already write a contract keep their fields and add the missing ones. |\n| R3 | MAJOR | FR-8 | yes | verified | in | `REPORT.md` (`report_path`) |\n| R4 | MAJOR | WC-4 | yes | verified | in | where `<output-dir>` is the directory the coordinator passed (`--output` / `--output-dir`) |\n| R5 | MAJOR | WC-4 | yes | verified | in | Fix the contract filename to `<output>/adversarial/return-contract.yaml` |\n| R6 | MAJOR | AC-0.4 | yes | verified | in | step 4 uses the command's existing report file, since the contract arrives in P1 |\n| R7 | MAJOR | WC-6 | yes | verified | in | writes each run into a fresh output directory so a re-run starts clean |\n| R8 | MAJOR | WC-3 | yes | verified | in | then re-invoke or resume the command with the answer as a flag |\n| R9 | MAJOR | WC-9 | yes | verified | in | (a no-op where a command has no gate) |\n| R10 | MAJOR | WC-7 | yes | verified | in | it never wraps the command in an Agent-tool subagent |\n| R11 | MAJOR | FR-8 | yes | verified | in | A command step that blocks a single tool call for longer than 5 minutes (a poll wait, a long eval) |\n| R12 | MAJOR | WC-11 | yes | verified | in | only files under the brief's output directory (and the command's documented artifacts) appear |\n| R13 | MAJOR | SA-4 | yes | verified | in | src/superclaude/commands/<name>.md |\n| R14 | MINOR |  | no | deferred | in | The first sentence of the body states the report's status and verdict. |\n| R15 | MINOR |  | no | deferred | in | Launch setup, not commands |\n| R16 | MINOR |  | no | deferred | in | Repo root: /home/coder/workspaces/worktrees/IronClaude/OrcaCLICommandRefactor-Specs. |\n| R17 | MINOR |  | no | deferred | in | prints nothing (SA-2, WC-8) |\n| R18 | MAJOR | WC-4 | yes | open | in | A command with no output flag uses the report flag its section 3 row names |\n| R19 | MAJOR | FR-8 | yes | open | in | `/sc:task` gives TFEP an `<output-dir>` other than the task worker's own WC-4 directory |\n| R20 | MINOR |  | no | deferred | outside | ### 3.1 Ready today (10) |\n| R21 | MAJOR | WC-3 | yes | open | in | which is the route for `/sc:recommend`'s one clarifying question and `/sc:tdd`'s topic clarification |\n| R22 | MAJOR | WC-9 | yes | open | in | so no prompt and no outward default can run early |\n| R23 | MAJOR | FR-8 | yes | open | in | (one 300 s call is therefore not allowed) |\n| R24 | MAJOR | WC-10 | yes | open | in | the coordinator does not treat a heartbeat gap during a worker's subagent fan-out as a hang by itself |\n| R25 | MAJOR | AC-0.4 | yes | open | in | a path in this worker's WC-4 report (`report_path`, `artifacts`) |\n| R26 | MINOR |  | no | deferred | in | while `--numstat` printed `1 1` |\n| R27 | MAJOR | WC-7a | no | deferred | outside | search the transcript for `AskUserQuestion` |\n| R28 | MAJOR | 7.2 | no | deferred | outside | `observation.agentWait` is never non-null |\n| R29 | MINOR |  | no | deferred | outside | `git diff -U0 master...HEAD -- src/superclaude/core/HOW-WE-WORK.md |\n| R30 | MINOR |  | no | deferred | outside | workflow states the contract is written for pre-creation STOPs |\n| R31 | MINOR |  | no | deferred | outside | naming `return-contract.yaml` and `~/.claude/WORKER-CONTRACT.md` |\n| R32 | MINOR |  | no | deferred | in | (today adversarial, brainstorm, reflect, workflow, and troubleshoot when `--caller task-unified`) |\n| R33 | MINOR |  | no | deferred | outside | \"Contract\" means the WC-4 file `<output-dir>/return-contract.yaml`. |\n\n### Reviser brief\n\nBlocking rows to fix: R18, R19, R21, R22, R23, R24, R25\nRevise only text a listed blocking row names; minor (deferred) rows are not answerable; add no rule, mechanism or section no blocking row calls for; each added paragraph or table cites its row id; report the byte size before and after.\n\nloop_decision: CONTINUE (U=7, X=0, I=true)\nverdict: FAIL\n",
+      "tail_sha256": "a35e223d6858a644178b599eab37c87f57a99912d94a094c4928b1d948ed31fa",
+      "seq": 7
+    },
+    {
+      "kind": "review",
+      "round": 3,
+      "loop_decision": "ESCALATE",
+      "U": 3,
+      "X": 0,
+      "I": true,
+      "report": "../../review/spec-panel-round3.md",
+      "tail": "\n<!-- review-ledger tail: written by review_ledger.py close; do not edit -->\n## Review ledger\n\nreview: 3 of 3\n\n| id | grade | rule | blocking | status | scope | anchor |\n|---|---|---|---|---|---|---|\n| R1 | MAJOR | WC-4 | yes | verified | in | Write the contract for pre-creation STOPs too |\n| R2 | MAJOR | FR-8 | yes | verified | in | Commands that already write a contract keep their fields and add the missing ones. |\n| R3 | MAJOR | FR-8 | yes | verified | in | `REPORT.md` (`report_path`) |\n| R4 | MAJOR | WC-4 | yes | verified | in | where `<output-dir>` is the directory the coordinator passed (`--output` / `--output-dir`) |\n| R5 | MAJOR | WC-4 | yes | verified | in | Fix the contract filename to `<output>/adversarial/return-contract.yaml` |\n| R6 | MAJOR | AC-0.4 | yes | verified | in | step 4 uses the command's existing report file, since the contract arrives in P1 |\n| R7 | MAJOR | WC-6 | yes | verified | in | writes each run into a fresh output directory so a re-run starts clean |\n| R8 | MAJOR | WC-3 | yes | verified | in | then re-invoke or resume the command with the answer as a flag |\n| R9 | MAJOR | WC-9 | yes | verified | in | (a no-op where a command has no gate) |\n| R10 | MAJOR | WC-7 | yes | verified | in | it never wraps the command in an Agent-tool subagent |\n| R11 | MAJOR | FR-8 | yes | verified | in | A command step that blocks a single tool call for longer than 5 minutes (a poll wait, a long eval) |\n| R12 | MAJOR | WC-11 | yes | verified | in | only files under the brief's output directory (and the command's documented artifacts) appear |\n| R13 | MAJOR | SA-4 | yes | verified | in | src/superclaude/commands/<name>.md |\n| R14 | MINOR |  | no | deferred | in | The first sentence of the body states the report's status and verdict. |\n| R15 | MINOR |  | no | deferred | in | Launch setup, not commands |\n| R16 | MINOR |  | no | deferred | in | Repo root: /home/coder/workspaces/worktrees/IronClaude/OrcaCLICommandRefactor-Specs. |\n| R17 | MINOR |  | no | deferred | in | prints nothing (SA-2, WC-8) |\n| R18 | MAJOR | WC-4 | yes | verified | in | A command with no output flag uses the report flag its section 3 row names |\n| R19 | MAJOR | FR-8 | yes | verified | in | `/sc:task` gives TFEP an `<output-dir>` other than the task worker's own WC-4 directory |\n| R20 | MINOR |  | no | deferred | outside | ### 3.1 Ready today (10) |\n| R21 | MAJOR | WC-3 | yes | verified | in | which is the route for `/sc:recommend`'s one clarifying question and `/sc:tdd`'s topic clarification |\n| R22 | MAJOR | WC-9 | yes | verified | in | so no prompt and no outward default can run early |\n| R23 | MAJOR | FR-8 | yes | verified | in | (one 300 s call is therefore not allowed) |\n| R24 | MAJOR | WC-10 | yes | verified | in | the coordinator does not treat a heartbeat gap during a worker's subagent fan-out as a hang by itself |\n| R25 | MAJOR | AC-0.4 | yes | open | in | a path in this worker's WC-4 report (`report_path`, `artifacts`) |\n| R26 | MINOR |  | no | deferred | in | while `--numstat` printed `1 1` |\n| R27 | MAJOR | WC-7a | no | deferred | outside | search the transcript for `AskUserQuestion` |\n| R28 | MAJOR | 7.2 | no | deferred | outside | `observation.agentWait` is never non-null |\n| R29 | MINOR |  | no | deferred | outside | `git diff -U0 master...HEAD -- src/superclaude/core/HOW-WE-WORK.md |\n| R30 | MINOR |  | no | deferred | outside | workflow states the contract is written for pre-creation STOPs |\n| R31 | MINOR |  | no | deferred | outside | naming `return-contract.yaml` and `~/.claude/WORKER-CONTRACT.md` |\n| R32 | MINOR |  | no | deferred | in | (today adversarial, brainstorm, reflect, workflow, and troubleshoot when `--caller task-unified`) |\n| R33 | MINOR |  | no | deferred | outside | \"Contract\" means the WC-4 file `<output-dir>/return-contract.yaml`. |\n| R34 | MAJOR | FR-8 | yes | open | in | a path under the run-specific output directory that holds the existing report step 3 accepted |\n| R35 | MAJOR | AC-1.2 | no | deferred | outside | 7.2 live check on each P1 command with `--unattended --output <dir>` |\n| R36 | MAJOR | FR-8 | yes | open | in | Every other command runs normally under the flag. |\n\nloop_decision: ESCALATE (U=3, X=0, I=true)\nloop: ESCALATE (sweep pending)\n",
+      "tail_sha256": "b0b604c98279741ab121d808b61e12660a4bd3d4e47b8f1c872e6f7b76bd79d2",
+      "seq": 11
+    },
+    {
+      "kind": "sweep",
+      "delivery_outcome": "ESCALATE",
+      "S": 9,
+      "tails_intact": true,
+      "report": "../../review/spec-panel-sweep.md",
+      "tail": "\n<!-- review-ledger tail: written by review_ledger.py sweep; do not edit -->\n## Review ledger sweep\n\nsweep\n\n| id | grade | rule | would block | challenges | location | anchor |\n|---|---|---|---|---|---|---|\n| R37 | MAJOR | FR-8 | yes |  | outside_hunks | or no report exists; `--outcome succeeded` otherwise, including `partial` |\n| R38 | MAJOR | FR-8 | yes |  | in_claimed_span | No single tool call a command makes may block the session for longer than 240 s |\n| R39 | MAJOR | FR-8 | yes |  | outside_hunks | For each Task the coordinator's brief states: |\n| R40 | MAJOR | FR-8 | yes |  | in_claimed_span | A command either resumes from its on-disk state when given its resume flag |\n| R41 | MAJOR |  | yes |  | outside_hunks | Gate-trigger run per P2 command |\n| R42 | MAJOR |  | yes |  | outside_hunks | 7.2 live check on each P1 command with `--unattended --output <dir>` |\n| R43 | MAJOR |  | yes |  | outside_hunks | none: use it as a step inside another worker's brief, not as its own Task |\n| R44 | MAJOR |  | yes |  | outside_hunks | Stage 10.5 passes `--unattended` to each reflect so the headless rule applies |\n| R45 | MINOR |  | no |  | outside_hunks | git diff -U0 master...HEAD -- src/superclaude/core/HOW-WE-WORK.md |\n| R46 | MINOR |  | no |  | in_claimed_span | the repo itself treats it as unproven until a recorded smoke check shows it |\n| R47 | MINOR |  | no |  | outside_hunks | need the user's authorization in this repo |\n| R48 | MAJOR |  | yes |  | outside_hunks | has a `## Unattended mode` section naming `return-contract.yaml` and `~/.claude/WORKER-CONTRACT.md` |\n\ndelivery_outcome: ESCALATE (loop=ESCALATE, S=9, tails_intact=true)\nverdict: FAIL\n",
+      "tail_sha256": "48715baac55374c3a3085a58d14ea761cdf2dd5c01fab98bb3ca56c6c232916e",
+      "seq": 13,
+      "copy_sha256": "030b7a941cd3498bf3c568232ae039ba2e267bd99c86417708f47add4d6a4e0c"
+    }
+  ],
+  "ops": [
+    {
+      "op": "led-r1-init",
+      "cmd": "init",
+      "digest": "",
+      "seq": 1,
+      "phase_before": null,
+      "round": 1,
+      "phase_after": "find",
+      "round_after": 1,
+      "result": {
+        "ok": true,
+        "seq": 1,
+        "phase": "find",
+        "review": 1,
+        "fix_cycles": 0,
+        "counts": {
+          "rows": 0,
+          "blocking": 0,
+          "U": 0,
+          "X": 0,
+          "open": 0,
+          "fixed": 0,
+          "verified": 0,
+          "reopened": 0,
+          "deferred": 0
+        },
+        "loop_decision": null,
+        "delivery_outcome": null,
+        "next_action": "run the panel, then find --input <report or json>",
+        "review_header": "review: 1 of 3",
+        "ledger": ".dev/orca-command-refactor/specs/orca-worker-contract-spec.review-ledger",
+        "archived": null
+      }
+    },
+    {
+      "op": "led-r1-r1-find",
+      "cmd": "find",
+      "digest": "c0302f2336906cd710efd16afd14fabb8366b6b2506e94c6c1a0f662ba4e845e",
+      "seq": 2,
+      "phase_before": "find",
+      "round": 1,
+      "phase_after": "find",
+      "round_after": 1,
+      "result": {
+        "ok": true,
+        "seq": 2,
+        "phase": "find",
+        "review": 1,
+        "fix_cycles": 0,
+        "counts": {
+          "rows": 17,
+          "blocking": 13,
+          "U": 13,
+          "X": 0,
+          "open": 13,
+          "fixed": 0,
+          "verified": 0,
+          "reopened": 0,
+          "deferred": 4
+        },
+        "loop_decision": null,
+        "delivery_outcome": null,
+        "next_action": "close --report <review report>"
+      }
+    },
+    {
+      "op": "led-r1-r1-close",
+      "cmd": "close",
+      "digest": "2866e39cafc979364acd0e5bbc2552aeb6ce8e0364b2d77609f7e2307ebe4dd6",
+      "seq": 3,
+      "phase_before": "find",
+      "round": 1,
+      "phase_after": "revise",
+      "round_after": 1,
+      "result": {
+        "ok": true,
+        "seq": 3,
+        "phase": "revise",
+        "review": 1,
+        "fix_cycles": 0,
+        "counts": {
+          "rows": 17,
+          "blocking": 13,
+          "U": 13,
+          "X": 0,
+          "open": 13,
+          "fixed": 0,
+          "verified": 0,
+          "reopened": 0,
+          "deferred": 4
+        },
+        "loop_decision": "CONTINUE",
+        "delivery_outcome": null,
+        "next_action": "reviser edits the document; then begin --doc <document> for the next review",
+        "decision": {
+          "loop_decision": "CONTINUE",
+          "U": 13,
+          "X": 0,
+          "I": true
+        },
+        "last_line": "verdict: FAIL"
+      }
+    },
+    {
+      "op": "led-r1-c1-answer",
+      "cmd": "answer",
+      "digest": "0de4b8cb9545001f72052c3e9919ac85d87c31a61171afe997e1dc353ed12299",
+      "seq": 4,
+      "phase_before": "revise",
+      "round": 1,
+      "phase_after": "revise",
+      "round_after": 1,
+      "claims": [
+        {
+          "row": "R1",
+          "action": "fixed",
+          "keys": [
+            "91:92:79f6ba3a34eb2634"
+          ],
+          "reason": "workflow row: --report-dir; WC-4 report <report-dir>/worker-contract.yaml on every outcome incl. pre-creation STOP"
+        },
+        {
+          "row": "R2",
+          "action": "fixed",
+          "keys": [
+            "62:62:5fcf0e7f1983e079"
+          ],
+          "reason": "WC-4a: existing return-contract.yaml kept as is; WC-4 report is a separate worker-contract.yaml"
+        },
+        {
+          "row": "R3",
+          "action": "fixed",
+          "keys": [
+            "90:90:aadc53ed27559a0f"
+          ],
+          "reason": "TFEP row: TFEP file unchanged; troubleshoot WC-4 report is <output-dir>/worker-contract.yaml"
+        },
+        {
+          "row": "R4",
+          "action": "fixed",
+          "keys": [
+            "62:62:5fcf0e7f1983e079"
+          ],
+          "reason": "WC-4a: file-valued --output gives <file>.return-contract.yaml"
+        },
+        {
+          "row": "R5",
+          "action": "fixed",
+          "keys": [
+            "82:83:42b9c87fbc249e87"
+          ],
+          "reason": "adversarial row: existing contract fixed path; WC-4 report <output>/worker-contract.yaml, the path 7.2 step 3 checks"
+        },
+        {
+          "row": "R6",
+          "action": "fixed",
+          "keys": [
+            "193:194:de392b184cc7fbf6"
+          ],
+          "reason": "AC-0.4: P0 uses the existing report wherever 7.2 names the WC-4 report; step 3 restated; step 4 not run"
+        },
+        {
+          "row": "R7",
+          "action": "fixed",
+          "keys": [
+            "63:64:f646a6f8576d35bd"
+          ],
+          "reason": "WC-6: same-path re-run with stale-report guard; fresh dir redefined"
+        },
+        {
+          "row": "R8",
+          "action": "fixed",
+          "keys": [
+            "60:61:eba9793961af7b28"
+          ],
+          "reason": "WC-3: flag or folded-into-input answer route; person-only gates end blocked; report path unchanged"
+        },
+        {
+          "row": "R9",
+          "action": "fixed",
+          "keys": [
+            "158:159:b9961e7c01fcfe38"
+          ],
+          "reason": "P1: gated commands write a blocked report until their phase"
+        },
+        {
+          "row": "R10",
+          "action": "fixed",
+          "keys": [
+            "65:65:233da5909b847cfe"
+          ],
+          "reason": "WC-7a: Skill tool call required; checked in AC-0.4"
+        },
+        {
+          "row": "R11",
+          "action": "fixed",
+          "keys": [
+            "67:68:cfc66445b52c5f0b"
+          ],
+          "reason": "WC-10: no call of 4 min or more; subagent heartbeat UNVERIFIED and recorded; coordinator liveness rule"
+        },
+        {
+          "row": "R12",
+          "action": "fixed",
+          "keys": [
+            "184:185:7682544963747296"
+          ],
+          "reason": "7.2 step 6: before/after comparison; staging workers never share a worktree"
+        },
+        {
+          "row": "R13",
+          "action": "fixed",
+          "keys": [
+            "175:176:1960735be1db37c3"
+          ],
+          "reason": "AC-C5: git diff --numstat deleted count 0, also for AC-0.3"
+        }
+      ],
+      "gaps": [
+        {
+          "text": "R2/R4: section 3 lead-in (spec:78) still glosses Contract as <output-dir>/return-contract.yaml; WC-4a overrides it."
+        },
+        {
+          "text": "R2: Decisions row 'Report shape' (spec:264) still says reuse return-contract.yaml; WC-4a adds worker-contract.yaml for commands with an existing contract."
+        },
+        {
+          "text": "R13: AC-0.3 (spec:196) still shows grep -E '^-[^-]'; AC-C5 says AC-0.3 uses the --numstat test instead."
+        },
+        {
+          "text": "R10: 7.2 step 5 (spec:187) checks only AskUserQuestion; the Skill-call check is in WC-7a and AC-0.4."
+        },
+        {
+          "text": "R11: no heartbeat-gap check outside AC-0.4 and AC-4.3; WC-10 gives a coordinator liveness rule meanwhile."
+        },
+        {
+          "text": "R12: WC-11 (spec:71) still covers output files only; the git-staging rule is in 7.2 step 6."
+        },
+        {
+          "text": "R1: AC-1.4 (spec:201) wording about the workflow contract on pre-creation STOPs now means the WC-4 worker-contract.yaml in --report-dir."
+        }
+      ],
+      "doc_after": "347e32c26f7dc0249df835d8c2557045b60ed7a19c1f3e2a290fd0321234d9bd",
+      "result": {
+        "ok": true,
+        "seq": 4,
+        "phase": "revise",
+        "review": 1,
+        "fix_cycles": 0,
+        "counts": {
+          "rows": 17,
+          "blocking": 13,
+          "U": 13,
+          "X": 0,
+          "open": 13,
+          "fixed": 0,
+          "verified": 0,
+          "reopened": 0,
+          "deferred": 4
+        },
+        "loop_decision": "CONTINUE",
+        "delivery_outcome": null,
+        "next_action": "reviser edits the document; then begin --doc <document> for the next review",
+        "claims": [
+          {
+            "row": "R1",
+            "action": "fixed",
+            "keys": [
+              "91:92:79f6ba3a34eb2634"
+            ],
+            "reason": "workflow row: --report-dir; WC-4 report <report-dir>/worker-contract.yaml on every outcome incl. pre-creation STOP"
+          },
+          {
+            "row": "R2",
+            "action": "fixed",
+            "keys": [
+              "62:62:5fcf0e7f1983e079"
+            ],
+            "reason": "WC-4a: existing return-contract.yaml kept as is; WC-4 report is a separate worker-contract.yaml"
+          },
+          {
+            "row": "R3",
+            "action": "fixed",
+            "keys": [
+              "90:90:aadc53ed27559a0f"
+            ],
+            "reason": "TFEP row: TFEP file unchanged; troubleshoot WC-4 report is <output-dir>/worker-contract.yaml"
+          },
+          {
+            "row": "R4",
+            "action": "fixed",
+            "keys": [
+              "62:62:5fcf0e7f1983e079"
+            ],
+            "reason": "WC-4a: file-valued --output gives <file>.return-contract.yaml"
+          },
+          {
+            "row": "R5",
+            "action": "fixed",
+            "keys": [
+              "82:83:42b9c87fbc249e87"
+            ],
+            "reason": "adversarial row: existing contract fixed path; WC-4 report <output>/worker-contract.yaml, the path 7.2 step 3 checks"
+          },
+          {
+            "row": "R6",
+            "action": "fixed",
+            "keys": [
+              "193:194:de392b184cc7fbf6"
+            ],
+            "reason": "AC-0.4: P0 uses the existing report wherever 7.2 names the WC-4 report; step 3 restated; step 4 not run"
+          },
+          {
+            "row": "R7",
+            "action": "fixed",
+            "keys": [
+              "63:64:f646a6f8576d35bd"
+            ],
+            "reason": "WC-6: same-path re-run with stale-report guard; fresh dir redefined"
+          },
+          {
+            "row": "R8",
+            "action": "fixed",
+            "keys": [
+              "60:61:eba9793961af7b28"
+            ],
+            "reason": "WC-3: flag or folded-into-input answer route; person-only gates end blocked; report path unchanged"
+          },
+          {
+            "row": "R9",
+            "action": "fixed",
+            "keys": [
+              "158:159:b9961e7c01fcfe38"
+            ],
+            "reason": "P1: gated commands write a blocked report until their phase"
+          },
+          {
+            "row": "R10",
+            "action": "fixed",
+            "keys": [
+              "65:65:233da5909b847cfe"
+            ],
+            "reason": "WC-7a: Skill tool call required; checked in AC-0.4"
+          },
+          {
+            "row": "R11",
+            "action": "fixed",
+            "keys": [
+              "67:68:cfc66445b52c5f0b"
+            ],
+            "reason": "WC-10: no call of 4 min or more; subagent heartbeat UNVERIFIED and recorded; coordinator liveness rule"
+          },
+          {
+            "row": "R12",
+            "action": "fixed",
+            "keys": [
+              "184:185:7682544963747296"
+            ],
+            "reason": "7.2 step 6: before/after comparison; staging workers never share a worktree"
+          },
+          {
+            "row": "R13",
+            "action": "fixed",
+            "keys": [
+              "175:176:1960735be1db37c3"
+            ],
+            "reason": "AC-C5: git diff --numstat deleted count 0, also for AC-0.3"
+          }
+        ],
+        "gaps": [
+          {
+            "text": "R2/R4: section 3 lead-in (spec:78) still glosses Contract as <output-dir>/return-contract.yaml; WC-4a overrides it."
+          },
+          {
+            "text": "R2: Decisions row 'Report shape' (spec:264) still says reuse return-contract.yaml; WC-4a adds worker-contract.yaml for commands with an existing contract."
+          },
+          {
+            "text": "R13: AC-0.3 (spec:196) still shows grep -E '^-[^-]'; AC-C5 says AC-0.3 uses the --numstat test instead."
+          },
+          {
+            "text": "R10: 7.2 step 5 (spec:187) checks only AskUserQuestion; the Skill-call check is in WC-7a and AC-0.4."
+          },
+          {
+            "text": "R11: no heartbeat-gap check outside AC-0.4 and AC-4.3; WC-10 gives a coordinator liveness rule meanwhile."
+          },
+          {
+            "text": "R12: WC-11 (spec:71) still covers output files only; the git-staging rule is in 7.2 step 6."
+          },
+          {
+            "text": "R1: AC-1.4 (spec:201) wording about the workflow contract on pre-creation STOPs now means the WC-4 worker-contract.yaml in --report-dir."
+          }
+        ]
+      }
+    },
+    {
+      "op": "led-r1-r2-begin",
+      "cmd": "begin",
+      "digest": "271157c089858941486a8d524d9452bd6e004eb8198f56c188628f7d4abee881",
+      "seq": 5,
+      "phase_before": "revise",
+      "round": 1,
+      "phase_after": "verify",
+      "round_after": 2,
+      "x_items": [],
+      "begin": {
+        "unclaimed": [],
+        "reverted_bytes": 0
+      },
+      "result": {
+        "ok": true,
+        "seq": 5,
+        "phase": "verify",
+        "review": 2,
+        "fix_cycles": 1,
+        "counts": {
+          "rows": 17,
+          "blocking": 13,
+          "U": 13,
+          "X": 0,
+          "open": 0,
+          "fixed": 13,
+          "verified": 0,
+          "reopened": 0,
+          "deferred": 4
+        },
+        "loop_decision": "CONTINUE",
+        "delivery_outcome": null,
+        "next_action": "answer every row of plan-r2.md, then verify --input <report or json>",
+        "review_header": "review: 2 of 3",
+        "plan": ".dev/orca-command-refactor/specs/orca-worker-contract-spec.review-ledger/plan-r2.md",
+        "hunks": 12,
+        "auto_claimed": [],
+        "unclaimed": [],
+        "reverted_bytes": 0,
+        "dropped_claims": [],
+        "hunks_large": false
+      }
+    },
+    {
+      "op": "led-r1-r2-verify",
+      "cmd": "verify",
+      "digest": "d80927bf2caeedaf11ef06060b8bf949b771979265aac06f8f86429ff8187e29",
+      "seq": 6,
+      "phase_before": "verify",
+      "round": 2,
+      "phase_after": "verify",
+      "round_after": 2,
+      "x_items": [],
+      "result": {
+        "ok": true,
+        "seq": 6,
+        "phase": "verify",
+        "review": 2,
+        "fix_cycles": 1,
+        "counts": {
+          "rows": 33,
+          "blocking": 20,
+          "U": 7,
+          "X": 0,
+          "open": 7,
+          "fixed": 0,
+          "verified": 13,
+          "reopened": 0,
+          "deferred": 13
+        },
+        "loop_decision": "CONTINUE",
+        "delivery_outcome": null,
+        "next_action": "close --report <review report>",
+        "new_rows": [
+          "R18",
+          "R19",
+          "R20",
+          "R21",
+          "R22",
+          "R23",
+          "R24",
+          "R25",
+          "R26",
+          "R27",
+          "R28",
+          "R29",
+          "R30",
+          "R31",
+          "R32",
+          "R33"
+        ]
+      }
+    },
+    {
+      "op": "led-r1-r2-close",
+      "cmd": "close",
+      "digest": "be1f27d28f659fe674f6dfe290910914676767a235000164fd49c7f8e63f2487",
+      "seq": 7,
+      "phase_before": "verify",
+      "round": 2,
+      "phase_after": "revise",
+      "round_after": 2,
+      "result": {
+        "ok": true,
+        "seq": 7,
+        "phase": "revise",
+        "review": 2,
+        "fix_cycles": 1,
+        "counts": {
+          "rows": 33,
+          "blocking": 20,
+          "U": 7,
+          "X": 0,
+          "open": 7,
+          "fixed": 0,
+          "verified": 13,
+          "reopened": 0,
+          "deferred": 13
+        },
+        "loop_decision": "CONTINUE",
+        "delivery_outcome": null,
+        "next_action": "reviser edits the document; then begin --doc <document> for the next review",
+        "decision": {
+          "loop_decision": "CONTINUE",
+          "U": 7,
+          "X": 0,
+          "I": true
+        },
+        "last_line": "verdict: FAIL"
+      }
+    },
+    {
+      "op": "led-r1-c2-answer",
+      "cmd": "answer",
+      "digest": "2862113345fb741cf57328c2dd6913c8a96b7cc64f5742339adc99c0dd3c8960",
+      "seq": 8,
+      "phase_before": "revise",
+      "round": 2,
+      "phase_after": "revise",
+      "round_after": 2,
+      "claims": [
+        {
+          "row": "R18",
+          "action": "fixed",
+          "keys": [
+            "62:63:8fcd459f6bb11532"
+          ],
+          "reason": "WC-4a defines directory-valued added output/report flags and --report-dir for worker commands with no output flag; P1 adds them"
+        },
+        {
+          "row": "R19",
+          "action": "fixed",
+          "keys": [
+            "92:93:e655c3ee71348233"
+          ],
+          "reason": "TFEP row assigns task-side separation to P2, with --output-dir <report-dir>/tfep-<n>/; P1 blocks task before TFEP"
+        },
+        {
+          "row": "R21",
+          "action": "fixed",
+          "keys": [
+            "60:61:9475c096ea01547f"
+          ],
+          "reason": "WC-3 requires an explicit brief offer of coordinator answers; AC-2.2 briefs do not offer answers, so gates end blocked"
+        },
+        {
+          "row": "R22",
+          "action": "fixed",
+          "keys": [
+            "161:162:274b792d1c235573"
+          ],
+          "reason": "P1 owns report flags for all worker-capable commands including P2-P4, so early blocked reports have a known path"
+        },
+        {
+          "row": "R23",
+          "action": "fixed",
+          "keys": [
+            "69:70:5e9e9182fe80c789"
+          ],
+          "reason": "WC-10 maximum is inclusive 240 seconds, agreeing with cli-eval, AC-4.3 and the four-minute decision"
+        },
+        {
+          "row": "R24",
+          "action": "fixed",
+          "keys": [
+            "69:70:5e9e9182fe80c789"
+          ],
+          "reason": "WC-10 requires a per-Task runtime budget, clamps step-3 waits to remaining time, and fails/escalates on expiry without destructive recovery on absence"
+        },
+        {
+          "row": "R25",
+          "action": "fixed",
+          "keys": [
+            "187:188:89f21b92055216d6"
+          ],
+          "reason": "Step 6 explicitly admits P0 run-specific report directories and any path field of existing reports; P1-P4 keep WC-4 accounting"
+        }
+      ],
+      "gaps": [
+        {
+          "text": "R18/R22: per-command report shorthand and later phase tags remain; WC-4a defines path types/fallback and P1 owns report flags. AC-1.2 still prints generic --output while workflow requires --report-dir."
+        },
+        {
+          "text": "R19: task row still says Other required change none; TFEP row explicitly assigns the task-side nested diagnostic output directory to P2 and names the P2 task scope."
+        },
+        {
+          "text": "R21: section 2.3 list unchanged; WC-3 adds the brief question policy and explicitly defines the AC-2.2 no-answer case."
+        },
+        {
+          "text": "R24: section 2.3 and step 3 unchanged; WC-10 explicitly adds the brief runtime budget and limits every step-3 wait to its remaining time."
+        },
+        {
+          "text": "R25: AC-0.4 still says step 6 passes as written; step 6 now contains the required P0 branch."
+        },
+        {
+          "text": "Coordinator explicitly kept R20,R26-R33 deferred, including both failed citation details and outside-hunk MAJOR rows R27,R28; no fix is claimed for them."
+        }
+      ],
+      "doc_after": "030b7a941cd3498bf3c568232ae039ba2e267bd99c86417708f47add4d6a4e0c",
+      "result": {
+        "ok": true,
+        "seq": 8,
+        "phase": "revise",
+        "review": 2,
+        "fix_cycles": 1,
+        "counts": {
+          "rows": 33,
+          "blocking": 20,
+          "U": 7,
+          "X": 0,
+          "open": 7,
+          "fixed": 0,
+          "verified": 13,
+          "reopened": 0,
+          "deferred": 13
+        },
+        "loop_decision": "CONTINUE",
+        "delivery_outcome": null,
+        "next_action": "reviser edits the document; then begin --doc <document> for the next review",
+        "claims": [
+          {
+            "row": "R18",
+            "action": "fixed",
+            "keys": [
+              "62:63:8fcd459f6bb11532"
+            ],
+            "reason": "WC-4a defines directory-valued added output/report flags and --report-dir for worker commands with no output flag; P1 adds them"
+          },
+          {
+            "row": "R19",
+            "action": "fixed",
+            "keys": [
+              "92:93:e655c3ee71348233"
+            ],
+            "reason": "TFEP row assigns task-side separation to P2, with --output-dir <report-dir>/tfep-<n>/; P1 blocks task before TFEP"
+          },
+          {
+            "row": "R21",
+            "action": "fixed",
+            "keys": [
+              "60:61:9475c096ea01547f"
+            ],
+            "reason": "WC-3 requires an explicit brief offer of coordinator answers; AC-2.2 briefs do not offer answers, so gates end blocked"
+          },
+          {
+            "row": "R22",
+            "action": "fixed",
+            "keys": [
+              "161:162:274b792d1c235573"
+            ],
+            "reason": "P1 owns report flags for all worker-capable commands including P2-P4, so early blocked reports have a known path"
+          },
+          {
+            "row": "R23",
+            "action": "fixed",
+            "keys": [
+              "69:70:5e9e9182fe80c789"
+            ],
+            "reason": "WC-10 maximum is inclusive 240 seconds, agreeing with cli-eval, AC-4.3 and the four-minute decision"
+          },
+          {
+            "row": "R24",
+            "action": "fixed",
+            "keys": [
+              "69:70:5e9e9182fe80c789"
+            ],
+            "reason": "WC-10 requires a per-Task runtime budget, clamps step-3 waits to remaining time, and fails/escalates on expiry without destructive recovery on absence"
+          },
+          {
+            "row": "R25",
+            "action": "fixed",
+            "keys": [
+              "187:188:89f21b92055216d6"
+            ],
+            "reason": "Step 6 explicitly admits P0 run-specific report directories and any path field of existing reports; P1-P4 keep WC-4 accounting"
+          }
+        ],
+        "gaps": [
+          {
+            "text": "R18/R22: per-command report shorthand and later phase tags remain; WC-4a defines path types/fallback and P1 owns report flags. AC-1.2 still prints generic --output while workflow requires --report-dir."
+          },
+          {
+            "text": "R19: task row still says Other required change none; TFEP row explicitly assigns the task-side nested diagnostic output directory to P2 and names the P2 task scope."
+          },
+          {
+            "text": "R21: section 2.3 list unchanged; WC-3 adds the brief question policy and explicitly defines the AC-2.2 no-answer case."
+          },
+          {
+            "text": "R24: section 2.3 and step 3 unchanged; WC-10 explicitly adds the brief runtime budget and limits every step-3 wait to its remaining time."
+          },
+          {
+            "text": "R25: AC-0.4 still says step 6 passes as written; step 6 now contains the required P0 branch."
+          },
+          {
+            "text": "Coordinator explicitly kept R20,R26-R33 deferred, including both failed citation details and outside-hunk MAJOR rows R27,R28; no fix is claimed for them."
+          }
+        ]
+      }
+    },
+    {
+      "op": "led-r1-r3-begin",
+      "cmd": "begin",
+      "digest": "bb8d672a72a530bf826b2a885d1b062dfa261f2e2f77f44a278500d0df11442f",
+      "seq": 9,
+      "phase_before": "revise",
+      "round": 2,
+      "phase_after": "verify",
+      "round_after": 3,
+      "x_items": [],
+      "begin": {
+        "unclaimed": [],
+        "reverted_bytes": 0
+      },
+      "result": {
+        "ok": true,
+        "seq": 9,
+        "phase": "verify",
+        "review": 3,
+        "fix_cycles": 2,
+        "counts": {
+          "rows": 33,
+          "blocking": 20,
+          "U": 12,
+          "X": 0,
+          "open": 0,
+          "fixed": 12,
+          "verified": 8,
+          "reopened": 0,
+          "deferred": 13
+        },
+        "loop_decision": "CONTINUE",
+        "delivery_outcome": null,
+        "next_action": "answer every row of plan-r3.md, then verify --input <report or json>",
+        "review_header": "review: 3 of 3",
+        "plan": ".dev/orca-command-refactor/specs/orca-worker-contract-spec.review-ledger/plan-r3.md",
+        "hunks": 6,
+        "auto_claimed": [],
+        "unclaimed": [],
+        "reverted_bytes": 0,
+        "dropped_claims": [],
+        "hunks_large": false
+      }
+    },
+    {
+      "op": "led-r1-r3-verify",
+      "cmd": "verify",
+      "digest": "6ce4516e0de945159e2bc6b86fae6f7011dd9c8b84abcdc59c1c25dcbddee245",
+      "seq": 10,
+      "phase_before": "verify",
+      "round": 3,
+      "phase_after": "verify",
+      "round_after": 3,
+      "x_items": [],
+      "result": {
+        "ok": true,
+        "seq": 10,
+        "phase": "verify",
+        "review": 3,
+        "fix_cycles": 2,
+        "counts": {
+          "rows": 36,
+          "blocking": 22,
+          "U": 3,
+          "X": 0,
+          "open": 3,
+          "fixed": 0,
+          "verified": 19,
+          "reopened": 0,
+          "deferred": 14
+        },
+        "loop_decision": "CONTINUE",
+        "delivery_outcome": null,
+        "next_action": "close --report <review report>",
+        "new_rows": [
+          "R34",
+          "R35",
+          "R36"
+        ]
+      }
+    },
+    {
+      "op": "led-r1-r3-close",
+      "cmd": "close",
+      "digest": "39b1e545a40e0deb2479f09095335fc946564dc0b475df9858a99256d0815e8b",
+      "seq": 11,
+      "phase_before": "verify",
+      "round": 3,
+      "phase_after": "terminal",
+      "round_after": 3,
+      "result": {
+        "ok": true,
+        "seq": 11,
+        "phase": "terminal",
+        "review": 3,
+        "fix_cycles": 2,
+        "counts": {
+          "rows": 36,
+          "blocking": 22,
+          "U": 3,
+          "X": 0,
+          "open": 3,
+          "fixed": 0,
+          "verified": 19,
+          "reopened": 0,
+          "deferred": 14
+        },
+        "loop_decision": "ESCALATE",
+        "delivery_outcome": null,
+        "next_action": "run the sweep once: sweep --prepare, then sweep --input <report> --report <report>",
+        "decision": {
+          "loop_decision": "ESCALATE",
+          "U": 3,
+          "X": 0,
+          "I": true
+        },
+        "last_line": "loop: ESCALATE (sweep pending)"
+      }
+    },
+    {
+      "op": "led-r1-sweep-prepare",
+      "cmd": "sweep-prepare",
+      "digest": "c1c083cf1841e905bcaaa31ec85e99db90be00c12f2a16a6ed5ce1114214ac28",
+      "seq": 12,
+      "phase_before": "terminal",
+      "round": 3,
+      "phase_after": "terminal",
+      "round_after": 3,
+      "sweep_copy": {
+        "path": "/tmp/review-ledger-sweep-3s8rdl6a/orca-worker-contract-spec.md",
+        "sha256": "030b7a941cd3498bf3c568232ae039ba2e267bd99c86417708f47add4d6a4e0c",
+        "post_terminal_edit": false
+      },
+      "result": {
+        "ok": true,
+        "seq": 12,
+        "phase": "terminal",
+        "review": 3,
+        "fix_cycles": 2,
+        "counts": {
+          "rows": 36,
+          "blocking": 22,
+          "U": 3,
+          "X": 0,
+          "open": 3,
+          "fixed": 0,
+          "verified": 19,
+          "reopened": 0,
+          "deferred": 14
+        },
+        "loop_decision": "ESCALATE",
+        "delivery_outcome": null,
+        "next_action": "run the sweep once: sweep --prepare, then sweep --input <report> --report <report>",
+        "copy": "/tmp/review-ledger-sweep-3s8rdl6a/orca-worker-contract-spec.md",
+        "post_terminal_edit": false
+      }
+    },
+    {
+      "op": "led-r1-sweep",
+      "cmd": "sweep",
+      "digest": "0db013e19ee21aef22628fdd1827eff9da1c04fa1d7defbb62ec992f55e31ea4",
+      "seq": 13,
+      "phase_before": "terminal",
+      "round": 3,
+      "phase_after": "swept",
+      "round_after": 3,
+      "result": {
+        "ok": true,
+        "seq": 13,
+        "phase": "swept",
+        "review": 3,
+        "fix_cycles": 2,
+        "counts": {
+          "rows": 48,
+          "blocking": 22,
+          "U": 3,
+          "X": 0,
+          "open": 3,
+          "fixed": 0,
+          "verified": 19,
+          "reopened": 0,
+          "deferred": 26
+        },
+        "loop_decision": "ESCALATE",
+        "delivery_outcome": "ESCALATE",
+        "next_action": "done: read verdict",
+        "new_rows": [
+          "R37",
+          "R38",
+          "R39",
+          "R40",
+          "R41",
+          "R42",
+          "R43",
+          "R44",
+          "R45",
+          "R46",
+          "R47",
+          "R48"
+        ],
+        "S": 9,
+        "last_line": "verdict: FAIL"
+      }
+    }
+  ],
+  "rows": [
+    {
+      "id": "R1",
+      "label": "F1",
+      "round_found": 1,
+      "grade": "MAJOR",
+      "rule": "WC-4",
+      "wrong_outcome": "Coordinator passes --output to /sc:workflow and the run STOPs E-LEGACY; without it the contract path is unknown before dispatch and a pre-creation STOP writes no contract at all.",
+      "blocking": true,
+      "anchor": "Write the contract for pre-creation STOPs too",
+      "at": [
+        91,
+        92
+      ],
+      "at_snapshot": "r1",
+      "origin": "find",
+      "scope": "in",
+      "caused_by": [],
+      "finding": "workflow is marked ready but cannot meet WC-4: --output retired (sc-workflow-protocol/SKILL.md:24), generated package id (SKILL.md:44), no yaml on pre-creation STOP (SKILL.md:26).",
+      "status": "verified",
+      "mappings": [
+        {
+          "snapshot": "r2",
+          "span": [
+            94,
+            95
+          ],
+          "method": "rewritten-in-hunk"
+        },
+        {
+          "snapshot": "r3",
+          "span": [
+            94,
+            95
+          ],
+          "method": "unchanged"
+        }
+      ],
+      "claims": [
+        {
+          "cycle": 1,
+          "via": [
+            "answer"
+          ],
+          "hunks": [
+            "c1#8"
+          ],
+          "bytes": 903
+        }
+      ],
+      "history": [
+        {
+          "seq": 2,
+          "via": "find",
+          "to": "open"
+        },
+        {
+          "seq": 5,
+          "via": "begin",
+          "from": "open",
+          "to": "fixed",
+          "claimed_by": [
+            "answer"
+          ]
+        },
+        {
+          "seq": 6,
+          "via": "verify",
+          "round": 2,
+          "result": "resolved",
+          "touched_ok": true,
+          "evidence": "Under `--unattended` the WC-4 report is `<report-dir>/worker-contract.yaml` (WC-4a)",
+          "from": "fixed",
+          "to": "verified"
+        }
+      ]
+    },
+    {
+      "id": "R2",
+      "label": "F2",
+      "round_found": 1,
+      "grade": "MAJOR",
+      "rule": "FR-8",
+      "wrong_outcome": "7.2 step 4 assertion rejects existing workflow/brainstorm contracts with status: success, or renaming the value breaks their current readers.",
+      "blocking": true,
+      "anchor": "Commands that already write a contract keep their fields and add the missing ones.",
+      "at": [
+        61,
+        62
+      ],
+      "at_snapshot": "r1",
+      "origin": "find",
+      "scope": "in",
+      "caused_by": [],
+      "finding": "WC-4 fixed status set conflicts with keep-their-fields; refs/return-contract.md:7 and sc-brainstorm-protocol/SKILL.md:341 use success.",
+      "status": "verified",
+      "mappings": [
+        {
+          "snapshot": "r2",
+          "span": [
+            62,
+            63
+          ],
+          "method": "exact"
+        },
+        {
+          "snapshot": "r3",
+          "span": [
+            62,
+            63
+          ],
+          "method": "exact"
+        }
+      ],
+      "claims": [
+        {
+          "cycle": 1,
+          "via": [
+            "answer"
+          ],
+          "hunks": [
+            "c1#2"
+          ],
+          "bytes": 1867
+        }
+      ],
+      "history": [
+        {
+          "seq": 2,
+          "via": "find",
+          "to": "open"
+        },
+        {
+          "seq": 5,
+          "via": "begin",
+          "from": "open",
+          "to": "fixed",
+          "claimed_by": [
+            "answer"
+          ]
+        },
+        {
+          "seq": 6,
+          "via": "verify",
+          "round": 2,
+          "result": "resolved",
+          "touched_ok": true,
+          "evidence": "its WC-4 report is a separate file, `worker-contract.yaml`, in the directory the rules above give",
+          "from": "fixed",
+          "to": "verified"
+        },
+        {
+          "seq": 9,
+          "via": "begin",
+          "from": "verified",
+          "to": "fixed",
+          "reason": "a hunk of this round touches the verified span"
+        },
+        {
+          "seq": 10,
+          "via": "verify",
+          "round": 3,
+          "result": "resolved",
+          "touched_ok": true,
+          "evidence": "The WC-4 `status` values therefore never replace an existing `success`, and two schemas never share one path.",
+          "from": "fixed",
+          "to": "verified"
+        }
+      ]
+    },
+    {
+      "id": "R3",
+      "label": "F3",
+      "round_found": 1,
+      "grade": "MAJOR",
+      "rule": "FR-8",
+      "wrong_outcome": "Under /sc:task --unattended, troubleshoot writes two schemas to one path, so either the TFEP consumer or the coordinator reads the wrong contract.",
+      "blocking": true,
+      "anchor": "`REPORT.md` (`report_path`)",
+      "at": [
+        90,
+        91
+      ],
+      "at_snapshot": "r1",
+      "origin": "find",
+      "scope": "in",
+      "caused_by": [],
+      "finding": "troubleshoot already writes <output-dir>/return-contract.yaml with the TFEP schema (sc-troubleshoot-protocol/SKILL.md:560); WC-4 reuses the path.",
+      "status": "verified",
+      "mappings": [
+        {
+          "snapshot": "r2",
+          "span": [
+            93,
+            94
+          ],
+          "method": "exact"
+        },
+        {
+          "snapshot": "r3",
+          "span": [
+            93,
+            94
+          ],
+          "method": "unchanged"
+        }
+      ],
+      "claims": [
+        {
+          "cycle": 1,
+          "via": [
+            "answer"
+          ],
+          "hunks": [
+            "c1#7"
+          ],
+          "bytes": 721
+        }
+      ],
+      "history": [
+        {
+          "seq": 2,
+          "via": "find",
+          "to": "open"
+        },
+        {
+          "seq": 5,
+          "via": "begin",
+          "from": "open",
+          "to": "fixed",
+          "claimed_by": [
+            "answer"
+          ]
+        },
+        {
+          "seq": 6,
+          "via": "verify",
+          "round": 2,
+          "result": "resolved",
+          "touched_ok": false,
+          "evidence": "Troubleshoot's own WC-4 report is `<output-dir>/worker-contract.yaml` (WC-4a), so the two schemas never share a path",
+          "from": "fixed",
+          "to": "verified"
+        }
+      ]
+    },
+    {
+      "id": "R4",
+      "label": "F4",
+      "round_found": 1,
+      "grade": "MAJOR",
+      "rule": "WC-4",
+      "wrong_outcome": "For /sc:tdd --output <file> the contract path is undefined, so 7.2 step 3 and AC-2.2 cannot locate it.",
+      "blocking": true,
+      "anchor": "where `<output-dir>` is the directory the coordinator passed (`--output` / `--output-dir`)",
+      "at": [
+        61,
+        62
+      ],
+      "at_snapshot": "r1",
+      "origin": "find",
+      "scope": "in",
+      "caused_by": [],
+      "finding": "WC-4 output-dir undefined for file-valued --output (tdd.md:49; spec 3.1 tdd and init-lite rows; AC-2.2 example).",
+      "status": "verified",
+      "mappings": [
+        {
+          "snapshot": "r2",
+          "span": [
+            61,
+            62
+          ],
+          "method": "exact"
+        },
+        {
+          "snapshot": "r3",
+          "span": [
+            61,
+            62
+          ],
+          "method": "unchanged"
+        }
+      ],
+      "claims": [
+        {
+          "cycle": 1,
+          "via": [
+            "answer"
+          ],
+          "hunks": [
+            "c1#2"
+          ],
+          "bytes": 1867
+        }
+      ],
+      "history": [
+        {
+          "seq": 2,
+          "via": "find",
+          "to": "open"
+        },
+        {
+          "seq": 5,
+          "via": "begin",
+          "from": "open",
+          "to": "fixed",
+          "claimed_by": [
+            "answer"
+          ]
+        },
+        {
+          "seq": 6,
+          "via": "verify",
+          "round": 2,
+          "result": "resolved",
+          "touched_ok": false,
+          "evidence": "gives `<file>.return-contract.yaml` beside that file",
+          "from": "fixed",
+          "to": "verified"
+        }
+      ]
+    },
+    {
+      "id": "R5",
+      "label": "F5",
+      "round_found": 1,
+      "grade": "MAJOR",
+      "rule": "WC-4",
+      "wrong_outcome": "AC-1.2 step 3 fails for adversarial whichever of the two contract paths is implemented.",
+      "blocking": true,
+      "anchor": "Fix the contract filename to `<output>/adversarial/return-contract.yaml`",
+      "at": [
+        82,
+        83
+      ],
+      "at_snapshot": "r1",
+      "origin": "find",
+      "scope": "in",
+      "caused_by": [],
+      "finding": "adversarial fix path contradicts WC-4 <output-dir>/return-contract.yaml checked by 7.2 step 3.",
+      "status": "verified",
+      "mappings": [
+        {
+          "snapshot": "r2",
+          "span": [
+            84,
+            85
+          ],
+          "method": "rewritten-in-hunk"
+        },
+        {
+          "snapshot": "r3",
+          "span": [
+            84,
+            85
+          ],
+          "method": "unchanged"
+        }
+      ],
+      "claims": [
+        {
+          "cycle": 1,
+          "via": [
+            "answer"
+          ],
+          "hunks": [
+            "c1#6"
+          ],
+          "bytes": 508
+        }
+      ],
+      "history": [
+        {
+          "seq": 2,
+          "via": "find",
+          "to": "open"
+        },
+        {
+          "seq": 5,
+          "via": "begin",
+          "from": "open",
+          "to": "fixed",
+          "claimed_by": [
+            "answer"
+          ]
+        },
+        {
+          "seq": 6,
+          "via": "verify",
+          "round": 2,
+          "result": "resolved",
+          "touched_ok": true,
+          "evidence": "and that is the path 7.2 step 3 checks",
+          "from": "fixed",
+          "to": "verified"
+        }
+      ]
+    },
+    {
+      "id": "R6",
+      "label": "F6",
+      "round_found": 1,
+      "grade": "MAJOR",
+      "rule": "AC-0.4",
+      "wrong_outcome": "P0 cannot pass because step 3 needs a WC-4 contract that arrives only in P1, and later phases wait on P0, so the rollout never starts.",
+      "blocking": true,
+      "anchor": "step 4 uses the command's existing report file, since the contract arrives in P1",
+      "at": [
+        193,
+        194
+      ],
+      "at_snapshot": "r1",
+      "origin": "find",
+      "scope": "in",
+      "caused_by": [],
+      "finding": "AC-0.4 exempts only step 4 but step 3 requires the WC-4 contract path and status.",
+      "status": "verified",
+      "mappings": [
+        {
+          "snapshot": "r2",
+          "span": [
+            196,
+            197
+          ],
+          "method": "rewritten-in-hunk"
+        },
+        {
+          "snapshot": "r3",
+          "span": [
+            196,
+            197
+          ],
+          "method": "unchanged"
+        }
+      ],
+      "claims": [
+        {
+          "cycle": 1,
+          "via": [
+            "answer"
+          ],
+          "hunks": [
+            "c1#12"
+          ],
+          "bytes": 1161
+        }
+      ],
+      "history": [
+        {
+          "seq": 2,
+          "via": "find",
+          "to": "open"
+        },
+        {
+          "seq": 5,
+          "via": "begin",
+          "from": "open",
+          "to": "fixed",
+          "claimed_by": [
+            "answer"
+          ]
+        },
+        {
+          "seq": 6,
+          "via": "verify",
+          "round": 2,
+          "result": "resolved",
+          "touched_ok": true,
+          "evidence": "step 4 is not run in P0",
+          "from": "fixed",
+          "to": "verified"
+        }
+      ]
+    },
+    {
+      "id": "R7",
+      "label": "F7",
+      "round_found": 1,
+      "grade": "MAJOR",
+      "rule": "WC-6",
+      "wrong_outcome": "A --retry-of worker gets the same brief and --output, so it overwrites attempt 1 or writes to a directory the coordinator never recorded.",
+      "blocking": true,
+      "anchor": "writes each run into a fresh output directory so a re-run starts clean",
+      "at": [
+        63,
+        64
+      ],
+      "at_snapshot": "r1",
+      "origin": "find",
+      "scope": "in",
+      "caused_by": [],
+      "finding": "WC-6 fresh-dir rule conflicts with retry reusing the Task brief (orca-capabilities.md:116) and WC-4 known-before-dispatch.",
+      "status": "verified",
+      "mappings": [
+        {
+          "snapshot": "r2",
+          "span": [
+            64,
+            65
+          ],
+          "method": "rewritten-in-hunk"
+        },
+        {
+          "snapshot": "r3",
+          "span": [
+            64,
+            65
+          ],
+          "method": "unchanged"
+        }
+      ],
+      "claims": [
+        {
+          "cycle": 1,
+          "via": [
+            "answer"
+          ],
+          "hunks": [
+            "c1#3"
+          ],
+          "bytes": 1275
+        }
+      ],
+      "history": [
+        {
+          "seq": 2,
+          "via": "find",
+          "to": "open"
+        },
+        {
+          "seq": 5,
+          "via": "begin",
+          "from": "open",
+          "to": "fixed",
+          "claimed_by": [
+            "answer"
+          ]
+        },
+        {
+          "seq": 6,
+          "via": "verify",
+          "round": 2,
+          "result": "resolved",
+          "touched_ok": true,
+          "evidence": "the report path the coordinator recorded before dispatch (WC-4a) never changes",
+          "from": "fixed",
+          "to": "verified"
+        }
+      ]
+    },
+    {
+      "id": "R8",
+      "label": "F8",
+      "round_found": 1,
+      "grade": "MAJOR",
+      "rule": "WC-3",
+      "wrong_outcome": "For gates with no answer flag (recommend, tdd topic, task confidence) the coordinator's answer cannot reach the command, and a fresh-dir re-run changes the report path.",
+      "blocking": true,
+      "anchor": "then re-invoke or resume the command with the answer as a flag",
+      "at": [
+        60,
+        61
+      ],
+      "at_snapshot": "r1",
+      "origin": "find",
+      "scope": "in",
+      "caused_by": [],
+      "finding": "WC-3 answer-as-flag route undefined for flagless gates.",
+      "status": "verified",
+      "mappings": [
+        {
+          "snapshot": "r2",
+          "span": [
+            60,
+            61
+          ],
+          "method": "rewritten-in-hunk"
+        },
+        {
+          "snapshot": "r3",
+          "span": [
+            60,
+            61
+          ],
+          "method": "rewritten-in-hunk"
+        }
+      ],
+      "claims": [
+        {
+          "cycle": 1,
+          "via": [
+            "answer"
+          ],
+          "hunks": [
+            "c1#1"
+          ],
+          "bytes": 1492
+        }
+      ],
+      "history": [
+        {
+          "seq": 2,
+          "via": "find",
+          "to": "open"
+        },
+        {
+          "seq": 5,
+          "via": "begin",
+          "from": "open",
+          "to": "fixed",
+          "claimed_by": [
+            "answer"
+          ]
+        },
+        {
+          "seq": 6,
+          "via": "verify",
+          "round": 2,
+          "result": "resolved",
+          "touched_ok": false,
+          "evidence": "when the gate has no flag, the answer is folded into the command's main input",
+          "from": "fixed",
+          "to": "verified"
+        },
+        {
+          "seq": 9,
+          "via": "begin",
+          "from": "verified",
+          "to": "fixed",
+          "reason": "a hunk of this round touches the verified span"
+        },
+        {
+          "seq": 10,
+          "via": "verify",
+          "round": 3,
+          "result": "resolved",
+          "touched_ok": true,
+          "evidence": "when the gate has no flag, the answer is folded into the command's main input",
+          "from": "fixed",
+          "to": "verified"
+        }
+      ]
+    },
+    {
+      "id": "R9",
+      "label": "F9",
+      "round_found": 1,
+      "grade": "MAJOR",
+      "rule": "WC-9",
+      "wrong_outcome": "Between P1 and P2, /sc:auggie-review --unattended still posts to the PR by default, an outward action the contract says is off.",
+      "blocking": true,
+      "anchor": "(a no-op where a command has no gate)",
+      "at": [
+        158,
+        159
+      ],
+      "at_snapshot": "r1",
+      "origin": "find",
+      "scope": "in",
+      "caused_by": [],
+      "finding": "P1 accepts --unattended on every command but gated commands convert only in P2-P4; auggie-review.md:51 posts with no prompt.",
+      "status": "verified",
+      "mappings": [
+        {
+          "snapshot": "r2",
+          "span": [
+            161,
+            162
+          ],
+          "method": "rewritten-in-hunk"
+        },
+        {
+          "snapshot": "r3",
+          "span": [
+            161,
+            162
+          ],
+          "method": "rewritten-in-hunk"
+        }
+      ],
+      "claims": [
+        {
+          "cycle": 1,
+          "via": [
+            "answer"
+          ],
+          "hunks": [
+            "c1#9"
+          ],
+          "bytes": 997
+        }
+      ],
+      "history": [
+        {
+          "seq": 2,
+          "via": "find",
+          "to": "open"
+        },
+        {
+          "seq": 5,
+          "via": "begin",
+          "from": "open",
+          "to": "fixed",
+          "claimed_by": [
+            "answer"
+          ]
+        },
+        {
+          "seq": 6,
+          "via": "verify",
+          "round": 2,
+          "result": "resolved",
+          "touched_ok": false,
+          "evidence": "does nothing under `--unattended` until its own phase except write its WC-4 report with `status: blocked`",
+          "from": "fixed",
+          "to": "verified"
+        },
+        {
+          "seq": 9,
+          "via": "begin",
+          "from": "verified",
+          "to": "fixed",
+          "reason": "a hunk of this round touches the verified span"
+        },
+        {
+          "seq": 10,
+          "via": "verify",
+          "round": 3,
+          "result": "resolved",
+          "touched_ok": true,
+          "evidence": "does nothing under `--unattended` until its own phase except write its WC-4 report with `status: blocked`",
+          "from": "fixed",
+          "to": "verified"
+        }
+      ]
+    },
+    {
+      "id": "R10",
+      "label": "F10",
+      "round_found": 1,
+      "grade": "MAJOR",
+      "rule": "WC-7",
+      "wrong_outcome": "A worker that reads the command file and improvises the protocol without the Skill call passes 7.2 step 5 and AC-0.4.",
+      "blocking": true,
+      "anchor": "it never wraps the command in an Agent-tool subagent",
+      "at": [
+        64,
+        65
+      ],
+      "at_snapshot": "r1",
+      "origin": "find",
+      "scope": "in",
+      "caused_by": [],
+      "finding": "WC-7 does not require the Skill tool invocation mandated by CLAUDE.md:11; no check tests it.",
+      "status": "verified",
+      "mappings": [
+        {
+          "snapshot": "r2",
+          "span": [
+            65,
+            66
+          ],
+          "method": "exact"
+        },
+        {
+          "snapshot": "r3",
+          "span": [
+            65,
+            66
+          ],
+          "method": "unchanged"
+        }
+      ],
+      "claims": [
+        {
+          "cycle": 1,
+          "via": [
+            "answer"
+          ],
+          "hunks": [
+            "c1#4"
+          ],
+          "bytes": 686
+        }
+      ],
+      "history": [
+        {
+          "seq": 2,
+          "via": "find",
+          "to": "open"
+        },
+        {
+          "seq": 5,
+          "via": "begin",
+          "from": "open",
+          "to": "fixed",
+          "claimed_by": [
+            "answer"
+          ]
+        },
+        {
+          "seq": 6,
+          "via": "verify",
+          "round": 2,
+          "result": "resolved",
+          "touched_ok": true,
+          "evidence": "the first step of the command is the Skill tool call for that skill",
+          "from": "fixed",
+          "to": "verified"
+        }
+      ]
+    },
+    {
+      "id": "R11",
+      "label": "F11",
+      "round_found": 1,
+      "grade": "MAJOR",
+      "rule": "FR-8",
+      "wrong_outcome": "An Agent-tool subagent call or a single 300 s call blocks the session past the 5-minute heartbeat and no check outside AC-4.3 detects it.",
+      "blocking": true,
+      "anchor": "A command step that blocks a single tool call for longer than 5 minutes (a poll wait, a long eval)",
+      "at": [
+        67,
+        68
+      ],
+      "at_snapshot": "r1",
+      "origin": "find",
+      "scope": "in",
+      "caused_by": [],
+      "finding": "WC-10 ignores subagent waits kept by WC-7; spec-panel-ledger.md:261 treats heartbeat through a long subagent run as unproven.",
+      "status": "verified",
+      "mappings": [
+        {
+          "snapshot": "r2",
+          "span": [
+            69,
+            70
+          ],
+          "method": "rewritten-in-hunk"
+        },
+        {
+          "snapshot": "r3",
+          "span": [
+            69,
+            70
+          ],
+          "method": "rewritten-in-hunk"
+        }
+      ],
+      "claims": [
+        {
+          "cycle": 1,
+          "via": [
+            "answer"
+          ],
+          "hunks": [
+            "c1#5"
+          ],
+          "bytes": 1405
+        }
+      ],
+      "history": [
+        {
+          "seq": 2,
+          "via": "find",
+          "to": "open"
+        },
+        {
+          "seq": 5,
+          "via": "begin",
+          "from": "open",
+          "to": "fixed",
+          "claimed_by": [
+            "answer"
+          ]
+        },
+        {
+          "seq": 6,
+          "via": "verify",
+          "round": 2,
+          "result": "resolved",
+          "touched_ok": false,
+          "evidence": "No single tool call a command makes may block the session for 4 minutes or more",
+          "from": "fixed",
+          "to": "verified"
+        },
+        {
+          "seq": 9,
+          "via": "begin",
+          "from": "verified",
+          "to": "fixed",
+          "reason": "a hunk of this round touches the verified span"
+        },
+        {
+          "seq": 10,
+          "via": "verify",
+          "round": 3,
+          "result": "resolved",
+          "touched_ok": true,
+          "evidence": "a call of exactly 240 s is allowed, a longer one is not",
+          "from": "fixed",
+          "to": "verified"
+        }
+      ]
+    },
+    {
+      "id": "R12",
+      "label": "F12",
+      "round_found": 1,
+      "grade": "MAJOR",
+      "rule": "WC-11",
+      "wrong_outcome": "7.2 step 6 fails whenever the shared worktree has any other untracked file (this checkout already shows ?? .dev/orca-command-refactor/), and two workers can collide on git add .dev/tasks.",
+      "blocking": true,
+      "anchor": "only files under the brief's output directory (and the command's documented artifacts) appear",
+      "at": [
+        184,
+        185
+      ],
+      "at_snapshot": "r1",
+      "origin": "find",
+      "scope": "in",
+      "caused_by": [],
+      "finding": "step 6 and WC-11 ignore shared worktree and git index state (orca-capabilities.md:115; sc-workflow-protocol/SKILL.md:28).",
+      "status": "verified",
+      "mappings": [
+        {
+          "snapshot": "r2",
+          "span": [
+            187,
+            188
+          ],
+          "method": "rewritten-in-hunk"
+        },
+        {
+          "snapshot": "r3",
+          "span": [
+            187,
+            188
+          ],
+          "method": "rewritten-in-hunk"
+        }
+      ],
+      "claims": [
+        {
+          "cycle": 1,
+          "via": [
+            "answer"
+          ],
+          "hunks": [
+            "c1#11"
+          ],
+          "bytes": 864
+        }
+      ],
+      "history": [
+        {
+          "seq": 2,
+          "via": "find",
+          "to": "open"
+        },
+        {
+          "seq": 5,
+          "via": "begin",
+          "from": "open",
+          "to": "fixed",
+          "claimed_by": [
+            "answer"
+          ]
+        },
+        {
+          "seq": 6,
+          "via": "verify",
+          "round": 2,
+          "result": "resolved",
+          "touched_ok": false,
+          "evidence": "lines already present before step 1 are ignored",
+          "from": "fixed",
+          "to": "verified"
+        },
+        {
+          "seq": 9,
+          "via": "begin",
+          "from": "verified",
+          "to": "fixed",
+          "reason": "a hunk of this round touches the verified span"
+        },
+        {
+          "seq": 10,
+          "via": "verify",
+          "round": 3,
+          "result": "resolved",
+          "touched_ok": true,
+          "evidence": "lines already present before step 1 are ignored",
+          "from": "fixed",
+          "to": "verified"
+        }
+      ]
+    },
+    {
+      "id": "R13",
+      "label": "F13",
+      "round_found": 1,
+      "grade": "MAJOR",
+      "rule": "SA-4",
+      "wrong_outcome": "A deleted Markdown bullet shows as '-- item', which grep -E '^-[^-]' does not match, so AC-C5 and AC-0.3 pass a non-additive edit.",
+      "blocking": true,
+      "anchor": "src/superclaude/commands/<name>.md",
+      "at": [
+        175,
+        176
+      ],
+      "at_snapshot": "r1",
+      "origin": "find",
+      "scope": "in",
+      "caused_by": [],
+      "finding": "additive-edit regex misses deleted lines starting with '-'; tested NO_MATCH.",
+      "status": "verified",
+      "mappings": [
+        {
+          "snapshot": "r2",
+          "span": [
+            178,
+            179
+          ],
+          "method": "exact"
+        },
+        {
+          "snapshot": "r3",
+          "span": [
+            178,
+            179
+          ],
+          "method": "unchanged"
+        }
+      ],
+      "claims": [
+        {
+          "cycle": 1,
+          "via": [
+            "answer"
+          ],
+          "hunks": [
+            "c1#10"
+          ],
+          "bytes": 538
+        }
+      ],
+      "history": [
+        {
+          "seq": 2,
+          "via": "find",
+          "to": "open"
+        },
+        {
+          "seq": 5,
+          "via": "begin",
+          "from": "open",
+          "to": "fixed",
+          "claimed_by": [
+            "answer"
+          ]
+        },
+        {
+          "seq": 6,
+          "via": "verify",
+          "round": 2,
+          "result": "resolved",
+          "touched_ok": false,
+          "evidence": "the second number (deleted lines) is `0`: edits are additive",
+          "from": "fixed",
+          "to": "verified"
+        }
+      ]
+    },
+    {
+      "id": "R14",
+      "label": "F14",
+      "round_found": 1,
+      "grade": "MINOR",
+      "rule": null,
+      "wrong_outcome": "",
+      "blocking": false,
+      "anchor": "The first sentence of the body states the report's status and verdict.",
+      "at": [
+        62,
+        63
+      ],
+      "at_snapshot": "r1",
+      "origin": "find",
+      "scope": "in",
+      "caused_by": [],
+      "finding": "WC-5 cites a verdict that WC-4 has no field for.",
+      "status": "deferred",
+      "mappings": [
+        {
+          "snapshot": "r2",
+          "span": [
+            63,
+            64
+          ],
+          "method": "exact"
+        },
+        {
+          "snapshot": "r3",
+          "span": [
+            63,
+            64
+          ],
+          "method": "unchanged"
+        }
+      ],
+      "claims": [],
+      "history": [
+        {
+          "seq": 2,
+          "via": "find",
+          "to": "deferred"
+        }
+      ]
+    },
+    {
+      "id": "R15",
+      "label": "F15",
+      "round_found": 1,
+      "grade": "MINOR",
+      "rule": null,
+      "wrong_outcome": "",
+      "blocking": false,
+      "anchor": "Launch setup, not commands",
+      "at": [
+        58,
+        59
+      ],
+      "at_snapshot": "r1",
+      "origin": "find",
+      "scope": "in",
+      "caused_by": [],
+      "finding": "WC-1 has no phase owner or acceptance check.",
+      "status": "deferred",
+      "mappings": [
+        {
+          "snapshot": "r2",
+          "span": [
+            58,
+            59
+          ],
+          "method": "unchanged"
+        },
+        {
+          "snapshot": "r3",
+          "span": [
+            58,
+            59
+          ],
+          "method": "unchanged"
+        }
+      ],
+      "claims": [],
+      "history": [
+        {
+          "seq": 2,
+          "via": "find",
+          "to": "deferred"
+        }
+      ]
+    },
+    {
+      "id": "R16",
+      "label": "F16",
+      "round_found": 1,
+      "grade": "MINOR",
+      "rule": null,
+      "wrong_outcome": "",
+      "blocking": false,
+      "anchor": "Repo root: /home/coder/workspaces/worktrees/IronClaude/OrcaCLICommandRefactor-Specs.",
+      "at": [
+        3,
+        4
+      ],
+      "at_snapshot": "r1",
+      "origin": "find",
+      "scope": "in",
+      "caused_by": [],
+      "finding": "stated repo root does not exist on this machine; relative paths still resolve.",
+      "status": "deferred",
+      "mappings": [
+        {
+          "snapshot": "r2",
+          "span": [
+            3,
+            4
+          ],
+          "method": "unchanged"
+        },
+        {
+          "snapshot": "r3",
+          "span": [
+            3,
+            4
+          ],
+          "method": "unchanged"
+        }
+      ],
+      "claims": [],
+      "history": [
+        {
+          "seq": 2,
+          "via": "find",
+          "to": "deferred"
+        }
+      ]
+    },
+    {
+      "id": "R17",
+      "label": "F17",
+      "round_found": 1,
+      "grade": "MINOR",
+      "rule": null,
+      "wrong_outcome": "",
+      "blocking": false,
+      "anchor": "prints nothing (SA-2, WC-8)",
+      "at": [
+        171,
+        172
+      ],
+      "at_snapshot": "r1",
+      "origin": "find",
+      "scope": "in",
+      "caused_by": [],
+      "finding": "table-escaped \\| makes raw-copied checks vacuous; rendered Markdown is correct.",
+      "status": "deferred",
+      "mappings": [
+        {
+          "snapshot": "r2",
+          "span": [
+            174,
+            175
+          ],
+          "method": "unchanged"
+        },
+        {
+          "snapshot": "r3",
+          "span": [
+            174,
+            175
+          ],
+          "method": "unchanged"
+        }
+      ],
+      "claims": [],
+      "history": [
+        {
+          "seq": 2,
+          "via": "find",
+          "to": "deferred"
+        }
+      ]
+    },
+    {
+      "id": "R18",
+      "label": "N1",
+      "round_found": 2,
+      "grade": "MAJOR",
+      "rule": "WC-4",
+      "wrong_outcome": "For /sc:research, /sc:task or /sc:recommend under --unattended (no output flag, none named in their rows), or a build/cleanup/improve/test report path of unknown kind, the coordinator cannot fix the WC-4 path before dispatch and 7.2 step 3 has no path to compare.",
+      "blocking": true,
+      "anchor": "A command with no output flag uses the report flag its section 3 row names",
+      "at": [
+        62,
+        63
+      ],
+      "at_snapshot": "r2",
+      "origin": "changed",
+      "scope": "in",
+      "caused_by": [
+        "R2",
+        "R4"
+      ],
+      "finding": "WC-4a no-output-flag branch is empty for rows that name no flag (spec:118,119,124; cmd/research.md:103) and file-vs-dir is undecided for 'add a report path' rows (spec:104,106,113,126).",
+      "status": "verified",
+      "mappings": [
+        {
+          "snapshot": "r3",
+          "span": [
+            62,
+            63
+          ],
+          "method": "rewritten-in-hunk"
+        }
+      ],
+      "claims": [
+        {
+          "cycle": 2,
+          "via": [
+            "answer"
+          ],
+          "hunks": [
+            "c2#2"
+          ],
+          "bytes": 2721
+        }
+      ],
+      "history": [
+        {
+          "seq": 6,
+          "via": "verify",
+          "to": "open",
+          "round": 2
+        },
+        {
+          "seq": 9,
+          "via": "begin",
+          "from": "open",
+          "to": "fixed",
+          "claimed_by": [
+            "answer"
+          ]
+        },
+        {
+          "seq": 10,
+          "via": "verify",
+          "round": 3,
+          "result": "resolved",
+          "touched_ok": true,
+          "evidence": "takes `--report-dir <dir>` under `--unattended`",
+          "from": "fixed",
+          "to": "verified"
+        }
+      ],
+      "side": "new",
+      "parent": "R4"
+    },
+    {
+      "id": "R19",
+      "label": "N2",
+      "round_found": 2,
+      "grade": "MAJOR",
+      "rule": "FR-8",
+      "wrong_outcome": "The /sc:task duty is tagged P1 but sits in no P1 scope or task row, so it is never built; task's WC-4 return-contract.yaml and troubleshoot's TFEP file then share one path again.",
+      "blocking": true,
+      "anchor": "`/sc:task` gives TFEP an `<output-dir>` other than the task worker's own WC-4 directory",
+      "at": [
+        92,
+        93
+      ],
+      "at_snapshot": "r2",
+      "origin": "changed",
+      "scope": "in",
+      "caused_by": [
+        "R3"
+      ],
+      "finding": "TFEP row assigns a P1 change to /sc:task, a P2 command absent from the P1 list (spec:162-163) and whose row (spec:124) lacks the duty; sk/sc-task-protocol/SKILL.md:216,220.",
+      "status": "verified",
+      "mappings": [
+        {
+          "snapshot": "r3",
+          "span": [
+            92,
+            93
+          ],
+          "method": "rewritten-in-hunk"
+        }
+      ],
+      "claims": [
+        {
+          "cycle": 2,
+          "via": [
+            "answer"
+          ],
+          "hunks": [
+            "c2#4"
+          ],
+          "bytes": 1327
+        }
+      ],
+      "history": [
+        {
+          "seq": 6,
+          "via": "verify",
+          "to": "open",
+          "round": 2
+        },
+        {
+          "seq": 9,
+          "via": "begin",
+          "from": "open",
+          "to": "fixed",
+          "claimed_by": [
+            "answer"
+          ]
+        },
+        {
+          "seq": 10,
+          "via": "verify",
+          "round": 3,
+          "result": "resolved",
+          "touched_ok": true,
+          "evidence": "The `/sc:task` side is a P2 change",
+          "from": "fixed",
+          "to": "verified"
+        }
+      ],
+      "side": "new",
+      "parent": "R3"
+    },
+    {
+      "id": "R20",
+      "label": "N3",
+      "round_found": 2,
+      "grade": "MINOR",
+      "rule": null,
+      "wrong_outcome": "",
+      "blocking": false,
+      "anchor": "### 3.1 Ready today (10)",
+      "at": [
+        79,
+        80
+      ],
+      "at_snapshot": "r2",
+      "origin": "outside",
+      "scope": "outside",
+      "caused_by": [],
+      "finding": "3.1 table now has 11 rows (TFEP row added) while the header and section 3 lead-in still count 10.",
+      "status": "deferred",
+      "mappings": [
+        {
+          "snapshot": "r3",
+          "span": [
+            79,
+            80
+          ],
+          "method": "unchanged"
+        }
+      ],
+      "claims": [],
+      "history": [
+        {
+          "seq": 6,
+          "via": "verify",
+          "to": "deferred",
+          "round": 2
+        }
+      ],
+      "side": "new",
+      "parent": null
+    },
+    {
+      "id": "R21",
+      "label": "N4",
+      "round_found": 2,
+      "grade": "MAJOR",
+      "rule": "WC-3",
+      "wrong_outcome": "A worker following revised WC-3 asks the coordinator about the bare tdd topic, re-runs and reports succeeded, so AC-2.2 (requires --outcome failed and status: blocked) fails although both rules were followed.",
+      "blocking": true,
+      "anchor": "which is the route for `/sc:recommend`'s one clarifying question and `/sc:tdd`'s topic clarification",
+      "at": [
+        60,
+        61
+      ],
+      "at_snapshot": "r2",
+      "origin": "changed",
+      "scope": "in",
+      "caused_by": [
+        "R8"
+      ],
+      "finding": "WC-3 names tdd's topic gate as an ask route; AC-2.2 (spec:203) uses that gate and requires a blocked outcome.",
+      "status": "verified",
+      "mappings": [
+        {
+          "snapshot": "r3",
+          "span": [
+            60,
+            61
+          ],
+          "method": "exact"
+        }
+      ],
+      "claims": [
+        {
+          "cycle": 2,
+          "via": [
+            "answer"
+          ],
+          "hunks": [
+            "c2#1"
+          ],
+          "bytes": 1936
+        }
+      ],
+      "history": [
+        {
+          "seq": 6,
+          "via": "verify",
+          "to": "open",
+          "round": 2
+        },
+        {
+          "seq": 9,
+          "via": "begin",
+          "from": "open",
+          "to": "fixed",
+          "claimed_by": [
+            "answer"
+          ]
+        },
+        {
+          "seq": 10,
+          "via": "verify",
+          "round": 3,
+          "result": "resolved",
+          "touched_ok": true,
+          "evidence": "AC-2.2's gate-trigger runs use a brief that does not offer answers",
+          "from": "fixed",
+          "to": "verified"
+        }
+      ],
+      "side": "new",
+      "parent": "R8"
+    },
+    {
+      "id": "R22",
+      "label": "N5",
+      "round_found": 2,
+      "grade": "MAJOR",
+      "rule": "WC-9",
+      "wrong_outcome": "In P1, /sc:spec-panel, /sc:cleanup, /sc:improve, /sc:recommend, /sc:research or /sc:task under --unattended must write a blocked WC-4 report but has no output or report flag until its own phase, so the report lands at an unknown path or not at all.",
+      "blocking": true,
+      "anchor": "so no prompt and no outward default can run early",
+      "at": [
+        161,
+        162
+      ],
+      "at_snapshot": "r2",
+      "origin": "changed",
+      "scope": "in",
+      "caused_by": [
+        "R9"
+      ],
+      "finding": "P1 blocked-report rule needs a WC-4 path for P2-P4 commands whose output flags arrive only in their own phase (spec:106,113,118,119,123,124).",
+      "status": "verified",
+      "mappings": [
+        {
+          "snapshot": "r3",
+          "span": [
+            161,
+            162
+          ],
+          "method": "exact"
+        }
+      ],
+      "claims": [
+        {
+          "cycle": 2,
+          "via": [
+            "answer"
+          ],
+          "hunks": [
+            "c2#5"
+          ],
+          "bytes": 1385
+        }
+      ],
+      "history": [
+        {
+          "seq": 6,
+          "via": "verify",
+          "to": "open",
+          "round": 2
+        },
+        {
+          "seq": 9,
+          "via": "begin",
+          "from": "open",
+          "to": "fixed",
+          "claimed_by": [
+            "answer"
+          ]
+        },
+        {
+          "seq": 10,
+          "via": "verify",
+          "round": 3,
+          "result": "resolved",
+          "touched_ok": false,
+          "evidence": "the WC-4a report flag on every P2-P4 command that lacks one",
+          "from": "fixed",
+          "to": "verified"
+        }
+      ],
+      "side": "new",
+      "parent": "R9"
+    },
+    {
+      "id": "R23",
+      "label": "N6",
+      "round_found": 2,
+      "grade": "MAJOR",
+      "rule": "FR-8",
+      "wrong_outcome": "An implementer following the cli-eval row ships 240 s waits that WC-10 forbids, and AC-4.3 passes a 240 s call, so the rule and its checks disagree at the boundary.",
+      "blocking": true,
+      "anchor": "(one 300 s call is therefore not allowed)",
+      "at": [
+        69,
+        70
+      ],
+      "at_snapshot": "r2",
+      "origin": "changed",
+      "scope": "in",
+      "caused_by": [
+        "R11"
+      ],
+      "finding": "WC-10 forbids 4 minutes or more; cli-eval row 'at most 4 minutes' (spec:107), AC-4.3 'no single tool call exceeds 240 s' (spec:213), Decisions 'Wait size' (spec:269).",
+      "status": "verified",
+      "mappings": [
+        {
+          "snapshot": "r3",
+          "span": [
+            69,
+            70
+          ],
+          "method": "exact"
+        }
+      ],
+      "claims": [
+        {
+          "cycle": 2,
+          "via": [
+            "answer"
+          ],
+          "hunks": [
+            "c2#3"
+          ],
+          "bytes": 2658
+        }
+      ],
+      "history": [
+        {
+          "seq": 6,
+          "via": "verify",
+          "to": "open",
+          "round": 2
+        },
+        {
+          "seq": 9,
+          "via": "begin",
+          "from": "open",
+          "to": "fixed",
+          "claimed_by": [
+            "answer"
+          ]
+        },
+        {
+          "seq": 10,
+          "via": "verify",
+          "round": 3,
+          "result": "resolved",
+          "touched_ok": true,
+          "evidence": "a call of exactly 240 s is allowed, a longer one is not",
+          "from": "fixed",
+          "to": "verified"
+        }
+      ],
+      "side": "new",
+      "parent": "R11"
+    },
+    {
+      "id": "R24",
+      "label": "N7",
+      "round_found": 2,
+      "grade": "MAJOR",
+      "rule": "WC-10",
+      "wrong_outcome": "A worker whose Agent-tool subagent hangs keeps a live process, so projection.liveness stays live, the coordinator ignores the heartbeat gap by rule, and 7.2 step 3 waits for worker_done with no total bound.",
+      "blocking": true,
+      "anchor": "the coordinator does not treat a heartbeat gap during a worker's subagent fan-out as a hang by itself",
+      "at": [
+        69,
+        70
+      ],
+      "at_snapshot": "r2",
+      "origin": "changed",
+      "scope": "in",
+      "caused_by": [
+        "R11"
+      ],
+      "finding": "Substitute liveness signals are process liveness only (CAPS:122-123); no bound replaces the heartbeat signal (spec:185).",
+      "status": "verified",
+      "mappings": [
+        {
+          "snapshot": "r3",
+          "span": [
+            69,
+            70
+          ],
+          "method": "exact"
+        }
+      ],
+      "claims": [
+        {
+          "cycle": 2,
+          "via": [
+            "answer"
+          ],
+          "hunks": [
+            "c2#3"
+          ],
+          "bytes": 2658
+        }
+      ],
+      "history": [
+        {
+          "seq": 6,
+          "via": "verify",
+          "to": "open",
+          "round": 2
+        },
+        {
+          "seq": 9,
+          "via": "begin",
+          "from": "open",
+          "to": "fixed",
+          "claimed_by": [
+            "answer"
+          ]
+        },
+        {
+          "seq": 10,
+          "via": "verify",
+          "round": 3,
+          "result": "resolved",
+          "touched_ok": true,
+          "evidence": "at expiry the live check fails and the coordinator escalates while preserving the Dispatch",
+          "from": "fixed",
+          "to": "verified"
+        }
+      ],
+      "side": "new",
+      "parent": "R11"
+    },
+    {
+      "id": "R25",
+      "label": "N8",
+      "round_found": 2,
+      "grade": "MAJOR",
+      "rule": "AC-0.4",
+      "wrong_outcome": "P0's /sc:troubleshoot run (no --output-dir, default .dev/troubleshoot/<slug>-<timestamp>/) and /sc:workflow run (.dev/tasks/to-do/<id>/) add files outside any brief output directory, and REPORT.md and the package contract have no report_path/artifacts fields, so step 6 fails, AC-0.4 fails and no later phase starts.",
+      "blocking": true,
+      "anchor": "a path in this worker's WC-4 report (`report_path`, `artifacts`)",
+      "at": [
+        187,
+        188
+      ],
+      "at_snapshot": "r2",
+      "origin": "changed",
+      "scope": "in",
+      "caused_by": [
+        "R12"
+      ],
+      "finding": "R12 rewrite dropped the 'command's documented artifacts' allowance (plan-r2.md:205); AC-0.4 (spec:197) says step 6 passes as written in P0; cmd/troubleshoot.md:56; refs/return-contract.md:6-19.",
+      "status": "open",
+      "mappings": [
+        {
+          "snapshot": "r3",
+          "span": [
+            187,
+            188
+          ],
+          "method": "exact"
+        }
+      ],
+      "claims": [
+        {
+          "cycle": 2,
+          "via": [
+            "answer"
+          ],
+          "hunks": [
+            "c2#6"
+          ],
+          "bytes": 1400
+        }
+      ],
+      "history": [
+        {
+          "seq": 6,
+          "via": "verify",
+          "to": "open",
+          "round": 2
+        },
+        {
+          "seq": 9,
+          "via": "begin",
+          "from": "open",
+          "to": "fixed",
+          "claimed_by": [
+            "answer"
+          ]
+        },
+        {
+          "seq": 10,
+          "via": "verify",
+          "round": 3,
+          "result": "open",
+          "touched_ok": false,
+          "evidence": "a path under the run-specific output directory that holds the existing report step 3 accepted",
+          "reason": "This admits workflow's package but not audit.log and return-contract.yaml in the mandatory nested reflect output directory; workflow's package contract names only reflect's REPORT.md. P0 step 6 still fails (N1).",
+          "from": "fixed",
+          "to": "open"
+        }
+      ],
+      "side": "new",
+      "parent": "R12"
+    },
+    {
+      "id": "R26",
+      "label": "N9",
+      "round_found": 2,
+      "grade": "MINOR",
+      "rule": null,
+      "wrong_outcome": "",
+      "blocking": false,
+      "anchor": "while `--numstat` printed `1 1`",
+      "at": [
+        178,
+        179
+      ],
+      "at_snapshot": "r2",
+      "origin": "changed",
+      "scope": "in",
+      "caused_by": [
+        "R13"
+      ],
+      "finding": "A pure deletion prints 0 1 (re-run 2026-11-09); 1 1 is an edit. The check is correct, the record is wrong.",
+      "status": "deferred",
+      "mappings": [
+        {
+          "snapshot": "r3",
+          "span": [
+            178,
+            179
+          ],
+          "method": "unchanged"
+        }
+      ],
+      "claims": [],
+      "history": [
+        {
+          "seq": 6,
+          "via": "verify",
+          "to": "deferred",
+          "round": 2
+        }
+      ],
+      "side": "new",
+      "parent": "R13"
+    },
+    {
+      "id": "R27",
+      "label": "N10",
+      "round_found": 2,
+      "grade": "MAJOR",
+      "rule": "WC-7a",
+      "wrong_outcome": "In P1-P4, a worker that reads the command file and improvises the protocol without the Skill call passes AC-1.2 and AC-2.3, because 7.2 step 5 checks only for AskUserQuestion.",
+      "blocking": false,
+      "anchor": "search the transcript for `AskUserQuestion`",
+      "at": [
+        186,
+        187
+      ],
+      "at_snapshot": "r2",
+      "origin": "outside",
+      "scope": "outside",
+      "caused_by": [],
+      "finding": "The WC-7a Skill-call check exists only in AC-0.4 (spec:197); 7.2 step 5 (spec:187) used by AC-1.2 and AC-2.3 does not check it.",
+      "status": "deferred",
+      "mappings": [
+        {
+          "snapshot": "r3",
+          "span": [
+            186,
+            187
+          ],
+          "method": "unchanged"
+        }
+      ],
+      "claims": [],
+      "history": [
+        {
+          "seq": 6,
+          "via": "verify",
+          "to": "deferred",
+          "round": 2
+        }
+      ],
+      "side": "new",
+      "parent": null
+    },
+    {
+      "id": "R28",
+      "label": "N11",
+      "round_found": 2,
+      "grade": "MAJOR",
+      "rule": "7.2",
+      "wrong_outcome": "A worker parked on a person-only prompt on a host whose worker-show omits agentWait passes step 2, since an absent field is not non-null.",
+      "blocking": false,
+      "anchor": "`observation.agentWait` is never non-null",
+      "at": [
+        183,
+        184
+      ],
+      "at_snapshot": "r2",
+      "origin": "outside",
+      "scope": "outside",
+      "caused_by": [],
+      "finding": "orca orchestration worker-show --help: an absent agentWait 'never means the worker is not waiting'.",
+      "status": "deferred",
+      "mappings": [
+        {
+          "snapshot": "r3",
+          "span": [
+            183,
+            184
+          ],
+          "method": "unchanged"
+        }
+      ],
+      "claims": [],
+      "history": [
+        {
+          "seq": 6,
+          "via": "verify",
+          "to": "deferred",
+          "round": 2
+        }
+      ],
+      "side": "new",
+      "parent": null
+    },
+    {
+      "id": "R29",
+      "label": "N12",
+      "round_found": 2,
+      "grade": "MINOR",
+      "rule": null,
+      "wrong_outcome": "",
+      "blocking": false,
+      "anchor": "`git diff -U0 master...HEAD -- src/superclaude/core/HOW-WE-WORK.md",
+      "at": [
+        195,
+        196
+      ],
+      "at_snapshot": "r2",
+      "origin": "outside",
+      "scope": "outside",
+      "caused_by": [],
+      "finding": "AC-0.3 still shows the grep test AC-C5 calls wrong; the override sits only in AC-C5.",
+      "status": "deferred",
+      "mappings": [
+        {
+          "snapshot": "r3",
+          "span": [
+            195,
+            196
+          ],
+          "method": "unchanged"
+        }
+      ],
+      "claims": [],
+      "history": [
+        {
+          "seq": 6,
+          "via": "verify",
+          "to": "deferred",
+          "round": 2
+        }
+      ],
+      "side": "new",
+      "parent": null
+    },
+    {
+      "id": "R30",
+      "label": "N13",
+      "round_found": 2,
+      "grade": "MINOR",
+      "rule": null,
+      "wrong_outcome": "",
+      "blocking": false,
+      "anchor": "workflow states the contract is written for pre-creation STOPs",
+      "at": [
+        200,
+        201
+      ],
+      "at_snapshot": "r2",
+      "origin": "outside",
+      "scope": "outside",
+      "caused_by": [],
+      "finding": "AC-1.4 wording lags the R1 fix; only WC-4a's global 'the contract means' sentence reconciles it.",
+      "status": "deferred",
+      "mappings": [
+        {
+          "snapshot": "r3",
+          "span": [
+            200,
+            201
+          ],
+          "method": "unchanged"
+        }
+      ],
+      "claims": [],
+      "history": [
+        {
+          "seq": 6,
+          "via": "verify",
+          "to": "deferred",
+          "round": 2
+        }
+      ],
+      "side": "new",
+      "parent": null
+    },
+    {
+      "id": "R31",
+      "label": "N14",
+      "round_found": 2,
+      "grade": "MINOR",
+      "rule": null,
+      "wrong_outcome": "",
+      "blocking": false,
+      "anchor": "naming `return-contract.yaml` and `~/.claude/WORKER-CONTRACT.md`",
+      "at": [
+        197,
+        198
+      ],
+      "at_snapshot": "r2",
+      "origin": "outside",
+      "scope": "outside",
+      "caused_by": [],
+      "finding": "AC-1.1 never checks worker-contract.yaml for the five commands that use it.",
+      "status": "deferred",
+      "mappings": [
+        {
+          "snapshot": "r3",
+          "span": [
+            197,
+            198
+          ],
+          "method": "unchanged"
+        }
+      ],
+      "claims": [],
+      "history": [
+        {
+          "seq": 6,
+          "via": "verify",
+          "to": "deferred",
+          "round": 2
+        }
+      ],
+      "side": "new",
+      "parent": null
+    },
+    {
+      "id": "R32",
+      "label": "N15",
+      "round_found": 2,
+      "grade": "MINOR",
+      "rule": null,
+      "wrong_outcome": "",
+      "blocking": false,
+      "anchor": "(today adversarial, brainstorm, reflect, workflow, and troubleshoot when `--caller task-unified`)",
+      "at": [
+        62,
+        63
+      ],
+      "at_snapshot": "r2",
+      "origin": "changed",
+      "scope": "in",
+      "caused_by": [
+        "R2",
+        "R4"
+      ],
+      "finding": "adversarial is listed as already writing a file named return-contract.yaml, but its skill names no filename (sk/sc-adversarial-protocol/SKILL.md:425-436) and spec:85 says filename not fixed.",
+      "status": "deferred",
+      "mappings": [
+        {
+          "snapshot": "r3",
+          "span": [
+            62,
+            63
+          ],
+          "method": "exact"
+        }
+      ],
+      "claims": [],
+      "history": [
+        {
+          "seq": 6,
+          "via": "verify",
+          "to": "deferred",
+          "round": 2
+        }
+      ],
+      "side": "new",
+      "parent": null
+    },
+    {
+      "id": "R33",
+      "label": "N16",
+      "round_found": 2,
+      "grade": "MINOR",
+      "rule": null,
+      "wrong_outcome": "",
+      "blocking": false,
+      "anchor": "\"Contract\" means the WC-4 file `<output-dir>/return-contract.yaml`.",
+      "at": [
+        77,
+        78
+      ],
+      "at_snapshot": "r2",
+      "origin": "outside",
+      "scope": "outside",
+      "caused_by": [],
+      "finding": "Section 3 lead-in and the Decisions 'Report shape' row (spec:264) still describe the pre-WC-4a path; overridden only by WC-4a.",
+      "status": "deferred",
+      "mappings": [
+        {
+          "snapshot": "r3",
+          "span": [
+            77,
+            78
+          ],
+          "method": "unchanged"
+        }
+      ],
+      "claims": [],
+      "history": [
+        {
+          "seq": 6,
+          "via": "verify",
+          "to": "deferred",
+          "round": 2
+        }
+      ],
+      "side": "new",
+      "parent": null
+    },
+    {
+      "id": "R34",
+      "label": "N1",
+      "round_found": 3,
+      "grade": "MAJOR",
+      "rule": "FR-8",
+      "wrong_outcome": "A P0 workflow with a successful mandatory reflect writes audit.log and return-contract.yaml outside the workflow package. Step 3 accepts the package contract, whose reflect_report_path names only REPORT.md, so step 6 rejects the other mandatory nested files and the baseline phase cannot pass.",
+      "blocking": true,
+      "anchor": "a path under the run-specific output directory that holds the existing report step 3 accepted",
+      "at": [
+        187,
+        188
+      ],
+      "at_snapshot": "r3",
+      "origin": "changed",
+      "scope": "in",
+      "caused_by": [
+        "R25"
+      ],
+      "finding": "The P0 artifact allowance misses nested reflect outputs: sk/sc-workflow-protocol/SKILL.md:58 invokes reflect with defaults; cmd/reflect.md:101 chooses a separate directory; sk/sc-reflect-protocol/SKILL.md:136,659 mandates log and contract; workflow refs/return-contract.md:17 exposes only REPORT.md. Spec:188,197.",
+      "status": "open",
+      "mappings": [],
+      "claims": [],
+      "history": [
+        {
+          "seq": 10,
+          "via": "verify",
+          "to": "open",
+          "round": 3
+        }
+      ],
+      "side": "new",
+      "parent": "R25"
+    },
+    {
+      "id": "R35",
+      "label": "N2",
+      "round_found": 3,
+      "grade": "MAJOR",
+      "rule": "AC-1.2",
+      "wrong_outcome": "Following the P1 live check literally invokes workflow with --output, which is retired and correctly returns E-LEGACY, so the prescribed normal live check cannot pass without violating the workflow flag contract.",
+      "blocking": false,
+      "anchor": "7.2 live check on each P1 command with `--unattended --output <dir>`",
+      "at": [
+        198,
+        199
+      ],
+      "at_snapshot": "r3",
+      "origin": "outside",
+      "scope": "outside",
+      "caused_by": [],
+      "finding": "Spec:199 demands a uniform output flag, but workflow is a P1 command (spec:162) whose row requires --report-dir and forbids --output (spec:95); sk/sc-workflow-protocol/SKILL.md:24 and refs/return-contract.md:39 confirm the rejection.",
+      "status": "deferred",
+      "mappings": [],
+      "claims": [],
+      "history": [
+        {
+          "seq": 10,
+          "via": "verify",
+          "to": "deferred",
+          "round": 3
+        }
+      ],
+      "side": "new",
+      "parent": null
+    },
+    {
+      "id": "R36",
+      "label": "N3",
+      "round_found": 3,
+      "grade": "MAJOR",
+      "rule": "FR-8",
+      "wrong_outcome": "Before P3, P1 enables unattended save normally because it has no pending human gate or outward default. Two workers with separate report directories can then overwrite the same last_session.md whole, violating WC-11 before save's per-session-only conversion ships.",
+      "blocking": true,
+      "anchor": "Every other command runs normally under the flag.",
+      "at": [
+        161,
+        162
+      ],
+      "at_snapshot": "r3",
+      "origin": "changed",
+      "scope": "in",
+      "caused_by": [
+        "R22"
+      ],
+      "finding": "Spec:162 blocks only gates/outward defaults yet enables all other commands. Save's shared-state conversion remains P3 (spec:122,164); cmd/save.md:42-45 writes one shared store and overwrites single-owner keys. Spec:71 forbids those concurrent writes.",
+      "status": "open",
+      "mappings": [],
+      "claims": [],
+      "history": [
+        {
+          "seq": 10,
+          "via": "verify",
+          "to": "open",
+          "round": 3
+        }
+      ],
+      "side": "new",
+      "parent": "R22"
+    },
+    {
+      "id": "R37",
+      "label": "N1 WC-5 empty or unparseable report maps to succeeded",
+      "round_found": "sweep",
+      "grade": "MAJOR",
+      "rule": "FR-8",
+      "wrong_outcome": "A report that exists but is empty, truncated, has no status, or uses the legacy value success is mapped to --outcome succeeded, so Orca settles a failed Task as done.",
+      "blocking": false,
+      "anchor": "or no report exists; `--outcome succeeded` otherwise, including `partial`",
+      "at": [
+        63,
+        64
+      ],
+      "at_snapshot": "r3",
+      "origin": "sweep",
+      "scope": "sweep",
+      "caused_by": [],
+      "finding": "WC-5 sends succeeded for any existing report that does not say failed or blocked; it must send succeeded only when status parses as succeeded or partial.",
+      "status": "deferred",
+      "mappings": [],
+      "claims": [],
+      "history": [
+        {
+          "seq": 13,
+          "via": "sweep",
+          "to": "deferred"
+        }
+      ],
+      "would_block": true,
+      "challenges": null,
+      "location": "outside_hunks"
+    },
+    {
+      "id": "R38",
+      "label": "N2 240 s limit vs Agent-tool calls ambiguous",
+      "round_found": "sweep",
+      "grade": "MAJOR",
+      "rule": "FR-8",
+      "wrong_outcome": "Read literally, every fan-out command (adversarial, troubleshoot Tier 2) breaks WC-10 and AC-4.3 fails pr-submit whenever its evidence-validator subagent runs over 4 minutes; read the other way, the limit has an unstated exemption.",
+      "blocking": false,
+      "anchor": "No single tool call a command makes may block the session for longer than 240 s",
+      "at": [
+        69,
+        70
+      ],
+      "at_snapshot": "r3",
+      "origin": "sweep",
+      "scope": "sweep",
+      "caused_by": [],
+      "finding": "WC-10 must say whether Agent-tool subagent calls are exempt from the 240 s single-call limit, and AC-4.3 must measure the same thing.",
+      "status": "deferred",
+      "mappings": [],
+      "claims": [],
+      "history": [
+        {
+          "seq": 13,
+          "via": "sweep",
+          "to": "deferred"
+        }
+      ],
+      "would_block": true,
+      "challenges": null,
+      "location": "in_claimed_span"
+    },
+    {
+      "id": "R39",
+      "label": "N3 section 2.3 brief list omits run-time budget and question-answer item",
+      "round_found": "sweep",
+      "grade": "MAJOR",
+      "rule": "FR-8",
+      "wrong_outcome": "A coordinator following section 2.3 sends no run-time budget, so WC-10's escalation bound has no value and a stuck subagent is never escalated; it also omits whether questions are answered.",
+      "blocking": false,
+      "anchor": "For each Task the coordinator's brief states:",
+      "at": [
+        74,
+        75
+      ],
+      "at_snapshot": "r3",
+      "origin": "sweep",
+      "scope": "sweep",
+      "caused_by": [],
+      "finding": "WC-10 and WC-3 each call their item one more item of the section 2.3 list, but the list names only command line, output directory, outward actions and placement.",
+      "status": "deferred",
+      "mappings": [],
+      "claims": [],
+      "history": [
+        {
+          "seq": 13,
+          "via": "sweep",
+          "to": "deferred"
+        }
+      ],
+      "would_block": true,
+      "challenges": null,
+      "location": "outside_hunks"
+    },
+    {
+      "id": "R40",
+      "label": "N4 WC-6 stale-report guard misses resuming commands",
+      "round_found": "sweep",
+      "grade": "MAJOR",
+      "rule": "FR-8",
+      "wrong_outcome": "An implicit-resume retry (implement) that dies before its final write leaves the earlier blocked report and its already-answered question at the recorded path, read as the retry's result.",
+      "blocking": false,
+      "anchor": "A command either resumes from its on-disk state when given its resume flag",
+      "at": [
+        64,
+        65
+      ],
+      "at_snapshot": "r3",
+      "origin": "sweep",
+      "scope": "sweep",
+      "caused_by": [],
+      "finding": "The start-of-attempt overwrite applies only to commands without a resume flag; it must apply to resumed attempts too.",
+      "status": "deferred",
+      "mappings": [],
+      "claims": [],
+      "history": [
+        {
+          "seq": 13,
+          "via": "sweep",
+          "to": "deferred"
+        }
+      ],
+      "would_block": true,
+      "challenges": null,
+      "location": "in_claimed_span"
+    },
+    {
+      "id": "R41",
+      "label": "N5 AC-2.2 expects blocked for default-resolved gates",
+      "round_found": "sweep",
+      "grade": "MAJOR",
+      "rule": null,
+      "wrong_outcome": "A correct /sc:auggie-review --unattended run that skips posting and succeeds fails AC-2.2, as do cleanup, improve, research, tasklist and reflect gates that resolve by a default.",
+      "blocking": false,
+      "anchor": "Gate-trigger run per P2 command",
+      "at": [
+        202,
+        203
+      ],
+      "at_snapshot": "r3",
+      "origin": "sweep",
+      "scope": "sweep",
+      "caused_by": [],
+      "finding": "AC-2.2 and WC-3 (R21) require every P2 gate-trigger run to end failed and blocked, but several P2 rows resolve their gate by a documented default.",
+      "status": "deferred",
+      "mappings": [],
+      "claims": [],
+      "history": [
+        {
+          "seq": 13,
+          "via": "sweep",
+          "to": "deferred"
+        }
+      ],
+      "would_block": true,
+      "challenges": null,
+      "location": "outside_hunks"
+    },
+    {
+      "id": "R42",
+      "label": "N6 AC-1.2 passes --output to every P1 command",
+      "round_found": "sweep",
+      "grade": "MAJOR",
+      "rule": null,
+      "wrong_outcome": "AC-1.2 run as written on workflow stops with E-LEGACY before any package or report exists, failing a correct implementation; index-repo, cleanup-audit and --report-dir commands get the wrong flag too.",
+      "blocking": false,
+      "anchor": "7.2 live check on each P1 command with `--unattended --output <dir>`",
+      "at": [
+        198,
+        199
+      ],
+      "at_snapshot": "r3",
+      "origin": "sweep",
+      "scope": "sweep",
+      "caused_by": [],
+      "finding": "AC-1.2 must use each command's WC-4a report flag and name which commands are P1 commands.",
+      "status": "deferred",
+      "mappings": [],
+      "claims": [],
+      "history": [
+        {
+          "seq": 13,
+          "via": "sweep",
+          "to": "deferred"
+        }
+      ],
+      "would_block": true,
+      "challenges": null,
+      "location": "outside_hunks"
+    },
+    {
+      "id": "R43",
+      "label": "N7 load gets --unattended and an Unattended section but writes no report",
+      "round_found": "sweep",
+      "grade": "MAJOR",
+      "rule": null,
+      "wrong_outcome": "AC-1.1 fails on the correct usage-line-only load change, or load's Unattended section claims a return-contract.yaml it never writes; load's behaviour under --unattended is undefined.",
+      "blocking": false,
+      "anchor": "none: use it as a step inside another worker's brief, not as its own Task",
+      "at": [
+        114,
+        115
+      ],
+      "at_snapshot": "r3",
+      "origin": "sweep",
+      "scope": "sweep",
+      "caused_by": [],
+      "finding": "P1 makes every 3.1-3.2 command accept --unattended, WC-4 makes unattended runs write a report, and AC-1.1 requires a section naming return-contract.yaml, while the load row says it writes no report.",
+      "status": "deferred",
+      "mappings": [],
+      "claims": [],
+      "history": [
+        {
+          "seq": 13,
+          "via": "sweep",
+          "to": "deferred"
+        }
+      ],
+      "would_block": true,
+      "challenges": null,
+      "location": "outside_hunks"
+    },
+    {
+      "id": "R44",
+      "label": "N8 tasklist --unattended runs N parallel reflect remediations in one worktree",
+      "round_found": "sweep",
+      "grade": "MAJOR",
+      "rule": null,
+      "wrong_outcome": "N parallel reflect agents auto-author workflow packages that stage .dev/tasks in one worktree, which the spec forbids for workers, and the new packages are not in tasklist's report, so 7.2 step 6 fails.",
+      "blocking": false,
+      "anchor": "Stage 10.5 passes `--unattended` to each reflect so the headless rule applies",
+      "at": [
+        124,
+        125
+      ],
+      "at_snapshot": "r3",
+      "origin": "sweep",
+      "scope": "sweep",
+      "caused_by": [],
+      "finding": "Stage 10.5 fans out one reflect --remediate agent per phase in parallel; with the headless rule each authors a corrective plan through sc:workflow.",
+      "status": "deferred",
+      "mappings": [],
+      "claims": [],
+      "history": [
+        {
+          "seq": 13,
+          "via": "sweep",
+          "to": "deferred"
+        }
+      ],
+      "would_block": true,
+      "challenges": null,
+      "location": "outside_hunks"
+    },
+    {
+      "id": "R45",
+      "label": "N9 AC-0.3 row still uses the replaced grep",
+      "round_found": "sweep",
+      "grade": "MINOR",
+      "rule": null,
+      "wrong_outcome": "",
+      "blocking": false,
+      "anchor": "git diff -U0 master...HEAD -- src/superclaude/core/HOW-WE-WORK.md",
+      "at": [
+        195,
+        196
+      ],
+      "at_snapshot": "r3",
+      "origin": "sweep",
+      "scope": "sweep",
+      "caused_by": [],
+      "finding": "AC-C5 says AC-0.3 uses the --numstat test instead of its grep, but the AC-0.3 row still prints the grep that misses a deleted Markdown bullet.",
+      "status": "deferred",
+      "mappings": [],
+      "claims": [],
+      "history": [
+        {
+          "seq": 13,
+          "via": "sweep",
+          "to": "deferred"
+        }
+      ],
+      "would_block": false,
+      "challenges": null,
+      "location": "outside_hunks"
+    },
+    {
+      "id": "R46",
+      "label": "N10 WC-10 attributes an installed file to the repo",
+      "round_found": "sweep",
+      "grade": "MINOR",
+      "rule": null,
+      "wrong_outcome": "",
+      "blocking": false,
+      "anchor": "the repo itself treats it as unproven until a recorded smoke check shows it",
+      "at": [
+        69,
+        70
+      ],
+      "at_snapshot": "r3",
+      "origin": "sweep",
+      "scope": "sweep",
+      "caused_by": [],
+      "finding": "The cited ~/.claude/commands/sc/spec-panel-ledger.md has no source copy in src/superclaude/commands/, so it is not the repo's statement.",
+      "status": "deferred",
+      "mappings": [],
+      "claims": [],
+      "history": [
+        {
+          "seq": 13,
+          "via": "sweep",
+          "to": "deferred"
+        }
+      ],
+      "would_block": false,
+      "challenges": null,
+      "location": "in_claimed_span"
+    },
+    {
+      "id": "R47",
+      "label": "N11 git row cites a run rule as a repo rule",
+      "round_found": "sweep",
+      "grade": "MINOR",
+      "rule": null,
+      "wrong_outcome": "",
+      "blocking": false,
+      "anchor": "need the user's authorization in this repo",
+      "at": [
+        135,
+        136
+      ],
+      "at_snapshot": "r3",
+      "origin": "sweep",
+      "scope": "sweep",
+      "caused_by": [],
+      "finding": ".dev/orca-command-refactor/README.md:31 is this run's worker rule, not a repo-wide authorization rule; the verdict stands on the other citations.",
+      "status": "deferred",
+      "mappings": [],
+      "claims": [],
+      "history": [
+        {
+          "seq": 13,
+          "via": "sweep",
+          "to": "deferred"
+        }
+      ],
+      "would_block": false,
+      "challenges": null,
+      "location": "outside_hunks"
+    },
+    {
+      "id": "R48",
+      "label": "N12 AC-1.1 asserts return-contract.yaml where WC-4a requires worker-contract.yaml",
+      "round_found": "sweep",
+      "grade": "MAJOR",
+      "rule": null,
+      "wrong_outcome": "A brainstorm Unattended section that points the worker at the legacy return-contract.yaml passes AC-1.1, and no P1 live check covers brainstorm, so the wrong report path reaches P2.",
+      "blocking": false,
+      "anchor": "has a `## Unattended mode` section naming `return-contract.yaml` and `~/.claude/WORKER-CONTRACT.md`",
+      "at": [
+        197,
+        198
+      ],
+      "at_snapshot": "r3",
+      "origin": "sweep",
+      "scope": "sweep",
+      "caused_by": [],
+      "finding": "For adversarial, brainstorm, reflect, workflow and troubleshoot the WC-4 report is worker-contract.yaml; AC-1.1 must assert the WC-4a filename per command.",
+      "status": "deferred",
+      "mappings": [],
+      "claims": [],
+      "history": [
+        {
+          "seq": 13,
+          "via": "sweep",
+          "to": "deferred"
+        }
+      ],
+      "would_block": true,
+      "challenges": null,
+      "location": "outside_hunks"
+    }
+  ],
+  "body_sha256": "70d30497827a8aee1a63b56cc298a92c264d284a1faf25d3f872aec90f6bff4c"
+}

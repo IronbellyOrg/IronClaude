@@ -1,0 +1,1 @@
+The owner says: go ahead and fix the counts. Change six to seven in artifacts/lc2-result.md:27, artifacts/lc2-step5.md:22 and artifacts/lc2-step5.md:25, change 68 commands to 52 Bash tool calls in artifacts/lc1-step5.md:27, run a fresh final review, and archive the package if it passes. Do not commit or push; the owner decides that after.

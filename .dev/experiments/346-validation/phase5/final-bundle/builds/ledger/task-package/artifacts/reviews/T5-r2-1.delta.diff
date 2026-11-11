@@ -1,0 +1,48 @@
+diff --git a/src/superclaude/skills/sc-review-ledger/SKILL.md b/src/superclaude/skills/sc-review-ledger/SKILL.md
+index 26fe9666..02b813b9 100644
+--- a/src/superclaude/skills/sc-review-ledger/SKILL.md
++++ b/src/superclaude/skills/sc-review-ledger/SKILL.md
+@@ -49,7 +49,7 @@ Phases: `find` (after `init`), `revise` (after a `close` whose decision is CONTI
+ |---|---|---|---|
+ | `spec-panel` | CRITICAL, MAJOR, MINOR | `grade == CRITICAL or rule in {FR-8, FR-9} or (grade == MAJOR and wrong_outcome non-empty)` | `CAP_REVIEWS = 3` |
+ 
+-Non-blocking rows are stored `deferred`. To add a profile, add one `PROFILES` entry (grade tuple, blocking function over the row, cap) and give `init --profile <name>`; the kernel holds no other profile words.
++Non-blocking rows are stored `deferred`. To add a profile, add one `PROFILES` entry (grade tuple, blocking function over the row, cap) and give `init --profile <name>`. Two places outside `PROFILES` still name grades: the `status` metrics (`U3`, `W`, `O`, `deferred_floor`) count CRITICAL and MAJOR by name (`CM` in the script), and the `close` tail's Reviser brief speaks of minor (deferred) rows; a profile with other grade names must change those too.
+ 
+ ## Input schemas
+ 
+@@ -75,7 +75,7 @@ Any `--input` may be a `.json` file or a `.md` file holding exactly one fenced b
+ | `open`, `reopened` | `verified` | nobody | `E-NOT-CHANGED` |
+ | `deferred` | anything | nobody | `E-ILLEGAL` |
+ | any frozen field | changed | nobody | `E-FROZEN` |
+-| any loop step after a terminal decision | | nobody | `E-TERMINAL` (only the sweep, `defer`, `status` and `verdict` run after it) |
++| any loop step after a terminal decision | | nobody | `E-TERMINAL` for `find`, `answer`, `verify`, `close` and `begin` (only the sweep, `defer`, `status` and `verdict` run after it); exceptions: `begin` after review 3 is refused `E-CAP` first, and `revert-unclaimed` is refused `E-PHASE` in every phase but revise |
+ 
+ A dispute is a flag a reviser `answer` sets on a row; the verifier rules with `dispute_ruling`; an unruled dispute at the cap counts as open.
+ 
+@@ -85,19 +85,19 @@ After each review k: `U` = blocking rows with `scope=in` and status `open`, `fix
+ 
+ ## Subcommands
+ 
+-Every mutation takes `--op <id>` and `--expect-seq <n>` (not needed with `--dry-run`); an identical request in the same phase and round under a new op id returns the committed result (`replayed: true`). Output is one JSON object on stdout: `{ok, seq, phase, review, fix_cycles, counts, loop_decision, delivery_outcome, next_action, ...}` or `{error, detail, next_action}`.
++Every mutation except `init` takes `--op <id>` and `--expect-seq <n>` (not needed with `--dry-run`); `init` takes only an optional `--op`. An identical request in the same phase and round under a new op id returns the committed result (`replayed: true`). Output is one JSON object on stdout: `{ok, seq, phase, review, fix_cycles, counts, loop_decision, delivery_outcome, next_action, ...}` for every subcommand but `verdict`, which prints `{verdict, loop_decision, delivery_outcome, U, review, phase}`; a refusal prints `{error, detail, next_action}`. Besides the codes in the table, every mutation can be refused `E-NO-LEDGER`, `E-TAMPERED`, `E-LOCKED`, `E-STALE-SEQ`, `E-OP-CONFLICT` or `E-USAGE` (a `--dry-run` call takes no lock and checks no sequence).
+ 
+ | Subcommand | Phase | Does | Refusals |
+ |---|---|---|---|
+-| `init --doc D --profile P [--archive-existing]` | none | creates the ledger and `snapshots/r1.md`; prints `review: 1 of 3`; `--archive-existing` renames an old folder to `<name>.archived-<n>` (never deletes) | `E-EXISTS`, `E-USAGE` |
++| `init --doc D --profile P [--archive-existing]` | none | creates the ledger and `snapshots/r1.md`; prints `review: 1 of 3`; `--archive-existing` renames an old folder to `<name>.archived-<n>` (never deletes) | `E-EXISTS`, `E-USAGE`, `E-LOCKED` |
+ | `find --input F [--dry-run]` | find | adds review-1 rows; the profile computes `blocking` | `E-ANCHOR`, `E-ANCHOR-AMBIGUOUS`, `E-SCHEMA`, `E-PHASE`, `E-TERMINAL` |
+ | `answer --input F [--dry-run]` | revise | stores claims on provisional hunks and gap entries | `E-ILLEGAL`, `E-CLAIM-WIDE`, `E-FIXED-NO-EDIT`, `E-SCHEMA`, `E-TERMINAL`, `E-PHASE` |
+ | `revert-unclaimed [--hunk KEY]` | revise | restores one unclaimed provisional hunk (the key `status` lists) or all of them, preimage-checked | `E-PHASE`, `E-ILLEGAL` |
+-| `begin --doc D [--revert-unclaimed]` | revise | checks `E-TAMPERED`, `E-CAP`, `E-TERMINAL`, `E-REPORT-EDITED` in that order; snapshots `r<k>`, diffs, applies stored claims, auto-claims, restores unclaimed hunks only with the flag (consent for this call only), writes `diffs/c<k-1>.json` and `plan-r<k>.md` | `E-CAP`, `E-TERMINAL`, `E-REPORT-EDITED`, `E-PHASE` |
+-| `verify --input F [--dry-run]` | verify | applies the answers and new rows | `E-INCOMPLETE`, `E-ANCHOR`, `E-ANCHOR-AMBIGUOUS`, `E-FROZEN`, `E-NOT-CHANGED`, `E-ILLEGAL`, `E-SCHEMA`, `E-PHASE` |
+-| `close --report R` | find, verify | computes `loop_decision`, appends the tail (last line `verdict: FAIL`, or `loop: PASS (sweep pending)` / `loop: ESCALATE (sweep pending)`); in phase revise re-appends a tail the report lost (recovery for `E-REPORT-EDITED`) | `E-PHASE`, `E-TERMINAL` |
++| `begin --doc D [--revert-unclaimed]` | revise | checks `E-TAMPERED`, `E-CAP`, `E-TERMINAL`, `E-REPORT-EDITED` in that order; snapshots `r<k>`, diffs, applies stored claims, auto-claims, restores unclaimed hunks only with the flag (consent for this call only), writes `diffs/c<k-1>.json` and `plan-r<k>.md` | `E-CAP`, `E-TERMINAL`, `E-REPORT-EDITED`, `E-PHASE`, `E-USAGE` (a `--doc` that is not the ledger's document) |
++| `verify --input F [--dry-run]` | verify | applies the answers and new rows | `E-INCOMPLETE`, `E-ANCHOR`, `E-ANCHOR-AMBIGUOUS`, `E-FROZEN`, `E-NOT-CHANGED`, `E-ILLEGAL`, `E-SCHEMA`, `E-PHASE`, `E-TERMINAL` |
++| `close --report R` | find, verify | computes `loop_decision`, appends the tail (last line `verdict: FAIL`, or `loop: PASS (sweep pending)` / `loop: ESCALATE (sweep pending)`); in phase revise re-appends a tail the report lost (recovery for `E-REPORT-EDITED`) | `E-PHASE`, `E-TERMINAL`, `E-SCHEMA` (report not found) |
+ | `sweep --prepare` | terminal | copies the live document to a new temporary folder outside the ledger and prints the path | `E-PHASE`, `E-SWEEP-DONE` |
+-| `sweep --input F --report R [--dry-run]` | terminal | ingests sweep rows (`deferred`, `round_found=sweep`, location `in_claimed_span`, `in_unclaimed_hunk` or `outside_hunks`), re-checks every review tail, sets `delivery_outcome`, appends a tail headed `sweep` ending `verdict: PASS` or `verdict: FAIL` | `E-SWEEP-DONE`, `E-PHASE`, `E-SCHEMA`, `E-ANCHOR` |
++| `sweep --input F --report R [--dry-run]` | terminal | ingests sweep rows (`deferred`, `round_found=sweep`, location `in_claimed_span`, `in_unclaimed_hunk` or `outside_hunks`), re-checks every review tail, sets `delivery_outcome`, appends a tail headed `sweep` ending `verdict: PASS` or `verdict: FAIL` | `E-SWEEP-DONE`, `E-PHASE`, `E-SCHEMA`, `E-ANCHOR`, `E-ANCHOR-AMBIGUOUS` |
+ | `defer --id R --quote Q` | terminal, swept | records a user's words on a row; no status change | `E-PHASE`, `E-ILLEGAL`, `E-SCHEMA` |
+ | `status` | any | read-only counts, rows, provisional hunks (phase revise), `metrics` | `E-TAMPERED`, `E-NO-LEDGER` |
+ | `verdict` | any | read-only; exit 0 PASS, 10 CONTINUE, 11 ESCALATE, 12 PENDING (terminal, sweep not run) | `E-TAMPERED`, `E-NO-LEDGER` |

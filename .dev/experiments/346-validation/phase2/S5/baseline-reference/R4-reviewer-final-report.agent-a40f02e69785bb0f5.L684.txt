@@ -1,0 +1,113 @@
+type=assistant ts=2026-11-04T13:21:21.600Z
+FINAL: pass
+
+I found no blocking defect. The 24 accepted bare-python calls match the ruling exactly, and no other bare python call exists in the executor tree. All paths below are under `<pkg>/artifacts/`, where `<pkg>` = `/home/coder/workspaces/worktrees/IronClaude/OrcaCLICommandRefactor-Specs/.dev/tasks/to-do/TASK-WF-writeTheP0LivePl-20261103-215902`.
+
+T1.AC1 met artifacts/preflight.md:7-14
+T1.AC2 met artifacts/orca-help.txt:4,73,96,116,136,157,207,246,264,286,308,332,351 (13 verbs, 13 `[exit=0]`, ending at :370)
+T1.AC3 met artifacts/symptom-check.txt:41-44
+T1.AC4 met artifacts/live-run.json:6,8 (equals artifacts/preflight.md:7)
+T1.AC5 met artifacts/status-end-t1.txt:1-14 (`diff` against artifacts/status-baseline.txt is empty)
+T2.AC1 met artifacts/lc1-result.md:7-17,19,23,32
+T2.AC2 met artifacts/lc1-report/REPORT.md:7 (`cmp` copy, artifacts/lc1-result.md:15)
+T2.AC3 met artifacts/ac-0.5.md:10,18
+T2.AC4 met artifacts/ac-0.6.md:5,9-13 and artifacts/lc1-step5.md:3
+T2.AC5 met artifacts/lc1-head-after.txt:1 (artifacts/lc1-worktree-list-after.json has 0 `p0-live` matches; artifacts/lc1-branch-after.txt is empty)
+T3.AC1 met artifacts/lc2-result.md:9-19,21,23,32
+T3.AC2 met artifacts/lc2-todo-before.txt (36 lines, one added line in artifacts/lc2-todo-after.txt) and artifacts/lc2-result.md:5
+T3.AC3 met artifacts/lc2-report/return-contract.yaml:2 and artifacts/lc2-report/TASK-WF-addOneSentenceTo-20261104-070008.md:1
+T3.AC4 met artifacts/lc2-step6.md:21,9,35 (artifacts/lc2-index-after.txt is empty)
+T3.AC5 met artifacts/lc2-head-after.txt:1 (0 `p0-live` matches in artifacts/lc2-worktree-list-after.json)
+T4.AC1 met artifacts/lc3-result.md:7-17,19,21,30
+T4.AC2 met artifacts/lc3-report/merge-log.md:7
+T4.AC3 met artifacts/lc3-step6.md:11-14 (artifacts/lc3-inputs-sha-before.txt and artifacts/lc3-inputs-sha-after.txt identical, and equal to the base-commit blobs)
+T4.AC4 met artifacts/lc3-head-after.txt:1 (0 `p0-live` matches in artifacts/lc3-worktree-list-after.json)
+T5.AC1 met artifacts/p0-phase-report.md:7,9-27,31-37,41-49,51-61,63-71,73-81
+T5.AC2 met artifacts/p0-phase-report.md:31-37
+T5.AC3 met artifacts/staged.txt:1-121 (121 paths, all under `.dev/tasks/`, none under `.claude/` or the 231950 package)
+T5.AC4 met artifacts/head-final.txt:1
+
+**Checks**
+
+1. **Constraints:** none violated.
+   - The plan sha256 matches the ledger, and the three briefs are byte-identical to plan lines 69-76, 97-104 and 123-130.
+   - Each task-create spec equals its brief.
+   - Worktree create used the required repo selector and base ref; the path is not under `.dev/worktrees`, and `make sync-dev` exited 0 in all three.
+   - The executor's Write/Edit calls touch only artifacts/ and progress.md.
+   - There is no commit, push, merge, reset, stash, branch deletion, `gh` or `superclaude install` anywhere in the executor tree. The only executor `git add` calls are at 09:07:31, 09:20:16, 12:21:42 and 12:44:13; each is immediately followed by `git restore --staged -- .../TASK-WF-orcaWorkerContra-20261102-231950`.
+   - Every `check --wait` ran with a 330000 ms tool timeout (13 lc1 and lc2/lc3 turns).
+   - Pytest ran with `PYTHONDONTWRITEBYTECODE=1` and `-p no:cacheprovider`.
+   - Nothing is staged under `.claude/`, and `.dev/brainstorms/`, `.dev/review-loop-convergence/` and `.dev/reflect/` were not written by this run.
+   - No live check was repeated and no worktree, Task or worker was created after T4.
+2. **Logs on `complete` lines:** no failure at any outcome line.
+   - artifacts/symptom-check.txt:44 shows `3 failed`, which the plan declares expected.
+   - The `lc<N>-result.md` files, artifacts/ac-0.5.md:18, artifacts/lc2-report/return-contract.yaml:2 (`status: success`) and artifacts/lc3-report/merge-log.md:7 all show PASS or success.
+3. **Notes (artifacts/retries/T2/notes.md:2-3):** both entries have four `n` answers, so I cite them as `noted`.
+   - I verified the facts behind F2.2 independently.
+   - The 56-file count and the `audit.log` ignored path are in the executor's tool result at 06:51:49Z.
+   - The 68-line count is in `/tmp/ironclaude-p0live/lc1-all-bash.txt`.
+   - My own count is 52 Bash calls in the lc1 tree.
+   - F2.1 is the heartbeat reading, judged under the known facts below.
+4. **Saved prompts:** all five (T1 to T5) are identical to the template in `qa.md` outside the slots. I tested each against the template with a fullmatch, and line 1 equals the ledger start sha. The global-constraints slot equals the plan's `## Constraints` section byte for byte. The one difference is that the template's `Global constraints: ` (with trailing space) appears as `Global constraints:` followed by a newline in all five prompts. That is a whitespace-only difference next to a slot, so I treat it as cosmetic.
+5. **Phase report:** every verdict and number matches its source.
+   - Matched against `lc<N>-result.md`, artifacts/ac-0.5.md and artifacts/ac-0.6.md; I recomputed the three launch times from `t0`/`t1` (41.995, 39.924 and 39.920 s, margins 3.0/5.1/5.1).
+   - Also matched: the heartbeat counts 15/17/7, run lengths 45m38s, 86m55s and 31m40s, raw gaps, and non-agent maxima 2.2/2.0/3.3 min. I recomputed all of these from the session files.
+   - The branch-after and index-after files are empty, and the static report gives 11 PASS rows plus the AC-0.7 caveat.
+   - The single P0 PASS verdict is consistent with every row.
+   - Note 7 is true: apart from the 08:27:10Z call, every Python call the executor made used `uv run`.
+6. **Raw-evidence contradictions:** none.
+   - Spot-checks that held: step1 timing, step2 samples (all null, the longest gap is 251 s), step3 `worker_done` payloads and acks (exactly one each), step4, step7 (released 1/2/3, no reclaimable rows), head-after, branch-after and worktree-list-after.
+   - The AC-0.4 outcome rule matches the worker's `--outcome` in each check (`partial`, `success`, `success` give `succeeded`).
+   - The tool tallies, session-file counts and 17/19/9 orca Bash-call counts all recompute, and the sha256 of each session-file prefix matches the recorded value.
+   - Both `cmp` and the base-commit blobs match for the inputs.
+
+**Bare-python verification** (executor tree: main session plus 9 subagent files; 370+ Bash calls scanned with heredoc and quote stripping)
+- Exactly three groups exist: the executor's call at 08:27:10.643Z, 22 Bash calls by agent-a0d4eb0d0b16b7e1f between 09:10:02.143Z and 09:16:29.064Z, and one `python3 -c 1` by agent-a88ad232bf783d3a3 at 12:35:19.155Z. That is 24 Bash calls, matching the ruling.
+- The second helper, the five T1-T5 reviewers and this fourth review ran none.
+- The shell scripts the executor wrote (`turn.sh`, `build-prompt.sh`) contain no python, and no bare pip, pytest or ruff appears.
+- The effects match the ruling: group (a) has an empty heredoc, and its same Bash call then wrote only a scratch file under `/tmp`. Group (b) wrote only `/tmp/ironclaude-batch-final-review-{an,hb}.py`. Group (c) wrote only `/tmp/final3-review/*`. No repo or evidence file was written by any of them.
+- Worker trees (65 files, 537 Bash calls) have one hit. It is the workflow worker's own subagent (agent-ab8f1c3b95b376559, the command's Step 4 re-review) at 08:15:21Z, which ran `python3 -` three times inside one `/tmp` sandbox script. That is the workers' business and is listed below as non-blocking.
+
+**Known facts, judged**
+- **`worker-read` window and session-file verification:** neither breaks a Constraint or an AC.
+  - The prescribed read was executed; every `contentComplete` is false with `message_limit_or_scan_window`.
+  - The cursor points at the end of the session file: p=6876333, 5860827 and 4343356 equal the file sizes at read time.
+  - lc1 followed the cursor through 60 empty pages, as the executor session shows.
+  - I confirmed the analysed files by prefix sha256.
+  - T2.AC1 to T4.AC1 require recording each step's evidence and verdict, and that was done with the deviation disclosed.
+  - Reading a session file creates no Orca object and repeats no check.
+- **Extra `worker-read --limit 1000` read in check 1:** no breach.
+  - `--limit` is in the verb's `--help` (artifacts/orca-help.txt:264-276).
+  - It is read-only and disclosed (artifacts/lc1-step5.md:11, phase report note 3).
+- **Heartbeat WC-10 reading:** no breach.
+  - The plan's own wording cites WC-10, and WORKER-CONTRACT.md:44 accepts fan-out gaps.
+  - The Agent calls return asynchronously, which I verified.
+  - The longest stretch with subagent time removed is 2.2, 2.0 and 3.3 min, and the worker was never in `ask` or `check --wait`.
+  - The sensitivity is disclosed (phase report line 66).
+  - Under the literal reading all three checks would fail on this condition (the phase report says the same).
+
+**Findings:** no blocking findings.
+
+non-blocking:
+- F1 ac=scope at=artifacts/p0-phase-report.md:49 anchor=artifacts/lc3-session-analysis.txt:107 chk=n,n,n,n: "always while the command's own subagents were running" is loose. In lc3 the 5.2-min gap had 3.3 min with no subagent running; note 2 at line 66 and artifacts/lc3-step5.md:25 disclose this. artifacts/lc2-result.md:27 "all while the command's subagents ran" is the same looseness.
+- F2 ac=scope at=artifacts/lc1-step6.md:13 anchor=the executor tool result at 06:51:49Z chk=n,n,n,n: "listed with `find` at 06:49 UTC" should read 06:51:49Z. The 56-file count is true.
+- F3 ac=scope at=artifacts/lc1-result.md:3 anchor=the removal command at 06:54:01Z chk=n,n,n,n: "06:02 to 06:50 UTC" omits the Step 6, Step 7 and Remove time, unlike lc2 and lc3, which run to removal.
+- F4 ac=scope at=artifacts/lc2-step5.md:9 and artifacts/lc3-step5.md:7 anchor=artifacts/lc2-transcript-1.json and artifacts/lc3-transcript-1.json chk=n,n,n,n: "last 3 minutes" is actually 3 min 41 s, and "last 6 minutes" is 6 min 39 s.
+- F5 ac=scope at=artifacts/lc1-step5.md:27 anchor=/tmp/ironclaude-p0live/lc1-all-bash.txt chk=n,n,n,n: "not kept" refers to the package, because the 68-line file still exists in `/tmp`.
+- F6 ac=scope at=artifacts/lc3-step6.md:20 and artifacts/lc3-result.md:27 anchor=artifacts/lc3-step3.json (worker body) chk=n,n,n,n: "created them" overstates the worker's "(possibly uv.lock)". artifacts/lc1-step6.md also does not mention the ignored `.venv/`, which does not matter because ignored paths are not checked.
+- F7 ac=scope at=the five prompt-*.md files, line "Global constraints:" chk=n,n,n,n: the trailing space is dropped (see check 4).
+- F8 ac=scope at=artifacts/p0-phase-report.md:71 and progress.md:17 chk=n,n,n,n: "24 calls" counts Bash tool calls. The 22 helper calls hold 24 `python3` tokens, with loops running more at runtime. The acceptance covers those Bash calls as units, so this is a wording point.
+- F9 ac=scope at=the workflow worker tree, agent-ab8f1c3b95b376559, 08:15:21Z chk=n,n,n,n: three bare `python3 -` invocations in one `/tmp` sandbox Bash call by a worker subagent; the workers' business.
+- F10 ac=scope at=the executor session chk=n,n,n,n: the executor's `git update-ref refs/superclaude/implement/<pkg>/T<n>` snapshots and deletes are /sc:implement machinery that WC-9 allows. They are not branch deletions, and none remain (`git for-each-ref refs/superclaude` is empty).
+- F11 ac=scope at=the executor session, 08:30:31Z git status chk=n,n,n,n: the superseded 231950 package and this package's artifacts were found staged, which the executor did not do. No executor `git add` exists before 09:07:31, and I found no hook that stages. The executor's restore at 09:07:31 is the first one the plan requires. staged.txt and the current index list nothing under 231950.
+- F12 ac=scope at=artifacts/lc1-step5.md:10 and artifacts/lc2-step5.md:7, artifacts/lc3-step5.md:7 chk=n,n,n,n: lc1 deleted the identical empty pages 3-60, and lc2 and lc3 stopped after page 2, both disclosed. The session-file re-reads after T2 completed (08:26-08:29Z, 12:11Z) were not named in the Constraint's list of already-saved evidence but created no Orca object.
+
+**Self-audit**
+- Actively checked: all T1-T5 ACs against current files and logs, and every plan Constraint.
+- Re-derived from the worker session files and the executor's tool results: heartbeats, subagent coverage, the tool tallies, the 17/19/9 counts, the `orca-ide` calls and the notification times.
+- Compared the five saved prompts against the template.
+- Scanned all 10 executor-tree files for bare python, bare pip/pytest/ruff and mutating git/gh/install, and checked the heredoc-written `.sh` scripts and the helper subagents' Write/Edit calls.
+- Scanned the worker trees for bare python, git writes and out-of-worktree writes.
+- Checked the ledger Ruling lines against the owner messages in the executor session.
+- Checked the cited `src/superclaude/...` lines and the static report.
+- My own work used only `uv run --no-project python -I`, `jq`, `grep` and `awk`. I wrote scratch scripts only under `/tmp/f4scratch`, and edited, staged and removed nothing in the package or repo.

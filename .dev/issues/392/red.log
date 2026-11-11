@@ -1,0 +1,145 @@
+============================= test session starts ==============================
+platform linux -- Python 3.13.5, pytest-9.2.0, pluggy-1.7.0
+SuperClaude: 5.0.0
+benchmark: 5.3.1 (defaults: timer=time.perf_counter disable_gc=False min_rounds=5 min_time=0.000005 max_time=1.0 calibration_precision=10 warmup=False warmup_iterations=100000)
+rootdir: /home/coder/workspaces/worktrees/IronClaude/ccsession-failover-392
+configfile: pyproject.toml
+plugins: superclaude-5.0.0, benchmark-5.3.1, anyio-4.16.0, cov-7.1.0
+collected 203 items / 158 deselected / 45 selected
+
+tests/unit/test_ccsession_tiers.py ..................FFFFFFFFFFFFFFFFF.F [ 82%]
+....FFFF                                                                 [100%]
+
+=================================== FAILURES ===================================
+______________ test_server_failures_retry_twice_then_switch[408] _______________
+tests/unit/test_ccsession_tiers.py:3414: in test_server_failures_retry_twice_then_switch
+    assert code == 200 and b"grok-4.7" in body
+E   assert (408 == 200)
+______________ test_server_failures_retry_twice_then_switch[429] _______________
+tests/unit/test_ccsession_tiers.py:3414: in test_server_failures_retry_twice_then_switch
+    assert code == 200 and b"grok-4.7" in body
+E   assert (429 == 200)
+______________ test_server_failures_retry_twice_then_switch[500] _______________
+tests/unit/test_ccsession_tiers.py:3414: in test_server_failures_retry_twice_then_switch
+    assert code == 200 and b"grok-4.7" in body
+E   assert (500 == 200)
+______________ test_server_failures_retry_twice_then_switch[502] _______________
+tests/unit/test_ccsession_tiers.py:3414: in test_server_failures_retry_twice_then_switch
+    assert code == 200 and b"grok-4.7" in body
+E   assert (502 == 200)
+______________ test_server_failures_retry_twice_then_switch[503] _______________
+tests/unit/test_ccsession_tiers.py:3414: in test_server_failures_retry_twice_then_switch
+    assert code == 200 and b"grok-4.7" in body
+E   assert (503 == 200)
+______________ test_server_failures_retry_twice_then_switch[504] _______________
+tests/unit/test_ccsession_tiers.py:3414: in test_server_failures_retry_twice_then_switch
+    assert code == 200 and b"grok-4.7" in body
+E   assert (504 == 200)
+___________________ test_success_resets_consecutive_failures ___________________
+tests/unit/test_ccsession_tiers.py:3429: in test_success_resets_consecutive_failures
+    assert [_ask(base, "claude-gw-tier2")[0] for _ in range(6)] == [
+E   assert [500, 500, 200, 500, 500, 500] == [500, 500, 200, 500, 500, 200]
+E     
+E     At index 5 diff: 500 != 200
+E     Use -v to get more diff
+_______ test_request_faults_never_count_or_reset_server_failures[fault0] _______
+tests/unit/test_ccsession_tiers.py:3446: in test_request_faults_never_count_or_reset_server_failures
+    assert _ask(base, "claude-gw-tier2")[0] == 200
+E   assert 500 == 200
+_______ test_request_faults_never_count_or_reset_server_failures[fault1] _______
+tests/unit/test_ccsession_tiers.py:3446: in test_request_faults_never_count_or_reset_server_failures
+    assert _ask(base, "claude-gw-tier2")[0] == 200
+E   assert 500 == 200
+_______ test_request_faults_never_count_or_reset_server_failures[fault2] _______
+tests/unit/test_ccsession_tiers.py:3446: in test_request_faults_never_count_or_reset_server_failures
+    assert _ask(base, "claude-gw-tier2")[0] == 200
+E   assert 500 == 200
+____________________ test_growing_parks_with_injected_clock ____________________
+tests/unit/test_ccsession_tiers.py:3455: in test_growing_parks_with_injected_clock
+    failed = module["model_failed"]
+             ^^^^^^^^^^^^^^^^^^^^^^
+E   KeyError: 'model_failed'
+____________________ test_cut_off_errors_count_then_switch _____________________
+tests/unit/test_ccsession_tiers.py:3487: in test_cut_off_errors_count_then_switch
+    assert _ask(base, "claude-gw-tier2")[0] == 200
+E   assert 502 == 200
+_____ test_named_models_switch_and_share_parks_with_tiers[claude-opus-5-5] _____
+tests/unit/test_ccsession_tiers.py:3498: in test_named_models_switch_and_share_parks_with_tiers
+    assert _ask(base, requested)[0] == 200
+E   assert 429 == 200
+___ test_named_models_switch_and_share_parks_with_tiers[claude-opus-5-5[1m]] ___
+tests/unit/test_ccsession_tiers.py:3499: in test_named_models_switch_and_share_parks_with_tiers
+    assert gateway.models_called() == ["claude-opus-5-5", "claude-sonnet-5-5"]
+E   AssertionError: assert ['claude-opus-5-5[1m]'] == ['claude-opus...e-sonnet-5-5']
+E     
+E     At index 0 diff: 'claude-opus-5-5[1m]' != 'claude-opus-5-5'
+E     Right contains one more item: 'claude-sonnet-5-5'
+E     Use -v to get more diff
+______________ test_named_best_position_and_window_are_respected _______________
+tests/unit/test_ccsession_tiers.py:3509: in test_named_best_position_and_window_are_respected
+    assert _ask(base, "claude-sonnet-5-5")[0] == 200
+E   assert 429 == 200
+__________________ test_named_best_position_beats_tier_order ___________________
+tests/unit/test_ccsession_tiers.py:3519: in test_named_best_position_beats_tier_order
+    assert gateway.models_called() == ["glm-5.3", "Qwen3.8-max"]
+E   AssertionError: assert ['claude-gw-glm-5.3[1m]'] == ['glm-5.3', 'Qwen3.8-max']
+E     
+E     At index 0 diff: 'claude-gw-glm-5.3[1m]' != 'glm-5.3'
+E     Right contains one more item: 'Qwen3.8-max'
+E     Use -v to get more diff
+_______________________ test_named_tie_uses_higher_tier ________________________
+tests/unit/test_ccsession_tiers.py:3529: in test_named_tie_uses_higher_tier
+    assert _ask(base, "claude-gw-glm-5.3")[0] == 200
+E   assert 429 == 200
+_________________ test_named_model_chooses_only_allowed_tiers __________________
+tests/unit/test_ccsession_tiers.py:3548: in test_named_model_chooses_only_allowed_tiers
+    assert _ask(base, "claude-gw-grok-4.7")[0] == 200
+E   assert 429 == 200
+_________ test_kept_log_defaults_rotates_and_excludes_request_secrets __________
+tests/unit/test_ccsession_tiers.py:3590: in test_kept_log_defaults_rotates_and_excludes_request_secrets
+    assert path.exists()
+E   AssertionError: assert False
+E    +  where False = exists()
+E    +    where exists = PosixPath('/tmp/pytest-of-coder/pytest-2/cache41/ccsession/proxy.log').exists
+_ test_new_failure_settings_get_their_own_shim[CCSESSION_FAILS_BEFORE_SWITCH] __
+tests/unit/test_ccsession_tiers.py:3608: in test_new_failure_settings_get_their_own_shim
+    assert models.settings_digest() != before
+E   AssertionError: assert 'e3b0c44298fc1c14' != 'e3b0c44298fc1c14'
+E    +  where 'e3b0c44298fc1c14' = <function settings_digest at 0x7f6c6c041da0>()
+E    +    where <function settings_digest at 0x7f6c6c041da0> = models.settings_digest
+_____ test_new_failure_settings_get_their_own_shim[CCSESSION_PARK_SECONDS] _____
+tests/unit/test_ccsession_tiers.py:3608: in test_new_failure_settings_get_their_own_shim
+    assert models.settings_digest() != before
+E   AssertionError: assert 'e3b0c44298fc1c14' != 'e3b0c44298fc1c14'
+E    +  where 'e3b0c44298fc1c14' = <function settings_digest at 0x7f6c6c041da0>()
+E    +    where <function settings_digest at 0x7f6c6c041da0> = models.settings_digest
+___ test_new_failure_settings_get_their_own_shim[CCSESSION_PARK_MAX_SECONDS] ___
+tests/unit/test_ccsession_tiers.py:3608: in test_new_failure_settings_get_their_own_shim
+    assert models.settings_digest() != before
+E   AssertionError: assert 'e3b0c44298fc1c14' != 'e3b0c44298fc1c14'
+E    +  where 'e3b0c44298fc1c14' = <function settings_digest at 0x7f6c6c041da0>()
+E    +    where <function settings_digest at 0x7f6c6c041da0> = models.settings_digest
+=========================== short test summary info ============================
+FAILED tests/unit/test_ccsession_tiers.py::test_server_failures_retry_twice_then_switch[408]
+FAILED tests/unit/test_ccsession_tiers.py::test_server_failures_retry_twice_then_switch[429]
+FAILED tests/unit/test_ccsession_tiers.py::test_server_failures_retry_twice_then_switch[500]
+FAILED tests/unit/test_ccsession_tiers.py::test_server_failures_retry_twice_then_switch[502]
+FAILED tests/unit/test_ccsession_tiers.py::test_server_failures_retry_twice_then_switch[503]
+FAILED tests/unit/test_ccsession_tiers.py::test_server_failures_retry_twice_then_switch[504]
+FAILED tests/unit/test_ccsession_tiers.py::test_success_resets_consecutive_failures
+FAILED tests/unit/test_ccsession_tiers.py::test_request_faults_never_count_or_reset_server_failures[fault0]
+FAILED tests/unit/test_ccsession_tiers.py::test_request_faults_never_count_or_reset_server_failures[fault1]
+FAILED tests/unit/test_ccsession_tiers.py::test_request_faults_never_count_or_reset_server_failures[fault2]
+FAILED tests/unit/test_ccsession_tiers.py::test_growing_parks_with_injected_clock
+FAILED tests/unit/test_ccsession_tiers.py::test_cut_off_errors_count_then_switch
+FAILED tests/unit/test_ccsession_tiers.py::test_named_models_switch_and_share_parks_with_tiers[claude-opus-5-5]
+FAILED tests/unit/test_ccsession_tiers.py::test_named_models_switch_and_share_parks_with_tiers[claude-opus-5-5[1m]]
+FAILED tests/unit/test_ccsession_tiers.py::test_named_best_position_and_window_are_respected
+FAILED tests/unit/test_ccsession_tiers.py::test_named_best_position_beats_tier_order
+FAILED tests/unit/test_ccsession_tiers.py::test_named_tie_uses_higher_tier - ...
+FAILED tests/unit/test_ccsession_tiers.py::test_named_model_chooses_only_allowed_tiers
+FAILED tests/unit/test_ccsession_tiers.py::test_kept_log_defaults_rotates_and_excludes_request_secrets
+FAILED tests/unit/test_ccsession_tiers.py::test_new_failure_settings_get_their_own_shim[CCSESSION_FAILS_BEFORE_SWITCH]
+FAILED tests/unit/test_ccsession_tiers.py::test_new_failure_settings_get_their_own_shim[CCSESSION_PARK_SECONDS]
+FAILED tests/unit/test_ccsession_tiers.py::test_new_failure_settings_get_their_own_shim[CCSESSION_PARK_MAX_SECONDS]
+================ 22 failed, 23 passed, 158 deselected in 24.28s ================

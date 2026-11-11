@@ -1,0 +1,15 @@
+[proxy] listening on http://127.0.0.1:60511  ->  http://192.168.133.101:4000/cli
+[proxy] "GET /__ccsession_shim HTTP/1.1" 200 -
+[proxy] code 501, message Unsupported method ('HEAD')
+[proxy] "HEAD /api/hello HTTP/1.1" 501 -
+[proxy] 2026-11-09T19:42:00 TIER tier2: T2Model01 -> gpt-6.1-sol
+[proxy] "POST /v1/messages?beta=true HTTP/1.1" 200 -
+[proxy] 2026-11-09T19:42:00 RESPONSE /v1/messages?beta=true  backend served model=gpt-6.1-sol
+[proxy] code 501, message Unsupported method ('HEAD')
+[proxy] "HEAD /api/hello HTTP/1.1" 501 -
+[proxy] "POST /v1/messages?beta=true HTTP/1.1" 429 -
+[proxy] "POST /v1/messages?beta=true HTTP/1.1" 429 -
+[proxy] "POST /v1/messages?beta=true HTTP/1.1" 429 -
+[proxy] "POST /v1/messages?beta=true HTTP/1.1" 429 -
+[proxy] "POST /v1/messages?beta=true HTTP/1.1" 429 -
+[proxy] "POST /v1/messages?beta=true HTTP/1.1" 429 -

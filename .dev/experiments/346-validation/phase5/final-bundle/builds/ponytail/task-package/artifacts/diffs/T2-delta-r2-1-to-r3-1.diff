@@ -1,0 +1,104 @@
+diff --git a/src/superclaude/skills/sc-fix-audit/scripts/fix_audit.py b/src/superclaude/skills/sc-fix-audit/scripts/fix_audit.py
+index 92eaaba5..ce6c7314 100644
+--- a/src/superclaude/skills/sc-fix-audit/scripts/fix_audit.py
++++ b/src/superclaude/skills/sc-fix-audit/scripts/fix_audit.py
+@@ -19,8 +19,11 @@ from pathlib import Path
+ # [A-Z][A-Z0-9]*(-[A-Z0-9]+)*[0-9] as whole words: single hyphens allowed inside, so R2-1 and C-R3-15 match.
+ ID_PAT = r"[A-Z](?:[A-Z0-9]|-(?=[A-Z0-9]))*[0-9]"
+ ID_RE = re.compile(rf"(?<![\w-])({ID_PAT})(?!\w)(?!-[A-Z0-9])")
+-LEAD_RE = re.compile(rf"(?:{ID_PAT})(?:\s*(?:,|/|&|\band\b)\s*(?:{ID_PAT}))*(?![\w-])")
+-MARKER_RE = re.compile(r"^\s*(?:#+\s*)?(?:[-*+]\s+|[0-9]+[.)]\s+)?[*_`\s]*")
++LEAD = rf"(?:{ID_PAT})(?:\s*(?:,|/|&|\band\b)\s*(?:{ID_PAT}))*"
++BULLET_RE = re.compile(r"^\s*[-*+]\s")
++RECORD_RE = re.compile(
++    rf"^\s*(?:#+\s*)?(?:[0-9]+[.)]\s+)?(?:\*\*({LEAD})\.|({LEAD})\s*\(|({LEAD})\.(?:\s|$))"
++)
+ YES_CELLS = {"yes", "y", "true"}
+ NO_CELLS = {"no", "n", "false"}
+ RANGE_RE = re.compile(r"^([A-Z]+)([0-9]+)-\1([0-9]+)$")
+@@ -75,9 +78,13 @@ def id_tokens(text: str) -> list[str]:
+ 
+ 
+ def lead_ids(line: str) -> list[str]:
+-    """Ids that open a prose line (after list, heading and bold markers), e.g. `**N3.**`, `C9:`."""
+-    m = LEAD_RE.match(MARKER_RE.sub("", line, count=1))
+-    return id_tokens(m.group()) if m else []
++    """Ids of a prose record: a line opened by `**ID.`, `ID (` or `ID.` (after at most a
++    heading `#` or a numbered-list marker). Bullet lines (`-`, `*`, `+`) and `ID:` lines
++    define nothing."""
++    if BULLET_RE.match(line):
++        return []
++    m = RECORD_RE.match(line)
++    return id_tokens(next(g for g in m.groups() if g)) if m else []
+ 
+ 
+ def multiset_minus(a: list[str], b: list[str]) -> list[str]:
+@@ -153,7 +160,7 @@ def parse_report(text: str) -> dict:
+             header = None
+             if line.lstrip().startswith("#"):
+                 in_prior = bool(PRIOR_HEADING_RE.search(line))
+-            # a prose record names its id(s) first; free text (totals, notes) defines nothing
++            # a prose record is a non-bullet line opened by `**ID.`, `ID (` or `ID.`; bullets, totals and notes define nothing
+             toks = lead_ids(line)
+         else:
+             if is_separator(cs):
+diff --git a/tests/skills/test_fix_audit_script.py b/tests/skills/test_fix_audit_script.py
+index 2cade9f9..abe0a69f 100644
+--- a/tests/skills/test_fix_audit_script.py
++++ b/tests/skills/test_fix_audit_script.py
+@@ -246,9 +246,9 @@ def test_prior_status_row_without_heading_is_prior_only():
+     [
+         ("| N1 | MAJOR | blocking |", "MAJOR", True),
+         ("N2 (CRITICAL, blocking): the rule is missing.", "CRITICAL", True),
+-        ("C9: Severity MAJOR, blocking. The table is wrong.", "MAJOR", True),
+-        ("N4 MAJOR, B the cap is wrong", "MAJOR", True),
+-        ("N5 MINOR, M wording", "MINOR", False),
++        ("**C9.** Severity MAJOR, blocking. The table is wrong.", "MAJOR", True),
++        ("N4 (MAJOR, B): the cap is wrong", "MAJOR", True),
++        ("N5 (MINOR, M): wording", "MINOR", False),
+         ("| N6 | MINOR | non-blocking |", "MINOR", False),
+     ],
+ )
+@@ -381,6 +381,7 @@ FLG_R2_STYLE = (
+     + "## Part 1: Prior findings\n\n| id | fixed | status |\n|---|---|---|\n| F16 | no | open |\n\n"
+     + "## Part 2: New findings\n\n"
+     + "**N1.** MAJOR, blocking: the cap text is missing.\n"
++    + "- WC-3: same output location. Not blocking because 2.3 covers it.\n"
+     + "N2 (MINOR, non-blocking): wording.\n"
+     + "Notes on citations (Part 2) are minor: C9 off by one, C12 and C13 stale.\n\n"
+     + "| id | where | severity | blocking |\n|---|---|---|---|\n"
+@@ -420,3 +421,34 @@ def test_prepare_on_flg_r2_style_report(tmp_path):
+         "blocking-involved",
+     ]
+     assert state["prior_only"] == ["F16"]
++
++
++def bullet_report(marker: str) -> str:
++    return (
++        R2_HEAD
++        + "**N9.** MINOR, non-blocking: wording.\n"
++        + f"{marker} WC-3: the location rule. Not blocking because 2.3 covers it.\n"
++        + R2_TAIL
++    )
++
++
++@pytest.mark.parametrize("marker", ["-", "*", "+"])
++def test_bullet_under_a_finding_defines_no_id(marker):
++    graded = fa.parse_report(bullet_report(marker))["graded"]
++    assert "WC-3" not in graded
++    assert graded["N9"]["blocking"] is False
++
++
++def test_prepare_ignores_bullet_label_and_its_disposition_line(tmp_path):
++    disp = "| id | Where |\n|---|---|\n| N9 | SPEC':1 |\n| WC-3 | SPEC':3 |\n"
++    res, d, state = prepare(
++        tmp_path,
++        "p1\nk1\np2\n",
++        "p1 N9 tweak\nk1\np2 WC-3 note\n",
++        bullet_report("-"),
++        disp=disp,
++    )
++    assert res.returncode == 0, res.stderr
++    assert "WC-3" not in state["ids"]
++    assert [h["class"] for h in state["hunks"]] == ["minor-only", "unattributed"]
++    assert state["audit"] == "prepared"

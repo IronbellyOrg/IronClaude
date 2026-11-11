@@ -14,11 +14,10 @@ WHAT: This proxy sits between Claude Code and the upstream /cli base. It:
                         swaps it back to the real id, then transparently forwards
                         (streaming) to upstream. Real claude models pass untouched.
 
-Tier mode (Coder workspaces, see models.py): the picker shows tiers
-(claude-gw-tier0 ...). A request for a tier goes to the tier's first model that
-is not cooling down; when the gateway answers with an out-of-usage style error
-(SWITCH_RULES) before any reply is streamed, the same request is resent to the
-next model in the tier and the failed one cools down for an hour.
+Tier mode (Coder workspaces, see models.py): tiers and named tier models share
+failover. Out-of-usage errors switch immediately; other server errors switch
+on the third consecutive failure with a growing 5-minute park. Successful HTTP
+replies stream immediately, without looking ahead at events or timing the body.
 
 It changes NOTHING upstream. Point Claude Code at it:
   export ANTHROPIC_BASE_URL=http://127.0.0.1:4010
@@ -29,10 +28,13 @@ It changes NOTHING upstream. Point Claude Code at it:
 
 import datetime
 import email.utils
+import fcntl
 import gzip
 import http.client
 import http.server
 import json
+import logging.handlers
+import math
 import os
 import re
 import socket
@@ -85,13 +87,18 @@ def upstream_is_self():
 
 
 HEALTH_PATH = "/__ccsession_shim"
-# Persistent audit file is OPT-IN. Unset (default) => log to the terminal only
-# (ephemeral, never accumulates). Set GW_PROXY_LOGFILE=/path to also persist.
-LOGFILE = os.environ.get("GW_PROXY_LOGFILE")
+LOGFILE = os.environ.get("GW_PROXY_LOGFILE") or os.path.join(
+    os.environ.get("XDG_CACHE_HOME") or os.path.expanduser("~/.cache"),
+    "ccsession",
+    "proxy.log",
+)
 
 _lock = threading.Lock()
+_audit_lock = threading.Lock()
 alias_to_real = {}  # claude-gw-... -> real upstream id
 _cooldowns = {}  # real model id -> epoch seconds when it may be tried again
+_failures = {}  # consecutive server errors, shared by tier and named requests
+_park_seconds = {}  # next temporary park duration, reset by success
 
 # Fixed for the life of this shim; ccsession gives a show-all session its own
 # shim (port) so other sessions' pickers never change.
@@ -105,15 +112,18 @@ def _seconds(name, default):
         value = float(raw) if raw else default
     except ValueError:
         value = 0
-    if value <= 0:
+    if not math.isfinite(value) or value <= 0:
         sys.stderr.write(
-            f"[proxy] WARNING: {name}={raw!r} is not a positive number; using {default}\n"
+            f"[proxy] WARNING: {name} is not a positive finite number; using {default}\n"
         )
         value = default
     return value
 
 
 COOLDOWN_SECONDS = _seconds("CCSESSION_COOLDOWN_SECONDS", 3600)
+FAILS_BEFORE_SWITCH = max(1, math.ceil(_seconds("CCSESSION_FAILS_BEFORE_SWITCH", 3)))
+PARK_SECONDS = _seconds("CCSESSION_PARK_SECONDS", 300)
+PARK_MAX_SECONDS = _seconds("CCSESSION_PARK_MAX_SECONDS", 3600)
 # Timers. NOTHING ever limits a reply once the gateway has started answering:
 # a model may think or stream for hours, so the socket has no read timeout
 # after the reply's status line arrives.
@@ -139,16 +149,34 @@ TIER_PREFIX = "claude-gw-tier"
 
 
 def audit(msg):
-    """Persistent, timestamped ground-truth log of what actually routed."""
+    """Bounded routing metadata only, never headers or request/response bodies."""
+    # Defense against a gateway echoing a credential in its error message.
+    for name, value in os.environ.items():
+        if value and name.endswith(
+            ("_KEY", "_TOKEN", "_SECRET", "_PASSWORD", "_COOKIE")
+        ):
+            msg = msg.replace(value, "<REDACTED>")
+    msg = re.sub(r"(?i)bearer\s+\S+", "<REDACTED>", msg)
+    msg = msg.encode("unicode_escape").decode("ascii")[:8192]
     line = f"{datetime.datetime.now().isoformat(timespec='seconds')} {msg}"
-    sys.stderr.write("[proxy] " + line + "\n")
-    sys.stderr.flush()
-    if LOGFILE:
+    with _audit_lock:
+        sys.stderr.write("[proxy] " + line + "\n")
+        sys.stderr.flush()
         try:
-            with open(LOGFILE, "a") as f:
-                f.write(line + "\n")
+            os.makedirs(os.path.dirname(os.path.abspath(LOGFILE)), exist_ok=True)
+            # Different shim ports share the default log. Reopen under a process
+            # lock so rotation never leaves another shim writing to the old file.
+            with open(LOGFILE + ".lock", "a") as lockfile:
+                fcntl.flock(lockfile, fcntl.LOCK_EX)
+                handler = logging.handlers.RotatingFileHandler(
+                    LOGFILE, maxBytes=5 * 1024 * 1024, backupCount=1, encoding="utf-8"
+                )
+                try:
+                    handler.emit(logging.makeLogRecord({"msg": line}))
+                finally:
+                    handler.close()
         except OSError:
-            pass
+            pass  # a read-only/full cache must never break routing
 
 
 HOP = {
@@ -363,8 +391,8 @@ def transform_models(payload):
 # Owner-approved switch rules (spec section 5.2): (status or None for any,
 # body substrings, any one of which must appear; None = status alone). Matched
 # case-insensitively on the error body the gateway sends before any reply.
-# Anything else, including a plain 429 "Rate limited" and a 500, is passed back
-# to Claude Code unchanged.
+# These still switch immediately. Other server errors are counted and passed
+# back for Claude Code to retry until FAILS_BEFORE_SWITCH is reached.
 SWITCH_RULES = [
     (429, ("are cooling down",), "all accounts out of usage"),
     (429, ("exceed your account's rate limit",), "account rate limit"),
@@ -401,6 +429,26 @@ def switch_reason(status, body_text):
     return ""
 
 
+def named_fallback(model):
+    """The best-position allowed tier, reordered with the requested model first."""
+    candidates = []
+    for name, tier in curation()["tiers"].items():
+        number = re.fullmatch(r"tier(\d+)([a-z]?)", name)
+        for position, entry in enumerate(tier["models"]):
+            if entry[1] == model:
+                candidates.append(
+                    ((position, int(number[1]), number[2]), name, tier, entry)
+                )
+    if not candidates:
+        return None
+    _, name, tier, first = min(candidates, key=lambda item: item[0])
+    entries = [first]
+    for entry in tier["models"]:
+        if entry[1] not in {m for _, m, _ in entries}:
+            entries.append(entry)
+    return name, {**tier, "window": first[2], "models": entries}
+
+
 def retry_after_seconds(value):
     """Seconds from a Retry-After header (seconds or HTTP date), else None."""
     if not value:
@@ -421,6 +469,35 @@ def cool_down(model, retry_after=None):
     with _lock:
         _cooldowns[model] = until
     return until
+
+
+def model_failed(model, immediate=False):
+    """Atomically count a server error and, at the threshold, park the model.
+
+    Each new park starts a fresh run of failures; only a success resets the
+    growing duration. A first-byte timeout parks without waiting for retries.
+    """
+    with _lock:
+        count = _failures.get(model, 0) + 1
+        # Other in-flight requests may fail after a park was already set.
+        # Keep that park without spending failures from the next trial period.
+        if _cooldowns.get(model, 0) > time.time():
+            return count, _cooldowns[model]
+        _failures[model] = count
+        if not immediate and count < FAILS_BEFORE_SWITCH:
+            return count, 0
+        seconds = min(_park_seconds.get(model, PARK_SECONDS), PARK_MAX_SECONDS)
+        until = time.time() + seconds
+        _cooldowns[model] = until
+        _park_seconds[model] = min(seconds * 2, PARK_MAX_SECONDS)
+        _failures[model] = 0
+        return count, until
+
+
+def model_succeeded(model):
+    with _lock:
+        _failures.pop(model, None)
+        _park_seconds.pop(model, None)
 
 
 def cooling_until(model):
@@ -506,7 +583,18 @@ class Handler(http.server.BaseHTTPRequestHandler):
     server_version = "gw-alias-proxy/1.0"
 
     def log_message(self, fmt, *args):
-        sys.stderr.write("[proxy] " + (fmt % args) + "\n")
+        # BaseHTTPRequestHandler includes the raw URL (possibly credentials in
+        # its query) and untrusted protocol text. Routing audit is sufficient.
+        pass
+
+    def _redact_credentials(self, text):
+        for key in ("Authorization", "x-api-key", "Cookie", "Proxy-Authorization"):
+            value = self.headers.get(key)
+            if value:
+                text = text.replace(value, "<REDACTED>")
+                if value.lower().startswith("bearer "):
+                    text = text.replace(value[7:], "<REDACTED>")
+        return text
 
     def _fwd_headers(self):
         h = {}
@@ -574,10 +662,13 @@ class Handler(http.server.BaseHTTPRequestHandler):
         body = self.rfile.read(length) if length else b""
         # un-alias the model field on the way out
         tier_name = ""
+        obj = None
         if body:
             try:
                 obj = json.loads(body)
-                m = obj.get("model")
+                m = obj.get("model") if isinstance(obj, dict) else None
+                if isinstance(m, str):
+                    m = re.sub(r"\[1m\]$", "", m)
                 tier = (
                     m[len(TIER_PREFIX) :]
                     if isinstance(m, str) and m.startswith(TIER_PREFIX)
@@ -595,15 +686,20 @@ class Handler(http.server.BaseHTTPRequestHandler):
                     if real:
                         obj["model"] = real
                         body = json.dumps(obj).encode()
-                        audit(f"REQUEST  {self.path}  alias={m}  -> real={real}")
+                        audit(f"REQUEST alias={m} -> real={real}")
                     else:
-                        audit(f"WARN  unknown alias {m} (not in upstream /v1/models)")
+                        audit("WARN unknown alias (not in upstream /v1/models)")
             except (ValueError, TypeError):
                 tier_name = ""
         if tier_name:
             # Outside the parse guard: an error while routing must never send
             # the request on again under its alias name.
             return self._forward_tier(tier_name, obj)
+        if isinstance(obj, dict) and isinstance(obj.get("model"), str):
+            fallback = named_fallback(re.sub(r"\[1m\]$", "", obj["model"]))
+            if fallback:
+                name, tier = fallback
+                return self._forward_tier(name, obj, tier=tier)
         return self._proxy(body=body)
 
     def _refresh_models(self):
@@ -720,10 +816,10 @@ class Handler(http.server.BaseHTTPRequestHandler):
             return ("unreachable", exc)
         return ("reply", conn, resp)
 
-    def _forward_tier(self, name, obj):
-        """Send the request to the tier's models in order until one answers."""
+    def _forward_tier(self, name, obj, tier=None):
+        """One list walk, shared by tier requests and allowed named models."""
         rules = curation()
-        tier = rules["tiers"].get(name)
+        tier = tier if tier is not None else rules["tiers"].get(name)
         if not tier:
             why = rules["tier_problem"] or model_data.unavailable(name, rules["access"])
             audit(f"TIER {name}: cannot route ({why})")
@@ -750,9 +846,9 @@ class Handler(http.server.BaseHTTPRequestHandler):
                     502, "api_error", unreachable_message(result[1])
                 )
             if result[0] == "timeout":
-                until = cool_down(model)
+                count, until = model_failed(model, immediate=True)
                 audit(
-                    f"TIER {name}: {slot} {model} gave no reply in {FIRST_BYTE_TIMEOUT:.0f}s; cooling down until {clock(until)}"
+                    f"TIER {name}: {slot} {model} gave no reply in {FIRST_BYTE_TIMEOUT:.0f}s; kind=server count={count}; -> next model; park_seconds={until - time.time():.0f} cooling down until {datetime.datetime.fromtimestamp(until).isoformat(timespec='seconds')}"
                 )
                 last = (
                     504,
@@ -770,27 +866,46 @@ class Handler(http.server.BaseHTTPRequestHandler):
                 continue
             _, conn, resp = result
             if resp.status < 400:
-                audit(f"TIER {name}: {slot} -> {model}")
+                model_succeeded(model)
                 try:
                     return self._stream(resp.status, resp.headers, resp)
                 finally:
                     conn.close()
+                    audit(
+                        f"TIER {name}: {slot} -> {model}; answered status={resp.status} count=0"
+                    )
+            cut_off = False
+            status = resp.status
             try:
                 raw, headers = plain_body(resp.headers, resp.read())
-            except (OSError, http.client.HTTPException) as exc:
-                # The gateway dropped its error reply part-way.
-                audit(
-                    f"TIER {name}: {model} error reply cut off ({exc!r}); not switching"
-                )
-                return self._send_error_json(
-                    502,
-                    "api_error",
-                    f"ccsession: gateway error reply from {model} was cut off: {exc!r}",
-                )
+            except (OSError, http.client.HTTPException):
+                # Never classify a partial body as out of usage. Count the
+                # transport failure and return the same readable 502 as before.
+                cut_off = True
+                status, headers = 502, {"Content-Type": "application/json"}
+                raw = json.dumps(
+                    {
+                        "type": "error",
+                        "error": {
+                            "type": "api_error",
+                            "message": f"ccsession: gateway error reply from {model} was cut off",
+                        },
+                    }
+                ).encode()
             finally:
                 conn.close()
             text = raw.decode("utf-8", "replace")
-            reason = switch_reason(resp.status, text)
+            too_large = bool(_TOO_LARGE.search(text))
+            reason = switch_reason(status, text) if not (cut_off or too_large) else ""
+            try:
+                error = json.loads(raw)
+                error = error.get("error", error) if isinstance(error, dict) else {}
+                message = error.get("message", "") if isinstance(error, dict) else error
+            except (ValueError, TypeError):
+                message = text
+            message = self._redact_credentials(str(message))
+            with _lock:
+                count = _failures.get(model, 0)
             if reason:
                 until = cool_down(
                     model,
@@ -806,13 +921,28 @@ class Handler(http.server.BaseHTTPRequestHandler):
                     ),
                 )
                 audit(
-                    f"TIER {name}: {slot} {model} -> next model ({resp.status} {reason}); cooling down until {clock(until)}"
+                    f"TIER {name}: {slot} {model} -> next model ({status} {reason}); kind=usage count={count}; cooling down until {datetime.datetime.fromtimestamp(until).isoformat(timespec='seconds')}; error={message}"
                 )
-                last = (resp.status, headers, raw)
+                last = (status, headers, raw)
                 continue
+            if not too_large and (cut_off or status in (408, 429, 500, 502, 503, 504)):
+                count, until = model_failed(model)
+                audit(
+                    f"TIER {name}: {model} status={status} kind=server count={count}; error={message}"
+                )
+                if until:
+                    audit(
+                        f"TIER {name}: {model} -> next model; park_seconds={until - time.time():.0f} cooling down until {datetime.datetime.fromtimestamp(until).isoformat(timespec='seconds')}"
+                    )
+                    last = (status, headers, raw)
+                    continue
+                return self._send_body(status, headers, raw)
+            audit(
+                f"TIER {name}: {model} status={status} kind=request count={count}; error={message}"
+            )
             # A backup (not the tier's main model) that cannot hold the
             # conversation: try the next backup (spec section 6).
-            if position > 0 and _TOO_LARGE.search(text):
+            if position > 0 and too_large:
                 audit(
                     f"TIER {name}: backup {model} rejected the request as too large; trying the next one"
                 )
@@ -846,6 +976,7 @@ class Handler(http.server.BaseHTTPRequestHandler):
         self.end_headers()
         sniff = b""
         found = False
+        served = ""
         while True:
             # read1: hand over whatever has arrived, however small (a lone
             # keep-alive or thinking event), instead of waiting for 8 KB.
@@ -856,8 +987,8 @@ class Handler(http.server.BaseHTTPRequestHandler):
                 sniff += chunk
                 mm = re.search(rb'"model"\s*:\s*"([^"]+)"', sniff)
                 if mm:
-                    audit(
-                        f"RESPONSE {self.path}  backend served model={mm.group(1).decode()}"
+                    served = self._redact_credentials(
+                        mm.group(1).decode("utf-8", "replace")
                     )
                     found = True
             try:
@@ -865,6 +996,9 @@ class Handler(http.server.BaseHTTPRequestHandler):
                 self.wfile.flush()
             except BrokenPipeError:
                 break
+        # File logging never precedes forwarding the first streamed bytes.
+        if served:
+            audit(f"RESPONSE backend served model={served}")
 
 
 class ThreadingServer(socketserver.ThreadingMixIn, http.server.HTTPServer):

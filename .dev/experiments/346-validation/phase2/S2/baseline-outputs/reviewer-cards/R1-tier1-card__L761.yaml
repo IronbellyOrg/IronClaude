@@ -1,0 +1,29 @@
+# Tier 1 reflection card (Wave 1C, orchestrator inline; UC-1 pre)
+mode: pre
+plan: .dev/tasks/to-do/TASK-WF-removeTheAnyIssu-20261101-225635/TASK-WF-removeTheAnyIssu-20261101-225635.md
+spec: .dev/tasks/to-do/TASK-WF-removeTheAnyIssu-20261101-225635/source.md
+hypothesis_source: orchestrator-inline
+self_reported_confidence: 0.80
+findings:
+  - id: T1-F1
+    severity: blocking
+    claim: "R-004 (Max 3 drops to 2) is not met for cli_portify: Task 11 lowers the SKILL.md/decisions.yaml text to 2 but the executable ConvergenceEngine default and its panel_review caller stay at 3, so docs and code disagree."
+    evidence: [src/superclaude/cli/cli_portify/convergence.py:165, src/superclaude/cli/cli_portify/convergence.py:149, src/superclaude/cli/cli_portify/steps/panel_review.py:352, tests/cli_portify/test_convergence.py:78]
+  - id: T1-F2
+    severity: blocking
+    claim: "R-004 is not met for the prd CLI pipeline: max_research_fix_cycles defaults to 3 in code; no task changes it or its tests."
+    evidence: [src/superclaude/cli/prd/models.py:203, src/superclaude/cli/prd/executor.py:1157]
+  - id: T1-F3
+    severity: blocking
+    claim: "R-002 is not met for the prd CLI prompt: prompts.py:1173 keeps 'FAIL: ALL findings must be resolved', the shared line Task 6 replaces in prd/refs/agent-prompts.md:283; no task edits prompts.py."
+    evidence: [src/superclaude/cli/prd/prompts.py:1173, src/superclaude/skills/prd/refs/agent-prompts.md:283]
+  - id: T1-F4
+    severity: blocking
+    claim: "R-004 is not met for two summary lines ('Max fix cycles: 3 for research ... 3 for final') absent from inventory 3.2, and Task 11's acceptance grep cannot detect that form or '| 3 |' table cells, so the check passes while 3-cycle caps remain."
+    evidence: [src/superclaude/skills/operational-guide/SKILL.md:1349, src/superclaude/skills/readme/SKILL.md:2034]
+  - id: T1-F5
+    severity: minor
+    claim: "Task 7 and Task 8 acceptance use 'pytest -k tech' / '-k readme or operational' that may select no tests; weak check but not wrong."
+    evidence: []
+    tag: "[INFERRED]"
+deviation_class: null   # UC-1: no deviation ledger

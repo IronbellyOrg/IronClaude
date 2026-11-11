@@ -1,0 +1,65 @@
+---
+name: sc-fix-audit
+description: "Script and auditor brief for /sc:spec-panel-ponytail --fix-audit"
+---
+
+# sc-fix-audit
+
+Carrier skill for the `## Fix Audit` section of `/sc:spec-panel-ponytail` (issue 346). It is not a user workflow: it holds the script `scripts/fix_audit.py` (standard library only) and the auditor brief `refs/auditor-brief.md`, and lists the steps a `--fix-audit` run follows. The audit runs once per review loop, after the cycle-2 fixes and before review 3.
+
+## Where this skill lives
+
+Read the installed copy `~/.claude/skills/sc-fix-audit/` first; if it does not exist, use the project copy `.claude/skills/sc-fix-audit/`. `<skill base>` below is the folder you found. `D` is the folder `fix-audit/` beside the review-2 report.
+
+## Steps (in order, once)
+
+1. Prepare. Splits the cycle-2 fix diff into hunks, reads the review-2 grades, classifies each hunk and writes the filled brief:
+
+   ```bash
+   uv run --no-project python "<skill base>/scripts/fix_audit.py" prepare --baseline <copy review 2 saw> --current <spec> --report <review-2 report> [--dispositions <disposition file>] --out <D>
+   ```
+
+   If it prints `audit: not-triggered(<reason>)` or `audit: skipped(<reason>)`, stop here: nothing else runs and the specification is unchanged.
+2. Audit. Invoke `Skill ponytail:ponytail-review`, then follow `fix-audit/brief.md` and write `fix-audit/audit.md` (that is, `<D>/brief.md` and `<D>/audit.md`). Write no other file. If the skill cannot be loaded, the brief says to write `auditor: inline-rubric` and follow the brief alone.
+3. Check. Enforces K1-K10 on `audit.md` and never writes the specification:
+
+   ```bash
+   uv run --no-project python "<skill base>/scripts/fix_audit.py" check --dir <D>
+   ```
+
+   Any failure prints `CHECK_FAIL <rule> <row>` lines and records `audit: skipped(check failed)`; stop here.
+4. Apply. Re-runs the check, then makes the one scripted edit (revert rows plus the `delete` and `restore` edit rows) all or nothing:
+
+   ```bash
+   uv run --no-project python "<skill base>/scripts/fix_audit.py" apply --dir <D>
+   ```
+
+   A row that fails an exact-once or overlap test is caught by that re-run check (`CHECK_FAIL K7`, `K8` or `K9` lines, then `audit: skipped(check failed)`); `APPLY_STOP: nothing written` appears only when the apply step itself finds such a failure. Either way the specification is not written. A second run prints `already applied`.
+
+The run then prints one line, `audit: applied(reverted=<n>, shrunk=<n>, kept=<n>)` or `audit: skipped(<reason>)`, and stops. It writes no review report.
+
+After review 3, the coordinator (not the audit session) runs the verdict step on the review-3 report:
+
+```bash
+uv run --no-project python "<skill base>/scripts/fix_audit.py" verdict --dir <D> --report <review-3 report> [--report-rule 427|any-severity]
+```
+
+`verdict` writes `<D>/final-verdict.md`. Its last line is `verdict: PASS` or `verdict: FAIL`, and it prints the owner count: `review-3 critical+major (owner count, held findings included): <n>`, which keeps every finding the audit reverted (deferred) or logged `DOWNGRADE` (demoted) open when review 2 labelled it CRITICAL or MAJOR.
+
+## Files the loop writes (all in `D`)
+
+- `state.json`: paths, sha256s, ids with their grades (label, blocking, protected), prior-only ids, trigger result, audit state
+- `fix-list.md`: hunk table (id, lines in the spec, lines in the baseline, bytes added and removed, ids cited, grade, class)
+- `brief.md`: the auditor brief with its paths filled in
+- `current-before-audit.md`: byte copy of the specification before the audit
+- `audit.md`: the auditor's only output
+- `check.log`: `CHECK_OK` or `CHECK_FAIL` lines, plus `DOWNGRADE` and `UPGRADE` lines
+- `apply-log.md`: one line per row, totals, sha256 before and after, changed lines against the baseline before and after
+- `closed-minor.txt`: ids whose every citing hunk was reverted, with their review-2 label
+- `final-verdict.md`: the review-3 verdict and the owner count
+
+## What callers must not do
+
+- Edit the specification by hand. Only `apply` writes it; undoing the audit is one copy of `current-before-audit.md`.
+- Run the audit twice in a loop, or retry a failed step. One audit per loop.
+- Read `audit.md` in the review-3 session.

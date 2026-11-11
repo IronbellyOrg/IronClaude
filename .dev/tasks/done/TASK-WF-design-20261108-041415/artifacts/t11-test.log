@@ -1,0 +1,30 @@
+============================= test session starts ==============================
+platform linux -- Python 3.11.15, pytest-9.2.0, pluggy-1.7.0
+SuperClaude: 5.0.0
+rootdir: /home/coder/workspaces/worktrees/IronClaude/issue-438
+configfile: pyproject.toml
+plugins: superclaude-5.0.0, anyio-4.16.0
+collected 540 items
+
+tests/cli/test_how_we_work_install.py ........                           [  1%]
+tests/commands/test_help_command.py ......                               [  2%]
+tests/commands/test_routing_plugin_parity.py .....                       [  3%]
+tests/core/test_claude_md_routing_block.py ......                        [  4%]
+tests/core/test_how_we_work_routing_table.py ........................... [  9%]
+....................................................                     [ 19%]
+tests/docs/test_onboarding_deck.py ...                                   [ 19%]
+tests/recommend/test_cache.py ...............                            [ 22%]
+tests/recommend/test_routing_refresh.py ................................ [ 28%]
+........................................................................ [ 41%]
+........................................................................ [ 55%]
+........................................................................ [ 68%]
+                                                                         [ 68%]
+tests/skills/test_sc_recommend_routing_contract.py ..................... [ 72%]
+.......                                                                  [ 73%]
+tests/skills/test_spec_panel_review_loop.py ............................ [ 78%]
+..................                                                       [ 82%]
+tests/unit/test_cli_install.py ......................................... [ 89%]
+.......................................................                  [100%]
+
+============================= 540 passed in 3.02s ==============================
+rc=0

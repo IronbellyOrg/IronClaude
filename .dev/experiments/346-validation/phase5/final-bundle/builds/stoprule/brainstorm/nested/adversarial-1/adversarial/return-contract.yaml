@@ -1,0 +1,22 @@
+# sc:adversarial own return contract (Mode B, depth standard), written 2026-11-08
+# status partial: (1) debate ended BLOCKED_BY_INVARIANTS (8 HIGH UNADDRESSED in invariant-probe.md; no Round 3 at depth standard, base force-selected by score);
+# (2) post-merge validation FAIL (merge-log.md): plan Changes 2(e) and 13(f) route items to a cap-time audit pool and Escalation (c), but Change 13(b) removes every in-run audit on a failing review, so Escalation (c) is always empty at review 3.
+return_contract:
+  merged_output_path: ".dev/brainstorms/346-stoprule/nested/adversarial-1/merged-output.md"
+  convergence_score: 0.923
+  artifacts_dir: ".dev/brainstorms/346-stoprule/nested/adversarial-1/adversarial/"
+  status: "partial"
+  base_variant: "sonnet:analyzer"
+  unresolved_conflicts: 5   # C-009, C-015, C-020, C-025, C-032 (debate-transcript.md Convergence Assessment)
+  fallback_mode: false
+  failure_stage: null
+  invocation_method: "skill-direct"
+  unaddressed_invariants:
+    - {id: INV-008, category: guard_conditions, assumption: "fate of a claim that still fails the form rule after its one repair", severity: HIGH}
+    - {id: INV-009, category: guard_conditions, assumption: "the grader reply reaches the script unaltered when the reviewer session relays it", severity: HIGH}
+    - {id: INV-012, category: interaction_effects, assumption: "an incomplete-only FAIL dispatches no reviser although the S1 coordinator runs a fixed step order", severity: HIGH}
+    - {id: INV-014, category: count_divergence, assumption: "R3 <= 3 and growth <= 44.4% meets the bar; bar (c) also needs effect > control spread 4", severity: HIGH}
+    - {id: INV-015, category: count_divergence, assumption: "the script's confirmed count is the pre-registered metric; it is the recorder's label proxy", severity: HIGH}
+    - {id: INV-017, category: count_divergence, assumption: "a script PASS means the same as the comparators' clean pass under 'any finding of any severity is FAIL'", severity: HIGH}
+    - {id: INV-029, category: sufficiency_challenge, assumption: "a stoprule-arm R3 of 3 or less shows the mechanism did it (Arm B alone: 6 and 1)", severity: HIGH}
+    - {id: INV-030, category: sufficiency_challenge, assumption: "a lower computed count means a better spec (late-found removes real blockers by definition)", severity: HIGH}

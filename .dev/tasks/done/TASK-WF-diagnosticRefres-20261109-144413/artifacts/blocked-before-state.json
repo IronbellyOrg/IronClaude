@@ -1,0 +1,383 @@
+{
+  "source": {
+    ".": {
+      "kind": "dir",
+      "mode": 448
+    },
+    "SKILL.md": {
+      "kind": "file",
+      "mode": 420,
+      "size": 133005,
+      "sha256": "0dd9d33fbdf6fc398cb717bd491587e3a5e4119eaa609336c6823128479acb9a"
+    },
+    "refs": {
+      "kind": "dir",
+      "mode": 448
+    },
+    "refs/agent-assertions.md": {
+      "kind": "file",
+      "mode": 384,
+      "size": 5957,
+      "sha256": "7bcd5b7c17957a903baee9933bcffb04adebfb093163576731a37cfecf8407fa"
+    },
+    "refs/calibrator-eval-cases.md": {
+      "kind": "file",
+      "mode": 384,
+      "size": 5256,
+      "sha256": "ef705ec12e75d8d91731013bb81416c7acca36744f8a433dc4dd9e3d9d16ffba"
+    },
+    "refs/contract-enumeration.md": {
+      "kind": "file",
+      "mode": 384,
+      "size": 2831,
+      "sha256": "8cf9c1e6fe6a086cbc2055f78ae07ee8fa2815eb1cce8e6918b4d68dd0433d5e"
+    },
+    "refs/diagnosability-audit.md": {
+      "kind": "file",
+      "mode": 420,
+      "size": 38873,
+      "sha256": "e86a3a4124c359c51827bbfbe5195bbe7c9670257a5121854c0cd94be32302d1"
+    },
+    "refs/doc-discovery.md": {
+      "kind": "file",
+      "mode": 420,
+      "size": 9312,
+      "sha256": "0b9d5a38b1ac4fb0fc7c9e62846a486e3ba799990c1cb44e2ddee3daaa88d8cd"
+    },
+    "refs/effective-input-proof.md": {
+      "kind": "file",
+      "mode": 384,
+      "size": 1872,
+      "sha256": "f40412b36e13a5271bb5b426376efe2b837ff0d09c7e78c0b7ad61f19c95853c"
+    },
+    "refs/environment-deltas.md": {
+      "kind": "file",
+      "mode": 384,
+      "size": 2188,
+      "sha256": "a868fd374ec2c84981e2b7bde02334f9b75cf9f64a6b7abee9e028e63205ecff"
+    },
+    "refs/escalation-rubric.md": {
+      "kind": "file",
+      "mode": 384,
+      "size": 8058,
+      "sha256": "c72b5afc2c6b85cc979e5c071399d2c5825aae08d06e659d36c9b105b1067037"
+    },
+    "refs/hardening-output-contract.md": {
+      "kind": "file",
+      "mode": 384,
+      "size": 9819,
+      "sha256": "0a477f3addde441a0b617b909d0e1660bbb1b526dd7e5503d4d8c4731ee0faa6"
+    },
+    "refs/hypothesis-card-template.md": {
+      "kind": "file",
+      "mode": 384,
+      "size": 16316,
+      "sha256": "cfad9e91ac7816b22d1d3d5bc1c7db70c544a7a0783e63cabe0d3d0d253ee8cb"
+    },
+    "refs/pipeline-hardening-closure.md": {
+      "kind": "file",
+      "mode": 384,
+      "size": 7284,
+      "sha256": "597db5c60bc2e28f11ddd9062eb59e3180307f4b6db5a950cb69c3f9004f5625"
+    },
+    "refs/primitive-differential.md": {
+      "kind": "file",
+      "mode": 384,
+      "size": 6149,
+      "sha256": "12d8a49e5ee2749b56b822028f6676940eb57655c9852fa85273444d0c5156ce"
+    },
+    "refs/probe-packs": {
+      "kind": "dir",
+      "mode": 448
+    },
+    "refs/probe-packs/read-parse.md": {
+      "kind": "file",
+      "mode": 384,
+      "size": 632,
+      "sha256": "95f0397e7eb5f0620764ac77a475ce8b405018eb0841b42c25e19e569f993498"
+    },
+    "refs/remediation-handoff.md": {
+      "kind": "file",
+      "mode": 384,
+      "size": 16290,
+      "sha256": "aebafa75d8b1998a2e8573028cae63b7497fd25202e51afca245fb57d73610b1"
+    },
+    "refs/report-template.md": {
+      "kind": "file",
+      "mode": 384,
+      "size": 28985,
+      "sha256": "faa943d063f4078e3c9c5a5b58145fd530ed79a03a2296d6a4f23f71c838d7ce"
+    },
+    "refs/runtime-entrypoint-verification.md": {
+      "kind": "file",
+      "mode": 384,
+      "size": 3609,
+      "sha256": "d83f98cba7130cb0c61a5beda16c9d33420b22466de4c84781e886e94759a971"
+    },
+    "refs/triage-checklist.md": {
+      "kind": "file",
+      "mode": 384,
+      "size": 7584,
+      "sha256": "847c8a198ffff5818bbfedf4a7f6c21dae4b854ffcaa82223d31e6b8c4a5a19d"
+    },
+    "refs/unmask-and-sweep.md": {
+      "kind": "file",
+      "mode": 384,
+      "size": 3971,
+      "sha256": "460e1b8305242aeb085f6c426bfe2c50fbb8983050173b4d3cbde8437ebd2be8"
+    }
+  },
+  "installed": {
+    ".": {
+      "kind": "dir",
+      "mode": 493
+    },
+    "SKILL.md": {
+      "kind": "file",
+      "mode": 420,
+      "size": 131516,
+      "sha256": "6d1b226cba4c2fbe9dae7bcbbfe954ee9463a20473e4e33bdc679cda39b2f3e5"
+    },
+    "refs": {
+      "kind": "dir",
+      "mode": 493
+    },
+    "refs/agent-assertions.md": {
+      "kind": "file",
+      "mode": 420,
+      "size": 5957,
+      "sha256": "7bcd5b7c17957a903baee9933bcffb04adebfb093163576731a37cfecf8407fa"
+    },
+    "refs/calibrator-eval-cases.md": {
+      "kind": "file",
+      "mode": 420,
+      "size": 5256,
+      "sha256": "ef705ec12e75d8d91731013bb81416c7acca36744f8a433dc4dd9e3d9d16ffba"
+    },
+    "refs/contract-enumeration.md": {
+      "kind": "file",
+      "mode": 420,
+      "size": 2831,
+      "sha256": "8cf9c1e6fe6a086cbc2055f78ae07ee8fa2815eb1cce8e6918b4d68dd0433d5e"
+    },
+    "refs/diagnosability-audit.md": {
+      "kind": "file",
+      "mode": 420,
+      "size": 38706,
+      "sha256": "953901f262b0f4092297e03d3611e3c14cc678ed3d7072c55e604c8cd30ad944"
+    },
+    "refs/doc-discovery.md": {
+      "kind": "file",
+      "mode": 420,
+      "size": 9256,
+      "sha256": "57c0795ca5bec46c51cadf4ae02f156e3a112b2f592081921eeb4c729379e9aa"
+    },
+    "refs/effective-input-proof.md": {
+      "kind": "file",
+      "mode": 420,
+      "size": 1872,
+      "sha256": "f40412b36e13a5271bb5b426376efe2b837ff0d09c7e78c0b7ad61f19c95853c"
+    },
+    "refs/environment-deltas.md": {
+      "kind": "file",
+      "mode": 420,
+      "size": 2188,
+      "sha256": "a868fd374ec2c84981e2b7bde02334f9b75cf9f64a6b7abee9e028e63205ecff"
+    },
+    "refs/escalation-rubric.md": {
+      "kind": "file",
+      "mode": 420,
+      "size": 8058,
+      "sha256": "c72b5afc2c6b85cc979e5c071399d2c5825aae08d06e659d36c9b105b1067037"
+    },
+    "refs/hardening-output-contract.md": {
+      "kind": "file",
+      "mode": 420,
+      "size": 9819,
+      "sha256": "0a477f3addde441a0b617b909d0e1660bbb1b526dd7e5503d4d8c4731ee0faa6"
+    },
+    "refs/hypothesis-card-template.md": {
+      "kind": "file",
+      "mode": 420,
+      "size": 16316,
+      "sha256": "cfad9e91ac7816b22d1d3d5bc1c7db70c544a7a0783e63cabe0d3d0d253ee8cb"
+    },
+    "refs/pipeline-hardening-closure.md": {
+      "kind": "file",
+      "mode": 420,
+      "size": 7284,
+      "sha256": "597db5c60bc2e28f11ddd9062eb59e3180307f4b6db5a950cb69c3f9004f5625"
+    },
+    "refs/primitive-differential.md": {
+      "kind": "file",
+      "mode": 420,
+      "size": 6149,
+      "sha256": "12d8a49e5ee2749b56b822028f6676940eb57655c9852fa85273444d0c5156ce"
+    },
+    "refs/probe-packs": {
+      "kind": "dir",
+      "mode": 493
+    },
+    "refs/probe-packs/read-parse.md": {
+      "kind": "file",
+      "mode": 420,
+      "size": 632,
+      "sha256": "95f0397e7eb5f0620764ac77a475ce8b405018eb0841b42c25e19e569f993498"
+    },
+    "refs/remediation-handoff.md": {
+      "kind": "file",
+      "mode": 420,
+      "size": 16290,
+      "sha256": "aebafa75d8b1998a2e8573028cae63b7497fd25202e51afca245fb57d73610b1"
+    },
+    "refs/report-template.md": {
+      "kind": "file",
+      "mode": 420,
+      "size": 28985,
+      "sha256": "faa943d063f4078e3c9c5a5b58145fd530ed79a03a2296d6a4f23f71c838d7ce"
+    },
+    "refs/runtime-entrypoint-verification.md": {
+      "kind": "file",
+      "mode": 420,
+      "size": 3609,
+      "sha256": "d83f98cba7130cb0c61a5beda16c9d33420b22466de4c84781e886e94759a971"
+    },
+    "refs/triage-checklist.md": {
+      "kind": "file",
+      "mode": 420,
+      "size": 7584,
+      "sha256": "847c8a198ffff5818bbfedf4a7f6c21dae4b854ffcaa82223d31e6b8c4a5a19d"
+    },
+    "refs/unmask-and-sweep.md": {
+      "kind": "file",
+      "mode": 420,
+      "size": 3971,
+      "sha256": "460e1b8305242aeb085f6c426bfe2c50fbb8983050173b4d3cbde8437ebd2be8"
+    }
+  },
+  "profiles": {
+    "/home/coder/workspaces/worktrees/IronClaude/issue-441/src/superclaude/agents/troubleshoot-analyst.md": {
+      "kind": "file",
+      "mode": 420,
+      "size": 5306,
+      "sha256": "fe25f8713a400250cd2ed7387ae0c30d32e787318cb41f6034bb2f70a9767f44"
+    },
+    "/home/coder/workspaces/worktrees/IronClaude/issue-441/.claude/agents/troubleshoot-analyst.md": {
+      "kind": "file",
+      "mode": 384,
+      "size": 5306,
+      "sha256": "fe25f8713a400250cd2ed7387ae0c30d32e787318cb41f6034bb2f70a9767f44"
+    },
+    "/home/coder/.claude/agents/troubleshoot-analyst.md": {
+      "kind": "file",
+      "mode": 420,
+      "size": 5258,
+      "sha256": "a952b4060db11be65b5bac546c6af3f2422615bc5cc3433179560a1d23c61213"
+    }
+  },
+  "settings": {
+    "/home/coder/workspaces/worktrees/IronClaude/issue-441/.claude/settings.json": {
+      "kind": "file",
+      "mode": 384,
+      "size": 1632,
+      "sha256": "1f535104e6bb9145585a88418d0a094a4b38d6432e3b5fbd6226d550da33d41c"
+    },
+    "/home/coder/workspaces/worktrees/IronClaude/issue-441/.claude/settings.local.json": {
+      "kind": "absent"
+    },
+    "/home/coder/.claude/settings.json": {
+      "kind": "file",
+      "mode": 420,
+      "size": 55659,
+      "sha256": "e0c2e76c60cfdd98dacdf6d751782c619875fb4c858f5037858af2e1a883f761"
+    },
+    "/home/coder/.claude/settings.local.json": {
+      "kind": "absent"
+    }
+  },
+  "other_installed_digest": "55c0781e55cedb83fa5cb02e3cdfc8a8421288bb9d3b37b56f12cca971947b77",
+  "other_installed_entries": 45,
+  "project_mirrors": {
+    "skills": "474014884b6aaea81afc9519a245c844fcebb9b7fef3e9a32246c64dae0084b0",
+    "agents": "17f317b9b649b82789e5ce1c629f79743bcb20b3c5c84f57060fe5f431ab7c71",
+    "commands": "7f3c2978d5181c7fb2071df9082046a3410fb476b64f74d6e6ec9b380b6bd2ca",
+    "hooks": "32b821fa8cbf12814d9a1717baef1e8a0eb260f9339c5af7b1b9e20f587fe767",
+    "templates": "0388b1822767a0ee29d0e3c5171aedb524a795eb23173d084c1ebb4c7cff0eda"
+  },
+  "binding": {
+    "module": "/home/coder/workspaces/worktrees/IronClaude/issue-441/src/superclaude/cli/install_skill.py",
+    "module_state": {
+      "kind": "file",
+      "mode": 384,
+      "size": 4197,
+      "sha256": "dba905ac3d3e7407f380146ada15cffa957d174e3371a5140a1fc2d06e3537c8"
+    },
+    "source": "/home/coder/workspaces/worktrees/IronClaude/issue-441/src/superclaude/skills/sc-troubleshoot-protocol",
+    "target": "/home/coder/.claude/skills/sc-troubleshoot-protocol",
+    "source_realpath": "/home/coder/workspaces/worktrees/IronClaude/issue-441/src/superclaude/skills/sc-troubleshoot-protocol",
+    "target_realpath": "/home/coder/.claude/skills/sc-troubleshoot-protocol",
+    "model_alias": "sonnet",
+    "model_mapping": "claude-gw-tier1b[1m]"
+  },
+  "roster": [
+    "Glob",
+    "Grep",
+    "Read",
+    "mcp__auggie__codebase-retrieval",
+    "mcp__codegraph__codegraph_callers",
+    "mcp__codegraph__codegraph_impact",
+    "mcp__codegraph__codegraph_node",
+    "mcp__codegraph__codegraph_search",
+    "mcp__litellm__augment_code-augment_code_search"
+  ],
+  "observed_drift": [
+    ".",
+    "SKILL.md",
+    "refs",
+    "refs/agent-assertions.md",
+    "refs/calibrator-eval-cases.md",
+    "refs/contract-enumeration.md",
+    "refs/diagnosability-audit.md",
+    "refs/doc-discovery.md",
+    "refs/effective-input-proof.md",
+    "refs/environment-deltas.md",
+    "refs/escalation-rubric.md",
+    "refs/hardening-output-contract.md",
+    "refs/hypothesis-card-template.md",
+    "refs/pipeline-hardening-closure.md",
+    "refs/primitive-differential.md",
+    "refs/probe-packs",
+    "refs/probe-packs/read-parse.md",
+    "refs/remediation-handoff.md",
+    "refs/report-template.md",
+    "refs/runtime-entrypoint-verification.md",
+    "refs/triage-checklist.md",
+    "refs/unmask-and-sweep.md"
+  ],
+  "content_drift": [
+    "SKILL.md",
+    "refs/diagnosability-audit.md",
+    "refs/doc-discovery.md"
+  ],
+  "mode_drift": [
+    ".",
+    "refs",
+    "refs/agent-assertions.md",
+    "refs/calibrator-eval-cases.md",
+    "refs/contract-enumeration.md",
+    "refs/effective-input-proof.md",
+    "refs/environment-deltas.md",
+    "refs/escalation-rubric.md",
+    "refs/hardening-output-contract.md",
+    "refs/hypothesis-card-template.md",
+    "refs/pipeline-hardening-closure.md",
+    "refs/primitive-differential.md",
+    "refs/probe-packs",
+    "refs/probe-packs/read-parse.md",
+    "refs/remediation-handoff.md",
+    "refs/report-template.md",
+    "refs/runtime-entrypoint-verification.md",
+    "refs/triage-checklist.md",
+    "refs/unmask-and-sweep.md"
+  ]
+}

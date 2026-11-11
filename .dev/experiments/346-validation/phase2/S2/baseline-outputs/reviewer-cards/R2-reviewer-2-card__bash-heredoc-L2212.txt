@@ -1,0 +1,10 @@
+out=.dev/reflect/pre-removeTheAnyIssu-20261102042426; cat > $out/reviewer-cards/reviewer-2-card.yaml <<'EOF'
+reviewer: 2
+persona: qa
+model: haiku-alias (glm-5.3)
+findings:
+  - {id: F2-1, severity: blocking, claim: "Contradictory cli-portify default: inventory section 4 decision 3a (coordinator answer 2026-11-02) sets the convergence default to 1, while source.md R-011, cap-sites.md section 2/12 and Task 15 set 2; 2 iterations = 4 fix passes, above the cap.", evidence: [".dev/review-severity-rule/inventory.md:169", ".dev/tasks/to-do/TASK-WF-removeTheAnyIssu-20261102-042031/source.md:15", ".dev/review-severity-rule/cap-sites.md:41-45"], fix: "Task 15 and test_convergence.py:78-86 use default 1; record which artifact wins."}
+  - {id: F2-2, severity: minor, claim: "No check pins the kept FAIL-line tail 'Only PASS or FAIL — no conditional pass.' or the per-file 'List each ...' suffix; a coordinated drop passes every check.", evidence: [".dev/tasks/to-do/TASK-WF-removeTheAnyIssu-20261102-042031/source.md:6"], fix: "Add tail survival to Task 18 or Tasks 4/8/9 greps."}
+self_audit: "Task 18 (a) no false failures (72 src hits on task-edited lines; S1-S5 contain none of the 11 wordings); (b), (c), (g) sound; four rules/prompts files have no CRITICAL/IMPORTANT/MINOR scale; CAP_PATTERN does not match canonical replacements; task-builder:1420 'as an Open Question ... and proceed' escapes (f) phrases; Task 17 edit list complete except row-V check."
+EOF
+{ echo "file_list:"; while read -r p; do echo "  - path: $p"; echo "    sha256: $(sha256sum "$p" | cut -d' ' -f1)"; done < $out/artifacts/tree.txt; } > /tmp/fl2.yaml; sed -n '3,$p' $out/artifacts/input-snapshot.yaml | diff - /tmp/fl2.yaml | grep -E '^[<>].*path' -A1 | head; sed -n '3,$p' $out/artifacts/input-snapshot.yaml | diff - /tmp/fl2.yaml > /dev/null && echo NO_DRIFT || echo DRIFT; diff <(sed -n '3,$p' $out/artifacts/input-snapshot.yaml) /tmp/fl2.yaml | head -6; echo new_tree=$(sha256sum /tmp/fl2.yaml | cut -d' ' -f1); rm /tmp/fl2.yaml

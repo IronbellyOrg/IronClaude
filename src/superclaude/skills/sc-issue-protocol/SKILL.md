@@ -1,6 +1,6 @@
 ---
 name: sc:issue-protocol
-description: "Behavioral protocol for /sc:issue: --claim assigns an existing GitHub issue on the origin repo (and its ClickUp task), checks its accuracy, writes a summary and a next-step prompt, then creates an Orca worktree and launches an agent in it at the --pipeline level; --create files a templated GitHub issue with labels from a fixed set. Spawns tier-pinned worker agents for every lookup and draft; the orchestrator makes every GitHub and ClickUp write."
+description: "Behavioral protocol for /sc:issue: --claim assigns an existing GitHub issue on the origin repo (and its ClickUp task), checks its accuracy, writes a summary and a next-step prompt, then creates an Orca worktree and launches an agent in it at the --pipeline level; --create files a templated GitHub issue with a GitHub issue type, the Complexity issue field and a mode label. Spawns tier-pinned worker agents for every lookup and draft; the orchestrator makes every GitHub and ClickUp write."
 allowed-tools: Read, Glob, Grep, Write, Edit, Bash, Task, Skill, AskUserQuestion
 ---
 
@@ -15,7 +15,7 @@ mcp-servers: [litellm, auggie, codegraph]
 Two modes, chosen by the command (`~/.claude/commands/sc/issue.md`), which has already validated the flags:
 
 - **`--claim <number|url>`**: assign an existing issue of the origin repo to the current user on GitHub and, when one exists, on its ClickUp task; check whether the issue text is still accurate; write a summary cheatsheet and the next-step prompt; post two marked comments; then, unless `--pipeline none` (which creates no worktree, launches no agent and ends after the comments), create or reuse the Orca worktree `issue-<N>`, copy `.dev/issues/<N>/` into it and launch one agent there at the level `--pipeline` names: `worktree` (default) plans and waits for approval, `full` also implements without a commit or a push, `full` with `--submit` also commits, pushes a feature branch and opens a PR through `/sc:pr-submit --monitor 3`. Nothing ever merges. This skill never runs a step of `next-steps.md` itself (B2).
-- **`--create "<description>"`**: turn a description into a GitHub issue built from one of four templates, with labels from a fixed set, and post it. GitHub only: no ClickUp task and no self-assignment (B6).
+- **`--create "<description>"`**: turn a description into a GitHub issue built from one of four templates, with a GitHub issue type, the Complexity issue field and a mode label, and post it. GitHub only: no ClickUp task and no self-assignment (B6).
 
 For issues filed through `/sc:issue --create`, its four templates replace the `ISSUE-HANDOFF.md` / `ISSUE-BACKLOG.md` instruction of rule 10 in the distributed `CLAUDE.md`; rule 10 itself is unchanged and still governs issues filed without `/sc:issue`.
 
@@ -28,7 +28,7 @@ For issues filed through `/sc:issue --create`, its four templates replace the `I
 | `refs/claim.md` | at the start of claim mode: Waves 0-8 in detail, the effort and complexity rubric, marker handling |
 | `refs/create.md` | at the start of create mode: Waves 0-5, flag-settling table, depth-to-worker table, contradiction prompt rule |
 | `refs/chains.md` | claim Wave 5: the six default next-step chains and the `/sc:recommend` goal format |
-| `refs/labels.md` | create Wave 5: the fixed label set and the maintainer's one-time creation lines |
+| `refs/labels.md` | create Wave 5: the mode labels, the issue type and Complexity field rules, the output lines and the maintainer's one-time label creation lines |
 | `refs/tiers.md` | before the first worker spawn of either mode: tier map, pinning rule, `E-TIER-UNAVAILABLE` |
 | `scripts/origin_repo.py` | Wave 0 of both modes: prints `owner/repo` from `origin`; with `--claim` also checks the claim argument against it |
 | `scripts/clickup_claim.py` | claim Wave 3: assigns the matching ClickUp task |
@@ -70,8 +70,8 @@ Every spawn prompt names each exact path the job must write under `.dev/issues/`
 ## Repository and GitHub call rules
 
 - `<R>` is the `origin` repo, printed by `uv run --no-project python "<skill base>/scripts/origin_repo.py"`. Nothing else is consulted: not `gh repo set-default`, not gh's fork-parent default, not a `--repo` flag (B10). There is no `--repo` option on the command.
-- Every GitHub CLI call on issues, pull requests or labels passes `--repo <R>`; every `gh api` path is `user` or spells `repos/<R>/...`, never a brace placeholder.
-- The orchestrator (this skill) is the only place that writes to GitHub or ClickUp: `gh issue edit <N> --repo <R> --add-assignee @me`, `gh issue comment <N> --repo <R> --body-file <file>`, `gh api -X PATCH repos/<R>/issues/comments/<id> -F body=@<file>`, `gh issue create --repo <R> ...` and `scripts/clickup_claim.py`. Workers never write to either.
+- Every GitHub CLI call on issues, pull requests or labels passes `--repo <R>`; every `gh api` path is `user` or spells `repos/<R>/...`, never a brace placeholder. The one exception is the T3 lookup worker's read-only GET of `orgs/<owner of R>/issue-fields` (`<owner>` is the part of `<R>` before the slash; no other `orgs/` path is allowed, and the orchestrator and the T1 and T2 workers keep the old rule).
+- The orchestrator (this skill) is the only place that writes to GitHub or ClickUp: `gh issue edit <N> --repo <R> --add-assignee @me`, `gh issue comment <N> --repo <R> --body-file <file>`, `gh api -X PATCH repos/<R>/issues/comments/<id> -F body=@<file>`, `gh issue create --repo <R> ...` (create mode adds `--type <name>`), `gh api -X POST repos/<R>/issues/<N>/issue-field-values --input <file>` and `scripts/clickup_claim.py`. Workers never write to either.
 - `git fetch origin` is the only fetch; no other remote is added or fetched.
 - Posts go up directly (B1); the full body or comment is never shown for approval. The only user prompt is the create-mode contradiction question (`refs/create.md`, default D14).
 - `.dev/issues/` is never staged or committed by this skill (default D24).
@@ -89,22 +89,22 @@ Load `refs/claim.md` now. `<N>` is the issue number, `<D>` = `.dev/issues/<N>/`.
 6. **Wave 5, next steps.** Load `refs/chains.md`. Invoke `Skill sc-recommend` with the goal format of `refs/chains.md`; save its output verbatim to `<D>/recommend.md` from `templates/recommend-record.md`. Write `<D>/next-steps.md` from `templates/next-steps.md`, starting with the `/model` tier line and carrying the `Plan boundary: after step <K>` line. Unless `--pipeline none`, render `<D>/launch-prompt.md` with `orca_worktree.py prompt` (the script keeps the existing prompt only while a launch entry's worktree still exists).
 7. **Wave 6, post.** Post or edit (by marker) the accuracy-check comment and the claim comment (`templates/claim-comment.md`). Then continue with Wave 7 and Wave 8, except for `--pipeline none`, which ends the claim here (print the final output and the return contract). A STOP in Waves 0 to 6 means no Orca call after the Wave 0 check. This skill never runs a step of `next-steps.md` (B2).
 8. **Wave 7, worktree.** Not for `--pipeline none`. `orca_worktree.py worktree --repo <R> --number <N> --base origin/<B> --source <D>` creates or reuses the worktree and copies `<D>` into it. Every failure is a warning: the claim `status` stays `success`.
-9. **Wave 8, launch.** Only when `--pipeline` is not `none` and Wave 7 `status` is `created` or `reused`: `orca_worktree.py launch --number <N> --source <D> --level <L> [--submit]` first checks that the launch-level guard would be effective (the IR-4 preflight; read only) and refuses the launch with `W-ENFORCEMENT-ABSENT` when the guard is missing or not effective (no agent starts and no launch record is written); otherwise it starts one agent in the worktree at the chosen level, behind the ccsession shim, and records the level for the enforcement hook, adding the warning `W-L2-ABSENT` when the worktree has no L2 pre-push layer (the launch still goes ahead; the L2 layer is not built yet). The agent, not this skill, runs the steps. Ship gate: no governed claim (`--pipeline worktree` or `full`) is used on a real issue until OB-H1 item 1 (parent `session_id` in subagent payloads), OB-H2 and OB-H3 have passed. In `sc-issue-launch-level-hook.md`, section 7 (U1) requires item 1 before a `full` or `--submit` claim and OB-H1 item 5 (self-started turns wrapped) before a claim at any level; OB-H2 and OB-H3 come from its sections 11 and 14. Every failure, a refusal included, is a warning. Then print the final output of `refs/claim.md` (worktree line, tracking note, launch result with its release instruction and L1/L2 layer status lines, every warning with its remedy line), the return contract, and STOP.
+9. **Wave 8, launch.** Only when `--pipeline` is not `none` and Wave 7 `status` is `created` or `reused`: `orca_worktree.py launch --number <N> --source <D> --level <L> [--submit]` first checks that the launch-level guard would be effective (the IR-4 preflight; read only) and refuses the launch with `W-ENFORCEMENT-ABSENT` when the guard is missing or not effective (no agent starts and no launch record is written); otherwise it starts one agent in the worktree at the chosen level, behind the ccsession shim, and records the level for the enforcement hook, installs the L2 pre-push hook in the clone's shared hooks directory (`install_l2`) and adds the warning `W-L2-ABSENT` when that hook is not in effect (the launch still goes ahead: the IR-7 refusal arrives switched off in the separate last #441 commit, `IR7_REFUSE = False`, so this stays a warning). The agent, not this skill, runs the steps. Ship gate: no governed claim (`--pipeline worktree` or `full`) is used on a real issue until OB-H1 item 1 (parent `session_id` in subagent payloads), OB-H2 and OB-H3 have passed. In `sc-issue-launch-level-hook.md`, section 7 (U1) requires item 1 before a `full` or `--submit` claim and OB-H1 item 5 (self-started turns wrapped) before a claim at any level; OB-H2 and OB-H3 come from its sections 11 and 14. Every failure, a refusal included, is a warning. Then print the final output of `refs/claim.md` (worktree line, tracking note, launch result with its release instruction and L1/L2 layer status lines, every warning with its remedy line), the return contract, and STOP.
 
 ## Create mode
 
 Load `refs/create.md` now. `<D>` = `.dev/issues/draft-<YYYYMMDD-HHMMSS>-<slug>/` until the issue exists, then `.dev/issues/<N>/` (default D10).
 
 1. **Wave 0, prerequisites.** `uv run --no-project python "<skill base>/scripts/origin_repo.py"` resolves `<R>` (STOP `E-NO-ORIGIN`); `gh auth status` (else STOP `E-GH-AUTH`); create `<D>`; write `<D>/description.md` from `templates/description.md`.
-2. **Wave 1, lookup.** Load `refs/tiers.md`. Spawn `issue-worker-t3` first (B13): repo labels and possible duplicates into `<D>/scout.md`.
-3. **Wave 2, settle the flags** by the depth table of `refs/create.md`; complexity follows depth; the result goes to `<D>/flags.md` from `templates/flags-decision.md`. Deep with all flags given runs `Skill sc:adversarial-protocol` with `--compare <D>/flags-user.md,<D>/flags-t1.md --depth quick`.
+2. **Wave 1, lookup.** Load `refs/tiers.md`. Spawn `issue-worker-t3` first (B13): repo labels, repo issue types, the Complexity field of the organization and possible duplicates into `<D>/scout.md`.
+3. **Wave 2, settle the flags** by the depth table of `refs/create.md`; complexity follows depth and the `Issue type` row follows from the mode and the area; the result goes to `<D>/flags.md` from `templates/flags-decision.md`. Deep with all flags given runs `Skill sc:adversarial-protocol` with `--compare <D>/flags-user.md,<D>/flags-t1.md --depth quick`.
 4. **Wave 3, pick the template**: mode selects feature or bug; `quick`/`standard` select the simple template, `deep` the complex one.
 5. **Wave 4, draft the body** with the depth's worker into `<D>/issue-body.md` and `<D>/draft-notes.md`. Ask one question only when `draft-notes.md` lists new material or a contradiction.
-6. **Wave 5, post.** Load `refs/labels.md`. Apply only the labels of the fixed set that exist in `<R>`; `gh issue create --repo <R> --title "[FEATURE] <title>"` or `"[BUG] <title>"` with `--body-file <D>/issue-body.md` (failure STOP `E-CREATE-FAILED`); rename `<D>` to `.dev/issues/<N>/`; post the pushback comment from `templates/create-review-comment.md` when Wave 2 found a disagreement at standard or deep. Print the issue URL, the directory and the labels not applied. No ClickUp call (B6).
+6. **Wave 5, post.** Load `refs/labels.md`. Apply only the mode label, and only when it exists in `<R>`; `gh issue create --repo <R> --title "[FEATURE] <title>"` or `"[BUG] <title>"` with `--body-file <D>/issue-body.md` and `--type "<name>"` when the wanted issue type is listed in `scout.md` (failure STOP `E-CREATE-FAILED`); rename `<D>` to `.dev/issues/<N>/`; read the issue type back; set the Complexity field with the POST of `refs/labels.md` (`gh api -X POST repos/<R>/issues/<N>/issue-field-values --input .dev/issues/<N>/complexity-field.json`); post the pushback comment from `templates/create-review-comment.md` when Wave 2 found a disagreement at standard or deep. Print the issue URL, the directory, the labels not applied and every `not set` line. A failed type or field never stops the run once the issue exists. No ClickUp call (B6).
 
 ## Return contract
 
-Print this block last, in both modes, including after a STOP (fields that do not apply are `null`):
+Print this return contract last, in both modes, including after a STOP (fields that do not apply are `null`). The block below is printed first; the mode's added fields follow it. `labels_applied` and `labels_missing` cover the mode label only:
 
 ```yaml
 status: success | stopped | failed
@@ -135,6 +135,14 @@ enforcement_hook: installed | missing | null
 
 For `--pipeline none` no worktree is created: `worktree_status` is `not_requested` and `worktree_path`, `worktree_branch`, `worktree_match_key` and `worktree_warning` are `null`. `launch_status` is `not_requested` for `--pipeline none` and when `worktree_status` is `failed`. `worktree_match_key` is `null` for a newly created worktree. `enforcement_hook` reports the IR-4 preflight of the launch: `installed` means it passed (also when the launch then failed), `missing` means it failed and the launch was refused (`launch_status` `failed`, `launch_warning` `W-ENFORCEMENT-ABSENT`, no agent started), and `null` means no preflight ran (no agent requested, `already_launched`, or a launch that failed before the preflight). `launch_warning` is the first launch code: a `launched` claim without an L2 pre-push layer carries `W-LAUNCH-NOT-CCSESSION` there when that also applies, else `W-L2-ABSENT`. The claim `status` stays `success` through any worktree or launch warning.
 
+Create mode adds these three fields after the claim block (claim mode prints none of them; on a STOP the fields that do not apply are `null`):
+
+```yaml
+issue_type: <name of the issue type read back from the issue, or null>
+complexity_field: <option name read back from the issue, or null>
+classification_missing: [<each "not set" line without its prefix>, ...]
+```
+
 On a STOP, also print the STOP code and its message.
 
 ## Error handling
@@ -158,7 +166,9 @@ On a STOP, also print the STOP code and its message.
 | `/sc:recommend` asks a question or finds no route | Record it in `recommend.md`; `next-steps.md` uses the default row from `refs/chains.md` and says so |
 | `gh issue comment <N> --repo <R>` or the `gh api -X PATCH repos/<R>/issues/comments/<id>` edit fails | STOP `E-POST-FAILED`; files stay in `.dev/issues/<N>/`; a re-run edits rather than duplicates because of the markers |
 | `gh issue create --repo <R>` fails | STOP `E-CREATE-FAILED`; the draft directory is kept |
-| A label of the fixed set is missing in the repo | Skip it; list it in the final output |
+| The mode label is missing in the repo | Skip it; list it as `not applied: label missing in repo: <name>` in the final output |
+| The wanted issue type is missing in the repo, the lookup failed, or the type is not applied after create | Create the issue without `--type` or keep it as created; continue and list `not set: issue type <name>: <reason>` in the final output |
+| The Complexity field or its option is missing, the lookup failed, the POST fails or the value is not applied after create | Keep the issue; continue and list `not set: field Complexity <value>: <reason>` in the final output |
 | codegraph or auggie unavailable for `/sc:analyze` | The worker continues on Grep, Glob and Read and records it in its file |
 
 ## Will
@@ -174,7 +184,8 @@ On a STOP, also print the STOP code and its message.
 - Run `/sc:implement`, `/task`, a commit, a push or `/sc:pr-submit` itself, or any step of `next-steps.md` (the launched agent may, at the level the user chose).
 - Merge anything.
 - Pass an Orca link flag, or call `orca` anywhere but `scripts/orca_worktree.py`.
-- Create a label, a ClickUp task or a GitHub repository setting.
+- Create a label, an issue type, an issue field, a ClickUp task or a GitHub repository setting.
+- Write any issue field other than Complexity.
 - Pass the `model` parameter on an Agent call, or fall back to an alias.
 - Touch any repository other than `origin`, or fetch any other remote.
 - Stage or commit `.dev/issues/`, or edit source code.

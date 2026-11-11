@@ -1,0 +1,63 @@
+diff --git a/src/superclaude/skills/sc-fix-audit/scripts/fix_audit.py b/src/superclaude/skills/sc-fix-audit/scripts/fix_audit.py
+index e69c3c26..986808b7 100644
+--- a/src/superclaude/skills/sc-fix-audit/scripts/fix_audit.py
++++ b/src/superclaude/skills/sc-fix-audit/scripts/fix_audit.py
+@@ -911,10 +911,11 @@ VERDICT_RE = re.compile(r"verdict: (PASS|FAIL)")
+ CM = ("CRITICAL", "MAJOR")
+ 
+ 
+-def unlabelled_blocking(text: str) -> list[str]:
++def unlabelled_blocking(text: str, r2_ids: set[str] = frozenset()) -> list[str]:
+     """Ids of review-3 table rows outside the resolution table that carry no severity
+     label and are not read as non-blocking: parse_report needs a label, but an unknown
+-    grade still counts as blocking here (fail closed)."""
++    grade still counts as blocking here (fail closed). A status-word row is a
++    resolution row only when all its ids are review-2 ids."""
+     key = report_key(text)
+     out: list[str] = []
+     in_prior = False
+@@ -932,10 +933,11 @@ def unlabelled_blocking(text: str) -> list[str]:
+         cell = cs[0].strip("*` ")
+         if not ID_CELL_RE.fullmatch(cell) or LABEL_RE.search(line):
+             continue
+-        if any(c.lower() in STATUS_WORDS for c in cs[1:]):
++        toks = [t for t in id_tokens(cell) if not FR_RE.match(t)]
++        if any(c.lower() in STATUS_WORDS for c in cs[1:]) and set(toks) <= r2_ids:
+             continue
+         if parse_grade(line, key)[1] is not False:
+-            out += [t for t in id_tokens(cell) if not FR_RE.match(t)]
++            out += toks
+     return out
+ 
+ 
+@@ -990,7 +992,8 @@ def cmd_verdict(a: argparse.Namespace) -> int:
+     prior_open = [t for t in listed_open if ids.get(t, {}).get("blocking")]
+     new_blocking = list(
+         dict.fromkeys(
+-            [t for t, g in new.items() if g["blocking"]] + unlabelled_blocking(r3)
++            [t for t, g in new.items() if g["blocking"]]
++            + unlabelled_blocking(r3, set(ids) | set(state.get("prior_only", [])))
+         )
+     )
+     open_ids = list(dict.fromkeys(prior_open + new_blocking))
+diff --git a/tests/skills/test_fix_audit_script.py b/tests/skills/test_fix_audit_script.py
+index 902988c6..34e95bd6 100644
+--- a/tests/skills/test_fix_audit_script.py
++++ b/tests/skills/test_fix_audit_script.py
+@@ -1137,3 +1137,16 @@ def test_ungraded_review3_row_counts_as_blocking(applied):
+         applied, r3(RESOLVED, "| R3-1 | - | missing anchor |\n", "verdict: PASS")
+     )
+     assert "open blocking: R3-1" in lines and lines[-1] == "verdict: FAIL"
++
++
++@pytest.mark.parametrize(
++    "row", ["| R3-1 | blocking | open |\n", "| R3-1 | - | open |\n"]
++)
++def test_new_review3_row_with_status_word_counts_as_blocking(applied, row):
++    res, lines = verdict(applied, r3(RESOLVED, row, "verdict: PASS"))
++    assert "open blocking: R3-1" in lines and lines[-1] == "verdict: FAIL"
++
++
++def test_review2_id_row_with_status_word_is_not_a_new_finding(applied):
++    res, lines = verdict(applied, r3(RESOLVED, "| N1 | no | open |\n", "verdict: PASS"))
++    assert "open blocking: none" in lines and lines[-1] == "verdict: PASS"

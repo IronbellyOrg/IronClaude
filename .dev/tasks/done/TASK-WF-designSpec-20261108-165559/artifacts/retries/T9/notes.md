@@ -1,0 +1,3 @@
+423b71c73ce63d71db2e7b853b96978b0f71e62d
+T9 r1-1 F1.2 note src/superclaude/hooks/scripts/launch-level-guard.sh:712 ac=scope chk=n,n,n,n family=owner-approved-deviation first=T9 origin=new: the 4 config-transport tokens (--config-env, GIT_CONFIG_COUNT/PARAMETERS/KEY_) are not in the FR-050 case; owner-approved option (c), recorded as SD-2 in artifacts/spec-deviations.md.
+T9 r1-1 F1.3 note .dev/tasks/to-do/TASK-WF-designSpec-20261108-165559/artifacts/t9-u2-check.md:6 ac=T9.AC2 chk=n,n,n,n family=stale-evidence first=T9 origin=new: origin/master moved past 2c8109b3 (now includes #457 for #440), which changes only tests/hooks/test_launch_level_guard.py; the U-2 result (guard unchanged on origin/master) still holds. A dated re-check line is added after review r2-1.

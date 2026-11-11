@@ -1,0 +1,14 @@
+{
+  "selected_tier": 1,
+  "fired_rule_number": 2,
+  "composite_score": 8.8,
+  "per_signal_breakdown": {
+    "scope_size": 1.8,
+    "task_count": 1.8,
+    "blast_radius": 1.5,
+    "spec_density": 2.0,
+    "ambiguity_signals": 1.7
+  },
+  "coverage_degraded": null,
+  "escalation_reason": "C1.0;two tasks;domains config/evidence-tests2;unmapped density0;T1 under row2; singleton owner model policy openly degraded"
+}

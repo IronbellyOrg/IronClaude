@@ -1,0 +1,2 @@
+/home/coder/workspaces/worktrees/IronClaude/p0-live-workflow/.claude/commands/sc/workflow.md:0
+/home/coder/.claude/commands/sc/workflow.md:0

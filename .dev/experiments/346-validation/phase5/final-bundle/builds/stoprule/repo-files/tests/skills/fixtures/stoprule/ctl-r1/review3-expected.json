@@ -1,0 +1,42 @@
+{
+  "R3-1": {
+    "cited_line": 64,
+    "expected": "anchored",
+    "method": "quoted line of spec-v3.md occurs verbatim in spec-v2.md -> late-found, else anchored"
+  },
+  "R3-2": {
+    "cited_line": 88,
+    "expected": "anchored",
+    "method": "quoted line of spec-v3.md occurs verbatim in spec-v2.md -> late-found, else anchored"
+  },
+  "R3-3": {
+    "cited_line": 227,
+    "expected": "anchored",
+    "method": "quoted line of spec-v3.md occurs verbatim in spec-v2.md -> late-found, else anchored"
+  },
+  "R3-4": {
+    "cited_line": 245,
+    "expected": "anchored",
+    "method": "quoted line of spec-v3.md occurs verbatim in spec-v2.md -> late-found, else anchored"
+  },
+  "R3-5": {
+    "cited_line": 75,
+    "expected": "anchored",
+    "method": "quoted line of spec-v3.md occurs verbatim in spec-v2.md -> late-found, else anchored"
+  },
+  "R3-6": {
+    "cited_line": 179,
+    "expected": "anchored",
+    "method": "quoted line of spec-v3.md occurs verbatim in spec-v2.md -> late-found, else anchored"
+  },
+  "R3-8": {
+    "cited_line": 210,
+    "expected": "anchored",
+    "method": "quoted line of spec-v3.md occurs verbatim in spec-v2.md -> late-found, else anchored"
+  },
+  "R3-9": {
+    "cited_line": 238,
+    "expected": "anchored",
+    "method": "quoted line of spec-v3.md occurs verbatim in spec-v2.md -> late-found, else anchored"
+  }
+}

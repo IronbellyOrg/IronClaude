@@ -46,9 +46,11 @@ with ``--level worktree`` is a bad argument (exit 2).
 Claude Code agent in the worktree recorded in ``<D>/worktree.json``. It first
 runs the IR-4 preflight (jq, uv, Linux, the installed guard and its settings
 registrations; read only) and refuses the launch with ``W-ENFORCEMENT-ABSENT``
-when the guard would not be effective. A worktree without an executable
-pre-push hook only adds the warning ``W-L2-ABSENT`` (IR-7 is a warning until an
-L2 layer is built); the launch goes ahead. It then publishes the launch record the enforcement hook reads
+when the guard would not be effective. It then installs the owned L2
+pre-push hook (``install_l2``, advisory) and re-checks it read-only
+(``l2_status``); any state other than ``owned`` adds the warning
+``W-L2-ABSENT`` with the reason, and the launch goes ahead (IR-7 stays a
+warning while ``IR7_REFUSE`` is False). It then publishes the launch record the enforcement hook reads
 (``$HOME/.claude/state/launch-level/pending/<nonce>``, one word), then runs
 ``orca agent launch --surface terminal`` with a prompt that starts with
 ``[sc-launch:v1:<nonce>]``, checks for the ccsession shim (its screen text, which
@@ -70,10 +72,13 @@ import re
 import secrets
 import shlex
 import shutil
+import stat
 import subprocess
 import sys
 import tempfile
 import time
+import uuid
+from collections.abc import Mapping
 from dataclasses import dataclass, field
 from pathlib import Path
 
@@ -122,9 +127,17 @@ def _timeout(default: float) -> float:
 
 
 def run(
-    argv: list[str], timeout: float = DEFAULT_TIMEOUT, cwd: str | None = None
+    argv: list[str],
+    timeout: float = DEFAULT_TIMEOUT,
+    cwd: str | None = None,
+    env: Mapping[str, str] | None = None,
+    input: str | None = None,
 ) -> Result:
-    """Run ``argv`` without a shell; return a failed Result on any problem."""
+    """Run ``argv`` without a shell; return a failed Result on any problem.
+
+    ``env=None`` inherits the current environment; ``input`` is sent on stdin
+    (``None`` leaves stdin inherited, as before).
+    """
     try:
         proc = subprocess.run(
             argv,
@@ -133,6 +146,8 @@ def run(
             timeout=_timeout(timeout),
             check=False,
             cwd=cwd,
+            env=dict(env) if env is not None else None,
+            input=input,
         )
     except subprocess.TimeoutExpired as exc:
         return Result(
@@ -793,21 +808,33 @@ REMEDY = {
         "claim the issue again"
     ),
     "W-L2-ABSENT": (
-        "the L2 layer is not built yet and the limits are enforced by the L1 "
-        "guard only; the agent was started"
+        "the L2 pre-push hook is not in effect for this worktree, so the limits "
+        "are enforced by the L1 guard only; the agent was started"
     ),
 }
-# IR-7 (design section 13) says refuse; this plan builds no L2 layer, so the
-# claim warns instead and the launch goes ahead.
-L2_ABSENT_WHY = (
-    "the worktree has no executable pre-push hook at git's hook path, so no L2 "
-    "pre-push layer checks this session's pushes"
+# IR-7 (design section 13) says refuse when L2 is not owned. The refusal path
+# exists but is off (owner decision OD-3): while IR7_REFUSE is False the claim
+# warns with l2_status's reason appended to L2_ABSENT_WHY and the launch goes
+# ahead. Turning it on needs its own reviewed, owner-approved commit (FR-065).
+IR7_REFUSE = False  # IR-7: turn on only after the #442 observations pass (owner decision 2026-11-08)
+IR7_REFUSAL = (
+    "the launch was refused and no agent was started; clear the reason above "
+    "(the claim reference gives the exact rm command), then claim the issue again"
 )
+
+
+def remedy(code: str) -> str:
+    """REMEDY[code], or the IR-7 refusal text for W-L2-ABSENT when IR7_REFUSE is on (FR-062)."""
+    return IR7_REFUSAL if code == "W-L2-ABSENT" and IR7_REFUSE else REMEDY[code]
+
+
+L2_ABSENT_WHY = "the owned L2 pre-push hook is not in effect for this worktree: "
 # IR-4: what the claim checks before a governed launch. It reads files and the
 # environment only and never edits any configuration.
 GUARD_COMMAND = "~/.claude/hooks/launch-level-guard.sh"
 IDENTITY_COMMAND = "~/.claude/hooks/launch-job-identity.sh"
 GUARD_VERSION_LINE = "# launch-level-guard-version: 1"
+L2_VERSION_LINE = "# launch-level-pre-push-version: 1"
 GOVERNED_TOOLS = (
     "Bash",
     "Skill",
@@ -1015,31 +1042,411 @@ def enforcement_preflight(wt: str) -> list[str]:
     return failures
 
 
-def l2_status(wt: str) -> str:
-    """IR-6: the L2 pre-push layer of the worktree, read only.
+def l2_status(wt: str) -> tuple[str, str]:
+    """IR-6, source §3.4: the L2 pre-push state of ``wt`` as (state, reason).
 
-    ``absent`` when git's ``hooks/pre-push`` path for ``wt`` (``core.hooksPath``
-    and the common git directory of a linked worktree honoured) is not an
-    executable file, else ``present-unverified``: this file did not build that
-    hook, so it never claims to know what the hook enforces.
+    ``owned`` (empty reason) only when the entry at the common hooks directory
+    is the packaged version-1 hook and its data file matches; else ``absent``,
+    ``conflict`` or ``unsupported`` with the reason. Read only: it never
+    writes, never creates the hooks directory and never runs the hook or the
+    selector (FR-042). ``install_l2`` reports its own precondition and
+    packaged-hook failures, then reports through this same check.
     """
-    res = run(["git", "-C", wt, "rev-parse", "--git-path", "hooks/pre-push"])
-    out = res.out.strip()
-    if not res.ok or not out:
-        return "absent"
-    hook = Path(wt) / out  # a relative answer is relative to wt
+    env = clean_git_env()
+    state, why, hooks = _l2_preconditions(wt, env, create=False)
+    if hooks is None:
+        return state, why
+    if not os.path.lexists(hooks / "pre-push"):
+        return "absent", L2_WHY_NO_HOOK
+    why, packaged, expected = _l2_packaged()
+    if why:
+        return "absent", why
+    return _l2_entry_verdict(hooks, expected, packaged)
+
+
+def _l2_as_install(state: str, why: str, linked: bool = False) -> tuple[str, str]:
+    """Map an ``l2_status`` answer to ``install_l2``'s states (FR-031 has no absent)."""
+    if state == "owned":
+        return ("installed" if linked else "owned"), ""
+    return ("unavailable" if state == "absent" else state), why
+
+
+# U-14(c): above the hook's 10 s selector bound, under DEFAULT_TIMEOUT.
+L2_SELFTEST_TIMEOUT = 30.0
+L2_DATA_NAME = "pre-push.launch-level"
+_L2_VERSION_PREFIX = "# launch-level-pre-push-version:"
+_GIT_ENV_DROP = (
+    "GIT_DIR",
+    "GIT_COMMON_DIR",
+    "GIT_WORK_TREE",
+    "GIT_CONFIG_PARAMETERS",
+    "GIT_CONFIG_COUNT",
+)
+L2_WHY_HOOKSPATH = (
+    "core.hooksPath is set, so git does not run hooks from the common hooks directory"
+)
+L2_WHY_CONFIG = "config-read-failed: git config core.hooksPath could not be read"
+L2_WHY_GIT = "git-failed: git rev-parse failed (the path check needs git 2.31 or later)"
+L2_WHY_HOOKS_DIR = "hooks-dir-unsafe"
+L2_WHY_NO_UV = "uv was not found on PATH"
+L2_WHY_NO_HOOK = "no pre-push hook"
+L2_WHY_NOT_INSTALLED = (
+    "the packaged pre-push hook is not installed (run superclaude install)"
+)
+L2_WHY_DATA_PATHS = "HOME or the uv directory is not a single-line absolute path"
+# The selector line shapes the hook accepts (s1-s5, launch-level-pre-push.sh).
+_L2_SELECTOR_RE = re.compile(
+    r'\{"status": "ordinary"\}'
+    r'|\{"status": "ordinary", "reason": "released"\}'
+    r'|\{"status": "governed", "session_id": "[A-Za-z0-9][A-Za-z0-9_-]{0,127}"\}'
+    r'|\{"status": "unknown"\}'
+    r'|\{"status": "unknown", "reason": "(?:stale|orphaned|foreign|unreadable)",'
+    r' "record": "/[^"\'\\\x00-\x1f\x7f]*"\}'
+)
+_L2_ZERO = "0" * 40
+_L2_ONE = "1" * 40
+
+
+def clean_git_env() -> dict[str, str]:
+    """The environment without the variables that redirect git (source §6.3)."""
+    return {
+        k: v
+        for k, v in os.environ.items()
+        if k not in _GIT_ENV_DROP
+        and not k.startswith(("GIT_CONFIG_KEY_", "GIT_CONFIG_VALUE_"))
+    }
+
+
+def publish_no_replace(dir_fd: int, name: str, data: bytes, mode: int) -> bool:
+    """Write ``data`` as ``name`` in ``dir_fd`` only if no entry has that name.
+
+    The bytes go to a private temporary file first and are hard-linked in, so
+    a reader never sees a partial file and an existing entry is never
+    replaced. False when ``name`` already exists.
+    """
+    tmp = f".{name}.{uuid.uuid4().hex}"
+    fd = os.open(
+        tmp,
+        os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW,
+        0o600,
+        dir_fd=dir_fd,
+    )
+    try:
+        try:
+            view = memoryview(data)
+            while view:
+                view = view[os.write(fd, view) :]
+            os.fchmod(fd, mode)
+            os.fsync(fd)
+        finally:
+            os.close(fd)
+        try:
+            os.link(
+                tmp,
+                name,
+                src_dir_fd=dir_fd,
+                dst_dir_fd=dir_fd,
+                follow_symlinks=False,
+            )
+        except FileExistsError:
+            return False
+        return True
+    finally:
+        os.unlink(tmp, dir_fd=dir_fd)
+        os.fsync(dir_fd)
+
+
+def l2_data_expected() -> bytes | None:
+    """The data file L2 needs: HOME on line 1, the uv directory on line 2.
+
+    None when uv is not on PATH or a path is not absolute and single-line.
+    """
+    uv = shutil.which("uv")
+    if not uv:
+        return None
+    home = str(home_dir())
+    uv_dir = os.path.dirname(os.path.abspath(uv))
+    for p in (home, uv_dir):
+        if not os.path.isabs(p) or "\n" in p or "\r" in p:
+            return None
+    return f"{home}\n{uv_dir}\n".encode()
+
+
+L2_PACKAGED_MAX = (
+    64 * 1024
+)  # the shipped hook is a few KiB; anything larger is not ours
+
+
+def _l2_read_capped(path: Path, limit: int) -> bytes:
+    """At most ``limit`` bytes of a regular file; never follows a symlink or blocks on a FIFO."""
+    fd = os.open(path, os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK)
+    try:
+        if not stat.S_ISREG(os.fstat(fd).st_mode):
+            raise OSError("not a regular file")
+        with os.fdopen(os.dup(fd), "rb") as f:
+            return f.read(limit)
+    finally:
+        os.close(fd)
+
+
+def _l2_packaged() -> tuple[str, bytes, bytes]:
+    """(why, packaged hook bytes, expected data bytes); ``why`` empty when usable."""
+    src = home_dir() / ".claude" / "hooks" / "launch-level-pre-push.sh"
+    try:
+        packaged = _l2_read_capped(src, L2_PACKAGED_MAX + 1)
+    except OSError:
+        packaged = b""
+    if len(packaged) > L2_PACKAGED_MAX:
+        packaged = b""
+    if L2_VERSION_LINE.encode() not in packaged:
+        return L2_WHY_NOT_INSTALLED, b"", b""
+    if shutil.which("uv") is None:
+        return L2_WHY_NO_UV, b"", b""
+    expected = l2_data_expected()
+    if expected is None:
+        return L2_WHY_DATA_PATHS, b"", b""
+    return "", packaged, expected
+
+
+def _l2_data_ok(path: Path, expected: bytes) -> bool:
+    """The data file is a regular file of ours, not group/other writable,
+    holds exactly ``expected``, and its uv directory holds an executable uv."""
+    try:
+        fd = os.open(path, os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK)
+    except OSError:
+        return False
+    try:
+        st = os.fstat(fd)
+        if (
+            not stat.S_ISREG(st.st_mode)
+            or st.st_uid != os.geteuid()
+            or st.st_mode & 0o022
+        ):
+            return False
+        with os.fdopen(os.dup(fd), "rb") as f:
+            data = f.read(len(expected) + 1)
+    except OSError:
+        return False
+    finally:
+        os.close(fd)
+    if data != expected:
+        return False
+    uv = Path(expected.decode().split("\n")[1]) / "uv"
+    return uv.is_file() and os.access(uv, os.X_OK)
+
+
+def _l2_conflict(why: str, hooks: Path) -> str:
     return (
-        "present-unverified"
-        if hook.is_file() and os.access(hook, os.X_OK)
-        else "absent"
+        f"{why}: remove both files with "
+        f"`rm {shlex.quote(f'{hooks}/pre-push')} {shlex.quote(f'{hooks}/{L2_DATA_NAME}')}` and claim again; "
+        "the claim never deletes them"
     )
 
 
-def session_report(wt: str, l2: str, inode: int | None = None) -> tuple[str, list[str]]:
+def _l2_entry_verdict(hooks: Path, expected: bytes, packaged: bytes) -> tuple[str, str]:
+    """Source §3.4 steps 5-11: what the existing ``hooks/pre-push`` entry is."""
+    entry = hooks / "pre-push"
+    try:
+        st = entry.lstat()
+    except OSError:
+        return "absent", L2_WHY_NO_HOOK
+    if not stat.S_ISREG(st.st_mode):
+        return "conflict", _l2_conflict("symlink", hooks)
+    if st.st_uid != os.geteuid():  # FR-102 forgery "wrong uid"
+        return "conflict", _l2_conflict("wrong owner", hooks)
+    if st.st_mode & 0o022:  # FR-102 forgery "wrong mode"
+        return "conflict", _l2_conflict("group or other writable", hooks)
+    try:
+        body = _l2_read_capped(
+            entry, len(packaged) + 1
+        )  # one byte over detects a longer file
+    except OSError:
+        return "conflict", _l2_conflict("foreign", hooks)
+    if body != packaged:
+        why = "stale" if _L2_VERSION_PREFIX.encode() in body else "foreign"
+        return "conflict", _l2_conflict(why, hooks)
+    if not os.access(entry, os.X_OK):
+        return "conflict", _l2_conflict("not executable", hooks)
+    if not _l2_data_ok(hooks / L2_DATA_NAME, expected):
+        return "conflict", _l2_conflict("data-file-differs", hooks)  # OC-12
+    return "owned", ""
+
+
+def _l2_selftest(wt: str, staged: Path, data_copy: Path, env: Mapping[str, str]) -> str:
+    """Source §3.3 T4: run the staged hook; '' on pass, else the failed step."""
+
+    def hook(stdin: str) -> Result:
+        return run(
+            [str(staged), "origin", "origin"],
+            timeout=L2_SELFTEST_TIMEOUT,
+            cwd=wt,
+            env=env,
+            input=stdin,
+        )
+
+    def push(ref: str) -> str:
+        return f"{ref} {_L2_ONE} {ref} {_L2_ZERO}\n"
+
+    res = hook("")
+    if not res.ok or res.err:
+        return "empty-push"
+    home = str(home_dir())
+    uv_dir = os.path.dirname(os.path.abspath(shutil.which("uv") or "/"))
+    sel = run(
+        [
+            "/usr/bin/env",
+            "-i",
+            f"HOME={home}",
+            f"PATH={uv_dir}:/usr/bin:/bin",
+            "UV_NO_CONFIG=1",
+            "/usr/bin/timeout",
+            "10",
+            f"{home}/.claude/hooks/launch-job-identity.sh",
+            "identify",
+            str(os.getpid()),
+        ],
+        timeout=L2_SELFTEST_TIMEOUT,
+        cwd="/",
+        input="",
+    )
+    lines = sel.out.split("\n")
+    if (
+        not sel.ok
+        or len(lines) != 2
+        or lines[1] != ""
+        or not _L2_SELECTOR_RE.fullmatch(lines[0])
+    ):
+        return "selector-env"
+    if not hook(push("refs/heads/main")).ok:
+        return "main-push"
+    data_copy.unlink()
+    for ref in ("refs/heads/main", "refs/heads/master"):
+        res = hook(push(ref))
+        if res.rc != 1 or "L2-UNKNOWN" not in res.err:
+            return "no-data-refusal"
+    if not hook(push("refs/heads/l2-selftest")).ok:
+        return "no-data-refusal"
+    return ""
+
+
+def _l2_preconditions(
+    wt: str, env: Mapping[str, str], create: bool = True
+) -> tuple[str, str, Path | None]:
+    """Source §3.3 S1 / §3.4: ('', '', hooks dir) when L2 can be checked, else a verdict.
+
+    Verdicts use ``l2_status``'s states; a git failure is ``absent`` (FR-041),
+    which ``install_l2`` reports as ``unsupported`` (FR-033, OC-10). Only
+    ``create`` makes a missing hooks directory; without it a missing one is
+    ``absent``.
+    """
+    git = ["git", "-C", wt]
+    # The plain get also reads config.worktree when extensions.worktreeConfig
+    # is on; `config --worktree` exits 128 in a linked worktree without it.
+    res = run([*git, "config", "--get", "core.hooksPath"], env=env)
+    if res.rc == 0 and not res.timed_out and not res.missing:
+        return "unsupported", L2_WHY_HOOKSPATH, None
+    if res.rc != 1 or res.timed_out or res.missing:
+        return "absent", L2_WHY_CONFIG, None
+    # Ask for the hooks directory, not hooks/pre-push: the absolute path format
+    # resolves symlinks, so a symlinked pre-push would read as redirected and
+    # never reach the entry check that reports it as a conflict.
+    pp = run(
+        [*git, "rev-parse", "--path-format=absolute", "--git-path", "hooks"],
+        env=env,
+    )
+    common = run(
+        [*git, "rev-parse", "--path-format=absolute", "--git-common-dir"], env=env
+    )
+    if not (pp.ok and common.ok and common.out.strip()):
+        return "absent", L2_WHY_GIT, None
+    hooks = Path(common.out.strip()) / "hooks"
+    if pp.out.strip() != str(hooks):
+        return "unsupported", f"git's pre-push hook path is not {hooks}/pre-push", None
+    try:
+        try:
+            st = hooks.lstat()
+        except FileNotFoundError:
+            if not create:
+                return "absent", L2_WHY_NO_HOOK, None
+            try:
+                os.mkdir(hooks, 0o755)
+            except FileExistsError:
+                pass
+            st = hooks.lstat()
+    except OSError:
+        return "unsupported", L2_WHY_HOOKS_DIR, None
+    if not stat.S_ISDIR(st.st_mode) or st.st_uid != os.geteuid() or st.st_mode & 0o022:
+        return "unsupported", L2_WHY_HOOKS_DIR, None
+    return "", "", hooks
+
+
+def install_l2(wt: str) -> tuple[str, str]:
+    """Source §3.3: claim the L2 pre-push hook for ``wt``; (state, reason).
+
+    ``installed`` or ``owned`` with an empty reason, else ``conflict``,
+    ``unsupported`` or ``unavailable`` with a reason a person can act on. An
+    existing entry is never replaced or deleted.
+    """
+    env = clean_git_env()
+    state, why, hooks = _l2_preconditions(wt, env)
+    if hooks is None:
+        # With create=True, `absent` here is only a config or git failure:
+        # FR-033 and OC-10 make that `unsupported`, nothing written.
+        return ("unsupported" if state == "absent" else state), why
+    why, packaged, expected = _l2_packaged()
+    if why:
+        return "unavailable", why
+    entry = hooks / "pre-push"
+    if os.path.lexists(entry):  # S2: the same check l2_status makes
+        return _l2_as_install(*l2_status(wt))
+    linked = False
+    private: Path | None = None
+    hooks_fd = priv_fd = -1
+    try:
+        hooks_fd = os.open(hooks, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW)
+        # S3: the data file, never replacing one that is already there.
+        if not publish_no_replace(hooks_fd, L2_DATA_NAME, expected, 0o644):
+            if not _l2_data_ok(hooks / L2_DATA_NAME, expected):
+                return "conflict", _l2_conflict("data-file-differs", hooks)
+        # S4: stage the hook and a data copy privately, then self-test.
+        name = f".{uuid.uuid4().hex}"
+        os.mkdir(name, 0o700, dir_fd=hooks_fd)
+        private = hooks / name
+        priv_fd = os.open(
+            name, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW, dir_fd=hooks_fd
+        )
+        publish_no_replace(priv_fd, "pre-push", packaged, 0o755)
+        publish_no_replace(priv_fd, L2_DATA_NAME, expected, 0o644)
+        failed = _l2_selftest(wt, private / "pre-push", private / L2_DATA_NAME, env)
+        if failed:
+            return "unavailable", f"the hook self-test failed at step {failed}"
+        # S5: link the tested hook in; a racing writer keeps its entry.
+        try:
+            os.link(private / "pre-push", entry, follow_symlinks=False)
+            linked = True
+        except FileExistsError:
+            linked = False
+    except OSError as e:
+        return "unavailable", f"write failed: {e.strerror}"
+    finally:
+        if private is not None:
+            shutil.rmtree(private, ignore_errors=True)
+        for fd in (priv_fd, hooks_fd):
+            if fd >= 0:
+                os.close(fd)
+    # S6: report what is there now, through the read-only check (a raced
+    # delete reads absent, which install_l2 reports as unavailable).
+    return _l2_as_install(*l2_status(wt), linked=linked)
+
+
+def session_report(
+    wt: str, l2: tuple[str, str], inode: int | None = None
+) -> tuple[str, list[str]]:
     """IR-6: how a person releases the launched session, and one line per layer.
 
     Called only after the IR-4 preflight passed, so L1 is effective. ``l2`` is
-    the l2_status() answer the launch already used, so both always agree.
+    the (state, reason) l2_status() answer the launch already used, so both
+    always agree.
     """
     store = home_dir().joinpath(*PENDING_PARTS[:-1])
     if inode is None:
@@ -1064,12 +1471,13 @@ def session_report(wt: str, l2: str, inode: int | None = None) -> tuple[str, lis
         f"does not print the id; {find}; a guard block about touching the "
         "launch-level state prints the exact rm command)"
     )
+    state, reason = l2
     l2_line = (
-        "L2 pre-push: absent (no executable pre-push hook in this worktree; the "
-        "limits are enforced by the L1 guard only)"
-        if l2 == "absent"
-        else "L2 pre-push: present-unverified (a pre-push hook exists; the claim "
-        "did not build it and does not check what it enforces)"
+        "L2 pre-push: owned (the launch-level pre-push hook, version 1, refuses "
+        "this session's pushes to main and master)"
+        if state == "owned"
+        else f"L2 pre-push: {state} ({reason}; the limits are enforced by the "
+        "L1 guard only)"
     )
     return release, ["L1 guard: effective (the IR-4 preflight passed)", l2_line]
 
@@ -1224,8 +1632,8 @@ def record_launch(
 def launch_result(status: str, notes: list[tuple[str, str]], **fields: object) -> dict:
     """One launch JSON object; ``warning`` is the first code, the rest go in detail."""
     warning = notes[0][0] if notes else None
-    parts = [f"{notes[0][1]} ({REMEDY[warning]})"] if notes else []
-    parts += [f"also {c}: {t} ({REMEDY[c]})" for c, t in notes[1:]]
+    parts = [f"{notes[0][1]} ({remedy(warning)})"] if notes else []
+    parts += [f"also {c}: {t} ({remedy(c)})" for c, t in notes[1:]]
     base: dict = {
         "status": status,
         "warning": warning,
@@ -1325,12 +1733,15 @@ def cmd_launch(args: argparse.Namespace) -> int:
         )
     hook = "installed"
     notes: list[tuple[str, str]] = []
-    # IR-7 as a warning, before publish_pending: reads the hook path only, looks
-    # for no ownership marker (design section 19.2) and never touches the hook.
-    # To make it the design's refusal, add after the l2_notes line:
-    # if l2_notes: return emit(launch_result("failed", l2_notes, enforcement_hook=hook))
-    l2 = l2_status(wt)
-    l2_notes = [("W-L2-ABSENT", L2_ABSENT_WHY)] if l2 == "absent" else []
+    # Source §3.2 steps 4-6, before publish_pending: claim the L2 hook (its
+    # answer is advisory), re-check it read-only (that answer is the one the
+    # launch reports), and warn when it is not owned. With IR7_REFUSE on, the
+    # same note refuses here instead, before any launch record or agent exists.
+    install_l2(wt)
+    l2, l2_reason = l2_status(wt)
+    l2_notes = [("W-L2-ABSENT", L2_ABSENT_WHY + l2_reason)] if l2 != "owned" else []
+    if IR7_REFUSE and l2_notes:
+        return emit(launch_result("failed", l2_notes, enforcement_hook=hook))
     word = "full-submit" if args.submit else args.level
     try:
         nonce, pending = publish_pending(word)
@@ -1394,7 +1805,7 @@ def cmd_launch(args: argparse.Namespace) -> int:
             f"({'; '.join(problems)}); do not re-run the claim, add the launch entry "
             f"to {source / RECORD_NAME} by hand"
         )
-    release, layers = session_report(wt, l2, inode)
+    release, layers = session_report(wt, (l2, l2_reason), inode)
     result = launch_result(
         "launched",
         notes + l2_notes,  # the ccsession warning, when any, stays first

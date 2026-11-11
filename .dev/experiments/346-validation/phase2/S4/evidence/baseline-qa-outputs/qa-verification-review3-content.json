@@ -1,0 +1,34 @@
+{
+  "title": "QA review 3 of 3, task-qualitative, lens: executability and consistency of fallback and gate rules",
+  "date": "2026-11-07",
+  "task_file": "TASK-RESEARCH-bmad-first-use-20261107-075901.md (618892 bytes, 602 lines)",
+  "note": "Written as .json because the reviewing agent must not author report .md files; content equals the inline return.",
+  "verdict": "FAIL",
+  "counts": {"critical": 0, "important": 1, "minor": 6},
+  "blocking": [
+    {
+      "id": 1,
+      "severity": "IMPORTANT",
+      "lines": [421, 423, 279, 283],
+      "issue": "Gate 4 requires fidelity report 3 to hold a Web-source check table with a row for every web finding that supports a ranked option or the recommendation; a table that is absent or has no rows means one re-run and then HALT (status Blocked). Lines 279 and 283 explicitly allow web access to be unavailable (output file with a stated reason), and synthesis rule 9 bars UNVERIFIED claims from supporting any option, so in that permitted path no web finding can support an option and the table legitimately has zero rows. Result: a forced HALT with no defect in the work.",
+      "fix": "In 421 and 423 allow a single row 'none | <reason>' (reason: web files state web access was unavailable, or Sections 5-7 cite no web finding as support) and state that such a table is complete."
+    }
+  ],
+  "minor": [
+    "Line 500 (Step 7.5) calls itself the LAST item that changes .dev/tasks, but ticking 7.5 and 7.6 and the Execution Log edit the task file after git add; add a final git add .dev/tasks after the last tick.",
+    "QA, analyst and lens items cap the inline return at 4000 characters but only research, synthesis, assembler and fix agents are told to spawn without a name; named agents truncate near 3000 characters (memory note), which would cut the Self-Audit and cause re-run then HALT. Extend the no-name instruction in rule (3) (line 136) to all agents.",
+    "Inline-returned QA reports put the verdict before the Self-Audit and carry no Status: Complete line, yet tails (218, 371, 238) check 'Status Complete and ends with verdict'; outcome is a spurious logged blocker, not a HALT. Say 'contains' instead of 'ends with'.",
+    "Rule (4) only blesses heredoc or chunked Write for persisting; allow a shell concatenation ({ echo 'Transcribed by orchestrator'; cat x.json; } > x.md) when the .json holds raw markdown, and state a chunk size (about 50 KB) because of the Linux per-argument limit.",
+    "Line 304 says the task file is about 550 KB (now about 604 KB); Read offset 159 limit 7 stays valid.",
+    "Line 169 exception list does not name the verification-agent pairs (3.6/3.7 etc.), which their own items mark as parallel."
+  ],
+  "answers": {
+    "1_fallback_chain": "Coherent: rules (1)-(7) at line 136 match item tails at 193, 218, 234, 279, 304, 365, 371, 393; caps 4000 (QA/analyst/lens), uncapped full file (research/synth/assembler), edit pairs (fix); respawn once then HALT; no contradiction found.",
+    "2_stop_and_rescope": "Branch present at 304, 308-320, 365, 371-391, 417-423, 449-469, 475; Section 9 must hold both owner questions and the restated feasibility (304, 475 criteria 9 and 16, 488); gates and report can still pass.",
+    "3_f16_f24": "Consistent: SEVERITY_DOWNGRADES at 246/266/336/356/401/411/431/441/461/471, cycle-2 consolidations 250/340/403/433/463 carry the ledger, listed in 488.",
+    "4_realistic_phase2": "Agents likely refuse .md (memory note); .json or inline route; executor transcribes five files; HALT only if an agent delivers nothing twice. Only avoidable HALT found is blocking finding 1.",
+    "5_impossible_or_forbidden": "None found. bmad exists at /usr/local/bin/bmad, package 6.9.0; only four offline bmad commands allowed; superclaude install forbidden (201); only git add .dev/tasks (500); no commit; IronClaude and IronOrca read-only.",
+    "6_owner_questions_and_feasibility": "Reachable at 163-164, 304 Section 9 items (1)-(4), 365, 475 criteria 9 and 16, 488."
+  },
+  "self_audit": "Read in full: 126-136, 159-169, 193, 218, 228-250, 262-270, 279, 292-304, 365, 371, 387, 393, 401, 423, 475, 484-500. Ran censuses: 61 agent prompts all contain the fallback; severity ledger lines; STOP-AND-RE-SCOPE lines; premises spot-checked (test-57 448-450, releases.json:113, README 241 and 308, bmad binary). Semantic check where a structural PASS was insufficient: the Web-source check table exists in 423 (structural PASS) but its empty-table rule conflicts with the permitted web-unavailable path."
+}

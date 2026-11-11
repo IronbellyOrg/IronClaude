@@ -1,0 +1,12 @@
+checked_at: 2026-11-09T01:44:18.626579+00:00
+snapshot_path: artifacts/input-snapshot.yaml
+hash_encoding: "sha256 of sorted relative path, NUL, recorded file SHA256, newline"
+baseline_recorded_file_list_sha256: 61cd5eb5679ce8be366301e0142405345ebf136384cc3e5fba985b2aa0e06b10
+current_recorded_file_list_sha256: 61cd5eb5679ce8be366301e0142405345ebf136384cc3e5fba985b2aa0e06b10
+checked_inputs: 10
+changed_inputs: 0
+recorded_inputs_unchanged: true
+output_root_excluded: /home/coder/workspaces/worktrees/IronClaude/issue-450/.dev/reflect/pre-TASK-WF-rollOutTheIssueW-20261109-000305-20261109000839
+scope: recorded input file list only
+full_linked_tree_discovery_verified: false
+limitation: "Original snapshot recorded ten input hashes, not a complete discovered tree or aggregate. Unchanged recorded inputs do not prove absence of newly added linked inputs."

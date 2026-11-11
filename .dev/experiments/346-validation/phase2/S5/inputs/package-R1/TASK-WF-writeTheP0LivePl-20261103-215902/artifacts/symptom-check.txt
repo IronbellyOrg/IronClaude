@@ -1,0 +1,44 @@
+============================= test session starts ==============================
+platform linux -- Python 3.11.15, pytest-9.2.0, pluggy-1.7.0
+SuperClaude: 4.3.5
+rootdir: /home/coder/workspaces/worktrees/IronClaude/OrcaCLICommandRefactor-Specs
+configfile: pyproject.toml
+plugins: superclaude-4.3.5, anyio-4.16.0
+collected 3 items
+
+tests/cli/eval/test_ban_import_rule.py FFF                               [100%]
+
+=================================== FAILURES ===================================
+______________________ test_clean_tree_passes_ruff_check _______________________
+tests/cli/eval/test_ban_import_rule.py:88: in test_clean_tree_passes_ruff_check
+    assert result.returncode == 0, (
+E   AssertionError: Clean tree should pass ruff check but returned 2.
+E     stdout:
+E     
+E     stderr:
+E     error: Failed to spawn: `ruff`
+E       Caused by: No such file or directory (os error 2)
+E     
+E   assert 2 == 0
+E    +  where 2 = CompletedProcess(args=['uv', 'run', 'ruff', 'check', '--no-cache', '/home/coder/workspaces/worktrees/IronClaude/OrcaCL...eturncode=2, stdout='', stderr='error: Failed to spawn: `ruff`\n  Caused by: No such file or directory (os error 2)\n').returncode
+______________ test_synthetic_import_anthropic_is_flagged_by_ruff ______________
+tests/cli/eval/test_ban_import_rule.py:125: in test_synthetic_import_anthropic_is_flagged_by_ruff
+    assert "TID251" in combined, f"expected TID251 in ruff output; got:\n{combined}"
+E   AssertionError: expected TID251 in ruff output; got:
+E     error: Failed to spawn: `ruff`
+E       Caused by: No such file or directory (os error 2)
+E     
+E   assert 'TID251' in 'error: Failed to spawn: `ruff`\n  Caused by: No such file or directory (os error 2)\n'
+______________________ test_ban_message_references_fr_g1 _______________________
+tests/cli/eval/test_ban_import_rule.py:159: in test_ban_message_references_fr_g1
+    assert "FR-G1" in combined, (
+E   AssertionError: expected 'FR-G1' in ruff output to confirm the banned-api msg survived; got:
+E     error: Failed to spawn: `ruff`
+E       Caused by: No such file or directory (os error 2)
+E     
+E   assert 'FR-G1' in 'error: Failed to spawn: `ruff`\n  Caused by: No such file or directory (os error 2)\n'
+=========================== short test summary info ============================
+FAILED tests/cli/eval/test_ban_import_rule.py::test_clean_tree_passes_ruff_check
+FAILED tests/cli/eval/test_ban_import_rule.py::test_synthetic_import_anthropic_is_flagged_by_ruff
+FAILED tests/cli/eval/test_ban_import_rule.py::test_ban_message_references_fr_g1
+============================== 3 failed in 0.39s ===============================

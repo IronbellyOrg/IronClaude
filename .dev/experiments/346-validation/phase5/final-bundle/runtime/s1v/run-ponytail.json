@@ -1,0 +1,22 @@
+{
+  "id": "65083814-a09c-4c49-a9af-2240d45d6774",
+  "ok": true,
+  "result": {
+    "run": {
+      "id": "run_49770af7b34a",
+      "objective": "Issue 346 S1 re-run, variant ponytail",
+      "coordinator_handle": "term_2fbcd553-3087-47aa-a17c-afb98769d1dc",
+      "consumer_generation": 1,
+      "legacy": 0,
+      "created_at": "2026-11-08T23:42:28Z",
+      "updated_at": "2026-11-08T23:42:28Z"
+    },
+    "mutation": {
+      "requestId": "3d84ec9e-69c6-4b60-a8cb-19ec5af26fac",
+      "replayed": false
+    }
+  },
+  "_meta": {
+    "runtimeId": "93e79a07-81c4-4ec7-a938-8038a2f29ed3"
+  }
+}

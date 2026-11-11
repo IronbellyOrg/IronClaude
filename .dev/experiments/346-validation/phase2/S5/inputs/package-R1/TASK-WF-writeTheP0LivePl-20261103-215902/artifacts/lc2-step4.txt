@@ -1,0 +1,1 @@
+test -s /home/coder/workspaces/worktrees/IronClaude/p0-live-workflow/.dev/tasks/to-do/TASK-WF-addOneSentenceTo-20261104-070008/return-contract.yaml exit=0

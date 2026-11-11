@@ -1,0 +1,232 @@
+{
+  "scenario": "S1",
+  "variant": "ponytail, one run",
+  "evidence_aliases": {"final": "reviews/live-spec-at-recording.md", "R3": "reviews/spec-panel-round3.md", "audit.md": "reviews/fix-audit/audit.md", "apply-log.md": "reviews/fix-audit/apply-log.md", "disposition.md": "reviews/disposition.md", "disposition-round2.md": "reviews/disposition-round2.md", "session_source_root": "/home/coder/.claude/projects/-home-coder-workspaces-worktrees-IronClaude-exp346-v-ponytail", "snapshot_notes": "copied source line numbers unchanged; session extracts retain original line numbers as data"},
+  "metric_definitions": "DECISIONS D5 and REPLAY sections 6-7: M1 first clean report PASS; M2 findings by original severity label and separate blocking grade; M3 prior-fix origin; M4 bytes/newlines and growth; M5 logged calls, usage and wall time. Source pointers beginning reviews/ refer to preserved evidence in this package.",
+  "proxy_definition": {
+    "blocking_grade_proxy": "CRITICAL + MAJOR labels, not a fresh blocking re-grade. Count the report numbered NEW findings list per round; carry prior open findings separately to avoid aliases being counted twice. R3 has no new findings and one explicitly carried MINOR.",
+    "source": "reviews/governing/phase2__S1__baseline-metrics.json:11-14; reviews/governing/phase2__S1__REPLAY.md:94-98",
+    "owner_rule": "Additionally retain held, deferred, demoted or partly rejected critical+major labels from ALL rounds. Do not let a lower grade or disappearance from a later new-findings list erase them. DECISIONS:73-74. This is separate from the original per-round proxy."
+  },
+  "rounds": [
+    {
+      "round": "R1",
+      "review": {"source": "reviews/spec-panel.md", "header_line": 3, "reviser_brief_lines": "169-171", "verdict_line": 173, "verdict_text": "verdict: FAIL", "skill": "sc:spec-panel-armb", "session_step": "T05", "source_log_skill_line": 43, "unique_skill_calls": 1, "flags": "no re-review flags"},
+      "M2": {
+        "findings_total": 16, "critical": 1, "major": 8, "minor": 7, "critical_plus_major": 9,
+        "blocking": 8, "minor_graded": 8,
+        "ids_by_severity": {"CRITICAL": ["F1"], "MAJOR": ["F2", "F3", "F4", "F5", "F6", "F7", "F8", "N1"], "MINOR": ["N2", "N3", "N4", "N5", "N6", "N7", "N8"]},
+        "major_graded_nonblocking": ["N1"],
+        "source_lines": "reviews/spec-panel.md:133-148, grading at 11 and 155-156",
+        "provenance": "re-derived from numbered table; labels retained as written"
+      },
+      "M3": {"value": null, "reason": "first review; no prior fix"},
+      "M4": {"bytes_at_review_start": 57763, "lines_at_review_start": 285, "bytes_after_revise": 65568, "lines_after_revise": 288, "growth_percent_this_round": 13.512109828090646, "growth_percent_cumulative_vs_v1": 13.512109828090646, "source": "reviews/source-manifest.json; reviews/disposition.md:33"},
+      "M5": {"review_step": "T05", "revise_step": "T06", "source": "sessions and reviews/session-summary.json; T05-original-segment-metrics.json excludes terminal reuse"},
+      "revise": {"source": "reviews/disposition.md:15-30,47", "applied_fully": 15, "applied_partly": 1, "rejected_fully": 0, "partly_rejected_ids": ["N1"], "blocking_applied": 8, "minor_label_applied": 7, "nonblocking_grade_applied_fully": 7, "nonblocking_grade_applied_partly": 1, "sub_review_agent_calls": 0},
+      "origin_master_reuse_findings": {"count": 0, "basis": "no numbered finding cites origin/master or installed finished WORKER-CONTRACT; explicit tool-access search also finds none", "source": "reviews/spec-panel.md:133-148; reviews/access-hits.json"}
+    },
+    {
+      "round": "R2",
+      "review": {"source": "reviews/spec-panel-round2.md", "header_line": 3, "reviser_brief_lines": "202-204", "verdict_line": 209, "verdict_text": "verdict: FAIL", "skill": "sc:spec-panel-armb", "session_step": "T07", "source_log_skill_line": 148, "unique_skill_calls": 1, "flags_honoured": true, "prior_status_table": "19-38", "origin_changed_new": 15, "origin_unchanged_new": 0},
+      "M2": {
+        "findings_total": 15, "critical": 1, "major": 6, "minor": 8, "critical_plus_major": 7,
+        "blocking": 7, "minor_graded": 8,
+        "ids_by_severity": {"CRITICAL": ["NF1"], "MAJOR": ["NF2", "NF3", "NF4", "NF5", "NF6", "NF7"], "MINOR": ["M1", "M2", "M3", "M4", "M5", "M6", "M7", "M8"]},
+        "unresolved_prior_blockers": ["F1", "F3"], "unresolved_prior_blockers_count": 2,
+        "prior_blocker_aliases": {"F1": "NF1", "F3": "NF7"},
+        "prior_blockers_resolved": 6, "prior_blockers_regressed": 0,
+        "source_lines": "reviews/spec-panel-round2.md:21-38,167-181,203,207",
+        "provenance": "re-derived; aliases NOT added to seven newly numbered blocking rows",
+        "citation_notes_not_additional_findings": "C4=M1, C25=M2, C8=NF2, C11=M6; reviews/spec-panel-round2.md:48,52,55,69-71"
+      },
+      "M3": {
+        "of": 15, "origin_changed": 15, "origin_unchanged": 0, "share_changed": 1.0,
+        "provenance_tags": "read from Origin cells, reviews/spec-panel-round2.md:167-181; changed is not proof of causation",
+        "strict_caused_by_prior_fix": 7, "partial_revision_caused": 8, "pre_existing_only": 0,
+        "strict_ids": ["NF5", "M1", "M2", "M4", "M5", "M6", "M8"],
+        "partial_ids": ["NF1", "NF2", "NF3", "NF4", "NF6", "NF7", "M3", "M7"],
+        "share_strict": 0.4666666666666667, "share_strict_plus_partial": 1.0,
+        "provenance_split": "re-derived source-text attribution only, not a new substantive review: strict means a newly added assertion/check/citation created the stated gap; partial means old missing coverage or old conflicting text remains and the revision exposes or strengthens it. NF1/F1 and NF7/F3 are explicit residuals; NF2 omitted value and NF3/NF4 path conflict pre-exist but new mapping/path text exposes them; NF6 old universal command-line test meets the revised explicit phase list; M3 old template meets expanded brief; M7 old vague resume gains next-phase wording. Sources: numbered findings 167-181, prior-status table 21-36, saved v1/v2 same-numbered lines and scope-diffs.json. NF3's new-versus-residual disagreement is explicit at report lines 160,188. These split figures are interpretive and less comparable than the label proxy.",
+        "scope": {"inside_changed_or_explicit_dependency": 15, "outside_without_changed_dependency": 0, "unknown": 0, "method": "saved v1-to-v2 line opcodes in reviews/scope-diffs.json; findings NF4/NF5/NF6 cite unchanged targets but explicitly quote changed dependencies", "unchanged_untouched_distinct_new_findings": 0}
+      },
+      "M4": {"bytes_at_review_start": 65568, "lines_at_review_start": 288, "bytes_after_revise": 70579, "lines_after_revise": 290, "growth_percent_this_round": 7.642447535383114, "growth_percent_cumulative_vs_v1": 22.187213268008932, "source": "reviews/source-manifest.json; reviews/disposition-round2.md:42"},
+      "M5": {"review_step": "T07", "revise_step": "T08", "source": "sessions; reviews/session-summary.json"},
+      "revise": {"source": "reviews/disposition-round2.md:17-31,36-39,58", "applied_fully": 15, "applied_partly": 0, "rejected_fully": 0, "blocking_applied": 7, "minor_label_applied_before_audit": 8, "citation_disposition_rows": 2, "citation_rows_overlap_findings": true, "minor_label_substantively_retained_after_audit": 7, "minor_label_reverted_by_audit": ["M3"], "sub_review_agent_calls": 0},
+      "origin_master_reuse_findings": {"count": 0, "basis": "no numbered finding cites origin/master or installed finished WORKER-CONTRACT", "source": "reviews/spec-panel-round2.md:167-181; reviews/access-hits.json"}
+    },
+    {
+      "round": "R3",
+      "review": {"source": "reviews/spec-panel-round3.md", "header_line": 3, "reviser_brief_present": false, "cap_escalation_lines": "189-195", "verdict_line": 201, "verdict_text": "verdict: FAIL", "skill": "sc:spec-panel-armb", "session_step": "T09", "source_log_skill_line": 60, "unique_skill_calls": 1, "flags_honoured": true},
+      "M2": {
+        "findings_total": 0, "all_findings_including_carried_minor": 1,
+        "critical": 0, "major": 0, "minor": 0, "critical_plus_major": 0,
+        "blocking": 0, "minor_graded_new": 0, "minor_graded_including_carried": 1,
+        "new_critical_plus_major": 0,
+        "unresolved_prior_blockers_count": 0, "resolved_prior_blockers_count": 7, "regressed_prior_blockers_count": 0,
+        "resolved_prior_ids": ["NF1/F1", "NF2", "NF3", "NF4", "NF5", "NF6", "NF7/F3"],
+        "carried_prior_minor_ids": ["M3"],
+        "source_lines": "reviews/spec-panel-round3.md:27-33,43,99-105,184,191-201",
+        "provenance": "independently counted report rows and numbered-list text; checked stated textual corrections in final snapshot, no extra review of their substantive adequacy",
+        "resolution_text_checks": {"NF1": "final:62-63,183 retain nested read", "NF2": "final:62-63,183 include dry-run and dry_run", "NF3": "final:62,64 name three contract routes", "NF4": "final:62,109 forbid workflow overwrite", "NF5": "final:114,235 remove old ask route", "NF6": "final:196 has per-command output rules", "NF7": "final:83 names adversarial/merge-log.md"},
+        "orphan_candidate": {"id": "R3-N1", "count_confirmed": 0, "ungraded_candidate_count": 1, "critical_plus_major_if_later_confirmed_as_major": 1, "source": "report line 29 conflicts with no-new-findings line 101; lines 110,111,174 reject that hypothesis; authorial intent unresolved"}
+      },
+      "M3": {"of_new": 0, "strict": 0, "partial": 0, "pre_existing": 0, "share_strict": null, "share_strict_plus_partial": null, "reason": "no new findings; ratios with zero denominator undefined", "carried_minor_origin_unchanged": 1, "audit_reopened_prior_minor": "M3; audit intentionally undid its fix, not a new report finding", "source": "reviews/spec-panel-round3.md:101,105; fix-audit/apply-log.md:1", "scope": {"new_on_untouched_lines": 0, "new_inside_changed": 0, "unknown_new": 0}},
+      "M4": {"bytes_at_review_start": 70488, "lines_at_review_start": 290, "bytes_at_endpoint": 70488, "lines_at_endpoint": 290, "growth_percent_cumulative_vs_v1": 22.029672974049134, "source": "reviews/source-manifest.json; reviews/fix-audit/apply-log.md:26"},
+      "M5": {"review_step": "T09", "extra_audit_step": "T08a", "source": "sessions; reviews/session-summary.json"},
+      "revise": null,
+      "origin_master_reuse_findings": {"count": 0, "basis": "no new findings; no explicit origin/master or installed WORKER-CONTRACT reads found", "source": "reviews/spec-panel-round3.md:99-105; reviews/access-hits.json"}
+    }
+  ],
+  "m1_rounds_until_clean_pass": null,
+  "m1_reason": "FAIL in all three report verdict lines; cap reached; final FAIL is the original any-severity rule applied to prior M3, not a confirmed blocker. A scoped zero-blocker result is not a clean PASS.",
+  "owner_carry_forward": {
+    "held_deferred_demoted_critical_plus_major_count": 1,
+    "held_critical_plus_major_ids": ["R1:N1"],
+    "held_minor_label_ids": ["R2:M3"],
+    "final_original_report_proxy": 0,
+    "final_owner_critical_plus_major_count": 1,
+    "audit_only_held_critical_plus_major_count": 0,
+    "audit_downgrades_logged": 0,
+    "basis": "R1 N1 is MAJOR but nonblocking (spec-panel.md:141,156); reviser only partly applied it and explicitly rejected its uniform-remediation-policy part (disposition.md:23,47); R2:29 accepts it as a note, not a full resolution. Under the all-round owner rule keep its original MAJOR label, rather than erase it from the R3 new-findings list. M3 was always MINOR and reverted by audit, so is held but adds zero critical+major. No other deferred/demoted/rejected critical+major is evidenced. This is conservative carry-forward, not a new substantive blocking grade.",
+    "uncertainty": "If the owner treats the explicit reasoned partial rejection of N1 as an adjudicated non-defect rather than held/demoted work, the owner count would be 0; that is not assumed here. Orphan R3-N1 is a separate ungraded candidate, not the same identifier as round-1 N1."
+  },
+  "sizes": {
+    "start": {"bytes": 57763, "lines": 285, "sha256": "d3cdbe573e57303b9ce6c93d1fe98ba18fb7cb1a15773d926bf6a0c31425200d"},
+    "after_cycle1": {"bytes": 65568, "lines": 288, "sha256": "290d8b515337d4e45a786caa6482b59426384a3d2ccbf15adf64a35262de6da3"},
+    "after_cycle2_before_audit": {"bytes": 70579, "lines": 290, "sha256": "d87d64ce356122fac14b26e5b25a7eb3109e12706d9d8f55df198b36d14c358f"},
+    "endpoint_after_audit": {"bytes": 70488, "lines": 290, "sha256": "2d74ef94e35ad1f5762ec1e118aec05de6759321cf3bdfff852ab653ebff0509", "copy": "reviews/live-spec-at-recording.md", "exact_expected_hash_match": true, "recovery_missing": false},
+    "unit": "bytes and newline characters, identical to wc -c -l; final unterminated physical line not counted by wc -l",
+    "growth_percent_final": 22.029672974049134,
+    "growth_percent_before_audit": 22.187213268008932,
+    "source": "reviews/source-manifest.json; reviews/sizes.txt"
+  },
+  "sessions": [
+    {"step": "T05", "session": "f952f6b0-f615-4277-8683-b61b561a186c", "model_during_original_review": "claude-opus-5-5", "tool_calls": 24, "assistant_turns": 19, "output_tokens": 42466, "input_tokens_uncached": 38, "cache_creation_tokens": 194614, "cache_read_tokens": 4178638, "duration_min": 6.84915, "source_lines": "1-357; original review only", "full_session_including_later_terminal_reuse": {"tool_calls": 31, "output_tokens": 43097, "duration_min": 111.19491666666666, "later_model_response_label": "gpt-6.1-sol"}},
+    {"step": "T06", "session": "b40038ce-b6af-4bd4-aadf-3367f05636ff", "model": "claude-opus-5-5", "tool_calls": 56, "assistant_turns": 22, "output_tokens": 45846, "input_tokens_uncached": 44, "cache_creation_tokens": 171239, "cache_read_tokens": 4283630, "duration_min": 7.4239},
+    {"step": "T07", "session": "53f4dc61-dcdf-43a3-a4ec-f78400e18ab6", "model": "claude-opus-5-5", "tool_calls": 31, "assistant_turns": 26, "output_tokens": 59074, "input_tokens_uncached": 52, "cache_creation_tokens": 392687, "cache_read_tokens": 5195447, "duration_min": 9.558983333333334},
+    {"step": "T08", "session": "faf6c276-f9f0-4d56-b2e3-85d2536a8ae2", "model": "claude-opus-5-5", "tool_calls": 48, "assistant_turns": 28, "output_tokens": 46161, "input_tokens_uncached": 56, "cache_creation_tokens": 179415, "cache_read_tokens": 5713230, "duration_min": 7.413216666666667},
+    {"step": "T08a", "session": "ee16dad7-bee1-4c25-9032-13550f861539", "model": "claude-opus-5-5", "tool_calls": 18, "assistant_turns": 19, "output_tokens": 18713, "input_tokens_uncached": 38, "cache_creation_tokens": 122527, "cache_read_tokens": 2968914, "duration_min": 3.2537},
+    {"step": "T09", "session": "52877e84-775c-4334-a8a0-da65d5e86b70", "models": ["claude-opus-5-5", "gpt-6.1-sol"], "synthetic_rate_limit_records": 3, "tool_calls": 97, "assistant_turns": 45, "output_tokens": 27368, "input_tokens_uncached": 206730, "cache_creation_tokens": 124014, "cache_read_tokens": 7328730, "duration_min": 83.5907, "delivery_span_min": 80.32005000000001, "model_change_source": "source log lines 243-247, response model label from 267; exceptions at 190,215,240", "wall_includes": "rate-limit cooldowns, resumes, automatic final response request and final away-summary timestamp"}
+  ],
+  "m5_method": {
+    "usage": "REPLAY section 6 method: assistant records grouped by message.id, final usage record per ID summed. Unique tool IDs and raw assistant tool-use counts agree. See reviews/session-summary.json for exact timestamps and all usage fields. Streamed duplicates in api-request-blob are excluded from assistant usage totals.",
+    "T05_exception": "Original segment ends at source line 357, before human re-entry at 361/392 and new API-request metadata at 360. A first attempt included that metadata timestamp and overstated the span; corrected original-segment evidence is preserved. Whole-session metrics are also exposed, never silently used as original review cost.",
+    "total_original_loop_tool_calls": 274,
+    "total_original_loop_output_tokens_logged": 239628,
+    "coordinator_tokens": null,
+    "setup_excluded": true,
+    "cross_model_billing_comparability": false,
+    "subagent_calls_all_six_steps": 0,
+    "interpretation": "Provider-reported usage, not audited billing or active compute time. Synthetic error messages may share null message IDs. No extra model review was launched for recording."
+  },
+  "validity": {
+    "V1": "PASS: actual skills and re-review markers observed",
+    "V2": "PASS: starting and final expected hashes match",
+    "V3": "PARTIAL covariate: no explicit answer-key access/reuse found; master contract present",
+    "V4": "PASS for declared variant construction: exact recorded substitutions, original any-severity final brief retained",
+    "V5": "FAIL: final-review model response label changes after local model selection",
+    "V6": "PARTIAL: final source stable, expected later verdict write, human terminal contact, no continuous additive-file watch",
+    "claude_code_version": "2.1.319",
+    "orca_build_at_recording_only": "1.4.245-aidev02.780594c521aa",
+    "base_commit": "2cb683f5c1f0dfbd3c5f169a8b64a432931f718e",
+    "global_rule_present_loop_sessions": 6,
+    "global_rule_total_loop_sessions": 6,
+    "master_worker_contract_present": true,
+    "master_worker_contract_sha256_at_recording": "5fbf2f2e201bd40c98d21348814f5b94d3dadc48697722fed1fa8e031b6f7698",
+    "last_loop_worker_done_utc": "2026-11-09T01:46:21Z",
+    "expected_write_after_last_done": "fix-audit/final-verdict.md at 2026-11-09T01:46:22.651431+00:00",
+    "later_unexpected_source_writes_observed": 0,
+    "human_reentry_in_completed_T05": ["2026-11-09T01:35:05.103Z", "2026-11-09T01:35:12.455Z"],
+    "explicit_answer_key_read_tool_hits": 0,
+    "R3_audit_md_content_reads_observed": 0,
+    "R3_applied_audit_result_reads_observed": 2,
+    "R3_audit_read_source_lines": [117, 518],
+    "source": "validity.md V1-V6; reviews/access-hits.json; reviews/interruptions-and-later-users.json; reviews/global-prompt-rule-evidence.json; reviews/source-manifest.json; reviews/driver/"
+  },
+  "audit": {
+    "step": "T08a", "separate_from_three_reviews": true,
+    "skill_calls": [{"skill": "sc:spec-panel-ponytail", "source_log_line": 60}, {"skill": "ponytail:ponytail-review", "source_log_line": 117}],
+    "unique_skill_calls_each": 1, "subagent_calls": 0,
+    "prepare_exit": 0, "check_apply_combined_exit": 0,
+    "reported": {"reverted": 1, "shrunk": 1, "kept": 12},
+    "exact_applied_edit_count": 2,
+    "changed_hunks_against_pre_audit": 2, "changed_source_lines": [68, 158],
+    "bytes_before": 70579, "bytes_after": 70488, "byte_delta": -91,
+    "byte_reduction_percent_of_pre_audit": 0.1289335354708908,
+    "edits": [
+      {"finding": "M3", "hunk": "H8", "action": "restore whole minor-only hunk to saved v2", "before_span_bytes": 788, "after_span_bytes": 749, "delta": -39, "line": 158, "source": "reviews/fix-audit/apply-log.md:1; reviews/audit-exact.diff"},
+      {"finding": "unattributed citation split, related to minor M6", "hunk": "H2", "action": "delete duplicate release-only citation clause", "before_span_bytes": 90, "after_span_bytes": 38, "delta": -52, "line": 68, "source": "reviews/fix-audit/apply-log.md:23; reviews/fix-audit/audit.md:25; reviews/audit-exact.diff"}
+    ],
+    "skipped_additional_shrink_edits": [
+      {"finding": "NF1", "hunk": "H1", "old_span_bytes": 82, "source": "audit.md:22; apply-log.md:20", "reason": "keep wins on shared hunk"},
+      {"finding": "NF1", "hunk": "H9", "old_span_bytes": 80, "source": "audit.md:23; apply-log.md:21", "reason": "keep wins on shared hunk"},
+      {"finding": "NF7", "hunk": "H14", "old_span_bytes": 290, "source": "audit.md:24; apply-log.md:22", "reason": "keep wins on shared hunk"}
+    ],
+    "old_span_bytes_note": "82/80/290 are lengths of old matched spans logged unchanged, not necessarily bytes that would be saved. New replacement retains some text. Only the third proposal deletes all 290 bytes.",
+    "applied_operations": 2, "skipped_operation_log_rows": 21,
+    "cost": {"tool_calls": 18, "assistant_turns": 19, "output_tokens_logged": 18713, "wall_minutes": 3.2537, "source": "reviews/session-summary.json T08a metrics_whole_session; provider usage, not a billing estimate"},
+    "minor_fix_accounting": {"cycle1_minor_labels_applied": 7, "cycle2_minor_labels_applied_before_audit": 8, "minor_fix_reverts": 1, "remaining_minor_label_fixes_after_audit": 14, "partly_applied_nonblocking_major_note_separate": "R1 N1", "source": "disposition.md:24-30; disposition-round2.md:24-31; apply-log.md:1,23; R3:41-48"},
+    "parser_failure": {
+      "exit_code": 2,
+      "driver_exit_code": 11,
+      "original_output": "reviews/fix-audit/final-verdict.md",
+      "driver_output": "reviews/driver/driver-ponytail.log:27-38",
+      "automated_open_blocking_count": 37,
+      "automated_open_ids": "C01-C37, citation-check rows, NOT findings",
+      "automated_new_critical_plus_major_printed": 0,
+      "automated_owner_critical_plus_major_printed": 0,
+      "automated_count_valid": false,
+      "independent_report_blocking": 0,
+      "independent_report_minor_including_carried": 1,
+      "independent_new_critical_plus_major": 0,
+      "independent_owner_critical_plus_major_all_rounds": 1,
+      "mechanism": "parse_report requires a pure identifier first cell; R3 resolution first cells are prose names plus parenthesized IDs, so no prior rows parse. Citation rows have pure C01-C37 first cells and no severity labels or explicit nonblocking grades; unlabelled_blocking fail-closed handling treats those unknown grades as blockers. cmd_verdict reports no resolution rows and returns 2. No parser or report formatting was repaired.",
+      "source": "installed fix_audit.py:149-212,1025-1046,1057-1092; installed SHA in reviews/installed-hashes.json; captured final-verdict.md:1-10; coordinator s1v-log.md:55"
+    }
+  },
+  "comparison": {
+    "verdict_on_variant_success": null,
+    "note": "Descriptive arithmetic only; n=1 cannot establish repeatability or within-variant spread. Comparator numbers reused from copied metrics, not remeasured.",
+    "historical_baseline": {"findings_totals": [24, 13, 14], "critical_plus_major": [18, 10, 8], "minor_labels": [6, 3, 6], "strict_fix_induced_share": [null, null, 0.714], "strict_plus_partial_share": [null, 1.0, 0.929], "bytes_at_review": [57763, 82643, 92194], "growth_after_cycle1_percent": 43.1, "growth_after_two_fix_cycles_percent": 59.6, "round2_introduced_or_exposed_count": 13, "round3_strict_partial_preexisting_counts": [10, 3, 1], "source": "reviews/governing/phase2__S1__baseline-metrics.json rounds M2-M4 and growth_summary_for_D6b"},
+    "controls": [
+      {"run": "ctl-r1", "findings_totals": [19, 15, 11], "critical_plus_major": [11, 9, 8], "blocking": [11, 9, 8], "minor_labels": [8, 6, 3], "bytes_by_start_and_revisions": [57763, 71528, 91102], "growth_percent_final": 57.72, "source": "reviews/comparators/ctl-r1.json rounds.M2, spec_sizes"},
+      {"run": "ctl-r2", "findings_totals": [21, 17, 7], "critical_plus_major": [12, 7, 4], "blocking": [12, 7, 4], "minor_labels": [9, 10, 3], "bytes_by_start_and_revisions": [57763, 76214, 97814], "growth_percent_final": 69.3, "source": "reviews/comparators/ctl-r2.json rounds.M2, spec_sizes"}
+    ],
+    "arm_b": [
+      {"run": "flg-r1", "findings_totals": [22, 12, 10], "critical_plus_major": [16, 5, 6], "blocking": [11, 4, 4], "minor_graded": [11, 8, 6], "bytes_by_start_and_revisions": [57763, 67886, 73807], "growth_percent_final": 27.78, "source": "reviews/comparators/flg-r1.json rounds.M2, spec_sizes"},
+      {"run": "flg-r2", "findings_totals": [22, 11, 4], "critical_plus_major": [17, 6, 1], "blocking": [13, 6, 1], "minor_graded": [9, 5, 3], "bytes_by_start_and_revisions": [57763, 70255, 76328], "growth_percent_final": 32.14, "source": "reviews/comparators/flg-r2.json rounds.M2, spec_sizes"}
+    ],
+    "fixed_control_mean_proxy": 6,
+    "fixed_proxy_bar": 3,
+    "fixed_control_mean_growth_percent": 63.51,
+    "fixed_growth_bar_percent": 44.457,
+    "arm_b_mean_proxy": 3.5,
+    "arm_b_mean_growth_percent": 29.96,
+    "ponytail_final_original_proxy": 0,
+    "ponytail_final_owner_count": 1,
+    "ponytail_final_growth_percent": 22.029672974049134,
+    "ponytail_pre_audit_growth_percent": 22.187213268008932,
+    "proxy_reduction_vs_control_mean_percent": 100.0,
+    "owner_count_reduction_vs_control_mean_percent": 83.33333333333333,
+    "growth_delta_vs_control_mean_percentage_points": -41.480327025950866,
+    "growth_delta_vs_arm_b_mean_percentage_points": -7.930327025950866,
+    "audit_growth_delta_percentage_points": -0.15754029395979785,
+    "control_proxy_spread": 4,
+    "arm_b_proxy_spread": 5,
+    "within_ponytail_spread": null,
+    "historical_arithmetic_proxy_bar": 4,
+    "historical_arithmetic_growth_bar_percent": 41.72,
+    "source_thresholds": "brief's fixed comparison constants; DECISIONS D10-D14; baseline proxy 8 and growth 59.6 are not regraded"
+  },
+  "evidence_package_quality": {"verdict": "PASS", "scope": "complete measurement package, not a success verdict on the variant or original review", "assertions_passed": 74, "source": "reviews/count-and-integrity-checks.json; reviews/package-checks.json; reviews/evidence-inventory.json", "self_audit": "comparison.md and validity.md record material failures, bounded checks and limits; no extra model review or repair"},
+  "not_recoverable": [
+    "No second ponytail run, so repeatability and within-variant spread cannot be measured.",
+    "No continuous hashes of additive variant command files during the loop; install log and matching current hashes are endpoint evidence, not uninterrupted proof. Historical watcher stopped recording changes long before this loop.",
+    "No complete filesystem write audit for arbitrary external processes; copied-source mtimes, final hashes and mapped session mutation calls establish the bounded observations only.",
+    "Orphan R3-N1 authorial intent remains uncertain; no new model review or formatting fix was requested to resolve it.",
+    "No clean attribution of coordinator tokens, billing-equivalent cross-provider usage, or model-active time excluding cooldowns.",
+    "Launch model was Opus but resumed T09 responses are labelled gpt-6.1-sol; an all-Opus result cannot be recovered by measurement.",
+    "No proven general causality from changed-line origins; M3 strict/partial split is conservative text attribution and tags alone cannot establish fix causation."
+  ]
+}

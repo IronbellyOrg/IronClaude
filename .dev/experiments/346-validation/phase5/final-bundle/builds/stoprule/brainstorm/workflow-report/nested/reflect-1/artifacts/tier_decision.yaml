@@ -1,0 +1,12 @@
+selected_tier: 2
+fired_rule_number: 0
+coverage_degraded: parsed-sparse
+surface_unreached: null
+composite_score: 6
+per_signal_breakdown:
+  scope_size: 2
+  task_count: 2
+  blast_radius: 1
+  spec_density: 1
+  ambiguity_signals: 0
+escalation_reason: "coverage_degraded parsed-sparse (0 parsed IDs, 34 inferred rows) is a table-wide pre-filter forbidding any Tier-1 stop (Step 1B.2b); also S_scope 14 > 10 and S_domains 4 (code, tests, docs, config) >= 3 (rule 4)"

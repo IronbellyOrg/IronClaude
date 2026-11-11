@@ -1,0 +1,24 @@
+diff --git a/src/superclaude/skills/sc-review-ledger/SKILL.md b/src/superclaude/skills/sc-review-ledger/SKILL.md
+index 02b813b9..7c7b0007 100644
+--- a/src/superclaude/skills/sc-review-ledger/SKILL.md
++++ b/src/superclaude/skills/sc-review-ledger/SKILL.md
+@@ -85,7 +85,7 @@ After each review k: `U` = blocking rows with `scope=in` and status `open`, `fix
+ 
+ ## Subcommands
+ 
+-Every mutation except `init` takes `--op <id>` and `--expect-seq <n>` (not needed with `--dry-run`); `init` takes only an optional `--op`. An identical request in the same phase and round under a new op id returns the committed result (`replayed: true`). Output is one JSON object on stdout: `{ok, seq, phase, review, fix_cycles, counts, loop_decision, delivery_outcome, next_action, ...}` for every subcommand but `verdict`, which prints `{verdict, loop_decision, delivery_outcome, U, review, phase}`; a refusal prints `{error, detail, next_action}`. Besides the codes in the table, every mutation can be refused `E-NO-LEDGER`, `E-TAMPERED`, `E-LOCKED`, `E-STALE-SEQ`, `E-OP-CONFLICT` or `E-USAGE` (a `--dry-run` call takes no lock and checks no sequence).
++Every mutation except `init` takes `--op <id>` and `--expect-seq <n>` (not needed with `--dry-run`); `init` takes only an optional `--op`. An identical request in the same phase and round under a new op id returns the committed result (`replayed: true`). Output is one JSON object on stdout: `{ok, seq, phase, review, fix_cycles, counts, loop_decision, delivery_outcome, next_action, ...}` for every subcommand but `verdict`, which prints `{verdict, loop_decision, delivery_outcome, U, review, phase}`; a refusal prints `{error, detail, next_action}`. Besides the codes in the table, every subcommand can be refused `E-USAGE`, and every mutation but `init` can also be refused `E-NO-LEDGER`, `E-TAMPERED`, `E-LOCKED`, `E-STALE-SEQ` or `E-OP-CONFLICT` (a `--dry-run` call takes no lock and checks no sequence; `init`'s own codes are in its row).
+ 
+ | Subcommand | Phase | Does | Refusals |
+ |---|---|---|---|
+@@ -99,8 +99,8 @@ Every mutation except `init` takes `--op <id>` and `--expect-seq <n>` (not neede
+ | `sweep --prepare` | terminal | copies the live document to a new temporary folder outside the ledger and prints the path | `E-PHASE`, `E-SWEEP-DONE` |
+ | `sweep --input F --report R [--dry-run]` | terminal | ingests sweep rows (`deferred`, `round_found=sweep`, location `in_claimed_span`, `in_unclaimed_hunk` or `outside_hunks`), re-checks every review tail, sets `delivery_outcome`, appends a tail headed `sweep` ending `verdict: PASS` or `verdict: FAIL` | `E-SWEEP-DONE`, `E-PHASE`, `E-SCHEMA`, `E-ANCHOR`, `E-ANCHOR-AMBIGUOUS` |
+ | `defer --id R --quote Q` | terminal, swept | records a user's words on a row; no status change | `E-PHASE`, `E-ILLEGAL`, `E-SCHEMA` |
+-| `status` | any | read-only counts, rows, provisional hunks (phase revise), `metrics` | `E-TAMPERED`, `E-NO-LEDGER` |
+-| `verdict` | any | read-only; exit 0 PASS, 10 CONTINUE, 11 ESCALATE, 12 PENDING (terminal, sweep not run) | `E-TAMPERED`, `E-NO-LEDGER` |
++| `status` | any | read-only counts, rows, provisional hunks (phase revise), `metrics` | `E-TAMPERED`, `E-NO-LEDGER`, `E-USAGE` (neither `--ledger` nor `--doc`) |
++| `verdict` | any | read-only; exit 0 PASS, 10 CONTINUE, 11 ESCALATE, 12 PENDING (terminal, sweep not run) | `E-TAMPERED`, `E-NO-LEDGER`, `E-USAGE` (neither `--ledger` nor `--doc`) |
+ 
+ Exit codes: 0 committed (whatever the decision); 1 usage (`E-USAGE`); 2 row-level input refused (`E-SCHEMA`, `E-ANCHOR`, `E-ANCHOR-AMBIGUOUS`, `E-ILLEGAL`, `E-CLAIM-WIDE`, `E-FIXED-NO-EDIT`, `E-INCOMPLETE`, `E-FROZEN`, `E-NOT-CHANGED`); 3 state refused (`E-EXISTS`, `E-NO-LEDGER`, `E-TAMPERED`, `E-PHASE`, `E-CAP`, `E-TERMINAL`, `E-REPORT-EDITED`, `E-SWEEP-DONE`); 4 lock or sequence conflict (`E-LOCKED`, `E-STALE-SEQ`, `E-OP-CONFLICT`).
+ 

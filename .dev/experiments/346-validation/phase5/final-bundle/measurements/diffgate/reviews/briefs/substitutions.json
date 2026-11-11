@@ -1,0 +1,117 @@
+[
+  {
+    "step": "R1-review",
+    "original_source": "/home/coder/workspaces/worktrees/IronClaude/exp346-p1-logs/.dev/experiments/346-validation/phase2/S1/briefs/task-text/T05-R1-reviewer-L11-699ae853.txt",
+    "variant_source": "/tmp/impl/s1v/briefs/diffgate/T05-R1-reviewer.txt",
+    "token_deltas": [
+      {
+        "operation": "replace",
+        "original": "/sc:spec-panel",
+        "variant": "/sc:spec-panel-diffgate"
+      },
+      {
+        "operation": "insert",
+        "original": "",
+        "variant": "--diffgate-dir .dev/orca-command-refactor/review/diffgate-loop --expect-round 1"
+      }
+    ]
+  },
+  {
+    "step": "R1-revise",
+    "original_source": "/home/coder/workspaces/worktrees/IronClaude/exp346-p1-logs/.dev/experiments/346-validation/phase2/S1/briefs/task-text/T06-R1-reviser-L10-3bb70411.txt",
+    "variant_source": "/tmp/impl/s1v/briefs/diffgate/T06-R1-reviser.txt",
+    "token_deltas": [
+      {
+        "operation": "insert",
+        "original": "",
+        "variant": "Your task list is .dev/orca-command-refactor/review/diffgate-loop/reviser-brief-r1.md, not the whole report; after editing, run `uv run --no-project python ~/.claude/skills/sc-diffgate/scripts/diffgate.py fixcheck --dir .dev/orca-command-refactor/review/diffgate-loop --doc .dev/orca-command-refactor/specs/orca-worker-contract-spec.md --map .dev/orca-command-refactor/review/disposition.md --dry-run` (read-only: it writes no file), put its `doc_sha:` line and one line per changed hunk (confirm or decline each candidate it prints) in a `## Diffgate fixmap` block inside .dev/orca-command-refactor/review/disposition.md, and repeat until it exits 0."
+      }
+    ]
+  },
+  {
+    "step": "R2-review",
+    "original_source": "/home/coder/workspaces/worktrees/IronClaude/exp346-p1-logs/.dev/experiments/346-validation/phase2/S1/briefs/task-text/T07-R2-reviewer-L11-aff19d65.txt",
+    "variant_source": "/tmp/impl/s1v/briefs/diffgate/T07-R2-reviewer.filled.txt",
+    "token_deltas": [
+      {
+        "operation": "replace",
+        "original": "24",
+        "variant": "13"
+      },
+      {
+        "operation": "replace",
+        "original": "/sc:spec-panel",
+        "variant": "/sc:spec-panel-diffgate"
+      },
+      {
+        "operation": "insert",
+        "original": "",
+        "variant": "--diffgate-dir .dev/orca-command-refactor/review/diffgate-loop --expect-round 2"
+      }
+    ]
+  },
+  {
+    "step": "R2-revise",
+    "original_source": "/home/coder/workspaces/worktrees/IronClaude/exp346-p1-logs/.dev/experiments/346-validation/phase2/S1/briefs/task-text/T08-R2-reviser-L10-66468bab.txt",
+    "variant_source": "/tmp/impl/s1v/briefs/diffgate/T08-R2-reviser.filled.txt",
+    "token_deltas": [
+      {
+        "operation": "replace",
+        "original": "N1-N13,",
+        "variant": "R2.1-R2.5,"
+      },
+      {
+        "operation": "replace",
+        "original": "the 2",
+        "variant": "every"
+      },
+      {
+        "operation": "replace",
+        "original": "citations",
+        "variant": "citation"
+      },
+      {
+        "operation": "replace",
+        "original": "N1-N13 and both citations",
+        "variant": "R2.1-R2.5 and every overstated citation"
+      },
+      {
+        "operation": "insert",
+        "original": "",
+        "variant": "Your task list is .dev/orca-command-refactor/review/diffgate-loop/reviser-brief-r2.md, not the whole report; after editing, run `uv run --no-project python ~/.claude/skills/sc-diffgate/scripts/diffgate.py fixcheck --dir .dev/orca-command-refactor/review/diffgate-loop --doc .dev/orca-command-refactor/specs/orca-worker-contract-spec.md --map .dev/orca-command-refactor/review/disposition-round2.md --dry-run` (read-only: it writes no file), put its `doc_sha:` line and one line per changed hunk (confirm or decline each candidate it prints) in a `## Diffgate fixmap` block inside .dev/orca-command-refactor/review/disposition-round2.md, and repeat until it exits 0."
+      }
+    ]
+  },
+  {
+    "step": "R3-review",
+    "original_source": "/home/coder/workspaces/worktrees/IronClaude/exp346-p1-logs/.dev/experiments/346-validation/phase2/S1/briefs/task-text/T09-R3-reviewer-L11-1c9a7ec8.txt",
+    "variant_source": "/tmp/impl/s1v/briefs/diffgate/T09-R3-reviewer.filled.txt",
+    "token_deltas": [
+      {
+        "operation": "replace",
+        "original": "N1-N13",
+        "variant": "R2.1-R2.5"
+      },
+      {
+        "operation": "replace",
+        "original": "both",
+        "variant": "every"
+      },
+      {
+        "operation": "replace",
+        "original": "citations,",
+        "variant": "citation,"
+      },
+      {
+        "operation": "replace",
+        "original": "/sc:spec-panel",
+        "variant": "/sc:spec-panel-diffgate"
+      },
+      {
+        "operation": "insert",
+        "original": "",
+        "variant": "--diffgate-dir .dev/orca-command-refactor/review/diffgate-loop --expect-round 3"
+      }
+    ]
+  }
+]
