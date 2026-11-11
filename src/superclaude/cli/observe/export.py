@@ -170,7 +170,16 @@ def snapshot_dict(view: View) -> dict:
 
 def snapshot_json(view: View) -> str:
     """Snapshot v1: ``json.dumps(indent=2, sort_keys=True)``, every collected row, filter-independent."""
-    return json.dumps(snapshot_dict(view), indent=2, sort_keys=True)
+    # ``default`` maps a sentinel nested inside ``scope`` or ``counts`` (parse caps depth at 6).
+    return json.dumps(
+        snapshot_dict(view), indent=2, sort_keys=True, default=_unknown_in_json
+    )
+
+
+def _unknown_in_json(value: Any) -> Any:
+    if value is UNKNOWN:
+        return UNKNOWN_TEXT
+    raise TypeError(f"Object of type {type(value).__name__} is not JSON serializable")
 
 
 # -- files ---------------------------------------------------------------------------------------------

@@ -375,7 +375,11 @@ class LiveSource:
                 return self._stop(pages, f"exit:{returncode}", stderr, calls)
             try:
                 page = json.loads(stdout)
-            except (ValueError, TypeError):
+            except (
+                ValueError,
+                TypeError,
+                RecursionError,
+            ):  # deep nesting is not JSON we accept
                 return self._stop(pages, "json", stderr, calls)
             pages.append(page)
             has_more, next_cursor, total, worker_count = _peek(page)
