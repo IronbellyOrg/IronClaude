@@ -1,0 +1,75 @@
+{
+  "id": "b61ae588-017f-47c2-9855-341f198e4fc0",
+  "ok": true,
+  "result": {
+    "messages": [
+      {
+        "id": "msg_d53986457e89",
+        "run_id": "run_14cfcbd8edf2",
+        "delivery_contract": "current_delivery",
+        "from_handle": "term_a39d3e66-a4f7-481e-bbf2-7f6ec8329e4f",
+        "to_handle": "run:run_14cfcbd8edf2",
+        "subject": "timing",
+        "body": "x",
+        "type": "status",
+        "priority": "normal",
+        "thread_id": null,
+        "payload": null,
+        "read": 0,
+        "sequence": 4340,
+        "created_at": "2026-11-11T20:02:33Z",
+        "delivered_at": null,
+        "sender_pane_key": "<pane-key>",
+        "pointer_enter_pending": 0,
+        "pointer_pty_id": null,
+        "pointer_process_incarnation": null
+      },
+      {
+        "id": "msg_c77bf1a481ff",
+        "run_id": "run_14cfcbd8edf2",
+        "delivery_contract": "current_delivery",
+        "from_handle": "term_a39d3e66-a4f7-481e-bbf2-7f6ec8329e4f",
+        "to_handle": "run:run_14cfcbd8edf2",
+        "subject": "cap probe 102",
+        "body": "synthetic",
+        "type": "question",
+        "priority": "normal",
+        "thread_id": null,
+        "payload": null,
+        "read": 0,
+        "sequence": 4339,
+        "created_at": "2026-11-11T20:02:25Z",
+        "delivered_at": null,
+        "sender_pane_key": "<pane-key>",
+        "pointer_enter_pending": 0,
+        "pointer_pty_id": null,
+        "pointer_process_incarnation": null
+      },
+      {
+        "id": "msg_215324e1e4d8",
+        "run_id": "run_14cfcbd8edf2",
+        "delivery_contract": "current_delivery",
+        "from_handle": "term_a39d3e66-a4f7-481e-bbf2-7f6ec8329e4f",
+        "to_handle": "run:run_14cfcbd8edf2",
+        "subject": "cap probe 101",
+        "body": "synthetic",
+        "type": "question",
+        "priority": "normal",
+        "thread_id": null,
+        "payload": null,
+        "read": 0,
+        "sequence": 4338,
+        "created_at": "2026-11-11T20:02:25Z",
+        "delivered_at": null,
+        "sender_pane_key": "<pane-key>",
+        "pointer_enter_pending": 0,
+        "pointer_pty_id": null,
+        "pointer_process_incarnation": null
+      }
+    ],
+    "count": 3
+  },
+  "_meta": {
+    "runtimeId": "a7ee70a1-2e8b-4476-a228-51e9c7019b3f"
+  }
+}

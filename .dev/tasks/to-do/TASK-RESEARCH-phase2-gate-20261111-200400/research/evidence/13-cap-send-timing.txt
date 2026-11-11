@@ -1,0 +1,2 @@
+sent 102 in  s, failures=0
+check --all read seconds: 

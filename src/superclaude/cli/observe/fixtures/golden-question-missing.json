@@ -1,0 +1,73 @@
+{
+ "variant": "golden-question-missing",
+ "description": "a good read, then an envelope without result.messages, then the no_active_terminal error",
+ "cycles": [
+  {
+   "id": "env-001",
+   "ok": true,
+   "result": {
+    "acknowledged": null,
+    "count": 2,
+    "messages": [
+     {
+      "id": "msg_000000000001",
+      "run_id": "run-a",
+      "delivery_contract": "current_delivery",
+      "from_handle": "redacted",
+      "to_handle": "run:run-a",
+      "subject": "probe A question",
+      "body": "redacted",
+      "type": "question",
+      "priority": "normal",
+      "thread_id": null,
+      "payload": null,
+      "created_at": "2026-11-08T11:58:59Z",
+      "delivered_at": null
+     },
+     {
+      "id": "msg_000000000002",
+      "run_id": "run-a",
+      "delivery_contract": "current_delivery",
+      "from_handle": "redacted",
+      "to_handle": "run:run-a",
+      "subject": "probe self q1",
+      "body": "redacted",
+      "type": "question",
+      "priority": "normal",
+      "thread_id": null,
+      "payload": null,
+      "created_at": "2026-11-08T11:58:53Z",
+      "delivered_at": null
+     }
+    ],
+    "runId": "run-a"
+   },
+   "_meta": {
+    "runtimeId": "redacted"
+   }
+  },
+  {
+   "id": "env-002",
+   "ok": true,
+   "result": {
+    "acknowledged": null,
+    "count": 2,
+    "runId": "run-b"
+   },
+   "_meta": {
+    "runtimeId": "redacted"
+   }
+  },
+  {
+   "id": "env-003",
+   "ok": false,
+   "error": {
+    "code": "no_active_terminal",
+    "message": "no_active_terminal"
+   },
+   "_meta": {
+    "runtimeId": "redacted"
+   }
+  }
+ ]
+}

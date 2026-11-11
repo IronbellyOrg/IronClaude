@@ -1,0 +1,7 @@
+check --all (104 msgs) run 1: 0.197 s
+check --all (104 msgs) run 2: 0.199 s
+check --all (104 msgs) run 3: 0.200 s
+check --peek run 1: 0.189 s
+check --peek run 2: 0.197 s
+check --peek run 3: 0.195 s
+one send: 0.201 s

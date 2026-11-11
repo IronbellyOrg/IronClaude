@@ -7,6 +7,8 @@ from data (never markup strings). It never imports the adapter or the collector.
 
 from __future__ import annotations
 
+from dataclasses import replace
+
 from rich.cells import cell_len
 from rich.console import Group
 from rich.text import Text
@@ -26,6 +28,7 @@ from superclaude.cli.observe.view import (
     INSPECTOR_TITLE,
     NO_MATCH_TEXT,
     CountsToken,
+    QuestionsPanel,
     RowView,
     View,
     text_of,
@@ -291,6 +294,27 @@ def _notes(view: View) -> list[str]:
     return ["  ".join(parts)] if parts else []
 
 
+def _panel_lines(
+    panel: QuestionsPanel, policy: TerminalPolicy, capacity: int | None
+) -> list[str]:
+    """The coordinator-questions block: header lines, up to ``capacity`` questions, notes."""
+    width = policy.width
+    lines = wrap(panel.title, width, policy)
+    lines += wrap(panel.run_line, width, policy)
+    lines += wrap(panel.disclosure, width, policy)
+    for state_line in panel.state_lines:
+        lines += wrap(state_line, width, policy)
+    lines += wrap(panel.counts_line, width, policy)
+    shown, cut = panel.window(capacity)
+    lines += [clip(q.text, width, policy) for q in shown]
+    if cut:
+        lines += wrap(cut, width, policy)
+    for text in (panel.empty_text, panel.window_full_text, *panel.notes):
+        if text:
+            lines += wrap(text, width, policy)
+    return lines + wrap(panel.retention_line, width, policy)
+
+
 def screen_lines(
     view: View, policy: TerminalPolicy, message: str | None = None
 ) -> list[str]:
@@ -310,19 +334,19 @@ def screen_lines(
         lines += wrap(view.collected_text, width, policy)
         return lines + wrap(view.gap_notice, width, policy)
 
-    top: list[str] = []
-    top += wrap(view.header1, width, policy)
-    top += wrap(view.header2, width, policy)
-    top += counts_lines(view.counts_tokens, policy)
+    head: list[str] = []
+    head += wrap(view.header1, width, policy)
+    head += wrap(view.header2, width, policy)
+    head += counts_lines(view.counts_tokens, policy)
     if view.changes_line:
-        top += wrap(view.changes_line, width, policy)
-    top += wrap(view.gap_notice, width, policy)
+        head += wrap(view.changes_line, width, policy)
+    tail: list[str] = []
     for note in _notes(view):
-        top += wrap(note, width, policy)
+        tail += wrap(note, width, policy)
     if view.focus == "filter":
-        top += wrap("/" + view.filter_text, width, policy)
+        tail += wrap("/" + view.filter_text, width, policy)
     if message:
-        top += wrap(message, width, policy)
+        tail += wrap(message, width, policy)
 
     # The footer is one line when it fits, else the key list and the counts on two lines.
     window_probe = view.window(None)
@@ -332,6 +356,32 @@ def screen_lines(
         if cell_len(one_line) <= width
         else 1 + len(wrap(view.footer_counts(window_probe), width, policy))
     )
+
+    # The R2 panel stands in for the gap notice once the question source has read; in the
+    # inspector only its one-line summary (``gap_notice``) is shown, so the inspector keeps room.
+    panel = view.questions
+    inspecting = view.focus == "inspector" and view.inspector is not None
+    if panel is not None and panel.replaces_gap and not inspecting:
+        ledger_fixed = len(wrap(view.ledger_title, width, policy)) + (
+            2 if policy.width_class == "full" and view.visible_rows else 0
+        )
+        base = len(
+            _panel_lines(replace(panel, lines=(), empty_text=None), policy, None)
+        )
+        spare = policy.height - (
+            len(head) + len(tail) + base + footer_height + ledger_fixed + 1 + 3
+        )  # 1 overflow line and at least 3 ledger rows stay
+        if spare >= 1:
+            gap_part = _panel_lines(panel, policy, spare)
+        else:  # no room for the panel: its one-line summary stands in for it
+            gap_part = wrap(view.gap_notice, width, policy)
+    else:
+        gap_part = wrap(view.gap_notice, width, policy)
+        if (
+            panel is not None and not panel.replaces_gap
+        ):  # questions on, nothing read yet
+            gap_part += wrap(panel.summary, width, policy)
+    top = head + gap_part + tail
 
     if view.focus == "inspector" and view.inspector is not None:
         footer_lines = [clip(INSPECTOR_HELP, width, policy)]

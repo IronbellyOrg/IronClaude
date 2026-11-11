@@ -1,0 +1,50 @@
+{
+ "variant": "golden-question-success",
+ "description": "a good message read: two question rows of one Run, newest first",
+ "cycles": [
+  {
+   "id": "env-001",
+   "ok": true,
+   "result": {
+    "acknowledged": null,
+    "count": 2,
+    "messages": [
+     {
+      "id": "msg_000000000001",
+      "run_id": "run-a",
+      "delivery_contract": "current_delivery",
+      "from_handle": "redacted",
+      "to_handle": "run:run-a",
+      "subject": "probe A question",
+      "body": "redacted",
+      "type": "question",
+      "priority": "normal",
+      "thread_id": null,
+      "payload": null,
+      "created_at": "2026-11-08T11:58:59Z",
+      "delivered_at": null
+     },
+     {
+      "id": "msg_000000000002",
+      "run_id": "run-a",
+      "delivery_contract": "current_delivery",
+      "from_handle": "redacted",
+      "to_handle": "run:run-a",
+      "subject": "probe self q1",
+      "body": "redacted",
+      "type": "question",
+      "priority": "normal",
+      "thread_id": null,
+      "payload": null,
+      "created_at": "2026-11-08T11:58:53Z",
+      "delivered_at": null
+     }
+    ],
+    "runId": "run-a"
+   },
+   "_meta": {
+    "runtimeId": "redacted"
+   }
+  }
+ ]
+}

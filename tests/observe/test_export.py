@@ -241,3 +241,67 @@ def test_export_does_not_import_render_parse_or_adapter_or_use_a_console():
         r"observe\.(render|parse|adapter|collector)\b|Console\b|from rich|import rich",
         text,
     )
+
+
+# -- R2: the record export carries the same question lines as the screen ---------------------------------------------------
+
+from superclaude.cli.observe.view import QUESTIONS_DISCLOSURE  # noqa: E402
+from tests.observe.conftest import (  # noqa: E402
+    QRUN,
+    make_question_envelope,
+    make_question_rows,
+    routed_runner_responses,
+)
+
+
+def question_view(rows, clock, session=None):
+    from superclaude.cli.observe.view import Session, build_view
+
+    worker = (0, json.dumps(make_envelope(make_rows(3, 1), total=3)))
+    message = (0, json.dumps(make_question_envelope(rows)))
+    runner = FakeRunner([], [routed_runner_responses(worker, message)])
+    collector = Collector(
+        LiveSource(runner, FakeDiscover([])), clock, run_id=QRUN, questions=True
+    )
+    return build_view(collector.run_once(), session or Session(), clock)
+
+
+def test_the_record_lists_every_question_with_its_full_id_and_no_escape(fake_clock):
+    long_id = "msg_" + "a" * 60
+    rows = make_question_rows(3, subject="[bold]loud[/bold] \x1b[31mred\x1b[0m")
+    rows[0]["id"] = long_id
+    text = record_text(question_view(rows, fake_clock))
+    assert "\x1b" not in text and long_id in text
+    lines = text.splitlines()
+    assert "COORDINATOR QUESTIONS" in lines and f"one Run only: {QRUN}" in lines
+    assert QUESTIONS_DISCLOSURE in lines
+    assert sum(" | " in ln and "reason unknown" in ln for ln in lines) == 3
+    assert "observed open: 3 | closed by evidence: unavailable (no source)" in lines
+    assert any(ln.startswith("retention reset at ") for ln in lines)
+    assert "[bold]loud[/bold]" in text  # literal text, as on the screen
+    assert not any(ord(ch) in range(0x80, 0xA0) for ch in text)
+
+
+def test_the_record_with_questions_off_has_no_question_lines(fake_clock):
+    text = record_text(fixture_view("base", fake_clock))
+    assert "COORDINATOR" not in text and "reason unknown" not in text
+    assert (
+        "Human questions: source UNVERIFIED" in text
+    )  # the release 1 gap notice stays
+
+
+def test_the_record_keeps_the_question_lines_in_a_failed_state(fake_clock):
+    from superclaude.cli.observe.view import Session, build_view
+
+    worker = (0, json.dumps(make_envelope(make_rows(2, 1), total=2)))
+    good = (0, json.dumps(make_question_envelope(make_question_rows(2))))
+    fenced = (1, json.dumps({"ok": False, "error": {"code": "consumer_fenced"}}))
+    runner = FakeRunner([], [routed_runner_responses(worker, [good, fenced])])
+    collector = Collector(
+        LiveSource(runner, FakeDiscover([])), fake_clock, run_id=QRUN, questions=True
+    )
+    collector.run_once()
+    text = record_text(build_view(collector.run_once(), Session(), fake_clock))
+    assert "FAILED (consumer-fenced)" in text
+    assert "this terminal does not hold the named Run" in text
+    assert text.count("reason unknown") == 2

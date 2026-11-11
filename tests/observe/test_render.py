@@ -407,3 +407,221 @@ def test_render_returns_renderables_and_never_sorts_or_decides_literals(fake_clo
         r"observe\.(adapter|collector|parse)\b|sorted\(|\.sort\(|from_markup|Console\(",
         text,
     )
+
+
+# -- R2: the coordinator questions panel on screen (T19, T47, T49, T12, T11, T23) ------------------------------------------
+
+from superclaude.cli.observe.view import (  # noqa: E402
+    QUESTIONS_NOT_HELD,
+    Key,
+    apply_key,
+)
+from tests.observe.conftest import (  # noqa: E402
+    QRUN,
+    make_question_envelope,
+    make_question_error,
+    make_question_rows,
+    routed_runner_responses,
+)
+
+
+def question_result(message, clock, n_workers=4):
+    worker = (0, json.dumps(make_envelope(make_rows(n_workers, 1), total=n_workers)))
+    runner = FakeRunner([], [routed_runner_responses(worker, message)])
+    collector = Collector(
+        LiveSource(runner, FakeDiscover([])), clock, run_id=QRUN, questions=True
+    )
+    return collector, collector.run_once()
+
+
+def ok_message(rows):
+    return 0, json.dumps(make_question_envelope(rows))
+
+
+@pytest.mark.parametrize("width", WIDTHS)
+def test_t19_the_screen_carries_the_title_disclosure_and_one_line_per_question(
+    fake_clock, width
+):
+    _, result = question_result(ok_message(make_question_rows(5)), fake_clock)
+    lines = screen_lines(build_view(result, Session(), fake_clock), policy_for(width))
+    flat = " ".join(" ".join(lines).split())
+    assert "COORDINATOR QUESTIONS" in flat
+    assert f"one Run only: {QRUN}" in flat
+    assert "at most 100 rows per read, not 100 questions" in flat
+    assert "bounded best effort; coverage unknown" in flat
+    assert "bursts over 100 rows between reads may be lost" in flat
+    assert "observed open: 5 | closed by evidence: unavailable (no source)" in flat
+    assert (
+        "retention reset at 12:00; questions observed before this start are not retained"
+        in flat
+    )
+    assert sum("reason unknown" in l for l in lines) == 5
+    assert "synthetic body" not in flat and GAP_NOTICE not in lines
+    assert all(cell_len(l) <= width for l in lines)
+
+
+@pytest.mark.parametrize("height", [40, 24, 14])
+@pytest.mark.parametrize("width", WIDTHS)
+def test_every_screen_line_fits_at_160_116_and_80_with_the_panel(
+    fake_clock, width, height
+):
+    rows = make_question_rows(
+        30, subject="界" * 60 + " [bold]x[/bold] very long subject " * 4
+    )
+    _, result = question_result(ok_message(rows), fake_clock)
+    policy = policy_for(width, height=height)
+    lines = screen_lines(build_view(result, Session(), fake_clock), policy)
+    assert all(cell_len(l) <= width for l in lines)
+    assert len(lines) <= height or policy.too_small
+    if height >= 24:
+        assert any("[bold]x[/bold]" in l or "界" in l for l in lines)
+
+
+def test_a_long_question_list_is_windowed_with_x_of_y_shown(fake_clock):
+    _, result = question_result(ok_message(make_question_rows(60)), fake_clock)
+    policy = policy_for(120, height=30)
+    lines = screen_lines(build_view(result, Session(), fake_clock), policy)
+    shown = [l for l in lines if l.endswith("/60 shown")]
+    assert len(shown) == 1 and len(lines) <= 30
+    assert sum("reason unknown" in l for l in lines) < 60
+    assert any(
+        l.startswith("collected") or "collected 4" in l for l in lines
+    )  # counts stay
+
+
+def test_t47_questions_off_the_screen_is_the_release_1_screen(fake_clock):
+    off = fixture_view("base", fake_clock)
+    lines = screen_lines(off, policy_for(160))
+    assert GAP_NOTICE in lines and not any("COORDINATOR" in l for l in lines)
+    assert any("messages UNVERIFIED (not read)" in l for l in lines)
+
+
+def test_the_pending_screen_keeps_the_gap_notice_and_adds_one_pending_line(fake_clock):
+    collector, _ = question_result(ok_message([]), fake_clock)
+    pending = collector.latest()  # a fresh collector's NOT_POLLED result
+    fresh = Collector(
+        LiveSource(FakeRunner([], [(0, "{}")]), FakeDiscover([])),
+        fake_clock,
+        run_id=QRUN,
+        questions=True,
+    ).latest()
+    lines = screen_lines(build_view(fresh, Session(), fake_clock), policy_for(160))
+    assert GAP_NOTICE in lines
+    assert any("question read pending" in l for l in lines)
+    assert pending.question_state == "OK"
+
+
+def test_the_fenced_state_names_the_sentence_and_keeps_the_retained_lines(fake_clock):
+    fenced = (1, json.dumps(make_question_error("consumer_fenced")))
+    collector, first = question_result(
+        [ok_message(make_question_rows(2)), fenced], fake_clock
+    )
+    second = collector.run_once()
+    lines = screen_lines(build_view(second, Session(), fake_clock), policy_for(160))
+    flat = " ".join(lines)
+    assert "FAILED (consumer-fenced)" in flat and QUESTIONS_NOT_HELD in flat
+    assert sum("reason unknown" in l for l in lines) == 2
+    assert "observed open: 2 |" in flat and first.question_state == "OK"
+
+
+def test_t12_a_question_that_left_the_window_stays_listed_on_screen(fake_clock):
+    collector, _ = question_result(
+        [ok_message(make_question_rows(2)), ok_message(make_question_rows(2, start=1))],
+        fake_clock,
+    )
+    lines = screen_lines(
+        build_view(collector.run_once(), Session(), fake_clock), policy_for(160)
+    )
+    assert sum("no longer in source window" in l for l in lines) == 1
+    assert sum("reason unknown" in l for l in lines) == 3
+
+
+def test_an_empty_good_read_screen_says_not_proof_and_never_no_questions(fake_clock):
+    _, result = question_result(ok_message([]), fake_clock)
+    lines = screen_lines(build_view(result, Session(), fake_clock), policy_for(160))
+    flat = " ".join(lines)
+    assert "no observed questions in this source window; not proof none exist" in flat
+    assert "no questions" not in flat.lower()
+
+
+def test_window_full_text_is_on_screen_at_exactly_100_rows(fake_clock):
+    _, result = question_result(ok_message(make_question_rows(100)), fake_clock)
+    lines = screen_lines(
+        build_view(result, Session(), fake_clock), policy_for(160, height=60)
+    )
+    assert "window full: older questions may be missing" in lines
+
+
+@pytest.mark.parametrize("height", [1, 3, MIN_ROWS - 1])
+def test_t49_the_too_small_diagnostic_carries_a_question_source_line(
+    fake_clock, height
+):
+    _, result = question_result(ok_message(make_question_rows(2)), fake_clock)
+    view = build_view(result, Session(), fake_clock)
+    lines = screen_lines(view, policy_for(120, height=height))
+    assert lines[0].startswith("terminal too small")
+    assert view.gap_notice in lines and view.gap_notice.startswith(
+        "coordinator questions:"
+    )
+
+
+@pytest.mark.parametrize("width", [79, 60, 40])
+def test_below_80_columns_the_diagnostic_keeps_the_question_source_line(
+    fake_clock, width
+):
+    _, result = question_result(ok_message(make_question_rows(2)), fake_clock)
+    view = build_view(result, Session(), fake_clock)
+    lines = screen_lines(view, policy_for(width))
+    flat = "".join("".join(lines).split())
+    assert "".join(view.gap_notice.split()) in flat
+    assert all(cell_len(l) <= width for l in lines)
+
+
+def test_the_inspector_keeps_room_by_showing_only_the_one_line_summary(fake_clock):
+    _, result = question_result(ok_message(make_question_rows(40)), fake_clock)
+    session, _ = apply_key(
+        Session(), Key("down"), build_view(result, Session(), fake_clock), fake_clock
+    )
+    session, _ = apply_key(
+        session, Key("enter"), build_view(result, session, fake_clock), fake_clock
+    )
+    view = build_view(result, session, fake_clock)
+    lines = screen_lines(view, policy_for(120, height=30))
+    assert view.focus == "inspector" and view.gap_notice in lines
+    assert not any("reason unknown" in l for l in lines)
+
+
+def test_ascii_mode_renders_only_ascii_for_a_non_ascii_subject(fake_clock):
+    rows = make_question_rows(2, subject="héllo wörld 界")
+    _, result = question_result(ok_message(rows), fake_clock)
+    lines = screen_lines(
+        build_view(result, Session(), fake_clock), policy_for(120, ascii=True)
+    )
+    assert all(ord(ch) < 128 for l in lines for ch in l)
+    assert not any(bad_chars(l) for l in lines)
+
+
+def test_rendering_the_panel_twice_is_byte_identical(fake_clock):
+    _, result = question_result(ok_message(make_question_rows(7)), fake_clock)
+    view = build_view(result, Session(), fake_clock)
+    policy = policy_for(116)
+    assert printed(view, policy) == printed(view, policy)
+
+
+# -- T47: questions off is byte-identical to release 1 (against release 1's own recorded bytes) ------------------------
+
+
+def test_t47_questions_off_is_byte_identical_to_the_recorded_release_1_surface():
+    from tests.observe.release1_surface import surface
+
+    golden = json.loads(
+        (Path(__file__).parent / "golden_release1_surface.json").read_text(
+            encoding="utf-8"
+        )
+    )
+    current = surface()
+    assert current.keys() == golden.keys()
+    for variant, expected in golden.items():
+        assert current[variant].keys() == expected.keys(), variant
+        for key, text in expected.items():
+            assert current[variant][key] == text, f"{variant}:{key}"

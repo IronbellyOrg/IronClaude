@@ -1,0 +1,14 @@
+contract_version: "1.1"
+status: success
+slug: TASK-WF-release2OfTheOrc-20261111-203306
+plan_path: ./TASK-WF-release2OfTheOrc-20261111-203306.md
+source_path: ./source.md
+source_origin: inline
+strategy: systematic
+depth: standard
+handoff_action: none
+handoff_output_path: null
+reflect_status: partial
+reflect_report_path: /home/coder/workspaces/worktrees/IronClaude/issue-409-mvp/.dev/reflect/pre-release2OfTheOrc-20261111203538/REPORT.md
+unresolved:
+  - "Reflect ran as a reduced Tier-1 inline pass (no calibrator or evidence-validator agents); advisory only."

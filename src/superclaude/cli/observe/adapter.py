@@ -1,8 +1,9 @@
 """The one read-only edge to the Orca CLI (AD-3, AD-4, AD-5).
 
-Only two argv shapes are ever run: the worker-list template (with optional run and cursor
-pairs) and the one-time binary discovery probe that ``_find_orca`` makes. Every argv is
-checked against a forbidden set before any call, and the set only ever grows.
+Only three argv shapes are ever run: the worker-list template (with optional run and cursor
+pairs), the one-time binary discovery probe that ``_find_orca`` makes, and the one R2
+message template for a single named Run (used only past the gate guard in ``commands.py``).
+Every argv is checked against a forbidden set before any call, and the set only ever grows.
 """
 
 from __future__ import annotations
@@ -27,9 +28,25 @@ Discover = Callable[[], "str | None"]
 
 WORKER_LIST_TEMPLATE = ("orchestration", "worker-list", "--json", "--limit", "100")
 DISCOVERY_TEMPLATE = ("skills", "list", "--json")
+# R2 message template: these five items, then ``--run <runId>``, then ``--json``.
+QUESTION_TEMPLATE = ("orchestration", "check", "--all", "--types", "question")
 # Matched by prefix against every verb and flag position, never against run or cursor values.
 FORBIDDEN_PREFIXES = frozenset(
-    {"check", "--ack", "--wait", "--retry-request", "dispatch", "inbox"}
+    {
+        "check",
+        "--ack",
+        "--wait",
+        "--retry-request",
+        "--peek",
+        "dispatch",
+        "inbox",
+        "run-use",
+        "run-create",
+        "send",
+        "ask",
+        "reply",
+        "reset",
+    }
 )
 
 RUN_ID_PATTERN = re.compile(
@@ -58,8 +75,16 @@ CODES = frozenset(
         "cursor-rejected",
         "cursor-stalled",
         "empty-page",
+        "consumer-fenced",
+        "no-active-terminal",
+        "no-question-fixture",
     }
 )
+# Error codes of an ``{"ok": false, "error": {"code": ...}}`` envelope -> source codes.
+_ERROR_CODES = {
+    "consumer_fenced": "consumer-fenced",
+    "no_active_terminal": "no-active-terminal",
+}
 
 
 class ArgvRejected(ValueError):
@@ -101,9 +126,22 @@ def check_cursor(cursor: object) -> str:
     return cursor
 
 
+def _is_question_shape(tokens: list[str]) -> bool:
+    """True when the whole argv (after the binary) has the R2 message template's shape."""
+    return (
+        len(tokens) == 8
+        and tuple(tokens[:5]) == QUESTION_TEMPLATE
+        and tokens[5] == "--run"
+        and tokens[7] == "--json"
+    )
+
+
 def _option_positions(tokens: list[str]) -> set[int]:
     """Indexes (into ``tokens``) that are verbs or flags rather than option values."""
     positions = set(range(len(tokens)))
+    if _is_question_shape(tokens):
+        # The verb of the whole template and its two values are not forbidden tokens.
+        return positions - {1, 4, 6}
     if tokens[:5] == list(WORKER_LIST_TEMPLATE):
         i = 5
         while i + 1 < len(tokens) and tokens[i] in ("--run", "--cursor"):
@@ -113,7 +151,7 @@ def _option_positions(tokens: list[str]) -> set[int]:
 
 
 def assert_allowed(argv: list) -> None:
-    """Refuse any argv that is not one of the two templates; names the forbidden token."""
+    """Refuse any argv that is not one of the three templates; names the forbidden token."""
     if not argv or not all(isinstance(a, str) for a in argv) or len(argv) < 2:
         raise ArgvRejected("argv", "not a list of strings")
     if argv[0].startswith("-") or not argv[0]:
@@ -126,6 +164,9 @@ def assert_allowed(argv: list) -> None:
                     "forbidden", f"{tokens[index]!r} is on the forbidden list"
                 )
     if tokens == list(DISCOVERY_TEMPLATE):
+        return
+    if _is_question_shape(tokens):
+        check_run_id(tokens[6])
         return
     if tokens[:5] != list(WORKER_LIST_TEMPLATE):
         raise ArgvRejected("argv", "not an allow-listed argv")
@@ -156,6 +197,13 @@ def build_argv(
         argv += ["--run", check_run_id(run_id)]
     if cursor is not None:
         argv += ["--cursor", check_cursor(cursor)]
+    assert_allowed(argv)
+    return argv
+
+
+def build_question_argv(orca: str, run_id: object) -> list[str]:
+    """The R2 message argv: the literal template with the checked run id as one item."""
+    argv = [orca, *QUESTION_TEMPLATE, "--run", check_run_id(run_id), "--json"]
     assert_allowed(argv)
     return argv
 
@@ -363,7 +411,11 @@ class LiveSource:
         )
 
     def read_pages(
-        self, clock: Any, budget_deadline: float, run_id: str | None = None
+        self,
+        clock: Any,
+        budget_deadline: float,
+        run_id: str | None = None,
+        max_calls: int = MAX_CALLS_PER_CYCLE,
     ) -> SourceResult:
         if not self.discover():
             return SourceResult("FAILED", code="not-found")
@@ -419,7 +471,7 @@ class LiveSource:
                 return self._stop(pages, "empty-page", "", calls)
             if has_more is not True:
                 return SourceResult("OK", tuple(pages), calls=calls)
-            if calls >= MAX_CALLS_PER_CYCLE:
+            if calls >= max_calls:
                 return SourceResult("PARTIAL", tuple(pages), capped=True, calls=calls)
             if next_cursor is None or (
                 isinstance(next_cursor, str) and not next_cursor
@@ -431,3 +483,48 @@ class LiveSource:
                 return self._stop(pages, "cursor-stalled", "", calls)
             used.add(next_cursor)
             cursor = next_cursor
+
+    def read_questions(
+        self, clock: Any, budget_deadline: float, run_id: str
+    ) -> SourceResult:
+        """One R2 message call for one named Run: no paging, same timeout and output cap.
+
+        The decoded reply is the one page of the result. An ``ok: false`` error envelope is
+        decoded whatever the exit status, so ``consumer_fenced`` and ``no_active_terminal``
+        get their own source codes; any other failure maps as ``read_pages`` maps it.
+        """
+        if not self.discover():
+            return SourceResult("FAILED", code="not-found")
+        remaining = budget_deadline - clock.monotonic()
+        if remaining <= 0 or self._cancelled.is_set():
+            return self._stop([], "overrun", "", 0)
+        argv = build_question_argv(self.orca, run_id)  # ArgvRejected before any call
+        budget_limited = remaining < self.per_call_timeout
+        try:
+            reply = self._runner(argv, min(self.per_call_timeout, remaining))
+        except (TimeoutError, subprocess.TimeoutExpired):
+            return self._stop([], "overrun" if budget_limited else "timeout", "", 1)
+        except RunnerFailure as exc:
+            code = "overrun" if exc.code == "timeout" and budget_limited else exc.code
+            return self._stop([], code, exc.stderr, 1)
+        except OSError as exc:
+            return self._stop([], "spawn-error", str(exc), 1)
+        returncode, stdout = reply[0], reply[1]
+        stderr = reply[2] if len(reply) > 2 else ""
+        try:
+            page = json.loads(stdout)
+        except (ValueError, TypeError, RecursionError):
+            page = None
+            decoded = False
+        else:
+            decoded = True
+        if decoded and isinstance(page, dict) and page.get("ok") is False:
+            error = page.get("error")
+            name = error.get("code") if isinstance(error, dict) else None
+            if isinstance(name, str) and name in _ERROR_CODES:
+                return self._stop([], _ERROR_CODES[name], stderr, 1)
+        if returncode != 0:
+            return self._stop([], f"exit:{returncode}", stderr, 1)
+        if not decoded or (isinstance(page, dict) and page.get("ok") is False):
+            return self._stop([], "json", stderr, 1)
+        return SourceResult("OK", (page,), calls=1)

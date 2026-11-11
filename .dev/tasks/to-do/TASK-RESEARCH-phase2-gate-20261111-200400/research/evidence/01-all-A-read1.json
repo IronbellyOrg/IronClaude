@@ -1,0 +1,11 @@
+{
+  "id": "4ee6e09a-b1b1-4db5-b175-f6e67b5aac3b",
+  "ok": false,
+  "error": {
+    "code": "consumer_fenced",
+    "message": "This caller is bound to Run run_14cfcbd8edf2, not Run run_c1badaa6576b. Nothing changed."
+  },
+  "_meta": {
+    "runtimeId": "a7ee70a1-2e8b-4476-a228-51e9c7019b3f"
+  }
+}

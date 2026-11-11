@@ -21,6 +21,7 @@ from superclaude.cli.observe.adapter import (
     RunnerFailure,
     assert_allowed,
     build_argv,
+    build_question_argv,
     production_runner,
 )
 from tests.observe.conftest import (
@@ -162,18 +163,32 @@ def test_forbidden_words_appear_only_inside_the_forbidden_set():
     assert block, "the forbidden set must be one frozenset literal"
     for word in ("--ack", "--wait", "--retry-request"):
         assert word in block.group(0)
-    assert text.count('"check"') == 1 and '"check"' in block.group(0)
+    # "check" is the forbidden verb and, once, the verb of the one R2 message template.
+    assert text.count('"check"') == 2 and '"check"' in block.group(0)
+    assert text.count('"check"') == block.group(0).count('"check"') + 1
     assert (
         "check" not in adapter.WORKER_LIST_TEMPLATE
         and "check" not in adapter.DISCOVERY_TEMPLATE
     )
+    # T2: these words appear in the module only inside the forbidden set.
+    for word in ("--peek", "run-use"):
+        assert text.count(word) == 1 and word in block.group(0), word
+    for verb in ("run-create", "send", "ask", "reply", "reset"):
+        assert text.count(f'"{verb}"') == 1 and f'"{verb}"' in block.group(0), verb
     assert FORBIDDEN_PREFIXES >= {
         "check",
         "--ack",
         "--wait",
         "--retry-request",
+        "--peek",
         "dispatch",
         "inbox",
+        "run-use",
+        "run-create",
+        "send",
+        "ask",
+        "reply",
+        "reset",
     }
 
 
@@ -572,3 +587,166 @@ def test_adapter_imports_sanitize_but_not_parse_or_collector_and_owns_subprocess
     assert re.search(r"^from superclaude\.cli\.observe\.sanitize import", text, re.M)
     assert not re.search(r"observe\.(parse|collector|view|render|export)\b", text)
     assert re.search(r"^import subprocess$", text, re.M)
+
+
+# -- R2: the one message template, its forbidden neighbours and its error envelopes (T52, T53) ---------------
+
+QUESTION_RUN = "run_14cfcbd8edf2"
+QUESTION_ARGV = [
+    ORCA,
+    "orchestration",
+    "check",
+    "--all",
+    "--types",
+    "question",
+    "--run",
+    QUESTION_RUN,
+    "--json",
+]
+
+
+def question_reply(n=2, run=QUESTION_RUN):
+    rows = [
+        {
+            "id": f"msg_{i:012x}",
+            "run_id": run,
+            "type": "question",
+            "subject": f"probe question {i}",
+            "created_at": "2026-11-11T20:01:11Z",
+        }
+        for i in range(n)
+    ]
+    envelope = {
+        "id": "env-1",
+        "ok": True,
+        "result": {"acknowledged": None, "count": n, "messages": rows, "runId": run},
+    }
+    return 0, json.dumps(envelope)
+
+
+def error_reply(code, status=1):
+    envelope = {"id": "env-2", "ok": False, "error": {"code": code, "message": code}}
+    return status, json.dumps(envelope)
+
+
+def read_questions(source, clock, run_id=QUESTION_RUN, budget=15.0):
+    return source.read_questions(clock, clock.monotonic() + budget, run_id)
+
+
+def test_the_fake_runner_receives_exactly_the_question_template(argv_log, fake_clock):
+    source, runner = source_with([question_reply(2)], argv_log)
+    result = read_questions(source, fake_clock)
+    assert result.state == "OK" and result.calls == 1 and len(result.pages) == 1
+    assert [a for a in runner.log if a[1:3] == ["orchestration", "check"]] == [
+        QUESTION_ARGV
+    ]
+    assert build_question_argv(ORCA, QUESTION_RUN) == QUESTION_ARGV
+    assert tuple(QUESTION_ARGV[1:6]) == adapter.QUESTION_TEMPLATE
+    assert_allowed(QUESTION_ARGV)
+    assert argv_allowed(QUESTION_ARGV)
+
+
+@pytest.mark.parametrize(
+    "argv",
+    [
+        [ORCA, "orchestration", "run-use", "--id", QUESTION_RUN],
+        [ORCA, "orchestration", "run-create", "--json"],
+        [ORCA, "orchestration", "send", "--to", f"run:{QUESTION_RUN}"],
+        [ORCA, "orchestration", "ask", "--question", "x"],
+        [ORCA, "orchestration", "reply", "--id", "msg_1"],
+        [ORCA, "orchestration", "reset"],
+        [ORCA, "orchestration", "inbox", "--json"],
+        [ORCA, "orchestration", "check", "--json"],
+        [ORCA, "orchestration", "check", "--peek", "--types", "question", "--json"],
+        [*QUESTION_ARGV[:-1], "--peek", "--json"],
+        [ORCA, "orchestration", "check", "--all", "--json"],
+        [ORCA, "orchestration", "check", "--all", "--run", QUESTION_RUN, "--json"],
+        [ORCA, "orchestration", "check", "--all", "--types", "question", "--json"],
+        [
+            ORCA,
+            "orchestration",
+            "check",
+            "--all",
+            "--types",
+            "status",
+            "--run",
+            QUESTION_RUN,
+            "--json",
+        ],
+        [*QUESTION_ARGV, "--ack", "d1"],
+        [*QUESTION_ARGV, "--wait"],
+        [*QUESTION_ARGV[:7], "--ack", "d1", "--json"],
+    ],
+)
+def test_neighbours_of_the_question_template_are_rejected_before_any_call(argv):
+    with pytest.raises(ArgvRejected):
+        assert_allowed(argv)
+    assert not argv_allowed(argv)
+
+
+@pytest.mark.parametrize("bad", ["-x", "--evil", "bad id", "a/b", "", 5, None])
+def test_a_bad_question_run_id_fails_before_the_runner_is_called(
+    bad, argv_log, fake_clock
+):
+    source, runner = source_with([question_reply(1)], argv_log)
+    with pytest.raises(ArgvRejected) as info:
+        read_questions(source, fake_clock, run_id=bad)
+    assert info.value.code == "run-id"
+    assert runner.calls == 0 and not any(a[1] == "orchestration" for a in argv_log)
+    if isinstance(bad, str):
+        with pytest.raises(ArgvRejected):
+            assert_allowed([ORCA, *adapter.QUESTION_TEMPLATE, "--run", bad, "--json"])
+
+
+def test_a_run_id_that_looks_like_a_verb_is_still_a_value():
+    assert_allowed([ORCA, *adapter.QUESTION_TEMPLATE, "--run", "send-7", "--json"])
+
+
+@pytest.mark.parametrize(
+    "code,expected",
+    [
+        ("consumer_fenced", "consumer-fenced"),
+        ("no_active_terminal", "no-active-terminal"),
+    ],
+)
+@pytest.mark.parametrize("status", [1, 0])
+def test_error_envelopes_map_to_source_codes_whatever_the_exit_status(
+    code, expected, status, argv_log, fake_clock
+):
+    source, runner = source_with([error_reply(code, status)], argv_log)
+    result = read_questions(source, fake_clock)
+    assert (result.state, result.code, result.pages) == ("FAILED", expected, ())
+    assert expected in adapter.CODES
+    assert sum(1 for a in argv_log if a[1:3] == ["orchestration", "check"]) == 1
+    assert runner.calls == 1
+
+
+def test_other_failures_keep_their_existing_codes(argv_log, fake_clock):
+    for response, code in (
+        (error_reply("something_else", 2), "exit:2"),
+        (error_reply("something_else", 0), "json"),
+        ((3, ""), "exit:3"),
+        ((0, "not json"), "json"),
+        (TimeoutError("slow"), "timeout"),
+    ):
+        source, _ = source_with([response], argv_log)
+        result = read_questions(source, fake_clock)
+        assert (result.state, result.code) == ("FAILED", code)
+
+
+def test_the_question_read_is_one_call_with_no_paging_and_respects_the_budget(
+    argv_log, fake_clock
+):
+    source, runner = source_with([question_reply(100)], argv_log)
+    assert read_questions(source, fake_clock).calls == 1 and runner.calls == 1
+    source, runner = source_with([question_reply(1)], argv_log)
+    spent = source.read_questions(fake_clock, fake_clock.monotonic() - 1, QUESTION_RUN)
+    assert (spent.state, spent.code, runner.calls) == ("FAILED", "overrun", 0)
+
+
+def test_the_question_diagnostic_is_sanitized_and_bounded(argv_log, fake_clock):
+    noisy = "\x1b[31mboom\x1b[0m" + "x" * 5000
+    source, _ = source_with([(1, error_reply("consumer_fenced")[1], noisy)], argv_log)
+    result = read_questions(source, fake_clock)
+    assert result.code == "consumer-fenced"
+    assert "\x1b" not in result.diagnostic and len(result.diagnostic.encode()) <= 2048

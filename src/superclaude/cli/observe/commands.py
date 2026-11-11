@@ -60,6 +60,21 @@ REDRAW_SECONDS = (
 )
 WIDTHS = ("160", "116", "80")
 
+# The live coordinator-questions read is guarded by this one constant. It stays False until
+# the owner has written a record that QUESTION-OBSERVATION passed (release-gates.md, "Agents
+# cite the owner's statement, never write it"); plan Task 18 may flip it only against that
+# record, cited by path. While False, ``--questions`` makes no Orca call, not even discovery.
+QUESTION_GATE_PASSED = False
+QUESTION_GATE_TEXT = (
+    "question read not enabled: QUESTION-OBSERVATION has not passed"  # PROPOSED wording
+)
+QUESTIONS_NEED_RUN_TEXT = (
+    "--questions needs --run <runId>: it reads the questions of one named Run only"
+)
+QUESTIONS_NEED_LIVE_TEXT = (
+    "--questions needs a live source; it cannot be combined with --fixture"
+)
+
 HELP = """Read-only terminal observer for Orca workers.
 
 Shows the worker ledger Orca reports for its workers (verbatim next-action kind,
@@ -68,6 +83,13 @@ snapshot. It never writes to Orca: no key and no option maps to an Orca call.
 
 Poll caps (one read every 15 s, at most 5 calls per read) are per observer process; several
 observers running at once multiply the load on Orca.
+
+Coordinator questions (--questions, off until the owner records that QUESTION-OBSERVATION
+passed): with --run <runId> the observer lists the messages of type question of that one
+named Run, from one read per cycle. Run it from the terminal that already holds the Run: the
+observer never runs run-use and never binds to a Run. The list is bounded best effort;
+coverage unknown; bursts over 100 rows between reads may be lost. Message bodies are
+received by this process; subjects are shown, bodies are not kept.
 """
 
 
@@ -98,6 +120,7 @@ class Options:
     fixture: str | None = None
     run_id: str | None = None
     snapshot: str | None = None
+    questions: bool = False  # R2: list the coordinator questions of the one --run Run
 
 
 @dataclass
@@ -142,6 +165,28 @@ def _build_source(options: Options, deps: Deps) -> Any:
     return LiveSource(deps.runner or production_runner, **kwargs)
 
 
+def _questions_on(options: Options) -> bool:
+    """True only when ``--questions`` is asked for and the gate guard is open."""
+    return bool(options.questions and QUESTION_GATE_PASSED)
+
+
+def _question_refusal(options: Options) -> tuple[int, str] | None:
+    """(exit code, plain message) when ``--questions`` cannot run; checked before any Orca call."""
+    if not options.questions:
+        return None
+    if options.fixture:
+        return 2, QUESTIONS_NEED_LIVE_TEXT
+    if not options.run_id:
+        return 2, QUESTIONS_NEED_RUN_TEXT
+    try:
+        check_run_id(options.run_id)
+    except ArgvRejected as exc:
+        return 2, f"--questions needs a valid --run id: {exc}"
+    if not QUESTION_GATE_PASSED:
+        return 1, QUESTION_GATE_TEXT
+    return None
+
+
 def _emit(text: str, deps: Deps) -> None:
     if deps.stdout is not None:
         deps.stdout.write(text)
@@ -170,7 +215,9 @@ def _write_snapshot(view: Any, target: Path) -> str | None:
 def run_once(options: Options, deps: Deps) -> int:
     clock = deps.clock or SystemClock()
     source = _build_source(options, deps)
-    collector = Collector(source, clock, run_id=options.run_id)
+    collector = Collector(
+        source, clock, run_id=options.run_id, questions=_questions_on(options)
+    )
     result = collector.run_once()
     session = apply_cycle(Session(), result, clock)
     view = build_view(result, session, clock)
@@ -305,6 +352,7 @@ def run_interactive(options: Options, deps: Deps) -> int:
             clock,
             interval=deps.interval if deps.interval is not None else 15.0,
             run_id=options.run_id,
+            questions=_questions_on(options),
         )
         directory = deps.state_directory or state_dir()
         live = not options.fixture
@@ -324,6 +372,10 @@ def run_interactive(options: Options, deps: Deps) -> int:
 
 def execute(options: Options, deps: Deps | None = None) -> int:
     """Run the command; returns the process exit code."""
+    refusal = _question_refusal(options)  # before any Orca call, discovery included
+    if refusal is not None:
+        click.echo(refusal[1], err=True)
+        return refusal[0]
     deps = deps or Deps()
     if options.once:
         return run_once(options, deps)
@@ -393,6 +445,13 @@ def _check_run(
     default=None,
     help="Write the JSON snapshot to this file (default for live mode: the per-user state directory).",
 )
+@click.option(
+    "--questions",
+    "questions",
+    is_flag=True,
+    help="List the coordinator questions (message type question) of the one Run named by "
+    "--run. Needs --run and a live source; refused until QUESTION-OBSERVATION has passed.",
+)
 @click.pass_context
 def observe_group(
     ctx: click.Context,
@@ -402,6 +461,7 @@ def observe_group(
     fixture: str | None,
     run_id: str | None,
     snapshot: str | None,
+    questions: bool,
 ) -> None:
     if ctx.invoked_subcommand is not None:
         return
@@ -412,6 +472,7 @@ def observe_group(
         fixture=fixture,
         run_id=run_id,
         snapshot=snapshot,
+        questions=questions,
     )
     code = execute(options)
     if code:

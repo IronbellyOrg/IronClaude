@@ -21,12 +21,17 @@ from superclaude.cli.observe.parse import (
     load_fixture,
     merge,
     parse_page,
+    parse_questions,
 )
+from superclaude.cli.observe.questions import merge_questions, window_is_full
 
 INTERVAL = 15.0  # seconds between cycle starts
 CYCLE_BUDGET = 15.0  # a cycle never runs longer than this
 MAX_BACKOFF = 60.0  # after failures the wait doubles, never above this
 JOIN_TIMEOUT = 5.0  # how long stop() waits for the polling thread
+QUESTION_PAGE_CAP = (
+    4  # worker-list calls per cycle when questions are on (4 + 1 message call)
+)
 
 
 @dataclass(frozen=True)
@@ -47,6 +52,20 @@ class CycleResult:
     last_success_wall: float | None  # wall time of the same moment (display only)
     namespace: str
     duration: float = 0.0  # monotonic seconds this cycle took
+    # R2 question source (one named Run). Defaults describe "questions off".
+    question_state: str = "OFF"  # "OFF" | "NOT_POLLED" | "OK" | "FAILED"
+    question_code: str | None = None  # code of the last question read when FAILED
+    questions: Any = (
+        None  # QuestionState of the retained questions, None until a good read
+    )
+    question_read: Any = (
+        None  # ParsedQuestions of the last good read (counts, no bodies)
+    )
+    question_last_success_mono: float | None = None
+    question_run: str | None = None  # the one named Run, only when questions are on
+    question_retention_wall: float | None = (
+        None  # wall time retention started (display only)
+    )
 
 
 class CycleSource(Protocol):
@@ -65,17 +84,24 @@ class CycleSource(Protocol):
         self, clock: Any, budget_deadline: float, run_id: str | None = None
     ) -> SourceResult: ...
 
+    def read_questions(
+        self, clock: Any, budget_deadline: float, run_id: str
+    ) -> SourceResult: ...
+
 
 class FixtureSource:
     """Replays a fixture variant's cycles in order and repeats the last (never calls Orca)."""
 
     mode = "fixture"
 
-    def __init__(self, variant: str) -> None:
+    def __init__(self, variant: str, question_fixture: list | None = None) -> None:
         self.variant = variant
         self._fixture = load_fixture(variant)
         self._index = 0
         self.frozen_positions: frozenset = frozenset()  # of the cycle read last
+        # SYNTHETIC question cycles: each an envelope dict or ``{"fail": <code>}``.
+        self._question_fixture = question_fixture
+        self._question_index = 0
 
     @property
     def available(self) -> bool:
@@ -86,7 +112,11 @@ class FixtureSource:
         return f"fixture:{self.variant}"
 
     def read_pages(
-        self, clock: Any, budget_deadline: float, run_id: str | None = None
+        self,
+        clock: Any,
+        budget_deadline: float,
+        run_id: str | None = None,
+        max_calls: int = 5,
     ) -> SourceResult:
         entry = self._fixture.cycle(self._index)
         self._index += 1
@@ -94,6 +124,20 @@ class FixtureSource:
         if entry.envelope is None:
             return SourceResult("FAILED", code=entry.fail)
         return SourceResult("OK", pages=(entry.envelope,), calls=1)
+
+    def read_questions(
+        self, clock: Any, budget_deadline: float, run_id: str
+    ) -> SourceResult:
+        """Replay the supplied synthetic question cycles, else fail with a plain code."""
+        if not self._question_fixture:
+            return SourceResult("FAILED", code="no-question-fixture")
+        entry = self._question_fixture[
+            min(self._question_index, len(self._question_fixture) - 1)
+        ]
+        self._question_index += 1
+        if isinstance(entry, dict) and "fail" in entry and "result" not in entry:
+            return SourceResult("FAILED", code=str(entry["fail"]))
+        return SourceResult("OK", pages=(entry,), calls=1)
 
 
 class Collector:
@@ -107,6 +151,7 @@ class Collector:
         budget: float = CYCLE_BUDGET,
         max_backoff: float = MAX_BACKOFF,
         run_id: str | None = None,
+        questions: bool = False,
     ) -> None:
         self._source = source
         self._clock = clock
@@ -114,6 +159,7 @@ class Collector:
         self._budget = budget
         self._max_backoff = max_backoff
         self._run_id = run_id
+        self._questions = bool(questions and run_id)  # one named Run only
         self._wait = interval
         self._lock = threading.Lock()  # guards the published reference
         self._cycle_lock = threading.Lock()  # one cycle at a time
@@ -131,6 +177,9 @@ class Collector:
             last_success_mono=None,
             last_success_wall=None,
             namespace="",
+            question_state="NOT_POLLED" if self._questions else "OFF",
+            question_run=run_id if self._questions else None,
+            question_retention_wall=clock.wall() if self._questions else None,
         )
 
     # -- publication -----------------------------------------------------------------------
@@ -147,6 +196,62 @@ class Collector:
     def next_interval(self) -> float:
         """Seconds to wait before the next cycle: the interval, doubled after failures."""
         return self._wait
+
+    # -- the question source (R2) ----------------------------------------------------------
+    @staticmethod
+    def _carry(previous: CycleResult) -> dict[str, Any]:
+        """The question fields of ``previous``: a failed or absent read changes none of them."""
+        return {
+            "question_state": previous.question_state,
+            "question_code": previous.question_code,
+            "questions": previous.questions,
+            "question_read": previous.question_read,
+            "question_last_success_mono": previous.question_last_success_mono,
+            "question_run": previous.question_run,
+            "question_retention_wall": previous.question_retention_wall,
+        }
+
+    def _question_fields(
+        self, previous: CycleResult, started: float, number: int, namespace: str
+    ) -> dict[str, Any]:
+        fields = self._carry(previous)
+        if not self._questions:
+            return fields
+        deadline = started + self._budget
+        if self._clock.monotonic() >= deadline:
+            return {**fields, "question_state": "FAILED", "question_code": "overrun"}
+        reply = self._source.read_questions(self._clock, deadline, self._run_id)
+        parsed = None
+        code = reply.code if reply.state != "OK" else None
+        if reply.state == "OK" and reply.pages:
+            try:
+                parsed = parse_questions(
+                    reply.pages[0], namespace, number, self._run_id
+                )
+            except ShapeError:
+                code = "shape"
+        if parsed is None:
+            return {
+                **fields,
+                "question_state": "FAILED",
+                "question_code": code or "json",
+            }
+        retained = merge_questions(
+            previous.questions,
+            parsed.rows,
+            number,
+            window_is_full(parsed.raw_count),
+            True,
+            self._run_id,
+        )
+        return {
+            **fields,
+            "question_state": "OK",
+            "question_code": None,
+            "questions": retained,
+            "question_read": parsed,
+            "question_last_success_mono": self._clock.monotonic(),
+        }
 
     # -- one cycle -------------------------------------------------------------------------
     def run_once(self) -> CycleResult:
@@ -169,12 +274,14 @@ class Collector:
                         last_success_mono=None,
                         last_success_wall=None,
                         namespace="",
+                        **self._carry(previous),
                     )
                 )
             number = previous.cycle + 1
             started = self._clock.monotonic()
+            extra = {"max_calls": QUESTION_PAGE_CAP} if self._questions else {}
             reply = self._source.read_pages(
-                self._clock, started + self._budget, self._run_id
+                self._clock, started + self._budget, self._run_id, **extra
             )
             namespace = self._source.namespace
             pages: list[ParsedPage] = []
@@ -189,6 +296,10 @@ class Collector:
                     break
                 pages.append(apply_frozen(parsed, frozen, base))
                 base += parsed.raw_count
+            # One message call in the same cycle budget; its failure touches nothing below.
+            question_fields = self._question_fields(
+                previous, started, number, namespace
+            )
             duration = self._clock.monotonic() - started
             common: dict[str, Any] = {
                 "cycle": number,
@@ -197,6 +308,7 @@ class Collector:
                 "diagnostic": reply.diagnostic,
                 "namespace": namespace,
                 "duration": duration,
+                **question_fields,
             }
             if not pages:
                 # First page failed: the previous snapshot, coverage and last success stay.
