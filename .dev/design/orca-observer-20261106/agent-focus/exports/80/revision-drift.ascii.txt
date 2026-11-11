@@ -1,0 +1,42 @@
+                                                                                
+  * REVISION DRIFT                                     SYNTHETIC . READ ONLY    
+  8 owners / 80 sessions / 80 mapped trees                                      
+  08:00 UTC | msgs partial | workers 4s | checks 14m                            
+                                                                                
+                                                                                
+   Choose schema compatibility policy                                           
+   Owner Human operator | 4 sessions | 45m observed                             
+   Evidence demo:messages/Q01                                                   
+                                                                                
+                                                                                
+ +- SELECTED SIGNALS ---------------------------------------------------------+ 
+ |                                                                            | 
+ | S001 checked demo-001-a -> now demo-001-b                                  | 
+ | S008 checked demo-008-a -> now demo-008-b                                  | 
+ | S015 checked demo-015-a -> now demo-015-b                                  | 
+ | S022 checked demo-022-a -> now demo-022-b                                  | 
+ | S029 checked demo-029-a -> now demo-029-b                                  | 
+ | S036 checked demo-036-a -> now demo-036-b                                  | 
+ | S043 checked demo-043-a -> now demo-043-b                                  | 
+ | S050 checked demo-050-a -> now demo-050-b                                  | 
+ | S057 checked demo-057-a -> now demo-057-b                                  | 
+ | S064 checked demo-064-a -> now demo-064-b                                  | 
+ | S071 checked demo-071-a -> now demo-071-b                                  | 
+ | S078 checked demo-078-a -> now demo-078-b                                  | 
+ | Passing old checks do not prove current readiness.                         | 
+ |                                                                            | 
+ |                                                                            | 
+ |                                                                            | 
+ |                                                                            | 
+ |                                                                            | 
+ |                                                                            | 
+ |                                                                            | 
+ |                                                                            | 
+ |                                                                            | 
+ |                                                                            | 
+ | 13/13 lines shown                                                          | 
+ +----------------------------------------------------------------------------+ 
+                                                                                
+ ------------------------------------------------------------------------------ 
+  j/k select . tab pane . / filter . enter evidence . p hold view               
+  LOCAL FIXTURE . source coverage is not fleet-wide assurance                   

@@ -1,0 +1,3 @@
+eb6b495c7b138fe38a6700dafc9bfb5ab252e734
+A1 r1-1 F1.1 minor tests/observe/test_session.py:136 ac=T9.AC3 n,n,n,n test title says added and removed rows count but the session-level test only shows an added row; the removal count is covered in tests/observe/test_view.py (test_changed_rows_are_starred_and_counted_since_the_baseline)
+A1 r1-1 F1.2 minor tests/observe/test_session.py:359 ac=T9.AC2 n,n,n,n the static import scan matches observe.adapter and observe.collector dotted paths only, so 'from superclaude.cli.observe import collector' would pass it; the signature assertions still block the real risk

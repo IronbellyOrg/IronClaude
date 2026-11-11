@@ -1,0 +1,48 @@
+                                                                                                                                                                
+  * DELTA DECK                                                                                                                         SYNTHETIC . READ ONLY    
+  8 owners / 80 sessions / 80 mapped trees                                                                                                                      
+  08:00 UTC | msgs partial | workers 4s | checks 14m                                                                                                            
+                                                                                                                                                                
+ +- HUMAN QUESTION -------------------------------------------------------------------------------------------------------------------------------------------+ 
+ | Choose schema compatibility policy                                                                                                                         | 
+ | Owner: Human operator | affected: 4 sessions | observed 45m ago                                                                                            | 
+ | Scope: S001, S011, S021, S031                                                                                                                              | 
+ | demo:messages/Q01 | 2 other requests                                                                                                                       | 
+ +------------------------------------------------------------------------------------------------------------------------------------------------------------+ 
+                                                                                                                                                                
+   UNRESOLVED CONTEXT: 3 observed questions retained; silence never closes them.                                                                                
+   Previous success: 2026-11-06T07:45:00Z                                                                                                                       
+                                                                                                                                                                
+                                                                                                                                                                
+ +- NEW / 1 events -------------------+ +- WORSENED / 1 events --------------+ +- RESOLVED / 1 events --------------+ +- UNCHANGED / 1 events -------------+    
+ |                                    | |                                    | |                                    | |                                    |    
+ | D01 / 1                            | | D02 / 2                            | | D03 / 3                            | | D04 / 4                            |    
+ | Newly observed: schema decision    | | Checks refer to older revision     | | Prior docs question explicitly     | | Policy freeze still requires human |    
+ | spans owner boundaries             | | ref S008                           | | closed                             | | handling                           |    
+ | ref Q01                            | |                                    | | ref demo:resolved/Q00              | | ref S015                           |    
+ |                                    | |                                    | |                                    | |                                    |    
+ |                                    | |                                    | |                                    | |                                    |    
+ |                                    | |                                    | |                                    | |                                    |    
+ |                                    | |                                    | |                                    | |                                    |    
+ |                                    | |                                    | |                                    | |                                    |    
+ |                                    | |                                    | |                                    | |                                    |    
+ |                                    | |                                    | |                                    | |                                    |    
+ |                                    | |                                    | |                                    | |                                    |    
+ |                                    | |                                    | |                                    | |                                    |    
+ |                                    | |                                    | |                                    | |                                    |    
+ |                                    | |                                    | |                                    | |                                    |    
+ |                                    | |                                    | |                                    | |                                    |    
+ |                                    | |                                    | |                                    | |                                    |    
+ |                                    | |                                    | |                                    | |                                    |    
+ |                                    | |                                    | |                                    | |                                    |    
+ |                                    | |                                    | |                                    | |                                    |    
+ |                                    | |                                    | |                                    | |                                    |    
+ |                                    | |                                    | |                                    | |                                    |    
+ |                                    | |                                    | |                                    | |                                    |    
+ |                                    | |                                    | |                                    | |                                    |    
+ | 1 events / explicit source changes | | 1 events / explicit source changes | | 1 events / explicit source changes | | 1 events / explicit source changes |    
+ +------------------------------------+ +------------------------------------+ +------------------------------------+ +------------------------------------+    
+                                                                                                                                                                
+ -------------------------------------------------------------------------------------------------------------------------------------------------------------- 
+  j/k select . tab pane . / filter . enter evidence . p hold view                                                                                               
+  LOCAL FIXTURE . source coverage is not fleet-wide assurance                                                                                                   

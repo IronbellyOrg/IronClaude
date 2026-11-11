@@ -1,0 +1,93 @@
+{
+  "synthetic": true,
+  "as_of": "2026-11-06T08:00:00Z",
+  "variant": "empty",
+  "sources": {
+    "workers": {
+      "id": "demo:workers",
+      "observed_at": "2026-11-06T07:59:56Z",
+      "age_s": 4,
+      "coverage": "complete fixture"
+    },
+    "messages": {
+      "id": "demo:messages",
+      "observed_at": "2026-11-06T07:59:48Z",
+      "age_s": 12,
+      "coverage": "partial"
+    },
+    "checks": {
+      "id": "demo:checks",
+      "observed_at": "2026-11-06T07:46:00Z",
+      "age_s": 840,
+      "coverage": "stale"
+    },
+    "cost": {
+      "id": "demo:usage",
+      "observed_at": "2026-11-06T07:59:00Z",
+      "age_s": 60,
+      "coverage": "partial"
+    },
+    "resources": {
+      "id": "demo:resources",
+      "observed_at": "2026-11-06T07:59:45Z",
+      "age_s": 15,
+      "coverage": "partial"
+    }
+  },
+  "orchestrators": [
+    {
+      "id": "O01",
+      "name": "Atlas",
+      "mission": "Billing migration"
+    },
+    {
+      "id": "O02",
+      "name": "Beacon",
+      "mission": "API compatibility"
+    },
+    {
+      "id": "O03",
+      "name": "Cinder",
+      "mission": "Release readiness"
+    },
+    {
+      "id": "O04",
+      "name": "Delta",
+      "mission": "Identity refresh"
+    },
+    {
+      "id": "O05",
+      "name": "Ember",
+      "mission": "Search upgrade"
+    },
+    {
+      "id": "O06",
+      "name": "Forge",
+      "mission": "Build reliability"
+    },
+    {
+      "id": "O07",
+      "name": "Grove",
+      "mission": "Docs delivery"
+    },
+    {
+      "id": "O08",
+      "name": "Harbor",
+      "mission": "Telemetry cleanup"
+    }
+  ],
+  "sessions": [],
+  "worktrees": [],
+  "requests": [],
+  "edges": [],
+  "events": [],
+  "scope": {
+    "host": "demo-local",
+    "expected_hosts": null,
+    "collection": "offline fixture"
+  },
+  "previous": {
+    "as_of": "2026-11-06T07:45:00Z",
+    "source": "demo:previous-successful-snapshot"
+  }
+}

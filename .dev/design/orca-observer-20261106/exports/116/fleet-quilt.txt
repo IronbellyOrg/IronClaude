@@ -1,0 +1,42 @@
+                                                                                                                    
+  ◈ FLEET QUILT                                                                            SYNTHETIC · READ ONLY    
+  8 owners / 80 sessions / 80 mapped trees                                                                          
+  08:00 UTC | msgs partial | workers 4s | checks 14m                                                                
+                                                                                                                    
+ ┏━ HUMAN QUESTION ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓ 
+ ┃ Choose schema compatibility policy                                                                             ┃ 
+ ┃ Owner: Human operator                                                                                          ┃ 
+ ┃ Scope: 4 sessions | observed 45m ago                                                                           ┃ 
+ ┃ Affected: S001, S011, S021, S031                                                                               ┃ 
+ ┃ Messages partial | 2 other questions                                                                           ┃ 
+ ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛ 
+                                                                                                                    
+   ONE CELL = ONE SESSION   R running  S settled  F failed result  P frozen  ? unknown                              
+                                                                                                                    
+   ATLAS       10 sessions       S001 R S002 R S003 R S004 R S005 R S006 R S007 S S008 S S009 F S010 ?              
+   Billing migration                                                                                                
+   BEACON      10 sessions       S011 R S012 R S013 R S014 R S015 P S016 R S017 S S018 S S019 F S020 ?              
+   API compatibility                                                                                                
+   CINDER      10 sessions       S021 R S022 R S023 R S024 R S025 R S026 R S027 S S028 S S029 F S030 ?              
+   Release readiness                                                                                                
+   DELTA       10 sessions       S031 R S032 R S033 R S034 R S035 R S036 R S037 S S038 S S039 F S040 ?              
+   Identity refresh                                                                                                 
+   EMBER       10 sessions       S041 R S042 R S043 R S044 R S045 R S046 R S047 S S048 S S049 F S050 ?              
+   Search upgrade                                                                                                   
+   FORGE       10 sessions       S051 R S052 R S053 R S054 R S055 R S056 R S057 S S058 S S059 F S060 ?              
+   Build reliability                                                                                                
+   GROVE       10 sessions       S061 R S062 R S063 R S064 R S065 R S066 R S067 S S068 S S069 F S070 ?              
+   Docs delivery                                                                                                    
+   HARBOR      10 sessions       S071 R S072 R S073 R S074 R S075 R S076 R S077 S S078 S S079 F S080 ?              
+   Telemetry cleanup                                                                                                
+                                                                                                                    
+                                                                                                                    
+                                                                                                                    
+                                                                                                                    
+                                                                                                                    
+                                                                                                                    
+                                                                                                                    
+   80/80 session IDs shown; 0 omitted | membership, not progress                                                    
+ ────────────────────────────────────────────────────────────────────────────────────────────────────────────────── 
+  j/k select · tab pane · / filter · enter evidence · p hold view                                                   
+  LOCAL FIXTURE · source coverage is not fleet-wide assurance                                                       

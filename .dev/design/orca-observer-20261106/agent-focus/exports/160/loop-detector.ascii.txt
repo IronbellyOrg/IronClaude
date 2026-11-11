@@ -1,0 +1,48 @@
+                                                                                                                                                                
+  * LOOP DETECTOR                                                                                                                      SYNTHETIC . READ ONLY    
+  8 owners / 80 sessions / 80 mapped trees                                                                                                                      
+  08:00 UTC | msgs partial | workers 4s | checks 14m                                                                                                            
+                                                                                                                                                                
+                                                                                                                                                                
+   Choose schema compatibility policy                                                                                                                           
+   Owner Human operator | 4 sessions | 45m observed                                                                                                             
+   Evidence demo:messages/Q01                                                                                                                                   
+                                                                                                                                                                
+                                                                                                                                                                
+  +- REPEATED ATTEMPT SIGNAL --------------------------------------------------------------------------------------------------------------------------------+  
+  |                                                                                                                                                          |  
+  |                                                                                                                                                          |  
+  |   S023  /  O03                                                                                                                                           |  
+  |                                                                                                                                                          |  
+  |                                                                                                                                                          |  
+  |   +- RETRY 1 -------------+     +- RETRY 2 -------------+     +- RETRY 3 -------------+                                                                  |  
+  |   |                       |     |                       |     |                       |                                                                  |  
+  |   |  recorded by source   |--?  |  recorded by source   |--?  |  recorded by source   |                                                                  |  
+  |   |                       |     |                       |     |                       |                                                                  |  
+  |   +-----------------------+     +-----------------------+     +-----------------------+                                                                  |  
+  |                                                                                                                                                          |  
+  |                                                                                                                                                          |  
+  |   demo:authoritative-attempt-log                                                                                                                         |  
+  +----------------------------------------------------------------------------------------------------------------------------------------------------------+  
+                                                                                                                                                                
+                                                                                                                                                                
+  +- INVESTIGATE -------------------------------------------------------------+  +- DO NOT INFER ------------------------------------------------------------+  
+  |                                                                           |  |                                                                           |  
+  | Compare failure signatures                                                |  | Quiet output != failure                                                   |  
+  | Inspect prior diagnosis                                                   |  | Same text != repeated execution                                           |  
+  | Check superseded attempt identity                                         |  | Late heartbeat != dead worker                                             |  
+  | Use existing evidence, not automatic retry                                |  | Observer cannot restart anything                                          |  
+  |                                                                           |  |                                                                           |  
+  |                                                                           |  |                                                                           |  
+  |                                                                           |  |                                                                           |  
+  |                                                                           |  |                                                                           |  
+  | 4/4 lines shown                                                           |  | 4/4 lines shown                                                           |  
+  +---------------------------------------------------------------------------+  +---------------------------------------------------------------------------+  
+                                                                                                                                                                
+                                                                                                                                                                
+                                                                                                                                                                
+                                                                                                                                                                
+                                                                                                                                                                
+ -------------------------------------------------------------------------------------------------------------------------------------------------------------- 
+  j/k select . tab pane . / filter . enter evidence . p hold view                                                                                               
+  LOCAL FIXTURE . source coverage is not fleet-wide assurance                                                                                                   

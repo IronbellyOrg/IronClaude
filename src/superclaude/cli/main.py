@@ -569,5 +569,9 @@ from superclaude.cli.review import review_group  # noqa: E402,I001  # intentiona
 
 main.add_command(review_group, name="review")
 
+from superclaude.cli.observe.commands import observe_group  # noqa: E402,I001  # intentional: deferred subcommand registration to avoid circular imports
+
+main.add_command(observe_group, name="observe")
+
 if __name__ == "__main__":
     main()

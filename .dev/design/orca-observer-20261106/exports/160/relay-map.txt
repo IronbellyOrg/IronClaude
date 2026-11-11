@@ -1,0 +1,48 @@
+                                                                                                                                                                
+  ◈ RELAY MAP                                                                                                                          SYNTHETIC · READ ONLY    
+  8 owners / 80 sessions / 80 mapped trees                                                                                                                      
+  08:00 UTC | msgs partial | workers 4s | checks 14m                                                                                                            
+                                                                                                                                                                
+ ╭─ HUMAN QUESTION ───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────╮ 
+ │ Choose schema compatibility policy                                                                                                                         │ 
+ │ Owner: Human operator | affected: 4 sessions | observed 45m ago                                                                                            │ 
+ │ Scope: S001, S011, S021, S031                                                                                                                              │ 
+ │ demo:messages/Q01 | 2 other requests                                                                                                                       │ 
+ ╰────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────╯ 
+                                                                                                                                                                
+   3 declared links | arrows mean recorded dependency, not execution flow                                                                                       
+                                                                                                                                                                
+ ╭─ OWNERS / SESSIONS ─────────╮  ╭─ O01 ──────────────────╮                                                                         ╭─ O02 ──────────────────╮ 
+ │ O01 Atlas / 10              │  │                        │ schema contract                                                         │                        │ 
+ │ O02 Beacon / 10             │  │ Atlas                  │────────────────────────────────────────────────────────────────────────→│ Beacon                 │ 
+ │ O03 Cinder / 10             │  │                        │ 2 affected sessions                                                     │                        │ 
+ │ O04 Delta / 10              │  ╰────────────────────────╯                                                                         ╰────────────────────────╯ 
+ │ O05 Ember / 10              │    Evidence: demo:dependency/E01                                                                                               
+ │ O06 Forge / 10              │                                                                                                                                
+ │ O07 Grove / 10              │                                                                                                                                
+ │ O08 Harbor / 10             │  ╭─ O02 ──────────────────╮                                                                         ╭─ O03 ──────────────────╮ 
+ │                             │  │                        │ compatibility proof                                                     │                        │ 
+ │                             │  │ Beacon                 │────────────────────────────────────────────────────────────────────────→│ Cinder                 │ 
+ │                             │  │                        │ 3 affected sessions                                                     │                        │ 
+ │                             │  ╰────────────────────────╯                                                                         ╰────────────────────────╯ 
+ │                             │    Evidence: demo:dependency/E02                                                                                               
+ │                             │                                                                                                                                
+ │                             │                                                                                                                                
+ │                             │  ╭─ O03 ──────────────────╮                                                                         ╭─ O04 ──────────────────╮ 
+ │                             │  │                        │ release handoff                                                         │                        │ 
+ │                             │  │ Cinder                 │────────────────────────────────────────────────────────────────────────→│ Delta                  │ 
+ │                             │  │                        │ 1 affected sessions                                                     │                        │ 
+ │                             │  ╰────────────────────────╯                                                                         ╰────────────────────────╯ 
+ │                             │    Evidence: demo:dependency/E03                                                                                               
+ │                             │                                                                                                                                
+ │                             │                                                                                                                                
+ │                             │                                                                                                                                
+ │                             │                                                                                                                                
+ │                             │                                                                                                                                
+ │                             │                                                                                                                                
+ │ 8/8 text lines shown        │                                                                                                                                
+ ╰─────────────────────────────╯    3/3 links shown; absent links remain unknown                                                                                
+                                                                                                                                                                
+ ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────── 
+  j/k select · tab pane · / filter · enter evidence · p hold view                                                                                               
+  LOCAL FIXTURE · source coverage is not fleet-wide assurance                                                                                                   

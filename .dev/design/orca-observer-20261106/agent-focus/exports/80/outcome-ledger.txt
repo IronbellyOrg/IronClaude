@@ -1,0 +1,42 @@
+                                                                                
+  ◈ OUTCOME LEDGER                                     SYNTHETIC · READ ONLY    
+  8 owners / 80 sessions / 80 mapped trees                                      
+  08:00 UTC | msgs partial | workers 4s | checks 14m                            
+                                                                                
+                                                                                
+   Choose schema compatibility policy                                           
+   Owner Human operator | 4 sessions | 45m observed                             
+   Evidence demo:messages/Q01                                                   
+                                                                                
+                                                                                
+ ╭─ SELECTED SIGNALS ─────────────────────────────────────────────────────────╮ 
+ │                                                                            │ 
+ │ S007 O01  succeeded   admitted                                             │ 
+ │ S008 O01  partial     not admitted                                         │ 
+ │ S009 O01  failed      not admitted                                         │ 
+ │ S017 O02  succeeded   not admitted                                         │ 
+ │ S018 O02  partial     not admitted                                         │ 
+ │ S019 O02  failed      not admitted                                         │ 
+ │ S027 O03  succeeded   admitted                                             │ 
+ │ S028 O03  partial     not admitted                                         │ 
+ │ S029 O03  failed      not admitted                                         │ 
+ │ S037 O04  succeeded   not admitted                                         │ 
+ │ S038 O04  partial     not admitted                                         │ 
+ │ S039 O04  failed      not admitted                                         │ 
+ │ 24 total report records; inspector has all.                                │ 
+ │                                                                            │ 
+ │                                                                            │ 
+ │                                                                            │ 
+ │                                                                            │ 
+ │                                                                            │ 
+ │                                                                            │ 
+ │                                                                            │ 
+ │                                                                            │ 
+ │                                                                            │ 
+ │                                                                            │ 
+ │ 13/13 lines shown                                                          │ 
+ ╰────────────────────────────────────────────────────────────────────────────╯ 
+                                                                                
+ ────────────────────────────────────────────────────────────────────────────── 
+  j/k select · tab pane · / filter · enter evidence · p hold view               
+  LOCAL FIXTURE · source coverage is not fleet-wide assurance                   

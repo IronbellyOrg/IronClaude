@@ -1,0 +1,42 @@
+                                                                                                                    
+  ◈ DECISION DESK                                                                          SYNTHETIC · READ ONLY    
+  8 owners / 80 sessions / 80 mapped trees                                                                          
+  08:00 UTC | msgs partial | workers 4s | checks 14m                                                                
+                                                                                                                    
+ ┏━ HUMAN QUESTION ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓ 
+ ┃ Choose schema compatibility policy                                                                             ┃ 
+ ┃ Owner: Human operator                                                                                          ┃ 
+ ┃ Scope: 4 sessions | observed 45m ago                                                                           ┃ 
+ ┃ Affected: S001, S011, S021, S031                                                                               ┃ 
+ ┃ Messages partial | 2 other questions                                                                           ┃ 
+ ┃                                                                                                                ┃ 
+ ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛ 
+                                                                                                                    
+                                                                                                                    
+ ╭─ AFFECTED SESSIONS ────────────────────────────────────────────╮  ╭─ OTHER OBSERVED QUESTIONS ─────────────────╮ 
+ │ SESSION / LIFECYCLE / PHASE; RESULT / ADMISSION BELOW          │  │                                            │ 
+ │                                                                │  │ Confirm deployment window                  │ 
+ │ S001    running  / work                                        │  │ Owner: Human operator                      │ 
+ │ not observed / not admitted | stale | not frozen               │  │ 2 affected | 20m observed                  │ 
+ │ S011    running  / work                                        │  │                                            │ 
+ │ not observed / not admitted | fresh | not frozen               │  │ Name the release reviewer                  │ 
+ │ S021    running  / queue                                       │  │ Owner: Human operator                      │ 
+ │ not observed / not admitted | fresh | not frozen               │  │ 2 affected | 10m observed                  │ 
+ │ S031    running  / work                                        │  │                                            │ 
+ │ not observed / not admitted | fresh | not frozen               │  │                                            │ 
+ │                                                                │  │                                            │ 
+ │                                                                │  │                                            │ 
+ │                                                                │  │                                            │ 
+ │                                                                │  │                                            │ 
+ │                                                                │  │                                            │ 
+ │                                                                │  │                                            │ 
+ │                                                                │  │                                            │ 
+ │                                                                │  │                                            │ 
+ │                                                                │  │                                            │ 
+ │                                                                │  │                                            │ 
+ │ 4/4 shown | result is not admission                            │  │ 2/2 other questions shown                  │ 
+ ╰────────────────────────────────────────────────────────────────╯  ╰────────────────────────────────────────────╯ 
+                                                                                                                    
+ ────────────────────────────────────────────────────────────────────────────────────────────────────────────────── 
+  j/k select · tab pane · / filter · enter evidence · p hold view                                                   
+  LOCAL FIXTURE · source coverage is not fleet-wide assurance                                                       

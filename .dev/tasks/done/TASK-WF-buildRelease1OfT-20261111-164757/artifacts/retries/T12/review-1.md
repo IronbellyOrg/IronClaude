@@ -1,0 +1,3 @@
+070b5c110c47c9b4b6c478c2cdfd97ded5908394 tree=354bfd1709ee9b3647e92966f17db2b54ab485eb
+AC marks (reviewer, verbatim summary): T12.AC1,AC2,AC3,AC4,AC6,AC7 met; T12.AC5 unmet (see F1.1)
+F1.1 sev=blocking trigger=B1 ac=T12.AC5 at=tests/observe/test_commands.py:303 anchor="`e` writes one file under a temporary `XDG_STATE_HOME`" chk=y,n,n,n family=ac5-xdg-not-exercised fix=add a test that sets XDG_STATE_HOME to a temporary folder with monkeypatch, runs execute with no state_directory and scripted e then q, and asserts one observe-*.txt under $XDG_STATE_HOME/superclaude/observe first=A1 origin=new: the scripted-key test passes directory=tmp_path straight to run_loop and no test sets XDG_STATE_HOME, so the state_dir() default is never exercised from the command

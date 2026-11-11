@@ -1,0 +1,14 @@
+contract_version: "1.1"
+status: success
+slug: TASK-WF-planSourceV2-20261110-061317
+plan_path: ./TASK-WF-planSourceV2-20261110-061317.md
+source_path: ./source.md
+source_origin: .dev/issues/409/observe-release1/plan-source-v2.md
+strategy: systematic
+depth: standard
+handoff_action: none
+handoff_output_path: null
+reflect_status: partial
+reflect_report_path: null
+unresolved:
+  - "Advisory reflect run was stopped after the two reviewer cards (no calibration of the cards, no adversarial merge, no evidence validation, no REPORT.md); see /home/coder/workspaces/worktrees/IronClaude/issue-409-mvp/.dev/reflect/pre-planSourceV2-20261110061616/INTERIM-NOTE.md. The raw cards list up to 9 distinct reviewer-rated blocking points that are not arbitrated; the plan was not edited from them."

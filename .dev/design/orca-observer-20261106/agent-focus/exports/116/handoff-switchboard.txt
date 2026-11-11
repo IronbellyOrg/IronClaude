@@ -1,0 +1,42 @@
+                                                                                                                    
+  ◈ HANDOFF SWITCHBOARD                                                                    SYNTHETIC · READ ONLY    
+  8 owners / 80 sessions / 80 mapped trees                                                                          
+  08:00 UTC | msgs partial | workers 4s | checks 14m                                                                
+                                                                                                                    
+                                                                                                                    
+   Choose schema compatibility policy                                                                               
+   Owner Human operator | 4 sessions | 45m observed                                                                 
+   Evidence demo:messages/Q01                                                                                       
+                                                                                                                    
+  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━  
+                                                                                                                    
+                                                                                                                    
+  ┏━ O01 ━━━━━━━━━━━━━━━━━┓   schema contract                                           ┏━ O02 ━━━━━━━━━━━━━━━━━━┓  
+  ┃                       ┃                                                             ┃                        ┃  
+  ┃  DECLARED HANDOFF     ┃━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━◉ ━━━━━━━━━━━━━━━━━━━━━━━━━━━━▶┃  2 affected            ┃  
+  ┃                       ┃                                                             ┃                        ┃  
+  ┗━━━━━━━━━━━━━━━━━━━━━━━┛   demo:dependency/E01                                       ┗━━━━━━━━━━━━━━━━━━━━━━━━┛  
+                                                                                                                    
+                                                                                                                    
+                                                                                                                    
+  ┏━ O02 ━━━━━━━━━━━━━━━━━┓   compatibility proof                                       ┏━ O03 ━━━━━━━━━━━━━━━━━━┓  
+  ┃                       ┃                                                             ┃                        ┃  
+  ┃  DECLARED HANDOFF     ┃━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━◉ ━━━━━━━━━━━━━━━━━━━━━━━━━━━━▶┃  3 affected            ┃  
+  ┃                       ┃                                                             ┃                        ┃  
+  ┗━━━━━━━━━━━━━━━━━━━━━━━┛   demo:dependency/E02                                       ┗━━━━━━━━━━━━━━━━━━━━━━━━┛  
+                                                                                                                    
+                                                                                                                    
+                                                                                                                    
+  ┏━ O03 ━━━━━━━━━━━━━━━━━┓   release handoff                                           ┏━ O04 ━━━━━━━━━━━━━━━━━━┓  
+  ┃                       ┃                                                             ┃                        ┃  
+  ┃  DECLARED HANDOFF     ┃━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━◉ ━━━━━━━━━━━━━━━━━━━━━━━━━━━━▶┃  1 affected            ┃  
+  ┃                       ┃                                                             ┃                        ┃  
+  ┗━━━━━━━━━━━━━━━━━━━━━━━┛   demo:dependency/E03                                       ┗━━━━━━━━━━━━━━━━━━━━━━━━┛  
+                                                                                                                    
+                                                                                                                    
+                                                                                                                    
+   Cables show recorded dependencies, not communication volume or inferred topology.                                
+                                                                                                                    
+ ────────────────────────────────────────────────────────────────────────────────────────────────────────────────── 
+  j/k select · tab pane · / filter · enter evidence · p hold view                                                   
+  LOCAL FIXTURE · source coverage is not fleet-wide assurance                                                       

@@ -1,0 +1,42 @@
+                                                                                                                    
+  * REVISION DRIFT                                                                         SYNTHETIC . READ ONLY    
+  8 owners / 80 sessions / 80 mapped trees                                                                          
+  08:00 UTC | msgs partial | workers 4s | checks 14m                                                                
+                                                                                                                    
+                                                                                                                    
+   Choose schema compatibility policy                                                                               
+   Owner Human operator | 4 sessions | 45m observed                                                                 
+   Evidence demo:messages/Q01                                                                                       
+                                                                                                                    
+                                                                                                                    
+  +- PROOF DOES NOT FOLLOW A MOVING HEAD ------------------------------------------------------------------------+  
+  |                                                                                                              |  
+  |                                                                                                              |  
+  |     #  ###                                                                                                   |  
+  |    ##    #           REVISION MISMATCHES                                                                     |  
+  |     #  ###                                                                                                   |  
+  |     #  #                                                                                                     |  
+  |    ### ###           Test outcome and revision match are separate; stale source remains separate too.        |  
+  |                                                                                                              |  
+  |                                                                                                              |  
+  +--------------------------------------------------------------------------------------------------------------+  
+                                                                                                                    
+                                                                                                                    
+     S001  demo-001-a         ----------?     demo-001-b              tests: unknown / NOT current proof            
+                                                                                                                    
+     S008  demo-008-a         ----------?     demo-008-b              tests: passed / NOT current proof             
+                                                                                                                    
+     S015  demo-015-a         ----------?     demo-015-b              tests: passed / NOT current proof             
+                                                                                                                    
+     S022  demo-022-a         ----------?     demo-022-b              tests: passed / NOT current proof             
+                                                                                                                    
+     S029  demo-029-a         ----------?     demo-029-b              tests: failed / NOT current proof             
+                                                                                                                    
+     S036  demo-036-a         ----------?     demo-036-b              tests: passed / NOT current proof             
+                                                                                                                    
+     S043  demo-043-a         ----------?     demo-043-b              tests: passed / NOT current proof             
+     7/12 mismatches shown; select a record for full evidence.                                                      
+                                                                                                                    
+ ------------------------------------------------------------------------------------------------------------------ 
+  j/k select . tab pane . / filter . enter evidence . p hold view                                                   
+  LOCAL FIXTURE . source coverage is not fleet-wide assurance                                                       

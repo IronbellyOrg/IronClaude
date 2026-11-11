@@ -1,0 +1,25 @@
+{
+  "checked_at": "2026-11-06",
+  "purpose": "Evidence ledger, not a connector configuration",
+  "environment": {
+    "ironclaude": {"path": "/home/coder/workspaces/IronClaude", "branch": "master", "head_prefix": "80f36180", "untracked_preserved": true},
+    "coder": {"path": "/home/coder/workspaces/Coder", "branch": "main", "head_prefix": "4a3fb0f6", "behind_tracking_ref": 51, "untracked_preserved": true},
+    "orca": {"executable": "orca-ide", "version": "1.4.245-aidev02.dfe1eb410300", "identity": "Stably.ai Orca environment, not github.com/orca-cli/orca", "evidence": "installed version-matched skills guide; Coder integration inspection"}
+  },
+  "sources": [
+    {"id":"E01","classification":"verified","source":"orca-ide orchestration worker-list --help","finding":"Cursor paging, explicit run scope, terminal resource state separate from task outcome"},
+    {"id":"E02","classification":"verified","source":"orca-ide orchestration check --help","finding":"Peek/all non-consuming; run peek/all capped at 100; no advertised read-only pagination"},
+    {"id":"E03","classification":"verified","source":"orca-ide worktree ps --limit 1 --json (selected metadata only)","finding":"Successful local-host observation, 26 total workspaces and truncated=true at inspection; no live records used in designs"},
+    {"id":"E04","classification":"verified","source":"src/superclaude/core/WORKER-CONTRACT.md and /home/coder/.claude/WORKER-CONTRACT.md","finding":"Worker status mapping, report inspection, result admission and policy freezes; installed/source rollout wording differs"},
+    {"id":"E05","classification":"verified","source":"99bdf77d588a73dbf4cb84ec02095ec945e80f0b:.dev/reflect/progress-report-template.md","finding":"116-column historical frame, timeline, heatmap, satellite panes and cable decorations; not proof of implemented integration"},
+    {"id":"E06","classification":"verified","source":"99bdf77d588a73dbf4cb84ec02095ec945e80f0b:.dev/reflect/tui-report-upgrade-brainstorm-handoff.md","finding":"Historical proposed Rich report-view upgrade; operational controls explicitly NOT reused"},
+    {"id":"E07","classification":"verified","source":"https://github.com/ymtdzzz/otel-tui/blob/main/LICENSE","license":"Apache-2.0","use":"Visual inspiration only; no code/assets copied"},
+    {"id":"E08","classification":"verified","source":"https://github.com/charles-001/dolphie/blob/main/LICENSE","license":"GPL-3.0","use":"Visual density inspiration only; no code/assets copied"},
+    {"id":"E09","classification":"verified","source":"https://github.com/aristocratos/bashtop/blob/master/LICENSE","license":"Apache-2.0","use":"Visual instruments inspiration only; no code/assets copied"},
+    {"id":"E10","classification":"verified","source":"https://github.com/IronbellyOrg/TUIBBS-scp/blob/a6d7e7f0a346a44317a1c3fffdd39dc0e14fab59/go.mod","finding":"Bubble Tea v2.0.6, Lip Gloss v2.0.3, Bubbles v2.1.0 pins verified; versions are not latest claims; BBS code not copied"},
+    {"id":"E11","classification":"inferred","source":"Existing report and worker schemas","finding":"Useful cross-record attention analysis appears feasible, but complete joins/coverage and source authority need dedicated implementation validation"},
+    {"id":"E12","classification":"unavailable","source":"Bounded inspection","finding":"Complete read-only message history, authoritative cost coverage, population-wide admission ledger and measured 100-session runtime performance not established"},
+    {"id":"E13","classification":"proposed","source":"fixture.json and data-dictionary.md","finding":"All dashboard records, source IDs, events, relationships, budgets and states in the rendered designs are synthetic schema, NOT Orca wire fields"}
+  ],
+  "limitations": ["No original beautiful final historical mockup conclusively recovered", "No operational navigation link invented", "No claim all documented worker rollout phases are installed", "Metadata observations are point-in-time", "Pasted TUIBBS component-risk analysis is supplied context; only dependency pins independently refreshed in this pass"]
+}

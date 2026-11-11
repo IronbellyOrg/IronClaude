@@ -1,0 +1,15 @@
+contract_version: "1.1"
+status: success
+slug: TASK-WF-buildRelease1OfT-20261111-164757
+plan_path: ./TASK-WF-buildRelease1OfT-20261111-164757.md
+source_path: ./source.md
+source_origin: inline
+strategy: systematic
+depth: standard
+handoff_action: none
+handoff_output_path: null
+reflect_status: partial
+reflect_report_path: /home/coder/workspaces/worktrees/IronClaude/issue-409-mvp/.dev/reflect/pre-buildRelease1OfT-20261111165438/REPORT.md
+unresolved:
+  - "Advisory reflect (reduced run) found 7 distinct blocking gaps and about 14 minor ones in the plan (see reflect_report_path); the plan was not edited from them. Not run: per-card calibration of the 3 reviewer cards, the adversarial merge, Wave 6 and 7."
+  - "The owner's dated selection record (AC-S) is absent; the plan relies on the owner's chat message of 2026-11-11 for the production-integration reading."

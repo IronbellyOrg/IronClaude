@@ -1,0 +1,42 @@
+                                                                                
+  * TIME LOOM                                          SYNTHETIC . READ ONLY    
+  8 owners / 80 sessions / 80 mapped trees                                      
+  08:00 UTC | msgs partial | workers 4s | checks 14m                            
+                                                                                
+ +- HUMAN QUESTION -----------------------------------------------------------+ 
+ | Choose schema compatibility policy                                         | 
+ | Owner: Human operator                                                      | 
+ | Scope: 4 sessions | observed 45m ago                                       | 
+ | Affected: S001, S011, S021, S031                                           | 
+ | Messages partial | 2 other questions                                       | 
+ +----------------------------------------------------------------------------+ 
+                                                                                
+                                                                                
+   60 MINUTES / 20 EQUAL 3-MINUTE BUCKETS                                       
+                                                                                
+                  -60m            now                                           
+                                                                                
+   S001 O01       WWWWWVV.DDDWWWWWWWWW                                          
+                                                                                
+   S002 O01       QWWWWWWVVVDDDDWWWWWW                                          
+                                                                                
+   S003 O01       QQWWWWWWWVVVVDDDDDWW                                          
+                                                                                
+   S004 O01       QQQWWWWWWWWVV.DDDDDD                                          
+                                                                                
+   S005 O01       WWWWWWWWWVVVDDDWWWWW                                          
+                                                                                
+   S006 O01       QWWWWWVVVVDDDDWWWWWW                                          
+                                                                                
+   S007 O01       QQWWWWWWVV.DDDDDWWWW                                          
+                                                                                
+   S008 O01       QQQWWWWWWWVVVDDDDDDW                                          
+                                                                                
+                                                                                
+   8/80 lanes shown; gaps are unobserved                                        
+   W- work  V- review  Q- queue  D- dependency                                  
+   . gap | no completion estimate                                               
+                                                                                
+ ------------------------------------------------------------------------------ 
+  j/k select . tab pane . / filter . enter evidence . p hold view               
+  LOCAL FIXTURE . source coverage is not fleet-wide assurance                   

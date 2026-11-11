@@ -1,0 +1,3 @@
+a47a7bb1e3d1e65ebbaed540aefa159ab0bd7615 tree=38dc35534c9af4e587aac1a364e804ec77c9f73f
+AC marks (reviewer, verbatim summary): T8.AC1..T8.AC14 all met with citations in tests/observe/test_view.py and src/superclaude/cli/observe/view.py
+F1.1 sev=blocking trigger=B4 ac=scope at=src/superclaude/cli/observe/view.py:211 anchor="the footer `shown x/y | collected n / reported T`" chk=n,n,n,y family=footer-literal fix=make footer() emit "shown {x}/{y} | {collected_text}" and keep "x/y shown" for the overflow text only, update the footer test covers="the footer `shown x/y | collected n / reported T`" first=A1 origin=new: View.footer returns "<keys>  10/80 shown | collected ..." so the order is x/y shown where the footer literal is shown x/y
