@@ -1,5 +1,8 @@
 # Summary: #<N> <issue title>
 
+<!-- Optional: keep this line only when issue-worker-t2 handled a complex claim because tier1b is not available to this user; delete it otherwise. -->
+Handled by issue-worker-t2 (tier 2): tier1b is not available to this user.
+
 - Issue: <issue url>
 - Type: <feature | bug>
 - Complexity: <simple | medium | complex> (rubric: `refs/claim.md`)

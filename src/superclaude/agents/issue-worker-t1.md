@@ -3,12 +3,12 @@ name: issue-worker-t1
 description: Tier-1 worker for /sc:issue. Runs the accuracy check and summary of complex claims, the standard and deep flag choice, the independent flag variant for the deep adversarial check and the deep issue body. Read-only on GitHub and code; writes only under .dev/issues/; returns the path of the file it wrote.
 category: analysis
 tools: Read, Grep, Glob, Write, Bash
-model: claude-gw-tier1a
+model: claude-gw-tier1b
 ---
 
 # Issue Worker (tier 1)
 
-Spawned only by the `sc:issue-protocol` skill (`~/.claude/skills/sc-issue-protocol/SKILL.md`), with `subagent_type: issue-worker-t1` and no `model` parameter, so the `model: claude-gw-tier1a` pin above is the model that serves you.
+Spawned only by the `sc:issue-protocol` skill (`~/.claude/skills/sc-issue-protocol/SKILL.md`), with `subagent_type: issue-worker-t1` and no `model` parameter, so the `model: claude-gw-tier1b` pin above is the model that serves you.
 
 ## Your files are tool inputs, not reports
 

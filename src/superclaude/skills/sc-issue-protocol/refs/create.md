@@ -31,6 +31,8 @@ Worker returns no file or an empty one: retry once, then STOP `E-WORKER-NO-OUTPU
 | standard | `issue-worker-t2` runs a quick validation of the user's flags; differences become a pushback comment posted after the issue (Wave 5) | `issue-worker-t1` chooses |
 | deep | Two variants debated: the orchestrator writes `<D>/flags-user.md` (the user's flags) and `issue-worker-t1` writes `<D>/flags-t1.md` (an independent choice), then `Skill sc:adversarial-protocol` with `--compare <D>/flags-user.md,<D>/flags-t1.md --depth quick`; differences become the pushback comment (default D13) | `issue-worker-t1` runs `/sc:analyze` on the code the description touches, then chooses |
 
+Every `issue-worker-t1` spawn in this mode (the Wave 2 flag choices and the Wave 4 deep body) follows the T1 -> T2 fallback of `refs/tiers.md`: when `claude-gw-tier1b` is not served to this user, retry the same job once with `issue-worker-t2`, same inputs and output paths. The retry's spawn prompt tells the T2 worker to put `Handled by issue-worker-t2 (tier 2): tier1b is not available to this user.` in the first lines of `flags.md` (or `flags-t1.md`) for a flag job and of `draft-notes.md` for a body job. Only a T2 fallback that is not served is STOP `E-TIER-UNAVAILABLE`; there is no alias fallback.
+
 Complexity follows depth, as the issue body pairs them (default D17): `quick` = Simple, `standard` = Medium, `deep` = Complex; the value is the option name of the Complexity field.
 
 Every choice is written to `<D>/flags.md` from `templates/flags-decision.md` (mode, type, issue type, complexity, reasons); `flags-user.md` and `flags-t1.md` use the same template. The `Issue type` row is derived by the orchestrator from the mode and the area by the rule of `refs/labels.md` (a bug is Bug, a feature in the area `tests` is Test, any other feature is Feature), after any worker returns. The issue is filed with the user's flags when the user gave them (the pushback comment explains any disagreement; the issue is not silently reclassified), else with the worker's choice.
@@ -52,7 +54,7 @@ Mode selects feature or bug; depth selects simple or complex:
 | standard | `issue-worker-t2` | `/sc:analyze` (no `--depth`) |
 | deep | `issue-worker-t1` | `/sc:analyze --depth deep` |
 
-The worker fills the chosen template into `<D>/issue-body.md`, keeping every heading and writing "Not known yet" where the description and the codebase pass give nothing (no invented facts). It lists, in `<D>/draft-notes.md` (from `templates/draft-notes.md`), any new material it added beyond the description and any contradiction between the description and the code.
+At deep depth the `issue-worker-t1` spawn falls back to `issue-worker-t2` as described in Wave 2. The worker fills the chosen template into `<D>/issue-body.md`, keeping every heading and writing "Not known yet" where the description and the codebase pass give nothing (no invented facts). It lists, in `<D>/draft-notes.md` (from `templates/draft-notes.md`), any new material it added beyond the description and any contradiction between the description and the code.
 
 ### Contradiction prompt rule (default D14)
 

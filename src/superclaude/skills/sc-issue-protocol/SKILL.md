@@ -59,9 +59,9 @@ Spawn workers with `subagent_type: issue-worker-t<N>` and never pass the `model`
 |---|---|---|
 | `issue-worker-t3` | `claude-gw-tier3` | `~/.claude/agents/issue-worker-t3.md` |
 | `issue-worker-t2` | `claude-gw-tier2` | `~/.claude/agents/issue-worker-t2.md` |
-| `issue-worker-t1` | `claude-gw-tier1a` | `~/.claude/agents/issue-worker-t1.md` |
+| `issue-worker-t1` | `claude-gw-tier1b` | `~/.claude/agents/issue-worker-t1.md` |
 
-Claude Code reads the project `.claude/agents/` copy first when one exists. The Agent call's `model` parameter takes aliases only and overrides the frontmatter, so passing it would lose the pin (`refs/tiers.md`). A spawn that fails because the picker ID is not served is STOP `E-TIER-UNAVAILABLE`; there is no alias fallback.
+Claude Code reads the project `.claude/agents/` copy first when one exists. The Agent call's `model` parameter takes aliases only and overrides the frontmatter, so passing it would lose the pin (`refs/tiers.md`). A spawn that fails because the picker ID is not served is STOP `E-TIER-UNAVAILABLE`; there is no alias fallback. The one exception is `issue-worker-t1`: users who see only tiers 2 to 4 cannot be served `claude-gw-tier1b`, so a failed `issue-worker-t1` spawn is retried once with `subagent_type: issue-worker-t2` (same job, inputs and output paths, still no `model` parameter) and the T2 worker's file starts with `Handled by issue-worker-t2 (tier 2): tier1b is not available to this user.`. This T1 -> T2 fallback is to a sibling agent file, never to an alias, and T2 and T3 have no fallback (`refs/tiers.md`).
 
 Workers make read-only GitHub and git calls, write only under `.dev/issues/`, run `/sc:analyze` by following `~/.claude/commands/sc/analyze.md` (project `.claude/commands/sc/analyze.md` in a checkout) when their job needs a codebase pass, and return only the paths they wrote. Read each returned file from disk. A worker that returns no file or an empty one is retried once, then STOP `E-WORKER-NO-OUTPUT` with the expected path.
 
@@ -159,7 +159,8 @@ On a STOP, also print the STOP code and its message.
 | Issue closed | STOP, message "Issue #N is closed; not claimed.", no writes |
 | Assigned to someone else | STOP, message names the assignee, no writes |
 | Number or URL is a pull request | STOP `E-NOT-AN-ISSUE` |
-| Worker spawn fails because the picker ID is not served | STOP `E-TIER-UNAVAILABLE` naming the agent file and picker ID; no alias fallback |
+| `issue-worker-t1` spawn fails because `claude-gw-tier1b` is not served to this user | Retry the same job once with `issue-worker-t2` (T1 -> T2 fallback); the T2 file says `Handled by issue-worker-t2 (tier 2): tier1b is not available to this user.` and the accuracy-check comment and `issue-summary.md` (claim) or `flags.md` or `draft-notes.md` (create) show it |
+| `issue-worker-t3` or `issue-worker-t2` spawn fails because its picker ID is not served, or the T2 fallback run is not served | STOP `E-TIER-UNAVAILABLE` naming the agent file and picker ID; no alias fallback |
 | Worker returns no file, or an empty one | Retry that worker once; then STOP `E-WORKER-NO-OUTPUT` with the path expected |
 | `gh issue edit <N> --repo <R> --add-assignee @me` fails | STOP `E-ASSIGN-FAILED` before ClickUp and before any comment |
 | ClickUp skipped, not found, ambiguous, already assigned or error | Continue; the claim comment states the outcome |

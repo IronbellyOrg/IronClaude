@@ -1,4 +1,4 @@
-/model <claude-gw-tier2 for simple work | claude-gw-tier1a for medium and complex work>
+/model <claude-gw-tier2 for simple work | claude-gw-tier1b for medium and complex work; use claude-gw-tier2 when tier1b is not in your /model list>
 
 # Next steps for #<N>
 

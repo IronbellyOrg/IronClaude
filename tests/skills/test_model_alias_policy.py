@@ -29,7 +29,7 @@ ALIASES = {"opus", "sonnet", "haiku", "inherit"}
 ISSUE_WORKER_PINS = {
     "src/superclaude/agents/issue-worker-t3.md": "claude-gw-tier3",
     "src/superclaude/agents/issue-worker-t2.md": "claude-gw-tier2",
-    "src/superclaude/agents/issue-worker-t1.md": "claude-gw-tier1a",
+    "src/superclaude/agents/issue-worker-t1.md": "claude-gw-tier1b",
 }
 
 # Allow-list 2: paths that may contain the text "claude-gw-tier". The issue
