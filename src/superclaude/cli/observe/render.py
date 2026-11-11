@@ -20,6 +20,8 @@ from superclaude.cli.observe.terminal import (
     glyph,
 )
 from superclaude.cli.observe.view import (
+    INSPECTOR_ABOVE_TEXT,
+    INSPECTOR_BELOW_TEXT,
     INSPECTOR_HELP,
     INSPECTOR_TITLE,
     NO_MATCH_TEXT,
@@ -240,18 +242,42 @@ def _header_lines(columns: list[tuple[str, int]], policy: TerminalPolicy) -> lis
 # -- screens -------------------------------------------------------------------------------------------------
 
 
-def _inspector_lines(view: View, policy: TerminalPolicy) -> list[str]:
+def _inspector_lines(
+    view: View, policy: TerminalPolicy, budget: int
+) -> list[str]:
+    """The title, then whole fields from ``view.inspector_scroll`` on while they fit ``budget`` lines.
+
+    Hidden fields are counted in an "above" and a "below" line, so every field stays reachable (d/u).
+    """
     selected = view.selected
     title = f"{INSPECTOR_TITLE}  {selected.dispatch_id if selected else ''}"
     lines = wrap(title, policy.width, policy)
+    blocks: list[list[str]] = []
     for label, value in view.inspector or ():
         first, *rest = wrap(f"{label}: {value}", policy.width, policy)
-        lines.append(first)
+        block = [first]
         for continuation in rest:  # continuation lines are indented two cells
-            lines.extend(
+            block.extend(
                 "  " + part
                 for part in wrap(continuation, max(policy.width - 2, 1), policy)
             )
+        blocks.append(block)
+    start = min(max(view.inspector_scroll, 0), max(len(blocks) - 1, 0))
+    if start:
+        lines += wrap(INSPECTOR_ABOVE_TEXT.format(n=start), policy.width, policy)
+    room = budget - len(lines)
+    shown = 0
+    for index, block in enumerate(blocks[start:], start):
+        last = index == len(blocks) - 1
+        need = len(block) + (0 if last else 1)  # keep one line for the "below" text
+        if shown and need > room:
+            break
+        lines += block
+        room -= len(block)
+        shown += 1
+    hidden = len(blocks) - start - shown
+    if hidden:
+        lines += wrap(INSPECTOR_BELOW_TEXT.format(n=hidden), policy.width, policy)
     return lines
 
 
@@ -312,8 +338,10 @@ def screen_lines(
     )
 
     if view.focus == "inspector" and view.inspector is not None:
-        body = _inspector_lines(view, policy)
         footer_lines = [clip(INSPECTOR_HELP, width, policy)]
+        body = _inspector_lines(
+            view, policy, max(policy.height - len(top) - len(footer_lines), 1)
+        )
         return top + body + footer_lines
 
     body = wrap(view.ledger_title, width, policy)

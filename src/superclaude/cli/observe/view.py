@@ -57,7 +57,9 @@ PARTIAL_CAP_TEXT = (
 KEYS_LINE = "Up/Down j/k move  Enter detail  Esc back  / filter  h historical  m mark  e export  q quit"
 FROZEN_MARKER = "FROZEN"  # fixture mode only; no other state overrides it (T34)
 INSPECTOR_TITLE = "INSPECTOR"
-INSPECTOR_HELP = "Esc back  j/k move  e export  q quit"
+INSPECTOR_HELP = "Esc back  j/k move  d/u scroll  e export  q quit"
+INSPECTOR_ABOVE_TEXT = "{n} fields above (u)"
+INSPECTOR_BELOW_TEXT = "{n} more fields below (d)"
 NO_MATCH_TEXT = "no rows match the filter or the historical setting"
 SOURCE_COUNT_KEYS = ("active", "reclaimable", "retained", "released")
 UNAVAILABLE_FACTS = ("report status", "acceptance", "tests", "approval")
@@ -91,6 +93,7 @@ class Session:
     )
     mark_wall_time: float | None = None
     marked: bool = False  # True once the user pressed ``m``
+    inspector_scroll: int = 0  # inspector fields scrolled off the top (d/u keys)
 
 
 @dataclass(frozen=True)
@@ -190,6 +193,7 @@ class View:
     show_historical: bool
     inspector: tuple[tuple[str, str], ...] | None
     help_line: str
+    inspector_scroll: int = 0
 
     def window(self, capacity: int | None) -> Window:
         """The rows that fit ``capacity`` lines, always including the selected visible row."""
@@ -658,6 +662,7 @@ def build_view(result: Any, session: Session, clock: Any) -> View:
         if session.focus == "inspector" and selected_view is not None
         else None,
         help_line=KEYS_LINE,
+        inspector_scroll=session.inspector_scroll,
     )
 
 
@@ -709,7 +714,9 @@ def _move(session: Session, view: View, step: int) -> Session:
     else:
         target = min(max(index + step, 0), len(rows) - 1)
     row = rows[target]
-    return replace(session, selected=row.identity, selected_row=row.raw)
+    return replace(
+        session, selected=row.identity, selected_row=row.raw, inspector_scroll=0
+    )
 
 
 def _filter_key(session: Session, key: Key) -> Session:
@@ -737,6 +744,10 @@ def apply_key(
         return _move(session, view, -1), Effect.NONE
     if name == "down" or char == "j":
         return _move(session, view, 1), Effect.NONE
+    if inspecting and char in ("d", "u") and view.inspector:
+        top = session.inspector_scroll + (1 if char == "d" else -1)
+        top = min(max(top, 0), len(view.inspector) - 1)
+        return replace(session, inspector_scroll=top), Effect.NONE
     if char == "q":
         return replace(session), Effect.QUIT
     if char == "e":
@@ -753,10 +764,10 @@ def apply_key(
             Effect.NONE,
         )
     if name == "escape" and inspecting:
-        return replace(session, focus="list"), Effect.NONE
+        return replace(session, focus="list", inspector_scroll=0), Effect.NONE
     if not inspecting:
         if name == "enter" and view.selected is not None:
-            return replace(session, focus="inspector"), Effect.NONE
+            return replace(session, focus="inspector", inspector_scroll=0), Effect.NONE
         if char == "/":
             return replace(session, focus="filter"), Effect.NONE
         if char == "h":
