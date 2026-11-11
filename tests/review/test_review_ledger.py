@@ -485,6 +485,9 @@ def test_escalate_still_prints_verdict_fail():
     text = ldg.render_merged_report(led, res, doc_path="d.md", doc_text=SEEDED, n=3)
     assert text.splitlines()[-1] == "verdict: FAIL"
     assert text.splitlines()[0] == "review: 3 of 3"
+    # at the cap the report escalates and carries no Reviser brief
+    assert "## Reviser brief" not in text and "Rules for the reviser" not in text
+    assert "## Escalation" in text and "do not start another fix cycle" in text
 
 
 def test_refound_row_takes_the_current_finding_span():
@@ -510,3 +513,32 @@ def test_revision_from_a_text_other_than_the_reviewed_one_is_refused():
             [{"id": "L1", "action": "applied", "reason": "r"}],
         )
     assert json.dumps(led, sort_keys=True) == before
+
+
+def test_refound_as_nonblocking_stops_failing_the_review():
+    led, _ = round1()
+    ldg.apply_revision(
+        led,
+        SEEDED,
+        revised(SEEDED),
+        [{"id": "L1", "action": "applied", "reason": "r"}],
+    )
+    res = ldg.merge_round(
+        led,
+        revised(SEEDED),
+        2,
+        [
+            rev(
+                "t1b-1",
+                fl(
+                    "H1",
+                    "at most 5 times as FR-3 states",
+                    ["FR-3"],
+                    blocking=False,
+                    severity="MINOR",
+                ),
+            )
+        ],
+    )
+    row = next(r for r in led["rows"] if r["lid"] == "L1")
+    assert row["blocking"] is False and "L1" not in res["brief_ids"]

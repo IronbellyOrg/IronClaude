@@ -207,7 +207,10 @@ def merge_round(ledger: dict, doc_text: str, n: int, reviewers: Sequence[dict]) 
         else:
             row = match
             row["members"].extend(member_recs)
-            row["blocking"] = any(m["blocking"] for m in row["members"])
+            # The current report's classification decides: a defect a reviewer now keeps only
+            # as a warning or note no longer fails the review. Earlier blocking calls stay in
+            # members and severity_max as history.
+            row["blocking"] = any(m["blocking"] for m in group)
             row["severity_max"] = max(
                 [row["severity_max"], *[m["severity"] for m in group]],
                 key=lambda s: _SEV_RANK[s],
@@ -464,6 +467,18 @@ def render_merged_report(
         out.append(
             f"- {row['lid']} ({row['severity_max']}, {row['status']}, {row['confidence']}): {row.get('claim', '')}"
         )
+    if result.get("decision") == "ESCALATE":
+        # At the review cap the loop stops: no Reviser brief, so a reviser reading this report
+        # is never told to start another fix cycle.
+        out += [
+            "",
+            "## Escalation",
+            "",
+            f"Review {n} of {cap} still has open blocking findings: {', '.join(brief)}. "
+            "Escalate to the user with these findings; do not start another fix cycle.",
+        ]
+        out += ["", f"verdict: {result['verdict']}"]
+        return "\n".join(out) + "\n"
     out += ["", "## Reviser brief", ""]
     out.append(
         f"Blocking finding ids: {', '.join(brief)}."
