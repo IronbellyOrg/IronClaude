@@ -1,0 +1,53 @@
+## make sync-dev
+   Skills:    39 directories
+   Agents:    48 files
+   Commands:  46 files
+   Hooks:     17 files
+   Templates: 52 files
+rc=0
+## make verify-sync
+  ✅ modularization-template-review/qa-qualitative-sufficiency_report_template.md
+  ✅ modularization-template-review/analyst-cross-validation_report_template.md
+  ✅ modularization-template-review/qa-acceptance-methodology-audit_template.md
+  ✅ modularization-template-review/pipeline-complete_report_template.md
+  ✅ modularization-template-review/qa-source-fidelity_template.md
+  ✅ modularization-template-review/qa-research-depth_report_template.md
+  ✅ modularization-template-review/web-research_template.md
+
+=== Installer Registration ===
+  ✅ _FRESHNESS_SCRIPTS matches src/superclaude/hooks/scripts/*.sh and *.js
+
+=== Hooks Cross-Consistency ===
+  ✅ hooks.json matcher and auggie-flag-clear.sh case body agree on auggie prefixes
+
+✅ All components in sync.
+rc=0
+## greps
+system-architect codegraph=1 index_state=1 tools=0 srcpath=0
+root-cause-analyst codegraph=1 index_state=1 tools=0 srcpath=0
+refactoring-expert codegraph=1 index_state=1 tools=0 srcpath=0
+security-engineer codegraph=1 index_state=1 tools=0 srcpath=0
+performance-engineer codegraph=1 index_state=1 tools=0 srcpath=0
+python-expert codegraph=1 index_state=1 tools=0 srcpath=0
+backend-architect codegraph=1 index_state=1 tools=0 srcpath=0
+quality-engineer codegraph=1 index_state=1 tools=0 srcpath=0
+self-review codegraph=1 index_state=1 tools=0 srcpath=0
+technical-writer codegraph=1 index_state=1 tools=0 srcpath=0
+## pytest
+configfile: pyproject.toml
+plugins: superclaude-5.0.0, anyio-4.16.0
+collected 16 items
+
+tests/agents/test_codegraph_rosters.py ..........                        [ 62%]
+tests/agents/test_tavily_tool_parity.py ......                           [100%]
+
+============================== 16 passed in 0.08s ==============================
+rc=0
+## pytest extra
+tests/cli_portify/test_discover_components.py .......................... [ 38%]
+....................................                                     [ 55%]
+tests/unit/test_cli_install.py ......................................... [ 74%]
+.......................................................                  [100%]
+
+============================= 214 passed in 1.34s ==============================
+rc=0

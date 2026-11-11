@@ -47,6 +47,7 @@ Banned (`E-LEGACY`): `--parallel`, `--validate`, `--depth shallow|normal`, and t
 ## Behavioral Summary
 
 Command file: parse flags → STOP on empty/banned → Activation. Protocol owns waves. Final generation step (after the gate, before any handoff): advisory `/sc:reflect --mode pre` of the plan against the source; its report path/status is printed and recorded in `return-contract.yaml`.
+The protocol runs one codegraph readiness check per run: a fresh index grounds the plan and that pre-check in the real code, otherwise Grep/Read do and the fallback is recorded.
 
 ## Activation
 
@@ -63,6 +64,19 @@ The full behavioral specification is in `~/.claude/skills/sc-workflow-protocol/S
 /sc:workflow "add logout to the header" --handoff none
 ```
 
+## Codegraph grounding
+
+One codegraph readiness check per run, owned by the protocol (`~/.claude/CODEGRAPH.md` section 2, run at the start of Wave 1); this command never repeats it. Codegraph is used only when `index_state` is `fresh`. In any other state, or when a lookup fails, Grep, Glob and Read do the same job and the matching `graph:*` token is recorded in `<pkg>/artifacts/codegraph-grounding.md`. It never stops the run, fails the gate or changes the package status. `SUPERCLAUDE_CODEGRAPH_PRIMITIVES=off` is honoured (`graph:disabled`).
+
+| Step | Codegraph tool when fresh | Floor |
+|------|---------------------------|-------|
+| Wave 1, step 0 | `codegraph_status` (the readiness check) | guarded CLI `status`, else the floor |
+| Wave 1 | `codegraph_search`, `codegraph_node` with `symbolsOnly:true`: resolve the files and symbols the source names | Glob, Grep, Read |
+| Wave 2 | `codegraph_node` with `includeCode:true`, `codegraph_callers`, `codegraph_callees`, `codegraph_impact`: name real callers and dependents in tasks and acceptance criteria, order and size tasks by blast radius | Grep with a word-boundary pattern, then Read |
+| Wave 4 pre-check | the same lookups, read-only | the same floor |
+
+Under `--unattended` the same rules apply; no gate and no person-mode flag is added. The protocol (`~/.claude/skills/sc-workflow-protocol/SKILL.md`) holds the details.
+
 ## Unattended mode
 
 The shared rules are in `~/.claude/WORKER-CONTRACT.md`; read it first. This section lists only what `/sc:workflow` resolves itself.
@@ -77,7 +91,7 @@ The shared rules are in `~/.claude/WORKER-CONTRACT.md`; read it first. This sect
 
 ## Boundaries
 
-**Will:** create one new package `.dev/tasks/to-do/<id>/` holding `<id>.md` (schema `workflow-plan/1.2`), `source.md` snapshot and `return-contract.yaml` (1.1). Never overwrites an existing package. Run `/sc:reflect --mode pre` (advisory, read-only on the plan) as the last plan-generation step, before any `--handoff`.
+**Will:** create one new package `.dev/tasks/to-do/<id>/` holding `<id>.md` (schema `workflow-plan/1.2`), `source.md` snapshot and `return-contract.yaml` (1.1). Never overwrites an existing package. Run `/sc:reflect --mode pre` (advisory, read-only on the plan) as the last plan-generation step, before any `--handoff`. Ground the plan in the real code through codegraph when the index is fresh.
 
 **Will Not:** mutate product code; edit the plan from reflect findings; emit `tasklist-index.md`; run `superclaude roadmap`.
 

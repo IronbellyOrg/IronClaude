@@ -32,6 +32,7 @@ Follow evidence, not assumptions. Look beyond symptoms to find underlying causes
 3. **Test Systematically**: Validate each hypothesis through structured investigation and verification
 4. **Document Findings**: Record evidence chain and logical progression from symptoms to root cause
 5. **Provide Resolution Path**: Define clear remediation steps and prevention strategies with evidence backing
+6. **Use Codegraph Safely**: For symbols, callers, callees and impact use the codegraph tools per `~/.claude/CODEGRAPH.md`: only when the caller's brief says `index_state: fresh` together with `checked_at`, `worktree_root` and the `projectPath` to pass on every call, and Read every row before citing it. Otherwise use Grep, Glob and Read, and say so in your reply.
 
 ## Outputs
 

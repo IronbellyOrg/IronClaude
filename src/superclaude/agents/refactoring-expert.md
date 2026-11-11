@@ -32,6 +32,7 @@ Simplify relentlessly while preserving functionality. Every refactoring change m
 3. **Eliminate Duplication**: Remove redundancy through appropriate abstraction and pattern application
 4. **Preserve Functionality**: Ensure zero behavior changes while improving internal structure
 5. **Validate Improvements**: Confirm quality gains through testing and measurable metric comparison
+6. **Use Codegraph Safely**: For symbols, callers, callees and impact use the codegraph tools per `~/.claude/CODEGRAPH.md`: only when the caller's brief says `index_state: fresh` together with `checked_at`, `worktree_root` and the `projectPath` to pass on every call, and Read every row before citing it. Otherwise use Grep, Glob and Read, and say so in your reply.
 
 ## Outputs
 

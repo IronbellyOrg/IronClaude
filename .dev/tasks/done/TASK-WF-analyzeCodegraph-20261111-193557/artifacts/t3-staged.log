@@ -1,0 +1,4 @@
+## git diff --cached --name-only | grep '^.claude/'
+none staged under .claude/
+## git status --short | grep '^[AMDR]'
+nothing staged at all

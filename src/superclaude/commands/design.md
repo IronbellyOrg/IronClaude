@@ -3,7 +3,7 @@ name: design
 description: "Design system architecture, APIs, and component interfaces with comprehensive specifications"
 category: utility
 complexity: basic
-mcp-servers: []
+mcp-servers: [codegraph]
 personas: []
 ---
 
@@ -27,10 +27,10 @@ personas: []
 
 ## Behavioral Flow
 
-1. **Analyze**: Examine target requirements and existing system context
+1. **Analyze**: Examine target requirements and existing system context (run the once-per-run readiness check and ground the design in the real code, see Code-graph grounding)
 2. **Plan**: Define design approach and structure based on type and format
 3. **Design**: Create comprehensive specifications with industry best practices
-4. **Validate**: Ensure design meets requirements and maintainability standards
+4. **Validate**: Ensure design meets requirements and maintainability standards (confirm names, signatures and consumers against the existing code, see Code-graph grounding)
 5. **Document**: Generate clear design documentation with diagrams and specifications
 
 Key behaviors:
@@ -43,9 +43,35 @@ Key behaviors:
 ## Tool Coordination
 
 - **Read**: Requirements analysis and existing system examination
-- **Grep/Glob**: Pattern analysis and system structure investigation
+- **Grep/Glob**: Pattern analysis and system structure investigation (the floor for every step)
+- **codegraph** (`mcp__codegraph__codegraph_status`, `_search`, `_node`, `_callers`, `_callees`, `_impact`, `_files`): one readiness check, then symbol, caller and impact lookups above the Grep/Glob/Read floor when `index_state` is `fresh` (guide `~/.claude/CODEGRAPH.md`)
 - **Write**: Design documentation and specification generation
 - **Bash**: External design tool integration when needed
+
+## Code-graph grounding
+
+Rules: read `~/.claude/CODEGRAPH.md` before the first codegraph call. Glob, Grep and Read stay the floor for every step; codegraph is a tier above that floor, never a replacement.
+
+**Readiness check, once per run.** At the start of Analyze, run the readiness check of that guide (its section 2) exactly once. Record `index_state`, `checked_at`, `worktree_root` and the `projectPath` to pass on every codegraph call. No later step repeats the check: the run reads code and writes only the design document.
+
+**Use codegraph only when `index_state` is `fresh`** and the lookup tools are listed. For any other state (`stale`, `not_initialized`, `foreign_index`, `absent`, `disabled`, `error`, or lookup tools not listed), continue every step on Glob, Grep and Read and record the matching token from the guide's section 3 (`graph:stale`, `graph:not_initialized`, `graph:foreign_index`, `graph:absent`, `graph:disabled`, `graph:unlisted`, `graph:parse_failed`) in the Grounding line below. The run never stops and never asks the user because of codegraph. A single lookup that fails or returns nothing falls back to the floor for that lookup in the same way.
+
+| Step | Design question | Codegraph tool (each call passes `projectPath`) |
+|------|-----------------|--------------------------------------------------|
+| Analyze | What structure already exists? | `codegraph_files {format:"grouped", maxDepth:2}` |
+| Analyze | Which existing interfaces, types and symbols should the design reuse? | `codegraph_search {query, kind?}`, `codegraph_node {symbol, includeCode:true}`, `codegraph_node {file, symbolsOnly:true}` for a file outline |
+| Plan, Design | Who uses the component or API being designed or changed, and what does it use? | `codegraph_callers {symbol, limit:20}`, `codegraph_callees {symbol}` |
+| Plan, Design | What does a change to an existing interface reach (blast radius)? | `codegraph_impact {symbol, depth:2}` before the design proposes the change |
+| Validate | Do the names, layering and signatures in the design exist and match the current structure, and does no consumer break? | `codegraph_search`, `codegraph_node`, then `codegraph_callers` and `codegraph_impact` for the consumers |
+
+Rules for graph answers:
+
+- A graph answer locates code; it is not a citation. Read the file range before the design quotes a `file:line`.
+- An empty result never proves absence: no "no callers" or "nothing reuses this" conclusion comes from a graph result alone.
+- Caller rows give the caller's definition line; confirm the call site (guide section 5) before citing it.
+- Never call `codegraph_explore`, never use `codegraph_node` in file mode without `symbolsOnly:true`, and never run a mutating codegraph verb or `codegraph init`.
+
+**Grounding line.** The design document carries one `Grounding:` line: `index_state: fresh` with the codegraph tools used, or the `graph:*` token that sent the run to the floor. Under `--unattended` the line stays in the design report and the worker contract gets no new field.
 
 ## Key Patterns
 

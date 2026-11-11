@@ -1,0 +1,31 @@
+============================= test session starts ==============================
+platform linux -- Python 3.11.15, pytest-9.2.0, pluggy-1.7.0
+SuperClaude: 5.0.0
+rootdir: /home/coder/workspaces/worktrees/IronClaude/issue-504
+configfile: pyproject.toml
+plugins: superclaude-5.0.0, anyio-4.16.0
+collected 308 items
+
+tests/skills/test_implement_retry_revert.py ............................ [  9%]
+..........................                                               [ 17%]
+tests/skills/test_implement_retry_citation.py .....................      [ 24%]
+tests/skills/test_implement_saved_prompt_rule.py ....................... [ 31%]
+.................                                                        [ 37%]
+tests/skills/test_implement_adviser_family.py ...                        [ 38%]
+tests/skills/test_implement_severity_static.py ......................... [ 46%]
+...                                                                      [ 47%]
+tests/skills/test_review_severity_rule.py .............................. [ 57%]
+................................                                         [ 67%]
+tests/commands/test_impact_command.py .................................. [ 78%]
+...............................................                          [ 93%]
+tests/commands/test_workflow_command.py ......F............              [100%]
+
+=================================== FAILURES ===================================
+________________________ test_plugin_mirror_matches_src ________________________
+tests/commands/test_workflow_command.py:101: in test_plugin_mirror_matches_src
+    assert not mismatch and not errors, mismatch + errors
+E   AssertionError: ['SKILL.md']
+E   assert (not ['SKILL.md'])
+=========================== short test summary info ============================
+FAILED tests/commands/test_workflow_command.py::test_plugin_mirror_matches_src
+======================== 1 failed, 307 passed in 10.32s ========================

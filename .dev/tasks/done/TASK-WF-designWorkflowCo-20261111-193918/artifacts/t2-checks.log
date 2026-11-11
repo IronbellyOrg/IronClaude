@@ -1,0 +1,20 @@
+## removed/changed lines in workflow.md vs HEAD (lines starting with '-', excluding header)
+-**Will:** create one new package `.dev/tasks/to-do/<id>/` holding `<id>.md` (schema `workflow-plan/1.2`), `source.md` snapshot and `return-contract.yaml` (1.1). Never overwrites an existing package. Run `/sc:reflect --mode pre` (advisory, read-only on the plan) as the last plan-generation step, before any `--handoff`.
+## added line count
+11
+## frontmatter mcp-servers
+6:mcp-servers: []
+## Skill sc:workflow-protocol
+16:Explicit: user types `/sc:workflow ...`, or another `/sc:*` command invokes `Skill sc:workflow-protocol`.
+55:> Skill sc:workflow-protocol
+## grep src/superclaude
+no hits
+## unattended section unchanged vs HEAD?
+identical
+## pytest
+........................................................................ [ 73%]
+........................................................................ [ 82%]
+........................................................................ [ 91%]
+.............................................................            [100%]
+
+====================== 762 passed, 1 deselected in 1.51s =======================

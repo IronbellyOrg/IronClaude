@@ -1,12 +1,18 @@
 ---
 name: sc:implement-protocol
 description: "Middleweight spec executor; spec/PRD/tasklist, informal notes, or inline prompt; per-task spec-compliance QA; one-file ledger"
-allowed-tools: Read, Grep, Glob, Edit, Write, Bash, Task, Skill
+allowed-tools: Read, Grep, Glob, Edit, Write, Bash, Task, Skill, mcp__codegraph__codegraph_status, mcp__codegraph__codegraph_search, mcp__codegraph__codegraph_node, mcp__codegraph__codegraph_callers, mcp__codegraph__codegraph_callees, mcp__codegraph__codegraph_impact
 ---
+
+<!-- Extended metadata (for documentation, not parsed):
+mcp-servers: [codegraph]
+-->
 
 # /sc:implement protocol
 
 Middleweight executor. Source is a spec/PRD/tasklist path, an informal notes file, or an inline prompt. Walk enumerable tasks (informal/prompt → one task). After each task, spec-compliance QA against **that task's** AC + parent spec + instructions. Lint/tests are extras, never the verdict. One markdown ledger.
+
+Codegraph usage rules (readiness check, closed `graph:*` token list, call-site procedure) are in `~/.claude/CODEGRAPH.md`; read it once per run.
 
 Load `refs/qa.md` for Q3–Q5. Load `refs/ledger.md` for ledger I/O and resume. Also load `refs/retry.md` when A2 (the Q5 fix pass) still fails review, or when resume finds a `retry` or `halt` record in the ledger. Do not load reflect-protocol. Do not invoke `/task`, `/sc:task`, or `sc:task-protocol`.
 
@@ -65,6 +71,12 @@ E-LEGACY copy: `Removed flags: --type/--framework/--safe/--with-tests. Pass a sp
 6. Open or create ledger (header first, before any product edit). Resume per `refs/ledger.md`. Truncated last line → `E-LEDGER-CORRUPT`.
 7. If N≥20 print **once**: `N tasks; compaction likely; ledger is the source of resume.` Do not STOP. Do not split.
 8. Optional auggie before significant edits; unavailability is a warning, not a STOP.
+9. **Codegraph readiness: exactly one check per run**, after step 8 and before the first Q0. Run the `~/.claude/CODEGRAPH.md` section 2 check once and keep the result as the **run state**: `index_state`, `access`, `checked_at`, `worktree_root`, `projectPath`.
+   - A resume is a new run and does its own single check. There is no second check after the first product write: the state stays as recorded at `checked_at`, and graph rows about files this run changed are leads, confirmed by Grep/Read before they are cited or drive an edit. A later codegraph call that reports not indexed, foreign index or an error adds the matching `graph:*` token and keeps the rest of the run on the Grep/Read floor, with no re-check.
+   - `index_state` other than `fresh`, or `access: none`: no codegraph call this run; the floor (Grep, Glob, Read) serves every step below; add the matching token from the closed list in `~/.claude/CODEGRAPH.md` section 3.
+   - Print one line: `codegraph: index_state=<state> access=<access> checked_at=<ts>`, plus the token when degraded.
+   - Record the run state and every `graph:*` token in `codegraph.md` in the ledger directory (legacy `.dev/implement/<slug>/codegraph.md`; managed `<pkg>/artifacts/codegraph.md`), appending one line per later token. This file is not the ledger and not a task notes file: it adds no `notes@` token and changes no inline-review rule.
+   - The check never interrupts the run, never changes a verdict and adds no STOP code. The existing `sc:impact-protocol` delegations at Q1 and Q6 are unchanged: they run their own readiness inside that skill, and this protocol does not count that as a second check of its own.
 
 ### Enumerable tasks
 
@@ -115,6 +127,7 @@ Q0 START   If AC QUALIFY fails → E-NO-AC (do not reach Q1).
            If write-tree fails, `start=$(git rev-parse HEAD 2>/dev/null)` (HEAD is already a ref). If that fails, `nogit`. Write the start line once with that 40-hex (or `nogit`).
            On task `complete`, delete the Q0 pin `git update-ref -d "refs/superclaude/implement/<slug>/T<id>"` and the task's checkpoint refs (`refs/retry.md`); keep its sweep refs. The final summary lists each kept sweep ref with one `git update-ref -d <ref>` line for the operator. The task's reviewed-tree refs `retry/T<rid>/r<k>-<j>` (`refs/qa.md`) are deleted at `complete` once `first=` and `origin=` are written; sweep refs are kept.
            Read Ti text + AC ids + global constraints.
+Q1a CONTEXT Before the first edit, load context for up to 5 symbols the task names or touches. Run state `index_state: fresh` and `access: mcp` (Wave 0 step 9): `codegraph_search` to locate each, `codegraph_node {symbol, file, includeCode:true}` for its definition (`codegraph_node {file, symbolsOnly:true}` for a file outline), `codegraph_callers` and `codegraph_impact` at depth 1 for who depends on it; every call passes the run state's `projectPath`. Floor, always the fallback and always the Read before an Edit: Grep for the definition, Read the range, Grep `\b<symbol>\b` for references, Read each call site. Not fresh → floor only, and append the `graph:*` line to `codegraph.md`. Context only: it never widens the task, changes the AC, changes a verdict or interrupts the run.
 Q1 EXEC    Implement only that task. Touched files = paths this task created or modified via Write, Edit, or Bash (product paths, not the ledger).
            A drive-by file not implied by the AC is blocking only when a confirmed `quoted-constraint-breach` or `harmful-effect` applies; otherwise it is a minor that stays in `files=` and goes to notes.
            Rename, delete or signature-change task: before the first edit, for each symbol it renames, deletes or re-signs, invoke
@@ -123,6 +136,7 @@ Q1 EXEC    Implement only that task. Touched files = paths this task created or 
 Q2 DIFF    `git diff "$start"` (tree-ish vs worktree — not `..WORKTREE`, which is not a Git revision).
            Scope to Ti touched files when possible. This is the increment since Q0, including uncommitted prior-task files only if they were edited again.
            Untracked files in the touched set are part of the review package: if the path exists in `$start`, diff vs `git show "$start:<path>"`; else include full new-file contents (`git diff --no-index -- /dev/null <file>` or Read). Do not `git add` to the user index for this snapshot (that is not the `.dev/tasks/` rule: `.dev/tasks/` is always staged, `git add .dev/tasks`). An empty `git diff` with new untracked writes is not `cannot-verify`.
+Q2b DEPENDENTS For up to 5 symbols whose definition, signature or behaviour the diff changed, list the dependents whose file is not in the task's touched set. Run state fresh: `codegraph_callers`, `codegraph_impact` at depth 1 and, when the change moved a call, `codegraph_callees` (rows about files this run changed are leads). Floor: Grep `\b<symbol>\b` over the repo and Read the hits. Not fresh → floor only, and append the `graph:*` line to `codegraph.md`; Q2b never interrupts the run and never changes a verdict. The list goes into the `{diff}` slot content with the run state (`refs/qa.md`); it is context for the reviewer, never an edit, never a wider touched set, and a finding only through the existing four-question checklist.
 Q3 REVIEW  Load refs/qa.md. Reviewer (not the implementer voice) fills:
              - For each Ti.ACk: met | unmet + citation
              - finding lines with the four checklist answers and one anchor per `yes` (`refs/qa.md`)
@@ -136,6 +150,20 @@ Q8 NEXT    Only if complete (compliant, or non-compliant plus operator Ruling). 
 ```
 
 A 1-task source still runs Q0–Q8 once (inline). Skip the end-of-list second pass.
+
+### Codegraph by step
+
+Codegraph runs only when the Wave 0 run state is `index_state: fresh` with `access: mcp`; every step keeps its Grep/Read floor, which also runs whenever codegraph is not used. The Q5 fix pass and each retry attempt repeat Q1a and Q2b for the symbols they touch.
+
+| Step | Job | Codegraph tools | Floor |
+|---|---|---|---|
+| Wave 0 step 9 | the one readiness check | `codegraph_status` (CLI form per `~/.claude/CODEGRAPH.md`) | none needed: record the `graph:*` token |
+| Q1a | definitions, callers, blast radius before the edit | `codegraph_search`, `codegraph_node`, `codegraph_callers`, `codegraph_impact` | Grep, Read |
+| Q1 rename/delete/signature | dependent counts | `sc:impact-protocol`, unchanged | its own floor |
+| Q2b | did the change reach every dependent | `codegraph_callers`, `codegraph_impact`, `codegraph_callees` | Grep `\b<symbol>\b`, Read |
+| Q6 advisory tests | test list | `sc:impact-protocol`, unchanged | extras run as before |
+
+Rules for every row: confirm each row by Grep plus Read of the call site before it is cited or drives an edit (the CS1 to CS5 procedure of `~/.claude/CODEGRAPH.md` section 5); at most 5 rows per symbol and 20 per run; an empty graph answer is never read as "no dependents"; a truncated list is re-queried once with a higher limit, then `graph:truncated` is recorded. Never call `codegraph_explore`, `codegraph init`, `codegraph index` or `codegraph sync`.
 
 ### Extras (after verdict, never the gate)
 

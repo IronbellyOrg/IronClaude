@@ -1,0 +1,32 @@
+## pytest test_workflow_command -k 'not plugin_mirror'
+collected 19 items / 1 deselected / 18 selected
+
+tests/commands/test_workflow_command.py .............F....               [100%]
+
+=================================== FAILURES ===================================
+___________ test_plugin_ships_managed_implement_protocol_and_helper ____________
+tests/commands/test_workflow_command.py:220: in test_plugin_ships_managed_implement_protocol_and_helper
+    assert (plugin / path).read_bytes() == (canonical / path).read_bytes()
+E   AssertionError: assert b'# Spec-comp...ens a task.\n' == b'# Spec-comp...ens a task.\n'
+E     
+E     At index 37632 diff: b'P' != b'T'
+E     Use -v to get more diff
+=========================== short test summary info ============================
+FAILED tests/commands/test_workflow_command.py::test_plugin_ships_managed_implement_protocol_and_helper
+================== 1 failed, 17 passed, 1 deselected in 0.61s ==================
+## pytest test_codegraph_guide
+collected 15 items
+
+tests/core/test_codegraph_guide.py ...............                       [100%]
+
+============================== 15 passed in 0.58s ==============================
+## grep src/superclaude in SKILL.md
+no hits
+## grep codegraph_files
+0
+## allowed-tools
+allowed-tools: Read, Glob, Grep, Write, Edit, Bash, Skill, mcp__codegraph__codegraph_status, mcp__codegraph__codegraph_search, mcp__codegraph__codegraph_node, mcp__codegraph__codegraph_callers, mcp__codegraph__codegraph_callees, mcp__codegraph__codegraph_impact
+9:mcp-servers: [codegraph]
+tests/commands/test_workflow_command.py ..................               [100%]
+
+======================= 18 passed, 1 deselected in 0.45s =======================

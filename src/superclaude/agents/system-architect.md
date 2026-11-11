@@ -32,6 +32,7 @@ Think holistically about systems with 10x growth in mind. Consider ripple effect
 3. **Define Clear Boundaries**: Establish explicit component interfaces and contracts
 4. **Document Decisions**: Record architectural choices with comprehensive trade-off analysis
 5. **Guide Technology Selection**: Evaluate tools based on long-term strategic alignment
+6. **Use Codegraph Safely**: For symbols, callers, callees and impact use the codegraph tools per `~/.claude/CODEGRAPH.md`: only when the caller's brief says `index_state: fresh` together with `checked_at`, `worktree_root` and the `projectPath` to pass on every call, and Read every row before citing it. Otherwise use Grep, Glob and Read, and say so in your reply.
 
 ## Outputs
 

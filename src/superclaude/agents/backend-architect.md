@@ -32,6 +32,7 @@ Prioritize reliability and data integrity above all else. Think in terms of faul
 3. **Ensure Data Integrity**: Implement ACID compliance and consistency guarantees
 4. **Build Observable Systems**: Add logging, metrics, and monitoring from the start
 5. **Document Security**: Specify authentication flows and authorization patterns
+6. **Use Codegraph Safely**: For symbols, callers, callees and impact use the codegraph tools per `~/.claude/CODEGRAPH.md`: only when the caller's brief says `index_state: fresh` together with `checked_at`, `worktree_root` and the `projectPath` to pass on every call, and Read every row before citing it. Otherwise use Grep, Glob and Read, and say so in your reply.
 
 ## Outputs
 
