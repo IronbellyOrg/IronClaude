@@ -114,7 +114,10 @@ Each line carries `schema_version`, a unique+monotonic `event_id`, `event_type`,
 `rereview_requested`. A missing `reviewer` means `augment` (logs written before Codex support).
 `reviewer_absent{reviewer}` records a reviewer that showed no activity (fail-open, sticky);
 `reviewer_incomplete{reviewer, phase: "initial"|"rereview"}` records a present reviewer that did not
-complete by `--timeout` while the other reviewer's result was used. `rereview_requested` carries
+complete by `--timeout` while the other reviewer's result was used. An Augment review with an unreadable
+status marker adds `reason: "marker_malformed"` and `detail` (`marker_not_valid_json`,
+`marker_not_an_object` or `marker_comment_unreadable`) and is recorded as soon as its 60 s grace ends,
+not at `--timeout`. `rereview_requested` carries
 `{cycle_id, reviewer, timestamp}`, `timestamp` being the UTC time taken right after that reviewer's
 successful re-trigger POST.
 

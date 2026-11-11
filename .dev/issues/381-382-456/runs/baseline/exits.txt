@@ -1,0 +1,13 @@
+sync-dev exit=0
+test exit=1
+swarm-imm exit=0
+swarm-inv exit=0
+ruff-check exit=0
+ruff-format exit=0
+plugin-loaded exit=0
+fixtures exit=0
+verify-deps exit=0
+verify-sync exit=0
+lint-architecture exit=0
+verify-sync-hooks exit=0
+git-diff-check exit=0

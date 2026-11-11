@@ -49,6 +49,30 @@ nonnegative integer `unresolved_count` (booleans excluded). `session_url` is dia
 Malformed/duplicate/unsupported markers, unknown statuses and recognizable Cosmos evidence without
 a valid marker cannot fall back to legacy clean. Summary prose and absent checks prove nothing.
 
+**Unreadable marker** (`augment_marker_defect(payload, contract, *, watermark=None, current_head_sha=None)`;
+issues #382, #456). Augment sometimes posts a marker that is not valid JSON (PR 377 review 5776522857 and
+PR 455 reviews 5819041100 and 5819088356 end `..." -->` with the closing `}` missing). The strict parse
+stays: such a review is never clean, never counts as complete and hides nothing, so `classify` is still
+`polling`. Option 2 of #456 (accept a marker with a missing brace) is **not** taken: the marker is the only
+evidence of `head` and `unresolved_count`, and a guessed repair could turn a truncated body into a false
+clean. The helper only *names* the case. It returns a defect when the snapshot is complete, `classify` is
+`polling`, and the **newest** formal Augment review of the expected head (submitted no later than
+`observed_at`, strictly newer than a `watermark`) has the Cosmos token exactly once and a marker that cannot
+be read: `marker_not_valid_json` (invalid JSON or duplicate key), `marker_not_an_object`, or
+`marker_comment_unreadable` (token without a closing `-->`, over 8192 bytes, or another marker version).
+Valid JSON with wrong fields (for example an in-progress `status`), two tokens, no token, another head, a
+non-Augment author or an older-than-watermark review are not defects and poll as before. The result carries
+`reason`, `review_id`, `submitted_at`, `settled`, `grace_seconds` (60) and `open_threads` (the comment ids
+of that review's open Augment roots, `[]` when none, `None` when they cannot be selected safely).
+
+Policy: report the reason on the first poll that returns a defect. A corrected review can follow within
+seconds (PR 455: malformed 18:29:51Z, well formed 18:30:18Z, same head), so the Augment wait stays `pending`
+until the unreadable review is 60 s old at `observed_at` (`settled`), then is `incomplete` (at most two polls
+at the 30 s minimum interval) instead of waiting for `--timeout`. The run then continues with Codex alone
+(`reviewer_incomplete{reviewer: "augment", reason: "marker_malformed"}`) or, when Codex is absent, ends as
+`timeout` with the reason in the report. The operator reads `open_threads` by hand. A later readable review
+of the same head is still accepted by the unchanged `classify`.
+
 `current_head_sha` defaults to `payload.head_sha`; an explicit argument **overrides** it. During a
 pushed-SHA wait the caller must first check actual `payload.head_sha == pushed_sha`. The selected
 latest relevant bot review is ordered by trustworthy submission time, not array order; marker head,
@@ -68,9 +92,12 @@ Null current line is not evidence of resolution or a grounded defect.
 A root must be created no later than completion. For root selection, completion is the later of the
 completed review's submission time and the `createdAt` of the reviewer's own roots whose
 `pullRequestReview` is that review (same review id, same commit): GitHub can stamp a review's comments
-a second after the review itself (PR 337: review 21:22:29Z, root 21:22:30Z), and those roots are part
-of the review, not a sign of a newer one. A newer root from any other review, or from an older head,
-still keeps the gate `polling`. The same rule applies to Codex roots under its formal head reviews.
+a second after the review itself (PR 337: review 21:22:29Z, root 21:22:30Z; PR 377: review 21:44:59Z,
+root 21:45:00Z, issue #381), and those roots are part of the review, not a sign of a newer one. The rule
+is by ownership, not a time gap: there is no allowed number of seconds. A root created after that
+completion by any other review, or a root of an older head, still keeps the gate `polling`, and the
+re-trigger watermark check is unchanged (a review not strictly newer than the watermark is never the answer
+to that re-trigger). The same rule applies to Codex roots under its formal head reviews.
 
 `unresolved_count` is a conservative **lower bound** on required usable detail, not equality with all
 historical unresolved threads: positive count with insufficient roots stays polling; zero cannot erase

@@ -25,6 +25,11 @@ _COSMOS_TOKEN = re.compile(r"cosmos[\s_-]*review[\s_-]*status", re.IGNORECASE)
 _COSMOS_MARKER = re.compile(
     r"<!--\s*cosmos-review-status:v1\s+(.{1,8192}?)\s*-->", re.DOTALL
 )
+# Augment sometimes posts a corrected review seconds after one whose marker is unreadable (PR 455:
+# malformed 18:29:51Z, well formed 18:30:18Z, same head). So the wait ends only once the unreadable
+# review is this old; with the 30 s minimum poll interval that is at most two polls later.
+MARKER_GRACE_SECONDS = 60
+_FORMAL_REVIEW_STATES = ("COMMENTED", "APPROVED", "CHANGES_REQUESTED")
 
 
 def _login_of(entry: dict) -> str | None:
@@ -193,6 +198,26 @@ def _cosmos_marker(review: dict) -> dict | None:
     ):
         return None
     return marker
+
+
+def _marker_defect_reason(review: dict) -> str | None:
+    """Why a Cosmos review's status marker cannot be read at all, else None.
+
+    Only an UNREADABLE marker is a defect. Valid JSON with unexpected fields (for example an
+    in-progress ``status``) keeps the old silent poll, and so does a body with no Cosmos token or
+    with the token more than once: those are not judged here.
+    """
+    body = review.get("body")
+    if not isinstance(body, str) or len(_COSMOS_TOKEN.findall(body)) != 1:
+        return None
+    match = _COSMOS_MARKER.search(body)
+    if not match:
+        return "marker_comment_unreadable"  # no closing ``-->``, over 8192 bytes, or another version
+    try:
+        marker = json.loads(match[1], object_pairs_hook=_json_object)
+    except (ValueError, RecursionError):
+        return "marker_not_valid_json"  # e.g. the closing ``}`` is missing (PR 377, PR 455)
+    return None if isinstance(marker, dict) else "marker_not_an_object"
 
 
 def _entry_has_findings(review: dict) -> bool:
@@ -503,6 +528,78 @@ def classify(
 ) -> str:
     """Return polling/declined/clean/findings from one shared selection decision."""
     return _selection(payload, contract, watermark, current_head_sha)[0]
+
+
+def augment_marker_defect(
+    payload: dict,
+    contract: Any,
+    *,
+    watermark: Any = None,
+    current_head_sha: str | None = None,
+    grace_seconds: int = MARKER_GRACE_SECONDS,
+) -> dict | None:
+    """Name an Augment review that is present on the expected head but whose marker is unreadable.
+
+    Returns None unless ALL hold: the snapshot is complete (the three flags literally true); the
+    unchanged :func:`classify` is ``polling`` (a readable review, a decline or a newer readable
+    review always wins); and the NEWEST formal Augment review of the expected head (submitted no later
+    than ``observed_at`` and, with a ``watermark``, strictly newer) has exactly one Cosmos token and a
+    marker that cannot be read (:func:`_marker_defect_reason`).
+
+    The strict parse is untouched: this never makes a review clean and never hides findings. The result
+    is ``{reason, review_id, submitted_at, settled, grace_seconds, open_threads}``. ``settled`` becomes
+    true once the review is ``grace_seconds`` old at ``observed_at``; before that the caller keeps
+    waiting for a corrected review. ``open_threads`` lists the comment ids of the review's open
+    Augment roots (``[]`` when none, ``None`` when they cannot be selected safely): the operator must
+    read them, because the unreadable marker gives no ``unresolved_count``.
+    """
+    if not isinstance(payload, dict) or any(
+        payload.get(key) is not True for key in _COMPLETENESS
+    ):
+        return None
+    if _selection(payload, contract, watermark, current_head_sha)[0] != STATE_POLLING:
+        return None
+    head = _sha(
+        current_head_sha if current_head_sha is not None else payload.get("head_sha")
+    )
+    observed = _timestamp(payload.get("observed_at"))
+    if head is None or observed is None:
+        return None
+    eligible = []
+    for review in _augment_entries(
+        payload.get("reviews"), _augment_identities(contract)
+    ):
+        commits = _review_commits(review)
+        submitted = _timestamp(_submission_ts(review))
+        if (
+            review.get("state") not in _FORMAL_REVIEW_STATES
+            or submitted is None
+            or submitted > observed
+            or not commits
+            or any(_sha(c) != head for c in commits)
+            or (watermark is not None and not _is_newer(submitted, watermark))
+            or is_decline(review, contract)
+        ):
+            continue
+        eligible.append((submitted, review))
+    if not eligible:
+        return None
+    latest = max(submitted for submitted, _ in eligible)
+    newest = [review for submitted, review in eligible if submitted == latest]
+    if len(newest) != 1:
+        return None  # two reviews at one instant cannot be ordered
+    reason = _marker_defect_reason(newest[0])
+    if reason is None:
+        return None
+    roots = _thread_findings(payload.get("threads"), contract, newest[0])
+    return {
+        "reason": reason,
+        "review_id": newest[0].get("id"),
+        "submitted_at": _submission_ts(newest[0]),
+        "settled": (observed - latest).total_seconds() >= grace_seconds,
+        "grace_seconds": grace_seconds,
+        "open_threads": None if roots is None else [r["comment_id"] for r in roots],
+    }
 
 
 def actionable_finding_comments(

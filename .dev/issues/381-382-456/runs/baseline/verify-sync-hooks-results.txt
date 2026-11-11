@@ -1,0 +1,7 @@
+PASSED tests/cli/test_verify_sync_hooks.py::test_V1_clean_tree_exits_zero
+PASSED tests/cli/test_verify_sync_hooks.py::test_V2_missing_claude_hook_detected
+PASSED tests/cli/test_verify_sync_hooks.py::test_V3_missing_from_freshness_scripts
+PASSED tests/cli/test_verify_sync_hooks.py::test_V4_stale_in_freshness_scripts
+PASSED tests/cli/test_verify_sync_hooks.py::test_V5_matcher_drift_detected
+PASSED tests/cli/test_verify_sync_hooks.py::test_V6_case_body_drift_detected
+PASSED tests/cli/test_verify_sync_hooks.py::test_V7_regression_to_master

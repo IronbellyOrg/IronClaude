@@ -1,0 +1,97 @@
+{
+  "pr": 377,
+  "head_sha": "a2136867100d17295aacae92abfb8c54eac0eb14",
+  "observed_at": "2026-11-04T21:46:00Z",
+  "comments_ok": true,
+  "reviews_ok": true,
+  "threads_ok": true,
+  "reviews": [
+    {
+      "id": 5776286053,
+      "node_id": "PRR_kwDOPOT5c88AAAABWEshZQ",
+      "user": {
+        "login": "augmentcode[bot]",
+        "type": "Bot"
+      },
+      "state": "COMMENTED",
+      "body": "<sup>[**Deep Code Review Agent**](https://cosmos.augmentcode.com/session?agentId=01M6M844JPK83XQD7A2R3ZZ15K)\ud83d\udc1b</sup>\n\nReview completed with 1 suggestion.\n\n<sub>Reviewed commit: `a213686`</sub>\n\n<!-- cosmos-review-status:v1 {\"specialist\":\"deep\",\"status\":\"reviewed\",\"baseline\":\"f3c1ef06296086a2c4d341ef807c871ddd6b1baf\",\"head\":\"a2136867100d17295aacae92abfb8c54eac0eb14\",\"unresolved_count\":1,\"session_url\":\"https://cosmos.augmentcode.com/session?agentId=01M6M844JPK83XQD7A2R3ZZ15K\"} -->",
+      "submitted_at": "2026-11-04T21:44:59Z",
+      "commit_id": "a2136867100d17295aacae92abfb8c54eac0eb14"
+    }
+  ],
+  "comments": [
+    {
+      "id": 4473733769,
+      "node_id": "PRRC_kwDOPOT5c88AAAABCqfCiQ",
+      "user": {
+        "login": "augmentcode[bot]",
+        "type": "Bot"
+      },
+      "pull_request_review_id": 5776286053,
+      "path": "docs/testing/v5.0.0/impact-validation/william.md",
+      "line": null,
+      "original_line": 93,
+      "commit_id": "a2136867100d17295aacae92abfb8c54eac0eb14",
+      "created_at": "2026-11-04T21:45:00Z",
+      "updated_at": "2026-11-04T21:45:00Z",
+      "in_reply_to_id": null,
+      "body": "<sup>[**Deep Code Review Agent**](https://cosmos.augmentcode.com/session?agentId=01M6M844JPK83XQD7A2R3ZZ15K)\ud83d\udc1b</sup>\n\nThis section asks for measurements on 2\u20133 repositories but always clones to the same `/tmp/cg-cost/repo`; on a fresh workspace the first clone can fail because `/tmp/cg-cost` is not created, and subsequent clones fail because the destination already exists, so the requested sample cannot be collected as written.\n\n**Severity:** medium\n\n---\n\n<sub>\ud83e\udd16 Was this useful? React with \ud83d\udc4d or \ud83d\udc4e </sub>"
+    }
+  ],
+  "threads": [
+    {
+      "id": "PRRT_kwDOPOT5c86z0XBX",
+      "path": "docs/testing/v5.0.0/impact-validation/william.md",
+      "line": null,
+      "originalLine": 93,
+      "isResolved": false,
+      "isOutdated": false,
+      "comments": {
+        "nodes": [
+          {
+            "id": "PRRC_kwDOPOT5c88AAAABCqfCiQ",
+            "databaseId": 4473733769,
+            "body": "<sup>[**Deep Code Review Agent**](https://cosmos.augmentcode.com/session?agentId=01M6M844JPK83XQD7A2R3ZZ15K)\ud83d\udc1b</sup>\n\nThis section asks for measurements on 2\u20133 repositories but always clones to the same `/tmp/cg-cost/repo`; on a fresh workspace the first clone can fail because `/tmp/cg-cost` is not created, and subsequent clones fail because the destination already exists, so the requested sample cannot be collected as written.\n\n**Severity:** medium\n\n---\n\n<sub>\ud83e\udd16 Was this useful? React with \ud83d\udc4d or \ud83d\udc4e </sub>",
+            "path": "docs/testing/v5.0.0/impact-validation/william.md",
+            "line": null,
+            "originalLine": 93,
+            "createdAt": "2026-11-04T21:45:00Z",
+            "author": {
+              "login": "augmentcode"
+            },
+            "replyTo": null,
+            "pullRequestReview": {
+              "id": "PRR_kwDOPOT5c88AAAABWEshZQ",
+              "databaseId": 5776286053,
+              "commit": {
+                "oid": "a2136867100d17295aacae92abfb8c54eac0eb14"
+              }
+            }
+          },
+          {
+            "id": "PRRC_kwDOPOT5c88AAAABCqo9qQ",
+            "databaseId": 4473896361,
+            "body": "Fixed in 60e0030c (2 edits applied, one commit; pre-commit checks pass and the new command block passes `bash -n`).\n\nPart of this finding did not reproduce and part did. `git clone` into a path whose parent folders do not exist works, because git creates the parents, so the first clone does not fail for that reason. A second clone into the same destination does fail, with exit 128 (\"already exists and is not an empty directory\"), so the measurement could not be repeated for a second repository. A failed clone was also not stopping the later lines, which would have measured the earlier repository's folder.\n\nPart 3 now makes a new `mktemp -d` folder for each run, clones into it, and chains every step with `&&` so a failed step stops the rest. I ran the same chain logic locally against a small repository: two runs gave two distinct folders, and an invalid URL stopped with exit 128 before any later step. The real `codegraph init` and `codegraph status` steps were not run.\n",
+            "path": "docs/testing/v5.0.0/impact-validation/william.md",
+            "line": null,
+            "originalLine": 93,
+            "createdAt": "2026-11-04T22:01:22Z",
+            "author": {
+              "login": "clayphi"
+            },
+            "replyTo": {
+              "id": "PRRC_kwDOPOT5c88AAAABCqfCiQ"
+            },
+            "pullRequestReview": {
+              "id": "PRR_kwDOPOT5c88AAAABWE4m2Q",
+              "databaseId": 5776484057,
+              "commit": {
+                "oid": "60e0030cb50eb7a823826a48371fd94cdffa613d"
+              }
+            }
+          }
+        ]
+      }
+    }
+  ]
+}

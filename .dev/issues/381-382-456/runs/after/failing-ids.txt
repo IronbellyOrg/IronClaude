@@ -1,0 +1,2 @@
+FAILED tests/cli/test_install_keep.py::test_same_content_is_true_only_for_identical_readable_files
+FAILED tests/unit/test_ccsession_tiers.py::test_shim_outlives_the_terminal_that_started_it
