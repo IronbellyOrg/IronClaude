@@ -1,18 +1,19 @@
 # Go-live runbook: tiered review panel, ccsession Tier 2b, live evals (2026-11-11)
 
-Status as of this document. Facts marked **[checked]** were read from the repos or GitHub today; **[not checked]** are things I could not see (your LiteLLM config, live workspaces).
+Updated 2026-11-11 (after PR #498 was opened). Facts marked **[checked]** were read from the repos or GitHub today; **[not checked]** are things I could not see (your LiteLLM config, live workspaces).
 
 ## 1. Where things stand
 
 | Item | State |
 |---|---|
 | IronClaude #490, #491, #492 (live 7-reviewer panel, review fixes, tier2b models) | Merged into `346Claude-integration` **[checked]** |
-| IronClaude #493 (ccsession `tier2b`, Tier 3 = 2 models, Tier 4 = 3 models) | **Open draft, not merged. Do not merge into `master` early.** CI never ran on it **[checked]** |
+| IronClaude #493 (ccsession `tier2b`, Tier 3 = 2 models, Tier 4 = 3 models) | Merged into `346Claude-integration` **[checked]** |
+| IronClaude **#498**: `346Claude-integration` into `master` (master merged in, conflicts resolved, review findings fixed) | Open, **do not merge until step A passes**. Opened with `/sc:pr-submit --monitor 3`; Augment and Codex findings fixed and resolved; CI on the head must be green before merge **[checked]** |
 | Coder #495: central defaults release `20261110-1` (the T2b/T3/T4 slots) | On Coder `main`; the distribution workflow succeeded on push and on the hourly schedule **[checked]**. Install on every workspace **[not checked]** |
 | Coder #496: `JEV_API_URL` exported by the template | Merged **[checked]**. Jev is still off by default |
 | Review panel default | Unchanged (`@live7` is opt-in via `SUPERCLAUDE_REVIEW_PANEL=@live7`) |
 | Jev | Tested and not adopted. The Jev-split merge A/B gave -3.0 fixed defects (p = 0.18) at equal tokens |
-| Live evals (`p20/live-evals`) | Kit built, not run live. Lives only on the research branch `346Claude-ab-experiment-artifacts` (no PR) |
+| Live evals (`p20/live-evals`) | Kit built, not run live. Lives only on the research branch `346Claude-ab-experiment-artifacts` (no PR; docs only, not part of #498) |
 
 ## 2. What this session established (for the go/no-go)
 
@@ -38,13 +39,15 @@ Do not go to step C until every workspace passes. A workspace without the T2b sl
 1. Confirm the gateway serves the four real ids: `gpt-6.1-terra`, `glm-5.3`, `Qwen3.8-max`, `muse-wonder-1.0` (issue 488 open item "gateway id verification"). They are listed in `GET <gateway>/v1/models`, or request each once and check the returned model.
 2. Confirm the Tier 3 and Tier 4 ids still resolve: `glm-5.3`, `Qwen3.8-max`, `gpt-6-luna`, `claude-haiku-5-5`, `grok-4.7`.
 
-Nothing else to add on the gateway. (Some docs, including `review-panel-live7.md` and the live-evals README, say the alias "must exist on the LiteLLM gateway"; that is wrong and should be corrected.)
+Nothing else to add on the gateway. (The wrong "alias must exist on the LiteLLM gateway" text in `docs/reference/review-panel-live7.md` is corrected in #498; the live-evals README is corrected on this branch.)
 
-### C. Land #493 (ccsession data), then promote to master
+### C. Promote to master (#498), after step A
 
-1. Mark #493 ready for review; get CI green (none was observed). Ask for `@codex review`.
-2. Merge #493 into `346Claude-integration`. This is safe at any time.
-3. Merge `346Claude-integration` into `master` **only after step A passes**. Every ccsession launch fetches `ccsession-models.json` from `master`.
+#493 is already in `346Claude-integration`; the only merge left is #498.
+
+1. Confirm step A passed on every workspace (running and stopped).
+2. Confirm CI on #498 is green and no review thread is unresolved.
+3. Merge #498 into `master`. Every ccsession launch then fetches `ccsession-models.json` (which names `tier2b`) from `master`, so a workspace without the T2b slots stops its tier-mode launch; that is why A comes first.
 4. Verify on one workspace: `ccsession --tier 2b` starts and the `/model` picker shows Tier 2b with Terra, GLM, Qwen, Muse Wonder 1.0.
 
 ### D. Coder release B (after C is on master)
@@ -81,9 +84,9 @@ Only do this if you want it available for further experiments. Full runbook: `do
 
 - Delete the stray remote branch `346Claude-pn4-live-panel` (it was superseded by `346Claude-pn4-live-panel-7slot`).
 - The research branch `346Claude-ab-experiment-artifacts` has no PR; decide whether to open one or keep it as an archive.
-- `gh` has an invalid token in the cloud session, so PRs were opened through the GitHub connector and the `/sc:pr-submit --monitor 3` checklist item is unmet on #490-#493. Fix the token or run `/sc:pr-submit` locally.
+- `gh` GraphQL is blocked in the cloud session (`gh pr create`/`gh pr view` fail). #498 was opened through the REST API and monitored through PR subscriptions; #490-#493 were opened without `/sc:pr-submit`. Fix the token or run `/sc:pr-submit` locally for future PRs.
 - Codex security review hit its usage limit on #492; re-run `@codex security review` once credits are enabled.
-- CI was not observed on any of #490-#493. Check the workflows that run on PRs into `346Claude-integration` (they appear not to).
+- CI did not run on #490-#493 (they targeted `346Claude-integration`); it runs on #498 because that targets `master`.
 
 ## 4. Rollback
 
@@ -97,6 +100,6 @@ Only do this if you want it available for further experiments. Full runbook: `do
 - This runbook: `.dev/research/346-review-loop-experiments/GO-LIVE-RUNBOOK.md`
 - Live evals kit and prompts: `.dev/research/346-review-loop-experiments/p20/live-evals/`
 - Jev results: `p21/RESULTS.md`, `p22/AB-RESULTS.md`, `p22/JEV-OUTSIDE-USES-AND-PROPOSALS.md`
-- Panel doc: `docs/reference/review-panel-live7.md` (on `346Claude-integration`)
+- Panel doc: `docs/reference/review-panel-live7.md` (in #498)
 - ccsession tiers: `src/superclaude/skills/ccsession-tag/MODEL-TIERS.md`, `ccsession-models.json`
 - Coder: `docs/operations/central-defaults-distribution.md`, `templates/VSCode-AIDev02/image/aienv.d/`
