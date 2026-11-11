@@ -1,0 +1,128 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "superclaude observe snapshot, schema version 1 (PROPOSED, not an Orca contract)",
+  "description": "Additive-only: a new optional field may be added by a reviewed edit; removing, renaming or retyping a field needs schemaVersion 2. A value the source did not give is the string UNKNOWN. Consumers reject an unknown major schemaVersion and ignore unknown fields.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "producer", "cycle", "generatedAt", "source", "page", "scope", "counts", "rows"],
+  "properties": {
+    "schemaVersion": {"const": 1},
+    "producer": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "version"],
+      "properties": {
+        "name": {"type": "string"},
+        "version": {"type": "string"}
+      }
+    },
+    "cycle": {"type": "integer", "minimum": 0},
+    "generatedAt": {"$ref": "#/definitions/utcTime"},
+    "source": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["namespace", "status", "observedAt"],
+      "properties": {
+        "namespace": {"type": "string"},
+        "status": {"enum": ["OK", "STALE", "ERROR", "UNKNOWN"]},
+        "observedAt": {"anyOf": [{"$ref": "#/definitions/utcTime"}, {"const": "UNKNOWN"}]},
+        "error": {"type": "string"}
+      },
+      "if": {"properties": {"status": {"const": "ERROR"}}},
+      "then": {"required": ["error"]},
+      "else": {"not": {"required": ["error"]}}
+    },
+    "page": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["hasMore", "total", "limit"],
+      "properties": {
+        "hasMore": {"type": ["boolean", "string"], "enum": [true, false, "UNKNOWN"]},
+        "total": {"anyOf": [{"type": "integer", "minimum": 0}, {"const": "UNKNOWN"}]},
+        "limit": {"anyOf": [{"type": "integer", "minimum": 0}, {"const": "UNKNOWN"}]}
+      }
+    },
+    "scope": {"anyOf": [{"type": "object"}, {"const": "UNKNOWN"}]},
+    "counts": {
+      "anyOf": [
+        {
+          "type": "object",
+          "additionalProperties": {"type": ["integer", "number", "string", "boolean", "null"]}
+        },
+        {"const": "UNKNOWN"}
+      ]
+    },
+    "collection": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "state": {"enum": ["COMPLETE", "PARTIAL", "MISMATCH"]},
+        "collected": {"type": "integer", "minimum": 0},
+        "changedDuringRead": {"type": "boolean"},
+        "duplicatesIgnored": {"type": "integer", "minimum": 0}
+      }
+    },
+    "rows": {"type": "array", "items": {"$ref": "#/definitions/row"}}
+  },
+  "definitions": {
+    "utcTime": {
+      "type": "string",
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z$"
+    },
+    "text": {"type": "string"},
+    "row": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "dispatchId", "taskId", "runId", "workerState", "dispatchStatus", "terminalState",
+        "role", "provider", "hostKind", "hostId", "stage", "outcome", "liveness", "evidence", "nextAction"
+      ],
+      "properties": {
+        "dispatchId": {"$ref": "#/definitions/text"},
+        "taskId": {"$ref": "#/definitions/text"},
+        "runId": {"$ref": "#/definitions/text"},
+        "workerState": {"$ref": "#/definitions/text"},
+        "dispatchStatus": {"$ref": "#/definitions/text"},
+        "terminalState": {"$ref": "#/definitions/text"},
+        "role": {"$ref": "#/definitions/text"},
+        "provider": {"$ref": "#/definitions/text"},
+        "hostKind": {"$ref": "#/definitions/text"},
+        "hostId": {"$ref": "#/definitions/text"},
+        "stage": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["worker", "dispatch"],
+          "properties": {
+            "worker": {"$ref": "#/definitions/text"},
+            "dispatch": {"$ref": "#/definitions/text"}
+          }
+        },
+        "outcome": {"$ref": "#/definitions/text"},
+        "liveness": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["verdict", "source", "observedAt"],
+          "properties": {
+            "verdict": {"$ref": "#/definitions/text"},
+            "source": {"$ref": "#/definitions/text"},
+            "observedAt": {"$ref": "#/definitions/text"}
+          }
+        },
+        "evidence": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["durable", "liveStatus", "lastObservedAt"],
+          "properties": {
+            "durable": {},
+            "liveStatus": {"$ref": "#/definitions/text"},
+            "lastObservedAt": {"$ref": "#/definitions/text"}
+          }
+        },
+        "nextAction": {"$ref": "#/definitions/text"},
+        "orderUnknown": {"type": "boolean"},
+        "notReobserved": {"type": "boolean"},
+        "absentFields": {"type": "array", "items": {"type": "string"}, "uniqueItems": true}
+      }
+    }
+  }
+}

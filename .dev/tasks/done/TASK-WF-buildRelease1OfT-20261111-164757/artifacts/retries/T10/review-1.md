@@ -1,0 +1,3 @@
+c20b44431773899e36942d392b4278c16667e94c tree=cb3268db5f0b2d4bec4d3fe6fa1ed3ea71997a4f
+AC marks (reviewer, verbatim summary): T10.AC1..T10.AC9 all met with citations in src/superclaude/cli/observe/render.py and tests/observe/test_render.py
+F1.1 sev=blocking trigger=B4 ac=scope at=src/superclaude/cli/observe/render.py:130 anchor="never sorts or decides a status literal (those come from the `View`)" chk=n,n,n,y family=status-literal-in-renderer fix=add the frozen marker literal to view.py (carry it in RowView.flags) and let _flags_text use only the view flags covers="never sorts or decides a status literal (those come from the `View`)" first=A1 origin=new: _flags_text builds the fixture FROZEN marker in the renderer from the row.frozen bool

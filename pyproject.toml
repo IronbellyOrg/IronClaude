@@ -145,6 +145,7 @@ markers = [
     "recovery: Crash-recovery / resume reconstruction tests (FM-1..12)",
     "p0: P0 priority acceptance tests",
     "regression: Mandatory regression-gate tests (e.g. TM-0 per-phase turn-budget starvation guard)",
+    "observe_real_process: observer test that may start a real child process (lifts the subprocess guard)",
 ]
 
 [tool.coverage.run]

@@ -1,0 +1,7 @@
+{
+ "variant": "empty",
+ "description": "workers=[] with total 0, scope bound",
+ "cycles": [
+  {"result":{"workers":[],"page":{"hasMore":false,"limit":100,"total":0},"scope":{"source":"bound"},"counts":{"active":0,"reclaimable":0,"retained":0,"released":0}}}
+ ]
+}
