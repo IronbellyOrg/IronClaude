@@ -27,7 +27,7 @@ personas: []
 
 ## Behavioral Flow
 
-Before step 1, run the codegraph readiness check exactly once per run, as section 2 of `~/.claude/CODEGRAPH.md` describes. Keep `index_state`, `checked_at` and `worktree_root` for the whole run and do not repeat the check.
+Before step 1, run the codegraph readiness check exactly once per run, as section 2 of `~/.claude/CODEGRAPH.md` describes. Keep `index_state`, `access`, `checked_at` and `worktree_root` for the whole run and do not repeat the check. Below, "`index_state: fresh`" means `index_state: fresh` with `access: mcp` (the lookup tools are listed); with `access: cli` or `access: none` every step stays on Glob, Grep and Read, and no codegraph tool, including `codegraph_files`, is called.
 
 1. **Discover**: Categorize source files using language detection and project analysis. When `index_state: fresh`, first call `codegraph_files {format:"grouped", maxDepth:2}` for the layout and `codegraph_search` to locate the target's symbols
 2. **Scan**: Apply domain-specific analysis techniques and pattern matching. When `index_state: fresh`, first call `codegraph_node` (symbol body with `includeCode:true`, file outline with `symbolsOnly:true`), `codegraph_callers` and `codegraph_callees` for call paths (security: entry points to sinks; performance: hot-path callers)
@@ -63,7 +63,7 @@ Key behaviors:
 Full rules: `~/.claude/CODEGRAPH.md` (read it when you use codegraph). This section is the short form for `/sc:analyze`.
 
 - **Readiness**: the single check named before step 1 of the Behavioral Flow; never repeat it. `SUPERCLAUDE_CODEGRAPH_PRIMITIVES=off` means `graph:disabled`.
-- **Use only when `index_state: fresh`.** Otherwise continue on Glob, Grep and Read, add the matching `graph:*` token to the report's Codegraph line, and go on: never halt, never ask. A missing, stale or failing graph never fails the run (it is succeeded once the report is written).
+- **Use only when `index_state: fresh` and `access: mcp`.** Otherwise continue on Glob, Grep and Read, add the matching `graph:*` token to the report's Codegraph line, and go on: never halt, never ask. A missing, stale or failing graph never fails the run (it is succeeded once the report is written).
 - **Leads, not citations**: re-Read a `file:line` before citing it; an empty result is not a "no callers" finding; caller rows give the definition line, so confirm the call site (guide section 5) before citing; a caller list shorter than its total is `graph:truncated`.
 - **Read-only**: never run `codegraph init`, `index`, `sync`, `explore` or `context`.
 - **Names**: exact tool names `mcp__codegraph__codegraph_<tool>`, with `projectPath` set to `worktree_root` on every call.

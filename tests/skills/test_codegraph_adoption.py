@@ -285,3 +285,10 @@ def test_issue_504_skills_allow_the_codegraph_tools_and_pass_run_state(path):
 def test_workflow_command_plugin_mirror_matches_src():
     src = _SRC / "commands" / "workflow.md"
     assert _text(src) == _text(_PLUGIN / "commands" / "workflow.md")
+
+
+def test_analyze_gates_codegraph_on_access_as_well_as_index_state():
+    """A fresh index with access cli or none must not reach codegraph_files (PR 511)."""
+    text = _text(_SRC / "commands" / "analyze.md")
+    assert "`access: mcp`" in text
+    assert "`access: none`" in text and "Glob, Grep and Read" in text
