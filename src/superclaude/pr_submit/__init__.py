@@ -23,6 +23,7 @@ Top-level re-exports (``run_skill``, ``remap_severity``, ``poll_augment_review``
 from .classifier import (
     STATE_DECLINED,
     actionable_finding_comments,
+    augment_marker_defect,
     classify,
     has_augment_activity,
     has_reviewer_activity,
@@ -126,6 +127,7 @@ __all__ = [
     # detection / classification
     "classify",
     "actionable_finding_comments",
+    "augment_marker_defect",
     "is_decline",
     "has_augment_activity",
     "has_reviewer_activity",

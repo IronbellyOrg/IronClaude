@@ -1,0 +1,16 @@
+0c2b41f8e440b306d4af317ccfaed06820a57179
+ M src/superclaude/pr_submit/__init__.py
+ M src/superclaude/pr_submit/classifier.py
+ M src/superclaude/pr_submit/reviewers.py
+ M src/superclaude/skills/sc-pr-submit-protocol/SKILL.md
+ M src/superclaude/skills/sc-pr-submit-protocol/refs/augment-poll.md
+ M src/superclaude/skills/sc-pr-submit-protocol/refs/detection-contract.md
+ M src/superclaude/skills/sc-pr-submit-protocol/refs/loop-guard.md
+?? .dev/issues/381-382-456/
+?? tests/pr_submit/fixtures/cosmos-pr377-late-comment.json
+?? tests/pr_submit/fixtures/cosmos-pr377-malformed-marker.json
+?? tests/pr_submit/fixtures/cosmos-pr455-malformed-marker.json
+?? tests/pr_submit/fixtures/cosmos-pr455-malformed-then-good.json
+?? tests/pr_submit/test_late_inline_comment.py
+?? tests/pr_submit/test_marker_malformed.py
+Python 3.13.5

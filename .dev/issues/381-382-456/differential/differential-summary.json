@@ -1,0 +1,21 @@
+{
+  "snapshots_skipped": [],
+  "reviews_replayed": 132,
+  "cases": 1584,
+  "reviews_with_malformed_marker": 13,
+  "reviews_with_late_inline_comment": 11,
+  "healthy_reviews": 109,
+  "cases_changed": 16,
+  "reviews_with_any_changed_case": 4,
+  "changed_reviews_that_are_healthy": [],
+  "changed_reviews_not_malformed": [],
+  "classify_or_findings_changed": 0,
+  "changed_by_transition": {
+    "aug_wait pending->incomplete | codex-absent round polling->timeout | codex-clean round polling->clean | marker=BAD": 16
+  },
+  "old_state_counts": {
+    "clean": 366,
+    "polling": 688,
+    "findings": 530
+  }
+}

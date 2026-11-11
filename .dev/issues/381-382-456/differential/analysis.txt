@@ -1,0 +1,36 @@
+== malformed-marker reviews (13): what old and new did
+pr review submitted marker | cases with new defect | changed cases | old states seen | new reasons
+377 5776522857 2026-11-04T22:04:49Z | defect-cases 8 | changed 4 | old {'polling': 12} | ['marker_not_valid_json']
+398 5789361458 2026-11-05T17:42:57Z | defect-cases 0 | changed 0 | old {'clean': 8, 'polling': 4} | []
+397 5789700217 2026-11-05T18:09:02Z | defect-cases 0 | changed 0 | old {'findings': 8, 'polling': 4} | []
+430 5814185025 2026-11-07T18:11:55Z | defect-cases 8 | changed 4 | old {'polling': 12} | ['marker_not_valid_json']
+432 5814946750 2026-11-07T20:51:27Z | defect-cases 0 | changed 0 | old {'clean': 4, 'polling': 4, 'findings': 4} | []
+432 5815020955 2026-11-07T21:06:26Z | defect-cases 4 | changed 0 | old {'polling': 8, 'findings': 4} | ['marker_not_valid_json']
+448 5816971533 2026-11-08T06:57:19Z | defect-cases 0 | changed 0 | old {'clean': 4, 'polling': 4, 'findings': 4} | []
+448 5816979494 2026-11-08T07:00:50Z | defect-cases 8 | changed 4 | old {'polling': 12} | ['marker_not_valid_json']
+451 5817004554 2026-11-08T07:11:54Z | defect-cases 0 | changed 0 | old {'clean': 8, 'polling': 4} | []
+455 5819041100 2026-11-08T18:15:01Z | defect-cases 8 | changed 4 | old {'polling': 12} | ['marker_not_valid_json']
+455 5819088356 2026-11-08T18:29:51Z | defect-cases 4 | changed 0 | old {'polling': 8, 'clean': 2, 'findings': 2} | ['marker_not_valid_json']
+477 5831742947 2026-11-09T19:48:49Z | defect-cases 0 | changed 0 | old {'clean': 8, 'polling': 4} | []
+481 5832210188 2026-11-09T20:26:05Z | defect-cases 0 | changed 0 | old {'clean': 8, 'polling': 4} | []
+
+== late-inline-comment reviews (11): old vs new state, thread=open, no watermark, +20s and +120s
+377 5776286053 late 1 marker ok | +20s: old=findings new=findings, +120s: old=findings new=findings | any change: False
+386 5784476761 late 2 marker ok | +20s: old=findings new=findings, +120s: old=findings new=findings | any change: False
+397 5789550866 late 2 marker ok | +20s: old=findings new=findings, +120s: old=findings new=findings | any change: False
+414 5808432808 late 1 marker ok | +20s: old=findings new=findings, +120s: old=findings new=findings | any change: False
+415 5808924150 late 1 marker ok | +20s: old=findings new=findings, +120s: old=findings new=findings | any change: False
+425 5811164534 late 1 marker ok | +20s: old=findings new=findings, +120s: old=findings new=findings | any change: False
+428 5812589120 late 1 marker ok | +20s: old=findings new=findings, +120s: old=findings new=findings | any change: False
+445 5816772075 late 6 marker ok | +20s: old=findings new=findings, +120s: old=findings new=findings | any change: False
+455 5819041100 late 1 marker BAD | +20s: old=polling new=polling, +120s: old=polling new=polling | any change: True
+479 5831943060 late 1 marker ok | +20s: old=findings new=findings, +120s: old=findings new=findings | any change: False
+490 5851064092 late 2 marker ok | +20s: old=findings new=findings, +120s: old=findings new=findings | any change: False
+
+== healthy reviews: any non-empty new_defect or any changed field?
+healthy cases: 1308 | with a defect: 0 | changed: 0
+old state counts over healthy cases: {'clean': 324, 'polling': 544, 'findings': 440}
+healthy: state/findings/aug_wait/round identical old vs new: True
+
+== whole table: old==new on state and findings in every case: True
+changed cases by (at, threads, watermark): {('+120s', 'current', 'none'): 4, ('+120s', 'current', 'older'): 4, ('+120s', 'open', 'none'): 4, ('+120s', 'open', 'older'): 4}

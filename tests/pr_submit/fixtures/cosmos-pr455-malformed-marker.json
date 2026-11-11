@@ -1,0 +1,24 @@
+{
+  "pr": 455,
+  "head_sha": "6f6c46aace41587f47520b49d4570f3c0ddf62b7",
+  "observed_at": "2026-11-08T18:16:31Z",
+  "comments_ok": true,
+  "reviews_ok": true,
+  "threads_ok": true,
+  "reviews": [
+    {
+      "id": 5819041100,
+      "node_id": "PRR_kwDOPOT5c88AAAABWteFTA",
+      "user": {
+        "login": "augmentcode[bot]",
+        "type": "Bot"
+      },
+      "state": "COMMENTED",
+      "body": "<sup>[**Deep Code Review Agent**](https://cosmos.augmentcode.com/session?agentId=01M6Y5QZ8WJ58X8TBXBHBX2EP2)🐛</sup>\n\nReview completed with 1 suggestion.\n\n<sub>Reviewed commit: `6f6c46a`</sub>\n\n<!-- cosmos-review-status:v1 {\"specialist\":\"deep\",\"status\":\"reviewed\",\"baseline\":\"0423fe5f1feabe5bf826a2a131c1e24a2dadf188\",\"head\":\"6f6c46aace41587f47520b49d4570f3c0ddf62b7\",\"unresolved_count\":1,\"session_url\":\"https://cosmos.augmentcode.com/session?agentId=01M6Y5QZ8WJ58X8TBXBHBX2EP2\" -->",
+      "submitted_at": "2026-11-08T18:15:01Z",
+      "commit_id": "6f6c46aace41587f47520b49d4570f3c0ddf62b7"
+    }
+  ],
+  "comments": [],
+  "threads": []
+}

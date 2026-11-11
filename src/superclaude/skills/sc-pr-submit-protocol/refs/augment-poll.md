@@ -79,12 +79,12 @@ the same payload and context.
 
 Each poll gives each reviewer a **wait outcome**: `pending`, `done`, `absent` or `incomplete`.
 
-| Wait outcome | Augment (`augment_wait_outcome(state, nxt, absent=...)`) | Codex (`codex_wait_outcome(...)`) |
+| Wait outcome | Augment (`augment_wait_outcome(state, nxt, absent=..., marker_defect=...)`) | Codex (`codex_wait_outcome(...)`) |
 |---|---|---|
 | `pending` | `polling` and `poll_outcome` is `S2_CLASSIFY` or `S5C_SILENCE_REREQUEST` | gate state not `clean` / `findings` (still `polling`), and either active and before `--timeout`, or inactive, before the silence deadline and Augment not settled |
 | `done` | gate state `clean` / `findings` / `declined` | gate state `clean` / `findings` |
 | `absent` | `TERMINAL_AUGMENT_NO_RESPONSE`, or already absent | inactive when Augment has settled or at the silence deadline, or already absent |
-| `incomplete` | `TERMINAL_TIMEOUT` (partial activity) | active, gate state still `polling` at `--timeout` |
+| `incomplete` | `TERMINAL_TIMEOUT` (partial activity), or gate state `polling` with a `settled` `marker_defect` (the newest Augment review of the expected head has an unreadable Cosmos marker and is 60 s old; see `detection-contract.md`, "Unreadable marker") | active, gate state still `polling` at `--timeout` |
 
 A reviewer already recorded absent (`rebuild_state()["absent_reviewers"]`), or one whose identity set
 is empty, is `absent` at once and is never `pending`. `merge_wait((augment_wait, augment_state),

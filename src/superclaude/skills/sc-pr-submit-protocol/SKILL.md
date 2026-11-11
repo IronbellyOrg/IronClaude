@@ -96,8 +96,8 @@ Codex part applies the same rules to the same snapshot and `expected_head`:
 
 ```python
 from superclaude.pr_submit import (
-    actionable_finding_comments, classify, classify_codex, codex_finding_comments,
-    finding_from_comment, remap_severity, reviewer_activity, route,
+    actionable_finding_comments, augment_marker_defect, classify, classify_codex,
+    codex_finding_comments, finding_from_comment, remap_severity, reviewer_activity, route,
 )
 
 expected_head = payload.get("head_sha") if pushed_sha is None else pushed_sha
@@ -159,8 +159,13 @@ for an Augment `polling` state (`nxt = None` otherwise):
 
 ```text
 absent = set(rebuild_state()["absent_reviewers"])   # plus, in S5, every reviewer not re-triggered this cycle
+marker_defect = None   # same gate as review_state above: a forced "polling" never reads the marker
+if pushed_sha is None or (payload.get("head_sha") == pushed_sha and watermark is not None):
+    marker_defect = augment_marker_defect(
+        payload, contract, watermark=watermark, current_head_sha=expected_head)
 aug_wait = augment_wait_outcome(review_state, nxt,
-    absent="augment" in absent or not reviewer_identities(contract, "augment"))
+    absent="augment" in absent or not reviewer_identities(contract, "augment"),
+    marker_defect=marker_defect)
 cx_wait = codex_wait_outcome(codex_state, active=activity["codex"], elapsed=elapsed,
     timeout=timeout, silence_timeout=silence_timeout, other_settled=aug_wait != "pending",
     absent="codex" in absent or not reviewer_identities(contract, "codex"))
@@ -175,6 +180,22 @@ in S5, was re-triggered), append `reviewer_absent{reviewer}`; for each reviewer 
 `decision["incomplete"]` when the outcome is `clean` / `findings` / `declined`, append
 `reviewer_incomplete{reviewer, phase: "initial"|"rereview"}` and report it. Codex has no silence
 poke and no decline; a Codex `findings` result joins Augment's `declined` S5b re-entry.
+
+**Unreadable Augment marker.** `marker_defect` is not None when the newest Augment review of the
+expected head has a Cosmos marker that cannot be read (`reason` is `marker_not_valid_json`,
+`marker_not_an_object` or `marker_comment_unreadable`). The strict parse is unchanged, so the gate stays
+`polling` and the review is never clean. On the first poll that returns a defect, report once: "Augment
+review present but its status marker is malformed (<reason>)", followed by "; waiting for a corrected
+review until it is <grace_seconds> s old" when `settled` is false, or "; not waiting further" when
+`settled` is already true (monitoring started after the grace had passed), and list
+`marker_defect["open_threads"]` as findings the operator must read by hand (`None` means they could not
+be selected: say so). Once `settled` (the review is 60 s old) the Augment wait is `incomplete` and the run
+does **not** keep waiting for `--timeout`. Whatever the round outcome (`clean`, `findings`, `declined`
+or `timeout`), append `reviewer_incomplete{reviewer: "augment", phase, reason: "marker_malformed",
+detail: <reason>}` once and report it: with Codex `done` the round uses Codex alone; with Codex `absent`
+the round outcome is `timeout` (step 3 terminal handling, after that event, with the reason in the
+report). A later readable review of the same head is still accepted: the defect disappears and the
+normal result applies.
 
 An empty selection is possible with legacy `has_findings` / `findings_count` signals; invalid roots
 raise `ValueError`. Both are **incomplete**, not clean: resume step 3's bounded polling without
@@ -343,6 +364,7 @@ A validation retry does NOT increment `round_counter`.
 | Codex shows no activity by the time Augment settles (or by `--silence-timeout`) | `reviewer_absent{reviewer: "codex"}`; Codex is ignored for the run (no wait, no re-trigger, no poke). |
 | No configured reviewer responded (Augment and Codex both absent) | `terminal_augment_no_response`; Wave 8 wait-only; check App trigger mode, Allowlist, quota; comment `augment review` by hand. |
 | One reviewer completes, the other is active but never completes | the completed reviewer's result is used; `reviewer_incomplete{reviewer, phase}` is recorded and reported. |
+| Augment review on the expected head with an unreadable Cosmos marker (after the 60 s grace) | Augment's wait is `incomplete` at once, not at `--timeout`; Codex's result is used (or `timeout` when Codex is absent); `reviewer_incomplete{reviewer: "augment", phase, reason: "marker_malformed", detail}` and the report line name the cause and list its open threads; never clean. |
 | Review starts but never completes (no reviewer completes) | `terminal_timeout`; no Wave 8; no edits/push. |
 | 403 / 429 / secondary-limit | exponential backoff 30→…→cap 300s, counts toward timeout. |
 | `needs_human_decision` finding | `terminal_halted`; no auto-mutation (override, FR-4.4). |

@@ -1,0 +1,1 @@
+FAILED tests/unit/test_ccsession_tiers.py::test_shim_outlives_the_terminal_that_started_it

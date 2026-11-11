@@ -1,0 +1,40 @@
+=== A. live snapshots from the REAL poll script (read-only), classified now ===
+PR 377: head 60e0030c observed 2026-11-11T15:42:43Z flags ok=True
+    OLD: {'augment_state': 'polling', 'findings': 0, 'codex_state': 'polling', 'aug_wait': 'pending', 'codex_wait': 'pending', 'round': 'polling', 'used': [], 'incomplete': [], 'reason': None, 'settled': None, 'open_threads': None}
+    NEW: {'augment_state': 'polling', 'findings': 0, 'codex_state': 'polling', 'aug_wait': 'incomplete', 'codex_wait': 'pending', 'round': 'polling', 'used': [], 'incomplete': ['augment'], 'reason': 'marker_not_valid_json', 'settled': True, 'open_threads': []}
+PR 455: head 029a4517 observed 2026-11-11T15:42:46Z flags ok=True
+    OLD: {'augment_state': 'clean', 'findings': 0, 'codex_state': 'clean', 'aug_wait': 'done', 'codex_wait': 'done', 'round': 'clean', 'used': ['augment', 'codex'], 'incomplete': [], 'reason': None, 'settled': None, 'open_threads': None}
+    NEW: {'augment_state': 'clean', 'findings': 0, 'codex_state': 'clean', 'aug_wait': 'done', 'codex_wait': 'done', 'round': 'clean', 'used': ['augment', 'codex'], 'incomplete': [], 'reason': None, 'settled': None, 'open_threads': None}
+
+=== B. #381: PR 377 first review 5776286053 (21:44:59Z) + comment 21:45:00Z, head a2136867 ===
+  poll every 30 s from 10 s after the review, Codex absent
+    OLD: round outcome='findings' after 0 s | augment=findings aug_wait=done codex=polling/absent used=['augment'] incomplete=[]
+    NEW: round outcome='findings' after 0 s | augment=findings aug_wait=done codex=polling/absent used=['augment'] incomplete=[]
+
+=== C. #382: PR 377 second review 5776522857 (22:04:49Z, marker missing '}'), head 60e0030, watermark = re-trigger 22:01:24Z ===
+  Codex absent (Augment-only PR)
+    OLD: round outcome='timeout' after 600 s | augment=polling aug_wait=incomplete codex=polling/absent used=[] incomplete=['augment']
+    NEW: round outcome='timeout' after 60 s | augment=polling aug_wait=incomplete codex=polling/absent used=[] incomplete=['augment'] | reason line at 0 s: 'Augment review present but its status marker is malformed (marker_not_valid_json)', open threads [4473733769]
+  Codex already clean on this head (stand-in)
+    OLD: round outcome='clean' after 600 s | augment=polling aug_wait=incomplete codex=clean/done used=['codex'] incomplete=['augment']
+    NEW: round outcome='clean' after 60 s | augment=polling aug_wait=incomplete codex=clean/done used=['codex'] incomplete=['augment'] | reason line at 0 s: 'Augment review present but its status marker is malformed (marker_not_valid_json)', open threads [4473733769]
+  REAL Codex data of PR 377 (Codex active, its marker stays on the old head, so it never completes on this one)
+    OLD: round outcome='timeout' after 600 s | augment=polling aug_wait=incomplete codex=polling/incomplete used=[] incomplete=['augment', 'codex']
+    NEW: round outcome='timeout' after 600 s | augment=polling aug_wait=incomplete codex=polling/incomplete used=[] incomplete=['augment', 'codex'] | reason line at 0 s: 'Augment review present but its status marker is malformed (marker_not_valid_json)', open threads [4473733769]
+
+=== D. #456: PR 455 first review 5819041100 (18:15:01Z, 1 suggestion, marker missing '}'), head 6f6c46a ===
+  Codex clean (as the issue reports)
+    OLD: round outcome='clean' after 600 s | augment=polling aug_wait=incomplete codex=clean/done used=['codex'] incomplete=['augment']
+    NEW: round outcome='clean' after 60 s | augment=polling aug_wait=incomplete codex=clean/done used=['codex'] incomplete=['augment'] | reason line at 0 s: 'Augment review present but its status marker is malformed (marker_not_valid_json)', open threads [4507253589]
+  Codex absent
+    OLD: round outcome='timeout' after 600 s | augment=polling aug_wait=incomplete codex=polling/absent used=[] incomplete=['augment']
+    NEW: round outcome='timeout' after 60 s | augment=polling aug_wait=incomplete codex=polling/absent used=[] incomplete=['augment'] | reason line at 0 s: 'Augment review present but its status marker is malformed (marker_not_valid_json)', open threads [4507253589]
+
+=== E. a later readable review is still accepted: PR 455 head 029a451, malformed 18:29:51Z then well formed 18:30:18Z ===
+  poll from 5 s after the malformed review
+    OLD: round outcome='findings' after 30 s | augment=findings aug_wait=done codex=clean/done used=['augment', 'codex'] incomplete=[]
+    NEW: round outcome='findings' after 30 s | augment=findings aug_wait=done codex=clean/done used=['augment', 'codex'] incomplete=[] | reason line at 0 s: 'Augment review present but its status marker is malformed (marker_not_valid_json)', open threads [4507253589]
+
+=== F. healthy and legacy paths unchanged: every repo fixture, OLD vs NEW, at elapsed 0/30/300/600 and ordinals 0-3 ===
+  fixture polls compared: 136; identical: 136; different: 0
+  poll_outcome (finite timeout, silence, autonomy ordinals 0-3) identical old vs new over 4x24x2x4 inputs: True

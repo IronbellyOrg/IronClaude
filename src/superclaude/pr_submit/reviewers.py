@@ -330,16 +330,32 @@ def _state_name(value: Any) -> str:
     return str(getattr(value, "value", value))
 
 
-def augment_wait_outcome(state: str, next_state: Any, *, absent: bool = False) -> str:
+def augment_wait_outcome(
+    state: str,
+    next_state: Any,
+    *,
+    absent: bool = False,
+    marker_defect: dict | None = None,
+) -> str:
     """Augment's wait outcome from the existing gate state and ``poll_outcome`` result.
 
     ``absent`` (already recorded absent, or no Augment identity) is ``absent`` at
-    once and is never ``pending`` (A2).
+    once and is never ``pending`` (A2). ``marker_defect`` is the result of
+    :func:`~superclaude.pr_submit.classifier.augment_marker_defect`: while the gate is
+    ``polling`` and that defect is ``settled`` (the unreadable review is past its grace
+    window), the wait is ``incomplete`` now instead of ``pending`` until ``--timeout``.
+    It never turns into ``done``, so an unreadable marker is never a clean review.
     """
     if absent:
         return WAIT_ABSENT
     if state in _DONE_STATES:
         return WAIT_DONE
+    if (
+        state == STATE_POLLING
+        and isinstance(marker_defect, dict)
+        and marker_defect.get("settled") is True
+    ):
+        return WAIT_INCOMPLETE
     nxt = _state_name(next_state)
     if nxt == "TERMINAL_AUGMENT_NO_RESPONSE":
         return WAIT_ABSENT

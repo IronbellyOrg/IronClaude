@@ -1,0 +1,50 @@
+   superclaude.roadmap.remediate_executor:remediate_executor.py:676 fallback_apply: anchor not found in /tmp/pytest-of-coder/pytest-25/popen-gw7/test_anchor_not_found_returns_0/f.md for patch F-01
+   superclaude.roadmap.remediate_executor:remediate_executor.py:685 fallback_apply: anchor is ambiguous (found 2 times) in /tmp/pytest-of-coder/pytest-25/popen-gw7/test_ambiguous_anchor_returns_0/f.md for patch F-01
+[1] tests/cli/eval/test_hard_guard_real_home.py:257: NFR-SEC3 hard-guard test requires the host's real ~/.claude/ directory to exist at /tmp/tmp.2J9r6vLPZt/.claude; skipping on hosts where it is absent.
+[1] tests/cli/eval/test_hard_guard_real_home.py:314: NFR-SEC3 hard-guard test requires the host's real ~/.claude/ directory to exist at /tmp/tmp.2J9r6vLPZt/.claude; skipping on hosts where it is absent.
+[1] tests/cli/eval/test_hard_guard_real_home.py:354: NFR-SEC3 hard-guard test requires the host's real ~/.claude/ directory to exist at /tmp/tmp.2J9r6vLPZt/.claude; skipping on hosts where it is absent.
+[1] tests/cli/eval/test_hard_guard_real_home.py:423: NFR-SEC3 hard-guard test requires the host's real ~/.claude/ directory to exist at /tmp/tmp.2J9r6vLPZt/.claude; skipping on hosts where it is absent.
+[1] tests/cli/eval/test_hard_guard_real_home.py:487: NFR-SEC3 hard-guard test requires the host's real ~/.claude/ directory to exist at /tmp/tmp.2J9r6vLPZt/.claude; skipping on hosts where it is absent.
+tests/pr_submit/test_late_inline_comment.py::test_fixture_has_the_pr377_one_second_gap
+tests/pr_submit/test_late_inline_comment.py::test_late_comment_is_findings_with_an_explicit_head_and_older_watermark
+tests/pr_submit/test_late_inline_comment.py::test_own_root_a_minute_late_is_still_part_of_the_review_a6_rule
+tests/pr_submit/test_late_inline_comment.py::test_pr377_review_with_comment_one_second_later_is_findings_not_polling
+tests/pr_submit/test_late_inline_comment.py::test_review_not_newer_than_the_retrigger_watermark_still_polls[2026-11-04T21:44:59Z]
+tests/pr_submit/test_late_inline_comment.py::test_review_not_newer_than_the_retrigger_watermark_still_polls[2026-11-04T21:45:30Z]
+tests/pr_submit/test_late_inline_comment.py::test_root_of_another_review_created_after_completion_still_polls
+tests/pr_submit/test_late_inline_comment.py::test_root_of_this_review_on_an_older_head_is_not_accepted
+tests/pr_submit/test_marker_malformed.py::test_augment_only_pr_ends_as_timeout_with_a_reason_not_a_silent_full_wait
+tests/pr_submit/test_marker_malformed.py::test_codex_clean_carries_the_round_and_augment_is_reported_incomplete
+tests/pr_submit/test_marker_malformed.py::test_codex_still_pending_keeps_the_round_polling
+tests/pr_submit/test_marker_malformed.py::test_fixtures_are_the_real_malformed_bodies
+tests/pr_submit/test_marker_malformed.py::test_grace_window_then_settled
+tests/pr_submit/test_marker_malformed.py::test_helper_does_not_mutate_the_payload
+tests/pr_submit/test_marker_malformed.py::test_later_readable_review_of_the_same_head_is_still_accepted
+tests/pr_submit/test_marker_malformed.py::test_malformed_marker_is_named_within_one_poll[pr377]
+tests/pr_submit/test_marker_malformed.py::test_malformed_marker_is_named_within_one_poll[pr455]
+tests/pr_submit/test_marker_malformed.py::test_malformed_review_alone_in_that_pair_is_flagged_until_the_good_one_arrives
+tests/pr_submit/test_marker_malformed.py::test_master_behaviour_kept_strict_parse_is_polling_never_clean[pr377]
+tests/pr_submit/test_marker_malformed.py::test_master_behaviour_kept_strict_parse_is_polling_never_clean[pr455]
+tests/pr_submit/test_marker_malformed.py::test_no_defect_unless_everything_ties_the_review_to_this_poll[expected-head-moved]
+tests/pr_submit/test_marker_malformed.py::test_no_defect_unless_everything_ties_the_review_to_this_poll[no-observation-time]
+tests/pr_submit/test_marker_malformed.py::test_no_defect_unless_everything_ties_the_review_to_this_poll[no-submission-time]
+tests/pr_submit/test_marker_malformed.py::test_no_defect_unless_everything_ties_the_review_to_this_poll[not-augment]
+tests/pr_submit/test_marker_malformed.py::test_no_defect_unless_everything_ties_the_review_to_this_poll[pending-review]
+tests/pr_submit/test_marker_malformed.py::test_no_defect_unless_everything_ties_the_review_to_this_poll[review-after-observation]
+tests/pr_submit/test_marker_malformed.py::test_no_defect_unless_everything_ties_the_review_to_this_poll[review-on-another-head]
+tests/pr_submit/test_marker_malformed.py::test_no_defect_unless_everything_ties_the_review_to_this_poll[reviews-incomplete]
+tests/pr_submit/test_marker_malformed.py::test_no_defect_unless_everything_ties_the_review_to_this_poll[threads-incomplete]
+tests/pr_submit/test_marker_malformed.py::test_no_open_threads_is_an_empty_list_not_none
+tests/pr_submit/test_marker_malformed.py::test_non_dict_payload_is_none
+tests/pr_submit/test_marker_malformed.py::test_older_than_the_retrigger_watermark_is_not_a_defect
+tests/pr_submit/test_marker_malformed.py::test_open_findings_of_the_unreadable_review_are_surfaced_not_hidden
+tests/pr_submit/test_marker_malformed.py::test_reason_names_how_the_marker_is_unreadable[ [1,2] -->-marker_not_an_object]
+tests/pr_submit/test_marker_malformed.py::test_reason_names_how_the_marker_is_unreadable[ null -->-marker_not_an_object]
+tests/pr_submit/test_marker_malformed.py::test_reason_names_how_the_marker_is_unreadable[ {"a":1,"a":2} -->-marker_not_valid_json]
+tests/pr_submit/test_marker_malformed.py::test_reason_names_how_the_marker_is_unreadable[ {"specialist":"deep" -->-marker_not_valid_json]
+tests/pr_submit/test_marker_malformed.py::test_reason_names_how_the_marker_is_unreadable[ {"specialist":"deep"-marker_comment_unreadable]
+tests/pr_submit/test_marker_malformed.py::test_review_without_any_cosmos_token_is_not_a_defect
+tests/pr_submit/test_marker_malformed.py::test_two_marker_tokens_keep_the_old_silent_poll
+tests/pr_submit/test_marker_malformed.py::test_valid_json_with_wrong_fields_is_not_a_malformed_marker[{"specialist":"deep","status":"reviewed","head":"nope","unresolved_count":0}]
+tests/pr_submit/test_marker_malformed.py::test_valid_json_with_wrong_fields_is_not_a_malformed_marker[{"specialist":"deep","status":"running","baseline":"%s","head":"%s","unresolved_count":0}]
+tests/pr_submit/test_marker_malformed.py::test_wait_outcome_pending_in_grace_incomplete_after_never_done
