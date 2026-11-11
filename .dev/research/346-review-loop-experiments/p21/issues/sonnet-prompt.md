@@ -1,0 +1,6 @@
+Classify each item in /tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p21/issues/blind-inputs.json: each is a description someone wrote to file an issue against a software project. For each item choose exactly one:
+- "bug": something that already exists does not behave as documented or intended (wrong output, a crash, a broken or misleading help text, a check that fails, a wrong value);
+- "feature": a new capability, a deliberate change to intended behavior, a refactor, a configuration or data change, or new documentation or tests for something that works as designed;
+- "unclear": the description does not let you tell.
+Classify by what the request asks for, not by how it is worded. Judge each item on its own text only; do not look up anything else.
+Write JSON {"<id>": "bug"|"feature"|"unclear", ...} with all 104 ids to /tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p21/issues/sonnet-answers.json, validate it parses and has every id, then reply DONE.
