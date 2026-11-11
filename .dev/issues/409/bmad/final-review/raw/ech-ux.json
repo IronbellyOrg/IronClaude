@@ -1,0 +1,358 @@
+{
+  "reviewer": "bmad-review-edge-case-hunter",
+  "artifact": "UX: _bmad-output/planning-artifacts/orca-observer/ux-designs/ux-orca-observer-2026-11-08/DESIGN.md + EXPERIENCE.md (full-file scope)",
+  "verdict": "FAIL",
+  "self_audit": "Walked every screen state and transition in DESIGN.md (1-225) and EXPERIENCE.md (1-556): first launch before any cycle, first-poll failure, empty versus unknown fleet, partial pages, failed/stale/overrun sources, selected row leaving or being hidden, filters and historical hiding everything, width bands down to below 80 and heights below the 12-row minimum, NO_COLOR and --ascii, key reader unavailable and signals, untrusted long strings and control characters, and every place unknown could read as zero or false. Spot-checked the spec at rendering-rules.md:13,17,19,51 and adapter-contract.md:51 for other_side citations. Step 4 (deletion check) skipped: no diff.",
+  "findings": [
+    {
+      "id": "ECH-UX-01",
+      "location": "_bmad-output/planning-artifacts/orca-observer/ux-designs/ux-orca-observer-2026-11-08/EXPERIENCE.md:287",
+      "trigger_condition": "First launch, before any worker-list poll completes; COUNTS source-count tokens rendered",
+      "guard_snippet": "if not polled: counts.source = 'source counts: NOT POLLED'; header.scope = 'scope unknown'; status_line = ''",
+      "potential_consequence": "active/reclaimable/retained/released may render as 0 before any data exists",
+      "evidence": "PROPOSED: header `as of not yet polled`, COUNTS `collected 0 / reported unknown`, ledger line `waiting for first worker-list poll`.",
+      "proposed_grade": "BLOCKING",
+      "other_side": "_bmad-output/specs/spec-orca-observer/rendering-rules.md:51"
+    },
+    {
+      "id": "ECH-UX-02",
+      "location": "_bmad-output/planning-artifacts/orca-observer/ux-designs/ux-orca-observer-2026-11-08/EXPERIENCE.md:291",
+      "trigger_condition": "Very first poll fails, times out, returns FAILED (shape), or binary missing",
+      "guard_snippet": "if failed and last_good is None: ledger_body = 'no worker-list data yet: first poll FAILED (<reason>)'; counts = 'collected 0 / reported unknown'",
+      "potential_consequence": "'last good rows kept' has nothing to keep; ledger body undefined, possibly blank",
+      "evidence": "Failed poll | `FAILED (...)` cell; last good rows kept with `as of`; retries back off up to 60 s.",
+      "proposed_grade": "BLOCKING",
+      "other_side": "_bmad-output/planning-artifacts/orca-observer/ux-designs/ux-orca-observer-2026-11-08/EXPERIENCE.md:281"
+    },
+    {
+      "id": "ECH-UX-03",
+      "location": "_bmad-output/planning-artifacts/orca-observer/ux-designs/ux-orca-observer-2026-11-08/EXPERIENCE.md:80",
+      "trigger_condition": "Source is STALE or FAILED while the header keeps redrawing every cycle",
+      "guard_snippet": "header.as_of = last_good_poll_local_time or 'not yet polled'  # never render time",
+      "potential_consequence": "Header 'as of' may show render time, making stale data look current",
+      "evidence": "UX: `as of <HH:MM:SS>`; spec: `as of <local time of last good poll>`.",
+      "proposed_grade": "BLOCKING",
+      "other_side": "_bmad-output/specs/spec-orca-observer/rendering-rules.md:17"
+    },
+    {
+      "id": "ECH-UX-04",
+      "location": "_bmad-output/planning-artifacts/orca-observer/ux-designs/ux-orca-observer-2026-11-08/EXPERIENCE.md:240",
+      "trigger_condition": "Every collected row is historical (hidden by default) or the filter matches none",
+      "guard_snippet": "if visible_rows == 0 and collected > 0: ledger_body = f'0 of {collected} collected shown ({hidden} historical hidden, filter: {expr})'",
+      "potential_consequence": "Ledger body blank or reads like the empty-fleet state; hidden rows look absent",
+      "evidence": "Historical rows (`terminalState` released or retained) are hidden by default, with `k historical hidden (h)` shown.",
+      "proposed_grade": "BLOCKING",
+      "other_side": "_bmad-output/planning-artifacts/orca-observer/ux-designs/ux-orca-observer-2026-11-08/EXPERIENCE.md:288"
+    },
+    {
+      "id": "ECH-UX-05",
+      "location": "_bmad-output/planning-artifacts/orca-observer/ux-designs/ux-orca-observer-2026-11-08/EXPERIENCE.md:238-240",
+      "trigger_condition": "Selected worker becomes historical, or filter or h-toggle hides it, while still in source",
+      "guard_snippet": "if sel in source and not visible(sel): cursor_row = f'selected {id} hidden by filter/historical'  # not 'no longer in source window'",
+      "potential_consequence": "Cursor behaviour undefined, or falsely claims the worker left the source window",
+      "evidence": "If that worker disappears, the cursor row reads `selected <id> no longer in source window` until the user moves.",
+      "proposed_grade": "BLOCKING",
+      "other_side": null
+    },
+    {
+      "id": "ECH-UX-06",
+      "location": "_bmad-output/planning-artifacts/orca-observer/ux-designs/ux-orca-observer-2026-11-08/EXPERIENCE.md:239",
+      "trigger_condition": "User presses Enter, j/k or e on the phantom 'no longer in source window' row, or it reappears",
+      "guard_snippet": "phantom: Enter -> inspector(last_values, banner='no longer in source window'); j/k -> nearest neighbour by last index; reappear -> restore row",
+      "potential_consequence": "Undefined target row on move; undefined inspector and export content for vanished worker",
+      "evidence": "the cursor row reads `selected <id> no longer in source window` until the user moves. The cursor never jumps to another worker.",
+      "proposed_grade": "MINOR",
+      "other_side": "_bmad-output/planning-artifacts/orca-observer/ux-designs/ux-orca-observer-2026-11-08/EXPERIENCE.md:353"
+    },
+    {
+      "id": "ECH-UX-07",
+      "location": "_bmad-output/planning-artifacts/orca-observer/ux-designs/ux-orca-observer-2026-11-08/EXPERIENCE.md:251",
+      "trigger_condition": "Inspector open while source goes STALE/FAILED/PARTIAL or the worker leaves the window",
+      "guard_snippet": "inspector.top = [freshness_cell, counts_minimum, gap_notice]; if worker_gone: banner('last values as of HH:MM:SS; no longer in source window')",
+      "potential_consequence": "Full-screen inspector hides never-dropped rows; old values read as current",
+      "evidence": "A full-screen replacement of the view, not a pane. / The inspector keeps its last values.",
+      "proposed_grade": "BLOCKING",
+      "other_side": "_bmad-output/specs/spec-orca-observer/rendering-rules.md:19"
+    },
+    {
+      "id": "ECH-UX-08",
+      "location": "_bmad-output/planning-artifacts/orca-observer/ux-designs/ux-orca-observer-2026-11-08/EXPERIENCE.md:352-353",
+      "trigger_condition": "After m, polls fail, go stale, or pages go unread; nothing re-observed",
+      "guard_snippet": "changed_label = f'changed since {hhmm} ({k}, {u} not reobserved)' if u or stale else f'changed since {hhmm} ({k})'",
+      "potential_consequence": "'changed since 14:02 (0)' reads as no change when nothing was observed",
+      "evidence": "added, removed or changed rows show `*` and are counted in `changed since HH:MM (k)`. ... Rows on unread pages read `not reobserved`.",
+      "proposed_grade": "BLOCKING",
+      "other_side": "_bmad-output/planning-artifacts/orca-observer/ux-designs/ux-orca-observer-2026-11-08/EXPERIENCE.md:447"
+    },
+    {
+      "id": "ECH-UX-09",
+      "location": "_bmad-output/planning-artifacts/orca-observer/ux-designs/ux-orca-observer-2026-11-08/EXPERIENCE.md:350-351",
+      "trigger_condition": "User presses m before the first successful poll (no baseline yet)",
+      "guard_snippet": "if baseline is None: status('mark ignored: no baseline yet') else: mark = now",
+      "potential_consequence": "Every first-seen row may be marked added; count inflated to all rows",
+      "evidence": "The first observation in a process is the baseline. ... `m` records a mark in memory only.",
+      "proposed_grade": "MINOR",
+      "other_side": null
+    },
+    {
+      "id": "ECH-UX-10",
+      "location": "_bmad-output/planning-artifacts/orca-observer/ux-designs/ux-orca-observer-2026-11-08/EXPERIENCE.md:240",
+      "trigger_condition": "terminalState absent or outside released/retained (vocabulary UNVERIFIED)",
+      "guard_snippet": "historical = terminalState in {'released','retained'}  # absent/unknown -> shown, never hidden",
+      "potential_consequence": "Rows with unknown terminalState may be silently hidden as historical",
+      "evidence": "Historical rows (`terminalState` released or retained) are hidden by default",
+      "proposed_grade": "BLOCKING",
+      "other_side": "_bmad-output/planning-artifacts/orca-observer/ux-designs/ux-orca-observer-2026-11-08/DESIGN.md:126"
+    },
+    {
+      "id": "ECH-UX-11",
+      "location": "_bmad-output/planning-artifacts/orca-observer/ux-designs/ux-orca-observer-2026-11-08/EXPERIENCE.md:238",
+      "trigger_condition": "A worker record has absent or empty dispatchId",
+      "guard_snippet": "key = (ns, dispatchId) if dispatchId else ('no-id', page, index); never dedupe rows without an id; show 'dispatchId unknown'",
+      "potential_consequence": "ID-less rows collapse as duplicates and vanish; selection anchoring impossible",
+      "evidence": "Selection is anchored to identity (source namespace + `dispatchId`) ... Duplicates are dropped with `k duplicate rows ignored`.",
+      "proposed_grade": "BLOCKING",
+      "other_side": "_bmad-output/planning-artifacts/orca-observer/ux-designs/ux-orca-observer-2026-11-08/EXPERIENCE.md:423"
+    },
+    {
+      "id": "ECH-UX-12",
+      "location": "_bmad-output/planning-artifacts/orca-observer/ux-designs/ux-orca-observer-2026-11-08/EXPERIENCE.md:241",
+      "trigger_condition": "Two rows share an identity but carry different field values",
+      "guard_snippet": "keep = max(dups, key=observedAt) if all have observedAt else first_in_source_order",
+      "potential_consequence": "Which copy is shown and exported is arbitrary between runs",
+      "evidence": "Duplicates are dropped with `k duplicate rows ignored`.",
+      "proposed_grade": "MINOR",
+      "other_side": null
+    },
+    {
+      "id": "ECH-UX-13",
+      "location": "_bmad-output/planning-artifacts/orca-observer/ux-designs/ux-orca-observer-2026-11-08/EXPERIENCE.md:108",
+      "trigger_condition": "Terminal far narrower than 80 columns (for example 30)",
+      "guard_snippet": "if W < MIN_W: show diagnostic('terminal too narrow: need N cols, have W') wrapping never-cut tokens by cells",
+      "potential_consequence": "Never-cut tokens and fixed columns cannot satisfy cell_len <= W",
+      "evidence": "< 80 | short form at the reduced width | `terminal too narrow (min 80)` above the COUNTS strip",
+      "proposed_grade": "BLOCKING",
+      "other_side": "_bmad-output/planning-artifacts/orca-observer/ux-designs/ux-orca-observer-2026-11-08/EXPERIENCE.md:90"
+    },
+    {
+      "id": "ECH-UX-14",
+      "location": "_bmad-output/planning-artifacts/orca-observer/ux-designs/ux-orca-observer-2026-11-08/EXPERIENCE.md:163",
+      "trigger_condition": "Terminal height below the rows the diagnostic itself needs (about 7)",
+      "guard_snippet": "if H < diag_rows: render only the diagnostic sentence plus coverage/scope/PARTIAL in one line",
+      "potential_consequence": "Diagnostic plus never-dropped rows overflow the screen; behaviour undefined",
+      "evidence": "the too-small diagnostic (screen 3) replaces the ledger. It keeps every row that never drops: the header, freshness, COUNTS, the gap notice and the footer.",
+      "proposed_grade": "MINOR",
+      "other_side": "_bmad-output/specs/spec-orca-observer/rendering-rules.md:13"
+    },
+    {
+      "id": "ECH-UX-15",
+      "location": "_bmad-output/planning-artifacts/orca-observer/ux-designs/ux-orca-observer-2026-11-08/EXPERIENCE.md:83",
+      "trigger_condition": "Width below 74 cells; the 74-cell gap notice must be cut or wrapped",
+      "guard_snippet": "gap_notice wraps by cells; never cut; 'not \"no questions\"' always rendered",
+      "potential_consequence": "Cut after '0 rows' reads as zero questions, the forbidden reading",
+      "evidence": "Gap notice: `Human questions: source UNVERIFIED, 0 rows interpreted, not \"no questions\"`",
+      "proposed_grade": "BLOCKING",
+      "other_side": "_bmad-output/planning-artifacts/orca-observer/ux-designs/ux-orca-observer-2026-11-08/EXPERIENCE.md:303"
+    },
+    {
+      "id": "ECH-UX-16",
+      "location": "_bmad-output/planning-artifacts/orca-observer/ux-designs/ux-orca-observer-2026-11-08/EXPERIENCE.md:81",
+      "trigger_condition": "At 80 columns: STALE plus last FAILED plus cycle overran plus messages cell",
+      "guard_snippet": "freshness strip wraps to 2 lines; state words (STALE/FAILED/NOT POLLED) never cut",
+      "potential_consequence": "About 100 cells on one line; state word may be cut off",
+      "evidence": "PROPOSED: `STALE <age>, last poll FAILED (<reason>)` / the strip shows `cycle overran (Ns)`",
+      "proposed_grade": "BLOCKING",
+      "other_side": "_bmad-output/planning-artifacts/orca-observer/ux-designs/ux-orca-observer-2026-11-08/EXPERIENCE.md:221"
+    },
+    {
+      "id": "ECH-UX-17",
+      "location": "_bmad-output/planning-artifacts/orca-observer/ux-designs/ux-orca-observer-2026-11-08/EXPERIENCE.md:289",
+      "trigger_condition": "PARTIAL at 80 or 116 columns; 118-cell sentence on a one-line status line",
+      "guard_snippet": "status line wraps by cells, or PARTIAL sentence moves to its own wrapped row; never cut",
+      "potential_consequence": "Never-truncated sentence cannot fit one line; contradicts cell_len <= W",
+      "evidence": "`PARTIAL` in the COUNTS strip (never truncated) plus the full partial sentence on the status line.",
+      "proposed_grade": "BLOCKING",
+      "other_side": "_bmad-output/planning-artifacts/orca-observer/ux-designs/ux-orca-observer-2026-11-08/EXPERIENCE.md:279"
+    },
+    {
+      "id": "ECH-UX-18",
+      "location": "_bmad-output/planning-artifacts/orca-observer/ux-designs/ux-orca-observer-2026-11-08/EXPERIENCE.md:181-183",
+      "trigger_condition": "POSIX run with stdin/stdout not a TTY, termios failing, or stdin EOF mid-session",
+      "guard_snippet": "if not (stdin.isatty() and stdout.isatty()): run --once semantics or exit with 'interactive mode needs a TTY'",
+      "potential_consequence": "Crash, busy loop on EOF, or escape codes written into a pipe",
+      "evidence": "POSIX terminals run interactively. / Windows supports `--once` only",
+      "proposed_grade": "MINOR",
+      "other_side": null
+    },
+    {
+      "id": "ECH-UX-19",
+      "location": "_bmad-output/planning-artifacts/orca-observer/ux-designs/ux-orca-observer-2026-11-08/EXPERIENCE.md:342",
+      "trigger_condition": "Ctrl-Z suspend and fg resume, SIGHUP on terminal close, or a paste burst",
+      "guard_snippet": "handle SIGTSTP: restore terminal then stop; SIGCONT: re-enter raw mode and full redraw; SIGHUP: restore and exit",
+      "potential_consequence": "Shell left in raw mode or screen garbled after resume",
+      "evidence": "The terminal is restored (echo, cursor, alternate screen) on `q`, Ctrl-C, SIGTERM and an unhandled exception.",
+      "proposed_grade": "MINOR",
+      "other_side": null
+    },
+    {
+      "id": "ECH-UX-20",
+      "location": "_bmad-output/planning-artifacts/orca-observer/ux-designs/ux-orca-observer-2026-11-08/EXPERIENCE.md:313-321",
+      "trigger_condition": "Arrow keys, empty Enter, invalid or very long expression in filter input",
+      "guard_snippet": "filter mode: arrows ignored; empty Enter clears filter; invalid expr -> 'filter invalid: <reason>' keeping previous; expr display cut with '>'",
+      "potential_consequence": "Undefined filter behaviour; status line overflow from long expression",
+      "evidence": "Up / Down, `k` / `j` ... | `j`/`k` are typed as text; `Enter` ... apply the filter and return to the ledger",
+      "proposed_grade": "MINOR",
+      "other_side": "_bmad-output/planning-artifacts/orca-observer/ux-designs/ux-orca-observer-2026-11-08/EXPERIENCE.md:84"
+    },
+    {
+      "id": "ECH-UX-21",
+      "location": "_bmad-output/planning-artifacts/orca-observer/ux-designs/ux-orca-observer-2026-11-08/EXPERIENCE.md:332",
+      "trigger_condition": "Resize below minimum while inspector or filter input is open, then back",
+      "guard_snippet": "diagnostic overlays mode; keep mode stack (inspector/filter text) and restore on resize back",
+      "potential_consequence": "Filter text or inspector context lost; key handling in diagnostic undefined",
+      "evidence": "A refresh never moves focus or selection. It never closes the inspector or the filter input",
+      "proposed_grade": "MINOR",
+      "other_side": "_bmad-output/planning-artifacts/orca-observer/ux-designs/ux-orca-observer-2026-11-08/EXPERIENCE.md:163"
+    },
+    {
+      "id": "ECH-UX-22",
+      "location": "_bmad-output/planning-artifacts/orca-observer/ux-designs/ux-orca-observer-2026-11-08/EXPERIENCE.md:393",
+      "trigger_condition": "NO_COLOR set to another non-empty value (for example 0), or empty",
+      "guard_snippet": "no_color = os.environ.get('NO_COLOR', '') != ''  # any non-empty value; SGR 1/7 still allowed",
+      "potential_consequence": "Two documents give different triggers; reverse video and bold status undefined",
+      "evidence": "DESIGN: `NO_COLOR` set to a non-empty value; EXPERIENCE: `NO_COLOR=1` and `NO_COLOR=yes` turn off all SGR colour.",
+      "proposed_grade": "MINOR",
+      "other_side": "_bmad-output/planning-artifacts/orca-observer/ux-designs/ux-orca-observer-2026-11-08/DESIGN.md:140"
+    },
+    {
+      "id": "ECH-UX-23",
+      "location": "_bmad-output/planning-artifacts/orca-observer/ux-designs/ux-orca-observer-2026-11-08/DESIGN.md:195",
+      "trigger_condition": "--ascii with an ID or value containing non-ASCII characters",
+      "guard_snippet": "ascii mode: escape non-ASCII as \\uXXXX in inspector and export instead of '?'",
+      "potential_consequence": "Full IDs become lossy; distinct IDs look identical; copied commands target wrong worker",
+      "evidence": "PROPOSED: under `--ascii`, any other non-ASCII character in source text is shown as `?`.",
+      "proposed_grade": "BLOCKING",
+      "other_side": "_bmad-output/planning-artifacts/orca-observer/ux-designs/ux-orca-observer-2026-11-08/EXPERIENCE.md:375"
+    },
+    {
+      "id": "ECH-UX-24",
+      "location": "_bmad-output/planning-artifacts/orca-observer/ux-designs/ux-orca-observer-2026-11-08/EXPERIENCE.md:183",
+      "trigger_condition": "Non-UTF-8 terminal started without the --ascii flag",
+      "guard_snippet": "if locale encoding is not UTF-8 and not ascii_flag: enable ascii mode and note 'ascii (auto)' in header",
+      "potential_consequence": "Box glyphs and cursor render as mojibake or encode errors",
+      "evidence": "Non-UTF-8 terminals use `--ascii`.",
+      "proposed_grade": "MINOR",
+      "other_side": null
+    },
+    {
+      "id": "ECH-UX-25",
+      "location": "_bmad-output/planning-artifacts/orca-observer/ux-designs/ux-orca-observer-2026-11-08/EXPERIENCE.md:302",
+      "trigger_condition": "A source value that fits naturally ends with the character >",
+      "guard_snippet": "if value fits and endswith('>'): render unchanged but distinguish truncation (e.g. marker only when cut, documented ambiguity)",
+      "potential_consequence": "Complete value reads as truncated, or vice versa",
+      "evidence": "List cells cut by display-cell width and end with a visible `>`",
+      "proposed_grade": "MINOR",
+      "other_side": null
+    },
+    {
+      "id": "ECH-UX-26",
+      "location": "_bmad-output/planning-artifacts/orca-observer/ux-designs/ux-orca-observer-2026-11-08/EXPERIENCE.md:368",
+      "trigger_condition": "Worker-supplied value contains newline followed by text like 'dispatchId: x'",
+      "guard_snippet": "inspector/export: indent continuation lines of a value (e.g. '  | ') so no line can start a label",
+      "potential_consequence": "Spoofed field lines in inspector or export; supervisor copies a fake ID",
+      "evidence": "bare C0 control characters, except newline in the inspector / Fields are listed one per line, label then value.",
+      "proposed_grade": "BLOCKING",
+      "other_side": "_bmad-output/specs/spec-orca-observer/adapter-contract.md:51"
+    },
+    {
+      "id": "ECH-UX-27",
+      "location": "_bmad-output/planning-artifacts/orca-observer/ux-designs/ux-orca-observer-2026-11-08/EXPERIENCE.md:365-369",
+      "trigger_condition": "Text contains DEL 0x7F, U+2028/U+2029, or East Asian ambiguous-width characters",
+      "guard_snippet": "strip 0x7F and categories Zl/Zp; treat ambiguous-width as 2 cells or replace",
+      "potential_consequence": "Unexpected line breaks or lines exceeding W in some terminals",
+      "evidence": "C1 control characters; bare C0 control characters ...; Unicode format characters (category Cf).",
+      "proposed_grade": "MINOR",
+      "other_side": "_bmad-output/specs/spec-orca-observer/adapter-contract.md:51"
+    },
+    {
+      "id": "ECH-UX-28",
+      "location": "_bmad-output/planning-artifacts/orca-observer/ux-designs/ux-orca-observer-2026-11-08/EXPERIENCE.md:252",
+      "trigger_condition": "stage.detail or sanitized stderr is megabytes long",
+      "guard_snippet": "inspector: page keys (PgUp/PgDn) plus a display cap with 'N more lines; full value in export'",
+      "potential_consequence": "Line-by-line scrolling impractical; render time or memory spikes",
+      "evidence": "Values are wrapped by cells and never truncated. / A failed poll shows its sanitized stderr here.",
+      "proposed_grade": "MINOR",
+      "other_side": "_bmad-output/planning-artifacts/orca-observer/ux-designs/ux-orca-observer-2026-11-08/EXPERIENCE.md:313"
+    },
+    {
+      "id": "ECH-UX-29",
+      "location": "_bmad-output/planning-artifacts/orca-observer/ux-designs/ux-orca-observer-2026-11-08/DESIGN.md:202",
+      "trigger_condition": "Freshness cell is NOT AVAILABLE or 'cycle overran' (implicit states)",
+      "guard_snippet": "freshness colours: NOT AVAILABLE -> bad or warn; cycle overran -> warn; add both to the state vocabulary",
+      "potential_consequence": "Colour and vocabulary undefined for two reachable freshness states",
+      "evidence": "The state word is coloured: OK ink, STALE warn, FAILED bad, NOT POLLED muted, UNVERIFIED warn.",
+      "proposed_grade": "MINOR",
+      "other_side": "_bmad-output/planning-artifacts/orca-observer/ux-designs/ux-orca-observer-2026-11-08/EXPERIENCE.md:292"
+    },
+    {
+      "id": "ECH-UX-30",
+      "location": "_bmad-output/planning-artifacts/orca-observer/ux-designs/ux-orca-observer-2026-11-08/EXPERIENCE.md:58",
+      "trigger_condition": "Start-up view choice happens before any question poll has run",
+      "guard_snippet": "at start-up: await first question poll with timeout T; choose B only on success; define gap-notice return if it later fails",
+      "potential_consequence": "B can never be the default, or start-up blocks indefinitely",
+      "evidence": "The default view is chosen once at start-up ... If the question source has not succeeded in this process, the observer starts on the R1 ledger",
+      "proposed_grade": "BLOCKING",
+      "other_side": "_bmad-output/planning-artifacts/orca-observer/ux-designs/ux-orca-observer-2026-11-08/EXPERIENCE.md:478"
+    },
+    {
+      "id": "ECH-UX-31",
+      "location": "_bmad-output/planning-artifacts/orca-observer/ux-designs/ux-orca-observer-2026-11-08/EXPERIENCE.md:288",
+      "trigger_condition": "Live poll returns 0 workers with scope unknown, PARTIAL, or source later STALE",
+      "guard_snippet": "empty line = 'worker-list returned 0 workers in scope=<scope or scope unknown> as of HH:MM:SS; not proof none exist'",
+      "potential_consequence": "Empty live fleet reads as proof of no workers",
+      "evidence": "Empty | `worker-list returned 0 workers in scope=<scope>`; fixture: `no observed items in this source window; not proof none exist`",
+      "proposed_grade": "MINOR",
+      "other_side": null
+    },
+    {
+      "id": "ECH-UX-32",
+      "location": "_bmad-output/planning-artifacts/orca-observer/ux-designs/ux-orca-observer-2026-11-08/EXPERIENCE.md:68",
+      "trigger_condition": "--once run with no terminal width, or its single poll fails",
+      "guard_snippet": "--once: use full-table record form regardless of W; exit nonzero when the poll FAILED",
+      "potential_consequence": "Layout form undefined; scripts treat a failed poll as success",
+      "evidence": "Text export (`e` in session, or `--once`) ... Writes the same view model as plain text",
+      "proposed_grade": "MINOR",
+      "other_side": null
+    },
+    {
+      "id": "ECH-UX-33",
+      "location": "_bmad-output/planning-artifacts/orca-observer/ux-designs/ux-orca-observer-2026-11-08/EXPERIENCE.md:296",
+      "trigger_condition": "Row flagged 'order unknown' or 'conflict (time went back)' at 116 or 80 columns",
+      "guard_snippet": "flag replaces the age cell in line forms (age cell = 'order?' / 'conflict')",
+      "potential_consequence": "No cell holds the flag; it is dropped in narrow forms",
+      "evidence": "A row missing both timestamps is flagged `order unknown`; a backward timestamp shows `conflict (time went back)`",
+      "proposed_grade": "MINOR",
+      "other_side": "_bmad-output/planning-artifacts/orca-observer/ux-designs/ux-orca-observer-2026-11-08/EXPERIENCE.md:106-107"
+    },
+    {
+      "id": "ECH-UX-34",
+      "location": "_bmad-output/planning-artifacts/orca-observer/ux-designs/ux-orca-observer-2026-11-08/EXPERIENCE.md:314",
+      "trigger_condition": "Enter pressed with no rows, on the loading line, or before any selection exists",
+      "guard_snippet": "initial selection = first visible row; Enter with no selectable row does nothing",
+      "potential_consequence": "Inspector opened on nothing; initial cursor position undefined",
+      "evidence": "`Enter` | open the inspector for the selected row",
+      "proposed_grade": "MINOR",
+      "other_side": "_bmad-output/planning-artifacts/orca-observer/ux-designs/ux-orca-observer-2026-11-08/EXPERIENCE.md:287"
+    },
+    {
+      "id": "ECH-UX-35",
+      "location": "_bmad-output/planning-artifacts/orca-observer/ux-designs/ux-orca-observer-2026-11-08/EXPERIENCE.md:278",
+      "trigger_condition": "Mark spans midnight, age exceeds hours/days, or wall clock jumps",
+      "guard_snippet": "show date when mark day != today; age format 'Nd Nh' within 7 cells; state local time zone once",
+      "potential_consequence": "'changed since 23:58' ambiguous next day; long ages overflow the 7-cell column",
+      "evidence": "on a monotonic clock / `changed since HH:MM (k)`",
+      "proposed_grade": "MINOR",
+      "other_side": "_bmad-output/planning-artifacts/orca-observer/ux-designs/ux-orca-observer-2026-11-08/EXPERIENCE.md:123"
+    }
+  ]
+}

@@ -1,0 +1,299 @@
+{
+  "meta": {
+    "extracted": "2026-11-08",
+    "src_files": {
+      "prd.md": "/home/coder/workspaces/worktrees/Coder/dashboard-bmad/_bmad-output/planning-artifacts/orca-observer/prd.md (521 lines, status: final)",
+      "addendum.md": "/home/coder/workspaces/worktrees/Coder/dashboard-bmad/_bmad-output/planning-artifacts/orca-observer/addendum.md (52 lines)",
+      "handoff-step2.md": "/home/coder/workspaces/worktrees/IronClaude/issue-409-mvp/.dev/issues/409/bmad/handoff-step2.md (28 lines)"
+    },
+    "notes": [
+      {"text": "PRD defers geometry, row grammar, pinned strings and key map to spec companion rendering-rules.md; addendum says later steps read it there (not read by this extractor).", "src": "addendum.md:11"},
+      {"text": "Current status: DIRECTION-SELECTED is NOT passed and R1 is gated (section 4), so today only offline R0 work is allowed (section 8).", "src": "prd.md:25"},
+      {"text": "B1/B2 fixes (FR-8 mismatch string, glossary PARTIAL) applied in fix cycle 2 and NOT re-verified by a further review.", "src": "handoff-step2.md:21"}
+    ]
+  },
+
+  "personas": [
+    {"name": "The supervisor", "kind": "primary", "goal": "one human supervising 5-10 orchestrators and 50-100 sessions/worktrees (issue 409, I:11). Sessions do not map one-to-one to worktrees", "src": "prd.md:39"},
+    {"name": "Reviewer (R0)", "kind": "secondary", "goal": "reviews synthetic fixture renders of the three directions at 160/116/80 columns before any live call, as input to the owner's selection (CAP-1, T50)", "src": "prd.md:54"},
+    {"name": "Owner", "kind": "secondary", "goal": "records the dated selection record and the other open decisions (section 12). The owner is the only decider for gates; no agent writes a selection record.", "src": "prd.md:55"},
+    {"name": "Snapshot consumer (machine, later)", "kind": "secondary", "goal": "a read-only Go screen inside TUIBBS may read the JSON snapshot later, subject to the licence opinion (OQ-9). Not built here.", "src": "prd.md:56"},
+    {"name": "Non-users: agents and workers", "kind": "non-user", "goal": "the observer never instructs, approves or replies to them", "src": "prd.md:60"},
+    {"name": "Non-users: staff teams on a shared BBS platform", "kind": "non-user", "goal": "background only ... Whether TUIBBS becomes the staff platform is OQ-10", "src": "prd.md:61"}
+  ],
+  "jobs_to_be_done": [
+    {"id": "JTBD-1", "release": "R1", "text": "When I glance at the terminal, I want to know whether the fleet is alive and how complete and fresh my view is, so that I do not mistake a partial or stale picture for the whole fleet.", "src": "prd.md:43"},
+    {"id": "JTBD-2", "release": "R1", "text": "When I come back after a while, I want to see what changed since I last looked, so that I find meaningful updates without rereading chat.", "src": "prd.md:44"},
+    {"id": "JTBD-3", "release": "R1", "text": "When one worker row matters, I want to inspect its full evidence with full identifiers, so that I judge it on facts, not on activity.", "src": "prd.md:45"},
+    {"id": "JTBD-4", "release": "R1", "text": "When I need to share or archive what I saw, I want a plain-text export of exactly the view on screen.", "src": "prd.md:46", "flag": "handoff M12: JTBD-4 \"exactly the view on screen\" vs CAP-9/T48 lossless export (handoff-step2.md:24)"},
+    {"id": "JTBD-5", "release": "R2 (gated)", "text": "When agents ask humans questions, I want every observed open question kept until explicit closure evidence, so that reading is never treated as handling.", "src": "prd.md:47"},
+    {"id": "JTBD-6", "release": "R3 (gated)", "text": "When I decide one question, I want to see who is affected and the evidence, so that I answer with the right scope.", "src": "prd.md:48"},
+    {"id": "user story I:15", "text": "As a human supervising orchestrators, I want a read-only view of attention, affected work, changes, and evidence, so that I can find decisions and inspect their supporting facts without confusing activity with outcomes.", "src": "prd.md:50"}
+  ],
+
+  "journeys": [
+    {"id": "UJ-1", "name": "Fleet glance (R1)", "steps": [
+      "1. The supervisor starts the observer.",
+      "2. The header shows scope, collected versus reported counts, freshness, and the notice that human questions are not observed.",
+      "3. The COUNTS strip shows source state counts unsummed.",
+      "4. If data is partial or stale the header says so in words."], "src": "prd.md:65"},
+    {"id": "UJ-2", "name": "What changed (R1)", "steps": [
+      "1. The supervisor presses `m` to mark a look.",
+      "2. On the next cycle, rows whose stage, `nextAction.kind` or `liveness.verdict` changed are starred and counted;",
+      "3. rows no longer read show `not reobserved`."], "src": "prd.md:66"},
+    {"id": "UJ-3", "name": "Inspect (R1)", "steps": [
+      "1. The supervisor selects a row; selection follows the row's identity across reorders.",
+      "2. Enter opens the inspector with every identifier in full or `unknown (absent in source)`."], "src": "prd.md:67"},
+    {"id": "UJ-4", "name": "Export (R1, any platform)", "steps": [
+      "1. The supervisor presses `e` or runs with `--once`",
+      "2. and gets a plain-text record of the same view: no escape bytes, full IDs."], "src": "prd.md:68"},
+    {"id": "UJ-5", "name": "Find the oldest question (R2/R3, gated)", "steps": [
+      "1. \"find the oldest question and inspect its evidence\" (merged requirements, C's walkthrough task)."], "src": "prd.md:69"},
+    {"id": "owner-review walkthrough", "name": "DIRECTION-SELECTED review task", "steps": [
+      "1. reviewed against synthetic R0 renders of A, B, C at 160/116/80, each beside its degraded state,",
+      "2. with the task \"find the oldest question and inspect its evidence\"."], "src": "prd.md:463"}
+  ],
+
+  "releases": {
+    "mapping": {"text": "The brief's \"R1 / B / C\" maps to the spec's R1 / R2 / R3. The spec adds an offline R0 before R1 and later stages after R3.", "label": "[ASSUMPTION] A1 (prd.md:514)", "src": "prd.md:97"},
+    "data_gate_rule": {"text": "A data gate passes only on recorded, redacted samples of four kinds, success, missing, stale and contradictory, each pinned in a contract test. Without all four the gate stays closed. A failed gate keeps the screen on the previous release's view.", "src": "prd.md:99"},
+    "R0": {
+      "includes": "Ledger screen, inspector, text export at 160/116/80, sanitizer, cell-width truncation, NO_COLOR, ID-anchored selection, every fixture variant, a redacted golden `worker-list` fixture; renders of A, B and C for review. Key-reader spike first.",
+      "gate": "None from Orca; offline only. Fixtures labelled SYNTHETIC; the PROPOSED schema is used only in fixture mode.",
+      "status": "Open to start",
+      "ux": [
+        {"text": "see the Signal Bridge, Attention Ledger and Decision Desk directions at 160, 116 and 80 columns, each with a degraded version beside it, before any live Orca call", "id": "FR-1", "src": "prd.md:124"},
+        {"text": "Every R0 render carries \"synthetic fixture, not live evidence\" (T50).", "src": "prd.md:126"},
+        {"text": "The scale matrix {5, 8, 10 orchestrators} x {50, 80, 100 sessions} x {160, 116, 80 columns} renders all 27 cases (T16); the 8-orchestrator/80-session `base` is the reference fixture.", "src": "prd.md:127"},
+        {"text": "In fixture mode, B lists every fixture question oldest first with requester/owner and affected IDs (T7). Fixture questions are synthetic and never presented as Orca API fields.", "src": "prd.md:129"}
+      ],
+      "src": "prd.md:103"
+    },
+    "DIRECTION-SELECTED": {
+      "includes": "Nothing ships.",
+      "gate": "The owner's dated, owner-written selection record (date, option, decider, where the statement lives). Holds the defaults, post-link choice or explicit deferral, fallback date, stack confirmation, command name and confirmed production-integration reading.",
+      "status": "NOT passed",
+      "src": "prd.md:104"
+    },
+    "R1_Signal_Bridge_worker_ledger": {
+      "includes": "COUNTS strip, freshness strip, worker ledger with verbatim `nextAction.kind`, `result.counts`, capped paging, stale handling, changes since last look, the selected view, the question-source notice, the JSON snapshot export.",
+      "gate": "DIRECTION-SELECTED passed, production integration permitted under the reading the owner confirms, a redacted golden sample of each of the four kinds, contract test T32.",
+      "status": "Closed",
+      "in_r1_list": ["R0 prerequisites delivered first: key-reader spike (FR-2), fixture replay (FR-1), sanitizer and rendering rules (NFR-1 to NFR-6).", "Live `worker-list` adapter under NFR-7 and NFR-9.", "Header, freshness strip, COUNTS strip (FR-8 to FR-10).", "Worker ledger titled `worker-reported, not questions` (FR-3 to FR-6).", "Question-source notice (FR-7).", "Separate facts and no-inference rules (FR-11, FR-12).", "Inspector and identity-anchored selection (FR-13).", "Changes since last look, session memory only (FR-14).", "Text export `e`/`--once` (FR-15).", "Versioned JSON snapshot with its schema test (FR-16)."],
+      "in_r1_src": "prd.md:300-310",
+      "excluded": ["Attention Ledger question panel (FR-17, R2) and Decision Desk (FR-18, R3).", "Any message source read; any write-back; `--include-remote`.", "Everything in section 7."],
+      "excluded_src": "prd.md:312-315",
+      "src": "prd.md:105"
+    },
+    "B_Attention_Ledger_R2": {
+      "includes": "`OPEN HUMAN QUESTIONS` with observer-side retention, the 100-row disclosure, \"bounded best effort; coverage unknown\".",
+      "gate": "QUESTION-OBSERVATION on the candidate verb `orca orchestration check --all --run <runId> --json`, which is a candidate, never an available source, until every proof is recorded: (a) `--run` narrows `--all`, with samples from at least 2 Runs; (b) which handle receives human-addressed messages and whether an unbound observer can read; (c) measured message rate; non-consumption test (INV-022, T51) ... a verified source-scoped question identity (a worker `dispatchId` is never a question's identity); open owner decisions 8 and 6; message-call budget inside the 5-call cap. All proofs UNVERIFIED.",
+      "status": "Closed",
+      "r1_carryover": {"text": "In R1 only its \"question source UNVERIFIED\" notice ships.", "src": "prd.md:81"},
+      "excluded_before_gate": {"text": "Nothing in this FR ships in R1. Message rows are not parsed before the gate.", "src": "prd.md:252"},
+      "src": "prd.md:106"
+    },
+    "C_Decision_Desk_R3": {
+      "includes": "For the selected question, affected sessions with worker-list evidence.",
+      "gate": "QUESTION-LINK: authoritative mapping from IDs in a message to `dispatchId`/`worktreeId`, verified on this host first; optional owner re-confirm of the post-link default (B or C). No named decider beyond that.",
+      "status": "Closed",
+      "excluded": {"text": "the Decision Desk before QUESTION-LINK", "src": "prd.md:290"},
+      "src": "prd.md:107"
+    },
+    "later_stages": [
+      {"stage": "R4 Remote fleet", "text": "`--include-remote` rows grouped by `projection.host.id`. Gate: Cross-host ownership joins. Not established. Closed", "src": "prd.md:108"},
+      {"stage": "Later", "text": "Closure evidence (`closed by evidence`), history beyond the 100-row window, admission and verification, cost, deep links. Each needs its own feed; none established.", "src": "prd.md:109"},
+      {"stage": "Future: write-back", "text": "Boundary change on issue 409 plus TUIBBS FR-X-13 amendment. Never R1.", "src": "prd.md:110"}
+    ],
+    "production_integration_boundary": {"text": "Until the owner confirms one in the selection record, the stricter reading applies: **offline R0 work only**.", "label": "both readings UNVERIFIED", "src": "prd.md:112"},
+    "fallback_rule": {"text": "If A is picked, A stays the default on the same adapter and renderer and B's retention model stays in the code for when the contract arrives. A selection whose data gate has not passed ships only an owner-accepted gated fallback with the reason on screen, or stays blocked.", "src": "prd.md:114"},
+    "engineering_settled": {"text": "fixture replay before the live adapter; 100-row window for the question panel; `--include-remote` off until R4; no persisted \"last look\" (session memory only); 15 s cycle, at most 5 subprocesses per cycle, STALE after 45 s monotonic, per-call timeout measured in R0, message calls per cycle by measurement; POSIX interactive mode plus `--once` text export on every platform.", "src": "prd.md:116"}
+  },
+
+  "functional_reqs_ux": [
+    {"id": "FR-1", "text": "Reviewer replays synthetic fixtures offline: A, B, C at 160/116/80, each with a degraded version beside it; label \"synthetic fixture, not live evidence\"; 27-case matrix; byte-identical re-render (T6).", "src": "prd.md:124-130"},
+    {"id": "FR-2", "text": "Key-reader spike result recorded before other R0 work; Rich stays if the spike passes; Textual replaces Rich only if it fails; never both. Stack CONFIRMED by the owner (2026-11-08).", "src": "prd.md:132-134"},
+    {"id": "FR-3", "text": "one ledger row per worker dispatch ... lifecycle fields, outcome, `nextAction.kind`, liveness and evidence age shown raw; absent fields render `unknown`; ledger titled `worker-reported, not questions`.", "src": "prd.md:138-142"},
+    {"id": "FR-4", "text": "Row identity is source namespace + `dispatchId`; `k duplicate rows ignored`; shared worktree shows two rows each naming it; `worktree unknown`; no count divides sessions by worktrees.", "src": "prd.md:146-149"},
+    {"id": "FR-5", "text": "Historical rows are hidden by default with a visible `k historical hidden (h)`; `h` toggles them (T21).", "src": "prd.md:153"},
+    {"id": "FR-6", "text": "The default view is chosen once at start-up from the runtime state of the question source and never switches mid-session (T45). Header shows `read k of N Runs since start`; placement is a CONTRADICTION (OQ-13).", "src": "prd.md:157-158"},
+    {"id": "FR-7", "text": "Notice above the ledger: `Human questions: source UNVERIFIED, 0 rows interpreted, not \"no questions\"`; freshness strip second cell `messages UNVERIFIED (not read)`; empty states never read `no questions`: `worker-list returned 0 workers in scope=bound`; fixture `empty`: `no observed items in this source window; not proof none exist`.", "src": "prd.md:162-167"},
+    {"id": "FR-8", "text": "`collected 100 / reported 287`, never `287 workers`; `reported unknown`; `collected n / reported T (mismatch)`; `PARTIAL: collected 500 of reported T`; header `scope=<result.scope.source>` or `scope unknown`; post-gate question strings `collected n unique / reported T`, `changed during read`, `revisit ~Ns`, `message source not read: no eligible scope; coverage unknown`.", "src": "prd.md:171-176", "flag": "handoff M6: R2-only strings inside R1 FR-8 (handoff-step2.md:24); B1 fix not re-verified (handoff-step2.md:21)"},
+    {"id": "FR-9", "text": "STALE after 45 s without a successful read on a monotonic clock; back-off caps at 60 s; `FAILED (timeout)`; poll age and evidence age show separately; four fact states `known`, `unknown`, `unavailable`, `stale`.", "src": "prd.md:178-183"},
+    {"id": "FR-10", "text": "`n+? (k unknown)`, never a clean `n`; COUNTS strip shows numbers and denominators only, no bars, no health name, at 80, 116 and 160 columns; its priority tokens are never truncated (T35). Source state counts are never summed.", "src": "prd.md:185-188"},
+    {"id": "FR-11", "text": "Report, acceptance, tests and approval each render `unavailable (no source)` in live mode; SETTLED and POLICY FROZEN render `unavailable (no source)`, never blank or zero; `terminalState=released` with no `outcome` never renders `done`, `complete` or `settled`.", "src": "prd.md:192-196"},
+    {"id": "FR-12", "text": "Cost renders `cost unavailable`, never `$0`; elapsed time never shown as completion percentage; policy-frozen work stays visible, never auto-cleared; dirty worktree not shown as dangerous, stale not shown as failed, shared paths not shown as a conflict, inspectable evidence not shown as admission.", "label": "[ASSUMPTION] placement (A3)", "src": "prd.md:198-205"},
+    {"id": "FR-13", "text": "Inspector shows every identifier untruncated, or `unknown (absent in source)`; list cells truncate with `>`; reorder keeps selection on same row ID; `+N more` excludes the selected row; `selected <id> no longer in source window` (no spec test); `projection.stage.*` renders only in the inspector, sanitized and labelled `worker-reported`.", "src": "prd.md:209-215"},
+    {"id": "FR-14", "text": "First observation is the baseline with no change flags; dropped row shows `not reobserved`; after `m`, changed row starred and `changed since HH:MM (1)`; no mark lowers any open count; \"Last look\" lives in session memory only.", "src": "prd.md:219-224"},
+    {"id": "FR-15", "text": "`e` (interactive) or `--once` writes the record export: no ESC byte, full IDs, no truncation; an ID the screen truncates with `>` appears in full (T27). Screen renderer and record export read the same view model (T48).", "src": "prd.md:228-231"},
+    {"id": "FR-16", "text": "Versioned, additive-only JSON snapshot each R1 cycle; missing values are the string `UNKNOWN`; no message bodies, prompts, file contents or credentials; carries no write-back path; schema PROPOSED; row order OQ-12.", "src": "prd.md:235-240"},
+    {"id": "FR-17", "text": "R2: open human questions retained until explicit closure evidence; seen is not resolved; `m` leaves open count unchanged; missing item marked `no longer in source window`; label \"bounded best effort; coverage unknown; bursts over 100 rows between reads may be lost\"; reason shown verbatim or `reason unknown`.", "label": "[ASSUMPTION] (A7) for reason rule", "src": "prd.md:244-252"},
+    {"id": "FR-18", "text": "R3: for one selected question, affected sessions with worker-list evidence; otherwise \"affected scope unknown\"; may show the exact `orca orchestration reply` command as text for the human to run; the observer never sends it; reason verbatim or `reason unknown`.", "label": "[ASSUMPTION] (A8)", "src": "prd.md:256-261"},
+    {"id": "NFR-1 Widths", "text": "every screen line has `cell_len <= W`. Under 80 columns every view shows `terminal too narrow (min 80)` above the COUNTS strip, whose denominators still print. ... No numeric minimum height is defined", "src": "prd.md:269"},
+    {"id": "NFR-2 NO_COLOR", "text": "`NO_COLOR=1` and `NO_COLOR=yes` both emit no SGR colour; muted text becomes plain. Meaning never depends on colour alone.", "src": "prd.md:270"},
+    {"id": "NFR-3 ASCII", "text": "Non-UTF-8 terminals use `--ascii`, which replaces box drawing with `+-|`. Text exports are plain readable text.", "label": "[ASSUMPTION] no dedicated spec test for `--ascii`", "src": "prd.md:271"},
+    {"id": "NFR-4 No motion", "text": "Nothing blinks (SGR 5/6 never appears); no compulsory motion or animation.", "src": "prd.md:272"},
+    {"id": "NFR-5 Keyboard", "text": "see keyboard.bindings", "src": "prd.md:273"},
+    {"id": "NFR-6 Sanitizing", "text": "CSI/OSC sequences (terminated and unterminated), 8-bit C1 controls, bare C0 controls (except newline in the inspector) and Unicode Cf format characters are removed. Strings render as literal text, never Rich markup. Truncation uses display-cell width (`rich.cells.cell_len`), never `len()`, and never splits a double-width character.", "src": "prd.md:274"},
+    {"id": "NFR-7 Bounded polling", "text": "Fixed 15 s cycle ... At most 5 subprocesses per cycle ... Stderr is sanitized and kept to 2 KiB for the inspector. An overrunning call is killed and reaped; the strip shows `cycle overran (Ns)`", "src": "prd.md:275"},
+    {"id": "NFR-8 No LLM loop", "text": "Collection is deterministic ... The same input renders byte-identical text.", "src": "prd.md:276"},
+    {"id": "NFR-9 Read-only", "text": "No write path into Orca. R1 runs exactly one data argv template (`orca orchestration worker-list --json --limit 100`, optional `--run <runId>`, optional `--cursor <c>`) plus the one-time discovery probe", "src": "prd.md:277"},
+    {"id": "NFR-10 No content leakage", "text": "Screen, text export and snapshot contain no message bodies, prompts, file contents or credentials.", "src": "prd.md:278"},
+    {"id": "NFR-11 Honest unknowns", "text": "Unknown is never rendered or exported as 0, false, `-`, blank, empty string or `null`. ... A missing Orca binary reads `worker-list NOT AVAILABLE (orca binary not found)`, never an empty fleet.", "src": "prd.md:279"},
+    {"id": "NFR-12 Terminal safety", "text": "The key reader restores the terminal in `finally` and on SIGINT/SIGTERM.", "label": "[ASSUMPTION] no spec test ID", "src": "prd.md:280"},
+    {"id": "NFR-13 Platform", "text": "Interactive mode is POSIX only; `--once` text export works on every platform, including Windows. ... Windows behaviour is UNVERIFIED until T27 also runs on a Windows runner.", "src": "prd.md:281"},
+    {"id": "NFR-14 Independence and authority", "text": "No dependency on TUIBBS, no AGPL code copied, and the design prototype (`canvas.py`) is never imported. Orca and coordinator policies keep authority over everything the observer shows.", "label": "[ASSUMPTION] reviewer-checked", "src": "prd.md:282"},
+    {"id": "footer (AC 7)", "text": "footer `shown x/y | collected n / reported T` (rendering-rules.md) has no dedicated test", "src": "prd.md:331"},
+    {"id": "Non-goals (UX)", "text": "Fleet SIGNALS bars, an `r` refresh key, persisted \"last look\" across runs, mouse, themes, animation, blinking, and Windows interactive keyboard input.", "src": "prd.md:291"}
+  ],
+
+  "open_owner_questions": {
+    "count_found": 15,
+    "label": "carried verbatim from SPEC.md; not resolved here",
+    "items": [
+      {"id": "OQ-1", "q": "Does the owner's staged choice satisfy DIRECTION-SELECTED, and where is the dated owner-written selection record?", "src": "prd.md:418"},
+      {"id": "OQ-2", "q": "Which production-integration reading applies (1: registering the command or any live subprocess outside the fake runner; 2: wiring into the shipped product)?", "src": "prd.md:419"},
+      {"id": "OQ-3", "q": "Final command name (recommended `superclaude observe`)?", "src": "prd.md:420"},
+      {"id": "OQ-4", "q": "Fallback date for QUESTION-OBSERVATION?", "src": "prd.md:421"},
+      {"id": "OQ-5", "q": "Sample capture and acquisition permission for live reads (open owner decision 6)?", "src": "prd.md:422"},
+      {"id": "OQ-6", "q": "Message-content exposure (open owner decision 7)?", "src": "prd.md:423"},
+      {"id": "OQ-7", "q": "What identifies a human question (open owner decision 8)?", "src": "prd.md:424"},
+      {"id": "OQ-8", "q": "Multi-observer restriction (open owner decision 9)?", "src": "prd.md:425"},
+      {"id": "OQ-9", "q": "Licence opinion before any Go screen reads the snapshot?", "src": "prd.md:426"},
+      {"id": "OQ-10", "q": "Does TUIBBS become the staff platform?", "src": "prd.md:427"},
+      {"id": "OQ-11", "q": "Is the write-back boundary change (issue 409 plus TUIBBS FR-X-13 amendment) approved?", "src": "prd.md:428"},
+      {"id": "OQ-12", "q": "Which row order is authoritative for snapshot consumers: the snapshot's timestamp order or the ledger's source \"newest first\" order?", "src": "prd.md:429"},
+      {"id": "OQ-13", "q": "Does `read k of N Runs since start` belong in the B view header only (merged-requirements rendering rule) or in every header (its adapter scope-honesty rule, T45 and the risks table)? CONTRADICTION in the source; see `rendering-rules.md`.", "src": "prd.md:430"},
+      {"id": "OQ-14", "q": "What are the contents of A's width matrix, B's x/width coordinates beyond those copied, and C's 44-row height contract (drop order, minimum rows)? The sources name them but do not define them.", "src": "prd.md:431"},
+      {"id": "OQ-15", "q": "Which `projection.stage.*` subfield drives change detection, and may `stage.detail`/`stage.activity` enter the snapshot (architecture-options.md lists them; merged requirements keep them inspector-only)?", "src": "prd.md:432"}
+    ],
+    "count_confirmations": [
+      {"text": "Open questions carried verbatim: 15 (OQ-1 to OQ-15). Other open items: 13 (OI-1 to OI-13).", "src": "addendum.md:52"},
+      {"text": "15 open questions carried word for word from SPEC.md:99-113, none resolved; 13 open items (OI-1 to OI-13).", "src": "handoff-step2.md:14"}
+    ],
+    "owner_decisions_with_spec_recommendations": [
+      {"n": 1, "text": "Visual direction (DIRECTION-SELECTED) ... Recommendation: A plus the COUNTS strip for R1; B after QUESTION-OBSERVATION with A one key away; C behind QUESTION-LINK. V3 dissents (C post-link). NOT passed. (OQ-1)", "src": "prd.md:463"},
+      {"n": 3, "text": "Command name and placement. Recommend `superclaude observe`, registered in `cli/main.py` ... The name is the owner's. (OQ-3)", "src": "prd.md:465"},
+      {"n": 7, "text": "Message-content exposure. What may be displayed and what exported, kept as separate permissions; no recommendation beyond that. (OQ-6)", "src": "prd.md:469"},
+      {"n": 8, "text": "Question-type choices ... Recommend an explicit message type, never text inference. (OQ-7)", "src": "prd.md:470"},
+      {"n": 9, "text": "Multi-observer restriction. Caps are per process, no singleton. Recommend disclosure only. (OQ-8)", "src": "prd.md:471"}
+    ]
+  },
+
+  "open_items_step2": {
+    "location_note": {"text": "handoff-step2.md does not list the 13 items itself; it cites the count only (\"13 open items (OI-1 to OI-13)\"). Items below are taken from PRD section 12.2.", "src": "handoff-step2.md:14"},
+    "count_found": 13,
+    "items": [
+      {"id": "OI-1", "text": "Per-call timeout: measured in R0, UNVERIFIED until then (adapter-contract.md).", "src": "prd.md:437"},
+      {"id": "OI-2", "text": "Message calls per cycle: set by measurement; V3 default at most 1.", "src": "prd.md:438"},
+      {"id": "OI-3", "text": "`page.total`: V1 dissents that it should be required; the merge keeps it optional.", "src": "prd.md:439"},
+      {"id": "OI-4", "text": "Post-link composition: V3 says C; two of three advocates recommend B. The optional owner re-confirm at QUESTION-LINK exists for this choice.", "src": "prd.md:440"},
+      {"id": "OI-5", "text": "`--opt=value` form only after Orca's parser support is recorded.", "src": "prd.md:441"},
+      {"id": "OI-6", "text": "Snapshot schema test ID not yet assigned. No test pins `selected <id> no longer in source window`. CAP-12 has no test. (Step-1 minors 3, 4 and 5.)", "src": "prd.md:442"},
+      {"id": "OI-7", "text": "Issue AC 11, \"The twenty primary design images and complete package are provided with the issue\": no requirement, test or reviewer check in the spec (gap G4).", "src": "prd.md:445"},
+      {"id": "OI-8", "text": "The reason `--peek` cannot back the question panel (\"`--peek` returns only unread messages, so a panel built on it would resolve questions when they are read\", merged requirements) is kept as a rule but not stated in the spec (gap G10).", "src": "prd.md:446"},
+      {"id": "OI-9", "text": "Post-link default. CONTRADICTION: owner-decisions-and-risks.md:57 says \"... V3 recommends C. Recorded owner decision 1.\" The same file at :17 lists the post-link choice as open ...", "src": "prd.md:449"},
+      {"id": "OI-10", "text": "Recorded owner decision 5 ... owner-decisions-20261108.md has no matching item", "src": "prd.md:450"},
+      {"id": "OI-11", "text": "Decision numbering. The spec calls the stack \"owner decision 2\"; in owner-decisions-20261108.md the stack is confirmed in item 5 ... Meaning is the same; the number is ambiguous.", "src": "prd.md:451"},
+      {"id": "OI-12", "text": "Field path. The TUIBBS review gives `projection.evidence.lastObservedAt`; parts of the spec use the bare `evidence.lastObservedAt`.", "src": "prd.md:452"},
+      {"id": "OI-13", "text": "Row order and `read k of N` placement and `stage.detail`/`.activity` in the snapshot are already carried as OQ-12, OQ-13 and OQ-15.", "src": "prd.md:453"}
+    ],
+    "deferred_minors": {
+      "count_stated": "13 adversarial minors (M1-M13) and 11 validation minors not acted on (= 24)",
+      "watch": "Watch M12 (JTBD-4 \"exactly the view on screen\" vs CAP-9/T48 lossless export) and M6 (R2-only strings inside R1 FR-8).",
+      "paths": ["validation-report.md/.html (handoff-step2.md:17)", "adversarial-review.json (handoff-step2.md:18)"],
+      "path_base_inferred": ".dev/issues/409/bmad/prd-orca-observer/ (INFERRED from handoff-step2.md:3; exact dir not stated)",
+      "src": "handoff-step2.md:24"
+    },
+    "other_handoff_open": [
+      {"text": "`reason unknown` (FR-17/FR-18, A7/A8) is a PRD-added display string, not in the spec.", "src": "handoff-step2.md:26"},
+      {"text": "NFR-13 Windows behaviour UNVERIFIED until T27 runs on Windows; NFR-1 numeric height blocked on OQ-14.", "src": "handoff-step2.md:27"}
+    ]
+  },
+
+  "signal_bridge_layout": {
+    "verdict": "NOT SETTLED",
+    "neither_variant_present": "The PRD and addendum contain no mention of an owner-row cockpit, intervention rail, change ribbon, PLAN.md, session register or signal counts (grep: cockpit|rail|ribbon|owner-row|PLAN.md|session register|signal count -> no matches).",
+    "what_it_does_say": [
+      {"text": "Signal Bridge (A) | The worker-ledger direction; R1 is its worker ledger.", "src": "prd.md:80"},
+      {"text": "R1 = Signal Bridge's worker ledger on the verified `worker-list` source, carrying Attention Ledger's \"question source UNVERIFIED\" notice", "src": "prd.md:97"},
+      {"text": "R1 adds: COUNTS strip, freshness strip, worker ledger with verbatim `nextAction.kind`, `result.counts`, capped paging, stale handling, changes since last look, the selected view, the question-source notice, the JSON snapshot export.", "src": "prd.md:105"},
+      {"text": "A supervisor is told above the ledger that human questions are not observed in R1", "src": "prd.md:162"},
+      {"text": "Header, freshness strip, COUNTS strip (FR-8 to FR-10). Worker ledger titled `worker-reported, not questions` (FR-3 to FR-6).", "src": "prd.md:303-304"},
+      {"text": "Recommendation: A plus the COUNTS strip for R1; B after QUESTION-OBSERVATION with A one key away", "src": "prd.md:463"},
+      {"text": "Geometry per width, COUNTS strip, notice text, row grammar, exact pinned strings -> `rendering-rules.md`", "src": "addendum.md:19"},
+      {"text": "What are the contents of A's width matrix ... The sources name them but do not define them.", "src": "prd.md:431"}
+    ],
+    "implied_vertical_order_INFERRED": "header (scope, collected/reported, freshness, notice) -> COUNTS strip -> freshness strip -> question-source notice above ledger -> worker ledger -> footer `shown x/y | collected n / reported T`; inspector on Enter. INFERRED from prd.md:65, 162, 166, 269, 331; exact order not stated."
+  },
+
+  "width_rows": [
+    {"text": "The view stays legible at 160, 116 and 80 columns: every screen line has `cell_len <= W`.", "src": "prd.md:269"},
+    {"text": "Under 80 columns every view shows `terminal too narrow (min 80)` above the COUNTS strip, whose denominators still print.", "src": "prd.md:269"},
+    {"text": "When height cannot hold coverage, scope and PARTIAL ahead of optional panels, a too-small diagnostic shows. The threshold is a content rule: the rows those three items need in the R1 view, measured on the rendered output.", "src": "prd.md:269"},
+    {"text": "No numeric minimum height is defined: the spec ties height to C's 44-row contract, whose minimum rows are undefined (OQ-14). Until OQ-14 is answered, T49 tests the content rule only, not a row count.", "src": "prd.md:269"},
+    {"text": "COUNTS strip ... at 80, 116 and 160 columns; its priority tokens are never truncated (T35).", "src": "prd.md:188"},
+    {"text": "The scale matrix {5, 8, 10 orchestrators} x {50, 80, 100 sessions} x {160, 116, 80 columns} renders all 27 cases (T16)", "src": "prd.md:127"},
+    {"text": "list cells truncate with `>`; inspector shows every identifier untruncated", "src": "prd.md:211"},
+    {"text": "With the selected row visible and others hidden, `+N more` excludes the selected row (T43).", "src": "prd.md:213"},
+    {"text": "Which panel shrinks first / drop order: NOT DEFINED. OQ-14 asks for \"A's width matrix, B's x/width coordinates beyond those copied, and C's 44-row height contract (drop order, minimum rows)\".", "src": "prd.md:431"},
+    {"text": "Geometry per width lives in `rendering-rules.md` (not read here).", "src": "addendum.md:19"},
+    {"text": "NFR-1 numeric height blocked on OQ-14.", "src": "handoff-step2.md:27"}
+  ],
+
+  "keyboard": {
+    "bindings": {"text": "Up/Down or `j`/`k` move, `Enter` opens detail, `Esc` returns, `/` local text filter, `h` historical rows, `m` mark a look, `e` export, `q` quit. No `r` key: refresh runs on the fixed 15 s cycle. No key maps to an Orca call. Selection is anchored to identity. No mouse.", "tests": "T3, T25", "src": "prd.md:273"},
+    "key_map_source": {"text": "Key map | `rendering-rules.md` (copied once into NFR-5)", "src": "addendum.md:20"},
+    "focus_selection": [
+      {"text": "selection follows the row's identity across reorders. Enter opens the inspector", "src": "prd.md:67"},
+      {"text": "A reorder between cycles keeps the selection on the same row ID (T25).", "src": "prd.md:212"},
+      {"text": "A selected row that leaves the source window reports `selected <id> no longer in source window`. No spec test pins this", "src": "prd.md:214"},
+      {"text": "The default view is chosen once at start-up ... and never switches mid-session (T45).", "src": "prd.md:157"},
+      {"text": "B after QUESTION-OBSERVATION with A one key away (spec recommendation, not a decision; no key named)", "src": "prd.md:463"}
+    ],
+    "spike": {
+      "rule": "The development team can record the key-reader spike result before other R0 work, and the stack follows it: Rich stays if the spike passes; Textual replaces Rich only if it fails; never both.",
+      "pass_fail_criteria": "NOT STATED in PRD; spike facts and its own tests live in `stack.md` (addendum.md:21; prd.md:280)",
+      "timing": {"text": "The spike result is recorded before any other R0 work starts (CAP-1 success). No spec test; reviewer-checked.", "src": "prd.md:134"},
+      "risk": {"text": "K5 Hand-written key reader misbehaves | Terminal left in raw mode | Restore in `finally` and on SIGINT/SIGTERM; `--once` needs no raw mode; R0 spike decides, Textual fallback", "src": "prd.md:363"},
+      "src": "prd.md:132"
+    },
+    "platform": {"text": "Interactive mode is POSIX only; `--once` text export works on every platform, including Windows.", "label": "Windows UNVERIFIED", "src": "prd.md:281"}
+  },
+
+  "write_back": [
+    {"text": "Separated stage. Nothing in this section is in R0, R1, R2 or R3, and nothing here is approved.", "src": "prd.md:386"},
+    {"text": "Write-back means sending confirmations or corrections from the BBS to agents. The owner wants it later (owner decision 3, binding): it is a FUTURE stage, never R1.", "src": "prd.md:388"},
+    {"text": "Issue 409 keeps reply out of scope, and TUIBBS rule FR-X-13 \"no write-back\" (`internal/serve/menu.go:637-640`) forbids it. Neither moves without an owner decision (OQ-11).", "src": "prd.md:390"},
+    {"text": "The Decision Desk may show a pending question and the exact `orca orchestration reply` command for the human to run themselves; the observer never sends anything. The snapshot stays one-way.", "src": "prd.md:392"},
+    {"text": "Smallest safe first stage, if approved: \"Answer my own agent's pending question\" ... one of the question's own options, or a fixed Confirm / Decline. No free text ... Lives inside the later Go TUIBBS screen ... Not in the Python observer, not in the snapshot.", "src": "prd.md:394-399"},
+    {"text": "Delivery state: pending until confirmed; absent shown as \"unknown, do not resend\".", "src": "prd.md:408"},
+    {"text": "Orca sender: confirm with the Orca owner how `reply` authenticates its sender (UNVERIFIED)", "src": "prd.md:410"},
+    {"text": "Gates 0-8 (boundary, identity, authorization, input, replay and rate, audit, delivery state, credential, Orca sender), all go/no-go", "src": "prd.md:401-410"}
+  ],
+
+  "glossary": [
+    {"term": "Orca", "def": "Stably.ai Orca, the agent orchestration tool the observer reads. Not github.com/orca-cli/orca.", "src": "prd.md:75"},
+    {"term": "Orchestrator / Run", "def": "An Orca coordinator session and its Run (`runId`).", "src": "prd.md:76"},
+    {"term": "Dispatch / worker row", "def": "One worker dispatch reported by `orca orchestration worker-list --json`; identity is source namespace + `dispatchId`.", "src": "prd.md:77"},
+    {"term": "`worker-list`", "def": "The one verified live data source for R0/R1 (`orca orchestration worker-list --json --limit 100`).", "src": "prd.md:78"},
+    {"term": "Discovery probe", "def": "The one-time `skills list --json` check, via `_find_orca()`, that validates the Orca binary before the first cycle.", "src": "prd.md:79"},
+    {"term": "Signal Bridge (A)", "def": "The worker-ledger direction; R1 is its worker ledger.", "src": "prd.md:80"},
+    {"term": "Attention Ledger (B)", "def": "The question-ledger direction; R2, after QUESTION-OBSERVATION. In R1 only its \"question source UNVERIFIED\" notice ships.", "src": "prd.md:81"},
+    {"term": "Decision Desk (C)", "def": "The per-question affected-scope view; R3, after QUESTION-LINK.", "src": "prd.md:82"},
+    {"term": "Data gate", "def": "A release precondition that passes only on recorded, redacted samples of four kinds (success, missing, stale, contradictory), each pinned in a contract test.", "src": "prd.md:83"},
+    {"term": "DIRECTION-SELECTED", "def": "The owner's dated, owner-written selection record. Status: NOT passed.", "src": "prd.md:84"},
+    {"term": "Fixture / R0", "def": "Synthetic recorded data replayed offline; always labelled \"synthetic fixture, not live evidence\".", "src": "prd.md:85"},
+    {"term": "Snapshot", "def": "The versioned, additive-only JSON file written by `export(view)` each R1 cycle (schema PROPOSED).", "src": "prd.md:86"},
+    {"term": "`UNKNOWN` / `unknown`", "def": "A value the source did not give. Never shown or exported as 0, false, `-`, blank, empty string or `null`.", "src": "prd.md:87"},
+    {"term": "PARTIAL / STALE / FAILED", "def": "paging stopped at the per-cycle call cap while `page.hasMore` was still true, or an empty page arrived while reported T was above 0 (`PARTIAL (empty page k)`); no successful read for 45 s on a monotonic clock; a call failed. Stale is not failed", "label": "B2 fix, not re-verified (handoff-step2.md:20-21)", "src": "prd.md:88"},
+    {"term": "Mismatch", "def": "Traversal finished, but collected n is not reported T: `collected n / reported T (mismatch)`. Not PARTIAL; `page.total` may include historical dispatches (K3).", "src": "prd.md:89"},
+    {"term": "UNVERIFIED / PROPOSED / CONTRADICTION", "def": "UNVERIFIED, not checked; PROPOSED, designed here, not an Orca contract; CONTRADICTION, sources disagree, left open.", "src": "prd.md:90"},
+    {"term": "Write-back", "def": "Sending confirmations or corrections from the BBS to agents. A future stage; never R1.", "src": "prd.md:91"},
+    {"term": "TUIBBS", "def": "A private Go BBS (AGPL-3.0). Background only: no dependency, no copied code.", "src": "prd.md:92"},
+    {"term": "FR-X-13", "def": "TUIBBS rule \"no write-back\" (`internal/serve/menu.go:637-640`).", "src": "prd.md:93"},
+    {"term": "fact states", "def": "Each fact is in one of four states: `known`, `unknown`, `unavailable`, `stale`", "src": "prd.md:183"}
+  ],
+
+  "inputs_missing": "none; all three inputs read in full. Detail deferred to unread spec companions (rendering-rules.md, stack.md) per addendum.md:19-21."
+}

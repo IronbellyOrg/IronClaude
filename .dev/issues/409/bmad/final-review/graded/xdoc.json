@@ -1,0 +1,111 @@
+{
+  "consolidator": "cons-xdoc",
+  "artifact": "XDOC",
+  "merged": [
+    {
+      "id": "XDOC-01",
+      "sources": ["xdoc-consistency:X1"],
+      "location": "_bmad-output/planning-artifacts/orca-observer/architecture/ARCHITECTURE-SPINE.md:166",
+      "other_side": "_bmad-output/specs/spec-orca-observer/rendering-rules.md:17",
+      "finding": "ARCH AD-16 calls the fixture header words PROPOSED and attributes them to T50, but the spec fixes those exact words and T50 pins a different, separate per-render marking that ARCH never mentions. An implementer following ARCH renders only the header and fails T50.",
+      "evidence": "ARCH:166 \"header reads `SYNTHETIC FIXTURE <variant>, not Orca data` (T50; exact words PROPOSED)\"; acceptance-tests.md:44 T50 \"each carry \\\"synthetic fixture, not live evidence\\\"\".",
+      "grade": "BLOCKING",
+      "reason": "False claim (spec-fixed words labelled PROPOSED, wrong test cited) that drops a T50 requirement; UX (EXPERIENCE.md:64, :215, :298) already separates the two, so ARCH also contradicts UX.",
+      "fix_in": "_bmad-output/planning-artifacts/orca-observer/architecture/ARCHITECTURE-SPINE.md",
+      "fix": "In AD-16 replace \"(T50; exact words PROPOSED)\" with \"(rendering-rules.md:17, spec-fixed)\" and add: \"Separately, every R0 render of A, B and C carries the T50 marking `synthetic fixture, not live evidence` (acceptance-tests.md:44).\" Apply the same edit to the identical copy _bmad-output/specs/spec-orca-observer/ARCHITECTURE-SPINE.md."
+    },
+    {
+      "id": "XDOC-02",
+      "sources": ["xdoc-consistency:X2"],
+      "location": "_bmad-output/planning-artifacts/orca-observer/architecture/ARCHITECTURE-SPINE.md:148",
+      "other_side": "_bmad-output/specs/spec-orca-observer/rendering-rules.md:31",
+      "finding": "ARCH AD-13 reduces the under-80 screen to the notice and the COUNTS strip only, which drops the question-source gap notice the spec requires at every width and contradicts the UX under-80 row (notice above the COUNTS strip plus the ledger short form at the reduced width).",
+      "evidence": "ARCH:148 \"below 80 `terminal too narrow (min 80)` and the COUNTS strip only\"; rendering-rules.md:31 \"Above the ledger, at every width, the gap notice\"; EXPERIENCE.md:108 \"short form at the reduced width\".",
+      "grade": "BLOCKING",
+      "reason": "Contradiction with the spec (rendering-rules.md:12, :31) and with the higher-ranked UX document; the narrow screen would lose the R1 UNVERIFIED notice required by owner decision 1.",
+      "fix_in": "_bmad-output/planning-artifacts/orca-observer/architecture/ARCHITECTURE-SPINE.md",
+      "fix": "In AD-13 replace \"below 80 `terminal too narrow (min 80)` and the COUNTS strip only\" with \"below 80 `terminal too narrow (min 80)` above the COUNTS strip, whose denominators still print, with the gap notice kept (rendering-rules.md:12, :31) and the ledger in its short form at the reduced width (EXPERIENCE.md:108)\". Apply the same edit to the spec-folder copy."
+    },
+    {
+      "id": "XDOC-03",
+      "sources": ["xdoc-consistency:X3"],
+      "location": "_bmad-output/planning-artifacts/orca-observer/architecture/ARCHITECTURE-SPINE.md:300",
+      "other_side": "_bmad-output/specs/spec-orca-observer/acceptance-tests.md:19",
+      "finding": "ARCH's CD-6 default (repeated in AD-20 at ARCH:190 and the operational envelope at ARCH:238) makes `e` show `export disabled` and skips every live snapshot write until UX-OQ-4 is decided. The spec requires `e` to write the record export (T27, SPEC.md:57) and a snapshot each R1 cycle (SPEC.md:59, prd.md:235 FR-16), and UX has `e` write the export (EXPERIENCE.md:266).",
+      "evidence": "ARCH:300 \"`e` shows `export disabled (destination undecided)` and each live snapshot write is skipped and counted\"; acceptance-tests.md:19 \"T27: `e`/`--once` writes the record export\".",
+      "grade": "BLOCKING",
+      "reason": "The default disables behaviour pinned by T27 and FR-16, contradicting spec, PRD and UX; the defect is the default, not the fact that UX-OQ-4 (destination) is open.",
+      "fix_in": "_bmad-output/planning-artifacts/orca-observer/architecture/ARCHITECTURE-SPINE.md",
+      "fix": "Change the CD-6 default to a PROPOSED destination (a per-user state directory, `~/.local/state/superclaude/observe/`): `e` writes a timestamped text export there and each live cycle atomically replaces one snapshot file there, both replaceable when the owner settles UX-OQ-4; remove \"skipped and counted\" and `export disabled (destination undecided)` from CD-6, AD-20 (ARCH:190) and the operational envelope (ARCH:238), and apply the same edits to the spec-folder copy."
+    },
+    {
+      "id": "XDOC-04",
+      "sources": ["xdoc-consistency:X4", "known:K-XDOC-1"],
+      "location": "_bmad-output/planning-artifacts/orca-observer/ux-designs/ux-orca-observer-2026-11-08/EXPERIENCE.md:243",
+      "other_side": "_bmad-output/planning-artifacts/orca-observer/architecture/ARCHITECTURE-SPINE.md:310",
+      "finding": "UX and ARCH carry contradictory defaults for the same open question (UX-OQ-8 / CD-16): ARCH names the shared `worktreeId` on each ledger row, UX names it only in the inspector and the text export. T20 requires two rows each naming it, so the UX default would fail the acceptance test; the spec ledger column list (rendering-rules.md:29) does not list a worktree column but does not forbid one (it forbids only a `stage` column).",
+      "evidence": "acceptance-tests.md:17 T20 \"two sessions sharing one `worktreeId` as two rows each naming it\"; EXPERIENCE.md:243 \"PROPOSED: each row's inspector and the plain-text export name the full `resource.worktreeId`\".",
+      "grade": "BLOCKING",
+      "reason": "Contradiction between documents; UX, though ranked above ARCH, is wrong against its own source T20 (acceptance-tests.md:17), so the UX default is the one to change, and ARCH CD-16 already states the T20 default while keeping the question open.",
+      "fix_in": "_bmad-output/planning-artifacts/orca-observer/ux-designs/ux-orca-observer-2026-11-08/EXPERIENCE.md",
+      "fix": "At EXPERIENCE.md:243 change the PROPOSED default to \"each ledger row names its `resource.worktreeId` (or `worktree unknown`), as T20 requires (acceptance-tests.md:17); the inspector and text export also name it in full; where the row shows it and how it behaves at each width is open (UX-OQ-8)\", and at EXPERIENCE.md:531 change \"This document names it in the inspector and export only (PROPOSED)\" to \"Default: the row names it per T20 (PROPOSED placement); column placement and width-class behaviour are open\". Leave UX-OQ-8 open."
+    },
+    {
+      "id": "XDOC-05",
+      "sources": ["xdoc-consistency:X6"],
+      "location": "_bmad-output/planning-artifacts/orca-observer/prd.md:174",
+      "other_side": "_bmad-output/specs/spec-orca-observer/acceptance-tests.md:41",
+      "finding": "PRD FR-8 says the ledger's finished-traversal mismatch string is pinned by T47, but T47 tests only the question area; no acceptance test (T4, T16, T18, T35, T38, T42, T47 checked) pins the ledger form `collected n / reported T (mismatch)`.",
+      "evidence": "prd.md:174 \"`collected n / reported T (mismatch)` (rendering-rules.md), pinned by T47\"; acceptance-tests.md:41 T47 \"Before QUESTION-OBSERVATION the question area reads...\".",
+      "grade": "BLOCKING",
+      "reason": "False claim of test coverage in a testable-consequences list; the ledger mismatch form is untested, and the PRD hides that.",
+      "fix_in": "_bmad-output/planning-artifacts/orca-observer/prd.md",
+      "fix": "At prd.md:174 replace \"(rendering-rules.md), pinned by T47\" with \"(rendering-rules.md:55); no acceptance test pins the ledger form yet (T47 covers only the question-area mismatch note)\"."
+    },
+    {
+      "id": "XDOC-06",
+      "sources": ["xdoc-consistency:X5"],
+      "location": "_bmad-output/planning-artifacts/orca-observer/prd.md:85",
+      "other_side": "_bmad-output/specs/spec-orca-observer/rendering-rules.md:17",
+      "finding": "The PRD Fixture/R0 glossary entry gives the T50 marking but not the separate fixture header string.",
+      "evidence": "prd.md:85 \"always labelled \\\"synthetic fixture, not live evidence\\\"\"; rendering-rules.md:17 `SYNTHETIC FIXTURE <variant>, not Orca data`.",
+      "grade": "MINOR",
+      "reason": "The stated label is true (T50, rendering-rules.md:5); omitting the header string from a glossary entry is incompleteness of wording, not a false claim.",
+      "fix_in": null,
+      "fix": null
+    },
+    {
+      "id": "XDOC-07",
+      "sources": ["xdoc-consistency:X7"],
+      "location": "_bmad-output/specs/spec-orca-observer/snapshot-export-schema.md:25",
+      "other_side": "/home/coder/workspaces/worktrees/IronClaude/issue-409-mvp/.dev/issues/409/tuibbs-review/architecture-options.md:88",
+      "finding": "The spec lists `source.status`, `source.observedAt` and `source.error` as three table rows where the source lists them in one row.",
+      "evidence": "architecture-options.md:88 \"`source.status`... with `source.observedAt` and a short `source.error` code\"; schema:25-27 three rows with the same names and meanings.",
+      "grade": "REJECTED",
+      "reason": "Field names, values and meanings match the source field for field; splitting a table row is not a change to the contract and needs no disclosure.",
+      "fix_in": null,
+      "fix": null
+    },
+    {
+      "id": "XDOC-08",
+      "sources": ["xdoc-consistency:X8"],
+      "location": "_bmad-output/planning-artifacts/orca-observer/ux-designs/ux-orca-observer-2026-11-08/EXPERIENCE.md:69",
+      "other_side": "_bmad-output/planning-artifacts/orca-observer/prd.md:97",
+      "finding": "Reviewer says UX labels later releases B and C without the PRD's R2/R3 numbering.",
+      "evidence": "EXPERIENCE.md:41 \"| B (spec R2) |\"; EXPERIENCE.md:42 \"| C (spec R3) |\".",
+      "grade": "REJECTED",
+      "reason": "False when checked: the UX release table maps B and C to spec R2 and R3 at EXPERIENCE.md:41-42, matching prd.md:97.",
+      "fix_in": null,
+      "fix": null
+    }
+  ],
+  "known_items": [
+    {
+      "id": "K-XDOC-1",
+      "status": "STILL-BROKEN",
+      "evidence": "ARCHITECTURE-SPINE.md:310 CD-16 default \"Each row names its shared `worktreeId`... because T20 requires it\" vs EXPERIENCE.md:243 \"PROPOSED: each row's inspector and the plain-text export name the full `resource.worktreeId`\" and EXPERIENCE.md:531 \"names it in the inspector and export only\"; acceptance-tests.md:17 T20 \"two rows each naming it\".",
+      "merged_id": "XDOC-04"
+    }
+  ],
+  "counts": {"blocking": 5, "minor": 1, "rejected": 2}
+}

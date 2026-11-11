@@ -1,0 +1,104 @@
+{
+  "verdict": "FAIL",
+  "blocking": [
+    {
+      "id": "B1",
+      "prd_location": "§5.4 FR-8, prd.md:173",
+      "claim": "\"CAP-4 also lists a mismatch form, but no literal mismatch string is pinned in the spec: the UX step sets it, and the mismatch part of T47 stays pending until then.\"",
+      "source_evidence": "rendering-rules.md:55 pins the string: \"Finished traversal with n not T: `collected n / reported T (mismatch)`.\" acceptance-tests.md:41 (T47) says mismatch notes \"render per `rendering-rules.md`\", so T47's mismatch part has a pinned target today.",
+      "why_blocking": "False claim against the spec. It hands a pinned string to the UX step to reinvent, and it declares part of a spec test (T47) pending when the spec makes it runnable now. That weakens a CAP-4 success criterion.",
+      "fix": "Replace the sentence with: a finished traversal where n differs from T renders `collected n / reported T (mismatch)` (rendering-rules.md), pinned by T47. Remove 'the UX step sets it' and 'stays pending'."
+    },
+    {
+      "id": "B2",
+      "prd_location": "§3 Glossary, PARTIAL / STALE / FAILED row, prd.md:88",
+      "claim": "PARTIAL is defined as \"fewer rows collected than reported\".",
+      "source_evidence": "rendering-rules.md:55: PARTIAL applies when \"`page.hasMore` is still true at the call cap\", or when `workers=[]` with T above 0 (`PARTIAL (empty page k)`); a finished traversal with n not equal to T is `(mismatch)`, not PARTIAL. adapter-contract.md:15: the cursor guard \"marks the view PARTIAL when the per-cycle cap stops it\". unverified-register.md:41 and PRD K3 (prd.md:362) note `page.total` may include historical dispatches, so collected < reported can happen on a complete read.",
+      "why_blocking": "Wrong behaviour. Implementing the PRD definition would show PARTIAL whenever collected < reported, including complete traversals where `page.total` counts historical dispatches. The spec says those cases are mismatch, not PARTIAL, so the header would routinely misstate completeness. That is the honesty property CAP-4 exists to protect.",
+      "fix": "Define PARTIAL as in rendering-rules.md:55: paging stopped at the 5-call cap while `page.hasMore` was still true, or an empty page with T above 0. Add a separate glossary entry for mismatch: traversal finished, but n is not T."
+    }
+  ],
+  "minor": [
+    {
+      "id": "M1",
+      "prd_location": "§1, §2.1, §4, §5.5, §9.1, §12.2 (I:11, I:15, I:19, I:21, I:77-87, I:78, I:91)",
+      "note": "The 'I:n' line citations are consistently 2 higher than both issue copies: issue-body.md and posted-body.md have the problem statement at :9, the user story at :13, the acceptance criteria at :75-85 and the out-of-scope text at :89. The 'I:' prefix is never defined in the PRD. The quoted content is correct."
+    },
+    {
+      "id": "M2",
+      "prd_location": "§5.2 FR-4, prd.md:146",
+      "note": "\"Duplicate and out-of-order rows show `k duplicate rows ignored`\" merges two behaviours. Per acceptance-tests.md:18 (T22) and adapter-contract.md:43-44, only duplicates are ignored and counted. Out-of-order rows keep the newer timestamp, and rows get `order unknown` or `conflict (time went back)`. Read literally, the bullet would drop out-of-order rows."
+    },
+    {
+      "id": "M3",
+      "prd_location": "§5.7 FR-14, §2.4 UJ-2",
+      "note": "rendering-rules.md:46 also stars rows that were added or removed since the mark. The FR lists only stage, `nextAction.kind` and `liveness.verdict` changes. The rule that a restart discloses a new baseline is also omitted."
+    },
+    {
+      "id": "M4",
+      "prd_location": "§5.2 FR-6, prd.md:157",
+      "note": "The testable consequence \"The header shows `read k of N Runs since start`\" in the R1 (A-view) FR leans toward the every-header reading of OQ-13, although the next sentence says the question is not resolved. Phrase it as conditional on OQ-13."
+    },
+    {
+      "id": "M5",
+      "prd_location": "§5.4 FR-8, prd.md:175",
+      "note": "The scope header omits the spec rule that `bound` adds `one Run only` (adapter-contract.md:63; risk K4)."
+    },
+    {
+      "id": "M6",
+      "prd_location": "§5.4 FR-8, prd.md:173",
+      "note": "R2-only question-area strings (`collected n unique / reported T`, `revisit ~Ns`, empty rotation set) sit inside an R1 FR. They are flagged 'After QUESTION-OBSERVATION', but they belong in FR-17."
+    },
+    {
+      "id": "M7",
+      "prd_location": "§4 production-integration boundary, prd.md:111",
+      "note": "Reading 2 drops the spec's qualifier \"separately authorized read-only capture counts as research\" (release-gates.md:32). OQ-2 itself is verbatim."
+    },
+    {
+      "id": "M8",
+      "prd_location": "§13.2, U19, prd.md:483-505",
+      "note": "The table is attributed to unverified-register.md, but that file has 18 UNVERIFIED rows. U19 comes from owner-decisions-and-risks.md:9 and release-gates.md:3, and U16's treatment text is the PRD's own addition. Cite these separately."
+    },
+    {
+      "id": "M9",
+      "prd_location": "addendum.md §B, CAP-2 and CAP-6 rows",
+      "note": "The spec puts historical rows hidden behind `h` under CAP-6 success (SPEC.md:47). The addendum traces FR-5/T21 under CAP-2 only. Also, T27 (cited by NFR-3) is missing from the CAP-8 row."
+    },
+    {
+      "id": "M10",
+      "prd_location": "§6 NFR-10 'Verified by', prd.md:277",
+      "note": "T29 tests escape-sequence injection, not content leakage. Only the unnumbered snapshot schema test covers NFR-10, and no test checks the screen or the text export for message bodies or credentials."
+    },
+    {
+      "id": "M11",
+      "prd_location": "§11 gates 2 and 6, prd.md:403, 407",
+      "note": "Paraphrase loses detail. Gate 2 drops the named grant options (`{control}` or `AI[orca-answer]`), and gate 6 drops 'until `request-show` or the coordinator says completed' (write-back-future-stage.md:44, 48)."
+    },
+    {
+      "id": "M12",
+      "prd_location": "§2.1 JTBD-4, prd.md:46",
+      "note": "\"plain-text export of exactly the view on screen\" conflicts with CAP-9/T48. The export is lossless, with full IDs where the screen truncates with `>`. Use 'the same view model'."
+    },
+    {
+      "id": "M13",
+      "prd_location": "§5.10 FR-17 / §5.11 FR-18 (A7, A8)",
+      "note": "`reason unknown` is a new display string that the spec does not have. It is tagged [ASSUMPTION] and does not resolve OQ-7, so it is acceptable, but UX should treat it as provisional."
+    }
+  ],
+  "checklist": [
+    {"item": 1, "result": "met", "evidence": "prd.md:29, 39 (one human, 5-10 orchestrators, 50-100 sessions/worktrees), JTBD table :41-48"},
+    {"item": 2, "result": "met", "evidence": "prd.md:96 states the binding owner decision verbatim in substance (matches owner-decisions-20261108.md:5-8); gates table :100-109 with B = R2 behind QUESTION-OBSERVATION and C = R3 behind QUESTION-LINK"},
+    {"item": 3, "result": "met", "evidence": "prd.md:283-293 (non-goals), :295-314 (R1 scope in/out), NFR-9 :276 (read-only), §1 :31"},
+    {"item": 4, "result": "met", "evidence": "FR-1..FR-18 each headed by a CAP id (:121-260); addendum.md:30-44 matrix; CAP-8 via NFR-1..6"},
+    {"item": 5, "result": "met", "evidence": "NFR-1 widths :268, NFR-2 NO_COLOR :269, NFR-3 ASCII :270, NFR-5 keyboard :272, NFR-6 sanitizing :273, NFR-7 bounded polling :274, NFR-8 no LLM :275"},
+    {"item": 6, "result": "met", "evidence": "§9.1 :318-334 maps all 11 issue acceptance criteria to spec tests; SM-1..3 and counter-metrics :336-349 (but see B1 on T47)"},
+    {"item": 7, "result": "met", "evidence": "§10.1 K1-K12 :353-370 match owner-decisions-and-risks.md:39-52; dissents :372; PRD risks P1-P4 :374-381"},
+    {"item": 8, "result": "met", "evidence": "§11 :383-411, separate section; boundary change on issue 409 plus FR-X-13 amendment :389, :401; 'never R1' :109, :387; OQ-11 open"},
+    {"item": 9, "result": "met", "evidence": "OQ-1..OQ-15 at :417-431 match SPEC.md:99-113 word for word; none resolved (FR-6 :157 and NFR-1 :268 explicitly defer to OQ-13/OQ-14; see M4)"},
+    {"item": 10, "result": "met", "evidence": "FR-2 :131 (Python + Rich, superclaude observe-style, spike first, Textual only on failure, never both); FR-16 :234-239 (versioned additive-only snapshot via export(view), schema test, PROPOSED)"},
+    {"item": 11, "result": "met", "evidence": "glossary :91, §2.3 :61, NFR-14 :281, OQ-9 :425, OQ-10 :426, :456"},
+    {"item": 12, "result": "met", "evidence": "rules :17-21; schema PROPOSED :18, :239; UNVERIFIED index §13.2; open owner decisions carried in §12.3 :458-471 with the spec's recommendations, none decided; no Orca field found that is outside unverified-register.md 'Verified today' or labelled UNVERIFIED"},
+    {"item": 13, "result": "met", "evidence": "prd.md:293; no epics, stories or tasks anywhere in prd.md or addendum.md"}
+  ],
+  "self_audit": "I read prd.md in full (in four ranges), addendum.md, SPEC.md and all nine companions, owner-decisions-20261108.md, the issue's acceptance-criteria and out-of-scope lines in issue-body.md and posted-body.md, and the refuted line in tuibbs-review/summary.md. I did not read the merged-requirements file outside the allowed folders, so the PRD's M:nnn quotes were not checked. I compared the 15 OQs with SPEC.md line by line, and the K1-K12 risks, settled-by-engineering list and open owner decisions with owner-decisions-and-risks.md. I checked every pinned string and number in the FRs and NFRs against rendering-rules.md, adapter-contract.md, snapshot-export-schema.md and acceptance-tests.md. A grep confirmed that T1-T51 are all cited in prd.md (some only through ranges) and that the counts are correct: 18 FRs, 14 NFRs, 15 OQs and 13 OIs, with an R0/R1/R2/R3 split of 2/14/1/1. I also checked the CAP-to-test matrix against each CAP's success line. Two findings are BLOCKING because they contradict pinned spec behaviour: FR-8 says no mismatch string is pinned, but rendering-rules.md:55 pins one, and the glossary defines PARTIAL in a way that would flag complete reads as partial. Neither touches the owner-decision, staging, write-back or stack items, which all match their sources. The issue line citations are off by 2 (M1), which is a citation defect only, since the quoted content is correct. Verdict: FAIL, because blocking findings exist."
+}

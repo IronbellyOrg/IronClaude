@@ -1,0 +1,163 @@
+{
+  "file_reviewed": [
+    "_bmad-output/planning-artifacts/orca-observer/prd.md",
+    "_bmad-output/planning-artifacts/orca-observer/addendum.md"
+  ],
+  "entries": [
+    {
+      "file": "prd.md",
+      "lines": [278],
+      "original": "No binary reads `worker-list NOT AVAILABLE (orca binary not found)`, never an empty fleet.",
+      "revised": "A missing Orca binary reads `worker-list NOT AVAILABLE (orca binary not found)`, never an empty fleet.",
+      "changes": "\"No binary reads X\" parses as \"no binary performs a read\"; name the subject (a missing binary)."
+    },
+    {
+      "file": "prd.md",
+      "lines": [89],
+      "original": "Evidence labels carried from the inputs: not checked / designed here, not an Orca contract / sources disagree, left open.",
+      "revised": "Evidence labels carried from the inputs: UNVERIFIED, not checked; PROPOSED, designed here, not an Orca contract; CONTRADICTION, sources disagree, left open.",
+      "changes": "Slashes split both the labels and the phrases inside one definition; pair each meaning with its label so the three definitions cannot be misread."
+    },
+    {
+      "file": "prd.md",
+      "lines": [105],
+      "original": "(c) measured message rate; non-consumption test (INV-022, T51)",
+      "revised": "Consider: (c) measured message rate. The gate also needs a non-consumption test (INV-022, T51)",
+      "changes": "Unlettered items follow (a)-(c) in the same semicolon list, so the reader cannot tell whether the non-consumption test and later items belong to proof (c) or are separate requirements."
+    },
+    {
+      "file": "prd.md",
+      "lines": [456],
+      "original": "(owner-decisions-20261108.md decisions 4 and 5)",
+      "revised": "Consider: (owner-decisions-20261108.md summary decisions 4 and 5)",
+      "changes": "The same file is cited as \"item 5\" (the stack, lines 103 and 450) and \"decision 5\" (TUIBBS platform); use one numbering term so the two 5s are not confused."
+    },
+    {
+      "file": "prd.md",
+      "lines": [471],
+      "original": "TUIBBS licence opinion (decision 4), TUIBBS as staff platform (decision 5)",
+      "revised": "Consider: TUIBBS licence opinion (summary decision 4), TUIBBS as staff platform (summary decision 5)",
+      "changes": "The same file is cited as \"item 5\" (the stack, lines 103 and 450) and \"decision 5\" (TUIBBS platform); use one numbering term so the two 5s are not confused."
+    },
+    {
+      "file": "prd.md",
+      "lines": [56],
+      "original": "subject to the licence opinion (open question 9)",
+      "revised": "subject to the licence opinion (OQ-9)",
+      "changes": "\"open question n\" sits beside \"open owner decision n\" (a different numbering, e.g. OQ-8 is owner decision 9); use the OQ-n id consistently."
+    },
+    {
+      "file": "prd.md",
+      "lines": [61],
+      "original": "Whether TUIBBS becomes the staff platform is open question 10.",
+      "revised": "Whether TUIBBS becomes the staff platform is OQ-10.",
+      "changes": "\"open question n\" sits beside \"open owner decision n\" (a different numbering, e.g. OQ-8 is owner decision 9); use the OQ-n id consistently."
+    },
+    {
+      "file": "prd.md",
+      "lines": [157],
+      "original": "a CONTRADICTION in the source (open question 13)",
+      "revised": "a CONTRADICTION in the source (OQ-13)",
+      "changes": "\"open question n\" sits beside \"open owner decision n\" (a different numbering, e.g. OQ-8 is owner decision 9); use the OQ-n id consistently."
+    },
+    {
+      "file": "prd.md",
+      "lines": [221],
+      "original": "which `stage` subfield drives this is open question 15",
+      "revised": "which `stage` subfield drives this is OQ-15",
+      "changes": "\"open question n\" sits beside \"open owner decision n\" (a different numbering, e.g. OQ-8 is owner decision 9); use the OQ-n id consistently."
+    },
+    {
+      "file": "prd.md",
+      "lines": [238],
+      "original": "are withheld pending open question 15.",
+      "revised": "are withheld pending OQ-15.",
+      "changes": "\"open question n\" sits beside \"open owner decision n\" (a different numbering, e.g. OQ-8 is owner decision 9); use the OQ-n id consistently."
+    },
+    {
+      "file": "prd.md",
+      "lines": [239],
+      "original": "Row order is open question 12.",
+      "revised": "Row order is OQ-12.",
+      "changes": "\"open question n\" sits beside \"open owner decision n\" (a different numbering, e.g. OQ-8 is owner decision 9); use the OQ-n id consistently."
+    },
+    {
+      "file": "prd.md",
+      "lines": [239],
+      "original": "screen reads it (open question 9)",
+      "revised": "screen reads it (OQ-9)",
+      "changes": "\"open question n\" sits beside \"open owner decision n\" (a different numbering, e.g. OQ-8 is owner decision 9); use the OQ-n id consistently."
+    },
+    {
+      "file": "prd.md",
+      "lines": [378],
+      "original": "Carried as open questions 1 and 2",
+      "revised": "Carried as OQ-1 and OQ-2",
+      "changes": "\"open question n\" sits beside \"open owner decision n\" (a different numbering, e.g. OQ-8 is owner decision 9); use the OQ-n id consistently."
+    },
+    {
+      "file": "prd.md",
+      "lines": [389],
+      "original": "without an owner decision (open question 11)",
+      "revised": "without an owner decision (OQ-11)",
+      "changes": "\"open question n\" sits beside \"open owner decision n\" (a different numbering, e.g. OQ-8 is owner decision 9); use the OQ-n id consistently."
+    },
+    {
+      "file": "prd.md",
+      "lines": [372, 438, 439, 462, 465],
+      "original": "`page.total` required (V1) versus optional",
+      "revised": "Consider: define V1 and V3 (and \"advocates\", line 439) at first use here or in the glossary, e.g. `page.total` required (V1, <who or what V1 is>) versus optional",
+      "changes": "V1 and V3 are never defined; readers outside the spec cannot tell whose positions these are."
+    },
+    {
+      "file": "prd.md",
+      "lines": [173],
+      "original": "a per-scope `revisit ~Ns` rotation token, and an empty rotation set reads",
+      "revised": "a per-scope `revisit ~Ns` rotation token; an empty rotation set reads",
+      "changes": "A full clause is joined as the last item of a list of things the area \"shows\"; split it off with a semicolon."
+    },
+    {
+      "file": "prd.md",
+      "lines": [39],
+      "original": "Not one-to-one: a worktree can be shared by sessions, and some sessions are unmapped.",
+      "revised": "Sessions do not map one-to-one to worktrees: a worktree can be shared by sessions, and some sessions are unmapped.",
+      "changes": "Fragment with no stated subject; say what is not one-to-one."
+    },
+    {
+      "file": "prd.md",
+      "lines": [147],
+      "original": "no count divides one by the other",
+      "revised": "Consider: no count divides the number of sessions by the number of worktrees",
+      "changes": "Ambiguous antecedents for \"one\" and \"the other\" (sessions, worktrees, or the two rows)."
+    },
+    {
+      "file": "prd.md",
+      "lines": [61],
+      "original": "Staff teams on a shared BBS platform",
+      "revised": "Staff teams on a shared bulletin board system (BBS) platform",
+      "changes": "Expand the abbreviation BBS at first use."
+    },
+    {
+      "file": "prd.md",
+      "lines": [65],
+      "original": "Next cycle, rows whose",
+      "revised": "On the next cycle, rows whose",
+      "changes": "Missing preposition makes the opening phrase read as a noun."
+    },
+    {
+      "file": "prd.md",
+      "lines": [76],
+      "original": "An Orca coordinator session and its run (`runId`).",
+      "revised": "An Orca coordinator session and its Run (`runId`).",
+      "changes": "The term is \"Run\" (capitalized) in the glossary heading and throughout the PRD; match it."
+    },
+    {
+      "file": "prd.md",
+      "lines": [179],
+      "original": "backoff caps at 60 s",
+      "revised": "back-off caps at 60 s",
+      "changes": "Same term spelled \"back-off\" in addendum.md (line 17); use one spelling."
+    }
+  ],
+  "self_audit": "Read prd.md (lines 1-521) in four ranges and addendum.md in full. Checked grammar, run-on and mixed lists, ambiguous antecedents, undefined abbreviations, inconsistent terms and numbering. Skipped frontmatter, id columns, backtick spans, quoted source text (issue 409, SPEC.md, release-gates.md, owner-decisions-and-risks.md risk table K1-K12, which is stated as verbatim), OQ-1 to OQ-15 text, evidence labels and ids. addendum.md had no issues beyond the back-off spelling, which is fixed on the prd.md side. Other undefined shorthand (AC-S, M:n, A-008, QUALIFY) was left alone because it appears to be spec-carried and the meaning could not be confirmed from these two files."
+}

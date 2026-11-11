@@ -1,0 +1,278 @@
+{
+  "reviewer": "bmad-review-adversarial-general",
+  "artifact": "_bmad-output/specs/spec-orca-observer/ (SPEC.md plus stack.md, release-gates.md, rendering-rules.md, adapter-contract.md, snapshot-export-schema.md, acceptance-tests.md, unverified-register.md, owner-decisions-and-risks.md, write-back-future-stage.md; ARCHITECTURE-SPINE.md excluded)",
+  "verdict": "FAIL",
+  "self_audit": "Read SPEC.md and all 9 companions in full; checked them against the issue body, the owner decisions file (items 1-5), architecture-options.md snapshot field list, and the real _find_orca() in IronClaude src/superclaude/cli/install_user_setup.py. Grepped the spec for issue acceptance tokens (elapsed, subtotal, dirty, admission, conflict). Owner-bound decisions and open OQs were not flagged as defects for being open.",
+  "findings": [
+    {
+      "id": "AR-SPEC-01",
+      "location": "_bmad-output/specs/spec-orca-observer/stack.md:24",
+      "other_side": "_bmad-output/specs/spec-orca-observer/snapshot-export-schema.md:3",
+      "finding": "`export(view)` names two different outputs. stack.md says it writes the `e`/`--once` text record and the JSON snapshot is a separate serialization; snapshot-export-schema.md and owner decision item 5 say `export(view)` writes the JSON snapshot.",
+      "evidence": "stack.md: \"`export(view)` writes the `e`/`--once` record form\"; schema: \"R1 writes a versioned, additive-only JSON snapshot from `export(view)`\"",
+      "proposed_grade": "BLOCKING",
+      "suggested_fix": "Give the text record export and the JSON snapshot writer distinct function names and use them identically in stack.md, snapshot-export-schema.md and CAP-9/CAP-10."
+    },
+    {
+      "id": "AR-SPEC-02",
+      "location": "_bmad-output/specs/spec-orca-observer/snapshot-export-schema.md:18",
+      "other_side": "_bmad-output/specs/spec-orca-observer/acceptance-tests.md:49",
+      "finding": "The 'schema' has no JSON types, no required/optional markers, no nesting rule (is `source.namespace` a dotted key or a nested object?) and no rule for `counts`, `scope` or `page.hasMore` when absent, yet the schema test must 'validate against' it and the additive-only rule forbids 'retyping' fields that have no type. Replacing a number or map with the string `UNKNOWN` is itself a retype.",
+      "evidence": "\"`counts` | From `result.counts`, passed through as a map of state to number\"; \"A value the source did not give is the string `UNKNOWN`\"",
+      "proposed_grade": "BLOCKING",
+      "suggested_fix": "Add a typed field table (type, required, nesting, allowed UNKNOWN union per field) so the schema test and a Go reader can be written from it alone."
+    },
+    {
+      "id": "AR-SPEC-03",
+      "location": "_bmad-output/specs/spec-orca-observer/adapter-contract.md:42",
+      "other_side": "_bmad-output/specs/spec-orca-observer/unverified-register.md:11",
+      "finding": "Row identity and T39 depend on a 'source namespace', but no verified Orca field supplies one and the spec never says how the observer derives it (host, binary path, Orca instance, bound Run?). Either it is an observer-defined value that must be specified, or it silently becomes an invented field.",
+      "evidence": "\"Row identity = source namespace + `dispatchId`\"; verified fields list has no namespace key",
+      "proposed_grade": "BLOCKING",
+      "suggested_fix": "Define `source.namespace` as an observer-computed value with its exact derivation, label it observer-side (not Orca), and pin it in T39."
+    },
+    {
+      "id": "AR-SPEC-04",
+      "location": "_bmad-output/specs/spec-orca-observer/snapshot-export-schema.md:16",
+      "other_side": "_bmad-output/specs/spec-orca-observer/rendering-rules.md:55",
+      "finding": "The snapshot cannot express the honesty states the screen must show: no collected count, no PARTIAL flag, no `changed during read`, no mismatch, no duplicate count, no `order unknown`, no `not reobserved`. A later Go screen built only on the snapshot would imply completeness, against CAP-4 and the issue's 'make missing, stale and partial information explicit'.",
+      "evidence": "Envelope lists only schemaVersion, producer, cycle, generatedAt, source.*, page.*, scope, counts; screen requires `PARTIAL: collected n of reported T`",
+      "proposed_grade": "BLOCKING",
+      "suggested_fix": "Add optional (additive) envelope/row fields for partial, collected, mismatch, changed-during-read, duplicates-ignored and order-unknown, or state explicitly that consumers must not render completeness and why."
+    },
+    {
+      "id": "AR-SPEC-05",
+      "location": "_bmad-output/specs/spec-orca-observer/rendering-rules.md:25",
+      "other_side": "_bmad-output/specs/spec-orca-observer/snapshot-export-schema.md:43",
+      "finding": "`stage.detail`/`stage.activity` are withheld from the snapshot because they may carry question text, yet the inspector shows them and the text export is 'lossless' from the same view model. SPEC.md:77 says no R1 output (screen, text export, snapshot) carries message content, so the stricter reading is applied to only one of three outputs.",
+      "evidence": "inspector: \"`projection.stage.{worker,dispatch,activity,detail}`\"; schema: \"whether they carry question text is UNVERIFIED. The stricter reading applies\"",
+      "proposed_grade": "BLOCKING",
+      "suggested_fix": "Apply one rule to screen, text export and snapshot for `stage.detail`/`stage.activity`, and say which open owner decision (7) gates it."
+    },
+    {
+      "id": "AR-SPEC-06",
+      "location": "_bmad-output/specs/spec-orca-observer/snapshot-export-schema.md:43",
+      "other_side": "/home/coder/workspaces/worktrees/IronClaude/issue-409-mvp/.dev/issues/409/tuibbs-review/architecture-options.md:103",
+      "finding": "The snapshot contract (ranked above the spec) freezes `stage.detail` and `stage.activity` in R1; the spec drops them by its own default. A derivative must not override its source; this needs an owner/contract change, not a spec-level 'stricter reading'.",
+      "evidence": "architecture-options: \"`stage.worker`, `stage.dispatch`, `stage.detail`, `stage.activity` | `projection.stage.*`\"; spec: \"Withheld from the R1 snapshot\"",
+      "proposed_grade": "BLOCKING",
+      "suggested_fix": "Either keep the source field list and record the exposure risk as an open owner question, or cite an owner decision that amends the snapshot contract."
+    },
+    {
+      "id": "AR-SPEC-07",
+      "location": "_bmad-output/specs/spec-orca-observer/snapshot-export-schema.md:51",
+      "other_side": "_bmad-output/specs/spec-orca-observer/SPEC.md:95",
+      "finding": "Snapshot ordering is undefined when both timestamps are `UNKNOWN` or unparsable (timestamp format and clock are UNVERIFIED), so output order, and therefore byte-identical determinism, is unspecified for exactly the degraded rows the spec cares about.",
+      "evidence": "\"By `liveness.observedAt`, else `evidence.lastObservedAt`, newest first; ties by `dispatchId`\"; \"ISO-8601 on one clock; UNVERIFIED\"",
+      "proposed_grade": "BLOCKING",
+      "suggested_fix": "Specify where rows with UNKNOWN or unparsable timestamps sort (e.g. last, by `dispatchId`) and how mixed timestamp formats compare."
+    },
+    {
+      "id": "AR-SPEC-08",
+      "location": "_bmad-output/specs/spec-orca-observer/acceptance-tests.md:17",
+      "other_side": "_bmad-output/specs/spec-orca-observer/rendering-rules.md:29",
+      "finding": "T20 requires ledger rows 'each naming' a shared `worktreeId` and a `worktree unknown` string, but the ledger has no worktree column at any width and the inspector's absent form is `unknown (absent in source)`. T20 cannot pass against the rendering rules, and the literal differs.",
+      "evidence": "T20: \"two rows each naming it, and a session with no worktree as `worktree unknown`\"; ledger columns list no worktreeId",
+      "proposed_grade": "BLOCKING",
+      "suggested_fix": "Either add a worktree cell to the ledger or rewrite T20 against the inspector with the `unknown (absent in source)` literal."
+    },
+    {
+      "id": "AR-SPEC-09",
+      "location": "_bmad-output/specs/spec-orca-observer/acceptance-tests.md:3",
+      "other_side": "_bmad-output/planning-artifacts/orca-observer/final-review/inputs/issue-409-body.md:84",
+      "finding": "The AC mapping was never checked against the issue even though the issue is available, and issue requirements are untested: 'elapsed time is not completion percentage', 'a partial subtotal is not total spend', 'a dirty worktree is not automatically dangerous', 'shared paths do not establish a conflict', 'inspectable evidence is not admission' (issue :19). No test or rendering rule names them.",
+      "evidence": "\"the issue's acceptance list was not re-read for this mapping\"; issue: \"elapsed time is not completion percentage; missing cost is not zero; a partial subtotal is not total spend\"",
+      "proposed_grade": "BLOCKING",
+      "suggested_fix": "Re-map against the 11 issue acceptance criteria and add tests (or explicit out-of-R1 notes) for each uncovered clause."
+    },
+    {
+      "id": "AR-SPEC-10",
+      "location": "_bmad-output/specs/spec-orca-observer/release-gates.md:9",
+      "other_side": "_bmad-output/specs/spec-orca-observer/SPEC.md:104",
+      "finding": "R0 is 'offline only, none from Orca' yet must deliver 'a redacted golden `worker-list` fixture', which needs a live capture; capture permission is open owner decision 6 and a live subprocess outside the fake runner is production integration under the stricter reading 1 that the spec says applies. The source of the sample is never named.",
+      "evidence": "R0 adds \"a redacted golden `worker-list` fixture\"; gate: \"None from Orca; offline only\"",
+      "proposed_grade": "BLOCKING",
+      "suggested_fix": "Name an existing recorded sample (path and capture authority) or move the golden sample behind the owner's capture permission and out of R0."
+    },
+    {
+      "id": "AR-SPEC-11",
+      "location": "_bmad-output/specs/spec-orca-observer/adapter-contract.md:3",
+      "other_side": "_bmad-output/specs/spec-orca-observer/adapter-contract.md:28",
+      "finding": "'R0 runs nothing against Orca' contradicts 'per-call timeout is measured in R0' (also release-gates.md:9). A per-call Orca timeout cannot be measured without calling Orca; T5 depends on this measured value.",
+      "evidence": "\"R0 runs nothing against Orca.\"; \"Per-call timeout is measured in R0, not guessed\"",
+      "proposed_grade": "BLOCKING",
+      "suggested_fix": "State what is measured offline versus live, and give T5 a provisional fixed timeout until a permitted live measurement exists."
+    },
+    {
+      "id": "AR-SPEC-12",
+      "location": "_bmad-output/specs/spec-orca-observer/SPEC.md:74",
+      "other_side": "_bmad-output/specs/spec-orca-observer/owner-decisions-and-risks.md:9",
+      "finding": "The spec flatly states DIRECTION-SELECTED 'has not passed' (also owner-decisions-and-risks.md:66, release-gates.md:10) while the same set calls whether the owner's staged choice counts 'UNVERIFIED', and the owner decision reserves that judgement to the owner (owner-decisions-20261108.md:9).",
+      "evidence": "SPEC: \"DIRECTION-SELECTED has not passed\"; risks: \"Whether it counts as the DIRECTION-SELECTED selection record is UNVERIFIED\"",
+      "proposed_grade": "BLOCKING",
+      "suggested_fix": "Use one status everywhere: 'not shown to have passed; owner to say (UNVERIFIED)'."
+    },
+    {
+      "id": "AR-SPEC-13",
+      "location": "_bmad-output/specs/spec-orca-observer/SPEC.md:21",
+      "other_side": "_bmad-output/specs/spec-orca-observer/rendering-rules.md:8",
+      "finding": "SPEC claims the companions are the 'complete' contract, but height rules depend on 'C's 44-row height contract (drop order, minimum rows)' and A's width matrix, which the spec admits are undefined. T35 and T49 cannot be implemented deterministically. This is an engineering gap, not an owner question.",
+      "evidence": "\"complete, preservation-validated contract\"; \"The sources name these three artifacts but do not define their contents\"",
+      "proposed_grade": "BLOCKING",
+      "suggested_fix": "Define the drop order and minimum rows (and the A width matrix) in rendering-rules.md, or remove the 'complete' claim and mark T35/T49 blocked."
+    },
+    {
+      "id": "AR-SPEC-14",
+      "location": "_bmad-output/specs/spec-orca-observer/rendering-rules.md:13",
+      "other_side": "_bmad-output/specs/spec-orca-observer/SPEC.md:39",
+      "finding": "Minimum content under height pressure is 'coverage, scope and PARTIAL'; the question-source gap notice is not in it, and under 80 columns only the too-narrow line and COUNTS strip are specified (rendering-rules.md:12). CAP-3 requires the notice in every live R1 state, and the risks table relies on it to stop the ledger being read as questions.",
+      "evidence": "\"Coverage, scope and `PARTIAL` are minimum content\"; CAP-3: \"renders in every live R1 state\"",
+      "proposed_grade": "BLOCKING",
+      "suggested_fix": "Add the gap notice to the minimum content set and to the too-narrow and too-small states, with a test."
+    },
+    {
+      "id": "AR-SPEC-15",
+      "location": "_bmad-output/specs/spec-orca-observer/adapter-contract.md:10",
+      "other_side": "/home/coder/workspaces/worktrees/IronClaude/issue-409-mvp/src/superclaude/cli/install_user_setup.py:204",
+      "finding": "The spec promises 'the one discovery probe' (SPEC.md:90, T1), but `_find_orca()` loops over `orca-ide` then `orca` and runs `skills list --json` on each, so up to two probes run, the second possibly launching the GNOME screen reader. It calls `subprocess.run` directly, outside the collector's runner seam, so the fake-runner argv log cannot see it.",
+      "evidence": "\"for name in _ORCA_CLIS:\" ... \"[path, \\\"skills\\\", \\\"list\\\", \\\"--json\\\"]\"; spec: \"plus the one-time binary discovery probe\"",
+      "proposed_grade": "BLOCKING",
+      "suggested_fix": "Say 'at most one probe per candidate (two)', note the screen-reader execution risk, and state how T1/T36 intercept the probe."
+    },
+    {
+      "id": "AR-SPEC-16",
+      "location": "_bmad-output/specs/spec-orca-observer/rendering-rules.md:22",
+      "other_side": "_bmad-output/specs/spec-orca-observer/rendering-rules.md:52",
+      "finding": "Rows with `terminalState` `retained` are classed historical and hidden by default, but the `terminalState` value set and meaning are not in the verified list or the UNVERIFIED register, and the spec itself warns 'a completed Task can still own a live terminal'. A default-hide rule rests on an unlabelled inference.",
+      "evidence": "\"rows with historical `terminalState` (released, retained) are hidden by default\"",
+      "proposed_grade": "BLOCKING",
+      "suggested_fix": "Label the historical classification UNVERIFIED in unverified-register.md and state the evidence for treating `retained` as historical, or show retained rows by default."
+    },
+    {
+      "id": "AR-SPEC-17",
+      "location": "_bmad-output/specs/spec-orca-observer/snapshot-export-schema.md:25",
+      "other_side": "_bmad-output/specs/spec-orca-observer/rendering-rules.md:18",
+      "finding": "The snapshot status set (`OK`, `STALE`, `ERROR`, `UNKNOWN`) and the screen's (`OK`, `STALE`, `FAILED`, `NOT POLLED`) name the same states differently with no mapping, although both come from one view model.",
+      "evidence": "\"`OK`, `STALE` (older than 45 s), `ERROR` or `UNKNOWN`\"; \"`FAILED (exit 2) 1m` / `NOT POLLED`\"",
+      "proposed_grade": "MINOR",
+      "suggested_fix": "Add an explicit screen-to-snapshot status mapping table."
+    },
+    {
+      "id": "AR-SPEC-18",
+      "location": "_bmad-output/specs/spec-orca-observer/adapter-contract.md:27",
+      "other_side": "_bmad-output/specs/spec-orca-observer/SPEC.md:71",
+      "finding": "SPEC says 'fixed 15 s cycle' and STALE is '3 intervals (45 s)', but after failures the interval backs off to 60 s, so '3 intervals' and '45 s' diverge and the cycle is not fixed.",
+      "evidence": "\"After failures the interval backs off, up to 60 s.\"; \"STALE after 3 intervals (45 s)\"",
+      "proposed_grade": "MINOR",
+      "suggested_fix": "Define STALE as 45 s of monotonic time since the last success, independent of the current interval, and drop 'fixed'."
+    },
+    {
+      "id": "AR-SPEC-19",
+      "location": "_bmad-output/specs/spec-orca-observer/rendering-rules.md:31",
+      "other_side": "_bmad-output/specs/spec-orca-observer/rendering-rules.md:39",
+      "finding": "The gap notice puts a literal `0` beside 'Human questions:', which reads at a glance as a zero question count, while the same view says the count is `unknown (no question source)`, never 0.",
+      "evidence": "\"Human questions: source UNVERIFIED, 0 rows interpreted\"; \"`unknown (no question source)`, never 0\"",
+      "proposed_grade": "MINOR",
+      "suggested_fix": "Consider 'no rows interpreted' or move the row count after the UNVERIFIED wording, keeping one literal across files."
+    },
+    {
+      "id": "AR-SPEC-20",
+      "location": "_bmad-output/specs/spec-orca-observer/snapshot-export-schema.md:57",
+      "other_side": "_bmad-output/specs/spec-orca-observer/rendering-rules.md:25",
+      "finding": "Worktree and ownership IDs are kept out of the snapshot because 'an attacker could target' them, yet the text export (a file on disk) carries them in full; the security rationale is applied to one file only.",
+      "evidence": "\"They identify resources an attacker could target\"; inspector shows `resource.worktreeId`, `resource.ownerDispatchId`",
+      "proposed_grade": "MINOR",
+      "suggested_fix": "State why the text export may carry these IDs (local, user-initiated) or apply the same exclusion."
+    },
+    {
+      "id": "AR-SPEC-21",
+      "location": "_bmad-output/specs/spec-orca-observer/adapter-contract.md:17",
+      "other_side": "_bmad-output/specs/spec-orca-observer/adapter-contract.md:3",
+      "finding": "The forbidden set includes 'any verb other than the two templates' and 'never shrinks', but R2 adds `check --all` to the allow-list, which shrinks that clause.",
+      "evidence": "\"any verb other than the two templates above\"; \"enters the allow-list only after QUESTION-OBSERVATION passes\"",
+      "proposed_grade": "MINOR",
+      "suggested_fix": "Separate the fixed forbidden list (never shrinks) from the default-deny rule (grows with each gate)."
+    },
+    {
+      "id": "AR-SPEC-22",
+      "location": "_bmad-output/specs/spec-orca-observer/SPEC.md:13",
+      "other_side": "_bmad-output/planning-artifacts/orca-observer/final-review/reviewer-brief.md:12",
+      "finding": "ARCHITECTURE-SPINE.md is listed as a companion, so it becomes part of the 'canonical contract', raising the lowest-ranked document to the spec's rank.",
+      "evidence": "\"companions: ... - ARCHITECTURE-SPINE.md\"; \"This SPEC and the files in `companions:` are the complete ... contract\"",
+      "proposed_grade": "MINOR",
+      "suggested_fix": "Move ARCHITECTURE-SPINE.md to `sources:` or state that the spec wins on conflict."
+    },
+    {
+      "id": "AR-SPEC-23",
+      "location": "_bmad-output/specs/spec-orca-observer/owner-decisions-and-risks.md:3",
+      "other_side": "_bmad-output/specs/spec-orca-observer/snapshot-export-schema.md:13",
+      "finding": "Four owner-decision numbering systems coexist ('recorded owner decision N', 'open owner decision N', 'owner-decisions-20261108.md item N', 'summary decision N'), and `summary.md` is cited but not in `sources:`. Recorded decision 1 is cited to 'the dispatch brief' rather than owner-decisions-20261108.md item 1.",
+      "evidence": "\"summary.md decision 4\"; \"Recorded in the dispatch brief\"",
+      "proposed_grade": "MINOR",
+      "suggested_fix": "Cite owner-decisions-20261108.md items directly and add summary.md to `sources:` or drop it."
+    },
+    {
+      "id": "AR-SPEC-24",
+      "location": "_bmad-output/specs/spec-orca-observer/SPEC.md:33",
+      "other_side": "_bmad-output/specs/spec-orca-observer/acceptance-tests.md:44",
+      "finding": "CAP-1's success requires the key-reader spike result to be recorded, but its cited tests (T50, T6, T16) do not check any spike record and no artifact path is named.",
+      "evidence": "\"the key-reader spike result is recorded (T50, T6, T16)\"",
+      "proposed_grade": "MINOR",
+      "suggested_fix": "Name the spike record's path and a reviewer check for it."
+    },
+    {
+      "id": "AR-SPEC-25",
+      "location": "_bmad-output/specs/spec-orca-observer/acceptance-tests.md:49",
+      "other_side": "_bmad-output/specs/spec-orca-observer/SPEC.md:60",
+      "finding": "The owner-mandated snapshot schema test has no test ID, and 'asserts no message bodies, prompts, file contents or credentials' gives no checkable method (field allow-list, pattern scan?).",
+      "evidence": "\"Test ID not yet assigned.\"",
+      "proposed_grade": "MINOR",
+      "suggested_fix": "Assign a T-number and define the absence check as 'only schema-listed keys present'."
+    },
+    {
+      "id": "AR-SPEC-26",
+      "location": "_bmad-output/specs/spec-orca-observer/SPEC.md:59",
+      "other_side": "_bmad-output/specs/spec-orca-observer/stack.md:24",
+      "finding": "Whether the snapshot is always written or opt-in ('can write'), where it is written, how it is replaced atomically each 15 s and its file permissions are unspecified; the `e` export path is also unspecified.",
+      "evidence": "\"Each R1 cycle can write a versioned, additive-only JSON snapshot\"",
+      "proposed_grade": "MINOR",
+      "suggested_fix": "Specify trigger, path, atomic replace and permissions for the snapshot and the `e` export."
+    },
+    {
+      "id": "AR-SPEC-27",
+      "location": "_bmad-output/specs/spec-orca-observer/stack.md:25",
+      "other_side": "_bmad-output/specs/spec-orca-observer/acceptance-tests.md:19",
+      "finding": "NO_COLOR is honoured 'for both `1` and `yes`', which leaves other non-empty values (e.g. `true`, `0`) unspecified; no-color.org treats any non-empty value as set, which stack.md itself uses to fault Go.",
+      "evidence": "\"NO_COLOR is honoured for both `1` and `yes`\"",
+      "proposed_grade": "MINOR",
+      "suggested_fix": "State 'any non-empty NO_COLOR value' and keep T26's two cases as examples."
+    },
+    {
+      "id": "AR-SPEC-28",
+      "location": "_bmad-output/specs/spec-orca-observer/adapter-contract.md:36",
+      "other_side": "_bmad-output/specs/spec-orca-observer/adapter-contract.md:18",
+      "finding": "No behaviour is given for `page.hasMore=true` with `page.nextCursor` absent or empty; the cursor rule only says it is copied from `page.nextCursor`.",
+      "evidence": "\"Required: `result`, `result.workers`, `result.page.hasMore`\"; \"The cursor is copied unchanged from `page.nextCursor`\"",
+      "proposed_grade": "MINOR",
+      "suggested_fix": "Treat hasMore=true without a cursor as PARTIAL with a named reason and pin it in T32."
+    },
+    {
+      "id": "AR-SPEC-29",
+      "location": "_bmad-output/specs/spec-orca-observer/write-back-future-stage.md:38",
+      "other_side": "_bmad-output/specs/spec-orca-observer/SPEC.md:65",
+      "finding": "Decision Desk 'may show ... the exact `orca orchestration reply` command' for the human, which is not in CAP-12, depends on UNVERIFIED message IDs, and edges toward 'instructing workers' that the issue puts out of scope.",
+      "evidence": "\"Decision Desk may show a pending question and the exact `orca orchestration reply` command\"",
+      "proposed_grade": "MINOR",
+      "suggested_fix": "Drop it or record it as an open owner question tied to the write-back boundary change."
+    },
+    {
+      "id": "AR-SPEC-30",
+      "location": "_bmad-output/specs/spec-orca-observer/acceptance-tests.md:17",
+      "other_side": "_bmad-output/specs/spec-orca-observer/SPEC.md:42",
+      "finding": "T17 asserts that per-owner counts sum to the global count, while CAP-4 forbids summing counts and the R1 ledger has no owner column; the test's scope (fixture-derived counts only) is not stated.",
+      "evidence": "\"T17: `uneven` per-owner counts sum to the global count.\"; \"source counts are never summed\"",
+      "proposed_grade": "MINOR",
+      "suggested_fix": "State that T17 applies to fixture-derived counts only, never to `result.counts`."
+    }
+  ]
+}

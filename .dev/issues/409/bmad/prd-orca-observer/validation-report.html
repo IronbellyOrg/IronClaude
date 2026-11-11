@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<!--
+  PRD Validation Report — skeleton template.
+
+  This file is a starter the synthesis pass fills in directly. There is no
+  substitution engine. The LLM:
+    1. Reads {doc_workspace}/review-rubric.md and every review-{slug}.md from
+       additional reviewers.
+    2. Copies this skeleton.
+    3. Replaces the placeholder content (everything between TEMPLATE markers)
+       with the consolidated review, preserving the structure and CSS.
+    4. Writes the result to {doc_workspace}/validation-report.html.
+    5. Writes a markdown twin to {doc_workspace}/validation-report.md.
+
+  Visual rules the LLM must preserve:
+    - The container width, the color tokens, the typography.
+    - One dimension = one collapsible <section class="dimension">.
+    - Verdict pill uses the verdict-* class matching its judgment.
+    - Severity badge uses the sev-* class matching its level.
+    - Each extra reviewer (adversarial, etc.) gets its own collapsible section
+      below the rubric dimensions.
+    - The footer always shows the artifact paths and timestamp.
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>PRD Validation: Orca Read-Only Terminal Observer</title>
+<style>
+  :root {
+    --bg: #fafaf9;
+    --surface: #ffffff;
+    --border: #e7e5e4;
+    --text: #1c1917;
+    --muted: #78716c;
+
+    --verdict-strong: #16a34a;
+    --verdict-adequate: #65a30d;
+    --verdict-thin: #d97706;
+    --verdict-broken: #dc2626;
+
+    --sev-low: #64748b;
+    --sev-medium: #ca8a04;
+    --sev-high: #ea580c;
+    --sev-critical: #dc2626;
+
+    --grade-exc: #16a34a;
+    --grade-good: #65a30d;
+    --grade-fair: #d97706;
+    --grade-poor: #dc2626;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, system-ui, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+    font-size: 15px;
+  }
+  .container { max-width: 960px; margin: 0 auto; padding: 32px 24px 64px; }
+
+  header.report-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 24px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 24px;
+  }
+  .title h1 { margin: 0; font-size: 22px; font-weight: 600; letter-spacing: -0.01em; }
+  .title .subtitle { color: var(--muted); font-size: 13px; margin-top: 4px; font-family: ui-monospace, "SF Mono", Menlo, monospace; }
+  .grade {
+    padding: 10px 18px;
+    border-radius: 8px;
+    font-weight: 600;
+    color: white;
+    font-size: 15px;
+    white-space: nowrap;
+  }
+  .grade-excellent { background: var(--grade-exc); }
+  .grade-good { background: var(--grade-good); }
+  .grade-fair { background: var(--grade-fair); }
+  .grade-poor { background: var(--grade-poor); }
+
+  .synthesis {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--muted);
+    border-radius: 8px;
+    padding: 18px 22px;
+    margin-bottom: 24px;
+    font-size: 15.5px;
+  }
+  .synthesis p { margin: 0 0 10px; }
+  .synthesis p:last-child { margin-bottom: 0; }
+
+  .dimension-summary {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 10px;
+    margin-bottom: 24px;
+  }
+  .dim-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 12px 14px;
+  }
+  .dim-card .dim-name { font-size: 13px; color: var(--muted); margin-bottom: 6px; }
+  .dim-card .dim-verdict { font-size: 14px; font-weight: 600; }
+
+  section.dimension, section.reviewer-section { margin-bottom: 14px; }
+  section.dimension details, section.reviewer-section details {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+  }
+  section summary {
+    padding: 14px 20px;
+    cursor: pointer;
+    user-select: none;
+    list-style: none;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  section summary::-webkit-details-marker { display: none; }
+  section summary::before {
+    content: "▸";
+    display: inline-block;
+    color: var(--muted);
+    transition: transform 0.15s ease;
+  }
+  section details[open] summary::before { transform: rotate(90deg); }
+  section summary h2 {
+    display: inline;
+    margin: 0;
+    font-size: 16px;
+    font-weight: 600;
+    letter-spacing: -0.005em;
+    flex: 1;
+  }
+  .verdict-pill {
+    font-size: 11px;
+    padding: 3px 10px;
+    border-radius: 999px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: white;
+  }
+  .verdict-strong { background: var(--verdict-strong); }
+  .verdict-adequate { background: var(--verdict-adequate); }
+  .verdict-thin { background: var(--verdict-thin); }
+  .verdict-broken { background: var(--verdict-broken); }
+
+  .dim-body { padding: 4px 20px 18px; }
+  .dim-judgment { color: var(--text); font-size: 14.5px; }
+  .dim-judgment p { margin: 0 0 10px; }
+
+  .findings-list { padding: 0 20px 4px; }
+  article.finding {
+    padding: 14px 0;
+    border-top: 1px solid var(--border);
+  }
+  article.finding:first-child { border-top: none; }
+  article.finding header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-bottom: 6px;
+  }
+  .badge {
+    font-size: 10.5px;
+    padding: 3px 8px;
+    border-radius: 4px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    line-height: 1.4;
+  }
+  .badge-sev-low { background: rgba(100, 116, 139, 0.12); color: var(--sev-low); }
+  .badge-sev-medium { background: rgba(202, 138, 4, 0.14); color: var(--sev-medium); }
+  .badge-sev-high { background: rgba(234, 88, 12, 0.14); color: var(--sev-high); }
+  .badge-sev-critical { background: rgba(220, 38, 38, 0.14); color: var(--sev-critical); }
+  .finding-title { margin: 0; font-size: 15px; font-weight: 500; flex: 1; min-width: 200px; }
+  .finding-location { font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: 12.5px; color: var(--muted); }
+  .finding-note, .finding-fix { margin-top: 6px; font-size: 14px; }
+  .finding-fix strong { color: var(--muted); font-weight: 500; }
+
+  .reviewer-source {
+    font-size: 12px;
+    color: var(--muted);
+    font-family: ui-monospace, "SF Mono", Menlo, monospace;
+  }
+
+  .mechanical {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 16px 20px;
+    margin-top: 24px;
+    font-size: 14px;
+  }
+  .mechanical h3 { margin: 0 0 10px; font-size: 14px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.04em; }
+  .mechanical ul { margin: 0; padding-left: 20px; }
+  .mechanical li { margin-bottom: 4px; color: var(--text); }
+
+  footer.report-footer {
+    margin-top: 40px;
+    padding-top: 16px;
+    border-top: 1px solid var(--border);
+    font-size: 12px;
+    color: var(--muted);
+    font-family: ui-monospace, "SF Mono", Menlo, monospace;
+  }
+  footer .meta { display: flex; gap: 24px; flex-wrap: wrap; }
+</style>
+</head>
+<body>
+  <div class="container">
+
+
+    <header class="report-header">
+      <div class="title">
+        <h1>Orca Read-Only Terminal Observer — Validation Report</h1>
+        <div class="subtitle">_bmad-output/planning-artifacts/orca-observer/prd.md (with addendum.md)</div>
+      </div>
+      <div class="grade grade-excellent">Excellent</div>
+    </header>
+
+    <div class="synthesis">
+      <p>A usable, honest PRD for a gated, R0-only internal tool. Decisions, gates and their status, dissents, evidence labels and FR-to-test traceability are solid. The open questions are genuinely open and carried word for word (checked against SPEC.md:99-113).</p>
+      <p>The risk was concentrated in four requirements that could not be tested as written (FR-8 mismatch form, NFR-1 height threshold, NFR-13 Windows claim, FR-17/FR-18 "why it matters") and in success metrics that measure delivery rather than the thesis. All four BLOCKING items were fixed in the single permitted fix cycle. The 11 MINOR findings are recorded as notes and not acted on.</p>
+    </div>
+
+    <div class="dimension-summary">
+      <div class="dim-card"><div class="dim-name">Decision-readiness</div><div class="dim-verdict" style="color: var(--verdict-strong)">strong</div></div>
+      <div class="dim-card"><div class="dim-name">Substance over theater</div><div class="dim-verdict" style="color: var(--verdict-strong)">strong</div></div>
+      <div class="dim-card"><div class="dim-name">Strategic coherence</div><div class="dim-verdict" style="color: var(--verdict-adequate)">adequate</div></div>
+      <div class="dim-card"><div class="dim-name">Done-ness clarity</div><div class="dim-verdict" style="color: var(--verdict-adequate)">adequate</div></div>
+      <div class="dim-card"><div class="dim-name">Scope honesty</div><div class="dim-verdict" style="color: var(--verdict-strong)">strong</div></div>
+      <div class="dim-card"><div class="dim-name">Downstream usability</div><div class="dim-verdict" style="color: var(--verdict-adequate)">adequate</div></div>
+      <div class="dim-card"><div class="dim-name">Shape fit</div><div class="dim-verdict" style="color: var(--verdict-strong)">strong</div></div>
+    </div>
+
+    <section class="dimension">
+      <details>
+        <summary><h2>Decision-readiness</h2><span class="verdict-pill verdict-strong">strong</span></summary>
+        <div class="dim-body"><div class="dim-judgment"><p>Owner decisions, gates and dissents are explicit; open questions are carried verbatim and not resolved.</p></div></div>
+        <div class="findings-list">
+          <article class="finding"><header><span class="badge badge-sev-low">low</span><h3 class="finding-title">Open questions not tagged with the release they block</h3><span class="finding-location">§12.1</span></header><div class="finding-note">A reader cannot see which OQ blocks R1, R2 or R3.</div><div class="finding-fix"><strong>Fix:</strong> add a "blocks" marker per OQ. Not applied (minor).</div></article>
+          <article class="finding"><header><span class="badge badge-sev-low">low</span><h3 class="finding-title">Owner-decision numbering collides within one source file</h3><span class="finding-location">§5.1, §11, §12.2, §12.3 item 10</span></header><div class="finding-note">The same decision carries different numbers in different sources (recorded as OI-11).</div><div class="finding-fix"><strong>Fix:</strong> one numbering scheme. Not applied (minor).</div></article>
+        </div>
+      </details>
+    </section>
+
+    <section class="dimension">
+      <details>
+        <summary><h2>Substance over theater</h2><span class="verdict-pill verdict-strong">strong</span></summary>
+        <div class="dim-body"><div class="dim-judgment"><p>Requirements are concrete and evidence-labelled; little filler.</p></div></div>
+        <div class="findings-list">
+          <article class="finding"><header><span class="badge badge-sev-low">low</span><h3 class="finding-title">Pipeline commentary in the product body</h3><span class="finding-location">§12.2 step-1 minor 7 note; OI-13 pointer</span></header><div class="finding-note">Review-process notes sit inside product sections.</div><div class="finding-fix"><strong>Fix:</strong> move to a review log. Not applied (minor).</div></article>
+        </div>
+      </details>
+    </section>
+
+    <section class="dimension">
+      <details>
+        <summary><h2>Strategic coherence</h2><span class="verdict-pill verdict-adequate">adequate</span></summary>
+        <div class="dim-body"><div class="dim-judgment"><p>Release staging follows the owner decisions; the success metrics do not test the product thesis.</p></div></div>
+        <div class="findings-list">
+          <article class="finding"><header><span class="badge badge-sev-medium">medium</span><h3 class="finding-title">Success metrics measure delivery, not the thesis</h3><span class="finding-location">§9.2</span></header><div class="finding-note">SM-1 to SM-3 would pass on a product no supervisor can use; R2 has no success metric of its own. Graded MINOR.</div><div class="finding-fix"><strong>Fix:</strong> add one thesis metric per release. Not applied (minor).</div></article>
+        </div>
+      </details>
+    </section>
+
+    <section class="dimension">
+      <details>
+        <summary><h2>Done-ness clarity</h2><span class="verdict-pill verdict-adequate">adequate</span></summary>
+        <div class="dim-body"><div class="dim-judgment"><p>Most FRs and NFRs map to spec tests. Four requirements could not be tested as written; all four were fixed in fix cycle 1.</p></div></div>
+        <div class="findings-list">
+          <article class="finding"><header><span class="badge badge-sev-medium">medium</span><h3 class="finding-title">FR-8 contradicts itself on the mismatch form (BLOCKING, fixed)</h3><span class="finding-location">§5.4 FR-8</span></header><div class="finding-note">The bullet listed mismatch as "exactly as pinned" while saying no mismatch string is pinned; T47 inherits the gap.</div><div class="finding-fix"><strong>Fix:</strong> remove mismatch from the pinned list, let UX set it, mark T47's mismatch part pending. Applied; <code>reported unknown</code> (T18, T32) also added.</div><div class="finding-note"><strong>Correction (fix cycle 2, after the adversarial review):</strong> this fix was wrong. rendering-rules.md:55 does pin <code>collected n / reported T (mismatch)</code>, and T47 cites it. FR-8 now states that string; "UX sets it" and "T47 pending" were removed.</div></article>
+          <article class="finding"><header><span class="badge badge-sev-medium">medium</span><h3 class="finding-title">NFR-1 too-small-height diagnostic has no threshold (BLOCKING, fixed)</h3><span class="finding-location">§6 NFR-1</span></header><div class="finding-note">Height depends on C's 44-row contract, which OQ-14 says is undefined, so T49 could not be written.</div><div class="finding-fix"><strong>Fix:</strong> threshold stated as a content rule; numeric row count blocked on OQ-14. Applied.</div></article>
+          <article class="finding"><header><span class="badge badge-sev-medium">medium</span><h3 class="finding-title">NFR-13 Windows claim verified by a test that does not test Windows (BLOCKING, fixed)</h3><span class="finding-location">§6 NFR-13</span></header><div class="finding-note">T27 is a headless export assertion with no platform dimension.</div><div class="finding-fix"><strong>Fix:</strong> Windows behaviour marked UNVERIFIED until T27 runs on a Windows runner. Applied.</div></article>
+          <article class="finding"><header><span class="badge badge-sev-medium">medium</span><h3 class="finding-title">"Why it matters" has no defined source (BLOCKING for R2/R3, fixed)</h3><span class="finding-location">§5.10 FR-17; §5.11 FR-18</span></header><div class="finding-note">The reason text had no source; message fields are UNVERIFIED (U1).</div><div class="finding-fix"><strong>Fix:</strong> sourced field shown verbatim or <code>reason unknown</code>, tied to OQ-7; assumptions A7, A8 added to §13.3. Applied.</div></article>
+          <article class="finding"><header><span class="badge badge-sev-low">low</span><h3 class="finding-title">FR-9 four-state rule has no test; FR-6 trivially true in R1</h3><span class="finding-location">§5.4, §5.2</span></header><div class="finding-note">No direct test cites the four-state rule.</div><div class="finding-fix"><strong>Fix:</strong> map to T13/T15/T40/T42; note FR-6 becomes meaningful at R2. Not applied (minor).</div></article>
+          <article class="finding"><header><span class="badge badge-sev-low">low</span><h3 class="finding-title">FR-8 omitted <code>reported unknown</code></h3><span class="finding-location">§5.4</span></header><div class="finding-note">Missing <code>page.total</code> form was absent.</div><div class="finding-fix"><strong>Fix:</strong> add it. Applied with the FR-8 blocking fix.</div></article>
+        </div>
+      </details>
+    </section>
+
+    <section class="dimension">
+      <details>
+        <summary><h2>Scope honesty</h2><span class="verdict-pill verdict-strong">strong</span></summary>
+        <div class="dim-body"><div class="dim-judgment"><p>R1 is read-only; write-back is a separate future stage; non-goals and UNVERIFIED labels are explicit. No findings.</p></div></div>
+      </details>
+    </section>
+
+    <section class="dimension">
+      <details>
+        <summary><h2>Downstream usability</h2><span class="verdict-pill verdict-adequate">adequate</span></summary>
+        <div class="dim-body"><div class="dim-judgment"><p>The addendum gives UX and architecture a CAP-to-FR-to-test matrix and single-source pointers; some citations are internal to the chain.</p></div></div>
+        <div class="findings-list">
+          <article class="finding"><header><span class="badge badge-sev-medium">medium</span><h3 class="finding-title">Citations to chain-internal artifacts a downstream reader cannot resolve</h3><span class="finding-location">§5.5, §5.6, §5.9, §9.1, §10.1, §12.2, §13.2</span></header><div class="finding-note">"step-1 minor n", "gap Gn", "I:91", "M:463", "V1/V3" have no key. Graded MINOR.</div><div class="finding-fix"><strong>Fix:</strong> add a one-line key or restate in place. Not applied (minor).</div></article>
+          <article class="finding"><header><span class="badge badge-sev-low">low</span><h3 class="finding-title">Glossary misses normative nouns</h3><span class="finding-location">§3</span></header><div class="finding-note">COUNTS strip, freshness strip, source window, <code>scope=bound</code>, historical row are undefined; "stage" is overloaded.</div><div class="finding-fix"><strong>Fix:</strong> add the terms. Not applied (minor).</div></article>
+          <article class="finding"><header><span class="badge badge-sev-low">low</span><h3 class="finding-title">Addendum lists T9 under CAP-2 but FR-3 does not cite it</h3><span class="finding-location">§5.2 FR-3</span></header><div class="finding-note">Matrix and FR text disagree on one test.</div><div class="finding-fix"><strong>Fix:</strong> cite T9 in FR-3. Not applied (minor).</div></article>
+        </div>
+      </details>
+    </section>
+
+    <section class="dimension">
+      <details>
+        <summary><h2>Shape fit</h2><span class="verdict-pill verdict-strong">strong</span></summary>
+        <div class="dim-body"><div class="dim-judgment"><p>Size and sections fit the stakes of a gated internal tool.</p></div></div>
+        <div class="findings-list">
+          <article class="finding"><header><span class="badge badge-sev-low">low</span><h3 class="finding-title">Jobs encoded three times</h3><span class="finding-location">JTBD, user story, UJ list</span></header><div class="finding-note">Redundant framing of the same jobs.</div><div class="finding-fix"><strong>Fix:</strong> keep one form. Not applied (minor).</div></article>
+        </div>
+      </details>
+    </section>
+
+    <div class="mechanical">
+      <h3>Mechanical notes</h3>
+      <ul>
+        <li>ID continuity: FR, NFR, UJ, JTBD, SM, SM-C, OQ, OI and A ids are contiguous and unique.</li>
+        <li>Coverage: every T1-T51 is cited in prd.md; addendum §C counts are correct (18 FR, 14 NFR, 15 OQ, 13 OI).</li>
+        <li>Verbatim: OQ-1 to OQ-15 match SPEC.md:99-113.</li>
+        <li>Assumptions index roundtrip: FR-17/FR-18 tags had no §13.3 entry (applied: A7, A8); A1 and A6 lack inline tags (not applied, minor).</li>
+        <li>Input reconciliation reports (reconcile-originals.md, reconcile-spec-companions.md, reconcile-spec-core.md) are not review rounds.</li>
+      </ul>
+    </div>
+
+    <footer class="report-footer">
+      <div class="meta">
+        <span>Rubric: .claude/skills/bmad-prd/assets/prd-validation-checklist.md</span>
+        <span>Generated: 2026-11-08T18:45Z</span>
+      </div>
+    </footer>
+  </div>
+</body>
+</html>

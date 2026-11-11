@@ -1,0 +1,27 @@
+{
+  "fixer": "fix1-ux",
+  "cycle": 1,
+  "file_set": "UX: _bmad-output/planning-artifacts/orca-observer/ux-designs/ux-orca-observer-2026-11-08/DESIGN.md, EXPERIENCE.md (plus fix-log.md log lines)",
+  "results": [
+    {"id": "UX-01", "status": "applied", "file": "_bmad-output/planning-artifacts/orca-observer/ux-designs/ux-orca-observer-2026-11-08/EXPERIENCE.md:257", "note": "Added two inspector bullets (lines 257-258): `n unrecognised keys` (adapter-contract.md:38) and caps are per observer process (adapter-contract.md:62)."},
+    {"id": "UX-02", "status": "applied", "file": "_bmad-output/planning-artifacts/orca-observer/ux-designs/ux-orca-observer-2026-11-08/EXPERIENCE.md:328", "note": "Added PROPOSED bullet: help text is the `superclaude observe --help` output carrying the rendering-rules.md:52 sentence and the caps sentence; the 'no help key' statement is kept since the spec key list has none."},
+    {"id": "UX-03", "status": "applied", "file": "_bmad-output/planning-artifacts/orca-observer/ux-designs/ux-orca-observer-2026-11-08/EXPERIENCE.md:177", "note": "B 80-115 row now keeps the two invariant lines quoted from rendering-rules.md:42."},
+    {"id": "UX-04", "status": "applied", "file": "_bmad-output/planning-artifacts/orca-observer/ux-designs/ux-orca-observer-2026-11-08/EXPERIENCE.md:240", "note": "Historical-rows bullet adds the rendering-rules.md:22 exception for evidence linked to a shown item."},
+    {"id": "UX-05", "status": "applied", "file": "_bmad-output/planning-artifacts/orca-observer/ux-designs/ux-orca-observer-2026-11-08/EXPERIENCE.md:52", "note": "Source cell now says SIGNALS is in the 160-column export only; 116/80 builds drop it (rendering-rules.md:85). UX-OQ-1 text at :528 left unchanged because it refers to the layout, not to SIGNALS."},
+    {"id": "UX-06", "status": "applied", "file": "_bmad-output/planning-artifacts/orca-observer/ux-designs/ux-orca-observer-2026-11-08/EXPERIENCE.md:82", "note": "Filter count removed from the status line (:84) and placed in the COUNTS strip directly after `source counts: ...` (rendering-rules.md:56); DESIGN.md status-line anatomy updated to match."},
+    {"id": "UX-07", "status": "applied", "file": "_bmad-output/planning-artifacts/orca-observer/ux-designs/ux-orca-observer-2026-11-08/EXPERIENCE.md:80", "note": "Header line 1 now reads `as of <local time of last good poll>` (rendering-rules.md:17), with HH:MM:SS as the display format only."},
+    {"id": "UX-08", "status": "applied", "file": "_bmad-output/planning-artifacts/orca-observer/ux-designs/ux-orca-observer-2026-11-08/EXPERIENCE.md:251", "note": "Inspector replaces the ledger area only; header line 1, freshness strip and COUNTS strip stay above it (rendering-rules.md:13, :19); DESIGN.md:173 and :210 changed to match."},
+    {"id": "UX-09", "status": "applied", "file": "_bmad-output/planning-artifacts/orca-observer/ux-designs/ux-orca-observer-2026-11-08/DESIGN.md:195", "note": "Under --ascii the `?` replacement is limited to ledger list cells; inspector and export write non-ASCII as `\\uXXXX` escapes (kept PROPOSED, as the spec defines no non-ASCII rule beyond box drawing)."},
+    {"id": "UX-10", "status": "applied", "file": "_bmad-output/planning-artifacts/orca-observer/ux-designs/ux-orca-observer-2026-11-08/EXPERIENCE.md:253", "note": "Added PROPOSED rule: continuation lines of multi-line values carry a fixed indent marker in the inspector and export so no value line can start with a field label."},
+    {"id": "XDOC-04", "status": "applied", "file": "_bmad-output/planning-artifacts/orca-observer/ux-designs/ux-orca-observer-2026-11-08/EXPERIENCE.md:243", "note": "Default now: each ledger row names `resource.worktreeId` (or `worktree unknown`) per T20 (acceptance-tests.md:17), matching ARCH CD-16; UX-OQ-8 at :535 kept open, its question cell reworded from 'must the row name it' to placement and width behaviour because T20 already requires the row to name it."}
+  ],
+  "also_changed": [
+    "_bmad-output/planning-artifacts/orca-observer/ux-designs/ux-orca-observer-2026-11-08/EXPERIENCE.md:84",
+    "_bmad-output/planning-artifacts/orca-observer/ux-designs/ux-orca-observer-2026-11-08/DESIGN.md:205",
+    "_bmad-output/planning-artifacts/orca-observer/ux-designs/ux-orca-observer-2026-11-08/DESIGN.md:173",
+    "_bmad-output/planning-artifacts/orca-observer/ux-designs/ux-orca-observer-2026-11-08/DESIGN.md:210",
+    "_bmad-output/planning-artifacts/orca-observer/ux-designs/ux-orca-observer-2026-11-08/EXPERIENCE.md:535",
+    "_bmad-output/planning-artifacts/orca-observer/ux-designs/ux-orca-observer-2026-11-08/fix-log.md:123"
+  ],
+  "memlog": ["/home/coder/workspaces/worktrees/Coder/dashboard-bmad/_bmad-output/planning-artifacts/orca-observer/ux-designs/ux-orca-observer-2026-11-08"]
+}

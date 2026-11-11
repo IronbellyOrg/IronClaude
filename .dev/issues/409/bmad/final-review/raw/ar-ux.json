@@ -1,0 +1,215 @@
+{
+  "reviewer": "bmad-review-adversarial-general",
+  "artifact": "_bmad-output/planning-artifacts/orca-observer/ux-designs/ux-orca-observer-2026-11-08/DESIGN.md + EXPERIENCE.md (fix-log.md as context)",
+  "verdict": "FAIL",
+  "self_audit": "Re-read the five fix-log edits against their spec source lines (rendering-rules.md:8,:13,:17,:19,:85; adapter-contract.md:26,:36-38,:44,:63; acceptance-tests.md:18,:21,:34,:44); all five hold. Then compared every on-screen literal in EXPERIENCE.md component, state and voice tables against rendering-rules.md, adapter-contract.md and acceptance-tests.md; grepped the UX folder for the spec-required strings 'n unrecognised keys', 'per observer process', 'Questions stay until', 'explicitly linked' (none found in DESIGN.md or EXPERIENCE.md); checked the claim at EXPERIENCE.md:52 against rendering-rules.md:85 and the design exports; checked owner decisions (staged R1, Python+Rich+snapshot, read-only, unknown never zero) and found no contradiction with them except the gate-status wording at EXPERIENCE.md:40. Recomputed the DESIGN.md contrast ratios with the WCAG formula: all seven listed tokens match QA.md values exactly. Open questions OQ-1..15 and UX-OQ-1..8 were not flagged for being open.",
+  "findings": [
+    {
+      "id": "CHECK-c1",
+      "location": "_bmad-output/planning-artifacts/orca-observer/ux-designs/ux-orca-observer-2026-11-08/EXPERIENCE.md:64",
+      "other_side": "_bmad-output/specs/spec-orca-observer/rendering-rules.md:17",
+      "finding": "Fixture header fix holds. EXPERIENCE.md:64, :215, :298, :492 and DESIGN.md:121 quote the header string exactly, and keep the T50 marking as a separate per-render marking (acceptance-tests.md:44, rendering-rules.md:5).",
+      "evidence": "UX: \"Header line 1 reads `SYNTHETIC FIXTURE <variant>, not Orca data`\". Spec: \"Fixture mode always reads `SYNTHETIC FIXTURE <variant>, not Orca data`\".",
+      "proposed_grade": "PASS-CHECK",
+      "suggested_fix": "None."
+    },
+    {
+      "id": "CHECK-c2",
+      "location": "_bmad-output/planning-artifacts/orca-observer/ux-designs/ux-orca-observer-2026-11-08/EXPERIENCE.md:54",
+      "other_side": "_bmad-output/specs/spec-orca-observer/rendering-rules.md:8",
+      "finding": "The false 'never mention the built layout' half is gone; the sentence now cites X-001 and the dropped SIGNALS. The kept 'Neither the spec nor the PRD names the PLAN.md cockpit' half is true: rendering-rules.md:8 names the prototype, not PLAN.md or a cockpit. Attribution nit logged separately as AR-UX-07.",
+      "evidence": "UX: \"records that the built layout departs from it ... Neither the spec nor the PRD names the PLAN.md cockpit\". Spec: \"Its 116-column collapse claim does not match the built prototype\".",
+      "proposed_grade": "PASS-CHECK",
+      "suggested_fix": "None."
+    },
+    {
+      "id": "CHECK-c3",
+      "location": "_bmad-output/planning-artifacts/orca-observer/ux-designs/ux-orca-observer-2026-11-08/EXPERIENCE.md:221",
+      "other_side": "_bmad-output/specs/spec-orca-observer/adapter-contract.md:26",
+      "finding": "Overrun now sits on the freshness strip at EXPERIENCE.md:221 and :293, matching the adapter contract and T40 (acceptance-tests.md:34); the status-line item list at EXPERIENCE.md:84 no longer carries it.",
+      "evidence": "UX: \"When a call overruns the cycle, the strip shows `cycle overran (Ns)`\". Spec: \"An overrunning call is killed and reaped; the strip shows `cycle overran (Ns)`.\"",
+      "proposed_grade": "PASS-CHECK",
+      "suggested_fix": "None."
+    },
+    {
+      "id": "CHECK-c4",
+      "location": "_bmad-output/planning-artifacts/orca-observer/ux-designs/ux-orca-observer-2026-11-08/EXPERIENCE.md:281",
+      "other_side": "_bmad-output/specs/spec-orca-observer/acceptance-tests.md:21",
+      "finding": "FAILED (shape) with last good snapshot kept (:281), `reported unknown` when page.total is absent (:279), and the T22 flags (:296) all match their test lines; :296 matches T22 word for word (acceptance-tests.md:18), and `one Run only` is at :80 (adapter-contract.md:63).",
+      "evidence": "UX: \"reads `FAILED (shape)`, with the last good snapshot kept (T32)\"; \"missing both timestamps is flagged `order unknown`\". Spec: \"gives `FAILED (shape)` with last good snapshot kept\".",
+      "proposed_grade": "PASS-CHECK",
+      "suggested_fix": "None."
+    },
+    {
+      "id": "CHECK-c5",
+      "location": "_bmad-output/planning-artifacts/orca-observer/ux-designs/ux-orca-observer-2026-11-08/EXPERIENCE.md:135",
+      "other_side": "_bmad-output/specs/spec-orca-observer/rendering-rules.md:19",
+      "finding": "Never-drop list label now holds: only the COUNTS strip cites the spec (rendering-rules.md:19) and coverage/scope/PARTIAL cite rendering-rules.md:13; header, freshness strip, gap notice and footer are each labelled PROPOSED (:136-140).",
+      "evidence": "UX: \"The spec fixes only the COUNTS strip as never dropped (rendering-rules.md:19)\". Spec: \"It is a minimum row and is never dropped.\"",
+      "proposed_grade": "PASS-CHECK",
+      "suggested_fix": "None."
+    },
+    {
+      "id": "AR-UX-01",
+      "location": "_bmad-output/planning-artifacts/orca-observer/ux-designs/ux-orca-observer-2026-11-08/EXPERIENCE.md:250",
+      "other_side": "_bmad-output/specs/spec-orca-observer/adapter-contract.md:62",
+      "finding": "The inspector spec omits two required inspector contents: the per-process cap disclosure (A-008) and the count of ignored unknown keys. A builder following EXPERIENCE.md ships an inspector that hides that several observers multiply Orca load.",
+      "evidence": "Spec :62 \"caps are per observer process, and help and the inspector say so\"; spec :38 \"counted in the inspector (`n unrecognised keys`)\". UX :250-255 lists neither.",
+      "proposed_grade": "BLOCKING",
+      "suggested_fix": "Add two inspector lines: the A-008 per-process caps sentence and `n unrecognised keys`, each citing adapter-contract.md."
+    },
+    {
+      "id": "AR-UX-02",
+      "location": "_bmad-output/planning-artifacts/orca-observer/ux-designs/ux-orca-observer-2026-11-08/EXPERIENCE.md:324",
+      "other_side": "_bmad-output/specs/spec-orca-observer/rendering-rules.md:52",
+      "finding": "The spec requires help text with two specific statements, but the UX defines no help surface at all and says there is no help key; the required help string appears only as a voice-table example (:202), so no screen carries it.",
+      "evidence": "UX :324 \"There is no help key\". Spec :52 \"Help text: \\\"a completed Task can still own a live terminal\\\"\"; adapter-contract.md:62 \"help and the inspector say so\".",
+      "proposed_grade": "BLOCKING",
+      "suggested_fix": "Name the help surface (for example `superclaude observe --help` output or a footer line) and list both required help sentences there, or record it as a UX open question."
+    },
+    {
+      "id": "AR-UX-03",
+      "location": "_bmad-output/planning-artifacts/orca-observer/ux-designs/ux-orca-observer-2026-11-08/EXPERIENCE.md:177",
+      "other_side": "_bmad-output/specs/spec-orca-observer/rendering-rules.md:42",
+      "finding": "B's 80-115 column layout copies the spec's row list but drops the two invariant lines the spec says stay, so B at 80 columns would lose its two core honesty statements.",
+      "evidence": "Spec :42 \"The invariant lines stay: \\\"Questions stay until explicit resolution.\\\" and \\\"No reply observed is not delivery failure.\\\"\" UX :177 ends at \"the 80-column ledger\".",
+      "proposed_grade": "BLOCKING",
+      "suggested_fix": "Add both invariant lines, quoted exactly, to the 80-115 row and protect them in B's shrink order."
+    },
+    {
+      "id": "AR-UX-04",
+      "location": "_bmad-output/planning-artifacts/orca-observer/ux-designs/ux-orca-observer-2026-11-08/EXPERIENCE.md:240",
+      "other_side": "_bmad-output/specs/spec-orca-observer/rendering-rules.md:22",
+      "finding": "Historical rows are hidden by default with no exception, but the spec exempts historical evidence linked to a shown item; the UX behaviour would hide evidence the spec says is never hidden.",
+      "evidence": "UX :240 \"Historical rows ... are hidden by default\". Spec :22 \"historical evidence explicitly linked to a shown item is never hidden\".",
+      "proposed_grade": "BLOCKING",
+      "suggested_fix": "Add the linked-evidence exception to the historical-rows bullet, citing rendering-rules.md:22."
+    },
+    {
+      "id": "AR-UX-05",
+      "location": "_bmad-output/planning-artifacts/orca-observer/ux-designs/ux-orca-observer-2026-11-08/EXPERIENCE.md:52",
+      "other_side": "_bmad-output/specs/spec-orca-observer/rendering-rules.md:85",
+      "finding": "The visual-reference table claims the four Signal Bridge panels are 'shown in every Signal Bridge export', but the spec says the 116- and 80-column builds drop SIGNALS, and EXPERIENCE.md:54 two lines below says the same. False claim and internal contradiction.",
+      "evidence": "UX :52 \"shown in every Signal Bridge export | ... SIGNALS counts and bars\". Spec :85 \"its 116- and 80-column builds drop SIGNALS\".",
+      "proposed_grade": "BLOCKING",
+      "suggested_fix": "Change the cell to 'shown in the 160-column Signal Bridge export; the 116- and 80-column builds drop SIGNALS (rendering-rules.md:85)'."
+    },
+    {
+      "id": "AR-UX-06",
+      "location": "_bmad-output/planning-artifacts/orca-observer/ux-designs/ux-orca-observer-2026-11-08/EXPERIENCE.md:84",
+      "other_side": "_bmad-output/specs/spec-orca-observer/rendering-rules.md:56",
+      "finding": "The filter count is placed on the status line, which is not beside the source counts and folds into the footer under height pressure (:161); EXPERIENCE.md:294 says the opposite ('beside the unfiltered source counts'). The spec and issue (AC: filtered vs global counts explicit) require adjacency.",
+      "evidence": "UX :84 \"Status line ... `filter <expr>: k of n collected`\". Spec :56 \"shows `filter <expr>: k of n collected` beside the unfiltered `source counts: ...`\".",
+      "proposed_grade": "BLOCKING",
+      "suggested_fix": "Place the filter token in the COUNTS strip next to `source counts:` and remove it from the status-line list, so :84 and :294 agree."
+    },
+    {
+      "id": "AR-UX-07",
+      "location": "_bmad-output/planning-artifacts/orca-observer/ux-designs/ux-orca-observer-2026-11-08/EXPERIENCE.md:54",
+      "other_side": "_bmad-output/specs/spec-orca-observer/rendering-rules.md:85",
+      "finding": "The c2 sentence says 'the prototype's 116-column collapse claim does not match the built prototype', which reads as self-contradictory; rendering-rules.md:85 attributes the collapse claim to the brief.",
+      "evidence": "UX: \"the prototype's 116-column collapse claim does not match the built prototype\". Spec :85 \"the prototype does not match the brief's collapse claim (X-001)\".",
+      "proposed_grade": "MINOR",
+      "suggested_fix": "Reword to 'the built prototype does not match the brief's 116-column collapse claim'."
+    },
+    {
+      "id": "AR-UX-08",
+      "location": "_bmad-output/planning-artifacts/orca-observer/ux-designs/ux-orca-observer-2026-11-08/EXPERIENCE.md:40",
+      "other_side": "/home/coder/workspaces/worktrees/IronClaude/issue-409-mvp/.dev/issues/409/owner-decisions-20261108.md:9",
+      "finding": "The release table asserts DIRECTION-SELECTED is 'not yet passed', while the owner decision leaves that judgement to the owner; the UX should record it as undecided, not failed.",
+      "evidence": "UX: \"DIRECTION-SELECTED (not yet passed; OQ-1)\". Owner: \"Whether this fully satisfies the DIRECTION-SELECTED gate is for the owner to say.\"",
+      "proposed_grade": "MINOR",
+      "suggested_fix": "Write 'DIRECTION-SELECTED (owner to confirm; OQ-1)'."
+    },
+    {
+      "id": "AR-UX-09",
+      "location": "_bmad-output/planning-artifacts/orca-observer/ux-designs/ux-orca-observer-2026-11-08/EXPERIENCE.md:108",
+      "other_side": "_bmad-output/specs/spec-orca-observer/rendering-rules.md:12",
+      "finding": "The under-80 row specifies a 'short form at the reduced width' ledger and cites the spec, but the spec defines only the notice and the strip denominators under 80, not a ledger form; the row should be PROPOSED.",
+      "evidence": "UX :108 \"< 80 | short form at the reduced width\". Spec :12 \"Under 80 every view shows `terminal too narrow (min 80)` above the COUNTS strip\".",
+      "proposed_grade": "MINOR",
+      "suggested_fix": "Mark the under-80 ledger form PROPOSED and keep the citation for the notice only."
+    },
+    {
+      "id": "AR-UX-10",
+      "location": "_bmad-output/planning-artifacts/orca-observer/ux-designs/ux-orca-observer-2026-11-08/EXPERIENCE.md:287",
+      "other_side": "_bmad-output/specs/spec-orca-observer/rendering-rules.md:50",
+      "finding": "The loading state defines `collected 0 / reported unknown` but says nothing of the `source counts:` tokens before the first poll; it should state they read unknown so no zero is implied.",
+      "evidence": "UX :287 \"COUNTS `collected 0 / reported unknown`\". Spec :50 \"Unknown is never zero or false.\"",
+      "proposed_grade": "MINOR",
+      "suggested_fix": "Add 'source counts: unknown (not yet polled)' to the PROPOSED loading state."
+    },
+    {
+      "id": "AR-UX-11",
+      "location": "_bmad-output/planning-artifacts/orca-observer/ux-designs/ux-orca-observer-2026-11-08/EXPERIENCE.md:289",
+      "other_side": "_bmad-output/specs/spec-orca-observer/rendering-rules.md:55",
+      "finding": "Placing the full PARTIAL sentence on the status line is a design choice the spec does not make, and the status line folds into the footer under height pressure (:161); it is not marked PROPOSED.",
+      "evidence": "UX :289 \"plus the full partial sentence on the status line\". Spec :55 gives the sentence with no placement.",
+      "proposed_grade": "MINOR",
+      "suggested_fix": "Mark the placement PROPOSED and say where the sentence goes when the status line folds."
+    },
+    {
+      "id": "AR-UX-12",
+      "location": "_bmad-output/planning-artifacts/orca-observer/ux-designs/ux-orca-observer-2026-11-08/EXPERIENCE.md:318",
+      "other_side": "_bmad-output/specs/spec-orca-observer/rendering-rules.md:20",
+      "finding": "`m` and `e` acting 'same as ledger' inside the inspector is not in the spec key list, which does not define per-mode behaviour; not marked PROPOSED.",
+      "evidence": "UX :318-319 \"`m` ... | same as ledger\", \"`e` ... | same as ledger\". Spec :20 lists keys with no inspector mode.",
+      "proposed_grade": "MINOR",
+      "suggested_fix": "Label the inspector column for `m` and `e` PROPOSED."
+    },
+    {
+      "id": "AR-UX-13",
+      "location": "_bmad-output/planning-artifacts/orca-observer/ux-designs/ux-orca-observer-2026-11-08/EXPERIENCE.md:418",
+      "other_side": "_bmad-output/specs/spec-orca-observer/acceptance-tests.md:41",
+      "finding": "The anti-pattern row cites T33 for the gap-notice rule; T33 tests only the fixture `empty` string, while T47 pins the question-area wording.",
+      "evidence": "UX :418 \"Gap notice rule (T33)\". Tests :27 T33 \"`empty` renders ...\"; :41 T47 \"question area reads `source UNVERIFIED, 0 rows interpreted ...`\".",
+      "proposed_grade": "MINOR",
+      "suggested_fix": "Cite T47 (and T33 only for the empty fixture)."
+    },
+    {
+      "id": "AR-UX-14",
+      "location": "_bmad-output/planning-artifacts/orca-observer/ux-designs/ux-orca-observer-2026-11-08/EXPERIENCE.md:384",
+      "other_side": "_bmad-output/specs/spec-orca-observer/rendering-rules.md:31",
+      "finding": "'The notice shows no number' is literally contradicted by the notice string itself, which contains '0 rows interpreted'; the intent (no question count) should be stated.",
+      "evidence": "UX :384 \"The notice shows no number\". Spec :31 \"`Human questions: source UNVERIFIED, 0 rows interpreted, not \\\"no questions\\\"`\".",
+      "proposed_grade": "MINOR",
+      "suggested_fix": "Write 'The notice shows no question count; its only number is the literal 0 rows interpreted'."
+    },
+    {
+      "id": "AR-UX-15",
+      "location": "_bmad-output/planning-artifacts/orca-observer/ux-designs/ux-orca-observer-2026-11-08/EXPERIENCE.md:68",
+      "other_side": "_bmad-output/specs/spec-orca-observer/stack.md:24",
+      "finding": "The UX says `export(view)` writes the JSON snapshot (matching FR-16 and owner decision 2), but spec stack.md:24 says `export(view)` writes the `e`/`--once` record form; the UX silently picks one naming without recording the spec conflict.",
+      "evidence": "UX :68 \"`export(view)` writes the versioned JSON snapshot\". Spec stack.md:24 \"`export(view)` writes the `e`/`--once` record form ... The JSON snapshot is a further serialization\".",
+      "proposed_grade": "MINOR",
+      "suggested_fix": "Add a CONTRADICTION note citing stack.md:24 and prd.md FR-16, keeping the owner-decision reading."
+    },
+    {
+      "id": "AR-UX-16",
+      "location": "_bmad-output/planning-artifacts/orca-observer/ux-designs/ux-orca-observer-2026-11-08/EXPERIENCE.md:71",
+      "other_side": "_bmad-output/planning-artifacts/orca-observer/prd.md:440",
+      "finding": "Screen 7 cites an open-question ID `OQ-B/C` that is not defined in the PRD or the UX open-question table; only OI-4 exists.",
+      "evidence": "UX :71 \"are open (OQ-B/C, OI-4, OI-9)\". PRD :440 defines \"OI-4. Post-link composition\"; no OQ-B/C found.",
+      "proposed_grade": "MINOR",
+      "suggested_fix": "Replace `OQ-B/C` with the real ID or drop it."
+    },
+    {
+      "id": "AR-UX-17",
+      "location": "_bmad-output/planning-artifacts/orca-observer/ux-designs/ux-orca-observer-2026-11-08/EXPERIENCE.md:163",
+      "other_side": "_bmad-output/planning-artifacts/orca-observer/ux-designs/ux-orca-observer-2026-11-08/EXPERIENCE.md:135",
+      "finding": "The shrink rule states the diagnostic 'keeps every row that never drops' as fact, without repeating that four of those five rows are PROPOSED, and does not say what happens if height cannot hold even those rows.",
+      "evidence": ":163 \"It keeps every row that never drops: the header, freshness, COUNTS, the gap notice and the footer.\" :135 \"The other rows in this list are PROPOSED\".",
+      "proposed_grade": "MINOR",
+      "suggested_fix": "Add '(PROPOSED except COUNTS)' and state the behaviour when height is below those rows."
+    },
+    {
+      "id": "AR-UX-18",
+      "location": "_bmad-output/planning-artifacts/orca-observer/ux-designs/ux-orca-observer-2026-11-08/DESIGN.md:128",
+      "other_side": null,
+      "finding": "Contrast ratios are marked UNVERIFIED, but they can be checked from the listed hex values; a WCAG recomputation against #101820 gives exactly the listed values (ink 14.56 ... frozen 8.99), and `line` is 3.25:1, fine only because it is never text.",
+      "evidence": "DESIGN :128 \"It was not re-measured here, so it is UNVERIFIED.\" Recomputed: ink 14.56, muted 8.58, accent 9.82, warn 9.75, bad 7.63, good 10.6, frozen 8.99.",
+      "proposed_grade": "MINOR",
+      "suggested_fix": "Record the recomputation and keep the light-theme caveat (DESIGN.md:113) as the remaining unverified part."
+    }
+  ]
+}

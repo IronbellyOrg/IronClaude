@@ -1,0 +1,458 @@
+{
+  "reviewer": "bmad-review-edge-case-hunter",
+  "artifact": "SPEC (_bmad-output/specs/spec-orca-observer/: SPEC.md, acceptance-tests.md, adapter-contract.md, owner-decisions-and-risks.md, release-gates.md, rendering-rules.md, snapshot-export-schema.md, stack.md, unverified-register.md, write-back-future-stage.md)",
+  "verdict": "FAIL",
+  "self_audit": "Full-file path walk of all 10 SPEC files (ARCHITECTURE-SPINE.md excluded). Walked: argv/cursor values, paging loop exits (hasMore, nextCursor, empty page, cap, mid-traversal failure), parse required/optional/typed fields, sentinel collisions, identity and dedupe, cross-cycle ordering and timestamps, collector error classes, discovery, STALE/FAILED/backoff, first-cycle and no-last-good states, COUNTS/header tokens, width ranges, height, NO_COLOR, ASCII, key reader signals, selection, historical enum, change marks, retention and restart, snapshot envelope/status/versioning/ordering/write atomicity/multi-observer, export. Checked source lines: unverified-register.md:17 lists result.warnings[] and no namespace field; architecture-options.md:83-88 is the source of the snapshot status set. Owner decisions and listed open questions (SPEC.md:98-114) were not flagged as defects; width/height matrix gaps are noted only as MINOR pointers to SPEC.md:113.",
+  "findings": [
+    {
+      "id": "ECH-01",
+      "location": "_bmad-output/specs/spec-orca-observer/adapter-contract.md:42-43",
+      "other_side": "_bmad-output/specs/spec-orca-observer/adapter-contract.md:38",
+      "trigger_condition": "Two or more rows arrive with dispatchId absent or blank in one cycle",
+      "guard_snippet": "if row.dispatchId is UNKNOWN or blank: key = ('no-id', cycle, page, index); flag 'identity unknown'; never dedupe",
+      "potential_consequence": "Distinct workers collapse into one row and are reported as duplicate rows ignored",
+      "proposed_grade": "BLOCKING"
+    },
+    {
+      "id": "ECH-02",
+      "location": "_bmad-output/specs/spec-orca-observer/adapter-contract.md:42",
+      "other_side": "_bmad-output/specs/spec-orca-observer/snapshot-export-schema.md:24",
+      "trigger_condition": "Source namespace is needed for identity but no rule derives it; no verified namespace field exists",
+      "guard_snippet": "namespace = observer-derived tuple (resolved binary path, projection.host.id, runId), labelled observer-derived; define it once in adapter-contract",
+      "potential_consequence": "Identity, T39 and 'Runs never merge' rest on an undefined or invented key",
+      "proposed_grade": "BLOCKING"
+    },
+    {
+      "id": "ECH-03",
+      "location": "_bmad-output/specs/spec-orca-observer/adapter-contract.md:36",
+      "other_side": "_bmad-output/specs/spec-orca-observer/rendering-rules.md:17-19",
+      "trigger_condition": "Before the first successful poll, or first cycle FAILED with no last good snapshot",
+      "guard_snippet": "if last_good is None: counts='collected unknown / reported unknown'; ledger='no successful worker-list read yet'; as of='never'",
+      "potential_consequence": "Empty ledger and collected 0 read as an empty fleet",
+      "proposed_grade": "BLOCKING"
+    },
+    {
+      "id": "ECH-04",
+      "location": "_bmad-output/specs/spec-orca-observer/adapter-contract.md:50",
+      "other_side": "_bmad-output/specs/spec-orca-observer/rendering-rules.md:55",
+      "trigger_condition": "Page 1 succeeds, a later page fails, times out, overruns or has bad shape",
+      "guard_snippet": "on page k>1 failure: keep pages 1..k-1 as PARTIAL (page k failed: <reason>); define whether this counts as success for STALE",
+      "potential_consequence": "Fresh rows discarded, or mixed-cycle rows shown as one complete read",
+      "proposed_grade": "BLOCKING"
+    },
+    {
+      "id": "ECH-05",
+      "location": "_bmad-output/specs/spec-orca-observer/adapter-contract.md:36",
+      "other_side": "_bmad-output/specs/spec-orca-observer/adapter-contract.md:15",
+      "trigger_condition": "hasMore is true but nextCursor is absent, empty, or repeats the previous cursor",
+      "guard_snippet": "if hasMore and (not nextCursor or nextCursor in seen_cursors): stop; mark PARTIAL (cursor missing or not advancing, page k)",
+      "potential_consequence": "Traversal stops looking complete, or re-reads one page as fake duplicates",
+      "proposed_grade": "BLOCKING"
+    },
+    {
+      "id": "ECH-06",
+      "location": "_bmad-output/specs/spec-orca-observer/adapter-contract.md:18",
+      "other_side": null,
+      "trigger_condition": "An opaque cursor legitimately starts with '-' (base64url alphabet includes '-')",
+      "guard_snippet": "pass cursor as '--cursor', value only after parser support for that form is recorded; else stop paging with PARTIAL (cursor rejected by observer)",
+      "potential_consequence": "Paging silently stops with no defined on-screen state",
+      "proposed_grade": "BLOCKING"
+    },
+    {
+      "id": "ECH-07",
+      "location": "_bmad-output/specs/spec-orca-observer/adapter-contract.md:18",
+      "other_side": null,
+      "trigger_condition": "Cursor exceeds the byte bound or contains a NUL byte",
+      "guard_snippet": "if len(cursor.encode())>MAX or '0x00' in cursor: stop; PARTIAL (cursor over bound, page k)",
+      "potential_consequence": "Undefined outcome; NUL raises ValueError inside subprocess.run",
+      "proposed_grade": "MINOR"
+    },
+    {
+      "id": "ECH-08",
+      "location": "_bmad-output/specs/spec-orca-observer/adapter-contract.md:36-38",
+      "other_side": null,
+      "trigger_condition": "Required key present but null or wrong type, e.g. hasMore='false', workers=null",
+      "guard_snippet": "require isinstance(workers, list) and isinstance(hasMore, bool) else FAILED (shape); treat JSON null as UNKNOWN; check total is non-negative int",
+      "potential_consequence": "String 'false' is truthy; paging loops or crashes instead of FAILED (shape)",
+      "proposed_grade": "BLOCKING"
+    },
+    {
+      "id": "ECH-09",
+      "location": "_bmad-output/specs/spec-orca-observer/rendering-rules.md:51",
+      "other_side": "_bmad-output/specs/spec-orca-observer/snapshot-export-schema.md:10",
+      "trigger_condition": "Orca returns the literal value 'unknown' or 'UNKNOWN' (e.g. liveness.verdict)",
+      "guard_snippet": "render absent as 'unknown (absent in source)' and quote source values; snapshot: absent -> {'absent': true}, not a string",
+      "potential_consequence": "Source-reported unknown and missing field become indistinguishable; evidence label lost",
+      "proposed_grade": "BLOCKING"
+    },
+    {
+      "id": "ECH-10",
+      "location": "_bmad-output/specs/spec-orca-observer/rendering-rules.md:30",
+      "other_side": "_bmad-output/specs/spec-orca-observer/snapshot-export-schema.md:10",
+      "trigger_condition": "Source sends an empty string for a present key",
+      "guard_snippet": "render '' as 'blank (in source)', distinct from absent; snapshot keeps '' with a present flag",
+      "potential_consequence": "A source-given blank is relabelled as not given",
+      "proposed_grade": "MINOR"
+    },
+    {
+      "id": "ECH-11",
+      "location": "_bmad-output/specs/spec-orca-observer/unverified-register.md:17",
+      "other_side": "_bmad-output/specs/spec-orca-observer/rendering-rules.md:15-25",
+      "trigger_condition": "worker-list returns a non-empty result.warnings[] (verified field, no rendering rule)",
+      "guard_snippet": "if warnings: strip token 'source warnings: n (inspector)'; inspector lists sanitized warnings; snapshot carries source.warnings",
+      "potential_consequence": "Source-disclosed partial or degraded results silently dropped",
+      "proposed_grade": "BLOCKING"
+    },
+    {
+      "id": "ECH-12",
+      "location": "_bmad-output/specs/spec-orca-observer/snapshot-export-schema.md:25-30",
+      "other_side": "_bmad-output/specs/spec-orca-observer/rendering-rules.md:18",
+      "trigger_condition": "Cycle is PARTIAL, mismatch, changed-during-read, NOT POLLED or binary not found",
+      "guard_snippet": "add optional collection{state: PARTIAL|COMPLETE|MISMATCH, collected, pagesRead, changedDuringRead, duplicatesIgnored} and row.reobserved/orderUnknown flags",
+      "potential_consequence": "Go screen reads a partial or stale fleet as OK and complete",
+      "proposed_grade": "BLOCKING"
+    },
+    {
+      "id": "ECH-13",
+      "location": "_bmad-output/specs/spec-orca-observer/snapshot-export-schema.md:22",
+      "other_side": "_bmad-output/specs/spec-orca-observer/adapter-contract.md:62",
+      "trigger_condition": "Observer restarts (cycle resets to 1) or two observers run at once",
+      "guard_snippet": "add producer.instanceId (random per process) and producer.startedAt; consumers order by (instanceId, cycle), never cycle alone",
+      "potential_consequence": "Consumer discards fresh snapshots as older or interleaves two producers",
+      "proposed_grade": "BLOCKING"
+    },
+    {
+      "id": "ECH-14",
+      "location": "_bmad-output/specs/spec-orca-observer/snapshot-export-schema.md:16",
+      "other_side": "_bmad-output/specs/spec-orca-observer/stack.md:24",
+      "trigger_condition": "Snapshot write path, atomicity, concurrent writers and FAILED-cycle writes are unspecified",
+      "guard_snippet": "write to tmp in same dir, fsync, os.replace(path); per-instance file name; write on FAILED cycle with status ERROR and last-good rows",
+      "potential_consequence": "Reader sees a torn file or another observer's overwrite",
+      "proposed_grade": "BLOCKING"
+    },
+    {
+      "id": "ECH-15",
+      "location": "_bmad-output/specs/spec-orca-observer/snapshot-export-schema.md:9",
+      "other_side": "_bmad-output/specs/spec-orca-observer/snapshot-export-schema.md:20",
+      "trigger_condition": "Integer schemaVersion has no minor; consumer meets an additive optional field",
+      "guard_snippet": "schemaVersion '1.0' (major.minor); rule: consumers MUST ignore unknown fields within a known major",
+      "potential_consequence": "Strict decoder rejects the first additive change, breaking additive-only",
+      "proposed_grade": "BLOCKING"
+    },
+    {
+      "id": "ECH-16",
+      "location": "_bmad-output/specs/spec-orca-observer/snapshot-export-schema.md:28-30",
+      "other_side": "_bmad-output/specs/spec-orca-observer/snapshot-export-schema.md:10",
+      "trigger_condition": "page.total, counts or a counts member is absent upstream",
+      "guard_snippet": "schema declares union types (int | 'UNKNOWN', map | 'UNKNOWN') per field; schema test covers each",
+      "potential_consequence": "Typed Go consumer fails decoding when a number becomes a string",
+      "proposed_grade": "MINOR"
+    },
+    {
+      "id": "ECH-17",
+      "location": "_bmad-output/specs/spec-orca-observer/snapshot-export-schema.md:51",
+      "other_side": null,
+      "trigger_condition": "Both timestamps UNKNOWN, or equal timestamps with equal dispatchId across namespaces",
+      "guard_snippet": "UNKNOWN timestamps sort last; final tie-break (namespace, dispatchId)",
+      "potential_consequence": "Snapshot row order is non-deterministic between identical inputs",
+      "proposed_grade": "MINOR"
+    },
+    {
+      "id": "ECH-18",
+      "location": "_bmad-output/specs/spec-orca-observer/snapshot-export-schema.md:3",
+      "other_side": "_bmad-output/specs/spec-orca-observer/rendering-rules.md:20-22",
+      "trigger_condition": "Local '/' filter, 'h' toggle or selection active when the snapshot is written",
+      "guard_snippet": "snapshot serializes the unfiltered model including hidden historical rows; never local filter or selection state",
+      "potential_consequence": "Consumer receives a filtered subset presented as the whole fleet",
+      "proposed_grade": "BLOCKING"
+    },
+    {
+      "id": "ECH-19",
+      "location": "_bmad-output/specs/spec-orca-observer/adapter-contract.md:43",
+      "other_side": "_bmad-output/specs/spec-orca-observer/adapter-contract.md:44",
+      "trigger_condition": "Duplicates within one cycle carry different field values",
+      "guard_snippet": "within a cycle keep the copy with the newer timestamp; if equal or absent keep first and flag 'conflicting duplicates'",
+      "potential_consequence": "An older copy may win inside a cycle, undercutting T22",
+      "proposed_grade": "MINOR"
+    },
+    {
+      "id": "ECH-20",
+      "location": "_bmad-output/specs/spec-orca-observer/adapter-contract.md:44",
+      "other_side": "_bmad-output/specs/spec-orca-observer/SPEC.md:95",
+      "trigger_condition": "Timestamp not parseable as ISO-8601, equal across cycles, or only one cycle has observedAt",
+      "guard_snippet": "parse failure -> treat as absent and flag 'time unparseable'; equal -> newer cycle wins; compare like field with like field only",
+      "potential_consequence": "Parse exception fails every cycle, or mixed-field comparison picks wrong row",
+      "proposed_grade": "BLOCKING"
+    },
+    {
+      "id": "ECH-21",
+      "location": "_bmad-output/specs/spec-orca-observer/rendering-rules.md:54",
+      "other_side": null,
+      "trigger_condition": "Orca timestamp lies in the future relative to the observer wall clock",
+      "guard_snippet": "if age < 0: render 'age unknown (clock skew)', never a negative or zero age",
+      "potential_consequence": "Negative or 0s evidence age renders as fresh",
+      "proposed_grade": "MINOR"
+    },
+    {
+      "id": "ECH-22",
+      "location": "_bmad-output/specs/spec-orca-observer/rendering-rules.md:18",
+      "other_side": "_bmad-output/specs/spec-orca-observer/rendering-rules.md:53",
+      "trigger_condition": "Source both FAILED last cycle and past the 45 s STALE threshold",
+      "guard_snippet": "cell = 'STALE <age since success>; last FAILED (<reason>)' with a fixed precedence",
+      "potential_consequence": "Implementations differ; 'FAILED (exit 2) 1m' can hide staleness",
+      "proposed_grade": "MINOR"
+    },
+    {
+      "id": "ECH-23",
+      "location": "_bmad-output/specs/spec-orca-observer/adapter-contract.md:10",
+      "other_side": "_bmad-output/specs/spec-orca-observer/adapter-contract.md:50",
+      "trigger_condition": "Validation probe fails though binary exists; binary installed later; spawn raises OSError",
+      "guard_snippet": "distinguish 'not found' vs 'validation failed'; retry discovery on backoff; catch OSError as FAILED (spawn error)",
+      "potential_consequence": "Misleading 'binary not found', permanent NOT AVAILABLE, or collector thread dies",
+      "proposed_grade": "BLOCKING"
+    },
+    {
+      "id": "ECH-24",
+      "location": "_bmad-output/specs/spec-orca-observer/adapter-contract.md:10",
+      "other_side": null,
+      "trigger_condition": "Both orca-ide and orca validate and point at different Orca instances",
+      "guard_snippet": "show resolved binary path and version in header/inspector; include it in source.namespace",
+      "potential_consequence": "Observer silently watches a different Orca than the user expects",
+      "proposed_grade": "MINOR"
+    },
+    {
+      "id": "ECH-25",
+      "location": "_bmad-output/specs/spec-orca-observer/rendering-rules.md:17",
+      "other_side": "_bmad-output/specs/spec-orca-observer/adapter-contract.md:63",
+      "trigger_condition": "Header must show 'read k of N Runs' but R1 has no verified source for N",
+      "guard_snippet": "N = distinct runId seen this session, labelled 'N seen, total unknown'; or omit until a Run list source is verified",
+      "potential_consequence": "Header prints an invented denominator implying coverage",
+      "proposed_grade": "BLOCKING"
+    },
+    {
+      "id": "ECH-26",
+      "location": "_bmad-output/specs/spec-orca-observer/adapter-contract.md:61",
+      "other_side": "_bmad-output/specs/spec-orca-observer/rendering-rules.md:21",
+      "trigger_condition": "Not-reobserved worker rows accumulate over a long session with dispatch churn",
+      "guard_snippet": "exclude not-reobserved rows from 'collected n'; bound them (e.g. 1,000) with 'k not-reobserved rows dropped from view'",
+      "potential_consequence": "Collected count overstated; unbounded memory growth",
+      "proposed_grade": "BLOCKING"
+    },
+    {
+      "id": "ECH-27",
+      "location": "_bmad-output/specs/spec-orca-observer/rendering-rules.md:22",
+      "other_side": "_bmad-output/specs/spec-orca-observer/acceptance-tests.md:18",
+      "trigger_condition": "terminalState absent or a value other than released/retained",
+      "guard_snippet": "only released/retained are historical; absent or other values shown, labelled raw, never counted active or hidden",
+      "potential_consequence": "Unknown-state rows hidden or counted active",
+      "proposed_grade": "MINOR"
+    },
+    {
+      "id": "ECH-28",
+      "location": "_bmad-output/specs/spec-orca-observer/rendering-rules.md:23",
+      "other_side": "_bmad-output/specs/spec-orca-observer/rendering-rules.md:22",
+      "trigger_condition": "Selected row is hidden by the local filter or turns historical while hidden",
+      "guard_snippet": "keep cursor on identity with 'selected <id> hidden by filter/historical'; never jump",
+      "potential_consequence": "Cursor jumps to another worker against the identity rule",
+      "proposed_grade": "MINOR"
+    },
+    {
+      "id": "ECH-29",
+      "location": "_bmad-output/specs/spec-orca-observer/rendering-rules.md:12",
+      "other_side": "_bmad-output/specs/spec-orca-observer/rendering-rules.md:19",
+      "trigger_condition": "Width far below 80 where one never-truncated token exceeds the line",
+      "guard_snippet": "below 80: print 'terminal too narrow (min 80)' and denominators one token per line, hard-wrapping by cells",
+      "potential_consequence": "Lines overflow width or priority tokens get cut",
+      "proposed_grade": "MINOR"
+    },
+    {
+      "id": "ECH-30",
+      "location": "_bmad-output/specs/spec-orca-observer/rendering-rules.md:32",
+      "other_side": "_bmad-output/specs/spec-orca-observer/SPEC.md:113",
+      "trigger_condition": "R1 ledger (A) at widths 81-115, 117-159 or above 160",
+      "guard_snippet": "state ranges: >=160 full row, 116-159 line form, 80-115 narrow form (pending A's width matrix)",
+      "potential_consequence": "Most real terminal widths have no defined R1 layout",
+      "proposed_grade": "MINOR"
+    },
+    {
+      "id": "ECH-31",
+      "location": "_bmad-output/specs/spec-orca-observer/rendering-rules.md:12-13",
+      "other_side": null,
+      "trigger_condition": "Terminal resized mid-session (SIGWINCH)",
+      "guard_snippet": "re-read size each frame; re-apply width and height rules on resize",
+      "potential_consequence": "Stale geometry overflows or wrongly shows too-narrow",
+      "proposed_grade": "MINOR"
+    },
+    {
+      "id": "ECH-32",
+      "location": "_bmad-output/specs/spec-orca-observer/stack.md:25",
+      "other_side": "_bmad-output/specs/spec-orca-observer/acceptance-tests.md:19",
+      "trigger_condition": "NO_COLOR set to a value other than 1 or yes (e.g. true)",
+      "guard_snippet": "no_color = bool(os.environ.get('NO_COLOR')); T26 adds a third arbitrary value",
+      "potential_consequence": "Colour emitted despite NO_COLOR, contrary to no-color.org",
+      "proposed_grade": "MINOR"
+    },
+    {
+      "id": "ECH-33",
+      "location": "_bmad-output/specs/spec-orca-observer/rendering-rules.md:24",
+      "other_side": "_bmad-output/specs/spec-orca-observer/stack.md:25",
+      "trigger_condition": "Non-UTF-8 locale without --ascii, or --ascii with CJK/emoji source text",
+      "guard_snippet": "auto-select ASCII when stdout encoding is not UTF-8; in ASCII mode escape non-encodable chars as '?' or U+XXXX",
+      "potential_consequence": "Encode errors or mojibake on legacy terminals",
+      "proposed_grade": "MINOR"
+    },
+    {
+      "id": "ECH-34",
+      "location": "_bmad-output/specs/spec-orca-observer/stack.md:22",
+      "other_side": "_bmad-output/specs/spec-orca-observer/owner-decisions-and-risks.md:45",
+      "trigger_condition": "Raw mode disables ISIG; Ctrl-Z, SIGHUP or a collector exception occurs",
+      "guard_snippet": "use cbreak (ISIG kept) or map 0x03 to quit; restore on SIGTSTP/SIGHUP and re-enter on SIGCONT",
+      "potential_consequence": "Ctrl-C ignored or terminal left in raw mode",
+      "proposed_grade": "BLOCKING"
+    },
+    {
+      "id": "ECH-35",
+      "location": "_bmad-output/specs/spec-orca-observer/rendering-rules.md:20",
+      "other_side": "_bmad-output/specs/spec-orca-observer/stack.md:22",
+      "trigger_condition": "Bare Esc versus the ESC prefix of arrow-key sequences, split across reads",
+      "guard_snippet": "after ESC, select() 50 ms for '[' or 'O'; otherwise treat as Esc",
+      "potential_consequence": "Arrow keys trigger Esc, or Esc hangs waiting",
+      "proposed_grade": "MINOR"
+    },
+    {
+      "id": "ECH-36",
+      "location": "_bmad-output/specs/spec-orca-observer/stack.md:26",
+      "other_side": null,
+      "trigger_condition": "Interactive mode started with stdin or stdout not a TTY",
+      "guard_snippet": "if not sys.stdin.isatty() or not sys.stdout.isatty(): exit 2 'interactive needs a TTY; use --once'",
+      "potential_consequence": "termios raises at start-up or escape codes written into a pipe",
+      "proposed_grade": "MINOR"
+    },
+    {
+      "id": "ECH-37",
+      "location": "_bmad-output/specs/spec-orca-observer/adapter-contract.md:51",
+      "other_side": null,
+      "trigger_condition": "Source text contains DEL 0x7F or U+2028/U+2029 line separators",
+      "guard_snippet": "also strip 0x7F and Zl/Zp; T29 injection fixture includes them",
+      "potential_consequence": "Layout broken by hidden line breaks in list cells",
+      "proposed_grade": "MINOR"
+    },
+    {
+      "id": "ECH-38",
+      "location": "_bmad-output/specs/spec-orca-observer/adapter-contract.md:25",
+      "other_side": null,
+      "trigger_condition": "A call's stdout exceeds the 8 MiB cap",
+      "guard_snippet": "stop reading at cap, kill and reap, mark FAILED (output over 8 MiB); never parse the truncated buffer",
+      "potential_consequence": "Undefined state; truncated JSON parsed or misreported",
+      "proposed_grade": "MINOR"
+    },
+    {
+      "id": "ECH-39",
+      "location": "_bmad-output/specs/spec-orca-observer/adapter-contract.md:35",
+      "other_side": null,
+      "trigger_condition": "stdout contains bytes that are not valid UTF-8",
+      "guard_snippet": "decode strict; on error FAILED (invalid UTF-8) with byte offset in inspector",
+      "potential_consequence": "Uncaught decode error or silently replaced characters",
+      "proposed_grade": "MINOR"
+    },
+    {
+      "id": "ECH-40",
+      "location": "_bmad-output/specs/spec-orca-observer/rendering-rules.md:20",
+      "other_side": "_bmad-output/specs/spec-orca-observer/SPEC.md:57",
+      "trigger_condition": "'e' pressed: target path exists, is unwritable, or a filter is active",
+      "guard_snippet": "write to a new timestamped file; show path or 'export failed: <reason>'; export header records active filter and h state",
+      "potential_consequence": "Earlier export overwritten or filtered export read as full",
+      "proposed_grade": "MINOR"
+    },
+    {
+      "id": "ECH-41",
+      "location": "_bmad-output/specs/spec-orca-observer/rendering-rules.md:46",
+      "other_side": "_bmad-output/specs/spec-orca-observer/rendering-rules.md:60",
+      "trigger_condition": "R2 observer restarts; in-memory retained questions are lost",
+      "guard_snippet": "on start, question panel shows 'retention reset at HH:MM; earlier questions not retained'; count reads unknown until reobserved",
+      "potential_consequence": "Open question count drops on restart, against 'questions stay until resolution'",
+      "proposed_grade": "BLOCKING"
+    },
+    {
+      "id": "ECH-42",
+      "location": "_bmad-output/specs/spec-orca-observer/adapter-contract.md:55",
+      "other_side": null,
+      "trigger_condition": "Retention exceeds 1,000; 'oldest first' may mean evicting the oldest question",
+      "guard_snippet": "state eviction order explicitly; prefer evicting newest-duplicate-free overflow and keep oldest open items",
+      "potential_consequence": "Oldest open question, the most urgent, vanishes from the list",
+      "proposed_grade": "MINOR"
+    },
+    {
+      "id": "ECH-43",
+      "location": "_bmad-output/specs/spec-orca-observer/adapter-contract.md:27",
+      "other_side": "_bmad-output/specs/spec-orca-observer/adapter-contract.md:24",
+      "trigger_condition": "Backoff active: reset rule and cycle budget under backoff undefined",
+      "guard_snippet": "reset to 15 s on first success; per-call timeout and budget stay at 15 s during backoff",
+      "potential_consequence": "A hung call may run up to 60 s; recovery timing inconsistent",
+      "proposed_grade": "MINOR"
+    },
+    {
+      "id": "ECH-44",
+      "location": "_bmad-output/specs/spec-orca-observer/rendering-rules.md:19",
+      "other_side": "_bmad-output/specs/spec-orca-observer/snapshot-export-schema.md:30",
+      "trigger_condition": "result.counts absent, or contains a state key beyond the four named",
+      "guard_snippet": "absent -> 'source counts unknown'; extra keys -> 'k other states (inspector)'",
+      "potential_consequence": "Extra source states silently dropped from the screen",
+      "proposed_grade": "MINOR"
+    },
+    {
+      "id": "ECH-45",
+      "location": "_bmad-output/specs/spec-orca-observer/adapter-contract.md:63",
+      "other_side": null,
+      "trigger_condition": "result.scope.source is a value other than flag, bound or all",
+      "guard_snippet": "render raw value plus 'scope meaning unknown'",
+      "potential_consequence": "Unknown scope silently treated as fleet-wide",
+      "proposed_grade": "MINOR"
+    },
+    {
+      "id": "ECH-46",
+      "location": "_bmad-output/specs/spec-orca-observer/rendering-rules.md:53",
+      "other_side": null,
+      "trigger_condition": "Last good poll before midnight, or ages over an hour",
+      "guard_snippet": "'as of' includes date when not today; ages format as 1h2m / 1d3h",
+      "potential_consequence": "Yesterday's data reads as today's",
+      "proposed_grade": "MINOR"
+    },
+    {
+      "id": "ECH-47",
+      "location": "_bmad-output/specs/spec-orca-observer/rendering-rules.md:46",
+      "other_side": null,
+      "trigger_condition": "Field goes value to unknown, or a not-reobserved row reappears after a mark",
+      "guard_snippet": "count value->unknown as a change; reappearance shows '* reobserved'",
+      "potential_consequence": "Lost evidence never surfaces as a change",
+      "proposed_grade": "MINOR"
+    },
+    {
+      "id": "ECH-48",
+      "location": "_bmad-output/specs/spec-orca-observer/rendering-rules.md:55",
+      "other_side": "_bmad-output/specs/spec-orca-observer/adapter-contract.md:37",
+      "trigger_condition": "PARTIAL or mismatch when page.total is absent",
+      "guard_snippet": "PARTIAL: collected n of reported unknown; mismatch check skipped and stated",
+      "potential_consequence": "Forms built on T are unpinned when T is unknown",
+      "proposed_grade": "MINOR"
+    },
+    {
+      "id": "ECH-49",
+      "location": "_bmad-output/specs/spec-orca-observer/rendering-rules.md:55",
+      "other_side": "_bmad-output/specs/spec-orca-observer/adapter-contract.md:43",
+      "trigger_condition": "New dispatches insert during paging, shifting rows between pages",
+      "guard_snippet": "'collected n' counts unique identities after dedupe; note 'rows shifted during read' when duplicates span pages",
+      "potential_consequence": "Real churn shown as duplicates; skipped rows undisclosed",
+      "proposed_grade": "MINOR"
+    },
+    {
+      "id": "ECH-50",
+      "location": "_bmad-output/specs/spec-orca-observer/rendering-rules.md:46",
+      "other_side": null,
+      "trigger_condition": "First observation in the process is PARTIAL or FAILED",
+      "guard_snippet": "baseline = first successful cycle; label 'baseline partial (pages 1..k)'",
+      "potential_consequence": "Later rows starred as added though only previously unread",
+      "proposed_grade": "MINOR"
+    }
+  ]
+}

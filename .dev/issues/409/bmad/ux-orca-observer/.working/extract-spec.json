@@ -1,0 +1,297 @@
+{
+  "meta": {
+    "extractor": "extract-spec worker",
+    "date": "2026-11-08",
+    "source_dir": "/home/coder/workspaces/worktrees/Coder/dashboard-bmad/_bmad-output/specs/spec-orca-observer/",
+    "files_read_full": ["SPEC.md", "rendering-rules.md", "snapshot-export-schema.md", "release-gates.md", "acceptance-tests.md", "write-back-future-stage.md", "unverified-register.md"],
+    "files_grep_only": ["stack.md:23", "owner-decisions-and-risks.md:10,45"],
+    "not_read": ["adapter-contract.md (sanitizer and argv details referenced but not in assignment)", "owner-decisions-and-risks.md (except grep hits)", ".memlog.md"],
+    "src_prefix_note": "all src paths are relative to source_dir"
+  },
+
+  "rendering_rules": [
+    {"id": "RR-views", "label": "SPEC", "text": "One view model, three views over it (A Signal Bridge, B Attention Ledger, C Decision Desk), a detail inspector and a text export, in two data modes: `fixture` (the package's synthetic fixtures) and `live` (`worker-list` only).", "src": "rendering-rules.md:3"},
+    {"id": "RR-startup-INV-021", "label": "SPEC", "text": "the view is picked once at start-up from the runtime state of the question source. If the question source has not succeeded in this process, the observer starts on A with the gap notice, even in a release whose gate passed. The view never switches automatically mid-session.", "src": "rendering-rules.md:7"},
+    {"id": "RR-prototype-X-001", "label": "UNVERIFIED (beyond copied values)", "text": "the design-package prototype is a visual reference only; no production import. Its 116-column collapse claim does not match the built prototype, so width rules come from the Round 2 consensus (A's width matrix, B's x/width coordinates, C's 44-row height contract). The sources name these three artifacts but do not define their contents; only the values copied below are specified, the rest is UNVERIFIED and an open question (`SPEC.md`).", "src": "rendering-rules.md:8"},
+    {"id": "RR-header-1", "label": "SPEC", "text": "**Header line 1:** `ORCA OBSERVER  mode=fixture|live  scope=<result.scope.source or \"scope unknown\">  as of <local time of last good poll>`. Fixture mode always reads `SYNTHETIC FIXTURE <variant>, not Orca data`.", "src": "rendering-rules.md:17"},
+    {"id": "RR-header-runs-token", "label": "CONTRADICTION", "text": "The B view adds `read k of N Runs since start; oldest among Runs read` until every Run in the rotation set has been read once. CONTRADICTION: the source's adapter scope-honesty rule (`adapter-contract.md`), T45 and the risks table put this token in every header; which applies is an open question (`SPEC.md`).", "src": "rendering-rules.md:17"},
+    {"id": "RR-freshness-strip", "label": "SPEC", "text": "**Header line 2, freshness strip (from A):** one cell per source: `worker-list OK 4s` / `STALE 52s` / `FAILED (exit 2) 1m` / `NOT POLLED`. A second cell `messages UNVERIFIED (not read)` stays until QUESTION-OBSERVATION passes. The strip is collection freshness; evidence freshness (`evidence.lastObservedAt`) is shown per row as a plain age, never merged into the source cell.", "src": "rendering-rules.md:18"},
+    {"id": "RR-counts-strip", "label": "SPEC", "text": "**COUNTS strip (source-reported), every width of 80 or more:** numbers and denominators only, no bars, no health name. Tokens: `collected n / reported T`, `PARTIAL` when it applies, the scope, `source counts: active a / reclaimable r / retained t / released l` (from `result.counts`, never summed with page-derived counts), `SETTLED unavailable (no source)`, `FROZEN unavailable (no source)`, `cost unavailable`. `collected n / reported T`, `PARTIAL` and scope are never truncated. At narrow widths the strip wraps to a second line before anything is cut; `>` applies only to lower-priority tokens (source age, the `unavailable (no source)` tokens). It is a minimum row and is never dropped.", "src": "rendering-rules.md:19"},
+    {"id": "RR-footer", "label": "SPEC", "text": "**Footer:** the key list plus `shown x/y | collected n / reported T`.", "src": "rendering-rules.md:21"},
+    {"id": "RR-historical", "label": "SPEC", "text": "rows with historical `terminalState` (released, retained) are hidden by default with a visible `k historical hidden (h)`; `h` shows them; the toggle never changes source counts; historical evidence explicitly linked to a shown item is never hidden. They are never deleted from the snapshot.", "src": "rendering-rules.md:22"},
+    {"id": "RR-selection", "label": "SPEC", "text": "**Selection** is anchored to identity, never a row index. Worker rows: source namespace + `dispatchId`. Questions (after QUESTION-OBSERVATION): a verified source-scoped question identity, never a worker `dispatchId`. A reordering refresh keeps the cursor on the same identity; if it disappears the cursor stays on `selected <id> no longer in source window` until the user moves, never jumping to another worker.", "src": "rendering-rules.md:23"},
+    {"id": "RR-truncation-ascii", "label": "SPEC", "text": "**Truncation:** list cells truncate by display-cell width with a visible `>`. Non-UTF-8 terminals use `--ascii`, which replaces box drawing with `+-|`.", "src": "rendering-rules.md:24"},
+    {"id": "RR-inspector-full-ids", "label": "SPEC", "text": "**Detail inspector (Enter):** every field untruncated, wrapped by cells: `dispatchId`, `taskId`, `runId`, `resource.worktreeId`, `resource.ownerDispatchId`, `resource.originDispatchId`, `projection.host.id`, `projection.workspace.id`, and `projection.stage.{worker,dispatch,activity,detail}` (sanitized, labelled `worker-reported`; the only place `stage` renders). Absent reads `unknown (absent in source)`.", "src": "rendering-rules.md:25"},
+    {"id": "RR-nextAction-verbatim", "label": "SPEC", "text": "**`projection.nextAction.kind` is verbatim.** Absent or blank reads `unknown`. Never classified, executed, ranked as an action list or called a question. May be used as a labelled local filter.", "src": "rendering-rules.md:30"},
+    {"id": "RR-gap-notice-strings", "label": "SPEC", "text": "Above the ledger, at every width, the gap notice: `Human questions: source UNVERIFIED, 0 rows interpreted, not \"no questions\"`. Exact strings by place: this gap notice above the ledger (every view); B's live question-panel block `Question rows: source UNVERIFIED. 0 rows interpreted. This is not \"no questions\".`; anywhere else the question area reads the shared core `source UNVERIFIED, 0 rows interpreted, not \"no questions\"`.", "src": "rendering-rules.md:31"},
+    {"id": "RR-changes-since-last-look", "label": "SPEC", "text": "The first observation in a process is the baseline; a restart discloses that a new baseline was taken. `m` records an observer-local mark in memory for this process only. Every row added, removed or changed in `stage` (which `projection.stage.*` subfield is an open question), `nextAction.kind` or `liveness.verdict` since the mark shows `*` and counts in `changed since HH:MM (k)`. Rows on pages not read this cycle read `not reobserved`, not \"unchanged\". Marking never changes the open count.", "src": "rendering-rules.md:46"},
+    {"id": "RR-four-states", "label": "SPEC", "text": "**Four states per fact:** `known`, `unknown` (source omitted it), `unavailable` (no verified source exists), `stale` (not read successfully within 3 intervals). An aggregate with unknown members is `n+? (k unknown)`. Unknown is never zero or false.", "src": "rendering-rules.md:50"},
+    {"id": "RR-absent-field-nocolor", "label": "SPEC", "text": "**Absent field:** literal `unknown`, muted (plain under NO_COLOR); never `0`, `false`, `-` or blank.", "src": "rendering-rules.md:51"},
+    {"id": "RR-never-zero-constraint", "label": "SPEC", "text": "Unknown is never rendered as 0, false, `-` or blank. Source loss never closes a question, lowers an open count or turns a value into `failed`.", "src": "SPEC.md:72"},
+    {"id": "RR-separate-facts", "label": "SPEC", "text": "**Separate facts:** `workerState`, `dispatchStatus`, `terminalState`, `projection.outcome` are separate raw values. Report status, acceptance, tests and human approval read `unavailable (no source)`. `terminalState=released` is never \"done\". Help text: \"a completed Task can still own a live terminal\".", "src": "rendering-rules.md:52"},
+    {"id": "RR-stale-timestamps", "label": "SPEC", "text": "**Stale:** STALE after 3 intervals (45 s at 15 s) with no successful poll, on a local monotonic clock; wall-clock time only prints `HH:MM`. The cell reads `STALE <age>`; values keep their last reading with `as of HH:MM:SS`. Source loss never closes a question, changes the open count or turns a value into `failed`. A failed poll shows `FAILED (<exit code or timeout>) <age>` with sanitized stderr in the inspector.", "src": "rendering-rules.md:53"},
+    {"id": "RR-collection-vs-evidence-age", "label": "SPEC", "text": "**Collection vs evidence freshness:** source STALE depends on poll success only; a worker's evidence age is a plain age, with no per-row STALE until Orca's timestamp cadence is measured.", "src": "rendering-rules.md:54"},
+    {"id": "RR-partial", "label": "SPEC", "text": "**Partial pages:** if `page.hasMore` is still true at the call cap: `PARTIAL: collected n of reported T (newest first; oldest rows not read; long-running active workers may be among them)`. Derived counts state denominators, e.g. `nextAction present: 17 of 300 collected (reported 412)`. T comes from the last page read: `reported T (page k)`. `page.total` changing mid-traversal: `reported T1-T2 (changed during read)`. Finished traversal with n not T: `collected n / reported T (mismatch)`. `workers=[]` with T above 0 ends as `PARTIAL (empty page k)`.", "src": "rendering-rules.md:55"},
+    {"id": "RR-filter-vs-global", "label": "SPEC", "text": "**Filtered vs global:** a filter always shows `filter <expr>: k of n collected` beside the unfiltered `source counts: ...`; source counts are a different scope (terminal accounting) and never summed into \"workers\".", "src": "rendering-rules.md:56"},
+    {"id": "RR-overflow", "label": "SPEC", "text": "**Overflow:** `x/y shown`; `+N more` counts only rows not shown, never the selected visible row.", "src": "rendering-rules.md:57"},
+    {"id": "RR-100-row-cap", "label": "SPEC", "text": "**100-row cap:** (a) `worker-list` returns at most 100 rows per page and the observer follows `nextCursor` up to the call cap. (b) If `check --all` is admitted at QUESTION-OBSERVATION, the question panel title reads `at most 100 rows per read, not 100 questions; older history not available`; a retained question that leaves the window stays open with `no longer in source window (last seen HH:MM)`.", "src": "rendering-rules.md:58"},
+    {"id": "RR-question-area", "label": "SPEC", "text": "**Question area:** before QUESTION-OBSERVATION `source UNVERIFIED, 0 rows interpreted, not \"no questions\"`, no number; no count is ever derived from `result.count`. After the gate: `collected n unique / reported T`, `changed during read` and mismatch notes, rotation with a per-scope `revisit ~Ns` token, and an empty rotation set reads `message source not read: no eligible scope; coverage unknown`.", "src": "rendering-rules.md:59"},
+    {"id": "RR-seen-not-resolved", "label": "SPEC", "text": "**Seen is not resolved:** the big count is observed open questions, or `unknown (no question source)`. `m` moves an item from `not marked` to `marked looked`; the count stays. `closed by evidence` reads `unavailable` until a closure source exists. No key, timer or source loss lowers the open count; only explicit closure evidence, not available in the MVP. No verified source records explicit closure today, so every retained question renders `open, closure source unavailable`; it is never shown as resolved and never quietly dropped.", "src": "rendering-rules.md:60"},
+    {"id": "RR-empty-states-T33", "label": "SPEC", "text": "**Empty states (T33):** with no message source the question area carries the gap-notice wording above, never `no questions` (the source's T9 and empty-state rule also use `0 rows interpreted (contract UNVERIFIED)`; this spec uses the source's Change 28 question-area wording everywhere for one consistent string); `worker-list returned 0 workers in scope=bound` names the scope; fixture `empty` renders `no observed items in this source window; not proof none exist`.", "src": "rendering-rules.md:61"},
+    {"id": "RR-cost", "label": "SPEC", "text": "**Cost and tokens:** `cost unavailable`, never `$0`; no progress bar from tokens or activity.", "src": "rendering-rules.md:62"},
+    {"id": "RR-settled-frozen-T34", "label": "SPEC", "text": "**SETTLED and POLICY FROZEN (T34):** live both read `unavailable (no source)`; in fixture mode a frozen item keeps a `FROZEN` marker no other state overrides.", "src": "rendering-rules.md:63"},
+    {"id": "RR-sanitization", "label": "SPEC", "text": "Untrusted source text cannot corrupt the terminal, and the view stays legible at 160, 116 and 80 columns, under NO_COLOR and in ASCII. ... Injection fixtures render literally; CJK/emoji truncate on cell width; geometry and too-narrow/too-small diagnostics match; nothing blinks", "src": "SPEC.md:52-53"},
+    {"id": "RR-sanitization-test-T29", "label": "SPEC", "text": "T29: `injection` (CSI, OSC 8 hyperlink, unterminated OSC, 8-bit C1 `\\x9b`, BEL, bidi Cf such as U+202E, terminal title set) leaves no ESC, C1 or Cf byte in render or export. T30: CJK/emoji identifiers truncate by cells; no overflow, no split double-width char.", "src": "acceptance-tests.md:20"},
+    {"id": "RR-rich-markup-literal-T44", "label": "SPEC", "text": "Worker text containing Rich markup (e.g. `[bold]`) renders literally.", "src": "acceptance-tests.md:38"},
+    {"id": "RR-nocolor-T26", "label": "SPEC", "text": "T26: `NO_COLOR=1` and `NO_COLOR=yes` emit no SGR colour; meaning stays readable as words.", "src": "acceptance-tests.md:19"},
+    {"id": "RR-no-blink", "label": "SPEC", "text": "T28: SGR 5/6 (blink) never appears.", "src": "acceptance-tests.md:19"},
+    {"id": "RR-no-motion", "label": "SPEC", "text": "| Mouse, themes, blinking, animation | Out of scope; no blinking is a constraint. |", "src": "rendering-rules.md:81"},
+    {"id": "RR-refresh-cadence", "label": "SPEC", "text": "Deterministic, bounded collection: no LLM in the loop, fixed 15 s cycle, at most 5 subprocesses per cycle and 8 MiB output per call.", "src": "SPEC.md:70"},
+    {"id": "RR-no-r-key", "label": "SPEC", "text": "| `r` refresh key | Would add a second polling path; `m` takes its place. |", "src": "rendering-rules.md:76"},
+    {"id": "RR-overrun-backoff-T40", "label": "SPEC", "text": "T40 | Fake monotonic clock: STALE at 45 s without success, unaffected by wall-clock jumps; backoff caps at 60 s; overrunning call killed and strip shows `cycle overran (Ns)`.", "src": "acceptance-tests.md:34"},
+    {"id": "RR-colour-glyph-meaning", "label": "NOT SPECIFIED", "text": "No colour palette or glyph-to-meaning table is defined. Only: `unknown` is muted (plain under NO_COLOR) [rendering-rules.md:51]; `*` marks changed rows [rendering-rules.md:46]; `>` marks truncation [rendering-rules.md:24]; `+-|` replaces box drawing under `--ascii` [rendering-rules.md:24]; meaning stays readable as words under NO_COLOR [acceptance-tests.md:19]; themes out of scope [rendering-rules.md:81].", "src": "rendering-rules.md:24,46,51,81"}
+  ],
+
+  "layout": {
+    "widths": [
+      {"text": "At 116 columns or more B draws the full frame with `right = width - 43`. From 80 to 115 it uses the single-column narrow layout. Under 80 every view shows `terminal too narrow (min 80)` above the COUNTS strip, and the strip's denominators still print.", "src": "rendering-rules.md:12"},
+      {"width": 160, "view": "B", "text": "Left `OPEN HUMAN QUESTIONS` (x=1, width 114). ... Right top `SEEN IS NOT RESOLVED` (x=117, width 42)", "src": "rendering-rules.md:37,39"},
+      {"width": 116, "view": "B", "text": "**116 columns.** Same structure with `right = 73`; question panel 70 wide; right column stays 42; ledger in its 116-column line form.", "src": "rendering-rules.md:41"},
+      {"width": 80, "view": "B", "text": "**80 columns.** Single column: header, freshness strip, COUNTS strip, `SEEN IS NOT RESOLVED n`, question lines (fixture) or the UNVERIFIED notice (live), then the ledger in its 80-column form. The invariant lines stay: \"Questions stay until explicit resolution.\" and \"No reply observed is not delivery failure.\" RETAIN CONTEXT is reachable only through the inspector.", "src": "rendering-rules.md:42"},
+      {"width": 160, "view": "A ledger", "text": "One row per worker from `worker-list`, in source order: `dispatchId`, run (labelled \"run\", never \"orchestrator\"), `workerState`, `dispatchStatus`, `terminalState`, `projection.outcome` (raw), `projection.nextAction.kind`, `liveness.verdict (liveness.source)`, evidence age. There is no `stage` column at any width; `stage` is in the inspector.", "src": "rendering-rules.md:29", "note": "160 not stated explicitly for this row form; it is the full form, with 116 and 80 forms given separately"},
+      {"width": "116 / 80", "view": "A ledger", "text": "At 116 columns: `<kind> <dispatchId> <liveness.verdict> <age>`, with `stage` moved into the inspector. At 80 columns: `kind`, a dispatch ID cell-truncated with `>`, and an age.", "src": "rendering-rules.md:32"},
+      {"text": "T23: at 160/116/80 every screen line has `cell_len <= W`.", "src": "acceptance-tests.md:19"}
+    ],
+    "row_contract_44": {"label": "UNVERIFIED (contents undefined)", "text": "Height follows C's 44-row height contract (drop order, minimum rows). Coverage, scope and `PARTIAL` are minimum content, kept ahead of every optional panel; if height cannot hold them a too-small diagnostic shows instead. No per-panel scrolling, no multi-pane focus.", "src": "rendering-rules.md:13"},
+    "shrink_hide_order": [
+      {"text": "At narrow widths the strip wraps to a second line before anything is cut; `>` applies only to lower-priority tokens (source age, the `unavailable (no source)` tokens). It is a minimum row and is never dropped.", "src": "rendering-rules.md:19"},
+      {"text": "RETAIN CONTEXT is reachable only through the inspector.", "src": "rendering-rules.md:42", "note": "at 80 columns, B"},
+      {"text": "its 116- and 80-column builds drop SIGNALS", "src": "rendering-rules.md:85", "note": "about the A prototype, stated as a weakness"},
+      {"text": "No full panel drop order defined; the 44-row contract's drop order is named but undefined (see width_matrix_open_item).", "src": "SPEC.md:112", "label": "NOT SPECIFIED"}
+    ],
+    "width_matrix_open_item": {"text": "What are the contents of A's width matrix, B's x/width coordinates beyond those copied, and C's 44-row height contract (drop order, minimum rows)? The sources name them but do not define them.", "src": "SPEC.md:112", "settled": false},
+    "minimum_terminal_size": [
+      {"text": "Under 80 every view shows `terminal too narrow (min 80)` above the COUNTS strip, and the strip's denominators still print.", "src": "rendering-rules.md:12"},
+      {"text": "T35 | COUNTS strip appears at 80, 116 and 160; priority tokens never truncated; below 80 reads `terminal too narrow (min 80)`.", "src": "acceptance-tests.md:29"},
+      {"text": "T49 | When height cannot hold coverage, scope and PARTIAL ahead of optional panels, a too-small diagnostic shows.", "src": "acceptance-tests.md:43", "note": "minimum row count not stated; diagnostic string not pinned"}
+    ]
+  },
+
+  "keyboard_focus": {
+    "bindings": {"text": "**Keys (inspection and local filtering only):** Up/Down or `j`/`k` move, `Enter` opens detail, `Esc` returns, `/` local text filter, `h` show/hide historical rows, `m` mark a look, `e` write an export, `q` quit. No `r` key: refresh runs on the fixed 15 s cycle. No key maps to an Orca call.", "src": "rendering-rules.md:20"},
+    "focus": {"text": "No per-panel scrolling, no multi-pane focus.", "src": "rendering-rules.md:13"},
+    "selection_anchor": {"text": "A reordering refresh keeps the cursor on the same identity; if it disappears the cursor stays on `selected <id> no longer in source window` until the user moves, never jumping to another worker.", "src": "rendering-rules.md:23"},
+    "quit": {"text": "`q` quit", "src": "rendering-rules.md:20"},
+    "help": {"label": "NOT SPECIFIED", "text": "No help key is bound. Only help text content is named: Help text: \"a completed Task can still own a live terminal\". Footer carries the key list.", "src": "rendering-rules.md:52,21"},
+    "no_key_to_orca": {"text": "T3: no key maps to an Orca call.", "src": "acceptance-tests.md:11"},
+    "out_of_scope_input": [
+      {"text": "Fleet SIGNALS bars, an `r` refresh key, persisted \"last look\" across runs, mouse, themes, animation, blinking, and Windows interactive keyboard input.", "src": "SPEC.md:84"},
+      {"text": "| Windows keyboard input | The stdlib reader is POSIX-only; on Windows `--once` prints a text export. |", "src": "rendering-rules.md:80"}
+    ],
+    "key_reader_spike_gate": [
+      {"text": "Spike: Rich Live with the raw stdlib key reader; on failure switch to Textual, never both. Render timing and per-call timeouts measured.", "src": "release-gates.md:9"},
+      {"text": "Every fixture variant renders at all three widths with the label \"synthetic fixture, not live evidence\"; the key-reader spike result is recorded (T50, T6, T16).", "src": "SPEC.md:32"},
+      {"text": "**Spike first (R0):** Rich Live with the raw key reader. If the spike fails, switch to Textual. Never build both. Textual is not first because of its maintenance risk and UNVERIFIED plain-text export.", "src": "stack.md:23", "note": "grep hit only"},
+      {"text": "| Hand-written key reader misbehaves | Terminal left in raw mode | Restore in `finally` and on SIGINT/SIGTERM; `--once` needs no raw mode; R0 spike decides, Textual fallback |", "src": "owner-decisions-and-risks.md:45", "note": "grep hit only"}
+    ],
+    "switch_to_textual_rule": {"text": "Stack is Python + Rich as a `superclaude observe`-style subcommand in the IronClaude repo; the key-reader spike comes first; Textual replaces Rich only if the spike fails, never both (`stack.md`).", "src": "SPEC.md:74"}
+  },
+
+  "screens": {
+    "staging": {"text": "Recorded owner decision 1: R1 = A's worker ledger + COUNTS strip + B's one-line question-source gap notice; B after QUESTION-OBSERVATION with A's ledger one key away; C only behind QUESTION-LINK. The B screen below is the post-QUESTION-OBSERVATION view, and its degraded form is used for the owner's R0 comparison.", "src": "rendering-rules.md:6"},
+    "R0": {"text": "**R0** renders A, B and C at 160, 116 and 80 columns, each marked \"synthetic fixture, not live evidence\", with realistically degraded versions beside them (input to DIRECTION-SELECTED).", "src": "rendering-rules.md:5", "walkthrough": {"text": "plus C's walkthrough task \"find the oldest question and inspect its evidence\".", "src": "release-gates.md:9"}},
+    "R1_signal_bridge_worker_ledger": {
+      "composition": {"text": "R1 Live worker-list | COUNTS strip, freshness strip, worker ledger with verbatim `nextAction.kind`, `result.counts`, capped paging, stale handling, changes since last look, the selected view, the question-source gap notice, the JSON snapshot export (recorded owner decision 2).", "src": "release-gates.md:11"},
+      "panels": ["Header line 1 [rendering-rules.md:17]", "Header line 2 freshness strip [rendering-rules.md:18]", "COUNTS strip [rendering-rules.md:19]", "gap notice above the ledger [rendering-rules.md:31]", "worker ledger [rendering-rules.md:29]", "footer [rendering-rules.md:21]", "detail inspector on Enter [rendering-rules.md:25]"],
+      "question_source_notice": {"text": "`Human questions: source UNVERIFIED, 0 rows interpreted, not \"no questions\"`", "placement": "Above the ledger, at every width", "src": "rendering-rules.md:31"},
+      "notice_capability": {"text": "A supervisor is told, above the ledger, that human questions are not observed in R1, so an empty screen is never read as \"no questions\". ... renders in every live R1 state, with no number derived from any message source (T9, T33, T47).", "src": "SPEC.md:37-38"},
+      "ledger_title_live": {"text": "T9: live mode with no message source shows `Human questions: source UNVERIFIED, 0 rows interpreted, not \"no questions\"` (`rendering-rules.md`) and titles the ledger `worker-reported, not questions`.", "src": "acceptance-tests.md:13"}
+    },
+    "R2_B_attention_ledger": {
+      "gate": "QUESTION-OBSERVATION",
+      "src_gate": "release-gates.md:12",
+      "adds": {"text": "`OPEN HUMAN QUESTIONS` with observer-side retention, the 100-row disclosure, \"bounded best effort; coverage unknown\".", "src": "release-gates.md:12"},
+      "panels_160": [
+        {"text": "Left `OPEN HUMAN QUESTIONS` (x=1, width 114). Fixture: one block per question (`NN MIN`, the question, `requester requests / owner`, `Affected: id, id`), oldest first. Live before QUESTION-OBSERVATION: `Question rows: source UNVERIFIED. 0 rows interpreted. This is not \"no questions\".` After the gate the title reads `bounded best effort; coverage unknown; at most 100 rows per read, not 100 questions`.", "src": "rendering-rules.md:37"},
+        {"text": "Left lower (live only): the worker ledger with verbatim `nextAction.kind`, titled `worker-reported, not questions`; it replaces the base's separate \"next actions\" proxy panel.", "src": "rendering-rules.md:38"},
+        {"text": "Right top `SEEN IS NOT RESOLVED` (x=117, width 42): big count of observed open questions; sub-line `marked looked: a | not marked: b | closed by evidence: unavailable`. Live with no question source: `unknown (no question source)`, never 0.", "src": "rendering-rules.md:39"},
+        {"text": "Right lower `RETAIN CONTEXT`: seven retained attributes (original question, original age, acting owner, requesting orchestrator, affected stable IDs, source coverage, explicit closure evidence), each with its availability live, e.g. `original question: UNVERIFIED source`, `acting owner: resource.ownerDispatchId (worker-list)`, `explicit closure evidence: unavailable (no source)`.", "src": "rendering-rules.md:40"}
+      ],
+      "question_source_notice": {"text": "`Question rows: source UNVERIFIED. 0 rows interpreted. This is not \"no questions\".`", "placement": "B's live question-panel block (OPEN HUMAN QUESTIONS, left)", "src": "rendering-rules.md:31,37"},
+      "A_one_key_away": {"text": "B after QUESTION-OBSERVATION with A's ledger one key away", "src": "rendering-rules.md:6", "note": "the key is not named"},
+      "retention_T46": {"text": "T46 | At 1,001 retained questions, eviction does not lower the open total; count reads `unknown (retention exceeded)` with the retained count; oldest first.", "src": "acceptance-tests.md:40"}
+    },
+    "R3_C_decision_desk": {
+      "gate": "QUESTION-LINK",
+      "adds": {"text": "For the selected question, affected sessions with worker-list evidence (Decision Desk).", "src": "release-gates.md:13"},
+      "capability": {"text": "Affected rows come only from an authoritative message-to-`dispatchId`/`worktreeId` mapping verified on this host; otherwise the desk reads \"affected scope unknown\".", "src": "SPEC.md:65"},
+      "overflow_line": {"text": "ships the most honest overflow line, `x/y other questions shown`, which B copies.", "src": "rendering-rules.md:86"},
+      "reply_command_display": {"text": "Decision Desk may show a pending question and the exact `orca orchestration reply` command for the human to run themselves; the observer never sends anything.", "src": "write-back-future-stage.md:38"},
+      "post_link_default": {"label": "NOT SETTLED", "text": "**Dissent (V3):** once explicit-link rows exist, C should be the post-link composition. Two of three advocates recommend B as the post-link default. Not settled; the optional owner re-confirm at QUESTION-LINK exists for this choice.", "src": "rendering-rules.md:87"}
+    },
+    "R4": {"text": "R4 Remote fleet | `--include-remote` rows grouped by `projection.host.id`. | Cross-host ownership joins. Not established.", "src": "release-gates.md:14"}
+  },
+
+  "data_sources": {
+    "verified_worker_list": {"label": "VERIFIED (seed brief, 2026-11-08)", "verb": "`orca orchestration worker-list --json --limit 100`", "src": "unverified-register.md:11"},
+    "verified_fields": [
+      {"need": "Worker rows", "fields": "`result.workers[].dispatchId, taskId, runId, workerState, dispatchStatus, terminalState`", "src": "unverified-register.md:11"},
+      {"need": "Ownership and worktree (verbatim, never joined across hosts)", "fields": "`resource.{id, ownershipState, releaseState, worktreeId, ownerDispatchId, originDispatchId, recoveryAttemptCount}`", "src": "unverified-register.md:12"},
+      {"need": "Next action (verbatim column)", "fields": "`projection.nextAction.kind`, `projection.stage.{worker,dispatch,activity,detail}`", "src": "unverified-register.md:13"},
+      {"need": "Freshness and liveness", "fields": "`projection.liveness.{verdict,source,observedAt}`, `projection.evidence.{durable,liveStatus,lastObservedAt}`", "src": "unverified-register.md:14"},
+      {"need": "Outcome, separate from lifecycle", "fields": "`projection.outcome` (raw; never merged with `workerState` or `terminalState`)", "src": "unverified-register.md:15"},
+      {"need": "Placement", "fields": "`projection.host.{id,kind}`, `projection.workspace.{id,kind}`, `projection.provider.id`, `projection.role`", "src": "unverified-register.md:16"},
+      {"need": "Paging and denominators", "fields": "`result.page.{limit,total,hasMore,nextCursor}`, `result.counts.{active,reclaimable,retained,released}`, `result.scope.source`, `result.warnings[]`", "src": "unverified-register.md:17"}
+    ],
+    "verified_flags": {"text": "Flags read from `--help` (no new fields): `worker-list` accepts `--run`, `--terminal-state`, `--include-remote`, `--cursor`, `--limit <1-100>`; rows are \"newest first\"; without `--run` the scope is the bound Run, or every Run when nothing is bound, reported in `scope.source`.", "src": "unverified-register.md:20"},
+    "page_total_optional": {"text": "`page.total` is a field the source can return, but the adapter treats it as optional (`reported unknown`; V1 dissents).", "src": "unverified-register.md:22"},
+    "unverified": [
+      {"item": "Message row fields and the inbox JSON shape; only an empty peek `result.{count,dispatchId,runId}` has been seen", "shown": "Not parsed before QUESTION-OBSERVATION", "src": "unverified-register.md:33"},
+      {"item": "Meaning of `result.count`", "shown": "No count is ever derived from it", "src": "unverified-register.md:34"},
+      {"item": "Value set of `projection.nextAction.kind`, and whether any value means \"a human must answer\"", "shown": "Raw string, never classified", "src": "unverified-register.md:38"},
+      {"item": "Whether `projection.stage.activity` or `.detail` carries question text; value sets of `stage.*`", "shown": "Inspector only, sanitized, labelled `worker-reported`; `stage.detail`/`.activity` withheld from the R1 snapshot (`snapshot-export-schema.md`)", "src": "unverified-register.md:39"},
+      {"item": "Meaning of `projection.evidence.durable` beyond presence", "shown": "Shown raw", "src": "unverified-register.md:40"},
+      {"item": "Whether `page.total` counts historical dispatches (\"Showing 2 of 287 Dispatches\" suggests it, not proven); semantics of `result.counts`", "shown": "Labelled `reported T`, never \"workers\"; counts never summed", "src": "unverified-register.md:41"},
+      {"item": "Whether `worker-list` offers a state filter for active workers", "shown": "INV-007 accepted risk, `not reobserved`", "src": "unverified-register.md:42"},
+      {"item": "Clock and format of `liveness.observedAt` / `evidence.lastObservedAt`", "shown": "No per-row STALE; plain age only", "src": "unverified-register.md:43"},
+      {"item": "Per-call timeout value", "shown": "Measured in R0", "src": "unverified-register.md:44"}
+    ],
+    "not_established": {"text": "Complete message history (beyond the 100-row window), cross-host ownership joins, admission and revision-pinned evidence feeds, cost/usage accounting, durable event replay, native deep links.", "src": "unverified-register.md:54"}
+  },
+
+  "snapshot_export": {
+    "label": "PROPOSED, not an Orca contract",
+    "src_label": "snapshot-export-schema.md:1",
+    "schema_version": {"text": "`schemaVersion` | `1` for release 1. Consumers reject an unknown major.", "src": "snapshot-export-schema.md:20"},
+    "additive_only": {"text": "**Additive-only:** new optional fields may appear; no field is removed, renamed or retyped without a new major `schemaVersion`.", "src": "snapshot-export-schema.md:9"},
+    "missing_value": {"text": "A value the source did not give is the string `UNKNOWN`, never a guess, an empty string, 0 or `null`.", "src": "snapshot-export-schema.md:10"},
+    "no_content": {"text": "No message bodies, prompts, file contents or credentials in R1. Every string has passed the adapter sanitizer (`adapter-contract.md`).", "src": "snapshot-export-schema.md:11"},
+    "one_way": {"text": "One-way by construction: the snapshot carries no write-back path (`write-back-future-stage.md`).", "src": "snapshot-export-schema.md:12"},
+    "ux_relevant_envelope": [
+      {"text": "`source.status` | `OK`, `STALE` (older than 45 s), `ERROR` or `UNKNOWN`", "src": "snapshot-export-schema.md:25"},
+      {"text": "`page.hasMore`, `page.total`, `page.limit` | From `result.page`; `total` is optional upstream, so it may be `UNKNOWN`", "src": "snapshot-export-schema.md:28"},
+      {"text": "`counts` | From `result.counts`, passed through as a map of state to number (never summed)", "src": "snapshot-export-schema.md:30"}
+    ],
+    "view_state_carried": {"label": "NOT SPECIFIED", "text": "The schema lists envelope (schemaVersion, producer, cycle, generatedAt, source.*, page.*, scope, counts) and per-worker rows only. It does not carry selected item, widths, filter, mark or historical-toggle state.", "src": "snapshot-export-schema.md:16-47"},
+    "stage_withheld": {"label": "CONTRADICTION", "text": "`stage.detail`, `stage.activity` | Withheld from the R1 snapshot. CONTRADICTION: architecture-options.md lists them; merged-requirements.md keeps them inspector-only because whether they carry question text is UNVERIFIED. The stricter reading applies until the open question in `SPEC.md` is answered.", "src": "snapshot-export-schema.md:43"},
+    "ordering": {"text": "By `liveness.observedAt`, else `evidence.lastObservedAt`, newest first; ties by `dispatchId`. This differs from the on-screen ledger, which keeps the source's \"newest first\" order. Which order is authoritative for consumers is an open question (`SPEC.md`).", "src": "snapshot-export-schema.md:51-53"},
+    "not_frozen": {"text": "Terminal handles (`agentTerminalHandle`, `resource.terminalHandle`), worktree and endpoint ids, ownership and release state. ... Attention Ledger (B) and Decision Desk (C) add their own optional field groups later, additively.", "src": "snapshot-export-schema.md:57"},
+    "text_export_same_view_model": {"text": "`e`/`--once` writes the record export from the same view model the screen renders: no ESC byte, full IDs, no truncation; an ID the screen truncates with `>` appears in full (T27, T48).", "src": "SPEC.md:56"},
+    "transport": {"label": "UNVERIFIED", "text": "Transport of the snapshot from the Coder host to the TUIBBS host is unexamined (UNVERIFIED).", "src": "snapshot-export-schema.md:70"}
+  },
+
+  "release_gates": [
+    {"id": "DATA-GATE-RULE", "pass": "A data gate passes only on recorded, redacted samples of four kinds, **success**, **missing**, **stale** and **contradictory**, each pinned in a contract test. Without all four the gate stays closed. A failed gate keeps the screen on the previous release's view.", "unlocks": "any data-gated release", "src": "release-gates.md:5"},
+    {"id": "R0", "pass": "None from Orca; offline only. Fixtures labelled SYNTHETIC; the PROPOSED schema is used only inside fixture mode.", "unlocks": "Ledger screen, inspector, text export at 160/116/80, sanitizer, cell-width truncation, NO_COLOR, ID-anchored selection, every fixture variant, a redacted golden `worker-list` fixture ... A, B, C renders", "src": "release-gates.md:9"},
+    {"id": "DIRECTION-SELECTED", "pass": "Owner's dated selection record (below). Status in the source: NOT passed.", "unlocks": "Nothing ships. (gate between R0 and R1)", "src": "release-gates.md:10", "evidence": {"text": "a dated selection record written by the owner, never an agent. Names the date, option and decider, and where the owner's statement lives (agents may cite, never write it). Holds: default while no question rows exist, default after QUESTION-OBSERVATION, post-link choice or explicit deferral, fallback date, stack confirmation, command name, confirmed production-integration reading.", "src": "release-gates.md:22"}},
+    {"id": "R1", "pass": "DIRECTION-SELECTED passed and production integration permitted under the reading the owner confirms. `worker-list --json` fields and paging are verified (seed brief); add a redacted golden sample of each of the four kinds and contract test T32.", "unlocks": "Live worker-list view (see screens.R1)", "src": "release-gates.md:11"},
+    {"id": "PRODUCTION-INTEGRATION", "pass": "Until the owner confirms one in the selection record, the stricter reading applies: offline work only (R0).", "unlocks": "live work", "src": "release-gates.md:34", "label": "UNVERIFIED (both readings, as the issue's intent)"},
+    {"id": "QUESTION-OBSERVATION", "pass": "Candidate verb: `orca orchestration check --all --run <runId> --json`. A candidate, never an available source, until all are recorded: Proof (a), Proof (b), Proof (c) (all UNVERIFIED), Non-consumption (INV-022), Question identity, Owner inputs (decisions 8 and 6), Budget.", "unlocks": "R2 Question ledger (B)", "src": "release-gates.md:36-46"},
+    {"id": "QUESTION-OBSERVATION-FALLBACK", "pass": "if QUESTION-OBSERVATION is not verified by the owner's fallback date, the owner re-confirms the direction. If A is picked, A stays the default on the same adapter and renderer; B's retention model stays in the code for when the contract arrives (one layout function, not a rewrite).", "unlocks": "direction re-confirm", "src": "release-gates.md:48"},
+    {"id": "QUESTION-LINK", "pass": "authoritative mapping from IDs in a message to `dispatchId`/`worktreeId`, verified on this host first. Optional owner re-confirm of the post-link default (B or C).", "unlocks": "R3 Links and C's inspector", "src": "release-gates.md:13"},
+    {"id": "R4", "pass": "Cross-host ownership joins. Not established.", "unlocks": "`--include-remote` rows grouped by `projection.host.id`", "src": "release-gates.md:14"},
+    {"id": "LATER-CLOSURE", "pass": "A source recording explicit resolution (e.g. a reply row linked to the question ID). Not established.", "unlocks": "`closed by evidence` count; closed items move to a closed list.", "src": "release-gates.md:15"},
+    {"id": "LATER-HISTORY", "pass": "Durable, non-consuming message history or event replay. Not established.", "unlocks": "Questions older than the 100-row window.", "src": "release-gates.md:16"},
+    {"id": "WRITE-BACK", "pass": "Boundary change on #409 plus TUIBBS FR-X-13 amendment. Never R1.", "unlocks": "Future stage: write-back", "src": "release-gates.md:18"}
+  ],
+
+  "acceptance_tests_ux": [
+    {"id": "T3", "line": "no key maps to an Orca call.", "src": "acceptance-tests.md:11"},
+    {"id": "T4", "line": "a fake always returning `hasMore=true` stops at the 5-call cap and renders `PARTIAL: collected 500 of reported T`.", "src": "acceptance-tests.md:12"},
+    {"id": "T5", "line": "a fake sleeping past the measured per-call timeout shows `FAILED (timeout)`; the cycle ends within the 15 s budget.", "src": "acceptance-tests.md:12"},
+    {"id": "T6", "line": "same input renders byte-identical text twice.", "src": "acceptance-tests.md:12"},
+    {"id": "T7", "line": "`base` (8 orchestrators, 80 sessions) in fixture mode lists every question oldest first with requester/owner and affected IDs.", "src": "acceptance-tests.md:13"},
+    {"id": "T8", "line": "after `m`, a fixture step changing one `nextAction.kind` stars exactly that row and shows `changed since HH:MM (1)`.", "src": "acceptance-tests.md:13"},
+    {"id": "T9", "line": "live mode with no message source shows `Human questions: source UNVERIFIED, 0 rows interpreted, not \"no questions\"` (`rendering-rules.md`) and titles the ledger `worker-reported, not questions`.", "src": "acceptance-tests.md:13"},
+    {"id": "T10", "line": "`m` on every item leaves the open count unchanged.", "src": "acceptance-tests.md:14"},
+    {"id": "T11", "line": "`source-loss` keeps the open count and every retained item; nothing becomes resolved or failed.", "src": "acceptance-tests.md:14"},
+    {"id": "T12", "line": "an item missing next cycle stays, marked `no longer in source window`.", "src": "acceptance-tests.md:14"},
+    {"id": "T13", "line": "`missing-fields` renders `unknown` for every absent field; `0`/`false` never stand in (asserted per field).", "src": "acceptance-tests.md:15"},
+    {"id": "T14", "line": "`terminalState=released` with `outcome` absent never renders `done`, `complete` or `settled`.", "src": "acceptance-tests.md:15"},
+    {"id": "T15", "line": "report, acceptance, tests and approval each render `unavailable (no source)` live.", "src": "acceptance-tests.md:15"},
+    {"id": "T16", "line": "matrix {5, 8, 10 orchestrators} x {50, 80, 100 sessions} x {160, 116, 80 columns} (27 renders); every count line matches `k of n`, every hidden overflow shows `x/y shown` with y = fixture total.", "src": "acceptance-tests.md:16"},
+    {"id": "T18", "line": "`page.total=287` with 100 rows shows `collected 100 / reported 287`, never `287 workers`; `page.total` absent shows `reported unknown`.", "src": "acceptance-tests.md:16"},
+    {"id": "T19", "line": "(R2 placeholder, skipped until QUESTION-OBSERVATION): question panel title contains `at most 100 rows per read, not 100 questions` and `bounded best effort; coverage unknown`.", "src": "acceptance-tests.md:16"},
+    {"id": "T20", "line": "`shared-unmapped` shows two sessions sharing one `worktreeId` as two rows each naming it, and a session with no worktree as `worktree unknown`; no count divides one by the other.", "src": "acceptance-tests.md:17"},
+    {"id": "T21", "line": "released/retained rows hidden by default with `k historical hidden (h)`; after `h` listed with `terminalState`, not counted active.", "src": "acceptance-tests.md:18"},
+    {"id": "T22", "line": "`duplicate-out-of-order` shows `k duplicate rows ignored`; an older `observedAt` never overwrites a newer one; a row missing both timestamps is flagged `order unknown`; a backward timestamp shows `conflict (time went back)`.", "src": "acceptance-tests.md:18"},
+    {"id": "T23", "line": "at 160/116/80 every screen line has `cell_len <= W`.", "src": "acceptance-tests.md:19"},
+    {"id": "T24", "line": "`long-identifiers` truncates with `>` in lists; inspector shows the full ID.", "src": "acceptance-tests.md:19"},
+    {"id": "T25", "line": "reorder between cycles keeps selection on the same row ID.", "src": "acceptance-tests.md:19"},
+    {"id": "T26", "line": "`NO_COLOR=1` and `NO_COLOR=yes` emit no SGR colour; meaning stays readable as words.", "src": "acceptance-tests.md:19"},
+    {"id": "T27", "line": "`e`/`--once` writes the record export: no ESC byte, full IDs, no truncation.", "src": "acceptance-tests.md:19"},
+    {"id": "T28", "line": "SGR 5/6 (blink) never appears.", "src": "acceptance-tests.md:19"},
+    {"id": "T29", "line": "`injection` (CSI, OSC 8 hyperlink, unterminated OSC, 8-bit C1 `\\x9b`, BEL, bidi Cf such as U+202E, terminal title set) leaves no ESC, C1 or Cf byte in render or export.", "src": "acceptance-tests.md:20"},
+    {"id": "T30", "line": "CJK/emoji identifiers truncate by cells; no overflow, no split double-width char.", "src": "acceptance-tests.md:20"},
+    {"id": "T31", "line": "cost renders `cost unavailable`, never `$0`; no progress from tokens or activity.", "src": "acceptance-tests.md:20"},
+    {"id": "T32", "line": "Removing `result`, `result.workers` or `result.page.hasMore` gives `FAILED (shape)` with last good snapshot kept; removing `result.scope` shows `scope unknown`; removing `page.total` shows `reported unknown`; removing an inner `projection.*` field gives `unknown`, not an error.", "src": "acceptance-tests.md:21"},
+    {"id": "T33", "line": "`empty` renders `no observed items in this source window; not proof none exist`, never `no questions`.", "src": "acceptance-tests.md:27"},
+    {"id": "T34", "line": "Fixture mode renders `FROZEN`; live mode renders SETTLED and POLICY FROZEN as `unavailable (no source)`, never blank or zero.", "src": "acceptance-tests.md:28"},
+    {"id": "T35", "line": "COUNTS strip appears at 80, 116 and 160; priority tokens never truncated; below 80 reads `terminal too narrow (min 80)`.", "src": "acceptance-tests.md:29"},
+    {"id": "T38", "line": "Aggregate with k unknown members renders `n+? (k unknown)`, never a clean `n`.", "src": "acceptance-tests.md:32"},
+    {"id": "T39", "line": "Same `dispatchId` from different source namespaces stays two rows.", "src": "acceptance-tests.md:33"},
+    {"id": "T40", "line": "STALE at 45 s without success, unaffected by wall-clock jumps; backoff caps at 60 s; overrunning call killed and strip shows `cycle overran (Ns)`.", "src": "acceptance-tests.md:34"},
+    {"id": "T41", "line": "First observation is the baseline with no change flags; a row dropping out shows `not reobserved`.", "src": "acceptance-tests.md:35"},
+    {"id": "T42", "line": "Successful poll with old worker evidence shows poll age and evidence age separately and does not mark the source STALE.", "src": "acceptance-tests.md:36"},
+    {"id": "T43", "line": "With the selected row visible and others hidden, `+N more` excludes the selected row.", "src": "acceptance-tests.md:37"},
+    {"id": "T44", "line": "Worker text containing Rich markup (e.g. `[bold]`) renders literally.", "src": "acceptance-tests.md:38"},
+    {"id": "T45", "line": "Default view chosen at start-up, never switches mid-session; header shows `read k of N Runs since start` (which views carry it is an open question, `SPEC.md`).", "src": "acceptance-tests.md:39"},
+    {"id": "T46", "line": "At 1,001 retained questions, eviction does not lower the open total; count reads `unknown (retention exceeded)` with the retained count; oldest first.", "src": "acceptance-tests.md:40"},
+    {"id": "T47", "line": "Before QUESTION-OBSERVATION the question area reads `source UNVERIFIED, 0 rows interpreted, not \"no questions\"`; no count from `result.count`; `changed during read`, mismatch, `revisit ~Ns` and empty-rotation-set notes render per `rendering-rules.md`.", "src": "acceptance-tests.md:41"},
+    {"id": "T48", "line": "Screen renderer and record export read the same view model; an ID truncated with `>` on screen appears in full in the export.", "src": "acceptance-tests.md:42"},
+    {"id": "T49", "line": "When height cannot hold coverage, scope and PARTIAL ahead of optional panels, a too-small diagnostic shows.", "src": "acceptance-tests.md:43"},
+    {"id": "T50", "line": "R0 renders of A, B, C at 160/116/80 each carry \"synthetic fixture, not live evidence\" with a degraded version beside each.", "src": "acceptance-tests.md:44"},
+    {"id": "MANUAL-CJK", "line": "one run in a real terminal confirms cell truncation of a CJK identifier as T30 asserts headlessly; reported as a manual check, not a test pass.", "src": "acceptance-tests.md:54"},
+    {"id": "HARNESS", "line": "Render with `Console(width=W, record=True, color_system=None or \"standard\")` and read `export_text()`. ... No TTY, no live Orca.", "src": "acceptance-tests.md:5"}
+  ],
+
+  "write_back": {
+    "status": {"text": "It is a FUTURE stage, design only, and never part of R1.", "src": "write-back-future-stage.md:3"},
+    "boundary_change": {"text": "**Boundary change needed in two places before any build:** issue 409 (merged-requirements.md:183, reply kept out of scope) and TUIBBS FR-X-13 \"no write-back\" (internal/serve/menu.go:637-640). Neither moves without an owner decision.", "src": "write-back-future-stage.md:5"},
+    "gate_0": {"text": "**Boundary:** owner records the issue 409 boundary change; TUIBBS owner amends FR-X-13 for this one capability.", "src": "write-back-future-stage.md:42"},
+    "where": {"text": "inside the later Go TUIBBS screen (architecture option d), where ACS, identity and audit exist. Not in the Python observer, not in the snapshot (which stays one-way).", "src": "write-back-future-stage.md:35"},
+    "python_observer_stance": {"text": "R1, Attention Ledger and Decision Desk stay read-only. Decision Desk may show a pending question and the exact `orca orchestration reply` command for the human to run themselves; the observer never sends anything.", "src": "write-back-future-stage.md:38"},
+    "R1_must_not_show": [
+      {"text": "| Any operational control (approve, retry, terminate, spawn, merge, rebase, delete-worktree, worker instruction, reply) | No write path into Orca; the design package's mock-up action buttons are not built. |", "src": "rendering-rules.md:69"},
+      {"text": "Any operational control or write-back in R1, including confirmations or corrections sent to agents; that is a future stage needing a boundary change (`write-back-future-stage.md`).", "src": "SPEC.md:80"},
+      {"text": "No key maps to an Orca call.", "src": "rendering-rules.md:20"}
+    ],
+    "future_delivery_states": {"text": "| False success shown | Three states only: delivered, pending, unknown (\"do not resend, ask the coordinator\"); absent never shown as \"not sent\" |", "src": "write-back-future-stage.md:25"}
+  },
+
+  "open_questions": {
+    "count": 17,
+    "items": [
+      {"id": "OQ-1", "text": "Does the owner's staged choice satisfy DIRECTION-SELECTED, and where is the dated owner-written selection record?", "src": "SPEC.md:99"},
+      {"id": "OQ-2", "text": "Which production-integration reading applies (1: registering the command or any live subprocess outside the fake runner; 2: wiring into the shipped product)?", "src": "SPEC.md:100"},
+      {"id": "OQ-3", "text": "Final command name (recommended `superclaude observe`)?", "src": "SPEC.md:101"},
+      {"id": "OQ-4", "text": "Fallback date for QUESTION-OBSERVATION?", "src": "SPEC.md:102"},
+      {"id": "OQ-5", "text": "Sample capture and acquisition permission for live reads (open owner decision 6)?", "src": "SPEC.md:103"},
+      {"id": "OQ-6", "text": "Message-content exposure (open owner decision 7)?", "src": "SPEC.md:104"},
+      {"id": "OQ-7", "text": "What identifies a human question (open owner decision 8)?", "src": "SPEC.md:105"},
+      {"id": "OQ-8", "text": "Multi-observer restriction (open owner decision 9)?", "src": "SPEC.md:106"},
+      {"id": "OQ-9", "text": "Licence opinion before any Go screen reads the snapshot?", "src": "SPEC.md:107"},
+      {"id": "OQ-10", "text": "Does TUIBBS become the staff platform?", "src": "SPEC.md:108"},
+      {"id": "OQ-11", "text": "Is the write-back boundary change (issue 409 plus TUIBBS FR-X-13 amendment) approved?", "src": "SPEC.md:109"},
+      {"id": "OQ-12", "text": "Which row order is authoritative for snapshot consumers: the snapshot's timestamp order or the ledger's source \"newest first\" order?", "src": "SPEC.md:110"},
+      {"id": "OQ-13", "text": "Does `read k of N Runs since start` belong in the B view header only (merged-requirements rendering rule) or in every header (its adapter scope-honesty rule, T45 and the risks table)? CONTRADICTION in the source; see `rendering-rules.md`.", "src": "SPEC.md:111"},
+      {"id": "OQ-14", "text": "What are the contents of A's width matrix, B's x/width coordinates beyond those copied, and C's 44-row height contract (drop order, minimum rows)? The sources name them but do not define them.", "src": "SPEC.md:112"},
+      {"id": "OQ-15", "text": "Which `projection.stage.*` subfield drives change detection, and may `stage.detail`/`stage.activity` enter the snapshot (architecture-options.md lists them; merged requirements keep them inspector-only)?", "src": "SPEC.md:113"},
+      {"id": "OQ-16", "text": "**Dissent (V3):** once explicit-link rows exist, C should be the post-link composition. Two of three advocates recommend B as the post-link default. Not settled; the optional owner re-confirm at QUESTION-LINK exists for this choice.", "src": "rendering-rules.md:87", "note": "not in SPEC.md Open Questions list"},
+      {"id": "OQ-17", "text": "**Orca sender:** confirm with the Orca owner how `reply` authenticates its sender (UNVERIFIED); relaying through the coordinator is required until answered.", "src": "write-back-future-stage.md:50", "note": "future-stage owner question, not in SPEC.md list"}
+    ],
+    "count_note": "15 in SPEC.md Open Questions (lines 99-113) plus 2 found elsewhere"
+  },
+
+  "signal_bridge_layout": {
+    "verdict": "NOT SETTLED",
+    "explanation": "Neither candidate layout is named. The spec never mentions PLAN.md, an owner-row cockpit, an intervention rail, a change ribbon, a session register or signal counts (grep across the folder found none). It defines R1 as a composition: A's worker ledger plus the COUNTS strip, the freshness strip and B's gap notice. Fleet SIGNALS bars are explicitly left out.",
+    "evidence": [
+      {"text": "Recorded owner decision 1: R1 = A's worker ledger + COUNTS strip + B's one-line question-source gap notice; B after QUESTION-OBSERVATION with A's ledger one key away; C only behind QUESTION-LINK.", "src": "rendering-rules.md:6"},
+      {"text": "**Recorded owner decision 1 (staged releases, binding):** R1 = Signal Bridge's worker ledger on the verified `worker-list`, carrying Attention Ledger's \"question source UNVERIFIED\" notice.", "src": "release-gates.md:3"},
+      {"text": "| Fleet SIGNALS bars | No verified mapping from `workerState`/`outcome` to \"settled\"; the COUNTS strip is shown instead. |", "src": "rendering-rules.md:74"},
+      {"text": "**A is stronger on day-one live data:** every A panel except the request panel fills from `worker-list` today, and A answers \"is the fleet alive?\" at a glance. Weakness: a single request slot (`_request` in `signal_bridge`) repeats the recency bias #409 complains about; its 116- and 80-column builds drop SIGNALS; the prototype does not match the brief's collapse claim (X-001).", "src": "rendering-rules.md:85"},
+      {"text": "The sources name these three artifacts but do not define their contents; only the values copied below are specified, the rest is UNVERIFIED and an open question (`SPEC.md`).", "src": "rendering-rules.md:8"}
+    ]
+  }
+}
