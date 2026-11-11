@@ -3,7 +3,7 @@ name: workflow
 description: "Generate a phased implementation plan from a PRD, spec, or feature prompt"
 category: orchestration
 complexity: standard
-mcp-servers: []
+mcp-servers: [codegraph]
 argument-hint: "<path-or-prompt> [--strategy systematic|agile|enterprise] [--depth quick|standard|deep] [--handoff none|design|implement|tasklist]"
 ---
 
