@@ -50,7 +50,11 @@ def test_anthropic_only_resolves_to_one_sonnet_and_six_haiku(tiers, live7):
     models = [r["model"] for r in out["reviewers"]]
     assert models[0] == "claude-sonnet-5-5"
     assert models[1:] == ["claude-haiku-5-5"] * 6
-    assert [r["stand_in"] for r in out["reviewers"]] == [False] + [True] * 6
+    # Tier 2, 2b and 3 hold no Anthropic model, so Haiku stands in; Tier 4 lists Claude
+    # Haiku 5.5 itself, so those two draws are the real model, not a stand-in.
+    assert [r["stand_in"] for r in out["reviewers"]] == [False] + [True] * 4 + [
+        False
+    ] * 2
     assert out["reviewers"][2]["tier"] == "tier2b"
     assert out["reviewers"][2]["alias"] == "claude-gw-tier2b[1m]"
 
@@ -60,33 +64,51 @@ def test_re_review_resolves_only_the_anchor(tiers, live7):
     assert [r["reviewer_id"] for r in out["reviewers"]] == ["t1b-1"]
 
 
-def test_gateway_fails_closed_while_tier2b_has_no_models(tiers, live7):
-    with pytest.raises(pnl.NoModelAvailable) as exc:
-        pnl.resolve(live7, tiers, "gateway", "run-a")
-    assert exc.value.tier == "tier2b"
-    assert "tier2b" in str(exc.value)
-    assert "placeholder" in str(exc.value)
-
-
-def _gateway_with_tier2b(tiers, models):
+def _placeholder_tier2b(tiers):
     t = copy.deepcopy(tiers)
-    t["aliases"]["tier2b"] = {"alias": "claude-gw-tier2b[1m]", "models": models}
+    t["aliases"]["tier2b"] = {
+        "alias": "claude-gw-tier2b[1m]",
+        "placeholder": True,
+        "models": [],
+    }
     return t
 
 
-def test_gateway_resolves_all_seven_once_tier2b_has_models(tiers, live7):
-    t = _gateway_with_tier2b(tiers, ["glm-5.3", "grok-4.7", "Qwen3.8-max"])
-    assert pnl.validate_tiers(t) == []
-    out = pnl.resolve(live7, t, "gateway", "run-a")
+def test_packaged_tier2b_has_the_owner_supplied_models_in_order(tiers):
+    assert tiers["aliases"]["tier2b"] == {
+        "alias": "claude-gw-tier2b[1m]",
+        "models": ["gpt-6.1-terra", "glm-5.3", "Qwen3.8-max", "muse-wonder-1.0"],
+    }
+    assert all(m in tiers["names"] for m in tiers["aliases"]["tier2b"]["models"])
+
+
+def test_gateway_resolves_all_seven_with_the_packaged_tier2b(tiers, live7):
+    out = pnl.resolve(live7, tiers, "gateway", "run-a")
     got = {r["reviewer_id"]: r for r in out["reviewers"]}
     assert list(got) == IDS
     assert got["t1b-1"]["model"] == "claude-sonnet-5-5"
-    assert got["t2b-1"]["model"] in {"glm-5.3", "grok-4.7", "Qwen3.8-max"}
+    assert got["t2b-1"]["model"] in tiers["aliases"]["tier2b"]["models"]
+    assert got["t2b-1"]["alias"] == "claude-gw-tier2b[1m]"
     assert got["t2-1"]["model"] != got["t2b-1"]["model"]
-    # Tier 4 lists one model, so both draws are that model: the distinctness rule only
-    # applies while another candidate exists.
-    assert got["t4-1"]["model"] == got["t4-2"]["model"] == "gpt-6-luna"
+    # Tier 4 lists three models (Luna, Haiku 5.5, Grok 4.7) and Tier 3 two (GLM, Qwen); the
+    # distinctness rule applies while another candidate exists.
+    assert got["t4-1"]["model"] != got["t4-2"]["model"]
+    assert {got["t4-1"]["model"], got["t4-2"]["model"]} <= set(
+        tiers["aliases"]["tier4"]["models"]
+    )
+    assert got["t3-1"]["model"] != got["t3-2"]["model"]
+    assert {got["t3-1"]["model"], got["t3-2"]["model"]} == {"glm-5.3", "Qwen3.8-max"}
     assert all(not r["stand_in"] for r in out["reviewers"])
+
+
+def test_gateway_fails_closed_for_a_placeholder_tier2b(tiers, live7):
+    t = _placeholder_tier2b(tiers)
+    assert pnl.validate_tiers(t) == []
+    with pytest.raises(pnl.NoModelAvailable) as exc:
+        pnl.resolve(live7, t, "gateway", "run-a")
+    assert exc.value.tier == "tier2b"
+    assert "tier2b" in str(exc.value)
+    assert "placeholder" in str(exc.value)
 
 
 def test_resolution_is_deterministic(tiers, live7):
@@ -96,8 +118,10 @@ def test_resolution_is_deterministic(tiers, live7):
 
 
 def test_placeholder_tier_rules(tiers):
+    base = _placeholder_tier2b(tiers)
+
     def errs(mutate):
-        t = copy.deepcopy(tiers)
+        t = copy.deepcopy(base)
         mutate(t)
         return pnl.validate_tiers(t)
 
@@ -152,7 +176,7 @@ def test_cli_resolves_live7_by_name():
     assert [r["reviewer_id"] for r in data["reviewers"]] == IDS
 
 
-def test_cli_gateway_live7_fails_closed_with_a_message():
+def test_cli_gateway_live7_resolves_seven_reviewers():
     res = CliRunner().invoke(
         main,
         [
@@ -161,6 +185,31 @@ def test_cli_gateway_live7_fails_closed_with_a_message():
             "resolve",
             "--template",
             "@live7",
+            "--env",
+            "gateway",
+            "--run-id",
+            "x",
+        ],
+    )
+    assert res.exit_code == 0, res.output
+    data = json.loads(res.output)
+    assert [r["reviewer_id"] for r in data["reviewers"]] == IDS
+    assert data["reviewers"][2]["alias"] == "claude-gw-tier2b[1m]"
+
+
+def test_cli_gateway_live7_fails_closed_with_a_placeholder_tier_file(tmp_path, tiers):
+    f = tmp_path / "tiers.json"
+    f.write_text(json.dumps(_placeholder_tier2b(tiers)))
+    res = CliRunner().invoke(
+        main,
+        [
+            "review",
+            "panel",
+            "resolve",
+            "--template",
+            "@live7",
+            "--tiers",
+            str(f),
             "--env",
             "gateway",
             "--run-id",
