@@ -68,10 +68,12 @@ of that review's open Augment roots, `[]` when none, `None` when they cannot be 
 Policy: report the reason on the first poll that returns a defect. A corrected review can follow within
 seconds (PR 455: malformed 18:29:51Z, well formed 18:30:18Z, same head), so the Augment wait stays `pending`
 until the unreadable review is 60 s old at `observed_at` (`settled`), then is `incomplete` (at most two polls
-at the 30 s minimum interval) instead of waiting for `--timeout`. The run then continues with Codex alone
-(`reviewer_incomplete{reviewer: "augment", reason: "marker_malformed"}`) or, when Codex is absent, ends as
-`timeout` with the reason in the report. The operator reads `open_threads` by hand. A later readable review
-of the same head is still accepted by the unchanged `classify`.
+at the 30 s minimum interval) instead of waiting for `--timeout`. When monitoring starts after the review is
+already 60 s old, `settled` is true on the first poll and nothing more is waited for (the report says so).
+`reviewer_incomplete{reviewer: "augment", reason: "marker_malformed", detail}` is recorded whatever the round
+outcome is: the run continues with Codex alone, or, when Codex is absent, ends as `timeout` after that event,
+with the reason in the report. The operator reads `open_threads` by hand. A later readable review of the same
+head is still accepted by the unchanged `classify`.
 
 `current_head_sha` defaults to `payload.head_sha`; an explicit argument **overrides** it. During a
 pushed-SHA wait the caller must first check actual `payload.head_sha == pushed_sha`. The selected

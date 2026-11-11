@@ -185,14 +185,17 @@ poke and no decline; a Codex `findings` result joins Augment's `declined` S5b re
 expected head has a Cosmos marker that cannot be read (`reason` is `marker_not_valid_json`,
 `marker_not_an_object` or `marker_comment_unreadable`). The strict parse is unchanged, so the gate stays
 `polling` and the review is never clean. On the first poll that returns a defect, report once: "Augment
-review present but its status marker is malformed (<reason>); waiting up to <grace_seconds> s for a
-corrected review", and list `marker_defect["open_threads"]` as findings the operator must read by hand
-(`None` means they could not be selected: say so). Once `settled` (the review is 60 s old) the Augment
-wait is `incomplete` and the run does **not** keep waiting for `--timeout`: with Codex `done` the round
-uses Codex alone and `reviewer_incomplete{reviewer: "augment", phase, reason: "marker_malformed",
-detail: <reason>}` is appended and reported; with Codex `absent` the round outcome is `timeout` (step 3
-terminal handling, with that reason in the report). A later readable review of the same head is still
-accepted: the defect disappears and the normal result applies.
+review present but its status marker is malformed (<reason>)", followed by "; waiting for a corrected
+review until it is <grace_seconds> s old" when `settled` is false, or "; not waiting further" when
+`settled` is already true (monitoring started after the grace had passed), and list
+`marker_defect["open_threads"]` as findings the operator must read by hand (`None` means they could not
+be selected: say so). Once `settled` (the review is 60 s old) the Augment wait is `incomplete` and the run
+does **not** keep waiting for `--timeout`. Whatever the round outcome (`clean`, `findings`, `declined`
+or `timeout`), append `reviewer_incomplete{reviewer: "augment", phase, reason: "marker_malformed",
+detail: <reason>}` once and report it: with Codex `done` the round uses Codex alone; with Codex `absent`
+the round outcome is `timeout` (step 3 terminal handling, after that event, with the reason in the
+report). A later readable review of the same head is still accepted: the defect disappears and the
+normal result applies.
 
 An empty selection is possible with legacy `has_findings` / `findings_count` signals; invalid roots
 raise `ValueError`. Both are **incomplete**, not clean: resume step 3's bounded polling without
