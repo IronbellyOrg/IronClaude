@@ -1,0 +1,1528 @@
+{
+ "schema": "review-ledger/1",
+ "doc": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p22/pn1c/runs/c3-r6/ws/.dev/orca-command-refactor/specs/orca-worker-contract-spec.md",
+ "cap_reviews": 3,
+ "rounds": [
+  {
+   "n": 1,
+   "doc_sha256": "d3cdbe573e57303b9ce6c93d1fe98ba18fb7cb1a15773d926bf6a0c31425200d",
+   "reviewers": [
+    {
+     "reviewer_id": "t1b-1",
+     "model": "claude-sonnet-5-5",
+     "report": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p22/pn1c/runs/c3-r6/ws/.dev/orca-command-refactor/review/round1-t1b-1.md",
+     "report_sha256": "da7b6daef62d90a6964e80428d7c99c72232426465c9cb2be286c1fb133b0c45",
+     "block_ok": true
+    },
+    {
+     "reviewer_id": "t2-1",
+     "model": "claude-haiku-5-5",
+     "report": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p22/pn1c/runs/c3-r6/ws/.dev/orca-command-refactor/review/round1-t2-1.md",
+     "report_sha256": "4c70be94bc883b7e845b947e3a5530fb3466ae25a18f11c04a06078fb90c3a29",
+     "block_ok": true
+    },
+    {
+     "reviewer_id": "t2-2",
+     "model": "claude-haiku-5-5",
+     "report": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p22/pn1c/runs/c3-r6/ws/.dev/orca-command-refactor/review/round1-t2-2.md",
+     "report_sha256": "15e78e8a4f505bef411a0f7ab65f5617df4b24aede8e51822b7442b93050e15b",
+     "block_ok": true
+    },
+    {
+     "reviewer_id": "t3-1",
+     "model": "claude-haiku-5-5",
+     "report": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p22/pn1c/runs/c3-r6/ws/.dev/orca-command-refactor/review/round1-t3-1.md",
+     "report_sha256": "d058aef05001c142bacefb062d28612b6d5dbeea8f57839cc88cf846df3d94fc",
+     "block_ok": true
+    },
+    {
+     "reviewer_id": "t3-2",
+     "model": "claude-haiku-5-5",
+     "report": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p22/pn1c/runs/c3-r6/ws/.dev/orca-command-refactor/review/round1-t3-2.md",
+     "report_sha256": "05e36a4ee1e3b60f1e6d9711d1acb65baccd45fe62a846f240359df85235f71a",
+     "block_ok": true
+    },
+    {
+     "reviewer_id": "t3-3",
+     "model": "claude-haiku-5-5",
+     "report": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p22/pn1c/runs/c3-r6/ws/.dev/orca-command-refactor/review/round1-t3-3.md",
+     "report_sha256": "d67f50d4bcb69a5268a191e45f625de24996e3779d0ffd5bc4f961f76b932bbd",
+     "block_ok": true
+    },
+    {
+     "reviewer_id": "t3-4",
+     "model": "claude-haiku-5-5",
+     "report": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p22/pn1c/runs/c3-r6/ws/.dev/orca-command-refactor/review/round1-t3-4.md",
+     "report_sha256": "d48b0c7f288218e5b228813415463c1418b13722282420f7fe789df46766feef",
+     "block_ok": true
+    }
+   ],
+   "verdict": "FAIL",
+   "decision": "REVISE",
+   "brief_ids": [
+    "L1",
+    "L2",
+    "L3",
+    "L6"
+   ]
+  },
+  {
+   "n": 2,
+   "doc_sha256": "18f658750ba31182c585fbd9b08e9ccf71a850a94175bd499ebf0e433801ccad",
+   "reviewers": [
+    {
+     "reviewer_id": "t1b-1",
+     "model": "claude-sonnet-5-5",
+     "report": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p22/pn1c/runs/c3-r6/ws/.dev/orca-command-refactor/review/round2-t1b-1.md",
+     "report_sha256": "658d6bd907efec04362def41df66d8c5e21dce1547515b64cdd460ff5f7d12ad",
+     "block_ok": true
+    }
+   ],
+   "verdict": "FAIL",
+   "decision": "REVISE",
+   "brief_ids": [
+    "L1",
+    "L3"
+   ]
+  },
+  {
+   "n": 3,
+   "doc_sha256": "dbf6b406fe5275a20ee63e93057f44128f49ba125d1c738b3216509a5802705a",
+   "reviewers": [
+    {
+     "reviewer_id": "t1b-1",
+     "model": "claude-sonnet-5-5",
+     "report": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p22/pn1c/runs/c3-r6/ws/.dev/orca-command-refactor/review/round3-t1b-1.md",
+     "report_sha256": "e9ba8c97c1b1ec6b2062b905602c439fc812adcbc853ee53115dc8e385a21a9c",
+     "block_ok": true
+    }
+   ],
+   "verdict": "FAIL",
+   "decision": "ESCALATE",
+   "brief_ids": [
+    "L1",
+    "L3"
+   ]
+  }
+ ],
+ "rows": [
+  {
+   "lid": "L1",
+   "fp": "27ae78a09e5ef660",
+   "blocking": true,
+   "severity_max": "CRITICAL",
+   "category": "unpassable-check",
+   "confidence": "overlap",
+   "status": "regressed",
+   "anchor": "the test asserts that every command in sections 3.1-3.2 has a `## Unattended mode` section naming `return-contract.yaml`",
+   "anchor2": "none: use it as a step inside another worker's brief, not as its own Task",
+   "span": [
+    193,
+    194
+   ],
+   "span2": [
+    111,
+    112
+   ],
+   "refs": [
+    "1.1",
+    "2.1",
+    "2.3",
+    "3",
+    "3.1",
+    "3.2",
+    "7.2",
+    "9.3",
+    "AC-0.4",
+    "AC-1.1",
+    "AC-1.4",
+    "AC-2.2",
+    "P0",
+    "P1",
+    "P2",
+    "P4",
+    "SA-2",
+    "SA-4",
+    "WC-11",
+    "WC-2",
+    "WC-3",
+    "WC-4",
+    "WC-5",
+    "WC-6"
+   ],
+   "claim": "AC-1.1 is a Phase 1 gate that requires a contract-naming Unattended mode section in all 37 section 3.1-3.2 commands, but load is specified to have no report file, two ready commands get no change, and 23 commands are scheduled for P2-P4, so Phase 1 can never pass and later phases never start.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t1b-1",
+     "fid": "F1",
+     "blocking": true
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t1b-1",
+     "fid": "F2",
+     "blocking": true
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t2-1",
+     "fid": "F1",
+     "blocking": true
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t2-1",
+     "fid": "F3",
+     "blocking": true
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t2-1",
+     "fid": "F4",
+     "blocking": true
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t2-1",
+     "fid": "F5",
+     "blocking": true
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t2-1",
+     "fid": "F6",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t2-1",
+     "fid": "F7",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t2-1",
+     "fid": "F8",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t2-1",
+     "fid": "F9",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t2-1",
+     "fid": "F10",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t2-1",
+     "fid": "F11",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t2-2",
+     "fid": "F1",
+     "blocking": true
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t2-2",
+     "fid": "F4",
+     "blocking": true
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t2-2",
+     "fid": "F6",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t2-2",
+     "fid": "F7",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t3-1",
+     "fid": "F1",
+     "blocking": true
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t3-1",
+     "fid": "F2",
+     "blocking": true
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t3-1",
+     "fid": "F3",
+     "blocking": true
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t3-1",
+     "fid": "F4",
+     "blocking": true
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t3-1",
+     "fid": "F6",
+     "blocking": true
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t3-1",
+     "fid": "N1",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t3-1",
+     "fid": "N2",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t3-1",
+     "fid": "N3",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t3-1",
+     "fid": "N5",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t3-2",
+     "fid": "F1",
+     "blocking": true
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t3-2",
+     "fid": "F2",
+     "blocking": true
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t3-2",
+     "fid": "F3",
+     "blocking": true
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t3-2",
+     "fid": "F4",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t3-2",
+     "fid": "F5",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t3-2",
+     "fid": "F7",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t3-2",
+     "fid": "F11",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t3-3",
+     "fid": "F1",
+     "blocking": true
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t3-3",
+     "fid": "F3",
+     "blocking": true
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t3-3",
+     "fid": "F4",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t3-3",
+     "fid": "F5",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t3-3",
+     "fid": "F8",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t3-3",
+     "fid": "F9",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t3-4",
+     "fid": "F1",
+     "blocking": true
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t3-4",
+     "fid": "F3",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t3-4",
+     "fid": "F6",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t3-4",
+     "fid": "F10",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t3-4",
+     "fid": "F11",
+     "blocking": false
+    },
+    {
+     "round": 2,
+     "reviewer_id": "t1b-1",
+     "fid": "R1",
+     "blocking": false
+    },
+    {
+     "round": 2,
+     "reviewer_id": "t1b-1",
+     "fid": "R2",
+     "blocking": false
+    },
+    {
+     "round": 2,
+     "reviewer_id": "t1b-1",
+     "fid": "R7",
+     "blocking": false
+    },
+    {
+     "round": 2,
+     "reviewer_id": "t1b-1",
+     "fid": "R12",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    },
+    {
+     "round": 1,
+     "event": "resolved_check"
+    },
+    {
+     "round": 2,
+     "event": "refound"
+    },
+    {
+     "round": 2,
+     "event": "prior_note",
+     "reviewer_id": "t1b-1",
+     "status": "resolved"
+    },
+    {
+     "round": 2,
+     "event": "named_not_touched"
+    },
+    {
+     "round": 3,
+     "event": "prior_note",
+     "reviewer_id": "t1b-1",
+     "status": "resolved"
+    }
+   ]
+  },
+  {
+   "lid": "L2",
+   "fp": "44fac644a4eb2614",
+   "blocking": true,
+   "severity_max": "MAJOR",
+   "category": "contradiction",
+   "confidence": "overlap",
+   "status": "resolved",
+   "anchor": "the `--unattended` flag accepted by every command in sections 3.1 and 3.2",
+   "anchor2": "analyze, build, business-panel, design, document, explain, index, test, load (usage line only)",
+   "span": [
+    158,
+    159
+   ],
+   "span2": [
+    158,
+    159
+   ],
+   "refs": [
+    "AC-1.1",
+    "P1",
+    "P2",
+    "WC-2"
+   ],
+   "claim": "The P1 row lists 13 commands for the flag but also requires the flag on all 37 commands in sections 3.1 and 3.2.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t2-1",
+     "fid": "F2",
+     "blocking": true
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t3-1",
+     "fid": "F5",
+     "blocking": true
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    },
+    {
+     "round": 1,
+     "event": "resolved_check"
+    },
+    {
+     "round": 2,
+     "event": "cleared"
+    },
+    {
+     "round": 2,
+     "event": "prior_note",
+     "reviewer_id": "t1b-1",
+     "status": "resolved"
+    },
+    {
+     "round": 3,
+     "event": "prior_note",
+     "reviewer_id": "t1b-1",
+     "status": "resolved"
+    }
+   ]
+  },
+  {
+   "lid": "L3",
+   "fp": "afd729510389bb89",
+   "blocking": true,
+   "severity_max": "MAJOR",
+   "category": "other",
+   "confidence": "overlap",
+   "status": "regressed",
+   "anchor": "src/superclaude/commands src/superclaude/skills src/superclaude/agents src/superclaude/core",
+   "anchor2": "prints nothing (SA-2, WC-8)",
+   "span": [
+    171,
+    172
+   ],
+   "span2": [
+    171,
+    172
+   ],
+   "refs": [
+    "3.2",
+    "AC-0.3",
+    "P2",
+    "SA-2",
+    "SA-5",
+    "WC-8"
+   ],
+   "claim": "The AC-C1 grep uses backslash-pipe under grep -E, so it never matches an Orca call and cannot fail, leaving SA-2 and WC-8 unenforced.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t2-1",
+     "fid": "F12",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t2-1",
+     "fid": "F13",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t2-2",
+     "fid": "F2",
+     "blocking": true
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t2-2",
+     "fid": "F3",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t3-1",
+     "fid": "F7",
+     "blocking": true
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t3-1",
+     "fid": "N4",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t3-2",
+     "fid": "F9",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t3-3",
+     "fid": "F2",
+     "blocking": true
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t3-4",
+     "fid": "F2",
+     "blocking": true
+    },
+    {
+     "round": 2,
+     "reviewer_id": "t1b-1",
+     "fid": "R6",
+     "blocking": false
+    },
+    {
+     "round": 3,
+     "reviewer_id": "t1b-1",
+     "fid": "F4",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    },
+    {
+     "round": 1,
+     "event": "resolved_check"
+    },
+    {
+     "round": 2,
+     "event": "refound"
+    },
+    {
+     "round": 2,
+     "event": "prior_note",
+     "reviewer_id": "t1b-1",
+     "status": "resolved"
+    },
+    {
+     "round": 2,
+     "event": "resolved_check"
+    },
+    {
+     "round": 3,
+     "event": "refound"
+    },
+    {
+     "round": 3,
+     "event": "prior_note",
+     "reviewer_id": "t1b-1",
+     "status": "resolved"
+    }
+   ]
+  },
+  {
+   "lid": "L4",
+   "fp": "329692e9c86f0755",
+   "blocking": false,
+   "severity_max": "MAJOR",
+   "category": "other",
+   "confidence": "single",
+   "status": "open",
+   "anchor": "its reflect fan-out runs one layer below the worker, inside Claude Code's nesting limit",
+   "anchor2": null,
+   "span": [
+    121,
+    122
+   ],
+   "span2": null,
+   "refs": [
+    "1.4",
+    "3.2"
+   ],
+   "claim": "The tasklist row states the nesting depth as settled, but the inventory marks nested reflect spawning and its remediation owner as UNVERIFIED.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t2-1",
+     "fid": "F14",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L5",
+   "fp": "60bb0cd5843e275d",
+   "blocking": false,
+   "severity_max": "MAJOR",
+   "category": "other",
+   "confidence": "overlap",
+   "status": "open",
+   "anchor": "The worker sends a heartbeat every 5 minutes while working.",
+   "anchor2": "so the session can heartbeat between them",
+   "span": [
+    67,
+    68
+   ],
+   "span2": [
+    67,
+    68
+   ],
+   "refs": [
+    "WC-10",
+    "WC-7"
+   ],
+   "claim": "WC-10 does not require a heartbeat after each wait, so a sequence of 4-minute waits can exceed 5 minutes without a heartbeat.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t2-1",
+     "fid": "F15",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t3-4",
+     "fid": "F5",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L6",
+   "fp": "5365aed3430ea832",
+   "blocking": true,
+   "severity_max": "MAJOR",
+   "category": "contradiction",
+   "confidence": "overlap",
+   "status": "resolved",
+   "anchor": "The only end-to-end proof is the PR #329 run, and its brief told workers",
+   "anchor2": "invocation_method: \"skill-direct\"",
+   "span": [
+    42,
+    43
+   ],
+   "span2": [
+    21,
+    22
+   ],
+   "refs": [],
+   "claim": "Section 1.4 says the only end-to-end proof is PR #329 and that it used the nested route, while E3 cites a skill-direct return contract as evidence that the same PR #329 work ran directly; the two stated texts contradict each other.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t2-2",
+     "fid": "F5",
+     "blocking": true
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t3-2",
+     "fid": "F13",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    },
+    {
+     "round": 1,
+     "event": "resolved_check"
+    },
+    {
+     "round": 2,
+     "event": "cleared"
+    },
+    {
+     "round": 2,
+     "event": "prior_note",
+     "reviewer_id": "t1b-1",
+     "status": "resolved"
+    },
+    {
+     "round": 3,
+     "event": "prior_note",
+     "reviewer_id": "t1b-1",
+     "status": "resolved"
+    }
+   ]
+  },
+  {
+   "lid": "L7",
+   "fp": "27cbf7c085262da0",
+   "blocking": false,
+   "severity_max": "MAJOR",
+   "category": "other",
+   "confidence": "overlap",
+   "status": "open",
+   "anchor": "Any such prompt must fall back on its own well inside the readiness limit (default 60 s).",
+   "anchor2": null,
+   "span": [
+    58,
+    59
+   ],
+   "span2": null,
+   "refs": [
+    "WC-1"
+   ],
+   "claim": "WC-1 says well inside the readiness limit without giving a number, so no implementer can check it.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t3-1",
+     "fid": "N6",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t3-2",
+     "fid": "F10",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t3-3",
+     "fid": "F10",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L8",
+   "fp": "c0060fab62927223",
+   "blocking": false,
+   "severity_max": "MINOR",
+   "category": "other",
+   "confidence": "single",
+   "status": "open",
+   "anchor": "a coordinator brief template listing the section 3.1 flags",
+   "anchor2": "one shared document, proposed as `src/superclaude/core/WORKER-CONTRACT.md`",
+   "span": [
+    157,
+    158
+   ],
+   "span2": [
+    51,
+    52
+   ],
+   "refs": [
+    "2.1",
+    "P0"
+   ],
+   "claim": "The installed worker contract file also carries a coordinator-side brief template.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t3-1",
+     "fid": "N7",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L9",
+   "fp": "d89d518e936b7cb3",
+   "blocking": false,
+   "severity_max": "MAJOR",
+   "category": "other",
+   "confidence": "overlap",
+   "status": "open",
+   "anchor": "its reflect fan-out runs one layer below the worker, inside Claude Code's nesting limit",
+   "anchor2": null,
+   "span": [
+    121,
+    122
+   ],
+   "span2": null,
+   "refs": [],
+   "claim": "The tasklist row records no change and resolves the UNVERIFIED nested-spawning question by citing a docs-level limit, dropping the top-level change the inventory requires and not listing the item in the spec's UNVERIFIED section.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t3-2",
+     "fid": "F6",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t3-4",
+     "fid": "F9",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L10",
+   "fp": "31e279d883c83459",
+   "blocking": false,
+   "severity_max": "MINOR",
+   "category": "other",
+   "confidence": "single",
+   "status": "open",
+   "anchor": "in a scratch worktree), then `git status --short`",
+   "anchor2": null,
+   "span": [
+    197,
+    198
+   ],
+   "span2": null,
+   "refs": [
+    "AC-1.3"
+   ],
+   "claim": "AC-1.3 directs a scratch worktree, which the project worktree rule reserves to Orca-created worktrees or CLI-owned temporary checkouts.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t3-2",
+     "fid": "F8",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L11",
+   "fp": "fa52af7ee6bbc124",
+   "blocking": false,
+   "severity_max": "MINOR",
+   "category": "other",
+   "confidence": "single",
+   "status": "open",
+   "anchor": "--unattended --output .dev/troubleshoot/login/",
+   "anchor2": null,
+   "span": [
+    228,
+    229
+   ],
+   "span2": null,
+   "refs": [],
+   "claim": "The D1 example passes --output to /sc:troubleshoot, a flag the inventory does not record (UNVERIFIED).",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t3-2",
+     "fid": "F12",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L12",
+   "fp": "09465538cbd7d261",
+   "blocking": false,
+   "severity_max": "MAJOR",
+   "category": "other",
+   "confidence": "single",
+   "status": "open",
+   "anchor": "until `worker_done` arrives",
+   "anchor2": "at least once per 5 minutes",
+   "span": [
+    181,
+    182
+   ],
+   "span2": [
+    181,
+    182
+   ],
+   "refs": [],
+   "claim": "The step 3 wait can run for 15 minutes in one call, so the at-least-every-5-minutes worker-show in step 2 cannot happen unless the implementer shortens the wait, which the spec does not say.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t3-3",
+     "fid": "F6",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L13",
+   "fp": "9898920d0bbeef0b",
+   "blocking": false,
+   "severity_max": "MAJOR",
+   "category": "other",
+   "confidence": "single",
+   "status": "open",
+   "anchor": "its reflect fan-out runs one layer below the worker, inside Claude Code's nesting limit",
+   "anchor2": "follow the existing headless auto-accept rule",
+   "span": [
+    121,
+    122
+   ],
+   "span2": [
+    87,
+    88
+   ],
+   "refs": [
+    "SA-6"
+   ],
+   "claim": "Tasklist's nesting is marked safe on an unverified premise, and the reflect row makes unattended remediation auto-accept without stating why the default changes.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t3-3",
+     "fid": "F7",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L14",
+   "fp": "3e59c2ccc66dc662",
+   "blocking": false,
+   "severity_max": "MINOR",
+   "category": "other",
+   "confidence": "single",
+   "status": "open",
+   "anchor": "stays under 4 minutes (WC-10",
+   "anchor2": null,
+   "span": [
+    113,
+    114
+   ],
+   "span2": null,
+   "refs": [
+    "WC-10"
+   ],
+   "claim": "When --poll-interval is 240 seconds or more, a single sleep exceeds the 4-minute split rule and the spec gives no split rule for it.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t3-3",
+     "fid": "F11",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L15",
+   "fp": "9dabc121a4ad7a3a",
+   "blocking": false,
+   "severity_max": "MAJOR",
+   "category": "contradiction",
+   "confidence": "single",
+   "status": "open",
+   "anchor": "A standalone default run writes the same files it writes today.",
+   "anchor2": "adversarial and workflow contract gaps",
+   "span": [
+    147,
+    148
+   ],
+   "span2": [
+    148,
+    149
+   ],
+   "refs": [
+    "SA-3",
+    "SA-4"
+   ],
+   "claim": "SA-3 forbids changed standalone output, and the SA-4 defect-fix exception names the adversarial and workflow contract fixes that change it, with no stated precedence.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t3-4",
+     "fid": "F4",
+     "blocking": false
+    },
+    {
+     "round": 2,
+     "reviewer_id": "t1b-1",
+     "fid": "R4",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    },
+    {
+     "round": 2,
+     "event": "refound"
+    }
+   ]
+  },
+  {
+   "lid": "L16",
+   "fp": "5097fc75cda6a051",
+   "blocking": false,
+   "severity_max": "MAJOR",
+   "category": "other",
+   "confidence": "single",
+   "status": "open",
+   "anchor": "It has worked before: in the codegraph planning run",
+   "anchor2": "The only end-to-end proof is the PR #329 run",
+   "span": [
+    21,
+    22
+   ],
+   "span2": [
+    42,
+    43
+   ],
+   "refs": [
+    "P0"
+   ],
+   "claim": "E3 cites a skill-direct return contract as evidence of the direct route, while section 1.4 says the only end-to-end run is the nested PR #329 run, so the decision evidence is stated in incompatible ways.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t3-4",
+     "fid": "F7",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L17",
+   "fp": "9b73f9cb88c41ac1",
+   "blocking": false,
+   "severity_max": "MAJOR",
+   "category": "contradiction",
+   "confidence": "single",
+   "status": "open",
+   "anchor": "no pr-submit changes in Phase 4",
+   "anchor2": "implement, post-release, pr-submit",
+   "span": [
+    240,
+    241
+   ],
+   "span2": [
+    161,
+    162
+   ],
+   "refs": [
+    "P4"
+   ],
+   "claim": "Recommended D3(a) rules out pr-submit changes in Phase 4, but the 3.2 pr-submit row and the P4 phase row list them without a condition on D3(b).",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t3-4",
+     "fid": "F8",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L18",
+   "fp": "6fad417fef2439cc",
+   "blocking": false,
+   "severity_max": "MINOR",
+   "category": "other",
+   "confidence": "single",
+   "status": "open",
+   "anchor": "This worker re-read 11 of the load-bearing locations on 2026-11-02",
+   "anchor2": null,
+   "span": [
+    10,
+    11
+   ],
+   "span2": null,
+   "refs": [],
+   "claim": "The 2026-11-02 re-read and all citations to files outside inventory/ cannot be checked in this sandbox, so they are UNVERIFIED here and were not graded.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t3-4",
+     "fid": "N1",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L19",
+   "fp": "73561bcb643aadde",
+   "blocking": false,
+   "severity_max": "MINOR",
+   "category": "other",
+   "confidence": "single",
+   "status": "open",
+   "anchor": "following Orca's own guide (`CAPS:12-13`)",
+   "anchor2": null,
+   "span": [
+    215,
+    216
+   ],
+   "span2": null,
+   "refs": [],
+   "claim": "CAPS:12-13 is the guide key table, not a fact about the coordinator, so the citation supports less than the sentence it sits in.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t3-4",
+     "fid": "N2",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L20",
+   "fp": "a8d8d02fa0c12d85",
+   "blocking": false,
+   "severity_max": "MINOR",
+   "category": "other",
+   "confidence": "single",
+   "status": "open",
+   "anchor": "Two worker-capable commands are better used on the coordinator side, though they stay in section 3",
+   "anchor2": null,
+   "span": [
+    138,
+    139
+   ],
+   "span2": null,
+   "refs": [],
+   "claim": "Section 4 calls load and recommend coordinator-side helpers while section 3.2 still gives them worker changes, so the reader cannot tell whether they run as workers.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t3-4",
+     "fid": "N3",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L21",
+   "fp": "0730038fa7dd3cd5",
+   "blocking": false,
+   "severity_max": "MAJOR",
+   "category": "missing-requirement",
+   "confidence": "single",
+   "status": "open",
+   "anchor": "State the output location and write the contract beside it (P1)",
+   "anchor2": "one worker per worktree until P1 (the root `PROJECT_INDEX.md` is shared, WC-11)",
+   "span": [
+    85,
+    86
+   ],
+   "span2": [
+    85,
+    86
+   ],
+   "refs": [
+    "2.3",
+    "P1",
+    "WC-11",
+    "WC-6"
+   ],
+   "claim": "Stating the root output location at P1 lifts the one-worker rule in effect while two workers still write the same root file.",
+   "members": [
+    {
+     "round": 2,
+     "reviewer_id": "t1b-1",
+     "fid": "R3",
+     "blocking": false
+    },
+    {
+     "round": 2,
+     "reviewer_id": "t1b-1",
+     "fid": "R5",
+     "blocking": false
+    },
+    {
+     "round": 2,
+     "reviewer_id": "t1b-1",
+     "fid": "R9",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 2,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L22",
+   "fp": "0d72d6f6c976e5c7",
+   "blocking": false,
+   "severity_max": "MINOR",
+   "category": "other",
+   "confidence": "single",
+   "status": "open",
+   "anchor": "the session may ask the coordinator once with the preamble's `ask` command",
+   "anchor2": "contract `status: blocked` with a non-empty `blocked_question`",
+   "span": [
+    60,
+    61
+   ],
+   "span2": [
+    200,
+    201
+   ],
+   "refs": [
+    "AC-2.2",
+    "WC-3"
+   ],
+   "claim": "A worker that uses the permitted ask can end succeeded where AC-2.2 expects failed.",
+   "members": [
+    {
+     "round": 2,
+     "reviewer_id": "t1b-1",
+     "fid": "R8",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 2,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L23",
+   "fp": "2607190dfee948c1",
+   "blocking": false,
+   "severity_max": "MINOR",
+   "category": "other",
+   "confidence": "single",
+   "status": "open",
+   "anchor": "and repeat it while the worker is still running (`worker-show`)",
+   "anchor2": null,
+   "span": [
+    182,
+    183
+   ],
+   "span2": null,
+   "refs": [
+    "7.2"
+   ],
+   "claim": "Step 3 repeats the wait with no bound, so a stalled worker with no agentWait keeps the check running.",
+   "members": [
+    {
+     "round": 2,
+     "reviewer_id": "t1b-1",
+     "fid": "R10",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 2,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L24",
+   "fp": "b9dc3c296e1556a1",
+   "blocking": false,
+   "severity_max": "MINOR",
+   "category": "other",
+   "confidence": "single",
+   "status": "open",
+   "anchor": "no added line: no new `src/superclaude/` path in an installed primitive",
+   "anchor2": null,
+   "span": [
+    176,
+    177
+   ],
+   "span2": null,
+   "refs": [],
+   "claim": "git grep skips untracked files, so a new untracked primitive is not scanned.",
+   "members": [
+    {
+     "round": 2,
+     "reviewer_id": "t1b-1",
+     "fid": "R13",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 2,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L25",
+   "fp": "619b712f1b24895c",
+   "blocking": false,
+   "severity_max": "MAJOR",
+   "category": "missing-requirement",
+   "confidence": "single",
+   "status": "open",
+   "anchor": "workflow writes no contract for a pre-creation STOP (`INV-B:272`), and WC-5 reports `failed`",
+   "anchor2": "A command without that section (the P0 runs, and the P2 commands before their change) has no contract",
+   "span": [
+    61,
+    62
+   ],
+   "span2": [
+    62,
+    63
+   ],
+   "refs": [
+    "3.1",
+    "P0",
+    "P2",
+    "WC-11",
+    "WC-4",
+    "WC-5"
+   ],
+   "claim": "A workflow pre-creation STOP leaves no file and WC-5's no-section branch has no failed-on-missing-file rule, so the worker's outcome depends on which text it follows.",
+   "members": [
+    {
+     "round": 3,
+     "reviewer_id": "t1b-1",
+     "fid": "F1",
+     "blocking": false
+    },
+    {
+     "round": 3,
+     "reviewer_id": "t1b-1",
+     "fid": "F2",
+     "blocking": false
+    },
+    {
+     "round": 3,
+     "reviewer_id": "t1b-1",
+     "fid": "F3",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 3,
+     "event": "opened"
+    }
+   ]
+  }
+ ]
+}

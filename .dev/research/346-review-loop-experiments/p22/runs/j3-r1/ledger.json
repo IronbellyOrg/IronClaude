@@ -1,0 +1,3209 @@
+{
+ "schema": "review-ledger/1",
+ "doc": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p22/pn1j/runs/j3-r1/ws/.dev/orca-command-refactor/specs/orca-worker-contract-spec.md",
+ "cap_reviews": 3,
+ "rounds": [
+  {
+   "n": 1,
+   "doc_sha256": "d3cdbe573e57303b9ce6c93d1fe98ba18fb7cb1a15773d926bf6a0c31425200d",
+   "reviewers": [
+    {
+     "reviewer_id": "t1b-1",
+     "model": "claude-sonnet-5-5",
+     "report": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p22/pn1j/runs/j3-r1/ws/.dev/orca-command-refactor/review/round1-t1b-1.md",
+     "report_sha256": "37777573b32b80bdd6641fd81d2b754759c1730edc7df8990348da93cf8e8ecf",
+     "block_ok": true
+    },
+    {
+     "reviewer_id": "t2-1",
+     "model": "claude-haiku-5-5",
+     "report": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p22/pn1j/runs/j3-r1/ws/.dev/orca-command-refactor/review/round1-t2-1.md",
+     "report_sha256": "143551148be02645cdbf8addcc08033c4df4a3d44ea6aa4677c83c89952cb393",
+     "block_ok": true
+    },
+    {
+     "reviewer_id": "t2-2",
+     "model": "claude-haiku-5-5",
+     "report": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p22/pn1j/runs/j3-r1/ws/.dev/orca-command-refactor/review/round1-t2-2.md",
+     "report_sha256": "b4b25dbe3a923afbae12a9428ba60cdbd64d855133b533d9758fd74231689bf7",
+     "block_ok": true
+    },
+    {
+     "reviewer_id": "t3-1",
+     "model": "claude-haiku-5-5",
+     "report": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p22/pn1j/runs/j3-r1/ws/.dev/orca-command-refactor/review/round1-t3-1.md",
+     "report_sha256": "4baba95297f7d5bd500190f63305e9aa6b77c3ab7c865d4a875b3236560b7402",
+     "block_ok": true
+    },
+    {
+     "reviewer_id": "t3-2",
+     "model": "claude-haiku-5-5",
+     "report": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p22/pn1j/runs/j3-r1/ws/.dev/orca-command-refactor/review/round1-t3-2.md",
+     "report_sha256": "08245c4c61ed90a37a43b49e204e2245817aece13c0bf1a08f3169d9773c0320",
+     "block_ok": true
+    },
+    {
+     "reviewer_id": "t3-3",
+     "model": "claude-haiku-5-5",
+     "report": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p22/pn1j/runs/j3-r1/ws/.dev/orca-command-refactor/review/round1-t3-3.md",
+     "report_sha256": "4d3d95d5b9e6792913b059bb9aa33d40210a4823f65e899838923c471fcd4bd7",
+     "block_ok": false
+    },
+    {
+     "reviewer_id": "t3-4",
+     "model": "claude-haiku-5-5",
+     "report": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p22/pn1j/runs/j3-r1/ws/.dev/orca-command-refactor/review/round1-t3-4.md",
+     "report_sha256": "a10ad1179f8886738814c3dc5e88e25f4504009c5485b8c00328ea6fcb0d8e6e",
+     "block_ok": true
+    }
+   ],
+   "verdict": "FAIL",
+   "decision": "REVISE",
+   "brief_ids": [
+    "L1",
+    "L2",
+    "L3",
+    "L4",
+    "L11",
+    "L20",
+    "L21",
+    "L27",
+    "L28",
+    "L29",
+    "L36",
+    "L37",
+    "L43",
+    "L44",
+    "L45",
+    "L59",
+    "L67"
+   ]
+  },
+  {
+   "n": 2,
+   "doc_sha256": "717106b31adb7328e2fcb759ec20c0ff5cac3236e4aaa5ba2b33c9d846860ec0",
+   "reviewers": [
+    {
+     "reviewer_id": "t1b-1",
+     "model": "claude-sonnet-5-5",
+     "report": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p22/pn1j/runs/j3-r1/ws/.dev/orca-command-refactor/review/round2-t1b-1.md",
+     "report_sha256": "befbf5216240c8aa4d7cb785b937737ece575cfb078601caa4ee8b5a39541a69",
+     "block_ok": true
+    }
+   ],
+   "verdict": "FAIL",
+   "decision": "REVISE",
+   "brief_ids": [
+    "L1",
+    "L3",
+    "L20"
+   ]
+  },
+  {
+   "n": 3,
+   "doc_sha256": "c4600f56ba2ff0c899b56bf77c4fd115a2f898b45944566c94a5527988e5d09e",
+   "reviewers": [
+    {
+     "reviewer_id": "t1b-1",
+     "model": "claude-sonnet-5-5",
+     "report": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p22/pn1j/runs/j3-r1/ws/.dev/orca-command-refactor/review/round3-t1b-1.md",
+     "report_sha256": "6cd309ed049527e0cd5ed0762891dcacf7d00ac94946a9c3637e6e0aa434da48",
+     "block_ok": true
+    }
+   ],
+   "verdict": "FAIL",
+   "decision": "ESCALATE",
+   "brief_ids": [
+    "L1",
+    "L3"
+   ]
+  }
+ ],
+ "rows": [
+  {
+   "lid": "L1",
+   "fp": "22e5ce0debad1427",
+   "blocking": true,
+   "severity_max": "MAJOR",
+   "category": "unpassable-check",
+   "confidence": "overlap",
+   "status": "regressed",
+   "anchor": "step 4 uses the command's existing report file, since the contract arrives in P1",
+   "anchor2": "its report path is the WC-4 contract path",
+   "span": [
+    199,
+    200
+   ],
+   "span2": [
+    187,
+    188
+   ],
+   "refs": [
+    "3.1",
+    "7.2",
+    "AC-0.4",
+    "P0",
+    "P1",
+    "WC-4"
+   ],
+   "claim": "AC-0.4 requires live-check step 3, which demands the WC-4 contract path and status, to pass at P0 where troubleshoot reports REPORT.md and no contract exists.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t1b-1",
+     "fid": "F1",
+     "blocking": true
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t3-1",
+     "fid": "F1",
+     "blocking": true
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t3-3",
+     "fid": "F2",
+     "blocking": true
+    },
+    {
+     "round": 2,
+     "reviewer_id": "t1b-1",
+     "fid": "N1",
+     "blocking": false
+    },
+    {
+     "round": 2,
+     "reviewer_id": "t1b-1",
+     "fid": "N5",
+     "blocking": false
+    },
+    {
+     "round": 3,
+     "reviewer_id": "t1b-1",
+     "fid": "R3-N1",
+     "blocking": false
+    },
+    {
+     "round": 3,
+     "reviewer_id": "t1b-1",
+     "fid": "R3-N2",
+     "blocking": false
+    },
+    {
+     "round": 3,
+     "reviewer_id": "t1b-1",
+     "fid": "R3-N3",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    },
+    {
+     "round": 1,
+     "event": "resolved_check"
+    },
+    {
+     "round": 2,
+     "event": "refound"
+    },
+    {
+     "round": 2,
+     "event": "prior_note",
+     "reviewer_id": "t1b-1",
+     "status": "resolved"
+    },
+    {
+     "round": 2,
+     "event": "named_not_touched"
+    },
+    {
+     "round": 3,
+     "event": "refound"
+    },
+    {
+     "round": 3,
+     "event": "prior_note",
+     "reviewer_id": "t1b-1",
+     "status": "resolved"
+    }
+   ]
+  },
+  {
+   "lid": "L2",
+   "fp": "cb7392c5ac84da15",
+   "blocking": true,
+   "severity_max": "CRITICAL",
+   "category": "contradiction",
+   "confidence": "single",
+   "status": "resolved",
+   "anchor": "P1 (usage line only)",
+   "anchor2": "every command in sections 3.1-3.2 has a `## Unattended mode` section naming `return-contract.yaml`",
+   "span": [
+    111,
+    112
+   ],
+   "span2": [
+    199,
+    200
+   ],
+   "refs": [
+    "3.2",
+    "AC-1.1",
+    "P1",
+    "WC-4"
+   ],
+   "claim": "AC-1.1 asserts a contract-naming Unattended mode section for load, whose row says it writes no report and gets only a usage-line fix, so P1 cannot pass.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t1b-1",
+     "fid": "F2",
+     "blocking": true
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    },
+    {
+     "round": 1,
+     "event": "resolved_check"
+    },
+    {
+     "round": 2,
+     "event": "cleared"
+    },
+    {
+     "round": 2,
+     "event": "prior_note",
+     "reviewer_id": "t1b-1",
+     "status": "resolved"
+    }
+   ]
+  },
+  {
+   "lid": "L3",
+   "fp": "4322872d65d8828b",
+   "blocking": true,
+   "severity_max": "MAJOR",
+   "category": "contradiction",
+   "confidence": "overlap",
+   "status": "regressed",
+   "anchor": "the command writes `<output-dir>/return-contract.yaml`, where `<output-dir>` is the directory the coordinator passed",
+   "anchor2": "Fix the contract filename to `<output>/adversarial/return-contract.yaml` (P1)",
+   "span": [
+    60,
+    61
+   ],
+   "span2": [
+    82,
+    83
+   ],
+   "refs": [
+    "3.1",
+    "7.2",
+    "AC-1.2",
+    "AC-1.4",
+    "P1",
+    "WC-4"
+   ],
+   "claim": "WC-4 and the live check expect the contract at the coordinator-passed directory root while the adversarial and workflow rows place it elsewhere, so the reported path and the check disagree.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t1b-1",
+     "fid": "F3",
+     "blocking": true
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t3-1",
+     "fid": "F4",
+     "blocking": true
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t3-3",
+     "fid": "F1",
+     "blocking": true
+    },
+    {
+     "round": 2,
+     "reviewer_id": "t1b-1",
+     "fid": "N2",
+     "blocking": false
+    },
+    {
+     "round": 3,
+     "reviewer_id": "t1b-1",
+     "fid": "R3-N4",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    },
+    {
+     "round": 1,
+     "event": "resolved_check"
+    },
+    {
+     "round": 2,
+     "event": "refound"
+    },
+    {
+     "round": 2,
+     "event": "prior_note",
+     "reviewer_id": "t1b-1",
+     "status": "resolved"
+    },
+    {
+     "round": 2,
+     "event": "resolved_check"
+    },
+    {
+     "round": 3,
+     "event": "refound"
+    },
+    {
+     "round": 3,
+     "event": "prior_note",
+     "reviewer_id": "t1b-1",
+     "status": "resolved"
+    }
+   ]
+  },
+  {
+   "lid": "L4",
+   "fp": "d602350685539509",
+   "blocking": true,
+   "severity_max": "CRITICAL",
+   "category": "missing-requirement",
+   "confidence": "overlap",
+   "status": "resolved",
+   "anchor": "a precise component prompt, not a bare topic; `--output <file>`",
+   "anchor2": "is the directory the coordinator passed (`--output` / `--output-dir`)",
+   "span": [
+    89,
+    90
+   ],
+   "span2": [
+    60,
+    61
+   ],
+   "refs": [
+    "3.1",
+    "AC-1.2",
+    "AC-1.4",
+    "WC-4"
+   ],
+   "claim": "The contract location is undefined for commands whose --output is a file.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t1b-1",
+     "fid": "F4",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t3-1",
+     "fid": "F6",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t3-2",
+     "fid": "F3",
+     "blocking": true
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    },
+    {
+     "round": 1,
+     "event": "resolved_check"
+    },
+    {
+     "round": 2,
+     "event": "cleared"
+    },
+    {
+     "round": 2,
+     "event": "prior_note",
+     "reviewer_id": "t1b-1",
+     "status": "resolved"
+    }
+   ]
+  },
+  {
+   "lid": "L5",
+   "fp": "b7adb6d12a17e1e5",
+   "blocking": false,
+   "severity_max": "MAJOR",
+   "category": "missing-requirement",
+   "confidence": "single",
+   "status": "open",
+   "anchor": "the `--unattended` flag accepted by every command in sections 3.1 and 3.2 (a no-op where a command has no gate)",
+   "anchor2": "`--unattended` implies `--no-post-pr` and `--no-remediation-offer`",
+   "span": [
+    158,
+    159
+   ],
+   "span2": [
+    99,
+    100
+   ],
+   "refs": [
+    "3.2",
+    "P1",
+    "P2",
+    "WC-9"
+   ],
+   "claim": "Between P1 and P2 a command accepts --unattended while its gate and outward-default conversion is not yet built, so auggie-review would still post to GitHub.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t1b-1",
+     "fid": "F5",
+     "blocking": false
+    },
+    {
+     "round": 2,
+     "reviewer_id": "t1b-1",
+     "fid": "N6",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    },
+    {
+     "round": 2,
+     "event": "refound"
+    }
+   ]
+  },
+  {
+   "lid": "L6",
+   "fp": "34e7f127bb02ed2a",
+   "blocking": false,
+   "severity_max": "MAJOR",
+   "category": "missing-requirement",
+   "confidence": "single",
+   "status": "open",
+   "anchor": "the output directory, so the report path is known before dispatch (WC-4)",
+   "anchor2": null,
+   "span": [
+    72,
+    73
+   ],
+   "span2": null,
+   "refs": [
+    "2.3",
+    "WC-4"
+   ],
+   "claim": "No requirement says what a command does when --unattended arrives without an output directory.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t1b-1",
+     "fid": "F6",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L7",
+   "fp": "ed2a263e43bce4b6",
+   "blocking": false,
+   "severity_max": "MAJOR",
+   "category": "other",
+   "confidence": "overlap",
+   "status": "open",
+   "anchor": "add an Orca section to `HOW-WE-WORK.md` and its two mirrored copies",
+   "anchor2": "src/superclaude/commands src/superclaude/skills src/superclaude/agents src/superclaude/core",
+   "span": [
+    157,
+    158
+   ],
+   "span2": [
+    171,
+    172
+   ],
+   "refs": [
+    "P0",
+    "SA-2",
+    "SA-5",
+    "WC-8"
+   ],
+   "claim": "AC-C1 greps src/superclaude/core for Orca verbs while P0 adds an Orca section and a contract file there, so the check can fail on the phase that creates them.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t1b-1",
+     "fid": "F7",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t2-1",
+     "fid": "F6",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t3-2",
+     "fid": "M3",
+     "blocking": false
+    },
+    {
+     "round": 2,
+     "reviewer_id": "t1b-1",
+     "fid": "N4",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    },
+    {
+     "round": 2,
+     "event": "refound"
+    }
+   ]
+  },
+  {
+   "lid": "L8",
+   "fp": "f339ccceb60fd285",
+   "blocking": false,
+   "severity_max": "MAJOR",
+   "category": "missing-requirement",
+   "confidence": "single",
+   "status": "open",
+   "anchor": "under `--unattended`, Stage 10.5 passes `--unattended` to each reflect so the headless rule applies",
+   "anchor2": "its reflect fan-out runs one layer below the worker, inside Claude Code's nesting limit",
+   "span": [
+    121,
+    122
+   ],
+   "span2": [
+    121,
+    122
+   ],
+   "refs": [
+    "3.2",
+    "WC-2"
+   ],
+   "claim": "The tasklist row leaves the needs_human_decision HALT unresolved, departs from the inventory's drop-remediate recommendation without a recorded decision, and states the unverified nesting claim as fact.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t1b-1",
+     "fid": "F8",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L9",
+   "fp": "abf6fc6089074e0c",
+   "blocking": false,
+   "severity_max": "MAJOR",
+   "category": "missing-requirement",
+   "confidence": "single",
+   "status": "open",
+   "anchor": "starts fresh, no `[Y/n]` in the transcript, contract written",
+   "anchor2": "prompt is replaced by the explicit resume flag (resume only when passed)",
+   "span": [
+    210,
+    211
+   ],
+   "span2": [
+    117,
+    118
+   ],
+   "refs": [
+    "3.2",
+    "AC-3.2",
+    "WC-6"
+   ],
+   "claim": "A fresh start over an existing roadmap session has no stated effect on the earlier output, a possible silent overwrite.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t1b-1",
+     "fid": "F9",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L10",
+   "fp": "eea8616074ae9e7e",
+   "blocking": false,
+   "severity_max": "MAJOR",
+   "category": "missing-requirement",
+   "confidence": "single",
+   "status": "open",
+   "anchor": "`--monitor 1` refused under `--unattended`; operator HALTs resolve as blocked",
+   "anchor2": null,
+   "span": [
+    113,
+    114
+   ],
+   "span2": null,
+   "refs": [
+    "3.2"
+   ],
+   "claim": "The pr-submit row and D3 do not reconcile the command's own Will Not: run headless boundary recorded in INV-B:90.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t1b-1",
+     "fid": "F10",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L11",
+   "fp": "605dbc80747695ee",
+   "blocking": true,
+   "severity_max": "MAJOR",
+   "category": "missing-requirement",
+   "confidence": "overlap",
+   "status": "resolved",
+   "anchor": "writes each run into a fresh output directory so a re-run starts clean",
+   "anchor2": "the output directory, so the report path is known before dispatch (WC-4)",
+   "span": [
+    60,
+    61
+   ],
+   "span2": [
+    72,
+    73
+   ],
+   "refs": [
+    "2.3",
+    "WC-4",
+    "WC-6"
+   ],
+   "claim": "A retry worker given the same brief reuses the same output directory, so the fresh-directory rule that protects the first attempt has no owner.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t1b-1",
+     "fid": "F11",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t2-1",
+     "fid": "F1",
+     "blocking": true
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t2-2",
+     "fid": "M4",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t3-1",
+     "fid": "F9",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t3-2",
+     "fid": "F2",
+     "blocking": true
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t3-3",
+     "fid": "M2",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    },
+    {
+     "round": 1,
+     "event": "resolved_check"
+    },
+    {
+     "round": 2,
+     "event": "cleared"
+    },
+    {
+     "round": 2,
+     "event": "prior_note",
+     "reviewer_id": "t1b-1",
+     "status": "resolved"
+    }
+   ]
+  },
+  {
+   "lid": "L12",
+   "fp": "0f2f8e7ec17bc79c",
+   "blocking": false,
+   "severity_max": "MAJOR",
+   "category": "missing-requirement",
+   "confidence": "single",
+   "status": "open",
+   "anchor": "The real failure mode for a command prompt is a silent stall with no `worker_done`",
+   "anchor2": "After `worker_done`, the coordinator opens the report file, then releases or reuses the worker",
+   "span": [
+    43,
+    44
+   ],
+   "span2": [
+    72,
+    73
+   ],
+   "refs": [
+    "1.4",
+    "2.3",
+    "WC-12"
+   ],
+   "claim": "No coordinator requirement covers polling, a no-report timeout, or the response to a detected stall outside the acceptance checks.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t1b-1",
+     "fid": "F12",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L13",
+   "fp": "5a10eb8542eb7d14",
+   "blocking": false,
+   "severity_max": "MINOR",
+   "category": "missing-requirement",
+   "confidence": "single",
+   "status": "open",
+   "anchor": "Commands that already write a contract keep their fields and add the missing ones",
+   "anchor2": null,
+   "span": [
+    60,
+    61
+   ],
+   "span2": null,
+   "refs": [
+    "WC-4"
+   ],
+   "claim": "The merged contract has no version field to tell existing vintages apart.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t1b-1",
+     "fid": "F13",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L14",
+   "fp": "d1413164061dcb64",
+   "blocking": false,
+   "severity_max": "MINOR",
+   "category": "other",
+   "confidence": "overlap",
+   "status": "open",
+   "anchor": "must be split into waits of at most 4 minutes so the session can heartbeat between them",
+   "anchor2": "A command step that blocks a single tool call for longer than 5 minutes",
+   "span": [
+    67,
+    68
+   ],
+   "span2": [
+    67,
+    68
+   ],
+   "refs": [
+    "AC-4.3",
+    "WC-10"
+   ],
+   "claim": "A single wait between 240 and 300 seconds needs no split by the trigger but exceeds the cap.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t1b-1",
+     "fid": "F14",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t2-1",
+     "fid": "F9",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L15",
+   "fp": "1bbc2187f0a6fae6",
+   "blocking": false,
+   "severity_max": "MINOR",
+   "category": "other",
+   "confidence": "single",
+   "status": "open",
+   "anchor": "`status` (one of `succeeded`, `partial`, `failed`, `blocked`)",
+   "anchor2": null,
+   "span": [
+    60,
+    61
+   ],
+   "span2": null,
+   "refs": [
+    "WC-4",
+    "WC-5"
+   ],
+   "claim": "The contract value blocked collides with the Orca Task status blocked and the mapping leaves an invalid or missing status undefined.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t1b-1",
+     "fid": "F15",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L16",
+   "fp": "7a74352a3685f07b",
+   "blocking": false,
+   "severity_max": "MINOR",
+   "category": "other",
+   "confidence": "single",
+   "status": "open",
+   "anchor": "A worker's own `failed` report does not trip Orca's circuit breaker either way",
+   "anchor2": null,
+   "span": [
+    268,
+    269
+   ],
+   "span2": null,
+   "refs": [
+    "WC-5",
+    "WC-6"
+   ],
+   "claim": "Repeated blocked results map to failed reports that never trip the breaker, so re-dispatch after blocked is unbounded.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t1b-1",
+     "fid": "F16",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L17",
+   "fp": "4292460567cbc4ed",
+   "blocking": false,
+   "severity_max": "MAJOR",
+   "category": "other",
+   "confidence": "overlap",
+   "status": "open",
+   "anchor": "What changes in the commands is limited to the worker contract in section 2",
+   "anchor2": null,
+   "span": [
+    15,
+    16
+   ],
+   "span2": null,
+   "refs": [
+    "1.1",
+    "SA-4"
+   ],
+   "claim": "Section 1.1 understates the command changes that section 3 and SA-4 list.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t1b-1",
+     "fid": "F17",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t2-1",
+     "fid": "F5",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L18",
+   "fp": "967e5d3fcd75bced",
+   "blocking": false,
+   "severity_max": "MINOR",
+   "category": "other",
+   "confidence": "single",
+   "status": "open",
+   "anchor": "No person gate is involved, so each change is mechanical",
+   "anchor2": "`--mode socratic` refused under `--unattended` (whether it waits is UNVERIFIED)",
+   "span": [
+    158,
+    159
+   ],
+   "span2": [
+    101,
+    102
+   ],
+   "refs": [
+    "3.2",
+    "P1"
+   ],
+   "claim": "P1 is described as gate-free but its rows add refusals for interactive modes.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t1b-1",
+     "fid": "F18",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L19",
+   "fp": "0475dbc7dba42f3d",
+   "blocking": false,
+   "severity_max": "MINOR",
+   "category": "other",
+   "confidence": "single",
+   "status": "open",
+   "anchor": "prints nothing: edits are additive",
+   "anchor2": null,
+   "span": [
+    175,
+    176
+   ],
+   "span2": null,
+   "refs": [
+    "SA-4"
+   ],
+   "claim": "AC-C5 fails on the usage-line edits that accepting a new flag requires.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t1b-1",
+     "fid": "F19",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L20",
+   "fp": "3cfecff7cab02714",
+   "blocking": true,
+   "severity_max": "MAJOR",
+   "category": "contradiction",
+   "confidence": "single",
+   "status": "resolved",
+   "anchor": "then re-invoke or resume the command with the answer as a flag",
+   "anchor2": "The worker passes the contract path as `worker_done --report-path`",
+   "span": [
+    60,
+    61
+   ],
+   "span2": [
+    60,
+    61
+   ],
+   "refs": [
+    "WC-3",
+    "WC-4",
+    "WC-5",
+    "WC-6"
+   ],
+   "claim": "On the re-invoke branch the answered run has no resume flag, so WC-6 sends it to a fresh directory while WC-4 fixes the contract path before dispatch; worker_done then reports the old blocked contract and the coordinator records failed for a run that succeeded.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t2-1",
+     "fid": "F2",
+     "blocking": true
+    },
+    {
+     "round": 2,
+     "reviewer_id": "t1b-1",
+     "fid": "N3",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    },
+    {
+     "round": 1,
+     "event": "resolved_check"
+    },
+    {
+     "round": 2,
+     "event": "refound"
+    },
+    {
+     "round": 2,
+     "event": "prior_note",
+     "reviewer_id": "t1b-1",
+     "status": "resolved"
+    },
+    {
+     "round": 2,
+     "event": "resolved_check"
+    },
+    {
+     "round": 3,
+     "event": "cleared"
+    },
+    {
+     "round": 3,
+     "event": "prior_note",
+     "reviewer_id": "t1b-1",
+     "status": "resolved"
+    }
+   ]
+  },
+  {
+   "lid": "L21",
+   "fp": "1bbc2187f0a6fae6",
+   "blocking": true,
+   "severity_max": "MAJOR",
+   "category": "other",
+   "confidence": "overlap",
+   "status": "resolved",
+   "anchor": "`--outcome succeeded` otherwise, including `partial`",
+   "anchor2": "`--outcome failed` when the report says `failed` or `blocked`, or no report exists",
+   "span": [
+    60,
+    61
+   ],
+   "span2": [
+    60,
+    61
+   ],
+   "refs": [
+    "WC-4",
+    "WC-5"
+   ],
+   "claim": "An implementer following WC-5 sends --outcome succeeded for a contract whose status is misspelled, absent or outside the four values, so a failed or unreadable run reaches the coordinator as succeeded; the status check in 7.2 step 4 is an acceptance test, not a run-time rule.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t2-1",
+     "fid": "F3",
+     "blocking": true
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t3-1",
+     "fid": "F12",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t3-2",
+     "fid": "F6",
+     "blocking": true
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t3-3",
+     "fid": "M9",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t3-4",
+     "fid": "F5",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    },
+    {
+     "round": 1,
+     "event": "resolved_check"
+    },
+    {
+     "round": 2,
+     "event": "cleared"
+    },
+    {
+     "round": 2,
+     "event": "prior_note",
+     "reviewer_id": "t1b-1",
+     "status": "resolved"
+    }
+   ]
+  },
+  {
+   "lid": "L22",
+   "fp": "182e3fcf54625cfe",
+   "blocking": false,
+   "severity_max": "MAJOR",
+   "category": "other",
+   "confidence": "overlap",
+   "status": "open",
+   "anchor": "These run as workers now if the brief uses the stated flags",
+   "anchor2": "Under `--unattended`, the topic-only clarification",
+   "span": [
+    78,
+    79
+   ],
+   "span2": [
+    89,
+    90
+   ],
+   "refs": [
+    "3.1",
+    "P2"
+   ],
+   "claim": "Section 3.1 calls ten commands ready today, but the reflect, tdd and troubleshoot rows need P2 gate changes once --unattended is passed, and the ready-today rows do not pass it; header and rows disagree.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t2-1",
+     "fid": "F4",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t2-2",
+     "fid": "M2",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L23",
+   "fp": "5365aed3430ea832",
+   "blocking": false,
+   "severity_max": "MAJOR",
+   "category": "contradiction",
+   "confidence": "single",
+   "status": "open",
+   "anchor": "The only end-to-end proof is the PR #329 run",
+   "anchor2": "invocation_method: \"skill-direct\"",
+   "span": [
+    42,
+    43
+   ],
+   "span2": [
+    22,
+    23
+   ],
+   "refs": [],
+   "claim": "Section 1.4 says the PR #329 run proves only the nested route, while E3 cites a skill-direct return contract as support and section 3.1 treats adversarial as ready today; the spec does not say whether that contract is direct-route evidence.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t2-1",
+     "fid": "F7",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L24",
+   "fp": "27cbf7c085262da0",
+   "blocking": false,
+   "severity_max": "MAJOR",
+   "category": "other",
+   "confidence": "single",
+   "status": "open",
+   "anchor": "must fall back on its own well inside the readiness limit (default 60 s)",
+   "anchor2": "above about 45 s it fails again",
+   "span": [
+    58,
+    59
+   ],
+   "span2": [
+    58,
+    59
+   ],
+   "refs": [
+    "WC-1"
+   ],
+   "claim": "well inside is undefined; an implementer may pick a 50 s fallback that the cited evidence says fails above about 45 s.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t2-1",
+     "fid": "F8",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L25",
+   "fp": "9820a091e994becf",
+   "blocking": false,
+   "severity_max": "MAJOR",
+   "category": "missing-requirement",
+   "confidence": "single",
+   "status": "open",
+   "anchor": "On an `ask` timeout it resumes the same message ID and never creates a duplicate.",
+   "anchor2": "WC-3 relies on resuming by message ID, not on a value",
+   "span": [
+    60,
+    61
+   ],
+   "span2": [
+    286,
+    287
+   ],
+   "refs": [
+    "WC-3"
+   ],
+   "claim": "WC-3 gives no ask timeout and no behavior when --timeout-ms is omitted; the value is left UNVERIFIED.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t2-1",
+     "fid": "F10",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L26",
+   "fp": "d89d518e936b7cb3",
+   "blocking": false,
+   "severity_max": "MINOR",
+   "category": "missing-requirement",
+   "confidence": "single",
+   "status": "open",
+   "anchor": "confidence below 0.70 resolves as blocked",
+   "anchor2": null,
+   "span": [
+    120,
+    121
+   ],
+   "span2": null,
+   "refs": [],
+   "claim": "The task row defines only the below-0.70 case; a null or missing confidence value has no specified resolution.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t2-1",
+     "fid": "F11",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L27",
+   "fp": "540df64df9fdff94",
+   "blocking": true,
+   "severity_max": "CRITICAL",
+   "category": "unpassable-check",
+   "confidence": "single",
+   "status": "resolved",
+   "anchor": "steps 1-3 and 5-7 pass",
+   "anchor2": "its report path is the WC-4 contract path",
+   "span": [
+    199,
+    200
+   ],
+   "span2": [
+    187,
+    188
+   ],
+   "refs": [
+    "2.3",
+    "3.1",
+    "AC-0.4",
+    "P0",
+    "P1",
+    "WC-4"
+   ],
+   "claim": "AC-0.4 requires steps 1-3 to pass in P0, but step 3 requires the WC-4 contract path, which only P1 adds; AC-0.4 also omits the --unattended flag that 2.3 says every brief carries.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t2-2",
+     "fid": "F1",
+     "blocking": true
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    },
+    {
+     "round": 1,
+     "event": "resolved_check"
+    },
+    {
+     "round": 2,
+     "event": "cleared"
+    },
+    {
+     "round": 2,
+     "event": "prior_note",
+     "reviewer_id": "t1b-1",
+     "status": "resolved"
+    }
+   ]
+  },
+  {
+   "lid": "L28",
+   "fp": "5d7488e639b8ae7b",
+   "blocking": true,
+   "severity_max": "MAJOR",
+   "category": "contradiction",
+   "confidence": "single",
+   "status": "resolved",
+   "anchor": "What changes in the commands is limited to the worker contract in section 2",
+   "anchor2": "Only defects that stop a command working as a worker are in scope.",
+   "span": [
+    15,
+    16
+   ],
+   "span2": [
+    225,
+    226
+   ],
+   "refs": [
+    "1.1",
+    "8",
+    "AC-1.1",
+    "AC-3.1",
+    "AC-3.3",
+    "P1",
+    "P3",
+    "SA-4"
+   ],
+   "claim": "Sections 1.1 and non-goal 8 limit the change to section 2 and to worker-blocking defects, but SA-4 and phases P1 and P3 require other defect fixes that AC-1.1, AC-3.1 and AC-3.3 test.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t2-2",
+     "fid": "F2",
+     "blocking": true
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    },
+    {
+     "round": 1,
+     "event": "resolved_check"
+    },
+    {
+     "round": 2,
+     "event": "cleared"
+    },
+    {
+     "round": 2,
+     "event": "prior_note",
+     "reviewer_id": "t1b-1",
+     "status": "resolved"
+    }
+   ]
+  },
+  {
+   "lid": "L29",
+   "fp": "04165a1950258e0e",
+   "blocking": true,
+   "severity_max": "MAJOR",
+   "category": "other",
+   "confidence": "overlap",
+   "status": "resolved",
+   "anchor": "(orchestration\\|worktree\\|terminal\\|agent)",
+   "anchor2": "prints nothing (SA-2, WC-8)",
+   "span": [
+    171,
+    172
+   ],
+   "span2": [
+    171,
+    172
+   ],
+   "refs": [
+    "2.1",
+    "SA-2",
+    "WC-8"
+   ],
+   "claim": "In raw form the escaped pipe is a literal, so AC-C1 never matches and the SA-2 gate cannot fail; after repair it would flag the contract example SA-2 permits.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t2-2",
+     "fid": "M1",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t3-1",
+     "fid": "F3",
+     "blocking": true
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t3-4",
+     "fid": "F4",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    },
+    {
+     "round": 1,
+     "event": "resolved_check"
+    },
+    {
+     "round": 2,
+     "event": "cleared"
+    },
+    {
+     "round": 2,
+     "event": "prior_note",
+     "reviewer_id": "t1b-1",
+     "status": "resolved"
+    }
+   ]
+  },
+  {
+   "lid": "L30",
+   "fp": "0ff6a67ff84bcae8",
+   "blocking": false,
+   "severity_max": "MAJOR",
+   "category": "missing-requirement",
+   "confidence": "single",
+   "status": "open",
+   "anchor": "`run` requires `--suite` and the safety flags in the brief, else blocked",
+   "anchor2": null,
+   "span": [
+    103,
+    104
+   ],
+   "span2": null,
+   "refs": [
+    "3.2",
+    "AC-2.2"
+   ],
+   "claim": "The cli-eval gate names safety flags that the spec never enumerates.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t2-2",
+     "fid": "M3",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L31",
+   "fp": "3840df72581269c3",
+   "blocking": false,
+   "severity_max": "MAJOR",
+   "category": "other",
+   "confidence": "single",
+   "status": "open",
+   "anchor": "at least once per 5 minutes",
+   "anchor2": "--timeout-ms 900000 --json` until `worker_done` arrives",
+   "span": [
+    186,
+    187
+   ],
+   "span2": [
+    187,
+    188
+   ],
+   "refs": [
+    "WC-10"
+   ],
+   "claim": "A single 900000 ms blocking check cannot coexist with the requirement to run worker-show at least every 5 minutes.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t2-2",
+     "fid": "M5",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L32",
+   "fp": "52d0f9db05c7290d",
+   "blocking": false,
+   "severity_max": "MAJOR",
+   "category": "missing-requirement",
+   "confidence": "single",
+   "status": "open",
+   "anchor": "Stage 10.5 passes `--unattended` to each reflect so the headless rule applies",
+   "anchor2": "none (its reflect fan-out runs one layer below the worker",
+   "span": [
+    121,
+    122
+   ],
+   "span2": [
+    121,
+    122
+   ],
+   "refs": [
+    "SA-6",
+    "WC-9"
+   ],
+   "claim": "Unattended Stage 10.5 activates headless auto-accept for remediation, which the spec does not describe, and the row says no change is needed.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t2-2",
+     "fid": "M6",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L33",
+   "fp": "60bb0cd5843e275d",
+   "blocking": false,
+   "severity_max": "MAJOR",
+   "category": "missing-requirement",
+   "confidence": "single",
+   "status": "open",
+   "anchor": "must be split into waits of at most 4 minutes",
+   "anchor2": "poll script runtime UNVERIFIED",
+   "span": [
+    67,
+    68
+   ],
+   "span2": [
+    113,
+    114
+   ],
+   "refs": [
+    "WC-10"
+   ],
+   "claim": "No behaviour is specified when a poll iteration exceeds the 4-minute cap.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t2-2",
+     "fid": "M7",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L34",
+   "fp": "77a0f946de353d41",
+   "blocking": false,
+   "severity_max": "MINOR",
+   "category": "other",
+   "confidence": "single",
+   "status": "open",
+   "anchor": "directory exists; report file exists",
+   "anchor2": null,
+   "span": [
+    211,
+    212
+   ],
+   "span2": null,
+   "refs": [
+    "AC-3.3"
+   ],
+   "claim": "The test -d check passes on an empty untracked directory.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t2-2",
+     "fid": "N1",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L35",
+   "fp": "57055d31436e8f18",
+   "blocking": false,
+   "severity_max": "MINOR",
+   "category": "other",
+   "confidence": "single",
+   "status": "open",
+   "anchor": "Command-file edits in Phases 1-3 are additive",
+   "anchor2": "For every command file the phase edits without a named defect fix",
+   "span": [
+    148,
+    149
+   ],
+   "span2": [
+    175,
+    176
+   ],
+   "refs": [
+    "P1",
+    "SA-4"
+   ],
+   "claim": "The additive-edit check covers command files only, but P1 also edits skill files.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t2-2",
+     "fid": "N2",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L36",
+   "fp": "7084e836369a2991",
+   "blocking": true,
+   "severity_max": "MAJOR",
+   "category": "contradiction",
+   "confidence": "overlap",
+   "status": "resolved",
+   "anchor": "the exact command line including `--unattended` and every flag section 3 lists as required",
+   "anchor2": "`/sc:workflow \"<small change>\" --handoff none`",
+   "span": [
+    72,
+    73
+   ],
+   "span2": [
+    199,
+    200
+   ],
+   "refs": [
+    "2.3",
+    "3.1",
+    "AC-0.4",
+    "P0",
+    "P1"
+   ],
+   "claim": "Section 2.3 requires --unattended in every brief, but no command accepts it before P1 while AC-0.4 runs the P0 smoke commands without it.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t3-1",
+     "fid": "F2",
+     "blocking": true
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t3-3",
+     "fid": "M10",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    },
+    {
+     "round": 1,
+     "event": "resolved_check"
+    },
+    {
+     "round": 2,
+     "event": "cleared"
+    },
+    {
+     "round": 2,
+     "event": "prior_note",
+     "reviewer_id": "t1b-1",
+     "status": "resolved"
+    }
+   ]
+  },
+  {
+   "lid": "L37",
+   "fp": "e4644420a89a7bdd",
+   "blocking": true,
+   "severity_max": "MAJOR",
+   "category": "contradiction",
+   "confidence": "overlap",
+   "status": "resolved",
+   "anchor": "use it as a step inside another worker's brief, not as its own Task",
+   "anchor2": "section naming `return-contract.yaml`",
+   "span": [
+    111,
+    112
+   ],
+   "span2": [
+    199,
+    200
+   ],
+   "refs": [
+    "AC-1.1",
+    "AC-1.2",
+    "P1",
+    "WC-4"
+   ],
+   "claim": "The load row writes no contract, while WC-4 requires one on every outcome and AC-1.1 requires the load section to name return-contract.yaml.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t3-1",
+     "fid": "F5",
+     "blocking": true
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t3-3",
+     "fid": "F4",
+     "blocking": true
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    },
+    {
+     "round": 1,
+     "event": "resolved_check"
+    },
+    {
+     "round": 2,
+     "event": "cleared"
+    },
+    {
+     "round": 2,
+     "event": "prior_note",
+     "reviewer_id": "t1b-1",
+     "status": "resolved"
+    }
+   ]
+  },
+  {
+   "lid": "L38",
+   "fp": "32d1cd78cf257017",
+   "blocking": false,
+   "severity_max": "MAJOR",
+   "category": "missing-requirement",
+   "confidence": "single",
+   "status": "open",
+   "anchor": "until `worker_done` arrives",
+   "anchor2": null,
+   "span": [
+    187,
+    188
+   ],
+   "span2": null,
+   "refs": [
+    "WC-3"
+   ],
+   "claim": "Step 3 waits for worker_done and lists question and escalation as returned types without saying the coordinator must answer them, so a question leaves the worker parked.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t3-1",
+     "fid": "F7",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L39",
+   "fp": "c8914fbec1e2ff95",
+   "blocking": false,
+   "severity_max": "MAJOR",
+   "category": "other",
+   "confidence": "single",
+   "status": "open",
+   "anchor": "inside Claude Code's nesting limit",
+   "anchor2": null,
+   "span": [
+    121,
+    122
+   ],
+   "span2": null,
+   "refs": [
+    "WC-7"
+   ],
+   "claim": "The tasklist row asserts the reflect fan-out fits the nesting limit, but reflect Tier 2 merges through adversarial, so the depth is an unverified inference.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t3-1",
+     "fid": "F8",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L40",
+   "fp": "c776ac28d9b5efa6",
+   "blocking": false,
+   "severity_max": "MAJOR",
+   "category": "other",
+   "confidence": "overlap",
+   "status": "open",
+   "anchor": "verified in the step-5 transcript",
+   "anchor2": null,
+   "span": [
+    199,
+    200
+   ],
+   "span2": null,
+   "refs": [
+    "AC-0.4",
+    "WC-7"
+   ],
+   "claim": "AC-0.4 says the no-subagent wrapper is verified in the step-5 transcript, but step 5 checks only for AskUserQuestion, so WC-7 has no pass condition.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t3-1",
+     "fid": "F10",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t3-2",
+     "fid": "M4",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L41",
+   "fp": "24a723a453d31f0a",
+   "blocking": false,
+   "severity_max": "MAJOR",
+   "category": "other",
+   "confidence": "single",
+   "status": "open",
+   "anchor": "When a gate would resolve as blocked and the worker session holds a preamble",
+   "anchor2": null,
+   "span": [
+    60,
+    61
+   ],
+   "span2": null,
+   "refs": [
+    "WC-2",
+    "WC-3",
+    "WC-6"
+   ],
+   "claim": "WC-3 lets the worker ask the coordinator mid-command, but the spec does not say how a command's in-flight state survives the re-invoke it requires.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t3-1",
+     "fid": "F11",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L42",
+   "fp": "3f2f836f7d759383",
+   "blocking": false,
+   "severity_max": "MAJOR",
+   "category": "missing-requirement",
+   "confidence": "single",
+   "status": "open",
+   "anchor": "confidence below 0.70 resolves as blocked",
+   "anchor2": null,
+   "span": [
+    120,
+    121
+   ],
+   "span2": null,
+   "refs": [
+    "WC-2"
+   ],
+   "claim": "The task row defines blocked only below 0.70, so the 0.70 to 0.89 band under --unattended has no stated behavior.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t3-1",
+     "fid": "F13",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L43",
+   "fp": "dbac5f623b16f0ca",
+   "blocking": true,
+   "severity_max": "MAJOR",
+   "category": "unpassable-check",
+   "confidence": "overlap",
+   "status": "resolved",
+   "anchor": "every command in sections 3.1-3.2 has a `## Unattended mode` section",
+   "anchor2": "The only command changes are the small fixes in the last column.",
+   "span": [
+    199,
+    200
+   ],
+   "span2": [
+    78,
+    79
+   ],
+   "refs": [
+    "AC-1.1",
+    "P1",
+    "P2",
+    "WC-2"
+   ],
+   "claim": "Brainstorm and init-lite are listed with no change in section 3.1, but AC-1.1 and the P1 scope require them to carry the unattended section and flag, so the P1 gate cannot pass as written.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t3-2",
+     "fid": "F1",
+     "blocking": true
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t3-4",
+     "fid": "F1",
+     "blocking": true
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    },
+    {
+     "round": 1,
+     "event": "resolved_check"
+    },
+    {
+     "round": 2,
+     "event": "cleared"
+    },
+    {
+     "round": 2,
+     "event": "prior_note",
+     "reviewer_id": "t1b-1",
+     "status": "resolved"
+    }
+   ]
+  },
+  {
+   "lid": "L44",
+   "fp": "9820a091e994becf",
+   "blocking": true,
+   "severity_max": "CRITICAL",
+   "category": "safety",
+   "confidence": "overlap",
+   "status": "resolved",
+   "anchor": "ask the coordinator once with the preamble's `ask` command, wait, then re-invoke or resume the command with the answer as a flag",
+   "anchor2": "The worker stops, writes the halt to its ledger and contract, and ends `failed`.",
+   "span": [
+    60,
+    61
+   ],
+   "span2": [
+    239,
+    240
+   ],
+   "refs": [
+    "WC-3"
+   ],
+   "claim": "WC-3 lets an implement worker re-invoke with a coordinator reply as the Ruling, which D2(a) and the Ruling rule forbid, so the safety boundary the spec keeps is breached.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t3-2",
+     "fid": "F4",
+     "blocking": true
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t3-4",
+     "fid": "F3",
+     "blocking": true
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    },
+    {
+     "round": 1,
+     "event": "resolved_check"
+    },
+    {
+     "round": 2,
+     "event": "cleared"
+    },
+    {
+     "round": 2,
+     "event": "prior_note",
+     "reviewer_id": "t1b-1",
+     "status": "resolved"
+    }
+   ]
+  },
+  {
+   "lid": "L45",
+   "fp": "09465538cbd7d261",
+   "blocking": true,
+   "severity_max": "MAJOR",
+   "category": "unpassable-check",
+   "confidence": "single",
+   "status": "resolved",
+   "anchor": "While it runs, `ORCA orchestration worker-show --dispatch <dispatch_id> --json` at least once per 5 minutes.",
+   "anchor2": "--timeout-ms 900000 --json` until `worker_done` arrives",
+   "span": [
+    186,
+    187
+   ],
+   "span2": [
+    187,
+    188
+   ],
+   "refs": [],
+   "claim": "Step 3 is one 15-minute blocking wait, so the 5-minute worker-show observation required by step 2 cannot happen during it and step 2 fails for any run longer than 5 minutes.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t3-2",
+     "fid": "F5",
+     "blocking": true
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    },
+    {
+     "round": 1,
+     "event": "resolved_check"
+    },
+    {
+     "round": 2,
+     "event": "cleared"
+    },
+    {
+     "round": 2,
+     "event": "prior_note",
+     "reviewer_id": "t1b-1",
+     "status": "resolved"
+    }
+   ]
+  },
+  {
+   "lid": "L46",
+   "fp": "5dbc3403859aec5a",
+   "blocking": false,
+   "severity_max": "MAJOR",
+   "category": "other",
+   "confidence": "single",
+   "status": "open",
+   "anchor": "`PROJECT_INDEX.md` (location implied)",
+   "anchor2": null,
+   "span": [
+    85,
+    86
+   ],
+   "span2": null,
+   "refs": [
+    "WC-4"
+   ],
+   "claim": "index-repo is listed as ready today although its report location is implied, so WC-4's known-before-dispatch path does not hold for it.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t3-2",
+     "fid": "M1",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L47",
+   "fp": "40fc211a93485779",
+   "blocking": false,
+   "severity_max": "MAJOR",
+   "category": "contradiction",
+   "confidence": "single",
+   "status": "open",
+   "anchor": "`--monitor 1` refused under `--unattended`",
+   "anchor2": "Coordinator or person only (recommended).",
+   "span": [
+    113,
+    114
+   ],
+   "span2": [
+    245,
+    246
+   ],
+   "refs": [
+    "P4"
+   ],
+   "claim": "pr-submit is counted among the 27 needing change and changed in P4, but the recommended D3(a) keeps it out of the worker set with no change.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t3-2",
+     "fid": "M2",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L48",
+   "fp": "6dda9adf868221a8",
+   "blocking": false,
+   "severity_max": "MAJOR",
+   "category": "missing-requirement",
+   "confidence": "single",
+   "status": "open",
+   "anchor": "After `worker_done`, the coordinator opens the report file, then releases or reuses the worker",
+   "anchor2": null,
+   "span": [
+    72,
+    73
+   ],
+   "span2": null,
+   "refs": [
+    "WC-5"
+   ],
+   "claim": "Partial and FAIL-verdict reports settle as completed and can release dependents before the coordinator reads them, and no rule requires reading first.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t3-2",
+     "fid": "M5",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L49",
+   "fp": "4c7f224478546684",
+   "blocking": false,
+   "severity_max": "MAJOR",
+   "category": "missing-requirement",
+   "confidence": "single",
+   "status": "open",
+   "anchor": "so a stall is invisible",
+   "anchor2": "exit 0 and `state: ready`",
+   "span": [
+    59,
+    60
+   ],
+   "span2": [
+    185,
+    186
+   ],
+   "refs": [
+    "WC-2"
+   ],
+   "claim": "No coordinator duty detects a silent stall and no rule says what to do on a non-zero worker-start exit, so the coordinator may relaunch a failed start.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t3-2",
+     "fid": "M6",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L50",
+   "fp": "bf68e48549972064",
+   "blocking": false,
+   "severity_max": "MAJOR",
+   "category": "contradiction",
+   "confidence": "single",
+   "status": "open",
+   "anchor": "prompt is replaced by the explicit resume flag (resume only when passed)",
+   "anchor2": null,
+   "span": [
+    117,
+    118
+   ],
+   "span2": null,
+   "refs": [
+    "SA-1"
+   ],
+   "claim": "The roadmap change is written without saying it applies only under unattended mode, which SA-1 forbids for standalone prompts.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t3-2",
+     "fid": "M7",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L51",
+   "fp": "d89d518e936b7cb3",
+   "blocking": false,
+   "severity_max": "MAJOR",
+   "category": "other",
+   "confidence": "overlap",
+   "status": "open",
+   "anchor": "its reflect fan-out runs one layer below the worker, inside Claude Code's nesting limit",
+   "anchor2": null,
+   "span": [
+    121,
+    122
+   ],
+   "span2": null,
+   "refs": [],
+   "claim": "The nesting claim rests on an external doc and is marked UNVERIFIED in the B inventory, but the spec states it as fact.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t3-2",
+     "fid": "M8",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t3-3",
+     "fid": "M3",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L52",
+   "fp": "d89d518e936b7cb3",
+   "blocking": false,
+   "severity_max": "MAJOR",
+   "category": "other",
+   "confidence": "single",
+   "status": "open",
+   "anchor": "dispatch only inside an IronClaude checkout (hardcoded template path)",
+   "anchor2": null,
+   "span": [
+    104,
+    105
+   ],
+   "span2": null,
+   "refs": [],
+   "claim": "cli-portify keeps a hardcoded src path in an installed primitive, which the repo rule forbids, and the spec accepts that rather than fixing it.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t3-2",
+     "fid": "M9",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L53",
+   "fp": "88583a97251c3626",
+   "blocking": false,
+   "severity_max": "MAJOR",
+   "category": "contradiction",
+   "confidence": "single",
+   "status": "open",
+   "anchor": "output dir is fixed, so one audit per worktree at a time (WC-11)",
+   "anchor2": "Default output paths carry a timestamp or the slug the coordinator passes",
+   "span": [
+    84,
+    85
+   ],
+   "span2": [
+    68,
+    69
+   ],
+   "refs": [
+    "WC-11"
+   ],
+   "claim": "cleanup-audit keeps a fixed output directory, which WC-11 forbids for default paths, and the one-audit-per-worktree limit is not enforced.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t3-2",
+     "fid": "M10",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L54",
+   "fp": "3f2f836f7d759383",
+   "blocking": false,
+   "severity_max": "MAJOR",
+   "category": "missing-requirement",
+   "confidence": "single",
+   "status": "open",
+   "anchor": "the safety flags in the brief, else blocked",
+   "anchor2": null,
+   "span": [
+    103,
+    104
+   ],
+   "span2": null,
+   "refs": [
+    "WC-2"
+   ],
+   "claim": "The cli-eval gate requires safety flags that are never named, so the gate cannot be applied.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t3-2",
+     "fid": "M11",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L55",
+   "fp": "fb7be90de7aec1d6",
+   "blocking": false,
+   "severity_max": "MAJOR",
+   "category": "contradiction",
+   "confidence": "single",
+   "status": "open",
+   "anchor": "until then the coordinator dispatches `superclaude roadmap validate`",
+   "anchor2": null,
+   "span": [
+    123,
+    124
+   ],
+   "span2": null,
+   "refs": [
+    "WC-4",
+    "WC-5"
+   ],
+   "claim": "The interim CLI path runs a command outside the worker contract, so it has no contract file and bypasses WC-4 and WC-5.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t3-2",
+     "fid": "M12",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L56",
+   "fp": "6806cb87bf795801",
+   "blocking": false,
+   "severity_max": "MINOR",
+   "category": "other",
+   "confidence": "single",
+   "status": "open",
+   "anchor": "(run 2026-11-02) lists only files under",
+   "anchor2": null,
+   "span": [
+    24,
+    25
+   ],
+   "span2": null,
+   "refs": [],
+   "claim": "The E5 grep result cannot be reproduced in this workspace and is UNVERIFIED.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t3-2",
+     "fid": "N1",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L57",
+   "fp": "6806cb87bf795801",
+   "blocking": false,
+   "severity_max": "MINOR",
+   "category": "other",
+   "confidence": "single",
+   "status": "open",
+   "anchor": "worker reached `state: ready, stage: input_accepted` and answered",
+   "anchor2": null,
+   "span": [
+    21,
+    22
+   ],
+   "span2": null,
+   "refs": [],
+   "claim": "The EVIDENCE.md citations are outside the workspace and are UNVERIFIED here.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t3-2",
+     "fid": "N2",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L58",
+   "fp": "5365aed3430ea832",
+   "blocking": false,
+   "severity_max": "MINOR",
+   "category": "other",
+   "confidence": "single",
+   "status": "open",
+   "anchor": "The 60-second readiness evidence is narrower than it looks.",
+   "anchor2": null,
+   "span": [
+    43,
+    44
+   ],
+   "span2": null,
+   "refs": [],
+   "claim": "The cited run used a 45-second limit, so the 60-second framing is loose, though the point stands.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t3-2",
+     "fid": "N3",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L59",
+   "fp": "d1413164061dcb64",
+   "blocking": true,
+   "severity_max": "MAJOR",
+   "category": "contradiction",
+   "confidence": "single",
+   "status": "resolved",
+   "anchor": "blocks a single tool call for longer than 5 minutes",
+   "anchor2": "no single tool call exceeds 240 s",
+   "span": [
+    67,
+    68
+   ],
+   "span2": [
+    215,
+    216
+   ],
+   "refs": [
+    "AC-4.3",
+    "WC-10"
+   ],
+   "claim": "WC-10 splits only calls longer than 5 minutes, so a 4.5-minute call complies with it, but AC-4.3 rejects any call over 240 s; compliance with the stated rule fails the stated check.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t3-3",
+     "fid": "F5",
+     "blocking": true
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    },
+    {
+     "round": 1,
+     "event": "resolved_check"
+    },
+    {
+     "round": 2,
+     "event": "cleared"
+    },
+    {
+     "round": 2,
+     "event": "prior_note",
+     "reviewer_id": "t1b-1",
+     "status": "resolved"
+    }
+   ]
+  },
+  {
+   "lid": "L60",
+   "fp": "9dabc121a4ad7a3a",
+   "blocking": false,
+   "severity_max": "MAJOR",
+   "category": "contradiction",
+   "confidence": "single",
+   "status": "open",
+   "anchor": "A standalone default run writes the same files it writes today.",
+   "anchor2": "Write the contract for pre-creation STOPs too",
+   "span": [
+    147,
+    148
+   ],
+   "span2": [
+    91,
+    92
+   ],
+   "refs": [
+    "SA-3",
+    "SA-4"
+   ],
+   "claim": "SA-3 forbids a standalone run from writing different files, but the adversarial rename and the workflow pre-creation contract change standalone output, and SA-4 allows defect fixes to do so; the spec does not say which governs.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t3-3",
+     "fid": "M1",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L61",
+   "fp": "26000cacd2fde2aa",
+   "blocking": false,
+   "severity_max": "MAJOR",
+   "category": "missing-requirement",
+   "confidence": "single",
+   "status": "open",
+   "anchor": "the session may instead ask the coordinator once with the preamble's `ask` command",
+   "anchor2": "`observation.agentWait` is never non-null",
+   "span": [
+    60,
+    61
+   ],
+   "span2": [
+    186,
+    187
+   ],
+   "refs": [
+    "WC-2",
+    "WC-3"
+   ],
+   "claim": "WC-2(c) has the command stop at a blocked gate while WC-3 says the session may ask instead; the order of blocked-stop and ask is not stated, and 7.2 step 2 fails any non-null agentWait whether or not an ask produces one, which the spec does not settle.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t3-3",
+     "fid": "M4",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L62",
+   "fp": "947500d42e9866ca",
+   "blocking": false,
+   "severity_max": "MAJOR",
+   "category": "other",
+   "confidence": "single",
+   "status": "open",
+   "anchor": "P2 only turns it off under `--unattended` (WC-9)",
+   "anchor2": "Phases 0-3 can proceed on the recommendations; Phase 4 waits for D2-D4.",
+   "span": [
+    159,
+    160
+   ],
+   "span2": [
+    230,
+    231
+   ],
+   "refs": [
+    "P2",
+    "WC-9"
+   ],
+   "claim": "Section 9 holds D4 open until Phase 4, but P2 and the auggie-review row already let the brief pass --post-pr and task commit/push, which is D4 option (a); if the user chooses option (b), P2 must be rewritten.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t3-3",
+     "fid": "M5",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L63",
+   "fp": "df90620660167fce",
+   "blocking": false,
+   "severity_max": "MAJOR",
+   "category": "missing-requirement",
+   "confidence": "single",
+   "status": "open",
+   "anchor": "How `plugins/superclaude/commands/` (which holds copies such as",
+   "anchor2": "`make verify-sync` | exits 0 (SA-5)",
+   "span": [
+    284,
+    285
+   ],
+   "span2": [
+    172,
+    173
+   ],
+   "refs": [
+    "SA-5"
+   ],
+   "claim": "The plugin command mirror update rule is unresolved and AC-C2 checks only make verify-sync, which the spec does not say covers the plugin mirror, so stale plugin copies can pass every listed check.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t3-3",
+     "fid": "M6",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L64",
+   "fp": "9bedd48deeefd02f",
+   "blocking": false,
+   "severity_max": "MAJOR",
+   "category": "unpassable-check",
+   "confidence": "single",
+   "status": "open",
+   "anchor": "fix the default target `tests/sc-task/`, which does not exist",
+   "anchor2": "`test -d` on the default target in `cmd/validate-tests.md`",
+   "span": [
+    124,
+    125
+   ],
+   "span2": [
+    211,
+    212
+   ],
+   "refs": [
+    "AC-3.1",
+    "AC-3.3"
+   ],
+   "claim": "The validate-tests row does not name the new default target that AC-3.3 tests, and the validate-roadmap row does not choose the report name that AC-3.1 checks, so each check passes only after an unrecorded choice.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t3-3",
+     "fid": "M7",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L65",
+   "fp": "58d4c636d6107259",
+   "blocking": false,
+   "severity_max": "MAJOR",
+   "category": "other",
+   "confidence": "single",
+   "status": "open",
+   "anchor": "including an audit whose verdict is FAIL (the audit itself succeeded)",
+   "anchor2": null,
+   "span": [
+    60,
+    61
+   ],
+   "span2": null,
+   "refs": [
+    "WC-5"
+   ],
+   "claim": "WC-5 maps a FAIL audit to succeeded and 7.2 step 3 checks only outcome against status, so a coordinator reading outcomes alone can proceed past a verdict the review loop treats as blocking.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t3-3",
+     "fid": "M8",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L66",
+   "fp": "4c39a7e401f03c2c",
+   "blocking": false,
+   "severity_max": "MINOR",
+   "category": "other",
+   "confidence": "single",
+   "status": "open",
+   "anchor": "Smoke runs: `/sc:troubleshoot` (no `--fix`), `/sc:workflow --handoff none`, `/sc:adversarial --output <dir>`",
+   "anchor2": null,
+   "span": [
+    157,
+    158
+   ],
+   "span2": null,
+   "refs": [
+    "AC-0.4",
+    "P0"
+   ],
+   "claim": "P0 names /sc:adversarial --output <dir> while AC-0.4 runs /sc:adversarial --compare with --depth quick; the spec should name one invocation.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t3-3",
+     "fid": "N1",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L67",
+   "fp": "dff5499e3e7d288f",
+   "blocking": true,
+   "severity_max": "MAJOR",
+   "category": "unpassable-check",
+   "confidence": "single",
+   "status": "resolved",
+   "anchor": "step 4 uses the command's existing report file, since the contract arrives in P1",
+   "anchor2": "assert d['status'] in {'succeeded','partial','failed','blocked'}",
+   "span": [
+    199,
+    200
+   ],
+   "span2": [
+    187,
+    188
+   ],
+   "refs": [
+    "AC-0.4",
+    "P0",
+    "P1"
+   ],
+   "claim": "Running step 4 on troubleshoot's REPORT.md as YAML fails, so the P0 smoke run cannot pass.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t3-4",
+     "fid": "F2",
+     "blocking": true
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    },
+    {
+     "round": 1,
+     "event": "resolved_check"
+    },
+    {
+     "round": 2,
+     "event": "cleared"
+    },
+    {
+     "round": 2,
+     "event": "prior_note",
+     "reviewer_id": "t1b-1",
+     "status": "resolved"
+    }
+   ]
+  },
+  {
+   "lid": "L68",
+   "fp": "95f6af3238d64dba",
+   "blocking": false,
+   "severity_max": "MAJOR",
+   "category": "missing-requirement",
+   "confidence": "single",
+   "status": "open",
+   "anchor": "Two workers in one worktree must never write the same file.",
+   "anchor2": null,
+   "span": [
+    68,
+    69
+   ],
+   "span2": null,
+   "refs": [
+    "WC-11"
+   ],
+   "claim": "Two source-editing workers in one worktree can write the same file, because the candidate gives no mechanism for source edits.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t3-4",
+     "fid": "F6",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L69",
+   "fp": "f387bb58bbc5340b",
+   "blocking": false,
+   "severity_max": "MAJOR",
+   "category": "other",
+   "confidence": "single",
+   "status": "open",
+   "anchor": "writes each run into a fresh output directory so a re-run starts clean",
+   "anchor2": "`--resume` (implicit when a ledger matches)",
+   "span": [
+    60,
+    61
+   ],
+   "span2": [
+    108,
+    109
+   ],
+   "refs": [
+    "WC-6"
+   ],
+   "claim": "A retry of cleanup or implement re-applies edits to a working tree the first attempt already changed.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t3-4",
+     "fid": "F7",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L70",
+   "fp": "77b3833403077063",
+   "blocking": false,
+   "severity_max": "MAJOR",
+   "category": "other",
+   "confidence": "single",
+   "status": "open",
+   "anchor": "the smoke runs test the decision before anything is built on it",
+   "anchor2": "Phase 0 (section 6) therefore starts with live smoke runs",
+   "span": [
+    157,
+    158
+   ],
+   "span2": [
+    42,
+    43
+   ],
+   "refs": [
+    "P0"
+   ],
+   "claim": "The text says Phase 0 starts with smoke runs, while its own row builds the contract and HOW-WE-WORK edits before them.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t3-4",
+     "fid": "F8",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  }
+ ]
+}
