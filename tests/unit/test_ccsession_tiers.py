@@ -33,7 +33,8 @@ SKILL_DIR = REPO_ROOT / "src" / "superclaude" / "skills" / "ccsession-tag"
 sys.path.insert(0, str(SKILL_DIR))
 import models  # noqa: E402
 
-# The proposed Coder env block (spec 12.1), as it appears in defaults.sh.
+# The Coder env block (spec 12.1, layout of central defaults release 20261110-1: Tier 2b added, Tier 3 two
+# slots, Tier 4 three), as it appears in defaults.sh.
 TIER_BLOCK = """\
 # AI defaults (non-secret)
 export T0Model01_WINDOW_DOC=ignored
@@ -67,22 +68,27 @@ export T2Model05=muse-wonder-1.0
 export T2Model05_WINDOW=1000000
 export T2Model06=gpt-6.1-sol
 export T2Model06_WINDOW=850000
-export T3_WINDOW=500000
-export T3Model01=gpt-6.1-terra
-export T3Model01_WINDOW=850000
-export T3Model02=glm-5.3
+export T2b_WINDOW=900000
+export T2bModel01=gpt-6.1-terra
+export T2bModel01_WINDOW=850000
+export T2bModel02=glm-5.3
+export T2bModel02_WINDOW=1000000
+export T2bModel03='Qwen3.8-max'
+export T2bModel03_WINDOW=1000000
+export T2bModel04=muse-wonder-1.0
+export T2bModel04_WINDOW=1000000
+export T3_WINDOW=900000
+export T3Model01=glm-5.3
+export T3Model01_WINDOW=1000000
+export T3Model02='Qwen3.8-max'
 export T3Model02_WINDOW=1000000
-export T3Model03=grok-4.7
-export T3Model03_WINDOW=500000
-export T3Model04='Qwen3.8-max'
-export T3Model04_WINDOW=1000000
-export T3Model05=muse-wonder-1.0
-export T3Model05_WINDOW=1000000
-export T3Model06=muse-spark-1.3
-export T3Model06_WINDOW=950000
-export T4_WINDOW=850000
+export T4_WINDOW=500000
 export T4Model01=gpt-6-luna
 export T4Model01_WINDOW=850000
+export T4Model02=claude-haiku-5-5
+export T4Model02_WINDOW=900000
+export T4Model03=grok-4.7
+export T4Model03_WINDOW=500000
 export CCSESSION_DEFAULT_TIER=tier2
 export ANTHROPIC_MODEL="grok-4.6[1m]"
 echo not-an-export
