@@ -37,14 +37,17 @@ _HEAD_FIXMAP = re.compile(r"^#{1,6}\s+Fix map\s*$", re.M | re.I)
 
 def _blocks_after(
     text: str, heading: re.Pattern[str], info: str
-) -> tuple[bool, list[tuple[int, list[tuple[int, str]]]]]:
-    """(heading found, [(fence start line, [(line number, line text), ...]), ...]) for fences with this info string."""
+) -> tuple[bool, list[tuple[int, list[tuple[int, str]], bool]]]:
+    """(heading found, [(fence start line, [(line number, line text), ...], closed), ...]) for fences with this info string.
+
+    closed is False when the scan reached the end of the text without the closing fence: a truncated block.
+    """
     m = heading.search(text)
     if not m:
         return False, []
     start_line = text.count("\n", 0, m.start())
     lines = text.splitlines()
-    out: list[tuple[int, list[tuple[int, str]]]] = []
+    out: list[tuple[int, list[tuple[int, str]], bool]] = []
     i = start_line + 1
     while i < len(lines):
         fm = _FENCE.match(lines[i])
@@ -54,6 +57,7 @@ def _blocks_after(
         marker, label = fm.group(1), fm.group(2)
         body: list[tuple[int, str]] = []
         j = i + 1
+        closed = False
         while j < len(lines):
             close = _FENCE.match(lines[j])
             if (
@@ -62,11 +66,12 @@ def _blocks_after(
                 and len(close.group(1)) >= len(marker)
                 and not close.group(2)
             ):
+                closed = True
                 break
             body.append((j + 1, lines[j]))
             j += 1
         if label == info:
-            out.append((i + 1, body))
+            out.append((i + 1, body, closed))
         i = j + 1
     return True, out
 
@@ -143,6 +148,14 @@ def parse_block(report_text: str) -> dict:
                 "msg": "more than one findings-v1 block; the last one is used",
             }
         )
+    if not blocks[-1][2]:
+        res["ok"] = False
+        res["errors"].append(
+            {
+                "line": blocks[-1][0],
+                "msg": "the findings-v1 block is not closed: the report ends inside it (truncated)",
+            }
+        )
     seen: set[str] = set()
     for lineno, raw in blocks[-1][1]:
         if not raw.strip():
@@ -214,6 +227,14 @@ def parse_fixmap(text: str) -> dict:
             {
                 "line": blocks[-1][0],
                 "msg": "more than one fixmap-v1 block; the last one is used",
+            }
+        )
+    if not blocks[-1][2]:
+        res["ok"] = False
+        res["errors"].append(
+            {
+                "line": blocks[-1][0],
+                "msg": "the fixmap-v1 block is not closed: the output ends inside it (truncated)",
             }
         )
     for lineno, raw in blocks[-1][1]:

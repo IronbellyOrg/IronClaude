@@ -108,6 +108,8 @@ def merge_round(ledger: dict, doc_text: str, n: int, reviewers: Sequence[dict]) 
     """Merge the reports of round n into the ledger and compute the verdict and decision.
 
     reviewers: dicts with reviewer_id, model, report_path and text, in resolution order.
+    Raises LedgerError, changing nothing, when no reviewer produced a valid findings block.
+    A reviewer with an invalid block is skipped for clearing but its parsable findings are kept.
     """
     expected = len(ledger["rounds"]) + 1
     if n != expected:
@@ -144,6 +146,14 @@ def merge_round(ledger: dict, doc_text: str, n: int, reviewers: Sequence[dict]) 
                 "report_sha256": sha256_text(rv["text"]),
                 "block_ok": parsed["ok"],
             }
+        )
+    if not any(block_ok.values()):
+        # No reviewer produced a valid findings block (a report that is incomplete, lacks the block, has a
+        # malformed or unclosed block). That is not a clean review: refuse the merge before anything is
+        # recorded so the round can be re-run, never certify PASS on a review that did not happen.
+        raise LedgerError(
+            f"round {n} cannot be merged: no reviewer produced a valid findings block "
+            f"({'; '.join(w for w in warnings)}). Re-run the review; the ledger was not changed."
         )
     existing = list(ledger["rows"])
     new_lids: list[str] = []
@@ -225,16 +235,11 @@ def merge_round(ledger: dict, doc_text: str, n: int, reviewers: Sequence[dict]) 
                 ],
             }
         )
-    if any(block_ok.values()):
-        for row in ledger["rows"]:
-            if row["status"] == "resolved_check" and row["lid"] not in members_by_lid:
-                row["status"] = "resolved"
-                row["history"].append({"round": n, "event": "cleared"})
-                cleared.append(row["lid"])
-    elif any(r["status"] == "resolved_check" for r in ledger["rows"]):
-        warnings.append(
-            "no reviewer produced a valid findings block: resolved_check rows were not cleared"
-        )
+    for row in ledger["rows"]:
+        if row["status"] == "resolved_check" and row["lid"] not in members_by_lid:
+            row["status"] = "resolved"
+            row["history"].append({"round": n, "event": "cleared"})
+            cleared.append(row["lid"])
     for rid, p in priors:
         try:
             row = _row(ledger, p["prior"])

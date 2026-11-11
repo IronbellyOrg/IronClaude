@@ -358,3 +358,43 @@ def test_stratum_tag_is_optional_validated_stored_and_never_pooled(tmp_path):
     assert con.execute(
         "select stratum from outcomes order by record_id"
     ).fetchall() == [("sonnet",), ("haiku",)]
+
+
+def test_outcome_with_a_conflicting_stratum_is_excluded_and_counted(tmp_path):
+    """Review finding (Augment): model_scores must never pool outcomes of another stratum."""
+    d = tmp_path / "tel"
+    tel.append_record(d, reviewer_record(record_id="1" * 32, stratum="sonnet"))
+    tel.append_record(
+        d,
+        outcome_record(
+            record_id="o1" + "0" * 30,
+            reviewer_record_id="1" * 32,
+            confirmed_tp=1,
+            stratum="sonnet",
+        ),
+    )
+    tel.append_record(  # tagged haiku, attached to a sonnet reviewer run
+        d,
+        outcome_record(
+            record_id="o2" + "0" * 30,
+            reviewer_record_id="1" * 32,
+            confirmed_tp=5,
+            stratum="haiku",
+        ),
+    )
+    tel.append_record(  # untagged: inherits the reviewer run's stratum
+        d,
+        outcome_record(
+            record_id="o3" + "0" * 30,
+            reviewer_record_id="1" * 32,
+            confirmed_tp=2,
+        ),
+    )
+    db = tmp_path / "t.sqlite"
+    counts = tel.load(d, db)
+    assert counts["stratum_conflicts"] == 1
+    con = sqlite3.connect(db)
+    rows = con.execute(
+        "select stratum, sum_confirmed_tp from model_scores order by stratum"
+    ).fetchall()
+    assert rows == [("sonnet", 3)]  # 1 + 2, never the haiku-tagged 5

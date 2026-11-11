@@ -59,6 +59,32 @@ def test_empty_block_means_no_findings():
     assert r["ok"] is True and r["findings"] == []
 
 
+def test_unclosed_findings_block_is_invalid_even_when_empty():
+    """Review finding (Augment): a truncated report must not read as a clean empty block."""
+    text = "review\n\n## Findings block\n\n```findings-v1\n"
+    res = fnd.parse_block(text)
+    assert res["ok"] is False and res["findings"] == []
+    assert "not closed" in res["errors"][-1]["msg"]
+    # the same block, closed, is the legitimate "no findings" report
+    assert fnd.parse_block(text + "```\n")["ok"] is True
+
+
+def test_unclosed_block_keeps_the_complete_lines_but_is_invalid():
+    text = "review\n\n## Findings block\n\n```findings-v1\n" + line() + "\n"
+    res = fnd.parse_block(text)
+    assert res["ok"] is False and len(res["findings"]) == 1
+
+
+def test_unclosed_fixmap_block_is_invalid():
+    text = (
+        '## Fix map\n\n```fixmap-v1\n{"id": "L1", "action": "applied", "reason": "r"}\n'
+    )
+    res = fnd.parse_fixmap(text)
+    assert res["ok"] is False and len(res["items"]) == 1
+    assert "not closed" in res["errors"][-1]["msg"]
+    assert fnd.parse_fixmap(text + "```\n")["ok"] is True
+
+
 def test_missing_heading_and_missing_block():
     assert fnd.parse_block("review: 1 of 3\nnothing here\n")["ok"] is False
     r = fnd.parse_block("review: 1 of 3\n\n## Findings block\n\nno fence\n")
