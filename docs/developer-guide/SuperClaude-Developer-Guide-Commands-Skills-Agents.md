@@ -982,8 +982,8 @@ Orca can run IronClaude commands as workers under an Orca coordinator (the `/orc
 
 #### Rollout state
 
-- At P0 no command accepts `--unattended` or `--report-dir`, and `UNATTENDED_COMMANDS` in `tests/skills/test_worker_contract.py` is empty.
-- Per the rollout plan, a command gains `--unattended` and its `## Unattended mode` section in the phase that converts its gates, from P1 on, so no command accepts the flag while it can still stop for a human.
+- All 31 converted commands have an `## Unattended mode` section (16 from phase 1, 15 from phase 2), and `UNATTENDED_EXPECT` in `tests/skills/test_worker_contract.py` holds exactly those 31 entries.
+- A coordinator puts `--unattended` and one report directory on the 16 phase 1 commands by default; the phase 2 commands join that default after a phase 2 live check passes. It decides by the two-copy test in `~/.claude/WORKER-CONTRACT.md` ("Before the first task-create for a command"), not by a list in this guide. A command gains `--unattended` and its section in the phase that converts its gates, so no command accepts the flag while it can still stop for a human.
 - Per the rollout plan (SA-1), without `--unattended` every command behaves exactly as it does today: the same prompts, approval gates, default values, output paths and outward defaults.
 
 #### Deciding whether a new command can be a worker
