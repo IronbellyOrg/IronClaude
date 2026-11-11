@@ -6,8 +6,8 @@
     "tier1b": {"alias": "claude-gw-tier1b[1m]", "models": ["claude-sonnet-5-5", "gpt-6.1-sol", "muse-wonder-full-1.0"]},
     "tier2": {"alias": "claude-gw-tier2[1m]", "models": ["gpt-6.1-sol", "glm-5.3", "grok-4.7", "Qwen3.8-max", "muse-wonder-1.0", "muse-spark-1.3"]},
     "tier2b": {"alias": "claude-gw-tier2b[1m]", "models": ["gpt-6.1-terra", "glm-5.3", "Qwen3.8-max", "muse-wonder-1.0"]},
-    "tier3": {"alias": "claude-gw-tier3[1m]", "models": ["gpt-6.1-terra", "glm-5.3", "grok-4.7", "Qwen3.8-max", "muse-wonder-1.0", "muse-spark-1.3"]},
-    "tier4": {"alias": "claude-gw-tier4[1m]", "models": ["gpt-6-luna"]}
+    "tier3": {"alias": "claude-gw-tier3[1m]", "models": ["glm-5.3", "Qwen3.8-max"]},
+    "tier4": {"alias": "claude-gw-tier4[1m]", "models": ["gpt-6-luna", "claude-haiku-5-5", "grok-4.7"]}
   },
   "names": {
     "claude-opus-5-5": "Claude Opus 5.5", "claude-sonnet-5-5": "Claude Sonnet 5.5", "claude-haiku-5-5": "Claude Haiku 5.5",

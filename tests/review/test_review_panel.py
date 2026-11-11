@@ -187,7 +187,7 @@ def test_fallbacks_wrap_around_after_the_chosen_model():
 
 
 def test_random_is_reproducible_and_inside_candidates(tiers):
-    models = _models(tiers, "tier3")
+    models = _models(tiers, "tier2")
     first = pnl.resolve_slot(models, "random", "123|t3|1", "all", [])
     for _ in range(20):
         assert pnl.resolve_slot(models, "random", "123|t3|1", "all", []) == first

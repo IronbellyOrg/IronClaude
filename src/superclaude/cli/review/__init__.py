@@ -16,7 +16,14 @@ def review_group() -> None:
     """Deterministic helpers for document review loops."""
 
 
-for _name in ("panel_cmd", "merge_cmd", "ledger_cmd", "telemetry_cmd", "lint_cmd", "estimate_cmd"):
+for _name in (
+    "panel_cmd",
+    "merge_cmd",
+    "ledger_cmd",
+    "telemetry_cmd",
+    "lint_cmd",
+    "estimate_cmd",
+):
     try:
         _module = importlib.import_module(f"{__name__}.{_name}")
     except ModuleNotFoundError as _exc:

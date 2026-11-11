@@ -50,7 +50,11 @@ def test_anthropic_only_resolves_to_one_sonnet_and_six_haiku(tiers, live7):
     models = [r["model"] for r in out["reviewers"]]
     assert models[0] == "claude-sonnet-5-5"
     assert models[1:] == ["claude-haiku-5-5"] * 6
-    assert [r["stand_in"] for r in out["reviewers"]] == [False] + [True] * 6
+    # Tier 2, 2b and 3 hold no Anthropic model, so Haiku stands in; Tier 4 lists Claude
+    # Haiku 5.5 itself, so those two draws are the real model, not a stand-in.
+    assert [r["stand_in"] for r in out["reviewers"]] == [False] + [True] * 4 + [
+        False
+    ] * 2
     assert out["reviewers"][2]["tier"] == "tier2b"
     assert out["reviewers"][2]["alias"] == "claude-gw-tier2b[1m]"
 
@@ -86,9 +90,14 @@ def test_gateway_resolves_all_seven_with_the_packaged_tier2b(tiers, live7):
     assert got["t2b-1"]["model"] in tiers["aliases"]["tier2b"]["models"]
     assert got["t2b-1"]["alias"] == "claude-gw-tier2b[1m]"
     assert got["t2-1"]["model"] != got["t2b-1"]["model"]
-    # Tier 4 lists one model, so both draws are that model: the distinctness rule only
-    # applies while another candidate exists.
-    assert got["t4-1"]["model"] == got["t4-2"]["model"] == "gpt-6-luna"
+    # Tier 4 lists three models (Luna, Haiku 5.5, Grok 4.7) and Tier 3 two (GLM, Qwen); the
+    # distinctness rule applies while another candidate exists.
+    assert got["t4-1"]["model"] != got["t4-2"]["model"]
+    assert {got["t4-1"]["model"], got["t4-2"]["model"]} <= set(
+        tiers["aliases"]["tier4"]["models"]
+    )
+    assert got["t3-1"]["model"] != got["t3-2"]["model"]
+    assert {got["t3-1"]["model"], got["t3-2"]["model"]} == {"glm-5.3", "Qwen3.8-max"}
     assert all(not r["stand_in"] for r in out["reviewers"])
 
 
