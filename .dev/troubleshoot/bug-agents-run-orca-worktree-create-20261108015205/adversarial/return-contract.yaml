@@ -1,0 +1,15 @@
+return_contract:
+  merged_output_path: /home/coder/workspaces/worktrees/IronClaude/fix-flaky-parallel-thread-test/.dev/troubleshoot/bug-agents-run-orca-worktree-create-20261108015205/adversarial/merged-output.md
+  convergence_score: 1.0
+  artifacts_dir: /home/coder/workspaces/worktrees/IronClaude/fix-flaky-parallel-thread-test/.dev/troubleshoot/bug-agents-run-orca-worktree-create-20261108015205/adversarial
+  status: partial  # all 5 steps completed; post-merge validation passed with 2 warnings (stale base risk bullets; default tabs not covered by the guard)
+  base_variant: "variant-2 (fix-2, quality-engineer card)"
+  unresolved_conflicts: 0
+  fallback_mode: false
+  failure_stage: null
+  invocation_method: skill-direct
+  unaddressed_invariants: []  # Round 2.5 skipped (--depth quick)
+  notes:
+    - "Artifacts written directly into the --output directory (named adversarial/) to match the sc:troubleshoot caller layout."
+    - "Debate depth quick: Round 1 only; Rounds 2, 2.5, 3 skipped. Dissent: V2 on C-002/X-001 (single-handle close)."
+    - "Scoring was done by the orchestrating session in two passes, not by independent judges."

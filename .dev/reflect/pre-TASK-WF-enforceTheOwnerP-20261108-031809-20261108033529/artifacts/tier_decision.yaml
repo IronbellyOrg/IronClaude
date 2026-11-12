@@ -1,0 +1,18 @@
+selected_tier: 2
+fired_rule_number: 4            # S_domains >= 3; rows 1/2/8 were already barred by the coverage_degraded pre-filter
+coverage_degraded: parsed-sparse
+surface_unreached: null
+composite_score: 8
+per_signal_breakdown:
+  scope_size: 2                 # plan touches ~20 files (hook script, 2 hooks.json, install_hooks.py, orca_worktree.py, claim.md, SKILL.md, issue.md, 2 design docs, 3 instruction files, ~8 tests)
+  task_count: 2                 # 8 tasks in 4 phases
+  blast_radius: 2               # a PreToolUse(Bash) hook installed globally gates every Bash call in every project
+  spec_density: 1               # one dense paragraph, 34 inferred requirements, 0 parsed IDs
+  ambiguity_signals: 1          # 2 documented deviations from the source, 6 unmapped union rows (all Constraints)
+S_scope: 8
+S_domains: 4                    # hooks/code, tests, docs, config (hooks.json)
+S_dev_density: 0.1765           # 6 / 34 unmapped over the union set
+confidence_calibrated: 0.72     # Wave 1D (t1-calibration.md); rule 6 (C < 0.85) would also escalate
+escalation_reason: "coverage_degraded=parsed-sparse forbids any Tier 1 stop; first escalate row matched is rule 4 (four domains)"
+t2_model_class_diversity: degraded   # executor holds the opus slot; reviewers are sonnet and haiku (N=2)
+t2_vendor_diversity: single

@@ -1,0 +1,20 @@
+contract_version: "1.8.0"
+status: partial
+mode: pre
+tier_reached: null
+report_path: null
+audit_log_path: null
+coverage_pct: null
+coverage_pct_union: null
+coverage_degraded: parsed-sparse
+coverage_undefined: false
+evidence_validator_ran: false
+adversarial_unavailable: false
+promotion_action: not-applicable
+reason: >-
+  The pre-execution review was not completed. The source has no parsed
+  requirement IDs and contains requirement-shaped instructions, so the
+  parsed-sparse rule requires Tier 2. The required reflect-reviewer agent
+  is configured for one model class, while the request prohibits model
+  overrides. A heterogeneous reviewer ensemble and adversarial merge
+  therefore were not run; no calibrated or evidence-validated verdict is claimed.

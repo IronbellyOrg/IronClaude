@@ -1,0 +1,8 @@
+# §10.6 Grounding Gaps (UC-1). Source: adversarial/merged-output.md §4a (G-1), debate X-001 (unresolved).
+- id: G-1
+  hunk_ref: ".dev/tasks/to-do/TASK-WF-enforceTheOwnerP-20261108-031809/TASK-WF-enforceTheOwnerP-20261108-031809.md:20, :53, :75 (Tasks 3, 5)"
+  evidence_missing: "recorded owner approval of the plan :20 departure (the plan says only 'stated to the owner before planning')"
+  why_not_classifiable: "Necessary if approved or genuinely forced; Regression under §10.5 if it contradicts the source's explicit restriction ('keep agent launch only for an already existing worktree', source.md:1) without approval; neither can be decided without the owner's answer"
+  next_evidence_needed: "ask the owner whether the bare create -> copy -> agent launch + first-tab close replacement is approved"
+  owner: user
+  decision_needed_by_user: true

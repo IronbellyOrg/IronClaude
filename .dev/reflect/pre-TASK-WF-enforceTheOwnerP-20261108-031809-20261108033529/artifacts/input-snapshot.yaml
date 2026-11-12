@@ -1,0 +1,9 @@
+input_tree_sha256: 16a9ecc8ad6ab1521c13e168da7c72335d95d48f9954936fe5bf2f150beab452   # sha256 of the sorted `sha256sum` lines of file_list (repo-relative paths); per-file hashes below were taken at Step 0.4 (03:35Z) and re-taken at Wave 5 (04:37Z): identical, so no drift
+input_tree_hash_method: "find <work-unit> -type f | sort | xargs sha256sum | sha256sum (cwd = repo root)"
+file_list:
+  - path: .dev/tasks/to-do/TASK-WF-enforceTheOwnerP-20261108-031809/TASK-WF-enforceTheOwnerP-20261108-031809.md
+    sha256: d1a56fee4bfa4ddb1fd2be6d691ef95166098c3d3a30a89d274dda2a54040250
+  - path: .dev/tasks/to-do/TASK-WF-enforceTheOwnerP-20261108-031809/source.md
+    sha256: 206a274718364f6225270161e52efa50c5c1535485cd516d0c211f6207ef81c8
+file_count: 2
+output_root: /home/coder/workspaces/worktrees/IronClaude/fix-flaky-parallel-thread-test/.dev/reflect/pre-TASK-WF-enforceTheOwnerP-20261108-031809-20261108033529   # outside the work-unit root; no overlap with inputs
