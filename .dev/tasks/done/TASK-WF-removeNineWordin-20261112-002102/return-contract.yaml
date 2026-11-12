@@ -1,0 +1,14 @@
+contract_version: "1.1"
+status: success
+slug: TASK-WF-removeNineWordin-20261112-002102
+plan_path: ./TASK-WF-removeNineWordin-20261112-002102.md
+source_path: ./source.md
+source_origin: inline
+strategy: systematic
+depth: quick
+handoff_action: none
+handoff_output_path: null
+reflect_status: partial
+reflect_report_path: /home/coder/workspaces/worktrees/IronClaude/codegraph-wording/.dev/reflect/pre-removeNineWordin-20261112002231/REPORT.md
+unresolved:
+  - "reflect ran as an inline Tier 1 pass only (no calibrator, no evidence-validator); it found one Medium note: the section 2 wait must be skippable where a skill's Bash allowlist lacks pgrep (sc-auggie-review-protocol, sc-cleanup-audit-protocol)"

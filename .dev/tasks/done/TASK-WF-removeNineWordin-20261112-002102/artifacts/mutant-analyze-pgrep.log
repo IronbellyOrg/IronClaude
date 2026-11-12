@@ -1,0 +1,7 @@
+# mutant: the 60 s wait clause removed from src/superclaude/commands/analyze.md
+E   AssertionError: src/superclaude/commands/analyze.md lost the clause: waits up to 60 s for a running `init` or `index`
+E   assert 'waits up to 60 s for a running `init` or `index`' in '---\nname: analyze\ndescription: "Comprehensive code analysis across quality, security, performance, and architecture...n\n**Next Step**: After review, use `/sc:improve` to apply recommended fixes or `/sc:cleanup` for dead code removal.\n'
+E    +  where '---\nname: analyze\ndescription: "Comprehensive code analysis across quality, security, performance, and architecture...n\n**Next Step**: After review, use `/sc:improve` to apply recommended fixes or `/sc:cleanup` for dead code removal.\n' = _text(PosixPath('/home/coder/workspaces/worktrees/IronClaude/codegraph-wording/src/superclaude/commands/analyze.md'))
+=========================== short test summary info ============================
+FAILED tests/skills/test_codegraph_adoption.py::test_codegraph_wording_clause_is_present[analyze-waits-for-running-build]
+========================= 1 failed, 81 passed in 0.17s =========================

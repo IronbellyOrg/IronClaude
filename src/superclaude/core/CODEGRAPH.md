@@ -10,7 +10,7 @@ codegraph is a read-only code graph of the current git worktree: symbols, call e
 
 1. Switch: `printenv SUPERCLAUDE_CODEGRAPH_PRIMITIVES` prints `off` → `index_state: disabled`, `access: none`, token `graph:disabled`; use the Phase 1 floor (Grep, Glob, Read) and stop the check.
 2. Worktree: `worktree_root` = realpath of `git rev-parse --show-toplevel`; pass it as `projectPath` on every MCP call.
-3. MCP detection: read the session's own tool list, never the kind of run. `mcp__codegraph__codegraph_status` listed → call it with `projectPath`. Not listed → CLI `codegraph status` in `worktree_root`, and only when `pgrep -f 'codegraph\.js (init|index)'` prints nothing; when it prints a line, skip `status`, set `index_state: stale` and token `graph:stale` (an init is running; CLI `status` during an init can empty the index).
+3. MCP detection: read the session's own tool list, never the kind of run. `mcp__codegraph__codegraph_status` listed → call it once with `projectPath`; before that call, when the primitive's Bash allowlist permits `pgrep` and `pgrep -f 'codegraph\.js (init|index)'` prints a line, wait for that build to end (poll up to 60 s); if it is still running after 60 s, skip `status`, set `index_state: stale` and token `graph:stale`. Not listed → CLI `codegraph status` in `worktree_root`, and only when `pgrep -f 'codegraph\.js (init|index)'` prints nothing; when it prints a line, skip `status`, set `index_state: stale` and token `graph:stale` (an init is running; CLI `status` during an init can empty the index).
 4. Version: `codegraph --version` must equal the pin below; otherwise CLI access is `none` (`graph:absent` when the command is missing, `graph:version_mismatch` plus `graph:provenance_unproven` when it differs, `graph:provenance_unproven` when it cannot be read). MCP access is not affected.
 5. Classify the status answer into `index_state: fresh|stale|not_initialized|foreign_index|absent|disabled|error`:
    - "belongs to a different git working tree" → `foreign_index`, `graph:foreign_index` (a nested worktree answering from its parent's index);
@@ -19,7 +19,7 @@ codegraph is a read-only code graph of the current git worktree: symbols, call e
    - a CLI "Pending Changes:" list, or non-zero MCP change counts → `stale`, `graph:stale`;
    - no binary and no MCP tool → `absent`, `graph:absent`; anything else → `error`, `graph:parse_failed`.
 6. Access: lookup tools (`codegraph_search`, `codegraph_callers`, ...) listed → `access: mcp`. Only `codegraph_status` listed → token `graph:unlisted`; then `access: cli` for a primitive whose allowlist names the CLI read verbs and whose `codegraph --version` matches the pin, else `access: none` and the Phase 1 floor (or artifacts the orchestrator put in the brief).
-7. Record `checked_at` (UTC, `YYYY-MM-DDTHH:MM:SSZ`). Re-check after any write in the same run: no primitive syncs the index (see Never), so rows about files the run changed are leads only.
+7. Record `checked_at` (UTC, `YYYY-MM-DDTHH:MM:SSZ`) from one `date -u +%Y-%m-%dT%H:%M:%SZ` (Bash) run right after the status call, because the status answer has no timestamp. Re-check after any write in the same run: no primitive syncs the index (see Never), so rows about files the run changed are leads only.
 
 Agents get the run's state in their brief: `index_state`, `checked_at`, `worktree_root` and the `projectPath` to pass; they call codegraph only when `index_state: fresh`.
 
@@ -29,7 +29,7 @@ Who indexes: Phase 2's SessionStart hook starts `codegraph init --yes` in every 
 
 `graph:absent`, `graph:unlisted`, `graph:disabled`, `graph:not_initialized`, `graph:foreign_index`, `graph:stale`, `graph:version_mismatch`, `graph:provenance_unproven`, `graph:empty`, `graph:ambiguous`, `graph:truncated`, `graph:parse_failed`, `graph:unresolved`, `graph:telemetry_on`.
 
-Add the matching token to the host primitive's existing `degraded` / `degraded_components` list and continue on the floor; no token stops a run. For `graph:not_initialized` tell the user: run `/sc:graph status`; it reports `next_action: run_graph_init`. `graph:disabled` means the user set `SUPERCLAUDE_CODEGRAPH_PRIMITIVES=off`.
+Add the matching token to the host primitive's existing `degraded` / `degraded_components` list and continue on the floor; no token stops a run. A single lookup that fails or returns nothing records `graph:empty` the same way (`graph:truncated` for a caller list shorter than its total, `graph:unresolved` for a row you could not confirm); no new token is added. For `graph:not_initialized` tell the user: run `/sc:graph status`; it reports `next_action: run_graph_init`. `graph:disabled` means the user set `SUPERCLAUDE_CODEGRAPH_PRIMITIVES=off`.
 
 Pinned codegraph version: 1.6.2
 Freshness experiment E-1: outcome-A
@@ -47,7 +47,7 @@ E-1 outcome A: CLI `status` lists pending files right after a write even with no
 | Who calls X | `codegraph_callers {symbol, file?, limit}` | `codegraph callers <name> --json --limit <n>` |
 | What X calls | `codegraph_callees {symbol, file?, limit}` | `codegraph callees <name> --json --limit <n>` |
 | Impact before an edit | `codegraph_impact {symbol, file?, depth}` | `codegraph impact <name> --depth <n> --json` |
-| Overview | `codegraph_files {format:"grouped", maxDepth:2}` | none |
+| Overview (set `path` to the target's directory when the target is narrower than the repo) | `codegraph_files {format:"grouped", maxDepth:2, path?}` | none |
 | Readiness | `codegraph_status {projectPath}` | guarded `codegraph status` (section 2) |
 | Tests affected by changed files | none | `codegraph affected <files...> --json --quiet` (files as arguments; advisory) |
 
@@ -71,7 +71,7 @@ Rules for every primitive:
 4. Agents get exact names (`mcp__codegraph__codegraph_<tool>`, never a wildcard) and the run's state in the brief (section 2).
 5. No mutating verb in a skill or agent, and no wildcard allowlist (see Never).
 6. Both tool-list branches: the same primitive text works whether Phase 2 registered seven tools or only `codegraph_status` (section 4).
-7. Guard every CLI `status` with `pgrep -f 'codegraph\.js (init|index)'`; MCP `codegraph_status` needs no guard.
+7. Guard every CLI `status` with `pgrep -f 'codegraph\.js (init|index)'` (skip it while one runs); the MCP `codegraph_status` takes the bounded wait of section 2 step 3 instead.
 8. Call the CLI as bare `codegraph` (what exact allowlist patterns match); Phase 2's pointer `~/.codegraph/.superclaude-bin` is for the hook and the main session.
 9. Tier above the floor: a codegraph step goes before the existing Grep/Read step, which stays unchanged; never "skip" where a floor exists.
 

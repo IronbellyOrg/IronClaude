@@ -1,0 +1,23 @@
+## pytest (required set)
+FAILED tests/cli/eval/test_claude_process_adapter.py::test_ruff_flags_synthetic_anthropic_import_under_cli_eval
+FAILED tests/cli/eval/test_claude_process_adapter.py::test_ruff_passes_on_real_adapter_module
+================== 2 failed, 1818 passed, 4 skipped in 39.78s ==================
+## pytest (other files that grep the three files)
+........................................................................ [100%]
+
+============================= 600 passed in 2.65s ==============================
+## make sync-dev
+   Commands:  46 files
+   Hooks:     17 files
+   Templates: 52 files
+## make verify-sync
+  ✅ hooks.json matcher and auggie-flag-clear.sh case body agree on auggie prefixes
+
+✅ All components in sync.
+rc=0
+## ruff check src tests scripts
+All checks passed!
+## ruff format --check touched
+2 files already formatted
+## rerun of the required set after installing ruff into the worktree venv (uv pip install ruff; the 2 failures above were "No module named ruff" in tests/cli/eval/test_claude_process_adapter.py, not a code change)
+1820 passed, 4 skipped

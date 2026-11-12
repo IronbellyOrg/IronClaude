@@ -44,7 +44,7 @@ Key behaviors:
 
 - **Read**: Requirements analysis and existing system examination
 - **Grep/Glob**: Pattern analysis and system structure investigation (the floor for every step)
-- **codegraph** (`mcp__codegraph__codegraph_status`, `_search`, `_node`, `_callers`, `_callees`, `_impact`, `_files`): one readiness check, then symbol, caller and impact lookups above the Grep/Glob/Read floor when `index_state` is `fresh` (guide `~/.claude/CODEGRAPH.md`)
+- **codegraph** (`mcp__codegraph__codegraph_status`, `_search`, `_node`, `_callers`, `_callees`, `_impact`, `_files`): one readiness check, then symbol, caller and impact lookups above the Grep/Glob/Read floor when `index_state` is `fresh` (guide `~/.claude/CODEGRAPH.md`, read before the first codegraph call)
 - **Write**: Design documentation and specification generation
 - **Bash**: External design tool integration when needed
 
@@ -52,17 +52,17 @@ Key behaviors:
 
 Rules: read `~/.claude/CODEGRAPH.md` before the first codegraph call. Glob, Grep and Read stay the floor for every step; codegraph is a tier above that floor, never a replacement.
 
-**Readiness check, once per run.** At the start of Analyze, run the readiness check of that guide (its section 2) exactly once. Record `index_state`, `checked_at`, `worktree_root` and the `projectPath` to pass on every codegraph call. No later step repeats the check: the run reads code and writes only the design document.
+**Readiness check, once per run.** At the start of Analyze, run the readiness check of that guide (its section 2) exactly once: on the MCP path it first waits up to 60 s for a running `init` or `index` (guide step 3), and `checked_at` comes from one `date -u +%Y-%m-%dT%H:%M:%SZ` Bash run right after the single `codegraph_status` call. Record `index_state`, `checked_at`, `worktree_root` and the `projectPath` to pass on every codegraph call. No later step repeats the check: the run reads code and writes only the design document.
 
-**Use codegraph only when `index_state` is `fresh`** and the lookup tools are listed. For any other state (`stale`, `not_initialized`, `foreign_index`, `absent`, `disabled`, `error`, or lookup tools not listed), continue every step on Glob, Grep and Read and record the matching token from the guide's section 3 (`graph:stale`, `graph:not_initialized`, `graph:foreign_index`, `graph:absent`, `graph:disabled`, `graph:unlisted`, `graph:parse_failed`) in the Grounding line below. The run never stops and never asks the user because of codegraph. A single lookup that fails or returns nothing falls back to the floor for that lookup in the same way.
+**Use codegraph only when `index_state` is `fresh`** and the lookup tools are listed. For any other state (`stale`, `not_initialized`, `foreign_index`, `absent`, `disabled`, `error`, or lookup tools not listed), continue every step on Glob, Grep and Read and record the matching token from the guide's section 3 (`graph:stale`, `graph:not_initialized`, `graph:foreign_index`, `graph:absent`, `graph:disabled`, `graph:unlisted`, `graph:parse_failed`) in the Grounding line below. The run never stops and never asks the user because of codegraph. A single lookup that fails or returns nothing falls back to the floor for that lookup in the same way, and the matching token (`graph:empty`, `graph:truncated` for a short caller list, or `graph:unresolved` for a row you could not confirm) goes in the Grounding line.
 
 | Step | Design question | Codegraph tool (each call passes `projectPath`) |
 |------|-----------------|--------------------------------------------------|
-| Analyze | What structure already exists? | `codegraph_files {format:"grouped", maxDepth:2}` |
+| Analyze | What structure already exists? | `codegraph_files {format:"grouped", maxDepth:2, path}` with `path` set to the target's directory when it is narrower than the repo |
 | Analyze | Which existing interfaces, types and symbols should the design reuse? | `codegraph_search {query, kind?}`, `codegraph_node {symbol, includeCode:true}`, `codegraph_node {file, symbolsOnly:true}` for a file outline |
 | Plan, Design | Who uses the component or API being designed or changed, and what does it use? | `codegraph_callers {symbol, limit:20}`, `codegraph_callees {symbol}` |
 | Plan, Design | What does a change to an existing interface reach (blast radius)? | `codegraph_impact {symbol, depth:2}` before the design proposes the change |
-| Validate | Do the names, layering and signatures in the design exist and match the current structure, and does no consumer break? | `codegraph_search`, `codegraph_node`, then `codegraph_callers` and `codegraph_impact` for the consumers |
+| Validate | Do the names, layering and signatures in the design exist and match the current structure, and does no consumer break? | `codegraph_search`, `codegraph_node`, then `codegraph_callers` for the consumers, and `codegraph_impact` only if it was not already run for the same symbol in Plan or Design |
 
 Rules for graph answers:
 
@@ -71,7 +71,7 @@ Rules for graph answers:
 - Caller rows give the caller's definition line; confirm the call site (guide section 5) before citing it.
 - Never call `codegraph_explore`, never use `codegraph_node` in file mode without `symbolsOnly:true`, and never run a mutating codegraph verb or `codegraph init`.
 
-**Grounding line.** The design document carries one `Grounding:` line: `index_state: fresh` with the codegraph tools used, or the `graph:*` token that sent the run to the floor. Under `--unattended` the line stays in the design report and the worker contract gets no new field.
+**Grounding line.** The design document carries one `Grounding:` line: `index_state: fresh` with the codegraph tools used, or the `graph:*` token that sent the run to the floor; with `--format code` or `--format diagram` it is the first comment line or a caption line of the output. Under `--unattended` the line stays in the design report and the worker contract gets no new field.
 
 ## Key Patterns
 
