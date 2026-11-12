@@ -71,11 +71,11 @@ def test_share_at_exactly_90_percent_passes(tmp_path):
     assert (s["units"], s["converted"], s["share"]) == (10, 9, 0.9)
     text = replay.render(data)
     assert "Conversion share: 9/10 = 90.00%" in text
-    assert "**PASS**" in text
-    assert replay.STOP_SENTENCE not in text
+    assert "Reference value (at least 90%): met; no gate" in text
+    assert "PASS" not in text and "FAIL" not in text
 
 
-def test_share_below_90_percent_fails_and_says_the_plan_stops(tmp_path):
+def test_share_below_90_percent_is_a_baseline_and_stops_nothing(tmp_path):
     good = [_finding(i, f"src/a.py:{i * 10}") for i in range(1, 9)]
     bad = [_finding(9, "plan:5"), _finding(10, "prose only")]
     _run(
@@ -86,12 +86,9 @@ def test_share_below_90_percent_fails_and_says_the_plan_stops(tmp_path):
     )
     text = _report(tmp_path)
     assert "Conversion share: 8/10 = 80.00%" in text
-    assert "**FAIL**" in text
-    assert replay.STOP_SENTENCE in text
-    assert (
-        "must not ship" in replay.STOP_SENTENCE
-        and "stops at Task 4 for owner review" in replay.STOP_SENTENCE
-    )
+    assert "Reference value (at least 90%): not met; no gate" in text
+    assert replay.BASELINE_NOTE in text
+    assert "FAIL" not in text and "must not ship" not in text
     assert "| unresolved citation: no path:line ref | 1 |" in text
     assert "| unresolved citation: no plan path | 1 |" in text
 
@@ -416,7 +413,7 @@ def test_main_dispatches_no_model_and_is_deterministic(tmp_path, monkeypatch, ca
     assert out1.read_bytes() == out2.read_bytes()
     text = out1.read_text()
     assert str(tmp_path) not in text
-    assert "gate=PASS" in capsys.readouterr().out
+    assert "(baseline, no gate)" in capsys.readouterr().out
 
 
 def test_default_output_path(tmp_path, monkeypatch):
@@ -427,10 +424,10 @@ def test_default_output_path(tmp_path, monkeypatch):
     assert replay.default_out(tmp_path) == package / "artifacts" / "stage0a-report.md"
 
 
-def test_no_runs_gives_a_fail_report_without_raising(tmp_path):
+def test_no_runs_gives_a_baseline_report_without_raising(tmp_path):
     text = _report(tmp_path)
     assert "Conversion share: 0/0 = n/a" in text
-    assert replay.STOP_SENTENCE in text
+    assert replay.BASELINE_NOTE in text
 
 
 @pytest.mark.parametrize("plan_key", ["card_dirs", "merged", "nulls"])

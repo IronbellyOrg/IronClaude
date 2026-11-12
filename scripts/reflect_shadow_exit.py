@@ -114,11 +114,22 @@ def card_headers(run: Path) -> list[dict[str, str]]:
     return out
 
 
-def recompute_parity(run: Path, contract: dict, classes: dict) -> tuple[bool, str]:
-    """(parity, reason): the three ordered (persona, model class) lists must exist and be equal."""
+def recompute_parity(
+    run: Path, contract: dict, classes: dict, tiers_sha256: str | None = None
+) -> tuple[bool, str]:
+    """(parity, reason): the three ordered (persona, model class) lists must exist and be equal.
+
+    With tiers_sha256 (the hash of the tier file `classes` came from), a run whose resolution recorded a different
+    hash is not interpreted with today's mapping: it is reported as not proven, with that reason.
+    """
     resolution = _json_map(run / "panel" / "resolution.json")
     if resolution is None or not isinstance(resolution.get("reviewers"), list):
         return False, "panel/resolution.json is missing or has no reviewers"
+    if tiers_sha256 is not None and resolution.get("tiers_sha256") != tiers_sha256:
+        return (
+            False,
+            "the run's tier file hash differs from the current tier file, so its model ids cannot be mapped to classes here",
+        )
     reviewers = resolution["reviewers"]
     resolved = [
         (PERSONAS[i] if i < len(PERSONAS) else None, classes.get(r.get("model")))
@@ -149,9 +160,16 @@ def recompute_parity(run: Path, contract: dict, classes: dict) -> tuple[bool, st
             False,
             "the legacy rotation (reviewer_personas, reviewer_models) is not in the contract",
         )
-    legacy = [
-        (str(p), classes.get(m, str(m).lower())) for p, m in zip(personas, models)
-    ]
+    known = set(classes.values())
+    legacy = []
+    for p, m in zip(personas, models):
+        cls = classes.get(m, str(m).lower())
+        if cls not in known:
+            return (
+                False,
+                f"legacy reviewer model {m!r} is neither a mapped model id nor a class name, so parity is not proven",
+            )
+        legacy.append((str(p), cls))
     if len(legacy) != len(reviewers):
         return False, "the legacy rotation has a different reviewer count"
     if not (resolved == cards == legacy):
@@ -159,11 +177,12 @@ def recompute_parity(run: Path, contract: dict, classes: dict) -> tuple[bool, st
     return True, ""
 
 
-def malformed_rows(run: Path) -> int:
+def malformed_rows(run: Path) -> int | None:
+    """MALFORMED row count of the run's audit.log; None when the file is missing or unreadable."""
     try:
         text = (run / "audit.log").read_text(encoding="utf-8")
     except (OSError, ValueError):
-        return 0
+        return None
     return sum(1 for row in text.splitlines() if _MALFORMED.search(row))
 
 
@@ -183,12 +202,17 @@ def _rate(flags: list[bool | None]) -> tuple[int, int, float | None]:
 
 def collect(runs_root: Path) -> dict:
     """Scan runs_root; returns the per-run records and the legacy baseline."""
-    classes = pnl.load_tiers().get("classes", {})
+    tiers = pnl.load_tiers()
+    classes = tiers.get("classes", {})
+    tiers_sha256 = pnl.sha256_json(tiers)
     shadow, incomplete, failed = [], [], []
     for mpath in sorted(runs_root.glob("pre-*/panel/manifest.json")):
         run = mpath.parent.parent
         manifest = _json_map(mpath)
-        if manifest is None or manifest.get("t2_engine_effective") != "shadow":
+        if manifest is None:
+            failed.append(f"{run.name} (manifest unreadable)")
+            continue
+        if manifest.get("t2_engine_effective") != "shadow":
             continue
         state = manifest.get("state")
         if state == "failed":
@@ -198,8 +222,9 @@ def collect(runs_root: Path) -> dict:
             incomplete.append((run.name, str(state)))
             continue
         contract = _yaml_map(run / "return-contract.yaml") or {}
-        parity, why = recompute_parity(run, contract, classes)
+        parity, why = recompute_parity(run, contract, classes, tiers_sha256)
         recorded = tele(contract, "panel_parity")
+        malformed = malformed_rows(run)
         shadow.append(
             {
                 "name": run.name,
@@ -210,7 +235,8 @@ def collect(runs_root: Path) -> dict:
                 "parity_reason": why,
                 "recorded_parity": recorded,
                 "wrong_record": recorded is True and not parity,
-                "malformed": malformed_rows(run),
+                "malformed": malformed or 0,
+                "audit_unreadable": malformed is None,
                 "lint": pl.lint_panel_contract(run, contract)
                 if contract
                 else ["no contract"],
@@ -265,6 +291,10 @@ def build_report(data: dict, required: int) -> tuple[str, str]:
         lines.append(f"  FAILED manifest: {name}")
         failures.append(f"{name}: manifest state failed")
 
+    for r in shadow:
+        if r["audit_unreadable"]:
+            lines.append(f"  audit.log missing or unreadable: {r['name']}")
+            failures.append(f"{r['name']}: audit.log missing or unreadable")
     malformed = sum(r["malformed"] for r in shadow)
     lines.append(f"MALFORMED audit.log rows: {malformed} (must be 0)")
     if malformed:

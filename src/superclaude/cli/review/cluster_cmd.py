@@ -110,6 +110,13 @@ def _kept_pairs(path: Path, blocks: dict[str, dict]) -> list[tuple[str, str]]:
     help="JSON sidecar {reviewer_id: {finding_id: finding_confidence}}.",
 )
 @click.option(
+    "--coverage",
+    "coverage",
+    default=None,
+    type=click.Path(exists=True, dir_okay=False),
+    help='JSON sidecar {reviewer_id: {"assigned": [row ids], "observed": [row ids]}}: the coverage context a card\'s block is checked against. Without it a card with no findings, or with coverage_rows, is listed invalid.',
+)
+@click.option(
     "--kept",
     "kept",
     default=None,
@@ -123,7 +130,7 @@ def _kept_pairs(path: Path, blocks: dict[str, dict]) -> list[tuple[str, str]]:
     type=click.Path(file_okay=False),
     help="Output directory; the result goes to <out>/panel/.",
 )
-def command(cards_dir, snapshot, calibration, kept, out) -> None:
+def command(cards_dir, snapshot, calibration, coverage, kept, out) -> None:
     """Cluster the findings of calibrated reviewer cards; print where the result was written."""
     # Imported here so that loading the `review` group does not load cluster.py (other review commands stay unaffected).
     from superclaude.cli.review import cluster as cl
@@ -132,11 +139,17 @@ def command(cards_dir, snapshot, calibration, kept, out) -> None:
     if not cards:
         raise click.ClickException(f"no *.md cards in {cards_dir}")
     side = _sidecar(Path(calibration)) if calibration else {}
+    cover = _sidecar(Path(coverage)) if coverage else {}
     records, blocks, listing = [], {}, []
     for ordinal, card in enumerate(cards, 1):
         text = _read(card, "card")
-        block = fv2.parse_block(text)
         rid = card.stem
+        ctx = cover.get(rid) if isinstance(cover.get(rid), dict) else {}
+        block = fv2.parse_block(
+            text,
+            assigned_rows=ctx.get("assigned"),
+            observed_rows=ctx.get("observed") or (),
+        )
         cal = side.get(rid) if isinstance(side.get(rid), dict) else None
         records.append((rid, ordinal, block, cal or _embedded_calibration(text)))
         blocks[rid] = block

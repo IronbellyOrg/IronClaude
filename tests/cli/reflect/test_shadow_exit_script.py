@@ -160,6 +160,51 @@ def test_a_parity_failure_recorded_true_but_recomputed_false_fails(tmp_path, cap
     assert "pre-shadow-19: FAILS" in out and "recorded true but recomputed false" in out
 
 
+def test_a_run_frozen_under_another_tier_file_is_not_read_with_todays_mapping(
+    tmp_path, capsys
+):
+    root = runs_root(tmp_path, shadows=19)
+    d = shadow_run(root, "pre-shadow-19")
+    res = json.loads((d / "panel/resolution.json").read_text())
+    res["tiers_sha256"] = "b" * 64
+    (d / "panel/resolution.json").write_text(json.dumps(res))
+    code, out = run(root, capsys)
+    assert code == 1
+    assert "pre-shadow-19: FAILS" in out and "tier file hash differs" in out
+
+
+def test_an_unreadable_manifest_fails_instead_of_vanishing(tmp_path, capsys):
+    root = runs_root(tmp_path, shadows=20)
+    shadow_run(root, "pre-shadow-20")
+    (root / "pre-shadow-20/panel/manifest.json").write_text("{not json")
+    code, out = run(root, capsys)
+    assert code == 1
+    assert "pre-shadow-20 (manifest unreadable)" in out
+
+
+def test_a_missing_audit_log_is_not_zero_malformed_rows(tmp_path, capsys):
+    root = runs_root(tmp_path, shadows=19)
+    d = shadow_run(root, "pre-shadow-19")
+    (d / "audit.log").unlink()
+    code, out = run(root, capsys)
+    assert code == 1
+    assert "pre-shadow-19: audit.log missing or unreadable" in out
+
+
+def test_a_legacy_model_that_is_neither_an_id_nor_a_class_is_not_proven(
+    tmp_path, capsys
+):
+    root = runs_root(tmp_path, shadows=19)
+    shadow_run(
+        root,
+        "pre-shadow-19",
+        telemetry={"reviewer_models": ["gateway-alias", "haiku", "opus"]},
+    )
+    code, out = run(root, capsys)
+    assert code == 1
+    assert "neither a mapped model id nor a class name" in out
+
+
 def test_a_missing_legacy_rotation_cannot_be_recomputed(tmp_path, capsys):
     root = runs_root(tmp_path, shadows=19)
     shadow_run(root, "pre-shadow-19", telemetry={"reviewer_models": None})

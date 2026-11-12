@@ -90,6 +90,25 @@ def test_two_cards_write_clusters_with_the_agreement(run_dir):
     assert not (run_dir / "out/panel/clusters_kept.json").exists()
 
 
+def test_a_clean_card_is_complete_only_with_its_coverage_context(run_dir):
+    (run_dir / "cards" / "r3.md").write_text(_card([]))
+
+    def state(res):
+        assert res.exit_code == 0, res.output
+        data = json.loads((run_dir / "out/panel/clusters.json").read_text())
+        return {c["reviewer_id"]: c["state"] for c in data["cards"]}["r3"]
+
+    assert state(_run(run_dir)) == "invalid"
+    cover = run_dir / "coverage.json"
+    cover.write_text(json.dumps({"r3": {"assigned": ["R-1"], "observed": ["R-1"]}}))
+    assert state(_run(run_dir, "--coverage", str(cover))) == "complete"
+    # a nonempty coverage_rows is accepted when the assigned slice names it
+    row = json.loads(_line("H1", "plan.md", 5, 6, ["R-1"]))
+    row["coverage_rows"] = ["R-1"]
+    (run_dir / "cards" / "r3.md").write_text(_card([json.dumps(row)]))
+    assert state(_run(run_dir, "--coverage", str(cover))) == "complete"
+
+
 def test_kept_pass_drops_unkept_ids_and_leaves_clusters_json_alone(run_dir):
     _run(run_dir)
     clusters = run_dir / "out/panel/clusters.json"
