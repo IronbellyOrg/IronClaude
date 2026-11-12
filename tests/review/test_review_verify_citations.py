@@ -62,13 +62,13 @@ def repo(tmp_path):
     return tmp_path, root
 
 
-def _run(tmp, root, out="out"):
+def _run(tmp, root, *extra, out="out"):
     return CliRunner().invoke(
         main,
         [
             "review", "verify-citations", "--cards", str(tmp / "cards"),
             "--snapshot", str(tmp / "input-snapshot.yaml"), "--root", str(root),
-            "--out", str(tmp / out),
+            "--out", str(tmp / out), *extra,
         ],
     )  # fmt: skip
 
@@ -93,6 +93,27 @@ def test_each_flag_and_a_clean_citation(repo):
     assert quote["flag"] == "quote-not-found" and quote["advisory"] is True
     assert rows[("r1", "NOFILE")]["advisory"] is False
     assert rows[("r1", "RANGE")]["advisory"] is False
+
+
+def test_a_coverage_linked_finding_is_checked_when_the_context_is_given(repo):
+    tmp, root = repo
+    row = json.loads(_line("COV", "src/nope.py", 1, 1))
+    row["coverage_rows"] = ["R-1"]
+    (tmp / "cards/r3.md").write_text(_card(json.dumps(row)))
+    assert ("r3", "COV") not in _by_id(_run_ok(tmp, root))
+    cover = tmp / "coverage.json"
+    cover.write_text(json.dumps({"r3": {"assigned": ["R-1"], "observed": ["R-1"]}}))
+    rows = _by_id(_run_ok(tmp, root, "--coverage", str(cover), out="out2"))
+    assert rows[("r3", "COV")]["flag"] == "missing-file"
+    cover.write_text(json.dumps({"r3": {"assigned": "R-1", "observed": "R-1"}}))
+    res = _run(tmp, root, "--coverage", str(cover), out="out3")
+    assert res.exit_code != 0 and "must be a list of strings" in res.output
+
+
+def _run_ok(tmp, root, *extra, out="out"):
+    res = _run(tmp, root, *extra, out=out)
+    assert res.exit_code == 0, res.output
+    return _result(tmp, out)
 
 
 def test_path_outside_the_snapshot_or_the_root_is_missing_file(repo):

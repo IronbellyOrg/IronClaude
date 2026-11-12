@@ -144,12 +144,11 @@ def command(cards_dir, snapshot, calibration, coverage, kept, out) -> None:
     for ordinal, card in enumerate(cards, 1):
         text = _read(card, "card")
         rid = card.stem
-        ctx = cover.get(rid) if isinstance(cover.get(rid), dict) else {}
-        block = fv2.parse_block(
-            text,
-            assigned_rows=ctx.get("assigned"),
-            observed_rows=ctx.get("observed") or (),
-        )
+        try:
+            assigned, observed = fv2.coverage_context(cover.get(rid))
+        except ValueError as exc:
+            raise click.ClickException(f"coverage for {rid}: {exc}") from exc
+        block = fv2.parse_block(text, assigned_rows=assigned, observed_rows=observed)
         cal = side.get(rid) if isinstance(side.get(rid), dict) else None
         records.append((rid, ordinal, block, cal or _embedded_calibration(text)))
         blocks[rid] = block

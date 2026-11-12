@@ -97,13 +97,20 @@ def _check(
     help="Repository root: the base for reads.",
 )
 @click.option(
+    "--coverage",
+    "coverage",
+    default=None,
+    type=click.Path(exists=True, dir_okay=False),
+    help='JSON sidecar {reviewer_id: {"assigned": [row ids], "observed": [row ids]}}, the same file `review cluster --coverage` reads. Without it a finding with coverage_rows is rejected by the block parser and its citations are not checked.',
+)
+@click.option(
     "--out",
     "out",
     required=True,
     type=click.Path(file_okay=False),
     help="Output directory; the result goes to <out>/panel/precheck.json.",
 )
-def command(cards_dir, snapshot, root, out) -> None:
+def command(cards_dir, snapshot, root, coverage, out) -> None:
     """Flag citations whose file is missing, whose lines are out of range or whose quote is not found (advisory)."""
     cards = sorted(Path(cards_dir).glob("*.md"))
     if not cards:
@@ -112,9 +119,16 @@ def command(cards_dir, snapshot, root, out) -> None:
     base = Path(root).resolve()
     cache: dict = {}
     rows, listing = [], []
+    cover = cc._sidecar(Path(coverage)) if coverage else {}
     for card in cards:
-        block = fv2.parse_block(cc._read(card, "card"))
         rid = card.stem
+        try:
+            assigned, observed = fv2.coverage_context(cover.get(rid))
+        except ValueError as exc:
+            raise click.ClickException(f"coverage for {rid}: {exc}") from exc
+        block = fv2.parse_block(
+            cc._read(card, "card"), assigned_rows=assigned, observed_rows=observed
+        )
         listing.append(
             {"card": card.name, "reviewer_id": rid, "block_state": block["state"]}
         )

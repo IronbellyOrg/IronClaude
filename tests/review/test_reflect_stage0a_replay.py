@@ -427,6 +427,7 @@ def test_default_output_path(tmp_path, monkeypatch):
 def test_no_runs_gives_a_baseline_report_without_raising(tmp_path):
     text = _report(tmp_path)
     assert "Conversion share: 0/0 = n/a" in text
+    assert "Reference value (at least 90%): n/a (nothing measured); no gate" in text
     assert replay.BASELINE_NOTE in text
 
 

@@ -193,6 +193,25 @@ def channel_of(f: dict) -> str:
     return ch if _one_of(ch, CHANNELS) else "defect"
 
 
+def coverage_context(entry: Any) -> tuple[list[str] | None, list[str]]:
+    """(assigned_rows, observed_rows) from one {"assigned": [...], "observed": [...]} entry; (None, []) for no entry.
+
+    Raises ValueError when the entry is not an object or a row list is not a list of strings (a bare string would be
+    iterated character by character by parse_block).
+    """
+    if entry is None:
+        return None, []
+    if not isinstance(entry, dict):
+        raise ValueError("a coverage entry must be an object")
+    for key in ("assigned", "observed"):
+        rows = entry.get(key)
+        if rows is not None and (
+            not isinstance(rows, list) or not all(isinstance(r, str) for r in rows)
+        ):
+            raise ValueError(f"coverage {key} must be a list of strings")
+    return entry.get("assigned"), entry.get("observed") or []
+
+
 def parse_block(
     text: str,
     *,

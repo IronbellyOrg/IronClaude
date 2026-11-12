@@ -577,7 +577,8 @@ def render(data: dict) -> str:
     )
     a(f"- Converted unambiguously: {s['converted']}; unconverted: {s['unconverted']}")
     a(f"- Conversion share: {s['converted']}/{s['units']} = {_pct(share)}")
-    a(f"- Reference value (at least 90%): {'met' if passed else 'not met'}; no gate")
+    ref = "n/a (nothing measured)" if share is None else "met" if passed else "not met"
+    a(f"- Reference value (at least 90%): {ref}; no gate")
     a(
         f"- Refs: {s['refs']} citations, {s['refs_resolved']} with a path and line, {s['refs_unresolved']} unresolved"
     )

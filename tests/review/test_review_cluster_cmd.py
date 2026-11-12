@@ -109,6 +109,14 @@ def test_a_clean_card_is_complete_only_with_its_coverage_context(run_dir):
     assert state(_run(run_dir, "--coverage", str(cover))) == "complete"
 
 
+def test_a_scalar_coverage_value_is_an_error_not_a_string_of_rows(run_dir):
+    (run_dir / "cards" / "r3.md").write_text(_card([]))
+    cover = run_dir / "coverage.json"
+    cover.write_text(json.dumps({"r3": {"assigned": "R-1", "observed": "R-1"}}))
+    res = _run(run_dir, "--coverage", str(cover))
+    assert res.exit_code != 0 and "must be a list of strings" in res.output
+
+
 def test_kept_pass_drops_unkept_ids_and_leaves_clusters_json_alone(run_dir):
     _run(run_dir)
     clusters = run_dir / "out/panel/clusters.json"
