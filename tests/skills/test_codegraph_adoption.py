@@ -250,7 +250,14 @@ def test_reflect_commands_mcp_servers_gain_codegraph(path):
 
 _ISSUE_504_COMMANDS = [
     _SRC / "commands" / name
-    for name in ("analyze.md", "design.md", "implement.md", "workflow.md")
+    for name in (
+        "analyze.md",
+        "design.md",
+        "implement.md",
+        "workflow.md",
+        "index-repo.md",
+        "document.md",
+    )
 ]
 _ISSUE_504_SKILLS = [
     _SRC / "skills" / "sc-implement-protocol" / "SKILL.md",

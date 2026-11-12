@@ -1,7 +1,7 @@
 ---
 name: sc:task-protocol
 description: Unified task execution with intelligent workflow management, MCP compliance enforcement, and multi-agent delegation. Merges orchestration capabilities with MCP compliance into a single coherent interface.
-allowed-tools: Read, Glob, Grep, Edit, Write, Bash, TodoWrite, Task, Skill, mcp__codegraph__codegraph_callers, mcp__codegraph__codegraph_impact
+allowed-tools: Read, Glob, Grep, Edit, Write, Bash, TodoWrite, Task, Skill, mcp__litellm__augment_code-augment_code_search, mcp__auggie__codebase-retrieval, mcp__codegraph__codegraph_status, mcp__codegraph__codegraph_callers, mcp__codegraph__codegraph_impact
 ---
 
 <!-- markdownlint-disable MD041 MD040 -->
@@ -104,7 +104,7 @@ Execute task according to tier requirements:
 **STANDARD Execution**:
 
 1. Load context via `mcp__litellm__augment_code-augment_code_search` (else `mcp__auggie__codebase-retrieval`)
-2. Search downstream impacts: `codegraph_callers` / `codegraph_impact` on the changed symbol when codegraph is usable (`~/.claude/CODEGRAPH.md`; rows are leads, Read before relying on them), OR Grep with a word-boundary pattern for the changed symbol, then Read the call sites
+2. Search downstream impacts: run the `~/.claude/CODEGRAPH.md` section 2 readiness check once per run; only with `index_state: fresh` and `access: mcp`, call `codegraph_callers` / `codegraph_impact` on the changed symbol with the `projectPath` from that check (rows are leads, Read before relying on them); otherwise, or when they return no rows, Grep with a word-boundary pattern for the changed symbol, then Read the call sites
 3. Make changes
 4. Run affected tests OR document manual verification
 5. Verify basic functionality
@@ -319,7 +319,7 @@ After completion, collect implicit feedback:
 
 1. Edit/MultiEdit/Write: Make changes
 2. Grep/Glob: Find references
-3. `codegraph_callers` / `codegraph_impact` (when usable), OR Grep (word-boundary pattern for the symbol) then Read the call sites: Trace dependencies
+3. `codegraph_callers` / `codegraph_impact` (only with `index_state: fresh` and `access: mcp`, one readiness check per run), OR Grep (word-boundary pattern for the symbol) then Read the call sites: Trace dependencies
 
 **Verification Phase**:
 

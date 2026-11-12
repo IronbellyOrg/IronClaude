@@ -3,6 +3,10 @@ name: tech-reference
 description: "Create or populate a Technical Reference document for a built feature. Use this skill when the user wants to create a tech reference, document a feature's architecture and implementation, populate an existing tech reference stub, or write a comprehensive technical reference following the project template. Trigger on phrases like 'create a tech reference for...', 'document this feature', 'write a technical reference', 'populate this tech reference', 'tech ref for the agent system', or when the user references a *-technical-reference.md file that needs content. Also trigger when the user says 'research this feature' in the context of documentation."
 ---
 
+<!-- Extended metadata (for documentation, not parsed):
+mcp-servers: [litellm, auggie, context7, tavily]
+-->
+
 # Technical Reference Creator
 
 Creates comprehensive Technical Reference documents for built features by researching the actual codebase, synthesizing findings into template-aligned sections, and assembling the final document. This skill uses Rigorflow's MDTM task file system for persistent progress tracking — every phase and step is encoded as checklist items in a task file that survives context compression and session restarts.
@@ -735,6 +739,8 @@ CRITICAL — Incremental File Writing Protocol:
 1. FIRST ACTION: Create your output file with a header including topic, date, and status
 2. As you find relevant information, IMMEDIATELY append to the file
 3. Never accumulate and one-shot
+
+Tools: mcp__litellm__Tavily-tavily_search and mcp__litellm__Tavily-tavily_extract (else mcp__tavily__tavily_search and mcp__tavily__tavily_extract) for web pages; mcp__litellm__context7-resolve-library-id then mcp__litellm__context7-query-docs (else mcp__context7__resolve-library-id then mcp__context7__query-docs) for library or framework docs. If none is available, use WebSearch and WebFetch.
 
 Research Protocol:
 1. Search for official documentation, guides, and API references

@@ -119,6 +119,8 @@ CRITICAL — Incremental File Writing Protocol:
 2. As you find relevant information, IMMEDIATELY append to the file
 3. Never accumulate and one-shot
 
+Tools: mcp__litellm__Tavily-tavily_search and mcp__litellm__Tavily-tavily_extract (else mcp__tavily__tavily_search and mcp__tavily__tavily_extract) for web pages; mcp__litellm__context7-resolve-library-id then mcp__litellm__context7-query-docs (else mcp__context7__resolve-library-id then mcp__context7__query-docs) for library or framework docs. If none is available, use WebSearch and WebFetch.
+
 Research Protocol:
 
 1. Search for official documentation, guides, and API references for relevant technologies

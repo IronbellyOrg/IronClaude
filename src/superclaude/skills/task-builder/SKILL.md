@@ -640,7 +640,7 @@ based on architecture that no longer exists.
 **Solution Research:**
 
 ```text
-Use WebSearch to investigate:
+Use mcp__litellm__Tavily-tavily_search (else mcp__tavily__tavily_search; WebSearch only when Tavily is unavailable) to investigate:
 1. Problem domain patterns — established approaches, expert recommendations
 2. Tools & libraries — what's commonly used, open-source options, feature comparison
 3. Architecture patterns — how others solve this type of problem
@@ -946,7 +946,7 @@ CRITICAL — Incremental File Writing Protocol:
 2. As you find relevant information, IMMEDIATELY append to the file
 3. Never accumulate and one-shot
 
-Research Protocol:
+Research Protocol (web search: mcp__litellm__Tavily-tavily_search, else mcp__tavily__tavily_search; WebSearch only when Tavily is unavailable):
 1. Search for official documentation, guides, and API references
 2. Search for design patterns and best practices relevant to this topic
 3. Search for implementation patterns, known issues, gotchas, and optimization strategies
@@ -1206,7 +1206,7 @@ Agent:
     TASK_READY") and Step 6 (TaskCreate + broadcast). Instead, return the
     task file path as your final output.
     - **Codebase questions** → use WebSearch or `mcp__litellm__augment_code-augment_code_search` (else `mcp__auggie__codebase-retrieval`)
-    - **External docs/syntax** → use WebSearch
+    - **External docs/syntax** → use mcp__litellm__Tavily-tavily_search (else mcp__tavily__tavily_search; WebSearch only when Tavily is unavailable, and annotate the item per your Rule 13)
     - **If blocked** → create the best task file you can and note gaps
       in the Task Log section. The skill will review and iterate.
     - **User intent ambiguity** → document in the task file's Open
@@ -1882,7 +1882,7 @@ List all stale documentation found. This prevents the builder from creating task
 based on architecture that no longer exists.
 
 --- IF TOPIC IS "Solution Research" ---
-Use WebSearch to investigate:
+Use mcp__litellm__Tavily-tavily_search (else mcp__tavily__tavily_search; WebSearch only when Tavily is unavailable) to investigate:
 1. Problem domain patterns — established approaches, expert recommendations
 2. Tools & libraries — what's commonly used, open-source options, feature comparison
 3. Architecture patterns — how others solve this type of problem

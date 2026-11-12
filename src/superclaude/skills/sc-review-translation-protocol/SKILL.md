@@ -1,8 +1,12 @@
 ---
 name: sc:review-translation-protocol
 description: "Full behavioral protocol for sc:review-translation — systematic localization review with adversarial validation, real-world evidence search, and comprehensive quality scoring"
-allowed-tools: Read, Glob, Grep, Edit, Write, Bash, TodoWrite, Task, Skill
+allowed-tools: Read, Glob, Grep, Edit, Write, Bash, TodoWrite, Task, Skill, mcp__litellm__Tavily-tavily_search, mcp__tavily__tavily_search, WebSearch
 ---
+
+<!-- Extended metadata (for documentation, not parsed):
+mcp-servers: [litellm, tavily]
+-->
 
 # /sc:review-translation — Localization Review Protocol
 
@@ -134,6 +138,8 @@ For each contested finding:
 - Confidence: HIGH / MEDIUM / LOW with justification
 
 ### Research Sub-Agent (Evidence Gathering)
+
+In the Research Sub-Agent's brief, say: search with `mcp__litellm__Tavily-tavily_search` (else `mcp__tavily__tavily_search`); use WebSearch only when neither is available and note that in the evidence. If no search tool works, mark the finding "Inferred" (see Error Recovery).
 
 Source Prioritization Hierarchy:
 

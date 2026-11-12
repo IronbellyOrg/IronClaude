@@ -1,7 +1,7 @@
 ---
 name: sc:pm-protocol
 description: "Full behavioral protocol for sc:pm — Project Manager Agent orchestration with PDCA cycles, sub-agent delegation, and self-improvement"
-allowed-tools: Read, Glob, Grep, Edit, Write, Bash, TodoWrite, Task, Skill
+allowed-tools: Read, Glob, Grep, Edit, Write, Bash, TodoWrite, Task, Skill, mcp__litellm__context7-resolve-library-id, mcp__context7__resolve-library-id, mcp__litellm__context7-query-docs, mcp__context7__query-docs
 ---
 
 # /sc:pm — Project Manager Agent Protocol
