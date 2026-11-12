@@ -4,7 +4,7 @@ description: "Create or populate a Technical Design Document (TDD) for a compone
 category: documentation
 complexity: advanced
 allowed-tools: Read, Glob, Grep, Edit, Write, Bash, TodoWrite, Task, Skill, Agent
-mcp-servers: [litellm, context7, auggie]
+mcp-servers: [litellm, context7, auggie, tavily]
 personas: [architect, analyzer, backend]
 ---
 

@@ -3,6 +3,10 @@ name: tech-research
 description: "Deep technical investigation and feasibility research across the codebase. Produces structured research reports with findings, gap analysis, options, and detailed implementation recommendations. Use this skill when the user wants to research how something works, investigate a technical problem, figure out what needs to be built or changed, do a feasibility study, or deep dive into a system or integration. Trigger on phrases like 'research how X works', 'investigate this', 'figure out what we need for X', 'feasibility study', 'deep dive into X', 'how does X work and what do we need to change', 'tech research on X', 'what would it take to build X', 'analyze this system', or 'research this problem'. Also trigger when the user says 'research' in the context of understanding a technical problem or planning an implementation."
 ---
 
+<!-- Extended metadata (for documentation, not parsed):
+mcp-servers: [litellm, auggie, context7, tavily]
+-->
+
 # Technical Research & Investigation
 
 A skill for deep technical investigation across the codebase. This skill uses Rigorflow's MDTM task file system for persistent progress tracking — every phase and step is encoded as checklist items in a task file that survives context compression and session restarts.
@@ -750,6 +754,8 @@ CRITICAL — Incremental File Writing Protocol:
 1. FIRST ACTION: Create your output file with a header including topic, date, and status
 2. As you find relevant information, IMMEDIATELY append to the file
 3. Never accumulate and one-shot
+
+Tools: mcp__litellm__Tavily-tavily_search and mcp__litellm__Tavily-tavily_extract (else mcp__tavily__tavily_search and mcp__tavily__tavily_extract) for web pages; mcp__litellm__context7-resolve-library-id then mcp__litellm__context7-query-docs (else mcp__context7__resolve-library-id then mcp__context7__query-docs) for library or framework docs. If none is available, use WebSearch and WebFetch.
 
 Research Protocol:
 1. Search for official documentation, guides, and API references

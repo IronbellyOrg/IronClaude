@@ -1,6 +1,7 @@
 ---
 name: sc:index-repo
 description: Repository Indexing - 94% token reduction (58K → 3K)
+mcp-servers: [codegraph]
 ---
 
 # Repository Index Creator
@@ -15,6 +16,8 @@ description: Repository Indexing - 94% token reduction (58K → 3K)
 ## Index Creation Flow
 
 ### Phase 1: Analyze Repository Structure
+
+Before Phase 1, run the codegraph readiness check exactly once per run, as section 2 of `~/.claude/CODEGRAPH.md` describes. Keep `index_state`, `access`, `checked_at` and `worktree_root` for the whole run. Below, "`index_state: fresh`" means `index_state: fresh` with `access: mcp`; with `access: cli` or `access: none`, or when the check fails, every step stays on Glob and Read, no codegraph tool is called, and the run goes on (never halt, never ask). Tools: `mcp__codegraph__codegraph_status` once, then `_files` and `_node`, read-only, with `projectPath` set to `worktree_root`.
 
 **Parallel analysis** (5 concurrent Glob searches):
 
@@ -66,6 +69,8 @@ For each file category, extract:
 - Key modules and exports
 - API surface (public functions/classes)
 - Dependencies (imports, requires)
+
+When `index_state: fresh`, take the code layout from `codegraph_files {format:"grouped", maxDepth:2}` (it replaces only the code-structure Glob search; the other four stay) and exports and API surface from `codegraph_node {file, symbolsOnly:true}` for each entry point and core module. Read confirms entry points and stays the floor; re-Read a path before it goes into the index. End the summary with `Codegraph: index_state=<state>, checked_at=<UTC>; degraded: <graph:* tokens or none>`.
 
 ### Phase 3: Generate Index
 

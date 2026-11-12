@@ -3,7 +3,7 @@ name: document
 description: "Generate focused documentation for components, functions, APIs, and features"
 category: utility
 complexity: basic
-mcp-servers: []
+mcp-servers: [codegraph]
 personas: []
 ---
 
@@ -27,7 +27,9 @@ personas: []
 
 ## Behavioral Flow
 
-1. **Analyze**: Examine target component structure, interfaces, and functionality
+Before step 1, run the codegraph readiness check exactly once per run, as section 2 of `~/.claude/CODEGRAPH.md` describes. Keep `index_state`, `access`, `checked_at` and `worktree_root` for the whole run. Below, "`index_state: fresh`" means `index_state: fresh` with `access: mcp`; with `access: cli` or `access: none`, or when the check fails, every step stays on Read, Grep and Glob, no codegraph tool is called, and the run goes on (never halt, never ask).
+
+1. **Analyze**: Examine target component structure, interfaces, and functionality. When `index_state: fresh`, first call `codegraph_node` with `symbolsOnly:true` on each target file for its symbols, and `codegraph_callers` on a public symbol for real usages; re-Read the `file:line` before quoting a signature or usage (an empty result is not a "no callers" finding, and rows about files this run edited are leads only).
 2. **Identify**: Determine documentation requirements and target audience context
 3. **Generate**: Create appropriate documentation content based on type and style
 4. **Format**: Apply consistent structure and organizational patterns
@@ -44,6 +46,7 @@ Key behaviors:
 
 - **Read**: Component analysis and existing documentation review
 - **Grep**: Reference extraction and pattern identification
+- **codegraph** (`mcp__codegraph__codegraph_status` once; then `_node`, `_callers`, `_search`): used only when `index_state: fresh`, before the matching Read/Grep step, which stays the floor; read-only, `projectPath` set to `worktree_root` on every call
 - **Write**: Documentation file creation with proper formatting
 - **Glob**: Multi-file documentation projects and organization
 

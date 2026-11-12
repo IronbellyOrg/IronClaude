@@ -3,6 +3,10 @@ name: tdd
 description: "Create or populate a Technical Design Document (TDD) for a component, service, or system. Use this skill when the user wants to create a TDD, design a technical architecture, populate an existing TDD stub, or write a comprehensive technical design document following the project template. Can be fed from a PRD to translate product requirements into engineering specifications. Trigger on phrases like 'create a TDD for...', 'design the architecture for...', 'write a technical design document', 'populate this TDD', 'TDD for the agent system', 'technical design for the wizard', or when the user references a *_TDD.md file that needs content. Also trigger when the user says 'design this system', 'architect this feature', or 'turn this PRD into a TDD'."
 ---
 
+<!-- Extended metadata (for documentation, not parsed):
+mcp-servers: [litellm, context7, auggie, tavily]
+-->
+
 # TDD Creator
 
 Creates comprehensive Technical Design Documents (TDDs) for components, services, and systems by researching the actual codebase, synthesizing findings into template-aligned sections, and assembling the final document. This skill uses Rigorflow's MDTM task file system for persistent progress tracking — every phase and step is encoded as checklist items in a task file that survives context compression and session restarts.
