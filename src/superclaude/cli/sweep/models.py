@@ -21,7 +21,8 @@ JSON_SCHEMA_VERSION = 1
 # ``classify`` (which attaches that contract to the row), so the two cannot drift.
 CONTRACT_FILE = "return-contract.yaml"
 REPORT_DIR_RE = re.compile(
-    r"--(?:report-dir|output-dir|output)[ =]+(['\"]?)([^\s'\"`]+)\1"
+    r"--(?:report-dir|output-dir|output)[ =]+"
+    r"(?:\"([^\"]+)\"|'([^']+)'|([^\s'\"`]+))"  # a quoted value is taken whole
 )
 
 
@@ -33,7 +34,7 @@ def report_folders(text: str, worktree: str | None) -> tuple[str, ...]:
     """
     folders: list[str] = []
     for match in REPORT_DIR_RE.finditer(text):
-        raw = match.group(2)
+        raw = match.group(1) or match.group(2) or match.group(3)
         if raw.startswith("/"):
             folders.append(raw.rstrip("/"))
         elif worktree:

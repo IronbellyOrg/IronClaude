@@ -1616,6 +1616,23 @@ def test_relative_report_dir_resolves_against_the_worker_worktree():
     assert probes._contract_candidates(absolute) == (Path("/r/x/return-contract.yaml"),)
 
 
+@pytest.mark.parametrize(
+    "text, folder",
+    [
+        ('--report-dir "/tmp/my project/reports"', "/tmp/my project/reports"),
+        ("--output-dir='/tmp/my project/r/'", "/tmp/my project/r"),
+        ('--report-dir "rel dir/x"', "/w1/rel dir/x"),
+        ("--report-dir /tmp/plain/", "/tmp/plain"),
+    ],
+)
+def test_quoted_report_dir_is_taken_whole_with_its_spaces(text, folder):
+    # A quoted path with spaces is one argument, not a path cut at the first space.
+    obs = probes.OrcaObservation(
+        run=RUN1, dispatch=did(1), worktree_path="/w1", task_spec_text=text
+    )
+    assert probes._contract_candidates(obs) == (Path(folder) / "return-contract.yaml",)
+
+
 def test_symlink_out_contract_is_outside_root(
     sweep_root, patch_orca, patch_git, clock, tmp_path
 ):
