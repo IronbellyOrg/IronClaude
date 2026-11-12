@@ -16,7 +16,7 @@ Goal: The task-builder, tech-research, tdd and tech-reference primitives name th
 
 ## Constraints
 
-- Edit only files under src/superclaude/; run make sync-dev afterwards and never stage .claude/. Do not edit plugins/, src/superclaude/skills/tdd/refs/build-request-template.md, or the rf-task-builder and rf-task-researcher agents. No git add, commit or push.
+- Edit only files under src/superclaude/; run make sync-dev afterwards and never stage .claude/. Do not edit plugins/, src/superclaude/skills/tdd/refs/build-request-template.md, or the rf-task-builder and rf-task-researcher agents. No commit or push by the session; the coordinator stages `.dev/tasks` and the source files and commits.
 - The shared Tools paragraph is this single line, identical in every file that uses it (capital Tools: so the lowercase tool-key regex in tests/skills/test_mcp_proxy_names.py does not parse it):
 
 ```

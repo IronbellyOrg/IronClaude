@@ -276,6 +276,24 @@ def test_issue_504_commands_list_codegraph_and_one_readiness_check(path):
     )
 
 
+_OWN_CHECK_COMMANDS = [
+    _SRC / "commands" / name for name in ("analyze.md", "index-repo.md", "document.md")
+]
+
+
+@pytest.mark.parametrize("path", _OWN_CHECK_COMMANDS, ids=_rel)
+def test_commands_with_their_own_check_state_once_per_run_and_the_access_gate(path):
+    """PR 515 review: pin the single readiness check and the access gate, not just the words.
+
+    Only the commands that run the check inline are listed: design words the gate as
+    "lookup tools are listed", and implement and workflow defer to their protocol skills.
+    """
+    text = _text(path)
+    assert text.count("exactly once per run") == 1, f"{_rel(path)} readiness-check rule"
+    assert "access: mcp" in text, f"{_rel(path)} lacks the access: mcp gate"
+    assert "`access`" in text, f"{_rel(path)} does not keep access in the run state"
+
+
 @pytest.mark.parametrize("path", _ISSUE_504_SKILLS, ids=_rel)
 def test_issue_504_skills_allow_the_codegraph_tools_and_pass_run_state(path):
     text = _text(path)
