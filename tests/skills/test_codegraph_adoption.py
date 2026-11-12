@@ -386,3 +386,8 @@ def test_old_ambiguous_codegraph_wording_is_gone():
     assert "needs no guard" not in _text(_GUIDE)
     assert "read it when you use codegraph" not in _text(_ANALYZE)
     assert "to locate the target's symbols" not in _text(_ANALYZE)
+
+
+def test_guide_takes_checked_at_even_when_status_is_skipped():
+    """PR 513 review: a skipped status still yields a timestamp for the report line."""
+    assert "at the moment the skip is decided" in _text(_GUIDE)

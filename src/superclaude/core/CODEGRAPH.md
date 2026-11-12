@@ -19,7 +19,7 @@ codegraph is a read-only code graph of the current git worktree: symbols, call e
    - a CLI "Pending Changes:" list, or non-zero MCP change counts → `stale`, `graph:stale`;
    - no binary and no MCP tool → `absent`, `graph:absent`; anything else → `error`, `graph:parse_failed`.
 6. Access: lookup tools (`codegraph_search`, `codegraph_callers`, ...) listed → `access: mcp`. Only `codegraph_status` listed → token `graph:unlisted`; then `access: cli` for a primitive whose allowlist names the CLI read verbs and whose `codegraph --version` matches the pin, else `access: none` and the Phase 1 floor (or artifacts the orchestrator put in the brief).
-7. Record `checked_at` (UTC, `YYYY-MM-DDTHH:MM:SSZ`) from one `date -u +%Y-%m-%dT%H:%M:%SZ` (Bash) run right after the status call, because the status answer has no timestamp. Re-check after any write in the same run: no primitive syncs the index (see Never), so rows about files the run changed are leads only.
+7. Record `checked_at` (UTC, `YYYY-MM-DDTHH:MM:SSZ`) from one `date -u +%Y-%m-%dT%H:%M:%SZ` (Bash) run right after the status call, because the status answer has no timestamp; when step 3 skips `status` (a build still running after 60 s, or the CLI guard), take it the same way at the moment the skip is decided, so the `Codegraph` / `Grounding` line always carries a timestamp. Re-check after any write in the same run: no primitive syncs the index (see Never), so rows about files the run changed are leads only.
 
 Agents get the run's state in their brief: `index_state`, `checked_at`, `worktree_root` and the `projectPath` to pass; they call codegraph only when `index_state: fresh`.
 
