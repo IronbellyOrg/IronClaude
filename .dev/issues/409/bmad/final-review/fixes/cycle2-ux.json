@@ -1,0 +1,17 @@
+{
+  "fixer": "fix2-ux (step 5 fixer, UX file set)",
+  "cycle": 2,
+  "file_set": "_bmad-output/planning-artifacts/orca-observer/ux-designs/ux-orca-observer-2026-11-08/DESIGN.md; EXPERIENCE.md; fix-log.md",
+  "results": [
+    {"id": "XDOC-04", "status": "applied", "file": "_bmad-output/planning-artifacts/orca-observer/ux-designs/ux-orca-observer-2026-11-08/EXPERIENCE.md:242", "note": "Ledger rule now says T20 (acceptance-tests.md:29) asserts the shared resource.worktreeId through the inspector with `unknown (absent in source)` and no `conflict` label, the spec ledger has no worktree column (rendering-rules.md:30, citation moved from :29), and the PROPOSED default is inspector and export only, with UX-OQ-8 open on whether the row names it; UX-OQ-8 row at :534 rewritten to match."},
+    {"id": "NEW-3", "status": "applied", "file": "_bmad-output/planning-artifacts/orca-observer/ux-designs/ux-orca-observer-2026-11-08/EXPERIENCE.md:184", "note": "Label changed to `worker-list NOT AVAILABLE (no Orca CLI validated)` per adapter-contract.md:10 at :184 and :294; the spine AD-5 spawn-error code and prd.md:280 belong to other fixers, and the UX failed-state row (:284) was not given a spawn-error example because the finding did not ask for it."},
+    {"id": "NEW-5", "status": "applied", "file": "_bmad-output/planning-artifacts/orca-observer/ux-designs/ux-orca-observer-2026-11-08/EXPERIENCE.md:530", "note": "UX-OQ-4 row now states the PROPOSED `--snapshot PATH` option with default `~/.local/state/superclaude/observe/`, owner-only 0600 creation and atomic replace each live cycle (snapshot-export-schema.md:16), that the text export path is unspecified, and that the destination stays open."}
+  ],
+  "also_changed": [
+    "_bmad-output/planning-artifacts/orca-observer/ux-designs/ux-orca-observer-2026-11-08/EXPERIENCE.md:242 (removed the old line 'A missing worktree reads `worktree unknown`.', which contradicted T20's `unknown (absent in source)`)",
+    "_bmad-output/planning-artifacts/orca-observer/ux-designs/ux-orca-observer-2026-11-08/EXPERIENCE.md:294",
+    "_bmad-output/planning-artifacts/orca-observer/ux-designs/ux-orca-observer-2026-11-08/EXPERIENCE.md:534",
+    "_bmad-output/planning-artifacts/orca-observer/ux-designs/ux-orca-observer-2026-11-08/fix-log.md:137-141"
+  ],
+  "memlog": ["_bmad-output/planning-artifacts/orca-observer/ux-designs/ux-orca-observer-2026-11-08"]
+}

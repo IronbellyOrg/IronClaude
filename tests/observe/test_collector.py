@@ -418,3 +418,261 @@ def test_the_collector_reads_time_only_from_the_injected_clock():
     )
     assert not re.search(r"\btime\.(monotonic|time|sleep|perf_counter)\(", text)
     assert "subprocess" not in text and "observe.view" not in text
+
+
+# -- R2: the question read inside the cycle (one named Run) ------------------------------------------------
+
+QRUN = "run_14cfcbd8edf2"
+
+
+def question_reply(ids=(1, 2), run=QRUN, n=None):
+    count = len(ids) if n is None else n
+    rows = [
+        {
+            "id": f"msg_{i:012x}",
+            "run_id": run,
+            "type": "question",
+            "subject": f"probe question {i}",
+            "created_at": f"2026-11-11T20:01:{10 + i % 40:02d}Z",
+        }
+        for i in (ids if n is None else range(n))
+    ]
+    envelope = {
+        "id": "e",
+        "ok": True,
+        "result": {
+            "acknowledged": None,
+            "count": count,
+            "messages": rows,
+            "runId": run,
+        },
+    }
+    return 0, json.dumps(envelope)
+
+
+def error_reply(code="consumer_fenced", status=1):
+    envelope = {"ok": False, "error": {"code": code, "message": "Nothing changed."}}
+    return status, json.dumps(envelope)
+
+
+def routed(worker, message):
+    """One runner response callable for both kinds of call.
+
+    ``worker`` and ``message`` are each a response (a pair or a callable) or a list of them:
+    the nth call of that kind gets the nth response, and the last one repeats.
+    """
+    queues = {
+        "worker": list(worker) if isinstance(worker, list) else [worker],
+        "message": list(message) if isinstance(message, list) else [message],
+    }
+    seen = {"worker": 0, "message": 0}
+
+    def respond(argv, timeout):
+        kind = "message" if "check" in argv else "worker"
+        queue = queues[kind]
+        pick = queue[min(seen[kind], len(queue) - 1)]
+        seen[kind] += 1
+        return pick(argv, timeout) if callable(pick) else pick
+
+    return respond
+
+
+def calls_of(argv_log):
+    worker = [a for a in argv_log if a[1:3] == ["orchestration", "worker-list"]]
+    message = [a for a in argv_log if a[1:3] == ["orchestration", "check"]]
+    return worker, message
+
+
+def questions_on(responses, clock, argv_log, **kw):
+    return live(responses, clock, argv_log, run_id=QRUN, questions=True, **kw)
+
+
+def test_questions_on_one_cycle_is_worker_list_pages_plus_exactly_one_message_call(
+    fake_clock, argv_log
+):
+    counter = {"n": 0}
+
+    def always_more(argv, timeout):
+        counter["n"] += 1
+        return reply(100, True, f"c{counter['n']}", 9999, tag=str(counter["n"]))
+
+    collector, runner, _ = questions_on(
+        [routed(always_more, question_reply((1, 2)))], fake_clock, argv_log
+    )
+    result = collector.run_once()
+    worker, message = calls_of(argv_log)
+    assert len(worker) == 4 and len(message) == 1
+    assert (
+        runner.calls == 5
+    )  # never more than 5 subprocesses (discovery is not one of them)
+    assert message[0] == [
+        ORCA, "orchestration", "check", "--all", "--types", "question",
+        "--run", QRUN, "--json",
+    ]  # fmt: skip
+    assert "--peek" not in message[0]
+    assert (result.state, result.coverage.stopped_by_cap) == ("PARTIAL", True)
+    assert result.question_state == "OK" and result.question_code is None
+    assert [r.question.qid for r in result.questions.records] == [
+        "msg_000000000001",
+        "msg_000000000002",
+    ]
+    assert result.question_last_success_mono == fake_clock.monotonic()
+
+
+def test_questions_off_leaves_release_1_behaviour_and_the_argv_log_unchanged(
+    fake_clock, argv_log
+):
+    counter = {"n": 0}
+
+    def always_more(argv, timeout):
+        counter["n"] += 1
+        return reply(100, True, f"c{counter['n']}", 9999, tag=str(counter["n"]))
+
+    collector, runner, _ = live([always_more], fake_clock, argv_log)
+    result = collector.run_once()
+    worker, message = calls_of(argv_log)
+    assert len(worker) == 5 and message == [] and runner.calls == 5  # T4 intact
+    assert result.question_state == "OFF" and result.questions is None
+    assert (result.question_code, result.question_read) == (None, None)
+    assert result.question_last_success_mono is None
+    # questions=True without a Run is the same as off: one named Run only.
+    collector, runner, _ = live([reply()], fake_clock, [], run_id=None, questions=True)
+    assert collector.run_once().question_state == "OFF"
+
+
+def test_a_consumer_fenced_reply_leaves_the_ledger_ok_and_a_good_read_recovers(
+    fake_clock, argv_log
+):
+    collector, _, _ = questions_on(
+        [
+            routed(
+                [reply(2), reply(2, tag="b"), reply(2, tag="c")],
+                [
+                    question_reply((1,)),
+                    error_reply("consumer_fenced", 1),
+                    question_reply((1, 2)),
+                ],
+            )
+        ],
+        fake_clock,
+        argv_log,
+    )
+    first = collector.run_once()
+    assert first.question_state == "OK"
+    fenced = collector.run_once()
+    assert fenced.state == "OK"  # the worker ledger is untouched
+    assert (fenced.question_state, fenced.question_code) == (
+        "FAILED",
+        "consumer-fenced",
+    )
+    assert fenced.questions is first.questions  # retained questions stay
+    assert fenced.question_last_success_mono == first.question_last_success_mono
+    assert collector.next_interval == 15.0  # no backoff from a question failure
+    healed = collector.run_once()
+    assert (healed.question_state, healed.question_code) == ("OK", None)
+    assert healed.questions.retained == 2
+
+
+def test_no_active_terminal_and_shape_and_json_failures_keep_retained_questions(
+    fake_clock, argv_log
+):
+    bad = {"id": "e", "ok": True, "result": {"runId": QRUN, "messages": None}}
+    collector, _, _ = questions_on(
+        [
+            routed(
+                [reply(1, tag=t) for t in "abcd"],
+                [
+                    question_reply((7,)),
+                    error_reply("no_active_terminal", 1),
+                    (0, json.dumps(bad)),
+                    (0, "not json"),
+                ],
+            )
+        ],
+        fake_clock,
+        argv_log,
+    )
+    good = collector.run_once()
+    for code in ("no-active-terminal", "shape", "json"):
+        result = collector.run_once()
+        assert result.state == "OK"
+        assert (result.question_state, result.question_code) == ("FAILED", code)
+        assert result.questions is good.questions
+
+
+def test_a_failed_worker_list_read_never_discards_retained_questions(
+    fake_clock, argv_log
+):
+    collector, _, _ = questions_on(
+        [
+            routed(
+                [reply(2), (2, ""), (2, "")],
+                [
+                    question_reply((1,)),
+                    question_reply((1, 2)),
+                    error_reply("consumer_fenced", 1),
+                ],
+            )
+        ],
+        fake_clock,
+        argv_log,
+    )
+    collector.run_once()
+    worker_down = collector.run_once()
+    assert worker_down.state == "FAILED" and worker_down.code == "exit:2"
+    assert worker_down.question_state == "OK" and worker_down.questions.retained == 2
+    both_down = collector.run_once()
+    assert both_down.state == "FAILED" and both_down.question_state == "FAILED"
+    assert both_down.questions is worker_down.questions
+    assert both_down.snapshot is not None  # the last good rows stay too
+
+
+def test_the_message_call_is_skipped_with_overrun_when_the_budget_is_spent(
+    fake_clock, argv_log
+):
+    def slow_worker(argv, timeout):
+        fake_clock.advance(20.0)  # the worker-list read uses up the 15 s cycle budget
+        return reply(1)
+
+    collector, runner, _ = questions_on(
+        [routed(slow_worker, question_reply((1,)))], fake_clock, argv_log
+    )
+    result = collector.run_once()
+    worker, message = calls_of(argv_log)
+    assert len(worker) == 1 and message == []
+    assert (result.question_state, result.question_code) == ("FAILED", "overrun")
+    assert result.questions is None
+
+
+def test_exactly_100_rows_sets_window_full_in_the_retained_state(fake_clock, argv_log):
+    collector, _, _ = questions_on(
+        [
+            routed(
+                [reply(1), reply(1, tag="b")],
+                [question_reply(n=100), question_reply((1,))],
+            )
+        ],
+        fake_clock,
+        argv_log,
+    )
+    assert collector.run_once().questions.window_full is True
+    assert collector.run_once().questions.window_full is False
+
+
+def test_a_fixture_source_has_no_question_fixture_unless_one_is_supplied(fake_clock):
+    plain = Collector(FixtureSource("base"), fake_clock, run_id=QRUN, questions=True)
+    result = plain.run_once()
+    assert result.state == "OK" and result.question_state == "FAILED"
+    assert result.question_code == "no-question-fixture"
+    synthetic = [json.loads(question_reply((1, 2))[1]), {"fail": "timeout"}]
+    supplied = Collector(
+        FixtureSource("base", question_fixture=synthetic),
+        fake_clock,
+        run_id=QRUN,
+        questions=True,
+    )
+    first = supplied.run_once()
+    assert first.question_state == "OK" and first.questions.retained == 2
+    second = supplied.run_once()
+    assert (second.question_state, second.question_code) == ("FAILED", "timeout")
+    assert second.questions is first.questions

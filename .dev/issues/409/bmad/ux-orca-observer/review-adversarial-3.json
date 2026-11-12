@@ -1,0 +1,98 @@
+{
+  "reviewer": "Adversarial verification 3 of 3 (fresh context)",
+  "overall_verdict": "FAIL: five blocking defects. The fixture header string contradicts the spec, a claim about the sources is false, the overrun string is placed against three sources, the state vocabulary omits test-pinned strings, and a PROPOSED row list is labelled spec.",
+  "findings": [
+    {
+      "severity": "high",
+      "blocking": true,
+      "finding": "The fixture header string contradicts the spec. EXPERIENCE.md:296 puts `synthetic fixture, not live evidence (<variant>)` in the header on every frame, and DESIGN.md:121 uses the same badge text. rendering-rules.md:17 fixes the header: 'Fixture mode always reads `SYNTHETIC FIXTURE <variant>, not Orca data`'. The T50 label (acceptance-tests.md:44, rendering-rules.md:5, release-gates.md:9) is a per-render R0 marking, not the header string. The spine merges the two into one header string that the spec does not define, and calls it 'verbatim'.",
+      "location": "EXPERIENCE.md:296",
+      "fix": "Make the header read `SYNTHETIC FIXTURE <variant>, not Orca data` (rendering-rules.md:17). Keep `synthetic fixture, not live evidence` as the T50 marking on each R0 render (EXPERIENCE.md:64). Update the badge text at DESIGN.md:121 to match, or show both strings and cite each one."
+    },
+    {
+      "severity": "medium",
+      "blocking": true,
+      "finding": "EXPERIENCE.md:54 says 'The spec and PRD never mention the PLAN.md cockpit or the built layout.' That is false. rendering-rules.md:8 says the prototype's '116-column collapse claim does not match the built prototype' (X-001). rendering-rules.md:85 discusses the built Signal Bridge (`_request` in `signal_bridge`; 'its 116- and 80-column builds drop SIGNALS').",
+      "location": "EXPERIENCE.md:54",
+      "fix": "Replace the sentence. State that the spec treats the prototype as a visual reference only and records that the built layout departs from it (rendering-rules.md:8, :85). Keep UX-OQ-1 for whether R1 may differ from the cockpit."
+    },
+    {
+      "severity": "medium",
+      "blocking": true,
+      "finding": "EXPERIENCE.md:292 puts `cycle overran (Ns)` 'on the status line'. Three sources put it on the strip: adapter-contract.md:26 ('the strip shows `cycle overran (Ns)`'), prd.md:275 (NFR-7) and T40 (acceptance-tests.md:34). This is wrong behaviour against a pinned acceptance test, and the placement is not labelled PROPOSED.",
+      "location": "EXPERIENCE.md:292",
+      "fix": "Render `cycle overran (Ns)` in the freshness strip, as the sources require. Cite adapter-contract.md:26 and T40."
+    },
+    {
+      "severity": "medium",
+      "blocking": true,
+      "finding": "The state vocabulary and view states leave out strings that acceptance tests pin. The failed row (EXPERIENCE.md:280) covers only `FAILED (<exit code or timeout>)`, but T32 (acceptance-tests.md:21) requires `FAILED (shape)` with the last good snapshot kept, and `reported unknown` when `page.total` is absent. Neither file has the T22 row flags `order unknown` and `conflict (time went back)` (acceptance-tests.md:18). The partial row omits `reported T (page k)` (rendering-rules.md:55). The scope header (EXPERIENCE.md:80) omits `one Run only` for `bound` scope (adapter-contract.md:63; risk K4, prd.md:363). The spec requires all of these.",
+      "location": "EXPERIENCE.md:280",
+      "fix": "Add `FAILED (shape)` (keep the last good snapshot) and `reported unknown` (absent `page.total`) to the failed and partial rows, citing T32. Add `order unknown` and `conflict (time went back)` as row-level flags, citing T22. Add `reported T (page k)`, citing rendering-rules.md:55. Add `one Run only` after `scope=bound` in header line 1, citing adapter-contract.md:63."
+    },
+    {
+      "severity": "medium",
+      "blocking": true,
+      "finding": "EXPERIENCE.md:135-140 heads its list 'Rows that never drop (spec)' and includes header line 1, the freshness strip, the gap notice and the footer. The spec fixes only the COUNTS strip as never dropped (rendering-rules.md:19) and coverage, scope and PARTIAL as minimum content (rendering-rules.md:13, T49). The other rows in the list are design choices presented as spec fact without a citation.",
+      "location": "EXPERIENCE.md:135",
+      "fix": "Label the list PROPOSED, except the COUNTS strip and coverage/scope/PARTIAL; cite rendering-rules.md:13 and :19 for those."
+    },
+    {
+      "severity": "low",
+      "blocking": false,
+      "finding": "The worker inspector does not show `n unrecognised keys` (adapter-contract.md:38). It also does not show the per-process cap disclosure ('caps are per observer process, and help and the inspector say so', adapter-contract.md:62).",
+      "location": "EXPERIENCE.md:249",
+      "fix": "Add both lines to the inspector anatomy and cite adapter-contract.md:38 and :62."
+    },
+    {
+      "severity": "low",
+      "blocking": false,
+      "finding": "B's 80-column description leaves out its invariant lines, 'Questions stay until explicit resolution.' and 'No reply observed is not delivery failure.' (rendering-rules.md:42). The R0 degraded variants also leave out 'affected scope unknown' (release-gates.md:9) and `reason unknown` (prd.md:260).",
+      "location": "EXPERIENCE.md:177",
+      "fix": "Add the invariant lines to B at 80 columns, and the two degraded strings to the R0 fixture variants."
+    },
+    {
+      "severity": "low",
+      "blocking": false,
+      "finding": "DESIGN.md:193 justifies the `@` ASCII cursor by citing EXPERIENCE.md UX-OQ-5, but that open question is about something else, so the citation does not support the claim.",
+      "location": "DESIGN.md:193",
+      "fix": "Cite rendering-rules.md:24 (the `>` truncation marker) for the reason, and use the correct UX-OQ ID, or add a new one for the cursor glyph."
+    },
+    {
+      "severity": "low",
+      "blocking": false,
+      "finding": "The two files word the NO_COLOR rule differently. DESIGN.md:140 says 'set to a non-empty value', and EXPERIENCE.md's Accessibility Floor phrases it another way. T26 (acceptance-tests.md:19) pins `NO_COLOR=1` and `NO_COLOR=yes`.",
+      "location": "DESIGN.md:140",
+      "fix": "Use one wording in both files and cite T26."
+    },
+    {
+      "severity": "low",
+      "blocking": false,
+      "finding": "The PROPOSED loading state shows COUNTS `collected 0 / reported unknown` before any poll. No poll has run yet, so `collected 0` can read as an observation.",
+      "location": "EXPERIENCE.md:286",
+      "fix": "Show `collected unknown (not yet polled)`, or explain why 0 is accurate before the first poll."
+    },
+    {
+      "severity": "low",
+      "blocking": false,
+      "finding": "The historical-rows behaviour leaves out the rule that 'historical evidence explicitly linked to a shown item is never hidden' (rendering-rules.md:22).",
+      "location": "EXPERIENCE.md:239",
+      "fix": "Add the rule and cite rendering-rules.md:22."
+    },
+    {
+      "severity": "low",
+      "blocking": false,
+      "finding": "The keyboard table gives `m` and `e` in the inspector as 'same as ledger'. The spec defines the keys only globally (rendering-rules.md:20) and does not say they work inside the inspector, but these entries are not marked PROPOSED.",
+      "location": "EXPERIENCE.md:316",
+      "fix": "Mark the inspector entries for `m` and `e` PROPOSED."
+    },
+    {
+      "severity": "low",
+      "blocking": false,
+      "finding": "'OQ-B/C' is not an ID in prd.md's open-question list (prd.md:414-453).",
+      "location": "EXPERIENCE.md:71",
+      "fix": "Replace it with the real OQ or OI number for the post-link default, or with UX-OQ-n."
+    }
+  ],
+  "self_audit": ""
+}

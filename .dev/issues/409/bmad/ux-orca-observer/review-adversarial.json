@@ -1,0 +1,112 @@
+{
+  "reviewer": "Adversarial verification (fresh context)",
+  "overall_verdict": "FAIL: three blocking defects, namely a false claim about the design sources (no source states 44 rows), a PARTIAL example that cannot happen under the 5-call cap pinned by T4, and an uncited rule that the plain-text export writes UNKNOWN where the screen writes unknown. The required coverage items are all present and the owner decisions are respected.",
+  "findings": [
+    {
+      "severity": "medium",
+      "blocking": true,
+      "finding": "False claim presented as fact: 'no design source states 44'. The design package PLAN.md:57 says 'Wide target around 44-52 rows; compact target around 36-44'. The cited DESIGN-CONTRACT.md:8 and concepts.md:36 do give the 48/42 export heights, but the claim that no design source mentions 44 is wrong, and UX-OQ-2 (EXPERIENCE.md:523) is built on it.",
+      "location": "EXPERIENCE.md:133 (source: IronClaude/issue-409-mvp/.dev/design/orca-observer-20261106/PLAN.md:57)",
+      "fix": "Replace it with: 'The exports are 48 rows (160) and 42 rows (116/80) (DESIGN-CONTRACT.md:8, concepts.md:36). PLAN.md:57 gives targets of 44-52 rows (wide) and 36-44 (compact), and no source defines the 44-row contract's contents (OQ-14).' Update UX-OQ-2 to match."
+    },
+    {
+      "severity": "medium",
+      "blocking": true,
+      "finding": "Wrong behaviour versus the acceptance tests. The UJ-1 failure path says that if page.hasMore is still true at the call cap, 'PARTIAL: collected 100 of reported 412' appears. The cap is 5 subprocesses per cycle at 100 rows per page (adapter-contract.md:3, :25), so the cap is reached at 500 collected rows, and T4 pins 'PARTIAL: collected 500 of reported T' (acceptance-tests.md:12; prd.md:175). Under the cap, 412 reported rows are read in full within 5 pages, so the example cannot occur, and an implementer could copy it into a fixture.",
+      "location": "EXPERIENCE.md:441 (sources: acceptance-tests.md:12, prd.md:175, adapter-contract.md:25)",
+      "fix": "Use 'PARTIAL: collected 500 of reported 1240 (newest first; oldest rows not read; long-running active workers may be among them)', or any reported T above 500."
+    },
+    {
+      "severity": "medium",
+      "blocking": true,
+      "finding": "Uncited rule that contradicts the document's own export rule. UJ-4 says the plain-text export writes missing values as the string 'UNKNOWN'. The UNKNOWN-string rule belongs to the JSON snapshot (snapshot-export-schema.md:10; prd.md:237). The text export is 'exactly the view on screen' (prd.md:46, prd.md:68), the screen shows the literal 'unknown' (rendering-rules.md:51), and EXPERIENCE.md:267 itself says the export has the same content as the screen. No source gives the text export an uppercase sentinel.",
+      "location": "EXPERIENCE.md:469 (vs EXPERIENCE.md:267; sources: snapshot-export-schema.md:10, prd.md:46, rendering-rules.md:51)",
+      "fix": "Say that the text export writes missing values exactly as the screen does ('unknown', or 'unknown (absent in source)' for inspector fields), and keep 'UNKNOWN' only for the JSON snapshot."
+    },
+    {
+      "severity": "medium",
+      "blocking": false,
+      "finding": "A source contradiction is resolved without being flagged. rendering-rules.md:17 says the fixture header reads 'SYNTHETIC FIXTURE <variant>, not Orca data', while T50 and the PRD (acceptance-tests.md:44; prd.md:85, :126) say 'synthetic fixture, not live evidence'. The UX builds a hybrid, 'synthetic fixture, not live evidence (<variant>)', and calls it 'the T50 label, verbatim', without recording that the spec's own header string differs. It satisfies T50, but it silently overrides the spec header string.",
+      "location": "EXPERIENCE.md:215 (also :64, :296, :490)",
+      "fix": "Add a UX-OQ (or cite it as a CONTRADICTION) naming both strings, and keep the T50 substring as the minimum."
+    },
+    {
+      "severity": "medium",
+      "blocking": false,
+      "finding": "The PROPOSED default for worktree naming fails T20 as written. T20 and FR-4 need a rendered screen in which two rows sharing a worktreeId each name it, and a row with no worktree shows 'worktree unknown' (acceptance-tests.md:17; prd.md:148). The UX puts the worktree only in the inspector and the export, yet EXPERIENCE.md:241 still says 'A missing worktree reads worktree unknown' in the ledger section, with no ledger cell to hold it. It is correctly raised as UX-OQ-8, so it is not blocking.",
+      "location": "EXPERIENCE.md:241-242, EXPERIENCE.md:529",
+      "fix": "State in UX-OQ-8 that the PROPOSED inspector-only option does not satisfy T20 as worded, and move the 'worktree unknown' sentence to the inspector and export rules."
+    },
+    {
+      "severity": "medium",
+      "blocking": false,
+      "finding": "The PROPOSED --ascii replacement of every non-ASCII source character with '?' breaks 'full IDs in the selected detail' and the copy-the-ID climax (UJ-3) for any CJK or emoji ID, and it is not limited to the screen. That is a loss in the inspector and possibly the export, which T24/T27 require to be full.",
+      "location": "DESIGN.md:195",
+      "fix": "Limit the '?' replacement to cut list cells on screen, and show non-ASCII characters in the inspector and export as an unambiguous escape (for example U+XXXX), or leave the export unaffected by --ascii."
+    },
+    {
+      "severity": "medium",
+      "blocking": false,
+      "finding": "The 80-115 column restatement of B omits the spec's invariant lines 'Questions stay until explicit resolution.' and 'No reply observed is not delivery failure.', which rendering-rules.md:42 says stay. The B shrink order (EXPERIENCE.md:165-168) also does not protect them.",
+      "location": "EXPERIENCE.md:177",
+      "fix": "Add the two invariant lines to the 80-115 row, and list them among B's never-dropped lines."
+    },
+    {
+      "severity": "low",
+      "blocking": false,
+      "finding": "The state vocabulary's 'exact rendering' for failed lists only 'FAILED (<exit code or timeout>)'. T32 pins 'FAILED (shape)' (acceptance-tests.md:21), and adapter-contract.md:50 counts invalid JSON as a failure. The row-level states 'order unknown' and 'conflict (time went back)' (T22) and the inspector's 'n unrecognised keys' (adapter-contract.md:38) are also missing.",
+      "location": "EXPERIENCE.md:280",
+      "fix": "Add FAILED (shape), the T22 row flags and the unrecognised-keys line to the vocabulary and the inspector field list."
+    },
+    {
+      "severity": "low",
+      "blocking": false,
+      "finding": "The PROPOSED loading state shows 'collected 0 / reported unknown' before any poll. It is honest because of the unknown denominator, but it is the one place a not-observed state renders as 0, against the stance at EXPERIENCE.md:33.",
+      "location": "EXPERIENCE.md:286",
+      "fix": "Use 'collected none yet / reported unknown (not yet polled)', or keep it and say explicitly why it does not breach NFR-11."
+    },
+    {
+      "severity": "low",
+      "blocking": false,
+      "finding": "The full PARTIAL sentence is said never to be cut (EXPERIENCE.md:441), but it sits on a one-row status line that folds into the footer when height falls (EXPERIENCE.md:161). At 80 columns the sentence (about 110 cells) cannot fit on one row. Only the PARTIAL token is spec-protected (rendering-rules.md:19).",
+      "location": "EXPERIENCE.md:288, EXPERIENCE.md:441",
+      "fix": "Say that the PARTIAL token in COUNTS is never cut and that the full sentence wraps, or is complete in the inspector or export."
+    },
+    {
+      "severity": "low",
+      "blocking": false,
+      "finding": "The footer anatomy has 'a light rule, then the key list' (two rows), but the 44-row budget gives the footer one row (row 44), after the ledger frame bottom at row 43.",
+      "location": "DESIGN.md:211 vs EXPERIENCE.md:156-157",
+      "fix": "State that the ledger frame bottom doubles as the footer rule, or add a row to the budget."
+    },
+    {
+      "severity": "low",
+      "blocking": false,
+      "finding": "The freshness-strip colours do not cover the 'NOT AVAILABLE (orca binary not found)' state, which EXPERIENCE.md:184 and :291 use.",
+      "location": "DESIGN.md:202 (and DESIGN.md:46-52)",
+      "fix": "Give NOT AVAILABLE a token (warn or bad), alongside its word."
+    },
+    {
+      "severity": "low",
+      "blocking": false,
+      "finding": "There is no help key, yet the voice table and the spec need help text ('a completed Task can still own a live terminal', rendering-rules.md:52; the per-process caps note in help, adapter-contract.md:62). The UX never says where help text is shown.",
+      "location": "EXPERIENCE.md:202, EXPERIENCE.md:322",
+      "fix": "Name the surface that carries help text (for example the inspector or the --help output), or record it as an open question."
+    },
+    {
+      "severity": "low",
+      "blocking": false,
+      "finding": "The keyboard table is headed 'spec, rendering-rules.md:20', but it includes entries the spec does not list (Ctrl-C, Backspace, and the inspector's m/e/q behaviour) without a PROPOSED label.",
+      "location": "EXPERIENCE.md:307-320",
+      "fix": "Mark the non-spec rows PROPOSED."
+    },
+    {
+      "severity": "low",
+      "blocking": false,
+      "finding": "Citation drift: FR-16 is cited as prd.md:86, which is the glossary row; FR-16 is at prd.md:235. The statement that '--once ... writes one snapshot' is an inference with no source.",
+      "location": "EXPERIENCE.md:68, EXPERIENCE.md:469",
+      "fix": "Cite prd.md:235, and mark the --once snapshot behaviour PROPOSED."
+    }
+  ],
+  "self_audit": ""
+}

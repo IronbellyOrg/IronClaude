@@ -1,0 +1,15 @@
+{
+  "fixer": "fix2-prd (step-5 PRD fixer, cycle 2)",
+  "cycle": 2,
+  "file_set": "_bmad-output/planning-artifacts/orca-observer/prd.md; _bmad-output/planning-artifacts/orca-observer/addendum.md",
+  "results": [
+    {"id": "NEW-1", "status": "applied", "file": "_bmad-output/planning-artifacts/orca-observer/prd.md:148", "note": "FR-4 now says T20 (acceptance-tests.md:29) asserts the shared `resource.worktreeId` in the inspector, `unknown (absent in source)` when absent, no `conflict` label, and leaves whether the ledger row names the worktree open as UX-OQ-8; the spine part (CD-16, AD-10) is not in this file set."},
+    {"id": "NEW-3", "status": "applied", "file": "_bmad-output/planning-artifacts/orca-observer/prd.md:280", "note": "NFR-11 label changed to `worker-list NOT AVAILABLE (no Orca CLI validated)` per adapter-contract.md:10, covering both no candidate and failed validation; the AD-5 spawn-error code and the EXPERIENCE.md lines belong to other fixers."},
+    {"id": "NEW-4", "status": "applied", "file": "_bmad-output/planning-artifacts/orca-observer/prd.md:116; :276; :438", "note": "All three now say the per-call timeout is measured at the first permitted live read (R0 makes no Orca calls), UNVERIFIED until then, with T5 injecting a configured value, per adapter-contract.md:28; AD-5 is in the spine fixer's set."},
+    {"id": "NEW-7", "status": "applied", "file": "_bmad-output/planning-artifacts/orca-observer/prd.md:103", "note": "R0 row now lists the synthetic `base` variant in place of a recorded sample, which R1 records at the first permitted live read, per release-gates.md:9; the R1 gate row (:105) already requires the golden samples, matching release-gates.md:11."}
+  ],
+  "also_changed": [
+    "_bmad-output/planning-artifacts/orca-observer/prd.md:500 (unverified table U12 said 'Measured in R0'; now 'Measured at the first permitted live read (R0 makes no Orca calls)', same defect as NEW-4)"
+  ],
+  "memlog": ["/home/coder/workspaces/worktrees/Coder/dashboard-bmad/_bmad-output/planning-artifacts/orca-observer"]
+}

@@ -22,8 +22,25 @@ def test_the_group_lists_observe_among_its_commands():
 def test_observe_help_lists_every_option():
     result = CliRunner().invoke(main, ["observe", "--help"])
     assert result.exit_code == 0
-    for option in ("--once", "--width", "--ascii", "--fixture", "--run", "--snapshot"):
+    for option in (
+        "--once",
+        "--width",
+        "--ascii",
+        "--fixture",
+        "--run",
+        "--snapshot",
+        "--questions",
+    ):
         assert option in result.output
+    assert "never runs run-use" in " ".join(result.output.split())
+
+
+def test_questions_through_the_shipped_cli_is_refused_while_the_gate_guard_is_off():
+    result = CliRunner().invoke(
+        main, ["observe", "--once", "--run", "run_x", "--questions"]
+    )
+    assert result.exit_code != 0
+    assert "question read not enabled" in result.output
 
 
 def test_once_fixture_base_prints_a_record_with_the_synthetic_banner_first():

@@ -1,0 +1,44 @@
+{
+  "id": "69334e1c-cb5c-4943-bcd9-954377acff6c",
+  "ok": true,
+  "result": {
+    "messages": [
+      {
+        "id": "msg_dfd4cbbb11ef",
+        "run_id": "run_c1badaa6576b",
+        "delivery_contract": "current_delivery",
+        "from_handle": "term_a39d3e66-a4f7-481e-bbf2-7f6ec8329e4f",
+        "to_handle": "run:run_c1badaa6576b",
+        "subject": "probe A status",
+        "body": "synthetic A2",
+        "type": "status",
+        "priority": "normal",
+        "thread_id": null,
+        "payload": null,
+        "created_at": "2026-11-11T20:01:17Z",
+        "delivered_at": null
+      },
+      {
+        "id": "msg_4b54ef1009e5",
+        "run_id": "run_c1badaa6576b",
+        "delivery_contract": "current_delivery",
+        "from_handle": "term_a39d3e66-a4f7-481e-bbf2-7f6ec8329e4f",
+        "to_handle": "run:run_c1badaa6576b",
+        "subject": "probe A question",
+        "body": "synthetic A1",
+        "type": "question",
+        "priority": "normal",
+        "thread_id": null,
+        "payload": null,
+        "created_at": "2026-11-11T20:01:17Z",
+        "delivered_at": null
+      }
+    ],
+    "count": 2,
+    "acknowledged": null,
+    "runId": "run_c1badaa6576b"
+  },
+  "_meta": {
+    "runtimeId": "a7ee70a1-2e8b-4476-a228-51e9c7019b3f"
+  }
+}

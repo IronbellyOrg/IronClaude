@@ -17,6 +17,7 @@ from superclaude.cli.observe.terminal import make_console, resolve_policy
 BASE_TIME = datetime(2026, 11, 8, 12, 0, 0, tzinfo=timezone.utc)
 WORKER_LIST_BASE = ["orchestration", "worker-list", "--json", "--limit", "100"]
 DISCOVERY_TAIL = ["skills", "list", "--json"]
+QUESTION_BASE = ["orchestration", "check", "--all", "--types", "question"]
 
 
 # -- subprocess guard -------------------------------------------------------------------
@@ -79,13 +80,21 @@ def fake_clock() -> FakeClock:
 
 
 def argv_allowed(argv) -> bool:
-    """The only argv the observer may ever run: worker-list (with optional pairs) or discovery."""
+    """The only argv the observer may ever run: worker-list (with optional pairs), discovery,
+    or the one R2 message template for one named Run."""
     argv = list(argv)
     if len(argv) < 2 or not all(isinstance(a, str) for a in argv):
         return False
     tail = argv[1:]
     if tail == DISCOVERY_TAIL:
         return True
+    if tail[:5] == QUESTION_BASE:
+        return (
+            len(tail) == 8
+            and tail[5] == "--run"
+            and not tail[6].startswith("-")
+            and tail[7] == "--json"
+        )
     if tail[:5] != WORKER_LIST_BASE:
         return False
     rest = tail[5:]
@@ -209,3 +218,89 @@ def console_factory():
         return make_console(policy, file=io.StringIO(), record=True), policy
 
     return factory
+
+
+# -- R2 question rows (probe shapes, SYNTHETIC values) ------------------------------------------
+
+QRUN = "run_14cfcbd8edf2"
+
+
+def make_question_rows(
+    n: int,
+    run: str = QRUN,
+    start: int = 0,
+    newest_first: bool = True,
+    subject=None,
+) -> list[dict]:
+    """``n`` synthetic ``question`` message rows with the recorded key names, no real values.
+
+    Row ``i`` is created ``i`` seconds after a fixed base, so a higher id is a newer question;
+    ``newest_first`` returns them in the order ``check --all`` gives them (REPORT, evidence 14).
+    """
+    rows = []
+    for i in range(start, start + n):
+        created = BASE_TIME - timedelta(seconds=3600) + timedelta(seconds=i)
+        rows.append(
+            {
+                "id": f"msg_{i:012x}",
+                "run_id": run,
+                "delivery_contract": "current_delivery",
+                "from_handle": "term_synthetic",
+                "to_handle": f"run:{run}",
+                "subject": f"synthetic question {i}" if subject is None else subject,
+                "body": "synthetic body",
+                "type": "question",
+                "priority": "normal",
+                "thread_id": None,
+                "payload": None,
+                "created_at": created.strftime("%Y-%m-%dT%H:%M:%SZ"),
+                "delivered_at": None,
+            }
+        )
+    return list(reversed(rows)) if newest_first else rows
+
+
+def make_question_envelope(rows: list[dict], run: str = QRUN) -> dict:
+    """The recorded envelope shape of one ``check --all`` read."""
+    return {
+        "id": "00000000-0000-0000-0000-000000000000",
+        "ok": True,
+        "result": {
+            "acknowledged": None,
+            "count": len(rows),
+            "messages": rows,
+            "runId": run,
+        },
+        "_meta": {"runtimeId": "00000000-0000-0000-0000-000000000001"},
+    }
+
+
+def make_question_error(code: str) -> dict:
+    """An ``{"ok": false, "error": {...}}`` envelope as recorded for the two known codes."""
+    return {
+        "id": "00000000-0000-0000-0000-000000000002",
+        "ok": False,
+        "error": {"code": code, "message": code},
+    }
+
+
+def routed_runner_responses(worker, message):
+    """One runner response callable for worker-list and message calls.
+
+    ``worker`` and ``message`` are each a response (a pair or a callable) or a list of them:
+    the nth call of that kind gets the nth response and the last one repeats.
+    """
+    queues = {
+        "worker": list(worker) if isinstance(worker, list) else [worker],
+        "message": list(message) if isinstance(message, list) else [message],
+    }
+    seen = {"worker": 0, "message": 0}
+
+    def respond(argv, timeout):
+        kind = "message" if "check" in argv else "worker"
+        queue = queues[kind]
+        pick = queue[min(seen[kind], len(queue) - 1)]
+        seen[kind] += 1
+        return pick(argv, timeout) if callable(pick) else pick
+
+    return respond

@@ -1,0 +1,125 @@
+{
+  "reviewer": "bmad-review-adversarial-general",
+  "artifact": "_bmad-output/planning-artifacts/orca-observer/architecture/ARCHITECTURE-SPINE.md",
+  "verdict": "FAIL",
+  "self_audit": "Read the whole spine (L1-323) in ranges and opened every spec companion line it cites for AD-5, AD-6, AD-8, AD-16, AD-20, CD-9, CD-10, plus release-gates.md, rendering-rules.md, acceptance-tests.md, adapter-contract.md, SPEC.md, owner-decisions-and-risks.md, unverified-register.md, the owner decisions file (item 5) and architecture-options.md. Checked IronClaude code the spine relies on: install_user_setup._find_orca, install_mcp._bounded, install_codegraph Runner, sprint/tui.py (Live screen=False, exception logged and loop continues), sprint/monitor.py OutputMonitor, cli/main.py deferred imports, pyproject. Recorded conflicts: all three state which way they go. Popen+killpg over subprocess.run is chosen at AD-5 (spine L100). Live(screen=True) over sprint/tui.py screen=False is chosen at AD-14 (L154). A render exception exits non-zero, unlike sprint/tui.py, per Conventions Errors (L201). Owner decisions (read-only R1, Python + Rich, additive-only snapshot) are respected. The spine never orders the key-reader spike first (F13). The AD-6 runs-read change is internally consistent with AD-20 (fields carried) but departs from rendering-rules.md:17 and :50 and only reaches the B header under CD-10 (F4, F5, F8).",
+  "findings": [
+    {
+      "id": "AR-ARCH-01",
+      "location": "_bmad-output/planning-artifacts/orca-observer/architecture/ARCHITECTURE-SPINE.md:303",
+      "other_side": "_bmad-output/specs/spec-orca-observer/release-gates.md:11",
+      "finding": "CD-9 (and AD-16 at L166) say the redacted golden worker-list sample and T32 are R0 scope and are captured under R0 work. The release gates put the four-kind golden samples and T32 in the R1 gate, and R0 is offline with no Orca dependency, so a live capture under R0 contradicts the gate.",
+      "evidence": "Spine: \"the redacted golden `worker-list` sample and T32 are R0 scope\". release-gates.md:11: \"add a redacted golden sample of each of the four kinds and contract test T32\"; :9 \"None from Orca; offline only\".",
+      "proposed_grade": "BLOCKING",
+      "suggested_fix": "Say R0 uses a redacted or synthetic worker-list fixture only, and that capturing the four kinds (release-gates.md:5) and passing T32 belong to the R1 gate."
+    },
+    {
+      "id": "AR-ARCH-02",
+      "location": "_bmad-output/planning-artifacts/orca-observer/architecture/ARCHITECTURE-SPINE.md:303",
+      "other_side": "_bmad-output/specs/spec-orca-observer/SPEC.md:104",
+      "finding": "CD-9 narrows the open question on sample capture to message samples only, so worker-list capture \"does not wait on it\". SPEC states the question as permission for live reads in general. owner-decisions-and-risks.md:22 supports the narrow reading, so this is an interpretation of an open owner question, not a recorded answer.",
+      "evidence": "Spine: \"OQ-5 covers message samples only\". SPEC.md:104: \"Sample capture and acquisition permission for live reads (open owner decision 6)?\"",
+      "proposed_grade": "MINOR",
+      "suggested_fix": "Mark the narrow reading as an assumption pending the owner and cite owner-decisions-and-risks.md:22 as its basis."
+    },
+    {
+      "id": "AR-ARCH-03",
+      "location": "_bmad-output/planning-artifacts/orca-observer/architecture/ARCHITECTURE-SPINE.md:166",
+      "other_side": "_bmad-output/specs/spec-orca-observer/acceptance-tests.md:44",
+      "finding": "AD-16 binds T50 to the header `SYNTHETIC FIXTURE <variant>, not Orca data`, but T50 (and rendering-rules.md:5, SPEC.md:33) require each R0 render to carry \"synthetic fixture, not live evidence\". A render with only the spine's string fails T50. The spine also labels the header words PROPOSED, though rendering-rules.md:17 fixes them as spec text.",
+      "evidence": "Spine: \"the header reads `SYNTHETIC FIXTURE <variant>, not Orca data` (T50; exact words PROPOSED)\". T50: \"each carry \\\"synthetic fixture, not live evidence\\\"\".",
+      "proposed_grade": "BLOCKING",
+      "suggested_fix": "Render both spec strings (header per rendering-rules.md:17, R0 label per T50), drop the PROPOSED tag, and bind T50 to the T50 string."
+    },
+    {
+      "id": "AR-ARCH-04",
+      "location": "_bmad-output/planning-artifacts/orca-observer/architecture/ARCHITECTURE-SPINE.md:106",
+      "other_side": "_bmad-output/specs/spec-orca-observer/rendering-rules.md:17",
+      "finding": "The spec token is `read k of N Runs since start; oldest among Runs read`, shown until every Run in the rotation set has been read once. AD-6, AD-8 (L118) and AD-16 drop the `; oldest among Runs read` suffix and the removal condition, and record no conflict.",
+      "evidence": "rendering-rules.md:17: \"adds `read k of N Runs since start; oldest among Runs read` until every Run in the rotation set has been read once\".",
+      "proposed_grade": "BLOCKING",
+      "suggested_fix": "Carry the full spec token and its removal condition in AD-6, AD-8 and the AD-16 tests, or record the change as a conflict."
+    },
+    {
+      "id": "AR-ARCH-05",
+      "location": "_bmad-output/planning-artifacts/orca-observer/architecture/ARCHITECTURE-SPINE.md:118",
+      "other_side": "_bmad-output/specs/spec-orca-observer/rendering-rules.md:50",
+      "finding": "The new `k+? ... (j rows with unknown Run)` form is called \"the AD-8 aggregate form\" (L106), but AD-8's own rule and the spec say aggregates with unknown members render `n+? (k unknown)` (T38, acceptance-tests.md:32). The spine contradicts itself and departs from the spec form without recording the conflict.",
+      "evidence": "AD-8: \"aggregates with unknown members render `n+? (k unknown)`\"; then \"`k+?` and the suffix `(j rows with unknown Run)`\".",
+      "proposed_grade": "BLOCKING",
+      "suggested_fix": "Either render the spec form or record the Runs-read token as a stated exception to rendering-rules.md:50 and T38, with the reason (j counts rows, not Runs)."
+    },
+    {
+      "id": "AR-ARCH-06",
+      "location": "_bmad-output/planning-artifacts/orca-observer/architecture/ARCHITECTURE-SPINE.md:106",
+      "other_side": null,
+      "finding": "`runs_unknown_rows` counts distinct identities ever seen with an UNKNOWN runId and is never decremented. A row that later reports a known runId still counts, so `(j rows with unknown Run)` can overstate. The spine does not define that transition.",
+      "evidence": "\"the number of distinct row identities (AD-7) with an `UNKNOWN` `runId` seen in successful cycles since start\".",
+      "proposed_grade": "MINOR",
+      "suggested_fix": "State whether an identity leaves j once its runId becomes known, and test that case in test_collector."
+    },
+    {
+      "id": "AR-ARCH-07",
+      "location": "_bmad-output/planning-artifacts/orca-observer/architecture/ARCHITECTURE-SPINE.md:166",
+      "other_side": "_bmad-output/planning-artifacts/orca-observer/architecture/ARCHITECTURE-SPINE.md:106",
+      "finding": "The test wording \"must not read a bare `read 0`\" is ambiguous, because the required `read 0+? ...` contains that substring. AD-6 also conditions the 0+? form on \"rows on screen\" while j counts rows seen since start. Before the first successful cycle the token reads `read 0 of unknown Runs`, with no rule for NOT_POLLED or NOT_AVAILABLE.",
+      "evidence": "AD-16: \"the header must not read a bare `read 0`\"; AD-6: \"with rows on screen and no `runId` on any of them\".",
+      "proposed_grade": "MINOR",
+      "suggested_fix": "Specify the exact assertion (no `read 0 of`), use j > 0 as the only condition, and define the token before the first successful cycle."
+    },
+    {
+      "id": "AR-ARCH-08",
+      "location": "_bmad-output/planning-artifacts/orca-observer/architecture/ARCHITECTURE-SPINE.md:304",
+      "other_side": "_bmad-output/specs/spec-orca-observer/release-gates.md:3",
+      "finding": "CD-10 places the Runs-read token in the B header only, while R1 ships the A view (Signal Bridge). The new AD-6 machinery and the AD-16 render test therefore have no R1 screen surface, and the spine never states this consequence. The risks table relies on the token to stop one Run reading as the fleet (owner-decisions-and-risks.md:44).",
+      "evidence": "CD-10: \"Shown in the B view header only\". release-gates.md:3: \"R1 = Signal Bridge's worker ledger\".",
+      "proposed_grade": "MINOR",
+      "suggested_fix": "State in CD-10 that R1 (view A) shows no Runs-read token under the default, and which test covers it in R1."
+    },
+    {
+      "id": "AR-ARCH-09",
+      "location": "_bmad-output/planning-artifacts/orca-observer/architecture/ARCHITECTURE-SPINE.md:116",
+      "other_side": "_bmad-output/specs/spec-orca-observer/acceptance-tests.md:14",
+      "finding": "AD-8 binds T11 and T12, which are question-retention tests (seen is not resolved). T12 expects `no longer in source window`, and rendering-rules.md:58 gives `no longer in source window (last seen HH:MM)`. AD-8 defines only `not reobserved` for rows, and no AD carries the question literal.",
+      "evidence": "T12: \"an item missing next cycle stays, marked `no longer in source window`\". AD-8 row literals: \"`unknown`, `not reobserved`, ...\".",
+      "proposed_grade": "MINOR",
+      "suggested_fix": "Move T11 and T12 to AD-18 (stage B) and add the question literal there, or add it to AD-8's list."
+    },
+    {
+      "id": "AR-ARCH-10",
+      "location": "_bmad-output/planning-artifacts/orca-observer/architecture/ARCHITECTURE-SPINE.md:88",
+      "other_side": "/home/coder/workspaces/worktrees/IronClaude/issue-409-mvp/src/superclaude/cli/install_user_setup.py:205",
+      "finding": "AD-3 states a single 10 s discovery probe. `_find_orca` loops over two candidate names, probing each with a 10 s timeout, so discovery can take about 20 s. AD-3's \"Prevents ... GNOME screen reader being run as Orca\" overstates: the helper does execute the screen reader with `skills list --json` and only rejects it afterwards.",
+      "evidence": "Code: \"for name in _ORCA_CLIS: ... subprocess.run([path, \\\"skills\\\", \\\"list\\\", \\\"--json\\\"], ... timeout=10\". Spine L87: \"the GNOME screen reader `orca` being run as Orca\".",
+      "proposed_grade": "MINOR",
+      "suggested_fix": "Say up to one 10 s probe per candidate name and that the screen reader may be executed once but is never used as Orca."
+    },
+    {
+      "id": "AR-ARCH-11",
+      "location": "_bmad-output/planning-artifacts/orca-observer/architecture/ARCHITECTURE-SPINE.md:184",
+      "other_side": "_bmad-output/planning-artifacts/orca-observer/architecture/ARCHITECTURE-SPINE.md:142",
+      "finding": "AD-19 keeps dropped rows with `reobserved=False`, but snapshot v1 (AD-12) has no reobserved or last-seen field. A later reader of the snapshot sees retained rows as current, which loses the `not reobserved` honesty the screen keeps.",
+      "evidence": "AD-19: \"stays, with `reobserved=False` and its `last_seen_cycle`\".",
+      "proposed_grade": "MINOR",
+      "suggested_fix": "Add an optional reobserved flag to snapshot v1, or state that the snapshot carries only rows returned this cycle."
+    },
+    {
+      "id": "AR-ARCH-12",
+      "location": "_bmad-output/planning-artifacts/orca-observer/architecture/ARCHITECTURE-SPINE.md:296",
+      "other_side": "/home/coder/workspaces/worktrees/IronClaude/issue-409-mvp/.dev/issues/409/tuibbs-review/architecture-options.md:103",
+      "finding": "CD-2 withholds stage.detail and stage.activity from the snapshot. The snapshot contract, which outranks the spec, lists them among R1 fields. The default follows the spec's stricter reading (open question SPEC.md:114) but does not cite the higher-ranked source it departs from.",
+      "evidence": "CD-2: \"detail and activity are inspector-only and not emitted\".",
+      "proposed_grade": "MINOR",
+      "suggested_fix": "Cite architecture-options.md:103 in CD-2 and state that the default departs from it pending the owner."
+    },
+    {
+      "id": "AR-ARCH-13",
+      "location": "_bmad-output/planning-artifacts/orca-observer/architecture/ARCHITECTURE-SPINE.md:274",
+      "other_side": "/home/coder/workspaces/worktrees/IronClaude/issue-409-mvp/.dev/issues/409/owner-decisions-20261108.md:17",
+      "finding": "Owner decision 5 says the key-reader spike stays the first task, but the spine never orders the spike first. CAP-1 lists the spike result as one R0 output alongside fixtures and renders, and AD-14 only says R0.",
+      "evidence": "Owner: \"The key-reader spike stays the first task.\" Spine CAP-1 row: \"R0 fixture replay of A, B, C at 160/116/80, spike result\".",
+      "proposed_grade": "MINOR",
+      "suggested_fix": "State in AD-14 or the capability map that the spike is the first R0 task, before other R0 modules."
+    }
+  ]
+}

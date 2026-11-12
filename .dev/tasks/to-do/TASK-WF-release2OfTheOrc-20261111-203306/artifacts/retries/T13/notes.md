@@ -1,0 +1,2 @@
+d40de5d8517f4334e2af00f760cb95a873f0246f
+A1 r1-1 F1.1 minor ./artifacts/t13-redaction.md:19 ac=scope n,n,n,n the redaction note says the newest question lands one minute before the anchor; the shift is computed over all rows of files 03 and 24 (status row included), so the newest question lands at 11:58:59Z, one second earlier; no effect on fixtures or tests; the false-claim answer had no live-source path:line anchor so it did not block; not edited

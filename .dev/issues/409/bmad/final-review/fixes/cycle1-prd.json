@@ -1,0 +1,32 @@
+{
+  "fixer": "fix1-prd",
+  "cycle": 1,
+  "file_set": "_bmad-output/planning-artifacts/orca-observer/prd.md; _bmad-output/planning-artifacts/orca-observer/addendum.md",
+  "results": [
+    {
+      "id": "PRD-02",
+      "status": "applied",
+      "file": "_bmad-output/planning-artifacts/orca-observer/prd.md:174",
+      "note": "Replaced 'pinned by T47' on the worker-list mismatch form with an explicit 'No spec test' statement (CAP-4 at SPEC.md:42 lists no such test; T47 covers only question-area notes, verified at acceptance-tests.md:41 and by grep showing no other test mentions mismatch) and added the gap to OI-6 (prd.md:443)."
+    },
+    {
+      "id": "XDOC-05",
+      "status": "applied",
+      "file": "_bmad-output/planning-artifacts/orca-observer/prd.md:174",
+      "note": "Same defect as PRD-02; resolved by the same edit, citing rendering-rules.md:55 as the suggested fix asked."
+    },
+    {
+      "id": "PRD-03",
+      "status": "applied",
+      "file": "_bmad-output/planning-artifacts/orca-observer/prd.md:175",
+      "note": "Added an FR-8 consequence carrying the spec's filter disclosure rule (rendering-rules.md:56) and footer (rendering-rules.md:21) for issue AC 7, marked 'No spec test (P2)' because grep of acceptance-tests.md finds no filter test."
+    }
+  ],
+  "also_changed": [
+    "_bmad-output/planning-artifacts/orca-observer/prd.md:443",
+    "_bmad-output/planning-artifacts/orca-observer/prd.md:381"
+  ],
+  "memlog": [
+    "_bmad-output/planning-artifacts/orca-observer"
+  ]
+}

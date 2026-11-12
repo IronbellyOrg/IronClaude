@@ -1,0 +1,134 @@
+{
+  "reviewer": "bmad-review-adversarial-general",
+  "artifact": "_bmad-output/planning-artifacts/orca-observer/prd.md + _bmad-output/planning-artifacts/orca-observer/addendum.md",
+  "verdict": "FAIL",
+  "self_audit": "Read prd.md in full (521 lines) and addendum.md; checked against SPEC.md, rendering-rules.md, adapter-contract.md, acceptance-tests.md, owner-decisions-and-risks.md, stack.md, write-back-future-stage.md, release-gates.md, snapshot-export-schema.md, issue-409-body.md and owner-decisions-20261108.md. Checked by machine that every T1-T51 appears in prd.md (addendum:46 holds). Checked that `orca orchestration reply` (prd.md:259) comes from write-back-future-stage.md:38, so it is not an invented command. Checked that the stack citations (prd.md:132, :464) follow the spec's 'recorded owner decision N' label convention (owner-decisions-and-risks.md:3), so they are not defects. Did not flag owner-bound decisions or open OQ/UX-OQ items.",
+  "findings": [
+    {
+      "id": "CHECK-b1",
+      "location": "_bmad-output/planning-artifacts/orca-observer/prd.md:174",
+      "other_side": "_bmad-output/specs/spec-orca-observer/rendering-rules.md:55",
+      "finding": "The earlier fix holds. The FR-8 mismatch string matches the spec character for character.",
+      "evidence": "PRD: \"renders `collected n / reported T (mismatch)`\". Spec: \"Finished traversal with n not T: `collected n / reported T (mismatch)`.\"",
+      "proposed_grade": "PASS-CHECK",
+      "suggested_fix": "None."
+    },
+    {
+      "id": "CHECK-b2",
+      "location": "_bmad-output/planning-artifacts/orca-observer/prd.md:88",
+      "other_side": "_bmad-output/specs/spec-orca-observer/adapter-contract.md:15",
+      "finding": "The earlier fix holds. The glossary PARTIAL definition keeps the meaning of adapter-contract.md:15 (cap stops the cursor walk). The added empty-page clause is sourced from adapter-contract.md:49 and rendering-rules.md:55.",
+      "evidence": "PRD: \"paging stopped at the per-cycle call cap while `page.hasMore` was still true\". Spec: \"a guard that marks the view PARTIAL when the per-cycle cap stops it.\"",
+      "proposed_grade": "PASS-CHECK",
+      "suggested_fix": "None."
+    },
+    {
+      "id": "F-01",
+      "location": "_bmad-output/planning-artifacts/orca-observer/prd.md:457",
+      "other_side": "/home/coder/workspaces/worktrees/IronClaude/issue-409-mvp/.dev/issues/409/owner-decisions-20261108.md:17",
+      "finding": "The PRD says owner-decisions-20261108.md decisions 4 and 5 are open. Item 5 in that file is the CONFIRMED stack decision; the open items are summary.md decisions 4 and 5. The PRD's own OI-11 (prd.md:451) says item 5 confirms the stack, so the PRD contradicts itself.",
+      "evidence": "PRD:457 \"Owner positions still open (owner-decisions-20261108.md decisions 4 and 5)\". Source item 5: \"Stack and release-1 scope CONFIRMED ... the licence opinion (decision 4), TUIBBS as the staff platform (decision 5)\" (summary.md numbering).",
+      "proposed_grade": "BLOCKING",
+      "suggested_fix": "Cite \"summary.md decisions 4 and 5, as listed in owner-decisions-20261108.md item 5\" instead of owner-decisions-20261108.md decisions 4 and 5."
+    },
+    {
+      "id": "F-02",
+      "location": "_bmad-output/planning-artifacts/orca-observer/prd.md:174",
+      "other_side": "_bmad-output/specs/spec-orca-observer/acceptance-tests.md:41",
+      "finding": "FR-8 says T47 pins the worker-list traversal mismatch string. T47 covers only the question area before QUESTION-OBSERVATION. No CAP-4 test (SPEC.md:42) pins the worker-list mismatch, so the PRD claims test coverage that does not exist.",
+      "evidence": "PRD: \"`collected n / reported T (mismatch)` (rendering-rules.md), pinned by T47\". T47: \"Before QUESTION-OBSERVATION the question area reads ... mismatch ... notes render\".",
+      "proposed_grade": "BLOCKING",
+      "suggested_fix": "Drop \"pinned by T47\" for the worker-list mismatch, mark it \"No spec test\", and add it to OI-6."
+    },
+    {
+      "id": "F-03",
+      "location": "_bmad-output/planning-artifacts/orca-observer/prd.md:331",
+      "other_side": "_bmad-output/specs/spec-orca-observer/rendering-rules.md:56",
+      "finding": "Issue AC 7 (filtered versus global counts explicit, I:83) is mapped to FR-8, but no FR states the spec's filter rule. The `/` filter exists (NFR-5), yet nothing requires the `filter <expr>: k of n collected` disclosure or the footer `shown x/y` form.",
+      "evidence": "Spec: \"a filter always shows `filter <expr>: k of n collected` beside the unfiltered `source counts: ...`\". PRD:331 maps AC 7 to \"NFR-6, FR-8\"; FR-8 has no filter consequence.",
+      "proposed_grade": "BLOCKING",
+      "suggested_fix": "Add an FR-8 or FR-10 consequence carrying rendering-rules.md:56 and the footer `shown x/y | collected n / reported T` (rendering-rules.md:21), marked no spec test."
+    },
+    {
+      "id": "F-04",
+      "location": "_bmad-output/planning-artifacts/orca-observer/prd.md:174",
+      "other_side": "_bmad-output/specs/spec-orca-observer/rendering-rules.md:59",
+      "finding": "An R1 requirement (FR-8, CAP-4, R1) carries post-gate R2 question-area behaviour (rotation token, empty rotation set). This blurs the staged release boundary that the owner decision binds.",
+      "evidence": "PRD: \"After QUESTION-OBSERVATION the question area also shows `collected n unique / reported T` ... a per-scope `revisit ~Ns` rotation token\".",
+      "proposed_grade": "MINOR",
+      "suggested_fix": "Move the post-gate question-area consequences to FR-17 (R2)."
+    },
+    {
+      "id": "F-05",
+      "location": "_bmad-output/planning-artifacts/orca-observer/addendum.md:33",
+      "other_side": "_bmad-output/specs/spec-orca-observer/SPEC.md:36",
+      "finding": "The addendum traces FR-6 and T45 to CAP-2, but CAP-2's success list does not name T45, and no CAP success line cites T45. The trace is invented by the PRD and is not labelled as such.",
+      "evidence": "CAP-2 success: \"(T9, T20-T22, T32, T39)\". Addendum: \"CAP-2 Worker ledger | R1 | FR-3, FR-4, FR-5, FR-6 | ... T39, T45\".",
+      "proposed_grade": "MINOR",
+      "suggested_fix": "Label the FR-6/T45 trace `[ASSUMPTION]`, or trace it to CAP-4 scope honesty (adapter-contract.md:63)."
+    },
+    {
+      "id": "F-06",
+      "location": "_bmad-output/planning-artifacts/orca-observer/prd.md:222",
+      "other_side": "_bmad-output/specs/spec-orca-observer/rendering-rules.md:46",
+      "finding": "FR-14 and UJ-2 (prd.md:66) star only changed rows. The spec also stars rows added or removed since the mark, so the PRD narrows the change rule.",
+      "evidence": "Spec: \"Every row added, removed or changed in `stage` ... `nextAction.kind` or `liveness.verdict` since the mark shows `*`\". PRD UJ-2: \"rows whose stage, `nextAction.kind` or `liveness.verdict` changed are starred\".",
+      "proposed_grade": "MINOR",
+      "suggested_fix": "Add \"added or removed\" to FR-14 and UJ-2."
+    },
+    {
+      "id": "F-07",
+      "location": "_bmad-output/planning-artifacts/orca-observer/prd.md:175",
+      "other_side": "_bmad-output/specs/spec-orca-observer/rendering-rules.md:55",
+      "finding": "FR-8 gives only the short PARTIAL form. The pinned spec string carries the INV-007 disclosure, which the PRD keeps only in risk table K10 (prd.md:369), not in any FR.",
+      "evidence": "Spec: \"`PARTIAL: collected n of reported T (newest first; oldest rows not read; long-running active workers may be among them)`\". PRD: \"`PARTIAL: collected 500 of reported T` (T4)\".",
+      "proposed_grade": "MINOR",
+      "suggested_fix": "Quote the full pinned PARTIAL string in FR-8, keeping T4 as the test for its prefix."
+    },
+    {
+      "id": "F-08",
+      "location": "_bmad-output/planning-artifacts/orca-observer/prd.md:174",
+      "other_side": "_bmad-output/specs/spec-orca-observer/adapter-contract.md:49",
+      "finding": "The worker-list paging integrity forms are missing from the FRs: `reported T (page k)` and `reported T1-T2 (changed during read)`. The PRD has `changed during read` only for the post-gate question area.",
+      "evidence": "Spec: \"`page.total` changing between pages: `reported T1-T2 (changed during read)`\"; rendering-rules.md:55 \"T comes from the last page read: `reported T (page k)`\".",
+      "proposed_grade": "MINOR",
+      "suggested_fix": "Add both worker-list paging forms to FR-8."
+    },
+    {
+      "id": "F-09",
+      "location": "_bmad-output/planning-artifacts/orca-observer/prd.md:176",
+      "other_side": "_bmad-output/specs/spec-orca-observer/adapter-contract.md:63",
+      "finding": "The FR-8 scope consequence leaves out the spec's rule that `bound` scope adds `one Run only`. It appears only in risk K4 (prd.md:363), so no requirement makes it testable.",
+      "evidence": "Spec: \"absent reads `scope unknown`; `bound` adds `one Run only`\". PRD: \"The header shows `scope=<result.scope.source>` or `scope unknown`\".",
+      "proposed_grade": "MINOR",
+      "suggested_fix": "Add \"`bound` adds `one Run only`\" to the FR-8 scope consequence."
+    },
+    {
+      "id": "F-10",
+      "location": "_bmad-output/planning-artifacts/orca-observer/prd.md:181",
+      "other_side": "_bmad-output/specs/spec-orca-observer/adapter-contract.md:36",
+      "finding": "FR-9 covers timeout failure only. The parse-failure form `FAILED (shape)` and the rule that the last good snapshot is kept, qualified `as of`, appear nowhere in the PRD.",
+      "evidence": "Spec: \"Any missing: the cycle is `FAILED (shape)` and the last good snapshot is kept.\" Also adapter-contract.md:50 \"the last good snapshot stays, qualified `as of`\".",
+      "proposed_grade": "MINOR",
+      "suggested_fix": "Add a FR-9 consequence for `FAILED (shape)` / invalid JSON keeping the last good snapshot with `as of`."
+    },
+    {
+      "id": "F-11",
+      "location": "_bmad-output/planning-artifacts/orca-observer/prd.md:205",
+      "other_side": null,
+      "finding": "Several requirements cite step-1 review items that no listed artifact defines, so a reader cannot trace them. The same applies at prd.md:214, :237, :261 and :442.",
+      "evidence": "\"(step-1 coverage gaps G1-G3, G5-G7)\"; \"(step-1 minor 3)\"; \"(Step-1 minors 3, 4 and 5.)\"",
+      "proposed_grade": "MINOR",
+      "suggested_fix": "Replace step-1 references with the spec file:line or OI id they stand for, or name the step-1 review file path."
+    },
+    {
+      "id": "F-12",
+      "location": "_bmad-output/planning-artifacts/orca-observer/prd.md:167",
+      "other_side": "_bmad-output/specs/spec-orca-observer/acceptance-tests.md:27",
+      "finding": "FR-7 puts the live empty-worker string under T33, but T33 tests only the fixture `empty` variant. The live `worker-list returned 0 workers in scope=bound` string has no test, and the PRD does not say so.",
+      "evidence": "T33: \"`empty` renders `no observed items in this source window; not proof none exist`, never `no questions`.\"",
+      "proposed_grade": "MINOR",
+      "suggested_fix": "Mark the live empty-worker string \"No spec test\" in FR-7."
+    }
+  ]
+}

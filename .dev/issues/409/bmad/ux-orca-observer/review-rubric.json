@@ -1,0 +1,219 @@
+{
+  "project_name": "Orca Observer",
+  "overall_verdict": "The spine pair is a usable contract: every YAML token resolves, every colour is hex, every UJ has a protagonist, numbered steps, a climax and a failure path, and the binding owner decisions (R1 scope, later B/C, read-only, PROPOSED numbers, open questions) are applied consistently. Five real defects remain. UJ-1's timeout failure path contradicts T5. The shrink rule drops the never-dropped gap notice. The T50 fixture label is missing. FR-16's per-cycle snapshot is reduced to an on-demand export. The ledger has no column that can satisfy T20's 'each naming it' worktree rule. Visual-reference hygiene is thin: imports/ is empty, the design-package source path does not resolve from the repo, and no spines-win-on-conflict line exists.",
+  "categories": [
+    {
+      "n": 1,
+      "name": "Flow coverage",
+      "verdict": "adequate",
+      "checked": "UJ-1..UJ-5 and the DIRECTION-SELECTED review task from extract-prd.json (prd.md:65-69, 463) and the FR-1..FR-18 / NFR-1..14 list, against EXPERIENCE.md Key Flows. Each was checked for protagonist, numbered steps, climax and failure path. Failure paths were spot-checked against prd.md:181 and acceptance-tests.md:12 (T5).",
+      "findings": [
+        {
+          "severity": "high",
+          "blocking": true,
+          "finding": "The UJ-1 failure path says that when 'the poll times out three times in a row' the freshness cell turns to `STALE 52s` and 'Nothing becomes failed'. The sources say a timed-out call shows `FAILED (timeout)` (prd.md:181, T5 in acceptance-tests.md:12). 'Never turned into failed' in rendering-rules.md:53 is about values, not the source cell. The spine also never says which word wins when a source is both failed and past 45 s with no success.",
+          "location": "EXPERIENCE.md § Key Flows > UJ-1 Fleet glance (R1) failure path; § State Patterns > State vocabulary (stale / failed rows)",
+          "fix": "Rewrite the failure path so each timeout shows `FAILED (timeout) <age>` and values keep `as of HH:MM:SS`. Add one precedence rule for the freshness cell when FAILED and STALE both apply. If the sources do not decide it, mark the rule PROPOSED or carry it as an open question."
+        },
+        {
+          "severity": "medium",
+          "blocking": true,
+          "finding": "FR-16 (prd.md:86, 235) requires a versioned JSON snapshot written by `export(view)` on each R1 cycle (snapshot-export-schema.md 'Envelope (one per cycle)'; SPEC.md CAP-10). The spine instead attaches the JSON snapshot only to the `e` key and `--once`, and never mentions a per-cycle write. A consumer following the spine would never write the snapshot on its own.",
+          "location": "EXPERIENCE.md § Information Architecture > Screen inventory row 4; § Key Flows > UJ-4 Export step 2",
+          "fix": "Separate the record export (`e` / `--once`, T27/T48) from the per-cycle snapshot (FR-16). State where and when the snapshot is written, or carry its destination with UX-OQ-4."
+        },
+        {
+          "severity": "medium",
+          "blocking": false,
+          "finding": "The R0 owner-review flow leaves out the walkthrough task that the source makes the core of the review: 'find the oldest question and inspect its evidence' (prd.md:463, release-gates.md:9). The climax jumps straight to recording a direction.",
+          "location": "EXPERIENCE.md § Key Flows > R0 owner review",
+          "fix": "Add a step where the reviewer performs the walkthrough task on each direction's fixture render before recording the selection."
+        },
+        {
+          "severity": "low",
+          "blocking": false,
+          "finding": "The R2/R3 labels that FR-17/FR-18 require are missing from the B/C flow and screens: 'bounded best effort; coverage unknown; at most 100 rows per read, not 100 questions' (rendering-rules.md:37) and 'affected scope unknown' (FR-18).",
+          "location": "EXPERIENCE.md § Key Flows > UJ-5; § Information Architecture rows 5 and 7",
+          "fix": "Add the two labels to the UJ-5 steps and failure path. They are later-release requirements, so a one-line mention is enough."
+        }
+      ]
+    },
+    {
+      "n": 2,
+      "name": "Token completeness",
+      "verdict": "adequate",
+      "checked": "Every YAML token in DESIGN.md (9 colours, 3 typography roles, 2 rounded, 6 spacing, 15 components). Every `{path}` reference in the YAML and in DESIGN.md prose: typography.strong.fontWeight, rounded.DEFAULT/sm, spacing.1/2/gutter/column-gap/frame, colors.*, components.fixture-badge. The EXPERIENCE.md references `{components.*}` and `{colors.warn}`. All resolve. All colours are hex. Font family and line height are platform `note` objects, which is acceptable for a terminal.",
+      "findings": [
+        {
+          "severity": "medium",
+          "blocking": false,
+          "finding": "Several rendered states have no colour token. The freshness strip lists okColor, staleColor, failedColor, notPolledColor and unverifiedColor, but has nothing for `NOT AVAILABLE (orca binary not found)`. There is no token or component for the `terminal too narrow (min 80)` line, `cycle overran (Ns)`, the new-baseline notice, `selected <id> no longer in source window`, or the full PARTIAL sentence on the muted status line (PARTIAL is warn in the COUNTS strip).",
+          "location": "DESIGN.md frontmatter components.freshness-strip / status-line / ledger-row; § Components",
+          "fix": "Add notAvailableColor (probably warn or bad) to freshness-strip. Give the status line a partialColor and a warnColor. Name the colour of the under-80 notice and the vanished-selection row."
+        },
+        {
+          "severity": "low",
+          "blocking": false,
+          "finding": "No light/dark pair is given. The observer draws on the terminal's background, and the spine labels the light-theme contrast risk PROPOSED. Contrast for `{colors.line}` (#526c80, borders) is not stated; it computes to about 3.2:1 on #101820, which is enough for non-text. The selected row's reverse-video contrast, and how the accent cursor looks inside reverse video, are not stated.",
+          "location": "DESIGN.md § Colors (contrast table); components.ledger-row-selected",
+          "fix": "Add a `line` row to the contrast table (non-text 3:1 target). Say whether the accent cursor glyph is drawn inside or outside the reverse-video span."
+        }
+      ]
+    },
+    {
+      "n": 3,
+      "name": "Component coverage",
+      "verdict": "adequate",
+      "checked": "Every component name in the DESIGN.md YAML and Components table, and every component in EXPERIENCE.md Component Patterns, IA and State Patterns. Each was checked for a visual row and a behaviour row.",
+      "findings": [
+        {
+          "severity": "medium",
+          "blocking": false,
+          "finding": "`{components.status-line}` has a DESIGN row but no EXPERIENCE Component Patterns entry. Its behaviour is spread across the IA, State Patterns and Export: it holds the partial sentence, cycle overrun, new baseline, export result and filter count. There is no rule for which item wins when several apply on one line.",
+          "location": "EXPERIENCE.md § Component Patterns (missing 'Status line'); DESIGN.md § Components 'Status line'",
+          "fix": "Add a Status line pattern with its content list, priority order when items compete, and the fold-into-footer rule from the shrink order."
+        },
+        {
+          "severity": "medium",
+          "blocking": false,
+          "finding": "`fixture-state-marks` (settledColor, frozenColor) is defined in the YAML but has no row in DESIGN.md § Components and no behaviour rule in EXPERIENCE.md. The fixture FROZEN marker 'no other state overrides' (rendering-rules.md:63) is not specified anywhere in the spines.",
+          "location": "DESIGN.md frontmatter components.fixture-state-marks; § Components; EXPERIENCE.md § Component Patterns",
+          "fix": "Add a Components row and a behaviour line: fixture-only, the FROZEN marker overrides other states, and live mode shows `unavailable (no source)`."
+        },
+        {
+          "severity": "low",
+          "blocking": false,
+          "finding": "The names drift between the files. EXPERIENCE calls the gutter component 'Row gutter', while DESIGN uses 'Selected row' and 'Change mark'. EXPERIENCE has an 'Export' pattern with no DESIGN row. The filter prompt in the footer has no visual spec. The B/C components (OPEN HUMAN QUESTIONS panel, SEEN IS NOT RESOLVED, RETAIN CONTEXT, question inspector, Decision Desk) have no rows, even though R0 renders B and C.",
+          "location": "DESIGN.md § Components; EXPERIENCE.md § Component Patterns",
+          "fix": "Use one component name in both files. Add one line saying that B/C component specs are deferred and that R0 renders them from the design-package exports."
+        }
+      ]
+    },
+    {
+      "n": 4,
+      "name": "State coverage",
+      "verdict": "adequate",
+      "checked": "IA screens 0-8, with R1 screens 1-4 checked in depth. Screen 1 states: loading, empty, partial, stale, failed, binary missing, overrun, filter, historical, changes, fixture, under-80, too-small. Screen 2 states: absent field, stderr, vanished worker. Screens 3 and 4: success, failure, `--once`. Screen 0: navigation and variants.",
+      "findings": [
+        {
+          "severity": "medium",
+          "blocking": true,
+          "finding": "This is a contradiction about which rows are never dropped. 'Rows that never drop' lists header, freshness, COUNTS, the gap notice and the footer, and the gap-notice pattern says it shows 'in every view and at every width'. DESIGN's diagnostic shows 'the rows that are never dropped'. Shrink-order step 4 says the too-small diagnostic 'keeps the header, freshness, COUNTS and footer lines', which leaves out the gap notice.",
+          "location": "EXPERIENCE.md § Responsive & Platform > PROPOSED shrink order step 4",
+          "fix": "Add the gap notice to step 4, or say 'keeps every never-dropped row'."
+        },
+        {
+          "severity": "medium",
+          "blocking": true,
+          "finding": "T20 / prd.md:148 require two sessions that share a `worktreeId` to show as two rows, 'each naming it', and a session with no worktree to show `worktree unknown`. The ledger columns at every width (rendering-rules.md:29, mirrored in the Width bands table) contain no worktree field. The spine repeats 'A missing worktree reads `worktree unknown`' without saying where. As written, the ledger cannot satisfy T20.",
+          "location": "EXPERIENCE.md § Component Patterns > Ledger; § Responsive & Platform > Width bands",
+          "fix": "Say where the worktree is named (for example, in the inspector only, with T20 checked there), or raise the column-list versus T20 tension as a new UX-OQ."
+        },
+        {
+          "severity": "medium",
+          "blocking": false,
+          "finding": "The discovery probe has no state. The probe is a one-time `skills list --json` check that validates the binary before the first cycle (prd.md glossary, NFR-9). The spine covers 'binary missing' but not 'binary found, probe failed', for example the wrong `orca` (github.com/orca-cli/orca).",
+          "location": "EXPERIENCE.md § State Patterns > View-level states (R1)",
+          "fix": "Add a probe-failed row with the freshness-cell wording, or mark the wording PROPOSED."
+        },
+        {
+          "severity": "medium",
+          "blocking": false,
+          "finding": "Three states are underspecified. (1) In the UJ-3 failure path the inspector 'keeps its last values' after the worker leaves the source window, with no notice on the inspector, so it shows values that are no longer current without saying so. (2) The inspector says nothing about STALE or FAILED source state or `as of`. (3) `--once` has no failure state (poll failure or write failure with no status line, exit code).",
+          "location": "EXPERIENCE.md § Key Flows > UJ-3 failure path; UJ-4 failure path; § Component Patterns > Inspector",
+          "fix": "Add an inspector notice line, for example `no longer in source window, values as of HH:MM:SS` (PROPOSED). Specify the `--once` failure output and exit code, or mark it PROPOSED."
+        },
+        {
+          "severity": "medium",
+          "blocking": false,
+          "finding": "Fixture gallery (screen 0) is the first deliverable, but its interaction is unspecified. Its keys are not in the keyboard table, and it is not said how the reviewer steps through A/B/C x 160/116/80 x variants (27-case matrix, FR-1), or whether the gallery is an interactive screen or a set of byte-identical text renders (T6).",
+          "location": "EXPERIENCE.md § Information Architecture row 0; § Interaction Primitives > Keyboard model",
+          "fix": "Add a gallery column or a short section: how a frame is chosen (keys or files), and the frame label."
+        }
+      ]
+    },
+    {
+      "n": 5,
+      "name": "Visual reference coverage",
+      "verdict": "thin",
+      "checked": "Listed W/imports/ (empty). The workspace has no mockups/ or wireframes/. Checked the spines' inline references to the design-package text exports, and looked for a spines-win-on-conflict statement.",
+      "findings": [
+        {
+          "severity": "medium",
+          "blocking": false,
+          "finding": "No visual reference is in the workspace: imports/ is empty, and there are no mockups or wireframes. The design-package exports are listed only once, in Inspiration. They are not linked inline at the sections they illustrate (Screen 1 composition, Width bands, B geometry, Shapes).",
+          "location": "EXPERIENCE.md § Inspiration & Anti-patterns; § Information Architecture; § Responsive & Platform; DESIGN.md § Shapes",
+          "fix": "Link each relevant export inline, for example `exports/160/signal-bridge.txt` at the Screen 1 composition and the width bands, and name what each one illustrates. Optionally copy the text exports into imports/."
+        },
+        {
+          "severity": "medium",
+          "blocking": false,
+          "finding": "No general 'spines win on conflict' statement exists. Precedence is stated only case by case (`>` over the prototype's ellipsis, and the prototype as reference only).",
+          "location": "EXPERIENCE.md § Foundation or § Inspiration & Anti-patterns",
+          "fix": "Add one sentence: where a design-package export disagrees with these spines, the spines win."
+        }
+      ]
+    },
+    {
+      "n": 6,
+      "name": "Bloat & overspecification",
+      "verdict": "adequate",
+      "checked": "Looked for source restatement (personas, release table, sanitizer list, OQ list), pixel or cell specs where tokens already cover them, decorative prose, and duplicated tables across the spines. The PROPOSED numbers and the carried open questions are owner-mandated and were not counted.",
+      "findings": [
+        {
+          "severity": "low",
+          "blocking": false,
+          "finding": "The contrast ratios appear twice, in the DESIGN.md Colors table and again in EXPERIENCE.md Accessibility Floor (7.63-14.56:1), which is a drift risk. 'Which Signal Bridge is R1' is a decision rationale that duplicates UX-OQ-1.",
+          "location": "EXPERIENCE.md § Accessibility Floor > Contrast; § Foundation > Which Signal Bridge is R1",
+          "fix": "In Accessibility Floor, refer to DESIGN.md § Colors instead of restating the numbers. Shorten the Signal Bridge table to its mapping column."
+        }
+      ]
+    },
+    {
+      "n": 7,
+      "name": "Inheritance discipline",
+      "verdict": "adequate",
+      "checked": "Resolved all 10 `sources` entries from the repo root. Compared the UJ names with prd.md:65-69, and the glossary terms (Signal Bridge/Attention Ledger/Decision Desk, worker-list, UNKNOWN/unknown, PARTIAL/STALE/FAILED) with prd.md:75-90. Spot-checked state strings against rendering-rules.md and acceptance-tests.md. Checked that component names match across both files and that EXPERIENCE token references resolve in DESIGN.",
+      "findings": [
+        {
+          "severity": "medium",
+          "blocking": true,
+          "finding": "The R0 fixture label required by T50 / FR-1 is missing. The sources require every R0 render to carry 'synthetic fixture, not live evidence' (prd.md:85, 126; rendering-rules.md:5; acceptance-tests.md:44; release-gates.md:9). The spine uses only the header form `SYNTHETIC FIXTURE <variant>, not Orca data` (rendering-rules.md:17), says 'Every frame carries' it, and never uses the T50 string.",
+          "location": "EXPERIENCE.md § Information Architecture row 0; § State Patterns > View-level states 'Fixture'; § Key Flows > R0 owner review step 2",
+          "fix": "Require both strings on R0 renders: the T50 label 'synthetic fixture, not live evidence' and the header badge. Or state where each one appears."
+        },
+        {
+          "severity": "medium",
+          "blocking": false,
+          "finding": "The sources say 'the strip shows `cycle overran (Ns)`' (prd.md:275, adapter-contract.md:26, acceptance-tests.md:34). The spine places it on the status line without a PROPOSED label.",
+          "location": "EXPERIENCE.md § State Patterns > View-level states 'Cycle overrun'",
+          "fix": "Put it in the freshness strip as the sources say, or label the status-line placement PROPOSED."
+        },
+        {
+          "severity": "low",
+          "blocking": false,
+          "finding": "The last `sources` entry (`IronClaude/issue-409-mvp/.dev/design/orca-observer-20261106/`) does not resolve from the repo root. The package is at /home/coder/workspaces/worktrees/IronClaude/issue-409-mvp/... in another repository. Two UJ names are not verbatim: 'UJ-4 Export (R1)' should be 'Export (R1, any platform)', and 'UJ-5 Find the oldest question (B, then C; gated)' should be '(R2/R3, gated)'.",
+          "location": "EXPERIENCE.md frontmatter sources; § Key Flows headings UJ-4, UJ-5",
+          "fix": "Anchor the cross-repo path (repo name plus commit, or an absolute workspace path) and use the PRD journey names verbatim."
+        }
+      ]
+    },
+    {
+      "n": 8,
+      "name": "Shape fit",
+      "verdict": "strong",
+      "checked": "DESIGN.md section order: Brand & Style, Colors, Typography, Layout & Spacing, Elevation & Depth, Shapes, Components, Do's and Don'ts. All 8 are present and in canonical order. The EXPERIENCE.md required defaults (Foundation, IA, Voice and Tone, Component Patterns, State Patterns, Interaction Primitives, Accessibility Floor, Key Flows) are all present. Responsive and Inspiration are present and triggered. The invented sections (Untrusted Text and Identifiers, Future Stage: Write-back, Open Questions) each earn their place; the last two are owner-mandated.",
+      "findings": [
+        {
+          "severity": "low",
+          "blocking": false,
+          "finding": "Responsive & Platform comes directly after IA, where the example places it after Accessibility Floor. The order is defensible because the width bands are the main layout input, but it differs from the examples.",
+          "location": "EXPERIENCE.md § Responsive & Platform",
+          "fix": "Optional: move it after Accessibility Floor, or leave it as is. Not load-bearing."
+        }
+      ]
+    }
+  ],
+  "mechanical_notes": "Token references: every `{...}` in the DESIGN.md YAML and prose and in EXPERIENCE.md resolves, including {typography.strong.fontWeight}, {rounded.DEFAULT}, {spacing.column-gap}/{spacing.gutter}/{spacing.2}/{spacing.1}, {components.fixture-badge} and the {components.*} set. Orphan: components.fixture-state-marks has no Components row and no behaviour rule. Name inconsistencies: 'Row gutter' (EXPERIENCE) versus 'Selected row' and 'Change mark' (DESIGN); EXPERIENCE 'Export' pattern with no DESIGN row; UJ-4/UJ-5 headings not verbatim from prd.md:68-69; fixture label 'synthetic fixture, not live evidence' (T50) never used. Cross-refs: EXPERIENCE sources entries 1-9 resolve from the repo root; entry 10 (design package) resolves only under /home/coder/workspaces/worktrees/IronClaude/issue-409-mvp/. DESIGN cites canvas.py:7, QA.md:13 and DESIGN-CONTRACT.md:14 in that cross-repo package. Arithmetic: the 160 budget is 133 cells plus 9 separators plus the 2-cell frame, 144 in all (fits), the 116 budget is 111 and the 80 budget is 78 (both fit), and rows 9-42 give 34 ledger rows (correct). Frontmatter: both files have name, description, status draft, created and updated; DESIGN has no sources (not required). No Mermaid is present. The memlog matches the spines on R1 composition, PROPOSED budgets, the truncation glyph and the palette (UX-OQ-1/2/5/7).",
+  "self_audit": "There are 5 blocking findings, so a zero-blocking audit does not apply. Checked actively: (1) token resolution for all YAML and prose references; (2) hex on all 9 colours; (3) each UJ for protagonist, steps, climax and failure path; (4) failure-path wording against acceptance-tests T5/T20/T50 and prd.md FR-16; (5) never-dropped rows across sections; (6) budget arithmetic; (7) source path resolution. Not checked, by instruction or binding decision: the PROPOSED numbers as defects, the open questions as defects, the B/C depth, write-back as a future-only section, and image or PDF files."
+}

@@ -1,0 +1,152 @@
+{
+  "reviewer": "cross-document-consistency",
+  "artifact": "ALL",
+  "verdict": "FAIL",
+  "self_audit": "Checked across SPEC, PRD, UX and ARCH: release and stage labels (R0-R4, future write-back at prd.md:110, SPEC.md:81, ARCH AD-17); the gate names DIRECTION-SELECTED, QUESTION-OBSERVATION and QUESTION-LINK (no variant spellings found by grep); the counts FR 18, OQ 15, AD 20, CD 16, UX-OQ-1..8, T1-T51 plus the schema test, and addendum.md:50-52; snapshot field list (snapshot-export-schema.md:25-57 against architecture-options.md:88-111 and ARCH AD-12; the stage.detail/activity withholding is recorded as OQ-15); the CD to OQ and UX-OQ mapping (ARCH CD-1..CD-16); the on-screen literals of rendering-rules.md counted in prd.md, EXPERIENCE.md, DESIGN.md and the ARCH spine; the required checks b1, b2, c1-c5 and NEW2 (each recorded below as PASS-CHECK). ARCHITECTURE-SPINE.md in the spec folder is identical to the ARCH copy (diff -q empty). Open OQs and UX-OQs were not flagged as defects.",
+  "findings": [
+    {
+      "id": "CHECK-b1",
+      "location": "_bmad-output/planning-artifacts/orca-observer/prd.md:174",
+      "other_side": "_bmad-output/specs/spec-orca-observer/rendering-rules.md:55",
+      "finding": "The FR-8 mismatch string in the PRD matches the spec exactly.",
+      "evidence": "prd.md:174 `collected n / reported T (mismatch)`; rendering-rules.md:55 carries the same form.",
+      "proposed_grade": "PASS-CHECK",
+      "suggested_fix": "None."
+    },
+    {
+      "id": "CHECK-b2",
+      "location": "_bmad-output/planning-artifacts/orca-observer/prd.md:88",
+      "other_side": "_bmad-output/specs/spec-orca-observer/adapter-contract.md:15",
+      "finding": "The PARTIAL glossary entry agrees with the cursor guard that marks PARTIAL and with the paging strings.",
+      "evidence": "adapter-contract.md:15 cursor guard marks PARTIAL; adapter-contract.md:49 paging strings; prd.md:88 PARTIAL entry consistent.",
+      "proposed_grade": "PASS-CHECK",
+      "suggested_fix": "None."
+    },
+    {
+      "id": "CHECK-c1",
+      "location": "_bmad-output/planning-artifacts/orca-observer/ux-designs/ux-orca-observer-2026-11-08/EXPERIENCE.md:64",
+      "other_side": "_bmad-output/specs/spec-orca-observer/rendering-rules.md:17",
+      "finding": "Fixture header fixed: UX uses `SYNTHETIC FIXTURE <variant>, not Orca data` and keeps the T50 label as a separate per-render marking (also EXPERIENCE.md:215, :298; DESIGN.md:121).",
+      "evidence": "rendering-rules.md:17 `SYNTHETIC FIXTURE <variant>, not Orca data`; acceptance-tests.md:44 T50 \"synthetic fixture, not live evidence\".",
+      "proposed_grade": "PASS-CHECK",
+      "suggested_fix": "None."
+    },
+    {
+      "id": "CHECK-c2",
+      "location": "_bmad-output/planning-artifacts/orca-observer/ux-designs/ux-orca-observer-2026-11-08/EXPERIENCE.md:54",
+      "other_side": "_bmad-output/specs/spec-orca-observer/rendering-rules.md:8",
+      "finding": "The built-layout claim is corrected to cite the spec's mention of the built prototype; the PLAN.md cockpit half is kept and is true.",
+      "evidence": "rendering-rules.md:8 and :85 name the built prototype; no spec or PRD line names the PLAN.md cockpit.",
+      "proposed_grade": "PASS-CHECK",
+      "suggested_fix": "None."
+    },
+    {
+      "id": "CHECK-c3",
+      "location": "_bmad-output/planning-artifacts/orca-observer/ux-designs/ux-orca-observer-2026-11-08/EXPERIENCE.md:221",
+      "other_side": "_bmad-output/specs/spec-orca-observer/adapter-contract.md:26",
+      "finding": "`cycle overran (Ns)` now sits on the freshness strip (also EXPERIENCE.md:293), and the status line at EXPERIENCE.md:84 no longer carries it.",
+      "evidence": "adapter-contract.md:26 places `cycle overran (Ns)` on the strip.",
+      "proposed_grade": "PASS-CHECK",
+      "suggested_fix": "None."
+    },
+    {
+      "id": "CHECK-c4",
+      "location": "_bmad-output/planning-artifacts/orca-observer/ux-designs/ux-orca-observer-2026-11-08/EXPERIENCE.md:279",
+      "other_side": "_bmad-output/specs/spec-orca-observer/acceptance-tests.md:18",
+      "finding": "The state tables now include `reported unknown`, `FAILED (shape)` (EXPERIENCE.md:281) and the T22 flags `order unknown` and `conflict (time went back)` (EXPERIENCE.md:296).",
+      "evidence": "acceptance-tests.md:18 T22; acceptance-tests.md:21 T32; adapter-contract.md:36-37, :43-44.",
+      "proposed_grade": "PASS-CHECK",
+      "suggested_fix": "None."
+    },
+    {
+      "id": "CHECK-c5",
+      "location": "_bmad-output/planning-artifacts/orca-observer/ux-designs/ux-orca-observer-2026-11-08/EXPERIENCE.md:135",
+      "other_side": "_bmad-output/specs/spec-orca-observer/rendering-rules.md:19",
+      "finding": "Only COUNTS and coverage/scope/PARTIAL cite the spec in the never-drop list; the other rows are labelled PROPOSED.",
+      "evidence": "rendering-rules.md:19 COUNTS \"is a minimum row and is never dropped\"; rendering-rules.md:13 minimum content.",
+      "proposed_grade": "PASS-CHECK",
+      "suggested_fix": "None."
+    },
+    {
+      "id": "CHECK-NEW2",
+      "location": "_bmad-output/planning-artifacts/orca-observer/prd.md:158",
+      "other_side": "_bmad-output/planning-artifacts/orca-observer/architecture/ARCHITECTURE-SPINE.md:106",
+      "finding": "No document other than ARCH states the old rule for reading Runs; prd.md:158, EXPERIENCE.md:216 and rendering-rules.md:17 carry only the `read k of N Runs since start` template.",
+      "evidence": "Grep found the Runs-read rule with unknown Run rows only in ARCH AD-6.",
+      "proposed_grade": "PASS-CHECK",
+      "suggested_fix": "None."
+    },
+    {
+      "id": "X1",
+      "location": "_bmad-output/planning-artifacts/orca-observer/architecture/ARCHITECTURE-SPINE.md:166",
+      "other_side": "_bmad-output/specs/spec-orca-observer/rendering-rules.md:17",
+      "finding": "ARCH AD-16 marks the spec-fixed fixture header as PROPOSED and ties it to T50. T50 actually pins a different marking, which appears nowhere in ARCH (0 matches). This repeats the header/T50 merge that the UX fix c1 removed.",
+      "evidence": "ARCH:166 \"header reads `SYNTHETIC FIXTURE <variant>, not Orca data` (T50; exact words PROPOSED)\"; acceptance-tests.md:44 T50 \"synthetic fixture, not live evidence\".",
+      "proposed_grade": "BLOCKING",
+      "suggested_fix": "Cite rendering-rules.md:17 for the header as spec-fixed, and add the separate T50 per-render marking \"synthetic fixture, not live evidence\"."
+    },
+    {
+      "id": "X2",
+      "location": "_bmad-output/planning-artifacts/orca-observer/architecture/ARCHITECTURE-SPINE.md:148",
+      "other_side": "_bmad-output/specs/spec-orca-observer/rendering-rules.md:31",
+      "finding": "ARCH AD-13 reduces the under-80 screen to the notice plus the COUNTS strip only. That drops the gap notice, which the spec requires at every width, and it contradicts the UX short form at the reduced width (EXPERIENCE.md:108).",
+      "evidence": "ARCH:148 \"below 80 `terminal too narrow (min 80)` and the COUNTS strip only\"; rendering-rules.md:31 \"at every width, the gap notice\".",
+      "proposed_grade": "BLOCKING",
+      "suggested_fix": "Make the under-80 class keep the gap notice and the COUNTS strip, following rendering-rules.md:12 and :31, and agree the rest of the content with EXPERIENCE.md:108."
+    },
+    {
+      "id": "X3",
+      "location": "_bmad-output/planning-artifacts/orca-observer/architecture/ARCHITECTURE-SPINE.md:300",
+      "other_side": "_bmad-output/specs/spec-orca-observer/acceptance-tests.md:19",
+      "finding": "ARCH CD-6 and AD-20 (ARCH:190) default to `e` showing `export disabled` and to skipping every live snapshot write. The spec requires `e` to write the export (T27, SPEC.md:57), requires a snapshot each R1 cycle (SPEC.md:59, prd.md:235), and UX has `e` write it (EXPERIENCE.md:266).",
+      "evidence": "ARCH:300 \"`e` shows `export disabled (destination undecided)` and each live snapshot write is skipped\"; acceptance-tests.md:19 T27 \"`e`/`--once` writes the record export\".",
+      "proposed_grade": "BLOCKING",
+      "suggested_fix": "Choose a default destination that satisfies T27 and CAP-10 while UX-OQ-4 stays open, or record the conflict as a CONTRADICTION against the spec and do not adopt the skip as the default."
+    },
+    {
+      "id": "X4",
+      "location": "_bmad-output/planning-artifacts/orca-observer/architecture/ARCHITECTURE-SPINE.md:310",
+      "other_side": "_bmad-output/planning-artifacts/orca-observer/ux-designs/ux-orca-observer-2026-11-08/EXPERIENCE.md:243",
+      "finding": "ARCH CD-16 and AD-10 (ARCH:130) set the default that each ledger row names its `worktreeId`. UX's PROPOSED default names it only in the inspector and the export, and leaves the row open (UX-OQ-8). The spec ledger has no worktree column (rendering-rules.md:29).",
+      "evidence": "ARCH:310 \"Each row names its shared `worktreeId`... because T20 requires it\"; EXPERIENCE.md:243 \"inspector and the plain-text export name the full `resource.worktreeId`... Whether the ledger row itself must name the worktree is open\".",
+      "proposed_grade": "BLOCKING",
+      "suggested_fix": "Align the two defaults: either UX adopts row naming with a column, or ARCH adopts the inspector-and-export default and cites rendering-rules.md:29."
+    },
+    {
+      "id": "X5",
+      "location": "_bmad-output/planning-artifacts/orca-observer/prd.md:85",
+      "other_side": "_bmad-output/specs/spec-orca-observer/rendering-rules.md:17",
+      "finding": "The PRD's Fixture/R0 glossary gives only the T50 label and leaves out the separate fixture header string.",
+      "evidence": "prd.md:85 \"always labelled 'synthetic fixture, not live evidence'\"; rendering-rules.md:17 `SYNTHETIC FIXTURE <variant>, not Orca data`.",
+      "proposed_grade": "MINOR",
+      "suggested_fix": "Add that the header reads `SYNTHETIC FIXTURE <variant>, not Orca data` (rendering-rules.md:17)."
+    },
+    {
+      "id": "X6",
+      "location": "_bmad-output/planning-artifacts/orca-observer/prd.md:174",
+      "other_side": "_bmad-output/specs/spec-orca-observer/acceptance-tests.md:41",
+      "finding": "PRD says the mismatch form is pinned by T47. T47 is a test of the question area before the gate and only says mismatch notes render as rendering-rules.md specifies, so it does not pin the ledger's finished-traversal string.",
+      "evidence": "prd.md:174 \"`collected n / reported T (mismatch)` (rendering-rules.md), pinned by T47\"; acceptance-tests.md:41 T47 \"Before QUESTION-OBSERVATION the question area...\".",
+      "proposed_grade": "MINOR",
+      "suggested_fix": "Say that the mismatch form is pinned by rendering-rules.md:55 and is exercised only in the question area by T47."
+    },
+    {
+      "id": "X7",
+      "location": "_bmad-output/specs/spec-orca-observer/snapshot-export-schema.md:25",
+      "other_side": "/home/coder/workspaces/worktrees/IronClaude/issue-409-mvp/.dev/issues/409/tuibbs-review/architecture-options.md:88",
+      "finding": "The spec splits `source.observedAt` and `source.error` into sibling rows (lines 25-27). The snapshot contract carries them inline with `source.status`. The fields are the same, but the restructure is not disclosed.",
+      "evidence": "architecture-options.md:88 \"`source.status`... with `source.observedAt` and a short `source.error` code\"; schema:25-27 three separate rows.",
+      "proposed_grade": "MINOR",
+      "suggested_fix": "Add a note that rows 25-27 restate architecture-options.md:88 field-for-field."
+    },
+    {
+      "id": "X8",
+      "location": "_bmad-output/planning-artifacts/orca-observer/ux-designs/ux-orca-observer-2026-11-08/EXPERIENCE.md:69",
+      "other_side": "_bmad-output/planning-artifacts/orca-observer/prd.md:81",
+      "finding": "UX labels the later releases \"B\" and \"C\" (EXPERIENCE.md:69-74). The PRD numbers them R2 and R3 (prd.md:81-82, mapping at prd.md:97).",
+      "evidence": "prd.md:97 maps the brief's \"R1 / B / C\" to R1 / R2 / R3; EXPERIENCE.md:69-74 release rows labelled B and C.",
+      "proposed_grade": "MINOR",
+      "suggested_fix": "Add R2/R3 next to B/C in the UX release rows."
+    }
+  ]
+}

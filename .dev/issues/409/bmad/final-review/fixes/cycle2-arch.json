@@ -1,0 +1,21 @@
+{
+  "fixer": "fix2-arch (step-5 fixer, cycle 2, ARCH file set)",
+  "cycle": 2,
+  "file_set": "_bmad-output/planning-artifacts/orca-observer/architecture/ARCHITECTURE-SPINE.md",
+  "results": [
+    {"id": "ARCH-03", "status": "applied", "file": "_bmad-output/planning-artifacts/orca-observer/architecture/ARCHITECTURE-SPINE.md:166", "note": "AD-16 and CD-9 (:303) now say R0 replays the synthetic `base` variant because no recorded worker-list sample exists (release-gates.md:9) and the redacted golden samples are recorded at the first permitted live read and, with T32, belong to the R1 gate (release-gates.md:11)."},
+    {"id": "NEW-1", "status": "applied", "file": "_bmad-output/planning-artifacts/orca-observer/architecture/ARCHITECTURE-SPINE.md:310", "note": "CD-16 and AD-10 (:130) say T20 (acceptance-tests.md:29) asserts the shared resource.worktreeId in the inspector (`unknown (absent in source)` when absent) and keep UX-OQ-8 open; PROPOSED default is inspector only, not 'inspector and export', because snapshot v1 emits no worktree id (AD-12, snapshot-export-schema.md:78); AD-10's screen-word list swaps `worktree unknown` for `unknown (absent in source)`; prd.md part left to the PRD fixer."},
+    {"id": "NEW-2", "status": "applied", "file": "_bmad-output/planning-artifacts/orca-observer/architecture/ARCHITECTURE-SPINE.md:112", "note": "AD-7 namespace is now the resolved absolute path of the Orca CLI that `_find_orca()` validated, observer-derived and PROPOSED, constant in R1, extended with projection.host.id in R4 (adapter-contract.md:43); T39 uses two fake sources with different resolved paths."},
+    {"id": "NEW-3", "status": "applied", "file": "_bmad-output/planning-artifacts/orca-observer/architecture/ARCHITECTURE-SPINE.md:88", "note": "AD-3 label is now `worker-list NOT AVAILABLE (no Orca CLI validated)` (adapter-contract.md:10); AD-5 (:100) adds code `spawn-error` with spec label `FAILED (spawn error)` (adapter-contract.md:51); prd.md and EXPERIENCE.md parts left to their fixers."},
+    {"id": "NEW-4", "status": "applied", "file": "_bmad-output/planning-artifacts/orca-observer/architecture/ARCHITECTURE-SPINE.md:100", "note": "AD-5 per-call timeout is measured at the first permitted live read (R0 makes no Orca calls, adapter-contract.md:28), UNVERIFIED until then, T5 injects a configured value; prd.md part left to the PRD fixer."},
+    {"id": "NEW-5", "status": "applied", "file": "_bmad-output/planning-artifacts/orca-observer/architecture/ARCHITECTURE-SPINE.md:300", "note": "CD-6, AD-11 (:136) and AD-20 (:190) carry the identical sentence: PROPOSED `--snapshot PATH` defaulting to ~/.local/state/superclaude/observe/ (CD-6), created owner-only (0600), replaced atomically each live cycle, destination open as UX-OQ-4; matches snapshot-export-schema.md:16."},
+    {"id": "NEW-6", "status": "applied", "file": "_bmad-output/planning-artifacts/orca-observer/architecture/ARCHITECTURE-SPINE.md:142", "note": "AD-12 lists the optional collection.* fields, `rows` and the optional row flags orderUnknown, notReobserved and absentFields (snapshot-export-schema.md:41-45, :66-68), limits the UNKNOWN-union rule to source-derived fields, and replaces the known-limit sentence with the absentFields rule (:68). Spine lint after all edits: 0 findings (ok true)."}
+  ],
+  "also_changed": [
+    "_bmad-output/planning-artifacts/orca-observer/architecture/ARCHITECTURE-SPINE.md:303",
+    "_bmad-output/planning-artifacts/orca-observer/architecture/ARCHITECTURE-SPINE.md:130",
+    "_bmad-output/planning-artifacts/orca-observer/architecture/ARCHITECTURE-SPINE.md:136",
+    "_bmad-output/planning-artifacts/orca-observer/architecture/ARCHITECTURE-SPINE.md:190"
+  ],
+  "memlog": ["_bmad-output/planning-artifacts/orca-observer/architecture"]
+}

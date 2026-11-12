@@ -1,0 +1,2 @@
+578416f74dd1a207745a4e5a09b5cb040cce71a0
+A2 r2-1 F2.1 note src/superclaude/cli/observe/view.py:327 ac=scope n,n,n,n the FAILED state line renders the code through code_label, so it reads "FAILED (consumer fenced)" with a space where the task text writes "FAILED (consumer-fenced)"; the anchor is task body text, not AC text, so the Read-back failed and it is a note; not edited (minors are recorded, not fixed, outside lines changed for a blocker)

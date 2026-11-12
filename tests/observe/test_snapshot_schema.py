@@ -408,3 +408,151 @@ def test_not_reobserved_rows_carry_the_flag_and_output_is_indented_and_sorted(
     assert flagged == ["w-003"]
     assert text == json.dumps(data, indent=2, sort_keys=True)
     assert re.match(r'^\{\n  "collection"', text)
+
+
+# -- R2: the optional questions group (ids, times and counts only) --------------------------------------------------------
+
+from superclaude.cli.observe.export import snapshot_dict  # noqa: E402
+from tests.observe.conftest import (  # noqa: E402
+    QRUN,
+    make_question_envelope,
+    make_question_error,
+    make_question_rows,
+    routed_runner_responses,
+)
+
+WITHHELD_QUESTION_KEYS = {"subject", "body", "from_handle", "to_handle", "payload"}
+
+
+def question_cycle(message, clock, cycles=1, **kw):
+    worker = (0, json.dumps(make_envelope(make_rows(3, 1), total=3)))
+    runner = FakeRunner([], [routed_runner_responses(worker, message)])
+    collector = Collector(
+        LiveSource(runner, FakeDiscover([])), clock, run_id=QRUN, questions=True, **kw
+    )
+    result = None
+    for _ in range(cycles):
+        result = collector.run_once()
+    return collector, result
+
+
+def ok_pair(rows):
+    return 0, json.dumps(make_question_envelope(rows))
+
+
+def questions_snapshot(message, clock, cycles=1):
+    _, result = question_cycle(message, clock, cycles)
+    return json.loads(snapshot_json(build_view(result, Session(), clock)))
+
+
+def test_a_snapshot_with_questions_on_validates_and_keeps_schema_version_1(fake_clock):
+    snapshot = questions_snapshot(ok_pair(make_question_rows(3)), fake_clock)
+    assert not list(VALIDATOR.iter_errors(snapshot))
+    assert snapshot["schemaVersion"] == 1
+    group = snapshot["questions"]
+    assert group["runId"] == QRUN and group["state"] == "OK"
+    assert group["observedOpen"] == 3 and group["closureEvidence"] == "unavailable"
+    assert (group["windowFull"], group["retained"], group["evicted"]) == (False, 3, 0)
+    assert "code" not in group
+    assert [i["id"] for i in group["items"]] == [
+        "msg_000000000000",
+        "msg_000000000001",
+        "msg_000000000002",
+    ]
+    for item in group["items"]:
+        assert set(item) == {"id", "createdAt", "ageSeconds", "inWindow"}
+        assert item["inWindow"] is True and isinstance(item["ageSeconds"], float)
+
+
+def test_the_questions_group_carries_the_failure_code_and_window_flags(fake_clock):
+    fenced = (1, json.dumps(make_question_error("consumer_fenced")))
+    snapshot = questions_snapshot(
+        [ok_pair(make_question_rows(100)), fenced], fake_clock, cycles=2
+    )
+    assert not list(VALIDATOR.iter_errors(snapshot))
+    group = snapshot["questions"]
+    assert (group["state"], group["code"]) == ("FAILED", "consumer-fenced")
+    assert group["windowFull"] is True and group["retained"] == 100
+    first = questions_snapshot(fenced, fake_clock)
+    assert first["questions"]["observedOpen"] == "UNKNOWN"  # nothing read, never 0
+    assert not list(VALIDATOR.iter_errors(first))
+
+
+def test_a_snapshot_with_questions_off_has_no_questions_key_and_is_unchanged(
+    fake_clock,
+):
+    snapshot = live_snapshot(make_rows(3, 1), fake_clock)
+    assert "questions" not in snapshot and not list(VALIDATOR.iter_errors(snapshot))
+    for variant in VARIANTS:
+        for shot in every_snapshot(variant, fake_clock):
+            assert "questions" not in shot
+
+
+def test_exported_question_json_holds_no_subject_body_handle_or_payload_key(fake_clock):
+    rows = make_question_rows(3, subject="visible only on screen")
+    snapshot = questions_snapshot(ok_pair(rows), fake_clock)
+    keys = {key for _, key in _only_keys(snapshot["questions"])}
+    assert keys.isdisjoint(WITHHELD_QUESTION_KEYS), keys
+    text = json.dumps(snapshot)
+    for forbidden in (
+        "visible only on screen",
+        "synthetic body",
+        "term_synthetic",
+        "run:run_",
+    ):
+        assert forbidden not in text, forbidden
+
+
+def test_an_unparsable_created_time_exports_the_string_unknown(fake_clock):
+    rows = make_question_rows(1)
+    rows[0]["created_at"] = None
+    snapshot = questions_snapshot(ok_pair(rows), fake_clock)
+    (item,) = snapshot["questions"]["items"]
+    assert (item["createdAt"], item["ageSeconds"]) == ("UNKNOWN", "UNKNOWN")
+    assert not list(VALIDATOR.iter_errors(snapshot))
+
+
+def test_the_schema_rejects_a_misshaped_questions_group(fake_clock):
+    good = questions_snapshot(ok_pair(make_question_rows(1)), fake_clock)
+    for mutate in (
+        lambda g: g.update(closureEvidence="available"),
+        lambda g: g.update(observedOpen="-1"),
+        lambda g: g.update(state="DONE"),
+        lambda g: g.update(subject="leak"),
+        lambda g: g["items"][0].update(subject="leak"),
+        lambda g: g["items"][0].pop("id"),
+    ):
+        bad = copy.deepcopy(good)
+        mutate(bad["questions"])
+        assert list(VALIDATOR.iter_errors(bad))
+
+
+def test_retention_exceeded_exports_unknown_with_the_retained_count(fake_clock):
+    import dataclasses
+
+    from superclaude.cli.observe.parse import parse_questions
+    from superclaude.cli.observe.questions import merge_questions
+
+    _, result = question_cycle(ok_pair(make_question_rows(1)), fake_clock)
+    state = None
+    for start in range(0, 1001, 100):
+        rows = make_question_rows(min(100, 1001 - start), start=start)
+        parsed = parse_questions(make_question_envelope(rows), "ns", 1, QRUN)
+        state = merge_questions(state, parsed.rows, 1 + start // 100, True, True, QRUN)
+    over = dataclasses.replace(result, questions=state)
+    snapshot = json.loads(snapshot_json(build_view(over, Session(), fake_clock)))
+    group = snapshot["questions"]
+    assert (group["observedOpen"], group["retained"], group["evicted"]) == (
+        "UNKNOWN",
+        1000,
+        1,
+    )
+    assert not list(VALIDATOR.iter_errors(snapshot))
+
+
+def test_snapshot_dict_and_json_agree_on_the_questions_group(fake_clock):
+    _, result = question_cycle(ok_pair(make_question_rows(2)), fake_clock)
+    view = build_view(result, Session(), fake_clock)
+    assert (
+        json.loads(snapshot_json(view))["questions"] == snapshot_dict(view)["questions"]
+    )

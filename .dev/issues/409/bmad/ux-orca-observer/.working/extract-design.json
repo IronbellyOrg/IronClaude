@@ -1,0 +1,288 @@
+{
+  "meta": {
+    "package_root": "/home/coder/workspaces/worktrees/IronClaude/issue-409-mvp/.dev/design/orca-observer-20261106/",
+    "extracted": "2026-11-08",
+    "sources_read": ["README.md", "DESIGN-CONTRACT.md", "concepts.md", "data-dictionary.md", "QA.md", "PLAN.md", "layouts/group_a.py (signal_bridge, helpers, decision_desk, DESIGNS)", "canvas.py (palette, ASCII map, sanitize, clip, panel, bar, header, footer, ansi) - read because visual tokens are defined there, not in the listed docs", "exports/{160,116,80}/signal-bridge.txt|.ascii.txt", "exports/{160,116,80}/decision-desk.txt|.ascii.txt", "agent-focus/exports/{160,116,80}/attention-ledger.txt|.ascii.txt"],
+    "not_read": ["PNG/PDF/ZIP/SVG/ANSI files", "layouts/group_b.py and the agent-focus layout source (Attention Ledger function not read; its geometry is measured from exports only)", "PREVIEWS.md, integration-gaps.md, sources.json, manifest.json, fixtures.py, render.py"],
+    "line_convention": "Export line numbers are 1-based file lines; panel x is the 0-based column measured with a script over the .txt export.",
+    "PLAN_md_location": "PLAN.md (inside the package root)"
+  },
+
+  "visual_tokens": {
+    "colours": [
+      {"name": "bg", "hex": "#101820", "src": "canvas.py:7"},
+      {"name": "panel", "hex": "#16232e", "src": "canvas.py:7"},
+      {"name": "ink", "hex": "#e1e9ee", "role": "default text colour (Canvas default)", "src": "canvas.py:7"},
+      {"name": "muted", "hex": "#a5b6c2", "src": "canvas.py:7"},
+      {"name": "line", "hex": "#526c80", "role": "default panel border and rule colour", "src": "canvas.py:7"},
+      {"name": "accent", "hex": "#70cde2", "src": "canvas.py:7"},
+      {"name": "warn", "hex": "#fab219", "role": "amber attention; HUMAN QUESTION panel and 'SYNTHETIC · READ ONLY' badge", "src": "canvas.py:7"},
+      {"name": "bad", "hex": "#f08d96", "role": "failed result", "src": "canvas.py:7"},
+      {"name": "good", "hex": "#8bd7af", "role": "settled / positive observation", "src": "canvas.py:7"},
+      {"name": "frozen", "hex": "#c2adf2", "role": "policy frozen", "src": "canvas.py:7"}
+    ],
+    "colour_encoding": [
+      {"rule": "ANSI output is 24-bit truecolour SGR: ESC[0;38;2;r;g;bm, with '1;' inserted for bold; each line ends ESC[0m", "src": "canvas.py:93"},
+      {"rule": "Session row colour from _state: failed result -> bad; policy frozen -> frozen; running -> accent; settled -> good; otherwise muted", "src": "layouts/group_a.py:13"},
+      {"rule": "SIGNALS counts colours: RUNNING accent, SETTLED good, UNKNOWN muted, STALE warn, POLICY FROZEN frozen", "src": "layouts/group_a.py:66"},
+      {"rule": "Color carries semantic status plus text markers; stale and frozen must not use failure semantics. Keep important values neutral and use colored marks/rails for state", "src": "PLAN.md:54"},
+      {"rule": "Favor strong framed hierarchy, fine dim rules, quiet white values, amber attention and labeled semantic markers", "src": "DESIGN-CONTRACT.md:14"},
+      {"rule": "Contrast vs dark background: ink 14.56:1, muted 8.58:1, accent 9.82:1, warning 9.75:1, failed-result 7.63:1, positive observation 10.60:1, frozen 8.99:1", "src": "QA.md:13"}
+    ],
+    "box_styles": [
+      {"name": "heavy panel", "glyphs": "┏ ━ ┓ ┃ ┗ ┛", "ascii": "+ - + | + +", "used_for": "HUMAN QUESTION (warn), SIGNALS (accent), OPEN HUMAN QUESTIONS", "src": "canvas.py:60"},
+      {"name": "rounded light panel (default)", "glyphs": "╭ ─ ╮ │ ╰ ╯", "ascii": "+ - + | + +", "used_for": "SESSION REGISTER, OBSERVATION WINDOW, AFFECTED SESSION(S), OTHER OBSERVED QUESTIONS, SEEN IS NOT RESOLVED, RETAIN CONTEXT, SELECTED FLEET SLICE, SELECTED SIGNALS", "src": "canvas.py:60"},
+      {"name": "panel title", "format": "' TITLE ' written bold at x+2 on the top border, clipped to w-4", "src": "canvas.py:64"},
+      {"name": "rule", "glyphs": "─ (light) / ━ (heavy)", "ascii": "-", "src": "canvas.py:56"},
+      {"name": "footer rule", "rule": "light rule at row h-3 from x=1 width w-2", "src": "canvas.py:79"}
+    ],
+    "glyphs": [
+      {"glyph": "◈", "ascii": "*", "use": "header title prefix '◈ TITLE'", "src": "canvas.py:74"},
+      {"glyph": "…", "ascii": "~", "use": "truncation marker appended by clip() when display width exceeds limit", "src": "canvas.py:23"},
+      {"glyph": "·", "ascii": ".", "use": "separator in footer key hints and 'SYNTHETIC · READ ONLY' / 'LOCAL FIXTURE · ...'", "src": "canvas.py:75"},
+      {"glyph": "|", "ascii": "|", "use": "field separator in header freshness line and register rows", "src": "canvas.py:77"},
+      {"glyph": "/", "ascii": "/", "use": "field separator 'lifecycle / phase', 'result / admission'", "src": "layouts/group_a.py:42"},
+      {"glyph": "█", "ascii": "#", "use": "bar filled cell", "src": "canvas.py:72"},
+      {"glyph": "░", "ascii": ".", "use": "bar empty cell (line colour)", "src": "canvas.py:72"},
+      {"glyph": "bar unknown", "text": "unknown", "use": "bar() prints 'unknown' in muted when value or total is None or total<=0", "src": "canvas.py:70"},
+      {"glyph": "status letters F / P / R / S / ?", "use": "_state() returns F failed, P frozen, R running, S settled, ? unknown; signal_bridge's register discards the letter and uses only the colour", "src": "layouts/group_a.py:14"},
+      {"glyph": "other ASCII_MAP entries (not seen in these 9 exports)", "map": "▒->:  ▓->#  ●->o  ○->o  ◆->*  ◇->o  ◉->o  ✓->v  ✕->x  ×->x  →->>  ←-><  ↵->>  ▸->>  ▾->v  ▲->^  ▼->v  ═┄┈->-  ║┆┊->|  double/other corners->+", "src": "canvas.py:8"}
+    ],
+    "typography": [
+      {"rule": "Bold: header title, panel titles, HUMAN QUESTION question line, source names in OBSERVATION WINDOW, SIGNALS count labels, other-question titles", "src": "canvas.py:74; canvas.py:64; layouts/group_a.py:27; layouts/group_a.py:51; layouts/group_a.py:68; layouts/group_a.py:217"},
+      {"rule": "Dim is expressed as the 'muted' colour (no SGR 2 faint is emitted): header freshness line, footer, affected list, register second line, bar 'unknown'", "src": "canvas.py:77; canvas.py:80; canvas.py:93"},
+      {"rule": "Reverse video: no mention in any source read", "src": "none"},
+      {"rule": "SVG/PNG font: DejaVu Sans Mono, monospace, 16px; bold via font-weight", "src": "canvas.py:110"}
+    ],
+    "no_color": [
+      {"rule": "NO_COLOR=1 disables ANSI styling. The .ascii.txt exports are strictly ASCII", "src": "README.md:31"},
+      {"rule": "ansi(no_color=True) returns the plain text cells (no SGR at all)", "src": "canvas.py:84"},
+      {"rule": "Color-free mode retains labels/structure; ASCII exports replace box drawings and non-ASCII text safely", "src": "concepts.md:40"},
+      {"rule": "Labels retain meaning without color", "src": "QA.md:13"},
+      {"rule": "Distinct screen silhouettes even without titles/colors", "src": "DESIGN-CONTRACT.md:14"}
+    ]
+  },
+
+  "design_contract_rules": [
+    {"id": "DC-OWN", "section": "Ownership", "rule": "Parent owns fixtures/canvas/render/tests/fixtures/gallery/exports; Group A owns layouts/group_a.py, Group B owns layouts/group_b.py; no nested delegation, skills, debate or external research", "src": "DESIGN-CONTRACT.md:4"},
+    {"id": "DC-IF-1", "section": "Layout interface", "rule": "DESIGNS = {slug: {name, question, omits, tradeoff, data, missing, render}}", "src": "DESIGN-CONTRACT.md:7"},
+    {"id": "DC-IF-2", "section": "Layout interface", "rule": "render(c, f, m) mutates Canvas; widths 160/144/116/80; height 48 wide and 42 compact/narrow", "src": "DESIGN-CONTRACT.md:8"},
+    {"id": "DC-IF-3", "section": "Layout interface", "rule": "Call c.header and c.footer; body rows 5 through c.h-4; horizontal inset 1 or 2; positions in bounds; panel bodies must not overwrite border rows", "src": "DESIGN-CONTRACT.md:8"},
+    {"id": "DC-IF-4", "section": "Layout interface", "rule": "Empty/missing records render a useful view; no hardcoded session/owner counts; respect 5/8/10 owners, 50/80/100 sessions, uneven/shared/unmapped/historical, stale, missing fields, empty fixture", "src": "DESIGN-CONTRACT.md:8"},
+    {"id": "DC-IF-5", "section": "Layout interface", "rule": "c.ascii translates rendering to ASCII; safe text clip handles wide glyphs; full record detail supplied by gallery", "src": "DESIGN-CONTRACT.md:8"},
+    {"id": "DC-SEM-1", "section": "Required semantics", "rule": "All values synthetic; worker result is not admission; dirty != dangerous; stale != failed; overlap != conflict; partial cost subtotal != total spend; tokens != progress", "src": "DESIGN-CONTRACT.md:11"},
+    {"id": "DC-SEM-2", "section": "Required semantics", "rule": "Evidence flags must use current revision equality", "src": "DESIGN-CONTRACT.md:11"},
+    {"id": "DC-SEM-3", "section": "Required semantics", "rule": "Do not show approval/dispatch/retry/merge actions, even greyed. Navigation only", "src": "DESIGN-CONTRACT.md:11"},
+    {"id": "DC-SEM-4", "section": "Required semantics", "rule": "Handle messages coverage unavailable vs partial; header prints scope/freshness", "src": "DESIGN-CONTRACT.md:11"},
+    {"id": "DC-SEM-5", "section": "Required semantics", "rule": "Narrow views retain first human decision + owner + affected scope/freshness (selected_summary helper)", "src": "DESIGN-CONTRACT.md:11"},
+    {"id": "DC-SEM-6", "section": "Required semantics", "rule": "Show omission counts when limited; data model is proposed fixture schema, never Orca API schema", "src": "DESIGN-CONTRACT.md:11"},
+    {"id": "DC-GEO-1", "section": "Distinct visual geometry", "rule": "No repeated equal card grid; group A = Signal Bridge, Fleet Quilt, Time Loom, Worktree Atlas, Decision Desk", "src": "DESIGN-CONTRACT.md:14"},
+    {"id": "DC-GEO-2", "section": "Distinct visual geometry", "rule": "Wide compositions 160/144; 116 must rearrange; 80 must simplify to selected detail", "src": "DESIGN-CONTRACT.md:14"},
+    {"id": "DC-GEO-3", "section": "Distinct visual geometry", "rule": "Strong framed hierarchy, fine dim rules, quiet white values, amber attention, labeled semantic markers; distinct silhouettes without titles/colors", "src": "DESIGN-CONTRACT.md:14"},
+    {"id": "DC-GEO-4", "section": "Distinct visual geometry", "rule": "Patch cables only on Relay Map using f.edges; time lanes 20 equal buckets across 60 minutes with legend; no scale invented from elapsed time", "src": "DESIGN-CONTRACT.md:14"},
+    {"id": "DC-EXE-1", "section": "Bounded execution", "rule": "<=300 lines per module; real Python render functions; no third-party code/assets; one targeted fix handoff; no repeated review cycles", "src": "DESIGN-CONTRACT.md:17"}
+  ],
+
+  "concepts": {
+    "signal_bridge": {
+      "purpose_concepts_md": {"text": "Three unequal vertical regions: question/sources, session register, counts. Who needs attention while work continues?", "omission": "Time history omitted; dense registers can distract from the selected question", "src": "concepts.md:6"},
+      "purpose_designs_dict": {"question": "What needs attention while the fleet is running?", "omits": "Detailed time history and workspace paths.", "tradeoff": "Strong overview; narrow width becomes a selected session register.", "missing": "Missing source evidence remains unknown, never healthy by default.", "src": "layouts/group_a.py:225"},
+      "ranking": {"text": "Signal Bridge: useful baseline cockpit with the question separate from raw session state and source coverage (provisional design judgment, not user approval)", "src": "concepts.md:45"},
+      "panels_in_order_160": [
+        {"panel": "header", "shows": "◈ SIGNAL BRIDGE; SYNTHETIC · READ ONLY; '8 owners / 80 sessions / 80 mapped trees'; '08:00 UTC | msgs partial | workers 4s | checks 14m'", "src": "exports/160/signal-bridge.txt:2"},
+        {"panel": "HUMAN QUESTION (heavy, warn)", "shows": "question (bold warn), Owner, 'Scope: N sessions | observed Nm ago', Affected IDs, 'Messages <coverage> | N other questions'", "src": "exports/160/signal-bridge.txt:6"},
+        {"panel": "OBSERVATION WINDOW", "shows": "per source NAME then '<coverage> | age Ns' (WORKERS, MESSAGES, CHECKS, COST, RESOURCES); footer 'Stale does not mean failed'", "src": "exports/160/signal-bridge.txt:16"},
+        {"panel": "SESSION REGISTER", "shows": "column caption 'SESSION / LIFECYCLE / PHASE; RESULT / ADMISSION BELOW'; two lines per session 'S001 running / work' and 'not observed / not admitted | stale | not frozen'; footer '17/80 shown | result is not admission'", "src": "exports/160/signal-bridge.txt:6"},
+        {"panel": "SIGNALS (heavy, accent)", "shows": "count + label + bar for RUNNING 48, SETTLED 24, UNKNOWN 8, STALE 5, POLICY FROZEN 1", "src": "exports/160/signal-bridge.txt:9"},
+        {"panel": "footer", "shows": "'j/k select · tab pane · / filter · enter evidence · p hold view' and 'LOCAL FIXTURE · source coverage is not fleet-wide assurance'", "src": "exports/160/signal-bridge.txt:47"}
+      ]
+    },
+    "decision_desk": {
+      "purpose_concepts_md": {"text": "Selected human question, other asks and affected-session evidence. What is mine to decide?", "omission": "Unaffected fleet omitted; question ownership cannot be inferred from a relay", "src": "concepts.md:10"},
+      "purpose_plan_md": {"text": "Spacious question cards, owner/affected-scope rail and conversation excerpt | What specific decision is mine now?", "src": "PLAN.md:47"},
+      "purpose_designs_dict": {"question": "Which human question is waiting, and who is affected?", "omits": "Unaffected session inventory and resource telemetry.", "tradeoff": "Decision-first reading sacrifices fleet density.", "missing": "No requests does not imply complete message coverage.", "src": "layouts/group_a.py:229"},
+      "panels_in_order_160": [
+        {"panel": "HUMAN QUESTION (heavy, warn)", "shows": "same _request block as Signal Bridge", "src": "exports/160/decision-desk.txt:6"},
+        {"panel": "OTHER OBSERVED QUESTIONS", "shows": "per other question: title (bold warn), 'Owner: ...', 'N affected | Nm observed'; footer '2/2 other questions shown'", "src": "exports/160/decision-desk.txt:16"},
+        {"panel": "AFFECTED SESSION EVIDENCE", "shows": "_ledger filtered to the affected session IDs (S001,S011,S021,S031); footer '4/4 shown | result is not admission'", "src": "exports/160/decision-desk.txt:6"}
+      ],
+      "note": "No conversation excerpt panel appears in the exports although PLAN.md:47 lists one",
+      "note_src": "PLAN.md:47"
+    },
+    "attention_ledger": {
+      "purpose_concepts_md": {"text": "Spacious age-ranked question ledger and ownership rail. What is still waiting for a human?", "omission": "Resources omitted; seen/delivered is not answered", "src": "concepts.md:23"},
+      "panels_in_order_160": [
+        {"panel": "OPEN HUMAN QUESTIONS (heavy)", "shows": "age-ranked entries: '45 MIN  <question>', 'O01 requests / Human operator', 'Affected: S001, ...', separated by light rules", "src": "agent-focus/exports/160/attention-ledger.txt:6"},
+        {"panel": "SEEN IS NOT RESOLVED", "shows": "large block-digit count (█ glyphs, renders '3') beside 'observed questions'", "src": "agent-focus/exports/160/attention-ledger.txt:9"},
+        {"panel": "RETAIN CONTEXT", "shows": "list: original question, original age, acting owner, requesting orchestrator, affected stable IDs, source coverage, explicit closure evidence; footer '7/7 lines shown'", "src": "agent-focus/exports/160/attention-ledger.txt:21"}
+      ],
+      "source_note": "Layout function not read (lives outside layouts/group_a.py); description is from exports only"
+    }
+  },
+
+  "per_width_layout": {
+    "contract_heights": [
+      {"text": "Canvas is freshly created at widths 160/144/116/80, height 48 for wide and 42 compact/narrow", "src": "DESIGN-CONTRACT.md:8"},
+      {"text": "160-column exports use 48 rows. 116- and 80-column exports use 42 rows and are freshly composed, never shrunk from images", "src": "concepts.md:36"},
+      {"text": "Wide target around 44-52 rows; compact target around 36-44; narrow uses selected-detail views and pagination", "src": "PLAN.md:57"},
+      {"note": "The package itself never states a 44-row contract; 44 is the caller's target. Against 44: every 160 export uses 48 rows (4 over); every 116/80 export uses 42 rows (fits, 2 spare)."}
+    ],
+    "common_frame": {"rows": "line 1 blank; lines 2-4 header; line 5 blank; body from line 6; rule at line h-2; key hints line h-1; LOCAL FIXTURE line h", "src": "canvas.py:73-81; exports/160/signal-bridge.txt:46"},
+    "signal_bridge": {
+      "160": {"rows": 48, "cols": 160, "fits_44": false, "panels": [
+        {"panel": "HUMAN QUESTION", "x": 1, "w": 46, "lines": "6-13", "h": 8},
+        {"panel": "OBSERVATION WINDOW", "x": 1, "w": 46, "lines": "16-44", "h": 29},
+        {"panel": "SESSION REGISTER", "x": 49, "w": 74, "lines": "6-44", "h": 39, "shown": "17/80"},
+        {"panel": "SIGNALS", "x": 125, "w": 34, "lines": "6-44", "h": 39}], "src": "exports/160/signal-bridge.txt:6"},
+      "116": {"rows": 42, "cols": 116, "fits_44": true, "panels": [
+        {"panel": "HUMAN QUESTION", "x": 1, "w": 114, "lines": "6-12", "h": 7},
+        {"panel": "SESSION REGISTER", "x": 1, "w": 78, "lines": "14-38", "h": 25, "shown": "10/80"},
+        {"panel": "OBSERVATION WINDOW", "x": 81, "w": 34, "lines": "14-38", "h": 25}],
+        "vs_160": "SIGNALS panel (counts + bars) dropped entirely; HUMAN QUESTION becomes full-width band and loses its blank 8th row; register drops from 17 to 10 rows shown; observation window moves to right column", "src": "exports/116/signal-bridge.txt:6", "code_src": "layouts/group_a.py:74"},
+      "80": {"rows": 42, "cols": 80, "fits_44": true, "panels": [
+        {"panel": "HUMAN QUESTION", "x": 1, "w": 78, "lines": "6-12", "h": 7},
+        {"panel": "counts line (no panel)", "line": 14, "text": "RUN 48  SETTLED 24  UNKNOWN 8  STALE 5"},
+        {"panel": "SELECTED FLEET SLICE", "x": 1, "w": 78, "lines": "16-38", "h": 23, "shown": "9/80"}],
+        "vs_116": "OBSERVATION WINDOW dropped (source coverage only remains in header line 4); counts return as one text line without bars; POLICY FROZEN count is not in the line; register renamed SELECTED FLEET SLICE and drops to 9 rows", "src": "exports/80/signal-bridge.txt:14", "code_src": "layouts/group_a.py:80"}
+    },
+    "decision_desk": {
+      "160": {"rows": 48, "cols": 160, "fits_44": false, "panels": [
+        {"panel": "HUMAN QUESTION", "x": 1, "w": 76, "lines": "6-13", "h": 8},
+        {"panel": "OTHER OBSERVED QUESTIONS", "x": 1, "w": 76, "lines": "16-44", "h": 29, "shown": "2/2"},
+        {"panel": "AFFECTED SESSION EVIDENCE", "x": 79, "w": 80, "lines": "6-44", "h": 39, "shown": "4/4"}], "src": "exports/160/decision-desk.txt:6"},
+      "116": {"rows": 42, "cols": 116, "fits_44": true, "panels": [
+        {"panel": "HUMAN QUESTION", "x": 1, "w": 114, "lines": "6-13", "h": 8},
+        {"panel": "AFFECTED SESSIONS", "x": 1, "w": 66, "lines": "16-38", "h": 23, "shown": "4/4"},
+        {"panel": "OTHER OBSERVED QUESTIONS", "x": 69, "w": 46, "lines": "16-38", "h": 23, "shown": "2/2"}],
+        "vs_160": "Question becomes full-width band; evidence ledger renamed AFFECTED SESSIONS and moved below-left; other questions move to right column; nothing omitted", "src": "exports/116/decision-desk.txt:16"},
+      "80": {"rows": 42, "cols": 80, "fits_44": true, "panels": [
+        {"panel": "HUMAN QUESTION", "x": 1, "w": 78, "lines": "6-13", "h": 8},
+        {"panel": "AFFECTED SESSIONS", "x": 1, "w": 78, "lines": "16-27", "h": 12, "shown": "3/4"},
+        {"panel": "OTHER OBSERVED QUESTIONS", "x": 1, "w": 78, "lines": "30-38", "h": 9, "shown": "1/2"}],
+        "vs_116": "All panels stacked full width; affected list truncated to 3/4 (S031 hidden) and other questions to 1/2, both with omission counts", "src": "exports/80/decision-desk.txt:26"}
+    },
+    "attention_ledger": {
+      "160": {"rows": 48, "cols": 160, "fits_44": false, "panels": [
+        {"panel": "OPEN HUMAN QUESTIONS", "x": 1, "w": 114, "lines": "6-44", "h": 39},
+        {"panel": "SEEN IS NOT RESOLVED", "x": 117, "w": 42, "lines": "6-18", "h": 13},
+        {"panel": "RETAIN CONTEXT", "x": 117, "w": 42, "lines": "21-38", "h": 18}], "note": "lines 39-44 of the right column are empty; ledger body has ~14 blank rows below the third entry", "src": "agent-focus/exports/160/attention-ledger.txt:6"},
+      "116": {"rows": 42, "cols": 116, "fits_44": true, "panels": [
+        {"panel": "OPEN HUMAN QUESTIONS", "x": 1, "w": 70, "lines": "6-38", "h": 33},
+        {"panel": "SEEN IS NOT RESOLVED", "x": 73, "w": 42, "lines": "6-18", "h": 13},
+        {"panel": "RETAIN CONTEXT", "x": 73, "w": 42, "lines": "21-38", "h": 18}],
+        "vs_160": "Same arrangement; only the ledger narrows from 114 to 70 columns and shortens to 33 rows; side rail unchanged at 42 wide", "src": "agent-focus/exports/116/attention-ledger.txt:6"},
+      "80": {"rows": 42, "cols": 80, "fits_44": true, "panels": [
+        {"panel": "selected summary (no panel)", "lines": "7-9", "text": "question / 'Owner Human operator | 4 sessions | 45m observed' / 'Evidence demo:messages/Q01'"},
+        {"panel": "SELECTED SIGNALS", "x": 1, "w": 78, "lines": "12-38", "h": 27, "shown": "5/5 lines"}],
+        "vs_116": "Large count panel and RETAIN CONTEXT dropped; per-question requester orchestrator and Affected lists dropped; ledger collapses to one line per question 'Q01 45m <question>' plus two caveat lines; ~19 empty rows in the panel", "src": "agent-focus/exports/80/attention-ledger.txt:12"}
+    }
+  },
+
+  "ascii_differences": {
+    "summary": "All 9 .ascii.txt files have identical line count and per-line character count to their .txt pair; zero non-ASCII characters remain; differences are pure 1:1 glyph substitutions",
+    "substitutions_observed": [
+      {"from": "◈", "to": "*"}, {"from": "·", "to": "."},
+      {"from": "┏ ┓ ┗ ┛ ╭ ╮ ╰ ╯", "to": "+"},
+      {"from": "━ ─", "to": "-"}, {"from": "┃ │", "to": "|"},
+      {"from": "█", "to": "#", "where": "signal-bridge 160 bars; attention-ledger 160/116 big digit"},
+      {"from": "░", "to": ".", "where": "signal-bridge 160 bars only"}
+    ],
+    "truncation_marker": {"unicode": "…", "ascii": "~", "src": "canvas.py:23"},
+    "mechanism": {"text": "clip() applies ASCII_MAP then encodes ascii with 'replace' (unmapped chars become '?')", "src": "canvas.py:21"},
+    "src": "exports/160/signal-bridge.ascii.txt:1"
+  },
+
+  "data_dictionary": {
+    "label_note": "data-dictionary.md uses no VERIFIED/UNVERIFIED labels. Its labels are: every field is SYNTHETIC fixture data, 'NOT undocumented Orca API names', every export says SYNTHETIC / READ ONLY",
+    "label_src": "data-dictionary.md:3",
+    "entities": [
+      {"entity": "Orchestrator", "id": "O01 onward; name and mission", "interpretation": "Illustrative owner, not a live coordinator binding", "src": "data-dictionary.md:9"},
+      {"entity": "Session", "id": "S001 onward; owner ID and optional worktree ID", "interpretation": "Current records counted separately from historical records", "src": "data-dictionary.md:10"},
+      {"entity": "Worktree", "id": "W001 onward; branch, base, head, paths", "src": "data-dictionary.md:11"},
+      {"entity": "Request", "id": "Q01 onward; requester, human owner, affected session IDs", "interpretation": "Explicit synthetic human question, not inferred from any blocked status", "src": "data-dictionary.md:12"},
+      {"entity": "Dependency", "id": "E01 onward", "interpretation": "Declared relationship only", "src": "data-dictionary.md:13"},
+      {"entity": "Event", "id": "stable id and monotonic fixture seq", "interpretation": "Deduplicated by identity, latest sequence retained", "src": "data-dictionary.md:14"},
+      {"entity": "Source", "id": "demo:workers/messages/checks/usage", "interpretation": "Coverage, observation time and age accompany measurements", "src": "data-dictionary.md:15"}
+    ],
+    "state_dimensions_on_screen": [
+      {"field": "lifecycle", "values": "running / settled / unknown", "label": "Settlement does not admit a result", "src": "data-dictionary.md:19"},
+      {"field": "phase", "values": "work / review / queue / dependency", "label": "Phase is not health or percentage complete", "src": "data-dictionary.md:20"},
+      {"field": "health", "values": "no issue observed / failed result / unknown", "src": "data-dictionary.md:21"},
+      {"field": "approval", "values": "none observed / human decision observed", "src": "data-dictionary.md:22"},
+      {"field": "freshness", "values": "fresh / stale, with age in seconds", "label": "A stale pass cannot establish current readiness", "src": "data-dictionary.md:23"},
+      {"field": "result", "values": "succeeded / partial / failed / null", "on_screen_null": "not observed", "src": "data-dictionary.md:24"},
+      {"field": "admission", "values": "admitted / not admitted", "label": "explicit fixture record, never inferred", "src": "data-dictionary.md:25"},
+      {"field": "evidence", "values": "complete packet / partial packet", "label": "Completeness means inspectable, not accepted", "src": "data-dictionary.md:26"},
+      {"field": "policy", "values": "frozen / not frozen", "src": "data-dictionary.md:27"},
+      {"field": "tests/review", "values": "null means unavailable; tied to check_revision", "src": "data-dictionary.md:28"}
+    ],
+    "measurements": [
+      {"field": "request age_min", "unit": "minutes since original question, at frozen clock", "label": "Oldest observed only when messages coverage incomplete", "on_screen": "'observed 45m ago' / '45 MIN' / '45m'", "src": "data-dictionary.md:38"},
+      {"field": "affected count", "unit": "distinct current session IDs", "label": "Set union, not sum", "on_screen": "'Scope: 4 sessions'", "src": "data-dictionary.md:39"},
+      {"field": "cost_usd", "unit": "USD, 07:00-08:00 UTC", "label": "Null is not zero", "src": "data-dictionary.md:34"}
+    ],
+    "header_fields_on_screen": {"text": "'<n> owners / <total> sessions / <worktrees> mapped trees' and '08:00 UTC | msgs <messages.coverage> | workers <age_s>s | checks <age_s//60>m'", "src": "canvas.py:76"}
+  },
+
+  "qa_findings": [
+    {"check": "Shared fixture and safe-text tests: display width, ASCII, no-color, HTML escaping, injection sanitization, empty state", "result": "13 passed", "src": "QA.md:7"},
+    {"check": "Final suite: 20 designs x 18 scenario cases x widths 160/144/116/80, deterministic renders, ASCII checks", "result": "19 tests passed, no skips", "src": "QA.md:9"},
+    {"check": "Export manifests and ANSI-to-plain equivalence", "result": "passed", "src": "QA.md:11"},
+    {"check": "Gallery keyboard/navigation", "result": "DOM simulation only; not a real-browser or physical-keyboard test", "src": "QA.md:11"},
+    {"check": "Colour contrast vs dark background", "result": "ink 14.56:1 ... failed-result 7.63:1 (all listed); labels retain meaning without color", "src": "QA.md:13"},
+    {"check": "Truncation: Fleet Quilt per-session state hidden behind ellipsis at 116", "result": "defect fixed; regression assertion requires ID + visible state at 160 and 116", "src": "QA.md:16"},
+    {"check": "Missing report outcomes shown as pending", "result": "fixed: shared ledger says 'not observed' unless a result exists", "src": "QA.md:23"},
+    {"check": "Compact Revision Drift overwrote footer", "result": "fixed; regression assertion checks footer on every layout/scenario/width", "src": "QA.md:25"},
+    {"check": "Missing test outcomes / zero-cost owners", "result": "now say 'unknown' rather than USD 0.00; list omission counters count text lines", "src": "QA.md:27"},
+    {"check": "Independent review verdict", "result": "FAIL for pre-correction snapshots; no post-correction independent verdict; do not describe as independent PASS", "src": "QA.md:19"},
+    {"check": "Real-browser validation", "result": "failed: Chrome absent at /opt/google/chrome/chrome", "src": "QA.md:36"},
+    {"check": "Five-second readability", "result": "design goal, not measured", "src": "QA.md:35"}
+  ],
+
+  "state_words": [
+    {"state": "unknown lifecycle", "on_screen": "unknown", "example": "S010    unknown  / dependency", "src": "exports/160/signal-bridge.txt:27"},
+    {"state": "unknown field default", "on_screen": "unknown / ?", "rule": "missing lifecycle/phase/admission/freshness/policy -> 'unknown'; missing id or age -> '?'", "src": "layouts/group_a.py:42"},
+    {"state": "unknown count label", "on_screen": "UNKNOWN", "src": "exports/160/signal-bridge.txt:21"},
+    {"state": "bar without measurement", "on_screen": "unknown (muted)", "src": "canvas.py:70"},
+    {"state": "stale", "on_screen": "stale / STALE", "example": "CHECKS stale | age 840s; 'Stale does not mean failed'", "src": "exports/160/signal-bridge.txt:25"},
+    {"state": "partial coverage", "on_screen": "partial", "example": "msgs partial; 'Messages partial | 2 other questions'", "src": "exports/160/signal-bridge.txt:4"},
+    {"state": "complete coverage", "on_screen": "complete fixture", "src": "exports/160/signal-bridge.txt:19"},
+    {"state": "unavailable source", "on_screen": "unavailable", "rule": "default coverage text when missing", "src": "layouts/group_a.py:52"},
+    {"state": "result missing", "on_screen": "not observed", "src": "layouts/group_a.py:43"},
+    {"state": "not admitted", "on_screen": "not admitted", "src": "exports/160/signal-bridge.txt:10"},
+    {"state": "no requests", "on_screen": "No requests observed in this fixture / Absence is not complete message coverage", "src": "layouts/group_a.py:23"},
+    {"state": "missing question text", "on_screen": "Question unavailable", "src": "layouts/group_a.py:27"},
+    {"state": "omission count", "on_screen": "17/80 shown | result is not admission; 3/4 shown; 1/2 other questions shown; 7/7 lines shown", "src": "exports/160/signal-bridge.txt:43"},
+    {"state": "seen vs answered", "on_screen": "SEEN IS NOT RESOLVED; 'No reply observed is not delivery failure.'; 'Questions stay until explicit resolution.'", "src": "agent-focus/exports/80/attention-ledger.txt:17"},
+    {"state": "assurance disclaimer", "on_screen": "LOCAL FIXTURE · source coverage is not fleet-wide assurance", "src": "canvas.py:81"}
+  ],
+
+  "untrusted_text": [
+    {"rule": "sanitize() strips full OSC, DCS/PM/APC, CSI sequences and bare ESC introducers, then drops Unicode categories Cc, Cf, Cs (C0/C1 controls, format incl. bidi controls, surrogates)", "src": "canvas.py:10"},
+    {"rule": "Every Canvas.text() call sanitizes then clips by terminal display width (wcwidth), recording clipped strings; truncation marker … (ASCII ~)", "src": "canvas.py:42"},
+    {"rule": "Only renderer-owned palette SGR is emitted in ANSI", "src": "canvas.py:93"},
+    {"rule": "HTML and SVG output escape text with html.escape", "src": "canvas.py:104; canvas.py:113"},
+    {"rule": "Imported evidence is inert. Sanitize ESC/CSI/OSC, C0/C1 controls, carriage returns and bidi controls before any renderer; HTML escapes labels, SVG escapes text; details retain full sanitized IDs", "src": "PLAN.md:38"},
+    {"rule": "Injection fixtures ensure untrusted ANSI/OSC cannot alter colors, title, clipboard or navigation; strict text contains no terminal controls", "src": "PLAN.md:67"},
+    {"rule": "Long IDs are truncated by display width in the frame and exposed in sanitized full detail", "src": "concepts.md:38"},
+    {"rule": "Scenario 'hostile terminal controls' exists in the fixture variants", "src": "data-dictionary.md:44"}
+  ],
+
+  "signal_bridge_mismatch": {
+    "plan_md": {"quote": "Signal Bridge | Wide owner-row cockpit with narrow intervention rail and footer change ribbon | Who needs me and which mission is affected?", "src": "PLAN.md:43"},
+    "concepts_md": {"quote": "Three unequal vertical regions: question/sources, session register, counts. Who needs attention while work continues?", "src": "concepts.md:6"},
+    "group_a_py": {
+      "quote": "_request(c, f, 1, 5, left, 8) / _sources(c, f, 1, 15, left, c.h-19) / _ledger(c, rows, left+3, 5, c.w-left-right-6, c.h-9) / c.panel(x, 5, w, c.h-9, \"SIGNALS\", \"accent\", True)",
+      "builds": "HUMAN QUESTION panel + OBSERVATION WINDOW (sources) stacked left; SESSION REGISTER centre; SIGNALS count/bar panel right (160); 116 drops SIGNALS; 80 replaces it with a one-line count string and drops sources",
+      "src": "layouts/group_a.py:61"
+    },
+    "missing_from_build": "No owner rows (register is per session, not per owner), no intervention rail, no footer change ribbon, no mission field",
+    "exports_show": "group_a.py layout at all three widths (HUMAN QUESTION / OBSERVATION WINDOW / SESSION REGISTER / SIGNALS at 160)",
+    "exports_src": "exports/160/signal-bridge.txt:6; exports/116/signal-bridge.txt:14; exports/80/signal-bridge.txt:16"
+  },
+
+  "tuibbs": [
+    {"quote": "The provided TUIBBS-scp manifest was independently checked at a6d7e7f: Bubble Tea v2.0.6, Lip Gloss v2.0.3 and Bubbles v2.1.0 are pinned there. The Charm stack is the leading production candidate for a separate observer executable after a human chooses a design. No BBS application code or third-party screenshot is copied into this package", "src": "README.md:48"},
+    {"quote": "The supplied TUIBBS-scp dependency pins were verified, but its AGPL components were not extracted.", "src": "QA.md:37"}
+  ]
+}

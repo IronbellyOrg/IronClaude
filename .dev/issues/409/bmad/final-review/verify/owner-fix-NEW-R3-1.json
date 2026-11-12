@@ -1,0 +1,18 @@
+{
+  "id": "NEW-R3-1",
+  "decided_by": "owner, via coordinator message msg_2085cabcba00 (2026-11-08)",
+  "status": "fixed by edit (owner decision), NOT re-reviewed",
+  "file": "_bmad-output/planning-artifacts/orca-observer/architecture/ARCHITECTURE-SPINE.md",
+  "line": 310,
+  "old_text": "PROPOSED default: the ledger row does not name it, and it is shown in the inspector only (snapshot v1 emits no worktree id, AD-12).",
+  "new_text": "PROPOSED default: the ledger row does not name it; it is shown in full in the inspector and the plain-text export (`record_text`, AD-11), and not in the JSON snapshot, which emits no worktree id in v1 (AD-12, `snapshot-export-schema.md:78`).",
+  "agrees_with": ["ux-designs/ux-orca-observer-2026-11-08/EXPERIENCE.md:242", "ux-designs/ux-orca-observer-2026-11-08/EXPERIENCE.md:534"],
+  "proof": {
+    "grep_old_text_count": 0,
+    "grep_new_text_line": 310,
+    "spec_companion_copy": "specs/spec-orca-observer/ARCHITECTURE-SPINE.md refreshed by cp; cmp identical",
+    "lint_spine_total_findings": 0,
+    "memlog": ["architecture/.memlog.md entry 41", "specs/spec-orca-observer/.memlog.md entry 64"]
+  },
+  "review": "none; the owner said no further review"
+}

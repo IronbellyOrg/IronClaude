@@ -1,0 +1,323 @@
+{
+  "reviewer": "bmad-review-edge-case-hunter",
+  "artifact": "_bmad-output/planning-artifacts/orca-observer/prd.md + _bmad-output/planning-artifacts/orca-observer/addendum.md",
+  "verdict": "FAIL",
+  "self_audit": "Walked every FR-1..FR-18 and NFR-1..NFR-14 consequence in prd.md and the whole addendum (traceability matrix and counts) for: paging stop reasons, partial and mismatch states, absent fields (dispatchId, terminalState, owner, scope, page.total, N Runs), first-cycle and probe failure, staleness clocks and back-off, change detection over added/removed/unknown rows, counts with all-unknown members, width and height limits, NO_COLOR values, encoding, sanitizer coverage, signal handling, export and snapshot write/read races, snapshot versioning and coverage state, R2 retention across restart and closure. Spec companions were read only where the PRD names them as the single source (adapter-contract.md, rendering-rules.md, snapshot-export-schema.md) to drop gaps the source already handles (page.hasMore required, discovery probe outside the 5-call cap, invalid JSON and 8 MiB overflow as FAILED, missing-key sentinel). Open owner questions (OQ-1..15) were not counted as defects.",
+  "findings": [
+    {
+      "id": "ECH-PRD-01",
+      "location": "_bmad-output/planning-artifacts/orca-observer/prd.md:88",
+      "trigger_condition": "page.hasMore true but paging stops before the 5-call cap (cursor rejected, absent, oversize)",
+      "guard_snippet": "if page.hasMore and traversal_stopped and calls < CAP: state = 'PARTIAL (paging stopped: <reason>)'",
+      "potential_consequence": "Incomplete traversal renders as complete or mismatch, never PARTIAL",
+      "proposed_grade": "BLOCKING",
+      "other_side": "_bmad-output/specs/spec-orca-observer/adapter-contract.md:18"
+    },
+    {
+      "id": "ECH-PRD-02",
+      "location": "_bmad-output/planning-artifacts/orca-observer/prd.md:279",
+      "trigger_condition": "First cycle not finished yet, or first worker-list read fails; no last good snapshot",
+      "guard_snippet": "if last_good is None: ledger = 'worker-list not read yet' or 'FAILED (...) no prior read'; counts = unknown",
+      "potential_consequence": "Unread or failed fleet shows zero counts or an empty-fleet line",
+      "proposed_grade": "BLOCKING",
+      "other_side": "_bmad-output/specs/spec-orca-observer/adapter-contract.md:50"
+    },
+    {
+      "id": "ECH-PRD-03",
+      "location": "_bmad-output/planning-artifacts/orca-observer/prd.md:146",
+      "trigger_condition": "Worker row has no dispatchId, so identity becomes namespace plus UNKNOWN",
+      "guard_snippet": "if row.dispatchId is UNKNOWN: never dedupe; identity = ('no-id', cycle, page, index); flag 'identity unknown'",
+      "potential_consequence": "ID-less rows merge as duplicates and vanish; selection anchor breaks",
+      "proposed_grade": "BLOCKING",
+      "other_side": "_bmad-output/specs/spec-orca-observer/adapter-contract.md:38"
+    },
+    {
+      "id": "ECH-PRD-04",
+      "location": "_bmad-output/planning-artifacts/orca-observer/prd.md:153",
+      "trigger_condition": "terminalState absent, so historical-versus-active classification is unknown",
+      "guard_snippet": "if row.terminalState is UNKNOWN: always show; count as 'k historical-state unknown', never hidden",
+      "potential_consequence": "Unknown state silently treated as active, or hidden as historical",
+      "proposed_grade": "BLOCKING",
+      "other_side": null
+    },
+    {
+      "id": "ECH-PRD-05",
+      "location": "_bmad-output/planning-artifacts/orca-observer/prd.md:221-222",
+      "trigger_condition": "Row added after the mark, or removed from a page that was read",
+      "guard_snippet": "starred = added | removed_from_read_pages | watched_field_changed; 'not reobserved' only for rows on unread pages",
+      "potential_consequence": "New dispatches unstarred and uncounted; PRD contradicts spec's added/removed rule",
+      "proposed_grade": "BLOCKING",
+      "other_side": "_bmad-output/specs/spec-orca-observer/rendering-rules.md:46"
+    },
+    {
+      "id": "ECH-PRD-06",
+      "location": "_bmad-output/planning-artifacts/orca-observer/prd.md:222",
+      "trigger_condition": "Watched field flips known to unknown, or unknown to known, after the mark",
+      "guard_snippet": "changed = (old != new) or (old is UNKNOWN) != (new is UNKNOWN); UNKNOWN never compares equal to a value",
+      "potential_consequence": "A field vanishing from the source reads as unchanged",
+      "proposed_grade": "BLOCKING",
+      "other_side": null
+    },
+    {
+      "id": "ECH-PRD-07",
+      "location": "_bmad-output/planning-artifacts/orca-observer/prd.md:188",
+      "trigger_condition": "result.counts has many states or wide numbers at 80 columns",
+      "guard_snippet": "if cell_len(priority_tokens) > W: wrap priority tokens onto extra strip lines; never truncate, never exceed W",
+      "potential_consequence": "FR-10 never-truncate and NFR-1 cell_len <= W cannot both hold",
+      "proposed_grade": "BLOCKING",
+      "other_side": "_bmad-output/planning-artifacts/orca-observer/prd.md:269"
+    },
+    {
+      "id": "ECH-PRD-08",
+      "location": "_bmad-output/planning-artifacts/orca-observer/prd.md:235-240",
+      "trigger_condition": "Snapshot written for a PARTIAL, mismatch or changed-during-read cycle",
+      "guard_snippet": "snapshot.coverage = {state: PARTIAL|COMPLETE|MISMATCH|UNKNOWN, collected: n, reported: T or 'UNKNOWN', reason}",
+      "potential_consequence": "Consumer reads a partial snapshot with status OK as the whole fleet",
+      "proposed_grade": "BLOCKING",
+      "other_side": "_bmad-output/specs/spec-orca-observer/snapshot-export-schema.md:25"
+    },
+    {
+      "id": "ECH-PRD-09",
+      "location": "_bmad-output/planning-artifacts/orca-observer/prd.md:235",
+      "trigger_condition": "Observer stops or hangs; snapshot file stops updating with status OK",
+      "guard_snippet": "consumer rule in FR-16: if now_utc - generatedAt > 45 s, treat source.status as STALE",
+      "potential_consequence": "A dead producer's last snapshot reads as fresh indefinitely",
+      "proposed_grade": "BLOCKING",
+      "other_side": "_bmad-output/specs/spec-orca-observer/snapshot-export-schema.md:23"
+    },
+    {
+      "id": "ECH-PRD-10",
+      "location": "_bmad-output/planning-artifacts/orca-observer/prd.md:239",
+      "trigger_condition": "Consumer must tell historical from active rows; FR-16 says release state withheld",
+      "guard_snippet": "state in FR-16 whether row.terminalState is kept; if withheld, consumers must not count rows as active",
+      "potential_consequence": "PRD withholds release state; schema row carries terminalState; consumers may miscount",
+      "proposed_grade": "BLOCKING",
+      "other_side": "_bmad-output/specs/spec-orca-observer/snapshot-export-schema.md:38"
+    },
+    {
+      "id": "ECH-PRD-11",
+      "location": "_bmad-output/planning-artifacts/orca-observer/prd.md:244",
+      "trigger_condition": "Observer restarts in R2; in-memory question retention is discarded",
+      "guard_snippet": "on start: 'retention reset at HH:MM; earlier open questions not carried'; add restart to SM-C4",
+      "potential_consequence": "Restart silently lowers the open count; seen-is-not-resolved broken",
+      "proposed_grade": "BLOCKING",
+      "other_side": "_bmad-output/planning-artifacts/orca-observer/prd.md:348"
+    },
+    {
+      "id": "ECH-PRD-12",
+      "location": "_bmad-output/planning-artifacts/orca-observer/prd.md:244",
+      "trigger_condition": "R2 ships while the closure-evidence feed is still a Later stage",
+      "guard_snippet": "FR-17: 'no item closes in R2; open total only rises until unknown (retention exceeded)'",
+      "potential_consequence": "Readers expect a closure path R2 does not have",
+      "proposed_grade": "MINOR",
+      "other_side": "_bmad-output/planning-artifacts/orca-observer/prd.md:109"
+    },
+    {
+      "id": "ECH-PRD-13",
+      "location": "_bmad-output/planning-artifacts/orca-observer/prd.md:180",
+      "trigger_condition": "Back-off raises interval to 60 s; spec defines STALE as 3 intervals",
+      "guard_snippet": "STALE_AFTER = 45.0 seconds monotonic, fixed; never 3 * current_interval",
+      "potential_consequence": "STALE delayed to 180 s during back-off under the spec's wording",
+      "proposed_grade": "MINOR",
+      "other_side": "_bmad-output/specs/spec-orca-observer/rendering-rules.md:50"
+    },
+    {
+      "id": "ECH-PRD-14",
+      "location": "_bmad-output/planning-artifacts/orca-observer/prd.md:180",
+      "trigger_condition": "Host suspends; Linux monotonic clock does not advance during sleep",
+      "guard_snippet": "age via time.clock_gettime(time.CLOCK_BOOTTIME), or STALE if wall gap exceeds monotonic gap",
+      "potential_consequence": "Hours-old data shows a young poll age after resume",
+      "proposed_grade": "MINOR",
+      "other_side": null
+    },
+    {
+      "id": "ECH-PRD-15",
+      "location": "_bmad-output/planning-artifacts/orca-observer/prd.md:187",
+      "trigger_condition": "Every member of an aggregate is unknown, so known n is 0",
+      "guard_snippet": "if k == member_count: render 'unknown (k unknown)', not '0+? (k unknown)'",
+      "potential_consequence": "All-unknown aggregate leads with a 0",
+      "proposed_grade": "MINOR",
+      "other_side": null
+    },
+    {
+      "id": "ECH-PRD-16",
+      "location": "_bmad-output/planning-artifacts/orca-observer/prd.md:147",
+      "trigger_condition": "Duplicate rows in one cycle carry different field values",
+      "guard_snippet": "within a cycle keep the row with newer observedAt; on tie or absent time flag 'conflicting duplicate'",
+      "potential_consequence": "Older duplicate may be shown; the contradiction is hidden",
+      "proposed_grade": "MINOR",
+      "other_side": "_bmad-output/specs/spec-orca-observer/adapter-contract.md:43"
+    },
+    {
+      "id": "ECH-PRD-17",
+      "location": "_bmad-output/planning-artifacts/orca-observer/prd.md:173-174",
+      "trigger_condition": "Duplicates ignored; unclear whether collected n counts before or after dedup",
+      "guard_snippet": "collected n = count of unique identities; duplicates reported only as 'k duplicate rows ignored'",
+      "potential_consequence": "False mismatch, or overstated collected count",
+      "proposed_grade": "MINOR",
+      "other_side": null
+    },
+    {
+      "id": "ECH-PRD-18",
+      "location": "_bmad-output/planning-artifacts/orca-observer/prd.md:167",
+      "trigger_condition": "Zero workers returned while scope is unknown or not bound",
+      "guard_snippet": "render 'worker-list returned 0 workers in scope=' + (scope.source or 'unknown')",
+      "potential_consequence": "Pinned literal asserts scope=bound when scope is unknown",
+      "proposed_grade": "MINOR",
+      "other_side": null
+    },
+    {
+      "id": "ECH-PRD-19",
+      "location": "_bmad-output/planning-artifacts/orca-observer/prd.md:158",
+      "trigger_condition": "Total Run count N is not given by any source",
+      "guard_snippet": "render 'read k of unknown Runs since start' when N is unknown",
+      "potential_consequence": "N invented, or shown as 0",
+      "proposed_grade": "MINOR",
+      "other_side": null
+    },
+    {
+      "id": "ECH-PRD-20",
+      "location": "_bmad-output/planning-artifacts/orca-observer/prd.md:157",
+      "trigger_condition": "R2+ start-up before any question-source read has succeeded",
+      "guard_snippet": "read the question source once before choosing the view, or state that B is never the start-up default",
+      "potential_consequence": "B can never become the default view",
+      "proposed_grade": "MINOR",
+      "other_side": "_bmad-output/specs/spec-orca-observer/rendering-rules.md:7"
+    },
+    {
+      "id": "ECH-PRD-21",
+      "location": "_bmad-output/planning-artifacts/orca-observer/prd.md:279",
+      "trigger_condition": "Orca present but slow or failing at the one-time discovery probe",
+      "guard_snippet": "render 'discovery probe failed (timeout)' distinct from 'not found'; retry probe on back-off",
+      "potential_consequence": "Session-long NOT AVAILABLE, misreported as binary not found",
+      "proposed_grade": "MINOR",
+      "other_side": "_bmad-output/specs/spec-orca-observer/adapter-contract.md:10"
+    },
+    {
+      "id": "ECH-PRD-22",
+      "location": "_bmad-output/planning-artifacts/orca-observer/prd.md:269",
+      "trigger_condition": "Width below the too-narrow message length, or resize across 80 mid-session",
+      "guard_snippet": "clip 'terminal too narrow (min 80)' to W cells; re-render on SIGWINCH",
+      "potential_consequence": "The diagnostic itself breaks cell_len <= W; stale layout after resize",
+      "proposed_grade": "MINOR",
+      "other_side": null
+    },
+    {
+      "id": "ECH-PRD-23",
+      "location": "_bmad-output/planning-artifacts/orca-observer/prd.md:270",
+      "trigger_condition": "NO_COLOR set to 0, false, or empty string",
+      "guard_snippet": "colour_off = os.environ.get('NO_COLOR', '') != ''",
+      "potential_consequence": "NO_COLOR=0 may keep colour; empty value may wrongly disable it",
+      "proposed_grade": "MINOR",
+      "other_side": null
+    },
+    {
+      "id": "ECH-PRD-24",
+      "location": "_bmad-output/planning-artifacts/orca-observer/prd.md:271",
+      "trigger_condition": "Non-UTF-8 locale and CJK or emoji in source strings",
+      "guard_snippet": "if --ascii or stdout encoding is not UTF-8: encode with errors='replace' after sanitizing",
+      "potential_consequence": "UnicodeEncodeError crash, possibly with terminal left in raw mode",
+      "proposed_grade": "MINOR",
+      "other_side": null
+    },
+    {
+      "id": "ECH-PRD-25",
+      "location": "_bmad-output/planning-artifacts/orca-observer/prd.md:274",
+      "trigger_condition": "Source string contains DEL (0x7F), which is outside C0, C1 and Cf",
+      "guard_snippet": "also strip '\\x7f' in the sanitizer",
+      "potential_consequence": "DEL passes the sanitizer into screen and export",
+      "proposed_grade": "MINOR",
+      "other_side": null
+    },
+    {
+      "id": "ECH-PRD-26",
+      "location": "_bmad-output/planning-artifacts/orca-observer/prd.md:280",
+      "trigger_condition": "SIGTSTP, SIGCONT or SIGHUP while the key reader holds raw mode",
+      "guard_snippet": "restore termios on SIGTSTP and SIGHUP; re-enter raw mode on SIGCONT",
+      "potential_consequence": "Shell left in raw mode after Ctrl-Z or terminal hangup",
+      "proposed_grade": "MINOR",
+      "other_side": null
+    },
+    {
+      "id": "ECH-PRD-27",
+      "location": "_bmad-output/planning-artifacts/orca-observer/prd.md:230",
+      "trigger_condition": "--once cycle FAILED, PARTIAL or STALE; or the 'e' export write fails",
+      "guard_snippet": "--once exits nonzero unless source OK and complete; 'e' shows 'export failed: <reason>' on screen",
+      "potential_consequence": "Scripts archive a failed read as success; user believes export saved",
+      "proposed_grade": "MINOR",
+      "other_side": "_bmad-output/planning-artifacts/orca-observer/architecture/ARCHITECTURE-SPINE.md:300"
+    },
+    {
+      "id": "ECH-PRD-28",
+      "location": "_bmad-output/planning-artifacts/orca-observer/prd.md:237",
+      "trigger_condition": "Source value is literally 'UNKNOWN', or a numeric field is missing",
+      "guard_snippet": "encode missing as a distinct marker (e.g. {'unknown': true}) or document the string/number union",
+      "potential_consequence": "Real 'UNKNOWN' value indistinguishable from missing; numeric fields change type",
+      "proposed_grade": "MINOR",
+      "other_side": "_bmad-output/specs/spec-orca-observer/snapshot-export-schema.md:10"
+    },
+    {
+      "id": "ECH-PRD-29",
+      "location": "_bmad-output/planning-artifacts/orca-observer/prd.md:238",
+      "trigger_condition": "Additive field added while integer schemaVersion stays 1",
+      "guard_snippet": "schemaVersion = 'MAJOR.MINOR'; bump MINOR on each additive change",
+      "potential_consequence": "Consumer cannot tell which optional fields to expect",
+      "proposed_grade": "MINOR",
+      "other_side": null
+    },
+    {
+      "id": "ECH-PRD-30",
+      "location": "_bmad-output/planning-artifacts/orca-observer/prd.md:235",
+      "trigger_condition": "Consumer reads the snapshot file while the observer is mid-write",
+      "guard_snippet": "write temp file in same directory, fsync, os.replace onto the snapshot path",
+      "potential_consequence": "Consumer reads torn JSON; FR-16 does not require an atomic write",
+      "proposed_grade": "MINOR",
+      "other_side": "_bmad-output/planning-artifacts/orca-observer/architecture/ARCHITECTURE-SPINE.md:250"
+    },
+    {
+      "id": "ECH-PRD-31",
+      "location": "_bmad-output/planning-artifacts/orca-observer/prd.md:223-224",
+      "trigger_condition": "'m' pressed before the baseline exists, or session spans midnight",
+      "guard_snippet": "ignore 'm' until baseline exists; show date in 'changed since' after 24 h",
+      "potential_consequence": "Mark against no baseline; HH:MM ambiguous across days",
+      "proposed_grade": "MINOR",
+      "other_side": null
+    },
+    {
+      "id": "ECH-PRD-32",
+      "location": "_bmad-output/planning-artifacts/orca-observer/prd.md:224",
+      "trigger_condition": "Observer restarts and silently takes a new baseline",
+      "guard_snippet": "header shows 'new baseline at HH:MM (restart)' as the spec requires",
+      "potential_consequence": "Restart hides changes since the previous look",
+      "proposed_grade": "MINOR",
+      "other_side": "_bmad-output/specs/spec-orca-observer/rendering-rules.md:46"
+    },
+    {
+      "id": "ECH-PRD-33",
+      "location": "_bmad-output/planning-artifacts/orca-observer/prd.md:273",
+      "trigger_condition": "'/' filter hides the selected row or matches no rows",
+      "guard_snippet": "keep selection as 'selected <id> hidden by filter'; empty result reads 'no rows match filter; shown 0/y'",
+      "potential_consequence": "Filtered-empty view mistaken for an empty fleet",
+      "proposed_grade": "MINOR",
+      "other_side": "_bmad-output/planning-artifacts/orca-observer/prd.md:213"
+    },
+    {
+      "id": "ECH-PRD-34",
+      "location": "_bmad-output/planning-artifacts/orca-observer/prd.md:149",
+      "trigger_condition": "Rows whose owner is unknown in the per-owner counts",
+      "guard_snippet": "add an 'owner unknown' bucket so per-owner counts sum to the global count",
+      "potential_consequence": "Sum fails, or unknown-owner rows silently dropped",
+      "proposed_grade": "MINOR",
+      "other_side": null
+    },
+    {
+      "id": "ECH-PRD-35",
+      "location": "_bmad-output/planning-artifacts/orca-observer/prd.md:182",
+      "trigger_condition": "Evidence timestamp in the future or unparseable (U11)",
+      "guard_snippet": "negative age renders 'age unknown (clock ahead)'; unparseable renders 'unknown'",
+      "potential_consequence": "Negative or zero age reads as fresh evidence",
+      "proposed_grade": "MINOR",
+      "other_side": null
+    }
+  ]
+}

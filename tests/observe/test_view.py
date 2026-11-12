@@ -867,3 +867,234 @@ def test_view_reexports_unknown_and_is_the_only_place_that_names_it_as_a_screen_
         path = Path(view_module.__file__).with_name(name)
         if path.exists():
             assert "observe.parse" not in path.read_text(encoding="utf-8")
+
+
+# -- R2: the coordinator questions panel (T19, T47, T10, T11, T12, T46) --------------------------------------------------
+
+import dataclasses  # noqa: E402
+
+import pytest  # noqa: E402
+
+from superclaude.cli.observe.parse import parse_questions  # noqa: E402
+from superclaude.cli.observe.questions import merge_questions  # noqa: E402
+from superclaude.cli.observe.view import (  # noqa: E402
+    MESSAGES_CELL,
+    QUESTIONS_DISCLOSURE,
+    QUESTIONS_NOT_HELD,
+    Key,
+    apply_key,
+)
+from tests.observe.conftest import (  # noqa: E402
+    QRUN,
+    make_question_envelope,
+    make_question_error,
+    make_question_rows,
+    routed_runner_responses,
+)
+
+WORKER = rows_reply(make_rows(3, 1), total=3)
+
+
+def question_pair(rows):
+    return 0, json.dumps(make_question_envelope(rows))
+
+
+def error_pair(code, status=1):
+    return status, json.dumps(make_question_error(code))
+
+
+def questions_collector(message, clock, argv_log=None, worker=WORKER):
+    argv_log = [] if argv_log is None else argv_log
+    runner = FakeRunner(argv_log, [routed_runner_responses(worker, message)])
+    return Collector(
+        LiveSource(runner, FakeDiscover(argv_log, "/opt/fake/orca")),
+        clock,
+        run_id=QRUN,
+        questions=True,
+    )
+
+
+def panel_of(result, clock, session=None):
+    return build_view(result, session or Session(), clock)
+
+
+def test_t19_the_panel_title_and_disclosure_are_literal_and_the_gap_notice_is_replaced(
+    fake_clock,
+):
+    result = questions_collector(
+        question_pair(make_question_rows(2)), fake_clock
+    ).run_once()
+    view = panel_of(result, fake_clock)
+    panel = view.questions
+    assert panel.title == "COORDINATOR QUESTIONS"
+    assert panel.run_line == f"one Run only: {QRUN}"
+    assert "at most 100 rows per read, not 100 questions" in panel.disclosure
+    assert "bounded best effort; coverage unknown" in panel.disclosure
+    assert panel.disclosure == QUESTIONS_DISCLOSURE
+    assert panel.disclosure.endswith("bursts over 100 rows between reads may be lost")
+    assert view.gap_notice != GAP_NOTICE and "Human" not in view.gap_notice
+    assert view.gap_notice.startswith("coordinator questions:")
+    assert view.ledger_title == LEDGER_TITLE  # the worker ledger keeps its own title
+    assert "coordinator questions OK 0s (one Run " + QRUN + ")" in view.header2
+    assert MESSAGES_CELL not in view.header2
+    assert panel.counts_line == (
+        "seen, not resolved: 2 | closed by evidence: unavailable (no source)"
+    )
+    assert [q.text.endswith("reason unknown") for q in panel.lines] == [True, True]
+    assert [q.qid for q in panel.lines] == ["msg_000000000000", "msg_000000000001"]
+
+
+def test_t47_with_questions_off_the_view_is_the_release_1_view(fake_clock, argv_log):
+    collector = live_collector([WORKER], fake_clock, argv_log)
+    result = collector.run_once()
+    view = build_view(result, Session(), fake_clock)
+    assert view.questions is None and view.gap_notice == GAP_NOTICE
+    assert MESSAGES_CELL in view.header2 and "coordinator" not in view.header2
+    explicit_off = dataclasses.replace(
+        result, question_state="OFF", questions=None, question_read=None
+    )
+    assert build_view(explicit_off, Session(), fake_clock) == view
+    # Questions on but nothing read yet: the gap notice stays, the pending line is shown.
+    pending = questions_collector(question_pair([]), fake_clock).latest()
+    waiting = build_view(pending, Session(), fake_clock)
+    assert waiting.gap_notice == GAP_NOTICE and waiting.questions.state == "PENDING"
+    assert waiting.questions.replaces_gap is False
+    assert "question read pending" in waiting.questions.summary
+    assert "last read" not in waiting.header2 and "not read yet" in waiting.header2
+
+
+def test_t10_m_on_every_worker_row_leaves_the_question_count_unchanged(fake_clock):
+    collector = questions_collector(question_pair(make_question_rows(3)), fake_clock)
+    result = collector.run_once()
+    session = Session()
+    before = build_view(result, session, fake_clock).questions
+    view = build_view(result, session, fake_clock)
+    for _ in range(3):  # select each worker row in turn and mark
+        session, _ = apply_key(session, Key("down"), view, fake_clock)
+        view = build_view(result, session, fake_clock)
+        session, _ = apply_key(session, Key("text", "m"), view, fake_clock)
+        view = build_view(result, session, fake_clock)
+    after = view.questions
+    assert session.marked is True
+    assert (after.counts_line, after.open_total, after.lines) == (
+        before.counts_line,
+        before.open_total,
+        before.lines,
+    )
+
+
+def test_t12_and_t11_retained_and_left_questions_render_with_their_marks(fake_clock):
+    two = question_pair(make_question_rows(2))
+    one_newer = question_pair(
+        make_question_rows(2, start=1)
+    )  # question 0 left the window
+    collector = questions_collector(
+        [two, one_newer, error_pair("consumer_fenced")], fake_clock
+    )
+    collector.run_once()
+    shifted = collector.run_once()
+    panel = panel_of(shifted, fake_clock).questions
+    assert panel.counts_line.startswith("seen, not resolved: 3 |")
+    assert [q.in_window for q in panel.lines] == [False, True, True]
+    assert panel.lines[0].text.split("  ")[1] == "[no longer in source window]"
+    failed = panel_of(collector.run_once(), fake_clock).questions
+    assert failed.state == "FAILED" and failed.code == "consumer-fenced"
+    assert failed.state_lines[0].startswith("question read: FAILED (consumer-fenced)")
+    assert QUESTIONS_NOT_HELD in failed.state_lines
+    assert failed.lines == panel.lines  # a failed read keeps every retained question
+    assert failed.counts_line == panel.counts_line
+
+
+def test_the_source_loss_never_closes_or_lowers_the_count_and_stale_keeps_questions(
+    fake_clock,
+):
+    collector = questions_collector(question_pair(make_question_rows(2)), fake_clock)
+    result = collector.run_once()
+    fake_clock.advance(46.0)
+    stale = panel_of(result, fake_clock).questions
+    assert stale.state == "STALE" and stale.state_lines[0] == "question read: STALE 46s"
+    assert (
+        stale.counts_line.startswith("seen, not resolved: 2 |")
+        and len(stale.lines) == 2
+    )
+    assert "closed" not in " ".join(q.text for q in stale.lines)
+
+
+def test_an_empty_good_read_never_says_no_questions(fake_clock):
+    result = questions_collector(question_pair([]), fake_clock).run_once()
+    panel = panel_of(result, fake_clock).questions
+    assert panel.empty_text == (
+        "no observed questions in this source window; not proof none exist"
+    )
+    everything = " ".join(
+        [panel.summary, panel.counts_line, panel.empty_text, *panel.state_lines]
+    ).lower()
+    assert "no questions" not in everything
+    assert panel.counts_line.startswith(
+        "seen, not resolved: 0 (source window only; not proof none exist) |"
+    )
+
+
+def test_a_failed_first_read_names_the_unheld_run_and_shows_unknown_not_zero(
+    fake_clock,
+):
+    for code in ("no_active_terminal", "consumer_fenced"):
+        result = questions_collector(error_pair(code), fake_clock).run_once()
+        panel = panel_of(result, fake_clock).questions
+        assert panel.state == "FAILED" and QUESTIONS_NOT_HELD in panel.state_lines
+        assert panel.counts_line.startswith("seen, not resolved: unknown")
+        assert panel.replaces_gap and panel.open_total is UNKNOWN
+
+
+def test_t46_retention_exceeded_reads_unknown_with_the_retained_count(fake_clock):
+    result = questions_collector(
+        question_pair(make_question_rows(1)), fake_clock
+    ).run_once()
+    state = None
+    for start in range(0, 1001, 100):
+        rows = make_question_rows(min(100, 1001 - start), start=start)
+        parsed = parse_questions(make_question_envelope(rows), "ns", 1, QRUN)
+        state = merge_questions(state, parsed.rows, start // 100 + 1, True, True, QRUN)
+    over = dataclasses.replace(result, questions=state)
+    panel = panel_of(over, fake_clock).questions
+    assert "unknown (retention exceeded)" in panel.counts_line
+    assert "retained 1000" in panel.counts_line
+    assert panel.open_total is UNKNOWN and (panel.retained, panel.evicted) == (1000, 1)
+
+
+def test_markup_and_injection_in_a_subject_are_literal_text_in_the_view(fake_clock):
+    rows = make_question_rows(1, subject="[bold]loud[/bold] \x1b[31mred\x1b[0m ‮")
+    result = questions_collector(question_pair(rows), fake_clock).run_once()
+    (line,) = panel_of(result, fake_clock).questions.lines
+    assert "[bold]loud[/bold]" in line.text
+    assert "\x1b" not in line.text and "‮" not in line.text
+
+
+def test_window_full_is_shown_at_exactly_100_rows_only(fake_clock):
+    full = questions_collector(
+        question_pair(make_question_rows(100)), fake_clock
+    ).run_once()
+    assert panel_of(full, fake_clock).questions.window_full_text == (
+        "window full: older questions may be missing"
+    )
+    short = questions_collector(
+        question_pair(make_question_rows(99)), fake_clock
+    ).run_once()
+    assert panel_of(short, fake_clock).questions.window_full_text is None
+
+
+def test_the_panel_never_carries_a_body_handle_or_payload(fake_clock):
+    result = questions_collector(
+        question_pair(make_question_rows(2)), fake_clock
+    ).run_once()
+    panel = panel_of(result, fake_clock).questions
+    flat = repr(panel)
+    for forbidden in ("synthetic body", "term_synthetic", "run:run_", "payload"):
+        assert forbidden not in flat, forbidden
+
+
+@pytest.mark.parametrize("n", [0, 1])
+def test_questions_pending_summary_is_one_line(fake_clock, n):
+    pending = questions_collector(question_pair([]), fake_clock).latest()
+    summary = panel_of(pending, fake_clock).questions.summary
+    assert "\n" not in summary and QRUN in summary

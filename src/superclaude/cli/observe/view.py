@@ -49,6 +49,36 @@ NO_READ_YET = "no successful worker-list read yet"
 EMPTY_NOTICE = "no observed items in this source window; not proof none exist"
 NOT_AVAILABLE_TEXT = "NOT AVAILABLE (no Orca CLI validated)"
 MESSAGES_CELL = "messages UNVERIFIED (not read)"
+# R2 coordinator-questions panel (one named Run); every literal is defined here once.
+QUESTIONS_TITLE = "COORDINATOR QUESTIONS"
+QUESTIONS_DISCLOSURE = (
+    "bounded best effort; coverage unknown; at most 100 rows per read, not 100 questions; "
+    "bursts over 100 rows between reads may be lost"
+)
+QUESTIONS_WINDOW_FULL = "window full: older questions may be missing"
+QUESTIONS_PENDING = "question read pending"
+QUESTIONS_NOT_HELD = (
+    "this terminal does not hold the named Run; the observer never binds to a Run"
+)
+QUESTIONS_EMPTY = "no observed questions in this source window; not proof none exist"
+QUESTIONS_REASON = "reason unknown"  # no verified reason field exists (PROPOSED)
+QUESTIONS_CLOSED = "closed by evidence: unavailable (no source)"
+QUESTIONS_RETENTION = (
+    "retention reset at {hhmm}; questions observed before this start are not retained"
+)
+QUESTIONS_FENCE_CODES = ("consumer-fenced", "no-active-terminal")
+QUESTIONS_COUNT_LABEL = (
+    "seen, not resolved"  # the original SEEN IS NOT RESOLVED wording
+)
+QUESTIONS_NO_MARKER = "no read marker in source: answered questions stay listed"
+QUESTIONS_ACTION = "start the observer in the terminal that holds {run} (inferred, not an Orca message)"
+QUESTIONS_LATEST_EMPTY = "latest read returned 0 questions; the rows below are older"
+QUESTIONS_EMPTY_COUNT = "0 (source window only; not proof none exist)"
+QUESTIONS_AGE_SKEW = "age unknown (clock skew)"
+QUESTIONS_KEYS_LINE = (
+    "Up/Down j/k move workers  Enter detail  Esc back  / filter  h historical  "
+    "m mark rows  e export all  q quit"
+)
 UNAVAILABLE = "unavailable (no source)"
 ABSENT_IN_SOURCE = "unknown (absent in source)"
 PARTIAL_CAP_TEXT = (
@@ -152,6 +182,63 @@ class SnapshotMeta:
 
 
 @dataclass(frozen=True)
+class QuestionLine:
+    """One retained coordinator question, display-ready. No body, handle or payload."""
+
+    qid: str  # the full message id
+    text: str  # "age  subject  reason unknown[  no longer in source window]"
+    created_at: Any  # source text or UNKNOWN (exports)
+    age_seconds: Any  # number or UNKNOWN (exports)
+    in_window: bool
+
+
+@dataclass(frozen=True)
+class QuestionsPanel:
+    """The R2 panel for one named Run (adapter-contract.md "R2 onward", rendering-rules.md)."""
+
+    run_id: str
+    state: str  # "PENDING" | "OK" | "STALE" | "FAILED"
+    code: str | None
+    title: str
+    run_line: str
+    disclosure: str
+    state_lines: tuple[str, ...]  # the first line always names the state of the read
+    counts_line: str
+    caveat_line: str  # the source has no read marker
+    header_cell: str  # the freshness-strip cell, with the same state words
+    count_text: str  # the count as a phrase, never a bare number when it may be partial
+    lines: tuple[QuestionLine, ...]  # oldest created first
+    empty_text: str | None
+    window_full_text: str | None
+    notes: tuple[str, ...]
+    retention_line: str
+    summary: str  # one line; stands in for the gap notice once the source has read
+    replaces_gap: bool
+    open_total: Any  # int, or UNKNOWN when retention was exceeded or nothing was read
+    retained: int
+    evicted: int
+    window_full: bool
+
+    def window(
+        self, capacity: int | None
+    ) -> tuple[tuple[QuestionLine, ...], str | None]:
+        """The question lines that fit ``capacity`` and the cut text when some are not shown.
+
+        The oldest questions stay on screen (owner decision, 2026-11-12); the newer ones are
+        reachable by the export only, and the cut text says so.
+        """
+        total = len(self.lines)
+        if capacity is None or capacity >= total:
+            return self.lines, None
+        keep = max(capacity, 1)
+        return (
+            self.lines[:keep],
+            f"questions shown {keep} of {total} (oldest first; {total - keep} newer "
+            "not shown; e exports all)",
+        )
+
+
+@dataclass(frozen=True)
 class Window:
     rows: tuple[RowView, ...]
     shown: int
@@ -195,6 +282,7 @@ class View:
     inspector: tuple[tuple[str, str], ...] | None
     help_line: str
     inspector_scroll: int = 0
+    questions: QuestionsPanel | None = None  # None unless R2 questions are on
 
     def window(self, capacity: int | None) -> Window:
         """The rows that fit ``capacity`` lines, always including the selected visible row."""
@@ -498,6 +586,164 @@ def _source_counts_text(snapshot: Any) -> str:
     return "source counts: " + " / ".join(parts)
 
 
+def _questions_panel(result: Any, clock: Any) -> QuestionsPanel | None:
+    """The coordinator-questions panel, or None when the question source is off."""
+    qstate = getattr(result, "question_state", "OFF")
+    if qstate == "OFF":
+        return None
+    run = result.question_run if result.question_run else "unknown"
+    retained = result.questions
+    last = result.question_last_success_mono
+    age = None if last is None else format_age(clock.monotonic() - last)
+    code = result.question_code if qstate == "FAILED" else None
+    if qstate == "NOT_POLLED":
+        state = "PENDING"
+    elif qstate == "FAILED":
+        state = "FAILED"
+    elif last is None or clock.monotonic() - last >= STALE_SECONDS:
+        state = "STALE"
+    else:
+        state = "OK"
+
+    state_lines: list[str] = []
+    # Wall time of the last good read, for the "list as of" line (display only).
+    as_of = (
+        None
+        if last is None
+        else format_local(
+            clock.wall() - (clock.monotonic() - last), clock.local_tz(), "%H:%M:%S"
+        )
+    )
+    cell_state = ""
+    if state == "PENDING":
+        state_lines.append(QUESTIONS_PENDING)
+        status = QUESTIONS_PENDING
+        cell = "not read yet"
+    elif state == "FAILED":
+        # The two fence codes read as the source codes (hyphens kept); others as code_label.
+        label = code if code in QUESTIONS_FENCE_CODES else code_label(code)
+        cell_state = f"FAILED ({label})"
+        state_lines.append(f"question read: {cell_state}" + (f" {age}" if age else ""))
+        if as_of:
+            state_lines.append(f"list as of {as_of} (last good read)")
+        if code in QUESTIONS_FENCE_CODES:
+            state_lines.append(QUESTIONS_NOT_HELD)
+            state_lines.append(QUESTIONS_ACTION.format(run=run))
+        status = cell_state
+        cell = cell_state
+    elif state == "STALE":
+        cell_state = f"STALE {age or 'never'}"
+        state_lines.append(f"question read: {cell_state}")
+        if as_of:
+            state_lines.append(f"list as of {as_of} (last good read)")
+        status = cell_state
+        cell = cell_state
+    else:
+        cell_state = f"OK {age or '0s'}"
+        state_lines.append(f"question read: {cell_state}")
+        status = f"last read {cell_state}"
+        cell = cell_state
+    header_cell = f"coordinator questions {cell} (one Run {run})"
+
+    if retained is None:
+        open_total: Any = UNKNOWN
+        open_text = "unknown (no question read yet)"
+        lines: tuple[QuestionLine, ...] = ()
+        count_retained = evicted = 0
+        window_full = False
+    else:
+        open_total = UNKNOWN if retained.evicted else retained.open_total
+        open_text = retained.open_total_text
+        if retained.evicted:
+            open_text += f" (retained {retained.retained})"
+        elif retained.window_full:
+            # exactly 100 rows came back: older questions may be missing, so "at least"
+            open_text = f"{retained.open_total}+ (window full)"
+        elif state in ("OK", "STALE") and not retained.records:
+            open_text = QUESTIONS_EMPTY_COUNT
+        count_retained, evicted = retained.retained, retained.evicted
+        window_full = retained.window_full
+        built = []
+        for record in retained.records:
+            q = record.question
+            epoch = q.created_epoch
+            if epoch is UNKNOWN:
+                seconds: Any = UNKNOWN
+                shown_age = "unknown"
+            elif clock.wall() - epoch < 0:
+                seconds, shown_age = UNKNOWN, QUESTIONS_AGE_SKEW
+            else:
+                seconds = clock.wall() - epoch
+                shown_age = format_age(seconds)
+            # State first, then the subject: only the end of a line is ever clipped.
+            parts = [shown_age]
+            if not record.in_window:
+                parts.append(f"[{record.status_text}]")
+            parts += [text_of(q.subject), QUESTIONS_REASON]
+            built.append(
+                QuestionLine(
+                    qid=text_of(q.qid),
+                    text="  ".join(parts),
+                    created_at=q.created_at,
+                    age_seconds=seconds,
+                    in_window=record.in_window,
+                )
+            )
+        lines = tuple(built)
+    counts_line = f"{QUESTIONS_COUNT_LABEL}: {open_text} | {QUESTIONS_CLOSED}"
+
+    notes: list[str] = []
+    read = result.question_read
+    if read is not None:
+        for count, label in (
+            (read.contradictory_rows, "contradictory rows ignored"),
+            (read.malformed_rows, "malformed rows skipped"),
+            (read.duplicates, "duplicate rows ignored"),
+            (read.identity_unknown_rows, "rows with identity unknown not retained"),
+        ):
+            if count:
+                notes.append(f"{count} {label}")
+        if read.raw_count == 0 and retained is not None and retained.records:
+            notes.append(QUESTIONS_LATEST_EMPTY)  # old rows under an empty latest read
+    empty_text = (
+        QUESTIONS_EMPTY
+        if state in ("OK", "STALE") and retained is not None and not lines
+        else None
+    )
+    since = result.question_retention_wall
+    hhmm = format_local(
+        clock.wall() if since is None else since, clock.local_tz(), "%H:%M"
+    )
+    summary = (
+        f"coordinator questions: {QUESTIONS_COUNT_LABEL} {open_text}; {status}; "
+        f"one Run only: {run}; best effort, coverage unknown"
+    )
+    return QuestionsPanel(
+        run_id=run,
+        state=state,
+        code=code,
+        title=QUESTIONS_TITLE,
+        run_line=f"one Run only: {run}",
+        disclosure=QUESTIONS_DISCLOSURE,
+        state_lines=tuple(state_lines),
+        counts_line=counts_line,
+        caveat_line=QUESTIONS_NO_MARKER,
+        header_cell=header_cell,
+        count_text=open_text,
+        lines=lines,
+        empty_text=empty_text,
+        window_full_text=QUESTIONS_WINDOW_FULL if window_full else None,
+        notes=tuple(notes),
+        retention_line=QUESTIONS_RETENTION.format(hhmm=hhmm),
+        summary=summary,
+        replaces_gap=qstate in ("OK", "FAILED"),
+        open_total=open_total,
+        retained=count_retained,
+        evicted=evicted,
+        window_full=window_full,
+    )
+
+
 def _changes(rows: tuple[Row, ...], session: Session) -> tuple[frozenset, int]:
     """(identities of rows to star, k for ``changed since``): added, removed or changed rows."""
     baseline = session.baseline
@@ -545,7 +791,10 @@ def build_view(result: Any, session: Session, clock: Any) -> View:
     header1 = "  ".join(header_parts)
 
     fresh_cell, age = _freshness(result, clock, state)
-    cells = [fresh_cell, MESSAGES_CELL]
+    panel = _questions_panel(result, clock)
+    # The questions cell uses the same state words as the worker-list cell (F07).
+    messages_cell = MESSAGES_CELL if panel is None else panel.header_cell
+    cells = [fresh_cell, messages_cell]
     if snapshot is not None and snapshot.warnings:
         cells.append(f"source warnings: {len(snapshot.warnings)} (inspector)")
     if result.code == "overrun":
@@ -643,7 +892,9 @@ def build_view(result: Any, session: Session, clock: Any) -> View:
         poll_age=age,
         counts_tokens=tuple(tokens),
         collected_text=collected_text,
-        gap_notice=GAP_NOTICE,
+        gap_notice=panel.summary
+        if panel is not None and panel.replaces_gap
+        else GAP_NOTICE,
         ledger_title=LEDGER_TITLE,
         ledger_empty=ledger_empty,
         changes_line=changes_line,
@@ -662,8 +913,9 @@ def build_view(result: Any, session: Session, clock: Any) -> View:
         inspector=selected_view.inspector
         if session.focus == "inspector" and selected_view is not None
         else None,
-        help_line=KEYS_LINE,
+        help_line=KEYS_LINE if panel is None else QUESTIONS_KEYS_LINE,
         inspector_scroll=session.inspector_scroll,
+        questions=panel,
     )
 
 

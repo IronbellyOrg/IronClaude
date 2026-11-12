@@ -94,7 +94,30 @@ def record_text(view: View) -> str:
     ]
     lines.extend(view.ledger_empty)
     lines.extend(_row_line(row) for row in view.all_rows)
+    lines.extend(_question_lines(view))
     return "\n".join(sanitize(line, "line") for line in lines) + "\n"
+
+
+def _question_lines(view: View) -> list[str]:
+    """The R2 panel as record lines: every question with its full id, no windowing."""
+    panel = view.questions
+    if panel is None:
+        return []
+    lines = [panel.title, panel.run_line]
+    if not panel.replaces_gap:
+        lines.append(panel.summary)  # nothing read yet: the gap notice above stays
+    lines.extend(panel.state_lines)  # the same order as the screen: state first
+    lines.append(panel.disclosure)
+    lines.append(panel.counts_line)
+    lines.append(panel.caveat_line)
+    lines.extend(f"{q.qid} | {q.text}" for q in panel.lines)  # every question, none cut
+    lines.extend(
+        text
+        for text in (panel.empty_text, panel.window_full_text, *panel.notes)
+        if text
+    )
+    lines.append(panel.retention_line)
+    return lines
 
 
 # -- JSON snapshot -----------------------------------------------------------------------------------
@@ -134,6 +157,31 @@ def _row_dict(view_row: RowView) -> dict:
     return out
 
 
+def _questions_dict(panel: Any) -> dict:
+    """The optional ``questions`` group: ids, times and counts only (never subject or body)."""
+    out: dict = {
+        "runId": panel.run_id,
+        "state": panel.state,
+        "observedOpen": _unknown(panel.open_total),
+        "windowFull": panel.window_full,
+        "retained": panel.retained,
+        "evicted": panel.evicted,
+        "closureEvidence": "unavailable",
+        "items": [
+            {
+                "id": q.qid,
+                "createdAt": _text(q.created_at),
+                "ageSeconds": _unknown(q.age_seconds),
+                "inWindow": q.in_window,
+            }
+            for q in panel.lines
+        ],
+    }
+    if panel.code is not None:
+        out["code"] = panel.code
+    return out
+
+
 def snapshot_dict(view: View) -> dict:
     meta = view.meta
     source: dict = {
@@ -158,6 +206,8 @@ def snapshot_dict(view: View) -> dict:
         "counts": _unknown(meta.counts),
         "rows": [_row_dict(row) for row in view.all_rows],
     }
+    if view.questions is not None:
+        snapshot["questions"] = _questions_dict(view.questions)
     if meta.collection_state is not None:
         snapshot["collection"] = {
             "state": meta.collection_state,

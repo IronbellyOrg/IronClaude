@@ -1,0 +1,44 @@
+{
+  "id": "bc8ebda2-ec39-40b6-8253-3c7e03e61f7e",
+  "ok": true,
+  "result": {
+    "runId": "run_14cfcbd8edf2",
+    "messages": [
+      {
+        "id": "msg_2d0e7d2264e5",
+        "run_id": "run_14cfcbd8edf2",
+        "delivery_contract": "current_delivery",
+        "from_handle": "term_a39d3e66-a4f7-481e-bbf2-7f6ec8329e4f",
+        "to_handle": "run:run_14cfcbd8edf2",
+        "subject": "probe self q1",
+        "body": "synthetic S1",
+        "type": "question",
+        "priority": "normal",
+        "thread_id": null,
+        "payload": null,
+        "created_at": "2026-11-11T20:01:11Z",
+        "delivered_at": null
+      },
+      {
+        "id": "msg_28c906cf3d97",
+        "run_id": "run_14cfcbd8edf2",
+        "delivery_contract": "current_delivery",
+        "from_handle": "term_a39d3e66-a4f7-481e-bbf2-7f6ec8329e4f",
+        "to_handle": "run:run_14cfcbd8edf2",
+        "subject": "probe B status",
+        "body": "synthetic B2",
+        "type": "status",
+        "priority": "normal",
+        "thread_id": null,
+        "payload": null,
+        "created_at": "2026-11-11T20:01:18Z",
+        "delivered_at": null
+      }
+    ],
+    "count": 2,
+    "acknowledged": null
+  },
+  "_meta": {
+    "runtimeId": "a7ee70a1-2e8b-4476-a228-51e9c7019b3f"
+  }
+}

@@ -592,3 +592,153 @@ def test_no_module_other_than_the_adapter_imports_subprocess_and_none_names_an_o
         commands_text,
         re.M,
     )
+
+
+# -- R2: --questions and the gate guard (T56) --------------------------------------------------------------------------------
+
+from tests.observe.conftest import (  # noqa: E402
+    QRUN,
+    make_question_envelope,
+    make_question_rows,
+    routed_runner_responses,
+)
+
+
+def question_runner(argv_log, rows=None):
+    worker = reply(3)
+    rows = make_question_rows(4) if rows is None else rows
+    message = (0, json.dumps(make_question_envelope(rows)))
+    return FakeRunner(argv_log, [routed_runner_responses(worker, message)])
+
+
+def messages_in(argv_log):
+    return [a for a in argv_log if a[1:3] == ["orchestration", "check"]]
+
+
+def test_t56_with_the_guard_off_questions_is_refused_and_no_orca_call_is_made(
+    fake_clock, argv_log
+):
+    assert (
+        commands.QUESTION_GATE_PASSED is False
+    )  # ships OFF until the owner's record exists
+    runner = question_runner(argv_log)
+    deps = deps_for(fake_clock, runner=runner, discover=FakeDiscover(argv_log))
+    code, out = once(Options(once=True, run_id=QRUN, questions=True), deps)
+    assert code != 0 and out == ""
+    assert argv_log == [] and runner.calls == 0  # not even discovery
+    via_click = CliRunner().invoke(
+        observe_group, ["--once", "--run", QRUN, "--questions"]
+    )
+    assert via_click.exit_code != 0
+    assert (
+        "question read not enabled: QUESTION-OBSERVATION has not passed"
+        in via_click.output
+    )
+
+
+def test_the_interactive_path_is_refused_too_with_the_guard_off(fake_clock, argv_log):
+    runner = question_runner(argv_log)
+    deps = deps_for(fake_clock, runner=runner, discover=FakeDiscover(argv_log))
+    assert execute(Options(run_id=QRUN, questions=True), deps) != 0
+    assert argv_log == []
+
+
+def test_with_the_guard_open_one_template_message_call_follows_the_worker_list_calls(
+    fake_clock, argv_log, monkeypatch
+):
+    monkeypatch.setattr(commands, "QUESTION_GATE_PASSED", True)
+    runner = question_runner(argv_log)
+    deps = deps_for(fake_clock, runner=runner, discover=FakeDiscover(argv_log))
+    code, out = once(Options(once=True, run_id=QRUN, questions=True), deps)
+    assert code == 0
+    message = messages_in(argv_log)
+    assert message == [
+        [
+            "/opt/fake/orca", "orchestration", "check", "--all", "--types", "question",
+            "--run", QRUN, "--json",
+        ]
+    ]  # fmt: skip
+    worker = [a for a in argv_log if a[1:3] == ["orchestration", "worker-list"]]
+    assert len(worker) == 1 and "--peek" not in message[0]
+    lines = out.splitlines()
+    assert "COORDINATOR QUESTIONS" in lines and f"one Run only: {QRUN}" in lines
+    assert sum("reason unknown" in l for l in lines) == 4
+    assert (
+        "seen, not resolved: 4 | closed by evidence: unavailable (no source)" in lines
+    )
+
+
+def test_with_the_guard_open_and_a_width_the_screen_shows_the_panel(
+    fake_clock, argv_log, monkeypatch
+):
+    monkeypatch.setattr(commands, "QUESTION_GATE_PASSED", True)
+    deps = deps_for(
+        fake_clock,
+        runner=question_runner(argv_log),
+        discover=FakeDiscover(argv_log),
+        size=lambda: (160, 50),
+    )
+    code, out = once(Options(once=True, run_id=QRUN, questions=True, width=116), deps)
+    lines = out.splitlines()
+    assert code == 0 and all(cell_len(l) <= 116 for l in lines)
+    assert "COORDINATOR QUESTIONS" in lines and GAP_NOTICE not in lines
+
+
+def test_questions_without_a_run_or_with_a_fixture_or_a_bad_run_is_refused_with_no_call(
+    fake_clock, argv_log, monkeypatch
+):
+    for guard in (False, True):
+        monkeypatch.setattr(commands, "QUESTION_GATE_PASSED", guard)
+        runner = question_runner(argv_log)
+        deps = deps_for(fake_clock, runner=runner, discover=FakeDiscover(argv_log))
+        for options in (
+            Options(once=True, questions=True),
+            Options(once=True, questions=True, fixture="base", run_id=QRUN),
+            Options(once=True, questions=True, run_id="-x"),
+            Options(once=True, questions=True, run_id="bad id"),
+        ):
+            assert execute(options, deps) == 2
+        assert argv_log == []
+    for args in (
+        ["--once", "--questions"],
+        ["--once", "--questions", "--fixture", "base", "--run", QRUN],
+        ["--once", "--questions", "--run", "-x"],
+        ["--once", "--questions", "--run", "bad id"],
+    ):
+        result = CliRunner().invoke(observe_group, args)
+        assert result.exit_code != 0, args
+
+
+def test_questions_off_leaves_the_message_source_unused_even_with_a_run(
+    fake_clock, argv_log
+):
+    runner = question_runner(argv_log)
+    deps = deps_for(fake_clock, runner=runner, discover=FakeDiscover(argv_log))
+    code, out = once(Options(once=True, run_id=QRUN), deps)
+    assert code == 0 and messages_in(argv_log) == []
+    assert GAP_NOTICE in out.splitlines() and "COORDINATOR" not in out
+
+
+def test_help_states_the_one_run_rule_the_disclosure_and_that_run_use_is_never_run():
+    result = CliRunner().invoke(observe_group, ["--help"])
+    flat = " ".join(result.output.split())
+    assert result.exit_code == 0 and "--questions" in flat
+    assert "never runs run-use" in flat
+    assert "the observer never runs run-use and never binds to a Run" in flat
+    assert "Run it from the terminal that already holds the Run" in flat
+    assert (
+        "bounded best effort; coverage unknown; bursts over 100 rows between reads may be lost"
+        in flat
+    )
+    assert (
+        "Message bodies are received by this process; subjects are shown, bodies are not kept"
+        in flat
+    )
+    assert "one named Run" in flat
+
+
+def test_the_guard_constant_is_a_literal_false_with_a_comment_naming_the_gate_record():
+    text = Path(commands.__file__).read_text(encoding="utf-8")
+    assert len(re.findall(r"^QUESTION_GATE_PASSED = (True|False)$", text, re.M)) == 1
+    assert "QUESTION_GATE_PASSED = False" in text
+    assert "release-gates.md" in text and "Task 18" in text

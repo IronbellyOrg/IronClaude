@@ -11,9 +11,11 @@ from superclaude.cli.observe.parse import (
     IDENTITY_UNKNOWN,
     ORDER_UNKNOWN,
     UNKNOWN,
+    Question,
     ShapeError,
     merge,
     parse_page,
+    parse_questions,
     parse_timestamp,
 )
 
@@ -442,3 +444,203 @@ def test_envelope_fields_are_sanitized_and_counted():
 )
 def test_parse_timestamp(value, expected):
     assert parse_timestamp(value) == expected
+
+
+# -- R2: question rows (probe shapes: evidence files 03, 14 and 24 of the gate research) ----------
+
+QRUN = "run_14cfcbd8edf2"
+OTHER_RUN = "run_c1badaa6576b"
+
+
+def qrow(i=1, **extra):
+    row = {
+        "id": f"msg_{i:012x}",
+        "run_id": QRUN,
+        "delivery_contract": "current_delivery",
+        "from_handle": "term_synthetic",
+        "to_handle": f"run:{QRUN}",
+        "subject": f"probe question {i}",
+        "body": "SECRET BODY synthetic",
+        "type": "question",
+        "priority": "normal",
+        "thread_id": None,
+        "payload": {"secret": "synthetic"},
+        "created_at": f"2026-11-11T20:01:{10 + i:02d}Z",
+        "delivered_at": None,
+    }
+    row.update(extra)
+    return row
+
+
+def qenvelope(rows, run=QRUN):
+    return {
+        "id": "env",
+        "ok": True,
+        "result": {
+            "acknowledged": None,
+            "count": len(rows),
+            "messages": rows,
+            "runId": run,
+        },
+    }
+
+
+def test_a_two_row_envelope_parses_to_two_question_rows():
+    parsed = parse_questions(qenvelope([qrow(2), qrow(1)]), "orca-a", 3, QRUN)
+    assert len(parsed.rows) == 2 and parsed.raw_count == 2
+    first = parsed.rows[0]
+    assert isinstance(first, Question)
+    assert (first.qid, first.run_id, first.subject) == (
+        "msg_000000000002",
+        QRUN,
+        "probe question 2",
+    )
+    assert (first.priority, first.from_handle, first.namespace) == (
+        "normal",
+        "term_synthetic",
+        "orca-a",
+    )
+    assert first.thread_id is UNKNOWN  # a JSON null is a fact the source did not give
+    assert first.created_at == "2026-11-11T20:01:12Z"
+    assert isinstance(first.created_epoch, float)
+    assert (parsed.cycle, parsed.run_id) == (3, QRUN)
+    assert parsed.contradictory_rows == parsed.malformed_rows == parsed.duplicates == 0
+
+
+@pytest.mark.parametrize(
+    "broken",
+    [
+        {},
+        [],
+        None,
+        {"result": None},
+        {"result": []},
+        {"result": {"runId": QRUN}},
+        {"result": {"messages": None}},
+        {"result": {"messages": {}}},
+        {"result": {"messages": "x"}},
+        {"result": {"messages": 5}},
+        {"ok": False, "error": {"code": "consumer_fenced"}},
+    ],
+)
+def test_result_messages_must_be_a_json_list(broken):
+    with pytest.raises(ShapeError):
+        parse_questions(broken, "orca-a", 1, QRUN)
+
+
+def test_a_status_row_and_a_wrong_run_row_are_dropped_and_counted():
+    rows = [
+        qrow(1),
+        qrow(2, type="status"),
+        qrow(3, run_id=OTHER_RUN),
+        qrow(4, type=None),
+        qrow(5, type="Question"),
+    ]
+    parsed = parse_questions(qenvelope(rows), "orca-a", 1, QRUN)
+    assert [q.qid for q in parsed.rows] == ["msg_000000000001"]
+    assert parsed.contradictory_rows == 4 and parsed.raw_count == 5
+
+
+def test_without_a_requested_run_the_reported_run_is_the_check():
+    rows = [qrow(1), qrow(2, run_id=OTHER_RUN)]
+    parsed = parse_questions(qenvelope(rows), "orca-a", 1)
+    assert len(parsed.rows) == 1 and parsed.contradictory_rows == 1
+    assert parsed.run_id == QRUN
+
+
+def test_a_response_for_another_run_is_dropped_even_for_rows_without_a_run_id():
+    row = {"id": "msg_x", "type": "question"}  # no run_id of its own
+    parsed = parse_questions(
+        qenvelope([row, qrow(1)], run=OTHER_RUN), "orca-a", 1, QRUN
+    )
+    assert parsed.rows == () and parsed.contradictory_rows == 2
+
+
+def test_absent_fields_read_unknown_and_never_none_zero_or_false():
+    parsed = parse_questions(
+        qenvelope([{"id": "msg_x", "type": "question"}]), "orca-a", 1, QRUN
+    )
+    (row,) = parsed.rows
+    for name in ("run_id", "from_handle", "subject", "priority", "thread_id"):
+        assert getattr(row, name) is UNKNOWN, name
+    assert row.created_at is UNKNOWN and row.created_epoch is UNKNOWN
+
+
+def test_an_unparsable_created_time_has_no_epoch_but_keeps_its_text():
+    (row,) = parse_questions(
+        qenvelope([qrow(1, created_at="last tuesday")]), "orca-a", 1, QRUN
+    ).rows
+    assert row.created_at == "last tuesday" and row.created_epoch is UNKNOWN
+
+
+def test_markup_in_a_subject_stays_literal_text():
+    (row,) = parse_questions(
+        qenvelope([qrow(1, subject="[bold]loud[/bold] [link=x]y[/link]")]),
+        "orca-a",
+        1,
+        QRUN,
+    ).rows
+    assert row.subject == "[bold]loud[/bold] [link=x]y[/link]"
+
+
+def test_no_parsed_object_keeps_a_body_payload_or_recipient():
+    parsed = parse_questions(qenvelope([qrow(1)]), "orca-a", 1, QRUN)
+    (row,) = parsed.rows
+    for name in ("body", "payload", "to_handle", "dispatch_id", "delivered_at"):
+        assert not hasattr(row, name) and not hasattr(parsed, name), name
+    assert "SECRET" not in repr(parsed) and "run:" not in repr(parsed)
+
+
+INJECTIONS = [
+    "a\x1b[31mred\x1b[0mb",
+    "link \x1b]8;;http://evil.example\x07click\x1b]8;;\x07 end",
+    "bidi ‮evil‬ text",
+    "c1 \x9b31m and \x9d0;title\x9c done",
+    "unterminated \x1b]0;title and more",
+    "bell \x07 and \x00 nul",
+]
+
+
+@pytest.mark.parametrize("subject", INJECTIONS)
+def test_an_injection_subject_leaves_no_escape_c1_or_format_character(subject):
+    import unicodedata
+
+    (row,) = parse_questions(
+        qenvelope([qrow(1, subject=subject, from_handle=subject, priority=subject)]),
+        "orca-a",
+        1,
+        QRUN,
+    ).rows
+    for value in (row.subject, row.from_handle, row.priority):
+        assert isinstance(value, str)
+        for ch in value:
+            assert ch != "\x1b" and not 0x80 <= ord(ch) <= 0x9F, repr(value)
+            assert unicodedata.category(ch) not in ("Cf", "Cc"), repr(value)
+
+
+def test_a_row_without_an_id_has_no_identity_and_duplicate_ids_are_counted():
+    rows = [qrow(1), qrow(1), qrow(2, id=None), qrow(3, id="  "), qrow(4, id=7), "x", 5]
+    parsed = parse_questions(qenvelope(rows), "orca-a", 1, QRUN)
+    assert parsed.duplicates == 1 and parsed.malformed_rows == 2
+    assert parsed.identity_unknown_rows == 3
+    flagged = [q for q in parsed.rows if q.identity_unknown]
+    assert len(flagged) == 3 and all(q.qid is UNKNOWN for q in flagged)
+    assert [q.qid for q in parsed.rows if not q.identity_unknown] == [
+        "msg_000000000001"
+    ]
+
+
+def test_identity_comes_from_message_id_and_never_a_dispatch_id():
+    (row,) = parse_questions(
+        qenvelope([qrow(1, dispatchId="w-001", dispatch_id="w-002")]), "orca-a", 1, QRUN
+    ).rows
+    assert row.qid == "msg_000000000001"
+    assert "w-001" not in repr(row) and "w-002" not in repr(row)
+
+
+def test_a_non_ascii_deeply_nested_subject_becomes_text_not_an_error():
+    nested = {"a": {"b": {"c": [1, 2, {"d": "é"}]}}}
+    (row,) = parse_questions(
+        qenvelope([qrow(1, subject=nested)]), "orca-a", 1, QRUN
+    ).rows
+    assert isinstance(row.subject, str) and "é" in row.subject

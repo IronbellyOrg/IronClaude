@@ -410,6 +410,140 @@ def parse_page(
     )
 
 
+# -- question rows (R2; keys seen on probe Runs only, UNVERIFIED for other Runs) -----------
+
+QUESTION_TYPE = "question"
+
+
+@dataclass(frozen=True)
+class Question:
+    """One coordinator question row. Identity is the Run plus ``message.id``, never a
+    ``dispatchId``. ``body``, ``payload`` and ``to_handle`` are not kept; every other
+    value is a sanitized source value or ``UNKNOWN``."""
+
+    qid: Any = UNKNOWN
+    run_id: Any = UNKNOWN
+    namespace: str = ""
+    from_handle: Any = UNKNOWN
+    subject: Any = UNKNOWN
+    priority: Any = UNKNOWN
+    thread_id: Any = UNKNOWN
+    created_at: Any = UNKNOWN
+    created_epoch: Any = UNKNOWN  # epoch seconds, or UNKNOWN when unparsable
+    flags: tuple[str, ...] = ()
+
+    @property
+    def identity_unknown(self) -> bool:
+        return IDENTITY_UNKNOWN in self.flags
+
+
+@dataclass(frozen=True)
+class ParsedQuestions:
+    rows: tuple[Question, ...]
+    cycle: int
+    namespace: str
+    run_id: Any = UNKNOWN  # the Run this read was for (requested, else result.runId)
+    raw_count: int = 0  # entries in result.messages, whatever they were
+    malformed_rows: int = 0  # entries that were not objects
+    contradictory_rows: int = 0  # wrong type or wrong Run: dropped and counted
+    identity_unknown_rows: int = 0  # kept in ``rows`` with a flag, never retained
+    duplicates: int = 0  # repeated ids within this one read
+
+
+_QUESTION_FIELDS: tuple[tuple[str, str], ...] = (
+    ("qid", "id"),
+    ("run_id", "run_id"),
+    ("from_handle", "from_handle"),
+    ("subject", "subject"),
+    ("priority", "priority"),
+    ("thread_id", "thread_id"),
+    ("created_at", "created_at"),
+)
+
+
+def parse_questions(
+    obj: Any, namespace: str, cycle: int, run_id: str | None = None
+) -> ParsedQuestions:
+    """Parse one decoded message-read envelope; raise ``ShapeError`` on a broken one.
+
+    ``result.messages`` must be a JSON list. A row that is not an object is counted and
+    skipped; a row whose ``type`` is not ``question`` or whose ``run_id`` differs from the
+    Run read is dropped and counted as contradictory; a row with no usable ``id`` has no
+    identity. ``run_id`` is the requested Run; without it ``result.runId`` stands in.
+    """
+    result = obj.get("result") if isinstance(obj, dict) else None
+    if not isinstance(result, dict):
+        raise ShapeError("result is not an object")
+    messages = result.get("messages")
+    if not isinstance(messages, list):
+        raise ShapeError("result.messages is not a list")
+    reported = result.get("runId")
+    run = run_id if run_id else reported
+    run = sanitize(run, "line") if isinstance(run, str) and run.strip() else UNKNOWN
+    # A response that names another Run than the one requested is not this Run's data,
+    # including its rows that carry no run_id of their own.
+    other_run = bool(
+        run_id
+        and isinstance(reported, str)
+        and reported.strip()
+        and sanitize(reported, "line") != run
+    )
+
+    rows: list[Question] = []
+    seen: set[str] = set()
+    malformed = contradictory = anonymous = duplicates = 0
+    for raw in messages:
+        if not isinstance(raw, dict):
+            malformed += 1
+            continue
+        values: dict[str, Any] = {}
+        for attr, key in _QUESTION_FIELDS:
+            found = raw.get(key)
+            values[attr] = UNKNOWN if found is None else _value(found, attr)
+        if (
+            raw.get("type") != QUESTION_TYPE
+            or other_run
+            or (
+                run is not UNKNOWN
+                and values["run_id"] is not UNKNOWN
+                and values["run_id"] != run
+            )
+        ):
+            contradictory += 1
+            continue
+        qid = values["qid"]
+        flags: tuple[str, ...] = ()
+        if not isinstance(qid, str) or not qid.strip():
+            values["qid"] = UNKNOWN
+            flags = (IDENTITY_UNKNOWN,)
+            anonymous += 1
+        elif qid in seen:
+            duplicates += 1
+            continue
+        else:
+            seen.add(qid)
+        epoch = parse_timestamp(raw.get("created_at"))
+        rows.append(
+            Question(
+                namespace=namespace,
+                created_epoch=UNKNOWN if epoch is None else epoch,
+                flags=flags,
+                **values,
+            )
+        )
+    return ParsedQuestions(
+        rows=tuple(rows),
+        cycle=cycle,
+        namespace=namespace,
+        run_id=run,
+        raw_count=len(messages),
+        malformed_rows=malformed,
+        contradictory_rows=contradictory,
+        identity_unknown_rows=anonymous,
+        duplicates=duplicates,
+    )
+
+
 # -- merging --------------------------------------------------------------------------
 
 

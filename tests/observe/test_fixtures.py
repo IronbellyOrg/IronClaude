@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import json
 import re
 import subprocess
 import sys
@@ -294,3 +295,30 @@ def test_console_factory_builds_a_recording_console_through_make_console(
     console.print("hello")
     assert console.width == 116 and policy.ascii and policy.no_color
     assert console.export_text().strip() == "hello"
+
+
+# -- R2: the four recorded samples of the message read are shipped and loadable -----------------------------
+
+QUESTION_SAMPLES = (
+    "golden-question-success",
+    "golden-question-missing",
+    "golden-question-stale",
+    "golden-question-contradictory",
+)
+
+
+@pytest.mark.parametrize("name", QUESTION_SAMPLES)
+def test_each_question_sample_is_shipped_loads_and_has_a_description(name):
+    names = {
+        p.name for p in resources.files("superclaude.cli.observe.fixtures").iterdir()
+    }
+    assert f"{name}.json" in names
+    fixture = load_fixture(name)
+    assert fixture.variant == name and len(fixture.cycles) >= 1
+    document = json.loads(
+        resources.files("superclaude.cli.observe.fixtures")
+        .joinpath(f"{name}.json")
+        .read_text(encoding="utf-8")
+    )
+    assert document["variant"] == name and document["description"]
+    assert name not in VARIANTS  # the ten worker-list variants are unchanged

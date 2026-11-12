@@ -62,6 +62,36 @@
         "duplicatesIgnored": {"type": "integer", "minimum": 0}
       }
     },
+    "questions": {
+      "description": "Optional (R2, only when the coordinator-questions source is on): the retained questions of the one named Run. No subject, body, handle or payload is ever exported.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["runId", "state", "observedOpen", "windowFull", "retained", "evicted", "closureEvidence", "items"],
+      "properties": {
+        "runId": {"$ref": "#/definitions/text"},
+        "state": {"enum": ["PENDING", "OK", "STALE", "FAILED"]},
+        "code": {"type": "string"},
+        "observedOpen": {"anyOf": [{"type": "integer", "minimum": 0}, {"const": "UNKNOWN"}]},
+        "windowFull": {"type": "boolean"},
+        "retained": {"type": "integer", "minimum": 0},
+        "evicted": {"type": "integer", "minimum": 0},
+        "closureEvidence": {"const": "unavailable"},
+        "items": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["id", "createdAt", "ageSeconds", "inWindow"],
+            "properties": {
+              "id": {"$ref": "#/definitions/text"},
+              "createdAt": {"$ref": "#/definitions/text"},
+              "ageSeconds": {"anyOf": [{"type": "number", "minimum": 0}, {"const": "UNKNOWN"}]},
+              "inWindow": {"type": "boolean"}
+            }
+          }
+        }
+      }
+    },
     "rows": {"type": "array", "items": {"$ref": "#/definitions/row"}}
   },
   "definitions": {
