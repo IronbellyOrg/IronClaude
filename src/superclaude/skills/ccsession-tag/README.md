@@ -448,7 +448,10 @@ workspace env file does not set stops tier-mode launches, so the env file must c
 a tier before this data names it (see `MODEL-TIERS.md`, "How to update this page").
 
 What a 429 (too many requests) does, in every tier: it is not retried straight away on the
-next model. The first two 429s from a model go back to Claude Code, which retries the
+next model, except for the three 429 replies on the immediate-switch list (all accounts
+cooling down, account rate limit exceeded, usage credits required or usage limit reached),
+which move to the next model at once (see the Failover table below). For every other 429,
+the first two from a model go back to Claude Code, which retries the
 request on the same model. The third 429 parks that model for a while (see the Cooldown
 row below), and the same request then moves to the next eligible model in the tier. Tier 2b
 has no rule of its own for GPT-6.1 Terra: Terra's 429s follow this same count, and the next
