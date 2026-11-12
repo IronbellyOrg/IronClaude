@@ -106,10 +106,11 @@ def _question_lines(view: View) -> list[str]:
     lines = [panel.title, panel.run_line]
     if not panel.replaces_gap:
         lines.append(panel.summary)  # nothing read yet: the gap notice above stays
+    lines.extend(panel.state_lines)  # the same order as the screen: state first
     lines.append(panel.disclosure)
-    lines.extend(panel.state_lines)
     lines.append(panel.counts_line)
-    lines.extend(f"{q.qid} | {q.text}" for q in panel.lines)
+    lines.append(panel.caveat_line)
+    lines.extend(f"{q.qid} | {q.text}" for q in panel.lines)  # every question, none cut
     lines.extend(
         text
         for text in (panel.empty_text, panel.window_full_text, *panel.notes)

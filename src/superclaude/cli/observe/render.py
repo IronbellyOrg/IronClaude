@@ -294,6 +294,13 @@ def _notes(view: View) -> list[str]:
     return ["  ".join(parts)] if parts else []
 
 
+def _help_lines(view: View, policy: TerminalPolicy) -> list[str]:
+    """The key list: clipped as in release 1, but wrapped when questions are on (no key is cut)."""
+    if view.questions is None:
+        return [clip(view.help_line, policy.width, policy)]
+    return wrap(view.help_line, policy.width, policy)
+
+
 def _panel_lines(
     panel: QuestionsPanel, policy: TerminalPolicy, capacity: int | None
 ) -> list[str]:
@@ -301,10 +308,11 @@ def _panel_lines(
     width = policy.width
     lines = wrap(panel.title, width, policy)
     lines += wrap(panel.run_line, width, policy)
-    lines += wrap(panel.disclosure, width, policy)
-    for state_line in panel.state_lines:
+    for state_line in panel.state_lines:  # the state of the read comes first
         lines += wrap(state_line, width, policy)
+    lines += wrap(panel.disclosure, width, policy)
     lines += wrap(panel.counts_line, width, policy)
+    lines += wrap(panel.caveat_line, width, policy)
     shown, cut = panel.window(capacity)
     lines += [clip(q.text, width, policy) for q in shown]
     if cut:
@@ -354,7 +362,8 @@ def screen_lines(
     footer_height = (
         1
         if cell_len(one_line) <= width
-        else 1 + len(wrap(view.footer_counts(window_probe), width, policy))
+        else len(_help_lines(view, policy))
+        + len(wrap(view.footer_counts(window_probe), width, policy))
     )
 
     # The R2 panel stands in for the gap notice once the question source has read; in the
@@ -368,9 +377,11 @@ def screen_lines(
         base = len(
             _panel_lines(replace(panel, lines=(), empty_text=None), policy, None)
         )
+        # The questions win on a short terminal (owner decision, 2026-11-12): the ledger keeps
+        # its title, one row and its overflow line, and the cut line of the list is budgeted.
         spare = policy.height - (
-            len(head) + len(tail) + base + footer_height + ledger_fixed + 1 + 3
-        )  # 1 overflow line and at least 3 ledger rows stay
+            len(head) + len(tail) + base + footer_height + ledger_fixed + 1 + 1 + 1
+        )
         if spare >= 1:
             gap_part = _panel_lines(panel, policy, spare)
         else:  # no room for the panel: its one-line summary stands in for it
@@ -413,7 +424,7 @@ def screen_lines(
     if cell_len(footer) <= width:
         footer_lines = [footer if not policy.ascii else ascii_safe(footer)]
     else:
-        footer_lines = [clip(view.help_line, width, policy)] + wrap(
+        footer_lines = _help_lines(view, policy) + wrap(
             view.footer_counts(window), width, policy
         )
     return top + body + footer_lines

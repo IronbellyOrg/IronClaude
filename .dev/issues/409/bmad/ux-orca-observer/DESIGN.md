@@ -3,7 +3,7 @@ name: Orca Observer
 description: Visual identity for the read-only Orca terminal observer (IronClaude issue 409)
 status: draft
 created: 2026-11-08
-updated: 2026-11-08
+updated: 2026-11-12
 colors:
   bg: '#101820'
   ink: '#e1e9ee'
@@ -58,6 +58,21 @@ components:
   gap-notice:
     textColor: '{colors.warn}'
     fontWeight: '{typography.strong.fontWeight}'
+  question-panel:
+    note: 'R2 coordinator questions panel; roles are PROPOSED, not applied in the reviewed build (empty palette)'
+    titleColor: '{colors.ink}'
+    titleWeight: '{typography.strong.fontWeight}'
+    runLineColor: '{colors.muted}'
+    stateOkColor: '{colors.ink}'
+    stateStaleColor: '{colors.warn}'
+    stateFailedColor: '{colors.bad}'
+    countColor: '{colors.ink}'
+    caveatColor: '{colors.muted}'
+    disclosureColor: '{colors.warn}'
+    questionLineColor: '{colors.ink}'
+    leftWindowColor: '{colors.warn}'
+    ageColor: '{colors.muted}'
+    inferredColor: '{colors.muted}'
   status-line:
     textColor: '{colors.muted}'
     changedColor: '{colors.accent}'
@@ -137,6 +152,8 @@ Contrast against `{colors.bg}` is taken from design package `QA.md:13`. It was n
 | good | 10.60:1 |
 | frozen | 8.99:1 |
 
+**Not applied in the reviewed R1/R2 build (F28, F42).** The reviewed build emitted no colour (an empty palette): the tables above are the design, the words carry every state, and the ratios above describe a palette the build does not draw. Whether that is intended is open (EXPERIENCE.md UX-OQ-14). The `question-panel` roles in the frontmatter are PROPOSED, not applied.
+
 With `NO_COLOR` set to a non-empty value, no colour SGR is emitted. Every token falls back to the terminal default, and the words and glyphs carry the meaning.
 
 ## Typography
@@ -175,7 +192,7 @@ The inspector replaces the ledger area instead of overlaying it; header line 1, 
 ## Shapes
 
 - `{rounded.DEFAULT}` is the light panel with rounded corners (╭ ╮ ╰ ╯, ─ │). It is used for the R1 ledger and every data panel.
-- `{rounded.sm}` is the heavy square panel (┏ ┓ ┗ ┛, ━ ┃). It is kept for attention panels from release B onward (`OPEN HUMAN QUESTIONS`). R1 does not use it.
+- `{rounded.sm}` is the heavy square panel (┏ ┓ ┗ ┛, ━ ┃). It is kept for attention panels from release B onward (`OPEN HUMAN QUESTIONS`). R1 does not use it. **[Design reference / R3 (QUESTION-LINK), not built in R2. The title `OPEN HUMAN QUESTIONS` is retired; the R2 panel is titled `COORDINATOR QUESTIONS`, is one stacked block, and its frame is PROPOSED, not applied in the reviewed build.]**
 - A panel title is drawn as ` TITLE ` in bold on the top border, starting 2 cells in. It is clipped to the frame.
 
 ### Glyphs and ASCII fallbacks (`--ascii`)
@@ -192,7 +209,7 @@ The inspector replaces the ledger area instead of overlaying it; header line 1, 
 
 The prototype maps `▸` to `>` (`canvas.py:8`). This spine maps it to `@` instead (PROPOSED), because `>` is the spec's truncation marker (EXPERIENCE.md UX-OQ-5).
 
-PROPOSED: under `--ascii`, any other non-ASCII character in source text is shown as `?` in ledger list cells only. In the inspector and the export, non-ASCII characters are written as `\uXXXX` escapes so every ID stays full and distinct (rendering-rules.md:24-25). This happens after sanitizing (EXPERIENCE.md, "Untrusted Text and Identifiers").
+PROPOSED: under `--ascii`, any other non-ASCII character in source text is shown as `?` in ledger list cells and in the coordinator-question lines of the R2 panel (F44). A replaced character can look like a literal `?`, which questions often end with; the full text is in the export. In the inspector and the export, non-ASCII characters are written as `\uXXXX` escapes so every ID stays full and distinct (rendering-rules.md:24-25). This happens after sanitizing (EXPERIENCE.md, "Untrusted Text and Identifiers").
 
 ## Components
 
@@ -202,6 +219,7 @@ PROPOSED: under `--ascii`, any other non-ASCII character in source text is shown
 | Freshness strip `{components.freshness-strip}` | Line 2: one cell per source. | The state word is coloured: OK ink, STALE warn, FAILED bad, NOT POLLED muted, UNVERIFIED warn. |
 | COUNTS strip `{components.counts-strip}` | 1 or 2 lines of `label value` tokens, with no bars. | Labels muted, numbers ink, `PARTIAL` warn, `unavailable (no source)` muted. |
 | Gap notice `{components.gap-notice}` | One full-width line above the ledger. | warn bold. The word `UNVERIFIED` carries the meaning without colour. |
+| Coordinator questions panel `{components.question-panel}` **[R2 as built]** | A stacked block. Title `COORDINATOR QUESTIONS`; `one Run only: <runId>`; the state line first (`question read: OK 3s` / `STALE 50s` / `FAILED (consumer-fenced) 3s` / `FAILED (no-active-terminal) 3s` / `question read pending`); under FAILED or STALE `list as of HH:MM:SS (last good read)` and, for the two fence codes, the fence sentence and the inferred action line; the counts line (`seen, not resolved: <n> | closed by evidence: unavailable (no source)`, `100+ (window full)`, or `unknown (retention exceeded) (retained 1000)`); the standing caveat; the disclosure, verbatim; one line per question, oldest first (`<age>  [no longer in source window]  <subject>  reason unknown`); the cut line (`questions shown 7 of 20 (oldest first; 13 newer not shown; e exports all)`); the empty, window-full and retention lines. Collapsed form: one summary line. Behaviour is in EXPERIENCE.md, "Coordinator questions panel". | PROPOSED, not applied in the reviewed build: title ink bold; state OK ink, STALE warn, FAILED bad; counts ink; standing caveat and ages muted; the disclosure warn; `[no longer in source window]` warn. Every state also has its word, so nothing depends on colour. No selection cursor and no change mark: the lines are not selectable. |
 | Status line `{components.status-line}` | One line: changed-since count, hidden and duplicate counts, export result. (The filter count sits in the COUNTS strip, beside the source counts, rendering-rules.md:56.) | muted. The changed-since count is accent. |
 | Ledger `{components.ledger}` | Light frame titled ` worker-reported, not questions `, a muted column header, then rows. | Border line, title ink bold. |
 | Ledger row `{components.ledger-row}` | A 2-cell gutter, then the band's columns. | Values ink; `unknown` and ages muted; a cut cell ends in `>`. |
@@ -223,3 +241,5 @@ PROPOSED: under `--ascii`, any other non-ASCII character in source text is shown
 | Repaint in place on refresh | Blink, pulse, fade or scroll by itself |
 | Keep every box glyph replaceable by `+ - \|` | Add a glyph without an ASCII fallback |
 | Leave the background to the terminal | Fill panels with the prototype's `panel` colour |
+| Put the state word of a question line before its subject, and clip only the subject | Let the end-of-line cut remove `[no longer in source window]` |
+| Show a full window as `100+ (window full)` and an empty read with `not proof none exist` | Print a bare number for a bounded count |

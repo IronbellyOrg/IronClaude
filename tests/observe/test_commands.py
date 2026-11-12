@@ -663,7 +663,9 @@ def test_with_the_guard_open_one_template_message_call_follows_the_worker_list_c
     lines = out.splitlines()
     assert "COORDINATOR QUESTIONS" in lines and f"one Run only: {QRUN}" in lines
     assert sum("reason unknown" in l for l in lines) == 4
-    assert "observed open: 4 | closed by evidence: unavailable (no source)" in lines
+    assert (
+        "seen, not resolved: 4 | closed by evidence: unavailable (no source)" in lines
+    )
 
 
 def test_with_the_guard_open_and_a_width_the_screen_shows_the_panel(

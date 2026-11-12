@@ -276,7 +276,9 @@ def test_the_record_lists_every_question_with_its_full_id_and_no_escape(fake_clo
     assert "COORDINATOR QUESTIONS" in lines and f"one Run only: {QRUN}" in lines
     assert QUESTIONS_DISCLOSURE in lines
     assert sum(" | " in ln and "reason unknown" in ln for ln in lines) == 3
-    assert "observed open: 3 | closed by evidence: unavailable (no source)" in lines
+    assert (
+        "seen, not resolved: 3 | closed by evidence: unavailable (no source)" in lines
+    )
     assert any(ln.startswith("retention reset at ") for ln in lines)
     assert "[bold]loud[/bold]" in text  # literal text, as on the screen
     assert not any(ord(ch) in range(0x80, 0xA0) for ch in text)

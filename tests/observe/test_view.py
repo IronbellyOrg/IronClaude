@@ -935,10 +935,10 @@ def test_t19_the_panel_title_and_disclosure_are_literal_and_the_gap_notice_is_re
     assert view.gap_notice != GAP_NOTICE and "Human" not in view.gap_notice
     assert view.gap_notice.startswith("coordinator questions:")
     assert view.ledger_title == LEDGER_TITLE  # the worker ledger keeps its own title
-    assert "coordinator questions: one Run, last read 0s ago" in view.header2
+    assert "coordinator questions OK 0s (one Run " + QRUN + ")" in view.header2
     assert MESSAGES_CELL not in view.header2
     assert panel.counts_line == (
-        "observed open: 2 | closed by evidence: unavailable (no source)"
+        "seen, not resolved: 2 | closed by evidence: unavailable (no source)"
     )
     assert [q.text.endswith("reason unknown") for q in panel.lines] == [True, True]
     assert [q.qid for q in panel.lines] == ["msg_000000000000", "msg_000000000001"]
@@ -994,12 +994,12 @@ def test_t12_and_t11_retained_and_left_questions_render_with_their_marks(fake_cl
     collector.run_once()
     shifted = collector.run_once()
     panel = panel_of(shifted, fake_clock).questions
-    assert panel.counts_line.startswith("observed open: 3 |")
+    assert panel.counts_line.startswith("seen, not resolved: 3 |")
     assert [q.in_window for q in panel.lines] == [False, True, True]
-    assert panel.lines[0].text.endswith("no longer in source window")
+    assert panel.lines[0].text.split("  ")[1] == "[no longer in source window]"
     failed = panel_of(collector.run_once(), fake_clock).questions
     assert failed.state == "FAILED" and failed.code == "consumer-fenced"
-    assert failed.state_lines[0].startswith("FAILED (consumer-fenced)")
+    assert failed.state_lines[0].startswith("question read: FAILED (consumer-fenced)")
     assert QUESTIONS_NOT_HELD in failed.state_lines
     assert failed.lines == panel.lines  # a failed read keeps every retained question
     assert failed.counts_line == panel.counts_line
@@ -1012,8 +1012,11 @@ def test_the_source_loss_never_closes_or_lowers_the_count_and_stale_keeps_questi
     result = collector.run_once()
     fake_clock.advance(46.0)
     stale = panel_of(result, fake_clock).questions
-    assert stale.state == "STALE" and stale.state_lines == ("STALE 46s",)
-    assert stale.counts_line.startswith("observed open: 2 |") and len(stale.lines) == 2
+    assert stale.state == "STALE" and stale.state_lines[0] == "question read: STALE 46s"
+    assert (
+        stale.counts_line.startswith("seen, not resolved: 2 |")
+        and len(stale.lines) == 2
+    )
     assert "closed" not in " ".join(q.text for q in stale.lines)
 
 
@@ -1027,7 +1030,9 @@ def test_an_empty_good_read_never_says_no_questions(fake_clock):
         [panel.summary, panel.counts_line, panel.empty_text, *panel.state_lines]
     ).lower()
     assert "no questions" not in everything
-    assert panel.counts_line.startswith("observed open: 0 |")
+    assert panel.counts_line.startswith(
+        "seen, not resolved: 0 (source window only; not proof none exist) |"
+    )
 
 
 def test_a_failed_first_read_names_the_unheld_run_and_shows_unknown_not_zero(
@@ -1037,7 +1042,7 @@ def test_a_failed_first_read_names_the_unheld_run_and_shows_unknown_not_zero(
         result = questions_collector(error_pair(code), fake_clock).run_once()
         panel = panel_of(result, fake_clock).questions
         assert panel.state == "FAILED" and QUESTIONS_NOT_HELD in panel.state_lines
-        assert panel.counts_line.startswith("observed open: unknown")
+        assert panel.counts_line.startswith("seen, not resolved: unknown")
         assert panel.replaces_gap and panel.open_total is UNKNOWN
 
 
@@ -1092,4 +1097,4 @@ def test_the_panel_never_carries_a_body_handle_or_payload(fake_clock):
 def test_questions_pending_summary_is_one_line(fake_clock, n):
     pending = questions_collector(question_pair([]), fake_clock).latest()
     summary = panel_of(pending, fake_clock).questions.summary
-    assert "\n" not in summary and summary.endswith(QRUN)
+    assert "\n" not in summary and QRUN in summary

@@ -451,7 +451,10 @@ def test_t55_the_missing_sample_fails_by_shape_then_by_no_active_terminal_and_ke
     assert gone.questions is good.questions
     panel = view_of(gone, fake_clock).questions
     assert panel.state == "FAILED" and QUESTIONS_NOT_HELD in panel.state_lines
-    assert panel.counts_line.startswith("observed open: 2 |") and len(panel.lines) == 2
+    assert (
+        panel.counts_line.startswith("seen, not resolved: 2 |")
+        and len(panel.lines) == 2
+    )
 
 
 def test_t55_the_stale_sample_is_stale_after_45_seconds_with_the_questions_kept(
@@ -463,8 +466,10 @@ def test_t55_the_stale_sample_is_stale_after_45_seconds_with_the_questions_kept(
     assert view_of(good, fake_clock).questions.state == "OK"
     fake_clock.advance(1)
     stale = view_of(good, fake_clock).questions
-    assert stale.state == "STALE" and stale.state_lines == ("STALE 45s",)
-    assert len(stale.lines) == 2 and stale.counts_line.startswith("observed open: 2 |")
+    assert stale.state == "STALE" and stale.state_lines[0] == "question read: STALE 45s"
+    assert len(stale.lines) == 2 and stale.counts_line.startswith(
+        "seen, not resolved: 2 |"
+    )
     fake_clock.jump_wall(-3600)  # wall-clock jumps change nothing
     assert view_of(good, fake_clock).questions.state == "STALE"
     failing = [collector.run_once() for _ in range(3)]

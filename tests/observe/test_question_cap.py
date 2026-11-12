@@ -78,7 +78,7 @@ def test_a_100_row_reply_sets_window_full_and_the_panel_says_so(fake_clock, argv
     flat = " ".join(" ".join(lines).split())
     assert QUESTIONS_DISCLOSURE in flat
     assert "bounded best effort; coverage unknown" in flat
-    assert "observed open: 100 |" in flat
+    assert "seen, not resolved: 100+ (window full) |" in flat
     record = record_text(view)
     assert "window full: older questions may be missing" in record
     assert json.loads(snapshot_json(view))["questions"]["windowFull"] is True
@@ -93,7 +93,7 @@ def test_a_99_row_reply_is_not_window_full(fake_clock, argv_log):
     view, lines = screen(result, fake_clock)
     assert view.questions.window_full_text is None
     assert not any("window full" in line for line in lines)
-    assert "observed open: 99 |" in " ".join(lines)
+    assert "seen, not resolved: 99 |" in " ".join(lines)
     # exactly 101 rows (more than the bound) is not "exactly 100" either
     over = make_question_envelope(make_question_rows(101))
     again = collector_for(ok(over), fake_clock, argv_log, QRUN).run_once()
@@ -114,7 +114,9 @@ def test_a_moved_window_keeps_the_dropped_questions_and_the_open_total_does_not_
     assert len(gone) == 10
     assert {r.question.qid for r in gone} == {f"msg_{i:012x}" for i in range(10)}
     view, lines = screen(two, fake_clock, height=200)
-    assert view.questions.counts_line.startswith("observed open: 110 |")
+    assert view.questions.counts_line.startswith(
+        "seen, not resolved: 110+ (window full) |"
+    )
     assert sum("no longer in source window" in line for line in lines) == 10
     assert "window full: older questions may be missing" in lines
 
@@ -126,7 +128,9 @@ def test_the_panel_never_prints_a_total_taken_from_result_count(fake_clock, argv
     view, lines = screen(result, fake_clock, height=200)
     everything = "\n".join([*lines, record_text(view), snapshot_json(view)])
     assert "7777" not in everything
-    assert view.questions.counts_line.startswith("observed open: 100 |")
+    assert view.questions.counts_line.startswith(
+        "seen, not resolved: 100+ (window full) |"
+    )
     assert json.loads(snapshot_json(view))["questions"]["observedOpen"] == 100
 
 
