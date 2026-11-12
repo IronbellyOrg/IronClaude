@@ -548,6 +548,14 @@ def test_without_a_requested_run_the_reported_run_is_the_check():
     assert parsed.run_id == QRUN
 
 
+def test_a_response_for_another_run_is_dropped_even_for_rows_without_a_run_id():
+    row = {"id": "msg_x", "type": "question"}  # no run_id of its own
+    parsed = parse_questions(
+        qenvelope([row, qrow(1)], run=OTHER_RUN), "orca-a", 1, QRUN
+    )
+    assert parsed.rows == () and parsed.contradictory_rows == 2
+
+
 def test_absent_fields_read_unknown_and_never_none_zero_or_false():
     parsed = parse_questions(
         qenvelope([{"id": "msg_x", "type": "question"}]), "orca-a", 1, QRUN

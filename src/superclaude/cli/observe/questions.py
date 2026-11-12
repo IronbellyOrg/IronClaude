@@ -44,6 +44,9 @@ class QuestionState:
 
     records: tuple[QuestionRecord, ...] = ()
     evicted: int = 0  # records dropped at the bound; the open total counts them
+    evicted_keys: frozenset = (
+        frozenset()
+    )  # keys behind ``evicted``, so none counts twice
     window_full: bool = False  # the last successful read returned exactly 100 rows
     last_read_cycle: int = 0  # cycle of the last successful question read; 0 = never
     identity_unknown_rows: int = (
@@ -122,13 +125,20 @@ def merge_questions(
         if key not in records:
             records[key] = QuestionRecord(key, question, cycle, cycle, True)
     ordered = sorted(records.values(), key=_order)
-    evicted = state.evicted
+    # An evicted question that a read returns again is retained once more, so it stops
+    # counting as evicted; it is counted again only if it is dropped again.
+    returned = state.evicted_keys & seen.keys()
+    evicted_keys = state.evicted_keys - returned
+    evicted = state.evicted - len(returned)
     if len(ordered) > RETENTION_BOUND:
-        evicted += len(ordered) - RETENTION_BOUND
-        ordered = ordered[-RETENTION_BOUND:]  # drop the oldest created
+        dropped = ordered[:-RETENTION_BOUND]  # the oldest created
+        ordered = ordered[-RETENTION_BOUND:]
+        evicted_keys = evicted_keys | {r.key for r in dropped}
+        evicted += len(dropped)
     return QuestionState(
         records=tuple(ordered),
         evicted=evicted,
+        evicted_keys=evicted_keys,
         window_full=bool(window_full),
         last_read_cycle=cycle,
         identity_unknown_rows=anonymous,

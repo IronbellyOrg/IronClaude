@@ -115,6 +115,17 @@ def test_t46_1001_distinct_questions_never_lower_the_open_total():
     assert again.open_total == 1001 and again.retained == 1000
 
 
+def test_an_evicted_question_that_returns_is_not_counted_evicted_twice():
+    state = merge_questions(
+        None, [q(i) for i in range(RETENTION_BOUND + 1)], 1, False, True, RUN
+    )
+    assert state.evicted == 1 and "msg_000000" not in ids(state)
+    # The evicted one is returned again by a later read: it displaces the new oldest.
+    again = merge_questions(state, [q(0)], 2, False, True, RUN)
+    assert again.evicted == 1 and again.open_total == RETENTION_BOUND + 1
+    assert again.retained == RETENTION_BOUND
+
+
 def test_two_runs_with_the_same_message_id_stay_two_records():
     rows = [q(1, run=RUN), q(1, run=OTHER)]
     state = merge_questions(None, rows, 1, False, True, RUN)

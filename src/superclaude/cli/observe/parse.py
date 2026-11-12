@@ -480,6 +480,14 @@ def parse_questions(
     reported = result.get("runId")
     run = run_id if run_id else reported
     run = sanitize(run, "line") if isinstance(run, str) and run.strip() else UNKNOWN
+    # A response that names another Run than the one requested is not this Run's data,
+    # including its rows that carry no run_id of their own.
+    other_run = bool(
+        run_id
+        and isinstance(reported, str)
+        and reported.strip()
+        and sanitize(reported, "line") != run
+    )
 
     rows: list[Question] = []
     seen: set[str] = set()
@@ -492,10 +500,14 @@ def parse_questions(
         for attr, key in _QUESTION_FIELDS:
             found = raw.get(key)
             values[attr] = UNKNOWN if found is None else _value(found, attr)
-        if raw.get("type") != QUESTION_TYPE or (
-            run is not UNKNOWN
-            and values["run_id"] is not UNKNOWN
-            and values["run_id"] != run
+        if (
+            raw.get("type") != QUESTION_TYPE
+            or other_run
+            or (
+                run is not UNKNOWN
+                and values["run_id"] is not UNKNOWN
+                and values["run_id"] != run
+            )
         ):
             contradictory += 1
             continue
