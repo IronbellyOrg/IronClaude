@@ -1,0 +1,46 @@
+# R3 parity check (item 13.4)
+
+Run 2026-11-12.
+
+## Copy
+
+Command: `cp src/superclaude/core/HOW-WE-WORK.md plugins/superclaude/skills/sc-recommend/refs/HOW-WE-WORK.md`
+(exit 0)
+
+## cmp
+
+```text
+$ cmp src/superclaude/core/HOW-WE-WORK.md plugins/superclaude/skills/sc-recommend/refs/HOW-WE-WORK.md; echo "exit=$?"
+exit=0
+```
+
+## Parity test
+
+```text
+$ uv run pytest tests/commands/test_routing_plugin_parity.py -v
+============================= test session starts ==============================
+platform linux -- Python 3.11.15, pytest-9.2.0, pluggy-1.7.0 -- /home/coder/workspaces/worktrees/IronClaude/issue-339-orchestrator-mode/.venv/bin/python
+cachedir: .pytest_cache
+SuperClaude: 5.0.0
+rootdir: /home/coder/workspaces/worktrees/IronClaude/issue-339-orchestrator-mode
+configfile: pyproject.toml
+plugins: superclaude-5.0.0, anyio-4.16.0
+collecting ... collected 5 items
+
+tests/commands/test_routing_plugin_parity.py::test_sc_recommend_plugin_tree_mirrors_src_plus_guide PASSED [ 20%]
+tests/commands/test_routing_plugin_parity.py::test_readme_listed_command_mirrors_match_src[help] PASSED [ 40%]
+tests/commands/test_routing_plugin_parity.py::test_readme_listed_command_mirrors_match_src[recommend] PASSED [ 60%]
+tests/commands/test_routing_plugin_parity.py::test_readme_listed_command_mirrors_match_src[workflow] PASSED [ 80%]
+tests/commands/test_routing_plugin_parity.py::test_readme_listed_command_mirrors_match_src[implement] PASSED [100%]
+
+============================== 5 passed in 1.12s ===============================
+(exit 0)
+```
+
+## Diff size of the plugin copy
+
+```text
+$ git diff --stat -- plugins/superclaude/skills/sc-recommend/refs/HOW-WE-WORK.md
+ plugins/superclaude/skills/sc-recommend/refs/HOW-WE-WORK.md | 2 ++
+ 1 file changed, 2 insertions(+)
+```

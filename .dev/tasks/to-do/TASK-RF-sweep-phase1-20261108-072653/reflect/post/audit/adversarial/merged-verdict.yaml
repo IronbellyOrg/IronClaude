@@ -1,0 +1,535 @@
+# Merged verdict: reflect post-execution audit (Step 5), /sc:adversarial Mode A merge.
+# Run: reflect-post-20261112T192600Z-TASK-RF-sweep-phase1 (work: issue #339 Phase 1, sweep).
+# Provenance: three blind-calibrated reviewer cards (variant-1 analyzer/sonnet, variant-2 qa/haiku,
+#   variant-3 refactorer/opus), the 2-round debate (debate-transcript.md, Scoring Matrix), the
+#   Round 2.5 invariant probe (invariant-probe.md) and the Tier-1 card leads DC-1..DC-12
+#   (../reflection-card-t1.yaml). Executed from refactor-plan.md (13 changes).
+# Base: variant 3 (final score 0.796, base-selection.md). Merge executor: merge-executor agent.
+# Merge date: 2026-11-12.
+# deviation_counts note: the counts are by PRIMARY class. F-13 (Authorized) carries a residual
+#   footnote Drift (FIN-F15) and F-07 (Drift) carries a Necessary sub-part (mtime and
+#   agent_wait_since); neither is counted twice.
+# Path aliases are listed under path_aliases and are used in every `ref` below.
+schema: sc-reflect-merged-verdict/v1
+merge_method: adversarial
+base_variant: "variant-3 (reviewer 3, refactorer, opus)"
+sources: [variant-1, variant-2, variant-3, invariant-probe]
+convergence_score: 1.00
+convergence_detail: "29 of 29 diff points resolved (28 by unanimity of final positions on class; C-003 by 2-of-3 majority with a recorded dissent from variant 1 and both blind calibrators; C-006 and C-015 agree on class and differ one step on severity)"
+convergence_status: CONVERGED
+taxonomy_coverage: {L1: covered, L2: covered, L3: covered}
+unaddressed_invariants_high: []
+unaddressed_invariants_medium:
+  - id: INV-001
+    status: UNADDRESSED
+    folded_into: F-04
+    how: "Carried as the F-04 finding (worker-list row with a missing, empty or non-string dispatchId is dropped and invisible to the FR-010 origin guard). Orchestrator ruling kept: Drift medium, because the five list-incomplete cases are the whole of FR-010's enumerated rule; escalation condition stated in F-04 notes."
+  - id: INV-002
+    status: UNADDRESSED
+    folded_into: F-04
+    how: "Carried as the conditional escalation in F-04: if real Orca emits worker rows without dispatchId (queued or undispatched), every recent transcript of that Run can become a person-started IDLE session and F-04 becomes a wrong-class bug. Fixture tests/sweep/fixtures/captured-worker-list.json holds 5 worker rows, all with dispatchId; other states are UNVERIFIED."
+path_aliases:
+  TL: ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md"
+  DESIGN: "docs/designs/orchestrator-mode.md"
+  SPEC: ".dev/brainstorms/20261108-024258-orchestrator-mode-phase1/merged-requirements.md"
+  PROBES: "src/superclaude/cli/sweep/probes.py"
+  CLASSIFY: "src/superclaude/cli/sweep/classify.py"
+  PLANS: ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/plans"   # added by the merge: shorthand for decision-record paths
+deviation_counts: {authorized: 4, necessary: 1, drift: 11, regression: 1, total: 17}
+severity_counts: {blocking: 0, medium: 6, minor: 11}
+regression_present: true
+contested: [F-01]
+findings:
+  - id: F-01
+    title: "Subprocess output is fully buffered and checked after exit; SPEC requires Popen, chunked reads and a kill at 8 MiB"
+    class: regression
+    severity: medium
+    diff_point: "C-003 / X-003"
+    lead_ref: DC-3
+    location: "PROBES:257-273, PROBES:308-316"
+    claim: "SPEC section 8 says both seams run subprocess.Popen, read the output in chunks and kill the child once combined output passes 8 MiB. Both seams call subprocess.run(capture_output=True) and test the size only after the child has exited. DESIGN names only the result and has no section 13 row; the tasklist item that chose subprocess.run gives a reason (the test guard only catches subprocess.run) that the guard file contradicts, because it patches Popen and os.system as well. For a runaway child the observable result differs: unavailable 'timeout after N s' instead of call_failed 'output over 8 MiB'."
+    evidence:
+      - {ref: "SPEC:286", quote: "run it with `subprocess.Popen`"}
+      - {ref: "PROBES:257", quote: "proc = subprocess.run("}
+      - {ref: "PROBES:270", quote: "if len(proc.stdout) + len(proc.stderr) > OUTPUT_LIMIT:"}
+      - {ref: "PROBES:308", quote: "proc = subprocess.run("}
+      - {ref: "PROBES:265", quote: 'return OrcaResult("unavailable", None, f"timeout after {timeout:g} s")'}
+      - {ref: "tests/sweep/conftest.py:41", quote: 'monkeypatch.setattr(subprocess, "Popen", _blocked)'}
+      - {ref: "TL:1452", quote: "subprocess guard only catches calls made as `subprocess.run`"}
+      - {ref: "TL:2992", quote: "output is held in memory before the 8 MiB check"}
+    authorization_source: "TL:2992 note (13) names the departure but cites only the tasklist item; no DESIGN section 13 row and no owner approval found"
+    recommendation: "In src/superclaude/cli/sweep/probes.py replace the two subprocess.run seams (_orca at :257, _git at :308) by subprocess.Popen with stdout and stderr piped, chunked reads, and a kill of the child once combined output passes OUTPUT_LIMIT (8 MiB), returning call_failed 'output over 8 MiB' (and the _git equivalent). If the owner prefers to keep subprocess.run, record the departure as a DESIGN section 13 row (total becomes 11) with owner approval. Verify with a new test in tests/sweep/test_probes_allowlist.py that streams more than 8 MiB from a fake Popen child and asserts the child was killed and the result is call_failed, then run `uv run pytest tests/sweep -q`."
+    confidence: 0.62
+    provenance:
+      cards: ["V3:R3-F3", "V1:R1-F4", "V2 position C-003 (Round 1)"]
+      debate: ["C-003", "X-003", "Round 1 orchestrator check (guard patches Popen and os.system)", "Round 2 V1 concession (departure unforced and unapproved)"]
+      invariants: ["INV-003", "INV-005"]
+    notes:
+      - "contested: V1 and both blind calibrators class this Drift medium (no acceptance fixture fails; SPEC :297 boundary fixtures feed finished outputs and pass). Resolved 2 of 3 (V2, V3 Regression) at 62%. Fallback if the narrow A-002 rule (only a failed acceptance criterion counts) is adopted: Drift medium. Rollback: remove the Regression label and use Drift medium."
+      - "INV-005: on the first Orca call any call_failed becomes unavailable (PROBES:355-357), so 'output over 8 MiB' on call one is reported as unavailable. INV-003: the runaway-child result fails closed for origin (later Orca sources go unscanned)."
+      - "V3 did not re-verify the SPEC line itself in Round 2; this merge re-read SPEC:286 and confirmed it."
+  - id: F-02
+    title: "NFR-007 'still publish' tests stop at report.render and never exercise publication"
+    class: drift
+    severity: medium
+    diff_point: "C-012 / X-005"
+    lead_ref: NEW
+    location: "tests/sweep/test_probes_allowlist.py:1144-1147, tests/sweep/test_probes_allowlist.py:1150-1169"
+    claim: "NFR-007 says a report is published when every probe uses its full timeout, and DESIGN section 11 repeats 'full-timeout fakes finish under 120 s and still publish'. The two tests that carry this (the budget test and test_every_call_timing_out_still_collects_and_publishes) end at report.render; neither calls publication, asserts a report file, a footer or an exit code. Collection and rendering are bounded, publication is not exercised. Nothing shows publication fails, so this is a coverage gap, not a regression."
+    evidence:
+      - {ref: "SPEC:136", quote: "a report is published"}
+      - {ref: "DESIGN:760", quote: "full-timeout fakes finish under 120 s and still publish"}
+      - {ref: "tests/sweep/test_probes_allowlist.py:1144", quote: "text = report.render("}
+      - {ref: "tests/sweep/test_probes_allowlist.py:1150", quote: "def test_every_call_timing_out_still_collects_and_publishes("}
+      - {ref: "tests/sweep/test_probes_allowlist.py:1169", quote: "assert report.render(classify_all(inp, ctx), ctx)"}
+      - {ref: "tests/sweep/test_classify.py:947", quote: "truncated=True"}
+    authorization_source: null
+    recommendation: "Add a test (tests/sweep/test_probes_allowlist.py or tests/sweep/test_cli_contract.py) that calls src/superclaude/cli/sweep/commands.py `_publish(text, output_dir, now)` (defined at commands.py:153), or invokes `sweep run` through click's CliRunner, under the same full-timeout fakes, and asserts the report file exists, ends with 'Report complete' and the JSON/exit code is success. Alternatively rename the two tests so they claim only collection and rendering. Verify with `uv run pytest tests/sweep/test_probes_allowlist.py -k timing_out -q`."
+    confidence: 0.88
+    provenance:
+      cards: ["V2:R2-F4"]
+      debate: ["C-012", "X-005", "Round 1 orchestrator re-read of test_probes_allowlist.py:1144-1147 and :1169", "Round 2 V2 concession (blocking withdrawn)"]
+      invariants: ["INV-012"]
+    notes:
+      - "V2 labelled this Regression/blocking; calibrated Drift medium; V2 conceded in Round 2. Not carried: the blocking label."
+      - "Cross-reference fix: V2 cited 'FIN-F19' as the task's id for this item; the calibrator found that points at the wrong item. The task finding is not named here."
+      - "INV-012: test_fr010_full_page_uncaptured_continuation passes truncated=True directly (test_classify.py:947), so it does not run the probe's full-page rule (PROBES:1046). Same family: tests whose names claim more than they assert (see also F-05)."
+  - id: F-03
+    title: "Stale approval and blocking-status text in DESIGN and the task Open Questions"
+    class: drift
+    severity: medium
+    diff_point: "C-009"
+    lead_ref: DC-6
+    location: "DESIGN:5, DESIGN:7, TL:3037-3043"
+    claim: "The DESIGN header still says owner approval of the WC-16 text 'is still required' and 'Review status: NOT a clean pass', and still lists R3-B1..R3-B3 as open blocking findings. The task file's Open Questions OQ-2 to OQ-8 still read OWNER DECISION PENDING or PERSON INPUT PENDING (OQ-7 'blocks the classify step') although decision records exist for each. These are current-looking instructions, not labelled history."
+    evidence:
+      - {ref: "DESIGN:5", quote: "Owner approval of the WC-16 text (section 8) is still required."}
+      - {ref: "DESIGN:7", quote: "Review status: NOT a clean pass."}
+      - {ref: "TL:3037", quote: "OWNER DECISION PENDING"}
+      - {ref: "TL:3042", quote: "OWNER DECISION PENDING; blocks the classify step."}
+      - {ref: "TL:3043", quote: "PERSON INPUT PENDING"}
+      - {ref: "PLANS/OQ-3-GQ-11-rule-id-decision.md:36", quote: "Approve option (a), new WC-16"}
+      - {ref: "PLANS/OQ-7-D9-signoff-decision.md:40", quote: "Sign off D9 as written"}
+      - {ref: "PLANS/OQ-2-GQ-10-report-location-decision.md", note: "file exists (Glob); records for OQ-2 to OQ-8 all exist under PLANS"}
+    authorization_source: null
+    recommendation: "Edit TL:3037-3043 so OQ-2..OQ-8 read RESOLVED with their decision-record paths (PLANS/OQ-2-GQ-10-report-location-decision.md, OQ-3-GQ-11-rule-id-decision.md, OQ-4-GQ-35-409-pin-decision.md, OQ-5-GQ-61-window-decision.md, OQ-6-GQ-63-done-next-decision.md, OQ-7-D9-signoff-decision.md, OQ-8-run-id-decision.md), and update docs/designs/orchestrator-mode.md lines 5-11 (approval of WC-16 recorded, review status reflects the closed R3-B1..R3-B3 gates). Verify with `grep -n PENDING <task file>` returning no OQ-2..OQ-8 hits and `grep -nE 'still required|NOT a clean pass' docs/designs/orchestrator-mode.md` returning none."
+    confidence: 0.85
+    provenance:
+      cards: ["V2:R2-F1"]
+      debate: ["C-009", "Round 2 V2 (reconcile before documentary completion, not a runtime-promotion veto)"]
+      invariants: []
+    notes:
+      - "Documentary reconciliation only. V2 accepted in Round 2 that this is not a veto on runtime promotion."
+      - "The DESIGN edit is a DESIGN change: it needs the owner's decision path (DESIGN is edited by decision, not by a fix agent, per FINAL-GATE-halt-resolution-decision.md:23)."
+  - id: F-04
+    title: "Worker-list rows with a missing or empty dispatchId are dropped from rows and invisible to the FR-010 origin guard"
+    class: drift
+    severity: medium
+    diff_point: "C-004"
+    lead_ref: DC-2
+    location: "PROBES:1105-1119, CLASSIFY:690-694, CLASSIFY:759-762"
+    claim: "_run_rows keeps a row only when dispatchId is a non-empty string (an id failing the regex is kept; a missing, non-string or empty id is dropped) and records a source row named 'orca worker-list <run> row <i>' with unscanned set. _origin_unknown reads only 'orca worker-list <run>' and 'orca task-list <run>', so that source row never makes the guard fail. When every row of a Run is dropped, rows is empty, all four guard flags are False and an unjoined transcript ends as person_started True with the 'origin not proved' note. No test covers it and no decision authorizes it."
+    evidence:
+      - {ref: "PROBES:1105", quote: "for index, row in enumerate(workers):"}
+      - {ref: "PROBES:1109", quote: 'name = f"orca worker-list {run} row {index}"'}
+      - {ref: "PROBES:1115", quote: "if isinstance(dispatch, str) and dispatch:"}
+      - {ref: "CLASSIFY:690", quote: 'listing = source.get(f"orca worker-list {run}")'}
+      - {ref: "CLASSIFY:730", quote: 'rows = [r for r in rows if r.status != "ready"]'}
+      - {ref: "CLASSIFY:739", quote: "earlier_pane=path_b and bool(rows),"}
+      - {ref: "CLASSIFY:761", quote: "notes.append(NOTE_ORIGIN_NOT_PROVED)"}
+      - {ref: "PROBES:1046", quote: "if len(workers) >= WORKER_LIST_PAGE or more:"}
+      - {ref: "tests/sweep/fixtures/captured-worker-list.json", note: "grep -c dispatchId prints 10 matching lines (dispatchId and taskId keys over 5 worker rows); states other than the captured ones are UNVERIFIED"}
+    authorization_source: null
+    recommendation: "In src/superclaude/cli/sweep/classify.py `_origin_unknown` (:678-708) treat any unscanned source row whose name starts with 'orca worker-list <run> row ' as an incomplete list for that run (set failed = True, adding NOTE_ORIGIN_CALL_FAILED), then add a test in tests/sweep/test_classify.py (and a probes-side case in tests/sweep/test_probes_allowlist.py) for a Run whose worker-list rows ALL lack a valid dispatchId: the unjoined transcript must be person_started None with an 'origin unknown:' note, never True or Historical. Verify with `uv run pytest tests/sweep/test_classify.py -k fr010 -q`. Before that, capture a live worker-list for a queued or undispatched worker (step 1.0a style, read-only) to settle the escalation condition below."
+    confidence: 0.80
+    provenance:
+      cards: ["V1:R1-F3"]
+      debate: ["C-004", "U-001", "Round 2 V1 rebuttal (narrowed: all-rows-dropped case)"]
+      invariants: ["INV-001", "INV-002", "INV-008"]
+    notes:
+      - "Conditional escalation (INV-001/INV-002): if real Orca emits worker rows without dispatchId (queued or undispatched workers), every recent transcript of that Run becomes a person-started IDLE session and F-04 becomes a wrong-class bug (Regression against FR-010/NFR-008). Needs the owner's decision on the capture."
+      - "Orchestrator ruling (INV-001): the five list-incomplete cases are the whole of FR-010's enumerated rule (docstring CLASSIFY:679), so a dropped row is a completeness-detection gap outside them: Drift medium, not a bug in the enumerated rule. Under path B any other surviving non-ready row already makes earlier_pane True (CLASSIFY:739), so the hole is confined to the all-rows-dropped Run."
+      - "INV-008: the full-page rule counts dict entries after filtering (PROBES:1042-1046); an exact 100-row total is marked truncated (conservative), a reply with non-dict entries can under-count."
+      - "test_classify.py:970-973 pins the empty-list control as person_started True / IDLE (invariant-probe.md); not re-read by this merge."
+  - id: F-05
+    title: "A ledger over the limit is searched in the tail only; the head is never read and the test name still says head and tail"
+    class: drift
+    severity: minor
+    diff_point: "C-002 / X-002"
+    lead_ref: NEW
+    location: "PROBES:557-569, tests/sweep/test_probes_allowlist.py:1328-1331"
+    claim: "SPEC FR-020 (line 295) and DESIGN GQ-105 say a ledger over 1 MiB is read as its first 512 KiB and last 512 KiB, with the tail searched for FINAL:. The code seeks to size - LEDGER_SPLIT and reads only the tail, so the head is never read. Both SPEC and DESIGN say only the tail is searched, so the FINAL detection value is identical and no behaviour changes. The test named for head and tail asserts only a tail-derived boolean, so the name claims more than the test shows."
+    evidence:
+      - {ref: "PROBES:563", quote: "handle.seek(size - LEDGER_SPLIT)"}
+      - {ref: "PROBES:561", quote: "only the last LEDGER_SPLIT bytes are searched"}
+      - {ref: "DESIGN:62", quote: "the head 512 KiB and the tail 512 KiB are read and the tail is searched"}
+      - {ref: "DESIGN:760", quote: "a ledger over 1 MiB is read as head and tail (GQ-105)"}
+      - {ref: "SPEC:295", quote: "the ledger is read as its first 512 KiB and its last 512 KiB (split proposed), and the tail is searched"}
+      - {ref: "tests/sweep/test_probes_allowlist.py:1328", quote: "def test_ledger_over_the_limit_is_read_as_head_and_tail(sweep_root):"}
+      - {ref: "tests/sweep/test_probes_allowlist.py:1331", quote: 'assert probes.read_ledger(folder / "progress.md", sweep_root.root) is True'}
+      - {ref: "PROBES:565", quote: 'data = data.split(b"\n", 1)[1] if b"\n" in data else b""'}
+      - {ref: "tests/sweep/test_probes_allowlist.py:1336", quote: "def test_ledger_tail_drops_a_first_line_that_the_cut_split(sweep_root):"}
+    authorization_source: null
+    recommendation: "Either read the head in PROBES `_ledger_has_final` (open the file, read LEDGER_SPLIT bytes from offset 0 as well as the tail) or amend DESIGN GQ-105 (DESIGN:62, :398, :548, :760) and SPEC line 295 to say tail only; in both cases rename tests/sweep/test_probes_allowlist.py `test_ledger_over_the_limit_is_read_as_head_and_tail` to match what it asserts (for example `..._is_searched_in_the_tail`). Verify with `uv run pytest tests/sweep/test_probes_allowlist.py -k ledger -q`. Treat as a doc and test-name fix; no output changes."
+    confidence: 0.85
+    provenance:
+      cards: ["V3:R3-F4", "V2:R2-F5"]
+      debate: ["C-002", "X-002", "Round 2 V1 and V2 concessions", "Round 2 V3 withdrawal of Regression"]
+      invariants: ["INV-007"]
+    notes:
+      - "Lowered from Regression (V3 R3-F4, V2 R2-F5 blocking). Calibrated Drift low (V2 note) and low-to-medium (V3 note); all three advocates settled on Drift minor (85%). Not carried: the Regression label and the blocking label."
+      - "INV-007: the first line of the tail is always dropped (PROBES:565), so when the cut falls exactly on a line start a complete FINAL: line is lost; pinned by test_ledger_tail_drops_a_first_line_that_the_cut_split (test_probes_allowlist.py:1336-1346). Not a defect against SPEC (the tail rule drops up to the first newline)."
+      - "The task records this as a run-time choice (TL:2992 note (12), reported by V1 and V3; the note text was not re-read by this merge)."
+  - id: F-06
+    title: "_git over-limit reason prints bytes instead of 8 MiB, is pinned by a test, and never reaches the report"
+    class: drift
+    severity: minor
+    diff_point: "C-005 (absorbs T1 lead DC-12)"
+    lead_ref: DC-12
+    location: "PROBES:316, tests/sweep/test_probes_allowlist.py:1454, PROBES:936-937"
+    claim: "SPEC section 8 says the worktree status is unread with the reason 'output over 8 MiB'. _git raises 'output over 8388608 bytes', while _orca prints MiB. The divergent string is pinned by a test. _read_worktree collapses any non-timeout GitCallFailed to 'worktree not readable' (as DESIGN 7.2 prescribes), so users never see either string; the divergence is confined to exception text."
+    evidence:
+      - {ref: "SPEC:286", quote: "`output over 8 MiB`"}
+      - {ref: "PROBES:316", quote: 'raise GitCallFailed(f"output over {OUTPUT_LIMIT} bytes")'}
+      - {ref: "PROBES:272", quote: 'f"output over {OUTPUT_LIMIT // _MIB} MiB"'}
+      - {ref: "tests/sweep/test_probes_allowlist.py:1454", quote: 'assert str(exc.value) == f"output over {8 * MIB} bytes"'}
+      - {ref: "PROBES:937", quote: 'else "worktree not readable"'}
+      - {ref: "DESIGN:513", quote: "unscanned: worktree not readable"}
+    authorization_source: null
+    recommendation: "Change PROBES:316 to f\"output over {OUTPUT_LIMIT // _MIB} MiB\" and update the pin at tests/sweep/test_probes_allowlist.py:1454 to the MiB form. Verify with `uv run pytest tests/sweep/test_probes_allowlist.py -k output -q`. Low value if F-01 is fixed first (the Popen rewrite touches the same line)."
+    confidence: 0.82
+    provenance:
+      cards: ["V1:R1-F5", "V3:R3-F3 (mention)"]
+      debate: ["C-005"]
+      invariants: []
+    notes:
+      - "Absorbs T1 lead DC-12 (added after calibration); no separate finding."
+      - "The V1 citation for DC-1 (FINAL-GATE...:18-19 as 'open item 6') is not carried; see F-13."
+  - id: F-07
+    title: "Third per-Run source row and extra model fields beyond DESIGN 7.2 and 7.4"
+    class: drift
+    severity: minor
+    diff_point: "C-008"
+    lead_ref: DC-9
+    location: "PROBES:1033, PROBES:1054, PROBES:131-133, src/superclaude/cli/sweep/models.py:21-29, models.py:103-104, models.py:147-148"
+    claim: "The code adds a third per-Run source row 'orca task-list --ready <run>' where DESIGN 7.4 names two, plus model fields DESIGN 7.2 does not list: four constants in models.py and SessionRow.freshness_age_s (Drift), and ContractRecord.mtime and OrcaObservation.agent_wait_since (Necessary: they serve the SP-15 age rule and the reserved agent-wait marking). The ready call itself is counted in DESIGN section 6, and classify reads only the two named rows, so behaviour is unchanged. The final-gate owner decision only approves marking the unused fields reserved; the additions are recorded by the task as minor findings, not approved."
+    evidence:
+      - {ref: "PROBES:1033", quote: 'ready_name = f"orca task-list --ready {run}"'}
+      - {ref: "DESIGN:597", quote: "its own source row named `orca worker-list <run>` and another named `orca task-list <run>`"}
+      - {ref: "DESIGN:300", quote: "task-list --ready  R"}
+      - {ref: "src/superclaude/cli/sweep/models.py:104", quote: "mtime: datetime | None = None"}
+      - {ref: "src/superclaude/cli/sweep/models.py:148", quote: "freshness_age_s: int | None = None"}
+      - {ref: "PLANS/FINAL-GATE-halt-resolution-decision.md:19", quote: "mark the three unused model fields as reserved"}
+      - {ref: "PROBES:132", quote: "self, runs: tuple[str, ...], wanted: dict[str, int] | None = None"}
+      - {ref: "src/superclaude/cli/sweep/models.py:21", quote: 'CONTRACT_FILE = "return-contract.yaml"'}
+      - {ref: "src/superclaude/cli/sweep/models.py:28", quote: 'SHOW_CAP_REASON = "show cap reached"'}
+    authorization_source: null
+    recommendation: "Record the additions in DESIGN 7.2 and 7.4 (the third source row name 'orca task-list --ready <run>', share_shows(wanted), ContractRecord.mtime, SessionRow.freshness_age_s, the four constants) through an owner-approved DESIGN edit or a section 13 row, or add a one-line code comment pointing at the task finding that records each. Verify with `grep -n 'task-list --ready' docs/designs/orchestrator-mode.md` showing the 7.4 text names it. No code change needed."
+    confidence: 0.80
+    provenance:
+      cards: ["V3:R3-F8", "V1:R1-F6", "V1:R1-F7"]
+      debate: ["C-008", "Round 2 V1 R1-F7 calibration (split)"]
+      invariants: []
+    notes:
+      - "Split by field (Change 4): constants and freshness_age_s are Drift; mtime and agent_wait_since are Necessary. V1's 'authorized' label for R1-F7 is not carried (calibrated overstated: FINAL-GATE :19 approves only the reserved marking). The task records the additions as FIN-F10..F12 (minor)."
+      - "Authorization for freshness_age_s specifically was not found (V1 grounding gap): its consumer in report.py was not located."
+  - id: F-08
+    title: "The skill says to print 'the standard error line' on exit 1 or 2, but the command can emit several lines"
+    class: drift
+    severity: minor
+    diff_point: "C-016"
+    lead_ref: NEW
+    location: "src/superclaude/skills/sc-sweep-protocol/SKILL.md:27, src/superclaude/cli/sweep/commands.py:137-143"
+    claim: "SKILL.md step 5 tells the agent to print 'the standard error line' on exit 1 or 2. _drop_own_temp can add a second stderr line ('[sweep publish] left temp file ...') after a publication error, and click's own usage errors (exit 2) print a multi-line block, so the singular wording can lead the agent to relay only part of the error. The wording is pinned by a test."
+    evidence:
+      - {ref: "src/superclaude/skills/sc-sweep-protocol/SKILL.md:27", quote: "print the standard error line exactly as it came"}
+      - {ref: "src/superclaude/cli/sweep/commands.py:137", quote: "def _drop_own_temp(tmp: Path) -> tuple[str, ...]:"}
+      - {ref: "src/superclaude/cli/sweep/commands.py:142", quote: 'return (f"[sweep publish] left temp file {tmp}",)'}
+      - {ref: "tests/commands/test_sweep_command.py:446", quote: '"On exit 1 or 2, print the standard error line exactly as it came and end the run.",'}
+    authorization_source: null
+    recommendation: "Edit src/superclaude/skills/sc-sweep-protocol/SKILL.md step 5 to 'print the whole standard error exactly as it came' (every line), mirror it to the plugin copy if one exists, and update the pinned sentence at tests/commands/test_sweep_command.py:446. Run `make sync-dev` and `uv run pytest tests/commands/test_sweep_command.py -q`. Stage only the src/ side (never .claude/)."
+    confidence: 0.78
+    provenance:
+      cards: ["V3:R3-F6"]
+      debate: ["C-016"]
+      invariants: []
+    notes:
+      - "Weak V3 cite commands.py:219-221 (decorator lines) replaced by the _PublishError second-line cite (commands.py:137-143), per calibration. The task logged it as FIN-F59."
+  - id: F-09
+    title: "Structural debt: the XDG state folder is computed in two places, and two public wrappers have only test callers"
+    class: drift
+    severity: minor
+    diff_point: "C-017"
+    lead_ref: NEW
+    location: "src/superclaude/cli/sweep/commands.py:253, PROBES:1253-1255, PROBES:589-591, PROBES:944-947"
+    claim: "The --output overlap check (commands.py) and the tab-map read (probes.collect) each derive the XDG state folder separately from XDG_STATE_HOME; if one changes, the check would guard a different folder than the one read. read_ledger and read_worktree are public wrappers whose only callers in src are their own definitions (collect uses _read_worktree and the _ledger helpers), so tests exercise a slightly different surface from collect."
+    evidence:
+      - {ref: "src/superclaude/cli/sweep/commands.py:253", quote: 'state = Path(os.environ.get("XDG_STATE_HOME") or (home / ".local" / "state"))'}
+      - {ref: "PROBES:1254", quote: 'os.environ.get("XDG_STATE_HOME") or (Path.home() / ".local" / "state")'}
+      - {ref: "PROBES:589", quote: "def read_ledger(path: Path, root: Path | None = None) -> bool | None:"}
+      - {ref: "PROBES:944", quote: "def read_worktree(path: Path, budget: Budget) -> tuple[WorktreeState, SourceCoverage]:"}
+      - {ref: "PROBES:1247", quote: "worktree, rows = _read_worktree(path, budget)"}
+    authorization_source: null
+    recommendation: "Add one helper (for example probes.state_dir()) used by both commands.py:253 and probes.py:1253, and either call read_ledger/read_worktree from collect or point their tests at the helpers collect uses. Verify with `grep -n XDG_STATE_HOME src/superclaude/cli/sweep/*.py` showing one definition and `uv run pytest tests/sweep -q`. Optional cleanup; the task logged it as FIN-F44 and FIN-F48."
+    confidence: 0.78
+    provenance:
+      cards: ["V3:R3-F7"]
+      debate: ["C-017"]
+      invariants: []
+    notes:
+      - "This merge re-checked the caller claim with a search over src: read_ledger and read_worktree appear only at their definitions (PROBES:589, :944); _read_worktree is the collect caller (PROBES:1247)."
+  - id: F-10
+    title: "git status in an Orca-listed worktree can run that worktree's core.fsmonitor command or start the fsmonitor daemon"
+    class: drift
+    severity: minor
+    diff_point: "C-006"
+    lead_ref: DC-4
+    location: "PROBES:304-310, PROBES:1-8, CHANGELOG.md:11"
+    claim: "The git argv is 'git --no-optional-locks -C <path> status ...' with no '-c core.fsmonitor=false'. Paths come from Orca 'worktree ps'. A repo-local core.fsmonitor setting runs a configured hook or starts the built-in daemon (standard git behaviour, not tested here). That contradicts the module docstring ('every subprocess is one allowlisted git status') and the CHANGELOG claim that the command 'changes nothing in Orca, in git or in any worktree'. No spec line addresses it. _git also passes no stdin=DEVNULL, unlike _orca. Already recorded as a [Low] hardening follow-up and a MINOR safety-gate note."
+    evidence:
+      - {ref: "PROBES:305", quote: 'argv = ["git", "--no-optional-locks", "-C", str(cwd), *args]'}
+      - {ref: "PROBES:6", quote: "every subprocess is one allowlisted ``git status``"}
+      - {ref: "PROBES:262", quote: "stdin=subprocess.DEVNULL,"}
+      - {ref: "PROBES:308", quote: "proc = subprocess.run("}
+      - {ref: "CHANGELOG.md:11", quote: "it changes nothing in Orca, in git or in any worktree"}
+      - {ref: "TL:3066", quote: "the git seam does not pin `-c core.fsmonitor=false`"}
+      - {ref: "src/superclaude/cli/sweep/", note: "a search for 'fsmonitor' over the sweep package finds no match"}
+      - {ref: ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/artifacts/design-base.md:343", quote: "each with `--no-optional-locks` at index 1"}
+      - {ref: ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/final/qa-readonly-safety-report.md:55", quote: "fix needs an owner note because it changes the pinned NFR-002 argv"}
+    authorization_source: null
+    recommendation: "In PROBES `_git` (:305) add '-c', 'core.fsmonitor=false' after '-C', str(cwd) and pass stdin=subprocess.DEVNULL at :308. This changes the pinned NFR-002 argv (DESIGN section 11, tests/sweep/test_readonly.py), so record an owner note first. Verify with `uv run pytest tests/sweep/test_readonly.py tests/sweep/test_probes_allowlist.py -q`, plus a new real-git test in a tmp_path repo whose config sets core.fsmonitor to a marker script and asserts the script did not run. Follow-up, not a gate."
+    confidence: 0.70
+    provenance:
+      cards: ["V3:R3-F1", "V1 Round 1 position (Drift medium)"]
+      debate: ["C-006", "Round 2 V3 self-correction (already filed as follow-up)"]
+      invariants: []
+    notes:
+      - "Severity lowered from medium to minor (66%): already filed as a [Low] follow-up (TL:3066) and as MINOR RO-1 in qa/final/qa-readonly-safety-report.md (:13 and :55, re-read); the fix changes a pinned argv and needs an owner note. V1 view: medium."
+      - "T1 lead DC-4 proposed class 'none'; both V3 and V1 class it Drift, so DC-4 is not carried as 'none'."
+  - id: F-11
+    title: "Contract and ledger readers accept non-regular files: a FIFO blocks the run and defeats the byte limit"
+    class: drift
+    severity: minor
+    diff_point: "C-007"
+    lead_ref: DC-4
+    location: "PROBES:557-567, PROBES:714-720, PROBES:837"
+    claim: "The ledger and contract readers apply the byte limit to os.stat().st_size (0 for a FIFO, standard POSIX behaviour, not tested here) and then read with no timeout. A FIFO named progress.md or return-contract.yaml inside a scanned worktree would hang the read-only command until the skill's 120 s Bash timeout. SPEC says disk reads are untimed and bounded only by byte limits, so the spec itself leaves this open. The tab-map reader, a sibling, does check is_file."
+    evidence:
+      - {ref: "PROBES:558", quote: "size = os.stat(path).st_size"}
+      - {ref: "PROBES:718", quote: "if os.stat(path).st_size > CONTRACT_LIMIT:"}
+      - {ref: "PROBES:837", quote: "if not path.is_file():"}
+      - {ref: "SPEC:291", quote: "Disk reads are bounded by the byte limits and are not timed."}
+      - {ref: "TL:3066", quote: "transcripts are read without a regular"}
+    authorization_source: null
+    recommendation: "In PROBES `_ledger_has_final` (:557), the contract reader (:714-720) and the transcript reader, check stat.S_ISREG(os.stat(path).st_mode) before open() and return the existing unscanned reason (for example 'not a regular file'). Verify with a new test in tests/sweep/test_probes_allowlist.py that creates a FIFO with os.mkfifo in tmp_path under a fake package and asserts the read returns unscanned within a short timeout, then `uv run pytest tests/sweep -q`. Follow-up, not a gate."
+    confidence: 0.70
+    provenance:
+      cards: ["V3:R3-F2", "V1 Round 1 position (Drift medium)"]
+      debate: ["C-007", "Round 2 V3 self-correction (SPEC :291 untimed)"]
+      invariants: []
+    notes:
+      - "Severity lowered from medium to minor (66%): already a [Low] follow-up (TL:3066) and MINOR RO-2 in qa/final/qa-readonly-safety-report.md (:14 and :56, re-read: 'readers hang on a FIFO; add a regular-file check'); SPEC:291 itself says disk reads are untimed (a SPEC gap). V1 view: medium."
+      - "Citation fix: V3 cited PROBES:837 as the transcript reader; calibration found it is the tab-map reader's is_file check. The sibling point still holds and is stated with the correct reader."
+  - id: F-12
+    title: "JSON report_path and worktree paths go through the Markdown sanitizer; a path containing [ ] \\ < > | is not the real path"
+    class: drift
+    severity: minor
+    diff_point: "C-015"
+    lead_ref: NEW
+    location: "src/superclaude/cli/sweep/report.py:694, report.py:590-598, report.py:664"
+    claim: "DESIGN defines report_path as the absolute path of the published report. to_json applies sanitize() to it, which rewrites '[' to '\\[' and '<' to '&lt;' (and the other listed characters). A checkout path with those characters yields a report_path the skill (step 3) cannot Read, and a JSON consumer receives altered worktree paths. FR-016 targets untrusted text in rendered cells; the path the command publishes is chosen by the tool under <root>/.dev/sweeps/, so low practical impact."
+    evidence:
+      - {ref: "src/superclaude/cli/sweep/report.py:694", quote: '"report_path": sanitize(report_path),'}
+      - {ref: "src/superclaude/cli/sweep/report.py:664", quote: '"path": sanitize(w.path),'}
+      - {ref: "src/superclaude/cli/sweep/report.py:595", quote: '("[", "\\["),'}
+      - {ref: "DESIGN:593", quote: '"report_path": "<absolute path of the published report>"'}
+      - {ref: "src/superclaude/skills/sc-sweep-protocol/SKILL.md:25", quote: "take only `report_path` and `summary`"}
+    authorization_source: null
+    recommendation: "In src/superclaude/cli/sweep/report.py `to_json` emit report_path and worktree paths as plain strings (str(report_path), str(w.path)) and keep sanitize() for Markdown cells only. Verify with a new test in tests/sweep/test_report.py that renders JSON for a path containing '[' and '<' and asserts the JSON value equals the real path, then `uv run pytest tests/sweep/test_report.py -q`. The task notes the same point as FID-F9. Follow-up."
+    confidence: 0.60
+    provenance:
+      cards: ["V3:R3-F5", "V1 Round 1 position (Drift medium)"]
+      debate: ["C-015", "Round 2 V3 lowering (path is tool-chosen; not re-read)"]
+      invariants: []
+    notes:
+      - "Severity lowered from medium to minor (62%). V1 view: medium. V3 did not re-read the sanitizer in Round 2; this merge re-read report.py:590-598, :664 and :694 and confirmed the call sites."
+  - id: F-13
+    title: "Rule 5 (working) is inert by owner decision; DESIGN section 13 has no row, SPEC FR-006 is unamended and the report footnote is silent on working"
+    class: authorized
+    severity: minor
+    diff_point: "C-001 / X-001"
+    lead_ref: DC-1
+    location: "CLASSIFY:251-257, src/superclaude/cli/sweep/report.py:42-45, tests/sweep/test_classify.py:368-376, DESIGN:491, DESIGN:840"
+    claim: "SPEC FR-006 says each class name is reached at least once, but Rule 5 returns None unconditionally and the tests expect every class except working. The owner decision 'All 3 approved' (2026-11-12) edited DESIGN lines 491 and 760 so that Rule 5 stays inert until open item 6 closes; DESIGN wins over SPEC under its section 15.2, so the deviation is authorized. DESIGN section 13 was left at 10 rows and SPEC FR-006 was never amended, so the unmet SPEC criterion is recorded only in the decision file. Residual (Drift minor, FIN-F15): the report footnote names only stalled and fenced, so working: 0 carries no caveat."
+    evidence:
+      - {ref: "SPEC:100", quote: "each class name is reached at least once"}
+      - {ref: "CLASSIFY:252", quote: "Rule 5 cannot match in Phase 1 (DESIGN open item 6)"}
+      - {ref: "CLASSIFY:257", quote: "return None"}
+      - {ref: "tests/sweep/test_classify.py:368", quote: 'matched = "fallback" if rule == "working" else rule'}
+      - {ref: "tests/sweep/test_classify.py:376", quote: "assert reached == set(CLASSES) - {WORKING}"}
+      - {ref: "DESIGN:491", quote: "Rule 5 is inert: it returns None and a row that would reach it falls to the fallback"}
+      - {ref: "DESIGN:840", quote: "Total: 10 deviations."}
+      - {ref: "PLANS/FINAL-GATE-halt-resolution-decision.md:13", quote: "All 3 approved"}
+      - {ref: "PLANS/FINAL-GATE-halt-resolution-decision.md:18", quote: "Edit DESIGN `docs/designs/orchestrator-mode.md` line 491 to say that Rule 5 stays inert"}
+      - {ref: "PLANS/FINAL-GATE-halt-resolution-decision.md:24", quote: "DESIGN section 13 is not changed (no deviation row added"}
+      - {ref: "src/superclaude/cli/sweep/report.py:43", quote: "Stalled and fenced are not observed in Phase 1"}
+      - {ref: "PROBES:432", quote: "No agentWait field is read"}
+      - {ref: ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/discovery/1.0a-facts.md:35", quote: "live name UNVERIFIED"}
+    authorization_source: "PLANS/FINAL-GATE-halt-resolution-decision.md:13 and :18 (owner: 'All 3 approved'; edits DESIGN :491 and :760)"
+    recommendation: "Extend SP24_LINE in src/superclaude/cli/sweep/report.py:42-45 to name `working` (and the agent-wait source) as not observed until open item 6 closes, update the DESIGN D7 pin and tests/sweep/test_report.py to match, or add a DESIGN section 13 row for the FR-006 deviation (total becomes 11) so the unmet SPEC criterion is recorded where readers look. Verify with `uv run pytest tests/sweep/test_report.py -q` and `grep -n 'working' src/superclaude/cli/sweep/report.py`."
+    confidence: 0.88
+    provenance:
+      cards: ["V1:R1-F1", "V1:R1-F2", "V2:R2-F6", "V3 (not examined)"]
+      debate: ["C-001", "X-001", "Round 2 (V1, V2, V3 all end on Authorized)", "A-001 QUALIFY"]
+      invariants: []
+    notes:
+      - "SPEC FR-006 (SPEC:100) was never amended; the owner approved a DESIGN edit only (V2's point, kept visible here even though the class is Authorized)."
+      - "Residual footnote: Drift minor (FIN-F15, tasklist follow-up item at TL:3065): SP24_LINE names only stalled and fenced; working: 0 has no caveat."
+      - "Sub-note: the agent-wait feed of Rule 4(a) can never match on live data because parse_worker_show reads no agentWait; Necessary (inline comment PROBES:432-434 is the only record; DESIGN open item 6 lists only Rule 5 as inert)."
+      - "Not carried: V2's Regression/blocking label (its own authorization_source is the owner approval); the T1 DC-1 proposal is kept for Rule 5, with the Necessary sub-note."
+      - "V1 citation error not carried: 'FINAL-GATE...:18-19' for open item 6 is wrong; the quote 'All 3 approved' is at :13 and the DESIGN edits at :18."
+  - id: F-14
+    title: "Sweep chat-summary exception in pragmatic.md and SKILL.md"
+    class: authorized
+    severity: minor
+    diff_point: "C-014"
+    lead_ref: DC-7
+    location: "DESIGN:1050-1052, src/superclaude/skills/sc-sweep-protocol/SKILL.md:43-51"
+    claim: "The owner chose option (b) through the scoped addendum. The skill and the output style state the same five conditions, and SKILL.md falls back to ordinary formatting when the installed output-style copy has no sweep exception, which is the state until the HOME copy is refreshed by reinstall."
+    evidence:
+      - {ref: "DESIGN:1050", quote: "## Scoped normative addendum: sweep final chat-summary exception"}
+      - {ref: "DESIGN:1052", quote: "The owner chose (b)"}
+      - {ref: "src/superclaude/skills/sc-sweep-protocol/SKILL.md:49", quote: "nothing here is exempt and every reply keeps the ordinary formatting"}
+      - {ref: "src/superclaude/output-styles/pragmatic.md:22", quote: "The only exception is the sweep chat-summary exception"}
+    authorization_source: "DESIGN:1052"
+    recommendation: "No change needed to the text. After merge run `superclaude install` so the HOME output-style copy carries the exception, and confirm with `grep -n 'sweep chat-summary exception' ~/.claude/output-styles/pragmatic.md`. Until then every reply keeps ordinary formatting by design."
+    confidence: 0.85
+    provenance:
+      cards: ["V3:R3-F9"]
+      debate: ["C-014"]
+      invariants: ["INV-013 (not probed, see not_carried)"]
+    notes:
+      - "INV-013 (Rule 5 inert x output-style exception x exempt reply interaction) was not probed by the fault-finder (UNVERIFIED); no evidence to classify it, so it is left out of the findings."
+  - id: F-15
+    title: "The exempt chat reply omits the Orca outage warning under an explicitly accepted limitation (FIN-F7)"
+    class: authorized
+    severity: medium
+    diff_point: "C-010"
+    lead_ref: DC-8
+    location: "src/superclaude/skills/sc-sweep-protocol/SKILL.md:25-35, PLANS/FINAL-GATE-FIN-F7-ruling.md:15-17"
+    claim: "The skill takes only report_path and summary and permits a counts-and-path-only reply, so the exempt reply does not relay an Orca outage on an exit 0 run. The owner ruled FIN-F7 a documented limitation of Phase 1, not fixed in this run, with follow-up work specified. This is an accepted limitation, not a completed fix; the report at the printed path states the outage and the skill requires reading it first."
+    evidence:
+      - {ref: "src/superclaude/skills/sc-sweep-protocol/SKILL.md:25", quote: "take only `report_path` and `summary`"}
+      - {ref: "src/superclaude/skills/sc-sweep-protocol/SKILL.md:35", quote: "only the summary counts and the report path are printed"}
+      - {ref: "PLANS/FINAL-GATE-FIN-F7-ruling.md:15", quote: "FIN-F7 is a documented limitation of Phase 1. It is not fixed in this run."}
+      - {ref: "PLANS/FINAL-GATE-FIN-F7-ruling.md:16", quote: "Final gate: PASS by owner ruling, open: FIN-F7"}
+      - {ref: "PLANS/FINAL-GATE-FIN-F7-ruling.md:11", quote: "The owner pasted back the recommended action as their answer"}
+      - {ref: ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/final/gate-decision.md:13", quote: "FIN-F7 (MAJOR): the chat reply of the exempt `/sc:sweep` run prints the summary counts and the report path alone"}
+    authorization_source: "PLANS/FINAL-GATE-FIN-F7-ruling.md:15-17"
+    recommendation: "Make sure FIN-F7 is in the end-of-run follow-up issue with the ruling's fix list (the sweep exception in pragmatic.md at 7 sites, design-addendum.md lines 29 and 37, DESIGN 7.6 :663, skill steps 3 and 4 and their pins). Verify with `gh issue list --repo IronbellyOrg/IronClaude --search FIN-F7` (always with --repo IronbellyOrg/IronClaude) once the issue is filed."
+    confidence: 0.85
+    provenance:
+      cards: ["V2:R2-F2"]
+      debate: ["C-010"]
+      invariants: []
+    notes:
+      - "Severity medium (calibrator-supported): a user-visible silence during an Orca outage, accepted by the owner."
+      - "The owner's recorded words are the executor's own recommended reply pasted back (PLANS/FINAL-GATE-FIN-F7-ruling.md:11); authorization is real but not independent of the executor's recommendation."
+  - id: F-16
+    title: "HOW-WE-WORK says 'on every wake'; WC-16 says 'on every coordinator wake or wait timeout'"
+    class: authorized
+    severity: minor
+    diff_point: "C-013 / X-004"
+    lead_ref: DC-5
+    location: "src/superclaude/core/HOW-WE-WORK.md:405, src/superclaude/core/WORKER-CONTRACT.md:277, DESIGN:717, DESIGN:680"
+    claim: "Each shipped text copies its DESIGN source word for word: the HOW-WE-WORK bullet is DESIGN row R2 (:717) and WC-16 is DESIGN :680. The wording gap comes from DESIGN itself. The narrower bullet points to WC-16 as the rule, so it does not contradict it. The plugin mirror has the same lines."
+    evidence:
+      - {ref: "src/superclaude/core/HOW-WE-WORK.md:405", quote: "The coordinator runs `/sc:sweep` on every wake, at most once every 5 minutes"}
+      - {ref: "src/superclaude/core/WORKER-CONTRACT.md:277", quote: "On every coordinator wake or wait timeout, at most once every 5 minutes"}
+      - {ref: "DESIGN:717", quote: "The coordinator runs `/sc:sweep` on every wake, at most once every 5 minutes"}
+      - {ref: "DESIGN:680", quote: "On every coordinator wake or wait timeout, at most once every 5 minutes"}
+    authorization_source: "DESIGN:717 (and DESIGN:680)"
+    recommendation: "No change required. Optional: when the owner next edits DESIGN R2, add 'or wait timeout' to the HOW-WE-WORK bullet and its plugin copy and verify with `uv run pytest tests/commands/test_routing_plugin_parity.py tests/core/test_how_we_work_routing_table.py -q`."
+    confidence: 0.80
+    provenance:
+      cards: ["V3:R3-F10"]
+      debate: ["C-013", "X-004"]
+      invariants: []
+    notes:
+      - "T1 lead DC-5 proposed Necessary; not adopted. Both texts copy DESIGN verbatim, so the class is Authorized, not Necessary."
+      - "Open grounding gap carried: byte identity of the two HOW-WE-WORK files was only compared on the sweep lines."
+  - id: F-17
+    title: "Literal all-green validation was not achieved: three environment-caused test failures and twelve unchanged Markdown files in the format check"
+    class: necessary
+    severity: medium
+    diff_point: "C-011"
+    lead_ref: DC-10
+    location: ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/test-results/phase14-full-pytest.md:9-25, TL:2456, TL:2470"
+    claim: "The saved full run has 3 failed and 25252 passed. Two ruff tests fail because ruff is not an importable module in .venv (a system ruff is on PATH; pyproject pins ruff as a dev dependency this venv lacks), and one timing test failed under machine load and passes when run alone. None of them reads a file the diff changed. The format check also lists 12 Markdown files unchanged at base. The detailed completion gate allows documented failures not caused by the task, so this is qualified completion, not a pass of the full suite."
+    evidence:
+      - {ref: ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/test-results/phase14-full-pytest.md:9", quote: "3 failed, 25252 passed, 149 skipped, 2 xpassed"}
+      - {ref: ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/test-results/phase14-full-pytest.md:22", quote: ".venv/bin/python: No module named ruff"}
+      - {ref: ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/test-results/phase14-full-pytest.md:23", quote: "It passed when re-run alone"}
+      - {ref: ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/test-results/phase14-full-pytest.md:25", quote: "each recorded as pre-existing or environment-caused"}
+      - {ref: "TL:2470", quote: "every remaining failure is logged as pre-existing with evidence"}
+      - {ref: ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/test-results/phase14-lint.md:109", quote: "None of the 12 is a file this task created or edited"}
+    authorization_source: "TL:2470"
+    recommendation: "Run `make install` so the dev dependency ruff is importable in .venv, then `uv run pytest tests/cli/eval/test_claude_process_adapter.py -k ruff -q` (both should pass), re-run `uv run pytest tests/hooks/test_launch_level_guard.py -k speed -q` on an idle machine, and state in the PR description that the full-suite result is 'qualified completion' with the three ids and causes. The 12 Markdown format-check files are a separate cleanup and are not this task's."
+    confidence: 0.85
+    provenance:
+      cards: ["V2:R2-F3"]
+      debate: ["C-011"]
+      invariants: []
+    notes:
+      - "qualified completion, not a pass of the full suite. Environmental causes re-confirmed by the orchestrator (ruff missing from .venv; timing test passes alone, 6 passed on isolated re-run per the T1 card)."
+not_carried:
+  - {diff_point: "C-012 / X-005", rejected: "V2 R2-F4 class regression, severity blocking", reason: "Calibrated Drift medium; V2 conceded in Round 2; no behaviour failure shown (88%). Carried as F-02 at Drift medium."}
+  - {diff_point: "C-002 / X-002", rejected: "V2 R2-F5 class regression, severity blocking", reason: "Calibrated Drift low; DESIGN :62 also says tail-only, so no output difference; V2 conceded (85%). Carried as F-05 at Drift minor."}
+  - {diff_point: "C-001 / X-001", rejected: "V2 R2-F6 class regression, severity blocking", reason: "Its own authorization_source is the owner approval (FINAL-GATE-halt-resolution-decision.md:18); calibrated Authorized medium; V2 conceded (88%). Carried as F-13 at Authorized minor."}
+  - {diff_point: "C-002", rejected: "V3 R3-F4 class regression", reason: "V3 withdrew in Round 2; practical risk stated as low; same result as tail-only search."}
+  - {diff_point: "C-003", rejected: "V1 and calibrator class drift medium as the class", reason: "Not adopted as the class (2 of 3 majority, 62%); carried as a dissent note on F-01."}
+  - {diff_point: "C-018", rejected: "V1 R1-F8 class necessary (total_is_lower_bound always True)", reason: "Aligned: DESIGN :346 with :517 (remote hosts never scanned) asks for it; V1 conceded; no finding (85%)."}
+  - {diff_point: "DC-12", rejected: "separate finding for the _git reason wording", reason: "Folded into F-06 (C-005); one diff point, one finding."}
+  - {diff_point: "C-008", rejected: "V1 R1-F7 class authorized for the whole field set", reason: "Calibrated overstated: FINAL-GATE :19 only approves reserved marking; only mtime and agent_wait_since are Necessary. Carried as F-07 split."}
+  - {diff_point: "C-006, C-007, C-015", rejected: "V1 Round 1 Drift medium", reason: "Hardening follow-ups already filed; V3 lowered; severity minor (66%, 66%, 62%); V1 view carried as a note on F-10, F-11, F-12."}
+  - {diff_point: "C-013", rejected: "T1 lead DC-5 necessary_deviation", reason: "Both texts copy DESIGN :717 and :680 verbatim; Authorized minor (80%). Carried as F-16."}
+  - {diff_point: "V2 objectives", rejected: "objective 3 fail, objective 6 fail, objective 7 fail", reason: "Conceded in Round 2; replaced by qualified pass, not fully satisfied, pending (see objective_summary)."}
+  - {diff_point: "INV-013", rejected: "Rule 5 inert x output-style exception x exempt reply interaction", reason: "Not probed (UNVERIFIED); no evidence to classify; left out of the findings."}
+objective_summary:
+  1: {status: pass, basis: "reviewer 2: R3/R4/R5 edits and gate records exist; time fields at models.py:72; closure table DESIGN:1044. Pre-code chronology not reconstructed."}
+  2: {status: pass, basis: "reviewer 2: the three owner-decision records exist with quotations and captured results. Unknown-Run capture instruction conflict remains a grounding gap."}
+  3: {status: qualified_pass, basis: "All six modules exist and registration follows issue-watch (reviewer 2). Exact DESIGN conformity is qualified by F-05 (ledger head never read, misnamed test; Drift minor, no output difference). Reviewer 2's 'fail' was calibrated overstated."}
+  4: {status: pass, basis: "reviewer 2: command and skill exist; WC-16 at WORKER-CONTRACT.md:275; five pin edits in tests/skills/test_worker_contract.py."}
+  5: {status: pass, basis: "reviewer 2: routing rows R1-R8 present (HOW-WE-WORK.md :334 and :405 and plugin copy, registries, docs, CHANGELOG, .gitignore:256)."}
+  6: {status: not_fully_satisfied, basis: "Scoped validation passes (1788 passed, ruff clean on touched files) but the literal all-green objective is unmet (F-17: 3 environment-caused failures, 12 unchanged Markdown files) and acceptance coverage is incomplete (F-02: publication not exercised under full-timeout fakes)."}
+  7: {status: pending, basis: "Final and fidelity gates exist; reflect_post is still empty at the task frontmatter. This audit is the unfinished gate, and an audit cannot classify its own unfinished gate as a deviation."}
+shared_assumption_rulings:
+  A-001: {ruling: QUALIFY, confidence: 0.85, wording: "DESIGN section 15.2 gives DESIGN precedence over REPORT only. A difference from SPEC counts as approved only where DESIGN section 13 lists it or an owner decision names it."}
+  A-002: {ruling: QUALIFY, confidence: 0.82, wording: "A Regression means the work contradicts an acceptance criterion, an explicit constraint or an invariant. A gap only in tests or wording, with identical behaviour, is Drift."}
+  A-004: {ruling: ACCEPT, confidence: 0.85, wording: "A plan item in the task file is not authority to depart from SPEC. An explicit owner decision recorded in the task is."}
+grounding_gaps_carried:
+  - {what: "Staging counts and final staging outcome", source: "reviewer 2 (T1 DC-11)", why_not_classifiable: "No independent index listing; item 14.49 (stage the work unit) is unfinished and end-of-run staging is approved", next_evidence: "a saved index-status artifact after item 14.49; `git diff --cached --name-only | grep ^.claude/` must print nothing except .claude/settings.json (reviewer 3)"}
+  - {what: "Byte identity of src/superclaude/core/HOW-WE-WORK.md and its plugin mirror", source: "reviewer 3", why_not_classifiable: "Only the sweep lines were compared", next_evidence: "uv run pytest tests/commands/test_routing_plugin_parity.py, or cmp of the two files"}
+  - {what: "Whether `orca worktree ps` lists worktrees of other repositories (git status would then run outside this checkout's worktrees)", source: "reviewer 3", why_not_classifiable: "DESIGN :292 authorizes each distinct canonical path from worktree ps; Orca's scope was not captured", next_evidence: "step 1.0a capture of `worktree ps --json` on a host with two repositories"}
+  - {what: "Unknown-Run task-list capture instruction conflict: task item 7.16 restricts Run substitutions while DESIGN :995 requires the unknown-Run task-list error shape", source: "reviewer 2", why_not_classifiable: "the capture records the extra read (artifacts/readonly-probe.md:1071); instruction precedence unresolved", next_evidence: "resolve precedence between the task item 7.16 text, DESIGN :995 and the capture"}
+  - {what: "Adherence to the pragmatic.md exception conditions (T1 DC-7 and INV-013)", source: "invariant-probe and reviewer 3", why_not_classifiable: "pragmatic.md was not re-read for each of the five conditions; the Rule 5 inert x exception x exempt reply interaction was not probed (UNVERIFIED)", next_evidence: "compare the five conditions at SKILL.md:35-41 with the pragmatic.md sweep exception, after reinstall"}
+reviewer_calibration:
+  reviewer-1: 0.65
+  reviewer-2: 0.63
+  reviewer-3: 0.73
+  mean: 0.67
+  calibrator_class: opus
+  calibrator_diversity: degraded
+verdict_inputs:
+  regression_present: true            # F-01, contested (2 of 3; fallback Drift medium)
+  regression_findings: [F-01]
+  unauthorized_drift_count: 11        # F-02 to F-12; F-10 to F-12 are hardening or low-impact follow-ups
+  needs_human_decision: true          # F-01 class, F-04 escalation condition, F-03 record reconciliation
+  human_decisions:
+    - "F-01: confirm Regression or Drift medium, and choose Popen rewrite or a DESIGN section 13 row"
+    - "F-04: decide on the live capture of id-less worker rows (escalates F-04 to a wrong-class bug if Orca emits them)"
+    - "F-03: reconcile the stale DESIGN header (an owner-decision edit) and the task Open Questions"
+  blocking_findings: 0
+  authorized_count: 4                 # F-13 to F-16
+  necessary_count: 1                  # F-17
+  objectives_open: [3, 6, 7]

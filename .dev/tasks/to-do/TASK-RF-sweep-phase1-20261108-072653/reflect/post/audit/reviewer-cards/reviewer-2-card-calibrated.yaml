@@ -1,0 +1,17 @@
+# Wave 3C blind calibration of reviewer-2-card.yaml (confidence-calibrator agent a0c8c36a74e3653a7, model class opus)
+calibrator_model_class: opus
+calibrator_diversity: degraded
+dimension_scores: {citation_grounding: 0.90, coverage_completeness: 0.65, deviation_classification_clarity: 0.40, risk_surface_coverage: 0.75, recommendation_actionability: 0.45}
+C: 0.63
+self_reported_confidence: 0.94
+citations_checked: 33
+citations_failed: 0
+finding_verdicts:
+  R2-F1: {verdict: supported, class: drift, severity: medium}
+  R2-F2: {verdict: supported, class: authorized, severity: medium}
+  R2-F3: {verdict: supported, class: necessary, severity: medium}
+  R2-F4: {verdict: overstated, calibrated_class: drift, calibrated_severity: medium, note: "tests stop at report.render (test_probes_allowlist.py:1144, :1169) while NFR-007 (SPEC :136) and DESIGN :760 claim publication; coverage gap, nothing shows publication fails. The reviewer's 'FIN-F19' cross-reference appears to point at the wrong item."}
+  R2-F5: {verdict: overstated, calibrated_class: drift, calibrated_severity: low, note: "head never read (probes.py:563) but DESIGN :62 also says only the tail is searched; no behaviour change; task logs it as FID-F5 MINOR"}
+  R2-F6: {verdict: overstated, calibrated_class: authorized, calibrated_severity: medium, note: "owner approval recorded at FINAL-GATE-halt-resolution-decision.md:18; the SPEC criterion stays unmet; task logs it as FID-F15 MINOR"}
+objective_check_note: "objective 3 'fail' rests on R2-F5 and is overstated"
+escalate: true

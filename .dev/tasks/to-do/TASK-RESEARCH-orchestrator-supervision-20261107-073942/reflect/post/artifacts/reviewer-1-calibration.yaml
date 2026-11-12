@@ -1,0 +1,20 @@
+# Wave 3C blind calibration of reviewer-1-card.yaml (persisted by orchestrator)
+card: reviewer-1
+calibrator_model_class: haiku
+card_model_class: sonnet
+dimensions:
+  citation_grounding: 0.85
+  coverage_completeness: 0.50
+  deviation_classification_clarity: 1.00
+  risk_surface_coverage: 0.45
+  recommendation_actionability: 0.30
+confidence_calibrated: 0.62
+self_reported: 0.80
+delta: -0.18
+weight_recommendation: downweight
+spot_checks:
+  - "REP:229": ok
+  - "GAPS:125": ok
+  - "GAPS:135": ok
+  - "TASK:374": ok
+notes: "Stale-count evidence matches and categories are clear; scope/web contents not reviewed, broader risks thin, no explicit recommendations with success criteria."

@@ -1,0 +1,87 @@
+input_tree_sha256: daaca8ba3f4f971b641dcacf75f80ee6942775b6f3f0483a7af68eb06f8eccf4
+file_count: 40
+legacy:
+  tasklist: b7763c35d0c47d6e0f1913ad0cdf22a4159503b87e47f5471be9d6c90f561b51
+  spec: 54689d0d0fce250259c23b838c440c8d5e68f695063abe4a90747d0ad26e1cf7
+output_root: /home/coder/workspaces/worktrees/IronClaude/issue-339-orchestrator-mode/.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/reflect/pre-run2
+file_list:
+  - path: .claude/settings.json
+    sha256: 1f535104e6bb9145585a88418d0a094a4b38d6432e3b5fbd6226d550da33d41c
+  - path: .dev/brainstorms/20261108-024258-orchestrator-mode-phase1/merged-requirements.md
+    sha256: 283054b289e95e565220bd8a9efe0375f790af6788849321aed80cf285e33300
+  - path: .dev/orca-command-refactor/decisions/APPROVED.md
+    sha256: d46dffaf862ec9bebc57773f60af4f424a585a9bf5aff10e253139d724c5902b
+  - path: .dev/tasks/to-do/TASK-RESEARCH-orchestrator-supervision-20261107-073942/RESEARCH-REPORT-orchestrator-mode.md
+    sha256: d9963a49d879adf7e8b1ce0363a561fa62b3c0afae27af22f2d07ccd61595e15
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/BUILD-REQUEST.md
+    sha256: d39f19cc08e1d66ceb864c8756d85714a786ae0e3a42252e3de8edca0a13eaa8
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md
+    sha256: b7763c35d0c47d6e0f1913ad0cdf22a4159503b87e47f5471be9d6c90f561b51
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/plans/OQ-1-agent-wait-decision.md
+    sha256: ffb2551a7d99b6e10bf58dfd81a0bf86abf6117bb915d394970ab07975ee1fa7
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/reflect/pre/REPORT.md
+    sha256: 3c495a1adcab2407ebb90b801793ce99c5588f6fce39423de6c19f93dbb11395
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/research/01-file-inventory.md
+    sha256: aaf81366cfe85ccdd74c782685b7048cf9e531a8a3f9ae3e9ee5bd4ec1c6361c
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/research/02-patterns-conventions.md
+    sha256: 49d7fdfba08606e40c65aea6fa3cddda9835e6268f5e21a525812fa2f223ec1a
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/research/03-integration-points.md
+    sha256: 7ef3d2fa4cbbac4948088622efaaf9777f1a41db04e43e0b9224441479778ec4
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/research/04-design-fixes-r3.md
+    sha256: 7fa0bceacf15f80a2ed135f35b9109a0f063f22328af1abb05a62b1625e4c40f
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/research/05-test-verification.md
+    sha256: 8c9c23f435e4685d24f7243437d687965f15d5d300694320faf227ca402c37c8
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/research/06-template-examples.md
+    sha256: 1df32ae11ef92abd8a6c79766b8cccfa9317e25d458b508a0d6a3ee471e37671
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/research/07-reanchor-contract.md
+    sha256: 784547fc8ffedfa74b526e5f3c4cb387e52d78e8817c47cf0f7579ef60e5f429
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/research/08-reanchor-routing.md
+    sha256: 47759f8031aac4e985ded25b0c4b5b0ea669498172c19593879ce6f397069f69
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/research/09-gap-fill.md
+    sha256: c16dd545a42bc3a4472d2bd1b121dba4ecadbc6457c37957748495e8949f0d5e
+  - path: docs/designs/orchestrator-mode-review-1.md
+    sha256: 2b7bdf98f1d65f9634e4c980b785ca0d95381431a6f359da6d29d1de125144ed
+  - path: docs/designs/orchestrator-mode.md
+    sha256: 54689d0d0fce250259c23b838c440c8d5e68f695063abe4a90747d0ad26e1cf7
+  - path: docs/developer-guide/SuperClaude-Developer-Guide-Commands-Skills-Agents.md
+    sha256: 091df47422c4f3ffcb133f9c811066f00870f6c23c7aaafbb0432a7206da0410
+  - path: docs/user-guide/commands.md
+    sha256: 03301cf7b079fbc7ad854cc2ae8630c3a77695c8789093881bee25e658311047
+  - path: src/superclaude/cli/main.py
+    sha256: 9e811bec7d2e8bd5196eed293dbd947c643ed071317c86c88ad9487cde663c4b
+  - path: src/superclaude/cli/recommend/__init__.py
+    sha256: fb963a9aa966125e7b8161f798891cfe59aa0fd1c944795f0c16170fb3bf4a95
+  - path: src/superclaude/cli/sprint/recovery.py
+    sha256: e6967cc4f6081aeefdc99f5b7b548e29b993236653afc0543be794d2684cd520
+  - path: src/superclaude/cli/swarm/atomic.py
+    sha256: a858a3dbba2404388d39ff3e6a6cc6595786ca760e4387dd91d618fd867411ca
+  - path: src/superclaude/commands/graph.md
+    sha256: 08c184023c29d3f75116eee01c17a7a7e6092db2cf9960a36ad9af1de3920844
+  - path: src/superclaude/commands/issue.md
+    sha256: 21edff9283c711b7361c5fb07399c60b1bbc49c468a8290098ea5025a70dc4fb
+  - path: src/superclaude/core/CLAUDE.md
+    sha256: f5e1ba51afaa05116dd2176ce01f7f0a75379b6feafad8cd2ff3e39683d83cdd
+  - path: src/superclaude/core/HOW-WE-WORK.md
+    sha256: 39902f7daeb824fce820d190ac28dc11bc1f6161309afbd4f0616050c003a58d
+  - path: src/superclaude/core/WORKER-CONTRACT.md
+    sha256: 5fbf2f2e201bd40c98d21348814f5b94d3dadc48697722fed1fa8e031b6f7698
+  - path: src/superclaude/output-styles/pragmatic.md
+    sha256: ba551b7d3d7fe1d2881cb567271e6588b199a130ecee542ecd86c892a47b7489
+  - path: src/superclaude/pytest_plugin.py
+    sha256: 7032be80d90a66b6bd446fd3831c61c74e87bc0765648a1988563a97cc069e78
+  - path: src/superclaude/skills/sc-graph-protocol/SKILL.md
+    sha256: 798fae148341498da3f681a089baeca05572568dbdb505b213d57929979e00bc
+  - path: tests/cli/reflect/conftest.py
+    sha256: 57e115f16160696a9e51839ccb96143e2dd36a362ca3a842f7f62b504a730c89
+  - path: tests/commands/test_graph_command.py
+    sha256: e31cb56053fa6c938e2f1a194fc1f261fb7babb04b1191e6da3b47c9daffde28
+  - path: tests/commands/test_routing_plugin_parity.py
+    sha256: c362104ffdea66a1164d0903a251f3fb11e614c02c60258a3b476b7e16aaa123
+  - path: tests/core/test_how_we_work_routing_table.py
+    sha256: f55a4a3f1bd115a6a7bc4a7ec6659edf6a08698da9bd1de6c5dfc16f874f89dd
+  - path: tests/pr_submit/test_conflict_scripts.py
+    sha256: 40b5508986bee8b5e90bb4663779b1f192b01fa3d451ff3ce99b7a0db696e923
+  - path: tests/recommend/test_routing_refresh.py
+    sha256: 6c8c123fbfc01a01bb67a9ff7a15cfa09049eb38866634cab6ab8edc7550f8db
+  - path: tests/skills/test_worker_contract.py
+    sha256: 1fb7e9c7f96b31741a2082601ec3561737f57040075aae3be42e56f3991528cd

@@ -1,0 +1,248 @@
+{
+  "id": "00000000-0000-4000-8000-000000000040",
+  "ok": true,
+  "result": {
+    "worktrees": [
+      {
+        "workspaceKind": "git",
+        "worktreeId": "00000000-0000-4000-8000-000000000003::/home/user/workspaces/worktrees/IronClaude/issue-339-orchestrator-mode",
+        "repoId": "00000000-0000-4000-8000-000000000003",
+        "hostId": "local",
+        "terminalPlatform": "linux",
+        "repo": "IronClaude",
+        "path": "/home/user/workspaces/worktrees/IronClaude/issue-339-orchestrator-mode",
+        "branch": "refs/heads/ironbelly/issue-339-orchestrator-mode",
+        "isArchived": false,
+        "isMainWorktree": false,
+        "hasHostSidebarActivity": true,
+        "defaultBranch": false,
+        "worktreeInstanceId": "00000000-0000-4000-8000-000000000041",
+        "parentWorktreeId": null,
+        "childWorktreeIds": [],
+        "displayName": "issue-339-orchestrator-mode",
+        "workspaceStatus": "in-progress",
+        "sortOrder": 1794432910840,
+        "lastActivityAt": 1794432847370,
+        "createdAt": 1794035783506,
+        "creatorProvenance": {
+          "kind": "host"
+        },
+        "linkedIssue": null,
+        "linkedPR": null,
+        "linkedLinearIssue": null,
+        "linkedGitLabMR": null,
+        "linkedGitLabIssue": null,
+        "linkedItems": [],
+        "comment": "",
+        "isPinned": false,
+        "isActive": false,
+        "unread": true,
+        "liveTerminalCount": 3,
+        "hasAttachedPty": true,
+        "unverifiableTerminalCount": 0,
+        "lastOutputAt": 1794433035574,
+        "preview": "<text removed>",
+        "status": "working",
+        "agents": [
+          {
+            "paneKey": "00000000-0000-4000-8000-000000000042:00000000-0000-4000-8000-000000000043",
+            "parentPaneKey": null,
+            "state": "done",
+            "agentType": "claude",
+            "prompt": "",
+            "taskTitle": null,
+            "displayName": null,
+            "lastAssistantMessage": null,
+            "toolName": null,
+            "toolInput": null,
+            "interrupted": false,
+            "mainAgent": {
+              "state": "done",
+              "stateStartedAt": 1794416372758
+            },
+            "stateStartedAt": 1794278610980,
+            "updatedAt": 1794416372759,
+            "hasLivePty": true
+          },
+          {
+            "paneKey": "00000000-0000-4000-8000-000000000044:00000000-0000-4000-8000-000000000045",
+            "parentPaneKey": null,
+            "state": "working",
+            "agentType": "claude",
+            "prompt": "<text removed>",
+            "taskTitle": null,
+            "displayName": null,
+            "lastAssistantMessage": null,
+            "toolName": "Bash",
+            "toolInput": "<text removed>",
+            "interrupted": false,
+            "mainAgent": {
+              "state": "working",
+              "stateStartedAt": 1794432991745
+            },
+            "stateStartedAt": 1794432741245,
+            "updatedAt": 1794433034986,
+            "hasLivePty": true
+          }
+        ],
+        "sidebarStatus": "working",
+        "terminalVerdict": "live"
+      },
+      {
+        "workspaceKind": "git",
+        "worktreeId": "00000000-0000-4000-8000-000000000046::/home/user/workspaces/Coder",
+        "repoId": "00000000-0000-4000-8000-000000000046",
+        "hostId": "local",
+        "terminalPlatform": "linux",
+        "repo": "Coder",
+        "path": "/home/user/workspaces/Coder",
+        "branch": "refs/heads/main",
+        "isArchived": false,
+        "isMainWorktree": true,
+        "hasHostSidebarActivity": true,
+        "defaultBranch": true,
+        "worktreeInstanceId": "00000000-0000-4000-8000-000000000047",
+        "parentWorktreeId": null,
+        "childWorktreeIds": [],
+        "displayName": "main",
+        "workspaceStatus": "todo",
+        "sortOrder": 1794432917840,
+        "lastActivityAt": 1794432158579,
+        "linkedIssue": null,
+        "linkedPR": null,
+        "linkedLinearIssue": null,
+        "linkedGitLabMR": null,
+        "linkedGitLabIssue": null,
+        "linkedItems": [],
+        "comment": "",
+        "isPinned": true,
+        "isActive": false,
+        "unread": true,
+        "liveTerminalCount": 1,
+        "hasAttachedPty": true,
+        "unverifiableTerminalCount": 0,
+        "lastOutputAt": 1794432915266,
+        "preview": "<text removed>",
+        "status": "active",
+        "agents": [
+          {
+            "paneKey": "00000000-0000-4000-8000-000000000048:00000000-0000-4000-8000-000000000049",
+            "parentPaneKey": null,
+            "state": "done",
+            "agentType": "claude",
+            "prompt": "<text removed>",
+            "taskTitle": null,
+            "displayName": null,
+            "lastAssistantMessage": "<text removed>",
+            "toolName": "Bash",
+            "toolInput": "<text removed>",
+            "interrupted": false,
+            "mainAgent": {
+              "state": "done",
+              "stateStartedAt": 1794432914749
+            },
+            "stateStartedAt": 1794432914749,
+            "updatedAt": 1794432914749,
+            "subagents": [
+              {
+                "id": "aua-adoption-gap-c955c9427d25b51a",
+                "state": "idle",
+                "startedAt": 1794425270799,
+                "agentType": "ua-adoption-gap"
+              },
+              {
+                "id": "aua-coordinator-surfaces-dcad5e7dad4ff213",
+                "state": "idle",
+                "startedAt": 1794425281681,
+                "agentType": "ua-coordinator-surfaces"
+              },
+              {
+                "id": "aua-worker-guard-535cccca6212e82f",
+                "state": "idle",
+                "startedAt": 1794425292850,
+                "agentType": "ua-worker-guard"
+              },
+              {
+                "id": "aua-headless-callers-fad28c08663b4de1",
+                "state": "idle",
+                "startedAt": 1794425302015,
+                "agentType": "ua-headless-callers"
+              },
+              {
+                "id": "aua-risk-adversary-3616ab26c31f6caa",
+                "state": "idle",
+                "startedAt": 1794425313209,
+                "agentType": "ua-risk-adversary"
+              },
+              {
+                "id": "aua-per-command-value-1bc1d9541256faa6",
+                "state": "idle",
+                "startedAt": 1794425320524,
+                "agentType": "ua-per-command-value"
+              }
+            ],
+            "hasLivePty": true,
+            "subagentObservation": "live"
+          }
+        ],
+        "sidebarStatus": "done",
+        "terminalVerdict": "live"
+      },
+      {
+        "workspaceKind": "git",
+        "worktreeId": "00000000-0000-4000-8000-000000000046::/home/user/workspaces/worktrees/Coder/dashboard-bmad",
+        "repoId": "00000000-0000-4000-8000-000000000046",
+        "hostId": "local",
+        "terminalPlatform": "linux",
+        "repo": "Coder",
+        "path": "/home/user/workspaces/worktrees/Coder/dashboard-bmad",
+        "branch": "refs/heads/ironbelly/dashboard-bmad",
+        "isArchived": false,
+        "isMainWorktree": false,
+        "hasHostSidebarActivity": true,
+        "defaultBranch": false,
+        "worktreeInstanceId": "00000000-0000-4000-8000-000000000050",
+        "parentWorktreeId": null,
+        "childWorktreeIds": [],
+        "displayName": "dashboard-bmad",
+        "workspaceStatus": "in-progress",
+        "sortOrder": 1794432896840,
+        "lastActivityAt": 1794159373817,
+        "createdAt": 1794159373817,
+        "creatorProvenance": {
+          "kind": "host"
+        },
+        "linkedIssue": null,
+        "linkedPR": null,
+        "linkedLinearIssue": null,
+        "linkedGitLabMR": null,
+        "linkedGitLabIssue": null,
+        "linkedItems": [],
+        "comment": "",
+        "isPinned": false,
+        "isActive": false,
+        "unread": false,
+        "liveTerminalCount": 1,
+        "hasAttachedPty": true,
+        "unverifiableTerminalCount": 0,
+        "lastOutputAt": 1794415285560,
+        "preview": "<text removed>",
+        "status": "active",
+        "agents": [],
+        "sidebarStatus": "active",
+        "terminalVerdict": "live"
+      }
+    ],
+    "hostScope": {
+      "hostIds": [
+        "local"
+      ],
+      "omittedHostIds": []
+    },
+    "totalCount": 3,
+    "truncated": false
+  },
+  "_meta": {
+    "runtimeId": "00000000-0000-4000-8000-000000000004"
+  }
+}

@@ -1,0 +1,1322 @@
+[
+ {
+  "n": 1,
+  "where": "/findings[0]/evidence[0]",
+  "ref": "TL:1274",
+  "path": ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md",
+  "start": 1274,
+  "end": 1274,
+  "quote": "When the owner allowlist branch fires, confirm that each decision file exists with `needs_human_decision: true`, `status: PENDING` and the empty `Chosen:`, `Decided by:` and `Decision source:` lines",
+  "mechanical_ok": true
+ },
+ {
+  "n": 2,
+  "where": "/findings[0]/evidence[1]",
+  "ref": "TL:1274",
+  "path": ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md",
+  "start": 1274,
+  "end": 1274,
+  "quote": "and that the task is halted (frontmatter `status` and `blocker_reason` set by the HALT rule) before any step 1.2 item runs",
+  "mechanical_ok": true
+ },
+ {
+  "n": 3,
+  "where": "/findings[0]/evidence[2]",
+  "ref": "TL:1272",
+  "path": ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md",
+  "start": 1272,
+  "end": 1272,
+  "quote": "it sets `status: RESOLVED`, appends the decision to `### Execution Log`, resets the task `status` to \"\ud83d\udfe0 Doing\", and clears `blocker_reason`",
+  "mechanical_ok": true
+ },
+ {
+  "n": 4,
+  "where": "/findings[0]/evidence[3]",
+  "ref": "TL:1275",
+  "path": ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md",
+  "start": 1275,
+  "end": 1275,
+  "quote": "The facts file is written with no open HALT.",
+  "mechanical_ok": true
+ },
+ {
+  "n": 5,
+  "where": "/findings[0]/evidence[4]",
+  "ref": "TL:1270",
+  "path": ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md",
+  "start": 1270,
+  "end": 1270,
+  "quote": "1. The branch first writes a decision file `phase-outputs/plans/OQ-<n>-<topic>-decision.md` under the task folder",
+  "mechanical_ok": true
+ },
+ {
+  "n": 6,
+  "where": "/findings[0]/evidence[5]",
+  "ref": "TL:1270",
+  "path": ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md",
+  "start": 1270,
+  "end": 1270,
+  "quote": "step 1 appends no second row.",
+  "mechanical_ok": true
+ },
+ {
+  "n": 7,
+  "where": "/findings[0]/evidence[6]",
+  "ref": "TL:195",
+  "path": ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md",
+  "start": 195,
+  "end": 195,
+  "quote": "STOP, and do not tick the item.",
+  "mechanical_ok": true
+ },
+ {
+  "n": 8,
+  "where": "/findings[0]/evidence[7]",
+  "ref": "TL:1266",
+  "path": ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md",
+  "start": 1266,
+  "end": 1266,
+  "quote": "- [ ] **7.17 \u2014 Record the 1.0a facts the code needs (L1)**",
+  "mechanical_ok": true
+ },
+ {
+  "n": 9,
+  "where": "/findings[0]/evidence[8]",
+  "ref": "SK:535",
+  "path": "/home/coder/.claude/skills/task/SKILL.md",
+  "start": 535,
+  "end": 535,
+  "quote": "Scan for the first `- [ ]` item. This is where execution resumes.",
+  "mechanical_ok": true
+ },
+ {
+  "n": 10,
+  "where": "/findings[0]/evidence[9]",
+  "ref": "SK:183",
+  "path": "/home/coder/.claude/skills/task/SKILL.md",
+  "start": 183,
+  "end": 183,
+  "quote": "mark the item `- [x]` with a note in Task Log explaining what was blocked and why, then continue to next item.",
+  "mechanical_ok": true
+ },
+ {
+  "n": 11,
+  "where": "/findings[0]/evidence[10]",
+  "ref": "TL:1271",
+  "path": ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md",
+  "start": 1271,
+  "end": 1271,
+  "quote": "2. An owner approval triggers this follow-up work: a DESIGN edit item for 7.3, 11, 12 and 15.1 with its own review gate",
+  "mechanical_ok": true
+ },
+ {
+  "n": 12,
+  "where": "/findings[0]/evidence[11]",
+  "ref": "TL:1271",
+  "path": ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md",
+  "start": 1271,
+  "end": 1271,
+  "quote": "and a re-run of the R5 review gate (6.5 to 6.22) over the new edit.",
+  "mechanical_ok": true
+ },
+ {
+  "n": 13,
+  "where": "/findings[0]/evidence[12]",
+  "ref": "TL:1011",
+  "path": ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md",
+  "start": 1011,
+  "end": 1011,
+  "quote": "- [x] **6.5 \u2014 QA r5, agent 1 of 9: rf-qa, template-conformance lens (report-only)**",
+  "mechanical_ok": true
+ },
+ {
+  "n": 14,
+  "where": "/findings[0]/evidence[13]",
+  "ref": "TL:1130",
+  "path": ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md",
+  "start": 1130,
+  "end": 1130,
+  "quote": "- [x] **6.22 \u2014 QA r5: gate decision (L5, proceed or HALT)**",
+  "mechanical_ok": true
+ },
+ {
+  "n": 15,
+  "where": "/findings[0]/evidence[14]",
+  "ref": "SK:537",
+  "path": "/home/coder/.claude/skills/task/SKILL.md",
+  "start": 537,
+  "end": 537,
+  "quote": "Do NOT re-execute any `- [x]` items",
+  "mechanical_ok": true
+ },
+ {
+  "n": 16,
+  "where": "/findings[0]/evidence[15]",
+  "ref": "TL:3016",
+  "path": ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md",
+  "start": 3016,
+  "end": 3016,
+  "quote": "no new checkbox/task heading/numbered task",
+  "mechanical_ok": true
+ },
+ {
+  "n": 17,
+  "where": "/findings[0]/evidence[16]",
+  "ref": "TL:3016",
+  "path": ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md",
+  "start": 3016,
+  "end": 3016,
+  "quote": "This note is not an executable checklist.",
+  "mechanical_ok": true
+ },
+ {
+  "n": 18,
+  "where": "/findings[0]/evidence[17]",
+  "ref": "BR:17",
+  "path": ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/revisions/plan-defect-fixes-20261110/BUILD-REQUEST.md",
+  "start": 17,
+  "end": 17,
+  "quote": "Allowed: the 82 labels of R1 (`../chat-output-exception-20261109-133150/delta-manifest.md`, DM:21-117) plus 13.1, 8.19 and 10.5.",
+  "mechanical_ok": true
+ },
+ {
+  "n": 19,
+  "where": "/findings[0]/evidence[18]",
+  "ref": "BASE:1274",
+  "path": ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/revisions/plan-defect-fixes-20261110/baseline/task-before-rev2.md",
+  "start": 1274,
+  "end": 1274,
+  "quote": "When the owner allowlist branch fires, confirm that each decision file exists with `needs_human_decision: true`, `status: PENDING`",
+  "mechanical_ok": true
+ },
+ {
+  "n": 20,
+  "where": "/findings[1]/evidence[0]",
+  "ref": "TL:1321",
+  "path": ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md",
+  "start": 1321,
+  "end": 1321,
+  "quote": "Prove or disprove that every command in readonly-probe.md is one of templates 1 to 8 of DESIGN 7.3 or a file read, that no forbidden token (worker-read, gate-list, check, inbox, --include-remote, git stash, run-current --json) was run",
+  "mechanical_ok": true
+ },
+ {
+  "n": 21,
+  "where": "/findings[1]/evidence[1]",
+  "ref": "TL:1321",
+  "path": ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md",
+  "start": 1321,
+  "end": 1321,
+  "quote": "that ALLOWED_ORCA holds ten templates with the two worktree ps --agent-wait forms as templates 9 and 10",
+  "mechanical_ok": true
+ },
+ {
+  "n": 22,
+  "where": "/findings[1]/evidence[2]",
+  "ref": "TL:1321",
+  "path": ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md",
+  "start": 1321,
+  "end": 1321,
+  "quote": "Each breach is BLOCKING.",
+  "mechanical_ok": true
+ },
+ {
+  "n": 23,
+  "where": "/findings[1]/evidence[3]",
+  "ref": "TL:1320",
+  "path": ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md",
+  "start": 1320,
+  "end": 1320,
+  "quote": "plus any OQ-17 or OQ-18 decision record in that folder that item 7.17 wrote",
+  "mechanical_ok": true
+ },
+ {
+  "n": 24,
+  "where": "/findings[1]/evidence[4]",
+  "ref": "TL:1271",
+  "path": ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md",
+  "start": 1271,
+  "end": 1271,
+  "quote": "the 8.10 and 10.3 count source changed from the literal 10 to the approved count recorded in the 1.0a facts file; the 7.16 forbidden list and its grep (item 7.16 Context and Verification) updated to allow the approved argv and a re-capture of it",
+  "mechanical_ok": true
+ },
+ {
+  "n": 25,
+  "where": "/findings[1]/evidence[5]",
+  "ref": "DESIGN:559",
+  "path": "docs/designs/orchestrator-mode.md",
+  "start": 559,
+  "end": 559,
+  "quote": "it is added only after step 1.0a captures the cursor field, as one extra template",
+  "mechanical_ok": true
+ },
+ {
+  "n": 26,
+  "where": "/findings[1]/evidence[6]",
+  "ref": "DESIGN:557",
+  "path": "docs/designs/orchestrator-mode.md",
+  "start": 557,
+  "end": 557,
+  "quote": "that is a template change and needs the same owner note as any other allowlist change",
+  "mechanical_ok": true
+ },
+ {
+  "n": 27,
+  "where": "/findings[1]/evidence[7]",
+  "ref": "TL:1363",
+  "path": ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md",
+  "start": 1363,
+  "end": 1363,
+  "quote": "it may never change a decision's `Chosen:` line or re-run a live Orca command. A finding that needs the owner or a new capture is left OPEN with that reason.",
+  "mechanical_ok": true
+ },
+ {
+  "n": 28,
+  "where": "/findings[1]/evidence[8]",
+  "ref": "TL:1384",
+  "path": ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md",
+  "start": 1384,
+  "end": 1384,
+  "quote": "(b) Monotonicity: if `|F_1| >= |F_0|`, write `[HALT-MONOTONICITY] |F|=<n>`",
+  "mechanical_ok": true
+ },
+ {
+  "n": 29,
+  "where": "/findings[1]/evidence[9]",
+  "ref": "TL:1412",
+  "path": ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md",
+  "start": 1412,
+  "end": 1412,
+  "quote": "and escalate the open BLOCKING and MAJOR findings to the user",
+  "mechanical_ok": true
+ },
+ {
+  "n": 30,
+  "where": "/findings[1]/evidence[10]",
+  "ref": "TL:1415",
+  "path": ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md",
+  "start": 1415,
+  "end": 1415,
+  "quote": "`Decisions gate: PASS` (at any cycle) is recorded.",
+  "mechanical_ok": true
+ },
+ {
+  "n": 31,
+  "where": "/findings[1]/evidence[11]",
+  "ref": "TL:1272",
+  "path": ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md",
+  "start": 1272,
+  "end": 1272,
+  "quote": "8.10 then keeps `ALLOWED_ORCA` at exactly 10",
+  "mechanical_ok": true
+ },
+ {
+  "n": 32,
+  "where": "/findings[1]/evidence[12]",
+  "ref": "TL:1363",
+  "path": ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md",
+  "start": 1363,
+  "end": 1363,
+  "quote": "`.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/discovery/1.0a-facts.md`, the fixtures under `tests/sweep/fixtures/`",
+  "mechanical_ok": true
+ },
+ {
+  "n": 33,
+  "where": "/findings[1]/evidence[13]",
+  "ref": "TL:1041",
+  "path": ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md",
+  "start": 1041,
+  "end": 1041,
+  "quote": "that step 1.0a runs only templates 1 to 8",
+  "mechanical_ok": true
+ },
+ {
+  "n": 34,
+  "where": "/findings[1]/evidence[14]",
+  "ref": "DM:27",
+  "path": ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/revisions/chat-output-exception-20261109-133150/delta-manifest.md",
+  "start": 27,
+  "end": 27,
+  "quote": "| 7.24 | Read-only safety lens | Add scoped inputs; distinguish build-time Markdown edit from runtime writes/probes. |",
+  "mechanical_ok": true
+ },
+ {
+  "n": 35,
+  "where": "/findings[1]/evidence[15]",
+  "ref": "BR:7",
+  "path": ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/revisions/plan-defect-fixes-20261110/BUILD-REQUEST.md",
+  "start": 7,
+  "end": 7,
+  "quote": "Authorize a second bounded revision now covering F-01 to F-10",
+  "mechanical_ok": true
+ },
+ {
+  "n": 36,
+  "where": "/findings[1]/evidence[16]",
+  "ref": "BASE:1321",
+  "path": ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/revisions/plan-defect-fixes-20261110/baseline/task-before-rev2.md",
+  "start": 1321,
+  "end": 1321,
+  "quote": "that ALLOWED_ORCA holds ten templates with the two worktree ps --agent-wait forms as templates 9 and 10",
+  "mechanical_ok": true
+ },
+ {
+  "n": 37,
+  "where": "/findings[2]/evidence[0]",
+  "ref": "TL:1363",
+  "path": ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md",
+  "start": 1363,
+  "end": 1363,
+  "quote": "record the output of `sha256sum .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/revisions/chat-output-exception-20261109-133150/design-addendum.md",
+  "mechanical_ok": true
+ },
+ {
+  "n": 38,
+  "where": "/findings[2]/evidence[1]",
+  "ref": "TL:1363",
+  "path": ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md",
+  "start": 1363,
+  "end": 1363,
+  "quote": "in `.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/decisions/fix-log-cycle1.md` (hash only the OQ-6 record",
+  "mechanical_ok": true
+ },
+ {
+  "n": 39,
+  "where": "/findings[2]/evidence[2]",
+  "ref": "TL:1363",
+  "path": ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md",
+  "start": 1363,
+  "end": 1363,
+  "quote": "Write a fix log listing each finding id, the change, and the `file:line` after the change.",
+  "mechanical_ok": true
+ },
+ {
+  "n": 40,
+  "where": "/findings[2]/evidence[3]",
+  "ref": "TL:1363",
+  "path": ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md",
+  "start": 1363,
+  "end": 1363,
+  "quote": "and the output path `.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/decisions/fix-log-cycle1.md`",
+  "mechanical_ok": true
+ },
+ {
+  "n": 41,
+  "where": "/findings[2]/evidence[4]",
+  "ref": "TL:1363",
+  "path": ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md",
+  "start": 1363,
+  "end": 1363,
+  "quote": "after the agent returns, re-run that command first and append a PASS line only when all four sums are unchanged. Then spawn ONE `rf-qa` agent",
+  "mechanical_ok": true
+ },
+ {
+  "n": 42,
+  "where": "/findings[2]/evidence[5]",
+  "ref": "TL:1391",
+  "path": ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md",
+  "start": 1391,
+  "end": 1391,
+  "quote": "in `.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/decisions/fix-log-cycle2.md` (hash only the OQ-6 record",
+  "mechanical_ok": true
+ },
+ {
+  "n": 43,
+  "where": "/findings[2]/evidence[6]",
+  "ref": "TL:1391",
+  "path": ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md",
+  "start": 1391,
+  "end": 1391,
+  "quote": "and the output path `.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/decisions/fix-log-cycle2.md`",
+  "mechanical_ok": true
+ },
+ {
+  "n": 44,
+  "where": "/findings[2]/evidence[7]",
+  "ref": "TL:1365",
+  "path": ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md",
+  "start": 1365,
+  "end": 1365,
+  "quote": "every appended re-check line is PASS. If the fix agent fails to return twice, log the blocker in `### Phase 7 Findings` and stop.",
+  "mechanical_ok": true
+ },
+ {
+  "n": 45,
+  "where": "/findings[2]/evidence[8]",
+  "ref": "TL:1210",
+  "path": ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md",
+  "start": 1210,
+  "end": 1210,
+  "quote": "because a resumed session does not remember the chat",
+  "mechanical_ok": true
+ },
+ {
+  "n": 46,
+  "where": "/findings[2]/evidence[9]",
+  "ref": "TL:2614",
+  "path": ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md",
+  "start": 2614,
+  "end": 2614,
+  "quote": "record the output of `sha256sum docs/designs/orchestrator-mode.md",
+  "mechanical_ok": true
+ },
+ {
+  "n": 47,
+  "where": "/findings[2]/evidence[10]",
+  "ref": "DM:32",
+  "path": ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/revisions/chat-output-exception-20261109-133150/delta-manifest.md",
+  "start": 32,
+  "end": 32,
+  "quote": "| 7.30 | Serialized fix cycle1 |",
+  "mechanical_ok": true
+ },
+ {
+  "n": 48,
+  "where": "/findings[2]/evidence[11]",
+  "ref": "DM:35",
+  "path": ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/revisions/chat-output-exception-20261109-133150/delta-manifest.md",
+  "start": 35,
+  "end": 35,
+  "quote": "| 7.34 | Serialized fix cycle2 |",
+  "mechanical_ok": true
+ },
+ {
+  "n": 49,
+  "where": "/findings[2]/evidence[12]",
+  "ref": "DM:100",
+  "path": ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/revisions/chat-output-exception-20261109-133150/delta-manifest.md",
+  "start": 100,
+  "end": 100,
+  "quote": "| 14.25 | Serialized final fix cycle1 |",
+  "mechanical_ok": true
+ },
+ {
+  "n": 50,
+  "where": "/findings[2]/evidence[13]",
+  "ref": "BR:31",
+  "path": ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/revisions/plan-defect-fixes-20261110/BUILD-REQUEST.md",
+  "start": 31,
+  "end": 31,
+  "quote": "| F-07 | LOW | 7.30, 7.34 |",
+  "mechanical_ok": true
+ },
+ {
+  "n": 51,
+  "where": "/findings[3]/evidence[0]",
+  "ref": "TL:1363",
+  "path": ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md",
+  "start": 1363,
+  "end": 1363,
+  "quote": "For the bounded exception only, also permit `src/superclaude/output-styles/pragmatic.md` and `.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/test-results/step-7.10-style-exception.md`",
+  "mechanical_ok": true
+ },
+ {
+  "n": 52,
+  "where": "/findings[3]/evidence[1]",
+  "ref": "TL:1363",
+  "path": ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md",
+  "start": 1363,
+  "end": 1363,
+  "quote": "`grep -c 'Except for the sweep chat-summary exception above,' src/superclaude/output-styles/pragmatic.md` (expect 6), and the sha256 sums recorded before the spawn (all unchanged)",
+  "mechanical_ok": true
+ },
+ {
+  "n": 53,
+  "where": "/findings[3]/evidence[2]",
+  "ref": "TL:1391",
+  "path": ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md",
+  "start": 1391,
+  "end": 1391,
+  "quote": "For the bounded exception only, also permit `src/superclaude/output-styles/pragmatic.md` and `.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/test-results/step-7.10-style-exception.md`",
+  "mechanical_ok": true
+ },
+ {
+  "n": 54,
+  "where": "/findings[3]/evidence[3]",
+  "ref": "TL:1293",
+  "path": ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md",
+  "start": 1293,
+  "end": 1293,
+  "quote": "run `grep -c '^## Execution authorization (verbatim)' .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/test-results/step-7.10-style-exception.md`, expect 1, then read that section",
+  "mechanical_ok": true
+ },
+ {
+  "n": 55,
+  "where": "/findings[4]/evidence[0]",
+  "ref": "TL:1210",
+  "path": ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md",
+  "start": 1210,
+  "end": 1210,
+  "quote": "look first for the `## Execution authorization (verbatim)` section in the result file named in Output, because a resumed session does not remember the chat",
+  "mechanical_ok": true
+ },
+ {
+  "n": 56,
+  "where": "/findings[4]/evidence[1]",
+  "ref": "TL:1210",
+  "path": ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md",
+  "start": 1210,
+  "end": 1210,
+  "quote": "and only after first writing the dated verbatim text of the owner's separate execution authorization",
+  "mechanical_ok": true
+ },
+ {
+  "n": 57,
+  "where": "/findings[4]/evidence[2]",
+  "ref": "TL:1210",
+  "path": ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md",
+  "start": 1210,
+  "end": 1210,
+  "quote": "On failure log negative evidence in Phase 7 Findings and remain incomplete.",
+  "mechanical_ok": true
+ },
+ {
+  "n": 58,
+  "where": "/findings[4]/evidence[3]",
+  "ref": "TL:1211",
+  "path": ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md",
+  "start": 1211,
+  "end": 1211,
+  "quote": "with the `## Execution authorization (verbatim)` section written first (later content is appended below it, never overwriting it)",
+  "mechanical_ok": true
+ },
+ {
+  "n": 59,
+  "where": "/findings[4]/evidence[4]",
+  "ref": "TL:1293",
+  "path": ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md",
+  "start": 1293,
+  "end": 1293,
+  "quote": "`grep -c 'Except for the sweep chat-summary exception above,' src/superclaude/output-styles/pragmatic.md`, expect 6, one per separate later restatement line",
+  "mechanical_ok": true
+ },
+ {
+  "n": 60,
+  "where": "/findings[4]/evidence[5]",
+  "ref": "TL:3020",
+  "path": ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md",
+  "start": 3020,
+  "end": 3020,
+  "quote": "Keep T138's original start `a09f6a12b0dce12e63b5b781a10a7be5446be367`",
+  "mechanical_ok": true
+ },
+ {
+  "n": 61,
+  "where": "/findings[4]/evidence[6]",
+  "ref": "DM:21",
+  "path": ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/revisions/chat-output-exception-20261109-133150/delta-manifest.md",
+  "start": 21,
+  "end": 21,
+  "quote": "| 7.10 | Owner HALT with legacy title/AC1 |",
+  "mechanical_ok": true
+ },
+ {
+  "n": 62,
+  "where": "/findings[5]/evidence[0]",
+  "ref": "ADD:17",
+  "path": ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/revisions/chat-output-exception-20261109-133150/design-addendum.md",
+  "start": 17,
+  "end": 17,
+  "quote": "do not reconstruct role from files or history",
+  "mechanical_ok": true
+ },
+ {
+  "n": 63,
+  "where": "/findings[5]/evidence[1]",
+  "ref": "ADD:19",
+  "path": ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/revisions/chat-output-exception-20261109-133150/design-addendum.md",
+  "start": 19,
+  "end": 19,
+  "quote": "never print a fabricated successful summary or hide an error to fit the success format",
+  "mechanical_ok": true
+ },
+ {
+  "n": 64,
+  "where": "/findings[5]/evidence[2]",
+  "ref": "ADD:19",
+  "path": ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/revisions/chat-output-exception-20261109-133150/design-addendum.md",
+  "start": 19,
+  "end": 19,
+  "quote": "Formatting never authorizes advice prohibited by the sweep skill.",
+  "mechanical_ok": true
+ },
+ {
+  "n": 65,
+  "where": "/findings[5]/evidence[3]",
+  "ref": "TL:1210",
+  "path": ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md",
+  "start": 1210,
+  "end": 1210,
+  "quote": "the rule says \"Formatting never authorizes advice the sweep skill prohibits\"",
+  "mechanical_ok": true
+ },
+ {
+  "n": 66,
+  "where": "/findings[5]/evidence[4]",
+  "ref": "TL:1210",
+  "path": ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md",
+  "start": 1210,
+  "end": 1210,
+  "quote": "Preserve visible exit1/2 stderr and accurate other errors with ordinary formatting",
+  "mechanical_ok": true
+ },
+ {
+  "n": 67,
+  "where": "/findings[5]/evidence[5]",
+  "ref": "BR:27",
+  "path": ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/revisions/plan-defect-fixes-20261110/BUILD-REQUEST.md",
+  "start": 27,
+  "end": 27,
+  "quote": "loaded skill/style do not assign, \"Formatting never authorizes advice prohibited by the sweep skill\", chat-presentation only",
+  "mechanical_ok": true
+ },
+ {
+  "n": 68,
+  "where": "/findings[5]/evidence[6]",
+  "ref": "MV3:180",
+  "path": ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/revisions/chat-output-exception-20261109-133150/reflect/pre/adversarial/merged-verdict.yaml",
+  "start": 180,
+  "end": 180,
+  "quote": "that formatting never authorizes advice the sweep skill prohibits (ADD:19 sentence 4)",
+  "mechanical_ok": true
+ },
+ {
+  "n": 69,
+  "where": "/findings[5]/evidence[7]",
+  "ref": "TL:1980",
+  "path": ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md",
+  "start": 1980,
+  "end": 1980,
+  "quote": "use ordinary formatting without fabricated success or prohibited advice",
+  "mechanical_ok": true
+ },
+ {
+  "n": 70,
+  "where": "/findings[5]/evidence[8]",
+  "ref": "ADD:21",
+  "path": ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/revisions/chat-output-exception-20261109-133150/design-addendum.md",
+  "start": 21,
+  "end": 21,
+  "quote": "All other applicable style, truthfulness, safety, and error-reporting rules remain in force.",
+  "mechanical_ok": true
+ },
+ {
+  "n": 71,
+  "where": "/findings[6]/evidence[0]",
+  "ref": "TL:1293",
+  "path": ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md",
+  "start": 1293,
+  "end": 1293,
+  "quote": "it must hold a dated verbatim quote of the owner's separate execution authorization and the paths of the fresh structural, alignment, qualitative and PRE reports as supplied with it",
+  "mechanical_ok": true
+ },
+ {
+  "n": 72,
+  "where": "/findings[6]/evidence[1]",
+  "ref": "TL:1293",
+  "path": ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md",
+  "start": 1293,
+  "end": 1293,
+  "quote": "or, when the separate execution authorization is a later dated owner message, that message as supplied with the fresh reports",
+  "mechanical_ok": true
+ },
+ {
+  "n": 73,
+  "where": "/findings[6]/evidence[2]",
+  "ref": "TL:1293",
+  "path": ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md",
+  "start": 1293,
+  "end": 1293,
+  "quote": "a quote written by the executor is a record of that authorization, not independent evidence, so a mismatch or an empty section is a FAIL",
+  "mechanical_ok": true
+ },
+ {
+  "n": 74,
+  "where": "/findings[6]/evidence[3]",
+  "ref": "BR:9",
+  "path": ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/revisions/plan-defect-fixes-20261110/BUILD-REQUEST.md",
+  "start": 9,
+  "end": 9,
+  "quote": "It does not by itself start item 7.10",
+  "mechanical_ok": true
+ },
+ {
+  "n": 75,
+  "where": "/findings[6]/evidence[4]",
+  "ref": "BR:9",
+  "path": ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/revisions/plan-defect-fixes-20261110/BUILD-REQUEST.md",
+  "start": 9,
+  "end": 9,
+  "quote": "the owner's earlier direct instruction \"Already approved plan is confirmed proceed with implementation\" and this answer's \"then execute\" are recorded as the owner's execution direction",
+  "mechanical_ok": true
+ },
+ {
+  "n": 76,
+  "where": "/findings[6]/evidence[5]",
+  "ref": "TL:3020",
+  "path": ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md",
+  "start": 3020,
+  "end": 3020,
+  "quote": "Separate execution authorization remains required after fresh revision checks/PRE.",
+  "mechanical_ok": true
+ },
+ {
+  "n": 77,
+  "where": "/findings[6]/evidence[6]",
+  "ref": "TL:1210",
+  "path": ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md",
+  "start": 1210,
+  "end": 1210,
+  "quote": "keep Blocked, log the exact missing evidence in `### Phase 7 Findings`, STOP without ticking or changing the decision",
+  "mechanical_ok": true
+ },
+ {
+  "n": 78,
+  "where": "/findings[6]/evidence[7]",
+  "ref": "TL:1314",
+  "path": ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md",
+  "start": 1314,
+  "end": 1314,
+  "quote": "revision-check/execution claims to their actual evidence; old PRE/waivers do not approve this delta",
+  "mechanical_ok": true
+ },
+ {
+  "n": 79,
+  "where": "/findings[6]/evidence[8]",
+  "ref": "TL:1295",
+  "path": ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md",
+  "start": 1295,
+  "end": 1295,
+  "quote": "On a FAIL, return to the owning item and re-run this item",
+  "mechanical_ok": true
+ },
+ {
+  "n": 80,
+  "where": "/findings[6]/evidence[9]",
+  "ref": "SK:537",
+  "path": "/home/coder/.claude/skills/task/SKILL.md",
+  "start": 537,
+  "end": 537,
+  "quote": "Do NOT re-execute any `- [x]` items",
+  "mechanical_ok": true
+ },
+ {
+  "n": 81,
+  "where": "/findings[6]/evidence[10]",
+  "ref": "DM:23",
+  "path": ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/revisions/chat-output-exception-20261109-133150/delta-manifest.md",
+  "start": 23,
+  "end": 23,
+  "quote": "| 7.20 | Existing decision/capture mechanical checks |",
+  "mechanical_ok": true
+ },
+ {
+  "n": 82,
+  "where": "/findings[7]/evidence[0]",
+  "ref": "TL:2384",
+  "path": ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md",
+  "start": 2384,
+  "end": 2384,
+  "quote": "The fix agent edits only `src/superclaude/` and `tests/` sources, the docs and `CHANGELOG.md`, never a `.claude/` or installed HOME path",
+  "mechanical_ok": true
+ },
+ {
+  "n": 83,
+  "where": "/findings[7]/evidence[1]",
+  "ref": "TL:2384",
+  "path": ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md",
+  "start": 2384,
+  "end": 2384,
+  "quote": "DESIGN with its append, SPEC, revision authority and severity-test modules are immutable, with any required authority change left OPEN for escalation.",
+  "mechanical_ok": true
+ },
+ {
+  "n": 84,
+  "where": "/findings[7]/evidence[2]",
+  "ref": "TL:2412",
+  "path": ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md",
+  "start": 2412,
+  "end": 2412,
+  "quote": "The fix agent edits only `src/superclaude/` and `tests/` sources, the docs and `CHANGELOG.md`, never a `.claude/` or installed HOME path",
+  "mechanical_ok": true
+ },
+ {
+  "n": 85,
+  "where": "/findings[7]/evidence[3]",
+  "ref": "TL:2614",
+  "path": ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md",
+  "start": 2614,
+  "end": 2614,
+  "quote": "record the output of `sha256sum docs/designs/orchestrator-mode.md",
+  "mechanical_ok": true
+ },
+ {
+  "n": 86,
+  "where": "/findings[7]/evidence[4]",
+  "ref": "DM:73",
+  "path": ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/revisions/chat-output-exception-20261109-133150/delta-manifest.md",
+  "start": 73,
+  "end": 73,
+  "quote": "| 13.18 | Serialized fix cycle1 |",
+  "mechanical_ok": true
+ },
+ {
+  "n": 87,
+  "where": "/findings[7]/evidence[5]",
+  "ref": "DM:76",
+  "path": ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/revisions/chat-output-exception-20261109-133150/delta-manifest.md",
+  "start": 76,
+  "end": 76,
+  "quote": "| 13.22 | Serialized fix cycle2 |",
+  "mechanical_ok": true
+ },
+ {
+  "n": 88,
+  "where": "/findings[7]/evidence[6]",
+  "ref": "BASE:2384",
+  "path": ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/revisions/plan-defect-fixes-20261110/baseline/task-before-rev2.md",
+  "start": 2384,
+  "end": 2384,
+  "quote": "DESIGN with its append, SPEC, revision authority and severity-test modules are immutable, with any required authority change left OPEN for escalation.",
+  "mechanical_ok": true
+ },
+ {
+  "n": 89,
+  "where": "/findings[8]/evidence[0]",
+  "ref": "TL:1267",
+  "path": ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md",
+  "start": 1267,
+  "end": 1267,
+  "quote": "DESIGN line 552: \"The `worker-list` cursor template is not in the set; it is added only after step 1.0a captures the cursor field, as one extra template (SPEC line 320).\"",
+  "mechanical_ok": true
+ },
+ {
+  "n": 90,
+  "where": "/findings[8]/evidence[1]",
+  "ref": "DESIGN:559",
+  "path": "docs/designs/orchestrator-mode.md",
+  "start": 559,
+  "end": 559,
+  "quote": "The `worker-list` cursor template is not in the set; it is added only after step 1.0a captures the cursor field, as one extra template (SPEC line 320).",
+  "mechanical_ok": true
+ },
+ {
+  "n": 91,
+  "where": "/findings[8]/evidence[2]",
+  "ref": "TL:1267",
+  "path": ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md",
+  "start": 1267,
+  "end": 1267,
+  "quote": "DESIGN line 550: a `run-current --json` need \"is a template change and needs the same owner note as any other allowlist change\"",
+  "mechanical_ok": true
+ },
+ {
+  "n": 92,
+  "where": "/findings[8]/evidence[3]",
+  "ref": "DESIGN:557",
+  "path": "docs/designs/orchestrator-mode.md",
+  "start": 557,
+  "end": 557,
+  "quote": "that is a template change and needs the same owner note as any other allowlist change",
+  "mechanical_ok": true
+ },
+ {
+  "n": 93,
+  "where": "/findings[8]/evidence[4]",
+  "ref": "TL:1267",
+  "path": ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md",
+  "start": 1267,
+  "end": 1267,
+  "quote": "DESIGN line 971 (open item 3): \"a `--json` need goes to the owner as an allowlist change\"",
+  "mechanical_ok": true
+ },
+ {
+  "n": 94,
+  "where": "/findings[8]/evidence[5]",
+  "ref": "DESIGN:993",
+  "path": "docs/designs/orchestrator-mode.md",
+  "start": 993,
+  "end": 993,
+  "quote": "a `--json` need goes to the owner as an allowlist change",
+  "mechanical_ok": true
+ },
+ {
+  "n": 95,
+  "where": "/findings[8]/evidence[6]",
+  "ref": "TL:1267",
+  "path": ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md",
+  "start": 1267,
+  "end": 1267,
+  "quote": "DESIGN line 973 (open item 5): \"A full page of `WORKER_LIST_PAGE` rows sets truncated and the total is a lower bound; no cursor template\"",
+  "mechanical_ok": true
+ },
+ {
+  "n": 96,
+  "where": "/findings[8]/evidence[7]",
+  "ref": "DESIGN:995",
+  "path": "docs/designs/orchestrator-mode.md",
+  "start": 995,
+  "end": 995,
+  "quote": "A full page of `WORKER_LIST_PAGE` rows sets truncated and the total is a lower bound; no cursor template",
+  "mechanical_ok": true
+ },
+ {
+  "n": 97,
+  "where": "/findings[8]/evidence[8]",
+  "ref": "TL:2991",
+  "path": ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md",
+  "start": 2991,
+  "end": 2991,
+  "quote": "(DESIGN line 552, SPEC line 320)",
+  "mechanical_ok": true
+ },
+ {
+  "n": 98,
+  "where": "/findings[8]/evidence[9]",
+  "ref": "TL:2992",
+  "path": ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md",
+  "start": 2992,
+  "end": 2992,
+  "quote": "(DESIGN line 550, DESIGN 17 open item 3 at line 971)",
+  "mechanical_ok": true
+ },
+ {
+  "n": 99,
+  "where": "/f_closure[0]/evidence[0]",
+  "ref": "TL:1293",
+  "path": ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md",
+  "start": 1293,
+  "end": 1293,
+  "quote": "this glob counts only the eight prerequisite records, because the optional OQ-17 and OQ-18 records that item 7.17 may write have two-digit numbers and do not match it",
+  "mechanical_ok": true
+ },
+ {
+  "n": 100,
+  "where": "/f_closure[1]/evidence[0]",
+  "ref": "TL:2267",
+  "path": ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md",
+  "start": 2267,
+  "end": 2267,
+  "quote": "(fixed-string search, because the bullet holds backticks and inner double quotes) prints one line, line 404",
+  "mechanical_ok": true
+ },
+ {
+  "n": 101,
+  "where": "/f_closure[2]/evidence[0]",
+  "ref": "TL:1210",
+  "path": ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md",
+  "start": 1210,
+  "end": 1210,
+  "quote": "a direct operative assignment for specified work plus a separate sweep request in the same message is eligible only if the assignment is applicable before execution and every other condition holds",
+  "mechanical_ok": true
+ },
+ {
+  "n": 102,
+  "where": "/f_closure[3]/evidence[0]",
+  "ref": "TL:1211",
+  "path": ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md",
+  "start": 1211,
+  "end": 1211,
+  "quote": "section written first (later content is appended below it, never overwriting it)",
+  "mechanical_ok": true
+ },
+ {
+  "n": 103,
+  "where": "/f_closure[4]/evidence[0]",
+  "ref": "TL:1982",
+  "path": ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md",
+  "start": 1982,
+  "end": 1982,
+  "quote": "A failure caused by `sweep.md` or `SKILL.md` is fixed by returning to the owning item (11.1 or 11.3), correcting the source in place and then re-run this item",
+  "mechanical_ok": true
+ },
+ {
+  "n": 104,
+  "where": "/f_closure[5]/evidence[0]",
+  "ref": "TL:1292",
+  "path": ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md",
+  "start": 1292,
+  "end": 1292,
+  "quote": "Pre-7.10 source anchor for the style scope: `src/superclaude/output-styles/pragmatic.md:22` held the unqualified table mandate; after item 7.10 it holds the scoped sweep exception.",
+  "mechanical_ok": true
+ },
+ {
+  "n": 105,
+  "where": "/f_closure[6]/evidence[0]",
+  "ref": "TL:1363",
+  "path": ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md",
+  "start": 1363,
+  "end": 1363,
+  "quote": "after the agent returns, re-run that command first and append a PASS line only when all four sums are unchanged",
+  "mechanical_ok": true
+ },
+ {
+  "n": 106,
+  "where": "/f_closure[7]/evidence[0]",
+  "ref": "TL:1293",
+  "path": ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md",
+  "start": 1293,
+  "end": 1293,
+  "quote": "expect 6, one per separate later restatement line; the primary rule line is not counted",
+  "mechanical_ok": true
+ },
+ {
+  "n": 107,
+  "where": "/f_closure[7]/evidence[1]",
+  "ref": "STYLE:22",
+  "path": "src/superclaude/output-styles/pragmatic.md",
+  "start": 22,
+  "end": 22,
+  "quote": "EVERY response includes a DONE / NEXT table. No exceptions.",
+  "mechanical_ok": true
+ },
+ {
+  "n": 108,
+  "where": "/f_closure[8]/evidence[0]",
+  "ref": "TL:1210",
+  "path": ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md",
+  "start": 1210,
+  "end": 1210,
+  "quote": "This item's Branch 1 and Branch 2 replace the Phase 7 preamble Branches 1 and 2 for this item only",
+  "mechanical_ok": true
+ },
+ {
+  "n": 109,
+  "where": "/f_closure[9]/evidence[0]",
+  "ref": "TL:1551",
+  "path": ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md",
+  "start": 1551,
+  "end": 1551,
+  "quote": "the report layout follows the recorded GQ-35 decision (the recorded GQ-63 decision governs only the sweep skill's chat reply, not the report file layout)",
+  "mechanical_ok": true
+ },
+ {
+  "n": 110,
+  "where": "/f_closure[9]/evidence[1]",
+  "ref": "TL:1812",
+  "path": ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md",
+  "start": 1812,
+  "end": 1812,
+  "quote": "The report layout follows the OQ-4 (GQ-35) record; the OQ-6 (GQ-63) record governs only the sweep skill's chat reply, not the report file layout.",
+  "mechanical_ok": true
+ },
+ {
+  "n": 111,
+  "where": "/f_closure[9]/evidence[2]",
+  "ref": "OQ6:12",
+  "path": ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/plans/OQ-6-GQ-63-done-next-decision.md",
+  "start": 12,
+  "end": 12,
+  "quote": "this decision affects only the sweep skill's chat reply, not the report file's layout.",
+  "mechanical_ok": true
+ },
+ {
+  "n": 112,
+  "where": "/row_coverage/evidence[0]",
+  "ref": "CM:42",
+  "path": ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/revisions/plan-defect-fixes-20261110/reflect/pre/coverage-matrix.yaml",
+  "start": 42,
+  "end": 42,
+  "quote": "parsed_count: 127",
+  "mechanical_ok": true
+ },
+ {
+  "n": 113,
+  "where": "/row_coverage/evidence[1]",
+  "ref": "CM:49",
+  "path": ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/revisions/plan-defect-fixes-20261110/reflect/pre/coverage-matrix.yaml",
+  "start": 49,
+  "end": 49,
+  "quote": "matched_parsed: 127",
+  "mechanical_ok": true
+ },
+ {
+  "n": 114,
+  "where": "/row_coverage/evidence[2]",
+  "ref": "CM:56",
+  "path": ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/revisions/plan-defect-fixes-20261110/reflect/pre/coverage-matrix.yaml",
+  "start": 56,
+  "end": 56,
+  "quote": "coverage_pct_union: 0.99",
+  "mechanical_ok": true
+ },
+ {
+  "n": 115,
+  "where": "/row_coverage/evidence[3]",
+  "ref": "CM:62",
+  "path": ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/revisions/plan-defect-fixes-20261110/reflect/pre/coverage-matrix.yaml",
+  "start": 62,
+  "end": 62,
+  "quote": "unmapped_requirements_union: [\"INF-017\", \"INF-A29\"]",
+  "mechanical_ok": true
+ },
+ {
+  "n": 116,
+  "where": "/row_coverage/evidence[4]",
+  "ref": "CM:1",
+  "path": ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/revisions/plan-defect-fixes-20261110/reflect/pre/coverage-matrix.yaml",
+  "start": 1,
+  "end": 1,
+  "quote": "INF-A06 and INF-A08 changed to covered by the second revision.",
+  "mechanical_ok": true
+ },
+ {
+  "n": 117,
+  "where": "/row_coverage/evidence[5]",
+  "ref": "CM:7",
+  "path": ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/revisions/plan-defect-fixes-20261110/reflect/pre/coverage-matrix.yaml",
+  "start": 7,
+  "end": 7,
+  "quote": "run: 4",
+  "mechanical_ok": true
+ },
+ {
+  "n": 118,
+  "where": "/row_coverage/dispositions[0]/evidence[0]",
+  "ref": "CM:256",
+  "path": ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/revisions/plan-defect-fixes-20261110/reflect/pre/coverage-matrix.yaml",
+  "start": 256,
+  "end": 256,
+  "quote": "run 4: the 7.10 Action (TL:1210) now embeds the same-message case (second revision, F-03), as 11.3 (TL:1973) and 11.4 (TL:1980) already did; was partial in run 3",
+  "mechanical_ok": true
+ },
+ {
+  "n": 119,
+  "where": "/row_coverage/dispositions[1]/evidence[0]",
+  "ref": "CM:258",
+  "path": ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/revisions/plan-defect-fixes-20261110/reflect/pre/coverage-matrix.yaml",
+  "start": 258,
+  "end": 258,
+  "quote": "run 4: 7.10 (TL:1210) now quotes 'Formatting never authorizes advice the sweep skill prohibits' and keeps placement (second revision, F-03)",
+  "mechanical_ok": true
+ },
+ {
+  "n": 120,
+  "where": "/row_coverage/dispositions[2]/evidence[0]",
+  "ref": "CM:225",
+  "path": ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/revisions/plan-defect-fixes-20261110/reflect/pre/coverage-matrix.yaml",
+  "start": 225,
+  "end": 225,
+  "quote": "whether that counts as 'the coordinator' is not stated",
+  "mechanical_ok": true
+ },
+ {
+  "n": 121,
+  "where": "/row_coverage/dispositions[3]/evidence[0]",
+  "ref": "CM:279",
+  "path": ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/revisions/plan-defect-fixes-20261110/reflect/pre/coverage-matrix.yaml",
+  "start": 279,
+  "end": 279,
+  "quote": "future-only rollback rule; no build item is expected and none contradicts it (benign)",
+  "mechanical_ok": true
+ },
+ {
+  "n": 122,
+  "where": "/consequence_evidence[0]",
+  "ref": "BR:19",
+  "path": ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/revisions/plan-defect-fixes-20261110/BUILD-REQUEST.md",
+  "start": 19,
+  "end": 19,
+  "quote": "The edited plan then has a new hash; every earlier sign-off (R1 structural, alignment, qualitative, PRE) is history and must be re-run against it.",
+  "mechanical_ok": true
+ },
+ {
+  "n": 123,
+  "where": "/consequence_evidence[1]",
+  "ref": "BR:18",
+  "path": ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/revisions/plan-defect-fixes-20261110/BUILD-REQUEST.md",
+  "start": 18,
+  "end": 18,
+  "quote": "only existing Context/Action/Output/Verification/Completion-gate lines of those labels may change, each stays ONE physical line",
+  "mechanical_ok": true
+ },
+ {
+  "n": 124,
+  "where": "/residual_notes[0]/evidence[0]",
+  "ref": "TL:1293",
+  "path": ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md",
+  "start": 1293,
+  "end": 1293,
+  "quote": "record SKIP for a file that is absent, which is not a failure",
+  "mechanical_ok": true
+ },
+ {
+  "n": 125,
+  "where": "/residual_notes[0]/evidence[1]",
+  "ref": "TL:1296",
+  "path": ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md",
+  "start": 1296,
+  "end": 1296,
+  "quote": "Every check PASSes.",
+  "mechanical_ok": true
+ },
+ {
+  "n": 126,
+  "where": "/residual_notes[1]/evidence[0]",
+  "ref": "TL:1982",
+  "path": ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md",
+  "start": 1982,
+  "end": 1982,
+  "quote": "log each specific blocker/fix in `### Phase 11 Findings` and stop incomplete until checks pass",
+  "mechanical_ok": true
+ },
+ {
+  "n": 127,
+  "where": "/residual_notes[2]/evidence[0]",
+  "ref": "TL:1295",
+  "path": ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md",
+  "start": 1295,
+  "end": 1295,
+  "quote": "On a FAIL, return to the owning item and re-run this item",
+  "mechanical_ok": true
+ },
+ {
+  "n": 128,
+  "where": "/residual_notes[2]/evidence[1]",
+  "ref": "TL:1982",
+  "path": ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md",
+  "start": 1982,
+  "end": 1982,
+  "quote": "a failure caused by the style file is not sent back to ticked item 7.10",
+  "mechanical_ok": true
+ },
+ {
+  "n": 129,
+  "where": "/residual_notes[3]/evidence[0]",
+  "ref": "TL:3010",
+  "path": ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md",
+  "start": 3010,
+  "end": 3010,
+  "quote": "### Bounded revision metadata: chat-output-exception-20261109-133150",
+  "mechanical_ok": true
+ },
+ {
+  "n": 130,
+  "where": "/residual_notes[3]/evidence[1]",
+  "ref": "BR:17",
+  "path": ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/revisions/plan-defect-fixes-20261110/BUILD-REQUEST.md",
+  "start": 17,
+  "end": 17,
+  "quote": "A short additive note may be appended after the existing R1 note (TL:3010+).",
+  "mechanical_ok": true
+ },
+ {
+  "n": 131,
+  "where": "/residual_notes[4]/evidence[0]",
+  "ref": "TL:1208",
+  "path": ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md",
+  "start": 1208,
+  "end": 1208,
+  "quote": "- [ ] **7.10 \u2014 HALT until the owner decides GQ-63 (OQ-6, L5)**",
+  "mechanical_ok": true
+ },
+ {
+  "n": 132,
+  "where": "/residual_notes[4]/evidence[1]",
+  "ref": "TL:1266",
+  "path": ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md",
+  "start": 1266,
+  "end": 1266,
+  "quote": "- [ ] **7.17 \u2014 Record the 1.0a facts the code needs (L1)**",
+  "mechanical_ok": true
+ }
+]

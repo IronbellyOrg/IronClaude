@@ -31,6 +31,7 @@ _OTHER_COMMANDS = {
     "sc:impact",
     "sc:issue",
     "sc:spawn",
+    "sc:sweep",
     "sc:index",
     "sc:index-repo",
     "sc:agent",

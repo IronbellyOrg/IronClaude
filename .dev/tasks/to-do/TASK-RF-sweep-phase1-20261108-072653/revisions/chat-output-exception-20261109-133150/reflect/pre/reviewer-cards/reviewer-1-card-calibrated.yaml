@@ -1,0 +1,24 @@
+# Blind calibration of reviewer 1's card. Parent-persisted from the confidence-calibrator's returned report (agent a85c281141b02629a, haiku class); scores and notes are the calibrator's.
+schema: sc-reflect-calibration/v1
+card: reviewer-cards/reviewer-1-card.md
+reviewer: {n: 1, persona: analyzer, model_class: sonnet}
+calibrator_model_class: haiku
+self_reported_confidence: 0.72
+calibrated_confidence: 0.69
+delta: -0.03
+dimension_scores: {citation_grounding: 0.70, coverage_completeness: 0.70, deviation_classification_clarity: 0.20, risk_surface_coverage: 0.85, recommendation_actionability: 1.00}
+citations_checked: 26
+citations_failed: 3
+failed_citations:
+  - "TL:353 (cited for a preservation stop) is the 2.16 SPEC-fidelity report path, not preservation text. Appears at card lines for R1-F1 and Notes."
+  - "TL:1209 holds part of 7.10; the quoted 'sign-off or separate direct execution authorization is absent' branch is at TL:1210."
+  - "TL:1272 does not contain the quoted OQ-17 filename; it is at TL:1270 and 1273."
+per_finding:
+  R1-F1: "Baseline vs revised wording and later placement of 11.14 verify. 'No executable repair step' is not established: 'owning source item' is arguably a repair path. The preservation citation at TL:353 fails; the real conditional restore stop is in 7.10 and RBR:26, and does not prove every 7.10 retry ends in a preservation stop."
+  R1-F2: "Supported as a specificity gap (no named carrier for the incoming authorization). Not a demonstrated bypass: 7.10 is fail-closed and tells the executor to read the revision request. Report existence not independently verified."
+  R1-F3: "Strongest verified finding. Broad glob, conditional OQ-17/OQ-18 files and RESOLVED status after approval or refusal verify. Likelihood of the branch firing not verified (not needed for the conditional defect)."
+  R1-F4: "Textual difference verified (same-message sentence in addendum and 11.3/11.4, absent from the 7.10 Action). An inevitable omission and test failure are not proven."
+  R1-F5: "Ambiguity verified (Phase 7 preamble Branch 2 vs 7.10; reconciliation only in the appended note). Bypass overstated: 7.10 itself forbids completion or status restoration before authorized implementation."
+escalation: {verdict: ESCALATE, reason: low_confidence, rule: "C < 0.85", restriction: none}
+not_checked: ["live executor behavior", "full 111-row coverage", "byte identity of unrevised items", "current decision folder inventory", "fresh report existence", "repository-wide absence claims"]
+input_absent: [now_iso, assertions_path]

@@ -1,0 +1,664 @@
+# Merged reviewer verdict: sc:reflect UC-1 pre-execution, run 4, revision plan-defect-fixes-20261110 (second bounded revision).
+# Provenance: produced by /sc:adversarial step 5 (merge executor, Mode A, depth standard, 2026-11-10), from variant-1/2/3-original.md,
+#   debate/consensus.md (finding list, final severity and scope) and invariant-probe.md (fix corrections). The Tier 1 card is reference only.
+# Base variant: variant-2 (reviewer 2, qa, calibrated C 0.86), selected in base-selection.md (0.950 vs 0.883 and 0.850; margin 6.7 points, no tiebreaker).
+# Plan: refactor-plan.md (11 changes, auto-approved). Every severity and scope below equals consensus.md section 1; probe corrections change fix wording only.
+# Convergence status: BLOCKED_BY_INVARIANTS although the diff-point score 0.935 is above 0.80: the probe left INV-R4-003 UNADDRESSED (HIGH)
+#   and INV-R4-011 PARTIAL (HIGH, counted as unaddressed by the gate). Both are carried in findings (M-01, M-02). Neither is recorded as accepted risk.
+# Honesty note: no fix named in this file has been applied to the task file, DESIGN, the addendum, the ledger, any revision artifact or any source.
+#   The three cards audited different slices of the plan, so the base selection ranks card quality, not which slice is more defective.
+#   No merged finding makes a default-path run fail; both HIGH findings bite only if the optional OQ-17/OQ-18 branch fires.
+#   Every evidence quote below was re-checked by script against its cited line range on 2026-11-10 (see merge-log.md).
+schema: sc-reflect-merged-verdict/v1
+merge_method: adversarial
+base_variant: 'variant-2 (reviewer 2, qa; recorded model gpt-6.1-sol in the haiku-class slot; calibrated C 0.86)'
+sources: [variant-1, variant-2, variant-3, debate/consensus.md, invariant-probe.md]
+reference_only: ['../reflection-card-t1.yaml']
+convergence_score: 0.935
+convergence_detail: 'primary reading 29 of 31 diff points agreed (S 7, C 7, X 6, A 9; stated prose positions counted) = 0.935; strict reading (POINT lines only, silence = no position) 24 of 31 = 0.774; cross-check over the 34 S/C/X/U points 32 of 34 = 0.941. Threshold 0.80 met on the primary reading, not on the strict one. Unagreed: X-005 (winner name tied, disposition agreed) and A-006 (one stated position).'
+convergence_status: BLOCKED_BY_INVARIANTS
+worktree_root: '/home/coder/workspaces/worktrees/IronClaude/issue-339-orchestrator-mode'
+plan_under_review: {path_alias: TL, sha256_prefix: eb291f0bdd1a7871, lines: 3020}
+path_aliases:
+  TL: '.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md'
+  BASE: '.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/revisions/plan-defect-fixes-20261110/baseline/task-before-rev2.md'
+  DESIGN: 'docs/designs/orchestrator-mode.md'
+  ADD: '.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/revisions/chat-output-exception-20261109-133150/design-addendum.md'
+  DM: '.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/revisions/chat-output-exception-20261109-133150/delta-manifest.md'
+  BR: '.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/revisions/plan-defect-fixes-20261110/BUILD-REQUEST.md'
+  STYLE: 'src/superclaude/output-styles/pragmatic.md'
+  OQ6: '.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/plans/OQ-6-GQ-63-done-next-decision.md'
+  CM: '.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/revisions/plan-defect-fixes-20261110/reflect/pre/coverage-matrix.yaml'
+  SK: '/home/coder/.claude/skills/task/SKILL.md'
+  MV3: '.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/revisions/chat-output-exception-20261109-133150/reflect/pre/adversarial/merged-verdict.yaml'
+unaddressed_invariants_high:
+  - id: INV-R4-003
+    probe_status: UNADDRESSED
+    carried_in: M-01
+    covered_by: 'M-01 fix part (4): the owner extension that names 7.17 must also cover the approval follow-up of TL:1271 (the DESIGN edit item for 7.3, 11, 12 and 15.1 with its own review gate does not exist in the plan; the R5 re-run targets ticked items 6.5 to 6.22), or the owner accepts that an approval needs a later plan revision. Out of the 85 labels; needs the owner.'
+  - id: INV-R4-011
+    probe_status: PARTIAL (counted as UNADDRESSED by the gate)
+    carried_in: M-02
+    covered_by: 'M-02 fix names all three breaching checks of TL:1321 (probe commands limited to templates 1 to 8, forbidden run-current --json, ten ALLOWED_ORCA templates), anchored in the RESOLVED OQ-17/OQ-18 record. This is the clearing condition the probe states; the gate stays BLOCKED until a remediation brief adopts this wording or the owner accepts the risk.'
+unaddressed_invariants_medium:
+  - {id: INV-R4-009, probe_status: PARTIAL, carried_in: M-02, note: 'approval source must be the RESOLVED OQ record, which the fixer may not change, not 1.0a-facts.md, which it may'}
+  - {id: INV-R4-012, probe_status: UNADDRESSED, carried_in: M-02, note: 'V2 sub-fix for the ticked R5 review inputs dropped (it would edit completed bodies); see not_carried'}
+  - {id: INV-R4-015, probe_status: PARTIAL, carried_in: M-03, note: 'do not re-record the sums on a resumed 7.30/7.34; compare against the existing file'}
+  - {id: INV-R4-026, probe_status: UNADDRESSED, carried_in: M-07, note: 'later-dated-message authorization cannot be re-checked after a resume; a FAIL routes to ticked 7.10; optional 7.20 clause and owner re-supply'}
+unaddressed_invariants_low:
+  - {id: INV-R4-006, probe_status: PARTIAL, carried_in: M-01, note: 'the 7.17 extension must restate the one-physical-line rule'}
+  - {id: INV-R4-019, probe_status: PARTIAL, carried_in: M-03, note: '14.25/14.29/14.38/14.42 parity is inside the 85 but outside F-07; owner acceptance by name'}
+  - {id: INV-R4-020, probe_status: PARTIAL, carried_in: M-04, note: 'heading count alone misses an in-place quote change; re-run the 7.20 read-and-match'}
+  - {id: INV-R4-021, probe_status: PARTIAL, carried_in: M-05, note: 'grep -c counts lines; apply the qualifier per site only where absent'}
+  - {id: INV-R4-022, probe_status: PARTIAL, carried_in: M-05, note: 'before excerpts from the original start, not HEAD'}
+  - {id: INV-R4-025, probe_status: PARTIAL, carried_in: M-06, note: 'settled in this step: ADD:19 and BR:27 read prohibited by the sweep skill; MV3:180 paraphrased it; quote ADD:19'}
+  - {id: INV-R4-030, probe_status: PARTIAL, carried_in: M-09, note: 'cite DESIGN by quoted sentence or section, not by line number'}
+invariants_addressed:
+  - {id: INV-R4-001, note: 'M-01 is routed to an owner extension naming 7.17; an appended note is not counted as the fix'}
+  - {id: INV-R4-002, note: 'first-halt proof moves to the append-only Execution Log row; no predicate is read on the post-resume state'}
+  - {id: INV-R4-004, note: 'both outcomes can fire; a still-PENDING record blocks completion'}
+  - {id: INV-R4-005, note: 'Action step 1 skips writing when the decision file exists'}
+  - {id: INV-R4-007, note: 'the HALT (PENDING) row count stays exactly 1 while INV-R4-005 holds'}
+  - {id: INV-R4-008, note: '7.24 is in the 85 (DM:27); outside F-01..F-10, so owner acceptance by name'}
+  - {id: INV-R4-010, note: 'the clause covers a count change and an argv change together'}
+  - {id: INV-R4-013, note: 'no fix edits the halts at TL:1384 or TL:1412'}
+  - {id: INV-R4-014, note: 'default and refusal paths keep ten templates and the original forbidden argv'}
+  - {id: INV-R4-016, note: 'the sums file is not passed to the fix agent'}
+  - {id: INV-R4-017, note: 'sha256-before-cycleN.txt does not match the 7.29 glob qa-*-report.md'}
+  - {id: INV-R4-018, note: 'PASS/FAIL lines stay in the fix log for the 7.30 Verification'}
+  - {id: INV-R4-023, note: '7.10 is in the surface and unticked'}
+  - {id: INV-R4-024, note: 'M-06 adds 7.10 text only; no new 11.4 assertion'}
+  - {id: INV-R4-027, note: 'V1 owner-saved message file not carried'}
+  - {id: INV-R4-028, note: 'the 13.x baseline goes to a separate file, not the fix log'}
+  - {id: INV-R4-029, note: '13.18/13.22 Action lines stay one line each; the frozen-hash option is not carried'}
+  - {id: INV-R4-031, note: 'no fix rewrites a ticked item, the task log or the ledger'}
+  - {id: INV-R4-032, note: 'no fix removes or changes a 7.20 command or expected value'}
+severity_counts:
+  HIGH: 2
+  MEDIUM: 1
+  LOW: 6
+  total: 9
+authorization_counts:
+  inside_85: 7
+  outside_needs_new_bounded_authorization: 2
+findings:
+  - id: M-01
+    severity: HIGH
+    severity_condition: 'conditional on the 7.17 owner allowlist branch firing (outcome (a) a cursor field captured, or (b) run-current needing --json), for an owner approval and a refusal alike; no effect on the default path'
+    gap_class: unsound-check
+    tag: 'Grounded (the text of TL:1270-1275, TL:195 and SK:535); [INFERRED] consequence, conditional on the branch firing, whose likelihood is unknown (DESIGN:995 gives the behaviour when no cursor template exists)'
+    location: 'TL:1274 (7.17 Verification) against TL:1272 (step 3 resume) and TL:1275 (Completion gate); TL:1270 (Action step 1, no skip when the decision file already exists)'
+    claim: 'When the owner allowlist branch fires, item 7.17 halts unticked, and the task skill resumes at the first unchecked item, so the 7.17 Verification is read after step 3 has set the decision record RESOLVED, filled Chosen:, Decided by: and Decision source:, and cleared the halt. The Verification then demands status: PENDING, the empty owner lines and a halted task, while the Completion gate demands no open HALT, so the two cannot both hold, for an approval and a refusal alike. On the resume the literal Action step 1 would also write a PENDING decision file again over the RESOLVED one (O-001, folded). Every exit is a failure under the caller scale: a silent reinterpretation of the Verification, the task skill generic rule that ticks a blocked item with its check unmet (a required check lost), or a stop that names no blocker.'
+    affected_items: ['7.17', 'every step 1.2 item and later item (blocked behind 7.17)', 'OQ-17 and OQ-18 decision records']
+    evidence:
+      - ref: 'TL:1274'
+        quote: 'When the owner allowlist branch fires, confirm that each decision file exists with `needs_human_decision: true`, `status: PENDING` and the empty `Chosen:`, `Decided by:` and `Decision source:` lines'
+      - ref: 'TL:1274'
+        quote: 'and that the task is halted (frontmatter `status` and `blocker_reason` set by the HALT rule) before any step 1.2 item runs'
+      - ref: 'TL:1272'
+        quote: 'it sets `status: RESOLVED`, appends the decision to `### Execution Log`, resets the task `status` to "🟠 Doing", and clears `blocker_reason`'
+      - ref: 'TL:1275'
+        quote: 'The facts file is written with no open HALT.'
+      - ref: 'TL:1270'
+        quote: '1. The branch first writes a decision file `phase-outputs/plans/OQ-<n>-<topic>-decision.md` under the task folder'
+      - ref: 'TL:1270'
+        quote: 'step 1 appends no second row.'
+      - ref: 'TL:195'
+        quote: 'STOP, and do not tick the item.'
+      - ref: 'TL:1266'
+        quote: '- [ ] **7.17 — Record the 1.0a facts the code needs (L1)**'
+      - ref: 'SK:535'
+        quote: 'Scan for the first `- [ ]` item. This is where execution resumes.'
+      - ref: 'SK:183'
+        quote: 'mark the item `- [x]` with a note in Task Log explaining what was blocked and why, then continue to next item.'
+      - ref: 'TL:1271'
+        quote: '2. An owner approval triggers this follow-up work: a DESIGN edit item for 7.3, 11, 12 and 15.1 with its own review gate'
+      - ref: 'TL:1271'
+        quote: 'and a re-run of the R5 review gate (6.5 to 6.22) over the new edit.'
+      - ref: 'TL:1011'
+        quote: '- [x] **6.5 — QA r5, agent 1 of 9: rf-qa, template-conformance lens (report-only)**'
+      - ref: 'TL:1130'
+        quote: '- [x] **6.22 — QA r5: gate decision (L5, proceed or HALT)**'
+      - ref: 'SK:537'
+        quote: 'Do NOT re-execute any `- [x]` items'
+      - ref: 'TL:3016'
+        quote: 'no new checkbox/task heading/numbered task'
+      - ref: 'TL:3016'
+        quote: 'This note is not an executable checklist.'
+      - ref: 'BR:17'
+        quote: 'Allowed: the 82 labels of R1 (`../chat-output-exception-20261109-133150/delta-manifest.md`, DM:21-117) plus 13.1, 8.19 and 10.5.'
+      - ref: 'BASE:1274'
+        quote: 'When the owner allowlist branch fires, confirm that each decision file exists with `needs_human_decision: true`, `status: PENDING`'
+    recommendation:
+      fix: 'Needs a new owner authorization that names item 7.17, because 7.17 is not one of the 85 allowed labels. Inside that extension: (1) split the 7.17 Verification into a first-halt record and a completion check: the first-halt proof becomes history (the one Execution Log row counted by the existing grep, which must still return exactly 1 per decision file), and at completion each written decision file must be status: RESOLVED with Chosen:, Decided by: and Decision source: filled, the refusal recorded in 1.0a-facts.md or the approval follow-up done, and no open HALT; a record still PENDING must block completion, since both outcomes can fire. (2) In Action step 1, skip writing the decision file when it already exists and reuse it with its owner fields intact, so a resume adds no second HALT (PENDING) row. (3) Keep the Verification on one physical line. (4) The same extension must also cover the approval follow-up of TL:1271: the DESIGN edit item for 7.3, 11, 12 and 15.1 with its own review gate does not exist in the plan, and the R5 re-run of ticked items 6.5 to 6.22 cannot re-execute ticked items, so the owner either authorizes how those are created or accepts that an approval needs a later plan revision. An appended note alone is not a fix (TL:3016).'
+      verifier: 'Walk three cases against the edited 7.17 text: no optional outcome; an outcome fired and refused; an outcome fired and approved with the follow-up in place. Each completed case satisfies the Verification and the Completion gate together; a case with one record still PENDING cannot complete; after a resume the 7.17 HALT (PENDING) row grep still returns exactly 1 per decision file.'
+    authorization: 'outside: needs new bounded authorization'
+    provenance:
+      cards: ['R2-F1 (variant-2, HIGH, base)']
+      debate: ['CONS M-01 and section 4.2', 'C-001', 'X-001', 'X-004', 'U-007', 'O-001 (folded)', 'A-002', 'A-003', 'A-004', 'A-007']
+      change: 'Change 1'
+      invariants: ['INV-R4-001', 'INV-R4-002', 'INV-R4-003', 'INV-R4-004', 'INV-R4-005', 'INV-R4-006', 'INV-R4-007']
+    notes:
+      - 'Severity votes in Round 2: H / H / H (unanimous). Origin pre-existing: TL:1266-1275 are byte-identical to BASE (line hashes compared in this step), and no 7.17 row exists in DM.'
+      - 'INV-R4-003 (HIGH, UNADDRESSED in the probe) is carried here as fix part (4). It was raised in Round 2 by two advocates (R2v1:45, R2v3:15) and checked: grep -n DESIGN edit item on TL prints only lines 1268 and 1271.'
+      - 'Does not block starting 7.10 (TL:1208 comes before 7.16 and 7.17). The Tier 1 card did not raise it; its verified_ok claim that the branch is coherent end to end did not test TL:1274 (diff-analysis X-001).'
+      - 'The task skill line SK:538 (If an item output file exists, that work is done) softens the Action re-run but not the Verification of an unticked item (diff-analysis A-003).'
+  - id: M-02
+    severity: HIGH
+    severity_condition: 'conditional on (i) step 1.0a showing outcome (a) or (b), (ii) the owner approving (a refusal keeps ten templates), (iii) the approval follow-up landing before the 7.21-7.28 panel, and (iv) the lens agent obeying Each breach is BLOCKING; unconditionally MEDIUM; no effect on the default or refusal path'
+    gap_class: unsound-check
+    tag: 'Grounded (TL:1321, TL:1271, DESIGN:557, DESIGN:559); [INFERRED] the approved re-capture lands in readonly-probe.md (from TL:1263 and TL:1271)'
+    location: 'TL:1321 (7.24 Action, read-only safety lens prompt); TL:1271 (7.17 step 2 follow-up list, which omits 7.24); halt chain TL:1363, TL:1384, TL:1412, TL:1415'
+    claim: 'The 7.24 safety lens prompt requires, with no condition, that every command in readonly-probe.md is one of templates 1 to 8, that run-current --json was never run and that ALLOWED_ORCA holds ten templates, and it makes each breach BLOCKING. After an owner-approved OQ-17 or OQ-18 change, the approved re-capture and the eleventh or changed template breach up to three of those checks, although the 7.24 Context (changed by the second revision) now hands the lens the OQ-17/OQ-18 record. The 7.30 and 7.34 fixers must leave a finding that needs the owner or a new capture OPEN, so the decisions gate ends on a monotonicity HALT or the hard cap and cannot record Decisions gate: PASS without a plan edit. Item 7.24 is not on the 7.17 step 2 follow-up list.'
+    affected_items: ['7.24', '7.29', '7.30', '7.33', '7.34', '7.37', '7.17 step 2 follow-up list (via M-01)']
+    evidence:
+      - ref: 'TL:1321'
+        quote: 'Prove or disprove that every command in readonly-probe.md is one of templates 1 to 8 of DESIGN 7.3 or a file read, that no forbidden token (worker-read, gate-list, check, inbox, --include-remote, git stash, run-current --json) was run'
+      - ref: 'TL:1321'
+        quote: 'that ALLOWED_ORCA holds ten templates with the two worktree ps --agent-wait forms as templates 9 and 10'
+      - ref: 'TL:1321'
+        quote: 'Each breach is BLOCKING.'
+      - ref: 'TL:1320'
+        quote: 'plus any OQ-17 or OQ-18 decision record in that folder that item 7.17 wrote'
+      - ref: 'TL:1271'
+        quote: 'the 8.10 and 10.3 count source changed from the literal 10 to the approved count recorded in the 1.0a facts file; the 7.16 forbidden list and its grep (item 7.16 Context and Verification) updated to allow the approved argv and a re-capture of it'
+      - ref: 'DESIGN:559'
+        quote: 'it is added only after step 1.0a captures the cursor field, as one extra template'
+      - ref: 'DESIGN:557'
+        quote: 'that is a template change and needs the same owner note as any other allowlist change'
+      - ref: 'TL:1363'
+        quote: 'it may never change a decision''s `Chosen:` line or re-run a live Orca command. A finding that needs the owner or a new capture is left OPEN with that reason.'
+      - ref: 'TL:1384'
+        quote: '(b) Monotonicity: if `|F_1| >= |F_0|`, write `[HALT-MONOTONICITY] |F|=<n>`'
+      - ref: 'TL:1412'
+        quote: 'and escalate the open BLOCKING and MAJOR findings to the user'
+      - ref: 'TL:1415'
+        quote: '`Decisions gate: PASS` (at any cycle) is recorded.'
+      - ref: 'TL:1272'
+        quote: '8.10 then keeps `ALLOWED_ORCA` at exactly 10'
+      - ref: 'TL:1363'
+        quote: '`.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/discovery/1.0a-facts.md`, the fixtures under `tests/sweep/fixtures/`'
+      - ref: 'TL:1041'
+        quote: 'that step 1.0a runs only templates 1 to 8'
+      - ref: 'DM:27'
+        quote: '| 7.24 | Read-only safety lens | Add scoped inputs; distinguish build-time Markdown edit from runtime writes/probes. |'
+      - ref: 'BR:7'
+        quote: 'Authorize a second bounded revision now covering F-01 to F-10'
+      - ref: 'BASE:1321'
+        quote: 'that ALLOWED_ORCA holds ten templates with the two worktree ps --agent-wait forms as templates 9 and 10'
+    recommendation:
+      fix: 'Inside the 85 labels (DM:27), but 7.24 is not one of F-01 to F-10 (BR:7), so list this edit for owner acceptance by name. Replace the unconditional checks in the 7.24 lens prompt with one conditional clause that names all three: when the 7.17 owner allowlist branch was approved, check the readonly-probe.md commands against templates 1 to 8 plus the approved re-capture, the forbidden tokens minus the approved argv, and ALLOWED_ORCA against the approved count; read the approval from the RESOLVED OQ-17 or OQ-18 record (Chosen: and Decision source: quoting the owner), which the fixer may not change, and require 1.0a-facts.md to match that record; with no approval or with a refusal, keep the ten templates and the original forbidden list. Keep the line one physical line and keep every halt at TL:1384 and TL:1412 as written. Adding 7.24 to the 7.17 step 2 follow-up list rides with the 7.17 extension of M-01, because 7.17 is outside the 85. Do not edit the ticked R5 review items 6.5 to 6.22.'
+      verifier: 'Walk five cases through the edited 7.24 prompt: default path; refusal; approved cursor template (outcome a); approved run-current --json (outcome b); both approved. With the RESOLVED record and a matching 1.0a-facts.md the lens PASSES each case. The same argv or count change FAILS when the OQ record is absent, PENDING or refused, or when 1.0a-facts.md differs from the record.'
+    authorization: 'inside the 85 allowed labels (owner acceptance by name advised: 7.24 is not one of F-01 to F-10)'
+    provenance:
+      cards: ['R2-F2 (variant-2, HIGH, base)']
+      debate: ['CONS M-02 and section 4.1', 'C-001', 'C-005', 'X-001', 'X-004', 'U-008', 'A-004', 'A-007']
+      change: 'Change 2'
+      invariants: ['INV-R4-008', 'INV-R4-009', 'INV-R4-010', 'INV-R4-011', 'INV-R4-012', 'INV-R4-013', 'INV-R4-014']
+    notes:
+      - 'Severity votes in Round 2: H / M / H. The V2 advocate gave MEDIUM (owner handling is a named category of OPEN work, R2v2:19); CONS 4.1 kept HIGH because a correct approved run cannot record Decisions gate: PASS without a plan edit, and a plan revision is a workaround for every defect.'
+      - 'INV-R4-011 (HIGH, PARTIAL in the probe) is closed in this fix text: the one-clause restatement proposed in the diff analysis replaced only the ten-template and run-current rules and left the templates 1 to 8 probe check, which an approved re-capture also breaches.'
+      - 'INV-R4-009 (MEDIUM): the 7.30 fixer may edit 1.0a-facts.md (TL:1363) but never a Chosen: line, so the approval is anchored in the RESOLVED OQ record.'
+      - 'INV-R4-012 (MEDIUM): the base card sub-fix Apply the same qualification to the reused R5 review inputs is dropped; ticked 6.9 (TL:1041) keeps that step 1.0a runs only templates 1 to 8 as history.'
+      - 'Origin pre-existing: TL:1321 is byte-identical to BASE; the second revision changed only the Context line TL:1320. Does not block starting 7.10.'
+  - id: M-03
+    severity: MEDIUM
+    gap_class: guard-evidence-placement
+    tag: 'Grounded (TL:1363, TL:1391); [INFERRED] the loss needs an instructed write that replaces the file, or a resume'
+    location: 'TL:1363 (7.30 Action), TL:1391 (7.34 Action); same pattern, pre-existing, at TL:2614, 2642, 2705, 2733 (14.25, 14.29, 14.38, 14.42)'
+    claim: 'Items 7.30 and 7.34 record the pre-spawn sha256 sums of the four authority files in fix-log-cycle1.md and fix-log-cycle2.md, the same path the fix agent is told to write its fix log to. An instructed write of that file can remove the only durable baseline, and a resumed session cannot rely on chat memory, so the PASS line for all four sums unchanged has nothing to compare against. An honest executor without a baseline cannot append PASS, so the failure is fail-closed and a correct uninterrupted run does not fail. The sentence also puts the after-return re-check before Then spawn, and no action is named for a changed sum.'
+    affected_items: ['7.30', '7.34', '14.25, 14.29, 14.38, 14.42 (parity, optional)']
+    evidence:
+      - ref: 'TL:1363'
+        quote: 'record the output of `sha256sum .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/revisions/chat-output-exception-20261109-133150/design-addendum.md'
+      - ref: 'TL:1363'
+        quote: 'in `.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/decisions/fix-log-cycle1.md` (hash only the OQ-6 record'
+      - ref: 'TL:1363'
+        quote: 'Write a fix log listing each finding id, the change, and the `file:line` after the change.'
+      - ref: 'TL:1363'
+        quote: 'and the output path `.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/decisions/fix-log-cycle1.md`'
+      - ref: 'TL:1363'
+        quote: 'after the agent returns, re-run that command first and append a PASS line only when all four sums are unchanged. Then spawn ONE `rf-qa` agent'
+      - ref: 'TL:1391'
+        quote: 'in `.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/decisions/fix-log-cycle2.md` (hash only the OQ-6 record'
+      - ref: 'TL:1391'
+        quote: 'and the output path `.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/decisions/fix-log-cycle2.md`'
+      - ref: 'TL:1365'
+        quote: 'every appended re-check line is PASS. If the fix agent fails to return twice, log the blocker in `### Phase 7 Findings` and stop.'
+      - ref: 'TL:1210'
+        quote: 'because a resumed session does not remember the chat'
+      - ref: 'TL:2614'
+        quote: 'record the output of `sha256sum docs/designs/orchestrator-mode.md'
+      - ref: 'DM:32'
+        quote: '| 7.30 | Serialized fix cycle1 |'
+      - ref: 'DM:35'
+        quote: '| 7.34 | Serialized fix cycle2 |'
+      - ref: 'DM:100'
+        quote: '| 14.25 | Serialized final fix cycle1 |'
+      - ref: 'BR:31'
+        quote: '| F-07 | LOW | 7.30, 7.34 |'
+    recommendation:
+      fix: 'In 7.30 and 7.34, write the pre-spawn sums to a separate orchestrator-owned file (for example qa/decisions/sha256-before-cycle1.txt and sha256-before-cycle2.txt) that is not passed to the fix agent; if that file already exists on a resume, do not re-record, compare against it; put Then spawn before the after-return re-check; on a changed sum write a FAIL line, log it in Phase 7 Findings and stop. Keep the PASS or FAIL lines in the fix log (TL:1365). The same weakness at 14.25, 14.29, 14.38 and 14.42 is inside the 85 (DM:100, 103, 110, 113) but outside F-07 (BR:31), so a parity edit needs owner acceptance by name; it may also add the second revision request to the 14.x sum lists (Tier 1 L5).'
+      verifier: 'After 7.30 runs, test -s qa/decisions/sha256-before-cycle1.txt exits 0, and the file is byte-identical after the fix agent writes fix-log-cycle1.md; a simulated resume between the spawn and the re-check leaves the sums file unchanged; grep -c sha256-before on TL prints 2 (TL:1363 and TL:1391; 0 today).'
+    authorization: 'inside the 85 allowed labels (7.30 DM:32, 7.34 DM:35; the 14.x parity part is outside F-07, owner acceptance by name)'
+    provenance:
+      cards: ['R1-F3 (variant-1, MEDIUM)', 'T1 L1 (reference, LOW)']
+      debate: ['CONS M-03 and section 4.3', 'C-003', 'X-003', 'U-003', 'A-005']
+      change: 'Change 3'
+      invariants: ['INV-R4-015', 'INV-R4-016', 'INV-R4-017', 'INV-R4-018', 'INV-R4-019']
+    notes:
+      - 'Severity votes in Round 2: L / M / M. The V1 advocate withdrew its premise that an ordinary Write replaces the file as unproven (R2v1:96); CONS 4.3 kept MEDIUM: real impact with a workaround (the orchestrator still holds the sums in an unresumed session).'
+      - 'Origin: introduced by the second revision at 7.30 and 7.34, copying the 14.x house pattern; BASE has sha256sum only on lines 2614, 2642, 2705 and 2733.'
+      - 'INV-R4-015 (MEDIUM): without the do-not-re-record rule a resumed 7.30 would re-take the sums after the fixer ran and the compare would pass trivially.'
+  - id: M-04
+    severity: LOW
+    gap_class: missing-check
+    tag: 'Grounded'
+    location: 'TL:1363 (7.30 Action re-run list), TL:1391 (7.34 Action re-run list) against TL:1293 (7.20 authorization check)'
+    claim: 'The 7.30 and 7.34 fixers may edit the step-7.10 result file that holds the execution authorization section, but their post-fix re-run lists repeat the other 7.20 checks and leave out the 7.20 authorization-section check, so a fixer edit that removes, duplicates or alters that record is not re-checked in the fix cycle.'
+    affected_items: ['7.30', '7.34']
+    evidence:
+      - ref: 'TL:1363'
+        quote: 'For the bounded exception only, also permit `src/superclaude/output-styles/pragmatic.md` and `.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/test-results/step-7.10-style-exception.md`'
+      - ref: 'TL:1363'
+        quote: '`grep -c ''Except for the sweep chat-summary exception above,'' src/superclaude/output-styles/pragmatic.md` (expect 6), and the sha256 sums recorded before the spawn (all unchanged)'
+      - ref: 'TL:1391'
+        quote: 'For the bounded exception only, also permit `src/superclaude/output-styles/pragmatic.md` and `.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/test-results/step-7.10-style-exception.md`'
+      - ref: 'TL:1293'
+        quote: 'run `grep -c ''^## Execution authorization (verbatim)'' .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/test-results/step-7.10-style-exception.md`, expect 1, then read that section'
+    recommendation:
+      fix: 'Add to the 7.30 and 7.34 re-run lists the full 7.20 authorization check: the heading grep (expect 1) and the read-and-match step against the same authority as TL:1293. A heading count alone is not enough, because the count stays 1 when the quote is changed in place, and a sha256 of the section would need an extraction command the plan does not define.'
+      verifier: 'grep -c "Execution authorization (verbatim)" on TL prints 5 after the fix (lines 1210, 1211, 1293, 1363, 1391; 3 today); in a simulated fix cycle that edits the quote, the re-run writes FAIL.'
+    authorization: 'inside the 85 allowed labels'
+    provenance:
+      cards: ['R1-F4 (variant-1, LOW)', 'T1 L2 (reference, LOW)']
+      debate: ['CONS M-04', 'C-002', 'X-002', 'U-004']
+      change: 'Change 4'
+      invariants: ['INV-R4-020', 'INV-R4-032']
+    notes:
+      - 'Severity votes in Round 2: L / L / L. Introduced with the second revision re-run list (F-07, F-08).'
+      - 'INV-R4-020 (LOW): V1 suggested a sha256 of the section; replaced by the read-and-match step.'
+      - 'V1 claim without detection was called too categorical by its calibrator (later verifiers re-check earlier PASS checks); the gap is in the fix cycle itself.'
+  - id: M-05
+    severity: LOW
+    gap_class: missing-rule
+    tag: 'Grounded for the text; [INFERRED] for the duplicate (a possible reading, not a required one)'
+    location: 'TL:1210 (7.10 Action, Branch 2), TL:1211 (7.10 Output); checked by TL:1293'
+    claim: 'Item 7.10 Branch 2 says to write the authorization section first and then edit the style file, but it names no rule for a resume or a retry after a failed bounded check: whether to skip an existing section, to verify rather than re-apply an existing style edit, and where the before excerpts come from. The Action already tells a resumed session to look for the section and the Output says later content is appended, so a duplicate section is a possible reading, not a required one.'
+    affected_items: ['7.10', '7.20 (reads the result)']
+    evidence:
+      - ref: 'TL:1210'
+        quote: 'look first for the `## Execution authorization (verbatim)` section in the result file named in Output, because a resumed session does not remember the chat'
+      - ref: 'TL:1210'
+        quote: 'and only after first writing the dated verbatim text of the owner''s separate execution authorization'
+      - ref: 'TL:1210'
+        quote: 'On failure log negative evidence in Phase 7 Findings and remain incomplete.'
+      - ref: 'TL:1211'
+        quote: 'with the `## Execution authorization (verbatim)` section written first (later content is appended below it, never overwriting it)'
+      - ref: 'TL:1293'
+        quote: '`grep -c ''Except for the sweep chat-summary exception above,'' src/superclaude/output-styles/pragmatic.md`, expect 6, one per separate later restatement line'
+      - ref: 'TL:3020'
+        quote: 'Keep T138''s original start `a09f6a12b0dce12e63b5b781a10a7be5446be367`'
+      - ref: 'DM:21'
+        quote: '| 7.10 | Owner HALT with legacy title/AC1 |'
+    recommendation:
+      fix: 'In the 7.10 Branch 2 text add: on a resume, if the section exists, do not write it again (append a dated re-confirmation line below it if one is needed); if the style file already holds the exception, verify it against the diff instead of re-applying it, and apply the qualifier at each of the six sites only where it is absent; take the before excerpts from the original start a09f6a12b0dce12e63b5b781a10a7be5446be367, not from HEAD. Do not change the 7.20 count instead: grep -c counts lines, so a doubled prefix on one line would still count 6, and changing the 7.20 command is not allowed (invariant G5).'
+      verifier: 'Run 7.10 twice with a simulated failed check between the runs: grep -c "^## Execution authorization (verbatim)" on the result file prints 1, and grep -o "Except for the sweep chat-summary exception above," on STYLE piped to wc -l prints 6.'
+    authorization: 'inside the 85 allowed labels (DM:21)'
+    provenance:
+      cards: ['R1-F2 (variant-1, MEDIUM, downgraded to LOW)', 'T1 L3 (reference, LOW)']
+      debate: ['CONS M-05', 'C-002', 'X-002', 'U-002', 'A-003']
+      change: 'Change 5'
+      invariants: ['INV-R4-021', 'INV-R4-022', 'INV-R4-023']
+    notes:
+      - 'Severity votes in Round 2: L / L / L. The V1 card rated it MEDIUM; all three advocates accept LOW (CONS 4.4).'
+      - 'INV-R4-022 (LOW): a commit that lands before the retry would make HEAD hold the edited text; the plan fixed anchor is the original start (TL:3020).'
+  - id: M-06
+    severity: LOW
+    gap_class: partial
+    tag: 'Grounded for the omission and the rewording; [INFERRED] for any test consequence (no current check greps these words)'
+    location: 'TL:1210 (7.10 Action) against ADD:17, ADD:19 and BR:27'
+    claim: 'The 7.10 Action embeds most addendum clauses but leaves out the ADD:17 clause do not reconstruct role from files or history and the ADD:19 clause never print a fabricated successful summary or hide an error to fit the success format, and it quotes the ADD:19 sentence in reworded form although the second revision request names the exact words. No current check greps these words, and 11.3 and the 11.4 pins already carry the no-fabricated-success rule, so a test consequence is not shown.'
+    affected_items: ['7.10', '11.4 (would read the style source)']
+    evidence:
+      - ref: 'ADD:17'
+        quote: 'do not reconstruct role from files or history'
+      - ref: 'ADD:19'
+        quote: 'never print a fabricated successful summary or hide an error to fit the success format'
+      - ref: 'ADD:19'
+        quote: 'Formatting never authorizes advice prohibited by the sweep skill.'
+      - ref: 'TL:1210'
+        quote: 'the rule says "Formatting never authorizes advice the sweep skill prohibits"'
+      - ref: 'TL:1210'
+        quote: 'Preserve visible exit1/2 stderr and accurate other errors with ordinary formatting'
+      - ref: 'BR:27'
+        quote: 'loaded skill/style do not assign, "Formatting never authorizes advice prohibited by the sweep skill", chat-presentation only'
+      - ref: 'MV3:180'
+        quote: 'that formatting never authorizes advice the sweep skill prohibits (ADD:19 sentence 4)'
+      - ref: 'TL:1980'
+        quote: 'use ordinary formatting without fabricated success or prohibited advice'
+      - ref: 'ADD:21'
+        quote: 'All other applicable style, truthfulness, safety, and error-reporting rules remain in force.'
+    recommendation:
+      fix: 'In the 7.10 Action add never print a fabricated successful summary or hide an error to fit the success format, and do not reconstruct role from files or history, and quote the sentence as ADD:19 and BR:27 word it: "Formatting never authorizes advice prohibited by the sweep skill". Optional, from the Tier 1 card only (not debated): also embed ADD:21 sentence 3. Add no 11.4 assertion (BR:27).'
+      verifier: 'grep -c "fabricated successful summary", grep -c "reconstruct role" and grep -c "advice prohibited by the sweep skill" on TL each print 1 after the fix (0 today, each hit on line 1210).'
+    authorization: 'inside the 85 allowed labels (DM:21); the two omitted clauses are outside the F-03 list of BR:27, so owner acceptance by name is advised'
+    provenance:
+      cards: ['R1-F5 (variant-1, MEDIUM [INFERRED], downgraded to LOW)', 'T1 L6 (reference, LOW)']
+      debate: ['CONS M-06', 'C-004', 'X-007', 'U-005']
+      change: 'Change 6'
+      invariants: ['INV-R4-024', 'INV-R4-025']
+    notes:
+      - 'Severity votes in Round 2: L / L / L.'
+      - 'INV-R4-025 settled in this step: the authoritative wording is ADD:19 (the normative source), which BR:27 repeats; the run 3 merged verdict paraphrased it in its F-03 claim (MV3:180), and TL:1210 copied that paraphrase.'
+      - 'The coverage matrix note on row INF-A08 quotes the reworded TL:1210 literal and still marks the row covered (CM:258); the row stays covered because the meaning is the same.'
+  - id: M-07
+    severity: LOW
+    gap_class: weak-check
+    tag: 'Grounded (TL:1293, BR:9, TL:3020); [INFERRED] the resume loop of INV-R4-026'
+    location: 'TL:1293 (7.20 authorization check); root cause BR:9 (outside the plan)'
+    claim: 'The 7.20 authorization check matches a quote the executor itself writes against the authorization section of the second revision request, whose own text points both ways: it says it does not by itself start 7.10, yet records the owner earlier instruction and then execute as the execution direction. The later-dated-message branch has no on-disk comparator. 7.20 is a record check; the gate that matters is 7.10 Branch 1, which refuses to start without separate authorization and fresh checks, and the 7.23 lens traces execution claims to their evidence.'
+    affected_items: ['7.20', '7.10 (the real gate)', '7.23 (evidence lens)']
+    evidence:
+      - ref: 'TL:1293'
+        quote: 'it must hold a dated verbatim quote of the owner''s separate execution authorization and the paths of the fresh structural, alignment, qualitative and PRE reports as supplied with it'
+      - ref: 'TL:1293'
+        quote: 'or, when the separate execution authorization is a later dated owner message, that message as supplied with the fresh reports'
+      - ref: 'TL:1293'
+        quote: 'a quote written by the executor is a record of that authorization, not independent evidence, so a mismatch or an empty section is a FAIL'
+      - ref: 'BR:9'
+        quote: 'It does not by itself start item 7.10'
+      - ref: 'BR:9'
+        quote: 'the owner''s earlier direct instruction "Already approved plan is confirmed proceed with implementation" and this answer''s "then execute" are recorded as the owner''s execution direction'
+      - ref: 'TL:3020'
+        quote: 'Separate execution authorization remains required after fresh revision checks/PRE.'
+      - ref: 'TL:1210'
+        quote: 'keep Blocked, log the exact missing evidence in `### Phase 7 Findings`, STOP without ticking or changing the decision'
+      - ref: 'TL:1314'
+        quote: 'revision-check/execution claims to their actual evidence; old PRE/waivers do not approve this delta'
+      - ref: 'TL:1295'
+        quote: 'On a FAIL, return to the owning item and re-run this item'
+      - ref: 'SK:537'
+        quote: 'Do NOT re-execute any `- [x]` items'
+      - ref: 'DM:23'
+        quote: '| 7.20 | Existing decision/capture mechanical checks |'
+    recommendation:
+      fix: 'Keep the deliberate match target (second revision row B2-1); do not adopt the variant-1 fix that has the owner save the message to a named file, which is an owner action the plan does not create. Two optional clarifications: (a) outside the plan, the owner states which of the BR:9 instructions is the separate execution authorization for 7.10, which removes the two-way reading at its root; (b) in 7.20, for a later dated owner message after a resume, require the owner to re-supply that message with the fresh reports, and state that a FAIL of this check after 7.10 is ticked is logged as a blocker for the owner, not a re-run of ticked 7.10.'
+      verifier: 'For (b): a walk of the case later dated message plus resume plus mismatch ends in a named blocker, not in a return to ticked 7.10; grep -c "re-supply" on TL prints 1 after the fix (0 today).'
+    authorization: 'inside the 85 allowed labels for 7.20 (DM:23); the root ambiguity in BR:9 is outside the plan'
+    provenance:
+      cards: ['R1-F1 (variant-1, MEDIUM, downgraded to LOW)', 'T1 L8 (reference, LOW)']
+      debate: ['CONS M-07', 'C-002', 'X-005', 'U-001']
+      change: 'Change 7'
+      invariants: ['INV-R4-026', 'INV-R4-027']
+    notes:
+      - 'Severity votes in Round 2: L / L / L. V1 conceded that its verifier claim Today 7.20 returns PASS was overstated (R1v1:58); all three rejected it (CONS X-005).'
+      - 'INV-R4-026 (MEDIUM, conditional on a later-message authorization and a resume before 7.20, UNADDRESSED in the debate): a resumed session holds that message only in the 7.10 record under test, so the check self-compares or fails, and a FAIL routes to ticked 7.10 (TL:1295, SK:537). Carried as optional fix (b).'
+  - id: M-08
+    severity: LOW
+    gap_class: missing-guard
+    tag: '[INFERRED] (the risk rests on the behaviour of a spawned fix agent); the text is Grounded'
+    location: 'TL:2384 (13.18 Action), TL:2412 (13.22 Action)'
+    claim: 'The docs-gate fix agents in 13.18 and 13.22 may edit the docs, and DESIGN lives under docs/; DESIGN immutability there rests on one prose sentence with no sha256 check before and after the spawn, unlike 7.30, 7.34 and the 14.x fixers, and the 14.x hashes are taken only when those items start, so a DESIGN change made in Phase 13 would not be caught.'
+    affected_items: ['13.18', '13.22', '14.25 (hash taken at its own start)']
+    evidence:
+      - ref: 'TL:2384'
+        quote: 'The fix agent edits only `src/superclaude/` and `tests/` sources, the docs and `CHANGELOG.md`, never a `.claude/` or installed HOME path'
+      - ref: 'TL:2384'
+        quote: 'DESIGN with its append, SPEC, revision authority and severity-test modules are immutable, with any required authority change left OPEN for escalation.'
+      - ref: 'TL:2412'
+        quote: 'The fix agent edits only `src/superclaude/` and `tests/` sources, the docs and `CHANGELOG.md`, never a `.claude/` or installed HOME path'
+      - ref: 'TL:2614'
+        quote: 'record the output of `sha256sum docs/designs/orchestrator-mode.md'
+      - ref: 'DM:73'
+        quote: '| 13.18 | Serialized fix cycle1 |'
+      - ref: 'DM:76'
+        quote: '| 13.22 | Serialized fix cycle2 |'
+      - ref: 'BASE:2384'
+        quote: 'DESIGN with its append, SPEC, revision authority and severity-test modules are immutable, with any required authority change left OPEN for escalation.'
+    recommendation:
+      fix: 'In 13.18 and 13.22, record the four-file sha256sum (DESIGN, SPEC, design addendum, first revision request) before the spawn into a separate orchestrator-owned file, not the fix log, so the M-03 collision is not copied, and re-check it after the agent returns, as 14.25 does. Inside the 85 (DM:73, DM:76) but outside F-01 to F-10, so owner acceptance by name is advised.'
+      verifier: 'grep -c sha256sum on TL lines 2384 and 2412 prints 1 each after the fix (0 today; the TL hits today are lines 1363, 1391, 2614, 2642, 2705, 2733).'
+    authorization: 'inside the 85 allowed labels (DM:73, DM:76; owner acceptance by name advised: not one of F-01 to F-10)'
+    provenance:
+      cards: ['R3-F3 (variant-3, LOW [INFERRED])']
+      debate: ['CONS M-08', 'C-005', 'C-006', 'U-012', 'A-005', 'A-007']
+      change: 'Change 8'
+      invariants: ['INV-R4-028', 'INV-R4-029']
+    notes:
+      - 'Severity votes in Round 2: L / L / L. Origin pre-existing: TL:2384 and TL:2412 are byte-identical to BASE (line hashes compared in this step).'
+      - 'The V3 second option (compare DESIGN with the frozen hash e4a06d0c at the start of 14.25) was withdrawn and is not carried.'
+  - id: M-09
+    severity: LOW
+    gap_class: stale-reference
+    tag: 'Grounded'
+    location: 'TL:1267 (7.17 Context), TL:2991 (OQ-17 entry), TL:2992 (OQ-18 entry) against DESIGN:557, DESIGN:559, DESIGN:993, DESIGN:995'
+    claim: 'The 7.17 Context and the OQ-17 and OQ-18 open-question entries cite DESIGN lines 550, 552, 971 and 973 for sentences that now sit at DESIGN:557, 559, 993 and 995. The quoted text is intact and findable, so this is a navigation defect only.'
+    affected_items: ['7.17', 'Open Questions OQ-17 and OQ-18']
+    evidence:
+      - ref: 'TL:1267'
+        quote: 'DESIGN line 552: "The `worker-list` cursor template is not in the set; it is added only after step 1.0a captures the cursor field, as one extra template (SPEC line 320)."'
+      - ref: 'DESIGN:559'
+        quote: 'The `worker-list` cursor template is not in the set; it is added only after step 1.0a captures the cursor field, as one extra template (SPEC line 320).'
+      - ref: 'TL:1267'
+        quote: 'DESIGN line 550: a `run-current --json` need "is a template change and needs the same owner note as any other allowlist change"'
+      - ref: 'DESIGN:557'
+        quote: 'that is a template change and needs the same owner note as any other allowlist change'
+      - ref: 'TL:1267'
+        quote: 'DESIGN line 971 (open item 3): "a `--json` need goes to the owner as an allowlist change"'
+      - ref: 'DESIGN:993'
+        quote: 'a `--json` need goes to the owner as an allowlist change'
+      - ref: 'TL:1267'
+        quote: 'DESIGN line 973 (open item 5): "A full page of `WORKER_LIST_PAGE` rows sets truncated and the total is a lower bound; no cursor template"'
+      - ref: 'DESIGN:995'
+        quote: 'A full page of `WORKER_LIST_PAGE` rows sets truncated and the total is a lower bound; no cursor template'
+      - ref: 'TL:2991'
+        quote: '(DESIGN line 552, SPEC line 320)'
+      - ref: 'TL:2992'
+        quote: '(DESIGN line 550, DESIGN 17 open item 3 at line 971)'
+    recommendation:
+      fix: 'With the 7.17 owner extension of M-01: cite these DESIGN sentences by quoted text or by section (section 7.3; section 17 open items 3 and 5) instead of line numbers, because an approved follow-up edit of DESIGN 7.3 would move them again. TL:2991 and TL:2992 are in the Open Questions section, outside the 85 labels.'
+      verifier: 'grep -c "DESIGN line 55[02]" on TL prints 0 after the fix (3 today: lines 1267, 2991, 2992).'
+    authorization: 'outside: needs new bounded authorization'
+    provenance:
+      cards: []
+      debate: ['CONS M-09', 'O-002 (diff-analysis adjudicator observation; all three advocates LOW, R2v1:179, R2v2:137, R2v3:200)']
+      change: 'Change 9'
+      invariants: ['INV-R4-030']
+    notes:
+      - 'No card raised it; the diff analysis found it and all three advocates agreed it is real and LOW.'
+      - 'Merge-executor observation, not a separate finding: TL:1272, TL:2991 and TL:2992 also use the shorthand DESIGN 973 and DESIGN 971 for the same moved rows.'
+f_closure:
+  # the run 3 findings F-01..F-10 (MV3), each re-checked against the edited plan; sources: the three cards, CONS C-001..C-004 and X-001..X-003, the Tier 1 verifier runs
+  - id: F-01
+    status: partial
+    scope_status: 'fixed as scoped (variant-1, variant-3, Tier 1); open end to end on the optional branch (variant-2)'
+    evidence:
+      - ref: 'TL:1293'
+        quote: 'this glob counts only the eight prerequisite records, because the optional OQ-17 and OQ-18 records that item 7.17 may write have two-digit numbers and do not match it'
+    note: 'CONS C-001 and X-001 winner variant-2 with the label fixed (scope) / open (branch). The F-01 text (glob, per-file OQ-17/OQ-18 checks, lens inputs, 7.22/7.25 wording, 14.19) is correct; the branch still meets M-01 and M-02, which are pre-existing and were not part of the F-01 recommendation.'
+  - id: F-02
+    status: fixed
+    evidence:
+      - ref: 'TL:2267'
+        quote: '(fixed-string search, because the bullet holds backticks and inner double quotes) prints one line, line 404'
+    note: 'variant-2, variant-3 and Tier 1 fixed; variant-1 did not check it (outside its slice). R3-F2 (history attribution) was withdrawn.'
+  - id: F-03
+    status: fixed
+    evidence:
+      - ref: 'TL:1210'
+        quote: 'a direct operative assignment for specified work plus a separate sweep request in the same message is eligible only if the assignment is applicable before execution and every other condition holds'
+    note: 'All listed clauses are embedded; one quoted sentence is reworded and two addendum clauses outside the F-03 list are missing (residual M-06, LOW). CONS C-004 winner variant-3 (not blocking).'
+  - id: F-04
+    status: fixed
+    evidence:
+      - ref: 'TL:1211'
+        quote: 'section written first (later content is appended below it, never overwriting it)'
+    note: 'The carrier, the write-before-edit order and the 7.20 command with an expected value exist. Residuals M-04, M-05, M-07 (all LOW); variant-1 said fixed with new defects, CONS X-002 winner variant-3 on their weight.'
+  - id: F-05
+    status: fixed
+    evidence:
+      - ref: 'TL:1982'
+        quote: 'A failure caused by `sweep.md` or `SKILL.md` is fixed by returning to the owning item (11.1 or 11.3), correcting the source in place and then re-run this item'
+    note: 'All three cards and Tier 1 fixed. Tier 1 L7 and L9 (wording residuals) are kept in residual_notes.'
+  - id: F-06
+    status: fixed
+    evidence:
+      - ref: 'TL:1292'
+        quote: 'Pre-7.10 source anchor for the style scope: `src/superclaude/output-styles/pragmatic.md:22` held the unqualified table mandate; after item 7.10 it holds the scoped sweep exception.'
+    note: 'grep -c Pre-7.10 source anchor on TL prints 58 and grep -c not an implemented exception prints 1 (7.10 only), re-run in this step.'
+  - id: F-07
+    status: partial
+    evidence:
+      - ref: 'TL:1363'
+        quote: 'after the agent returns, re-run that command first and append a PASS line only when all four sums are unchanged'
+    note: 'The guard is present in 7.30 and 7.34, but its baseline is written into the fix agent output file (M-03, MEDIUM, introduced with the F-07 text). variant-1 partial; variant-2, variant-3 and Tier 1 fixed; CONS X-003 winner variant-1, fixed with a residual.'
+  - id: F-08
+    status: fixed
+    evidence:
+      - ref: 'TL:1293'
+        quote: 'expect 6, one per separate later restatement line; the primary rule line is not counted'
+      - ref: 'STYLE:22'
+        quote: 'EVERY response includes a DONE / NEXT table. No exceptions.'
+    note: 'The style file is still unedited (7.10 has not run), so the count is 0 today and 6 only after 7.10; the six restatement lines are STYLE 53, 58, 60, 69, 80, 90 (variant-1, Tier 1).'
+  - id: F-09
+    status: fixed
+    evidence:
+      - ref: 'TL:1210'
+        quote: 'This item''s Branch 1 and Branch 2 replace the Phase 7 preamble Branches 1 and 2 for this item only'
+    note: 'All three cards and Tier 1 fixed.'
+  - id: F-10
+    status: fixed
+    evidence:
+      - ref: 'TL:1551'
+        quote: 'the report layout follows the recorded GQ-35 decision (the recorded GQ-63 decision governs only the sweep skill''s chat reply, not the report file layout)'
+      - ref: 'TL:1812'
+        quote: 'The report layout follows the OQ-4 (GQ-35) record; the OQ-6 (GQ-63) record governs only the sweep skill''s chat reply, not the report file layout.'
+      - ref: 'OQ6:12'
+        quote: 'this decision affects only the sweep skill''s chat reply, not the report file''s layout.'
+    note: 'variant-2, variant-3 and Tier 1 fixed; variant-1 did not check it.'
+f_closure_summary: 'fixed 8 (F-02, F-03, F-04, F-05, F-06, F-08, F-09, F-10); partial 2 (F-01 open on the optional branch through M-01 and M-02; F-07 residual M-03)'
+tier1_verdicts:
+  - {t1: L1, verdict: carried-as, as: M-03, reason: 'same defect as R1-F3; the T1 additions (Then spawn after the re-check clause, no FAIL branch for a changed sum) are in the M-03 fix; severity MEDIUM per CONS 4.3, not the T1 LOW'}
+  - {t1: L2, verdict: carried-as, as: M-04, reason: 'same defect as R1-F4; LOW'}
+  - {t1: L3, verdict: carried-as, as: M-05, reason: 'same defect as R1-F2; LOW'}
+  - {t1: L4, verdict: dropped, reason: 'not raised by any card or debated; the 7.20 Action settles SKIP by specificity (which is not a failure); kept in residual_notes'}
+  - {t1: L5, verdict: carried-as, as: 'M-03 (note)', reason: 'the 14.x sum-list part rides with the M-03 parity edit; the end-note part (register the second revision as an authority) was not raised by any card and is kept in residual_notes'}
+  - {t1: L6, verdict: carried-as, as: M-06, reason: 'same defect as R1-F5; the extra ADD:21 sentence 3 clause is listed as optional and not debated'}
+  - {t1: L7, verdict: dropped, reason: 'not raised by any card; all three closed F-05 as fixed; a wording gap for the test-module and environment causes, kept in residual_notes'}
+  - {t1: L8, verdict: carried-as, as: M-07, reason: 'same weakness as R1-F1; the T1 path-existence check (test -s on each recorded report) is not adopted because 7.10 Branch 1 and the 7.23 lens already require fresh evidence'}
+  - {t1: L9, verdict: dropped, reason: 'not raised by any card or debated; the 7.20 route works for a careful executor (T1 calibrator: partly); kept in residual_notes'}
+not_carried:
+  - {id: R3-F2, reason: 'withdrawn by all three advocates: TL:2265 says item 5.2 aligned the bullet with the 5-minute bound, which is true; history only (CONS row withdrawn, R1v3:29)'}
+  - {id: R3-F1, reason: 'closed: the coverage matrix was stale when variant-3 read it and was rebuilt at 05:56:15; line 7 now reads run: 4 and only line 225 is partial (see row_coverage)'}
+  - {id: O-003, reason: 'closed with R3-F1 (matrix line 7 run: 4)'}
+  - {id: R1-F1-fix, reason: 'variant-1 fix (owner saves the message to execution-authorization.md; drop the BR section as match target) reverses edit B2-1 and invents an owner action (INV-R4-027)'}
+  - {id: R1-F1-verifier, reason: 'Today 7.20 returns PASS was overstated; conceded by variant-1 (R1v1:58) and rejected by all three (CONS X-005)'}
+  - {id: R2-F2-R5-subfix, reason: 'Apply the same qualification to the reused R5 review inputs would edit ticked completed bodies 6.5 to 6.22 (INV-R4-012)'}
+  - {id: R3-F3-frozen-hash, reason: 'withdrawn second option of R3-F3 (compare DESIGN with the frozen hash e4a06d0c at the start of 14.25)'}
+  - {id: R1-F4-section-hash, reason: 'a sha256 of the section needs an undefined extraction command; the 7.20 read-and-match re-run is carried instead (INV-R4-020)'}
+  - {id: U-006, reason: 'not a defect: the expect-6 count is right (six restatement lines plus the primary rule)'}
+  - {id: U-009, reason: 'not a defect: the F-01 glob semantics trace (an unmatched glob gives count 0, not a false PASS)'}
+  - {id: U-013, reason: 'not a defect: the 13.1 quote equals the DESIGN:716 bullet'}
+  - {id: T1-L4, reason: 'dropped, see tier1_verdicts'}
+  - {id: T1-L7, reason: 'dropped, see tier1_verdicts'}
+  - {id: T1-L9, reason: 'dropped, see tier1_verdicts'}
+departures_from_consensus:
+  severity_or_scope: 'none: every finding keeps the CONS section 1 severity, condition and scope'
+  fix_wording_refinements:
+    # places where the merged fix text goes beyond the debate-stage wording, taken from the invariant probe (CONS does not settle fix wording)
+    - {item: 'M-01 fix part (4)', debate_wording: 'split the Verification; owner extension naming 7.17', merged: 'the extension must also cover the missing DESIGN edit item and the R5 re-run of ticked items', reason: 'INV-R4-003 (HIGH, UNADDRESSED)'}
+    - {item: 'M-02 fix', debate_wording: 'one clause replacing the ten-template and run-current rules (diff-analysis recommended handling)', merged: 'a clause naming all three breaching checks, approval read from the RESOLVED OQ record', reason: 'INV-R4-011 (HIGH, PARTIAL) and INV-R4-009 (MEDIUM)'}
+    - {item: 'M-03 fix', debate_wording: 'separate orchestrator-owned sums file', merged: 'plus do not re-record on a resume, Then spawn before the re-check, FAIL branch', reason: 'INV-R4-015; T1 L1'}
+    - {item: 'M-04 fix', debate_wording: 'add the heading grep, plus a section sha256 (variant-1)', merged: 'heading grep plus the 7.20 read-and-match', reason: 'INV-R4-020'}
+    - {item: 'M-05 fix', debate_wording: 'variant-1 resume rule with before excerpts from HEAD', merged: 'qualifier only where absent; before excerpts from the original start', reason: 'INV-R4-021, INV-R4-022'}
+    - {item: 'M-07 fix', debate_wording: 'keep the 7.20 match target', merged: 'keep it, plus optional re-supply clause for the later-message-plus-resume case', reason: 'INV-R4-026 (MEDIUM, UNADDRESSED)'}
+row_coverage:
+  parsed: '127 of 127'
+  union: 0.99
+  unmapped_union: [INF-017, INF-A29]
+  evidence:
+    - ref: 'CM:42'
+      quote: 'parsed_count: 127'
+    - ref: 'CM:49'
+      quote: 'matched_parsed: 127'
+    - ref: 'CM:56'
+      quote: 'coverage_pct_union: 0.99'
+    - ref: 'CM:62'
+      quote: 'unmapped_requirements_union: ["INF-017", "INF-A29"]'
+    - ref: 'CM:1'
+      quote: 'INF-A06 and INF-A08 changed to covered by the second revision.'
+    - ref: 'CM:7'
+      quote: 'run: 4'
+  dispositions:
+    - id: INF-A06
+      matrix_status: covered
+      disposition: 'now covered: the second revision embedded the same-message case in 7.10 (F-03); was partial in run 3 and carried there as part of F-03'
+      evidence:
+        - ref: 'CM:256'
+          quote: 'run 4: the 7.10 Action (TL:1210) now embeds the same-message case (second revision, F-03), as 11.3 (TL:1973) and 11.4 (TL:1980) already did; was partial in run 3'
+    - id: INF-A08
+      matrix_status: covered
+      disposition: 'now covered: 7.10 states the rule and keeps placement; the quoted literal is reworded, which M-06 carries'
+      evidence:
+        - ref: 'CM:258'
+          quote: 'run 4: 7.10 (TL:1210) now quotes ''Formatting never authorizes advice the sweep skill prohibits'' and keeps placement (second revision, F-03)'
+    - id: INF-017
+      matrix_status: partial
+      disposition: 'not carried'
+      reason: 'No card, debate row or probe item raises it. It is an inferred row about who runs the step 1.0a capture (item 7.16), a wording question whether the task executor counts as the coordinator; 7.16 is not changed by either revision.'
+      evidence:
+        - ref: 'CM:225'
+          quote: 'whether that counts as ''the coordinator'' is not stated'
+    - id: INF-A29
+      matrix_status: missing
+      disposition: 'not carried'
+      reason: 'The matrix marks it benign: a future-only rollback rule, no build item is expected and none contradicts it.'
+      evidence:
+        - ref: 'CM:279'
+          quote: 'future-only rollback rule; no build item is expected and none contradicts it (benign)'
+consequence_note: 'Applying any of M-01 to M-09 is an edit of the task file and gives the plan a new hash, so it invalidates every earlier sign-off of the edited plan: re-run the structural, alignment, qualitative and PRE checks against it before 7.10 starts (BR:19). Each edit must stay on its single physical line with the line count unchanged unless a note is appended (BR:18). M-01 and M-09 need a new bounded owner authorization naming 7.17 (and the follow-up items of INV-R4-003); M-02, M-06 (two clauses), M-08 and the 14.x parity of M-03 are inside the 85 labels but outside the owner wording covering F-01 to F-10, so list them for owner acceptance by name rather than treat the label surface as consent. An owner authorization or amendment itself changes the compared surface.'
+consequence_evidence:
+  - ref: 'BR:19'
+    quote: 'The edited plan then has a new hash; every earlier sign-off (R1 structural, alignment, qualitative, PRE) is history and must be re-run against it.'
+  - ref: 'BR:18'
+    quote: 'only existing Context/Action/Output/Verification/Completion-gate lines of those labels may change, each stays ONE physical line'
+residual_notes:
+  - id: T1-L4
+    note: 'Default-run SKIP lines against a gate that says every check PASSes. The 7.20 Action says SKIP for an absent optional file is not a failure, which settles it for a careful executor; a literal executor could stall. Optional wording: write PASS (absent, optional). Not a finding (not raised by any card).'
+    evidence:
+      - ref: 'TL:1293'
+        quote: 'record SKIP for a file that is absent, which is not a failure'
+      - ref: 'TL:1296'
+        quote: 'Every check PASSes.'
+  - id: T1-L7
+    note: '11.4 names routes for sweep.md, SKILL.md and style defects; a defect in the test module or an environment failure falls to the closing stop with no named step. The test-module case is fixable inside 11.4, so this is a wording gap. Not a finding.'
+    evidence:
+      - ref: 'TL:1982'
+        quote: 'log each specific blocker/fix in `### Phase 11 Findings` and stop incomplete until checks pass'
+  - id: T1-L9
+    note: 'Two routes for one style hazard: 7.20 says return to the owning item, 11.4 says a style failure is not sent back to ticked 7.10. The 7.20 route works for a careful executor (it does not require the destructive original-start retry). Not a finding.'
+    evidence:
+      - ref: 'TL:1295'
+        quote: 'On a FAIL, return to the owning item and re-run this item'
+      - ref: 'TL:1982'
+        quote: 'a failure caused by the style file is not sent back to ticked item 7.10'
+  - id: T1-L5-end-note
+    note: 'The appended end note names only the first revision as bounded authority; the second revision request is named only inside 7.20, 7.30 and 7.34. BR:17 allows a short additive note after the existing note. Not a finding.'
+    evidence:
+      - ref: 'TL:3010'
+        quote: '### Bounded revision metadata: chat-output-exception-20261109-133150'
+      - ref: 'BR:17'
+        quote: 'A short additive note may be appended after the existing R1 note (TL:3010+).'
+  - id: default-path
+    note: 'No merged finding makes a default-path run fail, and none blocks starting 7.10: 7.10 comes before 7.16 and 7.17, and both HIGH findings bite only from 7.17 onward if the optional branch fires.'
+    evidence:
+      - ref: 'TL:1208'
+        quote: '- [ ] **7.10 — HALT until the owner decides GQ-63 (OQ-6, L5)**'
+      - ref: 'TL:1266'
+        quote: '- [ ] **7.17 — Record the 1.0a facts the code needs (L1)**'
+best_practice_grade: 4
+best_practice_grade_reason: 'The ten run 3 defects are fixed as scoped (F-01 and F-07 with residuals), scope and line-stability hold, and no QA lens, fixer, counter or halt was weakened; a point is withheld because two pre-existing checks on the optional OQ-17/OQ-18 branch reject a correct owner-answered run (M-01, M-02) and the new sha256 guard keeps its baseline where the fix agent writes (M-03).'
+confidence_calibrated: 0.80
+confidence_calibrated_basis: 'mean of the three reviewer-card blind calibrations 0.68 (variant-1), 0.86 (variant-2), 0.86 (variant-3) = 0.80'
+verdict_recommendation: 'The default path of the edited plan is sound and 7.10 may start once its own conditions hold (fresh structural, alignment, qualitative and PRE checks naming the plan, and the separate execution authorization). Before execution reaches 7.17, the owner should decide on M-01 (a new bounded authorization naming 7.17, including the approval follow-up of INV-R4-003) and accept M-02 by name, or accept both as a known conditional gap that needs a later plan revision if the OQ-17/OQ-18 branch fires. M-03 (MEDIUM) and the LOW findings M-04 to M-08 are inside the 85 labels and can be fixed in one line-stable pass; M-02, M-06, M-08 and the 14.x part of M-03 need owner acceptance by name. Any edit requires re-running the structural, alignment, qualitative and PRE checks.'

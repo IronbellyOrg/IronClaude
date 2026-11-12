@@ -1,0 +1,20 @@
+# Wave 1D blind calibration of t1-card.md (persisted verbatim by orchestrator)
+card: t1
+calibrator_model_class: sonnet
+card_model_class: opus
+dimensions:
+  citation_grounding: 0.95
+  coverage_completeness: 0.85
+  deviation_classification_clarity: 0.80
+  risk_surface_coverage: 0.72
+  recommendation_actionability: 0.92
+confidence_calibrated: 0.85
+self_reported: 0.80
+delta: +0.05
+escalation_recommendation: escalate-t2
+spot_checks:
+  - "GAPS:135": ok
+  - "GAPS:64 and GAPS:125": ok
+  - "GAPS:82": ok
+  - "REP:1754": ok
+notes: "Citations sound; stale :125 anchor real. D-4 may be an intentional cross-reference (GQ-59 is the version-probe row), so Drift is somewhat overcalled. Read-only claim rests on the baseline file only. Scope >10 files and 0.85 < 0.90, so escalate (Tier 2 already forced by --depth deep)."

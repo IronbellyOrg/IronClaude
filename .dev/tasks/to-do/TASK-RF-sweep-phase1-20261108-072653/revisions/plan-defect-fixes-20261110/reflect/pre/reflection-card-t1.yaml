@@ -1,0 +1,506 @@
+schema: sc-reflect-card/v1
+tier: 1
+mode: UC-1 pre-execution
+run: 4
+revision: plan-defect-fixes-20261110
+created: 2026-11-10
+analyst_model: claude-gw-tier1b[1m]
+spec: docs/designs/orchestrator-mode.md
+spec_addendum: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/revisions/chat-output-exception-20261109-133150/design-addendum.md
+spec_lines: 1051
+tasklist: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md
+tasklist_lines: 3020
+tasklist_items: 355
+tasklist_sha256: eb291f0bdd1a787131a3b5295150b0f109b46943a1c43c638fd2ad4652d29f99
+coverage_matrix: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/revisions/plan-defect-fixes-20261110/reflect/pre/coverage-matrix.yaml
+status: COMPLETE (Tier 1 card, run 4; written incrementally, header stub first)
+analyst_note: "no sign-off, return contract or edit other than this card was written by this analyst"
+# Shorthand: TL = tasklist path above, DESIGN = docs/designs/orchestrator-mode.md, ADD = addendum, STYLE = src/superclaude/output-styles/pragmatic.md,
+# BR2 = revisions/plan-defect-fixes-20261110/BUILD-REQUEST.md, MV3 = run 3 merged-verdict.yaml (path in the task brief).
+# All TL:/STYLE:/DESIGN:/ADD: line numbers below were read in this run. The word-level diff of baseline/task-before-rev2.md against TL was
+# computed by /tmp/t1r4/wdiff.py (outside the repository) and scoped by a second script: 73 changed lines, 64 labels, all inside the 85 allowed
+# labels, only Context 60 / Action 10 / Verification 2 / Output 1 lines, 355 headers identical, 137 ticked, 218 unticked, 3020 lines.
+
+independence_note: >-
+  Run 3's merged verdict was treated as a list of claims. Each of F-01..F-10 was re-checked against the edited text and its own verifier was run
+  (or, for the multi-file-set verifier of F-01, simulated in a mktemp directory under /tmp). The coverage matrix was not rebuilt (it is
+  byte-identical to run 3's, cmp exit 0); the 110 matrix rows that cite one of the 64 changed labels were located by script and the rows whose
+  substance the delta touches were re-read against the new text.
+
+key_question: >-
+  Will the EDITED plan (second bounded revision R2), if executed in order, deliver the spec (DESIGN plus addendum) without self-deadlock, lost
+  checks, weakened QA or invented work? Do the 73 changed lines fix F-01..F-10 and do they introduce a new defect?
+answer: >-
+  Yes. All ten run 3 defects are fixed, each verifier from the merged verdict passes against the live text, and no HIGH or MEDIUM defect was found
+  in the 73 changed lines. The edit is exactly the authorized surface (64 labels, 73 line-stable lines; no header, order, checkbox, completed body
+  or frontmatter touched). Nine LOW findings remain. Seven restate minors that earlier QA reports already recorded (N-1..N-8, M-1..M-7) and that
+  this run re-judged: none makes a correct run fail or loses a required check. Two add something not in those reports (L5 second half, L8 path
+  resolution). Every LOW has a workaround inside the plan or needs a failed check to bite.
+
+coverage:
+  source: coverage-matrix.yaml (byte-identical to run 3; cmp exit 0); rows touched by the delta re-derived in this run
+  parsed_count: 127
+  inferred_count: 77
+  matched_parsed: 127
+  matched_inferred: 75            # run 3 matrix says 74; INF-A06 partial -> covered (see matrix_row_changes)
+  coverage_pct: 1.0
+  coverage_pct_union: 0.990       # 202 / 204 (run 3: 201 / 204 = 0.985)
+  unmapped_requirements: 0
+  unmapped_requirements_union: 2  # INF-017 (partial, unchanged), INF-A29 (missing, benign future-only rollback rule, unchanged)
+  coverage_degraded: null
+  matrix_rows_citing_changed_labels: 110
+  matrix_row_changes:
+    - id: INF-A06
+      from: partial
+      to: covered
+      evidence:
+        - ref: TL:1210
+          quote: "a direct operative assignment for specified work plus a separate sweep request in the same message is eligible only if the assignment is applicable before execution and every other condition holds"
+        - ref: ADD:17
+          quote: "A direct operative assignment for specified work plus a separate sweep request in the same message is eligible only if the assignment is applicable before execution and every other condition holds."
+      note: "the matrix note (7.10 names only the independently assigned case) is now stale; 11.3 (TL:1973) and 11.4 (TL:1980) already stated the case"
+    - id: INF-A08
+      from: covered-in-substance
+      to: covered
+      evidence:
+        - ref: TL:1210
+          quote: "the rule says \"Formatting never authorizes advice the sweep skill prohibits\""
+        - ref: ADD:19
+          quote: "Formatting never authorizes advice prohibited by the sweep skill."
+      note: "7.10 now carries the sentence (reworded, see L6); the matrix note said it was explicit only in 11.3"
+    - id: R2
+      from: covered
+      to: covered
+      note: "status unchanged; the matrix note 'DESIGN:716 now reads differently (card F1)' is obsolete: 13.1 now quotes the DESIGN:716 bullet (compared character for character by script, equal)"
+    - id: INF-A15
+      from: covered-in-substance
+      to: covered-in-substance
+      note: "unchanged: 7.10 still does not name the length budget (STYLE:25); MV3 did not carry it (INF-A15 in not_carried)"
+  rows_unchanged_on_review: "INF-A01..A05, A07, A09..A14, A16..A35 (7.10, 7.20, 11.3, 11.4 only gain clauses; no delivered clause was removed), FR-024, INF-009, INF-023, GQ-109, D9, SP-24, steps 1.4a and 1.4 (8.19 and 10.5 wording only; line numbers of every cited header unchanged because the edit is line-stable)"
+
+signals:
+  S_scope: 355
+  S_domains: 5
+  S_dev_density: 0.0098           # 2 unmapped / 204 union rows
+
+best_practice_grade: 4.5   # scale 0-5
+grade_rationale: >-
+  All ten run 3 defects are fixed and verified by their own verifiers; scope, line-stability and preservation hold by two independent scripts; no
+  QA lens, fixer, counter or halt rule was removed and the new guards (OQ-17/18 checks, sha256 record, six-qualifier count, authorization carrier)
+  are additions. Half a point is withheld for guard edges that are record-only or share a file with the agent they guard (L1, L3, L8, L9).
+
+findings:
+  - id: L1
+    severity: LOW
+    category: Guard evidence can be overwritten; sentence order; no branch for changed sums
+    tag: Grounded
+    claim: >-
+      7.30 and 7.34 record the pre-spawn sha256 sums inside fix-log-cycle1.md / fix-log-cycle2.md, which is also the output path the fix agent is told
+      to write ("Write a fix log"). A fix agent that writes the log from scratch removes the baseline that the later "PASS only when all four sums
+      are unchanged" depends on. The sentence also places "after the agent returns, re-run ..." before "Then spawn", so a linear reader meets the
+      re-run clause before the spawn. There is no stated action when a sum differs (the Verification only says every appended re-check line is
+      PASS, and the only stop rule covers an agent that fails to return). Known as N-1 / M-6; re-judged LOW: the same session holds the sums in
+      context, and a changed sum still ends in a FAIL line and an unticked item.
+    evidence:
+      - ref: TL:1363
+        quote: "after the agent returns, re-run that command first and append a PASS line only when all four sums are unchanged. Then spawn ONE `rf-qa` agent"
+      - ref: TL:1363
+        quote: "Write a fix log listing each finding id, the change, and the `file:line` after the change."
+      - ref: TL:1363
+        quote: "and the output path `.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/decisions/fix-log-cycle1.md`"
+      - ref: TL:1365
+        quote: "every appended re-check line is PASS. If the fix agent fails to return twice, log the blocker in `### Phase 7 Findings` and stop."
+    recommendation: >-
+      Record the sums in a separate file (for example qa/decisions/guard-sums-cycle1.md and -cycle2.md), move "Then spawn" before the "after the
+      agent returns" clause, and add "on a changed sum write FAIL, log it in Phase 7 Findings and stop". Success: the baseline cannot be
+      overwritten by the fix agent and a changed sum has a named result.
+    self_reported_confidence: 0.8
+
+  - id: L2
+    severity: LOW
+    category: Re-run list omits the F-04 check although fixers may edit the carrier file
+    tag: Grounded
+    claim: >-
+      The 7.30 and 7.34 fixers are permitted to edit the 7.10 result file that holds the authorization section, but their re-run list repeats the
+      F-08 count and the sha256 sums and omits the F-04 command that 7.20 uses (expect 1). A fixer edit that deletes or duplicates the section would
+      go unnoticed until a later lens reads it. Known as N-2 / M-5(iii).
+    evidence:
+      - ref: TL:1363
+        quote: "For the bounded exception only, also permit `src/superclaude/output-styles/pragmatic.md` and `.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/test-results/step-7.10-style-exception.md`"
+      - ref: TL:1363
+        quote: "(expect 6), and the sha256 sums recorded before the spawn (all unchanged), and append each command"
+      - ref: TL:1293
+        quote: "run `grep -c '^## Execution authorization (verbatim)'"
+    recommendation: >-
+      Add the same grep (expect 1) to the 7.30 and 7.34 re-run lists. Success: the three gates test the same carrier.
+    self_reported_confidence: 0.8
+
+  - id: L3
+    severity: LOW
+    category: Resume after a failed check can duplicate the authorization heading
+    tag: Grounded for the text; [INFERRED] for the consequence
+    claim: >-
+      7.10 says "only after first writing" the authorization section and 7.20 expects exactly one such heading. If a bounded check fails, the task
+      stops incomplete and 7.10 is re-run; the Action does not say "never write the section twice on resume" (the Output does say later content is
+      appended and never overwrites). A literal reading of "first writing" on the second pass would add a second heading and make the 7.20 count 2.
+      The Action also says "Save before/after communication excerpts ... in" the same file without the word append, and neither the 7.10
+      Verification nor the Completion gate mentions the section. Known as N-4 / M-5(i)(ii).
+    evidence:
+      - ref: TL:1210
+        quote: "and only after first writing the dated verbatim text of the owner's separate execution authorization"
+      - ref: TL:1211
+        quote: "with the `## Execution authorization (verbatim)` section written first (later content is appended below it, never overwriting it)"
+      - ref: TL:1293
+        quote: "run `grep -c '^## Execution authorization (verbatim)'"
+    recommendation: >-
+      In the 7.10 Action add "on a resume, if the section exists, do not write it again; append a dated re-confirmation line below it". Success:
+      the 7.20 count stays 1 across a failed first pass.
+    self_reported_confidence: 0.7
+
+  - id: L4
+    severity: LOW
+    category: Default-run SKIP lines against a "Every check PASSes" gate
+    tag: Grounded
+    claim: >-
+      In the default run neither OQ-17 nor OQ-18 exists, so 7.20 writes two SKIP lines. Its Verification asks for "one PASS or FAIL line per check" and
+      its Completion gate says "Every check PASSes". The Action settles it by specificity ("which is not a failure"), so a careful executor proceeds,
+      but a literal one can stall on the default path. Known as M-4.
+    evidence:
+      - ref: TL:1293
+        quote: "record SKIP for a file that is absent, which is not a failure"
+      - ref: TL:1295
+        quote: "one PASS or FAIL line per check, each decided by the expected value written beside its command"
+      - ref: TL:1296
+        quote: "Every check PASSes. Once done, mark this item as complete."
+    recommendation: >-
+      Write an absent optional file as "PASS (absent, optional)" or add "SKIP counts as PASS" to the Verification. Success: the default path has no
+      line that is neither PASS nor FAIL.
+    self_reported_confidence: 0.8
+
+  - id: L5
+    severity: LOW
+    category: R2 is not registered as an authority and its request file is guarded only in two gates
+    tag: Grounded
+    claim: >-
+      The R2 request file is named only inside the 7.20, 7.30 and 7.34 Action lines; the appended end note still lists only the first revision as
+      the bounded authority, and the plan has no reference entry for R2 (known as M-7). New in this run: the later fixers' sha256 guards (14.25 and
+      its three siblings) hash DESIGN, SPEC, the first addendum and the first revision request but not the R2 request, so after 7.34 nothing protects
+      the one file that 7.20 reads the owner's words from. The file is staged in git, so a change would show in a diff, and no gate edits it by design.
+    evidence:
+      - ref: TL:1293
+        quote: "`## Authorization (direct, by the owner)` section of `.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/revisions/plan-defect-fixes-20261110/BUILD-REQUEST.md`"
+      - ref: TL:2614
+        quote: "record the output of `sha256sum docs/designs/orchestrator-mode.md .dev/brainstorms/20261108-024258-orchestrator-mode-phase1/merged-requirements.md .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/revisions/chat-output-exception-20261109-133150/design-addendum.md .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/revisions/chat-output-exception-20261109-133150/BUILD-REQUEST.md`"
+      - ref: TL:3010
+        quote: "### Bounded revision metadata: chat-output-exception-20261109-133150"
+    recommendation: >-
+      Append the short additive note that BR2 allows, naming R2 and its request file, and add the R2 request path to the 14.25/14.29/14.38/14.42
+      sum lists. Success: every sha guard in the plan covers both revision requests.
+    self_reported_confidence: 0.7
+
+  - id: L6
+    severity: LOW
+    category: 7.10 embeds the addendum clauses in reworded form; precedence over three style bullets is implicit
+    tag: Grounded
+    claim: >-
+      7.10 quotes the style sentence as "Formatting never authorizes advice the sweep skill prohibits"; ADD:19 reads "advice prohibited by the sweep
+      skill". Same meaning, different words inside quotation marks (known M-2). ADD:21 sentence 3 ("All other applicable style, truthfulness,
+      safety, and error-reporting rules remain in force") is not embedded (grep for truthful / remain in force on TL:1210 gives 0; known M-1). STYLE
+      bullets 19, 21 and 35 (lead with WHAT, end with RECOMMENDED ACTION, gloss every label) are not named as overridden, only the exception text
+      says the final reply has no wrapper or gloss (known N-8, INF-A14 stays covered-in-substance). No verifier or 11.4 pin depends on these words.
+    evidence:
+      - ref: TL:1210
+        quote: "the rule says \"Formatting never authorizes advice the sweep skill prohibits\""
+      - ref: ADD:19
+        quote: "Formatting never authorizes advice prohibited by the sweep skill."
+      - ref: ADD:21
+        quote: "All other applicable style, truthfulness, safety, and error-reporting rules remain in force."
+      - ref: STYLE:21
+        quote: "- End with RECOMMENDED ACTION: give one concrete next action and state why it matters."
+    recommendation: >-
+      Use the addendum wording (or drop the quotes) and add "all other applicable style, truthfulness, safety and error-reporting rules remain in
+      force" plus "for that final reply only, this rule takes precedence over the lead-with-WHAT, end-with-RECOMMENDED-ACTION and gloss bullets".
+      Success: 7.10 and ADD:17-27 name the same clauses in the same words.
+    self_reported_confidence: 0.7
+
+  - id: L7
+    severity: LOW
+    category: 11.4 failure branches stop short of a named next step for two causes
+    tag: Grounded for the text; [INFERRED] for the consequence
+    claim: >-
+      The 11.4 Verification now names a route for a sweep.md or SKILL.md defect (return to 11.1 or 11.3, correct in place, re-run 11.4) and for a
+      style-file defect (HALT with a named blocker). A defect in the test module itself, or a pytest or environment failure, falls to the closing
+      "stop incomplete until checks pass" with no step named, although MV3's verifier asks that every 11.4 failure branch ends in a named next step.
+      The test-module case is fixable in place inside 11.4's own Action, so this is a wording gap, not a dead end (known M-3(ii)).
+    evidence:
+      - ref: TL:1982
+        quote: "log each specific blocker/fix in `### Phase 11 Findings` and stop incomplete until checks pass"
+      - ref: MV3:279
+        quote: "every 11.4 failure branch ends in a named next step"
+    recommendation: >-
+      Add "a defect in the test module is fixed in this item; an environment failure is logged and the item is re-run". Success: all four failure
+      causes have a named next step.
+    self_reported_confidence: 0.75
+
+  - id: L8
+    severity: LOW
+    category: Authorization check is record-only and does not resolve the report paths it records
+    tag: Grounded for the text; [INFERRED] for the weakness
+    claim: >-
+      The baseline 7.20 required that "actual (b), fresh revision checks/PRE and separate execution authorization are independently evidenced". The
+      edit drops "independently" and replaces it with a count plus a read: one heading, a dated quote that matches BR2's authorization section (or a
+      later dated owner message), and "the paths of the fresh structural, alignment, qualitative and PRE reports as supplied with it". No command
+      checks that those paths exist, hold a PASS verdict or name the edited plan's hash; independence now rests on the 7.23 lens ("revision-check/
+      execution claims to their actual evidence"). BR2 itself says its words do not by themselves start 7.10, yet the same words satisfy the 7.20
+      match, and when the authorization is a later chat message there is no file to match (fails closed, V1-N3). The text is honest that a quote
+      written by the executor is a record, and 7.10 Branch 1 independently refuses to start without fresh checks, so the gate is not lost, only
+      thinner at 7.20. Known in part as N-5 and V1-N3; the path-resolution gap is new.
+    evidence:
+      - ref: TL:1293
+        quote: "a quote written by the executor is a record of that authorization, not independent evidence, so a mismatch or an empty section is a FAIL"
+      - ref: TL:1293
+        quote: "and the paths of the fresh structural, alignment, qualitative and PRE reports as supplied with it"
+      - ref: BASELINE:1293
+        quote: "actual (b), fresh revision checks/PRE and separate execution authorization are independently evidenced."
+      - ref: BR2:9
+        quote: "It does not by itself start item 7.10: 7.10 still needs fresh checks that name the edited plan and the separate direct execution authorization the item requires"
+      - ref: TL:1314
+        quote: "revision-check/execution claims to their actual evidence; old PRE/waivers do not approve this delta"
+    recommendation: >-
+      Add to the 7.20 check: `test -s` on each recorded report path (expect exit 0) and "each report names the plan sha256 recorded in build-state.json".
+      Success: the recorded paths are proven to exist before 7.20 passes.
+    self_reported_confidence: 0.65
+
+  - id: L9
+    severity: LOW
+    category: Two different failure routes for the same style-file hazard
+    tag: Grounded
+    claim: >-
+      11.4 now says a style-file failure must not be sent back to ticked 7.10 because that would be a retry that can reach the design-append
+      preservation stop, and HALTs instead. The first mechanical check of the style (7.20: six qualifiers, one authorization heading) is not run by
+      7.10 itself, and its Verification still says to "return to the owning item and re-run this item", which for a style failure means back to
+      7.10. The plan therefore holds two rules for one hazard (known N-3). The hazard in 7.10 is the original-start retry restore, not an in-place
+      edit, so the 7.20 route works for a careful executor; the 11.4 text is the one that over-states it.
+    evidence:
+      - ref: TL:1295
+        quote: "On a FAIL, return to the owning item and re-run this item; log each re-run in `### Phase 7 Findings`."
+      - ref: TL:1982
+        quote: "a failure caused by the style file is not sent back to ticked item 7.10 (that would be a retry that can reach the design-append preservation stop)"
+      - ref: TL:1210
+        quote: "Before any original-start retry restore that would erase the design append, STOP and escalate preservation"
+    recommendation: >-
+      In 7.20 add "a style or 7.10-result defect: correct STYLE in place under the recorded authorization, never via an original-start retry
+      restore, and log it in Phase 7 Findings", or make 11.4 say the same. Success: both items describe one route.
+    self_reported_confidence: 0.7
+
+run3_findings_disposition:     # claims of the run 3 merged verdict (MV3), each re-checked against the edited plan
+  - id: F-01
+    run3_severity: HIGH
+    verdict: fixed
+    evidence:
+      - ref: TL:1293
+        quote: "OQ-[1-8]-*-decision.md | wc -l` (expect 8; this glob counts only the eight prerequisite records, because the optional OQ-17 and OQ-18 records that item 7.17 may write have two-digit numbers and do not match it)"
+      - ref: TL:1363
+        quote: "that exists `grep -c 'status: RESOLVED' <file>` (expect at least 1; SKIP an absent file)"
+      - ref: TL:1307
+        quote: "Check `owner-decisions.md` has seven decision rows, plus one row for each resolved OQ-17 or OQ-18 decision file that exists"
+      - ref: TL:2572
+        quote: "the owner decisions OQ-1 to OQ-8, plus any recorded OQ-17 or OQ-18 decision, reflected where they apply"
+    verifier_run: >-
+      Simulated in a mktemp directory with the real file names: set A (eight prerequisites, no optional file) glob count 8, both optional checks
+      SKIP; set B (eight plus OQ-17 RESOLVED) count 8, optional check prints 1, grep -c on OQ-*-decision.md prints 1 for OQ-17 and 0 for OQ-1 and
+      OQ-8; set C (OQ-17 PENDING) prints 0 and fails; set D (OQ-7 PENDING) count 7 and fails. All as the verdict requires. All twelve lens lines
+      (1299, 1306, 1313, 1320, 1327, 1334, 1341, 1348, 1369, 1376, 1397, 1404) and 14.19 carry the reworded input. 7.37 (TL:1425) still uses the
+      eight fixed names and is correctly untouched. Residuals are L4 (SKIP wording) and the accepted N-7 (a firing branch costs one fix cycle).
+  - id: F-02
+    run3_severity: HIGH
+    verdict: fixed
+    evidence:
+      - ref: TL:2265
+        quote: "Re-read the DESIGN row R2 first and copy its bullet text exactly; if it differs from this text, the DESIGN text wins and the difference is logged in `### Phase 13 Findings`. Do not edit ticked item 5.2, which keeps the older sentence as history."
+      - ref: TL:2267
+        quote: "`grep -nF 'The coordinator runs `/sc:sweep` on every wake, at most once every 5 minutes' src/superclaude/core/HOW-WE-WORK.md`"
+      - ref: DESIGN:716
+        quote: "**The coordinator runs `/sc:sweep` on every wake, at most once every 5 minutes, beside \"The sweep.\"**"
+    verifier_run: >-
+      A script extracted the quoted bullet from TL:2265 and from the DESIGN:716 row: equal. grep -n 'The coordinator sweeps on every wake' on TL now
+      prints only TL:776 (ticked 5.2), as the verdict requires (it printed 2265 and 2267 before). The grep -nF string and the zero-count grep were run
+      in a temp file: one hit, count 0. HOW-WE-WORK.md lines 403 and 404 are the never-workers and Orca-creates bullets, so the new line lands at
+      404. Residual: M-2 (the Action lets DESIGN win, the Verification is tied to the quoted words); DESIGN is hash-frozen so it does not bite.
+  - id: F-03
+    run3_severity: MEDIUM
+    verdict: fixed
+    evidence:
+      - ref: TL:1210
+        quote: "invoking or quoting sweep, requesting table omission or using the word coordinator does not establish it, nor do the loaded skill or style, which define the exception but do not assign the role"
+      - ref: TL:1980
+        quote: "these pins check that the eligibility clauses are present in the actual sources and never assert that the words runtime detector or tool allowlist are absent"
+    verifier_run: >-
+      grep -n -o on TL for 'same message', 'Formatting never' and 'chat-presentation': 1210 (all three) and 1973 (same message only), as required.
+      Embedded: ADD:15 sentences 1-2, ADD:17 sentence 3, ADD:19 sentences 1 and 4 (reworded), ADD:21 sentences 1, 2 and 4 (present tense). ADD:21
+      sentence 3 is not embedded (L6). The 11.4 pin text is presence-only, as INV-016 required.
+  - id: F-04
+    run3_severity: MEDIUM
+    verdict: fixed
+    evidence:
+      - ref: TL:1210
+        quote: "under the heading `## Execution authorization (verbatim)` BEFORE the first style edit (the PRE report path is whatever the owner supplied; a quote written by this executor is a record, not independent evidence)"
+      - ref: TL:1293
+        quote: "run `grep -c '^## Execution authorization (verbatim)' .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/test-results/step-7.10-style-exception.md`, expect 1"
+    verifier_run: >-
+      The carrier is the existing 7.10 result file (no new grant file, as MV3 required); the 7.20 command with an expected value exists; the
+      heading grep was run on a sample file and prints 1. Residuals L2, L3, L8 (all LOW). INV-024 falsifiers (1) executor-written quote and (2) PRE
+      path not known at edit time are handled in the text; falsifier (3) command plus expected value is met.
+  - id: F-05
+    run3_severity: LOW
+    verdict: fixed
+    evidence:
+      - ref: TL:1982
+        quote: "A failure caused by `sweep.md` or `SKILL.md` is fixed by returning to the owning item (11.1 or 11.3), correcting the source in place and then re-run this item"
+    verifier_run: >-
+      grep 're-run this item' now hits TL:1982 (other hits 291, 458, 632, 848, 1008, 1295, 2476 as MV3 listed). MV3's second clause (every 11.4
+      failure branch ends in a named step) holds for the two causes MV3 named; the test-module and environment causes are L7. The text does not add
+      the "fresh authorization" rule that the debate dropped.
+  - id: F-06
+    run3_severity: LOW
+    verdict: fixed
+    evidence:
+      - ref: TL:1292
+        quote: "Pre-7.10 source anchor for the style scope: `src/superclaude/output-styles/pragmatic.md:22` held the unqualified table mandate; after item 7.10 it holds the scoped sweep exception."
+      - ref: TL:1209
+        quote: "(unqualified table mandate, not an implemented exception)"
+    verifier_run: "grep -c 'not an implemented exception' on TL prints 1 (7.10, was 59); grep -c 'Pre-7.10 source anchor' prints 58; grep 'Current source anchor' prints none."
+  - id: F-07
+    run3_severity: LOW
+    verdict: fixed
+    evidence:
+      - ref: TL:1363
+        quote: "record the output of `sha256sum .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/revisions/chat-output-exception-20261109-133150/design-addendum.md"
+      - ref: TL:1391
+        quote: "(hash only the OQ-6 record, not the whole plans folder, because the fix agent may correct the other decision records)"
+    verifier_run: "grep -n sha256sum on TL prints 1363 1391 2614 2642 2705 2733 (six; MV3 said it should rise from four to six). All four hashed files exist and BR2 is staged. Residual L1."
+  - id: F-08
+    run3_severity: LOW
+    verdict: fixed
+    evidence:
+      - ref: TL:1293
+        quote: "run `grep -c 'Except for the sweep chat-summary exception above,' src/superclaude/output-styles/pragmatic.md`, expect 6, one per separate later restatement line; the primary rule line is not counted"
+    verifier_run: >-
+      STYLE today has 0 hits (7.10 not yet run, sound because 7.20 runs after 7.10). The six sites are STYLE:53, 58, 60, 69, 80, 90 (six separate
+      physical lines, checked with grep -n 'DONE / NEXT'); line 22 is the primary rule and line 25 the length budget. Also added to 7.30 and 7.34.
+  - id: F-09
+    run3_severity: LOW
+    verdict: fixed
+    evidence:
+      - ref: TL:1210
+        quote: "This item's Branch 1 and Branch 2 replace the Phase 7 preamble Branches 1 and 2 for this item only, and the task stays Blocked until this item's Completion gate"
+    verifier_run: >-
+      grep 'Phase 7 preamble Branches' prints TL:1210 only. MV3's INV-002 worry (an executor that refuses to work while Blocked) is closed by the
+      resume rule in the task skill: execution resumes at the first unchecked item whatever the frontmatter status.
+  - id: F-10
+    run3_severity: LOW
+    verdict: fixed
+    evidence:
+      - ref: TL:1551
+        quote: "the report layout follows the recorded GQ-35 decision (the recorded GQ-63 decision governs only the sweep skill's chat reply, not the report file layout)"
+      - ref: TL:1812
+        quote: "The report layout follows the OQ-4 (GQ-35) record; the OQ-6 (GQ-63) record governs only the sweep skill's chat reply, not the report file layout."
+      - ref: OQ6:12
+        quote: "this decision affects only the sweep skill's chat reply, not the report file's layout"
+    verifier_run: "grep -n 'GQ-35 and GQ-63' and grep -n 'layout follows the OQ-4 (GQ-35) and OQ-6 (GQ-63)' on TL both print nothing (were 1551 and 1812)."
+
+verified_ok:
+  - id: V1
+    claim: >-
+      Scope and preservation hold. Two independent scripts (the QA script's preservation-check.json and this run's own diff) agree: 73 changed lines
+      in 64 labels, every label inside the 85 allowed ones (82 of R1 plus 13.1, 8.19, 10.5), only Context 60, Action 10, Verification 2 and Output 1
+      lines, field prefix identical on both sides, 355 headers identical, 137 ticked and 218 unticked, line count 3020 before and after.
+    evidence:
+      - ref: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/revisions/plan-defect-fixes-20261110/qa/preservation-check.json:8
+        quote: "\"changed_labels\": 64"
+  - id: V2
+    claim: >-
+      No QA gate was removed or loosened. Compared line by line, the deleted words are the stale Context sentence, the old `OQ-*` glob and its
+      "OQ-1 to OQ-8" phrasing, the old 13.1 literal, the generic "owning source item or authorized serialized fixer" clause in 11.4 (replaced by two
+      named routes, F-05) and the word "independently" in 7.20 (L8). Every lens, consolidation, fixer, verifier, counter and halt rule keeps its text; the
+      regression-first, monotonicity and hard-cap order of 7.33 is untouched.
+    evidence:
+      - ref: TL:1384
+        quote: "(a) Regression: if any check id in the cycle-0 PASS set is FAIL in either cycle-1 verifier report"
+  - id: V3
+    claim: >-
+      The OQ-17/OQ-18 branch is coherent end to end: 7.17 writes the files with the recommendation line, so "at least 1" holds for the grep on
+      "does NOT authorize adoption"; they are RESOLVED only after the owner answers, which is before 7.20 runs because 7.17 halts; and adding an
+      OQ-17 row to owner-decisions.md cannot trip the 7.23 APPROVED-quote check because that check covers the APPROVED constraint table, not the
+      decision rows.
+    evidence:
+      - ref: TL:1270
+        quote: "the recommendation line ending \"This recommendation does NOT authorize adoption.\""
+      - ref: TL:1231
+        quote: "one row per decision (OQ-1 R5, GQ-10, GQ-11, GQ-35, GQ-61, GQ-63, D9)"
+  - id: V4
+    claim: >-
+      No path in the new text points to a file that cannot exist when the item runs: the four hashed files exist now, the carrier file is created
+      by 7.10 before 7.20 reads it, fix-log-cycle1.md and fix-log-cycle2.md live in the gate folder the 7.2x reports already use, and the BR2
+      authorization heading exists at BR2:5.
+    evidence:
+      - ref: BR2:5
+        quote: "## Authorization (direct, by the owner)"
+  - id: V5
+    claim: >-
+      No invented work. The three edits that go beyond F-01..F-10 (B2-1 quote comparison, B2-2 full OQ-17/18 paths, S16-1 evidence-absence comment
+      on 8.19) are recorded in the R2 delta manifest, sit inside allowed labels and lines, and add no checklist item or source mutation.
+    evidence:
+      - ref: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/revisions/plan-defect-fixes-20261110/delta-manifest.md:30
+        quote: "S16-1 | 1550 (8.19 Context) | Evidence-absence comment appended"
+
+contradiction_hunt:    # the pairs the brief asked about, with the result
+  - pair: "7.10 vs 7.20 vs 7.30/7.34 vs 11.3/11.4"
+    result: "consistent on the seven sites (primary rule + six qualifiers), the exact qualifier string, the same-message case and the presence-only pins; residual edges L2, L8, L9"
+  - pair: "13.1 vs DESIGN:716"
+    result: "equal character for character; the Action and the Verification now name the same string"
+  - pair: "8.19 / 10.5 vs the OQ-6 record"
+    result: "consistent: GQ-63 governs the chat reply only, GQ-35 the report layout; TL:1501 (8.12 gate list) is unchanged and was never a layout tie"
+  - pair: "7.10 Branch 1 and 2 vs the Phase 7 preamble (TL:1143) and the end note"
+    result: 'the pointer exists at the item; the end note (TL:3018, "does not bypass revised 7.10''s stricter authority/implementation gate") says the same; the task skill resumes at the first unchecked item regardless of Blocked (src/superclaude/skills/task/SKILL.md:535)'
+  - pair: "R2 sign-offs vs the edited plan hash"
+    result: "tasklist sha256 eb291f0b... equals the value in input-snapshot.yaml and in this brief; DESIGN sha256 e4a06d0c... equals the brief"
+
+recommendations_summary:
+  - {finding: L1, action: "Put the sha256 baseline in its own file and name a FAIL branch", success: "baseline cannot be overwritten"}
+  - {finding: L2, action: "Add the authorization-heading grep (expect 1) to the 7.30 and 7.34 re-run lists", success: "three gates test one carrier"}
+  - {finding: L3, action: "Say on resume never to write the section twice; add append to the Save clause", success: "7.20 count stays 1"}
+  - {finding: L4, action: "Treat an absent optional file as PASS (absent, optional)", success: "no line that is neither PASS nor FAIL"}
+  - {finding: L5, action: "Append the R2 note and add the R2 request to the 14.x sum lists", success: "every guard covers both requests"}
+  - {finding: L6, action: "Use the addendum wording and embed ADD:21 sentence 3 and a precedence clause", success: "7.10 equals ADD:17-27"}
+  - {finding: L7, action: "Name a next step for test-module and environment failures at 11.4", success: "all failure causes routed"}
+  - {finding: L8, action: "test -s each recorded report path and name the plan hash", success: "recorded paths proven to exist"}
+  - {finding: L9, action: "One failure route for style defects at 7.20 and 11.4", success: "one rule for one hazard"}
+
+finding_counts: {HIGH: 0, MEDIUM: 0, LOW: 9}
+known_minors_judged_not_blocking: >-
+  N-1 (L1), N-2 (L2), N-3 (L9), N-4 (L3), N-5 (L8), N-6 (covered by TL:1295 "one PASS or FAIL line per check"), N-7 (accepted cost of a firing
+  OQ-17/18 branch: one fix cycle, no regression halt, see V3), N-8 (L6), M-1..M-7 of the alignment and sufficiency reports (L6, L6, L7, L4, L3/L2,
+  L1, L5). None makes a correct run fail or removes a required check.
+
+dimension_scores:   # 0-5
+  citation_grounding: 4.5           # every finding quotes a line read in this run; two carry [INFERRED] for the consequence only
+  coverage_completeness: 4.5        # delta rows re-derived; two rows change status (INF-A06, INF-A08); the rest stand
+  deviation_classification_clarity: 4.0   # PRE mode has no deviation taxonomy; run 3 findings are classified fixed / not fixed with a verifier each
+  risk_surface_coverage: 4.5        # OQ-17/18 branch, resume, overwrite, hash guards, retry hazard, scope and preservation all exercised
+  recommendation_actionability: 4.5 # each LOW has a one-line edit and a success condition
+
+self_reported_confidence: 0.84    # C: high on F-01..F-10 verdicts and scope (scripts and greps run); moderate on L3, L8, L9 (depend on how an executor reads a resume)
+
+escalation:
+  recommended: true
+  reasons:
+    - "S_scope 355 > 10 and S_domains 5 >= 3 (the T1 STOP rule), so Tier 1 is not sufficient alone; this card is a Wave 1 input"
+  content_based_escalation: false   # no HIGH finding; S_dev_density 0.0098 <= 0.20
+  suggested_verdict: PASS   # nine LOW notes are optional plan-text polish; none needs an owner decision or blocks starting at 7.10 once the separate execution authorization exists
+
+limitations:
+  - "Completed items 1.x to 6.x were not re-judged. No test, install, sync or live Orca call was run; statements about executor behaviour are read from item text."
+  - "The shell simulations used a throw-away directory under /tmp with the real file names but empty or one-line contents; they test glob, grep and exit-code behaviour, not the content of the future decision files."
+  - "Fresh PRE for R2 is this run; no sign-off or return contract was written by this analyst. Starting 7.10 still needs the separate execution authorization that 7.10 requires."
+  - "The Read tool was not used on very long item lines; item text was read with sed and fold. Line numbers are physical lines of the 3020-line file."

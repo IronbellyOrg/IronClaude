@@ -1,0 +1,60 @@
+# Written by the orchestrator verbatim from the confidence-calibrator's returned YAML (read-only agent).
+card_ref: "/home/coder/workspaces/worktrees/IronClaude/issue-339-orchestrator-mode/.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/reflect/pre-run2/reviewer-cards/reviewer-1-card.yaml"
+dimensions:
+  citation_grounding:
+    score: 0.50
+    reason: "All 14 finding-level citations matched their quotes exactly (tasklist 163, 1142, 1244, 1249, 1265, 1272, 1418, 1485, 2467; design 548, 552, 868, 875, 971). The other evidence is weak. Four findings (R1-G5, R1-G6, R1-G7, R1-G9) have empty evidence lists, and one of them (R1-G7) is refuted on reading. Every FR and NFR row cites a second design line in the 444 to 484 range, and none of those 41 lines matches its row. The range holds the closing fence of the 7.1 code block, the exit-mapping paragraph and the 7.2 data-model and rule tables, so these look like SPEC line numbers given the design file path. Two row refs read Section 8 gate, which is not a line."
+  coverage_completeness:
+    score: 0.90
+    reason: "The card lists 76 rows: FR-001 to FR-026, NFR-001 to NFR-015 and the 35 design steps from 1.0a to 1.29, including 1.4a, 1.16a, 1.24a and 1.24b. That matches its rows_audited count. Each row names delivering items, and the primary design row refs I checked (755 to 760, 792 to 795, 906 to 913, 936 to 940) match. There is no explicit coverage_pct field, and I did not check the row-to-item mappings item by item."
+  deviation_classification_clarity:
+    score: 0.60
+    reason: "Each finding has exactly one gap_class (gate-bypass, unsound-check or traceability) and one t1_relation, and each row has one verdict (covered, covered-in-substance or partial). None of them uses the rubric's Aligned, Refinement, Drift and Regression categories. Some classes are also arguable. R1-G3 calls something a plan-side gap when the tasklist does what the SPEC requires. R1-G9 calls a replace-every-hit rule a dropped justification, when it is closer to a Refinement."
+  risk_surface_coverage:
+    score: 0.70
+    reason: "The card raises real gate risks. R1-G1 is a fixed allowlist count that breaks if the capture shows a cursor template or a run-current --json need, and it traces the effect to 8.10, 10.3, FR-002, FR-026 and NFR-003. R1-G2 is a Branch 2 that is weaker than the preamble and can let an executor mark a PENDING record RESOLVED on its own. R1-G5 and R1-G6 are checks that cannot pass as the items are written. One MEDIUM finding (R1-G3) is weakened and one LOW finding (R1-G7) is refuted, so part of the risk register is inflated. Apart from R1-G1, there is little reasoning about how far a failure would spread."
+  recommendation_actionability:
+    score: 0.85
+    reason: "Every remediation names the item to edit (7.15, 7.16, 7.17, 7.18, 8.10, 10.3, 14.5, 14.7, line 163) and ends with a Check by reading success test. Two weak spots: R1-G7's fix targets a gap that does not exist, and the second sentence of R1-G6 (about the agent-wait forms) does not lead to a clear action."
+calibrated_confidence: 0.71
+self_reported_confidence: 0.72
+calibration_delta: "-0.01"
+citations_checked: 78
+citations_failed: 41
+citations_unverifiable_notes:
+  - "41 row_coverage second refs in the range docs/designs/orchestrator-mode.md:444 to :484 do not match their rows. Examples: 444 is a code fence, 446 and 448 are blank, 447 is the 7.2 heading, 483 is rule-table row 9. They are probably SPEC merged-requirements.md line numbers under the wrong file path. I did not read the SPEC to confirm."
+  - "docs/designs/orchestrator-mode.md:Section 8 gate (rows step-1.0b and step-1.17) is not a line reference and cannot be spot-checked."
+  - "I did not read item 10.3, so the claim in R1-G1 that 10.3 pins exactly ten templates is unverified. The same claim for 8.10 is confirmed at tasklist line 1485."
+  - "The t1_relation values (F1, F3, F5, F12, F13) cannot be checked without the Tier-1 card, which was not part of this calibration's input."
+  - "I did not read item 8.12, so the part of R1-G7 about 8.12 not re-reading the decision file stays unverified."
+  - "The card's model_class field says claude-gw-tier1b while model_slot says sonnet. Sonnet is used as the reviewer class here."
+per_finding_check:
+  - id: "R1-G1"
+    verdict: "confirmed"
+    note: "The only branch in 7.17 at line 1267 stops on a live field name that differs from the design. A recorded cursor field or a run-current --json need has no route to the owner. The 8.10 check at line 1485 requires the ALLOWED_ORCA count to be 10. Design line 552 (the cursor template is added after 1.0a) and line 971 (a --json need goes to the owner) match the quotes."
+  - id: "R1-G2"
+    verdict: "confirmed"
+    note: "Item 6.2 at line 989 is Log the OQ-1 decision (L3, no HALT), so the preamble pointer at line 1142 is wrong. Branch 2 of 7.15 at line 1244 has no condition, and Branch 2 of 14.7 at line 2483 drops the clause requiring a source that quotes the owner. Two things lower the impact: the preamble at line 1142 writes out both branches itself, and the 7.15 verification at line 1246 requires the giver and the source to be filled in."
+  - id: "R1-G3"
+    verdict: "weakened"
+    note: "Item 7.16 at line 1262 halts for owner review on a before-and-after difference, which is what design line 875 requires (a difference stops the build and goes to the owner), so this part is not a plan gap. The missing rule for removing timestamps is a real gap, since line 1260 only says compare with timestamps removed. The [INFERRED] point that live state fields cause false halts is still unproven."
+  - id: "R1-G4"
+    verdict: "confirmed"
+    note: "The [INFERRED] part is confirmed by reading. Item 7.16 at lines 1249 to 1263 never says who runs the capture, while design line 868 says it is run by the person or the coordinator. The hand-off precedent exists in 14.8 Branch (B) at line 2490. The impact is low because no test runs the capture, so the never-by-a-test part of the rule is already met."
+  - id: "R1-G5"
+    verdict: "confirmed"
+    note: "Both [INFERRED] parts are confirmed. The 7.18 grep at line 1276 searches for the bare word coder with no word boundaries, so it also matches words like encoder and decoder. The 7.16 verification at line 1262 expects the forbidden-token grep to find only the forbidden-list sentence, but the Action at line 1260 never tells the executor to write that sentence into readonly-probe.md."
+  - id: "R1-G6"
+    verdict: "confirmed"
+    note: "The main [INFERRED] claim is confirmed. Line 1262 requires every command in the file to be one of the eight templates or a file read, but Action step 6 at line 1260 runs echo and ls -la. The second sentence, about worktree ps and the agent-wait forms, is not supported: line 1259 says --agent-wait is not run in step 1.0a."
+  - id: "R1-G7"
+    verdict: "refuted"
+    note: "Item 9.3 reads the OQ-8 record directly (line 1640), and its HALT asks the person to name another Run if the Run cannot be read (line 1643), so the claim that 9.3 has no way to re-resolve is false. Item 8.4 re-checks OQ-7 at line 1441, and 14.8 depends on the 14.7 gate (lines 2483 and 2489), not on the 8.1 pre-flight. Item 9.1 lists the OQ-2 and OQ-5 records as gates at line 1626. The 8.1 grep for status RESOLVED at line 1420 is confirmed but harmless."
+  - id: "R1-G8"
+    verdict: "weakened"
+    note: "The quote at line 163 is exact, and design line 548 says Phase 1 code does not call worktree list or worktree current. But the step 1.0a capture, which belongs to Phase 1, does call templates 7 and 8 (lines 1257, 1258 and step 3 of 1260). Eight called in Phase 1 is therefore true of the capture and only false of the code. This is ambiguous wording, not a misstatement."
+  - id: "R1-G9"
+    verdict: "weakened"
+    note: "The [INFERRED] text is confirmed: line 2468 records 168 hits at 5dc29d23 and line 2472 requires an unchanged full-tree count. The claim that it fails after any unrelated change on the base is overstated, because line 2471 recounts at the recorded base when the base differs. Line 2471 also requires every hit to be replaced with the installed path, which is stricter than justifying it, so the claim that it drops the justification step is better seen as a Refinement than a gap."
+calibrator_model_class: "opus"
+reviewer_model_class: "sonnet"

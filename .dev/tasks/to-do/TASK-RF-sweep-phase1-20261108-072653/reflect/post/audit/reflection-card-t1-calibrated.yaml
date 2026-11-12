@@ -1,0 +1,15 @@
+# Wave 1D blind calibration of reflection-card-t1.yaml (confidence-calibrator agent a4b08d7efb1576ddd, model class opus)
+calibrator_model_class: opus
+calibrator_diversity: degraded        # reviewer classes will be {sonnet, haiku, opus}; no disjoint class among the three resolved aliases
+dimension_scores: {citation_grounding: 0.85, coverage_completeness: 0.85, deviation_classification_clarity: 0.55, risk_surface_coverage: 0.75, recommendation_actionability: 0.80}
+C: 0.76
+citations_checked: 37
+citations_failed: 1                    # main.py:567 vs add_command at :569; corrected in the card after calibration
+overstated_claims:
+  - "DC-3: _git reason text differs from SPEC (probes.py:316 `output over {OUTPUT_LIMIT} bytes` vs SPEC line 286 `output over 8 MiB`)"   # new defect, taken into the reviewer briefs as DC-12
+  - "coverage: per-file mapping, not per-hunk; S_dev_density 0.0 is a file-level figure"
+  - "DC-8 authorization rests on an owner reply that echoes the executor's recommended text"
+  - "DC-11 is a pending process step, not an approved scope expansion"
+  - "DC-1 carries two classes"
+escalate: true
+reason: "C 0.76 < 0.85; S_domains 4 >= 3 (rule 4); S_scope 50 > 10"

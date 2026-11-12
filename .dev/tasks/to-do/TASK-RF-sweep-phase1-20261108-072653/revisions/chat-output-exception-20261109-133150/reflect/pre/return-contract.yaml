@@ -1,0 +1,116 @@
+contract_version: "1.8.0"
+status: partial                 # adversarial convergence_status BLOCKED_BY_INVARIANTS (one HIGH invariant folded into F-02); evidence validation clean
+mode: pre
+tier_reached: 2
+report_path: ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/revisions/chat-output-exception-20261109-133150/reflect/pre/REPORT.md"
+audit_log_path: ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/revisions/chat-output-exception-20261109-133150/reflect/pre/audit.log"
+confidence_calibrated: 0.75
+escalation_rule_matched: 4      # rubric rule 4 (S_domains 5 >= 3); the section 5.1 override --depth deep fired first
+onboarding_ran: false
+
+# UC-1
+coverage_pct: 1.0
+coverage_pct_union: 0.985
+coverage_undefined: false
+coverage_degraded: null
+unmapped_requirements: []
+unmapped_requirements_union: ["INF-017", "INF-A06", "INF-A29"]
+best_practice_grade: 3
+implementation_coverage_pct: null
+missing_implementations: []
+hierarchy_slice_path: null
+hierarchy_coverage_pct: null
+
+# UC-2 specific (not applicable to a pre-execution run)
+tasklist_completion_pct: null
+deviation_count_by_class: {authorized: 0, necessary: 0, drift: 0, regression: 0}
+deviation_register_path: null
+grounding_gaps_path: null
+hunk_to_declaration_map_path: null
+verification_ran: false
+verification_skip_reason: null
+reuse_sweep_ran: false
+reachability_gate_ran: false
+reachability_skip_reason: null   # not applicable: UC-1 (the reachability block is UC-2 only; a spec and a tasklist were both present)
+runtime_surface_sweep_ran: false
+
+# Input integrity
+input_sha256:
+  tasklist: f52e43a57ba6d3f3dc25120da937e1b7bf666782c732e5b042d2b938eb966855
+  spec: e4a06d0cf1c2e81df1c61138587a511c5ccd065cd896a42bb6f04ab329afacf3
+input_tree_sha256: 0f2a699e2117d6d464509373c97d0d9f4276f406c1d46050636f3850e8de43d7
+input_tree_file_count: 146
+input_tree_snapshot_path: ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/revisions/chat-output-exception-20261109-133150/reflect/pre/artifacts/input-snapshot.yaml"
+input_drift_detected: false
+input_drift_diff: null
+
+# Hallucination guard
+citations_total: 116
+citations_revalidated: 116
+citations_dropped: 0
+citations_dropped_extrapolated: 0
+citations_inferred: 3
+citation_budget_policy: full_reread
+evidence_validator_ran: true
+
+# Tier 2
+reviewer_cards: ["reviewer-cards/reviewer-1-card.md", "reviewer-cards/reviewer-2-card.md", "reviewer-cards/reviewer-3-card.md"]
+adversarial_artifacts_dir: ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/revisions/chat-output-exception-20261109-133150/reflect/pre/adversarial/"
+adversarial_convergence_score: 0.947
+adversarial_unavailable: false
+merge_method: adversarial
+t2_model_class_diversity: full
+t2_vendor_diversity: single
+t2_effective_diversity: model-only
+calibrator_diversity: degraded
+
+# Tier 3
+remediation_offered: true
+remediation_accepted: false
+task_file_path: null
+remediation_task_path: null
+remediation_plan_path: null
+handoff_memory_key: null
+
+# Asymmetric-cost flags
+cannot_validate_without_user_input: false
+regression_present: false
+unauthorized_deviation_present: false
+blocked_by_low_confidence: false
+spec_is_wrong: false
+user_decision_required: true     # F-02 and F-10 need a new bounded authorization; the owner decides
+needs_human_decision: true
+
+per_task_verdicts: []
+interaction_effects_scanned: false
+interaction_effects_findings: 0
+budget_forced_tier_downgrade: false
+budget_forced_stop: false
+budget_check_skipped: true
+forced_tier: null
+
+# Promotion (UC-2 only)
+promotion_action: not-applicable
+promotion_adapter: null
+promotion_source: null
+promotion_destination: null
+promotion_log_path: null
+promotion_gate_passed: null
+promotion_skip_reason: null
+promotion_fail_reason: null
+promotion_override_used: null
+promotion_rollback_command: null
+promotion_checkpoint_path: null
+promotion_cross_fs: false
+promotion_pending: false
+
+# Extra (additive, run-specific): findings and sign-off inputs
+findings: {HIGH: 2, MEDIUM: 2, LOW: 6, total: 10}
+merged_verdict_path: ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/revisions/chat-output-exception-20261109-133150/reflect/pre/adversarial/merged-verdict.yaml"
+tier_decision_path: ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/revisions/chat-output-exception-20261109-133150/reflect/pre/artifacts/tier_decision.yaml"
+tcs: 1862
+depth: deep
+run_id: "reflect-pre-20261110T0430Z-TASK-RF-sweep-phase1-run3-chat-output-exception"
+notes:
+  - "Telemetry that is not in the stable contract: reviewer_models [claude-sonnet-5-5, gpt-6.1-sol, claude-opus-5-5]; degraded_components [calibrator-diversity, vendor-diversity]; memory_persist_skipped tracked-file-write-deferred (the tracked docs/memory/reflect file was not written)."
+  - "Mandatory-run check (A.10.7): REPORT.md exists on disk, run_id is a real run id, depth deep matches the TCS band (1862 >= 35), tier_reached 2 as the deep band requires."

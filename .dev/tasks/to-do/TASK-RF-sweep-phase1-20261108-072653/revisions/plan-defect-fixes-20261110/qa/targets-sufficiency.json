@@ -1,0 +1,636 @@
+{
+  "phases": [
+    13,
+    14
+  ],
+  "changed_labels": [
+    "13.1",
+    "13.9",
+    "13.10",
+    "13.11",
+    "13.12",
+    "13.13",
+    "13.14",
+    "13.16",
+    "13.18",
+    "13.19",
+    "13.20",
+    "13.22",
+    "13.23",
+    "13.24",
+    "14.19",
+    "14.25",
+    "14.26",
+    "14.27",
+    "14.29",
+    "14.30",
+    "14.31",
+    "14.33",
+    "14.34",
+    "14.35",
+    "14.36",
+    "14.38",
+    "14.39",
+    "14.40",
+    "14.42",
+    "14.43",
+    "14.44"
+  ],
+  "extraction": "All path-like file references in assigned changed checklist bodies, not a sampled list. Resolve shorthand/globs/installed paths through item context; missing future outputs must have earlier creation prerequisites, not be fabricated as current files.",
+  "targets": [
+    {
+      "path": "src/superclaude/core/HOW-WE-WORK.md:396",
+      "exists_now": false,
+      "first_item": "13.1",
+      "kind": "planned_or_reference_requires_context_resolution"
+    },
+    {
+      "path": "src/superclaude/core/HOW-WE-WORK.md:396-405",
+      "exists_now": false,
+      "first_item": "13.1",
+      "kind": "planned_or_reference_requires_context_resolution"
+    },
+    {
+      "path": "/sc:pr-submit",
+      "exists_now": false,
+      "first_item": "13.1",
+      "kind": "planned_or_reference_requires_context_resolution"
+    },
+    {
+      "path": "~/.claude/WORKER-CONTRACT.md",
+      "exists_now": true,
+      "first_item": "13.1",
+      "kind": "planned_or_reference_requires_context_resolution"
+    },
+    {
+      "path": "src/superclaude/core/WORKER-CONTRACT.md:110",
+      "exists_now": false,
+      "first_item": "13.1",
+      "kind": "planned_or_reference_requires_context_resolution"
+    },
+    {
+      "path": "/sc:sweep",
+      "exists_now": false,
+      "first_item": "13.1",
+      "kind": "planned_or_reference_requires_context_resolution"
+    },
+    {
+      "path": "src/superclaude/core/HOW-WE-WORK.md",
+      "exists_now": true,
+      "first_item": "13.1",
+      "kind": "planned_or_reference_requires_context_resolution"
+    },
+    {
+      "path": "src/superclaude/output-styles/pragmatic.md:22",
+      "exists_now": false,
+      "first_item": "13.9",
+      "kind": "planned_or_reference_requires_context_resolution"
+    },
+    {
+      "path": "src/superclaude/commands/sweep.md",
+      "exists_now": false,
+      "first_item": "13.9",
+      "kind": "planned_or_reference_requires_context_resolution"
+    },
+    {
+      "path": "src/superclaude/skills/sc-sweep-protocol/SKILL.md",
+      "exists_now": false,
+      "first_item": "13.9",
+      "kind": "planned_or_reference_requires_context_resolution"
+    },
+    {
+      "path": "tests/commands/test_sweep_command.py",
+      "exists_now": false,
+      "first_item": "13.9",
+      "kind": "planned_or_reference_requires_context_resolution"
+    },
+    {
+      "path": "tests/recommend/test_routing_refresh.py",
+      "exists_now": true,
+      "first_item": "13.9",
+      "kind": "planned_or_reference_requires_context_resolution"
+    },
+    {
+      "path": "src/superclaude/core/WORKER-CONTRACT.md",
+      "exists_now": true,
+      "first_item": "13.9",
+      "kind": "planned_or_reference_requires_context_resolution"
+    },
+    {
+      "path": "tests/skills/test_worker_contract.py",
+      "exists_now": true,
+      "first_item": "13.9",
+      "kind": "planned_or_reference_requires_context_resolution"
+    },
+    {
+      "path": "plugins/superclaude/skills/sc-recommend/refs/HOW-WE-WORK.md",
+      "exists_now": true,
+      "first_item": "13.9",
+      "kind": "planned_or_reference_requires_context_resolution"
+    },
+    {
+      "path": "tests/core/test_how_we_work_routing_table.py",
+      "exists_now": true,
+      "first_item": "13.9",
+      "kind": "planned_or_reference_requires_context_resolution"
+    },
+    {
+      "path": "docs/user-guide/commands.md",
+      "exists_now": true,
+      "first_item": "13.9",
+      "kind": "planned_or_reference_requires_context_resolution"
+    },
+    {
+      "path": "docs/developer-guide/SuperClaude-Developer-Guide-Commands-Skills-Agents.md",
+      "exists_now": true,
+      "first_item": "13.9",
+      "kind": "planned_or_reference_requires_context_resolution"
+    },
+    {
+      "path": "CHANGELOG.md",
+      "exists_now": true,
+      "first_item": "13.9",
+      "kind": "planned_or_reference_requires_context_resolution"
+    },
+    {
+      "path": ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/test-results/phase11-validation.md",
+      "exists_now": false,
+      "first_item": "13.9",
+      "kind": "planned_or_reference_requires_context_resolution"
+    },
+    {
+      "path": ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/test-results/phase12-validation.md",
+      "exists_now": false,
+      "first_item": "13.9",
+      "kind": "planned_or_reference_requires_context_resolution"
+    },
+    {
+      "path": ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/test-results/phase13-validation.md",
+      "exists_now": false,
+      "first_item": "13.9",
+      "kind": "planned_or_reference_requires_context_resolution"
+    },
+    {
+      "path": "src/superclaude/output-styles/pragmatic.md",
+      "exists_now": true,
+      "first_item": "13.9",
+      "kind": "planned_or_reference_requires_context_resolution"
+    },
+    {
+      "path": ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/plans/OQ-6-GQ-63-done-next-decision.md",
+      "exists_now": true,
+      "first_item": "13.9",
+      "kind": "planned_or_reference_requires_context_resolution"
+    },
+    {
+      "path": ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/revisions/chat-output-exception-20261109-133150/BUILD-REQUEST.md",
+      "exists_now": true,
+      "first_item": "13.9",
+      "kind": "planned_or_reference_requires_context_resolution"
+    },
+    {
+      "path": "design-addendum.md",
+      "exists_now": false,
+      "first_item": "13.9",
+      "kind": "planned_or_reference_requires_context_resolution"
+    },
+    {
+      "path": ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/test-results/step-7.10-style-exception.md",
+      "exists_now": false,
+      "first_item": "13.9",
+      "kind": "planned_or_reference_requires_context_resolution"
+    },
+    {
+      "path": "test-sweep-command-summary.md",
+      "exists_now": false,
+      "first_item": "13.9",
+      "kind": "planned_or_reference_requires_context_resolution"
+    },
+    {
+      "path": ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/docs/",
+      "exists_now": true,
+      "first_item": "13.9",
+      "kind": "planned_or_reference_requires_context_resolution"
+    },
+    {
+      "path": ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/docs/qa-primitive-path-report.md",
+      "exists_now": false,
+      "first_item": "13.9",
+      "kind": "planned_or_reference_requires_context_resolution"
+    },
+    {
+      "path": ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/docs/qa-command-skill-report.md",
+      "exists_now": false,
+      "first_item": "13.10",
+      "kind": "planned_or_reference_requires_context_resolution"
+    },
+    {
+      "path": ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/docs/qa-contract-rule-report.md",
+      "exists_now": false,
+      "first_item": "13.11",
+      "kind": "planned_or_reference_requires_context_resolution"
+    },
+    {
+      "path": ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/docs/qa-routing-rows-report.md",
+      "exists_now": false,
+      "first_item": "13.12",
+      "kind": "planned_or_reference_requires_context_resolution"
+    },
+    {
+      "path": "src/superclaude/cli/sweep/commands.py",
+      "exists_now": false,
+      "first_item": "13.13",
+      "kind": "planned_or_reference_requires_context_resolution"
+    },
+    {
+      "path": ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/docs/qa-readonly-claims-report.md",
+      "exists_now": false,
+      "first_item": "13.13",
+      "kind": "planned_or_reference_requires_context_resolution"
+    },
+    {
+      "path": ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/docs/qa-reader-clarity-report.md",
+      "exists_now": false,
+      "first_item": "13.14",
+      "kind": "planned_or_reference_requires_context_resolution"
+    },
+    {
+      "path": "src/superclaude/commands/graph.md",
+      "exists_now": true,
+      "first_item": "13.16",
+      "kind": "planned_or_reference_requires_context_resolution"
+    },
+    {
+      "path": "src/superclaude/commands/issue.md",
+      "exists_now": true,
+      "first_item": "13.16",
+      "kind": "planned_or_reference_requires_context_resolution"
+    },
+    {
+      "path": "src/superclaude/skills/sc-graph-protocol/SKILL.md",
+      "exists_now": true,
+      "first_item": "13.16",
+      "kind": "planned_or_reference_requires_context_resolution"
+    },
+    {
+      "path": ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/docs/qa-conventions-report.md",
+      "exists_now": false,
+      "first_item": "13.16",
+      "kind": "planned_or_reference_requires_context_resolution"
+    },
+    {
+      "path": ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/docs/consolidated-findings-cycle0.md",
+      "exists_now": false,
+      "first_item": "13.18",
+      "kind": "planned_or_reference_requires_context_resolution"
+    },
+    {
+      "path": ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/test-results/test-sweep-command-summary.md",
+      "exists_now": false,
+      "first_item": "13.18",
+      "kind": "planned_or_reference_requires_context_resolution"
+    },
+    {
+      "path": "phase11-validation.md",
+      "exists_now": false,
+      "first_item": "13.18",
+      "kind": "planned_or_reference_requires_context_resolution"
+    },
+    {
+      "path": ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/docs/fix-log-cycle1.md",
+      "exists_now": false,
+      "first_item": "13.18",
+      "kind": "planned_or_reference_requires_context_resolution"
+    },
+    {
+      "path": ".claude/",
+      "exists_now": true,
+      "first_item": "13.18",
+      "kind": "planned_or_reference_requires_context_resolution"
+    },
+    {
+      "path": "src/superclaude/",
+      "exists_now": true,
+      "first_item": "13.18",
+      "kind": "planned_or_reference_requires_context_resolution"
+    },
+    {
+      "path": "tests/",
+      "exists_now": true,
+      "first_item": "13.18",
+      "kind": "planned_or_reference_requires_context_resolution"
+    },
+    {
+      "path": "phase-outputs/test-results/step-7.10-style-exception.md",
+      "exists_now": false,
+      "first_item": "13.18",
+      "kind": "planned_or_reference_requires_context_resolution"
+    },
+    {
+      "path": ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/docs/cycle-ledger.md",
+      "exists_now": false,
+      "first_item": "13.19",
+      "kind": "planned_or_reference_requires_context_resolution"
+    },
+    {
+      "path": "cycle-ledger.md",
+      "exists_now": false,
+      "first_item": "13.19",
+      "kind": "planned_or_reference_requires_context_resolution"
+    },
+    {
+      "path": ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/docs/verify-cycle1-rf-qa.md",
+      "exists_now": false,
+      "first_item": "13.19",
+      "kind": "planned_or_reference_requires_context_resolution"
+    },
+    {
+      "path": ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/docs/verify-cycle1-rf-qa-qualitative.md",
+      "exists_now": false,
+      "first_item": "13.20",
+      "kind": "planned_or_reference_requires_context_resolution"
+    },
+    {
+      "path": "phase-outputs/test-results/test-sweep-command-summary.md",
+      "exists_now": false,
+      "first_item": "13.22",
+      "kind": "planned_or_reference_requires_context_resolution"
+    },
+    {
+      "path": ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/docs/cycle1-decision.md",
+      "exists_now": false,
+      "first_item": "13.22",
+      "kind": "planned_or_reference_requires_context_resolution"
+    },
+    {
+      "path": ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/docs/fix-log-cycle2.md",
+      "exists_now": false,
+      "first_item": "13.22",
+      "kind": "planned_or_reference_requires_context_resolution"
+    },
+    {
+      "path": ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/docs/verify-cycle2-rf-qa.md",
+      "exists_now": false,
+      "first_item": "13.23",
+      "kind": "planned_or_reference_requires_context_resolution"
+    },
+    {
+      "path": ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/docs/verify-cycle2-rf-qa-qualitative.md",
+      "exists_now": false,
+      "first_item": "13.24",
+      "kind": "planned_or_reference_requires_context_resolution"
+    },
+    {
+      "path": ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/discovery/final-inventory.md",
+      "exists_now": false,
+      "first_item": "14.19",
+      "kind": "planned_or_reference_requires_context_resolution"
+    },
+    {
+      "path": "docs/designs/orchestrator-mode.md",
+      "exists_now": true,
+      "first_item": "14.19",
+      "kind": "planned_or_reference_requires_context_resolution"
+    },
+    {
+      "path": ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/revisions/chat-output-exception-20261109-133150/design-addendum.md",
+      "exists_now": true,
+      "first_item": "14.19",
+      "kind": "planned_or_reference_requires_context_resolution"
+    },
+    {
+      "path": "BUILD-REQUEST.md",
+      "exists_now": false,
+      "first_item": "14.19",
+      "kind": "planned_or_reference_requires_context_resolution"
+    },
+    {
+      "path": "delta-manifest.md",
+      "exists_now": false,
+      "first_item": "14.19",
+      "kind": "planned_or_reference_requires_context_resolution"
+    },
+    {
+      "path": ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/plans/",
+      "exists_now": true,
+      "first_item": "14.19",
+      "kind": "planned_or_reference_requires_context_resolution"
+    },
+    {
+      "path": ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/artifacts/owner-decisions.md",
+      "exists_now": false,
+      "first_item": "14.19",
+      "kind": "planned_or_reference_requires_context_resolution"
+    },
+    {
+      "path": ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/test-results/phase14-sync.md",
+      "exists_now": false,
+      "first_item": "14.19",
+      "kind": "planned_or_reference_requires_context_resolution"
+    },
+    {
+      "path": "phase14-lint.md",
+      "exists_now": false,
+      "first_item": "14.19",
+      "kind": "planned_or_reference_requires_context_resolution"
+    },
+    {
+      "path": "phase14-scoped-pytest.md",
+      "exists_now": false,
+      "first_item": "14.19",
+      "kind": "planned_or_reference_requires_context_resolution"
+    },
+    {
+      "path": "phase14-full-pytest.md",
+      "exists_now": false,
+      "first_item": "14.19",
+      "kind": "planned_or_reference_requires_context_resolution"
+    },
+    {
+      "path": "step-1.28-grep.md",
+      "exists_now": false,
+      "first_item": "14.19",
+      "kind": "planned_or_reference_requires_context_resolution"
+    },
+    {
+      "path": ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/artifacts/sweep-help-pipx.txt",
+      "exists_now": false,
+      "first_item": "14.19",
+      "kind": "planned_or_reference_requires_context_resolution"
+    },
+    {
+      "path": ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/final/",
+      "exists_now": true,
+      "first_item": "14.19",
+      "kind": "planned_or_reference_requires_context_resolution"
+    },
+    {
+      "path": "final-inventory.md",
+      "exists_now": false,
+      "first_item": "14.19",
+      "kind": "planned_or_reference_requires_context_resolution"
+    },
+    {
+      "path": ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/final/qa-cross-artifact-report.md",
+      "exists_now": false,
+      "first_item": "14.19",
+      "kind": "planned_or_reference_requires_context_resolution"
+    },
+    {
+      "path": ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/final/consolidated-findings-cycle0.md",
+      "exists_now": false,
+      "first_item": "14.25",
+      "kind": "planned_or_reference_requires_context_resolution"
+    },
+    {
+      "path": ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/final/fix-log-cycle1.md",
+      "exists_now": false,
+      "first_item": "14.25",
+      "kind": "planned_or_reference_requires_context_resolution"
+    },
+    {
+      "path": "docs/",
+      "exists_now": true,
+      "first_item": "14.25",
+      "kind": "planned_or_reference_requires_context_resolution"
+    },
+    {
+      "path": ".dev/brainstorms/20261108-024258-orchestrator-mode-phase1/merged-requirements.md",
+      "exists_now": true,
+      "first_item": "14.25",
+      "kind": "planned_or_reference_requires_context_resolution"
+    },
+    {
+      "path": ".claude/settings.json",
+      "exists_now": true,
+      "first_item": "14.25",
+      "kind": "planned_or_reference_requires_context_resolution"
+    },
+    {
+      "path": ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/final/cycle-ledger.md",
+      "exists_now": false,
+      "first_item": "14.26",
+      "kind": "planned_or_reference_requires_context_resolution"
+    },
+    {
+      "path": ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/final/verify-cycle1-rf-qa.md",
+      "exists_now": false,
+      "first_item": "14.26",
+      "kind": "planned_or_reference_requires_context_resolution"
+    },
+    {
+      "path": ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/final/verify-cycle1-rf-qa-qualitative.md",
+      "exists_now": false,
+      "first_item": "14.27",
+      "kind": "planned_or_reference_requires_context_resolution"
+    },
+    {
+      "path": ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/final/cycle1-decision.md",
+      "exists_now": false,
+      "first_item": "14.29",
+      "kind": "planned_or_reference_requires_context_resolution"
+    },
+    {
+      "path": ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/final/fix-log-cycle2.md",
+      "exists_now": false,
+      "first_item": "14.29",
+      "kind": "planned_or_reference_requires_context_resolution"
+    },
+    {
+      "path": ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/final/verify-cycle2-rf-qa.md",
+      "exists_now": false,
+      "first_item": "14.30",
+      "kind": "planned_or_reference_requires_context_resolution"
+    },
+    {
+      "path": ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/final/verify-cycle2-rf-qa-qualitative.md",
+      "exists_now": false,
+      "first_item": "14.31",
+      "kind": "planned_or_reference_requires_context_resolution"
+    },
+    {
+      "path": ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/fidelity/",
+      "exists_now": true,
+      "first_item": "14.33",
+      "kind": "planned_or_reference_requires_context_resolution"
+    },
+    {
+      "path": ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/fidelity/qa-design-part1-report.md",
+      "exists_now": false,
+      "first_item": "14.33",
+      "kind": "planned_or_reference_requires_context_resolution"
+    },
+    {
+      "path": ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/fidelity/qa-design-part2-report.md",
+      "exists_now": false,
+      "first_item": "14.34",
+      "kind": "planned_or_reference_requires_context_resolution"
+    },
+    {
+      "path": ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/fidelity/qa-spec-report.md",
+      "exists_now": false,
+      "first_item": "14.35",
+      "kind": "planned_or_reference_requires_context_resolution"
+    },
+    {
+      "path": ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/fidelity/qa-cross-source-report.md",
+      "exists_now": false,
+      "first_item": "14.36",
+      "kind": "planned_or_reference_requires_context_resolution"
+    },
+    {
+      "path": ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/fidelity/consolidated-findings-cycle0.md",
+      "exists_now": false,
+      "first_item": "14.38",
+      "kind": "planned_or_reference_requires_context_resolution"
+    },
+    {
+      "path": ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/fidelity/fix-log-cycle1.md",
+      "exists_now": false,
+      "first_item": "14.38",
+      "kind": "planned_or_reference_requires_context_resolution"
+    },
+    {
+      "path": ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/fidelity/cycle-ledger.md",
+      "exists_now": false,
+      "first_item": "14.39",
+      "kind": "planned_or_reference_requires_context_resolution"
+    },
+    {
+      "path": ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/fidelity/verify-cycle1-rf-qa.md",
+      "exists_now": false,
+      "first_item": "14.39",
+      "kind": "planned_or_reference_requires_context_resolution"
+    },
+    {
+      "path": ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/fidelity/verify-cycle1-rf-qa-qualitative.md",
+      "exists_now": false,
+      "first_item": "14.40",
+      "kind": "planned_or_reference_requires_context_resolution"
+    },
+    {
+      "path": ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/fidelity/cycle1-decision.md",
+      "exists_now": false,
+      "first_item": "14.42",
+      "kind": "planned_or_reference_requires_context_resolution"
+    },
+    {
+      "path": ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/fidelity/fix-log-cycle2.md",
+      "exists_now": false,
+      "first_item": "14.42",
+      "kind": "planned_or_reference_requires_context_resolution"
+    },
+    {
+      "path": ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/fidelity/verify-cycle2-rf-qa.md",
+      "exists_now": false,
+      "first_item": "14.43",
+      "kind": "planned_or_reference_requires_context_resolution"
+    },
+    {
+      "path": ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/fidelity/verify-cycle2-rf-qa-qualitative.md",
+      "exists_now": false,
+      "first_item": "14.44",
+      "kind": "planned_or_reference_requires_context_resolution"
+    }
+  ]
+}

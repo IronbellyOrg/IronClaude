@@ -1,0 +1,21 @@
+{
+  "id": "00000000-0000-4000-8000-000000000053",
+  "ok": true,
+  "result": {
+    "workers": [],
+    "counts": {},
+    "page": {
+      "limit": 100,
+      "total": 0,
+      "hasMore": false,
+      "nextCursor": null
+    },
+    "scope": {
+      "run": "run_000000000000",
+      "source": "flag"
+    }
+  },
+  "_meta": {
+    "runtimeId": "00000000-0000-4000-8000-000000000004"
+  }
+}

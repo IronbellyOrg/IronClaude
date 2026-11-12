@@ -1,0 +1,116 @@
+# Item 10.5: tests/sweep/test_report.py results
+
+Command: uv run pytest tests/sweep/test_report.py -v
+--- pytest stdout ---
+============================= test session starts ==============================
+platform linux -- Python 3.11.15, pytest-9.2.0, pluggy-1.7.0 -- /home/coder/workspaces/worktrees/IronClaude/issue-339-orchestrator-mode/.venv/bin/python
+cachedir: .pytest_cache
+SuperClaude: 5.0.0
+rootdir: /home/coder/workspaces/worktrees/IronClaude/issue-339-orchestrator-mode
+configfile: pyproject.toml
+plugins: superclaude-5.0.0, anyio-4.16.0
+collecting ... collected 56 items
+
+tests/sweep/test_report.py::test_heading_order_equals_section_7_5[full] PASSED [  1%]
+tests/sweep/test_report.py::test_heading_order_equals_section_7_5[empty] PASSED [  3%]
+tests/sweep/test_report.py::test_sections_tuple_has_twelve_functions_and_render_joins_them PASSED [  5%]
+tests/sweep/test_report.py::test_last_line_is_report_complete[full] PASSED [  7%]
+tests/sweep/test_report.py::test_last_line_is_report_complete[empty] PASSED [  8%]
+tests/sweep/test_report.py::test_header_first_line_and_scope_line_are_exact PASSED [ 10%]
+tests/sweep/test_report.py::test_header_has_the_seven_exact_lines_of_design_7_5 PASSED [ 12%]
+tests/sweep/test_report.py::test_header_sources_line_says_none_when_there_are_no_sources PASSED [ 14%]
+tests/sweep/test_report.py::test_discovery_incomplete_banner_is_in_the_header_only_when_discovery_is_incomplete[ps-unscanned] PASSED [ 16%]
+tests/sweep/test_report.py::test_discovery_incomplete_banner_is_in_the_header_only_when_discovery_is_incomplete[complete] PASSED [ 17%]
+tests/sweep/test_report.py::test_discovery_incomplete_banner_is_in_the_header_only_when_discovery_is_incomplete[orca-unavailable] PASSED [ 19%]
+tests/sweep/test_report.py::test_banner_names_the_worktree_list_truncated_reason_in_the_ps_unscanned_form PASSED [ 21%]
+tests/sweep/test_report.py::test_banner_reason_is_the_sanitized_unscanned_text PASSED [ 23%]
+tests/sweep/test_report.py::test_orca_unavailable_keeps_the_old_banner_even_when_the_ps_row_has_a_reason PASSED [ 25%]
+tests/sweep/test_report.py::test_no_banner_when_only_a_source_other_than_ps_is_unscanned_or_ps_was_read[ps-read] PASSED [ 26%]
+tests/sweep/test_report.py::test_no_banner_when_only_a_source_other_than_ps_is_unscanned_or_ps_was_read[other-source-unscanned] PASSED [ 28%]
+tests/sweep/test_report.py::test_waiting_a_sorts_oldest_first_then_unknown_age_with_ties_by_id PASSED [ 30%]
+tests/sweep/test_report.py::test_waiting_b_lists_frozen_then_ready_tasks_and_never_prints_question_text PASSED [ 32%]
+tests/sweep/test_report.py::test_injection_keeps_the_column_count_and_leaves_no_active_tag_or_link[pipe] PASSED [ 33%]
+tests/sweep/test_report.py::test_injection_keeps_the_column_count_and_leaves_no_active_tag_or_link[ansi] PASSED [ 35%]
+tests/sweep/test_report.py::test_injection_keeps_the_column_count_and_leaves_no_active_tag_or_link[bidi] PASSED [ 37%]
+tests/sweep/test_report.py::test_injection_keeps_the_column_count_and_leaves_no_active_tag_or_link[script] PASSED [ 39%]
+tests/sweep/test_report.py::test_injection_keeps_the_column_count_and_leaves_no_active_tag_or_link[link] PASSED [ 41%]
+tests/sweep/test_report.py::test_cell_keeps_text_up_to_200_characters[199] PASSED [ 42%]
+tests/sweep/test_report.py::test_cell_keeps_text_up_to_200_characters[200] PASSED [ 44%]
+tests/sweep/test_report.py::test_cell_cuts_longer_text_to_200_characters_ending_in_dots[201] PASSED [ 46%]
+tests/sweep/test_report.py::test_cell_cuts_longer_text_to_200_characters_ending_in_dots[300] PASSED [ 48%]
+tests/sweep/test_report.py::test_300_character_cell_prints_200_characters_while_the_json_value_is_whole PASSED [ 50%]
+tests/sweep/test_report.py::test_render_twice_gives_equal_bytes_and_equal_json_apart_from_report_path PASSED [ 51%]
+tests/sweep/test_report.py::test_source_loss_gives_could_not_determine_with_the_unscanned_reason PASSED [ 53%]
+tests/sweep/test_report.py::test_orca_lock_risk_line_by_observed_version[checked-build] PASSED [ 55%]
+tests/sweep/test_report.py::test_orca_lock_risk_line_by_observed_version[other-version] PASSED [ 57%]
+tests/sweep/test_report.py::test_orca_lock_risk_line_by_observed_version[missing-file] PASSED [ 58%]
+tests/sweep/test_report.py::test_bound_reached_line_is_in_the_header_only_when_the_count_is_at_least_one PASSED [ 60%]
+tests/sweep/test_report.py::test_full_worker_list_page_prints_the_lower_bound_line_and_json_true PASSED [ 62%]
+tests/sweep/test_report.py::test_remote_coverage_row_and_scope_line_never_say_there_are_no_sessions PASSED [ 64%]
+tests/sweep/test_report.py::test_sp24_footnote_is_in_the_sessions_section[full] PASSED [ 66%]
+tests/sweep/test_report.py::test_sp24_footnote_is_in_the_sessions_section[empty] PASSED [ 67%]
+tests/sweep/test_report.py::test_empty_sections_print_the_exact_no_records_string PASSED [ 69%]
+tests/sweep/test_report.py::test_next_inspection_map_has_an_entry_per_rule_and_only_names_a_read PASSED [ 71%]
+tests/sweep/test_report.py::test_every_sessions_row_has_a_next_inspection_cell_from_the_map PASSED [ 73%]
+tests/sweep/test_report.py::test_next_inspection_waiting_signal_and_fallback_fit_every_outcome PASSED [ 75%]
+tests/sweep/test_report.py::test_sessions_safe_to_close_cell_carries_its_reason PASSED [ 76%]
+tests/sweep/test_report.py::test_orca_dropping_mid_run_is_not_reported_as_nothing_read PASSED [ 78%]
+tests/sweep/test_report.py::test_sp16_literal_is_printed_under_could_not_determine PASSED [ 80%]
+tests/sweep/test_report.py::test_wc13_row_is_listed_under_retained_problems PASSED [ 82%]
+tests/sweep/test_report.py::test_d9_origin_not_proved_note_is_in_the_row_and_in_the_json_notes PASSED [ 83%]
+tests/sweep/test_report.py::test_rule6_finished_rows_never_say_admitted_or_accepted PASSED [ 85%]
+tests/sweep/test_report.py::test_ten_dimensions_are_sessions_columns_and_not_json_keys PASSED [ 87%]
+tests/sweep/test_report.py::test_lifecycle_health_and_result_cells_come_from_the_classifier PASSED [ 89%]
+tests/sweep/test_report.py::test_freshness_cell_comes_from_the_classifier_for_a_fresh_and_a_stale_transcript PASSED [ 91%]
+tests/sweep/test_report.py::test_dimension_9_prints_frozen_or_unknown_never_not_frozen PASSED [ 92%]
+tests/sweep/test_report.py::test_every_session_count_line_is_a_set_union_not_a_sum PASSED [ 94%]
+tests/sweep/test_report.py::test_report_holds_no_action_control PASSED   [ 96%]
+tests/sweep/test_report.py::test_report_holds_no_command_to_paste PASSED [ 98%]
+tests/sweep/test_report.py::test_report_gives_no_advice_to_delete_anything_under_dev_tasks PASSED [100%]
+
+============================== 56 passed in 0.42s ==============================
+
+--- case-to-test map (DESIGN section 11 `test_report.py` row in the row's own order, then the builder decisions, then the cases added by reflect run 2) ---
+Test names are in tests/sweep/test_report.py. DESIGN line numbers below are the current file's (the item text cites older ones).
+
+ 1. Heading order equals section 7.5 (empty and full report): test_heading_order_equals_section_7_5[full|empty]; SECTIONS holds 12 functions and render joins them: test_sections_tuple_has_twelve_functions_and_render_joins_them
+ 2. (a) sort, 3 ages plus one unknown, tie-break by ID (also the earlier-of contract time and agentWait time): test_waiting_a_sorts_oldest_first_then_unknown_age_with_ties_by_id
+ 3. (b) never prints question text (frozen rows, then the Ready Tasks sub-heading and count line): test_waiting_b_lists_frozen_then_ready_tasks_and_never_prints_question_text
+ 4. Injection fixture (`a|b`, ANSI, bidi override, `<script>`, a Markdown link) keeps the column count and leaves no active tag or link: test_injection_keeps_the_column_count_and_leaves_no_active_tag_or_link[pipe|ansi|bidi|script|link]
+ 5. A 300-character cell prints 200 characters ending `...` while the JSON value is whole: test_300_character_cell_prints_200_characters_while_the_json_value_is_whole; cell boundary: test_cell_keeps_text_up_to_200_characters[199|200], test_cell_cuts_longer_text_to_200_characters_ending_in_dots[201|300]
+ 6. Render twice gives equal bytes and equal JSON apart from report_path (time comes from ctx.now only): test_render_twice_gives_equal_bytes_and_equal_json_apart_from_report_path
+ 7. Source-loss fixture: could not determine with the `unscanned:` reason, never finished, failed, not frozen or a recommendation (control row is finished before the loss): test_source_loss_gives_could_not_determine_with_the_unscanned_reason
+ 8. Version line for `1.4.245-aidev02.780594c521aa`, `1.4.246` and a missing file: test_orca_lock_risk_line_by_observed_version[checked-build|other-version|missing-file]
+ 9. The `bound_reached` line text (header; absent at 0; Retained problems line): test_bound_reached_line_is_in_the_header_only_when_the_count_is_at_least_one
+10. The SP-24 footnote: test_sp24_footnote_is_in_the_sessions_section[full|empty]
+11. The empty-section string (eight sections, Waiting (b) twice; absent from a full report): test_empty_sections_print_the_exact_no_records_string
+12. The `next inspection` map has an entry for every rule name (keys equal classify.RULES) and no stop, retry, release, merge or removal word: test_next_inspection_map_has_an_entry_per_rule_and_only_names_a_read; every Sessions row has a non-empty cell taken from the map: test_every_sessions_row_has_a_next_inspection_cell_from_the_map
+13. Rule 6 wording: a finished row's report text and JSON contain neither `admitted` nor `accepted` (guard-refused body quotes both): test_rule6_finished_rows_never_say_admitted_or_accepted
+14. Remote coverage: `remote hosts` row with coverage `unknown`, Scope line `(lower bound: remote hosts not scanned)`, never a no-sessions line: test_remote_coverage_row_and_scope_line_never_say_there_are_no_sessions; exact first and Scope lines: test_header_first_line_and_scope_line_are_exact
+15. The WC-13 row under `## Retained problems`: test_wc13_row_is_listed_under_retained_problems
+16. The SP-16 literal under `## Could not determine`: test_sp16_literal_is_printed_under_could_not_determine
+17. D9 `origin not proved` note in the row and in the JSON `notes`: test_d9_origin_not_proved_note_is_in_the_row_and_in_the_json_notes
+18. Lower-bound line for a full 100-row page plus JSON `summary.total_is_lower_bound` True (also True when not truncated, per the recent classify change): test_full_worker_list_page_prints_the_lower_bound_line_and_json_true
+19. Last line is `Report complete`: test_last_line_is_report_complete[full|empty]
+
+Builder decisions under test:
+20. The ten dimensions are Sessions-table columns and not JSON keys (row key set pinned to DESIGN 7.4): test_ten_dimensions_are_sessions_columns_and_not_json_keys
+21. Dimension 9 prints `frozen` or `unknown`, never `not frozen` (OQ-11, item 8.12), in the report and the JSON: test_dimension_9_prints_frozen_or_unknown_never_not_frozen
+
+DESIGN 7.5 cases added by reflect run 2:
+22. Set-union session count (DESIGN line 645; item cites 636): one session listed in two sections, every `Distinct affected sessions: <N> (set union, not a sum)` line matches, the four lines read 2, 2, 2 and 5 (sum would be 6): test_every_session_count_line_is_a_set_union_not_a_sum
+23. The three renderer bans (DESIGN line 647; item cites 638), over a result with every section populated, with rows and paths under `.dev/tasks/`, and with HTML/checkbox payloads:
+    23a. No action control (no `- [ ]`/`- [x]` checkbox, no `<button`, `<form`, `<input`, `<a `): test_report_holds_no_action_control
+    23b. No command to paste (no fenced code block, no line starting `$ `): test_report_holds_no_command_to_paste
+    23c. No advice to delete anything under `.dev/tasks/` (no line with `.dev/tasks/` and delete, remove, rm , clean, case-insensitive): test_report_gives_no_advice_to_delete_anything_under_dev_tasks
+
+Cases added by the tests-gate fix cycle 1 (TST-F2 and TST-F4, `qa/tests/fix-log-cycle1.md`):
+24. (TST-F2) The seven DESIGN 7.5 header lines, byte for byte (resolved binary `Orca binary: orca-ide`, `Sources:` with the `(age 5s)` suffix, `Messages coverage: partial`, the UNVERIFIED lock-risk line, the `Untracked paths:` line): test_header_has_the_seven_exact_lines_of_design_7_5; `Sources: none` for no sources: test_header_sources_line_says_none_when_there_are_no_sources
+25. (TST-F2) The discovery-incomplete banner is in the header exactly when `orca worktree ps` is unscanned or Orca is unavailable, and once only: test_discovery_incomplete_banner_is_in_the_header_only_when_discovery_is_incomplete[ps-unscanned|complete|orca-unavailable]. Final gate cycle 2 (FIN-F5, `qa/final/fix-log-cycle2.md`): the banner has two forms (the old literal when Orca is unavailable; `... orca worktree ps unscanned (<sanitized reason>); ...` when Orca answered and the ps source is unscanned), and the [ps-unscanned] case expects the second form; added tests: test_banner_names_the_worktree_list_truncated_reason_in_the_ps_unscanned_form, test_banner_reason_is_the_sanitized_unscanned_text, test_orca_unavailable_keeps_the_old_banner_even_when_the_ps_row_has_a_reason, test_no_banner_when_only_a_source_other_than_ps_is_unscanned_or_ps_was_read[2 cases]
+26. (TST-F4) Lifecycle, Health and Result cells of a settled, a failed-contract, a running and a blocked-contract row, produced by `classify_all` and printed by `render`: test_lifecycle_health_and_result_cells_come_from_the_classifier
+27. (TST-F4) Freshness cell for a fresh transcript (`fresh (300s)`) and an unreadable stale one (`stale (25200s)`), and the readable stale transcript classed idle and listed under Historical sessions: test_freshness_cell_comes_from_the_classifier_for_a_fresh_and_a_stale_transcript
+
+Notes:
+- The 300-character case is consistent with report.py: DESIGN says a 300-character cell prints 200 characters ending `...`; report.CELL_MAX is 200. No DESIGN/code conflict found.
+- No code fix was needed in src/superclaude/cli/sweep/.
+- Mutation check (temporary, in memory, nothing left on disk): disabling sanitize, the 200-character cut, the distinct count, the section order, or the frozen/unknown wording each makes the matching tests fail.

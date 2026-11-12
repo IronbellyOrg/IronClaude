@@ -1,0 +1,54 @@
+contract_version: "1.8.0"
+status: partial                 # adversarial convergence_status BLOCKED_BY_INVARIANTS (two HIGH findings folded in); evidence validation clean
+mode: pre
+tier_reached: 2
+report_path: ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/revisions/plan-defect-fixes-20261110/reflect/pre/REPORT.md"
+audit_log_path: ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/revisions/plan-defect-fixes-20261110/reflect/pre/audit.log"
+confidence_calibrated: 0.80
+escalation_rule_matched: 4      # rubric rule 4 (S_domains 5 >= 3); the section 5.1 override --depth deep fired first
+onboarding_ran: false
+coverage_pct: 1.0
+coverage_pct_union: 0.99
+coverage_undefined: false
+coverage_degraded: null
+unmapped_requirements: []
+unmapped_requirements_union: ["INF-017", "INF-A29"]
+best_practice_grade: 4
+input_sha256:
+  tasklist: eb291f0bdd1a787131a3b5295150b0f109b46943a1c43c638fd2ad4652d29f99
+  spec: e4a06d0cf1c2e81df1c61138587a511c5ccd065cd896a42bb6f04ab329afacf3
+input_tree_sha256: 1e56054f58022d82d0d035bbd8752583c5e9e6d8e638fc8e7896b27ba8f63cfc
+input_tree_file_count: 147
+input_tree_snapshot_path: ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/revisions/plan-defect-fixes-20261110/reflect/pre/artifacts/input-snapshot.yaml"
+input_drift_detected: false
+citations_total: 132
+citations_revalidated: 132
+citations_dropped: 0
+citation_budget_policy: full_reread
+evidence_validator_ran: true
+reviewer_cards: ["reviewer-cards/reviewer-1-card.md", "reviewer-cards/reviewer-2-card.md", "reviewer-cards/reviewer-3-card.md"]
+adversarial_artifacts_dir: ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/revisions/plan-defect-fixes-20261110/reflect/pre/adversarial/"
+adversarial_convergence_score: 0.935
+adversarial_unavailable: false
+merge_method: adversarial
+t2_model_class_diversity: full
+t2_vendor_diversity: single
+t2_effective_diversity: model-only
+calibrator_diversity: degraded
+remediation_offered: true
+remediation_accepted: false
+cannot_validate_without_user_input: false
+regression_present: false
+unauthorized_deviation_present: false
+spec_is_wrong: false
+user_decision_required: true     # M-01 (outside the 85 labels) needs a new bounded authorization; M-02, M-06, M-08 and the 14.x part of M-03 need acceptance by name
+needs_human_decision: true
+findings: {HIGH: 2, MEDIUM: 1, LOW: 6, total: 9}
+merged_verdict_path: ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/revisions/plan-defect-fixes-20261110/reflect/pre/adversarial/merged-verdict.yaml"
+tier_decision_path: ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/revisions/plan-defect-fixes-20261110/reflect/pre/artifacts/tier_decision.yaml"
+tcs: 1860
+depth: deep
+run_id: "reflect-pre-20261110T0540Z-TASK-RF-sweep-phase1-run4-plan-defect-fixes"
+notes:
+  - "Telemetry not in the stable contract: reviewer_models [claude-sonnet-5-5, gpt-6.1-sol, claude-opus-5-5]; reviewer 3 outside the Tier1b slots; degraded_components [calibrator-diversity, vendor-diversity]; memory_persist_skipped tracked-file-write-deferred."
+  - "Mandatory-run check (A.10.7): REPORT.md exists on disk, run_id is a real run id, depth deep matches the TCS band (1860 >= 35), tier_reached 2 as the deep band requires."

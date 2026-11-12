@@ -1,0 +1,228 @@
+# test-cli-contract.txt: item 10.7 (Step 1.13), tests/sweep/test_cli_contract.py
+
+Command: uv run pytest tests/sweep/test_cli_contract.py -v
+Real stdout follows.
+
+============================= test session starts ==============================
+platform linux -- Python 3.11.15, pytest-9.2.0, pluggy-1.7.0 -- /home/coder/workspaces/worktrees/IronClaude/issue-339-orchestrator-mode/.venv/bin/python
+cachedir: .pytest_cache
+SuperClaude: 5.0.0
+rootdir: /home/coder/workspaces/worktrees/IronClaude/issue-339-orchestrator-mode
+configfile: pyproject.toml
+plugins: superclaude-5.0.0, anyio-4.16.0
+collecting ... collected 95 items
+
+tests/sweep/test_cli_contract.py::test_empty_run_id_exits_2_before_any_orca_call PASSED [  1%]
+tests/sweep/test_cli_contract.py::test_run_id_with_a_semicolon_exits_2_before_any_orca_call PASSED [  2%]
+tests/sweep/test_cli_contract.py::test_run_id_that_does_not_match_the_run_pattern_exits_2[spec-R1] PASSED [  3%]
+tests/sweep/test_cli_contract.py::test_run_id_that_does_not_match_the_run_pattern_exits_2[spec-BAD] PASSED [  4%]
+tests/sweep/test_cli_contract.py::test_run_id_that_does_not_match_the_run_pattern_exits_2[upper-case-hex] PASSED [  5%]
+tests/sweep/test_cli_contract.py::test_run_id_that_does_not_match_the_run_pattern_exits_2[11-hex] PASSED [  6%]
+tests/sweep/test_cli_contract.py::test_run_id_that_does_not_match_the_run_pattern_exits_2[13-hex] PASSED [  7%]
+tests/sweep/test_cli_contract.py::test_run_id_that_does_not_match_the_run_pattern_exits_2[leading-space] PASSED [  8%]
+tests/sweep/test_cli_contract.py::test_one_bad_run_id_among_good_ones_exits_2_and_reads_nothing PASSED [  9%]
+tests/sweep/test_cli_contract.py::test_duplicate_run_ids_collapse_to_one_worker_list_argv PASSED [ 10%]
+tests/sweep/test_cli_contract.py::test_duplicate_run_ids_keep_first_seen_order PASSED [ 11%]
+tests/sweep/test_cli_contract.py::test_unknown_run_then_a_second_run_reads_both_and_exits_0 PASSED [ 12%]
+tests/sweep/test_cli_contract.py::test_binding_1_no_run_and_first_call_failure_exits_2_with_one_argv PASSED [ 13%]
+tests/sweep/test_cli_contract.py::test_binding_2_explicit_run_and_first_call_failure_publishes_and_exits_0 PASSED [ 14%]
+tests/sweep/test_cli_contract.py::test_binding_3_binding_then_second_call_failure_publishes_and_exits_0 PASSED [ 15%]
+tests/sweep/test_cli_contract.py::test_orca_answered_but_worktree_list_truncated_prints_the_ps_unscanned_banner PASSED [ 16%]
+tests/sweep/test_cli_contract.py::test_binding_4_captured_no_binding_shape_exits_2_and_reads_nothing_else PASSED [ 17%]
+tests/sweep/test_cli_contract.py::test_valid_windows_parse_and_reach_the_json[1h-1-1h] PASSED [ 18%]
+tests/sweep/test_cli_contract.py::test_valid_windows_parse_and_reach_the_json[6h-6-6h] PASSED [ 20%]
+tests/sweep/test_cli_contract.py::test_valid_windows_parse_and_reach_the_json[2d-48-48h] PASSED [ 21%]
+tests/sweep/test_cli_contract.py::test_valid_windows_parse_and_reach_the_json[3d-72-72h] PASSED [ 22%]
+tests/sweep/test_cli_contract.py::test_valid_windows_parse_and_reach_the_json[720h-720-720h] PASSED [ 23%]
+tests/sweep/test_cli_contract.py::test_valid_windows_parse_and_reach_the_json[30d-720-720h] PASSED [ 24%]
+tests/sweep/test_cli_contract.py::test_valid_windows_parse_and_reach_the_json[9h-9-9h] PASSED [ 25%]
+tests/sweep/test_cli_contract.py::test_valid_windows_parse_and_reach_the_json[100h-100-100h] PASSED [ 26%]
+tests/sweep/test_cli_contract.py::test_default_window_is_6h PASSED       [ 27%]
+tests/sweep/test_cli_contract.py::test_window_reaches_the_classification[1h-is-idle] PASSED [ 28%]
+tests/sweep/test_cli_contract.py::test_window_reaches_the_classification[12h-is-active] PASSED [ 29%]
+tests/sweep/test_cli_contract.py::test_window_reaches_the_classification[2h-edge-is-active] PASSED [ 30%]
+tests/sweep/test_cli_contract.py::test_invalid_windows_exit_2_and_write_nothing['0h'] PASSED [ 31%]
+tests/sweep/test_cli_contract.py::test_invalid_windows_exit_2_and_write_nothing['0d'] PASSED [ 32%]
+tests/sweep/test_cli_contract.py::test_invalid_windows_exit_2_and_write_nothing['6'] PASSED [ 33%]
+tests/sweep/test_cli_contract.py::test_invalid_windows_exit_2_and_write_nothing['6m'] PASSED [ 34%]
+tests/sweep/test_cli_contract.py::test_invalid_windows_exit_2_and_write_nothing['7m'] PASSED [ 35%]
+tests/sweep/test_cli_contract.py::test_invalid_windows_exit_2_and_write_nothing['-1h'] PASSED [ 36%]
+tests/sweep/test_cli_contract.py::test_invalid_windows_exit_2_and_write_nothing['721h'] PASSED [ 37%]
+tests/sweep/test_cli_contract.py::test_invalid_windows_exit_2_and_write_nothing['31d'] PASSED [ 38%]
+tests/sweep/test_cli_contract.py::test_invalid_windows_exit_2_and_write_nothing['999999999d'] PASSED [ 40%]
+tests/sweep/test_cli_contract.py::test_invalid_windows_exit_2_and_write_nothing['10000h'] PASSED [ 41%]
+tests/sweep/test_cli_contract.py::test_invalid_windows_exit_2_and_write_nothing['06h'] PASSED [ 42%]
+tests/sweep/test_cli_contract.py::test_invalid_windows_exit_2_and_write_nothing['1.5h'] PASSED [ 43%]
+tests/sweep/test_cli_contract.py::test_invalid_windows_exit_2_and_write_nothing['6H'] PASSED [ 44%]
+tests/sweep/test_cli_contract.py::test_invalid_windows_exit_2_and_write_nothing[' 6h'] PASSED [ 45%]
+tests/sweep/test_cli_contract.py::test_invalid_windows_exit_2_and_write_nothing['6h '] PASSED [ 46%]
+tests/sweep/test_cli_contract.py::test_invalid_windows_exit_2_and_write_nothing['\u0666h'] PASSED [ 47%]
+tests/sweep/test_cli_contract.py::test_invalid_windows_exit_2_and_write_nothing[''] PASSED [ 48%]
+tests/sweep/test_cli_contract.py::test_default_output_is_dot_dev_sweeps_under_the_root PASSED [ 49%]
+tests/sweep/test_cli_contract.py::test_output_below_dot_dev_sweeps_is_accepted PASSED [ 50%]
+tests/sweep/test_cli_contract.py::test_output_equal_to_dot_dev_sweeps_is_accepted PASSED [ 51%]
+tests/sweep/test_cli_contract.py::test_output_outside_dot_dev_sweeps_exits_2_and_writes_nothing PASSED [ 52%]
+tests/sweep/test_cli_contract.py::test_output_in_dot_dev_but_not_sweeps_exits_2_and_writes_nothing[dev] PASSED [ 53%]
+tests/sweep/test_cli_contract.py::test_output_in_dot_dev_but_not_sweeps_exits_2_and_writes_nothing[dev-tasks] PASSED [ 54%]
+tests/sweep/test_cli_contract.py::test_output_in_dot_dev_but_not_sweeps_exits_2_and_writes_nothing[dev-other] PASSED [ 55%]
+tests/sweep/test_cli_contract.py::test_output_in_dot_dev_but_not_sweeps_exits_2_and_writes_nothing[package-folder] PASSED [ 56%]
+tests/sweep/test_cli_contract.py::test_output_in_dot_dev_but_not_sweeps_exits_2_and_writes_nothing[root] PASSED [ 57%]
+tests/sweep/test_cli_contract.py::test_output_symlink_that_escapes_dot_dev_sweeps_exits_2_and_writes_nothing PASSED [ 58%]
+tests/sweep/test_cli_contract.py::test_symlinked_sweeps_folder_without_output_exits_2_and_writes_nothing PASSED [ 60%]
+tests/sweep/test_cli_contract.py::test_output_that_overlaps_an_input_folder_exits_2 PASSED [ 61%]
+tests/sweep/test_cli_contract.py::test_explicit_root_without_dot_git_exits_2 PASSED [ 62%]
+tests/sweep/test_cli_contract.py::test_explicit_root_that_is_a_file_exits_2 PASSED [ 63%]
+tests/sweep/test_cli_contract.py::test_missing_explicit_root_exits_2 PASSED [ 64%]
+tests/sweep/test_cli_contract.py::test_explicit_root_with_a_dot_git_file_is_accepted PASSED [ 65%]
+tests/sweep/test_cli_contract.py::test_default_root_is_found_by_walking_up_to_a_dot_git_folder PASSED [ 66%]
+tests/sweep/test_cli_contract.py::test_default_root_is_found_by_walking_up_to_a_dot_git_file PASSED [ 67%]
+tests/sweep/test_cli_contract.py::test_the_root_walk_accepts_a_dot_git_file_or_folder_and_makes_no_git_call PASSED [ 68%]
+tests/sweep/test_cli_contract.py::test_a_walk_that_reaches_the_filesystem_root_exits_2 PASSED [ 69%]
+tests/sweep/test_cli_contract.py::test_fr005_three_workers_two_worktrees_one_person_session PASSED [ 70%]
+tests/sweep/test_cli_contract.py::test_fr005_summary_reconciles PASSED   [ 71%]
+tests/sweep/test_cli_contract.py::test_fr005_historical_rows_reconcile_with_visible_ones PASSED [ 72%]
+tests/sweep/test_cli_contract.py::test_golden_v1_top_level_key_set_is_twelve_keys_with_schema_version_1 PASSED [ 73%]
+tests/sweep/test_cli_contract.py::test_golden_v1_keys_and_types_at_every_level PASSED [ 74%]
+tests/sweep/test_cli_contract.py::test_json_worktree_values_are_exact_and_removable_is_never_yes PASSED [ 75%]
+tests/sweep/test_cli_contract.py::test_the_type_check_rejects_a_wrong_key_set_and_a_wrong_type PASSED [ 76%]
+tests/sweep/test_cli_contract.py::test_zero_counts_are_present_for_every_class PASSED [ 77%]
+tests/sweep/test_cli_contract.py::test_waiting_lists_hold_row_ids_only PASSED [ 78%]
+tests/sweep/test_cli_contract.py::test_report_name_is_the_utc_second_with_the_sweep_suffix PASSED [ 80%]
+tests/sweep/test_cli_contract.py::test_two_runs_with_one_now_give_stem_md_and_stem_2_md PASSED [ 81%]
+tests/sweep/test_cli_contract.py::test_an_existing_earlier_report_is_byte_identical_after_a_new_run PASSED [ 82%]
+tests/sweep/test_cli_contract.py::test_exit_code_0_means_the_report_was_published PASSED [ 83%]
+tests/sweep/test_cli_contract.py::test_exit_code_1_is_an_internal_error_with_a_sweep_prefix PASSED [ 84%]
+tests/sweep/test_cli_contract.py::test_exit_code_2_is_a_usage_error PASSED [ 85%]
+tests/sweep/test_cli_contract.py::test_an_internal_error_in_each_pure_stage_exits_1_and_writes_nothing[collect-superclaude.cli.sweep.probes-collect] PASSED [ 86%]
+tests/sweep/test_cli_contract.py::test_an_internal_error_in_each_pure_stage_exits_1_and_writes_nothing[classify-superclaude.cli.sweep.commands-classify_all] PASSED [ 87%]
+tests/sweep/test_cli_contract.py::test_an_internal_error_in_each_pure_stage_exits_1_and_writes_nothing[render-superclaude.cli.sweep.commands-render] PASSED [ 88%]
+tests/sweep/test_cli_contract.py::test_publish_link_failure_exits_1_with_no_report_and_no_temp_file PASSED [ 89%]
+tests/sweep/test_cli_contract.py::test_publish_link_failure_and_unlink_failure_name_the_left_temp_file PASSED [ 90%]
+tests/sweep/test_cli_contract.py::test_publish_full_disk_on_write_exits_1_and_removes_the_temp_file PASSED [ 91%]
+tests/sweep/test_cli_contract.py::test_publish_write_failure_and_unlink_failure_name_the_left_temp_file PASSED [ 92%]
+tests/sweep/test_cli_contract.py::test_publish_with_every_name_from_stem_to_stem_99_taken_exits_1 PASSED [ 93%]
+tests/sweep/test_cli_contract.py::test_publish_takes_stem_99_when_stem_to_stem_98_are_taken PASSED [ 94%]
+tests/sweep/test_cli_contract.py::test_publish_with_an_existing_temp_name_exits_1_and_leaves_that_file_alone PASSED [ 95%]
+tests/sweep/test_cli_contract.py::test_publish_makedirs_failure_exits_1_and_writes_nothing PASSED [ 96%]
+tests/sweep/test_cli_contract.py::test_publish_output_path_that_escapes_after_makedirs_exits_1 PASSED [ 97%]
+tests/sweep/test_cli_contract.py::test_publish_print_failure_after_the_commit_point_leaves_one_complete_report PASSED [ 98%]
+tests/sweep/test_cli_contract.py::test_publish_unlink_failure_after_a_successful_link_leaves_one_complete_report PASSED [100%]
+
+============================== 95 passed in 0.78s ==============================
+
+## Case-to-test map (DESIGN section 11, row for tests/sweep/test_cli_contract.py)
+
+Numbered by the order of the row. Every case has at least one test; a parametrized test is one
+test with the listed ids. Module under test: src/superclaude/cli/sweep/commands.py.
+
+1. Run id case "" (exit 2, `invalid --run value: ` with an empty value, no Orca call, nothing written):
+   test_empty_run_id_exits_2_before_any_orca_call   [CLI-F37: the empty value is echoed]
+2. Run id case 'r;x' (exit 2, `invalid --run value: r;x`):
+   test_run_id_with_a_semicolon_exits_2_before_any_orca_call,
+   test_one_bad_run_id_among_good_ones_exits_2_and_reads_nothing
+   plus the pattern boundary cases: test_run_id_that_does_not_match_the_run_pattern_exits_2[spec-R1|spec-BAD|
+   upper-case-hex|11-hex|13-hex|leading-space]   [CLI-F26: SPEC literals R1, R2, BAD are invalid ids;
+   the tests use run_aaaaaaaaaaaa, run_bbbbbbbbbbbb and the captured unknown Run run_000000000000]
+3. Run id case duplicate (one worker-list argv; first-seen order kept):
+   test_duplicate_run_ids_collapse_to_one_worker_list_argv, test_duplicate_run_ids_keep_first_seen_order
+4. Run id case unknown-Run then R2 (captured shape through the real _orca over a recorded subprocess.run:
+   worker-list exit 0 empty, task-list exit 1 run_not_found; R2 still read; exit 0; `orca task-list <BAD>`
+   unscanned `orca call failed (exit 1)`; `origin unknown: Run not confirmed` on the older transcript):
+   test_unknown_run_then_a_second_run_reads_both_and_exits_0
+   [CLI-F24: the SPEC reason `orca call failed (unknown run)` is never produced; the observed shape is pinned.
+   The ready-form task-list for the unknown Run was not captured; the test gives it the same error body.]
+5. Binding test (1): no --run, first call fails: one argv, exit 2, no report, no JSON:
+   test_binding_1_no_run_and_first_call_failure_exits_2_with_one_argv
+6. Binding test (2): explicit --run, first call fails: one argv, report published, exit 0:
+   test_binding_2_explicit_run_and_first_call_failure_publishes_and_exits_0
+7. Binding test (3): binding established, then second call fails: two argv, report published, exit 0:
+   test_binding_3_binding_then_second_call_failure_publishes_and_exits_0
+8. Binding test (4), GATED on step 1.0a (skipif the capture file is missing): the captured no-binding
+   run-current shape (exit 0, plain sentence) with no --run: exit 2 `no Run bound: pass --run <id>`, no report,
+   no JSON, only the run-current argv recorded (no worker-list or worker-show):
+   test_binding_4_captured_no_binding_shape_exits_2_and_reads_nothing_else
+   [Gate note: the no-binding shape was captured in step 1.0a; the BOUND run-current shape was never captured,
+   so tests 6 and 7 get the bound Run id from the seam fake and no test pins how a bound run-current prints.]
+9. Disk-only continuation prints `unscanned: orca unavailable` (JSON sources, the report's Source coverage
+   rows for `orca task-list --ready`, `orca task-list` and `orca worktree ps`, the Orca-unavailable banner,
+   the root worktree and the transcript still read, note `origin unknown: Orca unavailable`):
+   helper _assert_disk_only_continuation, run by test_binding_2_... and test_binding_3_...
+10. FR-003 parser cases:
+    test_valid_windows_parse_and_reach_the_json[1h|6h|2d|3d|720h|30d|9h|100h] (6h, 2d, 720h, 30d among them),
+    test_default_window_is_6h,
+    test_window_reaches_the_classification[1h-is-idle|12h-is-active|2h-edge-is-active]   [TST-F3, tests-gate fix
+    cycle 1: the same 2 h old transcript is idle under 1h and an active person session under 12h and 2h],
+    test_invalid_windows_exit_2_and_write_nothing['0h','0d','6','6m','7m','-1h','721h','31d','999999999d',
+    '10000h','06h','1.5h','6H',' 6h','6h ','٦h','']
+11. FR-004 output cases:
+    test_default_output_is_dot_dev_sweeps_under_the_root,
+    test_output_below_dot_dev_sweeps_is_accepted (.dev/sweeps/archive/),
+    test_output_equal_to_dot_dev_sweeps_is_accepted,
+    test_output_outside_dot_dev_sweeps_exits_2_and_writes_nothing (a folder outside the root),
+    test_output_in_dot_dev_but_not_sweeps_exits_2_and_writes_nothing[dev|dev-tasks|dev-other|package-folder|root]
+    (.dev/, .dev/tasks/, .dev/other/, a package folder, the root; the tree is unchanged),
+    test_output_symlink_that_escapes_dot_dev_sweeps_exits_2_and_writes_nothing,
+    test_symlinked_sweeps_folder_without_output_exits_2_and_writes_nothing   [CLI-F32: message names --output],
+    test_output_that_overlaps_an_input_folder_exits_2 (_check_output, both overlap directions)
+12. FR-004 root cases:
+    test_explicit_root_without_dot_git_exits_2, test_explicit_root_that_is_a_file_exits_2,
+    test_missing_explicit_root_exits_2 (each `invalid --root: <path>`),
+    test_explicit_root_with_a_dot_git_file_is_accepted,
+    test_default_root_is_found_by_walking_up_to_a_dot_git_folder,
+    test_default_root_is_found_by_walking_up_to_a_dot_git_file,
+    test_the_root_walk_accepts_a_dot_git_file_or_folder_and_makes_no_git_call (no _git argv),
+    test_a_walk_that_reaches_the_filesystem_root_exits_2 (`no git checkout found above <cwd>`)
+13. FR-005 fixture (4 rows, 2 worktrees, `(4/4)`, Worktrees section with 2 rows):
+    test_fr005_three_workers_two_worktrees_one_person_session
+    [the 3 workers are captured rows and shows; the person session is an active transcript; it is a visible
+    row but not person_started True, because worker rows exist and none joined (join guard)]
+14. Reconciliation equalities of the JSON summary (total = visible + historical; counts sum = total;
+    counts.idle = historical; bound_reached <= visible; Sessions heading `(2/3)` with a historical row):
+    test_fr005_summary_reconciles, test_fr005_historical_rows_reconcile_with_visible_ones
+15. Golden v1 key set and types at every level (12 top-level keys, schema_version 1, nested object key sets,
+    exact types, CLASSES order in counts, safe_to_close.worktree never yes):
+    test_golden_v1_top_level_key_set_is_twelve_keys_with_schema_version_1,
+    test_golden_v1_keys_and_types_at_every_level, test_the_type_check_rejects_a_wrong_key_set_and_a_wrong_type
+    (the checker cannot pass vacuously); test_json_worktree_values_are_exact_and_removable_is_never_yes
+    [TST-F1, tests-gate fix cycle 1: `worktrees[]` values by value, `removable` never `yes`]
+16. Zero counts present for every class: test_zero_counts_are_present_for_every_class
+17. `waiting` lists hold ids only: test_waiting_lists_hold_row_ids_only
+18. Two runs with one injected now give stem.md and stem-2.md (and -3; the first report not rewritten):
+    test_two_runs_with_one_now_give_stem_md_and_stem_2_md, test_report_name_is_the_utc_second_with_the_sweep_suffix
+19. One test per exit code:
+    test_exit_code_0_means_the_report_was_published, test_exit_code_1_is_an_internal_error_with_a_sweep_prefix,
+    test_exit_code_2_is_a_usage_error
+    (also test_an_internal_error_in_each_pure_stage_exits_1_and_writes_nothing[collect|classify|render])
+20. Section 3 publication cases (each: exit 1, stdout empty, stderr byte-exact, no file at a report name):
+    a. link failure: test_publish_link_failure_exits_1_with_no_report_and_no_temp_file
+       (an earlier report stays byte-identical)   [CLI-F3: publish lines are not sanitized]
+    b. link failure plus unlink failure, second stderr line `[sweep publish] left temp file <path>`:
+       test_publish_link_failure_and_unlink_failure_name_the_left_temp_file
+    c. full disk on write (os.write raises ENOSPC), temp removed:
+       test_publish_full_disk_on_write_exits_1_and_removes_the_temp_file
+    d. write failure plus unlink failure, left temp file named:
+       test_publish_write_failure_and_unlink_failure_name_the_left_temp_file
+    e. stem.md to stem-99.md all taken (`report name space exhausted: <dir>`; the 99 files byte-identical;
+       no temp file): test_publish_with_every_name_from_stem_to_stem_99_taken_exits_1;
+       the boundary below it: test_publish_takes_stem_99_when_stem_to_stem_98_are_taken
+    f. existing temp name (`temp file exists: <path>`, the file untouched):
+       test_publish_with_an_existing_temp_name_exits_1_and_leaves_that_file_alone
+    g. makedirs failure: test_publish_makedirs_failure_exits_1_and_writes_nothing
+    h. output path that escapes after makedirs (`output dir escaped <root>/.dev/sweeps/`, nothing written
+       through the link): test_publish_output_path_that_escapes_after_makedirs_exits_1
+    i. print failure after the commit point (`[sweep output] print failed`, one complete report, no temp):
+       test_publish_print_failure_after_the_commit_point_leaves_one_complete_report   [CLI-F33]
+    j. os.unlink patched to raise after a successful os.link: exit 1, no success JSON, exactly one complete
+       report ending `Report complete`, stderr `[sweep publish] could not remove temp file <path>` naming the
+       temp path, the temp file left with the same bytes (st_nlink 2):
+       test_publish_unlink_failure_after_a_successful_link_leaves_one_complete_report
+21. An earlier report is byte-identical afterwards (bytes, inode and mtime_ns; never overwritten or renamed):
+    test_an_existing_earlier_report_is_byte_identical_after_a_new_run, test_two_runs_with_one_now_give_stem_md_and_stem_2_md,
+    and the failure cases 20a and 20e
+22. Stdout is exactly one JSON object on success and empty on failure: helpers _payload (exit 0, empty stderr,
+    one line, one JSON object) and _failed (stdout "" and stderr byte-exact), used by every test above.
+
+Mutation check (done once by hand, source restored and compared byte for byte): changing MAX_SUFFIX, MAX_WINDOW_HOURS,
+the run-id dedupe, the window regex, the unit class, the sweeps base, os.link to os.rename, O_EXCL, the unlink after
+the commit point, its message, the escape re-check, the exit code of a usage error and the unlink of the temp file on
+an exit-1 path each made at least one test fail.

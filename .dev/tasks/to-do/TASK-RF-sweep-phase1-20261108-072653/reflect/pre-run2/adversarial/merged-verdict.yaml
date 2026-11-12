@@ -1,0 +1,935 @@
+# Provenance: This document was produced by /sc:adversarial (Step 5, merge-executor)
+# Base: Variant 2 (reviewer 2, qa, haiku slot), variant-2-original.md
+# Merge date: 2026-11-08T15:10Z
+# Plan: refactor-plan.md (30 changes, including "Fix cycle 1"), reviewed FAIL in
+# refactor-plan-review.md, fixed, then PASS in refactor-plan-review-2.md (minor N-01 to N-06).
+# Changes 1 to 28 map one to one onto F-01 to F-28 in order; Change 29 builds row_coverage;
+# Change 30 sets the header, unaddressed_invariants_high, not_carried, grade and confidence.
+# The plan content was not changed for N-01 to N-06; each one is recorded as a note on the
+# affected finding (N-01 to N-04 on F-03 and F-02, N-06 on F-02, N-05 on a not_carried entry).
+# Shape follows run 1 (../../pre/adversarial/merged-verdict.yaml); no run 1 finding is reused.
+# Evidence entries are {ref, quote} pairs (run 1 used bare refs); refs use path_aliases.
+schema: sc-reflect-merged-verdict/v1
+merge_method: adversarial
+base_variant: "variant-2 (reviewer 2, qa, haiku slot)"
+sources: [variant-1, variant-2, variant-3, invariant-probe]
+# Step 2 recorded BLOCKED_BY_INVARIANTS (AD-1 FAIL: INV-006 and INV-021 HIGH UNADDRESSED).
+# Both are fixed in this merge (folded into F-02 and F-03); none is recorded as accepted risk.
+convergence_score: 1.00
+convergence_detail: "50 of 50 diff points; 58 of 58 with sub-points"
+convergence_status: BLOCKED_BY_INVARIANTS
+
+path_aliases:
+  TL: ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md"
+  DESIGN: "docs/designs/orchestrator-mode.md"
+  coverage-matrix: ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/reflect/pre-run2/coverage-matrix.yaml"
+  OQ-1-decision: ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/plans/OQ-1-agent-wait-decision.md"
+
+unaddressed_invariants_high:
+  - id: INV-006
+    folded_into: F-02
+    covered_by: "F-02: 6.2 appends a table row with Item 6.2; the check counts only that row (0 before, 1 after)"
+  - id: INV-021
+    folded_into: F-03
+    covered_by: "F-03 step 2: the 7.17 branch names the follow-up on approval (DESIGN edit, 8.10 and 10.3 count source, 7.16 forbidden list, review re-run) or states re-planning before step 1.2"
+
+severity_counts: {HIGH: 2, MEDIUM: 13, LOW: 13, total: 28}
+
+findings:
+  # Source: Change 1; Base (original, modified): V2 R2-G1 kept, INV-020 residual appended
+  - id: F-01
+    severity: HIGH
+    gap_class: unsound-check
+    tag: Grounded
+    location: "TL:1436"
+    claim: >-
+      Item 8.3 counts occurrences of each model name with grep -c rather than definitions. Correct
+      field annotations repeat names such as OrcaObservation, TranscriptTail and ClassifiedRow on
+      lines other than their definitions, and the 8.3 builder decision for ClassifiedRow repeats
+      SessionRow, Classification and SafeToClose. The written requirement that each name appears
+      once therefore rejects a conforming models.py. HIGH under the merge bar: correct delivery
+      cannot satisfy the check.
+    affected_items: ["8.3"]
+    evidence:
+      - ref: "TL:1436"
+        quote: "every class and constant name in DESIGN section 7.2 appears once (`grep -c` per name)"
+      - ref: "TL:1433"
+        quote: "`ClassifiedRow` is `row: SessionRow`, `classification: Classification`, `policy: str | None`"
+      - ref: "DESIGN:454"
+        quote: "orca_rows: tuple[OrcaObservation, ...]"
+      - ref: "DESIGN:459"
+        quote: "| `SessionRow` | SPEC list (line 235)"
+      - ref: "DESIGN:466"
+        quote: "rows: tuple[ClassifiedRow, ...]"
+    recommendation: >-
+      Replace the occurrence-count clause in item 8.3 with a definition-count check, using anchored
+      class declarations and constant assignments or an AST inspection. Count constants by their
+      definition too (for example ^CLASSES =), not only ^class; note that ^class Classification does
+      not prefix-match ClassifiedRow. The four field greps at TL 1436 stay at 1 each. Success: the
+      check requires one definition per name while allowing references to those names in
+      annotations.
+    provenance: {cards: [R2-G1], debate: [C-012, U-001], change: 1, invariants: [INV-020]}
+    notes:
+      - "Calibrated HIGH (confirmed); conceded by V1 and V3; consensus Part 5 rank 1."
+      - "INV-020 (sufficiency_challenge, ADDRESSED): 8.3 is the only item that counts names, so this fix alone is enough."
+      - "The consensus phrase 'R2-G1 is the only HIGH of the run' is removed: F-02 is a second HIGH."
+
+  # Source: invariant probe INV-006 (new finding, no card) merged per Change 2; caller ruling (a)
+  - id: F-02
+    severity: HIGH
+    gap_class: unsound-check
+    tag: Grounded
+    location: "TL:993"
+    claim: >-
+      The 6.2 check expects one hit, but the item's own Action and Verification lines and the TL 2802
+      log row already match, so a correct run fails. grep -n 'OQ-1 (R5) RESOLVED' <TL> matches 3 lines
+      before 6.2 runs (TL 991, TL 993, TL 2802) and 4 after a correct append. Correct delivery cannot
+      give "one hit", which is the merge's HIGH bar and the same class as C-012.
+    affected_items: ["6.2"]
+    evidence:
+      - ref: "TL:991"
+        quote: "Append one line to `### Execution Log`: \"OQ-1 (R5) RESOLVED by the owner 2026-11-08:"
+      - ref: "TL:993"
+        quote: "`grep -n 'OQ-1 (R5) RESOLVED' .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md` returns one hit."
+      - ref: "TL:2802"
+        quote: "| 2026-11-08T12:20Z | 6.1-6.4 | Build-time hand edit (coordinator msg_d95a87e312e1, msg_6ee5998d0874) | OQ-1 (R5) RESOLVED by the owner 2026-11-08:"
+      - ref: "TL:2804"
+        quote: "Every HALT line, every owner decision (OQ-n, chosen option, decider, source) and every resume is appended here as one row."
+    recommendation: |-
+      Two edits to item 6.2:
+        1. Action: append one row to the `### Execution Log` table in its four-column form (`| <timestamp> | 6.2 | <event> | OQ-1 (R5) RESOLVED by the owner 2026-11-08: ... |`), as the TL 2804 rule requires for every owner decision, instead of a bare line.
+        2. Verification: count only appended Execution Log table rows whose Item column is 6.2, for example `grep -c '^| [^|]* | 6\.2 | .*OQ-1 (R5) RESOLVED' <TL>` returns 1. The leading-pipe anchor excludes TL 991 and TL 993 (they start with "  - **"), and the Item-column anchor excludes TL 2802 (its Item cell is `6.1-6.4`).
+      Success test: before 6.2 runs the command prints 0; after one correct append it prints exactly 1; a second append prints 2 and fails.
+    check_command: >-
+      grep -c '^| [^|]* | 6\.2 | .*OQ-1 (R5) RESOLVED' <TL>
+    provenance: {cards: [], debate: [], change: 2, invariants: [INV-006]}
+    notes:
+      - "Debate: none; the defect lies outside the 50 diff points. No card or advocate raised it."
+      - "Run the pattern with plain grep (basic regex), never grep -E; under -E the leading ^| becomes an empty alternative and the pattern matches every line. The appended row must separate its cells with ' | ' (a space on each side of every pipe); a row written as |...|6.2|...| gives 0."
+      - "Orchestrator check, 2026-11-08: the command prints 0 against the current TL and 1 against a temporary copy with one such row appended. Merge executor re-run, 2026-11-08: prints 0 against the current TL."
+      - "Not chosen: the probe's other two fixes (grep under the heading and expect 2; drop the append). See not_carried 'INV-006 options'."
+      - "Review N-04 (minor, not applied to the plan): M-04 was only partly applied. Keep the example row inline in the Action text (if it sits on its own line starting with '|', a correct append counts 2), and change the 6.2 Output field (TL 992, 'The `### Execution Log` line.') to 'row'."
+      - "Review N-06 (minor, not applied to the plan): step 1 still says 'as the TL 2804 rule requires for every owner decision', but TL 2802 already is the one row TL 2804 asks for. Read it as 'in the four-column row form TL 2804 uses'."
+
+  # Source: Variant 1 R1-G1 (claim), Variant 2 R2-G5 (cursor half only), invariant probe INV-021
+  # (remedy widened); restructured per Change 3; caller ruling (b)
+  - id: F-03
+    severity: MEDIUM
+    gap_class: design-fix
+    tag: Grounded
+    location: "TL:1265-1269"
+    claim: >-
+      Step 1.0a can end in two outcomes that have no owner route. (a) A captured worker-list cursor
+      field conflicts with the ten-template pins (TL 1482 against TL 1485 and TL 1793; DESIGN 552), and
+      the item 7.17 Branch at TL 1267 fires only on a field-name difference, so it cannot fire for it.
+      (b) On the CLOSED path of open item 3, a run-current --json need has no owner route, and TL 1259
+      forbids the --json probe. The consensus remedy alone is not enough (INV-021): if the owner
+      approves an 11th template or run-current --json, DESIGN 7.3, 11, 12 (D 794) and 15.1, the 7.16
+      forbidden list (TL 1259, TL 1262), 8.10 ("exactly 10", TL 1482, TL 1485) and 10.3 (TL 1793) still
+      pin the old state, and nothing re-gates a second allowlist edit. Neither a "safe stop" nor a
+      "silent omission" is guaranteed (A-001d, open in substance). MEDIUM: a stall or conflicted build,
+      not shipped wrong code (X-002).
+    affected_items: ["7.16", "7.17", "8.10", "10.3", "DESIGN 7.3", "DESIGN 11", "DESIGN 12", "DESIGN 15.1"]
+    evidence:
+      - ref: "TL:1267"
+        quote: "Branch: if a live field name differs from the name DESIGN section 7.2 or 7.3 uses, apply the HALT rule"
+      - ref: "TL:1482"
+        quote: "`ALLOWED_ORCA` (exactly 10 templates after item 6.3)"
+      - ref: "TL:1482"
+        quote: "From the 1.0a facts: the field names, the time format, `RUN_ID_RE`, `DISPATCH_ID_RE`, the cursor field."
+      - ref: "TL:1485"
+        quote: "a count of `ALLOWED_ORCA` entries is 10"
+      - ref: "TL:1793"
+        quote: "exact-set pin of the ten templates (DESIGN 7.3 after item 6.3)"
+      - ref: "TL:1259"
+        quote: "any `git stash`, and `run-current --json`"
+      - ref: "DESIGN:552"
+        quote: "The `worker-list` cursor template is not in the set; it is added only after step 1.0a captures the cursor field, as one extra template (SPEC line 320)."
+      - ref: "DESIGN:971"
+        quote: "a `--json` need goes to the owner as an allowlist change"
+      - ref: "DESIGN:973"
+        quote: "A full page of `WORKER_LIST_PAGE` rows sets truncated and the total is a lower bound; no cursor template"
+      - ref: "TL:1142"
+        quote: "Branch 1 (PENDING or empty `Chosen:`) applies the HALT rule with the `blocker_reason` the item names and STOPS"
+    recommendation: |-
+      Recommendation, in this order:
+        1. Add a named branch to item 7.17 covering both outcomes, (a) a cursor field captured and (b) open item 3 CLOSED with `run-current` needing `--json`. The branch first writes a decision file `phase-outputs/plans/OQ-<n>-<topic>-decision.md` under the task folder (`<n>` the next unused OQ number) in the TL 1142 form: `needs_human_decision: true`, `status: PENDING`, the question quoted, the options quoted, the recommendation line and the steps it blocks, and the empty block `OPERATOR DECISION:`, `Chosen:`, `Decided by:`, `Decision source:`. It then appends one PENDING row for item 7.17 to the `### Execution Log` table (TL 2804), naming the decision file, and HALTs before step 1.2 under the TL 1142 Branch 1 rule (PENDING or empty `Chosen:`).
+        2. In the same branch, state what an owner approval triggers. Either (option A) name the follow-up work: a DESIGN edit item for 7.3, 11, 12 and 15.1 with its own review gate; the 8.10 and 10.3 count source changed from the literal 10 to the approved count recorded in the 1.0a facts file; the 7.16 forbidden list and its grep (TL 1259, TL 1262) updated to allow the approved argv and a re-capture of it; and a re-run of the R5 review gate (6.5 to 6.22) over the new edit. Or (option B) state that an approval means re-planning before step 1.2, and that no later item runs until the plan is rebuilt.
+        3. An owner answer, approval or refusal, is recorded by filling the four lines of the step 1 decision file (`Chosen:`, `Decided by:`, `Decision source:` quoting the owner's words, and `OPERATOR DECISION:`). The resume then follows the TL 1142 Branch 2 rule over that file: it sets `status: RESOLVED`, appends the decision to `### Execution Log`, resets the task `status` to Doing as TL 1142 states, and clears `blocker_reason`. An approval resumes into the step 2 follow-up. A refusal resumes with the allowlist unchanged, and the same step records the refusal in `phase-outputs/discovery/1.0a-facts.md` as "cursor field present, no cursor template; the DESIGN 973 full-page lower bound applies". This matters because 8.10 reads "From the 1.0a facts: ... the cursor field" (TL 1482): with that line recorded, 8.10 keeps `ALLOWED_ORCA` at exactly 10 (TL 1482, TL 1485), does not page by the captured cursor field, and treats a full page of `WORKER_LIST_PAGE` rows as truncated with a lower-bound total (DESIGN 973). The refusal path is justified by INV-021's own sentence "If the owner declines, the plan works", not by INV-016, which covers only the separate case where step 1.0a finds no cursor field.
+      Success test: a grep of item 7.17 finds the new branch naming both outcomes; the decision file path `phase-outputs/plans/OQ-<n>-<topic>-decision.md` with `needs_human_decision: true`, `status: PENDING` and the empty `Chosen:`, `Decided by:` and `Decision source:` lines; the PENDING Execution Log row; the HALT before step 1.2; a resume step that names that decision file; the refusal line for `1.0a-facts.md`; and either the four follow-up targets (DESIGN edit, 8.10 and 10.3 count source, 7.16 forbidden list, review re-run) or the re-planning sentence. When the branch fires, the check confirms that the decision file exists with `status: PENDING`, that the Execution Log holds exactly one PENDING row for item 7.17 naming that file, and that the task is halted (status and `blocker_reason` set by the HALT rule) before any step 1.2 item runs. No consumer listed in INV-021 is left pinned to ten templates with no named updater.
+    provenance: {cards: [R1-G1, R2-G5], debate: [C-001, C-002, X-001, X-002, X-005, A-001, A-001c, A-001d], change: 3, invariants: [INV-021, INV-016]}
+    notes:
+      - "INV-021 (HIGH, UNADDRESSED) is folded in by widening the remedy (step 2), not by raising the label (X-002). INV-016 is kept in provenance because step 3 contrasts with it."
+      - "The gate-bypass label of R1-G1 is dropped; the gap is described as unrouted outcomes (A-001). V2's run-current narrowing of R2-G5 is not carried (X-001, X-005)."
+      - "Rows step-1.0a, INF-019 and INF-020 (partial) point at F-03."
+      - "Review N-01 (minor, not applied to the plan): the HALT rule at TL 194 already appends the halt line to `### Execution Log`, so a firing branch leaves two 7.17 rows (the step 1 PENDING row and the HALT row). The success-test check 'exactly one PENDING row for item 7.17' must either count the HALT row too or drop step 1's own row and let the HALT row be the one PENDING row. Step 1 also names no `blocker_reason` (TL 1142 Branch 1 applies the HALT rule 'with the `blocker_reason` the item names'); a suggested halt line is `blocker_reason: \"Step 1.0a: <outcome> needs an owner allowlist decision; see phase-outputs/plans/OQ-<n>-<topic>-decision.md (PENDING)\"`. The recommendation line must end 'This recommendation does NOT authorize adoption.' as TL 1142 requires."
+      - "Review N-02 (minor, not applied to the plan): the refusal record in step 3 is written for outcome (a) only. For outcome (b) record: '`run-current` needs `--json`; owner declined; the DESIGN 971 behaviour applies: FR-002 fourth test and FR-026 case 4 stay gated'."
+      - "Review N-03 (minor, not applied to the plan): when both outcomes fire, write one decision file per outcome, each with its own OQ number and PENDING row, and read 'exactly one' as 'one per decision file'. OQ-16 is the highest OQ number in the TL today, so the next unused number is OQ-17."
+
+  # Source: Change 4; Base (original, modified): V2 R2-G2, HIGH label replaced by calibrated MEDIUM
+  - id: F-04
+    severity: MEDIUM
+    gap_class: traceability
+    tag: Grounded
+    location: "TL:157-167"
+    claim: >-
+      Key Constraints lacks a bullet carrying the DESIGN 80 builder rule: copy into the task file the
+      instruction to cite GAPS line 138 for counts and never edit the REPORT. Whole-tasklist search did
+      not find it, and the narrower rule that a design-fix agent never edits a research file does not
+      establish it for the executor. This is a missing preventive bullet, not an observed breach: no
+      present stale-count use or REPORT edit was found.
+    affected_items: ["Key Constraints"]
+    evidence:
+      - ref: "DESIGN:80"
+        quote: "- `/task-builder` must copy the same rule into the task file: cite GAPS line 138 for counts and never edit the REPORT."
+      - ref: "DESIGN:78"
+        quote: "113 rows, 88 open, 25 resolved"
+      - ref: "TL:365"
+        quote: "never edits a research file"
+    recommendation: >-
+      Add one Key Constraints bullet carrying DESIGN section 2.3: never edit REPORT; use GAPS line 138
+      for gaps counts; preserve the 113/88/25 figures and the GQ-113 interpretation. Success: a reader
+      can find the complete rule in the tasklist without opening DESIGN.
+    provenance: {cards: [R2-G2], debate: [C-013], change: 4, invariants: []}
+    notes:
+      - "Calibrated MEDIUM (weakened); V2 conceded its HIGH (consensus rank 3)."
+      - "Rows GQ-111, GQ-112, GQ-113 (partial) and INF-001 (missing) point at F-04."
+
+  # Source: Change 5; Base (original, modified): V2 R2-G3, HIGH replaced by MEDIUM, INV-003 note appended
+  - id: F-05
+    severity: MEDIUM
+    gap_class: traceability
+    tag: Grounded
+    location: "TL:1482-1486"
+    claim: >-
+      Item 8.10 implements the byte limits but does not deliver their required "proposed" marking in
+      probes.py, and no item checks for it. Open item 19 (the rationale) has no tracked closing
+      disposition. The task does not release, so the before-release deadline is not breached; the
+      immediate gap is the source marking.
+    affected_items: ["8.5", "8.10", "closing follow-ups"]
+    evidence:
+      - ref: "DESIGN:852"
+        quote: "The byte limits stay \"proposed\"; the rationale required before release is an open item"
+      - ref: "DESIGN:987"
+        quote: "The limits apply as proposed and are marked proposed in `probes.py`"
+      - ref: "TL:1483"
+        quote: "Append these names to `src/superclaude/cli/sweep/probes.py` in DESIGN order."
+      - ref: "DESIGN:993"
+        quote: "Total: 23 open items."
+    recommendation: >-
+      Add the proposed marking to the limit declarations delivered by items 8.5 and 8.10, with a
+      source-content check covering all relevant declarations. Explicitly carry open item 19 into the
+      closing follow-ups unless its rationale is recorded in the task package. Note (INV-003, LOW): the
+      closing disposition for open item 19 must keep 23 rows, or the same edit must update all four
+      pins of 'Total: 23 open items.' (TL 269, TL 454, TL 784, TL 1005). Success: the source labels the
+      limits proposed, and the closing record either cites the rationale or preserves its
+      before-release obligation.
+    provenance: {cards: [R2-G3], debate: [C-014], change: 5, invariants: [INV-003]}
+    notes:
+      - "Calibrated MEDIUM (weakened), consensus rank 4."
+      - "Rows SP-28 (partial) and INF-024 (missing) point at F-05."
+
+  # Source: Change 6; Base (original, modified): V2 R2-G4, HIGH replaced by MEDIUM
+  - id: F-06
+    severity: MEDIUM
+    gap_class: test-plan
+    tag: Grounded
+    location: "TL:1481-1507"
+    claim: >-
+      No planned check covers three DESIGN constraints: the probes.py side of the one-way import
+      boundary (DESIGN 211), B5's ban on redeclaring types from superclaude.contracts (DESIGN 219), and
+      the renderer's ban on action controls, pasteable commands and advice to delete task files
+      (DESIGN 638). These are missing checks, not proven breaches. Item 10.2 checks only classify.py and
+      report.py imports. An import-absence grep cannot prove B5: copied types can exist without
+      importing their original module.
+    affected_items: ["8.10", "10.2", "10.5"]
+    evidence:
+      - ref: "DESIGN:211"
+        quote: "| `probes.py` | `models`, `subprocess`, `os`, `json`, `time` | `classify`, `report`, `click` |"
+      - ref: "DESIGN:219"
+        quote: "- B5: no type is redeclared from `superclaude.contracts`."
+      - ref: "DESIGN:638"
+        quote: "- The report holds no action control, no command to paste and no advice to delete anything under `.dev/tasks/`."
+      - ref: "TL:1787"
+        quote: "The AST test parses `classify.py` and `report.py` with `ast` and checks their imports."
+    recommendation: >-
+      Extend the existing boundary check to probes.py and the complete internal import restrictions.
+      Add a bounded type-declaration comparison or documented source review for B5, rather than banning
+      imports of superclaude.contracts. Add an explicit renderer-content check for all three section
+      7.5 prohibitions. Success: each constraint has a named delivering item and a check whose failure
+      condition directly tests that constraint.
+    provenance: {cards: [R2-G4], debate: [C-015], change: 6, invariants: []}
+    notes:
+      - "Calibrated MEDIUM (weakened), consensus rank 5."
+      - "Rows INF-005, INF-018 (partial) and INF-008 (missing) point at F-06."
+
+  # Source: Change 7; Base (original, modified): V2 R2-G6 with the delegation qualifier added
+  - id: F-07
+    severity: MEDIUM
+    gap_class: traceability
+    tag: Grounded
+    location: "coverage-matrix:201-227"
+    claim: >-
+      The spec-body recall check found an unrepresented requirement: every session count must print
+      the distinct-affected-session set-union wording. The FR-011 row covers heading order and sorting
+      only, and no inferred row captures this obligation. Item 8.12 references section 7.5 broadly, so
+      the requirement may still be delivered by delegation, but the matrix cannot show it.
+    affected_items: ["8.12", "coverage-matrix"]
+    evidence:
+      - ref: "DESIGN:636"
+        quote: "Every count over sessions prints `Distinct affected sessions: <N> (set union, not a sum)`."
+      - ref: "DESIGN:765"
+        quote: "| FR-011 | `SECTIONS` order and the (a) sort (7.5) | `sweep/test_report.py` |"
+      - ref: "coverage-matrix:25"
+        quote: "inferred: requirement-shaped MUST/never/only statements outside every parsed span; verbatim quote, max 2 sentences"
+    recommendation: >-
+      Add an inferred coverage row for the session-count wording and set-union rule, map it to item
+      8.12, and mention it in that item's delivery or acceptance text. Success: a reader can trace
+      DESIGN line 636 to a delivering item without treating the FR-011 ordering row as covering every
+      renderer rule.
+    provenance: {cards: [R2-G6], debate: [C-016], change: 7, invariants: []}
+    notes:
+      - "Calibrated MEDIUM (confirmed); V2's only recall pass beyond the matrix."
+
+  # Source: Variant 3 R3-G1 with R3-G7 merged in, Section findings; merged per Change 8
+  - id: F-08
+    severity: MEDIUM
+    gap_class: traceability
+    tag: Grounded
+    location: "TL:998"
+    claim: >-
+      The D10 deviation row and the R5 Fix cycle 3 history line that item 6.3 writes under-report the
+      SPEC departure. The D10 SPEC cell leaves out NFR-003 (SPEC line 132) and SPEC lines 323 and 510,
+      which also forbid the flag; the Design cell does not say the NFR-014 exact-set pin grows from
+      eight to ten (SPEC line 143); and the Section cell "7.3, 11, 15.1" and the step (7) list
+      "(7.3, 11, 13, 15.1)" leave out 2.2 (GQ-109 row) and 12 (NFR-014 row), which 6.3 edits.
+    affected_items: ["6.3"]
+    evidence:
+      - ref: "TL:998"
+        quote: "| D10 | NFR-014 and SPEC lines 310, 500, 504, 562 and 619: \\`worktree ps\\` never carries \\`--agent-wait\\` |"
+      - ref: "TL:998"
+        quote: "the allowlist pin and the version-scoped claim (Orca 1.4.245) are kept (7.3, 11, 13, 15.1) |"
+      - ref: "TL:999"
+        quote: "DESIGN sections 7.3, 11, 12 (NFR-014 row), 13, 15.1, the GQ-109 row and the `### Fix cycle 3` table updated."
+    recommendation: >-
+      Change the D10 SPEC cell to name NFR-003 (line 132), NFR-014 (line 143) and SPEC lines 310, 323,
+      500, 504, 510, 562 and 619. Add "the NFR-014 exact-set pin covers ten templates, not eight" to
+      the Design cell. Set the D10 Section cell to "2.2, 4, 7.3, 11, 12, 15.1" and the step (7) list to
+      "(2.2, 4, 7.3, 11, 12, 13, 15.1)"; section 4 is listed because F-12 (and the F-09 and F-20 edits)
+      touch it.
+    provenance: {cards: [R3-G1, R3-G7], debate: [C-017], change: 8, invariants: [INV-018]}
+    notes:
+      - "One finding, not two; R3-G7's note-as-quote is replaced by the TL 999 quote."
+      - "INV-018: once section 4 is edited, the R5 row and the D10 'where' cell must list section 4 too, or this defect returns."
+      - "The SPEC line numbers are V3's reads of merged-requirements.md; the merge executor did not re-read the SPEC."
+
+  # Source: Variant 3 R3-G5 (first remedy only); merged per Change 9
+  - id: F-09
+    severity: MEDIUM
+    gap_class: authorized-expansion
+    tag: Grounded
+    location: "DESIGN:221"
+    claim: >-
+      R5 authorizes templates 9 and 10, but the DESIGN section 4 extension-point rule still allows a
+      new ALLOWED_ORCA template only after a capture, and no 6.3 step reaches DESIGN 221. Item 7.16 does
+      not run the agent-wait forms. This is an authorized expansion with an incomplete record, not scope
+      creep. Severity is open in substance: the card says MEDIUM and the consensus rule keeps it, but
+      LOW is defensible by runtime effect while nothing calls the templates.
+    affected_items: ["6.3", "DESIGN 4"]
+    evidence:
+      - ref: "DESIGN:221"
+        quote: "a new template in `ALLOWED_ORCA` (only after a capture, and never a write verb)"
+      - ref: "TL:1259"
+        quote: "(`worktree ps --agent-wait` is allowed by R5 but is not run in step 1.0a)"
+    recommendation: >-
+      In item 6.3, reword DESIGN 221 to "only after a capture or a recorded owner decision (R5,
+      2026-11-08)". This edit lands in section 4; see F-12 for its review.
+    provenance: {cards: [R3-G5], debate: [C-020, X-006, A-005], change: 9, invariants: [INV-018]}
+    notes:
+      - "Severity open (consensus Part 4 item 7): MEDIUM kept, LOW defensible. Not settled by this merge."
+      - "V3's second remedy (add agent-wait to the capture) is withdrawn and not carried."
+      - "Cross-reference F-12."
+
+  # Source: Variant 3 R3-G6 (15.1 half only); merged per Change 10
+  - id: F-10
+    severity: MEDIUM
+    gap_class: unsound-check
+    tag: Grounded
+    location: "TL:1005"
+    claim: >-
+      The 6.4 pass rule requires a 15.1 hit that allows --agent-wait, but 6.3 step (4) removes the only
+      15.1 agent-wait hit (DESIGN 873) and adds no allowing sentence. The rule is ambiguous and costs a
+      fix loop via TL 1007.
+    affected_items: ["6.3", "6.4"]
+    evidence:
+      - ref: "TL:1005"
+        quote: "the hits in 7.3 (the two `ALLOWED_ORCA` templates), 11, 13 (D10) and 15.1 allow it"
+      - ref: "DESIGN:873"
+        quote: "no `--include-remote`, no `--agent-wait`, and no `git stash` in any form"
+      - ref: "TL:1007"
+        quote: "On a FAIL, fix the edit in item 6.3 and re-run this item"
+    recommendation: >-
+      In 6.3 step (4), write the TL 1259 sentence into 15.1: "`worktree ps --agent-wait` is allowed by
+      R5 but is not run in step 1.0a", so the 6.4 rule has a 15.1 hit to match.
+    provenance: {cards: [R3-G6], debate: [C-021], change: 10, invariants: [INV-022]}
+    notes:
+      - "V3's wording ('ambiguous; costs a fix loop via TL 1007') is used, not V1's 'cannot pass' (open in substance, Part 4 item 7)."
+      - "INV-022 (ADDRESSED): this one-clause fix alone is enough."
+      - "The D10 half of R3-G6 is conceded and not carried; its re-run risk is F-27."
+
+  # Source: Variant 1 R1-G2; merged per Change 11
+  - id: F-11
+    severity: MEDIUM
+    gap_class: design-fix
+    tag: Grounded
+    location: "TL:1142"
+    claim: >-
+      The Phase 7 preamble says every HALT item follows the item 6.2 procedure, but item 6.2 is titled
+      "no HALT" and holds no HALT procedure. Impact is lower than the card states because TL 1142 spells
+      out both Branches itself. The residual: item 7.15 and item 14.7 Branch 2 do not require the
+      owner's quoted words before status RESOLVED is set.
+    affected_items: ["Phase 7 preamble", "7.15", "14.7"]
+    evidence:
+      - ref: "TL:1142"
+        quote: "Every HALT item below follows the item 6.2 procedure"
+      - ref: "TL:989"
+        quote: "**6.2 — Log the OQ-1 decision (L3, no HALT)**"
+      - ref: "TL:1244"
+        quote: "Branch 2: set `status: RESOLVED`, log the Run id in `### Execution Log`, reset the task status"
+    recommendation: >-
+      Point the Phase 7 preamble at the QA Gate Protocol HALT rule (TL 194) or at its own Branch text,
+      not at item 6.2. In 7.15 and 14.7 make Branch 2 require a source quote of the owner's or the
+      person's own words and a named decider before status RESOLVED may be set.
+    provenance: {cards: [R1-G2], debate: [C-003], change: 11, invariants: []}
+    notes:
+      - "Calibrated MEDIUM; consensus rank 10. V1's empty-of-TL-quote evidence is filled with TL 1142, TL 989 and TL 1244."
+
+  # Source: invariant probe INV-018 (new finding); merged per Change 12; caller ruling (c)
+  - id: F-12
+    severity: MEDIUM
+    gap_class: design-fix
+    tag: Grounded
+    location: "TL:999"
+    claim: >-
+      The F-09 remedy (DESIGN 221) and the F-20 remedy (DESIGN 181, 196) both edit DESIGN section 4
+      (DESIGN 157 to 221). Section 4 is outside the 6.3 Context and Output (TL 997, TL 999), the 6.4
+      checks (TL 1005) and every R5 gate input list (TL 1011, TL 1018), so as worded these edits would
+      land with no review.
+    affected_items: ["6.3", "6.4", "6.5 to 6.13"]
+    evidence:
+      - ref: "TL:999"
+        quote: "DESIGN sections 7.3, 11, 12 (NFR-014 row), 13, 15.1, the GQ-109 row and the `### Fix cycle 3` table updated."
+      - ref: "TL:1011"
+        quote: "as edited by item 6.3 (sections 7.3, 11, 12 (NFR-014 row), 13 (D10) and 15.1, the GQ-109 row, and the `### Fix cycle 3` table)"
+      - ref: "DESIGN:221"
+        quote: "a new template in `ALLOWED_ORCA` (only after a capture, and never a write verb)"
+      - ref: "DESIGN:181"
+        quote: "ALLOWED_ORCA (8)"
+    recommendation: >-
+      Add section 4 to the 6.3 Output, to the 6.4 checks and to the 6.5 to 6.13 input lists, and list
+      section 4 in the R5 row and the D10 row. Success test: a grep of 6.3, 6.4 and TL 1011 and TL 1018
+      finds "section 4" (or "4,") in each list.
+    provenance: {cards: [], debate: [], change: 12, invariants: [INV-018]}
+    notes:
+      - "Cross-reference F-08, F-09, F-20."
+      - "Widens the R5 gate inputs, which every later 6.x lens reads."
+
+  # Source: invariant probe INV-005 (new finding); merged per Change 13; caller ruling (c)
+  - id: F-13
+    severity: MEDIUM
+    gap_class: design-fix
+    tag: Grounded
+    location: "TL:1267"
+    claim: >-
+      TL 1142 Branch 2 only records RESOLVED and resets status. The existing 7.17 branch halts with
+      "the design needs a fix before step 1.2", but no item carries that design fix or re-pins the
+      downstream checks, so a resumed HALT has no follow-up item. This is independent of R1-G1; INV-021
+      is the HIGH case of the same gap and is handled in F-03.
+    affected_items: ["7.17", "HALT rule TL:194"]
+    evidence:
+      - ref: "TL:1267"
+        quote: "the design needs a fix before step 1.2\"` and STOP."
+      - ref: "TL:1142"
+        quote: "Branch 2 (all four lines filled, the source quoting the owner's words) sets `status: RESOLVED`, appends the decision to `### Execution Log`, resets the task `status`"
+      - ref: "TL:194"
+        quote: "set frontmatter `status` to \"⚪ Blocked\", fill `blocker_reason` with the halt line, append the halt line to `### Execution Log`, STOP"
+    recommendation: >-
+      The TL 1267 branch states what a resume requires: a named DESIGN edit item with its own gate, or
+      re-planning before step 1.2, using the same wording as F-03 step 2 so the two branches agree.
+    provenance: {cards: [], debate: [], change: 13, invariants: [INV-005]}
+    notes:
+      - "Cross-reference F-03; must not contradict F-03 step 2."
+
+  # Source: invariant probe INV-008 (new finding); merged per Change 14; caller ruling (c)
+  - id: F-14
+    severity: MEDIUM
+    gap_class: unsound-check
+    tag: Grounded
+    location: "TL:1262"
+    claim: >-
+      The 7.16 forbidden-token grep scans the whole readonly-probe.md, but TL 1260 puts stdout, stderr
+      and a "what it settles" line in that file. Capture item 2 is about whether run-current needs
+      --json, so an honest line names it, and real Task text can mention stash or inbox. An honest
+      capture can fail the check.
+    affected_items: ["7.16"]
+    evidence:
+      - ref: "TL:1262"
+        quote: "grep -n 'worker-read\\|gate-list\\|inbox\\|include-remote\\|stash\\|run-current --json' .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/artifacts/readonly-probe.md"
+      - ref: "TL:1260"
+        quote: "the exact command, exit code, stdout and stderr (paths, session ids and user names may be shown in full here, as the file stays in the task package), and what it settles"
+      - ref: "DESIGN:874"
+        quote: "Whether `run-current` needs `--json` is answered by reading its plain output"
+    recommendation: >-
+      Limit the forbidden-token grep to the recorded command lines of readonly-probe.md, not its stdout,
+      stderr or "what it settles" text. Success test: an honest capture whose notes mention
+      run-current --json passes, and a recorded command line using a forbidden token fails.
+    provenance: {cards: [], debate: [], change: 14, invariants: [INV-008]}
+    notes:
+      - "Cross-reference F-16 (the missing forbidden-list sentence) and F-03 step 2 (the forbidden list changes on approval)."
+      - "The consensus kept only the missing-sentence half (C-007), which does not cover this."
+
+  # Source: invariant probe INV-015 (new finding); merged per Change 15; caller ruling (c)
+  - id: F-15
+    severity: MEDIUM
+    gap_class: design-fix
+    tag: Grounded
+    location: "TL:1269"
+    claim: >-
+      With zero Dispatch rows, 7.16 step (1) learns no ids, template 3 never runs, and capture items 4
+      and 13 are empty; open items 1, 6, 22, 23 and the DISPATCH_ID_RE half of open item 2 (DESIGN 970)
+      stay unverified. The 7.17 HALT text "no Run or Dispatch id sample" is ambiguous when only the Run
+      sample exists, while 8.10 needs DISPATCH_ID_RE.
+    affected_items: ["7.15", "7.16", "7.17", "8.10"]
+    evidence:
+      - ref: "TL:1269"
+        quote: "Step 1.0a: no Run or Dispatch id sample; steps 1.4 and 1.6 cannot start (DESIGN 17 item 2)"
+      - ref: "TL:1260"
+        quote: "Run template 2 (`orca-ide orchestration worker-list --run <run> --json`) once to learn the Dispatch ids"
+      - ref: "TL:1482"
+        quote: "`RUN_ID_RE`, `DISPATCH_ID_RE`, the cursor field"
+      - ref: "DESIGN:970"
+        quote: "| 2 | `RUN_ID_RE` and `DISPATCH_ID_RE` | Step 1.0a item 10 | Steps 1.4 and 1.6 do not start; no placeholder can match |"
+    recommendation: >-
+      Item 7.15 names a Run with at least one Dispatch row, and 7.17 makes a missing Dispatch sample an
+      explicit open-item-2 HALT.
+    provenance: {cards: [], debate: [], change: 15, invariants: [INV-015]}
+    notes:
+      - "The consensus covers only 'live Orca access assumed' (A-007b)."
+
+  # Source: Variant 1 R1-G5 (SOURCES.md extension left out); merged per Change 16
+  - id: F-16
+    severity: LOW
+    gap_class: unsound-check
+    tag: Grounded
+    location: "TL:1276"
+    claim: >-
+      The 7.18 grep searches bare "coder", which also matches longer words such as encoder, so the
+      check can pass or fail for the wrong reason. The 7.16 Verification expects a forbidden-list
+      sentence that the 7.16 Action never tells the executor to write.
+    affected_items: ["7.16", "7.18"]
+    evidence:
+      - ref: "TL:1276"
+        quote: "`grep -rn '/home/coder\\|coder' tests/sweep/fixtures/` returns nothing"
+      - ref: "TL:1262"
+        quote: "finds only the forbidden-list sentence"
+    recommendation: >-
+      Anchor the 7.18 pattern with word boundaries or the full path segment, and add the forbidden-list
+      sentence to the 7.16 Action or drop that expectation. Check by reading: the 7.18 pattern is
+      anchored, and every string 7.16 greps for is written by an Action step.
+    provenance: {cards: [R1-G5], debate: [C-007], change: 16, invariants: []}
+    notes:
+      - "Consensus rank 11, unique and confirmed. V1's SOURCES.md extension is [INFERRED] and not carried."
+      - "Cross-reference F-14."
+
+  # Source: Variant 1 R1-G6 (first sentence only); merged per Change 17
+  - id: F-17
+    severity: LOW
+    gap_class: unsound-check
+    tag: Grounded
+    location: "TL:1262"
+    claim: >-
+      The 7.16 Verification says every command in the capture file is one of the eight templates or a
+      file read, but Action step (6) runs echo and ls -la, which are neither. A literal reader fails the
+      check.
+    affected_items: ["7.16"]
+    evidence:
+      - ref: "TL:1260"
+        quote: "Resolve the tab-map folder with `echo \"${XDG_STATE_HOME:-$HOME/.local/state}/ccsession/orca-tabs/\"`, record the printed path, then list that folder with `ls -la <printed path>`"
+      - ref: "TL:1262"
+        quote: "every command in the file is one of the eight templates or a file read"
+    recommendation: >-
+      Reword the 7.16 Verification to allow "an Orca template from the allowlist, a file read, or the
+      step (6) echo and ls on the tab-map path". Check by reading: every command in the Action is
+      allowed by the Verification sentence.
+    provenance: {cards: [R1-G6], debate: [C-008], change: 17, invariants: []}
+    notes:
+      - "Consensus rank 12. V1's second (agent-wait) sentence is withdrawn and not carried."
+
+  # Source: Variant 2 R2-G8 framing merged with Variant 1 R1-G4; restructured per Change 18
+  - id: F-18
+    severity: LOW
+    gap_class: design-fix
+    tag: "[INFERRED]"
+    location: "TL:1249-1263"
+    claim: >-
+      The plan does not establish whether the executor running item 7.16 is acting as the person or
+      the coordinator that DESIGN 15.1 requires. This is an actor-identity clarification, not a claim
+      that an unauthorized actor has run a capture; whether the executor is the coordinator is unknown,
+      not shown false.
+    affected_items: ["7.16"]
+    evidence:
+      - ref: "DESIGN:868"
+        quote: "It is a manual, pre-implementation capture run by the person or the coordinator, never by a test, and it writes only its own notes file."
+      - ref: "TL:1249"
+        quote: "Run the step 1.0a read-only Orca capture"
+    recommendation: >-
+      Add one sentence to item 7.16 naming the coordinator as the capture actor, or a hand-off to the
+      person or coordinator (as item 14.8 Branch B does). Success: the actor restriction can be checked
+      from the item text without assuming the executor's role.
+    provenance: {cards: [R2-G8, R1-G4], debate: [C-005, A-002, A-002a], change: 18, invariants: []}
+    notes:
+      - "V2 framing preferred (C-005 at 80%). Row INF-017 (partial) points at F-18 and F-19."
+
+  # Source: Change 19; Base (original): V2 R2-G9 kept as is
+  - id: F-19
+    severity: LOW
+    gap_class: traceability
+    tag: Grounded
+    location: "coverage-matrix:218"
+    claim: >-
+      The INF-017 matrix note points the capture-actor question at card F11, but the Tier-1 actor
+      finding is F12; F11 concerns the R4 historical-section wording.
+    affected_items: ["coverage-matrix INF-017 row"]
+    evidence:
+      - ref: "coverage-matrix:218"
+        quote: "who counts as the coordinator is not stated; card F11"
+      - ref: ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/reflect/pre-run2/reflection-card-t1.yaml:274-276"
+        quote: "- id: F12 / severity: LOW / category: Fidelity question on who runs step 1.0a"
+    recommendation: >-
+      Correct the INF-017 note to reference F12 and refresh its copied brief excerpt. Success: the
+      matrix reference resolves to the capture-actor finding.
+    provenance: {cards: [R2-G9], debate: [C-006], change: 19, invariants: []}
+    notes:
+      - "C-006 at 95%, unique and confirmed."
+
+  # Source: Variant 3 R3-G2; merged per Change 20
+  - id: F-20
+    severity: LOW
+    gap_class: unsound-check
+    tag: Grounded
+    location: "DESIGN:181"
+    claim: >-
+      The 6.3 grep for 'eight\|8 templates' misses DESIGN 181 "ALLOWED_ORCA (8)" and DESIGN 196 "8 read
+      templates", so the section 4 count can stay stale. No item pins zero argv for templates 9 and 10;
+      item 10.3 pins it only for worktree list and worktree current. LOW: 8.10 states "exactly 10", so
+      the code is not misled.
+    affected_items: ["6.3", "10.3", "DESIGN 4"]
+    evidence:
+      - ref: "DESIGN:181"
+        quote: "ALLOWED_ORCA (8)"
+      - ref: "DESIGN:196"
+        quote: "8 read templates"
+      - ref: "TL:1000"
+        quote: "`grep -n 'eight\\|8 templates' docs/designs/orchestrator-mode.md` shows no hit that says the allowlist has eight templates"
+      - ref: "TL:1793"
+        quote: "zero argv for `worktree list` and `worktree current`"
+    recommendation: >-
+      Widen the 6.3 grep to also catch "(8)" and "8 read" (for example 'eight\|(8)\|8 read\|8 templates')
+      and add zero-argv assertions for templates 9 and 10 in 10.3. The DESIGN edits land in section 4;
+      see F-12.
+    provenance: {cards: [R3-G2], debate: [C-018], change: 20, invariants: [INV-011, INV-012]}
+    notes:
+      - "C-018 at 95%, re-verified by V1 and V3; INV-011 and INV-012 confirm LOW."
+      - "Cross-reference F-12."
+
+  # Source: Variant 3 R3-G4; merged per Change 21
+  - id: F-21
+    severity: LOW
+    gap_class: traceability
+    tag: Grounded
+    location: "TL:838"
+    claim: >-
+      The 5.11 row text places the draft-name markers in sections 13 and 14, but both hits (D6 at
+      DESIGN 812 and the 1.17 row at DESIGN 835) are in section 13; section 14 starts at DESIGN 837.
+    affected_items: ["5.11", "5.3"]
+    evidence:
+      - ref: "TL:838"
+        quote: "marked the SPEC and REPORT draft names in 13 and 14"
+      - ref: "DESIGN:837"
+        quote: "## 14. Panel notes carried into the design"
+      - ref: "DESIGN:835"
+        quote: "| 1.17 | The REPORT's WC-14 draft | The SPEC section 10 text plus D6 (section 8) |"
+    recommendation: >-
+      Change "in 13 and 14" to "in 13", and remove 14 from the 5.3 section list, unless a section 14
+      hit is shown.
+    provenance: {cards: [R3-G4], debate: [C-019], change: 21, invariants: []}
+    notes:
+      - "Verified by one reviewer (V3 only, Part 4 item 8); single-source."
+
+  # Source: Variant 3 R3-G9, narrowed; merged per Change 22
+  - id: F-22
+    severity: LOW
+    gap_class: traceability
+    tag: Grounded
+    location: "TL:1447"
+    claim: >-
+      Source Areas names the reflect _git seam as the pattern, but the item 8.5 Context does not cite
+      src/superclaude/cli/reflect/config.py:64-78. TL 1448 already states check=False and GitCallFailed,
+      so only the citation is missing.
+    affected_items: ["8.5"]
+    evidence:
+      - ref: "TL:148"
+        quote: "`superclaude.cli.reflect` (the `_git` seam pattern)"
+      - ref: "TL:1448"
+        quote: "`check=False`; non-zero exit, timeout or output over `OUTPUT_LIMIT` raise `GitCallFailed` with a reason"
+      - ref: "src/superclaude/cli/reflect/config.py:64"
+        quote: "def _git(cwd: Path, *args: str) -> str:"
+    recommendation: >-
+      Cite src/superclaude/cli/reflect/config.py:64-78 in the item 8.5 Context as the seam shape that
+      is reused.
+    provenance: {cards: [R3-G9], debate: [C-023], change: 22, invariants: []}
+    notes:
+      - "Narrowed by V3's own new evidence; the 'missing reuse' framing is dropped. Close to a refinement."
+
+  # Source: Variant 3 R3-G10; merged per Change 23
+  - id: F-23
+    severity: LOW
+    gap_class: traceability
+    tag: Grounded
+    location: "TL:1627"
+    claim: >-
+      Item 9.1 counts five helpers plus _publish, but DESIGN 7.1 lists run, four helpers
+      (_parse_window, _find_root, _check_output, _check_run_ids) and _publish. The wrong count invites
+      an invented fifth helper.
+    affected_items: ["9.1"]
+    evidence:
+      - ref: "TL:1627"
+        quote: "the five helpers and `_publish`"
+      - ref: "DESIGN:438-442"
+        quote: "def _parse_window ... def _find_root ... def _check_output ... def _check_run_ids ... def _publish"
+    recommendation: >-
+      Change it to "the four helpers (_parse_window, _find_root, _check_output, _check_run_ids) and
+      _publish".
+    provenance: {cards: [R3-G10], debate: [C-024], change: 23, invariants: [INV-013]}
+    notes:
+      - "INV-013 confirms (DESIGN 438 to 442)."
+
+  # Source: Variant 3 R3-G11; merged per Change 24
+  - id: F-24
+    severity: LOW
+    gap_class: test-plan
+    tag: Grounded
+    location: "TL:2881"
+    claim: >-
+      OQ-16 says no fixture covers templates 9 and 10, but item 10.3 has a positive unit case for both
+      agent-wait templates. The open-question record contradicts the plan; this is a wording fix.
+    affected_items: ["OQ-16"]
+    evidence:
+      - ref: "TL:2881"
+        quote: "step 1.0a runs only templates 1 to 8 and no fixture covers templates 9 and 10"
+      - ref: "TL:1793"
+        quote: "with a positive case that both `worktree ps --agent-wait` templates are accepted"
+    recommendation: >-
+      Reword OQ-16 as "no live capture covers templates 9 and 10; the allowlist test in item 10.3 covers
+      them as unit cases".
+    provenance: {cards: [R3-G11], debate: [C-025], change: 24, invariants: []}
+    notes:
+      - "C-025 at 90%, weakened by the TL 1793 positive case."
+
+  # Source: Variant 1 R1-G3, clarification only; merged per Change 25
+  - id: F-25
+    severity: LOW
+    gap_class: design-fix
+    tag: Grounded
+    location: "TL:1260"
+    claim: >-
+      Item 7.16 compares the before and after reads with timestamps removed, but does not say which
+      fields count as timestamps. On a Run with live workers, status, liveness or agentWait can change
+      between reads and trigger the HALT; the stop is safe, not silent.
+    affected_items: ["7.16"]
+    evidence:
+      - ref: "TL:1260"
+        quote: "Compare before and after outputs with timestamps removed."
+      - ref: "TL:1262"
+        quote: "If the before and after reads differ apart from timestamps, apply the HALT rule"
+      - ref: "DESIGN:875"
+        quote: "A difference stops the build and goes to the owner."
+    recommendation: >-
+      Name the fields (for example status, liveness, agentWait) that the before-and-after comparison
+      ignores or treats as timestamps.
+    provenance: {cards: [R1-G3], debate: [C-004], change: 25, invariants: [INV-009]}
+    notes:
+      - "Not a 'no strip rule' claim: TL 1260 and TL 1262 already strip timestamps; V1 conceded."
+
+  # Source: Variant 1 R1-G9 and Variant 2 R2-G7, merged into one note; restructured per Change 26
+  - id: F-26
+    severity: LOW
+    gap_class: traceability
+    tag: Grounded
+    location: "TL:2467-2472"
+    claim: >-
+      Open reading only: whether DESIGN 939 "every hit justified" covers the 168 pre-existing hits that
+      item 14.5 checks only by count. Both card mechanisms (base drift, same-count concealment) are
+      defeated. Open, LOW either way.
+    affected_items: ["14.5"]
+    evidence:
+      - ref: "DESIGN:939"
+        quote: "every hit justified"
+      - ref: "TL:2468"
+        quote: "the full-tree count must stay 168"
+      - ref: "TL:2471"
+        quote: "re-run the full count at that base reading only"
+      - ref: "TL:2472"
+        quote: "0 scoped hits and an unchanged full-tree count"
+    recommendation: >-
+      State in item 14.5 whether DESIGN 939 applies to the 168 pre-existing hits or only to new ones,
+      and keep the scoped zero-hit check as is.
+    provenance: {cards: [R1-G9, R2-G7], debate: [C-011, X-003, A-004c], change: 26, invariants: []}
+    notes:
+      - "Base drift is defeated by TL 2471 (recount at the recorded base); same-count concealment by TL 2256 and TL 2469 (scope)."
+
+  # Source: invariant probe INV-007 (new finding); merged per Change 27; caller ruling (c)
+  - id: F-27
+    severity: LOW
+    gap_class: unsound-check
+    tag: Grounded
+    location: "TL:998"
+    claim: >-
+      TL 1007 re-runs 6.3 on a FAIL. Re-running step (5) after step (6) has written D10 now matches
+      D10's second cell, which quotes the agent-wait ban as the SPEC text being departed from, and the
+      Fix cycle 3 R5 row, which says INV-005 condition 1 forbade it.
+    affected_items: ["6.3", "6.4"]
+    evidence:
+      - ref: "TL:998"
+        quote: "(5) Reword every other DESIGN sentence that says `worktree ps` never carries `--agent-wait`"
+      - ref: "TL:998"
+        quote: "| D10 | NFR-014 and SPEC lines 310, 500, 504, 562 and 619: \\`worktree ps\\` never carries \\`--agent-wait\\` |"
+      - ref: "TL:1007"
+        quote: "On a FAIL, fix the edit in item 6.3 and re-run this item"
+    recommendation: >-
+      Exclude the section 13 D10 row and the Fix cycle 3 table from step (5).
+    provenance: {cards: [], debate: [], change: 27, invariants: [INV-007]}
+    notes:
+      - "The consensus dropped the D10 half of C-021 for readers, which does not cover a re-run. Cross-reference F-10."
+
+  # Source: invariant probe INV-010 (new finding); merged per Change 28; caller ruling (c)
+  - id: F-28
+    severity: LOW
+    gap_class: unsound-check
+    tag: Grounded
+    location: "TL:1000"
+    claim: >-
+      The 6.3 check grep -c '("worktree", "ps"' expects 3 (DESIGN 527 plus two new tuples), but step
+      (3) asks for a section 11 positive case for both agent-wait templates. Written in tuple syntax in
+      the DESIGN 738 row, it makes the count 4 or 5 and fails a correct edit. LOW: the executor can
+      avoid it by wording.
+    affected_items: ["6.3"]
+    evidence:
+      - ref: "TL:1000"
+        quote: "`grep -c '(\"worktree\", \"ps\"' docs/designs/orchestrator-mode.md` prints 3"
+      - ref: "DESIGN:527"
+        quote: "(\"worktree\", \"ps\", \"--json\"),"
+      - ref: "TL:998"
+        quote: "add a positive case that both `--agent-wait` templates are accepted"
+    recommendation: >-
+      Count within the DESIGN 7.3 code block only.
+    provenance: {cards: [], debate: [], change: 28, invariants: [INV-010]}
+    notes:
+      - "LOW: correct delivery can still pass."
+
+# Source: Change 29. Union of the three disjoint card slices (S-001): 152 of 152 matrix ids,
+# pairwise overlap 0, no id outside the matrix (re-run at Step 3 and for the plan; clears A-006a and
+# INV-014). One verdict change: INF-019 covered-in-substance to partial (X-001, X-005). V1's
+# step-1.0a partial is kept (X-005). V1 rows are item-checked; their 41 second refs in DESIGN 444 to
+# 484 and two "Section 8 gate" refs are discarded (S-004).
+row_coverage:
+  per_card_raw:
+    variant-1: {rows: 76, covered: 65, covered_in_substance: 10, partial: 1, missing: 0, false_match: 0}
+    variant-2: {rows: 44, covered: 18, covered_in_substance: 15, partial: 8, missing: 3, false_match: 0}
+    variant-3: {rows: 32, covered: 26, covered_in_substance: 6, partial: 0, missing: 0, false_match: 0}
+  overlaps:
+    v1_v2: []
+    v1_v3: []
+    v2_v3: []
+  unique_rows: 152
+  merged_by_scope:
+    parsed: {rows: 126, covered: 97, covered_in_substance: 24, partial: 5, missing: 0, false_match: 0}
+    inferred: {rows: 26, covered: 12, covered_in_substance: 6, partial: 5, missing: 3, false_match: 0}
+  merged:
+    rows: 152
+    covered: 109
+    covered_in_substance: 30
+    partial: 10
+    missing: 3
+    false_match: 0
+  coverage_pct: 0.960
+  coverage_pct_note: "121 of 126 parsed rows covered or covered in substance (unrounded 0.9603); the matrix had 0.968 = 122 / 126; the one-row drop is step-1.0a (X-005)."
+  coverage_pct_union: 0.914
+  coverage_pct_union_note: "139 of 152 (unrounded 0.9145); the matrix had 0.921 = 140 / 152; its 12 non-covered union rows already include INF-019, so the difference is step-1.0a alone."
+  missing_ids:
+    - {id: INF-001, finding: F-04}
+    - {id: INF-008, finding: F-06}
+    - {id: INF-024, finding: F-05}
+  partial_ids:
+    - {id: GQ-111, finding: F-04}
+    - {id: GQ-112, finding: F-04}
+    - {id: GQ-113, finding: F-04}
+    - {id: SP-28, finding: F-05}
+    - {id: step-1.0a, finding: F-03}
+    - {id: INF-005, finding: F-06}
+    - {id: INF-017, finding: [F-18, F-19]}
+    - {id: INF-018, finding: F-06}
+    - {id: INF-019, finding: F-03}
+    - {id: INF-020, finding: F-03}
+  false_match_ids: []
+  caveats:
+    - "Delegated rows are covered only if the delegate item runs as written."
+    - "V1 rows are item-checked with unreliable second refs (41 discarded, S-004)."
+    - "21 V3 rows rest only on 'T1 matrix row' and are tagged [INFERRED], not independently confirmed."
+    - "The slices are disjoint by brief, so per-card counts measure brief width, not reviewer quality (S-001)."
+
+# Source: Change 30 and refactor-plan.md "Changes NOT Being Made"
+not_carried:
+  - {item: "R1-G7 (V1): 9.3 does not read OQ-8 or halt", diff: [C-009, U-010], reason: "Refuted by calibration; V1 withdrew it in both rounds. 9.3 reads OQ-8 at TL 1640 and halts at TL 1643 (95%). INV-019 confirms no later item relies on it."}
+  - {item: "R1-G8 (V1): TL 163 template count is wrong", diff: [C-010, A-003], reason: "TL 163 is accurate or at worst ambiguous ('eight called in Phase 1', step 1.0a uses templates 1 to 8; TL 1257, 1258); both claimants withdrew (95%)."}
+  - {item: "R3-G3 (V3): same TL 163 count complaint", diff: [C-010, A-003], reason: "Same evidence as R1-G8; V3 withdrew (95%)."}
+  - {item: "R3-G8 (V3): edit the D6 row to cite SPEC lines", diff: [C-022], reason: "Superseded by item 5.4, which already cites SPEC 415 and 583 and forbids other D6 edits; V3 conceded its remedy conflicts (95%)."}
+  - {item: "R3-G5 second remedy (V3): add agent-wait to the capture", diff: [C-020], reason: "Withdrawn by V3. Only the DESIGN 221 rewording is carried (F-09)."}
+  - {item: "R3-G6 D10 half (V3)", diff: [C-021], reason: "Conceded: a reader sees D10 as history. The re-run risk the probe found is carried separately as F-27 (INV-007)."}
+  - {item: "R1-G6 second sentence (V1, agent-wait)", diff: [C-008], reason: "Withdrawn by V1. First sentence carried as F-17."}
+  - {item: "R2-G5 run-current narrowing and V2 row INF-019 covered-in-substance", diff: [X-001, X-005], reason: "V2 conceded its delegation reading covers only the STILL UNVERIFIED path; the CLOSED path is unrouted. INF-019 becomes partial; the cursor half of R2-G5 is folded into F-03."}
+  - {item: "gate-bypass label on R1-G1", diff: [A-001], reason: "Dropped by consensus in favour of an unrouted-outcome description (F-03)."}
+  - {item: "V2's original HIGH labels on R2-G2, R2-G3, R2-G4, R2-G5, R2-G7", diff: [X-002, X-004, A-009], reason: "Calibrated MEDIUM or LOW; each card text says correct delivery is not blocked, which fails V2's own HIGH bar (IC 0.906, K4 NOT MET)."}
+  - {item: "R1-G9 base-drift mechanism and R2-G7 same-count concealment mechanism", diff: [C-011, X-003, A-004], reason: "Defeated by TL 2471 (recount at the recorded base) and TL 2256 with TL 2469 (scope). Only the open DESIGN 939 reading survives, as F-26."}
+  - {item: "V1's SOURCES.md extension of R1-G5", diff: [C-007], reason: "[INFERRED] and unverified by any grep (Part 4 item 8)."}
+  - {item: "V1's 41 failed second refs (DESIGN 444 to 484) and two 'Section 8 gate' refs", diff: [S-004], reason: "Failed calibration; V1 conceded. V1 row verdicts are kept, these refs are discarded."}
+  - {item: "'R2-G1 is the only HIGH of the run'", diff: ["consensus Part 5 rank 1"], reason: "Wrong after INV-006 (F-02)."}
+  - {item: "INV-006 options: grep under the heading and expect 2; drop the append", diff: [INV-006], reason: "The first still counts the TL 2802 build-time row. The second would satisfy TL 2804, since TL 2802 already is the one row for the OQ-1 (R5) decision, but it leaves item 6.2 with no action to check. The anchored-row check (F-02) is used instead: it keeps 6.2 a checkable action, and the 6.2 row is an item-level record next to the build-time row."}
+  - {item: "Raising F-03 to HIGH because of INV-021", diff: [X-002], reason: "The plan defect is a stall, not shipped wrong code (X-002, 95%). INV-021 is a remedy-sufficiency gap and is cleared by widening the remedy (Change 3), as the caller ruled."}
+  - {item: "INV-004: grep -c in 6.1 counts lines, not distinct parts", diff: [INV-004], reason: "ADDRESSED, LOW; the decision file is complete today, so there is no present risk. Not carried as a finding."}
+  - {item: "INV-001: the Fix cycle 3 table exists, rows R3-B1, R3-B2, R3-B3 and R4 in order, when 6.3 step (7) appends the R5 row", diff: [INV-001], reason: "ADDRESSED, LOW, no gap: item 2.6 creates the table (TL 279-283), items 3.4, 4.5 and 5.11 add rows, and Phase 5 runs before Phase 6, so the order holds. No finding."}
+  - item: "INV-002: the deviation total is 9 until item 6.3 and 10 after it, and no later item expects 9"
+    diff: [INV-002]
+    reason: "ADDRESSED, LOW, no gap: items 3.3 and 5.10 pin 9 before Phase 6, 6.3 step (6) sets 10 (TL 998) and 6.4 checks 10 (TL 1005); no later item pins 9 and no merged finding adds a deviation. No finding."
+    note: "Review N-05 (minor, not applied to the plan): the Phase 5 pin is at TL 817 and TL 819, in item 5.8 (header TL 815), not 5.10; the error comes from invariant-probe.md line 15. The conclusion holds, because 5.8 also runs before Phase 6."
+  - {item: "INV-017: zero-hit greps and an unavailable Orca are handled", diff: [INV-017], reason: "ADDRESSED, LOW, no gap: 6.4 expects no TODO or TBD hits (TL 1005), capture item 9 covers an unavailable Orca (TL 1260), 7.17 halts on an unverified open item 2 (TL 1269), 7.18 writes a SOURCES.md when nothing was captured (TL 1276), and 9.3 halts when the Run is not readable (TL 1638-1644). No finding."}
+  - {item: "Ranking the card grades 4, 3 and 4 against each other", diff: [A-007, S-008], reason: "The scales differ and V2 conceded grade 3 is not defensible on an unstated scale. The merged grade is set fresh on V3's written scale."}
+
+# Source: Change 30
+best_practice_grade:
+  grade: 3
+  scale: "0 to 5 (0 = unusable, 5 = executable as written with no rework)"
+  scale_source: "V3's written scale (S-008)"
+  card_grades: {variant-1: 4, variant-2: 3, variant-3: 4}
+  card_grades_note: "Recorded, not ranked (A-007). The card grades of 4 were set before INV-006 was found."
+  reasons:
+    - "Plus: owner gates and HALT rules are explicit, and the R5 edit has its own review gate."
+    - "Plus: the design-fix items anchor on headings and pinned counts."
+    - "Minus: two checks fail correct work (F-01, F-02), so the plan needs rework before it runs as written."
+    - "Minus: an owner approval at step 1.0a has no follow-up path today (F-03, INV-021)."
+
+calibrated_confidence:
+  value: 0.77
+  inputs: {variant-1: 0.71, variant-2: 0.81, variant-3: 0.79}
+  mean_exact: 0.7700
+  note: "Mean of the three calibrated card confidences (2.31 / 3). F-01 is held by one card and confirmed by all three advocates; F-02 comes from the probe alone, but its evidence is mechanical (a grep count re-checked by the orchestrator and by the merge executor)."

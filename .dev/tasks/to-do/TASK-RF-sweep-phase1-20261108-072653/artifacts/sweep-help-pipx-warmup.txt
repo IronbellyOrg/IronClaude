@@ -1,0 +1,6 @@
+⚠️  superclaude is already on your PATH and installed at
+    /usr/local/bin/superclaude. Downloading and running anyway.
+creating virtual environment...
+installing superclaude from spec '/home/coder/workspaces/worktrees/IronClaude/issue-339-orchestrator-mode'...
+SuperClaude, version 5.0.0
+exit=0

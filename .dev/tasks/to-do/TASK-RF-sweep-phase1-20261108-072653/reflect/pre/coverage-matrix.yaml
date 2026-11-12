@@ -1,0 +1,936 @@
+# Coverage matrix: sc-reflect-protocol Wave 1, Step 1B.0 to 1B.2, UC-1 pre-execution, Tier 1.
+# Generated deterministically (uv run python, read-only on inputs); every row cites the defining SPEC line.
+status: complete
+use_case: UC-1-pre-execution
+spec: docs/designs/orchestrator-mode.md
+spec_lines: 1013
+tasklist: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md
+tasklist_item_count: 355
+matching:
+  parsed: exact word-boundary token over item text (item heading to next item or ## / ### heading); fuzzy pass off (no --fuzzy-ids); range notation only for '..' or '-' forms, 'X to Y' not expanded
+  step_ids: token must have 'step' or 'steps' within the 40 characters before it (avoids DESIGN line numbers and section numbers such as 1.4 colliding)
+  routing_rows_R1_R8: token must have 'row' or 'rows' within the 40 characters before it and must not be followed by '-' (design-fix names R3-B1, R3-B2, R3-B3 are not routing rows; tasklist line 165)
+  inferred: containment >= 0.6 of casefolded, stopword-stripped content words of the quote in a single item; best ratio wins; first item breaks ties
+  spans: parsed spans taken at each ID's defining occurrence (table row, list item or heading section); INF quotes lie outside them (for example DESIGN line 47 is inside the GQ-103(1) heading section 39-50 and was dropped)
+excluded_tokens:
+  - token: GQ-100
+    citation: docs/designs/orchestrator-mode.md:79
+    reason: appears only as the upper bound of 'GQ-01 to GQ-100', which names the REPORT's own GQ rows, not a requirement of this design
+  - token: M1 to M10, G-1
+    reason: not in the Pass-1 ID families named by the request (FR, NFR, GQ, D-n, SP, steps 1.0a-1.29, R1-R8)
+  - token: GQ-103(1), GQ-103(2), GQ-103(3)
+    reason: folded into the single row GQ-103 (sub-parts of one GQ); GQ-103(2) at line 59 and GQ-103(3) at line 60 share the match
+summary:
+  parsed_count: 120
+  inferred_count: 15
+  matched_parsed: 66
+  matched_inferred: 10
+  coverage_pct: 0.55
+  coverage_pct_union: 0.563
+  unmapped_count: 54
+  unmapped_count_union: 59
+  S_dev_density: 0.437
+  coverage_degraded: null
+  unmapped_requirements: ["FR-007", "FR-008", "FR-009", "FR-011", "FR-013", "FR-014", "FR-016", "FR-017", "FR-018", "FR-019", "FR-020", "FR-022", "FR-024", "FR-026", "NFR-002", "NFR-005", "NFR-007", "NFR-008", "NFR-009", "NFR-011", "NFR-012", "NFR-015", "GQ-101", "GQ-102", "GQ-104", "GQ-105", "GQ-106", "GQ-107", "GQ-108", "GQ-109", "GQ-110", "GQ-111", "GQ-112", "GQ-113", "D2", "D7", "D8", "SP-07", "SP-09", "SP-19", "SP-20", "SP-21", "SP-22", "SP-23", "SP-25", "SP-26", "SP-28", "step-1.21", "step-1.22", "step-1.23", "step-1.24", "step-1.25", "step-1.26", "step-1.27"]
+  unmapped_requirements_union: ["FR-007", "FR-008", "FR-009", "FR-011", "FR-013", "FR-014", "FR-016", "FR-017", "FR-018", "FR-019", "FR-020", "FR-022", "FR-024", "FR-026", "NFR-002", "NFR-005", "NFR-007", "NFR-008", "NFR-009", "NFR-011", "NFR-012", "NFR-015", "GQ-101", "GQ-102", "GQ-104", "GQ-105", "GQ-106", "GQ-107", "GQ-108", "GQ-109", "GQ-110", "GQ-111", "GQ-112", "GQ-113", "D2", "D7", "D8", "SP-07", "SP-09", "SP-19", "SP-20", "SP-21", "SP-22", "SP-23", "SP-25", "SP-26", "SP-28", "step-1.21", "step-1.22", "step-1.23", "step-1.24", "step-1.25", "step-1.26", "step-1.27", "INF-006", "INF-007", "INF-008", "INF-009", "INF-012"]
+signals:
+  S_scope: 355   # tasklist items; > 10 exits the T1 STOP path
+  S_domains: 5   # code (src/superclaude/cli/sweep, cli/main.py), tests (tests/sweep, tests/commands, tests/core, tests/skills, tests/recommend), docs (docs/designs, HOW-WE-WORK.md, user guide, developer guide, CHANGELOG.md, WORKER-CONTRACT.md), config (.gitignore), infra (make sync-dev / verify-sync, pipx install)
+  S_dev_density: 0.437   # unmapped union / total union; > 0.20 escalates
+  escalate: true
+  escalate_reasons: ["S_scope > 10", "S_domains >= 3", "S_dev_density > 0.20"]
+rows:
+  - id: FR-001
+    source: "parsed"
+    family: "FR"
+    citation: "docs/designs/orchestrator-mode.md:755"
+    matched_items: ["10.6"]
+    match_result: "exact"
+  - id: FR-002
+    source: "parsed"
+    family: "FR"
+    citation: "docs/designs/orchestrator-mode.md:756"
+    matched_items: ["9.10"]
+    match_result: "exact"
+  - id: FR-003
+    source: "parsed"
+    family: "FR"
+    citation: "docs/designs/orchestrator-mode.md:757"
+    matched_items: ["9.1", "9.10", "10.7"]
+    match_result: "exact"
+  - id: FR-004
+    source: "parsed"
+    family: "FR"
+    citation: "docs/designs/orchestrator-mode.md:758"
+    matched_items: ["9.1", "9.10", "10.7"]
+    match_result: "exact"
+  - id: FR-005
+    source: "parsed"
+    family: "FR"
+    citation: "docs/designs/orchestrator-mode.md:759"
+    matched_items: ["10.7"]
+    match_result: "exact"
+  - id: FR-006
+    source: "parsed"
+    family: "FR"
+    citation: "docs/designs/orchestrator-mode.md:760"
+    matched_items: ["10.2"]
+    match_result: "exact"
+  - id: FR-007
+    source: "parsed"
+    family: "FR"
+    citation: "docs/designs/orchestrator-mode.md:761"
+    matched_items: []
+    match_result: "none"
+    semantic_note: "no literal ID token in any item; substance-only candidates by design section 12 test file ['test_classify.py']: ['2.5', '2.13', '3.2', '4.3', '4.4', '4.5']"
+  - id: FR-008
+    source: "parsed"
+    family: "FR"
+    citation: "docs/designs/orchestrator-mode.md:762"
+    matched_items: []
+    match_result: "none"
+    semantic_note: "no literal ID token in any item; substance-only candidates by design section 12 test file ['test_classify.py']: ['2.5', '2.13', '3.2', '4.3', '4.4', '4.5']"
+  - id: FR-009
+    source: "parsed"
+    family: "FR"
+    citation: "docs/designs/orchestrator-mode.md:763"
+    matched_items: []
+    match_result: "none"
+    semantic_note: "no literal ID token in any item; substance-only candidates by design section 12 test file ['test_classify.py']: ['2.5', '2.13', '3.2', '4.3', '4.4', '4.5']"
+  - id: FR-010
+    source: "parsed"
+    family: "FR"
+    citation: "docs/designs/orchestrator-mode.md:764"
+    matched_items: ["2.5", "2.16", "3.3", "3.5", "3.7", "3.14", "4.1", "4.3", "4.4", "4.5", "4.7", "4.8", "4.9", "4.10", "4.11", "4.12", "4.13", "4.14", "4.15", "4.18", "4.19", "4.22", "4.23", "10.2", "14.11", "14.35"]
+    match_result: "exact"
+  - id: FR-011
+    source: "parsed"
+    family: "FR"
+    citation: "docs/designs/orchestrator-mode.md:765"
+    matched_items: []
+    match_result: "none"
+    semantic_note: "no literal ID token in any item; substance-only candidates by design section 12 test file ['test_report.py']: ['10.5', '10.11']"
+  - id: FR-012
+    source: "parsed"
+    family: "FR"
+    citation: "docs/designs/orchestrator-mode.md:766"
+    matched_items: ["10.2"]
+    match_result: "exact"
+  - id: FR-013
+    source: "parsed"
+    family: "FR"
+    citation: "docs/designs/orchestrator-mode.md:767"
+    matched_items: []
+    match_result: "none"
+    semantic_note: "no literal ID token in any item; substance-only candidates by design section 12 test file ['test_classify.py', 'test_probes_allowlist.py']: ['2.5', '2.13', '3.2', '4.3', '4.4', '4.5']"
+  - id: FR-014
+    source: "parsed"
+    family: "FR"
+    citation: "docs/designs/orchestrator-mode.md:768"
+    matched_items: []
+    match_result: "none"
+    semantic_note: "no literal ID token in any item; substance-only candidates by design section 12 test file ['test_classify.py']: ['2.5', '2.13', '3.2', '4.3', '4.4', '4.5']"
+  - id: FR-015
+    source: "parsed"
+    family: "FR"
+    citation: "docs/designs/orchestrator-mode.md:769"
+    matched_items: ["10.2"]
+    match_result: "exact"
+  - id: FR-016
+    source: "parsed"
+    family: "FR"
+    citation: "docs/designs/orchestrator-mode.md:770"
+    matched_items: []
+    match_result: "none"
+    semantic_note: "no literal ID token in any item; substance-only candidates by design section 12 test file ['test_report.py']: ['10.5', '10.11']"
+  - id: FR-017
+    source: "parsed"
+    family: "FR"
+    citation: "docs/designs/orchestrator-mode.md:771"
+    matched_items: []
+    match_result: "none"
+    semantic_note: "no literal ID token in any item; substance-only candidates by design section 12 test file ['test_cli_contract.py']: ['10.7', '10.11']"
+  - id: FR-018
+    source: "parsed"
+    family: "FR"
+    citation: "docs/designs/orchestrator-mode.md:772"
+    matched_items: []
+    match_result: "none"
+    semantic_note: "no literal ID token in any item; substance-only candidates by design section 12 test file ['test_cli_contract.py']: ['10.7', '10.11']"
+  - id: FR-019
+    source: "parsed"
+    family: "FR"
+    citation: "docs/designs/orchestrator-mode.md:773"
+    matched_items: []
+    match_result: "none"
+    semantic_note: "no literal ID token in any item; substance-only candidates by design section 12 test file ['test_cli_contract.py']: ['10.7', '10.11']"
+  - id: FR-020
+    source: "parsed"
+    family: "FR"
+    citation: "docs/designs/orchestrator-mode.md:774"
+    matched_items: []
+    match_result: "none"
+    semantic_note: "no literal ID token in any item; substance-only candidates by design section 12 test file ['test_probes_allowlist.py', 'test_report.py']: ['2.5', '2.13', '10.3', '10.5', '10.10', '10.11']"
+  - id: FR-021
+    source: "parsed"
+    family: "FR"
+    citation: "docs/designs/orchestrator-mode.md:775"
+    matched_items: ["8.10", "10.3"]
+    match_result: "exact"
+  - id: FR-022
+    source: "parsed"
+    family: "FR"
+    citation: "docs/designs/orchestrator-mode.md:776"
+    matched_items: []
+    match_result: "none"
+    semantic_note: "no literal ID token in any item; substance-only candidates by design section 12 test file ['test_sweep_command.py']: ['11.4', '11.5', '11.6', '11.7', '11.8', '11.9']"
+  - id: FR-023
+    source: "parsed"
+    family: "FR"
+    citation: "docs/designs/orchestrator-mode.md:777"
+    matched_items: ["5.3", "5.14", "5.19"]
+    match_result: "exact"
+  - id: FR-024
+    source: "parsed"
+    family: "FR"
+    citation: "docs/designs/orchestrator-mode.md:778"
+    matched_items: []
+    match_result: "none"
+    semantic_note: "no literal ID token in any item; substance-only candidates by design section 12 test file ['test_routing_plugin_parity.py']: ['13.4']"
+  - id: FR-025
+    source: "parsed"
+    family: "FR"
+    citation: "docs/designs/orchestrator-mode.md:779"
+    matched_items: ["7.1"]
+    match_result: "exact"
+  - id: FR-026
+    source: "parsed"
+    family: "FR"
+    citation: "docs/designs/orchestrator-mode.md:780"
+    matched_items: []
+    match_result: "none"
+    semantic_note: "no literal ID token in any item; substance-only candidates by design section 12 test file ['test_probes_allowlist.py']: ['2.5', '2.13', '10.3', '10.10']"
+  - id: NFR-001
+    source: "parsed"
+    family: "NFR"
+    citation: "docs/designs/orchestrator-mode.md:781"
+    matched_items: ["10.4"]
+    match_result: "exact"
+  - id: NFR-002
+    source: "parsed"
+    family: "NFR"
+    citation: "docs/designs/orchestrator-mode.md:782"
+    matched_items: []
+    match_result: "none"
+    semantic_note: "no literal ID token in any item; substance-only candidates by design section 12 test file ['test_readonly.py']: ['8.7', '8.9', '8.14', '8.15', '8.16', '8.17']"
+  - id: NFR-003
+    source: "parsed"
+    family: "NFR"
+    citation: "docs/designs/orchestrator-mode.md:783"
+    matched_items: ["2.16"]
+    match_result: "exact"
+  - id: NFR-004
+    source: "parsed"
+    family: "NFR"
+    citation: "docs/designs/orchestrator-mode.md:784"
+    matched_items: ["8.4", "10.2"]
+    match_result: "exact"
+  - id: NFR-005
+    source: "parsed"
+    family: "NFR"
+    citation: "docs/designs/orchestrator-mode.md:785"
+    matched_items: []
+    match_result: "none"
+    semantic_note: "no literal ID token in any item; substance-only candidates by design section 12 test file ['test_report.py']: ['10.5', '10.11']"
+  - id: NFR-006
+    source: "parsed"
+    family: "NFR"
+    citation: "docs/designs/orchestrator-mode.md:786"
+    matched_items: ["10.6"]
+    match_result: "exact"
+  - id: NFR-007
+    source: "parsed"
+    family: "NFR"
+    citation: "docs/designs/orchestrator-mode.md:787"
+    matched_items: []
+    match_result: "none"
+    semantic_note: "no literal ID token in any item; substance-only candidates by design section 12 test file ['test_probes_allowlist.py', 'test_sweep_command.py']: ['2.5', '2.13', '10.3', '10.10', '11.4', '11.5']"
+  - id: NFR-008
+    source: "parsed"
+    family: "NFR"
+    citation: "docs/designs/orchestrator-mode.md:788"
+    matched_items: []
+    match_result: "none"
+    semantic_note: "no literal ID token in any item; substance-only candidates by design section 12 test file ['test_report.py']: ['10.5', '10.11']"
+  - id: NFR-009
+    source: "parsed"
+    family: "NFR"
+    citation: "docs/designs/orchestrator-mode.md:789"
+    matched_items: []
+    match_result: "none"
+    semantic_note: "no literal ID token in any item; substance-only candidates by design section 12 test file ['test_cli_contract.py']: ['10.7', '10.11']"
+  - id: NFR-010
+    source: "parsed"
+    family: "NFR"
+    citation: "docs/designs/orchestrator-mode.md:790"
+    matched_items: ["10.2"]
+    match_result: "exact"
+  - id: NFR-011
+    source: "parsed"
+    family: "NFR"
+    citation: "docs/designs/orchestrator-mode.md:791"
+    matched_items: []
+    match_result: "none"
+    semantic_note: "no literal ID token in any item; substance-only candidates by design section 12 test file ['test_sweep_command.py']: ['11.4', '11.5', '11.6', '11.7', '11.8', '11.9']"
+  - id: NFR-012
+    source: "parsed"
+    family: "NFR"
+    citation: "docs/designs/orchestrator-mode.md:792"
+    matched_items: []
+    match_result: "none"
+    semantic_note: "no literal ID token in any item; substance-only candidates by keyword ['make lint']: ['14.2', '14.25', '14.29', '14.38', '14.42']"
+  - id: NFR-013
+    source: "parsed"
+    family: "NFR"
+    citation: "docs/designs/orchestrator-mode.md:793"
+    matched_items: ["10.4"]
+    match_result: "exact"
+  - id: NFR-014
+    source: "parsed"
+    family: "NFR"
+    citation: "docs/designs/orchestrator-mode.md:794"
+    matched_items: ["2.16", "6.1", "6.5", "6.6", "6.7", "6.8", "6.9", "6.10", "6.11", "6.12", "6.13", "6.16", "6.17", "6.20", "6.21", "14.35"]
+    match_result: "exact"
+  - id: NFR-015
+    source: "parsed"
+    family: "NFR"
+    citation: "docs/designs/orchestrator-mode.md:795"
+    matched_items: []
+    match_result: "none"
+    semantic_note: "no literal ID token in any item; substance-only candidates by design section 12 test file ['test_report.py']: ['10.5', '10.11']"
+  - id: GQ-101
+    source: "parsed"
+    family: "GQ"
+    citation: "docs/designs/orchestrator-mode.md:57"
+    matched_items: []
+    match_result: "none"
+    semantic_note: "no literal ID token in any item; substance-only candidates by keyword ['mark_shared_packages']: ['8.4']"
+  - id: GQ-102
+    source: "parsed"
+    family: "GQ"
+    citation: "docs/designs/orchestrator-mode.md:58"
+    matched_items: []
+    match_result: "none"
+    semantic_note: "no literal ID token in any item; substance-only candidates by keyword ['package_state']: ['8.4']"
+  - id: GQ-103
+    source: "parsed"
+    family: "GQ"
+    citation: "docs/designs/orchestrator-mode.md:39"
+    matched_items: ["2.3", "2.7", "2.9", "7.7", "8.5"]
+    match_result: "exact"
+  - id: GQ-104
+    source: "parsed"
+    family: "GQ"
+    citation: "docs/designs/orchestrator-mode.md:61"
+    matched_items: []
+    match_result: "none"
+    semantic_note: "no literal ID token in any item; substance-only candidates by keyword ['run-list']: ['9.1', '9.7', '10.3']"
+  - id: GQ-105
+    source: "parsed"
+    family: "GQ"
+    citation: "docs/designs/orchestrator-mode.md:62"
+    matched_items: []
+    match_result: "none"
+    semantic_note: "no literal ID token in any item; substance-only candidates by keyword ['FINAL:']: none"
+  - id: GQ-106
+    source: "parsed"
+    family: "GQ"
+    citation: "docs/designs/orchestrator-mode.md:63"
+    matched_items: []
+    match_result: "none"
+    semantic_note: "no literal ID token in any item; substance-only candidates by keyword ['.dev/sweeps/']: ['7.1', '7.2', '8.6', '8.9', '8.14', '8.15']"
+  - id: GQ-107
+    source: "parsed"
+    family: "GQ"
+    citation: "docs/designs/orchestrator-mode.md:64"
+    matched_items: []
+    match_result: "none"
+    semantic_note: "no literal ID token in any item; substance-only candidates by keyword ['sanitize']: ['7.18', '8.12', '8.19']"
+  - id: GQ-108
+    source: "parsed"
+    family: "GQ"
+    citation: "docs/designs/orchestrator-mode.md:65"
+    matched_items: []
+    match_result: "none"
+    semantic_note: "no literal ID token in any item; substance-only candidates by keyword ['tab map', 'tab-map']: ['3.1', '7.11', '7.16']"
+  - id: GQ-109
+    source: "parsed"
+    family: "GQ"
+    citation: "docs/designs/orchestrator-mode.md:66"
+    matched_items: []
+    match_result: "none"
+    semantic_note: "no literal ID token in any item; substance-only candidates by keyword ['FORBIDDEN_TOKENS']: ['6.1', '6.3', '6.6', '6.10', '7.24', '8.10']"
+  - id: GQ-110
+    source: "parsed"
+    family: "GQ"
+    citation: "docs/designs/orchestrator-mode.md:67"
+    matched_items: []
+    match_result: "none"
+    semantic_note: "no literal ID token in any item; substance-only candidates by keyword ['--untracked-files=all']: ['7.20', '7.30', '7.34', '8.5']"
+  - id: GQ-111
+    source: "parsed"
+    family: "GQ"
+    citation: "docs/designs/orchestrator-mode.md:78"
+    matched_items: []
+    match_result: "none"
+    semantic_note: "no literal ID token in any item; substance-only candidates by keyword ['GAPS line 138']: none"
+  - id: GQ-112
+    source: "parsed"
+    family: "GQ"
+    citation: "docs/designs/orchestrator-mode.md:78"
+    matched_items: []
+    match_result: "none"
+    semantic_note: "no literal ID token in any item; substance-only candidates by keyword ['GAPS line 138']: none"
+  - id: GQ-113
+    source: "parsed"
+    family: "GQ"
+    citation: "docs/designs/orchestrator-mode.md:79"
+    matched_items: []
+    match_result: "none"
+    semantic_note: "no literal ID token in any item; substance-only candidates by keyword ['GQ-100']: none"
+  - id: D1
+    source: "parsed"
+    family: "D"
+    citation: "docs/designs/orchestrator-mode.md:807"
+    matched_items: ["8.12"]
+    match_result: "exact"
+  - id: D2
+    source: "parsed"
+    family: "D"
+    citation: "docs/designs/orchestrator-mode.md:808"
+    matched_items: []
+    match_result: "none"
+    semantic_note: "no literal ID token in any item; substance-only candidates by keyword ['os.link']: ['9.1', '9.6', '10.7', '14.14']"
+  - id: D3
+    source: "parsed"
+    family: "D"
+    citation: "docs/designs/orchestrator-mode.md:809"
+    matched_items: ["7.13", "12.4"]
+    match_result: "exact"
+  - id: D4
+    source: "parsed"
+    family: "D"
+    citation: "docs/designs/orchestrator-mode.md:810"
+    matched_items: ["7.13", "14.6", "14.8"]
+    match_result: "exact"
+  - id: D5
+    source: "parsed"
+    family: "D"
+    citation: "docs/designs/orchestrator-mode.md:811"
+    matched_items: ["7.13"]
+    match_result: "exact"
+  - id: D6
+    source: "parsed"
+    family: "D"
+    citation: "docs/designs/orchestrator-mode.md:812"
+    matched_items: ["5.1", "5.3", "5.4", "5.11"]
+    match_result: "exact"
+  - id: D7
+    source: "parsed"
+    family: "D"
+    citation: "docs/designs/orchestrator-mode.md:813"
+    matched_items: []
+    match_result: "none"
+    semantic_note: "no literal ID token in any item; substance-only candidates by keyword ['fenced']: ['8.4', '12.1', '12.6']"
+  - id: D8
+    source: "parsed"
+    family: "D"
+    citation: "docs/designs/orchestrator-mode.md:814"
+    matched_items: []
+    match_result: "none"
+    semantic_note: "no literal ID token in any item; substance-only candidates by keyword ['unpushed']: none"
+  - id: D9
+    source: "parsed"
+    family: "D"
+    citation: "docs/designs/orchestrator-mode.md:815"
+    matched_items: ["2.16", "3.3", "3.5", "3.7", "3.11", "3.13", "7.11", "7.12", "7.13", "7.21", "8.4", "8.15", "10.2", "10.5"]
+    match_result: "exact"
+  - id: SP-07
+    source: "parsed"
+    family: "SP"
+    citation: "docs/designs/orchestrator-mode.md:510"
+    matched_items: []
+    match_result: "none"
+    semantic_note: "no literal ID token in any item; substance-only candidates by keyword ['guard refused:']: none"
+  - id: SP-09
+    source: "parsed"
+    family: "SP"
+    citation: "docs/designs/orchestrator-mode.md:843"
+    matched_items: []
+    match_result: "none"
+    semantic_note: "no literal ID token in any item; substance-only candidates by keyword ['--run']: ['7.16', '9.1', '9.3', '11.1']"
+  - id: SP-16
+    source: "parsed"
+    family: "SP"
+    citation: "docs/designs/orchestrator-mode.md:490"
+    matched_items: ["10.5"]
+    match_result: "exact"
+  - id: SP-19
+    source: "parsed"
+    family: "SP"
+    citation: "docs/designs/orchestrator-mode.md:843"
+    matched_items: []
+    match_result: "none"
+    semantic_note: "no literal ID token in any item; substance-only candidates by keyword ['unscanned: orca unavailable']: ['10.7']"
+  - id: SP-20
+    source: "parsed"
+    family: "SP"
+    citation: "docs/designs/orchestrator-mode.md:844"
+    matched_items: []
+    match_result: "none"
+    semantic_note: "no literal ID token in any item; substance-only candidates by keyword ['_publish']: ['8.12', '9.1', '9.5', '9.6', '9.7', '10.7']"
+  - id: SP-21
+    source: "parsed"
+    family: "SP"
+    citation: "docs/designs/orchestrator-mode.md:845"
+    matched_items: []
+    match_result: "none"
+    semantic_note: "no literal ID token in any item; substance-only candidates by keyword ['Orca unavailable (']: none"
+  - id: SP-22
+    source: "parsed"
+    family: "SP"
+    citation: "docs/designs/orchestrator-mode.md:846"
+    matched_items: []
+    match_result: "none"
+    semantic_note: "no literal ID token in any item; substance-only candidates by keyword ['retention']: none"
+  - id: SP-23
+    source: "parsed"
+    family: "SP"
+    citation: "docs/designs/orchestrator-mode.md:847"
+    matched_items: []
+    match_result: "none"
+    semantic_note: "no literal ID token in any item; substance-only candidates by keyword ['200 characters']: ['8.12']"
+  - id: SP-24
+    source: "parsed"
+    family: "SP"
+    citation: "docs/designs/orchestrator-mode.md:848"
+    matched_items: ["8.19", "10.5"]
+    match_result: "exact"
+  - id: SP-25
+    source: "parsed"
+    family: "SP"
+    citation: "docs/designs/orchestrator-mode.md:849"
+    matched_items: []
+    match_result: "none"
+    semantic_note: "no literal ID token in any item; substance-only candidates by keyword ['allowed-tools']: ['11.1', '11.3', '11.4', '11.6', '11.7', '11.9']"
+  - id: SP-26
+    source: "parsed"
+    family: "SP"
+    citation: "docs/designs/orchestrator-mode.md:850"
+    matched_items: []
+    match_result: "none"
+    semantic_note: "no literal ID token in any item; substance-only candidates by keyword ['timestamp in the future']: none"
+  - id: SP-27
+    source: "parsed"
+    family: "SP"
+    citation: "docs/designs/orchestrator-mode.md:851"
+    matched_items: ["5.4"]
+    match_result: "exact"
+  - id: SP-28
+    source: "parsed"
+    family: "SP"
+    citation: "docs/designs/orchestrator-mode.md:852"
+    matched_items: []
+    match_result: "none"
+    semantic_note: "no literal ID token in any item; substance-only candidates by keyword ['byte limit']: ['8.18']"
+  - id: SP-29
+    source: "parsed"
+    family: "SP"
+    citation: "docs/designs/orchestrator-mode.md:853"
+    matched_items: ["2.16", "3.3", "3.5", "3.7", "3.11", "3.14"]
+    match_result: "exact"
+  - id: step-1.0a
+    source: "parsed"
+    family: "STEP"
+    citation: "docs/designs/orchestrator-mode.md:829"
+    matched_items: ["2.4", "2.10", "3.8", "4.9", "6.1", "6.6", "7.14", "7.15", "7.16", "7.17", "7.18", "8.10", "9.1", "10.3", "14.20", "14.34"]
+    match_result: "exact"
+  - id: step-1.0b
+    source: "parsed"
+    family: "STEP"
+    citation: "docs/designs/orchestrator-mode.md:907"
+    matched_items: ["7.13"]
+    match_result: "exact"
+  - id: step-1.1
+    source: "parsed"
+    family: "STEP"
+    citation: "docs/designs/orchestrator-mode.md:908"
+    matched_items: ["8.2"]
+    match_result: "exact"
+  - id: step-1.2
+    source: "parsed"
+    family: "STEP"
+    citation: "docs/designs/orchestrator-mode.md:909"
+    matched_items: ["7.17", "7.26", "8.3"]
+    match_result: "exact"
+  - id: step-1.3
+    source: "parsed"
+    family: "STEP"
+    citation: "docs/designs/orchestrator-mode.md:910"
+    matched_items: ["7.11", "8.4", "9.3", "9.9"]
+    match_result: "exact"
+  - id: step-1.4a
+    source: "parsed"
+    family: "STEP"
+    citation: "docs/designs/orchestrator-mode.md:911"
+    matched_items: ["8.5", "8.6", "8.8", "8.9", "8.11", "8.14", "8.15", "8.16", "8.17", "8.18", "8.19", "8.20", "8.23", "8.24", "8.27", "8.28"]
+    match_result: "exact"
+  - id: step-1.4
+    source: "parsed"
+    family: "STEP"
+    citation: "docs/designs/orchestrator-mode.md:830"
+    matched_items: ["7.14", "7.17", "8.10", "8.11", "8.14", "8.15", "8.16", "8.17", "8.18", "8.19", "8.20", "8.23", "8.24", "8.27", "8.28", "9.3", "14.16"]
+    match_result: "exact"
+  - id: step-1.5
+    source: "parsed"
+    family: "STEP"
+    citation: "docs/designs/orchestrator-mode.md:831"
+    matched_items: ["7.5", "7.7", "7.9", "8.12"]
+    match_result: "exact"
+  - id: step-1.6
+    source: "parsed"
+    family: "STEP"
+    citation: "docs/designs/orchestrator-mode.md:832"
+    matched_items: ["7.1", "7.7", "7.17", "7.26", "9.1"]
+    match_result: "exact"
+  - id: step-1.7
+    source: "parsed"
+    family: "STEP"
+    citation: "docs/designs/orchestrator-mode.md:915"
+    matched_items: ["5.6", "5.19", "9.2", "9.5", "9.6", "9.7", "9.8", "9.9", "9.10", "9.11", "9.12", "9.15", "9.16", "9.19", "9.20"]
+    match_result: "exact"
+  - id: step-1.8
+    source: "parsed"
+    family: "STEP"
+    citation: "docs/designs/orchestrator-mode.md:916"
+    matched_items: ["8.8", "10.1"]
+    match_result: "exact"
+  - id: step-1.9
+    source: "parsed"
+    family: "STEP"
+    citation: "docs/designs/orchestrator-mode.md:917"
+    matched_items: ["10.2"]
+    match_result: "exact"
+  - id: step-1.10
+    source: "parsed"
+    family: "STEP"
+    citation: "docs/designs/orchestrator-mode.md:918"
+    matched_items: ["10.3"]
+    match_result: "exact"
+  - id: step-1.11
+    source: "parsed"
+    family: "STEP"
+    citation: "docs/designs/orchestrator-mode.md:919"
+    matched_items: ["10.4"]
+    match_result: "exact"
+  - id: step-1.12
+    source: "parsed"
+    family: "STEP"
+    citation: "docs/designs/orchestrator-mode.md:920"
+    matched_items: ["7.7", "10.5"]
+    match_result: "exact"
+  - id: step-1.13
+    source: "parsed"
+    family: "STEP"
+    citation: "docs/designs/orchestrator-mode.md:921"
+    matched_items: ["10.6", "10.7"]
+    match_result: "exact"
+  - id: step-1.14
+    source: "parsed"
+    family: "STEP"
+    citation: "docs/designs/orchestrator-mode.md:833"
+    matched_items: ["11.1", "11.2", "11.6", "11.7", "11.8", "11.9", "11.10", "11.11", "11.12", "11.15", "11.16", "11.19", "11.20"]
+    match_result: "exact"
+  - id: step-1.15
+    source: "parsed"
+    family: "STEP"
+    citation: "docs/designs/orchestrator-mode.md:834"
+    matched_items: ["11.3", "11.6", "11.7", "11.8", "11.9", "11.10", "11.11", "11.12", "11.15", "11.16", "11.19", "11.20"]
+    match_result: "exact"
+  - id: step-1.16
+    source: "parsed"
+    family: "STEP"
+    citation: "docs/designs/orchestrator-mode.md:924"
+    matched_items: ["11.4", "13.6"]
+    match_result: "exact"
+  - id: step-1.16a
+    source: "parsed"
+    family: "STEP"
+    citation: "docs/designs/orchestrator-mode.md:925"
+    matched_items: ["5.7", "5.11", "5.14", "5.16", "7.19"]
+    match_result: "exact"
+  - id: step-1.17
+    source: "parsed"
+    family: "STEP"
+    citation: "docs/designs/orchestrator-mode.md:835"
+    matched_items: ["5.3", "5.7", "5.17", "5.19", "5.21", "6.9", "7.3", "7.19", "7.26", "12.1", "12.6", "12.7", "12.8", "12.9", "12.10", "12.11", "12.12", "12.15", "12.16", "12.19", "12.20"]
+    match_result: "exact"
+  - id: step-1.18
+    source: "parsed"
+    family: "STEP"
+    citation: "docs/designs/orchestrator-mode.md:927"
+    matched_items: ["12.2", "12.4"]
+    match_result: "exact"
+  - id: step-1.19
+    source: "parsed"
+    family: "STEP"
+    citation: "docs/designs/orchestrator-mode.md:928"
+    matched_items: ["5.7", "5.14", "5.17", "5.21", "7.3", "7.19", "7.26", "12.3", "12.6", "12.7", "12.8", "12.9", "12.10", "12.11", "12.12", "12.15", "12.16", "12.19", "12.20"]
+    match_result: "exact"
+  - id: step-1.20
+    source: "parsed"
+    family: "STEP"
+    citation: "docs/designs/orchestrator-mode.md:929"
+    matched_items: ["11.2"]
+    match_result: "exact"
+  - id: step-1.21
+    source: "parsed"
+    family: "STEP"
+    citation: "docs/designs/orchestrator-mode.md:930"
+    matched_items: []
+    match_result: "none"
+    semantic_note: "no literal ID token in any item; substance-only candidates by keyword ['routing row R1', 'row R1', 'R1 and R2']: ['13.2', '14.20']"
+  - id: step-1.22
+    source: "parsed"
+    family: "STEP"
+    citation: "docs/designs/orchestrator-mode.md:931"
+    matched_items: []
+    match_result: "none"
+    semantic_note: "no literal ID token in any item; substance-only candidates by keyword ['_OTHER_COMMANDS']: ['13.3']"
+  - id: step-1.23
+    source: "parsed"
+    family: "STEP"
+    citation: "docs/designs/orchestrator-mode.md:932"
+    matched_items: []
+    match_result: "none"
+    semantic_note: "no literal ID token in any item; substance-only candidates by keyword ['plugins/superclaude/skills/sc-recommend/refs/HOW-WE-WORK.md']: ['1.4', '13.4', '13.8', '13.9', '13.10', '13.11']"
+  - id: step-1.24
+    source: "parsed"
+    family: "STEP"
+    citation: "docs/designs/orchestrator-mode.md:933"
+    matched_items: []
+    match_result: "none"
+    semantic_note: "no literal ID token in any item; substance-only candidates by keyword ['docs/user-guide/commands.md']: ['1.4', '5.10', '13.5', '13.9', '13.10', '13.11']"
+  - id: step-1.24a
+    source: "parsed"
+    family: "STEP"
+    citation: "docs/designs/orchestrator-mode.md:934"
+    matched_items: ["12.4"]
+    match_result: "exact"
+  - id: step-1.24b
+    source: "parsed"
+    family: "STEP"
+    citation: "docs/designs/orchestrator-mode.md:935"
+    matched_items: ["13.6"]
+    match_result: "exact"
+  - id: step-1.25
+    source: "parsed"
+    family: "STEP"
+    citation: "docs/designs/orchestrator-mode.md:936"
+    matched_items: []
+    match_result: "none"
+    semantic_note: "no literal ID token in any item; substance-only candidates by keyword ['make sync-dev']: ['14.1', '14.5', '14.25', '14.29', '14.38', '14.42']"
+  - id: step-1.26
+    source: "parsed"
+    family: "STEP"
+    citation: "docs/designs/orchestrator-mode.md:937"
+    matched_items: []
+    match_result: "none"
+    semantic_note: "no literal ID token in any item; substance-only candidates by keyword ['make lint']: ['14.2', '14.25', '14.29', '14.38', '14.42']"
+  - id: step-1.27
+    source: "parsed"
+    family: "STEP"
+    citation: "docs/designs/orchestrator-mode.md:938"
+    matched_items: []
+    match_result: "none"
+    semantic_note: "no literal ID token in any item; substance-only candidates by keyword ['uv run pytest tests/sweep tests/commands']: ['14.3', '14.12', '14.25', '14.29', '14.38', '14.42']"
+  - id: step-1.28
+    source: "parsed"
+    family: "STEP"
+    citation: "docs/designs/orchestrator-mode.md:939"
+    matched_items: ["14.5", "14.10", "14.11", "14.12", "14.13", "14.14", "14.15", "14.16", "14.17", "14.18", "14.19", "14.20", "14.21", "14.22", "14.23", "14.26", "14.27", "14.30", "14.31"]
+    match_result: "exact"
+  - id: step-1.29
+    source: "parsed"
+    family: "STEP"
+    citation: "docs/designs/orchestrator-mode.md:940"
+    matched_items: ["14.6", "14.7", "14.8", "14.12", "14.20", "14.34"]
+    match_result: "exact"
+  - id: R1
+    source: "parsed"
+    family: "R"
+    citation: "docs/designs/orchestrator-mode.md:694"
+    matched_items: ["13.2", "13.12", "14.20", "14.23"]
+    match_result: "exact"
+  - id: R2
+    source: "parsed"
+    family: "R"
+    citation: "docs/designs/orchestrator-mode.md:695"
+    matched_items: ["5.2", "5.11", "5.14", "5.19", "13.1", "13.4"]
+    match_result: "exact"
+  - id: R3
+    source: "parsed"
+    family: "R"
+    citation: "docs/designs/orchestrator-mode.md:696"
+    matched_items: ["10.2", "13.4"]
+    match_result: "exact"
+  - id: R4
+    source: "parsed"
+    family: "R"
+    citation: "docs/designs/orchestrator-mode.md:697"
+    matched_items: ["5.4", "13.3"]
+    match_result: "exact"
+  - id: R5
+    source: "parsed"
+    family: "R"
+    citation: "docs/designs/orchestrator-mode.md:698"
+    matched_items: ["6.3", "6.4", "7.13", "11.2", "11.6", "11.7", "11.8", "11.9", "11.10", "11.11", "11.12", "11.15", "11.16", "11.19", "11.20"]
+    match_result: "exact"
+  - id: R6
+    source: "parsed"
+    family: "R"
+    citation: "docs/designs/orchestrator-mode.md:699"
+    matched_items: ["13.5"]
+    match_result: "exact"
+  - id: R7
+    source: "parsed"
+    family: "R"
+    citation: "docs/designs/orchestrator-mode.md:700"
+    matched_items: ["12.4", "12.6", "12.7", "12.8", "12.9", "12.10", "12.11", "12.12", "12.15", "12.16", "12.19", "12.20"]
+    match_result: "exact"
+  - id: R8
+    source: "parsed"
+    family: "R"
+    citation: "docs/designs/orchestrator-mode.md:701"
+    matched_items: ["5.2", "5.9", "5.11", "5.14", "5.19", "13.6", "13.12", "14.20", "14.23"]
+    match_result: "exact"
+  - id: INF-001
+    source: "inferred"
+    quote: "`/task-builder` must copy the same rule into the task file: cite GAPS line 138 for counts and never edit the REPORT."
+    citation: "docs/designs/orchestrator-mode.md:80"
+    matched_items: ["7.26"]
+    match_result: "containment"
+    containment_ratio: 0.7143
+    best_item: "7.26"
+  - id: INF-002
+    source: "inferred"
+    quote: "`report.py` keeps only pure code: `sanitize`, `render`, `SECTIONS`, the fixed strings and `CHECKED_ORCA_VERSION`. No `write_report` exists."
+    citation: "docs/designs/orchestrator-mode.md:88"
+    matched_items: ["8.12"]
+    match_result: "containment"
+    containment_ratio: 0.6667
+    best_item: "8.12"
+  - id: INF-003
+    source: "inferred"
+    quote: "Decision: write a temp file in the output directory, `fsync` it, then publish it under the report name with `os.link`, which fails when the name exists."
+    citation: "docs/designs/orchestrator-mode.md:101"
+    matched_items: ["9.1"]
+    match_result: "containment"
+    containment_ratio: 0.8667
+    best_item: "9.1"
+  - id: INF-004
+    source: "inferred"
+    quote: "`_publish` runs only after every exit-2 check, `collect`, `classify_all` and `render` have succeeded, so a usage error or an internal error in those steps never reaches the filesystem."
+    citation: "docs/designs/orchestrator-mode.md:103"
+    matched_items: ["9.1"]
+    match_result: "containment"
+    containment_ratio: 0.6667
+    best_item: "9.1"
+  - id: INF-005
+    source: "inferred"
+    quote: "B1: imports go one way, `commands -> {probes, classify, report} -> models`."
+    citation: "docs/designs/orchestrator-mode.md:215"
+    matched_items: ["2.12"]
+    match_result: "containment"
+    containment_ratio: 0.6
+    best_item: "2.12"
+  - id: INF-006
+    source: "inferred"
+    quote: "B3: the read allowlist lives only in `probes.py`. Phase 2 `/sc:close` gets its own package, seam and allowlist; nothing in this package grows a write verb (FR-021)."
+    citation: "docs/designs/orchestrator-mode.md:217"
+    matched_items: []
+    match_result: "none"
+    containment_ratio: 0.5238
+    best_item: "14.14"
+  - id: INF-007
+    source: "inferred"
+    quote: "B4: the command and skill are thin: no parsing, no classification, no file writes."
+    citation: "docs/designs/orchestrator-mode.md:218"
+    matched_items: []
+    match_result: "none"
+    containment_ratio: 0.5556
+    best_item: "11.9"
+  - id: INF-008
+    source: "inferred"
+    quote: "B5: no type is redeclared from `superclaude.contracts`."
+    citation: "docs/designs/orchestrator-mode.md:219"
+    matched_items: []
+    match_result: "none"
+    containment_ratio: 0.5
+    best_item: "8.14"
+  - id: INF-009
+    source: "inferred"
+    quote: "R1, R2 and R3 land in one commit. Editing R1 or R2 without R3 fails the parity test."
+    citation: "docs/designs/orchestrator-mode.md:705"
+    matched_items: []
+    match_result: "none"
+    containment_ratio: 0.5
+    best_item: "13.4"
+  - id: INF-010
+    source: "inferred"
+    quote: "R1 and R6 avoid the words stop, retry, release, merge and removal in the sweep's description."
+    citation: "docs/designs/orchestrator-mode.md:707"
+    matched_items: ["11.3"]
+    match_result: "containment"
+    containment_ratio: 0.75
+    best_item: "11.3"
+  - id: INF-011
+    source: "inferred"
+    quote: "No `.claude/` path is staged; `make sync-dev` then `make verify-sync` (step 1.25) refresh the dev copies."
+    citation: "docs/designs/orchestrator-mode.md:708"
+    matched_items: ["14.1"]
+    match_result: "containment"
+    containment_ratio: 0.7692
+    best_item: "14.1"
+  - id: INF-012
+    source: "inferred"
+    quote: "The pattern names `.dev/sweeps/` only. It does not cover `.dev/tasks/`, which stays tracked and always staged (CLAUDE.md rule)."
+    citation: "docs/designs/orchestrator-mode.md:719"
+    matched_items: []
+    match_result: "none"
+    containment_ratio: 0.5625
+    best_item: "7.1"
+  - id: INF-013
+    source: "inferred"
+    quote: "An autouse fixture patches `subprocess.run`, `subprocess.Popen` and `os.system` to raise `AssertionError`. It steps aside only for a test carrying the existing `integration` marker, which is used by exactly one test, the real-git test below."
+    citation: "docs/designs/orchestrator-mode.md:731"
+    matched_items: ["8.8"]
+    match_result: "containment"
+    containment_ratio: 0.75
+    best_item: "8.8"
+  - id: INF-014
+    source: "inferred"
+    quote: "Where the REPORT text and this design differ, this design wins (section 13, REPORT differences)."
+    citation: "docs/designs/orchestrator-mode.md:902"
+    matched_items: ["5.4"]
+    match_result: "containment"
+    containment_ratio: 0.6667
+    best_item: "5.4"
+  - id: INF-015
+    source: "inferred"
+    quote: "They go into step 1.4a because the real-git test created there copies the repository `.gitignore`, so its FR-025 check-ignore assertions fail until the line exists."
+    citation: "docs/designs/orchestrator-mode.md:942"
+    matched_items: ["8.17"]
+    match_result: "containment"
+    containment_ratio: 0.6818
+    best_item: "8.17"

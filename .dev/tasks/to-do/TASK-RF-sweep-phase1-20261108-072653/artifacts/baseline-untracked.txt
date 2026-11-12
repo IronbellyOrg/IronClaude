@@ -1,0 +1,4 @@
+docs/designs/orchestrator-mode-review-1.md
+docs/designs/orchestrator-mode-review-2.md
+docs/designs/orchestrator-mode-review-3.md
+docs/designs/orchestrator-mode.md

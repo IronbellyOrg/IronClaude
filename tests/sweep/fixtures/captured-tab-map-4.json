@@ -1,0 +1,10 @@
+{
+  "source": "file in the ccsession orca-tabs folder",
+  "file_format": "plain text, 3 lines: session id, launch folder, Orca terminal handle",
+  "file_name": "00000000-0000-4000-8000-000000000027+00000000-0000-4000-8000-000000000028",
+  "lines": [
+    "00000000-0000-4000-8000-000000000029",
+    "/home/user/workspaces/worktrees/IronClaude/issue-504",
+    "term_00000000-0000-4000-8000-000000000006"
+  ]
+}

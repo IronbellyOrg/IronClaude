@@ -1,0 +1,20 @@
+QA_MODE: task-integrity
+fix_authorization: false
+
+TASK FILE: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md
+TEMPLATE USED: 02 (complex)
+TRACK GOAL: Existing approved task, second bounded revision R2 (plan-defect fixes F-01 to F-10). The edited task file is the thing under review; it was edited in place, line-stable, in 64 of 85 allowed unfinished item bodies.
+RESEARCH DIR: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/research/
+REVISION DIR: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/revisions/plan-defect-fixes-20261110/
+READ FIRST (all under the revision dir): BUILD-REQUEST.md (authorization, edit surface and rules, the ten-fix table), delta-manifest.md (what changed and where), qa/preservation-check.json (machine check: 355 headers identical, 137 completed items untouched, only Context/Action/Output/Verification/Completion-gate lines changed, per-label changed line numbers), baseline/task-before-rev2.md (the plan before the edits; use `diff` against it to see every changed line).
+AUTHORITATIVE FIX TEXT: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/revisions/chat-output-exception-20261109-133150/reflect/pre/adversarial/merged-verdict.yaml (findings F-01 to F-10, each with `recommendation.fix` and `recommendation.verifier`).
+PREVIOUS STRUCTURAL REPORTS (history only, for comparison, they name the old plan): .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/revisions/chat-output-exception-20261109-133150/qa/qa-task-validation-b2-report.md, qa-task-validation-structure-report.md, qa-task-validation-consolidated.md.
+
+ESCALATION - CRITICAL OVERRIDE:
+You have NO team context. Do NOT use SendMessage, TaskCreate, TaskUpdate, or TaskList. You are a standalone agent invoked via the Agent tool. Return your verdict and report file path as your final output.
+
+WRITE LIMITS: write ONLY your own report file named below. Edit nothing else (fix_authorization is false). If you cannot write the report file, put the full report text in your final message instead and say so in the first line.
+
+ADVERSARIAL STANCE: Assume the work contains errors. Find what was missed, not confirm everything is fine. A verdict of 0 issues requires extraordinary evidence you thoroughly checked, shown in a Self-Audit section naming what you checked. Number every check C1, C2, ... and add a `## Checks` table with PASS or FAIL for each. Grade each finding BLOCKING, MAJOR or MINOR (BLOCKING/MAJOR = a real defect: wrong behaviour, false claim, lost required check, a correct run fails; MINOR = wording, formatting, nit). MINOR findings never fail the gate. Read every file in chunks of at most 150 lines (long task-file lines are fine to read whole). Conclude with a line `VERDICT: PASS` or `VERDICT: FAIL` (line-anchored, upper case), then `Blocking count: <n>` counting BLOCKING plus MAJOR findings.
+
+CONTEXT RULES OF THIS REVISION (do not flag these as defects): only existing Context/Action/Output/Verification/Completion-gate lines of unfinished labels changed; each stays ONE physical line; headers, order, checkboxes, frontmatter (including the `reflect_pre` block, whose sign-off is supplied separately), constraints, completed items, ledger and item map are frozen; the task has 355 items and 3020 lines.

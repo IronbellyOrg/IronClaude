@@ -1,0 +1,402 @@
+# Provenance: produced by sc:adversarial Step 5 (merge-executor) from refactor-plan.md
+# (revised, PASS in refactor-plan-review-2.md). Base is variant-2; changes 1 to 23 map to
+# F-01 to F-23 in order; changes 24 and 25 correct the V1 and V3 ledgers in row_coverage.
+# Minor review notes applied where free: M-1, M-2, M-3, M-4, M-6, M-7, m-1, m-2, m-3.
+schema: sc-reflect-merged-verdict/v1
+merge_method: adversarial
+base_variant: "variant-2 (qa, claude-gw-tier2)"
+sources: [variant-1, variant-2, variant-3, invariant-probe]
+convergence_score: 1.00
+convergence_status: BLOCKED_BY_INVARIANTS
+
+path_aliases:
+  TL: ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md"
+  DESIGN: "docs/designs/orchestrator-mode.md"
+  research/04: ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/research/04-design-fixes-r3.md"
+  coverage-matrix: ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/reflect/pre/coverage-matrix.yaml"
+  WORKER-CONTRACT.md: "src/superclaude/core/WORKER-CONTRACT.md"
+  test_worker_contract.py: "tests/skills/test_worker_contract.py"
+  conftest.py: "tests/cli/reflect/conftest.py"
+  contracts/__init__.py: "src/superclaude/contracts/__init__.py"
+
+unaddressed_invariants_high:
+  - id: INV-001
+    covered_by: "Change 1 (F-01): transcription step before the branch test; Branch 1 HALTs only on empty Chosen"
+  - id: INV-002
+    covered_by: "Change 1 (F-01): Branch 2 sets RESOLVED only with every line filled and a current-session owner quote"
+  - id: INV-009
+    covered_by: "Change 3 (F-03): the two step (6) discovery commands are allowed in all four 7.16 texts together"
+
+severity_counts: {HIGH: 3, MEDIUM: 6, LOW: 14, total: 23}
+
+findings:
+  # Source: Change 1; base R2-G7 widened with R2-G2 (calibrated, merged), V1 and V3 R2 new evidence
+  - id: F-01
+    severity: HIGH
+    gap_class: gate-deadlock
+    claim: >-
+      Every owner gate tests "status is PENDING or Chosen: is empty" before any step copies the
+      owner's answer into the item, so a correct run always HALTs (deadlock). Where an answer is
+      present there is no check that it came from the owner in this session, no else-branch, and no
+      rule for resuming after a HALT.
+    affected_items: ["6.2", "shared procedure at TL:1140", "7.2", "7.4", "7.6", "7.8", "7.10", "7.12", "7.15", "7.16", "14.7", "HALT rule TL:192", "TL:978"]
+    evidence: ["TL:982-992", "TL:989", "TL:1140", "TL:1151", "TL:1165", "TL:1179", "TL:1193", "TL:1207", "TL:1221", "TL:1242-1248", "TL:2481-2484", "TL:2488", "TL:192", "TL:978", "TL:184", "TL:988", "TL:1138", "TL:1298-1314"]
+    recommendation: >-
+      At 6.2, TL:1140, the six inline items, 7.15 and 14.7: (1) add a transcription step before the
+      branch test (7.15 also copies Run id, Given by and Source); (2) Branch 1 HALTs only when Chosen
+      is empty (7.15: only when Run id is empty); (3) Branch 2 sets RESOLVED only when every line is
+      filled and Decision source quotes the owner's words from the current session, with the same
+      quote clause in 14.7 and 7.15 and a recheck in 7.16 before any live call; (4) add a final
+      else-branch that HALTs; (5) HALT if the owner's words are not in the current session; (6) add a
+      resume clause to the HALT rule at TL:192 and TL:978; (7) state the line count as "the header
+      plus three named lines; OQ-8 keeps its three lines". Check: grep for "PENDING or" returns 0
+      lines and the else-branch sentence appears at 9 sites plus 7.15.
+    provenance: {cards: [R2-G7, R2-G2, "V1 R2 New Evidence 2", "V3 R2 New Evidence 1", "V3 R2 New Evidence 3"], debate: [C-002, X-001], change: 1, invariants: [INV-001, INV-002, INV-003, INV-004, INV-005, INV-006, INV-007, INV-008]}
+    tag: Grounded
+
+  # Source: Change 2; base R2-G5 with V1 and V2 R2 new evidence
+  - id: F-02
+    severity: HIGH
+    gap_class: broken-verification
+    claim: >-
+      The 8.3 check counts names with grep -c over loose patterns, so a correct contracts module can
+      fail (multiple hits per name) and an incomplete one can pass; the name set omits the DESIGN 7.2
+      constants.
+    affected_items: ["8.3"]
+    evidence: ["TL:1426-1435", "TL:1431", "TL:1434", "DESIGN:447-468", "DESIGN:466"]
+    recommendation: >-
+      Use the pattern ^(class NAME\b|NAME\s*[:=]) and expect exactly 1 per name, over the DESIGN 7.2
+      names (DESIGN:447-468, including JSON_SCHEMA_VERSION, CLASSES, PACKAGE_STATES, SAFE_VALUES) plus
+      ClassifiedRow.
+    provenance: {cards: [R2-G5, "V1 R2 New Evidence 1", "V2 R2 New Evidence 1"], debate: [C-007], change: 2, invariants: [INV-012, INV-013, INV-014]}
+    tag: Grounded
+
+  # Source: Change 3; base R2-G3 with T1 F3 and V2 R2 new evidence; m-1, m-2, m-3 applied
+  - id: F-03
+    severity: HIGH
+    gap_class: self-contradicting-gate
+    claim: >-
+      Item 7.16 limits the probe to the eight ALLOWED_ORCA templates or a file read, yet its own
+      step (6) runs echo and ls -la to find the tab-map folder, so a correct probe fails its own
+      check and the 7.24 lens.
+    affected_items: ["7.16", "7.24"]
+    evidence: ["TL:1248", "TL:1249-1256", "TL:1257", "TL:1258-1261", "TL:1314", "DESIGN:894"]
+    recommendation: >-
+      Allow exactly two extra commands in step (6): echo "${XDG_STATE_HOME:-$HOME/.local/state}/ccsession/orca-tabs/"
+      and ls -la <printed path>. Edit four texts together: (a) TL:1248, (b) TL:1257-1258, (c) TL:1260,
+      (d) the 7.24 lens at TL:1314. TL:1258 carries the "$ " command-record format and the TL:1260
+      grep runs over command records only; add check to that grep to match the TL:1257 forbidden list;
+      drop the forbidden-list sentence expectation (the grep over command records finds nothing); add
+      one line to the 7.24 lens that ls -la of that folder is how entries are listed, since DESIGN:894
+      says "read the files only". Check: grep ^\$ (ls|echo)\b finds only the two step (6) commands.
+    provenance: {cards: [R2-G3, "T1 F3", "V2 R2 New Evidence 3"], debate: [C-001], change: 3, invariants: [INV-009, INV-010, INV-011]}
+    tag: Grounded
+
+  # Source: Change 4; V1 R1-G3 (missing from base)
+  - id: F-04
+    severity: MEDIUM
+    gap_class: lens-scope
+    claim: The 14.11 lens does not name the test folders where FR-023 and FR-024 tests live.
+    affected_items: ["14.11"]
+    evidence: ["TL:2509", "DESIGN:777", "DESIGN:778"]
+    recommendation: >-
+      Name tests/sweep/, tests/commands/, tests/skills/, tests/core/ or tests/recommend/ in the lens,
+      and state that NFR-012 has no test by design.
+    provenance: {cards: [R1-G3, "V1 R2 New Evidence 4"], debate: [C-006], change: 4}
+    tag: Grounded
+
+  # Source: Change 5; base R2-G1 (self HIGH, calibrated MEDIUM)
+  - id: F-05
+    severity: MEDIUM
+    gap_class: missing-requirement
+    claim: >-
+      The GAPS line 138 rule (113 rows, 88 resolved, 25 open, GQ-113) in DESIGN is not carried into
+      the tasklist Key Constraints; GQ-111 and GQ-112 have no item and GQ-113 is partial.
+    affected_items: ["Key Constraints", "GQ-111", "GQ-112", "GQ-113"]
+    evidence: ["DESIGN:78-80", "TL:1326-1331"]
+    recommendation: >-
+      Add the rule to Key Constraints with the 113/88/25 counts and GQ-113. Mark INF-001 as a false
+      match.
+    provenance: {cards: [R2-G1], debate: [C-005, C-015, X-008], change: 5}
+    tag: Grounded
+
+  # Source: Change 6; V3 R3-G4 (missing from base); kept separate from F-01 per INV-021
+  - id: F-06
+    severity: MEDIUM
+    gap_class: approval-scope
+    claim: >-
+      WC-16 asks the owner to approve the worker-contract text, but 7.3 does not hold the full text
+      and cadence and the 7.4 gate approves without seeing them.
+    affected_items: ["7.3", "7.4", "D6"]
+    evidence: ["DESIGN:5", "DESIGN:988", "TL:1156-1168", "TL:2877", "WORKER-CONTRACT.md:110"]
+    recommendation: >-
+      Put the full text and cadence into 7.3; make the 7.4 gate require approval of that text; D6
+      becomes partial. Apply together with the F-01 edit at 7.4.
+    provenance: {cards: [R3-G4], change: 6, invariants: [INV-021]}
+    tag: Grounded
+
+  # Source: Change 7; base R2-G6 (self HIGH, calibrated MEDIUM)
+  - id: F-07
+    severity: MEDIUM
+    gap_class: weak-verification
+    claim: Item 8.1 gives one PASS for six gate files, so one missing file can hide.
+    affected_items: ["8.1"]
+    evidence: ["TL:1417-1421"]
+    recommendation: Check each of the six gate files separately with its own PASS line.
+    provenance: {cards: [R2-G6], debate: [X-008], change: 7}
+    tag: Grounded
+
+  # Source: Change 8; base R2-G8 (self HIGH, calibrated MEDIUM)
+  - id: F-08
+    severity: MEDIUM
+    gap_class: missing-negative-test
+    claim: Item 8.9 builds the guard but no test proves the guard rejects a bad input.
+    affected_items: ["8.9", "INF-013"]
+    evidence: ["TL:1467-1476"]
+    recommendation: >-
+      Add the negative guard test. Relabel INF-013 "construction assigned; verification partial, see
+      F-08".
+    provenance: {cards: [R2-G8], debate: [X-007, X-008], change: 8}
+    tag: Grounded
+
+  # Source: Change 9; base R2-G10; M-4 wording applied
+  - id: F-09
+    severity: MEDIUM
+    gap_class: missing-deliverable
+    claim: DESIGN item 19 asks for an SP-28 rationale; no tasklist item delivers it.
+    affected_items: ["14.9", "8.18", "SP-28"]
+    evidence: ["DESIGN:987", "TL:1535-1539"]
+    recommendation: Add an SP-28 rationale deliverable to 14.9; refer to 8.18 as a "QA edge-case lens".
+    provenance: {cards: [R2-G10], debate: [C-009], change: 9}
+    tag: Grounded
+
+  # Source: Change 10; invariant probe only, no card holds it, not calibrated (LOW, not INV-017 MEDIUM)
+  - id: F-10
+    severity: LOW
+    gap_class: missing-halt
+    claim: >-
+      Nothing HALTs when item 1.4 records an anchor as CHANGED; TL:224 only adds a note and TL:233
+      handles MOVED and a missing file.
+    affected_items: ["1.4"]
+    evidence: ["TL:224", "TL:229-234", "TL:233", "WORKER-CONTRACT.md:110", "test_worker_contract.py:25", "test_worker_contract.py:155-173"]
+    recommendation: Add one HALT sentence for a CHANGED anchor to TL:233.
+    provenance: {cards: [], debate: [A-007], new_evidence: ["V1 R2 New Evidence 3"], change: 10, invariants: [INV-017]}
+    tag: "[INFERRED]"
+
+  # Source: Change 11; V3 R3-G3 (card cited TL:792, corrected to TL:796)
+  - id: F-11
+    severity: LOW
+    gap_class: weak-verification
+    claim: The 5.5 pin greps check only the :545 form and miss the other pinned line references.
+    affected_items: ["5.5"]
+    evidence: ["TL:796", "TL:827", "DESIGN:677-680", "DESIGN:686"]
+    recommendation: "Grep 'line 545', 'line 865', 'line 470', 'line 398' and 'line 624'."
+    provenance: {cards: [R3-G3], change: 11}
+    tag: Grounded
+
+  # Source: Change 12; V3 R3-G1; severity stays LOW, fix scope grew (M-3)
+  - id: F-12
+    severity: LOW
+    gap_class: ambiguous-wording
+    claim: >-
+      After research/04 edit 4, FR-010 is ambiguous about one row versus several matching rows, and
+      the tasklist claims to copy it verbatim.
+    affected_items: ["2.2", "nine scope notes", "3.1", "FR-010"]
+    evidence: ["research/04:90", "research/04:115-116", "research/04:148", "TL:249", "TL:251", "TL:293-349", "TL:423", "TL:425"]
+    recommendation: >-
+      Write "one or more matching rows" at 2.2, in the nine scope notes and at research/04:90, or drop
+      the "verbatim" claim at TL:251; reword TL:425.
+    provenance: {cards: [R3-G1, "V3 R2 New Evidence 2"], debate: [C-003, X-002, A-001], change: 12, invariants: [INV-015, INV-016]}
+    tag: Grounded
+
+  # Source: Change 13; V3 R3-G2 (card cited TL:423, corrected to TL:425)
+  - id: F-13
+    severity: LOW
+    gap_class: wrong-pointer
+    claim: The 3.1 fallback points at the wrong DESIGN section for the observation rules.
+    affected_items: ["3.1"]
+    evidence: ["TL:425", "DESIGN:494-505", "research/04:148"]
+    recommendation: Point the fallback at the observation rules (DESIGN:494-505).
+    provenance: {cards: [R3-G2], change: 13}
+    tag: Grounded
+
+  # Source: Change 14; V3 R3-G5
+  - id: F-14
+    severity: LOW
+    gap_class: missing-constraint
+    claim: Item 11.1 omits the sweep cadence from the worker contract.
+    affected_items: ["11.1"]
+    evidence: ["TL:1952", "TL:773", "TL:787", "TL:2258"]
+    recommendation: Add "at most once every 5 minutes" to 11.1.
+    provenance: {cards: [R3-G5], debate: [C-012], change: 14}
+    tag: Grounded
+
+  # Source: Change 15; V3 R3-G6
+  - id: F-15
+    severity: LOW
+    gap_class: scope-drift
+    claim: Item 13.6 adds a CHANGELOG bullet that DESIGN R8 does not ask for.
+    affected_items: ["13.6"]
+    evidence: ["TL:2293", "DESIGN:701"]
+    recommendation: Drop the CHANGELOG bullet.
+    provenance: {cards: [R3-G6], debate: [C-013], change: 15}
+    tag: Grounded
+
+  # Source: Change 16; V3 R3-G8; paired with F-02 on item 8.3
+  - id: F-16
+    severity: LOW
+    gap_class: missing-check
+    claim: The contracts package has an architecture lint that 8.3 does not run.
+    affected_items: ["8.3"]
+    evidence: ["contracts/__init__.py:1-6", "contracts/__init__.py:35-36", "contracts/__init__.py:302-313", "TL:1430"]
+    recommendation: Add make lint-architecture to 8.3.
+    provenance: {cards: [R3-G8], debate: [C-014], change: 16}
+    tag: Grounded
+
+  # Source: Change 17; V3 R3-G7 (class downgraded to test-design preference, X-012)
+  - id: F-17
+    severity: LOW
+    gap_class: test-design
+    claim: The 8.8 fake seam does not record the argv and env it receives, so tests cannot assert them.
+    affected_items: ["8.8"]
+    evidence: ["TL:1467", "conftest.py:59-74"]
+    recommendation: Make the fake record the argv and env it receives, as patch_git does.
+    provenance: {cards: [R3-G7], debate: [X-012], change: 17}
+    tag: Grounded
+
+  # Source: Change 18; V1 R1-G6 count part only (pipx clause dropped, X-006)
+  - id: F-18
+    severity: LOW
+    gap_class: weak-verification
+    claim: Item 14.5 counts the full tree as unchanged instead of checking the five folders DESIGN names.
+    affected_items: ["14.5"]
+    evidence: ["DESIGN:939", "DESIGN:940", "TL:2470"]
+    recommendation: Run git diff over the five folders and confirm no added src/superclaude path.
+    provenance: {cards: [R1-G6], debate: [X-006], change: 18}
+    tag: Grounded
+
+  # Source: Change 19; V1 R1-G1 naming part only (target corrected to open item 3, X-005)
+  - id: F-19
+    severity: LOW
+    gap_class: missing-pointer
+    claim: Item 7.17 does not name DESIGN open item 3 and the M2 route.
+    affected_items: ["7.17", "step-1.0a"]
+    evidence: ["DESIGN:874", "DESIGN:971", "TL:1258", "TL:1265"]
+    recommendation: Add one line to 7.17 naming open item 3 and M2.
+    provenance: {cards: [R1-G1], debate: [X-005], change: 19, invariants: [INV-020]}
+    tag: Grounded
+
+  # Source: Change 20; base R2-G4 in part (card cited TL:1635-1636, corrected to TL:1634)
+  - id: F-20
+    severity: LOW
+    gap_class: weak-verification
+    claim: Items 8.6 and 9.2 verify by line counts and git diff --stat, not by content and placement.
+    affected_items: ["8.6", "9.2"]
+    evidence: ["TL:1453-1456", "TL:1634"]
+    recommendation: Replace the counts with content and placement checks.
+    provenance: {cards: [R2-G4], change: 20}
+    tag: Grounded
+
+  # Source: Change 21; V1 R1-G2 in part; M-1 and M-2 applied
+  - id: F-21
+    severity: LOW
+    gap_class: traceability
+    claim: Several FR and NFR ids are not written on the items that deliver them.
+    affected_items: ["12.1", "8.10", "8.6", "10.7", "10.3"]
+    evidence: ["TL:1784", "TL:2677", "DESIGN:777", "DESIGN:783"]
+    recommendation: >-
+      Write FR-023 on 12.1, NFR-003 on 8.10, FR-025 on 8.6, FR-002 on 10.7 and NFR-014 on 10.3.
+      TL:2677 is a 14.x QA item, not a delivery item.
+    provenance: {cards: [R1-G2], debate: [C-004], change: 21}
+    tag: Grounded
+
+  # Source: Change 22; V1 R1-G4 in part
+  - id: F-22
+    severity: LOW
+    gap_class: missing-step
+    claim: The commit grouping DESIGN asks for is not in the final summary item.
+    affected_items: ["14.46"]
+    evidence: ["DESIGN:705", "DESIGN:932", "TL:2254", "TL:2754"]
+    recommendation: Add the commit-grouping line to 14.46.
+    provenance: {cards: [R1-G4], debate: [C-010], change: 22}
+    tag: Grounded
+
+  # Source: Change 23; base R2-G9 matrix part only (import-check part dropped, X-004); M-4 full path
+  - id: F-23
+    severity: LOW
+    gap_class: traceability
+    claim: >-
+      DESIGN constraint B2 has no row in
+      .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/reflect/pre/coverage-matrix.yaml.
+    affected_items: ["coverage-matrix B2 row"]
+    evidence: ["DESIGN:215-219", "coverage-matrix:232-237", "coverage-matrix:849-880", "TL:1784-1785"]
+    recommendation: Add a B2 row mapped to NFR-004.
+    provenance: {cards: [R2-G9], debate: [X-004], change: 23}
+    tag: Grounded
+
+# Source: Changes 24 and 25. Union of the three ledgers; on overlap V1 wins over V3 except FR-010,
+# and V2 wins over V3 (X-010). Corrections: FR-010 covered to covered-in-substance (F-12),
+# D6 covered to partial (F-06), INF-013 covered to partial (F-08). X-003 and X-006 fix V1 notes
+# on NFR-003 (2.16 is a QA lens, TL:347) and step-1.29 (TL:2488); X-011 keeps V1 partial on step-1.0a.
+# Delegated rows carry the A-001 caveat (INV-018).
+row_coverage:
+  per_card_raw:
+    variant-1: {rows: 76, covered: 43, covered_in_substance: 32, partial: 1, missing: 0, false_match: 0}
+    variant-2: {rows: 51, covered: 14, covered_in_substance: 32, partial: 2, missing: 2, false_match: 1}
+    variant-3: {rows: 24, covered: 19, covered_in_substance: 3, partial: 0, missing: 0, false_match: 2}
+  overlaps:
+    v1_v3: [FR-010, FR-023, NFR-003, NFR-014, step-1.0a, step-1.16a, step-1.17, step-1.19, step-1.7]
+    v2_v3: [D6, D9, GQ-103, INF-005, INF-014, SP-27, SP-29]
+    v1_v2: []
+  unique_rows: 135
+  merged:
+    covered: 62
+    covered_in_substance: 65
+    partial: 5
+    missing: 2
+    false_match: 1
+  missing_ids:
+    - {id: GQ-111, finding: F-05}
+    - {id: GQ-112, finding: F-05}
+  partial_ids:
+    - {id: GQ-113, finding: F-05}
+    - {id: SP-28, finding: F-09}
+    - {id: step-1.0a, finding: F-19}
+    - {id: D6, finding: F-06}
+    - {id: INF-013, finding: F-08}
+  false_match_ids:
+    - {id: INF-001, finding: F-05}
+  caveats:
+    - "Delegated rows are covered only if the delegate item runs as written (A-001, INV-018)."
+    - "FR-010 reads ambiguous after edit 4, see F-12."
+
+not_carried:
+  - {item: R1-G5, reason: "Confirmation, not a gap (C-011, S-007)."}
+  - {item: R3-G9, reason: "Confirmation of existing evidence recovery: recovery.py:424-434, atomic.py:22-38, config.py:64-78 (M-7)."}
+  - {item: R3-G10, reason: "Refuted by TL:982 and TL:989 (X-001)."}
+  - {item: "R1-G6 pipx clause", reason: "False: TL:2488 shows pipx run --spec installs the dependencies (X-006). The count part survives as F-18."}
+  - {item: "R1-G1 target 'open item 2' and the 'no owner step' claim", reason: "DESIGN:971 is open item 3 (X-005). Only the naming survives as F-19."}
+  - {item: "R2-G9 import-check part", reason: "DESIGN:216 already holds the NFR-004 import test (X-004). Only the matrix part survives as F-23."}
+  - {item: "R2-G2 label and severity (gate-bypass, HIGH)", reason: "Calibrated MEDIUM and merged into F-01."}
+  - {item: "R2-G1, R2-G6, R2-G8 self-rated HIGH", reason: "Calibrated MEDIUM (X-008); carried as F-05, F-07, F-08."}
+  - {item: "R3-G7 class missing-reuse", reason: "Downgraded to a test-design preference (X-012); carried as F-17."}
+  - {item: "R3-G1 'rule lost' claim at MEDIUM", reason: "The rule is ambiguous, not lost (X-002, C-003); carried as F-12 at LOW."}
+  - {item: "V3 INF-005 and INF-014 false-match verdicts", reason: "V2 verdicts kept (X-010)."}
+  - {item: "V1 '2.16 is an edit'", reason: "2.16 is a QA lens, TL:347 (X-003)."}
+  - {item: "R1-G2 new QA item", reason: "The id mapping in F-21 covers it; a new QA item is not needed."}
+  - {item: "S-008 deviation category", reason: "No variant has one; accepted as-is (M-5)."}
+
+best_practice_grade:
+  grade: 3
+  scale: "0 to 5"
+  card_grades: {variant-1: 4, variant-2: 2, variant-3: 4}
+  reasons:
+    - "Plus: gates are well specified, with explicit HALT rules and named owner lines."
+    - "Plus: the design-fix edits anchor by heading, not by line number."
+    - "Minus: three HIGH defects block correct execution: the owner-gate deadlock (F-01), the 8.3 count check (F-02) and the 7.16 command allowance (F-03)."
+
+calibrated_confidence:
+  value: 0.78
+  inputs: {variant-1: 0.68, variant-2: 0.85, variant-3: 0.80}
+  mean_exact: 0.7767
+  note: "Mean of the three calibrated card confidences; the three HIGH findings are each held by two or more sources."

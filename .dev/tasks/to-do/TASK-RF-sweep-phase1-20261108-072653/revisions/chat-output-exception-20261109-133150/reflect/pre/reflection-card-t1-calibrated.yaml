@@ -1,0 +1,34 @@
+# Blind calibration of the Tier 1 card (Wave 1D). Parent-persisted from the confidence-calibrator's returned report; scores and wording are the calibrator's.
+schema: sc-reflect-calibration/v1
+card: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/revisions/chat-output-exception-20261109-133150/reflect/pre/reflection-card-t1.yaml
+rubric: ~/.claude/skills/sc-reflect-protocol/refs/reflection-rubric.md
+calibrator: confidence-calibrator ad3273cbeb56c850c
+calibrator_model_class: haiku (claude-gw-tier2)
+card_author_model_class: sonnet slot (analyst recorded model claude-sonnet-5-5)
+transport: calibrator has only Read; parent persisted this file
+self_reported_confidence: 0.76
+calibrated_confidence: 0.83      # arithmetic mean of the five dimensions
+delta: +0.07
+dimension_scores:
+  citation_grounding: 0.85
+  coverage_completeness: 1.00
+  deviation_classification_clarity: 0.30
+  risk_surface_coverage: 1.00
+  recommendation_actionability: 1.00
+citations_checked: 34            # distinct source ranges read (<=150 lines each)
+citations_failed: 0              # no missing or displaced evidence location
+qualifications:
+  F2: "Partial support, not a proven deadlock: line 1982 itself permits a fix 'in its owning source item or authorized serialized fixer'; the claim that a ticked owning item cannot be revisited is inferred."
+  F4: "Narrower gap than stated: 7.10's Output already names step-7.10-style-exception.md with authority/check references; what is unspecified is the INCOMING sign-off and authorization locations."
+  V1: "Preservation claim: the cited line shows only the appended note; the 355/82/byte-identical comparison was not reproduced by the calibrator."
+  V3: "Unchanged-QA claim: sampled protection verified (four-authority hash guard), universal preservation not established by the calibrator."
+  deviation_taxonomy: "The card says PRE mode has no deviation taxonomy; the supplied rubric has no such exemption, so dimension 3 scored 0.30. Free-form finding classes were used."
+  coverage_note: "coverage_pct 1.0 is parsed-only; the union is 0.985 (two partial inferred rows and one missing future-only rollback row)."
+escalation:
+  verdict: ESCALATE
+  reason: forced_by_depth_deep
+  independent_triggers: ["C 0.83 < 0.85", "S_domains 5 >= 3", "S_scope 355 > 10"]
+  execution_restriction: none
+calibrator_diversity: degraded    # every class available is also a reviewer class (sonnet, haiku, opus)
+input_absent: [now_iso, assertions_path, card_mtime]
+not_checked: "runtime behavior, test execution, installed activation, exhaustive baseline comparison"

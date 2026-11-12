@@ -1,0 +1,43 @@
+# QA Report: Final gate, fork-and-never-commit lens (T321)
+
+**Date:** 2026-11-12
+**Reviewer:** qa-final lens agent (adversarial, `fix_authorization: false`)
+**Gate folder:** `.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/final/`
+
+## Findings
+
+No BLOCKING or MAJOR finding. Two MINOR notes (they never fail the gate).
+
+| id | severity | evidence | what is wrong | smallest fix |
+|---|---|---|---|---|
+| F1 | MINOR | `git ls-files --others --exclude-standard -- .dev/tasks` prints 217 paths (for example `.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/artifacts/sweep-help-pipx.txt`); `git status --porcelain -- .dev/tasks` shows `AM` (staged, then edited) for `.../TASK-RF-sweep-phase1-20261108-072653.md` and `.../phase-outputs/test-results/gitignore-check.md`. Rule: project CLAUDE.md "`.dev/tasks/` Is Always Staged". | At the moment of this review 217 package files are untracked and 2 staged files have newer unstaged edits, so the "always staged" rule is not yet met on disk. This is not a gitignore problem (C3 passes) and the gate is still writing files into the folder, so it is a close-out step rather than a defect in the change. | Before the package is closed, run `git add .dev/tasks` (staging only, no commit) after the last gate report is written. |
+| F2 | MINOR (note) | `tests/sweep/fixtures/captured-worktree-list.json:15` and `tests/sweep/fixtures/captured-worktree-current.json:14` hold `"projectId": "github:superclaude-org/superclaude_framework"`. | A static capture of Orca output (the same id CLAUDE.md records). Nothing reads it: `grep projectId` over `src/superclaude/cli/sweep` finds no hit, the sweep code passes no `--issue`/`--pr` flag, and the only git call is `git status`. CLAUDE.md puts static fixture references out of scope. Recorded so the next reader does not mistake it for an upstream link. | None needed. |
+
+## Checks
+
+| id | check | result | evidence (read from disk or run now) |
+|---|---|---|---|
+| C1 | `git rev-parse HEAD` equals `artifacts/base-commit.txt` (no commit made) | PASS | Both print `5dc29d23b15eb7db4ead50623bb409f696a0d7d3`, checked before and after my test runs; `git log base..HEAD` is empty. |
+| C2 | No `.claude/` path other than `settings.json` is staged | PASS | `git diff --cached --name-only` lists 615 paths, all under `.dev/tasks/`; `grep -c '^\.claude/'` = 0. `git ls-files .claude` tracks only `.claude/cache/sc-recommend-lookup.yaml` and `.claude/settings.json`, and neither shows as modified. The synced mirrors (`.claude/agents`, `commands`, `hooks`, `skills`, `templates`) show as ignored (`!!`). |
+| C3 | `.dev/tasks` is not gitignored | PASS | `git check-ignore -v .dev/tasks .dev/tasks/to-do <package> <package>/artifacts/base-commit.txt` prints nothing, rc=1; `git status --ignored` lists nothing ignored under `.dev/tasks`. The only `.gitignore` change is `+.dev/sweeps/` (`git diff base -- .gitignore`), and `.gitignore:83-85` keeps the `.dev/tasks/**/logs/` and `*.log` exceptions. `tests/sweep/test_readonly.py:498` pins `.dev/tasks/to-do/x.md` as not ignored. |
+| C4 | New or edited text has no `gh` command without `--repo IronbellyOrg/IronClaude` | PASS | `grep \bgh\b` over `src/superclaude/commands/sweep.md`, `skills/sc-sweep-protocol/SKILL.md` and `src/superclaude/cli/sweep/`: no hit. Added lines of the 12 edited files (`git diff -U0 base`): no hit. DESIGN (`git diff --no-index` against `design-base.md`): `gh` appears at 35 (`gh` reads, out of scope), 699 (a `read-only` `gh api` allowlist entry, not a command) and 947 (`gh pr view 422 --repo IronbellyOrg/IronClaude`, which names the fork). Revision `BUILD-REQUEST.md`, `design-addendum.md`, `delta-manifest.md`: no hit. |
+| C5 | No `{owner}/{repo}` placeholder in new or edited text | PASS | `grep '\{owner\}\|\{repo\}\|:owner\|:repo'` over `src/superclaude/cli/sweep`, `tests/sweep`, `tests/commands/test_sweep_command.py`, `sweep.md`, `SKILL.md`, DESIGN, and the added lines of edited files: no hit. |
+| C6 | No reference that pushes to, fetches from or opens a PR on SuperClaude-Org | PASS | `grep SuperClaude-Org\|SuperClaude_Framework\|superclaude-org` over the new code, command, skill, DESIGN, revision files and added lines of edited files: no hit. Only hits are the two static fixture lines in F2, which no code reads. `src/superclaude/cli/sweep/probes.py:47-65` allows 10 `orca-ide` read templates (no `--issue`/`--pr`) and one `git status` call; `probes.py:289-313` always prepends `git --no-optional-locks -C`. `grep git (push\|fetch\|pull\|remote)` over `src/superclaude/cli/sweep`: no hit. `git remote -v`: only `origin` = `IronbellyOrg/IronClaude`. No URL (`https?://`, `github.com`) appears in added lines, new command, skill or code. |
+| C7 | No new text tells an agent to stage, force-add or commit `.claude/` paths | PASS | `sweep.md:55` names `.claude/skills/sc-sweep-protocol/SKILL.md` only as a lookup path (dual surface), not a staging step. Added lines of edited files and DESIGN contain no `git add`/`git commit` instruction (the only `stage` hits are the word "stage" in unrelated `/sc:sweep` sentences). No `src/superclaude` path in `sweep.md`, `SKILL.md`, or added `core`/`plugins` lines; `step-1.28-grep.md` shows 168 hits now and 168 at the base. |
+| C8 | Tests cannot commit or push in the real repo | PASS | `tests/sweep/conftest.py:23-41` blocks `subprocess.run`, `subprocess.Popen` and `os.system` unless a test is marked `integration`. The one marked test, `tests/sweep/test_readonly.py:471-528`, runs `git init`/`commit` with `-C <tmp_path>/repo` and an isolated `HOME` with `GIT_*` stripped (`:464-468`), so the real repo is not touched. No `gh` or `git push`/`fetch` in `tests/sweep` or `tests/commands/test_sweep_command.py`. |
+| C9 | The pipx check (option A, `OQ-10-pipx-decision.md`) did not pull the upstream package or change the installed tool | PASS | `artifacts/sweep-help-pipx-warmup.txt:4` shows `installing superclaude from spec '/home/coder/workspaces/worktrees/IronClaude/issue-339-orchestrator-mode'` (the local worktree, not the PyPI package); `sweep-help-pipx.txt` shows `superclaude sweep --help` exit 0 with the `run` command. `pipx run` uses a temporary environment, and the decision record is marked RESOLVED with the owner's "go with A". |
+| C10 | The 3 failures of the full run are pre-existing or environment-caused (argument re-checked, not trusted) | PASS | `uv run pytest tests/cli/eval/test_claude_process_adapter.py -k ruff` fails 2 of 2 with `.venv/bin/python: No module named ruff`; `importlib.util.find_spec("ruff")` is None in the venv. `git diff --stat base -- src/superclaude/cli/eval tests/cli/eval tests/hooks src/superclaude/hooks` is empty. The third, `tests/hooks/test_launch_level_guard.py::test_speed_large_commands`, passes alone now (4 passed in 233.91 s), so the failure was load-caused. |
+| C11 | The change set compares clean against the installed mirror and lints clean | PASS | `make verify-sync` (compare only) prints "All components in sync", rc=0. `uv run ruff check` over the sweep package, sweep tests, `main.py` and the three edited tests: "All checks passed!". `ruff format --check`: "20 files already formatted". |
+| C12 | Scoped test folders pass | PASS | `uv run pytest tests/sweep tests/commands tests/core tests/recommend tests/skills/test_worker_contract.py`: 2066 passed in 7.39 s, exit 0. |
+| C13 | My own runs did not change the repository | PASS | The hash of `git status --porcelain` outside `.dev/tasks` is `9e94cce7ce935b6e` before and after; HEAD and the staged count (615) are unchanged. Temp directory `/tmp/ironclaude-t321.*` removed. |
+| C14 | `.dev/tasks` content is staged as CLAUDE.md requires | PASS (minor note F1) | Nothing is gitignored, but 217 files are untracked and 2 have unstaged edits (F1, MINOR): a close-out staging step, not part of the four BLOCKING conditions. |
+
+## Verdict
+
+Scope checked: HEAD against the base commit, the staged and ignored state of `.claude/` and `.dev/tasks`, and every new or edited text surface for `gh`, `{owner}/{repo}`, upstream and push/fetch references (new code, command, skill, tests and fixtures, 12 edited files by `git diff -U0`, DESIGN by `git diff --no-index`, revision files). I also re-ran `make verify-sync`, ruff, the scoped test folders and the third failing test, and re-reproduced the two ruff failures. I did not run `make sync-dev`, any live Orca, ccsession or Claude command, or `superclaude sweep run`.
+
+I looked for a commit, a staged `.claude/` mirror, an ignored `.dev/tasks`, an unqualified `gh` command, a `{owner}/{repo}` placeholder and an upstream push, fetch or PR path. None exists. The two MINOR notes (F1, F2) are recorded and do not fail the gate.
+
+Verdict: PASS
+
+Blocking count: 0

@@ -1,0 +1,60 @@
+# POST reflect diff summary (item 14.47)
+
+- BASE sha: `5dc29d23b15eb7db4ead50623bb409f696a0d7d3` (`artifacts/base-commit.txt`; `git rev-parse HEAD` still equals it).
+- Diff file: `.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/reflect/post/phase1.diff`, 721933 bytes, 50 `diff --git` entries (12 edited tracked files, 37 new untracked files, 1 DESIGN diff against the item 1.3 snapshot).
+- Distinct files: 50, which is more than 25, so the TCS `deep` band (BUILD-REQUEST: S1 alone counts more than 25 distinct files) holds; `--depth deep` stays as BUILD-REQUEST sets it.
+- Checks: the diff file is non-empty; every path of the final inventory (12 edited, 37 new, plus DESIGN) appears in it (a comm of the two sorted lists shows nothing missing); `grep -c '^diff --git a/.dev/'` is 0; the DESIGN entry appears once as `diff --git a/docs/designs/orchestrator-mode.md b/docs/designs/orchestrator-mode.md` with `index 8e385a6ef..ebb16345a` (a real diff, not a `/dev/null` new-file diff); no `.claude/` path appears; the canonical `src/superclaude/output-styles/pragmatic.md` hunks (the sweep chat-summary exception and its six qualifiers), `tests/commands/test_sweep_command.py` and the DESIGN text referencing the scoped addendum are in it.
+- One explained difference: `grep -c 'orchestrator-mode-review-'` prints 1, not 0. The hit is line 14882, an unchanged DESIGN context line (the Review status line at DESIGN line 7 names `orchestrator-mode-review-1.md` to `-3.md` in its own text). No `diff --git` entry is a review file, so the three review files stay out of the diff as the item intends.
+
+## Sorted `diff --git` paths
+
+- .gitignore
+- CHANGELOG.md
+- docs/designs/orchestrator-mode.md
+- docs/developer-guide/SuperClaude-Developer-Guide-Commands-Skills-Agents.md
+- docs/user-guide/commands.md
+- plugins/superclaude/skills/sc-recommend/refs/HOW-WE-WORK.md
+- src/superclaude/cli/main.py
+- src/superclaude/cli/sweep/__init__.py
+- src/superclaude/cli/sweep/classify.py
+- src/superclaude/cli/sweep/commands.py
+- src/superclaude/cli/sweep/models.py
+- src/superclaude/cli/sweep/probes.py
+- src/superclaude/cli/sweep/report.py
+- src/superclaude/commands/sweep.md
+- src/superclaude/core/HOW-WE-WORK.md
+- src/superclaude/core/WORKER-CONTRACT.md
+- src/superclaude/output-styles/pragmatic.md
+- src/superclaude/skills/sc-sweep-protocol/SKILL.md
+- tests/commands/test_sweep_command.py
+- tests/core/test_how_we_work_routing_table.py
+- tests/recommend/test_routing_refresh.py
+- tests/skills/test_worker_contract.py
+- tests/sweep/__init__.py
+- tests/sweep/conftest.py
+- tests/sweep/fixtures/SOURCES.md
+- tests/sweep/fixtures/captured-run-current.json
+- tests/sweep/fixtures/captured-tab-map-1.json
+- tests/sweep/fixtures/captured-tab-map-2.json
+- tests/sweep/fixtures/captured-tab-map-3.json
+- tests/sweep/fixtures/captured-tab-map-4.json
+- tests/sweep/fixtures/captured-tab-map-5.json
+- tests/sweep/fixtures/captured-task-list-ready.json
+- tests/sweep/fixtures/captured-task-list-unknown-run.json
+- tests/sweep/fixtures/captured-task-list.json
+- tests/sweep/fixtures/captured-worker-list-unknown-run.json
+- tests/sweep/fixtures/captured-worker-list.json
+- tests/sweep/fixtures/captured-worker-show-1.json
+- tests/sweep/fixtures/captured-worker-show-2.json
+- tests/sweep/fixtures/captured-worker-show-3.json
+- tests/sweep/fixtures/captured-worker-show-4.json
+- tests/sweep/fixtures/captured-worker-show-5.json
+- tests/sweep/fixtures/captured-worktree-current.json
+- tests/sweep/fixtures/captured-worktree-list.json
+- tests/sweep/fixtures/captured-worktree-ps.json
+- tests/sweep/test_classify.py
+- tests/sweep/test_cli_contract.py
+- tests/sweep/test_cli_registration.py
+- tests/sweep/test_probes_allowlist.py
+- tests/sweep/test_readonly.py
+- tests/sweep/test_report.py

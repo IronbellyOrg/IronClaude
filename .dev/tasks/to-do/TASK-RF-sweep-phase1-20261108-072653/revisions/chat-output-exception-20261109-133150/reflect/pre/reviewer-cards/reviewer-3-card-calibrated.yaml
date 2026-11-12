@@ -1,0 +1,20 @@
+# Blind calibration of reviewer 3's card. Parent-persisted from the confidence-calibrator's returned report (agent a5ea1c250d9e1f693, haiku class); scores and notes are the calibrator's.
+schema: sc-reflect-calibration/v1
+card: reviewer-cards/reviewer-3-card.md
+reviewer: {n: 3, persona: refactorer, model_class: opus}
+calibrator_model_class: haiku
+self_reported_confidence: 0.75
+calibrated_confidence: 0.71
+delta: -0.04
+dimension_scores: {citation_grounding: 0.85, coverage_completeness: 0.70, deviation_classification_clarity: 0.25, risk_surface_coverage: 0.85, recommendation_actionability: 0.90}
+citations_checked: 19
+citations_failed: 0
+per_finding:
+  R3-F1: "Quotation and count verified by direct count: 59 items carry the sentence (7.10: 1; 7.20-7.36 group: 15; 11.x: 14; 13.x: 13; 14.x: 16), 58 downstream. The behavioral consequence (a lens or fixer reverting the delivered exception) is a risk, not an observed event; downstream items also supply the addendum and 'actual style' as context and do not order a reversion."
+  R3-F2: "Quotations and omissions match (7.10 Action lacks the same-message case, table-request exclusion and the loaded-skill-or-style exclusion; 11.3 states the same-message case). The prediction that paraphrases necessarily fail the 11.4 tests is overstated: TL:1980-1982 does not require a whitespace-normalized verbatim block, and 7.10 tells the executor to use the common rule and compare against the addendum."
+  R3-F3: "Verified as a pattern inconsistency: 7.30/7.34 protect authority by prose, 14.25/14.29/14.38/14.42 by sha256 before and after. Not evidence that authority changed. The proposed heading-count check proves heading presence, not unchanged append contents."
+  R3-F4: "Verified: TL:2761-2763 say three; TL:2994-3000 hold four entries (one closed); baseline has the same text, so it predates the revision."
+coverage_note: "45/45 is a reported slice count with no row ledger; design deviations were checked at mapping level only; much of the revised documentation and final-review surface was not re-read."
+note_on_alias: "The card's bare BUILD-REQUEST.md:55 resolves to the revision request, whose quoted boundary is present; the original task request line 55 differs. Ambiguous alias, not a failed quote."
+escalation: {verdict: ESCALATE, reason: low_confidence, rule: "C 0.71 < 0.85", restriction: none}
+input_absent: [now_iso, card_mtime, assertions_path]

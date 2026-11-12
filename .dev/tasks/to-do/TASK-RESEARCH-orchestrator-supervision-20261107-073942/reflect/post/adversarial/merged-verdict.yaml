@@ -1,0 +1,20 @@
+# Wave 4 merged verdict (sc:reflect). Content comes from sc:adversarial; reflect only records it.
+run_id: 2026-11-08T02:19:07Z-9607df87
+merge_method: adversarial
+invocation_method: skill
+adversarial_status: partial          # debate ran inline, no advocate sub-agents
+fallback_mode: true
+failure_stage: null
+convergence_score: 0.92              # >=0.75 -> PASS routing
+calibrator_diversity: degraded
+base_variant: reviewer-3 (opus:refactorer)
+reviewer_cards: 3
+unresolved_conflicts: 1              # D-8 severity Medium is single-source (R2)
+unaddressed_invariants: []
+merged_findings_path: adversarial/merged-findings.yaml
+verdict: PASS-WITH-DRIFT
+regression_present: false
+counts: {Regression: 0, Drift: 5, Necessary_deviation: 5, Authorized_expansion: 2, refuted: 1}
+notes:
+  - "Step 1 saved as diff-analysis-a2.md (stale attempt-1 hook record blocked diff-analysis.md)."
+  - "base-selection.md scores are inline estimates, not computed metrics."

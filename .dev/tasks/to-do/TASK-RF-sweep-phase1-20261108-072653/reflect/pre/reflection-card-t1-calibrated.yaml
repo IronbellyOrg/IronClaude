@@ -1,0 +1,31 @@
+# Written by the orchestrator verbatim from the confidence-calibrator's returned YAML (the calibrator agent is Read-only).
+card_ref: /home/coder/workspaces/worktrees/IronClaude/issue-339-orchestrator-mode/.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/reflect/pre/reflection-card-t1.yaml
+dimensions:
+  citation_grounding:
+    score: 0.88
+    reason: "All 25 spec and tasklist line citations I opened say what the card claims; F9 is only loosely backed by line 1414, the F1 'no GAPS line 138 in the tasklist' claim could not be grep-checked, and F4's coverage-matrix.yaml was not opened."
+  coverage_completeness:
+    score: 0.50
+    reason: "Literal coverage_pct is 0.55 (66 of 120), under the 0.60 floor, so the rubric puts it in the below-0.60 band even though a gap registry exists; the card's claim that substance coverage is higher is not demonstrated."
+  deviation_classification_clarity:
+    score: 0.72
+    reason: "Each finding has one category, but F3 and F7 are labelled Regression for defects inside a new tasklist, F4 as Refinement is debatable, and not every finding has a one-line category rationale."
+  risk_surface_coverage:
+    score: 0.75
+    reason: "HALT bypass, an unpassable verification, a brittle dirty-tree check, missing B3 to B5 invariants and commit grouping are covered, but there are zero HIGH findings across 355 items and no blast-radius reasoning for the SPEC-editing phases beyond F9."
+  recommendation_actionability:
+    score: 0.88
+    reason: "F1 to F7 each name an item or file and a checkable success criterion (grep counts, same Branch 2 wording, coverage_pct 0.90); F8 and F9 say none, which fits; F4 is broad but measurable."
+calibrated_confidence: 0.75
+self_reported_confidence: 0.75
+calibration_delta: 0.00
+citations_checked: 25
+citations_failed: 0
+citations_unverifiable_notes:
+  - "F1 negative claim (no GAPS line 138 rule in the tasklist) needs grep; Read-only session, so not confirmed. The tasklist rules block at lines 155 to 158 shows no such rule."
+  - "F4 evidence file coverage-matrix.yaml was not opened; the card's coverage arithmetic (66/120 = 0.55, 76/135 = 0.563, 59/135 = 0.437) is internally consistent."
+  - "F8 claims about R7 after 1.18 and R8 after 1.16 cite no line; 1.4a depends on 1.2 and R5 after 1.14 verified at spec lines 911 and 929."
+  - "F2 partly softened: tasklist line 1140 says every Phase 7 HALT item follows the 6.2 procedure, though 7.15 Branch 2 (line 1242) and 14.7 (line 2481) still read weaker. The card's MEDIUM rationale already allows for this."
+calibrator_model_class: sonnet
+recommendation: escalate
+recommendation_reason: "C 0.75 is below 0.85. The card's structural signals also each trigger escalation: S_scope 355 (above 10), S_domains 5 (3 or more), S_dev_density 0.437 (above 0.20)."

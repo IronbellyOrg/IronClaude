@@ -1,0 +1,93 @@
+# Saved verbatim by the orchestrator from the read-only confidence-calibrator output.
+card_ref: /home/coder/workspaces/worktrees/IronClaude/issue-339-orchestrator-mode/.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/reflect/pre/reviewer-cards/reviewer-2-card.yaml
+calibrator_model_class: opus
+# The card's own model_class field reads claude-gw-tier2, not haiku as the brief stated. Not rescored for this.
+dimensions:
+  citation_grounding:
+    score: 0.88
+    reason: "Every finding and row verdict has a citation. 23 of 24 checked ranges match. One 9.2 cite is off by two lines. G1 and G10 claim that something is absent from a 2,500-line file, and a line cite cannot prove that."
+  coverage_completeness:
+    score: 0.90
+    reason: "There are 51 row verdicts, which matches rows_audited: 51. The coverage-matrix ranges were not checked. Some row verdicts disagree with the findings: INF-013 is marked covered while G8 rates the same guard check HIGH."
+  deviation_classification_clarity:
+    score: 0.70
+    reason: "Each finding has exactly one gap class. Severity is inflated, though: only 3 of the 7 HIGH findings meet the HIGH bar. Some row verdicts also conflict with their findings (INF-013 with G8, GQ-106 with G4)."
+  risk_surface_coverage:
+    score: 0.85
+    reason: "It finds the real deadlock in the owner-gate branches, weakened gate evidence, verification checks that cannot pass, a counting loophole and traceability gaps. Blast-radius reasoning is thin."
+  recommendation_actionability:
+    score: 0.90
+    reason: "Every recommendation names the item to edit and the check to use. G10 and G9 give either-or options without one success criterion."
+calibrated_confidence: 0.85
+self_reported_confidence: 0.96
+calibration_delta: -0.11
+citations_checked:
+  - docs/designs/orchestrator-mode.md:78-80
+  - docs/designs/orchestrator-mode.md:215-219
+  - docs/designs/orchestrator-mode.md:987
+  - TASK-RF-sweep-phase1-20261108-072653.md:989
+  - TASK-RF-sweep-phase1-20261108-072653.md:982-992
+  - TASK-RF-sweep-phase1-20261108-072653.md:1138-1140
+  - TASK-RF-sweep-phase1-20261108-072653.md:1140
+  - TASK-RF-sweep-phase1-20261108-072653.md:1242-1248
+  - TASK-RF-sweep-phase1-20261108-072653.md:1258-1261
+  - TASK-RF-sweep-phase1-20261108-072653.md:1326-1331
+  - TASK-RF-sweep-phase1-20261108-072653.md:1417-1421
+  - TASK-RF-sweep-phase1-20261108-072653.md:1430-1449
+  - TASK-RF-sweep-phase1-20261108-072653.md:1431-1432
+  - TASK-RF-sweep-phase1-20261108-072653.md:1431-1435
+  - TASK-RF-sweep-phase1-20261108-072653.md:1453-1456
+  - TASK-RF-sweep-phase1-20261108-072653.md:1465-1476
+  - TASK-RF-sweep-phase1-20261108-072653.md:1467-1476
+  - TASK-RF-sweep-phase1-20261108-072653.md:1535-1539
+  - TASK-RF-sweep-phase1-20261108-072653.md:1624-1625
+  - TASK-RF-sweep-phase1-20261108-072653.md:1624-1628
+  - TASK-RF-sweep-phase1-20261108-072653.md:1635-1636
+  - TASK-RF-sweep-phase1-20261108-072653.md:2104-2108
+  - TASK-RF-sweep-phase1-20261108-072653.md:2481-2484
+  - TASK-RF-sweep-phase1-20261108-072653.md:2481-2484 (R2-G7 reuse, read once)
+citations_failed:
+  - ref: TASK-RF-sweep-phase1-20261108-072653.md:1635-1636
+    finding: R2-G4
+    reason: "The 9.2 insertion-count check is at line 1634. Lines 1635-1636 hold the completion gate and a blank line."
+finding_verdicts:
+  - id: R2-G1
+    holds: partly
+    calibrated_severity: MEDIUM
+    reason: "Design line 80 does require the rule to be copied, and item 7.26 is a downstream-actionability review, not that rule. Its absence from the whole file was not verified. A missing count-citation rule does not make the run fail or bypass a gate."
+  - id: R2-G2
+    holds: yes
+    calibrated_severity: MEDIUM
+    reason: "In 7.15, Branch 2 has no condition at all beyond a non-empty Run id. 14.7 drops the 'source quotes the owner's words' condition that 6.2 has. The gate is weaker, but an executor following the text still waits for the person, so the gate is not bypassed."
+  - id: R2-G3
+    holds: yes
+    calibrated_severity: HIGH
+    reason: "The 7.16 Action requires an echo command, which is neither one of the eight templates nor a file read. The check therefore cannot pass for a correct run. Its grep also expects a forbidden-list sentence that the Action never writes."
+  - id: R2-G4
+    holds: partly
+    calibrated_severity: LOW
+    reason: "The total-insertion counts (2 and 4) do match the specified edits on a clean file. They fail only if .gitignore or main.py was already dirty, and no earlier item edits either file."
+  - id: R2-G5
+    holds: yes
+    calibrated_severity: HIGH
+    reason: "Item 8.3 requires each name to appear exactly once by grep -c, but the required ClassifiedRow.row: SessionRow annotation guarantees SessionRow appears at least twice. A correct module fails the check as written."
+  - id: R2-G6
+    holds: yes
+    calibrated_severity: MEDIUM
+    reason: "grep -h across six files that expects 6 lines can still pass with one file missing and another holding two matches. That needs a duplicate 'gate: PASS' line, which is plausible but not the normal path."
+  - id: R2-G7
+    holds: yes
+    calibrated_severity: HIGH
+    reason: "6.1 writes status: PENDING, and only Branch 2 sets RESOLVED. Branch 1 fires on PENDING, so Branch 2 can never be reached. Every HALT item that follows the 6.2 procedure (line 1140, and 14.7) deadlocks as written."
+  - id: R2-G8
+    holds: yes
+    calibrated_severity: MEDIUM
+    reason: "Normal pytest -v output cannot show whether a test reached a real subprocess, and 8.9 adds no negative guard test. This is false assurance, not a run failure or a gate bypass."
+  - id: R2-G9
+    holds: partly
+    calibrated_severity: LOW
+    reason: "B2 is confirmed at design line 216. However, the design itself says the NFR-004 import test enforces B2, so calling an import-only check insufficient departs from the design. The matrix ranges were not checked."
+  - id: R2-G10
+    holds: partly
+    calibrated_severity: MEDIUM
+    reason: "Design line 987 requires the rationale before release, and 8.18 tests the limits' behaviour only. The design's 'behaviour until closed' text lets the run proceed with the proposed limits, so this is a missing deliverable, not a failure. Absence elsewhere in the file was not verified."

@@ -1,0 +1,37 @@
+contract_version: "1.0"
+status: partial
+seed_brief_path: .dev/brainstorms/20261108-024258-orchestrator-mode-phase1/seed-brief.md
+merged_output_path: .dev/brainstorms/20261108-024258-orchestrator-mode-phase1/merged-requirements.md
+convergence_score: 1.00
+adversarial_artifacts_dir: .dev/brainstorms/20261108-024258-orchestrator-mode-phase1/adversarial/adversarial/
+domain: architecture
+proposal_count: 3
+enrichment_used:
+  - source: codebase
+    quality_tier: fallback_1
+  - source: research-light
+    quality_tier: skipped
+  - source: research-deep
+    quality_tier: skipped
+handoff_action: none
+handoff_output_path: null
+unresolved_conflicts:
+  - "Wave 3 routed PASS (convergence 1.00) ; the adversarial gate was BLOCKED_BY_INVARIANTS on INV-005 (Orca read verbs and optional git locks). Resolved 2026-11-08 by coordinator msg_b27ef790d241: recorded as Unlikely with a live negative probe (merged-requirements.md section 13). Static evidence: .dev/issues/339/analysis/inv-005-orca-index-lock.md (verdict Unlikely, static read of Orca 1.4.245)."
+  - "G-1 (merged-requirements.md section 18): no rule for files left after a run that exits 1; refactor-plan review 3 blocking finding carried as an open gap after the fix budget was spent."
+
+notes:
+  status_reason: "partial because the nested adversarial contract is partial (gate blocked, one open gap), not because convergence was low."
+  nested_contract: .dev/brainstorms/20261108-024258-orchestrator-mode-phase1/adversarial/adversarial/return-contract.yaml
+  nesting: "--output <brainstorm>/adversarial/ plus the skill's own adversarial/ subfolder gives adversarial/adversarial/; merged-output.md sits in adversarial/."
+  token_estimate_conflict: "agent-spec.md: ref agent-spec-builder.md gives 126K; SKILL.md Wave 2B per-proposal figure (350K) would give 1,260,000 and force a STOP. Ref figures used."
+  adversarial_skill_version: "No version: field in sc-adversarial-protocol SKILL.md; treated as legacy-compatible (INFO)."
+  quote_style: "Agent-spec instructions single-quoted per agent-spec-builder.md."
+  research_enrichment: "Skipped: the deep research report is the input."
+
+telemetry:
+  wave_durations_ms: {wave_0: null, wave_1: null, wave_2a: null, wave_2b: null, wave_3: null, wave_4: null}
+  token_usage: {wave_0: null, wave_1: null, wave_2a: null, wave_2b: 126000, wave_3: null, wave_4: null}
+  telemetry_note: "Durations and per-wave tokens were not measured across the context compactions; only the Wave 2B estimate is known."
+  agent_spec: "opus:architect:'prioritize maintainability and extension scaffolding for architecture domain',opus:analyzer:'focus on root-cause analysis and evidence-based reasoning for architecture',haiku:backend:'focus on API contracts, data integrity, idempotency, and operational concerns'"
+  enrichment_artifact_sizes:
+    codebase-context.md: 2520

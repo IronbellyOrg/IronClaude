@@ -1,0 +1,26 @@
+# sc-reflect audit log; mode=pre; tier_requested=deep; output_root=/home/coder/workspaces/worktrees/IronClaude/issue-339-orchestrator-mode/.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/reflect/pre; started=2026-11-08T09:59:22.758320Z
+{"wave": 0, "step": "0.1", "timestamp": "2026-11-08T09:59:22.758320Z", "outcome": "ok", "evidence_ref": "mode=pre via --mode flag (rule 1)"}
+{"wave": 0, "step": "0.2", "timestamp": "2026-11-08T09:59:22.758320Z", "outcome": "ok", "evidence_ref": "tasklist and spec exist"}
+{"wave": 0, "step": "0.3", "timestamp": "2026-11-08T09:59:22.758320Z", "outcome": "ok", "evidence_ref": "sc-adversarial-protocol installed at ~/.claude/skills/sc-adversarial-protocol/SKILL.md"}
+{"wave": 0, "step": "0.4", "timestamp": "2026-11-08T09:59:22.758320Z", "outcome": "ok", "evidence_ref": "input_tree_sha256=04f3f9658ad7eebd8f0e1193fc00823eb4fb3e919ec24b841d739a6e5bc5b3e1 files=61 artifacts/input-snapshot.yaml"}
+{"wave": 0, "step": "0.5", "timestamp": "2026-11-08T09:59:22.758320Z", "outcome": "ok", "evidence_ref": "aliases=['claude-gw-tier1a', 'claude-gw-tier1b', 'claude-gw-tier2'] distinct=3 t2_model_class_diversity=full"}
+{"wave": 0, "step": "0.6", "timestamp": "2026-11-08T09:59:22.758320Z", "outcome": "warn", "evidence_ref": "t2_vendor_diversity=single (all Anthropic aliases); warn-only"}
+{"wave": 0, "step": "0.7", "timestamp": "2026-11-08T09:59:22.758320Z", "outcome": "ok", "evidence_ref": "memory hydrate: see 0.7 row"}
+{"wave": 0, "step": "0.8", "timestamp": "2026-11-08T09:59:22.758320Z", "outcome": "ok", "evidence_ref": "audit log opened"}
+{"wave":0,"step":"0.7","timestamp":"2026-11-08T09:59:49Z","outcome":"ok","evidence_ref":"memory_hits=0 memory_misses=2 (last-pass-issue-339-orchestrator-mode.md and deviation-patterns-issue-339-orchestrator-mode.md absent; fail-open)"}
+{"wave":0,"step":"0.5b","timestamp":"2026-11-08T09:59:49Z","outcome":"warn","evidence_ref":"executor_class_source=unknown executor_class_resolved=false (UC-1 pre: no executor has run)"}
+{"wave":0,"step":"0.9","timestamp":"2026-11-08T09:59:49Z","outcome":"skip","evidence_ref":"budget_check_skipped=true"}
+{"wave":1,"step":"1B","timestamp":"2026-11-08T09:59:49Z","outcome":"ok","evidence_ref":"requirements-analyst spawned for coverage-matrix.yaml and reflection-card-t1.yaml"}
+{"wave":1,"step":"1D","timestamp":"2026-11-08T10:12:17Z","outcome":"ok","evidence_ref":"reflection-card-t1-calibrated.yaml C=0.75 calibrator=sonnet (written by orchestrator from read-only calibrator output)"}
+{"wave":2,"step":"2","timestamp":"2026-11-08T10:12:17Z","outcome":"ok","evidence_ref":"artifacts/tier_decision.yaml selected_tier=2 via --depth deep"}
+{"wave":3,"step":"3B","timestamp":"2026-11-08T10:38:45Z","outcome":"ok","evidence_ref":"reviewer-cards/reviewer-{1,2,3}-card.yaml (sonnet, haiku, opus slots)"}
+{"wave":3,"step":"3C","timestamp":"2026-11-08T10:38:45Z","outcome":"warn","evidence_ref":"calibrated C: r1 0.68 (haiku), r2 0.85 (opus), r3 0.80 (sonnet); calibrator class differs from each card's reviewer, but all 3 classes are reviewers so calibrator_diversity=degraded"}
+{"wave":4,"step":"4.0","timestamp":"2026-11-08T10:39:08Z","outcome":"ok","evidence_ref":"sc-adversarial-protocol Mode A --compare 3 merge inputs, --depth standard; prerequisites validated; variants copied to adversarial/variant-N-original.md"}
+{"wave":4,"step":"4.1","timestamp":"2026-11-08T11:48:54Z","outcome":"ok","evidence_ref":"EV-1 on disk: adversarial/merged-verdict.yaml merge_method=adversarial; reviewer-cards has 3 cards (>= --reviewers 3)"}
+{"wave":4,"step":"4.2","timestamp":"2026-11-08T11:48:54Z","outcome":"warn","evidence_ref":"adversarial/return-contract.yaml status=partial convergence=1.00 BLOCKED_BY_INVARIANTS (INV-001, INV-002, INV-009 folded into fixes)"}
+{"wave":5,"step":"5.0","timestamp":"2026-11-08T11:48:54Z","outcome":"ok","evidence_ref":"sc-adversarial-protocol available and ran; no F1/F2/F3 fallback"}
+{"wave":5,"step":"5.x","timestamp":"2026-11-08T11:48:54Z","outcome":"ok","evidence_ref":"input_tree_sha256 recomputed: match, 61 files, no drift"}
+{"wave":5,"step":"5.3","timestamp":"2026-11-08T12:05:09Z","outcome":"ok","evidence_ref":"REPORT.md written (template sections; R-24 labelled as synthesis addition)"}
+{"wave":5,"step":"5.4","timestamp":"2026-11-08T12:05:09Z","outcome":"ok","evidence_ref":"evidence-validator full_reread: 117 ranges, 108 revalidated, 8 dropped, 1 corrected, 0 INF rows dropped, 0 grounding gaps; F-17 removed; evidence-validation.md"}
+{"wave":5,"step":"5.5","timestamp":"2026-11-08T12:05:09Z","outcome":"warn","evidence_ref":"return-contract.yaml status=partial (convergence BLOCKED_BY_INVARIANTS), coverage_pct 0.95 >= floor 0.90"}
+{"wave":6,"step":"6.0","timestamp":"2026-11-08T12:05:09Z","outcome":"skip","evidence_ref":"remediation offered in REPORT recommendations only; no remediation task built without consent"}

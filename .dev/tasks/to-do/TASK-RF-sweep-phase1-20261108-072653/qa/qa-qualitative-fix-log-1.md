@@ -1,0 +1,33 @@
+# A.10.5 qualitative fix log, cycle 1
+
+Date: 2026-11-08
+Task file: TASK-RF-sweep-phase1-20261108-072653.md
+Before: 2863 lines, 351 items. After: 2892 lines, 355 items.
+Input: qa/qa-qualitative-consolidated.md (11 blocking findings)
+Not in scope: N-01 (item 5.12), which waits for the coordinator. Item 5.12 was not edited.
+
+Result: 11 FIXED, 0 NOT FIXED.
+
+## Findings
+
+| Finding | Items changed | Status | What changed |
+|---|---|---|---|
+| QS-01 | 14.9, 14.10 to 14.19 (Sizing, titles, Action), new 14.20 to 14.23, 14.24 | FIXED | 14.9 now measures the final gate input (`Final gate input lines: <n>`, `Final gate size row:`). The gate now has 5 rf-qa + 5 rf-qa-qualitative + 2 domain lenses = 12 agents, and 14 when the input is over 3000 lines. New items: 14.20 rf-qa completeness lens and 14.21 rf-qa-qualitative operator-actionability lens (both always run), 14.22 rf-qa evidence-quality lens and 14.23 rf-qa-qualitative numbers-metrics lens (both run only over 3000 lines, otherwise SKIPPED with a note). Each new item has the preamble and its lens prompt written out in full. The Sizing sentence in every final gate item now sizes by the whole change set, not by DESIGN. Consolidation 14.24 now expects 12 or 14 reports and lists the new report names. The old items 14.20 to 14.45 are now 14.24 to 14.49, and every cross-reference was shifted with them. |
+| QS-02 | 14.25, 14.29 (final fix cycles 1 and 2), 14.38, 14.42 (fidelity fix cycles 1 and 2) | FIXED | Each fix agent now fixes the delivery only, never DESIGN `docs/designs/orchestrator-mode.md` or SPEC `merged-requirements.md`. A mismatch is fixed in code, tests or other docs; a finding that can only be closed by changing DESIGN or SPEC stays OPEN with that reason, so the gate decision escalates it. The fix log records `sha256sum` of DESIGN and SPEC before the spawn and passes only if both are unchanged after. |
+| Q-01 | 2.1 | FIXED | Edit 1 now replaces the whole row tail from "plus `dispatch: str`" to the end of its parenthesis, so the three existing fields are not duplicated. Pipes inside table cells must be written `\|`. The check now counts "plus `dispatch: str`" (must be 1) and compares each edited row's separator count with the header row. |
+| Q-02 | 2.8 to 2.16 (lens Actions), 2.18 and 2.22 (fix agents), 2.19, 2.20, 2.23, 2.24 (verifiers) | FIXED | Option (a) of the report. Every r3-b1 lens, fix and verifier prompt now carries a scope note: the R3-B2 several-rows rule and the transcript outcome for a path-B match that does not join are written by item 3.1 in Phase 3, so they are not R3-B1 findings. The fix agents are told not to write either one. |
+| Q-03 | 2.6, 4.5 | FIXED | 2.6 now also makes the second part of research/04 edit 9 (m2): in the cycle 2 R2-B1 row, "the transcript's earliest timestamp" becomes "the earliest `timestamp` in the transcript tail", with a check that the old phrase count is 0. 4.5 now says to leave the rest of that row unchanged because 2.6 already applied m2. |
+| Q-04 | 5.4, 5.11, Open Questions (new OQ-15) | FIXED | 5.4 now rewrites the section 8 "Final text." sentence (no longer "unchanged") and the D6 row, so they record the WC-16 renumbering and the master cadence as part of deviation D6. The total stays `Total: 9 deviations.`, so 5.8, 5.12 and the later totals checks still hold. The 5.4 checks were updated to match. The 5.11 R4 row text names D6. OQ-15 records the choice, so the fidelity gate treats it as a recorded deviation. |
+| Q-05 | 5.2, 5.11, 13.1 | FIXED | 5.2 now changes the routing row R2 bullet to "**The coordinator sweeps on every wake, at most once every 5 minutes.**", matching master's `WORKER-CONTRACT.md:110` ("After every wake or timeout, at most once every 5 minutes"), and checks that the old unbounded bullet is gone. 13.1 now copies the aligned bullet into `HOW-WE-WORK.md`, and its check greps the new text. |
+| Q-06 | 6.4, 6.15, 6.19 (the item 6.4 commands that the r5 fix agents re-run) | FIXED | The R5 check now greps `^| R5 | Master`, which matches only the Fix cycle 3 R5 row and not the section 9 routing row R5 (which starts with the `tests/recommend/` path). The pass rule says so. No item greps the R4 row, so the same trap does not apply there. |
+| Q-07 | 5.10 | FIXED | The citation check now greps the bare "line N" and "lines N-M" forms and `file:line` forms, filtered to the changed files (contract, contract tests, HOW-WE-WORK, commands.md, CHANGELOG, main.py, the routing tests, graph.md, the developer guide, `.gitignore`). At build time it returns 18 hit lines. A run with no hit in sections 8, 9 or 10 is a FAIL, so the step can no longer pass without checking anything. |
+| OPS-01 | 1.3, 14.9, 14.10 to 14.23 and the final and fidelity verifiers (DESIGN diff input), 14.47, OQ-12, Execution Context artifact list | FIXED | 1.3 now saves `artifacts/baseline-untracked.txt` and the DESIGN snapshot `artifacts/design-base.md`. 14.9 and 14.47 drop every path that was already untracked at the start (`grep -vxF -f baseline-untracked.txt`), so the three review files are left out. DESIGN is tagged `edited` and shown as a real diff against the snapshot, with its `a/` path relabelled (header shape tested in `/tmp`). 14.47 now checks that no review path appears and that the DESIGN hunk is not a new-file diff. The gate inputs and OQ-12 say DESIGN is diffed against the snapshot, not a commit. |
+| OPS-02 | 14.6, 14.8, OQ-10, Execution Context artifact list | FIXED | Branch (A) now has two calls: first an untimed `pipx run --spec "$WT" superclaude --version` warm-up from `/tmp`, saved to `artifacts/sweep-help-pipx-warmup.txt`, which HALTs on a non-zero exit; then the timed `timeout 30 pipx run --spec "$WT" superclaude sweep --help`. The 30 s limit now covers only the help run, as REPORT:1300 sets. The 14.6 option (A) wording and OQ-10 match. `superclaude --version` exists (`src/superclaude/cli/main.py:19`, `click.version_option`). |
+
+## Constraints kept
+
+- No scope or phase-order change. The only new HALT is the 14.8 warm-up failure, which uses the existing HALT rule in the same way as the help-run failure next to it.
+- No commit, push or merge item was added.
+- The verbatim POST reflect runner prompt (item 14.48) is unchanged: its 9 quoted lines hold no item number, and the renumbering only touched `14.N` item numbers.
+- Phase 14 numbering runs 14.1 to 14.49 with no gap, and every `item(s) 14.N` reference was shifted.
+- The Phase 14 renumbering was done with one reviewed `perl -i` substitution (14.20 to 14.45 shifted by 4), checked afterwards by counting every `14.N` reference before and after. All other changes were made with the Edit tool after a Read.

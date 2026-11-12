@@ -1,0 +1,24 @@
+# Wave 5 evidence validation (full_reread), run 4. Parent-persisted from three independent evidence-validator reports (read-only agents with no write tool).
+# The validators did not use the mechanical field of artifacts/citations.json; each cited range was Read from the source.
+schema: sc-reflect-evidence-validation/v1
+report: REPORT.md
+citations_source: artifacts/citations.json
+citation_budget_policy: full_reread
+totals: {entries: 132, distinct_ranges: 81, verified: 132, dropped: 0, passed_through: 0}
+zero_drop_flag: true       # zero drops is treated as suspect; see self_audit and the parent's extra checks below
+validators:
+  - {part: A, agent: a1039d184b8156c78, recorded_model: claude-sonnet-5-5, share: "n 1-44 (findings M-01, M-02, M-03)", entries: 44, verified: 44, dropped: 0}
+  - {part: B, agent: aa364cb9a2cd62797, recorded_model: claude-sonnet-5-5, share: "n 45-88 (M-03 to M-08)", entries: 44, verified: 44, dropped: 0}
+  - {part: C, agent: a86b10966f93d90b8, recorded_model: claude-sonnet-5-5, share: "n 89-132 (M-09, f_closure, row_coverage, consequence and residual evidence)", entries: 44, verified: 44, dropped: 0}
+self_audit:
+  - "Each validator Read every cited range and compared the quote; part A re-checked many entries a second way (Grep for a distinctive phrase and comparison of the hit line with the cited range); part B did so for 32 of 44, part C for 40 of 44."
+  - "Repeated phrases (for example 'Each breach is BLOCKING', the 'Pre-7.10 source anchor' sentence, the four identical sha256 lines at TL:2614, 2642, 2705, 2733) were checked against the cited line number, not just the text."
+  - "Claim support was judged against the merged-verdict claim each quote sits under; no clear mismatch was found. Part C's own list of entries not second-checked by Grep is internally inconsistent (it names seven numbers for 'four'); all 44 of its entries were still Read directly."
+parent_extra_checks:
+  - "Mechanical substring check of all 132 quotes against their cited ranges (artifacts/citation-mechanical-check.json): 0 failures."
+  - "Input drift guard re-run after the last artifact was written: input tree sha256 1e56054f58022d82 equals the snapshot (147 files)."
+limits:
+  - "The validators checked quotes and their plausible support, not whether each finding's reasoning is right (that is the debate and probe's job)."
+  - "Part C did not check the claim that HOW-WE-WORK.md line 404 holds the sweep bullet (a statement about a file outside the citation share; it is a future state, true only after item 13.1 runs)."
+input_absent: [now_iso, assertions_path]
+suggested_status: success

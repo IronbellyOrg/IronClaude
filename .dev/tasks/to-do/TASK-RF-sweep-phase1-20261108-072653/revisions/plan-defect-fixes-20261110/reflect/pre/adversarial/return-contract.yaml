@@ -1,0 +1,22 @@
+return_contract:
+  merged_output_path: ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/revisions/plan-defect-fixes-20261110/reflect/pre/adversarial/merged-verdict.yaml"
+  convergence_score: 0.935
+  artifacts_dir: ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/revisions/plan-defect-fixes-20261110/reflect/pre/adversarial/"
+  status: "partial"
+  base_variant: "variant-2 (reviewer 2, qa; recorded model gpt-6.1-sol, haiku-class slot)"
+  unresolved_conflicts: 2
+  fallback_mode: false
+  failure_stage: null
+  invocation_method: "task-agent"
+  unaddressed_invariants:
+    - {id: INV-R4-003, category: sufficiency_challenge, assumption: "the split 7.17 Verification alone lets a correct owner-approved run complete 7.17; it does not, because the approval follow-up needs a DESIGN edit item that does not exist and an R5 re-run of ticked items 6.5 to 6.22", severity: HIGH, probe_status: UNADDRESSED, carried_in: M-01}
+    - {id: INV-R4-011, category: sufficiency_challenge, assumption: "a one-clause 7.24 fix removes every breach the lens raises on an approved change; it leaves the templates 1 to 8 probe check", severity: HIGH, probe_status: "PARTIAL (counted as UNADDRESSED by the gate)", carried_in: M-02}
+notes:
+  convergence_status: "BLOCKED_BY_INVARIANTS: 29 of 31 diff points agreed (0.935, primary reading with stated prose positions; 24 of 31 = 0.774 on POINT lines only; 32 of 34 = 0.941 over S/C/X/U), taxonomy L1/L2/L3 all debated, but the invariant probe left two HIGH items not addressed (INV-R4-003 UNADDRESSED, INV-R4-011 PARTIAL). Depth standard, so no Round 3. Both are carried in the merged findings (M-01 fix part 4; M-02 fix naming all three checks); neither is recorded as accepted risk."
+  status_reason: "partial because convergence is BLOCKED_BY_INVARIANTS, not because a merge or validation step failed."
+  unresolved_conflicts_note: "2 unagreed diff points under the primary reading: X-005 (the three advocates agree on the disposition, LOW, and only the winner name ties) and A-006 (only one advocate stated a position). Neither changes a merged finding."
+  base_selection: "V2 0.950, V3 0.883, V1 0.850 (quant 1.000 / 0.967 / 0.933; qual 27 / 24 / 23 of 30). Margin 6.7 points, above 5, so no tiebreaker (level 1 would also pick V2: 9 debate points won vs 7). IC, SR and SC saturate at 1.0 for all three cards; RC (brief format) and the qualitative layer discriminate. The cards audited different slices, so the score ranks card quality, not slice severity."
+  position_bias: "6 of 90 criterion-variant pairs disagreed between the forward and reverse passes and were re-evaluated; both passes were made by the merge executor in one context, a weaker control than independent judges."
+  merge: "merge-log.md: 11 of 11 changes applied, 0 failed, 0 skipped. merged-verdict.yaml loads with PyYAML; 132 of 132 evidence quotes are verbatim substrings of their cited ranges (script check after the last edit); 9 findings, HIGH 2 / MEDIUM 1 / LOW 6; inside the 85 labels 7 (M-02..M-08), outside 2 (M-01, M-09)."
+  findings: "M-01 HIGH-cond outside; M-02 HIGH-cond inside (owner acceptance by name); M-03 MEDIUM inside; M-04 LOW inside; M-05 LOW inside; M-06 LOW inside (two clauses need owner acceptance by name); M-07 LOW inside (root cause BR:9 outside the plan); M-08 LOW inside (owner acceptance by name); M-09 LOW outside. Dropped: R3-F2 withdrawn; R3-F1 and O-003 closed."
+  no_changes_applied: "No fix was applied to the task file, DESIGN, the addendum, either revision request, the ledger or any source. Applying any finding invalidates every earlier sign-off and requires re-running structural, alignment, qualitative and PRE."

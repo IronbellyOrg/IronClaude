@@ -1,0 +1,20 @@
+# Wave 3C blind calibration of reviewer-2-card.yaml (persisted by orchestrator)
+card: reviewer-2
+calibrator_model_class: sonnet
+card_model_class: haiku
+dimensions:
+  citation_grounding: 0.90
+  coverage_completeness: 0.70
+  deviation_classification_clarity: 0.80
+  risk_surface_coverage: 0.65
+  recommendation_actionability: 0.50
+confidence_calibrated: 0.71
+self_reported: 0.93
+delta: -0.22
+weight_recommendation: downweight
+spot_checks:
+  - "TASK:374": ok
+  - "TASK:354": ok
+  - "GAPS:135": ok
+  - "REP:15": ok
+notes: "All four cites verify; only 4 coverage rows, no recommendations, no independent outside-change check. D-3 (Drift) and D-9 (Necessary) describe the same stale count under two categories; no fix given for D-3."

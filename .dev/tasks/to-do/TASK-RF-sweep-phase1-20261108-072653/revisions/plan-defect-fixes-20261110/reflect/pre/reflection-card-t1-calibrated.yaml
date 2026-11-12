@@ -1,0 +1,46 @@
+# Blind calibration of the Tier 1 card (Wave 1D). Parent-persisted from the returned report of confidence-calibrator agent a4be21b97d0be0b21 (haiku class; recorded model gpt-6.1-sol, a Tier1b slot). The agent first hit its 25-turn limit with no report and was resumed once; scores and wording are the calibrator's.
+schema: sc-reflect-calibration/v1
+card: reflection-card-t1.yaml
+rubric: ~/.claude/skills/sc-reflect-protocol/refs/reflection-rubric.md
+calibrator: confidence-calibrator a4be21b97d0be0b21
+calibrator_model_class: haiku
+card_author_model_class: sonnet slot (analyst recorded claude-sonnet-5-5)
+self_reported_confidence: 0.84
+calibrated_confidence: 0.83      # (0.90 + 0.95 + 0.30 + 1.00 + 1.00) / 5
+delta: -0.01
+dimension_scores: {citation_grounding: 0.90, coverage_completeness: 0.95, deviation_classification_clarity: 0.30, risk_surface_coverage: 1.00, recommendation_actionability: 1.00}
+citations_checked: 43            # distinct file-and-line anchors (17 in the nine findings' evidence, 26 other); 61 quoted entries incl. repeats
+citations_failed: 0
+per_finding:
+  L1: "verified"
+  L2: "verified"
+  L3: "partly: no explicit duplicate-prevention rule, but a duplicate heading is a possible reading, not a necessary one (Output says append-only)"
+  L4: "verified (Action permits SKIP; Verification and Completion gate demand PASS/FAIL and all-PASS)"
+  L5: "partly: the end note names the first revision and the sampled later hash guard omits the second request; the other guards were not checked"
+  L6: "verified (reworded clauses; precedence expressed through the exception)"
+  L7: "verified (11.4 routes command/skill and style defects; test-module and environment failures fall under the generic stop)"
+  L8: "partly: report paths are recorded without an existence or plan-hash check; 'necessarily fails closed' is unsupported"
+  L9: "partly: 7.20's return to the owning item does not itself require a destructive original-start retry"
+  F-01: "partly (all twelve lens inputs and the shell simulations not independently checked)"
+  F-02: "verified"
+  F-03: "verified (subject to L6 wording)"
+  F-04: "verified"
+  F-05: "partly (original verifier's 'every failure branch' qualified by L7)"
+  F-06: "partly (totals across all 59 locations not recounted by the calibrator)"
+  F-07: "verified (storage weakness L1 remains)"
+  F-08: "verified"
+  F-09: "partly (task-skill resume rule not independently read)"
+  F-10: "verified"
+qualifications:
+  - "No commands, simulations, hashes or comparisons were run by the calibrator; the card's execution results are reports, not reproduced observations."
+  - "Not rebuilt: the 204 coverage rows; not reread: the 355 items."
+  - "Preservation bookkeeping: preservation-check.json records base_lines and cur_lines as 3021 (split on newline, trailing empty element) while the card says 3020 (wc -l); not an unauthorized edit."
+  - "Matrix provenance: the matrix inspected by the calibrator still carried the field `run: 3` under a run-4 header; fixed afterwards in artifacts/build_matrix.py (now `run: 4`) and the matrix rebuilt."
+  - "Severity of every finding as LOW is not independently established by matching quotes."
+escalation:
+  verdict: ESCALATE
+  reason: "C 0.83 < 0.85; also independent triggers S_domains 5 >= 3; run-level escalation is forced by --depth deep anyway"
+  independent_triggers: ["C 0.83 < 0.85", "S_domains 5 >= 3", "S_scope 355 > 10"]
+calibrator_diversity: degraded
+input_absent: [now_iso, assertions_path, card_mtime]
+not_checked: "runtime behavior, test execution, installed activation, exhaustive baseline comparison"

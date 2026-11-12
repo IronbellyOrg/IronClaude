@@ -1,0 +1,25 @@
+Agent (rf-analyst - task-research-alignment lens)
+QA_MODE: task-integrity
+LENS: task-research-alignment
+
+TASK FILE: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md (plan sha256 eb291f0bdd1a787131a3b5295150b0f109b46943a1c43c638fd2ad4652d29f99)
+RESEARCH DIR: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/research/ and the four R1 research files in .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/revisions/chat-output-exception-20261109-133150/research/
+TRACK GOAL: second bounded revision R2: fix ten recorded plan-text defects (F-01 to F-10) in 85 allowed unfinished item bodies without changing anything else.
+REVISION DIR: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/revisions/plan-defect-fixes-20261110/
+BASIS (this revision's "research"): .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/revisions/chat-output-exception-20261109-133150/reflect/pre/adversarial/merged-verdict.yaml (F-01..F-10 with recommendation.fix and recommendation.verifier), .../reflect/pre/adversarial/invariant-probe.md and refactor-plan-review.md, the design addendum .../design-addendum.md, DESIGN docs/designs/orchestrator-mode.md, and the owner decision record phase-outputs/plans/OQ-6-GQ-63-done-next-decision.md. Also read the revision's BUILD-REQUEST.md, delta-manifest.md, qa/preservation-check.json, qa/A10-verify1.md and baseline/task-before-rev2.md.
+
+ESCALATION - CRITICAL OVERRIDE: You have NO team context. Do NOT use SendMessage, TaskCreate, TaskUpdate, or TaskList. You are a standalone agent invoked via the Agent tool. Return your verdict and report file path as your final output. Write ONLY your report file (if you cannot write it, put the full report in your final message and say so in the first line).
+
+ADVERSARIAL STANCE: Assume the builder dropped or misrepresented the basis findings, or added text that no source supports. Find at least 3 alignment gaps, or show in a Self-Audit what you checked to conclude otherwise. Number checks C1, C2, ...; add a `## Checks` table with PASS/FAIL; grade findings BLOCKING, MAJOR or MINOR (MINOR never fails). End with line-anchored `VERDICT: PASS` or `VERDICT: FAIL` and `Blocking count: <n>`.
+
+YOUR LENS FOCUS: Cross-validate that every basis finding F-01..F-10 (and each INV the merged verdict folded in or marked required: INV-005, INV-007, INV-010, INV-012, INV-013, INV-015, INV-016, INV-018, INV-019, INV-020, INV-022, INV-024, INV-026) has a matching, correct edit in the task file, and that no edited text fabricates actions or facts not grounded in a source.
+
+Alignment checklist:
+1. For each of F-01..F-10: find the edited lines (use delta-manifest.md, then verify with `diff` against the baseline) and judge whether the recommendation.fix is implemented fully, partially or wrongly. Run each recommendation.verifier that is shell-runnable and report the actual output next to the expected value.
+2. Fabrication check: every NEW fact in the edited lines (file paths, heading names, line numbers, counts, quoted strings) must trace to a source you opened. Check at least: the DESIGN row R2 text copied into item 13.1 against docs/designs/orchestrator-mode.md line 716; the addendum clauses embedded in item 7.10 against design-addendum.md lines 13-21 (no meaning change; the word "proposed" must not appear there); the OQ-17 and OQ-18 file names against item 7.17; the `## Authorization (direct, by the owner)` heading against the R2 BUILD-REQUEST.md; the six style-file qualifier lines (STYLE lines 53, 58, 60, 69, 80, 90 of src/superclaude/output-styles/pragmatic.md) against item 7.10's list of six restatements.
+3. Interaction check: the F-01 fix (counts OQ-[1-8], optional OQ-17/OQ-18) must agree across 7.20, 7.22, 7.25, 7.30, 7.34, the twelve lens-input lines and 14.19, and must not break 7.13 (seven rows at that time), 7.33 (regression and monotonicity halts) or 8.1 (eight named files). The F-04 fix (result file written before the style edit) must agree between 7.10 Action, Output and Completion gate and 7.20. The F-05 fix must not require re-running ticked item 7.10.
+4. Scope check: nothing outside the 85 allowed labels or outside Context/Action/Output/Verification/Completion-gate changed, and no decision, authority or completed-item text was rewritten (confirm with the preservation JSON and a spot check).
+5. Dropped-finding check: the merged verdict's notes list required plan-review corrections (a) to (f) and minors F-R2..F-R10; for each, say whether it is reflected.
+
+OUTPUT FILE: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/revisions/plan-defect-fixes-20261110/qa/qa-task-research-alignment-report.md
+Write the file IMMEDIATELY with a header, then append findings incrementally.

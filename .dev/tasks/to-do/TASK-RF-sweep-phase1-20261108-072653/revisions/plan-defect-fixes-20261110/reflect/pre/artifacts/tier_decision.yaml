@@ -1,0 +1,13 @@
+selected_tier: 2
+fired_rule_number: 0              # section 5.1 hard override (--depth deep), before the rubric rules
+coverage_degraded: null
+surface_unreached: null
+composite_score: 8.0
+per_signal_breakdown:
+  scope_size: 2          # 355 items
+  task_count: 2          # 355 items
+  blast_radius: 2        # 5 domains: code, tests, docs, config, style
+  spec_density: 1        # 127 parsed + 77 inferred requirements
+  ambiguity_signals: 1   # T1 findings pending; S_dev_density 0.015
+escalation_reason: "--depth deep forces Tier 2 (TCS 1862 >= 35 deep band); rubric would also escalate: S_domains 5 >= 3 (rule 4), S_scope 355 > 10"
+note: "Reviewers were launched in parallel with the Tier 1 analyst: the deep override does not depend on the Tier 1 card, so the decision is not conditioned on it."

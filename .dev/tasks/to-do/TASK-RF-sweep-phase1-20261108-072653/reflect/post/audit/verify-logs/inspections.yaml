@@ -1,0 +1,25 @@
+# Orchestrator read-only inspections (git, cmp, grep). These are NOT verification-envelope commands (verbs outside the allowlist), so they are recorded here, not in invocations.yaml.
+- id: INS-1
+  cmd: "git diff --binary 5dc29d23... -- . ':(exclude).dev' > regen.diff; then each untracked src|tests|docs|plugins file not in baseline-untracked.txt via git diff --binary --no-index -- /dev/null <path>; then the DESIGN hunk against artifacts/design-base.md (the exact item 14.47 command)"
+  result: "regenerated diff: 50 diff --git entries, 721933 bytes; cmp with reflect/post/phase1.diff: identical"
+  exit_code: 0
+- id: INS-2
+  cmd: "git diff --cached --name-only | grep '^\\.claude/'"
+  result: "no output: no .claude/ path is staged"
+  exit_code: 1 (grep found nothing)
+- id: INS-3
+  cmd: "cmp src/superclaude/core/HOW-WE-WORK.md plugins/superclaude/skills/sc-recommend/refs/HOW-WE-WORK.md"
+  result: "identical"
+  exit_code: 0
+- id: INS-4
+  cmd: "grep -rn 'src/superclaude' src/superclaude/commands/sweep.md src/superclaude/skills/sc-sweep-protocol/SKILL.md src/superclaude/core/WORKER-CONTRACT.md src/superclaude/core/HOW-WE-WORK.md"
+  result: "no output (pragmatic.md was not part of this grep)"
+  exit_code: 1 (grep found nothing)
+- id: INS-5
+  cmd: "grep -rln 'SuperClaude-Org' src/superclaude/cli/sweep src/superclaude/commands/sweep.md src/superclaude/skills/sc-sweep-protocol tests/sweep"
+  result: "no output"
+  exit_code: 1 (grep found nothing)
+- id: INS-6
+  cmd: "tree hash recompute (same script and exclusions as Wave 0 step 0.4)"
+  result: "input_tree_sha256 87321ca386fbe2ec99bba2cd56dcfc8411ca65d8fcb2d58930602c6459d48ec6, 779 files, equal to the Wave 0 snapshot"
+  exit_code: 0

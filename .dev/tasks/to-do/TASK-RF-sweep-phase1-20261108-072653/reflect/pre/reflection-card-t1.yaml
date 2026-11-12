@@ -1,0 +1,279 @@
+schema: sc-reflect-card/v1
+tier: 1
+mode: UC-1 pre-execution
+created: 2026-11-08
+spec: docs/designs/orchestrator-mode.md
+spec_lines: 1013
+tasklist: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md
+tasklist_items: 355
+coverage_matrix: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/reflect/pre/coverage-matrix.yaml
+
+coverage:
+  parsed_count: 120
+  inferred_count: 15
+  matched_parsed: 66
+  matched_inferred: 10
+  coverage_pct: 0.5500
+  coverage_pct_union: 0.5630
+  unmapped_requirements: 54
+  unmapped_requirements_union: 59
+  coverage_degraded: null   # parsed-sparse does not fire: inferred (15) is not greater than parsed (120)
+  note: >-
+    The match is literal (word-boundary ID tokens). Most of the 54 unmapped parsed IDs are covered in
+    substance through delegation to DESIGN rows (for example item 10.2 delegates to the DESIGN section 11
+    row "FR-006 to FR-010, FR-012 to FR-015", which the range rule does not expand because it is written
+    with "to"). The literal figure therefore understates real coverage; see the gap registry.
+
+signals:
+  S_scope: 355          # tasklist item count; above 10, exits the T1 STOP path
+  S_domains: 5          # code, tests, docs, config, infra; 3 or more escalates
+  S_dev_density: 0.437  # 59 unmapped / 135 union rows; above 0.20 escalates
+
+findings:
+  - id: F1
+    severity: MEDIUM
+    category: Drift
+    tag: Grounded
+    claim: >-
+      The SPEC requires the task file to copy a gaps-count rule, and the tasklist does not. The rule is
+      "cite GAPS line 138 for counts and never edit the REPORT". A grep of the tasklist finds no
+      "GAPS line 138" and no task-level never-edit-REPORT rule (the "never edits a research file" wording
+      appears only inside the design-fix agent prompts). GQ-111, GQ-112 and GQ-113 are unmapped as a result.
+    evidence:
+      - docs/designs/orchestrator-mode.md:78
+      - docs/designs/orchestrator-mode.md:79
+      - docs/designs/orchestrator-mode.md:80
+    recommendation: >-
+      Add one line to the tasklist rules block (near the "No commit, push or merge" rule at
+      TASK-RF-sweep-phase1-20261108-072653.md:157): "Gaps-log counts cite GAPS line 138 (113 rows, 88 open,
+      25 resolved); never edit the REPORT (GQ-111 to GQ-113)." Success: a grep of the tasklist for
+      "GAPS line 138" returns 1 hit.
+
+  - id: F2
+    severity: MEDIUM
+    category: Drift
+    tag: Grounded
+    claim: >-
+      The owner-decision HALTs can be resolved by the executor itself. The owner's session words are the
+      decision and no grant file exists, so nothing mechanical separates an owner-filled `Decided by:` and
+      `Decision source:` from executor-filled ones; the executor itself sets `status: RESOLVED`. The checks
+      also get weaker across the file. Item 6.2 and the Phase 7 procedure require that the source quotes the
+      owner's words. Item 14.7 drops that condition and needs only filled fields. Item 7.15 Branch 2 sets
+      RESOLVED with no condition beyond a non-empty `Run id:`; the giver and source are checked only later,
+      in its verification line.
+    evidence:
+      - .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md:988
+      - .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md:989
+      - .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md:1138
+      - .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md:1140
+      - .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md:1242
+      - .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md:1244
+      - .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md:2481
+    severity_rationale: >-
+      MEDIUM, not HIGH: the 6.2 and Phase 7 text names the owner as the only source, so a faithful executor
+      halts. The risk is the inconsistent wording in 14.7 and 7.15, which a literal executor could satisfy
+      without the owner.
+    recommendation: >-
+      In 7.15 Branch 2 and 14.7 Branch 2, add the 6.2 condition "with `Decided by:` and `Decision source:`
+      filled (the source quotes the owner's words in this session)", and add to the item 6.2 procedure:
+      "The executor never fills `Chosen:`, `Decided by:` or `Decision source:` itself." Success: every
+      Branch 2 in the file carries the same condition.
+
+  - id: F3
+    severity: MEDIUM
+    category: Regression
+    tag: Grounded
+    claim: >-
+      The item 7.16 verification cannot pass as written. It requires every command in the probe file to be
+      one of the eight templates or a file read, but Action step 6 runs `echo "${XDG_STATE_HOME...}"` and
+      `ls -la <printed path>`, which are neither, and it requires the file to record exact commands. Its grep
+      expects to find "only the forbidden-list sentence", but the Action never tells the executor to write
+      that sentence into readonly-probe.md, so the grep finds nothing (or something else) and the stated
+      expectation is unmet either way.
+    evidence:
+      - .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md:1258
+      - .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md:1260
+    recommendation: >-
+      Change the 7.16 verification to "every command is one of the eight templates, a file read, or the
+      step 6 `echo` and `ls -la` of the tab-map folder", and change the grep expectation to "finds no line"
+      (or add an Action instruction to copy the forbidden-list sentence into the file). Success: the
+      verification is satisfiable by a run that follows the Action exactly.
+
+  - id: F4
+    severity: MEDIUM
+    category: Refinement
+    tag: Grounded
+    claim: >-
+      Traceability is weak: 54 of 120 parsed SPEC IDs never appear as a literal token in the tasklist
+      (coverage_pct 0.55). Most are covered by delegation to DESIGN rows, for example item 10.2 cites the
+      DESIGN section 11 row "FR-006 to FR-010, FR-012 to FR-015", which covers FR-007, FR-008, FR-009,
+      FR-013 and FR-014 in substance only. Whether GQ-105 (`FINAL:`), D8 (`unpushed`), SP-07
+      (`guard refused:`), SP-21, SP-22 and SP-26 are covered can be checked only by following the
+      delegation, because their literal strings appear nowhere in the tasklist.
+    evidence:
+      - .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md:1784
+      - .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/reflect/pre/coverage-matrix.yaml
+    recommendation: >-
+      In each test-creation item (10.x) and doc item (13.x, 14.x), list the SPEC IDs it covers explicitly
+      instead of a "to" range, and add a final QA item that greps the tasklist for every ID in the
+      coverage-matrix unmapped list. Success: a re-run of this coverage map reaches coverage_pct 0.90 or more.
+
+  - id: F5
+    severity: LOW
+    category: Drift
+    tag: Grounded
+    claim: >-
+      Four SPEC boundary rules have no task item or verification: B3 (the read allowlist lives only in
+      `probes.py`; no write verb), B4 (the command and skill are thin), B5 (no type redeclared from
+      `superclaude.contracts`) and the `.gitignore` rule that the pattern names `.dev/sweeps/` only. B1
+      matched only at the 0.6 threshold. The `.gitignore` rule is partly enforced by the 8.6 check that
+      `.dev/tasks/to-do/x.md` is not ignored.
+    evidence:
+      - docs/designs/orchestrator-mode.md:217
+      - docs/designs/orchestrator-mode.md:218
+      - docs/designs/orchestrator-mode.md:219
+      - docs/designs/orchestrator-mode.md:719
+      - .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md:1455
+    recommendation: >-
+      Add B3 to B5 as verification lines on the items that create `probes.py`, `commands.py`,
+      `sweep.md` and `SKILL.md` (for B5: grep the new package for class names already defined in
+      `superclaude.contracts`). Success: each B rule has one grep or test cited in a verification line.
+
+  - id: F6
+    severity: LOW
+    category: Refinement
+    tag: Grounded
+    claim: >-
+      Commit-grouping requirements cannot be checked because the task never commits: "R1, R2 and R3 land in
+      one commit", step 1.4a "The first code commit", and step 1.23 "in the same commit as 1.21". The
+      tasklist documents this choice, so it is a Refinement, but the one-commit invariant is left to the
+      later user-requested commit with nothing that reminds the committer.
+    evidence:
+      - docs/designs/orchestrator-mode.md:705
+      - docs/designs/orchestrator-mode.md:911
+      - docs/designs/orchestrator-mode.md:932
+      - .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md:157
+      - .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md:1414
+    recommendation: >-
+      Add a hand-off note to the final task output listing the commit groupings the user must keep
+      (R1+R2+R3 together; 1.21 with 1.23). Success: the final report names both groupings.
+
+  - id: F7
+    severity: LOW
+    category: Regression
+    tag: Grounded
+    claim: >-
+      The item 8.6 check `git diff --stat -- .gitignore` "shows 2 insertions" fails if `.gitignore` already
+      had uncommitted changes when the task started, although the required change is correct.
+    evidence:
+      - .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md:1455
+    recommendation: >-
+      Replace the insertion count with a content check: `grep -n '^\.dev/sweeps/$' .gitignore` returns
+      one line after the `.dev/sprint-state/` entry. Success: the check passes on a dirty `.gitignore`.
+
+  - id: F8
+    severity: LOW
+    category: Refinement
+    tag: Grounded
+    claim: >-
+      Ordering is sound with one benign change: SPEC step 1.4a depends on 1.2, and the tasklist builds it
+      after 1.1 to 1.3, which still satisfies "before any other probe code" because 1.4 follows it. The
+      Phase 7 owner gates precede all code (item 6.2 gate and Phase 7 procedure), R5 follows 1.14, R7
+      follows 1.18 and R8 follows 1.16, matching the SPEC dependency column.
+    evidence:
+      - docs/designs/orchestrator-mode.md:911
+      - docs/designs/orchestrator-mode.md:912
+      - docs/designs/orchestrator-mode.md:929
+      - .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md:1414
+    recommendation: none
+
+  - id: F9
+    severity: LOW
+    category: Refinement
+    tag: "[INFERRED]"
+    claim: >-
+      The tasklist adds work the SPEC does not ask for in the same form: design-fix phases 2 to 5 edit the
+      SPEC itself (R3-B1, R3-B2, R3-B3, R4), and Phase 6 adds an owner HALT for R5. These are authorized by
+      the request scope, so they are not scope creep, but they mean SPEC line numbers move mid-task; the
+      tasklist handles this by re-locating by heading.
+    evidence:
+      - .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md:1414
+    recommendation: none
+
+best_practice_compliance:
+  grade: 3
+  scale: 0-5
+  reasons:
+    - "+ Every item carries Context, Action, Output, Verification and Completion gate fields."
+    - "+ Owner gates are explicit HALTs with blocker reasons, and the no-commit rule is stated once and honoured (line 157, line 1414)."
+    - "+ Live Orca reads are restricted to eight templates with a forbidden list (item 7.16)."
+    - "- One verification cannot pass as written (F3) and one is brittle to a dirty tree (F7)."
+    - "- HALT resolution conditions are inconsistent across items and rely on executor honesty (F2)."
+    - "- Requirement IDs are traced by delegation, not listed, so literal coverage is 0.55 (F4); one SPEC-mandated rule is missing (F1)."
+
+gap_registry:
+  - group: FR
+    ids: [FR-007, FR-008, FR-009, FR-013, FR-014]
+    status: covered in substance
+    via: "item 10.2 delegates to the DESIGN section 11 test_classify.py row (range written with 'to')"
+  - group: FR
+    ids: [FR-011, FR-016, FR-017, FR-018, FR-019, FR-020, FR-022, FR-024, FR-026]
+    status: substance-only candidates
+    via: "DESIGN section 11 test rows and the 8.x build items; see semantic_note per row in coverage-matrix.yaml"
+  - group: NFR
+    ids: [NFR-002, NFR-005, NFR-007, NFR-008, NFR-009, NFR-011, NFR-012, NFR-015]
+    status: substance-only candidates
+    via: "NFR-002 by item 8.x readonly tests (step 1.4a); NFR-012 by the gate items 14.1 to 14.4; others via DESIGN section 11 rows"
+  - group: GQ
+    ids: [GQ-111, GQ-112, GQ-113]
+    status: missing
+    via: "F1: no GAPS line 138 rule in the tasklist"
+  - group: GQ
+    ids: [GQ-101, GQ-102, GQ-104, GQ-105, GQ-106, GQ-107, GQ-108, GQ-109, GQ-110]
+    status: substance-only candidates
+    via: "DESIGN section 2.2 citations; GQ-105 (FINAL:) has no literal string in the tasklist"
+  - group: D
+    ids: [D2, D7, D8]
+    status: substance-only candidates
+    via: "DESIGN section 16 rows; D8 (unpushed) has no literal string in the tasklist"
+  - group: SP
+    ids: [SP-07, SP-09, SP-19, SP-20, SP-21, SP-22, SP-23, SP-25, SP-26, SP-28]
+    status: substance-only candidates
+    via: "DESIGN section 17 rows; SP-07 (guard refused:), SP-21, SP-22 and SP-26 need delegation checks"
+  - group: steps
+    ids: ["1.21", "1.22", "1.23", "1.24", "1.25", "1.26", "1.27"]
+    status: covered in substance
+    via: "items 13.1 to 13.5 (steps 1.21 to 1.24) and 14.1 to 14.4 (steps 1.25 to 1.27) name the routing rows, not the step numbers"
+  - group: INF
+    ids: [INF-006, INF-007, INF-008, INF-009, INF-012]
+    status: missing
+    via: "B3, B4, B5 (F5); R1/R2/R3 one commit (F6); .dev/sweeps/ only (F5)"
+  - group: INF
+    ids: [INF-001]
+    status: false positive match
+    via: "0.714 lexical match to item 7.26; the GAPS line 138 rule itself is absent (F1)"
+
+self_scores:
+  citation_grounding: 0.85
+  coverage_completeness: 0.55
+  deviation_classification_clarity: 0.75
+  risk_surface_coverage: 0.80
+  recommendation_actionability: 0.80
+  C: 0.75
+  rationale:
+    citation_grounding: "Every finding cites file:line Read this session; F9 is inferred; substance-only gap entries rely on DESIGN delegation not re-traced row by row."
+    coverage_completeness: "Literal coverage 0.55 with a gap registry; below the 0.60 band floor on the literal measure."
+    deviation_classification_clarity: "Each finding has one category; F2 and F4 sit between Drift and Refinement."
+    risk_surface_coverage: "HALT bypass, unpassable verification and missing rule surfaced; substance coverage of SP and GQ rows not proven."
+    recommendation_actionability: "Recommendations name the item and a success check; F4 asks for broad ID listing."
+
+escalation:
+  escalate: true
+  reasons:
+    - "C 0.75 is below 0.85"
+    - "S_scope 355 is above 10"
+    - "S_domains 5 is 3 or more"
+    - "S_dev_density 0.437 is above 0.20"
+  high_findings: 0
+  medium_findings: 4
+  low_findings: 5

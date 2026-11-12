@@ -1,0 +1,20 @@
+# Wave 3C blind calibration of reviewer-3-card.yaml (persisted by orchestrator)
+card: reviewer-3
+calibrator_model_class: sonnet
+card_model_class: opus
+dimensions:
+  citation_grounding: 0.90
+  coverage_completeness: 0.70
+  deviation_classification_clarity: 0.85
+  risk_surface_coverage: 0.65
+  recommendation_actionability: 0.45
+confidence_calibrated: 0.71
+self_reported: 0.82
+delta: -0.11
+weight_recommendation: keep
+spot_checks:
+  - "TASK:176": ok
+  - "TASK:401": ok
+  - "research/07-gate-gap-fill.md:1-5": ok
+  - "REP:1537": ok
+notes: "Citations accurate; D-12 and D-13 reasoning holds. Lower score: only 3 coverage rows, shallow risk analysis, no recommendations."

@@ -1,0 +1,119 @@
+contract_version: "1.8.0"
+status: partial                       # forced: citations_dropped 1, grounding gaps non-empty, regression_present
+mode: post
+tier_reached: 2
+report_path: /home/coder/workspaces/worktrees/IronClaude/issue-339-orchestrator-mode/.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/reflect/post/audit/REPORT.md
+audit_log_path: /home/coder/workspaces/worktrees/IronClaude/issue-339-orchestrator-mode/.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/reflect/post/audit/audit.log
+confidence_calibrated: 0.67
+escalation_rule_matched: 4
+onboarding_ran: false
+coverage_pct: null
+coverage_pct_union: null
+coverage_undefined: false
+coverage_degraded: null
+unmapped_requirements: []
+unmapped_requirements_union: []
+best_practice_grade: null
+implementation_coverage_pct: null
+missing_implementations: []
+hierarchy_slice_path: null
+hierarchy_coverage_pct: null
+tasklist_completion_pct: 0.994          # 353 of 355 items ticked; open: 14.48 (this audit), 14.49
+deviation_count_by_class: {authorized: 4, necessary: 1, drift: 11, regression: 1}
+deviation_register_path: /home/coder/workspaces/worktrees/IronClaude/issue-339-orchestrator-mode/.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/reflect/post/audit/REPORT.md   # '## Deviation register'; machine form: /home/coder/workspaces/worktrees/IronClaude/issue-339-orchestrator-mode/.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/reflect/post/audit/adversarial/merged-verdict.yaml
+grounding_gaps_path: /home/coder/workspaces/worktrees/IronClaude/issue-339-orchestrator-mode/.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/reflect/post/audit/grounding-gaps.yaml
+hunk_to_declaration_map_path: /home/coder/workspaces/worktrees/IronClaude/issue-339-orchestrator-mode/.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/reflect/post/audit/artifacts/hunk-to-declaration-map.yaml
+third_party_api_grounding: []
+third_party_api_verified: false
+verification_ran: true
+verification_invocations: 5
+verification_failures: 1                 # the two ruff-module tests; environmental, grounding gap, not a regression
+verification_regressions_detected: 0
+verification_skip_reason: null
+runtime_surface_requirements: []
+runtime_surface_sweep_ran: true
+runtime_surface_ledger_path: /home/coder/workspaces/worktrees/IronClaude/issue-339-orchestrator-mode/.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/reflect/post/audit/artifacts/runtime-surface-ledger.yaml
+runtime_surface_unreached: 0
+runtime_surface_degraded: true
+unreached_surfaces: []
+reachability_gate_ran: false
+reachability_ledger_path: null
+reachability_requirements_scanned: 0
+reachability_unreachable: 0
+reachability_unproven: 0
+reachability_real_boot_ran: false
+reachability_skip_reason: no-side-effect-requirements
+reuse_sweep_ran: true
+reuse_audit_path: /home/coder/workspaces/worktrees/IronClaude/issue-339-orchestrator-mode/.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/reflect/post/audit/artifacts/reuse-audit.yaml
+reuse_miss_blocking: 0
+reuse_miss_advisory: 3
+reuse_verdict_count_by_type: {reuse_by_import: 0, mirror_shape: 2, extract_shared: 1, distinct: 9}
+reuse_grounding_gap_count: 3
+neighbour_search_sampled: false
+neighbour_search_degraded: true
+max_overlap_score: 0.70
+input_sha256: {tasklist: 2c5a47ae159b3f9206d6dbd210f67a325eef7012aeafe6569fce1f13ad282f00, spec: 2b511485318f8c4cfd4ba4c67d97cff4b3dabffeff8a48623de1852ce4a258ba}
+input_tree_sha256: 87321ca386fbe2ec99bba2cd56dcfc8411ca65d8fcb2d58930602c6459d48ec6
+input_tree_file_count: 779
+input_tree_snapshot_path: /home/coder/workspaces/worktrees/IronClaude/issue-339-orchestrator-mode/.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/reflect/post/audit/artifacts/input-snapshot.yaml
+input_drift_detected: false
+input_drift_diff: null
+citations_total: 122
+citations_revalidated: 95
+citations_dropped: 1
+citations_dropped_extrapolated: 1
+citations_inferred: 3
+citation_budget_policy: sampled
+evidence_validator_ran: true
+citation_revalidation_at_promotion: false
+reviewer_cards: [/home/coder/workspaces/worktrees/IronClaude/issue-339-orchestrator-mode/.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/reflect/post/audit/reviewer-cards/reviewer-1-card-calibrated.yaml, /home/coder/workspaces/worktrees/IronClaude/issue-339-orchestrator-mode/.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/reflect/post/audit/reviewer-cards/reviewer-2-card-calibrated.yaml, /home/coder/workspaces/worktrees/IronClaude/issue-339-orchestrator-mode/.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/reflect/post/audit/reviewer-cards/reviewer-3-card-calibrated.yaml]
+adversarial_artifacts_dir: /home/coder/workspaces/worktrees/IronClaude/issue-339-orchestrator-mode/.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/reflect/post/audit/adversarial/
+adversarial_convergence_score: 1.00
+adversarial_unavailable: false
+merge_method: adversarial
+t2_model_class_diversity: full
+t2_vendor_diversity: single
+t2_effective_diversity: model-only
+calibrator_diversity: degraded
+remediation_offered: true
+remediation_accepted: null               # no user answer available to a non-interactive worker; coordinator messages are not the user's answer
+task_file_path: null
+remediation_task_path: null
+remediation_plan_path: null
+handoff_memory_key: null
+cannot_validate_without_user_input: false
+regression_present: true
+unauthorized_deviation_present: true
+blocked_by_low_confidence: false
+spec_is_wrong: false
+user_decision_required: true
+needs_human_decision: true
+per_task_verdicts:
+  - {task_id: "Phases 2-6 design fixes", status: partial, deviation_class: drift, citations_dropped: 0, per_task_validation_strength: 0.60, evidence_anchor: "F-03 docs/designs/orchestrator-mode.md:5"}
+  - {task_id: "Phase 7 decisions and style exception", status: success, deviation_class: authorized, citations_dropped: 0, per_task_validation_strength: 0.75, evidence_anchor: "F-14 docs/designs/orchestrator-mode.md:1052"}
+  - {task_id: "Phase 8 core package", status: failed, deviation_class: regression, citations_dropped: 0, per_task_validation_strength: 0.55, evidence_anchor: "F-01 src/superclaude/cli/sweep/probes.py:257"}
+  - {task_id: "Phase 9 CLI shell", status: partial, deviation_class: drift, citations_dropped: 0, per_task_validation_strength: 0.65, evidence_anchor: "F-12 src/superclaude/cli/sweep/report.py:694"}
+  - {task_id: "Phase 10 sweep tests", status: partial, deviation_class: drift, citations_dropped: 0, per_task_validation_strength: 0.60, evidence_anchor: "F-02 tests/sweep/test_probes_allowlist.py:1144"}
+  - {task_id: "Phase 11 command and skill", status: partial, deviation_class: drift, citations_dropped: 0, per_task_validation_strength: 0.70, evidence_anchor: "F-08 src/superclaude/skills/sc-sweep-protocol/SKILL.md:27"}
+  - {task_id: "Phase 12 WC-16", status: success, deviation_class: authorized, citations_dropped: 0, per_task_validation_strength: 0.80, evidence_anchor: "F-16 src/superclaude/core/WORKER-CONTRACT.md:277"}
+  - {task_id: "Phase 13 routing and docs", status: success, deviation_class: authorized, citations_dropped: 0, per_task_validation_strength: 0.80, evidence_anchor: "F-16 src/superclaude/core/HOW-WE-WORK.md:405"}
+  - {task_id: "Phase 14 final validation and gates", status: partial, deviation_class: necessary, citations_dropped: 1, per_task_validation_strength: 0.65, evidence_anchor: "F-17 .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/test-results/phase14-full-pytest.md:9"}
+interaction_effects_scanned: true
+interaction_effects_findings: 3
+budget_forced_tier_downgrade: false
+budget_forced_stop: false
+budget_check_skipped: true
+forced_tier: null
+promotion_action: skipped
+promotion_adapter: task
+promotion_source: /home/coder/workspaces/worktrees/IronClaude/issue-339-orchestrator-mode/.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653
+promotion_destination: null
+promotion_log_path: /home/coder/workspaces/worktrees/IronClaude/issue-339-orchestrator-mode/.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/reflect/post/audit/promotion-log.yaml
+promotion_gate_passed: false
+promotion_skip_reason: gate-failed
+promotion_fail_reason: null
+promotion_override_used: null
+promotion_rollback_command: null
+promotion_checkpoint_path: null
+promotion_cross_fs: false
+promotion_pending: false

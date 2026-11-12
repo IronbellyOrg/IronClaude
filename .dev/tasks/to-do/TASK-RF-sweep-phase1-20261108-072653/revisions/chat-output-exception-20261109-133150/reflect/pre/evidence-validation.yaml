@@ -1,0 +1,25 @@
+# Wave 5 evidence validation (full_reread), run 3. Parent-persisted from four independent evidence-validator reports (read-only agents with no write tool).
+# The validators did not use the mechanical field of artifacts/citations.json; each cited range was Read from the source.
+schema: sc-reflect-evidence-validation/v1
+report: REPORT.md
+citations_source: artifacts/citations.json
+citation_budget_policy: full_reread
+totals: {entries: 166, distinct_ranges: 116, verified: 166, dropped: 0, passed_through: 0}
+zero_drop_flag: true       # zero drops is treated as suspect; see self_audit and the parent's extra checks below
+validators:
+  - {part: A, agent: a99472c1b3c024c35, recorded_model: claude-sonnet-5-5, share: "F-01..F-04 (46) and 2 residual (INV-011)", entries: 48, verified: 48, dropped: 0}
+  - {part: B, agent: aaaebe36ab3808ddf, recorded_model: claude-sonnet-5-5, share: "F-05..F-10", entries: 41, verified: 41, dropped: 0, note: "the validator's own table counted 42 rows; row 42 was a 'covered above' placeholder, not a citation. It also counted occurrences of the phrase 'not an implemented exception' in the task file: 59 on 59 distinct lines, and 4 sha256sum lines (2614, 2642, 2705, 2733)."}
+  - {part: C, agent: a5cf3052bcd332537, recorded_model: claude-sonnet-5-5, share: "INF-001..INF-042 (design)", entries: 42, verified: 42, dropped: 0}
+  - {part: D, agent: a69c825868f145d16, recorded_model: claude-sonnet-5-5, share: "INF-A01..INF-A35 (addendum and design append)", entries: 35, verified: 35, dropped: 0}
+self_audit:
+  - "Report table rows and Findings evidence bullets were compared id by id with the JSON by every validator: same ref, quote and order."
+  - "Character-level spot checks (curly quotes, 40-character start hash, exit1/2 strings, blockquote and table-cell lines) in parts C and D."
+  - "Line adjacency checked (neighbouring similar text did not satisfy a quote)."
+parent_extra_checks:
+  - "Mechanical substring check of all 166 quotes against their cited ranges (artifacts/citation-mechanical-check.json): 0 failures."
+  - "Report claims outside the citation list: lens-input lines carrying 'OQ-1 to OQ-8' are 1299, 1306, 1313, 1320, 1327, 1334, 1341, 1348, 1369, 1376, 1397, 1404 and 2572 (grep, matches the report); the exact old R2 sentence hits TL lines 776 and 2265 only; sha256sum appears on 2614, 2642, 2705, 2733 only."
+limits:
+  - "Fragment quotes (for example '- [ ] **13.1', 'sha256sum') are real text on the cited line but weak evidence; the claims they support were checked separately."
+  - "The validators did not judge the 'match result' column or whether a cited task item really covers a requirement; that is the coverage matrix's job."
+input_absent: [now_iso, assertions_path]
+suggested_status: success

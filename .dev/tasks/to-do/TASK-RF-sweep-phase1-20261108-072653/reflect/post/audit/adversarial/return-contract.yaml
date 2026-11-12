@@ -1,0 +1,15 @@
+return_contract:
+  merged_output_path: ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/reflect/post/audit/adversarial/merged-verdict.yaml"
+  convergence_score: 1.00
+  artifacts_dir: ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/reflect/post/audit/adversarial/"
+  status: "success"
+  base_variant: "variant-3 (reviewer 3, refactorer, opus)"
+  unresolved_conflicts: 0          # C-003 is resolved by a 2-of-3 majority with a recorded dissent (merged-verdict.yaml F-01 notes)
+  fallback_mode: false
+  failure_stage: null
+  invocation_method: "skill-direct"
+  unaddressed_invariants: []       # no HIGH + UNADDRESSED; two MEDIUM (INV-001, INV-002) folded into F-04
+notes:
+  convergence_status: "CONVERGED: 29 of 29 diff points; Round 1 positions already agreed on 20, Round 2 on 29; taxonomy L1/L2/L3 covered; invariant probe 13 findings, none HIGH"
+  base_selection: "V3 0.796, V1 0.741, V2 0.739; margin 0.055 > 0.05; tiebreaker not applied"
+  artifact_layout: "artifacts are written flat into adversarial/ (the --output dir), as in the pre run; the skill's own <output>/adversarial/ nesting was not used so that the reflect EV-1 disk check finds adversarial/merged-verdict.yaml"

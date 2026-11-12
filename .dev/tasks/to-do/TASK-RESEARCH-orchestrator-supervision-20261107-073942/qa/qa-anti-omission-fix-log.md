@@ -1,0 +1,48 @@
+# Fix log: Phase 6 anti-omission gate, fix pass 1
+
+- **Phase:** fix-cycle (fix pass 1 after cycle 0)
+- **Input:** `qa/qa-anti-omission-consolidated-findings.md` (|F_0| = 18, all IMPORTANT, all RECOVER)
+- **Report edited:** `RESEARCH-REPORT-orchestrator-mode.md` (targeted Edits only; no source file edited)
+- **Baseline before edits:** `grep -c CONTRADICTION` = 6, `grep -c NB-4` = 23, 1740 lines
+- **Not recovered:** the 30 MINOR omission rows (notes only, by instruction)
+- **Rule:** text added as new design that no source states is labelled "plan decision, new design".
+
+## Entries
+
+| ID | Report section | Change | Source evidence (re-read before edit) |
+|---|---|---|---|
+| AO-14 | 3.1, new bullet "Ownership and coverage limits of these sources" after the data-sources table | Added "Workspace co-location alone is not ownership"; path mapping feeds the Worktree column only | `scope-04-409-layout.md:222` quoting `PKG/integration-gaps.md:12` [CODE-VERIFIED] |
+| AO-15 | 3.1, same bullet | Added the `linked: true` rule; unlinked peer prints Owner "unknown" | `06-orca-open-questions.md:99` (`[CLI]:161`), `:110` |
+| AO-16 | 3.1, same bullet | Added `worktree ps` usage, the `not covered` rule (could not determine, never "no sessions") and the `--limit` paging under-report ("at least <N>"; detection of a cut page labelled plan decision, new design) | `06-orca-open-questions.md:97` (`[H:worktree-ps]:3`, `:16-17`), `:109` |
+| AO-06 | 3.1, new bullet "Context-only Dispatches" after the class table | Quoted both help lines; classification: never working/stalled from liveness, could not determine with a named note unless rule 1/6 matches on a contract, `retained` never terminal releasable (plan decision, new design) | `scope-02-orca-recovery.md:95`; `05-orca-row-schema.md:20`, `:28` (worker-list help line 20, worker-show help line 15) [CODE-VERIFIED] |
+| AO-07 | 3.1, new bullet "Package states the ledger reader must recognise" | Added archive-blocked (neither unfinished ledger nor finished) and `.archiving` (interrupted archive, Retained problems, never cleared, worktree removable: no) | `scope-02-orca-recovery.md:192`; `research-notes.md:177`; re-read `src/superclaude/skills/sc-crash-recovery/refs/pipelines.md:190`, `:199` and `src/superclaude/core/HOW-WE-WORK.md:17` |
+| AO-01 | 3.1, safe-to-close, new sub-bullet under "Worktree removable" | Added "It never runs one managed package in two worktrees at once."; same package id under two roots prints removable: no and goes to Retained problems (plan decision, new design) | `scope-01-contract.md:64` (rule 9, `WORKER-CONTRACT.md:108`) [CODE-VERIFIED] |
+| AO-18 | 3.1 skeleton Scope line; 3.1 Report rules, new bullet "Counts name their scope and denominator" | Scope line names any `--run`/window filter and its denominator; quoted the rule (example wording labelled plan decision, new design) | `scope-04-409-layout.md:67` (`PKG/integration-gaps.md:24`) [CODE-VERIFIED] |
+| AO-11 | 3.1 skeleton (a) heading; Report rules, new bullet "Explicit-questions table (a)" | Added the (a) columns ID / Age / Question / Requested by / Decision owner / Affected / Evidence, the ID/Evidence choice note and the B-12 per-source cell fallbacks | `scope-04-409-layout.md:278`, `:311`, `:322-330` |
+| AO-12 | 3.1 skeleton (a) heading; Report rules, new bullet "Empty lists are not an all-clear" | Added "No matching records. This is not an all-clear." and the (a) heading coverage line ending "This is not an all-clear." | `scope-04-409-layout.md:225` (`PKG/render.py:116`, `PKG/tests/test_designs.py:58`) [CODE-VERIFIED], `:276` |
+| AO-04 | 3.1 skeleton (a) heading; Report rules, new bullet "Affected counts are a set union" | Added the set-union rule and the fixed line "Distinct affected sessions: <N> (set union, not a sum)" | `research-notes.md:143`; `scope-04-409-layout.md:194` (`data-dictionary.md:39`), `:217` (`PKG/PLAN.md:36`) [CODE-VERIFIED], `:283` |
+| AO-09 | 3.1 Report rules, new bullet "Imported evidence is inert" | Quoted the sanitize rule and named the untrusted strings | `scope-04-409-layout.md:219` (`PKG/PLAN.md:38`, `PKG/canvas.py:10-17`, `fixtures.py:85-86`) [CODE-VERIFIED] |
+| AO-13 | 3.1 Report rules, new bullet "Source loss changes nothing"; 3.2 SC-7 row | Quoted the rule; separated "source read, item absent" (item drops) from "source lost" (rows print could not determine with `unscanned:`, nothing resolved/failed/unfrozen/retried); the print form for a lost source labelled plan decision, new design | `scope-04-409-layout.md:101`, `:221` (`PKG/integration-gaps.md:24`) [CODE-VERIFIED] |
+| AO-02 | 3.1 Report rules, new bullet "Fan-in groups"; 3.1 WC-14 G5 | Quoted `:156`; max 10 inputs, merge only with at least 2 admitted, settled/admitted counts against N; `partial` counts as "usable not yet judged" | `scope-01-contract.md:68` (rule 13, `WORKER-CONTRACT.md:156`) [CODE-VERIFIED] |
+| AO-05 | 3.1 WC-14 G1 | Added the turn guard as a candidate clause marked [UNVERIFIED], added to G1 only after confirmation (step 1.17); sweep never passes `--terminal-state` (not on SC-2 allowlist) | `scope-02-orca-recovery.md:94` (`orca-capabilities.md:113`, UNVERIFIED) |
+| AO-17 | 3.1 "Recommendations only" | Recorded the `06:138` source position next to the #409 rule 5 conflict; stated steps 1.15/1.17 keep recommendations as printed proposals and the act stays a coordinator decision; part of the same owner decision (9.4 row 98b); steps not removed | `06-orca-open-questions.md:138` (`[G]:156-161`) |
+| AO-08 | 8 Phase 1 step 1.22; rollback table "Four registries" row | Recorded `_EXPECTED_IDS` (`:56-97`) and the source claim, tagged [CODE-CONTRADICTED as a requirement]: the test comment (`:54-55`) allows added rows and `:204` asserts a subset, so no registration is needed; step 1.21 adds no routing-table row, `_EXPECTED_IDS` stays unchanged, none removed; rollback row says it needs no revert | `scope-01-contract.md:117`; re-read `tests/core/test_how_we_work_routing_table.py:54-55`, `:200-204` |
+| AO-17 (plan) | 8 Phase 1 steps 1.15 and 1.17; 9.4 row 98b | Step 1.15: recommendations are printed proposals, acts stay coordinator decisions, tied to row 98b. Step 1.17: closing sentence stands against `06:138`; alternate sentence if the owner rules against proposals. Row 98b: added the `06:138` position and how 1.15/1.17 relate; resolution extended. Steps not removed | `06-orca-open-questions.md:138` |
+| AO-05 (plan) | 8 Phase 1 step 1.17 | Candidate G1 clause [UNVERIFIED], added only after `worker-list --help` shows `--terminal-state` and the guard is confirmed, else recorded in Open Questions | `scope-02-orca-recovery.md:94` |
+| AO-02 (plan) | 8 Phase 1 steps 1.5, 1.17 | Step 1.5 renders fan-in settled/admitted counts against N; step 1.17 G5 names the bounds | `scope-01-contract.md:68` |
+| AO-01, AO-06, AO-07, AO-14, AO-15 (plan) | 8 Phase 1 step 1.3 (rules (i)-(iv)), step 1.8 fixtures, step 1.9 tests | Classifier rules for two-worktree package, context-only Dispatch, archive-blocked / `.archiving`, co-location and `linked: true`; synthetic fixtures; test cases | as in the 3.1 entries above |
+| AO-03, AO-16 (plan) | 8 Phase 1 step 1.4 (rules (a)-(c)), step 1.8 fixtures, steps 1.9 and 1.10 tests | Removed-root mapping to `unscanned: worktree removed during sweep`; `not covered` host and "at least <N>" peer count; `.archiving` stat; test cases (exit 0, report written; no "no sessions") | as in the 3.1 entries above |
+| AO-04, AO-09, AO-10, AO-11, AO-12, AO-13, AO-18 (plan) | 8 Phase 1 step 1.5; step 1.12 tests | AO-10: replaced the bare "Column sources per `scope-04:336-351`" with the full B-14 per-column source and no-source value list. Others: (a) columns and B-12 cells, empty-state strings, set-union line, `sanitize()`, source-loss rule, Scope-line denominator; step 1.12 cases for empty state, sanitizing (injection fixture), source loss vs absent item, set union, denominator | `scope-04-409-layout.md:334-351` (AO-10); other sources as in the 3.1 entries above |
+| AO-03 | 3.1, new bullet "Worktree removed mid-sweep" after "Orca unavailable" | Vanished root prints could not determine with `unscanned: worktree removed during sweep`, run continues, report written, exit 0 (marker text labelled plan decision, new design) | `research-notes.md:178`; `.dev/brainstorms/20261107-073115-orchestrator-mode/seed-brief.md:45` |
+
+## Verification after edits
+
+- `grep -c CONTRADICTION` = 6 (baseline 6); `grep -c NB-4` = 23 (baseline 23). The NB-4 exception record and both [CONTRADICTION] markers with their resolutions are untouched.
+- Report length 1740 -> 1760 lines (new 3.1 bullets; the rest are additions inside existing table cells).
+- Term check (`grep -cF`, each >= 1): "two worktrees at once", "settled/admitted counts against N", "worktree removed during sweep", "set union, not a sum", "terminal-state reclaimable", "context-only Dispatch", "archive-blocked", ".archiving", "_EXPECTED_IDS", "Imported evidence is inert", "Tests/review (`:28`)", "Decision owner", "not an all-clear", "Source loss does not resolve", "co-location alone is not ownership", "linked: true", "not covered", "must not propose stop/abandon", "state its denominator".
+- Steps 1.15 and 1.17 were not removed (AO-17). No finding resolved by the lens or fidelity gate was reopened. No source file was edited.
+- AO-08 deviates from its source on purpose: the source says a new ID "needs adding" to `_EXPECTED_IDS`, the code shows a subset assertion, so the report records the contradiction instead of a required registration.
+
+## Result
+
+18 of 18 blocking omissions recovered (AO-01 to AO-18); 0 MINOR rows added.

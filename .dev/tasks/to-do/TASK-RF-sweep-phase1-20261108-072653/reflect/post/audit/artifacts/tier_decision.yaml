@@ -1,0 +1,8 @@
+selected_tier: 2
+fired_rule_number: 4               # first §5.3 rule that matches after the §5.1 hard override; --depth deep ALWAYS escalates (override), rules 4, 5(no) and 6 also hold
+coverage_degraded: null
+surface_unreached: null            # runtime_surface_unreached == 0 (degrade-only run)
+composite_score: 9.0
+per_signal_breakdown: {scope_size: 2, task_count: 2, blast_radius: 2, spec_density: 2, ambiguity_signals: 1}
+escalation_reason: "--depth deep hard override; C=0.76 < 0.85 (rule 6); S_domains=4 >= 3 (rule 4); S_scope=50 files; two Drift/Regression-grade leads (DC-2, DC-3, DC-12)"
+signals: {C: 0.76, S_scope: 50, S_domains: 4, S_dev_density: 0.0}

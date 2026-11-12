@@ -86,8 +86,8 @@ RULE_PHRASES = {
     "never-as-worker": (
         "**Never-as-worker list**",
         [
-            "`/sc:agent`, `/sc:git`, `/sc:help`, `/sc:issue`, `/sc:pm`, `/sc:spawn` and `/sc:swarm-wizard`, "
-            "plus `/sc:pr-submit` while the answer to decision D3 keeps it off workers"
+            "`/sc:agent`, `/sc:git`, `/sc:help`, `/sc:issue`, `/sc:pm`, `/sc:spawn`, `/sc:sweep` and "
+            "`/sc:swarm-wizard`, plus `/sc:pr-submit` while the answer to decision D3 keeps it off workers"
         ],
     ),
     "nested-propagation": (
@@ -162,6 +162,15 @@ RULE_PHRASES = {
             "Context-safe reading and handoff files",
             "in pieces of at most 80 lines and never rereads a whole prior report",
             "writes `<report-dir>/handoff/<n>-<command>.md` (at most 40 lines",
+        ],
+    ),
+    "WC-16": (
+        "WC-16",
+        [
+            "WC-16. Coordinator loop",
+            "On every coordinator wake",
+            "it is never posted",
+            "It never stops watching on its own",
         ],
     ),
     "heartbeats": (
@@ -428,6 +437,7 @@ NEVER_AS_WORKER = (
     "/sc:spawn",
     "/sc:swarm-wizard",
     "/sc:pr-submit",
+    "/sc:sweep",
 )
 
 # The sixteen commands that get an `## Unattended mode` section in P1, in the order
@@ -949,7 +959,7 @@ def test_contract_states_rule(rule):
     _check_rule(_contract(), rule)
 
 
-def test_never_as_worker_list_names_all_seven_commands():
+def test_never_as_worker_list_names_every_listed_command():
     _check_never_as_worker(_contract())
 
 
@@ -1391,6 +1401,7 @@ def test_load_usage_line_declares_checkpoint_and_load_is_not_converted():
     usage = text.split("## Usage", 1)[1].split("\n## ", 1)[0]
     assert "--checkpoint <name>" in usage
     assert "load" not in UNATTENDED_COMMANDS
+    assert "sweep" not in UNATTENDED_COMMANDS
 
 
 def test_unattended_section_check_forbids_nested_text_without_a_nested_list():

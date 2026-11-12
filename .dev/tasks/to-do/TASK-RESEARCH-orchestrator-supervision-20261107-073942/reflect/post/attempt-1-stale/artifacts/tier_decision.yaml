@@ -1,0 +1,19 @@
+selected_tier: 2
+fired_rule_number: "5.1-depth-deep-hard-override"
+escalation_reason: "--depth deep forces Tier 2 regardless of rubric score (§5.1 hard override)"
+coverage_degraded: false
+surface_unreached: []
+composite_score: 6
+per_signal_breakdown:
+  scope_size: 2        # 108 audited files, report 1762 lines
+  task_count: 2        # 80 checklist items across 7 phases
+  blast_radius: 0      # docs-only, no code, no commit
+  spec_density: 1      # no --spec; tasklist carries objectives and acceptance text
+  ambiguity_signals: 1 # two owner-approved gate exceptions carried as open gaps
+reviewer_count: 3
+reviewer_rotation:
+  - {ordinal: 1, model: sonnet, alias: claude-gw-tier1b, persona: analyzer}
+  - {ordinal: 2, model: haiku, alias: claude-gw-tier2, persona: qa}
+  - {ordinal: 3, model: opus, alias: claude-gw-tier1a, persona: refactorer}
+executor_class_resolved: false
+executor_class_source: unknown

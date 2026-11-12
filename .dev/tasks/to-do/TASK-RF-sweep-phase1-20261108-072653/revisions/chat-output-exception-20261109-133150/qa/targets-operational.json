@@ -1,0 +1,401 @@
+{
+  "phases": [
+    7,
+    8,
+    11
+  ],
+  "changed_labels": [
+    "7.10",
+    "7.13",
+    "7.20",
+    "7.21",
+    "7.22",
+    "7.23",
+    "7.24",
+    "7.25",
+    "7.26",
+    "7.27",
+    "7.28",
+    "7.30",
+    "7.31",
+    "7.32",
+    "7.34",
+    "7.35",
+    "7.36",
+    "8.12",
+    "11.3",
+    "11.4",
+    "11.5",
+    "11.6",
+    "11.7",
+    "11.8",
+    "11.9",
+    "11.10",
+    "11.11",
+    "11.12",
+    "11.14",
+    "11.15",
+    "11.16",
+    "11.18",
+    "11.19",
+    "11.20"
+  ],
+  "extraction": "All path-like file references in assigned changed checklist bodies, not a sampled list. Resolve shorthand/globs/installed paths through item context; missing future outputs must have earlier creation prerequisites, not be fabricated as current files.",
+  "targets": [
+    {
+      "path": ".claude/skills/sc-sweep-protocol/SKILL.md",
+      "exists_now": false,
+      "kind": "planned_or_reference_requires_context_resolution"
+    },
+    {
+      "path": ".dev/orca-command-refactor/decisions/APPROVED.md",
+      "exists_now": true,
+      "kind": "file"
+    },
+    {
+      "path": ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/artifacts/owner-decisions.md",
+      "exists_now": false,
+      "kind": "planned_or_reference_requires_context_resolution"
+    },
+    {
+      "path": ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/artifacts/pr422-409-check.md",
+      "exists_now": false,
+      "kind": "planned_or_reference_requires_context_resolution"
+    },
+    {
+      "path": ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/artifacts/readonly-probe.md",
+      "exists_now": false,
+      "kind": "planned_or_reference_requires_context_resolution"
+    },
+    {
+      "path": ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/discovery/1.0a-facts.md",
+      "exists_now": false,
+      "kind": "planned_or_reference_requires_context_resolution"
+    },
+    {
+      "path": ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/plans/OQ-6-GQ-63-done-next-decision.md",
+      "exists_now": true,
+      "kind": "file"
+    },
+    {
+      "path": ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/test-results/decisions-mechanical.md",
+      "exists_now": false,
+      "kind": "planned_or_reference_requires_context_resolution"
+    },
+    {
+      "path": ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/test-results/phase11-validation.md",
+      "exists_now": false,
+      "kind": "planned_or_reference_requires_context_resolution"
+    },
+    {
+      "path": ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/test-results/r5-routing-refresh.txt",
+      "exists_now": false,
+      "kind": "planned_or_reference_requires_context_resolution"
+    },
+    {
+      "path": ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/test-results/step-1.14-checks.md",
+      "exists_now": false,
+      "kind": "planned_or_reference_requires_context_resolution"
+    },
+    {
+      "path": ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/test-results/step-1.15-checks.md",
+      "exists_now": false,
+      "kind": "planned_or_reference_requires_context_resolution"
+    },
+    {
+      "path": ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/test-results/step-7.10-style-exception.md",
+      "exists_now": false,
+      "kind": "planned_or_reference_requires_context_resolution"
+    },
+    {
+      "path": ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/test-results/test-sweep-command-summary.md",
+      "exists_now": false,
+      "kind": "planned_or_reference_requires_context_resolution"
+    },
+    {
+      "path": ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/test-results/test-sweep-command.txt",
+      "exists_now": false,
+      "kind": "planned_or_reference_requires_context_resolution"
+    },
+    {
+      "path": ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/cmd-skill/consolidated-findings-cycle0.md",
+      "exists_now": false,
+      "kind": "planned_or_reference_requires_context_resolution"
+    },
+    {
+      "path": ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/cmd-skill/cycle-ledger.md",
+      "exists_now": false,
+      "kind": "planned_or_reference_requires_context_resolution"
+    },
+    {
+      "path": ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/cmd-skill/cycle1-decision.md",
+      "exists_now": false,
+      "kind": "planned_or_reference_requires_context_resolution"
+    },
+    {
+      "path": ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/cmd-skill/fix-log-cycle1.md",
+      "exists_now": false,
+      "kind": "planned_or_reference_requires_context_resolution"
+    },
+    {
+      "path": ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/cmd-skill/fix-log-cycle2.md",
+      "exists_now": false,
+      "kind": "planned_or_reference_requires_context_resolution"
+    },
+    {
+      "path": ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/cmd-skill/qa-command-contract-report.md",
+      "exists_now": false,
+      "kind": "planned_or_reference_requires_context_resolution"
+    },
+    {
+      "path": ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/cmd-skill/qa-conventions-report.md",
+      "exists_now": false,
+      "kind": "planned_or_reference_requires_context_resolution"
+    },
+    {
+      "path": ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/cmd-skill/qa-primitive-path-report.md",
+      "exists_now": false,
+      "kind": "planned_or_reference_requires_context_resolution"
+    },
+    {
+      "path": ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/cmd-skill/qa-reader-clarity-report.md",
+      "exists_now": false,
+      "kind": "planned_or_reference_requires_context_resolution"
+    },
+    {
+      "path": ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/cmd-skill/qa-readonly-claims-report.md",
+      "exists_now": false,
+      "kind": "planned_or_reference_requires_context_resolution"
+    },
+    {
+      "path": ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/cmd-skill/qa-skill-contract-report.md",
+      "exists_now": false,
+      "kind": "planned_or_reference_requires_context_resolution"
+    },
+    {
+      "path": ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/cmd-skill/qa-test-coverage-report.md",
+      "exists_now": false,
+      "kind": "planned_or_reference_requires_context_resolution"
+    },
+    {
+      "path": ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/cmd-skill/verify-cycle1-rf-qa-qualitative.md",
+      "exists_now": false,
+      "kind": "planned_or_reference_requires_context_resolution"
+    },
+    {
+      "path": ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/cmd-skill/verify-cycle1-rf-qa.md",
+      "exists_now": false,
+      "kind": "planned_or_reference_requires_context_resolution"
+    },
+    {
+      "path": ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/cmd-skill/verify-cycle2-rf-qa-qualitative.md",
+      "exists_now": false,
+      "kind": "planned_or_reference_requires_context_resolution"
+    },
+    {
+      "path": ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/cmd-skill/verify-cycle2-rf-qa.md",
+      "exists_now": false,
+      "kind": "planned_or_reference_requires_context_resolution"
+    },
+    {
+      "path": ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/decisions/consolidated-findings-cycle0.md",
+      "exists_now": false,
+      "kind": "planned_or_reference_requires_context_resolution"
+    },
+    {
+      "path": ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/decisions/cycle-ledger.md",
+      "exists_now": false,
+      "kind": "planned_or_reference_requires_context_resolution"
+    },
+    {
+      "path": ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/decisions/cycle1-decision.md",
+      "exists_now": false,
+      "kind": "planned_or_reference_requires_context_resolution"
+    },
+    {
+      "path": ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/decisions/fix-log-cycle1.md",
+      "exists_now": false,
+      "kind": "planned_or_reference_requires_context_resolution"
+    },
+    {
+      "path": ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/decisions/fix-log-cycle2.md",
+      "exists_now": false,
+      "kind": "planned_or_reference_requires_context_resolution"
+    },
+    {
+      "path": ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/decisions/qa-completeness-report.md",
+      "exists_now": false,
+      "kind": "planned_or_reference_requires_context_resolution"
+    },
+    {
+      "path": ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/decisions/qa-cross-source-report.md",
+      "exists_now": false,
+      "kind": "planned_or_reference_requires_context_resolution"
+    },
+    {
+      "path": ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/decisions/qa-crossref-chain-report.md",
+      "exists_now": false,
+      "kind": "planned_or_reference_requires_context_resolution"
+    },
+    {
+      "path": ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/decisions/qa-decision-fidelity-report.md",
+      "exists_now": false,
+      "kind": "planned_or_reference_requires_context_resolution"
+    },
+    {
+      "path": ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/decisions/qa-downstream-actionability-report.md",
+      "exists_now": false,
+      "kind": "planned_or_reference_requires_context_resolution"
+    },
+    {
+      "path": ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/decisions/qa-evidence-quality-report.md",
+      "exists_now": false,
+      "kind": "planned_or_reference_requires_context_resolution"
+    },
+    {
+      "path": ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/decisions/qa-readonly-safety-report.md",
+      "exists_now": false,
+      "kind": "planned_or_reference_requires_context_resolution"
+    },
+    {
+      "path": ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/decisions/qa-record-form-report.md",
+      "exists_now": false,
+      "kind": "planned_or_reference_requires_context_resolution"
+    },
+    {
+      "path": ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/decisions/verify-cycle1-rf-qa-qualitative.md",
+      "exists_now": false,
+      "kind": "planned_or_reference_requires_context_resolution"
+    },
+    {
+      "path": ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/decisions/verify-cycle1-rf-qa.md",
+      "exists_now": false,
+      "kind": "planned_or_reference_requires_context_resolution"
+    },
+    {
+      "path": ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/decisions/verify-cycle2-rf-qa-qualitative.md",
+      "exists_now": false,
+      "kind": "planned_or_reference_requires_context_resolution"
+    },
+    {
+      "path": ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/decisions/verify-cycle2-rf-qa.md",
+      "exists_now": false,
+      "kind": "planned_or_reference_requires_context_resolution"
+    },
+    {
+      "path": ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/research/09-gap-fill.md",
+      "exists_now": true,
+      "kind": "file"
+    },
+    {
+      "path": ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/revisions/chat-output-exception-20261109-133150/BUILD-REQUEST.md",
+      "exists_now": true,
+      "kind": "file"
+    },
+    {
+      "path": ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/revisions/chat-output-exception-20261109-133150/design-addendum.md",
+      "exists_now": true,
+      "kind": "file"
+    },
+    {
+      "path": "artifacts/owner-decisions.md",
+      "exists_now": false,
+      "kind": "planned_or_reference_requires_context_resolution"
+    },
+    {
+      "path": "docs/designs/orchestrator-mode.md",
+      "exists_now": true,
+      "kind": "file"
+    },
+    {
+      "path": "phase-outputs/test-results/step-7.10-style-exception.md",
+      "exists_now": false,
+      "kind": "planned_or_reference_requires_context_resolution"
+    },
+    {
+      "path": "qa/research-gate-cycle1.md",
+      "exists_now": false,
+      "kind": "planned_or_reference_requires_context_resolution"
+    },
+    {
+      "path": "research/01-style-and-tests.md",
+      "exists_now": false,
+      "kind": "planned_or_reference_requires_context_resolution"
+    },
+    {
+      "path": "research/04-coordinator-eligibility-gap-fill.md",
+      "exists_now": false,
+      "kind": "planned_or_reference_requires_context_resolution"
+    },
+    {
+      "path": "sc-graph-protocol/SKILL.md",
+      "exists_now": false,
+      "kind": "planned_or_reference_requires_context_resolution"
+    },
+    {
+      "path": "src/superclaude/cli/sweep/commands.py",
+      "exists_now": false,
+      "kind": "planned_or_reference_requires_context_resolution"
+    },
+    {
+      "path": "src/superclaude/cli/sweep/report.py",
+      "exists_now": false,
+      "kind": "planned_or_reference_requires_context_resolution"
+    },
+    {
+      "path": "src/superclaude/commands/graph.md",
+      "exists_now": true,
+      "kind": "file"
+    },
+    {
+      "path": "src/superclaude/commands/issue.md",
+      "exists_now": true,
+      "kind": "file"
+    },
+    {
+      "path": "src/superclaude/commands/sweep.md",
+      "exists_now": false,
+      "kind": "planned_or_reference_requires_context_resolution"
+    },
+    {
+      "path": "src/superclaude/output-styles/pragmatic.md",
+      "exists_now": true,
+      "kind": "file"
+    },
+    {
+      "path": "src/superclaude/skills/sc-graph-protocol/SKILL.md",
+      "exists_now": true,
+      "kind": "file"
+    },
+    {
+      "path": "src/superclaude/skills/sc-sweep-protocol/SKILL.md",
+      "exists_now": false,
+      "kind": "planned_or_reference_requires_context_resolution"
+    },
+    {
+      "path": "tests/commands/test_graph_command.py",
+      "exists_now": true,
+      "kind": "file"
+    },
+    {
+      "path": "tests/commands/test_sweep_command.py",
+      "exists_now": false,
+      "kind": "planned_or_reference_requires_context_resolution"
+    },
+    {
+      "path": "tests/recommend/test_routing_refresh.py",
+      "exists_now": true,
+      "kind": "file"
+    },
+    {
+      "path": "tests/skills/test_implement_severity_static.py",
+      "exists_now": true,
+      "kind": "file"
+    },
+    {
+      "path": "tests/skills/test_review_severity_rule.py",
+      "exists_now": true,
+      "kind": "file"
+    }
+  ]
+}

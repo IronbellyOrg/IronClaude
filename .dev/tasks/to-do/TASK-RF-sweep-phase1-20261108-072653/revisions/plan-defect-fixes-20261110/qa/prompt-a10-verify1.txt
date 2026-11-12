@@ -1,0 +1,15 @@
+Agent (rf-qa - cycle-1 verification, regression-first)
+LENS: b2-self-containment + phase-structure (combined re-verification)
+
+First read the common prompt: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/revisions/plan-defect-fixes-20261110/qa/prompt-a10-common.txt (task file path, files to read, escalation override, stance, report format). Everything there applies to you. fix_authorization is false.
+
+Then read: qa/qa-task-validation-consolidated.md (cycle-0 blocking findings B2-1, B2-2, S16-1 and the cycle-1 fixes), qa/qa-task-validation-b2-report.md and qa/qa-task-validation-structure-report.md (the cycle-0 reports; their `## Checks` and STRUCTURAL TABLE rows are your PASS set), all in the revision dir.
+
+YOUR JOB, in this order:
+1. REGRESSION FIRST: every check that was PASS in either cycle-0 report (B2 C1..C?? rows and structural S1..S16 rows) must still be PASS. Re-derive each from the current file (the cycle-1 edit touched only three places; `diff qa/../baseline/task-before-rev2.md <task file>` shows all changes, and the cycle-0 plan sha256 7b188123... versus the current sha256 eb291f0b... tells you cycle 1 changed only: 7.20 Action, 7.30 Action, 7.34 Action, 8.19 Context). Report any PASS that became FAIL as a regression, BLOCKING.
+2. CONFIRM EACH FIX: B2-1 (7.20 now names the R2 BUILD-REQUEST path and its `## Authorization (direct, by the owner)` section; verify the path exists and the section heading exists in that file verbatim), B2-2 (7.30 and 7.34 now carry both full OQ-17 and OQ-18 paths; verify they spell the real file names item 7.17 creates, quoting 7.17), S16-1 (8.19 Context now ends with an evidence-absence comment and is still ONE physical line). For each, say whether it fully closes the finding or opens a new defect (for example: the 7.20 match rule can still fail a legitimate run; the new comment breaks the single-line rule; a path typo).
+3. RE-RUN the mechanical whole-file checks: 355 items x 5 components each exactly once and in order; 3020 lines; headers identical to baseline; 137 completed items identical; count lines containing TBD/TODO/FIXME outside quoted instructions.
+4. PRODUCE the final STRUCTURAL TABLE (S1..S16 with PASS/FAIL/PASS-with-note) for the current plan. The qualitative gate inherits this table verbatim.
+
+OUTPUT FILE: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/revisions/plan-defect-fixes-20261110/qa/A10-verify1.md
+Write the file IMMEDIATELY with a header, then append incrementally. Conclude with `VERDICT: PASS` or `VERDICT: FAIL` and `Blocking count: <n>` (line-anchored). Add a `## Checks` table (C1, C2, ...) and, for a zero-finding result, a Self-Audit naming what you checked.

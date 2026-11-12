@@ -1,0 +1,69 @@
+# Written by the orchestrator verbatim from the confidence-calibrator's returned YAML (read-only agent).
+card_ref: "/home/coder/workspaces/worktrees/IronClaude/issue-339-orchestrator-mode/.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/reflect/pre-run2/reviewer-cards/reviewer-2-card.yaml"
+dimensions:
+  citation_grounding:
+    score: 0.95
+    reason: "All 29 file:line citations I read match their quoted text, including the load-bearing ones for every HIGH finding (tasklist:1436, design:454 and 466, design:80, design:987, design:211 and 219 and 638, design:552, tasklist:1485 and 1793, design:939, tasklist:2472). Points come off because several absence claims say whole-tasklist search found nothing, and I could only check those within the ranges I read."
+  coverage_completeness:
+    score: 0.80
+    reason: "The summary's 44 audited rows match the card (13 GQ, 9 D, 14 SP and 8 INF rows), and the one row that disagrees with T1 (INF-019) is marked. The reviewer also ran a spec-body recall pass and found an unrepresented requirement (R2-G6, design:636, no matching row in coverage-matrix:201-227). I did not read the brief, so I cannot confirm the 44 rows are the whole assigned scope. The parsed step rows rated covered were not re-audited, which let the weak R2-G7 reading through."
+  deviation_classification_clarity:
+    score: 0.70
+    reason: "Each finding has exactly one gap_class (unsound-check, missing, partial or traceability) and one row verdict, with a clear rationale. But severity is not applied consistently: five of the six HIGH ratings go to omissions or conditional gaps where correct delivery still passes. That conflicts with the card's own HIGH standard of 'correct delivery cannot satisfy the check', which only R2-G1 meets."
+  risk_surface_coverage:
+    score: 0.70
+    reason: "The card finds real unsound checks (R2-G1) and unchecked invariants (the probes.py import boundary, B5, the renderer prohibitions, the cursor-template branch). Its blast-radius reasoning is thin. R2-G7 misses that the scoped zero-hit grep already covers every primitive the task edits (tasklist:2469, the scope list at tasklist:150-152), so a same-count swap would need edits to files the task does not touch. R2-G5 does not weigh the conservative no-cursor fallback in design:973."
+  recommendation_actionability:
+    score: 0.90
+    reason: "Every remediation names the item to change (8.3, 8.10, 7.17, 14.5, the INF-017 matrix row, Key Constraints) and gives a success criterion. R2-G4's 'bounded type-declaration comparison or documented source review' for B5 leaves the method open."
+calibrated_confidence: 0.81
+self_reported_confidence: 0.90
+calibration_delta: -0.09
+citations_checked: 29
+citations_failed: 0
+citations_unverifiable_notes:
+  - "The absence claims in R2-G2, R2-G3 and R2-G6 (whole-tasklist search found no such rule, marking or wording) were checked only against the ranges I read: tasklist:150-171, 360-367, 1245-1270, 1425-1509, 1782-1809 and 2462-2475. Read alone cannot confirm a whole-file absence."
+  - "The reviewer brief was not read, so I could not confirm that 44 rows is the full assigned row set."
+  - "R2-G7 depends on whether the task edits any primitive outside the scoped grep list, for example src/superclaude/core/CLAUDE.md. I did not check this. If no such edit exists, R2-G7 is weaker still."
+  - "R2-G9: I confirmed T1 F12 at reflection-card-t1.yaml:274-276. The F11 text at :262-271 is about item 5.11 section wording, which supports the card's claim that F11 is unrelated, but I did not read F11's header."
+  - "The card's model_class is 'claude-gw-tier2' while model_slot is 'haiku'. I used the haiku slot as the reviewer model class because the task told me to."
+  - "R2-G4's sub-claim that lint cannot catch a probes.py import of classify is sound reasoning, but I did not run anything to check it."
+per_finding_check:
+  - id: "R2-G1"
+    verdict: "confirmed"
+    calibrated_severity: "HIGH"
+    note: "tasklist:1436 requires every DESIGN 7.2 name to appear once by grep -c. A correct models.py repeats OrcaObservation, TranscriptTail, TabMapEntry, WorktreeState and SourceCoverage in SweepInput annotations (design:454), ClassifiedRow in SweepResult.rows (design:466), and SessionRow, Classification and SafeToClose in the ClassifiedRow fields that item 8.3 itself dictates (tasklist:1433). Correct delivery fails the written check, and a literal executor could bend the code to pass it. HIGH holds, though the fix is one line."
+  - id: "R2-G2"
+    verdict: "weakened"
+    calibrated_severity: "MEDIUM"
+    note: "design:80 does require the builder to copy the rule, and Key Constraints (tasklist:157-167) do not contain it. But nothing in the task uses gaps counts or edits the REPORT, so correct delivery does not fail. This is an unmet builder obligation that a fidelity or QA reviewer would catch, not a delivery failure."
+  - id: "R2-G3"
+    verdict: "weakened"
+    calibrated_severity: "MEDIUM"
+    note: "design:987 (open item 19, behaviour until closed) requires the limits to be marked proposed in probes.py, and items 8.5 and 8.10 (tasklist:1447-1486) do not mention it. The gap is real but has no behavioural effect: it is a missing source marker plus a follow-up obligation not tracked. Correct delivery of the limits still works, and the impl-core QA gate could catch it."
+  - id: "R2-G4"
+    verdict: "weakened"
+    calibrated_severity: "MEDIUM"
+    note: "Confirmed as a missing check. The AST test covers only classify.py and report.py (tasklist:1787, design:739). Nothing checks the probes.py row at design:211 or B5 at design:219. The test_report row (design:740) checks only the next-inspection words, not design:638's action-control, paste-command and delete-advice ban. These are unverified invariants, and code written correctly still passes. They are not failures."
+  - id: "R2-G5"
+    verdict: "weakened"
+    calibrated_severity: "MEDIUM"
+    note: "design:552 makes the cursor template conditional on the capture, while tasklist:1485, 1793 and 163 pin ten templates. This is a real conditional branch the plan does not handle. But the no-cursor path matches the design's behaviour until closed (design:973: 'no cursor template', total is a lower bound), and design:550 and 978 send allowlist changes to an owner note. So the likely outcome is a safe conservative build or a halt, not a broken delivery."
+  - id: "R2-G6"
+    verdict: "confirmed"
+    calibrated_severity: "MEDIUM"
+    note: "design:636 states the set-union wording. No inferred row covers it (coverage-matrix:201-227), FR-011 (design:765) covers only order and sort, and the test_report case list (design:740) does not mention it. Item 8.12 refers to section 7.5 broadly, so delivery is likely but not traced or tested. MEDIUM is fair."
+  - id: "R2-G7"
+    verdict: "weakened"
+    calibrated_severity: "LOW"
+    note: "The full-tree count (tasklist:2471-2472) is weaker than 'every hit justified' (design:939). But the scoped zero-hit grep (tasklist:2469) covers the primitives the task edits, and the 168-hit baseline existed before this task. A same-count swap would need edits to primitives outside scope. Correct delivery passes and the check would still catch any new hit in edited files. This is a fidelity wording gap, not a HIGH."
+  - id: "R2-G8"
+    verdict: "confirmed"
+    calibrated_severity: "LOW"
+    note: "design:868 names the person or coordinator, and item 7.16 (tasklist:1249) does not name the actor. The card correctly labels this INFERRED and LOW, matching T1 F12."
+  - id: "R2-G9"
+    verdict: "confirmed"
+    calibrated_severity: "LOW"
+    note: "coverage-matrix:218 cites 'card F11', but the capture-actor finding is F12 (reflection-card-t1.yaml:274-276). This is a traceability defect only."
+calibrator_model_class: "opus"
+reviewer_model_class: "haiku"

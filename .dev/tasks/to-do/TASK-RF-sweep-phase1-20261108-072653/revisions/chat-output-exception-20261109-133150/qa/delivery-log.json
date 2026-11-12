@@ -1,0 +1,17 @@
+{
+  "date": "2026-11-09",
+  "gate": "changed-area research",
+  "policy": "Respect child report-writing restrictions. A child may return a completed independent read-only assessment for parent persistence, with explicit attribution and no fabricated delivery. No incomplete verdict is accepted.",
+  "attempts": [
+    {"lens": "completeness", "attempt": 1, "agent": "a6e1467a5bb4a96bc", "result": "report-write restriction, zero tools, no verification", "verdict": null},
+    {"lens": "gap-detection", "attempt": 1, "agent": "ac7c54ba2085d14c6", "result": "report-write restriction, zero tools, no verification", "verdict": null},
+    {"lens": "evidence-quality", "attempt": 1, "agent": "a59bc768210b97624", "result": "report-write restriction after reading inputs; source verification incomplete", "verdict": null}
+  ],
+  "pending_retry_agents": {
+    "completeness": "ab392b35a7572167b",
+    "gap-detection": "a6c67a9340daa6f06",
+    "evidence-quality": "aa163f6fcade9706a"
+  },
+  "historical_executor_retries_reset": false,
+  "plan_or_source_mutation_authorized_by_gate": false
+}

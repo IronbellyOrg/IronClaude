@@ -1,0 +1,227 @@
+# Coverage matrix: sc-reflect-protocol Wave 1, Step 1B.0 to 1B.2, UC-1 pre-execution, Tier 1, run 2 (final task file after hand edits).
+# Literal pass: reflect/pre-run2/artifacts/match_ids.py (read-only on inputs) -> artifacts/literal-hits.json.
+# Every row was re-verified against the CURRENT tasklist by reading the delivering item; run 1's mapping was not reused.
+status: complete
+use_case: UC-1-pre-execution
+run: 2
+spec: docs/designs/orchestrator-mode.md
+spec_lines: 1013
+tasklist: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md
+tasklist_lines: 2896
+tasklist_item_count: 355
+matching:
+  parsed: >-
+    word-boundary ID token over item text (item heading to the next item or ##/### heading); range notation
+    expanded for 'X to Y' and 'X..Y' (FR, NFR, GQ, SP, steps, routing rows), so 'FR-006 to FR-010, FR-012 to
+    FR-015' in item 10.2 (tasklist line 1786) now counts for FR-007 to FR-009, FR-013 and FR-014
+  step_ids: token needs 'step' or 'steps' within the 40 characters before it
+  routing_rows_R1_R8: token needs 'row' or 'rows' within the 40 characters before it and no '-' after it; design-fix names R3-B1..R3-B3, R4 and R5 are not routing rows (tasklist line 167)
+  status_rubric: >-
+    covered = a delivering item (not a QA lens item) names the ID or the exact design element of its traceability
+    row; covered-in-substance = delivered only through an item that delegates to the DESIGN section or row holding
+    the requirement ("every case in that row") or under another name (routing row instead of step id);
+    partial = some stated part has no item; missing = no item; false-match = the only literal hit means
+    something else (recorded in note when substance exists elsewhere)
+  inferred: requirement-shaped MUST/never/only statements outside every parsed span; verbatim quote, max 2 sentences
+  spans: parsed spans are each ID's defining table row (section 2.2, 12, 13, 14, 9 and 15.2 tables), list item or heading block; GQ-111/GQ-112 span DESIGN line 78, GQ-113 line 79, so line 80 is outside
+excluded_tokens:
+  - token: D10
+    reason: not in the current DESIGN; item 6.3 (tasklist line 998) creates it. Checked as a card finding, not a row
+  - token: design fix R4, design fix R5
+    reason: BUILD-REQUEST names; in the DESIGN the only R4 and R5 tokens are routing rows R4 and R5 (DESIGN lines 697-698). Their tasklist delivery (Phases 5 and 6) is audited in the card
+  - token: M1 to M10
+    reason: FIXREVIEW minor notes handled through D-rows and section 14; kept out of Pass 1 as in run 1 for comparability
+  - token: GQ-100
+    citation: docs/designs/orchestrator-mode.md:79
+    reason: only the upper bound of 'GQ-01 to GQ-100', the REPORT's own rows
+  - token: OQ-n
+    reason: no OQ- id occurs in the DESIGN; OQ ids are tasklist ids
+  - token: GQ-103(1), GQ-103(2), GQ-103(3)
+    reason: folded into row GQ-103
+summary:
+  parsed_count: 126
+  inferred_count: 26
+  covered_parsed: 98
+  covered_in_substance_parsed: 24
+  partial_parsed: 4
+  missing_parsed: 0
+  false_match_parsed: 0
+  matched_parsed: 122
+  matched_inferred: 18
+  coverage_pct: 0.968          # 122 / 126
+  coverage_pct_union: 0.921    # 140 / 152
+  unmapped_count: 4
+  unmapped_count_union: 12
+  S_dev_density: 0.079         # 12 / 152
+  coverage_degraded: null      # inferred 26 is not greater than parsed 126
+  unmapped_requirements: ["GQ-111", "GQ-112", "GQ-113", "SP-28"]
+  unmapped_requirements_union: ["GQ-111", "GQ-112", "GQ-113", "SP-28", "INF-001", "INF-005", "INF-008", "INF-017", "INF-018", "INF-019", "INF-020", "INF-024"]
+  false_literal_hits: ["D3 (7.13, 12.4: APPROVED owner decision D3)", "D4 (7.13, 14.6, 14.8: APPROVED D4)", "D5 (7.13: APPROVED D5)", "R3 (10.2: design fix R3)", "R4 (5.4: design fix R4)", "R5 (6.3, 6.4, 7.13, 7.30, 7.34: design fix R5)", "FR-025 (7.1: GQ-10 context only)"]
+signals:
+  S_scope: 355   # tasklist items; > 10 exits the T1 STOP path
+  S_domains: 5   # code (src/superclaude/cli/sweep, cli/main.py), tests (tests/sweep, tests/commands, tests/core, tests/skills, tests/recommend), docs (docs/designs, HOW-WE-WORK.md, user and developer guides, CHANGELOG.md, WORKER-CONTRACT.md), config (.gitignore), infra (make sync-dev / verify-sync, pipx check)
+  S_dev_density: 0.079   # unmapped union / union total; <= 0.20
+  escalate: true
+  escalate_reasons: ["S_scope > 10", "S_domains >= 3"]
+rows:
+  # ---- FR (SPEC FR rows as traced in DESIGN section 12) ----
+  - {id: FR-001, source: parsed, family: FR, citation: "docs/designs/orchestrator-mode.md:755", status: covered, matched_items: ["9.1", "9.2", "10.6"], tasklist_lines: [1625, 1632, 1813], match_result: exact}
+  - {id: FR-002, source: parsed, family: FR, citation: "docs/designs/orchestrator-mode.md:756", status: covered, matched_items: ["8.10", "9.1", "10.7"], tasklist_lines: [1482, 1626, 1821], match_result: exact, note: "literal FR-002 only in QA lens 9.10; 9.1 names _check_run_ids and BindingError, 8.10 bind_run, 10.7 the binding tests"}
+  - {id: FR-003, source: parsed, family: FR, citation: "docs/designs/orchestrator-mode.md:757", status: covered, matched_items: ["9.1", "10.7"], tasklist_lines: [1626, 1821], match_result: exact}
+  - {id: FR-004, source: parsed, family: FR, citation: "docs/designs/orchestrator-mode.md:758", status: covered, matched_items: ["9.1", "10.7"], tasklist_lines: [1626, 1821], match_result: exact}
+  - {id: FR-005, source: parsed, family: FR, citation: "docs/designs/orchestrator-mode.md:759", status: covered, matched_items: ["8.3", "10.7"], tasklist_lines: [1433, 1821], match_result: exact}
+  - {id: FR-006, source: parsed, family: FR, citation: "docs/designs/orchestrator-mode.md:760", status: covered, matched_items: ["8.3", "8.4", "10.2", "10.5"], tasklist_lines: [1433, 1440, 1786, 1807], match_result: exact}
+  - {id: FR-007, source: parsed, family: FR, citation: "docs/designs/orchestrator-mode.md:761", status: covered, matched_items: ["8.3", "10.2"], tasklist_lines: [1433, 1786], match_result: range, note: "'FR-006 to FR-010' in 10.2; SweepContext in 8.3"}
+  - {id: FR-008, source: parsed, family: FR, citation: "docs/designs/orchestrator-mode.md:762", status: covered, matched_items: ["8.4", "10.2"], tasklist_lines: [1440, 1786], match_result: range}
+  - {id: FR-009, source: parsed, family: FR, citation: "docs/designs/orchestrator-mode.md:763", status: covered, matched_items: ["8.4", "10.2"], tasklist_lines: [1440, 1786], match_result: range}
+  - {id: FR-010, source: parsed, family: FR, citation: "docs/designs/orchestrator-mode.md:764", status: covered, matched_items: ["2.5", "3.3", "4.1", "4.3", "4.4", "8.4", "10.2"], tasklist_lines: [272, 439, 592, 606, 613, 1440, 1786], match_result: exact}
+  - {id: FR-011, source: parsed, family: FR, citation: "docs/designs/orchestrator-mode.md:765", status: covered, matched_items: ["8.12", "10.5"], tasklist_lines: [1496, 1807], match_result: none, note: "no ID token; 8.12 names SECTIONS, 10.5 the (a) sort"}
+  - {id: FR-012, source: parsed, family: FR, citation: "docs/designs/orchestrator-mode.md:766", status: covered, matched_items: ["8.4", "10.2"], tasklist_lines: [1440, 1786], match_result: exact}
+  - {id: FR-013, source: parsed, family: FR, citation: "docs/designs/orchestrator-mode.md:767", status: covered, matched_items: ["8.4", "10.2", "10.3"], tasklist_lines: [1440, 1786, 1793], match_result: range}
+  - {id: FR-014, source: parsed, family: FR, citation: "docs/designs/orchestrator-mode.md:768", status: covered, matched_items: ["8.3", "8.4", "10.2"], tasklist_lines: [1433, 1440, 1786], match_result: range}
+  - {id: FR-015, source: parsed, family: FR, citation: "docs/designs/orchestrator-mode.md:769", status: covered, matched_items: ["8.4", "8.5", "10.2"], tasklist_lines: [1440, 1447, 1786], match_result: exact}
+  - {id: FR-016, source: parsed, family: FR, citation: "docs/designs/orchestrator-mode.md:770", status: covered, matched_items: ["8.12", "10.5"], tasklist_lines: [1497, 1807], match_result: none, note: "8.12 names sanitize and cell; 10.5 the injection fixture"}
+  - {id: FR-017, source: parsed, family: FR, citation: "docs/designs/orchestrator-mode.md:771", status: covered, matched_items: ["9.1", "10.7"], tasklist_lines: [1626, 1821], match_result: none}
+  - {id: FR-018, source: parsed, family: FR, citation: "docs/designs/orchestrator-mode.md:772", status: covered, matched_items: ["9.1", "10.7"], tasklist_lines: [1626, 1821], match_result: none, note: "exit mapping in 9.1; one test per exit code in 10.7"}
+  - {id: FR-019, source: parsed, family: FR, citation: "docs/designs/orchestrator-mode.md:773", status: covered, matched_items: ["8.10", "10.7"], tasklist_lines: [1482, 1821], match_result: none, note: "OrcaResult unavailable; disk-only continuation with 'unscanned: orca unavailable'"}
+  - {id: FR-020, source: parsed, family: FR, citation: "docs/designs/orchestrator-mode.md:774", status: covered, matched_items: ["8.10", "10.3", "10.5"], tasklist_lines: [1482, 1793, 1807], match_result: none}
+  - {id: FR-021, source: parsed, family: FR, citation: "docs/designs/orchestrator-mode.md:775", status: covered, matched_items: ["8.10", "10.3"], tasklist_lines: [1482, 1793], match_result: exact}
+  - {id: FR-022, source: parsed, family: FR, citation: "docs/designs/orchestrator-mode.md:776", status: covered, matched_items: ["11.1", "11.3", "11.4"], tasklist_lines: [1952, 1966, 1973], match_result: none}
+  - {id: FR-023, source: parsed, family: FR, citation: "docs/designs/orchestrator-mode.md:777", status: covered, matched_items: ["5.3", "12.1", "12.2", "12.3"], tasklist_lines: [780, 2105, 2112, 2119], match_result: exact, note: "delivered as WC-16 (design fix R4, recorded in D6)"}
+  - {id: FR-024, source: parsed, family: FR, citation: "docs/designs/orchestrator-mode.md:778", status: covered-in-substance, matched_items: ["11.2", "12.4", "13.1", "13.2", "13.3", "13.4", "13.5", "13.6"], tasklist_lines: [1959, 2126, 2258, 2265, 2272, 2279, 2286, 2293], match_result: none, note: "items name routing rows R1 to R8, not FR-024"}
+  - {id: FR-025, source: parsed, family: FR, citation: "docs/designs/orchestrator-mode.md:779", status: covered, matched_items: ["8.6", "8.9", "13.7"], tasklist_lines: [1453, 1474, 2300], match_result: false-match, note: "only literal hit is 7.1 (GQ-10 context); substance in 8.6 and the 8.9 real-git test"}
+  - {id: FR-026, source: parsed, family: FR, citation: "docs/designs/orchestrator-mode.md:780", status: covered, matched_items: ["8.10", "10.3"], tasklist_lines: [1482, 1793], match_result: none}
+  # ---- NFR ----
+  - {id: NFR-001, source: parsed, family: NFR, citation: "docs/designs/orchestrator-mode.md:781", status: covered, matched_items: ["9.1", "10.4", "10.7"], tasklist_lines: [1626, 1799, 1821], match_result: exact}
+  - {id: NFR-002, source: parsed, family: NFR, citation: "docs/designs/orchestrator-mode.md:782", status: covered, matched_items: ["8.5", "8.9"], tasklist_lines: [1447, 1475], match_result: none}
+  - {id: NFR-003, source: parsed, family: NFR, citation: "docs/designs/orchestrator-mode.md:783", status: covered, matched_items: ["8.10", "10.3"], tasklist_lines: [1482, 1793], match_result: none, note: "SPEC NFR-003 (merged-requirements.md:132) lists a worktree ps --agent-wait negative that 6.3 removes; D10 does not cite NFR-003 (card F3)"}
+  - {id: NFR-004, source: parsed, family: NFR, citation: "docs/designs/orchestrator-mode.md:784", status: covered, matched_items: ["8.4", "8.12", "10.2"], tasklist_lines: [1440, 1499, 1786], match_result: exact}
+  - {id: NFR-005, source: parsed, family: NFR, citation: "docs/designs/orchestrator-mode.md:785", status: covered, matched_items: ["8.3", "8.12", "10.5"], tasklist_lines: [1433, 1496, 1807], match_result: none, note: "render twice gives equal bytes (10.5)"}
+  - {id: NFR-006, source: parsed, family: NFR, citation: "docs/designs/orchestrator-mode.md:786", status: covered, matched_items: ["8.2", "10.6"], tasklist_lines: [1426, 1814], match_result: exact}
+  - {id: NFR-007, source: parsed, family: NFR, citation: "docs/designs/orchestrator-mode.md:787", status: covered, matched_items: ["8.10", "10.3", "11.3", "11.4"], tasklist_lines: [1482, 1793, 1968, 1975], match_result: none}
+  - {id: NFR-008, source: parsed, family: NFR, citation: "docs/designs/orchestrator-mode.md:788", status: covered-in-substance, matched_items: ["10.5"], tasklist_lines: [1807], match_result: none, note: "via the DESIGN 11 source-loss fixture"}
+  - {id: NFR-009, source: parsed, family: NFR, citation: "docs/designs/orchestrator-mode.md:789", status: covered, matched_items: ["8.12", "10.7"], tasklist_lines: [1497, 1821], match_result: none}
+  - {id: NFR-010, source: parsed, family: NFR, citation: "docs/designs/orchestrator-mode.md:790", status: covered, matched_items: ["8.4", "10.2"], tasklist_lines: [1440, 1786], match_result: exact}
+  - {id: NFR-011, source: parsed, family: NFR, citation: "docs/designs/orchestrator-mode.md:791", status: covered, matched_items: ["11.1", "11.3", "11.4", "14.5"], tasklist_lines: [1956, 1970, 1975, 2467], match_result: none}
+  - {id: NFR-012, source: parsed, family: NFR, citation: "docs/designs/orchestrator-mode.md:792", status: covered-in-substance, matched_items: ["14.1", "14.2", "14.3", "14.4"], tasklist_lines: [2439, 2446, 2453, 2460], match_result: none, note: "the step 1.25 to 1.27 gate commands, not named NFR-012"}
+  - {id: NFR-013, source: parsed, family: NFR, citation: "docs/designs/orchestrator-mode.md:793", status: covered, matched_items: ["8.8", "10.4"], tasklist_lines: [1468, 1799], match_result: exact}
+  - {id: NFR-014, source: parsed, family: NFR, citation: "docs/designs/orchestrator-mode.md:794", status: covered, matched_items: ["6.3", "8.10", "10.3"], tasklist_lines: [998, 1482, 1793], match_result: exact, note: "ten templates after the owner R5 allow decision; deviation D10"}
+  - {id: NFR-015, source: parsed, family: NFR, citation: "docs/designs/orchestrator-mode.md:795", status: covered, matched_items: ["8.10", "8.12", "10.5"], tasklist_lines: [1482, 1496, 1807], match_result: none}
+  # ---- GQ (DESIGN section 2) ----
+  - {id: GQ-101, source: parsed, family: GQ, citation: "docs/designs/orchestrator-mode.md:57", status: covered-in-substance, matched_items: ["8.4", "10.2"], tasklist_lines: [1440, 1786], match_result: none}
+  - {id: GQ-102, source: parsed, family: GQ, citation: "docs/designs/orchestrator-mode.md:58", status: covered-in-substance, matched_items: ["8.3", "8.4", "10.2"], tasklist_lines: [1433, 1440, 1786], match_result: none}
+  - {id: GQ-103, source: parsed, family: GQ, citation: "docs/designs/orchestrator-mode.md:59", status: covered, matched_items: ["2.3", "8.3", "8.5"], tasklist_lines: [258, 1433, 1447], match_result: exact, note: "GQ-103(1) heading at DESIGN:39; (2) and (3) at :59-60"}
+  - {id: GQ-104, source: parsed, family: GQ, citation: "docs/designs/orchestrator-mode.md:61", status: covered, matched_items: ["9.1", "10.3"], tasklist_lines: [1629, 1793], match_result: none, note: "no run-list fallback; run-list negative"}
+  - {id: GQ-105, source: parsed, family: GQ, citation: "docs/designs/orchestrator-mode.md:62", status: covered-in-substance, matched_items: ["8.10", "10.3"], tasklist_lines: [1482, 1793], match_result: none}
+  - {id: GQ-106, source: parsed, family: GQ, citation: "docs/designs/orchestrator-mode.md:63", status: covered, matched_items: ["8.6", "13.7"], tasklist_lines: [1453, 2300], match_result: none}
+  - {id: GQ-107, source: parsed, family: GQ, citation: "docs/designs/orchestrator-mode.md:64", status: covered, matched_items: ["8.12", "10.5"], tasklist_lines: [1497, 1807], match_result: none}
+  - {id: GQ-108, source: parsed, family: GQ, citation: "docs/designs/orchestrator-mode.md:65", status: covered-in-substance, matched_items: ["8.4", "10.2"], tasklist_lines: [1440, 1786], match_result: none}
+  - {id: GQ-109, source: parsed, family: GQ, citation: "docs/designs/orchestrator-mode.md:66", status: covered, matched_items: ["6.3", "7.16", "10.3"], tasklist_lines: [998, 1259, 1793], match_result: exact, note: "row reworded by 6.3: --agent-wait allowed (R5); --include-remote the only forbidden token"}
+  - {id: GQ-110, source: parsed, family: GQ, citation: "docs/designs/orchestrator-mode.md:67", status: covered, matched_items: ["8.5", "8.9", "10.4"], tasklist_lines: [1447, 1476, 1800], match_result: none}
+  - {id: GQ-111, source: parsed, family: GQ, citation: "docs/designs/orchestrator-mode.md:78", status: partial, matched_items: [], tasklist_lines: [], match_result: none, note: "no item cites a gaps count (rule holds by absence), but the copy of the rule that DESIGN:80 requires is absent (grep 'line 138' finds none); card F6"}
+  - {id: GQ-112, source: parsed, family: GQ, citation: "docs/designs/orchestrator-mode.md:78", status: partial, matched_items: [], tasklist_lines: [], match_result: none, note: "as GQ-111"}
+  - {id: GQ-113, source: parsed, family: GQ, citation: "docs/designs/orchestrator-mode.md:79", status: partial, matched_items: [], tasklist_lines: [], match_result: none, note: "no item edits the REPORT, but no never-edit-REPORT rule is stated for the executor; fix agents are told only 'never edits a research file' (for example tasklist line 365)"}
+  # ---- D1 to D9 (DESIGN section 13) ----
+  - {id: D1, source: parsed, family: D, citation: "docs/designs/orchestrator-mode.md:807", status: covered, matched_items: ["8.12", "9.1"], tasklist_lines: [1496, 1627], match_result: exact}
+  - {id: D2, source: parsed, family: D, citation: "docs/designs/orchestrator-mode.md:808", status: covered, matched_items: ["9.1", "10.7"], tasklist_lines: [1626, 1821], match_result: none, note: "temp O_EXCL, fsync, os.link commit point and the 3.4 exit-1 rule named in 9.1"}
+  - {id: D3, source: parsed, family: D, citation: "docs/designs/orchestrator-mode.md:809", status: covered-in-substance, matched_items: ["9.1", "10.7"], tasklist_lines: [1626, 1821], match_result: false-match, note: "literal D3 hits (7.13, 12.4) are APPROVED owner decision D3; the SP-21 message comes in via DESIGN section 5"}
+  - {id: D4, source: parsed, family: D, citation: "docs/designs/orchestrator-mode.md:810", status: covered, matched_items: ["8.12", "10.5"], tasklist_lines: [1496, 1807], match_result: false-match, note: "literal D4 hits (7.13, 14.6, 14.8) are APPROVED D4; CELL_MAX = 200 and the 300-character cell case carry it"}
+  - {id: D5, source: parsed, family: D, citation: "docs/designs/orchestrator-mode.md:811", status: covered-in-substance, matched_items: ["8.4", "10.2"], tasklist_lines: [1440, 1786], match_result: false-match, note: "literal D5 hit (7.13) is APPROVED D5"}
+  - {id: D6, source: parsed, family: D, citation: "docs/designs/orchestrator-mode.md:812", status: covered, matched_items: ["5.4", "12.1", "12.3"], tasklist_lines: [787, 2105, 2119], match_result: exact}
+  - {id: D7, source: parsed, family: D, citation: "docs/designs/orchestrator-mode.md:813", status: covered-in-substance, matched_items: ["8.4", "10.5"], tasklist_lines: [1440, 1807], match_result: none, note: "SP-24 footnote in 10.5; rule 5 via DESIGN 7.2"}
+  - {id: D8, source: parsed, family: D, citation: "docs/designs/orchestrator-mode.md:814", status: covered-in-substance, matched_items: ["8.3", "10.3"], tasklist_lines: [1433, 1793], match_result: none}
+  - {id: D9, source: parsed, family: D, citation: "docs/designs/orchestrator-mode.md:815", status: covered, matched_items: ["3.3", "7.11", "7.12", "8.4", "10.2", "10.5"], tasklist_lines: [439, 1214, 1221, 1439, 1786, 1807], match_result: exact}
+  # ---- SP (PANEL and SPEC items) ----
+  - {id: SP-07, source: parsed, family: SP, citation: "docs/designs/orchestrator-mode.md:510", status: covered-in-substance, matched_items: ["10.2"], tasklist_lines: [1786], match_result: none}
+  - {id: SP-09, source: parsed, family: SP, citation: "docs/designs/orchestrator-mode.md:843", status: covered-in-substance, matched_items: ["9.1"], tasklist_lines: [1626], match_result: none}
+  - {id: SP-16, source: parsed, family: SP, citation: "docs/designs/orchestrator-mode.md:497", status: covered, matched_items: ["8.4", "10.5"], tasklist_lines: [1440, 1807], match_result: exact}
+  - {id: SP-19, source: parsed, family: SP, citation: "docs/designs/orchestrator-mode.md:843", status: covered-in-substance, matched_items: ["10.7"], tasklist_lines: [1821], match_result: none}
+  - {id: SP-20, source: parsed, family: SP, citation: "docs/designs/orchestrator-mode.md:844", status: covered, matched_items: ["8.12", "9.1"], tasklist_lines: [1496, 1627], match_result: none, note: "as D1"}
+  - {id: SP-21, source: parsed, family: SP, citation: "docs/designs/orchestrator-mode.md:845", status: covered-in-substance, matched_items: ["9.1", "10.7"], tasklist_lines: [1626, 1821], match_result: none, note: "as D3"}
+  - {id: SP-22, source: parsed, family: SP, citation: "docs/designs/orchestrator-mode.md:846", status: covered-in-substance, matched_items: ["9.1"], tasklist_lines: [1627], match_result: none, note: "out-of-scope constraint; no item adds retention; _publish deletes nothing it did not create"}
+  - {id: SP-23, source: parsed, family: SP, citation: "docs/designs/orchestrator-mode.md:847", status: covered, matched_items: ["8.12", "10.5"], tasklist_lines: [1496, 1807], match_result: none}
+  - {id: SP-24, source: parsed, family: SP, citation: "docs/designs/orchestrator-mode.md:848", status: covered, matched_items: ["10.5"], tasklist_lines: [1807], match_result: exact}
+  - {id: SP-25, source: parsed, family: SP, citation: "docs/designs/orchestrator-mode.md:849", status: covered, matched_items: ["11.3", "11.4"], tasklist_lines: [1970, 1975], match_result: none}
+  - {id: SP-26, source: parsed, family: SP, citation: "docs/designs/orchestrator-mode.md:850", status: covered-in-substance, matched_items: ["8.4", "10.2"], tasklist_lines: [1440, 1786], match_result: none, note: "as D5"}
+  - {id: SP-27, source: parsed, family: SP, citation: "docs/designs/orchestrator-mode.md:851", status: covered, matched_items: ["5.4", "12.1"], tasklist_lines: [789, 2107], match_result: exact}
+  - {id: SP-28, source: parsed, family: SP, citation: "docs/designs/orchestrator-mode.md:852", status: partial, matched_items: ["8.10"], tasklist_lines: [1482], match_result: none, note: "8.10 sets the limits, but no item marks them proposed in probes.py or records the rationale in the task package (DESIGN:987, open item 19); card F9"}
+  - {id: SP-29, source: parsed, family: SP, citation: "docs/designs/orchestrator-mode.md:853", status: covered, matched_items: ["3.3", "8.4", "10.2"], tasklist_lines: [439, 1440, 1786], match_result: exact}
+  # ---- design fixes carried in DESIGN section 1, and other labeled ids ----
+  - {id: R3-B1, source: parsed, family: design-fix, citation: "docs/designs/orchestrator-mode.md:9", status: covered, matched_items: ["2.1", "2.2", "2.3", "2.4", "2.5", "2.6", "2.7", "2.25"], tasklist_lines: [244, 251, 258, 265, 272, 279, 286, 412], match_result: exact}
+  - {id: R3-B2, source: parsed, family: design-fix, citation: "docs/designs/orchestrator-mode.md:10", status: covered, matched_items: ["3.1", "3.2", "3.3", "3.4", "3.5", "3.23"], tasklist_lines: [425, 432, 439, 446, 453, 579], match_result: exact}
+  - {id: R3-B3, source: parsed, family: design-fix, citation: "docs/designs/orchestrator-mode.md:11", status: covered, matched_items: ["4.1", "4.2", "4.3", "4.4", "4.5", "4.6", "4.24"], tasklist_lines: [592, 599, 606, 613, 620, 627, 753], match_result: exact}
+  - {id: G-1, source: parsed, family: G, citation: "docs/designs/orchestrator-mode.md:796", status: covered, matched_items: ["9.1", "10.4", "10.7"], tasklist_lines: [1626, 1799, 1821], match_result: none, note: "9.1 names the section 3.4 exit-1 rule (DESIGN:153) and the publication cases"}
+  - {id: INV-005, source: parsed, family: INV, citation: "docs/designs/orchestrator-mode.md:548", status: covered, matched_items: ["6.1", "6.3", "10.3"], tasklist_lines: [983, 998, 1793], match_result: exact, note: "sign-off kept except --agent-wait (owner R5)"}
+  - {id: INV-017, source: parsed, family: INV, citation: "docs/designs/orchestrator-mode.md:519", status: covered, matched_items: ["8.10"], tasklist_lines: [1482], match_result: none, note: "ORCA_BINARY_DEFAULT = \"orca-ide\""}
+  # ---- routing rows R1 to R8 (DESIGN section 9) ----
+  - {id: R1, source: parsed, family: routing-row, citation: "docs/designs/orchestrator-mode.md:694", status: covered, matched_items: ["13.2"], tasklist_lines: [2265], match_result: exact}
+  - {id: R2, source: parsed, family: routing-row, citation: "docs/designs/orchestrator-mode.md:695", status: covered, matched_items: ["5.2", "13.1"], tasklist_lines: [773, 2258], match_result: exact}
+  - {id: R3, source: parsed, family: routing-row, citation: "docs/designs/orchestrator-mode.md:696", status: covered, matched_items: ["13.4"], tasklist_lines: [2279], match_result: exact, note: "10.2 hit 'the R3 fixtures' is design fix R3 (false)"}
+  - {id: R4, source: parsed, family: routing-row, citation: "docs/designs/orchestrator-mode.md:697", status: covered, matched_items: ["13.3"], tasklist_lines: [2272], match_result: exact, note: "5.4 hit is design fix R4 (false)"}
+  - {id: R5, source: parsed, family: routing-row, citation: "docs/designs/orchestrator-mode.md:698", status: covered, matched_items: ["11.2"], tasklist_lines: [1959], match_result: exact, note: "6.3, 6.4, 7.13, 7.30, 7.34 hits are design fix R5 (false)"}
+  - {id: R6, source: parsed, family: routing-row, citation: "docs/designs/orchestrator-mode.md:699", status: covered, matched_items: ["13.5"], tasklist_lines: [2286], match_result: exact}
+  - {id: R7, source: parsed, family: routing-row, citation: "docs/designs/orchestrator-mode.md:700", status: covered, matched_items: ["12.4"], tasklist_lines: [2126], match_result: exact}
+  - {id: R8, source: parsed, family: routing-row, citation: "docs/designs/orchestrator-mode.md:701", status: covered, matched_items: ["5.9", "13.6"], tasklist_lines: [822, 2293], match_result: exact}
+  # ---- implementation steps (DESIGN section 15.2 rows) ----
+  - {id: step-1.0a, source: parsed, family: step, citation: "docs/designs/orchestrator-mode.md:906", status: covered, matched_items: ["7.14", "7.15", "7.16", "7.17", "7.18"], tasklist_lines: [1235, 1242, 1249, 1265, 1272], match_result: exact}
+  - {id: step-1.0b, source: parsed, family: step, citation: "docs/designs/orchestrator-mode.md:907", status: covered, matched_items: ["7.1", "7.3", "7.5", "7.7", "7.9", "7.11", "7.13"], tasklist_lines: [1144, 1158, 1172, 1186, 1200, 1214, 1228], match_result: exact}
+  - {id: step-1.1, source: parsed, family: step, citation: "docs/designs/orchestrator-mode.md:908", status: covered, matched_items: ["8.2"], tasklist_lines: [1425], match_result: exact}
+  - {id: step-1.2, source: parsed, family: step, citation: "docs/designs/orchestrator-mode.md:909", status: covered, matched_items: ["8.3"], tasklist_lines: [1432], match_result: exact}
+  - {id: step-1.3, source: parsed, family: step, citation: "docs/designs/orchestrator-mode.md:910", status: covered, matched_items: ["8.4"], tasklist_lines: [1439], match_result: exact}
+  - {id: step-1.4a, source: parsed, family: step, citation: "docs/designs/orchestrator-mode.md:911", status: covered, matched_items: ["8.5", "8.6", "8.9"], tasklist_lines: [1446, 1453, 1474], match_result: exact, note: "'The first code commit' is deliberately not run (tasklist line 1416)"}
+  - {id: step-1.4, source: parsed, family: step, citation: "docs/designs/orchestrator-mode.md:912", status: covered, matched_items: ["8.10", "9.3"], tasklist_lines: [1481, 1639], match_result: exact}
+  - {id: step-1.5, source: parsed, family: step, citation: "docs/designs/orchestrator-mode.md:913", status: covered, matched_items: ["8.12"], tasklist_lines: [1495], match_result: exact}
+  - {id: step-1.6, source: parsed, family: step, citation: "docs/designs/orchestrator-mode.md:914", status: covered, matched_items: ["9.1"], tasklist_lines: [1625], match_result: exact}
+  - {id: step-1.7, source: parsed, family: step, citation: "docs/designs/orchestrator-mode.md:915", status: covered, matched_items: ["5.6", "9.2"], tasklist_lines: [801, 1632], match_result: exact}
+  - {id: step-1.8, source: parsed, family: step, citation: "docs/designs/orchestrator-mode.md:916", status: covered, matched_items: ["8.8", "10.1"], tasklist_lines: [1467, 1778], match_result: exact}
+  - {id: step-1.9, source: parsed, family: step, citation: "docs/designs/orchestrator-mode.md:917", status: covered, matched_items: ["10.2"], tasklist_lines: [1785], match_result: exact}
+  - {id: step-1.10, source: parsed, family: step, citation: "docs/designs/orchestrator-mode.md:918", status: covered, matched_items: ["10.3"], tasklist_lines: [1792], match_result: exact}
+  - {id: step-1.11, source: parsed, family: step, citation: "docs/designs/orchestrator-mode.md:919", status: covered, matched_items: ["10.4"], tasklist_lines: [1799], match_result: exact}
+  - {id: step-1.12, source: parsed, family: step, citation: "docs/designs/orchestrator-mode.md:920", status: covered, matched_items: ["10.5"], tasklist_lines: [1806], match_result: exact}
+  - {id: step-1.13, source: parsed, family: step, citation: "docs/designs/orchestrator-mode.md:921", status: covered, matched_items: ["10.6", "10.7"], tasklist_lines: [1813, 1820], match_result: exact}
+  - {id: step-1.14, source: parsed, family: step, citation: "docs/designs/orchestrator-mode.md:922", status: covered, matched_items: ["11.1"], tasklist_lines: [1952], match_result: exact}
+  - {id: step-1.15, source: parsed, family: step, citation: "docs/designs/orchestrator-mode.md:923", status: covered, matched_items: ["11.3"], tasklist_lines: [1966], match_result: exact}
+  - {id: step-1.16, source: parsed, family: step, citation: "docs/designs/orchestrator-mode.md:924", status: covered, matched_items: ["11.4"], tasklist_lines: [1973], match_result: exact}
+  - {id: step-1.16a, source: parsed, family: step, citation: "docs/designs/orchestrator-mode.md:925", status: covered, matched_items: ["5.7", "7.19"], tasklist_lines: [808, 1279], match_result: exact, note: "made record-only by design fix R4"}
+  - {id: step-1.17, source: parsed, family: step, citation: "docs/designs/orchestrator-mode.md:926", status: covered, matched_items: ["12.1"], tasklist_lines: [2105], match_result: exact}
+  - {id: step-1.18, source: parsed, family: step, citation: "docs/designs/orchestrator-mode.md:927", status: covered, matched_items: ["12.2"], tasklist_lines: [2112], match_result: exact}
+  - {id: step-1.19, source: parsed, family: step, citation: "docs/designs/orchestrator-mode.md:928", status: covered, matched_items: ["12.3"], tasklist_lines: [2119], match_result: exact}
+  - {id: step-1.20, source: parsed, family: step, citation: "docs/designs/orchestrator-mode.md:929", status: covered, matched_items: ["11.2"], tasklist_lines: [1959], match_result: exact}
+  - {id: step-1.21, source: parsed, family: step, citation: "docs/designs/orchestrator-mode.md:930", status: covered-in-substance, matched_items: ["13.1", "13.2"], tasklist_lines: [2258, 2265], match_result: none, note: "named as routing rows R1 and R2; only QA lenses 14.20 and 14.34 hit by range"}
+  - {id: step-1.22, source: parsed, family: step, citation: "docs/designs/orchestrator-mode.md:931", status: covered-in-substance, matched_items: ["13.3"], tasklist_lines: [2272], match_result: none}
+  - {id: step-1.23, source: parsed, family: step, citation: "docs/designs/orchestrator-mode.md:932", status: covered-in-substance, matched_items: ["13.4"], tasklist_lines: [2279], match_result: none, note: "'same commit as 1.21' becomes same working tree; the task never commits"}
+  - {id: step-1.24, source: parsed, family: step, citation: "docs/designs/orchestrator-mode.md:933", status: covered-in-substance, matched_items: ["13.5"], tasklist_lines: [2286], match_result: none}
+  - {id: step-1.24a, source: parsed, family: step, citation: "docs/designs/orchestrator-mode.md:934", status: covered, matched_items: ["12.4"], tasklist_lines: [2126], match_result: exact}
+  - {id: step-1.24b, source: parsed, family: step, citation: "docs/designs/orchestrator-mode.md:935", status: covered, matched_items: ["13.6"], tasklist_lines: [2293], match_result: exact}
+  - {id: step-1.25, source: parsed, family: step, citation: "docs/designs/orchestrator-mode.md:936", status: covered-in-substance, matched_items: ["14.1"], tasklist_lines: [2439], match_result: none}
+  - {id: step-1.26, source: parsed, family: step, citation: "docs/designs/orchestrator-mode.md:937", status: covered-in-substance, matched_items: ["14.2"], tasklist_lines: [2446], match_result: none}
+  - {id: step-1.27, source: parsed, family: step, citation: "docs/designs/orchestrator-mode.md:938", status: covered-in-substance, matched_items: ["14.3", "14.4"], tasklist_lines: [2453, 2460], match_result: none}
+  - {id: step-1.28, source: parsed, family: step, citation: "docs/designs/orchestrator-mode.md:939", status: covered, matched_items: ["14.5"], tasklist_lines: [2467], match_result: exact}
+  - {id: step-1.29, source: parsed, family: step, citation: "docs/designs/orchestrator-mode.md:940", status: covered, matched_items: ["14.6", "14.7", "14.8"], tasklist_lines: [2474, 2481, 2488], match_result: exact}
+  # ---- Pass 2: inferred requirement-shaped statements outside every parsed span ----
+  - {id: INF-001, source: inferred, quote: "`/task-builder` must copy the same rule into the task file: cite GAPS line 138 for counts and never edit the REPORT.", citation: "docs/designs/orchestrator-mode.md:80", status: missing, matched_items: [], tasklist_lines: [], match_result: none, note: "grep of the tasklist for 'line 138' and a never-edit-REPORT rule returns nothing; card F6"}
+  - {id: INF-002, source: inferred, quote: "`report.py` keeps only pure code: `sanitize`, `render`, `SECTIONS`, the fixed strings and `CHECKED_ORCA_VERSION`. No `write_report` exists.", citation: "docs/designs/orchestrator-mode.md:88", status: covered, matched_items: ["8.12"], tasklist_lines: [1499], match_result: containment}
+  - {id: INF-003, source: inferred, quote: "Decision: write a temp file in the output directory, `fsync` it, then publish it under the report name with `os.link`, which fails when the name exists.", citation: "docs/designs/orchestrator-mode.md:101", status: covered, matched_items: ["9.1"], tasklist_lines: [1626], match_result: containment}
+  - {id: INF-004, source: inferred, quote: "`_publish` runs only after every exit-2 check, `collect`, `classify_all` and `render` have succeeded, so a usage error or an internal error in those steps never reaches the filesystem.", citation: "docs/designs/orchestrator-mode.md:103", status: covered, matched_items: ["9.1"], tasklist_lines: [1626], match_result: containment}
+  - {id: INF-005, source: inferred, quote: "B1: imports go one way, `commands -> {probes, classify, report} -> models`.", citation: "docs/designs/orchestrator-mode.md:215", status: partial, matched_items: ["8.4", "8.12"], tasklist_lines: [1443, 1499], match_result: containment, note: "import checks exist for classify.py and report.py only; nothing checks that probes.py imports none of classify, report, click (DESIGN:211); card F10"}
+  - {id: INF-006, source: inferred, quote: "B3: the read allowlist lives only in `probes.py`. Phase 2 `/sc:close` gets its own package, seam and allowlist; nothing in this package grows a write verb (FR-021).", citation: "docs/designs/orchestrator-mode.md:217", status: covered-in-substance, matched_items: ["8.10", "10.3"], tasklist_lines: [1483, 1794], match_result: none}
+  - {id: INF-007, source: inferred, quote: "B4: the command and skill are thin: no parsing, no classification, no file writes.", citation: "docs/designs/orchestrator-mode.md:218", status: covered-in-substance, matched_items: ["11.1", "11.3"], tasklist_lines: [1954, 1968], match_result: none}
+  - {id: INF-008, source: inferred, quote: "B5: no type is redeclared from `superclaude.contracts`.", citation: "docs/designs/orchestrator-mode.md:219", status: missing, matched_items: [], tasklist_lines: [], match_result: none, note: "no item or check names superclaude.contracts; card F10"}
+  - {id: INF-009, source: inferred, quote: "R1, R2 and R3 land in one commit. Editing R1 or R2 without R3 fails the parity test.", citation: "docs/designs/orchestrator-mode.md:705", status: covered-in-substance, matched_items: ["13.1", "13.2", "13.4"], tasklist_lines: [2258, 2265, 2279], match_result: none, note: "no commit in this task; the three edits land in one working tree before the 13.8 parity run"}
+  - {id: INF-010, source: inferred, quote: "R1 and R6 avoid the words stop, retry, release, merge and removal in the sweep's description.", citation: "docs/designs/orchestrator-mode.md:707", status: covered, matched_items: ["13.2", "13.5"], tasklist_lines: [2269, 2290], match_result: containment}
+  - {id: INF-011, source: inferred, quote: "No `.claude/` path is staged; `make sync-dev` then `make verify-sync` (step 1.25) refresh the dev copies.", citation: "docs/designs/orchestrator-mode.md:708", status: covered, matched_items: ["14.1"], tasklist_lines: [2441], match_result: containment}
+  - {id: INF-012, source: inferred, quote: "The pattern names `.dev/sweeps/` only. It does not cover `.dev/tasks/`, which stays tracked and always staged (CLAUDE.md rule).", citation: "docs/designs/orchestrator-mode.md:719", status: covered, matched_items: ["8.6", "13.7"], tasklist_lines: [1457, 2302], match_result: containment}
+  - {id: INF-013, source: inferred, quote: "An autouse fixture patches `subprocess.run`, `subprocess.Popen` and `os.system` to raise `AssertionError`. It steps aside only for a test carrying the existing `integration` marker, which is used by exactly one test, the real-git test below.", citation: "docs/designs/orchestrator-mode.md:731", status: covered, matched_items: ["8.8", "10.8"], tasklist_lines: [1468, 1829], match_result: containment}
+  - {id: INF-014, source: inferred, quote: "Where the REPORT text and this design differ, this design wins (section 13, REPORT differences).", citation: "docs/designs/orchestrator-mode.md:902", status: covered-in-substance, matched_items: [], tasklist_lines: [139, 166, 1416], match_result: containment, note: "stated in Execution Context and the Phase 8 preamble, not in an item"}
+  - {id: INF-015, source: inferred, quote: "They go into step 1.4a because the real-git test created there copies the repository `.gitignore`, so its FR-025 check-ignore assertions fail until the line exists.", citation: "docs/designs/orchestrator-mode.md:942", status: covered, matched_items: ["8.6", "8.9"], tasklist_lines: [1454, 1476], match_result: containment}
+  - {id: INF-016, source: inferred, quote: "`worker-show` and `task-list` are each run once before and once after all other reads. The two outputs must be identical apart from timestamps; that is the only live check that these reads change nothing (M4).", citation: "docs/designs/orchestrator-mode.md:875", status: covered, matched_items: ["7.16"], tasklist_lines: [1260, 1262], match_result: containment, note: "the HALT may fire on a live worker's normal state change; card F5"}
+  - {id: INF-017, source: inferred, quote: "It is a manual, pre-implementation capture run by the person or the coordinator, never by a test, and it writes only its own notes file.", citation: "docs/designs/orchestrator-mode.md:868", status: partial, matched_items: ["7.16"], tasklist_lines: [1249], match_result: containment, note: "7.16 has the task executor run the live reads; who counts as the coordinator is not stated; card F11"}
+  - {id: INF-018, source: inferred, quote: "The report holds no action control, no command to paste and no advice to delete anything under `.dev/tasks/`.", citation: "docs/designs/orchestrator-mode.md:638", status: partial, matched_items: ["8.12", "10.5"], tasklist_lines: [1499, 1807], match_result: containment, note: "8.12 greps stop/retry/release/merge/remov only; no check for a pasteable command or delete advice"}
+  - {id: INF-019, source: inferred, quote: "If the step 1.0a capture shows it needs `--json` for a parseable result, that is a template change and needs the same owner note as any other allowlist change; until then the parser reads the captured plain shape.", citation: "docs/designs/orchestrator-mode.md:550", status: partial, matched_items: ["7.16", "7.17"], tasklist_lines: [1259, 1267], match_result: containment, note: "7.17 HALTs only on a field-name mismatch; an unparseable plain run-current has no owner-note route"}
+  - {id: INF-020, source: inferred, quote: "The `worker-list` cursor template is not in the set; it is added only after step 1.0a captures the cursor field, as one extra template (SPEC line 320).", citation: "docs/designs/orchestrator-mode.md:552", status: partial, matched_items: ["7.17", "8.10", "10.3"], tasklist_lines: [1267, 1485, 1793], match_result: containment, note: "the cursor field is recorded, but 8.10 and 10.3 pin exactly ten templates and no item adds the cursor template or routes it to the owner; card F1"}
+  - {id: INF-021, source: inferred, quote: "The skill prints no recommendation, proposes no action and never edits, stages or deletes a file.", citation: "docs/designs/orchestrator-mode.md:654", status: covered, matched_items: ["11.3", "11.4"], tasklist_lines: [1968, 1975], match_result: containment}
+  - {id: INF-022, source: inferred, quote: "Every function is pure over `SweepResult`; no function reads a clock, a file or an environment variable.", citation: "docs/designs/orchestrator-mode.md:594", status: covered, matched_items: ["8.12"], tasklist_lines: [1496], match_result: containment}
+  - {id: INF-023, source: inferred, quote: "All edits are to existing files; no new doc file. Rows and bullets are added, none removed or reworded.", citation: "docs/designs/orchestrator-mode.md:690", status: covered-in-substance, matched_items: ["13.1", "13.2", "13.3", "13.5", "13.6"], tasklist_lines: [2260, 2267, 2274, 2288, 2295], match_result: none}
+  - {id: INF-024, source: inferred, quote: "The limits apply as proposed and are marked proposed in `probes.py`", citation: "docs/designs/orchestrator-mode.md:987", status: missing, matched_items: [], tasklist_lines: [], match_result: none, note: "open item 19; 8.10 (tasklist line 1482) lists the limits with no 'proposed' marking and no check; card F9"}
+  - {id: INF-025, source: inferred, quote: "Only `commands.run` calls `sys.exit` or raises `click` exit types.", citation: "docs/designs/orchestrator-mode.md:445", status: covered, matched_items: ["9.1"], tasklist_lines: [1629], match_result: containment}
+  - {id: INF-026, source: inferred, quote: "No cleanup sweep: a later run never deletes a file it did not create.", citation: "docs/designs/orchestrator-mode.md:147", status: covered-in-substance, matched_items: ["9.1", "10.7"], tasklist_lines: [1627, 1821], match_result: none}

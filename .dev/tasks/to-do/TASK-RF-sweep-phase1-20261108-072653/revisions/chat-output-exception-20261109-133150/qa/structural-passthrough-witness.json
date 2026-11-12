@@ -1,0 +1,24 @@
+{
+  "producer": "qa-task-validation-consolidated.md",
+  "source": "A10-verify1.md",
+  "producer_sha256": "274ba5fcf4ca5f090ffce16912fd368b0609d827214ba6aff95e6fe7da94d82d",
+  "producer_mtime": 1794237102.484869,
+  "block_sha256": "45f816abe175bac4b953c283800006228e7f839cbf6e1bc4d11fd1efc3fc2baf",
+  "catalogue_source": "/home/coder/.claude/agents/rf-qa.md",
+  "catalogue_sha256": "b2cf1308b35ca3d8f577ad77231ebb93278ed4dee134d185a9fde19617fc83ca",
+  "live_tb_add": [
+    "TB-Add-1",
+    "TB-Add-3",
+    "TB-Add-4",
+    "TB-Add-5",
+    "TB-Add-6",
+    "TB-Add-7",
+    "TB-Add-8"
+  ],
+  "table_preserved_verbatim": true,
+  "negative_evidence": [
+    "First assertion failed:regex lacked MULTILINE; producer untouched,cycle0 snapshot created",
+    "Second assertion failed:heading-region end matched sliced starting heading; producer untouched",
+    "Corrected both;all checks passed before producer update"
+  ]
+}

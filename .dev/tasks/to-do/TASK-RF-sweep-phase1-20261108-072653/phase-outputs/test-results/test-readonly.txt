@@ -1,0 +1,72 @@
+# test-readonly.txt: item 10.4 (Step 1.11), tests/sweep/test_readonly.py
+
+Command: uv run pytest tests/sweep/test_readonly.py -v
+Real stdout follows.
+
+============================= test session starts ==============================
+platform linux -- Python 3.11.15, pytest-9.2.0, pluggy-1.7.0 -- /home/coder/workspaces/worktrees/IronClaude/issue-339-orchestrator-mode/.venv/bin/python
+cachedir: .pytest_cache
+SuperClaude: 5.0.0
+rootdir: /home/coder/workspaces/worktrees/IronClaude/issue-339-orchestrator-mode
+configfile: pyproject.toml
+plugins: superclaude-5.0.0, anyio-4.16.0
+collecting ... collected 24 items
+
+tests/sweep/test_readonly.py::test_git_argv_and_env_are_lock_free PASSED [  4%]
+tests/sweep/test_readonly.py::test_check_git_args_allows_only_the_listed_call PASSED [  8%]
+tests/sweep/test_readonly.py::test_collect_makes_one_git_call_per_worktree_that_ps_reports[root-only] PASSED [ 12%]
+tests/sweep/test_readonly.py::test_collect_makes_one_git_call_per_worktree_that_ps_reports[one-more] PASSED [ 16%]
+tests/sweep/test_readonly.py::test_collect_makes_one_git_call_per_worktree_that_ps_reports[two-more] PASSED [ 20%]
+tests/sweep/test_readonly.py::test_collect_reaches_git_with_a_lock_free_argv_for_each_worktree PASSED [ 25%]
+tests/sweep/test_readonly.py::test_snapshot_diff_detects_each_kind_of_change[new-file] PASSED [ 29%]
+tests/sweep/test_readonly.py::test_snapshot_diff_detects_each_kind_of_change[new-folder] PASSED [ 33%]
+tests/sweep/test_readonly.py::test_snapshot_diff_detects_each_kind_of_change[new-symlink] PASSED [ 37%]
+tests/sweep/test_readonly.py::test_snapshot_diff_detects_each_kind_of_change[removed-file] PASSED [ 41%]
+tests/sweep/test_readonly.py::test_snapshot_diff_detects_each_kind_of_change[same-size-same-mtime-content] PASSED [ 45%]
+tests/sweep/test_readonly.py::test_snapshot_diff_detects_each_kind_of_change[mtime-only] PASSED [ 50%]
+tests/sweep/test_readonly.py::test_snapshot_diff_detects_each_kind_of_change[size-and-content] PASSED [ 54%]
+tests/sweep/test_readonly.py::test_snapshot_records_overlapping_paths_once PASSED [ 58%]
+tests/sweep/test_readonly.py::test_sweep_run_adds_exactly_one_report_and_changes_nothing_else[nothing] PASSED [ 62%]
+tests/sweep/test_readonly.py::test_sweep_run_adds_exactly_one_report_and_changes_nothing_else[dev] PASSED [ 66%]
+tests/sweep/test_readonly.py::test_sweep_run_adds_exactly_one_report_and_changes_nothing_else[sweeps] PASSED [ 70%]
+tests/sweep/test_readonly.py::test_no_temp_file_and_no_second_name_remain_after_exit_0[nothing] PASSED [ 75%]
+tests/sweep/test_readonly.py::test_no_temp_file_and_no_second_name_remain_after_exit_0[dev] PASSED [ 79%]
+tests/sweep/test_readonly.py::test_no_temp_file_and_no_second_name_remain_after_exit_0[sweeps] PASSED [ 83%]
+tests/sweep/test_readonly.py::test_the_snapshot_check_catches_a_stray_write_made_during_the_run PASSED [ 87%]
+tests/sweep/test_readonly.py::test_the_subprocess_guard_is_live_in_this_module PASSED [ 91%]
+tests/sweep/test_readonly.py::test_a_sweep_starts_no_process_and_records_only_allowlisted_argv PASSED [ 95%]
+tests/sweep/test_readonly.py::test_real_git_lock_free_status_and_gitignore PASSED [100%]
+
+============================== 24 passed in 0.46s ==============================
+
+## Case-to-test map (DESIGN section 11, row for tests/sweep/test_readonly.py)
+
+Step 1.11 part, snapshot diff (path, size, st_mtime_ns, SHA-256) over root, HOME and the XDG dirs:
+- exactly one added report file, plus the output directory when new (and .dev when new):
+  test_sweep_run_adds_exactly_one_report_and_changes_nothing_else[nothing|dev|sweeps]
+  (nothing: added = .dev, .dev/sweeps, report; dev: .dev/sweeps, report; sweeps: report only;
+  nothing modified, nothing removed; report name matches YYYYMMDD-HHMMSS-sweep.md and equals the
+  JSON report_path)
+- no temp file and no second name for the report after exit 0:
+  test_no_temp_file_and_no_second_name_remain_after_exit_0[nothing|dev|sweeps]
+  (sweeps dir lists only the report; st_nlink == 1; no *.tmp anywhere in the snapshot)
+- the check cannot pass vacuously:
+  test_snapshot_diff_detects_each_kind_of_change[new-file|new-folder|new-symlink|removed-file|
+  same-size-same-mtime-content|mtime-only|size-and-content],
+  test_snapshot_records_overlapping_paths_once,
+  test_the_snapshot_check_catches_a_stray_write_made_during_the_run
+
+Step 1.4a part, one git argv per discovered worktree (re-pointed at probes.collect):
+- test_collect_makes_one_git_call_per_worktree_that_ps_reports[root-only|one-more|two-more]
+  (patch_orca + patch_git; root plus every worktree from worktree ps; args == ALLOWED_GIT[0])
+- test_collect_reaches_git_with_a_lock_free_argv_for_each_worktree
+  (real _git over a recorded subprocess.run, through collect: --no-optional-locks at index 1,
+  -C <path> after it, GIT_OPTIONAL_LOCKS=0)
+- kept from item 8.9: test_git_argv_and_env_are_lock_free, test_check_git_args_allows_only_the_listed_call,
+  test_real_git_lock_free_status_and_gitignore (the only integration-marked test; PASSED, not skipped)
+
+NFR-013, no live Orca, ccsession or Claude launch:
+- test_the_subprocess_guard_is_live_in_this_module (run, Popen, os.system all raise)
+- test_a_sweep_starts_no_process_and_records_only_allowlisted_argv (exit 0 through CliRunner with the
+  guard on; recorded Orca argv set == the four allowlisted reads; every git call is ALLOWED_GIT[0]
+  with the lock-free prefix)

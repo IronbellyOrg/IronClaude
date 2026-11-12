@@ -1,0 +1,15 @@
+run_id: 2026-11-08T02:19:07Z-9607df87
+selected_tier: 2
+fired_rule: 5.1-depth-deep-hard-override
+inputs:
+  depth: deep
+  tier_flag: auto
+  mode: post
+reviewers: 3
+reviewer_composition:
+  - {ordinal: 1, model: sonnet, alias: claude-gw-tier1b, persona: analyzer}
+  - {ordinal: 2, model: haiku, alias: claude-gw-tier2, persona: qa}
+  - {ordinal: 3, model: opus, alias: claude-gw-tier1a, persona: refactorer}
+executor_class_resolved: false
+t2_model_class_diversity: full
+t2_vendor_diversity: single

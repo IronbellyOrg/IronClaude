@@ -1,0 +1,24 @@
+# Written by the orchestrator verbatim from the evidence-validator's returned YAML (read-only agent).
+citations_total: 105
+citations_revalidated: 105
+citations_dropped: 0
+dropped: []
+corrected: []
+inf_rows_dropped: []
+special_checks:
+  - check: "1. D-02 (F-02), pattern counts on TL"
+    result: "PASS"
+    detail: "The pattern 'OQ-1 (R5) RESOLVED' occurs on exactly three TL lines: 991, 993 and 2802, and nowhere else. The line count is 3. The anchored pattern '^| [^|]* | 6\\.2 | .*OQ-1 (R5) RESOLVED' matches 0 lines today, as the report states. TL:991 and TL:993 start with '  - **', so the leading pipe excludes them. TL:2802 has the Item cell '6.1-6.4', so the 6.2 anchor excludes it. TL:2804 is the Execution Log rule ('Every HALT line, every owner decision ... is appended here as one row.'), as the report cites. The report's other quotes at TL:989, 991, 992, 993 and 2802 are exact."
+  - check: "2. D-01 (F-01)"
+    result: "PASS"
+    detail: "TL:1436 reads 'every class and constant name in DESIGN section 7.2 appears once (`grep -c` per name)'. TL:1433 holds the ClassifiedRow builder decision that repeats SessionRow, Classification and SafeToClose. DESIGN:454 has 'orca_rows: tuple[OrcaObservation, ...]'. DESIGN:459 has the SessionRow row. DESIGN:466 has 'rows: tuple[ClassifiedRow, ...]'. DESIGN:454 also repeats TranscriptTail. All are exact line hits."
+  - check: "3. D-03"
+    result: "PASS"
+    detail: "TL:1267 has the 'Branch: if a live field name differs ...' sentence. TL:1482 has 'ALLOWED_ORCA (exactly 10 templates after item 6.3)' and 'From the 1.0a facts: ... the cursor field'. TL:1485 has 'a count of ALLOWED_ORCA entries is 10'. TL:1793 has 'exact-set pin of the ten templates (DESIGN 7.3 after item 6.3)'. TL:1259 has 'any git stash, and run-current --json'. DESIGN:550 is the run-current --json owner-note sentence. DESIGN:552 is the worker-list cursor template sentence. DESIGN:971 is open item 3 ('a --json need goes to the owner as an allowlist change'). DESIGN:973 is open item 5 ('A full page of WORKER_LIST_PAGE rows sets truncated ... no cursor template'). TL:1142 (Branch 1 text) and TL:1262 also match."
+  - check: "4. INF rows (26 verbatim quotes)"
+    result: "PASS"
+    detail: "All 26 quotes match their DESIGN lines exactly: INF-001 at 80, 002 at 88, 003 at 101, 004 at 103, 005 at 215, 006 at 217, 007 at 218, 008 at 219, 009 at 705, 010 at 707, 011 at 708, 012 at 719, 013 at 731, 014 at 902, 015 at 942, 016 at 875, 017 at 868, 018 at 638, 019 at 550, 020 at 552, 021 at 654, 022 at 594, 023 at 690, 024 at 987, 025 at 445, 026 at 147. Each also matches the quote text stored in coverage-matrix:202-227. No INF row is dropped."
+  - check: "5. D-08 [INFERRED] SPEC line numbers"
+    result: "PASS"
+    detail: "In merged-requirements.md, lines 132, 143, 310, 323, 500, 504, 510, 562 and 619 each contain 'agent-wait'. NFR-003 is on 132, 447 and 562. NFR-014 is on 132, 143, 323, 504, 562 and 619. This supports the R-08 pairing of NFR-003 with line 132 and NFR-014 with line 143. The remaining lines (310, 500, 510) carry the flag text. The line numbers hold, so the [INFERRED] tag can stay as a provenance note."
+self_audit: "Zero drops is the result I was told to treat as suspect, so I re-checked the riskiest areas. (a) I did not rely on grep hits alone. For every quoted string I read the cited line or its surrounding block and compared the wording. All quotes sit on the cited line, with no line more than 3 lines off. (b) I confirmed that each TL line sits inside the item the report names: 1436 in 8.3, 1447 in 8.5, 838 in 5.11, 1627 in 9.1, 1787 in 10.2, 1793 in 10.3, 2467-2472 in 14.5, and 1249-1263 in 7.16. (c) I confirmed that the four 'Total: 23 open items' pins are at TL:269, 454, 784 and 1005, and that DESIGN:993 holds the same total. (d) Section 14 begins at DESIGN:837 and the 1.17 row is at DESIGN:835, so D-21 holds. DESIGN:181 and DESIGN:196 do not match the grep 'eight|8 templates', so D-20 holds. config.py:64-78 is the _git function from def to return, and TL has 0 hits for 'config.py:64', so D-22 holds. coverage-matrix:218 says 'card F11', and reflection-card-t1.yaml:274-276 is F12 with the stated category, so D-19 holds. I did not independently recount the 105 distinct ranges; I re-read every range that I met in the report, and I carry 105 over from the report's own count. Three things are not file:line citations and I did not validate them as such: the 'next unused OQ number is OQ-17' remark (no OQ-17 occurs in TL, which is consistent), the tier and calibrator metadata in the header, and the merge-log counts. The report's own header placeholders (citations_revalidated 0, citations_dropped 0, the pending Evidence-validator and Grounding Gaps sections) still need the orchestrator to update them from this result. Suggested status: success for citation validity, with no structural assertions evaluated because no assertions_path was passed."
