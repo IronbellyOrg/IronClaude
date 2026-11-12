@@ -122,6 +122,10 @@ def command(cards_dir, snapshot, root, coverage, out) -> None:
     cover = cc._sidecar(Path(coverage)) if coverage else {}
     for card in cards:
         rid = card.stem
+        if coverage and rid not in cover:
+            raise click.ClickException(
+                f"the coverage file has no entry for {rid} (use {{}} for a card with no coverage rows)"
+            )
         try:
             assigned, observed = fv2.coverage_context(cover.get(rid))
         except ValueError as exc:

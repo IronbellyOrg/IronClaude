@@ -102,12 +102,17 @@ def test_a_coverage_linked_finding_is_checked_when_the_context_is_given(repo):
     (tmp / "cards/r3.md").write_text(_card(json.dumps(row)))
     assert ("r3", "COV") not in _by_id(_run_ok(tmp, root))
     cover = tmp / "coverage.json"
-    cover.write_text(json.dumps({"r3": {"assigned": ["R-1"], "observed": ["R-1"]}}))
+    entry = {"assigned": ["R-1"], "observed": ["R-1"]}
+    cover.write_text(json.dumps({"r1": {}, "r2": {}, "r3": entry}))
     rows = _by_id(_run_ok(tmp, root, "--coverage", str(cover), out="out2"))
     assert rows[("r3", "COV")]["flag"] == "missing-file"
-    cover.write_text(json.dumps({"r3": {"assigned": "R-1", "observed": "R-1"}}))
+    cover.write_text(json.dumps({"r1": {}, "r2": {}, "r3": {"assigned": "R-1"}}))
     res = _run(tmp, root, "--coverage", str(cover), out="out3")
     assert res.exit_code != 0 and "must be a list of strings" in res.output
+    # a file that omits a card is an error, not a silent skip of that card's coverage-linked findings
+    cover.write_text(json.dumps({"r1": {}, "r3": entry}))
+    res = _run(tmp, root, "--coverage", str(cover), out="out4")
+    assert res.exit_code != 0 and "has no entry for r2" in res.output
 
 
 def _run_ok(tmp, root, *extra, out="out"):
