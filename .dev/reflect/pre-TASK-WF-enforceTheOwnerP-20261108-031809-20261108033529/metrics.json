@@ -1,0 +1,19 @@
+{
+  "run_id": "pre-TASK-WF-enforceTheOwnerP-20261108-031809-20261108033529",
+  "mode": "pre",
+  "tier_reached": 2,
+  "status": "partial",
+  "needs_human_decision": true,
+  "started_at": "2026-11-08T03:35:29Z",
+  "finished_at": "2026-11-08T04:45:00Z",
+  "confidence": {"t1_calibrated": 0.72, "r1_calibrated": 0.83, "r2_calibrated": 0.89, "merged": 0.86},
+  "coverage": {"parsed": 0, "inferred": 34, "matched_union": 28, "coverage_pct_union": 0.8235, "coverage_degraded": "parsed-sparse"},
+  "findings": {"total": 24, "high": 4, "medium": 14, "low": 6},
+  "deviations": {"authorized": 4, "necessary": 0, "drift": 0, "regression": 0, "grounding_gaps": 1},
+  "adversarial": {"merge_method": "adversarial", "alignment": 0.968, "status": "BLOCKED_BY_INVARIANTS", "unaddressed_invariants": ["INV-001"], "unresolved": ["X-001"], "base": "reviewer-1", "refactor_plan_review_rounds": 2},
+  "citations": {"total": 107, "revalidated": 107, "dropped": 0, "inferred": 7, "policy": "full_reread", "zero_drop_flag": true},
+  "diversity": {"t2_model_class": "degraded", "t2_vendor": "single", "calibrator": "degraded"},
+  "degraded_components": ["auggie"],
+  "memory": {"hits": 0, "misses": 2, "written": [".superclaude/memory/reflect/last-pass-fix-flaky-parallel-thread-test.md", "docs/memory/reflect/deviation-patterns-fix-flaky-parallel-thread-test.md"]},
+  "input_drift_detected": false
+}

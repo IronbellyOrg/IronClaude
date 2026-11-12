@@ -1,0 +1,126 @@
+contract_version: "1.8.0"
+status: partial                      # Grounding Gap G-1 (needs_human_decision) + adversarial non-convergence (BLOCKED_BY_INVARIANTS); report header status: needs_human_decision
+mode: pre
+tier_reached: 2
+report_path: /home/coder/workspaces/worktrees/IronClaude/fix-flaky-parallel-thread-test/.dev/reflect/pre-TASK-WF-enforceTheOwnerP-20261108-031809-20261108033529/REPORT.md
+audit_log_path: /home/coder/workspaces/worktrees/IronClaude/fix-flaky-parallel-thread-test/.dev/reflect/pre-TASK-WF-enforceTheOwnerP-20261108-031809-20261108033529/audit.log
+confidence_calibrated: 0.86
+escalation_rule_matched: 4
+onboarding_ran: false
+
+# UC-1
+coverage_pct: null
+coverage_pct_union: 0.8235
+coverage_undefined: false
+coverage_degraded: parsed-sparse
+unmapped_requirements: []
+unmapped_requirements_union: [INF-004, INF-026, INF-027, INF-028, INF-029, INF-030]
+best_practice_grade: 3
+implementation_coverage_pct: null
+missing_implementations: []
+hierarchy_slice_path: null
+hierarchy_coverage_pct: null
+
+# UC-2 (not applicable)
+tasklist_completion_pct: null
+deviation_count_by_class: {authorized: 4, necessary: 0, drift: 0, regression: 0}
+deviation_register_path: null
+grounding_gaps_path: /home/coder/workspaces/worktrees/IronClaude/fix-flaky-parallel-thread-test/.dev/reflect/pre-TASK-WF-enforceTheOwnerP-20261108-031809-20261108033529/artifacts/grounding-gaps.yaml
+third_party_api_grounding: []
+third_party_api_verified: false
+verification_ran: false
+verification_invocations: 0
+verification_failures: 0
+verification_regressions_detected: 0
+verification_skip_reason: null     # UC-1: verification run is UC-2 only
+runtime_surface_requirements: []
+runtime_surface_sweep_ran: false
+runtime_surface_ledger_path: null
+runtime_surface_unreached: 0
+runtime_surface_degraded: false
+unreached_surfaces: []
+reachability_gate_ran: false
+reachability_ledger_path: null
+reachability_requirements_scanned: 0
+reachability_unreachable: 0
+reachability_unproven: 0
+reachability_real_boot_ran: false
+reachability_skip_reason: null
+reuse_sweep_ran: false
+reuse_audit_path: null
+reuse_miss_blocking: 0
+reuse_miss_advisory: 0
+reuse_verdict_count_by_type: {reuse_by_import: 0, mirror_shape: 0, extract_shared: 0, distinct: 0}
+reuse_grounding_gap_count: 0
+neighbour_search_sampled: false
+neighbour_search_degraded: false
+max_overlap_score: null
+
+# Input integrity
+input_sha256:
+  tasklist: d1a56fee4bfa4ddb1fd2be6d691ef95166098c3d3a30a89d274dda2a54040250
+  spec: 206a274718364f6225270161e52efa50c5c1535485cd516d0c211f6207ef81c8
+input_tree_sha256: 16a9ecc8ad6ab1521c13e168da7c72335d95d48f9954936fe5bf2f150beab452
+input_tree_file_count: 2
+input_tree_snapshot_path: /home/coder/workspaces/worktrees/IronClaude/fix-flaky-parallel-thread-test/.dev/reflect/pre-TASK-WF-enforceTheOwnerP-20261108-031809-20261108033529/artifacts/input-snapshot.yaml
+input_drift_detected: false
+input_drift_diff: null
+
+# Hallucination guard
+citations_total: 107
+citations_revalidated: 107
+citations_dropped: 0
+citations_dropped_extrapolated: 0
+citations_inferred: 7
+citation_budget_policy: full_reread
+evidence_validator_ran: true
+citation_revalidation_at_promotion: false
+
+# Tier 2
+reviewer_cards:
+  - /home/coder/workspaces/worktrees/IronClaude/fix-flaky-parallel-thread-test/.dev/reflect/pre-TASK-WF-enforceTheOwnerP-20261108-031809-20261108033529/reviewer-cards/reviewer-1-card.md
+  - /home/coder/workspaces/worktrees/IronClaude/fix-flaky-parallel-thread-test/.dev/reflect/pre-TASK-WF-enforceTheOwnerP-20261108-031809-20261108033529/reviewer-cards/reviewer-2-card.md
+adversarial_artifacts_dir: /home/coder/workspaces/worktrees/IronClaude/fix-flaky-parallel-thread-test/.dev/reflect/pre-TASK-WF-enforceTheOwnerP-20261108-031809-20261108033529/adversarial
+adversarial_convergence_score: 0.968   # diff-point alignment; adversarial status BLOCKED_BY_INVARIANTS (INV-001)
+adversarial_unavailable: false
+merge_method: adversarial
+t2_model_class_diversity: degraded
+t2_vendor_diversity: single
+t2_effective_diversity: none
+calibrator_diversity: degraded
+
+# Tier 3
+remediation_offered: false
+remediation_accepted: null
+task_file_path: null
+remediation_task_path: null
+remediation_plan_path: null
+handoff_memory_key: null
+
+# Asymmetric-cost flags
+cannot_validate_without_user_input: true
+regression_present: false
+unauthorized_deviation_present: false   # the one contested departure is a Grounding Gap, not a classified deviation
+blocked_by_low_confidence: false
+spec_is_wrong: false
+user_decision_required: true
+needs_human_decision: true
+
+per_task_verdicts: []
+interaction_effects_scanned: false
+interaction_effects_findings: 0
+
+budget_forced_tier_downgrade: false
+budget_forced_stop: false
+budget_check_skipped: true
+forced_tier: null
+
+promotion_action: not-applicable
+promotion_adapter: null
+promotion_source: null
+promotion_destination: null
+promotion_log_path: null
+promotion_gate_passed: null
+promotion_skip_reason: null
+promotion_fail_reason: null
+promotion_override_used: null

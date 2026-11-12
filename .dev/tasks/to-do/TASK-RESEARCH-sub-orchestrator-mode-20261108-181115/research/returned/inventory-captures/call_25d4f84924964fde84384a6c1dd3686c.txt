@@ -1,0 +1,1516 @@
+CLAUDE.md:312:coordinator under another orchestrator
+src/superclaude/core/HOW-WE-WORK.md:400:person opened
+src/superclaude/core/CLAUDE.md:58:coordinator under another orchestrator
+src/superclaude/core/WORKER-CONTRACT.md:40:WC-8
+src/superclaude/core/WORKER-CONTRACT.md:62:WC-13
+src/superclaude/core/WORKER-CONTRACT.md:69:person opened
+src/superclaude/core/WORKER-CONTRACT.md:108:WC-13
+plugins/superclaude/skills/sc-recommend/refs/HOW-WE-WORK.md:400:person opened
+.dev/orca-command-refactor/review/disposition-round4.md:14:WC-13
+.dev/orca-command-refactor/review/disposition-round4.md:52:WC-13
+.dev/orca-command-refactor/review/disposition-round4.md:52:WC-13
+.dev/orca-command-refactor/review/spec-7.2-step5-draft.md:20:WC-13
+src/superclaude/hooks/scripts/require-orca-worktree-agent.sh:352:ORCA WORKTREE BLOCK:
+src/superclaude/hooks/scripts/require-orca-worktree-agent.sh:354:The session that creates the worktree becomes its orchestrator
+src/superclaude/hooks/scripts/require-orca-worktree-agent.sh:354:coordinator under another orchestrator
+src/superclaude/hooks/scripts/require-orca-worktree-agent.sh:355:Supervised workers use `orca orchestration worker-start`
+.dev/orca-command-refactor/review/round4-review.md:23:WC-13
+.dev/orca-command-refactor/review/spec-panel-round3.md:247:WC-8
+.dev/orca-command-refactor/review/issue-326-evaluation.md:39:WC-8
+docs/designs/issue-watcher.md:68:WC-13
+.dev/reflect/pre-TASK-WF-brainstormFixBri-20261106-113538-20261106113956/reviewer-briefs/reviewer-2.md:350:WC-8
+.dev/reflect/pre-TASK-WF-brainstormFixBri-20261106-113538-20261106113956/reviewer-briefs/reviewer-2.md:350:WC-13
+.dev/reflect/pre-TASK-WF-brainstormFixBri-20261106-113538-20261106113956/reviewer-briefs/reviewer-2.md:371:WC-13
+.dev/reflect/pre-TASK-WF-brainstormFixBri-20261106-113538-20261106113956/reviewer-briefs/reviewer-2.md:378:WC-13
+.dev/reflect/pre-TASK-WF-brainstormFixBri-20261106-113538-20261106113956/reviewer-briefs/reviewer-3.md:350:WC-8
+.dev/reflect/pre-TASK-WF-brainstormFixBri-20261106-113538-20261106113956/reviewer-briefs/reviewer-3.md:350:WC-13
+.dev/reflect/pre-TASK-WF-brainstormFixBri-20261106-113538-20261106113956/reviewer-briefs/reviewer-3.md:371:WC-13
+.dev/reflect/pre-TASK-WF-brainstormFixBri-20261106-113538-20261106113956/reviewer-briefs/reviewer-3.md:378:WC-13
+.dev/reflect/pre-TASK-WF-brainstormFixBri-20261106-113538-20261106113956/reviewer-briefs/reviewer-1.md:350:WC-8
+.dev/reflect/pre-TASK-WF-brainstormFixBri-20261106-113538-20261106113956/reviewer-briefs/reviewer-1.md:350:WC-13
+.dev/reflect/pre-TASK-WF-brainstormFixBri-20261106-113538-20261106113956/reviewer-briefs/reviewer-1.md:371:WC-13
+.dev/reflect/pre-TASK-WF-brainstormFixBri-20261106-113538-20261106113956/reviewer-briefs/reviewer-1.md:378:WC-13
+.dev/reflect/pre-TASK-WF-brainstormFixBri-20261106-113538-20261106113956/artifacts/grounding.txt:242:WC-13
+.dev/reflect/pre-TASK-WF-brainstormFixBri-20261106-113538-20261106113956/artifacts/grounding.txt:250:WC-8
+.dev/reflect/pre-TASK-WF-brainstormFixBri-20261106-113538-20261106113956/artifacts/grounding.txt:250:WC-13
+docs/developer-guide/SuperClaude-Developer-Guide-Commands-Skills-Agents.md:336:WC-8
+docs/developer-guide/SuperClaude-Developer-Guide-Commands-Skills-Agents.md:469:WC-8
+docs/developer-guide/SuperClaude-Developer-Guide-Commands-Skills-Agents.md:483:WC-8
+docs/developer-guide/SuperClaude-Developer-Guide-Commands-Skills-Agents.md:802:WC-8
+docs/developer-guide/SuperClaude-Developer-Guide-Commands-Skills-Agents.md:993:NEVER_AS_WORKER
+docs/developer-guide/SuperClaude-Developer-Guide-Commands-Skills-Agents.md:1005:WC-8
+docs/developer-guide/SuperClaude-Developer-Guide-Commands-Skills-Agents.md:1025:WC-8
+docs/developer-guide/SuperClaude-Developer-Guide-Commands-Skills-Agents.md:1177:WC-8
+docs/developer-guide/SuperClaude-Developer-Guide-Commands-Skills-Agents.md:1286:WC-8
+.dev/orca-command-refactor/decisions/APPROVED.md:12:person-opened
+.dev/orca-command-refactor/decisions/APPROVED.md:12:WC-13
+.dev/reflect/pre-TASK-WF-p1LivePlanBrief-20261105-164506-20261105172548/reviewer-briefs/reviewer-2.md:40:WC-13
+.dev/reflect/pre-TASK-WF-p1LivePlanBrief-20261105-164506-20261105172548/reviewer-briefs/reviewer-2.md:47:WC-13
+.dev/reflect/pre-TASK-WF-p1LivePlanBrief-20261105-164506-20261105172548/reviewer-briefs/reviewer-2.md:70:WC-8
+.dev/reflect/pre-TASK-WF-p1LivePlanBrief-20261105-164506-20261105172548/reviewer-briefs/reviewer-2.md:70:WC-13
+.dev/orca-command-refactor/decisions/D5/debate/adversarial/return-contract.yaml:26:WC-13
+.dev/orca-command-refactor/decisions/D5/debate/adversarial/return-contract.yaml:30:WC-13
+.dev/reflect/pre-TASK-WF-p1LivePlanBrief-20261105-164506-20261105172548/reviewer-briefs/reviewer-3.md:37:WC-13
+.dev/reflect/pre-TASK-WF-p1LivePlanBrief-20261105-164506-20261105172548/reviewer-briefs/reviewer-3.md:44:WC-13
+.dev/reflect/pre-TASK-WF-p1LivePlanBrief-20261105-164506-20261105172548/reviewer-briefs/reviewer-3.md:67:WC-8
+.dev/reflect/pre-TASK-WF-p1LivePlanBrief-20261105-164506-20261105172548/reviewer-briefs/reviewer-3.md:67:WC-13
+.dev/reflect/pre-TASK-WF-p1LivePlanBrief-20261105-164506-20261105172548/reviewer-briefs/reviewer-1.md:39:WC-13
+.dev/reflect/pre-TASK-WF-p1LivePlanBrief-20261105-164506-20261105172548/reviewer-briefs/reviewer-1.md:46:WC-13
+.dev/reflect/pre-TASK-WF-p1LivePlanBrief-20261105-164506-20261105172548/reviewer-briefs/reviewer-1.md:69:WC-8
+.dev/reflect/pre-TASK-WF-p1LivePlanBrief-20261105-164506-20261105172548/reviewer-briefs/reviewer-1.md:69:WC-13
+.dev/orca-command-refactor/decisions/D5/debate/adversarial/merged-output.md:20:person opened
+.dev/orca-command-refactor/decisions/D5/debate/adversarial/merged-output.md:38:WC-13
+.dev/orca-command-refactor/decisions/D5/debate/adversarial/merged-output.md:44:WC-8
+.dev/orca-command-refactor/decisions/D5/debate/adversarial/merged-output.md:76:WC-8
+.dev/orca-command-refactor/decisions/D5/debate/adversarial/merged-output.md:85:WC-13
+.dev/orca-command-refactor/decisions/D5/debate/adversarial/merged-output.md:122:person opened
+.dev/orca-command-refactor/decisions/D5/debate/adversarial/merged-output.md:124:WC-13
+.dev/orca-command-refactor/decisions/D5/debate/adversarial/merged-output.md:130:WC-13
+.dev/orca-command-refactor/decisions/D5/debate/adversarial/merged-output.md:133:WC-13
+.dev/orca-command-refactor/decisions/D5/debate/adversarial/merged-output.md:133:WC-13
+.dev/orca-command-refactor/decisions/D5/debate/adversarial/merged-output.md:175:WC-13
+.dev/orca-command-refactor/decisions/D5/debate/adversarial/merged-output.md:180:WC-13
+.dev/orca-command-refactor/decisions/D5/debate/adversarial/merged-output.md:190:person-opened
+.dev/orca-command-refactor/decisions/D5/debate/adversarial/merged-output.md:190:WC-13
+.dev/orca-command-refactor/decisions/D5/debate/adversarial/merged-output.md:202:WC-13
+.dev/orca-command-refactor/decisions/D5/debate/adversarial/merged-output.md:207:WC-13
+.dev/orca-command-refactor/decisions/D5/debate/adversarial/merged-output.md:213:WC-13
+.dev/orca-command-refactor/decisions/D5/debate/adversarial/merged-output.md:218:WC-13
+.dev/orca-command-refactor/decisions/D5/debate/adversarial/merged-output.md:222:WC-8
+.dev/orca-command-refactor/decisions/D5/debate/adversarial/merged-output.md:224:WC-13
+.dev/orca-command-refactor/decisions/D5/debate/adversarial/merged-output.md:226:WC-13
+.dev/orca-command-refactor/decisions/D5/debate/adversarial/merged-output.md:237:WC-13
+.dev/orca-command-refactor/decisions/D5/debate/adversarial/merged-output.md:241:WC-13
+.dev/orca-command-refactor/decisions/D5/debate/adversarial/merged-output.md:241:person opened
+.dev/orca-command-refactor/decisions/D5/debate/adversarial/merged-output.md:242:WC-13
+.dev/orca-command-refactor/decisions/D5/debate/adversarial/base-selection.md:33:WC-8
+.dev/orca-command-refactor/decisions/D5/debate/adversarial/base-selection.md:71:WC-8
+.dev/orca-command-refactor/decisions/D5/debate/adversarial/base-selection.md:174:WC-8
+.dev/orca-command-refactor/decisions/D5/debate/adversarial/diff-analysis.md:20:WC-8
+.dev/orca-command-refactor/decisions/D5/debate/adversarial/diff-analysis.md:67:WC-8
+.dev/orca-command-refactor/decisions/D5/debate/adversarial/diff-analysis.md:68:WC-8
+.dev/reflect/pre-TASK-WF-p1LivePlanBrief-20261105-164506-20261105172548/artifacts/grounding-hunks.md:19:WC-13
+.dev/reflect/pre-TASK-WF-p1LivePlanBrief-20261105-164506-20261105172548/artifacts/grounding-hunks.md:26:WC-13
+.dev/reflect/pre-TASK-WF-p1LivePlanBrief-20261105-164506-20261105172548/artifacts/grounding-hunks.md:49:WC-8
+.dev/reflect/pre-TASK-WF-p1LivePlanBrief-20261105-164506-20261105172548/artifacts/grounding-hunks.md:49:WC-13
+.dev/orca-command-refactor/decisions/D5/debate/adversarial/variant-1-original.md:12:WC-8
+.dev/orca-command-refactor/decisions/D5/debate/adversarial/merge-log.md:25:person opened
+.dev/orca-command-refactor/decisions/D5/debate/adversarial/merge-log.md:25:person-opened
+.dev/orca-command-refactor/decisions/D5/debate/adversarial/merge-log.md:88:WC-8
+.dev/orca-command-refactor/decisions/D5/debate/adversarial/merge-log.md:97:WC-13
+.dev/orca-command-refactor/decisions/D5/debate/adversarial/merge-log.md:128:WC-13
+.dev/orca-command-refactor/decisions/D5/debate/adversarial/merge-log.md:133:WC-13
+.dev/orca-command-refactor/decisions/D5/debate/adversarial/merge-log.md:169:WC-13
+.dev/orca-command-refactor/decisions/D5/debate/adversarial/merge-log.md:173:WC-13
+.dev/orca-command-refactor/decisions/D5/debate/adversarial/merge-log.md:223:WC-13
+.dev/orca-command-refactor/decisions/D5/debate/adversarial/merge-log.md:240:WC-13
+.dev/orca-command-refactor/decisions/D5/debate/adversarial/merge-log.md:243:person-opened
+.dev/orca-command-refactor/decisions/D5/debate/adversarial/scoring/qual-pass-1.md:37:WC-8
+.dev/orca-command-refactor/decisions/D5/debate/adversarial/scoring/qual-pass-1.md:47:WC-8
+.dev/orca-command-refactor/decisions/D5/debate/adversarial/scoring/qual-pass-2.md:17:WC-8
+.dev/orca-command-refactor/decisions/D5/debate/adversarial/scoring/qual-pass-2.md:36:WC-8
+.dev/orca-command-refactor/decisions/D5/debate/adversarial/invariant-probe.md:25:WC-8
+.dev/orca-command-refactor/decisions/D5/debate/adversarial/invariant-probe.md:25:WC-8
+.dev/orca-command-refactor/decisions/D5/debate/adversarial/invariant-probe.md:25:WC-8
+.dev/orca-command-refactor/decisions/D5/debate/adversarial/invariant-probe.md:26:WC-8
+.dev/orca-command-refactor/decisions/D5/debate/adversarial/invariant-probe.md:26:WC-8
+.dev/orca-command-refactor/decisions/D5/debate/adversarial/debate-transcript.md:29:WC-8
+.dev/orca-command-refactor/decisions/D5/debate/adversarial/debate-transcript.md:34:WC-8
+.dev/orca-command-refactor/decisions/D5/debate/adversarial/debate-transcript.md:60:WC-8
+.dev/orca-command-refactor/decisions/D5/debate/adversarial/debate-transcript.md:90:WC-8
+.dev/orca-command-refactor/decisions/D5/debate/adversarial/debate-transcript.md:100:WC-8
+.dev/orca-command-refactor/decisions/D5/debate/adversarial/debate-transcript.md:103:WC-8
+.dev/orca-command-refactor/decisions/D5/debate/adversarial/debate-transcript.md:106:WC-8
+.dev/orca-command-refactor/decisions/D5/debate/adversarial/debate-transcript.md:118:WC-8
+.dev/orca-command-refactor/decisions/D5/debate/adversarial/debate-transcript.md:132:WC-8
+.dev/orca-command-refactor/decisions/D5/debate/adversarial/debate-transcript.md:133:WC-8
+.dev/orca-command-refactor/decisions/D5/debate/adversarial/debate-transcript.md:161:WC-8
+.dev/orca-command-refactor/decisions/D5/debate/adversarial/debate-transcript.md:184:WC-8
+.dev/orca-command-refactor/decisions/D5/debate/adversarial/debate-transcript.md:192:WC-8
+.dev/orca-command-refactor/decisions/D5/debate/adversarial/debate-transcript.md:207:WC-8
+.dev/orca-command-refactor/decisions/D5/debate/adversarial/debate-transcript.md:286:WC-8
+.dev/orca-command-refactor/decisions/D5/debate/adversarial/debate-transcript.md:287:WC-8
+.dev/orca-command-refactor/decisions/D5/debate/adversarial/debate-transcript.md:386:WC-8
+tests/skills/test_worker_contract.py:123:WC-8
+tests/skills/test_worker_contract.py:123:WC-8
+tests/skills/test_worker_contract.py:155:WC-13
+tests/skills/test_worker_contract.py:155:WC-13
+tests/skills/test_worker_contract.py:382:NEVER_AS_WORKER
+tests/skills/test_worker_contract.py:768:NEVER_AS_WORKER
+tests/skills/test_worker_contract.py:1081:NEVER_AS_WORKER
+tests/skills/test_worker_contract.py:1237:WC-8
+.dev/orca-command-refactor/decisions/D5/debate/adversarial/rounds/r2-variant-1.md:16:WC-8
+.dev/orca-command-refactor/decisions/D5/debate/adversarial/rounds/r2-variant-1.md:24:WC-8
+.dev/orca-command-refactor/decisions/D5/debate/adversarial/rounds/r2-variant-1.md:39:WC-8
+plugins/superclaude/hooks/scripts/require-orca-worktree-agent.sh:352:ORCA WORKTREE BLOCK:
+plugins/superclaude/hooks/scripts/require-orca-worktree-agent.sh:354:The session that creates the worktree becomes its orchestrator
+plugins/superclaude/hooks/scripts/require-orca-worktree-agent.sh:354:coordinator under another orchestrator
+plugins/superclaude/hooks/scripts/require-orca-worktree-agent.sh:355:Supervised workers use `orca orchestration worker-start`
+.dev/orca-command-refactor/decisions/D5/debate/adversarial/rounds/r2-variant-2.md:42:WC-8
+.dev/orca-command-refactor/decisions/D5/debate/adversarial/rounds/r2-variant-2.md:43:WC-8
+.dev/orca-command-refactor/decisions/D5/debate/adversarial/rounds/r1-variant-1.md:9:WC-8
+.dev/orca-command-refactor/decisions/D5/debate/adversarial/rounds/r1-variant-1.md:14:WC-8
+.dev/orca-command-refactor/decisions/D5/debate/adversarial/rounds/r1-variant-1.md:40:WC-8
+.dev/orca-command-refactor/decisions/D5/debate/adversarial/rounds/r1-variant-1.md:70:WC-8
+.dev/orca-command-refactor/decisions/D5/debate/adversarial/rounds/r1-variant-2.md:6:WC-8
+.dev/orca-command-refactor/decisions/D5/debate/adversarial/rounds/r1-variant-2.md:9:WC-8
+.dev/orca-command-refactor/decisions/D5/debate/adversarial/rounds/r1-variant-2.md:12:WC-8
+.dev/orca-command-refactor/decisions/D5/debate/adversarial/rounds/r1-variant-2.md:24:WC-8
+.dev/orca-command-refactor/decisions/D5/debate/adversarial/rounds/r1-variant-2.md:38:WC-8
+.dev/orca-command-refactor/decisions/D5/debate/adversarial/rounds/r1-variant-2.md:39:WC-8
+.dev/orca-command-refactor/decisions/D5/debate/adversarial/rounds/r1-variant-2.md:67:WC-8
+.dev/orca-command-refactor/decisions/D5/debate/adversarial/refactor-plan.md:36:person opened
+.dev/orca-command-refactor/decisions/D5/debate/adversarial/refactor-plan.md:84:WC-8
+.dev/orca-command-refactor/decisions/D5/debate/adversarial/refactor-plan.md:91:WC-13
+.dev/orca-command-refactor/decisions/D5/debate/adversarial/refactor-plan.md:116:WC-13
+.dev/orca-command-refactor/decisions/D5/debate/adversarial/refactor-plan.md:117:WC-8
+.dev/orca-command-refactor/decisions/D5/debate/adversarial/refactor-plan.md:118:WC-13
+.dev/orca-command-refactor/decisions/D5/debate/adversarial/refactor-plan.md:119:WC-8
+.dev/orca-command-refactor/decisions/D5/debate/adversarial/refactor-plan.md:120:WC-13
+.dev/orca-command-refactor/decisions/D5/debate/adversarial/refactor-plan.md:120:WC-13
+.dev/orca-command-refactor/decisions/D5/debate/adversarial/refactor-plan.md:120:WC-13
+.dev/orca-command-refactor/decisions/D5/debate/adversarial/refactor-plan.md:128:WC-13
+.dev/orca-command-refactor/decisions/D5/debate/adversarial/refactor-plan.md:134:person-opened
+.dev/orca-command-refactor/decisions/D5/debate/adversarial/refactor-plan.md:134:WC-13
+.dev/orca-command-refactor/decisions/D5/debate/adversarial/refactor-plan.md:158:WC-13
+.dev/orca-command-refactor/decisions/D5/debate/adversarial/refactor-plan.md:161:WC-13
+.dev/orca-command-refactor/decisions/D5/debate/adversarial/refactor-plan.md:164:WC-13
+.dev/orca-command-refactor/decisions/D5/debate/adversarial/refactor-plan.md:165:WC-13
+.dev/orca-command-refactor/decisions/D5/debate/adversarial/refactor-plan.md:165:WC-13
+.dev/orca-command-refactor/decisions/D5/debate/adversarial/refactor-plan.md:171:WC-8
+.dev/orca-command-refactor/decisions/D5/debate/adversarial/refactor-plan.md:194:WC-13
+.dev/orca-command-refactor/decisions/D5/debate/adversarial/refactor-plan.md:207:WC-13
+.dev/orca-command-refactor/decisions/D5/debate/adversarial/refactor-plan.md:207:person opened
+.dev/orca-command-refactor/decisions/D5/debate/adversarial/refactor-plan.md:208:WC-13
+.dev/orca-command-refactor/decisions/D5/debate/adversarial/refactor-plan.md:213:WC-13
+.dev/orca-command-refactor/decisions/D5/debate/adversarial/refactor-plan.md:217:WC-8
+.dev/orca-command-refactor/decisions/D5/debate/adversarial/refactor-plan.md:219:WC-13
+.dev/orca-command-refactor/decisions/D5/debate/adversarial/refactor-plan.md:221:WC-13
+.dev/orca-command-refactor/decisions/D5/debate/adversarial/refactor-plan.md:226:person opened
+.dev/orca-command-refactor/decisions/D5/debate/adversarial/refactor-plan.md:227:WC-13
+.dev/orca-command-refactor/decisions/D5/debate/adversarial/refactor-plan.md:227:WC-13
+.dev/orca-command-refactor/decisions/D5/debate/adversarial/refactor-plan.md:230:WC-13
+.dev/orca-command-refactor/decisions/D5/debate/adversarial/refactor-plan.md:232:WC-13
+.dev/orca-command-refactor/decisions/D5/debate/adversarial/refactor-plan.md:233:WC-13
+.dev/orca-command-refactor/decisions/D5/debate/adversarial/refactor-plan.md:266:WC-13
+.dev/orca-command-refactor/decisions/D5/debate/adversarial/refactor-plan.md:280:person-opened
+.dev/orca-command-refactor/decisions/D5/debate/adversarial/refactor-plan.md:280:WC-13
+.dev/orca-command-refactor/decisions/D5/RECOMMENDATION.md:9:person opened
+.dev/orca-command-refactor/decisions/D5/RECOMMENDATION.md:10:WC-8
+.dev/orca-command-refactor/decisions/D5/RECOMMENDATION.md:10:WC-13
+.dev/orca-command-refactor/decisions/D5/RECOMMENDATION.md:46:WC-8
+.dev/orca-command-refactor/decisions/D5/RECOMMENDATION.md:48:WC-13
+.dev/orca-command-refactor/decisions/D5/RECOMMENDATION.md:50:WC-13
+.dev/orca-command-refactor/decisions/D5/RECOMMENDATION.md:55:person opened
+.dev/orca-command-refactor/decisions/D5/RECOMMENDATION.md:56:WC-13
+.dev/orca-command-refactor/decisions/D5/RECOMMENDATION.md:60:person-opened
+.dev/orca-command-refactor/decisions/D5/RECOMMENDATION.md:61:WC-13
+.dev/orca-command-refactor/decisions/D5/RECOMMENDATION.md:68:WC-13
+.dev/orca-command-refactor/decisions/D5/RECOMMENDATION.md:70:WC-13
+.dev/orca-command-refactor/decisions/D5/RECOMMENDATION.md:72:WC-13
+.dev/orca-command-refactor/decisions/D5/option-a.md:12:WC-8
+src/superclaude/skills/ccsession-tag/README.md:242:coordinator under another orchestrator
+.dev/orca-command-refactor/decisions/git-ownership/debate/adversarial/diff-analysis.md:60:WC-8
+.dev/orca-command-refactor/decisions/git-ownership/debate/adversarial/round1-advocate-c.md:71:WC-8
+.dev/orca-command-refactor/decisions/git-ownership/debate/adversarial/variant-3-original.md:30:WC-8
+.dev/orca-command-refactor/decisions/git-ownership/debate/adversarial/round1-advocate-a.md:19:WC-8
+.dev/orca-command-refactor/decisions/git-ownership/debate/adversarial/scoring-pass-1.md:128:WC-8
+.dev/orca-command-refactor/decisions/git-ownership/debate/adversarial/round1-advocate-d.md:76:WC-8
+.dev/orca-command-refactor/decisions/git-ownership/debate/adversarial/debate-transcript.md:48:WC-8
+.dev/orca-command-refactor/decisions/git-ownership/debate/adversarial/debate-transcript.md:315:WC-8
+.dev/orca-command-refactor/decisions/git-ownership/debate/adversarial/debate-transcript.md:458:WC-8
+.dev/orca-command-refactor/decisions/git-ownership/debate/adversarial/scoring-pass-2.md:129:WC-8
+.dev/orca-command-refactor/decisions/git-ownership/option-c.md:30:WC-8
+.dev/reflect/pre-TASK-WF-enforceTheOwnerP-20261108-031809-20261108033529/adversarial/merged-output.md:20:WC-13
+.dev/reflect/pre-TASK-WF-enforceTheOwnerP-20261108-031809-20261108033529/adversarial/merged-output.md:42:WC-13
+.dev/reflect/pre-TASK-WF-enforceTheOwnerP-20261108-031809-20261108033529/adversarial/merged-output.md:87:WC-13
+.dev/reflect/pre-TASK-WF-enforceTheOwnerP-20261108-031809-20261108033529/adversarial/base-selection.md:30:WC-13
+.dev/reflect/pre-TASK-WF-enforceTheOwnerP-20261108-031809-20261108033529/adversarial/base-selection.md:62:WC-13
+.dev/reflect/pre-TASK-WF-enforceTheOwnerP-20261108-031809-20261108033529/adversarial/base-selection.md:134:WC-13
+.dev/reflect/pre-TASK-WF-enforceTheOwnerP-20261108-031809-20261108033529/adversarial/diff-analysis.md:23:WC-13
+.dev/reflect/pre-TASK-WF-enforceTheOwnerP-20261108-031809-20261108033529/adversarial/diff-analysis.md:76:WC-13
+.dev/reflect/pre-TASK-WF-enforceTheOwnerP-20261108-031809-20261108033529/adversarial/diff-analysis.md:76:WC-13
+.dev/reflect/pre-TASK-WF-enforceTheOwnerP-20261108-031809-20261108033529/adversarial/variant-1-original.md:21:WC-13
+.dev/reflect/pre-TASK-WF-enforceTheOwnerP-20261108-031809-20261108033529/adversarial/variant-1-original.md:41:WC-13
+.dev/reflect/pre-TASK-WF-enforceTheOwnerP-20261108-031809-20261108033529/adversarial/merge-log.md:201:WC-13
+.dev/reflect/pre-TASK-WF-enforceTheOwnerP-20261108-031809-20261108033529/adversarial/debate-transcript.md:27:WC-13
+.dev/reflect/pre-TASK-WF-enforceTheOwnerP-20261108-031809-20261108033529/REPORT.md.draft:42:WC-13
+.dev/reflect/pre-TASK-WF-enforceTheOwnerP-20261108-031809-20261108033529/REPORT.md.draft:54:coordinator under another orchestrator
+.dev/reflect/pre-TASK-WF-enforceTheOwnerP-20261108-031809-20261108033529/REPORT.md.draft:78:WC-13
+.dev/orca-command-refactor/decisions/RECOMMENDATIONS.md:34:person opened
+.dev/orca-command-refactor/decisions/RECOMMENDATIONS.md:34:WC-13
+.dev/reflect/pre-TASK-WF-enforceTheOwnerP-20261108-031809-20261108033529/reviewer-briefs/reviewer-2.md:25:coordinator under another orchestrator
+.dev/reflect/pre-TASK-WF-enforceTheOwnerP-20261108-031809-20261108033529/reviewer-briefs/reviewer-2.md:25:WC-13
+.dev/orca-command-refactor/decisions/D1/debate/adversarial/merged-output.md:221:WC-8
+.dev/orca-command-refactor/decisions/D1/debate/adversarial/merged-output.md:222:WC-8
+.dev/reflect/pre-TASK-WF-enforceTheOwnerP-20261108-031809-20261108033529/artifacts/inferred-requirements.yaml:4:coordinator under another orchestrator
+.dev/reflect/pre-TASK-WF-enforceTheOwnerP-20261108-031809-20261108033529/artifacts/inferred-requirements.yaml:28:WC-13
+.dev/reflect/pre-TASK-WF-enforceTheOwnerP-20261108-031809-20261108033529/REPORT.md:42:WC-13
+.dev/reflect/pre-TASK-WF-enforceTheOwnerP-20261108-031809-20261108033529/REPORT.md:54:coordinator under another orchestrator
+.dev/reflect/pre-TASK-WF-enforceTheOwnerP-20261108-031809-20261108033529/REPORT.md:78:WC-13
+.dev/reflect/pre-TASK-WF-enforceTheOwnerP-20261108-031809-20261108033529/reviewer-cards/reviewer-1-card.md:21:WC-13
+.dev/reflect/pre-TASK-WF-enforceTheOwnerP-20261108-031809-20261108033529/reviewer-cards/reviewer-1-card.md:41:WC-13
+tests/hooks/test_require_orca_worktree_agent.py:32:ORCA WORKTREE BLOCK:
+tests/hooks/test_require_orca_worktree_agent.py:35:The session that creates the worktree becomes its orchestrator
+tests/hooks/test_require_orca_worktree_agent.py:36:coordinator under another orchestrator
+tests/hooks/test_require_orca_worktree_agent.py:37:Supervised workers use `orca orchestration worker-start`
+tests/hooks/test_require_orca_worktree_agent_governed.py:55:ORCA WORKTREE BLOCK:
+.dev/orca-command-refactor/decisions/D1/RECOMMENDATION.md:95:WC-13
+.dev/orca-command-refactor/decisions/D1/RECOMMENDATION.md:95:WC-13
+.dev/orca-command-refactor/specs/history/spec-v3-after-round2.md:57:WC-8
+.dev/orca-command-refactor/specs/history/spec-v3-after-round2.md:71:WC-8
+.dev/orca-command-refactor/specs/history/spec-v3-after-round2.md:204:WC-8
+.dev/orca-command-refactor/specs/history/spec-v3-after-round2.md:309:WC-8
+.dev/orca-command-refactor/specs/history/spec-v3-after-round2.md:396:WC-8
+.dev/orca-command-refactor/specs/history/spec-v2-after-round1.md:56:WC-8
+.dev/orca-command-refactor/specs/history/spec-v2-after-round1.md:70:WC-8
+.dev/orca-command-refactor/specs/history/spec-v2-after-round1.md:203:WC-8
+.dev/orca-command-refactor/specs/history/spec-v2-after-round1.md:305:WC-8
+.dev/orca-command-refactor/specs/history/spec-v2-after-round1.md:385:WC-8
+.dev/orca-command-refactor/specs/history/spec-v6-after-fix1.md:59:WC-8
+.dev/orca-command-refactor/specs/history/spec-v6-after-fix1.md:59:WC-13
+.dev/orca-command-refactor/specs/history/spec-v6-after-fix1.md:76:WC-8
+.dev/orca-command-refactor/specs/history/spec-v6-after-fix1.md:81:WC-13
+.dev/orca-command-refactor/specs/history/spec-v6-after-fix1.md:244:WC-8
+.dev/orca-command-refactor/specs/history/spec-v6-after-fix1.md:291:WC-13
+.dev/orca-command-refactor/specs/history/spec-v6-after-fix1.md:304:person-opened
+.dev/orca-command-refactor/specs/history/spec-v6-after-fix1.md:304:WC-13
+.dev/orca-command-refactor/specs/history/spec-v6-after-fix1.md:357:WC-8
+.dev/orca-command-refactor/specs/history/spec-v6-after-fix1.md:363:WC-13
+.dev/orca-command-refactor/specs/history/spec-v6-after-fix1.md:375:person opened
+.dev/orca-command-refactor/specs/history/spec-v6-after-fix1.md:394:person opened
+.dev/orca-command-refactor/specs/history/spec-v6-after-fix1.md:394:WC-13
+.dev/orca-command-refactor/specs/history/spec-v6-after-fix1.md:394:WC-13
+.dev/orca-command-refactor/specs/history/spec-v6-after-fix1.md:429:WC-8
+.dev/orca-command-refactor/specs/history/spec-v6-after-fix1.md:429:WC-13
+.dev/orca-command-refactor/specs/history/spec-v9-two-part-plans.md:59:WC-8
+.dev/orca-command-refactor/specs/history/spec-v9-two-part-plans.md:59:WC-13
+.dev/orca-command-refactor/specs/history/spec-v9-two-part-plans.md:76:WC-8
+.dev/orca-command-refactor/specs/history/spec-v9-two-part-plans.md:81:WC-13
+.dev/orca-command-refactor/specs/history/spec-v9-two-part-plans.md:244:WC-8
+.dev/orca-command-refactor/specs/history/spec-v9-two-part-plans.md:291:WC-13
+.dev/orca-command-refactor/specs/history/spec-v9-two-part-plans.md:304:person-opened
+.dev/orca-command-refactor/specs/history/spec-v9-two-part-plans.md:304:WC-13
+.dev/orca-command-refactor/specs/history/spec-v9-two-part-plans.md:357:WC-8
+.dev/orca-command-refactor/specs/history/spec-v9-two-part-plans.md:363:WC-13
+.dev/orca-command-refactor/specs/history/spec-v9-two-part-plans.md:375:person opened
+.dev/orca-command-refactor/specs/history/spec-v9-two-part-plans.md:394:person opened
+.dev/orca-command-refactor/specs/history/spec-v9-two-part-plans.md:394:WC-13
+.dev/orca-command-refactor/specs/history/spec-v9-two-part-plans.md:394:WC-13
+.dev/orca-command-refactor/specs/history/spec-v9-two-part-plans.md:429:WC-8
+.dev/orca-command-refactor/specs/history/spec-v9-two-part-plans.md:429:WC-13
+.dev/orca-command-refactor/specs/orca-worker-contract-spec.md:59:WC-8
+.dev/orca-command-refactor/specs/orca-worker-contract-spec.md:59:WC-13
+.dev/orca-command-refactor/specs/orca-worker-contract-spec.md:76:WC-8
+.dev/orca-command-refactor/specs/orca-worker-contract-spec.md:81:WC-13
+.dev/orca-command-refactor/specs/orca-worker-contract-spec.md:244:WC-8
+.dev/orca-command-refactor/specs/orca-worker-contract-spec.md:292:WC-13
+.dev/orca-command-refactor/specs/orca-worker-contract-spec.md:299:WC-13
+.dev/orca-command-refactor/specs/orca-worker-contract-spec.md:315:person-opened
+.dev/orca-command-refactor/specs/orca-worker-contract-spec.md:315:WC-13
+.dev/orca-command-refactor/specs/orca-worker-contract-spec.md:368:WC-8
+.dev/orca-command-refactor/specs/orca-worker-contract-spec.md:374:WC-13
+.dev/orca-command-refactor/specs/orca-worker-contract-spec.md:386:person opened
+.dev/orca-command-refactor/specs/orca-worker-contract-spec.md:405:person opened
+.dev/orca-command-refactor/specs/orca-worker-contract-spec.md:405:WC-13
+.dev/orca-command-refactor/specs/orca-worker-contract-spec.md:405:WC-13
+.dev/orca-command-refactor/specs/orca-worker-contract-spec.md:440:WC-8
+.dev/orca-command-refactor/specs/orca-worker-contract-spec.md:440:WC-13
+.dev/orca-command-refactor/specs/history/spec-v5-after-round4.md:59:WC-8
+.dev/orca-command-refactor/specs/history/spec-v5-after-round4.md:59:WC-13
+.dev/orca-command-refactor/specs/history/spec-v5-after-round4.md:76:WC-8
+.dev/orca-command-refactor/specs/history/spec-v5-after-round4.md:81:WC-13
+.dev/orca-command-refactor/specs/history/spec-v5-after-round4.md:244:WC-8
+.dev/orca-command-refactor/specs/history/spec-v5-after-round4.md:291:WC-13
+.dev/orca-command-refactor/specs/history/spec-v5-after-round4.md:304:person-opened
+.dev/orca-command-refactor/specs/history/spec-v5-after-round4.md:304:WC-13
+.dev/orca-command-refactor/specs/history/spec-v5-after-round4.md:357:WC-8
+.dev/orca-command-refactor/specs/history/spec-v5-after-round4.md:363:WC-13
+.dev/orca-command-refactor/specs/history/spec-v5-after-round4.md:375:person opened
+.dev/orca-command-refactor/specs/history/spec-v5-after-round4.md:394:person opened
+.dev/orca-command-refactor/specs/history/spec-v5-after-round4.md:394:WC-13
+.dev/orca-command-refactor/specs/history/spec-v5-after-round4.md:394:WC-13
+.dev/orca-command-refactor/specs/history/spec-v5-after-round4.md:429:WC-8
+.dev/orca-command-refactor/specs/history/spec-v5-after-round4.md:429:WC-13
+.dev/orca-command-refactor/specs/history/spec-v8-after-p0-fixes.md:59:WC-8
+.dev/orca-command-refactor/specs/history/spec-v8-after-p0-fixes.md:59:WC-13
+.dev/orca-command-refactor/specs/history/spec-v8-after-p0-fixes.md:76:WC-8
+.dev/orca-command-refactor/specs/history/spec-v8-after-p0-fixes.md:81:WC-13
+.dev/orca-command-refactor/specs/history/spec-v8-after-p0-fixes.md:244:WC-8
+.dev/orca-command-refactor/specs/history/spec-v8-after-p0-fixes.md:291:WC-13
+.dev/orca-command-refactor/specs/history/spec-v8-after-p0-fixes.md:304:person-opened
+.dev/orca-command-refactor/specs/history/spec-v8-after-p0-fixes.md:304:WC-13
+.dev/orca-command-refactor/specs/history/spec-v8-after-p0-fixes.md:357:WC-8
+.dev/orca-command-refactor/specs/history/spec-v8-after-p0-fixes.md:363:WC-13
+.dev/orca-command-refactor/specs/history/spec-v8-after-p0-fixes.md:375:person opened
+.dev/orca-command-refactor/specs/history/spec-v8-after-p0-fixes.md:394:person opened
+.dev/orca-command-refactor/specs/history/spec-v8-after-p0-fixes.md:394:WC-13
+.dev/orca-command-refactor/specs/history/spec-v8-after-p0-fixes.md:394:WC-13
+.dev/orca-command-refactor/specs/history/spec-v8-after-p0-fixes.md:429:WC-8
+.dev/orca-command-refactor/specs/history/spec-v8-after-p0-fixes.md:429:WC-13
+.dev/orca-command-refactor/specs/history/spec-v4-after-round3.md:58:WC-8
+.dev/orca-command-refactor/specs/history/spec-v4-after-round3.md:72:WC-8
+.dev/orca-command-refactor/specs/history/spec-v4-after-round3.md:205:WC-8
+.dev/orca-command-refactor/specs/history/spec-v4-after-round3.md:300:WC-8
+.dev/orca-command-refactor/specs/history/spec-v4-after-round3.md:387:WC-8
+.dev/orca-command-refactor/specs/history/spec-v1-draft.md:66:WC-8
+.dev/orca-command-refactor/specs/history/spec-v1-draft.md:172:WC-8
+.dev/orca-command-refactor/specs/history/spec-v1-draft.md:276:WC-8
+.dev/orca-command-refactor/specs/history/spec-v7-approved-969c770.md:59:WC-8
+.dev/orca-command-refactor/specs/history/spec-v7-approved-969c770.md:59:WC-13
+.dev/orca-command-refactor/specs/history/spec-v7-approved-969c770.md:76:WC-8
+.dev/orca-command-refactor/specs/history/spec-v7-approved-969c770.md:81:WC-13
+.dev/orca-command-refactor/specs/history/spec-v7-approved-969c770.md:244:WC-8
+.dev/orca-command-refactor/specs/history/spec-v7-approved-969c770.md:291:WC-13
+.dev/orca-command-refactor/specs/history/spec-v7-approved-969c770.md:304:person-opened
+.dev/orca-command-refactor/specs/history/spec-v7-approved-969c770.md:304:WC-13
+.dev/orca-command-refactor/specs/history/spec-v7-approved-969c770.md:357:WC-8
+.dev/orca-command-refactor/specs/history/spec-v7-approved-969c770.md:363:WC-13
+.dev/orca-command-refactor/specs/history/spec-v7-approved-969c770.md:375:person opened
+.dev/orca-command-refactor/specs/history/spec-v7-approved-969c770.md:394:person opened
+.dev/orca-command-refactor/specs/history/spec-v7-approved-969c770.md:394:WC-13
+.dev/orca-command-refactor/specs/history/spec-v7-approved-969c770.md:394:WC-13
+.dev/orca-command-refactor/specs/history/spec-v7-approved-969c770.md:429:WC-8
+.dev/orca-command-refactor/specs/history/spec-v7-approved-969c770.md:429:WC-13
+.dev/reflect/pre-TASK-WF-orcaWorkerContra-20261102-231950-20261102232329/adversarial/adversarial/base-selection.md:22:WC-13
+.dev/reflect/pre-TASK-WF-orcaWorkerContra-20261102-231950-20261102232329/adversarial/adversarial/base-selection.md:26:WC-13
+.dev/reflect/pre-TASK-WF-orcaWorkerContra-20261102-231950-20261102232329/adversarial/adversarial/base-selection.md:26:WC-8
+.dev/reflect/pre-TASK-WF-orcaWorkerContra-20261102-231950-20261102232329/adversarial/adversarial/base-selection.md:27:WC-13
+.dev/reflect/pre-TASK-WF-orcaWorkerContra-20261102-231950-20261102232329/adversarial/adversarial/base-selection.md:27:WC-8
+.dev/reflect/pre-TASK-WF-orcaWorkerContra-20261102-231950-20261102232329/adversarial/adversarial/base-selection.md:28:WC-13
+.dev/reflect/pre-TASK-WF-orcaWorkerContra-20261102-231950-20261102232329/adversarial/adversarial/base-selection.md:28:WC-8
+.dev/reflect/pre-TASK-WF-orcaWorkerContra-20261102-231950-20261102232329/adversarial/adversarial/base-selection.md:30:WC-8
+.dev/reflect/pre-TASK-WF-orcaWorkerContra-20261102-231950-20261102232329/adversarial/adversarial/base-selection.md:71:WC-13
+.dev/reflect/pre-TASK-WF-orcaWorkerContra-20261102-231950-20261102232329/adversarial/adversarial/base-selection.md:194:person-opened
+.dev/reflect/pre-TASK-WF-orcaWorkerContra-20261102-231950-20261102232329/adversarial/adversarial/diff-analysis.md:79:person-opened
+.dev/reflect/pre-TASK-WF-orcaWorkerContra-20261102-231950-20261102232329/adversarial/adversarial/diff-analysis.md:79:WC-13
+.dev/reflect/pre-TASK-WF-orcaWorkerContra-20261102-231950-20261102232329/adversarial/adversarial/diff-analysis.md:99:person-opened
+.dev/reflect/pre-TASK-WF-orcaWorkerContra-20261102-231950-20261102232329/adversarial/adversarial/diff-analysis.md:109:person-opened
+.dev/reflect/pre-TASK-WF-orcaWorkerContra-20261102-231950-20261102232329/adversarial/adversarial/round1-advocate-c.md:23:WC-13
+.dev/reflect/pre-TASK-WF-orcaWorkerContra-20261102-231950-20261102232329/adversarial/adversarial/round1-advocate-c.md:39:WC-13
+.dev/reflect/pre-TASK-WF-orcaWorkerContra-20261102-231950-20261102232329/adversarial/adversarial/round1-advocate-c.md:77:person-opened
+.dev/reflect/pre-TASK-WF-orcaWorkerContra-20261102-231950-20261102232329/adversarial/adversarial/round1-advocate-c.md:77:person opened
+.dev/reflect/pre-TASK-WF-orcaWorkerContra-20261102-231950-20261102232329/adversarial/adversarial/variant-3-original.md:62:WC-13
+.dev/reflect/pre-TASK-WF-orcaWorkerContra-20261102-231950-20261102232329/adversarial/adversarial/round1-advocate-b.md:18:WC-13
+.dev/reflect/pre-TASK-WF-orcaWorkerContra-20261102-231950-20261102232329/adversarial/adversarial/round1-advocate-b.md:66:person-opened
+.dev/reflect/pre-TASK-WF-orcaWorkerContra-20261102-231950-20261102232329/adversarial/adversarial/variant-2-original.md:51:WC-13
+.dev/reflect/pre-TASK-WF-workerContractFo-20261106-214402-20261106214804/adversarial/diff-analysis.md:27:WC-8
+.dev/reflect/pre-TASK-WF-orcaWorkerContra-20261102-231950-20261102232329/adversarial/adversarial/round1-advocate-a.md:47:WC-13
+.dev/reflect/pre-TASK-WF-orcaWorkerContra-20261102-231950-20261102232329/adversarial/adversarial/round1-advocate-a.md:47:person-opened
+.dev/reflect/pre-TASK-WF-orcaWorkerContra-20261102-231950-20261102232329/adversarial/adversarial/round1-advocate-a.md:69:person-opened
+.dev/reflect/pre-TASK-WF-workerContractFo-20261106-214402-20261106214804/adversarial/variant-3-original.md:47:WC-8
+.dev/reflect/pre-TASK-WF-orcaWorkerContra-20261102-231950-20261102232329/adversarial/adversarial/round2-advocate-b.md:55:WC-13
+.dev/reflect/pre-TASK-WF-workerContractFo-20261106-214402-20261106214804/adversarial/variant-1-original.md:63:WC-8
+.dev/reflect/pre-TASK-WF-workerContractFo-20261106-214402-20261106214804/adversarial/variant-1-original.md:116:WC-8
+.dev/reflect/pre-TASK-WF-orcaWorkerContra-20261102-231950-20261102232329/adversarial/adversarial/variant-1-original.md:159:WC-13
+.dev/reflect/pre-TASK-WF-orcaWorkerContra-20261102-231950-20261102232329/adversarial/adversarial/variant-1-original.md:160:WC-13
+.dev/reflect/pre-TASK-WF-orcaWorkerContra-20261102-231950-20261102232329/adversarial/adversarial/variant-1-original.md:164:person-opened
+.dev/reflect/pre-TASK-WF-orcaWorkerContra-20261102-231950-20261102232329/adversarial/adversarial/variant-1-original.md:173:person-opened
+.dev/reflect/pre-TASK-WF-orcaWorkerContra-20261102-231950-20261102232329/adversarial/adversarial/variant-1-original.md:199:WC-13
+.dev/reflect/pre-TASK-WF-orcaWorkerContra-20261102-231950-20261102232329/adversarial/adversarial/variant-1-original.md:199:WC-13
+.dev/reflect/pre-TASK-WF-orcaWorkerContra-20261102-231950-20261102232329/adversarial/adversarial/merge-log.md:128:person-opened
+.dev/reflect/pre-TASK-WF-workerContractFo-20261106-214402-20261106214804/adversarial/merged-verdict.yaml:150:WC-8
+.dev/reflect/pre-TASK-WF-workerContractFo-20261106-214402-20261106214804/adversarial/merged-verdict.yaml:161:WC-8
+.dev/reflect/pre-TASK-WF-workerContractFo-20261106-214402-20261106214804/adversarial/merged-verdict.yaml:162:WC-8
+.dev/reflect/pre-TASK-WF-workerContractFo-20261106-214402-20261106214804/adversarial/invariant-probe.md:16:WC-8
+.dev/reflect/pre-TASK-WF-orcaWorkerContra-20261102-231950-20261102232329/adversarial/adversarial/debate-transcript.md:66:WC-13
+.dev/reflect/pre-TASK-WF-orcaWorkerContra-20261102-231950-20261102232329/adversarial/adversarial/debate-transcript.md:66:person-opened
+.dev/reflect/pre-TASK-WF-orcaWorkerContra-20261102-231950-20261102232329/adversarial/adversarial/debate-transcript.md:88:person-opened
+.dev/reflect/pre-TASK-WF-orcaWorkerContra-20261102-231950-20261102232329/adversarial/adversarial/debate-transcript.md:110:WC-13
+.dev/reflect/pre-TASK-WF-orcaWorkerContra-20261102-231950-20261102232329/adversarial/adversarial/debate-transcript.md:158:person-opened
+.dev/reflect/pre-TASK-WF-orcaWorkerContra-20261102-231950-20261102232329/adversarial/adversarial/debate-transcript.md:185:WC-13
+.dev/reflect/pre-TASK-WF-orcaWorkerContra-20261102-231950-20261102232329/adversarial/adversarial/debate-transcript.md:201:WC-13
+.dev/reflect/pre-TASK-WF-orcaWorkerContra-20261102-231950-20261102232329/adversarial/adversarial/debate-transcript.md:239:person-opened
+.dev/reflect/pre-TASK-WF-orcaWorkerContra-20261102-231950-20261102232329/adversarial/adversarial/debate-transcript.md:239:person opened
+.dev/reflect/pre-TASK-WF-orcaWorkerContra-20261102-231950-20261102232329/adversarial/adversarial/debate-transcript.md:262:WC-13
+.dev/reflect/pre-TASK-WF-orcaWorkerContra-20261102-231950-20261102232329/adversarial/adversarial/debate-transcript.md:276:WC-13
+.dev/reflect/pre-TASK-WF-orcaWorkerContra-20261102-231950-20261102232329/adversarial/adversarial/debate-transcript.md:339:person-opened
+.dev/reflect/pre-TASK-WF-orcaWorkerContra-20261102-231950-20261102232329/adversarial/adversarial/debate-transcript.md:413:WC-13
+.dev/reflect/pre-TASK-WF-orcaWorkerContra-20261102-231950-20261102232329/adversarial/adversarial/debate-transcript.md:499:WC-13
+.dev/reflect/pre-TASK-WF-orcaWorkerContra-20261102-231950-20261102232329/adversarial/adversarial/debate-transcript.md:513:WC-13
+.dev/reflect/pre-TASK-WF-orcaWorkerContra-20261102-231950-20261102232329/adversarial/adversarial/debate-transcript.md:556:person-opened
+.dev/reflect/pre-TASK-WF-orcaWorkerContra-20261102-231950-20261102232329/adversarial/adversarial/round2-advocate-a.md:15:WC-13
+.dev/reflect/pre-TASK-WF-orcaWorkerContra-20261102-231950-20261102232329/adversarial/adversarial/round2-advocate-a.md:29:WC-13
+.dev/reflect/pre-TASK-WF-orcaWorkerContra-20261102-231950-20261102232329/adversarial/adversarial/round2-advocate-a.md:92:person-opened
+.dev/reflect/pre-TASK-WF-orcaWorkerContra-20261102-231950-20261102232329/adversarial/adversarial/refactor-plan.md:150:person-opened
+.dev/reflect/pre-TASK-WF-orcaWorkerContra-20261102-231950-20261102232329/adversarial/adversarial/refactor-plan.md:185:WC-13
+.dev/reflect/pre-TASK-WF-workerContractFo-20261106-214402-20261106214804/adversarial/refactor-plan.md:17:WC-8
+.dev/reflect/pre-TASK-WF-orcaWorkerContra-20261102-231950-20261102232329/adversarial/adversarial/round2-advocate-c.md:29:WC-13
+.dev/reflect/pre-TASK-WF-orcaWorkerContra-20261102-231950-20261102232329/adversarial/adversarial/round2-advocate-c.md:43:WC-13
+.dev/reflect/pre-TASK-WF-orcaWorkerContra-20261102-231950-20261102232329/adversarial/adversarial/round2-advocate-c.md:86:person-opened
+.dev/reflect/pre-TASK-WF-orcaWorkerContra-20261102-231950-20261102232329/adversarial/merged-verdict.yaml:312:person-opened
+.dev/reflect/pre-TASK-WF-orcaWorkerContra-20261102-231950-20261102232329/adversarial/merged-verdict.yaml:426:WC-13
+.dev/reflect/pre-TASK-WF-orcaWorkerContra-20261102-231950-20261102232329/t1-card.md:15:person opened
+.dev/reflect/pre-TASK-WF-orcaWorkerContra-20261102-231950-20261102232329/reviewer-briefs/reviewer-1.md:8:person opened
+.dev/reflect/pre-TASK-WF-workerContractFo-20261106-214402-20261106214804/REPORT.md:32:WC-8
+.dev/reflect/pre-TASK-WF-orcaWorkerContra-20261102-231950-20261102232329/artifacts/citation-sample.yaml:439:WC-13
+.dev/reflect/pre-TASK-WF-workerContractFo-20261106-214402-20261106214804/reviewer-cards/reviewer-1-card.yaml:63:WC-8
+.dev/reflect/pre-TASK-WF-workerContractFo-20261106-214402-20261106214804/reviewer-cards/reviewer-1-card.yaml:116:WC-8
+.dev/reflect/pre-TASK-WF-orcaWorkerContra-20261102-231950-20261102232329/artifacts/inf-table.md:9:WC-13
+.dev/reflect/pre-TASK-WF-orcaWorkerContra-20261102-231950-20261102232329/artifacts/inf-table.md:21:WC-8
+.dev/reflect/pre-TASK-WF-orcaWorkerContra-20261102-231950-20261102232329/artifacts/inf-table.md:26:WC-13
+.dev/reflect/pre-TASK-WF-orcaWorkerContra-20261102-231950-20261102232329/artifacts/inf-table.md:64:WC-8
+.dev/reflect/pre-TASK-WF-workerContractFo-20261106-214402-20261106214804/reviewer-cards/reviewer-3-card.yaml:47:WC-8
+.dev/reflect/pre-TASK-WF-orcaWorkerContra-20261102-231950-20261102232329/artifacts/evidence-validation.yaml:15:person-opened
+.dev/reflect/pre-TASK-WF-orcaWorkerContra-20261102-231950-20261102232329/artifacts/evidence-validation.yaml:20:WC-13
+.dev/reflect/pre-TASK-WF-orcaWorkerContra-20261102-231950-20261102232329/artifacts/evidence-validation.yaml:32:WC-13
+.dev/reflect/pre-TASK-WF-orcaWorkerContra-20261102-231950-20261102232329/artifacts/evidence-validation.yaml:39:person opened
+.dev/reflect/pre-TASK-WF-orcaWorkerContra-20261102-231950-20261102232329/artifacts/evidence-validation.yaml:48:WC-13
+.dev/reflect/pre-TASK-WF-orcaWorkerContra-20261102-231950-20261102232329/artifacts/coverage-matrix.yaml:170:WC-13
+.dev/reflect/pre-TASK-WF-orcaWorkerContra-20261102-231950-20261102232329/artifacts/coverage-matrix.yaml:306:WC-8
+.dev/reflect/pre-TASK-WF-orcaWorkerContra-20261102-231950-20261102232329/artifacts/coverage-matrix.yaml:307:WC-8
+.dev/reflect/pre-TASK-WF-orcaWorkerContra-20261102-231950-20261102232329/artifacts/coverage-matrix.yaml:362:WC-13
+.dev/reflect/pre-TASK-WF-orcaWorkerContra-20261102-231950-20261102232329/artifacts/coverage-matrix.yaml:363:WC-13
+.dev/reflect/pre-TASK-WF-orcaWorkerContra-20261102-231950-20261102232329/artifacts/coverage-matrix.yaml:842:WC-8
+.dev/reflect/pre-TASK-WF-orcaWorkerContra-20261102-231950-20261102232329/REPORT.md:52:person-opened
+.dev/reflect/pre-TASK-WF-orcaWorkerContra-20261102-231950-20261102232329/REPORT.md:72:WC-13
+.dev/reflect/pre-TASK-WF-orcaWorkerContra-20261102-231950-20261102232329/REPORT.md:132:WC-13
+.dev/reflect/pre-TASK-WF-orcaWorkerContra-20261102-231950-20261102232329/REPORT.md:182:person opened
+.dev/reflect/pre-TASK-WF-orcaWorkerContra-20261102-231950-20261102232329/REPORT.md:185:person-opened
+.dev/reflect/pre-TASK-WF-orcaWorkerContra-20261102-231950-20261102232329/REPORT.md:220:WC-13
+.dev/reflect/pre-TASK-WF-orcaWorkerContra-20261102-231950-20261102232329/REPORT.md:232:WC-8
+.dev/reflect/pre-TASK-WF-orcaWorkerContra-20261102-231950-20261102232329/REPORT.md:237:WC-13
+.dev/reflect/pre-TASK-WF-orcaWorkerContra-20261102-231950-20261102232329/REPORT.md:275:WC-8
+.dev/reflect/pre-TASK-WF-orcaWorkerContra-20261102-231950-20261102232329/REPORT.md:448:person-opened
+.dev/reflect/pre-TASK-WF-orcaWorkerContra-20261102-231950-20261102232329/reviewer-cards/reviewer-1-card.yaml:159:WC-13
+.dev/reflect/pre-TASK-WF-orcaWorkerContra-20261102-231950-20261102232329/reviewer-cards/reviewer-1-card.yaml:160:WC-13
+.dev/reflect/pre-TASK-WF-orcaWorkerContra-20261102-231950-20261102232329/reviewer-cards/reviewer-1-card.yaml:164:person-opened
+.dev/reflect/pre-TASK-WF-orcaWorkerContra-20261102-231950-20261102232329/reviewer-cards/reviewer-1-card.yaml:173:person-opened
+.dev/reflect/pre-TASK-WF-orcaWorkerContra-20261102-231950-20261102232329/reviewer-cards/reviewer-1-card.yaml:199:WC-13
+.dev/reflect/pre-TASK-WF-orcaWorkerContra-20261102-231950-20261102232329/reviewer-cards/reviewer-1-card.yaml:199:WC-13
+.dev/reflect/pre-TASK-WF-orcaWorkerContra-20261102-231950-20261102232329/reviewer-cards/reviewer-2-card.yaml:51:WC-13
+.dev/reflect/pre-TASK-WF-orcaWorkerContra-20261102-231950-20261102232329/reviewer-cards/reviewer-3-card.yaml:62:WC-13
+.dev/tasks/done/TASK-WF-applyTheV1Worker-20261107-211837/artifacts/retries/T4/prompt-1-1.md:32:WC-13
+.dev/tasks/done/TASK-WF-applyTheV1Worker-20261107-211837/artifacts/retries/T4/prompt-1-1.md:45:WC-13
+.dev/tasks/done/TASK-WF-applyTheV1Worker-20261107-211837/artifacts/retries/T4/prompt-1-1.md:45:WC-13
+.dev/tasks/done/TASK-WF-applyTheV1Worker-20261107-211837/artifacts/retries/T4/review-1.md:2:WC-13
+.dev/tasks/done/TASK-WF-applyTheV1Worker-20261107-211837/artifacts/retries/T6/prompt-2-1.md:57:WC-13
+.dev/troubleshoot/bug-agents-run-orca-worktree-create-20261108015205/tier1-hypothesis.md:22:WC-13
+.dev/troubleshoot/bug-agents-run-orca-worktree-create-20261108015205/tier1-hypothesis.md:43:WC-13
+.dev/troubleshoot/bug-agents-run-orca-worktree-create-20261108015205/tier1-hypothesis.md:63:WC-13
+.dev/tasks/done/TASK-WF-applyTheV1Worker-20261107-211837/artifacts/retries/T6/prompt-1-1.md:57:WC-13
+.dev/tasks/done/TASK-WF-applyTheV1Worker-20261107-211837/artifacts/retries/T3/prompt-1-1.md:47:WC-13
+.dev/troubleshoot/bug-agents-run-orca-worktree-create-20261108015205/adversarial/base-selection.md:8:WC-13
+.dev/issues/444/issue-body.md:23:WC-13
+.dev/issues/444/issue-body.md:33:WC-13
+.dev/issues/444/next-steps.md:9:WC-13
+.dev/issues/444/next-steps.md:9:coordinator under another orchestrator
+.dev/issues/444/claim-comment.md:8:coordinator under another orchestrator
+.dev/issues/444/claim-comment.md:8:WC-13
+.dev/issues/444/scout-create.md:23:WC-13
+.dev/issues/444/recommend.md:17:WC-13
+.dev/issues/444/recommend.md:17:coordinator under another orchestrator
+.dev/issues/444/draft-notes.md:9:WC-13
+.dev/tasks/done/TASK-WF-applyTheV1Worker-20261107-211837/artifacts/retries/T2/prompt-1-1.md:32:WC-13
+.dev/issues/444/accuracy-check.md:7:coordinator under another orchestrator
+.dev/issues/444/accuracy-check.md:12:WC-13
+.dev/issues/444/accuracy-check.md:12:WC-13
+.dev/issues/444/accuracy-check.md:12:WC-8
+.dev/issues/444/accuracy-check.md:12:person opened
+.dev/issues/444/accuracy-check.md:14:person opened
+.dev/issues/444/accuracy-check.md:14:WC-13
+.dev/issues/444/accuracy-check.md:15:coordinator under another orchestrator
+.dev/issues/444/accuracy-check.md:15:WC-13
+.dev/issues/444/accuracy-check.md:25:coordinator under another orchestrator
+.dev/issues/444/accuracy-check.md:25:WC-13
+.dev/issues/444/issue-summary.md:10:WC-13
+.dev/issues/444/issue-summary.md:10:coordinator under another orchestrator
+.dev/issues/444/issue-summary.md:16:WC-13
+.dev/issues/444/issue-summary.md:16:person-opened
+.dev/issues/444/issue-summary.md:17:coordinator under another orchestrator
+.dev/issues/444/issue-summary.md:22:WC-13
+.dev/issues/444/analysis/analyze-orchestration.md:12:person opened
+.dev/issues/444/analysis/analyze-orchestration.md:13:WC-13
+.dev/issues/444/analysis/analyze-orchestration.md:14:WC-8
+.dev/issues/444/analysis/analyze-orchestration.md:17:WC-13
+.dev/issues/444/analysis/analyze-orchestration.md:18:coordinator under another orchestrator
+.dev/issues/444/analysis/analyze-orchestration.md:27:coordinator under another orchestrator
+.dev/issues/444/analysis/analyze-orchestration.md:27:person-opened
+.dev/issues/444/analysis/analyze-orchestration.md:27:person-opened
+.dev/issues/444/analysis/analyze-orchestration.md:27:WC-13
+.dev/issues/444/analysis/analyze-orchestration.md:31:WC-13
+.dev/issues/444/analysis/analyze-orchestration.md:35:WC-13
+.dev/issues/444/analysis/analyze-orchestration.md:50:WC-13
+.dev/issues/444/analysis/analyze-orchestration.md:62:WC-13
+.dev/issues/444/analysis/analyze-orchestration.md:63:person-opened
+.dev/troubleshoot/bug-agents-run-orca-worktree-create-20261108015205/REPORT.md.draft:25:WC-13
+.dev/troubleshoot/bug-agents-run-orca-worktree-create-20261108015205/tier2-system-architect-hypothesis.md:38:WC-13
+.dev/troubleshoot/bug-agents-run-orca-worktree-create-20261108015205/evidence-validation.md:72:WC-13
+.dev/troubleshoot/bug-agents-run-orca-worktree-create-20261108015205/wave1_5-branch-C.md:32:WC-13
+.dev/troubleshoot/bug-agents-run-orca-worktree-create-20261108015205/self-review.md:30:WC-13
+.dev/troubleshoot/bug-agents-run-orca-worktree-create-20261108015205/wave1_5-branch-B.md:16:WC-13
+.dev/brainstorms/20261105-170229-launch-level-hook/adversarial/merged-output.md:72:WC-13
+.dev/brainstorms/20261105-170229-launch-level-hook/adversarial/adversarial/base-selection.md:62:WC-13
+.dev/brainstorms/20261105-170229-launch-level-hook/adversarial/adversarial/base-selection.md:62:WC-13
+.dev/brainstorms/20261105-170229-launch-level-hook/adversarial/adversarial/variant-3-haiku-qa.md:118:WC-13
+.dev/troubleshoot/bug-agents-run-orca-worktree-create-20261108015205/REPORT.md:25:WC-13
+.dev/troubleshoot/bug-agents-run-orca-worktree-create-20261108015205/REPORT.md:144:coordinator under another orchestrator
+.dev/troubleshoot/bug-agents-run-orca-worktree-create-20261108015205/REPORT.md:144:WC-13
+.dev/brainstorms/20261105-170229-launch-level-hook/adversarial/adversarial/variant-2-sonnet-refactorer.md:116:WC-13
+.dev/tasks/done/TASK-WF-enforceTheOwnerP-20261108-031809/TASK-WF-enforceTheOwnerP-20261108-031809.md:19:coordinator under another orchestrator
+.dev/tasks/done/TASK-WF-enforceTheOwnerP-20261108-031809/TASK-WF-enforceTheOwnerP-20261108-031809.md:25:WC-13
+.dev/tasks/done/TASK-WF-enforceTheOwnerP-20261108-031809/TASK-WF-enforceTheOwnerP-20261108-031809.md:100:coordinator under another orchestrator
+.dev/tasks/done/TASK-WF-enforceTheOwnerP-20261108-031809/TASK-WF-enforceTheOwnerP-20261108-031809.md:110:coordinator under another orchestrator
+.dev/troubleshoot/bug-orca-orchestrator-spawn-new-sessions-terminal-20261107235513/doc-context.md:19:WC-8
+.dev/tasks/done/TASK-WF-enforceTheOwnerP-20261108-031809/artifacts/diffs/T7-diff-1-1.patch:40:coordinator under another orchestrator
+.dev/tasks/done/TASK-WF-enforceTheOwnerP-20261108-031809/artifacts/diffs/T7-diff-1-1.patch:57:coordinator under another orchestrator
+.dev/brainstorms/20261105-170229-launch-level-hook/adversarial/adversarial/refactor-plan.md:45:WC-13
+.dev/brainstorms/20261105-170229-launch-level-hook/adversarial/adversarial/scoring-pass-2.md:76:WC-13
+.dev/brainstorms/20261105-170229-launch-level-hook/adversarial/adversarial/scoring-pass-2.md:76:WC-13
+.dev/brainstorms/20261105-170229-launch-level-hook/adversarial/adversarial/scoring-pass-2.md:76:WC-13
+.dev/troubleshoot/bug-orca-orchestrator-spawn-new-sessions-terminal-20261107235513/wave1_5-branch-B.md:20:WC-8
+.dev/brainstorms/20261105-170229-launch-level-hook/adversarial/adversarial/variant-1-opus-architect.md:128:WC-13
+.dev/tasks/done/TASK-WF-enforceTheOwnerP-20261108-031809/artifacts/diffs/T2-diff-1-1.patch:467:ORCA WORKTREE BLOCK:
+.dev/tasks/done/TASK-WF-enforceTheOwnerP-20261108-031809/artifacts/diffs/T2-diff-1-1.patch:469:The session that creates the worktree becomes its orchestrator
+.dev/tasks/done/TASK-WF-enforceTheOwnerP-20261108-031809/artifacts/diffs/T2-diff-1-1.patch:469:coordinator under another orchestrator
+.dev/tasks/done/TASK-WF-enforceTheOwnerP-20261108-031809/artifacts/diffs/T2-diff-1-1.patch:470:Supervised workers use `orca orchestration worker-start`
+.dev/tasks/done/TASK-WF-enforceTheOwnerP-20261108-031809/artifacts/diffs/T2-diff-1-1.patch:679:ORCA WORKTREE BLOCK:
+.dev/tasks/done/TASK-WF-enforceTheOwnerP-20261108-031809/artifacts/diffs/T6-diff-1-1.patch:33:coordinator under another orchestrator
+.dev/tasks/done/TASK-WF-enforceTheOwnerP-20261108-031809/artifacts/diffs/T1-diff-1-1.patch:424:ORCA WORKTREE BLOCK:
+.dev/tasks/done/TASK-WF-enforceTheOwnerP-20261108-031809/artifacts/diffs/T1-diff-1-1.patch:426:The session that creates the worktree becomes its orchestrator
+.dev/tasks/done/TASK-WF-enforceTheOwnerP-20261108-031809/artifacts/diffs/T1-diff-1-1.patch:426:coordinator under another orchestrator
+.dev/tasks/done/TASK-WF-enforceTheOwnerP-20261108-031809/artifacts/diffs/T1-diff-1-1.patch:427:Supervised workers use `orca orchestration worker-start`
+.dev/tasks/done/TASK-WF-enforceTheOwnerP-20261108-031809/artifacts/diffs/T1-diff-1-1.patch:467:ORCA WORKTREE BLOCK:
+.dev/tasks/done/TASK-WF-enforceTheOwnerP-20261108-031809/artifacts/diffs/T1-diff-1-1.patch:470:The session that creates the worktree becomes its orchestrator
+.dev/tasks/done/TASK-WF-enforceTheOwnerP-20261108-031809/artifacts/diffs/T1-diff-1-1.patch:471:coordinator under another orchestrator
+.dev/tasks/done/TASK-WF-enforceTheOwnerP-20261108-031809/artifacts/diffs/T1-diff-1-1.patch:472:Supervised workers use `orca orchestration worker-start`
+.dev/brainstorms/20261105-170229-launch-level-hook/merged-requirements.md:74:WC-13
+.dev/brainstorms/20261105-170229-launch-level-hook/enrichment/codebase-context.md:45:WC-13
+.dev/tasks/done/TASK-WF-enforceTheOwnerP-20261108-031809/artifacts/retries/T7/prompt-1-1.md:8:coordinator under another orchestrator
+.dev/tasks/done/TASK-WF-enforceTheOwnerP-20261108-031809/artifacts/retries/T7/prompt-1-1.md:16:coordinator under another orchestrator
+.dev/tasks/done/TASK-WF-enforceTheOwnerP-20261108-031809/artifacts/retries/T7/prompt-1-1.md:22:WC-13
+.dev/tasks/done/TASK-WF-enforceTheOwnerP-20261108-031809/artifacts/retries/T1/prompt-1-1.md:15:coordinator under another orchestrator
+.dev/tasks/done/TASK-WF-enforceTheOwnerP-20261108-031809/artifacts/retries/T1/prompt-1-1.md:21:WC-13
+.dev/tasks/done/TASK-WF-enforceTheOwnerP-20261108-031809/artifacts/retries/T5/prompt-1-1.md:17:coordinator under another orchestrator
+.dev/tasks/done/TASK-WF-enforceTheOwnerP-20261108-031809/artifacts/retries/T5/prompt-1-1.md:23:WC-13
+.dev/tasks/done/TASK-WF-enforceTheOwnerP-20261108-031809/artifacts/retries/T4/prompt-1-1.md:16:coordinator under another orchestrator
+.dev/tasks/done/TASK-WF-enforceTheOwnerP-20261108-031809/artifacts/retries/T4/prompt-1-1.md:22:WC-13
+.dev/tasks/done/TASK-WF-enforceTheOwnerP-20261108-031809/artifacts/retries/T6/prompt-1-1.md:8:coordinator under another orchestrator
+.dev/tasks/done/TASK-WF-enforceTheOwnerP-20261108-031809/artifacts/retries/T6/prompt-1-1.md:15:coordinator under another orchestrator
+.dev/tasks/done/TASK-WF-enforceTheOwnerP-20261108-031809/artifacts/retries/T6/prompt-1-1.md:21:WC-13
+.dev/tasks/done/TASK-WF-enforceTheOwnerP-20261108-031809/artifacts/retries/T8/prompt-1-1.md:15:coordinator under another orchestrator
+.dev/tasks/done/TASK-WF-enforceTheOwnerP-20261108-031809/artifacts/retries/T8/prompt-1-1.md:21:WC-13
+.dev/tasks/done/TASK-WF-enforceTheOwnerP-20261108-031809/artifacts/retries/T3/prompt-1-1.md:21:coordinator under another orchestrator
+.dev/tasks/done/TASK-WF-enforceTheOwnerP-20261108-031809/artifacts/retries/T3/prompt-1-1.md:27:WC-13
+.dev/tasks/done/TASK-WF-enforceTheOwnerP-20261108-031809/artifacts/retries/T2/prompt-1-1.md:16:coordinator under another orchestrator
+.dev/tasks/done/TASK-WF-enforceTheOwnerP-20261108-031809/artifacts/retries/T2/prompt-1-1.md:22:WC-13
+.dev/tasks/done/TASK-WF-enforceTheOwnerP-20261108-031809/source.md:1:coordinator under another orchestrator
+.dev/tasks/done/TASK-WF-enforceTheOwnerP-20261108-031809/source.md:1:WC-13
+.dev/tasks/done/TASK-WF-devGuideRefactor-20261104-135403/TASK-WF-devGuideRefactor-20261104-135403.md:26:WC-8
+.dev/tasks/done/TASK-WF-devGuideRefactor-20261104-135403/TASK-WF-devGuideRefactor-20261104-135403.md:26:WC-8
+.dev/tasks/done/TASK-WF-devGuideRefactor-20261104-135403/TASK-WF-devGuideRefactor-20261104-135403.md:26:WC-13
+.dev/tasks/done/TASK-WF-devGuideRefactor-20261104-135403/TASK-WF-devGuideRefactor-20261104-135403.md:44:NEVER_AS_WORKER
+.dev/tasks/done/TASK-WF-devGuideRefactor-20261104-135403/TASK-WF-devGuideRefactor-20261104-135403.md:45:WC-8
+.dev/tasks/done/TASK-WF-devGuideRefactor-20261104-135403/TASK-WF-devGuideRefactor-20261104-135403.md:48:WC-8
+.dev/tasks/done/TASK-WF-devGuideRefactor-20261104-135403/TASK-WF-devGuideRefactor-20261104-135403.md:52:WC-8
+.dev/tasks/done/TASK-WF-devGuideRefactor-20261104-135403/TASK-WF-devGuideRefactor-20261104-135403.md:54:WC-13
+.dev/tasks/done/TASK-WF-devGuideRefactor-20261104-135403/TASK-WF-devGuideRefactor-20261104-135403.md:54:WC-8
+.dev/tasks/done/TASK-WF-devGuideRefactor-20261104-135403/TASK-WF-devGuideRefactor-20261104-135403.md:81:WC-8
+.dev/tasks/done/TASK-WF-devGuideRefactor-20261104-135403/TASK-WF-devGuideRefactor-20261104-135403.md:94:WC-8
+.dev/tasks/done/TASK-WF-devGuideRefactor-20261104-135403/TASK-WF-devGuideRefactor-20261104-135403.md:94:WC-8
+.dev/tasks/done/TASK-WF-devGuideRefactor-20261104-135403/TASK-WF-devGuideRefactor-20261104-135403.md:98:WC-8
+.dev/tasks/done/TASK-WF-devGuideRefactor-20261104-135403/TASK-WF-devGuideRefactor-20261104-135403.md:98:WC-13
+.dev/tasks/done/TASK-WF-devGuideRefactor-20261104-135403/TASK-WF-devGuideRefactor-20261104-135403.md:99:WC-8
+.dev/tasks/done/TASK-WF-devGuideRefactor-20261104-135403/TASK-WF-devGuideRefactor-20261104-135403.md:109:WC-8
+.dev/tasks/done/TASK-WF-devGuideRefactor-20261104-135403/TASK-WF-devGuideRefactor-20261104-135403.md:114:WC-8
+.dev/tasks/done/TASK-WF-devGuideRefactor-20261104-135403/TASK-WF-devGuideRefactor-20261104-135403.md:140:WC-8
+.dev/tasks/done/TASK-WF-devGuideRefactor-20261104-135403/TASK-WF-devGuideRefactor-20261104-135403.md:142:WC-8
+.dev/tasks/done/TASK-WF-devGuideRefactor-20261104-135403/TASK-WF-devGuideRefactor-20261104-135403.md:147:WC-8
+.dev/tasks/done/TASK-WF-devGuideRefactor-20261104-135403/artifacts/retries/T7/prompt-1-1.md:11:WC-8
+.dev/tasks/done/TASK-WF-devGuideRefactor-20261104-135403/artifacts/retries/T7/prompt-1-1.md:13:WC-8
+.dev/tasks/done/TASK-WF-devGuideRefactor-20261104-135403/artifacts/retries/T7/prompt-1-1.md:18:WC-8
+.dev/tasks/done/TASK-WF-devGuideRefactor-20261104-135403/artifacts/retries/T7/prompt-1-1.md:30:WC-8
+.dev/tasks/done/TASK-WF-devGuideRefactor-20261104-135403/artifacts/retries/T7/prompt-1-1.md:30:WC-8
+.dev/tasks/done/TASK-WF-devGuideRefactor-20261104-135403/artifacts/retries/T7/prompt-1-1.md:30:WC-13
+.dev/tasks/done/TASK-WF-devGuideRefactor-20261104-135403/artifacts/retries/T7/prompt-1-1.md:58:WC-8
+.dev/tasks/done/TASK-WF-devGuideRefactor-20261104-135403/artifacts/retries/T7/prompt-1-1.md:88:WC-8
+.dev/tasks/done/TASK-WF-devGuideRefactor-20261104-135403/artifacts/retries/T1/prompt-1-1.md:11:NEVER_AS_WORKER
+.dev/tasks/done/TASK-WF-devGuideRefactor-20261104-135403/artifacts/retries/T1/prompt-1-1.md:12:WC-8
+.dev/tasks/done/TASK-WF-devGuideRefactor-20261104-135403/artifacts/retries/T1/prompt-1-1.md:15:WC-8
+.dev/tasks/done/TASK-WF-devGuideRefactor-20261104-135403/artifacts/retries/T1/prompt-1-1.md:19:WC-8
+.dev/tasks/done/TASK-WF-devGuideRefactor-20261104-135403/artifacts/retries/T1/prompt-1-1.md:21:WC-13
+.dev/tasks/done/TASK-WF-devGuideRefactor-20261104-135403/artifacts/retries/T1/prompt-1-1.md:21:WC-8
+.dev/tasks/done/TASK-WF-devGuideRefactor-20261104-135403/artifacts/retries/T1/prompt-1-1.md:36:WC-8
+.dev/tasks/done/TASK-WF-devGuideRefactor-20261104-135403/artifacts/retries/T1/prompt-1-1.md:36:WC-8
+.dev/tasks/done/TASK-WF-devGuideRefactor-20261104-135403/artifacts/retries/T1/prompt-1-1.md:36:WC-13
+.dev/tasks/done/TASK-WF-devGuideRefactor-20261104-135403/artifacts/retries/T1/prompt-1-1.md:77:NEVER_AS_WORKER
+.dev/tasks/done/TASK-WF-devGuideRefactor-20261104-135403/artifacts/retries/T1/prompt-1-1.md:89:WC-8
+.dev/tasks/done/TASK-WF-devGuideRefactor-20261104-135403/artifacts/retries/T1/prompt-1-1.md:109:WC-8
+.dev/tasks/done/TASK-WF-devGuideRefactor-20261104-135403/artifacts/retries/T5/prompt-1-1.md:12:WC-8
+.dev/tasks/done/TASK-WF-devGuideRefactor-20261104-135403/artifacts/retries/T5/prompt-1-1.md:17:WC-8
+.dev/tasks/done/TASK-WF-devGuideRefactor-20261104-135403/artifacts/retries/T5/prompt-1-1.md:30:WC-8
+.dev/tasks/done/TASK-WF-devGuideRefactor-20261104-135403/artifacts/retries/T5/prompt-1-1.md:30:WC-8
+.dev/tasks/done/TASK-WF-devGuideRefactor-20261104-135403/artifacts/retries/T5/prompt-1-1.md:30:WC-13
+.dev/tasks/done/TASK-WF-devGuideRefactor-20261104-135403/artifacts/retries/T5/prompt-1-1.md:69:WC-8
+.dev/tasks/done/TASK-WF-devGuideRefactor-20261104-135403/artifacts/retries/T4/prompt-1-1.md:9:WC-8
+.dev/tasks/done/TASK-WF-devGuideRefactor-20261104-135403/artifacts/retries/T4/prompt-1-1.md:9:WC-8
+.dev/tasks/done/TASK-WF-devGuideRefactor-20261104-135403/artifacts/retries/T4/prompt-1-1.md:13:WC-8
+.dev/tasks/done/TASK-WF-devGuideRefactor-20261104-135403/artifacts/retries/T4/prompt-1-1.md:13:WC-13
+.dev/tasks/done/TASK-WF-devGuideRefactor-20261104-135403/artifacts/retries/T4/prompt-1-1.md:14:WC-8
+.dev/tasks/done/TASK-WF-devGuideRefactor-20261104-135403/artifacts/retries/T4/prompt-1-1.md:27:WC-8
+.dev/tasks/done/TASK-WF-devGuideRefactor-20261104-135403/artifacts/retries/T4/prompt-1-1.md:27:WC-8
+.dev/tasks/done/TASK-WF-devGuideRefactor-20261104-135403/artifacts/retries/T4/prompt-1-1.md:27:WC-13
+.dev/tasks/done/TASK-WF-devGuideRefactor-20261104-135403/artifacts/retries/T4/prompt-1-1.md:56:WC-8
+.dev/tasks/done/TASK-WF-devGuideRefactor-20261104-135403/artifacts/retries/T4/prompt-1-1.md:67:WC-8
+.dev/tasks/done/TASK-WF-devGuideRefactor-20261104-135403/artifacts/retries/T6/prompt-1-1.md:30:WC-8
+.dev/tasks/done/TASK-WF-devGuideRefactor-20261104-135403/artifacts/retries/T6/prompt-1-1.md:30:WC-8
+.dev/tasks/done/TASK-WF-devGuideRefactor-20261104-135403/artifacts/retries/T6/prompt-1-1.md:30:WC-13
+.dev/tasks/done/TASK-WF-devGuideRefactor-20261104-135403/artifacts/retries/T9/prompt-1-1.md:34:WC-8
+.dev/tasks/done/TASK-WF-devGuideRefactor-20261104-135403/artifacts/retries/T9/prompt-1-1.md:34:WC-8
+.dev/tasks/done/TASK-WF-devGuideRefactor-20261104-135403/artifacts/retries/T9/prompt-1-1.md:34:WC-13
+.dev/tasks/done/TASK-WF-devGuideRefactor-20261104-135403/artifacts/retries/T8/prompt-1-1.md:34:WC-8
+.dev/tasks/done/TASK-WF-devGuideRefactor-20261104-135403/artifacts/retries/T8/prompt-1-1.md:34:WC-8
+.dev/tasks/done/TASK-WF-devGuideRefactor-20261104-135403/artifacts/retries/T8/prompt-1-1.md:34:WC-13
+.dev/tasks/done/TASK-WF-devGuideRefactor-20261104-135403/artifacts/retries/T3/prompt-1-1.md:12:WC-8
+.dev/tasks/done/TASK-WF-devGuideRefactor-20261104-135403/artifacts/retries/T3/prompt-1-1.md:31:WC-8
+.dev/tasks/done/TASK-WF-devGuideRefactor-20261104-135403/artifacts/retries/T3/prompt-1-1.md:31:WC-8
+.dev/tasks/done/TASK-WF-devGuideRefactor-20261104-135403/artifacts/retries/T3/prompt-1-1.md:31:WC-13
+.dev/tasks/done/TASK-WF-devGuideRefactor-20261104-135403/artifacts/retries/T3/prompt-1-1.md:69:WC-8
+.dev/tasks/done/TASK-WF-devGuideRefactor-20261104-135403/artifacts/retries/T2/prompt-1-1.md:28:WC-8
+.dev/tasks/done/TASK-WF-devGuideRefactor-20261104-135403/artifacts/retries/T2/prompt-1-1.md:28:WC-8
+.dev/tasks/done/TASK-WF-devGuideRefactor-20261104-135403/artifacts/retries/T2/prompt-1-1.md:28:WC-13
+.dev/tasks/done/TASK-WF-writeTheP1Static-20261105-033458/artifacts/retries/T1/prompt-1-1.md:75:NEVER_AS_WORKER
+.dev/tasks/done/TASK-WF-devGuideRefactor-20261104-135403/source.md:7:WC-8
+.dev/tasks/done/TASK-WF-devGuideRefactor-20261104-135403/source.md:39:WC-8
+.dev/tasks/done/TASK-WF-devGuideRefactor-20261104-135403/source.md:40:WC-8
+.dev/tasks/done/TASK-WF-devGuideRefactor-20261104-135403/source.md:40:WC-13
+.dev/tasks/done/TASK-WF-devGuideRefactor-20261104-135403/source.md:40:WC-8
+.dev/tasks/done/TASK-WF-devGuideRefactor-20261104-135403/source.md:49:NEVER_AS_WORKER
+.dev/tasks/to-do/TASK-WF-orcaWorkerContra-20261102-231950/TASK-WF-orcaWorkerContra-20261102-231950.md:26:person opened
+.dev/tasks/to-do/TASK-WF-orcaWorkerContra-20261102-231950/TASK-WF-orcaWorkerContra-20261102-231950.md:37:WC-8
+.dev/tasks/to-do/TASK-WF-orcaWorkerContra-20261102-231950/TASK-WF-orcaWorkerContra-20261102-231950.md:38:WC-13
+.dev/tasks/to-do/TASK-WF-orcaWorkerContra-20261102-231950/TASK-WF-orcaWorkerContra-20261102-231950.md:41:WC-13
+.dev/tasks/to-do/TASK-WF-orcaWorkerContra-20261102-231950/TASK-WF-orcaWorkerContra-20261102-231950.md:74:person opened
+.dev/tasks/to-do/TASK-WF-orcaWorkerContra-20261102-231950/TASK-WF-orcaWorkerContra-20261102-231950.md:122:person-opened
+.dev/tasks/to-do/TASK-WF-orcaWorkerContra-20261102-231950/TASK-WF-orcaWorkerContra-20261102-231950.md:135:person-opened
+.dev/tasks/to-do/TASK-WF-orcaWorkerContra-20261102-231950/TASK-WF-orcaWorkerContra-20261102-231950.md:135:WC-13
+.dev/tasks/to-do/TASK-WF-orcaWorkerContra-20261102-231950/source.md:59:WC-8
+.dev/tasks/to-do/TASK-WF-orcaWorkerContra-20261102-231950/source.md:59:WC-13
+.dev/tasks/to-do/TASK-WF-orcaWorkerContra-20261102-231950/source.md:76:WC-8
+.dev/tasks/to-do/TASK-WF-orcaWorkerContra-20261102-231950/source.md:81:WC-13
+.dev/tasks/to-do/TASK-WF-orcaWorkerContra-20261102-231950/source.md:244:WC-8
+.dev/tasks/to-do/TASK-WF-orcaWorkerContra-20261102-231950/source.md:291:WC-13
+.dev/tasks/to-do/TASK-WF-orcaWorkerContra-20261102-231950/source.md:304:person-opened
+.dev/tasks/to-do/TASK-WF-orcaWorkerContra-20261102-231950/source.md:304:WC-13
+.dev/tasks/to-do/TASK-WF-orcaWorkerContra-20261102-231950/source.md:357:WC-8
+.dev/tasks/to-do/TASK-WF-orcaWorkerContra-20261102-231950/source.md:363:WC-13
+.dev/tasks/to-do/TASK-WF-orcaWorkerContra-20261102-231950/source.md:375:person opened
+.dev/tasks/to-do/TASK-WF-orcaWorkerContra-20261102-231950/source.md:394:person opened
+.dev/tasks/to-do/TASK-WF-orcaWorkerContra-20261102-231950/source.md:394:WC-13
+.dev/tasks/to-do/TASK-WF-orcaWorkerContra-20261102-231950/source.md:394:WC-13
+.dev/tasks/to-do/TASK-WF-orcaWorkerContra-20261102-231950/source.md:429:WC-8
+.dev/tasks/to-do/TASK-WF-orcaWorkerContra-20261102-231950/source.md:429:WC-13
+.dev/tasks/done/TASK-WF-implementSavedPr-20261105-034852/artifacts/selftest-4-no-sha-line.md:11:NEVER_AS_WORKER
+.dev/tasks/done/TASK-WF-implementSavedPr-20261105-034852/artifacts/selftest-4-no-sha-line.md:12:WC-8
+.dev/tasks/done/TASK-WF-implementSavedPr-20261105-034852/artifacts/selftest-4-no-sha-line.md:15:WC-8
+.dev/tasks/done/TASK-WF-implementSavedPr-20261105-034852/artifacts/selftest-4-no-sha-line.md:19:WC-8
+.dev/tasks/done/TASK-WF-implementSavedPr-20261105-034852/artifacts/selftest-4-no-sha-line.md:21:WC-13
+.dev/tasks/done/TASK-WF-implementSavedPr-20261105-034852/artifacts/selftest-4-no-sha-line.md:21:WC-8
+.dev/tasks/done/TASK-WF-implementSavedPr-20261105-034852/artifacts/selftest-4-no-sha-line.md:36:WC-8
+.dev/tasks/done/TASK-WF-implementSavedPr-20261105-034852/artifacts/selftest-4-no-sha-line.md:36:WC-8
+.dev/tasks/done/TASK-WF-implementSavedPr-20261105-034852/artifacts/selftest-4-no-sha-line.md:36:WC-13
+.dev/tasks/done/TASK-WF-implementSavedPr-20261105-034852/artifacts/selftest-4-no-sha-line.md:77:NEVER_AS_WORKER
+.dev/tasks/done/TASK-WF-implementSavedPr-20261105-034852/artifacts/selftest-4-no-sha-line.md:89:WC-8
+.dev/tasks/done/TASK-WF-implementSavedPr-20261105-034852/artifacts/selftest-4-no-sha-line.md:109:WC-8
+.dev/tasks/done/TASK-WF-implementSavedPr-20261105-034852/artifacts/selftest-3-changed-line.md:11:NEVER_AS_WORKER
+.dev/tasks/done/TASK-WF-implementSavedPr-20261105-034852/artifacts/selftest-3-changed-line.md:12:WC-8
+.dev/tasks/done/TASK-WF-implementSavedPr-20261105-034852/artifacts/selftest-3-changed-line.md:15:WC-8
+.dev/tasks/done/TASK-WF-implementSavedPr-20261105-034852/artifacts/selftest-3-changed-line.md:19:WC-8
+.dev/tasks/done/TASK-WF-implementSavedPr-20261105-034852/artifacts/selftest-3-changed-line.md:21:WC-13
+.dev/tasks/done/TASK-WF-implementSavedPr-20261105-034852/artifacts/selftest-3-changed-line.md:21:WC-8
+.dev/tasks/done/TASK-WF-implementSavedPr-20261105-034852/artifacts/selftest-3-changed-line.md:36:WC-8
+.dev/tasks/done/TASK-WF-implementSavedPr-20261105-034852/artifacts/selftest-3-changed-line.md:36:WC-8
+.dev/tasks/done/TASK-WF-implementSavedPr-20261105-034852/artifacts/selftest-3-changed-line.md:36:WC-13
+.dev/tasks/done/TASK-WF-implementSavedPr-20261105-034852/artifacts/selftest-3-changed-line.md:77:NEVER_AS_WORKER
+.dev/tasks/done/TASK-WF-implementSavedPr-20261105-034852/artifacts/selftest-3-changed-line.md:89:WC-8
+.dev/tasks/done/TASK-WF-implementSavedPr-20261105-034852/artifacts/selftest-3-changed-line.md:109:WC-8
+.dev/tasks/done/TASK-WF-devGuideFenceFix-20261104-204854/artifacts/guide-before.md:336:WC-8
+.dev/tasks/done/TASK-WF-devGuideFenceFix-20261104-204854/artifacts/guide-before.md:466:WC-8
+.dev/tasks/done/TASK-WF-devGuideFenceFix-20261104-204854/artifacts/guide-before.md:480:WC-8
+.dev/tasks/done/TASK-WF-devGuideFenceFix-20261104-204854/artifacts/guide-before.md:794:WC-8
+.dev/tasks/done/TASK-WF-devGuideFenceFix-20261104-204854/artifacts/guide-before.md:1019:NEVER_AS_WORKER
+.dev/tasks/done/TASK-WF-devGuideFenceFix-20261104-204854/artifacts/guide-before.md:1031:WC-8
+.dev/tasks/done/TASK-WF-devGuideFenceFix-20261104-204854/artifacts/guide-before.md:1051:WC-8
+.dev/tasks/done/TASK-WF-devGuideFenceFix-20261104-204854/artifacts/guide-before.md:1201:WC-8
+.dev/tasks/done/TASK-WF-devGuideFenceFix-20261104-204854/artifacts/guide-before.md:1305:WC-8
+.dev/tasks/done/TASK-WF-workerContractFo-20261106-214402/TASK-WF-workerContractFo-20261106-214402.md:36:WC-8
+.dev/tasks/done/TASK-WF-workerContractFo-20261106-214402/TASK-WF-workerContractFo-20261106-214402.md:36:WC-8
+.dev/tasks/done/TASK-WF-workerContractFo-20261106-214402/artifacts/retries/T1/prompt-1-1.md:7:WC-8
+.dev/tasks/done/TASK-WF-workerContractFo-20261106-214402/artifacts/retries/T1/prompt-1-1.md:7:WC-8
+.dev/tasks/done/TASK-WF-workerContractFo-20261106-214402/artifacts/retries/T1/prompt-1-1.md:38:WC-8
+.dev/tasks/done/TASK-WF-workerContractFo-20261106-214402/artifacts/retries/T1/prompt-1-1.md:69:WC-8
+.dev/tasks/done/TASK-WF-orcaWorkerContra-20261103-012232/TASK-WF-orcaWorkerContra-20261103-012232.md:22:WC-13
+.dev/tasks/done/TASK-WF-orcaWorkerContra-20261103-012232/TASK-WF-orcaWorkerContra-20261103-012232.md:52:WC-8
+.dev/tasks/done/TASK-WF-orcaWorkerContra-20261103-012232/TASK-WF-orcaWorkerContra-20261103-012232.md:53:WC-13
+.dev/tasks/done/TASK-WF-orcaWorkerContra-20261103-012232/TASK-WF-orcaWorkerContra-20261103-012232.md:55:WC-13
+.dev/tasks/done/TASK-WF-orcaWorkerContra-20261103-012232/TASK-WF-orcaWorkerContra-20261103-012232.md:55:WC-13
+.dev/tasks/done/TASK-WF-orcaWorkerContra-20261103-012232/TASK-WF-orcaWorkerContra-20261103-012232.md:60:WC-13
+.dev/tasks/done/TASK-WF-orcaWorkerContra-20261103-012232/TASK-WF-orcaWorkerContra-20261103-012232.md:103:person opened
+.dev/tasks/done/TASK-WF-orcaWorkerContra-20261103-012232/TASK-WF-orcaWorkerContra-20261103-012232.md:171:person-opened
+.dev/tasks/done/TASK-WF-orcaWorkerContra-20261103-012232/TASK-WF-orcaWorkerContra-20261103-012232.md:171:WC-13
+.dev/tasks/done/TASK-WF-orcaWorkerContra-20261103-012232/artifacts/p0-static-report.md:12:WC-13
+.dev/tasks/done/TASK-WF-orcaWorkerContra-20261103-012232/artifacts/p0-static-report.md:12:person-opened
+.dev/tasks/done/TASK-WF-orcaWorkerContra-20261103-012232/artifacts/t5-test-run.txt:8:WC-13
+.dev/tasks/done/TASK-WF-orcaWorkerContra-20261103-012232/artifacts/t5-test-run.txt:18:WC-8
+.dev/tasks/done/TASK-WF-orcaWorkerContra-20261103-012232/artifacts/t1-rule-phrases.md:37:WC-8
+.dev/tasks/done/TASK-WF-orcaWorkerContra-20261103-012232/artifacts/t1-rule-phrases.md:54:WC-13
+.dev/tasks/done/TASK-WF-orcaWorkerContra-20261103-012232/artifacts/ac-0.7-depth-trace.md:55:WC-13
+.dev/tasks/done/TASK-WF-orcaWorkerContra-20261103-012232/artifacts/ac-0.7-depth-trace.md:59:person-opened
+.dev/reflect/pre-TASK-WF-writeTheP2Static-20261107-011441-20261107013500/adversarial/invariant-probe.md:18:WC-8
+.dev/reflect/pre-TASK-WF-writeTheP2Static-20261107-011441-20261107013500/adversarial/rounds/round2-advocate-1.md:5:WC-13
+.dev/tasks/done/TASK-WF-orcaWorkerContra-20261103-012232/artifacts/retries/T7/prompt-2-1.md:9:person-opened
+.dev/tasks/done/TASK-WF-orcaWorkerContra-20261103-012232/artifacts/retries/T7/prompt-2-1.md:9:WC-13
+.dev/tasks/done/TASK-WF-orcaWorkerContra-20261103-012232/artifacts/retries/T7/prompt-2-1.md:19:WC-13
+.dev/tasks/done/TASK-WF-orcaWorkerContra-20261103-012232/artifacts/retries/T7/prompt-1-1.md:9:person-opened
+.dev/tasks/done/TASK-WF-orcaWorkerContra-20261103-012232/artifacts/retries/T7/prompt-1-1.md:9:WC-13
+.dev/tasks/done/TASK-WF-orcaWorkerContra-20261103-012232/artifacts/retries/T7/prompt-1-1.md:19:WC-13
+.dev/tasks/done/TASK-WF-orcaWorkerContra-20261103-012232/artifacts/retries/T1/prompt-1-1.md:24:WC-8
+.dev/tasks/done/TASK-WF-orcaWorkerContra-20261103-012232/artifacts/retries/T1/prompt-1-1.md:25:WC-13
+.dev/tasks/done/TASK-WF-orcaWorkerContra-20261103-012232/artifacts/retries/T1/prompt-1-1.md:27:WC-13
+.dev/tasks/done/TASK-WF-orcaWorkerContra-20261103-012232/artifacts/retries/T1/prompt-1-1.md:27:WC-13
+.dev/tasks/done/TASK-WF-orcaWorkerContra-20261103-012232/artifacts/retries/T1/prompt-1-1.md:32:WC-13
+.dev/tasks/done/TASK-WF-orcaWorkerContra-20261103-012232/artifacts/retries/T1/prompt-1-1.md:46:WC-13
+.dev/tasks/done/TASK-WF-orcaWorkerContra-20261103-012232/artifacts/retries/T5/prompt-2-1.md:34:WC-13
+.dev/tasks/done/TASK-WF-orcaWorkerContra-20261103-012232/artifacts/retries/T5/prompt-2-1.md:85:WC-8
+.dev/tasks/done/TASK-WF-orcaWorkerContra-20261103-012232/artifacts/retries/T5/prompt-2-1.md:109:WC-8
+.dev/tasks/done/TASK-WF-orcaWorkerContra-20261103-012232/artifacts/retries/T5/prompt-1-1.md:34:WC-13
+.dev/reflect/pre-TASK-WF-brainstormFixBri-20261106-021737/reviewer-briefs/reviewer-3.md:185:WC-13
+.dev/reflect/pre-TASK-WF-brainstormFixBri-20261106-021737/reviewer-briefs/reviewer-3.md:192:WC-13
+.dev/tasks/done/TASK-WF-orcaWorkerContra-20261103-012232/artifacts/retries/T5/probe-1-1.md:9:NEVER_AS_WORKER
+.dev/tasks/done/TASK-WF-orcaWorkerContra-20261103-012232/artifacts/retries/T4/prompt-1-1.md:9:person opened
+.dev/tasks/done/TASK-WF-orcaWorkerContra-20261103-012232/artifacts/retries/T4/prompt-1-1.md:31:WC-13
+.dev/tasks/done/TASK-WF-orcaWorkerContra-20261103-012232/artifacts/retries/T4/prompt-1-1.md:54:person opened
+.dev/tasks/done/TASK-WF-orcaWorkerContra-20261103-012232/artifacts/retries/T4/prompt-1-1.md:73:person opened
+.dev/reflect/pre-TASK-WF-p1LivePlanBrief-20261105-164506-20261105165021/reviewer-briefs/reviewer-2.md:39:WC-13
+.dev/reflect/pre-TASK-WF-p1LivePlanBrief-20261105-164506-20261105165021/reviewer-briefs/reviewer-2.md:46:WC-13
+.dev/reflect/pre-TASK-WF-p1LivePlanBrief-20261105-164506-20261105165021/reviewer-briefs/reviewer-2.md:69:WC-8
+.dev/reflect/pre-TASK-WF-p1LivePlanBrief-20261105-164506-20261105165021/reviewer-briefs/reviewer-2.md:69:WC-13
+.dev/reflect/pre-TASK-WF-p1LivePlanBrief-20261105-164506-20261105165021/reviewer-briefs/reviewer-3.md:37:WC-13
+.dev/reflect/pre-TASK-WF-p1LivePlanBrief-20261105-164506-20261105165021/reviewer-briefs/reviewer-3.md:44:WC-13
+.dev/reflect/pre-TASK-WF-p1LivePlanBrief-20261105-164506-20261105165021/reviewer-briefs/reviewer-3.md:67:WC-8
+.dev/reflect/pre-TASK-WF-p1LivePlanBrief-20261105-164506-20261105165021/reviewer-briefs/reviewer-3.md:67:WC-13
+.dev/reflect/pre-TASK-WF-p1LivePlanBrief-20261105-164506-20261105165021/reviewer-briefs/reviewer-1.md:37:WC-13
+.dev/reflect/pre-TASK-WF-p1LivePlanBrief-20261105-164506-20261105165021/reviewer-briefs/reviewer-1.md:44:WC-13
+.dev/reflect/pre-TASK-WF-p1LivePlanBrief-20261105-164506-20261105165021/reviewer-briefs/reviewer-1.md:67:WC-8
+.dev/reflect/pre-TASK-WF-p1LivePlanBrief-20261105-164506-20261105165021/reviewer-briefs/reviewer-1.md:67:WC-13
+.dev/reflect/pre-TASK-WF-p1LivePlanBrief-20261105-164506-20261105165021/artifacts/grounding-hunks.md:19:WC-13
+.dev/reflect/pre-TASK-WF-p1LivePlanBrief-20261105-164506-20261105165021/artifacts/grounding-hunks.md:26:WC-13
+.dev/reflect/pre-TASK-WF-p1LivePlanBrief-20261105-164506-20261105165021/artifacts/grounding-hunks.md:49:WC-8
+.dev/reflect/pre-TASK-WF-p1LivePlanBrief-20261105-164506-20261105165021/artifacts/grounding-hunks.md:49:WC-13
+.dev/tasks/done/TASK-WF-orcaWorkerContra-20261103-012232/artifacts/retries/T6/prompt-1-1.md:32:WC-13
+.dev/tasks/done/TASK-WF-orcaWorkerContra-20261103-012232/artifacts/retries/T8/prompt-2-1.md:32:WC-13
+.dev/tasks/done/TASK-WF-orcaWorkerContra-20261103-012232/artifacts/retries/T8/prompt-1-1.md:32:WC-13
+.dev/reflect/pre-TASK-WF-writeTheP0LivePl-20261103-215902-20261103220351/reviewer-briefs/reviewer-2.md:147:WC-13
+.dev/reflect/pre-TASK-WF-writeTheP0LivePl-20261103-215902-20261103220351/reviewer-briefs/reviewer-2.md:175:WC-13
+.dev/reflect/pre-TASK-WF-writeTheP0LivePl-20261103-215902-20261103220351/reviewer-briefs/reviewer-3.md:121:WC-13
+.dev/reflect/pre-TASK-WF-writeTheP0LivePl-20261103-215902-20261103220351/reviewer-briefs/reviewer-3.md:149:WC-13
+.dev/reflect/pre-TASK-WF-writeTheP0LivePl-20261103-215902-20261103220351/reviewer-briefs/reviewer-1.md:182:WC-13
+.dev/reflect/pre-TASK-WF-writeTheP0LivePl-20261103-215902-20261103220351/reviewer-briefs/reviewer-1.md:210:WC-13
+.dev/reflect/pre-TASK-WF-writeTheP0LivePl-20261103-215902-20261103220351/artifacts/grounding-hunks.md:90:WC-13
+.dev/reflect/pre-TASK-WF-writeTheP0LivePl-20261103-215902-20261103220351/artifacts/grounding-hunks.md:118:WC-13
+.dev/tasks/done/TASK-WF-orcaWorkerContra-20261103-012232/artifacts/retries/T3/prompt-1-1.md:22:WC-13
+.dev/tasks/done/TASK-WF-orcaWorkerContra-20261103-012232/artifacts/retries/T2/prompt-1-1.md:29:WC-13
+.dev/tasks/done/TASK-WF-orcaWorkerContra-20261103-012232/artifacts/retries/T2/prompt-1-1.md:45:WC-13
+.dev/tasks/done/TASK-WF-orcaWorkerContra-20261103-012232/artifacts/retries/T2/prompt-1-1.md:50:person opened
+.dev/tasks/done/TASK-WF-orcaWorkerContra-20261103-012232/artifacts/retries/T2/prompt-1-1.md:192:WC-13
+.dev/reflect/pre-TASK-WF-orcaWorkerContra-20261103-012232-20261103055307/adversarial/adversarial/variant-2-original.md:78:WC-13
+.dev/reflect/pre-TASK-WF-orcaWorkerContra-20261103-012232-20261103055307/adversarial/adversarial/invariant-probe.md:18:WC-13
+.dev/reflect/pre-TASK-WF-orcaWorkerContra-20261103-012232-20261103055307/adversarial/adversarial/invariant-probe.md:18:WC-13
+.dev/reflect/pre-TASK-WF-orcaWorkerContra-20261103-012232-20261103055307/adversarial/adversarial/invariant-probe.md:18:WC-13
+.dev/reflect/pre-TASK-WF-orcaWorkerContra-20261103-012232-20261103055307/adversarial/adversarial/debate-transcript.md:675:WC-13
+.dev/reflect/pre-TASK-WF-orcaWorkerContra-20261103-012232-20261103055307/adversarial/adversarial/debate-transcript.md:675:WC-13
+.dev/reflect/pre-TASK-WF-orcaWorkerContra-20261103-012232-20261103055307/adversarial/adversarial/debate-transcript.md:675:WC-13
+.dev/reflect/pre-TASK-WF-orcaWorkerContra-20261103-012232-20261103055307/adversarial/adversarial/refactor-plan.md:119:WC-13
+.dev/reflect/pre-TASK-WF-orcaWorkerContra-20261103-012232-20261103055307/adversarial/adversarial/refactor-plan.md:119:WC-13
+.dev/reflect/pre-TASK-WF-orcaWorkerContra-20261103-012232-20261103055307/adversarial/adversarial/refactor-plan.md:449:WC-13
+.dev/reflect/pre-TASK-WF-orcaWorkerContra-20261103-012232-20261103055307/adversarial/adversarial/refactor-plan.md:458:WC-13
+.dev/reflect/pre-TASK-WF-orcaWorkerContra-20261103-012232-20261103055307/adversarial/merged-verdict.yaml:296:WC-13
+.dev/reflect/pre-TASK-WF-orcaWorkerContra-20261103-012232-20261103055307/adversarial/merged-verdict.yaml:305:WC-13
+.dev/reflect/pre-TASK-WF-orcaWorkerContra-20261103-012232-20261103055307/artifacts/citation-sample.yaml:392:WC-13
+.dev/reflect/pre-TASK-WF-orcaWorkerContra-20261103-012232-20261103055307/artifacts/citation-sample.yaml:402:WC-13
+.dev/reflect/pre-TASK-WF-orcaWorkerContra-20261103-012232-20261103055307/artifacts/citation-sample.yaml:478:WC-8
+.dev/reflect/pre-TASK-WF-orcaWorkerContra-20261103-012232-20261103055307/artifacts/citation-sample.yaml:641:WC-8
+.dev/reflect/pre-TASK-WF-orcaWorkerContra-20261103-012232-20261103055307/artifacts/evidence-validation.yaml:243:WC-8
+.dev/reflect/pre-TASK-WF-orcaWorkerContra-20261103-012232-20261103055307/artifacts/evidence-validation.yaml:328:WC-8
+.dev/reflect/pre-TASK-WF-orcaWorkerContra-20261103-012232-20261103055307/artifacts/coverage-matrix.yaml:180:WC-13
+.dev/reflect/pre-TASK-WF-orcaWorkerContra-20261103-012232-20261103055307/artifacts/coverage-matrix.yaml:336:WC-8
+.dev/reflect/pre-TASK-WF-orcaWorkerContra-20261103-012232-20261103055307/artifacts/coverage-matrix.yaml:337:WC-8
+.dev/reflect/pre-TASK-WF-orcaWorkerContra-20261103-012232-20261103055307/artifacts/coverage-matrix.yaml:399:WC-13
+.dev/reflect/pre-TASK-WF-orcaWorkerContra-20261103-012232-20261103055307/artifacts/coverage-matrix.yaml:400:WC-13
+.dev/reflect/pre-TASK-WF-orcaWorkerContra-20261103-012232-20261103055307/artifacts/coverage-matrix.yaml:934:WC-8
+.dev/reflect/pre-TASK-WF-orcaWorkerContra-20261103-012232-20261103055307/REPORT.md:228:WC-13
+.dev/reflect/pre-TASK-WF-orcaWorkerContra-20261103-012232-20261103055307/REPORT.md:236:WC-13
+.dev/reflect/pre-TASK-WF-orcaWorkerContra-20261103-012232-20261103055307/REPORT.md:282:WC-13
+.dev/reflect/pre-TASK-WF-orcaWorkerContra-20261103-012232-20261103055307/REPORT.md:294:WC-8
+.dev/reflect/pre-TASK-WF-orcaWorkerContra-20261103-012232-20261103055307/REPORT.md:299:WC-13
+.dev/reflect/pre-TASK-WF-orcaWorkerContra-20261103-012232-20261103055307/REPORT.md:337:WC-8
+.dev/reflect/pre-TASK-WF-orcaWorkerContra-20261103-012232-20261103055307/REPORT.md:482:WC-13
+.dev/reflect/pre-TASK-WF-orcaWorkerContra-20261103-012232-20261103055307/reviewer-cards/reviewer-2-card.yaml:78:WC-13
+.dev/reflect/pre-TASK-WF-orcaWorkerContra-20261103-012232-20261103055307/plan-fix-recheck.md:24:WC-13
+.dev/tasks/done/TASK-WF-orcaWorkerContra-20261103-012232/source.md:59:WC-8
+.dev/tasks/done/TASK-WF-orcaWorkerContra-20261103-012232/source.md:59:WC-13
+.dev/tasks/done/TASK-WF-orcaWorkerContra-20261103-012232/source.md:76:WC-8
+.dev/tasks/done/TASK-WF-orcaWorkerContra-20261103-012232/source.md:81:WC-13
+.dev/tasks/done/TASK-WF-orcaWorkerContra-20261103-012232/source.md:244:WC-8
+.dev/tasks/done/TASK-WF-orcaWorkerContra-20261103-012232/source.md:291:WC-13
+.dev/tasks/done/TASK-WF-orcaWorkerContra-20261103-012232/source.md:304:person-opened
+.dev/tasks/done/TASK-WF-orcaWorkerContra-20261103-012232/source.md:304:WC-13
+.dev/tasks/done/TASK-WF-orcaWorkerContra-20261103-012232/source.md:357:WC-8
+.dev/tasks/done/TASK-WF-orcaWorkerContra-20261103-012232/source.md:363:WC-13
+.dev/tasks/done/TASK-WF-orcaWorkerContra-20261103-012232/source.md:375:person opened
+.dev/tasks/done/TASK-WF-orcaWorkerContra-20261103-012232/source.md:394:person opened
+.dev/tasks/done/TASK-WF-orcaWorkerContra-20261103-012232/source.md:394:WC-13
+.dev/tasks/done/TASK-WF-orcaWorkerContra-20261103-012232/source.md:394:WC-13
+.dev/tasks/done/TASK-WF-orcaWorkerContra-20261103-012232/source.md:429:WC-8
+.dev/tasks/done/TASK-WF-orcaWorkerContra-20261103-012232/source.md:429:WC-13
+.dev/tasks/to-do/TASK-WF-refactorDocsDeve-20261104-062532/source.md:1:WC-8
+.dev/tasks/to-do/TASK-WF-refactorDocsDeve-20261104-062532/TASK-WF-refactorDocsDeve-20261104-062532.md:34:person opened
+.dev/tasks/to-do/TASK-WF-refactorDocsDeve-20261104-062532/TASK-WF-refactorDocsDeve-20261104-062532.md:36:NEVER_AS_WORKER
+.dev/tasks/to-do/TASK-WF-refactorDocsDeve-20261104-062532/TASK-WF-refactorDocsDeve-20261104-062532.md:37:WC-8
+.dev/tasks/to-do/TASK-WF-refactorDocsDeve-20261104-062532/TASK-WF-refactorDocsDeve-20261104-062532.md:43:WC-8
+.dev/tasks/to-do/TASK-WF-refactorDocsDeve-20261104-062532/TASK-WF-refactorDocsDeve-20261104-062532.md:69:WC-8
+.dev/tasks/to-do/TASK-WF-refactorDocsDeve-20261104-062532/TASK-WF-refactorDocsDeve-20261104-062532.md:81:WC-8
+.dev/tasks/to-do/TASK-WF-refactorDocsDeve-20261104-062532/TASK-WF-refactorDocsDeve-20261104-062532.md:81:WC-13
+.dev/tasks/to-do/TASK-WF-refactorDocsDeve-20261104-062532/TASK-WF-refactorDocsDeve-20261104-062532.md:85:WC-8
+.dev/tasks/to-do/TASK-WF-refactorDocsDeve-20261104-062532/TASK-WF-refactorDocsDeve-20261104-062532.md:126:WC-8
+.dev/brainstorms/20261107-190223-orchestrator-v2-worker-liveness/merged-requirements.md:340:WC-13
+.dev/brainstorms/20261107-190223-orchestrator-v2-worker-liveness/merged-requirements.md:526:WC-8
+.dev/brainstorms/20261107-190223-orchestrator-v2-worker-liveness/merged-requirements.md:551:WC-8
+.dev/brainstorms/20261107-190223-orchestrator-v2-worker-liveness/merged-requirements.md:559:WC-8
+.dev/brainstorms/20261107-190223-orchestrator-v2-worker-liveness/merged-requirements.md:559:WC-13
+.dev/brainstorms/20261107-190223-orchestrator-v2-worker-liveness/merged-requirements.md:627:WC-8
+.dev/tasks/done/TASK-WF-brainstormFixBri-20261106-113538/artifacts/retries/T6/prompt-1-1.md:53:WC-8
+.dev/tasks/done/TASK-WF-brainstormFixBri-20261106-113538/artifacts/retries/T6/prompt-1-1.md:53:WC-13
+.dev/tasks/to-do/TASK-RESEARCH-issue-watcher-20261107-064950/synthesis/synth-02-target-gaps-external.md:124:WC-13
+.dev/tasks/to-do/TASK-RESEARCH-issue-watcher-20261107-064950/synthesis/synth-02-target-gaps-external.md:450:WC-13
+.dev/tasks/to-do/TASK-RESEARCH-issue-watcher-20261107-064950/synthesis/synth-04-plan-questions-evidence.md:52:WC-13
+.dev/tasks/to-do/TASK-RESEARCH-issue-watcher-20261107-064950/synthesis/synth-04-plan-questions-evidence.md:107:WC-13
+.dev/tasks/to-do/TASK-RESEARCH-issue-watcher-20261107-064950/synthesis/synth-04-plan-questions-evidence.md:518:WC-13
+.dev/tasks/to-do/TASK-WF-devGuideRefactor-20261104-124528/TASK-WF-devGuideRefactor-20261104-124528.md:38:person opened
+.dev/tasks/to-do/TASK-WF-devGuideRefactor-20261104-124528/TASK-WF-devGuideRefactor-20261104-124528.md:40:NEVER_AS_WORKER
+.dev/tasks/to-do/TASK-WF-devGuideRefactor-20261104-124528/TASK-WF-devGuideRefactor-20261104-124528.md:41:WC-8
+.dev/tasks/to-do/TASK-WF-devGuideRefactor-20261104-124528/TASK-WF-devGuideRefactor-20261104-124528.md:44:WC-8
+.dev/tasks/to-do/TASK-WF-devGuideRefactor-20261104-124528/TASK-WF-devGuideRefactor-20261104-124528.md:48:WC-8
+.dev/tasks/to-do/TASK-WF-devGuideRefactor-20261104-124528/TASK-WF-devGuideRefactor-20261104-124528.md:76:WC-8
+.dev/tasks/to-do/TASK-WF-devGuideRefactor-20261104-124528/TASK-WF-devGuideRefactor-20261104-124528.md:89:WC-8
+.dev/tasks/to-do/TASK-WF-devGuideRefactor-20261104-124528/TASK-WF-devGuideRefactor-20261104-124528.md:89:WC-8
+.dev/tasks/to-do/TASK-WF-devGuideRefactor-20261104-124528/TASK-WF-devGuideRefactor-20261104-124528.md:93:WC-8
+.dev/tasks/to-do/TASK-WF-devGuideRefactor-20261104-124528/TASK-WF-devGuideRefactor-20261104-124528.md:93:WC-13
+.dev/tasks/to-do/TASK-WF-devGuideRefactor-20261104-124528/TASK-WF-devGuideRefactor-20261104-124528.md:94:WC-8
+.dev/tasks/to-do/TASK-WF-devGuideRefactor-20261104-124528/TASK-WF-devGuideRefactor-20261104-124528.md:104:WC-8
+.dev/tasks/to-do/TASK-WF-devGuideRefactor-20261104-124528/TASK-WF-devGuideRefactor-20261104-124528.md:134:WC-8
+.dev/tasks/to-do/TASK-WF-devGuideRefactor-20261104-124528/TASK-WF-devGuideRefactor-20261104-124528.md:136:WC-8
+.dev/tasks/to-do/TASK-WF-devGuideRefactor-20261104-124528/source.md:7:WC-8
+.dev/tasks/to-do/TASK-WF-devGuideRefactor-20261104-124528/source.md:32:WC-8
+.dev/tasks/to-do/TASK-WF-devGuideRefactor-20261104-124528/source.md:33:WC-8
+.dev/tasks/to-do/TASK-WF-devGuideRefactor-20261104-124528/source.md:33:WC-13
+.dev/tasks/to-do/TASK-WF-devGuideRefactor-20261104-124528/source.md:33:WC-13
+.dev/tasks/to-do/TASK-WF-devGuideRefactor-20261104-124528/source.md:40:NEVER_AS_WORKER
+.dev/tasks/to-do/TASK-RESEARCH-issue-watcher-20261107-064950/synthesis/synth-01-problem-current-state.md:134:WC-8
+.dev/tasks/to-do/TASK-RESEARCH-issue-watcher-20261107-064950/synthesis/synth-01-problem-current-state.md:134:WC-13
+.dev/tasks/to-do/TASK-RESEARCH-issue-watcher-20261107-064950/synthesis/synth-03-options-recommendation.md:55:WC-13
+.dev/tasks/to-do/TASK-RESEARCH-issue-watcher-20261107-064950/synthesis/synth-03-options-recommendation.md:382:WC-13
+.dev/tasks/to-do/TASK-RESEARCH-issue-watcher-20261107-064950/synthesis/synth-03-options-recommendation.md:475:WC-13
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/BUILD-REQUEST.md:12:WC-13
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/BUILD-REQUEST.md:12:coordinator under another orchestrator
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/BUILD-REQUEST.md:14:WC-13
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/BUILD-REQUEST.md:35:WC-13
+.dev/tasks/to-do/TASK-RESEARCH-issue-watcher-20261107-064950/TASK-RESEARCH-issue-watcher-20261107-064950.md:189:WC-8
+.dev/tasks/to-do/TASK-RESEARCH-issue-watcher-20261107-064950/TASK-RESEARCH-issue-watcher-20261107-064950.md:189:WC-8
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115.md:40:WC-13
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115.md:74:coordinator under another orchestrator
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115.md:74:WC-13
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115.md:83:WC-13
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115.md:83:coordinator under another orchestrator
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115.md:113:WC-13
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115.md:113:coordinator under another orchestrator
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115.md:114:WC-13
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115.md:115:WC-13
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115.md:115:WC-8
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115.md:178:WC-8
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115.md:178:WC-13
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115.md:178:coordinator under another orchestrator
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115.md:178:WC-13
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115.md:178:coordinator under another orchestrator
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115.md:178:WC-13
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115.md:178:WC-13
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115.md:178:coordinator under another orchestrator
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115.md:178:WC-8
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115.md:178:WC-13
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115.md:178:WC-13
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115.md:178:WC-8
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115.md:182:WC-13
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115.md:182:coordinator under another orchestrator
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115.md:182:WC-13
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115.md:186:WC-13
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115.md:186:coordinator under another orchestrator
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115.md:186:WC-13
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115.md:190:WC-13
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115.md:190:coordinator under another orchestrator
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115.md:190:WC-13
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115.md:190:WC-13
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115.md:194:WC-13
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115.md:194:coordinator under another orchestrator
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115.md:194:WC-13
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115.md:198:WC-13
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115.md:198:coordinator under another orchestrator
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115.md:198:WC-13
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115.md:202:coordinator under another orchestrator
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115.md:202:WC-13
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115.md:202:WC-8
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115.md:202:person opened
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115.md:202:person-opened
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115.md:202:NEVER_AS_WORKER
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115.md:202:WC-13
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115.md:202:coordinator under another orchestrator
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115.md:202:WC-13
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115.md:202:coordinator under another orchestrator
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115.md:206:WC-13
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115.md:206:coordinator under another orchestrator
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115.md:206:WC-13
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115.md:217:WC-13
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115.md:217:WC-8
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115.md:221:WC-13
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115.md:225:WC-13
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115.md:233:coordinator under another orchestrator
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115.md:241:WC-13
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115.md:241:coordinator under another orchestrator
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115.md:241:WC-13
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115.md:253:WC-13
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115.md:253:coordinator under another orchestrator
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115.md:253:WC-13
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115.md:272:WC-13
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115.md:272:coordinator under another orchestrator
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115.md:276:person-opened
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115.md:276:WC-13
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115.md:276:coordinator under another orchestrator
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115.md:280:WC-13
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115.md:280:coordinator under another orchestrator
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115.md:284:WC-13
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115.md:284:coordinator under another orchestrator
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115.md:293:WC-13
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115.md:293:WC-13
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115.md:293:coordinator under another orchestrator
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115.md:297:WC-13
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115.md:297:coordinator under another orchestrator
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115.md:297:WC-13
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115.md:297:WC-8
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115.md:297:WC-13
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115.md:297:WC-13
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115.md:297:coordinator under another orchestrator
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115.md:297:coordinator under another orchestrator
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115.md:297:WC-13
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115.md:297:person-opened
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115.md:301:WC-13
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115.md:301:coordinator under another orchestrator
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115.md:305:WC-13
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115.md:305:WC-13
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115.md:305:WC-13
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115.md:305:WC-13
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115.md:305:coordinator under another orchestrator
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115.md:305:WC-13
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115.md:305:coordinator under another orchestrator
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115.md:309:WC-13
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115.md:309:coordinator under another orchestrator
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115.md:313:WC-13
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115.md:313:coordinator under another orchestrator
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115.md:336:WC-13
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115.md:342:WC-13
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115.md:385:WC-13
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115.md:385:coordinator under another orchestrator
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115.md:387:WC-13
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115.md:395:WC-13
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115.md:395:coordinator under another orchestrator
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115.md:397:WC-13
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115.md:405:WC-13
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115.md:419:WC-13
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115.md:431:WC-13
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115.md:437:WC-13
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115.md:453:WC-13
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115.md:465:WC-13
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115.md:487:WC-13
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115.md:499:WC-13
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115.md:514:WC-13
+.dev/tasks/to-do/TASK-RESEARCH-issue-watcher-20261107-064950/RESEARCH-REPORT-issue-watcher.md:232:WC-8
+.dev/tasks/to-do/TASK-RESEARCH-issue-watcher-20261107-064950/RESEARCH-REPORT-issue-watcher.md:232:WC-13
+.dev/tasks/to-do/TASK-RESEARCH-issue-watcher-20261107-064950/RESEARCH-REPORT-issue-watcher.md:698:WC-13
+.dev/tasks/to-do/TASK-RESEARCH-issue-watcher-20261107-064950/RESEARCH-REPORT-issue-watcher.md:1036:WC-13
+.dev/tasks/to-do/TASK-RESEARCH-issue-watcher-20261107-064950/RESEARCH-REPORT-issue-watcher.md:1365:WC-13
+.dev/tasks/to-do/TASK-RESEARCH-issue-watcher-20261107-064950/RESEARCH-REPORT-issue-watcher.md:1488:WC-13
+.dev/tasks/to-do/TASK-RESEARCH-issue-watcher-20261107-064950/RESEARCH-REPORT-issue-watcher.md:1543:WC-13
+.dev/tasks/to-do/TASK-RESEARCH-issue-watcher-20261107-064950/RESEARCH-REPORT-issue-watcher.md:1961:WC-13
+.dev/tasks/to-do/TASK-RESEARCH-issue-watcher-20261107-064950/RESEARCH-REPORT-issue-watcher.md:2078:WC-13
+.dev/tasks/to-do/TASK-RESEARCH-issue-watcher-20261107-064950/RESEARCH-REPORT-issue-watcher.md:2115:WC-13
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/qa/qa-task-research-alignment-report.md:20:WC-13
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/qa/qa-task-research-alignment-report.md:20:WC-8
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/qa/qa-task-research-alignment-report.md:70:WC-13
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/qa/qa-task-research-alignment-report.md:72:WC-8
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/qa/qa-task-research-alignment-report.md:84:WC-8
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/qa/qa-task-research-alignment-report.md:84:WC-13
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/qa/qa-task-research-alignment-report.md:84:NEVER_AS_WORKER
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/qa/qa-task-research-alignment-report.md:90:WC-13
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/qa/qa-task-research-alignment-report.md:106:WC-8
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/qa/qa-task-research-alignment-report.md:108:WC-13
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/qa/qa-task-research-alignment-report.md:120:WC-13
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/qa/qa-task-research-alignment-report.md:122:WC-8
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/qa/qa-task-research-alignment-report.md:122:WC-13
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/qa/qa-task-research-alignment-report.md:130:WC-13
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/qa/qa-qualitative-operational-report-2.md:13:WC-13
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/qa/qa-qualitative-operational-report-2.md:13:coordinator under another orchestrator
+.dev/tasks/to-do/TASK-RESEARCH-issue-watcher-20261107-064950/qa/qa-anti-omission-report-1.md:83:WC-13
+.dev/tasks/to-do/TASK-RESEARCH-issue-watcher-20261107-064950/qa/qa-anti-omission-report-1.md:261:WC-8
+.dev/tasks/to-do/TASK-RESEARCH-issue-watcher-20261107-064950/qa/qa-anti-omission-report-1.md:261:WC-13
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/qa/qa-qualitative-operational-report-1.md:12:WC-13
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/qa/qa-qualitative-operational-report-1.md:12:coordinator under another orchestrator
+.dev/tasks/to-do/TASK-RESEARCH-issue-watcher-20261107-064950/qa/qa-verification-phase3-structural.md:29:WC-13
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/qa/qa-task-alignment-verification.md:19:WC-13
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/qa/qa-task-alignment-verification.md:21:WC-8
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/qa/qa-task-alignment-verification.md:21:WC-13
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/qa/qa-task-alignment-verification.md:21:WC-8
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/qa/qa-task-alignment-verification.md:21:WC-13
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/qa/qa-task-alignment-verification.md:21:WC-8
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/qa/qa-task-alignment-verification.md:21:WC-13
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/qa/qa-task-alignment-verification.md:21:WC-8
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/qa/qa-task-alignment-verification.md:21:WC-13
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/qa/qa-task-validation-consolidated.md:64:WC-8
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/qa/qa-task-validation-b2-report.md:69:WC-8
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/qa/qa-task-validation-b2-report.md:69:WC-13
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/qa/qa-task-alignment-fix-log.md:26:WC-8
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/qa/qa-task-alignment-fix-log.md:26:WC-13
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/qa/qa-task-alignment-fix-log.md:28:WC-8
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/qa/qa-task-alignment-fix-log.md:28:WC-13
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/qa/qa-qualitative-sufficiency-report.md:11:WC-13
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/qa/qa-qualitative-sufficiency-report.md:11:coordinator under another orchestrator
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/qa/qa-task-validation-structure-report.md:77:WC-13
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/research/research-notes.md:12:coordinator under another orchestrator
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/research/research-notes.md:12:WC-13
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/research/research-notes.md:26:WC-13
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/research/research-notes.md:26:WC-8
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/research/research-notes.md:26:person opened
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/research/research-notes.md:27:coordinator under another orchestrator
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/research/research-notes.md:35:person-opened
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/research/research-notes.md:35:WC-13
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/research/research-notes.md:36:WC-13
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/research/research-notes.md:38:WC-13
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/research/research-notes.md:47:WC-13
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/research/research-notes.md:47:WC-8
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/research/research-notes.md:47:NEVER_AS_WORKER
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/research/research-notes.md:48:coordinator under another orchestrator
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/research/research-notes.md:55:WC-13
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/research/research-notes.md:72:WC-13
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/research/research-notes.md:73:NEVER_AS_WORKER
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/research/research-notes.md:83:person-opened
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/research/research-notes.md:84:WC-13
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/research/research-notes.md:86:WC-13
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/research/research-notes.md:115:coordinator under another orchestrator
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/research/research-notes.md:121:coordinator under another orchestrator
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/research/research-notes.md:121:WC-13
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/research/research-notes.md:121:WC-8
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/research/research-notes.md:121:person opened
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/research/research-notes.md:121:NEVER_AS_WORKER
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/research/research-notes.md:159:WC-13
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/research/scope/scope-03-enforcement-surface.md:22:WC-13
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/research/scope/scope-03-enforcement-surface.md:23:The session that creates the worktree becomes its orchestrator
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/research/scope/scope-03-enforcement-surface.md:23:coordinator under another orchestrator
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/research/scope/scope-03-enforcement-surface.md:23:Supervised workers use `orca orchestration worker-start`
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/research/scope/scope-03-enforcement-surface.md:27:coordinator under another orchestrator
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/research/scope/scope-03-enforcement-surface.md:27:coordinator under another orchestrator
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/research/scope/scope-03-enforcement-surface.md:39:WC-13
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/research/scope/scope-03-enforcement-surface.md:40:WC-8
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/research/scope/scope-03-enforcement-surface.md:40:WC-8
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/research/scope/scope-03-enforcement-surface.md:41:WC-13
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/research/scope/scope-03-enforcement-surface.md:42:person opened
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/research/scope/scope-03-enforcement-surface.md:42:person-opened
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/research/scope/scope-03-enforcement-surface.md:42:person-opened
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/research/scope/scope-03-enforcement-surface.md:49:WC-13
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/research/scope/scope-03-enforcement-surface.md:49:WC-13
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/research/scope/scope-03-enforcement-surface.md:50:WC-8
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/research/scope/scope-03-enforcement-surface.md:50:WC-8
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/research/scope/scope-03-enforcement-surface.md:94:WC-13
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/research/scope/scope-03-enforcement-surface.md:94:WC-13
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/research/scope/scope-03-enforcement-surface.md:99:WC-13
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/research/scope/scope-03-enforcement-surface.md:103:WC-13
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/research/scope/scope-03-enforcement-surface.md:104:WC-13
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/research/scope/scope-03-enforcement-surface.md:106:WC-13
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/research/scope/scope-03-enforcement-surface.md:107:WC-13
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/research/scope/scope-03-enforcement-surface.md:108:WC-13
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/research/scope/scope-03-enforcement-surface.md:109:coordinator under another orchestrator
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/research/scope/scope-03-enforcement-surface.md:126:WC-13
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/research/scope/scope-03-enforcement-surface.md:127:WC-13
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/research/scope/scope-03-enforcement-surface.md:128:coordinator under another orchestrator
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/research/scope/scope-03-enforcement-surface.md:132:WC-13
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/research/scope/scope-03-enforcement-surface.md:135:WC-8
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/research/scope/scope-03-enforcement-surface.md:135:WC-13
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/research/scope/scope-03-enforcement-surface.md:135:WC-8
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/research/scope/scope-03-enforcement-surface.md:135:WC-13
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/research/scope/scope-03-enforcement-surface.md:136:coordinator under another orchestrator
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/research/scope/scope-03-enforcement-surface.md:140:WC-13
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/research/scope/scope-03-enforcement-surface.md:140:coordinator under another orchestrator
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/research/scope/scope-04-issues-prs-and-prior-analysis.md:12:WC-13
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/research/scope/scope-04-issues-prs-and-prior-analysis.md:54:coordinator under another orchestrator
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/research/scope/scope-04-issues-prs-and-prior-analysis.md:59:coordinator under another orchestrator
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/research/scope/scope-04-issues-prs-and-prior-analysis.md:59:coordinator under another orchestrator
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/research/scope/scope-04-issues-prs-and-prior-analysis.md:60:WC-13
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/research/scope/scope-04-issues-prs-and-prior-analysis.md:60:WC-13
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/research/scope/scope-04-issues-prs-and-prior-analysis.md:60:coordinator under another orchestrator
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/research/scope/scope-04-issues-prs-and-prior-analysis.md:69:person-opened
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/research/scope/scope-04-issues-prs-and-prior-analysis.md:69:WC-13
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/research/scope/scope-04-issues-prs-and-prior-analysis.md:69:person opened
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/research/scope/scope-04-issues-prs-and-prior-analysis.md:70:WC-13
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/research/scope/scope-04-issues-prs-and-prior-analysis.md:70:WC-13
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/research/scope/scope-04-issues-prs-and-prior-analysis.md:71:WC-13
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/research/scope/scope-04-issues-prs-and-prior-analysis.md:71:WC-13
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/research/scope/scope-04-issues-prs-and-prior-analysis.md:86:WC-13
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/research/scope/scope-04-issues-prs-and-prior-analysis.md:107:person-opened
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/research/scope/scope-04-issues-prs-and-prior-analysis.md:133:WC-13
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/research/scope/scope-04-issues-prs-and-prior-analysis.md:139:WC-13
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/research/scope/scope-04-issues-prs-and-prior-analysis.md:148:coordinator under another orchestrator
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/research/scope/scope-04-issues-prs-and-prior-analysis.md:148:person-opened
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/research/scope/scope-04-issues-prs-and-prior-analysis.md:148:WC-13
+.dev/tasks/done/TASK-WF-writeTheP0LivePl-20261103-215902/TASK-WF-writeTheP0LivePl-20261103-215902.md:40:WC-13
+.dev/tasks/done/TASK-WF-writeTheP0LivePl-20261103-215902/TASK-WF-writeTheP0LivePl-20261103-215902.md:145:WC-13
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/research/scope/scope-02-decision-history-d5.md:1:WC-13
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/research/scope/scope-02-decision-history-d5.md:12:person-opened
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/research/scope/scope-02-decision-history-d5.md:12:WC-13
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/research/scope/scope-02-decision-history-d5.md:12:WC-13
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/research/scope/scope-02-decision-history-d5.md:12:WC-13
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/research/scope/scope-02-decision-history-d5.md:12:person-opened
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/research/scope/scope-02-decision-history-d5.md:13:person opened
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/research/scope/scope-02-decision-history-d5.md:13:WC-13
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/research/scope/scope-02-decision-history-d5.md:14:person opened
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/research/scope/scope-02-decision-history-d5.md:20:person opened
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/research/scope/scope-02-decision-history-d5.md:21:WC-13
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/research/scope/scope-02-decision-history-d5.md:30:WC-8
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/research/scope/scope-02-decision-history-d5.md:39:WC-13
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/research/scope/scope-02-decision-history-d5.md:55:person-opened
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/research/scope/scope-02-decision-history-d5.md:64:person-opened
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/research/scope/scope-02-decision-history-d5.md:78:WC-13
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/research/scope/scope-02-decision-history-d5.md:80:person-opened
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/research/scope/scope-02-decision-history-d5.md:83:WC-13
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/research/scope/scope-02-decision-history-d5.md:88:WC-13
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/research/scope/scope-02-decision-history-d5.md:89:WC-8
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/research/scope/scope-02-decision-history-d5.md:90:person opened
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/research/scope/scope-02-decision-history-d5.md:96:coordinator under another orchestrator
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/research/scope/scope-02-decision-history-d5.md:96:coordinator under another orchestrator
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/research/scope/scope-02-decision-history-d5.md:96:person-opened
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/research/scope/scope-02-decision-history-d5.md:104:person-opened
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/research/scope/scope-02-decision-history-d5.md:104:coordinator under another orchestrator
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/research/scope/scope-02-decision-history-d5.md:116:coordinator under another orchestrator
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/research/scope/scope-02-decision-history-d5.md:116:person-opened
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/research/scope/scope-02-decision-history-d5.md:118:WC-13
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/research/scope/scope-02-decision-history-d5.md:118:WC-13
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/research/scope/scope-02-decision-history-d5.md:118:WC-13
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/research/scope/scope-02-decision-history-d5.md:128:WC-13
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/research/scope/scope-02-decision-history-d5.md:129:person-opened
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/research/scope/scope-02-decision-history-d5.md:129:WC-13
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/research/scope/scope-02-decision-history-d5.md:131:person-opened
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/research/scope/scope-02-decision-history-d5.md:131:WC-13
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/research/scope/scope-02-decision-history-d5.md:133:coordinator under another orchestrator
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/research/scope/scope-02-decision-history-d5.md:137:person-opened
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/research/scope/scope-02-decision-history-d5.md:137:WC-13
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/research/scope/scope-02-decision-history-d5.md:137:WC-13
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/research/scope/scope-02-decision-history-d5.md:137:coordinator under another orchestrator
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/research/scope/scope-01-contract-and-rules.md:17:WC-8
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/research/scope/scope-01-contract-and-rules.md:25:WC-13
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/research/scope/scope-01-contract-and-rules.md:32:WC-13
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/research/scope/scope-01-contract-and-rules.md:34:WC-13
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/research/scope/scope-01-contract-and-rules.md:34:WC-8
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/research/scope/scope-01-contract-and-rules.md:36:WC-13
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/research/scope/scope-01-contract-and-rules.md:38:WC-13
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/research/scope/scope-01-contract-and-rules.md:42:WC-13
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/research/scope/scope-01-contract-and-rules.md:45:WC-8
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/research/scope/scope-01-contract-and-rules.md:47:WC-8
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/research/scope/scope-01-contract-and-rules.md:50:WC-8
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/research/scope/scope-01-contract-and-rules.md:50:WC-13
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/research/scope/scope-01-contract-and-rules.md:51:WC-8
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/research/scope/scope-01-contract-and-rules.md:51:WC-13
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/research/scope/scope-01-contract-and-rules.md:51:WC-8
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/research/scope/scope-01-contract-and-rules.md:51:WC-8
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/research/scope/scope-01-contract-and-rules.md:51:WC-13
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/research/scope/scope-01-contract-and-rules.md:52:WC-8
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/research/scope/scope-01-contract-and-rules.md:58:person opened
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/research/scope/scope-01-contract-and-rules.md:65:coordinator under another orchestrator
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/research/scope/scope-01-contract-and-rules.md:78:NEVER_AS_WORKER
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/research/scope/scope-01-contract-and-rules.md:96:coordinator under another orchestrator
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/research/scope/scope-01-contract-and-rules.md:103:coordinator under another orchestrator
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/research/scope/scope-01-contract-and-rules.md:112:ORCA WORKTREE BLOCK:
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/research/scope/scope-01-contract-and-rules.md:114:The session that creates the worktree becomes its orchestrator
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/research/scope/scope-01-contract-and-rules.md:114:coordinator under another orchestrator
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/research/scope/scope-01-contract-and-rules.md:115:Supervised workers use `orca orchestration worker-start`
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/research/scope/scope-01-contract-and-rules.md:123:The session that creates the worktree becomes its orchestrator
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/research/scope/scope-01-contract-and-rules.md:123:coordinator under another orchestrator
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/research/scope/scope-01-contract-and-rules.md:124:coordinator under another orchestrator
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/research/scope/scope-01-contract-and-rules.md:128:coordinator under another orchestrator
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/research/scope/scope-01-contract-and-rules.md:129:coordinator under another orchestrator
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/research/scope/scope-01-contract-and-rules.md:130:WC-13
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/research/scope/scope-01-contract-and-rules.md:131:WC-13
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/research/scope/scope-01-contract-and-rules.md:140:person opened
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/research/scope/scope-01-contract-and-rules.md:140:person opened
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/research/scope/scope-01-contract-and-rules.md:146:NEVER_AS_WORKER
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/research/scope/scope-01-contract-and-rules.md:147:NEVER_AS_WORKER
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/research/scope/scope-01-contract-and-rules.md:148:WC-8
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/research/scope/scope-01-contract-and-rules.md:151:WC-13
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/research/scope/scope-01-contract-and-rules.md:151:WC-13
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/research/scope/scope-01-contract-and-rules.md:151:coordinator under another orchestrator
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/research/scope/scope-01-contract-and-rules.md:153:person-opened
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/research/scope/scope-01-contract-and-rules.md:162:coordinator under another orchestrator
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/research/scope/scope-01-contract-and-rules.md:165:coordinator under another orchestrator
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/research/scope/scope-01-contract-and-rules.md:171:WC-13
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/research/scope/scope-01-contract-and-rules.md:172:person-opened
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/research/scope/scope-01-contract-and-rules.md:172:WC-13
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/research/scope/scope-01-contract-and-rules.md:172:person-opened
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/research/scope/scope-01-contract-and-rules.md:172:WC-13
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/research/scope/scope-01-contract-and-rules.md:173:person opened
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/research/scope/scope-01-contract-and-rules.md:178:person-opened
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/research/scope/scope-01-contract-and-rules.md:184:person opened
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/research/scope/scope-01-contract-and-rules.md:185:person opened
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/research/scope/scope-01-contract-and-rules.md:187:WC-13
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/research/scope/scope-01-contract-and-rules.md:187:WC-13
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/research/scope/scope-01-contract-and-rules.md:188:WC-8
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/research/scope/scope-01-contract-and-rules.md:188:WC-13
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/research/scope/scope-01-contract-and-rules.md:188:WC-8
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/research/scope/scope-01-contract-and-rules.md:188:WC-13
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/research/scope/scope-01-contract-and-rules.md:188:WC-8
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/research/scope/scope-01-contract-and-rules.md:188:WC-13
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/research/scope/scope-01-contract-and-rules.md:198:WC-13
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/research/scope/scope-01-contract-and-rules.md:198:WC-13
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/research/scope/scope-01-contract-and-rules.md:199:WC-8
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/research/scope/scope-01-contract-and-rules.md:200:person opened
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/research/scope/scope-01-contract-and-rules.md:200:coordinator under another orchestrator
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/research/scope/scope-01-contract-and-rules.md:201:WC-13
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/research/scope/scope-01-contract-and-rules.md:204:WC-13
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/research/scope/scope-01-contract-and-rules.md:208:WC-13
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/research/scope/scope-01-contract-and-rules.md:208:WC-8
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/research/scope/scope-01-contract-and-rules.md:208:person opened
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/research/scope/scope-01-contract-and-rules.md:208:coordinator under another orchestrator
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/research/scope/scope-01-contract-and-rules.md:208:WC-13
+.dev/tasks/to-do/TASK-RESEARCH-sub-orchestrator-mode-20261108-181115/research/scope/scope-01-contract-and-rules.md:208:WC-13
+.dev/tasks/to-do/TASK-RESEARCH-issue-watcher-20261107-064950/qa/qa-lens-finding-reproducibility.md:35:WC-8
+.dev/tasks/to-do/TASK-RESEARCH-issue-watcher-20261107-064950/qa/qa-synthesis-structure.md:31:WC-8
+.dev/tasks/to-do/TASK-RESEARCH-issue-watcher-20261107-064950/qa/qa-synthesis-structure.md:31:WC-13
+.dev/tasks/to-do/TASK-RESEARCH-issue-watcher-20261107-064950/qa/analyst-completeness-report.md:81:WC-8
+.dev/tasks/to-do/TASK-RESEARCH-issue-watcher-20261107-064950/qa/analyst-completeness-report.md:81:WC-13
+.dev/tasks/to-do/TASK-RESEARCH-issue-watcher-20261107-064950/qa/analyst-completeness-report.md:142:WC-8
+.dev/tasks/to-do/TASK-RESEARCH-issue-watcher-20261107-064950/qa/analyst-completeness-report.md:142:WC-13
+.dev/tasks/to-do/TASK-RESEARCH-issue-watcher-20261107-064950/qa/a10-task-validation/qa-qualitative-operational-report.md:18:WC-8
+.dev/tasks/to-do/TASK-RESEARCH-issue-watcher-20261107-064950/qa/analyst-synthesis-accuracy.md:49:WC-13
+.dev/tasks/to-do/TASK-RESEARCH-issue-watcher-20261107-064950/qa/a10-task-validation/qa-task-validation-b2-report.md:96:WC-8
+.dev/tasks/done/TASK-WF-writeTheP0LivePl-20261103-215902/artifacts/p0-phase-report.md:27:WC-13
+.dev/tasks/done/TASK-WF-writeTheP0LivePl-20261103-215902/artifacts/lc3-session-analysis.txt:95:WC-13
+.dev/tasks/done/TASK-WF-writeTheP0LivePl-20261103-215902/artifacts/lc3-session-analysis.txt:97:WC-13
+.dev/tasks/to-do/TASK-RESEARCH-issue-watcher-20261107-064950/research/03-governance-and-security-surface.md:146:WC-8
+.dev/tasks/to-do/TASK-RESEARCH-issue-watcher-20261107-064950/research/03-governance-and-security-surface.md:149:WC-13
+.dev/tasks/to-do/TASK-RESEARCH-issue-watcher-20261107-064950/research/03-governance-and-security-surface.md:150:WC-8
+.dev/tasks/to-do/TASK-RESEARCH-issue-watcher-20261107-064950/research/03-governance-and-security-surface.md:150:WC-13
+.dev/tasks/done/TASK-WF-writeTheP0LivePl-20261103-215902/artifacts/lc3-step5.md:18:WC-13
+.dev/tasks/done/TASK-WF-writeTheP0LivePl-20261103-215902/artifacts/lc3-step5.md:21:WC-13
+.dev/tasks/to-do/TASK-RESEARCH-issue-watcher-20261107-064950/research/01-claim-flow-and-session-launch.md:122:WC-13
+.dev/tasks/to-do/TASK-RESEARCH-issue-watcher-20261107-064950/research/01-claim-flow-and-session-launch.md:130:WC-13
+.dev/tasks/to-do/TASK-RESEARCH-issue-watcher-20261107-064950/qa/qa-research-evidence-report.md:22:WC-8
+.dev/tasks/to-do/TASK-RESEARCH-issue-watcher-20261107-064950/qa/qa-research-evidence-report.md:22:WC-13
+.dev/tasks/done/TASK-WF-writeTheP0LivePl-20261103-215902/artifacts/session-analysis.py:72:WC-13
+.dev/tasks/done/TASK-WF-writeTheP0LivePl-20261103-215902/artifacts/lc2-session-analysis.txt:99:WC-13
+.dev/tasks/done/TASK-WF-writeTheP0LivePl-20261103-215902/artifacts/retries/T1/prompt-1-1.md:40:WC-13
+.dev/tasks/done/TASK-WF-writeTheP0LivePl-20261103-215902/artifacts/retries/T5/prompt-5-1.md:9:WC-13
+.dev/tasks/done/TASK-WF-writeTheP0LivePl-20261103-215902/artifacts/retries/T5/prompt-5-1.md:41:WC-13
+.dev/tasks/done/TASK-WF-writeTheP0LivePl-20261103-215902/artifacts/retries/T4/prompt-4-1.md:52:WC-13
+.dev/tasks/done/TASK-WF-writeTheP0LivePl-20261103-215902/artifacts/retries/T3/prompt-3-1.md:53:WC-13
+.dev/tasks/done/TASK-WF-writeTheP0LivePl-20261103-215902/artifacts/retries/T2/prompt-2-1.md:55:WC-13
+.dev/tasks/done/TASK-WF-writeTheP0LivePl-20261103-215902/artifacts/lc2-step5.md:23:WC-13
+.dev/tasks/done/TASK-WF-writeTheP0LivePl-20261103-215902/artifacts/lc1-step5.md:27:WC-13
+.dev/tasks/done/TASK-WF-p1LivePlanBrief-20261105-164506/TASK-WF-p1LivePlanBrief-20261105-164506.md:32:WC-13
+.dev/tasks/done/TASK-WF-p1LivePlanBrief-20261105-164506/TASK-WF-p1LivePlanBrief-20261105-164506.md:44:WC-13
+.dev/tasks/done/TASK-WF-p1LivePlanBrief-20261105-164506/artifacts/lc10-session-analysis.txt:47:WC-13
+.dev/tasks/done/TASK-WF-p1LivePlanBrief-20261105-164506/artifacts/lc14-step5.md:15:WC-13
+.dev/tasks/done/TASK-WF-p1LivePlanBrief-20261105-164506/artifacts/lc14-step5.md:15:WC-13
+.dev/tasks/done/TASK-WF-p1LivePlanBrief-20261105-164506/artifacts/lc03-session-analysis.txt:32:WC-13
+.dev/tasks/done/TASK-WF-p1LivePlanBrief-20261105-164506/artifacts/lc08-report/pytest-output.txt:17:WC-13
+.dev/tasks/done/TASK-WF-p1LivePlanBrief-20261105-164506/artifacts/lc08-report/pytest-output.txt:27:WC-8
+.dev/tasks/done/TASK-WF-p1LivePlanBrief-20261105-164506/artifacts/lc08-report/pytest-output.txt:148:WC-13
+.dev/tasks/done/TASK-WF-p1LivePlanBrief-20261105-164506/artifacts/lc08-report/pytest-output.txt:158:WC-8
+.dev/tasks/done/TASK-WF-p1LivePlanBrief-20261105-164506/artifacts/lc10-step5.md:15:WC-13
+.dev/tasks/done/TASK-WF-p1LivePlanBrief-20261105-164506/artifacts/lc10-step5.md:15:WC-13
+.dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/research/02-integration-points-and-citation-check.md:63:WC-13
+.dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/research/02-integration-points-and-citation-check.md:63:WC-13
+.dev/tasks/done/TASK-WF-p1LivePlanBrief-20261105-164506/artifacts/lc02-session-analysis.txt:26:WC-13
+.dev/tasks/done/TASK-WF-p1LivePlanBrief-20261105-164506/artifacts/lc02-step5.md:15:WC-13
+.dev/tasks/done/TASK-WF-p1LivePlanBrief-20261105-164506/artifacts/lc02-step5.md:15:WC-13
+.dev/tasks/done/TASK-WF-p1LivePlanBrief-20261105-164506/artifacts/lc21-step5.md:15:WC-13
+.dev/tasks/done/TASK-WF-p1LivePlanBrief-20261105-164506/artifacts/lc21-step5.md:15:WC-13
+.dev/tasks/done/TASK-WF-p1LivePlanBrief-20261105-164506/artifacts/lc08-step5.md:15:WC-13
+.dev/tasks/done/TASK-WF-p1LivePlanBrief-20261105-164506/artifacts/lc08-step5.md:15:WC-13
+.dev/tasks/done/TASK-WF-p1LivePlanBrief-20261105-164506/artifacts/lc22-session-analysis.txt:29:WC-13
+.dev/tasks/done/TASK-WF-p1LivePlanBrief-20261105-164506/artifacts/lc16-session-analysis.txt:54:WC-13
+.dev/tasks/done/TASK-WF-p1LivePlanBrief-20261105-164506/artifacts/lc11-session-analysis.txt:32:WC-13
+.dev/tasks/done/TASK-WF-p1LivePlanBrief-20261105-164506/artifacts/lc03-step5.md:15:WC-13
+.dev/tasks/done/TASK-WF-p1LivePlanBrief-20261105-164506/artifacts/lc03-step5.md:15:WC-13
+.dev/tasks/done/TASK-WF-p1LivePlanBrief-20261105-164506/artifacts/lc13-step5.md:15:WC-13
+.dev/tasks/done/TASK-WF-p1LivePlanBrief-20261105-164506/artifacts/lc13-step5.md:15:WC-13
+.dev/tasks/done/TASK-WF-p1LivePlanBrief-20261105-164506/artifacts/lc06-session-analysis.txt:31:WC-13
+.dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/reflect/pre/reviewer-briefs/reviewer-2.md:105:WC-13
+.dev/tasks/done/TASK-WF-p1LivePlanBrief-20261105-164506/artifacts/lc07-step5.md:15:WC-13
+.dev/tasks/done/TASK-WF-p1LivePlanBrief-20261105-164506/artifacts/lc07-step5.md:15:WC-13
+.dev/tasks/done/TASK-WF-p1LivePlanBrief-20261105-164506/artifacts/lc15-session-analysis-supplement.txt:7:WC-13
+.dev/tasks/done/TASK-WF-p1LivePlanBrief-20261105-164506/artifacts/lc04-step5.md:15:WC-13
+.dev/tasks/done/TASK-WF-p1LivePlanBrief-20261105-164506/artifacts/lc04-step5.md:15:WC-13
+.dev/tasks/done/TASK-WF-p1LivePlanBrief-20261105-164506/artifacts/lc12-step5.md:15:WC-13
+.dev/tasks/done/TASK-WF-p1LivePlanBrief-20261105-164506/artifacts/lc12-step5.md:15:WC-13
+.dev/tasks/done/TASK-WF-p1LivePlanBrief-20261105-164506/artifacts/lc12-session-analysis-supplement.txt:7:WC-13
+.dev/tasks/done/TASK-WF-p1LivePlanBrief-20261105-164506/artifacts/lc08-session-analysis-supplement.txt:7:WC-13
+.dev/tasks/done/TASK-WF-p1LivePlanBrief-20261105-164506/artifacts/lc19-step5.md:15:WC-13
+.dev/tasks/done/TASK-WF-p1LivePlanBrief-20261105-164506/artifacts/lc19-step5.md:15:WC-13
+.dev/tasks/done/TASK-WF-p1LivePlanBrief-20261105-164506/artifacts/lc18-session-analysis-supplement.txt:7:WC-13
+.dev/tasks/done/TASK-WF-p1LivePlanBrief-20261105-164506/artifacts/lc06-step5.md:15:WC-13
+.dev/tasks/done/TASK-WF-p1LivePlanBrief-20261105-164506/artifacts/lc06-step5.md:15:WC-13
+.dev/tasks/done/TASK-WF-p1LivePlanBrief-20261105-164506/artifacts/lc15-step5.md:15:WC-13
+.dev/tasks/done/TASK-WF-p1LivePlanBrief-20261105-164506/artifacts/lc15-step5.md:15:WC-13
+.dev/tasks/done/TASK-WF-p1LivePlanBrief-20261105-164506/artifacts/lc16-step5.md:15:WC-13
+.dev/tasks/done/TASK-WF-p1LivePlanBrief-20261105-164506/artifacts/lc16-step5.md:15:WC-13
+.dev/tasks/done/TASK-WF-p1LivePlanBrief-20261105-164506/artifacts/lc09-step5.md:15:WC-13
+.dev/tasks/done/TASK-WF-p1LivePlanBrief-20261105-164506/artifacts/lc09-step5.md:15:WC-13
+.dev/tasks/done/TASK-WF-p1LivePlanBrief-20261105-164506/artifacts/lc14-session-analysis.txt:28:WC-13
+.dev/tasks/done/TASK-WF-p1LivePlanBrief-20261105-164506/artifacts/lc20-session-analysis-supplement.txt:7:WC-13
+.dev/tasks/done/TASK-WF-p1LivePlanBrief-20261105-164506/artifacts/lc21-session-analysis-supplement.txt:7:WC-13
+.dev/tasks/done/TASK-WF-p1LivePlanBrief-20261105-164506/artifacts/retries/T20/prompt-1-1.md:43:WC-13
+.dev/tasks/done/TASK-WF-p1LivePlanBrief-20261105-164506/artifacts/retries/T20/prompt-1-1.md:55:WC-13
+.dev/tasks/done/TASK-WF-p1LivePlanBrief-20261105-164506/artifacts/retries/T20/prompt-1-1.md:129:WC-13
+.dev/tasks/done/TASK-WF-p1LivePlanBrief-20261105-164506/artifacts/retries/T20/prompt-1-1.md:265:WC-13
+.dev/tasks/done/TASK-WF-p1LivePlanBrief-20261105-164506/artifacts/retries/T20/prompt-1-1.md:265:WC-13
+.dev/tasks/done/TASK-WF-p1LivePlanBrief-20261105-164506/artifacts/retries/T15/prompt-1-1.md:43:WC-13
+.dev/tasks/done/TASK-WF-p1LivePlanBrief-20261105-164506/artifacts/retries/T15/prompt-1-1.md:55:WC-13
+.dev/tasks/done/TASK-WF-p1LivePlanBrief-20261105-164506/artifacts/retries/T15/prompt-1-1.md:302:WC-13
+.dev/tasks/done/TASK-WF-p1LivePlanBrief-20261105-164506/artifacts/retries/T15/prompt-1-1.md:427:WC-13
+.dev/tasks/done/TASK-WF-p1LivePlanBrief-20261105-164506/artifacts/retries/T15/prompt-1-1.md:427:WC-13
+.dev/tasks/done/TASK-WF-p1LivePlanBrief-20261105-164506/artifacts/lc11-step5.md:15:WC-13
+.dev/tasks/done/TASK-WF-p1LivePlanBrief-20261105-164506/artifacts/lc11-step5.md:15:WC-13
+.dev/tasks/done/TASK-WF-p1LivePlanBrief-20261105-164506/artifacts/retries/T22/prompt-1-1.md:43:WC-13
+.dev/tasks/done/TASK-WF-p1LivePlanBrief-20261105-164506/artifacts/retries/T22/prompt-1-1.md:55:WC-13
+.dev/tasks/done/TASK-WF-p1LivePlanBrief-20261105-164506/artifacts/retries/T22/prompt-1-1.md:129:WC-13
+.dev/tasks/done/TASK-WF-p1LivePlanBrief-20261105-164506/artifacts/retries/T22/prompt-1-1.md:265:WC-13
+.dev/tasks/done/TASK-WF-p1LivePlanBrief-20261105-164506/artifacts/retries/T22/prompt-1-1.md:265:WC-13
+.dev/tasks/done/TASK-WF-p1LivePlanBrief-20261105-164506/artifacts/retries/T21/prompt-1-1.md:43:WC-13
+.dev/tasks/done/TASK-WF-p1LivePlanBrief-20261105-164506/artifacts/retries/T21/prompt-1-1.md:55:WC-13
+.dev/tasks/done/TASK-WF-p1LivePlanBrief-20261105-164506/artifacts/retries/T21/prompt-1-1.md:129:WC-13
+.dev/tasks/done/TASK-WF-p1LivePlanBrief-20261105-164506/artifacts/retries/T21/prompt-1-1.md:265:WC-13
+.dev/tasks/done/TASK-WF-p1LivePlanBrief-20261105-164506/artifacts/retries/T21/prompt-1-1.md:265:WC-13
+.dev/tasks/done/TASK-WF-p1LivePlanBrief-20261105-164506/artifacts/lc09-session-analysis.txt:71:WC-13
+.dev/tasks/done/TASK-WF-p1LivePlanBrief-20261105-164506/artifacts/retries/T7/prompt-1-1.md:43:WC-13
+.dev/tasks/done/TASK-WF-p1LivePlanBrief-20261105-164506/artifacts/retries/T7/prompt-1-1.md:55:WC-13
+.dev/tasks/done/TASK-WF-p1LivePlanBrief-20261105-164506/artifacts/retries/T7/prompt-1-1.md:201:WC-13
+.dev/tasks/done/TASK-WF-p1LivePlanBrief-20261105-164506/artifacts/retries/T7/prompt-1-1.md:322:WC-13
+.dev/tasks/done/TASK-WF-p1LivePlanBrief-20261105-164506/artifacts/retries/T7/prompt-1-1.md:322:WC-13
+.dev/tasks/done/TASK-WF-p1LivePlanBrief-20261105-164506/artifacts/lc20-step5.md:15:WC-13
+.dev/tasks/done/TASK-WF-p1LivePlanBrief-20261105-164506/artifacts/lc20-step5.md:15:WC-13
+.dev/tasks/done/TASK-WF-p1LivePlanBrief-20261105-164506/artifacts/retries/T8/prompt-1-1.md:43:WC-13
+.dev/tasks/done/TASK-WF-p1LivePlanBrief-20261105-164506/artifacts/retries/T8/prompt-1-1.md:55:WC-13
+.dev/tasks/done/TASK-WF-p1LivePlanBrief-20261105-164506/artifacts/retries/T8/prompt-1-1.md:195:WC-13
+.dev/tasks/done/TASK-WF-p1LivePlanBrief-20261105-164506/artifacts/retries/T8/prompt-1-1.md:339:WC-13
+.dev/tasks/done/TASK-WF-p1LivePlanBrief-20261105-164506/artifacts/retries/T8/prompt-1-1.md:339:WC-13
+.dev/tasks/done/TASK-WF-p1LivePlanBrief-20261105-164506/artifacts/retries/T2/prompt-1-1.md:43:WC-13
+.dev/tasks/done/TASK-WF-p1LivePlanBrief-20261105-164506/artifacts/retries/T2/prompt-1-1.md:55:WC-13
+.dev/tasks/done/TASK-WF-p1LivePlanBrief-20261105-164506/artifacts/retries/T2/prompt-1-1.md:189:WC-13
+.dev/tasks/done/TASK-WF-p1LivePlanBrief-20261105-164506/artifacts/retries/T2/prompt-1-1.md:301:WC-13
+.dev/tasks/done/TASK-WF-p1LivePlanBrief-20261105-164506/artifacts/retries/T2/prompt-1-1.md:301:WC-13
+.dev/tasks/done/TASK-WF-p1LivePlanBrief-20261105-164506/artifacts/retries/T16/prompt-1-1.md:43:WC-13
+.dev/tasks/done/TASK-WF-p1LivePlanBrief-20261105-164506/artifacts/retries/T16/prompt-1-1.md:55:WC-13
+.dev/tasks/done/TASK-WF-p1LivePlanBrief-20261105-164506/artifacts/retries/T16/prompt-1-1.md:131:WC-13
+.dev/tasks/done/TASK-WF-p1LivePlanBrief-20261105-164506/artifacts/retries/T16/prompt-1-1.md:276:WC-13
+.dev/tasks/done/TASK-WF-p1LivePlanBrief-20261105-164506/artifacts/retries/T16/prompt-1-1.md:276:WC-13
+.dev/tasks/done/TASK-WF-p1LivePlanBrief-20261105-164506/artifacts/retries/T12/prompt-1-1.md:43:WC-13
+.dev/tasks/done/TASK-WF-p1LivePlanBrief-20261105-164506/artifacts/retries/T12/prompt-1-1.md:55:WC-13
+.dev/tasks/done/TASK-WF-p1LivePlanBrief-20261105-164506/artifacts/retries/T12/prompt-1-1.md:649:WC-13
+.dev/tasks/done/TASK-WF-p1LivePlanBrief-20261105-164506/artifacts/retries/T12/prompt-1-1.md:777:WC-13
+.dev/tasks/done/TASK-WF-p1LivePlanBrief-20261105-164506/artifacts/retries/T12/prompt-1-1.md:777:WC-13
+.dev/tasks/done/TASK-WF-p1LivePlanBrief-20261105-164506/artifacts/lc05-step5.md:15:WC-13
+.dev/tasks/done/TASK-WF-p1LivePlanBrief-20261105-164506/artifacts/lc05-step5.md:15:WC-13
+.dev/tasks/done/TASK-WF-p1LivePlanBrief-20261105-164506/artifacts/lc17-session-analysis-supplement.txt:7:WC-13
+.dev/tasks/done/TASK-WF-p1LivePlanBrief-20261105-164506/artifacts/lc13-session-analysis.txt:34:WC-13
+.dev/tasks/done/TASK-WF-p1LivePlanBrief-20261105-164506/artifacts/lc22-step5.md:15:WC-13
+.dev/tasks/done/TASK-WF-p1LivePlanBrief-20261105-164506/artifacts/lc22-step5.md:15:WC-13
+.dev/tasks/done/TASK-WF-p1LivePlanBrief-20261105-164506/artifacts/retries/T18/prompt-1-1.md:43:WC-13
+.dev/tasks/done/TASK-WF-p1LivePlanBrief-20261105-164506/artifacts/retries/T18/prompt-1-1.md:55:WC-13
+.dev/tasks/done/TASK-WF-p1LivePlanBrief-20261105-164506/artifacts/retries/T18/prompt-1-1.md:128:WC-13
+.dev/tasks/done/TASK-WF-p1LivePlanBrief-20261105-164506/artifacts/retries/T18/prompt-1-1.md:264:WC-13
+.dev/tasks/done/TASK-WF-p1LivePlanBrief-20261105-164506/artifacts/retries/T18/prompt-1-1.md:264:WC-13
+.dev/tasks/done/TASK-WF-p1LivePlanBrief-20261105-164506/artifacts/retries/T13/prompt-1-1.md:43:WC-13
+.dev/tasks/done/TASK-WF-p1LivePlanBrief-20261105-164506/artifacts/retries/T13/prompt-1-1.md:55:WC-13
+.dev/tasks/done/TASK-WF-p1LivePlanBrief-20261105-164506/artifacts/retries/T13/prompt-1-1.md:153:WC-13
+.dev/tasks/done/TASK-WF-p1LivePlanBrief-20261105-164506/artifacts/retries/T13/prompt-1-1.md:301:WC-13
+.dev/tasks/done/TASK-WF-p1LivePlanBrief-20261105-164506/artifacts/retries/T13/prompt-1-1.md:301:WC-13
+.dev/tasks/done/TASK-WF-p1LivePlanBrief-20261105-164506/artifacts/retries/T17/prompt-1-1.md:43:WC-13
+.dev/tasks/done/TASK-WF-p1LivePlanBrief-20261105-164506/artifacts/retries/T17/prompt-1-1.md:55:WC-13
+.dev/tasks/done/TASK-WF-p1LivePlanBrief-20261105-164506/artifacts/retries/T17/prompt-1-1.md:1350:WC-13
+.dev/tasks/done/TASK-WF-p1LivePlanBrief-20261105-164506/artifacts/retries/T17/prompt-1-1.md:1496:WC-13
+.dev/tasks/done/TASK-WF-p1LivePlanBrief-20261105-164506/artifacts/retries/T17/prompt-1-1.md:1496:WC-13
+.dev/tasks/done/TASK-WF-p1LivePlanBrief-20261105-164506/artifacts/retries/T23/prompt-1-1.md:32:WC-13
+.dev/tasks/done/TASK-WF-p1LivePlanBrief-20261105-164506/artifacts/retries/T23/prompt-1-1.md:44:WC-13
+.dev/tasks/done/TASK-WF-p1LivePlanBrief-20261105-164506/artifacts/retries/T24/prompt-1-1.md:48:WC-13
+.dev/tasks/done/TASK-WF-p1LivePlanBrief-20261105-164506/artifacts/retries/T24/prompt-1-1.md:60:WC-13
+.dev/tasks/done/TASK-WF-p1LivePlanBrief-20261105-164506/artifacts/retries/T24/prompt-1-1.md:359:WC-13
+.dev/tasks/done/TASK-WF-p1LivePlanBrief-20261105-164506/artifacts/retries/T24/prompt-1-1.md:481:WC-13
+.dev/tasks/done/TASK-WF-p1LivePlanBrief-20261105-164506/artifacts/retries/T24/prompt-1-1.md:481:WC-13
+.dev/tasks/done/TASK-WF-p1LivePlanBrief-20261105-164506/artifacts/retries/T5/prompt-1-1.md:43:WC-13
+.dev/tasks/done/TASK-WF-p1LivePlanBrief-20261105-164506/artifacts/retries/T5/prompt-1-1.md:55:WC-13
+.dev/tasks/done/TASK-WF-p1LivePlanBrief-20261105-164506/artifacts/retries/T5/prompt-1-1.md:157:WC-13
+.dev/tasks/done/TASK-WF-p1LivePlanBrief-20261105-164506/artifacts/retries/T5/prompt-1-1.md:278:WC-13
+.dev/tasks/done/TASK-WF-p1LivePlanBrief-20261105-164506/artifacts/retries/T5/prompt-1-1.md:278:WC-13
+.dev/tasks/done/TASK-WF-p1LivePlanBrief-20261105-164506/artifacts/retries/T25/prompt-1-1.md:33:WC-13
+.dev/tasks/done/TASK-WF-p1LivePlanBrief-20261105-164506/artifacts/retries/T25/prompt-1-1.md:45:WC-13
+.dev/tasks/done/TASK-WF-p1LivePlanBrief-20261105-164506/artifacts/retries/T1/prompt-1-1.md:32:WC-13
+.dev/tasks/done/TASK-WF-p1LivePlanBrief-20261105-164506/artifacts/retries/T1/prompt-1-1.md:44:WC-13
+.dev/tasks/done/TASK-WF-p1LivePlanBrief-20261105-164506/artifacts/lc04-session-analysis.txt:30:WC-13
+.dev/tasks/done/TASK-WF-p1LivePlanBrief-20261105-164506/artifacts/retries/T14/prompt-1-1.md:43:WC-13
+.dev/tasks/done/TASK-WF-p1LivePlanBrief-20261105-164506/artifacts/retries/T14/prompt-1-1.md:55:WC-13
+.dev/tasks/done/TASK-WF-p1LivePlanBrief-20261105-164506/artifacts/retries/T14/prompt-1-1.md:324:WC-13
+.dev/tasks/done/TASK-WF-p1LivePlanBrief-20261105-164506/artifacts/retries/T14/prompt-1-1.md:448:WC-13
+.dev/tasks/done/TASK-WF-p1LivePlanBrief-20261105-164506/artifacts/retries/T14/prompt-1-1.md:448:WC-13
+.dev/tasks/done/TASK-WF-p1LivePlanBrief-20261105-164506/artifacts/retries/T4/prompt-1-1.md:43:WC-13
+.dev/tasks/done/TASK-WF-p1LivePlanBrief-20261105-164506/artifacts/retries/T4/prompt-1-1.md:55:WC-13
+.dev/tasks/done/TASK-WF-p1LivePlanBrief-20261105-164506/artifacts/retries/T4/prompt-1-1.md:244:WC-13
+.dev/tasks/done/TASK-WF-p1LivePlanBrief-20261105-164506/artifacts/retries/T4/prompt-1-1.md:365:WC-13
+.dev/tasks/done/TASK-WF-p1LivePlanBrief-20261105-164506/artifacts/retries/T4/prompt-1-1.md:365:WC-13
+.dev/tasks/done/TASK-WF-p1LivePlanBrief-20261105-164506/artifacts/retries/T19/prompt-2-1.md:43:WC-13
+.dev/tasks/done/TASK-WF-p1LivePlanBrief-20261105-164506/artifacts/retries/T19/prompt-2-1.md:55:WC-13
+.dev/tasks/done/TASK-WF-p1LivePlanBrief-20261105-164506/artifacts/retries/T19/prompt-2-1.md:136:WC-13
+.dev/tasks/done/TASK-WF-p1LivePlanBrief-20261105-164506/artifacts/retries/T19/prompt-2-1.md:285:WC-13
+.dev/tasks/done/TASK-WF-p1LivePlanBrief-20261105-164506/artifacts/retries/T19/prompt-2-1.md:285:WC-13
+.dev/tasks/done/TASK-WF-p1LivePlanBrief-20261105-164506/artifacts/retries/T3/prompt-1-1.md:43:WC-13
+.dev/tasks/done/TASK-WF-p1LivePlanBrief-20261105-164506/artifacts/retries/T3/prompt-1-1.md:55:WC-13
+.dev/tasks/done/TASK-WF-p1LivePlanBrief-20261105-164506/artifacts/retries/T3/prompt-1-1.md:189:WC-13
+.dev/tasks/done/TASK-WF-p1LivePlanBrief-20261105-164506/artifacts/retries/T3/prompt-1-1.md:309:WC-13
+.dev/tasks/done/TASK-WF-p1LivePlanBrief-20261105-164506/artifacts/retries/T3/prompt-1-1.md:309:WC-13
+.dev/tasks/done/TASK-WF-p1LivePlanBrief-20261105-164506/artifacts/retries/T6/prompt-1-1.md:43:WC-13
+.dev/tasks/done/TASK-WF-p1LivePlanBrief-20261105-164506/artifacts/retries/T6/prompt-1-1.md:55:WC-13
+.dev/tasks/done/TASK-WF-p1LivePlanBrief-20261105-164506/artifacts/retries/T6/prompt-1-1.md:186:WC-13
+.dev/tasks/done/TASK-WF-p1LivePlanBrief-20261105-164506/artifacts/retries/T6/prompt-1-1.md:331:WC-13
+.dev/tasks/done/TASK-WF-p1LivePlanBrief-20261105-164506/artifacts/retries/T6/prompt-1-1.md:331:WC-13
+.dev/tasks/done/TASK-WF-p1LivePlanBrief-20261105-164506/artifacts/retries/T11/prompt-1-1.md:43:WC-13
+.dev/tasks/done/TASK-WF-p1LivePlanBrief-20261105-164506/artifacts/retries/T11/prompt-1-1.md:55:WC-13
+.dev/tasks/done/TASK-WF-p1LivePlanBrief-20261105-164506/artifacts/retries/T11/prompt-1-1.md:907:WC-13
+.dev/tasks/done/TASK-WF-p1LivePlanBrief-20261105-164506/artifacts/retries/T11/prompt-1-1.md:1041:WC-13
+.dev/tasks/done/TASK-WF-p1LivePlanBrief-20261105-164506/artifacts/retries/T11/prompt-1-1.md:1041:WC-13
+.dev/tasks/done/TASK-WF-p1LivePlanBrief-20261105-164506/artifacts/retries/T19/prompt-1-1.md:43:WC-13
+.dev/tasks/done/TASK-WF-p1LivePlanBrief-20261105-164506/artifacts/retries/T19/prompt-1-1.md:55:WC-13
+.dev/tasks/done/TASK-WF-p1LivePlanBrief-20261105-164506/artifacts/retries/T19/prompt-1-1.md:136:WC-13
+.dev/tasks/done/TASK-WF-p1LivePlanBrief-20261105-164506/artifacts/retries/T19/prompt-1-1.md:279:WC-13
+.dev/tasks/done/TASK-WF-p1LivePlanBrief-20261105-164506/artifacts/retries/T19/prompt-1-1.md:279:WC-13
+.dev/tasks/done/TASK-WF-p1LivePlanBrief-20261105-164506/artifacts/lc01-session-analysis.txt:27:WC-13
+.dev/tasks/done/TASK-WF-p1LivePlanBrief-20261105-164506/artifacts/lc01-step5.md:15:WC-13
+.dev/tasks/done/TASK-WF-p1LivePlanBrief-20261105-164506/artifacts/lc01-step5.md:15:WC-13
+.dev/tasks/done/TASK-WF-p1LivePlanBrief-20261105-164506/artifacts/lc17-step5.md:15:WC-13
+.dev/tasks/done/TASK-WF-p1LivePlanBrief-20261105-164506/artifacts/lc17-step5.md:15:WC-13
+.dev/tasks/done/TASK-WF-p1LivePlanBrief-20261105-164506/artifacts/lc05-session-analysis-supplement.txt:11:WC-13
+.dev/tasks/done/TASK-WF-p1LivePlanBrief-20261105-164506/artifacts/lc19-session-analysis-supplement.txt:7:WC-13
+.dev/tasks/done/TASK-WF-p1LivePlanBrief-20261105-164506/artifacts/retries/T9/prompt-1-1.md:43:WC-13
+.dev/tasks/done/TASK-WF-p1LivePlanBrief-20261105-164506/artifacts/retries/T9/prompt-1-1.md:55:WC-13
+.dev/tasks/done/TASK-WF-p1LivePlanBrief-20261105-164506/artifacts/retries/T9/prompt-1-1.md:155:WC-13
+.dev/tasks/done/TASK-WF-p1LivePlanBrief-20261105-164506/artifacts/retries/T9/prompt-1-1.md:297:WC-13
+.dev/tasks/done/TASK-WF-p1LivePlanBrief-20261105-164506/artifacts/retries/T9/prompt-1-1.md:297:WC-13
+.dev/tasks/done/TASK-WF-p1LivePlanBrief-20261105-164506/artifacts/lc07-session-analysis-supplement.txt:7:WC-13
+.dev/tasks/done/TASK-WF-p1LivePlanBrief-20261105-164506/artifacts/lc18-step5.md:15:WC-13
+.dev/tasks/done/TASK-WF-p1LivePlanBrief-20261105-164506/artifacts/lc18-step5.md:15:WC-13
+.dev/tasks/done/TASK-WF-p1LivePlanBrief-20261105-164506/artifacts/retries/T10/prompt-1-1.md:43:WC-13
+.dev/tasks/done/TASK-WF-p1LivePlanBrief-20261105-164506/artifacts/retries/T10/prompt-1-1.md:55:WC-13
+.dev/tasks/done/TASK-WF-p1LivePlanBrief-20261105-164506/artifacts/retries/T10/prompt-1-1.md:1010:WC-13
+.dev/tasks/done/TASK-WF-p1LivePlanBrief-20261105-164506/artifacts/retries/T10/prompt-1-1.md:1147:WC-13
+.dev/tasks/done/TASK-WF-p1LivePlanBrief-20261105-164506/artifacts/retries/T10/prompt-1-1.md:1147:WC-13

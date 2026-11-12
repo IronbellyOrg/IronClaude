@@ -1,0 +1,35 @@
+# Step 1B.0 Pass 2 rows returned by requirements-analyst (persisted by the orchestrator on receipt, 2026-11-08T03:37Z). Pass 1 parsed 0 IDs.
+- {id: INF-001, kind: policy, citation: "source.md:1", quote: "every Orca worktree gets an agent"}
+- {id: INF-002, kind: policy, citation: "source.md:1", quote: "no session creates a worktree for its own use"}
+- {id: INF-003, kind: policy, citation: "source.md:1", quote: "a session that creates a worktree becomes its orchestrator (or coordinator under another orchestrator) and owns that worktree's agent(s)"}
+- {id: INF-004, kind: constraint, citation: "source.md:1", quote: "Instruction-only fixes were rejected because compliance is unproven; enforcement must be deterministic."}
+- {id: INF-005, kind: deliverable, citation: "source.md:1", quote: "(1) a new PreToolUse(Bash) hook, a sibling of src/superclaude/hooks/scripts/block-bare-python.sh"}
+- {id: INF-006, kind: constraint, citation: "source.md:1", quote: "same decision contract: allow exit 0, block = one stderr message + exit 2, fail open"}
+- {id: INF-007, kind: deliverable, citation: "source.md:1", quote: "blocks a Bash command running `orca worktree create` without `--agent`"}
+- {id: INF-008, kind: constraint, citation: "source.md:1", quote: "allow `--help`"}
+- {id: INF-009, kind: deliverable, citation: "source.md:1", quote: "prints the exact form `orca worktree create --name <name> --agent claude --prompt \"<task>\" ...`"}
+- {id: INF-010, kind: deliverable, citation: "source.md:1", quote: "register it in src/superclaude/hooks/hooks.json"}
+- {id: INF-011, kind: deliverable, citation: "source.md:1", quote: "and the plugins/superclaude/hooks mirror"}
+- {id: INF-012, kind: deliverable, citation: "source.md:1", quote: "tests modelled on tests/hooks/test_block_bare_python.py"}
+- {id: INF-013, kind: deliverable, citation: "source.md:1", quote: "plus tests/cli/test_install_hooks.py and tests/unit/test_cli_install.py if they enumerate hooks"}
+- {id: INF-014, kind: deliverable, citation: "source.md:1", quote: "src/superclaude/skills/sc-issue-protocol/scripts/orca_worktree.py creates the worktree bare and then runs `orca agent launch`, which by the same Orca rule leaves a plain tab; change new-worktree creation so the agent comes with the create"}
+- {id: INF-015, kind: constraint, citation: "source.md:1", quote: "keep `agent launch` only for an already existing worktree"}
+- {id: INF-016, kind: constraint, citation: "source.md:1", quote: "keeping the launch-level pending record written before the agent starts"}
+- {id: INF-017, kind: deliverable, citation: "source.md:1", quote: "update docs/designs/sc-issue-claim-pipeline-flag.md design default D2"}
+- {id: INF-018, kind: deliverable, citation: "source.md:1", quote: "and forbidden-flag FO-18"}
+- {id: INF-019, kind: deliverable, citation: "source.md:1", quote: "the pinned tests in tests/skills/test_issue_orca_worktree.py"}
+- {id: INF-020, kind: deliverable, citation: "source.md:1", quote: "and tests/skills/test_issue_protocol.py accordingly"}
+- {id: INF-021, kind: deliverable, citation: "source.md:1", quote: "CLAUDE.md:307-324 worktree rule and its bare example at :320 (the hook would block it) to require --agent"}
+- {id: INF-022, kind: deliverable, citation: "source.md:1", quote: "and state the ownership rule"}
+- {id: INF-023, kind: deliverable, citation: "source.md:1", quote: "src/superclaude/core/CLAUDE.md \"Orca session launches\" (45-53)"}
+- {id: INF-024, kind: deliverable, citation: "source.md:1", quote: "its copy src/superclaude/skills/ccsession-tag/README.md (228-237): add the rule"}
+- {id: INF-025, kind: constraint, citation: "source.md:1", quote: "while keeping the 12 phrases pinned by tests/core/test_orca_session_launch_guidance.py"}
+- {id: INF-026, kind: exclusion, citation: "source.md:1", quote: "Out of scope: supervised workers"}
+- {id: INF-027, kind: exclusion, citation: "source.md:1", quote: "WC-13 in src/superclaude/core/WORKER-CONTRACT.md is the subject of a separate sub-orchestrator/coordinator issue — do not change the worker contract here"}
+- {id: INF-028, kind: exclusion, citation: "source.md:1", quote: "changing Orca itself"}
+- {id: INF-029, kind: exclusion, citation: "source.md:1", quote: "closing existing empty tabs"}
+- {id: INF-030, kind: constraint, citation: "source.md:1", quote: "Respect: Orca-only worktree creation"}
+- {id: INF-031, kind: constraint, citation: "source.md:1", quote: "no Orca link flags for this repo"}
+- {id: INF-032, kind: constraint, citation: "source.md:1", quote: "never hardcode src/superclaude/ paths inside installed primitives"}
+- {id: INF-033, kind: constraint, citation: "source.md:1", quote: "make sync-dev"}
+- {id: INF-034, kind: constraint, citation: "source.md:1", quote: "make verify-sync after edits"}

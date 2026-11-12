@@ -54,9 +54,11 @@ this rule does not replace supervised dispatch or commands' internal Agent-tool 
 
 Every Orca worktree gets an agent: create it with `worktree create --agent` (supervised workers
 use `worker-start`, and a supervised worker follows its worker contract, which forbids it from
-creating worktrees), and never create a worktree for your own use. The session that creates a
-worktree becomes its orchestrator, or a coordinator under another orchestrator, and
-owns its agent(s). A hook blocks `orca worktree create` without `--agent`.
+creating worktrees), and never create a worktree for your own use. The eligible session that
+creates a worktree owns its agent(s). A supervised orchestrator's coordinator is person-opened;
+ownership does not
+authorize a supervised worker to create worktrees or dispatch workers. A hook blocks
+`orca worktree create` without `--agent`.
 
 ## Key Docs
 

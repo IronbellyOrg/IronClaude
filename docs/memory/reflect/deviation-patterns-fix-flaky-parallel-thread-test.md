@@ -1,0 +1,9 @@
+# Reflect deviation patterns: fix-flaky-parallel-thread-test
+
+## pre-TASK-WF-enforceTheOwnerP-20261108-031809-20261108033529 (UC-1, Orca worktree-agent enforcement plan review)
+- Verdict: revise before execution (tier 2, alignment 30/31, BLOCKED_BY_INVARIANTS, calibrated 0.86); 4 authorized expansions, 0 Necessary/Drift/Regression, 1 Grounding Gap (owner approval of a plan departure that contradicts an explicit source restriction).
+- Classification pattern: a plan departure that is disclosed with a rationale is not Drift (§10.3 needs a silent change), but a rationale cannot authorize contradicting an explicit source restriction (§10.5); when owner approval is not on disk, route it to a Grounding Gap, not to Necessary or Regression. "Stated to the owner" in a plan Constraint is not a recorded approval.
+- Recurring plan-defect class for orca_worktree.py: any new warning code must also be added to `WARNING_ORDER` (as_dict ranks notes with `WARNING_ORDER.index`, which raises ValueError for an unlisted code) and to the SKILL.md worktree-warning list.
+- Recurring plan-defect class for a destructive step after an Orca call: an unknown, unparseable or timed-out reply must mean "do not act" (the script continues after a timed-out create and never parses the reply); the repository-identity check lives in finish(), so any new action before it skips the guard.
+- Recurring plan-defect class for new PreToolUse(Bash) hooks reusing block-bare-python.sh: its scanner keeps only the command word per command and exits on first match, so a flag-presence rule needs per-command argument collection and cross-command isolation tests.
+- Reflect mechanics: a one-paragraph source gives 0 Pass-1 ids, so coverage_degraded parsed-sparse forces tier 2 (same as the sc-issue-claim-pipeline-flag pattern).

@@ -1,0 +1,5 @@
+{
+  "ironbelly/fix-flaky-parallel-thread-test": {
+    "orca-orchestrator-spawn-session-surface": 1
+  }
+}

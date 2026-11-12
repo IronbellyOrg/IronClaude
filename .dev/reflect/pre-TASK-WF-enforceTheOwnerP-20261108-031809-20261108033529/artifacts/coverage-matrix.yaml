@@ -1,0 +1,247 @@
+summary:
+  parsed_count: 0
+  inferred_count: 34
+  inferred_valid: 34
+  matched: 28
+  coverage_pct: null
+  coverage_pct_union: 0.8235
+  unmapped_requirements_union:
+  - INF-004
+  - INF-026
+  - INF-027
+  - INF-028
+  - INF-029
+  - INF-030
+matrix:
+- requirement_id: INF-001
+  source: inferred
+  quote_valid: true
+  best_ratio: 1.0
+  matched_task_ids:
+  - Task 6
+  match_method: containment
+- requirement_id: INF-002
+  source: inferred
+  quote_valid: true
+  best_ratio: 1.0
+  matched_task_ids:
+  - Task 6
+  match_method: containment
+- requirement_id: INF-003
+  source: inferred
+  quote_valid: true
+  best_ratio: 1.0
+  matched_task_ids:
+  - Task 6
+  match_method: containment
+- requirement_id: INF-004
+  source: inferred
+  quote_valid: true
+  best_ratio: 0.125
+  matched_task_ids: []
+  match_method: none
+- requirement_id: INF-005
+  source: inferred
+  quote_valid: true
+  best_ratio: 0.9286
+  matched_task_ids:
+  - Task 1
+  match_method: containment
+- requirement_id: INF-006
+  source: inferred
+  quote_valid: true
+  best_ratio: 1.0
+  matched_task_ids:
+  - Task 1
+  match_method: containment
+- requirement_id: INF-007
+  source: inferred
+  quote_valid: true
+  best_ratio: 0.6667
+  matched_task_ids:
+  - Task 1
+  match_method: containment
+- requirement_id: INF-008
+  source: inferred
+  quote_valid: true
+  best_ratio: 1.0
+  matched_task_ids:
+  - Task 1
+  match_method: containment
+- requirement_id: INF-009
+  source: inferred
+  quote_valid: true
+  best_ratio: 0.9091
+  matched_task_ids:
+  - Task 1
+  match_method: containment
+- requirement_id: INF-010
+  source: inferred
+  quote_valid: true
+  best_ratio: 1.0
+  matched_task_ids:
+  - Task 2
+  match_method: containment
+- requirement_id: INF-011
+  source: inferred
+  quote_valid: true
+  best_ratio: 1.0
+  matched_task_ids:
+  - Task 2
+  match_method: containment
+- requirement_id: INF-012
+  source: inferred
+  quote_valid: true
+  best_ratio: 1.0
+  matched_task_ids:
+  - Task 1
+  match_method: containment
+- requirement_id: INF-013
+  source: inferred
+  quote_valid: true
+  best_ratio: 0.7
+  matched_task_ids:
+  - Task 2
+  match_method: containment
+- requirement_id: INF-014
+  source: inferred
+  quote_valid: true
+  best_ratio: 0.68
+  matched_task_ids:
+  - Task 3
+  match_method: containment
+- requirement_id: INF-015
+  source: inferred
+  quote_valid: true
+  best_ratio: 0.6667
+  matched_task_ids:
+  - Task 4
+  match_method: containment
+- requirement_id: INF-016
+  source: inferred
+  quote_valid: true
+  best_ratio: 0.6667
+  matched_task_ids:
+  - Task 5
+  match_method: containment
+- requirement_id: INF-017
+  source: inferred
+  quote_valid: true
+  best_ratio: 0.9167
+  matched_task_ids:
+  - Task 5
+  match_method: containment
+- requirement_id: INF-018
+  source: inferred
+  quote_valid: true
+  best_ratio: 0.75
+  matched_task_ids:
+  - Task 5
+  match_method: containment
+- requirement_id: INF-019
+  source: inferred
+  quote_valid: true
+  best_ratio: 0.875
+  matched_task_ids:
+  - Task 3
+  match_method: containment
+- requirement_id: INF-020
+  source: inferred
+  quote_valid: true
+  best_ratio: 0.8571
+  matched_task_ids:
+  - Task 8
+  match_method: containment
+- requirement_id: INF-021
+  source: inferred
+  quote_valid: true
+  best_ratio: 0.9231
+  matched_task_ids:
+  - Task 6
+  match_method: containment
+- requirement_id: INF-022
+  source: inferred
+  quote_valid: true
+  best_ratio: 1.0
+  matched_task_ids:
+  - Task 6
+  match_method: containment
+- requirement_id: INF-023
+  source: inferred
+  quote_valid: true
+  best_ratio: 1.0
+  matched_task_ids:
+  - Task 7
+  match_method: containment
+- requirement_id: INF-024
+  source: inferred
+  quote_valid: true
+  best_ratio: 0.9167
+  matched_task_ids:
+  - Task 7
+  match_method: containment
+- requirement_id: INF-025
+  source: inferred
+  quote_valid: true
+  best_ratio: 0.8462
+  matched_task_ids:
+  - Task 7
+  match_method: containment
+- requirement_id: INF-026
+  source: inferred
+  quote_valid: true
+  best_ratio: 0.5
+  matched_task_ids: []
+  match_method: none
+- requirement_id: INF-027
+  source: inferred
+  quote_valid: true
+  best_ratio: 0.5
+  matched_task_ids: []
+  match_method: none
+- requirement_id: INF-028
+  source: inferred
+  quote_valid: true
+  best_ratio: 0.3333
+  matched_task_ids: []
+  match_method: none
+- requirement_id: INF-029
+  source: inferred
+  quote_valid: true
+  best_ratio: 0.5
+  matched_task_ids: []
+  match_method: none
+- requirement_id: INF-030
+  source: inferred
+  quote_valid: true
+  best_ratio: 0.5
+  matched_task_ids: []
+  match_method: none
+- requirement_id: INF-031
+  source: inferred
+  quote_valid: true
+  best_ratio: 0.75
+  matched_task_ids:
+  - Task 3
+  match_method: containment
+- requirement_id: INF-032
+  source: inferred
+  quote_valid: true
+  best_ratio: 0.625
+  matched_task_ids:
+  - Task 1
+  match_method: containment
+- requirement_id: INF-033
+  source: inferred
+  quote_valid: true
+  best_ratio: 1.0
+  matched_task_ids:
+  - Task 7
+  match_method: containment
+- requirement_id: INF-034
+  source: inferred
+  quote_valid: true
+  best_ratio: 0.8
+  matched_task_ids:
+  - Task 7
+  match_method: containment
