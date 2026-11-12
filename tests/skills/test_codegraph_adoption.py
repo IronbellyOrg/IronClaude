@@ -292,3 +292,102 @@ def test_analyze_gates_codegraph_on_access_as_well_as_index_state():
     text = _text(_SRC / "commands" / "analyze.md")
     assert "`access: mcp`" in text
     assert "`access: none`" in text and "Glob, Grep and Read" in text
+
+
+_GUIDE = _SRC / "core" / "CODEGRAPH.md"
+_ANALYZE = _SRC / "commands" / "analyze.md"
+_DESIGN = _SRC / "commands" / "design.md"
+_DATE_CMD = "date -u +%Y-%m-%dT%H:%M:%SZ"
+_WAIT_CMD = "waits up to 60 s for a running `init` or `index`"
+_FILES_PATH = 'codegraph_files {format:"grouped", maxDepth:2, path}'
+
+# Each clause fixes one wording ambiguity that the analyze/design smoke test found, so
+# putting the old wording back fails exactly the case named by its id.
+_WORDING_PINS = [
+    pytest.param(_GUIDE, "call it once with `projectPath`", id="guide-one-status-call"),
+    pytest.param(
+        _GUIDE,
+        "wait for that build to end (poll up to 60 s)",
+        id="guide-waits-for-running-build",
+    ),
+    pytest.param(
+        _GUIDE,
+        "if it is still running after 60 s, skip `status`, "
+        "set `index_state: stale` and token `graph:stale`",
+        id="guide-stale-after-60s",
+    ),
+    pytest.param(
+        _GUIDE,
+        "the MCP `codegraph_status` takes the bounded wait of section 2 step 3",
+        id="guide-rule7-mcp-wait",
+    ),
+    pytest.param(_GUIDE, _DATE_CMD, id="guide-checked-at-source"),
+    pytest.param(_GUIDE, "maxDepth:2, path?}", id="guide-files-path"),
+    pytest.param(_GUIDE, "records `graph:empty` the same way", id="guide-lookup-token"),
+    pytest.param(_ANALYZE, _WAIT_CMD, id="analyze-waits-for-running-build"),
+    pytest.param(_ANALYZE, _DATE_CMD, id="analyze-checked-at-source"),
+    pytest.param(_ANALYZE, _FILES_PATH, id="analyze-files-path"),
+    pytest.param(
+        _ANALYZE,
+        "`codegraph_search` only when the target names a symbol",
+        id="analyze-directory-target",
+    ),
+    pytest.param(
+        _ANALYZE,
+        "`includeCode:true` only for symbols Discover found",
+        id="analyze-bodies-after-discover",
+    ),
+    pytest.param(
+        _ANALYZE,
+        "at `--depth quick`, a line found by Grep need not be re-Read, "
+        "but a graph row cited as a finding is still confirmed by Grep or Read",
+        id="analyze-quick-depth",
+    ),
+    pytest.param(_ANALYZE, "`graph:empty`", id="analyze-lookup-token"),
+    pytest.param(
+        _ANALYZE,
+        'top-level `"codegraph"` string field',
+        id="analyze-json-field",
+    ),
+    pytest.param(
+        _ANALYZE,
+        "read it before the first codegraph call",
+        id="analyze-read-guide-first",
+    ),
+    pytest.param(_DESIGN, _WAIT_CMD, id="design-waits-for-running-build"),
+    pytest.param(_DESIGN, _DATE_CMD, id="design-checked-at-source"),
+    pytest.param(_DESIGN, _FILES_PATH, id="design-files-path"),
+    pytest.param(
+        _DESIGN,
+        "`codegraph_impact` only if it was not already run "
+        "for the same symbol in Plan or Design",
+        id="design-validate-impact-once",
+    ),
+    pytest.param(_DESIGN, "`graph:empty`", id="design-lookup-token"),
+    pytest.param(
+        _DESIGN,
+        "first comment line or a caption line",
+        id="design-code-diagram-line",
+    ),
+    pytest.param(
+        _DESIGN,
+        "read before the first codegraph call",
+        id="design-read-guide-first",
+    ),
+]
+
+
+@pytest.mark.parametrize(("path", "clause"), _WORDING_PINS)
+def test_codegraph_wording_clause_is_present(path, clause):
+    assert clause in _text(path), f"{_rel(path)} lost the clause: {clause}"
+
+
+def test_old_ambiguous_codegraph_wording_is_gone():
+    assert "needs no guard" not in _text(_GUIDE)
+    assert "read it when you use codegraph" not in _text(_ANALYZE)
+    assert "to locate the target's symbols" not in _text(_ANALYZE)
+
+
+def test_guide_takes_checked_at_even_when_status_is_skipped():
+    """PR 513 review: a skipped status still yields a timestamp for the report line."""
+    assert "at the moment the skip is decided" in _text(_GUIDE)

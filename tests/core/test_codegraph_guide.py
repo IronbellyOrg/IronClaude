@@ -107,6 +107,7 @@ def test_guide_names_switches_and_status_guard():
     assert "SUPERCLAUDE_CODEGRAPH_PRIMITIVES" in text
     assert "SUPERCLAUDE_CODEGRAPH_AUTOINIT" in text
     assert "pgrep -f" in text
+    assert "60 s" in text, "guide lost the bounded wait for a running init/index"
 
 
 def test_guide_holds_sentinel_and_no_source_path():
