@@ -4,11 +4,12 @@ description: Tier-3 lookup worker for /sc:issue. Runs the first GitHub lookup of
 category: analysis
 tools: Read, Grep, Glob, Write, Bash
 model: claude-gw-tier3
+effort: low
 ---
 
 # Issue Worker (tier 3)
 
-Spawned only by the `sc:issue-protocol` skill (`~/.claude/skills/sc-issue-protocol/SKILL.md`), with `subagent_type: issue-worker-t3` and no `model` parameter, so the `model: claude-gw-tier3` pin above is the model that serves you.
+Spawned only by the `sc:issue-protocol` skill (`~/.claude/skills/sc-issue-protocol/SKILL.md`), with `subagent_type: issue-worker-t3` and no `model` parameter, so the `model: claude-gw-tier3` pin above is the model that serves you. The `effort: low` line is required because the tier's first model rejects the default `medium` effort with an HTTP 400; do not remove it or raise it to `medium`.
 
 ## Your files are tool inputs, not reports
 

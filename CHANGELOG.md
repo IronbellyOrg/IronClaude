@@ -4,6 +4,10 @@ All notable changes to IronClaude are documented in this file.
 
 ## [Unreleased]
 
+### /sc:issue: `issue-worker-t3` carries `effort: low`
+
+- Every `issue-worker-t3` spawn failed with `API Error: 400 This model always engages in thinking and cannot be disabled; please use low, high, or max`: a subagent without `effort` sends `medium`, which the first model of tier 3 rejects, and the ccsession proxy treats the 400 as a bad request instead of falling through to the second model. The agent now sets `effort: low` on line 7 (the `model` pin stays on line 6), and a test pins it. The t1 and t2 agents are unchanged.
+
 ### /sc:issue: T1 workers move to tier1b, with a tier-2 fallback for users who cannot see tier 1
 
 - `issue-worker-t1` now pins `claude-gw-tier1b` instead of `claude-gw-tier1a`. The skill's tier map, claim and tier refs, the four medium and complex chain rows, the `next-steps.md` template, the pin tests and the `sc-issue-command` design doc follow. The `opus` alias mapping and every ccsession file are unchanged.

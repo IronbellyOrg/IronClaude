@@ -13,7 +13,7 @@ Checks in `tests/skills/test_model_alias_policy.py` that read model names includ
 
 ### Allow-list
 
-- `issue-worker-t3` pins `claude-gw-tier3`, `issue-worker-t2` pins `claude-gw-tier2` and `issue-worker-t1` pins `claude-gw-tier1b`, each on line 6 of its file under `src/superclaude/agents/`.
+- `issue-worker-t3` pins `claude-gw-tier3`, `issue-worker-t2` pins `claude-gw-tier2` and `issue-worker-t1` pins `claude-gw-tier1b`, each on line 6 of its file under `src/superclaude/agents/`. `issue-worker-t3` also carries `effort: low` because its tier's first model returns an HTTP 400 for the default `medium` effort.
 - The pins are on purpose: when a spawn fails because the picker id is not served, for example outside a ccsession tier workspace, the issue protocol stops with `E-TIER-UNAVAILABLE`, and there is no alias fallback (`src/superclaude/skills/sc-issue-protocol/refs/tiers.md` lines 34 and 40).
 - `TIER_TEXT_ALLOWED` lets the three pinned files, `src/superclaude/skills/sc-issue-protocol/` and `src/superclaude/skills/ccsession-tag/` contain the text `claude-gw-tier` (test lines 36-40).
 

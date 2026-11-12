@@ -68,6 +68,16 @@ def test_worker_file_exists_with_pinned_picker_id(name):
     assert fields["description"]
 
 
+def test_t3_effort_is_low():
+    """Without ``effort`` the tier-3 first model gets the default ``medium`` and
+    answers HTTP 400 ("This model always engages in thinking ... use low, high,
+    or max"); the proxy does not fall through, so every spawn would fail.
+    """
+    fields, _ = split_frontmatter(AGENTS / "issue-worker-t3.md")
+    assert fields.get("effort") == "low"
+    assert fields["effort"] in {"low", "high", "max"}
+
+
 @pytest.mark.parametrize("name", sorted(WORKERS))
 def test_picker_tier_exists_in_ccsession_models(name):
     tiers = json.loads(MODELS.read_text(encoding="utf-8"))["tiers"]
