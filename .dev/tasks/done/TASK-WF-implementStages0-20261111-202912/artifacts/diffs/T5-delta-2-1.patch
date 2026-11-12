@@ -1,0 +1,299 @@
+diff --git a/.dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/cluster-pairs-50.csv b/.dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/cluster-pairs-50.csv
+index 17ecac0f1..7b3d234fc 100644
+--- a/.dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/cluster-pairs-50.csv
++++ b/.dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/cluster-pairs-50.csv
+@@ -1,7 +1,8 @@
+ # cluster_v2 pair check sheet; scripts/reflect_cluster_pairs.py sample; seed 20261111
+ # rows: 50 of 50 (merged 25 of 25; apart 25 of 25)
+ # shortfall: none
+-# candidates: merged same-file 41 cross-file 0; apart same-file 2133 cross-file 1938
++# no claim text: 40 pairs left out (a finding has no claim text after conversion)
++# candidates: merged same-file 41 cross-file 0; apart same-file 2133 cross-file 1898
+ # sampled: merged same-file 25 cross-file 0; apart same-file 13 cross-file 12
+ # status: COMPLETE
+ # fill human_same_defect with yes or no (also y n true false in any case); then run: uv run python scripts/reflect_cluster_pairs.py score
+@@ -49,10 +50,10 @@ P40,pre-TASK-WF-orcaWorkerContra-20261102-231950-20261102232329,apart,cross-file
+ P41,pre-TASK-WF-orcaWorkerContra-20261102-231950-20261102232329,apart,cross-file,reviewer-1-card,F7,C4,"Common checks are not verified at the final state, although the Goal claims ""every P0 check of section 7 passing"" and the spec requires every common check to pass for the phase. AC-C1 and AC-C2 run only inside Task 4. Task 3 (possible plugin mirror) can run after Task 4 and is not re-checked. AC-...",source .dev/tasks/to-do/TASK-WF-orcaWorkerContra-20261102-231950/TASK-WF-orcaWorkerContra-20261102-231950.md:15-15 (resolved) ; source .dev/tasks/to-do/TASK-WF-orcaWorkerContra-20261102-231950/TASK-WF-orcaWorkerContra-20261102-231950.md:19-19 (resolved) ; source .dev/tasks/to-do/TASK-WF-orcaWorkerContra-20261102-231950/source.md:241-241 (resolved) ; source .dev/tasks/to-do/TASK-WF-orcaWorkerContra-20261102-231950/source.md:216-216 (resolved) ; source .dev/reflect/pre-TASK-WF-orcaWorkerContra-20261102-231950-20261102232329/artifacts/coverage-matrix.yaml:1407-1409 (unresolved),reviewer-2-card,R2-2,C7,"AC-0.6's pass condition says ""7.2 step 5 follows that answer"" and 7.2 step 5 (source.md:291) says that if transcripts do not name tool calls, step 5 uses --source terminal output instead and the phase report records the gap. Task 8 records the AC-0.6 yes/no (TL:122, TL:127) but never carries the ...",unresolved /home/coder/workspaces/worktrees/IronClaude/OrcaCLICommandRefactor-Specs/.dev/tasks/to-do/TASK-WF-orcaWorkerContra-20261102-231950/source.md:291 ; unresolved /home/coder/workspaces/worktrees/IronClaude/OrcaCLICommandRefactor-Specs/.dev/tasks/to-do/TASK-WF-orcaWorkerContra-20261102-231950/source.md:303 ; unresolved /home/coder/workspaces/worktrees/IronClaude/OrcaCLICommandRefactor-Specs/.dev/tasks/to-do/TASK-WF-orcaWorkerContra-20261102-231950/TASK-WF-orcaWorkerContra-20261102-231950.md:122 ; unresolved /home/coder/workspaces/worktrees/IronClaude/OrcaCLICommandRefactor-Specs/.dev/tasks/to-do/TASK-WF-orcaWorkerContra-20261102-231950/TASK-WF-orcaWorkerContra-20261102-231950.md:127 ; unresolved /home/coder/workspaces/worktrees/IronClaude/OrcaCLICommandRefactor-Specs/.dev/reflect/pre-TASK-WF-orcaWorkerContra-20261102-231950-20261102232329/artifacts/coverage-matrix.yaml:1413,
+ P42,pre-TASK-WF-planTheRealBound-20261107-080351-20261107080543,apart,cross-file,reviewer-1-card,R1-06,C6,"Task 7's exhaustion branch is answered statically: identify() reads the target's kernel session and jobs/<sid>.json, with no parent walk; F2.3/F2.6 describe the historical probe. Task 8 has no 'not applicable' state for those findings.",source launch-job-identity.sh:219-219 (unresolved) ; source launch-job-identity.sh:223-223 (unresolved) ; source launch-job-identity.sh:253-253 (unresolved) ; source actor-context-probe.sh:37-39 (unresolved) ; source review-2.md:9-9 (unresolved) ; source review-2.md:12-12 (unresolved),reviewer-3-card,R3-F2,C20,Task 7 depends only on Task 5 but its criteria need depths from the Task 2-4 runs.,"unresolved plan lines 99, 101, 104",
+ P43,pre-TASK-WF-planTheRealBound-20261107-080351-20261107080543,apart,cross-file,reviewer-1-card,R1-07,C7,Task 5's 'helper does not compare boot identity' branch is dead (launch-job-identity.sh:234 compares both); editing the state copy risks rejecting for mode or hard-link reasons instead of the edited field.,source launch-job-identity.sh:234-234 (unresolved) ; source launch-job-identity.sh:83-83 (unresolved) ; source launch-job-identity.sh:149-149 (unresolved) ; source launch-job-identity.sh:218-244 (unresolved),reviewer-3-card,R3-F12,C30,The twelve-run cap is not allocated and no criterion counts runs or cost; Tasks 2-4 plausibly need 9-14 runs.,"unresolved plan lines 22, 44, 55, 66",
+-P44,pre-TASK-WF-planTheRealBound-20261107-080351-20261108-rerun,apart,cross-file,reviewer-1-card,A-02,C2,(no claim text after conversion; read finding A-02 in .dev/reflect/pre-TASK-WF-planTheRealBound-20261107-080351-20261108-rerun/reviewer-cards/reviewer-1-card.md),source .dev/tasks/done/TASK-WF-p1LivePlanBrief-20261105-164506/artifacts/claude-help.txt:131-132 (unresolved),reviewer-2-card,Q-6,C11,(no claim text after conversion; read finding Q-6 in .dev/reflect/pre-TASK-WF-planTheRealBound-20261107-080351-20261108-rerun/reviewer-cards/reviewer-2-card.md),"unresolved the sweep targets ""processes whose working directory is under the fixture repository or the group's temporary directory"", but Task 4 creates ""a deliberate setsid daemonized child"" and requires ""every ",
+-P45,pre-TASK-WF-spec-20261019-204314-20261019204736,apart,cross-file,reviewer-2-card,R2-3,C12,"Task 2 already owns query-error/absence distinction, exact user scope, rollback, shadowing and spaced paths; generic helper cannot simply be reused unchanged. External CLI feasibility remains unverified.",(no citation),reviewer-3-card,R3-9,C22,All literal nonmatches have semantic support and some matched rows point to wrong tasks. Do not chase matcher score.,(no citation),
+-P46,pre-implementTheLaun-20261107093251,apart,cross-file,reviewer-1-card,1,C1,"Gate only records a verdict (""L1: PROCEED""/""L1: STOP"", PLAN:36); no later task depends on or is conditioned on it, so a STOP would not stop Tasks 2-22.",spec source.md:1-1 (resolved) ; unresolved Task 1 (PLAN:32-45),reviewer-2-card,3,C19,"Task 18 defines effective registrations as the exact command present under both events and hooks not globally disabled; a registration whose matcher excludes governed tools, or a prompt registration that cannot bind, would pass. Negative cases test missing, not present-but-ineffective, registrati...",unresolved DESIGN:342-352 ; unresolved PLAN:291,
+-P47,pre-implementTheLaun-20261107093251,apart,cross-file,reviewer-1-card,11,C11,Drops the superclaude.* command form the design lists.,unresolved DESIGN:102-127 ; unresolved Task 9,reviewer-2-card,8,C24,Task 16 requires panel F1-F8 regression cases but no resolvable source holds their definitions; the panel review file does not exist.,unresolved DESIGN:311; file .dev/brainstorms/20261105-170229-launch-level-hook/spec-panel-20261106/review.md is absent ; unresolved PLAN:266,
+-P48,pre-implementTheLaun-20261107093251,apart,cross-file,reviewer-1-card,12,C12,Release-instruction text takes session id from the wrong source; design binds via sessions/<sid>.,source launch-job-identity.sh:435-435 (unresolved) ; unresolved Task 19,reviewer-3-card,1,C26,"Task 18 adds guard-version, registration and jq checks but only updates the tests near TOW:1303 and :1324. The shared launch_scene fixture writes only ""#!/bin/sh\n"", so about 12 tests expecting ""launched"" would fail the new checks, and la3 and la6 change outcome.","unresolved TOW:994-1013 (fixture); TOW:1051,1124,1196,1210,1234,1265,1276,1301,1481,1534,1571,1594 (launched asserts); TOW:1159-1167 (la3); TOW:1295-1324 (la6); PLAN:293 ; unresolved PLAN:287-299 (Task 18)",
+-P49,pre-implementTheLaun-20261107093251,apart,cross-file,reviewer-1-card,8,C8,"Docs update omits src/superclaude/commands/issue.md (flag text, Wave 8).",source issue.md:43-43 (unresolved) ; source .dev/issues/394/issue-summary.md:22-22 (unresolved) ; unresolved Task 22 (PLAN:340-351),reviewer-2-card,7,C23,"Task 21 drops L2 implementation and tests even when B-CTX is GO, without authorization.","unresolved DESIGN:366, DESIGN:373-377 (O-22 yes), DESIGN:530-532 ; unresolved PLAN:333",
+-P50,pre-workflowSource-20261102234109,apart,cross-file,reviewer-1-card,R1-F11,C10,"Consistent: tasks 1-66 map to all items and gaps 1-70; ground facts (pyproject.toml:7, counts, transcript ranges, DECISIONS B1-B5, severity test path, RELEASE-READINESS 6.3, D10 fixture) verified.",source pyproject.toml:7-7 (unresolved) ; source CONSOLIDATED-PLAN.md:237-237 (unresolved) ; source CONSOLIDATED-PLAN.md:675-675 (unresolved) ; source docs/testing/v5.0.0/c-e2e-transcript.txt:416-416 (resolved) ; source docs/testing/v5.0.0/c-e2e-transcript.txt:724-775 (resolved) ; source .dev/releases/current/v5.0.0/DECISIONS.md:12-19 (resolved) ; source .dev/releases/current/v5.0.0/RELEASE-READINESS.md:186-200 (resolved),reviewer-2-card,R2-F1,C1,"Spec verification constraint dropped: no 'make test' in the tasklist (grep 0 hits); only Task 6's narrower -k. T1 C3 mitigation contradicted: implement.md:11 says 'Lint and tests are extras, never the pass/fail'; FINAL is a spec-compliance review, not a test run.",spec .dev/tasks/to-do/TASK-WF-workflowSource-20261102-233731/source.md:47-50 (resolved) ; source src/superclaude/commands/implement.md:11-11 (unresolved),
++P44,pre-TASK-WF-rollOutTheIssueW-20261109-000305-20261109000839,apart,cross-file,reviewer-1-card,F5,C4,Task 4's 'keep the existing sentence that the scheduler is the owner's choice' does not say where that sentence lives.,source docs/designs/issue-watcher-setup.md:202-202 (resolved),reviewer-2-card,QA-02,C6,"Plan weakens 'replace every guessed fixture' to 'replace whichever were captured'; Task 5 precondition (one capture per fixture, plan:108) contradicts its body (missing captures allowed, plan:110); coverage matrix row 14 overstates coverage.",spec .dev/tasks/to-do/TASK-WF-rollOutTheIssueW-20261109-000305/source.md:22-22 (resolved) ; plan .dev/tasks/to-do/TASK-WF-rollOutTheIssueW-20261109-000305/TASK-WF-rollOutTheIssueW-20261109-000305.md:110-110 (resolved) ; source artifacts/coverage-matrix.md:14-14 (unresolved),
++P45,pre-TASK-WF-writeTheP2Static-20261107-011441-20261107013500,apart,cross-file,reviewer-1-card,R1-F3,C3,"Task 14 (tdd) says in task-builder/SKILL.md that ""the CLI-mode reflect gate's staging step is not run"", but not whether the gate's `superclaude reflect run --fix --promote` call itself still runs. `--fix` and `--promote` mutate and move files; the plan leaves the rest of that gate undefined under...",plan .dev/tasks/to-do/TASK-WF-writeTheP2Static-20261107-011441/TASK-WF-writeTheP2Static-20261107-011441.md:261-261 (resolved) ; spec .dev/tasks/to-do/TASK-WF-writeTheP2Static-20261107-011441/source.md:150-150 (resolved) ; source tests/skills/test_worker_contract.py:2044-2052 (resolved),reviewer-3-card,R3-F12,C13,"[INFERRED] For the D-P2-1 research-light arm, brainstorm's enrichment table expects enrichment/research-light.md but /sc:research writes claudedocs/research_[topic]_[timestamp].md; the plan does not say which path brainstorm reads. The table also names `Skill sc-research-protocol`, which does not...",source src/superclaude/skills/sc-brainstorm-protocol/SKILL.md:189-189 (resolved) ; source src/superclaude/commands/research.md:103-103 (resolved),
++P46,pre-implementTheLaun-20261107093251,apart,cross-file,reviewer-1-card,11,C11,Drops the superclaude.* command form the design lists.,unresolved DESIGN:102-127 ; unresolved Task 9,reviewer-2-card,3,C19,"Task 18 defines effective registrations as the exact command present under both events and hooks not globally disabled; a registration whose matcher excludes governed tools, or a prompt registration that cannot bind, would pass. Negative cases test missing, not present-but-ineffective, registrati...",unresolved DESIGN:342-352 ; unresolved PLAN:291,
++P47,pre-implementTheLaun-20261107093251,apart,cross-file,reviewer-1-card,13,C13,T-REG-3 negatives do not match the AC-map module.,source merged-requirements.md:971-1108 (unresolved) ; unresolved Task 12,reviewer-2-card,8,C24,Task 16 requires panel F1-F8 regression cases but no resolvable source holds their definitions; the panel review file does not exist.,unresolved DESIGN:311; file .dev/brainstorms/20261105-170229-launch-level-hook/spec-panel-20261106/review.md is absent ; unresolved PLAN:266,
++P48,pre-implementTheLaun-20261107093251,apart,cross-file,reviewer-1-card,14,C14,Pins non-git leaks as expected behaviour.,unresolved DESIGN:133-175 ; unresolved Task 16,reviewer-3-card,10,C35,"Treats any skipped test as failure, but existing tests skip on non-Linux and as root.",source tests/hooks/test_launch_job_identity.py:18-18 (unresolved) ; source tests/hooks/test_freshness_subagent_start_policy.py:72-72 (unresolved) ; unresolved PLAN:349 (Task 22),
++P49,pre-implementTheLaun-20261107093251,apart,cross-file,reviewer-2-card,1,C17,"Task 1 lets L1 proceed while B-CTX stays blocked; its acceptance checks the verdict document, not a stop condition; Task 2 supplies synthetic fixtures instead of completing OB-H1.","unresolved DESIGN:359-360 requires stopping enforcement implementation when the distinction cannot be established, then OB-H1 before the skeleton. Fix: make enforcement tasks conditional on the evidence, or obta ; unresolved PLAN:36",reviewer-3-card,5,C30,"Task 19 reports a missing L2 as a status line on a launched claim; Task 20 then refuses that same case, so Task 19's tests describe a state that cannot exist after Task 20.","unresolved PLAN:305, PLAN:310, DESIGN:514 ; unresolved PLAN:301-312 vs PLAN:314-325",
++P50,pre-workflowSource-20261102234109,apart,cross-file,reviewer-1-card,R1-F7,C6,"Task 65 hardcodes python3 -m http.server (plan addition, conflicts with UV-only rule); _fetch uses urllib urlopen with no scheme check so file:// likely works.",source CONSOLIDATED-PLAN.md:632-632 (unresolved) ; source src/superclaude/skills/ccsession-tag/models.py:255-268 (unresolved),reviewer-3-card,R3-F8,C21,Markdownlint invocation differs from spec wording but matches the repo pre-commit pin (markdownlint-cli v0.38.0).,source .pre-commit-config.yaml:74-77 (unresolved) ; spec .dev/tasks/to-do/TASK-WF-workflowSource-20261102-233731/source.md:48-48 (resolved),
+diff --git a/scripts/reflect_cluster_pairs.py b/scripts/reflect_cluster_pairs.py
+index 418e13ba2..a9013c4d4 100644
+--- a/scripts/reflect_cluster_pairs.py
++++ b/scripts/reflect_cluster_pairs.py
+@@ -23,10 +23,14 @@ converter has none; a path missing from the snapshot still counts). same-file wh
+ cross-file (including a finding with no path). A merged pair is always same-file: same_defect_v2 needs a shared path
+ or an equal fingerprint, which contains the path.
+ 
+-Row text: claim_a and claim_b are the converted claims; a finding whose card gives no claim text the converter reads
+-(for example a markdown table without a claim column) gets "(no claim text after conversion; read finding <id> in
+-<card path>)" so the owner can look it up. citations_a and citations_b list each citation as "<role> <path>:<start>-
+-<end> (<resolved|unresolved|malformed>)" against the snapshot, or "unresolved <ref text>" for a ref the converter
++No claim text: a finding whose card gives no claim text the converter reads (for example a markdown table without a
++claim column; a claim that is missing or only whitespace) stays in the clustering, but every pair it is
++part of is left out of the candidate pool, so no row carries a placeholder claim. The header line "no claim text:"
++states how many pairs were left out this way. They are not candidates, so a side left short by them reports the
++shortfall and INSUFFICIENT PAIRS like any other missing pair.
++
++Row text: claim_a and claim_b are the converted claims. citations_a and citations_b list each citation as
++"<role> <path>:<start>-<end> (<resolved|unresolved|malformed>)" against the snapshot, or "unresolved <ref text>" for a ref the converter
+ could not resolve, joined by " ; "; a finding with no citation shows "(no citation)".
+ 
+ Sampling: per side (merged, apart) n = min(25, candidate pairs of that side). Half of n rounded up is drawn from the
+@@ -36,8 +40,8 @@ gap. Each group is drawn with random.Random(f"{SEED}|{side}|{relation}").sample
+ finding keys, and numbered P01 onwards. The sheet holds no timestamp and no absolute path: the same cards give the
+ same bytes.
+ 
+-Sheet: comment lines starting with "#" come first (seed, rows per side, shortfall per side, candidate and sampled
+-counts by file relation, status, label vocabulary), then one CSV header row and the data rows; the column
++Sheet: comment lines starting with "#" come first (seed, rows per side, shortfall per side, pairs left out for no
++claim text, candidate and sampled counts by file relation, status, label vocabulary), then one CSV header row and the data rows; the column
+ human_same_defect is left empty. Status is COMPLETE with 50 rows, else "INSUFFICIENT PAIRS"; sample then exits 1, so
+ a short sheet is never reported as a pass.
+ 
+@@ -124,8 +128,14 @@ def _paths(finding: dict) -> set[str]:
+     }
+ 
+ 
+-def candidates(root: Path) -> tuple[list[dict], list[str]]:
+-    """Every drawable pair (see "Pair" and "Verdict") and the runs that could not be read."""
++def _has_claim(finding: dict) -> bool:
++    claim = finding.get("claim")
++    return isinstance(claim, str) and bool(claim.strip())
++
++
++def candidates(root: Path) -> tuple[list[dict], list[str], int]:
++    """Every drawable pair (see "Pair", "Verdict" and "No claim text"), the runs that could not be read and the
++    number of pairs left out because a finding has no claim text."""
+     base = root / ".dev" / "reflect"
+     runs = (
+         sorted((p for p in base.glob("pre-*") if p.is_dir()), key=lambda p: p.name)
+@@ -134,6 +144,7 @@ def candidates(root: Path) -> tuple[list[dict], list[str]]:
+     )
+     pairs: list[dict] = []
+     problems: list[str] = []
++    no_claim = 0
+     for run in runs:
+         cards_dir = run / "reviewer-cards"
+         if not cards_dir.is_dir():
+@@ -155,11 +166,7 @@ def candidates(root: Path) -> tuple[list[dict], list[str]]:
+                 (card.stem, ordinal, res["findings"] if listed else None, {})
+             )
+             for f in res["findings"] if listed else []:
+-                claim = f.get("claim") or (
+-                    f"(no claim text after conversion; read finding {f.get('id')} "
+-                    f"in {replay._rel(card, root)})"
+-                )
+-                by_key.setdefault((card.stem, f.get("id")), {**f, "claim": claim})
++                by_key.setdefault((card.stem, f.get("id")), f)
+         out = cluster_v2(records, snapshot)
+         members = [
+             (m["reviewer_id"], m["id"], c["cluster_id"], c["chained"])
+@@ -175,6 +182,9 @@ def candidates(root: Path) -> tuple[list[dict], list[str]]:
+                     [(r1, f1, c1, by_key[(r1, f1)]), (r2, f2, c2, by_key[(r2, f2)])],
+                     key=lambda t: (t[0], t[1]),
+                 )
++                if not (_has_claim(a) and _has_claim(b)):
++                    no_claim += 1
++                    continue
+                 pairs.append(
+                     {
+                         "run": run.name,
+@@ -194,15 +204,18 @@ def candidates(root: Path) -> tuple[list[dict], list[str]]:
+                         "citations_b": _citations_text(b, snap),
+                     }
+                 )
+-    return pairs, problems
++    return pairs, problems, no_claim
+ 
+ 
+ def _key(p: dict) -> tuple:
+     return (p["run"], p["reviewer_a"], p["finding_a"], p["reviewer_b"], p["finding_b"])
+ 
+ 
+-def select(pairs: list[dict], seed: int = SEED) -> tuple[list[dict], dict]:
+-    """The sampled rows (numbered, sorted) and the counts the sheet header states."""
++def select(
++    pairs: list[dict], seed: int = SEED, no_claim: int = 0
++) -> tuple[list[dict], dict]:
++    """The sampled rows (numbered, sorted) and the counts the sheet header states; no_claim is the third value
++    candidates() returns."""
+     groups = {
+         (s, r): sorted(
+             (
+@@ -216,7 +229,12 @@ def select(pairs: list[dict], seed: int = SEED) -> tuple[list[dict], dict]:
+         for r in RELATIONS
+     }
+     rows: list[dict] = []
+-    stats: dict = {"candidates": {}, "sampled": {}, "shortfall": {}}
++    stats: dict = {
++        "candidates": {},
++        "sampled": {},
++        "shortfall": {},
++        "no_claim": no_claim,
++    }
+     for s in SIDES:
+         same, cross = groups[(s, "same-file")], groups[(s, "cross-file")]
+         n = min(PER_SIDE, len(same) + len(cross))
+@@ -266,6 +284,7 @@ def render(rows: list[dict], stats: dict, seed: int = SEED) -> str:
+         f"cluster_v2 pair check sheet; scripts/reflect_cluster_pairs.py sample; seed {seed}",
+         f"rows: {stats['rows']} of {TOTAL} ({side('merged')}; {side('apart')})",
+         "shortfall: " + ("; ".join(short) if short else "none"),
++        f"no claim text: {stats['no_claim']} pairs left out (a finding has no claim text after conversion)",
+         f"candidates: {mix('candidates')}",
+         f"sampled: {mix('sampled')}",
+         f"status: {status}",
+@@ -404,8 +423,8 @@ def main(argv: list[str] | None = None) -> int:
+     root = args.root.resolve()
+     if args.mode == "sample":
+         out = args.out or default_out(root)
+-        pairs, problems = candidates(root)
+-        rows, stats = select(pairs)
++        pairs, problems, no_claim = candidates(root)
++        rows, stats = select(pairs, no_claim=no_claim)
+         try:
+             out.parent.mkdir(parents=True, exist_ok=True)
+             out.write_text(render(rows, stats), encoding="utf-8")
+diff --git a/tests/review/test_reflect_cluster_pairs.py b/tests/review/test_reflect_cluster_pairs.py
+index 5f10a1db9..de31c8b08 100644
+--- a/tests/review/test_reflect_cluster_pairs.py
++++ b/tests/review/test_reflect_cluster_pairs.py
+@@ -127,8 +127,8 @@ def _score(path: Path, capsys) -> tuple[int, str, str]:
+ 
+ def test_pairs_cover_verdict_relation_and_exclude_same_reviewer(tmp_path):
+     _tree(tmp_path)
+-    pairs, problems = cp.candidates(tmp_path)
+-    assert problems == []
++    pairs, problems, no_claim = cp.candidates(tmp_path)
++    assert problems == [] and no_claim == 0
+     assert (
+         len(pairs) == 12
+     )  # 4 findings of r1 x 3 of r2; r1-r1 and r2-r2 pairs are not drawn
+@@ -165,7 +165,7 @@ def test_pairs_inside_a_chained_cluster_are_not_drawn(tmp_path):
+             "reviewer-3-card.yaml": _card("src/a.py:16"),
+         },
+     )
+-    pairs, _ = cp.candidates(tmp_path)
++    pairs, _, _ = cp.candidates(tmp_path)
+     keys = {
+         (p["reviewer_a"], p["finding_a"], p["reviewer_b"], p["finding_b"])
+         for p in pairs
+@@ -180,25 +180,65 @@ def test_pairs_inside_a_chained_cluster_are_not_drawn(tmp_path):
+ def test_pairs_are_drawn_within_one_run_only(tmp_path):
+     _run(tmp_path, "pre-x", {"reviewer-1-card.yaml": _card("src/a.py:10")})
+     _run(tmp_path, "pre-y", {"reviewer-2-card.yaml": _card("src/a.py:10")})
+-    assert cp.candidates(tmp_path) == ([], [])
++    assert cp.candidates(tmp_path) == ([], [], 0)
+ 
+ 
+-def test_missing_claim_and_citations_get_a_lookup_placeholder(tmp_path):
+-    bare = json.dumps({"findings": [{"id": "Q1", "severity": "minor"}]})
++def test_missing_citations_get_a_placeholder(tmp_path):
++    bare = json.dumps(
++        {"findings": [{"id": "Q1", "severity": "minor", "claim": "No evidence"}]}
++    )
+     _run(
+         tmp_path,
+         "pre-bare",
+         {"reviewer-1-card.yaml": bare, "reviewer-2-card.yaml": _card("src/a.py:1")},
+     )
+-    (pair,), _ = cp.candidates(tmp_path)
+-    assert pair["claim_a"] == (
+-        "(no claim text after conversion; read finding Q1 in "
+-        ".dev/reflect/pre-bare/reviewer-cards/reviewer-1-card.yaml)"
+-    )
++    (pair,), _, no_claim = cp.candidates(tmp_path)
++    assert no_claim == 0 and pair["claim_a"] == "No evidence"
+     assert pair["citations_a"] == "(no citation)"
+     assert pair["file_relation"] == "cross-file"
+ 
+ 
++def test_pairs_with_a_finding_without_claim_text_are_left_out_and_counted(
++    tmp_path, capsys
++):
++    # Q1 has no claim, Q2 a whitespace claim, Q3 a claim; r2 has two findings with claims.
++    card = json.dumps(
++        {
++            "findings": [
++                {"id": "Q1", "severity": "minor", "evidence": ["src/a.py:1"]},
++                {"id": "Q2", "severity": "minor", "claim": "  ", "evidence": ["x"]},
++                {"id": "Q3", "severity": "minor", "claim": "Real", "evidence": ["y"]},
++            ]
++        }
++    )
++    _run(
++        tmp_path,
++        "pre-noclaim",
++        {
++            "reviewer-1-card.yaml": card,
++            "reviewer-2-card.yaml": _card("src/a.py:1", "src/a.py:500"),
++        },
++    )
++    pairs, problems, no_claim = cp.candidates(tmp_path)
++    assert problems == [] and no_claim == 4  # Q1 and Q2 each with r2's F1 and F2
++    assert {(p["finding_a"], p["finding_b"]) for p in pairs} == {
++        ("Q3", "F1"),
++        ("Q3", "F2"),
++    }
++    assert all(p["claim_a"].strip() and p["claim_b"].strip() for p in pairs)
++    out = tmp_path / "sheet.csv"
++    assert cp.main(["sample", "--root", str(tmp_path), "--out", str(out)]) == 1
++    capsys.readouterr()
++    text = out.read_text(encoding="utf-8")
++    assert (
++        "# no claim text: 4 pairs left out (a finding has no claim text after conversion)\n"
++        in text
++    )
++    assert "no claim text after conversion;" not in text
++    assert len(cp.read_sheet(out)) == 2
++    assert "# no claim text: 0 pairs left out" in cp.render(*cp.select(_fake(1, 1, 1)))
++
++
+ def test_merged_pairs_match_the_replay_clusters(tmp_path):
+     _tree(tmp_path)
+     data = cp.replay.collect(tmp_path)
+@@ -208,7 +248,7 @@ def test_merged_pairs_match_the_replay_clusters(tmp_path):
+         for c in clusters
+         if len(c["members"]) == 2 and not c["chained"]
+     }
+-    pairs, _ = cp.candidates(tmp_path)
++    pairs, _, _ = cp.candidates(tmp_path)
+     got = {
+         ((p["reviewer_a"], p["finding_a"]), (p["reviewer_b"], p["finding_b"]))
+         for p in pairs
+@@ -300,7 +340,7 @@ def test_malformed_cards_do_not_crash_the_sampler(tmp_path):
+             "reviewer-3-card.txt": "x",
+         },
+     )
+-    assert cp.candidates(tmp_path) == ([], [])
++    assert cp.candidates(tmp_path) == ([], [], 0)
+ 
+ 
+ # --- score -------------------------------------------------------------------------------------
+@@ -440,7 +480,12 @@ def test_generated_sheet_has_50_rows_and_blank_labels():
+     assert all(r["human_same_defect"] == "" for r in rows)
+     assert sum(r["cluster_v2_verdict"] == "merged" for r in rows) == 25
+     assert {r["file_relation"] for r in rows} == {"same-file", "cross-file"}
+-    assert all(r["claim_a"] and r["claim_b"] for r in rows)
++    assert all(r["claim_a"].strip() and r["claim_b"].strip() for r in rows)
+     assert all(r["citations_a"] and r["citations_b"] for r in rows)
+     text = ARTIFACT.read_text(encoding="utf-8")
++    assert "no claim text after conversion;" not in text  # the old lookup placeholder
++    assert all(
++        not r[c].startswith("(no claim") for r in rows for c in ("claim_a", "claim_b")
++    )
+     assert "# status: COMPLETE\n" in text and "# shortfall: none\n" in text
++    assert "\n# no claim text: " in text

@@ -1,0 +1,57 @@
+216aeb996f6598b24538192142fb0f7f1eee2143
+Review one task for spec compliance.
+
+Task brief: ## Task 15: Add the panel contract lint and its per-field source table
+
+Depends on: Task 6
+
+Create `src/superclaude/cli/reflect/panel_lint.py` and `tests/cli/reflect/test_panel_contract_lint.py` per "Contract compatibility gate" item 3 and 5, implementing the design of `./artifacts/lint-test-design.md` (Task 6). The checker takes a panel-run contract and its output directory and asserts: `contract_version == "1.8.0"`; every top-level key is in the 1.8.0 stable field list (pin the list as a constant in `panel_lint.py`, copied from `src/superclaude/skills/sc-reflect-protocol/SKILL.md` section 9.1, which does not parse as YAML, with a test that fails when the constant and the section differ) or the telemetry block; `merge_method` in `{adversarial, single-reviewer-fallback}`; `adversarial_convergence_score` is float or null; `adversarial_unavailable`, `regression_present` and the other `_LOAD_BEARING_BOOL_FIELDS` (`src/superclaude/cli/reflect/contract.py:47-57`) are real booleans; EV-1 on disk as `SKILL.md` states it (either `adversarial/merged-verdict.yaml` with `merge_method: adversarial` and a card count of at least `reviewers_resolved`, taken from the top-level `reviewers_resolved` key of `panel/manifest.json` (Task 17 defines it) when present and else `len(reviewer_cards)`, minimum 2; or a loud fallback: `adversarial_unavailable: true`, `merge_method: single-reviewer-fallback` and an `audit.log` F-step row); and the five fields whose producer changes (the diversity trio, `calibrator_diversity`, `reviewer_cards`) equal the legacy values on a matched fixture. Copy one recorded 1.8.0 pre contract and its directory structure to `tests/cli/reflect/fixtures/` as the matched fixture. Write `./artifacts/per-field-source-table.md` giving, for those five fields, the rule and the expected anthropic-only parity values (three distinct classes, vendor single, calibrator degraded).
+
+Acceptance criteria:
+- The lint passes on the legacy fixture and on a copy with a `panel/` directory added; it fails, with the offending key named, on a copy with an extra stable key or `merge_method: panel`.
+- The EV-1 check is tested both with a `panel/manifest.json` carrying `reviewers_resolved` and without one.
+- `uv run pytest tests/cli/reflect -q` passes.
+
+
+AC ids (T15.ACk in source order):
+T15.AC1: The lint passes on the legacy fixture and on a copy with a `panel/` directory added; it fails, with the offending key named, on a copy with an extra stable key or `merge_method: panel`.
+T15.AC2: The EV-1 check is tested both with a `panel/manifest.json` carrying `reviewers_resolved` and without one.
+T15.AC3: `uv run pytest tests/cli/reflect -q` passes.
+
+Global constraints: - Requirement text lives in `.dev/brainstorms/20261111T182026-reflect-tier2-panel-replacement/merged-requirements.md` (sha256 recorded in `./source.md`). Section names below refer to that file. Items it marks PROPOSED are new names to create; items it marks UNVERIFIED must be checked in code before relying on them.
+- Return contract stays `1.8.0` with no new stable field and no new legal value (`merge_method` stays `adversarial` or `single-reviewer-fallback`). Panel data lives only in `<out>/panel/*` and the non-stable telemetry block.
+- The `/sc:adversarial` debate stays authoritative in pre-execution. K4 clustering, the citation pre-check and the findings block never drop a citation, never feed the debate and never route anything.
+- Default behavior of every existing command is unchanged: with no new flag, `superclaude review panel resolve`, `review merge`, `review ledger` and the spec-panel loop produce byte-identical output.
+- Plan decision: in Stage 2 the flag accepts only `legacy` and `shadow`; the value `panel` is rejected with a plain message saying it ships in Stage 3. The post-execution path, the swarm lens, `--panel-resolution` and the headless `citations_dropped` change are Stage 5 and are not touched.
+- Plan decision: the prose coordinator of the reflect skill cannot import Python, so the manifest gets a minimal `superclaude review manifest` CLI (init, advance, validate) instead of hand-written JSON.
+- Edit installed primitives only under `src/superclaude/` and run `make sync-dev` afterwards. Never edit or add files under `.claude/` by hand. Installed primitives reference other primitives by installed path or the `superclaude` CLI, never by a `src/superclaude/...` path.
+- All Python runs through `uv run`. Fable and Tier 0 never appear in a new template and are rejected by validation. Opus appears only in the uses the source's "Opus uses" section lists (third reviewer of the parity templates (pre and post) and of the enterprise template, backfill in the x2 templates when the executor class is removed, calibrator); no new Opus use is added.
+- Human-supplied inputs are not fabricated: the 50-pair cluster labels (Task 5) and the 20 real shadow runs (Task 20) are produced by the owner and by normal use after merge. The tasks deliver the sheets, scorers and aggregators that judge them.
+- Plan decision: Stage 1 and Stage 2 code is built dormant (default `legacy`, nothing enabled) before the Stage 0 exit is met. Task 7 records the Stage 0 exit as PENDING until the owner's labelled sheet is scored, and this plan does not claim the Stage 1 entry or the Stage 2 exit. Merging or enabling later stages stays the owner's decision.
+- Task-owned evidence goes under `./artifacts/` in this package.
+Start sha: 216aeb996f6598b24538192142fb0f7f1eee2143
+Diff against the start snapshot: .dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/diffs/T15-diff-2-1.patch
+Delta diff from the previous reviewed tree (empty on the first review): .dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/diffs/T15-delta-2-1.patch
+Earlier blocking findings of this start (empty on the first review): F1.1 panel_lint.py a non-UTF-8 contract or audit.log raised UnicodeDecodeError instead of the L0 line / no-row handling
+Saved-probe re-check hit locations (may be empty): F1.1: confirm both read sites now catch the decode error and a test covers contract, merged verdict and audit.log
+
+Do not trust the implementer's report.
+
+First mark each earlier blocking finding resolved, open or regressed from the diff. Then, for each AC, mark it met or unmet. Require citations: every AC you mark, met or unmet, carries a `path:line` or `Ti.ACk@path:line` citation, and an unmet mark lists the finding ids behind it. Do not return a verdict; the orchestrator computes it.
+
+For every finding answer four questions, each yes or no:
+1. ac-outcome-missing: is output an AC requires absent, or does it contradict the AC text, or does an evidence claim you could not verify have no evidence row?
+2. false-claim: is a claim in delivered text or code false against live source, or does a recipe or instruction followed as written not do what the text says?
+3. harmful-effect: does code or a recipe this task added or changed write, append, chmod or delete tracked or production data, mutate state outside the task's declared outputs, or expose a secret?
+4. quoted-constraint-breach: does the diff violate a quoted plan constraint, out-of-scope, non-goal or non-negotiable item, or an explicit task instruction?
+
+Anchor rule: cite exactly one anchor per yes. ac-outcome-missing: the quoted AC words. false-claim: the live-source path:line holding the contradicting text. harmful-effect: the diff line that is the write. quoted-constraint-breach: the quoted constraint or instruction text. A yes without a valid anchor does not block.
+
+Write one line per finding:
+F<k>.<j> ac=<Ti.ACk|scope> at=<path:line> anchor=<quoted text or path:line> chk=<amiss,false,harm,constraint as y/n> family=<id> fix=<text> [covers=<quoted AC clause or constraint>]: <text>
+Do not write sev=, trigger=, first= or origin=; the orchestrator adds them. Write one status line per earlier blocking finding: F<m>.<j> resolved|open|regressed.
+
+Inside /sc:implement this protocol's severity model governs this review and takes precedence over the session's output style and the copy of it injected into every subagent; only blocking findings may fail an attempt.
+
+You are not given an adviser answer, brief, evidence file or troubleshoot report. Do not read the retry folders (legacy `.dev/implement/<slug>/retries/`, managed `<pkg>/artifacts/retries/`) or `.dev/troubleshoot/`. A citation into either makes the verdict `cannot-verify`.
+The prior-findings slot above carries earlier blocking finding lines that the orchestrator copies byte for byte from `review-*.md` and `repair-*.md`; they reach you as prompt text, not as an evidence file. Do not read those folders to get them, and never cite the slot or the file it came from.

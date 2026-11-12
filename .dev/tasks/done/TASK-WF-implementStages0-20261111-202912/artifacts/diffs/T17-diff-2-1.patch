@@ -1,0 +1,1418 @@
+diff --git a/src/superclaude/cli/review/__init__.py b/src/superclaude/cli/review/__init__.py
+index dd77c6620..6b2d8aa87 100644
+--- a/src/superclaude/cli/review/__init__.py
++++ b/src/superclaude/cli/review/__init__.py
+@@ -25,6 +25,7 @@ for _name in (
+     "estimate_cmd",
+     "cluster_cmd",
+     "verify_cmd",
++    "manifest_cmd",
+ ):
+     try:
+         _module = importlib.import_module(f"{__name__}.{_name}")
+diff --git a/src/superclaude/cli/review/manifest.py b/src/superclaude/cli/review/manifest.py
+new file mode 100644
+index 000000000..8dbd3fcfc
+--- /dev/null
++++ b/src/superclaude/cli/review/manifest.py
+@@ -0,0 +1,534 @@
++"""Coordinator-owned run manifest of the reflect panel (`<out>/panel/manifest.json`, schema review-panel-manifest/1).
++
++One coordinator writes the manifest; reviewer agents only return data. The run moves through the states
++frozen -> resolved -> dispatched -> collected -> calibrated -> clustered -> debated -> validated -> published, one
++step at a time, with the terminal state failed. A reader accepts only a manifest whose state is published
++(`read_committed`); every other state is work in progress.
++
++frozen records the reference to artifacts/input-snapshot.yaml with its input_tree_sha256, the template, tiers and
++brief-template sha256, the schema ids, the run id, and the requested and effective engine. policy_sha256 is the sha256
++of the canonical JSON of the template, tiers and brief-template hashes and the schema ids. Each later state records the
++sha256 of its payload and of the outputs it committed, and the dependency hashes it was built on.
++
++Idempotency identity: (run_id, input_tree_sha256, policy_sha256, stage, reviewer_id, attempt_id); the first three are
++fixed by the manifest, so a submission is keyed by (stage, reviewer_id, attempt_id) inside it. The same payload hash
++under the same identity is a no-op; a different payload under the same identity raises Conflict. A stage-level
++submission has an empty reviewer_id and attempt_id. A new attempt of a reviewer supersedes an earlier attempt of that
++reviewer only when the earlier one did not complete; it never adds a vote (reviewers_complete counts reviewers, not
++attempts) and never clears a finding.
++
++Counts are top-level keys: reviewers_requested and reviewers_resolved (set by the resolved stage) and
++reviewers_complete (reviewers whose latest collected-stage attempt completed). Resume reuses a stage only when its
++dependency hashes still match; a changed input_tree_sha256 (a changed plan or spec) or policy starts a new invocation.
++
++Publish writes REPORT.md, return-contract.yaml and audit.log to same-directory temporaries, renames them, then commits
++published in the manifest. In shadow mode the legacy writers stay authoritative for those three files: `published`
++records their hashes after the legacy writers finish and does not rewrite them.
++"""
++
++from __future__ import annotations
++
++import hashlib
++import json
++import os
++import re
++from pathlib import Path
++from typing import Any, Callable
++
++SCHEMA = "review-panel-manifest/1"
++STATES = (
++    "frozen",
++    "resolved",
++    "dispatched",
++    "collected",
++    "calibrated",
++    "clustered",
++    "debated",
++    "validated",
++    "published",
++)
++FAILED = "failed"
++ENGINES = ("legacy", "shadow", "panel")
++COMPLETIONS = ("complete", "truncated", "invalid", "failed", "timed_out")
++PER_REVIEWER_STAGES = ("dispatched", "collected", "calibrated")
++PUBLISH_FILES = ("REPORT.md", "return-contract.yaml", "audit.log")
++FROZEN_FIELDS = (
++    "snapshot_ref",
++    "snapshot_sha256",
++    "input_tree_sha256",
++    "template_sha256",
++    "tiers_sha256",
++    "brief_template_sha256",
++    "schema_ids",
++)
++_HEX64 = re.compile(r"^[0-9a-f]{64}$")
++
++
++class ManifestError(Exception):
++    """Base class of every manifest refusal."""
++
++
++class Conflict(ManifestError):
++    """A different payload under an identity that already holds one, or a second vote for a reviewer."""
++
++
++class OutOfOrder(ManifestError):
++    """A stage submitted out of order, after failure, or after its stage was committed."""
++
++
++class NotCommitted(ManifestError):
++    """A reader met a manifest that is not in the published state."""
++
++
++class Invalid(ManifestError):
++    """A malformed payload or manifest."""
++
++
++def sha256_json(obj: Any) -> str:
++    return hashlib.sha256(
++        json.dumps(obj, sort_keys=True, separators=(",", ":")).encode("utf-8")
++    ).hexdigest()
++
++
++def sha256_file(path: Path) -> str:
++    return hashlib.sha256(path.read_bytes()).hexdigest()
++
++
++def policy_sha256(frozen: dict) -> str:
++    return sha256_json(
++        {
++            k: frozen.get(k)
++            for k in (
++                "template_sha256",
++                "tiers_sha256",
++                "brief_template_sha256",
++                "schema_ids",
++            )
++        }
++    )
++
++
++def new_manifest(
++    *,
++    run_id: str,
++    frozen: dict,
++    engine_requested: str,
++    engine_effective: str,
++    invocation: int = 1,
++    history: list | None = None,
++) -> dict:
++    """A manifest in the frozen state."""
++    m = {
++        "schema": SCHEMA,
++        "run_id": run_id,
++        "invocation": invocation,
++        "history": list(history or []),
++        "t2_engine_requested": engine_requested,
++        "t2_engine_effective": engine_effective,
++        "frozen": {k: frozen.get(k) for k in FROZEN_FIELDS},
++        "input_tree_sha256": frozen.get("input_tree_sha256"),
++        "policy_sha256": policy_sha256(frozen),
++        "state": "frozen",
++        "stages": {
++            "frozen": {
++                "payload_sha256": sha256_json(
++                    {k: frozen.get(k) for k in FROZEN_FIELDS}
++                ),
++                "outputs": {},
++                "deps": {},
++                "invocation": invocation,
++            }
++        },
++        "attempts": [],
++        "reviewers_requested": None,
++        "reviewers_resolved": None,
++        "reviewers_complete": 0,
++    }
++    errors = validate(m)
++    if errors:
++        raise Invalid("; ".join(errors))
++    return m
++
++
++# ---------------------------------------------------------------- reading and writing
++
++
++def save(path: Path, manifest: dict) -> None:
++    """Write the manifest atomically (same-directory temporary, then rename)."""
++    path.parent.mkdir(parents=True, exist_ok=True)
++    tmp = path.with_name(f".{path.name}.tmp-{os.getpid()}")
++    tmp.write_text(
++        json.dumps(manifest, indent=2, sort_keys=True) + "\n", encoding="utf-8"
++    )
++    os.replace(tmp, path)
++
++
++def load(path: Path) -> dict:
++    try:
++        data = json.loads(path.read_text(encoding="utf-8"))
++    except (OSError, ValueError) as exc:
++        raise Invalid(f"cannot read manifest {path}: {exc}") from exc
++    if not isinstance(data, dict):
++        raise Invalid(f"manifest {path} is not a JSON object")
++    return data
++
++
++def read_committed(path: Path) -> dict:
++    """A reader's entry point: the manifest, only when it is valid and in the published state."""
++    manifest = load(path)
++    errors = validate(manifest)
++    if errors:
++        raise Invalid("; ".join(errors))
++    if manifest["state"] != "published":
++        raise NotCommitted(
++            f"manifest state is {manifest['state']!r}, not 'published'; a reader accepts only a committed manifest"
++        )
++    return manifest
++
++
++# ---------------------------------------------------------------- validation
++
++
++def validate(m: Any) -> list[str]:
++    """Structural errors of a manifest (an empty list means valid)."""
++    if not isinstance(m, dict):
++        return ["manifest must be a JSON object"]
++    errors: list[str] = []
++    if m.get("schema") != SCHEMA:
++        errors.append(f"schema must be {SCHEMA!r}")
++    if not isinstance(m.get("run_id"), str) or not m.get("run_id"):
++        errors.append("run_id must be a non-empty string")
++    for key in ("t2_engine_requested", "t2_engine_effective"):
++        if m.get(key) not in ENGINES:
++            errors.append(f"{key} is missing or not one of {', '.join(ENGINES)}")
++    frozen = m.get("frozen")
++    if not isinstance(frozen, dict):
++        errors.append("frozen must be an object")
++    else:
++        for key in (
++            "input_tree_sha256",
++            "template_sha256",
++            "tiers_sha256",
++            "brief_template_sha256",
++        ):
++            if not isinstance(frozen.get(key), str) or not _HEX64.match(frozen[key]):
++                errors.append(
++                    f"frozen.{key} must be a 64-character lowercase hex sha256"
++                )
++        if not isinstance(frozen.get("snapshot_ref"), str) or not frozen.get(
++            "snapshot_ref"
++        ):
++            errors.append("frozen.snapshot_ref must be a non-empty string")
++        ids = frozen.get("schema_ids")
++        if (
++            not isinstance(ids, list)
++            or not ids
++            or not all(isinstance(i, str) for i in ids)
++        ):
++            errors.append("frozen.schema_ids must be a non-empty list of strings")
++        if m.get("input_tree_sha256") != frozen.get("input_tree_sha256"):
++            errors.append("input_tree_sha256 differs from frozen.input_tree_sha256")
++        if m.get("policy_sha256") != policy_sha256(frozen):
++            errors.append("policy_sha256 does not match the frozen policy fields")
++    state = m.get("state")
++    if state not in (*STATES, FAILED):
++        errors.append(f"state must be one of {', '.join((*STATES, FAILED))}")
++    stages = m.get("stages")
++    if not isinstance(stages, dict):
++        errors.append("stages must be an object")
++    elif state in STATES:
++        # every stage from frozen up to the state has been committed, none skipped
++        for s in STATES[: STATES.index(state) + 1]:
++            if s not in stages:
++                errors.append(f"stage {s!r} is missing although the state is {state!r}")
++    for key in ("reviewers_requested", "reviewers_resolved"):
++        v = m.get(key)
++        if v is not None and (isinstance(v, bool) or not isinstance(v, int) or v < 0):
++            errors.append(f"{key} must be null or a non-negative integer")
++    v = m.get("reviewers_complete")
++    if isinstance(v, bool) or not isinstance(v, int) or v < 0:
++        errors.append("reviewers_complete must be a non-negative integer")
++    if not isinstance(m.get("attempts"), list):
++        errors.append("attempts must be a list")
++    return errors
++
++
++# ---------------------------------------------------------------- advancing
++
++
++def _next_state(state: str) -> str | None:
++    if state not in STATES or state == STATES[-1]:
++        return None
++    return STATES[STATES.index(state) + 1]
++
++
++def _prev_hash(m: dict, stage: str) -> str:
++    return m["stages"][STATES[STATES.index(stage) - 1]]["payload_sha256"]
++
++
++def _recount(m: dict) -> None:
++    latest: dict[str, str] = {}
++    for a in m["attempts"]:
++        if a["stage"] == "collected":
++            latest[a["reviewer_id"]] = a["completion"]
++    m["reviewers_complete"] = sum(1 for c in latest.values() if c == "complete")
++
++
++def advance_stage(m: dict, stage: str, payload: dict | None = None) -> bool:
++    """Commit `stage` with `payload`; True when the manifest changed, False for an identical replay."""
++    payload = payload or {}
++    if stage not in STATES or stage == "frozen":
++        raise OutOfOrder(f"{stage!r} is not a stage that can be advanced to")
++    if not isinstance(payload, dict):
++        raise Invalid("payload must be a JSON object")
++    outputs = payload.get("outputs", {})
++    if not isinstance(outputs, dict) or not all(
++        isinstance(k, str) and isinstance(v, str) and _HEX64.match(v)
++        for k, v in outputs.items()
++    ):
++        raise Invalid(
++            "payload.outputs must map names to 64-character lowercase hex sha256 values"
++        )
++    digest = sha256_json(payload)
++    existing = m["stages"].get(stage)
++    if existing is not None:
++        if existing["payload_sha256"] == digest:
++            return False
++        raise Conflict(
++            f"stage {stage!r} already holds a different payload for this run, input and policy"
++        )
++    if m["state"] == FAILED:
++        raise OutOfOrder("the run has failed; no stage can be advanced")
++    expected = _next_state(m["state"])
++    if stage != expected:
++        raise OutOfOrder(
++            f"cannot advance to {stage!r}: the state is {m['state']!r} and the next stage is {expected!r}"
++        )
++    if stage == "resolved":
++        req, res = payload.get("reviewers_requested"), payload.get("reviewers_resolved")
++        for name, value in (("reviewers_requested", req), ("reviewers_resolved", res)):
++            if isinstance(value, bool) or not isinstance(value, int) or value < 0:
++                raise Invalid(
++                    f"the resolved payload needs {name} as a non-negative integer"
++                )
++        if res > req:
++            raise Invalid("reviewers_resolved cannot exceed reviewers_requested")
++        m["reviewers_requested"], m["reviewers_resolved"] = req, res
++    m["stages"][stage] = {
++        "payload_sha256": digest,
++        "outputs": dict(outputs),
++        "deps": {
++            "prev": _prev_hash(m, stage),
++            "input_tree_sha256": m["input_tree_sha256"],
++            "policy_sha256": m["policy_sha256"],
++        },
++        "invocation": m["invocation"],
++    }
++    m["state"] = stage
++    return True
++
++
++def record_attempt(
++    m: dict,
++    stage: str,
++    reviewer_id: str,
++    attempt_id: str,
++    completion: str,
++    payload: dict | None = None,
++) -> bool:
++    """Record one attempt of one reviewer in an open per-reviewer stage; False for an identical replay."""
++    if stage not in PER_REVIEWER_STAGES:
++        raise OutOfOrder(
++            f"attempts are recorded only for {', '.join(PER_REVIEWER_STAGES)}"
++        )
++    if completion not in COMPLETIONS:
++        raise Invalid(f"completion must be one of {', '.join(COMPLETIONS)}")
++    if not reviewer_id or not attempt_id:
++        raise Invalid("reviewer_id and attempt_id are required for an attempt")
++    entry = {
++        "stage": stage,
++        "reviewer_id": reviewer_id,
++        "attempt_id": attempt_id,
++        "completion": completion,
++        "payload_sha256": sha256_json({"completion": completion, **(payload or {})}),
++    }
++    for a in m["attempts"]:
++        if (a["stage"], a["reviewer_id"], a["attempt_id"]) == (
++            stage,
++            reviewer_id,
++            attempt_id,
++        ):
++            if (a["completion"], a["payload_sha256"]) == (
++                completion,
++                entry["payload_sha256"],
++            ):
++                return False
++            raise Conflict(
++                f"attempt {attempt_id!r} of {reviewer_id!r} in {stage!r} already holds a different payload"
++            )
++    if m["state"] == FAILED:
++        raise OutOfOrder("the run has failed; no attempt can be recorded")
++    if stage in m["stages"] or _next_state(m["state"]) != stage:
++        raise OutOfOrder(f"stage {stage!r} is not open: the state is {m['state']!r}")
++    earlier = [
++        a
++        for a in m["attempts"]
++        if a["stage"] == stage and a["reviewer_id"] == reviewer_id
++    ]
++    if earlier and earlier[-1]["completion"] == "complete":
++        raise Conflict(
++            f"{reviewer_id!r} already completed {stage!r}; a new attempt would add a vote"
++        )
++    if earlier:
++        earlier[-1]["superseded_by"] = attempt_id
++    m["attempts"].append(entry)
++    _recount(m)
++    return True
++
++
++def fail(m: dict, reason: str) -> None:
++    """Move the run to the terminal failed state (no-op when already failed)."""
++    if m["state"] == "published":
++        raise OutOfOrder("a published run cannot fail")
++    if m["state"] == FAILED:
++        return  # the first failure reason stays
++    m["state"] = FAILED
++    m["failure_reason"] = reason
++
++
++# ---------------------------------------------------------------- resume
++
++
++def reusable_stages(m: dict) -> list[str]:
++    """The committed stages whose dependency hashes still match, as a prefix of the stage order."""
++    reusable: list[str] = []
++    for stage in STATES[1:]:
++        rec = m["stages"].get(stage)
++        prev = m["stages"].get(STATES[STATES.index(stage) - 1])
++        deps = (rec or {}).get("deps")
++        if (
++            rec is None
++            or prev is None
++            or not isinstance(deps, dict)
++            or deps.get("input_tree_sha256") != m["input_tree_sha256"]
++            or deps.get("policy_sha256") != m["policy_sha256"]
++            or deps.get("prev") != prev["payload_sha256"]
++        ):
++            break
++        reusable.append(stage)
++    return reusable
++
++
++def resume(
++    m: dict,
++    *,
++    frozen: dict,
++    run_id: str | None = None,
++    engine_requested: str | None = None,
++    engine_effective: str | None = None,
++) -> tuple[dict, bool]:
++    """(manifest, new_invocation): the same manifest when the freshly computed frozen fields match, else a new one.
++
++    A changed input_tree_sha256 (a changed plan or spec), policy hash or engine decision starts a new invocation at
++    frozen; the earlier invocation is kept in `history`. A different run_id is a different run and raises Conflict:
++    it must not inherit this run's stages and attempts. The run id and engines default to the stored values.
++    """
++    if run_id is not None and run_id != m["run_id"]:
++        raise Conflict(
++            f"manifest belongs to run {m['run_id']!r}, not {run_id!r}; use another output directory"
++        )
++    requested = engine_requested or m["t2_engine_requested"]
++    effective = engine_effective or m["t2_engine_effective"]
++    now = {k: frozen.get(k) for k in FROZEN_FIELDS}
++    same = (
++        now["input_tree_sha256"] == m["frozen"].get("input_tree_sha256")
++        and policy_sha256(now) == m["policy_sha256"]
++        and (requested, effective)
++        == (m["t2_engine_requested"], m["t2_engine_effective"])
++    )
++    if same:
++        return m, False
++    history = [
++        *m.get("history", []),
++        {
++            "invocation": m["invocation"],
++            "input_tree_sha256": m["input_tree_sha256"],
++            "policy_sha256": m["policy_sha256"],
++            "state": m["state"],
++        },
++    ]
++    return (
++        new_manifest(
++            run_id=m["run_id"],
++            frozen=now,
++            engine_requested=requested,
++            engine_effective=effective,
++            invocation=m["invocation"] + 1,
++            history=history,
++        ),
++        True,
++    )
++
++
++# ---------------------------------------------------------------- publish
++
++
++def publish_files(
++    out_dir: Path,
++    contents: dict[str, bytes],
++    manifest_path: Path,
++    *,
++    commit: Callable[[Path, dict[str, str]], None] | None = None,
++) -> dict[str, str]:
++    """Write `contents` (REPORT.md, return-contract.yaml, audit.log) atomically, then commit `published`.
++
++    Each file goes to a same-directory temporary and is renamed into place; only after all renames does `commit`
++    (default: advance the manifest to published with the files' hashes) run. A crash between the renames and the
++    commit leaves a manifest without `published`, which `read_committed` refuses. Returns the sha256 of each file.
++    Before any file is written the manifest must be in the validated state and its effective engine must not be
++    shadow (the legacy writers own the files there); a manifest already published accepts only identical files.
++    """
++    if set(contents) != set(PUBLISH_FILES):
++        raise Invalid(f"publish needs exactly {', '.join(PUBLISH_FILES)}")
++    hashes = {name: hashlib.sha256(data).hexdigest() for name, data in contents.items()}
++    # Check that the manifest can accept `published` BEFORE any file is touched.
++    manifest = load(manifest_path)
++    if manifest.get("t2_engine_effective") == "shadow":
++        raise OutOfOrder(
++            "shadow mode: the legacy writers stay authoritative for the published files; record their hashes "
++            "with `advance published` instead of publishing"
++        )
++    if manifest.get("state") == "published":
++        if manifest["stages"]["published"]["outputs"] == hashes:
++            return hashes  # identical replay: nothing to write
++        raise Conflict("stage 'published' already holds different files for this run")
++    if manifest.get("state") != "validated":
++        raise OutOfOrder(
++            f"cannot publish: the state is {manifest.get('state')!r}, not 'validated'"
++        )
++    out_dir.mkdir(parents=True, exist_ok=True)
++    temporaries = {}
++    for name, data in contents.items():
++        tmp = out_dir / f".{name}.tmp-{os.getpid()}"
++        tmp.write_bytes(data)
++        temporaries[name] = tmp
++    for name, tmp in temporaries.items():
++        os.replace(tmp, out_dir / name)
++    (commit or commit_published)(manifest_path, hashes)
++    return hashes
++
++
++def commit_published(manifest_path: Path, hashes: dict[str, str]) -> None:
++    m = load(manifest_path)
++    advance_stage(m, "published", {"outputs": hashes})
++    save(manifest_path, m)
++
++
++def hash_published_files(out_dir: Path) -> dict[str, str]:
++    """sha256 of the three publish files already in out_dir (shadow mode: the legacy writers wrote them)."""
++    missing = [n for n in PUBLISH_FILES if not (out_dir / n).is_file()]
++    if missing:
++        raise Invalid(
++            f"cannot record published: {', '.join(missing)} not found in {out_dir}"
++        )
++    return {n: sha256_file(out_dir / n) for n in PUBLISH_FILES}
+diff --git a/src/superclaude/cli/review/manifest_cmd.py b/src/superclaude/cli/review/manifest_cmd.py
+new file mode 100644
+index 000000000..75cbedbeb
+--- /dev/null
++++ b/src/superclaude/cli/review/manifest_cmd.py
+@@ -0,0 +1,239 @@
++"""`superclaude review manifest`: init, advance and validate the coordinator-owned panel manifest.
++
++The manifest is <out>/panel/manifest.json (see review/manifest.py for the contract). `init` freezes a run (or resumes
++it: the same frozen fields reuse the manifest, a changed input tree or policy starts a new invocation), `advance`
++commits the next stage or records one reviewer attempt, `validate` checks the file.
++"""
++
++from __future__ import annotations
++
++import json
++from pathlib import Path
++
++import click
++import yaml
++
++from superclaude.cli.review import manifest as mf
++
++
++def _path(out: str) -> Path:
++    return Path(out) / "panel" / "manifest.json"
++
++
++def _fail(exc: Exception) -> click.ClickException:
++    return click.ClickException(f"{type(exc).__name__}: {exc}")
++
++
++def _read_json(path: str, what: str) -> dict:
++    try:
++        data = json.loads(Path(path).read_text(encoding="utf-8"))
++    except (OSError, ValueError) as exc:
++        raise click.ClickException(f"cannot read {what} {path}: {exc}") from exc
++    if not isinstance(data, dict):
++        raise click.ClickException(f"{what} {path} must be a JSON object")
++    return data
++
++
++def _tree_sha(snapshot: Path) -> str:
++    try:
++        data = yaml.safe_load(snapshot.read_text(encoding="utf-8"))
++    except (OSError, ValueError, yaml.YAMLError) as exc:
++        raise click.ClickException(f"cannot read snapshot {snapshot}: {exc}") from exc
++    for scope in (data, data.get("input_snapshot") if isinstance(data, dict) else None):
++        if isinstance(scope, dict) and isinstance(scope.get("input_tree_sha256"), str):
++            return scope["input_tree_sha256"]
++    raise click.ClickException(f"{snapshot} has no input_tree_sha256")
++
++
++@click.group(name="manifest")
++def command() -> None:
++    """Initialise, advance and validate the panel run manifest."""
++
++
++@command.command("init")
++@click.option(
++    "--out",
++    required=True,
++    type=click.Path(file_okay=False),
++    help="Reflect output directory.",
++)
++@click.option("--run-id", required=True)
++@click.option(
++    "--snapshot",
++    required=True,
++    type=click.Path(exists=True, dir_okay=False),
++    help="artifacts/input-snapshot.yaml.",
++)
++@click.option("--template-sha256", required=True)
++@click.option("--tiers-sha256", required=True)
++@click.option("--brief-template-sha256", required=True)
++@click.option(
++    "--schema-id",
++    "schema_ids",
++    required=True,
++    multiple=True,
++    help="A schema id in force; repeatable.",
++)
++@click.option("--t2-engine-requested", required=True, type=click.Choice(mf.ENGINES))
++@click.option("--t2-engine-effective", required=True, type=click.Choice(mf.ENGINES))
++def init_cmd(
++    out,
++    run_id,
++    snapshot,
++    template_sha256,
++    tiers_sha256,
++    brief_template_sha256,
++    schema_ids,
++    t2_engine_requested,
++    t2_engine_effective,
++) -> None:
++    """Freeze a run in <out>/panel/manifest.json, or resume the one that is there."""
++    snap = Path(snapshot)
++    frozen = {
++        "snapshot_ref": snapshot,
++        "snapshot_sha256": mf.sha256_file(snap),
++        "input_tree_sha256": _tree_sha(snap),
++        "template_sha256": template_sha256,
++        "tiers_sha256": tiers_sha256,
++        "brief_template_sha256": brief_template_sha256,
++        "schema_ids": list(schema_ids),
++    }
++    path = _path(out)
++    try:
++        if path.exists():
++            current = mf.load(path)
++            manifest, new = mf.resume(
++                current,
++                frozen=frozen,
++                run_id=run_id,
++                engine_requested=t2_engine_requested,
++                engine_effective=t2_engine_effective,
++            )
++            result = "new-invocation" if new else "reused"
++        else:
++            manifest = mf.new_manifest(
++                run_id=run_id,
++                frozen=frozen,
++                engine_requested=t2_engine_requested,
++                engine_effective=t2_engine_effective,
++            )
++            result = "created"
++        if result != "reused":
++            mf.save(path, manifest)
++    except mf.ManifestError as exc:
++        raise _fail(exc) from exc
++    click.echo(
++        json.dumps(
++            {
++                "result": result,
++                "state": manifest["state"],
++                "invocation": manifest["invocation"],
++            },
++            sort_keys=True,
++        )
++    )
++
++
++@command.command("advance")
++@click.option("--out", required=True, type=click.Path(file_okay=False))
++@click.option("--stage", required=True, type=click.Choice([*mf.STATES[1:], mf.FAILED]))
++@click.option(
++    "--payload",
++    default=None,
++    type=click.Path(exists=True, dir_okay=False),
++    help="JSON payload: {outputs: {name: sha256}, ...}.",
++)
++@click.option(
++    "--reviewer-id",
++    default=None,
++    help="With --attempt-id and --completion: record one reviewer attempt.",
++)
++@click.option("--attempt-id", default=None)
++@click.option("--completion", default=None, type=click.Choice(mf.COMPLETIONS))
++@click.option(
++    "--publish-from",
++    default=None,
++    type=click.Path(exists=True, file_okay=False),
++    help="published only: stage REPORT.md, return-contract.yaml and audit.log from this directory with temporaries and renames.",
++)
++@click.option("--reason", default=None, help="With --stage failed.")
++def advance_cmd(
++    out, stage, payload, reviewer_id, attempt_id, completion, publish_from, reason
++) -> None:
++    """Commit the next stage, record a reviewer attempt, or mark the run failed.
++
++    `--stage published` without --publish-from records the hashes of the three files already in --out and rewrites
++    nothing (shadow mode: the legacy writers stay authoritative).
++    """
++    path = _path(out)
++    try:
++        manifest = mf.load(path)
++        body = _read_json(payload, "payload") if payload else {}
++        changed = True
++        if stage == mf.FAILED:
++            mf.fail(manifest, reason or "unspecified")
++        elif reviewer_id or attempt_id or completion:
++            if not (reviewer_id and attempt_id and completion):
++                raise click.ClickException(
++                    "--reviewer-id, --attempt-id and --completion go together"
++                )
++            changed = mf.record_attempt(
++                manifest, stage, reviewer_id, attempt_id, completion, body
++            )
++        elif stage == "published" and publish_from:
++            contents = {
++                n: (Path(publish_from) / n).read_bytes() for n in mf.PUBLISH_FILES
++            }
++            before = manifest["state"]
++            mf.publish_files(Path(out), contents, path)
++            click.echo(
++                json.dumps(
++                    {
++                        "result": "advanced" if before != "published" else "noop",
++                        "state": "published",
++                    },
++                    sort_keys=True,
++                )
++            )
++            return
++        else:
++            if stage == "published" and "outputs" not in body:
++                body = {**body, "outputs": mf.hash_published_files(Path(out))}
++            changed = mf.advance_stage(manifest, stage, body)
++        if changed:
++            mf.save(path, manifest)
++    except mf.ManifestError as exc:
++        raise _fail(exc) from exc
++    except OSError as exc:
++        raise click.ClickException(str(exc)) from exc
++    click.echo(
++        json.dumps(
++            {"result": "advanced" if changed else "noop", "state": manifest["state"]},
++            sort_keys=True,
++        )
++    )
++
++
++@command.command("validate")
++@click.option("--out", required=True, type=click.Path(file_okay=False))
++@click.option(
++    "--require-published",
++    is_flag=True,
++    help="Also fail unless the state is published (a reader's view).",
++)
++def validate_cmd(out, require_published) -> None:
++    """Check <out>/panel/manifest.json; exit 0 when valid, 1 when not."""
++    path = _path(out)
++    try:
++        manifest = mf.load(path)
++    except mf.ManifestError as exc:
++        click.echo(f"{path}: {exc}")
++        raise SystemExit(1) from exc
++    errors = mf.validate(manifest)
++    if require_published and manifest.get("state") != "published":
++        errors.append(f"state is {manifest.get('state')!r}, not 'published'")
++    for err in errors:
++        click.echo(f"{path}: {err}")
++    if errors:
++        raise SystemExit(1)
++    click.echo(f"{path}: valid manifest (state {manifest['state']})")
+diff --git a/tests/cli/reflect/test_panel_contract_lint.py b/tests/cli/reflect/test_panel_contract_lint.py
+index 427d90ddf..0c4e40e8c 100644
+--- a/tests/cli/reflect/test_panel_contract_lint.py
++++ b/tests/cli/reflect/test_panel_contract_lint.py
+@@ -367,3 +367,42 @@ def test_lint_does_not_write(tmp_path):
+     before = sorted(str(p.relative_to(run)) for p in run.rglob("*"))
+     pl.lint_panel_contract(run, LEGACY_CONTRACT)
+     assert sorted(str(p.relative_to(run)) for p in run.rglob("*")) == before
++
++
++def test_ev1_reads_reviewers_resolved_from_a_manifest_written_by_the_manifest_module(
++    tmp_path,
++):
++    """Task 17's manifest carries reviewers_resolved as a top-level key; the lint takes the required count from it."""
++    from superclaude.cli.review import manifest as mf
++
++    h = "a" * 64
++    frozen = {
++        "snapshot_ref": "artifacts/input-snapshot.yaml",
++        "snapshot_sha256": h,
++        "input_tree_sha256": h,
++        "template_sha256": h,
++        "tiers_sha256": h,
++        "brief_template_sha256": h,
++        "schema_ids": ["review-panel/1"],
++    }
++    for resolved, expected in ((3, []), (4, 1)):
++        m = mf.new_manifest(
++            run_id="r1",
++            frozen=frozen,
++            engine_requested="shadow",
++            engine_effective="shadow",
++        )
++        mf.advance_stage(
++            m,
++            "resolved",
++            {"reviewers_requested": resolved, "reviewers_resolved": resolved},
++        )
++        run = make(tmp_path, name=f"run{resolved}")
++        mf.save(run / "panel" / "manifest.json", m)
++        lines = pl.lint_panel_contract(run, LEGACY_CONTRACT)
++        if expected == []:
++            assert lines == []
++        else:
++            assert lines == [
++                "L6 EV-1: reviewer-cards/ holds 3 card(s), fewer than the required 4 (reviewers_resolved from panel/manifest.json)"
++            ]
+diff --git a/tests/review/test_review_manifest.py b/tests/review/test_review_manifest.py
+new file mode 100644
+index 000000000..09b229153
+--- /dev/null
++++ b/tests/review/test_review_manifest.py
+@@ -0,0 +1,568 @@
++"""Panel run manifest: states, idempotency, resume, atomic publish and the `review manifest` commands."""
++
++from __future__ import annotations
++
++import copy
++import hashlib
++import json
++
++import pytest
++from click.testing import CliRunner
++
++from superclaude.cli.main import main
++from superclaude.cli.review import manifest as mf
++
++
++def h(text: str) -> str:
++    return hashlib.sha256(text.encode()).hexdigest()
++
++
++def frozen(tree="tree-1", template="tpl-1"):
++    return {
++        "snapshot_ref": "artifacts/input-snapshot.yaml",
++        "snapshot_sha256": h("snap"),
++        "input_tree_sha256": h(tree),
++        "template_sha256": h(template),
++        "tiers_sha256": h("tiers"),
++        "brief_template_sha256": h("brief"),
++        "schema_ids": ["review-panel/1", "findings-v2"],
++    }
++
++
++def fresh(engine="shadow", **kw):
++    return mf.new_manifest(
++        run_id="r1",
++        frozen=frozen(**kw),
++        engine_requested=engine,
++        engine_effective=engine,
++    )
++
++
++RESOLVED = {
++    "reviewers_requested": 3,
++    "reviewers_resolved": 3,
++    "outputs": {"resolution.json": h("res")},
++}
++
++
++def walk(m, upto="published"):
++    for stage in mf.STATES[1 : mf.STATES.index(upto) + 1]:
++        payload = (
++            RESOLVED
++            if stage == "resolved"
++            else {"outputs": {f"{stage}.json": h(stage)}}
++        )
++        mf.advance_stage(m, stage, payload)
++    return m
++
++
++# ------------------------------------------------------------ states and idempotency (AC1)
++
++
++def test_a_new_manifest_carries_both_engines_and_validates():
++    m = fresh()
++    assert (m["t2_engine_requested"], m["t2_engine_effective"]) == ("shadow", "shadow")
++    assert m["state"] == "frozen" and mf.validate(m) == []
++    assert m["policy_sha256"] == mf.policy_sha256(m["frozen"])
++
++
++@pytest.mark.parametrize("key", ["t2_engine_requested", "t2_engine_effective"])
++def test_validate_fails_when_an_engine_is_missing(key):
++    m = fresh()
++    del m[key]
++    assert any(key in e for e in mf.validate(m))
++    m[key] = "turbo"
++    assert any(key in e for e in mf.validate(m))
++
++
++def test_all_states_are_advanced_in_order_with_none_skipped():
++    m = walk(fresh())
++    assert m["state"] == "published" and list(m["stages"]) == list(mf.STATES)
++    assert mf.validate(m) == []
++    assert (m["reviewers_requested"], m["reviewers_resolved"]) == (3, 3)
++
++
++def test_replaying_an_identical_advance_is_a_no_op():
++    m = walk(fresh(), "dispatched")
++    before = copy.deepcopy(m)
++    assert mf.advance_stage(m, "resolved", RESOLVED) is False
++    assert (
++        mf.advance_stage(
++            m, "dispatched", {"outputs": {"dispatched.json": h("dispatched")}}
++        )
++        is False
++    )
++    assert m == before
++
++
++def test_a_conflicting_payload_is_rejected():
++    m = walk(fresh(), "dispatched")
++    with pytest.raises(mf.Conflict):
++        mf.advance_stage(m, "dispatched", {"outputs": {"dispatched.json": h("other")}})
++    with pytest.raises(mf.Conflict):
++        mf.advance_stage(m, "resolved", {**RESOLVED, "reviewers_resolved": 2})
++
++
++@pytest.mark.parametrize("stage", ["dispatched", "published", "frozen", "collected"])
++def test_an_out_of_order_state_is_rejected(stage):
++    m = fresh()  # frozen: the only legal next stage is resolved
++    with pytest.raises(mf.OutOfOrder):
++        mf.advance_stage(m, stage, {})
++    assert m["state"] == "frozen"
++
++
++def test_resolved_needs_the_counts():
++    m = fresh()
++    with pytest.raises(mf.Invalid):
++        mf.advance_stage(m, "resolved", {})
++    with pytest.raises(mf.Invalid):
++        mf.advance_stage(
++            m, "resolved", {"reviewers_requested": 2, "reviewers_resolved": 3}
++        )
++    assert m["state"] == "frozen"
++
++
++def test_outputs_must_be_sha256_values():
++    m = walk(fresh(), "resolved")
++    with pytest.raises(mf.Invalid):
++        mf.advance_stage(m, "dispatched", {"outputs": {"x": "not-a-hash"}})
++
++
++def test_a_failed_run_accepts_nothing_more():
++    m = walk(fresh(), "resolved")
++    mf.fail(m, "deadline")
++    assert m["state"] == "failed" and m["failure_reason"] == "deadline"
++    with pytest.raises(mf.OutOfOrder):
++        mf.advance_stage(m, "dispatched", {})
++    with pytest.raises(mf.OutOfOrder):
++        mf.record_attempt(m, "dispatched", "t1b-1", "a1", "complete")
++
++
++# ------------------------------------------------------------ attempts
++
++
++def test_attempt_replay_is_a_no_op_and_a_different_payload_conflicts():
++    m = walk(fresh(), "resolved")
++    assert (
++        mf.record_attempt(m, "dispatched", "t1b-1", "a1", "failed", {"why": "timeout"})
++        is True
++    )
++    assert (
++        mf.record_attempt(m, "dispatched", "t1b-1", "a1", "failed", {"why": "timeout"})
++        is False
++    )
++    with pytest.raises(mf.Conflict):
++        mf.record_attempt(m, "dispatched", "t1b-1", "a1", "failed", {"why": "other"})
++    with pytest.raises(mf.Conflict):
++        mf.record_attempt(
++            m, "dispatched", "t1b-1", "a1", "complete", {"why": "timeout"}
++        )
++
++
++def test_a_new_attempt_supersedes_a_failed_one_without_adding_a_vote():
++    m = walk(fresh(), "dispatched")
++    mf.record_attempt(m, "collected", "t1b-1", "a1", "timed_out")
++    mf.record_attempt(m, "collected", "t4-1", "a1", "complete")
++    assert m["reviewers_complete"] == 1
++    mf.record_attempt(m, "collected", "t1b-1", "a2", "complete")
++    assert m["reviewers_complete"] == 2  # two reviewers, not three attempts
++    assert [a.get("superseded_by") for a in m["attempts"]] == ["a2", None, None]
++    with pytest.raises(mf.Conflict, match="add a vote"):
++        mf.record_attempt(m, "collected", "t1b-1", "a3", "complete")
++    assert m["reviewers_complete"] == 2
++
++
++def test_attempts_are_recorded_only_while_their_stage_is_open():
++    m = fresh()
++    with pytest.raises(mf.OutOfOrder):
++        mf.record_attempt(m, "collected", "t1b-1", "a1", "complete")
++    with pytest.raises(mf.OutOfOrder):
++        mf.record_attempt(m, "clustered", "t1b-1", "a1", "complete")
++    walk(m, "dispatched")
++    mf.record_attempt(m, "collected", "t1b-1", "a1", "complete")
++    walk_rest = {"outputs": {"collected.json": h("c")}}
++    mf.advance_stage(m, "collected", walk_rest)
++    with pytest.raises(mf.OutOfOrder):  # collected is committed
++        mf.record_attempt(m, "collected", "t4-1", "a1", "complete")
++    assert (
++        mf.record_attempt(m, "collected", "t1b-1", "a1", "complete") is False
++    )  # identical replay
++
++
++def test_attempt_inputs_are_checked():
++    m = walk(fresh(), "resolved")
++    with pytest.raises(mf.Invalid):
++        mf.record_attempt(m, "dispatched", "t1b-1", "a1", "weird")
++    with pytest.raises(mf.Invalid):
++        mf.record_attempt(m, "dispatched", "", "a1", "complete")
++
++
++# ------------------------------------------------------------ resume
++
++
++def test_resume_reuses_the_manifest_when_the_frozen_fields_match():
++    m = walk(fresh(), "dispatched")
++    same, new = mf.resume(m, frozen=frozen())
++    assert new is False and same is m
++    assert mf.reusable_stages(m) == ["resolved", "dispatched"]
++
++
++@pytest.mark.parametrize("change", [{"tree": "tree-2"}, {"template": "tpl-2"}])
++def test_a_changed_plan_or_policy_hash_starts_a_new_invocation(change):
++    m = walk(fresh(), "dispatched")
++    new_m, new = mf.resume(m, frozen=frozen(**change))
++    assert new is True
++    assert new_m["invocation"] == 2 and new_m["state"] == "frozen"
++    assert new_m["run_id"] == "r1" and new_m["t2_engine_requested"] == "shadow"
++    assert new_m["history"] == [
++        {
++            "invocation": 1,
++            "input_tree_sha256": m["input_tree_sha256"],
++            "policy_sha256": m["policy_sha256"],
++            "state": "dispatched",
++        }
++    ]
++    assert list(new_m["stages"]) == ["frozen"] and mf.validate(new_m) == []
++
++
++def test_resume_refuses_another_run_and_a_changed_engine_starts_a_new_invocation():
++    m = walk(fresh(), "dispatched")
++    with pytest.raises(mf.Conflict, match="r1"):
++        mf.resume(m, frozen=frozen(), run_id="r2")
++    same, new = mf.resume(
++        m,
++        frozen=frozen(),
++        run_id="r1",
++        engine_requested="shadow",
++        engine_effective="shadow",
++    )
++    assert new is False and same is m
++    changed, new = mf.resume(
++        m,
++        frozen=frozen(),
++        run_id="r1",
++        engine_requested="shadow",
++        engine_effective="legacy",
++    )
++    assert (
++        new is True
++        and changed["t2_engine_effective"] == "legacy"
++        and changed["invocation"] == 2
++    )
++
++
++def test_fail_keeps_the_first_reason():
++    m = walk(fresh(), "resolved")
++    mf.fail(m, "a")
++    mf.fail(m, "b")
++    assert m["failure_reason"] == "a"
++
++
++def test_a_stage_is_reusable_only_while_its_dependency_hashes_match():
++    m = walk(fresh(), "calibrated")
++    assert mf.reusable_stages(m) == list(
++        mf.STATES[1 : mf.STATES.index("calibrated") + 1]
++    )
++    m["stages"]["dispatched"]["deps"]["prev"] = h("tampered")
++    assert mf.reusable_stages(m) == ["resolved"]
++    m["stages"]["resolved"]["deps"]["input_tree_sha256"] = h("old input")
++    assert mf.reusable_stages(m) == []
++
++
++# ------------------------------------------------------------ publish
++
++
++def contents():
++    return {n: f"{n} body\n".encode() for n in mf.PUBLISH_FILES}
++
++
++def test_publish_renames_the_three_files_then_commits(tmp_path):
++    path = tmp_path / "panel" / "manifest.json"
++    m = walk(fresh("panel"), "validated")
++    mf.save(path, m)
++    hashes = mf.publish_files(tmp_path, contents(), path)
++    committed = mf.read_committed(path)
++    assert committed["state"] == "published"
++    assert committed["stages"]["published"]["outputs"] == hashes
++    assert {n: (tmp_path / n).read_bytes() for n in mf.PUBLISH_FILES} == contents()
++    assert not [p for p in tmp_path.iterdir() if ".tmp-" in p.name]
++
++
++def test_a_crash_between_rename_and_commit_leaves_a_manifest_readers_refuse(tmp_path):
++    path = tmp_path / "panel" / "manifest.json"
++    mf.save(path, walk(fresh("panel"), "validated"))
++
++    def crash(manifest_path, hashes):
++        raise RuntimeError("crash before commit")
++
++    with pytest.raises(RuntimeError):
++        mf.publish_files(tmp_path, contents(), path, commit=crash)
++    assert all((tmp_path / n).exists() for n in mf.PUBLISH_FILES)  # renamed
++    assert mf.load(path)["state"] == "validated"  # not committed
++    with pytest.raises(mf.NotCommitted):
++        mf.read_committed(path)
++    # recovery: the same publish can run again and commits
++    mf.publish_files(tmp_path, contents(), path)
++    assert mf.read_committed(path)["state"] == "published"
++
++
++def _tree(path):
++    return {p.name: p.read_bytes() for p in path.iterdir() if p.is_file()}
++
++
++def test_publish_checks_the_manifest_before_touching_any_file(tmp_path):
++    path = tmp_path / "panel" / "manifest.json"
++    for n in mf.PUBLISH_FILES:
++        (tmp_path / n).write_text("legacy")
++    legacy = _tree(tmp_path)
++    # not yet validated
++    mf.save(path, walk(fresh("panel"), "debated"))
++    with pytest.raises(mf.OutOfOrder, match="validated"):
++        mf.publish_files(tmp_path, contents(), path)
++    assert _tree(tmp_path) == legacy
++    # shadow engine: the legacy writers own the files
++    mf.save(path, walk(fresh("shadow"), "validated"))
++    with pytest.raises(mf.OutOfOrder, match="shadow"):
++        mf.publish_files(tmp_path, contents(), path)
++    assert _tree(tmp_path) == legacy
++
++
++def test_publishing_twice_is_a_no_op_and_different_files_conflict_before_writing(
++    tmp_path,
++):
++    path = tmp_path / "panel" / "manifest.json"
++    mf.save(path, walk(fresh("panel"), "validated"))
++    mf.publish_files(tmp_path, contents(), path)
++    published = _tree(tmp_path)
++    assert mf.publish_files(tmp_path, contents(), path)  # identical replay
++    different = {n: b"other" for n in mf.PUBLISH_FILES}
++    with pytest.raises(mf.Conflict):
++        mf.publish_files(tmp_path, different, path)
++    assert _tree(tmp_path) == published
++    committed = mf.read_committed(path)
++    assert committed["stages"]["published"]["outputs"] == {
++        n: hashlib.sha256(published[n]).hexdigest() for n in mf.PUBLISH_FILES
++    }
++
++
++def test_shadow_publish_records_the_hashes_and_rewrites_nothing(tmp_path):
++    for n, data in contents().items():
++        (tmp_path / n).write_bytes(data)
++    stat = {n: (tmp_path / n).stat().st_mtime_ns for n in mf.PUBLISH_FILES}
++    hashes = mf.hash_published_files(tmp_path)
++    m = walk(fresh(), "validated")
++    mf.advance_stage(m, "published", {"outputs": hashes})
++    assert {n: (tmp_path / n).stat().st_mtime_ns for n in mf.PUBLISH_FILES} == stat
++    assert m["stages"]["published"]["outputs"] == {
++        n: hashlib.sha256(d).hexdigest() for n, d in contents().items()
++    }
++    (tmp_path / "audit.log").unlink()
++    with pytest.raises(mf.Invalid, match="audit.log"):
++        mf.hash_published_files(tmp_path)
++
++
++def test_save_is_atomic_and_load_rejects_garbage(tmp_path):
++    path = tmp_path / "panel" / "manifest.json"
++    mf.save(path, fresh())
++    assert not [p for p in path.parent.iterdir() if ".tmp-" in p.name]
++    path.write_text("{ not json")
++    with pytest.raises(mf.Invalid):
++        mf.load(path)
++
++
++# ------------------------------------------------------------ commands
++
++
++def run(*args):
++    return CliRunner().invoke(main, ["review", "manifest", *args])
++
++
++@pytest.fixture
++def cli_run(tmp_path):
++    snap = tmp_path / "input-snapshot.yaml"
++    snap.write_text(f"input_tree_sha256: {h('tree-1')}\nfile_list: []\n")
++    return tmp_path, snap
++
++
++def init_args(tmp_path, snap, **over):
++    opts = {
++        "--out": str(tmp_path), "--run-id": "r1", "--snapshot": str(snap),
++        "--template-sha256": h("tpl"), "--tiers-sha256": h("tiers"), "--brief-template-sha256": h("brief"),
++        "--t2-engine-requested": "shadow", "--t2-engine-effective": "shadow",
++    }  # fmt: skip
++    opts.update(over)
++    args = [x for kv in opts.items() for x in kv]
++    return [*args, "--schema-id", "review-panel/1"]
++
++
++def test_init_on_an_existing_manifest_checks_run_id_and_engines(cli_run):
++    tmp, snap = cli_run
++    assert run("init", *init_args(tmp, snap)).exit_code == 0
++    other = run("init", *init_args(tmp, snap, **{"--run-id": "r2"}))
++    assert other.exit_code == 1 and "Conflict" in other.output
++    assert json.loads((tmp / "panel/manifest.json").read_text())["run_id"] == "r1"
++    engines = {"--t2-engine-requested": "legacy", "--t2-engine-effective": "legacy"}
++    res = json.loads(run("init", *init_args(tmp, snap, **engines)).output)
++    assert res["result"] == "new-invocation" and res["invocation"] == 2
++    data = json.loads((tmp / "panel/manifest.json").read_text())
++    assert (data["t2_engine_requested"], data["t2_engine_effective"]) == (
++        "legacy",
++        "legacy",
++    )
++
++
++def test_cli_publish_from_refuses_in_shadow_mode_and_before_validated(cli_run):
++    tmp, snap = cli_run
++    run("init", *init_args(tmp, snap))  # shadow / shadow
++    staging = tmp / "staging"
++    staging.mkdir()
++    for n, data in contents().items():
++        (staging / n).write_bytes(data)
++    res = run(
++        "advance",
++        "--out",
++        str(tmp),
++        "--stage",
++        "published",
++        "--publish-from",
++        str(staging),
++    )
++    assert res.exit_code == 1 and "OutOfOrder" in res.output
++    assert not [n for n in mf.PUBLISH_FILES if (tmp / n).exists()]
++
++
++def test_help_lists_the_three_subcommands():
++    res = run("--help")
++    assert res.exit_code == 0
++    for name in ("init", "advance", "validate"):
++        assert name in res.output
++    assert "manifest" in CliRunner().invoke(main, ["review", "--help"]).output
++
++
++def test_init_carries_both_engines_and_validate_fails_when_one_is_missing(cli_run):
++    tmp, snap = cli_run
++    res = run("init", *init_args(tmp, snap))
++    assert res.exit_code == 0, res.output
++    path = tmp / "panel/manifest.json"
++    data = json.loads(path.read_text())
++    assert (data["t2_engine_requested"], data["t2_engine_effective"]) == (
++        "shadow",
++        "shadow",
++    )
++    assert run("validate", "--out", str(tmp)).exit_code == 0
++    del data["t2_engine_effective"]
++    path.write_text(json.dumps(data))
++    bad = run("validate", "--out", str(tmp))
++    assert bad.exit_code == 1 and "t2_engine_effective" in bad.output
++
++
++def test_init_requires_both_engine_values(cli_run):
++    tmp, snap = cli_run
++    args = init_args(tmp, snap)
++    i = args.index("--t2-engine-effective")
++    res = run("init", *args[:i], *args[i + 2 :])
++    assert res.exit_code == 2 and "t2-engine-effective" in res.output
++    assert not (tmp / "panel/manifest.json").exists()
++
++
++def test_init_twice_reuses_and_a_changed_snapshot_starts_a_new_invocation(cli_run):
++    tmp, snap = cli_run
++    assert json.loads(run("init", *init_args(tmp, snap)).output)["result"] == "created"
++    assert json.loads(run("init", *init_args(tmp, snap)).output)["result"] == "reused"
++    snap.write_text(f"input_tree_sha256: {h('tree-2')}\nfile_list: []\n")
++    res = json.loads(run("init", *init_args(tmp, snap)).output)
++    assert res == {"result": "new-invocation", "state": "frozen", "invocation": 2}
++
++
++def test_advance_flow_with_replay_conflict_and_out_of_order(cli_run):
++    tmp, snap = cli_run
++    run("init", *init_args(tmp, snap))
++    payload = tmp / "resolved.json"
++    payload.write_text(json.dumps(RESOLVED))
++    out = ["--out", str(tmp)]
++    first = run("advance", *out, "--stage", "resolved", "--payload", str(payload))
++    assert json.loads(first.output) == {"result": "advanced", "state": "resolved"}
++    again = run("advance", *out, "--stage", "resolved", "--payload", str(payload))
++    assert json.loads(again.output)["result"] == "noop"
++    payload.write_text(json.dumps({**RESOLVED, "reviewers_resolved": 2}))
++    conflict = run("advance", *out, "--stage", "resolved", "--payload", str(payload))
++    assert conflict.exit_code == 1 and "Conflict" in conflict.output
++    skip = run("advance", *out, "--stage", "collected")
++    assert skip.exit_code == 1 and "OutOfOrder" in skip.output
++    attempt = run(
++        "advance",
++        *out,
++        "--stage",
++        "dispatched",
++        "--reviewer-id",
++        "t1b-1",
++        "--attempt-id",
++        "a1",
++        "--completion",
++        "complete",
++    )
++    assert attempt.exit_code == 0, attempt.output
++    half = run("advance", *out, "--stage", "dispatched", "--reviewer-id", "t1b-1")
++    assert half.exit_code != 0
++
++
++def test_cli_publish_in_shadow_mode_records_hashes_of_the_legacy_files(cli_run):
++    tmp, snap = cli_run
++    run("init", *init_args(tmp, snap))
++    payload = tmp / "resolved.json"
++    payload.write_text(json.dumps(RESOLVED))
++    out = ["--out", str(tmp)]
++    run("advance", *out, "--stage", "resolved", "--payload", str(payload))
++    for stage in mf.STATES[2:-1]:
++        assert run("advance", *out, "--stage", stage).exit_code == 0
++    early = run("advance", *out, "--stage", "published")
++    assert (
++        early.exit_code == 1 and "REPORT.md" in early.output
++    )  # legacy files not written yet
++    for n, data in contents().items():
++        (tmp / n).write_bytes(data)
++    done = run("advance", *out, "--stage", "published")
++    assert done.exit_code == 0, done.output
++    assert {n: (tmp / n).read_bytes() for n in mf.PUBLISH_FILES} == contents()
++    assert run("validate", *out, "--require-published").exit_code == 0
++    assert mf.read_committed(tmp / "panel/manifest.json")["state"] == "published"
++
++
++def test_cli_publish_from_a_staging_directory_uses_temporaries_and_renames(cli_run):
++    tmp, snap = cli_run
++    run(
++        "init",
++        *init_args(
++            tmp,
++            snap,
++            **{"--t2-engine-requested": "panel", "--t2-engine-effective": "panel"},
++        ),
++    )
++    payload = tmp / "resolved.json"
++    payload.write_text(json.dumps(RESOLVED))
++    out = ["--out", str(tmp)]
++    run("advance", *out, "--stage", "resolved", "--payload", str(payload))
++    for stage in mf.STATES[2:-1]:
++        run("advance", *out, "--stage", stage)
++    staging = tmp / "staging"
++    staging.mkdir()
++    for n, data in contents().items():
++        (staging / n).write_bytes(data)
++    done = run("advance", *out, "--stage", "published", "--publish-from", str(staging))
++    assert done.exit_code == 0, done.output
++    assert {n: (tmp / n).read_bytes() for n in mf.PUBLISH_FILES} == contents()
++    assert not [p for p in tmp.iterdir() if ".tmp-" in p.name]
++
++
++def test_failed_stage_and_validate_require_published(cli_run):
++    tmp, snap = cli_run
++    run("init", *init_args(tmp, snap))
++    res = run("advance", "--out", str(tmp), "--stage", "failed", "--reason", "deadline")
++    assert json.loads(res.output)["state"] == "failed"
++    assert run("validate", "--out", str(tmp)).exit_code == 0
++    assert run("validate", "--out", str(tmp), "--require-published").exit_code == 1
++
++
++def test_validate_reports_an_unreadable_manifest(tmp_path):
++    res = run("validate", "--out", str(tmp_path))
++    assert res.exit_code == 1

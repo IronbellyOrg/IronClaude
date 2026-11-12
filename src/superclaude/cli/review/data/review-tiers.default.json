@@ -15,6 +15,12 @@
     "muse-wonder-full-1.0": "Muse Wonder Full 1.0", "muse-wonder-1.0": "Muse Wonder 1.0", "muse-spark-1.3": "Muse Spark 1.3",
     "glm-5.3": "GLM 5.3", "grok-4.7": "Grok 4.7", "Qwen3.8-max": "Qwen 3.8 Max"
   },
+  "classes": {
+    "claude-opus-5-5": "opus", "claude-sonnet-5-5": "sonnet", "claude-haiku-5-5": "haiku", "claude-fable-5-1": "fable",
+    "gpt-6.1-sol": "gpt", "gpt-6.1-terra": "gpt", "gpt-6-luna": "gpt",
+    "muse-wonder-full-1.0": "muse", "muse-wonder-1.0": "muse", "muse-spark-1.3": "muse",
+    "glm-5.3": "glm", "grok-4.7": "grok", "Qwen3.8-max": "qwen"
+  },
   "environments": {
     "gateway": {
       "note": "Company gateway: every listed model is served; dispatch mechanism per model not defined yet.",

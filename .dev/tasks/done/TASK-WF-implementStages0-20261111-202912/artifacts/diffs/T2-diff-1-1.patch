@@ -1,0 +1,1464 @@
+diff --git a/src/superclaude/cli/review/card_convert.py b/src/superclaude/cli/review/card_convert.py
+new file mode 100644
+index 000000000..d0e970678
+--- /dev/null
++++ b/src/superclaude/cli/review/card_convert.py
+@@ -0,0 +1,517 @@
++"""Convert a recorded reflect reviewer card to findings-v2 lines with the deterministic, quote-free rule.
++
++Card-format table (the shapes accepted)
++
++| Shape | Recognised when | Findings | Severity word |
++|---|---|---|---|
++| yaml-blocking-minor | YAML mapping with a list under findings, returned_findings or deviations (first list wins), and every mapping entry has the severity word blocking or minor | each list entry | severity |
++| yaml-other-severity | the same container otherwise: some entry has another severity word (medium, low, should-fix, ...), uses priority: P1-P3, or has none; deviation_class is read when present | each list entry | severity, else priority |
++| markdown-table | a markdown card with a pipe table whose header has an evidence cell and a sev or severity cell | each body row of such a table | the sev or severity column |
++| unlisted | anything else: other markdown, text that is not YAML, YAML without that list, an unreadable file or another suffix | none | none |
++
++An unlisted card counts as one unconverted unit and a list entry that is not a mapping as one unconverted finding, so
++both lower the conversion share instead of leaving its denominator.
++
++Plan and spec paths, per path: the card's own top-level plan: and spec: fields first; otherwise the run's
++artifacts/input-snapshot.yaml next to the reviewer-cards directory, taking the plan as the <id>.md entry (an .md file
++whose name without suffix equals its directory's name, or, at the snapshot root, starts with TASK-) and the spec as the
++source.md entry, each only when exactly one such entry exists; otherwise the refs that need the path are unresolved.
++
++Refs are read from the entry keys evidence, location, citation, file_line and spec_ref (YAML) or from the evidence and
++location columns (markdown), as a string or a list of strings; each string is read on its own. Extraction (_TOKEN):
++every token path:N or path:A-B in the string is taken, where path is a run of letters, digits and . _ - / ~ + @ not
++glued to a preceding such character or colon, and the line is not followed by a letter, digit, underscore, / or a dot
++plus one of those. The token counts only when path is plan, source.md or spec, contains /, or ends in a file extension
++(a dot, a letter, then letters or digits); any other text, including words followed by a colon, is prose and is
++ignored. Right after a token, a comma followed by a bare line or range (60, 75-83 or :72) that ends at a comma,
++semicolon, closing bracket, quote, backtick, asterisk, final dot or the end of a line is another ref on the same
++path (_MORE). plan:N is a plan citation on the plan path, source.md:N or spec:N a spec citation on the spec path, any
++other path a source citation on that path, lines N-N or A-B. A token with a missing plan or spec path, or whose
++citation findings_v2 rejects (absolute path, .., line 0, end before start), becomes {role: unresolved, ref, reason}
++holding the token; a non-blank string with no token becomes exactly one unresolved citation holding the whole
++string; a non-text item becomes one unresolved citation. Unresolved citations are kept in the finding's citations
++and counted, and their finding is unconverted, so a ref in a form not listed lowers the share. No citation carries
++a quote.
++
++Severity: blocking, blocker, major, high, must-fix, p1 map to MAJOR and blocking; critical, p0 to CRITICAL and
++blocking; minor, medium, low, should-fix, important, nit, info, p2, p3 to MINOR and not blocking (case-insensitive);
++another word leaves severity unset. Category: the first of category, kind, type, class, classification (or the
++markdown category or class column) that names a reflect category sets reflect_category and maps it as findings_v2
++does; risk maps to safety when the claim names a safety, security or data-loss effect (_SAFETY) and to other
++otherwise; with no reflect category the category is other. deviation_class comes from the first of deviation_class,
++class, classification (or that markdown column) that is a findings_v2 deviation class.
++
++A finding is converted unambiguously when it has no unresolved citation and its line passes findings_v2.check_finding.
++Each card reports units (its findings, or 1 for an unlisted card), converted, unconverted, the ref counts and share
++(converted / units, None when units is 0); summarize adds the cards up, in total and by shape.
++"""
++
++from __future__ import annotations
++
++import re
++from pathlib import Path, PurePosixPath
++from typing import Any, Callable, Iterable
++
++import yaml
++
++from superclaude.cli.review.findings import _ID, flat
++from superclaude.cli.review.findings_v2 import (
++    DEVIATION_CLASSES,
++    REFLECT_CATEGORIES,
++    _check_citation,
++    check_finding,
++)
++
++SHAPES = ("yaml-blocking-minor", "yaml-other-severity", "markdown-table", "unlisted")
++FINDING_KEYS = ("findings", "returned_findings", "deviations")
++REF_KEYS = ("evidence", "location", "citation", "file_line", "spec_ref")
++CLAIM_KEYS = ("claim", "finding", "title", "summary", "headline")
++CATEGORY_KEYS = ("category", "kind", "type", "class", "classification")
++CLASS_KEYS = ("deviation_class", "class", "classification")
++BLOCKING_WORDS = {
++    "blocking": "MAJOR",
++    "blocker": "MAJOR",
++    "major": "MAJOR",
++    "high": "MAJOR",
++    "must-fix": "MAJOR",
++    "p1": "MAJOR",
++    "critical": "CRITICAL",
++    "p0": "CRITICAL",
++}
++MINOR_WORDS = frozenset(
++    {"minor", "medium", "low", "should-fix", "important", "nit", "info", "p2", "p3"}
++)
++SNAPSHOT = PurePosixPath("artifacts/input-snapshot.yaml")
++MAX_REF_TEXT = 200
++MAX_CLAIM = 300
++
++_TOKEN = re.compile(
++    r"(?<![\w.\-/~+@:])(?P<path>[\w.\-/~+@]+):(?P<a>\d+)(?:\s*[-–]\s*(?P<b>\d+))?(?![\w/]|\.\w)"
++)
++_MORE = re.compile(
++    r"\s*,\s*:?(?P<a>\d+)(?:\s*[-–]\s*(?P<b>\d+))?(?=\s*(?:[,;)\]`'\"*]|\.(?!\w)|$))",
++    re.M,
++)
++_EXT = re.compile(r"\.[A-Za-z][A-Za-z0-9]*$")
++_SAFETY = re.compile(
++    r"\b(?:safety|unsafe|security|insecure|vulnerab\w*|data[- ]loss|los(?:e|es|t|ing) data"
++    r"|credentials?|secrets?|leak(?:s|ed|ing)?)\b",
++    re.I,
++)
++
++
++def _word(value: Any) -> str | None:
++    return value.strip().lower() if isinstance(value, str) and value.strip() else None
++
++
++def _unresolved(text: str, reason: str) -> dict:
++    return {"role": "unresolved", "ref": text[:MAX_REF_TEXT], "reason": reason}
++
++
++def _path_shaped(token: str) -> bool:
++    return (
++        token in ("plan", "source.md", "spec")
++        or "/" in token
++        or bool(_EXT.search(token))
++    )
++
++
++def _resolve(
++    token: str, a: int, b: int, raw: str, plan: str | None, spec: str | None
++) -> dict:
++    if token == "plan":
++        role, path = "plan", plan
++    elif token in ("source.md", "spec"):
++        role, path = "spec", spec
++    else:
++        role, path = "source", token
++    if path is None:
++        return _unresolved(raw, f"no {role} path")
++    cit = {"role": role, "path": path, "line_start": a, "line_end": b}
++    err = _check_citation(cit)
++    return _unresolved(raw, err) if err else cit
++
++
++def _citations(values: Iterable[Any], plan: str | None, spec: str | None) -> list[dict]:
++    """Citations extracted from values (strings or lists of strings), in order; see the module docstring."""
++    out: list[dict] = []
++    for value in values:
++        for item in value if isinstance(value, list) else [value]:
++            if item is None:
++                continue
++            if not isinstance(item, str):
++                out.append(_unresolved(flat(str(item)), "not a text ref"))
++                continue
++            found: list[dict] = []
++            for m in _TOKEN.finditer(item):
++                path = m["path"]
++                if not _path_shaped(path):
++                    continue
++                hit, end = m, m.end()
++                while hit:
++                    a = int(hit["a"])
++                    b = int(hit["b"]) if hit["b"] else a
++                    raw = (
++                        m.group(0)
++                        if hit is m
++                        else f"{path}:{hit.group(0).strip(' ,:')}"
++                    )
++                    found.append(_resolve(path, a, b, raw, plan, spec))
++                    hit = _MORE.match(item, end)
++                    end = hit.end() if hit else end
++            if not found and item.strip():
++                found.append(_unresolved(flat(item), "no path:line ref"))
++            out.extend(found)
++    return out
++
++
++def _new_id(raw: Any, index: int, seen: set[str]) -> str:
++    if isinstance(raw, (str, int)) and not isinstance(raw, bool):
++        fid = str(raw).strip()
++        if _ID.match(fid) and fid not in seen:
++            return fid
++    fid, k = f"F{index}", 1
++    while fid in seen:
++        fid, k = f"F{index}-{k}", k + 1
++    return fid
++
++
++def _convert(
++    index: int,
++    raw_id: Any,
++    sev_word: str | None,
++    cat_words: list[str | None],
++    class_words: list[str | None],
++    claim: Any,
++    ref_values: list[Any],
++    plan: str | None,
++    spec: str | None,
++    seen: set[str],
++) -> tuple[dict, str | None]:
++    """(findings-v2 line, None when converted unambiguously else the reason); seen gains the line's id."""
++    fid = _new_id(raw_id, index, seen)
++    if sev_word in BLOCKING_WORDS:
++        severity, blocking = BLOCKING_WORDS[sev_word], True
++    elif sev_word in MINOR_WORDS:
++        severity, blocking = "MINOR", False
++    else:
++        severity, blocking = None, None
++    text = flat(claim) if isinstance(claim, str) else ""
++    if len(text) > MAX_CLAIM:
++        text = text[: MAX_CLAIM - 3] + "..."
++    rcat = next((w for w in cat_words if w in REFLECT_CATEGORIES), None)
++    dclass = next((w for w in class_words if w in DEVIATION_CLASSES), None)
++    if rcat == "risk":
++        category = "safety" if _SAFETY.search(text) else "other"
++    else:
++        category = REFLECT_CATEGORIES[rcat][0] if rcat else "other"
++    cits = _citations(ref_values, plan, spec)
++    line: dict[str, Any] = {
++        "id": fid,
++        "severity": severity,
++        "blocking": blocking,
++        "category": category,
++        "claim": text,
++        "refs": [],
++        "citations": cits,
++    }
++    if rcat:
++        line["reflect_category"] = rcat
++    if dclass:
++        line["deviation_class"] = dclass
++    unresolved = sum(c["role"] == "unresolved" for c in cits)
++    reason = (
++        f"{unresolved} unresolved citation(s)"
++        if unresolved
++        else check_finding(line, seen)
++    )
++    seen.add(fid)
++    return line, reason
++
++
++def _yaml_findings(text: str) -> tuple[dict, list] | None:
++    try:
++        data = yaml.safe_load(text)
++    except Exception:  # any parser failure makes the card unlisted
++        return None
++    if not isinstance(data, dict):
++        return None
++    for key in FINDING_KEYS:
++        if isinstance(data.get(key), list):
++            return data, data[key]
++    return None
++
++
++def _cells(line: str) -> list[str] | None:
++    s = line.strip()
++    if not s.startswith("|"):
++        return None
++    s = s[1:-1] if s.endswith("|") and len(s) > 1 else s[1:]
++    return [c.replace("`", "").replace("**", "").strip() for c in s.split("|")]
++
++
++def _md_rows(text: str) -> list[dict[str, str]] | None:
++    """Body rows (lower-case header -> cell) of every finding table, or None when the text has none."""
++    lines = text.splitlines()
++    rows: list[dict[str, str]] = []
++    found = False
++    i = 0
++    while i < len(lines):
++        heads = _cells(lines[i])
++        sep = lines[i + 1].strip() if i + 1 < len(lines) else ""
++        if heads and "-" in sep and set(sep) <= set("|:- \t"):
++            heads = [flat(h).lower() for h in heads]
++            if any("evidence" in h for h in heads) and any(
++                h in ("sev", "severity") for h in heads
++            ):
++                found = True
++                i += 2
++                while i < len(lines) and (cells := _cells(lines[i])) is not None:
++                    row: dict[str, str] = {}
++                    for h, c in zip(heads, cells):
++                        row.setdefault(h, c)
++                    rows.append(row)
++                    i += 1
++                continue
++        i += 1
++    return rows if found else None
++
++
++def _first(row: dict[str, str], match: Callable[[str], bool]) -> str | None:
++    return next((v for h, v in row.items() if match(h)), None)
++
++
++def _result(
++    shape: str,
++    findings: list[dict],
++    problems: list[dict],
++    units: int,
++    plan: tuple[str | None, str | None],
++    spec: tuple[str | None, str | None],
++) -> dict:
++    cits = [c for f in findings for c in f["citations"]]
++    unresolved = sum(c["role"] == "unresolved" for c in cits)
++    converted = units - len(problems)
++    return {
++        "shape": shape,
++        "plan_path": plan[0],
++        "plan_path_source": plan[1],
++        "spec_path": spec[0],
++        "spec_path_source": spec[1],
++        "findings": findings,
++        "problems": problems,
++        "counts": {
++            "units": units,
++            "converted": converted,
++            "unconverted": units - converted,
++            "refs": len(cits),
++            "refs_resolved": len(cits) - unresolved,
++            "refs_unresolved": unresolved,
++            "share": converted / units if units else None,
++        },
++    }
++
++
++def _pick(card_value: Any, fallback: str | None) -> tuple[str | None, str | None]:
++    """(path, source): the card's own field when it is a non-empty string, else the snapshot fallback."""
++    if isinstance(card_value, str) and card_value.strip():
++        return card_value.strip(), "card"
++    return (fallback, "snapshot") if fallback else (None, None)
++
++
++def _unlisted(reason: str, plan_path: str | None, spec_path: str | None) -> dict:
++    return _result(
++        "unlisted",
++        [],
++        [{"id": None, "reason": reason}],
++        1,
++        _pick(None, plan_path),
++        _pick(None, spec_path),
++    )
++
++
++def convert_card(
++    text: str,
++    *,
++    fmt: str | None,
++    plan_path: str | None = None,
++    spec_path: str | None = None,
++) -> dict:
++    """Convert one card's text; fmt is "yaml" or "markdown", and any other fmt makes the card unlisted.
++
++    plan_path and spec_path are the run snapshot's paths, used only when the card has no plan: or spec: field.
++    Returns {shape, plan_path, plan_path_source, spec_path, spec_path_source, findings, problems, counts}.
++    """
++    text = text if isinstance(text, str) else ""
++    seen: set[str] = set()
++    findings: list[dict] = []
++    problems: list[dict] = []
++
++    def add(line: dict, reason: str | None) -> None:
++        findings.append(line)
++        if reason:
++            problems.append({"id": line["id"], "reason": reason})
++
++    if fmt == "yaml":
++        parsed = _yaml_findings(text)
++        if parsed is None:
++            return _unlisted(
++                "not a YAML mapping with a findings, returned_findings or deviations list",
++                plan_path,
++                spec_path,
++            )
++        data, entries = parsed
++        plan = _pick(data.get("plan"), plan_path)
++        spec = _pick(data.get("spec"), spec_path)
++        other = False
++        for index, entry in enumerate(entries, 1):
++            if not isinstance(entry, dict):
++                problems.append(
++                    {"id": None, "reason": f"entry {index} is not a mapping"}
++                )
++                continue
++            sev = _word(entry.get("severity")) or _word(entry.get("priority"))
++            other = other or sev not in ("blocking", "minor")
++            claim = next(
++                (entry[k] for k in CLAIM_KEYS if isinstance(entry.get(k), str)), ""
++            )
++            add(
++                *_convert(
++                    index,
++                    entry.get("id", entry.get("n")),
++                    sev,
++                    [_word(entry.get(k)) for k in CATEGORY_KEYS],
++                    [_word(entry.get(k)) for k in CLASS_KEYS],
++                    claim,
++                    [entry.get(k) for k in REF_KEYS],
++                    plan[0],
++                    spec[0],
++                    seen,
++                )
++            )
++        shape = "yaml-other-severity" if other else "yaml-blocking-minor"
++        return _result(shape, findings, problems, len(entries), plan, spec)
++
++    if fmt != "markdown":
++        return _unlisted(
++            f"format {fmt!r} is not yaml or markdown", plan_path, spec_path
++        )
++    rows = _md_rows(text)
++    if rows is None:
++        return _unlisted(
++            "no pipe table with an evidence and a sev or severity column",
++            plan_path,
++            spec_path,
++        )
++    for index, row in enumerate(rows, 1):
++        cls = _word(_first(row, lambda h: h in ("category", "class")))
++        add(
++            *_convert(
++                index,
++                _first(row, lambda h: h in ("#", "id")),
++                _word(_first(row, lambda h: h in ("sev", "severity"))),
++                [cls],
++                [cls],
++                _first(
++                    row, lambda h: any(w in h for w in ("finding", "diverged", "claim"))
++                ),
++                [_first(row, lambda h: "evidence" in h), row.get("location")],
++                plan_path,
++                spec_path,
++                seen,
++            )
++        )
++    return _result(
++        "markdown-table",
++        findings,
++        problems,
++        len(rows),
++        _pick(None, plan_path),
++        _pick(None, spec_path),
++    )
++
++
++def _snapshot_entries(data: Any) -> list:
++    if isinstance(data, dict):
++        for scope in (data, data.get("input_snapshot")):
++            if isinstance(scope, dict):
++                for key in ("file_list", "files"):
++                    if isinstance(scope.get(key), list):
++                        return scope[key]
++    return []
++
++
++def _is_plan(path: str) -> bool:
++    p = PurePosixPath(path)
++    if p.suffix != ".md":
++        return False
++    return p.stem == p.parent.name if p.parent.name else p.stem.startswith("TASK-")
++
++
++def snapshot_paths(snapshot: str | Path) -> tuple[str | None, str | None]:
++    """(plan path, spec path) from an input-snapshot file.
++
++    Each is None when the file is missing, unreadable or not parsable, or has not exactly one such entry.
++    """
++    try:
++        text = Path(snapshot).read_text(encoding="utf-8", errors="replace")
++        data = yaml.safe_load(text)
++    except Exception:  # a missing, unreadable or unparsable snapshot gives no paths
++        return None, None
++    paths = {
++        e["path"]
++        for e in _snapshot_entries(data)
++        if isinstance(e, dict) and isinstance(e.get("path"), str)
++    }
++    plans = [p for p in paths if _is_plan(p)]
++    specs = [p for p in paths if PurePosixPath(p).name == "source.md"]
++    return (
++        plans[0] if len(plans) == 1 else None,
++        specs[0] if len(specs) == 1 else None,
++    )
++
++
++def convert_card_file(path: str | Path) -> dict:
++    """Convert a card file: .md is markdown, .yaml or .yml is YAML; another suffix or a read error is unlisted.
++
++    The fallback paths come from <card dir>/../artifacts/input-snapshot.yaml.
++    """
++    p = Path(path)
++    plan, spec = snapshot_paths(p.parent.parent / SNAPSHOT)
++    suffix = p.suffix.lower()
++    fmt = (
++        "markdown"
++        if suffix == ".md"
++        else "yaml"
++        if suffix in (".yaml", ".yml")
++        else None
++    )
++    try:
++        text = p.read_text(encoding="utf-8", errors="replace")
++    except OSError as exc:
++        return _unlisted(f"cannot read the card ({exc.__class__.__name__})", plan, spec)
++    return convert_card(text, fmt=fmt, plan_path=plan, spec_path=spec)
++
++
++def summarize(results: Iterable[dict]) -> dict:
++    """Totals over convert_card results: cards, units, converted, unconverted, ref counts, share and by_shape."""
++    keys = ("units", "converted", "refs", "refs_resolved", "refs_unresolved")
++    total: dict[str, Any] = {"cards": 0, **dict.fromkeys(keys, 0)}
++    by_shape = {s: {"cards": 0, "units": 0, "converted": 0} for s in SHAPES}
++    for r in results:
++        c = r["counts"]
++        total["cards"] += 1
++        for k in keys:
++            total[k] += c[k]
++        bucket = by_shape[r["shape"]]
++        bucket["cards"] += 1
++        bucket["units"] += c["units"]
++        bucket["converted"] += c["converted"]
++    total["unconverted"] = total["units"] - total["converted"]
++    total["share"] = total["converted"] / total["units"] if total["units"] else None
++    for bucket in by_shape.values():
++        bucket["share"] = (
++            bucket["converted"] / bucket["units"] if bucket["units"] else None
++        )
++    total["by_shape"] = by_shape
++    return total
+diff --git a/tests/review/fixtures/reflect_cards/markdown-lines.md b/tests/review/fixtures/reflect_cards/markdown-lines.md
+new file mode 100644
+index 000000000..1f043c3b1
+--- /dev/null
++++ b/tests/review/fixtures/reflect_cards/markdown-lines.md
+@@ -0,0 +1,17 @@
++# Reviewer 2 (qa) card, pinned model class haiku
++reviewer_model_self_report: "OpenAI ChatGPT (exact model identifier unavailable)"  -> does NOT match the haiku pin; identity_mismatch_suspected: true (gateway alias behind the Agent tool model override; matches spec UNVERIFIED item at lines 587-589)
++Saved by the orchestrator from the reviewer's return. Wording shortened, citations kept. Plan = TASK-WF-...-202912.md, Spec = merged-requirements.md.
++
++R2-F1 blocking contradiction (1.00): plan 26 says never use Opus in any new template, but Task 11 (plan 142-146) requires parity templates to resolve to Opus; spec 235 ("Opus uses") permits it. Fix: restrict the prohibition to the Opus uses the spec allows.
++R2-F2 blocking ordering (0.99): human cluster labels are postponed (plan 27), Task 5 accepts a blank sheet (78-82), Task 8 depends only on Task 7 (102-108); spec 408-409 requires the completed 50-pair check before Stage 1. Fix: owner-input checkpoint before Task 8.
++R2-F3 blocking coverage (0.98): the "lint test design" is a Stage 0 deliverable (spec 408) but no Stage 0 task produces it; Task 15 builds the checker later (plan 184-194); Task 7 exit checklist omits it (97-102). Fix: add the design to Task 7.
++R2-F4 blocking ordering (1.00): same as R1-F2 (Task 10 acceptance needs Task 11's template; plan 135-142).
++R2-F5 medium acceptance (0.97): "clean git status" for the probe window is not reliable (plan 177-182; spec 263). Fix: before/after comparison.
++R2-F6 blocking coverage (0.99): Task 20 finds shadow runs by `t2_engine_effective` in each manifest, but no task writes it into the manifest (Task 17 fields omit it, plan 212; Task 18 writes tier_decision.yaml, 222-233; Task 20 at 247; spec 120). Fix: Task 17 manifest persists requested and effective engine; Task 19 passes them at init.
++R2-F7 blocking acceptance (0.98): Task 20 can report PASS without running the contract lint on the shadow outputs (spec 410, 470-472; plan 190-194, 247-250). Fix: Task 20 invokes the Task 15 checker per shadow run, with a synthetic extra-key run proving it cannot PASS.
++R2-F8 blocking coverage (0.97): forbidden-model filter is not applied to calibrator pick or recorded judge identity, and the REPORT note for a judge-class collision is missing (spec 185, 240; plan 121, 233).
++R2-F9 blocking coverage (0.96): Task 19 adds `identity_mismatch_suspected` but not the comparison, the diversity degradation, or the restricted REPORT wording when identity is unverified or executor unknown (spec 255-258, 263; plan 177, 233-239).
++R2-F10 medium acceptance (0.95): no explicit wiring of the validator's kept ids into the second `clusters_kept` pass in Task 19 (spec 347; plan 155-158, 233-239).
++
++Coverage: Tasks 1-4, 6, 8, 9, 12, 13, 15, 16, 18 covered; 5, 7, 10, 11, 14, 17, 19, 20 partial. Spans with no task or partly unassigned: spec 408-409, 408 (lint design), 120 (engine in manifest), 185/240, 255/258/263, 410/470, 347.
++Lead verdicts: all unverifiable (lead text was not in this reviewer's brief slice; brief for qa carried the card matrix only).
+diff --git a/tests/review/fixtures/reflect_cards/markdown-table.md b/tests/review/fixtures/reflect_cards/markdown-table.md
+new file mode 100644
+index 000000000..4e0aeea5c
+--- /dev/null
++++ b/tests/review/fixtures/reflect_cards/markdown-table.md
+@@ -0,0 +1,15 @@
++# Reviewer 2 card (qa, haiku class label) - 7 deviations (Regression 0, Drift 2, Necessary 4, Authorized 1)
++
++| # | Class | Location | Finding | Evidence | Sev |
++|---|---|---|---|---|---|
++| 1 | Necessary | plan:52, :552, :556-566 | grant file replaced by a Constraints bullet; justified by owner decision G1 (APPROVED.md:66-71) | source.md:79 | LOW |
++| 2 | Necessary | plan:554 | Task 24 child created first, synced, no --setup; justified by spec 7.2 step 1 and WORKER-CONTRACT.md:174 | source.md:79; p0-live-orca-help.txt:49,69 | LOW |
++| 3 | Necessary | plan:19, :58 | tip recorded, ancestor check instead of literal pin; justified | source.md:30 | LOW |
++| 4 | Necessary | plan:41, :447-467 (Task 19, lc18) | keeps step 3's pass rule and does not require "step 6 shows nothing written"; the brief's phase header at source.md:70 contradicts lc18's own row (a contract is written) | source.md:70, :72; spec AC-1.6 row | LOW |
++| 5 | Drift | plan:405 | extra cites D-P1-5 for "worker did not stage .dev/tasks"; wrong decision cited, requirement correct (WC-9) | .dev/tasks/done/TASK-WF-writeTheP1Static-20261105-033458/artifacts/p1-static-report.md:29 | LOW |
++| 6 | Drift | coverage matrix | seven requirement-bearing spans of source.md have no matrix row (lines 16, 23, 30, 36-44, 70, 78, 87); reviewer verified the plan implements each (plan:20, 29, 33-49, 54-58, 541); matrix trace debt, not a plan defect | source.md; coverage-matrix.yaml | LOW |
++| 7 | Authorized | plan:44, :48, :58 | extra preflight checks, Remove artifacts, section-check rule, step 2/3 rule, not-invoked check extended to guard cases 1 and 2 | source.md:63, :87 | LOW |
++
++No Regression found (every command line in Tasks 2-24 matches source.md:51-79). Notes: this reviewer did not find the README.md install-line defect or the Task 23 find defect that reviewers 1 and 3 found.
++
++Advisory: lc15 omits `--output <file>` that WORKER-CONTRACT.md:197 lists; lc13 uses --report-dir where the table names --output-dir (WORKER-CONTRACT.md:195); spec 2.1 permits both, so no rule is breached.
+diff --git a/tests/review/fixtures/reflect_cards/synthetic-stoprule.yaml b/tests/review/fixtures/reflect_cards/synthetic-stoprule.yaml
+new file mode 100644
+index 000000000..b960fa7a5
+--- /dev/null
++++ b/tests/review/fixtures/reflect_cards/synthetic-stoprule.yaml
+@@ -0,0 +1,16 @@
++# Synthetic card in the recorded stoprule shape ("What a recorded card looks like"); not copied from a run.
++reviewer: 1
++model_class: sonnet
++plan: .dev/tasks/to-do/TASK-X/TASK-X.md
++spec: .dev/tasks/to-do/TASK-X/source.md
++findings:
++  - id: F1
++    severity: blocking
++    category: ordering
++    claim: "Task 3 runs before Task 2 creates the file it reads."
++    evidence: [plan:57, source.md:62, src/x.py:451-462]
++  - id: F2
++    severity: minor
++    category: risk
++    claim: "The cleanup step can delete user data without a backup, a data-loss effect."
++    evidence: [plan:80]
+diff --git a/tests/review/fixtures/reflect_cards/yaml-blocking-minor.yaml b/tests/review/fixtures/reflect_cards/yaml-blocking-minor.yaml
+new file mode 100644
+index 000000000..14a4e3558
+--- /dev/null
++++ b/tests/review/fixtures/reflect_cards/yaml-blocking-minor.yaml
+@@ -0,0 +1,33 @@
++reviewer: 2
++model_class: haiku
++persona: qa
++self_confidence: 0.95
++note: condensed by the orchestrator from the reviewer's returned YAML; claims, severities, evidence and recommendations kept
++findings:
++  - id: R2-F1
++    kind: false-coverage
++    severity: blocking
++    claim: "Task 8 substitutes prefix checks for the exact output-format tests, so broken placeholders, separators and failure reasons can pass."
++    evidence: "TASK-WF-design-20261108-041415.md:122; source.md:114"
++    recommendation: "Require complete format assertions in create.md and labels.md including the placeholders and allowed reasons of specification 2.4; verify that changing a separator or removing a reason fails a test."
++  - id: R2-F2
++    kind: false-coverage
++    severity: blocking
++    claim: "Task 8 checks that classification names appear rather than checking Q7 and Q8, so reversed type rules or swapped depth mappings can pass."
++    evidence: "TASK-WF-design-20261108-041415.md:34,122; source.md:116"
++    recommendation: "Assert the actual mode/area-to-type rules and all three depth-to-Complexity pairs; swapping Simple and Complex or making a bug in tests select Test must fail."
++  - id: R2-F3
++    kind: false-coverage
++    severity: minor
++    claim: "Task 7 keeps the Will / Will Not agreement test unchanged, but that test never reads the command file."
++    evidence: "tests/skills/test_issue_protocol.py:527-541; plan lines 103,111"
++    recommendation: "Add assertions that read both files and check shared create guarantees."
++  - id: R2-F4
++    kind: contradiction
++    severity: minor
++    claim: "The constraint that only the issue type and Complexity value are written conflicts with Task 2 keeping the conditional pushback comment."
++    evidence: "plan lines 23,47"
++    recommendation: "Scope the restriction to classification writes."
++checks_done:
++  - "pytest -k expressions of Tasks 1, 4, 6, 11 select existing tests; all six helpers Task 8 uses exist."
++  - "Task 7 identifies the two-block assertion; five-ref checks exist; Makefile targets exist; Task 12 has all three commands and owner checks."
+diff --git a/tests/review/fixtures/reflect_cards/yaml-deviation-class.yaml b/tests/review/fixtures/reflect_cards/yaml-deviation-class.yaml
+new file mode 100644
+index 000000000..f906a19eb
+--- /dev/null
++++ b/tests/review/fixtures/reflect_cards/yaml-deviation-class.yaml
+@@ -0,0 +1,44 @@
++reviewer: reviewer-1
++model_class: sonnet
++persona: analyzer
++agent_type: reflect-reviewer
++brief: reviewer-briefs/reviewer-1.md
++mode: pre
++findings:
++  - id: F1
++    severity: medium
++    deviation_class: plan-gap
++    claim: "Task 2 AC 4 cannot be met as written: a loop over every backticked name in the 4.3 table reports 3 misses today (failed, unknown, abandoned) and a 4th (once) after Task 2 adds the exit-1 row."
++    evidence:
++      - "docs/designs/issue-watcher.md:163 | 7 | An entry was written `failed`, `unknown` or `abandoned` `spawn_error` this cycle |"
++      - "src/superclaude/cli/issue_watch/audit.py:26-102 REASON_TABLE has no failed/unknown/abandoned/once key; cycle_complete at :64, spawn_error at :87, cycle_crashed at :57"
++      - "plan line 59: the new exit-1 row Meaning cell says written by `once` only"
++    recommendation: "Restrict the AC 4 loop to the third column (Reasons that produce it), or list failed, unknown, abandoned and once as allowed non-key words; the log must show zero unexplained misses."
++  - id: F3
++    severity: low
++    deviation_class: plan-gap
++    claim: "Task 4 AC 1 relies on grep -c (a line count) and never states the expected number."
++    evidence:
++      - "docs/designs/issue-watcher-setup.md:282 Its schedule is `\"0 */5 * * * *\"`"
++      - "docs/designs/issue-watcher-setup.md:637 FU-2 row"
++    recommendation: "State 'prints 2' and require the schedule once, on one line, in 8.7, and nowhere else new."
++  - id: F4
++    severity: low
++    deviation_class: plan-gap
++    claim: "Task 4 adds 8.7 and section 16 but leaves the runbook section map at line 5 (sections 8 to 15) stale; section 8 is titled 'Before cron' yet 8.7 installs cron."
++    evidence:
++      - "docs/designs/issue-watcher-setup.md:5 Sections 0 to 7 cover setup and the shadow run; sections 8 to 15 cover the step before cron"
++      - "docs/designs/issue-watcher-setup.md:224 ## 8. Before cron"
++    recommendation: "Add an in-place edit of line 5 to Task 4 naming section 16; optionally note the section 8 title mismatch."
++  - id: F5
++    severity: low
++    deviation_class: plan-gap
++    claim: "Task 4's 'keep the existing sentence that the scheduler is the owner's choice' does not say where that sentence lives."
++    evidence:
++      - "docs/designs/issue-watcher-setup.md:202 The scheduler is your choice. This runbook does not prescribe one"
++    recommendation: "Say the section 7 sentence stays untouched; 8.7 may point to it."
++confirmed_t1: [F1, F3]
++self_audit: "Task 1 status line unique at issue-watcher.md:3; REASON_TABLE 59 keys; 'spec reason table' only at :709 and :718; setup.md 10.2 at :342-344 with [PROPOSAL] rows :351, :379; checklist link targets exist; no section 16; enabled false example at setup.md:74; card citations :163, audit.py:64, :87, cycle.py:228 accurate."
++self_reported_confidence: 0.88
++calibrated_confidence: 0.74
++calibration_ref: artifacts/reviewer-1-calibration.yaml
+diff --git a/tests/review/fixtures/reflect_cards/yaml-priority.yaml b/tests/review/fixtures/reflect_cards/yaml-priority.yaml
+new file mode 100644
+index 000000000..9305e5db4
+--- /dev/null
++++ b/tests/review/fixtures/reflect_cards/yaml-priority.yaml
+@@ -0,0 +1,51 @@
++# Reviewer 2 (qa, model class: haiku slot, resolves to glm-5.3). Persisted by the orchestrator from the reviewer's reply; claims condensed, evidence refs kept as returned.
++reviewer: 2
++persona: qa
++model_class: haiku-slot
++self_confidence: 0.86
++findings:
++  - id: R2-1
++    priority: P1
++    tag: Grounded
++    claim: "Task 7's third acceptance criterion is unsatisfiable at baseline: it requires git status to list only the six files plus this package among tracked paths and nothing under .dev/tasks/done/ modified, but 950 staged additions and 3 renames of the prior package already exist. Both the first clause and the done/ clause fail on a correct run, so the AC is doubly unpassable (stronger than card F-1)."
++    evidence: "plan:98; .dev/reflect/pre-TASK-WF-brainstormFixBri-20261106-001016/artifacts/diagnostics.txt:3-4"
++  - id: R2-2
++    priority: P1
++    tag: Grounded
++    claim: "The brief's core requirement (the nested analyze folder is required ONLY when /sc:analyze ran) is pinned by no test in the three installed primitives. Task 1's AC says the paragraph 'states' it with no pinned substring; Task 4 pins only `fallback_1` and `write no nested directory`; Task 5 pins only `writes no nested directory`. The conditional sentence is pinned only in the spec (Task 6). An implementer can drop it from all three primitives and every plan check still passes."
++    evidence: "plan:33,60,74,84"
++  - id: R2-3
++    priority: P2
++    tag: Grounded
++    claim: "Task 4's third acceptance criterion is false for one of its own assertions: the pre-change Wave 2A section already contains `fallback_1` at SKILL.md line 199, so that assertion passes on the old text and pins nothing."
++    evidence: "SKILL.md:199; plan:60,65"
++  - id: R2-4
++    priority: P2
++    tag: Grounded
++    claim: "Brief item 4's placement procedure is not evaluated. Per-command live-check extras are defined in the spec's section 7 acceptance rows (AC-1.5/1.6/1.7 replace 7.2 steps 3-4 per command), yet Task 6 writes to the section 2.1 bullet. Mitigating: spec line 376 maps the 2.1 rule to AC-2.1 (a P2 criterion), so the location is defensible, but the plan never records that the brief's procedure was considered."
++    evidence: "orca-worker-contract-spec.md:318-322,376; plan:81"
++  - id: R2-5
++    priority: P2
++    tag: Grounded
++    claim: "Task 7's 'affected tests' set is wrong: tests/skills/test_codegraph_adoption.py (reads SKILL.md, handoff-routing.md, commands/brainstorm.md; Tier 2 span test at line 75 borders the Task 2 edit) and tests/skills/test_tier2_tavily_consistency.py (reads SKILL.md) are absent. test_routing_plugin_parity.py, which is run, reads none of the edited files."
++    evidence: "tests/skills/test_codegraph_adoption.py:20-23,75-83; tests/skills/test_tier2_tavily_consistency.py:19,49; plan:93"
++  - id: R2-6
++    priority: P2
++    tag: Grounded
++    claim: "Confirms F-2: the Tier 2 list ends with the Activation bullet (line 31) after quality_tier at line 30; the grep -c criterion cannot detect a bullet placed in the wrong list."
++    evidence: "handoff-routing.md:22,30-31; plan:39,42"
++  - id: R2-7
++    priority: P2
++    tag: Grounded
++    claim: "Task 5's collect-only criterion cites no baseline; the baseline is 17 (diagnostics.txt:11), implying 18 after the edit."
++    evidence: "plan:75; diagnostics.txt:11"
++  - id: R2-8
++    priority: P2
++    tag: Grounded
++    claim: "Confirms F-4: the test is at test_brainstorm_protocol.py:39 (plan says 37); the brainstorm entry starts at test_worker_contract.py:286 with its phrases list at 288. The brief's other anchors (44, 292, 711, SKILL 195, command 157, spec 62/142) check out; line 711 is a synthetic mutation needing no change."
++    evidence: "tests/skills/test_brainstorm_protocol.py:39,44; tests/skills/test_worker_contract.py:286-292,704-729; plan:60,71"
++card_claims_disputed:
++  - "'ready after one fix (F-1)': disputed; three fixes are needed (F-1, the unpinned core sentence R2-2, the empty fallback_1 check R2-3)."
++  - "coverage_pct 1.0: disputed at the margins; rows 2, 4, 5 are 'matched' while 'find every test' (two affected test files never run), the item-4 placement procedure, and the core sentence are only partly honored."
++  - "F-1 as scoped: confirmed but understated (first clause also fails)."
++  - "Not disputed: F-2, F-3, F-4, the line-711 note, quoted-string matches."
+diff --git a/tests/review/test_review_card_convert.py b/tests/review/test_review_card_convert.py
+new file mode 100644
+index 000000000..b74b8baaa
+--- /dev/null
++++ b/tests/review/test_review_card_convert.py
+@@ -0,0 +1,723 @@
++"""Recorded reflect card converter (Task 2 of the reflect Tier 2 panel plan)."""
++
++from __future__ import annotations
++
++import json
++from pathlib import Path
++
++import pytest
++
++from superclaude.cli.review import card_convert as cc
++from superclaude.cli.review import findings_v2 as v2
++
++FIX = Path(__file__).parent / "fixtures" / "reflect_cards"
++PLAN = ".dev/tasks/to-do/TASK-X/TASK-X.md"
++SPEC = ".dev/tasks/to-do/TASK-X/source.md"
++
++
++def fixture(name: str, **kw) -> dict:
++    fmt = "markdown" if name.endswith(".md") else "yaml"
++    return cc.convert_card((FIX / name).read_text(encoding="utf-8"), fmt=fmt, **kw)
++
++
++def card(evidence, *, severity="blocking", extra: str = "", head: str = "") -> dict:
++    entry = {"id": "F1", "severity": severity, "claim": "c", "evidence": evidence}
++    text = head + "findings:\n  - " + json.dumps(entry) + "\n" + extra
++    return cc.convert_card(text, fmt="yaml", plan_path=PLAN, spec_path=SPEC)
++
++
++def cits(result: dict) -> list[dict]:
++    return [c for f in result["findings"] for c in f["citations"]]
++
++
++def all_fixture_results() -> list[dict]:
++    return [
++        fixture(p.name, plan_path=PLAN, spec_path=SPEC) for p in sorted(FIX.iterdir())
++    ]
++
++
++# --- acceptance criterion 1: the three ref kinds -------------------------------------------
++
++
++def test_stoprule_fixture_converts_three_refs_with_roles_and_paths():
++    r = fixture("synthetic-stoprule.yaml")
++    assert r["plan_path_source"] == "card" and r["spec_path_source"] == "card"
++    f1 = r["findings"][0]
++    assert f1["citations"] == [
++        {"role": "plan", "path": PLAN, "line_start": 57, "line_end": 57},
++        {"role": "spec", "path": SPEC, "line_start": 62, "line_end": 62},
++        {"role": "source", "path": "src/x.py", "line_start": 451, "line_end": 462},
++    ]
++    assert v2.check_finding(dict(f1), set()) is None
++    assert r["problems"] == []
++    assert r["counts"]["share"] == 1.0
++
++
++def test_no_citation_carries_a_quote():
++    for r in all_fixture_results():
++        assert all("quote" not in c for c in cits(r))
++
++
++def test_spec_alias_and_plan_range():
++    r = card("spec:9; plan:30-33")
++    assert cits(r) == [
++        {"role": "spec", "path": SPEC, "line_start": 9, "line_end": 9},
++        {"role": "plan", "path": PLAN, "line_start": 30, "line_end": 33},
++    ]
++
++
++# --- acceptance criterion 2: unresolved refs are kept and counted --------------------------
++
++
++@pytest.mark.parametrize(
++    "ref, reason",
++    [
++        ("DESIGN:359-360", "no path:line ref"),
++        ("plan Task 3", "no path:line ref"),
++        ("/etc/x.py:3", "citation path must be repo-relative"),
++        ("a/../b.py:3", "citation path must be repo-relative"),
++        ("src/x.py:0", "line_start and line_end"),
++        ("src/x.py:9-3", "line_start and line_end"),
++    ],
++)
++def test_unresolvable_ref_is_kept_as_unresolved_and_counted(ref, reason):
++    r = card(["plan:5", ref])
++    c = cits(r)
++    assert len(c) == 2 and c[0]["role"] == "plan"
++    assert c[1]["role"] == "unresolved" and c[1]["ref"] == ref
++    assert reason in c[1]["reason"]
++    assert r["counts"] == {
++        "units": 1,
++        "converted": 0,
++        "unconverted": 1,
++        "refs": 2,
++        "refs_resolved": 1,
++        "refs_unresolved": 1,
++        "share": 0.0,
++    }
++    assert r["problems"] == [{"id": "F1", "reason": "1 unresolved citation(s)"}]
++
++
++def test_non_text_refs_are_unresolved_not_dropped():
++    r = card(["plan:5", 7, {"a": 1}, ["x"], None])
++    roles = [c["role"] for c in cits(r)]
++    assert roles == ["plan", "unresolved", "unresolved", "unresolved"]
++    assert r["counts"]["refs_unresolved"] == 3
++
++
++def test_missing_paths_make_plan_and_spec_refs_unresolved():
++    r = cc.convert_card(
++        "findings:\n  - {id: F1, severity: minor, evidence: [plan:5, source.md:6, a.py:1]}\n",
++        fmt="yaml",
++    )
++    c = cits(r)
++    assert [x["reason"] for x in c[:2]] == ["no plan path", "no spec path"]
++    assert c[2]["role"] == "source"
++    assert r["plan_path"] is None and r["plan_path_source"] is None
++
++
++# --- acceptance criterion 3: share per card and in total -----------------------------------
++
++
++def test_share_is_reported_per_card_and_in_total():
++    results = all_fixture_results()
++    for r in results:
++        c = r["counts"]
++        assert c["units"] == c["converted"] + c["unconverted"]
++        assert c["share"] == (c["converted"] / c["units"] if c["units"] else None)
++    total = cc.summarize(results)
++    assert total["cards"] == len(results) == 6
++    units = sum(r["counts"]["units"] for r in results)
++    converted = sum(r["counts"]["converted"] for r in results)
++    assert (total["units"], total["converted"]) == (units, converted)
++    assert total["unconverted"] == units - converted
++    assert total["share"] == converted / units
++    for shape, bucket in total["by_shape"].items():
++        mine = [r for r in results if r["shape"] == shape]
++        assert bucket["cards"] == len(mine)
++        assert bucket["units"] == sum(r["counts"]["units"] for r in mine)
++
++
++def test_empty_findings_list_has_no_share_and_summary_of_nothing_is_none():
++    r = cc.convert_card("findings: []\n", fmt="yaml")
++    assert r["shape"] == "yaml-blocking-minor"
++    assert r["counts"]["units"] == 0 and r["counts"]["share"] is None
++    assert cc.summarize([])["share"] is None
++    assert cc.summarize([r])["share"] is None
++
++
++# --- acceptance criterion 4: priority and markdown cards are counted -----------------------
++
++
++def test_priority_card_is_counted_in_the_share():
++    r = fixture("yaml-priority.yaml", plan_path=PLAN, spec_path=SPEC)
++    assert r["shape"] == "yaml-other-severity"
++    assert r["counts"]["units"] == 8
++    assert {f["severity"] for f in r["findings"]} == {"MAJOR", "MINOR"}
++    assert [f["blocking"] for f in r["findings"][:3]] == [True, True, False]
++    total = cc.summarize([r])
++    assert total["by_shape"]["yaml-other-severity"]["units"] == 8
++    assert total["units"] == 8
++
++
++def test_markdown_table_card_is_counted_in_the_share():
++    r = fixture("markdown-table.md", plan_path=PLAN, spec_path=SPEC)
++    assert r["shape"] == "markdown-table"
++    assert r["counts"]["units"] == 7
++    first = r["findings"][0]
++    assert first["id"] == "1" and first["deviation_class"] == "necessary"
++    assert first["severity"] == "MINOR"
++    assert first["citations"][0] == {
++        "role": "spec",
++        "path": SPEC,
++        "line_start": 79,
++        "line_end": 79,
++    }
++    # location column: "plan:52, :552, :556-566"
++    assert first["citations"][1:4] == [
++        {"role": "plan", "path": PLAN, "line_start": 52, "line_end": 52},
++        {"role": "plan", "path": PLAN, "line_start": 552, "line_end": 552},
++        {"role": "plan", "path": PLAN, "line_start": 556, "line_end": 566},
++    ]
++    assert cc.summarize([r])["by_shape"]["markdown-table"]["units"] == 7
++
++
++def test_markdown_card_in_unlisted_shape_lowers_the_share():
++    listed = fixture("synthetic-stoprule.yaml")
++    unlisted = fixture("markdown-lines.md")
++    assert unlisted["shape"] == "unlisted"
++    assert unlisted["counts"]["units"] == 1 and unlisted["counts"]["converted"] == 0
++    total = cc.summarize([listed, unlisted])
++    assert total["units"] == listed["counts"]["units"] + 1
++    assert total["share"] < 1.0
++    assert total["by_shape"]["unlisted"] == {
++        "cards": 1,
++        "units": 1,
++        "converted": 0,
++        "share": 0.0,
++    }
++
++
++# --- card-format table: shapes -------------------------------------------------------------
++
++
++@pytest.mark.parametrize(
++    "name, shape",
++    [
++        ("synthetic-stoprule.yaml", "yaml-blocking-minor"),
++        ("yaml-blocking-minor.yaml", "yaml-blocking-minor"),
++        ("yaml-priority.yaml", "yaml-other-severity"),
++        ("yaml-deviation-class.yaml", "yaml-other-severity"),
++        ("markdown-table.md", "markdown-table"),
++        ("markdown-lines.md", "unlisted"),
++    ],
++)
++def test_one_fixture_per_shape(name, shape):
++    assert fixture(name)["shape"] == shape
++
++
++def test_entry_without_severity_makes_the_card_other_severity():
++    r = cc.convert_card("findings:\n  - {id: F1, evidence: a.py:1}\n", fmt="yaml")
++    assert r["shape"] == "yaml-other-severity"
++    assert r["problems"] == [
++        {"id": "F1", "reason": "severity must be CRITICAL, MAJOR or MINOR"}
++    ]
++
++
++def test_deviation_class_card_reads_class_and_severity_words():
++    r = fixture("yaml-deviation-class.yaml")
++    assert [f["severity"] for f in r["findings"]] == ["MINOR"] * 4
++    # plan-gap is not a findings-v2 deviation class, so none is set
++    assert all("deviation_class" not in f for f in r["findings"])
++    r = card("a.py:1", severity="medium")
++    assert r["shape"] == "yaml-other-severity"
++
++
++def test_first_finding_list_wins():
++    text = (
++        "findings: null\n"
++        "returned_findings:\n  - {id: A1, severity: minor, evidence: a.py:1}\n"
++        "deviations:\n  - {id: B1, severity: minor, evidence: a.py:2}\n"
++    )
++    assert [f["id"] for f in cc.convert_card(text, fmt="yaml")["findings"]] == ["A1"]
++
++
++def test_markdown_category_column_sets_reflect_category():
++    text = "| id | Category | Evidence | Severity |\n|---|---|---|---|\n| C1 | coverage | a.py:3 | HIGH |\n"
++    r = cc.convert_card(text, fmt="markdown")
++    f = r["findings"][0]
++    assert (f["reflect_category"], f["category"]) == ("coverage", "missing-requirement")
++    assert (f["severity"], f["blocking"]) == ("MAJOR", True)
++    assert r["problems"] == []
++
++
++@pytest.mark.parametrize("key", ["returned_findings", "deviations"])
++def test_other_finding_containers(key):
++    text = f"{key}:\n  - {{n: 1, severity: LOW, class: Drift, finding: x, location: 'plan:116 (Task 6)'}}\n"
++    r = cc.convert_card(text, fmt="yaml", plan_path=PLAN)
++    f = r["findings"][0]
++    assert f["id"] == "1" and f["deviation_class"] == "drift"
++    assert f["citations"] == [
++        {"role": "plan", "path": PLAN, "line_start": 116, "line_end": 116}
++    ]
++    assert r["counts"]["converted"] == 1
++
++
++@pytest.mark.parametrize("key", cc.REF_KEYS)
++def test_every_ref_key_is_read(key):
++    text = f"findings:\n  - {{id: F1, severity: minor, {key}: 'a.py:3'}}\n"
++    r = cc.convert_card(text, fmt="yaml")
++    assert cits(r) == [
++        {"role": "source", "path": "a.py", "line_start": 3, "line_end": 3}
++    ]
++
++
++def test_unknown_ref_key_is_not_read():
++    r = cc.convert_card(
++        "findings:\n  - {id: F1, severity: minor, plan_ref: 'a.py:3'}\n", fmt="yaml"
++    )
++    assert cits(r) == []
++    assert r["problems"][0]["reason"] == "citations must be a list of 1 to 8 citations"
++
++
++# --- splitting ------------------------------------------------------------------------------
++
++
++def test_comma_and_semicolon_splitting_with_continuations():
++    r = card("plan:33,60; tests/x.py:519-527,559-568; source.md:70, :72")
++    assert [
++        (c["role"], c["path"], c["line_start"], c["line_end"]) for c in cits(r)
++    ] == [
++        ("plan", PLAN, 33, 33),
++        ("plan", PLAN, 60, 60),
++        ("source", "tests/x.py", 519, 527),
++        ("source", "tests/x.py", 559, 568),
++        ("spec", SPEC, 70, 70),
++        ("spec", SPEC, 72, 72),
++    ]
++
++
++def loc(r: dict) -> list[tuple]:
++    return [
++        (c["role"], c.get("path"), c.get("line_start"), c.get("line_end"))
++        for c in cits(r)
++    ]
++
++
++def test_line_breaks_and_continuation_does_not_cross_a_semicolon():
++    r = card("a.py:1\nb.py:2; 3")
++    assert loc(r) == [("source", "a.py", 1, 1), ("source", "b.py", 2, 2)]
++
++
++def test_continuation_needs_a_token_before_it():
++    c = cits(card("plan Task 3, 60"))
++    assert c == [
++        {"role": "unresolved", "ref": "plan Task 3, 60", "reason": "no path:line ref"}
++    ]
++
++
++def test_continuation_followed_by_prose_is_prose():
++    assert loc(card("a.py:12, 3 tests fail")) == [("source", "a.py", 12, 12)]
++
++
++def test_tokens_inside_quotes_backticks_brackets_and_before_a_dot():
++    r = card(["`a.py:4`", "'plan:7 (Task 2)'", "**b.py:5**.", "[c.py:6]"])
++    assert [(c["path"], c["line_start"]) for c in cits(r)] == [
++        ("a.py", 4),
++        (PLAN, 7),
++        ("b.py", 5),
++        ("c.py", 6),
++    ]
++
++
++def test_prose_before_and_after_a_ref_is_ignored():
++    assert loc(card("docs/x.md:163 some quoted text")) == [
++        ("source", "docs/x.md", 163, 163)
++    ]
++    assert loc(card("see plan:57 for the step")) == [("plan", PLAN, 57, 57)]
++    assert loc(card("POST-REFLECT-TASK.md:576: Status set to Blocked")) == [
++        ("source", "POST-REFLECT-TASK.md", 576, 576)
++    ]
++
++
++def test_two_refs_in_one_string():
++    r = card("plan line 59 differs: src/a/audit.py:26-102 and source.md:62 disagree")
++    assert loc(r) == [("source", "src/a/audit.py", 26, 102), ("spec", SPEC, 62, 62)]
++    assert r["counts"]["converted"] == 1
++
++
++def test_string_without_a_ref_is_one_unresolved_citation_holding_it():
++    text = "Task 4  body and\n the decisive-case criterion"
++    c = cits(card(["plan:1", text, "   "]))
++    assert c[1:] == [
++        {
++            "role": "unresolved",
++            "ref": "Task 4 body and the decisive-case criterion",
++            "reason": "no path:line ref",
++        }
++    ]
++
++
++@pytest.mark.parametrize(
++    "text",
++    [
++        "Note: src/x.py: see the reason table",
++        "https://example.com:8080/a.py",
++        "verified at 12:48Z",
++        "src/x.py:12abc",
++        "src/x.py:12/3",
++        "a.py:1.5",
++        "PLAN:36; tasklist:20; DESIGN:359-360",
++        "Task:3",
++        "x:a.py:3",
++    ],
++)
++def test_colon_in_prose_that_is_not_path_digits_is_not_a_citation(text):
++    c = cits(card(text))
++    assert c == [{"role": "unresolved", "ref": text, "reason": "no path:line ref"}]
++
++
++# --- severity, category, risk and claim -------------------------------------------------------
++
++
++@pytest.mark.parametrize(
++    "word, severity, blocking",
++    [
++        ("blocking", "MAJOR", True),
++        ("BLOCKER", "MAJOR", True),
++        ("major", "MAJOR", True),
++        ("HIGH", "MAJOR", True),
++        ("must-fix", "MAJOR", True),
++        ("P1", "MAJOR", True),
++        ("critical", "CRITICAL", True),
++        ("p0", "CRITICAL", True),
++        ("minor", "MINOR", False),
++        ("MEDIUM", "MINOR", False),
++        ("low", "MINOR", False),
++        ("should-fix", "MINOR", False),
++        ("important", "MINOR", False),
++        ("nit", "MINOR", False),
++        ("info", "MINOR", False),
++        ("P2", "MINOR", False),
++        ("p3", "MINOR", False),
++    ],
++)
++def test_severity_table(word, severity, blocking):
++    f = card("a.py:1", severity=word)["findings"][0]
++    assert (f["severity"], f["blocking"]) == (severity, blocking)
++
++
++def test_unknown_severity_word_leaves_the_finding_unconverted():
++    r = card("a.py:1", severity="P")
++    assert r["findings"][0]["severity"] is None
++    assert r["counts"]["converted"] == 0
++
++
++def test_priority_is_used_only_without_severity():
++    text = "findings:\n  - {id: F1, severity: minor, priority: P1, evidence: a.py:1}\n"
++    f = cc.convert_card(text, fmt="yaml")["findings"][0]
++    assert f["severity"] == "MINOR"
++
++
++@pytest.mark.parametrize(
++    "label, category",
++    [
++        ("ordering", "other"),
++        ("acceptance", "unpassable-check"),
++        ("coverage", "missing-requirement"),
++        ("Contradiction", "contradiction"),
++    ],
++)
++def test_category_mapping(label, category):
++    text = f"findings:\n  - {{id: F1, severity: blocking, kind: {label}, claim: c, evidence: a.py:1}}\n"
++    r = cc.convert_card(text, fmt="yaml")
++    f = r["findings"][0]
++    assert f["category"] == category and f["reflect_category"] == label.lower()
++    assert r["problems"] == []
++
++
++def test_deviation_maps_to_other_with_class_and_needs_a_class():
++    ok = "findings:\n  - {id: F1, severity: minor, type: deviation, deviation_class: drift, evidence: a.py:1}\n"
++    f = cc.convert_card(ok, fmt="yaml")["findings"][0]
++    assert (f["category"], f["deviation_class"]) == ("other", "drift")
++    bad = (
++        "findings:\n  - {id: F1, severity: minor, type: deviation, evidence: a.py:1}\n"
++    )
++    r = cc.convert_card(bad, fmt="yaml")
++    assert r["problems"] == [
++        {"id": "F1", "reason": "reflect_category deviation needs deviation_class"}
++    ]
++
++
++def test_unmapped_label_gives_other_without_reflect_category():
++    text = "findings:\n  - {id: F1, severity: minor, kind: false-coverage, evidence: a.py:1}\n"
++    f = cc.convert_card(text, fmt="yaml")["findings"][0]
++    assert f["category"] == "other" and "reflect_category" not in f
++
++
++@pytest.mark.parametrize(
++    "claim, category",
++    [
++        ("A security token is printed to the log.", "safety"),
++        ("This is unsafe for concurrent runs.", "safety"),
++        ("The step can lose data on retry.", "safety"),
++        ("A data-loss path exists.", "safety"),
++        ("Credentials leak into the report.", "safety"),
++        ("The safety check is skipped.", "safety"),
++        ("Task 4 may run slowly on large inputs.", "other"),
++    ],
++)
++def test_risk_rule(claim, category):
++    text = "findings:\n  - " + json.dumps(
++        {
++            "id": "F1",
++            "severity": "minor",
++            "category": "risk",
++            "claim": claim,
++            "evidence": "a.py:1",
++        }
++    )
++    r = cc.convert_card(text, fmt="yaml")
++    assert r["findings"][0]["category"] == category
++    assert r["problems"] == []
++
++
++def test_risk_fixture_uses_safety():
++    f = fixture("synthetic-stoprule.yaml")["findings"][1]
++    assert (f["reflect_category"], f["category"]) == ("risk", "safety")
++
++
++def test_long_claim_is_flattened_and_cut_to_300():
++    text = "findings:\n  - " + json.dumps(
++        {
++            "id": "F1",
++            "severity": "minor",
++            "claim": "word \n " * 200,
++            "evidence": "a.py:1",
++        }
++    )
++    f = cc.convert_card(text, fmt="yaml")["findings"][0]
++    assert len(f["claim"]) == 300 and "\n" not in f["claim"]
++    assert f["claim"].endswith("...")
++
++
++def test_more_than_eight_citations_is_unconverted_but_all_are_kept():
++    r = card("; ".join(f"a.py:{n}" for n in range(1, 11)))
++    assert len(cits(r)) == 10 and r["counts"]["refs_resolved"] == 10
++    assert r["problems"][0]["reason"] == "citations must be a list of 1 to 8 citations"
++
++
++def test_ids_keep_valid_card_ids_and_replace_bad_or_duplicate_ones():
++    text = (
++        "findings:\n"
++        "  - {id: R2-F1, severity: minor, evidence: a.py:1}\n"
++        "  - {id: R2-F1, severity: minor, evidence: a.py:2}\n"
++        "  - {id: 'bad id!', severity: minor, evidence: a.py:3}\n"
++        "  - {id: true, severity: minor, evidence: a.py:4}\n"
++        "  - {id: F2, severity: minor, evidence: a.py:5}\n"
++    )
++    ids = [f["id"] for f in cc.convert_card(text, fmt="yaml")["findings"]]
++    # the card's F2 is taken by entry 2's replacement id, so entry 5 gets F5
++    assert ids == ["R2-F1", "F2", "F3", "F4", "F5"]
++    text = "findings:\n  - {id: F2, severity: minor, evidence: a.py:1}\n  - {id: '!', severity: minor, evidence: a.py:2}\n"
++    assert [f["id"] for f in cc.convert_card(text, fmt="yaml")["findings"]] == [
++        "F2",
++        "F2-1",
++    ]
++
++
++def test_converted_real_findings_pass_the_v2_checker():
++    for r in all_fixture_results():
++        bad = {p["id"] for p in r["problems"]}
++        seen: set[str] = set()
++        for f in r["findings"]:
++            if f["id"] not in bad:
++                assert v2.check_finding(dict(f), seen) is None
++                seen.add(f["id"])
++
++
++# --- plan and spec path sources ----------------------------------------------------------------
++
++
++def _run(tmp_path: Path, card_text: str, snapshot: str | None, name="r-1-card.yaml"):
++    cards = tmp_path / "run" / "reviewer-cards"
++    cards.mkdir(parents=True)
++    (cards / name).write_text(card_text, encoding="utf-8")
++    if snapshot is not None:
++        (tmp_path / "run" / "artifacts").mkdir()
++        (tmp_path / "run" / "artifacts" / "input-snapshot.yaml").write_text(
++            snapshot, encoding="utf-8"
++        )
++    return cc.convert_card_file(cards / name)
++
++
++CARD = "findings:\n  - {id: F1, severity: minor, evidence: [plan:5, source.md:6]}\n"
++SNAP_JSON = json.dumps(
++    {
++        "file_list": [
++            {"path": ".dev/tasks/to-do/T-1/T-1.md", "sha256": "x"},
++            {"path": ".dev/tasks/to-do/T-1/source.md", "sha256": "y"},
++            {"path": "README.md", "sha256": "z"},
++        ]
++    }
++)
++
++
++def test_snapshot_paths_used_when_card_has_no_fields(tmp_path):
++    r = _run(tmp_path, CARD, SNAP_JSON)
++    assert (r["plan_path"], r["plan_path_source"]) == (
++        ".dev/tasks/to-do/T-1/T-1.md",
++        "snapshot",
++    )
++    assert (r["spec_path"], r["spec_path_source"]) == (
++        ".dev/tasks/to-do/T-1/source.md",
++        "snapshot",
++    )
++    assert r["counts"]["converted"] == 1
++
++
++def test_card_fields_win_over_snapshot_per_path(tmp_path):
++    r = _run(tmp_path, "plan: p/p.md\n" + CARD, SNAP_JSON)
++    assert (r["plan_path"], r["plan_path_source"]) == ("p/p.md", "card")
++    assert r["spec_path_source"] == "snapshot"
++    assert cits(r)[0]["path"] == "p/p.md"
++
++
++def test_no_snapshot_and_no_fields_leaves_refs_unresolved(tmp_path):
++    r = _run(tmp_path, CARD, None)
++    assert [c["reason"] for c in cits(r)] == ["no plan path", "no spec path"]
++    assert r["counts"]["share"] == 0.0
++
++
++def test_snapshot_yaml_forms_and_root_plan(tmp_path):
++    nested = (
++        "input_snapshot:\n  files:\n"
++        "    - {path: a/T-2/T-2.md, sha256: x}\n    - {path: a/T-2/source.md, sha256: y}\n"
++    )
++    p = tmp_path / "s1.yaml"
++    p.write_text(nested, encoding="utf-8")
++    assert cc.snapshot_paths(p) == ("a/T-2/T-2.md", "a/T-2/source.md")
++    root = "file_list:\n  - path: TASK-WF-x-1.md\n  - path: source.md\n  - path: NOTES.md\n"
++    p.write_text(root, encoding="utf-8")
++    assert cc.snapshot_paths(p) == ("TASK-WF-x-1.md", "source.md")
++
++
++def test_snapshot_with_two_plans_or_specs_gives_none(tmp_path):
++    p = tmp_path / "s.yaml"
++    p.write_text(
++        "file_list:\n  - path: a/A/A.md\n  - path: b/B/B.md\n"
++        "  - path: a/source.md\n  - path: b/source.md\n",
++        encoding="utf-8",
++    )
++    assert cc.snapshot_paths(p) == (None, None)
++
++
++@pytest.mark.parametrize(
++    "content",
++    [
++        None,
++        "",
++        "[1, 2]",
++        "file_list: 3",
++        "file_list: [1, {path: 2}]",
++        ": : :\n\t-",
++        "\x00\xff",
++    ],
++)
++def test_snapshot_paths_never_raise(tmp_path, content):
++    p = tmp_path / "s.yaml"
++    if content is not None:
++        p.write_text(content, encoding="utf-8")
++    assert cc.snapshot_paths(p) == (None, None)
++
++
++# --- robustness: unlisted shapes are counted, never raised ------------------------------------
++
++
++@pytest.mark.parametrize(
++    "text, fmt",
++    [
++        ("", "yaml"),
++        ("   \n", "yaml"),
++        ("not: [yaml", "yaml"),
++        ("- a\n- list\n", "yaml"),
++        ("42", "yaml"),
++        ("findings: null\n", "yaml"),
++        ("findings: {a: 1}\n", "yaml"),
++        ("[" * 5000 + "]" * 5000, "yaml"),
++        ("\x00\x01\xff", "yaml"),
++        ("# Heading\n\nprose only\n", "markdown"),
++        ("| a | evidence |\n|---|---|\n| 1 | a.py:1 |\n", "markdown"),
++        ("findings: []\n", None),
++        ("findings: []\n", "toml"),
++        (None, "yaml"),
++    ],
++)
++def test_unlisted_inputs_count_as_one_unconverted_unit(text, fmt):
++    r = cc.convert_card(text, fmt=fmt)
++    assert r["shape"] == "unlisted"
++    assert r["counts"]["units"] == 1 and r["counts"]["converted"] == 0
++    assert r["counts"]["share"] == 0.0
++    assert r["problems"][0]["id"] is None
++
++
++def test_non_mapping_entries_count_as_unconverted_findings():
++    r = cc.convert_card(
++        "findings:\n  - 1\n  - null\n  - x\n  - {id: F1, severity: minor, evidence: a.py:1}\n",
++        fmt="yaml",
++    )
++    assert r["counts"]["units"] == 4 and r["counts"]["converted"] == 1
++    assert [p["reason"] for p in r["problems"]] == [
++        "entry 1 is not a mapping",
++        "entry 2 is not a mapping",
++        "entry 3 is not a mapping",
++    ]
++
++
++def test_wrong_typed_fields_do_not_raise():
++    text = (
++        "plan: [1]\nspec: 3\nfindings:\n"
++        "  - {id: [1], severity: 3, category: [risk], claim: {a: 1}, evidence: {plan: 5}}\n"
++        "  - {}\n"
++    )
++    r = cc.convert_card(text, fmt="yaml")
++    assert r["plan_path_source"] is None and r["counts"]["units"] == 2
++    assert r["counts"]["converted"] == 0
++
++
++def test_huge_card_does_not_raise():
++    text = "findings:\n" + "".join(
++        f"  - {{id: F{n}, severity: minor, evidence: 'a.py:{n}'}}\n"
++        for n in range(1, 3001)
++    )
++    r = cc.convert_card(text, fmt="yaml")
++    assert r["counts"]["units"] == 3000 and r["counts"]["converted"] == 3000
++    long_ref = "x" * 100_000
++    c = cits(card(long_ref))
++    assert len(c[0]["ref"]) == cc.MAX_REF_TEXT
++
++
++def test_markdown_table_short_rows_and_second_table(tmp_path):
++    text = (
++        "| # | Class | Evidence | Sev |\n|---|---|---|---|\n| 1 | Drift |\n\n"
++        "| id | evidence | severity |\n| :-- | :-- | --: |\n| Q-1 | a.py:2 | low |\n"
++    )
++    r = cc.convert_card(text, fmt="markdown")
++    assert r["counts"]["units"] == 2 and r["counts"]["converted"] == 1
++    assert r["findings"][1]["id"] == "Q-1"
++
++
++def test_card_file_suffixes_and_missing_file(tmp_path):
++    assert cc.convert_card_file(tmp_path / "nope.yaml")["shape"] == "unlisted"
++    other = tmp_path / "card.txt"
++    other.write_text("findings: []\n", encoding="utf-8")
++    assert cc.convert_card_file(other)["shape"] == "unlisted"
++    yml = tmp_path / "card.YML"
++    yml.write_text("findings: []\n", encoding="utf-8")
++    assert cc.convert_card_file(yml)["shape"] == "yaml-blocking-minor"
++    md = tmp_path / "card.md"
++    md.write_text("| evidence | sev |\n|---|---|\n| a.py:1 | low |\n", encoding="utf-8")
++    assert cc.convert_card_file(md)["shape"] == "markdown-table"
++    bad = tmp_path / "bin.yaml"
++    bad.write_bytes(b"\xff\xfe\x00findings")
++    assert cc.convert_card_file(bad)["shape"] == "unlisted"

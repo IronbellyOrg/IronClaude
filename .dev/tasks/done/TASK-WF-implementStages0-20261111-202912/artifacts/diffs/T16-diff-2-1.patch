@@ -1,0 +1,890 @@
+diff --git a/.dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/stage2-entry-inventory-diff.md b/.dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/stage2-entry-inventory-diff.md
+new file mode 100644
+index 000000000..ece6f58c1
+--- /dev/null
++++ b/.dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/stage2-entry-inventory-diff.md
+@@ -0,0 +1,65 @@
++# Stage 2 entry inventory: diff against the Task 6 inventory
++
++`stage2-entry-inventory.md` was produced at Task 16 by `uv run python scripts/reflect_consumer_inventory.py --out ./artifacts/stage2-entry-inventory.md` (326 hit files; 3448 files searched). The Task 6 inventory (`consumer-inventory.md`) had 320 hit files in 3423 files. The inventory is a snapshot: files that later tasks add are not in it.
++
++## New hit files since Task 6 (each with its role)
++
++| File | Role | Basis | Notes |
++|---|---|---|---|
++| `src/superclaude/cli/reflect/panel_lint.py` | producer | cue | Added by Task 15. The cue rule gives producer because the file writes the words on the same line as a write cue; the file is in fact a read-only checker of the contract (a validator of the panel contract). The role column is a text match, as the inventory header says. |
++| `scripts/reflect_verdict_replay.py` | validator | cue | Added by Task 16; it calls `derive_verdict`. |
++| `tests/cli/reflect/fixtures/panel_lint_legacy/adversarial/merged-verdict.yaml` | consumer | named | Task 15 fixture (a copy of a recorded run). |
++| `tests/cli/reflect/fixtures/panel_lint_legacy/return-contract.yaml` | consumer | named | Task 15 fixture (a copy of a recorded run). |
++| `tests/cli/reflect/test_panel_contract_lint.py` | consumer | named | Task 15 test. |
++| `tests/cli/reflect/test_verdict_replay_script.py` | consumer | named | Task 16 test. |
++
++No file dropped out of the inventory.
++
++## Summary lines that changed
++
++- Files searched: 3423 -> 3448.
++- Hit files: 320 -> 326. By role: producer 51 -> 52, validator 4 -> 5, consumer 239 -> 243, not in scope 26 -> 26.
++- By basis: named 45 -> 49, cue 275 -> 277.
++- By scan root: `src/` 50 -> 51, `tests/` 90 -> 94, `scripts/` 4 -> 5, `.dev/eval-workspaces/` 167, `docs/` 9 (unchanged).
++- Row for `tests/cli/reflect/`: 32 -> 36 files.
++- The negative statement about Task 15: the Task 6 text predicted that a rerun after Task 15 would list `panel_lint.py` among the `contract_version == "1.8.0"` equalities. It does not: `panel_lint.py` compares `version != CONTRACT_VERSION`, which the literal search does not match, so the CONTRADICTED list still holds the same two prose lines in `SKILL.md` and `refs/grader-extensions.md`. The sentence in `scripts/reflect_consumer_inventory.py` was corrected at Task 16 to say so; the Task 6 file `consumer-inventory.md` is left as it was.
++
++## Raw diff
++
++Output of `diff ./artifacts/consumer-inventory.md ./artifacts/stage2-entry-inventory.md` (33 lines):
++
++```text
++11c11
++< - Files searched: 3423.
++---
++> - Files searched: 3448.
++14,17c14,17
++< - Hit files: 320.
++< - Hit files by role: producer 51, validator 4, consumer 239, not in scope 26.
++< - Hit files by basis: named 45, cue 275.
++< - Hit files by scan root: `src/` 50, `tests/` 90, `scripts/` 4, `.dev/eval-workspaces/` 167, `docs/` 9.
++---
++> - Hit files: 326.
++> - Hit files by role: producer 52, validator 5, consumer 243, not in scope 26.
++> - Hit files by basis: named 49, cue 277.
++> - Hit files by scan root: `src/` 51, `tests/` 94, `scripts/` 5, `.dev/eval-workspaces/` 167, `docs/` 9.
++26c26
++< - Task 15 of this plan will add such an equality in `src/superclaude/cli/reflect/panel_lint.py`; a rerun after it lists that line.
++---
++> - The Task 15 lint (`src/superclaude/cli/reflect/panel_lint.py`) checks the version as `version != CONTRACT_VERSION` with `CONTRACT_VERSION = "1.8.0"`, not as the literal equality this search looks for, so a rerun does not list it here.
++50c50
++< | `tests/cli/reflect/` | consumer | deferred item 9 (reflect tests and fixtures) | yes | 32 file(s) |
++---
++> | `tests/cli/reflect/` | consumer | deferred item 9 (reflect tests and fixtures) | yes | 36 file(s) |
++102a103
++> | `src/superclaude/cli/reflect/panel_lint.py` | producer | cue | 28 | 9 | 3 | 3 | 3 | 2 | 2 | 2 | 5 | 3 |
++118a120
++> | `scripts/reflect_verdict_replay.py` | validator | cue | 3 | 0 | 0 | 0 | 4 | 0 | 0 | 0 | 0 | 0 |
++296a299,300
++> | `tests/cli/reflect/fixtures/panel_lint_legacy/adversarial/merged-verdict.yaml` | consumer | named | 2 | 1 | 0 | 1 | 0 | 0 | 0 | 0 | 0 | 0 |
++> | `tests/cli/reflect/fixtures/panel_lint_legacy/return-contract.yaml` | consumer | named | 9 | 1 | 1 | 1 | 1 | 1 | 1 | 1 | 1 | 2 |
++314a319
++> | `tests/cli/reflect/test_panel_contract_lint.py` | consumer | named | 31 | 10 | 3 | 4 | 7 | 0 | 1 | 1 | 7 | 2 |
++315a321
++> | `tests/cli/reflect/test_verdict_replay_script.py` | consumer | named | 6 | 0 | 0 | 0 | 2 | 0 | 2 | 0 | 0 | 2 |
++```
+diff --git a/.dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/stage2-entry-inventory.md b/.dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/stage2-entry-inventory.md
+new file mode 100644
+index 000000000..46a82875c
+--- /dev/null
++++ b/.dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/stage2-entry-inventory.md
+@@ -0,0 +1,411 @@
++# Reflect return-contract consumer inventory
++
++Generated by `uv run python scripts/reflect_consumer_inventory.py`. No timestamp; paths are relative
++to the repository root. Rerun with `--out <file>` and diff to see what changed.
++
++Words: `merge_method`, `adversarial_convergence_score`, `convergence_score`, `contract_version`, `t2_model_class_diversity`, `t2_vendor_diversity`, `calibrator_diversity`, `reviewer_cards`, `citations_dropped`.
++Scan roots: `src/`, `tests/`, `scripts/`, `.dev/eval-workspaces/`, `docs/`.
++
++## Summary
++
++- Files searched: 3448.
++- Not searched: binary 1, unreadable 0, non-regular 0, symlinked directories not followed 0.
++- Missing scan roots: none.
++- Hit files: 326.
++- Hit files by role: producer 52, validator 5, consumer 243, not in scope 26.
++- Hit files by basis: named 49, cue 277.
++- Hit files by scan root: `src/` 51, `tests/` 94, `scripts/` 5, `.dev/eval-workspaces/` 167, `docs/` 9.
++- Of the `src/` hit files, 33 are installed skill or command primitives (`src/superclaude/skills/`, `src/superclaude/commands/`).
++
++## Negative statements
++
++- CONTRADICTED: 2 line(s) in `src/` hold a `contract_version == "1.8.0"` equality:
++  - `src/superclaude/skills/sc-reflect-protocol/SKILL.md:1877` (prose)
++  - `src/superclaude/skills/sc-reflect-protocol/refs/grader-extensions.md:180` (prose)
++  - Python code lines among them: 0.
++- The Task 15 lint (`src/superclaude/cli/reflect/panel_lint.py`) checks the version as `version != CONTRACT_VERSION` with `CONTRACT_VERSION = "1.8.0"`, not as the literal equality this search looks for, so a rerun does not list it here.
++- `.dev/eval-workspaces/sc-reflect/grader.py` has no match for any of the nine words or for `convergence`. It needs no change while the contract stays 1.8.0.
++
++## Named role files
++
++| File | Role | Source of the role | On disk | Hit |
++|---|---|---|---|---|
++| `src/superclaude/cli/reflect/ensemble.py` | producer | headless contract builder | yes | yes |
++| `src/superclaude/skills/sc-reflect-protocol/SKILL.md` | producer | section 9.1 and Wave 5 (it also reads the fields in EV-1 and the Wave 7 gate) | yes | yes |
++| `src/superclaude/skills/sc-reflect-protocol/refs/input-resolution.md` | producer | review fix: its table gives the t2_model_class_diversity values | yes | yes |
++| `src/superclaude/skills/sc-reflect-protocol/refs/reflection-rubric.md` | producer | review fix: says calibrator_diversity is emitted into reflection-card.yaml | yes | yes |
++| `src/superclaude/skills/sc-reflect-protocol/refs/report-template.md` | producer | REPORT.md skeleton of the fields | yes | yes |
++| `src/superclaude/cli/reflect/contract.py` | validator | derive_verdict, _degraded_reason | yes | yes |
++| `.dev/eval-workspaces/sc-reflect/grader.py` | consumer | section 9.3 CI grader | yes | no match |
++| `src/superclaude/cli/sprint/executor.py` | consumer | section 9.3 sprint executor, deferred item 8 | yes | no match |
++| `src/superclaude/skills/sc-reflect-protocol/refs/ops-integration.md` | consumer | PromQL label list | yes | yes |
++| `src/superclaude/skills/sc-reflect-protocol/refs/promotion-adapters.md` | consumer | section 9.3 Wave 7 promotion adapters | yes | yes |
++| `src/superclaude/skills/sc-task-protocol/SKILL.md` | consumer | section 9.3 sc-task row as first mapped; the gate text is in skills/task/SKILL.md | yes | no match |
++| `src/superclaude/skills/sc-tasklist-protocol/SKILL.md` | consumer | section 9.3 sc:tasklist gate | yes | yes |
++| `src/superclaude/skills/sc-tasklist-protocol/templates/phase-template.md` | consumer | section 9.3 sc:tasklist row (review fix): opens return-contract.yaml, fails the gate on adversarial_convergence_score < 0.80 | yes | yes |
++| `src/superclaude/skills/sc-troubleshoot-protocol/SKILL.md` | consumer | section 9.3 row | yes | yes |
++| `src/superclaude/skills/sc-workflow-protocol/SKILL.md` | consumer | section 9.3 row, deferred item 10 | yes | no match |
++| `src/superclaude/skills/task-builder/SKILL.md` | consumer | section 9.3 row, EV-4 | yes | yes |
++| `src/superclaude/skills/task/SKILL.md` | consumer | section 9.3 sc-task row (review fix): opens return-contract.yaml, fails the gate on adversarial_convergence_score < 0.80 | yes | yes |
++| `tests/cli/reflect/` | consumer | deferred item 9 (reflect tests and fixtures) | yes | 36 file(s) |
++
++UNVERIFIED (named consumers with no file located in this repository):
++
++- meta-eval runs.jsonl aggregator (section 9.3, deferred item 7): no file in this repository is named as the aggregator; see the candidate list.
++- sc:roadmap validation gate (section 9.3): no reflect-contract reader located; roadmap files are not in scope.
++- Python files under the scan roots that name `runs.jsonl` (aggregator candidates): `scripts/reflect_consumer_inventory.py`, `tests/skills/test_worker_contract.py`.
++- A named consumer marked `no match` exists but names none of the words; the code that reads the return contract there, if any, is UNVERIFIED.
++
++## Hit files
++
++Basis `named`: the role comes from the named lists. Basis `cue`: the role comes from the path or text cues
++of the script docstring; a cue-based `consumer` references the field, which is not proof it is read at runtime.
++
++| File | Role | Basis | Lines | `merge_method` | `adversarial_convergence_score` | `convergence_score` | `contract_version` | `t2_model_class_diversity` | `t2_vendor_diversity` | `calibrator_diversity` | `reviewer_cards` | `citations_dropped` |
++|---|---|---|---|---|---|---|---|---|---|---|---|---|
++| `.dev/eval-workspaces/sc-brainstorm/iterations/iteration-1/eval-code-add-rate-limiting/with_skill/outputs/return-contract.yaml` | producer | cue | 2 | 0 | 0 | 1 | 1 | 0 | 0 | 0 | 0 | 0 |
++| `.dev/eval-workspaces/sc-brainstorm/iterations/iteration-1/eval-incident-staging-deploy-3am/with_skill/outputs/return-contract.yaml` | producer | cue | 2 | 0 | 0 | 1 | 1 | 0 | 0 | 0 | 0 | 0 |
++| `.dev/eval-workspaces/sc-brainstorm/iterations/iteration-1/eval-product-ai-changelog/with_skill/outputs/return-contract.yaml` | producer | cue | 2 | 0 | 0 | 1 | 1 | 0 | 0 | 0 | 0 | 0 |
++| `.dev/eval-workspaces/sc-brainstorm/iterations/iteration-2/eval-architecture-graphql-public-api/with_skill/outputs/return-contract.yaml` | producer | cue | 2 | 0 | 0 | 1 | 1 | 0 | 0 | 0 | 0 | 0 |
++| `.dev/eval-workspaces/sc-brainstorm/iterations/iteration-2/eval-architecture-worker-pool-errors/with_skill/outputs/return-contract.yaml` | producer | cue | 2 | 0 | 0 | 1 | 1 | 0 | 0 | 0 | 0 | 0 |
++| `.dev/eval-workspaces/sc-brainstorm/iterations/iteration-2/eval-code-add-rate-limiting/with_skill/outputs/return-contract.yaml` | producer | cue | 2 | 0 | 0 | 1 | 1 | 0 | 0 | 0 | 0 | 0 |
++| `.dev/eval-workspaces/sc-brainstorm/iterations/iteration-2/eval-code-api-caching-tasklist/with_skill/outputs/return-contract.yaml` | producer | cue | 2 | 0 | 0 | 1 | 1 | 0 | 0 | 0 | 0 | 0 |
++| `.dev/eval-workspaces/sc-brainstorm/iterations/iteration-2/eval-code-duplicate-auth-blind/with_skill/outputs/return-contract.yaml` | producer | cue | 2 | 0 | 0 | 1 | 1 | 0 | 0 | 0 | 0 | 0 |
++| `.dev/eval-workspaces/sc-brainstorm/iterations/iteration-2/eval-code-feature-flag-task/with_skill/outputs/return-contract.yaml` | producer | cue | 2 | 0 | 0 | 1 | 1 | 0 | 0 | 0 | 0 | 0 |
++| `.dev/eval-workspaces/sc-brainstorm/iterations/iteration-2/eval-code-migrate-pytest-vitest/with_skill/outputs/return-contract.yaml` | producer | cue | 2 | 0 | 0 | 1 | 1 | 0 | 0 | 0 | 0 | 0 |
++| `.dev/eval-workspaces/sc-brainstorm/iterations/iteration-2/eval-incident-payment-webhook-q1/with_skill/outputs/return-contract.yaml` | producer | cue | 2 | 0 | 0 | 1 | 1 | 0 | 0 | 0 | 0 | 0 |
++| `.dev/eval-workspaces/sc-brainstorm/iterations/iteration-2/eval-incident-staging-deploy-3am/with_skill/outputs/return-contract.yaml` | producer | cue | 2 | 0 | 0 | 1 | 1 | 0 | 0 | 0 | 0 | 0 |
++| `.dev/eval-workspaces/sc-brainstorm/iterations/iteration-2/eval-process-contributor-onboarding/with_skill/outputs/return-contract.yaml` | producer | cue | 2 | 0 | 0 | 1 | 1 | 0 | 0 | 0 | 0 | 0 |
++| `.dev/eval-workspaces/sc-brainstorm/iterations/iteration-2/eval-product-ai-changelog/with_skill/outputs/return-contract.yaml` | producer | cue | 2 | 0 | 0 | 1 | 1 | 0 | 0 | 0 | 0 | 0 |
++| `.dev/eval-workspaces/sc-brainstorm/iterations/iteration-2/eval-research-bun-vs-node/with_skill/outputs/return-contract.yaml` | producer | cue | 2 | 0 | 0 | 1 | 1 | 0 | 0 | 0 | 0 | 0 |
++| `.dev/eval-workspaces/sc-brainstorm/live-runs/comparison-against-iteration-2.json` | producer | cue | 48 | 0 | 0 | 24 | 24 | 0 | 0 | 0 | 0 | 0 |
++| `.dev/eval-workspaces/sc-brainstorm/live-runs/eval-architecture-worker-pool-errors/return-contract.yaml` | producer | cue | 2 | 0 | 0 | 1 | 1 | 0 | 0 | 0 | 0 | 0 |
++| `.dev/eval-workspaces/sc-brainstorm/live-runs/eval-code-api-caching-tasklist/adversarial/return-contract.yaml` | producer | cue | 1 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 | 0 |
++| `.dev/eval-workspaces/sc-brainstorm/live-runs/eval-code-api-caching-tasklist/return-contract.yaml` | producer | cue | 2 | 0 | 0 | 1 | 1 | 0 | 0 | 0 | 0 | 0 |
++| `.dev/eval-workspaces/sc-brainstorm/live-runs/eval-code-duplicate-auth-blind/return-contract.yaml` | producer | cue | 2 | 0 | 0 | 1 | 1 | 0 | 0 | 0 | 0 | 0 |
++| `.dev/eval-workspaces/sc-brainstorm/live-runs/eval-code-feature-flag-task/return-contract.yaml` | producer | cue | 2 | 0 | 0 | 1 | 1 | 0 | 0 | 0 | 0 | 0 |
++| `.dev/eval-workspaces/sc-brainstorm/live-runs/eval-code-migrate-pytest-vitest/adversarial/return-contract.yaml` | producer | cue | 1 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 | 0 |
++| `.dev/eval-workspaces/sc-brainstorm/live-runs/eval-code-migrate-pytest-vitest/return-contract.yaml` | producer | cue | 2 | 0 | 0 | 1 | 1 | 0 | 0 | 0 | 0 | 0 |
++| `.dev/eval-workspaces/sc-brainstorm/live-runs/eval-incident-payment-webhook-q1/return-contract.yaml` | producer | cue | 2 | 0 | 0 | 1 | 1 | 0 | 0 | 0 | 0 | 0 |
++| `.dev/eval-workspaces/sc-brainstorm/live-runs/eval-process-contributor-onboarding/return-contract.yaml` | producer | cue | 2 | 0 | 0 | 1 | 1 | 0 | 0 | 0 | 0 | 0 |
++| `.dev/eval-workspaces/sc-brainstorm/live-runs/eval-research-bun-vs-node/return-contract.yaml` | producer | cue | 2 | 0 | 0 | 1 | 1 | 0 | 0 | 0 | 0 | 0 |
++| `.dev/eval-workspaces/sc-brainstorm/live-runs/probe-process-onboarding/adversarial/return-contract.yaml` | producer | cue | 1 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 | 0 |
++| `.dev/eval-workspaces/sc-brainstorm/live-runs/probe-process-onboarding/return-contract.yaml` | producer | cue | 2 | 0 | 0 | 1 | 1 | 0 | 0 | 0 | 0 | 0 |
++| `.dev/eval-workspaces/sc-reflect/SPEC.md` | producer | cue | 70 | 7 | 1 | 23 | 5 | 12 | 11 | 7 | 1 | 29 |
++| `.dev/eval-workspaces/sc-reflect/cases/promotion/promotion-blocked-by-null-convergence.yaml` | producer | cue | 5 | 0 | 0 | 4 | 0 | 0 | 0 | 0 | 0 | 1 |
++| `.dev/eval-workspaces/sc-reflect/cases/uc2-reachability-missing-inputs-skip/expected.yaml` | producer | cue | 1 | 0 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 |
++| `.dev/eval-workspaces/sc-reflect/cases/uc2-reachability-no-reachability-skip/expected.yaml` | producer | cue | 1 | 0 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 |
++| `.dev/eval-workspaces/sc-reflect/cases/uc2-reachability-proxy-oracle-unproven/expected.yaml` | producer | cue | 1 | 0 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 |
++| `docs/testing/v5.0.0/user/D12-reflect.md` | producer | cue | 16 | 4 | 4 | 7 | 4 | 4 | 4 | 0 | 0 | 0 |
++| `docs/testing/v5.0.0/user/D14-swarm.md` | producer | cue | 2 | 0 | 0 | 0 | 2 | 0 | 0 | 0 | 0 | 0 |
++| `scripts/reflect_stage0a_replay.py` | producer | cue | 24 | 21 | 4 | 8 | 0 | 0 | 0 | 0 | 0 | 0 |
++| `src/superclaude/cli/reflect/ensemble.py` | producer | named | 29 | 4 | 11 | 23 | 1 | 3 | 1 | 0 | 0 | 2 |
++| `src/superclaude/cli/reflect/panel_lint.py` | producer | cue | 28 | 9 | 3 | 3 | 3 | 2 | 2 | 2 | 5 | 3 |
++| `src/superclaude/cli/swarm/commands.py` | producer | cue | 1 | 0 | 0 | 0 | 2 | 0 | 0 | 0 | 0 | 0 |
++| `src/superclaude/cli/swarm/models.py` | producer | cue | 9 | 0 | 0 | 0 | 9 | 0 | 0 | 0 | 0 | 0 |
++| `src/superclaude/cli/swarm/preflight.py` | producer | cue | 7 | 0 | 0 | 0 | 8 | 0 | 0 | 0 | 0 | 0 |
++| `src/superclaude/cli/swarm/reduce.py` | producer | cue | 1 | 0 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 |
++| `src/superclaude/skills/sc-adversarial-protocol/SKILL.md` | producer | cue | 8 | 0 | 0 | 8 | 0 | 0 | 0 | 0 | 0 | 0 |
++| `src/superclaude/skills/sc-bare-review/SKILL.md` | producer | cue | 1 | 0 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 |
++| `src/superclaude/skills/sc-brainstorm-protocol/SKILL.md` | producer | cue | 10 | 0 | 0 | 7 | 3 | 0 | 0 | 0 | 0 | 0 |
++| `src/superclaude/skills/sc-cli-portify-protocol/SKILL.md` | producer | cue | 1 | 0 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 |
++| `src/superclaude/skills/sc-reflect-protocol/SKILL.md` | producer | named | 71 | 12 | 1 | 20 | 6 | 9 | 10 | 7 | 1 | 29 |
++| `src/superclaude/skills/sc-reflect-protocol/refs/input-resolution.md` | producer | named | 4 | 0 | 0 | 0 | 0 | 4 | 0 | 0 | 0 | 0 |
++| `src/superclaude/skills/sc-reflect-protocol/refs/reflection-rubric.md` | producer | named | 6 | 0 | 0 | 0 | 0 | 0 | 0 | 6 | 0 | 0 |
++| `src/superclaude/skills/sc-reflect-protocol/refs/report-template.md` | producer | named | 7 | 0 | 0 | 0 | 2 | 0 | 0 | 0 | 0 | 6 |
++| `src/superclaude/skills/sc-release-split-protocol/SKILL.md` | producer | cue | 6 | 0 | 0 | 6 | 0 | 0 | 0 | 0 | 0 | 0 |
++| `src/superclaude/skills/sc-workflow-protocol/refs/return-contract.md` | producer | cue | 2 | 0 | 0 | 0 | 2 | 0 | 0 | 0 | 0 | 0 |
++| `scripts/eval_workflow_vs_task_builder.py` | validator | cue | 2 | 0 | 0 | 0 | 2 | 0 | 0 | 0 | 0 | 0 |
++| `scripts/reflect_consumer_inventory.py` | validator | cue | 28 | 3 | 7 | 11 | 8 | 4 | 2 | 4 | 2 | 2 |
++| `scripts/reflect_verdict_replay.py` | validator | cue | 3 | 0 | 0 | 0 | 4 | 0 | 0 | 0 | 0 | 0 |
++| `src/superclaude/cli/reflect/contract.py` | validator | named | 8 | 1 | 2 | 2 | 2 | 1 | 1 | 0 | 0 | 1 |
++| `src/superclaude/skills/sc-implement-protocol/scripts/archive_workspace.py` | validator | cue | 1 | 0 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 |
++| `.dev/eval-workspaces/cli-eval/workflow_vs_task_builder/corpus/detection-contract-setup/input.md` | consumer | cue | 1 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 | 0 |
++| `.dev/eval-workspaces/cli-eval/workflow_vs_task_builder/corpus/detection-contract-setup/sources/merged-requirements.md` | consumer | cue | 1 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 | 0 |
++| `.dev/eval-workspaces/sc-brainstorm/SPEC.md` | consumer | cue | 12 | 0 | 0 | 10 | 4 | 0 | 0 | 0 | 0 | 0 |
++| `.dev/eval-workspaces/sc-brainstorm/evals/evals.json` | consumer | cue | 2 | 0 | 0 | 1 | 1 | 0 | 0 | 0 | 0 | 0 |
++| `.dev/eval-workspaces/sc-brainstorm/iterations/iteration-1/benchmark.json` | consumer | cue | 12 | 0 | 0 | 6 | 6 | 0 | 0 | 0 | 0 | 0 |
++| `.dev/eval-workspaces/sc-brainstorm/iterations/iteration-1/eval-code-add-rate-limiting/eval_metadata.json` | consumer | cue | 2 | 0 | 0 | 2 | 2 | 0 | 0 | 0 | 0 | 0 |
++| `.dev/eval-workspaces/sc-brainstorm/iterations/iteration-1/eval-code-add-rate-limiting/with_skill/outputs/merged-requirements.md` | consumer | cue | 1 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 | 0 |
++| `.dev/eval-workspaces/sc-brainstorm/iterations/iteration-1/eval-code-add-rate-limiting/with_skill/run-1/grading.json` | consumer | cue | 4 | 0 | 0 | 2 | 2 | 0 | 0 | 0 | 0 | 0 |
++| `.dev/eval-workspaces/sc-brainstorm/iterations/iteration-1/eval-incident-staging-deploy-3am/eval_metadata.json` | consumer | cue | 2 | 0 | 0 | 2 | 2 | 0 | 0 | 0 | 0 | 0 |
++| `.dev/eval-workspaces/sc-brainstorm/iterations/iteration-1/eval-incident-staging-deploy-3am/with_skill/outputs/adversarial/debate-transcript.md` | consumer | cue | 1 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 | 0 |
++| `.dev/eval-workspaces/sc-brainstorm/iterations/iteration-1/eval-incident-staging-deploy-3am/with_skill/outputs/merged-requirements.md` | consumer | cue | 1 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 | 0 |
++| `.dev/eval-workspaces/sc-brainstorm/iterations/iteration-1/eval-incident-staging-deploy-3am/with_skill/run-1/grading.json` | consumer | cue | 4 | 0 | 0 | 2 | 2 | 0 | 0 | 0 | 0 | 0 |
++| `.dev/eval-workspaces/sc-brainstorm/iterations/iteration-1/eval-product-ai-changelog/eval_metadata.json` | consumer | cue | 2 | 0 | 0 | 2 | 2 | 0 | 0 | 0 | 0 | 0 |
++| `.dev/eval-workspaces/sc-brainstorm/iterations/iteration-1/eval-product-ai-changelog/with_skill/outputs/adversarial/debate-transcript.md` | consumer | cue | 1 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 | 0 |
++| `.dev/eval-workspaces/sc-brainstorm/iterations/iteration-1/eval-product-ai-changelog/with_skill/outputs/merged-requirements.md` | consumer | cue | 1 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 | 0 |
++| `.dev/eval-workspaces/sc-brainstorm/iterations/iteration-1/eval-product-ai-changelog/with_skill/run-1/grading.json` | consumer | cue | 4 | 0 | 0 | 2 | 2 | 0 | 0 | 0 | 0 | 0 |
++| `.dev/eval-workspaces/sc-brainstorm/iterations/iteration-1/quality-grading-v1rubric.json` | consumer | cue | 3 | 0 | 0 | 3 | 0 | 0 | 0 | 0 | 0 | 0 |
++| `.dev/eval-workspaces/sc-brainstorm/iterations/iteration-1/quality-grading.json` | consumer | cue | 3 | 0 | 0 | 3 | 0 | 0 | 0 | 0 | 0 | 0 |
++| `.dev/eval-workspaces/sc-brainstorm/iterations/iteration-1/review.html` | consumer | cue | 1 | 0 | 0 | 12 | 9 | 0 | 0 | 0 | 0 | 0 |
++| `.dev/eval-workspaces/sc-brainstorm/iterations/iteration-2/benchmark.json` | consumer | cue | 48 | 0 | 0 | 24 | 24 | 0 | 0 | 0 | 0 | 0 |
++| `.dev/eval-workspaces/sc-brainstorm/iterations/iteration-2/eval-architecture-graphql-public-api/eval_metadata.json` | consumer | cue | 4 | 0 | 0 | 2 | 2 | 0 | 0 | 0 | 0 | 0 |
++| `.dev/eval-workspaces/sc-brainstorm/iterations/iteration-2/eval-architecture-graphql-public-api/with_skill/grading.json` | consumer | cue | 4 | 0 | 0 | 2 | 2 | 0 | 0 | 0 | 0 | 0 |
++| `.dev/eval-workspaces/sc-brainstorm/iterations/iteration-2/eval-architecture-graphql-public-api/with_skill/outputs/adversarial/debate-transcript.md` | consumer | cue | 1 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 | 0 |
++| `.dev/eval-workspaces/sc-brainstorm/iterations/iteration-2/eval-architecture-graphql-public-api/with_skill/outputs/merged-requirements.md` | consumer | cue | 1 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 | 0 |
++| `.dev/eval-workspaces/sc-brainstorm/iterations/iteration-2/eval-architecture-graphql-public-api/with_skill/run-1/grading.json` | consumer | cue | 4 | 0 | 0 | 2 | 2 | 0 | 0 | 0 | 0 | 0 |
++| `.dev/eval-workspaces/sc-brainstorm/iterations/iteration-2/eval-architecture-worker-pool-errors/eval_metadata.json` | consumer | cue | 4 | 0 | 0 | 2 | 2 | 0 | 0 | 0 | 0 | 0 |
++| `.dev/eval-workspaces/sc-brainstorm/iterations/iteration-2/eval-architecture-worker-pool-errors/with_skill/grading.json` | consumer | cue | 4 | 0 | 0 | 2 | 2 | 0 | 0 | 0 | 0 | 0 |
++| `.dev/eval-workspaces/sc-brainstorm/iterations/iteration-2/eval-architecture-worker-pool-errors/with_skill/outputs/adversarial/debate-transcript.md` | consumer | cue | 1 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 | 0 |
++| `.dev/eval-workspaces/sc-brainstorm/iterations/iteration-2/eval-architecture-worker-pool-errors/with_skill/outputs/merged-requirements.md` | consumer | cue | 1 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 | 0 |
++| `.dev/eval-workspaces/sc-brainstorm/iterations/iteration-2/eval-architecture-worker-pool-errors/with_skill/run-1/grading.json` | consumer | cue | 4 | 0 | 0 | 2 | 2 | 0 | 0 | 0 | 0 | 0 |
++| `.dev/eval-workspaces/sc-brainstorm/iterations/iteration-2/eval-code-add-rate-limiting/eval_metadata.json` | consumer | cue | 2 | 0 | 0 | 2 | 2 | 0 | 0 | 0 | 0 | 0 |
++| `.dev/eval-workspaces/sc-brainstorm/iterations/iteration-2/eval-code-add-rate-limiting/with_skill/grading.json` | consumer | cue | 4 | 0 | 0 | 2 | 2 | 0 | 0 | 0 | 0 | 0 |
++| `.dev/eval-workspaces/sc-brainstorm/iterations/iteration-2/eval-code-add-rate-limiting/with_skill/outputs/adversarial/debate-transcript.md` | consumer | cue | 1 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 | 0 |
++| `.dev/eval-workspaces/sc-brainstorm/iterations/iteration-2/eval-code-add-rate-limiting/with_skill/outputs/merged-requirements.md` | consumer | cue | 1 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 | 0 |
++| `.dev/eval-workspaces/sc-brainstorm/iterations/iteration-2/eval-code-add-rate-limiting/with_skill/run-1/grading.json` | consumer | cue | 4 | 0 | 0 | 2 | 2 | 0 | 0 | 0 | 0 | 0 |
++| `.dev/eval-workspaces/sc-brainstorm/iterations/iteration-2/eval-code-api-caching-tasklist/eval_metadata.json` | consumer | cue | 4 | 0 | 0 | 2 | 2 | 0 | 0 | 0 | 0 | 0 |
++| `.dev/eval-workspaces/sc-brainstorm/iterations/iteration-2/eval-code-api-caching-tasklist/with_skill/grading.json` | consumer | cue | 4 | 0 | 0 | 2 | 2 | 0 | 0 | 0 | 0 | 0 |
++| `.dev/eval-workspaces/sc-brainstorm/iterations/iteration-2/eval-code-api-caching-tasklist/with_skill/outputs/adversarial/debate-transcript.md` | consumer | cue | 1 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 | 0 |
++| `.dev/eval-workspaces/sc-brainstorm/iterations/iteration-2/eval-code-api-caching-tasklist/with_skill/outputs/merged-requirements.md` | consumer | cue | 1 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 | 0 |
++| `.dev/eval-workspaces/sc-brainstorm/iterations/iteration-2/eval-code-api-caching-tasklist/with_skill/run-1/grading.json` | consumer | cue | 4 | 0 | 0 | 2 | 2 | 0 | 0 | 0 | 0 | 0 |
++| `.dev/eval-workspaces/sc-brainstorm/iterations/iteration-2/eval-code-duplicate-auth-blind/eval_metadata.json` | consumer | cue | 4 | 0 | 0 | 2 | 2 | 0 | 0 | 0 | 0 | 0 |
++| `.dev/eval-workspaces/sc-brainstorm/iterations/iteration-2/eval-code-duplicate-auth-blind/with_skill/grading.json` | consumer | cue | 4 | 0 | 0 | 2 | 2 | 0 | 0 | 0 | 0 | 0 |
++| `.dev/eval-workspaces/sc-brainstorm/iterations/iteration-2/eval-code-duplicate-auth-blind/with_skill/outputs/adversarial/debate-transcript.md` | consumer | cue | 1 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 | 0 |
++| `.dev/eval-workspaces/sc-brainstorm/iterations/iteration-2/eval-code-duplicate-auth-blind/with_skill/outputs/merged-requirements.md` | consumer | cue | 1 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 | 0 |
++| `.dev/eval-workspaces/sc-brainstorm/iterations/iteration-2/eval-code-duplicate-auth-blind/with_skill/run-1/grading.json` | consumer | cue | 4 | 0 | 0 | 2 | 2 | 0 | 0 | 0 | 0 | 0 |
++| `.dev/eval-workspaces/sc-brainstorm/iterations/iteration-2/eval-code-feature-flag-task/eval_metadata.json` | consumer | cue | 2 | 0 | 0 | 2 | 2 | 0 | 0 | 0 | 0 | 0 |
++| `.dev/eval-workspaces/sc-brainstorm/iterations/iteration-2/eval-code-feature-flag-task/with_skill/grading.json` | consumer | cue | 4 | 0 | 0 | 2 | 2 | 0 | 0 | 0 | 0 | 0 |
++| `.dev/eval-workspaces/sc-brainstorm/iterations/iteration-2/eval-code-feature-flag-task/with_skill/outputs/merged-requirements.md` | consumer | cue | 1 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 | 0 |
++| `.dev/eval-workspaces/sc-brainstorm/iterations/iteration-2/eval-code-feature-flag-task/with_skill/run-1/grading.json` | consumer | cue | 4 | 0 | 0 | 2 | 2 | 0 | 0 | 0 | 0 | 0 |
++| `.dev/eval-workspaces/sc-brainstorm/iterations/iteration-2/eval-code-migrate-pytest-vitest/eval_metadata.json` | consumer | cue | 4 | 0 | 0 | 2 | 2 | 0 | 0 | 0 | 0 | 0 |
++| `.dev/eval-workspaces/sc-brainstorm/iterations/iteration-2/eval-code-migrate-pytest-vitest/with_skill/grading.json` | consumer | cue | 4 | 0 | 0 | 2 | 2 | 0 | 0 | 0 | 0 | 0 |
++| `.dev/eval-workspaces/sc-brainstorm/iterations/iteration-2/eval-code-migrate-pytest-vitest/with_skill/outputs/adversarial/debate-transcript.md` | consumer | cue | 1 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 | 0 |
++| `.dev/eval-workspaces/sc-brainstorm/iterations/iteration-2/eval-code-migrate-pytest-vitest/with_skill/outputs/merged-requirements.md` | consumer | cue | 1 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 | 0 |
++| `.dev/eval-workspaces/sc-brainstorm/iterations/iteration-2/eval-code-migrate-pytest-vitest/with_skill/run-1/grading.json` | consumer | cue | 4 | 0 | 0 | 2 | 2 | 0 | 0 | 0 | 0 | 0 |
++| `.dev/eval-workspaces/sc-brainstorm/iterations/iteration-2/eval-incident-payment-webhook-q1/eval_metadata.json` | consumer | cue | 4 | 0 | 0 | 2 | 2 | 0 | 0 | 0 | 0 | 0 |
++| `.dev/eval-workspaces/sc-brainstorm/iterations/iteration-2/eval-incident-payment-webhook-q1/with_skill/grading.json` | consumer | cue | 4 | 0 | 0 | 2 | 2 | 0 | 0 | 0 | 0 | 0 |
++| `.dev/eval-workspaces/sc-brainstorm/iterations/iteration-2/eval-incident-payment-webhook-q1/with_skill/outputs/adversarial/debate-transcript.md` | consumer | cue | 1 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 | 0 |
++| `.dev/eval-workspaces/sc-brainstorm/iterations/iteration-2/eval-incident-payment-webhook-q1/with_skill/outputs/merged-requirements.md` | consumer | cue | 1 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 | 0 |
++| `.dev/eval-workspaces/sc-brainstorm/iterations/iteration-2/eval-incident-payment-webhook-q1/with_skill/run-1/grading.json` | consumer | cue | 4 | 0 | 0 | 2 | 2 | 0 | 0 | 0 | 0 | 0 |
++| `.dev/eval-workspaces/sc-brainstorm/iterations/iteration-2/eval-incident-staging-deploy-3am/eval_metadata.json` | consumer | cue | 2 | 0 | 0 | 2 | 2 | 0 | 0 | 0 | 0 | 0 |
++| `.dev/eval-workspaces/sc-brainstorm/iterations/iteration-2/eval-incident-staging-deploy-3am/with_skill/grading.json` | consumer | cue | 4 | 0 | 0 | 2 | 2 | 0 | 0 | 0 | 0 | 0 |
++| `.dev/eval-workspaces/sc-brainstorm/iterations/iteration-2/eval-incident-staging-deploy-3am/with_skill/outputs/merged-requirements.md` | consumer | cue | 1 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 | 0 |
++| `.dev/eval-workspaces/sc-brainstorm/iterations/iteration-2/eval-incident-staging-deploy-3am/with_skill/run-1/grading.json` | consumer | cue | 4 | 0 | 0 | 2 | 2 | 0 | 0 | 0 | 0 | 0 |
++| `.dev/eval-workspaces/sc-brainstorm/iterations/iteration-2/eval-process-contributor-onboarding/eval_metadata.json` | consumer | cue | 4 | 0 | 0 | 2 | 2 | 0 | 0 | 0 | 0 | 0 |
++| `.dev/eval-workspaces/sc-brainstorm/iterations/iteration-2/eval-process-contributor-onboarding/with_skill/grading.json` | consumer | cue | 4 | 0 | 0 | 2 | 2 | 0 | 0 | 0 | 0 | 0 |
++| `.dev/eval-workspaces/sc-brainstorm/iterations/iteration-2/eval-process-contributor-onboarding/with_skill/outputs/adversarial/debate-transcript.md` | consumer | cue | 1 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 | 0 |
++| `.dev/eval-workspaces/sc-brainstorm/iterations/iteration-2/eval-process-contributor-onboarding/with_skill/outputs/merged-requirements.md` | consumer | cue | 1 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 | 0 |
++| `.dev/eval-workspaces/sc-brainstorm/iterations/iteration-2/eval-process-contributor-onboarding/with_skill/run-1/grading.json` | consumer | cue | 4 | 0 | 0 | 2 | 2 | 0 | 0 | 0 | 0 | 0 |
++| `.dev/eval-workspaces/sc-brainstorm/iterations/iteration-2/eval-product-ai-changelog/eval_metadata.json` | consumer | cue | 2 | 0 | 0 | 2 | 2 | 0 | 0 | 0 | 0 | 0 |
++| `.dev/eval-workspaces/sc-brainstorm/iterations/iteration-2/eval-product-ai-changelog/with_skill/grading.json` | consumer | cue | 4 | 0 | 0 | 2 | 2 | 0 | 0 | 0 | 0 | 0 |
++| `.dev/eval-workspaces/sc-brainstorm/iterations/iteration-2/eval-product-ai-changelog/with_skill/outputs/adversarial/debate-transcript.md` | consumer | cue | 1 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 | 0 |
++| `.dev/eval-workspaces/sc-brainstorm/iterations/iteration-2/eval-product-ai-changelog/with_skill/outputs/merged-requirements.md` | consumer | cue | 1 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 | 0 |
++| `.dev/eval-workspaces/sc-brainstorm/iterations/iteration-2/eval-product-ai-changelog/with_skill/run-1/grading.json` | consumer | cue | 4 | 0 | 0 | 2 | 2 | 0 | 0 | 0 | 0 | 0 |
++| `.dev/eval-workspaces/sc-brainstorm/iterations/iteration-2/eval-research-bun-vs-node/eval_metadata.json` | consumer | cue | 4 | 0 | 0 | 2 | 2 | 0 | 0 | 0 | 0 | 0 |
++| `.dev/eval-workspaces/sc-brainstorm/iterations/iteration-2/eval-research-bun-vs-node/with_skill/grading.json` | consumer | cue | 4 | 0 | 0 | 2 | 2 | 0 | 0 | 0 | 0 | 0 |
++| `.dev/eval-workspaces/sc-brainstorm/iterations/iteration-2/eval-research-bun-vs-node/with_skill/outputs/adversarial/debate-transcript.md` | consumer | cue | 1 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 | 0 |
++| `.dev/eval-workspaces/sc-brainstorm/iterations/iteration-2/eval-research-bun-vs-node/with_skill/outputs/merged-requirements.md` | consumer | cue | 1 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 | 0 |
++| `.dev/eval-workspaces/sc-brainstorm/iterations/iteration-2/eval-research-bun-vs-node/with_skill/run-1/grading.json` | consumer | cue | 4 | 0 | 0 | 2 | 2 | 0 | 0 | 0 | 0 | 0 |
++| `.dev/eval-workspaces/sc-brainstorm/iterations/iteration-2/quality-grading-v1rubric.json` | consumer | cue | 2 | 0 | 0 | 2 | 0 | 0 | 0 | 0 | 0 | 0 |
++| `.dev/eval-workspaces/sc-brainstorm/iterations/iteration-2/review.html` | consumer | cue | 1 | 0 | 0 | 24 | 24 | 0 | 0 | 0 | 0 | 0 |
++| `.dev/eval-workspaces/sc-brainstorm/iterations/iteration-2/strict-blind-inputs/case-changelog-output-alpha.md` | consumer | cue | 1 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 | 0 |
++| `.dev/eval-workspaces/sc-brainstorm/iterations/iteration-2/strict-blind-inputs/case-incident-output-alpha.md` | consumer | cue | 1 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 | 0 |
++| `.dev/eval-workspaces/sc-brainstorm/iterations/iteration-2/strict-blind-inputs/case-rate-limit-output-alpha.md` | consumer | cue | 1 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 | 0 |
++| `.dev/eval-workspaces/sc-brainstorm/live-runs/eval-architecture-worker-pool-errors/merged-requirements.md` | consumer | cue | 1 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 | 0 |
++| `.dev/eval-workspaces/sc-brainstorm/live-runs/eval-code-api-caching-tasklist/merged-requirements.md` | consumer | cue | 2 | 0 | 0 | 1 | 1 | 0 | 0 | 0 | 0 | 0 |
++| `.dev/eval-workspaces/sc-brainstorm/live-runs/eval-code-duplicate-auth-blind/adversarial/debate-transcript.md` | consumer | cue | 1 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 | 0 |
++| `.dev/eval-workspaces/sc-brainstorm/live-runs/eval-code-duplicate-auth-blind/adversarial/merge-log.md` | consumer | cue | 1 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 | 0 |
++| `.dev/eval-workspaces/sc-brainstorm/live-runs/eval-code-duplicate-auth-blind/adversarial/merged-output.md` | consumer | cue | 1 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 | 0 |
++| `.dev/eval-workspaces/sc-brainstorm/live-runs/eval-code-duplicate-auth-blind/merged-requirements.md` | consumer | cue | 1 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 | 0 |
++| `.dev/eval-workspaces/sc-brainstorm/live-runs/eval-code-feature-flag-task/adversarial/merged-output.md` | consumer | cue | 1 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 | 0 |
++| `.dev/eval-workspaces/sc-brainstorm/live-runs/eval-code-feature-flag-task/merged-requirements.md` | consumer | cue | 1 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 | 0 |
++| `.dev/eval-workspaces/sc-brainstorm/live-runs/eval-code-feature-flag-task/qualitative-comparison.json` | consumer | cue | 2 | 0 | 0 | 2 | 0 | 0 | 0 | 0 | 0 | 0 |
++| `.dev/eval-workspaces/sc-brainstorm/live-runs/eval-code-feature-flag-task/qualitative-comparison.md` | consumer | cue | 2 | 0 | 0 | 2 | 0 | 0 | 0 | 0 | 0 | 0 |
++| `.dev/eval-workspaces/sc-brainstorm/live-runs/eval-code-migrate-pytest-vitest/adversarial/merged-output.md` | consumer | cue | 1 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 | 0 |
++| `.dev/eval-workspaces/sc-brainstorm/live-runs/eval-code-migrate-pytest-vitest/merged-requirements.md` | consumer | cue | 1 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 | 0 |
++| `.dev/eval-workspaces/sc-brainstorm/live-runs/eval-incident-payment-webhook-q1/merged-requirements.md` | consumer | cue | 1 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 | 0 |
++| `.dev/eval-workspaces/sc-brainstorm/live-runs/eval-incident-payment-webhook-q1/qualitative-comparison.json` | consumer | cue | 1 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 | 0 |
++| `.dev/eval-workspaces/sc-brainstorm/live-runs/eval-process-contributor-onboarding/adversarial/merge-log.md` | consumer | cue | 1 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 | 0 |
++| `.dev/eval-workspaces/sc-brainstorm/live-runs/eval-process-contributor-onboarding/adversarial/merged-output.md` | consumer | cue | 1 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 | 0 |
++| `.dev/eval-workspaces/sc-brainstorm/live-runs/eval-process-contributor-onboarding/merged-requirements.md` | consumer | cue | 1 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 | 0 |
++| `.dev/eval-workspaces/sc-brainstorm/live-runs/eval-research-bun-vs-node/adversarial/merge-log.md` | consumer | cue | 1 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 | 0 |
++| `.dev/eval-workspaces/sc-brainstorm/live-runs/eval-research-bun-vs-node/merged-requirements.md` | consumer | cue | 1 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 | 0 |
++| `.dev/eval-workspaces/sc-brainstorm/live-runs/qualitative-comparison-summary.json` | consumer | cue | 1 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 | 0 |
++| `.dev/eval-workspaces/sc-brainstorm/live-runs/qualitative-comparison-summary.md` | consumer | cue | 1 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 | 0 |
++| `.dev/eval-workspaces/sc-brainstorm/live-runs/sc-brainstorm-remediation-tasklist.md` | consumer | cue | 2 | 0 | 0 | 2 | 0 | 0 | 0 | 0 | 0 | 0 |
++| `.dev/eval-workspaces/sc-reflect/cases/falsifier-suite/README.md` | consumer | cue | 2 | 0 | 0 | 2 | 0 | 0 | 0 | 0 | 0 | 0 |
++| `.dev/eval-workspaces/sc-reflect/cases/falsifier-suite/T2-converges-on-wrong.yaml` | consumer | cue | 2 | 0 | 0 | 2 | 0 | 0 | 0 | 0 | 0 | 0 |
++| `.dev/eval-workspaces/sc-reflect/cases/falsifier-suite/T2-judge-class-collision.yaml` | consumer | cue | 1 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 | 0 |
++| `.dev/eval-workspaces/sc-reflect/cases/promotion/promotion-blocked-by-drift.yaml` | consumer | cue | 1 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1 |
++| `.dev/eval-workspaces/sc-reflect/cases/promotion/promotion-blocked-by-frontmatter-mismatch.yaml` | consumer | cue | 1 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1 |
++| `.dev/eval-workspaces/sc-reflect/cases/promotion/promotion-blocked-by-frontmatter-missing.yaml` | consumer | cue | 1 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1 |
++| `.dev/eval-workspaces/sc-reflect/cases/promotion/promotion-blocked-by-grounding-gaps-empty-list.yaml` | consumer | cue | 1 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1 |
++| `.dev/eval-workspaces/sc-reflect/cases/promotion/promotion-citation-revalidation-after-remediation.yaml` | consumer | cue | 3 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 4 |
++| `.dev/eval-workspaces/sc-reflect/cases/promotion/promotion-collision-identical.yaml` | consumer | cue | 1 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1 |
++| `.dev/eval-workspaces/sc-reflect/cases/promotion/promotion-collision-non-identical.yaml` | consumer | cue | 1 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1 |
++| `.dev/eval-workspaces/sc-reflect/cases/promotion/promotion-cross-fs-crash-recovery.yaml` | consumer | cue | 1 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1 |
++| `.dev/eval-workspaces/sc-reflect/cases/promotion/promotion-dry-run.yaml` | consumer | cue | 1 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1 |
++| `.dev/eval-workspaces/sc-reflect/cases/promotion/promotion-log-pre-write-survives-crash.yaml` | consumer | cue | 1 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1 |
++| `.dev/eval-workspaces/sc-reflect/cases/promotion/promotion-promote-anyway-on-partial.yaml` | consumer | cue | 1 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1 |
++| `.dev/eval-workspaces/sc-reflect/cases/promotion/promotion-sprint-release-pass.yaml` | consumer | cue | 1 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1 |
++| `.dev/eval-workspaces/sc-reflect/cases/promotion/promotion-task-strict-pass.yaml` | consumer | cue | 1 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1 |
++| `.dev/eval-workspaces/sc-reflect/cases/serena-citation-freshness/expected.yaml` | consumer | cue | 1 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1 |
++| `.dev/eval-workspaces/sc-reflect/evals/evals.json` | consumer | cue | 3 | 0 | 0 | 1 | 1 | 0 | 0 | 0 | 0 | 1 |
++| `.dev/eval-workspaces/sc-release-split-protocol/fidelity-stress/event-processing/outputs/split-proposal-final.md` | consumer | cue | 1 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 | 0 |
++| `.dev/eval-workspaces/sc-release-split-protocol/fidelity-stress/gate-enforcement/outputs/split-proposal-final.md` | consumer | cue | 1 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 | 0 |
++| `.dev/eval-workspaces/sc-release-split-protocol/fidelity-stress/state-machine/outputs/split-proposal-final.md` | consumer | cue | 1 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 | 0 |
++| `.dev/eval-workspaces/sc-release-split-protocol/iteration-1/ambiguous-large-plugin-system/with_skill/grading.json` | consumer | cue | 1 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 | 0 |
++| `.dev/eval-workspaces/sc-release-split-protocol/iteration-1/ambiguous-large-plugin-system/with_skill/outputs/split-proposal-final.md` | consumer | cue | 1 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 | 0 |
++| `.dev/eval-workspaces/sc-release-split-protocol/iteration-1/eval-review.html` | consumer | cue | 1 | 0 | 0 | 8 | 0 | 0 | 0 | 0 | 0 | 0 |
++| `.dev/eval-workspaces/sc-release-split-protocol/iteration-1/learning-loop-observability/with_skill/grading.json` | consumer | cue | 1 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 | 0 |
++| `.dev/eval-workspaces/sc-release-split-protocol/iteration-1/learning-loop-observability/with_skill/outputs/split-proposal-final.md` | consumer | cue | 1 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 | 0 |
++| `.dev/eval-workspaces/sc-release-split-protocol/iteration-1/nosplit-bugfix-hardening/with_skill/grading.json` | consumer | cue | 2 | 0 | 0 | 2 | 0 | 0 | 0 | 0 | 0 | 0 |
++| `.dev/eval-workspaces/sc-release-split-protocol/iteration-1/nosplit-bugfix-hardening/with_skill/outputs/split-proposal-final.md` | consumer | cue | 1 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 | 0 |
++| `.dev/eval-workspaces/sc-release-split-protocol/iteration-1/splittable-auth-system/with_skill/outputs/split-proposal-final.md` | consumer | cue | 1 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 | 0 |
++| `docs/developer-guide/SuperClaude-Developer-Guide-Commands-Skills-Agents.md` | consumer | cue | 3 | 0 | 0 | 2 | 1 | 0 | 0 | 0 | 0 | 0 |
++| `docs/generated/sprint-cli/04-gates-validation.md` | consumer | cue | 1 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 | 0 |
++| `docs/guides/reflect-cli-tools-guide.md` | consumer | cue | 1 | 1 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 |
++| `docs/swarm/command-reference.md` | consumer | cue | 1 | 0 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 |
++| `docs/swarm/oq-resolutions.md` | consumer | cue | 2 | 0 | 0 | 0 | 2 | 0 | 0 | 0 | 0 | 0 |
++| `docs/testing/v5.0.0/user/D06-plan-implement-review-cap.md` | consumer | cue | 2 | 0 | 0 | 0 | 2 | 0 | 0 | 0 | 0 | 0 |
++| `scripts/fidelity-check-setup.sh` | consumer | cue | 2 | 0 | 0 | 2 | 0 | 0 | 0 | 0 | 0 | 0 |
++| `src/superclaude/commands/cli-portify.md` | consumer | cue | 1 | 0 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 |
++| `src/superclaude/commands/impact.md` | consumer | cue | 1 | 0 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 |
++| `src/superclaude/commands/reflect.md` | consumer | cue | 1 | 0 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 |
++| `src/superclaude/contracts/__init__.py` | consumer | cue | 1 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 | 0 |
++| `src/superclaude/core/WORKER-CONTRACT.md` | consumer | cue | 1 | 0 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 |
++| `src/superclaude/skills/sc-brainstorm-protocol/refs/handoff-routing.md` | consumer | cue | 3 | 0 | 0 | 3 | 0 | 0 | 0 | 0 | 0 | 0 |
++| `src/superclaude/skills/sc-cli-portify-protocol/refs/pipeline-spec.md` | consumer | cue | 1 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 | 0 |
++| `src/superclaude/skills/sc-graph-protocol/SKILL.md` | consumer | cue | 1 | 0 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 |
++| `src/superclaude/skills/sc-impact-protocol/SKILL.md` | consumer | cue | 1 | 0 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 |
++| `src/superclaude/skills/sc-implement-protocol/refs/managed-workspace.md` | consumer | cue | 1 | 0 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 |
++| `src/superclaude/skills/sc-init-lite-protocol/SKILL.md` | consumer | cue | 1 | 0 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 |
++| `src/superclaude/skills/sc-reflect-protocol/refs/grader-extensions.md` | consumer | cue | 3 | 0 | 0 | 2 | 1 | 0 | 0 | 0 | 0 | 0 |
++| `src/superclaude/skills/sc-reflect-protocol/refs/ops-integration.md` | consumer | named | 7 | 1 | 1 | 3 | 0 | 0 | 3 | 0 | 0 | 0 |
++| `src/superclaude/skills/sc-reflect-protocol/refs/promotion-adapters.md` | consumer | named | 2 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 | 1 |
++| `src/superclaude/skills/sc-release-split-protocol/refs/adversarial-integration.md` | consumer | cue | 3 | 0 | 0 | 3 | 0 | 0 | 0 | 0 | 0 | 0 |
++| `src/superclaude/skills/sc-tasklist-protocol/SKILL.md` | consumer | named | 2 | 0 | 2 | 2 | 0 | 0 | 0 | 0 | 0 | 0 |
++| `src/superclaude/skills/sc-tasklist-protocol/templates/phase-template.md` | consumer | named | 2 | 0 | 2 | 2 | 0 | 0 | 0 | 0 | 0 | 0 |
++| `src/superclaude/skills/sc-troubleshoot-protocol/SKILL.md` | consumer | named | 1 | 0 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 |
++| `src/superclaude/skills/sc-troubleshoot-protocol/refs/hardening-output-contract.md` | consumer | cue | 3 | 0 | 0 | 0 | 3 | 0 | 0 | 0 | 0 | 0 |
++| `src/superclaude/skills/task-builder/SKILL.md` | consumer | named | 4 | 8 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 |
++| `src/superclaude/skills/task/SKILL.md` | consumer | named | 1 | 0 | 1 | 1 | 0 | 0 | 0 | 0 | 0 | 0 |
++| `tests/cli/eval/test_workflow_vs_task_builder_companion.py` | consumer | cue | 2 | 0 | 0 | 0 | 2 | 0 | 0 | 0 | 0 | 0 |
++| `tests/cli/reflect/fixtures/autofixable_drift.yaml` | consumer | named | 7 | 1 | 1 | 1 | 1 | 1 | 1 | 0 | 0 | 2 |
++| `tests/cli/reflect/fixtures/autofixable_drift_both.yaml` | consumer | named | 7 | 1 | 1 | 1 | 1 | 1 | 1 | 0 | 0 | 2 |
++| `tests/cli/reflect/fixtures/autofixable_drift_no_path.yaml` | consumer | named | 7 | 1 | 1 | 1 | 1 | 1 | 1 | 0 | 0 | 2 |
++| `tests/cli/reflect/fixtures/autofixable_drift_plan.yaml` | consumer | named | 7 | 1 | 1 | 1 | 1 | 1 | 1 | 0 | 0 | 2 |
++| `tests/cli/reflect/fixtures/blocked_unknown_major.yaml` | consumer | named | 7 | 1 | 1 | 1 | 1 | 1 | 1 | 0 | 0 | 2 |
++| `tests/cli/reflect/fixtures/blocked_with_drift.yaml` | consumer | named | 7 | 1 | 1 | 1 | 1 | 1 | 1 | 0 | 0 | 2 |
++| `tests/cli/reflect/fixtures/degraded_graph_absent.yaml` | consumer | named | 7 | 1 | 1 | 1 | 1 | 1 | 1 | 0 | 0 | 2 |
++| `tests/cli/reflect/fixtures/degraded_reviewer_shortfall.yaml` | consumer | named | 7 | 1 | 1 | 1 | 1 | 1 | 1 | 0 | 0 | 2 |
++| `tests/cli/reflect/fixtures/degraded_single_vendor.yaml` | consumer | named | 7 | 1 | 1 | 1 | 1 | 1 | 1 | 0 | 0 | 2 |
++| `tests/cli/reflect/fixtures/degraded_tier1.yaml` | consumer | named | 7 | 1 | 1 | 1 | 1 | 1 | 1 | 0 | 0 | 2 |
++| `tests/cli/reflect/fixtures/degraded_with_drift.yaml` | consumer | named | 7 | 1 | 1 | 1 | 1 | 1 | 1 | 0 | 0 | 2 |
++| `tests/cli/reflect/fixtures/halted_regression.yaml` | consumer | named | 7 | 1 | 1 | 1 | 1 | 1 | 1 | 0 | 0 | 2 |
++| `tests/cli/reflect/fixtures/human_required_needs_decision.yaml` | consumer | named | 7 | 1 | 1 | 1 | 1 | 1 | 1 | 0 | 0 | 2 |
++| `tests/cli/reflect/fixtures/panel_lint_legacy/adversarial/merged-verdict.yaml` | consumer | named | 2 | 1 | 0 | 1 | 0 | 0 | 0 | 0 | 0 | 0 |
++| `tests/cli/reflect/fixtures/panel_lint_legacy/return-contract.yaml` | consumer | named | 9 | 1 | 1 | 1 | 1 | 1 | 1 | 1 | 1 | 2 |
++| `tests/cli/reflect/fixtures/pass.yaml` | consumer | named | 7 | 1 | 1 | 1 | 1 | 1 | 1 | 0 | 0 | 2 |
++| `tests/cli/reflect/fixtures/pass_no_t2_fallback.yaml` | consumer | named | 7 | 1 | 1 | 1 | 1 | 1 | 1 | 0 | 0 | 2 |
++| `tests/cli/reflect/fixtures/pass_with_t2_fallback.yaml` | consumer | named | 7 | 1 | 1 | 1 | 1 | 1 | 1 | 0 | 0 | 2 |
++| `tests/cli/reflect/fixtures/postfix_pass.yaml` | consumer | named | 7 | 1 | 1 | 1 | 1 | 1 | 1 | 0 | 0 | 2 |
++| `tests/cli/reflect/fixtures/reachability_1_7_0_gate_ran.yaml` | consumer | named | 7 | 1 | 1 | 1 | 1 | 1 | 1 | 0 | 0 | 2 |
++| `tests/cli/reflect/fixtures/reachability_proxy_oracle_unproven.yaml` | consumer | named | 7 | 1 | 1 | 1 | 1 | 1 | 1 | 0 | 0 | 2 |
++| `tests/cli/reflect/fixtures/reachability_semantic_fallback_advisory.yaml` | consumer | named | 7 | 1 | 1 | 1 | 1 | 1 | 1 | 0 | 0 | 2 |
++| `tests/cli/reflect/fixtures/reachability_skip_no_reachability.yaml` | consumer | named | 7 | 1 | 1 | 1 | 1 | 1 | 1 | 0 | 0 | 2 |
++| `tests/cli/reflect/fixtures/reachability_skip_spec_absent.yaml` | consumer | named | 7 | 1 | 1 | 1 | 1 | 1 | 1 | 0 | 0 | 2 |
++| `tests/cli/reflect/fixtures/reachability_unwired_surface_regression.yaml` | consumer | named | 7 | 1 | 1 | 1 | 1 | 1 | 1 | 0 | 0 | 2 |
++| `tests/cli/reflect/fixtures/tolerant_unknown_field.yaml` | consumer | named | 7 | 1 | 1 | 1 | 1 | 1 | 1 | 0 | 0 | 2 |
++| `tests/cli/reflect/fixtures/vacuous_no_verify.yaml` | consumer | named | 7 | 1 | 1 | 1 | 1 | 1 | 1 | 0 | 0 | 2 |
++| `tests/cli/reflect/test_classify_fix.py` | consumer | named | 1 | 0 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 |
++| `tests/cli/reflect/test_contract_fallback_metadata.py` | consumer | named | 4 | 2 | 2 | 2 | 0 | 0 | 0 | 0 | 0 | 0 |
++| `tests/cli/reflect/test_ensemble_fallback_engage.py` | consumer | named | 1 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 | 0 |
++| `tests/cli/reflect/test_ensemble_fallback_stub.py` | consumer | named | 4 | 2 | 2 | 2 | 0 | 0 | 0 | 0 | 0 | 0 |
++| `tests/cli/reflect/test_ensemble_stub_integration.py` | consumer | named | 27 | 10 | 2 | 6 | 2 | 8 | 1 | 0 | 0 | 0 |
++| `tests/cli/reflect/test_ensemble_unit.py` | consumer | named | 26 | 2 | 12 | 22 | 0 | 2 | 1 | 0 | 0 | 0 |
++| `tests/cli/reflect/test_panel_contract_lint.py` | consumer | named | 31 | 10 | 3 | 4 | 7 | 0 | 1 | 1 | 7 | 2 |
++| `tests/cli/reflect/test_verdict_mapping.py` | consumer | named | 9 | 2 | 3 | 3 | 1 | 0 | 0 | 0 | 0 | 3 |
++| `tests/cli/reflect/test_verdict_replay_script.py` | consumer | named | 6 | 0 | 0 | 0 | 2 | 0 | 2 | 0 | 0 | 2 |
++| `tests/commands/test_workflow_command.py` | consumer | cue | 1 | 0 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 |
++| `tests/review/test_reflect_consumer_inventory.py` | consumer | cue | 54 | 30 | 5 | 10 | 9 | 0 | 1 | 1 | 4 | 3 |
++| `tests/review/test_reflect_stage0a_replay.py` | consumer | cue | 18 | 13 | 5 | 6 | 0 | 0 | 0 | 0 | 0 | 0 |
++| `tests/skills/test_task_workspace_lifecycle.py` | consumer | cue | 2 | 0 | 0 | 0 | 2 | 0 | 0 | 0 | 0 | 0 |
++| `tests/skills/test_task_workspace_smoke.py` | consumer | cue | 1 | 0 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 |
++| `tests/skills/test_worker_contract.py` | consumer | cue | 1 | 0 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 |
++| `tests/skills/test_workflow_archive.py` | consumer | cue | 3 | 0 | 0 | 0 | 3 | 0 | 0 | 0 | 0 | 0 |
++| `tests/swarm/fixtures/bare_review_v1/golden/all-success/return-contract.yaml` | consumer | cue | 1 | 0 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 |
++| `tests/swarm/fixtures/bare_review_v1/golden/partial-with-timeout/return-contract.yaml` | consumer | cue | 1 | 0 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 |
++| `tests/swarm/fixtures/bare_review_v1/golden/salvage-promoted/return-contract.yaml` | consumer | cue | 1 | 0 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 |
++| `tests/swarm/test_bare_review_golden_regen.py` | consumer | cue | 1 | 0 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 |
++| `tests/swarm/test_commands_run.py` | consumer | cue | 2 | 0 | 0 | 0 | 2 | 0 | 0 | 0 | 0 | 0 |
++| `tests/swarm/test_contract_emission.py` | consumer | cue | 2 | 0 | 0 | 0 | 2 | 0 | 0 | 0 | 0 | 0 |
++| `tests/swarm/test_dispatch.py` | consumer | cue | 1 | 0 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 |
++| `tests/swarm/test_dual_log_emission.py` | consumer | cue | 1 | 0 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 |
++| `tests/swarm/test_force_relens.py` | consumer | cue | 2 | 0 | 0 | 0 | 2 | 0 | 0 | 0 | 0 | 0 |
++| `tests/swarm/test_imm3_parallel.py` | consumer | cue | 1 | 0 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 |
++| `tests/swarm/test_inv007_empty_pool.py` | consumer | cue | 1 | 0 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 |
++| `tests/swarm/test_inv_suite.py` | consumer | cue | 1 | 0 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 |
++| `tests/swarm/test_manifest.py` | consumer | cue | 8 | 0 | 0 | 0 | 8 | 0 | 0 | 0 | 0 | 0 |
++| `tests/swarm/test_manifest_durable.py` | consumer | cue | 1 | 0 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 |
++| `tests/swarm/test_manifest_emission.py` | consumer | cue | 3 | 0 | 0 | 0 | 3 | 0 | 0 | 0 | 0 | 0 |
++| `tests/swarm/test_no_response_cache.py` | consumer | cue | 1 | 0 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 |
++| `tests/swarm/test_parallel_executor_routing.py` | consumer | cue | 1 | 0 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 |
++| `tests/swarm/test_preflight.py` | consumer | cue | 1 | 0 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 |
++| `tests/swarm/test_reduce.py` | consumer | cue | 2 | 0 | 0 | 0 | 2 | 0 | 0 | 0 | 0 | 0 |
++| `tests/swarm/test_resolvedlens.py` | consumer | cue | 1 | 0 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 |
++| `tests/swarm/test_result_contract.py` | consumer | cue | 8 | 0 | 0 | 0 | 8 | 0 | 0 | 0 | 0 | 0 |
++| `tests/swarm/test_resume_crash_recovery.py` | consumer | cue | 1 | 0 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 |
++| `tests/swarm/test_resume_uses_manifest_lens.py` | consumer | cue | 1 | 0 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 |
++| `tests/swarm/test_status_cmd.py` | consumer | cue | 1 | 0 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 |
++| `tests/swarm/test_stub_transport.py` | consumer | cue | 1 | 0 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 |
++| `tests/swarm/test_three_layer_artifacts.py` | consumer | cue | 1 | 0 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 |
++| `tests/troubleshoot/backtest/catch_rate.py` | consumer | cue | 4 | 0 | 0 | 0 | 5 | 0 | 0 | 0 | 0 | 0 |
++| `tests/troubleshoot/backtest/fixtures/catch_rate/all_catch_missing_witness.json` | consumer | cue | 1 | 0 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 |
++| `tests/troubleshoot/backtest/fixtures/catch_rate/invalid_bad_status.json` | consumer | cue | 1 | 0 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 |
++| `tests/troubleshoot/backtest/fixtures/catch_rate/invalid_bad_verdict.json` | consumer | cue | 1 | 0 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 |
++| `tests/troubleshoot/backtest/fixtures/catch_rate/valid_full.json` | consumer | cue | 1 | 0 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 |
++| `tests/troubleshoot/backtest/fixtures/catch_rate/valid_minimal.json` | consumer | cue | 1 | 0 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 |
++| `tests/troubleshoot/backtest/schemas/catch_rate.schema.json` | consumer | cue | 2 | 0 | 0 | 0 | 2 | 0 | 0 | 0 | 0 | 0 |
++| `tests/troubleshoot/backtest/test_backtest_status_separation.py` | consumer | cue | 3 | 0 | 0 | 0 | 3 | 0 | 0 | 0 | 0 | 0 |
++| `tests/troubleshoot/backtest/test_catch_rate_aggregation.py` | consumer | cue | 4 | 0 | 0 | 0 | 4 | 0 | 0 | 0 | 0 | 0 |
++| `tests/troubleshoot/backtest/test_catch_rate_schema.py` | consumer | cue | 14 | 0 | 0 | 0 | 14 | 0 | 0 | 0 | 0 | 0 |
++| `tests/troubleshoot/test_hardening_output_contract.py` | consumer | cue | 1 | 0 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 |
++| `docs/guides/roadmap-cli-tools-release-guide.md` | not in scope | cue | 4 | 0 | 0 | 4 | 0 | 0 | 0 | 0 | 0 | 0 |
++| `src/superclaude/cli/roadmap/envelope.py` | not in scope | cue | 1 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 | 0 |
++| `src/superclaude/cli/roadmap/gates.py` | not in scope | cue | 7 | 0 | 0 | 7 | 0 | 0 | 0 | 0 | 0 | 0 |
++| `src/superclaude/cli/roadmap/prompts.py` | not in scope | cue | 5 | 0 | 0 | 5 | 0 | 0 | 0 | 0 | 0 | 0 |
++| `src/superclaude/cli/roadmap/templates/debate.md.j2` | not in scope | cue | 1 | 0 | 0 | 2 | 0 | 0 | 0 | 0 | 0 | 0 |
++| `src/superclaude/cli/roadmap/templates/merge.md.j2` | not in scope | cue | 1 | 0 | 0 | 2 | 0 | 0 | 0 | 0 | 0 | 0 |
++| `src/superclaude/cli/roadmap/templates/tool_schemas/debate.schema.json` | not in scope | cue | 3 | 0 | 0 | 5 | 0 | 0 | 0 | 0 | 0 | 0 |
++| `src/superclaude/cli/roadmap/templates/tool_schemas/merge.schema.json` | not in scope | cue | 1 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 | 0 |
++| `src/superclaude/examples/roadmap_template.compressed.md` | not in scope | cue | 1 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 | 0 |
++| `src/superclaude/examples/roadmap_template.md` | not in scope | cue | 1 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 | 0 |
++| `src/superclaude/skills/sc-roadmap-protocol/SKILL.md` | not in scope | cue | 17 | 0 | 0 | 19 | 0 | 0 | 0 | 0 | 0 | 0 |
++| `src/superclaude/skills/sc-roadmap-protocol/refs/adversarial-integration.md` | not in scope | cue | 13 | 0 | 0 | 15 | 0 | 0 | 0 | 0 | 0 | 0 |
++| `src/superclaude/skills/sc-roadmap-protocol/refs/templates.md` | not in scope | cue | 2 | 0 | 0 | 2 | 0 | 0 | 0 | 0 | 0 | 0 |
++| `tests/roadmap/test_eval_gate_rejection.py` | not in scope | cue | 2 | 0 | 0 | 3 | 0 | 0 | 0 | 0 | 0 | 0 |
++| `tests/roadmap/test_executor.py` | not in scope | cue | 1 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 | 0 |
++| `tests/roadmap/test_gates_data.py` | not in scope | cue | 23 | 0 | 0 | 23 | 0 | 0 | 0 | 0 | 0 | 0 |
++| `tests/roadmap/test_generation_phantom_id_prevention.py` | not in scope | cue | 1 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 | 0 |
++| `tests/roadmap/test_integration_v5_pipeline.py` | not in scope | cue | 1 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 | 0 |
++| `tests/roadmap/test_pipeline_integration.py` | not in scope | cue | 1 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 | 0 |
++| `tests/roadmap/test_prompts.py` | not in scope | cue | 1 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 | 0 |
++| `tests/roadmap/test_threshold_registry.py` | not in scope | cue | 2 | 0 | 0 | 2 | 0 | 0 | 0 | 0 | 0 | 0 |
++| `tests/roadmap/test_tool_write_step_debate.py` | not in scope | cue | 15 | 0 | 0 | 15 | 0 | 0 | 0 | 0 | 0 | 0 |
++| `tests/roadmap/test_tool_write_step_merge.py` | not in scope | cue | 1 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 | 0 |
++| `tests/sc-roadmap/integration/test_adversarial_pipeline.py` | not in scope | cue | 23 | 0 | 0 | 24 | 0 | 0 | 0 | 0 | 0 | 0 |
++| `tests/sc-roadmap/integration/test_return_contract_routing.py` | not in scope | cue | 61 | 0 | 0 | 62 | 0 | 0 | 0 | 0 | 0 | 0 |
++| `tests/test_sc_roadmap_refactor.sh` | not in scope | cue | 4 | 0 | 0 | 4 | 0 | 0 | 0 | 0 | 0 | 0 |
++
++## Files not searched
++
++- Binary: `tests/pr_submit/fixtures/merge_tree_conflict.z`.
++- Unreadable: none.
++- Non-regular: none.
++- Symlinked directories: none.
++
++## What this grep does and does not catch
++
++- It catches each word as a case-sensitive substring in any text file under the scan roots, prose,
++  fixtures and code alike. The `convergence_score` column includes the `adversarial_convergence_score`
++  occurrences.
++- It does not catch a field reached by a computed key (`'merge_' + 'method'`, f-strings), other spellings
++  (`convergence-score`, `mergeMethod`, the prose words 'convergence score'), a consumer that reads the
++  whole contract without naming the field, binary files, symlinked directories, or files outside the scan
++  roots (`plugins/`, `.claude/`, `~/.claude/`, `.dev/` outside `eval-workspaces/`, other repositories).
++- A `named` role says where a file sits in the named lists; a `cue` role says which path or text cue of
++  the script docstring the file matched. Neither comes from tracing the code, so neither proves that the
++  file writes or reads a field at runtime. The named list is not complete.
+diff --git a/scripts/reflect_consumer_inventory.py b/scripts/reflect_consumer_inventory.py
+index ca09c8e7e..6a8e06ce1 100644
+--- a/scripts/reflect_consumer_inventory.py
++++ b/scripts/reflect_consumer_inventory.py
+@@ -416,8 +416,9 @@ def render(root: Path, res: dict) -> str:
+     out += ["", "## Negative statements", ""]
+     out += _equality_line(res)
+     out.append(
+-        "- Task 15 of this plan will add such an equality in `src/superclaude/cli/reflect/panel_lint.py`; "
+-        "a rerun after it lists that line."
++        "- The Task 15 lint (`src/superclaude/cli/reflect/panel_lint.py`) checks the version as "
++        '`version != CONTRACT_VERSION` with `CONTRACT_VERSION = "1.8.0"`, not as the literal equality this search '
++        "looks for, so a rerun does not list it here."
+     )
+     out.append(_grader_line(root, res))
+ 
+diff --git a/scripts/reflect_verdict_replay.py b/scripts/reflect_verdict_replay.py
+new file mode 100644
+index 000000000..0ced29ba9
+--- /dev/null
++++ b/scripts/reflect_verdict_replay.py
+@@ -0,0 +1,184 @@
++#!/usr/bin/env python3
++"""Offline verdict replay of recorded reflect pre contracts (contract compatibility gate, Stage 2 entry check).
++
++Run with ``uv run python scripts/reflect_verdict_replay.py [--runs-root <dir>] [--shadow <run dir> ...]``. It reads
++files only: no model, no process, no network, and it writes nothing.
++
++Legacy set: every ``<runs-root>/pre-*`` directory (default runs root: ``.dev/reflect`` under the repository that
++holds this script) that holds a ``return-contract.yaml`` which parses to a mapping with ``contract_version`` equal
++to the string ``"1.8.0"`` and has no ``panel/manifest.json``. Other contracts are counted and listed as skipped,
++with the reason.
++
++Shadow set: the run directories given with ``--shadow`` (a shadow run is one with ``panel/manifest.json``; the
++script does not require it, so the legacy runs can be replayed against themselves). With no ``--shadow`` the shadow
++set is the legacy set, which is the self-replay: it must report zero differences.
++
++Each contract goes through ``superclaude.cli.reflect.contract.derive_verdict`` with these keyword arguments:
++- ``expected_tier=2``: the panel and shadow runs are Tier 2, and the wrapper's T2 gate expects tier 2. A recorded
++  Tier 1 run therefore replays as ``degraded-tier1`` on both sides, which is what that gate would say; it is not a
++  difference.
++- ``allow_single_vendor``: both values are replayed. The flag is an operator opt-in of one run, not a property of
++  a recorded contract, and ``derive_verdict`` is first-match-wins: with False a ``single-vendor`` run reports
++  ``single-vendor`` and hides any later reason (for example ``adversarial-unavailable``); with True that later
++  reason shows. Replaying both, and checking each for new degraded reasons, closes that gap.
++- ``child_rc=0``: a recorded contract exists because the audit child finished; an offline replay has no child, so
++  the crash and timeout vetoes (rc 124 or non-zero) must not apply.
++``promoting`` keeps its default (False): a recorded pre contract is not a promotion run.
++
++Differences: runs are paired by directory name. A paired run differs when its (verdict, reason) differs. A new
++degraded reason is a shadow run whose verdict is ``degraded`` and that either (a) is paired with a legacy run whose
++(verdict, reason) is not the same, or (b) is unpaired and has a degraded reason that no legacy run has. The script
++prints both sets, for each ``allow_single_vendor`` value, and exits 1 when there is any new degraded reason, 0
++otherwise, 2 on a usage error. Limits: a shadow contract that is unusable or not 1.8.0 is skipped and listed, and a
++shadow verdict of ``blocked`` or ``halted`` is a difference when paired but not a new degraded reason; neither
++changes the exit code.
++
++With no ``--shadow`` the legacy run directories are replayed a second time as the shadow set (a self-replay). It
++shows that the recorded contracts load and derive the same verdicts on every call; it cannot find a difference.
++"""
++
++from __future__ import annotations
++
++import argparse
++import sys
++from collections import Counter
++from pathlib import Path
++from typing import Any
++
++import yaml
++
++from superclaude.cli.reflect.contract import derive_verdict
++
++ROOT = Path(__file__).resolve().parents[1]
++CONTRACT = "return-contract.yaml"
++VERSION = "1.8.0"
++DERIVE_ARGS = {"expected_tier": 2, "child_rc": 0}
++SINGLE_VENDOR_MODES = (
++    False,
++    True,
++)  # the values of allow_single_vendor that are replayed
++
++
++def load(run: Path) -> tuple[dict | None, str | None]:
++    """(contract mapping, skip reason); the reason is None when the contract is usable."""
++    path = run / CONTRACT
++    if not path.is_file():
++        return None, "no return-contract.yaml"
++    try:
++        data = yaml.safe_load(path.read_text(encoding="utf-8"))
++    except (OSError, ValueError, yaml.YAMLError):
++        return None, "unreadable or unparseable"
++    if not isinstance(data, dict):
++        return None, "not a mapping"
++    if data.get("contract_version") != VERSION:
++        return None, f"contract_version {data.get('contract_version')!r}"
++    return data, None
++
++
++def replay(run: Path, allow_single_vendor: bool = False) -> tuple[str, str] | None:
++    """(verdict, reason) of a usable contract, else None."""
++    contract, _ = load(run)
++    if contract is None:
++        return None
++    result = derive_verdict(
++        contract, allow_single_vendor=allow_single_vendor, **DERIVE_ARGS
++    )
++    return result.verdict.value, result.reason
++
++
++def legacy_runs(runs_root: Path) -> tuple[list[Path], list[tuple[str, str]]]:
++    """(legacy run directories, [(name, skip reason)]) under runs_root."""
++    runs, skipped = [], []
++    for d in sorted(runs_root.glob("pre-*")):
++        if not d.is_dir():
++            continue
++        if (d / "panel" / "manifest.json").exists():
++            skipped.append((d.name, "has panel/manifest.json (a shadow run)"))
++            continue
++        contract, why = load(d)
++        if contract is None:
++            skipped.append((d.name, why or "unusable"))
++        else:
++            runs.append(d)
++    return runs, skipped
++
++
++def compare(
++    legacy: dict[str, tuple[str, str]], shadow: dict[str, tuple[str, str]]
++) -> dict[str, Any]:
++    """Differences and new degraded reasons between two {run name: (verdict, reason)} maps."""
++    legacy_reasons = {r for v, r in legacy.values() if v == "degraded"}
++    changed, new_degraded = [], []
++    for name in sorted(shadow):
++        got = shadow[name]
++        want = legacy.get(name)
++        if want is not None and want != got:
++            changed.append((name, want, got))
++        if got[0] != "degraded":
++            continue
++        if (want is not None and want != got) or (
++            want is None and got[1] not in legacy_reasons
++        ):
++            new_degraded.append((name, got[1]))
++    return {"changed": changed, "new_degraded": new_degraded}
++
++
++def render(sets: dict, skipped: list, results: dict, self_replay: bool) -> str:
++    """sets and results are keyed by the allow_single_vendor value."""
++
++    def tally(side: dict) -> list[str]:
++        counts = Counter(f"{v}/{r}" for v, r in side.values())
++        return [f"  {n:3d}  {k}" for k, n in sorted(counts.items())]
++
++    first = sets[SINGLE_VENDOR_MODES[0]]
++    lines = [
++        "Verdict replay (derive_verdict: expected_tier=2, child_rc=0; allow_single_vendor False and True)",
++        f"legacy runs replayed: {len(first[0])}; skipped: {len(skipped)}",
++        *[f"  skipped {n}: {why}" for n, why in skipped],
++        f"shadow runs replayed: {len(first[1])}"
++        + (" (self-replay: the legacy set again)" if self_replay else ""),
++    ]
++    for allow in SINGLE_VENDOR_MODES:
++        legacy, shadow = sets[allow]
++        result = results[allow]
++        lines += [
++            f"== allow_single_vendor={allow}",
++            "legacy verdict/reason:",
++            *tally(legacy),
++            "shadow verdict/reason:",
++            *tally(shadow),
++            f"differences: {len(result['changed'])}",
++            *[
++                f"  {n}: legacy {w[0]}/{w[1]} -> shadow {g[0]}/{g[1]}"
++                for n, w, g in result["changed"]
++            ],
++            f"new degraded reasons: {len(result['new_degraded'])}",
++            *[f"  {n}: {r}" for n, r in result["new_degraded"]],
++        ]
++    return "\n".join(lines) + "\n"
++
++
++def main(argv: list[str] | None = None) -> int:
++    parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
++    parser.add_argument("--runs-root", type=Path, default=ROOT / ".dev" / "reflect")
++    parser.add_argument("--shadow", type=Path, action="append", default=[])
++    args = parser.parse_args(argv)
++    if not args.runs_root.is_dir():
++        print(f"runs root is not a directory: {args.runs_root}", file=sys.stderr)
++        return 2
++    runs, skipped = legacy_runs(args.runs_root)
++    shadow_dirs = args.shadow or runs
++    for d in args.shadow:
++        if load(d)[0] is None:
++            skipped.append((d.name, f"shadow: {load(d)[1] or 'unusable'}"))
++    sets, results = {}, {}
++    for allow in SINGLE_VENDOR_MODES:
++        legacy = {d.name: v for d in runs if (v := replay(d, allow)) is not None}
++        shadow = {d.name: v for d in shadow_dirs if (v := replay(d, allow)) is not None}
++        sets[allow], results[allow] = (legacy, shadow), compare(legacy, shadow)
++    sys.stdout.write(render(sets, skipped, results, not args.shadow))
++    return 1 if any(r["new_degraded"] for r in results.values()) else 0
++
++
++if __name__ == "__main__":
++    sys.exit(main())
+diff --git a/tests/cli/reflect/test_verdict_replay_script.py b/tests/cli/reflect/test_verdict_replay_script.py
+new file mode 100644
+index 000000000..19e24c077
+--- /dev/null
++++ b/tests/cli/reflect/test_verdict_replay_script.py
+@@ -0,0 +1,190 @@
++"""Tests for scripts/reflect_verdict_replay.py (offline derive_verdict replay of recorded pre contracts)."""
++
++from __future__ import annotations
++
++import importlib.util
++import json
++from pathlib import Path
++
++import pytest
++import yaml
++
++ROOT = Path(__file__).resolve().parents[3]
++SCRIPT = ROOT / "scripts" / "reflect_verdict_replay.py"
++_spec = importlib.util.spec_from_file_location("reflect_verdict_replay", SCRIPT)
++rv = importlib.util.module_from_spec(_spec)
++_spec.loader.exec_module(rv)
++
++FIXTURE = Path(__file__).parent / "fixtures" / "panel_lint_legacy"
++
++
++def run_dir(root: Path, name: str, **changes) -> Path:
++    """A recorded-run directory: the 1.8.0 legacy fixture contract with `changes` applied."""
++    d = root / name
++    d.mkdir(parents=True)
++    contract = yaml.safe_load((FIXTURE / "return-contract.yaml").read_text())
++    contract.update(changes)
++    (d / "return-contract.yaml").write_text(yaml.safe_dump(contract, sort_keys=False))
++    return d
++
++
++def shadow_dir(root: Path, name: str, **changes) -> Path:
++    d = run_dir(root, name, **changes)
++    (d / "panel").mkdir()
++    (d / "panel/manifest.json").write_text(json.dumps({"reviewers_resolved": 3}))
++    return d
++
++
++def test_self_replay_reports_zero_differences(tmp_path, capsys):
++    runs = tmp_path / "runs"
++    run_dir(runs, "pre-a")
++    run_dir(runs, "pre-b", status="success", citations_dropped=0)
++    assert rv.main(["--runs-root", str(runs)]) == 0
++    out = capsys.readouterr().out
++    assert "differences: 0" in out and "new degraded reasons: 0" in out
++    assert "self-replay" in out and "legacy runs replayed: 2" in out
++
++
++def test_replaying_the_legacy_runs_as_the_shadow_set_is_also_clean(tmp_path, capsys):
++    runs = tmp_path / "runs"
++    a = run_dir(runs, "pre-a")
++    b = run_dir(runs, "pre-b", status="success", citations_dropped=0)
++    assert (
++        rv.main(["--runs-root", str(runs), "--shadow", str(a), "--shadow", str(b)]) == 0
++    )
++    assert "differences: 0" in capsys.readouterr().out
++
++
++def test_synthetic_shadow_with_a_new_degraded_reason_exits_nonzero(tmp_path, capsys):
++    runs = tmp_path / "runs"
++    run_dir(runs, "pre-a")  # legacy: degraded / verification-skipped
++    shadow = shadow_dir(tmp_path / "shadow", "pre-new", adversarial_unavailable=True)
++    assert rv.main(["--runs-root", str(runs), "--shadow", str(shadow)]) == 1
++    out = capsys.readouterr().out
++    assert (
++        "new degraded reasons: 1" in out and "pre-new: adversarial-unavailable" in out
++    )
++
++
++def test_shadow_with_a_reason_the_legacy_set_already_has_is_not_new(tmp_path, capsys):
++    runs = tmp_path / "runs"
++    run_dir(runs, "pre-a")  # degraded / verification-skipped
++    shadow = shadow_dir(tmp_path / "shadow", "pre-same")  # same contract: same reason
++    assert rv.main(["--runs-root", str(runs), "--shadow", str(shadow)]) == 0
++    assert "new degraded reasons: 0" in capsys.readouterr().out
++
++
++def test_paired_run_whose_reason_changed_is_listed_and_flagged(tmp_path, capsys):
++    runs = tmp_path / "runs"
++    run_dir(runs, "pre-a")
++    shadow = shadow_dir(tmp_path / "shadow", "pre-a", adversarial_unavailable=True)
++    assert rv.main(["--runs-root", str(runs), "--shadow", str(shadow)]) == 1
++    out = capsys.readouterr().out
++    assert "differences: 1" in out
++    assert (
++        "legacy degraded/verification-skipped -> shadow degraded/adversarial-unavailable"
++        in out
++    )
++
++
++def test_legacy_set_skips_shadow_runs_other_versions_and_bad_files(tmp_path, capsys):
++    runs = tmp_path / "runs"
++    run_dir(runs, "pre-ok")
++    shadow_dir(runs, "pre-shadow")
++    run_dir(runs, "pre-old", contract_version="1.7.0")
++    (runs / "pre-empty").mkdir()
++    bad = run_dir(runs, "pre-bad")
++    (bad / "return-contract.yaml").write_bytes(b"\xff\xfe: [")
++    (runs / "other-run").mkdir()
++    legacy, skipped = rv.legacy_runs(runs)
++    assert [d.name for d in legacy] == ["pre-ok"]
++    assert dict(skipped) == {
++        "pre-shadow": "has panel/manifest.json (a shadow run)",
++        "pre-old": "contract_version '1.7.0'",
++        "pre-empty": "no return-contract.yaml",
++        "pre-bad": "unreadable or unparseable",
++    }
++    assert rv.main(["--runs-root", str(runs)]) == 0
++    assert "skipped: 4" in capsys.readouterr().out
++
++
++def test_unusable_shadow_directory_is_skipped_not_fatal(tmp_path, capsys):
++    runs = tmp_path / "runs"
++    run_dir(runs, "pre-a")
++    empty = tmp_path / "shadow-empty"
++    empty.mkdir()
++    assert rv.main(["--runs-root", str(runs), "--shadow", str(empty)]) == 0
++    out = capsys.readouterr().out
++    assert "skipped shadow-empty: shadow: no return-contract.yaml" in out
++    assert "shadow runs replayed: 0" in out
++
++
++def test_derive_arguments_are_the_documented_ones():
++    assert rv.DERIVE_ARGS == {"expected_tier": 2, "child_rc": 0}
++    assert rv.SINGLE_VENDOR_MODES == (False, True)
++    header = rv.__doc__
++    for text in ("expected_tier=2", "child_rc=0", "allow_single_vendor"):
++        assert text in header
++
++
++def test_a_reason_hidden_behind_single_vendor_is_found_by_the_lenient_replay(
++    tmp_path, capsys
++):
++    runs = tmp_path / "runs"
++    run_dir(runs, "pre-a", t2_vendor_diversity="single")
++    shadow = shadow_dir(
++        tmp_path / "shadow",
++        "pre-s",
++        t2_vendor_diversity="single",
++        adversarial_unavailable=True,
++    )
++    # strict: both runs say single-vendor, so nothing is new; lenient: adversarial-unavailable shows
++    assert rv.replay(runs / "pre-a") == ("degraded", "single-vendor")
++    assert rv.replay(shadow) == ("degraded", "single-vendor")
++    assert rv.replay(shadow, allow_single_vendor=True) == (
++        "degraded",
++        "adversarial-unavailable",
++    )
++    assert rv.main(["--runs-root", str(runs), "--shadow", str(shadow)]) == 1
++    out = capsys.readouterr().out
++    assert (
++        "== allow_single_vendor=True" in out and "pre-s: adversarial-unavailable" in out
++    )
++
++
++def test_self_replay_runs_derive_verdict_again(tmp_path, monkeypatch):
++    runs = tmp_path / "runs"
++    run_dir(runs, "pre-a")
++    calls = []
++    real = rv.replay
++    monkeypatch.setattr(
++        rv, "replay", lambda d, allow=False: calls.append(d.name) or real(d, allow)
++    )
++    assert rv.main(["--runs-root", str(runs)]) == 0
++    assert (
++        calls.count("pre-a") == 4
++    )  # legacy and shadow side, for each of the two modes
++
++
++def test_missing_runs_root_is_a_usage_error(tmp_path, capsys):
++    assert rv.main(["--runs-root", str(tmp_path / "nope")]) == 2
++
++
++def test_script_writes_nothing(tmp_path):
++    runs = tmp_path / "runs"
++    run_dir(runs, "pre-a")
++    before = sorted(p.relative_to(tmp_path).as_posix() for p in tmp_path.rglob("*"))
++    rv.main(["--runs-root", str(runs)])
++    assert (
++        sorted(p.relative_to(tmp_path).as_posix() for p in tmp_path.rglob("*"))
++        == before
++    )
++
++
++@pytest.mark.skipif(
++    not any((ROOT / ".dev" / "reflect").glob("pre-*/return-contract.yaml")),
++    reason="no recorded reflect runs in this checkout",
++)
++def test_recorded_runs_replay_against_themselves(capsys):
++    assert rv.main([]) == 0
++    assert "differences: 0" in capsys.readouterr().out

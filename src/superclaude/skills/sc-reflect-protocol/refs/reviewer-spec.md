@@ -36,7 +36,7 @@ A reviewer brief MUST contain exactly these three sections, in this order:
 
 The slice of the Tier 1 reflection card relevant to **this reviewer's persona**. For example, the `analyzer` reviewer receives the root-cause / deviation section; the `qa` reviewer receives the coverage / acceptance section; the `refactorer` reviewer receives the structural / tech-debt section.
 
-The slice is a verbatim excerpt from `<output>/t1-card.md` — not a paraphrase.
+The slice is a verbatim excerpt from `<output>/t1-card.md` — not a paraphrase — with one exception: when the effective `--t2-engine` is `shadow` (SKILL.md §4.3a), one instruction line is appended inside this section, after the excerpt and not as a fourth section: `End your card with a ## Findings block fenced findings-v2 block (lens: reflect-pre, citations with roles plan and spec) and a reviewer_model_self_report line stating the model you are running as in one line.` A legacy run's briefs do not carry this line and are unchanged. In a shadow run the orchestrator also writes `persona:`, `model_class:` and `model:` (the resolved model id) at the top of each reviewer card it saves, so the Stage 2 aggregator can recompute panel parity from the card headers and `panel/resolution.json`.
 
 #### `## Grounding hunks`
 

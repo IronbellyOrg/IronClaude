@@ -1,0 +1,222 @@
+diff --git a/src/superclaude/cli/review/cluster.py b/src/superclaude/cli/review/cluster.py
+index 67d84741b..177e87353 100644
+--- a/src/superclaude/cli/review/cluster.py
++++ b/src/superclaude/cli/review/cluster.py
+@@ -32,9 +32,16 @@ Rules
+   fingerprints with non-empty refs_norm.
+ - Clusters are union-find components over the findings in resolution order; a cluster is chained when two of its
+   members do not match pairwise.
++- Reviewer weight w(r): the highest calibrated confidence among the clustered findings of complete reviewer r. The spec
++  divides by "the sum of calibrated confidences of all complete reviewers", but confidences exist only per finding, so
++  a reviewer's confidence is taken as that of its most confident finding. A complete reviewer with no clustered finding
++  (an empty block, or no kept finding in clusters_kept) found nothing and has weight 0.
+ - support(c) = sum, over the distinct reviewers in c, of the highest calibrated confidence of that reviewer's members
+-  in c, divided by the number of complete reviewers (each complete reviewer weighs at most 1). A cluster with a member
+-  that has no calibrated confidence has support None and is listed in uncalibrated.
++  in c, divided by the sum of w(r) over all complete reviewers. support is at most 1, and is 1 when c holds, for every
++  complete reviewer with a clustered finding, a finding of that reviewer at confidence w(r).
++- support is None, and the cluster is listed in uncalibrated, when a member has no calibrated confidence. When a
++  complete reviewer has clustered findings but none with a calibrated confidence, or the weights sum to 0, the
++  denominator is unknown: every cluster has support None and is listed in uncalibrated.
+ - Representative: the member with the highest calibrated confidence (members with none rank below every calibrated
+   one), ties broken by resolution order; it gives the cluster's claim. blocking_any and blocking_all are over all
+   members. A cluster is blocking when blocking_any is true.
+@@ -313,7 +320,7 @@ def _components(members: list[dict]) -> list[list[dict]]:
+     return [groups[k] for k in sorted(groups)]
+ 
+ 
+-def _cluster(index: int, group: list[dict], n_complete: int) -> dict:
++def _cluster(index: int, group: list[dict], total: float | None) -> dict:
+     chained = any(
+         not same_defect_v2(a, b) for i, a in enumerate(group) for b in group[i + 1 :]
+     )
+@@ -326,8 +333,8 @@ def _cluster(index: int, group: list[dict], n_complete: int) -> dict:
+             best[m["reviewer_id"]] = max(
+                 best.get(m["reviewer_id"], 0.0), m["finding_confidence"]
+             )
+-    uncalibrated = any(m["finding_confidence"] is None for m in group)
+-    support = None if uncalibrated else sum(best[r] for r in reviewers) / n_complete
++    uncalibrated = total is None or any(m["finding_confidence"] is None for m in group)
++    support = None if uncalibrated else sum(best[r] for r in reviewers) / total
+     rep = min(
+         group,
+         key=lambda m: (
+@@ -378,8 +385,20 @@ def cluster_v2(reviewer_records: Any, snapshot_file_list: Any) -> dict:
+     records = _records(reviewer_records, problems)
+     complete = [r["reviewer_id"] for r in records if r["valid"]]
+     members = _members(records, snapshot, problems)
++    # A reviewer with no clustered finding found nothing: weight 0.
++    weight: dict[str, float] = {r: 0.0 for r in complete}
++    calibrated: set[str] = set()
++    for m in members:
++        if m["finding_confidence"] is not None:
++            calibrated.add(m["reviewer_id"])
++            weight[m["reviewer_id"]] = max(
++                weight[m["reviewer_id"]], m["finding_confidence"]
++            )
++    with_findings = {m["reviewer_id"] for m in members}
++    total = sum(weight.values()) if with_findings <= calibrated else None
++    # A weight sum of 0 leaves the denominator unknown, as a missing weight does.
+     clusters = [
+-        _cluster(i, g, len(complete)) for i, g in enumerate(_components(members), 1)
++        _cluster(i, g, total or None) for i, g in enumerate(_components(members), 1)
+     ]
+     blocking = [c for c in clusters if c["blocking_any"]]
+     counted = [c for c in blocking if not c["chained"] and c["support"] is not None]
+diff --git a/tests/review/test_review_cluster.py b/tests/review/test_review_cluster.py
+index e365a42e7..6bf14c382 100644
+--- a/tests/review/test_review_cluster.py
++++ b/tests/review/test_review_cluster.py
+@@ -334,14 +334,108 @@ def test_support_and_agreement_from_calibrated_confidences():
+         SNAP,
+     )
+     first, second = out["clusters"]
+-    # distinct reviewers r1 (0.9) and r2 (max of 0.6, 0.3) over 3 complete reviewers
+-    assert first["support"] == pytest.approx(1.5 / 3)
++    # r1 (0.9) and r2 (max of 0.6, 0.3) over the weights 0.9 + 0.6 + 0.8
++    assert first["support"] == pytest.approx(1.5 / 2.3)
+     assert first["member_scores"] == [0.9, 0.6, 0.3]
+-    assert second["support"] == pytest.approx(0.8 / 3)
+-    assert out["cluster_agreement"] == pytest.approx((0.5 + 0.8 / 3) / 2)
++    assert second["support"] == pytest.approx(0.8 / 2.3)
++    assert out["cluster_agreement"] == pytest.approx(0.5)
+     assert out["agreement_clusters"] == ["C1", "C2"]
+ 
+ 
++def test_support_below_1_differs_from_the_count_based_value():
++    out = cl.cluster_v2(
++        [
++            rec("r1", 1, fnd("A"), cal={"A": 0.4}),
++            rec("r2", 2, fnd("B", cit("src/b.py", 1)), cal={"B": 0.8}),
++        ],
++        SNAP,
++    )
++    first, second = out["clusters"]
++    # weights 0.4 + 0.8; dividing by 2 reviewers would give 0.2 and 0.4
++    assert first["support"] == pytest.approx(1 / 3) != 0.4 / 2
++    assert second["support"] == pytest.approx(2 / 3) != 0.8 / 2
++    assert first["disputed"] is True and second["disputed"] is False
++    assert out["cluster_agreement"] == pytest.approx(0.5)
++
++
++def test_weight_is_the_reviewers_best_finding_even_outside_the_cluster():
++    out = cl.cluster_v2(
++        [
++            rec(
++                "r1",
++                1,
++                fnd("A", cit("src/a.py", 10)),
++                fnd("A2", cit("src/b.py", 1)),
++                cal={"A": 0.5, "A2": 0.9},
++            ),
++            rec("r2", 2, fnd("B", cit("src/a.py", 11)), cal={"B": 0.5}),
++        ],
++        SNAP,
++    )
++    assert ids(out) == [[("r1", "A"), ("r2", "B")], [("r1", "A2")]]
++    first, second = out["clusters"]
++    # denominator is w(r1) = 0.9 (A2, outside C1) + w(r2) = 0.5
++    assert first["support"] == pytest.approx(1.0 / 1.4)
++    assert second["support"] == pytest.approx(0.9 / 1.4)
++
++
++def test_support_is_1_when_every_reviewer_is_in_with_its_best_finding():
++    out = cl.cluster_v2(
++        [
++            rec(
++                "r1",
++                1,
++                fnd("A"),
++                fnd("A2", cit("src/b.py", 1)),
++                cal={"A": 0.6, "A2": 0.3},
++            ),
++            rec("r2", 2, fnd("B"), cal={"B": 0.7}),
++        ],
++        SNAP,
++    )
++    first, second = out["clusters"]
++    assert first["support"] == pytest.approx(1.0)
++    assert second["support"] == pytest.approx(0.3 / 1.3)
++
++
++def test_reviewer_with_an_empty_block_has_weight_0():
++    out = cl.cluster_v2(
++        [
++            rec(
++                "r1",
++                1,
++                fnd("A"),
++                fnd("A2", cit("src/b.py", 1)),
++                cal={"A": 0.8, "A2": 0.4},
++            ),
++            rec("r2", 2),
++        ],
++        SNAP,
++    )
++    # denominator is w(r1) = 0.8 + w(r2) = 0
++    assert [c["support"] for c in out["clusters"]] == pytest.approx([1.0, 0.5])
++    assert out["uncalibrated"] == []
++    assert out["cluster_agreement"] == pytest.approx(0.75)
++
++
++@pytest.mark.parametrize(
++    "r1_conf, r2",
++    [
++        (0.9, rec("r2", 2, fnd("B", cit("src/b.py", 1)), cal={})),
++        (0.0, rec("r2", 2, fnd("B", cit("src/b.py", 1)), cal={"B": 0.0})),
++        (0.0, rec("r2", 2)),
++    ],
++    ids=["uncalibrated-finding", "zero-weights", "zero-weight-and-empty-block"],
++)
++def test_unknown_denominator_makes_every_support_null(r1_conf, r2):
++    out = cl.cluster_v2([rec("r1", 1, fnd("A"), cal={"A": r1_conf}), r2], SNAP)
++    # r1's cluster is fully calibrated, yet the denominator is unknown
++    assert out["clusters"][0]["member_scores"] == [r1_conf]
++    assert all(c["support"] is None for c in out["clusters"])
++    assert out["uncalibrated"] == [c["cluster_id"] for c in out["clusters"]]
++    assert out["cluster_agreement"] is None
++
++
+ def test_uncalibrated_member_gives_no_support_and_is_listed():
+     out = cl.cluster_v2(
+         [
+@@ -390,7 +484,7 @@ def test_chained_cluster_excluded_from_agreement_count():
+         SNAP,
+     )
+     assert out["chained"] == ["C1"] and out["agreement_clusters"] == ["C2"]
+-    assert out["cluster_agreement"] == pytest.approx(0.9 / 3)
++    assert out["cluster_agreement"] == pytest.approx(0.9 / 1.3)
+ 
+ 
+ def test_representative_is_highest_confidence_with_ties_by_resolution_order():
+@@ -426,7 +520,7 @@ def test_blocking_any_all_and_disputed():
+         SNAP,
+     )["clusters"][0]
+     assert split["blocking_any"] is True and split["blocking_all"] is False
+-    assert split["support"] == pytest.approx(0.9) and split["disputed"] is True
++    assert split["support"] == pytest.approx(1.0) and split["disputed"] is True
+ 
+     agreed = cl.cluster_v2(
+         [
+@@ -444,7 +538,7 @@ def test_blocking_any_all_and_disputed():
+         ],
+         SNAP,
+     )["clusters"][0]
+-    assert low["support"] == pytest.approx(0.2) and low["disputed"] is True
++    assert low["support"] == pytest.approx(0.4 / 1.3) and low["disputed"] is True
+ 
+     classes = cl.cluster_v2(
+         [
+@@ -616,7 +710,11 @@ def test_clusters_kept_recomputes_over_kept_findings_only():
+     kept = cl.clusters_kept(records, SNAP, [("r1", "A"), ("r3", "C")])
+     assert ids(kept) == [[("r1", "A")], [("r3", "C")]]
+     assert kept["chained"] == [] and kept["valid_blocks"] == 3
+-    assert kept["cluster_agreement"] == pytest.approx(0.3)
++    # r2 keeps no finding, so w(r2) = 0: each support is 0.9 / (0.9 + 0 + 0.9) = 0.5
++    assert [c["support"] for c in kept["clusters"]] == pytest.approx([0.5, 0.5])
++    assert kept["uncalibrated"] == [] and kept["cluster_agreement"] == pytest.approx(
++        0.5
++    )
+     nothing = cl.clusters_kept(records, SNAP, None)
+     assert nothing["clusters"] == [] and nothing["cluster_agreement"] == 1.0
+     assert any("nothing kept" in p["msg"] for p in nothing["problems"])

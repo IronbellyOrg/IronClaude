@@ -1,0 +1,46 @@
+contract_version: "1.8.0"
+status: partial
+mode: pre
+tier_reached: 2
+report_path: /home/coder/workspaces/worktrees/IronClaude/brainstorm-reflect-panel/.dev/reflect/pre-TASK-WF-implementStages0-20261111-202912-20261111203517/REPORT.md
+audit_log_path: /home/coder/workspaces/worktrees/IronClaude/brainstorm-reflect-panel/.dev/reflect/pre-TASK-WF-implementStages0-20261111-202912-20261111203517/audit.log
+confidence_calibrated: 0.80          # mean of the three reviewer-card calibrations (0.73, 0.80, 0.86)
+escalation_rule_matched: null        # explicit --tier 2 pin
+onboarding_ran: false
+coverage_pct: null
+coverage_undefined: true
+coverage_degraded: parsed-sparse
+unmapped_requirements: []
+input_sha256: {tasklist: dd94557d3c5fa98720fb4df336f46dc2fcf4b9567e965bd63f3e3f6c27c4b9c0, spec: a26ec35a83be7233213d7d5b6704d022c97a67e94a70ce022442615ada0ca38a}
+input_tree_sha256: da9fb1f7aa6d2a05abca2f6427ff200c98f46446f8562d89d4aaefcd6c6fa5b9
+input_tree_file_count: 4
+input_tree_snapshot_path: artifacts/input-snapshot.yaml
+input_drift_detected: false
+citations_total: 132
+citations_revalidated: 132
+citations_dropped: 3
+citations_inferred: 0
+citation_budget_policy: full_reread
+evidence_validator_ran: true
+reviewer_cards: [reviewer-cards/reviewer-1-card.md, reviewer-cards/reviewer-2-card.md, reviewer-cards/reviewer-3-card.md]
+adversarial_artifacts_dir: adversarial/
+adversarial_convergence_score: 0.88
+adversarial_unavailable: false
+merge_method: adversarial
+t2_model_class_diversity: full
+t2_vendor_diversity: single
+t2_effective_diversity: model-only
+calibrator_diversity: degraded
+remediation_offered: false
+remediation_accepted: null
+remediation_task_path: null
+remediation_plan_path: null
+handoff_memory_key: null
+cannot_validate_without_user_input: false
+regression_present: false
+unauthorized_deviation_present: false
+blocked_by_low_confidence: false
+spec_is_wrong: false
+user_decision_required: false
+needs_human_decision: false
+degraded_components: [calibrator-diversity, executor-class-unresolved, reviewer-identity-unverified, adversarial-steps-inline]

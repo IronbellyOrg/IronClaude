@@ -1,0 +1,4 @@
+d784e95e408da85b9ccea0aa739ddd3c2ec75391 tree=cccdac12b540c6b54be2d1f4fba6a02c4088be1a
+(reviewer AC marks, summary) T1.AC1 met findings_v2.py:161,5-6,201-203 ; T1.AC2 met test_review_findings_v2.py:309-368 ; T1.AC3 met (code read; extras run by orchestrator: ruff pass, pytest 154 passed)
+F2.1 resolved
+F2.2 sev=blocking trigger=B2 ac=scope at=src/superclaude/cli/review/findings_v2.py:4 anchor=src/superclaude/cli/review/findings_v2.py:67 chk=n,y,n,n family=v2-docstring-overclaim-v1-compat fix=narrow the docstring to say that a v1 finding line that uses only v1 fields is a valid v2 line with the same fields first=A1 origin=late: module docstring lines 4-5 say every valid v1 finding line is a valid v2 line with the same fields; a v1-valid line carrying calibrated_confidence, lens, channel or citations values that v2 rejects (findings_v2.py:67-68, 98-99, 114-115, 142-143) is not

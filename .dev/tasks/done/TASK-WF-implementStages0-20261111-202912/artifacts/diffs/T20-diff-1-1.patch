@@ -1,0 +1,700 @@
+diff --git a/scripts/reflect_shadow_exit.py b/scripts/reflect_shadow_exit.py
+new file mode 100644
+index 000000000..73af59cdc
+--- /dev/null
++++ b/scripts/reflect_shadow_exit.py
+@@ -0,0 +1,380 @@
++#!/usr/bin/env python3
++"""Stage 2 shadow-exit aggregator for the reflect Tier 2 panel (Stage 2 exit: 20 shadow runs).
++
++Run with ``uv run python scripts/reflect_shadow_exit.py [--runs-root <dir>] [--required 20] [--out <file>]``. It reads
++files only (no model, no process, no network) and writes only the optional ``--out`` report.
++
++Shadow runs: every ``<runs-root>/pre-*/panel/manifest.json`` whose ``t2_engine_effective`` is ``shadow``. A manifest in
++state ``published`` is counted; ``failed`` fails the exit; any other state is an incomplete run, listed and not
++counted. The legacy baseline is the recorded 1.8.0 pre runs without ``panel/manifest.json`` (the set of
++``scripts/reflect_verdict_replay.py``).
++
++Per counted run the script joins ``return-contract.yaml`` and ``adversarial/merged-verdict.yaml`` and checks:
++- panel parity, recomputed (the recorded boolean is not trusted): the ordered ``(persona, model class)`` lists of
++  ``panel/resolution.json`` (persona by resolution order: analyzer, qa, refactorer; model ids mapped through the tier
++  file's ``classes``), of the reviewer card headers (``persona:``, ``model_class:``, ``model:`` in
++  ``panel/cards/reviewer-<N>.md``, whose ``model`` must equal the resolved id) and of the legacy rotation as run
++  (the contract's ``reviewer_personas`` and ``reviewer_models``, each model mapped to a class) must be equal. A run
++  whose recorded ``panel_parity`` is true and whose recomputed value is false is also reported as a wrong record;
++- MALFORMED: the number of ``audit.log`` rows that contain the word MALFORMED (the EV-1 / EV-2 row of SKILL.md);
++- the panel contract lint (``panel_lint.lint_panel_contract``); any line fails the run. The matched legacy contract
++  passed to it is the run's own contract, because in shadow mode the legacy builder writes the contract: its parity
++  fields (L7) are then trivially equal, and the parity that matters is the recomputed ``panel_parity``;
++- the verdict replay (``derive_verdict`` with ``expected_tier=2``, ``child_rc=0``, both ``allow_single_vendor``
++  values) against the legacy baseline; any new degraded reason fails.
++
++Aggregates: the run count against ``--required``; MALFORMED total (must be zero); the EV-1 failure rate of the shadow
++runs against the legacy baseline, both under the same rule (``len(reviewer_cards)``; manifest counts are not used),
++over the runs where Wave 4 ran (``tier_reached`` is not 1), each with its n (the shadow rate must be no higher); the
++Stage 2 counts: 2-of-3 shortfalls (manifest ``reviewers_resolved`` 3 and ``reviewers_complete`` 2), runs with an
++unknown executor class (``executor_class_resolved`` false), the mean findings-block compliance rate and the
++``cluster_agreement`` distribution (``n/a`` when empty).
++
++Overall line: FAIL when any run or aggregate check fails; else INSUFFICIENT-RUNS when fewer than ``--required`` runs
++were counted; else PASS. Exit codes: 0 PASS, 1 FAIL, 3 INSUFFICIENT-RUNS, 2 usage error.
++"""
++
++from __future__ import annotations
++
++import argparse
++import importlib.util
++import json
++import re
++import statistics
++import sys
++from pathlib import Path
++from typing import Any
++
++import yaml
++
++from superclaude.cli.reflect import panel_lint as pl
++from superclaude.cli.review import manifest as mf
++from superclaude.cli.review import panel as pnl
++
++ROOT = Path(__file__).resolve().parents[1]
++REQUIRED_RUNS = 20
++PERSONAS = ("analyzer", "qa", "refactorer")
++EXIT = {"PASS": 0, "FAIL": 1, "INSUFFICIENT-RUNS": 3}
++_MALFORMED = re.compile(r"\bMALFORMED\b")
++_CARD = re.compile(r"^reviewer-(\d+)\.md$")
++
++
++def _load_replay():
++    spec = importlib.util.spec_from_file_location(
++        "reflect_verdict_replay", Path(__file__).with_name("reflect_verdict_replay.py")
++    )
++    module = importlib.util.module_from_spec(spec)
++    spec.loader.exec_module(module)
++    return module
++
++
++rv = _load_replay()
++
++
++def _yaml_map(path: Path) -> dict | None:
++    try:
++        data = yaml.safe_load(path.read_text(encoding="utf-8"))
++    except (OSError, ValueError, yaml.YAMLError):
++        return None
++    return data if isinstance(data, dict) else None
++
++
++def _json_map(path: Path) -> dict | None:
++    try:
++        data = json.loads(path.read_text(encoding="utf-8"))
++    except (OSError, ValueError):
++        return None
++    return data if isinstance(data, dict) else None
++
++
++def tele(contract: dict, key: str) -> Any:
++    """A non-stable field, from the nested telemetry block or (older runs) the top level."""
++    block = contract.get("telemetry")
++    if isinstance(block, dict) and key in block:
++        return block[key]
++    return contract.get(key)
++
++
++def card_headers(run: Path) -> list[dict[str, str]]:
++    """The header fields of panel/cards/reviewer-<N>.md in numeric order (the lines before the first blank line)."""
++    cards = run / "panel" / "cards"
++    found = []
++    if cards.is_dir():
++        for p in cards.iterdir():
++            m = _CARD.match(p.name)
++            if m and p.is_file():
++                found.append((int(m.group(1)), p))
++    out = []
++    for _, p in sorted(found):
++        try:
++            head = p.read_text(encoding="utf-8").split("\n\n", 1)[0]
++        except (OSError, ValueError):
++            head = ""
++        out.append(dict(row.split(": ", 1) for row in head.splitlines() if ": " in row))
++    return out
++
++
++def recompute_parity(run: Path, contract: dict, classes: dict) -> tuple[bool, str]:
++    """(parity, reason): the three ordered (persona, model class) lists must exist and be equal."""
++    resolution = _json_map(run / "panel" / "resolution.json")
++    if resolution is None or not isinstance(resolution.get("reviewers"), list):
++        return False, "panel/resolution.json is missing or has no reviewers"
++    reviewers = resolution["reviewers"]
++    resolved = [
++        (PERSONAS[i] if i < len(PERSONAS) else None, classes.get(r.get("model")))
++        for i, r in enumerate(reviewers)
++    ]
++    heads = card_headers(run)
++    if len(heads) != len(reviewers):
++        return (
++            False,
++            f"{len(heads)} card header(s) for {len(reviewers)} resolved reviewer(s)",
++        )
++    cards = []
++    for h, r in zip(heads, reviewers):
++        if not {"persona", "model_class", "model"} <= set(h):
++            return False, "a card header lacks persona:, model_class: or model:"
++        if h["model"] != r.get("model"):
++            return (
++                False,
++                f"card model {h['model']!r} differs from the resolved {r.get('model')!r}",
++            )
++        cards.append((h["persona"], h["model_class"]))
++    personas, models = (
++        tele(contract, "reviewer_personas"),
++        tele(contract, "reviewer_models"),
++    )
++    if not isinstance(personas, list) or not isinstance(models, list):
++        return (
++            False,
++            "the legacy rotation (reviewer_personas, reviewer_models) is not in the contract",
++        )
++    legacy = [
++        (str(p), classes.get(m, str(m).lower())) for p, m in zip(personas, models)
++    ]
++    if len(legacy) != len(reviewers):
++        return False, "the legacy rotation has a different reviewer count"
++    if not (resolved == cards == legacy):
++        return False, f"resolution {resolved} / cards {cards} / legacy {legacy}"
++    return True, ""
++
++
++def malformed_rows(run: Path) -> int:
++    try:
++        text = (run / "audit.log").read_text(encoding="utf-8")
++    except (OSError, ValueError):
++        return 0
++    return sum(1 for row in text.splitlines() if _MALFORMED.search(row))
++
++
++def wave4_ev1(run: Path, contract: dict) -> bool | None:
++    """True when EV-1 fails, False when it holds, None when Wave 4 did not run (tier 1)."""
++    tier = contract.get("tier_reached")
++    if isinstance(tier, int) and not isinstance(tier, bool) and tier == 1:
++        return None
++    return bool(pl.ev1_failures(run, contract, use_manifest=False))
++
++
++def _rate(flags: list[bool | None]) -> tuple[int, int, float | None]:
++    counted = [f for f in flags if f is not None]
++    fails = sum(1 for f in counted if f)
++    return fails, len(counted), (fails / len(counted) if counted else None)
++
++
++def collect(runs_root: Path) -> dict:
++    """Scan runs_root; returns the per-run records and the legacy baseline."""
++    classes = pnl.load_tiers().get("classes", {})
++    shadow, incomplete, failed = [], [], []
++    for mpath in sorted(runs_root.glob("pre-*/panel/manifest.json")):
++        run = mpath.parent.parent
++        manifest = _json_map(mpath)
++        if manifest is None or manifest.get("t2_engine_effective") != "shadow":
++            continue
++        state = manifest.get("state")
++        if state == "failed":
++            failed.append(run.name)
++            continue
++        if state != "published":
++            incomplete.append((run.name, str(state)))
++            continue
++        contract = _yaml_map(run / "return-contract.yaml") or {}
++        parity, why = recompute_parity(run, contract, classes)
++        recorded = tele(contract, "panel_parity")
++        shadow.append(
++            {
++                "name": run.name,
++                "dir": run,
++                "manifest_errors": mf.validate(manifest),
++                "contract": contract,
++                "parity": parity,
++                "parity_reason": why,
++                "recorded_parity": recorded,
++                "wrong_record": recorded is True and not parity,
++                "malformed": malformed_rows(run),
++                "lint": pl.lint_panel_contract(run, contract)
++                if contract
++                else ["no contract"],
++                "ev1_fail": wave4_ev1(run, contract) if contract else True,
++                "shortfall": manifest.get("reviewers_resolved") == 3
++                and manifest.get("reviewers_complete") == 2,
++                "unknown_executor": tele(contract, "executor_class_resolved") is False,
++                "compliance": tele(contract, "findings_block_compliance_rate"),
++                "agreement": tele(contract, "cluster_agreement"),
++            }
++        )
++    legacy_dirs, skipped = rv.legacy_runs(runs_root)
++    legacy_ev1 = []
++    for d in legacy_dirs:
++        contract, _ = rv.load(d)
++        legacy_ev1.append(wave4_ev1(d, contract) if contract else None)
++    return {
++        "shadow": shadow,
++        "incomplete": incomplete,
++        "failed": failed,
++        "legacy_dirs": legacy_dirs,
++        "legacy_skipped": skipped,
++        "legacy_ev1": legacy_ev1,
++    }
++
++
++def replay_diffs(data: dict) -> dict[bool, dict]:
++    """Verdict replay of the counted shadow runs against the legacy baseline, per allow_single_vendor value."""
++    out = {}
++    for allow in rv.SINGLE_VENDOR_MODES:
++        legacy = {d.name: v for d in data["legacy_dirs"] if (v := rv.replay(d, allow))}
++        shadow = {
++            r["name"]: v for r in data["shadow"] if (v := rv.replay(r["dir"], allow))
++        }
++        out[allow] = rv.compare(legacy, shadow)
++    return out
++
++
++def _fmt(rate: float | None) -> str:
++    return "n/a" if rate is None else f"{rate:.3f}"
++
++
++def build_report(data: dict, required: int) -> tuple[str, str]:
++    """(report text, overall verdict)."""
++    shadow = data["shadow"]
++    failures: list[str] = []
++    lines = ["Stage 2 shadow-exit report", ""]
++    lines.append(f"shadow runs counted: {len(shadow)} of {required} required")
++    for name, state in data["incomplete"]:
++        lines.append(f"  incomplete (not counted): {name} (state {state})")
++    for name in data["failed"]:
++        lines.append(f"  FAILED manifest: {name}")
++        failures.append(f"{name}: manifest state failed")
++
++    malformed = sum(r["malformed"] for r in shadow)
++    lines.append(f"MALFORMED audit.log rows: {malformed} (must be 0)")
++    if malformed:
++        failures += [
++            f"{r['name']}: {r['malformed']} MALFORMED row(s)"
++            for r in shadow
++            if r["malformed"]
++        ]
++
++    s_fail, s_n, s_rate = _rate([r["ev1_fail"] for r in shadow])
++    l_fail, l_n, l_rate = _rate(data["legacy_ev1"])
++    lines.append(
++        f"EV-1 failure rate (len(reviewer_cards) rule, Wave 4 runs only): shadow {s_fail}/{s_n} = {_fmt(s_rate)}; "
++        f"legacy baseline {l_fail}/{l_n} = {_fmt(l_rate)} (must be no higher)"
++    )
++    if (s_rate or 0.0) > (l_rate or 0.0):
++        failures.append("EV-1 failure rate is higher than the legacy baseline")
++
++    lines.append("parity assertion per run (recomputed):")
++    for r in shadow:
++        note = "" if r["parity"] else f" ({r['parity_reason']})"
++        wrong = "; recorded true but recomputed false" if r["wrong_record"] else ""
++        lines.append(
++            f"  {r['name']}: {'holds' if r['parity'] else 'FAILS'}{note}{wrong}"
++        )
++        if not r["parity"]:
++            failures.append(f"{r['name']}: parity does not hold")
++
++    lines.append("contract lint and manifest per run:")
++    for r in shadow:
++        problems = r["lint"] + [f"manifest: {e}" for e in r["manifest_errors"]]
++        lines.append(
++            f"  {r['name']}: {'clean' if not problems else f'{len(problems)} problem(s)'}"
++        )
++        for p in problems:
++            lines.append(f"    {p}")
++        if problems:
++            failures.append(f"{r['name']}: lint or manifest problems")
++
++    diffs = replay_diffs(data)
++    new_degraded = sum(len(d["new_degraded"]) for d in diffs.values())
++    lines.append(
++        f"verdict replay against the legacy baseline ({len(data['legacy_dirs'])} runs): new degraded reasons {new_degraded}"
++    )
++    for allow, d in diffs.items():
++        for name, reason in d["new_degraded"]:
++            lines.append(f"  allow_single_vendor={allow}: {name}: {reason}")
++    if new_degraded:
++        failures.append("verdict replay found a new degraded reason")
++
++    lines += ["", "Stage 2 counts:"]
++    lines.append(f"  2-of-3 shortfalls: {sum(1 for r in shadow if r['shortfall'])}")
++    lines.append(
++        f"  unknown executor class (executor_class_resolved false): {sum(1 for r in shadow if r['unknown_executor'])}"
++    )
++    comp = [
++        float(r["compliance"])
++        for r in shadow
++        if isinstance(r["compliance"], (int, float))
++        and not isinstance(r["compliance"], bool)
++    ]
++    lines.append(
++        f"  findings-block compliance rate (mean over {len(comp)} run(s)): "
++        + (f"{statistics.mean(comp):.3f}" if comp else "n/a")
++    )
++    agree = [
++        float(r["agreement"])
++        for r in shadow
++        if isinstance(r["agreement"], (int, float))
++        and not isinstance(r["agreement"], bool)
++    ]
++    if agree:
++        lines.append(
++            f"  cluster_agreement ({len(agree)} run(s)): min {min(agree):.3f}, median {statistics.median(agree):.3f}, max {max(agree):.3f}"
++        )
++    else:
++        lines.append("  cluster_agreement: n/a")
++
++    if failures:
++        verdict = "FAIL"
++    elif len(shadow) < required:
++        verdict = "INSUFFICIENT-RUNS"
++    else:
++        verdict = "PASS"
++    lines += [
++        "",
++        *[f"failure: {f}" for f in failures],
++        f"OVERALL: {verdict} (shadow runs {len(shadow)} of {required})",
++    ]
++    return "\n".join(lines) + "\n", verdict
++
++
++def main(argv: list[str] | None = None) -> int:
++    parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
++    parser.add_argument("--runs-root", type=Path, default=ROOT / ".dev" / "reflect")
++    parser.add_argument("--required", type=int, default=REQUIRED_RUNS)
++    parser.add_argument(
++        "--out", type=Path, default=None, help="Also write the report to this file."
++    )
++    args = parser.parse_args(argv)
++    if not args.runs_root.is_dir():
++        print(f"runs root is not a directory: {args.runs_root}", file=sys.stderr)
++        return 2
++    report, verdict = build_report(collect(args.runs_root), args.required)
++    sys.stdout.write(report)
++    if args.out:
++        args.out.parent.mkdir(parents=True, exist_ok=True)
++        args.out.write_text(report, encoding="utf-8")
++    return EXIT[verdict]
++
++
++if __name__ == "__main__":
++    sys.exit(main())
+diff --git a/src/superclaude/cli/reflect/panel_lint.py b/src/superclaude/cli/reflect/panel_lint.py
+index 2d93133a7..b235932d0 100644
+--- a/src/superclaude/cli/reflect/panel_lint.py
++++ b/src/superclaude/cli/reflect/panel_lint.py
+@@ -233,14 +233,24 @@ def _basenames(value: Any) -> Any:
+     return value
+ 
+ 
+-def _ev1(out: Path, c: dict) -> list[str]:
++def ev1_failures(
++    out_dir: str | Path, contract: dict, *, use_manifest: bool = True
++) -> list[str]:
++    """The EV-1 failure lines (L6) of a run directory; use_manifest=False takes the count from len(reviewer_cards).
++
++    The Stage 2 aggregator compares shadow runs with the legacy baseline under the same rule, so it passes False.
++    """
++    return _ev1(Path(out_dir), contract, use_manifest=use_manifest)
++
++
++def _ev1(out: Path, c: dict, *, use_manifest: bool = True) -> list[str]:
+     """L6m, L6a and L6b: the EV-1 merge gate as it stands on disk."""
+     lines: list[str] = []
+     cards = c.get("reviewer_cards")
+     resolved = len(cards) if isinstance(cards, list) else 0
+     source = "len(reviewer_cards)"
+     manifest = out / "panel" / "manifest.json"
+-    if manifest.is_file():
++    if use_manifest and manifest.is_file():
+         try:
+             data = json.loads(manifest.read_text(encoding="utf-8"))
+         except (OSError, ValueError):
+diff --git a/tests/cli/reflect/test_shadow_exit_script.py b/tests/cli/reflect/test_shadow_exit_script.py
+new file mode 100644
+index 000000000..c874c1394
+--- /dev/null
++++ b/tests/cli/reflect/test_shadow_exit_script.py
+@@ -0,0 +1,277 @@
++"""Tests for scripts/reflect_shadow_exit.py (Stage 2 shadow-exit aggregator) on synthetic shadow run directories."""
++
++from __future__ import annotations
++
++import importlib.util
++import json
++import shutil
++from pathlib import Path
++
++import pytest
++import yaml
++from click.testing import CliRunner
++
++from superclaude.cli.main import main
++from superclaude.cli.review import manifest as mf
++
++ROOT = Path(__file__).resolve().parents[3]
++_spec = importlib.util.spec_from_file_location(
++    "reflect_shadow_exit", ROOT / "scripts" / "reflect_shadow_exit.py"
++)
++se = importlib.util.module_from_spec(_spec)
++_spec.loader.exec_module(se)
++
++FIXTURE = Path(__file__).parent / "fixtures" / "panel_lint_legacy"
++RESOLVE = [
++    "review", "panel", "resolve", "--template", "@reflect-pre", "--run-id", "r1",
++    "--kind", "first", "--env", "anthropic-only", "--strict-distinct",
++]  # fmt: skip
++RESOLUTION = CliRunner().invoke(main, RESOLVE).output
++H = "a" * 64
++
++
++def legacy_run(root: Path, name: str, **changes) -> Path:
++    """A recorded-style legacy run: the 1.8.0 fixture (no panel/ directory)."""
++    d = root / name
++    shutil.copytree(FIXTURE, d)
++    contract = yaml.safe_load((d / "return-contract.yaml").read_text())
++    contract.update(changes)
++    (d / "return-contract.yaml").write_text(yaml.safe_dump(contract, sort_keys=False))
++    return d
++
++
++def shadow_run(
++    root: Path,
++    name: str,
++    *,
++    state: str = "published",
++    complete: int = 3,
++    audit: str = '{"wave": 5, "step": "5.0", "outcome": "ok"}\n',
++    card_class: dict[int, str] | None = None,
++    telemetry: dict | None = None,
++    **top,
++) -> Path:
++    """A clean synthetic shadow run: legacy fixture + panel/ with manifest, resolution and card headers."""
++    d = legacy_run(root, name)
++    contract = yaml.safe_load((d / "return-contract.yaml").read_text())
++    tel = (
++        contract.get("telemetry") if isinstance(contract.get("telemetry"), dict) else {}
++    )
++    tel.update(
++        reviewer_personas=["analyzer", "qa", "refactorer"],
++        reviewer_models=["sonnet", "haiku", "opus"],
++        executor_class_resolved=True,
++        panel_parity=True,
++        cluster_agreement=0.8,
++        findings_block_compliance_rate=1.0,
++    )
++    tel.update(telemetry or {})
++    contract["telemetry"] = tel
++    contract.update(top)
++    (d / "return-contract.yaml").write_text(yaml.safe_dump(contract, sort_keys=False))
++    frozen = {
++        "snapshot_ref": "artifacts/input-snapshot.yaml", "snapshot_sha256": H,
++        "input_tree_sha256": H, "template_sha256": H, "tiers_sha256": H,
++        "brief_template_sha256": H, "schema_ids": ["review-panel/1"],
++    }  # fmt: skip
++    m = mf.new_manifest(
++        run_id=name, frozen=frozen, engine_requested="shadow", engine_effective="shadow"
++    )
++    stages = list(mf.STATES[1:])
++    upto = stages.index(state) + 1 if state in stages else 0
++    for stage in stages[:upto]:
++        payload = (
++            {"reviewers_requested": 3, "reviewers_resolved": 3}
++            if stage == "resolved"
++            else {}
++        )
++        mf.advance_stage(m, stage, payload)
++    if state == "failed":
++        mf.fail(m, "deadline")
++    m["reviewers_complete"] = complete
++    mf.save(d / "panel" / "manifest.json", m)
++    (d / "panel" / "resolution.json").write_text(RESOLUTION)
++    (d / "panel" / "cards").mkdir()
++    for n, r in enumerate(json.loads(RESOLUTION)["reviewers"], 1):
++        cls = (card_class or {}).get(n) or {
++            "claude-sonnet-5-5": "sonnet",
++            "claude-haiku-5-5": "haiku",
++            "claude-opus-5-5": "opus",
++        }[r["model"]]
++        (d / "panel/cards" / f"reviewer-{n}.md").write_text(
++            f"persona: {['analyzer', 'qa', 'refactorer'][n - 1]}\nmodel_class: {cls}\nmodel: {r['model']}\n\n## Findings block\n"
++        )
++    (d / "audit.log").write_text(audit)
++    return d
++
++
++def runs_root(tmp_path: Path, shadows: int = 20, legacy: int = 3) -> Path:
++    root = tmp_path / "reflect"
++    for i in range(legacy):
++        legacy_run(root, f"pre-legacy-{i}")
++    for i in range(shadows):
++        shadow_run(root, f"pre-shadow-{i:02d}")
++    return root
++
++
++def run(root: Path, capsys, *extra) -> tuple[int, str]:
++    code = se.main(["--runs-root", str(root), *extra])
++    return code, capsys.readouterr().out
++
++
++# ------------------------------------------------------------ the overall line (AC1)
++
++
++def test_twenty_clean_runs_pass(tmp_path, capsys):
++    code, out = run(runs_root(tmp_path), capsys)
++    assert code == 0, out
++    assert "OVERALL: PASS (shadow runs 20 of 20)" in out
++    assert "MALFORMED audit.log rows: 0" in out
++    assert (
++        "EV-1 failure rate" in out
++        and "n/a" not in out.split("EV-1 failure rate")[1].splitlines()[0]
++    )
++    assert "cluster_agreement (20 run(s)): min 0.800" in out
++    assert "findings-block compliance rate (mean over 20 run(s)): 1.000" in out
++
++
++def test_one_malformed_run_fails(tmp_path, capsys):
++    root = runs_root(tmp_path, shadows=19)
++    shadow_run(root, "pre-shadow-19", audit='{"wave": 4, "outcome": "MALFORMED"}\n')
++    code, out = run(root, capsys)
++    assert code == 1
++    assert "MALFORMED audit.log rows: 1" in out and "OVERALL: FAIL" in out
++    assert "pre-shadow-19: 1 MALFORMED row(s)" in out
++
++
++def test_twelve_clean_runs_are_insufficient(tmp_path, capsys):
++    code, out = run(runs_root(tmp_path, shadows=12), capsys)
++    assert code == 3
++    assert "OVERALL: INSUFFICIENT-RUNS (shadow runs 12 of 20)" in out
++
++
++def test_a_parity_failure_recorded_true_but_recomputed_false_fails(tmp_path, capsys):
++    root = runs_root(tmp_path, shadows=19)
++    shadow_run(
++        root, "pre-shadow-19", card_class={2: "opus"}
++    )  # recorded panel_parity stays true
++    code, out = run(root, capsys)
++    assert code == 1
++    assert "pre-shadow-19: FAILS" in out and "recorded true but recomputed false" in out
++
++
++def test_a_missing_legacy_rotation_cannot_be_recomputed(tmp_path, capsys):
++    root = runs_root(tmp_path, shadows=19)
++    shadow_run(root, "pre-shadow-19", telemetry={"reviewer_models": None})
++    code, out = run(root, capsys)
++    assert code == 1 and "legacy rotation" in out
++
++
++def test_an_extra_stable_key_fails_through_the_lint(tmp_path, capsys):
++    root = runs_root(tmp_path, shadows=19)
++    shadow_run(
++        root, "pre-shadow-19", cluster_agreement=1.0
++    )  # a panel key at the top level
++    code, out = run(root, capsys)
++    assert code == 1
++    assert (
++        "top-level key 'cluster_agreement'" in out
++        and "pre-shadow-19: lint or manifest problems" in out
++    )
++
++
++def test_ev1_failures_above_the_legacy_rate_fail(tmp_path, capsys):
++    root = runs_root(tmp_path, shadows=19)
++    bad = shadow_run(root, "pre-shadow-19")
++    shutil.rmtree(bad / "adversarial")
++    code, out = run(root, capsys)
++    assert code == 1
++    assert "shadow 1/20 = 0.050; legacy baseline 0/3 = 0.000" in out
++    assert "EV-1 failure rate is higher than the legacy baseline" in out
++
++
++def test_a_new_degraded_reason_in_the_verdict_replay_fails(tmp_path, capsys):
++    root = runs_root(tmp_path, shadows=19)
++    shadow_run(root, "pre-shadow-19", adversarial_unavailable=True)
++    code, out = run(root, capsys)
++    assert code == 1
++    assert "pre-shadow-19: adversarial-unavailable" in out
++    assert "verdict replay found a new degraded reason" in out
++
++
++# ------------------------------------------------------------ manifests and counts
++
++
++def test_failed_manifest_fails_and_unfinished_ones_are_not_counted(tmp_path, capsys):
++    root = runs_root(tmp_path, shadows=12)
++    shadow_run(root, "pre-shadow-f", state="failed")
++    shadow_run(root, "pre-shadow-w", state="dispatched")
++    code, out = run(root, capsys)
++    assert code == 1
++    assert "FAILED manifest: pre-shadow-f" in out
++    assert "incomplete (not counted): pre-shadow-w (state dispatched)" in out
++    assert "shadow runs counted: 12 of 20" in out
++
++
++def test_stage2_counts(tmp_path, capsys):
++    root = runs_root(tmp_path, shadows=18)
++    shadow_run(
++        root, "pre-shadow-18", complete=2, telemetry={"executor_class_resolved": False}
++    )
++    shadow_run(root, "pre-shadow-19", complete=2)
++    code, out = run(root, capsys)
++    assert "2-of-3 shortfalls: 2" in out
++    assert "executor_class_resolved false): 1" in out
++
++
++def test_empty_distributions_print_n_a(tmp_path, capsys):
++    root = tmp_path / "reflect"
++    shadow_run(
++        root,
++        "pre-shadow-0",
++        telemetry={"cluster_agreement": None, "findings_block_compliance_rate": None},
++    )
++    code, out = run(root, capsys)
++    assert "cluster_agreement: n/a" in out
++    assert "findings-block compliance rate (mean over 0 run(s)): n/a" in out
++
++
++def test_the_required_count_is_an_option(tmp_path, capsys):
++    code, out = run(runs_root(tmp_path, shadows=2), capsys, "--required", "2")
++    assert code == 0 and "OVERALL: PASS (shadow runs 2 of 2)" in out
++
++
++# ------------------------------------------------------------ the current repository (AC2)
++
++
++def test_the_current_repository_has_no_shadow_runs(capsys):
++    code, out = (
++        run(ROOT / ".dev" / "reflect", capsys)
++        if (ROOT / ".dev" / "reflect").is_dir()
++        else (3, "")
++    )
++    if not (ROOT / ".dev" / "reflect").is_dir():
++        pytest.skip("no recorded reflect runs in this checkout")
++    assert code == 3
++    assert "shadow runs counted: 0 of 20 required" in out
++    assert "OVERALL: INSUFFICIENT-RUNS (shadow runs 0 of 20)" in out
++
++
++def test_exit_codes_are_documented():
++    assert se.EXIT == {"PASS": 0, "FAIL": 1, "INSUFFICIENT-RUNS": 3}
++    assert (
++        "Exit codes: 0 PASS, 1 FAIL, 3 INSUFFICIENT-RUNS, 2 usage error" in se.__doc__
++    )
++
++
++def test_a_missing_runs_root_is_a_usage_error(tmp_path):
++    assert se.main(["--runs-root", str(tmp_path / "nope")]) == 2
++
++
++def test_report_file_and_no_other_writes(tmp_path, capsys):
++    root = runs_root(tmp_path, shadows=1)
++    before = sorted(p.relative_to(root).as_posix() for p in root.rglob("*"))
++    out_file = tmp_path / "report.md"
++    code, out = run(root, capsys, "--out", str(out_file))
++    assert out_file.read_text() == out
++    assert sorted(p.relative_to(root).as_posix() for p in root.rglob("*")) == before

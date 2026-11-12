@@ -1,0 +1,26 @@
+diff --git a/src/superclaude/cli/review/findings_v2.py b/src/superclaude/cli/review/findings_v2.py
+index 13f94a770..973dc8522 100644
+--- a/src/superclaude/cli/review/findings_v2.py
++++ b/src/superclaude/cli/review/findings_v2.py
+@@ -120,7 +120,7 @@ def check_finding(obj: dict, seen: set[str]) -> str | None:
+         return "deviation_class is required when lens is reflect-post"
+     rcat = obj.get("reflect_category")
+     if rcat is not None:
+-        if rcat not in REFLECT_CATEGORIES:
++        if not isinstance(rcat, str) or rcat not in REFLECT_CATEGORIES:
+             return "reflect_category must be one of " + ", ".join(REFLECT_CATEGORIES)
+         if obj["category"] not in REFLECT_CATEGORIES[rcat]:
+             return (
+diff --git a/tests/review/test_review_findings_v2.py b/tests/review/test_review_findings_v2.py
+index c6ecdaa35..58dacf3a4 100644
+--- a/tests/review/test_review_findings_v2.py
++++ b/tests/review/test_review_findings_v2.py
+@@ -184,6 +184,8 @@ def test_optional_fields_validated_and_channel_default():
+         {"self_confidence": True},
+         {"coverage_rows": "R1"},
+         {"deviation_class": "bad"},
++        {"reflect_category": ["risk"]},
++        {"reflect_category": {}},
+     ):
+         assert v2.check_finding(json.loads(line(**bad)), set()) is not None
+     good = json.loads(line(self_confidence=0.7, coverage_rows=["R1"], channel="advisory"))

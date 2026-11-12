@@ -1,0 +1,13 @@
+{
+  "schema": "review-panel/1",
+  "template_id": "reflect-post",
+  "version": "1.0.0",
+  "description": "Reflect post-execution Tier 2 panel: mirrors reflect-pre.",
+  "distinct_across_slots": true,
+  "apply_to": ["first"],
+  "slots": [
+    {"slot_id": "t1b", "tier": "tier1b", "count": 1, "strategy": "fixed"},
+    {"slot_id": "t4", "tier": "tier4", "count": 1, "strategy": "random"},
+    {"slot_id": "t1a", "tier": "tier1a", "count": 1, "strategy": "random"}
+  ]
+}

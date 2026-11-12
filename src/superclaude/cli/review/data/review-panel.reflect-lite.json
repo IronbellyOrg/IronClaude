@@ -1,0 +1,13 @@
+{
+  "schema": "review-panel/1",
+  "template_id": "reflect-lite",
+  "version": "1.0.0",
+  "description": "Reflect lite panel (variant arm only): Tier 1b anchor + Tier 4 + Tier 2. Resolves sonnet, haiku, haiku under soft distinctness and sonnet, haiku under strict distinctness.",
+  "distinct_across_slots": true,
+  "apply_to": ["first"],
+  "slots": [
+    {"slot_id": "t1b", "tier": "tier1b", "count": 1, "strategy": "fixed"},
+    {"slot_id": "t4", "tier": "tier4", "count": 1, "strategy": "random"},
+    {"slot_id": "t2", "tier": "tier2", "count": 1, "strategy": "random"}
+  ]
+}

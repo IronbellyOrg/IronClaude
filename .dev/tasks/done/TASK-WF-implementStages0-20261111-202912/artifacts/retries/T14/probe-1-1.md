@@ -1,0 +1,2 @@
+f5f5bf5ce244f54671da2c08499b6711982c3329
+Family probe for F1.1-F1.4 (model identity read from the wrong source): grep of s-id-runbook.md and s-id-results.md for requested-pinned, 3 of 3, consistent, no tool result, not a model id, unverified. Other hits: runbook decision rules (correct as rules), results line 36 (allowlist, unrelated). The runbook lacked the instruction to read the transcript; added. No other instance.

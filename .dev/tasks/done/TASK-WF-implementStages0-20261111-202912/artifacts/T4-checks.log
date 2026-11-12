@@ -1,0 +1,7 @@
+$ uv run ruff check scripts/reflect_stage0a_replay.py tests/review/test_reflect_stage0a_replay.py
+All checks passed!
+$ uv run pytest tests/review -q -p no:cacheprovider
+tests/review/test_review_rules_text.py .....                             [ 97%]
+tests/review/test_review_telemetry.py ..........                         [100%]
+
+============================= 467 passed in 3.98s ==============================

@@ -1,0 +1,45 @@
+diff --git a/src/superclaude/skills/sc-reflect-protocol/SKILL.md b/src/superclaude/skills/sc-reflect-protocol/SKILL.md
+index 4489503cb..395368943 100644
+--- a/src/superclaude/skills/sc-reflect-protocol/SKILL.md
++++ b/src/superclaude/skills/sc-reflect-protocol/SKILL.md
+@@ -308,9 +308,9 @@ Emit `interaction_effects_scanned: true` in the contract when this step runs; `i
+ 
+ ### 4.3a T2 engine selection (`--t2-engine`)
+ 
+-With the default `--t2-engine legacy` the panel code is never called, the Wave 3 reviewer rotation of §7.1 runs exactly as before, and contract 1.8.0 is unchanged (no stable field, `merge_method` value or contract version changes). `--t2-engine shadow` additionally runs the panel offline for measurement, UC-1 only (Stage 2); the legacy rotation and the Wave 4 debate stay authoritative, and everything the panel writes goes under `<output>/panel/` and into telemetry.
++With the default `--t2-engine legacy` the panel code is never called, the Wave 3 reviewer rotation of §7.1 runs exactly as before, and contract 1.8.0 is unchanged (no stable field, `merge_method` value or contract version changes). `--t2-engine shadow` additionally runs the panel offline for measurement, UC-1 only (Stage 2); the legacy rotation and the Wave 4 debate stay authoritative, and everything the panel writes goes under `<output>/panel/` and into telemetry. In UC-2 (post-execution) runs the flag is accepted and ignored until Stage 5.
+ 
+-The panel is a Tier 2 mechanism and is called only after the **final** tier is 2. Order of decisions: (1) Wave 0 alias routing (§4 Wave 0 step 0.5) and executor class (§7.1); (2) budget pre-flight (§4.0 step 0.9); (3) Waves 1-2: the T1 card, coverage map, blind calibration of the T1 card, rubric; (4) only now `--t2-engine` is read, at the start of Wave 3. Both the requested and the effective engine are written to `tier_decision.yaml` (§5.4).
++The panel is a Tier 2 mechanism and is called only after the **final** tier is 2. Order of decisions: (1) Wave 0 alias routing (§4 Wave 0 step 0.5) and executor class (§7.1); (2) budget pre-flight (§4.0 step 0.9); (3) Waves 1-2: the T1 card, coverage map, blind calibration of the T1 card, rubric; (4) only now `--t2-engine` is read, at the start of Wave 3. Both the requested and the effective engine are written to `tier_decision.yaml` (§5.4) and, when the panel runs, to its manifest.
+ 
+ **Rules.**
+ 
+@@ -318,7 +318,7 @@ The panel is a Tier 2 mechanism and is called only after the **final** tier is 2
+ - **D2.** The engine flag is checked after the depth, pin, budget and rubric decisions, never before.
+ - **D3.** A run pinned to T2 (`--depth deep` or `--tier 2`) whose reviewer pool yields fewer than 2 distinct eligible classes does not silently run T1 or one reviewer. The §7.1 WARN (`"executor class collides with reviewer pool; N=2 floor cannot be satisfied with disjoint set."`) and `executor_exclusion_degraded: true` (when exclusion caused it) apply under every engine, as today. The further effects apply **only when the effective engine is `panel`, which ships in Stage 3**: `t2_floor_unmet` is added to `degraded_components` (a benign token, outside the chain-critical set), `status` is forced to `partial`, and REPORT.md opens with a banner naming the unmet floor. Under `shadow` the legacy rotation decides (including its existing §7.1 degrade), and `t2_floor_unmet` is recorded in the panel telemetry only: no `degraded_components` entry, no `status` change, no banner. A rubric-driven escalation keeps the existing silent-safe T1 degrade of §7.1 with the WARN. N=2 is the minimum in every case.
+ - **D4.** Unsupported cells (gateway, a null `launch`, an unmapped model) run the legacy rotation and record `panel_fallback_reason`.
+-- **D5.** `N_eff = min(--reviewers, alias count, 3)`; the anchor is never dropped.
++- **D5.** `N_eff = min(--reviewers, alias count, 3)`; the anchor (the template's fixed slot, resolved first) is never dropped.
+ 
+ | Depth / pin / modifier | Tier path | Panel called? | Notes |
+ |---|---|---|---|
+@@ -330,7 +330,7 @@ The panel is a Tier 2 mechanism and is called only after the **final** tier is 2
+ | `--tier 2` | forced T2 | as the row above | D3 applies |
+ | `--budget-remaining N`, N < 5 | STOP | No | |
+ | N = 5 | T1 forced | No | `budget_forced_tier_downgrade: true` |
+-| 6 <= N < 65 | T2 downgraded to T1 with WARN when the rubric asks for T2 | No | |
++| 6 <= N < 65 | routed by §4.0 step 0.9, third row: allow T1; a rubric escalation to T2 is downgraded to T1 with WARN when N < 65 | No when downgraded | follow step 0.9 as written (its row label stops at N < 52, its text at N < 65); this subsection adds no budget logic |
+ | N >= 65 or unset | as the rubric directs | per the rows above | the panel adds no budget logic |
+ | executor class collides with the pool | N=2 floor, then T1 degrade (§7.1) | only if at least 2 distinct eligible classes remain | D3 for pins |
+ | `--unattended` | unchanged | per the rows above | |
+@@ -448,8 +448,8 @@ per_signal_breakdown:
+   spec_density: <0-2>
+   ambiguity_signals: <0-2>
+ escalation_reason: <string>        # human-readable rationale
+-t2_engine_requested: legacy | shadow  # §4.3a: the --t2-engine value as passed; null when the final tier is 1 (the flag is not read); `panel` is added in Stage 3
+-t2_engine_effective: legacy | shadow  # §4.3a: the engine that ran; null when the final tier is 1
++t2_engine_requested: legacy | shadow | null  # §4.3a: the --t2-engine value as passed; null when the final tier is 1 (the flag is not read); `panel` is added in Stage 3
++t2_engine_effective: legacy | shadow | null  # §4.3a: the engine that ran; null when the final tier is 1
+ panel_fallback_reason: <string> | null  # §4.3a rule D4: why a requested non-legacy engine ran the legacy rotation; null otherwise
+ ```
+ 

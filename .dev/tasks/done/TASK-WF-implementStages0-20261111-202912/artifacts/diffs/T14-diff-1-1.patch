@@ -1,0 +1,428 @@
+diff --git a/.dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/retries/T14/status-after.txt b/.dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/retries/T14/status-after.txt
+new file mode 100644
+index 000000000..e08fa150b
+--- /dev/null
++++ b/.dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/retries/T14/status-after.txt
+@@ -0,0 +1,173 @@
++A  .dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/TASK-WF-implementStages0-20261111-202912.md
++A  .dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/T1-checks.log
++A  .dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/T10-checks.log
++A  .dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/T11-checks.log
++A  .dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/T12-checks.log
++A  .dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/T13-checks.log
++A  .dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/T2-checks.log
++A  .dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/T3-checks.log
++A  .dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/T4-checks.log
++A  .dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/T5-checks.log
++A  .dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/T6-checks.log
++A  .dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/T7-checks.log
++A  .dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/T8-checks.log
++A  .dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/T9-checks.log
++A  .dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/cluster-pairs-50.csv
++A  .dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/consumer-inventory.md
++A  .dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/diffs/T1-delta-1-2.patch
++A  .dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/diffs/T1-delta-2-2.patch
++A  .dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/diffs/T1-delta-3-1.patch
++A  .dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/diffs/T1-delta-3-2.patch
++A  .dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/diffs/T1-diff-1-1.patch
++A  .dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/diffs/T1-diff-1-2.patch
++A  .dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/diffs/T1-diff-2-2.patch
++A  .dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/diffs/T1-diff-3-1.patch
++A  .dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/diffs/T1-diff-3-2.patch
++A  .dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/diffs/T10-diff-1-1.patch
++A  .dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/diffs/T11-diff-1-1.patch
++A  .dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/diffs/T12-diff-1-1.patch
++A  .dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/diffs/T13-diff-1-1.patch
++A  .dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/diffs/T2-diff-1-1.patch
++A  .dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/diffs/T3-delta-2-1.patch
++A  .dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/diffs/T3-diff-1-1.patch
++A  .dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/diffs/T3-diff-2-1.patch
++A  .dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/diffs/T4-diff-1-1.patch
++A  .dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/diffs/T5-delta-2-1.patch
++A  .dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/diffs/T5-diff-1-1.patch
++A  .dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/diffs/T5-diff-2-1.patch
++A  .dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/diffs/T6-delta-2-1.patch
++A  .dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/diffs/T6-diff-1-1.patch
++A  .dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/diffs/T6-diff-2-1.patch
++A  .dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/diffs/T7-diff-1-1.patch
++A  .dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/diffs/T8-diff-1-1.patch
++A  .dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/diffs/T9-diff-1-1.patch
++A  .dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/lint-test-design.md
++A  .dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/pilot-design.md
++A  .dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/retries/T1/advice-3-a.md
++A  .dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/retries/T1/advice-3-b.md
++A  .dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/retries/T1/approach-2.md
++A  .dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/retries/T1/attempt-2.diff
++A  .dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/retries/T1/extras-2.log
++A  .dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/retries/T1/notes.md
++A  .dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/retries/T1/probe-1-1.md
++A  .dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/retries/T1/probe-2-1.md
++A  .dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/retries/T1/probe-3-1.md
++A  .dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/retries/T1/prompt-1-1.md
++A  .dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/retries/T1/prompt-2-1.md
++A  .dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/retries/T1/prompt-2-2.md
++A  .dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/retries/T1/prompt-3-1.md
++A  .dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/retries/T1/prompt-3-2.md
++A  .dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/retries/T1/q0-head
++A  .dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/retries/T1/repair-2-1.md
++A  .dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/retries/T1/repair-3-1.md
++A  .dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/retries/T1/revert-2.done
++A  .dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/retries/T1/revert-2.log
++A  .dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/retries/T1/review-1.md
++A  .dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/retries/T1/review-2.md
++A  .dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/retries/T1/review-3.md
++A  .dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/retries/T10/prompt-1-1.md
++A  .dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/retries/T10/q0-head
++A  .dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/retries/T11/notes.md
++A  .dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/retries/T11/prompt-1-1.md
++A  .dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/retries/T11/q0-head
++A  .dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/retries/T12/notes.md
++A  .dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/retries/T12/prompt-1-1.md
++A  .dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/retries/T12/q0-head
++A  .dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/retries/T13/notes.md
++A  .dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/retries/T13/prompt-1-1.md
++A  .dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/retries/T13/q0-head
++A  .dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/retries/T1_brief-3.md
++A  .dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/retries/T2/notes.md
++A  .dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/retries/T2/prompt-1-1.md
++A  .dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/retries/T2/q0-head
++A  .dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/retries/T3/notes.md
++A  .dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/retries/T3/probe-1-1.md
++A  .dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/retries/T3/prompt-1-1.md
++A  .dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/retries/T3/prompt-2-1.md
++A  .dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/retries/T3/q0-head
++A  .dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/retries/T3/review-1.md
++A  .dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/retries/T4/notes.md
++A  .dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/retries/T4/prompt-1-1.md
++A  .dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/retries/T4/q0-head
++A  .dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/retries/T5/notes.md
++A  .dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/retries/T5/probe-1-1.md
++A  .dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/retries/T5/prompt-1-1.md
++A  .dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/retries/T5/prompt-2-1.md
++A  .dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/retries/T5/q0-head
++A  .dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/retries/T5/review-1.md
++A  .dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/retries/T6/notes.md
++A  .dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/retries/T6/probe-1-1.md
++A  .dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/retries/T6/prompt-1-1.md
++A  .dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/retries/T6/prompt-2-1.md
++A  .dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/retries/T6/q0-head
++A  .dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/retries/T6/review-1.md
++A  .dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/retries/T7/notes.md
++A  .dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/retries/T7/prompt-1-1.md
++A  .dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/retries/T7/q0-head
++A  .dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/retries/T8/prompt-1-1.md
++A  .dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/retries/T8/q0-head
++A  .dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/retries/T9/notes.md
++A  .dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/retries/T9/prompt-1-1.md
++A  .dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/retries/T9/q0-head
++A  .dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/review-prompts/T1-1-1.md
++A  .dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/review-prompts/T1-1-2.md
++A  .dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/review-prompts/T1-2-2.md
++A  .dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/review-prompts/T1-3-1.md
++A  .dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/review-prompts/T1-3-2.md
++A  .dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/review-prompts/T10-1-1.md
++A  .dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/review-prompts/T11-1-1.md
++A  .dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/review-prompts/T12-1-1.md
++A  .dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/review-prompts/T13-1-1.md
++A  .dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/review-prompts/T2-1-1.md
++A  .dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/review-prompts/T3-1-1.md
++A  .dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/review-prompts/T3-2-1.md
++A  .dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/review-prompts/T4-1-1.md
++A  .dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/review-prompts/T5-1-1.md
++A  .dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/review-prompts/T5-2-1.md
++A  .dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/review-prompts/T6-1-1.md
++A  .dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/review-prompts/T6-2-1.md
++A  .dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/review-prompts/T7-1-1.md
++A  .dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/review-prompts/T8-1-1.md
++A  .dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/review-prompts/T9-1-1.md
++A  .dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/stage0a-report.md
++AM .dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/progress.md
++A  .dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/return-contract.yaml
++A  .dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/source.md
++ M src/superclaude/cli/review/__init__.py
++ M src/superclaude/cli/review/data/review-tiers.default.json
++ M src/superclaude/cli/review/panel.py
++ M src/superclaude/cli/review/panel_cmd.py
++ M tests/review/test_review_cli.py
++?? .dev/brainstorms/20261111T182026-reflect-tier2-panel-replacement/
++?? .dev/reflect/pre-TASK-WF-implementStages0-20261111-202912-20261111203500/
++?? .dev/reflect/pre-TASK-WF-implementStages0-20261111-202912-20261111203517/
++?? .dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/s-id-runbook.md
++?? scripts/reflect_cluster_pairs.py
++?? scripts/reflect_consumer_inventory.py
++?? scripts/reflect_stage0a_replay.py
++?? src/superclaude/cli/review/card_convert.py
++?? src/superclaude/cli/review/cluster.py
++?? src/superclaude/cli/review/cluster_cmd.py
++?? src/superclaude/cli/review/data/review-panel.reflect-enterprise.json
++?? src/superclaude/cli/review/data/review-panel.reflect-lite.json
++?? src/superclaude/cli/review/data/review-panel.reflect-post-x2.json
++?? src/superclaude/cli/review/data/review-panel.reflect-post.json
++?? src/superclaude/cli/review/data/review-panel.reflect-pre-x2.json
++?? src/superclaude/cli/review/data/review-panel.reflect-pre.json
++?? src/superclaude/cli/review/findings_v2.py
++?? src/superclaude/cli/review/verify_cmd.py
++?? tests/review/fixtures/panel-golden-default-live7.json
++?? tests/review/fixtures/panel-golden-packaged-tiers.json
++?? tests/review/fixtures/reflect_cards/
++?? tests/review/fixtures/review-tiers.frozen-1.0.0.json
++?? tests/review/test_reflect_cluster_pairs.py
++?? tests/review/test_reflect_consumer_inventory.py
++?? tests/review/test_reflect_stage0a_replay.py
++?? tests/review/test_review_card_convert.py
++?? tests/review/test_review_cluster.py
++?? tests/review/test_review_cluster_cmd.py
++?? tests/review/test_review_findings_v2.py
++?? tests/review/test_review_panel_exclusion.py
++?? tests/review/test_review_panel_reflect_profile.py
++?? tests/review/test_review_reflect_templates.py
++?? tests/review/test_review_verify_citations.py
+diff --git a/.dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/retries/T14/status-before.txt b/.dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/retries/T14/status-before.txt
+new file mode 100644
+index 000000000..e08fa150b
+--- /dev/null
++++ b/.dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/retries/T14/status-before.txt
+@@ -0,0 +1,173 @@
++A  .dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/TASK-WF-implementStages0-20261111-202912.md
++A  .dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/T1-checks.log
++A  .dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/T10-checks.log
++A  .dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/T11-checks.log
++A  .dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/T12-checks.log
++A  .dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/T13-checks.log
++A  .dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/T2-checks.log
++A  .dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/T3-checks.log
++A  .dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/T4-checks.log
++A  .dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/T5-checks.log
++A  .dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/T6-checks.log
++A  .dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/T7-checks.log
++A  .dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/T8-checks.log
++A  .dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/T9-checks.log
++A  .dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/cluster-pairs-50.csv
++A  .dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/consumer-inventory.md
++A  .dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/diffs/T1-delta-1-2.patch
++A  .dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/diffs/T1-delta-2-2.patch
++A  .dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/diffs/T1-delta-3-1.patch
++A  .dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/diffs/T1-delta-3-2.patch
++A  .dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/diffs/T1-diff-1-1.patch
++A  .dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/diffs/T1-diff-1-2.patch
++A  .dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/diffs/T1-diff-2-2.patch
++A  .dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/diffs/T1-diff-3-1.patch
++A  .dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/diffs/T1-diff-3-2.patch
++A  .dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/diffs/T10-diff-1-1.patch
++A  .dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/diffs/T11-diff-1-1.patch
++A  .dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/diffs/T12-diff-1-1.patch
++A  .dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/diffs/T13-diff-1-1.patch
++A  .dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/diffs/T2-diff-1-1.patch
++A  .dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/diffs/T3-delta-2-1.patch
++A  .dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/diffs/T3-diff-1-1.patch
++A  .dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/diffs/T3-diff-2-1.patch
++A  .dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/diffs/T4-diff-1-1.patch
++A  .dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/diffs/T5-delta-2-1.patch
++A  .dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/diffs/T5-diff-1-1.patch
++A  .dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/diffs/T5-diff-2-1.patch
++A  .dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/diffs/T6-delta-2-1.patch
++A  .dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/diffs/T6-diff-1-1.patch
++A  .dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/diffs/T6-diff-2-1.patch
++A  .dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/diffs/T7-diff-1-1.patch
++A  .dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/diffs/T8-diff-1-1.patch
++A  .dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/diffs/T9-diff-1-1.patch
++A  .dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/lint-test-design.md
++A  .dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/pilot-design.md
++A  .dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/retries/T1/advice-3-a.md
++A  .dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/retries/T1/advice-3-b.md
++A  .dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/retries/T1/approach-2.md
++A  .dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/retries/T1/attempt-2.diff
++A  .dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/retries/T1/extras-2.log
++A  .dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/retries/T1/notes.md
++A  .dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/retries/T1/probe-1-1.md
++A  .dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/retries/T1/probe-2-1.md
++A  .dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/retries/T1/probe-3-1.md
++A  .dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/retries/T1/prompt-1-1.md
++A  .dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/retries/T1/prompt-2-1.md
++A  .dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/retries/T1/prompt-2-2.md
++A  .dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/retries/T1/prompt-3-1.md
++A  .dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/retries/T1/prompt-3-2.md
++A  .dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/retries/T1/q0-head
++A  .dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/retries/T1/repair-2-1.md
++A  .dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/retries/T1/repair-3-1.md
++A  .dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/retries/T1/revert-2.done
++A  .dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/retries/T1/revert-2.log
++A  .dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/retries/T1/review-1.md
++A  .dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/retries/T1/review-2.md
++A  .dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/retries/T1/review-3.md
++A  .dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/retries/T10/prompt-1-1.md
++A  .dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/retries/T10/q0-head
++A  .dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/retries/T11/notes.md
++A  .dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/retries/T11/prompt-1-1.md
++A  .dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/retries/T11/q0-head
++A  .dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/retries/T12/notes.md
++A  .dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/retries/T12/prompt-1-1.md
++A  .dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/retries/T12/q0-head
++A  .dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/retries/T13/notes.md
++A  .dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/retries/T13/prompt-1-1.md
++A  .dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/retries/T13/q0-head
++A  .dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/retries/T1_brief-3.md
++A  .dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/retries/T2/notes.md
++A  .dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/retries/T2/prompt-1-1.md
++A  .dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/retries/T2/q0-head
++A  .dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/retries/T3/notes.md
++A  .dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/retries/T3/probe-1-1.md
++A  .dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/retries/T3/prompt-1-1.md
++A  .dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/retries/T3/prompt-2-1.md
++A  .dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/retries/T3/q0-head
++A  .dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/retries/T3/review-1.md
++A  .dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/retries/T4/notes.md
++A  .dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/retries/T4/prompt-1-1.md
++A  .dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/retries/T4/q0-head
++A  .dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/retries/T5/notes.md
++A  .dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/retries/T5/probe-1-1.md
++A  .dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/retries/T5/prompt-1-1.md
++A  .dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/retries/T5/prompt-2-1.md
++A  .dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/retries/T5/q0-head
++A  .dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/retries/T5/review-1.md
++A  .dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/retries/T6/notes.md
++A  .dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/retries/T6/probe-1-1.md
++A  .dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/retries/T6/prompt-1-1.md
++A  .dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/retries/T6/prompt-2-1.md
++A  .dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/retries/T6/q0-head
++A  .dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/retries/T6/review-1.md
++A  .dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/retries/T7/notes.md
++A  .dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/retries/T7/prompt-1-1.md
++A  .dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/retries/T7/q0-head
++A  .dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/retries/T8/prompt-1-1.md
++A  .dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/retries/T8/q0-head
++A  .dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/retries/T9/notes.md
++A  .dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/retries/T9/prompt-1-1.md
++A  .dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/retries/T9/q0-head
++A  .dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/review-prompts/T1-1-1.md
++A  .dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/review-prompts/T1-1-2.md
++A  .dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/review-prompts/T1-2-2.md
++A  .dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/review-prompts/T1-3-1.md
++A  .dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/review-prompts/T1-3-2.md
++A  .dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/review-prompts/T10-1-1.md
++A  .dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/review-prompts/T11-1-1.md
++A  .dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/review-prompts/T12-1-1.md
++A  .dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/review-prompts/T13-1-1.md
++A  .dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/review-prompts/T2-1-1.md
++A  .dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/review-prompts/T3-1-1.md
++A  .dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/review-prompts/T3-2-1.md
++A  .dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/review-prompts/T4-1-1.md
++A  .dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/review-prompts/T5-1-1.md
++A  .dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/review-prompts/T5-2-1.md
++A  .dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/review-prompts/T6-1-1.md
++A  .dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/review-prompts/T6-2-1.md
++A  .dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/review-prompts/T7-1-1.md
++A  .dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/review-prompts/T8-1-1.md
++A  .dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/review-prompts/T9-1-1.md
++A  .dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/stage0a-report.md
++AM .dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/progress.md
++A  .dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/return-contract.yaml
++A  .dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/source.md
++ M src/superclaude/cli/review/__init__.py
++ M src/superclaude/cli/review/data/review-tiers.default.json
++ M src/superclaude/cli/review/panel.py
++ M src/superclaude/cli/review/panel_cmd.py
++ M tests/review/test_review_cli.py
++?? .dev/brainstorms/20261111T182026-reflect-tier2-panel-replacement/
++?? .dev/reflect/pre-TASK-WF-implementStages0-20261111-202912-20261111203500/
++?? .dev/reflect/pre-TASK-WF-implementStages0-20261111-202912-20261111203517/
++?? .dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/s-id-runbook.md
++?? scripts/reflect_cluster_pairs.py
++?? scripts/reflect_consumer_inventory.py
++?? scripts/reflect_stage0a_replay.py
++?? src/superclaude/cli/review/card_convert.py
++?? src/superclaude/cli/review/cluster.py
++?? src/superclaude/cli/review/cluster_cmd.py
++?? src/superclaude/cli/review/data/review-panel.reflect-enterprise.json
++?? src/superclaude/cli/review/data/review-panel.reflect-lite.json
++?? src/superclaude/cli/review/data/review-panel.reflect-post-x2.json
++?? src/superclaude/cli/review/data/review-panel.reflect-post.json
++?? src/superclaude/cli/review/data/review-panel.reflect-pre-x2.json
++?? src/superclaude/cli/review/data/review-panel.reflect-pre.json
++?? src/superclaude/cli/review/findings_v2.py
++?? src/superclaude/cli/review/verify_cmd.py
++?? tests/review/fixtures/panel-golden-default-live7.json
++?? tests/review/fixtures/panel-golden-packaged-tiers.json
++?? tests/review/fixtures/reflect_cards/
++?? tests/review/fixtures/review-tiers.frozen-1.0.0.json
++?? tests/review/test_reflect_cluster_pairs.py
++?? tests/review/test_reflect_consumer_inventory.py
++?? tests/review/test_reflect_stage0a_replay.py
++?? tests/review/test_review_card_convert.py
++?? tests/review/test_review_cluster.py
++?? tests/review/test_review_cluster_cmd.py
++?? tests/review/test_review_findings_v2.py
++?? tests/review/test_review_panel_exclusion.py
++?? tests/review/test_review_panel_reflect_profile.py
++?? tests/review/test_review_reflect_templates.py
++?? tests/review/test_review_verify_citations.py
+diff --git a/.dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/s-id-results.md b/.dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/s-id-results.md
+new file mode 100644
+index 000000000..31c9a74c5
+--- /dev/null
++++ b/.dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/s-id-results.md
+@@ -0,0 +1,38 @@
++# S-ID results: reviewer identity and read-only allowlist
++
++Run 2026-11-12, probe window 00:10:28Z to 00:10:54Z (UTC). Runbook: `./s-id-runbook.md`. Three probes were dispatched in one message through `subagent_type: reflect-reviewer`, with the Agent tool `model` set to the pin. All three were dispatched and answered.
++
++## Probe table
++
++| Pin (Agent `model`) | Self-report (`reviewer_model_self_report`) | Write attempt | `probe_tools` (exact names) | Write, Edit or Bash in the list? | Model id exposed |
++|---|---|---|---|---|---|
++| haiku | "Underlying model name/id unknown; supplied context labels it `claude-gw-tier2[1m]`" | none attempted: "no write tool available" | `functions.Read`, `functions.Grep`, `functions.Glob`, `functions.mcp__codegraph__codegraph_search`, `functions.mcp__codegraph__codegraph_node`, `functions.mcp__codegraph__codegraph_callers`, `functions.mcp__codegraph__codegraph_impact`, `multi_tool_use.parallel` | No | `claude-gw-tier2[1m]`, a gateway alias from the probe's own context, "not independently verified" |
++| sonnet | "`claude-gw-tier1b[1m]` (the model id given in my system prompt; I can't confirm the underlying model beyond that)" | none attempted: "no write tool available" | `mcp__razor_culture__pool_Read`, `mcp__razor_culture__mean_Grep`, `mcp__razor_culture__anchor_Glob`, `mcp__codegraph__codegraph_search`, `mcp__codegraph__codegraph_node`, `mcp__codegraph__codegraph_callers`, `mcp__codegraph__codegraph_impact` | No | `claude-gw-tier1b[1m]`, a gateway alias from the probe's system prompt; no tool result exposed one |
++| opus | "`claude-gw-tier1a[1m]`. My environment block names this model. I cannot independently confirm which model class sits behind that gateway alias." | none attempted: "no write tool available" | `mcp__razor_culture__pool_Read`, `mcp__razor_culture__mean_Grep`, `mcp__razor_culture__anchor_Glob`, `mcp__codegraph__codegraph_search`, `mcp__codegraph__codegraph_node`, `mcp__codegraph__codegraph_callers`, `mcp__codegraph__codegraph_impact` | No | `claude-gw-tier1a[1m]`, a gateway alias from the probe's environment block; no tool result exposed one |
++
++Because no probe had a write tool, the write was never attempted, so no refusal text exists. The evidence for the allowlist is the tool list, as the runbook says.
++
++## Working tree check (AC3)
++
++`git status --porcelain` was taken immediately before the first dispatch and immediately after the last answer, with this task's own `artifacts/retries/T14/` files filtered out. The full outputs are saved:
++
++- before: `./retries/T14/status-before.txt` (173 lines, sha256 starts `f513094cab8cc9cd`)
++- after: `./retries/T14/status-after.txt` (173 lines, sha256 starts `f513094cab8cc9cd`)
++- `diff` of the two: empty (identical).
++
++`.dev/s-id-probe-haiku.txt`, `.dev/s-id-probe-sonnet.txt` and `.dev/s-id-probe-opus.txt` do not exist. The runbook (`./s-id-runbook.md`) was written before the before-snapshot, so it appears in both; this results file was written after the after-snapshot.
++
++## Findings against the four questions
++
++1. Does the self-report match the pin in 3 of 3? By model name: 0 of 3. No probe said haiku, sonnet or opus; each gave a gateway alias. Against the alias map of `review-tiers.default.json` (anthropic-only: sonnet is the tier1b model, opus is in tier1a, haiku stands in for tier2): 3 of 3 are consistent. That is a consistency check against a table, not proof, and every probe said it could not confirm the model behind the alias.
++2. Does the tool result or transcript expose a model id? No. The Agent tool results carry only the probe's own text. The alias reached the probe through its own system prompt and is repeated to us only because the probe wrote it down. The value is a gateway alias, not a model id.
++3. Does the read-only allowlist survive the `model` override? Yes for all three pins: no probe had Write, Edit or Bash, and none had a write tool. Caveat: the tool names are not the agent file's names (`Read`, `Grep`, `Glob`, `mcp__codegraph__...`); two probes saw `mcp__razor_culture__...` names and the haiku probe saw `functions.`-prefixed names, so the harness renames tools. The set is still read-only.
++4. Decision for `identity_source`: see below.
++
++## Decision and Stage 1 exit facts
++
++**identity_source: `requested-pinned`.** This is an unverified assumption: the model that ran is the one requested through the Agent `model` parameter, and nothing observable confirms it. The alias seen by each probe is consistent with the pin but is not a model id exposed by a tool result or transcript.
++
++- Allowlist survives the `model` override: **yes** (3 of 3 probes, no Write, Edit or Bash).
++- Self-report match count: **0 of 3 by model name** (3 of 3 consistent with the tier alias map, unverified).
++- Model-id exposure in a tool result or transcript: **no**.
+diff --git a/.dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/s-id-runbook.md b/.dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/s-id-runbook.md
+new file mode 100644
+index 000000000..78a5866fa
+--- /dev/null
++++ b/.dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/s-id-runbook.md
+@@ -0,0 +1,20 @@
++# S-ID runbook: reviewer identity and read-only allowlist spike
++
++Purpose: find out (1) whether a reviewer launched through the `reflect-reviewer` agent with the Agent tool `model` override reports the pinned model, (2) whether the tool result or transcript exposes a model id, (3) whether the agent's read-only tool allowlist survives the `model` override.
++
++## Steps
++
++1. Write this runbook. Record `git status --porcelain` as BEFORE (saved to `artifacts/retries/T14/status-before.txt`).
++2. Dispatch three probes in one message, each through `subagent_type: reflect-reviewer` with `model` set to `haiku`, `sonnet` and `opus`. Each probe brief asks for exactly three things:
++   - `reviewer_model_self_report`: one line stating the model it is running as.
++   - Write attempt: try to create the file `.dev/s-id-probe-<pin>.txt` in the repository with the text `probe`, using whatever write capability it has, and report the outcome (blocked, with the error text, or succeeded). It must not try any workaround if the first attempt is refused.
++   - `probe_tools`: the exact names of every tool available to it, one per line.
++3. Record `git status --porcelain` as AFTER (`artifacts/retries/T14/status-after.txt`).
++4. Write `artifacts/s-id-results.md`: one row per probe (pin, self-report, write outcome, `probe_tools` and whether Write, Edit or Bash appears, any exposed model id), then the `identity_source` decision and the three Stage 1 exit facts.
++
++## Decision rules
++
++- `identity_source: observed` only if the tool result or transcript of a probe exposes a model id. Otherwise `requested-pinned`, stated as an unverified assumption.
++- A refused write alone does not show who stopped it, so the `probe_tools` list is the evidence for the allowlist: the allowlist survives only if Write, Edit and Bash are absent from every probe's list.
++- If a probe cannot be dispatched, record that and keep `requested-pinned`.
++- BEFORE and AFTER must be identical apart from this task's own artifact files.

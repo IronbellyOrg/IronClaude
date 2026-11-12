@@ -23,6 +23,9 @@ for _name in (
     "telemetry_cmd",
     "lint_cmd",
     "estimate_cmd",
+    "cluster_cmd",
+    "verify_cmd",
+    "manifest_cmd",
 ):
     try:
         _module = importlib.import_module(f"{__name__}.{_name}")

@@ -1,0 +1,7 @@
+# model recorded in each probe's sidechain transcript (jq -r 'select(.type=="assistant") | .message.model' agent-<id>.jsonl | sort | uniq -c), plus the Agent model pin from agent-<id>.meta.json
+probe pin=haiku agent=aafa108f2773e20c2 meta.model=haiku agentType=reflect-reviewer
+  assistant turns:       2 gpt-6.1-sol
+probe pin=sonnet agent=a26fa8ec09fd075be meta.model=sonnet agentType=reflect-reviewer
+  assistant turns:       2 claude-sonnet-5-5
+probe pin=opus agent=af847d4d6ec396b51 meta.model=opus agentType=reflect-reviewer
+  assistant turns:       2 claude-opus-5-5

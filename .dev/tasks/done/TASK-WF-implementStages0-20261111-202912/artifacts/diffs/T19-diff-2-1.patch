@@ -1,0 +1,344 @@
+diff --git a/src/superclaude/cli/reflect/panel_lint.py b/src/superclaude/cli/reflect/panel_lint.py
+index b22276694..2d93133a7 100644
+--- a/src/superclaude/cli/reflect/panel_lint.py
++++ b/src/superclaude/cli/reflect/panel_lint.py
+@@ -170,6 +170,7 @@ TELEMETRY_FIELDS = (
+     "type_hierarchy_invoked",
+     "summarize_changes_invoked",
+     "references_extended_info_used",
++    "telemetry",
+ )
+ 
+ LOAD_BEARING_BOOLS = _LOAD_BEARING_BOOL_FIELDS
+diff --git a/src/superclaude/skills/sc-reflect-protocol/SKILL.md b/src/superclaude/skills/sc-reflect-protocol/SKILL.md
+index 395368943..8f4102873 100644
+--- a/src/superclaude/skills/sc-reflect-protocol/SKILL.md
++++ b/src/superclaude/skills/sc-reflect-protocol/SKILL.md
+@@ -335,6 +335,19 @@ The panel is a Tier 2 mechanism and is called only after the **final** tier is 2
+ | executor class collides with the pool | N=2 floor, then T1 degrade (§7.1) | only if at least 2 distinct eligible classes remain | D3 for pins |
+ | `--unattended` | unchanged | per the rows above | |
+ 
++**Shadow-mode steps (UC-1, effective engine `shadow`).** These steps run next to the legacy Waves 3-5; they add artifacts and telemetry and change no verdict, no stable contract field and no `merge_method`. The legacy debate, blind calibration, evidence gate and contract builder stay **authoritative and unchanged**, the legacy card files and the legacy Wave 4 call are not touched, and every panel artifact goes to `<output>/panel/`. A step that cannot run records `panel_fallback_reason` (D4) and the run continues as legacy. After each step call `superclaude review manifest advance --out <output> --stage <stage>` (stages `resolved`, `dispatched`, `collected`, `calibrated`, `clustered` after the steps below, `debated` after the legacy debate, `validated` after the evidence validator, `published` after the legacy writers finish); the stages are advanced in order and none is skipped. A stage that carries data takes it as `--payload <file>`, a JSON object (`{"outputs": {<name>: <sha256>}}`; the `resolved` payload is `{"reviewers_requested": <N>, "reviewers_resolved": <M>}`).
++
++1. **Resolve and freeze.** Run `superclaude review panel resolve --template @reflect-pre --run-id <reflect run id> --kind first --env anthropic-only --hard-exclude-class <executor class> --strict-distinct` and keep its stdout. Executor class unknown (`executor_class_source: unknown`): omit `--hard-exclude-class`, keep the fail-open path of §7.1 and `executor_class_resolved: false`. `ExclusionExhausted` for the anchor: re-resolve once with `--template @reflect-pre-x2` before any dispatch and record `anchor_replaced: true`; a second exhaustion, or a null `launch`, is rule D3/D4. Then freeze: `superclaude review manifest init --out <output> --run-id <reflect run id> --snapshot <output>/artifacts/input-snapshot.yaml --template-sha256 <template_sha256> --tiers-sha256 <tiers_sha256> --brief-template-sha256 <sha256 of refs/reviewer-spec.md> --schema-id review-panel/1 --schema-id findings-v2 --t2-engine-requested shadow --t2-engine-effective shadow` (the two hashes come from the resolve output). Write the resolve stdout to `<output>/panel/resolution.json` exactly as printed: the file is the unmodified output of `review panel resolve` and is never rewritten to match the legacy rotation. Then advance `resolved` with `--payload` holding `{"reviewers_requested": <N>, "reviewers_resolved": <M>}`.
++2. **Parity.** Compare, in order, the `(persona, model class)` pairs of `panel/resolution.json` (persona by resolution order: analyzer, qa, refactorer; model ids mapped to classes through the tier file's `classes`) with those of the legacy rotation as it ran, and record `panel_parity: true|false`. When parity is false the legacy rotation still runs, the value is recorded and nothing is blocked. Every shadow reviewer card header carries `persona:`, `model_class:` and `model:` (the resolved model id, written by the orchestrator), so the Stage 2 aggregator recomputes parity from the card headers and `panel/resolution.json` and does not trust the recorded boolean.
++3. **Briefs and dispatch.** Briefs are the legacy briefs plus the one findings-block instruction line of `refs/reviewer-spec.md` (only when the effective engine is `shadow`; a legacy run's briefs are unchanged). Dispatch is the legacy dispatch. Record each reviewer attempt with `manifest advance --stage dispatched --reviewer-id <id> --attempt-id <n> --completion <state>`, then advance `dispatched`; when the cards are back, record each attempt's completion the same way with `--stage collected`, then advance `collected`. A stage accepts attempts only while it is the next stage to commit.
++4. **Normalize.** Parse each card's `## Findings block`. An invalid block gets one bounded re-ask for the block only; the card body still reaches the debate.
++5. **Calibration.** The legacy blind calibration (Wave 3C, §11.3) is unchanged and embeds a `calibration:` block in each card. Apply the Fable and Tier 0 filter to the calibrator pick as to every reviewer: neither is ever picked. Only after calibration, copy each card's `## Findings block` with its embedded `calibration:` block to `<output>/panel/cards/reviewer-<N>.md` (the legacy card files stay as they are). Advance `calibrated`.
++6. **Clustering and pre-check (telemetry and flagging only).** Run `superclaude review cluster <output>/panel/cards --snapshot <output>/artifacts/input-snapshot.yaml --out <output>` and `superclaude review verify-citations --cards <output>/panel/cards --snapshot <output>/artifacts/input-snapshot.yaml --root <repo root> --out <output>`. Neither drops anything and neither feeds the debate. Every citation the pre-check flags joins the evidence-validator re-read set even when its sampling would have skipped it; the validator alone decides drops, and `citations_dropped` keeps its sample-count meaning. Record `cluster_agreement` (never compared with the convergence thresholds, never routes anything). Advance `clustered`.
++7. **Debate (legacy, unchanged).** After it, advance `debated`, record `debate_skipped_similar` (true when the child's log says the variants were substantially identical; the real null score stays null). Read the installed `sc-adversarial-protocol` return contract: when it names a judge record it as `judge_identity`; when it does not, record `judge_identity: unknown` and `judge_class_collision: unknown`, never `false`. When a judge id is known, assert it is not a Fable model and not a Tier 0 alias, and note a class collision with a reviewer or the executor in `<output>/panel/notes.md`.
++8. **After the evidence validator.** Write the finding ids it kept to `<output>/panel/kept-ids.txt` (one per line) and run `superclaude review cluster <output>/panel/cards --snapshot <output>/artifacts/input-snapshot.yaml --out <output> --kept <output>/panel/kept-ids.txt` (the `clusters_kept` pass; `clusters.json` is not touched). Advance `validated`.
++9. **Identity.** Record `identity_source` from the S-ID spike: `observed` when the adapter read the reviewer's resolved model id from its transcript, `requested-pinned` (an unverified assumption) when it only knows the model it asked for. Compare each card's `reviewer_model_self_report` with the pin; a mismatch sets `identity_mismatch_suspected: true` in telemetry and in `<output>/panel/notes.md`. While the identity is `requested-pinned` or the executor class is unknown, the panel notes make no claim of verified independence.
++10. **Publish.** After the legacy writers have written `REPORT.md`, `return-contract.yaml` and `audit.log`, run `superclaude review manifest advance --out <output> --stage published`: it records their hashes and rewrites nothing. The panel telemetry fields are listed in §9.2 under `telemetry:`; the three stable-contract files stay as the legacy writers produce them, with `contract_version` 1.8.0.
++
+ ### 4.5 Wave 5 — Detailed step addition
+ 
+ **Step 5.0 (sc-adversarial pre-invocation probe and F1/F2/F3 fallback).** Before calling `Skill sc-adversarial-protocol`, probe its existence with a no-op `Skill('sc-adversarial-protocol', args='--help')`. If the probe returns `skill not found`:
+@@ -953,6 +966,25 @@ handoff_persist_failed: <bool>   # FR-3 (the handoff file Write failed → task-
+ type_hierarchy_invoked: false   # constant false since #323 (the type-hierarchy step was removed; kept so the audit-log shape stays stable)
+ summarize_changes_invoked: false   # constant false since #323 (no change-summary corroboration exists)
+ references_extended_info_used: false   # constant false since #323 (step 4 is a Grep + Read; no extended-info call)
++telemetry:   # Stage 2 panel fields (§4.3a, `--t2-engine shadow`); nest them here, never at the top level of the contract
++  t2_engine_requested: legacy | shadow
++  t2_engine_effective: legacy | shadow
++  panel_fallback_reason: <string> | null
++  t2_floor_unmet: <bool>   # rule D3 under `shadow`: telemetry only (no degraded_components entry, no status change, no banner)
++  identity_source: observed | requested-pinned
++  identity_mismatch_suspected: <bool>   # a reviewer_model_self_report disagrees with the pin
++  judge_identity: <string> | unknown
++  judge_class_collision: true | false | unknown   # unknown when sc-adversarial's return contract names no judge; never false then
++  debate_skipped_similar: <bool>
++  cluster_agreement: <float 0-1> | null   # telemetry only; never compared with the convergence thresholds
++  panel_parity: <bool>   # recorded; the aggregator recomputes it from the card headers and panel/resolution.json
++  anchor_replaced: <bool>   # true when @reflect-pre-x2 replaced the anchor
++  manifest_path: <path>   # <output>/panel/manifest.json
++  reviewers_requested: <int>
++  reviewers_resolved: <int>
++  reviewers_complete: <int>
++  panel_shortfall_2_of_3: <bool>   # 3 resolved, only 2 complete
++  findings_block_compliance_rate: <float 0-1>   # reviewer cards with a valid findings-v2 block / reviewers dispatched
+ ```
+ 
+ ### 9.3 Consumer Field Map
+diff --git a/src/superclaude/skills/sc-reflect-protocol/refs/reviewer-spec.md b/src/superclaude/skills/sc-reflect-protocol/refs/reviewer-spec.md
+index e739aaf87..56041a0bd 100644
+--- a/src/superclaude/skills/sc-reflect-protocol/refs/reviewer-spec.md
++++ b/src/superclaude/skills/sc-reflect-protocol/refs/reviewer-spec.md
+@@ -36,7 +36,7 @@ A reviewer brief MUST contain exactly these three sections, in this order:
+ 
+ The slice of the Tier 1 reflection card relevant to **this reviewer's persona**. For example, the `analyzer` reviewer receives the root-cause / deviation section; the `qa` reviewer receives the coverage / acceptance section; the `refactorer` reviewer receives the structural / tech-debt section.
+ 
+-The slice is a verbatim excerpt from `<output>/t1-card.md` — not a paraphrase.
++The slice is a verbatim excerpt from `<output>/t1-card.md` — not a paraphrase — with one exception: when the effective `--t2-engine` is `shadow` (SKILL.md §4.3a), one instruction line is appended inside this section, after the excerpt and not as a fourth section: `End your card with a ## Findings block fenced findings-v2 block (lens: reflect-pre, citations with roles plan and spec) and a reviewer_model_self_report line stating the model you are running as in one line.` A legacy run's briefs do not carry this line and are unchanged. In a shadow run the orchestrator also writes `persona:`, `model_class:` and `model:` (the resolved model id) at the top of each reviewer card it saves, so the Stage 2 aggregator can recompute panel parity from the card headers and `panel/resolution.json`.
+ 
+ #### `## Grounding hunks`
+ 
+diff --git a/tests/cli/reflect/test_panel_contract_lint.py b/tests/cli/reflect/test_panel_contract_lint.py
+index 0c4e40e8c..e3c7f5337 100644
+--- a/tests/cli/reflect/test_panel_contract_lint.py
++++ b/tests/cli/reflect/test_panel_contract_lint.py
+@@ -105,7 +105,8 @@ def test_pinned_field_lists_match_skill_md(heading, constant):
+ 
+ 
+ def test_constant_sizes_and_load_bearing_import():
+-    assert len(pl.STABLE_FIELDS_1_8_0) == 110 and len(pl.TELEMETRY_FIELDS) == 26
++    # 26 telemetry names of the original section 9.2 plus the `telemetry` block that Task 19 added to it
++    assert len(pl.STABLE_FIELDS_1_8_0) == 110 and len(pl.TELEMETRY_FIELDS) == 27
+     assert pl.LOAD_BEARING_BOOLS is _LOAD_BEARING_BOOL_FIELDS
+     assert (
+         "citations_dropped_extrapolated" in pl.STABLE_FIELDS_1_8_0
+diff --git a/tests/cli/reflect/test_shadow_skill_contract.py b/tests/cli/reflect/test_shadow_skill_contract.py
+new file mode 100644
+index 000000000..475e78efc
+--- /dev/null
++++ b/tests/cli/reflect/test_shadow_skill_contract.py
+@@ -0,0 +1,249 @@
++"""The shadow-mode text of the reflect skill (Task 19): where it may change, the brief template, a fixture run directory."""
++
++from __future__ import annotations
++
++import json
++import re
++import subprocess
++from pathlib import Path
++
++import pytest
++from click.testing import CliRunner
++
++from superclaude.cli.main import main
++from superclaude.cli.review import panel as pnl
++
++ROOT = Path(__file__).resolve().parents[3]
++SKILL_REL = "src/superclaude/skills/sc-reflect-protocol/SKILL.md"
++SKILL = ROOT / SKILL_REL
++SPEC = ROOT / "src/superclaude/skills/sc-reflect-protocol/refs/reviewer-spec.md"
++SKILL_DIR = ROOT / "src/superclaude/skills/sc-reflect-protocol"
++
++
++def git(*args: str) -> str | None:
++    try:
++        out = subprocess.run(
++            ["git", *args], cwd=ROOT, capture_output=True, text=True, timeout=60
++        )
++    except (OSError, subprocess.SubprocessError):
++        return None
++    return out.stdout if out.returncode == 0 else None
++
++
++def block_after(text: str, heading: str) -> str:
++    start = text.index(heading)
++    first = text.index("```yaml\n", start)
++    return text[first : text.index("\n```", first)]
++
++
++# ------------------------------------------------------------ where the skill may change (AC1)
++
++
++def test_stable_contract_block_and_version_are_byte_identical_to_head():
++    head = git("show", f"HEAD:{SKILL_REL}")
++    if head is None:
++        pytest.skip("no git history for the skill")
++    heading = "### 9.1 Stable contract (contract_version: 1.8.0)"
++    current = SKILL.read_text(encoding="utf-8")
++    assert block_after(current, heading) == block_after(head, heading)
++    assert 'contract_version: "1.8.0"' in block_after(current, heading)
++
++
++def test_skill_changes_are_confined_to_the_allowed_sections():
++    diff = git("diff", "HEAD", "-U0", "--", SKILL_REL)
++    if diff is None:
++        pytest.skip("no git history for the skill")
++    lines = SKILL.read_text(encoding="utf-8").splitlines()
++    headings = [
++        (i, text) for i, text in enumerate(lines, 1) if re.match(r"^#{2,4} ", text)
++    ]
++
++    def section(lineno: int) -> str:
++        above = [h for i, h in headings if i <= lineno]
++        return above[-1] if above else ""
++
++    allowed = ("### 3.1 ", "### 4.3a ", "### 5.4 ", "### 9.2 ")
++    seen = set()
++    for m in re.finditer(r"^@@ -\d+(?:,\d+)? \+(\d+)(?:,(\d+))? @@", diff, re.M):
++        start, count = int(m.group(1)), int(m.group(2) or 1)
++        for n in range(start, start + max(count, 1)):
++            sec = section(n)
++            seen.add(sec)
++            assert sec.startswith(allowed), f"line {n} changed under {sec!r}"
++            if sec.startswith("### 3.1 "):
++                assert "--t2-engine" in lines[n - 1]
++    assert not any(s.startswith("### 9.1 ") for s in seen)
++
++
++def test_no_new_src_superclaude_hit_in_the_skill_directory():
++    head = git(
++        "grep",
++        "-c",
++        "src/superclaude",
++        "HEAD",
++        "--",
++        "src/superclaude/skills/sc-reflect-protocol",
++    )
++    if head is None:
++        pytest.skip("no git history for the skill")
++    # `git grep -c` counts lines, so count lines on the working side too
++    before = sum(int(row.rsplit(":", 1)[1]) for row in head.splitlines())
++    now = sum(
++        1
++        for p in SKILL_DIR.rglob("*")
++        if p.is_file()
++        for line in p.read_text(encoding="utf-8", errors="replace").splitlines()
++        if "src/superclaude" in line
++    )
++    assert now <= before
++
++
++# ------------------------------------------------------------ the manifest recipe as the skill writes it
++
++
++def test_the_skills_manifest_recipe_runs_as_written(tmp_path):
++    """Follow the shadow steps literally: init, resolved with --payload, attempts before each advance, published."""
++    sha = "a" * 64
++    snap = tmp_path / "artifacts" / "input-snapshot.yaml"
++    snap.parent.mkdir()
++    snap.write_text(f"input_tree_sha256: {sha}\nfile_list: []\n")
++    out = ["--out", str(tmp_path)]
++
++    def run(*args):
++        res = CliRunner().invoke(main, ["review", "manifest", *args])
++        assert res.exit_code == 0, res.output
++        return res
++
++    run(
++        "init", *out, "--run-id", "r1", "--snapshot", str(snap),
++        "--template-sha256", sha, "--tiers-sha256", sha, "--brief-template-sha256", sha,
++        "--schema-id", "review-panel/1", "--schema-id", "findings-v2",
++        "--t2-engine-requested", "shadow", "--t2-engine-effective", "shadow",
++    )  # fmt: skip
++    payload = tmp_path / "resolved.json"
++    payload.write_text(json.dumps({"reviewers_requested": 3, "reviewers_resolved": 3}))
++    run("advance", *out, "--stage", "resolved", "--payload", str(payload))
++    for stage in ("dispatched", "collected"):
++        for rid in ("t1b-1", "t4-1", "t1a-1"):
++            run(
++                "advance", *out, "--stage", stage, "--reviewer-id", rid,
++                "--attempt-id", "1", "--completion", "complete",
++            )  # fmt: skip
++        run("advance", *out, "--stage", stage)
++    for stage in ("calibrated", "clustered", "debated", "validated"):
++        run("advance", *out, "--stage", stage)
++    for name in ("REPORT.md", "return-contract.yaml", "audit.log"):
++        (tmp_path / name).write_text("legacy writer output\n")
++    run("advance", *out, "--stage", "published")
++    manifest = json.loads((tmp_path / "panel/manifest.json").read_text())
++    assert manifest["state"] == "published" and manifest["reviewers_complete"] == 3
++    assert manifest["reviewers_resolved"] == 3
++
++
++# ------------------------------------------------------------ the brief template (AC2)
++
++
++def test_the_brief_template_has_exactly_three_sections():
++    text = SPEC.read_text(encoding="utf-8")
++    region = text[
++        text.index("### Required sections (per brief)") : text.index(
++            "### Contract emission"
++        )
++    ]
++    assert re.findall(r"(?m)^#### `(## [^`]+)`", region) == [
++        "## T1 card excerpt",
++        "## Grounding hunks",
++        "## Coverage slice",
++    ]
++    # the shadow instruction lives inside the T1 card excerpt section, not in a section of its own
++    excerpt = region[
++        region.index("#### `## T1 card excerpt`") : region.index(
++            "#### `## Grounding hunks`"
++        )
++    ]
++    assert "findings-v2" in excerpt and "reviewer_model_self_report" in excerpt
++    assert "legacy run's briefs do not carry this line" in excerpt
++
++
++def test_skill_names_the_card_header_fields_and_the_authority_of_the_legacy_path():
++    text = SKILL.read_text(encoding="utf-8")
++    shadow = text[text.index("**Shadow-mode steps") : text.index("### 4.5 ")]
++    for needle in (
++        "`persona:`",
++        "`model_class:`",
++        "`model:`",
++        "unmodified output of `review panel resolve`",
++        "authoritative and unchanged",
++    ):
++        assert needle in shadow
++    assert "manifest advance" in shadow and "kept-ids.txt" in shadow
++    assert "judge_class_collision: unknown" in shadow
++
++
++# ------------------------------------------------------------ a fixture run directory (AC3)
++
++RESOLVE = [
++    "review", "panel", "resolve", "--template", "@reflect-pre", "--run-id", "r1",
++    "--kind", "first", "--env", "anthropic-only", "--strict-distinct",
++]  # fmt: skip
++PERSONAS = ("analyzer", "qa", "refactorer")
++
++
++def recompute_parity(run: Path, legacy: list[tuple[str, str]]) -> bool:
++    """Ordered (persona, model class) pairs of the resolution against the card headers and the legacy rotation."""
++    classes = pnl.load_tiers()["classes"]
++    resolution = json.loads((run / "panel/resolution.json").read_text())
++    expected = [
++        (PERSONAS[i], classes[r["model"]])
++        for i, r in enumerate(resolution["reviewers"])
++    ]
++    cards = []
++    for n in range(1, len(expected) + 1):
++        head = (
++            (run / "panel/cards" / f"reviewer-{n}.md").read_text().split("\n\n", 1)[0]
++        )
++        fields = dict(row.split(": ", 1) for row in head.splitlines() if ": " in row)
++        assert set(fields) >= {"persona", "model_class", "model"}
++        assert fields["model"] == resolution["reviewers"][n - 1]["model"]
++        cards.append((fields["persona"], fields["model_class"]))
++    return cards == expected == legacy
++
++
++def build_run(tmp_path: Path) -> tuple[Path, str]:
++    run = tmp_path / "pre-run"
++    (run / "panel/cards").mkdir(parents=True)
++    raw = CliRunner().invoke(main, RESOLVE).output
++    (run / "panel/resolution.json").write_text(raw)
++    for n, r in enumerate(json.loads(raw)["reviewers"], 1):
++        cls = pnl.load_tiers()["classes"][r["model"]]
++        (run / "panel/cards" / f"reviewer-{n}.md").write_text(
++            f"persona: {PERSONAS[n - 1]}\nmodel_class: {cls}\nmodel: {r['model']}\n\n## Findings block\n"
++        )
++    return run, raw
++
++
++def test_shadow_card_headers_and_resolution_json_on_a_fixture_run(tmp_path):
++    run, raw = build_run(tmp_path)
++    # panel/resolution.json is the raw, unmodified output of `review panel resolve`
++    assert (
++        (run / "panel/resolution.json").read_text()
++        == CliRunner().invoke(main, RESOLVE).output
++        == raw
++    )
++    legacy = [("analyzer", "sonnet"), ("qa", "haiku"), ("refactorer", "opus")]
++    assert recompute_parity(run, legacy) is True
++    # a legacy rotation that differs gives false and is only recorded
++    assert (
++        recompute_parity(
++            run, [("analyzer", "sonnet"), ("qa", "opus"), ("refactorer", "haiku")]
++        )
++        is False
++    )
++
++
++def test_a_card_header_missing_a_field_is_caught(tmp_path):
++    run, _ = build_run(tmp_path)
++    card = run / "panel/cards/reviewer-2.md"
++    card.write_text(card.read_text().replace("model_class: haiku\n", ""))
++    with pytest.raises(AssertionError):
++        recompute_parity(run, [])

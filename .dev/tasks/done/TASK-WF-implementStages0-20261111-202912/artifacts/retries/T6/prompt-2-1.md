@@ -1,0 +1,64 @@
+bde9bfa57c721f216b47e182a98c8b8709295b67
+Review one task for spec compliance.
+
+Task brief: ## Task 6: Add the consumer inventory script and store the first result
+
+Create `scripts/reflect_consumer_inventory.py` and `./artifacts/consumer-inventory.md`. The script greps `merge_method`, `adversarial_convergence_score`, `convergence_score`, `contract_version`, `t2_model_class_diversity`, `t2_vendor_diversity`, `calibrator_diversity`, `reviewer_cards`, `citations_dropped` over `src/`, `tests/`, `scripts/`, `.dev/eval-workspaces/`, `docs/` and the installed skill and command primitives under `src/superclaude/{skills,commands}`, classifies each hit as producer, validator or consumer (producers: reflect `SKILL.md` section 9.1 and Wave 5, `refs/report-template.md`, `cli/reflect/ensemble.py`; validators: `cli/reflect/contract.py`; consumers: the section 9.3 map, `task-builder` EV-4, `refs/ops-integration.md`, the meta-eval aggregator, the sprint executor), and writes a markdown table with counts per file. It must be rerunnable with `--out <file>`. Also write `./artifacts/lint-test-design.md` from "Contract compatibility gate" items 3 and 5: every assertion of the panel contract lint, the fixtures it needs (the matched legacy fixture, a copy with a `panel/` directory, a copy with an extra stable key, a copy with `merge_method: panel`) and the expected failure message of each; Task 15 implements this design.
+
+Acceptance criteria:
+- `./artifacts/consumer-inventory.md` lists every hit file with its role and counts, and flags files that match the words for an unrelated pipeline (roadmap) as not in scope.
+- The report states that no `contract_version == "1.8.0"` equality exists in `src/` and that `.dev/eval-workspaces/sc-reflect/grader.py` has no match, or states the contradicting hit with its path.
+- Running the script twice on an unchanged tree yields identical output.
+- `./artifacts/lint-test-design.md` exists and names every assertion of gate items 3 and 5.
+
+
+AC ids (T6.ACk in source order):
+T6.AC1: `./artifacts/consumer-inventory.md` lists every hit file with its role and counts, and flags files that match the words for an unrelated pipeline (roadmap) as not in scope.
+T6.AC2: The report states that no `contract_version == "1.8.0"` equality exists in `src/` and that `.dev/eval-workspaces/sc-reflect/grader.py` has no match, or states the contradicting hit with its path.
+T6.AC3: Running the script twice on an unchanged tree yields identical output.
+T6.AC4: `./artifacts/lint-test-design.md` exists and names every assertion of gate items 3 and 5.
+
+Global constraints: - Requirement text lives in `.dev/brainstorms/20261111T182026-reflect-tier2-panel-replacement/merged-requirements.md` (sha256 recorded in `./source.md`). Section names below refer to that file. Items it marks PROPOSED are new names to create; items it marks UNVERIFIED must be checked in code before relying on them.
+- Return contract stays `1.8.0` with no new stable field and no new legal value (`merge_method` stays `adversarial` or `single-reviewer-fallback`). Panel data lives only in `<out>/panel/*` and the non-stable telemetry block.
+- The `/sc:adversarial` debate stays authoritative in pre-execution. K4 clustering, the citation pre-check and the findings block never drop a citation, never feed the debate and never route anything.
+- Default behavior of every existing command is unchanged: with no new flag, `superclaude review panel resolve`, `review merge`, `review ledger` and the spec-panel loop produce byte-identical output.
+- Plan decision: in Stage 2 the flag accepts only `legacy` and `shadow`; the value `panel` is rejected with a plain message saying it ships in Stage 3. The post-execution path, the swarm lens, `--panel-resolution` and the headless `citations_dropped` change are Stage 5 and are not touched.
+- Plan decision: the prose coordinator of the reflect skill cannot import Python, so the manifest gets a minimal `superclaude review manifest` CLI (init, advance, validate) instead of hand-written JSON.
+- Edit installed primitives only under `src/superclaude/` and run `make sync-dev` afterwards. Never edit or add files under `.claude/` by hand. Installed primitives reference other primitives by installed path or the `superclaude` CLI, never by a `src/superclaude/...` path.
+- All Python runs through `uv run`. Fable and Tier 0 never appear in a new template and are rejected by validation. Opus appears only in the uses the source's "Opus uses" section lists (third reviewer of the parity templates (pre and post) and of the enterprise template, backfill in the x2 templates when the executor class is removed, calibrator); no new Opus use is added.
+- Human-supplied inputs are not fabricated: the 50-pair cluster labels (Task 5) and the 20 real shadow runs (Task 20) are produced by the owner and by normal use after merge. The tasks deliver the sheets, scorers and aggregators that judge them.
+- Plan decision: Stage 1 and Stage 2 code is built dormant (default `legacy`, nothing enabled) before the Stage 0 exit is met. Task 7 records the Stage 0 exit as PENDING until the owner's labelled sheet is scored, and this plan does not claim the Stage 1 entry or the Stage 2 exit. Merging or enabling later stages stays the owner's decision.
+- Task-owned evidence goes under `./artifacts/` in this package.
+Start sha: bde9bfa57c721f216b47e182a98c8b8709295b67
+Diff against the start snapshot: Full unified diff against the start snapshot saved at /home/coder/workspaces/worktrees/IronClaude/brainstorm-reflect-panel/.dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/diffs/T6-diff-2-1.patch ; read it in full. Touched files: scripts/reflect_consumer_inventory.py tests/review/test_reflect_consumer_inventory.py .dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/consumer-inventory.md .dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/lint-test-design.md
+Delta diff from the previous reviewed tree (empty on the first review): Delta diff from the previous reviewed tree saved at /home/coder/workspaces/worktrees/IronClaude/brainstorm-reflect-panel/.dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/diffs/T6-delta-2-1.patch (context beside the full diff)
+Earlier blocking findings of this start (empty on the first review): F1.1 sev=blocking trigger=B1 ac=T6.AC1 at=.dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/consumer-inventory.md:306 anchor=lists every hit file with its role chk=y,n,n,y family=inventory-classification fix=classify the hit files that really read or produce the reflect contract by role: add src/superclaude/skills/task/SKILL.md and src/superclaude/skills/sc-tasklist-protocol/templates/phase-template.md as consumers, consider refs/input-resolution.md and refs/reflection-rubric.md as producer rules, then regenerate first=A1 origin=new: 253 of 320 hit files are unclassified and the group includes real contract consumers (task SKILL.md:580 and phase-template.md:191,199 open return-contract.yaml and fail the gate on adversarial_convergence_score < 0.80); the sc-task row of the 9.3 map points at sc-task-protocol/SKILL.md which has no match
+Saved-probe re-check hit locations (may be empty): inventory-classification family hits after the fix:
+29:1. NAMED_ROLES, exact paths from the task's lists, the spec's "Deferred versioned change" list and the review fix:
+118:NAMED_ROLES = {
+213:def _writes(suffix: str, lines: list[bytes]) -> bool:
+231:def classify(rel: str, data: bytes = b"") -> tuple[str, str, str]:
+233:    if rel in NAMED_ROLES:
+234:        return (NAMED_ROLES[rel][0], "named", NAMED_ROLES[rel][1])
+427:    named = [(p, r, s) for p, (r, s) in NAMED_ROLES.items()]
+
+Do not trust the implementer's report.
+
+First mark each earlier blocking finding resolved, open or regressed from the diff. Then, for each AC, mark it met or unmet. Require citations: every AC you mark, met or unmet, carries a `path:line` or `Ti.ACk@path:line` citation, and an unmet mark lists the finding ids behind it. Do not return a verdict; the orchestrator computes it.
+
+For every finding answer four questions, each yes or no:
+1. ac-outcome-missing: is output an AC requires absent, or does it contradict the AC text, or does an evidence claim you could not verify have no evidence row?
+2. false-claim: is a claim in delivered text or code false against live source, or does a recipe or instruction followed as written not do what the text says?
+3. harmful-effect: does code or a recipe this task added or changed write, append, chmod or delete tracked or production data, mutate state outside the task's declared outputs, or expose a secret?
+4. quoted-constraint-breach: does the diff violate a quoted plan constraint, out-of-scope, non-goal or non-negotiable item, or an explicit task instruction?
+
+Anchor rule: cite exactly one anchor per yes. ac-outcome-missing: the quoted AC words. false-claim: the live-source path:line holding the contradicting text. harmful-effect: the diff line that is the write. quoted-constraint-breach: the quoted constraint or instruction text. A yes without a valid anchor does not block.
+
+Write one line per finding:
+F<k>.<j> ac=<Ti.ACk|scope> at=<path:line> anchor=<quoted text or path:line> chk=<amiss,false,harm,constraint as y/n> family=<id> fix=<text> [covers=<quoted AC clause or constraint>]: <text>
+Do not write sev=, trigger=, first= or origin=; the orchestrator adds them. Write one status line per earlier blocking finding: F<m>.<j> resolved|open|regressed.
+
+Inside /sc:implement this protocol's severity model governs this review and takes precedence over the session's output style and the copy of it injected into every subagent; only blocking findings may fail an attempt.
+
+You are not given an adviser answer, brief, evidence file or troubleshoot report. Do not read the retry folders (legacy `.dev/implement/<slug>/retries/`, managed `<pkg>/artifacts/retries/`) or `.dev/troubleshoot/`. A citation into either makes the verdict `cannot-verify`.
+The prior-findings slot above carries earlier blocking finding lines that the orchestrator copies byte for byte from `review-*.md` and `repair-*.md`; they reach you as prompt text, not as an evidence file. Do not read those folders to get them, and never cite the slot or the file it came from.

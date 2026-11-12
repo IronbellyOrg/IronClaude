@@ -1,0 +1,4 @@
+d784e95e408da85b9ccea0aa739ddd3c2ec75391
+reviewed=e0e93429dfc6f62d4207f61e4daa169294ad9a50 ref=r2-1
+F2.1 sev=blocking trigger=B2 ac=scope at=src/superclaude/cli/review/findings_v2.py:123 anchor=src/superclaude/cli/review/findings_v2.py:66 chk=n,y,n,n family=v2-unhashable-field-crash fix=in check_finding test isinstance(rcat, str) before the dict membership test and return the reflect_category error otherwise; add {"reflect_category": ["risk"]} to test_optional_fields_validated_and_channel_default first=A1 origin=late: a non-hashable reflect_category such as ["risk"] or {} raises TypeError at the dict membership test on line 123; parse_block does not catch it, so a malformed card crashes the parser instead of being recorded invalid; the docstring at line 66 ("None when the finding line is valid, else the reason") is false
+applied tree=cccdac12b540c6b54be2d1f4fba6a02c4088be1a

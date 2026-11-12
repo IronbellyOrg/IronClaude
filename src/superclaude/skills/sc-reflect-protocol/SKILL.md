@@ -84,6 +84,7 @@ The skill MUST resolve a mode (UC-1 or UC-2) before any wave runs.
 - `--depth quick | standard | deep` — Tier-1-only / Tier-1-then-rubric / force-Tier-2 (see §5)
 - `--tier 1 | 2 | auto` — explicit tier pin (overrides rubric); `auto` is default
 - `--reviewers N` — number of Tier 2 reviewers (2-3; default 3, clamped by `--depth`)
+- `--t2-engine legacy | shadow` — Tier 2 engine for UC-1 (default `legacy`; read only at the start of Wave 3 and only when the final tier is 2; see §4.3a). `panel` is rejected with `"--t2-engine panel ships in Stage 3; use legacy or shadow."`; any other value STOPs. With `legacy` the panel code is never called.
 - `--output <dir>` — output directory (default `.dev/reflect/<mode>-<slug>-<YYYYMMDDHHMMSS>/`)
 - `--coverage-floor <float>` — optional override of the T1 coverage stop floor (default 0.90; high-safety profile may set to 0.95)
 - `--no-mcp`, `--no-evidence-validator` (debug only; auto-warns), `--remediate` (offer Tier 3: plan route by default, task-builder route with `--depth deep`)
@@ -305,6 +306,48 @@ Emit `interaction_effects_scanned: true` in the contract when this step runs; `i
 
 (See `refs/reviewer-spec.md` for the brief template and worked examples.)
 
+### 4.3a T2 engine selection (`--t2-engine`)
+
+With the default `--t2-engine legacy` the panel code is never called, the Wave 3 reviewer rotation of §7.1 runs exactly as before, and contract 1.8.0 is unchanged (no stable field, `merge_method` value or contract version changes). `--t2-engine shadow` additionally runs the panel offline for measurement, UC-1 only (Stage 2); the legacy rotation and the Wave 4 debate stay authoritative, and everything the panel writes goes under `<output>/panel/` and into telemetry. In UC-2 (post-execution) runs the flag is accepted and ignored until Stage 5.
+
+The panel is a Tier 2 mechanism and is called only after the **final** tier is 2. Order of decisions: (1) Wave 0 alias routing (§4 Wave 0 step 0.5) and executor class (§7.1); (2) budget pre-flight (§4.0 step 0.9); (3) Waves 1-2: the T1 card, coverage map, blind calibration of the T1 card, rubric; (4) only now `--t2-engine` is read, at the start of Wave 3. Both the requested and the effective engine are written to `tier_decision.yaml` (§5.4) and, when the panel runs, to its manifest.
+
+**Rules.**
+
+- **D1.** A `--depth quick`, `--tier 1`, `--no-escalate` or rubric-stopped T1 run never calls the panel and never reads `--t2-engine`.
+- **D2.** The engine flag is checked after the depth, pin, budget and rubric decisions, never before.
+- **D3.** A run pinned to T2 (`--depth deep` or `--tier 2`) whose reviewer pool yields fewer than 2 distinct eligible classes does not silently run T1 or one reviewer. The §7.1 WARN (`"executor class collides with reviewer pool; N=2 floor cannot be satisfied with disjoint set."`) and `executor_exclusion_degraded: true` (when exclusion caused it) apply under every engine, as today. The further effects apply **only when the effective engine is `panel`, which ships in Stage 3**: `t2_floor_unmet` is added to `degraded_components` (a benign token, outside the chain-critical set), `status` is forced to `partial`, and REPORT.md opens with a banner naming the unmet floor. Under `shadow` the legacy rotation decides (including its existing §7.1 degrade), and `t2_floor_unmet` is recorded in the panel telemetry only: no `degraded_components` entry, no `status` change, no banner. A rubric-driven escalation keeps the existing silent-safe T1 degrade of §7.1 with the WARN. N=2 is the minimum in every case.
+- **D4.** Unsupported cells (gateway, a null `launch`, an unmapped model) run the legacy rotation and record `panel_fallback_reason`.
+- **D5.** `N_eff = min(--reviewers, alias count, 3)`; the anchor (the template's fixed slot, resolved first) is never dropped.
+
+| Depth / pin / modifier | Tier path | Panel called? | Notes |
+|---|---|---|---|
+| `--depth quick` | T1 only | No | `--t2-engine` is not read (D1) |
+| `--tier 1`, `--no-escalate` | T1 | No | not read (D1); `--no-escalate` warns if C < 0.85 |
+| `--depth standard`, rubric stops | T1 | No | not read (D1) |
+| `--depth standard`, rubric escalates | T1 work, then T2 | Only with `--t2-engine shadow` (and `panel` from Stage 3) | with `legacy`, never |
+| `--depth deep` | forced T2 | as the row above | D3 applies; `deep` never means more reviewers |
+| `--tier 2` | forced T2 | as the row above | D3 applies |
+| `--budget-remaining N`, N < 5 | STOP | No | |
+| N = 5 | T1 forced | No | `budget_forced_tier_downgrade: true` |
+| 6 <= N < 65 | routed by §4.0 step 0.9, third row: allow T1; a rubric escalation to T2 is downgraded to T1 with WARN when N < 65 | No when downgraded | follow step 0.9 as written (its row label stops at N < 52, its text at N < 65); this subsection adds no budget logic |
+| N >= 65 or unset | as the rubric directs | per the rows above | the panel adds no budget logic |
+| executor class collides with the pool | N=2 floor, then T1 degrade (§7.1) | only if at least 2 distinct eligible classes remain | D3 for pins |
+| `--unattended` | unchanged | per the rows above | |
+
+**Shadow-mode steps (UC-1, effective engine `shadow`).** These steps run next to the legacy Waves 3-5; they add artifacts and telemetry and change no verdict, no stable contract field and no `merge_method`. The legacy debate, blind calibration, evidence gate and contract builder stay **authoritative and unchanged**, the legacy card files and the legacy Wave 4 call are not touched, and every panel artifact goes to `<output>/panel/`. A step that cannot run records `panel_fallback_reason` (D4) and the run continues as legacy. After each step call `superclaude review manifest advance --out <output> --stage <stage>` (stages `resolved`, `dispatched`, `collected`, `calibrated`, `clustered` after the steps below, `debated` after the legacy debate, `validated` after the evidence validator, `published` after the legacy writers finish); the stages are advanced in order and none is skipped. A stage that carries data takes it as `--payload <file>`, a JSON object (`{"outputs": {<name>: <sha256>}}`; the `resolved` payload is `{"reviewers_requested": <N>, "reviewers_resolved": <M>}`).
+
+1. **Resolve and freeze.** Run `superclaude review panel resolve --template @reflect-pre --run-id <reflect run id> --kind first --env anthropic-only --hard-exclude-class <executor class> --strict-distinct` and keep its stdout. Executor class unknown (`executor_class_source: unknown`): omit `--hard-exclude-class`, keep the fail-open path of §7.1 and `executor_class_resolved: false`. `ExclusionExhausted` for the anchor: re-resolve once with `--template @reflect-pre-x2` before any dispatch and record `anchor_replaced: true`; a second exhaustion, or a null `launch`, is rule D3/D4. Then freeze: `superclaude review manifest init --out <output> --run-id <reflect run id> --snapshot <output>/artifacts/input-snapshot.yaml --template-sha256 <template_sha256> --tiers-sha256 <tiers_sha256> --brief-template-sha256 <sha256 of refs/reviewer-spec.md> --schema-id review-panel/1 --schema-id findings-v2 --t2-engine-requested shadow --t2-engine-effective shadow` (the two hashes come from the resolve output). Write the resolve stdout to `<output>/panel/resolution.json` exactly as printed: the file is the unmodified output of `review panel resolve` and is never rewritten to match the legacy rotation. `review panel resolve` has no reviewer-count option and does not apply `N_eff` (rule D5), so the legacy run and the resolution can differ; `panel_parity` records whether they do. Run shadow measurement runs with the default reviewer count. Then advance `resolved` with `--payload` holding `{"reviewers_requested": <N>, "reviewers_resolved": <M>}`.
+2. **Parity.** Compare, in order, the `(persona, model class)` pairs of `panel/resolution.json` (persona by resolution order: analyzer, qa, refactorer; model ids mapped to classes through the tier file's `classes`) with those of the legacy rotation as it ran, and record `panel_parity: true|false`. When parity is false the legacy rotation still runs, the value is recorded and nothing is blocked. Every shadow reviewer card header carries `persona:`, `model_class:` and `model:` (the resolved model id, written by the orchestrator), so the Stage 2 aggregator recomputes parity from the card headers and `panel/resolution.json` and does not trust the recorded boolean.
+3. **Briefs and dispatch.** Briefs are the legacy briefs plus the one findings-block instruction line of `refs/reviewer-spec.md` (only when the effective engine is `shadow`; a legacy run's briefs are unchanged). Dispatch is the legacy dispatch. Record each reviewer attempt with `manifest advance --stage dispatched --reviewer-id <id> --attempt-id <n> --completion <state>`, then advance `dispatched`; when the cards are back, record each attempt's completion the same way with `--stage collected`, then advance `collected`. A stage accepts attempts only while it is the next stage to commit.
+4. **Normalize.** Parse each card's `## Findings block`. An invalid block gets one bounded re-ask for the block only; the card body still reaches the debate.
+5. **Calibration.** The legacy blind calibration (Wave 3C, §11.3) is unchanged except for the one brief line named below. Its results are kept wherever the legacy run keeps them: recorded runs show a `calibration:` block inside the card, a separate file per reviewer or one shared file, so do not assume the card carries a block. Apply the Fable and Tier 0 filter to the calibrator pick as to every reviewer: neither is ever picked. Only after calibration, write `<output>/panel/cards/reviewer-<N>.md` for each reviewer: the header lines `persona:`, `model_class:` and `model:` (step 2), a blank line, that card's `## Findings block`, then a fenced `yaml` block `calibration:` with `per_finding:` mapping each finding id **exactly as it is written in that card's findings block** to a numeric confidence from 0 to 1 (`F1: 0.85`). In shadow mode exactly one instruction line is appended to the end of the calibrator brief: `Also report one confidence from 0 to 1 for each finding id of the card's findings block, written exactly as in the block, in a fenced yaml block calibration: per_finding: (F1: 0.85); leave out a finding you cannot score. Your card score is unchanged.` The card-level score still feeds the rubric and the debate exactly as in §11.3, and a legacy run's calibrator brief does not carry the line; a finding the calibrator did not score is left out of the map (it is reported as uncalibrated), and no number is invented from a verdict word or copied from the card score. The legacy card files stay as they are. Advance `calibrated`.
+6. **Clustering and pre-check (telemetry and flagging only).** When the run assigned coverage rows to the reviewers, first write `<output>/panel/coverage.json`, `{"reviewer-<N>": {"assigned": [row ids], "observed": [row ids]}}` with one entry per card (the rows the reviewer's brief assigned and the rows its card reports; `{}` for a card with none), and add `--coverage <output>/panel/coverage.json` to both commands below and to the `clusters_kept` command of step 8; `verify-citations` stops with an error when the file has no entry for a card. Without the file, a card with no findings and a finding with `coverage_rows` are rejected by the block parser: the first is listed invalid, the second is left out of the pre-check. Run `superclaude review cluster <output>/panel/cards --snapshot <output>/artifacts/input-snapshot.yaml --out <output>` and `superclaude review verify-citations --cards <output>/panel/cards --snapshot <output>/artifacts/input-snapshot.yaml --root <repo root> --out <output>`. Neither drops anything and neither feeds the debate. Every citation the pre-check flags joins the evidence-validator re-read set even when its sampling would have skipped it; the validator alone decides drops, and `citations_dropped` keeps its sample-count meaning. Record `cluster_agreement` (never compared with the convergence thresholds, never routes anything) and read the `calibrated_findings` value the cluster command prints (`n/m`): record it as `calibration_coverage` in the telemetry; when n is 0, or below m, the causes include calibration ids that differ from the finding ids and findings the calibrator left unscored (step 5 leaves an unscored finding out of the map on purpose). Compare the ids under `per_finding:` with the ids of the findings block: fix them in `panel/cards/` and rerun the cluster command before the `clusters_kept` pass only when they differ; unscored findings stay uncalibrated and are reported as such. The run itself continues as legacy. Advance `clustered`.
+7. **Debate (legacy, unchanged).** After it, advance `debated`, record `debate_skipped_similar` (true when the child's log says the variants were substantially identical; the real null score stays null). Read the installed `sc-adversarial-protocol` return contract: when it names a judge record it as `judge_identity`; when it does not, record `judge_identity: unknown` and `judge_class_collision: unknown`, never `false`. When a judge id is known, assert it is not a Fable model and not a Tier 0 alias, and note a class collision with a reviewer or the executor in `<output>/panel/notes.md`.
+8. **After the evidence validator.** Write the finding ids it kept to `<output>/panel/kept-ids.txt`, one `reviewer-<N>:<finding id>` per line (each reviewer numbers its own findings, so a bare id would keep that id in every card) and run `superclaude review cluster <output>/panel/cards --snapshot <output>/artifacts/input-snapshot.yaml --out <output> --kept <output>/panel/kept-ids.txt` (the `clusters_kept` pass; `clusters.json` is not touched). Advance `validated`.
+9. **Identity.** Record `identity_source` from the S-ID spike: `observed` when the adapter read the reviewer's resolved model id from its transcript, `requested-pinned` (an unverified assumption) when it only knows the model it asked for. Compare each card's `reviewer_model_self_report` with the pin; a mismatch sets `identity_mismatch_suspected: true` in telemetry and in `<output>/panel/notes.md`. While the identity is `requested-pinned` or the executor class is unknown, the panel notes make no claim of verified independence.
+10. **Publish.** After the legacy writers have written `REPORT.md`, `return-contract.yaml` and `audit.log`, run `superclaude review manifest advance --out <output> --stage published`: it records their hashes and rewrites nothing. The panel telemetry fields are listed in §9.2 under `telemetry:`; the three stable-contract files stay as the legacy writers produce them, with `contract_version` 1.8.0.
+
 ### 4.5 Wave 5 — Detailed step addition
 
 **Step 5.0 (sc-adversarial pre-invocation probe and F1/F2/F3 fallback).** Before calling `Skill sc-adversarial-protocol`, probe its existence with a no-op `Skill('sc-adversarial-protocol', args='--help')`. If the probe returns `skill not found`:
@@ -418,7 +461,12 @@ per_signal_breakdown:
   spec_density: <0-2>
   ambiguity_signals: <0-2>
 escalation_reason: <string>        # human-readable rationale
+t2_engine_requested: legacy | shadow | null  # §4.3a: the --t2-engine value as passed; null when the final tier is 1 (the flag is not read); `panel` is added in Stage 3
+t2_engine_effective: legacy | shadow | null  # §4.3a: the engine that ran; null when the final tier is 1
+panel_fallback_reason: <string> | null  # §4.3a rule D4: why a requested non-legacy engine ran the legacy rotation; null otherwise
 ```
+
+The three engine keys are additive audit keys of this artifact, not contract fields; `contract_version` stays 1.8.0.
 
 Grader `yaml_field` asserts both `fired_rule_number` and `composite_score` are present. The composite is *recording*, not deciding.
 
@@ -918,6 +966,26 @@ handoff_persist_failed: <bool>   # FR-3 (the handoff file Write failed → task-
 type_hierarchy_invoked: false   # constant false since #323 (the type-hierarchy step was removed; kept so the audit-log shape stays stable)
 summarize_changes_invoked: false   # constant false since #323 (no change-summary corroboration exists)
 references_extended_info_used: false   # constant false since #323 (step 4 is a Grep + Read; no extended-info call)
+telemetry:   # Stage 2 panel fields (§4.3a, `--t2-engine shadow`); nest them here, never at the top level of the contract
+  t2_engine_requested: legacy | shadow
+  t2_engine_effective: legacy | shadow
+  panel_fallback_reason: <string> | null
+  t2_floor_unmet: <bool>   # rule D3 under `shadow`: telemetry only (no degraded_components entry, no status change, no banner)
+  identity_source: observed | requested-pinned
+  identity_mismatch_suspected: <bool>   # a reviewer_model_self_report disagrees with the pin
+  judge_identity: <string> | unknown
+  judge_class_collision: true | false | unknown   # unknown when sc-adversarial's return contract names no judge; never false then
+  debate_skipped_similar: <bool>
+  cluster_agreement: <float 0-1> | null   # telemetry only; never compared with the convergence thresholds
+  calibration_coverage: "<n>/<m>"   # clustered findings that found a calibration value from 0 to 1 / clustered findings (printed by `review cluster`); 0/m means no clustered finding was matched to a calibration value from 0 to 1
+  panel_parity: <bool>   # recorded; the aggregator recomputes it from the card headers and panel/resolution.json
+  anchor_replaced: <bool>   # true when @reflect-pre-x2 replaced the anchor
+  manifest_path: <path>   # <output>/panel/manifest.json
+  reviewers_requested: <int>
+  reviewers_resolved: <int>
+  reviewers_complete: <int>
+  panel_shortfall_2_of_3: <bool>   # 3 resolved, only 2 complete
+  findings_block_compliance_rate: <float 0-1>   # reviewer cards with a valid findings-v2 block / reviewers dispatched
 ```
 
 ### 9.3 Consumer Field Map

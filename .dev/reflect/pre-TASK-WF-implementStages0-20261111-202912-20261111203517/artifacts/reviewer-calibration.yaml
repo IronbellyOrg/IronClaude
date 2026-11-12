@@ -1,0 +1,22 @@
+# Per-card blind calibration (saved by the orchestrator from the calibrator returns)
+calibrator_diversity: degraded   # reviewers use sonnet, haiku, opus; no disjoint class exists
+rubric: reflect 5-dimension rubric
+cards:
+  reviewer-1:
+    reviewer_class: sonnet
+    calibrator_class: opus
+    calibrated: 0.73
+    per_finding: {F1: 0.85, F2: 0.55, F3: 0.60, F4: 0.65, F5: 0.80, F6: 0.55, F7: 0.65, F8: 0.75, F9: 0.70, F10: 0.70, F11: 0.75, F12: 0.60}
+  reviewer-2:
+    reviewer_class: haiku   # self-report "OpenAI ChatGPT": identity_mismatch_suspected
+    calibrator_class: opus
+    calibrated: 0.80
+    per_finding: {F1: 0.90, F2: 0.80, F3: 0.50, F4: 0.65, F5: 0.70, F6: 0.90, F7: 0.85, F8: 0.80, F9: 0.80, F10: 0.75}
+  reviewer-3:
+    reviewer_class: opus
+    calibrator_class: sonnet
+    calibrated: 0.86
+    per_finding: {F1: 0.90, F2: 0.88, F3: 0.82, F4: 0.68, F5: 0.85, F6: 0.60, F7: 0.68, F8: 0.75, F9: 0.90, F10: 0.72, F11: 0.50, F12: 0.45, F13: 0.75, F14: 0.62}
+t1_card:
+  calibrated: 0.50
+  self_reported: 0.80

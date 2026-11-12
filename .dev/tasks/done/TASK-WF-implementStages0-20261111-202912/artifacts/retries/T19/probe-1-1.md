@@ -1,0 +1,2 @@
+9112df4145d87444127a53ac4a5f44312d9f835a
+Family probe manifest-recipe: all manifest commands in the shadow steps now follow the order init, resolved(--payload), dispatched attempts, dispatched, collected attempts, collected, calibrated, clustered, debated, validated, published; verified by a test that runs the recipe literally through the CLI. No other CLI command text in the skill uses a payload.
