@@ -1,0 +1,16 @@
+contract_version: "1.8.0"
+status: partial
+mode: pre
+tier_reached: 1
+report_path: /home/coder/workspaces/worktrees/IronClaude/brainstorm-reflect-panel/.dev/reflect/pre-TASK-WF-implementStages0-20261111-202912-20261111203500/REPORT.md
+confidence_calibrated: null
+escalation_rule_matched: null
+coverage_degraded: parsed-sparse
+evidence_validator_ran: false
+reviewer_cards: []
+adversarial_unavailable: false
+merge_method: null
+degraded_components: ["tier2-not-run", "confidence-calibrator-not-run", "evidence-validator-not-run"]
+needs_human_decision: false
+unresolved:
+  - "Rubric requires Tier 2 (parsed-sparse pre-filter); only a Tier 1 grounded pass by the author ran. No calibrator, no independent validator."

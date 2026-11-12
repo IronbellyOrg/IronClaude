@@ -1,0 +1,84 @@
+diff --git a/src/superclaude/skills/sc-reflect-protocol/SKILL.md b/src/superclaude/skills/sc-reflect-protocol/SKILL.md
+index ffc6333fe..8f4102873 100644
+--- a/src/superclaude/skills/sc-reflect-protocol/SKILL.md
++++ b/src/superclaude/skills/sc-reflect-protocol/SKILL.md
+@@ -335,13 +335,13 @@ The panel is a Tier 2 mechanism and is called only after the **final** tier is 2
+ | executor class collides with the pool | N=2 floor, then T1 degrade (§7.1) | only if at least 2 distinct eligible classes remain | D3 for pins |
+ | `--unattended` | unchanged | per the rows above | |
+ 
+-**Shadow-mode steps (UC-1, effective engine `shadow`).** These steps run next to the legacy Waves 3-5; they add artifacts and telemetry and change no verdict, no stable contract field and no `merge_method`. The legacy debate, blind calibration, evidence gate and contract builder stay **authoritative and unchanged**, the legacy card files and the legacy Wave 4 call are not touched, and every panel artifact goes to `<output>/panel/`. A step that cannot run records `panel_fallback_reason` (D4) and the run continues as legacy. After each step call `superclaude review manifest advance --out <output> --stage <stage>` (stages `resolved`, `dispatched`, `collected`, `calibrated`, `clustered` after the steps below, `debated` after the legacy debate, `validated` after the evidence validator, `published` after the legacy writers finish); the stages are advanced in order and none is skipped.
++**Shadow-mode steps (UC-1, effective engine `shadow`).** These steps run next to the legacy Waves 3-5; they add artifacts and telemetry and change no verdict, no stable contract field and no `merge_method`. The legacy debate, blind calibration, evidence gate and contract builder stay **authoritative and unchanged**, the legacy card files and the legacy Wave 4 call are not touched, and every panel artifact goes to `<output>/panel/`. A step that cannot run records `panel_fallback_reason` (D4) and the run continues as legacy. After each step call `superclaude review manifest advance --out <output> --stage <stage>` (stages `resolved`, `dispatched`, `collected`, `calibrated`, `clustered` after the steps below, `debated` after the legacy debate, `validated` after the evidence validator, `published` after the legacy writers finish); the stages are advanced in order and none is skipped. A stage that carries data takes it as `--payload <file>`, a JSON object (`{"outputs": {<name>: <sha256>}}`; the `resolved` payload is `{"reviewers_requested": <N>, "reviewers_resolved": <M>}`).
+ 
+-1. **Resolve and freeze.** Run `superclaude review panel resolve --template @reflect-pre --run-id <reflect run id> --kind first --env anthropic-only --hard-exclude-class <executor class> --strict-distinct` and keep its stdout. Executor class unknown (`executor_class_source: unknown`): omit `--hard-exclude-class`, keep the fail-open path of §7.1 and `executor_class_resolved: false`. `ExclusionExhausted` for the anchor: re-resolve once with `--template @reflect-pre-x2` before any dispatch and record `anchor_replaced: true`; a second exhaustion, or a null `launch`, is rule D3/D4. Then freeze: `superclaude review manifest init --out <output> --run-id <reflect run id> --snapshot <output>/artifacts/input-snapshot.yaml --template-sha256 <template_sha256> --tiers-sha256 <tiers_sha256> --brief-template-sha256 <sha256 of refs/reviewer-spec.md> --schema-id review-panel/1 --schema-id findings-v2 --t2-engine-requested shadow --t2-engine-effective shadow` (the two hashes come from the resolve output). Write the resolve stdout to `<output>/panel/resolution.json` exactly as printed: the file is the unmodified output of `review panel resolve` and is never rewritten to match the legacy rotation. Then advance `resolved` with `reviewers_requested` and `reviewers_resolved`.
++1. **Resolve and freeze.** Run `superclaude review panel resolve --template @reflect-pre --run-id <reflect run id> --kind first --env anthropic-only --hard-exclude-class <executor class> --strict-distinct` and keep its stdout. Executor class unknown (`executor_class_source: unknown`): omit `--hard-exclude-class`, keep the fail-open path of §7.1 and `executor_class_resolved: false`. `ExclusionExhausted` for the anchor: re-resolve once with `--template @reflect-pre-x2` before any dispatch and record `anchor_replaced: true`; a second exhaustion, or a null `launch`, is rule D3/D4. Then freeze: `superclaude review manifest init --out <output> --run-id <reflect run id> --snapshot <output>/artifacts/input-snapshot.yaml --template-sha256 <template_sha256> --tiers-sha256 <tiers_sha256> --brief-template-sha256 <sha256 of refs/reviewer-spec.md> --schema-id review-panel/1 --schema-id findings-v2 --t2-engine-requested shadow --t2-engine-effective shadow` (the two hashes come from the resolve output). Write the resolve stdout to `<output>/panel/resolution.json` exactly as printed: the file is the unmodified output of `review panel resolve` and is never rewritten to match the legacy rotation. Then advance `resolved` with `--payload` holding `{"reviewers_requested": <N>, "reviewers_resolved": <M>}`.
+ 2. **Parity.** Compare, in order, the `(persona, model class)` pairs of `panel/resolution.json` (persona by resolution order: analyzer, qa, refactorer; model ids mapped to classes through the tier file's `classes`) with those of the legacy rotation as it ran, and record `panel_parity: true|false`. When parity is false the legacy rotation still runs, the value is recorded and nothing is blocked. Every shadow reviewer card header carries `persona:`, `model_class:` and `model:` (the resolved model id, written by the orchestrator), so the Stage 2 aggregator recomputes parity from the card headers and `panel/resolution.json` and does not trust the recorded boolean.
+-3. **Briefs and dispatch.** Briefs are the legacy briefs plus the one findings-block instruction line of `refs/reviewer-spec.md` (only when the effective engine is `shadow`; a legacy run's briefs are unchanged). Dispatch is the legacy dispatch; record each attempt and its completion state with `manifest advance --stage dispatched` (and `collected`) using `--reviewer-id`, `--attempt-id` and `--completion`. Then advance `dispatched` and `collected`.
+-4. **Normalize.** Parse each card's `## Findings block`. An invalid block gets one bounded re-ask for the block only; the card body still reaches the debate. Copy each returned `## Findings block`, with its embedded `calibration:` block, to `<output>/panel/cards/reviewer-<N>.md`.
+-5. **Calibration.** The legacy blind calibration is unchanged (§11.3). Apply the Fable and Tier 0 filter to the calibrator pick as to every reviewer: neither is ever picked. Advance `calibrated`.
++3. **Briefs and dispatch.** Briefs are the legacy briefs plus the one findings-block instruction line of `refs/reviewer-spec.md` (only when the effective engine is `shadow`; a legacy run's briefs are unchanged). Dispatch is the legacy dispatch. Record each reviewer attempt with `manifest advance --stage dispatched --reviewer-id <id> --attempt-id <n> --completion <state>`, then advance `dispatched`; when the cards are back, record each attempt's completion the same way with `--stage collected`, then advance `collected`. A stage accepts attempts only while it is the next stage to commit.
++4. **Normalize.** Parse each card's `## Findings block`. An invalid block gets one bounded re-ask for the block only; the card body still reaches the debate.
++5. **Calibration.** The legacy blind calibration (Wave 3C, §11.3) is unchanged and embeds a `calibration:` block in each card. Apply the Fable and Tier 0 filter to the calibrator pick as to every reviewer: neither is ever picked. Only after calibration, copy each card's `## Findings block` with its embedded `calibration:` block to `<output>/panel/cards/reviewer-<N>.md` (the legacy card files stay as they are). Advance `calibrated`.
+ 6. **Clustering and pre-check (telemetry and flagging only).** Run `superclaude review cluster <output>/panel/cards --snapshot <output>/artifacts/input-snapshot.yaml --out <output>` and `superclaude review verify-citations --cards <output>/panel/cards --snapshot <output>/artifacts/input-snapshot.yaml --root <repo root> --out <output>`. Neither drops anything and neither feeds the debate. Every citation the pre-check flags joins the evidence-validator re-read set even when its sampling would have skipped it; the validator alone decides drops, and `citations_dropped` keeps its sample-count meaning. Record `cluster_agreement` (never compared with the convergence thresholds, never routes anything). Advance `clustered`.
+ 7. **Debate (legacy, unchanged).** After it, advance `debated`, record `debate_skipped_similar` (true when the child's log says the variants were substantially identical; the real null score stays null). Read the installed `sc-adversarial-protocol` return contract: when it names a judge record it as `judge_identity`; when it does not, record `judge_identity: unknown` and `judge_class_collision: unknown`, never `false`. When a judge id is known, assert it is not a Fable model and not a Tier 0 alias, and note a class collision with a reviewer or the executor in `<output>/panel/notes.md`.
+ 8. **After the evidence validator.** Write the finding ids it kept to `<output>/panel/kept-ids.txt` (one per line) and run `superclaude review cluster <output>/panel/cards --snapshot <output>/artifacts/input-snapshot.yaml --out <output> --kept <output>/panel/kept-ids.txt` (the `clusters_kept` pass; `clusters.json` is not touched). Advance `validated`.
+@@ -970,6 +970,7 @@ telemetry:   # Stage 2 panel fields (§4.3a, `--t2-engine shadow`); nest them he
+   t2_engine_requested: legacy | shadow
+   t2_engine_effective: legacy | shadow
+   panel_fallback_reason: <string> | null
++  t2_floor_unmet: <bool>   # rule D3 under `shadow`: telemetry only (no degraded_components entry, no status change, no banner)
+   identity_source: observed | requested-pinned
+   identity_mismatch_suspected: <bool>   # a reviewer_model_self_report disagrees with the pin
+   judge_identity: <string> | unknown
+diff --git a/tests/cli/reflect/test_shadow_skill_contract.py b/tests/cli/reflect/test_shadow_skill_contract.py
+index 08e03fb6f..475e78efc 100644
+--- a/tests/cli/reflect/test_shadow_skill_contract.py
++++ b/tests/cli/reflect/test_shadow_skill_contract.py
+@@ -98,6 +98,48 @@ def test_no_new_src_superclaude_hit_in_the_skill_directory():
+     assert now <= before
+ 
+ 
++# ------------------------------------------------------------ the manifest recipe as the skill writes it
++
++
++def test_the_skills_manifest_recipe_runs_as_written(tmp_path):
++    """Follow the shadow steps literally: init, resolved with --payload, attempts before each advance, published."""
++    sha = "a" * 64
++    snap = tmp_path / "artifacts" / "input-snapshot.yaml"
++    snap.parent.mkdir()
++    snap.write_text(f"input_tree_sha256: {sha}\nfile_list: []\n")
++    out = ["--out", str(tmp_path)]
++
++    def run(*args):
++        res = CliRunner().invoke(main, ["review", "manifest", *args])
++        assert res.exit_code == 0, res.output
++        return res
++
++    run(
++        "init", *out, "--run-id", "r1", "--snapshot", str(snap),
++        "--template-sha256", sha, "--tiers-sha256", sha, "--brief-template-sha256", sha,
++        "--schema-id", "review-panel/1", "--schema-id", "findings-v2",
++        "--t2-engine-requested", "shadow", "--t2-engine-effective", "shadow",
++    )  # fmt: skip
++    payload = tmp_path / "resolved.json"
++    payload.write_text(json.dumps({"reviewers_requested": 3, "reviewers_resolved": 3}))
++    run("advance", *out, "--stage", "resolved", "--payload", str(payload))
++    for stage in ("dispatched", "collected"):
++        for rid in ("t1b-1", "t4-1", "t1a-1"):
++            run(
++                "advance", *out, "--stage", stage, "--reviewer-id", rid,
++                "--attempt-id", "1", "--completion", "complete",
++            )  # fmt: skip
++        run("advance", *out, "--stage", stage)
++    for stage in ("calibrated", "clustered", "debated", "validated"):
++        run("advance", *out, "--stage", stage)
++    for name in ("REPORT.md", "return-contract.yaml", "audit.log"):
++        (tmp_path / name).write_text("legacy writer output\n")
++    run("advance", *out, "--stage", "published")
++    manifest = json.loads((tmp_path / "panel/manifest.json").read_text())
++    assert manifest["state"] == "published" and manifest["reviewers_complete"] == 3
++    assert manifest["reviewers_resolved"] == 3
++
++
+ # ------------------------------------------------------------ the brief template (AC2)
+ 
+ 

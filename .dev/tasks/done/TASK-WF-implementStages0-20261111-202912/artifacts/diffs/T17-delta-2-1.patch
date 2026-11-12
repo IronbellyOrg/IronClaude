@@ -1,0 +1,281 @@
+diff --git a/src/superclaude/cli/review/manifest.py b/src/superclaude/cli/review/manifest.py
+index b4c35b918..8dbd3fcfc 100644
+--- a/src/superclaude/cli/review/manifest.py
++++ b/src/superclaude/cli/review/manifest.py
+@@ -390,6 +390,8 @@ def fail(m: dict, reason: str) -> None:
+     """Move the run to the terminal failed state (no-op when already failed)."""
+     if m["state"] == "published":
+         raise OutOfOrder("a published run cannot fail")
++    if m["state"] == FAILED:
++        return  # the first failure reason stays
+     m["state"] = FAILED
+     m["failure_reason"] = reason
+ 
+@@ -417,16 +419,32 @@ def reusable_stages(m: dict) -> list[str]:
+     return reusable
+ 
+ 
+-def resume(m: dict, *, frozen: dict) -> tuple[dict, bool]:
++def resume(
++    m: dict,
++    *,
++    frozen: dict,
++    run_id: str | None = None,
++    engine_requested: str | None = None,
++    engine_effective: str | None = None,
++) -> tuple[dict, bool]:
+     """(manifest, new_invocation): the same manifest when the freshly computed frozen fields match, else a new one.
+ 
+-    A changed input_tree_sha256 (a changed plan or spec) or policy hash starts a new invocation at frozen; the
+-    earlier invocation is kept in `history`.
++    A changed input_tree_sha256 (a changed plan or spec), policy hash or engine decision starts a new invocation at
++    frozen; the earlier invocation is kept in `history`. A different run_id is a different run and raises Conflict:
++    it must not inherit this run's stages and attempts. The run id and engines default to the stored values.
+     """
++    if run_id is not None and run_id != m["run_id"]:
++        raise Conflict(
++            f"manifest belongs to run {m['run_id']!r}, not {run_id!r}; use another output directory"
++        )
++    requested = engine_requested or m["t2_engine_requested"]
++    effective = engine_effective or m["t2_engine_effective"]
+     now = {k: frozen.get(k) for k in FROZEN_FIELDS}
+     same = (
+         now["input_tree_sha256"] == m["frozen"].get("input_tree_sha256")
+         and policy_sha256(now) == m["policy_sha256"]
++        and (requested, effective)
++        == (m["t2_engine_requested"], m["t2_engine_effective"])
+     )
+     if same:
+         return m, False
+@@ -443,8 +461,8 @@ def resume(m: dict, *, frozen: dict) -> tuple[dict, bool]:
+         new_manifest(
+             run_id=m["run_id"],
+             frozen=now,
+-            engine_requested=m["t2_engine_requested"],
+-            engine_effective=m["t2_engine_effective"],
++            engine_requested=requested,
++            engine_effective=effective,
+             invocation=m["invocation"] + 1,
+             history=history,
+         ),
+@@ -467,16 +485,33 @@ def publish_files(
+     Each file goes to a same-directory temporary and is renamed into place; only after all renames does `commit`
+     (default: advance the manifest to published with the files' hashes) run. A crash between the renames and the
+     commit leaves a manifest without `published`, which `read_committed` refuses. Returns the sha256 of each file.
++    Before any file is written the manifest must be in the validated state and its effective engine must not be
++    shadow (the legacy writers own the files there); a manifest already published accepts only identical files.
+     """
+     if set(contents) != set(PUBLISH_FILES):
+         raise Invalid(f"publish needs exactly {', '.join(PUBLISH_FILES)}")
++    hashes = {name: hashlib.sha256(data).hexdigest() for name, data in contents.items()}
++    # Check that the manifest can accept `published` BEFORE any file is touched.
++    manifest = load(manifest_path)
++    if manifest.get("t2_engine_effective") == "shadow":
++        raise OutOfOrder(
++            "shadow mode: the legacy writers stay authoritative for the published files; record their hashes "
++            "with `advance published` instead of publishing"
++        )
++    if manifest.get("state") == "published":
++        if manifest["stages"]["published"]["outputs"] == hashes:
++            return hashes  # identical replay: nothing to write
++        raise Conflict("stage 'published' already holds different files for this run")
++    if manifest.get("state") != "validated":
++        raise OutOfOrder(
++            f"cannot publish: the state is {manifest.get('state')!r}, not 'validated'"
++        )
+     out_dir.mkdir(parents=True, exist_ok=True)
+     temporaries = {}
+     for name, data in contents.items():
+         tmp = out_dir / f".{name}.tmp-{os.getpid()}"
+         tmp.write_bytes(data)
+         temporaries[name] = tmp
+-    hashes = {name: hashlib.sha256(data).hexdigest() for name, data in contents.items()}
+     for name, tmp in temporaries.items():
+         os.replace(tmp, out_dir / name)
+     (commit or commit_published)(manifest_path, hashes)
+diff --git a/src/superclaude/cli/review/manifest_cmd.py b/src/superclaude/cli/review/manifest_cmd.py
+index 217b6896e..75cbedbeb 100644
+--- a/src/superclaude/cli/review/manifest_cmd.py
++++ b/src/superclaude/cli/review/manifest_cmd.py
+@@ -102,7 +102,13 @@ def init_cmd(
+     try:
+         if path.exists():
+             current = mf.load(path)
+-            manifest, new = mf.resume(current, frozen=frozen)
++            manifest, new = mf.resume(
++                current,
++                frozen=frozen,
++                run_id=run_id,
++                engine_requested=t2_engine_requested,
++                engine_effective=t2_engine_effective,
++            )
+             result = "new-invocation" if new else "reused"
+         else:
+             manifest = mf.new_manifest(
+diff --git a/tests/review/test_review_manifest.py b/tests/review/test_review_manifest.py
+index b6f53365d..09b229153 100644
+--- a/tests/review/test_review_manifest.py
++++ b/tests/review/test_review_manifest.py
+@@ -225,6 +225,39 @@ def test_a_changed_plan_or_policy_hash_starts_a_new_invocation(change):
+     assert list(new_m["stages"]) == ["frozen"] and mf.validate(new_m) == []
+ 
+ 
++def test_resume_refuses_another_run_and_a_changed_engine_starts_a_new_invocation():
++    m = walk(fresh(), "dispatched")
++    with pytest.raises(mf.Conflict, match="r1"):
++        mf.resume(m, frozen=frozen(), run_id="r2")
++    same, new = mf.resume(
++        m,
++        frozen=frozen(),
++        run_id="r1",
++        engine_requested="shadow",
++        engine_effective="shadow",
++    )
++    assert new is False and same is m
++    changed, new = mf.resume(
++        m,
++        frozen=frozen(),
++        run_id="r1",
++        engine_requested="shadow",
++        engine_effective="legacy",
++    )
++    assert (
++        new is True
++        and changed["t2_engine_effective"] == "legacy"
++        and changed["invocation"] == 2
++    )
++
++
++def test_fail_keeps_the_first_reason():
++    m = walk(fresh(), "resolved")
++    mf.fail(m, "a")
++    mf.fail(m, "b")
++    assert m["failure_reason"] == "a"
++
++
+ def test_a_stage_is_reusable_only_while_its_dependency_hashes_match():
+     m = walk(fresh(), "calibrated")
+     assert mf.reusable_stages(m) == list(
+@@ -245,7 +278,7 @@ def contents():
+ 
+ def test_publish_renames_the_three_files_then_commits(tmp_path):
+     path = tmp_path / "panel" / "manifest.json"
+-    m = walk(fresh(), "validated")
++    m = walk(fresh("panel"), "validated")
+     mf.save(path, m)
+     hashes = mf.publish_files(tmp_path, contents(), path)
+     committed = mf.read_committed(path)
+@@ -257,7 +290,7 @@ def test_publish_renames_the_three_files_then_commits(tmp_path):
+ 
+ def test_a_crash_between_rename_and_commit_leaves_a_manifest_readers_refuse(tmp_path):
+     path = tmp_path / "panel" / "manifest.json"
+-    mf.save(path, walk(fresh(), "validated"))
++    mf.save(path, walk(fresh("panel"), "validated"))
+ 
+     def crash(manifest_path, hashes):
+         raise RuntimeError("crash before commit")
+@@ -273,6 +306,45 @@ def test_a_crash_between_rename_and_commit_leaves_a_manifest_readers_refuse(tmp_
+     assert mf.read_committed(path)["state"] == "published"
+ 
+ 
++def _tree(path):
++    return {p.name: p.read_bytes() for p in path.iterdir() if p.is_file()}
++
++
++def test_publish_checks_the_manifest_before_touching_any_file(tmp_path):
++    path = tmp_path / "panel" / "manifest.json"
++    for n in mf.PUBLISH_FILES:
++        (tmp_path / n).write_text("legacy")
++    legacy = _tree(tmp_path)
++    # not yet validated
++    mf.save(path, walk(fresh("panel"), "debated"))
++    with pytest.raises(mf.OutOfOrder, match="validated"):
++        mf.publish_files(tmp_path, contents(), path)
++    assert _tree(tmp_path) == legacy
++    # shadow engine: the legacy writers own the files
++    mf.save(path, walk(fresh("shadow"), "validated"))
++    with pytest.raises(mf.OutOfOrder, match="shadow"):
++        mf.publish_files(tmp_path, contents(), path)
++    assert _tree(tmp_path) == legacy
++
++
++def test_publishing_twice_is_a_no_op_and_different_files_conflict_before_writing(
++    tmp_path,
++):
++    path = tmp_path / "panel" / "manifest.json"
++    mf.save(path, walk(fresh("panel"), "validated"))
++    mf.publish_files(tmp_path, contents(), path)
++    published = _tree(tmp_path)
++    assert mf.publish_files(tmp_path, contents(), path)  # identical replay
++    different = {n: b"other" for n in mf.PUBLISH_FILES}
++    with pytest.raises(mf.Conflict):
++        mf.publish_files(tmp_path, different, path)
++    assert _tree(tmp_path) == published
++    committed = mf.read_committed(path)
++    assert committed["stages"]["published"]["outputs"] == {
++        n: hashlib.sha256(published[n]).hexdigest() for n in mf.PUBLISH_FILES
++    }
++
++
+ def test_shadow_publish_records_the_hashes_and_rewrites_nothing(tmp_path):
+     for n, data in contents().items():
+         (tmp_path / n).write_bytes(data)
+@@ -323,6 +395,42 @@ def init_args(tmp_path, snap, **over):
+     return [*args, "--schema-id", "review-panel/1"]
+ 
+ 
++def test_init_on_an_existing_manifest_checks_run_id_and_engines(cli_run):
++    tmp, snap = cli_run
++    assert run("init", *init_args(tmp, snap)).exit_code == 0
++    other = run("init", *init_args(tmp, snap, **{"--run-id": "r2"}))
++    assert other.exit_code == 1 and "Conflict" in other.output
++    assert json.loads((tmp / "panel/manifest.json").read_text())["run_id"] == "r1"
++    engines = {"--t2-engine-requested": "legacy", "--t2-engine-effective": "legacy"}
++    res = json.loads(run("init", *init_args(tmp, snap, **engines)).output)
++    assert res["result"] == "new-invocation" and res["invocation"] == 2
++    data = json.loads((tmp / "panel/manifest.json").read_text())
++    assert (data["t2_engine_requested"], data["t2_engine_effective"]) == (
++        "legacy",
++        "legacy",
++    )
++
++
++def test_cli_publish_from_refuses_in_shadow_mode_and_before_validated(cli_run):
++    tmp, snap = cli_run
++    run("init", *init_args(tmp, snap))  # shadow / shadow
++    staging = tmp / "staging"
++    staging.mkdir()
++    for n, data in contents().items():
++        (staging / n).write_bytes(data)
++    res = run(
++        "advance",
++        "--out",
++        str(tmp),
++        "--stage",
++        "published",
++        "--publish-from",
++        str(staging),
++    )
++    assert res.exit_code == 1 and "OutOfOrder" in res.output
++    assert not [n for n in mf.PUBLISH_FILES if (tmp / n).exists()]
++
++
+ def test_help_lists_the_three_subcommands():
+     res = run("--help")
+     assert res.exit_code == 0
+@@ -422,7 +530,14 @@ def test_cli_publish_in_shadow_mode_records_hashes_of_the_legacy_files(cli_run):
+ 
+ def test_cli_publish_from_a_staging_directory_uses_temporaries_and_renames(cli_run):
+     tmp, snap = cli_run
+-    run("init", *init_args(tmp, snap))
++    run(
++        "init",
++        *init_args(
++            tmp,
++            snap,
++            **{"--t2-engine-requested": "panel", "--t2-engine-effective": "panel"},
++        ),
++    )
+     payload = tmp / "resolved.json"
+     payload.write_text(json.dumps(RESOLVED))
+     out = ["--out", str(tmp)]

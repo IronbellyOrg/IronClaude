@@ -1,0 +1,1127 @@
+diff --git a/.dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/consumer-inventory.md b/.dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/consumer-inventory.md
+index cf88bda62..767504e6c 100644
+--- a/.dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/consumer-inventory.md
++++ b/.dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/consumer-inventory.md
+@@ -12,7 +12,8 @@ Scan roots: `src/`, `tests/`, `scripts/`, `.dev/eval-workspaces/`, `docs/`.
+ - Not searched: binary 1, unreadable 0, non-regular 0, symlinked directories not followed 0.
+ - Missing scan roots: none.
+ - Hit files: 320.
+-- Hit files by role: producer 3, validator 1, consumer 37, unclassified 253, not in scope 26.
++- Hit files by role: producer 51, validator 4, consumer 239, not in scope 26.
++- Hit files by basis: named 45, cue 275.
+ - Hit files by scan root: `src/` 50, `tests/` 90, `scripts/` 4, `.dev/eval-workspaces/` 167, `docs/` 9.
+ - Of the `src/` hit files, 33 are installed skill or command primitives (`src/superclaude/skills/`, `src/superclaude/commands/`).
+ 
+@@ -31,17 +32,21 @@ Scan roots: `src/`, `tests/`, `scripts/`, `.dev/eval-workspaces/`, `docs/`.
+ |---|---|---|---|---|
+ | `src/superclaude/cli/reflect/ensemble.py` | producer | headless contract builder | yes | yes |
+ | `src/superclaude/skills/sc-reflect-protocol/SKILL.md` | producer | section 9.1 and Wave 5 (it also reads the fields in EV-1 and the Wave 7 gate) | yes | yes |
++| `src/superclaude/skills/sc-reflect-protocol/refs/input-resolution.md` | producer | review fix: its table gives the t2_model_class_diversity values | yes | yes |
++| `src/superclaude/skills/sc-reflect-protocol/refs/reflection-rubric.md` | producer | review fix: says calibrator_diversity is emitted into reflection-card.yaml | yes | yes |
+ | `src/superclaude/skills/sc-reflect-protocol/refs/report-template.md` | producer | REPORT.md skeleton of the fields | yes | yes |
+ | `src/superclaude/cli/reflect/contract.py` | validator | derive_verdict, _degraded_reason | yes | yes |
+ | `.dev/eval-workspaces/sc-reflect/grader.py` | consumer | section 9.3 CI grader | yes | no match |
+ | `src/superclaude/cli/sprint/executor.py` | consumer | section 9.3 sprint executor, deferred item 8 | yes | no match |
+ | `src/superclaude/skills/sc-reflect-protocol/refs/ops-integration.md` | consumer | PromQL label list | yes | yes |
+ | `src/superclaude/skills/sc-reflect-protocol/refs/promotion-adapters.md` | consumer | section 9.3 Wave 7 promotion adapters | yes | yes |
+-| `src/superclaude/skills/sc-task-protocol/SKILL.md` | consumer | section 9.3 row | yes | no match |
++| `src/superclaude/skills/sc-task-protocol/SKILL.md` | consumer | section 9.3 sc-task row as first mapped; the gate text is in skills/task/SKILL.md | yes | no match |
+ | `src/superclaude/skills/sc-tasklist-protocol/SKILL.md` | consumer | section 9.3 sc:tasklist gate | yes | yes |
++| `src/superclaude/skills/sc-tasklist-protocol/templates/phase-template.md` | consumer | section 9.3 sc:tasklist row (review fix): opens return-contract.yaml, fails the gate on adversarial_convergence_score < 0.80 | yes | yes |
+ | `src/superclaude/skills/sc-troubleshoot-protocol/SKILL.md` | consumer | section 9.3 row | yes | yes |
+ | `src/superclaude/skills/sc-workflow-protocol/SKILL.md` | consumer | section 9.3 row, deferred item 10 | yes | no match |
+ | `src/superclaude/skills/task-builder/SKILL.md` | consumer | section 9.3 row, EV-4 | yes | yes |
++| `src/superclaude/skills/task/SKILL.md` | consumer | section 9.3 sc-task row (review fix): opens return-contract.yaml, fails the gate on adversarial_convergence_score < 0.80 | yes | yes |
+ | `tests/cli/reflect/` | consumer | deferred item 9 (reflect tests and fixtures) | yes | 32 file(s) |
+ 
+ UNVERIFIED (named consumers with no file located in this repository):
+@@ -53,328 +58,331 @@ UNVERIFIED (named consumers with no file located in this repository):
+ 
+ ## Hit files
+ 
+-| File | Role | Lines | `merge_method` | `adversarial_convergence_score` | `convergence_score` | `contract_version` | `t2_model_class_diversity` | `t2_vendor_diversity` | `calibrator_diversity` | `reviewer_cards` | `citations_dropped` |
+-|---|---|---|---|---|---|---|---|---|---|---|---|
+-| `src/superclaude/cli/reflect/ensemble.py` | producer | 29 | 4 | 11 | 23 | 1 | 3 | 1 | 0 | 0 | 2 |
+-| `src/superclaude/skills/sc-reflect-protocol/SKILL.md` | producer | 71 | 12 | 1 | 20 | 6 | 9 | 10 | 7 | 1 | 29 |
+-| `src/superclaude/skills/sc-reflect-protocol/refs/report-template.md` | producer | 7 | 0 | 0 | 0 | 2 | 0 | 0 | 0 | 0 | 6 |
+-| `src/superclaude/cli/reflect/contract.py` | validator | 8 | 1 | 2 | 2 | 2 | 1 | 1 | 0 | 0 | 1 |
+-| `src/superclaude/skills/sc-reflect-protocol/refs/ops-integration.md` | consumer | 7 | 1 | 1 | 3 | 0 | 0 | 3 | 0 | 0 | 0 |
+-| `src/superclaude/skills/sc-reflect-protocol/refs/promotion-adapters.md` | consumer | 2 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 | 1 |
+-| `src/superclaude/skills/sc-tasklist-protocol/SKILL.md` | consumer | 2 | 0 | 2 | 2 | 0 | 0 | 0 | 0 | 0 | 0 |
+-| `src/superclaude/skills/sc-troubleshoot-protocol/SKILL.md` | consumer | 1 | 0 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 |
+-| `src/superclaude/skills/task-builder/SKILL.md` | consumer | 4 | 8 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 |
+-| `tests/cli/reflect/fixtures/autofixable_drift.yaml` | consumer | 7 | 1 | 1 | 1 | 1 | 1 | 1 | 0 | 0 | 2 |
+-| `tests/cli/reflect/fixtures/autofixable_drift_both.yaml` | consumer | 7 | 1 | 1 | 1 | 1 | 1 | 1 | 0 | 0 | 2 |
+-| `tests/cli/reflect/fixtures/autofixable_drift_no_path.yaml` | consumer | 7 | 1 | 1 | 1 | 1 | 1 | 1 | 0 | 0 | 2 |
+-| `tests/cli/reflect/fixtures/autofixable_drift_plan.yaml` | consumer | 7 | 1 | 1 | 1 | 1 | 1 | 1 | 0 | 0 | 2 |
+-| `tests/cli/reflect/fixtures/blocked_unknown_major.yaml` | consumer | 7 | 1 | 1 | 1 | 1 | 1 | 1 | 0 | 0 | 2 |
+-| `tests/cli/reflect/fixtures/blocked_with_drift.yaml` | consumer | 7 | 1 | 1 | 1 | 1 | 1 | 1 | 0 | 0 | 2 |
+-| `tests/cli/reflect/fixtures/degraded_graph_absent.yaml` | consumer | 7 | 1 | 1 | 1 | 1 | 1 | 1 | 0 | 0 | 2 |
+-| `tests/cli/reflect/fixtures/degraded_reviewer_shortfall.yaml` | consumer | 7 | 1 | 1 | 1 | 1 | 1 | 1 | 0 | 0 | 2 |
+-| `tests/cli/reflect/fixtures/degraded_single_vendor.yaml` | consumer | 7 | 1 | 1 | 1 | 1 | 1 | 1 | 0 | 0 | 2 |
+-| `tests/cli/reflect/fixtures/degraded_tier1.yaml` | consumer | 7 | 1 | 1 | 1 | 1 | 1 | 1 | 0 | 0 | 2 |
+-| `tests/cli/reflect/fixtures/degraded_with_drift.yaml` | consumer | 7 | 1 | 1 | 1 | 1 | 1 | 1 | 0 | 0 | 2 |
+-| `tests/cli/reflect/fixtures/halted_regression.yaml` | consumer | 7 | 1 | 1 | 1 | 1 | 1 | 1 | 0 | 0 | 2 |
+-| `tests/cli/reflect/fixtures/human_required_needs_decision.yaml` | consumer | 7 | 1 | 1 | 1 | 1 | 1 | 1 | 0 | 0 | 2 |
+-| `tests/cli/reflect/fixtures/pass.yaml` | consumer | 7 | 1 | 1 | 1 | 1 | 1 | 1 | 0 | 0 | 2 |
+-| `tests/cli/reflect/fixtures/pass_no_t2_fallback.yaml` | consumer | 7 | 1 | 1 | 1 | 1 | 1 | 1 | 0 | 0 | 2 |
+-| `tests/cli/reflect/fixtures/pass_with_t2_fallback.yaml` | consumer | 7 | 1 | 1 | 1 | 1 | 1 | 1 | 0 | 0 | 2 |
+-| `tests/cli/reflect/fixtures/postfix_pass.yaml` | consumer | 7 | 1 | 1 | 1 | 1 | 1 | 1 | 0 | 0 | 2 |
+-| `tests/cli/reflect/fixtures/reachability_1_7_0_gate_ran.yaml` | consumer | 7 | 1 | 1 | 1 | 1 | 1 | 1 | 0 | 0 | 2 |
+-| `tests/cli/reflect/fixtures/reachability_proxy_oracle_unproven.yaml` | consumer | 7 | 1 | 1 | 1 | 1 | 1 | 1 | 0 | 0 | 2 |
+-| `tests/cli/reflect/fixtures/reachability_semantic_fallback_advisory.yaml` | consumer | 7 | 1 | 1 | 1 | 1 | 1 | 1 | 0 | 0 | 2 |
+-| `tests/cli/reflect/fixtures/reachability_skip_no_reachability.yaml` | consumer | 7 | 1 | 1 | 1 | 1 | 1 | 1 | 0 | 0 | 2 |
+-| `tests/cli/reflect/fixtures/reachability_skip_spec_absent.yaml` | consumer | 7 | 1 | 1 | 1 | 1 | 1 | 1 | 0 | 0 | 2 |
+-| `tests/cli/reflect/fixtures/reachability_unwired_surface_regression.yaml` | consumer | 7 | 1 | 1 | 1 | 1 | 1 | 1 | 0 | 0 | 2 |
+-| `tests/cli/reflect/fixtures/tolerant_unknown_field.yaml` | consumer | 7 | 1 | 1 | 1 | 1 | 1 | 1 | 0 | 0 | 2 |
+-| `tests/cli/reflect/fixtures/vacuous_no_verify.yaml` | consumer | 7 | 1 | 1 | 1 | 1 | 1 | 1 | 0 | 0 | 2 |
+-| `tests/cli/reflect/test_classify_fix.py` | consumer | 1 | 0 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 |
+-| `tests/cli/reflect/test_contract_fallback_metadata.py` | consumer | 4 | 2 | 2 | 2 | 0 | 0 | 0 | 0 | 0 | 0 |
+-| `tests/cli/reflect/test_ensemble_fallback_engage.py` | consumer | 1 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 | 0 |
+-| `tests/cli/reflect/test_ensemble_fallback_stub.py` | consumer | 4 | 2 | 2 | 2 | 0 | 0 | 0 | 0 | 0 | 0 |
+-| `tests/cli/reflect/test_ensemble_stub_integration.py` | consumer | 27 | 10 | 2 | 6 | 2 | 8 | 1 | 0 | 0 | 0 |
+-| `tests/cli/reflect/test_ensemble_unit.py` | consumer | 26 | 2 | 12 | 22 | 0 | 2 | 1 | 0 | 0 | 0 |
+-| `tests/cli/reflect/test_verdict_mapping.py` | consumer | 9 | 2 | 3 | 3 | 1 | 0 | 0 | 0 | 0 | 3 |
+-| `.dev/eval-workspaces/cli-eval/workflow_vs_task_builder/corpus/detection-contract-setup/input.md` | unclassified | 1 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 | 0 |
+-| `.dev/eval-workspaces/cli-eval/workflow_vs_task_builder/corpus/detection-contract-setup/sources/merged-requirements.md` | unclassified | 1 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 | 0 |
+-| `.dev/eval-workspaces/sc-brainstorm/SPEC.md` | unclassified | 12 | 0 | 0 | 10 | 4 | 0 | 0 | 0 | 0 | 0 |
+-| `.dev/eval-workspaces/sc-brainstorm/evals/evals.json` | unclassified | 2 | 0 | 0 | 1 | 1 | 0 | 0 | 0 | 0 | 0 |
+-| `.dev/eval-workspaces/sc-brainstorm/iterations/iteration-1/benchmark.json` | unclassified | 12 | 0 | 0 | 6 | 6 | 0 | 0 | 0 | 0 | 0 |
+-| `.dev/eval-workspaces/sc-brainstorm/iterations/iteration-1/eval-code-add-rate-limiting/eval_metadata.json` | unclassified | 2 | 0 | 0 | 2 | 2 | 0 | 0 | 0 | 0 | 0 |
+-| `.dev/eval-workspaces/sc-brainstorm/iterations/iteration-1/eval-code-add-rate-limiting/with_skill/outputs/merged-requirements.md` | unclassified | 1 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 | 0 |
+-| `.dev/eval-workspaces/sc-brainstorm/iterations/iteration-1/eval-code-add-rate-limiting/with_skill/outputs/return-contract.yaml` | unclassified | 2 | 0 | 0 | 1 | 1 | 0 | 0 | 0 | 0 | 0 |
+-| `.dev/eval-workspaces/sc-brainstorm/iterations/iteration-1/eval-code-add-rate-limiting/with_skill/run-1/grading.json` | unclassified | 4 | 0 | 0 | 2 | 2 | 0 | 0 | 0 | 0 | 0 |
+-| `.dev/eval-workspaces/sc-brainstorm/iterations/iteration-1/eval-incident-staging-deploy-3am/eval_metadata.json` | unclassified | 2 | 0 | 0 | 2 | 2 | 0 | 0 | 0 | 0 | 0 |
+-| `.dev/eval-workspaces/sc-brainstorm/iterations/iteration-1/eval-incident-staging-deploy-3am/with_skill/outputs/adversarial/debate-transcript.md` | unclassified | 1 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 | 0 |
+-| `.dev/eval-workspaces/sc-brainstorm/iterations/iteration-1/eval-incident-staging-deploy-3am/with_skill/outputs/merged-requirements.md` | unclassified | 1 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 | 0 |
+-| `.dev/eval-workspaces/sc-brainstorm/iterations/iteration-1/eval-incident-staging-deploy-3am/with_skill/outputs/return-contract.yaml` | unclassified | 2 | 0 | 0 | 1 | 1 | 0 | 0 | 0 | 0 | 0 |
+-| `.dev/eval-workspaces/sc-brainstorm/iterations/iteration-1/eval-incident-staging-deploy-3am/with_skill/run-1/grading.json` | unclassified | 4 | 0 | 0 | 2 | 2 | 0 | 0 | 0 | 0 | 0 |
+-| `.dev/eval-workspaces/sc-brainstorm/iterations/iteration-1/eval-product-ai-changelog/eval_metadata.json` | unclassified | 2 | 0 | 0 | 2 | 2 | 0 | 0 | 0 | 0 | 0 |
+-| `.dev/eval-workspaces/sc-brainstorm/iterations/iteration-1/eval-product-ai-changelog/with_skill/outputs/adversarial/debate-transcript.md` | unclassified | 1 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 | 0 |
+-| `.dev/eval-workspaces/sc-brainstorm/iterations/iteration-1/eval-product-ai-changelog/with_skill/outputs/merged-requirements.md` | unclassified | 1 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 | 0 |
+-| `.dev/eval-workspaces/sc-brainstorm/iterations/iteration-1/eval-product-ai-changelog/with_skill/outputs/return-contract.yaml` | unclassified | 2 | 0 | 0 | 1 | 1 | 0 | 0 | 0 | 0 | 0 |
+-| `.dev/eval-workspaces/sc-brainstorm/iterations/iteration-1/eval-product-ai-changelog/with_skill/run-1/grading.json` | unclassified | 4 | 0 | 0 | 2 | 2 | 0 | 0 | 0 | 0 | 0 |
+-| `.dev/eval-workspaces/sc-brainstorm/iterations/iteration-1/quality-grading-v1rubric.json` | unclassified | 3 | 0 | 0 | 3 | 0 | 0 | 0 | 0 | 0 | 0 |
+-| `.dev/eval-workspaces/sc-brainstorm/iterations/iteration-1/quality-grading.json` | unclassified | 3 | 0 | 0 | 3 | 0 | 0 | 0 | 0 | 0 | 0 |
+-| `.dev/eval-workspaces/sc-brainstorm/iterations/iteration-1/review.html` | unclassified | 1 | 0 | 0 | 12 | 9 | 0 | 0 | 0 | 0 | 0 |
+-| `.dev/eval-workspaces/sc-brainstorm/iterations/iteration-2/benchmark.json` | unclassified | 48 | 0 | 0 | 24 | 24 | 0 | 0 | 0 | 0 | 0 |
+-| `.dev/eval-workspaces/sc-brainstorm/iterations/iteration-2/eval-architecture-graphql-public-api/eval_metadata.json` | unclassified | 4 | 0 | 0 | 2 | 2 | 0 | 0 | 0 | 0 | 0 |
+-| `.dev/eval-workspaces/sc-brainstorm/iterations/iteration-2/eval-architecture-graphql-public-api/with_skill/grading.json` | unclassified | 4 | 0 | 0 | 2 | 2 | 0 | 0 | 0 | 0 | 0 |
+-| `.dev/eval-workspaces/sc-brainstorm/iterations/iteration-2/eval-architecture-graphql-public-api/with_skill/outputs/adversarial/debate-transcript.md` | unclassified | 1 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 | 0 |
+-| `.dev/eval-workspaces/sc-brainstorm/iterations/iteration-2/eval-architecture-graphql-public-api/with_skill/outputs/merged-requirements.md` | unclassified | 1 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 | 0 |
+-| `.dev/eval-workspaces/sc-brainstorm/iterations/iteration-2/eval-architecture-graphql-public-api/with_skill/outputs/return-contract.yaml` | unclassified | 2 | 0 | 0 | 1 | 1 | 0 | 0 | 0 | 0 | 0 |
+-| `.dev/eval-workspaces/sc-brainstorm/iterations/iteration-2/eval-architecture-graphql-public-api/with_skill/run-1/grading.json` | unclassified | 4 | 0 | 0 | 2 | 2 | 0 | 0 | 0 | 0 | 0 |
+-| `.dev/eval-workspaces/sc-brainstorm/iterations/iteration-2/eval-architecture-worker-pool-errors/eval_metadata.json` | unclassified | 4 | 0 | 0 | 2 | 2 | 0 | 0 | 0 | 0 | 0 |
+-| `.dev/eval-workspaces/sc-brainstorm/iterations/iteration-2/eval-architecture-worker-pool-errors/with_skill/grading.json` | unclassified | 4 | 0 | 0 | 2 | 2 | 0 | 0 | 0 | 0 | 0 |
+-| `.dev/eval-workspaces/sc-brainstorm/iterations/iteration-2/eval-architecture-worker-pool-errors/with_skill/outputs/adversarial/debate-transcript.md` | unclassified | 1 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 | 0 |
+-| `.dev/eval-workspaces/sc-brainstorm/iterations/iteration-2/eval-architecture-worker-pool-errors/with_skill/outputs/merged-requirements.md` | unclassified | 1 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 | 0 |
+-| `.dev/eval-workspaces/sc-brainstorm/iterations/iteration-2/eval-architecture-worker-pool-errors/with_skill/outputs/return-contract.yaml` | unclassified | 2 | 0 | 0 | 1 | 1 | 0 | 0 | 0 | 0 | 0 |
+-| `.dev/eval-workspaces/sc-brainstorm/iterations/iteration-2/eval-architecture-worker-pool-errors/with_skill/run-1/grading.json` | unclassified | 4 | 0 | 0 | 2 | 2 | 0 | 0 | 0 | 0 | 0 |
+-| `.dev/eval-workspaces/sc-brainstorm/iterations/iteration-2/eval-code-add-rate-limiting/eval_metadata.json` | unclassified | 2 | 0 | 0 | 2 | 2 | 0 | 0 | 0 | 0 | 0 |
+-| `.dev/eval-workspaces/sc-brainstorm/iterations/iteration-2/eval-code-add-rate-limiting/with_skill/grading.json` | unclassified | 4 | 0 | 0 | 2 | 2 | 0 | 0 | 0 | 0 | 0 |
+-| `.dev/eval-workspaces/sc-brainstorm/iterations/iteration-2/eval-code-add-rate-limiting/with_skill/outputs/adversarial/debate-transcript.md` | unclassified | 1 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 | 0 |
+-| `.dev/eval-workspaces/sc-brainstorm/iterations/iteration-2/eval-code-add-rate-limiting/with_skill/outputs/merged-requirements.md` | unclassified | 1 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 | 0 |
+-| `.dev/eval-workspaces/sc-brainstorm/iterations/iteration-2/eval-code-add-rate-limiting/with_skill/outputs/return-contract.yaml` | unclassified | 2 | 0 | 0 | 1 | 1 | 0 | 0 | 0 | 0 | 0 |
+-| `.dev/eval-workspaces/sc-brainstorm/iterations/iteration-2/eval-code-add-rate-limiting/with_skill/run-1/grading.json` | unclassified | 4 | 0 | 0 | 2 | 2 | 0 | 0 | 0 | 0 | 0 |
+-| `.dev/eval-workspaces/sc-brainstorm/iterations/iteration-2/eval-code-api-caching-tasklist/eval_metadata.json` | unclassified | 4 | 0 | 0 | 2 | 2 | 0 | 0 | 0 | 0 | 0 |
+-| `.dev/eval-workspaces/sc-brainstorm/iterations/iteration-2/eval-code-api-caching-tasklist/with_skill/grading.json` | unclassified | 4 | 0 | 0 | 2 | 2 | 0 | 0 | 0 | 0 | 0 |
+-| `.dev/eval-workspaces/sc-brainstorm/iterations/iteration-2/eval-code-api-caching-tasklist/with_skill/outputs/adversarial/debate-transcript.md` | unclassified | 1 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 | 0 |
+-| `.dev/eval-workspaces/sc-brainstorm/iterations/iteration-2/eval-code-api-caching-tasklist/with_skill/outputs/merged-requirements.md` | unclassified | 1 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 | 0 |
+-| `.dev/eval-workspaces/sc-brainstorm/iterations/iteration-2/eval-code-api-caching-tasklist/with_skill/outputs/return-contract.yaml` | unclassified | 2 | 0 | 0 | 1 | 1 | 0 | 0 | 0 | 0 | 0 |
+-| `.dev/eval-workspaces/sc-brainstorm/iterations/iteration-2/eval-code-api-caching-tasklist/with_skill/run-1/grading.json` | unclassified | 4 | 0 | 0 | 2 | 2 | 0 | 0 | 0 | 0 | 0 |
+-| `.dev/eval-workspaces/sc-brainstorm/iterations/iteration-2/eval-code-duplicate-auth-blind/eval_metadata.json` | unclassified | 4 | 0 | 0 | 2 | 2 | 0 | 0 | 0 | 0 | 0 |
+-| `.dev/eval-workspaces/sc-brainstorm/iterations/iteration-2/eval-code-duplicate-auth-blind/with_skill/grading.json` | unclassified | 4 | 0 | 0 | 2 | 2 | 0 | 0 | 0 | 0 | 0 |
+-| `.dev/eval-workspaces/sc-brainstorm/iterations/iteration-2/eval-code-duplicate-auth-blind/with_skill/outputs/adversarial/debate-transcript.md` | unclassified | 1 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 | 0 |
+-| `.dev/eval-workspaces/sc-brainstorm/iterations/iteration-2/eval-code-duplicate-auth-blind/with_skill/outputs/merged-requirements.md` | unclassified | 1 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 | 0 |
+-| `.dev/eval-workspaces/sc-brainstorm/iterations/iteration-2/eval-code-duplicate-auth-blind/with_skill/outputs/return-contract.yaml` | unclassified | 2 | 0 | 0 | 1 | 1 | 0 | 0 | 0 | 0 | 0 |
+-| `.dev/eval-workspaces/sc-brainstorm/iterations/iteration-2/eval-code-duplicate-auth-blind/with_skill/run-1/grading.json` | unclassified | 4 | 0 | 0 | 2 | 2 | 0 | 0 | 0 | 0 | 0 |
+-| `.dev/eval-workspaces/sc-brainstorm/iterations/iteration-2/eval-code-feature-flag-task/eval_metadata.json` | unclassified | 2 | 0 | 0 | 2 | 2 | 0 | 0 | 0 | 0 | 0 |
+-| `.dev/eval-workspaces/sc-brainstorm/iterations/iteration-2/eval-code-feature-flag-task/with_skill/grading.json` | unclassified | 4 | 0 | 0 | 2 | 2 | 0 | 0 | 0 | 0 | 0 |
+-| `.dev/eval-workspaces/sc-brainstorm/iterations/iteration-2/eval-code-feature-flag-task/with_skill/outputs/merged-requirements.md` | unclassified | 1 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 | 0 |
+-| `.dev/eval-workspaces/sc-brainstorm/iterations/iteration-2/eval-code-feature-flag-task/with_skill/outputs/return-contract.yaml` | unclassified | 2 | 0 | 0 | 1 | 1 | 0 | 0 | 0 | 0 | 0 |
+-| `.dev/eval-workspaces/sc-brainstorm/iterations/iteration-2/eval-code-feature-flag-task/with_skill/run-1/grading.json` | unclassified | 4 | 0 | 0 | 2 | 2 | 0 | 0 | 0 | 0 | 0 |
+-| `.dev/eval-workspaces/sc-brainstorm/iterations/iteration-2/eval-code-migrate-pytest-vitest/eval_metadata.json` | unclassified | 4 | 0 | 0 | 2 | 2 | 0 | 0 | 0 | 0 | 0 |
+-| `.dev/eval-workspaces/sc-brainstorm/iterations/iteration-2/eval-code-migrate-pytest-vitest/with_skill/grading.json` | unclassified | 4 | 0 | 0 | 2 | 2 | 0 | 0 | 0 | 0 | 0 |
+-| `.dev/eval-workspaces/sc-brainstorm/iterations/iteration-2/eval-code-migrate-pytest-vitest/with_skill/outputs/adversarial/debate-transcript.md` | unclassified | 1 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 | 0 |
+-| `.dev/eval-workspaces/sc-brainstorm/iterations/iteration-2/eval-code-migrate-pytest-vitest/with_skill/outputs/merged-requirements.md` | unclassified | 1 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 | 0 |
+-| `.dev/eval-workspaces/sc-brainstorm/iterations/iteration-2/eval-code-migrate-pytest-vitest/with_skill/outputs/return-contract.yaml` | unclassified | 2 | 0 | 0 | 1 | 1 | 0 | 0 | 0 | 0 | 0 |
+-| `.dev/eval-workspaces/sc-brainstorm/iterations/iteration-2/eval-code-migrate-pytest-vitest/with_skill/run-1/grading.json` | unclassified | 4 | 0 | 0 | 2 | 2 | 0 | 0 | 0 | 0 | 0 |
+-| `.dev/eval-workspaces/sc-brainstorm/iterations/iteration-2/eval-incident-payment-webhook-q1/eval_metadata.json` | unclassified | 4 | 0 | 0 | 2 | 2 | 0 | 0 | 0 | 0 | 0 |
+-| `.dev/eval-workspaces/sc-brainstorm/iterations/iteration-2/eval-incident-payment-webhook-q1/with_skill/grading.json` | unclassified | 4 | 0 | 0 | 2 | 2 | 0 | 0 | 0 | 0 | 0 |
+-| `.dev/eval-workspaces/sc-brainstorm/iterations/iteration-2/eval-incident-payment-webhook-q1/with_skill/outputs/adversarial/debate-transcript.md` | unclassified | 1 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 | 0 |
+-| `.dev/eval-workspaces/sc-brainstorm/iterations/iteration-2/eval-incident-payment-webhook-q1/with_skill/outputs/merged-requirements.md` | unclassified | 1 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 | 0 |
+-| `.dev/eval-workspaces/sc-brainstorm/iterations/iteration-2/eval-incident-payment-webhook-q1/with_skill/outputs/return-contract.yaml` | unclassified | 2 | 0 | 0 | 1 | 1 | 0 | 0 | 0 | 0 | 0 |
+-| `.dev/eval-workspaces/sc-brainstorm/iterations/iteration-2/eval-incident-payment-webhook-q1/with_skill/run-1/grading.json` | unclassified | 4 | 0 | 0 | 2 | 2 | 0 | 0 | 0 | 0 | 0 |
+-| `.dev/eval-workspaces/sc-brainstorm/iterations/iteration-2/eval-incident-staging-deploy-3am/eval_metadata.json` | unclassified | 2 | 0 | 0 | 2 | 2 | 0 | 0 | 0 | 0 | 0 |
+-| `.dev/eval-workspaces/sc-brainstorm/iterations/iteration-2/eval-incident-staging-deploy-3am/with_skill/grading.json` | unclassified | 4 | 0 | 0 | 2 | 2 | 0 | 0 | 0 | 0 | 0 |
+-| `.dev/eval-workspaces/sc-brainstorm/iterations/iteration-2/eval-incident-staging-deploy-3am/with_skill/outputs/merged-requirements.md` | unclassified | 1 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 | 0 |
+-| `.dev/eval-workspaces/sc-brainstorm/iterations/iteration-2/eval-incident-staging-deploy-3am/with_skill/outputs/return-contract.yaml` | unclassified | 2 | 0 | 0 | 1 | 1 | 0 | 0 | 0 | 0 | 0 |
+-| `.dev/eval-workspaces/sc-brainstorm/iterations/iteration-2/eval-incident-staging-deploy-3am/with_skill/run-1/grading.json` | unclassified | 4 | 0 | 0 | 2 | 2 | 0 | 0 | 0 | 0 | 0 |
+-| `.dev/eval-workspaces/sc-brainstorm/iterations/iteration-2/eval-process-contributor-onboarding/eval_metadata.json` | unclassified | 4 | 0 | 0 | 2 | 2 | 0 | 0 | 0 | 0 | 0 |
+-| `.dev/eval-workspaces/sc-brainstorm/iterations/iteration-2/eval-process-contributor-onboarding/with_skill/grading.json` | unclassified | 4 | 0 | 0 | 2 | 2 | 0 | 0 | 0 | 0 | 0 |
+-| `.dev/eval-workspaces/sc-brainstorm/iterations/iteration-2/eval-process-contributor-onboarding/with_skill/outputs/adversarial/debate-transcript.md` | unclassified | 1 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 | 0 |
+-| `.dev/eval-workspaces/sc-brainstorm/iterations/iteration-2/eval-process-contributor-onboarding/with_skill/outputs/merged-requirements.md` | unclassified | 1 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 | 0 |
+-| `.dev/eval-workspaces/sc-brainstorm/iterations/iteration-2/eval-process-contributor-onboarding/with_skill/outputs/return-contract.yaml` | unclassified | 2 | 0 | 0 | 1 | 1 | 0 | 0 | 0 | 0 | 0 |
+-| `.dev/eval-workspaces/sc-brainstorm/iterations/iteration-2/eval-process-contributor-onboarding/with_skill/run-1/grading.json` | unclassified | 4 | 0 | 0 | 2 | 2 | 0 | 0 | 0 | 0 | 0 |
+-| `.dev/eval-workspaces/sc-brainstorm/iterations/iteration-2/eval-product-ai-changelog/eval_metadata.json` | unclassified | 2 | 0 | 0 | 2 | 2 | 0 | 0 | 0 | 0 | 0 |
+-| `.dev/eval-workspaces/sc-brainstorm/iterations/iteration-2/eval-product-ai-changelog/with_skill/grading.json` | unclassified | 4 | 0 | 0 | 2 | 2 | 0 | 0 | 0 | 0 | 0 |
+-| `.dev/eval-workspaces/sc-brainstorm/iterations/iteration-2/eval-product-ai-changelog/with_skill/outputs/adversarial/debate-transcript.md` | unclassified | 1 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 | 0 |
+-| `.dev/eval-workspaces/sc-brainstorm/iterations/iteration-2/eval-product-ai-changelog/with_skill/outputs/merged-requirements.md` | unclassified | 1 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 | 0 |
+-| `.dev/eval-workspaces/sc-brainstorm/iterations/iteration-2/eval-product-ai-changelog/with_skill/outputs/return-contract.yaml` | unclassified | 2 | 0 | 0 | 1 | 1 | 0 | 0 | 0 | 0 | 0 |
+-| `.dev/eval-workspaces/sc-brainstorm/iterations/iteration-2/eval-product-ai-changelog/with_skill/run-1/grading.json` | unclassified | 4 | 0 | 0 | 2 | 2 | 0 | 0 | 0 | 0 | 0 |
+-| `.dev/eval-workspaces/sc-brainstorm/iterations/iteration-2/eval-research-bun-vs-node/eval_metadata.json` | unclassified | 4 | 0 | 0 | 2 | 2 | 0 | 0 | 0 | 0 | 0 |
+-| `.dev/eval-workspaces/sc-brainstorm/iterations/iteration-2/eval-research-bun-vs-node/with_skill/grading.json` | unclassified | 4 | 0 | 0 | 2 | 2 | 0 | 0 | 0 | 0 | 0 |
+-| `.dev/eval-workspaces/sc-brainstorm/iterations/iteration-2/eval-research-bun-vs-node/with_skill/outputs/adversarial/debate-transcript.md` | unclassified | 1 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 | 0 |
+-| `.dev/eval-workspaces/sc-brainstorm/iterations/iteration-2/eval-research-bun-vs-node/with_skill/outputs/merged-requirements.md` | unclassified | 1 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 | 0 |
+-| `.dev/eval-workspaces/sc-brainstorm/iterations/iteration-2/eval-research-bun-vs-node/with_skill/outputs/return-contract.yaml` | unclassified | 2 | 0 | 0 | 1 | 1 | 0 | 0 | 0 | 0 | 0 |
+-| `.dev/eval-workspaces/sc-brainstorm/iterations/iteration-2/eval-research-bun-vs-node/with_skill/run-1/grading.json` | unclassified | 4 | 0 | 0 | 2 | 2 | 0 | 0 | 0 | 0 | 0 |
+-| `.dev/eval-workspaces/sc-brainstorm/iterations/iteration-2/quality-grading-v1rubric.json` | unclassified | 2 | 0 | 0 | 2 | 0 | 0 | 0 | 0 | 0 | 0 |
+-| `.dev/eval-workspaces/sc-brainstorm/iterations/iteration-2/review.html` | unclassified | 1 | 0 | 0 | 24 | 24 | 0 | 0 | 0 | 0 | 0 |
+-| `.dev/eval-workspaces/sc-brainstorm/iterations/iteration-2/strict-blind-inputs/case-changelog-output-alpha.md` | unclassified | 1 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 | 0 |
+-| `.dev/eval-workspaces/sc-brainstorm/iterations/iteration-2/strict-blind-inputs/case-incident-output-alpha.md` | unclassified | 1 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 | 0 |
+-| `.dev/eval-workspaces/sc-brainstorm/iterations/iteration-2/strict-blind-inputs/case-rate-limit-output-alpha.md` | unclassified | 1 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 | 0 |
+-| `.dev/eval-workspaces/sc-brainstorm/live-runs/comparison-against-iteration-2.json` | unclassified | 48 | 0 | 0 | 24 | 24 | 0 | 0 | 0 | 0 | 0 |
+-| `.dev/eval-workspaces/sc-brainstorm/live-runs/eval-architecture-worker-pool-errors/merged-requirements.md` | unclassified | 1 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 | 0 |
+-| `.dev/eval-workspaces/sc-brainstorm/live-runs/eval-architecture-worker-pool-errors/return-contract.yaml` | unclassified | 2 | 0 | 0 | 1 | 1 | 0 | 0 | 0 | 0 | 0 |
+-| `.dev/eval-workspaces/sc-brainstorm/live-runs/eval-code-api-caching-tasklist/adversarial/return-contract.yaml` | unclassified | 1 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 | 0 |
+-| `.dev/eval-workspaces/sc-brainstorm/live-runs/eval-code-api-caching-tasklist/merged-requirements.md` | unclassified | 2 | 0 | 0 | 1 | 1 | 0 | 0 | 0 | 0 | 0 |
+-| `.dev/eval-workspaces/sc-brainstorm/live-runs/eval-code-api-caching-tasklist/return-contract.yaml` | unclassified | 2 | 0 | 0 | 1 | 1 | 0 | 0 | 0 | 0 | 0 |
+-| `.dev/eval-workspaces/sc-brainstorm/live-runs/eval-code-duplicate-auth-blind/adversarial/debate-transcript.md` | unclassified | 1 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 | 0 |
+-| `.dev/eval-workspaces/sc-brainstorm/live-runs/eval-code-duplicate-auth-blind/adversarial/merge-log.md` | unclassified | 1 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 | 0 |
+-| `.dev/eval-workspaces/sc-brainstorm/live-runs/eval-code-duplicate-auth-blind/adversarial/merged-output.md` | unclassified | 1 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 | 0 |
+-| `.dev/eval-workspaces/sc-brainstorm/live-runs/eval-code-duplicate-auth-blind/merged-requirements.md` | unclassified | 1 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 | 0 |
+-| `.dev/eval-workspaces/sc-brainstorm/live-runs/eval-code-duplicate-auth-blind/return-contract.yaml` | unclassified | 2 | 0 | 0 | 1 | 1 | 0 | 0 | 0 | 0 | 0 |
+-| `.dev/eval-workspaces/sc-brainstorm/live-runs/eval-code-feature-flag-task/adversarial/merged-output.md` | unclassified | 1 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 | 0 |
+-| `.dev/eval-workspaces/sc-brainstorm/live-runs/eval-code-feature-flag-task/merged-requirements.md` | unclassified | 1 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 | 0 |
+-| `.dev/eval-workspaces/sc-brainstorm/live-runs/eval-code-feature-flag-task/qualitative-comparison.json` | unclassified | 2 | 0 | 0 | 2 | 0 | 0 | 0 | 0 | 0 | 0 |
+-| `.dev/eval-workspaces/sc-brainstorm/live-runs/eval-code-feature-flag-task/qualitative-comparison.md` | unclassified | 2 | 0 | 0 | 2 | 0 | 0 | 0 | 0 | 0 | 0 |
+-| `.dev/eval-workspaces/sc-brainstorm/live-runs/eval-code-feature-flag-task/return-contract.yaml` | unclassified | 2 | 0 | 0 | 1 | 1 | 0 | 0 | 0 | 0 | 0 |
+-| `.dev/eval-workspaces/sc-brainstorm/live-runs/eval-code-migrate-pytest-vitest/adversarial/merged-output.md` | unclassified | 1 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 | 0 |
+-| `.dev/eval-workspaces/sc-brainstorm/live-runs/eval-code-migrate-pytest-vitest/adversarial/return-contract.yaml` | unclassified | 1 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 | 0 |
+-| `.dev/eval-workspaces/sc-brainstorm/live-runs/eval-code-migrate-pytest-vitest/merged-requirements.md` | unclassified | 1 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 | 0 |
+-| `.dev/eval-workspaces/sc-brainstorm/live-runs/eval-code-migrate-pytest-vitest/return-contract.yaml` | unclassified | 2 | 0 | 0 | 1 | 1 | 0 | 0 | 0 | 0 | 0 |
+-| `.dev/eval-workspaces/sc-brainstorm/live-runs/eval-incident-payment-webhook-q1/merged-requirements.md` | unclassified | 1 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 | 0 |
+-| `.dev/eval-workspaces/sc-brainstorm/live-runs/eval-incident-payment-webhook-q1/qualitative-comparison.json` | unclassified | 1 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 | 0 |
+-| `.dev/eval-workspaces/sc-brainstorm/live-runs/eval-incident-payment-webhook-q1/return-contract.yaml` | unclassified | 2 | 0 | 0 | 1 | 1 | 0 | 0 | 0 | 0 | 0 |
+-| `.dev/eval-workspaces/sc-brainstorm/live-runs/eval-process-contributor-onboarding/adversarial/merge-log.md` | unclassified | 1 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 | 0 |
+-| `.dev/eval-workspaces/sc-brainstorm/live-runs/eval-process-contributor-onboarding/adversarial/merged-output.md` | unclassified | 1 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 | 0 |
+-| `.dev/eval-workspaces/sc-brainstorm/live-runs/eval-process-contributor-onboarding/merged-requirements.md` | unclassified | 1 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 | 0 |
+-| `.dev/eval-workspaces/sc-brainstorm/live-runs/eval-process-contributor-onboarding/return-contract.yaml` | unclassified | 2 | 0 | 0 | 1 | 1 | 0 | 0 | 0 | 0 | 0 |
+-| `.dev/eval-workspaces/sc-brainstorm/live-runs/eval-research-bun-vs-node/adversarial/merge-log.md` | unclassified | 1 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 | 0 |
+-| `.dev/eval-workspaces/sc-brainstorm/live-runs/eval-research-bun-vs-node/merged-requirements.md` | unclassified | 1 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 | 0 |
+-| `.dev/eval-workspaces/sc-brainstorm/live-runs/eval-research-bun-vs-node/return-contract.yaml` | unclassified | 2 | 0 | 0 | 1 | 1 | 0 | 0 | 0 | 0 | 0 |
+-| `.dev/eval-workspaces/sc-brainstorm/live-runs/probe-process-onboarding/adversarial/return-contract.yaml` | unclassified | 1 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 | 0 |
+-| `.dev/eval-workspaces/sc-brainstorm/live-runs/probe-process-onboarding/return-contract.yaml` | unclassified | 2 | 0 | 0 | 1 | 1 | 0 | 0 | 0 | 0 | 0 |
+-| `.dev/eval-workspaces/sc-brainstorm/live-runs/qualitative-comparison-summary.json` | unclassified | 1 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 | 0 |
+-| `.dev/eval-workspaces/sc-brainstorm/live-runs/qualitative-comparison-summary.md` | unclassified | 1 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 | 0 |
+-| `.dev/eval-workspaces/sc-brainstorm/live-runs/sc-brainstorm-remediation-tasklist.md` | unclassified | 2 | 0 | 0 | 2 | 0 | 0 | 0 | 0 | 0 | 0 |
+-| `.dev/eval-workspaces/sc-reflect/SPEC.md` | unclassified | 70 | 7 | 1 | 23 | 5 | 12 | 11 | 7 | 1 | 29 |
+-| `.dev/eval-workspaces/sc-reflect/cases/falsifier-suite/README.md` | unclassified | 2 | 0 | 0 | 2 | 0 | 0 | 0 | 0 | 0 | 0 |
+-| `.dev/eval-workspaces/sc-reflect/cases/falsifier-suite/T2-converges-on-wrong.yaml` | unclassified | 2 | 0 | 0 | 2 | 0 | 0 | 0 | 0 | 0 | 0 |
+-| `.dev/eval-workspaces/sc-reflect/cases/falsifier-suite/T2-judge-class-collision.yaml` | unclassified | 1 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 | 0 |
+-| `.dev/eval-workspaces/sc-reflect/cases/promotion/promotion-blocked-by-drift.yaml` | unclassified | 1 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1 |
+-| `.dev/eval-workspaces/sc-reflect/cases/promotion/promotion-blocked-by-frontmatter-mismatch.yaml` | unclassified | 1 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1 |
+-| `.dev/eval-workspaces/sc-reflect/cases/promotion/promotion-blocked-by-frontmatter-missing.yaml` | unclassified | 1 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1 |
+-| `.dev/eval-workspaces/sc-reflect/cases/promotion/promotion-blocked-by-grounding-gaps-empty-list.yaml` | unclassified | 1 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1 |
+-| `.dev/eval-workspaces/sc-reflect/cases/promotion/promotion-blocked-by-null-convergence.yaml` | unclassified | 5 | 0 | 0 | 4 | 0 | 0 | 0 | 0 | 0 | 1 |
+-| `.dev/eval-workspaces/sc-reflect/cases/promotion/promotion-citation-revalidation-after-remediation.yaml` | unclassified | 3 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 4 |
+-| `.dev/eval-workspaces/sc-reflect/cases/promotion/promotion-collision-identical.yaml` | unclassified | 1 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1 |
+-| `.dev/eval-workspaces/sc-reflect/cases/promotion/promotion-collision-non-identical.yaml` | unclassified | 1 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1 |
+-| `.dev/eval-workspaces/sc-reflect/cases/promotion/promotion-cross-fs-crash-recovery.yaml` | unclassified | 1 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1 |
+-| `.dev/eval-workspaces/sc-reflect/cases/promotion/promotion-dry-run.yaml` | unclassified | 1 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1 |
+-| `.dev/eval-workspaces/sc-reflect/cases/promotion/promotion-log-pre-write-survives-crash.yaml` | unclassified | 1 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1 |
+-| `.dev/eval-workspaces/sc-reflect/cases/promotion/promotion-promote-anyway-on-partial.yaml` | unclassified | 1 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1 |
+-| `.dev/eval-workspaces/sc-reflect/cases/promotion/promotion-sprint-release-pass.yaml` | unclassified | 1 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1 |
+-| `.dev/eval-workspaces/sc-reflect/cases/promotion/promotion-task-strict-pass.yaml` | unclassified | 1 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1 |
+-| `.dev/eval-workspaces/sc-reflect/cases/serena-citation-freshness/expected.yaml` | unclassified | 1 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1 |
+-| `.dev/eval-workspaces/sc-reflect/cases/uc2-reachability-missing-inputs-skip/expected.yaml` | unclassified | 1 | 0 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 |
+-| `.dev/eval-workspaces/sc-reflect/cases/uc2-reachability-no-reachability-skip/expected.yaml` | unclassified | 1 | 0 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 |
+-| `.dev/eval-workspaces/sc-reflect/cases/uc2-reachability-proxy-oracle-unproven/expected.yaml` | unclassified | 1 | 0 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 |
+-| `.dev/eval-workspaces/sc-reflect/evals/evals.json` | unclassified | 3 | 0 | 0 | 1 | 1 | 0 | 0 | 0 | 0 | 1 |
+-| `.dev/eval-workspaces/sc-release-split-protocol/fidelity-stress/event-processing/outputs/split-proposal-final.md` | unclassified | 1 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 | 0 |
+-| `.dev/eval-workspaces/sc-release-split-protocol/fidelity-stress/gate-enforcement/outputs/split-proposal-final.md` | unclassified | 1 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 | 0 |
+-| `.dev/eval-workspaces/sc-release-split-protocol/fidelity-stress/state-machine/outputs/split-proposal-final.md` | unclassified | 1 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 | 0 |
+-| `.dev/eval-workspaces/sc-release-split-protocol/iteration-1/ambiguous-large-plugin-system/with_skill/grading.json` | unclassified | 1 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 | 0 |
+-| `.dev/eval-workspaces/sc-release-split-protocol/iteration-1/ambiguous-large-plugin-system/with_skill/outputs/split-proposal-final.md` | unclassified | 1 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 | 0 |
+-| `.dev/eval-workspaces/sc-release-split-protocol/iteration-1/eval-review.html` | unclassified | 1 | 0 | 0 | 8 | 0 | 0 | 0 | 0 | 0 | 0 |
+-| `.dev/eval-workspaces/sc-release-split-protocol/iteration-1/learning-loop-observability/with_skill/grading.json` | unclassified | 1 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 | 0 |
+-| `.dev/eval-workspaces/sc-release-split-protocol/iteration-1/learning-loop-observability/with_skill/outputs/split-proposal-final.md` | unclassified | 1 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 | 0 |
+-| `.dev/eval-workspaces/sc-release-split-protocol/iteration-1/nosplit-bugfix-hardening/with_skill/grading.json` | unclassified | 2 | 0 | 0 | 2 | 0 | 0 | 0 | 0 | 0 | 0 |
+-| `.dev/eval-workspaces/sc-release-split-protocol/iteration-1/nosplit-bugfix-hardening/with_skill/outputs/split-proposal-final.md` | unclassified | 1 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 | 0 |
+-| `.dev/eval-workspaces/sc-release-split-protocol/iteration-1/splittable-auth-system/with_skill/outputs/split-proposal-final.md` | unclassified | 1 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 | 0 |
+-| `docs/developer-guide/SuperClaude-Developer-Guide-Commands-Skills-Agents.md` | unclassified | 3 | 0 | 0 | 2 | 1 | 0 | 0 | 0 | 0 | 0 |
+-| `docs/generated/sprint-cli/04-gates-validation.md` | unclassified | 1 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 | 0 |
+-| `docs/guides/reflect-cli-tools-guide.md` | unclassified | 1 | 1 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 |
+-| `docs/swarm/command-reference.md` | unclassified | 1 | 0 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 |
+-| `docs/swarm/oq-resolutions.md` | unclassified | 2 | 0 | 0 | 0 | 2 | 0 | 0 | 0 | 0 | 0 |
+-| `docs/testing/v5.0.0/user/D06-plan-implement-review-cap.md` | unclassified | 2 | 0 | 0 | 0 | 2 | 0 | 0 | 0 | 0 | 0 |
+-| `docs/testing/v5.0.0/user/D12-reflect.md` | unclassified | 16 | 4 | 4 | 7 | 4 | 4 | 4 | 0 | 0 | 0 |
+-| `docs/testing/v5.0.0/user/D14-swarm.md` | unclassified | 2 | 0 | 0 | 0 | 2 | 0 | 0 | 0 | 0 | 0 |
+-| `scripts/eval_workflow_vs_task_builder.py` | unclassified | 2 | 0 | 0 | 0 | 2 | 0 | 0 | 0 | 0 | 0 |
+-| `scripts/fidelity-check-setup.sh` | unclassified | 2 | 0 | 0 | 2 | 0 | 0 | 0 | 0 | 0 | 0 |
+-| `scripts/reflect_consumer_inventory.py` | unclassified | 21 | 3 | 4 | 8 | 8 | 2 | 2 | 2 | 2 | 2 |
+-| `scripts/reflect_stage0a_replay.py` | unclassified | 24 | 21 | 4 | 8 | 0 | 0 | 0 | 0 | 0 | 0 |
+-| `src/superclaude/cli/swarm/commands.py` | unclassified | 1 | 0 | 0 | 0 | 2 | 0 | 0 | 0 | 0 | 0 |
+-| `src/superclaude/cli/swarm/models.py` | unclassified | 9 | 0 | 0 | 0 | 9 | 0 | 0 | 0 | 0 | 0 |
+-| `src/superclaude/cli/swarm/preflight.py` | unclassified | 7 | 0 | 0 | 0 | 8 | 0 | 0 | 0 | 0 | 0 |
+-| `src/superclaude/cli/swarm/reduce.py` | unclassified | 1 | 0 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 |
+-| `src/superclaude/commands/cli-portify.md` | unclassified | 1 | 0 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 |
+-| `src/superclaude/commands/impact.md` | unclassified | 1 | 0 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 |
+-| `src/superclaude/commands/reflect.md` | unclassified | 1 | 0 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 |
+-| `src/superclaude/contracts/__init__.py` | unclassified | 1 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 | 0 |
+-| `src/superclaude/core/WORKER-CONTRACT.md` | unclassified | 1 | 0 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 |
+-| `src/superclaude/skills/sc-adversarial-protocol/SKILL.md` | unclassified | 8 | 0 | 0 | 8 | 0 | 0 | 0 | 0 | 0 | 0 |
+-| `src/superclaude/skills/sc-bare-review/SKILL.md` | unclassified | 1 | 0 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 |
+-| `src/superclaude/skills/sc-brainstorm-protocol/SKILL.md` | unclassified | 10 | 0 | 0 | 7 | 3 | 0 | 0 | 0 | 0 | 0 |
+-| `src/superclaude/skills/sc-brainstorm-protocol/refs/handoff-routing.md` | unclassified | 3 | 0 | 0 | 3 | 0 | 0 | 0 | 0 | 0 | 0 |
+-| `src/superclaude/skills/sc-cli-portify-protocol/SKILL.md` | unclassified | 1 | 0 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 |
+-| `src/superclaude/skills/sc-cli-portify-protocol/refs/pipeline-spec.md` | unclassified | 1 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 | 0 |
+-| `src/superclaude/skills/sc-graph-protocol/SKILL.md` | unclassified | 1 | 0 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 |
+-| `src/superclaude/skills/sc-impact-protocol/SKILL.md` | unclassified | 1 | 0 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 |
+-| `src/superclaude/skills/sc-implement-protocol/refs/managed-workspace.md` | unclassified | 1 | 0 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 |
+-| `src/superclaude/skills/sc-implement-protocol/scripts/archive_workspace.py` | unclassified | 1 | 0 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 |
+-| `src/superclaude/skills/sc-init-lite-protocol/SKILL.md` | unclassified | 1 | 0 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 |
+-| `src/superclaude/skills/sc-reflect-protocol/refs/grader-extensions.md` | unclassified | 3 | 0 | 0 | 2 | 1 | 0 | 0 | 0 | 0 | 0 |
+-| `src/superclaude/skills/sc-reflect-protocol/refs/input-resolution.md` | unclassified | 4 | 0 | 0 | 0 | 0 | 4 | 0 | 0 | 0 | 0 |
+-| `src/superclaude/skills/sc-reflect-protocol/refs/reflection-rubric.md` | unclassified | 6 | 0 | 0 | 0 | 0 | 0 | 0 | 6 | 0 | 0 |
+-| `src/superclaude/skills/sc-release-split-protocol/SKILL.md` | unclassified | 6 | 0 | 0 | 6 | 0 | 0 | 0 | 0 | 0 | 0 |
+-| `src/superclaude/skills/sc-release-split-protocol/refs/adversarial-integration.md` | unclassified | 3 | 0 | 0 | 3 | 0 | 0 | 0 | 0 | 0 | 0 |
+-| `src/superclaude/skills/sc-tasklist-protocol/templates/phase-template.md` | unclassified | 2 | 0 | 2 | 2 | 0 | 0 | 0 | 0 | 0 | 0 |
+-| `src/superclaude/skills/sc-troubleshoot-protocol/refs/hardening-output-contract.md` | unclassified | 3 | 0 | 0 | 0 | 3 | 0 | 0 | 0 | 0 | 0 |
+-| `src/superclaude/skills/sc-workflow-protocol/refs/return-contract.md` | unclassified | 2 | 0 | 0 | 0 | 2 | 0 | 0 | 0 | 0 | 0 |
+-| `src/superclaude/skills/task/SKILL.md` | unclassified | 1 | 0 | 1 | 1 | 0 | 0 | 0 | 0 | 0 | 0 |
+-| `tests/cli/eval/test_workflow_vs_task_builder_companion.py` | unclassified | 2 | 0 | 0 | 0 | 2 | 0 | 0 | 0 | 0 | 0 |
+-| `tests/commands/test_workflow_command.py` | unclassified | 1 | 0 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 |
+-| `tests/review/test_reflect_consumer_inventory.py` | unclassified | 25 | 12 | 3 | 6 | 8 | 0 | 0 | 0 | 1 | 1 |
+-| `tests/review/test_reflect_stage0a_replay.py` | unclassified | 18 | 13 | 5 | 6 | 0 | 0 | 0 | 0 | 0 | 0 |
+-| `tests/skills/test_task_workspace_lifecycle.py` | unclassified | 2 | 0 | 0 | 0 | 2 | 0 | 0 | 0 | 0 | 0 |
+-| `tests/skills/test_task_workspace_smoke.py` | unclassified | 1 | 0 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 |
+-| `tests/skills/test_worker_contract.py` | unclassified | 1 | 0 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 |
+-| `tests/skills/test_workflow_archive.py` | unclassified | 3 | 0 | 0 | 0 | 3 | 0 | 0 | 0 | 0 | 0 |
+-| `tests/swarm/fixtures/bare_review_v1/golden/all-success/return-contract.yaml` | unclassified | 1 | 0 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 |
+-| `tests/swarm/fixtures/bare_review_v1/golden/partial-with-timeout/return-contract.yaml` | unclassified | 1 | 0 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 |
+-| `tests/swarm/fixtures/bare_review_v1/golden/salvage-promoted/return-contract.yaml` | unclassified | 1 | 0 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 |
+-| `tests/swarm/test_bare_review_golden_regen.py` | unclassified | 1 | 0 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 |
+-| `tests/swarm/test_commands_run.py` | unclassified | 2 | 0 | 0 | 0 | 2 | 0 | 0 | 0 | 0 | 0 |
+-| `tests/swarm/test_contract_emission.py` | unclassified | 2 | 0 | 0 | 0 | 2 | 0 | 0 | 0 | 0 | 0 |
+-| `tests/swarm/test_dispatch.py` | unclassified | 1 | 0 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 |
+-| `tests/swarm/test_dual_log_emission.py` | unclassified | 1 | 0 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 |
+-| `tests/swarm/test_force_relens.py` | unclassified | 2 | 0 | 0 | 0 | 2 | 0 | 0 | 0 | 0 | 0 |
+-| `tests/swarm/test_imm3_parallel.py` | unclassified | 1 | 0 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 |
+-| `tests/swarm/test_inv007_empty_pool.py` | unclassified | 1 | 0 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 |
+-| `tests/swarm/test_inv_suite.py` | unclassified | 1 | 0 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 |
+-| `tests/swarm/test_manifest.py` | unclassified | 8 | 0 | 0 | 0 | 8 | 0 | 0 | 0 | 0 | 0 |
+-| `tests/swarm/test_manifest_durable.py` | unclassified | 1 | 0 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 |
+-| `tests/swarm/test_manifest_emission.py` | unclassified | 3 | 0 | 0 | 0 | 3 | 0 | 0 | 0 | 0 | 0 |
+-| `tests/swarm/test_no_response_cache.py` | unclassified | 1 | 0 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 |
+-| `tests/swarm/test_parallel_executor_routing.py` | unclassified | 1 | 0 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 |
+-| `tests/swarm/test_preflight.py` | unclassified | 1 | 0 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 |
+-| `tests/swarm/test_reduce.py` | unclassified | 2 | 0 | 0 | 0 | 2 | 0 | 0 | 0 | 0 | 0 |
+-| `tests/swarm/test_resolvedlens.py` | unclassified | 1 | 0 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 |
+-| `tests/swarm/test_result_contract.py` | unclassified | 8 | 0 | 0 | 0 | 8 | 0 | 0 | 0 | 0 | 0 |
+-| `tests/swarm/test_resume_crash_recovery.py` | unclassified | 1 | 0 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 |
+-| `tests/swarm/test_resume_uses_manifest_lens.py` | unclassified | 1 | 0 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 |
+-| `tests/swarm/test_status_cmd.py` | unclassified | 1 | 0 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 |
+-| `tests/swarm/test_stub_transport.py` | unclassified | 1 | 0 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 |
+-| `tests/swarm/test_three_layer_artifacts.py` | unclassified | 1 | 0 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 |
+-| `tests/troubleshoot/backtest/catch_rate.py` | unclassified | 4 | 0 | 0 | 0 | 5 | 0 | 0 | 0 | 0 | 0 |
+-| `tests/troubleshoot/backtest/fixtures/catch_rate/all_catch_missing_witness.json` | unclassified | 1 | 0 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 |
+-| `tests/troubleshoot/backtest/fixtures/catch_rate/invalid_bad_status.json` | unclassified | 1 | 0 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 |
+-| `tests/troubleshoot/backtest/fixtures/catch_rate/invalid_bad_verdict.json` | unclassified | 1 | 0 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 |
+-| `tests/troubleshoot/backtest/fixtures/catch_rate/valid_full.json` | unclassified | 1 | 0 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 |
+-| `tests/troubleshoot/backtest/fixtures/catch_rate/valid_minimal.json` | unclassified | 1 | 0 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 |
+-| `tests/troubleshoot/backtest/schemas/catch_rate.schema.json` | unclassified | 2 | 0 | 0 | 0 | 2 | 0 | 0 | 0 | 0 | 0 |
+-| `tests/troubleshoot/backtest/test_backtest_status_separation.py` | unclassified | 3 | 0 | 0 | 0 | 3 | 0 | 0 | 0 | 0 | 0 |
+-| `tests/troubleshoot/backtest/test_catch_rate_aggregation.py` | unclassified | 4 | 0 | 0 | 0 | 4 | 0 | 0 | 0 | 0 | 0 |
+-| `tests/troubleshoot/backtest/test_catch_rate_schema.py` | unclassified | 14 | 0 | 0 | 0 | 14 | 0 | 0 | 0 | 0 | 0 |
+-| `tests/troubleshoot/test_hardening_output_contract.py` | unclassified | 1 | 0 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 |
+-| `docs/guides/roadmap-cli-tools-release-guide.md` | not in scope | 4 | 0 | 0 | 4 | 0 | 0 | 0 | 0 | 0 | 0 |
+-| `src/superclaude/cli/roadmap/envelope.py` | not in scope | 1 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 | 0 |
+-| `src/superclaude/cli/roadmap/gates.py` | not in scope | 7 | 0 | 0 | 7 | 0 | 0 | 0 | 0 | 0 | 0 |
+-| `src/superclaude/cli/roadmap/prompts.py` | not in scope | 5 | 0 | 0 | 5 | 0 | 0 | 0 | 0 | 0 | 0 |
+-| `src/superclaude/cli/roadmap/templates/debate.md.j2` | not in scope | 1 | 0 | 0 | 2 | 0 | 0 | 0 | 0 | 0 | 0 |
+-| `src/superclaude/cli/roadmap/templates/merge.md.j2` | not in scope | 1 | 0 | 0 | 2 | 0 | 0 | 0 | 0 | 0 | 0 |
+-| `src/superclaude/cli/roadmap/templates/tool_schemas/debate.schema.json` | not in scope | 3 | 0 | 0 | 5 | 0 | 0 | 0 | 0 | 0 | 0 |
+-| `src/superclaude/cli/roadmap/templates/tool_schemas/merge.schema.json` | not in scope | 1 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 | 0 |
+-| `src/superclaude/examples/roadmap_template.compressed.md` | not in scope | 1 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 | 0 |
+-| `src/superclaude/examples/roadmap_template.md` | not in scope | 1 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 | 0 |
+-| `src/superclaude/skills/sc-roadmap-protocol/SKILL.md` | not in scope | 17 | 0 | 0 | 19 | 0 | 0 | 0 | 0 | 0 | 0 |
+-| `src/superclaude/skills/sc-roadmap-protocol/refs/adversarial-integration.md` | not in scope | 13 | 0 | 0 | 15 | 0 | 0 | 0 | 0 | 0 | 0 |
+-| `src/superclaude/skills/sc-roadmap-protocol/refs/templates.md` | not in scope | 2 | 0 | 0 | 2 | 0 | 0 | 0 | 0 | 0 | 0 |
+-| `tests/roadmap/test_eval_gate_rejection.py` | not in scope | 2 | 0 | 0 | 3 | 0 | 0 | 0 | 0 | 0 | 0 |
+-| `tests/roadmap/test_executor.py` | not in scope | 1 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 | 0 |
+-| `tests/roadmap/test_gates_data.py` | not in scope | 23 | 0 | 0 | 23 | 0 | 0 | 0 | 0 | 0 | 0 |
+-| `tests/roadmap/test_generation_phantom_id_prevention.py` | not in scope | 1 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 | 0 |
+-| `tests/roadmap/test_integration_v5_pipeline.py` | not in scope | 1 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 | 0 |
+-| `tests/roadmap/test_pipeline_integration.py` | not in scope | 1 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 | 0 |
+-| `tests/roadmap/test_prompts.py` | not in scope | 1 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 | 0 |
+-| `tests/roadmap/test_threshold_registry.py` | not in scope | 2 | 0 | 0 | 2 | 0 | 0 | 0 | 0 | 0 | 0 |
+-| `tests/roadmap/test_tool_write_step_debate.py` | not in scope | 15 | 0 | 0 | 15 | 0 | 0 | 0 | 0 | 0 | 0 |
+-| `tests/roadmap/test_tool_write_step_merge.py` | not in scope | 1 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 | 0 |
+-| `tests/sc-roadmap/integration/test_adversarial_pipeline.py` | not in scope | 23 | 0 | 0 | 24 | 0 | 0 | 0 | 0 | 0 | 0 |
+-| `tests/sc-roadmap/integration/test_return_contract_routing.py` | not in scope | 61 | 0 | 0 | 62 | 0 | 0 | 0 | 0 | 0 | 0 |
+-| `tests/test_sc_roadmap_refactor.sh` | not in scope | 4 | 0 | 0 | 4 | 0 | 0 | 0 | 0 | 0 | 0 |
++Basis `named`: the role comes from the named lists. Basis `cue`: the role comes from the path or text cues
++of the script docstring; a cue-based `consumer` references the field, which is not proof it is read at runtime.
++
++| File | Role | Basis | Lines | `merge_method` | `adversarial_convergence_score` | `convergence_score` | `contract_version` | `t2_model_class_diversity` | `t2_vendor_diversity` | `calibrator_diversity` | `reviewer_cards` | `citations_dropped` |
++|---|---|---|---|---|---|---|---|---|---|---|---|---|
++| `.dev/eval-workspaces/sc-brainstorm/iterations/iteration-1/eval-code-add-rate-limiting/with_skill/outputs/return-contract.yaml` | producer | cue | 2 | 0 | 0 | 1 | 1 | 0 | 0 | 0 | 0 | 0 |
++| `.dev/eval-workspaces/sc-brainstorm/iterations/iteration-1/eval-incident-staging-deploy-3am/with_skill/outputs/return-contract.yaml` | producer | cue | 2 | 0 | 0 | 1 | 1 | 0 | 0 | 0 | 0 | 0 |
++| `.dev/eval-workspaces/sc-brainstorm/iterations/iteration-1/eval-product-ai-changelog/with_skill/outputs/return-contract.yaml` | producer | cue | 2 | 0 | 0 | 1 | 1 | 0 | 0 | 0 | 0 | 0 |
++| `.dev/eval-workspaces/sc-brainstorm/iterations/iteration-2/eval-architecture-graphql-public-api/with_skill/outputs/return-contract.yaml` | producer | cue | 2 | 0 | 0 | 1 | 1 | 0 | 0 | 0 | 0 | 0 |
++| `.dev/eval-workspaces/sc-brainstorm/iterations/iteration-2/eval-architecture-worker-pool-errors/with_skill/outputs/return-contract.yaml` | producer | cue | 2 | 0 | 0 | 1 | 1 | 0 | 0 | 0 | 0 | 0 |
++| `.dev/eval-workspaces/sc-brainstorm/iterations/iteration-2/eval-code-add-rate-limiting/with_skill/outputs/return-contract.yaml` | producer | cue | 2 | 0 | 0 | 1 | 1 | 0 | 0 | 0 | 0 | 0 |
++| `.dev/eval-workspaces/sc-brainstorm/iterations/iteration-2/eval-code-api-caching-tasklist/with_skill/outputs/return-contract.yaml` | producer | cue | 2 | 0 | 0 | 1 | 1 | 0 | 0 | 0 | 0 | 0 |
++| `.dev/eval-workspaces/sc-brainstorm/iterations/iteration-2/eval-code-duplicate-auth-blind/with_skill/outputs/return-contract.yaml` | producer | cue | 2 | 0 | 0 | 1 | 1 | 0 | 0 | 0 | 0 | 0 |
++| `.dev/eval-workspaces/sc-brainstorm/iterations/iteration-2/eval-code-feature-flag-task/with_skill/outputs/return-contract.yaml` | producer | cue | 2 | 0 | 0 | 1 | 1 | 0 | 0 | 0 | 0 | 0 |
++| `.dev/eval-workspaces/sc-brainstorm/iterations/iteration-2/eval-code-migrate-pytest-vitest/with_skill/outputs/return-contract.yaml` | producer | cue | 2 | 0 | 0 | 1 | 1 | 0 | 0 | 0 | 0 | 0 |
++| `.dev/eval-workspaces/sc-brainstorm/iterations/iteration-2/eval-incident-payment-webhook-q1/with_skill/outputs/return-contract.yaml` | producer | cue | 2 | 0 | 0 | 1 | 1 | 0 | 0 | 0 | 0 | 0 |
++| `.dev/eval-workspaces/sc-brainstorm/iterations/iteration-2/eval-incident-staging-deploy-3am/with_skill/outputs/return-contract.yaml` | producer | cue | 2 | 0 | 0 | 1 | 1 | 0 | 0 | 0 | 0 | 0 |
++| `.dev/eval-workspaces/sc-brainstorm/iterations/iteration-2/eval-process-contributor-onboarding/with_skill/outputs/return-contract.yaml` | producer | cue | 2 | 0 | 0 | 1 | 1 | 0 | 0 | 0 | 0 | 0 |
++| `.dev/eval-workspaces/sc-brainstorm/iterations/iteration-2/eval-product-ai-changelog/with_skill/outputs/return-contract.yaml` | producer | cue | 2 | 0 | 0 | 1 | 1 | 0 | 0 | 0 | 0 | 0 |
++| `.dev/eval-workspaces/sc-brainstorm/iterations/iteration-2/eval-research-bun-vs-node/with_skill/outputs/return-contract.yaml` | producer | cue | 2 | 0 | 0 | 1 | 1 | 0 | 0 | 0 | 0 | 0 |
++| `.dev/eval-workspaces/sc-brainstorm/live-runs/comparison-against-iteration-2.json` | producer | cue | 48 | 0 | 0 | 24 | 24 | 0 | 0 | 0 | 0 | 0 |
++| `.dev/eval-workspaces/sc-brainstorm/live-runs/eval-architecture-worker-pool-errors/return-contract.yaml` | producer | cue | 2 | 0 | 0 | 1 | 1 | 0 | 0 | 0 | 0 | 0 |
++| `.dev/eval-workspaces/sc-brainstorm/live-runs/eval-code-api-caching-tasklist/adversarial/return-contract.yaml` | producer | cue | 1 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 | 0 |
++| `.dev/eval-workspaces/sc-brainstorm/live-runs/eval-code-api-caching-tasklist/return-contract.yaml` | producer | cue | 2 | 0 | 0 | 1 | 1 | 0 | 0 | 0 | 0 | 0 |
++| `.dev/eval-workspaces/sc-brainstorm/live-runs/eval-code-duplicate-auth-blind/return-contract.yaml` | producer | cue | 2 | 0 | 0 | 1 | 1 | 0 | 0 | 0 | 0 | 0 |
++| `.dev/eval-workspaces/sc-brainstorm/live-runs/eval-code-feature-flag-task/return-contract.yaml` | producer | cue | 2 | 0 | 0 | 1 | 1 | 0 | 0 | 0 | 0 | 0 |
++| `.dev/eval-workspaces/sc-brainstorm/live-runs/eval-code-migrate-pytest-vitest/adversarial/return-contract.yaml` | producer | cue | 1 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 | 0 |
++| `.dev/eval-workspaces/sc-brainstorm/live-runs/eval-code-migrate-pytest-vitest/return-contract.yaml` | producer | cue | 2 | 0 | 0 | 1 | 1 | 0 | 0 | 0 | 0 | 0 |
++| `.dev/eval-workspaces/sc-brainstorm/live-runs/eval-incident-payment-webhook-q1/return-contract.yaml` | producer | cue | 2 | 0 | 0 | 1 | 1 | 0 | 0 | 0 | 0 | 0 |
++| `.dev/eval-workspaces/sc-brainstorm/live-runs/eval-process-contributor-onboarding/return-contract.yaml` | producer | cue | 2 | 0 | 0 | 1 | 1 | 0 | 0 | 0 | 0 | 0 |
++| `.dev/eval-workspaces/sc-brainstorm/live-runs/eval-research-bun-vs-node/return-contract.yaml` | producer | cue | 2 | 0 | 0 | 1 | 1 | 0 | 0 | 0 | 0 | 0 |
++| `.dev/eval-workspaces/sc-brainstorm/live-runs/probe-process-onboarding/adversarial/return-contract.yaml` | producer | cue | 1 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 | 0 |
++| `.dev/eval-workspaces/sc-brainstorm/live-runs/probe-process-onboarding/return-contract.yaml` | producer | cue | 2 | 0 | 0 | 1 | 1 | 0 | 0 | 0 | 0 | 0 |
++| `.dev/eval-workspaces/sc-reflect/SPEC.md` | producer | cue | 70 | 7 | 1 | 23 | 5 | 12 | 11 | 7 | 1 | 29 |
++| `.dev/eval-workspaces/sc-reflect/cases/promotion/promotion-blocked-by-null-convergence.yaml` | producer | cue | 5 | 0 | 0 | 4 | 0 | 0 | 0 | 0 | 0 | 1 |
++| `.dev/eval-workspaces/sc-reflect/cases/uc2-reachability-missing-inputs-skip/expected.yaml` | producer | cue | 1 | 0 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 |
++| `.dev/eval-workspaces/sc-reflect/cases/uc2-reachability-no-reachability-skip/expected.yaml` | producer | cue | 1 | 0 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 |
++| `.dev/eval-workspaces/sc-reflect/cases/uc2-reachability-proxy-oracle-unproven/expected.yaml` | producer | cue | 1 | 0 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 |
++| `docs/testing/v5.0.0/user/D12-reflect.md` | producer | cue | 16 | 4 | 4 | 7 | 4 | 4 | 4 | 0 | 0 | 0 |
++| `docs/testing/v5.0.0/user/D14-swarm.md` | producer | cue | 2 | 0 | 0 | 0 | 2 | 0 | 0 | 0 | 0 | 0 |
++| `scripts/reflect_stage0a_replay.py` | producer | cue | 24 | 21 | 4 | 8 | 0 | 0 | 0 | 0 | 0 | 0 |
++| `src/superclaude/cli/reflect/ensemble.py` | producer | named | 29 | 4 | 11 | 23 | 1 | 3 | 1 | 0 | 0 | 2 |
++| `src/superclaude/cli/swarm/commands.py` | producer | cue | 1 | 0 | 0 | 0 | 2 | 0 | 0 | 0 | 0 | 0 |
++| `src/superclaude/cli/swarm/models.py` | producer | cue | 9 | 0 | 0 | 0 | 9 | 0 | 0 | 0 | 0 | 0 |
++| `src/superclaude/cli/swarm/preflight.py` | producer | cue | 7 | 0 | 0 | 0 | 8 | 0 | 0 | 0 | 0 | 0 |
++| `src/superclaude/cli/swarm/reduce.py` | producer | cue | 1 | 0 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 |
++| `src/superclaude/skills/sc-adversarial-protocol/SKILL.md` | producer | cue | 8 | 0 | 0 | 8 | 0 | 0 | 0 | 0 | 0 | 0 |
++| `src/superclaude/skills/sc-bare-review/SKILL.md` | producer | cue | 1 | 0 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 |
++| `src/superclaude/skills/sc-brainstorm-protocol/SKILL.md` | producer | cue | 10 | 0 | 0 | 7 | 3 | 0 | 0 | 0 | 0 | 0 |
++| `src/superclaude/skills/sc-cli-portify-protocol/SKILL.md` | producer | cue | 1 | 0 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 |
++| `src/superclaude/skills/sc-reflect-protocol/SKILL.md` | producer | named | 71 | 12 | 1 | 20 | 6 | 9 | 10 | 7 | 1 | 29 |
++| `src/superclaude/skills/sc-reflect-protocol/refs/input-resolution.md` | producer | named | 4 | 0 | 0 | 0 | 0 | 4 | 0 | 0 | 0 | 0 |
++| `src/superclaude/skills/sc-reflect-protocol/refs/reflection-rubric.md` | producer | named | 6 | 0 | 0 | 0 | 0 | 0 | 0 | 6 | 0 | 0 |
++| `src/superclaude/skills/sc-reflect-protocol/refs/report-template.md` | producer | named | 7 | 0 | 0 | 0 | 2 | 0 | 0 | 0 | 0 | 6 |
++| `src/superclaude/skills/sc-release-split-protocol/SKILL.md` | producer | cue | 6 | 0 | 0 | 6 | 0 | 0 | 0 | 0 | 0 | 0 |
++| `src/superclaude/skills/sc-workflow-protocol/refs/return-contract.md` | producer | cue | 2 | 0 | 0 | 0 | 2 | 0 | 0 | 0 | 0 | 0 |
++| `scripts/eval_workflow_vs_task_builder.py` | validator | cue | 2 | 0 | 0 | 0 | 2 | 0 | 0 | 0 | 0 | 0 |
++| `scripts/reflect_consumer_inventory.py` | validator | cue | 28 | 3 | 7 | 11 | 8 | 4 | 2 | 4 | 2 | 2 |
++| `src/superclaude/cli/reflect/contract.py` | validator | named | 8 | 1 | 2 | 2 | 2 | 1 | 1 | 0 | 0 | 1 |
++| `src/superclaude/skills/sc-implement-protocol/scripts/archive_workspace.py` | validator | cue | 1 | 0 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 |
++| `.dev/eval-workspaces/cli-eval/workflow_vs_task_builder/corpus/detection-contract-setup/input.md` | consumer | cue | 1 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 | 0 |
++| `.dev/eval-workspaces/cli-eval/workflow_vs_task_builder/corpus/detection-contract-setup/sources/merged-requirements.md` | consumer | cue | 1 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 | 0 |
++| `.dev/eval-workspaces/sc-brainstorm/SPEC.md` | consumer | cue | 12 | 0 | 0 | 10 | 4 | 0 | 0 | 0 | 0 | 0 |
++| `.dev/eval-workspaces/sc-brainstorm/evals/evals.json` | consumer | cue | 2 | 0 | 0 | 1 | 1 | 0 | 0 | 0 | 0 | 0 |
++| `.dev/eval-workspaces/sc-brainstorm/iterations/iteration-1/benchmark.json` | consumer | cue | 12 | 0 | 0 | 6 | 6 | 0 | 0 | 0 | 0 | 0 |
++| `.dev/eval-workspaces/sc-brainstorm/iterations/iteration-1/eval-code-add-rate-limiting/eval_metadata.json` | consumer | cue | 2 | 0 | 0 | 2 | 2 | 0 | 0 | 0 | 0 | 0 |
++| `.dev/eval-workspaces/sc-brainstorm/iterations/iteration-1/eval-code-add-rate-limiting/with_skill/outputs/merged-requirements.md` | consumer | cue | 1 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 | 0 |
++| `.dev/eval-workspaces/sc-brainstorm/iterations/iteration-1/eval-code-add-rate-limiting/with_skill/run-1/grading.json` | consumer | cue | 4 | 0 | 0 | 2 | 2 | 0 | 0 | 0 | 0 | 0 |
++| `.dev/eval-workspaces/sc-brainstorm/iterations/iteration-1/eval-incident-staging-deploy-3am/eval_metadata.json` | consumer | cue | 2 | 0 | 0 | 2 | 2 | 0 | 0 | 0 | 0 | 0 |
++| `.dev/eval-workspaces/sc-brainstorm/iterations/iteration-1/eval-incident-staging-deploy-3am/with_skill/outputs/adversarial/debate-transcript.md` | consumer | cue | 1 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 | 0 |
++| `.dev/eval-workspaces/sc-brainstorm/iterations/iteration-1/eval-incident-staging-deploy-3am/with_skill/outputs/merged-requirements.md` | consumer | cue | 1 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 | 0 |
++| `.dev/eval-workspaces/sc-brainstorm/iterations/iteration-1/eval-incident-staging-deploy-3am/with_skill/run-1/grading.json` | consumer | cue | 4 | 0 | 0 | 2 | 2 | 0 | 0 | 0 | 0 | 0 |
++| `.dev/eval-workspaces/sc-brainstorm/iterations/iteration-1/eval-product-ai-changelog/eval_metadata.json` | consumer | cue | 2 | 0 | 0 | 2 | 2 | 0 | 0 | 0 | 0 | 0 |
++| `.dev/eval-workspaces/sc-brainstorm/iterations/iteration-1/eval-product-ai-changelog/with_skill/outputs/adversarial/debate-transcript.md` | consumer | cue | 1 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 | 0 |
++| `.dev/eval-workspaces/sc-brainstorm/iterations/iteration-1/eval-product-ai-changelog/with_skill/outputs/merged-requirements.md` | consumer | cue | 1 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 | 0 |
++| `.dev/eval-workspaces/sc-brainstorm/iterations/iteration-1/eval-product-ai-changelog/with_skill/run-1/grading.json` | consumer | cue | 4 | 0 | 0 | 2 | 2 | 0 | 0 | 0 | 0 | 0 |
++| `.dev/eval-workspaces/sc-brainstorm/iterations/iteration-1/quality-grading-v1rubric.json` | consumer | cue | 3 | 0 | 0 | 3 | 0 | 0 | 0 | 0 | 0 | 0 |
++| `.dev/eval-workspaces/sc-brainstorm/iterations/iteration-1/quality-grading.json` | consumer | cue | 3 | 0 | 0 | 3 | 0 | 0 | 0 | 0 | 0 | 0 |
++| `.dev/eval-workspaces/sc-brainstorm/iterations/iteration-1/review.html` | consumer | cue | 1 | 0 | 0 | 12 | 9 | 0 | 0 | 0 | 0 | 0 |
++| `.dev/eval-workspaces/sc-brainstorm/iterations/iteration-2/benchmark.json` | consumer | cue | 48 | 0 | 0 | 24 | 24 | 0 | 0 | 0 | 0 | 0 |
++| `.dev/eval-workspaces/sc-brainstorm/iterations/iteration-2/eval-architecture-graphql-public-api/eval_metadata.json` | consumer | cue | 4 | 0 | 0 | 2 | 2 | 0 | 0 | 0 | 0 | 0 |
++| `.dev/eval-workspaces/sc-brainstorm/iterations/iteration-2/eval-architecture-graphql-public-api/with_skill/grading.json` | consumer | cue | 4 | 0 | 0 | 2 | 2 | 0 | 0 | 0 | 0 | 0 |
++| `.dev/eval-workspaces/sc-brainstorm/iterations/iteration-2/eval-architecture-graphql-public-api/with_skill/outputs/adversarial/debate-transcript.md` | consumer | cue | 1 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 | 0 |
++| `.dev/eval-workspaces/sc-brainstorm/iterations/iteration-2/eval-architecture-graphql-public-api/with_skill/outputs/merged-requirements.md` | consumer | cue | 1 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 | 0 |
++| `.dev/eval-workspaces/sc-brainstorm/iterations/iteration-2/eval-architecture-graphql-public-api/with_skill/run-1/grading.json` | consumer | cue | 4 | 0 | 0 | 2 | 2 | 0 | 0 | 0 | 0 | 0 |
++| `.dev/eval-workspaces/sc-brainstorm/iterations/iteration-2/eval-architecture-worker-pool-errors/eval_metadata.json` | consumer | cue | 4 | 0 | 0 | 2 | 2 | 0 | 0 | 0 | 0 | 0 |
++| `.dev/eval-workspaces/sc-brainstorm/iterations/iteration-2/eval-architecture-worker-pool-errors/with_skill/grading.json` | consumer | cue | 4 | 0 | 0 | 2 | 2 | 0 | 0 | 0 | 0 | 0 |
++| `.dev/eval-workspaces/sc-brainstorm/iterations/iteration-2/eval-architecture-worker-pool-errors/with_skill/outputs/adversarial/debate-transcript.md` | consumer | cue | 1 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 | 0 |
++| `.dev/eval-workspaces/sc-brainstorm/iterations/iteration-2/eval-architecture-worker-pool-errors/with_skill/outputs/merged-requirements.md` | consumer | cue | 1 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 | 0 |
++| `.dev/eval-workspaces/sc-brainstorm/iterations/iteration-2/eval-architecture-worker-pool-errors/with_skill/run-1/grading.json` | consumer | cue | 4 | 0 | 0 | 2 | 2 | 0 | 0 | 0 | 0 | 0 |
++| `.dev/eval-workspaces/sc-brainstorm/iterations/iteration-2/eval-code-add-rate-limiting/eval_metadata.json` | consumer | cue | 2 | 0 | 0 | 2 | 2 | 0 | 0 | 0 | 0 | 0 |
++| `.dev/eval-workspaces/sc-brainstorm/iterations/iteration-2/eval-code-add-rate-limiting/with_skill/grading.json` | consumer | cue | 4 | 0 | 0 | 2 | 2 | 0 | 0 | 0 | 0 | 0 |
++| `.dev/eval-workspaces/sc-brainstorm/iterations/iteration-2/eval-code-add-rate-limiting/with_skill/outputs/adversarial/debate-transcript.md` | consumer | cue | 1 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 | 0 |
++| `.dev/eval-workspaces/sc-brainstorm/iterations/iteration-2/eval-code-add-rate-limiting/with_skill/outputs/merged-requirements.md` | consumer | cue | 1 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 | 0 |
++| `.dev/eval-workspaces/sc-brainstorm/iterations/iteration-2/eval-code-add-rate-limiting/with_skill/run-1/grading.json` | consumer | cue | 4 | 0 | 0 | 2 | 2 | 0 | 0 | 0 | 0 | 0 |
++| `.dev/eval-workspaces/sc-brainstorm/iterations/iteration-2/eval-code-api-caching-tasklist/eval_metadata.json` | consumer | cue | 4 | 0 | 0 | 2 | 2 | 0 | 0 | 0 | 0 | 0 |
++| `.dev/eval-workspaces/sc-brainstorm/iterations/iteration-2/eval-code-api-caching-tasklist/with_skill/grading.json` | consumer | cue | 4 | 0 | 0 | 2 | 2 | 0 | 0 | 0 | 0 | 0 |
++| `.dev/eval-workspaces/sc-brainstorm/iterations/iteration-2/eval-code-api-caching-tasklist/with_skill/outputs/adversarial/debate-transcript.md` | consumer | cue | 1 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 | 0 |
++| `.dev/eval-workspaces/sc-brainstorm/iterations/iteration-2/eval-code-api-caching-tasklist/with_skill/outputs/merged-requirements.md` | consumer | cue | 1 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 | 0 |
++| `.dev/eval-workspaces/sc-brainstorm/iterations/iteration-2/eval-code-api-caching-tasklist/with_skill/run-1/grading.json` | consumer | cue | 4 | 0 | 0 | 2 | 2 | 0 | 0 | 0 | 0 | 0 |
++| `.dev/eval-workspaces/sc-brainstorm/iterations/iteration-2/eval-code-duplicate-auth-blind/eval_metadata.json` | consumer | cue | 4 | 0 | 0 | 2 | 2 | 0 | 0 | 0 | 0 | 0 |
++| `.dev/eval-workspaces/sc-brainstorm/iterations/iteration-2/eval-code-duplicate-auth-blind/with_skill/grading.json` | consumer | cue | 4 | 0 | 0 | 2 | 2 | 0 | 0 | 0 | 0 | 0 |
++| `.dev/eval-workspaces/sc-brainstorm/iterations/iteration-2/eval-code-duplicate-auth-blind/with_skill/outputs/adversarial/debate-transcript.md` | consumer | cue | 1 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 | 0 |
++| `.dev/eval-workspaces/sc-brainstorm/iterations/iteration-2/eval-code-duplicate-auth-blind/with_skill/outputs/merged-requirements.md` | consumer | cue | 1 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 | 0 |
++| `.dev/eval-workspaces/sc-brainstorm/iterations/iteration-2/eval-code-duplicate-auth-blind/with_skill/run-1/grading.json` | consumer | cue | 4 | 0 | 0 | 2 | 2 | 0 | 0 | 0 | 0 | 0 |
++| `.dev/eval-workspaces/sc-brainstorm/iterations/iteration-2/eval-code-feature-flag-task/eval_metadata.json` | consumer | cue | 2 | 0 | 0 | 2 | 2 | 0 | 0 | 0 | 0 | 0 |
++| `.dev/eval-workspaces/sc-brainstorm/iterations/iteration-2/eval-code-feature-flag-task/with_skill/grading.json` | consumer | cue | 4 | 0 | 0 | 2 | 2 | 0 | 0 | 0 | 0 | 0 |
++| `.dev/eval-workspaces/sc-brainstorm/iterations/iteration-2/eval-code-feature-flag-task/with_skill/outputs/merged-requirements.md` | consumer | cue | 1 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 | 0 |
++| `.dev/eval-workspaces/sc-brainstorm/iterations/iteration-2/eval-code-feature-flag-task/with_skill/run-1/grading.json` | consumer | cue | 4 | 0 | 0 | 2 | 2 | 0 | 0 | 0 | 0 | 0 |
++| `.dev/eval-workspaces/sc-brainstorm/iterations/iteration-2/eval-code-migrate-pytest-vitest/eval_metadata.json` | consumer | cue | 4 | 0 | 0 | 2 | 2 | 0 | 0 | 0 | 0 | 0 |
++| `.dev/eval-workspaces/sc-brainstorm/iterations/iteration-2/eval-code-migrate-pytest-vitest/with_skill/grading.json` | consumer | cue | 4 | 0 | 0 | 2 | 2 | 0 | 0 | 0 | 0 | 0 |
++| `.dev/eval-workspaces/sc-brainstorm/iterations/iteration-2/eval-code-migrate-pytest-vitest/with_skill/outputs/adversarial/debate-transcript.md` | consumer | cue | 1 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 | 0 |
++| `.dev/eval-workspaces/sc-brainstorm/iterations/iteration-2/eval-code-migrate-pytest-vitest/with_skill/outputs/merged-requirements.md` | consumer | cue | 1 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 | 0 |
++| `.dev/eval-workspaces/sc-brainstorm/iterations/iteration-2/eval-code-migrate-pytest-vitest/with_skill/run-1/grading.json` | consumer | cue | 4 | 0 | 0 | 2 | 2 | 0 | 0 | 0 | 0 | 0 |
++| `.dev/eval-workspaces/sc-brainstorm/iterations/iteration-2/eval-incident-payment-webhook-q1/eval_metadata.json` | consumer | cue | 4 | 0 | 0 | 2 | 2 | 0 | 0 | 0 | 0 | 0 |
++| `.dev/eval-workspaces/sc-brainstorm/iterations/iteration-2/eval-incident-payment-webhook-q1/with_skill/grading.json` | consumer | cue | 4 | 0 | 0 | 2 | 2 | 0 | 0 | 0 | 0 | 0 |
++| `.dev/eval-workspaces/sc-brainstorm/iterations/iteration-2/eval-incident-payment-webhook-q1/with_skill/outputs/adversarial/debate-transcript.md` | consumer | cue | 1 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 | 0 |
++| `.dev/eval-workspaces/sc-brainstorm/iterations/iteration-2/eval-incident-payment-webhook-q1/with_skill/outputs/merged-requirements.md` | consumer | cue | 1 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 | 0 |
++| `.dev/eval-workspaces/sc-brainstorm/iterations/iteration-2/eval-incident-payment-webhook-q1/with_skill/run-1/grading.json` | consumer | cue | 4 | 0 | 0 | 2 | 2 | 0 | 0 | 0 | 0 | 0 |
++| `.dev/eval-workspaces/sc-brainstorm/iterations/iteration-2/eval-incident-staging-deploy-3am/eval_metadata.json` | consumer | cue | 2 | 0 | 0 | 2 | 2 | 0 | 0 | 0 | 0 | 0 |
++| `.dev/eval-workspaces/sc-brainstorm/iterations/iteration-2/eval-incident-staging-deploy-3am/with_skill/grading.json` | consumer | cue | 4 | 0 | 0 | 2 | 2 | 0 | 0 | 0 | 0 | 0 |
++| `.dev/eval-workspaces/sc-brainstorm/iterations/iteration-2/eval-incident-staging-deploy-3am/with_skill/outputs/merged-requirements.md` | consumer | cue | 1 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 | 0 |
++| `.dev/eval-workspaces/sc-brainstorm/iterations/iteration-2/eval-incident-staging-deploy-3am/with_skill/run-1/grading.json` | consumer | cue | 4 | 0 | 0 | 2 | 2 | 0 | 0 | 0 | 0 | 0 |
++| `.dev/eval-workspaces/sc-brainstorm/iterations/iteration-2/eval-process-contributor-onboarding/eval_metadata.json` | consumer | cue | 4 | 0 | 0 | 2 | 2 | 0 | 0 | 0 | 0 | 0 |
++| `.dev/eval-workspaces/sc-brainstorm/iterations/iteration-2/eval-process-contributor-onboarding/with_skill/grading.json` | consumer | cue | 4 | 0 | 0 | 2 | 2 | 0 | 0 | 0 | 0 | 0 |
++| `.dev/eval-workspaces/sc-brainstorm/iterations/iteration-2/eval-process-contributor-onboarding/with_skill/outputs/adversarial/debate-transcript.md` | consumer | cue | 1 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 | 0 |
++| `.dev/eval-workspaces/sc-brainstorm/iterations/iteration-2/eval-process-contributor-onboarding/with_skill/outputs/merged-requirements.md` | consumer | cue | 1 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 | 0 |
++| `.dev/eval-workspaces/sc-brainstorm/iterations/iteration-2/eval-process-contributor-onboarding/with_skill/run-1/grading.json` | consumer | cue | 4 | 0 | 0 | 2 | 2 | 0 | 0 | 0 | 0 | 0 |
++| `.dev/eval-workspaces/sc-brainstorm/iterations/iteration-2/eval-product-ai-changelog/eval_metadata.json` | consumer | cue | 2 | 0 | 0 | 2 | 2 | 0 | 0 | 0 | 0 | 0 |
++| `.dev/eval-workspaces/sc-brainstorm/iterations/iteration-2/eval-product-ai-changelog/with_skill/grading.json` | consumer | cue | 4 | 0 | 0 | 2 | 2 | 0 | 0 | 0 | 0 | 0 |
++| `.dev/eval-workspaces/sc-brainstorm/iterations/iteration-2/eval-product-ai-changelog/with_skill/outputs/adversarial/debate-transcript.md` | consumer | cue | 1 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 | 0 |
++| `.dev/eval-workspaces/sc-brainstorm/iterations/iteration-2/eval-product-ai-changelog/with_skill/outputs/merged-requirements.md` | consumer | cue | 1 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 | 0 |
++| `.dev/eval-workspaces/sc-brainstorm/iterations/iteration-2/eval-product-ai-changelog/with_skill/run-1/grading.json` | consumer | cue | 4 | 0 | 0 | 2 | 2 | 0 | 0 | 0 | 0 | 0 |
++| `.dev/eval-workspaces/sc-brainstorm/iterations/iteration-2/eval-research-bun-vs-node/eval_metadata.json` | consumer | cue | 4 | 0 | 0 | 2 | 2 | 0 | 0 | 0 | 0 | 0 |
++| `.dev/eval-workspaces/sc-brainstorm/iterations/iteration-2/eval-research-bun-vs-node/with_skill/grading.json` | consumer | cue | 4 | 0 | 0 | 2 | 2 | 0 | 0 | 0 | 0 | 0 |
++| `.dev/eval-workspaces/sc-brainstorm/iterations/iteration-2/eval-research-bun-vs-node/with_skill/outputs/adversarial/debate-transcript.md` | consumer | cue | 1 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 | 0 |
++| `.dev/eval-workspaces/sc-brainstorm/iterations/iteration-2/eval-research-bun-vs-node/with_skill/outputs/merged-requirements.md` | consumer | cue | 1 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 | 0 |
++| `.dev/eval-workspaces/sc-brainstorm/iterations/iteration-2/eval-research-bun-vs-node/with_skill/run-1/grading.json` | consumer | cue | 4 | 0 | 0 | 2 | 2 | 0 | 0 | 0 | 0 | 0 |
++| `.dev/eval-workspaces/sc-brainstorm/iterations/iteration-2/quality-grading-v1rubric.json` | consumer | cue | 2 | 0 | 0 | 2 | 0 | 0 | 0 | 0 | 0 | 0 |
++| `.dev/eval-workspaces/sc-brainstorm/iterations/iteration-2/review.html` | consumer | cue | 1 | 0 | 0 | 24 | 24 | 0 | 0 | 0 | 0 | 0 |
++| `.dev/eval-workspaces/sc-brainstorm/iterations/iteration-2/strict-blind-inputs/case-changelog-output-alpha.md` | consumer | cue | 1 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 | 0 |
++| `.dev/eval-workspaces/sc-brainstorm/iterations/iteration-2/strict-blind-inputs/case-incident-output-alpha.md` | consumer | cue | 1 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 | 0 |
++| `.dev/eval-workspaces/sc-brainstorm/iterations/iteration-2/strict-blind-inputs/case-rate-limit-output-alpha.md` | consumer | cue | 1 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 | 0 |
++| `.dev/eval-workspaces/sc-brainstorm/live-runs/eval-architecture-worker-pool-errors/merged-requirements.md` | consumer | cue | 1 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 | 0 |
++| `.dev/eval-workspaces/sc-brainstorm/live-runs/eval-code-api-caching-tasklist/merged-requirements.md` | consumer | cue | 2 | 0 | 0 | 1 | 1 | 0 | 0 | 0 | 0 | 0 |
++| `.dev/eval-workspaces/sc-brainstorm/live-runs/eval-code-duplicate-auth-blind/adversarial/debate-transcript.md` | consumer | cue | 1 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 | 0 |
++| `.dev/eval-workspaces/sc-brainstorm/live-runs/eval-code-duplicate-auth-blind/adversarial/merge-log.md` | consumer | cue | 1 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 | 0 |
++| `.dev/eval-workspaces/sc-brainstorm/live-runs/eval-code-duplicate-auth-blind/adversarial/merged-output.md` | consumer | cue | 1 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 | 0 |
++| `.dev/eval-workspaces/sc-brainstorm/live-runs/eval-code-duplicate-auth-blind/merged-requirements.md` | consumer | cue | 1 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 | 0 |
++| `.dev/eval-workspaces/sc-brainstorm/live-runs/eval-code-feature-flag-task/adversarial/merged-output.md` | consumer | cue | 1 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 | 0 |
++| `.dev/eval-workspaces/sc-brainstorm/live-runs/eval-code-feature-flag-task/merged-requirements.md` | consumer | cue | 1 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 | 0 |
++| `.dev/eval-workspaces/sc-brainstorm/live-runs/eval-code-feature-flag-task/qualitative-comparison.json` | consumer | cue | 2 | 0 | 0 | 2 | 0 | 0 | 0 | 0 | 0 | 0 |
++| `.dev/eval-workspaces/sc-brainstorm/live-runs/eval-code-feature-flag-task/qualitative-comparison.md` | consumer | cue | 2 | 0 | 0 | 2 | 0 | 0 | 0 | 0 | 0 | 0 |
++| `.dev/eval-workspaces/sc-brainstorm/live-runs/eval-code-migrate-pytest-vitest/adversarial/merged-output.md` | consumer | cue | 1 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 | 0 |
++| `.dev/eval-workspaces/sc-brainstorm/live-runs/eval-code-migrate-pytest-vitest/merged-requirements.md` | consumer | cue | 1 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 | 0 |
++| `.dev/eval-workspaces/sc-brainstorm/live-runs/eval-incident-payment-webhook-q1/merged-requirements.md` | consumer | cue | 1 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 | 0 |
++| `.dev/eval-workspaces/sc-brainstorm/live-runs/eval-incident-payment-webhook-q1/qualitative-comparison.json` | consumer | cue | 1 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 | 0 |
++| `.dev/eval-workspaces/sc-brainstorm/live-runs/eval-process-contributor-onboarding/adversarial/merge-log.md` | consumer | cue | 1 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 | 0 |
++| `.dev/eval-workspaces/sc-brainstorm/live-runs/eval-process-contributor-onboarding/adversarial/merged-output.md` | consumer | cue | 1 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 | 0 |
++| `.dev/eval-workspaces/sc-brainstorm/live-runs/eval-process-contributor-onboarding/merged-requirements.md` | consumer | cue | 1 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 | 0 |
++| `.dev/eval-workspaces/sc-brainstorm/live-runs/eval-research-bun-vs-node/adversarial/merge-log.md` | consumer | cue | 1 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 | 0 |
++| `.dev/eval-workspaces/sc-brainstorm/live-runs/eval-research-bun-vs-node/merged-requirements.md` | consumer | cue | 1 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 | 0 |
++| `.dev/eval-workspaces/sc-brainstorm/live-runs/qualitative-comparison-summary.json` | consumer | cue | 1 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 | 0 |
++| `.dev/eval-workspaces/sc-brainstorm/live-runs/qualitative-comparison-summary.md` | consumer | cue | 1 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 | 0 |
++| `.dev/eval-workspaces/sc-brainstorm/live-runs/sc-brainstorm-remediation-tasklist.md` | consumer | cue | 2 | 0 | 0 | 2 | 0 | 0 | 0 | 0 | 0 | 0 |
++| `.dev/eval-workspaces/sc-reflect/cases/falsifier-suite/README.md` | consumer | cue | 2 | 0 | 0 | 2 | 0 | 0 | 0 | 0 | 0 | 0 |
++| `.dev/eval-workspaces/sc-reflect/cases/falsifier-suite/T2-converges-on-wrong.yaml` | consumer | cue | 2 | 0 | 0 | 2 | 0 | 0 | 0 | 0 | 0 | 0 |
++| `.dev/eval-workspaces/sc-reflect/cases/falsifier-suite/T2-judge-class-collision.yaml` | consumer | cue | 1 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 | 0 |
++| `.dev/eval-workspaces/sc-reflect/cases/promotion/promotion-blocked-by-drift.yaml` | consumer | cue | 1 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1 |
++| `.dev/eval-workspaces/sc-reflect/cases/promotion/promotion-blocked-by-frontmatter-mismatch.yaml` | consumer | cue | 1 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1 |
++| `.dev/eval-workspaces/sc-reflect/cases/promotion/promotion-blocked-by-frontmatter-missing.yaml` | consumer | cue | 1 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1 |
++| `.dev/eval-workspaces/sc-reflect/cases/promotion/promotion-blocked-by-grounding-gaps-empty-list.yaml` | consumer | cue | 1 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1 |
++| `.dev/eval-workspaces/sc-reflect/cases/promotion/promotion-citation-revalidation-after-remediation.yaml` | consumer | cue | 3 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 4 |
++| `.dev/eval-workspaces/sc-reflect/cases/promotion/promotion-collision-identical.yaml` | consumer | cue | 1 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1 |
++| `.dev/eval-workspaces/sc-reflect/cases/promotion/promotion-collision-non-identical.yaml` | consumer | cue | 1 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1 |
++| `.dev/eval-workspaces/sc-reflect/cases/promotion/promotion-cross-fs-crash-recovery.yaml` | consumer | cue | 1 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1 |
++| `.dev/eval-workspaces/sc-reflect/cases/promotion/promotion-dry-run.yaml` | consumer | cue | 1 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1 |
++| `.dev/eval-workspaces/sc-reflect/cases/promotion/promotion-log-pre-write-survives-crash.yaml` | consumer | cue | 1 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1 |
++| `.dev/eval-workspaces/sc-reflect/cases/promotion/promotion-promote-anyway-on-partial.yaml` | consumer | cue | 1 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1 |
++| `.dev/eval-workspaces/sc-reflect/cases/promotion/promotion-sprint-release-pass.yaml` | consumer | cue | 1 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1 |
++| `.dev/eval-workspaces/sc-reflect/cases/promotion/promotion-task-strict-pass.yaml` | consumer | cue | 1 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1 |
++| `.dev/eval-workspaces/sc-reflect/cases/serena-citation-freshness/expected.yaml` | consumer | cue | 1 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1 |
++| `.dev/eval-workspaces/sc-reflect/evals/evals.json` | consumer | cue | 3 | 0 | 0 | 1 | 1 | 0 | 0 | 0 | 0 | 1 |
++| `.dev/eval-workspaces/sc-release-split-protocol/fidelity-stress/event-processing/outputs/split-proposal-final.md` | consumer | cue | 1 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 | 0 |
++| `.dev/eval-workspaces/sc-release-split-protocol/fidelity-stress/gate-enforcement/outputs/split-proposal-final.md` | consumer | cue | 1 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 | 0 |
++| `.dev/eval-workspaces/sc-release-split-protocol/fidelity-stress/state-machine/outputs/split-proposal-final.md` | consumer | cue | 1 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 | 0 |
++| `.dev/eval-workspaces/sc-release-split-protocol/iteration-1/ambiguous-large-plugin-system/with_skill/grading.json` | consumer | cue | 1 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 | 0 |
++| `.dev/eval-workspaces/sc-release-split-protocol/iteration-1/ambiguous-large-plugin-system/with_skill/outputs/split-proposal-final.md` | consumer | cue | 1 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 | 0 |
++| `.dev/eval-workspaces/sc-release-split-protocol/iteration-1/eval-review.html` | consumer | cue | 1 | 0 | 0 | 8 | 0 | 0 | 0 | 0 | 0 | 0 |
++| `.dev/eval-workspaces/sc-release-split-protocol/iteration-1/learning-loop-observability/with_skill/grading.json` | consumer | cue | 1 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 | 0 |
++| `.dev/eval-workspaces/sc-release-split-protocol/iteration-1/learning-loop-observability/with_skill/outputs/split-proposal-final.md` | consumer | cue | 1 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 | 0 |
++| `.dev/eval-workspaces/sc-release-split-protocol/iteration-1/nosplit-bugfix-hardening/with_skill/grading.json` | consumer | cue | 2 | 0 | 0 | 2 | 0 | 0 | 0 | 0 | 0 | 0 |
++| `.dev/eval-workspaces/sc-release-split-protocol/iteration-1/nosplit-bugfix-hardening/with_skill/outputs/split-proposal-final.md` | consumer | cue | 1 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 | 0 |
++| `.dev/eval-workspaces/sc-release-split-protocol/iteration-1/splittable-auth-system/with_skill/outputs/split-proposal-final.md` | consumer | cue | 1 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 | 0 |
++| `docs/developer-guide/SuperClaude-Developer-Guide-Commands-Skills-Agents.md` | consumer | cue | 3 | 0 | 0 | 2 | 1 | 0 | 0 | 0 | 0 | 0 |
++| `docs/generated/sprint-cli/04-gates-validation.md` | consumer | cue | 1 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 | 0 |
++| `docs/guides/reflect-cli-tools-guide.md` | consumer | cue | 1 | 1 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 |
++| `docs/swarm/command-reference.md` | consumer | cue | 1 | 0 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 |
++| `docs/swarm/oq-resolutions.md` | consumer | cue | 2 | 0 | 0 | 0 | 2 | 0 | 0 | 0 | 0 | 0 |
++| `docs/testing/v5.0.0/user/D06-plan-implement-review-cap.md` | consumer | cue | 2 | 0 | 0 | 0 | 2 | 0 | 0 | 0 | 0 | 0 |
++| `scripts/fidelity-check-setup.sh` | consumer | cue | 2 | 0 | 0 | 2 | 0 | 0 | 0 | 0 | 0 | 0 |
++| `src/superclaude/commands/cli-portify.md` | consumer | cue | 1 | 0 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 |
++| `src/superclaude/commands/impact.md` | consumer | cue | 1 | 0 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 |
++| `src/superclaude/commands/reflect.md` | consumer | cue | 1 | 0 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 |
++| `src/superclaude/contracts/__init__.py` | consumer | cue | 1 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 | 0 |
++| `src/superclaude/core/WORKER-CONTRACT.md` | consumer | cue | 1 | 0 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 |
++| `src/superclaude/skills/sc-brainstorm-protocol/refs/handoff-routing.md` | consumer | cue | 3 | 0 | 0 | 3 | 0 | 0 | 0 | 0 | 0 | 0 |
++| `src/superclaude/skills/sc-cli-portify-protocol/refs/pipeline-spec.md` | consumer | cue | 1 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 | 0 |
++| `src/superclaude/skills/sc-graph-protocol/SKILL.md` | consumer | cue | 1 | 0 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 |
++| `src/superclaude/skills/sc-impact-protocol/SKILL.md` | consumer | cue | 1 | 0 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 |
++| `src/superclaude/skills/sc-implement-protocol/refs/managed-workspace.md` | consumer | cue | 1 | 0 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 |
++| `src/superclaude/skills/sc-init-lite-protocol/SKILL.md` | consumer | cue | 1 | 0 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 |
++| `src/superclaude/skills/sc-reflect-protocol/refs/grader-extensions.md` | consumer | cue | 3 | 0 | 0 | 2 | 1 | 0 | 0 | 0 | 0 | 0 |
++| `src/superclaude/skills/sc-reflect-protocol/refs/ops-integration.md` | consumer | named | 7 | 1 | 1 | 3 | 0 | 0 | 3 | 0 | 0 | 0 |
++| `src/superclaude/skills/sc-reflect-protocol/refs/promotion-adapters.md` | consumer | named | 2 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 | 1 |
++| `src/superclaude/skills/sc-release-split-protocol/refs/adversarial-integration.md` | consumer | cue | 3 | 0 | 0 | 3 | 0 | 0 | 0 | 0 | 0 | 0 |
++| `src/superclaude/skills/sc-tasklist-protocol/SKILL.md` | consumer | named | 2 | 0 | 2 | 2 | 0 | 0 | 0 | 0 | 0 | 0 |
++| `src/superclaude/skills/sc-tasklist-protocol/templates/phase-template.md` | consumer | named | 2 | 0 | 2 | 2 | 0 | 0 | 0 | 0 | 0 | 0 |
++| `src/superclaude/skills/sc-troubleshoot-protocol/SKILL.md` | consumer | named | 1 | 0 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 |
++| `src/superclaude/skills/sc-troubleshoot-protocol/refs/hardening-output-contract.md` | consumer | cue | 3 | 0 | 0 | 0 | 3 | 0 | 0 | 0 | 0 | 0 |
++| `src/superclaude/skills/task-builder/SKILL.md` | consumer | named | 4 | 8 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 |
++| `src/superclaude/skills/task/SKILL.md` | consumer | named | 1 | 0 | 1 | 1 | 0 | 0 | 0 | 0 | 0 | 0 |
++| `tests/cli/eval/test_workflow_vs_task_builder_companion.py` | consumer | cue | 2 | 0 | 0 | 0 | 2 | 0 | 0 | 0 | 0 | 0 |
++| `tests/cli/reflect/fixtures/autofixable_drift.yaml` | consumer | named | 7 | 1 | 1 | 1 | 1 | 1 | 1 | 0 | 0 | 2 |
++| `tests/cli/reflect/fixtures/autofixable_drift_both.yaml` | consumer | named | 7 | 1 | 1 | 1 | 1 | 1 | 1 | 0 | 0 | 2 |
++| `tests/cli/reflect/fixtures/autofixable_drift_no_path.yaml` | consumer | named | 7 | 1 | 1 | 1 | 1 | 1 | 1 | 0 | 0 | 2 |
++| `tests/cli/reflect/fixtures/autofixable_drift_plan.yaml` | consumer | named | 7 | 1 | 1 | 1 | 1 | 1 | 1 | 0 | 0 | 2 |
++| `tests/cli/reflect/fixtures/blocked_unknown_major.yaml` | consumer | named | 7 | 1 | 1 | 1 | 1 | 1 | 1 | 0 | 0 | 2 |
++| `tests/cli/reflect/fixtures/blocked_with_drift.yaml` | consumer | named | 7 | 1 | 1 | 1 | 1 | 1 | 1 | 0 | 0 | 2 |
++| `tests/cli/reflect/fixtures/degraded_graph_absent.yaml` | consumer | named | 7 | 1 | 1 | 1 | 1 | 1 | 1 | 0 | 0 | 2 |
++| `tests/cli/reflect/fixtures/degraded_reviewer_shortfall.yaml` | consumer | named | 7 | 1 | 1 | 1 | 1 | 1 | 1 | 0 | 0 | 2 |
++| `tests/cli/reflect/fixtures/degraded_single_vendor.yaml` | consumer | named | 7 | 1 | 1 | 1 | 1 | 1 | 1 | 0 | 0 | 2 |
++| `tests/cli/reflect/fixtures/degraded_tier1.yaml` | consumer | named | 7 | 1 | 1 | 1 | 1 | 1 | 1 | 0 | 0 | 2 |
++| `tests/cli/reflect/fixtures/degraded_with_drift.yaml` | consumer | named | 7 | 1 | 1 | 1 | 1 | 1 | 1 | 0 | 0 | 2 |
++| `tests/cli/reflect/fixtures/halted_regression.yaml` | consumer | named | 7 | 1 | 1 | 1 | 1 | 1 | 1 | 0 | 0 | 2 |
++| `tests/cli/reflect/fixtures/human_required_needs_decision.yaml` | consumer | named | 7 | 1 | 1 | 1 | 1 | 1 | 1 | 0 | 0 | 2 |
++| `tests/cli/reflect/fixtures/pass.yaml` | consumer | named | 7 | 1 | 1 | 1 | 1 | 1 | 1 | 0 | 0 | 2 |
++| `tests/cli/reflect/fixtures/pass_no_t2_fallback.yaml` | consumer | named | 7 | 1 | 1 | 1 | 1 | 1 | 1 | 0 | 0 | 2 |
++| `tests/cli/reflect/fixtures/pass_with_t2_fallback.yaml` | consumer | named | 7 | 1 | 1 | 1 | 1 | 1 | 1 | 0 | 0 | 2 |
++| `tests/cli/reflect/fixtures/postfix_pass.yaml` | consumer | named | 7 | 1 | 1 | 1 | 1 | 1 | 1 | 0 | 0 | 2 |
++| `tests/cli/reflect/fixtures/reachability_1_7_0_gate_ran.yaml` | consumer | named | 7 | 1 | 1 | 1 | 1 | 1 | 1 | 0 | 0 | 2 |
++| `tests/cli/reflect/fixtures/reachability_proxy_oracle_unproven.yaml` | consumer | named | 7 | 1 | 1 | 1 | 1 | 1 | 1 | 0 | 0 | 2 |
++| `tests/cli/reflect/fixtures/reachability_semantic_fallback_advisory.yaml` | consumer | named | 7 | 1 | 1 | 1 | 1 | 1 | 1 | 0 | 0 | 2 |
++| `tests/cli/reflect/fixtures/reachability_skip_no_reachability.yaml` | consumer | named | 7 | 1 | 1 | 1 | 1 | 1 | 1 | 0 | 0 | 2 |
++| `tests/cli/reflect/fixtures/reachability_skip_spec_absent.yaml` | consumer | named | 7 | 1 | 1 | 1 | 1 | 1 | 1 | 0 | 0 | 2 |
++| `tests/cli/reflect/fixtures/reachability_unwired_surface_regression.yaml` | consumer | named | 7 | 1 | 1 | 1 | 1 | 1 | 1 | 0 | 0 | 2 |
++| `tests/cli/reflect/fixtures/tolerant_unknown_field.yaml` | consumer | named | 7 | 1 | 1 | 1 | 1 | 1 | 1 | 0 | 0 | 2 |
++| `tests/cli/reflect/fixtures/vacuous_no_verify.yaml` | consumer | named | 7 | 1 | 1 | 1 | 1 | 1 | 1 | 0 | 0 | 2 |
++| `tests/cli/reflect/test_classify_fix.py` | consumer | named | 1 | 0 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 |
++| `tests/cli/reflect/test_contract_fallback_metadata.py` | consumer | named | 4 | 2 | 2 | 2 | 0 | 0 | 0 | 0 | 0 | 0 |
++| `tests/cli/reflect/test_ensemble_fallback_engage.py` | consumer | named | 1 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 | 0 |
++| `tests/cli/reflect/test_ensemble_fallback_stub.py` | consumer | named | 4 | 2 | 2 | 2 | 0 | 0 | 0 | 0 | 0 | 0 |
++| `tests/cli/reflect/test_ensemble_stub_integration.py` | consumer | named | 27 | 10 | 2 | 6 | 2 | 8 | 1 | 0 | 0 | 0 |
++| `tests/cli/reflect/test_ensemble_unit.py` | consumer | named | 26 | 2 | 12 | 22 | 0 | 2 | 1 | 0 | 0 | 0 |
++| `tests/cli/reflect/test_verdict_mapping.py` | consumer | named | 9 | 2 | 3 | 3 | 1 | 0 | 0 | 0 | 0 | 3 |
++| `tests/commands/test_workflow_command.py` | consumer | cue | 1 | 0 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 |
++| `tests/review/test_reflect_consumer_inventory.py` | consumer | cue | 54 | 30 | 5 | 10 | 9 | 0 | 1 | 1 | 4 | 3 |
++| `tests/review/test_reflect_stage0a_replay.py` | consumer | cue | 18 | 13 | 5 | 6 | 0 | 0 | 0 | 0 | 0 | 0 |
++| `tests/skills/test_task_workspace_lifecycle.py` | consumer | cue | 2 | 0 | 0 | 0 | 2 | 0 | 0 | 0 | 0 | 0 |
++| `tests/skills/test_task_workspace_smoke.py` | consumer | cue | 1 | 0 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 |
++| `tests/skills/test_worker_contract.py` | consumer | cue | 1 | 0 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 |
++| `tests/skills/test_workflow_archive.py` | consumer | cue | 3 | 0 | 0 | 0 | 3 | 0 | 0 | 0 | 0 | 0 |
++| `tests/swarm/fixtures/bare_review_v1/golden/all-success/return-contract.yaml` | consumer | cue | 1 | 0 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 |
++| `tests/swarm/fixtures/bare_review_v1/golden/partial-with-timeout/return-contract.yaml` | consumer | cue | 1 | 0 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 |
++| `tests/swarm/fixtures/bare_review_v1/golden/salvage-promoted/return-contract.yaml` | consumer | cue | 1 | 0 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 |
++| `tests/swarm/test_bare_review_golden_regen.py` | consumer | cue | 1 | 0 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 |
++| `tests/swarm/test_commands_run.py` | consumer | cue | 2 | 0 | 0 | 0 | 2 | 0 | 0 | 0 | 0 | 0 |
++| `tests/swarm/test_contract_emission.py` | consumer | cue | 2 | 0 | 0 | 0 | 2 | 0 | 0 | 0 | 0 | 0 |
++| `tests/swarm/test_dispatch.py` | consumer | cue | 1 | 0 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 |
++| `tests/swarm/test_dual_log_emission.py` | consumer | cue | 1 | 0 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 |
++| `tests/swarm/test_force_relens.py` | consumer | cue | 2 | 0 | 0 | 0 | 2 | 0 | 0 | 0 | 0 | 0 |
++| `tests/swarm/test_imm3_parallel.py` | consumer | cue | 1 | 0 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 |
++| `tests/swarm/test_inv007_empty_pool.py` | consumer | cue | 1 | 0 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 |
++| `tests/swarm/test_inv_suite.py` | consumer | cue | 1 | 0 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 |
++| `tests/swarm/test_manifest.py` | consumer | cue | 8 | 0 | 0 | 0 | 8 | 0 | 0 | 0 | 0 | 0 |
++| `tests/swarm/test_manifest_durable.py` | consumer | cue | 1 | 0 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 |
++| `tests/swarm/test_manifest_emission.py` | consumer | cue | 3 | 0 | 0 | 0 | 3 | 0 | 0 | 0 | 0 | 0 |
++| `tests/swarm/test_no_response_cache.py` | consumer | cue | 1 | 0 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 |
++| `tests/swarm/test_parallel_executor_routing.py` | consumer | cue | 1 | 0 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 |
++| `tests/swarm/test_preflight.py` | consumer | cue | 1 | 0 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 |
++| `tests/swarm/test_reduce.py` | consumer | cue | 2 | 0 | 0 | 0 | 2 | 0 | 0 | 0 | 0 | 0 |
++| `tests/swarm/test_resolvedlens.py` | consumer | cue | 1 | 0 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 |
++| `tests/swarm/test_result_contract.py` | consumer | cue | 8 | 0 | 0 | 0 | 8 | 0 | 0 | 0 | 0 | 0 |
++| `tests/swarm/test_resume_crash_recovery.py` | consumer | cue | 1 | 0 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 |
++| `tests/swarm/test_resume_uses_manifest_lens.py` | consumer | cue | 1 | 0 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 |
++| `tests/swarm/test_status_cmd.py` | consumer | cue | 1 | 0 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 |
++| `tests/swarm/test_stub_transport.py` | consumer | cue | 1 | 0 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 |
++| `tests/swarm/test_three_layer_artifacts.py` | consumer | cue | 1 | 0 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 |
++| `tests/troubleshoot/backtest/catch_rate.py` | consumer | cue | 4 | 0 | 0 | 0 | 5 | 0 | 0 | 0 | 0 | 0 |
++| `tests/troubleshoot/backtest/fixtures/catch_rate/all_catch_missing_witness.json` | consumer | cue | 1 | 0 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 |
++| `tests/troubleshoot/backtest/fixtures/catch_rate/invalid_bad_status.json` | consumer | cue | 1 | 0 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 |
++| `tests/troubleshoot/backtest/fixtures/catch_rate/invalid_bad_verdict.json` | consumer | cue | 1 | 0 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 |
++| `tests/troubleshoot/backtest/fixtures/catch_rate/valid_full.json` | consumer | cue | 1 | 0 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 |
++| `tests/troubleshoot/backtest/fixtures/catch_rate/valid_minimal.json` | consumer | cue | 1 | 0 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 |
++| `tests/troubleshoot/backtest/schemas/catch_rate.schema.json` | consumer | cue | 2 | 0 | 0 | 0 | 2 | 0 | 0 | 0 | 0 | 0 |
++| `tests/troubleshoot/backtest/test_backtest_status_separation.py` | consumer | cue | 3 | 0 | 0 | 0 | 3 | 0 | 0 | 0 | 0 | 0 |
++| `tests/troubleshoot/backtest/test_catch_rate_aggregation.py` | consumer | cue | 4 | 0 | 0 | 0 | 4 | 0 | 0 | 0 | 0 | 0 |
++| `tests/troubleshoot/backtest/test_catch_rate_schema.py` | consumer | cue | 14 | 0 | 0 | 0 | 14 | 0 | 0 | 0 | 0 | 0 |
++| `tests/troubleshoot/test_hardening_output_contract.py` | consumer | cue | 1 | 0 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 |
++| `docs/guides/roadmap-cli-tools-release-guide.md` | not in scope | cue | 4 | 0 | 0 | 4 | 0 | 0 | 0 | 0 | 0 | 0 |
++| `src/superclaude/cli/roadmap/envelope.py` | not in scope | cue | 1 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 | 0 |
++| `src/superclaude/cli/roadmap/gates.py` | not in scope | cue | 7 | 0 | 0 | 7 | 0 | 0 | 0 | 0 | 0 | 0 |
++| `src/superclaude/cli/roadmap/prompts.py` | not in scope | cue | 5 | 0 | 0 | 5 | 0 | 0 | 0 | 0 | 0 | 0 |
++| `src/superclaude/cli/roadmap/templates/debate.md.j2` | not in scope | cue | 1 | 0 | 0 | 2 | 0 | 0 | 0 | 0 | 0 | 0 |
++| `src/superclaude/cli/roadmap/templates/merge.md.j2` | not in scope | cue | 1 | 0 | 0 | 2 | 0 | 0 | 0 | 0 | 0 | 0 |
++| `src/superclaude/cli/roadmap/templates/tool_schemas/debate.schema.json` | not in scope | cue | 3 | 0 | 0 | 5 | 0 | 0 | 0 | 0 | 0 | 0 |
++| `src/superclaude/cli/roadmap/templates/tool_schemas/merge.schema.json` | not in scope | cue | 1 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 | 0 |
++| `src/superclaude/examples/roadmap_template.compressed.md` | not in scope | cue | 1 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 | 0 |
++| `src/superclaude/examples/roadmap_template.md` | not in scope | cue | 1 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 | 0 |
++| `src/superclaude/skills/sc-roadmap-protocol/SKILL.md` | not in scope | cue | 17 | 0 | 0 | 19 | 0 | 0 | 0 | 0 | 0 | 0 |
++| `src/superclaude/skills/sc-roadmap-protocol/refs/adversarial-integration.md` | not in scope | cue | 13 | 0 | 0 | 15 | 0 | 0 | 0 | 0 | 0 | 0 |
++| `src/superclaude/skills/sc-roadmap-protocol/refs/templates.md` | not in scope | cue | 2 | 0 | 0 | 2 | 0 | 0 | 0 | 0 | 0 | 0 |
++| `tests/roadmap/test_eval_gate_rejection.py` | not in scope | cue | 2 | 0 | 0 | 3 | 0 | 0 | 0 | 0 | 0 | 0 |
++| `tests/roadmap/test_executor.py` | not in scope | cue | 1 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 | 0 |
++| `tests/roadmap/test_gates_data.py` | not in scope | cue | 23 | 0 | 0 | 23 | 0 | 0 | 0 | 0 | 0 | 0 |
++| `tests/roadmap/test_generation_phantom_id_prevention.py` | not in scope | cue | 1 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 | 0 |
++| `tests/roadmap/test_integration_v5_pipeline.py` | not in scope | cue | 1 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 | 0 |
++| `tests/roadmap/test_pipeline_integration.py` | not in scope | cue | 1 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 | 0 |
++| `tests/roadmap/test_prompts.py` | not in scope | cue | 1 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 | 0 |
++| `tests/roadmap/test_threshold_registry.py` | not in scope | cue | 2 | 0 | 0 | 2 | 0 | 0 | 0 | 0 | 0 | 0 |
++| `tests/roadmap/test_tool_write_step_debate.py` | not in scope | cue | 15 | 0 | 0 | 15 | 0 | 0 | 0 | 0 | 0 | 0 |
++| `tests/roadmap/test_tool_write_step_merge.py` | not in scope | cue | 1 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 | 0 |
++| `tests/sc-roadmap/integration/test_adversarial_pipeline.py` | not in scope | cue | 23 | 0 | 0 | 24 | 0 | 0 | 0 | 0 | 0 | 0 |
++| `tests/sc-roadmap/integration/test_return_contract_routing.py` | not in scope | cue | 61 | 0 | 0 | 62 | 0 | 0 | 0 | 0 | 0 | 0 |
++| `tests/test_sc_roadmap_refactor.sh` | not in scope | cue | 4 | 0 | 0 | 4 | 0 | 0 | 0 | 0 | 0 | 0 |
+ 
+ ## Files not searched
+ 
+@@ -392,5 +400,6 @@ UNVERIFIED (named consumers with no file located in this repository):
+   (`convergence-score`, `mergeMethod`, the prose words 'convergence score'), a consumer that reads the
+   whole contract without naming the field, binary files, symlinked directories, or files outside the scan
+   roots (`plugins/`, `.claude/`, `~/.claude/`, `.dev/` outside `eval-workspaces/`, other repositories).
+-- A role comes from the path rules in the script docstring, not from reading the code: it says where a
+-  file sits in the named lists, not that the file writes or reads a field. The list is not complete.
++- A `named` role says where a file sits in the named lists; a `cue` role says which path or text cue of
++  the script docstring the file matched. Neither comes from tracing the code, so neither proves that the
++  file writes or reads a field at runtime. The named list is not complete.
+diff --git a/scripts/reflect_consumer_inventory.py b/scripts/reflect_consumer_inventory.py
+index 8665eccc1..ca09c8e7e 100644
+--- a/scripts/reflect_consumer_inventory.py
++++ b/scripts/reflect_consumer_inventory.py
+@@ -23,25 +23,45 @@ Odd files never stop the run; each is counted and not searched: a file that cann
+ for example a broken symlink), a path that is not a regular file (non-regular, for example a FIFO) and a file that
+ holds a NUL byte (binary).
+ 
+-Classification (first match wins, by the file's path relative to the root, posix form):
+-1. NAMED_ROLES, exact paths from the task's lists and the spec's "Deferred versioned change" list:
++Classification of each hit file (first match wins; ``rel`` is the path relative to the root, posix form). Every
++hit file gets one of producer, validator, consumer or "not in scope", and a basis: ``named`` (rules 1-2, from a
++list) or ``cue`` (rules 3-7, from the path or the text).
++1. NAMED_ROLES, exact paths from the task's lists, the spec's "Deferred versioned change" list and the review fix:
+    producer  - src/superclaude/skills/sc-reflect-protocol/SKILL.md (section 9.1 and Wave 5),
+                src/superclaude/skills/sc-reflect-protocol/refs/report-template.md,
+-               src/superclaude/cli/reflect/ensemble.py (headless builder);
++               src/superclaude/cli/reflect/ensemble.py (headless builder), and from the review fix
++               refs/input-resolution.md (its table gives the t2_model_class_diversity values) and
++               refs/reflection-rubric.md (it says calibrator_diversity is emitted into reflection-card.yaml);
+    validator - src/superclaude/cli/reflect/contract.py (derive_verdict, _degraded_reason);
+    consumer  - the section 9.3 map rows that have a file in this repository (sc-troubleshoot-protocol,
+                sc-task-protocol, sc-tasklist-protocol and sc-workflow-protocol SKILL.md, task-builder SKILL.md with
+                EV-4, refs/promotion-adapters.md for the Wave 7 adapters, the CI grader
+                .dev/eval-workspaces/sc-reflect/grader.py, the sprint executor src/superclaude/cli/sprint/executor.py),
+-               refs/ops-integration.md (PromQL label list).
++               refs/ops-integration.md (PromQL label list), and from the review fix the two files whose text opens
++               return-contract.yaml and fails the gate on adversarial_convergence_score < 0.80:
++               src/superclaude/skills/task/SKILL.md (the sc-task row) and
++               src/superclaude/skills/sc-tasklist-protocol/templates/phase-template.md (the sc:tasklist row).
++               sc-task-protocol/SKILL.md stays listed and shows "no match" when it names none of the words.
+ 2. PREFIX_ROLES: tests/cli/reflect/ is consumer (deferred list item 9: fixtures and tests that carry merge_method).
+ 3. A path with a component containing "roadmap" (any letter case) is "not in scope": the roadmap pipeline uses the
+    same words for its own merge and contract.
+-4. Everything else is "unclassified" (for example this script and its test, which only name the words).
+-A role says where the file sits in those lists; the script does not read code to prove that a file writes or
+-reads a field. Named items with no file in the repository (the meta-eval runs.jsonl aggregator and the sc:roadmap
+-validation gate) are listed as UNVERIFIED; Python files under the scan roots that name runs.jsonl are listed as
+-aggregator candidates (the listing does not change their role).
++4. Test cue: a directory component named tests, test or fixtures, or a file name test_*, *_test.py or conftest.py
++   is consumer.
++5. Write cue, producer, by file suffix (a "word" is one of WORDS, on the same line as the cue):
++   .py   - a quoted word followed by ``:`` (dict key) or by ``] =`` (subscript assignment), or the bare word
++           followed by ``=`` (assignment or keyword argument) or by ``: <type> =`` (annotated assignment), never ``==``;
++   .json - a double-quoted word followed by ``:``;
++   .yaml, .yml - a line that starts with the word as a key (optionally quoted, optionally after ``- ``) and ``:``
++           followed by a space or the line end;
++   .md   - the .yaml key form or the .json key form on a line inside a fenced code block (``` or ~~~).
++6. Check cue, validator: a .py file with a line that holds a word and ``==``, ``!=``, ``<=``, ``>=``, `` < ``,
++   `` > ``, ``assert`` or ``raise``.
++7. Everything else is consumer.
++For a cue-based row, ``consumer`` means "references the field; not proof it is read at runtime", and producer or
++validator means the file text matched that cue, not that its code was traced. Named items with no file in the
++repository (the meta-eval runs.jsonl aggregator and the sc:roadmap validation gate) are listed as UNVERIFIED;
++Python files under the scan roots that name runs.jsonl are listed as aggregator candidates (the listing does not
++change their role).
+ 
+ Negative statements: the report says whether any line under src/ holds a ``contract_version == "1.8.0"`` equality
+ (on one line: the name, up to 40 characters other than "=", ``==``, then 1.8.0 in single or double quotes; or the
+@@ -91,7 +111,8 @@ EXCLUDED_DIRS = frozenset(
+ )
+ PACKAGE = ".dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912"
+ GRADER = ".dev/eval-workspaces/sc-reflect/grader.py"
+-ROLE_ORDER = ("producer", "validator", "consumer", "unclassified", "not in scope")
++ROLE_ORDER = ("producer", "validator", "consumer", "not in scope")
++BASES = ("named", "cue")
+ 
+ _SKILL = "src/superclaude/skills/sc-reflect-protocol"
+ NAMED_ROLES = {
+@@ -111,6 +132,24 @@ NAMED_ROLES = {
+         "validator",
+         "derive_verdict, _degraded_reason",
+     ),
++    f"{_SKILL}/refs/input-resolution.md": (
++        "producer",
++        "review fix: its table gives the t2_model_class_diversity values",
++    ),
++    f"{_SKILL}/refs/reflection-rubric.md": (
++        "producer",
++        "review fix: says calibrator_diversity is emitted into reflection-card.yaml",
++    ),
++    "src/superclaude/skills/task/SKILL.md": (
++        "consumer",
++        "section 9.3 sc-task row (review fix): opens return-contract.yaml, "
++        "fails the gate on adversarial_convergence_score < 0.80",
++    ),
++    "src/superclaude/skills/sc-tasklist-protocol/templates/phase-template.md": (
++        "consumer",
++        "section 9.3 sc:tasklist row (review fix): opens return-contract.yaml, "
++        "fails the gate on adversarial_convergence_score < 0.80",
++    ),
+     f"{_SKILL}/refs/ops-integration.md": ("consumer", "PromQL label list"),
+     f"{_SKILL}/refs/promotion-adapters.md": (
+         "consumer",
+@@ -124,7 +163,10 @@ NAMED_ROLES = {
+         "consumer",
+         "section 9.3 row",
+     ),
+-    "src/superclaude/skills/sc-task-protocol/SKILL.md": ("consumer", "section 9.3 row"),
++    "src/superclaude/skills/sc-task-protocol/SKILL.md": (
++        "consumer",
++        "section 9.3 sc-task row as first mapped; the gate text is in skills/task/SKILL.md",
++    ),
+     "src/superclaude/skills/sc-tasklist-protocol/SKILL.md": (
+         "consumer",
+         "section 9.3 sc:tasklist gate",
+@@ -157,18 +199,62 @@ _EQUALITY = (
+     re.compile(rb"[\"']1\.8\.0[\"']\s*==[^\n]{0,40}contract_version"),
+ )
+ _WORD_BYTES = tuple(w.encode() for w in WORDS)
+-
+-
+-def classify(rel: str) -> tuple[str, str]:
+-    """Return (role, source) for a root-relative posix path, by the rules of the module docstring."""
++_W = rb"(?:" + b"|".join(_WORD_BYTES) + rb")"
++TEST_DIRS = frozenset({"tests", "test", "fixtures"})
++_PY_WRITE = re.compile(
++    rb"[\"']" + _W + rb"[\"']\s*(?::|\]\s*=(?!=))"
++    rb"|\b" + _W + rb"\s*(?::[^=\n]*)?=(?!=)"
++)
++_JSON_KEY = re.compile(rb'"' + _W + rb'"\s*:')
++_YAML_KEY = re.compile(rb"\s*(?:-\s+)?[\"']?" + _W + rb"[\"']?\s*:(?:\s|$)")
++_PY_CHECK = re.compile(rb"==|!=|<=|>=|\s[<>]\s|\bassert\b|\braise\b")
++
++
++def _writes(suffix: str, lines: list[bytes]) -> bool:
++    """Rule 5 of the module docstring: does any line hold a write cue for this file suffix."""
++    if suffix == "py":
++        return any(_PY_WRITE.search(ln) for ln in lines)
++    if suffix == "json":
++        return any(_JSON_KEY.search(ln) for ln in lines)
++    if suffix in ("yaml", "yml"):
++        return any(_YAML_KEY.match(ln) for ln in lines)
++    if suffix == "md":
++        fenced = False
++        for ln in lines:
++            if ln.lstrip().startswith((b"```", b"~~~")):
++                fenced = not fenced
++            elif fenced and (_YAML_KEY.match(ln) or _JSON_KEY.search(ln)):
++                return True
++    return False
++
++
++def classify(rel: str, data: bytes = b"") -> tuple[str, str, str]:
++    """Return (role, basis, source) for a root-relative posix path and its bytes (rules 1-7 of the module docstring)."""
+     if rel in NAMED_ROLES:
+-        return NAMED_ROLES[rel]
++        return (NAMED_ROLES[rel][0], "named", NAMED_ROLES[rel][1])
+     for prefix, role, source in PREFIX_ROLES:
+         if rel.startswith(prefix):
+-            return role, source
+-    if any("roadmap" in part.lower() for part in rel.split("/")):
+-        return "not in scope", "roadmap pipeline (own merge and contract)"
+-    return "unclassified", ""
++            return role, "named", source
++    parts = rel.split("/")
++    if any("roadmap" in part.lower() for part in parts):
++        return "not in scope", "cue", "roadmap pipeline (own merge and contract)"
++    name = parts[-1]
++    if (
++        TEST_DIRS.intersection(parts[:-1])
++        or name.startswith("test_")
++        or name.endswith("_test.py")
++        or name == "conftest.py"
++    ):
++        return "consumer", "cue", "test or test fixture"
++    suffix = name.rsplit(".", 1)[-1].lower() if "." in name else ""
++    lines = data.split(b"\n")
++    if _writes(suffix, lines):
++        return "producer", "cue", "write cue"
++    if suffix == "py" and any(
++        _PY_CHECK.search(ln) for ln in lines if any(w in ln for w in _WORD_BYTES)
++    ):
++        return "validator", "cue", "check cue"
++    return "consumer", "cue", "names a field"
+ 
+ 
+ def scan(root: Path, skip: Path | None = None) -> dict:
+@@ -232,7 +318,8 @@ def _inspect(rel: str, data: bytes, res: dict) -> None:
+     lines = data.split(b"\n")
+     if any(counts):
+         hit_lines = sum(1 for ln in lines if any(w in ln for w in _WORD_BYTES))
+-        res["hits"][rel] = (counts, hit_lines)
++        role, basis, _ = classify(rel, data)
++        res["hits"][rel] = (counts, hit_lines, role, basis)
+     if rel.endswith(".py") and b"runs.jsonl" in data:
+         res["runs_jsonl_py"].append(rel)
+     if rel.startswith("src/") and b"1.8.0" in data:
+@@ -279,11 +366,11 @@ def _equality_line(res: dict) -> list[str]:
+ def render(root: Path, res: dict) -> str:
+     """Render the inventory as markdown (no timestamp, root-relative paths only)."""
+     rows = []
+-    for rel, (counts, hit_lines) in res["hits"].items():
+-        role, source = classify(rel)
+-        rows.append((ROLE_ORDER.index(role), rel, role, source, counts, hit_lines))
++    for rel, (counts, hit_lines, role, basis) in res["hits"].items():
++        rows.append((ROLE_ORDER.index(role), rel, role, basis, counts, hit_lines))
+     rows.sort(key=lambda r: (r[0], r[1]))
+     by_role = {role: sum(1 for r in rows if r[2] == role) for role in ROLE_ORDER}
++    by_basis = {basis: sum(1 for r in rows if r[3] == basis) for basis in BASES}
+     primitives = sum(1 for r in rows if r[1].startswith(PRIMITIVE_PREFIXES))
+     per_root = {
+         top: sum(1 for r in rows if r[1].startswith(top + "/")) for top in SCAN_ROOTS
+@@ -312,6 +399,11 @@ def render(root: Path, res: dict) -> str:
+         + ", ".join(f"{role} {by_role[role]}" for role in ROLE_ORDER)
+         + "."
+     )
++    out.append(
++        "- Hit files by basis: "
++        + ", ".join(f"{basis} {by_basis[basis]}" for basis in BASES)
++        + "."
++    )
+     out.append(
+         "- Hit files by scan root: "
+         + ", ".join(f"`{t}/` {per_root[t]}" for t in SCAN_ROOTS)
+@@ -362,11 +454,20 @@ def render(root: Path, res: dict) -> str:
+     )
+ 
+     out += ["", "## Hit files", ""]
+-    out.append("| File | Role | Lines | " + " | ".join(f"`{w}`" for w in WORDS) + " |")
+-    out.append("|---|---|---|" + "---|" * len(WORDS))
+-    for _, rel, role, _, counts, hit_lines in rows:
++    out.append(
++        "Basis `named`: the role comes from the named lists. Basis `cue`: the role comes from the path or text cues"
++    )
++    out.append(
++        "of the script docstring; a cue-based `consumer` references the field, which is not proof it is read at runtime."
++    )
++    out.append("")
++    out.append(
++        "| File | Role | Basis | Lines | " + " | ".join(f"`{w}`" for w in WORDS) + " |"
++    )
++    out.append("|---|---|---|---|" + "---|" * len(WORDS))
++    for _, rel, role, basis, counts, hit_lines in rows:
+         out.append(
+-            f"| `{rel}` | {role} | {hit_lines} | "
++            f"| `{rel}` | {role} | {basis} | {hit_lines} | "
+             + " | ".join(str(c) for c in counts)
+             + " |"
+         )
+@@ -390,8 +491,9 @@ def render(root: Path, res: dict) -> str:
+         "  (`convergence-score`, `mergeMethod`, the prose words 'convergence score'), a consumer that reads the",
+         "  whole contract without naming the field, binary files, symlinked directories, or files outside the scan",
+         "  roots (`plugins/`, `.claude/`, `~/.claude/`, `.dev/` outside `eval-workspaces/`, other repositories).",
+-        "- A role comes from the path rules in the script docstring, not from reading the code: it says where a",
+-        "  file sits in the named lists, not that the file writes or reads a field. The list is not complete.",
++        "- A `named` role says where a file sits in the named lists; a `cue` role says which path or text cue of",
++        "  the script docstring the file matched. Neither comes from tracing the code, so neither proves that the",
++        "  file writes or reads a field at runtime. The named list is not complete.",
+         "",
+     ]
+     return "\n".join(out)
+@@ -420,7 +522,7 @@ def main(argv: list[str] | None = None) -> int:
+     text = render(root, res)
+     out.parent.mkdir(parents=True, exist_ok=True)
+     out.write_text(text, encoding="utf-8")
+-    rows = [classify(rel)[0] for rel in res["hits"]]
++    rows = [hit[2] for hit in res["hits"].values()]
+     roles = ", ".join(f"{role} {rows.count(role)}" for role in ROLE_ORDER)
+     print(
+         f"wrote {out}: {len(rows)} hit files ({roles}); searched {res['scanned']} files"
+diff --git a/tests/review/test_reflect_consumer_inventory.py b/tests/review/test_reflect_consumer_inventory.py
+index a5ff6c806..3ace81fe7 100644
+--- a/tests/review/test_reflect_consumer_inventory.py
++++ b/tests/review/test_reflect_consumer_inventory.py
+@@ -91,7 +91,26 @@ def test_classification_rules() -> None:
+     assert inv.classify("tests/cli/reflect/fixtures/any.yaml")[0] == "consumer"
+     assert inv.classify("tests/roadmap/test_x.py")[0] == "not in scope"
+     assert inv.classify("docs/guides/RoadMap-guide.md")[0] == "not in scope"
+-    assert inv.classify("src/superclaude/cli/reflect/runner.py")[0] == "unclassified"
++    refs = "src/superclaude/skills/sc-reflect-protocol/refs/"
++    assert inv.classify(refs + "input-resolution.md")[:2] == ("producer", "named")
++    assert inv.classify(refs + "reflection-rubric.md")[:2] == ("producer", "named")
++    assert inv.classify("src/superclaude/skills/task/SKILL.md")[:2] == (
++        "consumer",
++        "named",
++    )
++    assert inv.classify(
++        "src/superclaude/skills/sc-tasklist-protocol/templates/phase-template.md"
++    )[:2] == ("consumer", "named")
++    assert inv.classify("src/superclaude/skills/sc-task-protocol/SKILL.md")[:2] == (
++        "consumer",
++        "named",
++    )
++    assert inv.classify("tests/cli/reflect/fixtures/any.yaml")[1] == "named"
++    # With no text only the path rules can fire; the fallback is a cue-based consumer.
++    assert inv.classify("src/superclaude/cli/reflect/runner.py")[:2] == (
++        "consumer",
++        "cue",
++    )
+     # First match wins: the tests/cli/reflect/ prefix rule comes before the roadmap rule.
+     assert inv.classify("tests/cli/reflect/roadmap_case.yaml")[0] == "consumer"
+     assert (
+@@ -107,9 +126,10 @@ def test_report_roles_counts_and_lines(tmp_path: Path) -> None:
+     words = list(inv.WORDS)
+     skill = rows[SKILL]
+     assert skill[0] == "producer"
+-    assert skill[1] == "3"  # lines holding a word
+-    assert skill[2 + words.index("merge_method")] == "2"
+-    assert skill[2 + words.index("contract_version")] == "1"
++    assert skill[1] == "named"
++    assert skill[2] == "3"  # lines holding a word
++    assert skill[3 + words.index("merge_method")] == "2"
++    assert skill[3 + words.index("contract_version")] == "1"
+     assert rows["src/superclaude/cli/reflect/contract.py"][0] == "validator"
+     assert rows["src/superclaude/cli/reflect/ensemble.py"][0] == "producer"
+     assert rows["src/superclaude/skills/task-builder/SKILL.md"][0] == "consumer"
+@@ -119,17 +139,19 @@ def test_report_roles_counts_and_lines(tmp_path: Path) -> None:
+         rows["src/superclaude/skills/sc-roadmap-protocol/SKILL.md"][0] == "not in scope"
+     )
+     notes = rows["docs/notes.md"]
+-    assert notes[0] == "unclassified"
++    assert notes[:2] == ["consumer", "cue"]  # key outside a fenced block: no write cue
+     # convergence_score counts include adversarial_convergence_score occurrences.
+-    assert notes[2 + words.index("adversarial_convergence_score")] == "1"
+-    assert notes[2 + words.index("convergence_score")] == "1"
++    assert notes[3 + words.index("adversarial_convergence_score")] == "1"
++    assert notes[3 + words.index("convergence_score")] == "1"
+     assert "scripts/other.py" not in rows
+     assert "src/superclaude/x/__pycache__/m.pyc" not in rows  # excluded directory
+     assert "src/blob.bin" not in rows  # binary, not searched
+     assert (
+-        "- Hit files by role: producer 2, validator 1, consumer 2, unclassified 1, not in scope 2."
++        "- Hit files by role: producer 2, validator 1, consumer 3, not in scope 2."
+         in text
+     )
++    assert "- Hit files by basis: named 5, cue 3." in text
++    assert "unclassified" not in text
+     assert (
+         "- Not searched: binary 1, unreadable 0, non-regular 0, symlinked directories not followed 0."
+         in text
+@@ -139,6 +161,95 @@ def test_report_roles_counts_and_lines(tmp_path: Path) -> None:
+     assert str(tmp_path) not in text
+ 
+ 
++def _roles(root: Path, files: dict[str, str]) -> dict[str, tuple[str, str]]:
++    """Write a synthetic tree, run the script, return {path: (role, basis)} from the hit table."""
++    for rel, body in files.items():
++        _write(root, rel, body)
++    rows = _hit_rows(_run(root, root / "out.md"))
++    return {rel: (cells[0], cells[1]) for rel, cells in rows.items()}
++
++
++def test_cue_rule_test_files_are_consumers(tmp_path: Path) -> None:
++    # Write cues inside tests and fixtures do not make them producers.
++    roles = _roles(
++        tmp_path,
++        {
++            "tests/unit/check.py": "merge_method = 'x'\n",
++            "src/pkg/test_build.py": "assert c['merge_method'] == 'x'\n",
++            "src/pkg/build_test.py": "merge_method = 'x'\n",
++            "src/pkg/conftest.py": "merge_method = 'x'\n",
++            ".dev/eval-workspaces/e/fixtures/c.yaml": "merge_method: adversarial\n",
++        },
++    )
++    assert set(roles.values()) == {("consumer", "cue")}
++    assert len(roles) == 5
++
++
++def test_cue_rule_write_makes_producer(tmp_path: Path) -> None:
++    files = {
++        "src/a/dict_key.py": "out = {'merge_method': m}\n",
++        "src/a/subscript.py": 'out["reviewer_cards"] = cards\n',
++        "src/a/assign.py": "self.citations_dropped = 0\n",
++        "src/a/kwarg.py": "build(contract_version='1.8.0')\n",
++        "src/a/annotated.py": "convergence_score: float = 0.0\n",
++        "docs/c.json": '{"t2_vendor_diversity":"full"}\n',
++        "docs/c.yaml": "  - calibrator_diversity: degraded\n",
++        "docs/c.yml": "reviewer_cards:\n  - a\n",
++        "docs/fenced.md": "Text\n```yaml\nmerge_method: adversarial\n```\n",
++        "docs/fenced_json.md": '~~~\n{"merge_method": "x"}\n~~~\n',
++    }
++    roles = _roles(tmp_path, files)
++    assert roles == {rel: ("producer", "cue") for rel in files}
++
++
++def test_cue_rule_write_cue_needs_its_form(tmp_path: Path) -> None:
++    # Near misses of the write cues fall through to the later rules.
++    roles = _roles(
++        tmp_path,
++        {
++            "docs/prose.md": "merge_method: adversarial outside a fence\n",
++            "docs/closed.md": "```\nother: 1\n```\nmerge_method: x\n",
++            "docs/notes.txt": "merge_method: adversarial\n",
++            "src/a/read.py": "m = c.get('merge_method')\n",
++            "docs/c.yaml": "note: merge_method is read here\n",
++        },
++    )
++    assert set(roles.values()) == {("consumer", "cue")}
++    assert len(roles) == 5
++
++
++def test_cue_rule_check_makes_validator(tmp_path: Path) -> None:
++    files = {
++        "src/v/eq.py": "if c.get('merge_method') == 'adversarial':\n    pass\n",
++        "src/v/ne.py": "ok = c.get('merge_method') != 'panel'\n",
++        "src/v/lt.py": "bad = c['adversarial_convergence_score'] < 0.80\n",
++        "src/v/ge.py": "good = c.get('convergence_score') >= 0.8\n",
++        "src/v/assert_.py": "assert 'reviewer_cards' in c\n",
++        "src/v/raise_.py": "raise ValueError('citations_dropped missing')\n",
++    }
++    roles = _roles(tmp_path, files)
++    assert roles == {rel: ("validator", "cue") for rel in files}
++
++
++def test_cue_rule_order_and_fallback(tmp_path: Path) -> None:
++    roles = _roles(
++        tmp_path,
++        {
++            # Write cue and check cue in one file: the write rule comes first.
++            "src/o/both.py": "out = {'merge_method': m}\nassert out.get('merge_method') == m\n",
++            # A check cue counts in .py files only.
++            "docs/check.md": "fail if adversarial_convergence_score < 0.80\n",
++            # The check cue must be on a line that names a word.
++            "src/o/apart.py": "m = c.get('merge_method')\nassert m == 'x'\n",
++        },
++    )
++    assert roles == {
++        "src/o/both.py": ("producer", "cue"),
++        "docs/check.md": ("consumer", "cue"),
++        "src/o/apart.py": ("consumer", "cue"),
++    }
++
++
+ def test_negative_statements_hold(tmp_path: Path) -> None:
+     _tree(tmp_path)
+     text = _run(tmp_path, tmp_path / "out.md")

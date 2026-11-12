@@ -1,0 +1,7 @@
+$ uv run ruff check src/superclaude/cli/review/panel.py tests/review/test_review_panel_exclusion.py
+All checks passed!
+$ uv run pytest tests/review -q -p no:cacheprovider
+tests/review/test_review_rules_text.py .....                             [ 98%]
+tests/review/test_review_telemetry.py ..........                         [100%]
+
+============================= 543 passed in 3.44s ==============================

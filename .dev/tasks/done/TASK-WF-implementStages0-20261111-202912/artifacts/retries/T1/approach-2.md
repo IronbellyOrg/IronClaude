@@ -1,0 +1,2 @@
+d784e95e408da85b9ccea0aa739ddd3c2ec75391
+implementer claims (not verified): built findings_v2.py with check_finding and parse_block modelled on findings.py; v1 lines validate under v2; completion states complete/truncated/invalid with failed and timed_out reserved for the dispatcher; empty array complete only with coverage observations for every assigned row; fix pass added coverage_rows slice check and repo-relative citation paths; repair added an isinstance guard for reflect_category; claims AC1-AC3 met.

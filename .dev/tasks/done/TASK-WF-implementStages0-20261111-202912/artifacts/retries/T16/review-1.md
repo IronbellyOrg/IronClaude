@@ -1,0 +1,2 @@
+375104681c6c054c80b33649038418e991571295
+A1 r1-1 (opus): F1.1 header claim 'strictness can only surface more reasons, never hide one' is false (first-match-wins; single-vendor hides adversarial-unavailable) - blocking, reproduced; F1.2 inventory sentence predicting panel_lint.py would be listed is false after Task 15 - blocking; F1.3 shadow unusable/blocked does not change exit code (advisory, documented in the header); F1.4 self-replay copied the legacy dict (fixed: replayed again).

@@ -93,6 +93,80 @@ def test_panel_resolve_unknown_environment_fails():
     assert res.exit_code != 0
 
 
+def _reflect_template(tmp_path):
+    path = tmp_path / "reflect-cli.json"
+    path.write_text(
+        json.dumps(
+            {
+                "schema": "review-panel/1",
+                "template_id": "reflect-cli",
+                "version": "1.0.0",
+                "distinct_across_slots": True,
+                "apply_to": ["first"],
+                "slots": [
+                    {
+                        "slot_id": "t1b",
+                        "tier": "tier1b",
+                        "count": 1,
+                        "strategy": "fixed",
+                    },
+                    {
+                        "slot_id": "t4",
+                        "tier": "tier4",
+                        "count": 1,
+                        "strategy": "random",
+                    },
+                ],
+            }
+        )
+    )
+    return str(path)
+
+
+def _resolve_reflect(tmp_path, *extra):
+    return run(
+        "review", "panel", "resolve", "--template", _reflect_template(tmp_path),
+        "--run-id", "r1", "--kind", "first", "--env", "anthropic-only", *extra,
+    )  # fmt: skip
+
+
+def test_panel_resolve_hard_exclude_class_exhausts_the_fixed_anchor(tmp_path):
+    res = _resolve_reflect(
+        tmp_path, "--hard-exclude-class", "sonnet", "--strict-distinct"
+    )
+    assert res.exit_code != 0
+    assert "ExclusionExhausted" in res.output and "tier1b" in res.output
+    # case-insensitive class name, and the flag alone is enough
+    res = _resolve_reflect(tmp_path, "--hard-exclude-class", "SONNET")
+    assert res.exit_code != 0 and "ExclusionExhausted" in res.output
+
+
+def test_panel_resolve_without_the_new_flags_has_no_extra_keys(tmp_path):
+    res = _resolve_reflect(tmp_path)
+    assert res.exit_code == 0, res.output
+    out = json.loads(res.output)
+    assert "skipped_slots" not in out and "excluded" not in out
+
+
+def test_panel_resolve_writes_skipped_slots_and_excluded(tmp_path):
+    res = _resolve_reflect(
+        tmp_path, "--hard-exclude-class", "haiku", "--strict-distinct"
+    )
+    assert res.exit_code == 0, res.output
+    out = json.loads(res.output)
+    assert [r["model"] for r in out["reviewers"]] == ["claude-sonnet-5-5"]
+    assert [s["slot_id"] for s in out["skipped_slots"]] == ["t4"]
+    assert out["excluded"] == {"models": ["claude-haiku-5-5"], "classes": ["haiku"]}
+
+
+def test_panel_resolve_unknown_class_is_a_usage_error_listing_known_classes(tmp_path):
+    res = _resolve_reflect(tmp_path, "--hard-exclude-class", "nonesuch")
+    assert res.exit_code == 2
+    assert "nonesuch" in res.output
+    for known in ("fable", "gpt", "haiku", "opus", "sonnet"):
+        assert known in res.output
+
+
 def test_panel_validate_exit_codes(tmp_path):
     good = tmp_path / "good.json"
     good.write_text(

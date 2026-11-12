@@ -1,0 +1,2 @@
+9112df4145d87444127a53ac4a5f44312d9f835a
+A2 r2-1 note src/superclaude/skills/sc-reflect-protocol/SKILL.md:344 ac=scope n,n,n,n step 5 says the legacy calibration embeds a calibration block in each card; section 11.3 says only that calibrated scores attach to each card; review cluster reads a calibration.per_finding map and clusters without weights when none is present; the task brief assumed the block exists

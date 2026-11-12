@@ -1,0 +1,720 @@
+diff --git a/src/superclaude/cli/review/findings_v2.py b/src/superclaude/cli/review/findings_v2.py
+new file mode 100644
+index 000000000..4b74ce753
+--- /dev/null
++++ b/src/superclaude/cli/review/findings_v2.py
+@@ -0,0 +1,283 @@
++"""Findings block findings-v2: the findings-v1 container with the fence info string findings-v2.
++
++A line that findings-v1 accepts and whose keys are all in V1_FIELDS passes check_finding unchanged.
++A findings-v1-valid line with other keys may be rejected: a line that carries calibrated_confidence is rejected.
++Prior lines are rejected.
++observed_rows is supplied by the caller.
++"""
++
++from __future__ import annotations
++
++import json
++from pathlib import PurePosixPath, PureWindowsPath
++from typing import Any, Collection, Iterable
++
++from superclaude.cli.review.findings import (
++    _HEAD_FINDINGS,
++    _ID,
++    CATEGORIES,
++    SEVERITIES,
++    _blocks_after,
++    _check_flat,
++)
++
++INFO = "findings-v2"
++V1_FIELDS = (
++    "id",
++    "severity",
++    "blocking",
++    "category",
++    "anchor",
++    "anchor2",
++    "refs",
++    "claim",
++)
++ROLES = ("plan", "spec", "source", "test", "diff", "artifact")
++LENSES = ("spec", "reflect-pre", "reflect-post")
++CHANNELS = ("defect", "grounding-gap", "advisory")
++DEVIATION_CLASSES = ("authorized", "necessary", "drift", "regression", "none")
++# parse_block returns complete, truncated or invalid; failed and timed_out are for callers.
++COMPLETION_STATES = ("complete", "truncated", "invalid", "failed", "timed_out")
++REFLECT_CATEGORIES = {
++    "ordering": ("other",),
++    "acceptance": ("unpassable-check",),
++    "coverage": ("missing-requirement",),
++    "contradiction": ("contradiction",),
++    "risk": ("safety", "other"),
++    "deviation": ("other",),
++}
++
++
++def _one_of(value: Any, allowed: Collection[str]) -> bool:
++    return isinstance(value, str) and value in allowed
++
++
++def _is_int(value: Any) -> bool:
++    return isinstance(value, int) and not isinstance(value, bool)
++
++
++def _check_citation(c: Any) -> str | None:
++    if not isinstance(c, dict):
++        return "a citation must be an object"
++    if not _one_of(c.get("role"), ROLES):
++        return "citation role must be plan, spec, source, test, diff or artifact"
++    path = c.get("path")
++    if not isinstance(path, str) or not path:
++        return "citation path must be a non-empty string"
++    win = PureWindowsPath(path)
++    if (
++        PurePosixPath(path).is_absolute()
++        or win.is_absolute()
++        or win.drive
++        or path.startswith(("\\", "/"))
++        or ".." in path.replace("\\", "/").split("/")
++    ):
++        return "citation path must be repo-relative"
++    start, end = c.get("line_start"), c.get("line_end")
++    if not _is_int(start) or not _is_int(end) or start < 1 or end < start:
++        return "citation line_start and line_end must be integers with 1 <= line_start <= line_end"
++    if c.get("quote") is not None:
++        return _check_flat(c["quote"], "citation quote", 12, 200)
++    return None
++
++
++def check_finding(
++    obj: dict,
++    seen: set[str],
++    *,
++    lens: str | None = None,
++    assigned_rows: Collection[str] | None = None,
++) -> str | None:
++    """An error message for one findings-v2 line, or None when the line is valid; obj is not changed.
++
++    reflect_category, citations, deviation_class, coverage_rows, self_confidence, lens, channel, anchor2
++    and a citation quote are treated as absent when set to null.
++    """
++    if "calibrated_confidence" in obj:
++        return "calibrated_confidence is not allowed in a findings-v2 line"
++    fid = obj.get("id")
++    if not isinstance(fid, str) or not _ID.match(fid):
++        return "id must match ^[A-Za-z0-9][A-Za-z0-9._-]{0,15}$"
++    if fid in seen:
++        return f"duplicate id '{fid}'"
++    if not _one_of(obj.get("severity"), SEVERITIES):
++        return "severity must be CRITICAL, MAJOR or MINOR"
++    if not isinstance(obj.get("blocking"), bool):
++        return "blocking must be a boolean"
++    if obj["blocking"] and obj["severity"] == "MINOR":
++        return "a MINOR finding cannot be blocking"
++    if not _one_of(obj.get("category"), CATEGORIES):
++        return "category is not one of the allowed values"
++    err = _check_flat(obj.get("claim"), "claim", None, 300)
++    if err:
++        return err
++    refs = obj.get("refs", [])
++    if (
++        not isinstance(refs, list)
++        or len(refs) > 8
++        or not all(isinstance(r, str) for r in refs)
++    ):
++        return "refs must be a list of at most 8 strings"
++
++    citations = obj.get("citations")
++    if citations is None:
++        if obj.get("anchor") is None:
++            return "a finding needs an anchor or citations"
++        err = _check_flat(obj["anchor"], "anchor", 12, 200)
++    else:
++        if not isinstance(citations, list) or not 1 <= len(citations) <= 8:
++            return "citations must be a list of 1 to 8 citations"
++        err = next((e for e in map(_check_citation, citations) if e), None)
++        if not err and obj.get("anchor") is not None:
++            err = _check_flat(obj["anchor"], "anchor", 12, 200)
++    if err:
++        return err
++    if obj.get("anchor2") is not None:
++        err = _check_flat(obj["anchor2"], "anchor2", 12, 200)
++        if err:
++            return err
++
++    line_lens = obj.get("lens")
++    if line_lens is not None and lens is not None and line_lens != lens:
++        return f"the line's lens {line_lens!r} differs from the block lens {lens!r}"
++    effective = line_lens if line_lens is not None else lens
++    if effective is not None and not _one_of(effective, LENSES):
++        return "lens must be spec, reflect-pre or reflect-post"
++
++    dclass = obj.get("deviation_class")
++    if dclass is None and effective == "reflect-post":
++        return "deviation_class is required when the lens is reflect-post"
++    if dclass is not None and not _one_of(dclass, DEVIATION_CLASSES):
++        return (
++            "deviation_class must be authorized, necessary, drift, regression or none"
++        )
++
++    rcat = obj.get("reflect_category")
++    if rcat is not None:
++        if not _one_of(rcat, REFLECT_CATEGORIES):
++            return "reflect_category is not one of the allowed values"
++        if obj["category"] not in REFLECT_CATEGORIES[rcat]:
++            return f"reflect_category {rcat} needs category {' or '.join(REFLECT_CATEGORIES[rcat])}"
++        if rcat == "deviation" and dclass is None:
++            return "reflect_category deviation needs deviation_class"
++
++    rows = obj.get("coverage_rows")
++    if rows is not None:
++        if not isinstance(rows, list) or not all(isinstance(r, str) for r in rows):
++            return "coverage_rows must be a list of strings"
++        if rows and assigned_rows is None:
++            return (
++                "coverage_rows is set but there is no Coverage slice to check against"
++            )
++        outside = [r for r in rows if r not in (assigned_rows or ())]
++        if outside:
++            return f"coverage_rows {outside} are not in the assigned Coverage slice"
++
++    conf = obj.get("self_confidence")
++    if conf is not None and not (
++        isinstance(conf, (int, float)) and not isinstance(conf, bool) and 0 <= conf <= 1
++    ):
++        return "self_confidence must be a number from 0 to 1"
++
++    channel = obj.get("channel")
++    if channel is not None and not _one_of(channel, CHANNELS):
++        return "channel must be defect, grounding-gap or advisory"
++    return None
++
++
++def channel_of(f: dict) -> str:
++    """The finding's channel, or defect when the channel is absent or not an allowed value."""
++    ch = f.get("channel")
++    return ch if _one_of(ch, CHANNELS) else "defect"
++
++
++def parse_block(
++    text: str,
++    *,
++    lens: str | None = None,
++    assigned_rows: Iterable[str] | None = None,
++    observed_rows: Iterable[str] = (),
++) -> dict:
++    """Parse the findings-v2 block of text into {ok, state, findings, errors}; ok is True only when the state is complete.
++
++    The state is truncated when the block is not closed, invalid on any other error, else complete.
++    A closed, error-free empty block is complete only when assigned_rows is non-empty and every assigned row is in observed_rows.
++    """
++    res: dict[str, Any] = {
++        "ok": True,
++        "state": "complete",
++        "findings": [],
++        "errors": [],
++    }
++    found, blocks = _blocks_after(text, _HEAD_FINDINGS, INFO)
++    if not found:
++        res["errors"].append(
++            {"line": 0, "msg": "heading '## Findings block' is missing"}
++        )
++    elif not blocks:
++        res["errors"].append(
++            {
++                "line": 0,
++                "msg": f"no fenced block with info string {INFO} after the heading",
++            }
++        )
++    closed = True
++    if blocks:
++        if len(blocks) > 1:
++            res["errors"].append(
++                {
++                    "line": blocks[-1][0],
++                    "msg": f"more than one {INFO} block; the last one is used",
++                }
++            )
++        closed = blocks[-1][2]
++        if not closed:
++            res["errors"].append(
++                {
++                    "line": blocks[-1][0],
++                    "msg": f"the {INFO} block is not closed: the text ends inside it (truncated)",
++                }
++            )
++        rows = None if assigned_rows is None else set(map(str, assigned_rows))
++        seen: set[str] = set()
++        for lineno, raw in blocks[-1][1]:
++            if not raw.strip():
++                continue
++            try:
++                obj = json.loads(raw)
++            except json.JSONDecodeError as exc:
++                res["errors"].append(
++                    {"line": lineno, "msg": f"not valid JSON: {exc.msg}"}
++                )
++                continue
++            if not isinstance(obj, dict):
++                res["errors"].append(
++                    {"line": lineno, "msg": "a line must be a JSON object"}
++                )
++                continue
++            if "prior" in obj:
++                res["errors"].append(
++                    {"line": lineno, "msg": f"{INFO} does not accept prior lines"}
++                )
++                continue
++            err = check_finding(obj, seen, lens=lens, assigned_rows=rows)
++            if err:
++                res["errors"].append({"line": lineno, "msg": err})
++                continue
++            seen.add(obj["id"])
++            obj.setdefault("refs", [])
++            res["findings"].append(obj)
++        if closed and not res["errors"] and not res["findings"]:
++            if not rows or not rows <= set(observed_rows):
++                res["errors"].append(
++                    {
++                        "line": blocks[-1][0],
++                        "msg": "an empty block is complete only with a coverage observation for every assigned row",
++                    }
++                )
++    if not closed:
++        res["state"] = "truncated"
++    elif res["errors"]:
++        res["state"] = "invalid"
++    res["ok"] = res["state"] == "complete"
++    return res
+diff --git a/tests/review/test_review_findings_v2.py b/tests/review/test_review_findings_v2.py
+new file mode 100644
+index 000000000..ea16800c5
+--- /dev/null
++++ b/tests/review/test_review_findings_v2.py
+@@ -0,0 +1,425 @@
++"""findings-v2 line checker and block parser (Task 1 of the reflect Tier 2 panel plan)."""
++
++from __future__ import annotations
++
++import copy
++import json
++
++import pytest
++from test_review_findings import line, report
++
++from superclaude.cli.review import findings as fnd
++from superclaude.cli.review import findings_v2 as v2
++
++CIT = {"role": "plan", "path": "docs/plan.md", "line_start": 3, "line_end": 5}
++
++# Copied from tests/review/test_review_rules_text.py:68 with the placeholders filled.
++RULE_EXAMPLE = {
++    "id": "F1",
++    "severity": "CRITICAL",
++    "blocking": True,
++    "category": "contradiction",
++    "anchor": "A failed attempt is retried at most 5 times",
++    "anchor2": "Retry the delivery up to 8 times",
++    "refs": ["AC-0.4"],
++    "claim": "Section 2 and section 3 give different retry limits.",
++}
++
++# The anchor, anchor2, claim and refs of test_review_findings.py:202-207 (test_refs_norm).
++REFS_TEXT = {
++    "anchor": "see ac-0.4 and AC-1.2.",
++    "anchor2": "P1 and SHA-256 and WC-4",
++    "claim": "FR-2 conflicts",
++    "refs": ["5.1", "fr-9", "AC-0.4"],
++}
++
++V1_LINES = [
++    line(),
++    line(id="F2", severity="MINOR", blocking=False),
++    line(anchor2="  another   quote here  "),
++    line(**REFS_TEXT),
++    line(id="F3"),
++    line(id="A1"),
++    line(refs=["FR-9"]),
++    line(refs=[]),
++    line(claim="first wording"),
++    line(anchor="alpha beta gamma delta", refs=[]),
++    line(anchor="text that is not in the document"),
++    json.dumps(RULE_EXAMPLE),
++]
++
++
++def v2report(*lines):
++    return report(*lines, info="findings-v2")
++
++
++def base(**kw):
++    obj = json.loads(line())
++    obj.update(kw)
++    return obj
++
++
++def err(obj, **kw):
++    return v2.check_finding(obj, set(), **kw)
++
++
++# --- (a) v1 compatibility ---------------------------------------------------
++
++
++@pytest.mark.parametrize("raw", V1_LINES)
++def test_v1_line_passes_v2_unchanged(raw):
++    obj = json.loads(raw)
++    assert set(obj) <= set(v2.V1_FIELDS)
++    v1res = fnd.parse_block(report(raw))
++    assert v1res["ok"] is True
++    snapshot = copy.deepcopy(obj)
++    assert v2.check_finding(obj, set()) is None
++    assert obj == snapshot
++    v2res = v2.parse_block(v2report(raw))
++    assert v2res["ok"] is True and v2res["state"] == "complete"
++    assert v2res["findings"] == [dict(snapshot, refs=snapshot.get("refs", []))]
++    assert v2res["findings"] == v1res["findings"]
++
++
++def test_v2_uses_its_own_info_string():
++    r = v2.parse_block(report(line()))  # a findings-v1 fence
++    assert r["state"] == "invalid" and r["findings"] == []
++    assert "findings-v2" in r["errors"][0]["msg"]
++    missing = v2.parse_block("no heading\n")
++    assert missing["state"] == "invalid" and "heading" in missing["errors"][0]["msg"]
++
++
++# --- (b) the stated limit ---------------------------------------------------
++
++
++def test_calibrated_confidence_passes_v1_and_fails_v2():
++    raw = line(calibrated_confidence=0.7)
++    assert fnd.parse_block(report(raw))["ok"] is True
++    assert "calibrated_confidence" in err(json.loads(raw))
++    r = v2.parse_block(v2report(raw))
++    assert r["state"] == "invalid" and r["findings"] == []
++
++
++# --- (c) prior lines --------------------------------------------------------
++
++
++def test_prior_lines_are_rejected():
++    prior = json.dumps({"prior": "L3", "status": "resolved"})
++    assert fnd.parse_block(report(line(), prior))["ok"] is True
++    r = v2.parse_block(v2report(line(), prior))
++    assert r["ok"] is False and r["state"] == "invalid"
++    assert [f["id"] for f in r["findings"]] == ["F1"]
++    assert "prior" in r["errors"][0]["msg"]
++    assert "priors" not in r
++
++
++# --- (d) listed rules -------------------------------------------------------
++
++
++def test_finding_needs_anchor_or_citations():
++    obj = base()
++    del obj["anchor"]
++    assert "anchor or citations" in err(obj)
++    assert "anchor or citations" in err(dict(obj, anchor=None, citations=None))
++    assert err(dict(obj, citations=[CIT])) is None
++
++
++def test_minor_cannot_block():
++    assert "MINOR" in err(base(severity="MINOR", blocking=True))
++
++
++def test_duplicate_id_rejected():
++    assert "duplicate" in v2.check_finding(base(), {"F1"})
++    r = v2.parse_block(v2report(line(), line()))
++    assert r["state"] == "invalid" and len(r["findings"]) == 1
++
++
++def test_calibrated_confidence_rejected_even_when_null():
++    assert "calibrated_confidence" in err(base(calibrated_confidence=None))
++
++
++def test_deviation_class_required_for_reflect_post():
++    assert "deviation_class" in err(base(lens="reflect-post"))
++    assert "deviation_class" in err(base(), lens="reflect-post")
++    assert err(base(lens="reflect-post", deviation_class="drift")) is None
++    assert err(base(deviation_class="drift"), lens="reflect-post") is None
++    assert err(base(lens="reflect-pre")) is None
++    r = v2.parse_block(v2report(line()), lens="reflect-post")
++    assert r["state"] == "invalid" and "deviation_class" in r["errors"][0]["msg"]
++
++
++def test_line_lens_must_equal_argument_lens():
++    assert "differs" in err(base(lens="reflect-pre"), lens="reflect-post")
++    assert err(base(lens="reflect-pre"), lens="reflect-pre") is None
++
++
++def test_empty_block_completion():
++    empty = v2report()
++    assert v2.parse_block(empty)["state"] == "invalid"
++    assert v2.parse_block(empty, observed_rows=["R1"])["state"] == "invalid"
++    assert (
++        v2.parse_block(empty, assigned_rows=[], observed_rows=["R1"])["state"]
++        == "invalid"
++    )
++    partial = v2.parse_block(empty, assigned_rows=["R1", "R2"], observed_rows=["R1"])
++    assert partial["state"] == "invalid" and partial["ok"] is False
++    assert "coverage observation" in partial["errors"][0]["msg"]
++    full = v2.parse_block(
++        empty, assigned_rows=["R1", "R2"], observed_rows=["R2", "R1", "R3"]
++    )
++    assert full == {"ok": True, "state": "complete", "findings": [], "errors": []}
++
++
++@pytest.mark.parametrize(
++    ("quote", "ok"),
++    [
++        ("absent", True),
++        (None, True),
++        ("x" * 11, False),
++        ("x" * 12, True),
++        ("x" * 200, True),
++        ("x" * 201, False),
++    ],
++)
++def test_citation_quote_optional_and_12_to_200(quote, ok):
++    cit = dict(CIT) if quote == "absent" else dict(CIT, quote=quote)
++    res = err(base(citations=[cit]))
++    assert (res is None) is ok
++    if not ok:
++        assert "citation quote" in res
++
++
++# --- (e) one passing and one failing case per table row ---------------------
++
++ROWS = [
++    # (row, passing overrides, failing overrides, check_finding kwargs)
++    ("id", {"id": "F.1-a"}, {"id": "bad id"}, {}),
++    ("severity", {"severity": "MAJOR"}, {"severity": "HIGH"}, {}),
++    ("blocking", {"blocking": False}, {"blocking": "yes"}, {}),
++    ("category", {"category": "other"}, {"category": "weird"}, {}),
++    (
++        "reflect_category",
++        {"reflect_category": "risk", "category": "safety"},
++        {"reflect_category": "risk", "category": "contradiction"},
++        {},
++    ),
++    (
++        "reflect_category enum",
++        {"reflect_category": "risk", "category": "other"},
++        {"reflect_category": "style"},
++        {},
++    ),
++    (
++        "reflect_category deviation",
++        {
++            "reflect_category": "deviation",
++            "category": "other",
++            "deviation_class": "none",
++        },
++        {"reflect_category": "deviation", "category": "other"},
++        {},
++    ),
++    ("claim", {"claim": "x" * 300}, {"claim": "x" * 301}, {}),
++    ("refs", {"refs": ["a"] * 8}, {"refs": ["a"] * 9}, {}),
++    ("anchor", {"anchor": "x" * 12}, {"anchor": "x" * 11}, {}),
++    (
++        "anchor with citations",
++        {"anchor": None, "citations": [CIT]},
++        {"anchor": "short", "citations": [CIT]},
++        {},
++    ),
++    ("anchor2", {"anchor2": "y" * 12}, {"anchor2": "short"}, {}),
++    ("citations count", {"citations": [CIT] * 8}, {"citations": [CIT] * 9}, {}),
++    ("citations empty", {"citations": [CIT]}, {"citations": []}, {}),
++    ("citations type", {"citations": [CIT]}, {"citations": CIT}, {}),
++    (
++        "citation role",
++        {"citations": [dict(CIT, role="artifact")]},
++        {"citations": [dict(CIT, role="code")]},
++        {},
++    ),
++    (
++        "citation lines",
++        {"citations": [dict(CIT, line_start=4, line_end=4)]},
++        {"citations": [dict(CIT, line_start=5, line_end=4)]},
++        {},
++    ),
++    (
++        "citation line_start",
++        {"citations": [dict(CIT, line_start=1)]},
++        {"citations": [dict(CIT, line_start=0)]},
++        {},
++    ),
++    (
++        "citation line bool",
++        {"citations": [dict(CIT, line_start=1, line_end=1)]},
++        {"citations": [dict(CIT, line_start=True, line_end=1)]},
++        {},
++    ),
++    (
++        "deviation_class",
++        {"deviation_class": "regression"},
++        {"deviation_class": "minor"},
++        {},
++    ),
++    (
++        "coverage_rows",
++        {"coverage_rows": ["R1"]},
++        {"coverage_rows": ["R9"]},
++        {"assigned_rows": {"R1", "R2"}},
++    ),
++    ("coverage_rows no slice", {"coverage_rows": []}, {"coverage_rows": ["R1"]}, {}),
++    (
++        "coverage_rows type",
++        {"coverage_rows": ["R1"]},
++        {"coverage_rows": "R1"},
++        {"assigned_rows": ["R1"]},
++    ),
++    ("self_confidence", {"self_confidence": 1}, {"self_confidence": 1.5}, {}),
++    ("self_confidence low", {"self_confidence": 0.0}, {"self_confidence": -0.1}, {}),
++    (
++        "self_confidence nan",
++        {"self_confidence": 0.5},
++        {"self_confidence": float("nan")},
++        {},
++    ),
++    (
++        "self_confidence inf",
++        {"self_confidence": 0.5},
++        {"self_confidence": float("inf")},
++        {},
++    ),
++    ("self_confidence bool", {"self_confidence": 0.5}, {"self_confidence": True}, {}),
++    ("lens", {"lens": "spec"}, {"lens": "post"}, {}),
++    ("channel", {"channel": "advisory"}, {"channel": "noise"}, {}),
++]
++
++
++@pytest.mark.parametrize(("row", "good", "bad", "kw"), ROWS, ids=[r[0] for r in ROWS])
++def test_table_row(row, good, bad, kw):
++    assert err(base(**good), **kw) is None
++    assert isinstance(err(base(**bad), **kw), str)
++
++
++def test_lens_argument_must_be_a_lens():
++    assert err(base(), lens="spec") is None
++    assert "lens must be" in err(base(), lens="post")
++
++
++def test_coverage_rows_outside_slice_and_without_slice():
++    assert "not in the assigned" in err(
++        base(coverage_rows=["R9"]), assigned_rows=["R1"]
++    )
++    assert "no Coverage slice" in err(base(coverage_rows=["R1"]))
++    r = v2.parse_block(v2report(line(coverage_rows=["R1"])), assigned_rows=["R1"])
++    assert r["state"] == "complete"
++    r = v2.parse_block(v2report(line(coverage_rows=["R1"])))
++    assert r["state"] == "invalid"
++
++
++@pytest.mark.parametrize(
++    "path",
++    ["/a", "C:/a", "\\\\srv\\a", "\\a", "a/../../b", "..", "C:a", "a\\..\\b", "", 5],
++)
++def test_citation_path_must_be_repo_relative(path):
++    res = err(base(citations=[dict(CIT, path=path)]))
++    assert isinstance(res, str) and "citation path" in res
++
++
++@pytest.mark.parametrize("path", ["a", "src/x.py", "docs/a..b.md", ".dev/x/y.md"])
++def test_citation_path_relative_passes(path):
++    assert err(base(citations=[dict(CIT, path=path)])) is None
++
++
++@pytest.mark.parametrize(
++    "field",
++    [
++        "reflect_category",
++        "citations",
++        "deviation_class",
++        "coverage_rows",
++        "self_confidence",
++        "lens",
++        "channel",
++        "anchor2",
++    ],
++)
++def test_optional_field_null_is_absent(field):
++    assert err(base(**{field: None})) is None
++
++
++# --- (f) crash test ---------------------------------------------------------
++
++V2_FIELDS = (
++    "reflect_category",
++    "citations",
++    "deviation_class",
++    "coverage_rows",
++    "self_confidence",
++    "lens",
++    "channel",
++)
++CITATION_KEYS = ("role", "path", "line_start", "line_end", "quote")
++VALUES = [None, True, 0, 1.5, float("nan"), "x", [], [1], {}, {"a": 1}]
++CONTEXTS = [{}, {"lens": "reflect-post"}, {"assigned_rows": {"R1"}}]
++
++
++def _variants():
++    for field in v2.V1_FIELDS + V2_FIELDS:
++        for value in VALUES:
++            yield base(**{field: value})
++    for key in CITATION_KEYS:
++        for value in VALUES:
++            yield base(citations=[dict(CIT, **{key: value})])
++
++
++def test_check_finding_never_raises():
++    for obj in _variants():
++        for kw in CONTEXTS:
++            snapshot = copy.deepcopy(obj)
++            res = v2.check_finding(obj, set(), **kw)
++            assert res is None or isinstance(res, str)
++            assert json.dumps(obj) == json.dumps(snapshot)
++
++
++# --- (g) channel_of and the completion states -------------------------------
++
++
++def test_channel_of_defaults_to_defect():
++    assert v2.channel_of({}) == "defect"
++    assert v2.channel_of({"channel": None}) == "defect"
++    assert v2.channel_of({"channel": "noise"}) == "defect"
++    assert v2.channel_of({"channel": []}) == "defect"
++    assert v2.channel_of({"channel": "advisory"}) == "advisory"
++    r = v2.parse_block(v2report(line()))
++    assert "channel" not in r["findings"][0]
++
++
++def test_parse_block_returns_only_three_states():
++    assert v2.COMPLETION_STATES == (
++        "complete",
++        "truncated",
++        "invalid",
++        "failed",
++        "timed_out",
++    )
++    unclosed = "## Findings block\n\n```findings-v2\n" + line() + "\n{bad\n"
++    texts = [v2report(line()), v2report(), unclosed, "nothing", v2report("{bad")]
++    states = {v2.parse_block(t)["state"] for t in texts}
++    assert states == {"complete", "truncated", "invalid"}
++
++
++def test_truncated_beats_invalid_and_result_keys():
++    unclosed = "## Findings block\n\n```findings-v2\n" + line() + "\n{bad\n"
++    r = v2.parse_block(unclosed)
++    assert set(r) == {"ok", "state", "findings", "errors"}
++    assert r["state"] == "truncated" and r["ok"] is False
++    assert len(r["errors"]) == 2 and len(r["findings"]) == 1
++    empty_unclosed = v2.parse_block("## Findings block\n\n```findings-v2\n")
++    assert empty_unclosed["state"] == "truncated"
++
++
++def test_last_of_two_blocks_is_used_and_invalid():
++    text = v2report(line(id="A1")) + "\n```findings-v2\n" + line(id="B1") + "\n```\n"
++    r = v2.parse_block(text)
++    assert [f["id"] for f in r["findings"]] == ["B1"] and r["state"] == "invalid"

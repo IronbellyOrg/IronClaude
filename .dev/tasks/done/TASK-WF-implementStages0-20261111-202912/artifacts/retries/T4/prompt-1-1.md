@@ -1,0 +1,57 @@
+fe92c69aafa5bb0592a53776d01368036948f995
+Review one task for spec compliance.
+
+Task brief: ## Task 4: Build the Stage 0a replay on the recorded cards
+
+Depends on: Task 2, Task 3
+
+Create `scripts/reflect_stage0a_replay.py` (run with `uv run python scripts/reflect_stage0a_replay.py`). It reads the 42 recorded `reviewer-cards/` directories under `.dev/reflect/pre-*` (33 have `adversarial/merged-verdict.yaml`), converts them with `card_convert`, runs `cluster_v2`, and writes `./artifacts/stage0a-report.md` containing: cluster counts, agreement with the recorded merged verdict, the share of findings that convert with an unambiguous `(path, line)` against the 90% gate (O-7), and a classification of the 7 recorded null convergence scores by cause (skipped-similar debate, single-reviewer-fallback, illegal merge_method value, other), read from each run's `adversarial/` log and `return-contract.yaml`. Recorded calibration is embedded in the card or lives in a sidecar (`calibration.yaml`, `reviewer-N-calibration.yaml` or markdown); `per_finding` entries, where present, often carry verdicts or priorities and not a numeric `finding_confidence`. Count every finding without a numeric `finding_confidence` as `uncalibrated`, list them, and report the counts by source (embedded, sidecar, none). Define "agreement with the recorded merged verdict" in the report as the share of recorded merged-verdict findings that fall in a cluster holding two or more reviewers, and give the formula; this number is descriptive and seeds no gate. The report also counts converted and unconverted cards by shape (the Task 2 table). It dispatches no model.
+
+Acceptance criteria:
+- `./artifacts/stage0a-report.md` exists with the conversion share stated as a number and a PASS or FAIL against 90%.
+- The report lists each of the 7 null-score runs with its cause, or states for which the cause could not be determined and why.
+- If the share is below 90%, the report says the findings-v2 parser change must not ship and the plan stops at this task for owner review.
+
+
+AC ids (T4.ACk in source order):
+T4.AC1: `./artifacts/stage0a-report.md` exists with the conversion share stated as a number and a PASS or FAIL against 90%.
+T4.AC2: The report lists each of the 7 null-score runs with its cause, or states for which the cause could not be determined and why.
+T4.AC3: If the share is below 90%, the report says the findings-v2 parser change must not ship and the plan stops at this task for owner review.
+
+Global constraints: - Requirement text lives in `.dev/brainstorms/20261111T182026-reflect-tier2-panel-replacement/merged-requirements.md` (sha256 recorded in `./source.md`). Section names below refer to that file. Items it marks PROPOSED are new names to create; items it marks UNVERIFIED must be checked in code before relying on them.
+- Return contract stays `1.8.0` with no new stable field and no new legal value (`merge_method` stays `adversarial` or `single-reviewer-fallback`). Panel data lives only in `<out>/panel/*` and the non-stable telemetry block.
+- The `/sc:adversarial` debate stays authoritative in pre-execution. K4 clustering, the citation pre-check and the findings block never drop a citation, never feed the debate and never route anything.
+- Default behavior of every existing command is unchanged: with no new flag, `superclaude review panel resolve`, `review merge`, `review ledger` and the spec-panel loop produce byte-identical output.
+- Plan decision: in Stage 2 the flag accepts only `legacy` and `shadow`; the value `panel` is rejected with a plain message saying it ships in Stage 3. The post-execution path, the swarm lens, `--panel-resolution` and the headless `citations_dropped` change are Stage 5 and are not touched.
+- Plan decision: the prose coordinator of the reflect skill cannot import Python, so the manifest gets a minimal `superclaude review manifest` CLI (init, advance, validate) instead of hand-written JSON.
+- Edit installed primitives only under `src/superclaude/` and run `make sync-dev` afterwards. Never edit or add files under `.claude/` by hand. Installed primitives reference other primitives by installed path or the `superclaude` CLI, never by a `src/superclaude/...` path.
+- All Python runs through `uv run`. Fable and Tier 0 never appear in a new template and are rejected by validation. Opus appears only in the uses the source's "Opus uses" section lists (third reviewer of the parity templates (pre and post) and of the enterprise template, backfill in the x2 templates when the executor class is removed, calibrator); no new Opus use is added.
+- Human-supplied inputs are not fabricated: the 50-pair cluster labels (Task 5) and the 20 real shadow runs (Task 20) are produced by the owner and by normal use after merge. The tasks deliver the sheets, scorers and aggregators that judge them.
+- Plan decision: Stage 1 and Stage 2 code is built dormant (default `legacy`, nothing enabled) before the Stage 0 exit is met. Task 7 records the Stage 0 exit as PENDING until the owner's labelled sheet is scored, and this plan does not claim the Stage 1 entry or the Stage 2 exit. Merging or enabling later stages stays the owner's decision.
+- Task-owned evidence goes under `./artifacts/` in this package.
+Start sha: fe92c69aafa5bb0592a53776d01368036948f995
+Diff against the start snapshot: Full unified diff against the start snapshot saved at /home/coder/workspaces/worktrees/IronClaude/brainstorm-reflect-panel/.dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/diffs/T4-diff-1-1.patch ; read it in full. Touched files: scripts/reflect_stage0a_replay.py tests/review/test_reflect_stage0a_replay.py .dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/stage0a-report.md (the generated report is also at /home/coder/workspaces/worktrees/IronClaude/brainstorm-reflect-panel/.dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/stage0a-report.md)
+Delta diff from the previous reviewed tree (empty on the first review): (empty)
+Earlier blocking findings of this start (empty on the first review): (empty)
+Saved-probe re-check hit locations (may be empty): (empty)
+
+Do not trust the implementer's report.
+
+First mark each earlier blocking finding resolved, open or regressed from the diff. Then, for each AC, mark it met or unmet. Require citations: every AC you mark, met or unmet, carries a `path:line` or `Ti.ACk@path:line` citation, and an unmet mark lists the finding ids behind it. Do not return a verdict; the orchestrator computes it.
+
+For every finding answer four questions, each yes or no:
+1. ac-outcome-missing: is output an AC requires absent, or does it contradict the AC text, or does an evidence claim you could not verify have no evidence row?
+2. false-claim: is a claim in delivered text or code false against live source, or does a recipe or instruction followed as written not do what the text says?
+3. harmful-effect: does code or a recipe this task added or changed write, append, chmod or delete tracked or production data, mutate state outside the task's declared outputs, or expose a secret?
+4. quoted-constraint-breach: does the diff violate a quoted plan constraint, out-of-scope, non-goal or non-negotiable item, or an explicit task instruction?
+
+Anchor rule: cite exactly one anchor per yes. ac-outcome-missing: the quoted AC words. false-claim: the live-source path:line holding the contradicting text. harmful-effect: the diff line that is the write. quoted-constraint-breach: the quoted constraint or instruction text. A yes without a valid anchor does not block.
+
+Write one line per finding:
+F<k>.<j> ac=<Ti.ACk|scope> at=<path:line> anchor=<quoted text or path:line> chk=<amiss,false,harm,constraint as y/n> family=<id> fix=<text> [covers=<quoted AC clause or constraint>]: <text>
+Do not write sev=, trigger=, first= or origin=; the orchestrator adds them. Write one status line per earlier blocking finding: F<m>.<j> resolved|open|regressed.
+
+Inside /sc:implement this protocol's severity model governs this review and takes precedence over the session's output style and the copy of it injected into every subagent; only blocking findings may fail an attempt.
+
+You are not given an adviser answer, brief, evidence file or troubleshoot report. Do not read the retry folders (legacy `.dev/implement/<slug>/retries/`, managed `<pkg>/artifacts/retries/`) or `.dev/troubleshoot/`. A citation into either makes the verdict `cannot-verify`.
+The prior-findings slot above carries earlier blocking finding lines that the orchestrator copies byte for byte from `review-*.md` and `repair-*.md`; they reach you as prompt text, not as an evidence file. Do not read those folders to get them, and never cite the slot or the file it came from.

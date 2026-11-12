@@ -1,0 +1,16 @@
+# Synthetic card in the recorded stoprule shape ("What a recorded card looks like"); not copied from a run.
+reviewer: 1
+model_class: sonnet
+plan: .dev/tasks/to-do/TASK-X/TASK-X.md
+spec: .dev/tasks/to-do/TASK-X/source.md
+findings:
+  - id: F1
+    severity: blocking
+    category: ordering
+    claim: "Task 3 runs before Task 2 creates the file it reads."
+    evidence: [plan:57, source.md:62, src/x.py:451-462]
+  - id: F2
+    severity: minor
+    category: risk
+    claim: "The cleanup step can delete user data without a backup, a data-loss effect."
+    evidence: [plan:80]

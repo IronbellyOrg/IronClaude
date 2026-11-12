@@ -1,0 +1,7 @@
+$ uv run ruff check <the two Task 2 files>
+All checks passed!
+$ uv run pytest tests/review -q -p no:cacheprovider
+tests/review/test_review_telemetry.py ..........                         [100%]
+
+============================= 337 passed in 3.15s ==============================
+line 6 above is the pytest outcome: 337 passed in 3.15s

@@ -1,0 +1,43 @@
+diff --git a/src/superclaude/cli/review/findings_v2.py b/src/superclaude/cli/review/findings_v2.py
+index 4b74ce753..9f69ec67c 100644
+--- a/src/superclaude/cli/review/findings_v2.py
++++ b/src/superclaude/cli/review/findings_v2.py
+@@ -158,6 +158,8 @@ def check_finding(
+             return "reflect_category is not one of the allowed values"
+         if obj["category"] not in REFLECT_CATEGORIES[rcat]:
+             return f"reflect_category {rcat} needs category {' or '.join(REFLECT_CATEGORIES[rcat])}"
++        if obj["blocking"] != (obj["severity"] != "MINOR"):
++            return "with reflect_category set, a MAJOR or CRITICAL finding must be blocking and a MINOR one must not"
+         if rcat == "deviation" and dclass is None:
+             return "reflect_category deviation needs deviation_class"
+ 
+diff --git a/tests/review/test_review_findings_v2.py b/tests/review/test_review_findings_v2.py
+index ea16800c5..68ffe1b93 100644
+--- a/tests/review/test_review_findings_v2.py
++++ b/tests/review/test_review_findings_v2.py
+@@ -128,6 +128,25 @@ def test_minor_cannot_block():
+     assert "MINOR" in err(base(severity="MINOR", blocking=True))
+ 
+ 
++@pytest.mark.parametrize(
++    ("severity", "blocking", "ok"),
++    [
++        ("CRITICAL", True, True),
++        ("MAJOR", True, True),
++        ("MINOR", False, True),
++        ("CRITICAL", False, False),
++        ("MAJOR", False, False),
++    ],
++)
++def test_reflect_severity_mapping(severity, blocking, ok):
++    obj = base(severity=severity, blocking=blocking)
++    res = err(dict(obj, reflect_category="risk", category="safety"))
++    assert (res is None) is ok
++    if not ok:
++        assert "must be blocking" in res
++    assert err(obj) is None  # no reflect_category: v1 rules only
++
++
+ def test_duplicate_id_rejected():
+     assert "duplicate" in v2.check_finding(base(), {"F1"})
+     r = v2.parse_block(v2report(line(), line()))

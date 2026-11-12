@@ -1,0 +1,5 @@
+SWEEP refs/superclaude/implement/TASK-WF-implementStages0-20261111-202912/retry/T1/sweep-2-1
+SUBMODULE .vendor/anthropic-skills 98669c11ca63e9c81c11501e1437e5c47b556621
+DELETED src/superclaude/cli/review/findings_v2.py
+DELETED tests/review/test_review_findings_v2.py
+DONE

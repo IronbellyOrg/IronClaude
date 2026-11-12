@@ -1,0 +1,71 @@
+diff --git a/src/superclaude/cli/review/findings_v2.py b/src/superclaude/cli/review/findings_v2.py
+index 9cec2ea2e..13f94a770 100644
+--- a/src/superclaude/cli/review/findings_v2.py
++++ b/src/superclaude/cli/review/findings_v2.py
+@@ -49,6 +49,8 @@ def _check_citation(c: Any) -> str | None:
+     path = c.get("path")
+     if not isinstance(path, str) or not path.strip():
+         return "citation path must be a non-empty string"
++    if path.startswith("/") or ".." in path.replace("\\", "/").split("/"):
++        return "citation path must be repo-relative (no leading / and no .. segment)"
+     for k in ("line_start", "line_end"):
+         v = c.get(k)
+         if not isinstance(v, int) or isinstance(v, bool) or v < 1:
+@@ -155,6 +157,7 @@ def parse_block(
+     assigned_rows is non-empty and the card's coverage observations (observed_rows) cover every
+     assigned row; otherwise it is invalid, never "clean".
+     """
++    assigned_set = set(assigned_rows)
+     found, blocks = _blocks_after(report_text, _HEAD_FINDINGS, "findings-v2")
+     res: dict[str, Any] = {
+         "ok": True,
+@@ -199,6 +202,10 @@ def parse_block(
+             fail(lineno, "prior lines are not accepted in findings-v2")
+             continue
+         err = check_finding(obj, seen)
++        if not err and assigned_set:
++            extra = [r for r in obj.get("coverage_rows") or [] if r not in assigned_set]
++            if extra:
++                err = "coverage_rows names ids outside the assigned Coverage slice: " + ", ".join(extra)
+         if err:
+             fail(lineno, err)
+             continue
+@@ -206,7 +213,7 @@ def parse_block(
+         obj.setdefault("refs", [])
+         res["findings"].append(obj)
+     if res["ok"] and not res["findings"]:
+-        assigned = set(assigned_rows)
++        assigned = assigned_set
+         if not assigned or not assigned <= set(observed_rows):
+             fail(
+                 blocks[-1][0],
+diff --git a/tests/review/test_review_findings_v2.py b/tests/review/test_review_findings_v2.py
+index 0cae27b85..c6ecdaa35 100644
+--- a/tests/review/test_review_findings_v2.py
++++ b/tests/review/test_review_findings_v2.py
+@@ -141,6 +141,9 @@ def test_quote_is_optional_and_12_to_200_chars(quote, ok):
+         [CITE] * 9,
+         [{**CITE, "role": "other"}],
+         [{**CITE, "path": ""}],
++        [{**CITE, "path": "/etc/passwd"}],
++        [{**CITE, "path": "../outside.md"}],
++        [{**CITE, "path": "a/../../b.md"}],
+         [{**CITE, "line_start": 0}],
+         [{**CITE, "line_start": 5, "line_end": 4}],
+         [{**CITE, "line_end": True}],
+@@ -151,6 +154,15 @@ def test_bad_citations_rejected(citations):
+     assert v2.check_finding(obj, set()) is not None
+ 
+ 
++def test_coverage_rows_must_be_in_assigned_slice():
++    ok = report(line(coverage_rows=["R1"]))
++    bad = report(line(coverage_rows=["R1", "R9"]))
++    assert v2.parse_block(ok, assigned_rows=["R1", "R2"])["ok"] is True
++    r = v2.parse_block(bad, assigned_rows=["R1", "R2"])
++    assert r["ok"] is False and "R9" in r["errors"][0]["msg"] and r["findings"] == []
++    assert v2.parse_block(bad)["ok"] is True  # no slice given: unchanged behaviour
++
++
+ def test_reflect_category_mapping():
+     ok = json.loads(line(reflect_category="acceptance", category="unpassable-check"))
+     assert v2.check_finding(ok, set()) is None

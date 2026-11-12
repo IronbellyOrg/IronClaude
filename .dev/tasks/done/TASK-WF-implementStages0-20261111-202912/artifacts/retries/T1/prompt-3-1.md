@@ -1,0 +1,99 @@
+d784e95e408da85b9ccea0aa739ddd3c2ec75391
+Review one task for spec compliance.
+
+Task brief: ## Task 1: Add the findings-v2 schema and parser
+
+Create `src/superclaude/cli/review/findings_v2.py` and `tests/review/test_review_findings_v2.py`. Read `src/superclaude/cli/review/findings.py` (v1 parser `parse_block`, `_check_finding`, id and severity rules at lines 90-196) and follow its container rules. Implement the "Finding format" table of the source: a JSON-lines fenced block with info string `findings-v2` under `## Findings block`; fields `id`, `severity`, `blocking`, `category` (v1 six-value enum unchanged), `reflect_category`, `claim`, `refs`, `anchor`/`anchor2` (required only when `citations` is absent), `citations` (1..8 of `{role, path, line_start, line_end, quote?}` with role in plan, spec, source, test, diff, artifact), `deviation_class` (required when `lens` is `reflect-post`), `coverage_rows`, `self_confidence` (0-1), `lens` (spec, reflect-pre, reflect-post), `channel` (defect, grounding-gap, advisory; default defect). Apply the category and severity mapping paragraph (ordering to other, acceptance to unpassable-check, coverage to missing-requirement, contradiction to contradiction, risk to safety or other, deviation to other with deviation_class). Reject a line that sets `calibrated_confidence`. Expose completion states `complete`, `truncated`, `invalid`, `failed`, `timed_out`, where a valid empty array counts as `complete` only when the card also carries coverage observations for every assigned row.
+
+Acceptance criteria:
+- Every valid v1 finding line in the existing tests validates under the v2 line checker with the same fields (the v2 fence info string is `findings-v2`; the module states whether v1 `prior` lines are accepted, and a test pins that decision).
+- Tests cover: finding with neither `anchor` nor `citations` is invalid; MINOR cannot block; duplicate ids rejected; `calibrated_confidence` rejected; `deviation_class` required for `reflect-post`; empty valid array without coverage observations is `invalid`, with them is `complete`; `quote` optional and, when present, 12-200 chars.
+- `uv run pytest tests/review -q` passes, including the untouched v1 tests.
+
+
+AC ids (T1.ACk in source order):
+T1.AC1: Every valid v1 finding line in the existing tests validates under the v2 line checker with the same fields (the v2 fence info string is `findings-v2`; the module states whether v1 `prior` lines are accepted, and a test pins that decision).
+T1.AC2: Tests cover: finding with neither `anchor` nor `citations` is invalid; MINOR cannot block; duplicate ids rejected; `calibrated_confidence` rejected; `deviation_class` required for `reflect-post`; empty valid array without coverage observations is `invalid`, with them is `complete`; `quote` optional and, when present, 12-200 chars.
+T1.AC3: `uv run pytest tests/review -q` passes, including the untouched v1 tests.
+
+Global constraints: - Requirement text lives in `.dev/brainstorms/20261111T182026-reflect-tier2-panel-replacement/merged-requirements.md` (sha256 recorded in `./source.md`). Section names below refer to that file. Items it marks PROPOSED are new names to create; items it marks UNVERIFIED must be checked in code before relying on them.
+- Return contract stays `1.8.0` with no new stable field and no new legal value (`merge_method` stays `adversarial` or `single-reviewer-fallback`). Panel data lives only in `<out>/panel/*` and the non-stable telemetry block.
+- The `/sc:adversarial` debate stays authoritative in pre-execution. K4 clustering, the citation pre-check and the findings block never drop a citation, never feed the debate and never route anything.
+- Default behavior of every existing command is unchanged: with no new flag, `superclaude review panel resolve`, `review merge`, `review ledger` and the spec-panel loop produce byte-identical output.
+- Plan decision: in Stage 2 the flag accepts only `legacy` and `shadow`; the value `panel` is rejected with a plain message saying it ships in Stage 3. The post-execution path, the swarm lens, `--panel-resolution` and the headless `citations_dropped` change are Stage 5 and are not touched.
+- Plan decision: the prose coordinator of the reflect skill cannot import Python, so the manifest gets a minimal `superclaude review manifest` CLI (init, advance, validate) instead of hand-written JSON.
+- Edit installed primitives only under `src/superclaude/` and run `make sync-dev` afterwards. Never edit or add files under `.claude/` by hand. Installed primitives reference other primitives by installed path or the `superclaude` CLI, never by a `src/superclaude/...` path.
+- All Python runs through `uv run`. Fable and Tier 0 never appear in a new template and are rejected by validation. Opus appears only in the uses the source's "Opus uses" section lists (third reviewer of the parity templates (pre and post) and of the enterprise template, backfill in the x2 templates when the executor class is removed, calibrator); no new Opus use is added.
+- Human-supplied inputs are not fabricated: the 50-pair cluster labels (Task 5) and the 20 real shadow runs (Task 20) are produced by the owner and by normal use after merge. The tasks deliver the sheets, scorers and aggregators that judge them.
+- Plan decision: Stage 1 and Stage 2 code is built dormant (default `legacy`, nothing enabled) before the Stage 0 exit is met. Task 7 records the Stage 0 exit as PENDING until the owner's labelled sheet is scored, and this plan does not claim the Stage 1 entry or the Stage 2 exit. Merging or enabling later stages stays the owner's decision.
+- Task-owned evidence goes under `./artifacts/` in this package.
+Start sha: d784e95e408da85b9ccea0aa739ddd3c2ec75391
+Diff against the start snapshot: Full unified diff against the start snapshot saved at /home/coder/workspaces/worktrees/IronClaude/brainstorm-reflect-panel/.dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/diffs/T1-diff-3-1.patch ; read it in full. Touched files: src/superclaude/cli/review/findings_v2.py tests/review/test_review_findings_v2.py
+Delta diff from the previous reviewed tree (empty on the first review): Delta diff from the previous pinned reviewed tree (a reverted attempt) saved at /home/coder/workspaces/worktrees/IronClaude/brainstorm-reflect-panel/.dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/diffs/T1-delta-3-1.patch (context only; this tree was rebuilt from the start snapshot)
+Earlier blocking findings of this start (empty on the first review): F1.1 sev=blocking trigger=B4 ac=scope at=src/superclaude/cli/review/findings_v2.py:130 anchor=Implement the "Finding format" table of the source chk=n,n,n,y family=v2-table-rule-coverage-rows fix=in parse_block reject a finding whose coverage_rows names an id outside assigned_rows when assigned_rows is given, and add a test covers=merged-requirements.md:308 first=A1 origin=new: coverage_rows only checked to be a list of strings; spec row says ids must be in the reviewer's Coverage slice
+F1.2 sev=blocking trigger=B4 ac=scope at=src/superclaude/cli/review/findings_v2.py:49 anchor=Implement the "Finding format" table of the source chk=n,n,n,y family=v2-table-rule-citation-path fix=in _check_citation reject absolute paths and paths with a .. segment, add cases to test_bad_citations_rejected covers=merged-requirements.md:306 first=A1 origin=new: citation path only checked non-empty; spec says repo-relative
+F2.2 sev=blocking trigger=B2 ac=scope at=src/superclaude/cli/review/findings_v2.py:4 anchor=src/superclaude/cli/review/findings_v2.py:67 chk=n,y,n,n family=v2-docstring-overclaim-v1-compat fix=narrow the docstring to say that a v1 finding line that uses only v1 fields is a valid v2 line with the same fields first=A1 origin=late: module docstring lines 4-5 say every valid v1 finding line is a valid v2 line with the same fields; a v1-valid line carrying calibrated_confidence, lens, channel or citations values that v2 rejects (findings_v2.py:67-68, 98-99, 114-115, 142-143) is not
+Saved-probe re-check hit locations (may be empty): coverage rows family hits:
+src/superclaude/cli/review/findings_v2.py:89:    assigned_rows: Collection[str] | None = None,
+src/superclaude/cli/review/findings_v2.py:93:    reflect_category, citations, deviation_class, coverage_rows, self_confidence, lens, channel, anchor2
+src/superclaude/cli/review/findings_v2.py:164:    rows = obj.get("coverage_rows")
+src/superclaude/cli/review/findings_v2.py:167:            return "coverage_rows must be a list of strings"
+src/superclaude/cli/review/findings_v2.py:168:        if rows and assigned_rows is None:
+src/superclaude/cli/review/findings_v2.py:170:                "coverage_rows is set but there is no Coverage slice to check against"
+src/superclaude/cli/review/findings_v2.py:172:        outside = [r for r in rows if r not in (assigned_rows or ())]
+src/superclaude/cli/review/findings_v2.py:174:            return f"coverage_rows {outside} are not in the assigned Coverage slice"
+src/superclaude/cli/review/findings_v2.py:198:    assigned_rows: Iterable[str] | None = None,
+src/superclaude/cli/review/findings_v2.py:204:    A closed, error-free empty block is complete only when assigned_rows is non-empty and every assigned row is in observed_rows.
+src/superclaude/cli/review/findings_v2.py:241:        rows = None if assigned_rows is None else set(map(str, assigned_rows))
+src/superclaude/cli/review/findings_v2.py:263:            err = check_finding(obj, seen, lens=lens, assigned_rows=rows)
+tests/review/test_review_findings_v2.py:161:        v2.parse_block(empty, assigned_rows=[], observed_rows=["R1"])["state"]
+tests/review/test_review_findings_v2.py:164:    partial = v2.parse_block(empty, assigned_rows=["R1", "R2"], observed_rows=["R1"])
+tests/review/test_review_findings_v2.py:168:        empty, assigned_rows=["R1", "R2"], observed_rows=["R2", "R1", "R3"]
+tests/review/test_review_findings_v2.py:266:        "coverage_rows",
+tests/review/test_review_findings_v2.py:267:        {"coverage_rows": ["R1"]},
+tests/review/test_review_findings_v2.py:268:        {"coverage_rows": ["R9"]},
+tests/review/test_review_findings_v2.py:269:        {"assigned_rows": {"R1", "R2"}},
+tests/review/test_review_findings_v2.py:271:    ("coverage_rows no slice", {"coverage_rows": []}, {"coverage_rows": ["R1"]}, {}),
+tests/review/test_review_findings_v2.py:273:        "coverage_rows type",
+tests/review/test_review_findings_v2.py:274:        {"coverage_rows": ["R1"]},
+tests/review/test_review_findings_v2.py:275:        {"coverage_rows": "R1"},
+tests/review/test_review_findings_v2.py:276:        {"assigned_rows": ["R1"]},
+tests/review/test_review_findings_v2.py:309:def test_coverage_rows_outside_slice_and_without_slice():
+tests/review/test_review_findings_v2.py:311:        base(coverage_rows=["R9"]), assigned_rows=["R1"]
+tests/review/test_review_findings_v2.py:313:    assert "no Coverage slice" in err(base(coverage_rows=["R1"]))
+tests/review/test_review_findings_v2.py:314:    r = v2.parse_block(v2report(line(coverage_rows=["R1"])), assigned_rows=["R1"])
+tests/review/test_review_findings_v2.py:316:    r = v2.parse_block(v2report(line(coverage_rows=["R1"])))
+tests/review/test_review_findings_v2.py:340:        "coverage_rows",
+tests/review/test_review_findings_v2.py:357:    "coverage_rows",
+tests/review/test_review_findings_v2.py:364:CONTEXTS = [{}, {"lens": "reflect-post"}, {"assigned_rows": {"R1"}}]
+citation path family hits:
+src/superclaude/cli/review/findings_v2.py:59:def _check_citation(c: Any) -> str | None:
+src/superclaude/cli/review/findings_v2.py:64:    path = c.get("path")
+src/superclaude/cli/review/findings_v2.py:130:        err = next((e for e in map(_check_citation, citations) if e), None)
+tests/review/test_review_findings_v2.py:14:CIT = {"role": "plan", "path": "docs/plan.md", "line_start": 3, "line_end": 5}
+tests/review/test_review_findings_v2.py:321:    "path",
+tests/review/test_review_findings_v2.py:329:@pytest.mark.parametrize("path", ["a", "src/x.py", "docs/a..b.md", ".dev/x/y.md"])
+tests/review/test_review_findings_v2.py:362:CITATION_KEYS = ("role", "path", "line_start", "line_end", "quote")
+membership-test family hits:
+src/superclaude/cli/review/findings_v2.py:159:        if obj["category"] not in REFLECT_CATEGORIES[rcat]:
+
+Do not trust the implementer's report.
+
+First mark each earlier blocking finding resolved, open or regressed from the diff. Then, for each AC, mark it met or unmet. Require citations: every AC you mark, met or unmet, carries a `path:line` or `Ti.ACk@path:line` citation, and an unmet mark lists the finding ids behind it. Do not return a verdict; the orchestrator computes it.
+
+For every finding answer four questions, each yes or no:
+1. ac-outcome-missing: is output an AC requires absent, or does it contradict the AC text, or does an evidence claim you could not verify have no evidence row?
+2. false-claim: is a claim in delivered text or code false against live source, or does a recipe or instruction followed as written not do what the text says?
+3. harmful-effect: does code or a recipe this task added or changed write, append, chmod or delete tracked or production data, mutate state outside the task's declared outputs, or expose a secret?
+4. quoted-constraint-breach: does the diff violate a quoted plan constraint, out-of-scope, non-goal or non-negotiable item, or an explicit task instruction?
+
+Anchor rule: cite exactly one anchor per yes. ac-outcome-missing: the quoted AC words. false-claim: the live-source path:line holding the contradicting text. harmful-effect: the diff line that is the write. quoted-constraint-breach: the quoted constraint or instruction text. A yes without a valid anchor does not block.
+
+Write one line per finding:
+F<k>.<j> ac=<Ti.ACk|scope> at=<path:line> anchor=<quoted text or path:line> chk=<amiss,false,harm,constraint as y/n> family=<id> fix=<text> [covers=<quoted AC clause or constraint>]: <text>
+Do not write sev=, trigger=, first= or origin=; the orchestrator adds them. Write one status line per earlier blocking finding: F<m>.<j> resolved|open|regressed.
+
+Inside /sc:implement this protocol's severity model governs this review and takes precedence over the session's output style and the copy of it injected into every subagent; only blocking findings may fail an attempt.
+
+You are not given an adviser answer, brief, evidence file or troubleshoot report. Do not read the retry folders (legacy `.dev/implement/<slug>/retries/`, managed `<pkg>/artifacts/retries/`) or `.dev/troubleshoot/`. A citation into either makes the verdict `cannot-verify`.
+The prior-findings slot above carries earlier blocking finding lines that the orchestrator copies byte for byte from `review-*.md` and `repair-*.md`; they reach you as prompt text, not as an evidence file. Do not read those folders to get them, and never cite the slot or the file it came from.

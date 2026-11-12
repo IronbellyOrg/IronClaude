@@ -1,0 +1,151 @@
+diff --git a/src/superclaude/cli/review/panel_cmd.py b/src/superclaude/cli/review/panel_cmd.py
+index 8a2419a45..1e83a9048 100644
+--- a/src/superclaude/cli/review/panel_cmd.py
++++ b/src/superclaude/cli/review/panel_cmd.py
+@@ -50,7 +50,28 @@ def command() -> None:
+ @click.option(
+     "--sequence", type=int, default=None, help="Sequence number for round_robin slots."
+ )
+-def resolve_cmd(template, tiers_path, env, run_id, kind, seed, sequence) -> None:
++@click.option(
++    "--hard-exclude-class",
++    "hard_classes",
++    multiple=True,
++    help="Model class (e.g. sonnet) that can never be picked; repeatable. Expands through the tier file's classes; case-insensitive.",
++)
++@click.option(
++    "--strict-distinct",
++    is_flag=True,
++    help="Never pick a model already chosen for an earlier reviewer (no repeat, no re-admission).",
++)
++def resolve_cmd(
++    template,
++    tiers_path,
++    env,
++    run_id,
++    kind,
++    seed,
++    sequence,
++    hard_classes,
++    strict_distinct,
++) -> None:
+     """Print the reviewers of a panel as JSON (schema review-panel-resolution/1)."""
+     try:
+         panel = pnl.load_panel(template)
+@@ -58,9 +79,30 @@ def resolve_cmd(template, tiers_path, env, run_id, kind, seed, sequence) -> None
+         errors = pnl.validate_panel(panel, tiers, sequence=sequence)
+         if errors:
+             raise ValueError("invalid panel template: " + "; ".join(errors))
++        class_map = tiers.get("classes", {})
++        known = sorted(set(class_map.values()))
++        hard: list[str] = []
++        for name in hard_classes:
++            ids = [m for m, c in class_map.items() if c.lower() == name.lower()]
++            if not ids:
++                raise click.UsageError(
++                    f"unknown class '{name}' for --hard-exclude-class "
++                    f"(known classes: {', '.join(known) or 'none'})"
++                )
++            hard.extend(ids)
+         out = pnl.resolve(
+-            panel, tiers, pnl.select_env(env), run_id, kind, seed, sequence
++            panel,
++            tiers,
++            pnl.select_env(env),
++            run_id,
++            kind,
++            seed,
++            sequence,
++            hard_exclude=hard,
++            strict_distinct=strict_distinct,
+         )
++    except pnl.ExclusionExhausted as exc:
++        raise click.ClickException(f"{type(exc).__name__}: {exc}") from exc
+     except (ValueError, pnl.NoModelAvailable, OSError, json.JSONDecodeError) as exc:
+         raise click.ClickException(str(exc)) from exc
+     click.echo(json.dumps(out, indent=2, sort_keys=True))
+diff --git a/tests/review/test_review_cli.py b/tests/review/test_review_cli.py
+index 3089ea760..047fe9ca7 100644
+--- a/tests/review/test_review_cli.py
++++ b/tests/review/test_review_cli.py
+@@ -93,6 +93,80 @@ def test_panel_resolve_unknown_environment_fails():
+     assert res.exit_code != 0
+ 
+ 
++def _reflect_template(tmp_path):
++    path = tmp_path / "reflect-cli.json"
++    path.write_text(
++        json.dumps(
++            {
++                "schema": "review-panel/1",
++                "template_id": "reflect-cli",
++                "version": "1.0.0",
++                "distinct_across_slots": True,
++                "apply_to": ["first"],
++                "slots": [
++                    {
++                        "slot_id": "t1b",
++                        "tier": "tier1b",
++                        "count": 1,
++                        "strategy": "fixed",
++                    },
++                    {
++                        "slot_id": "t4",
++                        "tier": "tier4",
++                        "count": 1,
++                        "strategy": "random",
++                    },
++                ],
++            }
++        )
++    )
++    return str(path)
++
++
++def _resolve_reflect(tmp_path, *extra):
++    return run(
++        "review", "panel", "resolve", "--template", _reflect_template(tmp_path),
++        "--run-id", "r1", "--kind", "first", "--env", "anthropic-only", *extra,
++    )  # fmt: skip
++
++
++def test_panel_resolve_hard_exclude_class_exhausts_the_fixed_anchor(tmp_path):
++    res = _resolve_reflect(
++        tmp_path, "--hard-exclude-class", "sonnet", "--strict-distinct"
++    )
++    assert res.exit_code != 0
++    assert "ExclusionExhausted" in res.output and "tier1b" in res.output
++    # case-insensitive class name, and the flag alone is enough
++    res = _resolve_reflect(tmp_path, "--hard-exclude-class", "SONNET")
++    assert res.exit_code != 0 and "ExclusionExhausted" in res.output
++
++
++def test_panel_resolve_without_the_new_flags_has_no_extra_keys(tmp_path):
++    res = _resolve_reflect(tmp_path)
++    assert res.exit_code == 0, res.output
++    out = json.loads(res.output)
++    assert "skipped_slots" not in out and "excluded" not in out
++
++
++def test_panel_resolve_writes_skipped_slots_and_excluded(tmp_path):
++    res = _resolve_reflect(
++        tmp_path, "--hard-exclude-class", "haiku", "--strict-distinct"
++    )
++    assert res.exit_code == 0, res.output
++    out = json.loads(res.output)
++    assert [r["model"] for r in out["reviewers"]] == ["claude-sonnet-5-5"]
++    assert [s["slot_id"] for s in out["skipped_slots"]] == ["t4"]
++    assert out["excluded"] == {"models": ["claude-haiku-5-5"], "classes": ["haiku"]}
++
++
++def test_panel_resolve_unknown_class_is_a_usage_error_listing_known_classes(tmp_path):
++    res = _resolve_reflect(tmp_path, "--hard-exclude-class", "nonesuch")
++    assert res.exit_code == 2
++    assert "nonesuch" in res.output
++    for known in ("fable", "gpt", "haiku", "opus", "sonnet"):
++        assert known in res.output
++
++
+ def test_panel_validate_exit_codes(tmp_path):
+     good = tmp_path / "good.json"
+     good.write_text(

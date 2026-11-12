@@ -1,0 +1,56 @@
+diff --git a/src/superclaude/cli/reflect/panel_lint.py b/src/superclaude/cli/reflect/panel_lint.py
+index 2bbea6441..b22276694 100644
+--- a/src/superclaude/cli/reflect/panel_lint.py
++++ b/src/superclaude/cli/reflect/panel_lint.py
+@@ -202,7 +202,11 @@ def _read_yaml_mapping(path: Path) -> tuple[str, dict | None]:
+         return "absent", None
+     try:
+         data = yaml.safe_load(path.read_text(encoding="utf-8"))
+-    except (OSError, yaml.YAMLError):
++    except (
++        OSError,
++        ValueError,
++        yaml.YAMLError,
++    ):  # ValueError covers UnicodeDecodeError
+         return "unparseable", None
+     return ("ok", data) if isinstance(data, dict) else ("unparseable", None)
+ 
+@@ -267,7 +271,7 @@ def _ev1(out: Path, c: dict) -> list[str]:
+     audit = out / "audit.log"
+     try:
+         rows = audit.read_text(encoding="utf-8").splitlines() if audit.is_file() else []
+-    except OSError:
++    except (OSError, ValueError):
+         rows = []
+     missing = []
+     if c.get("adversarial_unavailable") is not True:
+diff --git a/tests/cli/reflect/test_panel_contract_lint.py b/tests/cli/reflect/test_panel_contract_lint.py
+index 2ef49fe0e..427d90ddf 100644
+--- a/tests/cli/reflect/test_panel_contract_lint.py
++++ b/tests/cli/reflect/test_panel_contract_lint.py
+@@ -209,6 +209,25 @@ def test_f5_unusable_contract_gives_only_l0(tmp_path):
+     assert len(pl.lint_panel_contract(run, LEGACY_CONTRACT)) == 1
+ 
+ 
++def test_non_utf8_files_do_not_crash_the_lint(tmp_path):
++    run = make(tmp_path)
++    (run / "return-contract.yaml").write_bytes(b"contract_version: \xff\xfe\n")
++    assert pl.lint_panel_contract(run, LEGACY_CONTRACT) == [
++        "L0 contract: return-contract.yaml is missing, unparseable or not a mapping"
++    ]
++    # a non-UTF-8 merged verdict counts as unparseable; a non-UTF-8 audit.log has no F2/F3 row
++    run = make(tmp_path, mutate=no_fallback_set, no_adv=True, name="run2")
++    (run / "audit.log").write_bytes(b"\xff\xfe F2\n")
++    assert pl.lint_panel_contract(run, own(run)) == [
++        NO_VERDICT_MISSING.format(mv="absent", missing="audit.log F2/F3 row")
++    ]
++    run = make(tmp_path, name="run3")
++    (run / "adversarial/merged-verdict.yaml").write_bytes(b"\xff\xfe\n")
++    assert pl.lint_panel_contract(run, LEGACY_CONTRACT) == [
++        NO_VERDICT_MISSING.format(mv="unparseable", missing=ALL_MISSING)
++    ]
++
++
+ def test_f6_telemetry_must_be_a_mapping(tmp_path):
+     run = make(tmp_path, mutate=lambda c: c.update(telemetry=[1]))
+     assert pl.lint_panel_contract(run, LEGACY_CONTRACT) == [

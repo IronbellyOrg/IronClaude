@@ -1,0 +1,5 @@
+$ uv run pytest tests/skills tests/cli/reflect -q -p no:cacheprovider
+    with cli_runner.isolated_filesystem() as fs:
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+====== 2375 passed, 2 skipped, 1 xpassed, 5 warnings in 70.82s (0:01:10) =======

@@ -1,0 +1,7 @@
+$ uv run ruff check scripts/reflect_verdict_replay.py scripts/reflect_consumer_inventory.py tests/cli/reflect/test_verdict_replay_script.py
+All checks passed!
+$ uv run pytest tests/cli/reflect tests/review/test_reflect_consumer_inventory.py -q -p no:cacheprovider
+    with cli_runner.isolated_filesystem() as fs:
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+================== 334 passed, 1 xpassed, 5 warnings in 4.68s ==================

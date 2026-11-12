@@ -1,0 +1,7 @@
+$ uv run ruff check src/superclaude/cli/reflect/panel_lint.py tests/cli/reflect/test_panel_contract_lint.py
+All checks passed!
+$ uv run pytest tests/cli/reflect -q -p no:cacheprovider
+    with cli_runner.isolated_filesystem() as fs:
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+================== 307 passed, 1 xpassed, 5 warnings in 3.02s ==================

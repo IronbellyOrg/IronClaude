@@ -1,0 +1,1177 @@
+diff --git a/src/superclaude/cli/review/cluster.py b/src/superclaude/cli/review/cluster.py
+new file mode 100644
+index 000000000..67d84741b
+--- /dev/null
++++ b/src/superclaude/cli/review/cluster.py
+@@ -0,0 +1,468 @@
++"""Path-aware clustering of findings-v2 blocks (K4 cluster_v2) and the cluster_agreement telemetry value.
++
++cluster_v2(reviewer_records, snapshot_file_list) is a pure function: it reads its arguments, changes none of them and
++returns a JSON-serialisable dict. A reviewer record is (reviewer_id, ordinal, findings_v2_block, calibration_map).
++
++Inputs
++- reviewer_id: a non-empty string, unique across records; a record with a duplicate id is skipped and reported.
++- ordinal: an integer giving the resolution order; records are processed by (ordinal, input position).
++- findings_v2_block: a findings_v2.parse_block result (a dict; valid only when its state is complete and its
++  findings is a list) or a bare list of findings (taken as the findings of a valid block). Findings of a block that is
++  not valid are not clustered, and the reviewer is not a complete reviewer.
++- calibration_map: {finding_id: finding_confidence}, possibly empty or None. A confidence is used only when it is a
++  finite number from 0 to 1 (not a bool); a finding with no usable entry has no support value.
++- snapshot_file_list: path strings or mappings with a string path (the file_list or files entries of
++  artifacts/input-snapshot.yaml). A path matches only by exact string equality.
++
++A malformed record, finding, confidence or snapshot entry is skipped or downgraded and listed in problems; a malformed
++citation is counted under citations.malformed. No input shape makes cluster_v2 or clusters_kept raise.
++
++Rules
++- Citation tuple (role, path, line_start, line_end): a citation that findings_v2._check_citation rejects is malformed;
++  a well-formed citation whose path is not in the snapshot list is unresolved; otherwise it is resolved. Only resolved
++  citations take part in span matching.
++- Primary citation: the first citation whose role is the reviewed artifact of the finding's lens (plan for
++  reflect-pre, source or diff for reflect-post, spec for spec), else the first citation.
++- Fingerprint: sha256("v2|" + role + "|" + path + "|" + section + "|" + refs + "|" + class) over the primary
++  citation, refs being the comma-joined findings.refs_norm list and class the deviation_class or the empty string.
++  section is always the empty string: cluster_v2 receives no document text to take a section from. A finding whose
++  primary citation is not resolved has no fingerprint.
++- same_defect_v2(a, b): deviation classes compatible (equal, or either is null or none) and refs_norm sets that
++  intersect or are both empty and a resolved citation of each on the same path with spans within 3 lines; or equal
++  fingerprints with non-empty refs_norm.
++- Clusters are union-find components over the findings in resolution order; a cluster is chained when two of its
++  members do not match pairwise.
++- support(c) = sum, over the distinct reviewers in c, of the highest calibrated confidence of that reviewer's members
++  in c, divided by the number of complete reviewers (each complete reviewer weighs at most 1). A cluster with a member
++  that has no calibrated confidence has support None and is listed in uncalibrated.
++- Representative: the member with the highest calibrated confidence (members with none rank below every calibrated
++  one), ties broken by resolution order; it gives the cluster's claim. blocking_any and blocking_all are over all
++  members. A cluster is blocking when blocking_any is true.
++- disputed: support below 0.5, or members disagree on blocking, or members carry two different non-null
++  deviation_class values.
++- cluster_agreement: None with fewer than 2 complete reviewers; 1.0 when there is no blocking cluster; otherwise the
++  mean support over blocking clusters that are not chained and have a support value, or None when no such cluster
++  exists. Chained and uncalibrated clusters are listed.
++
++clusters_kept(reviewer_records, snapshot_file_list, kept) is the second pass: it runs cluster_v2 on copies of the
++records holding only the findings whose (reviewer_id, finding id) pair is in kept; block validity is unchanged.
++"""
++
++from __future__ import annotations
++
++import hashlib
++import math
++from typing import Any, Iterable
++
++from superclaude.cli.review.findings import refs_norm
++from superclaude.cli.review.findings_v2 import _check_citation
++
++PRIMARY_ROLES = {
++    "reflect-pre": ("plan",),
++    "reflect-post": ("source", "diff"),
++    "spec": ("spec",),
++}
++SPAN_TOLERANCE = 3
++
++
++def _str(value: Any) -> str | None:
++    return value if isinstance(value, str) else None
++
++
++def _confidence(value: Any) -> float | None:
++    if isinstance(value, bool) or not isinstance(value, (int, float)):
++        return None
++    value = float(value)
++    return value if math.isfinite(value) and 0 <= value <= 1 else None
++
++
++def _snapshot(snapshot_file_list: Any, problems: list[dict]) -> set[str]:
++    paths: set[str] = set()
++    if snapshot_file_list is None:
++        return paths
++    if isinstance(snapshot_file_list, (str, bytes, dict)) or not isinstance(
++        snapshot_file_list, Iterable
++    ):
++        problems.append({"msg": "snapshot_file_list is not a list of paths"})
++        return paths
++    for i, entry in enumerate(snapshot_file_list):
++        path = entry.get("path") if isinstance(entry, dict) else entry
++        if isinstance(path, str) and path:
++            paths.add(path)
++        else:
++            problems.append({"msg": f"snapshot entry {i} has no path string"})
++    return paths
++
++
++def _citation(c: Any, index: int, snapshot: set[str]) -> dict:
++    view = {
++        "index": index,
++        "role": _str(c.get("role")) if isinstance(c, dict) else None,
++        "path": _str(c.get("path")) if isinstance(c, dict) else None,
++        "line_start": c.get("line_start") if isinstance(c, dict) else None,
++        "line_end": c.get("line_end") if isinstance(c, dict) else None,
++    }
++    if _check_citation(c) is not None:
++        view.update(line_start=None, line_end=None, status="malformed")
++    else:
++        view["status"] = "resolved" if c["path"] in snapshot else "unresolved"
++    return view
++
++
++def _fingerprint(primary: dict, refs: list[str], dclass: str | None) -> str:
++    text = "|".join(
++        ("v2", primary["role"], primary["path"], "", ",".join(refs), dclass or "")
++    )
++    return hashlib.sha256(text.encode("utf-8")).hexdigest()
++
++
++def annotate(finding: dict, snapshot: set[str]) -> dict:
++    """The view of one finding that same_defect_v2 compares: citations with status, primary, refs_norm, class, fp."""
++    raw = finding.get("citations")
++    cits = [
++        _citation(c, i, snapshot)
++        for i, c in enumerate(raw if isinstance(raw, list) else [])
++    ]
++    roles = PRIMARY_ROLES.get(_str(finding.get("lens")) or "", ())
++    primary = next((c for c in cits if c["role"] in roles), cits[0] if cits else None)
++    refs = finding.get("refs")
++    # refs_norm expects string text fields; a non-string field is left out instead of raising.
++    safe: dict[str, Any] = {"refs": refs if isinstance(refs, list) else []}
++    for key in ("anchor", "anchor2", "claim"):
++        if isinstance(finding.get(key), str):
++            safe[key] = finding[key]
++    norm = refs_norm(safe)
++    dclass = _str(finding.get("deviation_class"))
++    fp = (
++        _fingerprint(primary, norm, dclass)
++        if primary and primary["status"] == "resolved"
++        else None
++    )
++    return {
++        "citations": cits,
++        "primary_citation": primary,
++        "refs_norm": norm,
++        "deviation_class": dclass,
++        "fp": fp,
++    }
++
++
++def _compatible(a: str | None, b: str | None) -> bool:
++    return a == b or a in (None, "none") or b in (None, "none")
++
++
++def same_defect_v2(a: dict, b: dict) -> bool:
++    """True when two annotated findings describe one defect under the rules in the module docstring."""
++    if a["fp"] and a["fp"] == b["fp"] and a["refs_norm"]:
++        return True
++    if not _compatible(a["deviation_class"], b["deviation_class"]):
++        return False
++    ra, rb = set(a["refs_norm"]), set(b["refs_norm"])
++    if not (ra & rb or (not ra and not rb)):
++        return False
++    for c1 in a["citations"]:
++        if c1["status"] != "resolved":
++            continue
++        for c2 in b["citations"]:
++            if (
++                c2["status"] == "resolved"
++                and c1["path"] == c2["path"]
++                and c1["line_start"] <= c2["line_end"] + SPAN_TOLERANCE
++                and c2["line_start"] <= c1["line_end"] + SPAN_TOLERANCE
++            ):
++                return True
++    return False
++
++
++def _records(reviewer_records: Any, problems: list[dict]) -> list[dict]:
++    """Valid and invalid reviewer records in resolution order; malformed records are reported and dropped."""
++    if isinstance(reviewer_records, (str, bytes, dict)) or not isinstance(
++        reviewer_records, Iterable
++    ):
++        if reviewer_records is not None:
++            problems.append({"msg": "reviewer_records is not a list of records"})
++        return []
++    out = []
++    for pos, rec in enumerate(reviewer_records):
++        if not isinstance(rec, (list, tuple)) or len(rec) != 4:
++            problems.append(
++                {
++                    "record": pos,
++                    "msg": "a record must be (reviewer_id, ordinal, block, calibration_map)",
++                }
++            )
++            continue
++        rid, ordinal, block, cal = rec
++        if not isinstance(rid, str) or not rid:
++            problems.append(
++                {"record": pos, "msg": "reviewer_id must be a non-empty string"}
++            )
++            continue
++        if isinstance(ordinal, bool) or not isinstance(ordinal, int):
++            problems.append({"record": pos, "msg": "ordinal must be an integer"})
++            continue
++        if cal is not None and not isinstance(cal, dict):
++            problems.append(
++                {
++                    "record": pos,
++                    "msg": "calibration_map is not a mapping; treated as empty",
++                }
++            )
++        if isinstance(block, list):
++            findings, valid = block, True
++        elif isinstance(block, dict) and isinstance(block.get("findings"), list):
++            findings, valid = block["findings"], block.get("state") == "complete"
++        else:
++            findings, valid = [], False
++        out.append(
++            {
++                "pos": pos,
++                "reviewer_id": rid,
++                "ordinal": ordinal,
++                "findings": findings,
++                "valid": valid,
++                "cal": cal if isinstance(cal, dict) else {},
++            }
++        )
++    out.sort(key=lambda r: (r["ordinal"], r["pos"]))
++    seen: set[str] = set()
++    unique = []
++    for r in out:
++        if r["reviewer_id"] in seen:
++            problems.append(
++                {
++                    "record": r["pos"],
++                    "msg": f"duplicate reviewer_id {r['reviewer_id']!r}; record skipped",
++                }
++            )
++            continue
++        seen.add(r["reviewer_id"])
++        unique.append(r)
++    return unique
++
++
++def _members(
++    records: list[dict], snapshot: set[str], problems: list[dict]
++) -> list[dict]:
++    members = []
++    for r in records:
++        if not r["valid"]:
++            continue
++        ids: set[str] = set()
++        for i, f in enumerate(r["findings"]):
++            fid = f.get("id") if isinstance(f, dict) else None
++            if not isinstance(fid, str) or not fid:
++                problems.append(
++                    {
++                        "record": r["pos"],
++                        "msg": f"finding {i} has no string id; skipped",
++                    }
++                )
++                continue
++            if fid in ids:
++                problems.append(
++                    {
++                        "record": r["pos"],
++                        "msg": f"duplicate finding id {fid!r}; skipped",
++                    }
++                )
++                continue
++            ids.add(fid)
++            conf = None
++            if fid in r["cal"]:
++                conf = _confidence(r["cal"][fid])
++                if conf is None:
++                    problems.append(
++                        {
++                            "record": r["pos"],
++                            "msg": f"calibration for {fid!r} is not a number from 0 to 1",
++                        }
++                    )
++            view = annotate(f, snapshot)
++            view.update(
++                order=len(members),
++                reviewer_id=r["reviewer_id"],
++                ordinal=r["ordinal"],
++                id=fid,
++                claim=_str(f.get("claim")) or "",
++                blocking=f.get("blocking") is True,
++                finding_confidence=conf,
++            )
++            members.append(view)
++    return members
++
++
++def _components(members: list[dict]) -> list[list[dict]]:
++    parent = list(range(len(members)))
++
++    def find(i: int) -> int:
++        while parent[i] != i:
++            parent[i] = parent[parent[i]]
++            i = parent[i]
++        return i
++
++    for i in range(len(members)):
++        for j in range(i + 1, len(members)):
++            if same_defect_v2(members[i], members[j]):
++                ri, rj = find(i), find(j)
++                if ri != rj:
++                    parent[max(ri, rj)] = min(ri, rj)
++    groups: dict[int, list[dict]] = {}
++    for i, m in enumerate(members):
++        groups.setdefault(find(i), []).append(m)
++    return [groups[k] for k in sorted(groups)]
++
++
++def _cluster(index: int, group: list[dict], n_complete: int) -> dict:
++    chained = any(
++        not same_defect_v2(a, b) for i, a in enumerate(group) for b in group[i + 1 :]
++    )
++    reviewers: list[str] = []
++    best: dict[str, float] = {}
++    for m in group:
++        if m["reviewer_id"] not in reviewers:
++            reviewers.append(m["reviewer_id"])
++        if m["finding_confidence"] is not None:
++            best[m["reviewer_id"]] = max(
++                best.get(m["reviewer_id"], 0.0), m["finding_confidence"]
++            )
++    uncalibrated = any(m["finding_confidence"] is None for m in group)
++    support = None if uncalibrated else sum(best[r] for r in reviewers) / n_complete
++    rep = min(
++        group,
++        key=lambda m: (
++            -(m["finding_confidence"] if m["finding_confidence"] is not None else -1.0),
++            m["order"],
++        ),
++    )
++    blocking = [m["blocking"] for m in group]
++    classes = {m["deviation_class"] for m in group if m["deviation_class"] is not None}
++    disputed = (
++        (support is not None and support < 0.5)
++        or len(set(blocking)) > 1
++        or len(classes) > 1
++    )
++    return {
++        "cluster_id": f"C{index}",
++        "members": [
++            {
++                "reviewer_id": m["reviewer_id"],
++                "ordinal": m["ordinal"],
++                "id": m["id"],
++                "blocking": m["blocking"],
++                "deviation_class": m["deviation_class"],
++                "finding_confidence": m["finding_confidence"],
++                "refs_norm": m["refs_norm"],
++                "primary_citation": m["primary_citation"],
++                "fp": m["fp"],
++            }
++            for m in group
++        ],
++        "member_scores": [m["finding_confidence"] for m in group],
++        "reviewers": reviewers,
++        "chained": chained,
++        "uncalibrated": uncalibrated,
++        "support": support,
++        "representative": {"reviewer_id": rep["reviewer_id"], "id": rep["id"]},
++        "claim": rep["claim"],
++        "blocking_any": any(blocking),
++        "blocking_all": all(blocking),
++        "disputed": disputed,
++    }
++
++
++def cluster_v2(reviewer_records: Any, snapshot_file_list: Any) -> dict:
++    """Cluster the findings of the valid blocks; see the module docstring for every rule."""
++    problems: list[dict] = []
++    snapshot = _snapshot(snapshot_file_list, problems)
++    records = _records(reviewer_records, problems)
++    complete = [r["reviewer_id"] for r in records if r["valid"]]
++    members = _members(records, snapshot, problems)
++    clusters = [
++        _cluster(i, g, len(complete)) for i, g in enumerate(_components(members), 1)
++    ]
++    blocking = [c for c in clusters if c["blocking_any"]]
++    counted = [c for c in blocking if not c["chained"] and c["support"] is not None]
++    if len(complete) < 2:
++        agreement = None
++    elif not blocking:
++        agreement = 1.0
++    else:
++        agreement = (
++            sum(c["support"] for c in counted) / len(counted) if counted else None
++        )
++    statuses = [c["status"] for m in members for c in m["citations"]]
++    return {
++        "complete_reviewers": complete,
++        "invalid_reviewers": [r["reviewer_id"] for r in records if not r["valid"]],
++        "valid_blocks": len(complete),
++        "clusters": clusters,
++        "cluster_agreement": agreement,
++        "blocking_clusters": len(blocking),
++        "agreement_clusters": [c["cluster_id"] for c in counted],
++        "chained": [c["cluster_id"] for c in clusters if c["chained"]],
++        "uncalibrated": [c["cluster_id"] for c in clusters if c["uncalibrated"]],
++        "uncalibrated_findings": [
++            {"reviewer_id": m["reviewer_id"], "id": m["id"]}
++            for m in members
++            if m["finding_confidence"] is None
++        ],
++        "citations": {
++            s: statuses.count(s) for s in ("resolved", "unresolved", "malformed")
++        },
++        "problems": problems,
++    }
++
++
++def _keep(findings: list, rid: Any, pairs: set[tuple[str, str]]) -> list:
++    return [
++        f
++        for f in findings
++        if isinstance(rid, str)
++        and isinstance(f, dict)
++        and isinstance(f.get("id"), str)
++        and (rid, f["id"]) in pairs
++    ]
++
++
++def clusters_kept(reviewer_records: Any, snapshot_file_list: Any, kept: Any) -> dict:
++    """cluster_v2 over only the findings whose (reviewer_id, finding id) pair is in kept."""
++    problems: list[dict] = []
++    pairs: set[tuple[str, str]] = set()
++    if isinstance(kept, (str, bytes, dict)) or not isinstance(kept, Iterable):
++        problems.append(
++            {
++                "msg": "kept is not a list of (reviewer_id, finding id) pairs; nothing kept"
++            }
++        )
++        kept = []
++    for k in kept:
++        if (
++            isinstance(k, (list, tuple))
++            and len(k) == 2
++            and all(isinstance(x, str) for x in k)
++        ):
++            pairs.add((k[0], k[1]))
++        else:
++            problems.append(
++                {"msg": "a kept entry is not a (reviewer_id, finding id) pair"}
++            )
++    filtered = reviewer_records
++    if not isinstance(reviewer_records, (str, bytes, dict)) and isinstance(
++        reviewer_records, Iterable
++    ):
++        filtered = []
++        for rec in reviewer_records:
++            if isinstance(rec, (list, tuple)) and len(rec) == 4:
++                rid, ordinal, block, cal = rec
++                if isinstance(block, list):
++                    block = _keep(block, rid, pairs)
++                elif isinstance(block, dict) and isinstance(
++                    block.get("findings"), list
++                ):
++                    block = {**block, "findings": _keep(block["findings"], rid, pairs)}
++                rec = (rid, ordinal, block, cal)
++            filtered.append(rec)
++    out = cluster_v2(filtered, snapshot_file_list)
++    out["problems"].extend(problems)
++    return out
+diff --git a/tests/review/test_review_cluster.py b/tests/review/test_review_cluster.py
+new file mode 100644
+index 000000000..e365a42e7
+--- /dev/null
++++ b/tests/review/test_review_cluster.py
+@@ -0,0 +1,697 @@
++"""K4 cluster_v2: path-aware clustering, the chained guard and cluster_agreement."""
++
++from __future__ import annotations
++
++import ast
++import copy
++import hashlib
++import json
++import os
++import subprocess
++import sys
++from pathlib import Path
++
++import pytest
++from test_review_cli import A_S1, A_S3, SEEDED, finding, report
++
++from superclaude.cli.review import cluster as cl
++
++SNAP = ["src/a.py", "src/b.py", "plan.md", "spec.md"]
++MODULE = Path(cl.__file__)
++
++
++def cit(path="src/a.py", start=10, end=None, role="source"):
++    return {"role": role, "path": path, "line_start": start, "line_end": end or start}
++
++
++def fnd(fid, *cits, refs=(), blocking=True, cls=None, claim="x", lens=None):
++    out = {
++        "id": fid,
++        "severity": "MAJOR" if blocking else "MINOR",
++        "blocking": blocking,
++        "category": "other",
++        "claim": claim,
++        "refs": list(refs),
++        "citations": list(cits) or [cit()],
++    }
++    if cls is not None:
++        out["deviation_class"] = cls
++    if lens is not None:
++        out["lens"] = lens
++    return out
++
++
++def block(*findings, state="complete"):
++    return {
++        "ok": state == "complete",
++        "state": state,
++        "findings": list(findings),
++        "errors": [],
++    }
++
++
++def rec(rid, ordinal, *findings, cal=None, state="complete"):
++    return (rid, ordinal, block(*findings, state=state), cal)
++
++
++def ids(result):
++    return [
++        [(m["reviewer_id"], m["id"]) for m in c["members"]] for c in result["clusters"]
++    ]
++
++
++# ------------------------------------------------------------ acceptance: spans and paths
++
++
++def test_line_10_of_two_different_files_does_not_cluster():
++    out = cl.cluster_v2(
++        [
++            rec("r1", 1, fnd("A", cit("src/a.py", 10), refs=["REQ-1"])),
++            rec("r2", 2, fnd("B", cit("src/b.py", 10), refs=["REQ-1"])),
++        ],
++        SNAP,
++    )
++    assert ids(out) == [[("r1", "A")], [("r2", "B")]]
++
++
++def test_same_file_within_3_lines_and_equal_refs_cluster():
++    out = cl.cluster_v2(
++        [
++            rec("r1", 1, fnd("A", cit("src/a.py", 10), refs=["REQ-1"])),
++            rec("r2", 2, fnd("B", cit("src/a.py", 13), refs=["REQ-1"])),
++        ],
++        SNAP,
++    )
++    assert ids(out) == [[("r1", "A"), ("r2", "B")]]
++    assert out["clusters"][0]["reviewers"] == ["r1", "r2"]
++
++
++def test_same_file_4_lines_apart_or_unequal_refs_do_not_cluster():
++    apart = cl.cluster_v2(
++        [
++            rec("r1", 1, fnd("A", cit("src/a.py", 10))),
++            rec("r2", 2, fnd("B", cit("src/a.py", 14))),
++        ],
++        SNAP,
++    )
++    assert len(apart["clusters"]) == 2
++    refs = cl.cluster_v2(
++        [
++            rec("r1", 1, fnd("A", cit("src/a.py", 10), refs=["REQ-1"])),
++            rec("r2", 2, fnd("B", cit("src/a.py", 10), refs=["REQ-2"])),
++        ],
++        SNAP,
++    )
++    assert len(refs["clusters"]) == 2
++
++
++def test_chain_a_b_c_with_a_and_c_unequal_is_chained_and_listed():
++    out = cl.cluster_v2(
++        [
++            rec("r1", 1, fnd("A", cit("src/a.py", 10))),
++            rec("r2", 2, fnd("B", cit("src/a.py", 13))),
++            rec("r3", 3, fnd("C", cit("src/a.py", 16))),
++        ],
++        SNAP,
++    )
++    assert ids(out) == [[("r1", "A"), ("r2", "B"), ("r3", "C")]]
++    assert out["clusters"][0]["chained"] is True
++    assert out["chained"] == ["C1"]
++    # the only blocking cluster is chained, so nothing is counted and there is no mean
++    assert out["agreement_clusters"] == [] and out["cluster_agreement"] is None
++
++
++def test_a_cluster_whose_members_all_match_is_not_chained():
++    out = cl.cluster_v2(
++        [
++            rec("r1", 1, fnd("A", cit("src/a.py", 10))),
++            rec("r2", 2, fnd("B", cit("src/a.py", 11))),
++        ],
++        SNAP,
++    )
++    assert out["clusters"][0]["chained"] is False and out["chained"] == []
++
++
++def test_unresolved_path_never_clusters_by_span():
++    same = dict(refs=["REQ-1"], cls="drift")
++    out = cl.cluster_v2(
++        [
++            rec("r1", 1, fnd("A", cit("src/zz.py", 10), **same)),
++            rec("r2", 2, fnd("B", cit("src/zz.py", 10), **same)),
++        ],
++        SNAP,
++    )
++    assert len(out["clusters"]) == 2
++    assert out["citations"] == {"resolved": 0, "unresolved": 2, "malformed": 0}
++    assert [c["members"][0]["fp"] for c in out["clusters"]] == [None, None]
++    # the same pair on a snapshot path clusters
++    ok = cl.cluster_v2(
++        [
++            rec("r1", 1, fnd("A", cit("src/a.py", 10), **same)),
++            rec("r2", 2, fnd("B", cit("src/a.py", 10), **same)),
++        ],
++        SNAP,
++    )
++    assert len(ok["clusters"]) == 1
++
++
++def test_snapshot_path_match_is_exact_and_accepts_snapshot_entries():
++    entries = [{"path": "src/a.py", "sha256": "0" * 64}]
++    out = cl.cluster_v2(
++        [
++            rec("r1", 1, fnd("A", cit("./src/a.py", 10))),
++            rec("r2", 2, fnd("B", cit("src/a.py", 10))),
++        ],
++        entries,
++    )
++    assert out["citations"] == {"resolved": 1, "unresolved": 1, "malformed": 0}
++    assert len(out["clusters"]) == 2
++
++
++def test_unresolved_citation_does_not_block_a_resolved_one():
++    out = cl.cluster_v2(
++        [
++            rec("r1", 1, fnd("A", cit("src/zz.py", 10), cit("src/a.py", 40))),
++            rec("r2", 2, fnd("B", cit("src/a.py", 42))),
++        ],
++        SNAP,
++    )
++    assert len(out["clusters"]) == 1
++
++
++def test_malformed_and_converter_unresolved_citations_never_join():
++    bad = {"role": "source", "path": "/abs/a.py", "line_start": 10, "line_end": 10}
++    conv = {"role": "unresolved", "ref": "src/a.py:10", "reason": "no path"}
++    out = cl.cluster_v2(
++        [
++            rec("r1", 1, fnd("A", bad)),
++            rec("r2", 2, fnd("B", conv)),
++            rec("r3", 3, fnd("C", cit("src/a.py", 10))),
++        ],
++        SNAP,
++    )
++    assert len(out["clusters"]) == 3
++    assert out["citations"] == {"resolved": 1, "unresolved": 0, "malformed": 2}
++
++
++# ------------------------------------------------------------ classes, refs, fingerprint, primary
++
++
++@pytest.mark.parametrize(
++    "c1, c2, joined",
++    [
++        ("drift", "regression", False),
++        ("drift", "drift", True),
++        ("drift", "none", True),
++        ("drift", None, True),
++        (None, None, True),
++    ],
++)
++def test_deviation_classes_must_be_compatible(c1, c2, joined):
++    out = cl.cluster_v2(
++        [
++            rec("r1", 1, fnd("A", cls=c1)),
++            rec("r2", 2, fnd("B", cls=c2)),
++        ],
++        SNAP,
++    )
++    assert (len(out["clusters"]) == 1) is joined
++
++
++def test_refs_norm_reads_claim_tokens_like_v1():
++    out = cl.cluster_v2(
++        [
++            rec("r1", 1, fnd("A", claim="breaks REQ-7")),
++            rec("r2", 2, fnd("B", refs=["REQ-7"])),
++            rec("r3", 3, fnd("C", refs=["REQ-8"])),
++        ],
++        SNAP,
++    )
++    assert ids(out) == [[("r1", "A"), ("r2", "B")], [("r3", "C")]]
++
++
++def test_fingerprint_of_a_citation_only_finding_uses_an_empty_section():
++    out = cl.cluster_v2(
++        [rec("r1", 1, fnd("A", cit("src/a.py", 10), refs=["REQ-1"], cls="drift"))],
++        SNAP,
++    )
++    want = hashlib.sha256(b"v2|source|src/a.py||REQ-1|drift").hexdigest()
++    assert out["clusters"][0]["members"][0]["fp"] == want
++    none_class = cl.annotate(fnd("A", refs=["REQ-1"]), set(SNAP))
++    assert none_class["fp"] == hashlib.sha256(b"v2|source|src/a.py||REQ-1|").hexdigest()
++
++
++def test_equal_fingerprints_match_only_with_non_empty_refs():
++    with_refs = cl.cluster_v2(
++        [
++            rec("r1", 1, fnd("A", cit("src/a.py", 10), refs=["REQ-1"])),
++            rec("r2", 2, fnd("B", cit("src/a.py", 200), refs=["REQ-1"])),
++        ],
++        SNAP,
++    )
++    assert len(with_refs["clusters"]) == 1
++    no_refs = cl.cluster_v2(
++        [
++            rec("r1", 1, fnd("A", cit("src/a.py", 10))),
++            rec("r2", 2, fnd("B", cit("src/a.py", 200))),
++        ],
++        SNAP,
++    )
++    assert len(no_refs["clusters"]) == 2
++
++
++@pytest.mark.parametrize(
++    "lens, roles, want",
++    [
++        ("reflect-pre", ["spec", "plan"], 1),
++        ("reflect-post", ["plan", "diff", "source"], 1),
++        ("reflect-post", ["plan", "source"], 1),
++        ("spec", ["plan", "spec"], 1),
++        (None, ["spec", "plan"], 0),
++        ("reflect-pre", ["spec", "source"], 0),
++    ],
++)
++def test_primary_citation_rule(lens, roles, want):
++    f = fnd("A", *[cit("plan.md", 1, role=r) for r in roles], lens=lens)
++    assert cl.annotate(f, set(SNAP))["primary_citation"]["index"] == want
++
++
++def test_finding_without_citations_has_no_primary_and_stays_alone():
++    anchor_only = {
++        "id": "A",
++        "severity": "MAJOR",
++        "blocking": True,
++        "category": "other",
++        "anchor": "an anchor quote of enough length",
++        "claim": "x",
++        "refs": ["REQ-1"],
++    }
++    out = cl.cluster_v2(
++        [rec("r1", 1, anchor_only), rec("r2", 2, dict(anchor_only, id="B"))], SNAP
++    )
++    assert len(out["clusters"]) == 2
++    assert out["clusters"][0]["members"][0]["primary_citation"] is None
++
++
++# ------------------------------------------------------------ cluster_agreement, support, representative
++
++
++def test_cluster_agreement_is_1_with_no_blocking_clusters_and_two_valid_blocks():
++    empty = ("r2", 2, block(), {})
++    out = cl.cluster_v2(
++        [rec("r1", 1, fnd("A", blocking=False), cal={"A": 0.9}), empty], SNAP
++    )
++    assert out["valid_blocks"] == 2 and out["blocking_clusters"] == 0
++    assert out["cluster_agreement"] == 1.0
++
++
++def test_cluster_agreement_is_null_with_fewer_than_two_valid_blocks():
++    one = cl.cluster_v2(
++        [
++            rec("r1", 1, fnd("A", blocking=False)),
++            rec("r2", 2, fnd("B", blocking=False), state="invalid"),
++        ],
++        SNAP,
++    )
++    assert one["valid_blocks"] == 1 and one["cluster_agreement"] is None
++    assert one["invalid_reviewers"] == ["r2"]
++    assert cl.cluster_v2([], SNAP)["cluster_agreement"] is None
++
++
++def test_support_and_agreement_from_calibrated_confidences():
++    out = cl.cluster_v2(
++        [
++            rec("r1", 1, fnd("A"), cal={"A": 0.9}),
++            rec(
++                "r2",
++                2,
++                fnd("B"),
++                fnd("B2", cit("src/a.py", 11)),
++                cal={"B": 0.6, "B2": 0.3},
++            ),
++            rec("r3", 3, fnd("C", cit("src/b.py", 50)), cal={"C": 0.8}),
++        ],
++        SNAP,
++    )
++    first, second = out["clusters"]
++    # distinct reviewers r1 (0.9) and r2 (max of 0.6, 0.3) over 3 complete reviewers
++    assert first["support"] == pytest.approx(1.5 / 3)
++    assert first["member_scores"] == [0.9, 0.6, 0.3]
++    assert second["support"] == pytest.approx(0.8 / 3)
++    assert out["cluster_agreement"] == pytest.approx((0.5 + 0.8 / 3) / 2)
++    assert out["agreement_clusters"] == ["C1", "C2"]
++
++
++def test_uncalibrated_member_gives_no_support_and_is_listed():
++    out = cl.cluster_v2(
++        [
++            rec("r1", 1, fnd("A"), cal={"A": 0.9}),
++            rec("r2", 2, fnd("B"), cal={}),
++            rec("r3", 3, fnd("C", cit("src/b.py", 1)), cal=None),
++        ],
++        SNAP,
++    )
++    assert [c["support"] for c in out["clusters"]] == [None, None]
++    assert out["uncalibrated"] == ["C1", "C2"]
++    assert out["uncalibrated_findings"] == [
++        {"reviewer_id": "r2", "id": "B"},
++        {"reviewer_id": "r3", "id": "C"},
++    ]
++    assert out["cluster_agreement"] is None
++
++
++@pytest.mark.parametrize("value", [float("nan"), float("inf"), 1.5, -0.1, True, "0.9"])
++def test_unusable_confidence_counts_as_uncalibrated_and_is_reported(value):
++    out = cl.cluster_v2(
++        [
++            rec("r1", 1, fnd("A"), cal={"A": value}),
++            rec("r2", 2, fnd("B", cit("src/b.py", 1)), cal={"B": 1}),
++        ],
++        SNAP,
++    )
++    assert out["uncalibrated_findings"] == [{"reviewer_id": "r1", "id": "A"}]
++    assert any("'A'" in p["msg"] for p in out["problems"])
++    json.dumps(out, allow_nan=False)
++
++
++def test_chained_cluster_excluded_from_agreement_count():
++    out = cl.cluster_v2(
++        [
++            rec("r1", 1, fnd("A", cit("src/a.py", 10)), cal={"A": 0.2}),
++            rec("r2", 2, fnd("B", cit("src/a.py", 13)), cal={"B": 0.2}),
++            rec(
++                "r3",
++                3,
++                fnd("C", cit("src/a.py", 16)),
++                fnd("D", cit("src/b.py", 1)),
++                cal={"C": 0.2, "D": 0.9},
++            ),
++        ],
++        SNAP,
++    )
++    assert out["chained"] == ["C1"] and out["agreement_clusters"] == ["C2"]
++    assert out["cluster_agreement"] == pytest.approx(0.9 / 3)
++
++
++def test_representative_is_highest_confidence_with_ties_by_resolution_order():
++    records = [
++        rec("late", 5, fnd("L", claim="late claim"), cal={"L": 0.7}),
++        rec("early", 2, fnd("E", claim="early claim"), cal={"E": 0.7}),
++        rec("low", 1, fnd("W", claim="low claim"), cal={"W": 0.1}),
++    ]
++    out = cl.cluster_v2(records, SNAP)
++    c = out["clusters"][0]
++    assert [m["reviewer_id"] for m in c["members"]] == ["low", "early", "late"]
++    assert c["representative"] == {"reviewer_id": "early", "id": "E"}
++    assert c["claim"] == "early claim"
++
++
++def test_uncalibrated_member_ranks_below_calibrated_for_representative():
++    out = cl.cluster_v2(
++        [
++            rec("r1", 1, fnd("A", claim="first"), cal={}),
++            rec("r2", 2, fnd("B", claim="second"), cal={"B": 0.1}),
++        ],
++        SNAP,
++    )
++    assert out["clusters"][0]["claim"] == "second"
++
++
++def test_blocking_any_all_and_disputed():
++    split = cl.cluster_v2(
++        [
++            rec("r1", 1, fnd("A", blocking=True), cal={"A": 0.9}),
++            rec("r2", 2, fnd("B", blocking=False), cal={"B": 0.9}),
++        ],
++        SNAP,
++    )["clusters"][0]
++    assert split["blocking_any"] is True and split["blocking_all"] is False
++    assert split["support"] == pytest.approx(0.9) and split["disputed"] is True
++
++    agreed = cl.cluster_v2(
++        [
++            rec("r1", 1, fnd("A"), cal={"A": 0.9}),
++            rec("r2", 2, fnd("B"), cal={"B": 0.9}),
++        ],
++        SNAP,
++    )["clusters"][0]
++    assert agreed["blocking_all"] is True and agreed["disputed"] is False
++
++    low = cl.cluster_v2(
++        [
++            rec("r1", 1, fnd("A"), cal={"A": 0.4}),
++            rec("r2", 2, fnd("B", cit("src/b.py", 1)), cal={"B": 0.9}),
++        ],
++        SNAP,
++    )["clusters"][0]
++    assert low["support"] == pytest.approx(0.2) and low["disputed"] is True
++
++    classes = cl.cluster_v2(
++        [
++            rec("r1", 1, fnd("A", cls="drift"), cal={"A": 0.9}),
++            rec("r2", 2, fnd("B", cls="none"), cal={"B": 0.9}),
++        ],
++        SNAP,
++    )["clusters"][0]
++    assert classes["disputed"] is True
++
++
++# ------------------------------------------------------------ records, robustness, purity
++
++
++def test_bare_list_is_a_valid_block_and_invalid_block_findings_are_not_clustered():
++    out = cl.cluster_v2(
++        [
++            ("r1", 1, [fnd("A")], {}),
++            rec("r2", 2, fnd("B"), state="truncated"),
++            ("r3", 3, {"state": "complete", "findings": "nope"}, {}),
++        ],
++        SNAP,
++    )
++    assert out["complete_reviewers"] == ["r1"]
++    assert out["invalid_reviewers"] == ["r2", "r3"]
++    assert ids(out) == [[("r1", "A")]]
++
++
++def test_duplicate_reviewer_id_is_skipped_and_reported():
++    out = cl.cluster_v2(
++        [rec("r1", 2, fnd("A")), rec("r1", 1, fnd("B", cit("src/b.py", 1)))], SNAP
++    )
++    assert ids(out) == [[("r1", "B")]]
++    assert any("duplicate reviewer_id" in p["msg"] for p in out["problems"])
++
++
++MALFORMED = [
++    None,
++    5,
++    "text",
++    {},
++    [None],
++    [("r1",)],
++    [("r1", "1", [], {})],
++    [(7, 1, [], {})],
++    [("r1", True, [], {})],
++    [("r1", 1, None, None)],
++    [("r1", 1, [None, {"id": 5}, {"id": ""}], "cal")],
++    [
++        (
++            "r1",
++            1,
++            [
++                {"id": "a", "citations": "x"},
++                {"id": "a"},
++                {
++                    "id": "b",
++                    "citations": [
++                        None,
++                        {"role": "source", "path": 3, "line_start": "1"},
++                        {
++                            "role": "source",
++                            "path": "src/a.py",
++                            "line_start": 0,
++                            "line_end": 1,
++                        },
++                        {
++                            "role": "source",
++                            "path": "src/a.py",
++                            "line_start": 5,
++                            "line_end": 2,
++                        },
++                        {
++                            "role": "source",
++                            "path": "src/a.py",
++                            "line_start": 1,
++                            "line_end": 1,
++                            "quote": "short",
++                        },
++                    ],
++                    "refs": [1, None, ["REQ-1"]],
++                    "claim": 7,
++                    "anchor": ["x"],
++                    "blocking": "yes",
++                    "deviation_class": ["drift"],
++                    "lens": {"x": 1},
++                },
++                {"id": "c", "refs": "REQ-1", "citations": [cit()]},
++            ],
++            {"a": float("nan"), "b": True, ("t",): 1},
++        ),
++        ("r2", 2, [{"id": "d", "citations": [cit()]}], {"d": 0.5}),
++    ],
++]
++
++
++@pytest.mark.parametrize("records", MALFORMED)
++@pytest.mark.parametrize(
++    "snapshot", [SNAP, None, 3, "src/a.py", [None, {"path": 3}, "src/a.py"]]
++)
++def test_malformed_input_never_raises(records, snapshot):
++    out = cl.cluster_v2(records, snapshot)
++    json.dumps(out, allow_nan=False)
++    assert isinstance(out["clusters"], list)
++    kept = cl.clusters_kept(records, snapshot, [("r1", "a"), ["r2", "d"], None])
++    json.dumps(kept, allow_nan=False)
++
++
++def test_malformed_input_is_reported():
++    out = cl.cluster_v2(MALFORMED[-1], [None, "src/a.py"])
++    msgs = " | ".join(p["msg"] for p in out["problems"])
++    for part in (
++        "snapshot entry 0 has no path string",
++        "duplicate finding id 'a'",
++        "calibration for 'a' is not a number from 0 to 1",
++    ):
++        assert part in msgs
++    assert out["citations"]["malformed"] == 5
++    bad = cl.cluster_v2([("r1", "1", [], {}), ("r2", 1, [], "cal"), 3], 3)
++    msgs = " | ".join(p["msg"] for p in bad["problems"])
++    for part in (
++        "snapshot_file_list is not a list of paths",
++        "ordinal must be an integer",
++        "calibration_map is not a mapping; treated as empty",
++        "a record must be (reviewer_id, ordinal, block, calibration_map)",
++    ):
++        assert part in msgs
++    assert (
++        "reviewer_records is not a list of records"
++        in cl.cluster_v2(5, SNAP)["problems"][0]["msg"]
++    )
++
++
++def test_inputs_are_not_changed_and_output_is_deterministic():
++    records = [
++        rec("r2", 2, fnd("B", cit("src/a.py", 12), refs=["REQ-1"]), cal={"B": 0.4}),
++        rec(
++            "r1",
++            1,
++            fnd("A", cit("src/a.py", 10), refs=["REQ-1"]),
++            fnd("Z", cit("src/b.py", 3)),
++            cal={"A": 0.8},
++        ),
++        rec("r3", 3, fnd("C", cit("src/b.py", 4)), cal={"C": 0.5}),
++    ]
++    before = copy.deepcopy(records)
++    first = json.dumps(cl.cluster_v2(records, SNAP), sort_keys=False)
++    assert records == before
++    assert json.dumps(cl.cluster_v2(records, list(reversed(SNAP)))) == first
++    shuffled = [records[2], records[0], records[1]]
++    assert json.dumps(cl.cluster_v2(shuffled, SNAP)) == first
++    assert ids(json.loads(first)) == [
++        [("r1", "A"), ("r2", "B")],
++        [("r1", "Z"), ("r3", "C")],
++    ]
++
++
++# ------------------------------------------------------------ second pass
++
++
++def test_clusters_kept_recomputes_over_kept_findings_only():
++    records = [
++        rec("r1", 1, fnd("A", cit("src/a.py", 10)), cal={"A": 0.9}),
++        rec("r2", 2, fnd("B", cit("src/a.py", 13)), cal={"B": 0.9}),
++        rec("r3", 3, fnd("C", cit("src/a.py", 16)), cal={"C": 0.9}),
++    ]
++    raw = cl.cluster_v2(records, SNAP)
++    assert raw["chained"] == ["C1"]
++    kept = cl.clusters_kept(records, SNAP, [("r1", "A"), ("r3", "C")])
++    assert ids(kept) == [[("r1", "A")], [("r3", "C")]]
++    assert kept["chained"] == [] and kept["valid_blocks"] == 3
++    assert kept["cluster_agreement"] == pytest.approx(0.3)
++    nothing = cl.clusters_kept(records, SNAP, None)
++    assert nothing["clusters"] == [] and nothing["cluster_agreement"] == 1.0
++    assert any("nothing kept" in p["msg"] for p in nothing["problems"])
++
++
++# ------------------------------------------------------------ v1 merge unaffected, names
++
++
++_MERGE = """
++import json, sys
++if sys.argv[1] == "with":
++    import superclaude.cli.review.cluster
++from click.testing import CliRunner
++from superclaude.cli.main import main
++res = CliRunner().invoke(main, sys.argv[2:])
++print(json.dumps({"exit": res.exit_code, "output": res.output,
++                  "loaded": "superclaude.cli.review.cluster" in sys.modules}))
++"""
++
++
++def test_review_merge_v1_output_is_byte_identical_with_and_without_the_module(tmp_path):
++    doc = tmp_path / "spec.md"
++    doc.write_text(SEEDED)
++    r1, r2 = tmp_path / "r1.md", tmp_path / "r2.md"
++    r1.write_text(report(finding("F1", A_S1, ["FR-3"])))
++    r2.write_text(report(finding("G1", A_S3, ["FR-4"])))
++    env = dict(os.environ, PYTHONDONTWRITEBYTECODE="1")
++    runs = {}
++    for mode in ("without", "with"):
++        d = tmp_path / mode
++        d.mkdir()
++        args = [
++            "review", "merge",
++            "--ledger", str(d / "ledger.json"),
++            "--doc", str(doc),
++            "--round", "1",
++            "--report", f"t1b-1={r1}",
++            "--report", f"t2-1={r2}",
++            "--out", str(d / "merged.md"),
++        ]  # fmt: skip
++        proc = subprocess.run(
++            [sys.executable, "-c", _MERGE, mode, *args],
++            capture_output=True,
++            text=True,
++            env=env,
++            check=True,
++        )
++        res = json.loads(proc.stdout.strip().splitlines()[-1])
++        assert res["exit"] == 0, res["output"]
++        assert res["loaded"] is (mode == "with")
++        runs[mode] = (
++            res["output"],
++            (d / "ledger.json").read_bytes(),
++            (d / "merged.md").read_bytes(),
++        )
++    assert runs["with"] == runs["without"]
++
++
++def test_field_is_named_cluster_agreement_and_the_old_name_is_absent():
++    old = "panel_" + "agreement_score"
++    for path in (MODULE, Path(__file__)):
++        assert old not in path.read_text(encoding="utf-8")
++    out = cl.cluster_v2([], SNAP)
++    assert "cluster_agreement" in out and old not in json.dumps(out)
++
++
++def test_module_does_not_import_v1_cluster():
++    tree = ast.parse(MODULE.read_text(encoding="utf-8"))
++    imported = {
++        alias.name
++        for node in ast.walk(tree)
++        if isinstance(node, ast.ImportFrom)
++        and node.module
++        and "findings" in node.module
++        for alias in node.names
++    }
++    assert imported == {"refs_norm", "_check_citation"}
++    assert "findings.cluster" not in MODULE.read_text(encoding="utf-8")

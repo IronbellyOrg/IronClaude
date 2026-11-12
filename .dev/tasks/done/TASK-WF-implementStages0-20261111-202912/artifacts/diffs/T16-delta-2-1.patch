@@ -1,0 +1,287 @@
+diff --git a/.dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/stage2-entry-inventory-diff.md b/.dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/stage2-entry-inventory-diff.md
+index 814b34762..ece6f58c1 100644
+--- a/.dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/stage2-entry-inventory-diff.md
++++ b/.dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/stage2-entry-inventory-diff.md
+@@ -22,10 +22,11 @@ No file dropped out of the inventory.
+ - By basis: named 45 -> 49, cue 275 -> 277.
+ - By scan root: `src/` 50 -> 51, `tests/` 90 -> 94, `scripts/` 4 -> 5, `.dev/eval-workspaces/` 167, `docs/` 9 (unchanged).
+ - Row for `tests/cli/reflect/`: 32 -> 36 files.
++- The negative statement about Task 15: the Task 6 text predicted that a rerun after Task 15 would list `panel_lint.py` among the `contract_version == "1.8.0"` equalities. It does not: `panel_lint.py` compares `version != CONTRACT_VERSION`, which the literal search does not match, so the CONTRADICTED list still holds the same two prose lines in `SKILL.md` and `refs/grader-extensions.md`. The sentence in `scripts/reflect_consumer_inventory.py` was corrected at Task 16 to say so; the Task 6 file `consumer-inventory.md` is left as it was.
+ 
+ ## Raw diff
+ 
+-Output of `diff ./artifacts/consumer-inventory.md ./artifacts/stage2-entry-inventory.md` (29 lines):
++Output of `diff ./artifacts/consumer-inventory.md ./artifacts/stage2-entry-inventory.md` (33 lines):
+ 
+ ```text
+ 11c11
+@@ -42,6 +43,10 @@ Output of `diff ./artifacts/consumer-inventory.md ./artifacts/stage2-entry-inven
+ > - Hit files by role: producer 52, validator 5, consumer 243, not in scope 26.
+ > - Hit files by basis: named 49, cue 277.
+ > - Hit files by scan root: `src/` 51, `tests/` 94, `scripts/` 5, `.dev/eval-workspaces/` 167, `docs/` 9.
++26c26
++< - Task 15 of this plan will add such an equality in `src/superclaude/cli/reflect/panel_lint.py`; a rerun after it lists that line.
++---
++> - The Task 15 lint (`src/superclaude/cli/reflect/panel_lint.py`) checks the version as `version != CONTRACT_VERSION` with `CONTRACT_VERSION = "1.8.0"`, not as the literal equality this search looks for, so a rerun does not list it here.
+ 50c50
+ < | `tests/cli/reflect/` | consumer | deferred item 9 (reflect tests and fixtures) | yes | 32 file(s) |
+ ---
+@@ -56,5 +61,5 @@ Output of `diff ./artifacts/consumer-inventory.md ./artifacts/stage2-entry-inven
+ 314a319
+ > | `tests/cli/reflect/test_panel_contract_lint.py` | consumer | named | 31 | 10 | 3 | 4 | 7 | 0 | 1 | 1 | 7 | 2 |
+ 315a321
+-> | `tests/cli/reflect/test_verdict_replay_script.py` | consumer | named | 4 | 0 | 0 | 0 | 2 | 0 | 0 | 0 | 0 | 2 |
++> | `tests/cli/reflect/test_verdict_replay_script.py` | consumer | named | 6 | 0 | 0 | 0 | 2 | 0 | 2 | 0 | 0 | 2 |
+ ```
+diff --git a/.dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/stage2-entry-inventory.md b/.dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/stage2-entry-inventory.md
+index 9a0d87d13..46a82875c 100644
+--- a/.dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/stage2-entry-inventory.md
++++ b/.dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/stage2-entry-inventory.md
+@@ -23,7 +23,7 @@ Scan roots: `src/`, `tests/`, `scripts/`, `.dev/eval-workspaces/`, `docs/`.
+   - `src/superclaude/skills/sc-reflect-protocol/SKILL.md:1877` (prose)
+   - `src/superclaude/skills/sc-reflect-protocol/refs/grader-extensions.md:180` (prose)
+   - Python code lines among them: 0.
+-- Task 15 of this plan will add such an equality in `src/superclaude/cli/reflect/panel_lint.py`; a rerun after it lists that line.
++- The Task 15 lint (`src/superclaude/cli/reflect/panel_lint.py`) checks the version as `version != CONTRACT_VERSION` with `CONTRACT_VERSION = "1.8.0"`, not as the literal equality this search looks for, so a rerun does not list it here.
+ - `.dev/eval-workspaces/sc-reflect/grader.py` has no match for any of the nine words or for `convergence`. It needs no change while the contract stays 1.8.0.
+ 
+ ## Named role files
+@@ -318,7 +318,7 @@ of the script docstring; a cue-based `consumer` references the field, which is n
+ | `tests/cli/reflect/test_ensemble_unit.py` | consumer | named | 26 | 2 | 12 | 22 | 0 | 2 | 1 | 0 | 0 | 0 |
+ | `tests/cli/reflect/test_panel_contract_lint.py` | consumer | named | 31 | 10 | 3 | 4 | 7 | 0 | 1 | 1 | 7 | 2 |
+ | `tests/cli/reflect/test_verdict_mapping.py` | consumer | named | 9 | 2 | 3 | 3 | 1 | 0 | 0 | 0 | 0 | 3 |
+-| `tests/cli/reflect/test_verdict_replay_script.py` | consumer | named | 4 | 0 | 0 | 0 | 2 | 0 | 0 | 0 | 0 | 2 |
++| `tests/cli/reflect/test_verdict_replay_script.py` | consumer | named | 6 | 0 | 0 | 0 | 2 | 0 | 2 | 0 | 0 | 2 |
+ | `tests/commands/test_workflow_command.py` | consumer | cue | 1 | 0 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 |
+ | `tests/review/test_reflect_consumer_inventory.py` | consumer | cue | 54 | 30 | 5 | 10 | 9 | 0 | 1 | 1 | 4 | 3 |
+ | `tests/review/test_reflect_stage0a_replay.py` | consumer | cue | 18 | 13 | 5 | 6 | 0 | 0 | 0 | 0 | 0 | 0 |
+diff --git a/scripts/reflect_consumer_inventory.py b/scripts/reflect_consumer_inventory.py
+index ca09c8e7e..6a8e06ce1 100644
+--- a/scripts/reflect_consumer_inventory.py
++++ b/scripts/reflect_consumer_inventory.py
+@@ -416,8 +416,9 @@ def render(root: Path, res: dict) -> str:
+     out += ["", "## Negative statements", ""]
+     out += _equality_line(res)
+     out.append(
+-        "- Task 15 of this plan will add such an equality in `src/superclaude/cli/reflect/panel_lint.py`; "
+-        "a rerun after it lists that line."
++        "- The Task 15 lint (`src/superclaude/cli/reflect/panel_lint.py`) checks the version as "
++        '`version != CONTRACT_VERSION` with `CONTRACT_VERSION = "1.8.0"`, not as the literal equality this search '
++        "looks for, so a rerun does not list it here."
+     )
+     out.append(_grader_line(root, res))
+ 
+diff --git a/scripts/reflect_verdict_replay.py b/scripts/reflect_verdict_replay.py
+index d4ced4504..0ced29ba9 100644
+--- a/scripts/reflect_verdict_replay.py
++++ b/scripts/reflect_verdict_replay.py
+@@ -17,8 +17,10 @@ Each contract goes through ``superclaude.cli.reflect.contract.derive_verdict`` w
+ - ``expected_tier=2``: the panel and shadow runs are Tier 2, and the wrapper's T2 gate expects tier 2. A recorded
+   Tier 1 run therefore replays as ``degraded-tier1`` on both sides, which is what that gate would say; it is not a
+   difference.
+-- ``allow_single_vendor=False``: the strict reading. The suppression flag is an operator opt-in of one run, not a
+-  property of a recorded contract, and strictness can only surface more degraded reasons, never hide one.
++- ``allow_single_vendor``: both values are replayed. The flag is an operator opt-in of one run, not a property of
++  a recorded contract, and ``derive_verdict`` is first-match-wins: with False a ``single-vendor`` run reports
++  ``single-vendor`` and hides any later reason (for example ``adversarial-unavailable``); with True that later
++  reason shows. Replaying both, and checking each for new degraded reasons, closes that gap.
+ - ``child_rc=0``: a recorded contract exists because the audit child finished; an offline replay has no child, so
+   the crash and timeout vetoes (rc 124 or non-zero) must not apply.
+ ``promoting`` keeps its default (False): a recorded pre contract is not a promotion run.
+@@ -26,7 +28,13 @@ Each contract goes through ``superclaude.cli.reflect.contract.derive_verdict`` w
+ Differences: runs are paired by directory name. A paired run differs when its (verdict, reason) differs. A new
+ degraded reason is a shadow run whose verdict is ``degraded`` and that either (a) is paired with a legacy run whose
+ (verdict, reason) is not the same, or (b) is unpaired and has a degraded reason that no legacy run has. The script
+-prints both sets and exits 1 when there is any new degraded reason, 0 otherwise, 2 on a usage error.
++prints both sets, for each ``allow_single_vendor`` value, and exits 1 when there is any new degraded reason, 0
++otherwise, 2 on a usage error. Limits: a shadow contract that is unusable or not 1.8.0 is skipped and listed, and a
++shadow verdict of ``blocked`` or ``halted`` is a difference when paired but not a new degraded reason; neither
++changes the exit code.
++
++With no ``--shadow`` the legacy run directories are replayed a second time as the shadow set (a self-replay). It
++shows that the recorded contracts load and derive the same verdicts on every call; it cannot find a difference.
+ """
+ 
+ from __future__ import annotations
+@@ -44,7 +52,11 @@ from superclaude.cli.reflect.contract import derive_verdict
+ ROOT = Path(__file__).resolve().parents[1]
+ CONTRACT = "return-contract.yaml"
+ VERSION = "1.8.0"
+-DERIVE_ARGS = {"expected_tier": 2, "allow_single_vendor": False, "child_rc": 0}
++DERIVE_ARGS = {"expected_tier": 2, "child_rc": 0}
++SINGLE_VENDOR_MODES = (
++    False,
++    True,
++)  # the values of allow_single_vendor that are replayed
+ 
+ 
+ def load(run: Path) -> tuple[dict | None, str | None]:
+@@ -63,12 +75,14 @@ def load(run: Path) -> tuple[dict | None, str | None]:
+     return data, None
+ 
+ 
+-def replay(run: Path) -> tuple[str, str] | None:
++def replay(run: Path, allow_single_vendor: bool = False) -> tuple[str, str] | None:
+     """(verdict, reason) of a usable contract, else None."""
+     contract, _ = load(run)
+     if contract is None:
+         return None
+-    result = derive_verdict(contract, **DERIVE_ARGS)
++    result = derive_verdict(
++        contract, allow_single_vendor=allow_single_vendor, **DERIVE_ARGS
++    )
+     return result.verdict.value, result.reason
+ 
+ 
+@@ -109,31 +123,38 @@ def compare(
+     return {"changed": changed, "new_degraded": new_degraded}
+ 
+ 
+-def render(
+-    legacy: dict, shadow: dict, skipped: list, result: dict, self_replay: bool
+-) -> str:
++def render(sets: dict, skipped: list, results: dict, self_replay: bool) -> str:
++    """sets and results are keyed by the allow_single_vendor value."""
++
+     def tally(side: dict) -> list[str]:
+         counts = Counter(f"{v}/{r}" for v, r in side.values())
+         return [f"  {n:3d}  {k}" for k, n in sorted(counts.items())]
+ 
++    first = sets[SINGLE_VENDOR_MODES[0]]
+     lines = [
+-        "Verdict replay (derive_verdict: expected_tier=2, allow_single_vendor=False, child_rc=0)",
+-        f"legacy runs replayed: {len(legacy)}; skipped: {len(skipped)}",
++        "Verdict replay (derive_verdict: expected_tier=2, child_rc=0; allow_single_vendor False and True)",
++        f"legacy runs replayed: {len(first[0])}; skipped: {len(skipped)}",
+         *[f"  skipped {n}: {why}" for n, why in skipped],
+-        "legacy verdict/reason:",
+-        *tally(legacy),
+-        f"shadow runs replayed: {len(shadow)}"
+-        + (" (self-replay: the legacy set)" if self_replay else ""),
+-        "shadow verdict/reason:",
+-        *tally(shadow),
+-        f"differences: {len(result['changed'])}",
+-        *[
+-            f"  {n}: legacy {w[0]}/{w[1]} -> shadow {g[0]}/{g[1]}"
+-            for n, w, g in result["changed"]
+-        ],
+-        f"new degraded reasons: {len(result['new_degraded'])}",
+-        *[f"  {n}: {r}" for n, r in result["new_degraded"]],
++        f"shadow runs replayed: {len(first[1])}"
++        + (" (self-replay: the legacy set again)" if self_replay else ""),
+     ]
++    for allow in SINGLE_VENDOR_MODES:
++        legacy, shadow = sets[allow]
++        result = results[allow]
++        lines += [
++            f"== allow_single_vendor={allow}",
++            "legacy verdict/reason:",
++            *tally(legacy),
++            "shadow verdict/reason:",
++            *tally(shadow),
++            f"differences: {len(result['changed'])}",
++            *[
++                f"  {n}: legacy {w[0]}/{w[1]} -> shadow {g[0]}/{g[1]}"
++                for n, w, g in result["changed"]
++            ],
++            f"new degraded reasons: {len(result['new_degraded'])}",
++            *[f"  {n}: {r}" for n, r in result["new_degraded"]],
++        ]
+     return "\n".join(lines) + "\n"
+ 
+ 
+@@ -146,20 +167,17 @@ def main(argv: list[str] | None = None) -> int:
+         print(f"runs root is not a directory: {args.runs_root}", file=sys.stderr)
+         return 2
+     runs, skipped = legacy_runs(args.runs_root)
+-    legacy = {d.name: v for d in runs if (v := replay(d)) is not None}
+-    if args.shadow:
+-        shadow = {}
+-        for d in args.shadow:
+-            verdict = replay(d)
+-            if verdict is None:
+-                skipped.append((d.name, f"shadow: {load(d)[1] or 'unusable'}"))
+-            else:
+-                shadow[d.name] = verdict
+-    else:
+-        shadow = dict(legacy)
+-    result = compare(legacy, shadow)
+-    sys.stdout.write(render(legacy, shadow, skipped, result, not args.shadow))
+-    return 1 if result["new_degraded"] else 0
++    shadow_dirs = args.shadow or runs
++    for d in args.shadow:
++        if load(d)[0] is None:
++            skipped.append((d.name, f"shadow: {load(d)[1] or 'unusable'}"))
++    sets, results = {}, {}
++    for allow in SINGLE_VENDOR_MODES:
++        legacy = {d.name: v for d in runs if (v := replay(d, allow)) is not None}
++        shadow = {d.name: v for d in shadow_dirs if (v := replay(d, allow)) is not None}
++        sets[allow], results[allow] = (legacy, shadow), compare(legacy, shadow)
++    sys.stdout.write(render(sets, skipped, results, not args.shadow))
++    return 1 if any(r["new_degraded"] for r in results.values()) else 0
+ 
+ 
+ if __name__ == "__main__":
+diff --git a/tests/cli/reflect/test_verdict_replay_script.py b/tests/cli/reflect/test_verdict_replay_script.py
+index c870977cc..19e24c077 100644
+--- a/tests/cli/reflect/test_verdict_replay_script.py
++++ b/tests/cli/reflect/test_verdict_replay_script.py
+@@ -120,16 +120,52 @@ def test_unusable_shadow_directory_is_skipped_not_fatal(tmp_path, capsys):
+ 
+ 
+ def test_derive_arguments_are_the_documented_ones():
+-    assert rv.DERIVE_ARGS == {
+-        "expected_tier": 2,
+-        "allow_single_vendor": False,
+-        "child_rc": 0,
+-    }
++    assert rv.DERIVE_ARGS == {"expected_tier": 2, "child_rc": 0}
++    assert rv.SINGLE_VENDOR_MODES == (False, True)
+     header = rv.__doc__
+-    for text in ("expected_tier=2", "allow_single_vendor=False", "child_rc=0"):
++    for text in ("expected_tier=2", "child_rc=0", "allow_single_vendor"):
+         assert text in header
+ 
+ 
++def test_a_reason_hidden_behind_single_vendor_is_found_by_the_lenient_replay(
++    tmp_path, capsys
++):
++    runs = tmp_path / "runs"
++    run_dir(runs, "pre-a", t2_vendor_diversity="single")
++    shadow = shadow_dir(
++        tmp_path / "shadow",
++        "pre-s",
++        t2_vendor_diversity="single",
++        adversarial_unavailable=True,
++    )
++    # strict: both runs say single-vendor, so nothing is new; lenient: adversarial-unavailable shows
++    assert rv.replay(runs / "pre-a") == ("degraded", "single-vendor")
++    assert rv.replay(shadow) == ("degraded", "single-vendor")
++    assert rv.replay(shadow, allow_single_vendor=True) == (
++        "degraded",
++        "adversarial-unavailable",
++    )
++    assert rv.main(["--runs-root", str(runs), "--shadow", str(shadow)]) == 1
++    out = capsys.readouterr().out
++    assert (
++        "== allow_single_vendor=True" in out and "pre-s: adversarial-unavailable" in out
++    )
++
++
++def test_self_replay_runs_derive_verdict_again(tmp_path, monkeypatch):
++    runs = tmp_path / "runs"
++    run_dir(runs, "pre-a")
++    calls = []
++    real = rv.replay
++    monkeypatch.setattr(
++        rv, "replay", lambda d, allow=False: calls.append(d.name) or real(d, allow)
++    )
++    assert rv.main(["--runs-root", str(runs)]) == 0
++    assert (
++        calls.count("pre-a") == 4
++    )  # legacy and shadow side, for each of the two modes
++
++
+ def test_missing_runs_root_is_a_usage_error(tmp_path, capsys):
+     assert rv.main(["--runs-root", str(tmp_path / "nope")]) == 2
+ 

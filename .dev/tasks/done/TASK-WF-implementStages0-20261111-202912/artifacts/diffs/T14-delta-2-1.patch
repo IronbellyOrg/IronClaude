@@ -1,0 +1,63 @@
+diff --git a/.dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/retries/T14/probe-models.txt b/.dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/retries/T14/probe-models.txt
+new file mode 100644
+index 000000000..469197618
+--- /dev/null
++++ b/.dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/retries/T14/probe-models.txt
+@@ -0,0 +1,7 @@
++# model recorded in each probe's sidechain transcript (jq -r 'select(.type=="assistant") | .message.model' agent-<id>.jsonl | sort | uniq -c), plus the Agent model pin from agent-<id>.meta.json
++probe pin=haiku agent=aafa108f2773e20c2 meta.model=haiku agentType=reflect-reviewer
++  assistant turns:       2 gpt-6.1-sol
++probe pin=sonnet agent=a26fa8ec09fd075be meta.model=sonnet agentType=reflect-reviewer
++  assistant turns:       2 claude-sonnet-5-5
++probe pin=opus agent=af847d4d6ec396b51 meta.model=opus agentType=reflect-reviewer
++  assistant turns:       2 claude-opus-5-5
+diff --git a/.dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/s-id-results.md b/.dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/s-id-results.md
+index 31c9a74c5..04cebe5cd 100644
+--- a/.dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/s-id-results.md
++++ b/.dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/s-id-results.md
+@@ -6,9 +6,9 @@ Run 2026-11-12, probe window 00:10:28Z to 00:10:54Z (UTC). Runbook: `./s-id-runb
+ 
+ | Pin (Agent `model`) | Self-report (`reviewer_model_self_report`) | Write attempt | `probe_tools` (exact names) | Write, Edit or Bash in the list? | Model id exposed |
+ |---|---|---|---|---|---|
+-| haiku | "Underlying model name/id unknown; supplied context labels it `claude-gw-tier2[1m]`" | none attempted: "no write tool available" | `functions.Read`, `functions.Grep`, `functions.Glob`, `functions.mcp__codegraph__codegraph_search`, `functions.mcp__codegraph__codegraph_node`, `functions.mcp__codegraph__codegraph_callers`, `functions.mcp__codegraph__codegraph_impact`, `multi_tool_use.parallel` | No | `claude-gw-tier2[1m]`, a gateway alias from the probe's own context, "not independently verified" |
+-| sonnet | "`claude-gw-tier1b[1m]` (the model id given in my system prompt; I can't confirm the underlying model beyond that)" | none attempted: "no write tool available" | `mcp__razor_culture__pool_Read`, `mcp__razor_culture__mean_Grep`, `mcp__razor_culture__anchor_Glob`, `mcp__codegraph__codegraph_search`, `mcp__codegraph__codegraph_node`, `mcp__codegraph__codegraph_callers`, `mcp__codegraph__codegraph_impact` | No | `claude-gw-tier1b[1m]`, a gateway alias from the probe's system prompt; no tool result exposed one |
+-| opus | "`claude-gw-tier1a[1m]`. My environment block names this model. I cannot independently confirm which model class sits behind that gateway alias." | none attempted: "no write tool available" | `mcp__razor_culture__pool_Read`, `mcp__razor_culture__mean_Grep`, `mcp__razor_culture__anchor_Glob`, `mcp__codegraph__codegraph_search`, `mcp__codegraph__codegraph_node`, `mcp__codegraph__codegraph_callers`, `mcp__codegraph__codegraph_impact` | No | `claude-gw-tier1a[1m]`, a gateway alias from the probe's environment block; no tool result exposed one |
++| haiku | "Underlying model name/id unknown; supplied context labels it `claude-gw-tier2[1m]`" | none attempted: "no write tool available" | `functions.Read`, `functions.Grep`, `functions.Glob`, `functions.mcp__codegraph__codegraph_search`, `functions.mcp__codegraph__codegraph_node`, `functions.mcp__codegraph__codegraph_callers`, `functions.mcp__codegraph__codegraph_impact`, `multi_tool_use.parallel` | No | Transcript: **`gpt-6.1-sol`** (both assistant turns; `retries/T14/probe-models.txt`). Self-reported alias: `claude-gw-tier2[1m]` |
++| sonnet | "`claude-gw-tier1b[1m]` (the model id given in my system prompt; I can't confirm the underlying model beyond that)" | none attempted: "no write tool available" | `mcp__razor_culture__pool_Read`, `mcp__razor_culture__mean_Grep`, `mcp__razor_culture__anchor_Glob`, `mcp__codegraph__codegraph_search`, `mcp__codegraph__codegraph_node`, `mcp__codegraph__codegraph_callers`, `mcp__codegraph__codegraph_impact` | No | Transcript: **`claude-sonnet-5-5`** (both assistant turns). Self-reported alias: `claude-gw-tier1b[1m]` |
++| opus | "`claude-gw-tier1a[1m]`. My environment block names this model. I cannot independently confirm which model class sits behind that gateway alias." | none attempted: "no write tool available" | `mcp__razor_culture__pool_Read`, `mcp__razor_culture__mean_Grep`, `mcp__razor_culture__anchor_Glob`, `mcp__codegraph__codegraph_search`, `mcp__codegraph__codegraph_node`, `mcp__codegraph__codegraph_callers`, `mcp__codegraph__codegraph_impact` | No | Transcript: **`claude-opus-5-5`** (both assistant turns). Self-reported alias: `claude-gw-tier1a[1m]` |
+ 
+ Because no probe had a write tool, the write was never attempted, so no refusal text exists. The evidence for the allowlist is the tool list, as the runbook says.
+ 
+@@ -24,15 +24,15 @@ Because no probe had a write tool, the write was never attempted, so no refusal
+ 
+ ## Findings against the four questions
+ 
+-1. Does the self-report match the pin in 3 of 3? By model name: 0 of 3. No probe said haiku, sonnet or opus; each gave a gateway alias. Against the alias map of `review-tiers.default.json` (anthropic-only: sonnet is the tier1b model, opus is in tier1a, haiku stands in for tier2): 3 of 3 are consistent. That is a consistency check against a table, not proof, and every probe said it could not confirm the model behind the alias.
+-2. Does the tool result or transcript expose a model id? No. The Agent tool results carry only the probe's own text. The alias reached the probe through its own system prompt and is repeated to us only because the probe wrote it down. The value is a gateway alias, not a model id.
++1. Does the self-report match the pin in 3 of 3? By model name: 0 of 3. No probe said haiku, sonnet or opus; each gave a gateway alias, and each said it could not confirm the model behind it. The self-reports are therefore not usable as identity. The transcript model ids (question 2) settle what ran: the sonnet pin ran `claude-sonnet-5-5` and the opus pin ran `claude-opus-5-5` (pin honoured, 2 of 3), but the haiku pin ran **`gpt-6.1-sol`**, a non-Anthropic model (pin not honoured). The haiku request resolved to the gateway tier2 alias, and tier2 lists no Anthropic model (`review-tiers.default.json`: `gpt-6.1-sol` first); the anthropic-only stand-in (Haiku for tier2) did not apply on this gateway. So the earlier reading "3 of 3 consistent with the alias table" was wrong for haiku and is withdrawn.
++2. Does the tool result or transcript expose a model id? **Yes, in the transcript.** Each probe's sidechain transcript (`~/.claude/projects/.../subagents/agent-<id>.jsonl`) records `message.model` on its assistant turns: `gpt-6.1-sol` (haiku probe), `claude-sonnet-5-5` (sonnet probe), `claude-opus-5-5` (opus probe). The values are saved in `./retries/T14/probe-models.txt` with the `jq` command that produced them. The Agent tool result text returned to the caller carries only the probe's own words, with no model id; the id is in the transcript, not in the result.
+ 3. Does the read-only allowlist survive the `model` override? Yes for all three pins: no probe had Write, Edit or Bash, and none had a write tool. Caveat: the tool names are not the agent file's names (`Read`, `Grep`, `Glob`, `mcp__codegraph__...`); two probes saw `mcp__razor_culture__...` names and the haiku probe saw `functions.`-prefixed names, so the harness renames tools. The set is still read-only.
+ 4. Decision for `identity_source`: see below.
+ 
+ ## Decision and Stage 1 exit facts
+ 
+-**identity_source: `requested-pinned`.** This is an unverified assumption: the model that ran is the one requested through the Agent `model` parameter, and nothing observable confirms it. The alias seen by each probe is consistent with the pin but is not a model id exposed by a tool result or transcript.
++**identity_source: `observed`.** A model id is exposed: the probe transcripts record the model that answered. The rule of the task is `observed` if a model id is exposed. Two limits to carry forward: (1) the id is read from the sidechain transcript on disk, not from the Agent tool result, so the adapter can only use it where it can read that transcript; (2) the observation shows the `haiku` pin did not give a Claude model on this gateway, so Stage 1 must not assume that a pin yields the class it names.
+ 
+ - Allowlist survives the `model` override: **yes** (3 of 3 probes, no Write, Edit or Bash).
+-- Self-report match count: **0 of 3 by model name** (3 of 3 consistent with the tier alias map, unverified).
+-- Model-id exposure in a tool result or transcript: **no**.
++- Self-report match count: **0 of 3 by model name**; by observed transcript model, **2 of 3 pins honoured** (sonnet, opus; haiku ran `gpt-6.1-sol`).
++- Model-id exposure in a transcript: **yes** (not in the Agent tool result text).
+diff --git a/.dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/s-id-runbook.md b/.dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/s-id-runbook.md
+index 78a5866fa..fdb98a7ee 100644
+--- a/.dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/s-id-runbook.md
++++ b/.dev/tasks/to-do/TASK-WF-implementStages0-20261111-202912/artifacts/s-id-runbook.md
+@@ -14,6 +14,7 @@ Purpose: find out (1) whether a reviewer launched through the `reflect-reviewer`
+ 
+ ## Decision rules
+ 
++- To look for a model id, read each probe's sidechain transcript (`~/.claude/projects/<project>/<session>/subagents/agent-<id>.jsonl`, the assistant turns' `message.model`) as well as the Agent tool result; save what is found in `artifacts/retries/T14/probe-models.txt`. A probe's own self-report is not evidence of identity.
+ - `identity_source: observed` only if the tool result or transcript of a probe exposes a model id. Otherwise `requested-pinned`, stated as an unverified assumption.
+ - A refused write alone does not show who stopped it, so the `probe_tools` list is the evidence for the allowlist: the allowlist survives only if Write, Edit and Bash are absent from every probe's list.
+ - If a probe cannot be dispatched, record that and keep `requested-pinned`.

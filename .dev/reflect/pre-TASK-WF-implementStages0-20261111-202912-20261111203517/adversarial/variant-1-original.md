@@ -1,0 +1,18 @@
+# Reviewer 1 (analyzer) card, model class sonnet (self-report: claude-gw-tier1b[1m])
+Saved by the orchestrator from the reviewer's return. Wording shortened, citations kept.
+
+R1-F1 blocking acceptance (conf 0.80): Task 8 byte-identity golden breaks when Task 9 adds `classes` to the tier file, because resolution output carries `tiers_sha256 = sha256_json(tiers)`. Evidence: plan 113, 121; panel.py:518-520; spec 225, 230; tests/review/test_review_panel.py:308. Fix: scope the golden to `reviewers` and `template_sha256`, or have Task 9 re-baseline `tiers_sha256` explicitly.
+R1-F2 blocking ordering (0.95): Task 10 acceptance needs `@reflect-pre`, which Task 11 creates. Evidence: plan 135, 140; panel.py:310-324. Fix: move that criterion to Task 11; in Task 10 use a temporary test template in tmp_path.
+R1-F3 medium acceptance (0.80): `resolve` catches all `NoModelAvailable` and re-raises a plain one, dropping the subclass; `resolve_cmd` prints `str(exc)` with no class name, so "exits naming ExclusionExhausted" cannot hold. Evidence: panel.py:489-496; panel_cmd.py:64-65; plan 110, 132. Fix: Task 8 catches `ExclusionExhausted` before the rewrap; Task 10 prints `type(exc).__name__`.
+R1-F4 medium coverage (0.65): Task 9's reflect-profile validator has no stated caller; `validate_panel` has no tier map in some paths; `--sequence` is not passed to validation; the Fable class entry is undefined. Evidence: plan 121, 124, 132; panel.py:64, 480-488; panel_cmd.py:55-63; review-tiers.default.json:13-14, 27, 29.
+R1-F5 medium acceptance (0.80): Tasks 2 and 4 assume an idealized recorded card; real cards use `priority: P1/P2` plus `tag`, no plan/spec path field, comma/semicolon ref lists, some `.md` cards, calibration in sidecar files. Evidence: .dev/reflect/pre-TASK-WF-brainstormFixBri-20261106-001016/reviewer-cards/reviewer-1-card.yaml:6-31; plan 45, 67; spec 313, 322. Fix: Task 2 gets a card-format table, path source (input-snapshot.yaml), ref splitting, a fixed `risk` rule, unconvertible cards count against the share.
+R1-F6 medium coverage (0.70): `cluster_v2(findings_v2_blocks, snapshot_file_list)` has no input for calibrated confidence, reviewer ids or resolution order, yet `cluster_agreement` needs them. Evidence: plan 56; spec 336, 347.
+R1-F7 medium acceptance (0.60): fingerprint uses `section`, which cannot be computed for citation-only v2 findings. Evidence: plan 56; spec 338; findings.py:310-318.
+R1-F8 medium ordering (0.70): Task 7 depends only on Task 4 but cites Tasks 5 and 6 outputs; says "five exit items" while listing four (spec 408 lists four); Task 8 depends on Task 7 with no data dependency. Evidence: plan 95, 102, 108, 27; spec 408.
+R1-F9 minor (0.60): Task 1 "every valid v1 block also parses as v2" is wrong at fence level (`findings-v1` vs `findings-v2`); `prior` lines not covered. Evidence: plan 37; findings.py:126, 175-187; spec 294.
+R1-F10 minor (0.60): Task 11 never checks `reflect-lite` resolution (spec 213).
+R1-F11 medium coverage (0.70): no task verifies which field carries judge identity (UNVERIFIED in spec 584-585) though Task 19 records it; plan line 19 says verify UNVERIFIED items. Evidence: plan 19, 233; spec 185, 584-585.
+R1-F12 minor (0.80): Task 14 "clean git status" in an already dirty worktree. Evidence: plan 182.
+
+Lead verdicts: L1 confirmed, L2 confirmed, L3 confirmed, L4 refuted for Stages 0-2, L5 refuted (spec 436, 438 state 7 nulls), L6 confirmed as silence (spec 385), L7 mostly refuted (symbols and lines exist; contract.py:138 not read), L8 unverifiable in slice.
+Notes: brief was truncated at line 343 of 426 for this reviewer; contract.py:138, sc-adversarial judge field, Tasks 12-20 not read.

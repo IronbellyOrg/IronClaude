@@ -1,0 +1,6 @@
+d784e95e408da85b9ccea0aa739ddd3c2ec75391
+All checks passed!
+rc=0
+tests/review/test_review_telemetry.py ..........                         [100%]
+
+============================= 154 passed in 1.51s ==============================

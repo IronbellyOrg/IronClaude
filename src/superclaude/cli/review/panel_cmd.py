@@ -50,17 +50,59 @@ def command() -> None:
 @click.option(
     "--sequence", type=int, default=None, help="Sequence number for round_robin slots."
 )
-def resolve_cmd(template, tiers_path, env, run_id, kind, seed, sequence) -> None:
+@click.option(
+    "--hard-exclude-class",
+    "hard_classes",
+    multiple=True,
+    help="Model class (e.g. sonnet) that can never be picked; repeatable. Expands through the tier file's classes; case-insensitive.",
+)
+@click.option(
+    "--strict-distinct",
+    is_flag=True,
+    help="Never pick a model already chosen for an earlier reviewer (no repeat, no re-admission).",
+)
+def resolve_cmd(
+    template,
+    tiers_path,
+    env,
+    run_id,
+    kind,
+    seed,
+    sequence,
+    hard_classes,
+    strict_distinct,
+) -> None:
     """Print the reviewers of a panel as JSON (schema review-panel-resolution/1)."""
     try:
         panel = pnl.load_panel(template)
         tiers = pnl.load_tiers(tiers_path)
-        errors = pnl.validate_panel(panel, tiers)
+        errors = pnl.validate_panel(panel, tiers, sequence=sequence)
         if errors:
             raise ValueError("invalid panel template: " + "; ".join(errors))
+        class_map = tiers.get("classes", {})
+        known = sorted(set(class_map.values()))
+        hard: list[str] = []
+        for name in hard_classes:
+            ids = [m for m, c in class_map.items() if c.lower() == name.lower()]
+            if not ids:
+                raise click.UsageError(
+                    f"unknown class '{name}' for --hard-exclude-class "
+                    f"(known classes: {', '.join(known) or 'none'})"
+                )
+            hard.extend(ids)
         out = pnl.resolve(
-            panel, tiers, pnl.select_env(env), run_id, kind, seed, sequence
+            panel,
+            tiers,
+            pnl.select_env(env),
+            run_id,
+            kind,
+            seed,
+            sequence,
+            hard_exclude=hard,
+            strict_distinct=strict_distinct,
         )
+    except pnl.ExclusionExhausted as exc:
+        raise click.ClickException(f"{type(exc).__name__}: {exc}") from exc
     except (ValueError, pnl.NoModelAvailable, OSError, json.JSONDecodeError) as exc:
         raise click.ClickException(str(exc)) from exc
     click.echo(json.dumps(out, indent=2, sort_keys=True))

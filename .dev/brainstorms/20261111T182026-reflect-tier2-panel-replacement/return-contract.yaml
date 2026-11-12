@@ -1,0 +1,27 @@
+contract_version: "1.0"
+status: success   # Wave 3 routing: convergence 0.882 >= 0.65 (PASS); caveats are listed in unresolved_conflicts
+seed_brief_path: .dev/brainstorms/20261111T182026-reflect-tier2-panel-replacement/seed-brief.md
+merged_output_path: .dev/brainstorms/20261111T182026-reflect-tier2-panel-replacement/merged-requirements.md
+convergence_score: 0.882
+adversarial_artifacts_dir: .dev/brainstorms/20261111T182026-reflect-tier2-panel-replacement/adversarial/
+domain: architecture
+proposal_count: 3
+enrichment_used:
+  - source: codebase
+    quality_tier: primary   # mcp__litellm__augment_code-augment_code_search on branch master
+handoff_action: none
+handoff_output_path: null
+unresolved_conflicts:
+  - "Adversarial status is partial: the Round 2.5 invariant gate found 5 HIGH unaddressed items (INV-005, INV-015, INV-022, INV-023, INV-024); standard depth has no Round 3; refactor-plan.md resolves all 20 unaddressed invariants in the merged text, but no second probe re-evaluated the gate."
+  - "8 debate points stayed unresolved at Round 2 (S-001, S-004, C-007, C-025, X-003, X-010, A-002, A-003); refactor-plan.md assigns each a disposition or an open item."
+  - "Independent check (verification/merged-output-check.md) returned FAIL on 1 blocking finding and 11 minor; all were fixed afterwards and the fixes confirmed by grep only, not by a second independent review."
+  - "Three invariant resolutions rest on a measured gate or a flagged assumption (INV-022 reviewer model identity probe, INV-009, and open items O-6, O-8)."
+# Non-stable run notes
+telemetry:
+  checkout_sha: ec259f1b718ccdb9f08bba0237bfa47b2b7601a2
+  agent_spec: "opus:architect, sonnet:analyzer, haiku:backend (no Fable, no Tier 0; Opus used for the architect variant, the architect advocate rounds and nothing else)"
+  token_preflight_estimate: 540000   # protocol estimate; actual usage was not measured
+  depth: standard
+  rounds: 2 plus invariant probe
+  base_variant: opus:architect (combined 0.9827; haiku:backend 0.9658; sonnet:analyzer 0.9482; tiebreaker applied)
+  design_only: true   # nothing under src/, tests/, docs/ or plugins/ was edited; nothing staged or committed

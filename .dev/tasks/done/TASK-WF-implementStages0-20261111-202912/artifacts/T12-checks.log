@@ -1,0 +1,7 @@
+$ uv run ruff check src/superclaude/cli/review/cluster_cmd.py src/superclaude/cli/review/__init__.py tests/review/test_review_cluster_cmd.py
+All checks passed!
+$ uv run pytest tests/review -q -p no:cacheprovider
+tests/review/test_review_rules_text.py .....                             [ 98%]
+tests/review/test_review_telemetry.py ..........                         [100%]
+
+============================= 595 passed in 3.54s ==============================

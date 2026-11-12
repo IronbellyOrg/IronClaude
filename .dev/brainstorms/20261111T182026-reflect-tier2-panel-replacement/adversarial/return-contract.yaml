@@ -1,0 +1,20 @@
+# Return contract of the sc-adversarial-protocol run (Mode B, --depth standard, --convergence 0.75).
+# Written by the brainstorm orchestrator from the files in this folder.
+return_contract:
+  merged_output_path: ".dev/brainstorms/20261111T182026-reflect-tier2-panel-replacement/adversarial/merged-output.md"
+  convergence_score: 0.882        # Round 2: 60 of 68 debated points agreed (Round 1: 56/68 = 0.824); see debate-transcript.md
+  artifacts_dir: ".dev/brainstorms/20261111T182026-reflect-tier2-panel-replacement/adversarial/"
+  status: "partial"               # score is above the 0.75 threshold, but the invariant gate blocked convergence (5 HIGH unaddressed at Round 2.5) and standard depth has no Round 3
+  base_variant: "opus:architect"  # combined score 0.9827 vs haiku:backend 0.9658 and sonnet:analyzer 0.9482 (tiebreaker applied; V1 25 debate points vs V3 24)
+  unresolved_conflicts: 8         # S-001, S-004, C-007, C-025, X-003, X-010, A-002, A-003; refactor-plan.md assigns each a disposition
+  fallback_mode: false
+  failure_stage: null
+  invocation_method: "skill-direct"
+  unaddressed_invariants:         # HIGH + UNADDRESSED at the Round 2.5 gate (invariant-probe.md)
+    - {id: INV-005, category: guard_conditions, severity: HIGH, assumption: "Executor-class exclusion removes the executor from the pool before dispatch"}
+    - {id: INV-015, category: collection_boundaries, severity: HIGH, assumption: "A plan reviewed against several files can be merged and tracked with one identity per file"}
+    - {id: INV-022, category: sufficiency_challenge, severity: HIGH, assumption: "Panel resolution gives executor exclusion is enough"}
+    - {id: INV-023, category: sufficiency_challenge, severity: HIGH, assumption: "A contract field mapping keeps consumers working without a version change"}
+    - {id: INV-024, category: sufficiency_challenge, severity: HIGH, assumption: "The first measurement will decide whether T2 or the panel is worth it"}
+# Note (not a contract field): refactor-plan.md resolves all 20 unaddressed invariants in the merged design (three by a measured gate or flagged assumption).
+# No second invariant probe was run on the merged text, so the gate was not re-evaluated; an independent check is in ../verification/merged-output-check.md.

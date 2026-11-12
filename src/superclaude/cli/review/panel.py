@@ -54,6 +54,13 @@ class NoModelAvailable(Exception):
         self.tier = tier
 
 
+class ExclusionExhausted(NoModelAvailable):
+    """Every candidate of a tier (and its stand-ins) is removed by a hard exclusion."""
+
+    def __init__(self, tier: str, detail: str = " after exclusion") -> None:
+        super().__init__(tier, detail)
+
+
 def _is_int(value: Any) -> bool:
     return isinstance(value, int) and not isinstance(value, bool)
 
@@ -61,8 +68,106 @@ def _is_int(value: Any) -> bool:
 # ---------------------------------------------------------------- validation
 
 
-def validate_panel(obj: Any, tiers: Mapping[str, Any] | None = None) -> list[str]:
-    """Return the schema errors of a panel template (an empty list means valid)."""
+_REFLECT_PREFIX = "reflect-"
+_REFLECT_LAUNCH = ("sonnet", "opus", "haiku")
+_REFLECT_MAX_REVIEWERS = 3
+
+
+def _is_fable(model: str, classes: Mapping[str, Any]) -> bool:
+    return model.startswith("claude-fable-") or classes.get(model) == "fable"
+
+
+def validate_reflect_profile(
+    obj: Mapping[str, Any], tiers: Mapping[str, Any], sequence: int | None = None
+) -> list[str]:
+    """Extra rules for a `reflect-*` template (reflect Tier 2 panel): the schema errors it adds.
+
+    Every model its slots can reach must have a `classes` entry and must not be a Fable model; no slot
+    may sit on `tier0` or on a tier that lists a Tier 0 model; at most 3 reviewers; a round_robin slot
+    needs a recorded `sequence`. Generic panels are not checked (they keep their 1..8 range).
+    """
+    errors: list[str] = []
+    slots = obj.get("slots")
+    aliases = tiers.get("aliases") if isinstance(tiers.get("aliases"), dict) else {}
+    classes = tiers.get("classes") if isinstance(tiers.get("classes"), dict) else {}
+    envs = tiers.get("environments")
+    envs = envs if isinstance(envs, dict) else {}
+    tier0 = aliases.get("tier0")
+    tier0_models = set(tier0.get("models") or []) if isinstance(tier0, dict) else set()
+    total = 0
+    seen: set[str] = set()
+    for i, slot in enumerate(slots if isinstance(slots, list) else []):
+        if not isinstance(slot, dict):
+            continue
+        where = f"slots[{i}]"
+        tier = slot.get("tier")
+        if tier == "tier0":
+            errors.append(f"{where}: a reflect template may not use tier0")
+        entry = aliases.get(tier) if isinstance(tier, str) else None
+        models = [
+            m
+            for m in (entry.get("models") if isinstance(entry, dict) else None) or []
+            if isinstance(m, str)
+        ]
+        for env in envs.values():
+            stand = env.get("stand_ins") if isinstance(env, dict) else None
+            ids = stand.get(tier) if isinstance(stand, dict) else None
+            models += [m for m in ids or [] if isinstance(m, str)]
+        if tier != "tier0" and tier0_models.intersection(models):
+            errors.append(f"{where}: tier '{tier}' lists a Tier 0 model")
+        for m in dict.fromkeys(models):
+            if m in seen:
+                continue
+            seen.add(m)
+            if _is_fable(m, classes):
+                errors.append(f"model '{m}' is a Fable model and is not allowed")
+            elif m not in classes:
+                errors.append(f"model '{m}' has no entry in the tier file's classes")
+        if _is_int(slot.get("count")):
+            total += slot["count"]
+        if slot.get("strategy") == "round_robin" and sequence is None:
+            errors.append(f"{where}: a round_robin slot needs a recorded --sequence")
+    if total > _REFLECT_MAX_REVIEWERS:
+        errors.append(
+            f"a reflect template allows at most {_REFLECT_MAX_REVIEWERS} reviewers; found {total}"
+        )
+    return errors
+
+
+def _check_reflect_resolution(
+    reviewers: Sequence[Mapping[str, Any]], tiers: Mapping[str, Any]
+) -> list[str]:
+    """Re-check the resolved ids, fallbacks and launch values of a reflect resolution."""
+    errors: list[str] = []
+    classes = tiers.get("classes") if isinstance(tiers.get("classes"), dict) else {}
+    if len(reviewers) > _REFLECT_MAX_REVIEWERS:
+        errors.append(
+            f"a reflect resolution allows at most {_REFLECT_MAX_REVIEWERS} reviewers; got {len(reviewers)}"
+        )
+    for r in reviewers:
+        for m in [r["model"], *r["fallbacks"]]:
+            if _is_fable(m, classes):
+                errors.append(f"{r['reviewer_id']}: '{m}' is a Fable model")
+            elif m not in classes:
+                errors.append(f"{r['reviewer_id']}: '{m}' has no classes entry")
+        if r["launch"] not in _REFLECT_LAUNCH:
+            errors.append(
+                f"{r['reviewer_id']}: launch {r['launch']!r} is not one of {', '.join(_REFLECT_LAUNCH)}"
+            )
+    return errors
+
+
+def validate_panel(
+    obj: Any,
+    tiers: Mapping[str, Any] | None = None,
+    *,
+    sequence: int | None = None,
+) -> list[str]:
+    """Return the schema errors of a panel template (an empty list means valid).
+
+    A template whose id starts with `reflect-` also gets the reflect profile when a tier file is given;
+    `sequence` is the recorded --sequence that the profile's round_robin rule needs.
+    """
     if not isinstance(obj, dict):
         return ["panel: must be a JSON object"]
     errors: list[str] = []
@@ -141,6 +246,12 @@ def validate_panel(obj: Any, tiers: Mapping[str, Any] | None = None) -> list[str
         errors.append(f"exactly one slot must be 'fixed' (the anchor); found {fixed}")
     if not 1 <= total <= 8:
         errors.append(f"total reviewers must be 1..8; found {total}")
+    if (
+        isinstance(tiers, Mapping)
+        and isinstance(obj.get("template_id"), str)
+        and obj["template_id"].startswith(_REFLECT_PREFIX)
+    ):
+        errors.extend(validate_reflect_profile(obj, tiers, sequence))
     return errors
 
 
@@ -194,6 +305,15 @@ def validate_tiers(obj: Any) -> list[str]:
         isinstance(k, str) and isinstance(v, str) for k, v in names.items()
     ):
         errors.append("names must map model ids to display strings")
+    classes = obj.get("classes", {})
+    if not isinstance(classes, dict) or not all(
+        isinstance(k, str)
+        and _MODEL_ID.match(k)
+        and isinstance(v, str)
+        and _ENV_NAME.match(v)
+        for k, v in classes.items()
+    ):
+        errors.append("classes must map model ids to lowercase class names")
     envs = obj.get("environments")
     if not isinstance(envs, dict) or not envs:
         errors.append("environments must be a non-empty object")
@@ -384,29 +504,47 @@ def resolve_slot(
     available: Any,
     stand_ins: Sequence[str],
     exclude: Sequence[str] = (),
+    *,
+    hard_exclude: Sequence[str] = (),
+    strict_distinct: bool = False,
 ) -> dict:
     """Pick one model for a slot instance. Pure and deterministic.
 
     models: the tier alias's ordered list. available: 'all' or a list of ids. stand_ins: the
     environment's ordered stand-in list for this tier. For round_robin, seed carries the sequence number.
+    hard_exclude: model ids that can never be picked; with strict_distinct, the models in `exclude`
+    (already chosen) join them. Both filter the candidate list for every strategy, fallbacks included,
+    and the soft re-admission below is not taken; an empty result raises ExclusionExhausted.
     """
+    hard = set(hard_exclude) | (set(exclude) if strict_distinct else set())
     candidates = [m for m in models if available == "all" or m in available]
     source = list(models)
     stand = False
+    unfiltered = bool(candidates)
+    if hard:
+        candidates = [m for m in candidates if m not in hard]
     if not candidates:
-        candidates = [m for m in stand_ins if available == "all" or m in available]
+        stand_cands = [m for m in stand_ins if available == "all" or m in available]
+        unfiltered = unfiltered or bool(stand_cands)
+        candidates = [m for m in stand_cands if m not in hard]
         source = list(stand_ins)
         stand = True
         if not candidates:
+            if hard and unfiltered:
+                raise ExclusionExhausted(",".join(models))
             raise NoModelAvailable(",".join(models))
     if strategy == "fixed":
         model = candidates[0]
-    elif strategy == "random":
-        pool = [m for m in candidates if m not in set(exclude)] or candidates
-        model = random.Random(seed).choice(pool)
-    elif strategy == "round_robin":
-        pool = [m for m in candidates if m not in set(exclude)] or candidates
-        model = pool[int(seed) % len(pool)]
+    elif strategy in ("random", "round_robin"):
+        pool = [m for m in candidates if m not in set(exclude)]
+        if not pool:
+            if hard:
+                raise ExclusionExhausted(",".join(models))
+            pool = candidates
+        if strategy == "random":
+            model = random.Random(seed).choice(pool)
+        else:
+            model = pool[int(seed) % len(pool)]
     else:
         raise ValueError(f"unknown strategy {strategy!r}")
     k = candidates.index(model)
@@ -432,13 +570,26 @@ def resolve(
     review_kind: str = "first",
     seed: int | None = None,
     sequence: int | None = None,
+    *,
+    hard_exclude: Sequence[str] = (),
+    strict_distinct: bool = False,
 ) -> dict:
-    """Resolve a panel template into the reviewer list (schema review-panel-resolution/1)."""
+    """Resolve a panel template into the reviewer list (schema review-panel-resolution/1).
+
+    hard_exclude / strict_distinct: see resolve_slot. A non-fixed slot left with no model is skipped and
+    recorded in `skipped_slots`; the fixed anchor raising ExclusionExhausted is fatal. Both extra keys
+    (`skipped_slots`, `excluded`) are written only when an exclusion argument is used.
+    """
     environments = tiers["environments"]
     if env not in environments:
         raise ValueError(
             f"unknown environment '{env}' (known: {', '.join(sorted(environments))})"
         )
+    reflect = str(panel.get("template_id", "")).startswith(_REFLECT_PREFIX)
+    if reflect:
+        profile_errors = validate_reflect_profile(panel, tiers, sequence)
+        if profile_errors:
+            raise ValueError("invalid reflect panel: " + "; ".join(profile_errors))
     environment = environments[env]
     available = environment["available"]
     launch = environment.get("launch", {})
@@ -459,6 +610,7 @@ def resolve(
     )
     reviewers: list[dict] = []
     chosen: list[str] = []
+    skipped: list[dict] = []
     for slot in order:
         entry = tiers["aliases"][slot["tier"]]
         count = slot["count"] if expand else 1
@@ -476,7 +628,11 @@ def resolve(
                 )
             else:
                 slot_seed = None
-            exclude = tuple(chosen) if panel["distinct_across_slots"] else ()
+            exclude = (
+                tuple(chosen)
+                if panel["distinct_across_slots"] or strict_distinct
+                else ()
+            )
             try:
                 picked = resolve_slot(
                     entry["models"],
@@ -485,7 +641,19 @@ def resolve(
                     available,
                     environment.get("stand_ins", {}).get(slot["tier"], []),
                     exclude,
+                    hard_exclude=hard_exclude,
+                    strict_distinct=strict_distinct,
                 )
+            except ExclusionExhausted as exc:
+                if strategy == "fixed":
+                    raise ExclusionExhausted(slot["tier"]) from exc
+                skipped.append(
+                    {
+                        "slot_id": slot["slot_id"],
+                        "reason": str(ExclusionExhausted(slot["tier"])),
+                    }
+                )
+                continue
             except NoModelAvailable as exc:
                 hint = (
                     " (placeholder tier: list its models in the tier file, or use an "
@@ -511,7 +679,13 @@ def resolve(
                     "launch": launch.get(picked["model"]),
                 }
             )
-    return {
+    if reflect:
+        resolved_errors = _check_reflect_resolution(reviewers, tiers)
+        if resolved_errors:
+            raise ValueError(
+                "invalid reflect resolution: " + "; ".join(resolved_errors)
+            )
+    result = {
         "schema": RESOLUTION_SCHEMA,
         "template_id": panel["template_id"],
         "template_version": panel["version"],
@@ -523,3 +697,11 @@ def resolve(
         "review_kind": review_kind,
         "reviewers": reviewers,
     }
+    if hard_exclude or strict_distinct:
+        class_map = tiers.get("classes", {})
+        result["skipped_slots"] = skipped
+        result["excluded"] = {
+            "models": sorted(set(hard_exclude)),
+            "classes": sorted({class_map[m] for m in hard_exclude if m in class_map}),
+        }
+    return result
