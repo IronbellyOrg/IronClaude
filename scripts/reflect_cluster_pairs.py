@@ -48,6 +48,10 @@ a short sheet is never reported as a pass.
 Labels: yes, no, y, n, true, false, in any letter case and with surrounding spaces ignored; yes, y and true mean the
 two findings describe the same defect. score rejects any other value, naming the pair and the value.
 
+Reading form: ``form --sheet <csv> --out <md>`` writes a plain-text form (the two claims in reading order, the
+verdict hidden, one ``ANSWER P01: `` line per pair) for a person who cannot use the CSV; ``score --sheet <csv>
+--answers <md>`` replaces human_same_defect with the filled ANSWER lines before scoring.
+
 score: skips rows whose first cell starts with "#" (a comment line, also after a spreadsheet re-save) and empty rows,
 needs the columns pair_id, cluster_v2_verdict and human_same_defect, and fails (exit 1) with a message naming every
 pair whose label is missing or not in the vocabulary, every unknown verdict and every duplicate pair_id. Otherwise
@@ -64,6 +68,7 @@ import csv
 import importlib.util
 import io
 import random
+import re
 import sys
 from pathlib import Path
 
@@ -392,6 +397,56 @@ def report(counts: dict) -> list[str]:
     ]
 
 
+# --- reading form ------------------------------------------------------------------------------
+
+_ANSWER = re.compile(r"^ANSWER[ \t]+(\S+?)[ \t]*:[ \t]*(\S*)[ \t]*$", re.M)
+
+
+def _short_cites(text: str) -> str:
+    """The citations column with directories and resolved/unresolved marks dropped: file:lines only."""
+    text = re.sub(r"\S*/([^/\s]+:\d+-\d+)", r"\1", text)
+    return re.sub(r"\s*\((?:resolved|unresolved|malformed)\)", "", text)
+
+
+def render_form(rows: list[dict]) -> str:
+    """A plain-text form of the sheet for a human: the two claims side by side in reading order, no verdict shown."""
+    out = [
+        "# Same problem or not? (50 pairs)",
+        "",
+        "For each pair, read complaint A and complaint B. They come from two different reviewers of the same plan.",
+        "Question: would ONE edit to the plan (or spec) fix both complaints? If yes, they are the same problem.",
+        "Write yes or no after the colon on the line that starts with ANSWER. Do not change anything else.",
+        "If one complaint lists several problems, answer yes when one of those problems is the other's problem.",
+        "",
+    ]
+    for r in rows:
+        pid = r["pair_id"]
+        out += [
+            f"## {pid}",
+            "",
+            f"A ({r.get('reviewer_a', '')}, finding {r.get('finding_a', '')}): {r.get('claim_a', '')}",
+            f"   points at: {_short_cites(r.get('citations_a', ''))}",
+            "",
+            f"B ({r.get('reviewer_b', '')}, finding {r.get('finding_b', '')}): {r.get('claim_b', '')}",
+            f"   points at: {_short_cites(r.get('citations_b', ''))}",
+            "",
+            f"ANSWER {pid}: ",
+            "",
+        ]
+    return "\n".join(out)
+
+
+def read_answers(path: Path) -> dict[str, str]:
+    """{pair_id: answer} from the ANSWER lines of a filled form; a blank answer is left out."""
+    try:
+        text = path.read_text(encoding="utf-8-sig", errors="replace")
+    except OSError as exc:
+        raise SheetError(
+            f"cannot read answers {path}: {exc.__class__.__name__}: {exc}"
+        ) from exc
+    return {pid: ans for pid, ans in _ANSWER.findall(text) if ans}
+
+
 # --- cli ---------------------------------------------------------------------------------------
 
 
@@ -419,7 +474,27 @@ def main(argv: list[str] | None = None) -> int:
             default=None,
             help=f"{text} (default: the plan package artifact)",
         )
+        if name == "score":
+            p.add_argument(
+                "--answers",
+                type=Path,
+                default=None,
+                help="filled reading form (see the form mode); its ANSWER lines replace the sheet's human_same_defect",
+            )
+    form = sub.add_parser("form")
+    form.add_argument("--sheet", type=Path, required=True, help="sheet to read")
+    form.add_argument("--out", type=Path, required=True, help="reading form to write")
     args = parser.parse_args(argv)
+    if args.mode == "form":
+        try:
+            rows = read_sheet(args.sheet)
+            args.out.parent.mkdir(parents=True, exist_ok=True)
+            args.out.write_text(render_form(rows), encoding="utf-8")
+        except (SheetError, OSError) as exc:
+            print(f"form failed: {exc}", file=sys.stderr)
+            return 2
+        print(f"wrote {args.out} ({len(rows)} pairs)")
+        return 0
     root = args.root.resolve()
     if args.mode == "sample":
         out = args.out or default_out(root)
@@ -454,6 +529,22 @@ def main(argv: list[str] | None = None) -> int:
     except SheetError as exc:
         print(f"score failed: {exc}", file=sys.stderr)
         return 2
+    if args.answers:
+        try:
+            answers = read_answers(args.answers)
+        except SheetError as exc:
+            print(f"score failed: {exc}", file=sys.stderr)
+            return 2
+        unknown = sorted(set(answers) - {r["pair_id"] for r in rows})
+        if unknown:
+            print(
+                f"score failed: ANSWER line(s) for unknown pair(s): {', '.join(unknown)}",
+                file=sys.stderr,
+            )
+            return 1
+        for r in rows:
+            if r["pair_id"] in answers:
+                r["human_same_defect"] = answers[r["pair_id"]]
     counts, errors = score(rows)
     if counts is None:
         for e in errors:

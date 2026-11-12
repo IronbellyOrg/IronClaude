@@ -361,6 +361,37 @@ def test_score_reports_confusion_precision_and_recall(tmp_path, capsys):
     ]
 
 
+def test_reading_form_hides_the_verdict_and_its_answers_score_like_the_sheet(
+    tmp_path, capsys
+):
+    rows = cp.select(_fake(25, 13, 12))[0]
+    labels = ["yes"] * 20 + ["no"] * 5 + ["y", "yes"] + ["n", "no"] + ["no"] * 21
+    sheet = _filled(tmp_path, rows, ["" for _ in labels])
+    form = tmp_path / "form.md"
+    assert cp.main(["form", "--sheet", str(sheet), "--out", str(form)]) == 0
+    text = form.read_text(encoding="utf-8")
+    assert "merged" not in text and "apart" not in text  # the verdict is not shown
+    assert text.count("\nANSWER P") == 50 and "src/a.py" not in text  # short citations
+    # a person fills the ANSWER lines; the commas and quotes of a claim never touch the columns
+    answers = text
+    for i, label in enumerate(labels, 1):
+        answers = answers.replace(f"ANSWER P{i:02d}: ", f"ANSWER P{i:02d}: {label}", 1)
+    filled = tmp_path / "answers.md"
+    filled.write_text(answers, encoding="utf-8")
+    code = cp.main(["score", "--sheet", str(sheet), "--answers", str(filled)])
+    out = capsys.readouterr().out
+    assert code == 0 and "confusion: TP=20 FP=5 FN=2 TN=23" in out
+
+
+def test_an_answer_for_an_unknown_pair_is_an_error(tmp_path, capsys):
+    rows = cp.select(_fake(25, 13, 12))[0]
+    sheet = _filled(tmp_path, rows, ["yes"] * 50)
+    bad = tmp_path / "answers.md"
+    bad.write_text("ANSWER P99: yes\n", encoding="utf-8")
+    assert cp.main(["score", "--sheet", str(sheet), "--answers", str(bad)]) == 1
+    assert "unknown pair(s): P99" in capsys.readouterr().err
+
+
 def test_scoring_an_unfilled_sheet_fails_naming_the_missing_labels(tmp_path, capsys):
     rows = cp.select(_fake(25, 13, 12))[0]
     code, out, err = _score(_filled(tmp_path, rows, [""] * 50), capsys)
