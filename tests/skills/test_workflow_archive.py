@@ -796,7 +796,7 @@ def test_directory_traversal_error_cannot_produce_final_state(p, monkeypatch):
 # --- retry / halt ledger records -------------------------------------------------
 CK = "a" * 40
 RUNGS = [
-    "T3Model01",
+    "T2bModel01",
     "T2Model02",
     "T1Model02",
     "T1Model01",

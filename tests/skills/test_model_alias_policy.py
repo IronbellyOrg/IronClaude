@@ -27,7 +27,7 @@ ALIASES = {"opus", "sonnet", "haiku", "inherit"}
 # E-TIER-UNAVAILABLE outside a ccsession tier workspace (see
 # src/superclaude/skills/sc-issue-protocol/refs/tiers.md).
 ISSUE_WORKER_PINS = {
-    "src/superclaude/agents/issue-worker-t3.md": "claude-gw-tier3",
+    "src/superclaude/agents/issue-worker-t3.md": "claude-gw-tier2b",
     "src/superclaude/agents/issue-worker-t2.md": "claude-gw-tier2",
     "src/superclaude/agents/issue-worker-t1.md": "claude-gw-tier1b",
 }
@@ -224,7 +224,7 @@ def test_retry_ladder_uses_the_variable_names_the_workspace_exports() -> None:
     ]
     assert bad == []
     retry = (ROOT / RETRY_REFS[0]).read_text(encoding="utf-8")
-    for name in ("T3Model01", "T2Model02", "T1Model02", "T1Model01"):
+    for name in ("T2bModel01", "T2Model02", "T1Model02", "T1Model01"):
         assert name in retry
 
 

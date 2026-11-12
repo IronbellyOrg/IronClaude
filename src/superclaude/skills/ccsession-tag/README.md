@@ -447,6 +447,14 @@ GPT-6.1 Terra, GLM-5.3, Qwen3.8 Max and Muse Wonder 1.0. A tier whose slots the
 workspace env file does not set stops tier-mode launches, so the env file must carry
 a tier before this data names it (see `MODEL-TIERS.md`, "How to update this page").
 
+What a 429 (too many requests) does, in every tier: it is not retried straight away on the
+next model. The first two 429s from a model go back to Claude Code, which retries the
+request on the same model. The third 429 parks that model for a while (see the Cooldown
+row below), and the same request then moves to the next eligible model in the tier. Tier 2b
+has no rule of its own for GPT-6.1 Terra: Terra's 429s follow this same count, and the next
+model after Terra in the list is GLM-5.3 (owner decision of 2026-11-12, issue 488; the
+behavior comes from the failover change merged earlier).
+
 | | What happens |
 |---|---|
 | Picker (`/model`) | Shows the tiers (Tier 0, Tier 1a, ...), each with its models; with `+models` in the owner's rule, also each model on its own, in `CCSESSION_MODEL_ORDER` order |

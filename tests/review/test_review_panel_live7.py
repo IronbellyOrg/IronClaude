@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import copy
 import json
+from pathlib import Path
 
 import pytest
 from click.testing import CliRunner
@@ -80,6 +81,29 @@ def test_packaged_tier2b_has_the_owner_supplied_models_in_order(tiers):
         "models": ["gpt-6.1-terra", "glm-5.3", "Qwen3.8-max", "muse-wonder-1.0"],
     }
     assert all(m in tiers["names"] for m in tiers["aliases"]["tier2b"]["models"])
+
+
+CCSESSION_MODELS = (
+    Path(__file__).resolve().parents[2]
+    / "src/superclaude/skills/ccsession-tag/ccsession-models.json"
+)
+
+
+def _assert_tiers_match_ccsession_slots(tiers):
+    slots = json.loads(CCSESSION_MODELS.read_text(encoding="utf-8"))["tiers"]
+    for tier in ("tier2b", "tier3", "tier4"):
+        listed = tiers["aliases"][tier]["models"]
+        assert len(listed) == len(slots[tier]["models_env"]), tier
+    assert tiers["aliases"]["tier2b"]["models"][0] == "gpt-6.1-terra"
+    assert tiers["aliases"]["tier3"]["models"][0] == "glm-5.3"
+
+
+def test_review_tier_lists_match_the_ccsession_slot_counts(tiers):
+    _assert_tiers_match_ccsession_slots(tiers)
+    dropped = copy.deepcopy(tiers)
+    dropped["aliases"]["tier2b"]["models"].pop()
+    with pytest.raises(AssertionError):
+        _assert_tiers_match_ccsession_slots(dropped)
 
 
 def test_gateway_resolves_all_seven_with_the_packaged_tier2b(tiers, live7):

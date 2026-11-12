@@ -19,7 +19,8 @@ ROOT = Path(__file__).resolve().parents[2]
 AGENTS = ROOT / "src/superclaude/agents"
 MODELS = ROOT / "src/superclaude/skills/ccsession-tag/ccsession-models.json"
 WORKERS = {
-    "issue-worker-t3": ("claude-gw-tier3", "tier3"),
+    # Pinned to Tier 2b (Terra first) by the owner on 2026-11-12, issue 488.
+    "issue-worker-t3": ("claude-gw-tier2b", "tier2b"),
     "issue-worker-t2": ("claude-gw-tier2", "tier2"),
     "issue-worker-t1": ("claude-gw-tier1b", "tier1b"),
 }

@@ -1,0 +1,18 @@
+============================= test session starts ==============================
+platform linux -- Python 3.11.15, pytest-9.2.0, pluggy-1.7.0
+SuperClaude: 5.0.0
+rootdir: /home/coder/workspaces/worktrees/IronClaude/issue-488-tiers
+configfile: pyproject.toml
+plugins: superclaude-5.0.0, anyio-4.16.0
+collected 127 items
+
+tests/review/test_review_cli.py .........                                [  7%]
+tests/review/test_review_findings.py .......................             [ 25%]
+tests/review/test_review_ledger.py ........................              [ 44%]
+tests/review/test_review_panel.py ...................................... [ 74%]
+...                                                                      [ 76%]
+tests/review/test_review_panel_live7.py ...............                  [ 88%]
+tests/review/test_review_rules_text.py .....                             [ 92%]
+tests/review/test_review_telemetry.py ..........                         [100%]
+
+============================= 127 passed in 1.23s ==============================

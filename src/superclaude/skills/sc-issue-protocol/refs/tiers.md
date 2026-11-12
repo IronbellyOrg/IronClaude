@@ -10,11 +10,11 @@ Workers are the agent files `~/.claude/agents/issue-worker-t3.md`, `~/.claude/ag
 
 | Tier | Picker ID pinned in agent frontmatter | Agent | Used for |
 |---|---|---|---|
-| T3 | `claude-gw-tier3` | `issue-worker-t3` | the first lookup on every claim and create (B13); quick-depth issue body |
+| T3 | `claude-gw-tier2b` | `issue-worker-t3` | the first lookup on every claim and create (B13); quick-depth issue body |
 | T2 | `claude-gw-tier2` | `issue-worker-t2` | accuracy check and summary on simple and medium claims; flag choice at quick depth when a flag is missing; validation of user-given flags at standard depth; standard-depth body. Next-step chains for simple work (B14) |
 | T1 | `claude-gw-tier1b` | `issue-worker-t1` | accuracy check and summary on complex claims; flag choice at standard and deep depth when a flag is missing; the independent flag variant for the deep adversarial check; deep body. Next-step chains for medium and complex work (B14) |
 
-Picker IDs are written without the `[1m]` context suffix (default D19).
+Picker IDs are written without the `[1m]` context suffix (default D19). The worker name `issue-worker-t3` is a label, not the ccsession tier: since the 2026-11-12 owner decision (issue 488) it is pinned to ccsession Tier 2b (GPT-6.1 Terra first), the model order it had before Tier 3 was cut to GLM-5.3 and Qwen3.8 Max.
 
 ## Why the pin lives in frontmatter
 
@@ -46,7 +46,7 @@ In claim mode the line is also shown in the posted accuracy-check comment (optio
 If a spawn of `issue-worker-t3` or `issue-worker-t2` fails because its picker ID is not served (for example, outside a ccsession tier workspace), or the T2 fallback run itself is not served, STOP `E-TIER-UNAVAILABLE`, naming the agent file and the picker ID, for example:
 
 ```text
-E-TIER-UNAVAILABLE: ~/.claude/agents/issue-worker-t3.md pins claude-gw-tier3, which this session cannot serve.
+E-TIER-UNAVAILABLE: ~/.claude/agents/issue-worker-t3.md pins claude-gw-tier2b, which this session cannot serve.
 ```
 
 There is no alias fallback (no retry with the `haiku`, `sonnet` or `opus` alias): a fallback to `haiku` follows `ANTHROPIC_DEFAULT_HAIKU_MODEL` and can land on a model of another tier or family than the pin, which defeats B13.
