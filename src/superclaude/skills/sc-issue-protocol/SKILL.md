@@ -57,7 +57,7 @@ Spawn workers with `subagent_type: issue-worker-t<N>` and never pass the `model`
 
 | Agent | Picker ID (frontmatter `model:`) | Installed file |
 |---|---|---|
-| `issue-worker-t3` | `claude-gw-tier3` | `~/.claude/agents/issue-worker-t3.md` |
+| `issue-worker-t3` | `claude-gw-tier2b` | `~/.claude/agents/issue-worker-t3.md` |
 | `issue-worker-t2` | `claude-gw-tier2` | `~/.claude/agents/issue-worker-t2.md` |
 | `issue-worker-t1` | `claude-gw-tier1b` | `~/.claude/agents/issue-worker-t1.md` |
 

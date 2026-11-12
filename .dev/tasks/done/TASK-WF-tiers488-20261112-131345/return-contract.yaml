@@ -1,0 +1,14 @@
+contract_version: "1.1"
+status: success
+slug: TASK-WF-tiers488-20261112-131345
+plan_path: ./TASK-WF-tiers488-20261112-131345.md
+source_path: ./source.md
+source_origin: .dev/issues/488/tiers488.md
+strategy: systematic
+depth: standard
+handoff_action: none
+handoff_output_path: null
+reflect_status: skipped
+reflect_report_path: null
+unresolved:
+  - "Advisory /sc:reflect --mode pre was not run through its tiered protocol (worker time budget). The author did an inline coverage check instead: every owner decision 1-8 and the CHANGELOG, test, sync and lint items map to a task or a constraint. This is not an independent review."

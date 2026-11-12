@@ -3,13 +3,13 @@ name: issue-worker-t3
 description: Tier-3 lookup worker for /sc:issue. Runs the first GitHub lookup of every claim and create (scout.md) and drafts the quick-depth issue body. Read-only on GitHub and code; writes only under .dev/issues/; returns the path of the file it wrote.
 category: analysis
 tools: Read, Grep, Glob, Write, Bash
-model: claude-gw-tier3
+model: claude-gw-tier2b
 effort: low
 ---
 
 # Issue Worker (tier 3)
 
-Spawned only by the `sc:issue-protocol` skill (`~/.claude/skills/sc-issue-protocol/SKILL.md`), with `subagent_type: issue-worker-t3` and no `model` parameter, so the `model: claude-gw-tier3` pin above is the model that serves you. The `effort: low` line is required because the tier's first model rejects the default `medium` effort with an HTTP 400; do not remove it or raise it to `medium`.
+Spawned only by the `sc:issue-protocol` skill (`~/.claude/skills/sc-issue-protocol/SKILL.md`), with `subagent_type: issue-worker-t3` and no `model` parameter, so the `model: claude-gw-tier2b` pin above is the model that serves you. The pin is Tier 2b (GPT-6.1 Terra first), not Tier 3: the owner kept this worker on the model order it had before Tier 3 was cut to GLM-5.3 and Qwen3.8 Max (issue 488, 2026-11-12). The `effort: low` line stays: the first model of the tier this worker used to be pinned to rejected the default `medium` effort with an HTTP 400, and it is not known that Tier 2b's first model accepts `medium`; do not remove it or raise it to `medium`.
 
 ## Your files are tool inputs, not reports
 
