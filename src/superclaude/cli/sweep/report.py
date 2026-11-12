@@ -691,5 +691,5 @@ def to_json(
             "total": summary["total"],
             "total_is_lower_bound": summary["total_is_lower_bound"],
         },
-        "report_path": sanitize(report_path),
+        "report_path": report_path,  # the real path: json.dumps escapes it, and Read needs it as is
     }

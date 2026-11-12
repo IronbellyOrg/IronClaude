@@ -23,7 +23,6 @@ import yaml
 
 from .models import (
     CONTRACT_FILE,
-    REPORT_DIR_RE,
     SHOW_CAP_REASON,
     TIME_BUDGET_REASON,
     ContractRecord,
@@ -36,6 +35,7 @@ from .models import (
     TabMapEntry,
     TranscriptTail,
     WorktreeState,
+    report_folders,
 )
 
 # --- Allowlist constants (DESIGN 7.3) ---------------------------------------------------
@@ -992,8 +992,8 @@ def _contract_candidates(obs: OrcaObservation) -> tuple[Path, ...]:
             continue
         for match in _CONTRACT_PATH_RE.finditer(text):
             found[match.group(1)] = None
-        for match in REPORT_DIR_RE.finditer(text):
-            found[f"{match.group(2).rstrip('/')}/{CONTRACT_FILE}"] = None
+        for folder in report_folders(text, obs.worktree_path):
+            found[f"{folder}/{CONTRACT_FILE}"] = None
     return tuple(Path(p) for p in found)
 
 

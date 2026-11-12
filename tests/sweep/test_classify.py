@@ -1656,6 +1656,16 @@ def test_fr013_first_condition_wins_and_archived_does_not_block():
     )
 
 
+def test_relative_report_dir_names_the_contract_under_the_worker_worktree():
+    # Two contracts sit under one worktree, so only the named folder can choose.
+    host = orca(
+        "D1", worktree_path="/w1", task_spec_text="--report-dir .dev/reports/b/"
+    )
+    a = contract("failed", path="/w1/.dev/reports/a/return-contract.yaml")
+    b = contract("succeeded", path="/w1/.dev/reports/b/return-contract.yaml")
+    assert classify_module._contract_for(host, (a, b), [host]) is b
+
+
 def test_fr013_frozen_row_makes_its_worktree_a_frozen_plan(now):
     host = orca(
         "D1",

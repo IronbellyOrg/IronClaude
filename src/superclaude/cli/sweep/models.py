@@ -9,6 +9,7 @@ redeclared here (DESIGN line 219).
 
 from __future__ import annotations
 
+import os
 import re
 from dataclasses import dataclass
 from datetime import datetime, timedelta
@@ -20,8 +21,25 @@ JSON_SCHEMA_VERSION = 1
 # ``classify`` (which attaches that contract to the row), so the two cannot drift.
 CONTRACT_FILE = "return-contract.yaml"
 REPORT_DIR_RE = re.compile(
-    r"--(?:report-dir|output-dir|output)[ =]+(['\"]?)(/[^\s'\"`]+)\1"
+    r"--(?:report-dir|output-dir|output)[ =]+(['\"]?)([^\s'\"`]+)\1"
 )
+
+
+def report_folders(text: str, worktree: str | None) -> tuple[str, ...]:
+    """Report folders a brief's text names, absolute and without a trailing slash.
+
+    A relative folder (the WC-16 example ``--report-dir .dev/tdd/auth-1/``) resolves
+    against the worker's worktree; with no worktree path it names nothing.
+    """
+    folders: list[str] = []
+    for match in REPORT_DIR_RE.finditer(text):
+        raw = match.group(2)
+        if raw.startswith("/"):
+            folders.append(raw.rstrip("/"))
+        elif worktree:
+            folders.append(os.path.normpath(os.path.join(worktree, raw)))
+    return tuple(folders)
+
 
 # Reason texts ``probes`` writes into an unscanned ``worker-show`` source row and
 # ``classify`` reads back to count ``bound_reached`` (FR-020).

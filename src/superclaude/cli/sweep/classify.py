@@ -16,7 +16,6 @@ from pathlib import Path
 from .models import (
     CLASSES,
     PACKAGE_STATES,
-    REPORT_DIR_RE,
     SHOW_CAP_REASON,
     TIME_BUDGET_REASON,
     Classification,
@@ -33,6 +32,7 @@ from .models import (
     TabMapEntry,
     TranscriptTail,
     WorktreeState,
+    report_folders,
 )
 
 # Join path in force. Step 1.0a items 1 and 22 (CLOSED): ``session_join`` is
@@ -563,7 +563,7 @@ def _contract_for(
     """DESIGN names no key between a contract and its row; see the final report."""
     texts = [t for t in (orca.task_spec_text, orca.body_text) if t]
     # A report folder named in the text (``--report-dir <folder>``) names its contract.
-    folders = {m.group(2).rstrip("/") for t in texts for m in REPORT_DIR_RE.finditer(t)}
+    folders = {f for t in texts for f in report_folders(t, orca.worktree_path)}
     named = {
         c.path: c
         for c in contracts

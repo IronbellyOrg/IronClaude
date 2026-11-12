@@ -1147,9 +1147,7 @@ def test_full_timeout_fakes_finish_under_120_s_and_still_render(
     assert "time budget reached" in text
 
 
-def test_every_call_timing_out_still_collects_and_renders(
-    sweep_root, fake_run, clock
-):
+def test_every_call_timing_out_still_collects_and_renders(sweep_root, fake_run, clock):
     def hang(argv, kwargs):
         clock.advance(kwargs["timeout"])  # the call uses its whole timeout
         raise subprocess.TimeoutExpired(argv, kwargs["timeout"])
@@ -1594,6 +1592,28 @@ def test_a_show_of_the_wrong_shape_raises_nothing(show):
 
     assert obs.dispatch == DISPATCH
     assert obs.status is None
+
+
+def test_relative_report_dir_resolves_against_the_worker_worktree():
+    # The WC-16 worked example names a relative folder.
+    text = "run it with --report-dir .dev/tdd/auth-1/ and report back"
+    named = probes.OrcaObservation(
+        run=RUN1, dispatch=did(1), worktree_path="/w1", task_spec_text=text
+    )
+    assert probes._contract_candidates(named) == (
+        Path("/w1/.dev/tdd/auth-1/return-contract.yaml"),
+    )
+    # With no worktree path a relative folder names nothing.
+    unplaced = probes.OrcaObservation(run=RUN1, dispatch=did(1), task_spec_text=text)
+    assert probes._contract_candidates(unplaced) == ()
+    # An absolute folder is read as before.
+    absolute = probes.OrcaObservation(
+        run=RUN1,
+        dispatch=did(1),
+        worktree_path="/w1",
+        task_spec_text="--report-dir /r/x/",
+    )
+    assert probes._contract_candidates(absolute) == (Path("/r/x/return-contract.yaml"),)
 
 
 def test_symlink_out_contract_is_outside_root(

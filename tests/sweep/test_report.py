@@ -948,6 +948,14 @@ def test_render_twice_gives_equal_bytes_and_equal_json_apart_from_report_path(ct
     assert "observed 2026-11-08T13:00:00Z" in report.render(result, later)
 
 
+@pytest.mark.parametrize("path", ["/tmp/project[1]/a|b.md", "/tmp/<x>/a&b\\c.md"])
+def test_json_report_path_is_the_real_path_not_the_markdown_escaped_one(ctx, path):
+    # The skill Reads report_path as given, so it must not carry Markdown escapes.
+    result = full_result(ctx)
+    payload = json.loads(json.dumps(report.to_json(result, ctx, path)))
+    assert payload["report_path"] == path
+
+
 # ===========================================================================================
 # Source loss (NFR-008), version line (NFR-015), header lines (FR-020, SPEC 321, 454)
 # ===========================================================================================
