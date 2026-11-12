@@ -126,6 +126,15 @@ def test_an_evicted_question_that_returns_is_not_counted_evicted_twice():
     assert again.retained == RETENTION_BOUND
 
 
+def test_the_evicted_key_bookkeeping_is_bounded_too():
+    state = None
+    for start in range(0, 3000, 100):
+        batch = [q(i) for i in range(start, start + 100)]
+        state = merge_questions(state, batch, start // 100 + 1, True, True, RUN)
+    assert state.evicted == 2000 and state.retained == RETENTION_BOUND
+    assert len(state.evicted_keys) == RETENTION_BOUND
+
+
 def test_two_runs_with_the_same_message_id_stay_two_records():
     rows = [q(1, run=RUN), q(1, run=OTHER)]
     state = merge_questions(None, rows, 1, False, True, RUN)

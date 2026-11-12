@@ -44,9 +44,10 @@ class QuestionState:
 
     records: tuple[QuestionRecord, ...] = ()
     evicted: int = 0  # records dropped at the bound; the open total counts them
-    evicted_keys: frozenset = (
-        frozenset()
-    )  # keys behind ``evicted``, so none counts twice
+    # Newest evicted keys, at most RETENTION_BOUND, so a re-seen one is not counted twice.
+    # shortcut: an older evicted key that returns can be counted again; the total is
+    # already "unknown (retention exceeded)" then. Upgrade only if exact counts are needed.
+    evicted_keys: tuple = ()
     window_full: bool = False  # the last successful read returned exactly 100 rows
     last_read_cycle: int = 0  # cycle of the last successful question read; 0 = never
     identity_unknown_rows: int = (
@@ -127,13 +128,13 @@ def merge_questions(
     ordered = sorted(records.values(), key=_order)
     # An evicted question that a read returns again is retained once more, so it stops
     # counting as evicted; it is counted again only if it is dropped again.
-    returned = state.evicted_keys & seen.keys()
-    evicted_keys = state.evicted_keys - returned
+    returned = {k for k in state.evicted_keys if k in seen}
+    evicted_keys = tuple(k for k in state.evicted_keys if k not in returned)
     evicted = state.evicted - len(returned)
     if len(ordered) > RETENTION_BOUND:
         dropped = ordered[:-RETENTION_BOUND]  # the oldest created
         ordered = ordered[-RETENTION_BOUND:]
-        evicted_keys = evicted_keys | {r.key for r in dropped}
+        evicted_keys = (evicted_keys + tuple(r.key for r in dropped))[-RETENTION_BOUND:]
         evicted += len(dropped)
     return QuestionState(
         records=tuple(ordered),
