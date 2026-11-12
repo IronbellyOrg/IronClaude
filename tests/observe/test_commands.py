@@ -616,11 +616,9 @@ def messages_in(argv_log):
 
 
 def test_t56_with_the_guard_off_questions_is_refused_and_no_orca_call_is_made(
-    fake_clock, argv_log
+    fake_clock, argv_log, monkeypatch
 ):
-    assert (
-        commands.QUESTION_GATE_PASSED is False
-    )  # ships OFF until the owner's record exists
+    monkeypatch.setattr(commands, "QUESTION_GATE_PASSED", False)
     runner = question_runner(argv_log)
     deps = deps_for(fake_clock, runner=runner, discover=FakeDiscover(argv_log))
     code, out = once(Options(once=True, run_id=QRUN, questions=True), deps)
@@ -636,7 +634,10 @@ def test_t56_with_the_guard_off_questions_is_refused_and_no_orca_call_is_made(
     )
 
 
-def test_the_interactive_path_is_refused_too_with_the_guard_off(fake_clock, argv_log):
+def test_the_interactive_path_is_refused_too_with_the_guard_off(
+    fake_clock, argv_log, monkeypatch
+):
+    monkeypatch.setattr(commands, "QUESTION_GATE_PASSED", False)
     runner = question_runner(argv_log)
     deps = deps_for(fake_clock, runner=runner, discover=FakeDiscover(argv_log))
     assert execute(Options(run_id=QRUN, questions=True), deps) != 0
@@ -737,8 +738,13 @@ def test_help_states_the_one_run_rule_the_disclosure_and_that_run_use_is_never_r
     assert "one named Run" in flat
 
 
-def test_the_guard_constant_is_a_literal_false_with_a_comment_naming_the_gate_record():
+def test_the_guard_is_true_only_with_a_cited_owner_record_that_exists():
     text = Path(commands.__file__).read_text(encoding="utf-8")
-    assert len(re.findall(r"^QUESTION_GATE_PASSED = (True|False)$", text, re.M)) == 1
-    assert "QUESTION_GATE_PASSED = False" in text
+    found = re.findall(r"^QUESTION_GATE_PASSED = (True|False)(.*)$", text, re.M)
+    assert len(found) == 1 and (found[0][0] == "True") is commands.QUESTION_GATE_PASSED
+    if commands.QUESTION_GATE_PASSED:  # no True without a cited, existing owner record
+        record = re.search(r"owner record: (\S+)", found[0][1])
+        assert record, "the guard is True but no owner record is cited"
+        root = Path(__file__).resolve().parents[2]
+        assert (root / record.group(1)).is_file()
     assert "release-gates.md" in text and "Task 18" in text

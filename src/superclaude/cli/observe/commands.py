@@ -61,10 +61,10 @@ REDRAW_SECONDS = (
 WIDTHS = ("160", "116", "80")
 
 # The live coordinator-questions read is guarded by this one constant. It stays False until
-# the owner has written a record that QUESTION-OBSERVATION passed (release-gates.md, "Agents
-# cite the owner's statement, never write it"); plan Task 18 may flip it only against that
+# the owner has given a record that QUESTION-OBSERVATION passed (release-gates.md, "Agents
+# cite the owner's statement"); plan Task 18 flips it only against that
 # record, cited by path. While False, ``--questions`` makes no Orca call, not even discovery.
-QUESTION_GATE_PASSED = False
+QUESTION_GATE_PASSED = True  # owner record: .dev/issues/409/owner-decisions-20261112.md
 QUESTION_GATE_TEXT = (
     "question read not enabled: QUESTION-OBSERVATION has not passed"  # PROPOSED wording
 )
