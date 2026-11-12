@@ -1,0 +1,14 @@
+return_contract:
+  merged_output_path: /home/coder/workspaces/worktrees/IronClaude/fix-flaky-parallel-thread-test/.dev/reflect/pre-TASK-WF-enforceTheOwnerP-20261108-031809-20261108033529/adversarial/merged-output.md
+  convergence_score: 0.968            # 30/31 diff points agreed (S+C+X+A); status below is BLOCKED_BY_INVARIANTS, not CONVERGED
+  convergence_status: BLOCKED_BY_INVARIANTS
+  artifacts_dir: /home/coder/workspaces/worktrees/IronClaude/fix-flaky-parallel-thread-test/.dev/reflect/pre-TASK-WF-enforceTheOwnerP-20261108-031809-20261108033529/adversarial
+  status: partial                     # completed all 5 steps; non-convergence (HIGH unaddressed invariant) and 1 unresolved point
+  base_variant: "sonnet:analyzer"     # variant-1-original.md (reviewer 1), score 0.912 vs 0.849
+  unresolved_conflicts: 1             # X-001
+  unresolved_conflict_ids: [X-001]
+  fallback_mode: false
+  failure_stage: null
+  invocation_method: skill-direct
+  unaddressed_invariants:
+    - {id: INV-001, category: collection_boundaries, assumption: "W-FIRST-TAB-LEFT can be added as a created-worktree note without adding it to WARNING_ORDER (as_dict raises ValueError)", severity: HIGH}

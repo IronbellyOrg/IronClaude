@@ -30,7 +30,10 @@ def test_orca_session_launch_guidance(relative: str) -> None:
         "Every Orca worktree gets an agent",
         "never create a worktree for your own use",
         "owns its agent",
+        "coordinator is person-opened",
+        "authorize a supervised worker to create worktrees or dispatch workers",
     ):
+        assert "coordinator under another orchestrator" not in section
         assert required in section, (relative, required)
 
 
