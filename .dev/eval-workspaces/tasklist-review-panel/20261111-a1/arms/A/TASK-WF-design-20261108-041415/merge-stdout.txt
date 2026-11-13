@@ -1,0 +1,60 @@
+{
+ "block_ok": {
+  "t1b-1": true
+ },
+ "brief_ids": [
+  "L1"
+ ],
+ "cleared": [],
+ "clusters": [
+  {
+   "event": "opened",
+   "lid": "L1",
+   "members": [
+    {
+     "blocking": true,
+     "fid": "F1",
+     "reviewer_id": "t1b-1"
+    },
+    {
+     "blocking": false,
+     "fid": "F2",
+     "reviewer_id": "t1b-1"
+    },
+    {
+     "blocking": false,
+     "fid": "F3",
+     "reviewer_id": "t1b-1"
+    },
+    {
+     "blocking": false,
+     "fid": "F4",
+     "reviewer_id": "t1b-1"
+    },
+    {
+     "blocking": false,
+     "fid": "F5",
+     "reviewer_id": "t1b-1"
+    },
+    {
+     "blocking": false,
+     "fid": "F6",
+     "reviewer_id": "t1b-1"
+    },
+    {
+     "blocking": false,
+     "fid": "F7",
+     "reviewer_id": "t1b-1"
+    }
+   ]
+  }
+ ],
+ "decision": "REVISE",
+ "new": [
+  "L1"
+ ],
+ "refound": [],
+ "regressed": [],
+ "verdict": "FAIL",
+ "warnings": []
+}

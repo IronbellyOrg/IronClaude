@@ -1,0 +1,12 @@
+{
+  "reviewer_id": "smoke-1",
+  "expected_model": "muse-ember-1.0",
+  "observed_model": "muse-ember-1.0",
+  "model_ok": true,
+  "findings_block": true,
+  "attempt": 1,
+  "wall_s": 40,
+  "output_tokens_main": 8047,
+  "output_tokens_all": 8047,
+  "exit": 0
+}

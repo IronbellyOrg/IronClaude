@@ -1,0 +1,182 @@
+{
+ "block_ok": {
+  "t2-1": true,
+  "t2b-1": true,
+  "t3-1": true,
+  "t4-1": true
+ },
+ "brief_ids": [
+  "L8",
+  "L9"
+ ],
+ "cleared": [],
+ "clusters": [
+  {
+   "event": "opened",
+   "lid": "L1",
+   "members": [
+    {
+     "blocking": false,
+     "fid": "F1",
+     "reviewer_id": "t2b-1"
+    },
+    {
+     "blocking": false,
+     "fid": "F2",
+     "reviewer_id": "t3-1"
+    },
+    {
+     "blocking": false,
+     "fid": "F4",
+     "reviewer_id": "t4-1"
+    }
+   ]
+  },
+  {
+   "event": "opened",
+   "lid": "L2",
+   "members": [
+    {
+     "blocking": false,
+     "fid": "F2",
+     "reviewer_id": "t2b-1"
+    },
+    {
+     "blocking": false,
+     "fid": "F3",
+     "reviewer_id": "t4-1"
+    },
+    {
+     "blocking": false,
+     "fid": "F8",
+     "reviewer_id": "t4-1"
+    }
+   ]
+  },
+  {
+   "event": "opened",
+   "lid": "L3",
+   "members": [
+    {
+     "blocking": false,
+     "fid": "F3",
+     "reviewer_id": "t2b-1"
+    },
+    {
+     "blocking": false,
+     "fid": "F9",
+     "reviewer_id": "t4-1"
+    }
+   ]
+  },
+  {
+   "event": "opened",
+   "lid": "L4",
+   "members": [
+    {
+     "blocking": false,
+     "fid": "F4",
+     "reviewer_id": "t2b-1"
+    },
+    {
+     "blocking": false,
+     "fid": "F6",
+     "reviewer_id": "t4-1"
+    }
+   ]
+  },
+  {
+   "event": "opened",
+   "lid": "L5",
+   "members": [
+    {
+     "blocking": false,
+     "fid": "F1",
+     "reviewer_id": "t3-1"
+    }
+   ]
+  },
+  {
+   "event": "opened",
+   "lid": "L6",
+   "members": [
+    {
+     "blocking": false,
+     "fid": "F3",
+     "reviewer_id": "t3-1"
+    },
+    {
+     "blocking": false,
+     "fid": "F7",
+     "reviewer_id": "t4-1"
+    }
+   ]
+  },
+  {
+   "event": "opened",
+   "lid": "L7",
+   "members": [
+    {
+     "blocking": false,
+     "fid": "F4",
+     "reviewer_id": "t3-1"
+    }
+   ]
+  },
+  {
+   "event": "opened",
+   "lid": "L8",
+   "members": [
+    {
+     "blocking": false,
+     "fid": "F5",
+     "reviewer_id": "t3-1"
+    },
+    {
+     "blocking": true,
+     "fid": "F2",
+     "reviewer_id": "t4-1"
+    }
+   ]
+  },
+  {
+   "event": "opened",
+   "lid": "L9",
+   "members": [
+    {
+     "blocking": true,
+     "fid": "F1",
+     "reviewer_id": "t4-1"
+    }
+   ]
+  },
+  {
+   "event": "opened",
+   "lid": "L10",
+   "members": [
+    {
+     "blocking": false,
+     "fid": "F5",
+     "reviewer_id": "t4-1"
+    }
+   ]
+  }
+ ],
+ "decision": "REVISE",
+ "new": [
+  "L1",
+  "L2",
+  "L3",
+  "L4",
+  "L5",
+  "L6",
+  "L7",
+  "L8",
+  "L9",
+  "L10"
+ ],
+ "refound": [],
+ "regressed": [],
+ "verdict": "FAIL",
+ "warnings": []
+}

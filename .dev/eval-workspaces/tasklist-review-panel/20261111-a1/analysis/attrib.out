@@ -1,0 +1,53 @@
+DEFECT-RICH per reviewer run: model runs GTany/run GTblk/run wrongblk/run distinct-GTs-ever
+ember    26  0.65  0.23  0.62 ['AL:GT2', 'DS:GT3', 'DS:GT5', 'DS:GT7']
+grok     16  1.19  0.56  1.00 ['AL:GT1', 'AL:GT2', 'AL:GT4', 'DS:GT3', 'DS:GT4', 'DS:GT5', 'DS:GT6', 'DS:GT7']
+haiku    26  1.35  0.69  0.65 ['AL:GT1', 'AL:GT2', 'AL:GT4', 'DS:GT3', 'DS:GT4', 'DS:GT5', 'DS:GT7', 'DS:GT9']
+luna     40  0.30  0.30  0.75 ['AL:GT1', 'AL:GT2', 'DS:GT3', 'DS:GT4', 'DS:GT7']
+sol       2  0.50  0.50  1.50 ['DS:GT3']
+sonnet   18  1.44  0.50  0.17 ['AL:GT1', 'AL:GT2', 'AL:GT4', 'DS:GT3', 'DS:GT4', 'DS:GT5', 'DS:GT7', 'DS:GT9']
+terra    12  0.25  0.25  1.33 ['AL:GT2', 'DS:GT3']
+wonder   16  1.38  0.62  0.56 ['AL:GT1', 'AL:GT2', 'DS:GT3', 'DS:GT7', 'DS:GT9']
+
+PAIR union of distinct GTs ever caught / overlap
+ember+grok: union=8 overlap=4
+ember+haiku: union=8 overlap=4
+ember+luna: union=6 overlap=3
+ember+sol: union=4 overlap=1
+ember+sonnet: union=8 overlap=4
+ember+terra: union=4 overlap=2
+ember+wonder: union=6 overlap=3
+grok+haiku: union=9 overlap=7
+grok+luna: union=8 overlap=5
+grok+sol: union=8 overlap=1
+grok+sonnet: union=9 overlap=7
+grok+terra: union=8 overlap=2
+grok+wonder: union=9 overlap=4
+haiku+luna: union=8 overlap=5
+haiku+sol: union=8 overlap=1
+haiku+sonnet: union=8 overlap=8
+haiku+terra: union=8 overlap=2
+haiku+wonder: union=8 overlap=5
+luna+sol: union=5 overlap=1
+luna+sonnet: union=8 overlap=5
+luna+terra: union=5 overlap=2
+luna+wonder: union=6 overlap=4
+sol+sonnet: union=8 overlap=1
+sol+terra: union=2 overlap=1
+sol+wonder: union=5 overlap=1
+sonnet+terra: union=8 overlap=2
+sonnet+wonder: union=8 overlap=5
+terra+wonder: union=5 overlap=2
+
+ROWS containing luna AND terra (per reviewer, defect-rich):
+b4-terra-luna-muse DS t2b-1 wonder any ['3'] blk [] wb 0
+b4-terra-luna-muse DS t4-1 luna any [] blk [] wb 1
+b4-terra-luna-muse DS t2-1 terra any [] blk [] wb 0
+b4-terra-luna-muse AL t2b-1 wonder any ['1', '2'] blk ['1', '2'] wb 1
+b4-terra-luna-muse AL t4-1 luna any ['1', '2'] blk ['1', '2'] wb 0
+b4-terra-luna-muse AL t2-1 terra any [] blk [] wb 3
+terra-luna-muse-ember DS t2b-1 ember any ['3'] blk [] wb 0
+terra-luna-muse-ember DS t4-1 luna any [] blk [] wb 1
+terra-luna-muse-ember DS t2-1 terra any [] blk [] wb 0
+terra-luna-muse-ember AL t2b-1 ember any ['2'] blk ['2'] wb 0
+terra-luna-muse-ember AL t4-1 luna any ['2'] blk ['2'] wb 0
+terra-luna-muse-ember AL t2-1 terra any ['2'] blk ['2'] wb 2

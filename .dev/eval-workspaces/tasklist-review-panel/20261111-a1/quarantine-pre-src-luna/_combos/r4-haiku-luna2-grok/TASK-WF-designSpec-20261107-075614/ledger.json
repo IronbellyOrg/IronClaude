@@ -1,0 +1,333 @@
+{
+ "schema": "review-ledger/1",
+ "doc": "/home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/.dev/eval-workspaces/tasklist-review-panel/20261111-a1/TASK-WF-designSpec-20261107-075614/candidate.md",
+ "cap_reviews": 3,
+ "rounds": [
+  {
+   "n": 1,
+   "doc_sha256": "044809e3a963fad395cfbe0988bece975650a3adf17176893665d92338bd3481",
+   "reviewers": [
+    {
+     "reviewer_id": "t3-1",
+     "model": "claude-haiku-5-5",
+     "report": "/home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/.dev/eval-workspaces/tasklist-review-panel/20261111-a1/TASK-WF-designSpec-20261107-075614/reviews/combos/r4-haiku-luna2-grok/t3-1.md",
+     "report_sha256": "4d1faeb934b8d09861f4b7f86541051cb2700aee375da8ce11811978d9a1de97",
+     "block_ok": true
+    },
+    {
+     "reviewer_id": "t3-2",
+     "model": "gpt-6-luna",
+     "report": "/home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/.dev/eval-workspaces/tasklist-review-panel/20261111-a1/TASK-WF-designSpec-20261107-075614/reviews/combos/r4-haiku-luna2-grok/t3-2.md",
+     "report_sha256": "5648444b5b290139848c3d4815030e25f58c2baae1222c77487edeeb7f51eee4",
+     "block_ok": true
+    },
+    {
+     "reviewer_id": "t4-1",
+     "model": "gpt-6-luna",
+     "report": "/home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/.dev/eval-workspaces/tasklist-review-panel/20261111-a1/TASK-WF-designSpec-20261107-075614/reviews/combos/r4-haiku-luna2-grok/t4-1.md",
+     "report_sha256": "b7ecd4578b49e5b4164d6a1f4e35437cafa26efcfaac7398326b39ec4a884def",
+     "block_ok": true
+    },
+    {
+     "reviewer_id": "t4-2",
+     "model": "grok-4.7",
+     "report": "/home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/.dev/eval-workspaces/tasklist-review-panel/20261111-a1/TASK-WF-designSpec-20261107-075614/reviews/combos/r4-haiku-luna2-grok/t4-2.md",
+     "report_sha256": "716518437577781d670e6044485a781ac6afcc508153fdd61c44a77696013fbd",
+     "block_ok": true
+    }
+   ],
+   "verdict": "PASS",
+   "decision": "PASS",
+   "brief_ids": []
+  }
+ ],
+ "rows": [
+  {
+   "lid": "L1",
+   "fp": "84ab306d57548368",
+   "blocking": false,
+   "severity_max": "MAJOR",
+   "category": "contradiction",
+   "confidence": "overlap",
+   "status": "open",
+   "anchor": "ordinals 0 to 2 change only by one report line",
+   "anchor2": "that applies at every ordinal and in both modes and carries no L3 or `draft` condition",
+   "span": [
+    24,
+    25
+   ],
+   "span2": [
+    136,
+    137
+   ],
+   "refs": [],
+   "claim": "An implementer who follows Task 9's Wave 0 bullet and Task 8's Resume section builds a Wave 0 hook that runs Resume rows at ordinals 0 to 2, and X is wrong because Constraint 25 limits those ordinals to one report line; the release path at those ordinals is not stated.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t3-1",
+     "fid": "F1",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t3-1",
+     "fid": "F3",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t4-2",
+     "fid": "F3",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L2",
+   "fp": "0bd01f9f50b30d15",
+   "blocking": false,
+   "severity_max": "MAJOR",
+   "category": "missing-requirement",
+   "confidence": "overlap",
+   "status": "open",
+   "anchor": "ordinals 0 to 2 and `off` make no call",
+   "anchor2": "`resume_decision(*, mode, ordinal, guard, read, pending, dangling_branch, published)`",
+   "span": [
+    165,
+    166
+   ],
+   "span2": [
+    69,
+    70
+   ],
+   "refs": [],
+   "claim": "An implementer who follows Task 11 builds a trace that asserts no call at ordinals 0 to 2, and X is wrong if the resume read at those ordinals is needed, which the candidate does not state.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t3-1",
+     "fid": "F2",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t4-2",
+     "fid": "F4",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L3",
+   "fp": "1c6ba3cc03f4739e",
+   "blocking": false,
+   "severity_max": "MAJOR",
+   "category": "missing-requirement",
+   "confidence": "overlap",
+   "status": "open",
+   "anchor": "state[\"draft_guard\"][\"phase\"] == \"held\"",
+   "anchor2": "`fold_draft_guard(events)` implementing every row of the section 4.2 effect table",
+   "span": [
+    89,
+    90
+   ],
+   "span2": [
+    55,
+    56
+   ],
+   "refs": [],
+   "claim": "An implementer who follows Task 3 may build fold_draft_guard as a dataclass, and X is wrong because Task 5's acceptance reads it by subscript; the return type is not stated.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t3-1",
+     "fid": "F4",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t3-1",
+     "fid": "F6",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t3-1",
+     "fid": "M1",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t4-2",
+     "fid": "F2",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t4-2",
+     "fid": "F5",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L4",
+   "fp": "0bd01f9f50b30d15",
+   "blocking": false,
+   "severity_max": "MAJOR",
+   "category": "contradiction",
+   "confidence": "single",
+   "status": "open",
+   "anchor": "`uv run pytest tests/pr_submit -q` passes in full.",
+   "anchor2": "or every remaining failure is listed in `./artifacts/final-checks.md` as present in the base-commit record of Task 1",
+   "span": [
+    172,
+    173
+   ],
+   "span2": [
+    198,
+    199
+   ],
+   "refs": [],
+   "claim": "If the base already fails a test under tests/pr_submit, Task 11 cannot pass while Task 13 accepts that failure, and the candidate does not state the base result.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t3-1",
+     "fid": "F5",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t3-1",
+     "fid": "M2",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L5",
+   "fp": "3d481fb29d3ed2d7",
+   "blocking": false,
+   "severity_max": "MAJOR",
+   "category": "unpassable-check",
+   "confidence": "single",
+   "status": "open",
+   "anchor": "are asserted byte-identical by comparing the live text with string constants",
+   "anchor2": null,
+   "span": [
+    153,
+    154
+   ],
+   "span2": null,
+   "refs": [],
+   "claim": "An implementer who compares only the start text builds a pin that passes after the rest of the S5a or Wave 6 sentence changes, and X is wrong because the criterion says byte-identical.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t3-1",
+     "fid": "F7",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L6",
+   "fp": "63fe8fed1353c236",
+   "blocking": false,
+   "severity_max": "MINOR",
+   "category": "other",
+   "confidence": "single",
+   "status": "open",
+   "anchor": "shows no remaining claim that the enum has 43 members",
+   "anchor2": null,
+   "span": [
+    48,
+    49
+   ],
+   "span2": null,
+   "refs": [],
+   "claim": "The grep for 43 matches any substring containing 43, so the criterion depends on judgment rather than a mechanical result.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t3-1",
+     "fid": "M3",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L7",
+   "fp": "de519f0a078480f5",
+   "blocking": false,
+   "severity_max": "MAJOR",
+   "category": "other",
+   "confidence": "single",
+   "status": "open",
+   "anchor": "every `gh` call carries `--repo \"$REPO\"` or a `repos/${REPO}/...` path",
+   "anchor2": "the script passes the `_RESOLUTION_SCRIPTS` origin-URL resolution tests",
+   "span": [
+    107,
+    108
+   ],
+   "span2": [
+    112,
+    113
+   ],
+   "refs": [],
+   "claim": "Pinning --repo on the gh repo view fallback satisfies both checks while defeating the unscoped discovery call those resolution tests exist to lock.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t4-2",
+     "fid": "F1",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  }
+ ]
+}

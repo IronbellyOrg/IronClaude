@@ -1,0 +1,12 @@
+{
+  "reviewer_id": "t2b-1",
+  "expected_model": "muse-ember-1.0",
+  "observed_model": "muse-ember-1.0",
+  "model_ok": true,
+  "findings_block": true,
+  "attempt": 1,
+  "wall_s": 64,
+  "output_tokens_main": 17182,
+  "output_tokens_all": 17182,
+  "exit": 0
+}
