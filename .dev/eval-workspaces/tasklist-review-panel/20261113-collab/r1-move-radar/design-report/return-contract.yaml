@@ -1,0 +1,14 @@
+worker_contract_version: "1"
+worker_status: succeeded
+command: '/sc:design "Implementation and test design for Redesign 1: Move Radar (F3) ..." --type component --format spec --unattended --report-dir .dev/eval-workspaces/tasklist-review-panel/20261113-collab/r1-move-radar/design-report --output .dev/eval-workspaces/tasklist-review-panel/20261113-collab/r1-move-radar/DESIGN.md'
+report_path: .dev/eval-workspaces/tasklist-review-panel/20261113-collab/r1-move-radar/DESIGN.md
+artifacts:
+  - .dev/eval-workspaces/tasklist-review-panel/20261113-collab/r1-move-radar/design-report/review-1.md
+  - .dev/eval-workspaces/tasklist-review-panel/20261113-collab/r1-move-radar/design-report/review-2.md
+  - .dev/eval-workspaces/tasklist-review-panel/20261113-collab/r1-move-radar/design-report/review-3.md
+grounding: "index_state: fresh, checked_at 2026-11-13T19:30:46Z"
+review_loop:
+  reviews: 3
+  last_verdict: FAIL
+  open_note: "Review 3's one blocking finding (Spike 4 counted the first response as a ~0 s turn) was fixed in DESIGN.md section 2.6 and test T-12 after the third review; the review cap was reached, so that fix has no independent re-review."
+open_questions: [Q-1, Q-2, Q-3, Q-4, Q-5, Q-6]

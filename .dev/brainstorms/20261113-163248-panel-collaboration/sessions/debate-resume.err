@@ -1,0 +1,2 @@
+[claude-code:unrecognized_model] {"model":"claude-gw-tier2[1m]","query_source":"agent:builtin:general-purpose"}
+[claude-code:unrecognized_model] {"model":"claude-gw-tier1b[1m]","query_source":"agent:builtin:general-purpose"}

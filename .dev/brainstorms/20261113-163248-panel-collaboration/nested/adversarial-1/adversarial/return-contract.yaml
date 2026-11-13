@@ -1,0 +1,16 @@
+return_contract:
+  merged_output_path: "/home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/.dev/brainstorms/20261113-163248-panel-collaboration/nested/adversarial-1/merged-spec.md"
+  convergence_score: 1.0
+  artifacts_dir: "/home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/.dev/brainstorms/20261113-163248-panel-collaboration/nested/adversarial-1/adversarial"
+  status: "success"
+  base_variant: "opus:devops"
+  unresolved_conflicts: 0
+  fallback_mode: false
+  failure_stage: null
+  invocation_method: "skill-direct"
+  unaddressed_invariants: []
+  notes:
+    - "Resumed run: the first session stopped at a timeout in Round 3; this session wrote round3-V3..V5 and every later artifact without rewriting completed files."
+    - "Convergence 43/43 after Round 3; the 8 HIGH invariants (INV-001..INV-008) were closed in Round 3; 13 MEDIUM items were carried into the refactor plan as warnings."
+    - "Base V4 won on combined score 0.978 vs 0.946 (V5) and 0.945 (V1); margin under 5%, decided by tiebreaker level 2 (correctness 5/5)."
+    - "Independent merge review: FAIL then PASS after 2 fix cycles (merge-review.md); 8 minor notes not applied."
