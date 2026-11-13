@@ -982,6 +982,8 @@ def _task_body(task: dict) -> str | None:
 
 
 _CONTRACT_PATH_RE = re.compile(rf"(/[^\s'\"`<>()]*/{re.escape(CONTRACT_FILE)})")
+# A quoted full path may hold spaces; it is one value, read whole before the bare scan.
+_QUOTED_CONTRACT_RE = re.compile(rf"([\"'])(/[^\"'\n]*/{re.escape(CONTRACT_FILE)})\1")
 
 
 def _contract_candidates(obs: OrcaObservation) -> tuple[Path, ...]:
@@ -990,7 +992,10 @@ def _contract_candidates(obs: OrcaObservation) -> tuple[Path, ...]:
     for text in (obs.task_spec_text, obs.body_text):
         if not text:
             continue
-        for match in _CONTRACT_PATH_RE.finditer(text):
+        for match in _QUOTED_CONTRACT_RE.finditer(text):
+            found[match.group(2)] = None
+        # Blank the quoted paths so a slash after a space is not read as a new path.
+        for match in _CONTRACT_PATH_RE.finditer(_QUOTED_CONTRACT_RE.sub(" ", text)):
             found[match.group(1)] = None
         for folder in report_folders(text, obs.worktree_path):
             found[f"{folder}/{CONTRACT_FILE}"] = None

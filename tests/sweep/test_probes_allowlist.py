@@ -1633,6 +1633,29 @@ def test_quoted_report_dir_is_taken_whole_with_its_spaces(text, folder):
     assert probes._contract_candidates(obs) == (Path(folder) / "return-contract.yaml",)
 
 
+@pytest.mark.parametrize(
+    "text, expected",
+    [
+        (
+            'wrote "/tmp/my project/reports/return-contract.yaml" ok',
+            ("/tmp/my project/reports/return-contract.yaml",),
+        ),
+        (
+            "wrote '/tmp/my project/r/return-contract.yaml'",
+            ("/tmp/my project/r/return-contract.yaml",),
+        ),
+        (  # a quoted and a bare path in one text: both, and no tail of the quoted one
+            '"/a b/c/return-contract.yaml" and /d/e/return-contract.yaml',
+            ("/a b/c/return-contract.yaml", "/d/e/return-contract.yaml"),
+        ),
+        ("see /tmp/plain/return-contract.yaml.", ("/tmp/plain/return-contract.yaml",)),
+    ],
+)
+def test_quoted_contract_path_is_one_candidate_with_no_bogus_tail(text, expected):
+    obs = probes.OrcaObservation(run=RUN1, dispatch=did(1), body_text=text)
+    assert probes._contract_candidates(obs) == tuple(Path(p) for p in expected)
+
+
 def test_symlink_out_contract_is_outside_root(
     sweep_root, patch_orca, patch_git, clock, tmp_path
 ):
