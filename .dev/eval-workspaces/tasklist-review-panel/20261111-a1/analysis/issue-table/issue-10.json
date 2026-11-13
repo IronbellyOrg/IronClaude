@@ -1,0 +1,12 @@
+{"panel":"2x ember + luna","slug":"issue-10","n_runs":5,
+"denominators":{"designSpec":5,"alias":5,"control":5},
+"found":{"B1":0,"B2":0,"B3":4,"B4":1,"B5":0,"B6":0,"B7":0,"B8":0,"I1":0,"I2":3,"I3":0,"I4":0,"I5":0,"I6":0,"I7":0,"I8":3},
+"blocking_credit":{"B1":0,"B2":0,"B3":1,"B4":1,"B5":0,"B6":0,"B7":0,"B8":0,"I1":0,"I2":3,"I3":0,"I4":0,"I5":0,"I6":0,"I7":0,"I8":1},
+"per_row":{
+"e3-ember2-luna":{"found":["B3","B4","I8"],"blocking_credit":["B4"]},
+"g5-ember2-luna-r1":{"found":["I2","I8"],"blocking_credit":["I2","I8"]},
+"g5-ember2-luna-r2":{"found":["B3","I2"],"blocking_credit":["I2"]},
+"g5-ember2-luna-r3":{"found":["B3"],"blocking_credit":["B3"]},
+"g5-ember2-luna-r4":{"found":["B3","I2","I8"],"blocking_credit":["I2"]}},
+"cross_check":"Read judge notes in 6 score.json files (e3 designSpec, r1 designSpec, r2 designSpec, r3 control, r4 control, plus arrays of all 15). Notes agree with arrays in all six: e3 (GT4 blocking, GT3 non-blocking), r1 (GT7 blocking only), r2 (GT7 blocking, GT3 non-blocking), r3 control (none covered), r4 control (GT2 non-blocking via L4/L6). No disagreement. Label-to-GT mapping checked against legend and ground-truth.json item ids/text prefixes (designSpec GT3=B3, GT4=B4, GT7=I2; control GT2=I8); alias package covered nothing in any row.",
+"issues":"None odd. Each package has exactly one score.json per row (label dirs differ by row: S/T/U/V/R); no .invalid-apierror files seen. Notes for r3 designSpec, r1/r2/r3/r4 alias, r2/e3 control not read (arrays only)."}

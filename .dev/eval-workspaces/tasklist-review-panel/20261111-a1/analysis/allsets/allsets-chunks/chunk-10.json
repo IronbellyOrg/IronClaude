@@ -1,0 +1,166 @@
+[
+  {
+    "set": "ember + haiku + luna",
+    "models": [
+      "ember",
+      "haiku",
+      "luna"
+    ],
+    "era": "source.md",
+    "n_runs": 1,
+    "runs": [
+      {
+        "run": "e5-haiku-ember-luna",
+        "era": "source.md",
+        "models": [
+          "ember",
+          "haiku",
+          "luna"
+        ],
+        "scores": {
+          "TASK-WF-designSpec-20261107-075614": "/home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/.dev/eval-workspaces/tasklist-review-panel/20261111-a1/arms/scoring/combos/e5-haiku-ember-luna/TASK-WF-designSpec-20261107-075614/R/score.json",
+          "TASK-WF-makeTheAliasOnly-20261105-051649": "/home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/.dev/eval-workspaces/tasklist-review-panel/20261111-a1/arms/scoring/combos/e5-haiku-ember-luna/TASK-WF-makeTheAliasOnly-20261105-051649/T/score.json",
+          "TASK-WF-design-20261108-041415": "/home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/.dev/eval-workspaces/tasklist-review-panel/20261111-a1/arms/scoring/combos/e5-haiku-ember-luna/TASK-WF-design-20261108-041415/S/score.json"
+        },
+        "note": ""
+      }
+    ],
+    "sid": "S10"
+  },
+  {
+    "set": "grok + haiku + sonnet + wonder",
+    "models": [
+      "grok",
+      "haiku",
+      "sonnet",
+      "wonder"
+    ],
+    "era": "source.md",
+    "n_runs": 1,
+    "runs": [
+      {
+        "run": "n2-sonnet-src",
+        "era": "source.md",
+        "models": [
+          "grok",
+          "haiku",
+          "sonnet",
+          "wonder"
+        ],
+        "scores": {
+          "TASK-WF-designSpec-20261107-075614": "/home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/.dev/eval-workspaces/tasklist-review-panel/20261111-a1/arms/scoring/combos/n2-sonnet-src/TASK-WF-designSpec-20261107-075614/W/score.json",
+          "TASK-WF-makeTheAliasOnly-20261105-051649": "/home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/.dev/eval-workspaces/tasklist-review-panel/20261111-a1/arms/scoring/combos/n2-sonnet-src/TASK-WF-makeTheAliasOnly-20261105-051649/X/score.json",
+          "TASK-WF-design-20261108-041415": "/home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/.dev/eval-workspaces/tasklist-review-panel/20261111-a1/arms/scoring/combos/n2-sonnet-src/TASK-WF-design-20261108-041415/Z/score.json"
+        },
+        "note": ""
+      }
+    ],
+    "sid": "S20"
+  },
+  {
+    "set": "sol",
+    "models": [
+      "sol"
+    ],
+    "era": "source.md",
+    "n_runs": 1,
+    "runs": [
+      {
+        "run": "sol-alone-src",
+        "era": "source.md",
+        "models": [
+          "sol"
+        ],
+        "scores": {
+          "TASK-WF-designSpec-20261107-075614": "/home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/.dev/eval-workspaces/tasklist-review-panel/20261111-a1/arms/scoring/combos/sol-alone-src/TASK-WF-designSpec-20261107-075614/X/score.json",
+          "TASK-WF-makeTheAliasOnly-20261105-051649": "/home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/.dev/eval-workspaces/tasklist-review-panel/20261111-a1/arms/scoring/combos/sol-alone-src/TASK-WF-makeTheAliasOnly-20261105-051649/Z/score.json",
+          "TASK-WF-design-20261108-041415": "/home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/.dev/eval-workspaces/tasklist-review-panel/20261111-a1/arms/scoring/combos/sol-alone-src/TASK-WF-design-20261108-041415/Z/score.json"
+        },
+        "note": ""
+      }
+    ],
+    "sid": "S30"
+  },
+  {
+    "set": "glm + luna + sol + wonder",
+    "models": [
+      "glm",
+      "luna",
+      "sol",
+      "wonder"
+    ],
+    "era": "pre-source.md",
+    "n_runs": 1,
+    "runs": [
+      {
+        "run": "n5-sol",
+        "era": "pre-source.md",
+        "models": [
+          "glm",
+          "luna",
+          "sol",
+          "wonder"
+        ],
+        "scores": {
+          "TASK-WF-designSpec-20261107-075614": "/home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/.dev/eval-workspaces/tasklist-review-panel/20261111-a1/arms/scoring/combos/n5-sol/TASK-WF-designSpec-20261107-075614/W/score.json",
+          "TASK-WF-makeTheAliasOnly-20261105-051649": "/home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/.dev/eval-workspaces/tasklist-review-panel/20261111-a1/arms/scoring/combos/n5-sol/TASK-WF-makeTheAliasOnly-20261105-051649/W/score.json",
+          "TASK-WF-design-20261108-041415": "/home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/.dev/eval-workspaces/tasklist-review-panel/20261111-a1/arms/scoring/combos/n5-sol/TASK-WF-design-20261108-041415/W/score.json"
+        },
+        "note": ""
+      }
+    ],
+    "sid": "S40"
+  },
+  {
+    "set": "grok + haiku",
+    "models": [
+      "grok",
+      "haiku"
+    ],
+    "era": "pre-source.md",
+    "n_runs": 1,
+    "runs": [
+      {
+        "run": "c2-haiku-grok",
+        "era": "pre-source.md",
+        "models": [
+          "grok",
+          "haiku"
+        ],
+        "scores": {
+          "TASK-WF-designSpec-20261107-075614": "/home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/.dev/eval-workspaces/tasklist-review-panel/20261111-a1/arms/scoring/combos/c2-haiku-grok/TASK-WF-designSpec-20261107-075614/U/score.json",
+          "TASK-WF-makeTheAliasOnly-20261105-051649": "/home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/.dev/eval-workspaces/tasklist-review-panel/20261111-a1/arms/scoring/combos/c2-haiku-grok/TASK-WF-makeTheAliasOnly-20261105-051649/Q/score.json",
+          "TASK-WF-design-20261108-041415": "/home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/.dev/eval-workspaces/tasklist-review-panel/20261111-a1/arms/scoring/combos/c2-haiku-grok/TASK-WF-design-20261108-041415/V/score.json"
+        },
+        "note": ""
+      }
+    ],
+    "sid": "S50"
+  },
+  {
+    "set": "haiku + luna",
+    "models": [
+      "haiku",
+      "luna"
+    ],
+    "era": "pre-source.md",
+    "n_runs": 1,
+    "runs": [
+      {
+        "run": "c1-haiku-luna",
+        "era": "pre-source.md",
+        "models": [
+          "haiku",
+          "luna"
+        ],
+        "scores": {
+          "TASK-WF-designSpec-20261107-075614": "/home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/.dev/eval-workspaces/tasklist-review-panel/20261111-a1/arms/scoring/combos/c1-haiku-luna/TASK-WF-designSpec-20261107-075614/V/score.json",
+          "TASK-WF-makeTheAliasOnly-20261105-051649": "/home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/.dev/eval-workspaces/tasklist-review-panel/20261111-a1/arms/scoring/combos/c1-haiku-luna/TASK-WF-makeTheAliasOnly-20261105-051649/V/score.json",
+          "TASK-WF-design-20261108-041415": "/home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/.dev/eval-workspaces/tasklist-review-panel/20261111-a1/arms/scoring/combos/c1-haiku-luna/TASK-WF-design-20261108-041415/R/score.json"
+        },
+        "note": "merged report only in quarantine-pre-src-luna"
+      }
+    ],
+    "sid": "S60"
+  }
+]

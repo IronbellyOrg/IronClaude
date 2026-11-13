@@ -1,0 +1,11 @@
+{"panel":"haiku + 2x luna + 2x ember (5 reviewers)","slug":"issue-03","n_runs":4,
+"denominators":{"designSpec":4,"alias":4,"control":4},
+"found":{"B1":0,"B2":0,"B3":4,"B4":0,"B5":0,"B6":0,"B7":2,"B8":0,"I1":0,"I2":3,"I3":0,"I4":0,"I5":0,"I6":0,"I7":0,"I8":4},
+"blocking_credit":{"B1":0,"B2":0,"B3":2,"B4":0,"B5":0,"B6":0,"B7":2,"B8":0,"I1":0,"I2":3,"I3":0,"I4":0,"I5":0,"I6":0,"I7":0,"I8":3},
+"per_row":{
+"h1-haiku-luna2-ember2-r1":{"found":["B3","I2","B7","I8"],"blocking_credit":["B3","I2","B7","I8"]},
+"h1-haiku-luna2-ember2-r2":{"found":["B3","B7","I8"],"blocking_credit":["B3","B7","I8"]},
+"h1-haiku-luna2-ember2-r3":{"found":["B3","I2","I8"],"blocking_credit":["I2","I8"]},
+"h1-haiku-luna2-ember2-r4":{"found":["B3","I2","I8"],"blocking_credit":["I2"]}},
+"cross_check":"Read judge notes in 4 score.json (r1 designSpec, r2 alias, r3 designSpec, r4 control); arrays agree with notes incl. blocking vs non-blocking (r3 GT3 non-blocking, r4 GT2 non-blocking). Legend-to-GT mapping verified against the three ground-truth.json files. No disagreement.",
+"issues":"Each package has exactly one score.json per row, no invalid-apierror files. Alias scored empty in r3 and r4. Notes for the other 8 score files were not read."}

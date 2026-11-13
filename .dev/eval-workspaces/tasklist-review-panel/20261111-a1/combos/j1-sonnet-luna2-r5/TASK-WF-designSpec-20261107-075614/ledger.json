@@ -1,0 +1,147 @@
+{
+ "schema": "review-ledger/1",
+ "doc": "/home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/.dev/eval-workspaces/tasklist-review-panel/20261111-a1/TASK-WF-designSpec-20261107-075614/candidate.md",
+ "cap_reviews": 3,
+ "rounds": [
+  {
+   "n": 1,
+   "doc_sha256": "044809e3a963fad395cfbe0988bece975650a3adf17176893665d92338bd3481",
+   "reviewers": [
+    {
+     "reviewer_id": "t1b-1",
+     "model": "claude-sonnet-5-5",
+     "report": "/home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/.dev/eval-workspaces/tasklist-review-panel/20261111-a1/TASK-WF-designSpec-20261107-075614/reviews/combos/j1-sonnet-luna2-r5/t1b-1.md",
+     "report_sha256": "031d91d3404795e634371dfa23e6ab69d4b925102cbaa50116709933f4c77b1f",
+     "block_ok": true
+    },
+    {
+     "reviewer_id": "t4-1",
+     "model": "gpt-6-luna",
+     "report": "/home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/.dev/eval-workspaces/tasklist-review-panel/20261111-a1/TASK-WF-designSpec-20261107-075614/reviews/combos/j1-sonnet-luna2-r5/t4-1.md",
+     "report_sha256": "263c3c95d1c83d25adfdce518534fb6d7a6c23e9f62e3b1a51b027ff1a38cc54",
+     "block_ok": false
+    },
+    {
+     "reviewer_id": "t3-1",
+     "model": "gpt-6-luna",
+     "report": "/home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/.dev/eval-workspaces/tasklist-review-panel/20261111-a1/TASK-WF-designSpec-20261107-075614/reviews/combos/j1-sonnet-luna2-r5/t3-1.md",
+     "report_sha256": "abdda11fecfaa4d7468e2cef76bbbb832c69d32f857662ea5f1d71bfad3a49f1",
+     "block_ok": true
+    }
+   ],
+   "verdict": "PASS",
+   "decision": "PASS",
+   "brief_ids": []
+  }
+ ],
+ "rows": [
+  {
+   "lid": "L1",
+   "fp": "0abcf64325471821",
+   "blocking": false,
+   "severity_max": "MAJOR",
+   "category": "unpassable-check",
+   "confidence": "single",
+   "status": "open",
+   "anchor": "a short \"Merge guard\" section next to \"Merge-conflict handling\"",
+   "anchor2": "shows the argument-hint entry, the Options row and the section heading",
+   "span": [
+    181,
+    182
+   ],
+   "span2": [
+    184,
+    185
+   ],
+   "refs": [
+    "AC-1"
+   ],
+   "claim": "A section headed \"Merge guard\" has no hyphen, so the criterion grep -n \"merge-guard\" cannot show the heading line as the criterion says it does.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t1b-1",
+     "fid": "F1",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L2",
+   "fp": "3a0dd8ebae36f76e",
+   "blocking": false,
+   "severity_max": "MAJOR",
+   "category": "contradiction",
+   "confidence": "single",
+   "status": "open",
+   "anchor": "carries no L3 or `draft` condition",
+   "anchor2": "at L3 with `--merge-guard off` the line",
+   "span": [
+    136,
+    137
+   ],
+   "span2": [
+    136,
+    137
+   ],
+   "refs": [
+    "AC-1"
+   ],
+   "claim": "The Wave 0 bullet must carry no L3 condition and also say at L3 with off the line is printed, so a test that rejects any L3 condition would fail the bullet as described.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t1b-1",
+     "fid": "F2",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L3",
+   "fp": "7959f1113aa828bd",
+   "blocking": false,
+   "severity_max": "MINOR",
+   "category": "missing-requirement",
+   "confidence": "single",
+   "status": "open",
+   "anchor": "a failing timeline call prints `transitions: null` and `complete: false`",
+   "anchor2": null,
+   "span": [
+    110,
+    111
+   ],
+   "span2": null,
+   "refs": [
+    "AC-2"
+   ],
+   "claim": "The text does not say whether a failed timeline call alone sets ok:false and exits 1, which decides whether the timeline_unreadable reason is reachable at engage.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t1b-1",
+     "fid": "F3",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  }
+ ]
+}

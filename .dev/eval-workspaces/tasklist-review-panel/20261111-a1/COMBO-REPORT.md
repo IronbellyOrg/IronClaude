@@ -371,3 +371,136 @@ Single-run high scores (r2 family grok+haiku x2+sonnet 4/14, 3 real blocking, 59
 Before any further model testing, fix the harness issues that depress catch across the board: (1) raise or truncate the 200-character anchor limit at merge, or instruct reviewers and re-validate, so findings are not silently discarded; (2) name the source.md path explicitly in the reviewer brief (161 runs never opened it); (3) keep the fallback-ladder fix and the model-identity audit in the runner. No panel catches designSpec GT1, GT2, GT10 or alias GT4, so model choice cannot lift the ceiling past ~2.5/14.
 
 Audit C final figures (correction to item 3 above, which used the pre-skip count): after batch 10 is excluded, 156 valid-era runs of 665 never referenced source.md (ember 81 of 209 = 39%, luna 49 of 222 = 22%, wonder 6 of 25, haiku 15 of 75, grok 4 of 24, sonnet 1 of 63, terra 0 of 44, sol 0 of 3). The cause (the brief never names source.md) is an inference, UNVERIFIED. Timeline: candidates fixed 2026-11-11 17:35 and byte-identical to the sandbox copies; source.md first shipped 2026-11-12 12:59:34; first valid-era run 13:02:27; no valid-era row has a run before that; no reviewer read ground truth, resolution files, other reviewers' reports or this report; no candidate was written; 0 identical report bodies. Cross-row statistics (71 rows, presence effects) are computed from valid-era rows only.
+
+## DECISION UPDATE (2026-11-13): sonnet + 2x luna vs ember + 2x luna vs sonnet + luna (+2x) ember (analysis/three-way.py)
+Run-level data (defect-rich found /14, real blocking /8, wrong blockers, control found /2, tokens, elapsed s):
+- sonnet + 2x luna: n=1 (b4-sonnet-luna2): 4, 0, 3, control 2/2 with 0 wrong blockers, 139,660 tok, 793 s. Caught designSpec GT3, GT5, GT7, GT9 and control GT1 + GT2.
+- ember + 2x luna: n=6: 1.83 (1-2), 0.17, 1.83, control 0.83, 63,644 tok, 348 s. Caught only designSpec GT3 (4 of 6) and GT7 (6 of 6), alias GT2 (1 of 6), control GT2 (5 of 6); never control GT1, GT5, GT9.
+- sonnet + luna + ember: n=5: 2.20 (2-3), 0.20, 2.00 (0-4), control 0.80, 138,551 tok, 676 s. Reach beyond GT3/GT7: GT5 once.
+- sonnet + 2x luna + 2x ember (nearest tried relative of "sonnet + 2x luna + ember", which was never run): n=4: 2.25, 0.25, 3.50, control 1.50, 189,325 tok, 738 s. Reach: GT6 once, control GT1 in 2 of 4.
+Permutation tests between the replicated panels: no difference in found, real blocking, wrong blockers or control is significant (p 0.54-1.0), except h2 has more wrong blockers than ember + 2x luna (3.50 vs 1.83, p 0.073) and all token differences (p 0.002-0.009). Quality is indistinguishable at this sample size; cost, reach and reliability differ.
+Reliability in these rows: sonnet never had findings dropped at merge and read source.md in every run; ember skipped source.md in 9 of 18 runs of ember + 2x luna and had findings dropped in 2; luna skipped it in 9 of 36 and had 4 dropped.
+Revised recommendation: standard panel = sonnet + 2x luna (reach to harder defects, control 2/2, no ember overhead; exact panel is a single run, so provisional, supported by the sonnet effect over 21 sonnet rows - found 2.43 vs 1.92, control 1.19 vs 0.68, wrong blockers 1.95 vs 2.68 - and by the two sonnet + 2x luna-containing h2 runs that also reached control GT1). Budget tier = ember + 2x luna (replicated, half the cost, easy defects only). Do not add ember to a sonnet panel: no gain, +50k tokens, more wrong blockers. This supersedes the "default ember + 2x luna" line of the FINAL decision above for the case where quality matters; the harness fixes (anchor limit, source.md path in the brief) still come first.
+
+## Issue-by-panel table (2026-11-13): how many runs of each top-10 replicated panel found each individual issue
+Built by 10 parallel agents (one per panel; outputs analysis/issue-table/issue-NN.json) and cross-checked against an independent direct computation from the score files (analysis/issue-table/issue-table.py): 0 mismatching cells out of 320. Panels = the 10 highest-scoring panels with at least 4 runs (as scored, valid-era rows); sonnet + 2x luna (6 runs once batch 11 finishes) is not yet included. Cell = number of that panel's runs that found the issue at any severity; for B issues the number in brackets is how many of those were credited through a blocking ledger row. Labels: B = blocking issue (blocking_in_implement), I = regular issue.
+
+| # | Panel | Runs | B1 | B2 | B3 | B4 | B5 | B6 | B7 | B8 | I1 | I2 | I3 | I4 | I5 | I6 | I7 | I8 | Found /14 |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| 1 | ember + sonnet | 4 | 0 | 0 | 4 (0) | 0 | 0 | 0 | 0 | 1 (1) | 0 | 3 | 1 | 1 | 0 | 0 | 0 | 3 | 2.5 |
+| 2 | ember + luna | 4 | 0 | 0 | 4 (2) | 0 | 0 | 0 | 0 | 0 | 0 | 4 | 1 | 0 | 0 | 0 | 0 | 0 | 2.25 |
+| 3 | ember + ember + haiku + luna + luna | 4 | 0 | 0 | 4 (2) | 0 | 0 | 0 | 2 (2) | 0 | 0 | 3 | 0 | 0 | 0 | 0 | 0 | 4 | 2.25 |
+| 4 | ember + ember + luna + luna + sonnet | 4 | 0 | 0 | 4 (0) | 0 | 0 | 0 | 1 (1) | 0 | 1 | 3 | 0 | 0 | 0 | 0 | 2 | 4 | 2.25 |
+| 5 | ember + luna + sonnet | 5 | 0 | 0 | 5 (1) | 0 | 1 (0) | 0 | 0 | 0 | 0 | 5 | 0 | 0 | 0 | 0 | 0 | 4 | 2.2 |
+| 6 | haiku + luna + luna | 5 | 0 | 0 | 5 (3) | 1 (1) | 0 | 0 | 2 (2) | 0 | 0 | 3 | 0 | 0 | 0 | 0 | 0 | 4 | 2.2 |
+| 7 | ember + haiku + terra | 5 | 0 | 0 | 5 (1) | 0 | 0 | 0 | 3 (2) | 0 | 0 | 2 | 0 | 0 | 0 | 0 | 0 | 5 | 2 |
+| 8 | ember + luna + luna | 6 | 0 | 0 | 4 (0) | 0 | 0 | 0 | 1 (1) | 0 | 0 | 6 | 0 | 0 | 0 | 0 | 0 | 5 | 1.83 |
+| 9 | ember + ember + luna + luna | 4 | 0 | 0 | 4 (1) | 0 | 0 | 0 | 1 (0) | 0 | 0 | 2 | 0 | 0 | 0 | 0 | 0 | 1 | 1.75 |
+| 10 | ember + ember + luna | 5 | 0 | 0 | 4 (1) | 1 (1) | 0 | 0 | 0 | 0 | 0 | 3 | 0 | 0 | 0 | 0 | 0 | 3 | 1.6 |
+
+Legend (package, ground-truth id):
+- B1 (designSpec GT1): Task 1 AC3 demands a provably complete inventory of every pin and line rule with no bounded method or stopping rule, so each review found new missing pins and Task 1 took five attempts, hit the retry ladder end and needed two operator-review halts before it wa
+- B2 (designSpec GT2): Task 1 names four target files for O3 while AC3 says only "found for O3", so reviewers kept widening the scope (refs/ci-poll.md, refs/review-retrigger.md, the python package, folder-wide text tests) and a four-file inventory kept being judged incomplete, feedi
+- B3 (designSpec GT3): Task 9 requires a test that fails on any L3 or draft condition in a bullet that must itself say "at L3 with `--merge-guard off`" and "no draft call", without defining what counts as a condition, so two word-list tests failed review and the task was blocked and
+- B4 (designSpec GT4): Task 8 says any unreadable timeline halts at engage while Task 4 defines unreadable to include a short timeline and has engage_decision halt only on a failed or incomplete read, so the ref followed the plan wording, contradicted the code, and Task 8 failed rev
+- B5 (designSpec GT5): Task 8 defines the exit-report field only as the guard_status mapping (Task 3: no record at ordinal 3 gives `released`) and drops the source rule that a `draft_guard_unavailable` halt reports `unavailable`, so the ref would report `released` after an engage ha
+- I1 (designSpec GT6): Task 3 requires guard_status to return `user_override` for a DISABLED phase with cause user_override, but the fold rows it implements set `disabled_cause` only for already_draft, so the advisory plan review raised blocking finding R1-1 and the owner had to acc
+- I2 (designSpec GT7): The planned resume_decision signature has no `target_sha` or `applied_edits`, yet row 4 must re-enter release_decision, which needs both to release, so with the plan's signature row 4 always holds with head_mismatch; the executor added three keyword parameters
+- I3 (designSpec GT8): Task 10 says the SKILL.md Wave 3 bullet mints the cycle id while Task 8 (and Task 1 O1) require one single minting place in the Engage section of refs/merge-guard.md; a review note caught it and executor guidance resolved it with no extra attempt.
+- I4 (designSpec GT9): Task 12 asks for a section named "Merge guard" but its AC checks the heading with a case-sensitive grep for `merge-guard`, which that heading cannot match; executor guidance flagged it and the executor added `(--merge-guard)` to the heading so the grep passed.
+- I5 (designSpec GT10): Task 2 updates the 43-member enum claim only in three files and plans no CHANGELOG.md edit, so the unreleased changelog entry still says the event enum has 43 members after the change.
+- B6 (alias GT1): Task 6 (echoing the Goal's 'select models only through the plain aliases') told the page to state an aliases-only rule that the test enforces, but the plan's own Task 5 makes the retry ladder select by slot variables, sprint returns slot model ids, Auggie take
+- B7 (alias GT2): Task 6 dictates a present-tense statement that outside a tier workspace nothing is set, which contradicts the plan's own constraint and status text that the workspace defaults file exports real model ids today (haiku is glm-5.3), so the first review blocked th
+- B8 (alias GT3): Task 7 mandates a sentence in tiers.md claiming all other primitives use aliases, which is false because most agent, skill and command files have no model: line and the policy test skips them, so the reviewer graded the delivered sentence blocking (F1.1) and a
+- I6 (alias GT4): Task 7's prescribed user-guide text omits the 'today the workspace defaults file exports real model ids' half that the plan's mapping constraint requires of new mapping text, so the delivered brainstorm.md, commands.md and tiers.md text drew caveat findings th
+- I7 (control GT1): The plan rewrote and added `gh api` lines in refs/create.md, refs/labels.md, SKILL.md and issue-worker-t3.md (Tasks 2, 3, 5) but had no task to update the exact-line classification table in tests/skills/test_worker_contract.py and only gated on test_issue_prot
+- I8 (control GT2): The plan named the Complexity read-back call but not how to match its result; the built rule only said to flag the value when 'absent', while the real GET returns a numeric option id in `value` and the name in `single_select_option.name`, so refs/labels.md had
+
+Reading: B1, B2, B6, I5 and I6 were never found by any top-10 panel; B3 (designSpec GT3), I2 (designSpec GT7) and I8 (control GT2) carry almost all catches. Rare finds: I4 only by ember + sonnet (1 run); I3 by ember + sonnet and ember + luna (1 run each); B8 only by ember + sonnet (1); B5 only by ember + luna + sonnet (1); I1 only by sonnet + 2x luna + 2x ember (1); I7 only by sonnet + 2x luna + 2x ember (2 runs); B4 by haiku + 2x luna (1) and 2x ember + luna (1); B7 by six panels, most often ember + haiku + terra (3 of 5 runs). Judge's blocking credit can include non-blocking issues (see blocking-column correction above).
+
+## Batch 11 result (2026-11-13): sonnet + 2x luna replicated 5 more times - the decision update is REJECTED as "standard"; sonnet + 2x luna is an optional quality tier
+45 runs (5 replicates x 3 packages x sonnet + 2 luna), one runner per replicate, NOFALLBACK=1. 5 runs of j1-sonnet-luna2-r1 failed when the claude binary was replaced at 13:48:51; they were quarantined (quarantine-outage-20261113) and re-run once on the same models; all 45 final runs model_ok, no fallback logs. 15 merges rc=0, 15 blind judges, API-error audit bad=0.
+Per-run (defect-rich found /14, real blocking /8, wrong blockers, control found /2, tokens, elapsed s): b4-sonnet-luna2 (the original) 4, 0, 3, 2, 139,660, 793; j1-r1 2, 0, 2, 1, 148,599, 883; j1-r2 1, 0, 1, 2, 143,674, 878; j1-r3 3, 1, 1, 1, 151,355, 886; j1-r4 2, 1, 2, 1, 121,787, 709; j1-r5 2, 0, 2, 1, 129,604, 779.
+Family (n=6): found 2.33 (sd 0.94, range 1-4), real blocking 0.33 (0-1), wrong blockers 1.83, control found 1.33 (1-2), control wrong blockers 0.50, tokens 139,113, elapsed 821 s. The five new runs alone average 2.0/14: the original 4/14 was an upward outlier (regression to the mean).
+Against the other panels (permutation, two-sided): vs ember + 2x luna found 2.33 vs 1.83 p=0.51, real blocking 0.33 vs 0.17 p=1.0, wrong blockers 1.83 vs 1.83 p=1.0, control 1.33 vs 0.83 p=0.28, but tokens 139k vs 64k p=0.003 and elapsed 821 s vs 348 s p=0.003. vs sonnet + luna + ember: found 2.33 vs 2.20 p=1.0, control 1.33 vs 0.80 p=0.28, tokens equal, elapsed 821 vs 676 s p=0.013. vs sonnet + 2x luna + 2x ember: found, blocking, control equal; wrong blockers 1.83 vs 3.50 p=0.072; tokens 139k vs 189k p=0.005.
+Reach (which issues were ever found, over 6 runs): designSpec GT3 6/6, GT7 3/6, GT9 2/6, GT5 1/6; alias GT2 2/6; control GT2 5/6, control GT1 (I7: no task to update the gh-api classification table) 3/6. Control GT1 is the one issue only sonnet-bearing panels with two luna reached: 3 of 6 sonnet + 2x luna runs and 2 of 4 sonnet + 2x luna + 2x ember runs (5/10) against 0 of 6 ember + 2x luna and 0 of 5 sonnet + luna + ember (Fisher exact p ~0.012, post-hoc and exploratory).
+Reliability: 2 of the 30 luna runs' findings blocks were dropped at merge (block ok false), sonnet 0 of 15; 3 of 30 luna runs never opened source.md (all on the alias package), sonnet 0 of 15.
+Verdict on the decision update: NOT CONFIRMED. On defect-rich catch, real blocking, wrong blockers and control found, sonnet + 2x luna is statistically indistinguishable from ember + 2x luna and from the other sonnet panels, at 2.2x the tokens and 2.4x the wall time. The earlier edge (4/14, control 2/2) was one lucky run. Final guidance: default = ember + 2x luna (replicated, cheapest, same measured quality); optional quality tier = sonnet + 2x luna only if issues like control GT1 matter (reached in 3 of 6 runs vs 0 of 6) and the extra ~75k tokens and ~8 minutes are acceptable; haiku + 2x luna remains the best measured real-blocking panel (1.2/8). All panels sit at about 2-2.5 of 14, so the harness fixes (anchor limit, source.md path in the brief) remain the biggest lever. Scripts: analysis/three-way.py, b11-*.
+
+## Every combination ever run: issues found per set (2026-11-13)
+Scope: every scored panel run in the study: the 3 pilot arms plus all 103 scored combo rows except the dropped batch 10 = 106 runs, grouped into 62 sets by reviewer-model multiset and era (src = source.md shipped, 2026-11-12 13:02 onward; pre-src = before; pre-src luna/terra/sol results are known to be degraded by the missing input, and pre-src luna reviewer files sit in quarantine-pre-src-luna). Counted by 10 parallel agents (analysis/allsets/allsets-out/chunk-NN.json) and independently by a direct script (analysis/allsets/allsets-table.py): 0 mismatching cells across 62 sets x 16 issues x found/blocking. Every agent read the judges' notes and found them consistent with the score arrays. Caveat: S47 (r2-sonnet) carries stale scores (audit E). Cell = number of the set's runs that found the issue at any severity; for B issues, brackets = how many of those were credited through a blocking ledger row. "Distinct issues ever" = how many different issues the set found at least once. Legend as in the previous section (B1-B5 designSpec GT1-5, B6-B8 alias GT1-3, I1-I5 designSpec GT6-10, I6 alias GT4, I7-I8 control GT1-2).
+
+| Set | Panel | Era | Runs | B1 | B2 | B3 | B4 | B5 | B6 | B7 | B8 | I1 | I2 | I3 | I4 | I5 | I6 | I7 | I8 | Found /14 per run | Distinct issues ever |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| S01 | 2x ember + 2x luna | src | 4 | 0 | 0 | 4 (1) | 0 | 0 | 0 | 1 (0) | 0 | 0 | 2 | 0 | 0 | 0 | 0 | 0 | 1 | 1.75 | 4 |
+| S02 | 2x ember + 2x luna + sonnet | src | 4 | 0 | 0 | 4 (0) | 0 | 0 | 0 | 1 (1) | 0 | 1 | 3 | 0 | 0 | 0 | 0 | 2 | 4 | 2.25 | 6 |
+| S03 | 2x ember + haiku | src | 1 | 0 | 0 | 1 (0) | 0 | 0 | 0 | 0 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 | 0 | 2.00 | 2 |
+| S04 | 2x ember + haiku + 2x luna | src | 4 | 0 | 0 | 4 (2) | 0 | 0 | 0 | 2 (2) | 0 | 0 | 3 | 0 | 0 | 0 | 0 | 0 | 4 | 2.25 | 4 |
+| S05 | 2x ember + luna | src | 5 | 0 | 0 | 4 (1) | 1 (1) | 0 | 0 | 0 | 0 | 0 | 3 | 0 | 0 | 0 | 0 | 0 | 3 | 1.60 | 4 |
+| S06 | 2x luna + sonnet | src | 6 | 0 | 0 | 6 (0) | 0 | 1 (0) | 0 | 2 (2) | 0 | 0 | 3 | 0 | 2 | 0 | 0 | 3 | 5 | 2.33 | 7 |
+| S07 | ember + 2x luna | src | 6 | 0 | 0 | 4 (0) | 0 | 0 | 0 | 1 (1) | 0 | 0 | 6 | 0 | 0 | 0 | 0 | 0 | 5 | 1.83 | 4 |
+| S08 | ember + grok + 2x haiku + sonnet | src | 1 | 0 | 0 | 1 (0) | 0 | 0 | 0 | 0 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 1 | 1 | 2.00 | 4 |
+| S09 | ember + grok + luna | src | 1 | 0 | 0 | 1 (0) | 0 | 0 | 0 | 0 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 | 1 | 2.00 | 3 |
+| S10 | ember + haiku + luna | src | 1 | 0 | 0 | 1 (1) | 0 | 0 | 0 | 0 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 | 0 | 2.00 | 2 |
+| S11 | ember + haiku + sonnet | src | 1 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1 | 1 | 0.00 | 2 |
+| S12 | ember + haiku + terra | src | 5 | 0 | 0 | 5 (1) | 0 | 0 | 0 | 3 (2) | 0 | 0 | 2 | 0 | 0 | 0 | 0 | 0 | 5 | 2.00 | 4 |
+| S13 | ember + luna | src | 4 | 0 | 0 | 4 (2) | 0 | 0 | 0 | 0 | 0 | 0 | 4 | 1 | 0 | 0 | 0 | 0 | 0 | 2.25 | 3 |
+| S14 | ember + luna + sonnet | src | 5 | 0 | 0 | 5 (1) | 0 | 1 (0) | 0 | 0 | 0 | 0 | 5 | 0 | 0 | 0 | 0 | 0 | 4 | 2.20 | 4 |
+| S15 | ember + luna + terra | src | 1 | 0 | 0 | 1 (0) | 0 | 0 | 0 | 1 (1) | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1 | 2.00 | 3 |
+| S16 | ember + sonnet | src | 4 | 0 | 0 | 4 (0) | 0 | 0 | 0 | 0 | 1 (1) | 0 | 3 | 1 | 1 | 0 | 0 | 0 | 3 | 2.50 | 6 |
+| S17 | ember + terra | src | 4 | 0 | 0 | 1 (0) | 0 | 0 | 0 | 1 (1) | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 2 | 0.50 | 3 |
+| S18 | grok + 2x haiku + sonnet | src | 1 | 0 | 0 | 1 (1) | 1 (1) | 1 (1) | 0 | 0 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 1 | 1 | 4.00 | 6 |
+| S19 | grok + 2x luna | src | 1 | 0 | 0 | 1 (0) | 0 | 0 | 0 | 0 | 0 | 1 | 1 | 0 | 0 | 0 | 0 | 1 | 1 | 3.00 | 5 |
+| S20 | grok + haiku + sonnet + wonder | src | 1 | 0 | 0 | 1 (0) | 0 | 0 | 0 | 0 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 | 1 | 2.00 | 3 |
+| S21 | grok + haiku + wonder | src | 1 | 0 | 0 | 1 (0) | 0 | 0 | 0 | 1 (1) | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 | 1 | 3.00 | 4 |
+| S22 | grok + luna | src | 1 | 0 | 0 | 0 | 0 | 0 | 0 | 1 (1) | 0 | 1 | 1 | 0 | 0 | 0 | 0 | 0 | 1 | 3.00 | 4 |
+| S23 | grok + luna + wonder | src | 1 | 0 | 0 | 1 (0) | 0 | 0 | 0 | 0 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 | 1 | 2.00 | 3 |
+| S24 | haiku + 2x luna | src | 5 | 0 | 0 | 5 (3) | 1 (1) | 0 | 0 | 2 (2) | 0 | 0 | 3 | 0 | 0 | 0 | 0 | 0 | 4 | 2.20 | 5 |
+| S25 | haiku + sonnet + wonder | src | 1 | 0 | 0 | 1 (1) | 0 | 0 | 0 | 1 (1) | 0 | 0 | 1 | 0 | 1 | 0 | 0 | 0 | 1 | 4.00 | 5 |
+| S26 | haiku + terra + wonder | src | 1 | 0 | 0 | 1 (0) | 0 | 0 | 0 | 1 (1) | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 | 1 | 3.00 | 4 |
+| S27 | luna + sonnet + wonder | src | 1 | 0 | 0 | 1 (1) | 0 | 0 | 0 | 1 (0) | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 | 1 | 3.00 | 4 |
+| S28 | luna + terra + wonder | src | 1 | 0 | 0 | 1 (0) | 0 | 0 | 1 (1) | 1 (1) | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1 | 3.00 | 4 |
+| S29 | luna + wonder | src | 1 | 0 | 0 | 1 (0) | 0 | 0 | 0 | 0 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 | 1 | 2.00 | 3 |
+| S30 | sol | src | 1 | 0 | 0 | 1 (1) | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1.00 | 1 |
+| S31 | sonnet + terra | src | 1 | 0 | 0 | 1 (0) | 0 | 0 | 0 | 0 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 | 1 | 2.00 | 3 |
+| S32 | terra | src | 1 | 0 | 0 | 1 (1) | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1.00 | 1 |
+| S33 | glm + 2x haiku | pre-src | 1 | 0 | 0 | 1 (1) | 0 | 0 | 0 | 0 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 | 1 | 2.00 | 3 |
+| S34 | glm + grok + haiku + sonnet + spark + terra | pre-src | 1 | 0 | 0 | 1 (0) | 0 | 0 | 0 | 0 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 1 | 1 | 2.00 | 4 |
+| S35 | glm + haiku | pre-src | 1 | 0 | 0 | 1 (0) | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1.00 | 1 |
+| S36 | glm + haiku + sol + wonder | pre-src | 1 | 0 | 0 | 1 (0) | 0 | 0 | 0 | 0 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 1 | 1 | 2.00 | 4 |
+| S37 | glm + haiku + sonnet + wonder | pre-src | 1 | 0 | 0 | 1 (0) | 0 | 0 | 0 | 1 (1) | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 | 1 | 3.00 | 4 |
+| S38 | glm + haiku + terra + wonder | pre-src | 1 | 0 | 0 | 1 (1) | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1 | 1.00 | 2 |
+| S39 | glm + haiku + wonder | pre-src | 1 | 0 | 0 | 1 (0) | 0 | 0 | 0 | 1 (1) | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 | 1 | 3.00 | 4 |
+| S40 | glm + luna + sol + wonder | pre-src | 1 | 0 | 0 | 1 (0) | 0 | 0 | 0 | 0 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 | 0 | 2.00 | 2 |
+| S41 | glm + luna + sonnet + wonder | pre-src | 1 | 0 | 0 | 1 (0) | 0 | 0 | 0 | 1 (1) | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 1 | 0 | 3.00 | 4 |
+| S42 | glm + luna + terra + wonder | pre-src | 1 | 0 | 0 | 1 (0) | 0 | 0 | 0 | 0 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 | 0 | 2.00 | 2 |
+| S43 | glm + luna + wonder | pre-src | 1 | 0 | 0 | 1 (0) | 0 | 1 (0) | 0 | 1 (1) | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 | 1 | 4.00 | 5 |
+| S44 | glm + sonnet + spark | pre-src | 1 | 0 | 0 | 1 (0) | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1 | 1 | 1.00 | 3 |
+| S45 | grok + 2x haiku | pre-src | 1 | 0 | 0 | 1 (0) | 0 | 0 | 0 | 1 (1) | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 | 0 | 3.00 | 3 |
+| S46 | grok + 2x haiku + sol | pre-src | 1 | 0 | 0 | 1 (1) | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1.00 | 1 |
+| S47 | grok + 2x haiku + sonnet | pre-src | 1 | 0 | 0 | 1 (1) | 0 | 0 | 0 | 0 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 1 | 0 | 2.00 | 3 |
+| S48 | grok + 2x haiku + terra | pre-src | 1 | 0 | 0 | 1 (1) | 0 | 0 | 0 | 0 | 0 | 1 | 1 | 0 | 0 | 0 | 0 | 1 | 1 | 3.00 | 5 |
+| S49 | grok + 2x luna | pre-src | 1 | 0 | 0 | 1 (0) | 0 | 0 | 0 | 0 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 | 1 | 2.00 | 3 |
+| S50 | grok + haiku | pre-src | 1 | 0 | 0 | 1 (1) | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1 | 1.00 | 2 |
+| S51 | grok + haiku + 2x luna | pre-src | 1 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1 | 0.00 | 1 |
+| S52 | grok + haiku + luna | pre-src | 1 | 0 | 0 | 1 (0) | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1 | 1.00 | 2 |
+| S53 | grok + haiku + sol + wonder | pre-src | 1 | 0 | 0 | 1 (1) | 0 | 0 | 0 | 0 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 | 1 | 2.00 | 3 |
+| S54 | grok + haiku + sonnet + wonder | pre-src | 1 | 0 | 0 | 1 (0) | 0 | 0 | 0 | 1 (1) | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1 | 2.00 | 3 |
+| S55 | grok + haiku + terra + wonder | pre-src | 1 | 0 | 0 | 1 (1) | 0 | 0 | 0 | 0 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 | 1 | 2.00 | 3 |
+| S56 | grok + haiku + wonder | pre-src | 1 | 0 | 0 | 1 (0) | 0 | 0 | 0 | 0 | 1 (0) | 0 | 1 | 0 | 0 | 0 | 0 | 0 | 1 | 3.00 | 4 |
+| S57 | grok + luna | pre-src | 1 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 | 1 | 1.00 | 2 |
+| S58 | grok + luna + wonder | pre-src | 1 | 0 | 0 | 1 (0) | 0 | 0 | 0 | 0 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 | 1 | 2.00 | 3 |
+| S59 | haiku + 2x luna | pre-src | 1 | 0 | 0 | 1 (1) | 0 | 0 | 0 | 1 (1) | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 2.00 | 2 |
+| S60 | haiku + luna | pre-src | 1 | 0 | 0 | 0 | 0 | 0 | 0 | 1 (1) | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1.00 | 1 |
+| S61 | haiku + luna + wonder | pre-src | 1 | 0 | 0 | 1 (0) | 0 | 0 | 0 | 0 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 | 1 | 2.00 | 3 |
+| S62 | sonnet | pre-src | 1 | 0 | 0 | 1 (0) | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1 | 0 | 1.00 | 2 |
+| ALL | all sets | both | 106 | 0 | 0 | 95 | 3 | 4 | 1 | 28 | 2 | 4 | 71 | 2 | 4 | 0 | 0 | 16 | 76 | | |
+| ALL-src | source.md era | src | 76 | 0 | 0 | 68 | 3 | 3 | 1 | 20 | 1 | 3 | 52 | 2 | 4 | 0 | 0 | 9 | 56 | | |
+
+Reading:
+- Never found by any of the 106 runs: B1, B2 (designSpec Task 1 inventory / scope), I5 (designSpec CHANGELOG enum) and I6 (alias user-guide caveat). Found exactly once: B6 (luna + terra + wonder). These are out of reach of every model mix tried.
+- Found by nearly every run: B3 (95 of 106), I8 (76), I2 (71). These three make up most of every set's score.
+- Rare issues and who reached them: B4 in 3 runs (2x ember + luna, grok + 2x haiku + sonnet, haiku + 2x luna); B5 in 4 (sonnet + 2x luna, ember + luna + sonnet, grok + 2x haiku + sonnet, glm + luna + wonder); B8 in 2 (ember + sonnet; grok + haiku + wonder pre-src); I1 in 4; I3 in 2 (ember + luna, ember + sonnet); I4 in 4 (sonnet + 2x luna x2, ember + sonnet, haiku + sonnet + wonder); I7 in 16 runs, 13 of them in sets that include sonnet.
+- Widest reach: sonnet + 2x luna (7 distinct issues over 6 runs); then ember + sonnet and 2x ember + 2x luna + sonnet (6 each over 4 runs) and the single run grok + 2x haiku + sonnet (6 in one run, the study's best single run, never replicated). The cheap replicated default ember + 2x luna reached 4 distinct issues over 6 runs (B3, B7, I2, I8 only).
+- Sonnet is in all 3 sets that reached I4, in 3 of the 4 sets that reached B5, and in 13 of the 16 runs that reached I7: the model most associated with the rare issues, at roughly 2x the cost of an ember/luna panel. This is an association across non-random sets, not a controlled comparison.
+Agent caveats on the all-sets table: S18 (grok + 2x haiku + sonnet, the single 4/14 run) has its B5 credit from a match the judge's own notes call loose, so its B5 cell is borderline; S60 (haiku + luna, pre-src) had one reviewer's findings block fail to parse, leaving its designSpec ledger empty, so its zeros there partly reflect a panel failure rather than a miss.

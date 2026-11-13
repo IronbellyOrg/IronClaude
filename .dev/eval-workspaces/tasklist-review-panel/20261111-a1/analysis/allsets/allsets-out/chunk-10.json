@@ -1,0 +1,326 @@
+[
+  {
+    "sid": "S10",
+    "set": "ember + haiku + luna",
+    "era": "source.md",
+    "n_runs": 1,
+    "found": {
+      "B1": 0,
+      "B2": 0,
+      "B3": 1,
+      "B4": 0,
+      "B5": 0,
+      "I1": 0,
+      "I2": 1,
+      "I3": 0,
+      "I4": 0,
+      "I5": 0,
+      "B6": 0,
+      "B7": 0,
+      "B8": 0,
+      "I6": 0,
+      "I7": 0,
+      "I8": 0
+    },
+    "blocking_credit": {
+      "B1": 0,
+      "B2": 0,
+      "B3": 1,
+      "B4": 0,
+      "B5": 0,
+      "I1": 0,
+      "I2": 0,
+      "I3": 0,
+      "I4": 0,
+      "I5": 0,
+      "B6": 0,
+      "B7": 0,
+      "B8": 0,
+      "I6": 0,
+      "I7": 0,
+      "I8": 0
+    },
+    "per_run": {
+      "e5-haiku-ember-luna": {
+        "found": [
+          "B3",
+          "I2"
+        ],
+        "blocking_credit": [
+          "B3"
+        ]
+      }
+    },
+    "check": "Single-run set; read all 3 score.json notes; gt_covered_any/gt_covered_blocking arrays agree with notes, no disagreements; no unreadable/empty report notes."
+  },
+  {
+    "sid": "S20",
+    "set": "grok + haiku + sonnet + wonder",
+    "era": "source.md",
+    "n_runs": 1,
+    "found": {
+      "B1": 0,
+      "B2": 0,
+      "B3": 1,
+      "B4": 0,
+      "B5": 0,
+      "I1": 0,
+      "I2": 1,
+      "I3": 0,
+      "I4": 0,
+      "I5": 0,
+      "B6": 0,
+      "B7": 0,
+      "B8": 0,
+      "I6": 0,
+      "I7": 0,
+      "I8": 1
+    },
+    "blocking_credit": {
+      "B1": 0,
+      "B2": 0,
+      "B3": 0,
+      "B4": 0,
+      "B5": 0,
+      "I1": 0,
+      "I2": 0,
+      "I3": 0,
+      "I4": 0,
+      "I5": 0,
+      "B6": 0,
+      "B7": 0,
+      "B8": 0,
+      "I6": 0,
+      "I7": 0,
+      "I8": 1
+    },
+    "per_run": {
+      "n2-sonnet-src": {
+        "found": [
+          "B3",
+          "I2",
+          "I8"
+        ],
+        "blocking_credit": [
+          "I8"
+        ]
+      }
+    },
+    "check": "Single-run set; read all 3 score.json notes; gt_covered_any/gt_covered_blocking arrays agree with notes, no disagreements; no unreadable/empty report notes."
+  },
+  {
+    "sid": "S30",
+    "set": "sol",
+    "era": "source.md",
+    "n_runs": 1,
+    "found": {
+      "B1": 0,
+      "B2": 0,
+      "B3": 1,
+      "B4": 0,
+      "B5": 0,
+      "I1": 0,
+      "I2": 0,
+      "I3": 0,
+      "I4": 0,
+      "I5": 0,
+      "B6": 0,
+      "B7": 0,
+      "B8": 0,
+      "I6": 0,
+      "I7": 0,
+      "I8": 0
+    },
+    "blocking_credit": {
+      "B1": 0,
+      "B2": 0,
+      "B3": 1,
+      "B4": 0,
+      "B5": 0,
+      "I1": 0,
+      "I2": 0,
+      "I3": 0,
+      "I4": 0,
+      "I5": 0,
+      "B6": 0,
+      "B7": 0,
+      "B8": 0,
+      "I6": 0,
+      "I7": 0,
+      "I8": 0
+    },
+    "per_run": {
+      "sol-alone-src": {
+        "found": [
+          "B3"
+        ],
+        "blocking_credit": [
+          "B3"
+        ]
+      }
+    },
+    "check": "Single-run set; read all 3 score.json notes; gt_covered_any/gt_covered_blocking arrays agree with notes, no disagreements; no unreadable/empty report notes."
+  },
+  {
+    "sid": "S40",
+    "set": "glm + luna + sol + wonder",
+    "era": "pre-source.md",
+    "n_runs": 1,
+    "found": {
+      "B1": 0,
+      "B2": 0,
+      "B3": 1,
+      "B4": 0,
+      "B5": 0,
+      "I1": 0,
+      "I2": 1,
+      "I3": 0,
+      "I4": 0,
+      "I5": 0,
+      "B6": 0,
+      "B7": 0,
+      "B8": 0,
+      "I6": 0,
+      "I7": 0,
+      "I8": 0
+    },
+    "blocking_credit": {
+      "B1": 0,
+      "B2": 0,
+      "B3": 0,
+      "B4": 0,
+      "B5": 0,
+      "I1": 0,
+      "I2": 1,
+      "I3": 0,
+      "I4": 0,
+      "I5": 0,
+      "B6": 0,
+      "B7": 0,
+      "B8": 0,
+      "I6": 0,
+      "I7": 0,
+      "I8": 0
+    },
+    "per_run": {
+      "n5-sol": {
+        "found": [
+          "B3",
+          "I2"
+        ],
+        "blocking_credit": [
+          "I2"
+        ]
+      }
+    },
+    "check": "Single-run set; read all 3 score.json notes; gt_covered_any/gt_covered_blocking arrays agree with notes, no disagreements; no unreadable/empty report notes."
+  },
+  {
+    "sid": "S50",
+    "set": "grok + haiku",
+    "era": "pre-source.md",
+    "n_runs": 1,
+    "found": {
+      "B1": 0,
+      "B2": 0,
+      "B3": 1,
+      "B4": 0,
+      "B5": 0,
+      "I1": 0,
+      "I2": 0,
+      "I3": 0,
+      "I4": 0,
+      "I5": 0,
+      "B6": 0,
+      "B7": 0,
+      "B8": 0,
+      "I6": 0,
+      "I7": 0,
+      "I8": 1
+    },
+    "blocking_credit": {
+      "B1": 0,
+      "B2": 0,
+      "B3": 1,
+      "B4": 0,
+      "B5": 0,
+      "I1": 0,
+      "I2": 0,
+      "I3": 0,
+      "I4": 0,
+      "I5": 0,
+      "B6": 0,
+      "B7": 0,
+      "B8": 0,
+      "I6": 0,
+      "I7": 0,
+      "I8": 1
+    },
+    "per_run": {
+      "c2-haiku-grok": {
+        "found": [
+          "B3",
+          "I8"
+        ],
+        "blocking_credit": [
+          "B3",
+          "I8"
+        ]
+      }
+    },
+    "check": "Single-run set; read all 3 score.json notes; gt_covered_any/gt_covered_blocking arrays agree with notes, no disagreements; no unreadable/empty report notes."
+  },
+  {
+    "sid": "S60",
+    "set": "haiku + luna",
+    "era": "pre-source.md",
+    "n_runs": 1,
+    "found": {
+      "B1": 0,
+      "B2": 0,
+      "B3": 0,
+      "B4": 0,
+      "B5": 0,
+      "I1": 0,
+      "I2": 0,
+      "I3": 0,
+      "I4": 0,
+      "I5": 0,
+      "B6": 0,
+      "B7": 1,
+      "B8": 0,
+      "I6": 0,
+      "I7": 0,
+      "I8": 0
+    },
+    "blocking_credit": {
+      "B1": 0,
+      "B2": 0,
+      "B3": 0,
+      "B4": 0,
+      "B5": 0,
+      "I1": 0,
+      "I2": 0,
+      "I3": 0,
+      "I4": 0,
+      "I5": 0,
+      "B6": 0,
+      "B7": 1,
+      "B8": 0,
+      "I6": 0,
+      "I7": 0,
+      "I8": 0
+    },
+    "per_run": {
+      "c1-haiku-luna": {
+        "found": [
+          "B7"
+        ],
+        "blocking_credit": [
+          "B7"
+        ]
+      }
+    },
+    "check": "Single-run set; read all 3 notes; arrays agree with notes. designSpec merged report readable but ledger empty (verdict PASS) and reviewer R1 block failed to parse, so zero coverage partly reflects panel failure."
+  }
+]

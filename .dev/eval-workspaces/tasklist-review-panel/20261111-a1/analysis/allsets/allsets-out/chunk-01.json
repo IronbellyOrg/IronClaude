@@ -1,0 +1,405 @@
+[
+  {
+    "sid": "S01",
+    "set": "2x ember + 2x luna",
+    "era": "source.md",
+    "n_runs": 4,
+    "found": {
+      "B1": 0,
+      "B2": 0,
+      "B3": 4,
+      "B4": 0,
+      "B5": 0,
+      "I1": 0,
+      "I2": 2,
+      "I3": 0,
+      "I4": 0,
+      "I5": 0,
+      "B6": 0,
+      "B7": 1,
+      "B8": 0,
+      "I6": 0,
+      "I7": 0,
+      "I8": 1
+    },
+    "blocking_credit": {
+      "B1": 0,
+      "B2": 0,
+      "B3": 1,
+      "B4": 0,
+      "B5": 0,
+      "I1": 0,
+      "I2": 1,
+      "I3": 0,
+      "I4": 0,
+      "I5": 0,
+      "B6": 0,
+      "B7": 0,
+      "B8": 0,
+      "I6": 0,
+      "I7": 0,
+      "I8": 0
+    },
+    "per_run": {
+      "g6-luna2-ember2-r1": {
+        "found": [
+          "B3",
+          "I8"
+        ],
+        "blocking_credit": []
+      },
+      "g6-luna2-ember2-r2": {
+        "found": [
+          "B3",
+          "I2",
+          "B7"
+        ],
+        "blocking_credit": [
+          "I2"
+        ]
+      },
+      "g6-luna2-ember2-r3": {
+        "found": [
+          "B3",
+          "I2"
+        ],
+        "blocking_credit": [
+          "B3"
+        ]
+      },
+      "g6-luna2-ember2-r4": {
+        "found": [
+          "B3"
+        ],
+        "blocking_credit": []
+      }
+    },
+    "check": "Read the notes of all 4 runs x 3 packages; arrays agree with notes (GT matches named in notes equal gt_covered_any; blocking matches equal gt_covered_blocking). No disagreements; no unreadable/empty/incomplete reports noted. Not independently re-verified against underlying reports."
+  },
+  {
+    "sid": "S11",
+    "set": "ember + haiku + sonnet",
+    "era": "source.md",
+    "n_runs": 1,
+    "found": {
+      "B1": 0,
+      "B2": 0,
+      "B3": 0,
+      "B4": 0,
+      "B5": 0,
+      "I1": 0,
+      "I2": 0,
+      "I3": 0,
+      "I4": 0,
+      "I5": 0,
+      "B6": 0,
+      "B7": 0,
+      "B8": 0,
+      "I6": 0,
+      "I7": 1,
+      "I8": 1
+    },
+    "blocking_credit": {
+      "B1": 0,
+      "B2": 0,
+      "B3": 0,
+      "B4": 0,
+      "B5": 0,
+      "I1": 0,
+      "I2": 0,
+      "I3": 0,
+      "I4": 0,
+      "I5": 0,
+      "B6": 0,
+      "B7": 0,
+      "B8": 0,
+      "I6": 0,
+      "I7": 1,
+      "I8": 1
+    },
+    "per_run": {
+      "n4-sonnet-ember": {
+        "found": [
+          "I7",
+          "I8"
+        ],
+        "blocking_credit": [
+          "I7",
+          "I8"
+        ]
+      }
+    },
+    "check": "Read the notes of the single run (all 3 packages); arrays agree with notes. No unreadable/empty/incomplete reports noted. Not independently re-verified against the underlying review reports."
+  },
+  {
+    "sid": "S21",
+    "set": "grok + haiku + wonder",
+    "era": "source.md",
+    "n_runs": 1,
+    "found": {
+      "B1": 0,
+      "B2": 0,
+      "B3": 1,
+      "B4": 0,
+      "B5": 0,
+      "I1": 0,
+      "I2": 1,
+      "I3": 0,
+      "I4": 0,
+      "I5": 0,
+      "B6": 0,
+      "B7": 1,
+      "B8": 0,
+      "I6": 0,
+      "I7": 0,
+      "I8": 1
+    },
+    "blocking_credit": {
+      "B1": 0,
+      "B2": 0,
+      "B3": 0,
+      "B4": 0,
+      "B5": 0,
+      "I1": 0,
+      "I2": 1,
+      "I3": 0,
+      "I4": 0,
+      "I5": 0,
+      "B6": 0,
+      "B7": 1,
+      "B8": 0,
+      "I6": 0,
+      "I7": 0,
+      "I8": 0
+    },
+    "per_run": {
+      "n2-muse-haiku-grok-src": {
+        "found": [
+          "B3",
+          "I2",
+          "B7",
+          "I8"
+        ],
+        "blocking_credit": [
+          "I2",
+          "B7"
+        ]
+      }
+    },
+    "check": "Read the notes of the single run (all 3 packages); arrays agree with notes. No unreadable/empty/incomplete reports noted. Not independently re-verified against the underlying review reports."
+  },
+  {
+    "sid": "S31",
+    "set": "sonnet + terra",
+    "era": "source.md",
+    "n_runs": 1,
+    "found": {
+      "B1": 0,
+      "B2": 0,
+      "B3": 1,
+      "B4": 0,
+      "B5": 0,
+      "I1": 0,
+      "I2": 1,
+      "I3": 0,
+      "I4": 0,
+      "I5": 0,
+      "B6": 0,
+      "B7": 0,
+      "B8": 0,
+      "I6": 0,
+      "I7": 0,
+      "I8": 1
+    },
+    "blocking_credit": {
+      "B1": 0,
+      "B2": 0,
+      "B3": 0,
+      "B4": 0,
+      "B5": 0,
+      "I1": 0,
+      "I2": 0,
+      "I3": 0,
+      "I4": 0,
+      "I5": 0,
+      "B6": 0,
+      "B7": 0,
+      "B8": 0,
+      "I6": 0,
+      "I7": 0,
+      "I8": 0
+    },
+    "per_run": {
+      "b4-sonnet-terra": {
+        "found": [
+          "B3",
+          "I2",
+          "I8"
+        ],
+        "blocking_credit": []
+      }
+    },
+    "check": "Read the notes of the single run (all 3 packages); arrays agree with notes. No unreadable/empty/incomplete reports noted. Not independently re-verified against the underlying review reports."
+  },
+  {
+    "sid": "S41",
+    "set": "glm + luna + sonnet + wonder",
+    "era": "pre-source.md",
+    "n_runs": 1,
+    "found": {
+      "B1": 0,
+      "B2": 0,
+      "B3": 1,
+      "B4": 0,
+      "B5": 0,
+      "I1": 0,
+      "I2": 1,
+      "I3": 0,
+      "I4": 0,
+      "I5": 0,
+      "B6": 0,
+      "B7": 1,
+      "B8": 0,
+      "I6": 0,
+      "I7": 1,
+      "I8": 0
+    },
+    "blocking_credit": {
+      "B1": 0,
+      "B2": 0,
+      "B3": 0,
+      "B4": 0,
+      "B5": 0,
+      "I1": 0,
+      "I2": 0,
+      "I3": 0,
+      "I4": 0,
+      "I5": 0,
+      "B6": 0,
+      "B7": 1,
+      "B8": 0,
+      "I6": 0,
+      "I7": 1,
+      "I8": 0
+    },
+    "per_run": {
+      "n5-sonnet": {
+        "found": [
+          "B3",
+          "I2",
+          "B7",
+          "I7"
+        ],
+        "blocking_credit": [
+          "B7",
+          "I7"
+        ]
+      }
+    },
+    "check": "Read the notes of the single run (all 3 packages); arrays agree with notes. No unreadable/empty/incomplete reports noted. Not independently re-verified against the underlying review reports."
+  },
+  {
+    "sid": "S51",
+    "set": "grok + haiku + 2x luna",
+    "era": "pre-source.md",
+    "n_runs": 1,
+    "found": {
+      "B1": 0,
+      "B2": 0,
+      "B3": 0,
+      "B4": 0,
+      "B5": 0,
+      "I1": 0,
+      "I2": 0,
+      "I3": 0,
+      "I4": 0,
+      "I5": 0,
+      "B6": 0,
+      "B7": 0,
+      "B8": 0,
+      "I6": 0,
+      "I7": 0,
+      "I8": 1
+    },
+    "blocking_credit": {
+      "B1": 0,
+      "B2": 0,
+      "B3": 0,
+      "B4": 0,
+      "B5": 0,
+      "I1": 0,
+      "I2": 0,
+      "I3": 0,
+      "I4": 0,
+      "I5": 0,
+      "B6": 0,
+      "B7": 0,
+      "B8": 0,
+      "I6": 0,
+      "I7": 0,
+      "I8": 0
+    },
+    "per_run": {
+      "r4-haiku-luna2-grok": {
+        "found": [
+          "I8"
+        ],
+        "blocking_credit": []
+      }
+    },
+    "check": "Read the notes of the single run (all 3 packages); arrays agree with notes. No unreadable/empty/incomplete reports noted. Not independently re-verified against the underlying review reports."
+  },
+  {
+    "sid": "S61",
+    "set": "haiku + luna + wonder",
+    "era": "pre-source.md",
+    "n_runs": 1,
+    "found": {
+      "B1": 0,
+      "B2": 0,
+      "B3": 1,
+      "B4": 0,
+      "B5": 0,
+      "I1": 0,
+      "I2": 1,
+      "I3": 0,
+      "I4": 0,
+      "I5": 0,
+      "B6": 0,
+      "B7": 0,
+      "B8": 0,
+      "I6": 0,
+      "I7": 0,
+      "I8": 1
+    },
+    "blocking_credit": {
+      "B1": 0,
+      "B2": 0,
+      "B3": 0,
+      "B4": 0,
+      "B5": 0,
+      "I1": 0,
+      "I2": 0,
+      "I3": 0,
+      "I4": 0,
+      "I5": 0,
+      "B6": 0,
+      "B7": 0,
+      "B8": 0,
+      "I6": 0,
+      "I7": 0,
+      "I8": 0
+    },
+    "per_run": {
+      "n1-muse-haiku-luna": {
+        "found": [
+          "B3",
+          "I2",
+          "I8"
+        ],
+        "blocking_credit": []
+      }
+    },
+    "check": "Read the notes of the single run (all 3 packages); arrays agree with notes. No unreadable/empty/incomplete reports noted. Not independently re-verified against the underlying review reports."
+  }
+]

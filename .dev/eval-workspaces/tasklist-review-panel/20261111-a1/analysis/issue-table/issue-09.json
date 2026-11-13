@@ -1,0 +1,82 @@
+{
+  "panel": "2x ember + 2x luna",
+  "slug": "issue-09",
+  "n_runs": 4,
+  "denominators": {
+    "designSpec": 4,
+    "alias": 4,
+    "control": 4
+  },
+  "found": {
+    "B1": 0,
+    "B2": 0,
+    "B3": 4,
+    "B4": 0,
+    "B5": 0,
+    "I1": 0,
+    "I2": 2,
+    "I3": 0,
+    "I4": 0,
+    "I5": 0,
+    "B6": 0,
+    "B7": 1,
+    "B8": 0,
+    "I6": 0,
+    "I7": 0,
+    "I8": 1
+  },
+  "blocking_credit": {
+    "B1": 0,
+    "B2": 0,
+    "B3": 1,
+    "B4": 0,
+    "B5": 0,
+    "I1": 0,
+    "I2": 1,
+    "I3": 0,
+    "I4": 0,
+    "I5": 0,
+    "B6": 0,
+    "B7": 0,
+    "B8": 0,
+    "I6": 0,
+    "I7": 0,
+    "I8": 0
+  },
+  "per_row": {
+    "g6-luna2-ember2-r1": {
+      "found": [
+        "B3",
+        "I8"
+      ],
+      "blocking_credit": []
+    },
+    "g6-luna2-ember2-r2": {
+      "found": [
+        "B3",
+        "I2",
+        "B7"
+      ],
+      "blocking_credit": [
+        "I2"
+      ]
+    },
+    "g6-luna2-ember2-r3": {
+      "found": [
+        "B3",
+        "I2"
+      ],
+      "blocking_credit": [
+        "B3"
+      ]
+    },
+    "g6-luna2-ember2-r4": {
+      "found": [
+        "B3"
+      ],
+      "blocking_credit": []
+    }
+  },
+  "cross_check": "Read the judge notes in all 12 score.json files (4 rows x 3 packages); gt_covered_any and gt_covered_blocking agree with the notes in every case (e.g. r2 designSpec: GT7 blocking via L3, GT3 non-blocking via L7; r3 designSpec: GT3 blocking via L2, GT7 non-blocking via L7; r2 control GT2 judged borderline-not-covered, matches empty array). GT id to label mapping verified against the legend and the ground-truth.json ids and text of all three packages. No disagreement.",
+  "issues": "Score files sit under different label dirs per package/row (T/U/R/Q/V); one per package per row, no invalid-apierror files seen. Coverage is low: no run found B1,B2,B4,B5,I1,I3,I4,I5,B6,B8,I6,I7. Row r2 alias B7 and r1 control I8 are the only alias/control hits."
+}

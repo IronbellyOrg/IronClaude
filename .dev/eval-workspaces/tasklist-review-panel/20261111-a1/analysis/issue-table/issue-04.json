@@ -1,0 +1,95 @@
+{
+  "panel": "sonnet + 2x luna + 2x ember",
+  "slug": "issue-04",
+  "n_runs": 4,
+  "denominators": {
+    "designSpec": 4,
+    "alias": 4,
+    "control": 4
+  },
+  "found": {
+    "B1": 0,
+    "B2": 0,
+    "B3": 4,
+    "B4": 0,
+    "B5": 0,
+    "I1": 1,
+    "I2": 3,
+    "I3": 0,
+    "I4": 0,
+    "I5": 0,
+    "B6": 0,
+    "B7": 1,
+    "B8": 0,
+    "I6": 0,
+    "I7": 2,
+    "I8": 4
+  },
+  "blocking_credit": {
+    "B1": 0,
+    "B2": 0,
+    "B3": 0,
+    "B4": 0,
+    "B5": 0,
+    "I1": 0,
+    "I2": 2,
+    "I3": 0,
+    "I4": 0,
+    "I5": 0,
+    "B6": 0,
+    "B7": 1,
+    "B8": 0,
+    "I6": 0,
+    "I7": 2,
+    "I8": 2
+  },
+  "per_row": {
+    "h2-sonnet-luna2-ember2-r1": {
+      "found": [
+        "B3",
+        "I2",
+        "I8"
+      ],
+      "blocking_credit": [
+        "I2",
+        "I8"
+      ]
+    },
+    "h2-sonnet-luna2-ember2-r2": {
+      "found": [
+        "B3",
+        "I2",
+        "B7",
+        "I7",
+        "I8"
+      ],
+      "blocking_credit": [
+        "B7",
+        "I7",
+        "I8"
+      ]
+    },
+    "h2-sonnet-luna2-ember2-r3": {
+      "found": [
+        "B3",
+        "I1",
+        "I8"
+      ],
+      "blocking_credit": []
+    },
+    "h2-sonnet-luna2-ember2-r4": {
+      "found": [
+        "B3",
+        "I2",
+        "I7",
+        "I8"
+      ],
+      "blocking_credit": [
+        "I2",
+        "I7"
+      ]
+    }
+  },
+  "cross_check": "Read judge notes in all 12 score.json files; arrays match notes in every case (e.g. r1 designSpec GT3+GT7 any, GT7 blocking; r2 control GT1+GT2 blocking; r3 control GT2 non-blocking only; r4 control GT1 blocking, GT2 any only). GT meanings in the notes match the legend (GT3=Wave 0 L3 bullet, GT7=resume_decision signature, GT6=user_override fold, alias GT2=outside-one-nothing-is-set, control GT1/GT2). No disagreement. Did not independently re-open ground-truth.json item text beyond confirming its structure.",
+  "issues": "none"
+}

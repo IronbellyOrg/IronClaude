@@ -1,0 +1,83 @@
+{
+  "panel": "ember + luna",
+  "slug": "issue-02",
+  "n_runs": 4,
+  "denominators": {
+    "designSpec": 4,
+    "alias": 4,
+    "control": 4
+  },
+  "found": {
+    "B1": 0,
+    "B2": 0,
+    "B3": 4,
+    "B4": 0,
+    "B5": 0,
+    "I1": 0,
+    "I2": 4,
+    "I3": 1,
+    "I4": 0,
+    "I5": 0,
+    "B6": 0,
+    "B7": 0,
+    "B8": 0,
+    "I6": 0,
+    "I7": 0,
+    "I8": 0
+  },
+  "blocking_credit": {
+    "B1": 0,
+    "B2": 0,
+    "B3": 2,
+    "B4": 0,
+    "B5": 0,
+    "I1": 0,
+    "I2": 0,
+    "I3": 0,
+    "I4": 0,
+    "I5": 0,
+    "B6": 0,
+    "B7": 0,
+    "B8": 0,
+    "I6": 0,
+    "I7": 0,
+    "I8": 0
+  },
+  "per_row": {
+    "g9-ember-luna-r1": {
+      "found": [
+        "B3",
+        "I2",
+        "I3"
+      ],
+      "blocking_credit": []
+    },
+    "g9-ember-luna-r2": {
+      "found": [
+        "B3",
+        "I2"
+      ],
+      "blocking_credit": [
+        "B3"
+      ]
+    },
+    "g9-ember-luna-r3": {
+      "found": [
+        "B3",
+        "I2"
+      ],
+      "blocking_credit": [
+        "B3"
+      ]
+    },
+    "g9-ember-luna-r4": {
+      "found": [
+        "B3",
+        "I2"
+      ],
+      "blocking_credit": []
+    }
+  },
+  "cross_check": "Read judge notes in all 12 score.json (4 rows x 3 packages); arrays agree with notes in every case. Legend-to-ground-truth mapping verified against each package ground-truth.json (GT descriptions match). r1 and r4 B3 found but not credited blocking (r1 GT3 matched on a non-blocking row; r4 GT3 non-blocking). r4 judge flagged GT8/I3 as a borderline miss (counted as wrong blocker, not found), per the arrays.",
+  "issues": "None missing: exactly one score.json per row/package (no invalid-apierror files). Control and alias packages found nothing in any run. Label-dir letters differ per row/package (blind labels), handled by glob."
+}

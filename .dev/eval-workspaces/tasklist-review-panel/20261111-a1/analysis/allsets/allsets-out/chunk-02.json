@@ -1,0 +1,456 @@
+[
+ {
+  "sid": "S02",
+  "set": "2x ember + 2x luna + sonnet",
+  "era": "source.md",
+  "n_runs": 4,
+  "found": {
+   "B1": 0,
+   "B2": 0,
+   "B3": 4,
+   "B4": 0,
+   "B5": 0,
+   "I1": 1,
+   "I2": 3,
+   "I3": 0,
+   "I4": 0,
+   "I5": 0,
+   "B6": 0,
+   "B7": 1,
+   "B8": 0,
+   "I6": 0,
+   "I7": 2,
+   "I8": 4
+  },
+  "blocking_credit": {
+   "B1": 0,
+   "B2": 0,
+   "B3": 0,
+   "B4": 0,
+   "B5": 0,
+   "I1": 0,
+   "I2": 2,
+   "I3": 0,
+   "I4": 0,
+   "I5": 0,
+   "B6": 0,
+   "B7": 1,
+   "B8": 0,
+   "I6": 0,
+   "I7": 2,
+   "I8": 2
+  },
+  "per_run": {
+   "h2-sonnet-luna2-ember2-r1": {
+    "found": [
+     "B3",
+     "I2",
+     "I8"
+    ],
+    "blocking_credit": [
+     "I2",
+     "I8"
+    ]
+   },
+   "h2-sonnet-luna2-ember2-r2": {
+    "found": [
+     "B3",
+     "I2",
+     "B7",
+     "I7",
+     "I8"
+    ],
+    "blocking_credit": [
+     "B7",
+     "I7",
+     "I8"
+    ]
+   },
+   "h2-sonnet-luna2-ember2-r3": {
+    "found": [
+     "B3",
+     "I1",
+     "I8"
+    ],
+    "blocking_credit": []
+   },
+   "h2-sonnet-luna2-ember2-r4": {
+    "found": [
+     "B3",
+     "I2",
+     "I7",
+     "I8"
+    ],
+    "blocking_credit": [
+     "I2",
+     "I7"
+    ]
+   }
+  },
+  "check": "Counted from 4 run(s) x 3 score.json each; blocking arrays are subsets of any arrays in every file. Read notes of the first 2 runs (all 3 packages each) for multi-run sets, all runs for single-run sets: arrays agree with notes, no disagreements. No run's notes say the report was unreadable, empty or incomplete."
+ },
+ {
+  "sid": "S12",
+  "set": "ember + haiku + terra",
+  "era": "source.md",
+  "n_runs": 5,
+  "found": {
+   "B1": 0,
+   "B2": 0,
+   "B3": 5,
+   "B4": 0,
+   "B5": 0,
+   "I1": 0,
+   "I2": 2,
+   "I3": 0,
+   "I4": 0,
+   "I5": 0,
+   "B6": 0,
+   "B7": 3,
+   "B8": 0,
+   "I6": 0,
+   "I7": 0,
+   "I8": 5
+  },
+  "blocking_credit": {
+   "B1": 0,
+   "B2": 0,
+   "B3": 1,
+   "B4": 0,
+   "B5": 0,
+   "I1": 0,
+   "I2": 0,
+   "I3": 0,
+   "I4": 0,
+   "I5": 0,
+   "B6": 0,
+   "B7": 2,
+   "B8": 0,
+   "I6": 0,
+   "I7": 0,
+   "I8": 3
+  },
+  "per_run": {
+   "g4-haiku-ember-terra-r1": {
+    "found": [
+     "B3",
+     "B7",
+     "I8"
+    ],
+    "blocking_credit": [
+     "B7",
+     "I8"
+    ]
+   },
+   "g4-haiku-ember-terra-r2": {
+    "found": [
+     "B3",
+     "B7",
+     "I8"
+    ],
+    "blocking_credit": [
+     "B7",
+     "I8"
+    ]
+   },
+   "g4-haiku-ember-terra-r3": {
+    "found": [
+     "B3",
+     "B7",
+     "I8"
+    ],
+    "blocking_credit": [
+     "B3"
+    ]
+   },
+   "g4-haiku-ember-terra-r4": {
+    "found": [
+     "B3",
+     "I2",
+     "I8"
+    ],
+    "blocking_credit": []
+   },
+   "terra-muse-haiku-ember": {
+    "found": [
+     "B3",
+     "I2",
+     "I8"
+    ],
+    "blocking_credit": [
+     "I8"
+    ]
+   }
+  },
+  "check": "Counted from 5 run(s) x 3 score.json each; blocking arrays are subsets of any arrays in every file. Read notes of the first 2 runs (all 3 packages each) for multi-run sets, all runs for single-run sets: arrays agree with notes, no disagreements. No run's notes say the report was unreadable, empty or incomplete."
+ },
+ {
+  "sid": "S22",
+  "set": "grok + luna",
+  "era": "source.md",
+  "n_runs": 1,
+  "found": {
+   "B1": 0,
+   "B2": 0,
+   "B3": 0,
+   "B4": 0,
+   "B5": 0,
+   "I1": 1,
+   "I2": 1,
+   "I3": 0,
+   "I4": 0,
+   "I5": 0,
+   "B6": 0,
+   "B7": 1,
+   "B8": 0,
+   "I6": 0,
+   "I7": 0,
+   "I8": 1
+  },
+  "blocking_credit": {
+   "B1": 0,
+   "B2": 0,
+   "B3": 0,
+   "B4": 0,
+   "B5": 0,
+   "I1": 1,
+   "I2": 1,
+   "I3": 0,
+   "I4": 0,
+   "I5": 0,
+   "B6": 0,
+   "B7": 1,
+   "B8": 0,
+   "I6": 0,
+   "I7": 0,
+   "I8": 0
+  },
+  "per_run": {
+   "c3-luna-grok-src": {
+    "found": [
+     "I1",
+     "I2",
+     "B7",
+     "I8"
+    ],
+    "blocking_credit": [
+     "I1",
+     "I2",
+     "B7"
+    ]
+   }
+  },
+  "check": "Counted from 1 run(s) x 3 score.json each; blocking arrays are subsets of any arrays in every file. Read notes of the first 2 runs (all 3 packages each) for multi-run sets, all runs for single-run sets: arrays agree with notes, no disagreements. No run's notes say the report was unreadable, empty or incomplete."
+ },
+ {
+  "sid": "S32",
+  "set": "terra",
+  "era": "source.md",
+  "n_runs": 1,
+  "found": {
+   "B1": 0,
+   "B2": 0,
+   "B3": 1,
+   "B4": 0,
+   "B5": 0,
+   "I1": 0,
+   "I2": 0,
+   "I3": 0,
+   "I4": 0,
+   "I5": 0,
+   "B6": 0,
+   "B7": 0,
+   "B8": 0,
+   "I6": 0,
+   "I7": 0,
+   "I8": 0
+  },
+  "blocking_credit": {
+   "B1": 0,
+   "B2": 0,
+   "B3": 1,
+   "B4": 0,
+   "B5": 0,
+   "I1": 0,
+   "I2": 0,
+   "I3": 0,
+   "I4": 0,
+   "I5": 0,
+   "B6": 0,
+   "B7": 0,
+   "B8": 0,
+   "I6": 0,
+   "I7": 0,
+   "I8": 0
+  },
+  "per_run": {
+   "terra-alone-src": {
+    "found": [
+     "B3"
+    ],
+    "blocking_credit": [
+     "B3"
+    ]
+   }
+  },
+  "check": "Counted from 1 run(s) x 3 score.json each; blocking arrays are subsets of any arrays in every file. Read notes of the first 2 runs (all 3 packages each) for multi-run sets, all runs for single-run sets: arrays agree with notes, no disagreements. No run's notes say the report was unreadable, empty or incomplete."
+ },
+ {
+  "sid": "S42",
+  "set": "glm + luna + terra + wonder",
+  "era": "pre-source.md",
+  "n_runs": 1,
+  "found": {
+   "B1": 0,
+   "B2": 0,
+   "B3": 1,
+   "B4": 0,
+   "B5": 0,
+   "I1": 0,
+   "I2": 1,
+   "I3": 0,
+   "I4": 0,
+   "I5": 0,
+   "B6": 0,
+   "B7": 0,
+   "B8": 0,
+   "I6": 0,
+   "I7": 0,
+   "I8": 0
+  },
+  "blocking_credit": {
+   "B1": 0,
+   "B2": 0,
+   "B3": 0,
+   "B4": 0,
+   "B5": 0,
+   "I1": 0,
+   "I2": 0,
+   "I3": 0,
+   "I4": 0,
+   "I5": 0,
+   "B6": 0,
+   "B7": 0,
+   "B8": 0,
+   "I6": 0,
+   "I7": 0,
+   "I8": 0
+  },
+  "per_run": {
+   "n5-terra": {
+    "found": [
+     "B3",
+     "I2"
+    ],
+    "blocking_credit": []
+   }
+  },
+  "check": "Counted from 1 run(s) x 3 score.json each; blocking arrays are subsets of any arrays in every file. Read notes of the first 2 runs (all 3 packages each) for multi-run sets, all runs for single-run sets: arrays agree with notes, no disagreements. No run's notes say the report was unreadable, empty or incomplete."
+ },
+ {
+  "sid": "S52",
+  "set": "grok + haiku + luna",
+  "era": "pre-source.md",
+  "n_runs": 1,
+  "found": {
+   "B1": 0,
+   "B2": 0,
+   "B3": 1,
+   "B4": 0,
+   "B5": 0,
+   "I1": 0,
+   "I2": 0,
+   "I3": 0,
+   "I4": 0,
+   "I5": 0,
+   "B6": 0,
+   "B7": 0,
+   "B8": 0,
+   "I6": 0,
+   "I7": 0,
+   "I8": 1
+  },
+  "blocking_credit": {
+   "B1": 0,
+   "B2": 0,
+   "B3": 0,
+   "B4": 0,
+   "B5": 0,
+   "I1": 0,
+   "I2": 0,
+   "I3": 0,
+   "I4": 0,
+   "I5": 0,
+   "B6": 0,
+   "B7": 0,
+   "B8": 0,
+   "I6": 0,
+   "I7": 0,
+   "I8": 0
+  },
+  "per_run": {
+   "c4-haiku-luna-grok": {
+    "found": [
+     "B3",
+     "I8"
+    ],
+    "blocking_credit": []
+   }
+  },
+  "check": "Counted from 1 run(s) x 3 score.json each; blocking arrays are subsets of any arrays in every file. Read notes of the first 2 runs (all 3 packages each) for multi-run sets, all runs for single-run sets: arrays agree with notes, no disagreements. No run's notes say the report was unreadable, empty or incomplete."
+ },
+ {
+  "sid": "S62",
+  "set": "sonnet",
+  "era": "pre-source.md",
+  "n_runs": 1,
+  "found": {
+   "B1": 0,
+   "B2": 0,
+   "B3": 1,
+   "B4": 0,
+   "B5": 0,
+   "I1": 0,
+   "I2": 0,
+   "I3": 0,
+   "I4": 0,
+   "I5": 0,
+   "B6": 0,
+   "B7": 0,
+   "B8": 0,
+   "I6": 0,
+   "I7": 1,
+   "I8": 0
+  },
+  "blocking_credit": {
+   "B1": 0,
+   "B2": 0,
+   "B3": 0,
+   "B4": 0,
+   "B5": 0,
+   "I1": 0,
+   "I2": 0,
+   "I3": 0,
+   "I4": 0,
+   "I5": 0,
+   "B6": 0,
+   "B7": 0,
+   "B8": 0,
+   "I6": 0,
+   "I7": 1,
+   "I8": 0
+  },
+  "per_run": {
+   "pilot-arm-A": {
+    "found": [
+     "B3",
+     "I7"
+    ],
+    "blocking_credit": [
+     "I7"
+    ]
+   }
+  },
+  "check": "Counted from 1 run(s) x 3 score.json each; blocking arrays are subsets of any arrays in every file. Read notes of the first 2 runs (all 3 packages each) for multi-run sets, all runs for single-run sets: arrays agree with notes, no disagreements. No run's notes say the report was unreadable, empty or incomplete."
+ }
+]
