@@ -201,8 +201,14 @@ def test_the_reviewer_brief_line_carries_the_schema_and_its_example_parses():
     from superclaude.cli.review import findings_v2 as fv2
 
     text = SPEC.read_text(encoding="utf-8")
-    line = re.search(r"`(End your card with a ## Findings block[^`]+)`", text).group(1)
-    for word in ("JSON lines", "never a table", *f1.SEVERITIES, *f1.CATEGORIES):
+    line = re.search(r"`(End your card with the exact heading[^`]+)`", text).group(1)
+    for word in (
+        "JSON lines",
+        "never a table",
+        'the exact heading line "## Findings block"',
+        *f1.SEVERITIES,
+        *f1.CATEGORIES,
+    ):
         assert word in line, word
     example = re.search(r"Example line: (\{.*\}\]\})\. After the block", line).group(1)
     block = f"## Findings block\n\n```findings-v2\n{example}\n```\n"
