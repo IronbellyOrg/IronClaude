@@ -1,0 +1,130 @@
+[
+ {
+  "label": "B1",
+  "package": "designSpec",
+  "pkg_id": "TASK-WF-designSpec-20261107-075614",
+  "gt": "GT1",
+  "blocking": true,
+  "description": "Task 1 AC3 demands a provably complete inventory of every pin and line rule with no bounded method or stopping rule, so each review found new missing pins and Task 1 took five attempts, hit the retry ladder end and needed two operator-review halts before it wa"
+ },
+ {
+  "label": "B2",
+  "package": "designSpec",
+  "pkg_id": "TASK-WF-designSpec-20261107-075614",
+  "gt": "GT2",
+  "blocking": true,
+  "description": "Task 1 names four target files for O3 while AC3 says only \"found for O3\", so reviewers kept widening the scope (refs/ci-poll.md, refs/review-retrigger.md, the python package, folder-wide text tests) and a four-file inventory kept being judged incomplete, feedi"
+ },
+ {
+  "label": "B3",
+  "package": "designSpec",
+  "pkg_id": "TASK-WF-designSpec-20261107-075614",
+  "gt": "GT3",
+  "blocking": true,
+  "description": "Task 9 requires a test that fails on any L3 or draft condition in a bullet that must itself say \"at L3 with `--merge-guard off`\" and \"no draft call\", without defining what counts as a condition, so two word-list tests failed review and the task was blocked and"
+ },
+ {
+  "label": "B4",
+  "package": "designSpec",
+  "pkg_id": "TASK-WF-designSpec-20261107-075614",
+  "gt": "GT4",
+  "blocking": true,
+  "description": "Task 8 says any unreadable timeline halts at engage while Task 4 defines unreadable to include a short timeline and has engage_decision halt only on a failed or incomplete read, so the ref followed the plan wording, contradicted the code, and Task 8 failed rev"
+ },
+ {
+  "label": "B5",
+  "package": "designSpec",
+  "pkg_id": "TASK-WF-designSpec-20261107-075614",
+  "gt": "GT5",
+  "blocking": true,
+  "description": "Task 8 defines the exit-report field only as the guard_status mapping (Task 3: no record at ordinal 3 gives `released`) and drops the source rule that a `draft_guard_unavailable` halt reports `unavailable`, so the ref would report `released` after an engage ha"
+ },
+ {
+  "label": "I1",
+  "package": "designSpec",
+  "pkg_id": "TASK-WF-designSpec-20261107-075614",
+  "gt": "GT6",
+  "blocking": false,
+  "description": "Task 3 requires guard_status to return `user_override` for a DISABLED phase with cause user_override, but the fold rows it implements set `disabled_cause` only for already_draft, so the advisory plan review raised blocking finding R1-1 and the owner had to acc"
+ },
+ {
+  "label": "I2",
+  "package": "designSpec",
+  "pkg_id": "TASK-WF-designSpec-20261107-075614",
+  "gt": "GT7",
+  "blocking": false,
+  "description": "The planned resume_decision signature has no `target_sha` or `applied_edits`, yet row 4 must re-enter release_decision, which needs both to release, so with the plan's signature row 4 always holds with head_mismatch; the executor added three keyword parameters"
+ },
+ {
+  "label": "I3",
+  "package": "designSpec",
+  "pkg_id": "TASK-WF-designSpec-20261107-075614",
+  "gt": "GT8",
+  "blocking": false,
+  "description": "Task 10 says the SKILL.md Wave 3 bullet mints the cycle id while Task 8 (and Task 1 O1) require one single minting place in the Engage section of refs/merge-guard.md; a review note caught it and executor guidance resolved it with no extra attempt."
+ },
+ {
+  "label": "I4",
+  "package": "designSpec",
+  "pkg_id": "TASK-WF-designSpec-20261107-075614",
+  "gt": "GT9",
+  "blocking": false,
+  "description": "Task 12 asks for a section named \"Merge guard\" but its AC checks the heading with a case-sensitive grep for `merge-guard`, which that heading cannot match; executor guidance flagged it and the executor added `(--merge-guard)` to the heading so the grep passed."
+ },
+ {
+  "label": "I5",
+  "package": "designSpec",
+  "pkg_id": "TASK-WF-designSpec-20261107-075614",
+  "gt": "GT10",
+  "blocking": false,
+  "description": "Task 2 updates the 43-member enum claim only in three files and plans no CHANGELOG.md edit, so the unreleased changelog entry still says the event enum has 43 members after the change."
+ },
+ {
+  "label": "B6",
+  "package": "alias",
+  "pkg_id": "TASK-WF-makeTheAliasOnly-20261105-051649",
+  "gt": "GT1",
+  "blocking": true,
+  "description": "Task 6 (echoing the Goal's 'select models only through the plain aliases') told the page to state an aliases-only rule that the test enforces, but the plan's own Task 5 makes the retry ladder select by slot variables, sprint returns slot model ids, Auggie take"
+ },
+ {
+  "label": "B7",
+  "package": "alias",
+  "pkg_id": "TASK-WF-makeTheAliasOnly-20261105-051649",
+  "gt": "GT2",
+  "blocking": true,
+  "description": "Task 6 dictates a present-tense statement that outside a tier workspace nothing is set, which contradicts the plan's own constraint and status text that the workspace defaults file exports real model ids today (haiku is glm-5.3), so the first review blocked th"
+ },
+ {
+  "label": "B8",
+  "package": "alias",
+  "pkg_id": "TASK-WF-makeTheAliasOnly-20261105-051649",
+  "gt": "GT3",
+  "blocking": true,
+  "description": "Task 7 mandates a sentence in tiers.md claiming all other primitives use aliases, which is false because most agent, skill and command files have no model: line and the policy test skips them, so the reviewer graded the delivered sentence blocking (F1.1) and a"
+ },
+ {
+  "label": "I6",
+  "package": "alias",
+  "pkg_id": "TASK-WF-makeTheAliasOnly-20261105-051649",
+  "gt": "GT4",
+  "blocking": false,
+  "description": "Task 7's prescribed user-guide text omits the 'today the workspace defaults file exports real model ids' half that the plan's mapping constraint requires of new mapping text, so the delivered brainstorm.md, commands.md and tiers.md text drew caveat findings th"
+ },
+ {
+  "label": "I7",
+  "package": "control",
+  "pkg_id": "TASK-WF-design-20261108-041415",
+  "gt": "GT1",
+  "blocking": false,
+  "description": "The plan rewrote and added `gh api` lines in refs/create.md, refs/labels.md, SKILL.md and issue-worker-t3.md (Tasks 2, 3, 5) but had no task to update the exact-line classification table in tests/skills/test_worker_contract.py and only gated on test_issue_prot"
+ },
+ {
+  "label": "I8",
+  "package": "control",
+  "pkg_id": "TASK-WF-design-20261108-041415",
+  "gt": "GT2",
+  "blocking": false,
+  "description": "The plan named the Complexity read-back call but not how to match its result; the built rule only said to flag the value when 'absent', while the real GET returns a numeric option id in `value` and the name in `single_select_option.name`, so refs/labels.md had"
+ }
+]

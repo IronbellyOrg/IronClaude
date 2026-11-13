@@ -1,0 +1,100 @@
+{
+  "panel": "ember + haiku + terra",
+  "slug": "issue-07",
+  "n_runs": 5,
+  "denominators": {
+    "designSpec": 5,
+    "alias": 5,
+    "control": 5
+  },
+  "found": {
+    "B1": 0,
+    "B2": 0,
+    "B3": 5,
+    "B4": 0,
+    "B5": 0,
+    "B6": 0,
+    "B7": 3,
+    "B8": 0,
+    "I1": 0,
+    "I2": 2,
+    "I3": 0,
+    "I4": 0,
+    "I5": 0,
+    "I6": 0,
+    "I7": 0,
+    "I8": 5
+  },
+  "blocking_credit": {
+    "B1": 0,
+    "B2": 0,
+    "B3": 1,
+    "B4": 0,
+    "B5": 0,
+    "B6": 0,
+    "B7": 2,
+    "B8": 0,
+    "I1": 0,
+    "I2": 0,
+    "I3": 0,
+    "I4": 0,
+    "I5": 0,
+    "I6": 0,
+    "I7": 0,
+    "I8": 3
+  },
+  "per_row": {
+    "g4-haiku-ember-terra-r1": {
+      "found": [
+        "B3",
+        "B7",
+        "I8"
+      ],
+      "blocking_credit": [
+        "B7",
+        "I8"
+      ]
+    },
+    "g4-haiku-ember-terra-r2": {
+      "found": [
+        "B3",
+        "B7",
+        "I8"
+      ],
+      "blocking_credit": [
+        "B7",
+        "I8"
+      ]
+    },
+    "g4-haiku-ember-terra-r3": {
+      "found": [
+        "B3",
+        "B7",
+        "I8"
+      ],
+      "blocking_credit": [
+        "B3"
+      ]
+    },
+    "g4-haiku-ember-terra-r4": {
+      "found": [
+        "B3",
+        "I2",
+        "I8"
+      ],
+      "blocking_credit": []
+    },
+    "terra-muse-haiku-ember": {
+      "found": [
+        "B3",
+        "I2",
+        "I8"
+      ],
+      "blocking_credit": [
+        "I8"
+      ]
+    }
+  },
+  "cross_check": "Read judge notes in 4 score.json (r1 designSpec, r3 alias, r4 designSpec, terra-muse-haiku-ember control); arrays agree with notes in all 4. GT ids mapped to labels per legend (designSpec GT3=B3, GT7=I2; alias GT2=B7; control GT2=I8); I did not re-open the three ground-truth.json files beyond their first ~1500 chars, whose GT1 entries match legend rows.",
+  "issues": "None odd. Each row had exactly one score.json per package (5/5/5). Only 4 labels ever found; B1,B2,B4,B5,B6,B8,I1,I3,I4,I5,I6,I7 are 0."
+}

@@ -1,0 +1,337 @@
+[
+  {
+    "sid": "S09",
+    "set": "ember + grok + luna",
+    "era": "source.md",
+    "n_runs": 1,
+    "found": {
+      "B1": 0,
+      "B2": 0,
+      "B3": 1,
+      "B4": 0,
+      "B5": 0,
+      "I1": 0,
+      "I2": 1,
+      "I3": 0,
+      "I4": 0,
+      "I5": 0,
+      "B6": 0,
+      "B7": 0,
+      "B8": 0,
+      "I6": 0,
+      "I7": 0,
+      "I8": 1
+    },
+    "blocking_credit": {
+      "B1": 0,
+      "B2": 0,
+      "B3": 0,
+      "B4": 0,
+      "B5": 0,
+      "I1": 0,
+      "I2": 1,
+      "I3": 0,
+      "I4": 0,
+      "I5": 0,
+      "B6": 0,
+      "B7": 0,
+      "B8": 0,
+      "I6": 0,
+      "I7": 0,
+      "I8": 1
+    },
+    "per_run": {
+      "e1-grok-ember-luna": {
+        "found": [
+          "B3",
+          "I2",
+          "I8"
+        ],
+        "blocking_credit": [
+          "I2",
+          "I8"
+        ]
+      }
+    },
+    "check": "Single run per set. Read all 3 score.json notes (designSpec, alias, control); gt_covered_any/gt_covered_blocking arrays agree with the notes in every case (e.g. GT3->B3, GT7->I2, alias GT2->B7, control GT2->I8). No disagreements. No notes report an unreadable/empty/incomplete report."
+  },
+  {
+    "sid": "S19",
+    "set": "grok + 2x luna",
+    "era": "source.md",
+    "n_runs": 1,
+    "found": {
+      "B1": 0,
+      "B2": 0,
+      "B3": 1,
+      "B4": 0,
+      "B5": 0,
+      "I1": 1,
+      "I2": 1,
+      "I3": 0,
+      "I4": 0,
+      "I5": 0,
+      "B6": 0,
+      "B7": 0,
+      "B8": 0,
+      "I6": 0,
+      "I7": 1,
+      "I8": 1
+    },
+    "blocking_credit": {
+      "B1": 0,
+      "B2": 0,
+      "B3": 0,
+      "B4": 0,
+      "B5": 0,
+      "I1": 0,
+      "I2": 1,
+      "I3": 0,
+      "I4": 0,
+      "I5": 0,
+      "B6": 0,
+      "B7": 0,
+      "B8": 0,
+      "I6": 0,
+      "I7": 0,
+      "I8": 1
+    },
+    "per_run": {
+      "r3-luna2-grok-src": {
+        "found": [
+          "B3",
+          "I1",
+          "I2",
+          "I7",
+          "I8"
+        ],
+        "blocking_credit": [
+          "I2",
+          "I8"
+        ]
+      }
+    },
+    "check": "Single run per set. Read all 3 score.json notes (designSpec, alias, control); gt_covered_any/gt_covered_blocking arrays agree with the notes in every case (e.g. GT3->B3, GT7->I2, alias GT2->B7, control GT2->I8). No disagreements. No notes report an unreadable/empty/incomplete report."
+  },
+  {
+    "sid": "S29",
+    "set": "luna + wonder",
+    "era": "source.md",
+    "n_runs": 1,
+    "found": {
+      "B1": 0,
+      "B2": 0,
+      "B3": 1,
+      "B4": 0,
+      "B5": 0,
+      "I1": 0,
+      "I2": 1,
+      "I3": 0,
+      "I4": 0,
+      "I5": 0,
+      "B6": 0,
+      "B7": 0,
+      "B8": 0,
+      "I6": 0,
+      "I7": 0,
+      "I8": 1
+    },
+    "blocking_credit": {
+      "B1": 0,
+      "B2": 0,
+      "B3": 0,
+      "B4": 0,
+      "B5": 0,
+      "I1": 0,
+      "I2": 1,
+      "I3": 0,
+      "I4": 0,
+      "I5": 0,
+      "B6": 0,
+      "B7": 0,
+      "B8": 0,
+      "I6": 0,
+      "I7": 0,
+      "I8": 1
+    },
+    "per_run": {
+      "n5-muse-luna-src": {
+        "found": [
+          "B3",
+          "I2",
+          "I8"
+        ],
+        "blocking_credit": [
+          "I2",
+          "I8"
+        ]
+      }
+    },
+    "check": "Single run per set. Read all 3 score.json notes (designSpec, alias, control); gt_covered_any/gt_covered_blocking arrays agree with the notes in every case (e.g. GT3->B3, GT7->I2, alias GT2->B7, control GT2->I8). No disagreements. No notes report an unreadable/empty/incomplete report."
+  },
+  {
+    "sid": "S39",
+    "set": "glm + haiku + wonder",
+    "era": "pre-source.md",
+    "n_runs": 1,
+    "found": {
+      "B1": 0,
+      "B2": 0,
+      "B3": 1,
+      "B4": 0,
+      "B5": 0,
+      "I1": 0,
+      "I2": 1,
+      "I3": 0,
+      "I4": 0,
+      "I5": 0,
+      "B6": 0,
+      "B7": 1,
+      "B8": 0,
+      "I6": 0,
+      "I7": 0,
+      "I8": 1
+    },
+    "blocking_credit": {
+      "B1": 0,
+      "B2": 0,
+      "B3": 0,
+      "B4": 0,
+      "B5": 0,
+      "I1": 0,
+      "I2": 1,
+      "I3": 0,
+      "I4": 0,
+      "I5": 0,
+      "B6": 0,
+      "B7": 1,
+      "B8": 0,
+      "I6": 0,
+      "I7": 0,
+      "I8": 0
+    },
+    "per_run": {
+      "n4-muse-glm-haiku": {
+        "found": [
+          "B3",
+          "I2",
+          "B7",
+          "I8"
+        ],
+        "blocking_credit": [
+          "I2",
+          "B7"
+        ]
+      }
+    },
+    "check": "Single run per set. Read all 3 score.json notes (designSpec, alias, control); gt_covered_any/gt_covered_blocking arrays agree with the notes in every case (e.g. GT3->B3, GT7->I2, alias GT2->B7, control GT2->I8). No disagreements. No notes report an unreadable/empty/incomplete report."
+  },
+  {
+    "sid": "S49",
+    "set": "grok + 2x luna",
+    "era": "pre-source.md",
+    "n_runs": 1,
+    "found": {
+      "B1": 0,
+      "B2": 0,
+      "B3": 1,
+      "B4": 0,
+      "B5": 0,
+      "I1": 0,
+      "I2": 1,
+      "I3": 0,
+      "I4": 0,
+      "I5": 0,
+      "B6": 0,
+      "B7": 0,
+      "B8": 0,
+      "I6": 0,
+      "I7": 0,
+      "I8": 1
+    },
+    "blocking_credit": {
+      "B1": 0,
+      "B2": 0,
+      "B3": 0,
+      "B4": 0,
+      "B5": 0,
+      "I1": 0,
+      "I2": 0,
+      "I3": 0,
+      "I4": 0,
+      "I5": 0,
+      "B6": 0,
+      "B7": 0,
+      "B8": 0,
+      "I6": 0,
+      "I7": 0,
+      "I8": 0
+    },
+    "per_run": {
+      "r3-luna2-grok": {
+        "found": [
+          "B3",
+          "I2",
+          "I8"
+        ],
+        "blocking_credit": []
+      }
+    },
+    "check": "Single run per set. Read all 3 score.json notes (designSpec, alias, control); gt_covered_any/gt_covered_blocking arrays agree with the notes in every case (e.g. GT3->B3, GT7->I2, alias GT2->B7, control GT2->I8). No disagreements. No notes report an unreadable/empty/incomplete report."
+  },
+  {
+    "sid": "S59",
+    "set": "haiku + 2x luna",
+    "era": "pre-source.md",
+    "n_runs": 1,
+    "found": {
+      "B1": 0,
+      "B2": 0,
+      "B3": 1,
+      "B4": 0,
+      "B5": 0,
+      "I1": 0,
+      "I2": 0,
+      "I3": 0,
+      "I4": 0,
+      "I5": 0,
+      "B6": 0,
+      "B7": 1,
+      "B8": 0,
+      "I6": 0,
+      "I7": 0,
+      "I8": 0
+    },
+    "blocking_credit": {
+      "B1": 0,
+      "B2": 0,
+      "B3": 1,
+      "B4": 0,
+      "B5": 0,
+      "I1": 0,
+      "I2": 0,
+      "I3": 0,
+      "I4": 0,
+      "I5": 0,
+      "B6": 0,
+      "B7": 1,
+      "B8": 0,
+      "I6": 0,
+      "I7": 0,
+      "I8": 0
+    },
+    "per_run": {
+      "r1-haiku-luna2": {
+        "found": [
+          "B3",
+          "B7"
+        ],
+        "blocking_credit": [
+          "B3",
+          "B7"
+        ]
+      }
+    },
+    "check": "Single run per set. Read all 3 score.json notes (designSpec, alias, control); gt_covered_any/gt_covered_blocking arrays agree with the notes in every case (e.g. GT3->B3, GT7->I2, alias GT2->B7, control GT2->I8). No disagreements. No notes report an unreadable/empty/incomplete report."
+  }
+]
