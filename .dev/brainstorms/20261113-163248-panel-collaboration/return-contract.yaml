@@ -1,0 +1,25 @@
+contract_version: "1.0"
+status: success
+seed_brief_path: .dev/brainstorms/20261113-163248-panel-collaboration/seed-brief.md
+merged_output_path: .dev/brainstorms/20261113-163248-panel-collaboration/merged-requirements.md
+convergence_score: 1.0
+adversarial_artifacts_dir: .dev/brainstorms/20261113-163248-panel-collaboration/nested/adversarial-1/adversarial
+domain: architecture
+proposal_count: 5
+enrichment_used:
+  - source: codebase
+    quality_tier: primary   # 3 parallel investigation agents over the eval data (investigation-*.md)
+  - source: research-light
+    quality_tier: primary   # research agent (Tavily, context7, orca CLI help) instead of the sc:research skill
+  - source: research-deep
+    quality_tier: skipped
+handoff_action: none
+handoff_output_path: null
+unresolved_conflicts: []
+deviations:
+  - "Token-budget gate (Wave 2B) not applied as one budget: owner decision 2026-11-13 ran each of the 5 proposals in its own claude -p session with its own budget (launch-variants.sh)."
+  - "Wave 3 ran as sc:adversarial Mode A over the 5 session-generated variants (variants/), in its own session (launch-debate.sh); it timed out in Round 3 after 5400 s and was resumed from its on-disk artifacts (launch-debate-resume.sh) instead of the F1 quick 3-proposal retry, which would have dropped the owner's 5 proposals."
+telemetry:
+  agent_spec: "opus:architect:'prioritize maintainability and extension scaffolding for architecture domain',opus:analyzer:'focus on root-cause analysis and evidence-based reasoning for architecture',haiku:backend:'focus on API contracts, data integrity, idempotency, and operational concerns',opus:devops:'focus on deployment, observability, runbooks, and SLO impact for systematic delivery',sonnet:performance:'focus on bottlenecks, scaling behavior, and cost-to-serve'"
+  variant_sessions_wall_s: {v1: 630, v2: 839, v3: 538, v4: 659, v5: 910}
+  debate_wall_s: {first_session_timeout: 5400, resume: 3262}
