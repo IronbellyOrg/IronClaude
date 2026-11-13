@@ -1,0 +1,1 @@
+parity: true (resolution order t1b-1=sonnet/analyzer, t4-1=haiku/qa, t1a-1=opus/refactorer == legacy rotation)

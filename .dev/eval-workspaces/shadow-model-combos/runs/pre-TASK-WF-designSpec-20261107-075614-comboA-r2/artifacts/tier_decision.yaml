@@ -1,0 +1,15 @@
+selected_tier: 2
+fired_rule_number: 0            # hard override (--tier 2) precedes rubric rows; recorded as pin
+coverage_degraded: parsed-sparse
+surface_unreached: null
+composite_score: null           # not computed: tier reached via --tier 2 hard pin, not rubric escalation
+per_signal_breakdown:
+  scope_size: null
+  task_count: null
+  blast_radius: null
+  spec_density: null
+  ambiguity_signals: null
+escalation_reason: "--tier 2 hard override (5.1); parsed-sparse table-wide pre-filter (5.3) also active; S_dev_density_union=0.4222 raw > 0.20 (rule 5 would fire); run is a shadow-experiment measurement run (comboA-r2)"
+t2_engine_requested: shadow
+t2_engine_effective: shadow
+panel_fallback_reason: null

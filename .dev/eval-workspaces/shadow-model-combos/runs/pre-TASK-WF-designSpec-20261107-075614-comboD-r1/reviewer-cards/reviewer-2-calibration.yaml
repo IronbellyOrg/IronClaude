@@ -1,0 +1,4 @@
+calibrator_model: claude-gw-tier1b (Sonnet class, self-report)
+C: 0.71
+dimensions: {citation_grounding: 0.80, coverage_completeness: 0.70, classification_clarity: 0.65, risk_surface: 0.70, actionability: 0.70}
+citations_checked_and_wrong: ["F3 plan line 152 (text is on 153)", "F2 plan line 152 (criteria start on 153)"]

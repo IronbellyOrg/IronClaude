@@ -1,0 +1,65 @@
+input_tree_sha256: 02c7f8e8ada7b4902d859232e7aa862587e4f9049e3fab8e63a955c27f816b9d
+file_count: 31
+file_list:
+  - path: .dev/tasks/done/TASK-WF-addTheSharedCode-20261111-193909/TASK-WF-addTheSharedCode-20261111-193909.md
+    sha256: 2feae59dc087dfcf247e75d56211c8eb30690430960fae18dcf7ac984f5ac894
+  - path: .dev/tasks/done/TASK-WF-addTheSharedCode-20261111-193909/artifacts/retries/T1/probe-1-1.md
+    sha256: 4da50658d4d7b0cb8e751cb39cd928ba43e97ded983ff52ed11292edd710ac9c
+  - path: .dev/tasks/done/TASK-WF-addTheSharedCode-20261111-193909/artifacts/retries/T1/prompt-1-1.md
+    sha256: 1d3777ddf1896625f1b96d6d8fc4eaca4fecad1eb8785bac1b95ff1b084019e9
+  - path: .dev/tasks/done/TASK-WF-addTheSharedCode-20261111-193909/artifacts/retries/T1/prompt-2-1.md
+    sha256: 53de47c442a01fce3c92e0684d3910a6268e5cc92f86268300d98395ed449412
+  - path: .dev/tasks/done/TASK-WF-addTheSharedCode-20261111-193909/artifacts/retries/T1/q0-head
+    sha256: 6d368721ba8df53cec93185610c1f810faf3d8358fe7ba417f623a1ffb2a7aa9
+  - path: .dev/tasks/done/TASK-WF-addTheSharedCode-20261111-193909/artifacts/retries/T1/review-1.md
+    sha256: 9e2503c9c2d95e76c0ae675adb2aae645c6ba2fbb09bbe53adb9146a4ac300f8
+  - path: .dev/tasks/done/TASK-WF-addTheSharedCode-20261111-193909/artifacts/retries/T1/review-2.md
+    sha256: 707f43e95190d7c0725c5efa99c673371232af0bb9c64f903b4ce278b18cbb44
+  - path: .dev/tasks/done/TASK-WF-addTheSharedCode-20261111-193909/artifacts/retries/T10/prompt-1-1.md
+    sha256: 2ca9bf61d484cc2a359f273987d1310f63d79dd889ab17cca7b7742bd07e7b65
+  - path: .dev/tasks/done/TASK-WF-addTheSharedCode-20261111-193909/artifacts/retries/T10/q0-head
+    sha256: 6d368721ba8df53cec93185610c1f810faf3d8358fe7ba417f623a1ffb2a7aa9
+  - path: .dev/tasks/done/TASK-WF-addTheSharedCode-20261111-193909/artifacts/retries/T11/prompt-1-1.md
+    sha256: 91b4230d080b47a83c924dedb1a28a83fc60efebe5bfe9cee345fff8924558c9
+  - path: .dev/tasks/done/TASK-WF-addTheSharedCode-20261111-193909/artifacts/retries/T11/q0-head
+    sha256: 6d368721ba8df53cec93185610c1f810faf3d8358fe7ba417f623a1ffb2a7aa9
+  - path: .dev/tasks/done/TASK-WF-addTheSharedCode-20261111-193909/artifacts/retries/T2/prompt-1-1.md
+    sha256: 2baaade68c635bd3242da603b0cee5510e08a6fed3677adfd9dc99d4c69bc22b
+  - path: .dev/tasks/done/TASK-WF-addTheSharedCode-20261111-193909/artifacts/retries/T2/q0-head
+    sha256: 6d368721ba8df53cec93185610c1f810faf3d8358fe7ba417f623a1ffb2a7aa9
+  - path: .dev/tasks/done/TASK-WF-addTheSharedCode-20261111-193909/artifacts/retries/T3/prompt-1-1.md
+    sha256: bf07ebb90461f3dbd4d7174c9495d3bf124f3e9077393753bedee8c9ef3d0b7e
+  - path: .dev/tasks/done/TASK-WF-addTheSharedCode-20261111-193909/artifacts/retries/T3/q0-head
+    sha256: 6d368721ba8df53cec93185610c1f810faf3d8358fe7ba417f623a1ffb2a7aa9
+  - path: .dev/tasks/done/TASK-WF-addTheSharedCode-20261111-193909/artifacts/retries/T4/prompt-1-1.md
+    sha256: 7e7088aac22e18b16d4e0b1a63182b70cde807ad7cd2a6bd40dc272f418317b2
+  - path: .dev/tasks/done/TASK-WF-addTheSharedCode-20261111-193909/artifacts/retries/T4/q0-head
+    sha256: 6d368721ba8df53cec93185610c1f810faf3d8358fe7ba417f623a1ffb2a7aa9
+  - path: .dev/tasks/done/TASK-WF-addTheSharedCode-20261111-193909/artifacts/retries/T5/prompt-1-1.md
+    sha256: d538f7f58fcdc222b9d5be5920788d80f055a80cbb8d6077c209930bbed9fbbb
+  - path: .dev/tasks/done/TASK-WF-addTheSharedCode-20261111-193909/artifacts/retries/T5/q0-head
+    sha256: 6d368721ba8df53cec93185610c1f810faf3d8358fe7ba417f623a1ffb2a7aa9
+  - path: .dev/tasks/done/TASK-WF-addTheSharedCode-20261111-193909/artifacts/retries/T6/prompt-1-1.md
+    sha256: c657b3f1534bc566ed8a999136bb63fc2377ad6690fbe58f5c1a86aea50b720c
+  - path: .dev/tasks/done/TASK-WF-addTheSharedCode-20261111-193909/artifacts/retries/T6/q0-head
+    sha256: 6d368721ba8df53cec93185610c1f810faf3d8358fe7ba417f623a1ffb2a7aa9
+  - path: .dev/tasks/done/TASK-WF-addTheSharedCode-20261111-193909/artifacts/retries/T7/prompt-1-1.md
+    sha256: e67ad8b66ce86e78ae65a88267d99bb932a0b9aa5808f80759d72057ba019c5e
+  - path: .dev/tasks/done/TASK-WF-addTheSharedCode-20261111-193909/artifacts/retries/T7/q0-head
+    sha256: 6d368721ba8df53cec93185610c1f810faf3d8358fe7ba417f623a1ffb2a7aa9
+  - path: .dev/tasks/done/TASK-WF-addTheSharedCode-20261111-193909/artifacts/retries/T8/prompt-1-1.md
+    sha256: 86bfe17b1ae000b7a690e16ade82522f4ba9a3b3723ea2bb33899cd4817052ef
+  - path: .dev/tasks/done/TASK-WF-addTheSharedCode-20261111-193909/artifacts/retries/T8/q0-head
+    sha256: 6d368721ba8df53cec93185610c1f810faf3d8358fe7ba417f623a1ffb2a7aa9
+  - path: .dev/tasks/done/TASK-WF-addTheSharedCode-20261111-193909/artifacts/retries/T9/prompt-1-1.md
+    sha256: eb38ef21535143f8a4b647179836ace4f88f0defe90d40697df0324422425371
+  - path: .dev/tasks/done/TASK-WF-addTheSharedCode-20261111-193909/artifacts/retries/T9/q0-head
+    sha256: 6d368721ba8df53cec93185610c1f810faf3d8358fe7ba417f623a1ffb2a7aa9
+  - path: .dev/tasks/done/TASK-WF-addTheSharedCode-20261111-193909/artifacts/t11-verify.log
+    sha256: 025725473ef3cb0e50ac7c632fa01a9d77fce23c67cf457a9ac454e62179d21d
+  - path: .dev/tasks/done/TASK-WF-addTheSharedCode-20261111-193909/progress.md
+    sha256: 6c5f4d90fa9028765f111c941531e9e79df73a54de2e1117e7ae46bb9be01aff
+  - path: .dev/tasks/done/TASK-WF-addTheSharedCode-20261111-193909/return-contract.yaml
+    sha256: 24fa9ffd9484c0669e899ee383b3ea13872011e447ee8cf7a427b7576c60e5b5
+  - path: .dev/tasks/done/TASK-WF-addTheSharedCode-20261111-193909/source.md
+    sha256: 70c6fc964350b5cf0e5264d3c5118e16087dfade932c4fff75eee5a95ad38038

@@ -1,0 +1,27 @@
+persona: qa
+model_class: haiku
+model: claude-haiku-5-5
+model_observed: gpt-6-luna
+
+The plan covers the main design, but several acceptance criteria do not mechanically verify requirements stated in the task prose or spec. I found gaps in scenario behavior, cycle-id reuse, pagination, and protocol pointer checks, plus an ambiguous grep criterion.
+
+## Findings block
+
+```findings-v2
+{"id":"F1","severity":"MAJOR","blocking":true,"category":"missing-requirement","lens":"reflect-pre","claim":"Task 11 requires behavioral coverage for multiple scenarios, but its ACs primarily require test names; they do not ensure those tests assert behaviors such as foreign-toggle continuation or engage-failure halting before edits.","refs":["FR-12","FR-15","FR-17"],"citations":[{"role":"plan","path":".dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/TASK-WF-designSpec-20261107-075614.md","line_start":166,"line_end":173},{"role":"spec","path":".dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/source.md","line_start":325,"line_end":329}]}
+{"id":"F2","severity":"MAJOR","blocking":true,"category":"missing-requirement","lens":"reflect-pre","claim":"The protocol task requires reusing one cycle_id for the guard, push triad, and rereview request, but Task 8's AC checks only that the ref names a single minting place; no AC verifies the shared id across those events.","refs":["FR-3","FR-20"],"citations":[{"role":"plan","path":".dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/TASK-WF-designSpec-20261107-075614.md","line_start":124,"line_end":129},{"role":"spec","path":".dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/source.md","line_start":300,"line_end":303}]}
+{"id":"F3","severity":"MINOR","blocking":false,"category":"missing-requirement","lens":"reflect-pre","claim":"Task 7 requires gh api --paginate, but its ACs do not exercise a multi-page timeline or otherwise assert pagination, so a non-paginating implementation could pass the listed checks.","refs":["F9"],"citations":[{"role":"plan","path":".dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/TASK-WF-designSpec-20261107-075614.md","line_start":108,"line_end":114},{"role":"spec","path":".dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/source.md","line_start":279,"line_end":282}]}
+{"id":"F4","severity":"MINOR","blocking":false,"category":"missing-requirement","lens":"reflect-pre","claim":"Task 8 requires protocol prose to contain no file:NNN pointers, but its ACs do not check for such pointers; this requirement could be missed without failing the stated checks.","refs":[],"citations":[{"role":"plan","path":".dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/TASK-WF-designSpec-20261107-075614.md","line_start":124,"line_end":129},{"role":"spec","path":".dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/source.md","line_start":420,"line_end":420}]}
+{"id":"F5","severity":"MINOR","blocking":false,"category":"unpassable-check","lens":"reflect-pre","claim":"The Task 2 grep AC is ambiguous: the required search for `43` can match the documented `42nd-43rd` comment without claiming the enum has 43 members, so the pass condition depends on judgment rather than a mechanical assertion.","refs":["F1"],"citations":[{"role":"plan","path":".dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/TASK-WF-designSpec-20261107-075614.md","line_start":49,"line_end":49},{"role":"spec","path":".dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/source.md","line_start":226,"line_end":231}]}
+```
+
+coverage_rows_checked: INF-001, INF-002, INF-003, INF-004, INF-005, INF-006, INF-007, INF-008, INF-009, INF-010, INF-011, INF-012, INF-013, INF-014, INF-015, INF-016, INF-017, INF-018, INF-019, INF-020, INF-021, INF-022, INF-023, INF-024, INF-025, INF-026, INF-027, INF-028, INF-029, INF-030, INF-031, INF-032
+reviewer_model_self_report: gpt-6-luna
+
+calibration:
+  per_finding:
+    F1: 0.85
+    F2: 0.85
+    F3: 0.90
+    F4: 0.90
+    F5: 0.75

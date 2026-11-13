@@ -1,0 +1,9 @@
+input_tree_sha256: 6ecd403cb30040564b32486271206a78cf395588870bf5e620b852b01cbb1f2e
+file_list:
+  - path: .dev/tasks/done/TASK-WF-fixIssue412SVeri-20261106-215543/source.md
+    sha256: 0dbef3544e24fa7a8c3e927c8886ef582ea66bff00233e0dd0a4eac95b1ea3c7
+  - path: .dev/tasks/done/TASK-WF-fixIssue412SVeri-20261106-215543/TASK-WF-fixIssue412SVeri-20261106-215543.md
+    sha256: 70f07e6a00069214f3fb755890d1d365ed6c5593bd5abb0b78738061f4ce4240
+  - path: .dev/tasks/done/TASK-WF-fixIssue412SVeri-20261106-215543/progress.md
+    sha256: 68cee3585b60053dc119584df6a965cb0434d49d73e44e42c45bbb3f90a0e075
+file_count: 3

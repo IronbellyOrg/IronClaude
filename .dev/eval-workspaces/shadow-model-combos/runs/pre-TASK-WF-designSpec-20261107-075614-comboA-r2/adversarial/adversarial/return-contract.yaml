@@ -1,0 +1,11 @@
+return_contract:
+  merged_output_path: .dev/eval-workspaces/shadow-model-combos/runs/pre-TASK-WF-designSpec-20261107-075614-comboA-r2/adversarial/merged-output.md
+  convergence_score: 1.0
+  artifacts_dir: .dev/eval-workspaces/shadow-model-combos/runs/pre-TASK-WF-designSpec-20261107-075614-comboA-r2/adversarial/adversarial
+  status: success
+  base_variant: "opus:refactorer"
+  unresolved_conflicts: 0
+  fallback_mode: false
+  failure_stage: null
+  invocation_method: skill-direct
+  unaddressed_invariants: []

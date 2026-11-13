@@ -1,0 +1,42 @@
+# UC-1 coverage matrix (Wave 1B). Pass 1 parsed IDs: FR-1..FR-23 (spec section 9 traceability + header).
+# Pass 2 inferred rows: INF-1..INF-7 (spec body requirement-shaped content without FR id).
+# Every row carries source: parsed | inferred.
+rows:
+  - {id: FR-1, source: parsed, mapped_task: "T4 (engage row 1), T6, T11 test_guard_modes_ordinals_and_resume_authority", match: full}
+  - {id: FR-2, source: parsed, mapped_task: "T6 flag choices, T4 row 1 mode_off, T11", match: full}
+  - {id: FR-3, source: parsed, mapped_task: "T8 Engage section, T10 Wave 3 bullet AC, T11 test_guard_engages_at_routed_finding_once_per_cycle", match: full}
+  - {id: FR-4, source: parsed, mapped_task: "T4 engage row 10 SKIP_ALREADY_DRAFT, T3 fold already_draft, T11 test_attach_and_create_preserve_preexisting_draft", match: full}
+  - {id: FR-5, source: parsed, mapped_task: "T4 row 1 conflict_cycle NOOP, T8 once-per-cycle, T10 AC, T11", match: full}
+  - {id: FR-6, source: parsed, mapped_task: "T3 fold original_is_draft first-record rule, T11 forbidden-call AC (never pr ready for originally draft)", match: full}
+  - {id: FR-7, source: parsed, mapped_task: "T3 pending_requests, T4 resume_decision, T8 Resume, T11 test_guard_crash_boundaries_and_push_recovery_abc", match: full}
+  - {id: FR-8, source: parsed, mapped_task: "T4 release row 8 (push_completed and head==target_sha), T8 Release, T11 test_guard_releases_only_after_publication_or_zero_edit_proof", match: full}
+  - {id: FR-9, source: parsed, mapped_task: "T8 Release order (before reply, resolve, S5a), T10 Wave 6 AC, T11 acceptance-trace AC", match: full}
+  - {id: FR-10, source: parsed, mapped_task: "T4 engage row 4 / release row 4 HALT_PR_NOT_OPEN, T7 script not_open, T11 test_guard_closed_merged_or_moved_head_forbids_mutation", match: full}
+  - {id: FR-11, source: parsed, mapped_task: "T4 release row 9 head_mismatch HOLD, T7 --read autoMergeRequest field AC, T11 moved-head case", match: full}
+  - {id: FR-12, source: parsed, mapped_task: "T4 classify_toggles foreign, T11 test_guard_external_toggle_and_roundtrip_disable", match: full}
+  - {id: FR-13, source: parsed, mapped_task: "T4 classify/disable rows, T11 round-trip ledger test", match: full}
+  - {id: FR-14, source: parsed, mapped_task: "T4 release row 5 HOLD(timeline_unreadable), T7 failing-timeline AC, T11 test_guard_missing_timeline_or_ambiguous_intent_never_readies", match: full}
+  - {id: FR-15, source: parsed, mapped_task: "T4 engage rows 3+8 HALT_UNAVAILABLE, T8 halt-before-edit text, T11 test_guard_engage_failure_blocks_edits", match: full}
+  - {id: FR-16, source: parsed, mapped_task: "T8 Release one-retry + already-in-state-confirmed, T11 test_guard_release_failure_retries_once_and_reports", match: full}
+  - {id: FR-17, source: parsed, mapped_task: "T8 Exit report held-exit list, T11 test_guard_holds_on_unpublished_or_uncertain_exits", match: full}
+  - {id: FR-18, source: parsed, mapped_task: "T8 clear command, T12 command section, T13 user-guide paragraph", match: full}
+  - {id: FR-19, source: parsed, mapped_task: "T9 output-row literal L2 line AC (in SKILL.md, no ref load)", match: full}
+  - {id: FR-20, source: parsed, mapped_task: "T3 fix_cycle_id ci kind, T10 Wave 8 bullet, T11 conflict-cycle exclusion", match: full}
+  - {id: FR-21, source: parsed, mapped_task: "T4 resume row 3 RECONCILE three reasons, T3 pending matcher, T8 Resume, T11", match: full}
+  - {id: FR-22, source: parsed, mapped_task: "T11 twelve named tests + acceptance trace + v3 extra cases (T3/T4 ACs)", match: full}
+  - {id: FR-23, source: parsed, mapped_task: "T1 pre-build record (base-commit state, G1-G6 rows, owner decision quoted)", match: full}
+  - {id: INF-1, source: inferred, quote: "Owner decisions (accepted 2026-11-07...): draft not label; engage at the first verified Medium-or-higher finding routed to a fix; default on at --monitor 3...; release when the fix push is confirmed on the PR head, before replies and the re-trigger", citation: "input/source.md:6", mapped_task: "Constraints 'Owner decisions already accepted...are fixed' + T8/T10/T12", match: full}
+  - {id: INF-2, source: inferred, quote: "After editing under src/superclaude/: make sync-dev, then make verify-sync... the final task runs the FULL suite... Never stage .claude/", citation: "input/source.md:301", mapped_task: "Constraints + T13 AC (verify-sync, full suite vs base-commit record, staging scope)", match: full}
+  - {id: INF-3, source: inferred, quote: "Cite tests and constants by symbol name... Declare dependencies completely, one Depends on: line per dependency", citation: "input/source.md:362-363", mapped_task: "Constraints (symbol-name rule) + per-task Depends-on lines (T5,T8,T13 multi-dependency)", match: full}
+  - {id: INF-4, source: inferred, quote: "The entries are added after the text of each file is final, as the last step of the task that writes the file", citation: "input/source.md:255", mapped_task: "Constraints + T7/T8/T12 'as the last step' + stale-entry AC", match: full}
+  - {id: INF-5, source: inferred, quote: "the build proceeds now with no GitHub calls (tests use a fake gh)... No task makes a live PR call, and the run that opens the PR must not enable the feature", citation: "input/source.md:326", mapped_task: "Constraints + T1 release-gate record + T7 fake-gh + T11", match: full}
+  - {id: INF-6, source: inferred, quote: "No new python fence (the one-fence tests...)", citation: "input/source.md:241", mapped_task: "Constraints + T9/T10 ACs (one fence, no src/superclaude, line-content rules)", match: full}
+  - {id: INF-7, source: inferred, quote: "scenario tests import only helpers and fixtures... never test_* functions... asserted on RunLog.read_events()... compare against literal string constants taken from the existing pins, not against git show HEAD:", citation: "input/source.md:377", mapped_task: "T11 ACs (no imported test_*; RunLog.read_events push assertion; string-constant byte-identical checks)", match: full}
+summary:
+  parsed_count: 23
+  inferred_count: 7
+  coverage_pct: 1.0          # parsed-only denominator 23/23
+  coverage_pct_union: 1.0    # union denominator 30/30
+  unmapped_requirements: []
+  unmapped_requirements_union: []
+  S_dev_density: 0.0

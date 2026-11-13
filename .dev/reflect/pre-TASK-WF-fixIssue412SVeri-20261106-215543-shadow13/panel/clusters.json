@@ -1,0 +1,236 @@
+{
+  "agreement_clusters": [],
+  "blocking_clusters": 0,
+  "calibration_coverage": {
+    "calibrated_findings": 5,
+    "clustered_findings": 5
+  },
+  "cards": [
+    {
+      "block_state": "complete",
+      "card": "reviewer-1.md",
+      "errors": [],
+      "reviewer_id": "reviewer-1",
+      "state": "complete"
+    },
+    {
+      "block_state": "complete",
+      "card": "reviewer-2.md",
+      "errors": [],
+      "reviewer_id": "reviewer-2",
+      "state": "complete"
+    },
+    {
+      "block_state": "complete",
+      "card": "reviewer-3.md",
+      "errors": [],
+      "reviewer_id": "reviewer-3",
+      "state": "complete"
+    }
+  ],
+  "chained": [],
+  "citations": {
+    "malformed": 0,
+    "resolved": 10,
+    "unresolved": 0
+  },
+  "cluster_agreement": 1.0,
+  "clusters": [
+    {
+      "blocking_all": false,
+      "blocking_any": false,
+      "chained": false,
+      "claim": "Spec says never stage .claude mirrors and stage .dev/tasks. Plan states it only as a constraint; no task AC gates the staging rule (only sync-dev/verify-sync is gated in Task 2 AC3).",
+      "cluster_id": "C1",
+      "disputed": true,
+      "member_scores": [
+        0.7
+      ],
+      "members": [
+        {
+          "blocking": false,
+          "deviation_class": null,
+          "finding_confidence": 0.7,
+          "fp": "adaef75941062aa3bd6296f9e2bcbccdbc12ec4d549fddd3443f0e4b24414548",
+          "id": "F1",
+          "ordinal": 1,
+          "primary_citation": {
+            "index": 1,
+            "line_end": 21,
+            "line_start": 21,
+            "path": ".dev/tasks/done/TASK-WF-fixIssue412SVeri-20261106-215543/TASK-WF-fixIssue412SVeri-20261106-215543.md",
+            "role": "plan",
+            "status": "resolved"
+          },
+          "refs_norm": [
+            "INF-006"
+          ],
+          "reviewer_id": "reviewer-1"
+        }
+      ],
+      "representative": {
+        "id": "F1",
+        "reviewer_id": "reviewer-1"
+      },
+      "reviewers": [
+        "reviewer-1"
+      ],
+      "support": 0.4666666666666666,
+      "uncalibrated": false
+    },
+    {
+      "blocking_all": false,
+      "blocking_any": false,
+      "chained": false,
+      "claim": "Spec forbids commit/push/PR, global install and other repo edits. Plan carries this only as a constraint; neither task has an AC that checks it, so it cannot fail at a gate.",
+      "cluster_id": "C2",
+      "disputed": true,
+      "member_scores": [
+        0.65
+      ],
+      "members": [
+        {
+          "blocking": false,
+          "deviation_class": null,
+          "finding_confidence": 0.65,
+          "fp": "246b58469d1db4738e59227c6f2170a27c29bb16a9eba49fc21c95fe553d3a96",
+          "id": "F2",
+          "ordinal": 1,
+          "primary_citation": {
+            "index": 1,
+            "line_end": 20,
+            "line_start": 20,
+            "path": ".dev/tasks/done/TASK-WF-fixIssue412SVeri-20261106-215543/TASK-WF-fixIssue412SVeri-20261106-215543.md",
+            "role": "plan",
+            "status": "resolved"
+          },
+          "refs_norm": [
+            "INF-007"
+          ],
+          "reviewer_id": "reviewer-1"
+        }
+      ],
+      "representative": {
+        "id": "F2",
+        "reviewer_id": "reviewer-1"
+      },
+      "reviewers": [
+        "reviewer-1"
+      ],
+      "support": 0.43333333333333335,
+      "uncalibrated": false
+    },
+    {
+      "blocking_all": false,
+      "blocking_any": false,
+      "chained": false,
+      "claim": "Task 2 AC2 requires Orca skip output surfaced 'including when files already exist', but AC1 says nonforce with existing files makes no Orca calls. Only the force path can satisfy AC2; the AC does not say so, leaving a nonforce reading that cannot pass.",
+      "cluster_id": "C3",
+      "disputed": false,
+      "member_scores": [
+        0.75,
+        0.75
+      ],
+      "members": [
+        {
+          "blocking": false,
+          "deviation_class": null,
+          "finding_confidence": 0.75,
+          "fp": "0a41802125071071b322e91afa8803b081517dbbe32f2017d9b31fe91d6188f4",
+          "id": "F3",
+          "ordinal": 1,
+          "primary_citation": {
+            "index": 0,
+            "line_end": 51,
+            "line_start": 51,
+            "path": ".dev/tasks/done/TASK-WF-fixIssue412SVeri-20261106-215543/TASK-WF-fixIssue412SVeri-20261106-215543.md",
+            "role": "plan",
+            "status": "resolved"
+          },
+          "refs_norm": [],
+          "reviewer_id": "reviewer-1"
+        },
+        {
+          "blocking": false,
+          "deviation_class": null,
+          "finding_confidence": 0.75,
+          "fp": "0a41802125071071b322e91afa8803b081517dbbe32f2017d9b31fe91d6188f4",
+          "id": "F2",
+          "ordinal": 3,
+          "primary_citation": {
+            "index": 1,
+            "line_end": 50,
+            "line_start": 50,
+            "path": ".dev/tasks/done/TASK-WF-fixIssue412SVeri-20261106-215543/TASK-WF-fixIssue412SVeri-20261106-215543.md",
+            "role": "plan",
+            "status": "resolved"
+          },
+          "refs_norm": [],
+          "reviewer_id": "reviewer-3"
+        }
+      ],
+      "representative": {
+        "id": "F3",
+        "reviewer_id": "reviewer-1"
+      },
+      "reviewers": [
+        "reviewer-1",
+        "reviewer-3"
+      ],
+      "support": 1.0,
+      "uncalibrated": false
+    },
+    {
+      "blocking_all": false,
+      "blocking_any": false,
+      "chained": false,
+      "claim": "The spec asks for README guidance that matches core/CLAUDE.md, but Task 1's criteria only list items each copy must contain and never compare the copies, so the shared guidance can drift; the delivered copies already differ on the ccsession-orca sentence.",
+      "cluster_id": "C4",
+      "disputed": true,
+      "member_scores": [
+        0.65
+      ],
+      "members": [
+        {
+          "blocking": false,
+          "deviation_class": null,
+          "finding_confidence": 0.65,
+          "fp": "aad573e7a38c4c6f5d19e245b7d45fc31c858da5d353cdde45ec768542413fce",
+          "id": "F1",
+          "ordinal": 3,
+          "primary_citation": {
+            "index": 1,
+            "line_end": 36,
+            "line_start": 35,
+            "path": ".dev/tasks/done/TASK-WF-fixIssue412SVeri-20261106-215543/TASK-WF-fixIssue412SVeri-20261106-215543.md",
+            "role": "plan",
+            "status": "resolved"
+          },
+          "refs_norm": [
+            "INF-001"
+          ],
+          "reviewer_id": "reviewer-3"
+        }
+      ],
+      "representative": {
+        "id": "F1",
+        "reviewer_id": "reviewer-3"
+      },
+      "reviewers": [
+        "reviewer-3"
+      ],
+      "support": 0.43333333333333335,
+      "uncalibrated": false
+    }
+  ],
+  "complete_reviewers": [
+    "reviewer-1",
+    "reviewer-2",
+    "reviewer-3"
+  ],
+  "invalid_reviewers": [],
+  "problems": [],
+  "uncalibrated": [],
+  "uncalibrated_findings": [],
+  "valid_blocks": 3
+}

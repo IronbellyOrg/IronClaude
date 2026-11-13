@@ -1,0 +1,22 @@
+{
+  "metrics_schema_version": "1.0",
+  "run_id": "pre-TASK-WF-designSpec-20261107-075614-comboD-r3",
+  "skill": "sc-reflect",
+  "skill_version": "1.8.0",
+  "mode": "pre",
+  "tier_reached": 2,
+  "status": "success",
+  "wave_durations_ms": {"wave_0": null, "wave_1": null, "wave_2": null, "wave_3": null, "wave_4": null, "wave_5": null, "wave_6": 0, "wave_7": 0},
+  "wall_clock_ms": 1716000,
+  "token_usage": {"claude_orchestration": null, "claude_agents": 1652000, "auggie_offloaded": 0, "total": null},
+  "calibration": {"calibrator_diversity": "degraded", "calibrated_confidence_initial": 0.69, "calibrated_confidence_final": 0.65, "calibration_delta": -0.04},
+  "ensemble": {"t2_model_class_diversity": "full", "t2_vendor_diversity": "multi", "t2_effective_diversity": "full", "reviewer_count": 3, "executor_class_resolved": false, "executor_exclusion_degraded": false},
+  "evidence_validator": {"ran": true, "citations_total": 111, "citations_revalidated": 111, "citations_dropped": 0, "citations_dropped_extrapolated": 0, "drop_rate": 0.0, "budget_policy": "full_reread"},
+  "deviation_counts": {"authorized": 0, "necessary": 0, "drift": 0, "regression": 0, "total": 0},
+  "adversarial": {"convergence_score": 1.0, "merge_method": "adversarial", "adversarial_unavailable": false, "fallback_path": null},
+  "promotion": {"action": "not-applicable", "gate_conditions_passed": 0, "gate_conditions_total": 9, "cross_fs": false},
+  "degraded_components": ["calibrator_diversity", "executor_class_unresolved"],
+  "input_drift_detected": false,
+  "needs_human_decision": false,
+  "notes": "token_usage.claude_agents is the sum of the subagent_tokens reported by the harness for 16 subagent runs (T1 calibrator 56k, reviewers 86k+174k+57k, card calibrators 35k+52k+59k, advocates R1 135k+134k+121k, rebuttals 136k+134k+120k, probe 143k, merge executor 107k, evidence validator 103k); orchestrator tokens not measured. Wave durations not timed per wave."
+}

@@ -1,0 +1,17 @@
+merge_method: adversarial
+verdict: "ready-with-findings (0 blocking, 6 MAJOR, 8 MINOR); plan executable with amendments"
+convergence_score: 0.9524
+convergence_status: "BLOCKED_BY_INVARIANTS"
+base_variant: "reviewer-1:analyzer:sonnet"
+source_cards:
+  - reviewer-cards/reviewer-1-card.md
+  - reviewer-cards/reviewer-2-card.md
+  - reviewer-cards/reviewer-3-card.md
+merged_output_path: "/home/coder/workspaces/worktrees/IronClaude/brainstorm-reflect-panel/.dev/eval-workspaces/shadow-model-combos/runs/pre-TASK-WF-designSpec-20261107-075614-comboD-r2/adversarial/merged-output.md"
+adversarial_artifacts_dir: "/home/coder/workspaces/worktrees/IronClaude/brainstorm-reflect-panel/.dev/eval-workspaces/shadow-model-combos/runs/pre-TASK-WF-designSpec-20261107-075614-comboD-r2/adversarial/adversarial"
+judge_identity: "claude-gw-tier1b[1m] (orchestrator inline judge, sonnet class)"
+judge_class_collision: true
+debate_skipped_similar: false
+unaddressed_invariants: [INV-001]
+blocking_findings: 0
+merged_findings: [M-001, M-002, M-003, M-004, M-005, M-006, M-007, M-008, M-009, M-010, M-011, M-012, M-013, M-014]

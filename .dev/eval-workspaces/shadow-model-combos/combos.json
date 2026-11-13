@@ -1,0 +1,84 @@
+{
+  "schema": "shadow-model-combos/1",
+  "date": "2026-11-13",
+  "status": "designed, not run",
+  "input": {
+    "package_id": "TASK-WF-designSpec-20261107-075614",
+    "tasklist": ".dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/TASK-WF-designSpec-20261107-075614.md",
+    "tasklist_sha256": "044809e3a963fad395cfbe0988bece975650a3adf17176893665d92338bd3481",
+    "spec": ".dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/source.md",
+    "spec_sha256": "a865f397468a076c9c070c031f807b44d9cccd91059b2ad5efb1b926090ba10a",
+    "ground_truth": "git show b4db265a8:.dev/eval-workspaces/tasklist-review-panel/20261111-a1/TASK-WF-designSpec-20261107-075614/ground-truth.json"
+  },
+  "repeats": 3,
+  "run_name": "pre-TASK-WF-designSpec-20261107-075614-combo{id}-r{repeat}",
+  "output_dir": ".dev/eval-workspaces/shadow-model-combos/runs/{run_name}",
+  "common": {
+    "prompt": "/sc:reflect --mode pre --spec {spec_abs} --tasklist {tasklist_abs} --tier 2 --t2-engine shadow --output {output_abs}",
+    "flags": ["--permission-mode", "bypassPermissions", "--output-format", "stream-json", "--verbose", "--forward-subagent-text"],
+    "env_set": {"CLAUDE_CODE_PRINT_BG_WAIT_CEILING_MS": "0"},
+    "env_unset": ["ANTHROPIC_MODEL", "CLAUDE_CODE_SUBAGENT_MODEL", "SUPERCLAUDE_REVIEW_TIERS", "SUPERCLAUDE_REVIEW_PANEL", "SUPERCLAUDE_REVIEW_ENV", "EXECUTOR_MODEL_CLASS"],
+    "tiers_file": "packaged default (tiers_sha256 a35908fa6d40..., same as shadow03)",
+    "panel_resolution_all_combos": ["t1b-1 claude-sonnet-5-5 (launch sonnet)", "t4-1 claude-haiku-5-5 (launch haiku)", "t1a-1 claude-opus-5-5 (launch opus)"],
+    "role_coupling": {
+      "orchestrator": "--model; also T1 card, inline debate judge, agents without model frontmatter",
+      "reviewer_1_analyzer": "ANTHROPIC_DEFAULT_SONNET_MODEL; also the fallback for any reviewer dispatched without a class",
+      "reviewer_2_qa": "ANTHROPIC_DEFAULT_HAIKU_MODEL; also Claude Code side calls",
+      "reviewer_3_refactorer": "ANTHROPIC_DEFAULT_OPUS_MODEL",
+      "calibrator": "SONNET value by default, OPUS value when the orchestrator passes opus (not controllable)",
+      "evidence_validator": "ANTHROPIC_DEFAULT_SONNET_MODEL"
+    }
+  },
+  "combos": [
+    {
+      "id": "A",
+      "name": "pilot-baseline",
+      "model": "claude-gw-tier3[1m]",
+      "env": {"ANTHROPIC_DEFAULT_SONNET_MODEL": "claude-gw-tier1b[1m]", "ANTHROPIC_DEFAULT_HAIKU_MODEL": "claude-gw-tier2[1m]", "ANTHROPIC_DEFAULT_OPUS_MODEL": "claude-gw-tier1a[1m]"},
+      "roles": {"orchestrator_judge": "GLM 5.3 (probe 2026-11-11; today UNVERIFIED)", "reviewer_1_analyzer": "Claude Sonnet 5.5", "reviewer_2_qa": "GPT 6.1 Sol", "reviewer_3_refactorer": "Claude Opus 5.5 (UNVERIFIED)", "calibrator": "Sonnet 5.5 or Opus 5.5", "evidence_validator": "Sonnet 5.5"},
+      "expected_reviewer_count": 3,
+      "hypothesis": "Reference: repeat noise and dispatch-collapse rate of the pilot setup (pilot: 6 of 9 tier3-orchestrated runs collapsed to all-Sonnet reviewers).",
+      "resolve_risk": "low (exact pilot environment)"
+    },
+    {
+      "id": "B",
+      "name": "sonnet-orchestrator",
+      "model": "claude-gw-tier1b[1m]",
+      "env": {"ANTHROPIC_DEFAULT_SONNET_MODEL": "claude-gw-tier1b[1m]", "ANTHROPIC_DEFAULT_HAIKU_MODEL": "claude-gw-tier2[1m]", "ANTHROPIC_DEFAULT_OPUS_MODEL": "claude-gw-tier1a[1m]"},
+      "roles": {"orchestrator_judge": "Claude Sonnet 5.5", "reviewer_1_analyzer": "Claude Sonnet 5.5", "reviewer_2_qa": "GPT 6.1 Sol", "reviewer_3_refactorer": "Claude Opus 5.5 (UNVERIFIED)", "calibrator": "Sonnet 5.5 or Opus 5.5", "evidence_validator": "Sonnet 5.5"},
+      "expected_reviewer_count": 3,
+      "hypothesis": "Orchestrator model drives dispatch fidelity, wall time and debate outcome (runs 01-02 on tier1b dispatched all classes).",
+      "resolve_risk": "low (tier1b served as orchestrator in pilot runs 01-02)"
+    },
+    {
+      "id": "C",
+      "name": "true-haiku",
+      "model": "claude-gw-tier1b[1m]",
+      "env": {"ANTHROPIC_DEFAULT_SONNET_MODEL": "claude-gw-tier1b[1m]", "ANTHROPIC_DEFAULT_HAIKU_MODEL": "claude-haiku-5-5", "ANTHROPIC_DEFAULT_OPUS_MODEL": "claude-gw-tier1a[1m]"},
+      "roles": {"orchestrator_judge": "Claude Sonnet 5.5", "reviewer_1_analyzer": "Claude Sonnet 5.5", "reviewer_2_qa": "Claude Haiku 5.5", "reviewer_3_refactorer": "Claude Opus 5.5 (UNVERIFIED)", "calibrator": "Sonnet 5.5 or Opus 5.5", "evidence_validator": "Sonnet 5.5"},
+      "expected_reviewer_count": 3,
+      "hypothesis": "A real Haiku in the haiku slot (study: haiku in the best real-blocking panel; sol not recommended) changes qa findings and makes the panel record truthful.",
+      "resolve_risk": "low-medium (served via --model in 75 study runs; raw id as env alias UNVERIFIED)"
+    },
+    {
+      "id": "D",
+      "name": "luna-replaces-opus",
+      "model": "claude-gw-tier1b[1m]",
+      "env": {"ANTHROPIC_DEFAULT_SONNET_MODEL": "claude-gw-tier1b[1m]", "ANTHROPIC_DEFAULT_HAIKU_MODEL": "claude-haiku-5-5", "ANTHROPIC_DEFAULT_OPUS_MODEL": "gpt-6-luna"},
+      "roles": {"orchestrator_judge": "Claude Sonnet 5.5", "reviewer_1_analyzer": "Claude Sonnet 5.5", "reviewer_2_qa": "Claude Haiku 5.5", "reviewer_3_refactorer": "GPT 6 Luna", "calibrator": "Sonnet 5.5 or GPT 6 Luna", "evidence_validator": "Sonnet 5.5"},
+      "expected_reviewer_count": 3,
+      "hypothesis": "Luna replaces Opus with no loss of findings at lower tokens and wall; side effect: more evidence-validator drops (Luna anchor fidelity 91.4%).",
+      "resolve_risk": "medium (served via --model in 222 study runs; raw id as env alias UNVERIFIED)"
+    },
+    {
+      "id": "E",
+      "name": "study-haiku-2luna",
+      "model": "claude-gw-tier1b[1m]",
+      "env": {"ANTHROPIC_DEFAULT_SONNET_MODEL": "claude-haiku-5-5", "ANTHROPIC_DEFAULT_HAIKU_MODEL": "gpt-6-luna", "ANTHROPIC_DEFAULT_OPUS_MODEL": "claude-gw-tier4[1m]"},
+      "roles": {"orchestrator_judge": "Claude Sonnet 5.5", "reviewer_1_analyzer": "Claude Haiku 5.5", "reviewer_2_qa": "GPT 6 Luna", "reviewer_3_refactorer": "GPT 6 Luna (tier4 alias, probe 2026-11-11)", "calibrator": "Haiku 5.5 or GPT 6 Luna", "evidence_validator": "Haiku 5.5"},
+      "expected_reviewer_count": "3, or 2 if step 0.5 treats the two Luna values as one model",
+      "hypothesis": "The study's high-assurance panel (haiku + 2x luna, 1.2/8 real blocking) transfers to reflect; not a single-factor contrast (calibrator and validator change too).",
+      "resolve_risk": "high (distinct-count may drop to 2; raw ids as env aliases UNVERIFIED)"
+    }
+  ]
+}

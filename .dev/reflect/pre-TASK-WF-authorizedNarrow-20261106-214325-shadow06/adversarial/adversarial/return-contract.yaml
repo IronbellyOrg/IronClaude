@@ -1,0 +1,11 @@
+return_contract:
+  merged_output_path: /home/coder/workspaces/worktrees/IronClaude/brainstorm-reflect-panel/.dev/reflect/pre-TASK-WF-authorizedNarrow-20261106-214325-shadow06/adversarial/merged-verdict.md
+  convergence_score: 1.00
+  artifacts_dir: /home/coder/workspaces/worktrees/IronClaude/brainstorm-reflect-panel/.dev/reflect/pre-TASK-WF-authorizedNarrow-20261106-214325-shadow06/adversarial/adversarial
+  status: success
+  base_variant: opus:refactorer
+  unresolved_conflicts: 0
+  fallback_mode: false
+  failure_stage: null
+  invocation_method: skill-direct
+  unaddressed_invariants: []

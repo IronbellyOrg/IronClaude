@@ -1,0 +1,12 @@
+return_contract:
+  merged_output_path: /home/coder/workspaces/worktrees/IronClaude/brainstorm-reflect-panel/.dev/eval-workspaces/shadow-model-combos/runs/pre-TASK-WF-designSpec-20261107-075614-comboD-r1/adversarial/merged-verdict.yaml
+  convergence_score: 0.9444
+  artifacts_dir: /home/coder/workspaces/worktrees/IronClaude/brainstorm-reflect-panel/.dev/eval-workspaces/shadow-model-combos/runs/pre-TASK-WF-designSpec-20261107-075614-comboD-r1/adversarial/adversarial
+  status: partial
+  base_variant: reviewer-2 (qa)
+  unresolved_conflicts: 1
+  fallback_mode: true
+  failure_stage: null
+  invocation_method: skill-direct
+  unaddressed_invariants: []
+  notes: "partial because the scoring pass was compact (no reverse-order pass, no 30-row CEV) and the merge was done inline; INV-001 HIGH was adjudicated ADDRESSED by the orchestrator, see invariant-probe.md; judge identity not named (orchestrator model claude-gw-tier1b scored)"

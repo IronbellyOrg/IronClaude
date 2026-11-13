@@ -1,0 +1,23 @@
+selected_tier: 2
+fired_rule_number: 4
+coverage_degraded: parsed-sparse
+surface_unreached: null
+composite_score: 9.0
+per_signal_breakdown:
+  scope_size: 2
+  task_count: 2
+  blast_radius: 2
+  spec_density: 2
+  ambiguity_signals: 1
+escalation_reason: "--tier 2 pin (section 5.1 hard override); independently rule 4 (S_domains = 3: code, tests, docs), the parsed-sparse pre-filter (inferred 34 > parsed 0) and calibrated C = 0.74 < 0.85 (rule 6)"
+t2_engine_requested: shadow
+t2_engine_effective: shadow
+panel_fallback_reason: null
+signals:
+  C: 0.74
+  S_scope: 13
+  S_domains: 3
+  S_dev_density: 0.1176
+  coverage_pct: null
+  coverage_pct_union: 0.8824
+  coverage_undefined: false

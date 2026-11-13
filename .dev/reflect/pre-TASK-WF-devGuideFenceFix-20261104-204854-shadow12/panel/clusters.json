@@ -1,0 +1,49 @@
+{
+  "agreement_clusters": [],
+  "blocking_clusters": 0,
+  "calibration_coverage": {
+    "calibrated_findings": 0,
+    "clustered_findings": 0
+  },
+  "cards": [
+    {
+      "block_state": "complete",
+      "card": "reviewer-1.md",
+      "errors": [],
+      "reviewer_id": "reviewer-1",
+      "state": "complete"
+    },
+    {
+      "block_state": "complete",
+      "card": "reviewer-2.md",
+      "errors": [],
+      "reviewer_id": "reviewer-2",
+      "state": "complete"
+    },
+    {
+      "block_state": "complete",
+      "card": "reviewer-3.md",
+      "errors": [],
+      "reviewer_id": "reviewer-3",
+      "state": "complete"
+    }
+  ],
+  "chained": [],
+  "citations": {
+    "malformed": 0,
+    "resolved": 0,
+    "unresolved": 0
+  },
+  "cluster_agreement": 1.0,
+  "clusters": [],
+  "complete_reviewers": [
+    "reviewer-1",
+    "reviewer-2",
+    "reviewer-3"
+  ],
+  "invalid_reviewers": [],
+  "problems": [],
+  "uncalibrated": [],
+  "uncalibrated_findings": [],
+  "valid_blocks": 3
+}

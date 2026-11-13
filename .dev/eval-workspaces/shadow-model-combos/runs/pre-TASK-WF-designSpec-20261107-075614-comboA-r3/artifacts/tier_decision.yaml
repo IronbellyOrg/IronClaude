@@ -1,0 +1,10 @@
+selected_tier: 2
+fired_rule_number: 0        # hard override --tier 2 (rubric not consulted; recorded 0 = pin)
+coverage_degraded: null
+surface_unreached: null
+composite_score: 4.0
+per_signal_breakdown: {scope_size: 1, task_count: 1, blast_radius: 1, spec_density: 1, ambiguity_signals: 0}
+escalation_reason: "explicit --tier 2 pin; T2 forced regardless of rubric"
+t2_engine_requested: shadow
+t2_engine_effective: shadow
+panel_fallback_reason: null

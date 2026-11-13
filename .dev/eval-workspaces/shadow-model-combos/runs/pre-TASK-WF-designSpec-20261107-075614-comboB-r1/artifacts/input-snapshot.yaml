@@ -1,0 +1,7 @@
+input_tree_sha256: 9ed6d33d75cfc3591ac53bb0ede51179f29376d5479bb73817ed2e98b048c07b
+file_list:
+  - path: TASK-WF-designSpec-20261107-075614.md
+    sha256: 044809e3a963fad395cfbe0988bece975650a3adf17176893665d92338bd3481
+  - path: source.md
+    sha256: a865f397468a076c9c070c031f807b44d9cccd91059b2ad5efb1b926090ba10a
+file_count: 2

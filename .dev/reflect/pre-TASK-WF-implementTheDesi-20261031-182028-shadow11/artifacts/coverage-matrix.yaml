@@ -1,0 +1,62 @@
+coverage_schema: uc1-two-pass/1.5.0
+spec: .dev/tasks/done/TASK-WF-implementTheDesi-20261031-182028/source.md
+spec_delegates_to: .dev/pr-submit-codex/design/pr-submit-codex-design.md (the operative requirement source)
+tasklist: .dev/tasks/done/TASK-WF-implementTheDesi-20261031-182028/TASK-WF-implementTheDesi-20261031-182028.md
+parsed_count: 12
+inferred_count: 8
+coverage_pct: 1.0            # parsed-only: 12/12 design sections named by tasks are mapped
+coverage_pct_union: 0.8       # 16/20 (parsed 12 + inferred 8; 4 union rows not satisfied by any task)
+coverage_undefined: false
+coverage_degraded: null       # inferred(8) <= parsed(12), no parsed-sparse guard
+
+rows:
+  - id: D-04    source: parsed    req: "design s4 adapter table + reviewer-agnostic path"            task: T6      status: covered
+  - id: D-05    source: parsed    req: "design s5 reviewer detection + fail-open absence"            task: T8,T12  status: covered
+  - id: D-06    source: parsed    req: "design s6 one-round polling + merge truth table"             task: T7,T8   status: covered
+  - id: D-07    source: parsed    req: "design s7 Codex parsing + P0-P3 mapping"                     task: T6,T7   status: covered
+  - id: D-08    source: parsed    req: "design s8 re-grade/verify/dispatch reused, wording only"     task: T13     status: covered
+  - id: D-09    source: parsed    req: "design s9 cross-reviewer dedup groups"                       task: T9,T13  status: covered
+  - id: D-10    source: parsed    req: "design s10 reply/resolve wording"                            task: T11     status: covered
+  - id: D-11    source: parsed    req: "design s11 per-reviewer re-trigger + watermark"              task: T12,T14 status: covered
+  - id: D-12    source: parsed    req: "design s12 loop guard + distinct-cycle count"                task: T3,T9   status: covered
+  - id: D-13    source: parsed    req: "design s13 events name reviewer + output reviewers field"    task: T1,T12  status: covered
+  - id: D-14    source: parsed    req: "design s14 interfaces incl. detection contract fields"       task: T2,T6   status: covered
+  - id: D-16    source: parsed    req: "design s16 test matrix items 1-8"                            task: T10,T11 status: covered
+  - id: INF-001 source: inferred  req: "design s1 non-goals (no security review, no @codex address, no other bots)"   task: Constraints  status: covered (containment: 'do not add behaviour it does not describe')
+    quote: "Non-goals: Codex security review results, Codex answering questions or editing the PR, any other review bot."
+    citation: .dev/pr-submit-codex/design/pr-submit-codex-design.md:21-22
+  - id: INF-002 source: inferred  req: "A0 override key-presence semantics"             task: T2      status: CONTRADICTED (plan AC asserts the reverse)
+    quote: "an absent codex_bot_login / codex_app_slug falls back to the shipped value ... an explicit empty or null value disables Codex"
+    citation: .dev/pr-submit-codex/design/pr-submit-codex-design.md:434-437
+  - id: INF-003 source: inferred  req: "A1 completion = later of marker updated_at and completing review submitted_at"   task: none    status: CONTRADICTED (Task 7 pins pre-A1 'completion time = updated_at')
+    quote: "Codex completion time is the later of (a) the summary comment's updated_at and (b) the submitted_at of the newest Codex formal review whose commit is the expected head"
+    citation: .dev/pr-submit-codex/design/pr-submit-codex-design.md:439-443
+  - id: INF-004 source: inferred  req: "A3 multiple valid markers: latest updated_at wins; only same-time ties poll"     task: none    status: CONTRADICTED (Task 7 AC pins 'two summary comments -> polling')
+    quote: "the one with the latest updated_at is used ... two distinct markers with the same latest time are ambiguous and stay polling"
+    citation: .dev/pr-submit-codex/design/pr-submit-codex-design.md:452-454
+  - id: INF-005 source: inferred  req: "A2 absent-set input; Augment no-response with Codex present records absent and continues"   task: partial (T8 lacks absent-set input; T12 records the event but no AC pins the continue rule)   status: partial
+    quote: "a reviewer in that set, or a reviewer whose identity set is empty, is absent at once ... it does not stop at that outcome"
+    citation: .dev/pr-submit-codex/design/pr-submit-codex-design.md:445-449
+  - id: INF-006 source: inferred  req: "A4 per-reviewer POST timestamp watermark; resume reuses dangling cycle_id; pending_retriggers at every resume"   task: T9,T12 (resume cycle_id reuse unstated)   status: covered-partial
+    quote: "On --resume the per-reviewer watermark is the timestamp of that reviewer's latest rereview_requested for the cycle; the resume reuses the cycle_id of the dangling push record"
+    citation: .dev/pr-submit-codex/design/pr-submit-codex-design.md:454-458
+  - id: INF-007 source: inferred  req: "A5 SKILL states dedup route/diagnose-once/reply-all/flagged-by/S5-only-retriggered rules"   task: T12 (subset)   status: covered-partial
+    quote: "a dedup group routes at its members' highest remapped tier, is diagnosed and fixed once with fix_applied recorded for every member's fix_key"
+    citation: .dev/pr-submit-codex/design/pr-submit-codex-design.md:459-466
+  - id: INF-008 source: inferred  req: "A6 root-selection later-of rule (PR 337 live-run amendment, overrides s7 'created no later than completion')"   task: none    status: UNMAPPED
+    quote: "the completion time of either reviewer is therefore the later of (a) the completion time above ... and (b) the createdAt of the reviewer's own roots"
+    citation: .dev/pr-submit-codex/design/pr-submit-codex-design.md:467-479
+
+unmapped_requirements: []                      # parsed-only
+unmapped_requirements_union:
+  - "INF-003 (A1) contradicted by Task 7 text"
+  - "INF-004 (A3) contradicted by Task 7 AC"
+  - "INF-008 (A6) absent from every task"
+  - "INF-005 (A2) partial: augment-absent-continue rule has no AC"
+notes: >-
+  Section 18 amendments are dated 2026-10-31 (coordinator-approved after this plan was
+  generated) and explicitly override earlier design text. The tasklist was never reconciled:
+  it encodes the pre-amendment semantics for exactly the three rules the amendments changed
+  most (override keys, completion time, multiple markers) and omits A6 entirely. Execution
+  caught A0 via a coordinator ruling (progress.md T2 'Ruling' line) and the shipped code
+  follows A0/A6, i.e. the plan's defects were corrected by humans mid-run, not by the plan.

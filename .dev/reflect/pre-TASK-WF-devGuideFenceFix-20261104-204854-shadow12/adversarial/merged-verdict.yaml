@@ -1,0 +1,7 @@
+merge_method: adversarial
+convergence_score: 1.0
+status: success
+base_variant: reviewer-2 (qa)
+judge_identity: "inline-orchestrator-gw-tier3 (distinct from all three debater classes; sonnet, haiku, opus)"
+unresolved_conflicts: 0
+findings: []

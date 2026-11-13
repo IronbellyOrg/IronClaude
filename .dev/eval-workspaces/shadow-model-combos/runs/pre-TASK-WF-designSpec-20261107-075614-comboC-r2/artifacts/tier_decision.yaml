@@ -1,0 +1,15 @@
+selected_tier: 2
+fired_rule_number: 4            # S_domains >= 3 (code, tests, docs/protocol); --tier 2 pin (5.1) also forces T2; STOP rows 1/2/8 barred by the coverage_degraded pre-filter
+coverage_degraded: parsed-sparse
+surface_unreached: null
+composite_score: 8.0
+per_signal_breakdown:
+  scope_size: 2
+  task_count: 2
+  blast_radius: 2
+  spec_density: 2
+  ambiguity_signals: 0
+escalation_reason: "--tier 2 explicit pin; S_domains=3 (rule 4); S_dev_density=0.1667; coverage_degraded parsed-sparse (parsed 0, inferred 84); calibrated C filled in by t1-calibration.md"
+t2_engine_requested: shadow
+t2_engine_effective: shadow
+panel_fallback_reason: null

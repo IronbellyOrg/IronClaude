@@ -1,0 +1,85 @@
+merge_method: adversarial
+verdict: not-ready  # 3 blocking findings (F1, F2, F3)
+convergence_score: 1.0
+convergence_status: BLOCKED_BY_INVARIANTS
+base_variant: variant-1
+source_cards:
+  - reviewer-cards/reviewer-1.md
+  - reviewer-cards/reviewer-2.md
+  - reviewer-cards/reviewer-3.md
+adversarial_artifacts_dir: "/home/coder/workspaces/worktrees/IronClaude/brainstorm-reflect-panel/.dev/eval-workspaces/shadow-model-combos/runs/pre-TASK-WF-designSpec-20261107-075614-comboB-r2/adversarial/adversarial"
+merged_output_path: "/home/coder/workspaces/worktrees/IronClaude/brainstorm-reflect-panel/.dev/eval-workspaces/shadow-model-combos/runs/pre-TASK-WF-designSpec-20261107-075614-comboB-r2/adversarial/adversarial/merged-output.md"
+unaddressed_invariants: [INV-001, INV-002]
+findings:
+  - id: F1
+    severity: MAJOR
+    blocking: true
+    category: unpassable-check
+    claim: "Task 7 asks a static scan to pass only gh lines with --repo or repos/, but the _RESOLUTION_SCRIPTS tests need the unscoped 'gh repo view --json nameWithOwner' fallback; the fix must reuse _repo_scoped, _command_lines and _GH_CMD and relax the runtime-log clause."
+    citations: ["TASK-WF-designSpec-20261107-075614.md:108-113", "test_static_grep.py:545-550", "test_static_grep.py:107-132", "source.md:377"]
+  - id: F2
+    severity: MAJOR
+    blocking: true
+    category: contradiction
+    claim: "resume_decision row 4 re-enters release_decision but has no cycle_id, applied_edits or target_sha and GuardAction has no re-enter value; the Task 4 row-4 criterion cannot be written and could release without a head proof."
+    citations: ["source.md:107-109", "source.md:166", "TASK-WF-designSpec-20261107-075614.md:70", "TASK-WF-designSpec-20261107-075614.md:77"]
+  - id: F3
+    severity: MAJOR
+    blocking: true
+    category: safety
+    claim: "No fold row sets cycle_id and engage row 7 NOOPs on a held guard, so a later cycle runs under the earlier id; resume row 4 can then release while the later cycle's fixes are unpushed. Adding arguments to resume_decision does not fix it."
+    citations: ["source.md:108", "source.md:139", "source.md:166", "source.md:190-206", "TASK-WF-designSpec-20261107-075614.md:62", "TASK-WF-designSpec-20261107-075614.md:77"]
+  - id: F4
+    severity: MAJOR
+    blocking: false
+    category: missing-requirement
+    claim: "A draft_guard_unavailable halt from a failed read or timeline at engage writes no guard record, so guard_status reports released; no task owns or tests the spec's unavailable override."
+    citations: ["source.md:112", "source.md:68", "TASK-WF-designSpec-20261107-075614.md:61", "TASK-WF-designSpec-20261107-075614.md:124-129"]
+  - id: F5
+    severity: MAJOR
+    blocking: false
+    category: missing-requirement
+    claim: "No criterion tests the guard-event producer payload (key format, :a<k> retry suffix, first-request-only fields); matcher fixtures and event-order checks pass with a wrong producer. Add spec 4.2 to Task 8's sources."
+    citations: ["source.md:184-185", "TASK-WF-designSpec-20261107-075614.md:62", "TASK-WF-designSpec-20261107-075614.md:124", "TASK-WF-designSpec-20261107-075614.md:168-172"]
+  - id: F6
+    severity: MINOR
+    blocking: false
+    category: missing-requirement
+    claim: "The fold row for settled(any, skipped, user_override) does not set disabled_cause, yet guard_status keys on it; Task 3 tests only already_draft. Add a settle, fold and status test."
+    citations: ["source.md:112", "source.md:206", "TASK-WF-designSpec-20261107-075614.md:60-61"]
+  - id: F7
+    severity: MINOR
+    blocking: false
+    category: other
+    claim: "Task 1 records the baseline before make sync-dev and Task 13 subtracts it, so a feature-caused mirror failure that is also in a stale baseline is hidden; the two separate sync tests narrow but do not close this."
+    citations: ["TASK-WF-designSpec-20261107-075614.md:33", "TASK-WF-designSpec-20261107-075614.md:199"]
+  - id: F8
+    severity: MINOR
+    blocking: false
+    category: missing-requirement
+    claim: "No task owns the mapping from the script JSON keys (isDraft, headRefOid, autoMergeRequest) to the GuardRead fields (is_draft, head_sha, auto_merge_armed), and SKILL.md may carry no new python fence."
+    citations: ["source.md:88-91", "source.md:230", "TASK-WF-designSpec-20261107-075614.md:124", "TASK-WF-designSpec-20261107-075614.md:143"]
+  - id: F9
+    severity: MINOR
+    blocking: false
+    category: contradiction
+    claim: "The Wave 0 bullet must name the L3 and --merge-guard off case, yet its test must fail on L3 or draft gate wording; the test must target the gate wording of the print rule, not the words themselves."
+    citations: ["TASK-WF-designSpec-20261107-075614.md:137", "TASK-WF-designSpec-20261107-075614.md:140", "source.md:241"]
+  - id: F10
+    severity: MINOR
+    blocking: false
+    category: other
+    claim: "Resume row 3 leaves the order of its three reasons open: a live state that mismatches the request settles not_applied without proof that no toggle landed, although the foreign-toggle slack allows one unsettled transition."
+    citations: ["source.md:165", "source.md:119-124", "TASK-WF-designSpec-20261107-075614.md:76"]
+  - id: F11
+    severity: MINOR
+    blocking: false
+    category: other
+    claim: "Tasks 7, 8 and 12 tell the builder to classify only gh pr and gh api lines with one verb key, but WRITE_VERB_RE also hits git write verbs and keys multi-verb lines as a+b; the stale-entry test catches a miss only after a failed run."
+    citations: ["TASK-WF-designSpec-20261107-075614.md:22", "TASK-WF-designSpec-20261107-075614.md:108", "TASK-WF-designSpec-20261107-075614.md:124", "TASK-WF-designSpec-20261107-075614.md:182"]
+  - id: F12
+    severity: MINOR
+    blocking: false
+    category: other
+    claim: "Task 10 checks the S5a and Wave 6 pre-push sentences as byte-identical using only their recorded start text, which cannot detect a later edit inside the sentence."
+    citations: ["TASK-WF-designSpec-20261107-075614.md:33", "TASK-WF-designSpec-20261107-075614.md:154"]

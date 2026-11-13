@@ -1,0 +1,17 @@
+input_tree_sha256: 6c1cc6f176789efc32c47116ed67867f1395a02bfc5df1f805074a0cba74cad0
+input_tree_file_count: 7
+file_list:
+  - path: TASK-WF-designOutput-20261111-193642.md
+    sha256: 9f610e5d808c275bde4f84a63cf17ff433dad6004e81609f02e3953c7c7c9df8
+  - path: source.md
+    sha256: 1cdba86dd88ae098b2a7ef00a0aa666a86ad9e38b9d8b42f7e62b251082ef846
+  - path: progress.md
+    sha256: 0e358f26a005e0d8df9d124f4b4b6f34188a4eaddaa523eea08b75d9832f396d
+  - path: return-contract.yaml
+    sha256: b625e6d9dd7dd7c9415b1beb0fa4a8773e4c7d8e2600d350ae4ba247e74de6e9
+  - path: artifacts/t2-checks.log
+    sha256: 425916f22f4885f7a80da4dcdee2460aecaec6d2ffe462d04dddbd337875fa37
+  - path: artifacts/retries/T1/q0-head
+    sha256: 6d368721ba8df53cec93185610c1f810faf3d8358fe7ba417f623a1ffb2a7aa9
+  - path: artifacts/retries/T2/q0-head
+    sha256: 6d368721ba8df53cec93185610c1f810faf3d8358fe7ba417f623a1ffb2a7aa9

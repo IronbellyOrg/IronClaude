@@ -1,0 +1,11 @@
+return_contract:
+  merged_output_path: ".dev/eval-workspaces/shadow-model-combos/runs/pre-TASK-WF-designSpec-20261107-075614-comboC-r1/adversarial/merged-verdict.yaml"
+  convergence_score: 1.0
+  artifacts_dir: ".dev/eval-workspaces/shadow-model-combos/runs/pre-TASK-WF-designSpec-20261107-075614-comboC-r1/adversarial/adversarial"
+  status: success
+  base_variant: "variant-2 (qa, haiku class)"
+  unresolved_conflicts: 0
+  fallback_mode: true
+  failure_stage: null
+  invocation_method: skill-direct
+  unaddressed_invariants: []

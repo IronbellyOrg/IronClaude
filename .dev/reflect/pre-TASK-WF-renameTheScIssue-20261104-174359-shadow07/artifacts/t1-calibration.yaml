@@ -1,0 +1,16 @@
+# Wave 1D T1 blind calibration (calibrator: inline confidence-calibrator agent, opus-class default — collides with reviewer pool: calibrator_diversity degraded)
+C: 0.78
+D1_citation_grounding: 0.85
+D2_coverage_completeness: 0.75
+D3_deviation_classification_clarity: 0.80
+D4_risk_surface_coverage: 0.70
+D5_recommendation_actionability: 0.80
+verdict: ESCALATE
+reason: "parsed-sparse coverage (0 parsed / 5 inferred), mean < 0.85, H1 open medium risk"
+per_hypothesis:
+  H1: 0.65   # no sync-dev step
+  H2: 0.60   # grep substring ambiguity
+  H3: 0.35   # red-check scope
+  H4: 0.25   # anchor drift
+  H5: 0.10
+  H6: 0.10

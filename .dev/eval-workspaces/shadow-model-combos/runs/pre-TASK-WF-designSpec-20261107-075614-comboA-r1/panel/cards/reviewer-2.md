@@ -1,0 +1,21 @@
+persona: qa
+model_class: haiku
+model: claude-haiku-5-5
+model_observed: see reviewer_model_self_report in reviewer-cards/reviewer-2-card.md
+
+## Findings block
+
+```findings-v2
+{"id":"F1","severity":"MAJOR","blocking":true,"category":"missing-requirement","lens":"reflect-pre","claim":"Task 8 omits section 4.2 from its protocol inputs and has no AC for event-field construction, including guard:&lt;run_id&gt;:&lt;cycle_id&gt;:&lt;to&gt;:a&lt;k&gt; and incrementing k per cycle/direction. Matcher tests do not verify that the protocol produces correctly paired retry events.","refs":["FR-7","FR-21"],"citations":[{"role":"spec","path":".dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/source.md","line_start":182,"line_end":185},{"role":"spec","path":".dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/source.md","line_start":210,"line_end":210},{"role":"plan","path":".dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/TASK-WF-designSpec-20261107-075614.md","line_start":124,"line_end":130}]}
+{"id":"F2","severity":"MAJOR","blocking":true,"category":"missing-requirement","lens":"reflect-pre","claim":"All 12 test names match, but Task 11's ACs do not gate all required assertions: crashes before/after every request and settle, and release failure's single retry, already-in-state confirmation and release_pending reporting. Names and selected recovery checks can pass without these cases.","refs":["FR-7","FR-16","FR-21","FR-22"],"citations":[{"role":"spec","path":".dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/source.md","line_start":315,"line_end":318},{"role":"plan","path":".dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/TASK-WF-designSpec-20261107-075614.md","line_start":166,"line_end":173}]}
+{"id":"F3","severity":"MINOR","blocking":false,"category":"other","lens":"reflect-pre","claim":"Task 1 records only the pinned sentences' literal start text, which Task 10 uses for its byte-identical check. Prefix constants cannot prove that the complete S5a and pre-push sentences remain unchanged; suffix edits can escape the stated gate.","refs":[],"citations":[{"role":"spec","path":".dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/source.md","line_start":377,"line_end":377},{"role":"plan","path":".dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/TASK-WF-designSpec-20261107-075614.md","line_start":38,"line_end":38},{"role":"plan","path":".dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/TASK-WF-designSpec-20261107-075614.md","line_start":150,"line_end":154}]}
+{"id":"F4","severity":"MINOR","blocking":false,"category":"missing-requirement","lens":"reflect-pre","claim":"H4 is confirmed as an explicit acceptance gap: the spec requires corrupt log lines to keep raising, but Task 5 identifies only valid legacy/request/settle cases. It neither adds a corruption assertion nor identifies an existing test that gates this invariant.","refs":[],"citations":[{"role":"spec","path":".dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/source.md","line_start":208,"line_end":208},{"role":"plan","path":".dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/TASK-WF-designSpec-20261107-075614.md","line_start":85,"line_end":90}]}
+```
+
+calibration:
+  card_score: 0.74
+  per_finding:
+    F1: 0.75
+    F2: 0.70
+    F3: 0.65
+    F4: 0.72

@@ -1,0 +1,425 @@
+{
+  "by_flag": {
+    "missing-file": 10,
+    "out-of-range": 0,
+    "quote-not-found": 0
+  },
+  "cards": [
+    {
+      "block_state": "complete",
+      "card": "reviewer-1.md",
+      "reviewer_id": "reviewer-1"
+    },
+    {
+      "block_state": "complete",
+      "card": "reviewer-2.md",
+      "reviewer_id": "reviewer-2"
+    },
+    {
+      "block_state": "complete",
+      "card": "reviewer-3.md",
+      "reviewer_id": "reviewer-3"
+    }
+  ],
+  "checked": 27,
+  "citations": [
+    {
+      "advisory": false,
+      "citation": 1,
+      "finding_id": "F1",
+      "flag": null,
+      "line_end": 19,
+      "line_start": 19,
+      "path": ".dev/tasks/done/TASK-WF-addTheSharedCode-20261111-193909/TASK-WF-addTheSharedCode-20261111-193909.md",
+      "reason": null,
+      "reviewer_id": "reviewer-1",
+      "role": "plan"
+    },
+    {
+      "advisory": false,
+      "citation": 2,
+      "finding_id": "F1",
+      "flag": "missing-file",
+      "line_end": 64,
+      "line_start": 64,
+      "path": "src/superclaude/agents/reflect-reviewer.md",
+      "reason": "not-in-snapshot",
+      "reviewer_id": "reviewer-1",
+      "role": "source"
+    },
+    {
+      "advisory": false,
+      "citation": 3,
+      "finding_id": "F1",
+      "flag": "missing-file",
+      "line_end": 79,
+      "line_start": 79,
+      "path": "src/superclaude/agents/auggie-reviewer.md",
+      "reason": "not-in-snapshot",
+      "reviewer_id": "reviewer-1",
+      "role": "source"
+    },
+    {
+      "advisory": false,
+      "citation": 4,
+      "finding_id": "F1",
+      "flag": "missing-file",
+      "line_end": 50,
+      "line_start": 50,
+      "path": "src/superclaude/agents/reuse-auditor.md",
+      "reason": "not-in-snapshot",
+      "reviewer_id": "reviewer-1",
+      "role": "source"
+    },
+    {
+      "advisory": false,
+      "citation": 5,
+      "finding_id": "F1",
+      "flag": null,
+      "line_end": 1,
+      "line_start": 1,
+      "path": ".dev/tasks/done/TASK-WF-addTheSharedCode-20261111-193909/source.md",
+      "reason": null,
+      "reviewer_id": "reviewer-1",
+      "role": "spec"
+    },
+    {
+      "advisory": false,
+      "citation": 1,
+      "finding_id": "F2",
+      "flag": null,
+      "line_end": 31,
+      "line_start": 31,
+      "path": ".dev/tasks/done/TASK-WF-addTheSharedCode-20261111-193909/TASK-WF-addTheSharedCode-20261111-193909.md",
+      "reason": null,
+      "reviewer_id": "reviewer-1",
+      "role": "plan"
+    },
+    {
+      "advisory": false,
+      "citation": 2,
+      "finding_id": "F2",
+      "flag": null,
+      "line_end": 105,
+      "line_start": 105,
+      "path": ".dev/tasks/done/TASK-WF-addTheSharedCode-20261111-193909/TASK-WF-addTheSharedCode-20261111-193909.md",
+      "reason": null,
+      "reviewer_id": "reviewer-1",
+      "role": "plan"
+    },
+    {
+      "advisory": false,
+      "citation": 3,
+      "finding_id": "F2",
+      "flag": null,
+      "line_end": 1,
+      "line_start": 1,
+      "path": ".dev/tasks/done/TASK-WF-addTheSharedCode-20261111-193909/source.md",
+      "reason": null,
+      "reviewer_id": "reviewer-1",
+      "role": "spec"
+    },
+    {
+      "advisory": false,
+      "citation": 1,
+      "finding_id": "F3",
+      "flag": null,
+      "line_end": 1,
+      "line_start": 1,
+      "path": ".dev/tasks/done/TASK-WF-addTheSharedCode-20261111-193909/source.md",
+      "reason": null,
+      "reviewer_id": "reviewer-1",
+      "role": "spec"
+    },
+    {
+      "advisory": false,
+      "citation": 2,
+      "finding_id": "F3",
+      "flag": null,
+      "line_end": 19,
+      "line_start": 19,
+      "path": ".dev/tasks/done/TASK-WF-addTheSharedCode-20261111-193909/TASK-WF-addTheSharedCode-20261111-193909.md",
+      "reason": null,
+      "reviewer_id": "reviewer-1",
+      "role": "plan"
+    },
+    {
+      "advisory": false,
+      "citation": 1,
+      "finding_id": "F1",
+      "flag": null,
+      "line_end": 31,
+      "line_start": 31,
+      "path": ".dev/tasks/done/TASK-WF-addTheSharedCode-20261111-193909/TASK-WF-addTheSharedCode-20261111-193909.md",
+      "reason": null,
+      "reviewer_id": "reviewer-2",
+      "role": "plan"
+    },
+    {
+      "advisory": false,
+      "citation": 2,
+      "finding_id": "F1",
+      "flag": null,
+      "line_end": 94,
+      "line_start": 94,
+      "path": ".dev/tasks/done/TASK-WF-addTheSharedCode-20261111-193909/TASK-WF-addTheSharedCode-20261111-193909.md",
+      "reason": null,
+      "reviewer_id": "reviewer-2",
+      "role": "plan"
+    },
+    {
+      "advisory": false,
+      "citation": 3,
+      "finding_id": "F1",
+      "flag": null,
+      "line_end": 1,
+      "line_start": 1,
+      "path": ".dev/tasks/done/TASK-WF-addTheSharedCode-20261111-193909/source.md",
+      "reason": null,
+      "reviewer_id": "reviewer-2",
+      "role": "spec"
+    },
+    {
+      "advisory": false,
+      "citation": 1,
+      "finding_id": "F2",
+      "flag": null,
+      "line_end": 19,
+      "line_start": 19,
+      "path": ".dev/tasks/done/TASK-WF-addTheSharedCode-20261111-193909/TASK-WF-addTheSharedCode-20261111-193909.md",
+      "reason": null,
+      "reviewer_id": "reviewer-2",
+      "role": "plan"
+    },
+    {
+      "advisory": false,
+      "citation": 2,
+      "finding_id": "F2",
+      "flag": null,
+      "line_end": 1,
+      "line_start": 1,
+      "path": ".dev/tasks/done/TASK-WF-addTheSharedCode-20261111-193909/source.md",
+      "reason": null,
+      "reviewer_id": "reviewer-2",
+      "role": "spec"
+    },
+    {
+      "advisory": false,
+      "citation": 3,
+      "finding_id": "F2",
+      "flag": "missing-file",
+      "line_end": 27,
+      "line_start": 27,
+      "path": "src/superclaude/agents/troubleshoot-analyst.md",
+      "reason": "not-in-snapshot",
+      "reviewer_id": "reviewer-2",
+      "role": "source"
+    },
+    {
+      "advisory": false,
+      "citation": 4,
+      "finding_id": "F2",
+      "flag": "missing-file",
+      "line_end": 64,
+      "line_start": 64,
+      "path": "src/superclaude/agents/reflect-reviewer.md",
+      "reason": "not-in-snapshot",
+      "reviewer_id": "reviewer-2",
+      "role": "source"
+    },
+    {
+      "advisory": false,
+      "citation": 5,
+      "finding_id": "F2",
+      "flag": "missing-file",
+      "line_end": 50,
+      "line_start": 50,
+      "path": "src/superclaude/agents/reuse-auditor.md",
+      "reason": "not-in-snapshot",
+      "reviewer_id": "reviewer-2",
+      "role": "source"
+    },
+    {
+      "advisory": false,
+      "citation": 6,
+      "finding_id": "F2",
+      "flag": "missing-file",
+      "line_end": 79,
+      "line_start": 79,
+      "path": "src/superclaude/agents/auggie-reviewer.md",
+      "reason": "not-in-snapshot",
+      "reviewer_id": "reviewer-2",
+      "role": "source"
+    },
+    {
+      "advisory": false,
+      "citation": 1,
+      "finding_id": "F1",
+      "flag": null,
+      "line_end": 28,
+      "line_start": 28,
+      "path": ".dev/tasks/done/TASK-WF-addTheSharedCode-20261111-193909/TASK-WF-addTheSharedCode-20261111-193909.md",
+      "reason": null,
+      "reviewer_id": "reviewer-3",
+      "role": "plan"
+    },
+    {
+      "advisory": false,
+      "citation": 2,
+      "finding_id": "F1",
+      "flag": "missing-file",
+      "line_end": 35,
+      "line_start": 30,
+      "path": "src/superclaude/agents/system-architect.md",
+      "reason": "not-in-snapshot",
+      "reviewer_id": "reviewer-3",
+      "role": "source"
+    },
+    {
+      "advisory": false,
+      "citation": 1,
+      "finding_id": "F2",
+      "flag": null,
+      "line_end": 102,
+      "line_start": 102,
+      "path": ".dev/tasks/done/TASK-WF-addTheSharedCode-20261111-193909/TASK-WF-addTheSharedCode-20261111-193909.md",
+      "reason": null,
+      "reviewer_id": "reviewer-3",
+      "role": "plan"
+    },
+    {
+      "advisory": false,
+      "citation": 2,
+      "finding_id": "F2",
+      "flag": "missing-file",
+      "line_end": 35,
+      "line_start": 30,
+      "path": "plugins/superclaude/agents/system-architect.md",
+      "reason": "not-in-snapshot",
+      "reviewer_id": "reviewer-3",
+      "role": "source"
+    },
+    {
+      "advisory": false,
+      "citation": 1,
+      "finding_id": "F3",
+      "flag": null,
+      "line_end": 19,
+      "line_start": 19,
+      "path": ".dev/tasks/done/TASK-WF-addTheSharedCode-20261111-193909/TASK-WF-addTheSharedCode-20261111-193909.md",
+      "reason": null,
+      "reviewer_id": "reviewer-3",
+      "role": "plan"
+    },
+    {
+      "advisory": false,
+      "citation": 2,
+      "finding_id": "F3",
+      "flag": "missing-file",
+      "line_end": 64,
+      "line_start": 64,
+      "path": "src/superclaude/agents/reflect-reviewer.md",
+      "reason": "not-in-snapshot",
+      "reviewer_id": "reviewer-3",
+      "role": "source"
+    },
+    {
+      "advisory": false,
+      "citation": 1,
+      "finding_id": "F4",
+      "flag": null,
+      "line_end": 102,
+      "line_start": 102,
+      "path": ".dev/tasks/done/TASK-WF-addTheSharedCode-20261111-193909/TASK-WF-addTheSharedCode-20261111-193909.md",
+      "reason": null,
+      "reviewer_id": "reviewer-3",
+      "role": "plan"
+    },
+    {
+      "advisory": false,
+      "citation": 2,
+      "finding_id": "F4",
+      "flag": null,
+      "line_end": 105,
+      "line_start": 105,
+      "path": ".dev/tasks/done/TASK-WF-addTheSharedCode-20261111-193909/TASK-WF-addTheSharedCode-20261111-193909.md",
+      "reason": null,
+      "reviewer_id": "reviewer-3",
+      "role": "plan"
+    }
+  ],
+  "flagged": 10,
+  "reread_set": [
+    {
+      "citation": 2,
+      "finding_id": "F1",
+      "flag": "missing-file",
+      "path": "src/superclaude/agents/reflect-reviewer.md",
+      "reviewer_id": "reviewer-1"
+    },
+    {
+      "citation": 3,
+      "finding_id": "F1",
+      "flag": "missing-file",
+      "path": "src/superclaude/agents/auggie-reviewer.md",
+      "reviewer_id": "reviewer-1"
+    },
+    {
+      "citation": 4,
+      "finding_id": "F1",
+      "flag": "missing-file",
+      "path": "src/superclaude/agents/reuse-auditor.md",
+      "reviewer_id": "reviewer-1"
+    },
+    {
+      "citation": 3,
+      "finding_id": "F2",
+      "flag": "missing-file",
+      "path": "src/superclaude/agents/troubleshoot-analyst.md",
+      "reviewer_id": "reviewer-2"
+    },
+    {
+      "citation": 4,
+      "finding_id": "F2",
+      "flag": "missing-file",
+      "path": "src/superclaude/agents/reflect-reviewer.md",
+      "reviewer_id": "reviewer-2"
+    },
+    {
+      "citation": 5,
+      "finding_id": "F2",
+      "flag": "missing-file",
+      "path": "src/superclaude/agents/reuse-auditor.md",
+      "reviewer_id": "reviewer-2"
+    },
+    {
+      "citation": 6,
+      "finding_id": "F2",
+      "flag": "missing-file",
+      "path": "src/superclaude/agents/auggie-reviewer.md",
+      "reviewer_id": "reviewer-2"
+    },
+    {
+      "citation": 2,
+      "finding_id": "F1",
+      "flag": "missing-file",
+      "path": "src/superclaude/agents/system-architect.md",
+      "reviewer_id": "reviewer-3"
+    },
+    {
+      "citation": 2,
+      "finding_id": "F2",
+      "flag": "missing-file",
+      "path": "plugins/superclaude/agents/system-architect.md",
+      "reviewer_id": "reviewer-3"
+    },
+    {
+      "citation": 2,
+      "finding_id": "F3",
+      "flag": "missing-file",
+      "path": "src/superclaude/agents/reflect-reviewer.md",
+      "reviewer_id": "reviewer-3"
+    }
+  ],
+  "schema": "review-precheck/1"
+}

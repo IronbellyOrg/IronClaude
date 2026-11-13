@@ -1,0 +1,23 @@
+# Written by reflect shadow step 7 from the sc-adversarial-protocol return contract and merged-output.md (copy, never invent)
+merge_method: adversarial
+convergence_score: 0.96
+status: completed
+base_variant: variant-1-original.md (reviewer-1 card, analyzer/sonnet, combined score 0.83)
+judge_model_self_report: claude-gw-tier3[1m]
+source_cards:
+  - .dev/reflect/pre-TASK-WF-designOutput-20261111-193642-shadow14/reviewer-cards/reviewer-1-card.md
+  - .dev/reflect/pre-TASK-WF-designOutput-20261111-193642-shadow14/reviewer-cards/reviewer-2-card.md
+  - .dev/reflect/pre-TASK-WF-designOutput-20261111-193642-shadow14/reviewer-cards/reviewer-3-card.md
+merged_findings:
+  - {id: MF-1, title: "Task-2 AC3 escape hatch", category: unpassable-check, severity: MINOR, blocking: false, confidence: 0.80, taxonomy: L3}
+  - {id: MF-2, title: "design.md:65 conditional codegraph_impact", category: contradiction, deviation_tag: Drift, severity: MINOR, blocking: false, confidence: 0.80, taxonomy: L2}
+  - {id: MF-3, title: "No before-state baseline for archived package", category: unpassable-check, severity: MINOR, blocking: false, confidence: 0.70, taxonomy: L2}
+  - {id: MF-4, title: "Spec item 7 unchecked by any AC", category: other, severity: MINOR, blocking: false, confidence: 0.70, taxonomy: L3}
+  - {id: MF-5, title: "Shipped absence of SUPERCLAUDE_CODEGRAPH_PRIMITIVES=off", category: missing-requirement, deviation_tag: Drift, severity: MINOR, blocking: false, confidence: 0.70, taxonomy: L3}
+  - {id: MF-6, title: "Spec item 5 no-re-check tail omitted", category: missing-requirement, severity: MINOR, blocking: false, confidence: 0.80, taxonomy: L2}
+  - {id: MF-7, title: "Coverage matrix grounds INF-007 at Task-1 AC lines", category: other, severity: MINOR, blocking: false, confidence: 0.65, taxonomy: L3}
+  - {id: MF-8, title: "Spec 3.2-6 degraded-list conditional unverified + Grounding placement", category: missing-requirement, severity: MINOR, blocking: false, confidence: 0.65, taxonomy: L3}
+  - {id: MF-9, title: "Task-2 AC4 attribution check inadequate", category: other, severity: MINOR, blocking: false, confidence: 0.60, taxonomy: L2}
+  - {id: MF-10, title: "Extra shipped fallback tokens (candidate Authorized expansion, validator drop-guard)", category: other, severity: MINOR, blocking: false, confidence: 0.45, taxonomy: L2}
+unresolved_conflicts: 1  # D3/MF-3 category resolved by rule with dissent recorded in merged-output.md
+unaddressed_invariants: [IP-3, IP-5, IP-6, A-003]  # enumerated in adversarial/invariant-probe.md and the return contract

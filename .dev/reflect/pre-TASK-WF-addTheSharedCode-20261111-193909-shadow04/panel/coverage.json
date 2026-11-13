@@ -1,0 +1,14 @@
+{
+  "reviewer-1": {
+    "assigned": ["INF-001", "INF-002", "INF-003"],
+    "observed": ["INF-001", "INF-002", "INF-003"]
+  },
+  "reviewer-2": {
+    "assigned": ["INF-001", "INF-001-variant", "INF-002", "INF-003", "sync-task-11"],
+    "observed": ["INF-001", "INF-001-variant", "INF-002", "INF-003", "sync-task-11"]
+  },
+  "reviewer-3": {
+    "assigned": ["INF-001-placement", "INF-002-sync", "INF-003-guardrails"],
+    "observed": ["INF-001-placement", "INF-002-sync", "INF-003-guardrails"]
+  }
+}

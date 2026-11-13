@@ -1,0 +1,588 @@
+{
+  "agreement_clusters": [],
+  "blocking_clusters": 0,
+  "calibration_coverage": {
+    "calibrated_findings": 13,
+    "clustered_findings": 13
+  },
+  "cards": [
+    {
+      "block_state": "complete",
+      "card": "reviewer-1.md",
+      "errors": [],
+      "reviewer_id": "reviewer-1",
+      "state": "complete"
+    },
+    {
+      "block_state": "complete",
+      "card": "reviewer-2.md",
+      "errors": [],
+      "reviewer_id": "reviewer-2",
+      "state": "complete"
+    },
+    {
+      "block_state": "complete",
+      "card": "reviewer-3.md",
+      "errors": [],
+      "reviewer_id": "reviewer-3",
+      "state": "complete"
+    }
+  ],
+  "chained": [],
+  "citations": {
+    "malformed": 0,
+    "resolved": 0,
+    "unresolved": 31
+  },
+  "cluster_agreement": 1.0,
+  "clusters": [
+    {
+      "blocking_all": false,
+      "blocking_any": false,
+      "chained": false,
+      "claim": "Task 2 AC3 lets any test failure pass if it is 'not attributable to design.md'. That judgment call means the AC cannot fail mechanically against spec AC6, which requires the four test files to pass. The recorded run was green, so this is latent.",
+      "cluster_id": "C1",
+      "disputed": true,
+      "member_scores": [
+        0.8
+      ],
+      "members": [
+        {
+          "blocking": false,
+          "deviation_class": null,
+          "finding_confidence": 0.8,
+          "fp": null,
+          "id": "F1",
+          "ordinal": 1,
+          "primary_citation": {
+            "index": 0,
+            "line_end": 46,
+            "line_start": 46,
+            "path": ".dev/tasks/done/TASK-WF-designOutput-20261111-193642/TASK-WF-designOutput-20261111-193642.md",
+            "role": "plan",
+            "status": "unresolved"
+          },
+          "refs_norm": [],
+          "reviewer_id": "reviewer-1"
+        }
+      ],
+      "representative": {
+        "id": "F1",
+        "reviewer_id": "reviewer-1"
+      },
+      "reviewers": [
+        "reviewer-1"
+      ],
+      "support": 0.3333333333333333,
+      "uncalibrated": false
+    },
+    {
+      "blocking_all": false,
+      "blocking_any": false,
+      "chained": false,
+      "claim": "Task 2 AC1 depends on `git diff` showing no edit inside Usage, Unattended mode or Boundaries. That needs a before-state baseline that does not exist for an archived package. The check cannot be re-run from the done/ vantage. Advisory only, not an executor defect.",
+      "cluster_id": "C2",
+      "disputed": true,
+      "member_scores": [
+        0.7
+      ],
+      "members": [
+        {
+          "blocking": false,
+          "deviation_class": null,
+          "finding_confidence": 0.7,
+          "fp": null,
+          "id": "F2",
+          "ordinal": 1,
+          "primary_citation": {
+            "index": 0,
+            "line_end": 44,
+            "line_start": 44,
+            "path": ".dev/tasks/done/TASK-WF-designOutput-20261111-193642/TASK-WF-designOutput-20261111-193642.md",
+            "role": "plan",
+            "status": "unresolved"
+          },
+          "refs_norm": [],
+          "reviewer_id": "reviewer-1"
+        }
+      ],
+      "representative": {
+        "id": "F2",
+        "reviewer_id": "reviewer-1"
+      },
+      "reviewers": [
+        "reviewer-1"
+      ],
+      "support": 0.29166666666666663,
+      "uncalibrated": false
+    },
+    {
+      "blocking_all": false,
+      "blocking_any": false,
+      "chained": false,
+      "claim": "Spec 3.2 item 6 makes the return-contract degraded list conditional on the field existing. The plan copies the condition but has no step to check it; design.md silently chose 'no new field'. The plan also omits where the Grounding line goes for --format code or diagram.",
+      "cluster_id": "C3",
+      "disputed": true,
+      "member_scores": [
+        0.65
+      ],
+      "members": [
+        {
+          "blocking": false,
+          "deviation_class": null,
+          "finding_confidence": 0.65,
+          "fp": null,
+          "id": "F3",
+          "ordinal": 1,
+          "primary_citation": {
+            "index": 1,
+            "line_end": 28,
+            "line_start": 28,
+            "path": ".dev/tasks/done/TASK-WF-designOutput-20261111-193642/TASK-WF-designOutput-20261111-193642.md",
+            "role": "plan",
+            "status": "unresolved"
+          },
+          "refs_norm": [],
+          "reviewer_id": "reviewer-1"
+        }
+      ],
+      "representative": {
+        "id": "F3",
+        "reviewer_id": "reviewer-1"
+      },
+      "reviewers": [
+        "reviewer-1"
+      ],
+      "support": 0.2708333333333333,
+      "uncalibrated": false
+    },
+    {
+      "blocking_all": false,
+      "blocking_any": false,
+      "chained": false,
+      "claim": "design.md:65 runs codegraph_impact in Validate only if not already run in Plan or Design. Spec 3.2 item 4 says callers and impact unconditionally. The tasklist follows the spec; no plan step covers the refinement. Mild unplanned drift in the shipped file, not a plan defect.",
+      "cluster_id": "C4",
+      "disputed": true,
+      "member_scores": [
+        0.65
+      ],
+      "members": [
+        {
+          "blocking": false,
+          "deviation_class": null,
+          "finding_confidence": 0.65,
+          "fp": null,
+          "id": "F4",
+          "ordinal": 1,
+          "primary_citation": {
+            "index": 1,
+            "line_end": 65,
+            "line_start": 65,
+            "path": "src/superclaude/commands/design.md",
+            "role": "plan",
+            "status": "unresolved"
+          },
+          "refs_norm": [],
+          "reviewer_id": "reviewer-1"
+        }
+      ],
+      "representative": {
+        "id": "F4",
+        "reviewer_id": "reviewer-1"
+      },
+      "reviewers": [
+        "reviewer-1"
+      ],
+      "support": 0.2708333333333333,
+      "uncalibrated": false
+    },
+    {
+      "blocking_all": false,
+      "blocking_any": false,
+      "chained": false,
+      "claim": "Task 2 AC4 checks via `git status --short` that design.md is the only source file modified. Spec risk 7 says other sessions edit the same checkout, so a dirty status cannot be attributed to this plan. No baseline or scoped diff is given.",
+      "cluster_id": "C5",
+      "disputed": true,
+      "member_scores": [
+        0.6
+      ],
+      "members": [
+        {
+          "blocking": false,
+          "deviation_class": null,
+          "finding_confidence": 0.6,
+          "fp": null,
+          "id": "F5",
+          "ordinal": 1,
+          "primary_citation": {
+            "index": 0,
+            "line_end": 47,
+            "line_start": 47,
+            "path": ".dev/tasks/done/TASK-WF-designOutput-20261111-193642/TASK-WF-designOutput-20261111-193642.md",
+            "role": "plan",
+            "status": "unresolved"
+          },
+          "refs_norm": [],
+          "reviewer_id": "reviewer-1"
+        }
+      ],
+      "representative": {
+        "id": "F5",
+        "reviewer_id": "reviewer-1"
+      },
+      "reviewers": [
+        "reviewer-1"
+      ],
+      "support": 0.24999999999999994,
+      "uncalibrated": false
+    },
+    {
+      "blocking_all": false,
+      "blocking_any": false,
+      "chained": false,
+      "claim": "Spec 3.2 item 5 ends 'no re-check after writing the design document' (read-only against the index). Task 1 lists the other item-5 rules but omits this one, and the coverage matrix has no row for it.",
+      "cluster_id": "C6",
+      "disputed": true,
+      "member_scores": [
+        0.8
+      ],
+      "members": [
+        {
+          "blocking": false,
+          "deviation_class": null,
+          "finding_confidence": 0.8,
+          "fp": null,
+          "id": "F1",
+          "ordinal": 2,
+          "primary_citation": {
+            "index": 1,
+            "line_end": 28,
+            "line_start": 28,
+            "path": ".dev/tasks/done/TASK-WF-designOutput-20261111-193642/TASK-WF-designOutput-20261111-193642.md",
+            "role": "plan",
+            "status": "unresolved"
+          },
+          "refs_norm": [
+            "INF-002"
+          ],
+          "reviewer_id": "reviewer-2"
+        }
+      ],
+      "representative": {
+        "id": "F1",
+        "reviewer_id": "reviewer-2"
+      },
+      "reviewers": [
+        "reviewer-2"
+      ],
+      "support": 0.3333333333333333,
+      "uncalibrated": false
+    },
+    {
+      "blocking_all": false,
+      "blocking_any": false,
+      "chained": false,
+      "claim": "The matrix grounds INF-007 (Tool Coordination names the tools as reflect.md does) at tasklist:31-33, which are Task 1 acceptance criteria. That work is Task 2 (line 41), and no AC mechanically checks that the bullet names the tools. Task 2 AC1 only checks that the section 'refers to' the rules.",
+      "cluster_id": "C7",
+      "disputed": true,
+      "member_scores": [
+        0.65
+      ],
+      "members": [
+        {
+          "blocking": false,
+          "deviation_class": null,
+          "finding_confidence": 0.65,
+          "fp": null,
+          "id": "F2",
+          "ordinal": 2,
+          "primary_citation": {
+            "index": 1,
+            "line_end": 41,
+            "line_start": 41,
+            "path": ".dev/tasks/done/TASK-WF-designOutput-20261111-193642/TASK-WF-designOutput-20261111-193642.md",
+            "role": "plan",
+            "status": "unresolved"
+          },
+          "refs_norm": [
+            "INF-004",
+            "INF-007"
+          ],
+          "reviewer_id": "reviewer-2"
+        }
+      ],
+      "representative": {
+        "id": "F2",
+        "reviewer_id": "reviewer-2"
+      },
+      "reviewers": [
+        "reviewer-2"
+      ],
+      "support": 0.2708333333333333,
+      "uncalibrated": false
+    },
+    {
+      "blocking_all": false,
+      "blocking_any": false,
+      "chained": false,
+      "claim": "Task 2 AC3 passes if a failure is 'not attributable to design.md', a judgment call that cannot fail mechanically. The spec's AC6 requires the tests to pass. The recorded run was clean (1167 passed, rc=0), so the weakness is latent.",
+      "cluster_id": "C8",
+      "disputed": true,
+      "member_scores": [
+        0.7
+      ],
+      "members": [
+        {
+          "blocking": false,
+          "deviation_class": null,
+          "finding_confidence": 0.7,
+          "fp": null,
+          "id": "F3",
+          "ordinal": 2,
+          "primary_citation": {
+            "index": 0,
+            "line_end": 46,
+            "line_start": 46,
+            "path": ".dev/tasks/done/TASK-WF-designOutput-20261111-193642/TASK-WF-designOutput-20261111-193642.md",
+            "role": "plan",
+            "status": "unresolved"
+          },
+          "refs_norm": [
+            "INF-008"
+          ],
+          "reviewer_id": "reviewer-2"
+        }
+      ],
+      "representative": {
+        "id": "F3",
+        "reviewer_id": "reviewer-2"
+      },
+      "reviewers": [
+        "reviewer-2"
+      ],
+      "support": 0.29166666666666663,
+      "uncalibrated": false
+    },
+    {
+      "blocking_all": false,
+      "blocking_any": false,
+      "chained": false,
+      "claim": "Task 1 ACs check only the readiness check, fresh-only rule, fallback and tool map. Nothing checks the Grounding line, the SUPERCLAUDE_CODEGRAPH_PRIMITIVES=off graph:disabled rule, or the leads/empty-not-absence rules (spec items 5-7), so they could be dropped with ACs still green.",
+      "cluster_id": "C9",
+      "disputed": true,
+      "member_scores": [
+        0.7
+      ],
+      "members": [
+        {
+          "blocking": false,
+          "deviation_class": null,
+          "finding_confidence": 0.7,
+          "fp": null,
+          "id": "F4",
+          "ordinal": 2,
+          "primary_citation": {
+            "index": 1,
+            "line_end": 33,
+            "line_start": 32,
+            "path": ".dev/tasks/done/TASK-WF-designOutput-20261111-193642/TASK-WF-designOutput-20261111-193642.md",
+            "role": "plan",
+            "status": "unresolved"
+          },
+          "refs_norm": [
+            "INF-002"
+          ],
+          "reviewer_id": "reviewer-2"
+        }
+      ],
+      "representative": {
+        "id": "F4",
+        "reviewer_id": "reviewer-2"
+      },
+      "reviewers": [
+        "reviewer-2"
+      ],
+      "support": 0.29166666666666663,
+      "uncalibrated": false
+    },
+    {
+      "blocking_all": false,
+      "blocking_any": false,
+      "chained": false,
+      "claim": "Shipped design.md line 65 adds 'codegraph_impact only if not already run in Plan or Design' for Validate. The tasklist and spec require unconditional 'callers and impact', so the shipped text is narrower than the plan. The plan was not amended.",
+      "cluster_id": "C10",
+      "disputed": true,
+      "member_scores": [
+        0.8
+      ],
+      "members": [
+        {
+          "blocking": false,
+          "deviation_class": null,
+          "finding_confidence": 0.8,
+          "fp": null,
+          "id": "F1",
+          "ordinal": 3,
+          "primary_citation": {
+            "index": 0,
+            "line_end": 28,
+            "line_start": 28,
+            "path": ".dev/tasks/done/TASK-WF-designOutput-20261111-193642/TASK-WF-designOutput-20261111-193642.md",
+            "role": "plan",
+            "status": "unresolved"
+          },
+          "refs_norm": [
+            "INF-002"
+          ],
+          "reviewer_id": "reviewer-3"
+        }
+      ],
+      "representative": {
+        "id": "F1",
+        "reviewer_id": "reviewer-3"
+      },
+      "reviewers": [
+        "reviewer-3"
+      ],
+      "support": 0.3333333333333333,
+      "uncalibrated": false
+    },
+    {
+      "blocking_all": false,
+      "blocking_any": false,
+      "chained": false,
+      "claim": "Task 1 and spec item 7 require the section to state that SUPERCLAUDE_CODEGRAPH_PRIMITIVES=off yields graph:disabled. The shipped design.md has no mention of that variable. The Task 1 AC list does not check it, so the gap passed unnoticed. The token graph:disabled is still listed.",
+      "cluster_id": "C11",
+      "disputed": true,
+      "member_scores": [
+        0.7
+      ],
+      "members": [
+        {
+          "blocking": false,
+          "deviation_class": null,
+          "finding_confidence": 0.7,
+          "fp": null,
+          "id": "F2",
+          "ordinal": 3,
+          "primary_citation": {
+            "index": 0,
+            "line_end": 32,
+            "line_start": 28,
+            "path": ".dev/tasks/done/TASK-WF-designOutput-20261111-193642/TASK-WF-designOutput-20261111-193642.md",
+            "role": "plan",
+            "status": "unresolved"
+          },
+          "refs_norm": [
+            "INF-002",
+            "INF-006"
+          ],
+          "reviewer_id": "reviewer-3"
+        }
+      ],
+      "representative": {
+        "id": "F2",
+        "reviewer_id": "reviewer-3"
+      },
+      "reviewers": [
+        "reviewer-3"
+      ],
+      "support": 0.29166666666666663,
+      "uncalibrated": false
+    },
+    {
+      "blocking_all": false,
+      "blocking_any": false,
+      "chained": false,
+      "claim": "Task 2 AC3 says a test failure is acceptable if not attributable to design.md, so the check cannot fail mechanically. Task 2 AC1 asks for a git diff against a before-state, and the archived package has none.",
+      "cluster_id": "C12",
+      "disputed": true,
+      "member_scores": [
+        0.55
+      ],
+      "members": [
+        {
+          "blocking": false,
+          "deviation_class": null,
+          "finding_confidence": 0.55,
+          "fp": null,
+          "id": "F3",
+          "ordinal": 3,
+          "primary_citation": {
+            "index": 0,
+            "line_end": 46,
+            "line_start": 46,
+            "path": ".dev/tasks/done/TASK-WF-designOutput-20261111-193642/TASK-WF-designOutput-20261111-193642.md",
+            "role": "plan",
+            "status": "unresolved"
+          },
+          "refs_norm": [
+            "INF-008"
+          ],
+          "reviewer_id": "reviewer-3"
+        }
+      ],
+      "representative": {
+        "id": "F3",
+        "reviewer_id": "reviewer-3"
+      },
+      "reviewers": [
+        "reviewer-3"
+      ],
+      "support": 0.22916666666666666,
+      "uncalibrated": false
+    },
+    {
+      "blocking_all": false,
+      "blocking_any": false,
+      "chained": false,
+      "claim": "The shipped fallback paragraph defines extra tokens (graph:empty, graph:truncated, graph:unresolved) and says the worker contract gets no new field. Task 1 lists only seven tokens and says to add to the existing degraded list if one exists, so the plan does not cover these additions.",
+      "cluster_id": "C13",
+      "disputed": true,
+      "member_scores": [
+        0.55
+      ],
+      "members": [
+        {
+          "blocking": false,
+          "deviation_class": null,
+          "finding_confidence": 0.55,
+          "fp": null,
+          "id": "F4",
+          "ordinal": 3,
+          "primary_citation": {
+            "index": 0,
+            "line_end": 28,
+            "line_start": 28,
+            "path": ".dev/tasks/done/TASK-WF-designOutput-20261111-193642/TASK-WF-designOutput-20261111-193642.md",
+            "role": "plan",
+            "status": "unresolved"
+          },
+          "refs_norm": [
+            "INF-006"
+          ],
+          "reviewer_id": "reviewer-3"
+        }
+      ],
+      "representative": {
+        "id": "F4",
+        "reviewer_id": "reviewer-3"
+      },
+      "reviewers": [
+        "reviewer-3"
+      ],
+      "support": 0.22916666666666666,
+      "uncalibrated": false
+    }
+  ],
+  "complete_reviewers": [
+    "reviewer-1",
+    "reviewer-2",
+    "reviewer-3"
+  ],
+  "invalid_reviewers": [],
+  "problems": [],
+  "uncalibrated": [],
+  "uncalibrated_findings": [],
+  "valid_blocks": 3
+}

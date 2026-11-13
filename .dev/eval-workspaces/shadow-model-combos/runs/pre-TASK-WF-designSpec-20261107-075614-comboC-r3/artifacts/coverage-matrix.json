@@ -1,0 +1,413 @@
+{
+ "parsed_count": 0,
+ "inferred_count": 34,
+ "inferred_dropped_at_emission": [
+  {
+   "id": "INF-018",
+   "line": 230,
+   "quote": "`gh api --paginate \"repos/${REPO}/issues/${PR}/timeline\"`",
+   "reason": "quote not in cited line"
+  },
+  {
+   "id": "INF-036",
+   "line": 289,
+   "quote": "export the public guard names",
+   "reason": "quote not in cited line"
+  }
+ ],
+ "coverage_pct": null,
+ "coverage_pct_union": 0.8824,
+ "unmapped_requirements": [],
+ "unmapped_requirements_union": [
+  "INF-008",
+  "INF-016",
+  "INF-019",
+  "INF-032"
+ ],
+ "coverage_degraded": "parsed-sparse",
+ "S_dev_density": 0.1176,
+ "task_items": [
+  "Constraints",
+  "Task 1",
+  "Task 2",
+  "Task 3",
+  "Task 4",
+  "Task 5",
+  "Task 6",
+  "Task 7",
+  "Task 8",
+  "Task 9",
+  "Task 10",
+  "Task 11",
+  "Task 12",
+  "Task 13"
+ ],
+ "matrix": [
+  {
+   "requirement_id": "INF-001",
+   "source": "inferred",
+   "quote": "default on at `--monitor 3` via `--merge-guard {draft,off}`",
+   "citation": "source.md:6",
+   "matched_task_ids": [
+    "Task 12"
+   ],
+   "match_method": "containment",
+   "best_ratio": 1.0
+  },
+  {
+   "requirement_id": "INF-002",
+   "source": "inferred",
+   "quote": "release when the fix push is confirmed on the PR head, before replies and the re-trigger",
+   "citation": "source.md:6",
+   "matched_task_ids": [
+    "Task 8"
+   ],
+   "match_method": "containment",
+   "best_ratio": 0.8889
+  },
+  {
+   "requirement_id": "INF-003",
+   "source": "inferred",
+   "quote": "an unreadable timeline or an exit with unpublished fixes keeps the PR draft and reports",
+   "citation": "source.md:6",
+   "matched_task_ids": [
+    "Constraints"
+   ],
+   "match_method": "containment",
+   "best_ratio": 0.7778
+  },
+  {
+   "requirement_id": "INF-004",
+   "source": "inferred",
+   "quote": "No new `MonitorState`.",
+   "citation": "source.md:51",
+   "matched_task_ids": [
+    "Task 10"
+   ],
+   "match_method": "containment",
+   "best_ratio": 1.0
+  },
+  {
+   "requirement_id": "INF-005",
+   "source": "inferred",
+   "quote": "No `gh` or `git` word on any line, comments included (F6).",
+   "citation": "source.md:75",
+   "matched_task_ids": [
+    "Constraints"
+   ],
+   "match_method": "containment",
+   "best_ratio": 0.8571
+  },
+  {
+   "requirement_id": "INF-006",
+   "source": "inferred",
+   "quote": "maps, first match wins",
+   "citation": "source.md:112",
+   "matched_task_ids": [
+    "Task 4"
+   ],
+   "match_method": "containment",
+   "best_ratio": 0.75
+  },
+  {
+   "requirement_id": "INF-007",
+   "source": "inferred",
+   "quote": "observed = read.transitions - guard.baseline",
+   "citation": "source.md:118",
+   "matched_task_ids": [
+    "Task 4"
+   ],
+   "match_method": "containment",
+   "best_ratio": 0.8
+  },
+  {
+   "requirement_id": "INF-008",
+   "source": "inferred",
+   "quote": "`HALT_UNAVAILABLE(timeline_unreadable)`",
+   "citation": "source.md:140",
+   "matched_task_ids": [],
+   "match_method": "none",
+   "best_ratio": 0.0
+  },
+  {
+   "requirement_id": "INF-009",
+   "source": "inferred",
+   "quote": "`push_completed` and `read.head_sha == target_sha`",
+   "citation": "source.md:156",
+   "matched_task_ids": [
+    "Task 4"
+   ],
+   "match_method": "containment",
+   "best_ratio": 0.75
+  },
+  {
+   "requirement_id": "INF-010",
+   "source": "inferred",
+   "quote": "re-enter `release_decision` with `push_completed=True`",
+   "citation": "source.md:166",
+   "matched_task_ids": [
+    "Task 4"
+   ],
+   "match_method": "containment",
+   "best_ratio": 1.0
+  },
+  {
+   "requirement_id": "INF-011",
+   "source": "inferred",
+   "quote": "Add to `EventType` in `models.py` (43 to 45",
+   "citation": "source.md:175",
+   "matched_task_ids": [
+    "Task 2"
+   ],
+   "match_method": "containment",
+   "best_ratio": 1.0
+  },
+  {
+   "requirement_id": "INF-012",
+   "source": "inferred",
+   "quote": "`idempotency_key` = `guard:<run_id>:<cycle_id>:<to>:a<k>`",
+   "citation": "source.md:184",
+   "matched_task_ids": [
+    "Task 3"
+   ],
+   "match_method": "containment",
+   "best_ratio": 0.75
+  },
+  {
+   "requirement_id": "INF-013",
+   "source": "inferred",
+   "quote": "the whole record is erased (the fold returns `None`",
+   "citation": "source.md:201",
+   "matched_task_ids": [
+    "Task 3"
+   ],
+   "match_method": "containment",
+   "best_ratio": 0.8333
+  },
+  {
+   "requirement_id": "INF-014",
+   "source": "inferred",
+   "quote": "`original_is_draft` is never read from GitHub after the first record",
+   "citation": "source.md:208",
+   "matched_task_ids": [
+    "Task 3"
+   ],
+   "match_method": "containment",
+   "best_ratio": 0.8333
+  },
+  {
+   "requirement_id": "INF-015",
+   "source": "inferred",
+   "quote": "`DEFAULT_MERGE_GUARD = \"draft\"`",
+   "citation": "source.md:214",
+   "matched_task_ids": [
+    "Task 6"
+   ],
+   "match_method": "containment",
+   "best_ratio": 1.0
+  },
+  {
+   "requirement_id": "INF-016",
+   "source": "inferred",
+   "quote": "Effective only at `--monitor 3`; accepted and inert below.",
+   "citation": "source.md:216",
+   "matched_task_ids": [],
+   "match_method": "none",
+   "best_ratio": 0.4
+  },
+  {
+   "requirement_id": "INF-017",
+   "source": "inferred",
+   "quote": "Modelled on `scripts/retrigger-review.sh`",
+   "citation": "source.md:221",
+   "matched_task_ids": [
+    "Task 7"
+   ],
+   "match_method": "containment",
+   "best_ratio": 1.0
+  },
+  {
+   "requirement_id": "INF-019",
+   "source": "inferred",
+   "quote": "Exit codes: 0 success; 1 `gh` failure or failed verification",
+   "citation": "source.md:234",
+   "matched_task_ids": [],
+   "match_method": "none",
+   "best_ratio": 0.5714
+  },
+  {
+   "requirement_id": "INF-020",
+   "source": "inferred",
+   "quote": "Loaded lazily at L3 Wave 3, Wave 6 and Wave 8.",
+   "citation": "source.md:240",
+   "matched_task_ids": [
+    "Task 8"
+   ],
+   "match_method": "containment",
+   "best_ratio": 0.75
+  },
+  {
+   "requirement_id": "INF-021",
+   "source": "inferred",
+   "quote": "No new python fence",
+   "citation": "source.md:241",
+   "matched_task_ids": [
+    "Constraints"
+   ],
+   "match_method": "containment",
+   "best_ratio": 1.0
+  },
+  {
+   "requirement_id": "INF-022",
+   "source": "inferred",
+   "quote": "update it to 45 and name `draft_guard_requested` and `draft_guard_settled`",
+   "citation": "source.md:242",
+   "matched_task_ids": [
+    "Task 2"
+   ],
+   "match_method": "containment",
+   "best_ratio": 1.0
+  },
+  {
+   "requirement_id": "INF-023",
+   "source": "inferred",
+   "quote": "PR #N is still mergeable; this run's fixes are local only.",
+   "citation": "source.md:247",
+   "matched_task_ids": [
+    "Task 9"
+   ],
+   "match_method": "containment",
+   "best_ratio": 1.0
+  },
+  {
+   "requirement_id": "INF-024",
+   "source": "inferred",
+   "quote": "`fix_cycle_id` gives guard-enabled cycles an explicit id",
+   "citation": "source.md:251",
+   "matched_task_ids": [
+    "Task 8"
+   ],
+   "match_method": "containment",
+   "best_ratio": 0.7143
+  },
+  {
+   "requirement_id": "INF-025",
+   "source": "inferred",
+   "quote": "needs one entry in `WRITE_VERB_CLASSIFICATION`",
+   "citation": "source.md:255",
+   "matched_task_ids": [
+    "Constraints"
+   ],
+   "match_method": "containment",
+   "best_ratio": 1.0
+  },
+  {
+   "requirement_id": "INF-026",
+   "source": "inferred",
+   "quote": "Acceptance trace (must appear in this order in the run log)",
+   "citation": "source.md:270",
+   "matched_task_ids": [
+    "Task 11"
+   ],
+   "match_method": "containment",
+   "best_ratio": 0.8333
+  },
+  {
+   "requirement_id": "INF-027",
+   "source": "inferred",
+   "quote": "Run `make sync-dev` at the end of every task that edits a file under `src/superclaude/skills/`",
+   "citation": "source.md:301",
+   "matched_task_ids": [
+    "Constraints"
+   ],
+   "match_method": "containment",
+   "best_ratio": 1.0
+  },
+  {
+   "requirement_id": "INF-028",
+   "source": "inferred",
+   "quote": "the final task runs the FULL suite",
+   "citation": "source.md:301",
+   "matched_task_ids": [
+    "Task 13"
+   ],
+   "match_method": "containment",
+   "best_ratio": 1.0
+  },
+  {
+   "requirement_id": "INF-029",
+   "source": "inferred",
+   "quote": "protocol assertions that the Wave 0 bullet names `--resume`, is not gated on L3 or `draft`",
+   "citation": "source.md:322",
+   "matched_task_ids": [
+    "Task 9"
+   ],
+   "match_method": "containment",
+   "best_ratio": 0.7778
+  },
+  {
+   "requirement_id": "INF-030",
+   "source": "inferred",
+   "quote": "No task makes a live PR call, and the run that opens the PR must not enable the feature (`--merge-guard off`).",
+   "citation": "source.md:326",
+   "matched_task_ids": [
+    "Task 1"
+   ],
+   "match_method": "containment",
+   "best_ratio": 0.8333
+  },
+  {
+   "requirement_id": "INF-031",
+   "source": "inferred",
+   "quote": "Cite tests and constants by symbol name",
+   "citation": "source.md:362",
+   "matched_task_ids": [
+    "Constraints"
+   ],
+   "match_method": "containment",
+   "best_ratio": 1.0
+  },
+  {
+   "requirement_id": "INF-032",
+   "source": "inferred",
+   "quote": "Declare dependencies completely, one `Depends on:` line per dependency",
+   "citation": "source.md:363",
+   "matched_task_ids": [],
+   "match_method": "none",
+   "best_ratio": 0.3333
+  },
+  {
+   "requirement_id": "INF-033",
+   "source": "inferred",
+   "quote": "scenario tests import only helpers and fixtures from `test_set_draft_state.py`, never `test_*` functions",
+   "citation": "source.md:377",
+   "matched_task_ids": [
+    "Task 11"
+   ],
+   "match_method": "containment",
+   "best_ratio": 0.6
+  },
+  {
+   "requirement_id": "INF-034",
+   "source": "inferred",
+   "quote": "`--merge-guard {draft,off}` in the argument-hint and the Options table",
+   "citation": "source.md:244",
+   "matched_task_ids": [
+    "Task 12"
+   ],
+   "match_method": "containment",
+   "best_ratio": 1.0
+  },
+  {
+   "requirement_id": "INF-035",
+   "source": "inferred",
+   "quote": "Flag row and a paragraph",
+   "citation": "source.md:245",
+   "matched_task_ids": [
+    "Task 4"
+   ],
+   "match_method": "containment",
+   "best_ratio": 0.6667
+  }
+ ]
+}

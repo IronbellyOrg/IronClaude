@@ -1,0 +1,135 @@
+contract_version: "1.8.0"
+status: success
+mode: pre
+tier_reached: 2
+report_path: /home/coder/workspaces/worktrees/IronClaude/brainstorm-reflect-panel/.dev/reflect/pre-TASK-WF-fixTheScIssueWor-20261104-162205-shadow05/REPORT.md
+audit_log_path: /home/coder/workspaces/worktrees/IronClaude/brainstorm-reflect-panel/.dev/reflect/pre-TASK-WF-fixTheScIssueWor-20261104-162205-shadow05/audit.log
+confidence_calibrated: 0.87
+escalation_rule_matched: null   # hard override: --tier 2 (§5.1); no rubric row evaluated
+onboarding_ran: false
+
+# UC-1
+coverage_pct: null
+coverage_pct_union: 1.0
+coverage_undefined: false
+coverage_degraded: parsed-sparse
+unmapped_requirements: []
+unmapped_requirements_union: []
+best_practice_grade: 4
+implementation_coverage_pct: null
+missing_implementations: []
+hierarchy_slice_path: null
+hierarchy_coverage_pct: null
+
+# Input integrity
+input_sha256:
+  tasklist: 4db972275acfb0beacb89c875202d30cac4ad31711015fe91da03be7d63b4468
+  spec: fbc456a11caa4f40b0b7ddca18dbda78c9680c4ff68e9d9b478e3246a5680da0
+input_tree_sha256: 14db0f571ab6cfba60e3b034b45693472c7ec6e9ed8d120c22915650c715628f
+input_tree_file_count: 7
+input_tree_snapshot_path: /home/coder/workspaces/worktrees/IronClaude/brainstorm-reflect-panel/.dev/reflect/pre-TASK-WF-fixTheScIssueWor-20261104-162205-shadow05/artifacts/input-snapshot.yaml
+input_drift_detected: false
+input_drift_diff: null
+
+# Hallucination guard
+citations_total: 21
+citations_revalidated: 21
+citations_dropped: 0
+citations_dropped_extrapolated: 0
+citations_inferred: 0
+citation_budget_policy: full_reread
+evidence_validator_ran: true
+citation_revalidation_at_promotion: false
+
+# Tier 2 artifacts
+reviewer_cards:
+  - .dev/reflect/pre-TASK-WF-fixTheScIssueWor-20261104-162205-shadow05/reviewer-cards/reviewer-1.md
+  - .dev/reflect/pre-TASK-WF-fixTheScIssueWor-20261104-162205-shadow05/reviewer-cards/reviewer-2.md
+  - .dev/reflect/pre-TASK-WF-fixTheScIssueWor-20261104-162205-shadow05/reviewer-cards/reviewer-3.md
+adversarial_artifacts_dir: .dev/reflect/pre-TASK-WF-fixTheScIssueWor-20261104-162205-shadow05/adversarial/
+adversarial_convergence_score: 1.0
+adversarial_unavailable: false
+merge_method: adversarial
+t2_model_class_diversity: full
+t2_vendor_diversity: single
+t2_effective_diversity: model-only
+calibrator_diversity: degraded
+
+# Tier 3
+remediation_offered: false
+remediation_accepted: null
+task_file_path: null
+remediation_task_path: null
+remediation_plan_path: null
+handoff_memory_key: null
+
+# Asymmetric-cost flags
+cannot_validate_without_user_input: false
+regression_present: false
+unauthorized_deviation_present: false
+blocked_by_low_confidence: false
+spec_is_wrong: false
+user_decision_required: false
+needs_human_decision: false
+
+per_task_verdicts: []
+interaction_effects_scanned: false   # UC-1: scan is UC-2-only
+
+# Budget
+budget_forced_tier_downgrade: false
+budget_forced_stop: false
+budget_check_skipped: true
+forced_tier: null
+
+# Promotion (UC-1: not applicable)
+promotion_action: not-applicable
+promotion_adapter: null
+promotion_source: null
+promotion_destination: null
+promotion_log_path: null
+promotion_gate_passed: null
+promotion_skip_reason: null
+promotion_fail_reason: null
+promotion_override_used: null
+promotion_rollback_command: null
+promotion_checkpoint_path: null
+promotion_cross_fs: false
+promotion_pending: false
+
+# Telemetry
+wave_durations_ms: {wave_0: 30000, wave_1: 180000, wave_2: 5000, wave_3: 360000, wave_4: 660000, wave_5: 420000, wave_6: 0, wave_7: 0}
+token_usage: {claude_orchestration: ~90000, claude_agents: ~430000, auggie_offloaded: 0}
+reviewer_models: [claude-gw-tier1b, claude-gw-tier2, claude-gw-tier1a]
+reviewer_personas: [analyzer, qa, refactorer]
+reviewer_vendors: [anthropic, anthropic, anthropic]
+degraded_components: ["calibrator-diversity"]
+fallback_path: null
+executor_class_source: unknown
+executor_class_resolved: false
+executor_exclusion_degraded: false
+memory_hits: 1
+memory_misses: 1
+memory_retention_actions: 0
+type_hierarchy_invoked: false
+summarize_changes_invoked: false
+references_extended_info_used: false
+telemetry:
+  t2_engine_requested: shadow
+  t2_engine_effective: shadow
+  panel_fallback_reason: null
+  t2_floor_unmet: false
+  identity_source: requested-pinned
+  identity_mismatch_suspected: true
+  judge_identity: unknown
+  judge_class_collision: unknown
+  debate_skipped_similar: false
+  cluster_agreement: 1.0
+  calibration_coverage: "10/10"
+  panel_parity: true
+  anchor_replaced: false
+  manifest_path: .dev/reflect/pre-TASK-WF-fixTheScIssueWor-20261104-162205-shadow05/panel/manifest.json
+  reviewers_requested: 3
+  reviewers_resolved: 3
+  reviewers_complete: 3
+  panel_shortfall_2_of_3: false
+  findings_block_compliance_rate: 0.33   # 1 of 3 cards passed the findings-v2 block parser before normalization; 3 of 3 after

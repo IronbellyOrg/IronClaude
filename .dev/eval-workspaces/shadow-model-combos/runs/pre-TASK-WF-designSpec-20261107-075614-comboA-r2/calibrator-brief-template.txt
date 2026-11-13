@@ -1,0 +1,11 @@
+# Blind calibration brief (Wave 3C) — one call per reviewer card
+Strip rule: you receive ONLY the reviewer's card. You do NOT receive: the brief it answered, the
+spec, the plan, the T1 card, the orchestrator's hypotheses, or the other reviewers' cards.
+Re-grade the card against the 5-dimension rubric (Citation grounding, Coverage completeness,
+Deviation-classification clarity, Risk surface coverage, Recommendation actionability), each
+0.00-1.00; the calibrated score is the arithmetic mean. Return a fenced yaml block:
+  card_score: <mean 0.00-1.00>
+  per_dimension: {citation_grounding: x, coverage_completeness: x, deviation_clarity: x, risk_surface: x, actionability: x}
+SHADOW ADDITION (this run only): Also report one confidence from 0 to 1 for each finding id of the
+card's findings block, written exactly as in the block, in a fenced yaml block calibration:
+per_finding: (F1: 0.85); leave out a finding you cannot score. Your card score is unchanged.

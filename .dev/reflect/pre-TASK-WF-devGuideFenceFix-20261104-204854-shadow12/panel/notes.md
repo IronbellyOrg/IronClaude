@@ -1,0 +1,12 @@
+## pre-TASK-WF-devGuideFenceFix-20261104-204854-shadow12 panel notes
+
+- identity: requested-pinned. reviewer-1 (pin claude-sonnet-5-5) self-reported claude-sonnet-5-5 (match). reviewer-2 (pin claude-haiku-5-5) self-reported claude-haiku-5-5 (match). reviewer-3 (pin claude-opus-5-5) self-reported claude-opus-5-5 (match). identity_mismatch_suspected: false (first run in the series with 3/3 self-report matches). While identity is requested-pinned, no verified-independence claim is made.
+- judge_identity: inline orchestrator (this session, gateway alias claude-gw-tier3, glm/qwen-class aliases per tier file; no class entry for the alias, so class unknown-but-distinct from the three debater classes sonnet/haiku/opus by resolution set). sc-adversarial return contract in this configuration names no separate judge; recorded as unknown, never false; no collision with any reviewer observed.
+- parity: panel/resolution.json (analyzer=sonnet, qa=haiku, refactorer=opus) vs legacy rotation as run (analyzer=sonnet, qa=haiku, refactorer=opus) -> panel_parity: true (3/3 agree; aggregator recomputes from card headers).
+- executor class: claude-gw-tier3[1m] has no classes entry in the tier file -> executor_class_source: unknown, executor_class_resolved: false, fail-open standard rotation per SKILL.md 7.1 (WARN emitted).
+- normalization: no findings blocks to normalize (3/3 zero-finding cards); findings_block_compliance_rate 1.0 on first parse (all three blocks valid after the coverage-entry fix; the one invalid was coverage.json's missing reviewer-1 entry, an orchestrator artifact defect, not a card format defect — fixed and re-clustered before any re-ask was needed).
+- calibrator pick: all three calibrators ran on the confidence-calibrator agent; the Fable/Tier 0 filter applied (no Fable, no Tier 0 alias picked). calibrator_diversity: degraded (calibrator class not provably disjoint from reviewer classes in this env).
+- precheck: 0 citations in cards (zero-finding cards); 0 flagged. Evidence validator over the report's 13 citations dropped 1 (span defect on t1-baseline-cmp.txt:2-3; claim true); kept-ids.txt empty because no finding ids exist.
+- debate_skipped_similar: false (debate ran with cross-examination; trivial merge of three zero-finding cards).
+- cluster_agreement: 1.0; calibration_coverage: 0/0.
+- corpus class (recurring): archived done/ package re-audited against moved HEAD; anchored on package artifacts as the deviation-patterns memory prescribes.

@@ -1,0 +1,10 @@
+selected_tier: 2
+fired_rule_number: 6   # C=0.69 < 0.85; also pinned by --tier 2 (5.1 hard override) and coverage_degraded pre-filter
+coverage_degraded: parsed-sparse
+surface_unreached: null
+composite_score: 6
+per_signal_breakdown: {scope_size: 2, task_count: 2, blast_radius: 0, spec_density: 1, ambiguity_signals: 1}
+escalation_reason: "--tier 2 pin; C 0.69 below 0.85; parse-density guard (inferred 40 > parsed 0)"
+t2_engine_requested: shadow
+t2_engine_effective: shadow
+panel_fallback_reason: null

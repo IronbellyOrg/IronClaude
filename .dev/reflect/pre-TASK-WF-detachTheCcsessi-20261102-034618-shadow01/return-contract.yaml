@@ -1,0 +1,94 @@
+contract_version: "1.8.0"
+status: success
+mode: pre
+tier_reached: 2
+report_path: /home/coder/workspaces/worktrees/IronClaude/brainstorm-reflect-panel/.dev/reflect/pre-TASK-WF-detachTheCcsessi-20261102-034618-shadow01/REPORT.md
+audit_log_path: /home/coder/workspaces/worktrees/IronClaude/brainstorm-reflect-panel/.dev/reflect/pre-TASK-WF-detachTheCcsessi-20261102-034618-shadow01/audit.log
+confidence_calibrated: 0.63
+escalation_rule_matched: null          # hard override --tier 2 (section 5.1), no rubric row
+onboarding_ran: false
+coverage_pct: null
+coverage_pct_union: 1.0
+coverage_undefined: false
+coverage_degraded: parsed-sparse
+unmapped_requirements: []
+unmapped_requirements_union: []
+best_practice_grade: null
+implementation_coverage_pct: null
+missing_implementations: []
+hierarchy_slice_path: null
+hierarchy_coverage_pct: null
+grounding_gaps_path: null
+input_sha256: {tasklist: 15b1a9a41b1390e7fc76eb9c142cbd4c4bd4ac2d1875bf20dacb0541758ab3ce, spec: 1f17b986394a22af4e4c740c1cff24f6a663902017992df66ef5c293b6cf5ce7}
+input_tree_sha256: 25c3672f1fc22b2dd688356ca883f5fdfc3a275b02b4b270cdb9143a69e7df02
+input_tree_file_count: 30
+input_tree_snapshot_path: /home/coder/workspaces/worktrees/IronClaude/brainstorm-reflect-panel/.dev/reflect/pre-TASK-WF-detachTheCcsessi-20261102-034618-shadow01/artifacts/input-snapshot.yaml
+input_drift_detected: false             # re-hashed all 30 files after the report was written (not before synthesis): no change
+input_drift_diff: null
+citations_total: 34
+citations_revalidated: 34
+citations_dropped: 0
+citations_dropped_extrapolated: 0
+citations_inferred: 2
+citation_budget_policy: full_reread
+evidence_validator_ran: true
+citation_revalidation_at_promotion: false
+reviewer_cards: [/home/coder/workspaces/worktrees/IronClaude/brainstorm-reflect-panel/.dev/reflect/pre-TASK-WF-detachTheCcsessi-20261102-034618-shadow01/reviewer-cards/reviewer-1-card.md, /home/coder/workspaces/worktrees/IronClaude/brainstorm-reflect-panel/.dev/reflect/pre-TASK-WF-detachTheCcsessi-20261102-034618-shadow01/reviewer-cards/reviewer-2-card.md, /home/coder/workspaces/worktrees/IronClaude/brainstorm-reflect-panel/.dev/reflect/pre-TASK-WF-detachTheCcsessi-20261102-034618-shadow01/reviewer-cards/reviewer-3-card.md]
+adversarial_artifacts_dir: /home/coder/workspaces/worktrees/IronClaude/brainstorm-reflect-panel/.dev/reflect/pre-TASK-WF-detachTheCcsessi-20261102-034618-shadow01/adversarial/adversarial
+adversarial_convergence_score: 0.80
+adversarial_unavailable: false
+merge_method: adversarial
+t2_model_class_diversity: full
+t2_vendor_diversity: single
+t2_effective_diversity: model-only
+calibrator_diversity: degraded
+remediation_offered: false
+remediation_accepted: null
+task_file_path: null
+remediation_task_path: null
+remediation_plan_path: null
+handoff_memory_key: null
+cannot_validate_without_user_input: false
+regression_present: false
+unauthorized_deviation_present: false
+blocked_by_low_confidence: false
+spec_is_wrong: false
+user_decision_required: false
+needs_human_decision: false
+per_task_verdicts: []
+interaction_effects_scanned: false
+interaction_effects_findings: 0
+budget_forced_tier_downgrade: false
+budget_forced_stop: false
+budget_check_skipped: true
+forced_tier: null
+promotion_action: not-applicable
+promotion_gate_passed: null
+telemetry:
+  t2_engine_requested: shadow
+  t2_engine_effective: legacy
+  panel_fallback_reason: "installed superclaude CLI lacks template @reflect-pre, --hard-exclude-class/--strict-distinct, and review manifest|cluster|verify-citations (see panel/fallback.md)"
+  t2_floor_unmet: false
+  identity_source: requested-pinned
+  identity_mismatch_suspected: false
+  judge_identity: unknown
+  judge_class_collision: unknown
+  debate_skipped_similar: false
+  cluster_agreement: null
+  calibration_coverage: null
+  panel_parity: null
+  anchor_replaced: false
+  manifest_path: null
+  reviewers_requested: 3
+  reviewers_resolved: 3
+  reviewers_complete: 3
+  panel_shortfall_2_of_3: false
+  findings_block_compliance_rate: null
+degraded_components: [calibrator_diversity, executor_class_unresolved, vendor_single, base_selection_position_bias_single_pass, shadow_panel_tooling_missing]
+executor_class_source: unknown
+executor_class_resolved: false
+zero_drop_flag: true
+memory_status: skipped            # last-pass written; deviation-patterns not written (UC-1 has no deviations)
+notes:
+  - "The input-tree re-hash ran after REPORT.md was finalized, not before synthesis as the protocol orders; it found no drift in the 30 files."
+  - "Package already executed and archived; the audit judges the plan, not the landed code."

@@ -1,0 +1,5 @@
+{
+  "reviewer-1": {"assigned": ["INF-001", "INF-003"], "observed": ["INF-001", "INF-003"]},
+  "reviewer-2": {"assigned": ["INF-001", "INF-002"], "observed": ["INF-001", "INF-002"]},
+  "reviewer-3": {"assigned": ["INF-003"], "observed": ["INF-003"]}
+}

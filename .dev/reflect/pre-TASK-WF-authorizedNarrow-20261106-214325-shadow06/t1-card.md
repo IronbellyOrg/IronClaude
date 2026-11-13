@@ -1,0 +1,25 @@
+# Tier 1 reflection card — UC-1 pre-execution audit (shadow06)
+
+Run: --mode pre --spec <WU>/source.md --tasklist <WU>/TASK-WF-authorizedNarrow-20261106-214325.md --tier 2 --t2-engine shadow
+Context: the package was executed and archived (progress.md FINAL: pass, ARCHIVE line, state=b3736ac8...); the identity foundation is in HEAD (launch-job-identity.sh:582 lines; tests/hooks/test_launch_job_identity.py:1530; installer entry install_hooks.py:90; registrations hooks.json:130 + plugins mirror:100; design doc §19.7/§19.8 document the contract and pending work). This audit judges the PLAN as a plan.
+
+## Coverage map (Wave 1B)
+
+Pass 1 (regex): 0 requirement IDs in spec, 0 in tasklist. parsed_count=0.
+Pass 2 (inference, quote-pinned): 8 INF rows, all 8 mapped (containment). coverage_pct_union 1.0000 (8/8), coverage_pct null, coverage_degraded: parsed-sparse (8 > 0; T1-stop pre-filter; tier pinned 2 regardless). unmapped_requirements_union []. S_dev_density (union) 0.00.
+
+## Findings
+
+- **F1 (Medium) T2.AC5's "official updatedInput contract" citation is a self-referential artifact, not an external contract.** tasklist:53 says "Record the official updatedInput contract and actual tests in ./artifacts/tool-adapter-tests.log" but names no external documentation of `hookSpecificOutput.updatedInput` to verify field shape against. The executor recorded its own emitted shape (artifacts/tool-adapter-tests.log exists; live-harness-events.jsonl:1 shows `adapter_exit: 0` with redacted payload). A plan that defines its own reference cannot fail its own comparison. (Spec: source.md:5 requires documented behavior; satisfied in substance via design doc §19.7 "Execution binding".)
+- **F2 (Medium) T4's isolated live CLI observation depends on "where the installed CLI permits it" with no fallback task.** tasklist:74 requires an isolated observation fixture "where the installed CLI permits it without global changes"; AC5 (tasklist:80) says "If the environment prevents an actual hook rewrite observation, report that integration blocker rather than claiming live deployment readiness." The blocker-report path is defined, so the plan does not silently pass; but no planned step verifies the installed CLI actually permits injection (the landed run needed live_probe.py under tests/hooks/fixtures/launch_level/). Risk was real but the AC's honesty requirement covered it.
+- **F3 (minor) Task 1 name-overlap with a non-existent file.** tasklist:31 says "Add the proposed standalone .../launch-job-identity.sh" — "the proposed" refers to the blocked package's design, which proposed it but never landed it (prior blocked package TASK-WF-launcherAccessAw-20261105-144815 exists in to-do). Minor reader confusion only; the file was created (src/superclaude/hooks/scripts/launch-job-identity.sh:582 lines).
+- **F4 (minor) T2.AC2's "documented session field contract" is under-specified for subagent events.** tasklist:50 says subagent events use "the actual documented session field contract and unproven variants are explicitly refused or unsupported rather than guessed"; the landed code (launch-job-identity.sh:457-460) refuses non-string agent_id/agent_type and reads only top-level session_id — consistent, but "documented" points at no named document. Same self-referential shape as F1, lower stakes.
+- **F5 (minor) Constraints grant a scoped UV exception that the plan restates but does not trace to its authorization boundary.** source.md:5 + tasklist:21 allow "a stdlib Python body behind one distributable shell entry point ... for this component only". The landed script embeds Python and runs through UV (launch-job-identity.sh:25-54 runtime preflight). The constraint is carried; the "component only" boundary is enforced only by convention (no other component was touched — progress.md files= lists confirm).
+
+## Risk surface
+
+Safety constraints verified in the landed tree as far as a pre-audit goes: updatedInput without permissionDecision allow (design §19.7 "Execution binding"; script header lines 14-15), Bash-only matcher (hooks.json:127 "matcher": "Bash"), disposable bare-repo tests (test_launch_job_identity.py:1243-1262 fixture uses local bare remote), no new dependencies (stdlib-only imports, script:56-69), human pushes unrestricted (selector emits governed/ordinary/unknown; §19.1 invariant carried into §19.7 "Selector contract"). Prior blocked package untouched (TASK-WF-launcherAccessAw-20261105-144815 remains in to-do; design §19.1 "The earlier blocked plan stays blocked"). Global install/activation absent: registration is inert without a positively governed sessions/<id> record (script:449-455).
+
+## Calibration (Wave 1D)
+
+Self-assessed per rubric 5 dimensions: Citation grounding 0.8 (all claims re-readable), Coverage completeness 0.9 (union 8/8; parsed-sparse disclosed), Deviation-classification clarity 0.85 (n/a UC-1; advisory grading), Risk surface 0.85 (safety constraints carried and spot-verified), Recommendation actionability 0.85 (each finding names tasklist lines + fix). Mean ≈ 0.85 self; blind calibration to follow.

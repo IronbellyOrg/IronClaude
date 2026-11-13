@@ -1,0 +1,16 @@
+card: reviewer-3-card.md
+calibrator_class: opus
+calibrator_model_served_self_report: gpt-6-luna
+rubric: refs/reflection-rubric.md (5 dimensions)
+dimensions:
+  citation_grounding: 1.00
+  coverage_completeness: 0.85
+  deviation_classification_clarity: 0.50
+  risk_surface_coverage: 0.70
+  recommendation_actionability: 0.50
+calibrated_confidence_C: 0.71
+notes: no citation mismatches; calibrator judged F1 true (plan lines 124 and 150 vs spec line 251) and F2 true
+calibration:
+  per_finding:
+    F1: 0.92
+    F2: 0.95

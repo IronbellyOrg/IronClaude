@@ -1,0 +1,141 @@
+{
+  "attempts": [
+    {
+      "attempt_id": "1",
+      "completion": "complete",
+      "payload_sha256": "83115a12ea951bbf97f80119687fea6954a0ceebee13823da5689e47c0a516b2",
+      "reviewer_id": "t1b-1",
+      "stage": "collected"
+    },
+    {
+      "attempt_id": "1",
+      "completion": "complete",
+      "payload_sha256": "83115a12ea951bbf97f80119687fea6954a0ceebee13823da5689e47c0a516b2",
+      "reviewer_id": "t4-1",
+      "stage": "collected"
+    },
+    {
+      "attempt_id": "1",
+      "completion": "complete",
+      "payload_sha256": "83115a12ea951bbf97f80119687fea6954a0ceebee13823da5689e47c0a516b2",
+      "reviewer_id": "t1a-1",
+      "stage": "collected"
+    }
+  ],
+  "frozen": {
+    "brief_template_sha256": "6aa657c667995bfbac492647d54681104ac7b5fd2de431413536a62a7b706355",
+    "input_tree_sha256": "f77064c0151384c52b2a79c4054e297b2e74d0c841e883050490a2b224f8979e",
+    "schema_ids": [
+      "review-panel/1",
+      "findings-v2"
+    ],
+    "snapshot_ref": ".dev/reflect/pre-TASK-WF-planTheExplicitl-20261110-024937-shadow08/artifacts/input-snapshot.yaml",
+    "snapshot_sha256": "f747cc73ffa72e32ed40a2d218233b4346da4ea3b1edf24f988a73feb8ba1a3b",
+    "template_sha256": "d8156ae38041992ba036afadcda14bc001941fdd759ffe5ca607d83942fb765e",
+    "tiers_sha256": "a35908fa6d4019ea3f01d7842b2090ac6432d40a36cdeb9a08c6f0b1f50f05be"
+  },
+  "history": [],
+  "input_tree_sha256": "f77064c0151384c52b2a79c4054e297b2e74d0c841e883050490a2b224f8979e",
+  "invocation": 1,
+  "policy_sha256": "585204846a763c096d9adb2e8e31c39cfeef79e958a6999c908b7037a8262a2d",
+  "reviewers_complete": 3,
+  "reviewers_requested": 3,
+  "reviewers_resolved": 3,
+  "run_id": "pre-TASK-WF-planTheExplicitl-20261110-024937-shadow08",
+  "schema": "review-panel-manifest/1",
+  "stages": {
+    "calibrated": {
+      "deps": {
+        "input_tree_sha256": "f77064c0151384c52b2a79c4054e297b2e74d0c841e883050490a2b224f8979e",
+        "policy_sha256": "585204846a763c096d9adb2e8e31c39cfeef79e958a6999c908b7037a8262a2d",
+        "prev": "5dbd51d32a488390bb3bfcea54726682fd3d80e073ddc7caf7df9d40404276b0"
+      },
+      "invocation": 1,
+      "outputs": {},
+      "payload_sha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a"
+    },
+    "clustered": {
+      "deps": {
+        "input_tree_sha256": "f77064c0151384c52b2a79c4054e297b2e74d0c841e883050490a2b224f8979e",
+        "policy_sha256": "585204846a763c096d9adb2e8e31c39cfeef79e958a6999c908b7037a8262a2d",
+        "prev": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a"
+      },
+      "invocation": 1,
+      "outputs": {},
+      "payload_sha256": "5dbd51d32a488390bb3bfcea54726682fd3d80e073ddc7caf7df9d40404276b0"
+    },
+    "collected": {
+      "deps": {
+        "input_tree_sha256": "f77064c0151384c52b2a79c4054e297b2e74d0c841e883050490a2b224f8979e",
+        "policy_sha256": "585204846a763c096d9adb2e8e31c39cfeef79e958a6999c908b7037a8262a2d",
+        "prev": "5dbd51d32a488390bb3bfcea54726682fd3d80e073ddc7caf7df9d40404276b0"
+      },
+      "invocation": 1,
+      "outputs": {},
+      "payload_sha256": "5dbd51d32a488390bb3bfcea54726682fd3d80e073ddc7caf7df9d40404276b0"
+    },
+    "debated": {
+      "deps": {
+        "input_tree_sha256": "f77064c0151384c52b2a79c4054e297b2e74d0c841e883050490a2b224f8979e",
+        "policy_sha256": "585204846a763c096d9adb2e8e31c39cfeef79e958a6999c908b7037a8262a2d",
+        "prev": "5dbd51d32a488390bb3bfcea54726682fd3d80e073ddc7caf7df9d40404276b0"
+      },
+      "invocation": 1,
+      "outputs": {},
+      "payload_sha256": "5dbd51d32a488390bb3bfcea54726682fd3d80e073ddc7caf7df9d40404276b0"
+    },
+    "dispatched": {
+      "deps": {
+        "input_tree_sha256": "f77064c0151384c52b2a79c4054e297b2e74d0c841e883050490a2b224f8979e",
+        "policy_sha256": "585204846a763c096d9adb2e8e31c39cfeef79e958a6999c908b7037a8262a2d",
+        "prev": "0ff117082f8ea59f30dbd77fb0d15e80f0c611a80a9481d8754bce607b3bdfc6"
+      },
+      "invocation": 1,
+      "outputs": {},
+      "payload_sha256": "5dbd51d32a488390bb3bfcea54726682fd3d80e073ddc7caf7df9d40404276b0"
+    },
+    "frozen": {
+      "deps": {},
+      "invocation": 1,
+      "outputs": {},
+      "payload_sha256": "ab66924809605eedb322210472420fd8673d465e8ba4bd76040e79b95b8d2d31"
+    },
+    "published": {
+      "deps": {
+        "input_tree_sha256": "f77064c0151384c52b2a79c4054e297b2e74d0c841e883050490a2b224f8979e",
+        "policy_sha256": "585204846a763c096d9adb2e8e31c39cfeef79e958a6999c908b7037a8262a2d",
+        "prev": "5dbd51d32a488390bb3bfcea54726682fd3d80e073ddc7caf7df9d40404276b0"
+      },
+      "invocation": 1,
+      "outputs": {
+        "REPORT.md": "075be4a9eeb912abe21735a68eb6214d7d764a261d61acc331c4f76354712b71",
+        "audit.log": "9634d0a5b143f64321c69f6d75d59f233e87ab8e202ba4b33ce8d529ae987059",
+        "return-contract.yaml": "86ce66510fe3631fba17ed70bf85b6d88008bd210841d38ec587599f8fa576c5"
+      },
+      "payload_sha256": "e50915b2dc6cfeaeadac0049280ca9ccbb16ce4cbeabe8fba9b87c2a5852a4d7"
+    },
+    "resolved": {
+      "deps": {
+        "input_tree_sha256": "f77064c0151384c52b2a79c4054e297b2e74d0c841e883050490a2b224f8979e",
+        "policy_sha256": "585204846a763c096d9adb2e8e31c39cfeef79e958a6999c908b7037a8262a2d",
+        "prev": "ab66924809605eedb322210472420fd8673d465e8ba4bd76040e79b95b8d2d31"
+      },
+      "invocation": 1,
+      "outputs": {},
+      "payload_sha256": "0ff117082f8ea59f30dbd77fb0d15e80f0c611a80a9481d8754bce607b3bdfc6"
+    },
+    "validated": {
+      "deps": {
+        "input_tree_sha256": "f77064c0151384c52b2a79c4054e297b2e74d0c841e883050490a2b224f8979e",
+        "policy_sha256": "585204846a763c096d9adb2e8e31c39cfeef79e958a6999c908b7037a8262a2d",
+        "prev": "5dbd51d32a488390bb3bfcea54726682fd3d80e073ddc7caf7df9d40404276b0"
+      },
+      "invocation": 1,
+      "outputs": {},
+      "payload_sha256": "5dbd51d32a488390bb3bfcea54726682fd3d80e073ddc7caf7df9d40404276b0"
+    }
+  },
+  "state": "published",
+  "t2_engine_effective": "shadow",
+  "t2_engine_requested": "shadow"
+}

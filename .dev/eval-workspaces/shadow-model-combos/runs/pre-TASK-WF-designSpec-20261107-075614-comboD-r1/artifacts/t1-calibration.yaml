@@ -1,0 +1,8 @@
+calibration:
+  calibrator_model_served: claude-gw-tier1b (self-reported; Sonnet class)
+  calibrator_model_class: sonnet
+  calibrator_diversity: degraded
+  dimensions: {citation_grounding: 0.85, coverage_completeness: 0.88, classification_clarity: 0.55, risk_surface: 0.62, actionability: 0.55}
+  C: 0.69
+  per_finding: {F1: 0.85, F2: 0.55, F3: 0.85, F4: 0.65, F5: 0.55, F6: 0.60, F7: 0.60}
+  citations_checked_and_wrong: []

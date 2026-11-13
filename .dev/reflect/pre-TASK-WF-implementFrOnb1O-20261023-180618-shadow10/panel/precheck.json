@@ -1,0 +1,354 @@
+{
+  "by_flag": {
+    "missing-file": 0,
+    "out-of-range": 5,
+    "quote-not-found": 0
+  },
+  "cards": [
+    {
+      "block_state": "complete",
+      "card": "reviewer-1.md",
+      "reviewer_id": "reviewer-1"
+    },
+    {
+      "block_state": "complete",
+      "card": "reviewer-2.md",
+      "reviewer_id": "reviewer-2"
+    },
+    {
+      "block_state": "complete",
+      "card": "reviewer-3.md",
+      "reviewer_id": "reviewer-3"
+    }
+  ],
+  "checked": 24,
+  "citations": [
+    {
+      "advisory": false,
+      "citation": 1,
+      "finding_id": "F1",
+      "flag": null,
+      "line_end": 50,
+      "line_start": 35,
+      "path": ".dev/tasks/done/TASK-WF-implementFrOnb1O-20261023-180618/TASK-WF-implementFrOnb1O-20261023-180618.md",
+      "reason": null,
+      "reviewer_id": "reviewer-1",
+      "role": "plan"
+    },
+    {
+      "advisory": false,
+      "citation": 2,
+      "finding_id": "F1",
+      "flag": null,
+      "line_end": 3,
+      "line_start": 1,
+      "path": ".dev/tasks/done/TASK-WF-implementFrOnb1O-20261023-180618/artifacts/t1-extras.log",
+      "reason": null,
+      "reviewer_id": "reviewer-1",
+      "role": "artifact"
+    },
+    {
+      "advisory": false,
+      "citation": 3,
+      "finding_id": "F1",
+      "flag": "out-of-range",
+      "line_end": 42,
+      "line_start": 40,
+      "path": ".dev/tasks/done/TASK-WF-implementFrOnb1O-20261023-180618/progress.md",
+      "reason": "file has 18 lines",
+      "reviewer_id": "reviewer-1",
+      "role": "artifact"
+    },
+    {
+      "advisory": false,
+      "citation": 1,
+      "finding_id": "F2",
+      "flag": null,
+      "line_end": 168,
+      "line_start": 160,
+      "path": ".dev/tasks/done/TASK-WF-implementFrOnb1O-20261023-180618/TASK-WF-implementFrOnb1O-20261023-180618.md",
+      "reason": null,
+      "reviewer_id": "reviewer-1",
+      "role": "plan"
+    },
+    {
+      "advisory": false,
+      "citation": 2,
+      "finding_id": "F2",
+      "flag": "out-of-range",
+      "line_end": 52,
+      "line_start": 52,
+      "path": ".dev/tasks/done/TASK-WF-implementFrOnb1O-20261023-180618/progress.md",
+      "reason": "file has 18 lines",
+      "reviewer_id": "reviewer-1",
+      "role": "artifact"
+    },
+    {
+      "advisory": false,
+      "citation": 1,
+      "finding_id": "F3",
+      "flag": null,
+      "line_end": 62,
+      "line_start": 59,
+      "path": ".dev/tasks/done/TASK-WF-implementFrOnb1O-20261023-180618/TASK-WF-implementFrOnb1O-20261023-180618.md",
+      "reason": null,
+      "reviewer_id": "reviewer-1",
+      "role": "plan"
+    },
+    {
+      "advisory": false,
+      "citation": 2,
+      "finding_id": "F3",
+      "flag": null,
+      "line_end": 74,
+      "line_start": 67,
+      "path": ".dev/tasks/done/TASK-WF-implementFrOnb1O-20261023-180618/TASK-WF-implementFrOnb1O-20261023-180618.md",
+      "reason": null,
+      "reviewer_id": "reviewer-1",
+      "role": "plan"
+    },
+    {
+      "advisory": false,
+      "citation": 1,
+      "finding_id": "F1",
+      "flag": null,
+      "line_end": 138,
+      "line_start": 133,
+      "path": ".dev/tasks/done/TASK-WF-implementFrOnb1O-20261023-180618/TASK-WF-implementFrOnb1O-20261023-180618.md",
+      "reason": null,
+      "reviewer_id": "reviewer-2",
+      "role": "plan"
+    },
+    {
+      "advisory": false,
+      "citation": 2,
+      "finding_id": "F1",
+      "flag": null,
+      "line_end": 6,
+      "line_start": 5,
+      "path": ".dev/tasks/done/TASK-WF-implementFrOnb1O-20261023-180618/artifacts/t5-checks.log",
+      "reason": null,
+      "reviewer_id": "reviewer-2",
+      "role": "artifact"
+    },
+    {
+      "advisory": false,
+      "citation": 3,
+      "finding_id": "F1",
+      "flag": null,
+      "line_end": 14,
+      "line_start": 9,
+      "path": ".dev/tasks/done/TASK-WF-implementFrOnb1O-20261023-180618/artifacts/t5.diff",
+      "reason": null,
+      "reviewer_id": "reviewer-2",
+      "role": "diff"
+    },
+    {
+      "advisory": false,
+      "citation": 1,
+      "finding_id": "F2",
+      "flag": null,
+      "line_end": 168,
+      "line_start": 160,
+      "path": ".dev/tasks/done/TASK-WF-implementFrOnb1O-20261023-180618/TASK-WF-implementFrOnb1O-20261023-180618.md",
+      "reason": null,
+      "reviewer_id": "reviewer-2",
+      "role": "plan"
+    },
+    {
+      "advisory": false,
+      "citation": 2,
+      "finding_id": "F2",
+      "flag": "out-of-range",
+      "line_end": 48,
+      "line_start": 48,
+      "path": ".dev/tasks/done/TASK-WF-implementFrOnb1O-20261023-180618/progress.md",
+      "reason": "file has 18 lines",
+      "reviewer_id": "reviewer-2",
+      "role": "artifact"
+    },
+    {
+      "advisory": false,
+      "citation": 1,
+      "finding_id": "F3",
+      "flag": null,
+      "line_end": 124,
+      "line_start": 113,
+      "path": ".dev/tasks/done/TASK-WF-implementFrOnb1O-20261023-180618/TASK-WF-implementFrOnb1O-20261023-180618.md",
+      "reason": null,
+      "reviewer_id": "reviewer-2",
+      "role": "plan"
+    },
+    {
+      "advisory": false,
+      "citation": 2,
+      "finding_id": "F3",
+      "flag": null,
+      "line_end": 105,
+      "line_start": 99,
+      "path": ".dev/tasks/done/TASK-WF-implementFrOnb1O-20261023-180618/TASK-WF-implementFrOnb1O-20261023-180618.md",
+      "reason": null,
+      "reviewer_id": "reviewer-2",
+      "role": "plan"
+    },
+    {
+      "advisory": false,
+      "citation": 3,
+      "finding_id": "F3",
+      "flag": null,
+      "line_end": 3,
+      "line_start": 2,
+      "path": ".dev/tasks/done/TASK-WF-implementFrOnb1O-20261023-180618/artifacts/t2-few-files.log",
+      "reason": null,
+      "reviewer_id": "reviewer-2",
+      "role": "artifact"
+    },
+    {
+      "advisory": false,
+      "citation": 1,
+      "finding_id": "F4",
+      "flag": null,
+      "line_end": 1,
+      "line_start": 1,
+      "path": ".dev/tasks/done/TASK-WF-implementFrOnb1O-20261023-180618/source.md",
+      "reason": null,
+      "reviewer_id": "reviewer-2",
+      "role": "spec"
+    },
+    {
+      "advisory": false,
+      "citation": 2,
+      "finding_id": "F4",
+      "flag": null,
+      "line_end": 19,
+      "line_start": 19,
+      "path": ".dev/tasks/done/TASK-WF-implementFrOnb1O-20261023-180618/TASK-WF-implementFrOnb1O-20261023-180618.md",
+      "reason": null,
+      "reviewer_id": "reviewer-2",
+      "role": "plan"
+    },
+    {
+      "advisory": false,
+      "citation": 1,
+      "finding_id": "F5",
+      "flag": null,
+      "line_end": 153,
+      "line_start": 146,
+      "path": ".dev/tasks/done/TASK-WF-implementFrOnb1O-20261023-180618/TASK-WF-implementFrOnb1O-20261023-180618.md",
+      "reason": null,
+      "reviewer_id": "reviewer-2",
+      "role": "plan"
+    },
+    {
+      "advisory": false,
+      "citation": 2,
+      "finding_id": "F5",
+      "flag": "out-of-range",
+      "line_end": 46,
+      "line_start": 46,
+      "path": ".dev/tasks/done/TASK-WF-implementFrOnb1O-20261023-180618/progress.md",
+      "reason": "file has 18 lines",
+      "reviewer_id": "reviewer-2",
+      "role": "artifact"
+    },
+    {
+      "advisory": false,
+      "citation": 3,
+      "finding_id": "F5",
+      "flag": null,
+      "line_end": 22,
+      "line_start": 1,
+      "path": ".dev/tasks/done/TASK-WF-implementFrOnb1O-20261023-180618/artifacts/t6-sweep.log",
+      "reason": null,
+      "reviewer_id": "reviewer-2",
+      "role": "artifact"
+    },
+    {
+      "advisory": false,
+      "citation": 1,
+      "finding_id": "F6",
+      "flag": null,
+      "line_end": 73,
+      "line_start": 67,
+      "path": ".dev/tasks/done/TASK-WF-implementFrOnb1O-20261023-180618/TASK-WF-implementFrOnb1O-20261023-180618.md",
+      "reason": null,
+      "reviewer_id": "reviewer-2",
+      "role": "plan"
+    },
+    {
+      "advisory": false,
+      "citation": 2,
+      "finding_id": "F6",
+      "flag": "out-of-range",
+      "line_end": 38,
+      "line_start": 38,
+      "path": ".dev/tasks/done/TASK-WF-implementFrOnb1O-20261023-180618/progress.md",
+      "reason": "file has 18 lines",
+      "reviewer_id": "reviewer-2",
+      "role": "artifact"
+    },
+    {
+      "advisory": false,
+      "citation": 1,
+      "finding_id": "F1",
+      "flag": null,
+      "line_end": 104,
+      "line_start": 96,
+      "path": ".dev/tasks/done/TASK-WF-implementFrOnb1O-20261023-180618/TASK-WF-implementFrOnb1O-20261023-180618.md",
+      "reason": null,
+      "reviewer_id": "reviewer-3",
+      "role": "plan"
+    },
+    {
+      "advisory": false,
+      "citation": 2,
+      "finding_id": "F1",
+      "flag": null,
+      "line_end": 54,
+      "line_start": 47,
+      "path": ".dev/tasks/done/TASK-WF-implementFrOnb1O-20261023-180618/artifacts/t7.diff",
+      "reason": null,
+      "reviewer_id": "reviewer-3",
+      "role": "test"
+    }
+  ],
+  "flagged": 5,
+  "reread_set": [
+    {
+      "citation": 3,
+      "finding_id": "F1",
+      "flag": "out-of-range",
+      "path": ".dev/tasks/done/TASK-WF-implementFrOnb1O-20261023-180618/progress.md",
+      "reviewer_id": "reviewer-1"
+    },
+    {
+      "citation": 2,
+      "finding_id": "F2",
+      "flag": "out-of-range",
+      "path": ".dev/tasks/done/TASK-WF-implementFrOnb1O-20261023-180618/progress.md",
+      "reviewer_id": "reviewer-1"
+    },
+    {
+      "citation": 2,
+      "finding_id": "F2",
+      "flag": "out-of-range",
+      "path": ".dev/tasks/done/TASK-WF-implementFrOnb1O-20261023-180618/progress.md",
+      "reviewer_id": "reviewer-2"
+    },
+    {
+      "citation": 2,
+      "finding_id": "F5",
+      "flag": "out-of-range",
+      "path": ".dev/tasks/done/TASK-WF-implementFrOnb1O-20261023-180618/progress.md",
+      "reviewer_id": "reviewer-2"
+    },
+    {
+      "citation": 2,
+      "finding_id": "F6",
+      "flag": "out-of-range",
+      "path": ".dev/tasks/done/TASK-WF-implementFrOnb1O-20261023-180618/progress.md",
+      "reviewer_id": "reviewer-2"
+    }
+  ],
+  "schema": "review-precheck/1"
+}

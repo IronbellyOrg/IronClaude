@@ -1,0 +1,31 @@
+# Written by reflect shadow step 7 from the sc-adversarial-protocol return contract and merged-output.md (copy, never invent)
+merge_method: adversarial
+verdict: "ready with minor gaps (0 blocking, 2 MAJOR non-blocking, 15 MINOR)"
+convergence_score: 1.0
+status: completed
+base_variant: "variant-2-original.md (reviewer-2 card, qa/haiku, combined score 0.7212)"
+judge_identity: unknown   # the sc-adversarial return contract names no judge; the debate was run inline by the orchestrator session (claude-gw-tier1b)
+source_cards:
+  - .dev/eval-workspaces/shadow-model-combos/runs/pre-TASK-WF-designSpec-20261107-075614-comboD-r3/reviewer-cards/reviewer-1-card.md
+  - .dev/eval-workspaces/shadow-model-combos/runs/pre-TASK-WF-designSpec-20261107-075614-comboD-r3/reviewer-cards/reviewer-2-card.md
+  - .dev/eval-workspaces/shadow-model-combos/runs/pre-TASK-WF-designSpec-20261107-075614-comboD-r3/reviewer-cards/reviewer-3-card.md
+merged_findings:   # confidence: calibrator per-finding value of the primary source finding; 0.55-0.70 values are orchestrator-assigned where the finding came from Round 2 or the probe
+  - {id: M-01, title: "Wave 0 bullet vs its own test wording", category: contradiction, severity: MINOR, blocking: false, confidence: 0.88, taxonomy: L1}
+  - {id: M-02, title: "Cycle id minted in two tasks; no cycle_id equality check", category: missing-requirement, severity: MINOR, blocking: false, confidence: 0.76, taxonomy: L2}
+  - {id: M-03, title: "Task 8 omits spec 4.2 and 4.4 (event fields, key format)", category: missing-requirement, severity: MINOR, blocking: false, confidence: 0.78, taxonomy: L2}
+  - {id: M-04, title: "auto_merge_armed in engage notes untested", category: missing-requirement, severity: MINOR, blocking: false, confidence: 0.77, taxonomy: L3}
+  - {id: M-05, title: "original_is_draft on a first skip untested", category: missing-requirement, severity: MINOR, blocking: false, confidence: 0.72, taxonomy: L3}
+  - {id: M-06, title: "Release-failure retry path has no behavioural criterion", category: missing-requirement, severity: MINOR, blocking: false, confidence: 0.70, taxonomy: L3}
+  - {id: M-07, title: "--to ready idempotency untested", category: missing-requirement, severity: MINOR, blocking: false, confidence: 0.78, taxonomy: L3}
+  - {id: M-08, title: "CI-fix engage case absent", category: missing-requirement, severity: MINOR, blocking: false, confidence: 0.71, taxonomy: L2}
+  - {id: M-09, title: "Engage-failure message not asserted", category: missing-requirement, severity: MINOR, blocking: false, confidence: 0.70, taxonomy: L3}
+  - {id: M-10, title: "PR body release-gate statement unowned (advisory)", category: missing-requirement, severity: MINOR, blocking: false, confidence: 0.70, taxonomy: L1}
+  - {id: M-11, title: "Pinned sentences compared by start text only (marginal)", category: unpassable-check, severity: MINOR, blocking: false, confidence: 0.60, taxonomy: L1}
+  - {id: M-12, title: "Wave 0 second trigger and printed-once untested", category: missing-requirement, severity: MINOR, blocking: false, confidence: 0.65, taxonomy: L2}
+  - {id: M-13, title: "Task 12 and Task 13 dependency lines", category: other, severity: MINOR, blocking: false, confidence: 0.70, taxonomy: L2}
+  - {id: M-14, title: "No-file:NNN and no-python-fence constraints unenforced", category: missing-requirement, severity: MINOR, blocking: false, confidence: 0.65, taxonomy: L1}
+  - {id: M-15, title: "Source of the per-cycle applied_edits count unspecified", category: missing-requirement, severity: MAJOR, blocking: false, confidence: 0.60, taxonomy: L3}
+  - {id: M-16, title: "Fold cycle_id update rule unspecified", category: missing-requirement, severity: MAJOR, blocking: false, confidence: 0.60, taxonomy: L3}
+  - {id: M-17, title: "Resume row 4 inputs unspecified", category: missing-requirement, severity: MINOR, blocking: false, confidence: 0.55, taxonomy: L3}
+unresolved_conflicts: 0
+unaddressed_invariants: []   # HIGH only, per the return contract; non-HIGH unaddressed: INV-001, INV-002, INV-003, INV-004, INV-006 (adversarial/adversarial/invariant-probe.md)

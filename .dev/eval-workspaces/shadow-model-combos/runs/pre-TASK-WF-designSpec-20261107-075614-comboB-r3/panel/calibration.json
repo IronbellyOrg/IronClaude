@@ -1,0 +1,30 @@
+{
+ "cards": {
+  "reviewer-1": {
+   "card_score": 0.7,
+   "per_finding": {
+    "F1": 0.65,
+    "F2": 0.85,
+    "F3": 0.75,
+    "F4": 0.7,
+    "F5": 0.6
+   }
+  },
+  "reviewer-2": {
+   "card_score": 0.61,
+   "per_finding": {
+    "F1": 0.45,
+    "F2": 0.6
+   }
+  },
+  "reviewer-3": {
+   "card_score": 0.7,
+   "per_finding": {
+    "F1": 0.75,
+    "F2": 0.55,
+    "F3": 0.7,
+    "F4": 0.7
+   }
+  }
+ }
+}

@@ -1,0 +1,48 @@
+merge_method: adversarial
+convergence_score: 1.00
+tier_reached: 2
+base_variant: reviewer-1-card.md (sonnet:analyzer)
+debate_skipped_similar: false
+findings:
+  - id: M-001
+    severity: MINOR
+    category: missing-requirement
+    claim: "The spec's staging discipline (never stage .claude mirrors; always stage .dev/tasks) is carried only as Constraints bullet 3; no task acceptance criterion gates it (Task 2 AC3 gates only the sync-dev/verify-sync half). A future executor of this plan text is not gated on it. Recurring repo class: constraints without matching AC do not gate."
+    citations:
+      - {role: spec, path: ".dev/tasks/done/TASK-WF-fixIssue412SVeri-20261106-215543/source.md", line_start: 1, line_end: 1}
+      - {role: plan, path: ".dev/tasks/done/TASK-WF-fixIssue412SVeri-20261106-215543/TASK-WF-fixIssue412SVeri-20261106-215543.md", line_start: 21, line_end: 21}
+      - {role: plan, path: ".dev/tasks/done/TASK-WF-fixIssue412SVeri-20261106-215543/TASK-WF-fixIssue412SVeri-20261106-215543.md", line_start: 52, line_end: 52}
+    calibrated: 0.70
+    reviewers: [R1.F1]
+    post_hoc_note: progress.md shows the executor complied (ARCHIVE token, no commit); plan-text gap only
+  - id: M-002
+    severity: MINOR
+    category: missing-requirement
+    claim: "The spec's no-commit/no-push/no-PR/no-global-install restriction is carried only as Constraints bullet 2 with no acceptance criterion in either task; it cannot fail at a plan gate. Post-hoc evidence (progress.md) shows compliance, so plan-text gap only."
+    citations:
+      - {role: spec, path: ".dev/tasks/done/TASK-WF-fixIssue412SVeri-20261106-215543/source.md", line_start: 1, line_end: 1}
+      - {role: plan, path: ".dev/tasks/done/TASK-WF-fixIssue412SVeri-20261106-215543/TASK-WF-fixIssue412SVeri-20261106-215543.md", line_start: 20, line_end: 20}
+    calibrated: 0.65
+    reviewers: [R1.F2]
+  - id: M-003
+    severity: MINOR
+    category: other
+    claim: "Task 2 AC2 requires skip/warning output surfaced 'including when files already exist', while AC1 requires nonforce setup to make no Orca calls; only the force path can satisfy AC2's clause and the AC does not say so. The shipped parametrized tests realize it on the force path (present=True rows), so this is a wording ambiguity, not a wrong-behavior pin."
+    citations:
+      - {role: plan, path: ".dev/tasks/done/TASK-WF-fixIssue412SVeri-20261106-215543/TASK-WF-fixIssue412SVeri-20261106-215543.md", line_start: 50, line_end: 51}
+      - {role: evidence, path: "tests/cli/test_install_user_setup.py", line_start: 313, line_end: 322}
+    calibrated: 0.75
+    reviewers: [R1.F3]
+    disposition: advisory (kept, not blocking; tests resolve the ambiguity)
+advisories:
+  - id: A-001
+    claim: "V3 F1 (no full-paragraph copy comparison) refuted: the 17-item required-strings check pins every content element of the first paragraph in both copies, and Task 1 AC2 itself mandates the one deliberate divergence (README's ccsession-orca prerequisite sentence). A single identical-paragraph assert would be simpler but is not spec-required."
+    citations:
+      - {role: evidence, path: "tests/core/test_orca_session_launch_guidance.py", line_start: 17, line_end: 35}
+      - {role: plan, path: ".dev/tasks/done/TASK-WF-fixIssue412SVeri-20261106-215543/TASK-WF-fixIssue412SVeri-20261106-215543.md", line_start: 36, line_end: 36}
+  - id: A-002
+    claim: "V3 F2 (no-rewrite clause cannot fail) refuted: the present=True test asserts guide-file contents are unchanged after a forced run, which fails if IronClaude code ever writes them."
+    citations:
+      - {role: evidence, path: "tests/cli/test_install_user_setup.py", line_start: 367, line_end: 368}
+scope_qualifier: "Coverage verdict (V2, uncontested): all nine inferred spec requirements are carried by the plan; M-001/M-002 are gating gaps in the plan text, not coverage gaps."
+evidence_validator: pending

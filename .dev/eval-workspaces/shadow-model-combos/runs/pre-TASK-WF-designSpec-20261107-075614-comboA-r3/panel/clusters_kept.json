@@ -1,0 +1,808 @@
+{
+  "agreement_clusters": [
+    "C3",
+    "C5",
+    "C7",
+    "C10"
+  ],
+  "blocking_clusters": 4,
+  "calibration_coverage": {
+    "calibrated_findings": 21,
+    "clustered_findings": 21
+  },
+  "cards": [
+    {
+      "block_state": "complete",
+      "card": "reviewer-1.md",
+      "errors": [],
+      "reviewer_id": "reviewer-1",
+      "state": "complete"
+    },
+    {
+      "block_state": "complete",
+      "card": "reviewer-2.md",
+      "errors": [],
+      "reviewer_id": "reviewer-2",
+      "state": "complete"
+    },
+    {
+      "block_state": "complete",
+      "card": "reviewer-3.md",
+      "errors": [],
+      "reviewer_id": "reviewer-3",
+      "state": "complete"
+    }
+  ],
+  "chained": [],
+  "citations": {
+    "malformed": 0,
+    "resolved": 42,
+    "unresolved": 0
+  },
+  "cluster_agreement": 0.39673913043478265,
+  "clusters": [
+    {
+      "blocking_all": false,
+      "blocking_any": false,
+      "chained": false,
+      "claim": "No acceptance criterion asserts the minted fix/ci cycle_id is shared by draft_guard events, the push triad key and rereview_requested (spec 4.6). held_cycle_published and release depend on that equality; Task 11's trace asserts order only.",
+      "cluster_id": "C1",
+      "disputed": true,
+      "member_scores": [
+        0.8,
+        0.7
+      ],
+      "members": [
+        {
+          "blocking": false,
+          "deviation_class": null,
+          "finding_confidence": 0.8,
+          "fp": "0bd4bc6dc550b0400dabde9f60103df94ca608ae6de461e467e67814120ac052",
+          "id": "F1",
+          "ordinal": 1,
+          "primary_citation": {
+            "index": 1,
+            "line_end": 170,
+            "line_start": 170,
+            "path": "input/TASK-WF-designSpec-20261107-075614/TASK-WF-designSpec-20261107-075614.md",
+            "role": "plan",
+            "status": "resolved"
+          },
+          "refs_norm": [],
+          "reviewer_id": "reviewer-1"
+        },
+        {
+          "blocking": false,
+          "deviation_class": null,
+          "finding_confidence": 0.7,
+          "fp": "0bd4bc6dc550b0400dabde9f60103df94ca608ae6de461e467e67814120ac052",
+          "id": "F2",
+          "ordinal": 1,
+          "primary_citation": {
+            "index": 1,
+            "line_end": 172,
+            "line_start": 172,
+            "path": "input/TASK-WF-designSpec-20261107-075614/TASK-WF-designSpec-20261107-075614.md",
+            "role": "plan",
+            "status": "resolved"
+          },
+          "refs_norm": [],
+          "reviewer_id": "reviewer-1"
+        }
+      ],
+      "representative": {
+        "id": "F1",
+        "reviewer_id": "reviewer-1"
+      },
+      "reviewers": [
+        "reviewer-1"
+      ],
+      "support": 0.3478260869565218,
+      "uncalibrated": false
+    },
+    {
+      "blocking_all": false,
+      "blocking_any": false,
+      "chained": false,
+      "claim": "Task 4 says engage notes carries auto_merge_armed (FR-11) but no acceptance criterion asserts it, so an implementation that drops the note would pass.",
+      "cluster_id": "C2",
+      "disputed": true,
+      "member_scores": [
+        0.7
+      ],
+      "members": [
+        {
+          "blocking": false,
+          "deviation_class": null,
+          "finding_confidence": 0.7,
+          "fp": "7fa5337b4fdc15fdd1f6efbce42efdaa52624446765d88c266d8df768fe4ecc4",
+          "id": "F3",
+          "ordinal": 1,
+          "primary_citation": {
+            "index": 1,
+            "line_end": 73,
+            "line_start": 73,
+            "path": "input/TASK-WF-designSpec-20261107-075614/TASK-WF-designSpec-20261107-075614.md",
+            "role": "plan",
+            "status": "resolved"
+          },
+          "refs_norm": [
+            "FR-11"
+          ],
+          "reviewer_id": "reviewer-1"
+        }
+      ],
+      "representative": {
+        "id": "F3",
+        "reviewer_id": "reviewer-1"
+      },
+      "reviewers": [
+        "reviewer-1"
+      ],
+      "support": 0.30434782608695654,
+      "uncalibrated": false
+    },
+    {
+      "blocking_all": false,
+      "blocking_any": true,
+      "chained": false,
+      "claim": "Engage-halt, retry-once and held-exit behaviour lives in SKILL prose, but scenario tests run a test-owned driver and Task 8 only greps phrases. Nothing would fail if the SKILL ignored the ref: the checks are self-verifying.",
+      "cluster_id": "C3",
+      "disputed": true,
+      "member_scores": [
+        0.7,
+        0.75
+      ],
+      "members": [
+        {
+          "blocking": false,
+          "deviation_class": null,
+          "finding_confidence": 0.7,
+          "fp": "0bd4bc6dc550b0400dabde9f60103df94ca608ae6de461e467e67814120ac052",
+          "id": "F4",
+          "ordinal": 1,
+          "primary_citation": {
+            "index": 1,
+            "line_end": 129,
+            "line_start": 129,
+            "path": "input/TASK-WF-designSpec-20261107-075614/TASK-WF-designSpec-20261107-075614.md",
+            "role": "plan",
+            "status": "resolved"
+          },
+          "refs_norm": [],
+          "reviewer_id": "reviewer-1"
+        },
+        {
+          "blocking": true,
+          "deviation_class": null,
+          "finding_confidence": 0.75,
+          "fp": "0bd4bc6dc550b0400dabde9f60103df94ca608ae6de461e467e67814120ac052",
+          "id": "F2",
+          "ordinal": 2,
+          "primary_citation": {
+            "index": 0,
+            "line_end": 166,
+            "line_start": 166,
+            "path": "input/TASK-WF-designSpec-20261107-075614/TASK-WF-designSpec-20261107-075614.md",
+            "role": "plan",
+            "status": "resolved"
+          },
+          "refs_norm": [],
+          "reviewer_id": "reviewer-2"
+        }
+      ],
+      "representative": {
+        "id": "F2",
+        "reviewer_id": "reviewer-2"
+      },
+      "reviewers": [
+        "reviewer-1",
+        "reviewer-2"
+      ],
+      "support": 0.6304347826086957,
+      "uncalibrated": false
+    },
+    {
+      "blocking_all": false,
+      "blocking_any": false,
+      "chained": false,
+      "claim": "Tasks 9, 10, 12 and 13 consume pre-build-gate.md (pins, literal sentences, baseline) but declare no direct Depends on: Task 1. They are covered only transitively. Tasks 10/12 and 5/7 edit shared test files with no declared order.",
+      "cluster_id": "C4",
+      "disputed": true,
+      "member_scores": [
+        0.4,
+        0.7,
+        0.65
+      ],
+      "members": [
+        {
+          "blocking": false,
+          "deviation_class": null,
+          "finding_confidence": 0.4,
+          "fp": "0bd4bc6dc550b0400dabde9f60103df94ca608ae6de461e467e67814120ac052",
+          "id": "F5",
+          "ordinal": 1,
+          "primary_citation": {
+            "index": 1,
+            "line_end": 137,
+            "line_start": 137,
+            "path": "input/TASK-WF-designSpec-20261107-075614/TASK-WF-designSpec-20261107-075614.md",
+            "role": "plan",
+            "status": "resolved"
+          },
+          "refs_norm": [],
+          "reviewer_id": "reviewer-1"
+        },
+        {
+          "blocking": false,
+          "deviation_class": null,
+          "finding_confidence": 0.7,
+          "fp": "0bd4bc6dc550b0400dabde9f60103df94ca608ae6de461e467e67814120ac052",
+          "id": "F1",
+          "ordinal": 3,
+          "primary_citation": {
+            "index": 0,
+            "line_end": 137,
+            "line_start": 137,
+            "path": "input/TASK-WF-designSpec-20261107-075614/TASK-WF-designSpec-20261107-075614.md",
+            "role": "plan",
+            "status": "resolved"
+          },
+          "refs_norm": [],
+          "reviewer_id": "reviewer-3"
+        },
+        {
+          "blocking": false,
+          "deviation_class": null,
+          "finding_confidence": 0.65,
+          "fp": "0bd4bc6dc550b0400dabde9f60103df94ca608ae6de461e467e67814120ac052",
+          "id": "F4",
+          "ordinal": 3,
+          "primary_citation": {
+            "index": 0,
+            "line_end": 137,
+            "line_start": 137,
+            "path": "input/TASK-WF-designSpec-20261107-075614/TASK-WF-designSpec-20261107-075614.md",
+            "role": "plan",
+            "status": "resolved"
+          },
+          "refs_norm": [],
+          "reviewer_id": "reviewer-3"
+        }
+      ],
+      "representative": {
+        "id": "F1",
+        "reviewer_id": "reviewer-3"
+      },
+      "reviewers": [
+        "reviewer-1",
+        "reviewer-3"
+      ],
+      "support": 0.47826086956521746,
+      "uncalibrated": false
+    },
+    {
+      "blocking_all": true,
+      "blocking_any": true,
+      "chained": false,
+      "claim": "Task 11 acceptance for the twelve tests is name-existence only; empty bodies pass. FR-16 retry-once, FR-15 no-edit-after-halt and FR-17 held exits get no stated assertion, so a wrong implementation would pass.",
+      "cluster_id": "C5",
+      "disputed": true,
+      "member_scores": [
+        0.7
+      ],
+      "members": [
+        {
+          "blocking": true,
+          "deviation_class": null,
+          "finding_confidence": 0.7,
+          "fp": "0feddc978c1e2fbe5876fd0d6d6f722f099699780e0912c9c273ad26d16ee319",
+          "id": "F1",
+          "ordinal": 2,
+          "primary_citation": {
+            "index": 0,
+            "line_end": 169,
+            "line_start": 169,
+            "path": "input/TASK-WF-designSpec-20261107-075614/TASK-WF-designSpec-20261107-075614.md",
+            "role": "plan",
+            "status": "resolved"
+          },
+          "refs_norm": [
+            "FR-15",
+            "FR-16",
+            "FR-17"
+          ],
+          "reviewer_id": "reviewer-2"
+        }
+      ],
+      "representative": {
+        "id": "F1",
+        "reviewer_id": "reviewer-2"
+      },
+      "reviewers": [
+        "reviewer-2"
+      ],
+      "support": 0.30434782608695654,
+      "uncalibrated": false
+    },
+    {
+      "blocking_all": false,
+      "blocking_any": false,
+      "chained": false,
+      "claim": "classify_toggles criteria never test the unsettled term of slack or the boundary observed == run_toggles+slack versus +1. A build that drops unsettled from slack, or mishandles pending phases, passes.",
+      "cluster_id": "C6",
+      "disputed": true,
+      "member_scores": [
+        0.7,
+        0.5
+      ],
+      "members": [
+        {
+          "blocking": false,
+          "deviation_class": null,
+          "finding_confidence": 0.7,
+          "fp": "0bd4bc6dc550b0400dabde9f60103df94ca608ae6de461e467e67814120ac052",
+          "id": "F3",
+          "ordinal": 2,
+          "primary_citation": {
+            "index": 0,
+            "line_end": 74,
+            "line_start": 74,
+            "path": "input/TASK-WF-designSpec-20261107-075614/TASK-WF-designSpec-20261107-075614.md",
+            "role": "plan",
+            "status": "resolved"
+          },
+          "refs_norm": [],
+          "reviewer_id": "reviewer-2"
+        },
+        {
+          "blocking": false,
+          "deviation_class": null,
+          "finding_confidence": 0.5,
+          "fp": "0bd4bc6dc550b0400dabde9f60103df94ca608ae6de461e467e67814120ac052",
+          "id": "F9",
+          "ordinal": 2,
+          "primary_citation": {
+            "index": 0,
+            "line_end": 76,
+            "line_start": 76,
+            "path": "input/TASK-WF-designSpec-20261107-075614/TASK-WF-designSpec-20261107-075614.md",
+            "role": "plan",
+            "status": "resolved"
+          },
+          "refs_norm": [],
+          "reviewer_id": "reviewer-2"
+        }
+      ],
+      "representative": {
+        "id": "F3",
+        "reviewer_id": "reviewer-2"
+      },
+      "reviewers": [
+        "reviewer-2"
+      ],
+      "support": 0.30434782608695654,
+      "uncalibrated": false
+    },
+    {
+      "blocking_all": true,
+      "blocking_any": true,
+      "chained": false,
+      "claim": "The ready-then-draft round trip (FR-13) is named in the Task 4 body but absent from its acceptance criteria. A build checking only is_draft sees a draft PR as ok; no criterion forces the transition-count catch with failed_mutations=0.",
+      "cluster_id": "C7",
+      "disputed": true,
+      "member_scores": [
+        0.8
+      ],
+      "members": [
+        {
+          "blocking": true,
+          "deviation_class": null,
+          "finding_confidence": 0.8,
+          "fp": "972fbffda5804ff992344ca20bb4cf80ee39fb26d64cf752cf7e8a66bf809406",
+          "id": "F4",
+          "ordinal": 2,
+          "primary_citation": {
+            "index": 0,
+            "line_end": 70,
+            "line_start": 70,
+            "path": "input/TASK-WF-designSpec-20261107-075614/TASK-WF-designSpec-20261107-075614.md",
+            "role": "plan",
+            "status": "resolved"
+          },
+          "refs_norm": [
+            "FR-13"
+          ],
+          "reviewer_id": "reviewer-2"
+        }
+      ],
+      "representative": {
+        "id": "F4",
+        "reviewer_id": "reviewer-2"
+      },
+      "reviewers": [
+        "reviewer-2"
+      ],
+      "support": 0.3478260869565218,
+      "uncalibrated": false
+    },
+    {
+      "blocking_all": false,
+      "blocking_any": false,
+      "chained": false,
+      "claim": "FR-17 'each exit of D7' is never enumerated in the plan; the criterion is a phrase-presence check. No criterion lists which exits must report held with the clear command, so omissions pass.",
+      "cluster_id": "C8",
+      "disputed": true,
+      "member_scores": [
+        0.65
+      ],
+      "members": [
+        {
+          "blocking": false,
+          "deviation_class": null,
+          "finding_confidence": 0.65,
+          "fp": "781d26ae19d907e937edc381d1e58f1d97b599cc4062862c582c1cef2e4e89a4",
+          "id": "F5",
+          "ordinal": 2,
+          "primary_citation": {
+            "index": 1,
+            "line_end": 129,
+            "line_start": 129,
+            "path": "input/TASK-WF-designSpec-20261107-075614/TASK-WF-designSpec-20261107-075614.md",
+            "role": "plan",
+            "status": "resolved"
+          },
+          "refs_norm": [
+            "FR-17"
+          ],
+          "reviewer_id": "reviewer-2"
+        }
+      ],
+      "representative": {
+        "id": "F5",
+        "reviewer_id": "reviewer-2"
+      },
+      "reviewers": [
+        "reviewer-2"
+      ],
+      "support": 0.28260869565217395,
+      "uncalibrated": false
+    },
+    {
+      "blocking_all": false,
+      "blocking_any": false,
+      "chained": false,
+      "claim": "FR-20 once-per-cycle-id has no criterion: engage_decision has no row blocking a re-engage of the same cycle id after RELEASED. next_cycle_number is tested only on a single-kind log, not with ci-n or sync-n ids mixed in.",
+      "cluster_id": "C9",
+      "disputed": true,
+      "member_scores": [
+        0.65
+      ],
+      "members": [
+        {
+          "blocking": false,
+          "deviation_class": null,
+          "finding_confidence": 0.65,
+          "fp": "74779f7cf783a55c4dc4003e2b4d87d078d5f96b12bebd4a3e58fc874a652176",
+          "id": "F6",
+          "ordinal": 2,
+          "primary_citation": {
+            "index": 0,
+            "line_end": 59,
+            "line_start": 59,
+            "path": "input/TASK-WF-designSpec-20261107-075614/TASK-WF-designSpec-20261107-075614.md",
+            "role": "plan",
+            "status": "resolved"
+          },
+          "refs_norm": [
+            "FR-20"
+          ],
+          "reviewer_id": "reviewer-2"
+        }
+      ],
+      "representative": {
+        "id": "F6",
+        "reviewer_id": "reviewer-2"
+      },
+      "reviewers": [
+        "reviewer-2"
+      ],
+      "support": 0.28260869565217395,
+      "uncalibrated": false
+    },
+    {
+      "blocking_all": true,
+      "blocking_any": true,
+      "chained": false,
+      "claim": "FR-23 doc and PR obligations are not mechanically checked: the grep matches 'merge-guard' without proving the unverified statement, and no task or criterion covers the PR-body gate statement or opening the PR with --merge-guard off.",
+      "cluster_id": "C10",
+      "disputed": true,
+      "member_scores": [
+        0.7
+      ],
+      "members": [
+        {
+          "blocking": true,
+          "deviation_class": null,
+          "finding_confidence": 0.7,
+          "fp": "dd90df7cf758b875b140e9337f120b509d41bb3ef01246ff5ec2d6070af3423b",
+          "id": "F7",
+          "ordinal": 2,
+          "primary_citation": {
+            "index": 0,
+            "line_end": 198,
+            "line_start": 198,
+            "path": "input/TASK-WF-designSpec-20261107-075614/TASK-WF-designSpec-20261107-075614.md",
+            "role": "plan",
+            "status": "resolved"
+          },
+          "refs_norm": [
+            "FR-23"
+          ],
+          "reviewer_id": "reviewer-2"
+        }
+      ],
+      "representative": {
+        "id": "F7",
+        "reviewer_id": "reviewer-2"
+      },
+      "reviewers": [
+        "reviewer-2"
+      ],
+      "support": 0.30434782608695654,
+      "uncalibrated": false
+    },
+    {
+      "blocking_all": false,
+      "blocking_any": false,
+      "chained": false,
+      "claim": "Task 1 base-commit record is self-written and the 'no GitHub or network call is made' criterion cannot be checked. A false 'clean' record would hide pre-existing failures from the final comparison.",
+      "cluster_id": "C11",
+      "disputed": true,
+      "member_scores": [
+        0.45
+      ],
+      "members": [
+        {
+          "blocking": false,
+          "deviation_class": null,
+          "finding_confidence": 0.45,
+          "fp": "0bd4bc6dc550b0400dabde9f60103df94ca608ae6de461e467e67814120ac052",
+          "id": "F8",
+          "ordinal": 2,
+          "primary_citation": {
+            "index": 0,
+            "line_end": 38,
+            "line_start": 38,
+            "path": "input/TASK-WF-designSpec-20261107-075614/TASK-WF-designSpec-20261107-075614.md",
+            "role": "plan",
+            "status": "resolved"
+          },
+          "refs_norm": [],
+          "reviewer_id": "reviewer-2"
+        }
+      ],
+      "representative": {
+        "id": "F8",
+        "reviewer_id": "reviewer-2"
+      },
+      "reviewers": [
+        "reviewer-2"
+      ],
+      "support": 0.1956521739130435,
+      "uncalibrated": false
+    },
+    {
+      "blocking_all": false,
+      "blocking_any": false,
+      "chained": false,
+      "claim": "FR-19 criterion is a bare presence check of the L2 line anywhere in SKILL.md. The fresh --monitor 2, no-resume, fixes-applied-then-halt condition and the output-table placement are untested.",
+      "cluster_id": "C12",
+      "disputed": true,
+      "member_scores": [
+        0.55
+      ],
+      "members": [
+        {
+          "blocking": false,
+          "deviation_class": null,
+          "finding_confidence": 0.55,
+          "fp": "8e231a90de3cc021a7e7b27eed69fe0cf75679a310e9b8cddd2f78e1ee3a8b06",
+          "id": "F10",
+          "ordinal": 2,
+          "primary_citation": {
+            "index": 0,
+            "line_end": 141,
+            "line_start": 141,
+            "path": "input/TASK-WF-designSpec-20261107-075614/TASK-WF-designSpec-20261107-075614.md",
+            "role": "plan",
+            "status": "resolved"
+          },
+          "refs_norm": [
+            "FR-19"
+          ],
+          "reviewer_id": "reviewer-2"
+        }
+      ],
+      "representative": {
+        "id": "F10",
+        "reviewer_id": "reviewer-2"
+      },
+      "reviewers": [
+        "reviewer-2"
+      ],
+      "support": 0.23913043478260873,
+      "uncalibrated": false
+    },
+    {
+      "blocking_all": false,
+      "blocking_any": false,
+      "chained": false,
+      "claim": "The byte-identical check for the S5a and Wave 6 pre-push sentences is tied to the recorded literal start text. A start-text constant can miss edits later in the sentence, whereas the spec wants whole-sentence literal constants.",
+      "cluster_id": "C13",
+      "disputed": true,
+      "member_scores": [
+        0.5
+      ],
+      "members": [
+        {
+          "blocking": false,
+          "deviation_class": null,
+          "finding_confidence": 0.5,
+          "fp": "0bd4bc6dc550b0400dabde9f60103df94ca608ae6de461e467e67814120ac052",
+          "id": "F2",
+          "ordinal": 3,
+          "primary_citation": {
+            "index": 0,
+            "line_end": 154,
+            "line_start": 154,
+            "path": "input/TASK-WF-designSpec-20261107-075614/TASK-WF-designSpec-20261107-075614.md",
+            "role": "plan",
+            "status": "resolved"
+          },
+          "refs_norm": [],
+          "reviewer_id": "reviewer-3"
+        }
+      ],
+      "representative": {
+        "id": "F2",
+        "reviewer_id": "reviewer-3"
+      },
+      "reviewers": [
+        "reviewer-3"
+      ],
+      "support": 0.2173913043478261,
+      "uncalibrated": false
+    },
+    {
+      "blocking_all": false,
+      "blocking_any": false,
+      "chained": false,
+      "claim": "The per-task classification steps (Tasks 7, 8, 12) cover only lines matching gh pr or gh api. Spec 4.7 also counts git write verbs as WRITE_VERB_RE hits, so a git push or git commit line in the ref or command file would fail the test late.",
+      "cluster_id": "C14",
+      "disputed": true,
+      "member_scores": [
+        0.7
+      ],
+      "members": [
+        {
+          "blocking": false,
+          "deviation_class": null,
+          "finding_confidence": 0.7,
+          "fp": "0bd4bc6dc550b0400dabde9f60103df94ca608ae6de461e467e67814120ac052",
+          "id": "F3",
+          "ordinal": 3,
+          "primary_citation": {
+            "index": 0,
+            "line_end": 108,
+            "line_start": 108,
+            "path": "input/TASK-WF-designSpec-20261107-075614/TASK-WF-designSpec-20261107-075614.md",
+            "role": "plan",
+            "status": "resolved"
+          },
+          "refs_norm": [],
+          "reviewer_id": "reviewer-3"
+        }
+      ],
+      "representative": {
+        "id": "F3",
+        "reviewer_id": "reviewer-3"
+      },
+      "reviewers": [
+        "reviewer-3"
+      ],
+      "support": 0.30434782608695654,
+      "uncalibrated": false
+    },
+    {
+      "blocking_all": false,
+      "blocking_any": false,
+      "chained": false,
+      "claim": "The plan's fixed-owner-decisions bullet says engage at the end of Wave 3 and drops the first verified Medium-or-higher routed finding trigger from the spec header. Only Tasks 8 and 10 carry the trigger, so the fixed-decisions list is weaker than the source.",
+      "cluster_id": "C15",
+      "disputed": true,
+      "member_scores": [
+        0.7
+      ],
+      "members": [
+        {
+          "blocking": false,
+          "deviation_class": null,
+          "finding_confidence": 0.7,
+          "fp": "0bd4bc6dc550b0400dabde9f60103df94ca608ae6de461e467e67814120ac052",
+          "id": "F5",
+          "ordinal": 3,
+          "primary_citation": {
+            "index": 0,
+            "line_end": 26,
+            "line_start": 26,
+            "path": "input/TASK-WF-designSpec-20261107-075614/TASK-WF-designSpec-20261107-075614.md",
+            "role": "plan",
+            "status": "resolved"
+          },
+          "refs_norm": [],
+          "reviewer_id": "reviewer-3"
+        }
+      ],
+      "representative": {
+        "id": "F5",
+        "reviewer_id": "reviewer-3"
+      },
+      "reviewers": [
+        "reviewer-3"
+      ],
+      "support": 0.30434782608695654,
+      "uncalibrated": false
+    },
+    {
+      "blocking_all": false,
+      "blocking_any": false,
+      "chained": false,
+      "claim": "The release-gate rules that the PR body states the gate and that the PR-opening run passes --merge-guard off are only recorded in Task 1. No task writes the PR body or checks the flag, so they are unenforced by any step.",
+      "cluster_id": "C16",
+      "disputed": true,
+      "member_scores": [
+        0.6
+      ],
+      "members": [
+        {
+          "blocking": false,
+          "deviation_class": null,
+          "finding_confidence": 0.6,
+          "fp": "0bd4bc6dc550b0400dabde9f60103df94ca608ae6de461e467e67814120ac052",
+          "id": "F6",
+          "ordinal": 3,
+          "primary_citation": {
+            "index": 0,
+            "line_end": 33,
+            "line_start": 33,
+            "path": "input/TASK-WF-designSpec-20261107-075614/TASK-WF-designSpec-20261107-075614.md",
+            "role": "plan",
+            "status": "resolved"
+          },
+          "refs_norm": [],
+          "reviewer_id": "reviewer-3"
+        }
+      ],
+      "representative": {
+        "id": "F6",
+        "reviewer_id": "reviewer-3"
+      },
+      "reviewers": [
+        "reviewer-3"
+      ],
+      "support": 0.2608695652173913,
+      "uncalibrated": false
+    }
+  ],
+  "complete_reviewers": [
+    "reviewer-1",
+    "reviewer-2",
+    "reviewer-3"
+  ],
+  "invalid_reviewers": [],
+  "problems": [],
+  "uncalibrated": [],
+  "uncalibrated_findings": [],
+  "valid_blocks": 3
+}

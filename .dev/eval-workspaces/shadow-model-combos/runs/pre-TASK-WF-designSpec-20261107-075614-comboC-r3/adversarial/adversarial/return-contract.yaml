@@ -1,0 +1,16 @@
+return_contract:
+  merged_output_path: "/home/coder/workspaces/worktrees/IronClaude/brainstorm-reflect-panel/.dev/eval-workspaces/shadow-model-combos/runs/pre-TASK-WF-designSpec-20261107-075614-comboC-r3/adversarial/adversarial/merged-output.md"
+  convergence_score: 0.9333
+  artifacts_dir: "/home/coder/workspaces/worktrees/IronClaude/brainstorm-reflect-panel/.dev/eval-workspaces/shadow-model-combos/runs/pre-TASK-WF-designSpec-20261107-075614-comboC-r3/adversarial/adversarial"
+  status: "success"
+  base_variant: "variant-3 (reviewer-3, refactorer, opus class)"
+  unresolved_conflicts: 1
+  fallback_mode: false
+  failure_stage: null
+  invocation_method: "skill-direct"
+  unaddressed_invariants: []
+  # not part of the stable skill contract; recorded for the reflect panel telemetry
+  judge_identity: "orchestrator session claude-gw-tier1b[1m] (sonnet class); advocates sonnet-class general-purpose agents"
+  debate_skipped_similar: false
+  rounds_completed: 2
+  invariant_probe: "13 findings; 0 HIGH UNADDRESSED; 2 MEDIUM UNADDRESSED (INV-012, INV-013)"

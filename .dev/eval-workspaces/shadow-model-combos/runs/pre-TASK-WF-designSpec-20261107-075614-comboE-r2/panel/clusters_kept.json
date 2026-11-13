@@ -1,0 +1,645 @@
+{
+  "agreement_clusters": [
+    "C1",
+    "C2",
+    "C3",
+    "C4",
+    "C5",
+    "C12"
+  ],
+  "blocking_clusters": 6,
+  "calibration_coverage": {
+    "calibrated_findings": 15,
+    "clustered_findings": 15
+  },
+  "cards": [
+    {
+      "block_state": "complete",
+      "card": "reviewer-1.md",
+      "errors": [],
+      "reviewer_id": "reviewer-1",
+      "state": "complete"
+    },
+    {
+      "block_state": "complete",
+      "card": "reviewer-2.md",
+      "errors": [],
+      "reviewer_id": "reviewer-2",
+      "state": "complete"
+    },
+    {
+      "block_state": "complete",
+      "card": "reviewer-3.md",
+      "errors": [],
+      "reviewer_id": "reviewer-3",
+      "state": "complete"
+    }
+  ],
+  "chained": [],
+  "citations": {
+    "malformed": 0,
+    "resolved": 33,
+    "unresolved": 0
+  },
+  "cluster_agreement": 0.30128205128205127,
+  "clusters": [
+    {
+      "blocking_all": true,
+      "blocking_any": true,
+      "chained": false,
+      "claim": "Cycle-id continuity is unowned: spec 4.6 says the push triad and rereview_requested reuse the guard's fix/ci id, but no task edits that wiring and no AC asserts the ids match, so held_cycle_published can silently fail.",
+      "cluster_id": "C1",
+      "disputed": true,
+      "member_scores": [
+        0.6
+      ],
+      "members": [
+        {
+          "blocking": true,
+          "deviation_class": null,
+          "finding_confidence": 0.6,
+          "fp": "d7092d6d780028ea3305e79924719f908e3d36bafe89741a6ad620d5ff52869b",
+          "id": "F1",
+          "ordinal": 1,
+          "primary_citation": {
+            "index": 0,
+            "line_end": 127,
+            "line_start": 127,
+            "path": ".dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/TASK-WF-designSpec-20261107-075614.md",
+            "role": "plan",
+            "status": "resolved"
+          },
+          "refs_norm": [
+            "INF-011"
+          ],
+          "reviewer_id": "reviewer-1"
+        }
+      ],
+      "representative": {
+        "id": "F1",
+        "reviewer_id": "reviewer-1"
+      },
+      "reviewers": [
+        "reviewer-1"
+      ],
+      "support": 0.23076923076923075,
+      "uncalibrated": false
+    },
+    {
+      "blocking_all": true,
+      "blocking_any": true,
+      "chained": false,
+      "claim": "Fsync-before-call ordering is stated only in Task 8 prose. No AC checks it, and a SKILL that calls --to before appending the request leaves a draft with no record, which resume treats as NOOP.",
+      "cluster_id": "C2",
+      "disputed": true,
+      "member_scores": [
+        0.85
+      ],
+      "members": [
+        {
+          "blocking": true,
+          "deviation_class": null,
+          "finding_confidence": 0.85,
+          "fp": "536fc354fb34dffa680e1e12d8b931400d352995b9b4bcf7145c7c702e083e81",
+          "id": "F2",
+          "ordinal": 1,
+          "primary_citation": {
+            "index": 0,
+            "line_end": 130,
+            "line_start": 124,
+            "path": ".dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/TASK-WF-designSpec-20261107-075614.md",
+            "role": "plan",
+            "status": "resolved"
+          },
+          "refs_norm": [
+            "INF-022"
+          ],
+          "reviewer_id": "reviewer-1"
+        }
+      ],
+      "representative": {
+        "id": "F2",
+        "reviewer_id": "reviewer-1"
+      },
+      "reviewers": [
+        "reviewer-1"
+      ],
+      "support": 0.3269230769230769,
+      "uncalibrated": false
+    },
+    {
+      "blocking_all": false,
+      "blocking_any": true,
+      "chained": false,
+      "claim": "No task owns the mapping from --read JSON (isDraft, headRefOid, autoMergeRequest) to GuardRead fields is_draft, head_sha, auto_merge_armed. Task 7 tests only script output keys, so the decision core has no tested input.",
+      "cluster_id": "C3",
+      "disputed": true,
+      "member_scores": [
+        0.8,
+        0.55
+      ],
+      "members": [
+        {
+          "blocking": true,
+          "deviation_class": null,
+          "finding_confidence": 0.8,
+          "fp": "28ee00f4dc8f33ed23a7818e5bd5c6341e90c0e0208041f7f338e9088ac41976",
+          "id": "F3",
+          "ordinal": 1,
+          "primary_citation": {
+            "index": 1,
+            "line_end": 56,
+            "line_start": 56,
+            "path": ".dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/TASK-WF-designSpec-20261107-075614.md",
+            "role": "plan",
+            "status": "resolved"
+          },
+          "refs_norm": [
+            "INF-004",
+            "INF-017"
+          ],
+          "reviewer_id": "reviewer-1"
+        },
+        {
+          "blocking": false,
+          "deviation_class": null,
+          "finding_confidence": 0.55,
+          "fp": "bf84e601dc1502b6f6666d308e62a137782a4baab7d4d1a7c965695784d324c9",
+          "id": "F7",
+          "ordinal": 1,
+          "primary_citation": {
+            "index": 0,
+            "line_end": 111,
+            "line_start": 111,
+            "path": ".dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/TASK-WF-designSpec-20261107-075614.md",
+            "role": "plan",
+            "status": "resolved"
+          },
+          "refs_norm": [
+            "INF-004"
+          ],
+          "reviewer_id": "reviewer-1"
+        }
+      ],
+      "representative": {
+        "id": "F3",
+        "reviewer_id": "reviewer-1"
+      },
+      "reviewers": [
+        "reviewer-1"
+      ],
+      "support": 0.3076923076923077,
+      "uncalibrated": false
+    },
+    {
+      "blocking_all": true,
+      "blocking_any": true,
+      "chained": false,
+      "claim": "The request key guard:<run_id>:<cycle_id>:<to>:a<k> has no builder, and no AC checks production output. Task 3 AC tests pending_requests only with keys the test supplies, so a missing a<k> suffix would pass.",
+      "cluster_id": "C4",
+      "disputed": true,
+      "member_scores": [
+        0.75
+      ],
+      "members": [
+        {
+          "blocking": true,
+          "deviation_class": null,
+          "finding_confidence": 0.75,
+          "fp": "8f99133a1d79231bd097cf832bcf3268fa0e14d9c3c7e5270704cca36eb49741",
+          "id": "F4",
+          "ordinal": 1,
+          "primary_citation": {
+            "index": 1,
+            "line_end": 62,
+            "line_start": 62,
+            "path": ".dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/TASK-WF-designSpec-20261107-075614.md",
+            "role": "plan",
+            "status": "resolved"
+          },
+          "refs_norm": [
+            "INF-024"
+          ],
+          "reviewer_id": "reviewer-1"
+        }
+      ],
+      "representative": {
+        "id": "F4",
+        "reviewer_id": "reviewer-1"
+      },
+      "reviewers": [
+        "reviewer-1"
+      ],
+      "support": 0.28846153846153844,
+      "uncalibrated": false
+    },
+    {
+      "blocking_all": true,
+      "blocking_any": true,
+      "chained": false,
+      "claim": "Resume row 4 re-enters release_decision, which needs target_sha, applied_edits and cycle_id, but resume_decision's signature carries none of them and no task says where resume reads them.",
+      "cluster_id": "C5",
+      "disputed": true,
+      "member_scores": [
+        0.85
+      ],
+      "members": [
+        {
+          "blocking": true,
+          "deviation_class": null,
+          "finding_confidence": 0.85,
+          "fp": "047b68e38e944d125b1777da6f0b6ca9b52b8c63e774b048c31b29c73aa486aa",
+          "id": "F5",
+          "ordinal": 1,
+          "primary_citation": {
+            "index": 2,
+            "line_end": 77,
+            "line_start": 77,
+            "path": ".dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/TASK-WF-designSpec-20261107-075614.md",
+            "role": "plan",
+            "status": "resolved"
+          },
+          "refs_norm": [
+            "INF-020"
+          ],
+          "reviewer_id": "reviewer-1"
+        }
+      ],
+      "representative": {
+        "id": "F5",
+        "reviewer_id": "reviewer-1"
+      },
+      "reviewers": [
+        "reviewer-1"
+      ],
+      "support": 0.3269230769230769,
+      "uncalibrated": false
+    },
+    {
+      "blocking_all": false,
+      "blocking_any": false,
+      "chained": false,
+      "claim": "next_cycle_number AC uses only fix-1 and fix-2, so a count-based implementation also returns 3. The 'highest' rule of spec row 102 is untested, as is a fix-5-only log.",
+      "cluster_id": "C6",
+      "disputed": true,
+      "member_scores": [
+        0.8
+      ],
+      "members": [
+        {
+          "blocking": false,
+          "deviation_class": null,
+          "finding_confidence": 0.8,
+          "fp": "dd61e060f056da6b65483dc26f9c33bf9d333f29dd51872401cb8c7a7dce66ac",
+          "id": "F6",
+          "ordinal": 1,
+          "primary_citation": {
+            "index": 0,
+            "line_end": 59,
+            "line_start": 59,
+            "path": ".dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/TASK-WF-designSpec-20261107-075614.md",
+            "role": "plan",
+            "status": "resolved"
+          },
+          "refs_norm": [
+            "INF-009"
+          ],
+          "reviewer_id": "reviewer-1"
+        }
+      ],
+      "representative": {
+        "id": "F6",
+        "reviewer_id": "reviewer-1"
+      },
+      "reviewers": [
+        "reviewer-1"
+      ],
+      "support": 0.3076923076923077,
+      "uncalibrated": false
+    },
+    {
+      "blocking_all": false,
+      "blocking_any": false,
+      "chained": false,
+      "claim": "engage_decision rows 2 and 5-7 read guard.phase, but guard is None on the first engage. Neither spec nor Task 4 says these rows skip when guard is None, so a literal build raises on every run's first engage.",
+      "cluster_id": "C7",
+      "disputed": true,
+      "member_scores": [
+        0.75
+      ],
+      "members": [
+        {
+          "blocking": false,
+          "deviation_class": null,
+          "finding_confidence": 0.75,
+          "fp": "4514c76a5847f1b1d1512b14cc9257b1e0a3a3bc811fd1431519144647e35bd7",
+          "id": "F8",
+          "ordinal": 1,
+          "primary_citation": {
+            "index": 1,
+            "line_end": 70,
+            "line_start": 70,
+            "path": ".dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/TASK-WF-designSpec-20261107-075614.md",
+            "role": "plan",
+            "status": "resolved"
+          },
+          "refs_norm": [
+            "INF-016"
+          ],
+          "reviewer_id": "reviewer-1"
+        }
+      ],
+      "representative": {
+        "id": "F8",
+        "reviewer_id": "reviewer-1"
+      },
+      "reviewers": [
+        "reviewer-1"
+      ],
+      "support": 0.28846153846153844,
+      "uncalibrated": false
+    },
+    {
+      "blocking_all": false,
+      "blocking_any": false,
+      "chained": false,
+      "claim": "Task 9 requires the Wave 0 bullet to include the L3/off message, but its acceptance criterion says the test fails when the bullet names an L3 condition. Unless that prohibition is scoped to the ref-loading gate, the required L3/off wording makes the criterion fail.",
+      "cluster_id": "C8",
+      "disputed": false,
+      "member_scores": [
+        0.75,
+        0.85
+      ],
+      "members": [
+        {
+          "blocking": false,
+          "deviation_class": null,
+          "finding_confidence": 0.75,
+          "fp": "d1132ee17988ac96e7f786fe1f6c8156016b652c931a670379e4ce72310832a9",
+          "id": "F9",
+          "ordinal": 1,
+          "primary_citation": {
+            "index": 1,
+            "line_end": 140,
+            "line_start": 140,
+            "path": ".dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/TASK-WF-designSpec-20261107-075614.md",
+            "role": "plan",
+            "status": "resolved"
+          },
+          "refs_norm": [
+            "INF-002"
+          ],
+          "reviewer_id": "reviewer-1"
+        },
+        {
+          "blocking": false,
+          "deviation_class": null,
+          "finding_confidence": 0.85,
+          "fp": "eb7167561d0778c7fac3eebc3168d67c71763caf8939c3bada9e9b8ddc6b28f3",
+          "id": "F4",
+          "ordinal": 2,
+          "primary_citation": {
+            "index": 0,
+            "line_end": 141,
+            "line_start": 137,
+            "path": ".dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/TASK-WF-designSpec-20261107-075614.md",
+            "role": "plan",
+            "status": "resolved"
+          },
+          "refs_norm": [
+            "INF-002",
+            "INF-031"
+          ],
+          "reviewer_id": "reviewer-2"
+        }
+      ],
+      "representative": {
+        "id": "F4",
+        "reviewer_id": "reviewer-2"
+      },
+      "reviewers": [
+        "reviewer-1",
+        "reviewer-2"
+      ],
+      "support": 0.6153846153846154,
+      "uncalibrated": false
+    },
+    {
+      "blocking_all": false,
+      "blocking_any": false,
+      "chained": false,
+      "claim": "Task 11 requires the scenario tests in prose, but its acceptance criteria only require the test names and acceptance trace; they do not mechanically verify the release-failure retry, unreadable-timeline-never-readies, or moved-head behaviors.",
+      "cluster_id": "C9",
+      "disputed": true,
+      "member_scores": [
+        0.85
+      ],
+      "members": [
+        {
+          "blocking": false,
+          "deviation_class": null,
+          "finding_confidence": 0.85,
+          "fp": "b025adadb1a760b616ac6eb30122aa89f6df53ff90ebb0153f946c4771563afd",
+          "id": "F1",
+          "ordinal": 2,
+          "primary_citation": {
+            "index": 0,
+            "line_end": 173,
+            "line_start": 166,
+            "path": ".dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/TASK-WF-designSpec-20261107-075614.md",
+            "role": "plan",
+            "status": "resolved"
+          },
+          "refs_norm": [
+            "INF-039",
+            "INF-041"
+          ],
+          "reviewer_id": "reviewer-2"
+        }
+      ],
+      "representative": {
+        "id": "F1",
+        "reviewer_id": "reviewer-2"
+      },
+      "reviewers": [
+        "reviewer-2"
+      ],
+      "support": 0.3269230769230769,
+      "uncalibrated": false
+    },
+    {
+      "blocking_all": false,
+      "blocking_any": false,
+      "chained": false,
+      "claim": "The plan requires protocol prose to omit file:NNN pointers, but no acceptance criterion checks that constraint.",
+      "cluster_id": "C10",
+      "disputed": true,
+      "member_scores": [
+        0.9
+      ],
+      "members": [
+        {
+          "blocking": false,
+          "deviation_class": null,
+          "finding_confidence": 0.9,
+          "fp": "929dca47101b99581522654814f0f26853dbfdbc871ca0a6b78bae23c6aed4c6",
+          "id": "F2",
+          "ordinal": 2,
+          "primary_citation": {
+            "index": 0,
+            "line_end": 23,
+            "line_start": 23,
+            "path": ".dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/TASK-WF-designSpec-20261107-075614.md",
+            "role": "plan",
+            "status": "resolved"
+          },
+          "refs_norm": [],
+          "reviewer_id": "reviewer-2"
+        }
+      ],
+      "representative": {
+        "id": "F2",
+        "reviewer_id": "reviewer-2"
+      },
+      "reviewers": [
+        "reviewer-2"
+      ],
+      "support": 0.34615384615384615,
+      "uncalibrated": false
+    },
+    {
+      "blocking_all": false,
+      "blocking_any": false,
+      "chained": false,
+      "claim": "Task 7 makes adding the script to _RESOLUTION_SCRIPTS conditional on Task 1's investigation, but its acceptance criterion requires the script to pass that list's origin-URL tests without requiring or specifying list membership. The check may therefore be vacuous.",
+      "cluster_id": "C11",
+      "disputed": true,
+      "member_scores": [
+        0.7
+      ],
+      "members": [
+        {
+          "blocking": false,
+          "deviation_class": null,
+          "finding_confidence": 0.7,
+          "fp": "929dca47101b99581522654814f0f26853dbfdbc871ca0a6b78bae23c6aed4c6",
+          "id": "F3",
+          "ordinal": 2,
+          "primary_citation": {
+            "index": 0,
+            "line_end": 108,
+            "line_start": 108,
+            "path": ".dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/TASK-WF-designSpec-20261107-075614.md",
+            "role": "plan",
+            "status": "resolved"
+          },
+          "refs_norm": [],
+          "reviewer_id": "reviewer-2"
+        }
+      ],
+      "representative": {
+        "id": "F3",
+        "reviewer_id": "reviewer-2"
+      },
+      "reviewers": [
+        "reviewer-2"
+      ],
+      "support": 0.2692307692307692,
+      "uncalibrated": false
+    },
+    {
+      "blocking_all": true,
+      "blocking_any": true,
+      "chained": false,
+      "claim": "Task 1 records only the literal start text of two pinned sentences, but Task 10 requires byte-identical checks against those constants. A prefix cannot detect edits later in either sentence.",
+      "cluster_id": "C12",
+      "disputed": true,
+      "member_scores": [
+        0.85
+      ],
+      "members": [
+        {
+          "blocking": true,
+          "deviation_class": null,
+          "finding_confidence": 0.85,
+          "fp": "105568d2333ad0c80dea43976509548c913d8aa09a6c1f653072df70706a2ffc",
+          "id": "F1",
+          "ordinal": 3,
+          "primary_citation": {
+            "index": 0,
+            "line_end": 38,
+            "line_start": 33,
+            "path": ".dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/TASK-WF-designSpec-20261107-075614.md",
+            "role": "plan",
+            "status": "resolved"
+          },
+          "refs_norm": [
+            "INF-046"
+          ],
+          "reviewer_id": "reviewer-3"
+        }
+      ],
+      "representative": {
+        "id": "F1",
+        "reviewer_id": "reviewer-3"
+      },
+      "reviewers": [
+        "reviewer-3"
+      ],
+      "support": 0.3269230769230769,
+      "uncalibrated": false
+    },
+    {
+      "blocking_all": false,
+      "blocking_any": false,
+      "chained": false,
+      "claim": "Task 7 makes adding the script to _RESOLUTION_SCRIPTS conditional on Task 1's findings, but its acceptance criterion unconditionally requires passing that list's origin-URL resolution tests. If Task 1 finds the list is not applicable, the criterion conflicts with the task instruction.",
+      "cluster_id": "C13",
+      "disputed": true,
+      "member_scores": [
+        0.7
+      ],
+      "members": [
+        {
+          "blocking": false,
+          "deviation_class": null,
+          "finding_confidence": 0.7,
+          "fp": "862e6f885b1392ebe3d9580cccb7c03945bb2c1616e4591caa347baec88a993c",
+          "id": "F2",
+          "ordinal": 3,
+          "primary_citation": {
+            "index": 0,
+            "line_end": 114,
+            "line_start": 108,
+            "path": ".dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/TASK-WF-designSpec-20261107-075614.md",
+            "role": "plan",
+            "status": "resolved"
+          },
+          "refs_norm": [
+            "INF-027"
+          ],
+          "reviewer_id": "reviewer-3"
+        }
+      ],
+      "representative": {
+        "id": "F2",
+        "reviewer_id": "reviewer-3"
+      },
+      "reviewers": [
+        "reviewer-3"
+      ],
+      "support": 0.2692307692307692,
+      "uncalibrated": false
+    }
+  ],
+  "complete_reviewers": [
+    "reviewer-1",
+    "reviewer-2",
+    "reviewer-3"
+  ],
+  "invalid_reviewers": [],
+  "problems": [],
+  "uncalibrated": [],
+  "uncalibrated_findings": [],
+  "valid_blocks": 3
+}

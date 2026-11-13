@@ -1,0 +1,449 @@
+{
+  "by_flag": {
+    "missing-file": 22,
+    "out-of-range": 0,
+    "quote-not-found": 0
+  },
+  "cards": [
+    {
+      "block_state": "invalid",
+      "card": "reviewer-1.md",
+      "reviewer_id": "reviewer-1"
+    },
+    {
+      "block_state": "invalid",
+      "card": "reviewer-2.md",
+      "reviewer_id": "reviewer-2"
+    },
+    {
+      "block_state": "complete",
+      "card": "reviewer-3.md",
+      "reviewer_id": "reviewer-3"
+    }
+  ],
+  "checked": 22,
+  "citations": [
+    {
+      "advisory": false,
+      "citation": 1,
+      "finding_id": "F1",
+      "flag": "missing-file",
+      "line_end": 46,
+      "line_start": 46,
+      "path": ".dev/tasks/done/TASK-WF-designOutput-20261111-193642/TASK-WF-designOutput-20261111-193642.md",
+      "reason": "not-in-snapshot",
+      "reviewer_id": "reviewer-1",
+      "role": "plan"
+    },
+    {
+      "advisory": false,
+      "citation": 2,
+      "finding_id": "F1",
+      "flag": "missing-file",
+      "line_end": 62,
+      "line_start": 62,
+      "path": ".dev/tasks/done/TASK-WF-designOutput-20261111-193642/source.md",
+      "reason": "not-in-snapshot",
+      "reviewer_id": "reviewer-1",
+      "role": "spec"
+    },
+    {
+      "advisory": false,
+      "citation": 1,
+      "finding_id": "F2",
+      "flag": "missing-file",
+      "line_end": 44,
+      "line_start": 44,
+      "path": ".dev/tasks/done/TASK-WF-designOutput-20261111-193642/TASK-WF-designOutput-20261111-193642.md",
+      "reason": "not-in-snapshot",
+      "reviewer_id": "reviewer-1",
+      "role": "plan"
+    },
+    {
+      "advisory": false,
+      "citation": 2,
+      "finding_id": "F2",
+      "flag": "missing-file",
+      "line_end": 7,
+      "line_start": 7,
+      "path": ".dev/tasks/done/TASK-WF-designOutput-20261111-193642/source.md",
+      "reason": "not-in-snapshot",
+      "reviewer_id": "reviewer-1",
+      "role": "spec"
+    },
+    {
+      "advisory": false,
+      "citation": 1,
+      "finding_id": "F1",
+      "flag": "missing-file",
+      "line_end": 32,
+      "line_start": 32,
+      "path": ".dev/tasks/done/TASK-WF-designOutput-20261111-193642/source.md",
+      "reason": "not-in-snapshot",
+      "reviewer_id": "reviewer-2",
+      "role": "spec"
+    },
+    {
+      "advisory": false,
+      "citation": 2,
+      "finding_id": "F1",
+      "flag": "missing-file",
+      "line_end": 28,
+      "line_start": 28,
+      "path": ".dev/tasks/done/TASK-WF-designOutput-20261111-193642/TASK-WF-designOutput-20261111-193642.md",
+      "reason": "not-in-snapshot",
+      "reviewer_id": "reviewer-2",
+      "role": "plan"
+    },
+    {
+      "advisory": false,
+      "citation": 1,
+      "finding_id": "F2",
+      "flag": "missing-file",
+      "line_end": 59,
+      "line_start": 59,
+      "path": ".dev/tasks/done/TASK-WF-designOutput-20261111-193642/source.md",
+      "reason": "not-in-snapshot",
+      "reviewer_id": "reviewer-2",
+      "role": "spec"
+    },
+    {
+      "advisory": false,
+      "citation": 2,
+      "finding_id": "F2",
+      "flag": "missing-file",
+      "line_end": 41,
+      "line_start": 41,
+      "path": ".dev/tasks/done/TASK-WF-designOutput-20261111-193642/TASK-WF-designOutput-20261111-193642.md",
+      "reason": "not-in-snapshot",
+      "reviewer_id": "reviewer-2",
+      "role": "plan"
+    },
+    {
+      "advisory": false,
+      "citation": 3,
+      "finding_id": "F2",
+      "flag": "missing-file",
+      "line_end": 44,
+      "line_start": 44,
+      "path": ".dev/tasks/done/TASK-WF-designOutput-20261111-193642/TASK-WF-designOutput-20261111-193642.md",
+      "reason": "not-in-snapshot",
+      "reviewer_id": "reviewer-2",
+      "role": "plan"
+    },
+    {
+      "advisory": false,
+      "citation": 1,
+      "finding_id": "F3",
+      "flag": "missing-file",
+      "line_end": 46,
+      "line_start": 46,
+      "path": ".dev/tasks/done/TASK-WF-designOutput-20261111-193642/TASK-WF-designOutput-20261111-193642.md",
+      "reason": "not-in-snapshot",
+      "reviewer_id": "reviewer-2",
+      "role": "plan"
+    },
+    {
+      "advisory": false,
+      "citation": 2,
+      "finding_id": "F3",
+      "flag": "missing-file",
+      "line_end": 62,
+      "line_start": 62,
+      "path": ".dev/tasks/done/TASK-WF-designOutput-20261111-193642/source.md",
+      "reason": "not-in-snapshot",
+      "reviewer_id": "reviewer-2",
+      "role": "spec"
+    },
+    {
+      "advisory": false,
+      "citation": 1,
+      "finding_id": "F1",
+      "flag": "missing-file",
+      "line_end": 28,
+      "line_start": 28,
+      "path": ".dev/tasks/done/TASK-WF-designOutput-20261111-193642/TASK-WF-designOutput-20261111-193642.md",
+      "reason": "not-in-snapshot",
+      "reviewer_id": "reviewer-3",
+      "role": "plan"
+    },
+    {
+      "advisory": false,
+      "citation": 2,
+      "finding_id": "F1",
+      "flag": "missing-file",
+      "line_end": 31,
+      "line_start": 31,
+      "path": ".dev/tasks/done/TASK-WF-designOutput-20261111-193642/source.md",
+      "reason": "not-in-snapshot",
+      "reviewer_id": "reviewer-3",
+      "role": "spec"
+    },
+    {
+      "advisory": false,
+      "citation": 3,
+      "finding_id": "F1",
+      "flag": "missing-file",
+      "line_end": 65,
+      "line_start": 65,
+      "path": "src/superclaude/commands/design.md",
+      "reason": "not-in-snapshot",
+      "reviewer_id": "reviewer-3",
+      "role": "plan"
+    },
+    {
+      "advisory": false,
+      "citation": 1,
+      "finding_id": "F2",
+      "flag": "missing-file",
+      "line_end": 32,
+      "line_start": 28,
+      "path": ".dev/tasks/done/TASK-WF-designOutput-20261111-193642/TASK-WF-designOutput-20261111-193642.md",
+      "reason": "not-in-snapshot",
+      "reviewer_id": "reviewer-3",
+      "role": "plan"
+    },
+    {
+      "advisory": false,
+      "citation": 2,
+      "finding_id": "F2",
+      "flag": "missing-file",
+      "line_end": 34,
+      "line_start": 34,
+      "path": ".dev/tasks/done/TASK-WF-designOutput-20261111-193642/source.md",
+      "reason": "not-in-snapshot",
+      "reviewer_id": "reviewer-3",
+      "role": "spec"
+    },
+    {
+      "advisory": false,
+      "citation": 3,
+      "finding_id": "F2",
+      "flag": "missing-file",
+      "line_end": 57,
+      "line_start": 57,
+      "path": "src/superclaude/commands/design.md",
+      "reason": "not-in-snapshot",
+      "reviewer_id": "reviewer-3",
+      "role": "plan"
+    },
+    {
+      "advisory": false,
+      "citation": 1,
+      "finding_id": "F3",
+      "flag": "missing-file",
+      "line_end": 46,
+      "line_start": 46,
+      "path": ".dev/tasks/done/TASK-WF-designOutput-20261111-193642/TASK-WF-designOutput-20261111-193642.md",
+      "reason": "not-in-snapshot",
+      "reviewer_id": "reviewer-3",
+      "role": "plan"
+    },
+    {
+      "advisory": false,
+      "citation": 2,
+      "finding_id": "F3",
+      "flag": "missing-file",
+      "line_end": 44,
+      "line_start": 44,
+      "path": ".dev/tasks/done/TASK-WF-designOutput-20261111-193642/TASK-WF-designOutput-20261111-193642.md",
+      "reason": "not-in-snapshot",
+      "reviewer_id": "reviewer-3",
+      "role": "plan"
+    },
+    {
+      "advisory": false,
+      "citation": 1,
+      "finding_id": "F4",
+      "flag": "missing-file",
+      "line_end": 28,
+      "line_start": 28,
+      "path": ".dev/tasks/done/TASK-WF-designOutput-20261111-193642/TASK-WF-designOutput-20261111-193642.md",
+      "reason": "not-in-snapshot",
+      "reviewer_id": "reviewer-3",
+      "role": "plan"
+    },
+    {
+      "advisory": false,
+      "citation": 2,
+      "finding_id": "F4",
+      "flag": "missing-file",
+      "line_end": 33,
+      "line_start": 33,
+      "path": ".dev/tasks/done/TASK-WF-designOutput-20261111-193642/source.md",
+      "reason": "not-in-snapshot",
+      "reviewer_id": "reviewer-3",
+      "role": "spec"
+    },
+    {
+      "advisory": false,
+      "citation": 3,
+      "finding_id": "F4",
+      "flag": "missing-file",
+      "line_end": 57,
+      "line_start": 57,
+      "path": "src/superclaude/commands/design.md",
+      "reason": "not-in-snapshot",
+      "reviewer_id": "reviewer-3",
+      "role": "plan"
+    }
+  ],
+  "flagged": 22,
+  "reread_set": [
+    {
+      "citation": 1,
+      "finding_id": "F1",
+      "flag": "missing-file",
+      "path": ".dev/tasks/done/TASK-WF-designOutput-20261111-193642/TASK-WF-designOutput-20261111-193642.md",
+      "reviewer_id": "reviewer-1"
+    },
+    {
+      "citation": 2,
+      "finding_id": "F1",
+      "flag": "missing-file",
+      "path": ".dev/tasks/done/TASK-WF-designOutput-20261111-193642/source.md",
+      "reviewer_id": "reviewer-1"
+    },
+    {
+      "citation": 1,
+      "finding_id": "F2",
+      "flag": "missing-file",
+      "path": ".dev/tasks/done/TASK-WF-designOutput-20261111-193642/TASK-WF-designOutput-20261111-193642.md",
+      "reviewer_id": "reviewer-1"
+    },
+    {
+      "citation": 2,
+      "finding_id": "F2",
+      "flag": "missing-file",
+      "path": ".dev/tasks/done/TASK-WF-designOutput-20261111-193642/source.md",
+      "reviewer_id": "reviewer-1"
+    },
+    {
+      "citation": 1,
+      "finding_id": "F1",
+      "flag": "missing-file",
+      "path": ".dev/tasks/done/TASK-WF-designOutput-20261111-193642/source.md",
+      "reviewer_id": "reviewer-2"
+    },
+    {
+      "citation": 2,
+      "finding_id": "F1",
+      "flag": "missing-file",
+      "path": ".dev/tasks/done/TASK-WF-designOutput-20261111-193642/TASK-WF-designOutput-20261111-193642.md",
+      "reviewer_id": "reviewer-2"
+    },
+    {
+      "citation": 1,
+      "finding_id": "F2",
+      "flag": "missing-file",
+      "path": ".dev/tasks/done/TASK-WF-designOutput-20261111-193642/source.md",
+      "reviewer_id": "reviewer-2"
+    },
+    {
+      "citation": 2,
+      "finding_id": "F2",
+      "flag": "missing-file",
+      "path": ".dev/tasks/done/TASK-WF-designOutput-20261111-193642/TASK-WF-designOutput-20261111-193642.md",
+      "reviewer_id": "reviewer-2"
+    },
+    {
+      "citation": 3,
+      "finding_id": "F2",
+      "flag": "missing-file",
+      "path": ".dev/tasks/done/TASK-WF-designOutput-20261111-193642/TASK-WF-designOutput-20261111-193642.md",
+      "reviewer_id": "reviewer-2"
+    },
+    {
+      "citation": 1,
+      "finding_id": "F3",
+      "flag": "missing-file",
+      "path": ".dev/tasks/done/TASK-WF-designOutput-20261111-193642/TASK-WF-designOutput-20261111-193642.md",
+      "reviewer_id": "reviewer-2"
+    },
+    {
+      "citation": 2,
+      "finding_id": "F3",
+      "flag": "missing-file",
+      "path": ".dev/tasks/done/TASK-WF-designOutput-20261111-193642/source.md",
+      "reviewer_id": "reviewer-2"
+    },
+    {
+      "citation": 1,
+      "finding_id": "F1",
+      "flag": "missing-file",
+      "path": ".dev/tasks/done/TASK-WF-designOutput-20261111-193642/TASK-WF-designOutput-20261111-193642.md",
+      "reviewer_id": "reviewer-3"
+    },
+    {
+      "citation": 2,
+      "finding_id": "F1",
+      "flag": "missing-file",
+      "path": ".dev/tasks/done/TASK-WF-designOutput-20261111-193642/source.md",
+      "reviewer_id": "reviewer-3"
+    },
+    {
+      "citation": 3,
+      "finding_id": "F1",
+      "flag": "missing-file",
+      "path": "src/superclaude/commands/design.md",
+      "reviewer_id": "reviewer-3"
+    },
+    {
+      "citation": 1,
+      "finding_id": "F2",
+      "flag": "missing-file",
+      "path": ".dev/tasks/done/TASK-WF-designOutput-20261111-193642/TASK-WF-designOutput-20261111-193642.md",
+      "reviewer_id": "reviewer-3"
+    },
+    {
+      "citation": 2,
+      "finding_id": "F2",
+      "flag": "missing-file",
+      "path": ".dev/tasks/done/TASK-WF-designOutput-20261111-193642/source.md",
+      "reviewer_id": "reviewer-3"
+    },
+    {
+      "citation": 3,
+      "finding_id": "F2",
+      "flag": "missing-file",
+      "path": "src/superclaude/commands/design.md",
+      "reviewer_id": "reviewer-3"
+    },
+    {
+      "citation": 1,
+      "finding_id": "F3",
+      "flag": "missing-file",
+      "path": ".dev/tasks/done/TASK-WF-designOutput-20261111-193642/TASK-WF-designOutput-20261111-193642.md",
+      "reviewer_id": "reviewer-3"
+    },
+    {
+      "citation": 2,
+      "finding_id": "F3",
+      "flag": "missing-file",
+      "path": ".dev/tasks/done/TASK-WF-designOutput-20261111-193642/TASK-WF-designOutput-20261111-193642.md",
+      "reviewer_id": "reviewer-3"
+    },
+    {
+      "citation": 1,
+      "finding_id": "F4",
+      "flag": "missing-file",
+      "path": ".dev/tasks/done/TASK-WF-designOutput-20261111-193642/TASK-WF-designOutput-20261111-193642.md",
+      "reviewer_id": "reviewer-3"
+    },
+    {
+      "citation": 2,
+      "finding_id": "F4",
+      "flag": "missing-file",
+      "path": ".dev/tasks/done/TASK-WF-designOutput-20261111-193642/source.md",
+      "reviewer_id": "reviewer-3"
+    },
+    {
+      "citation": 3,
+      "finding_id": "F4",
+      "flag": "missing-file",
+      "path": "src/superclaude/commands/design.md",
+      "reviewer_id": "reviewer-3"
+    }
+  ],
+  "schema": "review-precheck/1"
+}

@@ -1,0 +1,13 @@
+citations_total: 46
+citations_revalidated: 46
+citations_dropped: 0
+inferred_rows_total: 45
+inferred_rows_dropped: 0
+dropped: []
+findings_affected: []
+notes: >-
+  Zero-drop pass, checked line by line against source.md (378 lines) and the plan (200 lines).
+  All 46 citations in the 13 findings (card 1: 12, card 2: 9, card 3: 25) point at spec or plan lines; no repo code file is cited in any findings block.
+  All 45 inferred quotes appear at their cited source.md line, so the three union coverage fields need no recomputation.
+  Card 2 F1's deviations-table location (pass2-inferred.yaml:7-185) sits outside the findings block and was not counted.
+  Validator's adversarial self-check: hardest cases were the quote-less citations (card 1 F2/F3, card 3 F4 range 190-199) and the "consumes Task 1 output" claims; each supported by the cited text. Card 3 F4's range 190-199 is the weakest (Task 13 lines say "base-commit record of Task 1" without naming pre-build-gate.md literally) — founded but noted.

@@ -1,0 +1,27 @@
+# reviewer-1 card calibration (calibrator class opus)
+calibration:
+  per_dimension: {citation_grounding: 0.90, coverage_completeness: 0.60, classification_clarity: 0.75, risk_surface: 0.60, actionability: 0.70}
+  C: 0.71
+  citations_checked: [.dev/tasks/done/TASK-WF-detachTheCcsessi-20261102-034618/TASK-WF-detachTheCcsessi-20261102-034618.md:82 - holds, .dev/tasks/done/TASK-WF-detachTheCcsessi-20261102-034618/TASK-WF-detachTheCcsessi-20261102-034618.md:19 - holds, Makefile:178-182 - holds, Makefile:171-182 - holds, Makefile:109 - holds, .dev/tasks/done/TASK-WF-detachTheCcsessi-20261102-034618/TASK-WF-detachTheCcsessi-20261102-034618.md:22 - holds, .dev/tasks/done/TASK-WF-detachTheCcsessi-20261102-034618/TASK-WF-detachTheCcsessi-20261102-034618.md:69 - holds]
+  rationale: Every cited line and quote matches the source exactly. The verify-sync loop in the Makefile reports a missing or changed .claude/skills mirror as drift, and no task in the plan runs make sync-dev, so A1 is real; calling it blocking overstates it a little, because an executor can fix it with one command. The card admits it skipped F5, covers only INF-001, and adds an uncited wording-gap remark; it also leaves out deeper risks such as the live check near the 4013/4114 shims and the test's mass SIGTERM/SIGKILL of descendants. The fixes are implied (run make sync-dev, use uv run) but never stated as concrete recommendations with a success check.
+  per_finding: {A1: 0.80, A2: 0.75}
+  calibrator_model_class: opus
+
+# reviewer-2 card calibration (calibrator class opus)
+calibration:
+  per_dimension: {citation_grounding: 0.95, coverage_completeness: 0.85, classification_clarity: 0.80, risk_surface: 0.80, actionability: 0.85}
+  C: 0.85
+  citations_checked: [TASK-WF-detachTheCcsessi-20261102-034618.md:82 - holds, remediation-source.md:24 - holds, Makefile:165 - holds, Makefile:178 - holds, TASK-WF-detachTheCcsessi-20261102-034618.md:34 - holds, TASK-WF-detachTheCcsessi-20261102-034618.md:29 (root-process quote) - holds, remediation-source.md:14 - holds, TASK-WF-detachTheCcsessi-20261102-034618.md:29 (exec sleep 60 quote) - holds, remediation-source.md:35 - holds, TASK-WF-detachTheCcsessi-20261102-034618.md:74 - holds, TASK-WF-detachTheCcsessi-20261102-034618.md:82 (t5-checks.log quote) - holds, reviewer-2.md:186 - holds, reviewer-2.md:187 - holds (verbatim prefix of a longer line), remediation-source.md:9 - holds, remediation-source.md:21 - holds]
+  rationale: All 15 cited quotes match their files. Q1 (verify-sync drift after editing the src skill files without a sync step) and Q2 (a path-based pgrep cannot see `exec sleep 60`, and "kill any remaining root process" is narrower than "kill the root group") both hold up when the sources are reread. Q3 is correct that no task schedules the HC5 review, but marking it MAJOR and blocking is debatable, because PR reviewers and the post-run reflect step normally happen outside the plan's own tasks. The card uses severity labels instead of the rubric's Aligned/Refinement/Drift/Regression categories, and its risk discussion does not look at blast radius beyond the four findings.
+  per_finding: {Q1: 0.85, Q2: 0.85, Q3: 0.60, Q4: 0.70}
+  calibrator_model_class: opus
+
+# reviewer-3 card calibration (calibrator class opus)
+calibration:
+  per_dimension: {citation_grounding: 0.92, coverage_completeness: 0.70, classification_clarity: 0.70, risk_surface: 0.70, actionability: 0.70}
+  C: 0.74
+  citations_checked: [TASK-WF-detachTheCcsessi-20261102-034618.md:82 - holds, TASK-WF-detachTheCcsessi-20261102-034618.md:19 - holds, Makefile:175 - holds, CLAUDE.md:195 - holds, remediation-source.md:24 - holds, TASK-WF-detachTheCcsessi-20261102-034618.md:69 - holds, TASK-WF-detachTheCcsessi-20261102-034618.md:22 - holds, remediation-source.md:23 - holds, CHANGELOG.md:141 - holds, TASK-WF-detachTheCcsessi-20261102-034618.md:78 - holds, CHANGELOG.md:27 - holds, CHANGELOG.md:41 - holds, CHANGELOG.md:194 - holds, TASK-WF-detachTheCcsessi-20261102-034618.md:34 - holds, TASK-WF-detachTheCcsessi-20261102-034618.md:29 - holds, TASK-WF-detachTheCcsessi-20261102-034618.md:70 - holds]
+  rationale: Every citation and verbatim quote matches the file it cites. R1, R2 and R4 are sound on the evidence, but R1 overstates "cannot pass", because running `make sync-dev` only refreshes a gitignored copy and is arguably allowed under the four-file rule. R5's "before" reading most plausibly means before and after the live check inside Task 4, not before Tasks 1-4. The card names only one coverage row and gives Tasks 2-3 only a light look. It uses severity and category labels instead of the Aligned/Refinement/Drift/Regression set, and gives a concrete fix only for R2 (R1's fix is implied), so the other findings leave the remedy to the reader.
+  per_finding: {R1: 0.80, R2: 0.80, R3: 0.60, R4: 0.75, R5: 0.45}
+  calibrator_model_class: opus
+

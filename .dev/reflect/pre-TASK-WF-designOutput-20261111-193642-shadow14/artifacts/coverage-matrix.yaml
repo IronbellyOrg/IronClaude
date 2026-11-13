@@ -1,0 +1,22 @@
+# Coverage matrix (UC-1, Step 1B.0 two-pass) — parsed=0, inferred=8
+# Containment rule per refs/coverage-mapping.md (case-folded content words, >=0.6, stopwords stripped)
+rows:
+  - {id: INF-001, source: inferred, quote: "Change mcp-servers: [] to mcp-servers: [codegraph]; leave every other frontmatter key unchanged.", spec_ref: "source.md:19", matched_task_ids: [T1], match_method: containment}
+  - {id: INF-002, source: inferred, quote: "New section Code-graph grounding between Tool Coordination and Key Patterns; guide pointer, exactly one readiness check, fresh-only rule, graph:* fallback tokens, tool-to-step map, lead-not-citation rules, Grounding line.", spec_ref: "source.md:23-34", matched_task_ids: [T1], match_method: containment}
+  - {id: INF-003, source: inferred, quote: "Behavioral Flow step 1 and step 4 gain a short clause pointing to the Code-graph grounding section; five step names and Key behaviors bullets kept.", spec_ref: "source.md:38", matched_task_ids: [T2], match_method: containment}
+  - {id: INF-004, source: inferred, quote: "Tool Coordination gains one bullet naming the codegraph tools once; Read, Grep/Glob, Write, Bash bullets unchanged.", spec_ref: "source.md:39", matched_task_ids: [T2], match_method: containment}
+  - {id: INF-005, source: inferred, quote: "Edit only src/superclaude/commands/design.md; tests that pin it change only if they must; never stage .claude/.", spec_ref: "source.md:51-53", matched_task_ids: [T1, T2], match_method: containment}
+  - {id: INF-006, source: inferred, quote: "Exactly one readiness check per run; codegraph only when index_state fresh; otherwise Glob/Grep/Read with recorded graph:* token; never halts.", spec_ref: "source.md:57-58", matched_task_ids: [T1], match_method: containment}
+  - {id: INF-007, source: inferred, quote: "Frontmatter lists codegraph in mcp-servers; Tool Coordination names the codegraph tools as reflect.md does; no new src/superclaude read-instruction.", spec_ref: "source.md:59-60", matched_task_ids: [T1], match_method: containment}
+  - {id: INF-008, source: inferred, quote: "make sync-dev and make verify-sync pass; the four named test files pass.", spec_ref: "source.md:61-62", matched_task_ids: [T2], match_method: containment}
+summary:
+  parsed_count: 0
+  inferred_count: 8
+  coverage_pct: null
+  coverage_pct_union: 1.0
+  unmapped_requirements: []
+  unmapped_requirements_union: []
+  s_dev_density: 0.0
+  coverage_degraded: parsed-sparse
+  s_scope_tasks: 2
+  s_domains: 1

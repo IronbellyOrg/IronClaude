@@ -1,0 +1,15 @@
+selected_tier: 2
+fired_rule_number: 4            # S_domains >= 3 (code, tests, docs); --tier 2 pin also forces escalation (5.1); rows 1/2/8 barred by coverage_degraded pre-filter
+coverage_degraded: parsed-sparse
+surface_unreached: null
+composite_score: 9.0
+per_signal_breakdown:
+  scope_size: 2
+  task_count: 2
+  blast_radius: 2
+  spec_density: 2
+  ambiguity_signals: 1
+escalation_reason: "--tier 2 explicit pin; calibrated C=0.67 (<0.85, rule 6); S_domains=3 (rule 4); S_dev_density=0.1778; coverage_degraded parsed-sparse (parsed 0, inferred 45)"
+t2_engine_requested: shadow
+t2_engine_effective: shadow
+panel_fallback_reason: null

@@ -1,0 +1,71 @@
+# merged-verdict.yaml — copied from sc-adversarial return-contract.yaml + merged-output.md (EV-1; never synthesized)
+merge_method: adversarial
+verdict: no-blocking-findings
+convergence_score: 1.0
+base_variant: haiku:qa
+status: success
+unresolved_conflicts: 0
+fallback_mode: false
+failure_stage: null
+invocation_method: skill-direct
+unaddressed_invariants: []
+artifacts_dir: .dev/reflect/pre-TASK-WF-analyzeCodegraph-20261111-193557-shadow15/adversarial/adversarial
+merged_output_path: .dev/reflect/pre-TASK-WF-analyzeCodegraph-20261111-193557-shadow15/adversarial/merged-output.md
+source_cards:
+  - panel/cards/reviewer-1.md
+  - panel/cards/reviewer-2.md
+  - panel/cards/reviewer-3.md
+merged_findings:
+  - id: F1
+    severity: MINOR
+    blocking: false
+    category: missing-requirement
+    confidence: 0.65
+    claim: "R7 file-mode ban (codegraph_node without symbolsOnly:true) and wildcard-allowlist ban appear in no tasklist AC"
+  - id: F2
+    severity: MINOR
+    blocking: false
+    category: missing-requirement
+    confidence: 0.55
+    claim: "R2's access: mcp half of the fresh gate is enforced by no AC (shipped file carries it)"
+  - id: F3
+    severity: MINOR
+    blocking: false
+    category: missing-requirement
+    confidence: 0.6
+    claim: "Spec 2.4 items 3/6 and the 25-line cap are carried by task body text but by no AC"
+  - id: F4
+    severity: MINOR
+    blocking: false
+    category: unpassable-check
+    confidence: 0.75
+    claim: "Task 3 ACs have escape clauses (other-session verify-sync failures; reported-and-left-unfixed pytest failures)"
+  - id: F5
+    severity: MINOR
+    blocking: false
+    category: unpassable-check
+    confidence: 0.7
+    claim: "Task 2 AC2 'apart from the intended additions' is unbounded; the check cannot fail"
+  - id: F6
+    severity: MINOR
+    blocking: false
+    category: other
+    confidence: 0.8
+    claim: "Guide s7 'only section that names the verbs' vs analyze.md:68 restating the verb list: two-site rule drift"
+  - id: F7
+    severity: MINOR
+    blocking: false
+    category: other
+    confidence: 0.55
+    claim: "Leads bullet packed several rules in one line, partly duplicating guide s3/s5 (maintainability)"
+refuted:
+  - {id: V1-F2, reason: "misattributed post-execution evolution (PR #513)"}
+  - {id: V2-F1-clause, reason: "vantage artifact: brief showed only matrix summary; INF-012 maps those rules"}
+  - {id: V2-F2-clause, reason: "transitively gated by Task 2 AC2 byte-identity of Unattended mode"}
+  - {id: V3-F2, reason: "60s clause did not exist at execution commit (PR #513 added it)"}
+judge_note: >
+  The sc-adversarial return contract names no judge (compact single-agent execution, recorded in
+  debate-transcript metadata). Per SKILL.md 4.3a step 7: judge_identity: unknown,
+  judge_class_collision: unknown (never false). The single agent ran on the orchestrator's
+  model class (claude-gw-tier3), which is distinct from all three debater pins, but this is
+  recorded here as a note, not as a verified judge_identity.

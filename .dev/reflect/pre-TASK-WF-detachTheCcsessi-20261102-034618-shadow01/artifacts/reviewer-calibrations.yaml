@@ -1,0 +1,16 @@
+calibrator_model_class: opus   # all three model classes sit in the reviewer pool, so calibrator_diversity: degraded
+rubric_note: "plan audit (UC-1): the 'deviation-classification' dimension was scored as severity-grading clarity"
+reviewer_1_analyzer_sonnet:
+  calibrated_confidence: 0.61
+  dimensions: {citation_grounding: 0.75, coverage_completeness: 0.60, severity_grading_clarity: 0.70, risk_surface_coverage: 0.60, recommendation_actionability: 0.40}
+  citations_checked: "4 pass, 1 partial (claim that only lines 33, 43, 70 mention 'before' is wrong: line 52 does too; the finding holds)"
+reviewer_2_qa_haiku:
+  calibrated_confidence: 0.59
+  dimensions: {citation_grounding: 0.85, coverage_completeness: 0.55, severity_grading_clarity: 0.45, risk_surface_coverage: 0.65, recommendation_actionability: 0.45}
+  citations_checked: "5 pass"
+  inconsistency: "F2 is labelled Blocking in the text and MEDIUM in the table; the FAIL verdict rests on it"
+reviewer_3_refactorer_opus:
+  calibrated_confidence: 0.70
+  dimensions: {citation_grounding: 0.75, coverage_completeness: 0.70, severity_grading_clarity: 0.85, risk_surface_coverage: 0.65, recommendation_actionability: 0.55}
+  citations_checked: "4 pass, 1 fail (F2: test_ccsession_tiers.py:78, 93-96 are tier-env export lines, not the shim fixture; the claim itself is supported by the fixture at test_ccsession_tiers.py:855 and 863)"
+  not_covered: "Task 4 and Task 5 get no finding"

@@ -1,0 +1,10 @@
+{"metrics_schema_version":"1.0","run_id":"2026-11-13T03:17:09Z-comboD-r1","skill":"sc-reflect","skill_version":"1.8.0","mode":"pre","tier_reached":2,"status":"success",
+ "wave_durations_ms":null,"wall_clock_ms":null,
+ "token_usage":{"claude_orchestration":null,"claude_agents":1240400,"auggie_offloaded":0,"total":null,"note":"agents = sum of subagent_tokens in task notifications; orchestrator not measured"},
+ "calibration":{"calibrator_diversity":"degraded","calibrated_confidence_initial":0.69,"calibrated_confidence_final":0.62,"calibration_delta":-0.07},
+ "ensemble":{"t2_model_class_diversity":"full","t2_vendor_diversity":"multi","t2_effective_diversity":"full","reviewer_count":3,"executor_class_resolved":false,"executor_exclusion_degraded":false},
+ "evidence_validator":{"ran":true,"citations_total":72,"citations_revalidated":72,"citations_dropped":0,"citations_dropped_extrapolated":0,"drop_rate":0.0,"budget_policy":"full_reread"},
+ "deviation_counts":{"authorized":0,"necessary":0,"drift":0,"regression":0,"total":0},
+ "adversarial":{"convergence_score":0.9444,"merge_method":"adversarial","adversarial_unavailable":false,"fallback_path":null},
+ "promotion":{"action":"not-applicable","gate_conditions_passed":0,"gate_conditions_total":9,"cross_fs":false},
+ "degraded_components":["calibrator-same-class","adversarial-compact-scoring"],"input_drift_detected":false,"needs_human_decision":false}

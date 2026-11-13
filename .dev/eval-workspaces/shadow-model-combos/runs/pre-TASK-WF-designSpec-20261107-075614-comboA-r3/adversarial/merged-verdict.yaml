@@ -1,0 +1,12 @@
+merge_method: adversarial
+verdict: success
+convergence_score: 0.87
+base_variant: "reviewer-2 (qa, haiku)"
+source_cards:
+  - reviewer-1-card.md
+  - reviewer-2-card.md
+  - reviewer-3-card.md
+judge_identity: "claude-gw-tier3[1m] (orchestrator)"
+findings_total_in: 21
+findings_merged: 19
+counts: {critical: 0, major: 7, minor: 12, blocking: 0}

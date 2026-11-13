@@ -1,0 +1,23 @@
+input_tree_sha256: f77064c0151384c52b2a79c4054e297b2e74d0c841e883050490a2b224f8979e
+file_count: 10
+file_list:
+  - path: .dev/tasks/done/TASK-WF-planTheExplicitl-20261110-024937/TASK-WF-planTheExplicitl-20261110-024937.md
+    sha256: f62840ca41184059bcd27544856306500c5eaca55f1f4ab2527119414bf26609
+  - path: .dev/tasks/done/TASK-WF-planTheExplicitl-20261110-024937/artifacts/final-sync.log
+    sha256: 6e5990ca2a6342c673a0602468adc5c95260e2caee3579942cd1d9981539e090
+  - path: .dev/tasks/done/TASK-WF-planTheExplicitl-20261110-024937/artifacts/final-tests.log
+    sha256: 2361ce107847fc28d81cd638c549ad4f811da43c63900a8049e67a1b72f2edc8
+  - path: .dev/tasks/done/TASK-WF-planTheExplicitl-20261110-024937/artifacts/retries/T1/prompt-1-1.md
+    sha256: ede3e7c63823b07380b292f10385c58dd5715fd457c656889217a0bb2a534c72
+  - path: .dev/tasks/done/TASK-WF-planTheExplicitl-20261110-024937/artifacts/retries/T1/q0-head
+    sha256: 72af8103571b1424a93d5b08c40d49ed97d053eba4ae9142d222749bd9088816
+  - path: .dev/tasks/done/TASK-WF-planTheExplicitl-20261110-024937/artifacts/retries/T2/prompt-1-1.md
+    sha256: 59514dc9b7d96f44208598cf946bf6e2ec9a5b6dab3a2043b63319505ff606a1
+  - path: .dev/tasks/done/TASK-WF-planTheExplicitl-20261110-024937/artifacts/retries/T2/q0-head
+    sha256: 72af8103571b1424a93d5b08c40d49ed97d053eba4ae9142d222749bd9088816
+  - path: .dev/tasks/done/TASK-WF-planTheExplicitl-20261110-024937/progress.md
+    sha256: fcf35f1c6e73c8dffafe2d006075900319b831834aecfe72bd915a1835fa6795
+  - path: .dev/tasks/done/TASK-WF-planTheExplicitl-20261110-024937/return-contract.yaml
+    sha256: bb223a294da165e05ba667e5fa49b45d2b841a7cfce22b62491010a4cb4534f3
+  - path: .dev/tasks/done/TASK-WF-planTheExplicitl-20261110-024937/source.md
+    sha256: ce046926267a675758cbee0f58a25124c7e69ddc1b15fbdebde4eba5c3c1e26d

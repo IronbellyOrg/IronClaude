@@ -1,0 +1,258 @@
+{
+  "by_flag": {
+    "missing-file": 0,
+    "out-of-range": 0,
+    "quote-not-found": 0
+  },
+  "cards": [
+    {
+      "block_state": "complete",
+      "card": "reviewer-1.md",
+      "reviewer_id": "reviewer-1"
+    },
+    {
+      "block_state": "complete",
+      "card": "reviewer-2.md",
+      "reviewer_id": "reviewer-2"
+    },
+    {
+      "block_state": "complete",
+      "card": "reviewer-3.md",
+      "reviewer_id": "reviewer-3"
+    }
+  ],
+  "checked": 19,
+  "citations": [
+    {
+      "advisory": false,
+      "citation": 1,
+      "finding_id": "F1",
+      "flag": null,
+      "line_end": 26,
+      "line_start": 26,
+      "path": ".dev/tasks/done/TASK-WF-fixTheScIssueWor-20261104-162205/TASK-WF-fixTheScIssueWor-20261104-162205.md",
+      "reason": null,
+      "reviewer_id": "reviewer-1",
+      "role": "plan"
+    },
+    {
+      "advisory": false,
+      "citation": 2,
+      "finding_id": "F1",
+      "flag": null,
+      "line_end": 45,
+      "line_start": 45,
+      "path": ".dev/tasks/done/TASK-WF-fixTheScIssueWor-20261104-162205/TASK-WF-fixTheScIssueWor-20261104-162205.md",
+      "reason": null,
+      "reviewer_id": "reviewer-1",
+      "role": "plan"
+    },
+    {
+      "advisory": false,
+      "citation": 1,
+      "finding_id": "F2",
+      "flag": null,
+      "line_end": 1,
+      "line_start": 1,
+      "path": ".dev/tasks/done/TASK-WF-fixTheScIssueWor-20261104-162205/source.md",
+      "reason": null,
+      "reviewer_id": "reviewer-1",
+      "role": "spec"
+    },
+    {
+      "advisory": false,
+      "citation": 2,
+      "finding_id": "F2",
+      "flag": null,
+      "line_end": 20,
+      "line_start": 20,
+      "path": ".dev/tasks/done/TASK-WF-fixTheScIssueWor-20261104-162205/TASK-WF-fixTheScIssueWor-20261104-162205.md",
+      "reason": null,
+      "reviewer_id": "reviewer-1",
+      "role": "plan"
+    },
+    {
+      "advisory": false,
+      "citation": 1,
+      "finding_id": "F3",
+      "flag": null,
+      "line_end": 66,
+      "line_start": 66,
+      "path": ".dev/tasks/done/TASK-WF-fixTheScIssueWor-20261104-162205/TASK-WF-fixTheScIssueWor-20261104-162205.md",
+      "reason": null,
+      "reviewer_id": "reviewer-1",
+      "role": "plan"
+    },
+    {
+      "advisory": false,
+      "citation": 1,
+      "finding_id": "F1",
+      "flag": null,
+      "line_end": 1,
+      "line_start": 1,
+      "path": ".dev/tasks/done/TASK-WF-fixTheScIssueWor-20261104-162205/source.md",
+      "reason": null,
+      "reviewer_id": "reviewer-2",
+      "role": "spec"
+    },
+    {
+      "advisory": false,
+      "citation": 2,
+      "finding_id": "F1",
+      "flag": null,
+      "line_end": 20,
+      "line_start": 20,
+      "path": ".dev/tasks/done/TASK-WF-fixTheScIssueWor-20261104-162205/TASK-WF-fixTheScIssueWor-20261104-162205.md",
+      "reason": null,
+      "reviewer_id": "reviewer-2",
+      "role": "plan"
+    },
+    {
+      "advisory": false,
+      "citation": 1,
+      "finding_id": "F2",
+      "flag": null,
+      "line_end": 1,
+      "line_start": 1,
+      "path": ".dev/tasks/done/TASK-WF-fixTheScIssueWor-20261104-162205/source.md",
+      "reason": null,
+      "reviewer_id": "reviewer-2",
+      "role": "spec"
+    },
+    {
+      "advisory": false,
+      "citation": 2,
+      "finding_id": "F2",
+      "flag": null,
+      "line_end": 45,
+      "line_start": 45,
+      "path": ".dev/tasks/done/TASK-WF-fixTheScIssueWor-20261104-162205/TASK-WF-fixTheScIssueWor-20261104-162205.md",
+      "reason": null,
+      "reviewer_id": "reviewer-2",
+      "role": "plan"
+    },
+    {
+      "advisory": false,
+      "citation": 1,
+      "finding_id": "F3",
+      "flag": null,
+      "line_end": 54,
+      "line_start": 54,
+      "path": ".dev/tasks/done/TASK-WF-fixTheScIssueWor-20261104-162205/TASK-WF-fixTheScIssueWor-20261104-162205.md",
+      "reason": null,
+      "reviewer_id": "reviewer-2",
+      "role": "plan"
+    },
+    {
+      "advisory": false,
+      "citation": 1,
+      "finding_id": "F1",
+      "flag": null,
+      "line_end": 26,
+      "line_start": 26,
+      "path": ".dev/tasks/done/TASK-WF-fixTheScIssueWor-20261104-162205/TASK-WF-fixTheScIssueWor-20261104-162205.md",
+      "reason": null,
+      "reviewer_id": "reviewer-3",
+      "role": "plan"
+    },
+    {
+      "advisory": false,
+      "citation": 2,
+      "finding_id": "F1",
+      "flag": null,
+      "line_end": 22,
+      "line_start": 22,
+      "path": ".dev/tasks/done/TASK-WF-fixTheScIssueWor-20261104-162205/TASK-WF-fixTheScIssueWor-20261104-162205.md",
+      "reason": null,
+      "reviewer_id": "reviewer-3",
+      "role": "plan"
+    },
+    {
+      "advisory": false,
+      "citation": 3,
+      "finding_id": "F1",
+      "flag": null,
+      "line_end": 228,
+      "line_start": 228,
+      "path": "tests/skills/test_issue_worker_agents.py",
+      "reason": null,
+      "reviewer_id": "reviewer-3",
+      "role": "plan"
+    },
+    {
+      "advisory": false,
+      "citation": 1,
+      "finding_id": "F2",
+      "flag": null,
+      "line_end": 45,
+      "line_start": 45,
+      "path": ".dev/tasks/done/TASK-WF-fixTheScIssueWor-20261104-162205/TASK-WF-fixTheScIssueWor-20261104-162205.md",
+      "reason": null,
+      "reviewer_id": "reviewer-3",
+      "role": "plan"
+    },
+    {
+      "advisory": false,
+      "citation": 2,
+      "finding_id": "F2",
+      "flag": null,
+      "line_end": 253,
+      "line_start": 253,
+      "path": "tests/skills/test_issue_worker_agents.py",
+      "reason": null,
+      "reviewer_id": "reviewer-3",
+      "role": "plan"
+    },
+    {
+      "advisory": false,
+      "citation": 1,
+      "finding_id": "F3",
+      "flag": null,
+      "line_end": 1,
+      "line_start": 1,
+      "path": ".dev/tasks/done/TASK-WF-fixTheScIssueWor-20261104-162205/source.md",
+      "reason": null,
+      "reviewer_id": "reviewer-3",
+      "role": "spec"
+    },
+    {
+      "advisory": false,
+      "citation": 2,
+      "finding_id": "F3",
+      "flag": null,
+      "line_end": 20,
+      "line_start": 20,
+      "path": ".dev/tasks/done/TASK-WF-fixTheScIssueWor-20261104-162205/TASK-WF-fixTheScIssueWor-20261104-162205.md",
+      "reason": null,
+      "reviewer_id": "reviewer-3",
+      "role": "plan"
+    },
+    {
+      "advisory": false,
+      "citation": 1,
+      "finding_id": "F4",
+      "flag": null,
+      "line_end": 22,
+      "line_start": 22,
+      "path": ".dev/tasks/done/TASK-WF-fixTheScIssueWor-20261104-162205/TASK-WF-fixTheScIssueWor-20261104-162205.md",
+      "reason": null,
+      "reviewer_id": "reviewer-3",
+      "role": "plan"
+    },
+    {
+      "advisory": false,
+      "citation": 2,
+      "finding_id": "F4",
+      "flag": null,
+      "line_end": 1,
+      "line_start": 1,
+      "path": ".dev/tasks/done/TASK-WF-fixTheScIssueWor-20261104-162205/source.md",
+      "reason": null,
+      "reviewer_id": "reviewer-3",
+      "role": "spec"
+    }
+  ],
+  "flagged": 0,
+  "reread_set": [],
+  "schema": "review-precheck/1"
+}

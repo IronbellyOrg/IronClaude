@@ -1,0 +1,74 @@
+input_tree_sha256: af7eaa2ef02ed5382de6fb85e498761f59c39b3ba008af130a5741cf7ade1ff7  # canonical over sorted 'path sha' lines
+file_count: 34
+input_sha256:
+  tasklist: 5ba3dd1b87812b97fc608d17f1239f6174666865cc155021598afc760282dc1c
+  spec: d7db85c6855804fa5374aef3de699e4e4f9ef030a03d9d1d49b5fe4d3f17f0b2
+file_list:
+  - path: .dev/tasks/done/TASK-WF-implementIronbel-20261104-130647/TASK-WF-implementIronbel-20261104-130647.md
+    sha256: 5ba3dd1b87812b97fc608d17f1239f6174666865cc155021598afc760282dc1c
+  - path: .dev/tasks/done/TASK-WF-implementIronbel-20261104-130647/artifacts/amendments.md
+    sha256: 57203d1688c19244d4d46e5a20cc106f10821ea3caf81167dd6f77f097ebd85b
+  - path: .dev/tasks/done/TASK-WF-implementIronbel-20261104-130647/artifacts/retries/T1/notes.md
+    sha256: e08538e0138303c8a90dada603f134025998f4a6e5bd66b1e0f10e5d3deaf64b
+  - path: .dev/tasks/done/TASK-WF-implementIronbel-20261104-130647/artifacts/retries/T1/prompt-1-1.md
+    sha256: d619af10141014c419ee8f986b6501a60e29826bc1919549893eed81bac81c12
+  - path: .dev/tasks/done/TASK-WF-implementIronbel-20261104-130647/artifacts/retries/T1/q0-head
+    sha256: 50c5c67c608fc7afb585f77897b45001454c15b2a5e8aabf821cfa07287198b2
+  - path: .dev/tasks/done/TASK-WF-implementIronbel-20261104-130647/artifacts/retries/T2/notes.md
+    sha256: ce2ffcaa6e8a2c0564c61fb154c50e54b2bd7b7b1e9e7b5621c56f0a4f252bb4
+  - path: .dev/tasks/done/TASK-WF-implementIronbel-20261104-130647/artifacts/retries/T2/prompt-1-1.md
+    sha256: c67c035e8fb56263d77f019812e3ec8e8cf9d70758d799b5b0b46d9d50094f15
+  - path: .dev/tasks/done/TASK-WF-implementIronbel-20261104-130647/artifacts/retries/T2/q0-head
+    sha256: 50c5c67c608fc7afb585f77897b45001454c15b2a5e8aabf821cfa07287198b2
+  - path: .dev/tasks/done/TASK-WF-implementIronbel-20261104-130647/artifacts/retries/T3/prompt-1-1.md
+    sha256: 0525962238da7c01ed11dc99ab1f29ce106208e51a3cb1e8982336274f5f8ba8
+  - path: .dev/tasks/done/TASK-WF-implementIronbel-20261104-130647/artifacts/retries/T3/q0-head
+    sha256: 50c5c67c608fc7afb585f77897b45001454c15b2a5e8aabf821cfa07287198b2
+  - path: .dev/tasks/done/TASK-WF-implementIronbel-20261104-130647/artifacts/retries/T4/notes.md
+    sha256: c44a1d53e21b2ca1e0215ed68d1c27559b1d6042517b501f17d960cbbccc8d5a
+  - path: .dev/tasks/done/TASK-WF-implementIronbel-20261104-130647/artifacts/retries/T4/prompt-1-1.md
+    sha256: 7abc7a3afc8514e42f6b4dad9066c663cd47ede957e8f412d822c8c8803b5af2
+  - path: .dev/tasks/done/TASK-WF-implementIronbel-20261104-130647/artifacts/retries/T4/q0-head
+    sha256: 50c5c67c608fc7afb585f77897b45001454c15b2a5e8aabf821cfa07287198b2
+  - path: .dev/tasks/done/TASK-WF-implementIronbel-20261104-130647/artifacts/retries/T5/prompt-1-1.md
+    sha256: fd914592e375d343d145f227e8a1ccbde9ff2e98f159e45816b8a4fe6520b95d
+  - path: .dev/tasks/done/TASK-WF-implementIronbel-20261104-130647/artifacts/retries/T5/q0-head
+    sha256: 50c5c67c608fc7afb585f77897b45001454c15b2a5e8aabf821cfa07287198b2
+  - path: .dev/tasks/done/TASK-WF-implementIronbel-20261104-130647/artifacts/retries/T6/prompt-1-1.md
+    sha256: 89b72caa2e662aae1d33430802db000f20727330f5c3659880843075b55106b9
+  - path: .dev/tasks/done/TASK-WF-implementIronbel-20261104-130647/artifacts/retries/T6/q0-head
+    sha256: 50c5c67c608fc7afb585f77897b45001454c15b2a5e8aabf821cfa07287198b2
+  - path: .dev/tasks/done/TASK-WF-implementIronbel-20261104-130647/artifacts/retries/T7/prompt-1-1.md
+    sha256: 2272f707445db7c08329a676a78843217253ffa9fc7c0eefe91ad582aeb7608b
+  - path: .dev/tasks/done/TASK-WF-implementIronbel-20261104-130647/artifacts/retries/T7/q0-head
+    sha256: 50c5c67c608fc7afb585f77897b45001454c15b2a5e8aabf821cfa07287198b2
+  - path: .dev/tasks/done/TASK-WF-implementIronbel-20261104-130647/artifacts/t1-manual-run.txt
+    sha256: 008ec5568cd2c25155eaf1443bcf6853d48c043c8451793318a236e17a14693d
+  - path: .dev/tasks/done/TASK-WF-implementIronbel-20261104-130647/artifacts/t2-pytest.log
+    sha256: 87512b250264928400045af7c7451b00f3d54da381acf1600007ed450666ec55
+  - path: .dev/tasks/done/TASK-WF-implementIronbel-20261104-130647/artifacts/t2-ruff.log
+    sha256: a24f04e0121fdd35c854aa8faf0bd61fcd00c738598b6f918b912356db1fd8a7
+  - path: .dev/tasks/done/TASK-WF-implementIronbel-20261104-130647/artifacts/t3-verify-sync.log
+    sha256: 9317a86a2ec6ed924e75885d4ed2657f296a744bfa077595a04d68eefb54f523
+  - path: .dev/tasks/done/TASK-WF-implementIronbel-20261104-130647/artifacts/t4-pytest.log
+    sha256: 698aff9cd472b535fabf46cf3a6b892313123e1f8695272dd4df1bd7b0dc43cc
+  - path: .dev/tasks/done/TASK-WF-implementIronbel-20261104-130647/artifacts/t4-ruff.log
+    sha256: 1100eab0b5b3c005dcc49aeeba79f4ac79709be366c4cd5c441b73badac063e2
+  - path: .dev/tasks/done/TASK-WF-implementIronbel-20261104-130647/artifacts/t5-checks.txt
+    sha256: 960b568f672a1f4c121ec8ae967cc69f8c5fca53a5f6531bbc59f73605bd115e
+  - path: .dev/tasks/done/TASK-WF-implementIronbel-20261104-130647/artifacts/t6-checks.txt
+    sha256: 61dc0a6dfe92f8785b0e5d5ff948158a7ceddbdf7ad803ec6669340a5662543e
+  - path: .dev/tasks/done/TASK-WF-implementIronbel-20261104-130647/artifacts/t7-main-session.jsonl
+    sha256: 62e85bc9b271787c2776f700a6018a0222d2cd1569a10a024735552c25d59d71
+  - path: .dev/tasks/done/TASK-WF-implementIronbel-20261104-130647/artifacts/t7-settings.json
+    sha256: 3d4cd0dc01529b698b285608efb5cf2615affc0e4f0be7f2e6bc0a9b47fe5549
+  - path: .dev/tasks/done/TASK-WF-implementIronbel-20261104-130647/artifacts/t7-subagent-session.jsonl
+    sha256: eeff6ef082f73a3fc9e976c57e6036e44e37cb1eb82e10e19d432db314d6fb2e
+  - path: .dev/tasks/done/TASK-WF-implementIronbel-20261104-130647/artifacts/t7-summary.md
+    sha256: 86739a9371d6d0b63b6914130f8d45c65123f9149ed579ec49a0cf870ea0ed78
+  - path: .dev/tasks/done/TASK-WF-implementIronbel-20261104-130647/progress.md
+    sha256: 2bb02b76c9aa24c2dc02a09f49b0ae48a71dd27e2111a243d622cb4b13310ee7
+  - path: .dev/tasks/done/TASK-WF-implementIronbel-20261104-130647/return-contract.yaml
+    sha256: 773f7899d18b9d1d26d129d3ae98086114fac379d3faf1cb03dc2cf9116168c2
+  - path: .dev/tasks/done/TASK-WF-implementIronbel-20261104-130647/source.md
+    sha256: d7db85c6855804fa5374aef3de699e4e4f9ef030a03d9d1d49b5fe4d3f17f0b2

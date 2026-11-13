@@ -1,0 +1,15 @@
+selected_tier: 2
+fired_rule_number: 4            # --tier 2 pin (SKILL 5.1) also forces T2; first deterministic row: S_domains >= 3 (code, tests, docs)
+coverage_degraded: parsed-sparse
+surface_unreached: null
+composite_score: 9
+per_signal_breakdown:
+  scope_size: 2
+  task_count: 2
+  blast_radius: 2
+  spec_density: 2
+  ambiguity_signals: 1
+escalation_reason: "--tier 2 pinned; also S_dev_density 0.2258 > 0.20 (rule 5), C 0.69 < 0.85 (rule 6), coverage_degraded parsed-sparse (table-wide pre-filter, Step 1B.2b)"
+t2_engine_requested: shadow
+t2_engine_effective: shadow
+panel_fallback_reason: null

@@ -1,0 +1,14 @@
+calibrator: confidence-calibrator (sonnet class; disjoint set empty, calibrator_diversity: degraded)
+card: t1-card.md
+dimensions:
+  citation_grounding: 0.92
+  coverage_completeness: 0.72
+  deviation_classification_clarity: 0.55
+  risk_surface_coverage: 0.70
+  recommendation_actionability: 0.65
+calibrated_confidence: 0.71
+self_reported_confidence: 0.70
+escalation_recommendation: escalate
+citations_reread_pass: 13
+citations_reread_fail: 0
+calibrator_note: "T1-F1 holds, but guard.cycle_id exists in the fold, so only applied_edits and target_sha are missing; the card overstates by naming cycle_id."

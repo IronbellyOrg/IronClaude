@@ -1,0 +1,15 @@
+selected_tier: 2
+fired_rule_number: null        # hard override --tier 2 (SKILL.md 5.1), no rubric row evaluated
+coverage_degraded: parsed-sparse
+surface_unreached: null
+composite_score: 6             # recording only: scope_size 1 + task_count 1 + blast_radius 1 + spec_density 2 + ambiguity_signals 1
+per_signal_breakdown:
+  scope_size: 1
+  task_count: 1
+  blast_radius: 1
+  spec_density: 2
+  ambiguity_signals: 1
+escalation_reason: "--tier 2 pinned by the caller. The rubric would also escalate: calibrated C 0.80 < 0.85 (rule 6), and the parsed-sparse pre-filter forbids a Tier-1 stop."
+t2_engine_requested: shadow
+t2_engine_effective: shadow
+panel_fallback_reason: null

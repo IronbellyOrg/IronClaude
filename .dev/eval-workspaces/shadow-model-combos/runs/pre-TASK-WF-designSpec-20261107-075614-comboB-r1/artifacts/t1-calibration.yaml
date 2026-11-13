@@ -1,0 +1,6 @@
+calibrator_model_class: opus
+calibrator_diversity: degraded   # Anthropic-only; reviewers sonnet/haiku/opus leave no disjoint class
+calibration:
+  dimensions: {citation_grounding: 0.80, coverage_completeness: 0.75, deviation_classification_clarity: 0.75, risk_surface_coverage: 0.70, recommendation_actionability: 0.60}
+  confidence: 0.72
+  escalation_recommendation: escalate

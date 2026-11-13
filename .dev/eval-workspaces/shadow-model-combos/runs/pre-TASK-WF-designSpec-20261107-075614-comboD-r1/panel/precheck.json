@@ -1,0 +1,791 @@
+{
+  "by_flag": {
+    "missing-file": 40,
+    "out-of-range": 0,
+    "quote-not-found": 0
+  },
+  "cards": [
+    {
+      "block_state": "complete",
+      "card": "reviewer-1.md",
+      "reviewer_id": "reviewer-1"
+    },
+    {
+      "block_state": "complete",
+      "card": "reviewer-2.md",
+      "reviewer_id": "reviewer-2"
+    },
+    {
+      "block_state": "complete",
+      "card": "reviewer-3.md",
+      "reviewer_id": "reviewer-3"
+    }
+  ],
+  "checked": 40,
+  "citations": [
+    {
+      "advisory": false,
+      "citation": 1,
+      "finding_id": "F1",
+      "flag": "missing-file",
+      "line_end": 124,
+      "line_start": 124,
+      "path": ".dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/TASK-WF-designSpec-20261107-075614.md",
+      "reason": "not-in-snapshot",
+      "reviewer_id": "reviewer-1",
+      "role": "plan"
+    },
+    {
+      "advisory": false,
+      "citation": 2,
+      "finding_id": "F1",
+      "flag": "missing-file",
+      "line_end": 130,
+      "line_start": 126,
+      "path": ".dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/TASK-WF-designSpec-20261107-075614.md",
+      "reason": "not-in-snapshot",
+      "reviewer_id": "reviewer-1",
+      "role": "plan"
+    },
+    {
+      "advisory": false,
+      "citation": 3,
+      "finding_id": "F1",
+      "flag": "missing-file",
+      "line_end": 185,
+      "line_start": 182,
+      "path": ".dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/source.md",
+      "reason": "not-in-snapshot",
+      "reviewer_id": "reviewer-1",
+      "role": "spec"
+    },
+    {
+      "advisory": false,
+      "citation": 1,
+      "finding_id": "F2",
+      "flag": "missing-file",
+      "line_end": 70,
+      "line_start": 70,
+      "path": ".dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/TASK-WF-designSpec-20261107-075614.md",
+      "reason": "not-in-snapshot",
+      "reviewer_id": "reviewer-1",
+      "role": "plan"
+    },
+    {
+      "advisory": false,
+      "citation": 2,
+      "finding_id": "F2",
+      "flag": "missing-file",
+      "line_end": 74,
+      "line_start": 74,
+      "path": ".dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/TASK-WF-designSpec-20261107-075614.md",
+      "reason": "not-in-snapshot",
+      "reviewer_id": "reviewer-1",
+      "role": "plan"
+    },
+    {
+      "advisory": false,
+      "citation": 3,
+      "finding_id": "F2",
+      "flag": "missing-file",
+      "line_end": 121,
+      "line_start": 119,
+      "path": ".dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/source.md",
+      "reason": "not-in-snapshot",
+      "reviewer_id": "reviewer-1",
+      "role": "spec"
+    },
+    {
+      "advisory": false,
+      "citation": 1,
+      "finding_id": "F3",
+      "flag": "missing-file",
+      "line_end": 108,
+      "line_start": 108,
+      "path": ".dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/source.md",
+      "reason": "not-in-snapshot",
+      "reviewer_id": "reviewer-1",
+      "role": "spec"
+    },
+    {
+      "advisory": false,
+      "citation": 2,
+      "finding_id": "F3",
+      "flag": "missing-file",
+      "line_end": 193,
+      "line_start": 187,
+      "path": ".dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/source.md",
+      "reason": "not-in-snapshot",
+      "reviewer_id": "reviewer-1",
+      "role": "spec"
+    },
+    {
+      "advisory": false,
+      "citation": 3,
+      "finding_id": "F3",
+      "flag": "missing-file",
+      "line_end": 62,
+      "line_start": 56,
+      "path": ".dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/TASK-WF-designSpec-20261107-075614.md",
+      "reason": "not-in-snapshot",
+      "reviewer_id": "reviewer-1",
+      "role": "plan"
+    },
+    {
+      "advisory": false,
+      "citation": 1,
+      "finding_id": "F4",
+      "flag": "missing-file",
+      "line_end": 90,
+      "line_start": 90,
+      "path": ".dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/TASK-WF-designSpec-20261107-075614.md",
+      "reason": "not-in-snapshot",
+      "reviewer_id": "reviewer-1",
+      "role": "plan"
+    },
+    {
+      "advisory": false,
+      "citation": 2,
+      "finding_id": "F4",
+      "flag": "missing-file",
+      "line_end": 80,
+      "line_start": 80,
+      "path": ".dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/source.md",
+      "reason": "not-in-snapshot",
+      "reviewer_id": "reviewer-1",
+      "role": "spec"
+    },
+    {
+      "advisory": false,
+      "citation": 1,
+      "finding_id": "F1",
+      "flag": "missing-file",
+      "line_end": 137,
+      "line_start": 137,
+      "path": ".dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/TASK-WF-designSpec-20261107-075614.md",
+      "reason": "not-in-snapshot",
+      "reviewer_id": "reviewer-2",
+      "role": "plan"
+    },
+    {
+      "advisory": false,
+      "citation": 2,
+      "finding_id": "F1",
+      "flag": "missing-file",
+      "line_end": 140,
+      "line_start": 140,
+      "path": ".dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/TASK-WF-designSpec-20261107-075614.md",
+      "reason": "not-in-snapshot",
+      "reviewer_id": "reviewer-2",
+      "role": "plan"
+    },
+    {
+      "advisory": false,
+      "citation": 3,
+      "finding_id": "F1",
+      "flag": "missing-file",
+      "line_end": 378,
+      "line_start": 378,
+      "path": ".dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/source.md",
+      "reason": "not-in-snapshot",
+      "reviewer_id": "reviewer-2",
+      "role": "spec"
+    },
+    {
+      "advisory": false,
+      "citation": 1,
+      "finding_id": "F2",
+      "flag": "missing-file",
+      "line_end": 251,
+      "line_start": 251,
+      "path": ".dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/source.md",
+      "reason": "not-in-snapshot",
+      "reviewer_id": "reviewer-2",
+      "role": "spec"
+    },
+    {
+      "advisory": false,
+      "citation": 2,
+      "finding_id": "F2",
+      "flag": "missing-file",
+      "line_end": 170,
+      "line_start": 170,
+      "path": ".dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/TASK-WF-designSpec-20261107-075614.md",
+      "reason": "not-in-snapshot",
+      "reviewer_id": "reviewer-2",
+      "role": "plan"
+    },
+    {
+      "advisory": false,
+      "citation": 3,
+      "finding_id": "F2",
+      "flag": "missing-file",
+      "line_end": 152,
+      "line_start": 152,
+      "path": ".dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/TASK-WF-designSpec-20261107-075614.md",
+      "reason": "not-in-snapshot",
+      "reviewer_id": "reviewer-2",
+      "role": "plan"
+    },
+    {
+      "advisory": false,
+      "citation": 1,
+      "finding_id": "F3",
+      "flag": "missing-file",
+      "line_end": 152,
+      "line_start": 152,
+      "path": ".dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/TASK-WF-designSpec-20261107-075614.md",
+      "reason": "not-in-snapshot",
+      "reviewer_id": "reviewer-2",
+      "role": "plan"
+    },
+    {
+      "advisory": false,
+      "citation": 2,
+      "finding_id": "F3",
+      "flag": "missing-file",
+      "line_end": 70,
+      "line_start": 70,
+      "path": ".dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/TASK-WF-designSpec-20261107-075614.md",
+      "reason": "not-in-snapshot",
+      "reviewer_id": "reviewer-2",
+      "role": "plan"
+    },
+    {
+      "advisory": false,
+      "citation": 3,
+      "finding_id": "F3",
+      "flag": "missing-file",
+      "line_end": 241,
+      "line_start": 241,
+      "path": ".dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/source.md",
+      "reason": "not-in-snapshot",
+      "reviewer_id": "reviewer-2",
+      "role": "spec"
+    },
+    {
+      "advisory": false,
+      "citation": 1,
+      "finding_id": "F4",
+      "flag": "missing-file",
+      "line_end": 154,
+      "line_start": 154,
+      "path": ".dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/TASK-WF-designSpec-20261107-075614.md",
+      "reason": "not-in-snapshot",
+      "reviewer_id": "reviewer-2",
+      "role": "plan"
+    },
+    {
+      "advisory": false,
+      "citation": 2,
+      "finding_id": "F4",
+      "flag": "missing-file",
+      "line_end": 33,
+      "line_start": 33,
+      "path": ".dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/TASK-WF-designSpec-20261107-075614.md",
+      "reason": "not-in-snapshot",
+      "reviewer_id": "reviewer-2",
+      "role": "plan"
+    },
+    {
+      "advisory": false,
+      "citation": 3,
+      "finding_id": "F4",
+      "flag": "missing-file",
+      "line_end": 377,
+      "line_start": 377,
+      "path": ".dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/source.md",
+      "reason": "not-in-snapshot",
+      "reviewer_id": "reviewer-2",
+      "role": "spec"
+    },
+    {
+      "advisory": false,
+      "citation": 1,
+      "finding_id": "F5",
+      "flag": "missing-file",
+      "line_end": 111,
+      "line_start": 111,
+      "path": ".dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/TASK-WF-designSpec-20261107-075614.md",
+      "reason": "not-in-snapshot",
+      "reviewer_id": "reviewer-2",
+      "role": "plan"
+    },
+    {
+      "advisory": false,
+      "citation": 2,
+      "finding_id": "F5",
+      "flag": "missing-file",
+      "line_end": 230,
+      "line_start": 230,
+      "path": ".dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/source.md",
+      "reason": "not-in-snapshot",
+      "reviewer_id": "reviewer-2",
+      "role": "spec"
+    },
+    {
+      "advisory": false,
+      "citation": 1,
+      "finding_id": "F6",
+      "flag": "missing-file",
+      "line_end": 22,
+      "line_start": 22,
+      "path": ".dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/TASK-WF-designSpec-20261107-075614.md",
+      "reason": "not-in-snapshot",
+      "reviewer_id": "reviewer-2",
+      "role": "plan"
+    },
+    {
+      "advisory": false,
+      "citation": 2,
+      "finding_id": "F6",
+      "flag": "missing-file",
+      "line_end": 124,
+      "line_start": 124,
+      "path": ".dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/TASK-WF-designSpec-20261107-075614.md",
+      "reason": "not-in-snapshot",
+      "reviewer_id": "reviewer-2",
+      "role": "plan"
+    },
+    {
+      "advisory": false,
+      "citation": 3,
+      "finding_id": "F6",
+      "flag": "missing-file",
+      "line_end": 255,
+      "line_start": 255,
+      "path": ".dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/source.md",
+      "reason": "not-in-snapshot",
+      "reviewer_id": "reviewer-2",
+      "role": "spec"
+    },
+    {
+      "advisory": false,
+      "citation": 1,
+      "finding_id": "F7",
+      "flag": "missing-file",
+      "line_end": 60,
+      "line_start": 60,
+      "path": ".dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/TASK-WF-designSpec-20261107-075614.md",
+      "reason": "not-in-snapshot",
+      "reviewer_id": "reviewer-2",
+      "role": "plan"
+    },
+    {
+      "advisory": false,
+      "citation": 2,
+      "finding_id": "F7",
+      "flag": "missing-file",
+      "line_end": 206,
+      "line_start": 198,
+      "path": ".dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/source.md",
+      "reason": "not-in-snapshot",
+      "reviewer_id": "reviewer-2",
+      "role": "spec"
+    },
+    {
+      "advisory": false,
+      "citation": 1,
+      "finding_id": "F1",
+      "flag": "missing-file",
+      "line_end": 130,
+      "line_start": 124,
+      "path": ".dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/TASK-WF-designSpec-20261107-075614.md",
+      "reason": "not-in-snapshot",
+      "reviewer_id": "reviewer-3",
+      "role": "plan"
+    },
+    {
+      "advisory": false,
+      "citation": 2,
+      "finding_id": "F1",
+      "flag": "missing-file",
+      "line_end": 185,
+      "line_start": 182,
+      "path": ".dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/source.md",
+      "reason": "not-in-snapshot",
+      "reviewer_id": "reviewer-3",
+      "role": "spec"
+    },
+    {
+      "advisory": false,
+      "citation": 1,
+      "finding_id": "F2",
+      "flag": "missing-file",
+      "line_end": 140,
+      "line_start": 137,
+      "path": ".dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/TASK-WF-designSpec-20261107-075614.md",
+      "reason": "not-in-snapshot",
+      "reviewer_id": "reviewer-3",
+      "role": "plan"
+    },
+    {
+      "advisory": false,
+      "citation": 2,
+      "finding_id": "F2",
+      "flag": "missing-file",
+      "line_end": 241,
+      "line_start": 241,
+      "path": ".dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/source.md",
+      "reason": "not-in-snapshot",
+      "reviewer_id": "reviewer-3",
+      "role": "spec"
+    },
+    {
+      "advisory": false,
+      "citation": 1,
+      "finding_id": "F3",
+      "flag": "missing-file",
+      "line_end": 137,
+      "line_start": 134,
+      "path": ".dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/TASK-WF-designSpec-20261107-075614.md",
+      "reason": "not-in-snapshot",
+      "reviewer_id": "reviewer-3",
+      "role": "plan"
+    },
+    {
+      "advisory": false,
+      "citation": 2,
+      "finding_id": "F3",
+      "flag": "missing-file",
+      "line_end": 182,
+      "line_start": 179,
+      "path": ".dev/eval-workspaces/worktrees/IronClaude/brainstorm-reflect-panel/.dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/TASK-WF-designSpec-20261107-075614.md",
+      "reason": "not-in-snapshot",
+      "reviewer_id": "reviewer-3",
+      "role": "plan"
+    },
+    {
+      "advisory": false,
+      "citation": 3,
+      "finding_id": "F3",
+      "flag": "missing-file",
+      "line_end": 365,
+      "line_start": 363,
+      "path": ".dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/TASK-WF-designSpec-20261107-075614.md",
+      "reason": "not-in-snapshot",
+      "reviewer_id": "reviewer-3",
+      "role": "plan"
+    },
+    {
+      "advisory": false,
+      "citation": 1,
+      "finding_id": "F4",
+      "flag": "missing-file",
+      "line_end": 251,
+      "line_start": 251,
+      "path": ".dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/source.md",
+      "reason": "not-in-snapshot",
+      "reviewer_id": "reviewer-3",
+      "role": "spec"
+    },
+    {
+      "advisory": false,
+      "citation": 2,
+      "finding_id": "F4",
+      "flag": "missing-file",
+      "line_end": 155,
+      "line_start": 153,
+      "path": ".dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/TASK-WF-designSpec-20261107-075614.md",
+      "reason": "not-in-snapshot",
+      "reviewer_id": "reviewer-3",
+      "role": "plan"
+    },
+    {
+      "advisory": false,
+      "citation": 3,
+      "finding_id": "F4",
+      "flag": "missing-file",
+      "line_end": 171,
+      "line_start": 170,
+      "path": ".dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/TASK-WF-designSpec-20261107-075614.md",
+      "reason": "not-in-snapshot",
+      "reviewer_id": "reviewer-3",
+      "role": "plan"
+    }
+  ],
+  "flagged": 40,
+  "reread_set": [
+    {
+      "citation": 1,
+      "finding_id": "F1",
+      "flag": "missing-file",
+      "path": ".dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/TASK-WF-designSpec-20261107-075614.md",
+      "reviewer_id": "reviewer-1"
+    },
+    {
+      "citation": 2,
+      "finding_id": "F1",
+      "flag": "missing-file",
+      "path": ".dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/TASK-WF-designSpec-20261107-075614.md",
+      "reviewer_id": "reviewer-1"
+    },
+    {
+      "citation": 3,
+      "finding_id": "F1",
+      "flag": "missing-file",
+      "path": ".dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/source.md",
+      "reviewer_id": "reviewer-1"
+    },
+    {
+      "citation": 1,
+      "finding_id": "F2",
+      "flag": "missing-file",
+      "path": ".dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/TASK-WF-designSpec-20261107-075614.md",
+      "reviewer_id": "reviewer-1"
+    },
+    {
+      "citation": 2,
+      "finding_id": "F2",
+      "flag": "missing-file",
+      "path": ".dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/TASK-WF-designSpec-20261107-075614.md",
+      "reviewer_id": "reviewer-1"
+    },
+    {
+      "citation": 3,
+      "finding_id": "F2",
+      "flag": "missing-file",
+      "path": ".dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/source.md",
+      "reviewer_id": "reviewer-1"
+    },
+    {
+      "citation": 1,
+      "finding_id": "F3",
+      "flag": "missing-file",
+      "path": ".dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/source.md",
+      "reviewer_id": "reviewer-1"
+    },
+    {
+      "citation": 2,
+      "finding_id": "F3",
+      "flag": "missing-file",
+      "path": ".dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/source.md",
+      "reviewer_id": "reviewer-1"
+    },
+    {
+      "citation": 3,
+      "finding_id": "F3",
+      "flag": "missing-file",
+      "path": ".dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/TASK-WF-designSpec-20261107-075614.md",
+      "reviewer_id": "reviewer-1"
+    },
+    {
+      "citation": 1,
+      "finding_id": "F4",
+      "flag": "missing-file",
+      "path": ".dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/TASK-WF-designSpec-20261107-075614.md",
+      "reviewer_id": "reviewer-1"
+    },
+    {
+      "citation": 2,
+      "finding_id": "F4",
+      "flag": "missing-file",
+      "path": ".dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/source.md",
+      "reviewer_id": "reviewer-1"
+    },
+    {
+      "citation": 1,
+      "finding_id": "F1",
+      "flag": "missing-file",
+      "path": ".dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/TASK-WF-designSpec-20261107-075614.md",
+      "reviewer_id": "reviewer-2"
+    },
+    {
+      "citation": 2,
+      "finding_id": "F1",
+      "flag": "missing-file",
+      "path": ".dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/TASK-WF-designSpec-20261107-075614.md",
+      "reviewer_id": "reviewer-2"
+    },
+    {
+      "citation": 3,
+      "finding_id": "F1",
+      "flag": "missing-file",
+      "path": ".dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/source.md",
+      "reviewer_id": "reviewer-2"
+    },
+    {
+      "citation": 1,
+      "finding_id": "F2",
+      "flag": "missing-file",
+      "path": ".dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/source.md",
+      "reviewer_id": "reviewer-2"
+    },
+    {
+      "citation": 2,
+      "finding_id": "F2",
+      "flag": "missing-file",
+      "path": ".dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/TASK-WF-designSpec-20261107-075614.md",
+      "reviewer_id": "reviewer-2"
+    },
+    {
+      "citation": 3,
+      "finding_id": "F2",
+      "flag": "missing-file",
+      "path": ".dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/TASK-WF-designSpec-20261107-075614.md",
+      "reviewer_id": "reviewer-2"
+    },
+    {
+      "citation": 1,
+      "finding_id": "F3",
+      "flag": "missing-file",
+      "path": ".dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/TASK-WF-designSpec-20261107-075614.md",
+      "reviewer_id": "reviewer-2"
+    },
+    {
+      "citation": 2,
+      "finding_id": "F3",
+      "flag": "missing-file",
+      "path": ".dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/TASK-WF-designSpec-20261107-075614.md",
+      "reviewer_id": "reviewer-2"
+    },
+    {
+      "citation": 3,
+      "finding_id": "F3",
+      "flag": "missing-file",
+      "path": ".dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/source.md",
+      "reviewer_id": "reviewer-2"
+    },
+    {
+      "citation": 1,
+      "finding_id": "F4",
+      "flag": "missing-file",
+      "path": ".dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/TASK-WF-designSpec-20261107-075614.md",
+      "reviewer_id": "reviewer-2"
+    },
+    {
+      "citation": 2,
+      "finding_id": "F4",
+      "flag": "missing-file",
+      "path": ".dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/TASK-WF-designSpec-20261107-075614.md",
+      "reviewer_id": "reviewer-2"
+    },
+    {
+      "citation": 3,
+      "finding_id": "F4",
+      "flag": "missing-file",
+      "path": ".dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/source.md",
+      "reviewer_id": "reviewer-2"
+    },
+    {
+      "citation": 1,
+      "finding_id": "F5",
+      "flag": "missing-file",
+      "path": ".dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/TASK-WF-designSpec-20261107-075614.md",
+      "reviewer_id": "reviewer-2"
+    },
+    {
+      "citation": 2,
+      "finding_id": "F5",
+      "flag": "missing-file",
+      "path": ".dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/source.md",
+      "reviewer_id": "reviewer-2"
+    },
+    {
+      "citation": 1,
+      "finding_id": "F6",
+      "flag": "missing-file",
+      "path": ".dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/TASK-WF-designSpec-20261107-075614.md",
+      "reviewer_id": "reviewer-2"
+    },
+    {
+      "citation": 2,
+      "finding_id": "F6",
+      "flag": "missing-file",
+      "path": ".dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/TASK-WF-designSpec-20261107-075614.md",
+      "reviewer_id": "reviewer-2"
+    },
+    {
+      "citation": 3,
+      "finding_id": "F6",
+      "flag": "missing-file",
+      "path": ".dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/source.md",
+      "reviewer_id": "reviewer-2"
+    },
+    {
+      "citation": 1,
+      "finding_id": "F7",
+      "flag": "missing-file",
+      "path": ".dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/TASK-WF-designSpec-20261107-075614.md",
+      "reviewer_id": "reviewer-2"
+    },
+    {
+      "citation": 2,
+      "finding_id": "F7",
+      "flag": "missing-file",
+      "path": ".dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/source.md",
+      "reviewer_id": "reviewer-2"
+    },
+    {
+      "citation": 1,
+      "finding_id": "F1",
+      "flag": "missing-file",
+      "path": ".dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/TASK-WF-designSpec-20261107-075614.md",
+      "reviewer_id": "reviewer-3"
+    },
+    {
+      "citation": 2,
+      "finding_id": "F1",
+      "flag": "missing-file",
+      "path": ".dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/source.md",
+      "reviewer_id": "reviewer-3"
+    },
+    {
+      "citation": 1,
+      "finding_id": "F2",
+      "flag": "missing-file",
+      "path": ".dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/TASK-WF-designSpec-20261107-075614.md",
+      "reviewer_id": "reviewer-3"
+    },
+    {
+      "citation": 2,
+      "finding_id": "F2",
+      "flag": "missing-file",
+      "path": ".dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/source.md",
+      "reviewer_id": "reviewer-3"
+    },
+    {
+      "citation": 1,
+      "finding_id": "F3",
+      "flag": "missing-file",
+      "path": ".dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/TASK-WF-designSpec-20261107-075614.md",
+      "reviewer_id": "reviewer-3"
+    },
+    {
+      "citation": 2,
+      "finding_id": "F3",
+      "flag": "missing-file",
+      "path": ".dev/eval-workspaces/worktrees/IronClaude/brainstorm-reflect-panel/.dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/TASK-WF-designSpec-20261107-075614.md",
+      "reviewer_id": "reviewer-3"
+    },
+    {
+      "citation": 3,
+      "finding_id": "F3",
+      "flag": "missing-file",
+      "path": ".dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/TASK-WF-designSpec-20261107-075614.md",
+      "reviewer_id": "reviewer-3"
+    },
+    {
+      "citation": 1,
+      "finding_id": "F4",
+      "flag": "missing-file",
+      "path": ".dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/source.md",
+      "reviewer_id": "reviewer-3"
+    },
+    {
+      "citation": 2,
+      "finding_id": "F4",
+      "flag": "missing-file",
+      "path": ".dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/TASK-WF-designSpec-20261107-075614.md",
+      "reviewer_id": "reviewer-3"
+    },
+    {
+      "citation": 3,
+      "finding_id": "F4",
+      "flag": "missing-file",
+      "path": ".dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/TASK-WF-designSpec-20261107-075614.md",
+      "reviewer_id": "reviewer-3"
+    }
+  ],
+  "schema": "review-precheck/1"
+}

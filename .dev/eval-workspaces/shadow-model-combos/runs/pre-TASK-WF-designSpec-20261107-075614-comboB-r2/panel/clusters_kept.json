@@ -1,0 +1,760 @@
+{
+  "agreement_clusters": [
+    "C1",
+    "C5",
+    "C8"
+  ],
+  "blocking_clusters": 5,
+  "calibration_coverage": {
+    "calibrated_findings": 23,
+    "clustered_findings": 23
+  },
+  "cards": [
+    {
+      "block_state": "complete",
+      "card": "reviewer-1.md",
+      "errors": [],
+      "reviewer_id": "reviewer-1",
+      "state": "complete"
+    },
+    {
+      "block_state": "complete",
+      "card": "reviewer-2.md",
+      "errors": [],
+      "reviewer_id": "reviewer-2",
+      "state": "complete"
+    },
+    {
+      "block_state": "complete",
+      "card": "reviewer-3.md",
+      "errors": [],
+      "reviewer_id": "reviewer-3",
+      "state": "complete"
+    }
+  ],
+  "chained": [
+    "C2",
+    "C3",
+    "C6"
+  ],
+  "citations": {
+    "malformed": 0,
+    "resolved": 64,
+    "unresolved": 2
+  },
+  "cluster_agreement": 0.5399999999999999,
+  "clusters": [
+    {
+      "blocking_all": true,
+      "blocking_any": true,
+      "chained": false,
+      "claim": "Task 7 requires every gh line to carry --repo or repos/, but the required _RESOLUTION_SCRIPTS tests need a `gh repo view --json nameWithOwner` line (no --repo); `command -v gh` lines also break the scan. Reuse _repo_scoped.",
+      "cluster_id": "C1",
+      "disputed": false,
+      "member_scores": [
+        0.85,
+        0.85
+      ],
+      "members": [
+        {
+          "blocking": true,
+          "deviation_class": null,
+          "finding_confidence": 0.85,
+          "fp": "929dca47101b99581522654814f0f26853dbfdbc871ca0a6b78bae23c6aed4c6",
+          "id": "F1",
+          "ordinal": 1,
+          "primary_citation": {
+            "index": 0,
+            "line_end": 113,
+            "line_start": 108,
+            "path": ".dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/TASK-WF-designSpec-20261107-075614.md",
+            "role": "plan",
+            "status": "resolved"
+          },
+          "refs_norm": [],
+          "reviewer_id": "reviewer-1"
+        },
+        {
+          "blocking": true,
+          "deviation_class": null,
+          "finding_confidence": 0.85,
+          "fp": "929dca47101b99581522654814f0f26853dbfdbc871ca0a6b78bae23c6aed4c6",
+          "id": "F3",
+          "ordinal": 2,
+          "primary_citation": {
+            "index": 2,
+            "line_end": 114,
+            "line_start": 108,
+            "path": ".dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/TASK-WF-designSpec-20261107-075614.md",
+            "role": "plan",
+            "status": "resolved"
+          },
+          "refs_norm": [],
+          "reviewer_id": "reviewer-2"
+        }
+      ],
+      "representative": {
+        "id": "F1",
+        "reviewer_id": "reviewer-1"
+      },
+      "reviewers": [
+        "reviewer-1",
+        "reviewer-2"
+      ],
+      "support": 0.6799999999999999,
+      "uncalibrated": false
+    },
+    {
+      "blocking_all": false,
+      "blocking_any": true,
+      "chained": true,
+      "claim": "resume_decision row 4 re-enters release_decision, but its signature lacks cycle_id, applied_edits and target_sha and GuardAction has no re-enter value; the Task 4 row-4 criterion cannot be written, and omitting the head proof would release without confirming the head.",
+      "cluster_id": "C2",
+      "disputed": true,
+      "member_scores": [
+        0.8,
+        0.6,
+        0.4,
+        0.5
+      ],
+      "members": [
+        {
+          "blocking": true,
+          "deviation_class": null,
+          "finding_confidence": 0.8,
+          "fp": "929dca47101b99581522654814f0f26853dbfdbc871ca0a6b78bae23c6aed4c6",
+          "id": "F2",
+          "ordinal": 1,
+          "primary_citation": {
+            "index": 2,
+            "line_end": 164,
+            "line_start": 157,
+            "path": ".dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/TASK-WF-designSpec-20261107-075614.md",
+            "role": "plan",
+            "status": "resolved"
+          },
+          "refs_norm": [],
+          "reviewer_id": "reviewer-1"
+        },
+        {
+          "blocking": false,
+          "deviation_class": null,
+          "finding_confidence": 0.6,
+          "fp": "929dca47101b99581522654814f0f26853dbfdbc871ca0a6b78bae23c6aed4c6",
+          "id": "F5",
+          "ordinal": 1,
+          "primary_citation": {
+            "index": 0,
+            "line_end": 33,
+            "line_start": 33,
+            "path": ".dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/TASK-WF-designSpec-20261107-075614.md",
+            "role": "plan",
+            "status": "resolved"
+          },
+          "refs_norm": [],
+          "reviewer_id": "reviewer-1"
+        },
+        {
+          "blocking": false,
+          "deviation_class": null,
+          "finding_confidence": 0.4,
+          "fp": "929dca47101b99581522654814f0f26853dbfdbc871ca0a6b78bae23c6aed4c6",
+          "id": "F8",
+          "ordinal": 1,
+          "primary_citation": {
+            "index": 1,
+            "line_end": 163,
+            "line_start": 163,
+            "path": ".dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/TASK-WF-designSpec-20261107-075614.md",
+            "role": "plan",
+            "status": "resolved"
+          },
+          "refs_norm": [],
+          "reviewer_id": "reviewer-1"
+        },
+        {
+          "blocking": false,
+          "deviation_class": null,
+          "finding_confidence": 0.5,
+          "fp": "929dca47101b99581522654814f0f26853dbfdbc871ca0a6b78bae23c6aed4c6",
+          "id": "F9",
+          "ordinal": 3,
+          "primary_citation": {
+            "index": 0,
+            "line_end": 33,
+            "line_start": 33,
+            "path": ".dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/TASK-WF-designSpec-20261107-075614.md",
+            "role": "plan",
+            "status": "resolved"
+          },
+          "refs_norm": [],
+          "reviewer_id": "reviewer-3"
+        }
+      ],
+      "representative": {
+        "id": "F2",
+        "reviewer_id": "reviewer-1"
+      },
+      "reviewers": [
+        "reviewer-1",
+        "reviewer-3"
+      ],
+      "support": 0.52,
+      "uncalibrated": false
+    },
+    {
+      "blocking_all": false,
+      "blocking_any": false,
+      "chained": true,
+      "claim": "A halt with reason draft_guard_unavailable must report `unavailable` (spec), but guard_status has no halt input and a no-record engage halt at ordinal 3 maps to `released`; no task assigns or tests the override.",
+      "cluster_id": "C3",
+      "disputed": false,
+      "member_scores": [
+        0.8,
+        0.7,
+        0.7,
+        0.45
+      ],
+      "members": [
+        {
+          "blocking": false,
+          "deviation_class": null,
+          "finding_confidence": 0.8,
+          "fp": "929dca47101b99581522654814f0f26853dbfdbc871ca0a6b78bae23c6aed4c6",
+          "id": "F3",
+          "ordinal": 1,
+          "primary_citation": {
+            "index": 1,
+            "line_end": 148,
+            "line_start": 148,
+            "path": ".dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/TASK-WF-designSpec-20261107-075614.md",
+            "role": "plan",
+            "status": "resolved"
+          },
+          "refs_norm": [],
+          "reviewer_id": "reviewer-1"
+        },
+        {
+          "blocking": false,
+          "deviation_class": null,
+          "finding_confidence": 0.7,
+          "fp": "929dca47101b99581522654814f0f26853dbfdbc871ca0a6b78bae23c6aed4c6",
+          "id": "F4",
+          "ordinal": 1,
+          "primary_citation": {
+            "index": 1,
+            "line_end": 147,
+            "line_start": 147,
+            "path": ".dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/TASK-WF-designSpec-20261107-075614.md",
+            "role": "plan",
+            "status": "resolved"
+          },
+          "refs_norm": [],
+          "reviewer_id": "reviewer-1"
+        },
+        {
+          "blocking": false,
+          "deviation_class": null,
+          "finding_confidence": 0.7,
+          "fp": "099867cfd23c2819cbf98034f39d2c365ca51d2e7790b541489be711855bca11",
+          "id": "F6",
+          "ordinal": 1,
+          "primary_citation": {
+            "index": 0,
+            "line_end": 51,
+            "line_start": 49,
+            "path": ".dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/source.md",
+            "role": "spec",
+            "status": "resolved"
+          },
+          "refs_norm": [],
+          "reviewer_id": "reviewer-1"
+        },
+        {
+          "blocking": false,
+          "deviation_class": null,
+          "finding_confidence": 0.45,
+          "fp": "929dca47101b99581522654814f0f26853dbfdbc871ca0a6b78bae23c6aed4c6",
+          "id": "F6",
+          "ordinal": 3,
+          "primary_citation": {
+            "index": 2,
+            "line_end": 124,
+            "line_start": 124,
+            "path": ".dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/TASK-WF-designSpec-20261107-075614.md",
+            "role": "plan",
+            "status": "resolved"
+          },
+          "refs_norm": [],
+          "reviewer_id": "reviewer-3"
+        }
+      ],
+      "representative": {
+        "id": "F3",
+        "reviewer_id": "reviewer-1"
+      },
+      "reviewers": [
+        "reviewer-1",
+        "reviewer-3"
+      ],
+      "support": 0.5,
+      "uncalibrated": false
+    },
+    {
+      "blocking_all": false,
+      "blocking_any": false,
+      "chained": false,
+      "claim": "The Wave 0 bullet must say no draft call is made, yet its test must fail on `draft` gate wording; the test needs a narrower pattern.",
+      "cluster_id": "C4",
+      "disputed": true,
+      "member_scores": [
+        0.55
+      ],
+      "members": [
+        {
+          "blocking": false,
+          "deviation_class": null,
+          "finding_confidence": 0.55,
+          "fp": "929dca47101b99581522654814f0f26853dbfdbc871ca0a6b78bae23c6aed4c6",
+          "id": "F7",
+          "ordinal": 1,
+          "primary_citation": {
+            "index": 0,
+            "line_end": 140,
+            "line_start": 137,
+            "path": ".dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/TASK-WF-designSpec-20261107-075614.md",
+            "role": "plan",
+            "status": "resolved"
+          },
+          "refs_norm": [],
+          "reviewer_id": "reviewer-1"
+        }
+      ],
+      "representative": {
+        "id": "F7",
+        "reviewer_id": "reviewer-1"
+      },
+      "reviewers": [
+        "reviewer-1"
+      ],
+      "support": 0.22000000000000003,
+      "uncalibrated": false
+    },
+    {
+      "blocking_all": false,
+      "blocking_any": true,
+      "chained": false,
+      "claim": "An initial draft_guard_unavailable halt can report released: Task 3 maps no record at ordinal 3 to released, while Task 8 specifies no halt-reason override or test.",
+      "cluster_id": "C5",
+      "disputed": true,
+      "member_scores": [
+        0.8,
+        0.75
+      ],
+      "members": [
+        {
+          "blocking": true,
+          "deviation_class": null,
+          "finding_confidence": 0.8,
+          "fp": "73a88b8f95bd5bf320b25b38ae10706027861caf4001d9e424879c4630da6cd7",
+          "id": "F1",
+          "ordinal": 2,
+          "primary_citation": {
+            "index": 1,
+            "line_end": 61,
+            "line_start": 61,
+            "path": ".dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/TASK-WF-designSpec-20261107-075614.md",
+            "role": "plan",
+            "status": "resolved"
+          },
+          "refs_norm": [
+            "FR-15"
+          ],
+          "reviewer_id": "reviewer-2"
+        },
+        {
+          "blocking": false,
+          "deviation_class": null,
+          "finding_confidence": 0.75,
+          "fp": "73a88b8f95bd5bf320b25b38ae10706027861caf4001d9e424879c4630da6cd7",
+          "id": "F3",
+          "ordinal": 3,
+          "primary_citation": {
+            "index": 2,
+            "line_end": 61,
+            "line_start": 61,
+            "path": ".dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/TASK-WF-designSpec-20261107-075614.md",
+            "role": "plan",
+            "status": "resolved"
+          },
+          "refs_norm": [
+            "FR-15"
+          ],
+          "reviewer_id": "reviewer-3"
+        }
+      ],
+      "representative": {
+        "id": "F1",
+        "reviewer_id": "reviewer-2"
+      },
+      "reviewers": [
+        "reviewer-2",
+        "reviewer-3"
+      ],
+      "support": 0.62,
+      "uncalibrated": false
+    },
+    {
+      "blocking_all": false,
+      "blocking_any": true,
+      "chained": true,
+      "claim": "resume_decision row 4 re-enters release_decision, but its signature lacks cycle_id, applied_edits and target_sha that release_decision needs; the Task 4 row-4 criterion cannot be built as specified.",
+      "cluster_id": "C6",
+      "disputed": true,
+      "member_scores": [
+        0.6,
+        0.6,
+        0.8,
+        0.7
+      ],
+      "members": [
+        {
+          "blocking": true,
+          "deviation_class": null,
+          "finding_confidence": 0.6,
+          "fp": "06b3539be97c34f25241616967ac065b1bdbe5a055089eb0f0f539f954abd4ad",
+          "id": "F2",
+          "ordinal": 2,
+          "primary_citation": {
+            "index": 2,
+            "line_end": 77,
+            "line_start": 70,
+            "path": ".dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/TASK-WF-designSpec-20261107-075614.md",
+            "role": "plan",
+            "status": "resolved"
+          },
+          "refs_norm": [
+            "FR-21",
+            "FR-8"
+          ],
+          "reviewer_id": "reviewer-2"
+        },
+        {
+          "blocking": false,
+          "deviation_class": null,
+          "finding_confidence": 0.6,
+          "fp": "511d7e1029ddbcaf98e5575ba290f66acce571dbe6cfeed912911e8b848005f9",
+          "id": "F5",
+          "ordinal": 2,
+          "primary_citation": {
+            "index": 1,
+            "line_end": 62,
+            "line_start": 62,
+            "path": ".dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/TASK-WF-designSpec-20261107-075614.md",
+            "role": "plan",
+            "status": "resolved"
+          },
+          "refs_norm": [
+            "FR-21"
+          ],
+          "reviewer_id": "reviewer-2"
+        },
+        {
+          "blocking": false,
+          "deviation_class": null,
+          "finding_confidence": 0.8,
+          "fp": "511d7e1029ddbcaf98e5575ba290f66acce571dbe6cfeed912911e8b848005f9",
+          "id": "F2",
+          "ordinal": 3,
+          "primary_citation": {
+            "index": 2,
+            "line_end": 70,
+            "line_start": 70,
+            "path": ".dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/TASK-WF-designSpec-20261107-075614.md",
+            "role": "plan",
+            "status": "resolved"
+          },
+          "refs_norm": [
+            "FR-21"
+          ],
+          "reviewer_id": "reviewer-3"
+        },
+        {
+          "blocking": false,
+          "deviation_class": null,
+          "finding_confidence": 0.7,
+          "fp": "06b3539be97c34f25241616967ac065b1bdbe5a055089eb0f0f539f954abd4ad",
+          "id": "F8",
+          "ordinal": 3,
+          "primary_citation": {
+            "index": 4,
+            "line_end": 62,
+            "line_start": 62,
+            "path": ".dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/TASK-WF-designSpec-20261107-075614.md",
+            "role": "plan",
+            "status": "resolved"
+          },
+          "refs_norm": [
+            "FR-21",
+            "FR-8"
+          ],
+          "reviewer_id": "reviewer-3"
+        }
+      ],
+      "representative": {
+        "id": "F2",
+        "reviewer_id": "reviewer-3"
+      },
+      "reviewers": [
+        "reviewer-2",
+        "reviewer-3"
+      ],
+      "support": 0.5599999999999999,
+      "uncalibrated": false
+    },
+    {
+      "blocking_all": false,
+      "blocking_any": false,
+      "chained": false,
+      "claim": "The fold-to-status contract lacks a test that user_override settlement sets disabled_cause; separate fold and synthetic status tests can pass while the folded override cannot report user_override.",
+      "cluster_id": "C7",
+      "disputed": false,
+      "member_scores": [
+        0.8,
+        0.65
+      ],
+      "members": [
+        {
+          "blocking": false,
+          "deviation_class": null,
+          "finding_confidence": 0.8,
+          "fp": "06c51351390969d6b267fb10ae7b1e8d940d512e11ee8e4a8a9c1bc92908943e",
+          "id": "F4",
+          "ordinal": 2,
+          "primary_citation": {
+            "index": 2,
+            "line_end": 61,
+            "line_start": 60,
+            "path": ".dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/TASK-WF-designSpec-20261107-075614.md",
+            "role": "plan",
+            "status": "resolved"
+          },
+          "refs_norm": [
+            "FR-12",
+            "FR-13"
+          ],
+          "reviewer_id": "reviewer-2"
+        },
+        {
+          "blocking": false,
+          "deviation_class": null,
+          "finding_confidence": 0.65,
+          "fp": "6a171934995b8f393f265476a3eeabdc7a7b18634bbd0047e9d2b4e87f8e19c0",
+          "id": "F4",
+          "ordinal": 3,
+          "primary_citation": {
+            "index": 1,
+            "line_end": 60,
+            "line_start": 60,
+            "path": ".dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/TASK-WF-designSpec-20261107-075614.md",
+            "role": "plan",
+            "status": "resolved"
+          },
+          "refs_norm": [
+            "FR-12"
+          ],
+          "reviewer_id": "reviewer-3"
+        }
+      ],
+      "representative": {
+        "id": "F4",
+        "reviewer_id": "reviewer-2"
+      },
+      "reviewers": [
+        "reviewer-2",
+        "reviewer-3"
+      ],
+      "support": 0.5800000000000001,
+      "uncalibrated": false
+    },
+    {
+      "blocking_all": true,
+      "blocking_any": true,
+      "chained": false,
+      "claim": "Task 7 requires a static scan that every gh line carries --repo or repos/, but joining _RESOLUTION_SCRIPTS requires a bare `gh repo view --json nameWithOwner` fallback line; both cannot pass unless the scan reuses _repo_scoped.",
+      "cluster_id": "C8",
+      "disputed": true,
+      "member_scores": [
+        0.8
+      ],
+      "members": [
+        {
+          "blocking": true,
+          "deviation_class": null,
+          "finding_confidence": 0.8,
+          "fp": "d5af74f1464ab566d6cb506df78e69e71224b6e058ac114740712acc2c7f08c3",
+          "id": "F1",
+          "ordinal": 3,
+          "primary_citation": {
+            "index": 0,
+            "line_end": 108,
+            "line_start": 108,
+            "path": ".dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/TASK-WF-designSpec-20261107-075614.md",
+            "role": "plan",
+            "status": "resolved"
+          },
+          "refs_norm": [
+            "INF-039"
+          ],
+          "reviewer_id": "reviewer-3"
+        }
+      ],
+      "representative": {
+        "id": "F1",
+        "reviewer_id": "reviewer-3"
+      },
+      "reviewers": [
+        "reviewer-3"
+      ],
+      "support": 0.32,
+      "uncalibrated": false
+    },
+    {
+      "blocking_all": false,
+      "blocking_any": false,
+      "chained": false,
+      "claim": "The Task 1 baseline is taken before make install/sync-dev, so stale mirror failures enter it and Task 13's subtract-the-baseline rule can hide a feature-caused failure of the same id.",
+      "cluster_id": "C9",
+      "disputed": true,
+      "member_scores": [
+        0.55
+      ],
+      "members": [
+        {
+          "blocking": false,
+          "deviation_class": null,
+          "finding_confidence": 0.55,
+          "fp": "a1c2877e2efa9dab1feb3338af60e50f4cb4e4987b57113acc2b73765b888bf0",
+          "id": "F5",
+          "ordinal": 3,
+          "primary_citation": {
+            "index": 0,
+            "line_end": 33,
+            "line_start": 33,
+            "path": ".dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/TASK-WF-designSpec-20261107-075614.md",
+            "role": "plan",
+            "status": "resolved"
+          },
+          "refs_norm": [
+            "INF-054"
+          ],
+          "reviewer_id": "reviewer-3"
+        }
+      ],
+      "representative": {
+        "id": "F5",
+        "reviewer_id": "reviewer-3"
+      },
+      "reviewers": [
+        "reviewer-3"
+      ],
+      "support": 0.22000000000000003,
+      "uncalibrated": false
+    },
+    {
+      "blocking_all": false,
+      "blocking_any": false,
+      "chained": false,
+      "claim": "The Wave 0 bullet must say 'at L3 with --merge-guard off ... no draft call', yet its test must fail when the bullet names an L3 or draft condition; the literal criterion contradicts the required text (spec 4.5 too).",
+      "cluster_id": "C10",
+      "disputed": true,
+      "member_scores": [
+        0.6
+      ],
+      "members": [
+        {
+          "blocking": false,
+          "deviation_class": null,
+          "finding_confidence": 0.6,
+          "fp": "d03150530573e5e5b85be84860b1ccdb826b6f38ea359fa138316630740bf018",
+          "id": "F7",
+          "ordinal": 3,
+          "primary_citation": {
+            "index": 1,
+            "line_end": 137,
+            "line_start": 137,
+            "path": ".dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/TASK-WF-designSpec-20261107-075614.md",
+            "role": "plan",
+            "status": "resolved"
+          },
+          "refs_norm": [
+            "FR-1",
+            "FR-2"
+          ],
+          "reviewer_id": "reviewer-3"
+        }
+      ],
+      "representative": {
+        "id": "F7",
+        "reviewer_id": "reviewer-3"
+      },
+      "reviewers": [
+        "reviewer-3"
+      ],
+      "support": 0.24,
+      "uncalibrated": false
+    },
+    {
+      "blocking_all": false,
+      "blocking_any": false,
+      "chained": false,
+      "claim": "Tasks 7, 8 and 12 tell the builder to classify only gh pr/gh api lines with a single verb key, but WRITE_VERB_RE also hits git add/commit/push/merge/stash and keys multi-verb lines as 'a+b'.",
+      "cluster_id": "C11",
+      "disputed": true,
+      "member_scores": [
+        0.55
+      ],
+      "members": [
+        {
+          "blocking": false,
+          "deviation_class": null,
+          "finding_confidence": 0.55,
+          "fp": "5c860a6592c0f8acc0fce9a3b309a6b729c9b6965ba92828e90b8fbcfccc3e67",
+          "id": "F10",
+          "ordinal": 3,
+          "primary_citation": {
+            "index": 0,
+            "line_end": 22,
+            "line_start": 22,
+            "path": ".dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/TASK-WF-designSpec-20261107-075614.md",
+            "role": "plan",
+            "status": "resolved"
+          },
+          "refs_norm": [
+            "INF-049"
+          ],
+          "reviewer_id": "reviewer-3"
+        }
+      ],
+      "representative": {
+        "id": "F10",
+        "reviewer_id": "reviewer-3"
+      },
+      "reviewers": [
+        "reviewer-3"
+      ],
+      "support": 0.22000000000000003,
+      "uncalibrated": false
+    }
+  ],
+  "complete_reviewers": [
+    "reviewer-1",
+    "reviewer-2",
+    "reviewer-3"
+  ],
+  "invalid_reviewers": [],
+  "problems": [],
+  "uncalibrated": [],
+  "uncalibrated_findings": [],
+  "valid_blocks": 3
+}

@@ -1,0 +1,16 @@
+merge_method: adversarial
+verdict: "plan is largely faithful; 1 MAJOR non-blocking (resume_decision row 4 inputs and action), 14 MINOR; no blocking finding"
+convergence_score: 0.94
+base_variant: "variant-3 (refactorer card, opus class)"
+judge_identity: "claude-gw-tier1b[1m] (orchestrator, sonnet class)"
+judge_class_collision: true
+debate_skipped_similar: false
+status: success
+unresolved_conflicts: 1
+source_cards:
+  - reviewer-cards/reviewer-1.md
+  - reviewer-cards/reviewer-2.md
+  - reviewer-cards/reviewer-3.md
+merged_output_path: adversarial/merged-reflect-card.md
+merged_findings: [F1, F2, F3, F4, F5, F6, F7, F8, F9, F10, F11, F12, F13, F14, F15]
+invariant_probe: {total: 8, high_after_adjudication: 0, medium: 5, low: 3}

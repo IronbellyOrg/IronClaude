@@ -1,0 +1,370 @@
+{
+  "agreement_clusters": [],
+  "blocking_clusters": 0,
+  "calibration_coverage": {
+    "calibrated_findings": 8,
+    "clustered_findings": 8
+  },
+  "cards": [
+    {
+      "block_state": "complete",
+      "card": "reviewer-1.md",
+      "errors": [],
+      "reviewer_id": "reviewer-1",
+      "state": "complete"
+    },
+    {
+      "block_state": "complete",
+      "card": "reviewer-2.md",
+      "errors": [],
+      "reviewer_id": "reviewer-2",
+      "state": "complete"
+    },
+    {
+      "block_state": "complete",
+      "card": "reviewer-3.md",
+      "errors": [],
+      "reviewer_id": "reviewer-3",
+      "state": "complete"
+    }
+  ],
+  "chained": [],
+  "citations": {
+    "malformed": 0,
+    "resolved": 0,
+    "unresolved": 14
+  },
+  "cluster_agreement": 1.0,
+  "clusters": [
+    {
+      "blocking_all": false,
+      "blocking_any": false,
+      "chained": false,
+      "claim": "No task runs make sync-dev/verify-sync or removes the stale old summary.md template from the .claude/ mirror, which sync-dev never deletes, so a local verify-sync can show drift after the rename (CI runs sync-dev first, so CI is unaffected).",
+      "cluster_id": "C1",
+      "disputed": true,
+      "member_scores": [
+        0.8
+      ],
+      "members": [
+        {
+          "blocking": false,
+          "deviation_class": null,
+          "finding_confidence": 0.8,
+          "fp": null,
+          "id": "F1",
+          "ordinal": 1,
+          "primary_citation": {
+            "index": 0,
+            "line_end": 20,
+            "line_start": 20,
+            "path": ".dev/tasks/done/TASK-WF-renameTheScIssue-20261104-174359/TASK-WF-renameTheScIssue-20261104-174359.md",
+            "role": "plan",
+            "status": "unresolved"
+          },
+          "refs_norm": [],
+          "reviewer_id": "reviewer-1"
+        }
+      ],
+      "representative": {
+        "id": "F1",
+        "reviewer_id": "reviewer-1"
+      },
+      "reviewers": [
+        "reviewer-1"
+      ],
+      "support": 0.33333333333333337,
+      "uncalibrated": false
+    },
+    {
+      "blocking_all": false,
+      "blocking_any": false,
+      "chained": false,
+      "claim": "T1.AC3's grep for summary\\.md also matches issue-summary.md, so 'prints only issue-summary.md occurrences' is not mechanically checkable and a line holding both names would pass.",
+      "cluster_id": "C2",
+      "disputed": true,
+      "member_scores": [
+        0.75
+      ],
+      "members": [
+        {
+          "blocking": false,
+          "deviation_class": null,
+          "finding_confidence": 0.75,
+          "fp": null,
+          "id": "F2",
+          "ordinal": 1,
+          "primary_citation": {
+            "index": 0,
+            "line_end": 44,
+            "line_start": 44,
+            "path": ".dev/tasks/done/TASK-WF-renameTheScIssue-20261104-174359/TASK-WF-renameTheScIssue-20261104-174359.md",
+            "role": "plan",
+            "status": "unresolved"
+          },
+          "refs_norm": [],
+          "reviewer_id": "reviewer-1"
+        }
+      ],
+      "representative": {
+        "id": "F2",
+        "reviewer_id": "reviewer-1"
+      },
+      "reviewers": [
+        "reviewer-1"
+      ],
+      "support": 0.3125,
+      "uncalibrated": false
+    },
+    {
+      "blocking_all": false,
+      "blocking_any": false,
+      "chained": false,
+      "claim": "T1.AC3 literal grep for summary\\.md cannot print 'only issue-summary.md occurrences' because issue-summary.md contains the substring, so the criterion has no stated pass condition (same phrasing in T2 and T4 ACs).",
+      "cluster_id": "C3",
+      "disputed": true,
+      "member_scores": [
+        0.85
+      ],
+      "members": [
+        {
+          "blocking": false,
+          "deviation_class": null,
+          "finding_confidence": 0.85,
+          "fp": null,
+          "id": "F1",
+          "ordinal": 2,
+          "primary_citation": {
+            "index": 0,
+            "line_end": 51,
+            "line_start": 51,
+            "path": ".dev/tasks/done/TASK-WF-renameTheScIssue-20261104-174359/TASK-WF-renameTheScIssue-20261104-174359.md",
+            "role": "plan",
+            "status": "unresolved"
+          },
+          "refs_norm": [],
+          "reviewer_id": "reviewer-2"
+        }
+      ],
+      "representative": {
+        "id": "F1",
+        "reviewer_id": "reviewer-2"
+      },
+      "reviewers": [
+        "reviewer-2"
+      ],
+      "support": 0.3541666666666667,
+      "uncalibrated": false
+    },
+    {
+      "blocking_all": false,
+      "blocking_any": false,
+      "chained": false,
+      "claim": "The T3 red-check is an ad-hoc python import with no expected exit code and no stated pass value; it duplicates the pinned test_checks_flag_pre_fix_text and so adds little proof.",
+      "cluster_id": "C4",
+      "disputed": true,
+      "member_scores": [
+        0.65
+      ],
+      "members": [
+        {
+          "blocking": false,
+          "deviation_class": null,
+          "finding_confidence": 0.65,
+          "fp": null,
+          "id": "F2",
+          "ordinal": 2,
+          "primary_citation": {
+            "index": 0,
+            "line_end": 76,
+            "line_start": 76,
+            "path": ".dev/tasks/done/TASK-WF-renameTheScIssue-20261104-174359/TASK-WF-renameTheScIssue-20261104-174359.md",
+            "role": "plan",
+            "status": "unresolved"
+          },
+          "refs_norm": [],
+          "reviewer_id": "reviewer-2"
+        }
+      ],
+      "representative": {
+        "id": "F2",
+        "reviewer_id": "reviewer-2"
+      },
+      "reviewers": [
+        "reviewer-2"
+      ],
+      "support": 0.27083333333333337,
+      "uncalibrated": false
+    },
+    {
+      "blocking_all": false,
+      "blocking_any": false,
+      "chained": false,
+      "claim": "T1.AC2 asserts the template is 'otherwise unchanged' but names no verifier such as a diff against the saved pre-fix copy.",
+      "cluster_id": "C5",
+      "disputed": true,
+      "member_scores": [
+        0.7
+      ],
+      "members": [
+        {
+          "blocking": false,
+          "deviation_class": null,
+          "finding_confidence": 0.7,
+          "fp": null,
+          "id": "F3",
+          "ordinal": 2,
+          "primary_citation": {
+            "index": 0,
+            "line_end": 50,
+            "line_start": 50,
+            "path": ".dev/tasks/done/TASK-WF-renameTheScIssue-20261104-174359/TASK-WF-renameTheScIssue-20261104-174359.md",
+            "role": "plan",
+            "status": "unresolved"
+          },
+          "refs_norm": [],
+          "reviewer_id": "reviewer-2"
+        }
+      ],
+      "representative": {
+        "id": "F3",
+        "reviewer_id": "reviewer-2"
+      },
+      "reviewers": [
+        "reviewer-2"
+      ],
+      "support": 0.2916666666666667,
+      "uncalibrated": false
+    },
+    {
+      "blocking_all": false,
+      "blocking_any": false,
+      "chained": false,
+      "claim": "The spec's requirement that no old <D>/summary.md reference remains is pinned deterministically only for worker texts and templates; the design doc is checked by one-off grep, and the matrix has no separate row for the guide-row requirement that the plan resolves as no-edit.",
+      "cluster_id": "C6",
+      "disputed": true,
+      "member_scores": [
+        0.6
+      ],
+      "members": [
+        {
+          "blocking": false,
+          "deviation_class": null,
+          "finding_confidence": 0.6,
+          "fp": null,
+          "id": "F4",
+          "ordinal": 2,
+          "primary_citation": {
+            "index": 1,
+            "line_end": 91,
+            "line_start": 91,
+            "path": ".dev/tasks/done/TASK-WF-renameTheScIssue-20261104-174359/TASK-WF-renameTheScIssue-20261104-174359.md",
+            "role": "plan",
+            "status": "unresolved"
+          },
+          "refs_norm": [],
+          "reviewer_id": "reviewer-2"
+        }
+      ],
+      "representative": {
+        "id": "F4",
+        "reviewer_id": "reviewer-2"
+      },
+      "reviewers": [
+        "reviewer-2"
+      ],
+      "support": 0.25,
+      "uncalibrated": false
+    },
+    {
+      "blocking_all": false,
+      "blocking_any": false,
+      "chained": false,
+      "claim": "No task schedules make sync-dev or verify-sync after the src/ edits and Constraints forbid touching .claude/, so the local mirror (including the renamed template) goes stale and no AC detects it; CI regenerates the mirror, so this is not a CI break.",
+      "cluster_id": "C7",
+      "disputed": true,
+      "member_scores": [
+        0.75
+      ],
+      "members": [
+        {
+          "blocking": false,
+          "deviation_class": null,
+          "finding_confidence": 0.75,
+          "fp": null,
+          "id": "F1",
+          "ordinal": 3,
+          "primary_citation": {
+            "index": 0,
+            "line_end": 20,
+            "line_start": 20,
+            "path": ".dev/tasks/done/TASK-WF-renameTheScIssue-20261104-174359/TASK-WF-renameTheScIssue-20261104-174359.md",
+            "role": "plan",
+            "status": "unresolved"
+          },
+          "refs_norm": [],
+          "reviewer_id": "reviewer-3"
+        }
+      ],
+      "representative": {
+        "id": "F1",
+        "reviewer_id": "reviewer-3"
+      },
+      "reviewers": [
+        "reviewer-3"
+      ],
+      "support": 0.3125,
+      "uncalibrated": false
+    },
+    {
+      "blocking_all": false,
+      "blocking_any": false,
+      "chained": false,
+      "claim": "The plan keeps the three agent paragraphs and the test literal in sync only by a verbatim-copy instruction and a manual 'exactly once' AC; it never states that the existing exactly-once and under-heading checks in the test module are the drift guard.",
+      "cluster_id": "C8",
+      "disputed": true,
+      "member_scores": [
+        0.55
+      ],
+      "members": [
+        {
+          "blocking": false,
+          "deviation_class": null,
+          "finding_confidence": 0.55,
+          "fp": null,
+          "id": "F2",
+          "ordinal": 3,
+          "primary_citation": {
+            "index": 0,
+            "line_end": 57,
+            "line_start": 57,
+            "path": ".dev/tasks/done/TASK-WF-renameTheScIssue-20261104-174359/TASK-WF-renameTheScIssue-20261104-174359.md",
+            "role": "plan",
+            "status": "unresolved"
+          },
+          "refs_norm": [],
+          "reviewer_id": "reviewer-3"
+        }
+      ],
+      "representative": {
+        "id": "F2",
+        "reviewer_id": "reviewer-3"
+      },
+      "reviewers": [
+        "reviewer-3"
+      ],
+      "support": 0.22916666666666669,
+      "uncalibrated": false
+    }
+  ],
+  "complete_reviewers": [
+    "reviewer-1",
+    "reviewer-2",
+    "reviewer-3"
+  ],
+  "invalid_reviewers": [],
+  "problems": [],
+  "uncalibrated": [],
+  "uncalibrated_findings": [],
+  "valid_blocks": 3
+}

@@ -1,0 +1,342 @@
+{
+  "by_flag": {
+    "missing-file": 0,
+    "out-of-range": 0,
+    "quote-not-found": 5
+  },
+  "cards": [
+    {
+      "block_state": "complete",
+      "card": "reviewer-1.md",
+      "reviewer_id": "reviewer-1"
+    },
+    {
+      "block_state": "complete",
+      "card": "reviewer-2.md",
+      "reviewer_id": "reviewer-2"
+    },
+    {
+      "block_state": "complete",
+      "card": "reviewer-3.md",
+      "reviewer_id": "reviewer-3"
+    }
+  ],
+  "checked": 23,
+  "citations": [
+    {
+      "advisory": false,
+      "citation": 1,
+      "finding_id": "F1",
+      "flag": null,
+      "line_end": 21,
+      "line_start": 21,
+      "path": ".dev/tasks/done/TASK-WF-authorizedNarrow-20261106-214325/TASK-WF-authorizedNarrow-20261106-214325.md",
+      "reason": null,
+      "reviewer_id": "reviewer-1",
+      "role": "plan"
+    },
+    {
+      "advisory": false,
+      "citation": 2,
+      "finding_id": "F1",
+      "flag": null,
+      "line_end": 5,
+      "line_start": 5,
+      "path": ".dev/tasks/done/TASK-WF-authorizedNarrow-20261106-214325/source.md",
+      "reason": null,
+      "reviewer_id": "reviewer-1",
+      "role": "spec"
+    },
+    {
+      "advisory": false,
+      "citation": 1,
+      "finding_id": "F2",
+      "flag": null,
+      "line_end": 31,
+      "line_start": 31,
+      "path": ".dev/tasks/done/TASK-WF-authorizedNarrow-20261106-214325/TASK-WF-authorizedNarrow-20261106-214325.md",
+      "reason": null,
+      "reviewer_id": "reviewer-1",
+      "role": "plan"
+    },
+    {
+      "advisory": false,
+      "citation": 2,
+      "finding_id": "F2",
+      "flag": null,
+      "line_end": 5,
+      "line_start": 5,
+      "path": ".dev/tasks/done/TASK-WF-authorizedNarrow-20261106-214325/source.md",
+      "reason": null,
+      "reviewer_id": "reviewer-1",
+      "role": "spec"
+    },
+    {
+      "advisory": true,
+      "citation": 1,
+      "finding_id": "F3",
+      "flag": "quote-not-found",
+      "line_end": 64,
+      "line_start": 61,
+      "path": ".dev/tasks/done/TASK-WF-authorizedNarrow-20261106-214325/TASK-WF-authorizedNarrow-20261106-214325.md",
+      "reason": "quote is not in the cited lines",
+      "reviewer_id": "reviewer-1",
+      "role": "plan"
+    },
+    {
+      "advisory": false,
+      "citation": 1,
+      "finding_id": "F4",
+      "flag": null,
+      "line_end": 53,
+      "line_start": 53,
+      "path": ".dev/tasks/done/TASK-WF-authorizedNarrow-20261106-214325/TASK-WF-authorizedNarrow-20261106-214325.md",
+      "reason": null,
+      "reviewer_id": "reviewer-1",
+      "role": "plan"
+    },
+    {
+      "advisory": false,
+      "citation": 1,
+      "finding_id": "F5",
+      "flag": null,
+      "line_end": 37,
+      "line_start": 35,
+      "path": ".dev/tasks/done/TASK-WF-authorizedNarrow-20261106-214325/TASK-WF-authorizedNarrow-20261106-214325.md",
+      "reason": null,
+      "reviewer_id": "reviewer-1",
+      "role": "plan"
+    },
+    {
+      "advisory": false,
+      "citation": 1,
+      "finding_id": "F1",
+      "flag": null,
+      "line_end": 1,
+      "line_start": 1,
+      "path": ".dev/tasks/done/TASK-WF-authorizedNarrow-20261106-214325/source.md",
+      "reason": null,
+      "reviewer_id": "reviewer-2",
+      "role": "spec"
+    },
+    {
+      "advisory": true,
+      "citation": 2,
+      "finding_id": "F1",
+      "flag": "quote-not-found",
+      "line_end": 5,
+      "line_start": 5,
+      "path": ".dev/tasks/done/TASK-WF-authorizedNarrow-20261106-214325/source.md",
+      "reason": "quote is not in the cited lines",
+      "reviewer_id": "reviewer-2",
+      "role": "spec"
+    },
+    {
+      "advisory": false,
+      "citation": 3,
+      "finding_id": "F1",
+      "flag": null,
+      "line_end": 19,
+      "line_start": 19,
+      "path": ".dev/tasks/done/TASK-WF-authorizedNarrow-20261106-214325/TASK-WF-authorizedNarrow-20261106-214325.md",
+      "reason": null,
+      "reviewer_id": "reviewer-2",
+      "role": "plan"
+    },
+    {
+      "advisory": true,
+      "citation": 4,
+      "finding_id": "F1",
+      "flag": "quote-not-found",
+      "line_end": 37,
+      "line_start": 37,
+      "path": ".dev/tasks/done/TASK-WF-authorizedNarrow-20261106-214325/TASK-WF-authorizedNarrow-20261106-214325.md",
+      "reason": "quote is not in the cited lines",
+      "reviewer_id": "reviewer-2",
+      "role": "plan"
+    },
+    {
+      "advisory": true,
+      "citation": 5,
+      "finding_id": "F1",
+      "flag": "quote-not-found",
+      "line_end": 78,
+      "line_start": 77,
+      "path": ".dev/tasks/done/TASK-WF-authorizedNarrow-20261106-214325/TASK-WF-authorizedNarrow-20261106-214325.md",
+      "reason": "quote is not in the cited lines",
+      "reviewer_id": "reviewer-2",
+      "role": "plan"
+    },
+    {
+      "advisory": true,
+      "citation": 6,
+      "finding_id": "F1",
+      "flag": "quote-not-found",
+      "line_end": 79,
+      "line_start": 79,
+      "path": ".dev/tasks/done/TASK-WF-authorizedNarrow-20261106-214325/TASK-WF-authorizedNarrow-20261106-214325.md",
+      "reason": "quote is not in the cited lines",
+      "reviewer_id": "reviewer-2",
+      "role": "plan"
+    },
+    {
+      "advisory": false,
+      "citation": 1,
+      "finding_id": "F1",
+      "flag": null,
+      "line_end": 61,
+      "line_start": 61,
+      "path": ".dev/tasks/done/TASK-WF-authorizedNarrow-20261106-214325/TASK-WF-authorizedNarrow-20261106-214325.md",
+      "reason": null,
+      "reviewer_id": "reviewer-3",
+      "role": "plan"
+    },
+    {
+      "advisory": false,
+      "citation": 2,
+      "finding_id": "F1",
+      "flag": null,
+      "line_end": 64,
+      "line_start": 64,
+      "path": ".dev/tasks/done/TASK-WF-authorizedNarrow-20261106-214325/TASK-WF-authorizedNarrow-20261106-214325.md",
+      "reason": null,
+      "reviewer_id": "reviewer-3",
+      "role": "plan"
+    },
+    {
+      "advisory": false,
+      "citation": 3,
+      "finding_id": "F1",
+      "flag": null,
+      "line_end": 5,
+      "line_start": 5,
+      "path": ".dev/tasks/done/TASK-WF-authorizedNarrow-20261106-214325/source.md",
+      "reason": null,
+      "reviewer_id": "reviewer-3",
+      "role": "spec"
+    },
+    {
+      "advisory": false,
+      "citation": 1,
+      "finding_id": "F2",
+      "flag": null,
+      "line_end": 61,
+      "line_start": 61,
+      "path": ".dev/tasks/done/TASK-WF-authorizedNarrow-20261106-214325/TASK-WF-authorizedNarrow-20261106-214325.md",
+      "reason": null,
+      "reviewer_id": "reviewer-3",
+      "role": "plan"
+    },
+    {
+      "advisory": false,
+      "citation": 2,
+      "finding_id": "F2",
+      "flag": null,
+      "line_end": 25,
+      "line_start": 25,
+      "path": ".dev/tasks/done/TASK-WF-authorizedNarrow-20261106-214325/TASK-WF-authorizedNarrow-20261106-214325.md",
+      "reason": null,
+      "reviewer_id": "reviewer-3",
+      "role": "plan"
+    },
+    {
+      "advisory": false,
+      "citation": 1,
+      "finding_id": "F3",
+      "flag": null,
+      "line_end": 31,
+      "line_start": 31,
+      "path": ".dev/tasks/done/TASK-WF-authorizedNarrow-20261106-214325/TASK-WF-authorizedNarrow-20261106-214325.md",
+      "reason": null,
+      "reviewer_id": "reviewer-3",
+      "role": "plan"
+    },
+    {
+      "advisory": false,
+      "citation": 2,
+      "finding_id": "F3",
+      "flag": null,
+      "line_end": 61,
+      "line_start": 59,
+      "path": ".dev/tasks/done/TASK-WF-authorizedNarrow-20261106-214325/TASK-WF-authorizedNarrow-20261106-214325.md",
+      "reason": null,
+      "reviewer_id": "reviewer-3",
+      "role": "plan"
+    },
+    {
+      "advisory": false,
+      "citation": 1,
+      "finding_id": "F4",
+      "flag": null,
+      "line_end": 1,
+      "line_start": 1,
+      "path": ".dev/tasks/done/TASK-WF-authorizedNarrow-20261106-214325/source.md",
+      "reason": null,
+      "reviewer_id": "reviewer-3",
+      "role": "spec"
+    },
+    {
+      "advisory": false,
+      "citation": 2,
+      "finding_id": "F4",
+      "flag": null,
+      "line_end": 46,
+      "line_start": 46,
+      "path": ".dev/tasks/done/TASK-WF-authorizedNarrow-20261106-214325/TASK-WF-authorizedNarrow-20261106-214325.md",
+      "reason": null,
+      "reviewer_id": "reviewer-3",
+      "role": "plan"
+    },
+    {
+      "advisory": false,
+      "citation": 3,
+      "finding_id": "F4",
+      "flag": null,
+      "line_end": 79,
+      "line_start": 79,
+      "path": ".dev/tasks/done/TASK-WF-authorizedNarrow-20261106-214325/TASK-WF-authorizedNarrow-20261106-214325.md",
+      "reason": null,
+      "reviewer_id": "reviewer-3",
+      "role": "plan"
+    }
+  ],
+  "flagged": 5,
+  "reread_set": [
+    {
+      "citation": 1,
+      "finding_id": "F3",
+      "flag": "quote-not-found",
+      "path": ".dev/tasks/done/TASK-WF-authorizedNarrow-20261106-214325/TASK-WF-authorizedNarrow-20261106-214325.md",
+      "reviewer_id": "reviewer-1"
+    },
+    {
+      "citation": 2,
+      "finding_id": "F1",
+      "flag": "quote-not-found",
+      "path": ".dev/tasks/done/TASK-WF-authorizedNarrow-20261106-214325/source.md",
+      "reviewer_id": "reviewer-2"
+    },
+    {
+      "citation": 4,
+      "finding_id": "F1",
+      "flag": "quote-not-found",
+      "path": ".dev/tasks/done/TASK-WF-authorizedNarrow-20261106-214325/TASK-WF-authorizedNarrow-20261106-214325.md",
+      "reviewer_id": "reviewer-2"
+    },
+    {
+      "citation": 5,
+      "finding_id": "F1",
+      "flag": "quote-not-found",
+      "path": ".dev/tasks/done/TASK-WF-authorizedNarrow-20261106-214325/TASK-WF-authorizedNarrow-20261106-214325.md",
+      "reviewer_id": "reviewer-2"
+    },
+    {
+      "citation": 6,
+      "finding_id": "F1",
+      "flag": "quote-not-found",
+      "path": ".dev/tasks/done/TASK-WF-authorizedNarrow-20261106-214325/TASK-WF-authorizedNarrow-20261106-214325.md",
+      "reviewer_id": "reviewer-2"
+    }
+  ],
+  "schema": "review-precheck/1"
+}

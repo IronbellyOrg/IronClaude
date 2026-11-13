@@ -1,0 +1,368 @@
+{
+  "agreement_clusters": [],
+  "blocking_clusters": 0,
+  "calibration_coverage": {
+    "calibrated_findings": 10,
+    "clustered_findings": 10
+  },
+  "cards": [
+    {
+      "block_state": "complete",
+      "card": "reviewer-1.md",
+      "errors": [],
+      "reviewer_id": "reviewer-1",
+      "state": "complete"
+    },
+    {
+      "block_state": "complete",
+      "card": "reviewer-2.md",
+      "errors": [],
+      "reviewer_id": "reviewer-2",
+      "state": "complete"
+    },
+    {
+      "block_state": "complete",
+      "card": "reviewer-3.md",
+      "errors": [],
+      "reviewer_id": "reviewer-3",
+      "state": "complete"
+    }
+  ],
+  "chained": [],
+  "citations": {
+    "malformed": 0,
+    "resolved": 17,
+    "unresolved": 0
+  },
+  "cluster_agreement": 1.0,
+  "clusters": [
+    {
+      "blocking_all": false,
+      "blocking_any": false,
+      "chained": false,
+      "claim": "T5.AC2 requires make verify-sync to pass, but no task schedules make sync-dev after the src/ skill edits in Tasks 3 and 4, so the criterion is unmeetable without an unplanned step.",
+      "cluster_id": "C1",
+      "disputed": false,
+      "member_scores": [
+        0.85,
+        0.75,
+        0.8,
+        0.85
+      ],
+      "members": [
+        {
+          "blocking": false,
+          "deviation_class": null,
+          "finding_confidence": 0.85,
+          "fp": "eed462f095a416b38d2d7dfd212fd8e7c64f02402a75b35e89fb0f2554fec37c",
+          "id": "F1",
+          "ordinal": 1,
+          "primary_citation": {
+            "index": 0,
+            "line_end": 82,
+            "line_start": 82,
+            "path": ".dev/tasks/done/TASK-WF-detachTheCcsessi-20261102-034618/TASK-WF-detachTheCcsessi-20261102-034618.md",
+            "role": "plan",
+            "status": "resolved"
+          },
+          "refs_norm": [],
+          "reviewer_id": "reviewer-1"
+        },
+        {
+          "blocking": false,
+          "deviation_class": null,
+          "finding_confidence": 0.75,
+          "fp": "eed462f095a416b38d2d7dfd212fd8e7c64f02402a75b35e89fb0f2554fec37c",
+          "id": "F1",
+          "ordinal": 2,
+          "primary_citation": {
+            "index": 1,
+            "line_end": 82,
+            "line_start": 80,
+            "path": ".dev/tasks/done/TASK-WF-detachTheCcsessi-20261102-034618/TASK-WF-detachTheCcsessi-20261102-034618.md",
+            "role": "plan",
+            "status": "resolved"
+          },
+          "refs_norm": [],
+          "reviewer_id": "reviewer-2"
+        },
+        {
+          "blocking": false,
+          "deviation_class": null,
+          "finding_confidence": 0.8,
+          "fp": "eed462f095a416b38d2d7dfd212fd8e7c64f02402a75b35e89fb0f2554fec37c",
+          "id": "F2",
+          "ordinal": 2,
+          "primary_citation": {
+            "index": 0,
+            "line_end": 82,
+            "line_start": 82,
+            "path": ".dev/tasks/done/TASK-WF-detachTheCcsessi-20261102-034618/TASK-WF-detachTheCcsessi-20261102-034618.md",
+            "role": "plan",
+            "status": "resolved"
+          },
+          "refs_norm": [],
+          "reviewer_id": "reviewer-2"
+        },
+        {
+          "blocking": false,
+          "deviation_class": null,
+          "finding_confidence": 0.85,
+          "fp": "eed462f095a416b38d2d7dfd212fd8e7c64f02402a75b35e89fb0f2554fec37c",
+          "id": "F3",
+          "ordinal": 2,
+          "primary_citation": {
+            "index": 0,
+            "line_end": 82,
+            "line_start": 82,
+            "path": ".dev/tasks/done/TASK-WF-detachTheCcsessi-20261102-034618/TASK-WF-detachTheCcsessi-20261102-034618.md",
+            "role": "plan",
+            "status": "resolved"
+          },
+          "refs_norm": [],
+          "reviewer_id": "reviewer-2"
+        }
+      ],
+      "representative": {
+        "id": "F1",
+        "reviewer_id": "reviewer-1"
+      },
+      "reviewers": [
+        "reviewer-1",
+        "reviewer-2"
+      ],
+      "support": 0.6799999999999999,
+      "uncalibrated": false
+    },
+    {
+      "blocking_all": false,
+      "blocking_any": false,
+      "chained": false,
+      "claim": "T4.AC4 compares live shim pids on ports 4013 and 4114 before and after, but no step in Task 4 records the before values.",
+      "cluster_id": "C2",
+      "disputed": true,
+      "member_scores": [
+        0.7
+      ],
+      "members": [
+        {
+          "blocking": false,
+          "deviation_class": null,
+          "finding_confidence": 0.7,
+          "fp": "eed462f095a416b38d2d7dfd212fd8e7c64f02402a75b35e89fb0f2554fec37c",
+          "id": "F2",
+          "ordinal": 1,
+          "primary_citation": {
+            "index": 0,
+            "line_end": 70,
+            "line_start": 70,
+            "path": ".dev/tasks/done/TASK-WF-detachTheCcsessi-20261102-034618/TASK-WF-detachTheCcsessi-20261102-034618.md",
+            "role": "plan",
+            "status": "resolved"
+          },
+          "refs_norm": [],
+          "reviewer_id": "reviewer-1"
+        }
+      ],
+      "representative": {
+        "id": "F2",
+        "reviewer_id": "reviewer-1"
+      },
+      "reviewers": [
+        "reviewer-1"
+      ],
+      "support": 0.27999999999999997,
+      "uncalibrated": false
+    },
+    {
+      "blocking_all": false,
+      "blocking_any": false,
+      "chained": false,
+      "claim": "Task 3 specifies an unconditional os.setsid() in try/except OSError, but HEAD guards it with if not sys.stderr.isatty(), so following the plan literally does not produce the landed code and the plan never mentions the guard.",
+      "cluster_id": "C3",
+      "disputed": false,
+      "member_scores": [
+        0.6,
+        0.8
+      ],
+      "members": [
+        {
+          "blocking": false,
+          "deviation_class": null,
+          "finding_confidence": 0.6,
+          "fp": "eed462f095a416b38d2d7dfd212fd8e7c64f02402a75b35e89fb0f2554fec37c",
+          "id": "F3",
+          "ordinal": 1,
+          "primary_citation": {
+            "index": 0,
+            "line_end": 52,
+            "line_start": 52,
+            "path": ".dev/tasks/done/TASK-WF-detachTheCcsessi-20261102-034618/TASK-WF-detachTheCcsessi-20261102-034618.md",
+            "role": "plan",
+            "status": "resolved"
+          },
+          "refs_norm": [],
+          "reviewer_id": "reviewer-1"
+        },
+        {
+          "blocking": false,
+          "deviation_class": null,
+          "finding_confidence": 0.8,
+          "fp": "eed462f095a416b38d2d7dfd212fd8e7c64f02402a75b35e89fb0f2554fec37c",
+          "id": "F1",
+          "ordinal": 3,
+          "primary_citation": {
+            "index": 0,
+            "line_end": 52,
+            "line_start": 52,
+            "path": ".dev/tasks/done/TASK-WF-detachTheCcsessi-20261102-034618/TASK-WF-detachTheCcsessi-20261102-034618.md",
+            "role": "plan",
+            "status": "resolved"
+          },
+          "refs_norm": [],
+          "reviewer_id": "reviewer-3"
+        }
+      ],
+      "representative": {
+        "id": "F1",
+        "reviewer_id": "reviewer-3"
+      },
+      "reviewers": [
+        "reviewer-1",
+        "reviewer-3"
+      ],
+      "support": 0.5599999999999999,
+      "uncalibrated": false
+    },
+    {
+      "blocking_all": false,
+      "blocking_any": false,
+      "chained": false,
+      "claim": "T1.AC3 claims no shim or sleep process is left, but a pgrep on the temp copy path cannot match the exec'd sleep child.",
+      "cluster_id": "C4",
+      "disputed": true,
+      "member_scores": [
+        0.55
+      ],
+      "members": [
+        {
+          "blocking": false,
+          "deviation_class": null,
+          "finding_confidence": 0.55,
+          "fp": "eed462f095a416b38d2d7dfd212fd8e7c64f02402a75b35e89fb0f2554fec37c",
+          "id": "F4",
+          "ordinal": 1,
+          "primary_citation": {
+            "index": 0,
+            "line_end": 34,
+            "line_start": 34,
+            "path": ".dev/tasks/done/TASK-WF-detachTheCcsessi-20261102-034618/TASK-WF-detachTheCcsessi-20261102-034618.md",
+            "role": "plan",
+            "status": "resolved"
+          },
+          "refs_norm": [],
+          "reviewer_id": "reviewer-1"
+        }
+      ],
+      "representative": {
+        "id": "F4",
+        "reviewer_id": "reviewer-1"
+      },
+      "reviewers": [
+        "reviewer-1"
+      ],
+      "support": 0.22000000000000003,
+      "uncalibrated": false
+    },
+    {
+      "blocking_all": false,
+      "blocking_any": false,
+      "chained": false,
+      "claim": "The plan's line anchors (tests, ccsession, proxy __main__) no longer match HEAD; symbol names remain usable.",
+      "cluster_id": "C5",
+      "disputed": true,
+      "member_scores": [
+        0.55
+      ],
+      "members": [
+        {
+          "blocking": false,
+          "deviation_class": null,
+          "finding_confidence": 0.55,
+          "fp": "eed462f095a416b38d2d7dfd212fd8e7c64f02402a75b35e89fb0f2554fec37c",
+          "id": "F4",
+          "ordinal": 2,
+          "primary_citation": {
+            "index": 0,
+            "line_end": 29,
+            "line_start": 29,
+            "path": ".dev/tasks/done/TASK-WF-detachTheCcsessi-20261102-034618/TASK-WF-detachTheCcsessi-20261102-034618.md",
+            "role": "plan",
+            "status": "resolved"
+          },
+          "refs_norm": [],
+          "reviewer_id": "reviewer-2"
+        }
+      ],
+      "representative": {
+        "id": "F4",
+        "reviewer_id": "reviewer-2"
+      },
+      "reviewers": [
+        "reviewer-2"
+      ],
+      "support": 0.22000000000000003,
+      "uncalibrated": false
+    },
+    {
+      "blocking_all": false,
+      "blocking_any": false,
+      "chained": false,
+      "claim": "The plan's line anchors for the proxy __main__ and the ccsession start statement have drifted from HEAD, although the quoted statement text still matches.",
+      "cluster_id": "C6",
+      "disputed": true,
+      "member_scores": [
+        0.7
+      ],
+      "members": [
+        {
+          "blocking": false,
+          "deviation_class": null,
+          "finding_confidence": 0.7,
+          "fp": "eed462f095a416b38d2d7dfd212fd8e7c64f02402a75b35e89fb0f2554fec37c",
+          "id": "F2",
+          "ordinal": 3,
+          "primary_citation": {
+            "index": 0,
+            "line_end": 64,
+            "line_start": 64,
+            "path": ".dev/tasks/done/TASK-WF-detachTheCcsessi-20261102-034618/TASK-WF-detachTheCcsessi-20261102-034618.md",
+            "role": "plan",
+            "status": "resolved"
+          },
+          "refs_norm": [],
+          "reviewer_id": "reviewer-3"
+        }
+      ],
+      "representative": {
+        "id": "F2",
+        "reviewer_id": "reviewer-3"
+      },
+      "reviewers": [
+        "reviewer-3"
+      ],
+      "support": 0.27999999999999997,
+      "uncalibrated": false
+    }
+  ],
+  "complete_reviewers": [
+    "reviewer-1",
+    "reviewer-2",
+    "reviewer-3"
+  ],
+  "invalid_reviewers": [],
+  "problems": [],
+  "uncalibrated": [],
+  "uncalibrated_findings": [],
+  "valid_blocks": 3
+}

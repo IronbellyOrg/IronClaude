@@ -1,0 +1,150 @@
+{
+  "by_flag": {
+    "missing-file": 0,
+    "out-of-range": 0,
+    "quote-not-found": 0
+  },
+  "cards": [
+    {
+      "block_state": "complete",
+      "card": "reviewer-1.md",
+      "reviewer_id": "reviewer-1"
+    },
+    {
+      "block_state": "invalid",
+      "card": "reviewer-2.md",
+      "reviewer_id": "reviewer-2"
+    },
+    {
+      "block_state": "complete",
+      "card": "reviewer-3.md",
+      "reviewer_id": "reviewer-3"
+    }
+  ],
+  "checked": 10,
+  "citations": [
+    {
+      "advisory": false,
+      "citation": 1,
+      "finding_id": "F1",
+      "flag": null,
+      "line_end": 1,
+      "line_start": 1,
+      "path": ".dev/tasks/done/TASK-WF-fixIssue412SVeri-20261106-215543/source.md",
+      "reason": null,
+      "reviewer_id": "reviewer-1",
+      "role": "spec"
+    },
+    {
+      "advisory": false,
+      "citation": 2,
+      "finding_id": "F1",
+      "flag": null,
+      "line_end": 21,
+      "line_start": 21,
+      "path": ".dev/tasks/done/TASK-WF-fixIssue412SVeri-20261106-215543/TASK-WF-fixIssue412SVeri-20261106-215543.md",
+      "reason": null,
+      "reviewer_id": "reviewer-1",
+      "role": "plan"
+    },
+    {
+      "advisory": false,
+      "citation": 1,
+      "finding_id": "F2",
+      "flag": null,
+      "line_end": 1,
+      "line_start": 1,
+      "path": ".dev/tasks/done/TASK-WF-fixIssue412SVeri-20261106-215543/source.md",
+      "reason": null,
+      "reviewer_id": "reviewer-1",
+      "role": "spec"
+    },
+    {
+      "advisory": false,
+      "citation": 2,
+      "finding_id": "F2",
+      "flag": null,
+      "line_end": 20,
+      "line_start": 20,
+      "path": ".dev/tasks/done/TASK-WF-fixIssue412SVeri-20261106-215543/TASK-WF-fixIssue412SVeri-20261106-215543.md",
+      "reason": null,
+      "reviewer_id": "reviewer-1",
+      "role": "plan"
+    },
+    {
+      "advisory": false,
+      "citation": 1,
+      "finding_id": "F3",
+      "flag": null,
+      "line_end": 51,
+      "line_start": 51,
+      "path": ".dev/tasks/done/TASK-WF-fixIssue412SVeri-20261106-215543/TASK-WF-fixIssue412SVeri-20261106-215543.md",
+      "reason": null,
+      "reviewer_id": "reviewer-1",
+      "role": "plan"
+    },
+    {
+      "advisory": false,
+      "citation": 2,
+      "finding_id": "F3",
+      "flag": null,
+      "line_end": 50,
+      "line_start": 50,
+      "path": ".dev/tasks/done/TASK-WF-fixIssue412SVeri-20261106-215543/TASK-WF-fixIssue412SVeri-20261106-215543.md",
+      "reason": null,
+      "reviewer_id": "reviewer-1",
+      "role": "plan"
+    },
+    {
+      "advisory": false,
+      "citation": 1,
+      "finding_id": "F1",
+      "flag": null,
+      "line_end": 1,
+      "line_start": 1,
+      "path": ".dev/tasks/done/TASK-WF-fixIssue412SVeri-20261106-215543/source.md",
+      "reason": null,
+      "reviewer_id": "reviewer-3",
+      "role": "spec"
+    },
+    {
+      "advisory": false,
+      "citation": 2,
+      "finding_id": "F1",
+      "flag": null,
+      "line_end": 36,
+      "line_start": 35,
+      "path": ".dev/tasks/done/TASK-WF-fixIssue412SVeri-20261106-215543/TASK-WF-fixIssue412SVeri-20261106-215543.md",
+      "reason": null,
+      "reviewer_id": "reviewer-3",
+      "role": "plan"
+    },
+    {
+      "advisory": false,
+      "citation": 1,
+      "finding_id": "F2",
+      "flag": null,
+      "line_end": 1,
+      "line_start": 1,
+      "path": ".dev/tasks/done/TASK-WF-fixIssue412SVeri-20261106-215543/source.md",
+      "reason": null,
+      "reviewer_id": "reviewer-3",
+      "role": "spec"
+    },
+    {
+      "advisory": false,
+      "citation": 2,
+      "finding_id": "F2",
+      "flag": null,
+      "line_end": 50,
+      "line_start": 50,
+      "path": ".dev/tasks/done/TASK-WF-fixIssue412SVeri-20261106-215543/TASK-WF-fixIssue412SVeri-20261106-215543.md",
+      "reason": null,
+      "reviewer_id": "reviewer-3",
+      "role": "plan"
+    }
+  ],
+  "flagged": 0,
+  "reread_set": [],
+  "schema": "review-precheck/1"
+}

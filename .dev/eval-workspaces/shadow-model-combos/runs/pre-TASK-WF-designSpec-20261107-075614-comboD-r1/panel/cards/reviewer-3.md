@@ -1,0 +1,22 @@
+persona: refactorer
+model_class: opus
+model: claude-opus-5-5
+model_observed: gpt-6-luna (self-report; matches ANTHROPIC_DEFAULT_OPUS_MODEL)
+
+## Findings block
+
+```findings-v2
+{"id":"F1","severity":"MAJOR","blocking":true,"category":"missing-requirement","lens":"reflect-pre","claim":"Task 8 omits spec §4.2, which defines the fields and idempotency-key rules for guard events the protocol must append; no Task 8 acceptance criterion checks those fields.","refs":[],"citations":[{"role":"plan","path":".dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/TASK-WF-designSpec-20261107-075614.md","line_start":124,"line_end":130,"quote":"Create ... from ./source.md sections 3, 4.1, 4.5, 4.6 and 5"},{"role":"spec","path":".dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/source.md","line_start":182,"line_end":185,"quote":"idempotency_key = guard:&lt;run_id&gt;:&lt;cycle_id&gt;:&lt;to&gt;:a&lt;k&gt;"}]}
+{"id":"F2","severity":"MAJOR","blocking":true,"category":"unpassable-check","lens":"reflect-pre","claim":"Task 9 requires a Wave 0 bullet with no L3 condition, but also requires that bullet to say what happens at L3; its acceptance test rejects an L3 condition, so the specified content cannot pass the test literally.","refs":[],"citations":[{"role":"plan","path":".dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/TASK-WF-designSpec-20261107-075614.md","line_start":137,"line_end":140,"quote":"carries no L3 or draft condition ... at L3 with --merge-guard off"},{"role":"spec","path":".dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/source.md","line_start":241,"line_end":241,"quote":"contains no L3 or draft condition"}]}
+{"id":"F3","severity":"MINOR","blocking":false,"category":"other","lens":"reflect-pre","claim":"Several tasks consume the pre-build record without declaring Task 1 as a dependency, contrary to the plan-authoring requirement for complete dependencies; this leaves the stated ordering contract incomplete.","refs":[],"citations":[{"role":"plan","path":".dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/TASK-WF-designSpec-20261107-075614.md","line_start":134,"line_end":137,"quote":"Depends on: Task 6 ... Depends on: Task 8"},{"role":"plan","path":".dev/eval-workspaces/worktrees/IronClaude/brainstorm-reflect-panel/.dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/TASK-WF-designSpec-20261107-075614.md","line_start":179,"line_end":182,"quote":"Depends on: Task 6 ... Depends on: Task 8"},{"role":"plan","path":".dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/TASK-WF-designSpec-20261107-075614.md","line_start":363,"line_end":365,"quote":"Declare dependencies completely, one Depends on: line per dependency"}]}
+{"id":"F4","severity":"MINOR","blocking":false,"category":"missing-requirement","lens":"reflect-pre","claim":"The plan says the minted cycle ID is reused for the push triad and rereview event, but its acceptance checks do not assert that the same ID appears in those records; the scenario trace checks event order only.","refs":[],"citations":[{"role":"spec","path":".dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/source.md","line_start":251,"line_end":251,"quote":"uses the same id as the cycle_id of the push triad ... and of rereview_requested"},{"role":"plan","path":".dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/TASK-WF-designSpec-20261107-075614.md","line_start":153,"line_end":155},{"role":"plan","path":".dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/TASK-WF-designSpec-20261107-075614.md","line_start":170,"line_end":171,"quote":"asserts the exact event order"}]}
+```
+
+```yaml
+calibration:
+  per_finding:
+    F1: 0.4
+    F2: 0.1
+    F3: 0.2
+    F4: 0.55
+```

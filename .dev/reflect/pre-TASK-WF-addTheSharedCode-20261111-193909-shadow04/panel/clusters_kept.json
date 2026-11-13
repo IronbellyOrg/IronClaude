@@ -1,0 +1,246 @@
+{
+  "agreement_clusters": [],
+  "blocking_clusters": 1,
+  "calibration_coverage": {
+    "calibrated_findings": 9,
+    "clustered_findings": 9
+  },
+  "cards": [
+    {
+      "block_state": "complete",
+      "card": "reviewer-1.md",
+      "errors": [],
+      "reviewer_id": "reviewer-1",
+      "state": "complete"
+    },
+    {
+      "block_state": "complete",
+      "card": "reviewer-2.md",
+      "errors": [],
+      "reviewer_id": "reviewer-2",
+      "state": "complete"
+    },
+    {
+      "block_state": "complete",
+      "card": "reviewer-3.md",
+      "errors": [],
+      "reviewer_id": "reviewer-3",
+      "state": "complete"
+    }
+  ],
+  "chained": [
+    "C1"
+  ],
+  "citations": {
+    "malformed": 0,
+    "resolved": 17,
+    "unresolved": 10
+  },
+  "cluster_agreement": null,
+  "clusters": [
+    {
+      "blocking_all": false,
+      "blocking_any": true,
+      "chained": true,
+      "claim": "Constraints:19 attributes its rule text to four agents whose actual wording gates only on index_state plus projectPath (no checked_at, worktree_root, callees/impact, or say-so clause).",
+      "cluster_id": "C1",
+      "disputed": true,
+      "member_scores": [
+        0.92,
+        0.8,
+        0.45,
+        0.85,
+        0.92,
+        0.88,
+        0.65,
+        0.65,
+        0.5
+      ],
+      "members": [
+        {
+          "blocking": true,
+          "deviation_class": null,
+          "finding_confidence": 0.92,
+          "fp": "665f67222770e7ecc15f594c6ba30d86b4ac48b9b7e81200aec84045cc688a50",
+          "id": "F1",
+          "ordinal": 1,
+          "primary_citation": {
+            "index": 0,
+            "line_end": 19,
+            "line_start": 19,
+            "path": ".dev/tasks/done/TASK-WF-addTheSharedCode-20261111-193909/TASK-WF-addTheSharedCode-20261111-193909.md",
+            "role": "plan",
+            "status": "resolved"
+          },
+          "refs_norm": [],
+          "reviewer_id": "reviewer-1"
+        },
+        {
+          "blocking": false,
+          "deviation_class": null,
+          "finding_confidence": 0.8,
+          "fp": "665f67222770e7ecc15f594c6ba30d86b4ac48b9b7e81200aec84045cc688a50",
+          "id": "F2",
+          "ordinal": 1,
+          "primary_citation": {
+            "index": 0,
+            "line_end": 31,
+            "line_start": 31,
+            "path": ".dev/tasks/done/TASK-WF-addTheSharedCode-20261111-193909/TASK-WF-addTheSharedCode-20261111-193909.md",
+            "role": "plan",
+            "status": "resolved"
+          },
+          "refs_norm": [],
+          "reviewer_id": "reviewer-1"
+        },
+        {
+          "blocking": false,
+          "deviation_class": null,
+          "finding_confidence": 0.45,
+          "fp": "665f67222770e7ecc15f594c6ba30d86b4ac48b9b7e81200aec84045cc688a50",
+          "id": "F3",
+          "ordinal": 1,
+          "primary_citation": {
+            "index": 1,
+            "line_end": 19,
+            "line_start": 19,
+            "path": ".dev/tasks/done/TASK-WF-addTheSharedCode-20261111-193909/TASK-WF-addTheSharedCode-20261111-193909.md",
+            "role": "plan",
+            "status": "resolved"
+          },
+          "refs_norm": [],
+          "reviewer_id": "reviewer-1"
+        },
+        {
+          "blocking": true,
+          "deviation_class": null,
+          "finding_confidence": 0.85,
+          "fp": "665f67222770e7ecc15f594c6ba30d86b4ac48b9b7e81200aec84045cc688a50",
+          "id": "F1",
+          "ordinal": 2,
+          "primary_citation": {
+            "index": 0,
+            "line_end": 31,
+            "line_start": 31,
+            "path": ".dev/tasks/done/TASK-WF-addTheSharedCode-20261111-193909/TASK-WF-addTheSharedCode-20261111-193909.md",
+            "role": "plan",
+            "status": "resolved"
+          },
+          "refs_norm": [],
+          "reviewer_id": "reviewer-2"
+        },
+        {
+          "blocking": false,
+          "deviation_class": null,
+          "finding_confidence": 0.92,
+          "fp": "665f67222770e7ecc15f594c6ba30d86b4ac48b9b7e81200aec84045cc688a50",
+          "id": "F2",
+          "ordinal": 2,
+          "primary_citation": {
+            "index": 0,
+            "line_end": 19,
+            "line_start": 19,
+            "path": ".dev/tasks/done/TASK-WF-addTheSharedCode-20261111-193909/TASK-WF-addTheSharedCode-20261111-193909.md",
+            "role": "plan",
+            "status": "resolved"
+          },
+          "refs_norm": [],
+          "reviewer_id": "reviewer-2"
+        },
+        {
+          "blocking": false,
+          "deviation_class": null,
+          "finding_confidence": 0.88,
+          "fp": "665f67222770e7ecc15f594c6ba30d86b4ac48b9b7e81200aec84045cc688a50",
+          "id": "F1",
+          "ordinal": 3,
+          "primary_citation": {
+            "index": 0,
+            "line_end": 28,
+            "line_start": 28,
+            "path": ".dev/tasks/done/TASK-WF-addTheSharedCode-20261111-193909/TASK-WF-addTheSharedCode-20261111-193909.md",
+            "role": "plan",
+            "status": "resolved"
+          },
+          "refs_norm": [],
+          "reviewer_id": "reviewer-3"
+        },
+        {
+          "blocking": true,
+          "deviation_class": null,
+          "finding_confidence": 0.65,
+          "fp": "665f67222770e7ecc15f594c6ba30d86b4ac48b9b7e81200aec84045cc688a50",
+          "id": "F2",
+          "ordinal": 3,
+          "primary_citation": {
+            "index": 0,
+            "line_end": 102,
+            "line_start": 102,
+            "path": ".dev/tasks/done/TASK-WF-addTheSharedCode-20261111-193909/TASK-WF-addTheSharedCode-20261111-193909.md",
+            "role": "plan",
+            "status": "resolved"
+          },
+          "refs_norm": [],
+          "reviewer_id": "reviewer-3"
+        },
+        {
+          "blocking": true,
+          "deviation_class": null,
+          "finding_confidence": 0.65,
+          "fp": "665f67222770e7ecc15f594c6ba30d86b4ac48b9b7e81200aec84045cc688a50",
+          "id": "F3",
+          "ordinal": 3,
+          "primary_citation": {
+            "index": 0,
+            "line_end": 19,
+            "line_start": 19,
+            "path": ".dev/tasks/done/TASK-WF-addTheSharedCode-20261111-193909/TASK-WF-addTheSharedCode-20261111-193909.md",
+            "role": "plan",
+            "status": "resolved"
+          },
+          "refs_norm": [],
+          "reviewer_id": "reviewer-3"
+        },
+        {
+          "blocking": false,
+          "deviation_class": null,
+          "finding_confidence": 0.5,
+          "fp": "665f67222770e7ecc15f594c6ba30d86b4ac48b9b7e81200aec84045cc688a50",
+          "id": "F4",
+          "ordinal": 3,
+          "primary_citation": {
+            "index": 0,
+            "line_end": 102,
+            "line_start": 102,
+            "path": ".dev/tasks/done/TASK-WF-addTheSharedCode-20261111-193909/TASK-WF-addTheSharedCode-20261111-193909.md",
+            "role": "plan",
+            "status": "resolved"
+          },
+          "refs_norm": [],
+          "reviewer_id": "reviewer-3"
+        }
+      ],
+      "representative": {
+        "id": "F1",
+        "reviewer_id": "reviewer-1"
+      },
+      "reviewers": [
+        "reviewer-1",
+        "reviewer-2",
+        "reviewer-3"
+      ],
+      "support": 1.0,
+      "uncalibrated": false
+    }
+  ],
+  "complete_reviewers": [
+    "reviewer-1",
+    "reviewer-2",
+    "reviewer-3"
+  ],
+  "invalid_reviewers": [],
+  "problems": [],
+  "uncalibrated": [],
+  "uncalibrated_findings": [],
+  "valid_blocks": 3
+}

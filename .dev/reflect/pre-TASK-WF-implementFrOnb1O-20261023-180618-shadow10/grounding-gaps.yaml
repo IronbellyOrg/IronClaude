@@ -1,0 +1,6 @@
+- hunk_ref: .dev/tasks/done/TASK-WF-implementFrOnb1O-20261023-180618/source.md:1
+  evidence_missing: "the FR-ONB.1 spec file (.dev/releases/backlog/ironclaude-onboarding-deck/spec.md) — absent from every reachable checkout, never committed under that name"
+  why_not_classifiable: "bullet-level coverage of INF-002 ('every bullet and acceptance criterion in FR-ONB.1') cannot be verified without the spec; only the plan's embedded quotes are checkable"
+  next_evidence_needed: "none recoverable — archived corpus, spec deleted; recorded for visibility, no user decision can restore it"
+  owner: user
+  decision_needed_by_user: false

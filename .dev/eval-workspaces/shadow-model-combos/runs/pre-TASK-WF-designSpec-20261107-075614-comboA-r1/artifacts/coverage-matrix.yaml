@@ -1,0 +1,24 @@
+coverage_degraded: parsed-sparse
+parsed_count: 0
+inferred_count: 15
+union_count: 15
+matched_union: 15
+coverage_pct_union: 1.0
+unmapped_requirements_union: []
+S_dev_density_union: 0.0
+rows:
+  - {id: INF-001, quote: "FR-1, FR-2 … no call or event at ordinals 0-2 or off; held guard reported on resume", citation: "source.md:348", matched: "Task 11", method: containment}
+  - {id: INF-002, quote: "FR-3, FR-5, FR-20 … engage at the end of Wave 3, once per cycle id, not for conflict cycles", citation: "source.md:349", matched: "Task 8, Task 10", method: containment}
+  - {id: INF-003, quote: "FR-4, FR-6, FR-7 … 4.1 row 10, 4.2 (first record, never a live read)", citation: "source.md:350", matched: "Task 3", method: containment}
+  - {id: INF-004, quote: "FR-8, FR-9 … head equals target_sha, or applied_edits == 0; release before reply and re-trigger", citation: "source.md:351", matched: "Task 8", method: containment}
+  - {id: INF-005, quote: "FR-10, FR-11 … 4.1 engage row 4, release row 4, 4.4 (state, autoMergeRequest)", citation: "source.md:352", matched: "Task 7", method: containment}
+  - {id: INF-006, quote: "FR-12, FR-13, FR-14 … 4.1 classify_toggles, release rows 5-6", citation: "source.md:353", matched: "Task 4, Task 11", method: containment}
+  - {id: INF-007, quote: "FR-15, FR-16, FR-17, FR-18, FR-19 … engage rows 3 and 8, 4.5 (clear command, L2 line), 5", citation: "source.md:354", matched: "Task 8, Task 9", method: containment}
+  - {id: INF-008, quote: "FR-21 … 4.1 resume_decision, 4.2 pending_requests", citation: "source.md:355", matched: "Task 3, Task 4", method: containment}
+  - {id: INF-009, quote: "FR-22, FR-23 … 7, 8", citation: "source.md:356", matched: "Task 1, Task 11", method: containment}
+  - {id: INF-010, quote: "Every new line … that contains gh pr, gh api or a git write verb … needs one entry in WRITE_VERB_CLASSIFICATION", citation: "source.md:255", matched: "Tasks 7, 8, 9, 10, 12", method: containment}
+  - {id: INF-011, quote: "Cite tests and constants by symbol name … never by bare line number … Declare dependencies completely, one Depends on: line per dependency", citation: "source.md:362-363", matched: "Constraints + Tasks 1-13", method: containment}
+  - {id: INF-012, quote: "Files to change: merge_guard.py new, models.py edit, run_log.py edit, fsm.py edit, __init__.py edit, set-draft-state.sh new, merge-guard.md new, SKILL.md/state-machine.md/loop-guard.md edit, pr-submit.md edit, user-guide edit, tests", citation: "source.md:283-301", matched: "Tasks 2,3,5,6,7,8,9,10,11,12,13", method: containment}
+  - {id: INF-013, quote: "G1 to G6 pre-build gate rows and open items O1 to O4, resolved with a read of the code first", citation: "source.md:326-341", matched: "Task 1", method: closure}
+  - {id: INF-014, quote: "The twelve minimum tests of the requirements, mapped to what they assert", citation: "source.md:305-322", matched: "Task 11", method: containment}
+  - {id: INF-015, quote: "exit codes 0/1/2/127 … every gh call carries --repo … an old log folds to draft_guard: None", citation: "source.md:320", matched: "Task 7, Task 11", method: containment}

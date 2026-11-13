@@ -1,0 +1,6 @@
+- hunk_ref: .dev/tasks/done/TASK-WF-devGuideFenceFix-20261104-204854/artifacts/t1-baseline-cmp.txt:2-3
+  evidence_missing: "the cited span 2-3 does not hold the claimed text pair; the two rc=0 lines are lines 2 and 4"
+  why_not_classifiable: "citation-span defect, not a content defect; the underlying claim (both cmp checks rc=0) is true of the file"
+  next_evidence_needed: "re-cite as t1-baseline-cmp.txt:2 and :4 (or the whole file)"
+  owner: reviewer
+  decision_needed_by_user: false

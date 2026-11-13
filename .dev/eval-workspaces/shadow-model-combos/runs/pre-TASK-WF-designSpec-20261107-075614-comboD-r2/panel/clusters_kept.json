@@ -1,0 +1,690 @@
+{
+  "agreement_clusters": [
+    "C3"
+  ],
+  "blocking_clusters": 1,
+  "calibration_coverage": {
+    "calibrated_findings": 19,
+    "clustered_findings": 19
+  },
+  "cards": [
+    {
+      "block_state": "complete",
+      "card": "reviewer-1.md",
+      "errors": [],
+      "reviewer_id": "reviewer-1",
+      "state": "complete"
+    },
+    {
+      "block_state": "complete",
+      "card": "reviewer-2.md",
+      "errors": [],
+      "reviewer_id": "reviewer-2",
+      "state": "complete"
+    },
+    {
+      "block_state": "complete",
+      "card": "reviewer-3.md",
+      "errors": [],
+      "reviewer_id": "reviewer-3",
+      "state": "complete"
+    }
+  ],
+  "chained": [
+    "C1"
+  ],
+  "citations": {
+    "malformed": 0,
+    "resolved": 47,
+    "unresolved": 0
+  },
+  "cluster_agreement": 0.33571428571428574,
+  "clusters": [
+    {
+      "blocking_all": false,
+      "blocking_any": false,
+      "chained": true,
+      "claim": "Task 2's grep acceptance check requires judgment about whether a remaining \u201c43\u201d is a claim about enum size; the documented \u201c42nd-43rd\u201d reference makes the check ambiguous.",
+      "cluster_id": "C1",
+      "disputed": false,
+      "member_scores": [
+        0.82,
+        0.88,
+        0.85,
+        0.86,
+        0.7,
+        0.82,
+        0.9
+      ],
+      "members": [
+        {
+          "blocking": false,
+          "deviation_class": null,
+          "finding_confidence": 0.82,
+          "fp": "929dca47101b99581522654814f0f26853dbfdbc871ca0a6b78bae23c6aed4c6",
+          "id": "F1",
+          "ordinal": 1,
+          "primary_citation": {
+            "index": 2,
+            "line_end": 60,
+            "line_start": 52,
+            "path": ".dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/TASK-WF-designSpec-20261107-075614.md",
+            "role": "plan",
+            "status": "resolved"
+          },
+          "refs_norm": [],
+          "reviewer_id": "reviewer-1"
+        },
+        {
+          "blocking": false,
+          "deviation_class": null,
+          "finding_confidence": 0.88,
+          "fp": "929dca47101b99581522654814f0f26853dbfdbc871ca0a6b78bae23c6aed4c6",
+          "id": "F3",
+          "ordinal": 1,
+          "primary_citation": {
+            "index": 2,
+            "line_end": 61,
+            "line_start": 61,
+            "path": ".dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/TASK-WF-designSpec-20261107-075614.md",
+            "role": "plan",
+            "status": "resolved"
+          },
+          "refs_norm": [],
+          "reviewer_id": "reviewer-1"
+        },
+        {
+          "blocking": false,
+          "deviation_class": null,
+          "finding_confidence": 0.85,
+          "fp": "929dca47101b99581522654814f0f26853dbfdbc871ca0a6b78bae23c6aed4c6",
+          "id": "F4",
+          "ordinal": 1,
+          "primary_citation": {
+            "index": 3,
+            "line_end": 60,
+            "line_start": 60,
+            "path": ".dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/TASK-WF-designSpec-20261107-075614.md",
+            "role": "plan",
+            "status": "resolved"
+          },
+          "refs_norm": [],
+          "reviewer_id": "reviewer-1"
+        },
+        {
+          "blocking": false,
+          "deviation_class": null,
+          "finding_confidence": 0.86,
+          "fp": "929dca47101b99581522654814f0f26853dbfdbc871ca0a6b78bae23c6aed4c6",
+          "id": "F5",
+          "ordinal": 1,
+          "primary_citation": {
+            "index": 1,
+            "line_end": 77,
+            "line_start": 77,
+            "path": ".dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/TASK-WF-designSpec-20261107-075614.md",
+            "role": "plan",
+            "status": "resolved"
+          },
+          "refs_norm": [],
+          "reviewer_id": "reviewer-1"
+        },
+        {
+          "blocking": false,
+          "deviation_class": null,
+          "finding_confidence": 0.7,
+          "fp": "929dca47101b99581522654814f0f26853dbfdbc871ca0a6b78bae23c6aed4c6",
+          "id": "F6",
+          "ordinal": 1,
+          "primary_citation": {
+            "index": 2,
+            "line_end": 61,
+            "line_start": 61,
+            "path": ".dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/TASK-WF-designSpec-20261107-075614.md",
+            "role": "plan",
+            "status": "resolved"
+          },
+          "refs_norm": [],
+          "reviewer_id": "reviewer-1"
+        },
+        {
+          "blocking": false,
+          "deviation_class": null,
+          "finding_confidence": 0.82,
+          "fp": "929dca47101b99581522654814f0f26853dbfdbc871ca0a6b78bae23c6aed4c6",
+          "id": "F7",
+          "ordinal": 1,
+          "primary_citation": {
+            "index": 1,
+            "line_end": 77,
+            "line_start": 77,
+            "path": ".dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/TASK-WF-designSpec-20261107-075614.md",
+            "role": "plan",
+            "status": "resolved"
+          },
+          "refs_norm": [],
+          "reviewer_id": "reviewer-1"
+        },
+        {
+          "blocking": false,
+          "deviation_class": null,
+          "finding_confidence": 0.9,
+          "fp": "929dca47101b99581522654814f0f26853dbfdbc871ca0a6b78bae23c6aed4c6",
+          "id": "F1",
+          "ordinal": 3,
+          "primary_citation": {
+            "index": 0,
+            "line_end": 49,
+            "line_start": 49,
+            "path": ".dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/TASK-WF-designSpec-20261107-075614.md",
+            "role": "plan",
+            "status": "resolved"
+          },
+          "refs_norm": [],
+          "reviewer_id": "reviewer-3"
+        }
+      ],
+      "representative": {
+        "id": "F1",
+        "reviewer_id": "reviewer-3"
+      },
+      "reviewers": [
+        "reviewer-1",
+        "reviewer-3"
+      ],
+      "support": 0.6357142857142858,
+      "uncalibrated": false
+    },
+    {
+      "blocking_all": false,
+      "blocking_any": false,
+      "chained": false,
+      "claim": "Task 8 builds the protocol ref from sections 3, 4.1, 4.5, 4.6, 5, but the spec says it carries sections 3 and 4.1 to 4.4; event fields, key format and the --read JSON (4.2 to 4.4) are omitted and no criterion asks the ref to state them.",
+      "cluster_id": "C2",
+      "disputed": true,
+      "member_scores": [
+        0.96
+      ],
+      "members": [
+        {
+          "blocking": false,
+          "deviation_class": null,
+          "finding_confidence": 0.96,
+          "fp": "929dca47101b99581522654814f0f26853dbfdbc871ca0a6b78bae23c6aed4c6",
+          "id": "F2",
+          "ordinal": 1,
+          "primary_citation": {
+            "index": 1,
+            "line_end": 124,
+            "line_start": 124,
+            "path": ".dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/TASK-WF-designSpec-20261107-075614.md",
+            "role": "plan",
+            "status": "resolved"
+          },
+          "refs_norm": [],
+          "reviewer_id": "reviewer-1"
+        }
+      ],
+      "representative": {
+        "id": "F2",
+        "reviewer_id": "reviewer-1"
+      },
+      "reviewers": [
+        "reviewer-1"
+      ],
+      "support": 0.34285714285714286,
+      "uncalibrated": false
+    },
+    {
+      "blocking_all": false,
+      "blocking_any": true,
+      "chained": false,
+      "claim": "Per-cycle applied_edits is tested only as an input to release_decision. No criterion checks that the protocol passes this cycle's count, not the run-wide one, so run-wide counting passes every test.",
+      "cluster_id": "C3",
+      "disputed": true,
+      "member_scores": [
+        0.94,
+        0.72
+      ],
+      "members": [
+        {
+          "blocking": true,
+          "deviation_class": null,
+          "finding_confidence": 0.94,
+          "fp": "50e6510f728d092797fa7001209436ed25f5e6c9f399a91803046ef942f8f55c",
+          "id": "F1",
+          "ordinal": 2,
+          "primary_citation": {
+            "index": 2,
+            "line_end": 75,
+            "line_start": 75,
+            "path": ".dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/TASK-WF-designSpec-20261107-075614.md",
+            "role": "plan",
+            "status": "resolved"
+          },
+          "refs_norm": [
+            "INF-081"
+          ],
+          "reviewer_id": "reviewer-2"
+        },
+        {
+          "blocking": false,
+          "deviation_class": null,
+          "finding_confidence": 0.72,
+          "fp": "50e6510f728d092797fa7001209436ed25f5e6c9f399a91803046ef942f8f55c",
+          "id": "F9",
+          "ordinal": 2,
+          "primary_citation": {
+            "index": 0,
+            "line_end": 37,
+            "line_start": 37,
+            "path": ".dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/TASK-WF-designSpec-20261107-075614.md",
+            "role": "plan",
+            "status": "resolved"
+          },
+          "refs_norm": [
+            "INF-081"
+          ],
+          "reviewer_id": "reviewer-2"
+        }
+      ],
+      "representative": {
+        "id": "F1",
+        "reviewer_id": "reviewer-2"
+      },
+      "reviewers": [
+        "reviewer-2"
+      ],
+      "support": 0.33571428571428574,
+      "uncalibrated": false
+    },
+    {
+      "blocking_all": false,
+      "blocking_any": false,
+      "chained": false,
+      "claim": "The byte-identical check for S5a and the Wave 6 pre-push sentence compares live text with a start-text constant. A changed tail still passes, so the stated invariant cannot fail.",
+      "cluster_id": "C4",
+      "disputed": true,
+      "member_scores": [
+        0.78
+      ],
+      "members": [
+        {
+          "blocking": false,
+          "deviation_class": null,
+          "finding_confidence": 0.78,
+          "fp": "2b7e923d52dc2d9f52f0b972d1d8ef24515364349995b891fc1bbc5a2a5b7371",
+          "id": "F2",
+          "ordinal": 2,
+          "primary_citation": {
+            "index": 0,
+            "line_end": 154,
+            "line_start": 154,
+            "path": ".dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/TASK-WF-designSpec-20261107-075614.md",
+            "role": "plan",
+            "status": "resolved"
+          },
+          "refs_norm": [
+            "INF-089"
+          ],
+          "reviewer_id": "reviewer-2"
+        }
+      ],
+      "representative": {
+        "id": "F2",
+        "reviewer_id": "reviewer-2"
+      },
+      "reviewers": [
+        "reviewer-2"
+      ],
+      "support": 0.2785714285714286,
+      "uncalibrated": false
+    },
+    {
+      "blocking_all": false,
+      "blocking_any": false,
+      "chained": false,
+      "claim": "The spec requires one cycle id shared by guard events, push key and rereview_requested. No criterion asserts the ids are equal; the trace test checks event order only.",
+      "cluster_id": "C5",
+      "disputed": true,
+      "member_scores": [
+        0.91
+      ],
+      "members": [
+        {
+          "blocking": false,
+          "deviation_class": null,
+          "finding_confidence": 0.91,
+          "fp": "929dca47101b99581522654814f0f26853dbfdbc871ca0a6b78bae23c6aed4c6",
+          "id": "F3",
+          "ordinal": 2,
+          "primary_citation": {
+            "index": 1,
+            "line_end": 170,
+            "line_start": 170,
+            "path": ".dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/TASK-WF-designSpec-20261107-075614.md",
+            "role": "plan",
+            "status": "resolved"
+          },
+          "refs_norm": [],
+          "reviewer_id": "reviewer-2"
+        }
+      ],
+      "representative": {
+        "id": "F3",
+        "reviewer_id": "reviewer-2"
+      },
+      "reviewers": [
+        "reviewer-2"
+      ],
+      "support": 0.325,
+      "uncalibrated": false
+    },
+    {
+      "blocking_all": false,
+      "blocking_any": false,
+      "chained": false,
+      "claim": "The spec's once-per-cycle test needs a repeat engage after release to be refused, but no engage row does this. A RELEASED guard with the same cycle id falls through to ENGAGE at row 11.",
+      "cluster_id": "C6",
+      "disputed": true,
+      "member_scores": [
+        0.89
+      ],
+      "members": [
+        {
+          "blocking": false,
+          "deviation_class": null,
+          "finding_confidence": 0.89,
+          "fp": "68cd9d5dfb21244b184380adca41b303447ea2ead0d63bbb410d47f6b4cdf7d0",
+          "id": "F4",
+          "ordinal": 2,
+          "primary_citation": {
+            "index": 2,
+            "line_end": 168,
+            "line_start": 168,
+            "path": ".dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/TASK-WF-designSpec-20261107-075614.md",
+            "role": "plan",
+            "status": "resolved"
+          },
+          "refs_norm": [
+            "INF-001"
+          ],
+          "reviewer_id": "reviewer-2"
+        }
+      ],
+      "representative": {
+        "id": "F4",
+        "reviewer_id": "reviewer-2"
+      },
+      "reviewers": [
+        "reviewer-2"
+      ],
+      "support": 0.3178571428571429,
+      "uncalibrated": false
+    },
+    {
+      "blocking_all": false,
+      "blocking_any": false,
+      "chained": false,
+      "claim": "The spec requires the PR body to state the release gate, and the run that opens the PR to pass --merge-guard off. No task writes the PR body and no criterion checks either.",
+      "cluster_id": "C7",
+      "disputed": true,
+      "member_scores": [
+        0.88
+      ],
+      "members": [
+        {
+          "blocking": false,
+          "deviation_class": null,
+          "finding_confidence": 0.88,
+          "fp": "90809d9b076f2b169a4de8e41df7a4e16b2aad2a2b27293dc80933c859f35cdb",
+          "id": "F5",
+          "ordinal": 2,
+          "primary_citation": {
+            "index": 1,
+            "line_end": 33,
+            "line_start": 33,
+            "path": ".dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/TASK-WF-designSpec-20261107-075614.md",
+            "role": "plan",
+            "status": "resolved"
+          },
+          "refs_norm": [
+            "INF-076",
+            "INF-077"
+          ],
+          "reviewer_id": "reviewer-2"
+        }
+      ],
+      "representative": {
+        "id": "F5",
+        "reviewer_id": "reviewer-2"
+      },
+      "reviewers": [
+        "reviewer-2"
+      ],
+      "support": 0.31428571428571433,
+      "uncalibrated": false
+    },
+    {
+      "blocking_all": false,
+      "blocking_any": false,
+      "chained": false,
+      "claim": "Task 9 body requires flag-row and wave-structure-line tests, but its acceptance criteria omit them. A SKILL.md with no --merge-guard row would still pass the task.",
+      "cluster_id": "C8",
+      "disputed": true,
+      "member_scores": [
+        0.93
+      ],
+      "members": [
+        {
+          "blocking": false,
+          "deviation_class": null,
+          "finding_confidence": 0.93,
+          "fp": "6a58219cc81905480e4806c8ec384fe7e8ff3ae2f5174dc0c57c22d13862fdef",
+          "id": "F6",
+          "ordinal": 2,
+          "primary_citation": {
+            "index": 0,
+            "line_end": 137,
+            "line_start": 137,
+            "path": ".dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/TASK-WF-designSpec-20261107-075614.md",
+            "role": "plan",
+            "status": "resolved"
+          },
+          "refs_norm": [
+            "INF-080"
+          ],
+          "reviewer_id": "reviewer-2"
+        }
+      ],
+      "representative": {
+        "id": "F6",
+        "reviewer_id": "reviewer-2"
+      },
+      "reviewers": [
+        "reviewer-2"
+      ],
+      "support": 0.3321428571428572,
+      "uncalibrated": false
+    },
+    {
+      "blocking_all": false,
+      "blocking_any": false,
+      "chained": false,
+      "claim": "The no-file:NNN rule is checked only in Task 8's body, not its criterion. Tasks 9, 10 and 12 have no check, so SKILL.md and command prose can carry pointers.",
+      "cluster_id": "C9",
+      "disputed": true,
+      "member_scores": [
+        0.92
+      ],
+      "members": [
+        {
+          "blocking": false,
+          "deviation_class": null,
+          "finding_confidence": 0.92,
+          "fp": "5abce8217b3735832f53234d2715f846e133ea622b7f5c25cd3d826f7df0aa44",
+          "id": "F7",
+          "ordinal": 2,
+          "primary_citation": {
+            "index": 1,
+            "line_end": 124,
+            "line_start": 124,
+            "path": ".dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/TASK-WF-designSpec-20261107-075614.md",
+            "role": "plan",
+            "status": "resolved"
+          },
+          "refs_norm": [
+            "INF-078",
+            "INF-083"
+          ],
+          "reviewer_id": "reviewer-2"
+        }
+      ],
+      "representative": {
+        "id": "F7",
+        "reviewer_id": "reviewer-2"
+      },
+      "reviewers": [
+        "reviewer-2"
+      ],
+      "support": 0.3285714285714286,
+      "uncalibrated": false
+    },
+    {
+      "blocking_all": false,
+      "blocking_any": false,
+      "chained": false,
+      "claim": "Task 10 consumes refs/merge-guard.md and the protocol test file created by Task 8, but declares only Depends on: Task 9. The spec requires a line for each consumed task.",
+      "cluster_id": "C10",
+      "disputed": true,
+      "member_scores": [
+        0.9
+      ],
+      "members": [
+        {
+          "blocking": false,
+          "deviation_class": null,
+          "finding_confidence": 0.9,
+          "fp": "4c141acd1d3483dcbaf8f0df1cff6f5de8bf490c777afd8080114762d0c247b8",
+          "id": "F8",
+          "ordinal": 2,
+          "primary_citation": {
+            "index": 0,
+            "line_end": 148,
+            "line_start": 148,
+            "path": ".dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/TASK-WF-designSpec-20261107-075614.md",
+            "role": "plan",
+            "status": "resolved"
+          },
+          "refs_norm": [
+            "INF-079"
+          ],
+          "reviewer_id": "reviewer-2"
+        }
+      ],
+      "representative": {
+        "id": "F8",
+        "reviewer_id": "reviewer-2"
+      },
+      "reviewers": [
+        "reviewer-2"
+      ],
+      "support": 0.32142857142857145,
+      "uncalibrated": false
+    },
+    {
+      "blocking_all": false,
+      "blocking_any": false,
+      "chained": false,
+      "claim": "The spec says original_is_draft is never read from GitHub after the first record. Task 3 states it in the body, but no acceptance criterion or test asserts it.",
+      "cluster_id": "C11",
+      "disputed": true,
+      "member_scores": [
+        0.86
+      ],
+      "members": [
+        {
+          "blocking": false,
+          "deviation_class": null,
+          "finding_confidence": 0.86,
+          "fp": "dd61e060f056da6b65483dc26f9c33bf9d333f29dd51872401cb8c7a7dce66ac",
+          "id": "F10",
+          "ordinal": 2,
+          "primary_citation": {
+            "index": 1,
+            "line_end": 56,
+            "line_start": 56,
+            "path": ".dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/TASK-WF-designSpec-20261107-075614.md",
+            "role": "plan",
+            "status": "resolved"
+          },
+          "refs_norm": [
+            "INF-009"
+          ],
+          "reviewer_id": "reviewer-2"
+        }
+      ],
+      "representative": {
+        "id": "F10",
+        "reviewer_id": "reviewer-2"
+      },
+      "reviewers": [
+        "reviewer-2"
+      ],
+      "support": 0.30714285714285716,
+      "uncalibrated": false
+    },
+    {
+      "blocking_all": false,
+      "blocking_any": false,
+      "chained": false,
+      "claim": "The spec's engage-failure case requires the halt message to name --merge-guard off and print the clear command. Task 8 and Task 11 criteria check only terminal_halted and no edit.",
+      "cluster_id": "C12",
+      "disputed": true,
+      "member_scores": [
+        0.91
+      ],
+      "members": [
+        {
+          "blocking": false,
+          "deviation_class": null,
+          "finding_confidence": 0.91,
+          "fp": "901c21b8ae78289e6eaae6dc4216fd2b92ec0405fbdd17bf2415a382cb87f69a",
+          "id": "F11",
+          "ordinal": 2,
+          "primary_citation": {
+            "index": 1,
+            "line_end": 129,
+            "line_start": 129,
+            "path": ".dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/TASK-WF-designSpec-20261107-075614.md",
+            "role": "plan",
+            "status": "resolved"
+          },
+          "refs_norm": [
+            "INF-015"
+          ],
+          "reviewer_id": "reviewer-2"
+        }
+      ],
+      "representative": {
+        "id": "F11",
+        "reviewer_id": "reviewer-2"
+      },
+      "reviewers": [
+        "reviewer-2"
+      ],
+      "support": 0.325,
+      "uncalibrated": false
+    }
+  ],
+  "complete_reviewers": [
+    "reviewer-1",
+    "reviewer-2",
+    "reviewer-3"
+  ],
+  "invalid_reviewers": [],
+  "problems": [],
+  "uncalibrated": [],
+  "uncalibrated_findings": [],
+  "valid_blocks": 3
+}

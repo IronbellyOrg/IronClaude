@@ -1,0 +1,4 @@
+# Wave 3C blind calibration (confidence-calibrator agent, opus-class default -> calibrator_diversity degraded; disjoint set empty)
+reviewer-1: {score: 0.80, dims: {citation_grounding: 0.90, coverage: 0.80, classification: 0.75, risk: 0.75, actionability: 0.80}, per_finding: {F1: 0.80, F2: 0.75}}
+reviewer-2: {score: 0.82, dims: {citation_grounding: 0.85, coverage: 0.90, classification: 0.85, risk: 0.70, actionability: 0.80}, per_finding: {F1: 0.85, F2: 0.65, F3: 0.70, F4: 0.60}}
+reviewer-3: {score: 0.72, dims: {citation_grounding: 0.80, coverage: 0.80, classification: 0.70, risk: 0.65, actionability: 0.65}, per_finding: {F1: 0.75, F2: 0.55}}

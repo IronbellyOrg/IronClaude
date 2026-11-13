@@ -1,0 +1,123 @@
+merge_method: adversarial
+verdict: plan_has_gaps
+convergence_score: 0.9444
+base_variant: reviewer-2
+source_cards:
+  - reviewer-cards/reviewer-1-card.md
+  - reviewer-cards/reviewer-2-card.md
+  - reviewer-cards/reviewer-3-card.md
+debate_artifacts_dir: adversarial/adversarial/
+counts: {blocking: 1, major_non_blocking: 5, minor: 7}
+unresolved: [S-001]
+dropped_by_debate: [reviewer-2:F7]
+findings:
+  - id: G1
+    severity: MAJOR
+    blocking: true
+    claim: "Task 8 builds refs/merge-guard.md from spec sections 3, 4.1, 4.5, 4.6 and 5 although the spec's own file table says the ref carries sections 3 and 4.1 to 4.4; section 4.2 (event fields, idempotency key, first-request-only baseline) is dropped and no Task 8 criterion names an event field."
+    source: [reviewer-1:F1, reviewer-3:F1]
+    citations:
+      - {role: plan, path: .dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/TASK-WF-designSpec-20261107-075614.md, line_start: 124, line_end: 124, quote: "from ./source.md sections 3, 4.1, 4.5, 4.6 and 5"}
+      - {role: spec, path: .dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/source.md, line_start: 240, line_end: 240, quote: "The procedure of sections 3 and 4.1 to 4.4"}
+      - {role: spec, path: .dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/source.md, line_start: 182, line_end: 185}
+  - id: G2
+    severity: MAJOR
+    blocking: false
+    claim: "Task 4 states the classify_toggles slack with unsettled but its ok-case test checks only run_toggles + failed_mutations; dropping unsettled passes every listed criterion."
+    source: [reviewer-1:F2]
+    citations:
+      - {role: plan, path: .dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/TASK-WF-designSpec-20261107-075614.md, line_start: 70, line_end: 70}
+      - {role: plan, path: .dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/TASK-WF-designSpec-20261107-075614.md, line_start: 74, line_end: 74, quote: "`ok` when observed equals `run_toggles + failed_mutations`"}
+      - {role: spec, path: .dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/source.md, line_start: 119, line_end: 120, quote: "slack    = guard.unsettled + guard.failed_mutations"}
+  - id: G3
+    severity: MAJOR
+    blocking: false
+    claim: "Neither the spec fold table nor Task 3 says how the fold's cycle_id advances, and no criterion covers a second cycle; held_cycle_published keys on guard.cycle_id, so a crash after a normal push of a later cycle can leave the PR draft."
+    source: [reviewer-1:F3, fault-finder:INV-003]
+    citations:
+      - {role: spec, path: .dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/source.md, line_start: 108, line_end: 108}
+      - {role: spec, path: .dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/source.md, line_start: 187, line_end: 193}
+      - {role: plan, path: .dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/TASK-WF-designSpec-20261107-075614.md, line_start: 56, line_end: 62}
+  - id: G4
+    severity: MAJOR
+    blocking: false
+    claim: "Task 9 requires a Wave 0 bullet with no L3 or draft condition but also requires it to say what happens at L3 with --merge-guard off, and its criterion fails on an L3 or draft condition; the plan's own body narrows the test to gate wording, so the wording needs one precise rule."
+    source: [reviewer-2:F1, reviewer-3:F2, fault-finder:INV-001]
+    citations:
+      - {role: plan, path: .dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/TASK-WF-designSpec-20261107-075614.md, line_start: 137, line_end: 137}
+      - {role: plan, path: .dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/TASK-WF-designSpec-20261107-075614.md, line_start: 140, line_end: 140}
+      - {role: spec, path: .dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/source.md, line_start: 241, line_end: 241}
+  - id: G5
+    severity: MINOR
+    blocking: false
+    claim: "The cycle id minted at the end of Wave 3 must be the cycle_id of the push triad and of rereview_requested (spec 4.6) but no criterion asserts the ids are equal; Task 11 checks event order only."
+    source: [reviewer-2:F2, reviewer-3:F4]
+    citations:
+      - {role: spec, path: .dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/source.md, line_start: 251, line_end: 251}
+      - {role: plan, path: .dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/TASK-WF-designSpec-20261107-075614.md, line_start: 170, line_end: 171}
+  - id: G6
+    severity: MINOR
+    blocking: false
+    claim: "The plan calls the S5a and Wave 6 pre-push sentences byte-identical but compares them against the recorded literal start text only, so an edit after the start text passes."
+    source: [reviewer-2:F4]
+    citations:
+      - {role: plan, path: .dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/TASK-WF-designSpec-20261107-075614.md, line_start: 154, line_end: 154}
+      - {role: plan, path: .dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/TASK-WF-designSpec-20261107-075614.md, line_start: 33, line_end: 33}
+  - id: G7
+    severity: MINOR
+    blocking: false
+    claim: "The Medium-or-higher routed-finding trigger of the Wave 3 bullet is verified by phrase presence only."
+    source: [reviewer-2:F3]
+    citations:
+      - {role: plan, path: .dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/TASK-WF-designSpec-20261107-075614.md, line_start: 152, line_end: 153}
+  - id: G8
+    severity: MINOR
+    blocking: false
+    claim: "Task 5 asserts Phase string values held and engage_pending that Task 3 and the spec never fix."
+    source: [reviewer-1:F4]
+    citations:
+      - {role: plan, path: .dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/TASK-WF-designSpec-20261107-075614.md, line_start: 90, line_end: 90}
+      - {role: spec, path: .dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/source.md, line_start: 80, line_end: 80}
+  - id: G9
+    severity: MINOR
+    blocking: false
+    claim: "Task 7 does not test that autoMergeRequest is emitted as a boolean although GuardRead.auto_merge_armed is a bool and the spec shows false."
+    source: [reviewer-2:F5]
+    citations:
+      - {role: plan, path: .dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/TASK-WF-designSpec-20261107-075614.md, line_start: 111, line_end: 111}
+      - {role: spec, path: .dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/source.md, line_start: 230, line_end: 230}
+  - id: G10
+    severity: MINOR
+    blocking: false
+    claim: "The classification steps of Tasks 7, 8, 10 and 12 name gh pr and gh api only, while the constraint also covers git write verbs."
+    source: [reviewer-2:F6]
+    citations:
+      - {role: plan, path: .dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/TASK-WF-designSpec-20261107-075614.md, line_start: 22, line_end: 22}
+      - {role: plan, path: .dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/TASK-WF-designSpec-20261107-075614.md, line_start: 124, line_end: 124}
+      - {role: spec, path: .dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/source.md, line_start: 255, line_end: 255}
+  - id: G11
+    severity: MINOR
+    blocking: false
+    claim: "Tasks 9 and 12 read the pre-build record but list Depends on lines for other tasks only (Task 1 is reached through Task 8); spec section 10 asks for one Depends on line per consumed output."
+    source: [reviewer-3:F3]
+    citations:
+      - {role: plan, path: .dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/TASK-WF-designSpec-20261107-075614.md, line_start: 134, line_end: 137}
+      - {role: plan, path: .dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/TASK-WF-designSpec-20261107-075614.md, line_start: 179, line_end: 182}
+      - {role: spec, path: .dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/source.md, line_start: 363, line_end: 363}
+  - id: G12
+    severity: MAJOR
+    blocking: false
+    claim: "Resume row 4 re-enters release_decision with push_completed=True, which also needs target_sha and this cycle's applied_edits; no task says they are derived from the push_initiated and fix_applied events of the guard's cycle."
+    source: [fault-finder:INV-004, fault-finder:INV-005]
+    citations:
+      - {role: spec, path: .dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/source.md, line_start: 107, line_end: 107}
+      - {role: spec, path: .dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/source.md, line_start: 166, line_end: 166}
+      - {role: plan, path: .dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/TASK-WF-designSpec-20261107-075614.md, line_start: 77, line_end: 77}
+  - id: G13
+    severity: MAJOR
+    blocking: false
+    claim: "Task 7 specifies a fake gh that only logs its arguments, but Task 11's scenarios (foreign toggle, failing --to, merged PR, changing timeline count) need a stateful or scriptable fake."
+    source: [fault-finder:INV-006]
+    citations:
+      - {role: plan, path: .dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/TASK-WF-designSpec-20261107-075614.md, line_start: 108, line_end: 108}
+      - {role: plan, path: .dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/TASK-WF-designSpec-20261107-075614.md, line_start: 166, line_end: 166}

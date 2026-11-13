@@ -1,0 +1,60 @@
+{
+  "environment": "anthropic-only",
+  "excluded": {
+    "classes": [],
+    "models": []
+  },
+  "review_kind": "first",
+  "reviewers": [
+    {
+      "alias": "claude-gw-tier1b[1m]",
+      "fallback_depth": 0,
+      "fallbacks": [],
+      "launch": "sonnet",
+      "model": "claude-sonnet-5-5",
+      "model_name": "Claude Sonnet 5.5",
+      "reviewer_id": "t1b-1",
+      "seed": null,
+      "slot_id": "t1b",
+      "stand_in": false,
+      "strategy": "fixed",
+      "tier": "tier1b"
+    },
+    {
+      "alias": "claude-gw-tier4[1m]",
+      "fallback_depth": 1,
+      "fallbacks": [],
+      "launch": "haiku",
+      "model": "claude-haiku-5-5",
+      "model_name": "Claude Haiku 5.5",
+      "reviewer_id": "t4-1",
+      "seed": "895924678|t4|1",
+      "slot_id": "t4",
+      "stand_in": false,
+      "strategy": "random",
+      "tier": "tier4"
+    },
+    {
+      "alias": "claude-gw-tier1a[1m]",
+      "fallback_depth": 0,
+      "fallbacks": [],
+      "launch": "opus",
+      "model": "claude-opus-5-5",
+      "model_name": "Claude Opus 5.5",
+      "reviewer_id": "t1a-1",
+      "seed": "895924678|t1a|1",
+      "slot_id": "t1a",
+      "stand_in": false,
+      "strategy": "random",
+      "tier": "tier1a"
+    }
+  ],
+  "run_id": "pre-TASK-WF-renameTheScIssue-20261104-174359-shadow07",
+  "schema": "review-panel-resolution/1",
+  "skipped_slots": [],
+  "template_id": "reflect-pre",
+  "template_sha256": "d8156ae38041992ba036afadcda14bc001941fdd759ffe0ca607d83942fb765e",
+  "template_version": "1.0.0",
+  "tiers_sha256": "a35908fa6d4019ea3f01d7842b2090ac6432d40a36cdeb9a08c6f0b1f50f05be",
+  "tiers_version": "1.0.0"
+}

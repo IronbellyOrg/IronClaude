@@ -1,0 +1,763 @@
+{
+ "summary": {
+  "parsed_count": 0,
+  "inferred_count": 62,
+  "dropped_pass2_rows": [],
+  "plan_task_count": 13,
+  "plan_ids_found": [],
+  "coverage_pct": null,
+  "coverage_pct_union": 0.7742,
+  "unmapped_requirements_union": [
+   "INF-005",
+   "INF-014",
+   "INF-018",
+   "INF-024",
+   "INF-028",
+   "INF-030",
+   "INF-036",
+   "INF-039",
+   "INF-040",
+   "INF-041",
+   "INF-046",
+   "INF-051",
+   "INF-057",
+   "INF-059"
+  ],
+  "S_dev_density": 0.2258,
+  "coverage_degraded": "parsed-sparse",
+  "coverage_undefined": false,
+  "task_hit_counts": {
+   "Task 1": 5,
+   "Task 2": 2,
+   "Task 3": 10,
+   "Task 4": 7,
+   "Task 5": 0,
+   "Task 6": 1,
+   "Task 7": 2,
+   "Task 8": 13,
+   "Task 9": 4,
+   "Task 10": 0,
+   "Task 11": 3,
+   "Task 12": 1,
+   "Task 13": 0
+  }
+ },
+ "matrix": [
+  {
+   "requirement_id": "INF-001",
+   "source": "inferred",
+   "spec_line": 6,
+   "quote": "engage at the first verified Medium-or-higher finding routed to a fix",
+   "group": "q",
+   "matched_task_ids": [
+    "Task 8"
+   ],
+   "match_method": "containment",
+   "ratio": 0.875
+  },
+  {
+   "requirement_id": "INF-002",
+   "source": "inferred",
+   "spec_line": 6,
+   "quote": "default on at `--monitor 3` via `--merge-guard {draft,off}`",
+   "group": "q",
+   "matched_task_ids": [
+    "Task 12"
+   ],
+   "match_method": "containment",
+   "ratio": 1.0
+  },
+  {
+   "requirement_id": "INF-003",
+   "source": "inferred",
+   "spec_line": 6,
+   "quote": "release when the fix push is confirmed on the PR head, before replies and the re-trigger",
+   "group": "q",
+   "matched_task_ids": [
+    "Task 8"
+   ],
+   "match_method": "containment",
+   "ratio": 0.889
+  },
+  {
+   "requirement_id": "INF-004",
+   "source": "inferred",
+   "spec_line": 6,
+   "quote": "an unreadable timeline or an exit with unpublished fixes keeps the PR draft and reports",
+   "group": "q",
+   "matched_task_ids": [
+    "Task 8"
+   ],
+   "match_method": "containment",
+   "ratio": 0.778
+  },
+  {
+   "requirement_id": "INF-005",
+   "source": "inferred",
+   "spec_line": 57,
+   "quote": "Nothing mutates. A held guard found in the log is reported with the clear command.",
+   "group": "q",
+   "matched_task_ids": [],
+   "match_method": "none",
+   "ratio": 0.556
+  },
+  {
+   "requirement_id": "INF-006",
+   "source": "inferred",
+   "spec_line": 58,
+   "quote": "Wave 0 loads the ref (Resume and Exit report) before Wave 1: unsettled requests are reconciled before any edit, release or re-trigger",
+   "group": "q",
+   "matched_task_ids": [
+    "Task 8"
+   ],
+   "match_method": "containment",
+   "ratio": 0.692
+  },
+  {
+   "requirement_id": "INF-007",
+   "source": "inferred",
+   "spec_line": 59,
+   "quote": "Wave 0 prints once: \"Remediation is unprotected: --merge-guard off.\" No draft call is made.",
+   "group": "q",
+   "matched_task_ids": [
+    "Task 9"
+   ],
+   "match_method": "containment",
+   "ratio": 1.0
+  },
+  {
+   "requirement_id": "INF-008",
+   "source": "inferred",
+   "spec_line": 60,
+   "quote": "The final report prints \"PR #N is still mergeable; this run's fixes are local only.\"",
+   "group": "q",
+   "matched_task_ids": [
+    "Task 9"
+   ],
+   "match_method": "containment",
+   "ratio": 0.889
+  },
+  {
+   "requirement_id": "INF-009",
+   "source": "inferred",
+   "spec_line": 61,
+   "quote": "Read, decide, request, `--to draft`, settle. Print the clear command once.",
+   "group": "q",
+   "matched_task_ids": [
+    "Task 8"
+   ],
+   "match_method": "containment",
+   "ratio": 0.667
+  },
+  {
+   "requirement_id": "INF-010",
+   "source": "inferred",
+   "spec_line": 62,
+   "quote": "Settle `skipped/already_draft`, phase `disabled`, never mutate.",
+   "group": "q",
+   "matched_task_ids": [
+    "Task 3"
+   ],
+   "match_method": "containment",
+   "ratio": 0.857
+  },
+  {
+   "requirement_id": "INF-011",
+   "source": "inferred",
+   "spec_line": 63,
+   "quote": "Release, cause `no_edits`.",
+   "group": "q",
+   "matched_task_ids": [
+    "Task 4"
+   ],
+   "match_method": "containment",
+   "ratio": 1.0
+  },
+  {
+   "requirement_id": "INF-012",
+   "source": "inferred",
+   "spec_line": 64,
+   "quote": "Script `--read` must show `state == OPEN`; otherwise halt `pr_not_open`, push nothing.",
+   "group": "q",
+   "matched_task_ids": [
+    "Task 8"
+   ],
+   "match_method": "containment",
+   "ratio": 1.0
+  },
+  {
+   "requirement_id": "INF-013",
+   "source": "inferred",
+   "spec_line": 65,
+   "quote": "Release, cause `pushed`, before reply, resolve and the S5a re-trigger.",
+   "group": "q",
+   "matched_task_ids": [
+    "Task 8"
+   ],
+   "match_method": "containment",
+   "ratio": 0.75
+  },
+  {
+   "requirement_id": "INF-014",
+   "source": "inferred",
+   "spec_line": 66,
+   "quote": "Settle `skipped/user_override`, phase `disabled`, no more draft calls, keep pushing, report.",
+   "group": "q",
+   "matched_task_ids": [],
+   "match_method": "none",
+   "ratio": 0.545
+  },
+  {
+   "requirement_id": "INF-015",
+   "source": "inferred",
+   "spec_line": 67,
+   "quote": "Do not release; report `held (timeline unreadable)`; keep pushing.",
+   "group": "q",
+   "matched_task_ids": [
+    "Task 8"
+   ],
+   "match_method": "containment",
+   "ratio": 0.714
+  },
+  {
+   "requirement_id": "INF-016",
+   "source": "inferred",
+   "spec_line": 68,
+   "quote": "Halt before any edit: `terminal_halted`, reason `draft_guard_unavailable`.",
+   "group": "q",
+   "matched_task_ids": [
+    "Task 8"
+   ],
+   "match_method": "containment",
+   "ratio": 1.0
+  },
+  {
+   "requirement_id": "INF-017",
+   "source": "inferred",
+   "spec_line": 69,
+   "quote": "PR stays draft; report `held` with the clear command.",
+   "group": "q",
+   "matched_task_ids": [
+    "Task 8"
+   ],
+   "match_method": "containment",
+   "ratio": 0.857
+  },
+  {
+   "requirement_id": "INF-018",
+   "source": "inferred",
+   "spec_line": 75,
+   "quote": "No `gh` or `git` word on any line, comments included (F6).",
+   "group": "a",
+   "matched_task_ids": [],
+   "match_method": "none",
+   "ratio": 0.571
+  },
+  {
+   "requirement_id": "INF-019",
+   "source": "inferred",
+   "spec_line": 101,
+   "quote": "`ValueError` otherwise or when `n < 1`. Never collides with `CONFLICT_CYCLE_PREFIXES`.",
+   "group": "a",
+   "matched_task_ids": [
+    "Task 3"
+   ],
+   "match_method": "containment",
+   "ratio": 0.6
+  },
+  {
+   "requirement_id": "INF-020",
+   "source": "inferred",
+   "spec_line": 102,
+   "quote": "1 + the highest `<kind>-<n>` seen in any event's `cycle_id`; 1 when none.",
+   "group": "a",
+   "matched_task_ids": [
+    "Task 3"
+   ],
+   "match_method": "containment",
+   "ratio": 0.667
+  },
+  {
+   "requirement_id": "INF-021",
+   "source": "inferred",
+   "spec_line": 104,
+   "quote": "Guard requests with no matching settle, matched by `idempotency_key`",
+   "group": "a",
+   "matched_task_ids": [
+    "Task 3"
+   ],
+   "match_method": "containment",
+   "ratio": 0.833
+  },
+  {
+   "requirement_id": "INF-022",
+   "source": "inferred",
+   "spec_line": 107,
+   "quote": "`applied_edits` is THIS cycle's count of applied edits",
+   "group": "a",
+   "matched_task_ids": [
+    "Task 4"
+   ],
+   "match_method": "containment",
+   "ratio": 1.0
+  },
+  {
+   "requirement_id": "INF-023",
+   "source": "inferred",
+   "spec_line": 108,
+   "quote": "`True` when `guard` is not `None` and the log holds a `push_completed` event whose `cycle_id` equals `guard.cycle_id`",
+   "group": "a",
+   "matched_task_ids": [
+    "Task 3"
+   ],
+   "match_method": "containment",
+   "ratio": 0.778
+  },
+  {
+   "requirement_id": "INF-024",
+   "source": "inferred",
+   "spec_line": 109,
+   "quote": "a test imports both modules and asserts equality, because the core cannot import `recovery`",
+   "group": "a",
+   "matched_task_ids": [],
+   "match_method": "none",
+   "ratio": 0.455
+  },
+  {
+   "requirement_id": "INF-025",
+   "source": "inferred",
+   "spec_line": 112,
+   "quote": "`guard_status(guard, mode, ordinal)` maps, first match wins",
+   "group": "a",
+   "matched_task_ids": [
+    "Task 3"
+   ],
+   "match_method": "containment",
+   "ratio": 0.75
+  },
+  {
+   "requirement_id": "INF-026",
+   "source": "inferred",
+   "spec_line": 127,
+   "quote": "`failed_mutations` keeps a call that failed on the client but landed on the server from being read as a user action",
+   "group": "a",
+   "matched_task_ids": [
+    "Task 4"
+   ],
+   "match_method": "containment",
+   "ratio": 0.6
+  },
+  {
+   "requirement_id": "INF-027",
+   "source": "inferred",
+   "spec_line": 133,
+   "quote": "`NOOP` (reason `mode_off`, `ordinal`, `conflict_cycle`)",
+   "group": "a",
+   "matched_task_ids": [
+    "Task 4"
+   ],
+   "match_method": "containment",
+   "ratio": 0.6
+  },
+  {
+   "requirement_id": "INF-028",
+   "source": "inferred",
+   "spec_line": 142,
+   "quote": "`SKIP_ALREADY_DRAFT`",
+   "group": "a",
+   "matched_task_ids": [],
+   "match_method": "none",
+   "ratio": 0.0
+  },
+  {
+   "requirement_id": "INF-029",
+   "source": "inferred",
+   "spec_line": 156,
+   "quote": "`RELEASE(cause=pushed)`",
+   "group": "a",
+   "matched_task_ids": [
+    "Task 4"
+   ],
+   "match_method": "containment",
+   "ratio": 0.667
+  },
+  {
+   "requirement_id": "INF-030",
+   "source": "inferred",
+   "spec_line": 157,
+   "quote": "`HOLD(head_mismatch or push_not_completed)`",
+   "group": "a",
+   "matched_task_ids": [],
+   "match_method": "none",
+   "ratio": 0.333
+  },
+  {
+   "requirement_id": "INF-031",
+   "source": "inferred",
+   "spec_line": 164,
+   "quote": "`REPORT_HELD` (no mutation; prints the clear command)",
+   "group": "a",
+   "matched_task_ids": [
+    "Task 8"
+   ],
+   "match_method": "containment",
+   "ratio": 0.6
+  },
+  {
+   "requirement_id": "INF-032",
+   "source": "inferred",
+   "spec_line": 165,
+   "quote": "`RECONCILE`, with `reason` one of `resume_reconciled`, `not_applied`, `ambiguous`",
+   "group": "a",
+   "matched_task_ids": [
+    "Task 4"
+   ],
+   "match_method": "containment",
+   "ratio": 1.0
+  },
+  {
+   "requirement_id": "INF-033",
+   "source": "inferred",
+   "spec_line": 166,
+   "quote": "re-enter `release_decision` with `push_completed=True`",
+   "group": "a",
+   "matched_task_ids": [
+    "Task 4"
+   ],
+   "match_method": "containment",
+   "ratio": 1.0
+  },
+  {
+   "requirement_id": "INF-034",
+   "source": "inferred",
+   "spec_line": 178,
+   "quote": "appended and fsynced BEFORE the draft/ready call",
+   "group": "a",
+   "matched_task_ids": [
+    "Task 7"
+   ],
+   "match_method": "containment",
+   "ratio": 0.6
+  },
+  {
+   "requirement_id": "INF-035",
+   "source": "inferred",
+   "spec_line": 201,
+   "quote": "For a draft request that was the first guard record, the whole record is erased",
+   "group": "a",
+   "matched_task_ids": [
+    "Task 3"
+   ],
+   "match_method": "containment",
+   "ratio": 0.857
+  },
+  {
+   "requirement_id": "INF-036",
+   "source": "inferred",
+   "spec_line": 208,
+   "quote": "A corrupt line still raises, as it does today.",
+   "group": "a",
+   "matched_task_ids": [],
+   "match_method": "none",
+   "ratio": 0.4
+  },
+  {
+   "requirement_id": "INF-037",
+   "source": "inferred",
+   "spec_line": 208,
+   "quote": "`original_is_draft` is never read from GitHub after the first record",
+   "group": "a",
+   "matched_task_ids": [
+    "Task 3"
+   ],
+   "match_method": "containment",
+   "ratio": 0.833
+  },
+  {
+   "requirement_id": "INF-038",
+   "source": "inferred",
+   "spec_line": 215,
+   "quote": "`SkillArgs.merge_guard: str = DEFAULT_MERGE_GUARD`",
+   "group": "r",
+   "matched_task_ids": [
+    "Task 6"
+   ],
+   "match_method": "containment",
+   "ratio": 1.0
+  },
+  {
+   "requirement_id": "INF-039",
+   "source": "inferred",
+   "spec_line": 217,
+   "quote": "`RunConfig` and `run_skill` do not change (F5)",
+   "group": "r",
+   "matched_task_ids": [],
+   "match_method": "none",
+   "ratio": 0.5
+  },
+  {
+   "requirement_id": "INF-040",
+   "source": "inferred",
+   "spec_line": 234,
+   "quote": "Exit codes: 0 success; 1 `gh` failure or failed verification",
+   "group": "r",
+   "matched_task_ids": [],
+   "match_method": "none",
+   "ratio": 0.571
+  },
+  {
+   "requirement_id": "INF-041",
+   "source": "inferred",
+   "spec_line": 234,
+   "quote": "`--to` is idempotent, so a retry or a resume re-issue is safe.",
+   "group": "r",
+   "matched_task_ids": [],
+   "match_method": "none",
+   "ratio": 0.5
+  },
+  {
+   "requirement_id": "INF-042",
+   "source": "inferred",
+   "spec_line": 234,
+   "quote": "A verification mismatch after a mutation is `ok:false, error:\"verify_failed\"`",
+   "group": "r",
+   "matched_task_ids": [
+    "Task 7"
+   ],
+   "match_method": "containment",
+   "ratio": 0.857
+  },
+  {
+   "requirement_id": "INF-043",
+   "source": "inferred",
+   "spec_line": 241,
+   "quote": "No new python fence",
+   "group": "r",
+   "matched_task_ids": [
+    "Task 9"
+   ],
+   "match_method": "containment",
+   "ratio": 1.0
+  },
+  {
+   "requirement_id": "INF-044",
+   "source": "inferred",
+   "spec_line": 242,
+   "quote": "update it to 45 and name `draft_guard_requested` and `draft_guard_settled`",
+   "group": "r",
+   "matched_task_ids": [
+    "Task 2"
+   ],
+   "match_method": "containment",
+   "ratio": 1.0
+  },
+  {
+   "requirement_id": "INF-045",
+   "source": "inferred",
+   "spec_line": 247,
+   "quote": "A `held` report always carries the reason and `gh pr ready <N> --repo <REPO>`",
+   "group": "q",
+   "matched_task_ids": [
+    "Task 8"
+   ],
+   "match_method": "containment",
+   "ratio": 0.889
+  },
+  {
+   "requirement_id": "INF-046",
+   "source": "inferred",
+   "spec_line": 251,
+   "quote": "keep exactly one source for it (open item O1)",
+   "group": "r",
+   "matched_task_ids": [],
+   "match_method": "none",
+   "ratio": 0.571
+  },
+  {
+   "requirement_id": "INF-047",
+   "source": "inferred",
+   "spec_line": 255,
+   "quote": "needs one entry in `WRITE_VERB_CLASSIFICATION`",
+   "group": "r",
+   "matched_task_ids": [
+    "Task 9"
+   ],
+   "match_method": "containment",
+   "ratio": 1.0
+  },
+  {
+   "requirement_id": "INF-048",
+   "source": "inferred",
+   "spec_line": 255,
+   "quote": "The `read-only` category is not used for these calls",
+   "group": "r",
+   "matched_task_ids": [
+    "Task 1"
+   ],
+   "match_method": "containment",
+   "ratio": 0.75
+  },
+  {
+   "requirement_id": "INF-049",
+   "source": "inferred",
+   "spec_line": 270,
+   "quote": "Acceptance trace (must appear in this order in the run log)",
+   "group": "q",
+   "matched_task_ids": [
+    "Task 11"
+   ],
+   "match_method": "containment",
+   "ratio": 0.833
+  },
+  {
+   "requirement_id": "INF-050",
+   "source": "inferred",
+   "spec_line": 301,
+   "quote": "Record `make lint`, `uv run ruff format --check src/ tests/` and the full-suite result",
+   "group": "q",
+   "matched_task_ids": [
+    "Task 1"
+   ],
+   "match_method": "containment",
+   "ratio": 0.923
+  },
+  {
+   "requirement_id": "INF-051",
+   "source": "inferred",
+   "spec_line": 301,
+   "quote": "Never stage `.claude/`.",
+   "group": "r",
+   "matched_task_ids": [],
+   "match_method": "none",
+   "ratio": 0.333
+  },
+  {
+   "requirement_id": "INF-052",
+   "source": "inferred",
+   "spec_line": 301,
+   "quote": "Run `make sync-dev` at the end of every task that edits a file under `src/superclaude/skills/` or `src/superclaude/commands/`",
+   "group": "r",
+   "matched_task_ids": [
+    "Task 8"
+   ],
+   "match_method": "containment",
+   "ratio": 0.917
+  },
+  {
+   "requirement_id": "INF-053",
+   "source": "inferred",
+   "spec_line": 322,
+   "quote": "A static test asserts `merge_guard.py` has no `gh` or `git` word.",
+   "group": "q",
+   "matched_task_ids": [
+    "Task 3"
+   ],
+   "match_method": "containment",
+   "ratio": 1.0
+  },
+  {
+   "requirement_id": "INF-054",
+   "source": "inferred",
+   "spec_line": 326,
+   "quote": "No task makes a live PR call, and the run that opens the PR must not enable the feature (`--merge-guard off`).",
+   "group": "q",
+   "matched_task_ids": [
+    "Task 1"
+   ],
+   "match_method": "containment",
+   "ratio": 0.833
+  },
+  {
+   "requirement_id": "INF-055",
+   "source": "inferred",
+   "spec_line": 326,
+   "quote": "The user guide states that draft behaviour is unverified until then, and the PR body states the gate plainly.",
+   "group": "q",
+   "matched_task_ids": [
+    "Task 1"
+   ],
+   "match_method": "containment",
+   "ratio": 1.0
+  },
+  {
+   "requirement_id": "INF-056",
+   "source": "inferred",
+   "spec_line": 362,
+   "quote": "Cite tests and constants by symbol name",
+   "group": "r",
+   "matched_task_ids": [
+    "Task 1"
+   ],
+   "match_method": "containment",
+   "ratio": 0.6
+  },
+  {
+   "requirement_id": "INF-057",
+   "source": "inferred",
+   "spec_line": 363,
+   "quote": "Declare dependencies completely, one `Depends on:` line per dependency",
+   "group": "r",
+   "matched_task_ids": [],
+   "match_method": "none",
+   "ratio": 0.429
+  },
+  {
+   "requirement_id": "INF-058",
+   "source": "inferred",
+   "spec_line": 368,
+   "quote": "Update the 43-member enumeration in `refs/loop-guard.md` in the event-enum task.",
+   "group": "r",
+   "matched_task_ids": [
+    "Task 2"
+   ],
+   "match_method": "containment",
+   "ratio": 0.909
+  },
+  {
+   "requirement_id": "INF-059",
+   "source": "inferred",
+   "spec_line": 369,
+   "quote": "Protocol prose written by the plan never carries `file:NNN` pointers",
+   "group": "r",
+   "matched_task_ids": [],
+   "match_method": "none",
+   "ratio": 0.556
+  },
+  {
+   "requirement_id": "INF-060",
+   "source": "inferred",
+   "spec_line": 375,
+   "quote": "the crash scenario tests derive branches from a real `RunLog` through `detect_crash_window` and `resolve_crash_window`",
+   "group": "q",
+   "matched_task_ids": [
+    "Task 11"
+   ],
+   "match_method": "containment",
+   "ratio": 0.8
+  },
+  {
+   "requirement_id": "INF-061",
+   "source": "inferred",
+   "spec_line": 376,
+   "quote": "the plan states that a settled `not_applied` of either direction returns to `phase_before_request`",
+   "group": "r",
+   "matched_task_ids": [
+    "Task 3"
+   ],
+   "match_method": "containment",
+   "ratio": 0.625
+  },
+  {
+   "requirement_id": "INF-062",
+   "source": "inferred",
+   "spec_line": 377,
+   "quote": "scenario tests import only helpers and fixtures from `test_set_draft_state.py`, never `test_*` functions",
+   "group": "r",
+   "matched_task_ids": [
+    "Task 11"
+   ],
+   "match_method": "containment",
+   "ratio": 0.7
+  }
+ ]
+}

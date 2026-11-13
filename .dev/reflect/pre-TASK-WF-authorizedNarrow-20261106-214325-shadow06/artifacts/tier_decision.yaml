@@ -1,0 +1,15 @@
+selected_tier: 2
+fired_rule_number: 6            # C=0.72 < 0.85 (rubric row that fired); --tier 2 hard override (SKILL.md 5.1) independently forces T2
+coverage_degraded: parsed-sparse
+surface_unreached: null
+composite_score: 8.0
+per_signal_breakdown:
+  scope_size: 1
+  task_count: 1
+  blast_radius: 2
+  spec_density: 2
+  ambiguity_signals: 2
+escalation_reason: "--tier 2 hard override; rubric agreement: calibrated C=0.72 (rule 6), parsed-sparse pre-filter active"
+t2_engine_requested: shadow
+t2_engine_effective: shadow
+panel_fallback_reason: null

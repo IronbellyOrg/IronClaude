@@ -1,0 +1,115 @@
+contract_version: "1.8.0"
+status: success
+mode: pre
+tier_reached: 2
+report_path: /home/coder/workspaces/worktrees/IronClaude/brainstorm-reflect-panel/.dev/reflect/pre-TASK-WF-detachTheCcsessi-20261102-034618-shadow03/REPORT.md
+audit_log_path: /home/coder/workspaces/worktrees/IronClaude/brainstorm-reflect-panel/.dev/reflect/pre-TASK-WF-detachTheCcsessi-20261102-034618-shadow03/audit.log
+confidence_calibrated: 0.70
+escalation_rule_matched: null          # hard override --tier 2 (SKILL.md 5.1), no rubric row
+onboarding_ran: false
+coverage_pct: null
+coverage_pct_union: 1.0
+coverage_undefined: false
+coverage_degraded: parsed-sparse
+unmapped_requirements: []
+unmapped_requirements_union: []
+best_practice_grade: null
+implementation_coverage_pct: null
+missing_implementations: []
+hierarchy_slice_path: null
+hierarchy_coverage_pct: null
+per_task_verdicts: []
+interaction_effects_scanned: false
+interaction_effects_findings: 0
+input_sha256: {tasklist: 15b1a9a41b1390e7fc76eb9c142cbd4c4bd4ac2d1875bf20dacb0541758ab3ce, spec: 1f17b986394a22af4e4c740c1cff24f6a663902017992df66ef5c293b6cf5ce7}
+input_tree_sha256: ac58b79e82c898077726795d87e0e82fed630a6c50be02a880198e5ff4f39089
+input_tree_file_count: 16
+input_tree_snapshot_path: /home/coder/workspaces/worktrees/IronClaude/brainstorm-reflect-panel/.dev/reflect/pre-TASK-WF-detachTheCcsessi-20261102-034618-shadow03/artifacts/input-snapshot.yaml
+input_drift_detected: false
+input_drift_diff: null
+citations_total: 16
+citations_revalidated: 16
+citations_dropped: 1                  # corrected before shipping (test:843 -> :865); 0 residual unfounded citations
+citations_dropped_extrapolated: 0
+citations_inferred: 0
+citation_budget_policy: full_reread
+evidence_validator_ran: true
+citation_revalidation_at_promotion: false
+reviewer_cards:
+  - /home/coder/workspaces/worktrees/IronClaude/brainstorm-reflect-panel/.dev/reflect/pre-TASK-WF-detachTheCcsessi-20261102-034618-shadow03/reviewer-cards/reviewer-1-card.md
+  - /home/coder/workspaces/worktrees/IronClaude/brainstorm-reflect-panel/.dev/reflect/pre-TASK-WF-detachTheCcsessi-20261102-034618-shadow03/reviewer-cards/reviewer-2-card.md
+  - /home/coder/workspaces/worktrees/IronClaude/brainstorm-reflect-panel/.dev/reflect/pre-TASK-WF-detachTheCcsessi-20261102-034618-shadow03/reviewer-cards/reviewer-3-card.md
+adversarial_artifacts_dir: /home/coder/workspaces/worktrees/IronClaude/brainstorm-reflect-panel/.dev/reflect/pre-TASK-WF-detachTheCcsessi-20261102-034618-shadow03/adversarial/adversarial
+adversarial_convergence_score: 0.90
+adversarial_unavailable: false
+merge_method: adversarial
+t2_model_class_diversity: full
+t2_vendor_diversity: single
+t2_effective_diversity: model-only
+calibrator_diversity: degraded
+remediation_offered: false
+remediation_accepted: null
+task_file_path: null
+remediation_task_path: null
+remediation_plan_path: null
+handoff_memory_key: null
+cannot_validate_without_user_input: false
+regression_present: false
+unauthorized_deviation_present: false
+blocked_by_low_confidence: false
+spec_is_wrong: false
+user_decision_required: false
+needs_human_decision: false
+budget_forced_tier_downgrade: false
+budget_forced_stop: false
+budget_check_skipped: true
+forced_tier: null
+promotion_action: not-applicable
+promotion_adapter: null
+promotion_source: null
+promotion_destination: null
+promotion_log_path: null
+promotion_gate_passed: null
+promotion_skip_reason: null
+promotion_fail_reason: null
+promotion_override_used: null
+promotion_rollback_command: null
+promotion_checkpoint_path: null
+promotion_cross_fs: false
+promotion_pending: false
+# --- telemetry ---
+wave_durations_ms: {wave_0: 40000, wave_1: 480000, wave_2: 5000, wave_3: 360000, wave_4: 780000, wave_5: 300000, wave_6: 0, wave_7: 0}
+reviewer_models: [claude-sonnet-5-5, claude-haiku-5-5, claude-opus-5-5]
+reviewer_personas: [analyzer, qa, refactorer]
+reviewer_vendors: [anthropic, anthropic, anthropic]
+degraded_components: []
+fallback_path: null
+executor_class_source: unknown
+executor_class_resolved: false
+executor_exclusion_degraded: false
+memory_hits: 1
+memory_misses: 1
+memory_retention_actions: 0
+type_hierarchy_invoked: false
+summarize_changes_invoked: false
+references_extended_info_used: false
+telemetry:
+  t2_engine_requested: shadow
+  t2_engine_effective: shadow
+  panel_fallback_reason: null
+  t2_floor_unmet: false
+  identity_source: requested-pinned
+  identity_mismatch_suspected: true    # reviewers 2 and 3 self-reported claude-gw-tier1b against haiku/opus pins
+  judge_identity: unknown              # sc-adversarial return contract names no judge
+  judge_class_collision: unknown
+  debate_skipped_similar: false
+  cluster_agreement: 1.0
+  calibration_coverage: "10/10"
+  panel_parity: true
+  anchor_replaced: false
+  manifest_path: /home/coder/workspaces/worktrees/IronClaude/brainstorm-reflect-panel/.dev/reflect/pre-TASK-WF-detachTheCcsessi-20261102-034618-shadow03/panel/manifest.json
+  reviewers_requested: 3
+  reviewers_resolved: 3
+  reviewers_complete: 3
+  panel_shortfall_2_of_3: false
+  findings_block_compliance_rate: 1.0  # 3/3 cards with a valid findings-v2 block (after one bounded re-ask for reviewer-2's escape error)

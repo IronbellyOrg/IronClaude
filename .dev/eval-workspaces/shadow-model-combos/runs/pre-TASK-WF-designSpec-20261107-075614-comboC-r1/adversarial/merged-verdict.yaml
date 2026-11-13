@@ -1,0 +1,169 @@
+merge_method: adversarial
+verdict: "no blocking defect; plan executable; 5 MAJOR non-blocking criterion or spec gaps to fix first"
+convergence_score: 1.0
+convergence_note: "20 of 20 diff points agreed by the >=2/3 rule; unanimous on 14 of 20 (0.70); advocate 2 conceded most of its own findings in round 1"
+base_variant: "variant-2 (reviewer-2 card, qa persona, haiku class)"
+source_cards:
+  - reviewer-cards/reviewer-1-card.md
+  - reviewer-cards/reviewer-2-card.md
+  - reviewer-cards/reviewer-3-card.md
+judge_identity: "claude-gw-tier1b (orchestrator, sonnet class)"
+judge_class_collision: true
+judge_class_collision_note: "judge is the same class as reviewer 1 and as the variant 3 advocate; no pinned judge model (the skill owns selection)"
+invocation_method: skill-direct
+fallback_mode: true
+fallback_note: "position-bias dual pass and the 30-criterion rubric were run once by the orchestrator; merge executor agent not used, merged verdict written by the orchestrator"
+unresolved_conflicts: 0
+unaddressed_invariants: []
+invariant_note: "INV-009 (HIGH) resolved by the orchestrator against base-commit protocol text; INV-001, INV-002, INV-007 (MEDIUM) and INV-003, INV-004 (LOW) carried into findings or notes"
+files:
+  spec: .dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/source.md
+  plan: .dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/TASK-WF-designSpec-20261107-075614.md
+findings:
+  - id: M1
+    severity: MAJOR
+    blocking: false
+    category: unpassable-check
+    claim: "Task 7 criteria check key presence and the null-timeline case only. None feeds N timeline events and asserts transitions == N, or asserts --paginate in the recorded call, so a wrong count passes."
+    origin: "R1.F1 (T1 F1)"
+    confidence: 0.85
+    citations:
+      - {role: plan, line_start: 111, line_end: 113, quote: "`--read` prints one JSON line with `ok`, `state`, `isDraft`, `headRefOid`, `autoMergeRequest`, `transitions`, `complete`"}
+      - {role: spec, line_start: 230, line_end: 230, quote: "gh api --paginate"}
+  - id: M2
+    severity: MAJOR
+    blocking: false
+    category: missing-requirement
+    claim: "No criterion checks --undo on the draft call or its absence on the ready call. The fake-gh checks assert --repo only; Task 11 forbids ready without --undo only for originally draft PRs. A missing --undo is caught only by verify_failed at run time."
+    origin: "R2.F5"
+    confidence: 0.65
+    citations:
+      - {role: spec, line_start: 231, line_end: 231, quote: "gh pr ready \"$PR\" --repo \"$REPO\" --undo"}
+      - {role: plan, line_start: 113, line_end: 113, quote: "shows `--repo` or a `repos/` path on every call"}
+      - {role: plan, line_start: 172, line_end: 172, quote: "never contains `pr ready` without `--undo` for an originally draft PR"}
+  - id: M3
+    severity: MAJOR
+    blocking: false
+    category: missing-requirement
+    claim: "The auto-merge signal has no failable criterion. Task 4 asserts action, reason and cause only, and Task 7 checks that autoMergeRequest is printed, not its value. A notes-dropping decision or an always-false script passes."
+    origin: "R2.F7 (T1 F3)"
+    confidence: 0.70
+    citations:
+      - {role: spec, line_start: 143, line_end: 143, quote: "`notes` carries `auto_merge_armed` when set"}
+      - {role: plan, line_start: 73, line_end: 73, quote: "asserts the returned `action`, `reason` and `cause`"}
+      - {role: plan, line_start: 111, line_end: 111, quote: "prints one JSON line with `ok`, `state`, `isDraft`, `headRefOid`, `autoMergeRequest`"}
+  - id: M4
+    severity: MAJOR
+    blocking: false
+    category: missing-requirement
+    claim: "No criterion asserts that the guard, the push triad and rereview_requested share one cycle id. The acceptance trace checks event order only, so a push under a different id passes (resume then holds, which fails safe)."
+    origin: "R2.F4"
+    confidence: 0.70
+    citations:
+      - {role: spec, line_start: 251, line_end: 251, quote: "uses the same id as the `cycle_id` of the push triad"}
+      - {role: plan, line_start: 127, line_end: 127, quote: "states the single place where the guard-enabled cycle id is minted"}
+      - {role: plan, line_start: 170, line_end: 170, quote: "asserts the exact event order"}
+  - id: M5
+    severity: MAJOR
+    blocking: false
+    category: contradiction
+    claim: "Spec fold row for a user_override skip sets phase DISABLED and owned_draft False but not disabled_cause, while guard_status maps DISABLED with cause user_override to user_override. A fold built from the table leaves the cause empty and no guard_status rule matches; the plan's guard_status test can pass on a hand-built record."
+    origin: "probe INV-001 (fault-finder; spec lines re-read by the orchestrator)"
+    confidence: 0.70
+    citations:
+      - {role: spec, line_start: 206, line_end: 206, quote: "`phase = DISABLED`, `owned_draft = False`"}
+      - {role: spec, line_start: 200, line_end: 200, quote: "`disabled_cause = already_draft`"}
+      - {role: spec, line_start: 112, line_end: 112, quote: "phase `DISABLED` with cause `user_override` gives `user_override`"}
+      - {role: plan, line_start: 61, line_end: 61, quote: "`DISABLED` with `user_override` (`user_override`)"}
+  - id: M6
+    severity: MAJOR
+    blocking: false
+    category: unpassable-check
+    claim: "Task 9 asks for a Wave 0 bullet that carries no L3 or draft condition, yet the same bullet must print the off line at L3 and say no draft call is made; its first criterion fails a bullet that names an L3 or draft condition. The spec has the same tension. The task body narrows the test to gate wording, so a builder can resolve it."
+    origin: "R2.F2, R3 (confirm), T1 F2"
+    confidence: 0.55
+    citations:
+      - {role: plan, line_start: 137, line_end: 137, quote: "carries no L3 or `draft` condition"}
+      - {role: plan, line_start: 140, line_end: 140, quote: "when it names an L3 or `draft` condition"}
+      - {role: spec, line_start: 241, line_end: 241, quote: "contains no L3 or `draft` condition"}
+  - id: M7
+    severity: MINOR
+    blocking: false
+    category: data-loss
+    claim: "Release row 7 uses this cycle's applied_edits, so a zero-edit later cycle can release a PR still held for an earlier unpublished fix. It needs a new cycle after a push that did not land; the base-commit protocol halts there, so the path is not shown reachable. Spec design asymmetry only."
+    origin: "R1.F2, lowered after the base-commit protocol read (INV-009)"
+    confidence: 0.45
+    citations:
+      - {role: spec, line_start: 155, line_end: 157, quote: "| 7 | `applied_edits == 0` | `RELEASE(cause=no_edits)` |"}
+      - {role: spec, line_start: 139, line_end: 139, quote: "`NOOP(already_held)`"}
+      - {role: plan, line_start: 75, line_end: 75, quote: "returns `RELEASE` with cause `no_edits`"}
+  - id: M8
+    severity: MINOR
+    blocking: false
+    category: missing-requirement
+    claim: "The release retry (one retry, already_in_state counts as confirmed, release_pending) is specified in Task 8's body, but no acceptance criterion limits it to one retry; Task 11 names the test only."
+    origin: "R2.F3 (narrowed: the plan does specify the retry)"
+    confidence: 0.40
+    citations:
+      - {role: spec, line_start: 315, line_end: 315, quote: "one retry, `already_in_state` counts as confirmed, `release_pending`"}
+      - {role: plan, line_start: 169, line_end: 169, quote: "test_guard_release_failure_retries_once_and_reports"}
+  - id: M9
+    severity: MINOR
+    blocking: false
+    category: contradiction
+    claim: "Plan line 25 labels its scope limits non-goals of ./source.md, but the spec has no non-goals section. The limit that the guard is not held through re-review or CI agrees with releasing before the CI re-poll."
+    origin: "R2.F1 (narrowed)"
+    confidence: 0.35
+    citations:
+      - {role: plan, line_start: 25, line_end: 25, quote: "the guard is not held through re-review or CI"}
+      - {role: spec, line_start: 241, line_end: 241, quote: "the Wave 8 bullet states that a CI-fix cycle engages with kind `ci`"}
+  - id: M10
+    severity: MINOR
+    blocking: false
+    category: unpassable-check
+    claim: "Task 11 acceptance criterion requires the twelve test names to exist and the suite to pass; only some tests have content assertions (plan lines 170-172), so a stub body for the others would pass."
+    origin: "R2.F6 (narrowed)"
+    confidence: 0.50
+    citations:
+      - {role: plan, line_start: 169, line_end: 169, quote: "The test file defines `test_guard_modes_ordinals_and_resume_authority`"}
+      - {role: plan, line_start: 173, line_end: 173, quote: "passes in full"}
+  - id: M11
+    severity: MINOR
+    blocking: false
+    category: missing-requirement
+    claim: "Tasks 9, 10, 12 and 13 consume ./artifacts/pre-build-gate.md but declare no direct Depends on: Task 1 (execution order still holds through Task 8); Task 12 edits files that Tasks 9 and 10 edit without depending on them."
+    origin: "R3.F1, R3.F2"
+    confidence: 0.85
+    citations:
+      - {role: plan, line_start: 177, line_end: 182, quote: "Depends on: Task 6\nDepends on: Task 8"}
+      - {role: spec, line_start: 363, line_end: 363, quote: "Declare dependencies completely, one `Depends on:` line per dependency"}
+  - id: M12
+    severity: MINOR
+    blocking: false
+    category: missing-requirement
+    claim: "Spec fold row returns a settled not_applied ready request to RELEASE_PENDING when a failed release preceded it; Task 3 tests only the HELD outcome."
+    origin: "R1.F3 (T1 F5)"
+    confidence: 0.75
+    citations:
+      - {role: spec, line_start: 201, line_end: 201, quote: "or `RELEASE_PENDING` when a failed release preceded it"}
+      - {role: plan, line_start: 60, line_end: 60, quote: "a ready request followed by `not_applied` gives phase `HELD` with `unsettled == 0`"}
+  - id: M13
+    severity: MINOR
+    blocking: false
+    category: missing-requirement
+    claim: "The fold's cycle_id field is listed but no effect-table row says which event sets or updates it, and held_cycle_published compares against it; a build that keeps the first request's id could release a later cycle after a crash."
+    origin: "probe INV-002"
+    confidence: 0.40
+    citations:
+      - {role: spec, line_start: 190, line_end: 190, quote: "phase, phase_before_request, cycle_id, original_is_draft, baseline, run_toggles,"}
+      - {role: spec, line_start: 108, line_end: 108, quote: "whose `cycle_id` equals `guard.cycle_id`"}
+  - id: M14
+    severity: MINOR
+    blocking: false
+    category: missing-requirement
+    claim: "The owner rule that the opening run passes --merge-guard off and that the PR body states the release gate is recorded in Task 1's prose; no criterion in any task checks it."
+    origin: "R2.F11, T1 F4, probe INV-007"
+    confidence: 0.55
+    citations:
+      - {role: spec, line_start: 326, line_end: 326, quote: "the PR body states the gate plainly"}
+      - {role: plan, line_start: 33, line_end: 33, quote: "the PR body states the gate plainly"}

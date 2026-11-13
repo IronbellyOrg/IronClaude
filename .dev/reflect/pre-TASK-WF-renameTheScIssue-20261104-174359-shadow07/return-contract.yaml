@@ -1,0 +1,129 @@
+contract_version: "1.8.0"
+status: success
+mode: pre
+tier_reached: 2
+report_path: /home/coder/workspaces/worktrees/IronClaude/brainstorm-reflect-panel/.dev/reflect/pre-TASK-WF-renameTheScIssue-20261104-174359-shadow07/REPORT.md
+audit_log_path: /home/coder/workspaces/worktrees/IronClaude/brainstorm-reflect-panel/.dev/reflect/pre-TASK-WF-renameTheScIssue-20261104-174359-shadow07/audit.log
+confidence_calibrated: 0.78            # mean of blind card calibrations 0.80/0.82/0.72
+escalation_rule_matched: null          # hard override --tier 2 (section 5.1), no rubric row
+onboarding_ran: false
+
+# UC-1 specific
+coverage_pct: null
+coverage_pct_union: 1.0
+coverage_undefined: false
+coverage_degraded: parsed-sparse
+unmapped_requirements: []
+unmapped_requirements_union: []
+best_practice_grade: null
+implementation_coverage_pct: null
+missing_implementations: []
+hierarchy_slice_path: null
+hierarchy_coverage_pct: null
+
+# Input integrity
+input_sha256:
+  tasklist: 64743c29623b1d6f41cad9c0f49fb599245b5e0e2a8f7c9f7955ea670310de74
+  spec: 0fd3773f9dab2cf13b17ab703257ecaacf91ca6b502a7d73a45192e0ec0a8d6b
+input_tree_sha256: 5da0b4d0653c4e7c5722ce0186b429c05f60dc2e481e88373252597f50ecea81
+input_tree_file_count: 39
+input_tree_snapshot_path: /home/coder/workspaces/worktrees/IronClaude/brainstorm-reflect-panel/.dev/reflect/pre-TASK-WF-renameTheScIssue-20261104-174359-shadow07/artifacts/input-snapshot.yaml
+input_drift_detected: false            # re-hashed the 39-file work-unit tree before synthesis; unchanged
+input_drift_diff: null
+
+# Hallucination guard
+citations_total: 18                    # 13 merged-verdict citations + 5 INF-row quotes
+citations_revalidated: 18
+citations_dropped: 0
+citations_dropped_extrapolated: 0
+citations_inferred: 0
+citation_budget_policy: full_reread
+evidence_validator_ran: true
+citation_revalidation_at_promotion: false
+zero_drop_flag: true
+
+# Tier 2 artifacts
+reviewer_cards:
+  - /home/coder/workspaces/worktrees/IronClaude/brainstorm-reflect-panel/.dev/reflect/pre-TASK-WF-renameTheScIssue-20261104-174359-shadow07/reviewer-cards/reviewer-1-card.md
+  - /home/coder/workspaces/worktrees/IronClaude/brainstorm-reflect-panel/.dev/reflect/pre-TASK-WF-renameTheScIssue-20261104-174359-shadow07/reviewer-cards/reviewer-2-card.md
+  - /home/coder/workspaces/worktrees/IronClaude/brainstorm-reflect-panel/.dev/reflect/pre-TASK-WF-renameTheScIssue-20261104-174359-shadow07/reviewer-cards/reviewer-3-card.md
+adversarial_artifacts_dir: /home/coder/workspaces/worktrees/IronClaude/brainstorm-reflect-panel/.dev/reflect/pre-TASK-WF-renameTheScIssue-20261104-174359-shadow07/adversarial/adversarial   # remapped from producer's artifacts_dir
+adversarial_convergence_score: 0.857
+adversarial_unavailable: false
+merge_method: adversarial
+t2_model_class_diversity: full
+t2_vendor_diversity: single
+t2_effective_diversity: model-only
+calibrator_diversity: degraded
+
+# Tier 3
+remediation_offered: false
+remediation_accepted: null
+task_file_path: null
+remediation_task_path: null
+remediation_plan_path: null
+handoff_memory_key: null
+
+# Asymmetric-cost flags
+cannot_validate_without_user_input: false
+regression_present: false
+unauthorized_deviation_present: false
+blocked_by_low_confidence: false
+spec_is_wrong: false
+user_decision_required: false
+needs_human_decision: false
+
+per_task_verdicts: []                  # UC-1
+interaction_effects_scanned: false     # UC-1: not applicable
+interaction_effects_findings: 0
+
+# Budget pre-flight (P5)
+budget_forced_tier_downgrade: false
+budget_forced_stop: false
+budget_check_skipped: true
+forced_tier: null
+
+# Promotion (UC-2 only)
+promotion_action: not-applicable
+promotion_adapter: null
+promotion_source: null
+promotion_destination: null
+promotion_log_path: null
+promotion_gate_passed: null
+promotion_skip_reason: null
+promotion_fail_reason: null
+promotion_override_used: null
+promotion_rollback_command: null
+promotion_checkpoint_path: null
+promotion_cross_fs: false
+promotion_pending: false
+
+telemetry:
+  t2_engine_requested: shadow
+  t2_engine_effective: shadow
+  panel_fallback_reason: null
+  t2_floor_unmet: false
+  identity_source: requested-pinned
+  identity_mismatch_suspected: true   # all three reviewers self-reported tier1b-family against sonnet/haiku/opus pins
+  judge_identity: unknown
+  judge_class_collision: unknown
+  debate_skipped_similar: false
+  cluster_agreement: 1.0
+  calibration_coverage: "8/8"
+  panel_parity: true
+  anchor_replaced: false
+  manifest_path: /home/coder/workspaces/worktrees/IronClaude/brainstorm-reflect-panel/.dev/reflect/pre-TASK-WF-renameTheScIssue-20261104-174359-shadow07/panel/manifest.json
+  reviewers_requested: 3
+  reviewers_resolved: 3
+  reviewers_complete: 3
+  panel_shortfall_2_of_3: false
+  findings_block_compliance_rate: 0.333  # 1 valid on first parse; 3/3 after orchestrator remap of roles/categories (brief-template defect, see panel/notes.md)
+
+degraded_components: [calibrator_diversity, executor_class_unresolved, vendor_single, shadow_card_parse_remap]
+executor_class_source: unknown
+executor_class_resolved: false
+memory_status: last-pass-written        # deviation-patterns not written: UC-1, no deviations
+notes:
+  - "Package already executed and archived; the audit judges the plan, not the landed code."
+  - "First cluster pass invalid (brief findings-block template outside findings-v2 schema); orchestrator remapped roles/categories and re-clustered 8/8 clean. R-003 tracks the brief-template fix."
+  - "Panel pre-check's 14 missing-file flags were snapshot-scope artifacts; all resolved by the evidence-validator re-read."

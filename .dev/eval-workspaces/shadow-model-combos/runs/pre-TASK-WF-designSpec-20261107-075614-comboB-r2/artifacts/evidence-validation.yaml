@@ -1,0 +1,13 @@
+validator: evidence-validator agent (sonnet class), one pass
+mode: sampled
+merged_finding_citations_total: 43
+merged_finding_citations_reread: 24   # blocking findings F1-F3 and all repo-file citations always; 30 percent of the rest
+inferred_requirement_rows_total: 66   # Step 1B.0 Pass 2; quotes re-matched to their spec lines by artifacts/coverage.py (66 of 66 found verbatim)
+citations_total: 109
+citations_revalidated: 90
+citations_dropped: 1
+dropped:
+  - citation: C36 (merged F10, source.md:119-124)
+    reason: "lines 119-124 are classify_toggles pseudo-code (slack rule); resume row 3 and its three reasons are at line 165, which stays cited"
+citations_dropped_extrapolated: 1   # round(1 * 109 / 90)
+citations_inferred: 0

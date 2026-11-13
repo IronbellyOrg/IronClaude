@@ -1,0 +1,94 @@
+contract_version: "1.8.0"
+status: partial
+mode: pre
+tier_reached: 2
+report_path: /home/coder/workspaces/worktrees/IronClaude/brainstorm-reflect-panel/.dev/eval-workspaces/shadow-model-combos/runs/pre-TASK-WF-designSpec-20261107-075614-comboB-r1/REPORT.md
+audit_log_path: /home/coder/workspaces/worktrees/IronClaude/brainstorm-reflect-panel/.dev/eval-workspaces/shadow-model-combos/runs/pre-TASK-WF-designSpec-20261107-075614-comboB-r1/audit.log
+confidence_calibrated: 0.68
+escalation_rule_matched: null
+onboarding_ran: false
+coverage_pct: null
+coverage_pct_union: 0.863
+coverage_undefined: false
+coverage_degraded: parsed-sparse
+unmapped_requirements: []
+unmapped_requirements_union: [INF-004, INF-006, INF-015, INF-019, INF-043, INF-044, INF-046, INF-062, INF-067, INF-069]
+best_practice_grade: null
+implementation_coverage_pct: null
+missing_implementations: []
+hierarchy_slice_path: null
+hierarchy_coverage_pct: null
+grounding_gaps_path: null
+input_sha256:
+  tasklist: 044809e3a963fad395cfbe0988bece975650a3adf17176893665d92338bd3481
+  spec: a865f397468a076c9c070c031f807b44d9cccd91059b2ad5efb1b926090ba10a
+input_tree_sha256: 9ed6d33d75cfc3591ac53bb0ede51179f29376d5479bb73817ed2e98b048c07b
+input_tree_file_count: 2
+input_tree_snapshot_path: /home/coder/workspaces/worktrees/IronClaude/brainstorm-reflect-panel/.dev/eval-workspaces/shadow-model-combos/runs/pre-TASK-WF-designSpec-20261107-075614-comboB-r1/artifacts/input-snapshot.yaml
+input_drift_detected: false
+input_drift_diff: null
+citations_total: 124
+citations_revalidated: 124
+citations_dropped: 1
+citations_dropped_extrapolated: 1
+citations_inferred: 1
+citation_budget_policy: full_reread
+evidence_validator_ran: true
+citation_revalidation_at_promotion: false
+reviewer_cards: [/home/coder/workspaces/worktrees/IronClaude/brainstorm-reflect-panel/.dev/eval-workspaces/shadow-model-combos/runs/pre-TASK-WF-designSpec-20261107-075614-comboB-r1/reviewer-cards/reviewer-1.md, /home/coder/workspaces/worktrees/IronClaude/brainstorm-reflect-panel/.dev/eval-workspaces/shadow-model-combos/runs/pre-TASK-WF-designSpec-20261107-075614-comboB-r1/reviewer-cards/reviewer-2.md, /home/coder/workspaces/worktrees/IronClaude/brainstorm-reflect-panel/.dev/eval-workspaces/shadow-model-combos/runs/pre-TASK-WF-designSpec-20261107-075614-comboB-r1/reviewer-cards/reviewer-3.md]
+adversarial_artifacts_dir: /home/coder/workspaces/worktrees/IronClaude/brainstorm-reflect-panel/.dev/eval-workspaces/shadow-model-combos/runs/pre-TASK-WF-designSpec-20261107-075614-comboB-r1/adversarial/
+adversarial_convergence_score: 1.0
+adversarial_unavailable: false
+merge_method: adversarial
+t2_model_class_diversity: full
+t2_vendor_diversity: single
+t2_effective_diversity: model-only
+calibrator_diversity: degraded
+remediation_offered: false
+remediation_accepted: null
+task_file_path: null
+remediation_task_path: null
+remediation_plan_path: null
+handoff_memory_key: null
+cannot_validate_without_user_input: false
+regression_present: false
+unauthorized_deviation_present: false
+blocked_by_low_confidence: false
+spec_is_wrong: false
+user_decision_required: false
+needs_human_decision: false
+per_task_verdicts: []
+interaction_effects_scanned: false
+interaction_effects_findings: 0
+budget_forced_tier_downgrade: false
+budget_forced_stop: false
+budget_check_skipped: true
+forced_tier: null
+promotion_action: not-applicable
+promotion_gate_passed: null
+reviewer_personas: [analyzer, qa, refactorer]
+reviewer_models: [claude-sonnet-5-5, claude-haiku-5-5, claude-opus-5-5]
+executor_class_source: unknown
+executor_class_resolved: false
+executor_exclusion_degraded: false
+degraded_components: []
+telemetry:
+  t2_engine_requested: shadow
+  t2_engine_effective: shadow
+  panel_fallback_reason: null
+  t2_floor_unmet: false
+  identity_source: requested-pinned
+  identity_mismatch_suspected: true
+  judge_identity: unknown
+  judge_class_collision: unknown
+  debate_skipped_similar: false
+  cluster_agreement: 1.0
+  calibration_coverage: "12/12"
+  panel_parity: true
+  anchor_replaced: false
+  manifest_path: /home/coder/workspaces/worktrees/IronClaude/brainstorm-reflect-panel/.dev/eval-workspaces/shadow-model-combos/runs/pre-TASK-WF-designSpec-20261107-075614-comboB-r1/panel/manifest.json
+  reviewers_requested: 3
+  reviewers_resolved: 3
+  reviewers_complete: 3
+  panel_shortfall_2_of_3: false
+  findings_block_compliance_rate: 1.0

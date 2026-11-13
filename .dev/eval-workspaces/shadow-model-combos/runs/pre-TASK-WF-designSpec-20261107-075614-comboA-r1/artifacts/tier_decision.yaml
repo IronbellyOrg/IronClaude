@@ -1,0 +1,19 @@
+selected_tier: 2
+fired_rule_number: null   # hard pin --tier 2 (§5.1 override); coverage_degraded: parsed-sparse pre-filter would independently route to T2 (§5.3 precedence)
+coverage_degraded: parsed-sparse
+surface_unreached: null
+composite_score: 6.5
+per_signal_breakdown:
+  scope_size: 2        # 13 tasks / ~14 files touched (S_scope = tasklist-item count, UC-1)
+  task_count: 2        # 13 tasks, 5 phases
+  blast_radius: 1      # pr_submit package + protocol text + docs; single feature surface
+  spec_density: 1      # S_dev_density union = 0.0 (all 15 inferred rows matched) → low
+  ambiguity_signals: 0.5  # two wording-level tensions (H1, H4) but no unmapped requirement
+escalation_reason: "explicit --tier 2 pin; plus parsed-sparse coverage pre-filter (0 Pass-1 IDs, 15 inferred) forbids T1 stop"
+t2_engine_requested: shadow
+t2_engine_effective: shadow
+panel_fallback_reason: null
+C_calibrated: null   # T1 card calibrated at Wave 1D; tier already pinned so rubric not consulted for routing
+S_scope: 13
+S_domains: 3        # code (pr_submit), protocol-text (skills/commands/refs), docs (user-guide) → would independently fire §5.3 rule 4
+S_dev_density: 0.0  # union denominator (15 inferred / 15 matched); parsed-only is undefined (0 parsed)

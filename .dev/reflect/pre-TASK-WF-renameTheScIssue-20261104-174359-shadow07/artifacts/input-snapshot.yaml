@@ -1,0 +1,81 @@
+input_tree_sha256: 5da0b4d0653c4e7c5722ce0186b429c05f60dc2e481e88373252597f50ecea81
+file_count: 39
+file_list:
+  - path: TASK-WF-renameTheScIssue-20261104-174359/TASK-WF-renameTheScIssue-20261104-174359.md
+    sha256: 64743c29623b1d6f41cad9c0f49fb599245b5e0e2a8f7c9f7955ea670310de74
+  - path: TASK-WF-renameTheScIssue-20261104-174359/artifacts/pre/SKILL.md
+    sha256: 4641d673adf6af0d487b43da89e2454cd4d9dce1b73c618254dbb3d7ddb0f32c
+  - path: TASK-WF-renameTheScIssue-20261104-174359/artifacts/pre/issue-worker-t1.md
+    sha256: 0a1f902785b29a5d28ab132ddb6904f08cc339751423310ee51a628ef8984538
+  - path: TASK-WF-renameTheScIssue-20261104-174359/artifacts/pre/issue-worker-t2.md
+    sha256: 63cc4207f7e949c1c8178db353fafa92a19578ddb25b26b31459faf20ea3c351
+  - path: TASK-WF-renameTheScIssue-20261104-174359/artifacts/pre/issue-worker-t3.md
+    sha256: 9789d01d90c8ad1c6ea9f2bd4d25ef823cd4def246ad74f228418df4106837a5
+  - path: TASK-WF-renameTheScIssue-20261104-174359/artifacts/pre/issue.md
+    sha256: 0108381b2291e3dd89b9b4eed4cdcd5ec9176897f95f1b94113a83dd36350139
+  - path: TASK-WF-renameTheScIssue-20261104-174359/artifacts/pre/ref-chains.md
+    sha256: f37972648e3ea32c97a4939696ec3e00bf0a09b6d020f0fb94c7d16a9f88bd25
+  - path: TASK-WF-renameTheScIssue-20261104-174359/artifacts/pre/ref-claim.md
+    sha256: 3db51370412114204816baed8968eb296c55e68719f3142f71cd9109c631ede7
+  - path: TASK-WF-renameTheScIssue-20261104-174359/artifacts/pre/template-claim-comment.md
+    sha256: 4b06bb865f5bcf52621bdc65ce3a3191fba517cb2a97d5c17517c33ddf139f32
+  - path: TASK-WF-renameTheScIssue-20261104-174359/artifacts/pre/template-next-steps.md
+    sha256: 85f641b7cab5dd2c655284c5864e38320e8595873296783ce2db45471b686c58
+  - path: TASK-WF-renameTheScIssue-20261104-174359/artifacts/pre/template-summary.md
+    sha256: bf71ae4781bc7181f6cfecb7c3ae07514bd95e20cb48a7f141a90e38f1ba5ede
+  - path: TASK-WF-renameTheScIssue-20261104-174359/artifacts/retries/T1/prompt-1-1.md
+    sha256: 7cacc777329837ad5c0a066816b03bffa51bd6b2e54b4617c814477e61243d1e
+  - path: TASK-WF-renameTheScIssue-20261104-174359/artifacts/retries/T1/q0-head
+    sha256: 50c5c67c608fc7afb585f77897b45001454c15b2a5e8aabf821cfa07287198b2
+  - path: TASK-WF-renameTheScIssue-20261104-174359/artifacts/retries/T2/prompt-1-1.md
+    sha256: e3b81f101a6d38a9618f69e8c50820efc44c4a7c346ba35bcc5f6a9e15902c66
+  - path: TASK-WF-renameTheScIssue-20261104-174359/artifacts/retries/T2/q0-head
+    sha256: 50c5c67c608fc7afb585f77897b45001454c15b2a5e8aabf821cfa07287198b2
+  - path: TASK-WF-renameTheScIssue-20261104-174359/artifacts/retries/T3/probe-1-1.md
+    sha256: ca06b6cb0a472e80a2f4827cf2d97ff008f9fbed407571e17b1d564400d3b63e
+  - path: TASK-WF-renameTheScIssue-20261104-174359/artifacts/retries/T3/prompt-1-1.md
+    sha256: a7411f8be9f4b8a0b2621419f301bcf3f2f530813f619dd67e343a97973f8c78
+  - path: TASK-WF-renameTheScIssue-20261104-174359/artifacts/retries/T3/prompt-2-1.md
+    sha256: e0ca3bd641d9b24b14c2dfddff4df3e3e8a39bb3a3ff43fc3af6a0819f6f8a20
+  - path: TASK-WF-renameTheScIssue-20261104-174359/artifacts/retries/T3/q0-head
+    sha256: 50c5c67c608fc7afb585f77897b45001454c15b2a5e8aabf821cfa07287198b2
+  - path: TASK-WF-renameTheScIssue-20261104-174359/artifacts/retries/T3/review-1.md
+    sha256: 9cf08749bdca3e7e58144fc6f29e74d5af8321e1807eebf0783b94992c3d6f76
+  - path: TASK-WF-renameTheScIssue-20261104-174359/artifacts/retries/T4/prompt-1-1.md
+    sha256: 7765aca1d84b3ad6bd0d6e7ff919d681c0d9d48feac9b189c8ca552efcef6456
+  - path: TASK-WF-renameTheScIssue-20261104-174359/artifacts/retries/T4/q0-head
+    sha256: 50c5c67c608fc7afb585f77897b45001454c15b2a5e8aabf821cfa07287198b2
+  - path: TASK-WF-renameTheScIssue-20261104-174359/artifacts/t1-diff.patch
+    sha256: 31114cb52de1e185367c0be7c1f14e362865b8f03aec54bac20489c5a630df59
+  - path: TASK-WF-renameTheScIssue-20261104-174359/artifacts/t1-grep.log
+    sha256: 2bc67b10a6c33d8d2c945e9c73d80eb941ca270e8c5220dc456d33a1125fa2b8
+  - path: TASK-WF-renameTheScIssue-20261104-174359/artifacts/t1-tests.log
+    sha256: a13b5588dcd5f7dd02775586062d98a36f9c9ef91e081ab4386a3cc0fba9024f
+  - path: TASK-WF-renameTheScIssue-20261104-174359/artifacts/t2-diff.patch
+    sha256: 01cfc98cc6375dcca3b78b240d7ee82852562190b0235f203be77fa4623c7ac4
+  - path: TASK-WF-renameTheScIssue-20261104-174359/artifacts/t2-extras.log
+    sha256: 885ad2708a5f3d75efcd7f86ae23368cf913883ef372184ad0c4e87340531e34
+  - path: TASK-WF-renameTheScIssue-20261104-174359/artifacts/t2-grep.log
+    sha256: 379864d7435eae2f1194b6603ba68fece4adbe54ade9a77953728d0c922af7d7
+  - path: TASK-WF-renameTheScIssue-20261104-174359/artifacts/t3-delta-1.patch
+    sha256: df2264b4e48871e0ee2f0277a96ef8a5930f2cb972127f14adf696d36a743dd8
+  - path: TASK-WF-renameTheScIssue-20261104-174359/artifacts/t3-diff.patch
+    sha256: 488cb824b4a44cd62fe3fb24e84bf6a4706348d469063c27bd4827ff39ee8279
+  - path: TASK-WF-renameTheScIssue-20261104-174359/artifacts/t3-green.log
+    sha256: 7a3f9df4119030e0112a91e9b7eba4215bfcf0c49439156c790851de0925ed1d
+  - path: TASK-WF-renameTheScIssue-20261104-174359/artifacts/t3-red.log
+    sha256: 146b5c0a40167187815cdcd0f02bc6c1d634185872ae2ad2fd7d8f48fafbb85f
+  - path: TASK-WF-renameTheScIssue-20261104-174359/artifacts/t3_red.py
+    sha256: 1ff9cfab270194cd4e6d1d8d4b85a8e796e3a015846264ba0726aad8e7c68dbd
+  - path: TASK-WF-renameTheScIssue-20261104-174359/artifacts/t4-diff.patch
+    sha256: 3e9bde2be8e3ce9ab999d32759c37430cba309b39ea345d8d507b2fd1933a3c1
+  - path: TASK-WF-renameTheScIssue-20261104-174359/artifacts/t4-grep.log
+    sha256: 991e886767cc906d960bbb9546880bc2fb51c1b192b686517442ee66596e43c4
+  - path: TASK-WF-renameTheScIssue-20261104-174359/artifacts/t4-guides.log
+    sha256: 85793faddef020a94befce9d881d20936c9100f1511b1d2952e5f40556416a20
+  - path: TASK-WF-renameTheScIssue-20261104-174359/progress.md
+    sha256: ba460217677585d7cacf0a24a13e960bce17dac46110f9246d0b74e0f663da33
+  - path: TASK-WF-renameTheScIssue-20261104-174359/return-contract.yaml
+    sha256: c7ac3aa9e5f757ef1869d93e9fd13fb6c455c585734aaedf1097aa3eea976200
+  - path: TASK-WF-renameTheScIssue-20261104-174359/source.md
+    sha256: 0fd3773f9dab2cf13b17ab703257ecaacf91ca6b502a7d73a45192e0ec0a8d6b

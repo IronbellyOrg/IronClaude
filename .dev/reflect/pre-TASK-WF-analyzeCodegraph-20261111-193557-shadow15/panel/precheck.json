@@ -1,0 +1,392 @@
+{
+  "by_flag": {
+    "missing-file": 19,
+    "out-of-range": 0,
+    "quote-not-found": 0
+  },
+  "cards": [
+    {
+      "block_state": "complete",
+      "card": "reviewer-1.md",
+      "reviewer_id": "reviewer-1"
+    },
+    {
+      "block_state": "complete",
+      "card": "reviewer-2.md",
+      "reviewer_id": "reviewer-2"
+    },
+    {
+      "block_state": "complete",
+      "card": "reviewer-3.md",
+      "reviewer_id": "reviewer-3"
+    }
+  ],
+  "checked": 19,
+  "citations": [
+    {
+      "advisory": false,
+      "citation": 1,
+      "finding_id": "F1",
+      "flag": "missing-file",
+      "line_end": 17,
+      "line_start": 17,
+      "path": ".dev/tasks/done/TASK-WF-analyzeCodegraph-20261111-193557/source.md",
+      "reason": "not-in-snapshot",
+      "reviewer_id": "reviewer-1",
+      "role": "spec"
+    },
+    {
+      "advisory": false,
+      "citation": 2,
+      "finding_id": "F1",
+      "flag": "missing-file",
+      "line_end": 33,
+      "line_start": 33,
+      "path": ".dev/tasks/done/TASK-WF-analyzeCodegraph-20261111-193557/TASK-WF-analyzeCodegraph-20261111-193557.md",
+      "reason": "not-in-snapshot",
+      "reviewer_id": "reviewer-1",
+      "role": "plan"
+    },
+    {
+      "advisory": false,
+      "citation": 1,
+      "finding_id": "F2",
+      "flag": "missing-file",
+      "line_end": 28,
+      "line_start": 28,
+      "path": ".dev/tasks/done/TASK-WF-analyzeCodegraph-20261111-193557/source.md",
+      "reason": "not-in-snapshot",
+      "reviewer_id": "reviewer-1",
+      "role": "spec"
+    },
+    {
+      "advisory": false,
+      "citation": 2,
+      "finding_id": "F2",
+      "flag": "missing-file",
+      "line_end": 32,
+      "line_start": 32,
+      "path": "src/superclaude/commands/analyze.md",
+      "reason": "not-in-snapshot",
+      "reviewer_id": "reviewer-1",
+      "role": "plan"
+    },
+    {
+      "advisory": false,
+      "citation": 1,
+      "finding_id": "F3",
+      "flag": "missing-file",
+      "line_end": 12,
+      "line_start": 12,
+      "path": ".dev/tasks/done/TASK-WF-analyzeCodegraph-20261111-193557/source.md",
+      "reason": "not-in-snapshot",
+      "reviewer_id": "reviewer-1",
+      "role": "spec"
+    },
+    {
+      "advisory": false,
+      "citation": 2,
+      "finding_id": "F3",
+      "flag": "missing-file",
+      "line_end": 43,
+      "line_start": 43,
+      "path": ".dev/tasks/done/TASK-WF-analyzeCodegraph-20261111-193557/TASK-WF-analyzeCodegraph-20261111-193557.md",
+      "reason": "not-in-snapshot",
+      "reviewer_id": "reviewer-1",
+      "role": "plan"
+    },
+    {
+      "advisory": false,
+      "citation": 1,
+      "finding_id": "F1",
+      "flag": "missing-file",
+      "line_end": 46,
+      "line_start": 43,
+      "path": ".dev/tasks/done/TASK-WF-analyzeCodegraph-20261111-193557/source.md",
+      "reason": "not-in-snapshot",
+      "reviewer_id": "reviewer-2",
+      "role": "spec"
+    },
+    {
+      "advisory": false,
+      "citation": 2,
+      "finding_id": "F1",
+      "flag": "missing-file",
+      "line_end": 35,
+      "line_start": 31,
+      "path": ".dev/tasks/done/TASK-WF-analyzeCodegraph-20261111-193557/TASK-WF-analyzeCodegraph-20261111-193557.md",
+      "reason": "not-in-snapshot",
+      "reviewer_id": "reviewer-2",
+      "role": "plan"
+    },
+    {
+      "advisory": false,
+      "citation": 1,
+      "finding_id": "F2",
+      "flag": "missing-file",
+      "line_end": 17,
+      "line_start": 17,
+      "path": ".dev/tasks/done/TASK-WF-analyzeCodegraph-20261111-193557/source.md",
+      "reason": "not-in-snapshot",
+      "reviewer_id": "reviewer-2",
+      "role": "spec"
+    },
+    {
+      "advisory": false,
+      "citation": 2,
+      "finding_id": "F2",
+      "flag": "missing-file",
+      "line_end": 49,
+      "line_start": 49,
+      "path": ".dev/tasks/done/TASK-WF-analyzeCodegraph-20261111-193557/source.md",
+      "reason": "not-in-snapshot",
+      "reviewer_id": "reviewer-2",
+      "role": "spec"
+    },
+    {
+      "advisory": false,
+      "citation": 3,
+      "finding_id": "F2",
+      "flag": "missing-file",
+      "line_end": 63,
+      "line_start": 63,
+      "path": ".dev/tasks/done/TASK-WF-analyzeCodegraph-20261111-193557/source.md",
+      "reason": "not-in-snapshot",
+      "reviewer_id": "reviewer-2",
+      "role": "spec"
+    },
+    {
+      "advisory": false,
+      "citation": 1,
+      "finding_id": "F3",
+      "flag": "missing-file",
+      "line_end": 57,
+      "line_start": 56,
+      "path": ".dev/tasks/done/TASK-WF-analyzeCodegraph-20261111-193557/TASK-WF-analyzeCodegraph-20261111-193557.md",
+      "reason": "not-in-snapshot",
+      "reviewer_id": "reviewer-2",
+      "role": "plan"
+    },
+    {
+      "advisory": false,
+      "citation": 1,
+      "finding_id": "F4",
+      "flag": "missing-file",
+      "line_end": 44,
+      "line_start": 44,
+      "path": ".dev/tasks/done/TASK-WF-analyzeCodegraph-20261111-193557/TASK-WF-analyzeCodegraph-20261111-193557.md",
+      "reason": "not-in-snapshot",
+      "reviewer_id": "reviewer-2",
+      "role": "plan"
+    },
+    {
+      "advisory": false,
+      "citation": 1,
+      "finding_id": "F1",
+      "flag": "missing-file",
+      "line_end": 68,
+      "line_start": 68,
+      "path": "src/superclaude/commands/analyze.md",
+      "reason": "not-in-snapshot",
+      "reviewer_id": "reviewer-3",
+      "role": "plan"
+    },
+    {
+      "advisory": false,
+      "citation": 2,
+      "finding_id": "F1",
+      "flag": "missing-file",
+      "line_end": 89,
+      "line_start": 87,
+      "path": "src/superclaude/core/CODEGRAPH.md",
+      "reason": "not-in-snapshot",
+      "reviewer_id": "reviewer-3",
+      "role": "spec"
+    },
+    {
+      "advisory": false,
+      "citation": 1,
+      "finding_id": "F2",
+      "flag": "missing-file",
+      "line_end": 30,
+      "line_start": 30,
+      "path": "src/superclaude/commands/analyze.md",
+      "reason": "not-in-snapshot",
+      "reviewer_id": "reviewer-3",
+      "role": "plan"
+    },
+    {
+      "advisory": false,
+      "citation": 2,
+      "finding_id": "F2",
+      "flag": "missing-file",
+      "line_end": 13,
+      "line_start": 13,
+      "path": "src/superclaude/core/CODEGRAPH.md",
+      "reason": "not-in-snapshot",
+      "reviewer_id": "reviewer-3",
+      "role": "spec"
+    },
+    {
+      "advisory": false,
+      "citation": 1,
+      "finding_id": "F3",
+      "flag": "missing-file",
+      "line_end": 67,
+      "line_start": 67,
+      "path": "src/superclaude/commands/analyze.md",
+      "reason": "not-in-snapshot",
+      "reviewer_id": "reviewer-3",
+      "role": "plan"
+    },
+    {
+      "advisory": false,
+      "citation": 2,
+      "finding_id": "F3",
+      "flag": "missing-file",
+      "line_end": 64,
+      "line_start": 58,
+      "path": "src/superclaude/core/CODEGRAPH.md",
+      "reason": "not-in-snapshot",
+      "reviewer_id": "reviewer-3",
+      "role": "spec"
+    }
+  ],
+  "flagged": 19,
+  "reread_set": [
+    {
+      "citation": 1,
+      "finding_id": "F1",
+      "flag": "missing-file",
+      "path": ".dev/tasks/done/TASK-WF-analyzeCodegraph-20261111-193557/source.md",
+      "reviewer_id": "reviewer-1"
+    },
+    {
+      "citation": 2,
+      "finding_id": "F1",
+      "flag": "missing-file",
+      "path": ".dev/tasks/done/TASK-WF-analyzeCodegraph-20261111-193557/TASK-WF-analyzeCodegraph-20261111-193557.md",
+      "reviewer_id": "reviewer-1"
+    },
+    {
+      "citation": 1,
+      "finding_id": "F2",
+      "flag": "missing-file",
+      "path": ".dev/tasks/done/TASK-WF-analyzeCodegraph-20261111-193557/source.md",
+      "reviewer_id": "reviewer-1"
+    },
+    {
+      "citation": 2,
+      "finding_id": "F2",
+      "flag": "missing-file",
+      "path": "src/superclaude/commands/analyze.md",
+      "reviewer_id": "reviewer-1"
+    },
+    {
+      "citation": 1,
+      "finding_id": "F3",
+      "flag": "missing-file",
+      "path": ".dev/tasks/done/TASK-WF-analyzeCodegraph-20261111-193557/source.md",
+      "reviewer_id": "reviewer-1"
+    },
+    {
+      "citation": 2,
+      "finding_id": "F3",
+      "flag": "missing-file",
+      "path": ".dev/tasks/done/TASK-WF-analyzeCodegraph-20261111-193557/TASK-WF-analyzeCodegraph-20261111-193557.md",
+      "reviewer_id": "reviewer-1"
+    },
+    {
+      "citation": 1,
+      "finding_id": "F1",
+      "flag": "missing-file",
+      "path": ".dev/tasks/done/TASK-WF-analyzeCodegraph-20261111-193557/source.md",
+      "reviewer_id": "reviewer-2"
+    },
+    {
+      "citation": 2,
+      "finding_id": "F1",
+      "flag": "missing-file",
+      "path": ".dev/tasks/done/TASK-WF-analyzeCodegraph-20261111-193557/TASK-WF-analyzeCodegraph-20261111-193557.md",
+      "reviewer_id": "reviewer-2"
+    },
+    {
+      "citation": 1,
+      "finding_id": "F2",
+      "flag": "missing-file",
+      "path": ".dev/tasks/done/TASK-WF-analyzeCodegraph-20261111-193557/source.md",
+      "reviewer_id": "reviewer-2"
+    },
+    {
+      "citation": 2,
+      "finding_id": "F2",
+      "flag": "missing-file",
+      "path": ".dev/tasks/done/TASK-WF-analyzeCodegraph-20261111-193557/source.md",
+      "reviewer_id": "reviewer-2"
+    },
+    {
+      "citation": 3,
+      "finding_id": "F2",
+      "flag": "missing-file",
+      "path": ".dev/tasks/done/TASK-WF-analyzeCodegraph-20261111-193557/source.md",
+      "reviewer_id": "reviewer-2"
+    },
+    {
+      "citation": 1,
+      "finding_id": "F3",
+      "flag": "missing-file",
+      "path": ".dev/tasks/done/TASK-WF-analyzeCodegraph-20261111-193557/TASK-WF-analyzeCodegraph-20261111-193557.md",
+      "reviewer_id": "reviewer-2"
+    },
+    {
+      "citation": 1,
+      "finding_id": "F4",
+      "flag": "missing-file",
+      "path": ".dev/tasks/done/TASK-WF-analyzeCodegraph-20261111-193557/TASK-WF-analyzeCodegraph-20261111-193557.md",
+      "reviewer_id": "reviewer-2"
+    },
+    {
+      "citation": 1,
+      "finding_id": "F1",
+      "flag": "missing-file",
+      "path": "src/superclaude/commands/analyze.md",
+      "reviewer_id": "reviewer-3"
+    },
+    {
+      "citation": 2,
+      "finding_id": "F1",
+      "flag": "missing-file",
+      "path": "src/superclaude/core/CODEGRAPH.md",
+      "reviewer_id": "reviewer-3"
+    },
+    {
+      "citation": 1,
+      "finding_id": "F2",
+      "flag": "missing-file",
+      "path": "src/superclaude/commands/analyze.md",
+      "reviewer_id": "reviewer-3"
+    },
+    {
+      "citation": 2,
+      "finding_id": "F2",
+      "flag": "missing-file",
+      "path": "src/superclaude/core/CODEGRAPH.md",
+      "reviewer_id": "reviewer-3"
+    },
+    {
+      "citation": 1,
+      "finding_id": "F3",
+      "flag": "missing-file",
+      "path": "src/superclaude/commands/analyze.md",
+      "reviewer_id": "reviewer-3"
+    },
+    {
+      "citation": 2,
+      "finding_id": "F3",
+      "flag": "missing-file",
+      "path": "src/superclaude/core/CODEGRAPH.md",
+      "reviewer_id": "reviewer-3"
+    }
+  ],
+  "schema": "review-precheck/1"
+}

@@ -1,0 +1,7 @@
+input_tree_sha256: e4c6fdfa1ebecc7a97508af7009352b5f246d57c01043c88c19a420a7cfbe72b
+file_list:
+  - path: .dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/TASK-WF-designSpec-20261107-075614.md
+    sha256: 044809e3a963fad395cfbe0988bece975650a3adf17176893665d92338bd3481
+  - path: .dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/source.md
+    sha256: a865f397468a076c9c070c031f807b44d9cccd91059b2ad5efb1b926090ba10a
+file_count: 2

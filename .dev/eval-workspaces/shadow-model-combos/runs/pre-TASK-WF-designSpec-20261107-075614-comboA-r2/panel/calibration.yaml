@@ -1,0 +1,14 @@
+# Wave 3C blind calibration (confidence-calibrator, opus; disjoint set empty -> calibrator_diversity degraded)
+# Per-card 5-dim rubric scores + per-finding confidences (shadow addition). Calibrator received ONLY the cards.
+reviewer-1:
+  card_score: 0.80
+  per_dimension: {citation_grounding: 0.90, coverage_completeness: 0.80, deviation_clarity: 0.80, risk_surface: 0.70, actionability: 0.80}
+  per_finding: {F1: 0.80, F2: 0.80, F3: 0.70, F4: 0.60}
+reviewer-2:
+  card_score: 0.65
+  per_dimension: {citation_grounding: 0.70, coverage_completeness: 0.60, deviation_clarity: 0.55, risk_surface: 0.70, actionability: 0.70}
+  per_finding: {F1: 0.45, F2: 0.70}
+reviewer-3:
+  card_score: 0.85
+  per_dimension: {citation_grounding: 0.90, coverage_completeness: 0.95, deviation_clarity: 0.85, risk_surface: 0.75, actionability: 0.80}
+  per_finding: {F1: 0.85, F2: 0.70, F3: 0.65, F4: 0.70, F5: 0.55, F6: 0.70, F7: 0.70}

@@ -1,0 +1,12 @@
+return_contract:
+  merged_output_path: /home/coder/workspaces/worktrees/IronClaude/brainstorm-reflect-panel/.dev/reflect/pre-TASK-WF-fixIssue412SVeri-20261106-215543-shadow13/adversarial/merged-verdict.yaml
+  convergence_score: 1.0
+  artifacts_dir: /home/coder/workspaces/worktrees/IronClaude/brainstorm-reflect-panel/.dev/reflect/pre-TASK-WF-fixIssue412SVeri-20261106-215543-shadow13/adversarial/
+  status: success
+  base_variant: sonnet:analyzer
+  unresolved_conflicts: 0
+  fallback_mode: false
+  failure_stage: null
+  invocation_method: skill-direct
+  unaddressed_invariants: []
+  judge_identity: orchestrator-inline

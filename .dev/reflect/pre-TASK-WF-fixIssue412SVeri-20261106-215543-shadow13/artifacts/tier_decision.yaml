@@ -1,0 +1,22 @@
+selected_tier: 2
+fired_rule_number: 6            # C=0.80 < 0.85; parsed-sparse pre-filter (1B.2b) independently bars every STOP row; hard pin --tier 2 (s5.1) also active
+coverage_degraded: parsed-sparse   # 0 parsed / 9 inferred (8th consecutive one-paragraph-spec run in this workspace)
+surface_unreached: null
+composite_score: 6.0
+per_signal_breakdown:
+  scope_size: 1        # 2 tasks (0-2 scale)
+  task_count: 1        # 2 tasks with a linear dependency edge
+  blast_radius: 2      # core CLAUDE.md + skill README + cli installer + two test files (install surface)
+  spec_density: 1      # union density 0.11 (1 partial of 9)
+  ambiguity_signals: 1 # two ungated process constraints; post-hoc vantage
+escalation_reason: "--tier 2 pinned; parsed-sparse pre-filter forces T2; rubric concurs (rule 4 multi-domain, rule 6 C=0.80)"
+t2_engine_requested: shadow
+t2_engine_effective: shadow
+panel_fallback_reason: null
+calibrated_confidence: 0.80
+calibrator_per_dimension:
+  citation_grounding: 0.80
+  coverage_completeness: 0.85
+  classification_clarity: 0.80
+  risk_surface: 0.80
+  actionability: 0.75

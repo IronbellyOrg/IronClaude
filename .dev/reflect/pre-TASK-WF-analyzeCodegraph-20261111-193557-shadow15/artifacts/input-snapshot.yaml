@@ -1,0 +1,26 @@
+input_tree_sha256: cdac5316d835956f9fb7b6556f37de773a6cca14a0a4f8cfbacfee970135b605
+file_count: 10
+file_list:
+  - path: TASK-WF-analyzeCodegraph-20261111-193557/TASK-WF-analyzeCodegraph-20261111-193557.md
+    sha256: 674f7eb859158e25665c4915047233eac392eff1f1d94e9311d9833e640b4e0e
+  - path: TASK-WF-analyzeCodegraph-20261111-193557/artifacts/retries/T1/q0-head
+    sha256: 6d368721ba8df53cec93185610c1f810faf3d8358fe7ba417f623a1ffb2a7aa9
+  - path: TASK-WF-analyzeCodegraph-20261111-193557/artifacts/retries/T2/q0-head
+    sha256: 6d368721ba8df53cec93185610c1f810faf3d8358fe7ba417f623a1ffb2a7aa9
+  - path: TASK-WF-analyzeCodegraph-20261111-193557/artifacts/retries/T3/q0-head
+    sha256: 6d368721ba8df53cec93185610c1f810faf3d8358fe7ba417f623a1ffb2a7aa9
+  - path: TASK-WF-analyzeCodegraph-20261111-193557/artifacts/t3-staged.log
+    sha256: a989c710d532977bf85279f89a30d39d1297af84233ed6dbec06571bc978695e
+  - path: TASK-WF-analyzeCodegraph-20261111-193557/artifacts/t3-sync.log
+    sha256: 509b12b5f4bd651c294d3263cb09280aa01d041de9e7066b479c86220cea2b78
+  - path: TASK-WF-analyzeCodegraph-20261111-193557/artifacts/t3-test.log
+    sha256: 586c73236c69625b1539c63655d5c7e4e9234c27d485f14275c87a3f3b790534
+  - path: TASK-WF-analyzeCodegraph-20261111-193557/progress.md
+    sha256: aa7baa4dd174ef5343b5f2bce5dc3f3f64624622b4ff55324c192b575e3e4d12
+  - path: TASK-WF-analyzeCodegraph-20261111-193557/return-contract.yaml
+    sha256: 1ecba2ad410551d27972b2a3e2a151753592dcc387a8e01ea4a5a9c406227eee
+  - path: TASK-WF-analyzeCodegraph-20261111-193557/source.md
+    sha256: d858001568de5a658f7e1f428762861a2412dabe724c42f4567b76f93e165572
+input_sha256:
+  tasklist: 674f7eb859158e25665c4915047233eac392eff1f1d94e9311d9833e640b4e0e
+  spec: d858001568de5a658f7e1f428762861a2412dabe724c42f4567b76f93e165572

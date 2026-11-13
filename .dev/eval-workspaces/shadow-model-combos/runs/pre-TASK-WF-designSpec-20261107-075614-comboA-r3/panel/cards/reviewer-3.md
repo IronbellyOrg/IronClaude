@@ -1,0 +1,27 @@
+# Reviewer 3 card (refactorer) — comboA-r3 shadow panel
+
+persona: refactorer
+model_class: opus
+model: claude-opus-5-5
+
+## Findings block
+
+```findings-v2
+{"id":"F1","severity":"MINOR","blocking":false,"category":"missing-requirement","claim":"Tasks 9, 10, 12 and 13 consume pre-build-gate.md (pins, literal sentences, baseline) but declare no direct Depends on: Task 1. They are covered only transitively. Tasks 10/12 and 5/7 edit shared test files with no declared order.","anchor":"Depends on: Task 6","citations":[{"role":"plan","path":"input/TASK-WF-designSpec-20261107-075614/TASK-WF-designSpec-20261107-075614.md","line_start":137,"line_end":137,"quote":"using the pins and line-content rules recorded in `./artifacts/pre-build-gate.md`"},{"role":"spec","path":"input/TASK-WF-designSpec-20261107-075614/source.md","line_start":363,"line_end":363,"quote":"a task depends on every earlier task whose output it imports or consumes"}],"coverage_rows":["INF-3"],"lens":"reflect-pre"}
+{"id":"F2","severity":"MINOR","blocking":false,"category":"other","claim":"The byte-identical check for the S5a and Wave 6 pre-push sentences is tied to the recorded literal start text. A start-text constant can miss edits later in the sentence, whereas the spec wants whole-sentence literal constants.","anchor":"the literal start text recorded in `./artifacts/pre-build-gate.md`, as the existing pins write them","citations":[{"role":"plan","path":"input/TASK-WF-designSpec-20261107-075614/TASK-WF-designSpec-20261107-075614.md","line_start":154,"line_end":154,"quote":"(the literal start text recorded in `./artifacts/pre-build-gate.md`, as the existing pins write them)"},{"role":"spec","path":"input/TASK-WF-designSpec-20261107-075614/source.md","line_start":377,"line_end":377,"quote":"compare against literal string constants taken from the existing pins, not against `git show HEAD:`"}],"coverage_rows":["INF-7","INF-6"],"lens":"reflect-pre"}
+{"id":"F3","severity":"MINOR","blocking":false,"category":"missing-requirement","claim":"The per-task classification steps (Tasks 7, 8, 12) cover only lines matching gh pr or gh api. Spec 4.7 also counts git write verbs as WRITE_VERB_RE hits, so a git push or git commit line in the ref or command file would fail the test late.","anchor":"for every line of the script that matches `gh pr` or `gh api`","citations":[{"role":"plan","path":"input/TASK-WF-designSpec-20261107-075614/TASK-WF-designSpec-20261107-075614.md","line_start":108,"line_end":108,"quote":"for every line of the script that matches `gh pr` or `gh api` (exact stripped line, category `never-worker`"},{"role":"spec","path":"input/TASK-WF-designSpec-20261107-075614/source.md","line_start":255,"line_end":255,"quote":"contains `gh pr`, `gh api` or a git write verb is a hit of `WRITE_VERB_RE`"}],"coverage_rows":["INF-4"],"lens":"reflect-pre"}
+{"id":"F4","severity":"MINOR","blocking":false,"category":"unpassable-check","claim":"The Wave 0 bullet test forbids draft and L3 gate wording, but the spec requires the same bullet to say it prints the line at L3 with --merge-guard off and that no draft call is made. A literal substring check would be unpassable.","anchor":"contains no `L3 only` or `draft` gate wording","citations":[{"role":"plan","path":"input/TASK-WF-designSpec-20261107-075614/TASK-WF-designSpec-20261107-075614.md","line_start":137,"line_end":137,"quote":"contains no `L3 only` or `draft` gate wording and contains the literal `off` line"},{"role":"spec","path":"input/TASK-WF-designSpec-20261107-075614/source.md","line_start":241,"line_end":241,"quote":"at L3 with `--merge-guard off` it prints the unprotected line once"}],"coverage_rows":["INF-6"],"lens":"reflect-pre"}
+{"id":"F5","severity":"MINOR","blocking":false,"category":"missing-requirement","claim":"The plan's fixed-owner-decisions bullet says engage at the end of Wave 3 and drops the first verified Medium-or-higher routed finding trigger from the spec header. Only Tasks 8 and 10 carry the trigger, so the fixed-decisions list is weaker than the source.","anchor":"engage at the end of Wave 3; default on at `--monitor 3`","citations":[{"role":"plan","path":"input/TASK-WF-designSpec-20261107-075614/TASK-WF-designSpec-20261107-075614.md","line_start":26,"line_end":26,"quote":"engage at the end of Wave 3; default on at `--monitor 3`"},{"role":"spec","path":"input/TASK-WF-designSpec-20261107-075614/source.md","line_start":6,"line_end":6,"quote":"engage at the first verified Medium-or-higher finding routed to a fix"}],"coverage_rows":["INF-1"],"lens":"reflect-pre"}
+{"id":"F6","severity":"MINOR","blocking":false,"category":"missing-requirement","claim":"The release-gate rules that the PR body states the gate and that the PR-opening run passes --merge-guard off are only recorded in Task 1. No task writes the PR body or checks the flag, so they are unenforced by any step.","anchor":"the run that opens the PR must pass `--merge-guard off`","citations":[{"role":"plan","path":"input/TASK-WF-designSpec-20261107-075614/TASK-WF-designSpec-20261107-075614.md","line_start":33,"line_end":33,"quote":"the run that opens the PR must pass `--merge-guard off`"},{"role":"spec","path":"input/TASK-WF-designSpec-20261107-075614/source.md","line_start":326,"line_end":326,"quote":"the run that opens the PR must not enable the feature (`--merge-guard off`)"}],"coverage_rows":["INF-5"],"lens":"reflect-pre"}
+```
+
+```yaml
+calibration:
+  per_finding:
+    F1: 0.7
+    F2: 0.5
+    F3: 0.7
+    F4: 0.65
+    F5: 0.7
+    F6: 0.6
+```

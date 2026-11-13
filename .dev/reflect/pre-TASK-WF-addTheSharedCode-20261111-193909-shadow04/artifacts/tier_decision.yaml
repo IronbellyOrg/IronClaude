@@ -1,0 +1,15 @@
+selected_tier: 2
+fired_rule_number: 8
+coverage_degraded: parsed-sparse
+surface_unreached: null
+composite_score: 7.0
+per_signal_breakdown:
+  scope_size: 2        # 11 tasklist tasks, 10 target files + sync
+  task_count: 2        # 11 tasks
+  blast_radius: 0      # additive markdown bullets; no code paths touched
+  spec_density: 2      # 1-line spec; 0 parsed IDs, 3 inferred rows
+  ambiguity_signals: 1 # wording-fidelity mismatch (T1 F1), grep-count-only ACs (T1 F2)
+escalation_reason: "--tier 2 hard override (SKILL.md 5.1) pins Tier 2; independently, Step 1B.2b coverage_degraded: parsed-sparse (0 parsed < 3 inferred) is a table-wide pre-filter forbidding every STOP row, routing to Tier 2 regardless. fired_rule_number 8 recorded as the would-be default row the overrides displaced."
+t2_engine_requested: shadow
+t2_engine_effective: shadow
+panel_fallback_reason: null

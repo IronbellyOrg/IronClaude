@@ -1,0 +1,162 @@
+convergence_score: 0.857
+merge_method: adversarial
+base_card: "reviewer-1 (analyzer, calibrated 0.80)"
+debate:
+  mode: A
+  rounds: 2
+  depth: standard
+  focus: [correctness, coverage, deviation-classification]
+  converged: true
+  threshold: 0.80
+reviewers:
+  - persona: analyzer
+    model_class: sonnet
+    model: "claude-sonnet-5-5"
+    calibrated_score: 0.80
+    calibration_dims:
+      citation_grounding: 0.90
+      coverage: 0.80
+      classification: 0.75
+      risk: 0.75
+      actionability: 0.80
+  - persona: qa
+    model_class: haiku
+    model: "claude-haiku-5-5"
+    calibrated_score: 0.82
+    calibration_dims:
+      citation_grounding: 0.85
+      coverage: 0.90
+      classification: 0.85
+      risk: 0.70
+      actionability: 0.80
+  - persona: refactorer
+    model_class: opus
+    model: "claude-opus-5-5"
+    calibrated_score: 0.72
+    calibration_dims:
+      citation_grounding: 0.80
+      coverage: 0.80
+      classification: 0.70
+      risk: 0.65
+      actionability: 0.65
+findings:
+  - id: M1
+    topic: "A: stale local .claude/ mirror after the rename"
+    source_reviewers: [reviewer-1, reviewer-3]
+    claim: "The rename leaves the local `.claude/` mirror stale with no task to clear it: plan:20 forbids `.claude/` edits and is the plan's only sync mention, and no task runs sync-dev/verify-sync. Because sync-dev is cp-only (Makefile:108-163), the stale mirror `templates/summary.md` persists even after sync-dev — only manual removal clears it — while a local verify-sync detects it via `diff -rq` \"Only in\" (Makefile:178); CI regenerates before verifying (test.yml:125-131), so CI is unaffected, and both task test runs read `src/`, so no AC detects it (anything reading `.claude/` during development would see the old names)."
+    severity: MINOR
+    blocking: false
+    citations:
+      - path: ".dev/tasks/done/TASK-WF-renameTheScIssue-20261104-174359/TASK-WF-renameTheScIssue-20261104-174359.md"
+        lines: "20"
+        role: plan
+      - path: "Makefile"
+        lines: "108-163"
+        role: source
+      - path: "Makefile"
+        lines: "178"
+        role: source
+      - path: ".github/workflows/test.yml"
+        lines: "125-131"
+        role: source
+      - path: ".pre-commit-config.yaml"
+        lines: "115-126"
+        role: source
+    provenance: "card 1 F1 (base) + card 3 F1 framing and citations; remedy corrected per invariant probe"
+  - id: M2
+    topic: "B: grep substring ambiguity across the three ACs"
+    source_reviewers: [reviewer-1, reviewer-2]
+    claim: "The three grep ACs (plan:44, plan:56, plan:94) share the substring ambiguity: `summary\\.md` matches inside every `issue-summary.md` line, so \"prints only `issue-summary.md` occurrences\" is satisfiable only under the natural reading (every matched line is an `issue-summary.md` occurrence) or via an unstated `grep -v`/anchored regex. The concrete failure mode is a line holding both names passing a loose reading. The verbatim-twin sites are T1 (plan:44) and T2 (plan:56); T4 (plan:94) is the best-specified of the three because its dated-note exception is explicit and anchored; the backstop is `test_old_summary_path_is_gone`."
+    severity: MINOR
+    blocking: false
+    citations:
+      - path: ".dev/tasks/done/TASK-WF-renameTheScIssue-20261104-174359/TASK-WF-renameTheScIssue-20261104-174359.md"
+        lines: "44"
+        role: plan
+      - path: ".dev/tasks/done/TASK-WF-renameTheScIssue-20261104-174359/TASK-WF-renameTheScIssue-20261104-174359.md"
+        lines: "56"
+        role: plan
+      - path: ".dev/tasks/done/TASK-WF-renameTheScIssue-20261104-174359/TASK-WF-renameTheScIssue-20261104-174359.md"
+        lines: "94"
+        role: plan
+      - path: "tests/skills/test_issue_worker_agents.py"
+        lines: "482-490"
+        role: source
+    provenance: "card 1 F2 (base framing) + card 2 F1 propagation; card 2 Round-2 converged wording; scope narrowed per invariant probe"
+  - id: M3
+    topic: "C: T3 red-check is an unasserted log"
+    source_reviewers: [reviewer-2]
+    claim: "plan:76 states the substantive expectation (reports `summary.md` as a blocked name, `<D>/summary.md` as an old path) but says \"exit code recorded\" with no expected value, so the red-check is an unasserted log rather than a check. The pinned `test_checks_flag_pre_fix_text` (tests:493-501) pins the same facts on in-module literals while the red-check runs on the real `artifacts/pre/` captures — different evidence objects, so narrowed from \"duplicates\"."
+    severity: MINOR
+    blocking: false
+    citations:
+      - path: ".dev/tasks/done/TASK-WF-renameTheScIssue-20261104-174359/TASK-WF-renameTheScIssue-20261104-174359.md"
+        lines: "76"
+        role: plan
+      - path: "tests/skills/test_issue_worker_agents.py"
+        lines: "493-501"
+        role: source
+    provenance: "card 2 F2 narrowed; adopted over base card 1's conceded H3 non-finding"
+  - id: M4
+    topic: "D: AC2 asserts otherwise unchanged with no verifier"
+    source_reviewers: [reviewer-2]
+    claim: "T1.AC2 (plan:43) asserts the template is \"otherwise unchanged apart from the analysis-name wording\" but names no verifier, while plan:31 supplies the pre-fix copy (`artifacts/pre/template-summary.md`) a diff could run against."
+    severity: MINOR
+    blocking: false
+    citations:
+      - path: ".dev/tasks/done/TASK-WF-renameTheScIssue-20261104-174359/TASK-WF-renameTheScIssue-20261104-174359.md"
+        lines: "43"
+        role: plan
+      - path: ".dev/tasks/done/TASK-WF-renameTheScIssue-20261104-174359/TASK-WF-renameTheScIssue-20261104-174359.md"
+        lines: "31"
+        role: plan
+    provenance: "card 2 F3 adopted unchanged; citation corrected plan:50 -> plan:43"
+non_findings:
+  - topic: "E: coverage/traceability (guide-row no-edit; design-doc old-path exclusion)"
+    rationale: "No finding. The design-doc old-path exclusion is encoded, not missing: plan:87 mandates the dated note naming the old summary.md, plan:94's AC carries the explicit \"plus the old name inside the dated note\" exception clause, and plan:71 enumerates the deterministic test's scope exactly (worker texts, templates, whole issue.md; the design doc is excluded by enumeration, not omission). The guide-row no-edit is an evidenced non-edit: plan:91 records the check and plan:96 is the t4-guides.log AC. At most one INFO-class observation remains -- design-doc cleanliness attested by one-off log rather than permanent test, consistent with the plan's stated exception."
+    raised_by: reviewer-2
+    withdrawn_by: reviewer-2
+    disposition: "withdrawn by its own advocate in Round 2 (C-005, 90% confidence); recorded as non-finding"
+  - topic: "F: paragraph drift guard"
+    rationale: "No finding. plan:67 (\"update _TOOL_INPUT_PARAGRAPH to the exact Constraints paragraph\") plus plan:75's whole-file test run mechanically execute tool_input_rule_problems (tests:271-291, engaged via tests:298-301) -- exactly-once (tests:281-282) and under-heading (tests:283-284) -- leaving no residual executor failure mode. Card 3's F2 correctly identified the guard but mis-classified the plan's silence about it as a defect."
+    raised_by: reviewer-3
+    withdrawn_by: reviewer-3
+    disposition: "reclassified by its own advocate in Round 2 after re-walking the executor path (C-006, 95% confidence); recorded as documentation note"
+invariant_probe:
+  file: invariant-probe.md
+  corrections_applied: [A, B-scope, E]
+  high_unaddressed: 0
+citation_corrections:
+  - "card 2 plan:51 -> plan:44, plan:50 -> plan:43, plan:52 -> plan:45 (Task-1 AC citations off by 7-8 lines; corrected lines grep-verified this run)"
+  - "card 1 Makefile 112-125 -> 108-163 (whole sync-dev target; cp-only holds over the whole target)"
+  - "card 3 tests 281-283 -> 281-284 (exactly-once 281-282 plus under-heading 283-284)"
+merge_log:
+  - change: 1
+    status: applied
+    source: "card 3 analysis §1 + Makefile:178 (into base card 1 F1)"
+    note: "topic A merged as M1; remedy-implying tail replaced by verified mechanism chain"
+  - change: 2
+    status: applied
+    source: "card 2 F1 + Round-2 converged wording (into base card 1 F2)"
+    note: "topic B merged as M2; plan:94 withdrawn from verbatim cluster"
+  - change: 3
+    status: applied
+    source: "card 2 F2 narrowed"
+    note: "topic C merged as M3; base card 1's H3 non-finding conceded as answering the wrong question"
+  - change: 4
+    status: applied
+    source: "card 2 F3 (unique, undisputed)"
+    note: "topic D merged as M4; citation corrected to plan:43"
+  - change: 5
+    status: applied
+    source: "card 3 analysis §2 + card 2 Round-2 withdrawal"
+    note: "recorded as non-finding (topic E)"
+  - change: 6
+    status: applied
+    source: "card 3 F2 + Round-2 concession"
+    note: "recorded as non-finding (topic F, documentation note)"
+  - change: 7
+    status: applied
+    source: "card 2 Round 2 citation discipline + base-selection DC metric"
+    note: "verified line numbers printed throughout; three corrections itemized in citation_corrections"
+status: success

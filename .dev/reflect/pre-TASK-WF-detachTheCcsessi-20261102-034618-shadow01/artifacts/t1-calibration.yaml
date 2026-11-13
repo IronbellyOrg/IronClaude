@@ -1,0 +1,21 @@
+calibrator_model_class: opus   # requested alias; all three classes are also reviewers, so calibrator_diversity: degraded (section 11.3)
+card: artifacts/t1-card-blind.md
+dimensions:
+  citation_grounding: 0.85
+  coverage_completeness: 0.70
+  deviation_classification_clarity: 0.30
+  risk_surface_coverage: 0.65
+  recommendation_actionability: 0.45
+calibrated_confidence: 0.59
+citations_checked:
+  - {cite: "Makefile:171-178", result: pass}
+  - {cite: "tasklist:19", result: pass}
+  - {cite: "tasklist:34", result: pass}
+  - {cite: "tasklist:70", result: pass}
+  - {cite: "tasklist:82", result: pass}
+  - {cite: "t5-checks.log:28-35", result: pass_with_caveat, note: "log line 31 blames the drift on a fresh worktree with no .claude/ copies, not on the edit; F1's 'prior run hit this' overstates the cause. Makefile still diffs src against .claude."}
+escalation_recommendation: ESCALATE (C 0.59 < 0.85)
+note: >
+  The calibrator scored "deviation-classification clarity" low because the card uses medium/minor severity instead of the
+  four UC-2 deviation classes. In UC-1 (pre) the four classes do not apply to plan findings, so this dimension is
+  probably under-scored for a mode mismatch; the score is kept as returned.

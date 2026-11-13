@@ -1,0 +1,19 @@
+# Coverage matrix — pre-TASK-WF-renameTheScIssue-20261104-174359 (shadow07)
+
+Parsed requirement IDs (Pass 1): 0 (spec is prose; tasklist uses Task headings without IDs).
+
+Inferred requirement rows (Pass 2, quote-pinned, source.md:1):
+
+| id | verbatim quote (≤2 sentences) | citation | match | matched-to |
+|---|---|---|---|---|
+| INF-001 | "Rename the /sc:issue claim summary file written by issue-worker-t1/t2 from summary.md to issue-summary.md (the template may be renamed to templates/issue-summary.md) everywhere it is referenced (SKILL.md, refs/claim.md, refs/chains.md ... the three worker agent files ... commands/issue.md Outputs table, the design doc, and the developer and user guide rows)" | source.md:1 | 0.85 | Task 1, Task 2, Task 4 |
+| INF-002 | "require that files written under <D>/analysis/ use names that do not start with analysis, report, summary or findings (for example analysis/analyze-<scope>.md)" | source.md:1 | 0.80 | Task 1 (SKILL, claim.md, template), Task 2 (job text, Outputs), Task 4 (sec 7) |
+| INF-003 | "Correct the fix-2 paragraph so it states the real mechanism: Claude Code refuses subagent writes of .md files whose names start with REPORT, SUMMARY, FINDINGS or ANALYSIS, which is why the names avoid them." | source.md:1 | 0.90 | Task 2 (paragraph), Task 3 (_TOOL_INPUT_PARAGRAPH + comment) |
+| INF-004 | "Add a deterministic regression test that collects every file name a worker is told to write (agent files, SKILL.md, refs, the Outputs table) and asserts that none matches the harness regex ^(REPORT|SUMMARY|FINDINGS|ANALYSIS).*\.md$ case-insensitively, and that no reference to the old <D>/summary.md path remains." | source.md:1 | 0.90 | Task 3 (tests :440-493) |
+| INF-005 | "In docs/designs/sc-issue-command.md, add a dated note (2026-11-04) explaining the rename and its cause, and update the file lists." | source.md:1 | 0.88 | Task 4 (dated note :272, file lists) |
+
+coverage_pct: null (0 parsed)
+coverage_pct_union: 1.0 (5/5 matched)
+unmapped_requirements: [] / unmapped_requirements_union: []
+coverage_degraded: parsed-sparse (5 inferred > 0 parsed)
+coverage_undefined: false

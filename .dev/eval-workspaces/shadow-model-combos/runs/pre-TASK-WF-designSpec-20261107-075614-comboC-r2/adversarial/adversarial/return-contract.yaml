@@ -1,0 +1,11 @@
+return_contract:
+  merged_output_path: adversarial/adversarial/merged-output.yaml
+  convergence_score: 1.0
+  artifacts_dir: adversarial/adversarial
+  status: success
+  base_variant: "reviewer-2 (qa, claude-haiku-5-5)"
+  unresolved_conflicts: 0
+  fallback_mode: false
+  failure_stage: null
+  invocation_method: skill-direct
+  unaddressed_invariants: []   # INV-011 (HIGH) was adopted into the merged verdict as M-12, undebated; see debate-transcript.md

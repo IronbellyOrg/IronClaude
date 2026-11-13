@@ -1,0 +1,27 @@
+persona: analyzer
+model_class: sonnet
+model: claude-sonnet-5-5
+
+## Findings block
+
+```findings-v2
+{"id":"F1","severity":"MAJOR","blocking":false,"category":"contradiction","lens":"reflect-pre","claim":"Task 9 needs the Wave 0 bullet to say 'at L3 with --merge-guard off' yet forbids it from naming an L3 or draft condition; the L3 test is undefined. Copied from spec lines 59 and 241.","refs":["FR-1","FR-2"],"citations":[{"role":"plan","path":".dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/TASK-WF-designSpec-20261107-075614.md","line_start":137,"line_end":140,"quote":"carries no L3 or `draft` condition"},{"role":"spec","path":".dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/source.md","line_start":241,"line_end":241}]}
+{"id":"F2","severity":"MAJOR","blocking":false,"category":"missing-requirement","lens":"reflect-pre","claim":"FR-16 release retry (one retry, already_in_state counts as confirmed, release_pending) has no decision row, no fold rule and no behavioural criterion; the retry cap is only ref prose and a test name.","refs":["FR-16"],"citations":[{"role":"plan","path":".dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/TASK-WF-designSpec-20261107-075614.md","line_start":124,"line_end":124},{"role":"plan","path":".dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/TASK-WF-designSpec-20261107-075614.md","line_start":169,"line_end":169},{"role":"spec","path":".dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/source.md","line_start":315,"line_end":315}]}
+{"id":"F3","severity":"MAJOR","blocking":false,"category":"missing-requirement","lens":"reflect-pre","claim":"No criterion checks that the guard, push triad (push_idempotency_key) and rereview_requested share one cycle_id; Task 11's trace asserts event order only and Task 8 only requires the ref to name the minting place.","refs":["FR-5","FR-20"],"citations":[{"role":"plan","path":".dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/TASK-WF-designSpec-20261107-075614.md","line_start":170,"line_end":170},{"role":"plan","path":".dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/TASK-WF-designSpec-20261107-075614.md","line_start":127,"line_end":127},{"role":"spec","path":".dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/source.md","line_start":251,"line_end":251}]}
+{"id":"F4","severity":"MAJOR","blocking":false,"category":"other","lens":"reflect-pre","claim":"After a failed engage (settled draft failed leaves RELEASE_PENDING, owned_draft false) engage returns HOLD(ownership_unproven); neither spec nor plan says whether edits proceed on that HOLD, so a non-draft PR could be edited unguarded. Tasks 4 and 8 test rows only.","refs":["FR-15"],"citations":[{"role":"spec","path":".dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/source.md","line_start":138,"line_end":138},{"role":"spec","path":".dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/source.md","line_start":199,"line_end":199},{"role":"plan","path":".dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/TASK-WF-designSpec-20261107-075614.md","line_start":70,"line_end":70}]}
+{"id":"F5","severity":"MAJOR","blocking":false,"category":"unpassable-check","lens":"reflect-pre","claim":"Task 11's criterion only requires the twelve test names to be defined, so empty tests pass; behaviours are driven by a test-written driver, so 'no call' assertions test the driver, not the protocol text.","refs":["FR-22"],"citations":[{"role":"plan","path":".dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/TASK-WF-designSpec-20261107-075614.md","line_start":166,"line_end":169},{"role":"spec","path":".dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/source.md","line_start":305,"line_end":320}]}
+{"id":"F6","severity":"MINOR","blocking":false,"category":"missing-requirement","lens":"reflect-pre","claim":"Fold criteria test a ready request settled not_applied only returning to HELD; the spec's other branch (back to RELEASE_PENDING after a failed release) has no criterion.","refs":["FR-21"],"citations":[{"role":"plan","path":".dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/TASK-WF-designSpec-20261107-075614.md","line_start":60,"line_end":60},{"role":"spec","path":".dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/source.md","line_start":201,"line_end":201}]}
+{"id":"F7","severity":"MINOR","blocking":false,"category":"missing-requirement","lens":"reflect-pre","claim":"Spec section 8 says the PR body states the release gate and the PR-opening run passes --merge-guard off; no task produces or checks the PR body or that flag; Task 1 only records the decision.","refs":["FR-23"],"citations":[{"role":"plan","path":".dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/TASK-WF-designSpec-20261107-075614.md","line_start":33,"line_end":33},{"role":"spec","path":".dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/source.md","line_start":326,"line_end":326}]}
+```
+
+```yaml
+calibration:
+  per_finding:
+    F1: 0.75
+    F2: 0.70
+    F3: 0.75
+    F4: 0.45
+    F5: 0.50
+    F6: 0.80
+    F7: 0.60
+```

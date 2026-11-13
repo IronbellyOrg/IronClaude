@@ -1,0 +1,353 @@
+{
+  "agreement_clusters": [],
+  "blocking_clusters": 0,
+  "calibration_coverage": {
+    "calibrated_findings": 10,
+    "clustered_findings": 10
+  },
+  "cards": [
+    {
+      "block_state": "complete",
+      "card": "reviewer-1.md",
+      "errors": [],
+      "reviewer_id": "reviewer-1",
+      "state": "complete"
+    },
+    {
+      "block_state": "complete",
+      "card": "reviewer-2.md",
+      "errors": [],
+      "reviewer_id": "reviewer-2",
+      "state": "complete"
+    },
+    {
+      "block_state": "complete",
+      "card": "reviewer-3.md",
+      "errors": [],
+      "reviewer_id": "reviewer-3",
+      "state": "complete"
+    }
+  ],
+  "chained": [
+    "C1",
+    "C2"
+  ],
+  "citations": {
+    "malformed": 0,
+    "resolved": 24,
+    "unresolved": 0
+  },
+  "cluster_agreement": 1.0,
+  "clusters": [
+    {
+      "blocking_all": false,
+      "blocking_any": false,
+      "chained": true,
+      "claim": "Tasks 1 and 2 edit the level table with no test AC and no note that the level-table copy parity test fails until Task 3, so the ledger shows test:fail beside verdict=compliant.",
+      "cluster_id": "C1",
+      "disputed": false,
+      "member_scores": [
+        0.55,
+        0.45,
+        0.55
+      ],
+      "members": [
+        {
+          "blocking": false,
+          "deviation_class": null,
+          "finding_confidence": 0.55,
+          "fp": "161d6c3c4f72f61991368958761ddb9ab3f9a6fd405114b9839fe109fd8aff5a",
+          "id": "F1",
+          "ordinal": 1,
+          "primary_citation": {
+            "index": 0,
+            "line_end": 50,
+            "line_start": 35,
+            "path": ".dev/tasks/done/TASK-WF-implementFrOnb1O-20261023-180618/TASK-WF-implementFrOnb1O-20261023-180618.md",
+            "role": "plan",
+            "status": "resolved"
+          },
+          "refs_norm": [],
+          "reviewer_id": "reviewer-1"
+        },
+        {
+          "blocking": false,
+          "deviation_class": null,
+          "finding_confidence": 0.45,
+          "fp": "161d6c3c4f72f61991368958761ddb9ab3f9a6fd405114b9839fe109fd8aff5a",
+          "id": "F3",
+          "ordinal": 1,
+          "primary_citation": {
+            "index": 0,
+            "line_end": 62,
+            "line_start": 59,
+            "path": ".dev/tasks/done/TASK-WF-implementFrOnb1O-20261023-180618/TASK-WF-implementFrOnb1O-20261023-180618.md",
+            "role": "plan",
+            "status": "resolved"
+          },
+          "refs_norm": [],
+          "reviewer_id": "reviewer-1"
+        },
+        {
+          "blocking": false,
+          "deviation_class": null,
+          "finding_confidence": 0.55,
+          "fp": "161d6c3c4f72f61991368958761ddb9ab3f9a6fd405114b9839fe109fd8aff5a",
+          "id": "F6",
+          "ordinal": 2,
+          "primary_citation": {
+            "index": 0,
+            "line_end": 73,
+            "line_start": 67,
+            "path": ".dev/tasks/done/TASK-WF-implementFrOnb1O-20261023-180618/TASK-WF-implementFrOnb1O-20261023-180618.md",
+            "role": "plan",
+            "status": "resolved"
+          },
+          "refs_norm": [],
+          "reviewer_id": "reviewer-2"
+        }
+      ],
+      "representative": {
+        "id": "F1",
+        "reviewer_id": "reviewer-1"
+      },
+      "reviewers": [
+        "reviewer-1",
+        "reviewer-2"
+      ],
+      "support": 0.5288461538461539,
+      "uncalibrated": false
+    },
+    {
+      "blocking_all": false,
+      "blocking_any": false,
+      "chained": true,
+      "claim": "Task 7 requires a CHANGELOG.md entry but none of its acceptance criteria verifies the entry exists, and the T7 ledger evidence cites no CHANGELOG line.",
+      "cluster_id": "C2",
+      "disputed": false,
+      "member_scores": [
+        0.7,
+        0.7,
+        0.6
+      ],
+      "members": [
+        {
+          "blocking": false,
+          "deviation_class": null,
+          "finding_confidence": 0.7,
+          "fp": "161d6c3c4f72f61991368958761ddb9ab3f9a6fd405114b9839fe109fd8aff5a",
+          "id": "F2",
+          "ordinal": 1,
+          "primary_citation": {
+            "index": 0,
+            "line_end": 168,
+            "line_start": 160,
+            "path": ".dev/tasks/done/TASK-WF-implementFrOnb1O-20261023-180618/TASK-WF-implementFrOnb1O-20261023-180618.md",
+            "role": "plan",
+            "status": "resolved"
+          },
+          "refs_norm": [],
+          "reviewer_id": "reviewer-1"
+        },
+        {
+          "blocking": false,
+          "deviation_class": null,
+          "finding_confidence": 0.7,
+          "fp": "161d6c3c4f72f61991368958761ddb9ab3f9a6fd405114b9839fe109fd8aff5a",
+          "id": "F2",
+          "ordinal": 2,
+          "primary_citation": {
+            "index": 0,
+            "line_end": 168,
+            "line_start": 160,
+            "path": ".dev/tasks/done/TASK-WF-implementFrOnb1O-20261023-180618/TASK-WF-implementFrOnb1O-20261023-180618.md",
+            "role": "plan",
+            "status": "resolved"
+          },
+          "refs_norm": [],
+          "reviewer_id": "reviewer-2"
+        },
+        {
+          "blocking": false,
+          "deviation_class": null,
+          "finding_confidence": 0.6,
+          "fp": "161d6c3c4f72f61991368958761ddb9ab3f9a6fd405114b9839fe109fd8aff5a",
+          "id": "F5",
+          "ordinal": 2,
+          "primary_citation": {
+            "index": 0,
+            "line_end": 153,
+            "line_start": 146,
+            "path": ".dev/tasks/done/TASK-WF-implementFrOnb1O-20261023-180618/TASK-WF-implementFrOnb1O-20261023-180618.md",
+            "role": "plan",
+            "status": "resolved"
+          },
+          "refs_norm": [],
+          "reviewer_id": "reviewer-2"
+        }
+      ],
+      "representative": {
+        "id": "F2",
+        "reviewer_id": "reviewer-1"
+      },
+      "reviewers": [
+        "reviewer-1",
+        "reviewer-2"
+      ],
+      "support": 0.673076923076923,
+      "uncalibrated": false
+    },
+    {
+      "blocking_all": false,
+      "blocking_any": false,
+      "chained": false,
+      "claim": "T5.AC2 evidence is ambiguous: t5-checks.log:5-6 says no key-list/example lines changed, yet t5.diff rewrites the task-file-generation key description, so the anchor does not settle the AC.",
+      "cluster_id": "C3",
+      "disputed": true,
+      "member_scores": [
+        0.55
+      ],
+      "members": [
+        {
+          "blocking": false,
+          "deviation_class": null,
+          "finding_confidence": 0.55,
+          "fp": "161d6c3c4f72f61991368958761ddb9ab3f9a6fd405114b9839fe109fd8aff5a",
+          "id": "F1",
+          "ordinal": 2,
+          "primary_citation": {
+            "index": 0,
+            "line_end": 138,
+            "line_start": 133,
+            "path": ".dev/tasks/done/TASK-WF-implementFrOnb1O-20261023-180618/TASK-WF-implementFrOnb1O-20261023-180618.md",
+            "role": "plan",
+            "status": "resolved"
+          },
+          "refs_norm": [],
+          "reviewer_id": "reviewer-2"
+        }
+      ],
+      "representative": {
+        "id": "F1",
+        "reviewer_id": "reviewer-2"
+      },
+      "reviewers": [
+        "reviewer-2"
+      ],
+      "support": 0.2644230769230769,
+      "uncalibrated": false
+    },
+    {
+      "blocking_all": false,
+      "blocking_any": false,
+      "chained": false,
+      "claim": "The agent rule is hand-copied into guide section 4 and an unmarked CLAUDE.md paragraph, and no plan task adds a test pinning the two copies (only a manual AC), so that mirror can drift silently.",
+      "cluster_id": "C4",
+      "disputed": false,
+      "member_scores": [
+        0.55,
+        0.68
+      ],
+      "members": [
+        {
+          "blocking": false,
+          "deviation_class": null,
+          "finding_confidence": 0.55,
+          "fp": "161d6c3c4f72f61991368958761ddb9ab3f9a6fd405114b9839fe109fd8aff5a",
+          "id": "F3",
+          "ordinal": 2,
+          "primary_citation": {
+            "index": 0,
+            "line_end": 124,
+            "line_start": 113,
+            "path": ".dev/tasks/done/TASK-WF-implementFrOnb1O-20261023-180618/TASK-WF-implementFrOnb1O-20261023-180618.md",
+            "role": "plan",
+            "status": "resolved"
+          },
+          "refs_norm": [],
+          "reviewer_id": "reviewer-2"
+        },
+        {
+          "blocking": false,
+          "deviation_class": null,
+          "finding_confidence": 0.68,
+          "fp": "161d6c3c4f72f61991368958761ddb9ab3f9a6fd405114b9839fe109fd8aff5a",
+          "id": "F1",
+          "ordinal": 3,
+          "primary_citation": {
+            "index": 0,
+            "line_end": 104,
+            "line_start": 96,
+            "path": ".dev/tasks/done/TASK-WF-implementFrOnb1O-20261023-180618/TASK-WF-implementFrOnb1O-20261023-180618.md",
+            "role": "plan",
+            "status": "resolved"
+          },
+          "refs_norm": [],
+          "reviewer_id": "reviewer-3"
+        }
+      ],
+      "representative": {
+        "id": "F1",
+        "reviewer_id": "reviewer-3"
+      },
+      "reviewers": [
+        "reviewer-2",
+        "reviewer-3"
+      ],
+      "support": 0.5913461538461539,
+      "uncalibrated": false
+    },
+    {
+      "blocking_all": false,
+      "blocking_any": false,
+      "chained": false,
+      "claim": "Matrix row INF-003 (Part A rows of section 4.2, wording approved incl. the level 5 re-point) maps only to Task 1, but the plan never enumerates those 4.2 rows and their targets (SKILL, prompts, docs) belong to Tasks 4-6, so coverage of this span is asserted rather than shown.",
+      "cluster_id": "C5",
+      "disputed": true,
+      "member_scores": [
+        0.4
+      ],
+      "members": [
+        {
+          "blocking": false,
+          "deviation_class": null,
+          "finding_confidence": 0.4,
+          "fp": "3c20c32ade46c8ab68cd52219e5d6a0540d0b0118865776099f78ea58d1c3450",
+          "id": "F4",
+          "ordinal": 2,
+          "primary_citation": {
+            "index": 0,
+            "line_end": 1,
+            "line_start": 1,
+            "path": ".dev/tasks/done/TASK-WF-implementFrOnb1O-20261023-180618/source.md",
+            "role": "spec",
+            "status": "resolved"
+          },
+          "refs_norm": [
+            "INF-003"
+          ],
+          "reviewer_id": "reviewer-2"
+        }
+      ],
+      "representative": {
+        "id": "F4",
+        "reviewer_id": "reviewer-2"
+      },
+      "reviewers": [
+        "reviewer-2"
+      ],
+      "support": 0.19230769230769232,
+      "uncalibrated": false
+    }
+  ],
+  "complete_reviewers": [
+    "reviewer-1",
+    "reviewer-2",
+    "reviewer-3"
+  ],
+  "invalid_reviewers": [],
+  "problems": [],
+  "uncalibrated": [],
+  "uncalibrated_findings": [],
+  "valid_blocks": 3
+}

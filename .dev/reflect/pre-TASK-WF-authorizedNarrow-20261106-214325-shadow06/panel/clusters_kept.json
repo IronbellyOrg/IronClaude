@@ -1,0 +1,375 @@
+{
+  "agreement_clusters": [],
+  "blocking_clusters": 0,
+  "calibration_coverage": {
+    "calibrated_findings": 10,
+    "clustered_findings": 10
+  },
+  "cards": [
+    {
+      "block_state": "complete",
+      "card": "reviewer-1.md",
+      "errors": [],
+      "reviewer_id": "reviewer-1",
+      "state": "complete"
+    },
+    {
+      "block_state": "complete",
+      "card": "reviewer-2.md",
+      "errors": [],
+      "reviewer_id": "reviewer-2",
+      "state": "complete"
+    },
+    {
+      "block_state": "complete",
+      "card": "reviewer-3.md",
+      "errors": [],
+      "reviewer_id": "reviewer-3",
+      "state": "complete"
+    }
+  ],
+  "chained": [
+    "C1"
+  ],
+  "citations": {
+    "malformed": 0,
+    "resolved": 23,
+    "unresolved": 0
+  },
+  "cluster_agreement": 1.0,
+  "clusters": [
+    {
+      "blocking_all": false,
+      "blocking_any": false,
+      "chained": true,
+      "claim": "Task 3's instruction lists only make sync-dev and src-side edits, yet its AC requires the hand-maintained plugin mirror (plugins/superclaude/hooks/scripts and plugins/superclaude/hooks/hooks.json), which make sync-dev never writes; no step names those files.",
+      "cluster_id": "C1",
+      "disputed": false,
+      "member_scores": [
+        0.5,
+        0.55,
+        0.85,
+        0.8,
+        0.65
+      ],
+      "members": [
+        {
+          "blocking": false,
+          "deviation_class": null,
+          "finding_confidence": 0.5,
+          "fp": "c9b21dc9b5a0821da9b346f3099a05f48bde9bcb923d0e510acd438f3e8a946d",
+          "id": "F1",
+          "ordinal": 1,
+          "primary_citation": {
+            "index": 0,
+            "line_end": 21,
+            "line_start": 21,
+            "path": ".dev/tasks/done/TASK-WF-authorizedNarrow-20261106-214325/TASK-WF-authorizedNarrow-20261106-214325.md",
+            "role": "plan",
+            "status": "resolved"
+          },
+          "refs_norm": [],
+          "reviewer_id": "reviewer-1"
+        },
+        {
+          "blocking": false,
+          "deviation_class": null,
+          "finding_confidence": 0.55,
+          "fp": "c9b21dc9b5a0821da9b346f3099a05f48bde9bcb923d0e510acd438f3e8a946d",
+          "id": "F3",
+          "ordinal": 1,
+          "primary_citation": {
+            "index": 0,
+            "line_end": 64,
+            "line_start": 61,
+            "path": ".dev/tasks/done/TASK-WF-authorizedNarrow-20261106-214325/TASK-WF-authorizedNarrow-20261106-214325.md",
+            "role": "plan",
+            "status": "resolved"
+          },
+          "refs_norm": [],
+          "reviewer_id": "reviewer-1"
+        },
+        {
+          "blocking": false,
+          "deviation_class": null,
+          "finding_confidence": 0.85,
+          "fp": "c9b21dc9b5a0821da9b346f3099a05f48bde9bcb923d0e510acd438f3e8a946d",
+          "id": "F1",
+          "ordinal": 3,
+          "primary_citation": {
+            "index": 0,
+            "line_end": 61,
+            "line_start": 61,
+            "path": ".dev/tasks/done/TASK-WF-authorizedNarrow-20261106-214325/TASK-WF-authorizedNarrow-20261106-214325.md",
+            "role": "plan",
+            "status": "resolved"
+          },
+          "refs_norm": [],
+          "reviewer_id": "reviewer-3"
+        },
+        {
+          "blocking": false,
+          "deviation_class": null,
+          "finding_confidence": 0.8,
+          "fp": "c9b21dc9b5a0821da9b346f3099a05f48bde9bcb923d0e510acd438f3e8a946d",
+          "id": "F2",
+          "ordinal": 3,
+          "primary_citation": {
+            "index": 0,
+            "line_end": 61,
+            "line_start": 61,
+            "path": ".dev/tasks/done/TASK-WF-authorizedNarrow-20261106-214325/TASK-WF-authorizedNarrow-20261106-214325.md",
+            "role": "plan",
+            "status": "resolved"
+          },
+          "refs_norm": [],
+          "reviewer_id": "reviewer-3"
+        },
+        {
+          "blocking": false,
+          "deviation_class": null,
+          "finding_confidence": 0.65,
+          "fp": "c9b21dc9b5a0821da9b346f3099a05f48bde9bcb923d0e510acd438f3e8a946d",
+          "id": "F3",
+          "ordinal": 3,
+          "primary_citation": {
+            "index": 0,
+            "line_end": 31,
+            "line_start": 31,
+            "path": ".dev/tasks/done/TASK-WF-authorizedNarrow-20261106-214325/TASK-WF-authorizedNarrow-20261106-214325.md",
+            "role": "plan",
+            "status": "resolved"
+          },
+          "refs_norm": [],
+          "reviewer_id": "reviewer-3"
+        }
+      ],
+      "representative": {
+        "id": "F1",
+        "reviewer_id": "reviewer-3"
+      },
+      "reviewers": [
+        "reviewer-1",
+        "reviewer-3"
+      ],
+      "support": 0.8235294117647058,
+      "uncalibrated": false
+    },
+    {
+      "blocking_all": false,
+      "blocking_any": false,
+      "chained": false,
+      "claim": "The stdlib-only/UV/no-new-dependency-or-service constraint (INF-003, INF-008) has no acceptance criterion; Task 1 only says the shell 'may' run embedded Python through UV.",
+      "cluster_id": "C2",
+      "disputed": true,
+      "member_scores": [
+        0.6
+      ],
+      "members": [
+        {
+          "blocking": false,
+          "deviation_class": null,
+          "finding_confidence": 0.6,
+          "fp": "c3574639edf3945c69d0e4c398bf44cf2a7436bc2b7e1cbc4e51d5f95cd5ee9c",
+          "id": "F2",
+          "ordinal": 1,
+          "primary_citation": {
+            "index": 0,
+            "line_end": 31,
+            "line_start": 31,
+            "path": ".dev/tasks/done/TASK-WF-authorizedNarrow-20261106-214325/TASK-WF-authorizedNarrow-20261106-214325.md",
+            "role": "plan",
+            "status": "resolved"
+          },
+          "refs_norm": [
+            "INF-003",
+            "INF-008"
+          ],
+          "reviewer_id": "reviewer-1"
+        }
+      ],
+      "representative": {
+        "id": "F2",
+        "reviewer_id": "reviewer-1"
+      },
+      "reviewers": [
+        "reviewer-1"
+      ],
+      "support": 0.35294117647058826,
+      "uncalibrated": false
+    },
+    {
+      "blocking_all": false,
+      "blocking_any": false,
+      "chained": false,
+      "claim": "T2.AC5 asks to record 'the official updatedInput contract' without naming an external reference, so the check compares the executor's own output with itself.",
+      "cluster_id": "C3",
+      "disputed": true,
+      "member_scores": [
+        0.45
+      ],
+      "members": [
+        {
+          "blocking": false,
+          "deviation_class": null,
+          "finding_confidence": 0.45,
+          "fp": "c9b21dc9b5a0821da9b346f3099a05f48bde9bcb923d0e510acd438f3e8a946d",
+          "id": "F4",
+          "ordinal": 1,
+          "primary_citation": {
+            "index": 0,
+            "line_end": 53,
+            "line_start": 53,
+            "path": ".dev/tasks/done/TASK-WF-authorizedNarrow-20261106-214325/TASK-WF-authorizedNarrow-20261106-214325.md",
+            "role": "plan",
+            "status": "resolved"
+          },
+          "refs_norm": [],
+          "reviewer_id": "reviewer-1"
+        }
+      ],
+      "representative": {
+        "id": "F4",
+        "reviewer_id": "reviewer-1"
+      },
+      "reviewers": [
+        "reviewer-1"
+      ],
+      "support": 0.2647058823529412,
+      "uncalibrated": false
+    },
+    {
+      "blocking_all": false,
+      "blocking_any": false,
+      "chained": false,
+      "claim": "Task 1 ACs use undefined pass criteria ('defined tested outcomes', 'documented completion semantics') without stating the expected outcomes.",
+      "cluster_id": "C4",
+      "disputed": true,
+      "member_scores": [
+        0.3
+      ],
+      "members": [
+        {
+          "blocking": false,
+          "deviation_class": null,
+          "finding_confidence": 0.3,
+          "fp": "c9b21dc9b5a0821da9b346f3099a05f48bde9bcb923d0e510acd438f3e8a946d",
+          "id": "F5",
+          "ordinal": 1,
+          "primary_citation": {
+            "index": 0,
+            "line_end": 37,
+            "line_start": 35,
+            "path": ".dev/tasks/done/TASK-WF-authorizedNarrow-20261106-214325/TASK-WF-authorizedNarrow-20261106-214325.md",
+            "role": "plan",
+            "status": "resolved"
+          },
+          "refs_norm": [],
+          "reviewer_id": "reviewer-1"
+        }
+      ],
+      "representative": {
+        "id": "F5",
+        "reviewer_id": "reviewer-1"
+      },
+      "reviewers": [
+        "reviewer-1"
+      ],
+      "support": 0.17647058823529413,
+      "uncalibrated": false
+    },
+    {
+      "blocking_all": false,
+      "blocking_any": false,
+      "chained": false,
+      "claim": "Coverage observation only: INF-001 and INF-002 are covered by the planned identity, lifecycle, human-isolation, preservation, and explicit scope-boundary checks; neither assigned row was observed uncovered.",
+      "cluster_id": "C5",
+      "disputed": true,
+      "member_scores": [
+        0.25
+      ],
+      "members": [
+        {
+          "blocking": false,
+          "deviation_class": null,
+          "finding_confidence": 0.25,
+          "fp": "70b8ec50eb486bd22a99f137b26e99098949acf3a7885b96d4300d004406d1e7",
+          "id": "F1",
+          "ordinal": 2,
+          "primary_citation": {
+            "index": 2,
+            "line_end": 19,
+            "line_start": 19,
+            "path": ".dev/tasks/done/TASK-WF-authorizedNarrow-20261106-214325/TASK-WF-authorizedNarrow-20261106-214325.md",
+            "role": "plan",
+            "status": "resolved"
+          },
+          "refs_norm": [
+            "INF-001",
+            "INF-002"
+          ],
+          "reviewer_id": "reviewer-2"
+        }
+      ],
+      "representative": {
+        "id": "F1",
+        "reviewer_id": "reviewer-2"
+      },
+      "reviewers": [
+        "reviewer-2"
+      ],
+      "support": 0.14705882352941177,
+      "uncalibrated": false
+    },
+    {
+      "blocking_all": false,
+      "blocking_any": false,
+      "chained": false,
+      "claim": "The spec authorizes launcher/harness identity integration, but no plan task makes an existing launcher write the governed session record that activates the adapter; the launcher side is only documented, and the plan does not say whether 'launcher/harness' means both halves or either one.",
+      "cluster_id": "C6",
+      "disputed": true,
+      "member_scores": [
+        0.6
+      ],
+      "members": [
+        {
+          "blocking": false,
+          "deviation_class": null,
+          "finding_confidence": 0.6,
+          "fp": "c9b21dc9b5a0821da9b346f3099a05f48bde9bcb923d0e510acd438f3e8a946d",
+          "id": "F4",
+          "ordinal": 3,
+          "primary_citation": {
+            "index": 1,
+            "line_end": 46,
+            "line_start": 46,
+            "path": ".dev/tasks/done/TASK-WF-authorizedNarrow-20261106-214325/TASK-WF-authorizedNarrow-20261106-214325.md",
+            "role": "plan",
+            "status": "resolved"
+          },
+          "refs_norm": [],
+          "reviewer_id": "reviewer-3"
+        }
+      ],
+      "representative": {
+        "id": "F4",
+        "reviewer_id": "reviewer-3"
+      },
+      "reviewers": [
+        "reviewer-3"
+      ],
+      "support": 0.35294117647058826,
+      "uncalibrated": false
+    }
+  ],
+  "complete_reviewers": [
+    "reviewer-1",
+    "reviewer-2",
+    "reviewer-3"
+  ],
+  "invalid_reviewers": [],
+  "problems": [],
+  "uncalibrated": [],
+  "uncalibrated_findings": [],
+  "valid_blocks": 3
+}
