@@ -196,6 +196,42 @@ def test_the_calibrator_line_is_shadow_only_and_its_example_is_read_by_the_clust
     assert text.count(line.group(1)) == 1
 
 
+def test_the_reviewer_brief_line_carries_the_schema_and_its_example_parses():
+    from superclaude.cli.review import findings as f1
+    from superclaude.cli.review import findings_v2 as fv2
+
+    text = SPEC.read_text(encoding="utf-8")
+    line = re.search(r"`(End your card with a ## Findings block[^`]+)`", text).group(1)
+    for word in ("JSON lines", "never a table", *f1.SEVERITIES, *f1.CATEGORIES):
+        assert word in line, word
+    example = re.search(r"Example line: (\{.*\}\]\})\. After the block", line).group(1)
+    block = f"## Findings block\n\n```findings-v2\n{example}\n```\n"
+    parsed = fv2.parse_block(
+        block, lens="reflect-pre", assigned_rows=["R-1"], observed_rows=["R-1"]
+    )
+    assert parsed["ok"], parsed["errors"]
+
+
+def test_shadow_steps_pin_the_header_model_the_verdict_file_and_the_first_pass_metric():
+    text = SKILL.read_text(encoding="utf-8")
+    shadow = text[text.index("**Shadow-mode steps") : text.index("### 4.5 ")]
+    # parity: the header model is the pin, the harness model goes on its own line
+    assert (
+        "copied verbatim from `reviewers[N].model` of `panel/resolution.json`" in shadow
+    )
+    assert "`model_observed:`" in shadow
+    # compliance: first parse, before any re-ask, and the orchestrator never remaps
+    assert "valid on this first parse" in shadow and "before any re-ask" in shadow
+    assert "never edits, remaps or normalizes a reviewer's findings itself" in shadow
+    assert "first parse (before any re-ask)" in text  # the section 9.2 definition
+    # EV-1: the step that writes the file the rule reads
+    assert "write `<output>/adversarial/merged-verdict.yaml`" in shadow
+    assert "`adversarial/adversarial/`" in shadow
+    # contract: the legacy rotation keys and no new top-level key
+    assert "`reviewer_personas` and `reviewer_models`" in shadow
+    assert "every shadow field goes under `telemetry:`" in shadow
+
+
 # ------------------------------------------------------------ a fixture run directory (AC3)
 
 RESOLVE = [
