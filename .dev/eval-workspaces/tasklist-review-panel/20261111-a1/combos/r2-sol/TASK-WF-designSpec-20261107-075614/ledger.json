@@ -1,0 +1,472 @@
+{
+ "schema": "review-ledger/1",
+ "doc": "/home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/.dev/eval-workspaces/tasklist-review-panel/20261111-a1/TASK-WF-designSpec-20261107-075614/candidate.md",
+ "cap_reviews": 3,
+ "rounds": [
+  {
+   "n": 1,
+   "doc_sha256": "044809e3a963fad395cfbe0988bece975650a3adf17176893665d92338bd3481",
+   "reviewers": [
+    {
+     "reviewer_id": "t4-1",
+     "model": "claude-haiku-5-5",
+     "report": "/home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/.dev/eval-workspaces/tasklist-review-panel/20261111-a1/TASK-WF-designSpec-20261107-075614/reviews/combos/r2-sol/t4-1.md",
+     "report_sha256": "f85dbbd04e2434835ccc76f9f03e54bef8bbd6b6d01eea5807583613f9d9f50c",
+     "block_ok": true
+    },
+    {
+     "reviewer_id": "t3-1",
+     "model": "claude-haiku-5-5",
+     "report": "/home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/.dev/eval-workspaces/tasklist-review-panel/20261111-a1/TASK-WF-designSpec-20261107-075614/reviews/combos/r2-sol/t3-1.md",
+     "report_sha256": "f720c399f967a897645e7f8c63eecd5a4fb812f13b1b4d933084a4e54f6a8448",
+     "block_ok": true
+    },
+    {
+     "reviewer_id": "t4-2",
+     "model": "grok-4.7",
+     "report": "/home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/.dev/eval-workspaces/tasklist-review-panel/20261111-a1/TASK-WF-designSpec-20261107-075614/reviews/combos/r2-sol/t4-2.md",
+     "report_sha256": "3590e7d3600a2cd1f7af899deba00fcb792d0a8538a735b4431d5d4e0b83be87",
+     "block_ok": true
+    },
+    {
+     "reviewer_id": "t2-1",
+     "model": "gpt-6.1-sol",
+     "report": "/home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/.dev/eval-workspaces/tasklist-review-panel/20261111-a1/TASK-WF-designSpec-20261107-075614/reviews/combos/r2-sol/t2-1.md",
+     "report_sha256": "5cb03d196f5a22801248d9ef1fe89067393036b59bf653d37afd09836bdd66f6",
+     "block_ok": true
+    }
+   ],
+   "verdict": "FAIL",
+   "decision": "REVISE",
+   "brief_ids": [
+    "L3"
+   ]
+  }
+ ],
+ "rows": [
+  {
+   "lid": "L1",
+   "fp": "63fe8fed1353c236",
+   "blocking": false,
+   "severity_max": "MAJOR",
+   "category": "other",
+   "confidence": "overlap",
+   "status": "open",
+   "anchor": "and the `EventType` class docstring from \"exactly 43 members\" to 45",
+   "anchor2": "Create `src/superclaude/pr_submit/merge_guard.py` following ./source.md sections 4.1, 4.2 and 4.6",
+   "span": [
+    43,
+    44
+   ],
+   "span2": [
+    55,
+    56
+   ],
+   "refs": [],
+   "claim": "The repo at HEAD already has the 45-member enum, merge_guard.py, set-draft-state.sh and the merge-guard refs, so the stated edits and creates are stale against the base.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t4-1",
+     "fid": "F1",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t3-1",
+     "fid": "F3",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t4-2",
+     "fid": "F3",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L2",
+   "fp": "de519f0a078480f5",
+   "blocking": false,
+   "severity_max": "MAJOR",
+   "category": "missing-requirement",
+   "confidence": "overlap",
+   "status": "open",
+   "anchor": "the exit codes 0, 1, 2, 127 of section 4.4",
+   "anchor2": null,
+   "span": [
+    107,
+    108
+   ],
+   "span2": null,
+   "refs": [],
+   "claim": "The exit code for the not_open and verify_failed errors is not stated, so an implementer must choose one.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t4-1",
+     "fid": "F2",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t3-1",
+     "fid": "F4",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L3",
+   "fp": "8d6abecb3f7485c4",
+   "blocking": true,
+   "severity_max": "MAJOR",
+   "category": "contradiction",
+   "confidence": "overlap",
+   "status": "open",
+   "anchor": "carries no L3 or draft condition",
+   "anchor2": "that at L3 with `--merge-guard off` the line",
+   "span": null,
+   "span2": [
+    136,
+    137
+   ],
+   "refs": [],
+   "claim": "The Wave 0 bullet must carry no L3 or draft condition, yet it prescribes an L3-gated off line, and the test wording does not say which check applies.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t4-1",
+     "fid": "F3",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t3-1",
+     "fid": "F1",
+     "blocking": true
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t4-2",
+     "fid": "F2",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L4",
+   "fp": "0cc5f5acd063d2da",
+   "blocking": false,
+   "severity_max": "MAJOR",
+   "category": "contradiction",
+   "confidence": "single",
+   "status": "open",
+   "anchor": "while the guard record already holds an earlier fixing cycle",
+   "anchor2": "is marked ready again only when that cycle's fix push is confirmed",
+   "span": [
+    74,
+    75
+   ],
+   "span2": [
+    14,
+    15
+   ],
+   "refs": [],
+   "claim": "A new zero-edit cycle may release a held guard whose earlier fixing push was never confirmed, which the Goal forbids, and the phase of that record is not pinned.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t4-1",
+     "fid": "F4",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L5",
+   "fp": "0bd01f9f50b30d15",
+   "blocking": false,
+   "severity_max": "MAJOR",
+   "category": "other",
+   "confidence": "overlap",
+   "status": "open",
+   "anchor": "ordinals 0 to 2 and `off` make no call",
+   "anchor2": "Resume, loaded from Wave 0 at every ordinal and in both modes",
+   "span": [
+    165,
+    166
+   ],
+   "span2": [
+    123,
+    124
+   ],
+   "refs": [],
+   "claim": "Resume at ordinals 0 to 2 or with off is required to run without any GitHub call, yet resume_decision takes a live read and the candidate does not say when that read happens.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t4-1",
+     "fid": "F5",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t4-1",
+     "fid": "F6",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t3-1",
+     "fid": "F6",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t3-1",
+     "fid": "F8",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t3-1",
+     "fid": "F9",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t4-2",
+     "fid": "F1",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L6",
+   "fp": "feb8395e9a53949d",
+   "blocking": false,
+   "severity_max": "MAJOR",
+   "category": "contradiction",
+   "confidence": "single",
+   "status": "open",
+   "anchor": "before the feature is merged or turned on by default",
+   "anchor2": "DEFAULT_MERGE_GUARD = \"draft\"",
+   "span": [
+    32,
+    33
+   ],
+   "span2": [
+    97,
+    98
+   ],
+   "refs": [],
+   "claim": "The release gate is stated as running before merge or default-on, but the default draft ships in the same change, and the text does not say which merge is meant.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t3-1",
+     "fid": "F2",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L7",
+   "fp": "0432b5b121028894",
+   "blocking": false,
+   "severity_max": "MAJOR",
+   "category": "other",
+   "confidence": "single",
+   "status": "open",
+   "anchor": "`ENGAGE_PENDING` and `RELEASE_PENDING` with `owned_draft` true (`held`) and false (`unavailable`)",
+   "anchor2": null,
+   "span": [
+    60,
+    61
+   ],
+   "span2": null,
+   "refs": [],
+   "claim": "An unsettled engage with owned_draft false maps to unavailable, which can hide a PR that is still draft from a landed request.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t3-1",
+     "fid": "F5",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L8",
+   "fp": "3d481fb29d3ed2d7",
+   "blocking": false,
+   "severity_max": "MAJOR",
+   "category": "unpassable-check",
+   "confidence": "single",
+   "status": "open",
+   "anchor": "asserted byte-identical by comparing the live text with string constants",
+   "anchor2": null,
+   "span": [
+    153,
+    154
+   ],
+   "span2": null,
+   "refs": [],
+   "claim": "A start-text constant cannot prove byte identity of the full sentence, so the pin passes after the sentence tail is changed.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t3-1",
+     "fid": "F7",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L9",
+   "fp": "1c6ba3cc03f4739e",
+   "blocking": false,
+   "severity_max": "MINOR",
+   "category": "other",
+   "confidence": "single",
+   "status": "open",
+   "anchor": "returns `unsettled == 1` and phase `engage_pending`",
+   "anchor2": null,
+   "span": [
+    89,
+    90
+   ],
+   "span2": null,
+   "refs": [],
+   "claim": "Phase string values are never fixed, so engage_pending and ENGAGE_PENDING can be read as different values.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t3-1",
+     "fid": "F10",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L10",
+   "fp": "63fe8fed1353c236",
+   "blocking": false,
+   "severity_max": "MINOR",
+   "category": "other",
+   "confidence": "single",
+   "status": "open",
+   "anchor": "shows no remaining claim that the enum has 43 members",
+   "anchor2": null,
+   "span": [
+    48,
+    49
+   ],
+   "span2": null,
+   "refs": [],
+   "claim": "The grep check also matches a history comment about the 42nd-43rd members, which could be misread as a remaining claim.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t3-1",
+     "fid": "F11",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L11",
+   "fp": "1ebb32d105a7d902",
+   "blocking": false,
+   "severity_max": "MINOR",
+   "category": "other",
+   "confidence": "single",
+   "status": "open",
+   "anchor": "lists changes only under `src/superclaude/`, `tests/`, `docs/user-guide/`, `.dev/` and gitignored `.claude/` mirrors",
+   "anchor2": null,
+   "span": [
+    199,
+    200
+   ],
+   "span2": null,
+   "refs": [],
+   "claim": "Gitignored mirrors cannot appear in git status, so listing them as expected changes is misleading.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t3-1",
+     "fid": "F12",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  }
+ ]
+}

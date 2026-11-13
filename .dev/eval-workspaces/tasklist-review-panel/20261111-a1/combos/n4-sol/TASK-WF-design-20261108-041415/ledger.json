@@ -1,0 +1,263 @@
+{
+ "schema": "review-ledger/1",
+ "doc": "/home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/.dev/eval-workspaces/tasklist-review-panel/20261111-a1/TASK-WF-design-20261108-041415/candidate.md",
+ "cap_reviews": 3,
+ "rounds": [
+  {
+   "n": 1,
+   "doc_sha256": "71d4a7455d11818d9ad4718605a9254142cf1e3e250889cfdfa89285eb5f7d24",
+   "reviewers": [
+    {
+     "reviewer_id": "t2b-1",
+     "model": "muse-wonder-1.0",
+     "report": "/home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/.dev/eval-workspaces/tasklist-review-panel/20261111-a1/TASK-WF-design-20261108-041415/reviews/combos/n4-sol/t2b-1.md",
+     "report_sha256": "8b08a20f2e40625be8439b03f8ee99ffcc1981a8eb80ca98a5f930332599841f",
+     "block_ok": true
+    },
+    {
+     "reviewer_id": "t3-1",
+     "model": "glm-5.3",
+     "report": "/home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/.dev/eval-workspaces/tasklist-review-panel/20261111-a1/TASK-WF-design-20261108-041415/reviews/combos/n4-sol/t3-1.md",
+     "report_sha256": "01366073b69783a14236aa783db0230227cf33c5ad151b0c5a953f9ed939ecaf",
+     "block_ok": false
+    },
+    {
+     "reviewer_id": "t4-1",
+     "model": "claude-haiku-5-5",
+     "report": "/home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/.dev/eval-workspaces/tasklist-review-panel/20261111-a1/TASK-WF-design-20261108-041415/reviews/combos/n4-sol/t4-1.md",
+     "report_sha256": "33f4d1230021ad226120de5f34d73f483089094c62ceb55c6f8cd09cf37e926d",
+     "block_ok": true
+    },
+    {
+     "reviewer_id": "t2-1",
+     "model": "gpt-6.1-sol",
+     "report": "/home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/.dev/eval-workspaces/tasklist-review-panel/20261111-a1/TASK-WF-design-20261108-041415/reviews/combos/n4-sol/t2-1.md",
+     "report_sha256": "1b42a7f92a8b06d0ee8648059a2c303fc29248c6c4a8f9d776cb8938979117a1",
+     "block_ok": true
+    }
+   ],
+   "verdict": "FAIL",
+   "decision": "REVISE",
+   "brief_ids": [
+    "L1"
+   ]
+  }
+ ],
+ "rows": [
+  {
+   "lid": "L1",
+   "fp": "d9cef126707a6ddb",
+   "blocking": true,
+   "severity_max": "CRITICAL",
+   "category": "contradiction",
+   "confidence": "overlap",
+   "status": "open",
+   "anchor": "Every `gh api` path in the file spells `repos/<R>/...` except the one documented `orgs/<owner of R>/issue-fields` read.",
+   "anchor2": "every `gh api` path stays `user` or `repos/<R>/...`, with one stated exception",
+   "span": [
+    150,
+    151
+   ],
+   "span2": [
+    46,
+    47
+   ],
+   "refs": [],
+   "claim": "Task 10 acceptance forbids the gh api user path that Task 2 allows and unchanged claim text in the design doc uses, so the criterion cannot pass without an out-of-scope edit.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t2b-1",
+     "fid": "F1",
+     "blocking": true
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t2b-1",
+     "fid": "F2",
+     "blocking": true
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t2b-1",
+     "fid": "F5",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t2b-1",
+     "fid": "F6",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t2b-1",
+     "fid": "F7",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t3-1",
+     "fid": "F3",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t3-1",
+     "fid": "F4",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t3-1",
+     "fid": "F5",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t4-1",
+     "fid": "F1",
+     "blocking": true
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t4-1",
+     "fid": "F2",
+     "blocking": true
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t4-1",
+     "fid": "F3",
+     "blocking": true
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t4-1",
+     "fid": "F4",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t4-1",
+     "fid": "F6",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t4-1",
+     "fid": "F7",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L2",
+   "fp": "13be5f40085513b0",
+   "blocking": false,
+   "severity_max": "MAJOR",
+   "category": "missing-requirement",
+   "confidence": "overlap",
+   "status": "open",
+   "anchor": "with every reason listed in specification 2.4.",
+   "anchor2": null,
+   "span": [
+    38,
+    39
+   ],
+   "span2": null,
+   "refs": [],
+   "claim": "The exact reason strings live only in a source.md that is not supplied with the candidate, so the implementer must guess them.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t2b-1",
+     "fid": "F3",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t4-1",
+     "fid": "F5",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L3",
+   "fp": "a5c8825bbf2c5560",
+   "blocking": false,
+   "severity_max": "MAJOR",
+   "category": "other",
+   "confidence": "single",
+   "status": "open",
+   "anchor": "to \"Picks the feature or bug template, the Feature or Bug issue type and the `enhancement` / `bug` label\"",
+   "anchor2": null,
+   "span": [
+    97,
+    98
+   ],
+   "span2": null,
+   "refs": [],
+   "claim": "The rewritten --mode row omits the Test issue type that a feature in area tests receives under the same plan.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t2b-1",
+     "fid": "F4",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L4",
+   "fp": "dee94abb1083a654",
+   "blocking": false,
+   "severity_max": "MINOR",
+   "category": "other",
+   "confidence": "single",
+   "status": "open",
+   "anchor": "Edit `src/superclaude/core/HOW-WE-WORK.md` at line 329 (the `/sc:issue` row",
+   "anchor2": null,
+   "span": [
+    156,
+    157
+   ],
+   "span2": null,
+   "refs": [],
+   "claim": "Several cited line numbers are off against the live files (HOW-WE-WORK row at 330, return-contract test around 545-580, Will/Will Not test at 586, fork-safety model test at 701); the plan's own re-read constraint covers the drift and content anchors are correct.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t3-1",
+     "fid": "F2",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  }
+ ]
+}

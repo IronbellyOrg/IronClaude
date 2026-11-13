@@ -1,0 +1,243 @@
+{
+ "schema": "review-ledger/1",
+ "doc": "/home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/.dev/eval-workspaces/tasklist-review-panel/20261111-a1/TASK-WF-design-20261108-041415/candidate.md",
+ "cap_reviews": 3,
+ "rounds": [
+  {
+   "n": 1,
+   "doc_sha256": "71d4a7455d11818d9ad4718605a9254142cf1e3e250889cfdfa89285eb5f7d24",
+   "reviewers": [
+    {
+     "reviewer_id": "t4-1",
+     "model": "gpt-6-luna",
+     "report": "/home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/.dev/eval-workspaces/tasklist-review-panel/20261111-a1/TASK-WF-design-20261108-041415/reviews/combos/g6-luna2-ember2-r4/t4-1.md",
+     "report_sha256": "0c6ec53d2315eacb11788082148dc8c12c23b2ea89776214092c52bf2e0b85f7",
+     "block_ok": true
+    },
+    {
+     "reviewer_id": "t4-2",
+     "model": "gpt-6-luna",
+     "report": "/home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/.dev/eval-workspaces/tasklist-review-panel/20261111-a1/TASK-WF-design-20261108-041415/reviews/combos/g6-luna2-ember2-r4/t4-2.md",
+     "report_sha256": "0858d90a583290bbc546564f15e4713a290cb287128a9bffd3890c5c1c7196c4",
+     "block_ok": true
+    },
+    {
+     "reviewer_id": "t2b-1",
+     "model": "muse-ember-1.0",
+     "report": "/home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/.dev/eval-workspaces/tasklist-review-panel/20261111-a1/TASK-WF-design-20261108-041415/reviews/combos/g6-luna2-ember2-r4/t2b-1.md",
+     "report_sha256": "6209bd89766b50f8cb67518c127c242f75aa3febdac9fb42ae27dd2a2e3db493",
+     "block_ok": true
+    },
+    {
+     "reviewer_id": "t3-1",
+     "model": "muse-ember-1.0",
+     "report": "/home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/.dev/eval-workspaces/tasklist-review-panel/20261111-a1/TASK-WF-design-20261108-041415/reviews/combos/g6-luna2-ember2-r4/t3-1.md",
+     "report_sha256": "4adcf8265bad687d85a85d70a9959cdef84250b1eecebb9cc12b7c530422f788",
+     "block_ok": true
+    }
+   ],
+   "verdict": "FAIL",
+   "decision": "REVISE",
+   "brief_ids": [
+    "L1",
+    "L2"
+   ]
+  }
+ ],
+ "rows": [
+  {
+   "lid": "L1",
+   "fp": "a5c8825bbf2c5560",
+   "blocking": true,
+   "severity_max": "MAJOR",
+   "category": "contradiction",
+   "confidence": "overlap",
+   "status": "open",
+   "anchor": "the Feature or Bug issue type and the `enhancement` / `bug` label",
+   "anchor2": "mode `feature` with area `tests` gives Test",
+   "span": [
+    97,
+    98
+   ],
+   "span2": [
+    33,
+    34
+   ],
+   "refs": [],
+   "claim": "For a feature in the tests area, Task 6 directs the command to describe Feature as the issue type while Q7 requires Test.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t4-1",
+     "fid": "F1",
+     "blocking": true
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t3-1",
+     "fid": "F5",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L2",
+   "fp": "84ab306d57548368",
+   "blocking": true,
+   "severity_max": "CRITICAL",
+   "category": "contradiction",
+   "confidence": "overlap",
+   "status": "open",
+   "anchor": "Edit only under `src/superclaude/`, `tests/`, `docs/` and `plugins/superclaude/skills/sc-recommend/refs/`.",
+   "anchor2": "Then write `./artifacts/owner-manual-check.md` in this package.",
+   "span": [
+    18,
+    19
+   ],
+   "span2": [
+    167,
+    168
+   ],
+   "refs": [],
+   "claim": "Task 12 requires writing the owner check under artifacts, outside the allowed edit locations.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t4-1",
+     "fid": "F2",
+     "blocking": true
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t4-1",
+     "fid": "F4",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t4-2",
+     "fid": "F1",
+     "blocking": true
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t4-2",
+     "fid": "F2",
+     "blocking": true
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t2b-1",
+     "fid": "F1",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t2b-1",
+     "fid": "F2",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t2b-1",
+     "fid": "F3",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t3-1",
+     "fid": "F1",
+     "blocking": true
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t3-1",
+     "fid": "F2",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t3-1",
+     "fid": "F3",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L3",
+   "fp": "ec44014e87a383a8",
+   "blocking": false,
+   "severity_max": "MAJOR",
+   "category": "missing-requirement",
+   "confidence": "single",
+   "status": "open",
+   "anchor": "field id, data type, option names, or `not found` / `lookup failed: <reason>`",
+   "anchor2": null,
+   "span": [
+    73,
+    74
+   ],
+   "span2": null,
+   "refs": [],
+   "claim": "The plan does not define field-write behavior when the Complexity field is not a single-select field, despite recording other field data types.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t4-1",
+     "fid": "F3",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L4",
+   "fp": "838e56235b92a9f4",
+   "blocking": false,
+   "severity_max": "MAJOR",
+   "category": "missing-requirement",
+   "confidence": "single",
+   "status": "open",
+   "anchor": "feeds the `orgs/` scanner a text with `orgs/other/issue-fields` and expects it to be reported",
+   "anchor2": null,
+   "span": [
+    121,
+    122
+   ],
+   "span2": null,
+   "refs": [],
+   "claim": "The plan references an orgs path scanner helper that it never defines, so the self-check test cannot be added verbatim.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t3-1",
+     "fid": "F4",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  }
+ ]
+}

@@ -1,0 +1,98 @@
+{
+ "schema": "review-ledger/1",
+ "doc": "/home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/.dev/eval-workspaces/tasklist-review-panel/20261111-a1/TASK-WF-designSpec-20261107-075614/candidate.md",
+ "cap_reviews": 3,
+ "rounds": [
+  {
+   "n": 1,
+   "doc_sha256": "044809e3a963fad395cfbe0988bece975650a3adf17176893665d92338bd3481",
+   "reviewers": [
+    {
+     "reviewer_id": "t2-1",
+     "model": "gpt-6.1-sol",
+     "report": "/home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/.dev/eval-workspaces/tasklist-review-panel/20261111-a1/TASK-WF-designSpec-20261107-075614/reviews/combos/sol-alone-src/t2-1.md",
+     "report_sha256": "1e063f1633372d1533d36465fec543a274f61c642f841d05f449c78439fabdef",
+     "block_ok": true
+    }
+   ],
+   "verdict": "FAIL",
+   "decision": "REVISE",
+   "brief_ids": [
+    "L1",
+    "L2"
+   ]
+  }
+ ],
+ "rows": [
+  {
+   "lid": "L1",
+   "fp": "0cc5f5acd063d2da",
+   "blocking": true,
+   "severity_max": "MAJOR",
+   "category": "safety",
+   "confidence": "single",
+   "status": "open",
+   "anchor": "`release_decision` called with `applied_edits=0` for a new cycle while the guard record already holds an earlier fixing cycle returns `RELEASE` with cause `no_edits`",
+   "anchor2": "an exit with unpublished or uncertain work leaves the PR draft and reports `held`",
+   "span": [
+    74,
+    75
+   ],
+   "span2": [
+    128,
+    129
+   ],
+   "refs": [],
+   "claim": "The required zero-edit release for a new cycle can mark the PR ready while an earlier cycle's protected fixes remain unpublished.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t2-1",
+     "fid": "F1",
+     "blocking": true
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L2",
+   "fp": "8411375004688f54",
+   "blocking": true,
+   "severity_max": "MAJOR",
+   "category": "unpassable-check",
+   "confidence": "single",
+   "status": "open",
+   "anchor": "when it names an L3 or `draft` condition",
+   "anchor2": "and that at L3 with `--merge-guard off` the line \"Remediation is unprotected: --merge-guard off.\" is printed once",
+   "span": [
+    139,
+    140
+   ],
+   "span2": [
+    136,
+    137
+   ],
+   "refs": [],
+   "claim": "The required Wave 0 bullet contains an L3 condition that its own acceptance criterion explicitly requires the test to reject.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t2-1",
+     "fid": "F2",
+     "blocking": true
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  }
+ ]
+}

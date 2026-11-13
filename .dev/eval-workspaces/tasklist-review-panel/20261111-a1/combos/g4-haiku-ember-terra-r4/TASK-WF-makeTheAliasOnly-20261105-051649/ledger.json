@@ -1,0 +1,224 @@
+{
+ "schema": "review-ledger/1",
+ "doc": "/home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/.dev/eval-workspaces/tasklist-review-panel/20261111-a1/TASK-WF-makeTheAliasOnly-20261105-051649/candidate.md",
+ "cap_reviews": 3,
+ "rounds": [
+  {
+   "n": 1,
+   "doc_sha256": "cfd8f983d22ab8af1638ffb2a464215e56048f753f7902e3066435d8de176ca4",
+   "reviewers": [
+    {
+     "reviewer_id": "t4-1",
+     "model": "claude-haiku-5-5",
+     "report": "/home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/.dev/eval-workspaces/tasklist-review-panel/20261111-a1/TASK-WF-makeTheAliasOnly-20261105-051649/reviews/combos/g4-haiku-ember-terra-r4/t4-1.md",
+     "report_sha256": "199b914aaaaffa8264f93f4e4bfd310898f8559202d1ec2a224bcb13198fb9f8",
+     "block_ok": true
+    },
+    {
+     "reviewer_id": "t2b-1",
+     "model": "muse-ember-1.0",
+     "report": "/home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/.dev/eval-workspaces/tasklist-review-panel/20261111-a1/TASK-WF-makeTheAliasOnly-20261105-051649/reviews/combos/g4-haiku-ember-terra-r4/t2b-1.md",
+     "report_sha256": "d9f80fefee23d7d807f2b3a5fcb6cbedc17c2bbf7e71142083beb6ced1d954e5",
+     "block_ok": true
+    },
+    {
+     "reviewer_id": "t2-1",
+     "model": "gpt-6.1-terra",
+     "report": "/home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/.dev/eval-workspaces/tasklist-review-panel/20261111-a1/TASK-WF-makeTheAliasOnly-20261105-051649/reviews/combos/g4-haiku-ember-terra-r4/t2-1.md",
+     "report_sha256": "e16981034bb5e8ec4da9f44b176448b377e227dd131887d26b2c0fa07e636bba",
+     "block_ok": true
+    }
+   ],
+   "verdict": "FAIL",
+   "decision": "REVISE",
+   "brief_ids": [
+    "L1",
+    "L2"
+   ]
+  }
+ ],
+ "rows": [
+  {
+   "lid": "L1",
+   "fp": "01e7976c6e6c24ed",
+   "blocking": true,
+   "severity_max": "CRITICAL",
+   "category": "unpassable-check",
+   "confidence": "overlap",
+   "status": "open",
+   "anchor": "The text claude-gw-tier appears under src/superclaude/agents, commands, skills, cli, hooks and core only in TIER_TEXT_ALLOWED paths.",
+   "anchor2": "the remaining tests pass",
+   "span": [
+    34,
+    35
+   ],
+   "span2": [
+    45,
+    46
+   ],
+   "refs": [],
+   "claim": "The tier-text rule fails on review-tiers.default.json (6 hits) and review-panel.live7.json (1 hit), which are outside TIER_TEXT_ALLOWED, so the test cannot pass as the plan says.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t4-1",
+     "fid": "F1",
+     "blocking": true
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t4-1",
+     "fid": "F2",
+     "blocking": true
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t4-1",
+     "fid": "F3",
+     "blocking": true
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t4-1",
+     "fid": "F8",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t2-1",
+     "fid": "F1",
+     "blocking": true
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t2-1",
+     "fid": "F2",
+     "blocking": true
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L2",
+   "fp": "beeaa6833f7cf565",
+   "blocking": true,
+   "severity_max": "MAJOR",
+   "category": "other",
+   "confidence": "overlap",
+   "status": "open",
+   "anchor": "the tier-mode block at lines 776-785, where the launcher also tests that CCSESSION_EXT_PROFILE is not 1 at line 777",
+   "anchor2": "the three export lines exactly (export ANTHROPIC_DEFAULT_OPUS_MODEL=claude-gw-tier1a",
+   "span": [
+    128,
+    129
+   ],
+   "span2": [
+    128,
+    129
+   ],
+   "refs": [],
+   "claim": "Lines 776-785 are --profile parsing, the real tier block is at 882-898, the launcher already exports the three variables with a [1m] suffix at 896-898, and the 1099-1103 exports are Python code, so the exact lines drop the suffix and the red test fails for a different reason.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t4-1",
+     "fid": "F4",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t4-1",
+     "fid": "F5",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t2-1",
+     "fid": "F3",
+     "blocking": true
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L3",
+   "fp": "5269fb2839c70439",
+   "blocking": false,
+   "severity_max": "MINOR",
+   "category": "other",
+   "confidence": "single",
+   "status": "open",
+   "anchor": "add the same pointer to the brainstorm model-selection text around lines 849 and 859",
+   "anchor2": "line 411, which currently says `model:` may be a picker ID such as claude-gw-tier3",
+   "span": [
+    108,
+    109
+   ],
+   "span2": [
+    108,
+    109
+   ],
+   "refs": [],
+   "claim": "commands.md lines 845-860 contain no brainstorm model text and developer guide line 411 is a frontmatter fence, so both anchors point at the wrong text.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t4-1",
+     "fid": "F6",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L4",
+   "fp": "a02f572d42a975c8",
+   "blocking": false,
+   "severity_max": "MAJOR",
+   "category": "other",
+   "confidence": "single",
+   "status": "open",
+   "anchor": "as /etc/aidev02/aienv.d/defaults.sh does: T3Model01 gpt-6.1-terra",
+   "anchor2": "rung 1 is a non-Claude model, rungs 0 and 2 are GPT models",
+   "span": [
+    85,
+    86
+   ],
+   "span2": [
+    85,
+    86
+   ],
+   "refs": [],
+   "claim": "defaults.sh line 57 sets T3Model01 to glm-5.3, so rung 0 is not GPT and the notes sentence that rungs 0 and 2 are GPT models is false.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t4-1",
+     "fid": "F7",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  }
+ ]
+}

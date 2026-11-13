@@ -1,0 +1,375 @@
+{
+ "schema": "review-ledger/1",
+ "doc": "/home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/.dev/eval-workspaces/tasklist-review-panel/20261111-a1/TASK-WF-designSpec-20261107-075614/candidate.md",
+ "cap_reviews": 3,
+ "rounds": [
+  {
+   "n": 1,
+   "doc_sha256": "044809e3a963fad395cfbe0988bece975650a3adf17176893665d92338bd3481",
+   "reviewers": [
+    {
+     "reviewer_id": "t2b-1",
+     "model": "muse-wonder-1.0",
+     "report": "/home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/.dev/eval-workspaces/tasklist-review-panel/20261111-a1/TASK-WF-designSpec-20261107-075614/reviews/combos/n4-sonnet-src/t2b-1.md",
+     "report_sha256": "39e5e133a616068fab2ef0bcb6c9912a3dff33bd3920de3c386c2d30ac450e2a",
+     "block_ok": true
+    },
+    {
+     "reviewer_id": "t4-1",
+     "model": "claude-haiku-5-5",
+     "report": "/home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/.dev/eval-workspaces/tasklist-review-panel/20261111-a1/TASK-WF-designSpec-20261107-075614/reviews/combos/n4-sonnet-src/t4-1.md",
+     "report_sha256": "522210c7d0f0220ae8ca057d81e412eb55883d7b930174978f10533a44dabdbc",
+     "block_ok": true
+    },
+    {
+     "reviewer_id": "t1b-1",
+     "model": "claude-sonnet-5-5",
+     "report": "/home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/.dev/eval-workspaces/tasklist-review-panel/20261111-a1/TASK-WF-designSpec-20261107-075614/reviews/combos/n4-sonnet-src/t1b-1.md",
+     "report_sha256": "20b75fc710643f1c1d3b54ef689886cde8beaea5c05c523a6700df5f1df45c1b",
+     "block_ok": true
+    }
+   ],
+   "verdict": "FAIL",
+   "decision": "REVISE",
+   "brief_ids": [
+    "L2"
+   ]
+  }
+ ],
+ "rows": [
+  {
+   "lid": "L1",
+   "fp": "0bd01f9f50b30d15",
+   "blocking": false,
+   "severity_max": "MAJOR",
+   "category": "missing-requirement",
+   "confidence": "overlap",
+   "status": "open",
+   "anchor": "applies the pure decisions of `merge_guard.py`, appends events to a real `RunLog` in a temporary directory",
+   "anchor2": null,
+   "span": [
+    165,
+    166
+   ],
+   "span2": null,
+   "refs": [],
+   "claim": "Task 11 (and Task 5) consume the Task 2 event enum through RunLog.append but declare no dependency on Task 2, so a dependency-ordered executor can run them before the new event types exist.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t2b-1",
+     "fid": "F1",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t4-1",
+     "fid": "F6",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L2",
+   "fp": "8411375004688f54",
+   "blocking": true,
+   "severity_max": "MAJOR",
+   "category": "other",
+   "confidence": "overlap",
+   "status": "open",
+   "anchor": "that applies at every ordinal and in both modes and carries no L3 or `draft` condition",
+   "anchor2": "and that at L3 with `--merge-guard off` the line \"Remediation is unprotected: --merge-guard off.\" is printed once and no draft call is made",
+   "span": [
+    136,
+    137
+   ],
+   "span2": [
+    136,
+    137
+   ],
+   "refs": [],
+   "claim": "Task 9 requires the Wave 0 bullet to carry no L3 condition while also requiring it to state an L3-gated off notice, so an implementer who tests for any L3 mention makes the required bullet fail its own test.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t2b-1",
+     "fid": "F2",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t4-1",
+     "fid": "F1",
+     "blocking": true
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t4-1",
+     "fid": "F9",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t1b-1",
+     "fid": "F2",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L3",
+   "fp": "aead7733ff9a104f",
+   "blocking": false,
+   "severity_max": "MAJOR",
+   "category": "missing-requirement",
+   "confidence": "overlap",
+   "status": "open",
+   "anchor": "`published` computed with `held_cycle_published` so that a push that completed normally before the crash also releases",
+   "anchor2": null,
+   "span": [
+    123,
+    124
+   ],
+   "span2": null,
+   "refs": [],
+   "claim": "The Resume protocol never states where the re-entered release decision gets target_sha and this cycle's applied_edits, so an implementer can release through the no_edits row without comparing the PR head to the held cycle's pushed SHA.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t2b-1",
+     "fid": "F3",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t2b-1",
+     "fid": "F4",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t4-1",
+     "fid": "F5",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t4-1",
+     "fid": "F7",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t4-1",
+     "fid": "F8",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t1b-1",
+     "fid": "F3",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t1b-1",
+     "fid": "F4",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L4",
+   "fp": "0432b5b121028894",
+   "blocking": false,
+   "severity_max": "MINOR",
+   "category": "other",
+   "confidence": "overlap",
+   "status": "open",
+   "anchor": "A `guard_status` test covers every phase and cause of the first-match mapping, including `ENGAGE_PENDING` and `RELEASE_PENDING` with `owned_draft` true (`held`) and false (`unavailable`)",
+   "anchor2": null,
+   "span": [
+    60,
+    61
+   ],
+   "span2": null,
+   "refs": [],
+   "claim": "The guard_status acceptance enumeration never names the direct HELD to held or RELEASED to released cases despite claiming every phase is covered.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t2b-1",
+     "fid": "F5",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t4-1",
+     "fid": "F10",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L5",
+   "fp": "0432b5b121028894",
+   "blocking": false,
+   "severity_max": "MAJOR",
+   "category": "other",
+   "confidence": "single",
+   "status": "open",
+   "anchor": "Create `src/superclaude/pr_submit/merge_guard.py` following ./source.md sections 4.1, 4.2 and 4.6",
+   "anchor2": null,
+   "span": [
+    55,
+    56
+   ],
+   "span2": null,
+   "refs": [],
+   "claim": "The plan's base has no guard code, but HEAD already has the module, the 45-member enum and the flag, so the create step would overwrite a tracked module and the 43-to-45 edit finds nothing to change.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t4-1",
+     "fid": "F2",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L6",
+   "fp": "0cc5f5acd063d2da",
+   "blocking": false,
+   "severity_max": "MAJOR",
+   "category": "missing-requirement",
+   "confidence": "single",
+   "status": "open",
+   "anchor": "`notes` carries `auto_merge_armed`",
+   "anchor2": null,
+   "span": [
+    69,
+    70
+   ],
+   "span2": null,
+   "refs": [],
+   "claim": "The note has no required action, so an armed auto-merge is silently disarmed by the draft conversion and not restored or reported.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t4-1",
+     "fid": "F4",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L7",
+   "fp": "1ebb32d105a7d902",
+   "blocking": false,
+   "severity_max": "MINOR",
+   "category": "other",
+   "confidence": "overlap",
+   "status": "open",
+   "anchor": "and gitignored `.claude/` mirrors",
+   "anchor2": null,
+   "span": [
+    199,
+    200
+   ],
+   "span2": null,
+   "refs": [],
+   "claim": "git status never lists gitignored mirrors, so the acceptance wording promises a listing it cannot show.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t4-1",
+     "fid": "F11",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t1b-1",
+     "fid": "F5",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L8",
+   "fp": "6b7ad2a36ffb6582",
+   "blocking": false,
+   "severity_max": "MAJOR",
+   "category": "unpassable-check",
+   "confidence": "single",
+   "status": "open",
+   "anchor": "shows the argument-hint entry, the Options row and the section heading",
+   "anchor2": "a short \"Merge guard\" section next to \"Merge-conflict handling\"",
+   "span": [
+    184,
+    185
+   ],
+   "span2": [
+    181,
+    182
+   ],
+   "refs": [],
+   "claim": "A section titled \"Merge guard\" does not match grep for \"merge-guard\", so the criterion that grep shows the section heading fails unless the heading also carries the hyphenated flag.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t1b-1",
+     "fid": "F1",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  }
+ ]
+}

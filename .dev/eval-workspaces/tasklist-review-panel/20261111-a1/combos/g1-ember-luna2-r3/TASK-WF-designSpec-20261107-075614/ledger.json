@@ -1,0 +1,141 @@
+{
+ "schema": "review-ledger/1",
+ "doc": "/home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/.dev/eval-workspaces/tasklist-review-panel/20261111-a1/TASK-WF-designSpec-20261107-075614/candidate.md",
+ "cap_reviews": 3,
+ "rounds": [
+  {
+   "n": 1,
+   "doc_sha256": "044809e3a963fad395cfbe0988bece975650a3adf17176893665d92338bd3481",
+   "reviewers": [
+    {
+     "reviewer_id": "t2b-1",
+     "model": "muse-ember-1.0",
+     "report": "/home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/.dev/eval-workspaces/tasklist-review-panel/20261111-a1/TASK-WF-designSpec-20261107-075614/reviews/combos/g1-ember-luna2-r3/t2b-1.md",
+     "report_sha256": "39fce6b4466a5581ba35922a46d2b60e487562fc1f069c2ec1f65e70f21f725d",
+     "block_ok": false
+    },
+    {
+     "reviewer_id": "t4-1",
+     "model": "gpt-6-luna",
+     "report": "/home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/.dev/eval-workspaces/tasklist-review-panel/20261111-a1/TASK-WF-designSpec-20261107-075614/reviews/combos/g1-ember-luna2-r3/t4-1.md",
+     "report_sha256": "ed4cabe1665570e443060b1ac0573d699c41d166dbb784030ae477c068952e3b",
+     "block_ok": true
+    },
+    {
+     "reviewer_id": "t3-1",
+     "model": "gpt-6-luna",
+     "report": "/home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/.dev/eval-workspaces/tasklist-review-panel/20261111-a1/TASK-WF-designSpec-20261107-075614/reviews/combos/g1-ember-luna2-r3/t3-1.md",
+     "report_sha256": "480532bf2ed243d73d8db5b6820541ed1ffd55c597cb30173aba24dda70db96c",
+     "block_ok": true
+    }
+   ],
+   "verdict": "FAIL",
+   "decision": "REVISE",
+   "brief_ids": [
+    "L2",
+    "L3"
+   ]
+  }
+ ],
+ "rows": [
+  {
+   "lid": "L1",
+   "fp": "8411375004688f54",
+   "blocking": false,
+   "severity_max": "MAJOR",
+   "category": "contradiction",
+   "confidence": "single",
+   "status": "open",
+   "anchor": "one new bullet under Wave 0, written as a flat line before the Wave 1 bullet, that applies at every ordinal and in both modes and carries no L3 or `draft` condition",
+   "anchor2": "and that at L3 with `--merge-guard off` the line",
+   "span": [
+    136,
+    137
+   ],
+   "span2": [
+    136,
+    137
+   ],
+   "refs": [],
+   "claim": "Wave 0 bullet wording forces a guess about whether the required L3 off line may name L3.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t2b-1",
+     "fid": "F2",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L2",
+   "fp": "0cc5f5acd063d2da",
+   "blocking": true,
+   "severity_max": "MAJOR",
+   "category": "other",
+   "confidence": "single",
+   "status": "open",
+   "anchor": "ordinal 2 with phase `ENGAGE_PENDING` and a non-empty `pending` returns `REPORT_HELD` (row 2 wins over row 3);",
+   "anchor2": null,
+   "span": [
+    75,
+    76
+   ],
+   "span2": null,
+   "refs": [],
+   "claim": "A crash after the request is fsynced but before the draft call leaves the PR ready, yet resume at ordinal 2 reports it held and prints a clear command.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t4-1",
+     "fid": "F1",
+     "blocking": true
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L3",
+   "fp": "0cc5f5acd063d2da",
+   "blocking": true,
+   "severity_max": "CRITICAL",
+   "category": "unpassable-check",
+   "confidence": "single",
+   "status": "open",
+   "anchor": "resume_decision(*, mode, ordinal, guard, read, pending, dangling_branch, published)",
+   "anchor2": null,
+   "span": [
+    69,
+    70
+   ],
+   "span2": null,
+   "refs": [],
+   "claim": "Resume lacks the target SHA or event data needed to verify that the fix push is the PR head, so it cannot safely meet the required release behavior.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t3-1",
+     "fid": "F1",
+     "blocking": true
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  }
+ ]
+}

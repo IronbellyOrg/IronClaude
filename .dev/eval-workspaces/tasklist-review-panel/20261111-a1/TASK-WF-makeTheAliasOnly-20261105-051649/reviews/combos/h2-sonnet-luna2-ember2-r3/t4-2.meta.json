@@ -1,0 +1,12 @@
+{
+  "reviewer_id": "t4-2",
+  "expected_model": "gpt-6-luna",
+  "observed_model": "gpt-6-luna",
+  "model_ok": true,
+  "findings_block": true,
+  "attempt": 1,
+  "wall_s": 106,
+  "output_tokens_main": 5231,
+  "output_tokens_all": 5231,
+  "exit": 0
+}

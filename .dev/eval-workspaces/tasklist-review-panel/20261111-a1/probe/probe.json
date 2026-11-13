@@ -1,0 +1,105 @@
+{
+  "probe_date": "2026-11-11",
+  "mechanism_proven": "Bash claude -p --model <raw gateway model id>; observed model = assistant message.model in the JSON output",
+  "agent_tool_model_arg": "not usable for tier3/tier4/tier2b or non-first-slot models (Agent enum has only sonnet/opus/haiku/fable)",
+  "alias_findings": {
+    "claude-gw-tier1b[1m]": "claude-sonnet-5-5",
+    "claude-gw-tier2[1m]": "gpt-6.1-sol (NOT muse-wonder-1.0)",
+    "claude-gw-tier2b[1m]": "gpt-6.1-terra (NOT Qwen3.8-max)",
+    "claude-gw-tier3[1m]": "glm-5.3 (NOT Qwen3.8-max)",
+    "claude-gw-tier4[1m]": "gpt-6-luna (NOT grok-4.7)"
+  },
+  "results": [
+    {
+      "model": "Qwen3.8-max",
+      "mechanism": "b: Bash `claude -p --model <raw model id> --output-format json --no-session-persistence`",
+      "alias_or_flag_used": "--model Qwen3.8-max",
+      "served_model": "qwen3.8-max",
+      "answer_ok": true,
+      "error": false
+    },
+    {
+      "model": "claude-haiku-5-5",
+      "mechanism": "b: Bash `claude -p --model <raw model id> --output-format json --no-session-persistence`",
+      "alias_or_flag_used": "--model claude-haiku-5-5",
+      "served_model": "claude-haiku-5-5",
+      "answer_ok": true,
+      "error": false
+    },
+    {
+      "model": "claude-sonnet-5-5",
+      "mechanism": "b: Bash `claude -p --model <raw model id> --output-format json --no-session-persistence`",
+      "alias_or_flag_used": "--model claude-sonnet-5-5",
+      "served_model": "claude-sonnet-5-5",
+      "answer_ok": true,
+      "error": false
+    },
+    {
+      "model": "glm-5.3",
+      "mechanism": "b: Bash `claude -p --model <raw model id> --output-format json --no-session-persistence`",
+      "alias_or_flag_used": "--model glm-5.3",
+      "served_model": "glm-5.3",
+      "answer_ok": true,
+      "error": false
+    },
+    {
+      "model": "gpt-6-luna",
+      "mechanism": "b: Bash `claude -p --model <raw model id> --output-format json --no-session-persistence`",
+      "alias_or_flag_used": "--model gpt-6-luna",
+      "served_model": "gpt-6-luna",
+      "answer_ok": true,
+      "error": false
+    },
+    {
+      "model": "gpt-6.1-sol",
+      "mechanism": "b: Bash `claude -p --model <raw model id> --output-format json --no-session-persistence`",
+      "alias_or_flag_used": "--model gpt-6.1-sol",
+      "served_model": "gpt-6.1-sol",
+      "answer_ok": true,
+      "error": false
+    },
+    {
+      "model": "gpt-6.1-terra",
+      "mechanism": "b: Bash `claude -p --model <raw model id> --output-format json --no-session-persistence`",
+      "alias_or_flag_used": "--model gpt-6.1-terra",
+      "served_model": "gpt-6.1-terra",
+      "answer_ok": true,
+      "error": false
+    },
+    {
+      "model": "grok-4.7",
+      "mechanism": "b: Bash `claude -p --model <raw model id> --output-format json --no-session-persistence`",
+      "alias_or_flag_used": "--model grok-4.7",
+      "served_model": "grok-4.7-build",
+      "answer_ok": true,
+      "error": false
+    },
+    {
+      "model": "muse-spark-1.3",
+      "mechanism": "b: Bash `claude -p --model <raw model id> --output-format json --no-session-persistence`",
+      "alias_or_flag_used": "--model muse-spark-1.3",
+      "served_model": "muse-spark-1.3",
+      "answer_ok": true,
+      "error": false
+    },
+    {
+      "model": "muse-wonder-1.0",
+      "mechanism": "b: Bash `claude -p --model <raw model id> --output-format json --no-session-persistence`",
+      "alias_or_flag_used": "--model muse-wonder-1.0",
+      "served_model": "muse-wonder-1.0",
+      "answer_ok": true,
+      "error": false
+    },
+    {
+      "model": "muse-wonder-full-1.0",
+      "mechanism": "b: Bash `claude -p --model <raw model id> --output-format json --no-session-persistence`",
+      "alias_or_flag_used": "--model muse-wonder-full-1.0",
+      "served_model": "muse-wonder-full-1.0",
+      "answer_ok": true,
+      "error": false
+    }
+  ],
+  "max_parallel_tested": "8 simultaneous Bash-launched sessions, all answered 42 on the requested model in 43s wall; 12 not tested",
+  "sandbox_write": "Bash sessions can write to /tmp",
+  "notes": "grok-4.7 serves as grok-4.7-build (treated as match); one parallel grok reply did not contain 42 (answer_ok false) - rerun rule applies"
+}

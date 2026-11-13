@@ -1,0 +1,98 @@
+{
+  "environment": "gateway",
+  "review_kind": "first",
+  "reviewers": [
+    {
+      "alias": "claude-gw-tier1b[1m]",
+      "fallback_depth": 0,
+      "fallbacks": [
+        "gpt-6.1-sol",
+        "muse-wonder-full-1.0"
+      ],
+      "launch": null,
+      "model": "claude-sonnet-5-5",
+      "model_name": "Claude Sonnet 5.5",
+      "reviewer_id": "t1b-1",
+      "seed": null,
+      "slot_id": "t1b",
+      "stand_in": false,
+      "strategy": "fixed",
+      "tier": "tier1b"
+    },
+    {
+      "alias": "claude-gw-tier2b[1m]",
+      "fallback_depth": 1,
+      "fallbacks": [
+        "Qwen3.8-max",
+        "muse-wonder-1.0",
+        "gpt-6.1-terra"
+      ],
+      "launch": null,
+      "model": "glm-5.3",
+      "model_name": "GLM 5.3",
+      "reviewer_id": "t2b-1",
+      "seed": "3996555059|t2b|1",
+      "slot_id": "t2b",
+      "stand_in": false,
+      "strategy": "random",
+      "tier": "tier2b"
+    },
+    {
+      "alias": "claude-gw-tier3[1m]",
+      "fallback_depth": 0,
+      "fallbacks": [
+        "Qwen3.8-max"
+      ],
+      "launch": null,
+      "model": "glm-5.3",
+      "model_name": "GLM 5.3",
+      "reviewer_id": "t3-2",
+      "seed": "3996555059|t3|2",
+      "slot_id": "t3",
+      "stand_in": false,
+      "strategy": "random",
+      "tier": "tier3"
+    },
+    {
+      "alias": "claude-gw-tier4[1m]",
+      "fallback_depth": 1,
+      "fallbacks": [
+        "grok-4.7",
+        "gpt-6-luna"
+      ],
+      "launch": null,
+      "model": "claude-haiku-5-5",
+      "model_name": "Claude Haiku 5.5",
+      "reviewer_id": "t4-1",
+      "seed": "3996555059|t4|1",
+      "slot_id": "t4",
+      "stand_in": false,
+      "strategy": "random",
+      "tier": "tier4"
+    },
+    {
+      "alias": "claude-gw-tier4[1m]",
+      "fallback_depth": 0,
+      "fallbacks": [
+        "claude-haiku-5-5",
+        "grok-4.7"
+      ],
+      "launch": null,
+      "model": "gpt-6-luna",
+      "model_name": "GPT 6 Luna",
+      "reviewer_id": "t4-2",
+      "seed": "3996555059|t4|2",
+      "slot_id": "t4",
+      "stand_in": false,
+      "strategy": "random",
+      "tier": "tier4"
+    }
+  ],
+  "run_id": "TASK-WF-design-20261108-041415",
+  "schema": "review-panel-resolution/1",
+  "template_id": "live7",
+  "template_sha256": "191ea47fb9c5617b24e132c81e173fb0f67896c22be122736ffb9e4bc463a848",
+  "template_version": "1.0.0",
+  "tiers_sha256": "1a2a8ad2c1eabea93c4b4fbab8c3fe97bd20b4a187f0a559db8cedeca63f3a49",
+  "tiers_version": "1.0.0"
+}

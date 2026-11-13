@@ -1,0 +1,69 @@
+{
+ "block_ok": {
+  "t2b-1": false,
+  "t4-1": true
+ },
+ "brief_ids": [
+  "L4"
+ ],
+ "cleared": [],
+ "clusters": [
+  {
+   "event": "opened",
+   "lid": "L1",
+   "members": [
+    {
+     "blocking": false,
+     "fid": "F3",
+     "reviewer_id": "t2b-1"
+    }
+   ]
+  },
+  {
+   "event": "opened",
+   "lid": "L2",
+   "members": [
+    {
+     "blocking": false,
+     "fid": "F4",
+     "reviewer_id": "t2b-1"
+    }
+   ]
+  },
+  {
+   "event": "opened",
+   "lid": "L3",
+   "members": [
+    {
+     "blocking": false,
+     "fid": "F5",
+     "reviewer_id": "t2b-1"
+    }
+   ]
+  },
+  {
+   "event": "opened",
+   "lid": "L4",
+   "members": [
+    {
+     "blocking": true,
+     "fid": "F1",
+     "reviewer_id": "t4-1"
+    }
+   ]
+  }
+ ],
+ "decision": "REVISE",
+ "new": [
+  "L1",
+  "L2",
+  "L3",
+  "L4"
+ ],
+ "refound": [],
+ "regressed": [],
+ "verdict": "FAIL",
+ "warnings": [
+  "t2b-1: findings block problem (2 error(s)), first: anchor2 must have at most 200 characters"
+ ]
+}

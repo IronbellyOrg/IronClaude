@@ -1,0 +1,222 @@
+{
+ "schema": "review-ledger/1",
+ "doc": "/home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/.dev/eval-workspaces/tasklist-review-panel/20261111-a1/TASK-WF-designSpec-20261107-075614/candidate.md",
+ "cap_reviews": 3,
+ "rounds": [
+  {
+   "n": 1,
+   "doc_sha256": "044809e3a963fad395cfbe0988bece975650a3adf17176893665d92338bd3481",
+   "reviewers": [
+    {
+     "reviewer_id": "t1b-1",
+     "model": "claude-sonnet-5-5",
+     "report": "/home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/.dev/eval-workspaces/tasklist-review-panel/20261111-a1/TASK-WF-designSpec-20261107-075614/reviews/combos/g2-sonnet-ember-r4/t1b-1.md",
+     "report_sha256": "dd7f7b78274ce80cc79a44810af29632be4af22fa9c8830a981d996ba3caba1a",
+     "block_ok": true
+    },
+    {
+     "reviewer_id": "t2b-1",
+     "model": "muse-ember-1.0",
+     "report": "/home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/.dev/eval-workspaces/tasklist-review-panel/20261111-a1/TASK-WF-designSpec-20261107-075614/reviews/combos/g2-sonnet-ember-r4/t2b-1.md",
+     "report_sha256": "76bde973bb22d0c534ee6f1cd9954f7acb4982fbfbf3da5b34d1602e6a7ad731",
+     "block_ok": false
+    }
+   ],
+   "verdict": "PASS",
+   "decision": "PASS",
+   "brief_ids": []
+  }
+ ],
+ "rows": [
+  {
+   "lid": "L1",
+   "fp": "de519f0a078480f5",
+   "blocking": false,
+   "severity_max": "MAJOR",
+   "category": "unpassable-check",
+   "confidence": "single",
+   "status": "open",
+   "anchor": "also statically scans the script and asserts every `gh` line carries `--repo` or a `repos/` path",
+   "anchor2": "the script passes the `_RESOLUTION_SCRIPTS` origin-URL resolution tests",
+   "span": [
+    112,
+    113
+   ],
+   "span2": [
+    112,
+    113
+   ],
+   "refs": [],
+   "claim": "A literal scan of every gh line fails on the gh repo view resolver line that the _RESOLUTION_SCRIPTS tests require; the candidate never says to reuse _repo_scoped with its resolver exemption.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t1b-1",
+     "fid": "F1",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L2",
+   "fp": "0432b5b121028894",
+   "blocking": false,
+   "severity_max": "MAJOR",
+   "category": "missing-requirement",
+   "confidence": "overlap",
+   "status": "open",
+   "anchor": "fields `phase, phase_before_request, cycle_id, original_is_draft, baseline, run_toggles, unsettled",
+   "anchor2": "true when a `push_completed` event, normal or recovered, carries the guard's `cycle_id`",
+   "span": [
+    55,
+    56
+   ],
+   "span2": [
+    55,
+    56
+   ],
+   "refs": [],
+   "claim": "The fold rule for cycle_id is unstated, so a first-request cycle_id makes held_cycle_published true for a later cycle and resume releases a PR whose fixes are unpublished.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t1b-1",
+     "fid": "F2",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t1b-1",
+     "fid": "F3",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t2b-1",
+     "fid": "F2",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L3",
+   "fp": "8411375004688f54",
+   "blocking": false,
+   "severity_max": "MINOR",
+   "category": "other",
+   "confidence": "single",
+   "status": "open",
+   "anchor": "applies at every ordinal and in both modes and carries no L3 or `draft` condition",
+   "anchor2": "at L3 with `--merge-guard off` the line",
+   "span": [
+    136,
+    137
+   ],
+   "span2": [
+    136,
+    137
+   ],
+   "refs": [],
+   "claim": "The Wave 0 bullet is required to have no L3 condition yet names an L3 case for the off line; the test wording keeps it passable.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t1b-1",
+     "fid": "F4",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L4",
+   "fp": "feb8395e9a53949d",
+   "blocking": false,
+   "severity_max": "MINOR",
+   "category": "other",
+   "confidence": "single",
+   "status": "open",
+   "anchor": "names one single place where the guard-enabled cycle id is minted",
+   "anchor2": "a CI-fix cycle engages with kind `ci` and releases after `push_completed` before the CI re-poll",
+   "span": [
+    36,
+    37
+   ],
+   "span2": [
+    149,
+    150
+   ],
+   "refs": [],
+   "claim": "Review-fix ids are minted in Wave 3 and CI ids in Wave 8, so the single-place requirement holds only if the ref's Engage section is the one place; the candidate does not say so.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t1b-1",
+     "fid": "F5",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L5",
+   "fp": "0cc5f5acd063d2da",
+   "blocking": false,
+   "severity_max": "MAJOR",
+   "category": "missing-requirement",
+   "confidence": "overlap",
+   "status": "open",
+   "anchor": "each re-enter `release_decision` with `push_completed=True`",
+   "anchor2": null,
+   "span": [
+    76,
+    77
+   ],
+   "span2": null,
+   "refs": [],
+   "claim": "The source of the per-cycle applied_edits value on resume is unspecified; a zero makes the release cause no_edits instead of pushed, with no effect on the outcome.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t1b-1",
+     "fid": "F6",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t2b-1",
+     "fid": "F1",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  }
+ ]
+}

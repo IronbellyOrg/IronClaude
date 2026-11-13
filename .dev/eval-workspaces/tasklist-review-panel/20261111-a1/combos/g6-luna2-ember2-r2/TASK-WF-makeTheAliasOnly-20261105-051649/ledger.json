@@ -1,0 +1,198 @@
+{
+ "schema": "review-ledger/1",
+ "doc": "/home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/.dev/eval-workspaces/tasklist-review-panel/20261111-a1/TASK-WF-makeTheAliasOnly-20261105-051649/candidate.md",
+ "cap_reviews": 3,
+ "rounds": [
+  {
+   "n": 1,
+   "doc_sha256": "cfd8f983d22ab8af1638ffb2a464215e56048f753f7902e3066435d8de176ca4",
+   "reviewers": [
+    {
+     "reviewer_id": "t4-1",
+     "model": "gpt-6-luna",
+     "report": "/home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/.dev/eval-workspaces/tasklist-review-panel/20261111-a1/TASK-WF-makeTheAliasOnly-20261105-051649/reviews/combos/g6-luna2-ember2-r2/t4-1.md",
+     "report_sha256": "c9993492cef2282722b6e502e70ebc208d081483d835272af98ad9f585c3ac51",
+     "block_ok": true
+    },
+    {
+     "reviewer_id": "t4-2",
+     "model": "gpt-6-luna",
+     "report": "/home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/.dev/eval-workspaces/tasklist-review-panel/20261111-a1/TASK-WF-makeTheAliasOnly-20261105-051649/reviews/combos/g6-luna2-ember2-r2/t4-2.md",
+     "report_sha256": "caa267d2026d1c84488dce199a6ecb86371958f451f4afb1d4a13cfe758bec95",
+     "block_ok": false
+    },
+    {
+     "reviewer_id": "t2b-1",
+     "model": "muse-ember-1.0",
+     "report": "/home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/.dev/eval-workspaces/tasklist-review-panel/20261111-a1/TASK-WF-makeTheAliasOnly-20261105-051649/reviews/combos/g6-luna2-ember2-r2/t2b-1.md",
+     "report_sha256": "89c21aa72927e23ac262371013694fe0f6cb34fdda36ee0fd602caec7a3e3f94",
+     "block_ok": false
+    },
+    {
+     "reviewer_id": "t3-1",
+     "model": "muse-ember-1.0",
+     "report": "/home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/.dev/eval-workspaces/tasklist-review-panel/20261111-a1/TASK-WF-makeTheAliasOnly-20261105-051649/reviews/combos/g6-luna2-ember2-r2/t3-1.md",
+     "report_sha256": "3d8d51ed15664b7c75428eec1459f43a7d21e5b19f0a16f5a2a192ae4e56cc08",
+     "block_ok": true
+    }
+   ],
+   "verdict": "FAIL",
+   "decision": "REVISE",
+   "brief_ids": [
+    "L1",
+    "L4"
+   ]
+  }
+ ],
+ "rows": [
+  {
+   "lid": "L1",
+   "fp": "efbe16dfbbc34f21",
+   "blocking": true,
+   "severity_max": "CRITICAL",
+   "category": "contradiction",
+   "confidence": "overlap",
+   "status": "open",
+   "anchor": "nothing set outside",
+   "anchor2": "so a launch that is not in tier mode leaves the inherited environment untouched",
+   "span": [
+    14,
+    15
+   ],
+   "span2": [
+    128,
+    129
+   ],
+   "refs": [],
+   "claim": "An implementer who follows the stated text as written builds a launcher that preserves inherited tier IDs on non-tier launches, and that is wrong because the spec says outside a tier workspace nothing is set and aliases keep Claude Code’s meaning.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t4-1",
+     "fid": "F1",
+     "blocking": true
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t2b-1",
+     "fid": "F2",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t3-1",
+     "fid": "F2",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L2",
+   "fp": "a02f572d42a975c8",
+   "blocking": false,
+   "severity_max": "MAJOR",
+   "category": "other",
+   "confidence": "single",
+   "status": "open",
+   "anchor": "names the same variables with an underscore after the tier digit, so the primary ladder never activates",
+   "anchor2": null,
+   "span": [
+    85,
+    86
+   ],
+   "span2": null,
+   "refs": [],
+   "claim": "The candidate describes an underscore-name defect that is absent from the checked-out retry reference, so Task 5's rename and behavior-change note may be a no-op against this checkout.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t4-1",
+     "fid": "F2",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L3",
+   "fp": "7100ecb4c621f2df",
+   "blocking": false,
+   "severity_max": "MAJOR",
+   "category": "missing-requirement",
+   "confidence": "single",
+   "status": "open",
+   "anchor": "outside one nothing is set and opus, sonnet and haiku keep Claude Code's meaning",
+   "anchor2": "today the workspace defaults file exports real model ids for them.",
+   "span": [
+    98,
+    99
+   ],
+   "span2": [
+    22,
+    23
+   ],
+   "refs": [],
+   "claim": "The reference page may conflate variables not set by the launcher with variables absent from the inherited environment, leaving readers with conflicting expectations outside tier workspaces.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t4-2",
+     "fid": "F2",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L4",
+   "fp": "01e7976c6e6c24ed",
+   "blocking": true,
+   "severity_max": "MAJOR",
+   "category": "unpassable-check",
+   "confidence": "single",
+   "status": "open",
+   "anchor": "TIER_TEXT_ALLOWED (those three files, everything under src/superclaude/skills/sc-issue-protocol/, and src/superclaude/skills/ccsession-tag/ which is read-only here).",
+   "anchor2": "The text claude-gw-tier appears under src/superclaude/agents, commands, skills, cli, hooks and core only in TIER_TEXT_ALLOWED paths.",
+   "span": [
+    31,
+    32
+   ],
+   "span2": [
+    34,
+    35
+   ],
+   "refs": [],
+   "claim": "Task 1's tier-text allow-list omits src/superclaude/cli/review/data/, which contains claude-gw-tier text, so the exact-seven red phase fails.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t3-1",
+     "fid": "F1",
+     "blocking": true
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  }
+ ]
+}

@@ -1,0 +1,12 @@
+{
+  "reviewer_id": "t3-1",
+  "expected_model": "claude-haiku-5-5",
+  "observed_model": "claude-haiku-5-5",
+  "model_ok": true,
+  "findings_block": true,
+  "attempt": 1,
+  "wall_s": 202,
+  "output_tokens_main": 44207,
+  "output_tokens_all": 44207,
+  "exit": 0
+}

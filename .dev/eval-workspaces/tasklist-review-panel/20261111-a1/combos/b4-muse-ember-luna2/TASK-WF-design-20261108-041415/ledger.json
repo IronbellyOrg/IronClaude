@@ -1,0 +1,234 @@
+{
+ "schema": "review-ledger/1",
+ "doc": "/home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/.dev/eval-workspaces/tasklist-review-panel/20261111-a1/TASK-WF-design-20261108-041415/candidate.md",
+ "cap_reviews": 3,
+ "rounds": [
+  {
+   "n": 1,
+   "doc_sha256": "71d4a7455d11818d9ad4718605a9254142cf1e3e250889cfdfa89285eb5f7d24",
+   "reviewers": [
+    {
+     "reviewer_id": "t2b-1",
+     "model": "muse-ember-1.0",
+     "report": "/home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/.dev/eval-workspaces/tasklist-review-panel/20261111-a1/TASK-WF-design-20261108-041415/reviews/combos/b4-muse-ember-luna2/t2b-1.md",
+     "report_sha256": "218b251043a2ba7d0f389b0a92cdc8b3de6b510c92b8ef8b6286118c356bba2f",
+     "block_ok": true
+    },
+    {
+     "reviewer_id": "t4-1",
+     "model": "gpt-6-luna",
+     "report": "/home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/.dev/eval-workspaces/tasklist-review-panel/20261111-a1/TASK-WF-design-20261108-041415/reviews/combos/b4-muse-ember-luna2/t4-1.md",
+     "report_sha256": "0e0aa7677cb16730515cf3fec0defdf7d6065fb218a8c37d5787d2a5e93d6bce",
+     "block_ok": true
+    },
+    {
+     "reviewer_id": "t3-1",
+     "model": "gpt-6-luna",
+     "report": "/home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/.dev/eval-workspaces/tasklist-review-panel/20261111-a1/TASK-WF-design-20261108-041415/reviews/combos/b4-muse-ember-luna2/t3-1.md",
+     "report_sha256": "d7749bcf380144ad30a47091107cb865cbbcbff44af2f63607bd9b81b480a3e3",
+     "block_ok": true
+    }
+   ],
+   "verdict": "FAIL",
+   "decision": "REVISE",
+   "brief_ids": [
+    "L3"
+   ]
+  }
+ ],
+ "rows": [
+  {
+   "lid": "L1",
+   "fp": "cdfe7b18475eba75",
+   "blocking": false,
+   "severity_max": "MAJOR",
+   "category": "other",
+   "confidence": "single",
+   "status": "open",
+   "anchor": "`E-CREATE-FAILED` and `E-POST-FAILED` keep their current meaning.",
+   "anchor2": "a failed type or field never stops the run after the issue exists",
+   "span": [
+    46,
+    47
+   ],
+   "span2": [
+    52,
+    53
+   ],
+   "refs": [],
+   "claim": "E-POST-FAILED scope versus the new field POST failure is ambiguous and needs one sentence.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t2b-1",
+     "fid": "F1",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L2",
+   "fp": "838e56235b92a9f4",
+   "blocking": false,
+   "severity_max": "MAJOR",
+   "category": "contradiction",
+   "confidence": "single",
+   "status": "open",
+   "anchor": "the skill folder and the agents contain `-X POST` together with `issue-field-values` and no `-X PUT`",
+   "anchor2": "the ban on writes and on `-X` other than `GET` stays word for word",
+   "span": [
+    121,
+    122
+   ],
+   "span2": [
+    84,
+    85
+   ],
+   "refs": [],
+   "claim": "Task 8 wording can be misread as requiring -X POST in the read-only T3 agent file.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t2b-1",
+     "fid": "F2",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L3",
+   "fp": "84ab306d57548368",
+   "blocking": true,
+   "severity_max": "MAJOR",
+   "category": "other",
+   "confidence": "overlap",
+   "status": "open",
+   "anchor": "Edit only under `src/superclaude/`, `tests/`, `docs/` and `plugins/superclaude/skills/sc-recommend/refs/`.",
+   "anchor2": "write `./artifacts/owner-manual-check.md` in this package",
+   "span": [
+    18,
+    19
+   ],
+   "span2": [
+    167,
+    168
+   ],
+   "refs": [],
+   "claim": "Task 12 artifact path is outside the listed edit roots and should be named as an exception.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t2b-1",
+     "fid": "F3",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t4-1",
+     "fid": "F1",
+     "blocking": true
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t3-1",
+     "fid": "F1",
+     "blocking": true
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t3-1",
+     "fid": "F2",
+     "blocking": true
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L4",
+   "fp": "a5c8825bbf2c5560",
+   "blocking": false,
+   "severity_max": "MINOR",
+   "category": "other",
+   "confidence": "single",
+   "status": "open",
+   "anchor": "which selects issue type Test for a feature in `tests` and is otherwise recorded in `flags.md`",
+   "anchor2": null,
+   "span": [
+    97,
+    98
+   ],
+   "span2": null,
+   "refs": [],
+   "claim": "Command wording leaves bug mode in tests to be inferred from the Q7 rule in labels.md.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t2b-1",
+     "fid": "F4",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L5",
+   "fp": "13be5f40085513b0",
+   "blocking": false,
+   "severity_max": "MAJOR",
+   "category": "missing-requirement",
+   "confidence": "overlap",
+   "status": "open",
+   "anchor": "the POST with `gh api -X POST repos/<R>/issues/<N>/issue-field-values --input <file>` and body",
+   "anchor2": null,
+   "span": [
+    33,
+    34
+   ],
+   "span2": null,
+   "refs": [],
+   "claim": "The plan does not explicitly require verifying the field read-back by matching its field ID and comparing the single-select option name, leaving a success check that can misclassify an option ID.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t4-1",
+     "fid": "F2",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t3-1",
+     "fid": "F3",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  }
+ ]
+}

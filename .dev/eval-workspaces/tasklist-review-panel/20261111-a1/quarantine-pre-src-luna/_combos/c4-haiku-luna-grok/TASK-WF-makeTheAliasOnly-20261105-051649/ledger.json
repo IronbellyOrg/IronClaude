@@ -1,0 +1,249 @@
+{
+ "schema": "review-ledger/1",
+ "doc": "/home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/.dev/eval-workspaces/tasklist-review-panel/20261111-a1/TASK-WF-makeTheAliasOnly-20261105-051649/candidate.md",
+ "cap_reviews": 3,
+ "rounds": [
+  {
+   "n": 1,
+   "doc_sha256": "cfd8f983d22ab8af1638ffb2a464215e56048f753f7902e3066435d8de176ca4",
+   "reviewers": [
+    {
+     "reviewer_id": "t3-1",
+     "model": "claude-haiku-5-5",
+     "report": "/home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/.dev/eval-workspaces/tasklist-review-panel/20261111-a1/TASK-WF-makeTheAliasOnly-20261105-051649/reviews/combos/c4-haiku-luna-grok/t3-1.catfix.md",
+     "report_sha256": "7c887ba8614eebdc42a4a77ee7a7e4799b224126d1e6624c80159c5803e36475",
+     "block_ok": true
+    },
+    {
+     "reviewer_id": "t4-1",
+     "model": "gpt-6-luna",
+     "report": "/home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/.dev/eval-workspaces/tasklist-review-panel/20261111-a1/TASK-WF-makeTheAliasOnly-20261105-051649/reviews/combos/c4-haiku-luna-grok/t4-1.catfix.md",
+     "report_sha256": "c91011bb45ad49fc05894b3d72adadf2b494a211d2d76ada801e0e5ec69a089f",
+     "block_ok": true
+    },
+    {
+     "reviewer_id": "t4-2",
+     "model": "grok-4.7",
+     "report": "/home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/.dev/eval-workspaces/tasklist-review-panel/20261111-a1/TASK-WF-makeTheAliasOnly-20261105-051649/reviews/combos/c4-haiku-luna-grok/t4-2.md",
+     "report_sha256": "cdeaec4efe225eec5871d1f20cfa6a08a381447f2b17bb7cdf665475a7564b43",
+     "block_ok": true
+    }
+   ],
+   "verdict": "FAIL",
+   "decision": "REVISE",
+   "brief_ids": [
+    "L1"
+   ]
+  }
+ ],
+ "rows": [
+  {
+   "lid": "L1",
+   "fp": "01e7976c6e6c24ed",
+   "blocking": true,
+   "severity_max": "CRITICAL",
+   "category": "unpassable-check",
+   "confidence": "overlap",
+   "status": "open",
+   "anchor": "fails exactly these seven tests: the Python constants test",
+   "anchor2": "Create tests/skills/test_model_alias_policy.py (ROOT = Path(__file__)",
+   "span": [
+    45,
+    46
+   ],
+   "span2": [
+    31,
+    32
+   ],
+   "refs": [],
+   "claim": "On this checkout all 13 policy tests pass and the file already exists, so the required seven-failure red state cannot occur.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t3-1",
+     "fid": "F1",
+     "blocking": true
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t3-1",
+     "fid": "F2",
+     "blocking": true
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t4-1",
+     "fid": "F1",
+     "blocking": true
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t4-2",
+     "fid": "F1",
+     "blocking": true
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t4-2",
+     "fid": "F2",
+     "blocking": true
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t4-2",
+     "fid": "F4",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L2",
+   "fp": "5248d5f5947bf63f",
+   "blocking": false,
+   "severity_max": "MAJOR",
+   "category": "other",
+   "confidence": "single",
+   "status": "open",
+   "anchor": "change the expected command at line 235 from `--model claude-opus-4-8`",
+   "anchor2": "rename test_brainstorm_steps_have_no_handoff_and_pin_models (lines 268-282)",
+   "span": [
+    55,
+    56
+   ],
+   "span2": [
+    65,
+    66
+   ],
+   "refs": [],
+   "claim": "Several described edits are already present and the line numbers are stale, so the stated steps are no-ops with no verify-then-skip instruction.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t3-1",
+     "fid": "F3",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L3",
+   "fp": "a02f572d42a975c8",
+   "blocking": false,
+   "severity_max": "MAJOR",
+   "category": "other",
+   "confidence": "single",
+   "status": "open",
+   "anchor": "T3Model01 gpt-6.1-terra, T2Model02 glm-5.3, T1Model02 gpt-6.1-sol, T1Model01 claude-opus-5-5",
+   "anchor2": "rung 1 is a non-Claude model, rungs 0 and 2 are GPT models",
+   "span": [
+    85,
+    86
+   ],
+   "span2": [
+    85,
+    86
+   ],
+   "refs": [],
+   "claim": "defaults.sh sets T3Model01 to glm-5.3, so rung 0 is not GPT and the notes would state a false adviser-selection effect.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t3-1",
+     "fid": "F4",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L4",
+   "fp": "beeaa6833f7cf565",
+   "blocking": false,
+   "severity_max": "MAJOR",
+   "category": "other",
+   "confidence": "overlap",
+   "status": "open",
+   "anchor": "the tier-mode block at lines 776-785, where the launcher also tests that CCSESSION_EXT_PROFILE is not 1 at line 777",
+   "anchor2": "The fake claude in that module records only a fixed set of keys (lines 330-341)",
+   "span": [
+    128,
+    129
+   ],
+   "span2": [
+    128,
+    129
+   ],
+   "refs": [],
+   "claim": "The cited launcher and test lines hold other code, and the fake claude already records the three variables, so the spec would misdirect the launcher change and duplicate keys.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t3-1",
+     "fid": "F5",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t4-2",
+     "fid": "F3",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L5",
+   "fp": "a45f8403488af966",
+   "blocking": false,
+   "severity_max": "MINOR",
+   "category": "other",
+   "confidence": "single",
+   "status": "open",
+   "anchor": "These tests are an optional guard beyond the four listed spec items",
+   "anchor2": null,
+   "span": [
+    120,
+    121
+   ],
+   "span2": null,
+   "refs": [],
+   "claim": "The phrase 'the four listed spec items' refers to no list in the candidate.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t3-1",
+     "fid": "F6",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  }
+ ]
+}

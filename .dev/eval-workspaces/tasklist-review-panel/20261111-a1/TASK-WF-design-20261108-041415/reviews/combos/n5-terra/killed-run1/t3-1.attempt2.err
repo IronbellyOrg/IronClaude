@@ -1,0 +1,2 @@
+[claude-code:unrecognized_model] {"model":"glm-5.3","query_source":"sdk"}
+[claude-code:unrecognized_model] {"model":"claude-gw-tier2[1m]","query_source":"web_search_tool"}

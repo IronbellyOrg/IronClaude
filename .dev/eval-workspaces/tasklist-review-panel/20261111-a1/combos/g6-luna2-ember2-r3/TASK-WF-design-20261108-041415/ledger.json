@@ -1,0 +1,299 @@
+{
+ "schema": "review-ledger/1",
+ "doc": "/home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/.dev/eval-workspaces/tasklist-review-panel/20261111-a1/TASK-WF-design-20261108-041415/candidate.md",
+ "cap_reviews": 3,
+ "rounds": [
+  {
+   "n": 1,
+   "doc_sha256": "71d4a7455d11818d9ad4718605a9254142cf1e3e250889cfdfa89285eb5f7d24",
+   "reviewers": [
+    {
+     "reviewer_id": "t4-1",
+     "model": "gpt-6-luna",
+     "report": "/home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/.dev/eval-workspaces/tasklist-review-panel/20261111-a1/TASK-WF-design-20261108-041415/reviews/combos/g6-luna2-ember2-r3/t4-1.md",
+     "report_sha256": "3486d7b3273a0aea18ca9a07ceb7d2166c4dd5ee1340c9f59b2db304dfc3212a",
+     "block_ok": false
+    },
+    {
+     "reviewer_id": "t4-2",
+     "model": "gpt-6-luna",
+     "report": "/home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/.dev/eval-workspaces/tasklist-review-panel/20261111-a1/TASK-WF-design-20261108-041415/reviews/combos/g6-luna2-ember2-r3/t4-2.md",
+     "report_sha256": "21bda24d2bf747b9dda31f410529f175e959a1ec9a50606076aa3a7c4a233f7e",
+     "block_ok": true
+    },
+    {
+     "reviewer_id": "t2b-1",
+     "model": "muse-ember-1.0",
+     "report": "/home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/.dev/eval-workspaces/tasklist-review-panel/20261111-a1/TASK-WF-design-20261108-041415/reviews/combos/g6-luna2-ember2-r3/t2b-1.md",
+     "report_sha256": "3fb0ad5150d8402fc0f32b36cd31a196618cf483a68d3e6d0bcde8af033aa64a",
+     "block_ok": true
+    },
+    {
+     "reviewer_id": "t3-1",
+     "model": "muse-ember-1.0",
+     "report": "/home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/.dev/eval-workspaces/tasklist-review-panel/20261111-a1/TASK-WF-design-20261108-041415/reviews/combos/g6-luna2-ember2-r3/t3-1.md",
+     "report_sha256": "d7f27fcd5788dfc8d991ea1afeceebe474920fa65db09b88517dc7166ad6088d",
+     "block_ok": true
+    }
+   ],
+   "verdict": "FAIL",
+   "decision": "REVISE",
+   "brief_ids": [
+    "L1"
+   ]
+  }
+ ],
+ "rows": [
+  {
+   "lid": "L1",
+   "fp": "84ab306d57548368",
+   "blocking": true,
+   "severity_max": "MAJOR",
+   "category": "contradiction",
+   "confidence": "overlap",
+   "status": "open",
+   "anchor": "Edit only under `src/superclaude/`, `tests/`, `docs/` and `plugins/superclaude/skills/sc-recommend/refs/`.",
+   "anchor2": "Then write `./artifacts/owner-manual-check.md` in this package.",
+   "span": [
+    18,
+    19
+   ],
+   "span2": [
+    167,
+    168
+   ],
+   "refs": [],
+   "claim": "The plan both forbids edits outside the listed directories and requires an artifact outside them, so its edit scope cannot be followed as written.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t4-1",
+     "fid": "F1",
+     "blocking": true
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t4-2",
+     "fid": "F1",
+     "blocking": true
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t4-2",
+     "fid": "F2",
+     "blocking": true
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t2b-1",
+     "fid": "F1",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t3-1",
+     "fid": "F4",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L2",
+   "fp": "dee94abb1083a654",
+   "blocking": false,
+   "severity_max": "MAJOR",
+   "category": "other",
+   "confidence": "single",
+   "status": "open",
+   "anchor": "Edit `src/superclaude/core/HOW-WE-WORK.md` at line 329 (the `/sc:issue` row that says \"labels from a fixed set\")",
+   "anchor2": null,
+   "span": [
+    156,
+    157
+   ],
+   "span2": null,
+   "refs": [],
+   "claim": "Line 329 no longer holds the quoted phrase in the live file, so the edit step is stale",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t2b-1",
+     "fid": "F2",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L3",
+   "fp": "d9cef126707a6ddb",
+   "blocking": false,
+   "severity_max": "MINOR",
+   "category": "other",
+   "confidence": "single",
+   "status": "open",
+   "anchor": "Leave history and decision-log entries as they are except for wording that is now false.",
+   "anchor2": null,
+   "span": [
+    145,
+    146
+   ],
+   "span2": null,
+   "refs": [],
+   "claim": "History wording allows both keeping and rewriting false statements",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t2b-1",
+     "fid": "F3",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L4",
+   "fp": "2a464d78c7588b65",
+   "blocking": false,
+   "severity_max": "MAJOR",
+   "category": "missing-requirement",
+   "confidence": "single",
+   "status": "open",
+   "anchor": "add a third YAML block with exactly the keys `issue_type`, `complexity_field`, `classification_missing`",
+   "anchor2": null,
+   "span": [
+    59,
+    60
+   ],
+   "span2": null,
+   "refs": [],
+   "claim": "Third block value semantics (read-back names, lines without prefix, null on STOP) are never stated, so a key-correct block can still carry wrong values.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t3-1",
+     "fid": "F1",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L5",
+   "fp": "13be5f40085513b0",
+   "blocking": false,
+   "severity_max": "MAJOR",
+   "category": "missing-requirement",
+   "confidence": "single",
+   "status": "open",
+   "anchor": "the POST with `gh api -X POST repos/<R>/issues/<N>/issue-field-values --input <file>`",
+   "anchor2": null,
+   "span": [
+    33,
+    34
+   ],
+   "span2": null,
+   "refs": [],
+   "claim": "POST input path is left as <file>, so it can point at the renamed draft directory and the field write fails as not set.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t3-1",
+     "fid": "F2",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L6",
+   "fp": "84ab306d57548368",
+   "blocking": false,
+   "severity_max": "MINOR",
+   "category": "other",
+   "confidence": "single",
+   "status": "open",
+   "anchor": "Line numbers named in tasks come from the issue analysis on commit `1aa2e5c3` and must be re-read in the live file before each edit.",
+   "anchor2": null,
+   "span": [
+    24,
+    25
+   ],
+   "span2": null,
+   "refs": [],
+   "claim": "Cited line numbers are stale at HEAD (tests sit about 50 lines later); the re-read rule mitigates but search by name would be safer.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t3-1",
+     "fid": "F3",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L7",
+   "fp": "a5c8825bbf2c5560",
+   "blocking": false,
+   "severity_max": "MINOR",
+   "category": "other",
+   "confidence": "single",
+   "status": "open",
+   "anchor": "the `--mode` row (line 41) to \"Picks the feature or bug template, the Feature or Bug issue type and the `enhancement` / `bug` label\"",
+   "anchor2": null,
+   "span": [
+    97,
+    98
+   ],
+   "span2": null,
+   "refs": [],
+   "claim": "The --mode row omits Test; only the adjacent --type row states the tests case, so the row alone misstates the type rule.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t3-1",
+     "fid": "F5",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  }
+ ]
+}

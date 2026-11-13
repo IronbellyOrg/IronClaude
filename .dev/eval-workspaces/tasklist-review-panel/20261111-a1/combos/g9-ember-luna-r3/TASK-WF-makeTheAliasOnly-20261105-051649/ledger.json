@@ -1,0 +1,207 @@
+{
+ "schema": "review-ledger/1",
+ "doc": "/home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/.dev/eval-workspaces/tasklist-review-panel/20261111-a1/TASK-WF-makeTheAliasOnly-20261105-051649/candidate.md",
+ "cap_reviews": 3,
+ "rounds": [
+  {
+   "n": 1,
+   "doc_sha256": "cfd8f983d22ab8af1638ffb2a464215e56048f753f7902e3066435d8de176ca4",
+   "reviewers": [
+    {
+     "reviewer_id": "t2b-1",
+     "model": "muse-ember-1.0",
+     "report": "/home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/.dev/eval-workspaces/tasklist-review-panel/20261111-a1/TASK-WF-makeTheAliasOnly-20261105-051649/reviews/combos/g9-ember-luna-r3/t2b-1.md",
+     "report_sha256": "5c248e8de6807df6845863b08ab997cbe45d865119a96e274232ca4bd8a38cff",
+     "block_ok": true
+    },
+    {
+     "reviewer_id": "t4-1",
+     "model": "gpt-6-luna",
+     "report": "/home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/.dev/eval-workspaces/tasklist-review-panel/20261111-a1/TASK-WF-makeTheAliasOnly-20261105-051649/reviews/combos/g9-ember-luna-r3/t4-1.md",
+     "report_sha256": "3977adc6e370ea6ad534230b7cac3293878846f38d9fcafd3fd75248411f2ced",
+     "block_ok": true
+    }
+   ],
+   "verdict": "FAIL",
+   "decision": "REVISE",
+   "brief_ids": [
+    "L2",
+    "L5"
+   ]
+  }
+ ],
+ "rows": [
+  {
+   "lid": "L1",
+   "fp": "01e7976c6e6c24ed",
+   "blocking": false,
+   "severity_max": "MAJOR",
+   "category": "other",
+   "confidence": "single",
+   "status": "open",
+   "anchor": "fails exactly these seven tests: the Python constants test, the reflect default test, the D12 test, the chains test, the cleanup-audit test, the retry names test and the mapping document test",
+   "anchor2": null,
+   "span": [
+    45,
+    46
+   ],
+   "span2": null,
+   "refs": [],
+   "claim": "Seven-count depends on treating the combined audit bullet as one test, so splitting it changes the pass and fail counts.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t2b-1",
+     "fid": "F1",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t2b-1",
+     "fid": "F5",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L2",
+   "fp": "01e7976c6e6c24ed",
+   "blocking": true,
+   "severity_max": "MAJOR",
+   "category": "other",
+   "confidence": "overlap",
+   "status": "open",
+   "anchor": "ISSUE_WORKER_PINS (the three issue-worker agent files, whose pinned values must equal claude-gw-tier3, claude-gw-tier2 and claude-gw-tier1a",
+   "anchor2": null,
+   "span": [
+    31,
+    32
+   ],
+   "span2": null,
+   "refs": [],
+   "claim": "Allow-list values are listed in reverse filename order without an explicit filename-to-value mapping.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t2b-1",
+     "fid": "F2",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t4-1",
+     "fid": "F1",
+     "blocking": true
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L3",
+   "fp": "c82326e4408cc21b",
+   "blocking": false,
+   "severity_max": "MINOR",
+   "category": "missing-requirement",
+   "confidence": "single",
+   "status": "open",
+   "anchor": "and remove the 50-70% cost-reduction claim, which was specific to Haiku",
+   "anchor2": null,
+   "span": [
+    75,
+    76
+   ],
+   "span2": null,
+   "refs": [],
+   "claim": "Cost-claim removal is required in the task text but not covered by the Haiku grep acceptance check.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t2b-1",
+     "fid": "F3",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L4",
+   "fp": "a45f8403488af966",
+   "blocking": false,
+   "severity_max": "MINOR",
+   "category": "other",
+   "confidence": "single",
+   "status": "open",
+   "anchor": "These tests are an optional guard beyond the four listed spec items; keep them small",
+   "anchor2": null,
+   "span": [
+    120,
+    121
+   ],
+   "span2": null,
+   "refs": [],
+   "claim": "Characterization tests are called optional yet their existence is required by the acceptance criteria.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t2b-1",
+     "fid": "F4",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L5",
+   "fp": "beeaa6833f7cf565",
+   "blocking": true,
+   "severity_max": "MAJOR",
+   "category": "unpassable-check",
+   "confidence": "single",
+   "status": "open",
+   "anchor": "the tier-mode block at lines 776-785, where the launcher also tests that CCSESSION_EXT_PROFILE is not 1 at line 777, and the custom-option exports at lines 1099-1103",
+   "anchor2": null,
+   "span": [
+    128,
+    129
+   ],
+   "span2": null,
+   "refs": [],
+   "claim": "The required launcher anchors point to unrelated code in the current branch, so the follow-up spec cannot quote the stated behavior at those line numbers.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t4-1",
+     "fid": "F2",
+     "blocking": true
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  }
+ ]
+}

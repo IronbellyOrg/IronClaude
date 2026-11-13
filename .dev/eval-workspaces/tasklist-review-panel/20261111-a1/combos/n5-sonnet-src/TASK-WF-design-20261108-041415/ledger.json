@@ -1,0 +1,318 @@
+{
+ "schema": "review-ledger/1",
+ "doc": "/home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/.dev/eval-workspaces/tasklist-review-panel/20261111-a1/TASK-WF-design-20261108-041415/candidate.md",
+ "cap_reviews": 3,
+ "rounds": [
+  {
+   "n": 1,
+   "doc_sha256": "71d4a7455d11818d9ad4718605a9254142cf1e3e250889cfdfa89285eb5f7d24",
+   "reviewers": [
+    {
+     "reviewer_id": "t2b-1",
+     "model": "muse-wonder-1.0",
+     "report": "/home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/.dev/eval-workspaces/tasklist-review-panel/20261111-a1/TASK-WF-design-20261108-041415/reviews/combos/n5-sonnet-src/t2b-1.md",
+     "report_sha256": "543f4abd8ccc59dba928cd1cff1dc11eccbb9c528ad51d9cdf31fad566d55e6c",
+     "block_ok": true
+    },
+    {
+     "reviewer_id": "t4-1",
+     "model": "gpt-6-luna",
+     "report": "/home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/.dev/eval-workspaces/tasklist-review-panel/20261111-a1/TASK-WF-design-20261108-041415/reviews/combos/n5-sonnet-src/t4-1.md",
+     "report_sha256": "04be8220aaf56078f1c7eae47399d24136eaf96a983add2e782c10e2ca3a0227",
+     "block_ok": true
+    },
+    {
+     "reviewer_id": "t1b-1",
+     "model": "claude-sonnet-5-5",
+     "report": "/home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/.dev/eval-workspaces/tasklist-review-panel/20261111-a1/TASK-WF-design-20261108-041415/reviews/combos/n5-sonnet-src/t1b-1.md",
+     "report_sha256": "10ac20c649c068fe98a227f804ef52bfe3dc05aacfc4725d39fc86f6baa949ec",
+     "block_ok": true
+    }
+   ],
+   "verdict": "FAIL",
+   "decision": "REVISE",
+   "brief_ids": [
+    "L1"
+   ]
+  }
+ ],
+ "rows": [
+  {
+   "lid": "L1",
+   "fp": "84ab306d57548368",
+   "blocking": true,
+   "severity_max": "CRITICAL",
+   "category": "contradiction",
+   "confidence": "overlap",
+   "status": "open",
+   "anchor": "Edit only under `src/superclaude/`, `tests/`, `docs/` and `plugins/superclaude/skills/sc-recommend/refs/`.",
+   "anchor2": "Then write `./artifacts/owner-manual-check.md` in this package.",
+   "span": [
+    18,
+    19
+   ],
+   "span2": [
+    167,
+    168
+   ],
+   "refs": [],
+   "claim": "Task 12 requires writing owner-manual-check.md and t12-checks.log under ./artifacts/, a location the Constraints section forbids editing, so the owner's post-merge manual check lands in an unstaged, disallowed place.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t2b-1",
+     "fid": "F1",
+     "blocking": true
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t2b-1",
+     "fid": "F2",
+     "blocking": true
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t4-1",
+     "fid": "F1",
+     "blocking": true
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t1b-1",
+     "fid": "F1",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t1b-1",
+     "fid": "F5",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L2",
+   "fp": "a5c8825bbf2c5560",
+   "blocking": false,
+   "severity_max": "MAJOR",
+   "category": "contradiction",
+   "confidence": "single",
+   "status": "open",
+   "anchor": "to \"Picks the feature or bug template, the Feature or Bug issue type and the `enhancement` / `bug` label\"",
+   "anchor2": "which selects issue type Test for a feature in `tests`",
+   "span": [
+    97,
+    98
+   ],
+   "span2": [
+    97,
+    98
+   ],
+   "refs": [],
+   "claim": "Task 6's prescribed --mode row states feature picks the Feature issue type unconditionally while its --type row says a feature in tests selects Test, so the command file can tell users a feature never yields Test.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t2b-1",
+     "fid": "F3",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L3",
+   "fp": "838e56235b92a9f4",
+   "blocking": false,
+   "severity_max": "MAJOR",
+   "category": "other",
+   "confidence": "overlap",
+   "status": "open",
+   "anchor": "equals `orgs/<owner of R>/issue-fields` or `orgs/<owner>/issue-fields` and appears only in `create.md`, `SKILL.md` and `issue-worker-t3.md`",
+   "anchor2": null,
+   "span": [
+    121,
+    122
+   ],
+   "span2": null,
+   "refs": [],
+   "claim": "Task 8's new orgs test also accepts the short orgs/<owner>/issue-fields form that Tasks 2, 3 and 5 never prescribe, so a file using the short form passes the pin while breaking the required text.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t2b-1",
+     "fid": "F4",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t2b-1",
+     "fid": "F6",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t1b-1",
+     "fid": "F2",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L4",
+   "fp": "13be5f40085513b0",
+   "blocking": false,
+   "severity_max": "MAJOR",
+   "category": "missing-requirement",
+   "confidence": "overlap",
+   "status": "open",
+   "anchor": "read-back with `gh api repos/<R>/issues/<N>/issue-field-values`",
+   "anchor2": null,
+   "span": [
+    33,
+    34
+   ],
+   "span2": null,
+   "refs": [],
+   "claim": "The plan never states that the field read-back returns an option id with the name under single_select_option.name, so an implementer comparing the raw value to Simple/Medium/Complex reports the Complexity field as not applied after every successful POST.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t2b-1",
+     "fid": "F5",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t1b-1",
+     "fid": "F4",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L5",
+   "fp": "2a464d78c7588b65",
+   "blocking": false,
+   "severity_max": "MINOR",
+   "category": "missing-requirement",
+   "confidence": "single",
+   "status": "open",
+   "anchor": "add a third YAML block with exactly the keys `issue_type`, `complexity_field`, `classification_missing`",
+   "anchor2": null,
+   "span": [
+    59,
+    60
+   ],
+   "span2": null,
+   "refs": [],
+   "claim": "Task 3 fixes the third block's keys but not its values, leaving the classification_missing format (each not-set line without its prefix) to be guessed from the cited source section.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t2b-1",
+     "fid": "F7",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L6",
+   "fp": "8b3453b618c8702b",
+   "blocking": false,
+   "severity_max": "MAJOR",
+   "category": "missing-requirement",
+   "confidence": "single",
+   "status": "open",
+   "anchor": "a failure of `gh issue create` is still STOP `E-CREATE-FAILED`",
+   "anchor2": "`--type` only when the type is listed under `### Repo issue types`",
+   "span": [
+    52,
+    53
+   ],
+   "span2": [
+    33,
+    34
+   ],
+   "refs": [
+    "3.4"
+   ],
+   "claim": "--type rides on the same gh issue create call, so an error caused by the type stops the whole create with E-CREATE-FAILED and the plan states no retry without --type.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t1b-1",
+     "fid": "F3",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L7",
+   "fp": "a5c8825bbf2c5560",
+   "blocking": false,
+   "severity_max": "MINOR",
+   "category": "other",
+   "confidence": "single",
+   "status": "open",
+   "anchor": "The Will and Will Not lists agree with the skill's Will and Will Not lists on the new create behaviour.",
+   "anchor2": null,
+   "span": [
+    102,
+    103
+   ],
+   "span2": null,
+   "refs": [],
+   "claim": "Task 3 changes only the skill's Will Not list and the skill's Will list has no create line, so the agreement check has nothing to compare for Will.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t1b-1",
+     "fid": "F6",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  }
+ ]
+}

@@ -1,0 +1,130 @@
+{
+ "schema": "review-ledger/1",
+ "doc": "/home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/.dev/eval-workspaces/tasklist-review-panel/20261111-a1/TASK-WF-makeTheAliasOnly-20261105-051649/candidate.md",
+ "cap_reviews": 3,
+ "rounds": [
+  {
+   "n": 1,
+   "doc_sha256": "cfd8f983d22ab8af1638ffb2a464215e56048f753f7902e3066435d8de176ca4",
+   "reviewers": [
+    {
+     "reviewer_id": "t2-1",
+     "model": "gpt-6.1-sol",
+     "report": "/home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/.dev/eval-workspaces/tasklist-review-panel/20261111-a1/TASK-WF-makeTheAliasOnly-20261105-051649/reviews/combos/sol-alone-src/t2-1.md",
+     "report_sha256": "fa05ed58a82259c6bf358148e8da041034b0d9cf9b01128dcc46a101c7912d72",
+     "block_ok": true
+    }
+   ],
+   "verdict": "FAIL",
+   "decision": "REVISE",
+   "brief_ids": [
+    "L1",
+    "L2"
+   ]
+  }
+ ],
+ "rows": [
+  {
+   "lid": "L1",
+   "fp": "01e7976c6e6c24ed",
+   "blocking": true,
+   "severity_max": "MAJOR",
+   "category": "unpassable-check",
+   "confidence": "single",
+   "status": "open",
+   "anchor": "run on the unchanged tree fails exactly these seven tests",
+   "anchor2": null,
+   "span": [
+    45,
+    46
+   ],
+   "span2": null,
+   "refs": [],
+   "claim": "The required seven-failure baseline cannot occur on the supplied checkout because the named corrections and policy tests already exist and all 13 current policy tests pass.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t2-1",
+     "fid": "F1",
+     "blocking": true
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L2",
+   "fp": "01e7976c6e6c24ed",
+   "blocking": true,
+   "severity_max": "MAJOR",
+   "category": "unpassable-check",
+   "confidence": "single",
+   "status": "open",
+   "anchor": "The text claude-gw-tier appears under src/superclaude/agents, commands, skills, cli, hooks and core only in TIER_TEXT_ALLOWED paths.",
+   "anchor2": null,
+   "span": [
+    34,
+    35
+   ],
+   "span2": null,
+   "refs": [],
+   "claim": "The mandated allow-list rejects two existing review configuration files, so the initial remaining-test pass and final all-green policy run cannot both be achieved by the stated tasks.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t2-1",
+     "fid": "F2",
+     "blocking": true
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L3",
+   "fp": "beeaa6833f7cf565",
+   "blocking": false,
+   "severity_max": "MAJOR",
+   "category": "other",
+   "confidence": "single",
+   "status": "open",
+   "anchor": "the exact spec of the separate launcher pull request that may start only after the #315 pull request is merged",
+   "anchor2": null,
+   "span": [
+    128,
+    129
+   ],
+   "span2": null,
+   "refs": [],
+   "claim": "The launcher exports and harness capture already exist, so a suffix-free expected-value failure would not demonstrate the missing launcher behavior described by the plan.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t2-1",
+     "fid": "F3",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t2-1",
+     "fid": "F4",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  }
+ ]
+}

@@ -1,0 +1,85 @@
+{
+  "environment": "gateway",
+  "review_kind": "first",
+  "reviewers": [
+    {
+      "alias": "claude-gw-tier2[1m]",
+      "fallback_depth": 5,
+      "fallbacks": [
+        "gpt-6.1-sol",
+        "glm-5.3",
+        "grok-4.7",
+        "Qwen3.8-max",
+        "muse-wonder-1.0"
+      ],
+      "launch": null,
+      "model": "gpt-6.1-sol",
+      "model_name": "Muse Spark 1.3",
+      "reviewer_id": "t2-1",
+      "seed": "301901876|t2|1",
+      "slot_id": "t2",
+      "stand_in": false,
+      "strategy": "random",
+      "tier": "tier2"
+    },
+    {
+      "alias": "claude-gw-tier2b[1m]",
+      "fallback_depth": 3,
+      "fallbacks": [
+        "gpt-6.1-terra",
+        "glm-5.3",
+        "Qwen3.8-max"
+      ],
+      "launch": null,
+      "model": "muse-wonder-1.0",
+      "model_name": "Muse Wonder 1.0",
+      "reviewer_id": "t2b-1",
+      "seed": "301901876|t2b|1",
+      "slot_id": "t2b",
+      "stand_in": false,
+      "strategy": "random",
+      "tier": "tier2b"
+    },
+    {
+      "alias": "claude-gw-tier4[1m]",
+      "fallback_depth": 2,
+      "fallbacks": [
+        "gpt-6-luna",
+        "claude-haiku-5-5"
+      ],
+      "launch": null,
+      "model": "claude-haiku-5-5",
+      "model_name": "Grok 4.7",
+      "reviewer_id": "t4-1",
+      "seed": "301901876|t4|1",
+      "slot_id": "t4",
+      "stand_in": false,
+      "strategy": "random",
+      "tier": "tier4"
+    },
+    {
+      "alias": "claude-gw-tier4[1m]",
+      "fallback_depth": 0,
+      "fallbacks": [
+        "claude-haiku-5-5",
+        "grok-4.7"
+      ],
+      "launch": null,
+      "model": "grok-4.7",
+      "model_name": "GPT 6 Luna",
+      "reviewer_id": "t4-2",
+      "seed": "301901876|t4|2",
+      "slot_id": "t4",
+      "stand_in": false,
+      "strategy": "random",
+      "tier": "tier4"
+    }
+  ],
+  "run_id": "TASK-WF-makeTheAliasOnly-20261105-051649",
+  "schema": "review-panel-resolution/1",
+  "template_id": "live7",
+  "template_sha256": "191ea47fb9c5617b24e132c81e173fb0f67896c22be122736ffb9e4bc463a848",
+  "template_version": "1.0.0",
+  "tiers_sha256": "1a2a8ad2c1eabea93c4b4fbab8c3fe97bd20b4a187f0a559db8cedeca63f3a49",
+  "tiers_version": "1.0.0"
+}

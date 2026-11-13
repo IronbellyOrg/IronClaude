@@ -1,0 +1,328 @@
+{
+ "schema": "review-ledger/1",
+ "doc": "/home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/.dev/eval-workspaces/tasklist-review-panel/20261111-a1/TASK-WF-makeTheAliasOnly-20261105-051649/candidate.md",
+ "cap_reviews": 3,
+ "rounds": [
+  {
+   "n": 1,
+   "doc_sha256": "cfd8f983d22ab8af1638ffb2a464215e56048f753f7902e3066435d8de176ca4",
+   "reviewers": [
+    {
+     "reviewer_id": "t1b-1",
+     "model": "claude-sonnet-5-5",
+     "report": "/home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/.dev/eval-workspaces/tasklist-review-panel/20261111-a1/TASK-WF-makeTheAliasOnly-20261105-051649/reviews/combos/g2-sonnet-ember-r1/t1b-1.md",
+     "report_sha256": "523561cef2ae6c0f895a117d7169bb720495d593403ff18c86c43386914e28a3",
+     "block_ok": true
+    },
+    {
+     "reviewer_id": "t2b-1",
+     "model": "muse-ember-1.0",
+     "report": "/home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/.dev/eval-workspaces/tasklist-review-panel/20261111-a1/TASK-WF-makeTheAliasOnly-20261105-051649/reviews/combos/g2-sonnet-ember-r1/t2b-1.md",
+     "report_sha256": "4f36adedb5d5d115309399a3900604907d2cf6c1a05b44392d3c037a3a39e7f2",
+     "block_ok": true
+    }
+   ],
+   "verdict": "FAIL",
+   "decision": "REVISE",
+   "brief_ids": [
+    "L1"
+   ]
+  }
+ ],
+ "rows": [
+  {
+   "lid": "L1",
+   "fp": "43d1590abc676585",
+   "blocking": true,
+   "severity_max": "MAJOR",
+   "category": "unpassable-check",
+   "confidence": "single",
+   "status": "open",
+   "anchor": "The text claude-gw-tier appears under src/superclaude/agents, commands, skills, cli, hooks and core only in TIER_TEXT_ALLOWED paths.",
+   "anchor2": "everything under src/superclaude/skills/sc-issue-protocol/, and src/superclaude/skills/ccsession-tag/ which is read-only here",
+   "span": [
+    34,
+    35
+   ],
+   "span2": [
+    31,
+    32
+   ],
+   "refs": [
+    "M-1"
+   ],
+   "claim": "The tier-text test as written fails on the unchanged tree because src/superclaude/cli/review/data/*.json contain claude-gw-tier and are not allow-listed, so the Task 1 and Task 2 acceptance criteria cannot pass.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t1b-1",
+     "fid": "F1",
+     "blocking": true
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L2",
+   "fp": "01e7976c6e6c24ed",
+   "blocking": false,
+   "severity_max": "MAJOR",
+   "category": "other",
+   "confidence": "overlap",
+   "status": "open",
+   "anchor": "whose pinned values must equal claude-gw-tier3, claude-gw-tier2 and claude-gw-tier1a",
+   "anchor2": null,
+   "span": [
+    31,
+    32
+   ],
+   "span2": null,
+   "refs": [],
+   "claim": "The pin order does not say which file gets which id, and a positional reading gives issue-worker-t1 the id claude-gw-tier3 when it is claude-gw-tier1a.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t1b-1",
+     "fid": "F2",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t1b-1",
+     "fid": "F5",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t2b-1",
+     "fid": "F1",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t2b-1",
+     "fid": "F2",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L3",
+   "fp": "beeaa6833f7cf565",
+   "blocking": false,
+   "severity_max": "MAJOR",
+   "category": "missing-requirement",
+   "confidence": "overlap",
+   "status": "open",
+   "anchor": "copy the harness and the test into a scratch module under ./artifacts/t9-scratch/ with the harness addition applied",
+   "anchor2": null,
+   "span": [
+    128,
+    129
+   ],
+   "span2": null,
+   "refs": [],
+   "claim": "The harness resolves the launcher through parents[2] of its own file, so the scratch copy misses the launcher unless REPO_ROOT is repointed, which the spec never states.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t1b-1",
+     "fid": "F3",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t2b-1",
+     "fid": "F3",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L4",
+   "fp": "01e7976c6e6c24ed",
+   "blocking": false,
+   "severity_max": "MAJOR",
+   "category": "other",
+   "confidence": "overlap",
+   "status": "open",
+   "anchor": "states the three exports with the exact ids ANTHROPIC_DEFAULT_OPUS_MODEL=claude-gw-tier1a",
+   "anchor2": "the mapping table (opus to claude-gw-tier1a via ANTHROPIC_DEFAULT_OPUS_MODEL",
+   "span": [
+    42,
+    43
+   ],
+   "span2": [
+    98,
+    99
+   ],
+   "refs": [],
+   "claim": "The test needs literal NAME=value strings while Task 6 describes a table with variable and id as separate items, so a compliant table can fail the test.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t1b-1",
+     "fid": "F4",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t2b-1",
+     "fid": "F6",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L5",
+   "fp": "84ab306d57548368",
+   "blocking": false,
+   "severity_max": "MINOR",
+   "category": "contradiction",
+   "confidence": "single",
+   "status": "open",
+   "anchor": "Edit under src/ only; the .claude/ copies are gitignored sync output regenerated by make sync-dev.",
+   "anchor2": null,
+   "span": [
+    20,
+    21
+   ],
+   "span2": null,
+   "refs": [],
+   "claim": "Read literally, edit under src/ only contradicts the tasks that edit tests/, docs/, .dev/ and plugins/.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t1b-1",
+     "fid": "F6",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L6",
+   "fp": "5269fb2839c70439",
+   "blocking": false,
+   "severity_max": "MINOR",
+   "category": "other",
+   "confidence": "single",
+   "status": "open",
+   "anchor": "that the issue workers are the only primitives pinned to picker ids and all other primitives use aliases (docs/reference/model-aliases.md)",
+   "anchor2": null,
+   "span": [
+    108,
+    109
+   ],
+   "span2": null,
+   "refs": [],
+   "claim": "An installed primitive points at a docs/ path that is not installed to ~/.claude, so the pointer is dead outside a checkout.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t1b-1",
+     "fid": "F7",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L7",
+   "fp": "c82326e4408cc21b",
+   "blocking": false,
+   "severity_max": "MAJOR",
+   "category": "missing-requirement",
+   "confidence": "single",
+   "status": "open",
+   "anchor": "Then search src/superclaude and docs/ for any other text that says audit-scanner runs on Haiku and fix it the same way.",
+   "anchor2": null,
+   "span": [
+    75,
+    76
+   ],
+   "span2": null,
+   "refs": [],
+   "claim": "Open-ended sweep lacks a rule for history and exempt machinery.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t2b-1",
+     "fid": "F4",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L8",
+   "fp": "a02f572d42a975c8",
+   "blocking": false,
+   "severity_max": "MINOR",
+   "category": "other",
+   "confidence": "single",
+   "status": "open",
+   "anchor": "The workspace exports T3Model01, T2Model01, T2Model02, T1Model01 and T1Model02 (no underscore)",
+   "anchor2": null,
+   "span": [
+    85,
+    86
+   ],
+   "span2": null,
+   "refs": [],
+   "claim": "Slot count reads as five in one place and four in another.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t2b-1",
+     "fid": "F5",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  }
+ ]
+}

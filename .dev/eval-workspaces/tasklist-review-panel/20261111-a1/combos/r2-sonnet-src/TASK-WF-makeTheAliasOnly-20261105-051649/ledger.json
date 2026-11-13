@@ -1,0 +1,306 @@
+{
+ "schema": "review-ledger/1",
+ "doc": "/home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/.dev/eval-workspaces/tasklist-review-panel/20261111-a1/TASK-WF-makeTheAliasOnly-20261105-051649/candidate.md",
+ "cap_reviews": 3,
+ "rounds": [
+  {
+   "n": 1,
+   "doc_sha256": "cfd8f983d22ab8af1638ffb2a464215e56048f753f7902e3066435d8de176ca4",
+   "reviewers": [
+    {
+     "reviewer_id": "t4-1",
+     "model": "claude-haiku-5-5",
+     "report": "/home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/.dev/eval-workspaces/tasklist-review-panel/20261111-a1/TASK-WF-makeTheAliasOnly-20261105-051649/reviews/combos/r2-sonnet-src/t4-1.md",
+     "report_sha256": "93c347c3b59588b4425868b4f8f858c0b0946f93aa2a8ee1314b14fbfbc2e4d7",
+     "block_ok": true
+    },
+    {
+     "reviewer_id": "t3-1",
+     "model": "claude-haiku-5-5",
+     "report": "/home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/.dev/eval-workspaces/tasklist-review-panel/20261111-a1/TASK-WF-makeTheAliasOnly-20261105-051649/reviews/combos/r2-sonnet-src/t3-1.md",
+     "report_sha256": "7f47fc8c8282cf4875294c8bccc588c4ddbb5e140e5f27836a8dbb407ad975a7",
+     "block_ok": true
+    },
+    {
+     "reviewer_id": "t4-2",
+     "model": "grok-4.7",
+     "report": "/home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/.dev/eval-workspaces/tasklist-review-panel/20261111-a1/TASK-WF-makeTheAliasOnly-20261105-051649/reviews/combos/r2-sonnet-src/t4-2.md",
+     "report_sha256": "1722c68153e8190e46a044f7738790942095da2d36950ca4679b7abb01280034",
+     "block_ok": true
+    },
+    {
+     "reviewer_id": "t1b-1",
+     "model": "claude-sonnet-5-5",
+     "report": "/home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/.dev/eval-workspaces/tasklist-review-panel/20261111-a1/TASK-WF-makeTheAliasOnly-20261105-051649/reviews/combos/r2-sonnet-src/t1b-1.md",
+     "report_sha256": "6aee3e2653150f97a0d8f78ef968983227330f4c7fef4aa98b3777670340a735",
+     "block_ok": true
+    }
+   ],
+   "verdict": "FAIL",
+   "decision": "REVISE",
+   "brief_ids": [
+    "L1",
+    "L2"
+   ]
+  }
+ ],
+ "rows": [
+  {
+   "lid": "L1",
+   "fp": "01e7976c6e6c24ed",
+   "blocking": true,
+   "severity_max": "CRITICAL",
+   "category": "unpassable-check",
+   "confidence": "overlap",
+   "status": "open",
+   "anchor": "The text claude-gw-tier appears under src/superclaude/agents, commands, skills, cli, hooks and core only in TIER_TEXT_ALLOWED paths.",
+   "anchor2": "the Python constants test, the reflect default test, the D12 test and the claude-gw-tier text test pass",
+   "span": [
+    34,
+    35
+   ],
+   "span2": [
+    59,
+    60
+   ],
+   "refs": [],
+   "claim": "The text scan covers src/superclaude/cli, where review-tiers.default.json and review-panel.live7.json carry claude-gw-tier outside the allow-list, so the test fails and the Task 2 pass criterion cannot be met.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t4-1",
+     "fid": "F1",
+     "blocking": true
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t4-1",
+     "fid": "F3",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t4-1",
+     "fid": "F4",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t4-1",
+     "fid": "F5",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t4-1",
+     "fid": "F6",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t4-1",
+     "fid": "F7",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t3-1",
+     "fid": "F1",
+     "blocking": true
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t3-1",
+     "fid": "F2",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t3-1",
+     "fid": "F3",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t3-1",
+     "fid": "F4",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t3-1",
+     "fid": "F6",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t3-1",
+     "fid": "F7",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t4-2",
+     "fid": "F1",
+     "blocking": true
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t4-2",
+     "fid": "F2",
+     "blocking": true
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t4-2",
+     "fid": "F3",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t4-2",
+     "fid": "F4",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t1b-1",
+     "fid": "F1",
+     "blocking": true
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t1b-1",
+     "fid": "F2",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t1b-1",
+     "fid": "F3",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L2",
+   "fp": "a02f572d42a975c8",
+   "blocking": true,
+   "severity_max": "MAJOR",
+   "category": "contradiction",
+   "confidence": "overlap",
+   "status": "open",
+   "anchor": "as /etc/aidev02/aienv.d/defaults.sh does: T3Model01 gpt-6.1-terra, T2Model02 glm-5.3, T1Model02 gpt-6.1-sol, T1Model01 claude-opus-5-5",
+   "anchor2": "rung 1 is a non-Claude model, rungs 0 and 2 are GPT models",
+   "span": [
+    85,
+    86
+   ],
+   "span2": [
+    85,
+    86
+   ],
+   "refs": [],
+   "claim": "defaults.sh exports T3Model01 as glm-5.3 at line 59, so rung 0 is not a GPT model and the notes would record a false workspace fact and a false adviser-selection effect.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t4-1",
+     "fid": "F2",
+     "blocking": true
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t3-1",
+     "fid": "F8",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t1b-1",
+     "fid": "F5",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L3",
+   "fp": "5269fb2839c70439",
+   "blocking": false,
+   "severity_max": "MAJOR",
+   "category": "missing-requirement",
+   "confidence": "single",
+   "status": "open",
+   "anchor": "add the same pointer to the brainstorm model-selection text around lines 849 and 859",
+   "anchor2": null,
+   "span": [
+    108,
+    109
+   ],
+   "span2": null,
+   "refs": [],
+   "claim": "commands.md lines 849 and 859 hold validate-tests examples and the workflow heading, and no brainstorm model-selection text exists, so the pointer has no target.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t3-1",
+     "fid": "F5",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L4",
+   "fp": "d42a1152625ddb17",
+   "blocking": false,
+   "severity_max": "MINOR",
+   "category": "missing-requirement",
+   "confidence": "single",
+   "status": "open",
+   "anchor": "passes a full model id to a model flag, matched by",
+   "anchor2": null,
+   "span": [
+    36,
+    37
+   ],
+   "span2": null,
+   "refs": [
+    "M-23",
+    "M-6"
+   ],
+   "claim": "The markdown scan only catches model-flag uses, not full model ids elsewhere in markdown body text that the source asked to cover.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t1b-1",
+     "fid": "F4",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  }
+ ]
+}

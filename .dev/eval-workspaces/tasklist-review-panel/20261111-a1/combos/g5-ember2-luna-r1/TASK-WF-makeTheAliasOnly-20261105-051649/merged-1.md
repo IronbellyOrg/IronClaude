@@ -1,0 +1,95 @@
+review: 1 of 3
+# Merged review 1 (coordinator script; panel of 3 reviewers)
+candidate: /home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/.dev/eval-workspaces/tasklist-review-panel/20261111-a1/TASK-WF-makeTheAliasOnly-20261105-051649/candidate.md sha256 cfd8f983d22ab8af1638ffb2a464215e56048f753f7902e3066435d8de176ca4
+reviewers:
+- t2b-1: report /home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/.dev/eval-workspaces/tasklist-review-panel/20261111-a1/TASK-WF-makeTheAliasOnly-20261105-051649/reviews/combos/g5-ember2-luna-r1/t2b-1.md, block ok true
+- t3-1: report /home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/.dev/eval-workspaces/tasklist-review-panel/20261111-a1/TASK-WF-makeTheAliasOnly-20261105-051649/reviews/combos/g5-ember2-luna-r1/t3-1.md, block ok true
+- t4-1: report /home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/.dev/eval-workspaces/tasklist-review-panel/20261111-a1/TASK-WF-makeTheAliasOnly-20261105-051649/reviews/combos/g5-ember2-luna-r1/t4-1.md, block ok true
+
+## Ledger
+
+| lid | status | blocking | confidence | severity | refs | reviewers |
+|---|---|---|---|---|---|---|
+| L1 | open | yes | overlap | CRITICAL | - | t2b-1, t3-1 |
+| L2 | open | yes | overlap | MAJOR | - | t2b-1, t3-1, t4-1 |
+| L3 | open | no | overlap | MAJOR | - | t2b-1, t3-1 |
+| L4 | open | yes | overlap | MAJOR | - | t2b-1, t3-1, t4-1 |
+| L5 | open | no | single | MAJOR | - | t3-1 |
+
+## Blocking findings
+
+### L1
+
+#### L1.t2b-1 (F1)
+
+- claim: Tier-text test fails on unchanged tree due to cli review data files outside allow-list, so exactly-seven-failures criterion cannot pass.
+- anchor: "The text claude-gw-tier appears under src/superclaude/agents, commands, skills, cli, hooks and core only in TIER_TEXT_ALLOWED paths."
+
+#### L1.t2b-1 (F3)
+
+- claim: Pinned values listed without per-file mapping, so ordered reading assigns wrong tier to each issue worker.
+- anchor: "ISSUE_WORKER_PINS (the three issue-worker agent files, whose pinned values must equal claude-gw-tier3, claude-gw-tier2 and claude-gw-tier1a; reason:"
+
+#### L1.t3-1 (F1)
+
+- claim: The tier-text test fails on cli/review/data tier files that the allow-list omits and no task edits, so the seven-failure count and the final full pass cannot hold.
+- anchor: "The text claude-gw-tier appears under src/superclaude/agents, commands, skills, cli, hooks and core only in TIER_TEXT_ALLOWED paths."
+
+#### L1.t3-1 (M1)
+
+- claim: An implementer could allow-list the reflect full-id hit instead of failing first, and the plan does not forbid that reading.
+- anchor: "A residual allow-list dict (path to reason) exists for any legitimate hit found when the test first runs."
+
+### L2
+
+#### L2.t2b-1 (F2)
+
+- claim: Quoted launcher anchor lines are not the tier-mode block or exports, and exact export lines omit existing usable-tier condition and [1m] suffix.
+- anchor: "the tier-mode block at lines 776-785, where the launcher also tests that CCSESSION_EXT_PROFILE is not 1 at line 777, and the custom-option exports at lines 1099-1103"
+
+#### L2.t3-1 (F2)
+
+- claim: The prescribed exact exports drop the [1m] suffix and the per-tier usability condition the current launcher uses, so a follow-up built from them breaks the 1M window and limited-owner launches.
+- anchor: "export ANTHROPIC_DEFAULT_OPUS_MODEL=claude-gw-tier1a, export ANTHROPIC_DEFAULT_SONNET_MODEL=claude-gw-tier1b, export ANTHROPIC_DEFAULT_HAIKU_MODEL=claude-gw-tier2"
+- anchor2: "and that they run only when tier mode is on, so a launch that is not in tier mode leaves the inherited environment untouched"
+
+#### L2.t3-1 (M4)
+
+- claim: The plan never supplies the test code block, so the helper-existence acceptance cannot be verified from the plan alone.
+- anchor: "a failing-first pytest, as a code block, in the style of the tier-launch tests of tests/unit/test_ccsession_tiers.py using only helpers that exist there."
+
+#### L2.t4-1 (F2)
+
+- claim: The specified line range identifies the --profile argument parser rather than the tier-mode block in the reviewed launcher, so a spec quoting that anchor cannot meet the stated acceptance criterion.
+- anchor: "the tier-mode block at lines 776-785, where the launcher also tests that CCSESSION_EXT_PROFILE is not 1 at line 777"
+
+### L4
+
+#### L4.t2b-1 (F5)
+
+- claim: Several line-number citations are stale against this checkout, though search still locates targets.
+- anchor: "In src/superclaude/cli/reflect/commands.py change `_DEFAULT_MODEL = \"claude-opus-4-8\"` (line 31) to `\"opus\"`"
+
+#### L4.t3-1 (m1)
+
+- claim: The cited line numbers have drifted from the current tree, which misdirects a reader who edits by line number alone.
+- anchor: "change `_DEFAULT_MODEL = \"claude-opus-4-8\"` (line 31) to `\"opus\"`"
+
+#### L4.t4-1 (F1)
+
+- claim: The src-only constraint conflicts with explicit acceptance requirements to edit files outside src, making the plan impossible to follow as written.
+- anchor: "- Edit under src/ only; the .claude/ copies are gitignored sync output regenerated by make sync-dev."
+- anchor2: "In docs/testing/v5.0.0/user/D12-reflect.md change the expected command at line 235 from `--model claude-opus-4-8` to `--model opus`, and reword line 243 if it describes the old default."
+
+## Other findings
+
+- L3 (MAJOR, open, overlap): Variable count differs between five named exports and four-variable notes, omitting optional T2Model01.
+- L5 (MAJOR, open, single): A table written only in the via form may not contain the exact VAR=VALUE strings the mapping-document test requires.
+
+## Reviser brief
+
+Blocking finding ids: L1, L2, L4.
+
+Rules for the reviser (restating the Review Loop's Reviser contract): revise only text a blocking finding names; add no rule, mechanism or section no blocking finding calls for; each added paragraph or table cites its finding id; prefer deleting or narrowing to adding; report the byte size before and after, with the bytes added and deleted per finding id.
+
+verdict: FAIL

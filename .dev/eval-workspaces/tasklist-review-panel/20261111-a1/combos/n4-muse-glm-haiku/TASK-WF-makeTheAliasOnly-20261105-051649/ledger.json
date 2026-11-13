@@ -1,0 +1,368 @@
+{
+ "schema": "review-ledger/1",
+ "doc": "/home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/.dev/eval-workspaces/tasklist-review-panel/20261111-a1/TASK-WF-makeTheAliasOnly-20261105-051649/candidate.md",
+ "cap_reviews": 3,
+ "rounds": [
+  {
+   "n": 1,
+   "doc_sha256": "cfd8f983d22ab8af1638ffb2a464215e56048f753f7902e3066435d8de176ca4",
+   "reviewers": [
+    {
+     "reviewer_id": "t2b-1",
+     "model": "muse-wonder-1.0",
+     "report": "/home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/.dev/eval-workspaces/tasklist-review-panel/20261111-a1/TASK-WF-makeTheAliasOnly-20261105-051649/reviews/combos/n4-muse-glm-haiku/t2b-1.md",
+     "report_sha256": "fdfcd195c265a3845525bf56dc01378448de7525f7b027370766a126a0ca3dc5",
+     "block_ok": true
+    },
+    {
+     "reviewer_id": "t3-1",
+     "model": "glm-5.3",
+     "report": "/home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/.dev/eval-workspaces/tasklist-review-panel/20261111-a1/TASK-WF-makeTheAliasOnly-20261105-051649/reviews/combos/n4-muse-glm-haiku/t3-1.md",
+     "report_sha256": "63ef444b6f04c02594bba9b7e10a1bcf4985b1a10342b3d6865c8ba486690f7a",
+     "block_ok": false
+    },
+    {
+     "reviewer_id": "t4-1",
+     "model": "claude-haiku-5-5",
+     "report": "/home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/.dev/eval-workspaces/tasklist-review-panel/20261111-a1/TASK-WF-makeTheAliasOnly-20261105-051649/reviews/combos/n4-muse-glm-haiku/t4-1.md",
+     "report_sha256": "79e3b96a858200737ccba6bbb243b08fd687d27c8f09e094ce556cb165b20769",
+     "block_ok": true
+    }
+   ],
+   "verdict": "FAIL",
+   "decision": "REVISE",
+   "brief_ids": [
+    "L1",
+    "L2"
+   ]
+  }
+ ],
+ "rows": [
+  {
+   "lid": "L1",
+   "fp": "01e7976c6e6c24ed",
+   "blocking": true,
+   "severity_max": "CRITICAL",
+   "category": "unpassable-check",
+   "confidence": "overlap",
+   "status": "open",
+   "anchor": "TIER_TEXT_ALLOWED (those three files, everything under src/superclaude/skills/sc-issue-protocol/, and src/superclaude/skills/ccsession-tag/ which is read-only here)",
+   "anchor2": "In tests/skills/test_model_alias_policy.py the Python constants test, the reflect default test, the D12 test and the claude-gw-tier text test pass",
+   "span": [
+    31,
+    32
+   ],
+   "span2": [
+    59,
+    60
+   ],
+   "refs": [],
+   "claim": "The stated allow-list excludes src/superclaude/cli/review/data/, whose tier files contain claude-gw-tier text by design, so the tier-text test cannot pass after Task 2 as the acceptance requires.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t2b-1",
+     "fid": "F1",
+     "blocking": true
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t2b-1",
+     "fid": "F3",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t2b-1",
+     "fid": "F5",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t2b-1",
+     "fid": "F6",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t2b-1",
+     "fid": "F7",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t3-1",
+     "fid": "F4",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t3-1",
+     "fid": "F5",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t4-1",
+     "fid": "F1",
+     "blocking": true
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t4-1",
+     "fid": "F2",
+     "blocking": true
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t4-1",
+     "fid": "F5",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t4-1",
+     "fid": "F7",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t4-1",
+     "fid": "F10",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L2",
+   "fp": "beeaa6833f7cf565",
+   "blocking": true,
+   "severity_max": "CRITICAL",
+   "category": "safety",
+   "confidence": "overlap",
+   "status": "open",
+   "anchor": "export ANTHROPIC_DEFAULT_OPUS_MODEL=claude-gw-tier1a, export ANTHROPIC_DEFAULT_SONNET_MODEL=claude-gw-tier1b, export ANTHROPIC_DEFAULT_HAIKU_MODEL=claude-gw-tier2",
+   "anchor2": "a T<N>_WINDOW variable exists and CCSESSION_TIERS is not 0, and the launcher's own CCSESSION_EXT_PROFILE check",
+   "span": [
+    128,
+    129
+   ],
+   "span2": [
+    128,
+    129
+   ],
+   "refs": [],
+   "claim": "Unconditional tier-mode exports remap opus and sonnet to tier1a and tier1b for owners limited to lower tiers, discarding the inherited values their agents depend on.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t2b-1",
+     "fid": "F2",
+     "blocking": true
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t3-1",
+     "fid": "F3",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L3",
+   "fp": "a02f572d42a975c8",
+   "blocking": false,
+   "severity_max": "MAJOR",
+   "category": "other",
+   "confidence": "overlap",
+   "status": "open",
+   "anchor": "and that the fallback ladder (haiku, sonnet, opus) applies when they are not all set.",
+   "anchor2": "in a workspace that exports the four variables (as /etc/aidev02/aienv.d/defaults.sh does: T3Model01 gpt-6.1-terra, T2Model02 glm-5.3, T1Model02 gpt-6.1-sol, T1Model01 claude-opus-5-5)",
+   "span": [
+    85,
+    86
+   ],
+   "span2": [
+    85,
+    86
+   ],
+   "refs": [],
+   "claim": "The all-set condition can be read as covering five listed slot names including optional T2Model01, contradicting the four-variable activation the same task's notes require.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t2b-1",
+     "fid": "F4",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t3-1",
+     "fid": "F2",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t4-1",
+     "fid": "F3",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L4",
+   "fp": "efbe16dfbbc34f21",
+   "blocking": false,
+   "severity_max": "MINOR",
+   "category": "other",
+   "confidence": "single",
+   "status": "open",
+   "anchor": "opus to claude-gw-tier1a, sonnet to claude-gw-tier1b, haiku to claude-gw-tier2 inside a ccsession tier workspace once the launcher sets it, nothing set outside",
+   "anchor2": null,
+   "span": [
+    14,
+    15
+   ],
+   "span2": null,
+   "refs": [],
+   "claim": "The plan never reconciles the bare tier ids it spells with the suffixed picker forms used in the repo's tier data, and its substring tests pass under either spelling.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t2b-1",
+     "fid": "F8",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L5",
+   "fp": "524729a0d7cf1539",
+   "blocking": false,
+   "severity_max": "MAJOR",
+   "category": "missing-requirement",
+   "confidence": "single",
+   "status": "open",
+   "anchor": "remove ` --models opus,sonnet` from the three brainstorm steps in the table rows",
+   "anchor2": "a fallback to haiku can land on a non-Claude model (glm-5.3 here)",
+   "span": [
+    65,
+    66
+   ],
+   "span2": [
+    108,
+    109
+   ],
+   "refs": [],
+   "claim": "Removing the haiku workaround now lets brainstorm haiku proposals resolve to glm-5.3 in this workspace, and no task says to wait for the launcher.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t4-1",
+     "fid": "F4",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t4-1",
+     "fid": "F9",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L6",
+   "fp": "01e7976c6e6c24ed",
+   "blocking": false,
+   "severity_max": "MAJOR",
+   "category": "missing-requirement",
+   "confidence": "single",
+   "status": "open",
+   "anchor": "run on the unchanged tree fails exactly these seven tests",
+   "anchor2": null,
+   "span": [
+    45,
+    46
+   ],
+   "span2": null,
+   "refs": [],
+   "claim": "The candidate names no base commit, and the checkout shows the seven changes already applied (commands.py line 37 is opus, D12 has no claude-opus-4-8, chains has no --models), so the seven-failure criterion cannot be reproduced there.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t4-1",
+     "fid": "F6",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L7",
+   "fp": "01e7976c6e6c24ed",
+   "blocking": false,
+   "severity_max": "MINOR",
+   "category": "other",
+   "confidence": "single",
+   "status": "open",
+   "anchor": "nor src/superclaude/commands/cleanup-audit.md contains the word Haiku",
+   "anchor2": null,
+   "span": [
+    40,
+    41
+   ],
+   "span2": null,
+   "refs": [],
+   "claim": "The test does not say whether the Haiku check is case-sensitive, so lowercase haiku may pass the grep and fail the test or the reverse.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t4-1",
+     "fid": "F8",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  }
+ ]
+}

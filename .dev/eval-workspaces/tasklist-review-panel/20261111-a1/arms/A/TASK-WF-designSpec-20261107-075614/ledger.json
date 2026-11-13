@@ -1,0 +1,159 @@
+{
+ "schema": "review-ledger/1",
+ "doc": "/home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/.dev/eval-workspaces/tasklist-review-panel/20261111-a1/TASK-WF-designSpec-20261107-075614/candidate.md",
+ "cap_reviews": 3,
+ "rounds": [
+  {
+   "n": 1,
+   "doc_sha256": "044809e3a963fad395cfbe0988bece975650a3adf17176893665d92338bd3481",
+   "reviewers": [
+    {
+     "reviewer_id": "t1b-1",
+     "model": "claude-sonnet-5-5",
+     "report": "/home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/.dev/eval-workspaces/tasklist-review-panel/20261111-a1/TASK-WF-designSpec-20261107-075614/reviews/t1b-1.md",
+     "report_sha256": "0d346f2bfa6c8c3f07446f8c0e5297f391441cee3858265a44c3df5244e4c29f",
+     "block_ok": true
+    }
+   ],
+   "verdict": "PASS",
+   "decision": "PASS",
+   "brief_ids": []
+  }
+ ],
+ "rows": [
+  {
+   "lid": "L1",
+   "fp": "8411375004688f54",
+   "blocking": false,
+   "severity_max": "MAJOR",
+   "category": "contradiction",
+   "confidence": "single",
+   "status": "open",
+   "anchor": "carries no L3 or `draft` condition",
+   "anchor2": "at L3 with `--merge-guard off` the line",
+   "span": [
+    136,
+    137
+   ],
+   "span2": [
+    136,
+    137
+   ],
+   "refs": [],
+   "claim": "The Wave 0 bullet must name an L3 condition for the off notice, but the acceptance criterion says its test fails when the bullet names an L3 or draft condition, so only the narrower reading of the test can pass.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t1b-1",
+     "fid": "F1",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L2",
+   "fp": "0bd01f9f50b30d15",
+   "blocking": false,
+   "severity_max": "MINOR",
+   "category": "other",
+   "confidence": "single",
+   "status": "open",
+   "anchor": "asserts the exact event order `draft_guard_requested(draft)`",
+   "anchor2": null,
+   "span": [
+    169,
+    170
+   ],
+   "span2": null,
+   "refs": [],
+   "claim": "An exact-order assertion over RunLog.read_events omits push_decision and push_initiated, which the push triad and the crash tests put between fix_applied and push_completed, so it must be read as a subsequence.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t1b-1",
+     "fid": "F2",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L3",
+   "fp": "3d481fb29d3ed2d7",
+   "blocking": false,
+   "severity_max": "MINOR",
+   "category": "other",
+   "confidence": "single",
+   "status": "open",
+   "anchor": "asserted byte-identical by comparing the live text with string constants",
+   "anchor2": null,
+   "span": [
+    153,
+    154
+   ],
+   "span2": null,
+   "refs": [],
+   "claim": "The string constants hold only the literal start text of the two pinned sentences, so the byte-identity check cannot detect a change to the rest of a sentence.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t1b-1",
+     "fid": "F3",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L4",
+   "fp": "84ab306d57548368",
+   "blocking": false,
+   "severity_max": "MINOR",
+   "category": "contradiction",
+   "confidence": "single",
+   "status": "open",
+   "anchor": "(gates G1 live part, G2 live part, G4, G5 and G6 of ./source.md section 8)",
+   "anchor2": "release gate for G4 and G5",
+   "span": [
+    23,
+    24
+   ],
+   "span2": [
+    25,
+    26
+   ],
+   "refs": [],
+   "claim": "The scope bullet lists five open live gates while the owner-decision bullet names only G4 and G5 as the release gate, leaving the gate set stated two ways.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t1b-1",
+     "fid": "F4",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  }
+ ]
+}

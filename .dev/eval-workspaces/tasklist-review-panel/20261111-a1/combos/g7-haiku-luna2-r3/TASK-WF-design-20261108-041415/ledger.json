@@ -1,0 +1,318 @@
+{
+ "schema": "review-ledger/1",
+ "doc": "/home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/.dev/eval-workspaces/tasklist-review-panel/20261111-a1/TASK-WF-design-20261108-041415/candidate.md",
+ "cap_reviews": 3,
+ "rounds": [
+  {
+   "n": 1,
+   "doc_sha256": "71d4a7455d11818d9ad4718605a9254142cf1e3e250889cfdfa89285eb5f7d24",
+   "reviewers": [
+    {
+     "reviewer_id": "t4-1",
+     "model": "claude-haiku-5-5",
+     "report": "/home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/.dev/eval-workspaces/tasklist-review-panel/20261111-a1/TASK-WF-design-20261108-041415/reviews/combos/g7-haiku-luna2-r3/t4-1.md",
+     "report_sha256": "5d5683cebdec789e77d4e810cb8065353e966294144a9d6bff8692708bca436b",
+     "block_ok": true
+    },
+    {
+     "reviewer_id": "t3-1",
+     "model": "gpt-6-luna",
+     "report": "/home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/.dev/eval-workspaces/tasklist-review-panel/20261111-a1/TASK-WF-design-20261108-041415/reviews/combos/g7-haiku-luna2-r3/t3-1.md",
+     "report_sha256": "e617cd73d7075376e2bc8cd9ab09fe38ab0fa39716f45ea762f9ded76dccaabb",
+     "block_ok": true
+    },
+    {
+     "reviewer_id": "t4-2",
+     "model": "gpt-6-luna",
+     "report": "/home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/.dev/eval-workspaces/tasklist-review-panel/20261111-a1/TASK-WF-design-20261108-041415/reviews/combos/g7-haiku-luna2-r3/t4-2.md",
+     "report_sha256": "5856237e64cd6a06a8f460f41ffb5dc421039259ffff83ba449de17a6f38dad5",
+     "block_ok": true
+    }
+   ],
+   "verdict": "FAIL",
+   "decision": "REVISE",
+   "brief_ids": [
+    "L1",
+    "L2",
+    "L6"
+   ]
+  }
+ ],
+ "rows": [
+  {
+   "lid": "L1",
+   "fp": "84ab306d57548368",
+   "blocking": true,
+   "severity_max": "CRITICAL",
+   "category": "contradiction",
+   "confidence": "overlap",
+   "status": "open",
+   "anchor": "It writes exactly two things to a created issue besides the issue itself",
+   "anchor2": "pushback comment; final output with every `not applied` and `not set` line",
+   "span": [
+    22,
+    23
+   ],
+   "span2": [
+    46,
+    47
+   ],
+   "refs": [],
+   "claim": "The constraint allows exactly two writes to the created issue, but Task 2 keeps the pushback comment, which is a third write.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t4-1",
+     "fid": "F1",
+     "blocking": true
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t4-1",
+     "fid": "M2",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t4-1",
+     "fid": "N1",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t3-1",
+     "fid": "F1",
+     "blocking": true
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t3-1",
+     "fid": "F2",
+     "blocking": true
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t4-2",
+     "fid": "F1",
+     "blocking": true
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t4-2",
+     "fid": "F2",
+     "blocking": true
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t4-2",
+     "fid": "F4",
+     "blocking": true
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L2",
+   "fp": "838e56235b92a9f4",
+   "blocking": true,
+   "severity_max": "MAJOR",
+   "category": "unpassable-check",
+   "confidence": "single",
+   "status": "open",
+   "anchor": "Reverting any one of Tasks 1 to 5 in a scratch copy would turn at least one new test red",
+   "anchor2": null,
+   "span": [
+    125,
+    126
+   ],
+   "span2": null,
+   "refs": [],
+   "claim": "The seven listed tests do not assert the Wave 1 names, the new error rows, or the flags row, so reverting those leaves every new test green and the acceptance line fails.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t4-1",
+     "fid": "F2",
+     "blocking": true
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L3",
+   "fp": "13be5f40085513b0",
+   "blocking": false,
+   "severity_max": "MAJOR",
+   "category": "missing-requirement",
+   "confidence": "overlap",
+   "status": "open",
+   "anchor": "read-back with `gh api repos/<R>/issues/<N>/issue-field-values`",
+   "anchor2": null,
+   "span": [
+    33,
+    34
+   ],
+   "span2": null,
+   "refs": [],
+   "claim": "The read-back match rule (name, option id or field id) is not stated, so a wrong guess gives a false not-applied line.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t4-1",
+     "fid": "M1",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t3-1",
+     "fid": "F3",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L4",
+   "fp": "2a464d78c7588b65",
+   "blocking": false,
+   "severity_max": "MAJOR",
+   "category": "missing-requirement",
+   "confidence": "single",
+   "status": "open",
+   "anchor": "add a third YAML block with exactly the keys `issue_type`, `complexity_field`, `classification_missing`",
+   "anchor2": null,
+   "span": [
+    59,
+    60
+   ],
+   "span2": null,
+   "refs": [],
+   "claim": "The content and the STOP value of classification_missing are not stated, so the list may or may not include the not-applied lines.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t4-1",
+     "fid": "M3",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L5",
+   "fp": "dee94abb1083a654",
+   "blocking": false,
+   "severity_max": "MINOR",
+   "category": "missing-requirement",
+   "confidence": "single",
+   "status": "open",
+   "anchor": "search `src/superclaude/core/CLAUDE.md` for the same phrase; if it appears (the level table copy)",
+   "anchor2": null,
+   "span": [
+    156,
+    157
+   ],
+   "span2": null,
+   "refs": [],
+   "claim": "The plan skips the level-table re-copy that the project rule requires, so the copy can stay stale when the phrase is absent.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t4-1",
+     "fid": "M4",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L6",
+   "fp": "d9cef126707a6ddb",
+   "blocking": true,
+   "severity_max": "MAJOR",
+   "category": "unpassable-check",
+   "confidence": "single",
+   "status": "open",
+   "anchor": "Every `gh api` path in the file spells `repos/<R>/...` except the one documented `orgs/<owner of R>/issue-fields` read.",
+   "anchor2": null,
+   "span": [
+    150,
+    151
+   ],
+   "span2": null,
+   "refs": [],
+   "claim": "Preserving the unchanged claim-mode `gh api user` lookup makes this acceptance criterion fail, while changing it would violate the requirement to leave claim behavior and text unchanged.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t4-2",
+     "fid": "F3",
+     "blocking": true
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L7",
+   "fp": "ec44014e87a383a8",
+   "blocking": false,
+   "severity_max": "MINOR",
+   "category": "missing-requirement",
+   "confidence": "single",
+   "status": "open",
+   "anchor": "### Complexity field` (field id, data type, option names, or `not found` / `lookup failed: <reason>`)",
+   "anchor2": null,
+   "span": [
+    73,
+    74
+   ],
+   "span2": null,
+   "refs": [],
+   "claim": "The plan does not specify what to do when the Complexity field exists but is not single-select and therefore has no option name to POST.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t4-2",
+     "fid": "F5",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  }
+ ]
+}

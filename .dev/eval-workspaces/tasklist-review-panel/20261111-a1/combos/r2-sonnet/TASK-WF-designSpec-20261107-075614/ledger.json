@@ -1,0 +1,459 @@
+{
+ "schema": "review-ledger/1",
+ "doc": "/home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/.dev/eval-workspaces/tasklist-review-panel/20261111-a1/TASK-WF-designSpec-20261107-075614/candidate.md",
+ "cap_reviews": 3,
+ "rounds": [
+  {
+   "n": 1,
+   "doc_sha256": "044809e3a963fad395cfbe0988bece975650a3adf17176893665d92338bd3481",
+   "reviewers": [
+    {
+     "reviewer_id": "t4-1",
+     "model": "claude-haiku-5-5",
+     "report": "/home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/.dev/eval-workspaces/tasklist-review-panel/20261111-a1/TASK-WF-designSpec-20261107-075614/reviews/combos/r2-sonnet/t4-1.md",
+     "report_sha256": "aa8cb7d72a32ac7869ea7f4d34af922afce3f8820b676133f107d0ba7b83ad7b",
+     "block_ok": true
+    },
+    {
+     "reviewer_id": "t3-1",
+     "model": "claude-haiku-5-5",
+     "report": "/home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/.dev/eval-workspaces/tasklist-review-panel/20261111-a1/TASK-WF-designSpec-20261107-075614/reviews/combos/r2-sonnet/t3-1.md",
+     "report_sha256": "539b13c5067486e2310a2de2f5993b97ff9f9c6bc82aebc487d199e7ca37c62d",
+     "block_ok": true
+    },
+    {
+     "reviewer_id": "t4-2",
+     "model": "grok-4.7",
+     "report": "/home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/.dev/eval-workspaces/tasklist-review-panel/20261111-a1/TASK-WF-designSpec-20261107-075614/reviews/combos/r2-sonnet/t4-2.md",
+     "report_sha256": "4e26e543669dc550e8e81b1f87b6b8c16e3910049f98856417091ce1d46bca53",
+     "block_ok": true
+    },
+    {
+     "reviewer_id": "t1b-1",
+     "model": "claude-sonnet-5-5",
+     "report": "/home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/.dev/eval-workspaces/tasklist-review-panel/20261111-a1/TASK-WF-designSpec-20261107-075614/reviews/combos/r2-sonnet/t1b-1.md",
+     "report_sha256": "4d5b2e73fd46194e2208aca65b3395c8096354123af09ba9c7f33830f49a4aa1",
+     "block_ok": true
+    }
+   ],
+   "verdict": "FAIL",
+   "decision": "REVISE",
+   "brief_ids": [
+    "L1",
+    "L3"
+   ]
+  }
+ ],
+ "rows": [
+  {
+   "lid": "L1",
+   "fp": "620d50928ef7c789",
+   "blocking": true,
+   "severity_max": "MAJOR",
+   "category": "contradiction",
+   "confidence": "overlap",
+   "status": "open",
+   "anchor": "a PR is turned into a draft as soon as a verified Medium-or-higher finding is routed to a fix",
+   "anchor2": "engage at the end of Wave 3",
+   "span": [
+    14,
+    15
+   ],
+   "span2": [
+    25,
+    26
+   ],
+   "refs": [],
+   "claim": "The Goal makes the draft flip happen as soon as a finding is routed, while Constraint 26 and Task 8 fix engage at the end of Wave 3, so a PR can stay ready for the rest of Wave 3 with a routed Medium finding pending.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t4-1",
+     "fid": "F1",
+     "blocking": true
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t4-1",
+     "fid": "F3",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t4-1",
+     "fid": "F5",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t3-1",
+     "fid": "F4",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t1b-1",
+     "fid": "F5",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L2",
+   "fp": "8d6abecb3f7485c4",
+   "blocking": false,
+   "severity_max": "MAJOR",
+   "category": "unpassable-check",
+   "confidence": "overlap",
+   "status": "open",
+   "anchor": "carries no L3 or draft condition",
+   "anchor2": "at L3 with `--merge-guard off` the line",
+   "span": null,
+   "span2": [
+    136,
+    137
+   ],
+   "refs": [],
+   "claim": "The Wave 0 bullet must name an L3 condition and a draft call, yet its test must fail on a bullet that names an L3 or draft condition and pass on the real file, which needs an undefined reading of names.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t4-1",
+     "fid": "F2",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t3-1",
+     "fid": "F3",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t4-2",
+     "fid": "F3",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t1b-1",
+     "fid": "F3",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L3",
+   "fp": "0432b5b121028894",
+   "blocking": true,
+   "severity_max": "MAJOR",
+   "category": "other",
+   "confidence": "overlap",
+   "status": "open",
+   "anchor": "Create `src/superclaude/pr_submit/merge_guard.py` following ./source.md sections 4.1, 4.2 and 4.6",
+   "anchor2": "Add `src/superclaude/pr_submit/merge_guard.py` to `CORE_PURE_FILES` in `tests/pr_submit/test_static_grep.py`",
+   "span": [
+    55,
+    56
+   ],
+   "span2": [
+    84,
+    85
+   ],
+   "refs": [],
+   "claim": "This checkout already contains merge_guard.py, the 45-member enum with the guard events, and the CORE_PURE_FILES entry, so the create steps overwrite committed code and the Task 1 baseline is not pre-feature.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t4-1",
+     "fid": "F4",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t3-1",
+     "fid": "F2",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t4-2",
+     "fid": "F1",
+     "blocking": true
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t4-2",
+     "fid": "F2",
+     "blocking": true
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t4-2",
+     "fid": "F4",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t4-2",
+     "fid": "F5",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t1b-1",
+     "fid": "F1",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t1b-1",
+     "fid": "F2",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L4",
+   "fp": "8d6abecb3f7485c4",
+   "blocking": false,
+   "severity_max": "MAJOR",
+   "category": "other",
+   "confidence": "single",
+   "status": "open",
+   "anchor": "Create the GitHub I/O script `set-draft-state.sh` following ./source.md section 4.4",
+   "anchor2": null,
+   "span": null,
+   "span2": null,
+   "refs": [],
+   "claim": "An implementer who follows the stated text as written creates files that already exist and are tracked, so the Create step overwrites committed work or forces a guess about reconciling it.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t3-1",
+     "fid": "F1",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L5",
+   "fp": "7daf17384b2af15e",
+   "blocking": false,
+   "severity_max": "MAJOR",
+   "category": "missing-requirement",
+   "confidence": "single",
+   "status": "open",
+   "anchor": "Leave `RunConfig` and `run_skill` unchanged.",
+   "anchor2": null,
+   "span": [
+    97,
+    98
+   ],
+   "span2": null,
+   "refs": [],
+   "claim": "An implementer who follows Task 6 as written parses `--merge-guard` into SkillArgs and leaves the run path untouched, so nothing in code is stated to read the value.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t3-1",
+     "fid": "F5",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L6",
+   "fp": "de519f0a078480f5",
+   "blocking": false,
+   "severity_max": "MAJOR",
+   "category": "missing-requirement",
+   "confidence": "single",
+   "status": "open",
+   "anchor": "Exit codes are asserted: 0 on success, 1 on a failing `gh`",
+   "anchor2": null,
+   "span": [
+    111,
+    112
+   ],
+   "span2": null,
+   "refs": [],
+   "claim": "An implementer who follows the stated exit codes must guess the exit code for not_open and verify_failed, which the protocol's halt depends on.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t3-1",
+     "fid": "F6",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L7",
+   "fp": "63fe8fed1353c236",
+   "blocking": false,
+   "severity_max": "MINOR",
+   "category": "other",
+   "confidence": "single",
+   "status": "open",
+   "anchor": "the test `test_eventtype_is_43_members_with_silence_reviewer_and_conflict_events`",
+   "anchor2": null,
+   "span": [
+    43,
+    44
+   ],
+   "span2": null,
+   "refs": [],
+   "claim": "The named test does not exist; the repo's test is test_eventtype_is_45_members_with_silence_reviewer_conflict_and_guard_events, so an implementer cannot locate the symbol the step renames.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t3-1",
+     "fid": "F7",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L8",
+   "fp": "1ebb32d105a7d902",
+   "blocking": false,
+   "severity_max": "MINOR",
+   "category": "other",
+   "confidence": "single",
+   "status": "open",
+   "anchor": "lists changes only under `src/superclaude/`, `tests/`, `docs/user-guide/`, `.dev/` and gitignored `.claude/` mirrors",
+   "anchor2": null,
+   "span": [
+    199,
+    200
+   ],
+   "span2": null,
+   "refs": [],
+   "claim": "The acceptance line lists gitignored mirrors as allowed changes, but gitignored paths never appear in git status --short, so the line adds nothing and blurs the no-stage rule.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t3-1",
+     "fid": "F8",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L9",
+   "fp": "63fe8fed1353c236",
+   "blocking": false,
+   "severity_max": "MINOR",
+   "category": "other",
+   "confidence": "single",
+   "status": "open",
+   "anchor": "shows no remaining claim that the enum has 43 members",
+   "anchor2": null,
+   "span": [
+    48,
+    49
+   ],
+   "span2": null,
+   "refs": [],
+   "claim": "A raw grep for 43 still prints the 42nd-43rd conflict-cycle comment, which is not an enum-size claim.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t4-2",
+     "fid": "F6",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L10",
+   "fp": "6b7ad2a36ffb6582",
+   "blocking": false,
+   "severity_max": "MINOR",
+   "category": "unpassable-check",
+   "confidence": "single",
+   "status": "open",
+   "anchor": "shows the argument-hint entry, the Options row and the section heading",
+   "anchor2": "a short \"Merge guard\" section next to \"Merge-conflict handling\"",
+   "span": [
+    184,
+    185
+   ],
+   "span2": [
+    181,
+    182
+   ],
+   "refs": [],
+   "claim": "A heading named Merge guard does not match grep for merge-guard, so the AC needs the flag in the heading, which the task does not say.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t1b-1",
+     "fid": "F4",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  }
+ ]
+}

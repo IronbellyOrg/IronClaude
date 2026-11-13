@@ -1,0 +1,287 @@
+{
+ "schema": "review-ledger/1",
+ "doc": "/home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/.dev/eval-workspaces/tasklist-review-panel/20261111-a1/TASK-WF-designSpec-20261107-075614/candidate.md",
+ "cap_reviews": 3,
+ "rounds": [
+  {
+   "n": 1,
+   "doc_sha256": "044809e3a963fad395cfbe0988bece975650a3adf17176893665d92338bd3481",
+   "reviewers": [
+    {
+     "reviewer_id": "t3-1",
+     "model": "claude-haiku-5-5",
+     "report": "/home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/.dev/eval-workspaces/tasklist-review-panel/20261111-a1/TASK-WF-designSpec-20261107-075614/reviews/combos/c4-haiku-luna-grok/t3-1.catfix.md",
+     "report_sha256": "98130a28c5289425c938afc22bb899689181013e528a4b36a038579b0f66fdc8",
+     "block_ok": true
+    },
+    {
+     "reviewer_id": "t4-1",
+     "model": "gpt-6-luna",
+     "report": "/home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/.dev/eval-workspaces/tasklist-review-panel/20261111-a1/TASK-WF-designSpec-20261107-075614/reviews/combos/c4-haiku-luna-grok/t4-1.md",
+     "report_sha256": "130bef90eae4f6fb093d734a15d3b9a65e6a40f56cac4baaf1f9ac089c82ffc3",
+     "block_ok": true
+    },
+    {
+     "reviewer_id": "t4-2",
+     "model": "grok-4.7",
+     "report": "/home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/.dev/eval-workspaces/tasklist-review-panel/20261111-a1/TASK-WF-designSpec-20261107-075614/reviews/combos/c4-haiku-luna-grok/t4-2.md",
+     "report_sha256": "f587400981bc93720f2c125a81ba44c45981153b0dd1130f01378cc51274ef20",
+     "block_ok": true
+    }
+   ],
+   "verdict": "FAIL",
+   "decision": "REVISE",
+   "brief_ids": [
+    "L1"
+   ]
+  }
+ ],
+ "rows": [
+  {
+   "lid": "L1",
+   "fp": "aead7733ff9a104f",
+   "blocking": true,
+   "severity_max": "MAJOR",
+   "category": "contradiction",
+   "confidence": "single",
+   "status": "open",
+   "anchor": "Engage at the end of Wave 3 (L3, only when at least one verified finding of Medium severity or higher is routed to a fix, once per cycle id",
+   "anchor2": "a CI-fix cycle engages with kind `ci` and releases after `push_completed` before the CI re-poll",
+   "span": [
+    123,
+    124
+   ],
+   "span2": [
+    149,
+    150
+   ],
+   "refs": [],
+   "claim": "CI-fix cycles are told to engage at the end of Wave 3 and, in the same candidate, at Wave 8, so the engage point of a CI-fix cycle is contradictory.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t3-1",
+     "fid": "F1",
+     "blocking": true
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t3-1",
+     "fid": "F2",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L2",
+   "fp": "8411375004688f54",
+   "blocking": false,
+   "severity_max": "MAJOR",
+   "category": "unpassable-check",
+   "confidence": "overlap",
+   "status": "open",
+   "anchor": "carries no L3 or `draft` condition",
+   "anchor2": "when it names an L3 or `draft` condition",
+   "span": [
+    136,
+    137
+   ],
+   "span2": [
+    139,
+    140
+   ],
+   "refs": [],
+   "claim": "The Wave 0 bullet must state the L3 off line, yet its test fails when the bullet names an L3 condition, so passing depends on a guess about what the test matches.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t3-1",
+     "fid": "F3",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t4-2",
+     "fid": "F2",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L3",
+   "fp": "8d6abecb3f7485c4",
+   "blocking": false,
+   "severity_max": "MAJOR",
+   "category": "missing-requirement",
+   "confidence": "overlap",
+   "status": "open",
+   "anchor": "an exit with unpublished or uncertain work leaves the PR draft and reports held",
+   "anchor2": "`settled(draft, failed)` gives `RELEASE_PENDING`",
+   "span": null,
+   "span2": [
+    59,
+    60
+   ],
+   "refs": [],
+   "claim": "A failed draft call with unknown server effect folds to RELEASE_PENDING with owned_draft false, which maps to unavailable with no clear command, and the text does not say whether that counts as uncertain work that must report held.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t3-1",
+     "fid": "F4",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t3-1",
+     "fid": "F5",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t3-1",
+     "fid": "F6",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t3-1",
+     "fid": "F8",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t4-2",
+     "fid": "F1",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t4-2",
+     "fid": "F4",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L4",
+   "fp": "0bd01f9f50b30d15",
+   "blocking": false,
+   "severity_max": "MAJOR",
+   "category": "missing-requirement",
+   "confidence": "single",
+   "status": "open",
+   "anchor": "test_attach_and_create_preserve_preexisting_draft",
+   "anchor2": "test_guard_missing_timeline_or_ambiguous_intent_never_readies",
+   "span": [
+    168,
+    169
+   ],
+   "span2": [
+    168,
+    169
+   ],
+   "refs": [],
+   "claim": "The attach and create modes and the ambiguous-intent case appear only as test names, undefined in the candidate, so an implementer must guess what those tests cover.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t3-1",
+     "fid": "F7",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L5",
+   "fp": "1ebb32d105a7d902",
+   "blocking": false,
+   "severity_max": "MINOR",
+   "category": "other",
+   "confidence": "single",
+   "status": "open",
+   "anchor": "lists changes only under `src/superclaude/`, `tests/`, `docs/user-guide/`, `.dev/` and gitignored `.claude/` mirrors",
+   "anchor2": null,
+   "span": [
+    199,
+    200
+   ],
+   "span2": null,
+   "refs": [],
+   "claim": "Gitignored .claude mirrors never appear in git status output, so the acceptance line names a path that cannot show up.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t3-1",
+     "fid": "F9",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L6",
+   "fp": "de519f0a078480f5",
+   "blocking": false,
+   "severity_max": "MAJOR",
+   "category": "contradiction",
+   "confidence": "single",
+   "status": "open",
+   "anchor": "asserts every `gh` line carries `--repo` or a `repos/` path",
+   "anchor2": "the script passes the `_RESOLUTION_SCRIPTS` origin-URL resolution tests",
+   "span": [
+    112,
+    113
+   ],
+   "span2": [
+    112,
+    113
+   ],
+   "refs": [],
+   "claim": "The origin fallback those tests require has neither --repo nor a repos/ path, so a literal scan rejects the only line that can resolve the fork when origin is missing.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t4-2",
+     "fid": "F3",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  }
+ ]
+}

@@ -1,0 +1,12 @@
+{
+  "reviewer_id": "t4-2",
+  "expected_model": "grok-4.7",
+  "observed_model": "grok-4.7-build",
+  "model_ok": true,
+  "findings_block": true,
+  "attempt": 1,
+  "wall_s": 754,
+  "output_tokens_main": 48473,
+  "output_tokens_all": 48473,
+  "exit": 0
+}

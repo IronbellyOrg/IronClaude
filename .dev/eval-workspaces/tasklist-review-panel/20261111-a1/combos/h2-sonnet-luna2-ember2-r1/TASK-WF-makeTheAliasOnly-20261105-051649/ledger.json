@@ -1,0 +1,357 @@
+{
+ "schema": "review-ledger/1",
+ "doc": "/home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/.dev/eval-workspaces/tasklist-review-panel/20261111-a1/TASK-WF-makeTheAliasOnly-20261105-051649/candidate.md",
+ "cap_reviews": 3,
+ "rounds": [
+  {
+   "n": 1,
+   "doc_sha256": "cfd8f983d22ab8af1638ffb2a464215e56048f753f7902e3066435d8de176ca4",
+   "reviewers": [
+    {
+     "reviewer_id": "t1b-1",
+     "model": "claude-sonnet-5-5",
+     "report": "/home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/.dev/eval-workspaces/tasklist-review-panel/20261111-a1/TASK-WF-makeTheAliasOnly-20261105-051649/reviews/combos/h2-sonnet-luna2-ember2-r1/t1b-1.md",
+     "report_sha256": "b7a3a61be863b963acfc3393adb8ed3479548150a732f5f1258a9fbb54ef3c56",
+     "block_ok": true
+    },
+    {
+     "reviewer_id": "t4-1",
+     "model": "gpt-6-luna",
+     "report": "/home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/.dev/eval-workspaces/tasklist-review-panel/20261111-a1/TASK-WF-makeTheAliasOnly-20261105-051649/reviews/combos/h2-sonnet-luna2-ember2-r1/t4-1.md",
+     "report_sha256": "a23593fc776bc802aeb5ac9d9cc63e83d204074b9e9af86943eb6fee8eb1c9f5",
+     "block_ok": true
+    },
+    {
+     "reviewer_id": "t4-2",
+     "model": "gpt-6-luna",
+     "report": "/home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/.dev/eval-workspaces/tasklist-review-panel/20261111-a1/TASK-WF-makeTheAliasOnly-20261105-051649/reviews/combos/h2-sonnet-luna2-ember2-r1/t4-2.md",
+     "report_sha256": "563abc627ac81a82038cc89dcbbd5b5bf2858fbc278542facdc1162ad975c7f7",
+     "block_ok": true
+    },
+    {
+     "reviewer_id": "t2b-1",
+     "model": "muse-ember-1.0",
+     "report": "/home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/.dev/eval-workspaces/tasklist-review-panel/20261111-a1/TASK-WF-makeTheAliasOnly-20261105-051649/reviews/combos/h2-sonnet-luna2-ember2-r1/t2b-1.md",
+     "report_sha256": "5abed92d528cc793b06fd3c8c02830731ab73a9560007bbaace2a79d3b1da0f0",
+     "block_ok": true
+    },
+    {
+     "reviewer_id": "t3-1",
+     "model": "muse-ember-1.0",
+     "report": "/home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/.dev/eval-workspaces/tasklist-review-panel/20261111-a1/TASK-WF-makeTheAliasOnly-20261105-051649/reviews/combos/h2-sonnet-luna2-ember2-r1/t3-1.md",
+     "report_sha256": "7ec534c502224b0570462bc05b130ab120628ea85b45860be6c4f61d5bdb2113",
+     "block_ok": true
+    }
+   ],
+   "verdict": "FAIL",
+   "decision": "REVISE",
+   "brief_ids": [
+    "L1",
+    "L2",
+    "L3",
+    "L4"
+   ]
+  }
+ ],
+ "rows": [
+  {
+   "lid": "L1",
+   "fp": "beeaa6833f7cf565",
+   "blocking": true,
+   "severity_max": "MAJOR",
+   "category": "missing-requirement",
+   "confidence": "overlap",
+   "status": "open",
+   "anchor": "they run only when tier mode is on, so a launch that is not in tier mode leaves the inherited environment untouched",
+   "anchor2": null,
+   "span": [
+    128,
+    129
+   ],
+   "span2": null,
+   "refs": [],
+   "claim": "The launcher spec exports all three variables for every tier-mode owner and never says what a limited owner gets, though the launcher already restricts tiers per owner.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t1b-1",
+     "fid": "F1",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t1b-1",
+     "fid": "F2",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t4-1",
+     "fid": "F3",
+     "blocking": true
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t4-2",
+     "fid": "F1",
+     "blocking": true
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t2b-1",
+     "fid": "F3",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L2",
+   "fp": "01e7976c6e6c24ed",
+   "blocking": true,
+   "severity_max": "MAJOR",
+   "category": "missing-requirement",
+   "confidence": "overlap",
+   "status": "open",
+   "anchor": "The text claude-gw-tier appears under src/superclaude/agents, commands, skills, cli, hooks and core only in TIER_TEXT_ALLOWED paths.",
+   "anchor2": "the remaining tests pass",
+   "span": [
+    34,
+    35
+   ],
+   "span2": [
+    45,
+    46
+   ],
+   "refs": [],
+   "claim": "The scanned file types are not stated, and cli/review/data JSON files in the inspected tree contain claude-gw-tier outside the allow-list, so the test could fail on the tree it is said to pass on.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t1b-1",
+     "fid": "F3",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t1b-1",
+     "fid": "F4",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t2b-1",
+     "fid": "F1",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t3-1",
+     "fid": "F1",
+     "blocking": true
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t3-1",
+     "fid": "F3",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L3",
+   "fp": "84ab306d57548368",
+   "blocking": true,
+   "severity_max": "MAJOR",
+   "category": "contradiction",
+   "confidence": "overlap",
+   "status": "open",
+   "anchor": "Edit under src/ only; the .claude/ copies are gitignored sync output regenerated by make sync-dev.",
+   "anchor2": null,
+   "span": [
+    20,
+    21
+   ],
+   "span2": null,
+   "refs": [],
+   "claim": "Read literally, the rule forbids the docs, tests and plugins edits that several tasks require; the same sentence shows it means only that .claude/ is not edited.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t1b-1",
+     "fid": "F5",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t1b-1",
+     "fid": "F6",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t1b-1",
+     "fid": "F7",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t4-1",
+     "fid": "F1",
+     "blocking": true
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t2b-1",
+     "fid": "F2",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t3-1",
+     "fid": "F2",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L4",
+   "fp": "8d6abecb3f7485c4",
+   "blocking": true,
+   "severity_max": "MAJOR",
+   "category": "unpassable-check",
+   "confidence": "single",
+   "status": "open",
+   "anchor": "tests/skills/test_model_alias_policy.py run on the unchanged tree fails exactly these seven tests",
+   "anchor2": null,
+   "span": null,
+   "span2": null,
+   "refs": [],
+   "claim": "An implementer who follows the stated text as written runs the policy test on the unchanged checkout and gets 13 passing tests rather than exactly seven failures, and that is wrong because the acceptance criterion cannot pass.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t4-1",
+     "fid": "F2",
+     "blocking": true
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L5",
+   "fp": "8d6abecb3f7485c4",
+   "blocking": false,
+   "severity_max": "MINOR",
+   "category": "other",
+   "confidence": "single",
+   "status": "open",
+   "anchor": "today the workspace defaults file exports real model ids for the three variables",
+   "anchor2": null,
+   "span": null,
+   "span2": null,
+   "refs": [],
+   "claim": "The current workspace defaults file does not export the three ANTHROPIC_DEFAULT_*_MODEL variables, so the specified documentation would describe exports that are absent.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t4-2",
+     "fid": "F2",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L6",
+   "fp": "a02f572d42a975c8",
+   "blocking": false,
+   "severity_max": "MINOR",
+   "category": "other",
+   "confidence": "single",
+   "status": "open",
+   "anchor": "T3Model01 gpt-6.1-terra, T2Model02 glm-5.3, T1Model02 gpt-6.1-sol, T1Model01 claude-opus-5-5",
+   "anchor2": null,
+   "span": [
+    85,
+    86
+   ],
+   "span2": null,
+   "refs": [],
+   "claim": "The current workspace defaults set T3Model01 to glm-5.3, not gpt-6.1-terra, so the required notes would report the wrong rung model.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t4-2",
+     "fid": "F3",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L7",
+   "fp": "c82326e4408cc21b",
+   "blocking": false,
+   "severity_max": "MINOR",
+   "category": "other",
+   "confidence": "single",
+   "status": "open",
+   "anchor": "Then search src/superclaude and docs/ for any other text that says audit-scanner runs on Haiku and fix it the same way.",
+   "anchor2": null,
+   "span": [
+    75,
+    76
+   ],
+   "span2": null,
+   "refs": [],
+   "claim": "The extra-search instruction has no acceptance check, so an extra mention outside the two named paths would not fail the task.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t2b-1",
+     "fid": "F4",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  }
+ ]
+}

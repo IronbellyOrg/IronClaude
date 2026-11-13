@@ -1,0 +1,307 @@
+{
+ "schema": "review-ledger/1",
+ "doc": "/home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/.dev/eval-workspaces/tasklist-review-panel/20261111-a1/TASK-WF-designSpec-20261107-075614/candidate.md",
+ "cap_reviews": 3,
+ "rounds": [
+  {
+   "n": 1,
+   "doc_sha256": "044809e3a963fad395cfbe0988bece975650a3adf17176893665d92338bd3481",
+   "reviewers": [
+    {
+     "reviewer_id": "t2-1",
+     "model": "gpt-6.1-terra",
+     "report": "/home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/.dev/eval-workspaces/tasklist-review-panel/20261111-a1/TASK-WF-designSpec-20261107-075614/reviews/combos/terra-muse-haiku-ember/t2-1.md",
+     "report_sha256": "8f2a85a04a80ee80af3ac4a2314c1fd922d44cbc8eecee9e05628d8ae156c7e3",
+     "block_ok": true
+    },
+    {
+     "reviewer_id": "t2b-1",
+     "model": "muse-ember-1.0",
+     "report": "/home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/.dev/eval-workspaces/tasklist-review-panel/20261111-a1/TASK-WF-designSpec-20261107-075614/reviews/combos/terra-muse-haiku-ember/t2b-1.md",
+     "report_sha256": "02c771980e5a88514d526c70272af2cf98ed6a7a11a31dec00fb870dbe1d2da2",
+     "block_ok": true
+    },
+    {
+     "reviewer_id": "t4-1",
+     "model": "claude-haiku-5-5",
+     "report": "/home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/.dev/eval-workspaces/tasklist-review-panel/20261111-a1/TASK-WF-designSpec-20261107-075614/reviews/combos/terra-muse-haiku-ember/t4-1.md",
+     "report_sha256": "848476754c1ddb09364ad24583cd43eae40874edb98eb8a1d76309a5324a236e",
+     "block_ok": true
+    }
+   ],
+   "verdict": "FAIL",
+   "decision": "REVISE",
+   "brief_ids": [
+    "L6"
+   ]
+  }
+ ],
+ "rows": [
+  {
+   "lid": "L1",
+   "fp": "0cc5f5acd063d2da",
+   "blocking": false,
+   "severity_max": "MAJOR",
+   "category": "missing-requirement",
+   "confidence": "overlap",
+   "status": "open",
+   "anchor": "and `dangling_branch` limited to `None` or the `BRANCH_*` constants of Task 3",
+   "anchor2": null,
+   "span": [
+    69,
+    70
+   ],
+   "span2": null,
+   "refs": [],
+   "claim": "Resume row 4 never states how applied edits, target sha and cycle id reach the release re-entry, so a crash after a normal push could hold instead of release or release with cause no edits.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t2b-1",
+     "fid": "F1",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t4-1",
+     "fid": "F5",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L2",
+   "fp": "8411375004688f54",
+   "blocking": false,
+   "severity_max": "MAJOR",
+   "category": "other",
+   "confidence": "overlap",
+   "status": "open",
+   "anchor": "one new bullet under Wave 0, written as a flat line before the Wave 1 bullet, that applies at every ordinal and in both modes and carries no L3 or `draft` condition",
+   "anchor2": null,
+   "span": [
+    136,
+    137
+   ],
+   "span2": null,
+   "refs": [],
+   "claim": "The bullet must also state the at L3 with off line, so whether the draft gate wording test forbids L3 or draft text needs a guess.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t2b-1",
+     "fid": "F2",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t4-1",
+     "fid": "F2",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L3",
+   "fp": "1ebb32d105a7d902",
+   "blocking": false,
+   "severity_max": "MAJOR",
+   "category": "unpassable-check",
+   "confidence": "overlap",
+   "status": "open",
+   "anchor": "`git status --short` lists changes only under `src/superclaude/`, `tests/`, `docs/user-guide/`, `.dev/` and gitignored `.claude/` mirrors",
+   "anchor2": null,
+   "span": [
+    199,
+    200
+   ],
+   "span2": null,
+   "refs": [],
+   "claim": "The artifacts files use dot slash with no package or root anchor, and root artifacts is not ignored, so the cleanliness check depends on where dot slash is taken to mean.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t2b-1",
+     "fid": "F3",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t4-1",
+     "fid": "M1",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L4",
+   "fp": "aead7733ff9a104f",
+   "blocking": false,
+   "severity_max": "MAJOR",
+   "category": "missing-requirement",
+   "confidence": "overlap",
+   "status": "open",
+   "anchor": "Engage at the end of Wave 3 (L3, only when at least one verified finding of Medium severity or higher is routed to a fix, once per cycle id",
+   "anchor2": null,
+   "span": [
+    123,
+    124
+   ],
+   "span2": null,
+   "refs": [],
+   "claim": "The text never states what happens when a held draft is reused by a later cycle, so the guard could stay bound to the earlier cycle id.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t2b-1",
+     "fid": "F4",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t4-1",
+     "fid": "F4",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L5",
+   "fp": "de519f0a078480f5",
+   "blocking": false,
+   "severity_max": "MINOR",
+   "category": "other",
+   "confidence": "overlap",
+   "status": "open",
+   "anchor": "`--to` re-reads state first (non-`OPEN` gives `error:\"not_open\"`), is idempotent (`changed:false` when already in the target state) and verifies after the mutation (`verify_failed`)",
+   "anchor2": null,
+   "span": [
+    107,
+    108
+   ],
+   "span2": null,
+   "refs": [],
+   "claim": "The not open case states the JSON error but not the exit code, so a script test must guess 0 or 1.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t2b-1",
+     "fid": "F5",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t4-1",
+     "fid": "M2",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L6",
+   "fp": "0432b5b121028894",
+   "blocking": true,
+   "severity_max": "MAJOR",
+   "category": "contradiction",
+   "confidence": "single",
+   "status": "open",
+   "anchor": "mode `OFF` and ordinal below 3 with no record (`off`), and no record at ordinal 3 (`released`)",
+   "anchor2": "implementing the first-match mapping of section 4.1",
+   "span": [
+    60,
+    61
+   ],
+   "span2": [
+    55,
+    56
+   ],
+   "refs": [],
+   "claim": "The acceptance text limits the mode OFF rule to ordinal below 3, so mode OFF at ordinal 3 with no record reports released where section 4.1 says off.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t4-1",
+     "fid": "F1",
+     "blocking": true
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t4-1",
+     "fid": "F6",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L7",
+   "fp": "7daf17384b2af15e",
+   "blocking": false,
+   "severity_max": "MAJOR",
+   "category": "missing-requirement",
+   "confidence": "single",
+   "status": "open",
+   "anchor": "Leave `RunConfig` and `run_skill` unchanged",
+   "anchor2": "`SkillArgs.merge_guard: str = DEFAULT_MERGE_GUARD`",
+   "span": [
+    97,
+    98
+   ],
+   "span2": [
+    97,
+    98
+   ],
+   "refs": [],
+   "claim": "The text never says where the guard mode comes from on --resume, so a resumed off run has no stated mode source.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t4-1",
+     "fid": "F3",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  }
+ ]
+}

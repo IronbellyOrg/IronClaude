@@ -1,0 +1,191 @@
+{
+ "schema": "review-ledger/1",
+ "doc": "/home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/.dev/eval-workspaces/tasklist-review-panel/20261111-a1/TASK-WF-designSpec-20261107-075614/candidate.md",
+ "cap_reviews": 3,
+ "rounds": [
+  {
+   "n": 1,
+   "doc_sha256": "044809e3a963fad395cfbe0988bece975650a3adf17176893665d92338bd3481",
+   "reviewers": [
+    {
+     "reviewer_id": "t2b-1",
+     "model": "muse-ember-1.0",
+     "report": "/home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/.dev/eval-workspaces/tasklist-review-panel/20261111-a1/TASK-WF-designSpec-20261107-075614/reviews/combos/e2-ember-luna2-rep/t2b-1.md",
+     "report_sha256": "dff46c9ff077eae0b43a63027a0ed2650ad2c42a776604cdc1ec2c995e4cc671",
+     "block_ok": true
+    },
+    {
+     "reviewer_id": "t4-1",
+     "model": "gpt-6-luna",
+     "report": "/home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/.dev/eval-workspaces/tasklist-review-panel/20261111-a1/TASK-WF-designSpec-20261107-075614/reviews/combos/e2-ember-luna2-rep/t4-1.md",
+     "report_sha256": "f6625982ae8acdbf67ea981e35a6943049ce98de22a2bcef0af04fab830a813c",
+     "block_ok": true
+    },
+    {
+     "reviewer_id": "t3-1",
+     "model": "gpt-6-luna",
+     "report": "/home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/.dev/eval-workspaces/tasklist-review-panel/20261111-a1/TASK-WF-designSpec-20261107-075614/reviews/combos/e2-ember-luna2-rep/t3-1.md",
+     "report_sha256": "446e3ff99cac8e54e4489593192e807faf9fc750d3082df1063d9accb2a23142",
+     "block_ok": true
+    }
+   ],
+   "verdict": "FAIL",
+   "decision": "REVISE",
+   "brief_ids": [
+    "L3",
+    "L4"
+   ]
+  }
+ ],
+ "rows": [
+  {
+   "lid": "L1",
+   "fp": "8411375004688f54",
+   "blocking": false,
+   "severity_max": "MAJOR",
+   "category": "contradiction",
+   "confidence": "single",
+   "status": "open",
+   "anchor": "carries no L3 or `draft` condition",
+   "anchor2": "at L3 with `--merge-guard off` the line",
+   "span": [
+    136,
+    137
+   ],
+   "span2": [
+    136,
+    137
+   ],
+   "refs": [],
+   "claim": "Task 9's Wave 0 bullet must avoid any L3 condition yet must state the L3 off line, and its test must fail on an L3 condition, so the two readings of the test conflict.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t2b-1",
+     "fid": "F1",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L2",
+   "fp": "aead7733ff9a104f",
+   "blocking": false,
+   "severity_max": "MAJOR",
+   "category": "contradiction",
+   "confidence": "single",
+   "status": "open",
+   "anchor": "mints the cycle id with `fix_cycle_id` in the single place named by Task 1 O1",
+   "anchor2": "a CI-fix cycle engages with kind `ci`",
+   "span": [
+    123,
+    124
+   ],
+   "span2": [
+    149,
+    150
+   ],
+   "refs": [],
+   "claim": "Task 8 requires one mint place for the cycle id while Task 10 adds a Wave 8 CI cycle that cannot be minted at Wave 3, leaving the CI mint place undefined.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t2b-1",
+     "fid": "F2",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L3",
+   "fp": "0bd01f9f50b30d15",
+   "blocking": true,
+   "severity_max": "MAJOR",
+   "category": "other",
+   "confidence": "overlap",
+   "status": "open",
+   "anchor": "asserts the exact event order `draft_guard_requested(draft)`",
+   "anchor2": null,
+   "span": [
+    169,
+    170
+   ],
+   "span2": null,
+   "refs": [],
+   "claim": "Task 11 says exact event order while the source trace is an in-order subsequence, so a contiguous assertion would fail once push_initiated is appended.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t2b-1",
+     "fid": "F3",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t3-1",
+     "fid": "F1",
+     "blocking": true
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L4",
+   "fp": "de519f0a078480f5",
+   "blocking": true,
+   "severity_max": "MAJOR",
+   "category": "missing-requirement",
+   "confidence": "overlap",
+   "status": "open",
+   "anchor": "for every line of the script that matches `gh pr` or `gh api`",
+   "anchor2": "that contains `gh pr`, `gh api` or a git write verb needs one entry in `WRITE_VERB_CLASSIFICATION`",
+   "span": [
+    107,
+    108
+   ],
+   "span2": [
+    21,
+    22
+   ],
+   "refs": [],
+   "claim": "Tasks 7, 8 and 12 classify only gh pr/gh api lines, omitting git write-verb lines the Constraints require, so a git push line in new text would fail the worker-contract test.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t2b-1",
+     "fid": "F4",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t4-1",
+     "fid": "F1",
+     "blocking": true
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  }
+ ]
+}

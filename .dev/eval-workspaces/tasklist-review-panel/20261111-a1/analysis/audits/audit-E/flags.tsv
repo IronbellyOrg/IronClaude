@@ -1,0 +1,63 @@
+check	row	package	reviewer(na)	severity(EXCLUDE|WARN)	reason
+4.quarantined_source	c1-haiku-luna	TASK-WF-design-20261108-041415	na	EXCLUDE	merged-1.md only exists under quarantine-pre-src-luna (row superseded by -src variant)
+4.quarantined_source	c1-haiku-luna	TASK-WF-designSpec-20261107-075614	na	EXCLUDE	merged-1.md only exists under quarantine-pre-src-luna (row superseded by -src variant)
+1.judgeread	c1-haiku-luna	TASK-WF-makeTheAliasOnly-20261105-051649	na	WARN	judge Read outside brief: /home/coder/.claude/projects/-home-coder-workspaces-worktrees-IronClaude-eval-tasklist-review-panel--dev-eval-workspaces-tasklist-review-panel-20261111-a1/6beaa9b1-18f5-4407-83b8-e3b3a450d18c/tool-results/bk46eb5py.txt
+4.quarantined_source	c1-haiku-luna	TASK-WF-makeTheAliasOnly-20261105-051649	na	EXCLUDE	merged-1.md only exists under quarantine-pre-src-luna (row superseded by -src variant)
+3.leak	c1-haiku-luna	TASK-WF-makeTheAliasOnly-20261105-051649	na	WARN	2 lines match leak regex; first: L5 '- R1: report TASK-WF-makeTheAliasOnly-20261105-051649/reviews/combos/c1-haiku-luna/R1.catfix.md, block ok true'
+3.pathleak	c1-haiku-luna	TASK-WF-makeTheAliasOnly-20261105-051649	na	WARN	eval path fragment in anon file
+4.quarantined_source	c3-luna-grok	TASK-WF-design-20261108-041415	na	EXCLUDE	merged-1.md only exists under quarantine-pre-src-luna (row superseded by -src variant)
+4.quarantined_source	c3-luna-grok	TASK-WF-designSpec-20261107-075614	na	EXCLUDE	merged-1.md only exists under quarantine-pre-src-luna (row superseded by -src variant)
+4.quarantined_source	c3-luna-grok	TASK-WF-makeTheAliasOnly-20261105-051649	na	EXCLUDE	merged-1.md only exists under quarantine-pre-src-luna (row superseded by -src variant)
+4.quarantined_source	c4-haiku-luna-grok	TASK-WF-design-20261108-041415	na	EXCLUDE	merged-1.md only exists under quarantine-pre-src-luna (row superseded by -src variant)
+4.quarantined_source	c4-haiku-luna-grok	TASK-WF-designSpec-20261107-075614	na	EXCLUDE	merged-1.md only exists under quarantine-pre-src-luna (row superseded by -src variant)
+4.quarantined_source	c4-haiku-luna-grok	TASK-WF-makeTheAliasOnly-20261105-051649	na	EXCLUDE	merged-1.md only exists under quarantine-pre-src-luna (row superseded by -src variant)
+1.judgeread	e5-haiku-ember-luna	TASK-WF-designSpec-20261107-075614	na	WARN	judge Read outside brief: /home/coder/.claude/projects/-tmp/d1a598f9-7755-4905-b93a-5d2f77993aad/tool-results/blihf2i0r.txt
+1.judgeread	e6-haiku-ember2	TASK-WF-makeTheAliasOnly-20261105-051649	na	WARN	judge Read outside brief: /home/coder/.claude/projects/-tmp/4000ff55-e898-4014-9b2f-c5021d85b274/tool-results/buoo2ngkg.txt
+1.judgeread	g1-ember-luna2-r4	TASK-WF-makeTheAliasOnly-20261105-051649	na	WARN	judge Read outside brief: /home/coder/.claude/projects/-tmp/a6783140-8725-4dbf-bac4-7e9570917bb2/tool-results/bmtz5od2w.txt
+1.judgeread	g3-sonnet-luna-ember-r2	TASK-WF-designSpec-20261107-075614	na	WARN	judge Read outside brief: /home/coder/.claude/projects/-tmp/f612c852-1c5a-4cd8-be51-fe6d60a77489/tool-results/b0lwg04o7.txt
+1.judgeread	g3-sonnet-luna-ember-r2	TASK-WF-makeTheAliasOnly-20261105-051649	na	WARN	judge Read outside brief: /home/coder/.claude/projects/-tmp/f9ab6ef4-d757-4d11-b97d-263d80e7c73c/tool-results/brv7wuwp4.txt
+1.judgeread	g4-haiku-ember-terra-r3	TASK-WF-makeTheAliasOnly-20261105-051649	na	WARN	judge Read outside brief: /home/coder/.claude/projects/-tmp/5d0529be-e741-46a8-95db-6d58f48389e1/tool-results/be58tul2k.txt
+1.judgeread	g5-ember2-luna-r3	TASK-WF-makeTheAliasOnly-20261105-051649	na	WARN	judge Read outside brief: /home/coder/.claude/projects/-tmp/b1a6da69-3dea-478c-9a81-0089f3eaddef/tool-results/b3d8gs16j.txt
+1.judgeread	g6-luna2-ember2-r1	TASK-WF-designSpec-20261107-075614	na	WARN	judge Read outside brief: /home/coder/.claude/projects/-tmp/d31a89f2-42fd-400e-abb2-7bd0ac2e6479/tool-results/bv3aq4kkw.txt
+1.judgeread	g7-haiku-luna2-r4	TASK-WF-makeTheAliasOnly-20261105-051649	na	WARN	judge Read outside brief: /home/coder/.claude/projects/-tmp/278568c1-9655-43b3-8856-bfa049867dcd/tool-results/bewb3tsp1.txt
+1.judgeread	h1-haiku-luna2-ember2-r1	TASK-WF-makeTheAliasOnly-20261105-051649	na	WARN	judge Read outside brief: /home/coder/.claude/projects/-tmp/23e16c3b-cd9b-478a-90a8-f45a7ed543c1/tool-results/bocc3m7ry.txt
+1.judgeread	h1-haiku-luna2-ember2-r4	TASK-WF-makeTheAliasOnly-20261105-051649	na	WARN	judge Read outside brief: /home/coder/.claude/projects/-tmp/f0c0e5ce-77ce-4d1a-b715-8f1a57b1a5da/tool-results/bpw2d9leh.txt
+1.judgeread	h2-sonnet-luna2-ember2-r1	TASK-WF-makeTheAliasOnly-20261105-051649	na	WARN	judge Read outside brief: /home/coder/.claude/projects/-tmp/d62f9489-2863-4fdb-9970-75d57d335981/tool-results/b260ivj6a.txt
+1.judgeread	h2-sonnet-luna2-ember2-r3	TASK-WF-makeTheAliasOnly-20261105-051649	na	WARN	judge Read outside brief: /home/coder/.claude/projects/-tmp/7ced7b41-6ad4-46a0-8784-1e2e7479ee21/tool-results/bemfypwlu.txt
+4.quarantined_source	n1-muse-haiku-luna	TASK-WF-design-20261108-041415	na	EXCLUDE	merged-1.md only exists under quarantine-pre-src-luna (row superseded by -src variant)
+4.quarantined_source	n1-muse-haiku-luna	TASK-WF-designSpec-20261107-075614	na	EXCLUDE	merged-1.md only exists under quarantine-pre-src-luna (row superseded by -src variant)
+1.judgeread	n1-muse-haiku-luna	TASK-WF-makeTheAliasOnly-20261105-051649	na	WARN	judge Read outside brief: /home/coder/.claude/projects/-home-coder-workspaces-worktrees-IronClaude-eval-tasklist-review-panel--dev-eval-workspaces-tasklist-review-panel-20261111-a1/2448fc1a-8d4c-411b-8b21-b0470712a5fc/tool-results/bkqj454g6.txt
+4.quarantined_source	n1-muse-haiku-luna	TASK-WF-makeTheAliasOnly-20261105-051649	na	EXCLUDE	merged-1.md only exists under quarantine-pre-src-luna (row superseded by -src variant)
+1.labeldirs	n2-sonnet-src	TASK-WF-designSpec-20261107-075614	na	WARN	2 label dirs: ['W', 'Z']
+1.noscore	n2-sonnet-src	TASK-WF-designSpec-20261107-075614	na	WARN	no score.json in Z
+4.quarantined_source	n3-muse-luna-grok	TASK-WF-design-20261108-041415	na	EXCLUDE	merged-1.md only exists under quarantine-pre-src-luna (row superseded by -src variant)
+4.quarantined_source	n3-muse-luna-grok	TASK-WF-designSpec-20261107-075614	na	EXCLUDE	merged-1.md only exists under quarantine-pre-src-luna (row superseded by -src variant)
+1.judgeread	n3-muse-luna-grok	TASK-WF-makeTheAliasOnly-20261105-051649	na	WARN	judge Read outside brief: /home/coder/.claude/projects/-home-coder-workspaces-worktrees-IronClaude-eval-tasklist-review-panel--dev-eval-workspaces-tasklist-review-panel-20261111-a1/46bad045-c8d6-4f5b-9f50-8ad3a180d4ad/tool-results/b8xqbudq1.txt
+4.quarantined_source	n3-muse-luna-grok	TASK-WF-makeTheAliasOnly-20261105-051649	na	EXCLUDE	merged-1.md only exists under quarantine-pre-src-luna (row superseded by -src variant)
+1.judgeread	n4-sol	TASK-WF-makeTheAliasOnly-20261105-051649	na	WARN	judge Read outside brief: /home/coder/.claude/projects/-home-coder-workspaces-worktrees-IronClaude-eval-tasklist-review-panel--dev-eval-workspaces-tasklist-review-panel-20261111-a1/788d5dd2-d7d9-4864-9fed-574f3cc9383d/tool-results/bc0ayqq0z.txt
+4.quarantined_source	n5-muse-glm-luna	TASK-WF-design-20261108-041415	na	EXCLUDE	merged-1.md only exists under quarantine-pre-src-luna (row superseded by -src variant)
+4.quarantined_source	n5-muse-glm-luna	TASK-WF-designSpec-20261107-075614	na	EXCLUDE	merged-1.md only exists under quarantine-pre-src-luna (row superseded by -src variant)
+4.quarantined_source	n5-muse-glm-luna	TASK-WF-makeTheAliasOnly-20261105-051649	na	EXCLUDE	merged-1.md only exists under quarantine-pre-src-luna (row superseded by -src variant)
+4.quarantined_source	n5-sonnet	TASK-WF-design-20261108-041415	na	EXCLUDE	merged-1.md only exists under quarantine-pre-src-luna (row superseded by -src variant)
+4.quarantined_source	n5-sonnet	TASK-WF-designSpec-20261107-075614	na	EXCLUDE	merged-1.md only exists under quarantine-pre-src-luna (row superseded by -src variant)
+4.quarantined_source	n5-sonnet	TASK-WF-makeTheAliasOnly-20261105-051649	na	EXCLUDE	merged-1.md only exists under quarantine-pre-src-luna (row superseded by -src variant)
+4.quarantined_source	r1-haiku-luna2	TASK-WF-design-20261108-041415	na	EXCLUDE	merged-1.md only exists under quarantine-pre-src-luna (row superseded by -src variant)
+4.quarantined_source	r1-haiku-luna2	TASK-WF-designSpec-20261107-075614	na	EXCLUDE	merged-1.md only exists under quarantine-pre-src-luna (row superseded by -src variant)
+4.quarantined_source	r1-haiku-luna2	TASK-WF-makeTheAliasOnly-20261105-051649	na	EXCLUDE	merged-1.md only exists under quarantine-pre-src-luna (row superseded by -src variant)
+3.anonledger	r2-sonnet	TASK-WF-design-20261108-041415	na	EXCLUDE	anon ledger rows differ from merged-1 ledger (lid..severity)
+4.stale_vs_merged1	r2-sonnet	TASK-WF-design-20261108-041415	na	EXCLUDE	score.json older than merged-1.md by 13114s
+4.anon_vs_merged1	r2-sonnet	TASK-WF-design-20261108-041415	na	EXCLUDE	merged-anon.md older than merged-1.md by 13139s
+3.anonledger	r2-sonnet	TASK-WF-designSpec-20261107-075614	na	EXCLUDE	anon ledger rows differ from merged-1 ledger (lid..severity)
+4.stale_vs_merged1	r2-sonnet	TASK-WF-designSpec-20261107-075614	na	EXCLUDE	score.json older than merged-1.md by 13113s
+4.anon_vs_merged1	r2-sonnet	TASK-WF-designSpec-20261107-075614	na	EXCLUDE	merged-anon.md older than merged-1.md by 13139s
+3.anonledger	r2-sonnet	TASK-WF-makeTheAliasOnly-20261105-051649	na	EXCLUDE	anon ledger rows differ from merged-1 ledger (lid..severity)
+4.stale_vs_merged1	r2-sonnet	TASK-WF-makeTheAliasOnly-20261105-051649	na	EXCLUDE	score.json older than merged-1.md by 13119s
+4.anon_vs_merged1	r2-sonnet	TASK-WF-makeTheAliasOnly-20261105-051649	na	EXCLUDE	merged-anon.md older than merged-1.md by 13139s
+4.quarantined_source	r3-luna2-grok	TASK-WF-design-20261108-041415	na	EXCLUDE	merged-1.md only exists under quarantine-pre-src-luna (row superseded by -src variant)
+4.quarantined_source	r3-luna2-grok	TASK-WF-designSpec-20261107-075614	na	EXCLUDE	merged-1.md only exists under quarantine-pre-src-luna (row superseded by -src variant)
+1.judgeread	r3-luna2-grok	TASK-WF-makeTheAliasOnly-20261105-051649	na	WARN	judge Read outside brief: /home/coder/.claude/projects/-home-coder-workspaces-worktrees-IronClaude-eval-tasklist-review-panel--dev-eval-workspaces-tasklist-review-panel-20261111-a1/98f74951-0467-443d-bb10-98910ff412b4/tool-results/bhs2fvfis.txt
+4.quarantined_source	r3-luna2-grok	TASK-WF-makeTheAliasOnly-20261105-051649	na	EXCLUDE	merged-1.md only exists under quarantine-pre-src-luna (row superseded by -src variant)
+4.quarantined_source	r4-haiku-luna2-grok	TASK-WF-design-20261108-041415	na	EXCLUDE	merged-1.md only exists under quarantine-pre-src-luna (row superseded by -src variant)
+4.quarantined_source	r4-haiku-luna2-grok	TASK-WF-designSpec-20261107-075614	na	EXCLUDE	merged-1.md only exists under quarantine-pre-src-luna (row superseded by -src variant)
+4.quarantined_source	r4-haiku-luna2-grok	TASK-WF-makeTheAliasOnly-20261105-051649	na	EXCLUDE	merged-1.md only exists under quarantine-pre-src-luna (row superseded by -src variant)
+1.judgeread	sol-alone-src	TASK-WF-makeTheAliasOnly-20261105-051649	na	WARN	judge Read outside brief: /home/coder/.claude/projects/-home-coder-workspaces-worktrees-IronClaude-eval-tasklist-review-panel/57023b52-b07c-4b86-9799-a715f84e8aec/tool-results/byvqccqxs.txt

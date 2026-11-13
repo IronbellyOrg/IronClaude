@@ -1,0 +1,293 @@
+{
+ "schema": "review-ledger/1",
+ "doc": "/home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/.dev/eval-workspaces/tasklist-review-panel/20261111-a1/TASK-WF-designSpec-20261107-075614/candidate.md",
+ "cap_reviews": 3,
+ "rounds": [
+  {
+   "n": 1,
+   "doc_sha256": "044809e3a963fad395cfbe0988bece975650a3adf17176893665d92338bd3481",
+   "reviewers": [
+    {
+     "reviewer_id": "t4-1",
+     "model": "claude-haiku-5-5",
+     "report": "/home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/.dev/eval-workspaces/tasklist-review-panel/20261111-a1/TASK-WF-designSpec-20261107-075614/reviews/combos/g4-haiku-ember-terra-r1/t4-1.md",
+     "report_sha256": "60f63f7c926e40070a84c6c1615901bf6a9237d5789d3064db37d31f008e78f0",
+     "block_ok": true
+    },
+    {
+     "reviewer_id": "t2b-1",
+     "model": "muse-ember-1.0",
+     "report": "/home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/.dev/eval-workspaces/tasklist-review-panel/20261111-a1/TASK-WF-designSpec-20261107-075614/reviews/combos/g4-haiku-ember-terra-r1/t2b-1.md",
+     "report_sha256": "13fb4294bd02c2992d59c837304f68f18015aff922e3938f28d79e148b6dd985",
+     "block_ok": true
+    },
+    {
+     "reviewer_id": "t2-1",
+     "model": "gpt-6.1-terra",
+     "report": "/home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/.dev/eval-workspaces/tasklist-review-panel/20261111-a1/TASK-WF-designSpec-20261107-075614/reviews/combos/g4-haiku-ember-terra-r1/t2-1.md",
+     "report_sha256": "229a362ac932887dd6b38cb1391d5f2d95e8a87892a1306d896a0b6d52709f69",
+     "block_ok": true
+    }
+   ],
+   "verdict": "FAIL",
+   "decision": "REVISE",
+   "brief_ids": [
+    "L1",
+    "L6"
+   ]
+  }
+ ],
+ "rows": [
+  {
+   "lid": "L1",
+   "fp": "0432b5b121028894",
+   "blocking": true,
+   "severity_max": "MAJOR",
+   "category": "data-loss",
+   "confidence": "single",
+   "status": "open",
+   "anchor": "Create `src/superclaude/pr_submit/merge_guard.py` following ./source.md sections 4.1, 4.2 and 4.6",
+   "anchor2": "Create the GitHub I/O script `set-draft-state.sh`",
+   "span": [
+    55,
+    56
+   ],
+   "span2": [
+    103,
+    104
+   ],
+   "refs": [],
+   "claim": "An implementer who follows the stated text as written overwrites the committed merge_guard.py and set-draft-state.sh, because both paths already exist in this tree, so the Create wording discards tracked code and tests.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t4-1",
+     "fid": "F1",
+     "blocking": true
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t4-1",
+     "fid": "F6",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L2",
+   "fp": "8d6abecb3f7485c4",
+   "blocking": false,
+   "severity_max": "MAJOR",
+   "category": "contradiction",
+   "confidence": "overlap",
+   "status": "open",
+   "anchor": "carries no L3 or draft condition",
+   "anchor2": "at L3 with `--merge-guard off`",
+   "span": null,
+   "span2": [
+    136,
+    137
+   ],
+   "refs": [],
+   "claim": "The Wave 0 bullet must say no L3 or draft condition yet also name L3 and draft text, and the test that rejects gate wording does not define how matching works.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t4-1",
+     "fid": "F2",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t2b-1",
+     "fid": "F2",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L3",
+   "fp": "de519f0a078480f5",
+   "blocking": false,
+   "severity_max": "MAJOR",
+   "category": "missing-requirement",
+   "confidence": "overlap",
+   "status": "open",
+   "anchor": "a failing timeline call prints `transitions: null` and `complete: false`",
+   "anchor2": "1 on a failing `gh` (JSON still printed with `ok:false`)",
+   "span": [
+    110,
+    111
+   ],
+   "span2": [
+    111,
+    112
+   ],
+   "refs": [],
+   "claim": "The exit code when only the timeline call fails is not stated, so the engage halt that depends on it can be implemented either way.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t4-1",
+     "fid": "F3",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t2b-1",
+     "fid": "F3",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L4",
+   "fp": "0bd01f9f50b30d15",
+   "blocking": false,
+   "severity_max": "MINOR",
+   "category": "other",
+   "confidence": "single",
+   "status": "open",
+   "anchor": "asserts the exact event order `draft_guard_requested(draft)`",
+   "anchor2": null,
+   "span": [
+    169,
+    170
+   ],
+   "span2": null,
+   "refs": [],
+   "claim": "The acceptance trace leaves out push_initiated, which the push triad writes before push_completed.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t4-1",
+     "fid": "F4",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L5",
+   "fp": "1ebb32d105a7d902",
+   "blocking": false,
+   "severity_max": "MINOR",
+   "category": "other",
+   "confidence": "single",
+   "status": "open",
+   "anchor": "lists changes only under `src/superclaude/`, `tests/`, `docs/user-guide/`",
+   "anchor2": null,
+   "span": [
+    199,
+    200
+   ],
+   "span2": null,
+   "refs": [],
+   "claim": "The git status check cites gitignored .claude mirrors, which git status never lists, so that part of the check cannot be observed.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t4-1",
+     "fid": "F5",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L6",
+   "fp": "84ab306d57548368",
+   "blocking": true,
+   "severity_max": "CRITICAL",
+   "category": "contradiction",
+   "confidence": "single",
+   "status": "open",
+   "anchor": "build now with no GitHub calls, release gate for G4 and G5.",
+   "anchor2": "gates G1 (live part), G2 (live part), G4, G5 and G6 are a release gate",
+   "span": [
+    25,
+    26
+   ],
+   "span2": [
+    32,
+    33
+   ],
+   "refs": [],
+   "claim": "Constraints limit the release gate to G4 and G5 while Task 1 requires G1, G2, G4, G5 and G6, so following Constraints ships draft behaviour before its live verification.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t2b-1",
+     "fid": "F1",
+     "blocking": true
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L7",
+   "fp": "63fe8fed1353c236",
+   "blocking": false,
+   "severity_max": "MINOR",
+   "category": "unpassable-check",
+   "confidence": "single",
+   "status": "open",
+   "anchor": "`grep -rn \"43\" src/superclaude/pr_submit/models.py src/superclaude/pr_submit/run_log.py",
+   "anchor2": null,
+   "span": [
+    48,
+    49
+   ],
+   "span2": null,
+   "refs": [],
+   "claim": "The bare grep for 43 matches the retained ordinal comment and cannot prove the absence of a 43-member claim.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t2b-1",
+     "fid": "F4",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  }
+ ]
+}

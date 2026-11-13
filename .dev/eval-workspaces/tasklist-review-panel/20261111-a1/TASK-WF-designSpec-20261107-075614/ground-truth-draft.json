@@ -1,0 +1,211 @@
+{
+  "package": "TASK-WF-designSpec-20261107-075614",
+  "items": [
+    {
+      "id": "GT1",
+      "class": "unpassable-ac",
+      "plan_quote": "The file lists every exact-text pin and line-content rule found for O3",
+      "description": "Task 1 AC3 demands a provably complete inventory of every pin and line rule with no bounded method or stopping rule, so each review found new missing pins and Task 1 took five attempts, hit the retry ladder end and needed two operator-review halts before it was accepted.",
+      "evidence": [
+        ".dev/tasks/done/TASK-WF-designSpec-20261107-075614/progress.md:4",
+        ".dev/tasks/done/TASK-WF-designSpec-20261107-075614/progress.md:17",
+        ".dev/tasks/done/TASK-WF-designSpec-20261107-075614/progress.md:19",
+        ".dev/tasks/done/TASK-WF-designSpec-20261107-075614/progress.md:21",
+        ".dev/tasks/done/TASK-WF-designSpec-20261107-075614/progress.md:22",
+        ".dev/tasks/done/TASK-WF-designSpec-20261107-075614/artifacts/retries/T1/review-1.md:5",
+        ".dev/tasks/done/TASK-WF-designSpec-20261107-075614/artifacts/retries/T1/review-2.md:7",
+        ".dev/tasks/done/TASK-WF-designSpec-20261107-075614/artifacts/retries/T1/review-3.md:6",
+        ".dev/tasks/done/TASK-WF-designSpec-20261107-075614/artifacts/retries/T1/review-4.md:7",
+        ".dev/tasks/done/TASK-WF-designSpec-20261107-075614/artifacts/retries/T1/review-5.md:7",
+        ".dev/tasks/done/TASK-WF-designSpec-20261107-075614/artifacts/retries/T1/review-5.md:19",
+        ".dev/tasks/done/TASK-WF-designSpec-20261107-075614/artifacts/retries/T1/review-5.md:28",
+        ".dev/tasks/done/TASK-WF-designSpec-20261107-075614/artifacts/retries/T1/advice-3-a.md:8",
+        ".dev/tasks/done/TASK-WF-designSpec-20261107-075614/artifacts/retries/T1/advice-4-b.md:8"
+      ],
+      "cost": "both",
+      "blocking_in_implement": true
+    },
+    {
+      "id": "GT2",
+      "class": "ambiguity",
+      "plan_quote": "on `SKILL.md`, `refs/state-machine.md`, `refs/loop-guard.md` and `src/superclaude/commands/pr-submit.md` that the later additive edits must avoid",
+      "description": "Task 1 names four target files for O3 while AC3 says only \"found for O3\", so reviewers kept widening the scope (refs/ci-poll.md, refs/review-retrigger.md, the python package, folder-wide text tests) and a four-file inventory kept being judged incomplete, feeding the same five-attempt Task 1 loop.",
+      "evidence": [
+        ".dev/tasks/done/TASK-WF-designSpec-20261107-075614/artifacts/retries/T1/review-2.md:7",
+        ".dev/tasks/done/TASK-WF-designSpec-20261107-075614/artifacts/retries/T1/advice-3-a.md:8",
+        ".dev/tasks/done/TASK-WF-designSpec-20261107-075614/artifacts/retries/T1/advice-3-b.md:7",
+        ".dev/tasks/done/TASK-WF-designSpec-20261107-075614/artifacts/retries/T1/review-5.md:7",
+        ".dev/tasks/done/TASK-WF-designSpec-20261107-075614/artifacts/retries/T1/review-5.md:19",
+        ".dev/tasks/done/TASK-WF-designSpec-20261107-075614/artifacts/retries/T1/review-5.md:28",
+        ".dev/tasks/done/TASK-WF-designSpec-20261107-075614/artifacts/executor-guidance.md:23"
+      ],
+      "cost": "both",
+      "blocking_in_implement": true
+    },
+    {
+      "id": "GT3",
+      "class": "ambiguity",
+      "plan_quote": "The Wave 0 test fails when the bullet is placed after the Wave 1 bullet, when it names an L3 or `draft` condition, or when the literal `off` line is missing, and passes on the real file.",
+      "description": "Task 9 requires a test that fails on any L3 or draft condition in a bullet that must itself say \"at L3 with `--merge-guard off`\" and \"no draft call\", without defining what counts as a condition, so two word-list tests failed review and the task was blocked and needed a third, adviser-led attempt with an exact-string pin.",
+      "evidence": [
+        ".dev/tasks/done/TASK-WF-designSpec-20261107-075614/progress.md:38",
+        ".dev/tasks/done/TASK-WF-designSpec-20261107-075614/progress.md:39",
+        ".dev/tasks/done/TASK-WF-designSpec-20261107-075614/progress.md:42",
+        ".dev/tasks/done/TASK-WF-designSpec-20261107-075614/artifacts/retries/T9/review-1.md:2",
+        ".dev/tasks/done/TASK-WF-designSpec-20261107-075614/artifacts/retries/T9/review-2.md:2",
+        ".dev/tasks/done/TASK-WF-designSpec-20261107-075614/artifacts/retries/T9/advice-3-a.md:6",
+        ".dev/tasks/done/TASK-WF-designSpec-20261107-075614/artifacts/retries/T9/advice-3-b.md:5",
+        ".dev/tasks/done/TASK-WF-designSpec-20261107-075614/artifacts/executor-guidance.md:18"
+      ],
+      "cost": "extra_attempt",
+      "blocking_in_implement": true
+    },
+    {
+      "id": "GT4",
+      "class": "contradiction",
+      "plan_quote": "The ref states that engage failure and an unreadable timeline at engage halt with `terminal_halted` reason `draft_guard_unavailable` before any edit",
+      "description": "Task 8 says any unreadable timeline halts at engage while Task 4 defines unreadable to include a short timeline and has engage_decision halt only on a failed or incomplete read, so the ref followed the plan wording, contradicted the code, and Task 8 failed review 2 and needed a repair.",
+      "evidence": [
+        ".dev/tasks/done/TASK-WF-designSpec-20261107-075614/artifacts/retries/T8/review-2.md:2",
+        ".dev/tasks/done/TASK-WF-designSpec-20261107-075614/artifacts/retries/T8/probe-2-1.md:3",
+        ".dev/tasks/done/TASK-WF-designSpec-20261107-075614/artifacts/retries/T8/repair-2-1.md:3",
+        ".dev/tasks/done/TASK-WF-designSpec-20261107-075614/source.md:68",
+        ".dev/tasks/done/TASK-WF-designSpec-20261107-075614/source.md:120",
+        ".dev/tasks/done/TASK-WF-designSpec-20261107-075614/source.md:140"
+      ],
+      "cost": "extra_attempt",
+      "blocking_in_implement": true
+    },
+    {
+      "id": "GT5",
+      "class": "ambiguity",
+      "plan_quote": "Exit report (the `merge_guard` field mapping of `guard_status`, the held-exit list with the clear command",
+      "description": "Task 8 defines the exit-report field only as the guard_status mapping (Task 3: no record at ordinal 3 gives `released`) and drops the source rule that a `draft_guard_unavailable` halt reports `unavailable`, so the ref would report `released` after an engage halt and Task 8 review 1 failed on it.",
+      "evidence": [
+        ".dev/tasks/done/TASK-WF-designSpec-20261107-075614/artifacts/retries/T8/review-1.md:3",
+        ".dev/tasks/done/TASK-WF-designSpec-20261107-075614/artifacts/retries/T8/probe-1-1.md:12",
+        ".dev/tasks/done/TASK-WF-designSpec-20261107-075614/source.md:112"
+      ],
+      "cost": "extra_attempt",
+      "blocking_in_implement": true
+    },
+    {
+      "id": "GT6",
+      "class": "contradiction",
+      "plan_quote": "`settled(draft, skipped, already_draft)` gives `DISABLED` with `disabled_cause == \"already_draft\"`",
+      "description": "Task 3 requires guard_status to return `user_override` for a DISABLED phase with cause user_override, but the fold rows it implements set `disabled_cause` only for already_draft, so the advisory plan review raised blocking finding R1-1 and the owner had to accept building with executor guidance instead of a plan fix.",
+      "evidence": [
+        ".dev/tasks/done/TASK-WF-designSpec-20261107-075614/artifacts/executor-guidance.md:3",
+        ".dev/tasks/done/TASK-WF-designSpec-20261107-075614/artifacts/executor-guidance.md:7",
+        ".dev/tasks/done/TASK-WF-designSpec-20261107-075614/artifacts/executor-guidance.md:8",
+        ".dev/tasks/done/TASK-WF-designSpec-20261107-075614/source.md:200",
+        ".dev/tasks/done/TASK-WF-designSpec-20261107-075614/source.md:206"
+      ],
+      "cost": "human_acceptance",
+      "blocking_in_implement": false
+    },
+    {
+      "id": "GT7",
+      "class": "contradiction",
+      "plan_quote": "`resume_decision(*, mode, ordinal, guard, read, pending, dangling_branch, published)`",
+      "description": "The planned resume_decision signature has no `target_sha` or `applied_edits`, yet row 4 must re-enter release_decision, which needs both to release, so with the plan's signature row 4 always holds with head_mismatch; the executor added three keyword parameters and executor guidance had to tell Tasks 8 to 10 to pass them.",
+      "evidence": [
+        ".dev/tasks/done/TASK-WF-designSpec-20261107-075614/artifacts/retries/T4/review-1.md:7",
+        ".dev/tasks/done/TASK-WF-designSpec-20261107-075614/artifacts/retries/T4/notes.md:11",
+        ".dev/tasks/done/TASK-WF-designSpec-20261107-075614/artifacts/executor-guidance.md:22"
+      ],
+      "cost": "neither",
+      "blocking_in_implement": false
+    },
+    {
+      "id": "GT8",
+      "class": "contradiction",
+      "plan_quote": "once per cycle id, and mints the cycle id",
+      "description": "Task 10 says the SKILL.md Wave 3 bullet mints the cycle id while Task 8 (and Task 1 O1) require one single minting place in the Engage section of refs/merge-guard.md; a review note caught it and executor guidance resolved it with no extra attempt.",
+      "evidence": [
+        ".dev/tasks/done/TASK-WF-designSpec-20261107-075614/artifacts/retries/T1/notes.md:4"
+      ],
+      "cost": "neither",
+      "blocking_in_implement": false
+    },
+    {
+      "id": "GT9",
+      "class": "contradiction",
+      "plan_quote": "`grep -n \"merge-guard\" src/superclaude/commands/pr-submit.md` shows the argument-hint entry, the Options row and the section heading",
+      "description": "Task 12 asks for a section named \"Merge guard\" but its AC checks the heading with a case-sensitive grep for `merge-guard`, which that heading cannot match; executor guidance flagged it and the executor added `(--merge-guard)` to the heading so the grep passed.",
+      "evidence": [
+        ".dev/tasks/done/TASK-WF-designSpec-20261107-075614/artifacts/executor-guidance.md:21",
+        ".dev/tasks/done/TASK-WF-designSpec-20261107-075614/artifacts/t12-checks.log:4"
+      ],
+      "cost": "neither",
+      "blocking_in_implement": false
+    },
+    {
+      "id": "GT10",
+      "class": "missing-task",
+      "plan_quote": "shows no remaining claim that the enum has 43 members, and `refs/loop-guard.md` names both new event values",
+      "description": "Task 2 updates the 43-member enum claim only in three files and plans no CHANGELOG.md edit, so the unreleased changelog entry still says the event enum has 43 members after the change.",
+      "evidence": [
+        ".dev/tasks/done/TASK-WF-designSpec-20261107-075614/artifacts/retries/T2/notes.md:2"
+      ],
+      "cost": "neither",
+      "blocking_in_implement": false
+    }
+  ],
+  "files_read": [
+    ".dev/tasks/done/TASK-WF-designSpec-20261107-075614/TASK-WF-designSpec-20261107-075614.md",
+    ".dev/tasks/done/TASK-WF-designSpec-20261107-075614/progress.md",
+    ".dev/tasks/done/TASK-WF-designSpec-20261107-075614/source.md (grep only: lines on guard_status, disabled_cause, unreadable, engage rows)",
+    ".dev/tasks/done/TASK-WF-designSpec-20261107-075614/artifacts/executor-guidance.md",
+    ".dev/tasks/done/TASK-WF-designSpec-20261107-075614/artifacts/final-checks.md",
+    ".dev/tasks/done/TASK-WF-designSpec-20261107-075614/artifacts/t12-checks.log",
+    ".dev/tasks/done/TASK-WF-designSpec-20261107-075614/artifacts/retries/T1/review-1.md",
+    ".dev/tasks/done/TASK-WF-designSpec-20261107-075614/artifacts/retries/T1/review-2.md",
+    ".dev/tasks/done/TASK-WF-designSpec-20261107-075614/artifacts/retries/T1/review-3.md",
+    ".dev/tasks/done/TASK-WF-designSpec-20261107-075614/artifacts/retries/T1/review-4.md",
+    ".dev/tasks/done/TASK-WF-designSpec-20261107-075614/artifacts/retries/T1/review-5.md",
+    ".dev/tasks/done/TASK-WF-designSpec-20261107-075614/artifacts/retries/T1/notes.md",
+    ".dev/tasks/done/TASK-WF-designSpec-20261107-075614/artifacts/retries/T1/approach-2.md",
+    ".dev/tasks/done/TASK-WF-designSpec-20261107-075614/artifacts/retries/T1/approach-3.md",
+    ".dev/tasks/done/TASK-WF-designSpec-20261107-075614/artifacts/retries/T1/approach-4.md",
+    ".dev/tasks/done/TASK-WF-designSpec-20261107-075614/artifacts/retries/T1/approach-5.md",
+    ".dev/tasks/done/TASK-WF-designSpec-20261107-075614/artifacts/retries/T1/advice-3-a.md",
+    ".dev/tasks/done/TASK-WF-designSpec-20261107-075614/artifacts/retries/T1/advice-3-b.md",
+    ".dev/tasks/done/TASK-WF-designSpec-20261107-075614/artifacts/retries/T1/advice-4-a.md",
+    ".dev/tasks/done/TASK-WF-designSpec-20261107-075614/artifacts/retries/T1/advice-4-b.md",
+    ".dev/tasks/done/TASK-WF-designSpec-20261107-075614/artifacts/retries/T1/probe-1-1.md",
+    ".dev/tasks/done/TASK-WF-designSpec-20261107-075614/artifacts/retries/T1/extras-5.log",
+    ".dev/tasks/done/TASK-WF-designSpec-20261107-075614/artifacts/retries/T1_brief-3.md",
+    ".dev/tasks/done/TASK-WF-designSpec-20261107-075614/artifacts/retries/T1_brief-4.md",
+    ".dev/tasks/done/TASK-WF-designSpec-20261107-075614/artifacts/retries/T1_brief-5.md",
+    ".dev/tasks/done/TASK-WF-designSpec-20261107-075614/artifacts/retries/T2/notes.md",
+    ".dev/tasks/done/TASK-WF-designSpec-20261107-075614/artifacts/retries/T3/review-1.md",
+    ".dev/tasks/done/TASK-WF-designSpec-20261107-075614/artifacts/retries/T3/notes.md",
+    ".dev/tasks/done/TASK-WF-designSpec-20261107-075614/artifacts/retries/T3/probe-1-1.md",
+    ".dev/tasks/done/TASK-WF-designSpec-20261107-075614/artifacts/retries/T4/review-1.md",
+    ".dev/tasks/done/TASK-WF-designSpec-20261107-075614/artifacts/retries/T4/notes.md",
+    ".dev/tasks/done/TASK-WF-designSpec-20261107-075614/artifacts/retries/T4/probe-1-1.md",
+    ".dev/tasks/done/TASK-WF-designSpec-20261107-075614/artifacts/retries/T7/notes.md",
+    ".dev/tasks/done/TASK-WF-designSpec-20261107-075614/artifacts/retries/T8/review-1.md",
+    ".dev/tasks/done/TASK-WF-designSpec-20261107-075614/artifacts/retries/T8/review-2.md",
+    ".dev/tasks/done/TASK-WF-designSpec-20261107-075614/artifacts/retries/T8/notes.md",
+    ".dev/tasks/done/TASK-WF-designSpec-20261107-075614/artifacts/retries/T8/probe-1-1.md",
+    ".dev/tasks/done/TASK-WF-designSpec-20261107-075614/artifacts/retries/T8/probe-2-1.md",
+    ".dev/tasks/done/TASK-WF-designSpec-20261107-075614/artifacts/retries/T8/repair-2-1.md",
+    ".dev/tasks/done/TASK-WF-designSpec-20261107-075614/artifacts/retries/T9/review-1.md",
+    ".dev/tasks/done/TASK-WF-designSpec-20261107-075614/artifacts/retries/T9/review-2.md",
+    ".dev/tasks/done/TASK-WF-designSpec-20261107-075614/artifacts/retries/T9/notes.md",
+    ".dev/tasks/done/TASK-WF-designSpec-20261107-075614/artifacts/retries/T9/approach-2.md",
+    ".dev/tasks/done/TASK-WF-designSpec-20261107-075614/artifacts/retries/T9/advice-3-a.md",
+    ".dev/tasks/done/TASK-WF-designSpec-20261107-075614/artifacts/retries/T9/advice-3-b.md",
+    ".dev/tasks/done/TASK-WF-designSpec-20261107-075614/artifacts/retries/T9/probe-1-1.md",
+    ".dev/tasks/done/TASK-WF-designSpec-20261107-075614/artifacts/retries/T9/extras-2.log",
+    ".dev/tasks/done/TASK-WF-designSpec-20261107-075614/artifacts/retries/T9_brief-3.md",
+    ".dev/tasks/done/TASK-WF-designSpec-20261107-075614/artifacts/retries/T10/notes.md",
+    ".dev/tasks/done/TASK-WF-designSpec-20261107-075614/artifacts/retries/T11/notes.md",
+    ".dev/tasks/done/TASK-WF-designSpec-20261107-075614/artifacts/retries/T12/notes.md",
+    ".dev/tasks/done/TASK-WF-designSpec-20261107-075614/artifacts/retries/T12/prompt-1-1.md (grep only)",
+    ".dev/tasks/done/TASK-WF-designSpec-20261107-075614/artifacts/retries/T13/notes.md"
+  ],
+  "notes": "Plan-caused items only. GT1 and GT2 describe two plan defects (an unbounded 'every pin' criterion and an undefined O3 scope) behind the same Task 1 failure (5 attempts, ladder end, two operator-review halts); count them together if one item per failure is wanted. GT6 comes from the advisory plan review recorded in executor-guidance.md (the referenced .dev/reflect/pre-designSpec-20261107075755/REPORT.md is not present in this worktree); the owner accepted building with guidance (option A), hence human_acceptance. Excluded as execution mistakes against a correct plan: T1 F7.2 bare line numbers and F7.3 softened owner quote; T3 F1.1 and T4 F1.1 test depth and naming; T8 F1.1 resume precedence misdescribed and F1.3 positional calls to keyword-only functions; T11/T12/T13 wording notes. Excluded as unsupported or harmless: T9 F3.2 (matches source); the base full-suite record taken before make sync-dev (executor-guidance.md:24, final-checks.md:22), because the history shows no failed check or extra attempt from it; executor-guidance low notes on Pre-push in DISABLED phase and classification key format, because no review finding or retry traces to them. No review-*.md exists for T2, T5, T6, T7, T10-T13 (single-pass completes). The FINAL line (progress.md:51) is pass."
+}

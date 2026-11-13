@@ -1,0 +1,184 @@
+{
+ "schema": "review-ledger/1",
+ "doc": "/home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/.dev/eval-workspaces/tasklist-review-panel/20261111-a1/TASK-WF-designSpec-20261107-075614/candidate.md",
+ "cap_reviews": 3,
+ "rounds": [
+  {
+   "n": 1,
+   "doc_sha256": "044809e3a963fad395cfbe0988bece975650a3adf17176893665d92338bd3481",
+   "reviewers": [
+    {
+     "reviewer_id": "t4-1",
+     "model": "claude-haiku-5-5",
+     "report": "/home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/.dev/eval-workspaces/tasklist-review-panel/20261111-a1/TASK-WF-designSpec-20261107-075614/reviews/combos/g7-haiku-luna2-r3/t4-1.md",
+     "report_sha256": "bd1d3686cfe98dea4cb79f9a3bbcab78c4a539f361710128b4fc6c56de687375",
+     "block_ok": false
+    },
+    {
+     "reviewer_id": "t3-1",
+     "model": "gpt-6-luna",
+     "report": "/home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/.dev/eval-workspaces/tasklist-review-panel/20261111-a1/TASK-WF-designSpec-20261107-075614/reviews/combos/g7-haiku-luna2-r3/t3-1.md",
+     "report_sha256": "856310115a81c9d0b090e1052acce8ff586d2a72042488a48f655f2b4907b816",
+     "block_ok": true
+    },
+    {
+     "reviewer_id": "t4-2",
+     "model": "gpt-6-luna",
+     "report": "/home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/.dev/eval-workspaces/tasklist-review-panel/20261111-a1/TASK-WF-designSpec-20261107-075614/reviews/combos/g7-haiku-luna2-r3/t4-2.md",
+     "report_sha256": "cf03adc646f8c8b825a6d68f5298f471213901eb56f6c59afae5d993459d9c05",
+     "block_ok": true
+    }
+   ],
+   "verdict": "FAIL",
+   "decision": "REVISE",
+   "brief_ids": [
+    "L3"
+   ]
+  }
+ ],
+ "rows": [
+  {
+   "lid": "L1",
+   "fp": "8411375004688f54",
+   "blocking": false,
+   "severity_max": "MAJOR",
+   "category": "contradiction",
+   "confidence": "single",
+   "status": "open",
+   "anchor": "carries no L3 or `draft` condition",
+   "anchor2": "at L3 with `--merge-guard off` the line",
+   "span": [
+    136,
+    137
+   ],
+   "span2": [
+    136,
+    137
+   ],
+   "refs": [],
+   "claim": "An implementer who follows the stated text as written builds a Wave 0 bullet that names L3 for the off line, and X is wrong because the Task 9 acceptance fails a bullet that names an L3 condition, so which reading passes needs a guess. Medium.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t4-1",
+     "fid": "F2",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L2",
+   "fp": "0bd01f9f50b30d15",
+   "blocking": false,
+   "severity_max": "MAJOR",
+   "category": "contradiction",
+   "confidence": "single",
+   "status": "open",
+   "anchor": "ordinals 0 to 2 and `off` make no call",
+   "anchor2": "Resume, loaded from Wave 0 at every ordinal and in both modes",
+   "span": [
+    165,
+    166
+   ],
+   "span2": [
+    123,
+    124
+   ],
+   "refs": [],
+   "claim": "An implementer who follows the stated text as written builds a --resume run at ordinal 2 that calls set-draft-state --read before deciding, and X is wrong because Task 11 says ordinals 0 to 2 make no call; the text never says the read is skipped below ordinal 3. Medium.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t4-1",
+     "fid": "F3",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L3",
+   "fp": "feb8395e9a53949d",
+   "blocking": true,
+   "severity_max": "MAJOR",
+   "category": "missing-requirement",
+   "confidence": "overlap",
+   "status": "open",
+   "anchor": "First record the base-commit state: run `make lint`",
+   "anchor2": "Create `src/superclaude/pr_submit/merge_guard.py` following",
+   "span": [
+    32,
+    33
+   ],
+   "span2": [
+    55,
+    56
+   ],
+   "refs": [],
+   "claim": "An implementer who follows the stated text as written records a base commit and then creates merge_guard.py, set-draft-state.sh and refs/merge-guard.md, and X is wrong because those files already exist in the tree at HEAD 8c93e1d, and the candidate never names its base commit. Medium.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t4-1",
+     "fid": "F4",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t3-1",
+     "fid": "F1",
+     "blocking": true
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L4",
+   "fp": "1ebb32d105a7d902",
+   "blocking": false,
+   "severity_max": "MINOR",
+   "category": "other",
+   "confidence": "single",
+   "status": "open",
+   "anchor": "gitignored `.claude/` mirrors",
+   "anchor2": null,
+   "span": [
+    199,
+    200
+   ],
+   "span2": null,
+   "refs": [],
+   "claim": "An implementer who follows the stated text as written checks that git status --short lists gitignored .claude/ mirrors, and X is wrong because git status never lists ignored paths, so the clause can never pass and should be dropped. Minor note.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t4-1",
+     "fid": "F5",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  }
+ ]
+}

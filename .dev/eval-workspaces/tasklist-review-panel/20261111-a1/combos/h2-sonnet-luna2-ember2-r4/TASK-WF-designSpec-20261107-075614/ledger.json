@@ -1,0 +1,313 @@
+{
+ "schema": "review-ledger/1",
+ "doc": "/home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/.dev/eval-workspaces/tasklist-review-panel/20261111-a1/TASK-WF-designSpec-20261107-075614/candidate.md",
+ "cap_reviews": 3,
+ "rounds": [
+  {
+   "n": 1,
+   "doc_sha256": "044809e3a963fad395cfbe0988bece975650a3adf17176893665d92338bd3481",
+   "reviewers": [
+    {
+     "reviewer_id": "t1b-1",
+     "model": "claude-sonnet-5-5",
+     "report": "/home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/.dev/eval-workspaces/tasklist-review-panel/20261111-a1/TASK-WF-designSpec-20261107-075614/reviews/combos/h2-sonnet-luna2-ember2-r4/t1b-1.md",
+     "report_sha256": "c0c4c5edb3ccef5a25c15d9c5669e92a59fab75ba448b82ec312d765558b99b9",
+     "block_ok": true
+    },
+    {
+     "reviewer_id": "t4-1",
+     "model": "gpt-6-luna",
+     "report": "/home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/.dev/eval-workspaces/tasklist-review-panel/20261111-a1/TASK-WF-designSpec-20261107-075614/reviews/combos/h2-sonnet-luna2-ember2-r4/t4-1.md",
+     "report_sha256": "40f88b2157de06990e29721dce92f48c5af8f83b90968ffc2c60ca18b1582feb",
+     "block_ok": true
+    },
+    {
+     "reviewer_id": "t4-2",
+     "model": "gpt-6-luna",
+     "report": "/home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/.dev/eval-workspaces/tasklist-review-panel/20261111-a1/TASK-WF-designSpec-20261107-075614/reviews/combos/h2-sonnet-luna2-ember2-r4/t4-2.md",
+     "report_sha256": "8ef7a5d78bb6c12eeefb2060830212368127a188a23b3949fc0e360558fd0d88",
+     "block_ok": true
+    },
+    {
+     "reviewer_id": "t2b-1",
+     "model": "muse-ember-1.0",
+     "report": "/home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/.dev/eval-workspaces/tasklist-review-panel/20261111-a1/TASK-WF-designSpec-20261107-075614/reviews/combos/h2-sonnet-luna2-ember2-r4/t2b-1.md",
+     "report_sha256": "e7edf3dbf868dd389ecaf33b1a9f4588116f9fc434b3279079092eeb5317bff4",
+     "block_ok": true
+    },
+    {
+     "reviewer_id": "t3-1",
+     "model": "muse-ember-1.0",
+     "report": "/home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/.dev/eval-workspaces/tasklist-review-panel/20261111-a1/TASK-WF-designSpec-20261107-075614/reviews/combos/h2-sonnet-luna2-ember2-r4/t3-1.md",
+     "report_sha256": "c2320b95ea7705cd595270dba59a1f287724bfd1991d27ce8d4e045e5666630b",
+     "block_ok": true
+    }
+   ],
+   "verdict": "FAIL",
+   "decision": "REVISE",
+   "brief_ids": [
+    "L4",
+    "L5"
+   ]
+  }
+ ],
+ "rows": [
+  {
+   "lid": "L1",
+   "fp": "8411375004688f54",
+   "blocking": false,
+   "severity_max": "MAJOR",
+   "category": "contradiction",
+   "confidence": "overlap",
+   "status": "open",
+   "anchor": "that applies at every ordinal and in both modes and carries no L3 or `draft` condition",
+   "anchor2": "when it names an L3 or `draft` condition",
+   "span": [
+    136,
+    137
+   ],
+   "span2": [
+    139,
+    140
+   ],
+   "refs": [],
+   "claim": "The Wave 0 bullet must say 'at L3 with --merge-guard off' yet its test is worded to fail on any bullet that names an L3 condition; the two readings differ and only the narrow one passes.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t1b-1",
+     "fid": "F1",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t2b-1",
+     "fid": "F1",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L2",
+   "fp": "de519f0a078480f5",
+   "blocking": false,
+   "severity_max": "MAJOR",
+   "category": "unpassable-check",
+   "confidence": "overlap",
+   "status": "open",
+   "anchor": "asserts every `gh` line carries `--repo` or a `repos/` path",
+   "anchor2": "the script passes the `_RESOLUTION_SCRIPTS` origin-URL resolution tests",
+   "span": [
+    112,
+    113
+   ],
+   "span2": [
+    112,
+    113
+   ],
+   "refs": [],
+   "claim": "A literal every-gh-line scan fails on the bare gh repo view fallback line that the resolution-script tests require; the scan must reuse the repo-scope check that exempts that idiom.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t1b-1",
+     "fid": "F2",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t3-1",
+     "fid": "F2",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L3",
+   "fp": "0cc5f5acd063d2da",
+   "blocking": false,
+   "severity_max": "MAJOR",
+   "category": "missing-requirement",
+   "confidence": "overlap",
+   "status": "open",
+   "anchor": "returns `RELEASE` with cause `no_edits`",
+   "anchor2": null,
+   "span": [
+    74,
+    75
+   ],
+   "span2": null,
+   "refs": [],
+   "claim": "A zero-edit cycle releases the PR even when an earlier fixing cycle in the same guard record never published; the plan states no restriction for that case.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t1b-1",
+     "fid": "F3",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t2b-1",
+     "fid": "F3",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t3-1",
+     "fid": "F1",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L4",
+   "fp": "aead7733ff9a104f",
+   "blocking": true,
+   "severity_max": "MAJOR",
+   "category": "contradiction",
+   "confidence": "single",
+   "status": "open",
+   "anchor": "Engage at the end of Wave 3 (L3, only when at least one verified finding of Medium severity or higher is routed to a fix, once per cycle id; review-fix cycles and CI-fix cycles;",
+   "anchor2": "the Wave 8 bullet states that a CI-fix cycle engages with kind `ci`",
+   "span": [
+    123,
+    124
+   ],
+   "span2": [
+    149,
+    150
+   ],
+   "refs": [],
+   "claim": "The plan assigns CI-fix engagement to both Wave 3 and Wave 8, although the CI-fix cycle is identified at Wave 8.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t4-1",
+     "fid": "F1",
+     "blocking": true
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L5",
+   "fp": "0cc5f5acd063d2da",
+   "blocking": true,
+   "severity_max": "MAJOR",
+   "category": "unpassable-check",
+   "confidence": "single",
+   "status": "open",
+   "anchor": "resume_decision(*, mode, ordinal, guard, read, pending, dangling_branch, published)",
+   "anchor2": "phase HELD with dangling_branch == \"landed\" and phase HELD with dangling_branch is None and published=True each re-enter release_decision with push_completed=True;",
+   "span": [
+    69,
+    70
+   ],
+   "span2": null,
+   "refs": [],
+   "claim": "Resume cannot verify the held cycle's target SHA before release, so a landed or normally completed push can remain held, contrary to the required crash-recovery release scenarios.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t4-2",
+     "fid": "F1",
+     "blocking": true
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L6",
+   "fp": "6b7ad2a36ffb6582",
+   "blocking": false,
+   "severity_max": "MAJOR",
+   "category": "missing-requirement",
+   "confidence": "single",
+   "status": "open",
+   "anchor": "add one `WRITE_VERB_CLASSIFICATION` entry in `tests/skills/test_worker_contract.py` for every line of the file that newly matches `gh pr` or `gh api`",
+   "anchor2": null,
+   "span": [
+    181,
+    182
+   ],
+   "span2": null,
+   "refs": [],
+   "claim": "Task 12 omits git write verbs from the entries it requires, while the Constraints extend the rule to every such new line.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t2b-1",
+     "fid": "F2",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L7",
+   "fp": "63fe8fed1353c236",
+   "blocking": false,
+   "severity_max": "MINOR",
+   "category": "other",
+   "confidence": "single",
+   "status": "open",
+   "anchor": "shows no remaining claim that the enum has 43 members",
+   "anchor2": null,
+   "span": [
+    48,
+    49
+   ],
+   "span2": null,
+   "refs": [],
+   "claim": "The grep criterion reads as a string match but means a claim, which is imprecise wording only.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t2b-1",
+     "fid": "F4",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  }
+ ]
+}

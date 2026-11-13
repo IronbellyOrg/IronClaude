@@ -1,0 +1,145 @@
+{
+  "package": "TASK-WF-makeTheAliasOnly-20261105-051649",
+  "items": [
+    {
+      "id": "GT1",
+      "class": "contradiction",
+      "plan_quote": "Sections: what a primitive may name (plain aliases only; the issue-worker allow-list and why; the test tests/skills/test_model_alias_policy.py enforces it)",
+      "description": "Task 6 (echoing the Goal's 'select models only through the plain aliases') told the page to state an aliases-only rule that the test enforces, but the plan's own Task 5 makes the retry ladder select by slot variables, sprint returns slot model ids, Auggie takes --model prism-b, and the test only rejects full claude ids, so reviewers blocked the universal claims and the page needed attempts 3 and 4 (attempt 3's added 'outside the test's scope' section to compensate failed again).",
+      "evidence": [
+        ".dev/tasks/done/TASK-WF-makeTheAliasOnly-20261105-051649/artifacts/retries/T6/review-2.md:6",
+        ".dev/tasks/done/TASK-WF-makeTheAliasOnly-20261105-051649/artifacts/retries/T6/review-2.md:7",
+        ".dev/tasks/done/TASK-WF-makeTheAliasOnly-20261105-051649/artifacts/retries/T6/approach-2.md:5",
+        ".dev/tasks/done/TASK-WF-makeTheAliasOnly-20261105-051649/artifacts/retries/T6/advice-3-a.md:5",
+        ".dev/tasks/done/TASK-WF-makeTheAliasOnly-20261105-051649/artifacts/retries/T6/review-3.md:9",
+        ".dev/tasks/done/TASK-WF-makeTheAliasOnly-20261105-051649/artifacts/retries/T6/advice-4-a.md:4",
+        ".dev/tasks/done/TASK-WF-makeTheAliasOnly-20261105-051649/progress.md:18",
+        ".dev/tasks/done/TASK-WF-makeTheAliasOnly-20261105-051649/progress.md:22"
+      ],
+      "cost": "extra_attempt",
+      "blocking_in_implement": true
+    },
+    {
+      "id": "GT2",
+      "class": "contradiction",
+      "plan_quote": "outside one nothing is set and opus, sonnet and haiku keep Claude Code's meaning",
+      "description": "Task 6 dictates a present-tense statement that outside a tier workspace nothing is set, which contradicts the plan's own constraint and status text that the workspace defaults file exports real model ids today (haiku is glm-5.3), so the first review blocked the page on it (F1.1) and forced a second attempt.",
+      "evidence": [
+        ".dev/tasks/done/TASK-WF-makeTheAliasOnly-20261105-051649/artifacts/retries/T6/review-1.md:4",
+        ".dev/tasks/done/TASK-WF-makeTheAliasOnly-20261105-051649/artifacts/retries/T6/probe-1-1.md:3",
+        ".dev/tasks/done/TASK-WF-makeTheAliasOnly-20261105-051649/artifacts/retries/T6/review-2.md:2"
+      ],
+      "cost": "extra_attempt",
+      "blocking_in_implement": true
+    },
+    {
+      "id": "GT3",
+      "class": "contradiction",
+      "plan_quote": "that the issue workers are the only primitives pinned to picker ids and all other primitives use aliases (docs/reference/model-aliases.md)",
+      "description": "Task 7 mandates a sentence in tiers.md claiming all other primitives use aliases, which is false because most agent, skill and command files have no model: line and the policy test skips them, so the reviewer graded the delivered sentence blocking (F1.1) and a repair had to narrow it.",
+      "evidence": [
+        ".dev/tasks/done/TASK-WF-makeTheAliasOnly-20261105-051649/artifacts/retries/T7/review-1.md:4",
+        ".dev/tasks/done/TASK-WF-makeTheAliasOnly-20261105-051649/artifacts/retries/T7/review-1.md:9",
+        ".dev/tasks/done/TASK-WF-makeTheAliasOnly-20261105-051649/artifacts/retries/T7/probe-1-1.md:3"
+      ],
+      "cost": "neither",
+      "blocking_in_implement": true
+    },
+    {
+      "id": "GT4",
+      "class": "ambiguity",
+      "plan_quote": "in a ccsession tier workspace opus, sonnet and haiku map to claude-gw-tier1a, claude-gw-tier1b and claude-gw-tier2 once the launcher sets them; see docs/reference/model-aliases.md",
+      "description": "Task 7's prescribed user-guide text omits the 'today the workspace defaults file exports real model ids' half that the plan's mapping constraint requires of new mapping text, so the delivered brainstorm.md, commands.md and tiers.md text drew caveat findings that were left unedited.",
+      "evidence": [
+        ".dev/tasks/done/TASK-WF-makeTheAliasOnly-20261105-051649/artifacts/retries/T7/review-1.md:5",
+        ".dev/tasks/done/TASK-WF-makeTheAliasOnly-20261105-051649/artifacts/retries/T7/review-1.md:6",
+        ".dev/tasks/done/TASK-WF-makeTheAliasOnly-20261105-051649/artifacts/retries/T7/review-1.md:7",
+        ".dev/tasks/done/TASK-WF-makeTheAliasOnly-20261105-051649/artifacts/retries/T7/notes.md:2"
+      ],
+      "cost": "neither",
+      "blocking_in_implement": false
+    },
+    {
+      "id": "GT5",
+      "class": "missing-task",
+      "plan_quote": "and reword line 243 if it describes the old default",
+      "description": "Task 2 lengthens the comment above _DEFAULT_MODEL, shifting commands.py lines, but asks only for a conditional reword of D12 line 243 and no refresh of D12's commands.py:31,359 line citations, which were left stale.",
+      "evidence": [
+        ".dev/tasks/done/TASK-WF-makeTheAliasOnly-20261105-051649/artifacts/retries/T2/notes.md:2",
+        ".dev/tasks/done/TASK-WF-makeTheAliasOnly-20261105-051649/artifacts/retries/T2/notes.md:3"
+      ],
+      "cost": "neither",
+      "blocking_in_implement": false
+    },
+    {
+      "id": "GT6",
+      "class": "ambiguity",
+      "plan_quote": "roadmap step ids such as generate-opus-architect and recommend best_model values stay unchanged because the aliases stay",
+      "description": "Task 6 asserts an unsourced causal claim about roadmap step ids and best_model values; executors tried to justify it by describing how step ids are built and reviewers blocked those code-path descriptions as incomplete (F4.1, F4.2, forcing attempt 5), and the final page dropped best_model because the claim could not be confirmed.",
+      "evidence": [
+        ".dev/tasks/done/TASK-WF-makeTheAliasOnly-20261105-051649/artifacts/retries/T6/repair-4-1.md:3",
+        ".dev/tasks/done/TASK-WF-makeTheAliasOnly-20261105-051649/artifacts/retries/T6/review-4.md:11",
+        ".dev/tasks/done/TASK-WF-makeTheAliasOnly-20261105-051649/artifacts/retries/T6/review-4.md:12",
+        ".dev/tasks/done/TASK-WF-makeTheAliasOnly-20261105-051649/artifacts/retries/T6_brief-5.md:11",
+        ".dev/tasks/done/TASK-WF-makeTheAliasOnly-20261105-051649/artifacts/retries/T6_brief-5.md:17",
+        ".dev/tasks/done/TASK-WF-makeTheAliasOnly-20261105-051649/artifacts/retries/T6/notes.md:2",
+        ".dev/tasks/done/TASK-WF-makeTheAliasOnly-20261105-051649/progress.md:26"
+      ],
+      "cost": "extra_attempt",
+      "blocking_in_implement": true
+    }
+  ],
+  "files_read": [
+    ".dev/tasks/done/TASK-WF-makeTheAliasOnly-20261105-051649/TASK-WF-makeTheAliasOnly-20261105-051649.md",
+    ".dev/tasks/done/TASK-WF-makeTheAliasOnly-20261105-051649/progress.md",
+    ".dev/tasks/done/TASK-WF-makeTheAliasOnly-20261105-051649/source.md",
+    ".dev/tasks/done/TASK-WF-makeTheAliasOnly-20261105-051649/return-contract.yaml",
+    ".dev/tasks/done/TASK-WF-makeTheAliasOnly-20261105-051649/artifacts/final-policy.log",
+    ".dev/tasks/done/TASK-WF-makeTheAliasOnly-20261105-051649/artifacts/t2-test.log",
+    ".dev/tasks/done/TASK-WF-makeTheAliasOnly-20261105-051649/artifacts/t6-claims.md",
+    ".dev/tasks/done/TASK-WF-makeTheAliasOnly-20261105-051649/artifacts/retries/T6/artifacts-3/t6-claims.md (head)",
+    ".dev/tasks/done/TASK-WF-makeTheAliasOnly-20261105-051649/artifacts/superseded-prompts/README.md",
+    ".dev/tasks/done/TASK-WF-makeTheAliasOnly-20261105-051649/artifacts/superseded-prompts/*-prompt-*.md (tails)",
+    ".dev/tasks/done/TASK-WF-makeTheAliasOnly-20261105-051649/artifacts/retries/T1/notes.md",
+    ".dev/tasks/done/TASK-WF-makeTheAliasOnly-20261105-051649/artifacts/retries/T2/notes.md",
+    ".dev/tasks/done/TASK-WF-makeTheAliasOnly-20261105-051649/artifacts/retries/T3/notes.md",
+    ".dev/tasks/done/TASK-WF-makeTheAliasOnly-20261105-051649/artifacts/retries/T5/notes.md",
+    ".dev/tasks/done/TASK-WF-makeTheAliasOnly-20261105-051649/artifacts/retries/T5/review-1.md",
+    ".dev/tasks/done/TASK-WF-makeTheAliasOnly-20261105-051649/artifacts/retries/T5/review-2.md",
+    ".dev/tasks/done/TASK-WF-makeTheAliasOnly-20261105-051649/artifacts/retries/T5/review-3.md",
+    ".dev/tasks/done/TASK-WF-makeTheAliasOnly-20261105-051649/artifacts/retries/T5/probe-1-1.md",
+    ".dev/tasks/done/TASK-WF-makeTheAliasOnly-20261105-051649/artifacts/retries/T5/probe-3-1.md",
+    ".dev/tasks/done/TASK-WF-makeTheAliasOnly-20261105-051649/artifacts/retries/T5/repair-3-1.md",
+    ".dev/tasks/done/TASK-WF-makeTheAliasOnly-20261105-051649/artifacts/retries/T5/approach-2.md",
+    ".dev/tasks/done/TASK-WF-makeTheAliasOnly-20261105-051649/artifacts/retries/T5/advice-3-a.md",
+    ".dev/tasks/done/TASK-WF-makeTheAliasOnly-20261105-051649/artifacts/retries/T5/advice-3-b.md",
+    ".dev/tasks/done/TASK-WF-makeTheAliasOnly-20261105-051649/artifacts/retries/T5_brief-3.md",
+    ".dev/tasks/done/TASK-WF-makeTheAliasOnly-20261105-051649/artifacts/retries/T6/notes.md",
+    ".dev/tasks/done/TASK-WF-makeTheAliasOnly-20261105-051649/artifacts/retries/T6/review-1.md",
+    ".dev/tasks/done/TASK-WF-makeTheAliasOnly-20261105-051649/artifacts/retries/T6/review-2.md",
+    ".dev/tasks/done/TASK-WF-makeTheAliasOnly-20261105-051649/artifacts/retries/T6/review-3.md",
+    ".dev/tasks/done/TASK-WF-makeTheAliasOnly-20261105-051649/artifacts/retries/T6/review-4.md",
+    ".dev/tasks/done/TASK-WF-makeTheAliasOnly-20261105-051649/artifacts/retries/T6/probe-1-1.md",
+    ".dev/tasks/done/TASK-WF-makeTheAliasOnly-20261105-051649/artifacts/retries/T6/probe-2-1.md",
+    ".dev/tasks/done/TASK-WF-makeTheAliasOnly-20261105-051649/artifacts/retries/T6/probe-3-1.md",
+    ".dev/tasks/done/TASK-WF-makeTheAliasOnly-20261105-051649/artifacts/retries/T6/probe-4-1.md",
+    ".dev/tasks/done/TASK-WF-makeTheAliasOnly-20261105-051649/artifacts/retries/T6/repair-2-1.md",
+    ".dev/tasks/done/TASK-WF-makeTheAliasOnly-20261105-051649/artifacts/retries/T6/repair-3-1.md",
+    ".dev/tasks/done/TASK-WF-makeTheAliasOnly-20261105-051649/artifacts/retries/T6/repair-4-1.md",
+    ".dev/tasks/done/TASK-WF-makeTheAliasOnly-20261105-051649/artifacts/retries/T6/approach-2.md",
+    ".dev/tasks/done/TASK-WF-makeTheAliasOnly-20261105-051649/artifacts/retries/T6/approach-3.md",
+    ".dev/tasks/done/TASK-WF-makeTheAliasOnly-20261105-051649/artifacts/retries/T6/approach-4.md",
+    ".dev/tasks/done/TASK-WF-makeTheAliasOnly-20261105-051649/artifacts/retries/T6/advice-3-a.md",
+    ".dev/tasks/done/TASK-WF-makeTheAliasOnly-20261105-051649/artifacts/retries/T6/advice-3-b.md",
+    ".dev/tasks/done/TASK-WF-makeTheAliasOnly-20261105-051649/artifacts/retries/T6/advice-4-a.md",
+    ".dev/tasks/done/TASK-WF-makeTheAliasOnly-20261105-051649/artifacts/retries/T6/advice-4-b.md",
+    ".dev/tasks/done/TASK-WF-makeTheAliasOnly-20261105-051649/artifacts/retries/T6_brief-3.md",
+    ".dev/tasks/done/TASK-WF-makeTheAliasOnly-20261105-051649/artifacts/retries/T6_brief-4.md",
+    ".dev/tasks/done/TASK-WF-makeTheAliasOnly-20261105-051649/artifacts/retries/T6_brief-5.md",
+    ".dev/tasks/done/TASK-WF-makeTheAliasOnly-20261105-051649/artifacts/retries/T7/notes.md",
+    ".dev/tasks/done/TASK-WF-makeTheAliasOnly-20261105-051649/artifacts/retries/T7/review-1.md",
+    ".dev/tasks/done/TASK-WF-makeTheAliasOnly-20261105-051649/artifacts/retries/T7/probe-1-1.md",
+    ".dev/tasks/done/TASK-WF-makeTheAliasOnly-20261105-051649/artifacts/retries/T9/notes.md"
+  ],
+  "notes": "Excluded as execution mistakes against a correct plan: T5's three attempts (reviews F1.1, F1.3, F3.1-F3.3 were false adviser-selection claims the executor wrote in t5-notes.md; the plan's prescribed facts about rungs and the claude-sonnet executor were accurate; the T2Model01/T1Model02 double-rung match is an ambiguity in refs/retry.md, not the plan); T6 F1.3 (intro 'never name a picker id' ignored the allow-list the plan names), F3.1 (probe scope overstated; plan text lists only the opus and haiku probe results) and F3.2 ('test has no check' sentence came from an adviser brief); T1 F1.4 docstring; evidence-log completeness minors in T1, T3, T5, T9. The two FINAL 'issues' lines concern saved reviewer prompts missing template backticks (process, not plan). GT6 attribution is lower confidence: the F4.1/F4.2 code-path wording was executor text, but it arose from justifying the plan's unsourced 'because the aliases stay' claim, and brief 5 resolved it by dropping the explanation and the unconfirmed best_model part. GT3 cost is 'neither' because the blocking finding was fixed by a repair inside attempt 1, not a new attempt. Plan-text line numbers: GT1/GT2/GT6 quotes are on plan line 99, GT3/GT4 on line 109, GT5 on line 56. No human-acceptance cost was found: the run ended FINAL: pass without a user decision recorded in the package."
+}

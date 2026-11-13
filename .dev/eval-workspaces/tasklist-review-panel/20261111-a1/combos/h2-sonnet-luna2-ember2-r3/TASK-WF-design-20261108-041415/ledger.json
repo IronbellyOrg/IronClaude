@@ -1,0 +1,380 @@
+{
+ "schema": "review-ledger/1",
+ "doc": "/home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/.dev/eval-workspaces/tasklist-review-panel/20261111-a1/TASK-WF-design-20261108-041415/candidate.md",
+ "cap_reviews": 3,
+ "rounds": [
+  {
+   "n": 1,
+   "doc_sha256": "71d4a7455d11818d9ad4718605a9254142cf1e3e250889cfdfa89285eb5f7d24",
+   "reviewers": [
+    {
+     "reviewer_id": "t1b-1",
+     "model": "claude-sonnet-5-5",
+     "report": "/home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/.dev/eval-workspaces/tasklist-review-panel/20261111-a1/TASK-WF-design-20261108-041415/reviews/combos/h2-sonnet-luna2-ember2-r3/t1b-1.md",
+     "report_sha256": "c27ba5fec4ab54528f254ad30c518539cf55b72ec4c964cf8242db6e8c89c651",
+     "block_ok": true
+    },
+    {
+     "reviewer_id": "t4-1",
+     "model": "gpt-6-luna",
+     "report": "/home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/.dev/eval-workspaces/tasklist-review-panel/20261111-a1/TASK-WF-design-20261108-041415/reviews/combos/h2-sonnet-luna2-ember2-r3/t4-1.md",
+     "report_sha256": "5c5082115ba07471af0bf47b899bfed1143c73d5f39cbe0f0133014b5a48f25b",
+     "block_ok": true
+    },
+    {
+     "reviewer_id": "t4-2",
+     "model": "gpt-6-luna",
+     "report": "/home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/.dev/eval-workspaces/tasklist-review-panel/20261111-a1/TASK-WF-design-20261108-041415/reviews/combos/h2-sonnet-luna2-ember2-r3/t4-2.md",
+     "report_sha256": "3c8e2d72ca5652f89327d6ff4dfd3b8d97c1086aa5ae41de01f05f79ea6fbc39",
+     "block_ok": true
+    },
+    {
+     "reviewer_id": "t2b-1",
+     "model": "muse-ember-1.0",
+     "report": "/home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/.dev/eval-workspaces/tasklist-review-panel/20261111-a1/TASK-WF-design-20261108-041415/reviews/combos/h2-sonnet-luna2-ember2-r3/t2b-1.md",
+     "report_sha256": "dab0cf3cf920fcc926f2c7000199db47c5c00ab87902973fcb4875037a30ad5d",
+     "block_ok": true
+    },
+    {
+     "reviewer_id": "t3-1",
+     "model": "muse-ember-1.0",
+     "report": "/home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/.dev/eval-workspaces/tasklist-review-panel/20261111-a1/TASK-WF-design-20261108-041415/reviews/combos/h2-sonnet-luna2-ember2-r3/t3-1.md",
+     "report_sha256": "7426265a9895bb15b740d19c661a4a4b6c8df76fdc6b8abb702216de3b9b04a6",
+     "block_ok": true
+    }
+   ],
+   "verdict": "FAIL",
+   "decision": "REVISE",
+   "brief_ids": [
+    "L1"
+   ]
+  }
+ ],
+ "rows": [
+  {
+   "lid": "L1",
+   "fp": "d9cef126707a6ddb",
+   "blocking": true,
+   "severity_max": "MAJOR",
+   "category": "unpassable-check",
+   "confidence": "overlap",
+   "status": "open",
+   "anchor": "Every `gh api` path in the file spells `repos/<R>/...` except the one documented `orgs/<owner of R>/issue-fields` read.",
+   "anchor2": "every `gh api` path stays `user` or `repos/<R>/...`",
+   "span": [
+    150,
+    151
+   ],
+   "span2": [
+    46,
+    47
+   ],
+   "refs": [],
+   "claim": "The Task 10 check fails on the unchanged claim-flow line `gh api user -q .login` in docs/designs/sc-issue-command.md, and Task 2 itself allows the `user` path.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t1b-1",
+     "fid": "F1",
+     "blocking": true
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t1b-1",
+     "fid": "F5",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t1b-1",
+     "fid": "F6",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t1b-1",
+     "fid": "F8",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t4-1",
+     "fid": "F1",
+     "blocking": true
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t4-2",
+     "fid": "F1",
+     "blocking": true
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t2b-1",
+     "fid": "F1",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t2b-1",
+     "fid": "F2",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t2b-1",
+     "fid": "F4",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t3-1",
+     "fid": "F2",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t3-1",
+     "fid": "F4",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L2",
+   "fp": "838e56235b92a9f4",
+   "blocking": false,
+   "severity_max": "MAJOR",
+   "category": "unpassable-check",
+   "confidence": "overlap",
+   "status": "open",
+   "anchor": "Reverting any one of Tasks 1 to 5 in a scratch copy would turn at least one new test red",
+   "anchor2": "appears only in `create.md`, `SKILL.md` and `issue-worker-t3.md`",
+   "span": [
+    125,
+    126
+   ],
+   "span2": [
+    121,
+    122
+   ],
+   "refs": [],
+   "claim": "As described, no new test asserts on text only Task 3 adds, so reverting Task 3 leaves every new test green unless test 2 is built as an exact-set check.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t1b-1",
+     "fid": "F2",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t3-1",
+     "fid": "F3",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L3",
+   "fp": "13be5f40085513b0",
+   "blocking": false,
+   "severity_max": "MAJOR",
+   "category": "missing-requirement",
+   "confidence": "overlap",
+   "status": "open",
+   "anchor": "read-back with `gh api repos/<R>/issues/<N>/issue-field-values`",
+   "anchor2": null,
+   "span": [
+    33,
+    34
+   ],
+   "span2": null,
+   "refs": [],
+   "claim": "No rule says how to compare the read-back with the option name, and GitHub does not document whether `value` is a name or an id, so a naive comparison can wrongly report 'not applied after create'.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t1b-1",
+     "fid": "F3",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t4-1",
+     "fid": "F2",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t4-2",
+     "fid": "F2",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t2b-1",
+     "fid": "F3",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L4",
+   "fp": "2ef78bd48bad53a6",
+   "blocking": false,
+   "severity_max": "MAJOR",
+   "category": "missing-requirement",
+   "confidence": "single",
+   "status": "open",
+   "anchor": "`E-CREATE-FAILED` and `E-POST-FAILED` keep their current meaning.",
+   "anchor2": "on a STOP the fields that do not apply are `null`",
+   "span": [
+    46,
+    47
+   ],
+   "span2": [
+    59,
+    60
+   ],
+   "refs": [
+    "2.2"
+   ],
+   "claim": "A failed pushback comment stops the run before the final output, and the text does not say whether the not-set list and third block are still produced for an issue that already exists.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t1b-1",
+     "fid": "F4",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L5",
+   "fp": "a5c8825bbf2c5560",
+   "blocking": false,
+   "severity_max": "MINOR",
+   "category": "contradiction",
+   "confidence": "single",
+   "status": "open",
+   "anchor": "Picks the feature or bug template, the Feature or Bug issue type and the `enhancement` / `bug` label",
+   "anchor2": "which selects issue type Test for a feature in `tests`",
+   "span": [
+    97,
+    98
+   ],
+   "span2": [
+    97,
+    98
+   ],
+   "refs": [],
+   "claim": "The --mode row names only Feature or Bug as the issue type, but a feature with area tests gets Test.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t1b-1",
+     "fid": "F7",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L6",
+   "fp": "ec44014e87a383a8",
+   "blocking": false,
+   "severity_max": "MINOR",
+   "category": "other",
+   "confidence": "single",
+   "status": "open",
+   "anchor": "keep `### Repo labels` and `### Possible duplicates` and add `### Repo issue types`",
+   "anchor2": "has the four headings `### Repo labels`, `### Possible duplicates`, `### Repo issue types`, `### Complexity field`",
+   "span": [
+    73,
+    74
+   ],
+   "span2": [
+    76,
+    77
+   ],
+   "refs": [],
+   "claim": "scout heading order is inconsistent between Task 2 and Task 4 but presence tests pass either way",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t2b-1",
+     "fid": "F5",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L7",
+   "fp": "d9cef126707a6ddb",
+   "blocking": false,
+   "severity_max": "MAJOR",
+   "category": "missing-requirement",
+   "confidence": "single",
+   "status": "open",
+   "anchor": "Leave history and decision-log entries as they are except for wording that is now false.",
+   "anchor2": null,
+   "span": [
+    145,
+    146
+   ],
+   "span2": null,
+   "refs": [],
+   "claim": "Task 10 leaves history filtering undefined, so an implementer could leave false label statements or rewrite history that should stay.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t3-1",
+     "fid": "F1",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  }
+ ]
+}

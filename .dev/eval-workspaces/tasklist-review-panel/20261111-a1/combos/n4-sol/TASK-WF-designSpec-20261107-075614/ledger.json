@@ -1,0 +1,425 @@
+{
+ "schema": "review-ledger/1",
+ "doc": "/home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/.dev/eval-workspaces/tasklist-review-panel/20261111-a1/TASK-WF-designSpec-20261107-075614/candidate.md",
+ "cap_reviews": 3,
+ "rounds": [
+  {
+   "n": 1,
+   "doc_sha256": "044809e3a963fad395cfbe0988bece975650a3adf17176893665d92338bd3481",
+   "reviewers": [
+    {
+     "reviewer_id": "t2b-1",
+     "model": "muse-wonder-1.0",
+     "report": "/home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/.dev/eval-workspaces/tasklist-review-panel/20261111-a1/TASK-WF-designSpec-20261107-075614/reviews/combos/n4-sol/t2b-1.md",
+     "report_sha256": "0c6ca548277372b97a80cbbcc04f5579a51650a0f567f28b637137ba6eb574fb",
+     "block_ok": true
+    },
+    {
+     "reviewer_id": "t3-1",
+     "model": "glm-5.3",
+     "report": "/home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/.dev/eval-workspaces/tasklist-review-panel/20261111-a1/TASK-WF-designSpec-20261107-075614/reviews/combos/n4-sol/t3-1.md",
+     "report_sha256": "d70944356af675a389353557b1df4752d7972e26b3dd74dcd63d3301a8f7dcf0",
+     "block_ok": true
+    },
+    {
+     "reviewer_id": "t4-1",
+     "model": "claude-haiku-5-5",
+     "report": "/home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/.dev/eval-workspaces/tasklist-review-panel/20261111-a1/TASK-WF-designSpec-20261107-075614/reviews/combos/n4-sol/t4-1.md",
+     "report_sha256": "8f4afc0e00ae98f89e19cb3b6c501cfcb6c7fbbdaba3710f90ea9b95375766bb",
+     "block_ok": true
+    },
+    {
+     "reviewer_id": "t2-1",
+     "model": "gpt-6.1-sol",
+     "report": "/home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/.dev/eval-workspaces/tasklist-review-panel/20261111-a1/TASK-WF-designSpec-20261107-075614/reviews/combos/n4-sol/t2-1.md",
+     "report_sha256": "03bcd2f958aee2fe15f7a2370b83db8d5a512c3332c396b5a090118f280e1703",
+     "block_ok": true
+    }
+   ],
+   "verdict": "FAIL",
+   "decision": "REVISE",
+   "brief_ids": [
+    "L8",
+    "L9"
+   ]
+  }
+ ],
+ "rows": [
+  {
+   "lid": "L1",
+   "fp": "8411375004688f54",
+   "blocking": false,
+   "severity_max": "MAJOR",
+   "category": "other",
+   "confidence": "overlap",
+   "status": "open",
+   "anchor": "when it names an L3 or `draft` condition",
+   "anchor2": "at L3 with `--merge-guard off`",
+   "span": [
+    139,
+    140
+   ],
+   "span2": [
+    136,
+    137
+   ],
+   "refs": [],
+   "claim": "The Wave 0 acceptance wording can be read as rejecting any L3 mention although the required bullet must contain the at-L3 off sentence, so a literal test could fail the required text.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t2b-1",
+     "fid": "F1",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t3-1",
+     "fid": "F2",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t4-1",
+     "fid": "F4",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L2",
+   "fp": "0cc5f5acd063d2da",
+   "blocking": false,
+   "severity_max": "MAJOR",
+   "category": "missing-requirement",
+   "confidence": "overlap",
+   "status": "open",
+   "anchor": "`resume_decision(*, mode, ordinal, guard, read, pending, dangling_branch, published)`",
+   "anchor2": null,
+   "span": [
+    69,
+    70
+   ],
+   "span2": null,
+   "refs": [],
+   "claim": "Resume row 4 must re-enter release_decision but the stated resume inputs include neither target_sha nor this cycle's applied_edits, leaving the head-equality release proof unspecified.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t2b-1",
+     "fid": "F2",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t4-1",
+     "fid": "F3",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t4-1",
+     "fid": "F8",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L3",
+   "fp": "0432b5b121028894",
+   "blocking": false,
+   "severity_max": "MAJOR",
+   "category": "missing-requirement",
+   "confidence": "overlap",
+   "status": "open",
+   "anchor": "`held_cycle_published(events, guard)` (true when a `push_completed` event, normal or recovered, carries the guard's `cycle_id`)",
+   "anchor2": null,
+   "span": [
+    55,
+    56
+   ],
+   "span2": null,
+   "refs": [],
+   "claim": "No stated rule rebinds a held guard to a later cycle, so publication can be judged by the earlier cycle's cycle_id after a second cycle engages while held.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t2b-1",
+     "fid": "F3",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t4-1",
+     "fid": "F9",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L4",
+   "fp": "feb8395e9a53949d",
+   "blocking": false,
+   "severity_max": "MAJOR",
+   "category": "other",
+   "confidence": "overlap",
+   "status": "open",
+   "anchor": "the literal start text of the S5a sentence and of the Wave 6 pre-push sentence as the existing pins write them",
+   "anchor2": null,
+   "span": [
+    32,
+    33
+   ],
+   "span2": null,
+   "refs": [],
+   "claim": "Comparing only the recorded start text cannot prove the S5a and Wave 6 pre-push sentences stayed byte-identical, so the Task 10 check is weaker than claimed.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t2b-1",
+     "fid": "F4",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t4-1",
+     "fid": "F6",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L5",
+   "fp": "aead7733ff9a104f",
+   "blocking": false,
+   "severity_max": "MAJOR",
+   "category": "missing-requirement",
+   "confidence": "single",
+   "status": "open",
+   "anchor": "engage failure and an unreadable timeline at engage halt with `terminal_halted` reason `draft_guard_unavailable` before any edit",
+   "anchor2": null,
+   "span": [
+    128,
+    129
+   ],
+   "span2": null,
+   "refs": [],
+   "claim": "The plan drops the design's requirement that the engage-failure halt message names `--merge-guard off` and prints the clear command; Tasks 8 and 11 specify only the halt reason and its before-any-edit timing.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t3-1",
+     "fid": "F1",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L6",
+   "fp": "0bd01f9f50b30d15",
+   "blocking": false,
+   "severity_max": "MINOR",
+   "category": "other",
+   "confidence": "overlap",
+   "status": "open",
+   "anchor": "never a `test_*` function (pytest would collect it twice)",
+   "anchor2": null,
+   "span": [
+    165,
+    166
+   ],
+   "span2": null,
+   "refs": [],
+   "claim": "The parenthetical misstates why: double collection comes from importing a test_* name into the importing module, not from importing a helper from a test module; the instruction itself is safe.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t3-1",
+     "fid": "F3",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t4-1",
+     "fid": "F7",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L7",
+   "fp": "a304e77a338f7468",
+   "blocking": false,
+   "severity_max": "MINOR",
+   "category": "other",
+   "confidence": "single",
+   "status": "open",
+   "anchor": "the fake `gh` log never contains `pr ready` without `--undo` for an originally draft PR",
+   "anchor2": null,
+   "span": [
+    171,
+    172
+   ],
+   "span2": null,
+   "refs": [
+    "FR-6"
+   ],
+   "claim": "The assertion is weaker than the design's 'never mutate' for an already-draft PR, which should produce no draft-state call at all; the scenario body states the intent, so only the literal AC is looser.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t3-1",
+     "fid": "F4",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L8",
+   "fp": "aead7733ff9a104f",
+   "blocking": true,
+   "severity_max": "MAJOR",
+   "category": "other",
+   "confidence": "overlap",
+   "status": "open",
+   "anchor": "the script `--read` must show `OPEN` at the pre-push head guard step before `push_decision`, otherwise halt `pr_not_open`",
+   "anchor2": null,
+   "span": [
+    123,
+    124
+   ],
+   "span2": null,
+   "refs": [],
+   "claim": "A failed pre-push read is labelled pr_not_open like a genuinely non-OPEN PR instead of draft_guard_unavailable; inherited from the design and fail-closed either way, so only the operator-facing reason can mislead.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t3-1",
+     "fid": "F5",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t4-1",
+     "fid": "F2",
+     "blocking": true
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L9",
+   "fp": "0cc5f5acd063d2da",
+   "blocking": true,
+   "severity_max": "MAJOR",
+   "category": "contradiction",
+   "confidence": "single",
+   "status": "open",
+   "anchor": "`release_decision` called with `applied_edits=0` for a new cycle while the guard record already holds an earlier fixing cycle returns `RELEASE` with cause `no_edits`",
+   "anchor2": "unreadable timeline or unpublished exit keeps the PR draft",
+   "span": [
+    74,
+    75
+   ],
+   "span2": [
+    25,
+    26
+   ],
+   "refs": [],
+   "claim": "A zero-edit cycle releases the PR to ready even when an earlier fixing cycle's push never completed, which the owner decision says must keep the PR draft.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t4-1",
+     "fid": "F1",
+     "blocking": true
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L10",
+   "fp": "7daf17384b2af15e",
+   "blocking": false,
+   "severity_max": "MAJOR",
+   "category": "missing-requirement",
+   "confidence": "single",
+   "status": "open",
+   "anchor": "Leave `RunConfig` and `run_skill` unchanged.",
+   "anchor2": null,
+   "span": [
+    97,
+    98
+   ],
+   "span2": null,
+   "refs": [],
+   "claim": "No text says how the parsed merge_guard value reaches the mode argument of the decision functions, so the flag may be parsed and never used.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t4-1",
+     "fid": "F5",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  }
+ ]
+}

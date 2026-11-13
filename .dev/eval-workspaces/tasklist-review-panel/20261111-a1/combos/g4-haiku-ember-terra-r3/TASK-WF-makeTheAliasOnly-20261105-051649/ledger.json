@@ -1,0 +1,315 @@
+{
+ "schema": "review-ledger/1",
+ "doc": "/home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/.dev/eval-workspaces/tasklist-review-panel/20261111-a1/TASK-WF-makeTheAliasOnly-20261105-051649/candidate.md",
+ "cap_reviews": 3,
+ "rounds": [
+  {
+   "n": 1,
+   "doc_sha256": "cfd8f983d22ab8af1638ffb2a464215e56048f753f7902e3066435d8de176ca4",
+   "reviewers": [
+    {
+     "reviewer_id": "t4-1",
+     "model": "claude-haiku-5-5",
+     "report": "/home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/.dev/eval-workspaces/tasklist-review-panel/20261111-a1/TASK-WF-makeTheAliasOnly-20261105-051649/reviews/combos/g4-haiku-ember-terra-r3/t4-1.md",
+     "report_sha256": "e9f49d266554f40057c0fac9548c732a93122bca0b9e8c194c5538aece4a32b7",
+     "block_ok": true
+    },
+    {
+     "reviewer_id": "t2b-1",
+     "model": "muse-ember-1.0",
+     "report": "/home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/.dev/eval-workspaces/tasklist-review-panel/20261111-a1/TASK-WF-makeTheAliasOnly-20261105-051649/reviews/combos/g4-haiku-ember-terra-r3/t2b-1.md",
+     "report_sha256": "8cdc0738baffdee396d45f9f9c8c696482865c6da69f302b28fb9c5d76119ee7",
+     "block_ok": true
+    },
+    {
+     "reviewer_id": "t2-1",
+     "model": "gpt-6.1-terra",
+     "report": "/home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/.dev/eval-workspaces/tasklist-review-panel/20261111-a1/TASK-WF-makeTheAliasOnly-20261105-051649/reviews/combos/g4-haiku-ember-terra-r3/t2-1.md",
+     "report_sha256": "76a1d401293ae50f71acee400710f9ed71b095f084e182d338a8e0e563b77ee4",
+     "block_ok": true
+    }
+   ],
+   "verdict": "FAIL",
+   "decision": "REVISE",
+   "brief_ids": [
+    "L1",
+    "L2",
+    "L7"
+   ]
+  }
+ ],
+ "rows": [
+  {
+   "lid": "L1",
+   "fp": "beeaa6833f7cf565",
+   "blocking": true,
+   "severity_max": "MAJOR",
+   "category": "unpassable-check",
+   "confidence": "overlap",
+   "status": "open",
+   "anchor": "copy the harness and the test into a scratch module under ./artifacts/t9-scratch/ with the harness addition applied",
+   "anchor2": "Task-owned evidence is written under ./artifacts/ in this package.",
+   "span": [
+    128,
+    129
+   ],
+   "span2": [
+    25,
+    26
+   ],
+   "refs": [],
+   "claim": "The scratch copy under the package artifacts folder resolves REPO_ROOT to the package folder, so import models fails and the required AssertionError cannot occur.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t4-1",
+     "fid": "F1",
+     "blocking": true
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t4-1",
+     "fid": "F3",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t4-1",
+     "fid": "F4",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t2b-1",
+     "fid": "F2",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t2-1",
+     "fid": "F3",
+     "blocking": true
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L2",
+   "fp": "01e7976c6e6c24ed",
+   "blocking": true,
+   "severity_max": "MAJOR",
+   "category": "unpassable-check",
+   "confidence": "overlap",
+   "status": "open",
+   "anchor": "TIER_TEXT_ALLOWED (those three files, everything under src/superclaude/skills/sc-issue-protocol/, and src/superclaude/skills/ccsession-tag/ which is read-only here)",
+   "anchor2": "The text claude-gw-tier appears under src/superclaude/agents, commands, skills, cli, hooks and core only in TIER_TEXT_ALLOWED paths.",
+   "span": [
+    31,
+    32
+   ],
+   "span2": [
+    34,
+    35
+   ],
+   "refs": [],
+   "claim": "The stated allow-list omits cli/review/data, so the tier-text test fails on two tracked files and the remaining-tests-pass criterion cannot hold.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t4-1",
+     "fid": "F2",
+     "blocking": true
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t2b-1",
+     "fid": "F1",
+     "blocking": true
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t2-1",
+     "fid": "F2",
+     "blocking": true
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L3",
+   "fp": "524729a0d7cf1539",
+   "blocking": false,
+   "severity_max": "MAJOR",
+   "category": "missing-requirement",
+   "confidence": "overlap",
+   "status": "open",
+   "anchor": "remove ` --models opus,sonnet` from the three brainstorm steps in the table rows for Feature simple",
+   "anchor2": null,
+   "span": [
+    65,
+    66
+   ],
+   "span2": null,
+   "refs": [],
+   "claim": "Removing the workaround before the launcher lands routes plain-session haiku proposals to glm-5.3.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t4-1",
+     "fid": "F5",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t2b-1",
+     "fid": "F3",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L4",
+   "fp": "5248d5f5947bf63f",
+   "blocking": false,
+   "severity_max": "MAJOR",
+   "category": "missing-requirement",
+   "confidence": "single",
+   "status": "open",
+   "anchor": "Make the reflect default model an alias and update the D12 manual test",
+   "anchor2": null,
+   "span": [
+    51,
+    52
+   ],
+   "span2": null,
+   "refs": [],
+   "claim": "The reflect run default changes to the moving opus alias in non-tier sessions, and no consequence states it.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t4-1",
+     "fid": "F6",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L5",
+   "fp": "7100ecb4c621f2df",
+   "blocking": false,
+   "severity_max": "MAJOR",
+   "category": "contradiction",
+   "confidence": "single",
+   "status": "open",
+   "anchor": "outside one nothing is set and opus, sonnet and haiku keep Claude Code's meaning",
+   "anchor2": null,
+   "span": [
+    98,
+    99
+   ],
+   "span2": null,
+   "refs": [],
+   "claim": "The doc says nothing is set outside tier workspaces, but the defaults file exports real ids there.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t4-1",
+     "fid": "F7",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L6",
+   "fp": "5269fb2839c70439",
+   "blocking": false,
+   "severity_max": "MINOR",
+   "category": "other",
+   "confidence": "single",
+   "status": "open",
+   "anchor": "add the same pointer to the brainstorm model-selection text around lines 849 and 859",
+   "anchor2": null,
+   "span": [
+    108,
+    109
+   ],
+   "span2": null,
+   "refs": [],
+   "claim": "The commands.md line anchors point at unrelated sections in this tree.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t4-1",
+     "fid": "F8",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L7",
+   "fp": "01e7976c6e6c24ed",
+   "blocking": true,
+   "severity_max": "MAJOR",
+   "category": "unpassable-check",
+   "confidence": "single",
+   "status": "open",
+   "anchor": "run on the unchanged tree fails exactly these seven tests",
+   "anchor2": null,
+   "span": [
+    45,
+    46
+   ],
+   "span2": null,
+   "refs": [],
+   "claim": "The unchanged checkout already contains the fixes, so the required seven historical failure causes cannot all occur.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t2-1",
+     "fid": "F1",
+     "blocking": true
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  }
+ ]
+}

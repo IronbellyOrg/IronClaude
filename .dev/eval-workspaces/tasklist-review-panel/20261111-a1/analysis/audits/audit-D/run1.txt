@@ -1,0 +1,26 @@
+merges 264 rows 89
+('1-panel', 'WARN') 6
+('1-path', 'EXCLUDE') 10
+('2-blockok', 'EXCLUDE') 80
+('3-conserve', 'EXCLUDE') 10
+('3-conserve', 'WARN') 78
+('4-blocking', 'WARN') 6
+('5-stale', 'EXCLUDE') 16
+('5-stale', 'WARN') 4
+('6-model', 'WARN') 51
+dropped stats per model (raw, kept, reviewers):
+  claude-haiku-5-5 [1108, 1085, 135] dropped 23
+  claude-sonnet-5-5 [446, 446, 72] dropped 0
+  glm-5.3 [93, 86, 24] dropped 7
+  gpt-6-luna [386, 356, 216] dropped 30
+  gpt-6.1-sol [8, 8, 15] dropped 0
+  gpt-6.1-terra [103, 103, 54] dropped 0
+  grok-4.7 [207, 205, 51] dropped 2
+  muse-ember-1.0 [867, 834, 207] dropped 33
+  muse-wonder-1.0 [289, 275, 54] dropped 14
+{'row-mixed-categories': 463, 'row-mixed-blocking-members': 305, 'row-without-span(anchor-unresolved?)': 46, 'merge-stdout-unparsed': 264, 'row-with-multiple-same-reviewer-members': 607, 'stray-files-in-reports-dir': 6, 'blocking-row-no-span': 13, 'merged-vs-resolution-mtime-gap>10min': 1, 'stale-r1-dirs': 4}
+mixcat 463 ["b4-muse-ember-luna2/designSpec-2/L3:['contradiction', 'other']", "b4-muse-ember-luna2/makeTheAlias/L1:['contradiction', 'other', 'unpassable-check']", "b4-muse-ember-luna2/design-20261/L3:['contradiction', 'other', 'unpassable-check']", "b4-sonnet-luna2/designSpec-2/L2:['contradiction', 'missing-requirement']", "b4-sonnet-luna2/designSpec-2/L4:['other', 'unpassable-check']", "b4-sonnet-luna2/makeTheAlias/L1:['missing-requirement', 'other', 'unpassable-check']"]
+nospan 46 ['b4-muse-ember-luna2/designSpec-2/L5', 'e1-grok-ember-luna/design-20261/L4', 'e3-ember2-luna/designSpec-2/L4', 'e3-ember2-luna/designSpec-2/L6', 'e3-ember2-luna/design-20261/L6', 'e5-haiku-ember-luna/designSpec-2/L9']
+samerev 607 ['b4-muse-ember-luna2/makeTheAlias/L1/t4-1', 'b4-muse-ember-luna2/makeTheAlias/L1/t3-1', 'b4-muse-ember-luna2/design-20261/L3/t3-1', 'b4-sonnet-luna2/designSpec-2/L2/t1b-1', 'b4-sonnet-luna2/designSpec-2/L4/t1b-1', 'b4-sonnet-luna2/makeTheAlias/L1/t1b-1']
+stray 6 ['c2-haiku-grok/makeTheAlias/t4-2.md.catfix.md', 'c2-haiku-grok/makeTheAlias/t4-1.md.catfix.md', 'c5-glm-haiku/designSpec-2/t4-1.md.catfix.md', 'c5-glm-haiku/makeTheAlias/t4-1.md.catfix.md', 'h1-haiku-luna2-ember2-r1/makeTheAlias/quarantine-haiku-fallback-20261112', 'h2-sonnet-luna2-ember2-r1/design-20261/quarantine-qwen-fallback-20261112']
+mtimegap 1 ['n4-sonnet/makeTheAlias']

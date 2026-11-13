@@ -1,0 +1,35 @@
+rows: 71 distinct model multisets: 32
+
+PER-MODEL presence effect (rows with vs without), defect-rich found /14, blocking /8, wrong blockers, control /2
+sonnet  with n=21 any=2.43 blk=0.71 wb=1.95 ctl=1.19 | without n=50 any=1.92 blk=1.00 wb=2.68 ctl=0.68
+haiku   with n=23 any=2.26 blk=1.30 wb=2.52 ctl=1.00 | without n=48 any=1.98 blk=0.73 wb=2.44 ctl=0.75
+grok    with n= 8 any=2.62 blk=1.50 wb=2.38 ctl=1.38 | without n=63 any=2.00 blk=0.84 wb=2.48 ctl=0.76
+luna    with n=47 any=2.15 blk=0.98 wb=2.64 ctl=0.81 | without n=24 any=1.92 blk=0.79 wb=2.12 ctl=0.88
+terra   with n=14 any=1.64 blk=0.71 wb=2.86 ctl=0.79 | without n=57 any=2.18 blk=0.96 wb=2.37 ctl=0.84
+sol     with n= 1 any=1.00 blk=1.00 wb=3.00 ctl=0.00 | without n=70 any=2.09 blk=0.91 wb=2.46 ctl=0.84
+ember   with n=51 any=1.88 blk=0.75 wb=2.47 ctl=0.76 | without n=20 any=2.55 blk=1.35 wb=2.45 ctl=1.00
+wonder  with n= 8 any=2.75 blk=1.25 wb=1.75 ctl=1.00 | without n=63 any=1.98 blk=0.87 wb=2.56 ctl=0.81
+
+TOP rows by defect-rich found (then blocking):
+  r2-sonnet-src                grok+haiku+haiku+sonnet                  any=4 blk=4 wb=2 ctl=2 tok=594,072
+  n4-sonnet-src                haiku+sonnet+wonder                      any=4 blk=2 wb=1 ctl=1 tok=311,505
+  g2-sonnet-ember-r3           ember+sonnet                             any=4 blk=1 wb=0 ctl=1 tok=151,089
+  b4-sonnet-luna2              luna+luna+sonnet                         any=4 blk=0 wb=3 ctl=2 tok=139,660
+  c3-luna-grok-src             grok+luna                                any=3 blk=3 wb=1 ctl=1 tok=180,601
+  h1-haiku-luna2-ember2-r1     ember+ember+haiku+luna+luna              any=3 blk=3 wb=2 ctl=1 tok=251,451
+  b4-terra-muse-haiku          haiku+terra+wonder                       any=3 blk=2 wb=0 ctl=1 tok=233,549
+  g7-haiku-luna2-r2            haiku+luna+luna                          any=3 blk=2 wb=2 ctl=1 tok=213,790
+  b4-terra-luna-muse           luna+terra+wonder                        any=3 blk=2 wb=3 ctl=1 tok=68,221
+  n2-muse-haiku-grok-src       grok+haiku+wonder                        any=3 blk=2 wb=3 ctl=1 tok=362,443
+
+rows with blocking >=3: [('c3-luna-grok-src', 3), ('h1-haiku-luna2-ember2-r1', 3), ('r2-sonnet-src', 4)]
+rows with control 2/2: ['b4-sonnet-luna2', 'h2-sonnet-luna2-ember2-r2', 'h2-sonnet-luna2-ember2-r4', 'n4-sonnet-ember', 'r2-sonnet-ember', 'r2-sonnet-src', 'r3-luna2-grok-src']
+
+UNTRIED 2-model and 3-model sets from the available pool (multisets, no repeats):
+ size 2: ['ember + grok', 'ember + haiku', 'ember + sol', 'grok + haiku', 'grok + sol', 'grok + sonnet', 'grok + terra', 'haiku + luna', 'haiku + sol', 'haiku + sonnet', 'haiku + terra', 'luna + sol', 'luna + sonnet', 'luna + terra', 'sol + sonnet', 'sol + terra']
+ size 3: ['ember + grok + haiku', 'ember + grok + sol', 'ember + grok + sonnet', 'ember + grok + terra', 'ember + haiku + sol', 'ember + luna + sol', 'ember + sol + sonnet', 'ember + sol + terra', 'ember + sonnet + terra', 'grok + haiku + luna', 'grok + haiku + sol', 'grok + haiku + sonnet', 'grok + haiku + terra', 'grok + luna + sol', 'grok + luna + sonnet', 'grok + luna + terra', 'grok + sol + sonnet', 'grok + sol + terra', 'grok + sonnet + terra', 'haiku + luna + sol', 'haiku + luna + sonnet', 'haiku + luna + terra', 'haiku + sol + sonnet', 'haiku + sol + terra', 'haiku + sonnet + terra', 'luna + sol + sonnet', 'luna + sol + terra', 'luna + sonnet + terra', 'sol + sonnet + terra']
+tried multisets with sonnet: ['ember+ember+luna+luna+sonnet', 'ember+grok+haiku+haiku+sonnet', 'ember+haiku+sonnet', 'ember+luna+sonnet', 'ember+sonnet', 'grok+haiku+haiku+sonnet', 'grok+haiku+sonnet+wonder', 'haiku+sonnet+wonder', 'luna+luna+sonnet', 'luna+sonnet+wonder', 'sonnet+terra']
+tried multisets with grok: ['ember+grok+haiku+haiku+sonnet', 'ember+grok+luna', 'grok+haiku+haiku+sonnet', 'grok+haiku+sonnet+wonder', 'grok+haiku+wonder', 'grok+luna', 'grok+luna+luna', 'grok+luna+wonder']
+tried multisets with sol: ['sol']
+
+hard ceiling: DR any per row max = 4 ; DR any distribution: [(0, 3), (1, 9), (2, 43), (3, 12), (4, 4)]

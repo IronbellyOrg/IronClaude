@@ -1,0 +1,355 @@
+{
+ "schema": "review-ledger/1",
+ "doc": "/home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/.dev/eval-workspaces/tasklist-review-panel/20261111-a1/TASK-WF-designSpec-20261107-075614/candidate.md",
+ "cap_reviews": 3,
+ "rounds": [
+  {
+   "n": 1,
+   "doc_sha256": "044809e3a963fad395cfbe0988bece975650a3adf17176893665d92338bd3481",
+   "reviewers": [
+    {
+     "reviewer_id": "t4-1",
+     "model": "claude-haiku-5-5",
+     "report": "/home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/.dev/eval-workspaces/tasklist-review-panel/20261111-a1/TASK-WF-designSpec-20261107-075614/reviews/combos/r2-haiku2-grok/t4-1.md",
+     "report_sha256": "b3296e9c2c1f073811e918729dede8dffb59767fce12bfa6499f412a62336bbd",
+     "block_ok": true
+    },
+    {
+     "reviewer_id": "t3-1",
+     "model": "claude-haiku-5-5",
+     "report": "/home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/.dev/eval-workspaces/tasklist-review-panel/20261111-a1/TASK-WF-designSpec-20261107-075614/reviews/combos/r2-haiku2-grok/t3-1.md",
+     "report_sha256": "6616189743c7b1d3793d74a3c052b5249f6eb0a0224ec98d05d99c4b3c6d85b0",
+     "block_ok": true
+    },
+    {
+     "reviewer_id": "t4-2",
+     "model": "grok-4.7",
+     "report": "/home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/.dev/eval-workspaces/tasklist-review-panel/20261111-a1/TASK-WF-designSpec-20261107-075614/reviews/combos/r2-haiku2-grok/t4-2.md",
+     "report_sha256": "b7280860a2640cc636b665bceec03b331fe9b3f60e44ebe4615c46fbe66655b5",
+     "block_ok": true
+    }
+   ],
+   "verdict": "PASS",
+   "decision": "PASS",
+   "brief_ids": []
+  }
+ ],
+ "rows": [
+  {
+   "lid": "L1",
+   "fp": "8411375004688f54",
+   "blocking": false,
+   "severity_max": "MAJOR",
+   "category": "contradiction",
+   "confidence": "overlap",
+   "status": "open",
+   "anchor": "carries no L3 or `draft` condition",
+   "anchor2": "when it names an L3 or `draft` condition",
+   "span": [
+    136,
+    137
+   ],
+   "span2": [
+    139,
+    140
+   ],
+   "refs": [],
+   "claim": "The Wave 0 bullet must carry no L3 condition yet print the off line at L3, and the test that fails on an L3 condition must still pass on the real file.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t4-1",
+     "fid": "F1",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t3-1",
+     "fid": "F1",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t4-2",
+     "fid": "F3",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L2",
+   "fp": "aead7733ff9a104f",
+   "blocking": false,
+   "severity_max": "MAJOR",
+   "category": "contradiction",
+   "confidence": "overlap",
+   "status": "open",
+   "anchor": "Engage at the end of Wave 3 (L3, only when at least one verified finding",
+   "anchor2": "a CI-fix cycle engages with kind `ci`",
+   "span": [
+    123,
+    124
+   ],
+   "span2": [
+    149,
+    150
+   ],
+   "refs": [],
+   "claim": "Engage is placed at the end of Wave 3 yet covers CI-fix cycles, which only arise in Wave 8.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t4-1",
+     "fid": "F2",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t3-1",
+     "fid": "F5",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t3-1",
+     "fid": "F6",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L3",
+   "fp": "0432b5b121028894",
+   "blocking": false,
+   "severity_max": "MAJOR",
+   "category": "other",
+   "confidence": "overlap",
+   "status": "open",
+   "anchor": "`settled(draft, confirmed, not changed)` gives `HELD` with `owned_draft` true and no toggle",
+   "anchor2": null,
+   "span": [
+    59,
+    60
+   ],
+   "span2": null,
+   "refs": [],
+   "claim": "A PR drafted by a person between the guard's read and its mutation is recorded as guard-owned, so the later release marks it ready.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t4-1",
+     "fid": "F3",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t4-1",
+     "fid": "F4",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t3-1",
+     "fid": "F2",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t3-1",
+     "fid": "F4",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t4-2",
+     "fid": "F4",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L4",
+   "fp": "63fe8fed1353c236",
+   "blocking": false,
+   "severity_max": "MAJOR",
+   "category": "other",
+   "confidence": "single",
+   "status": "open",
+   "anchor": "test_eventtype_is_43_members_with_silence_reviewer_and_conflict_events",
+   "anchor2": null,
+   "span": [
+    43,
+    44
+   ],
+   "span2": null,
+   "refs": [],
+   "claim": "The base state assumed by Tasks 1 and 2 (43 members, no guard code) does not match this checkout, which already has the 45-member enum and the guard files.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t4-1",
+     "fid": "F5",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L5",
+   "fp": "feb8395e9a53949d",
+   "blocking": false,
+   "severity_max": "MAJOR",
+   "category": "missing-requirement",
+   "confidence": "single",
+   "status": "open",
+   "anchor": "First record the base-commit state: run `make lint`, `uv run ruff format --check src/ tests/` and the full suite `uv run pytest -q tests` before any code edit",
+   "anchor2": null,
+   "span": [
+    32,
+    33
+   ],
+   "span2": null,
+   "refs": [],
+   "claim": "The base record is meant to precede any code edit, but the working tree already holds the feature code, and the text does not say to take the base from a clean HEAD worktree.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t3-1",
+     "fid": "F3",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L6",
+   "fp": "63fe8fed1353c236",
+   "blocking": false,
+   "severity_max": "MINOR",
+   "category": "unpassable-check",
+   "confidence": "single",
+   "status": "open",
+   "anchor": "grep -rn \"43\" src/superclaude/pr_submit/models.py",
+   "anchor2": null,
+   "span": [
+    48,
+    49
+   ],
+   "span2": null,
+   "refs": [],
+   "claim": "The grep for 43 also matches the comment about the 42nd-43rd event, so the acceptance needs a judgment call rather than a plain pass or fail.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t3-1",
+     "fid": "F7",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L7",
+   "fp": "0cc5f5acd063d2da",
+   "blocking": false,
+   "severity_max": "MAJOR",
+   "category": "missing-requirement",
+   "confidence": "single",
+   "status": "open",
+   "anchor": "`resume_decision(*, mode, ordinal, guard, read, pending, dangling_branch, published)`",
+   "anchor2": "phase `HELD` with `dangling_branch is None` and `published=True` each re-enter `release_decision` with `push_completed=True`",
+   "span": [
+    69,
+    70
+   ],
+   "span2": [
+    76,
+    77
+   ],
+   "refs": [],
+   "claim": "Resume re-enters release with only push_completed set, so a zero edit count marks the pull request ready without a head match.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t4-2",
+     "fid": "F1",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L8",
+   "fp": "de519f0a078480f5",
+   "blocking": false,
+   "severity_max": "MAJOR",
+   "category": "contradiction",
+   "confidence": "single",
+   "status": "open",
+   "anchor": "asserts every `gh` line carries `--repo` or a `repos/` path",
+   "anchor2": "the script passes the `_RESOLUTION_SCRIPTS` origin-URL resolution tests",
+   "span": [
+    112,
+    113
+   ],
+   "span2": [
+    112,
+    113
+   ],
+   "refs": [],
+   "claim": "A literal scan rejects the gh repo view fallback the origin-resolution tests require, and adding --repo there cannot discover an empty repo.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t4-2",
+     "fid": "F2",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  }
+ ]
+}

@@ -1,0 +1,368 @@
+{
+ "schema": "review-ledger/1",
+ "doc": "/home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/.dev/eval-workspaces/tasklist-review-panel/20261111-a1/TASK-WF-designSpec-20261107-075614/candidate.md",
+ "cap_reviews": 3,
+ "rounds": [
+  {
+   "n": 1,
+   "doc_sha256": "044809e3a963fad395cfbe0988bece975650a3adf17176893665d92338bd3481",
+   "reviewers": [
+    {
+     "reviewer_id": "t1b-1",
+     "model": "claude-sonnet-5-5",
+     "report": "/home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/.dev/eval-workspaces/tasklist-review-panel/20261111-a1/TASK-WF-designSpec-20261107-075614/reviews/combos/g3-sonnet-luna-ember-r3/t1b-1.md",
+     "report_sha256": "ea0be27591d3baa486ecb797687c713f93de5b84c46e6fa6d7e156e66ef43cd5",
+     "block_ok": true
+    },
+    {
+     "reviewer_id": "t4-1",
+     "model": "gpt-6-luna",
+     "report": "/home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/.dev/eval-workspaces/tasklist-review-panel/20261111-a1/TASK-WF-designSpec-20261107-075614/reviews/combos/g3-sonnet-luna-ember-r3/t4-1.md",
+     "report_sha256": "0f405c3bcc36789e521b270f730caba97b03343e8abdb61c06979d3a071cc4fc",
+     "block_ok": true
+    },
+    {
+     "reviewer_id": "t2b-1",
+     "model": "muse-ember-1.0",
+     "report": "/home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/.dev/eval-workspaces/tasklist-review-panel/20261111-a1/TASK-WF-designSpec-20261107-075614/reviews/combos/g3-sonnet-luna-ember-r3/t2b-1.md",
+     "report_sha256": "04beed7f071af9e34b585ba4098743c01c530f65977846fcfc90976df1f25a45",
+     "block_ok": true
+    }
+   ],
+   "verdict": "PASS",
+   "decision": "PASS",
+   "brief_ids": []
+  }
+ ],
+ "rows": [
+  {
+   "lid": "L1",
+   "fp": "aead7733ff9a104f",
+   "blocking": false,
+   "severity_max": "MAJOR",
+   "category": "missing-requirement",
+   "confidence": "overlap",
+   "status": "open",
+   "anchor": "for every line of the ref that matches `gh pr` or `gh api`",
+   "anchor2": "that contains `gh pr`, `gh api` or a git write verb needs one entry",
+   "span": [
+    123,
+    124
+   ],
+   "span2": [
+    21,
+    22
+   ],
+   "refs": [],
+   "claim": "Task 8 narrows the classification entries to gh pr and gh api lines, so a ref line containing a git write verb such as git push stays unclassified until the task's own worker-contract test fails.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t1b-1",
+     "fid": "F1",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t2b-1",
+     "fid": "F4",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L2",
+   "fp": "8411375004688f54",
+   "blocking": false,
+   "severity_max": "MAJOR",
+   "category": "contradiction",
+   "confidence": "single",
+   "status": "open",
+   "anchor": "applies at every ordinal and in both modes and carries no L3 or `draft` condition",
+   "anchor2": "at L3 with `--merge-guard off` the line",
+   "span": [
+    136,
+    137
+   ],
+   "span2": [
+    136,
+    137
+   ],
+   "refs": [],
+   "claim": "The Wave 0 bullet must carry no L3 or draft condition yet must state an L3 condition for the off line, and a substring-style test of 'no L3/draft gate wording' can fail the mandated sentence.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t1b-1",
+     "fid": "F2",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L3",
+   "fp": "0cc5f5acd063d2da",
+   "blocking": false,
+   "severity_max": "MAJOR",
+   "category": "missing-requirement",
+   "confidence": "single",
+   "status": "open",
+   "anchor": "the three `RECONCILE` reasons `resume_reconciled`, `not_applied`, `ambiguous` of section 4.1",
+   "anchor2": null,
+   "span": [
+    69,
+    70
+   ],
+   "span2": null,
+   "refs": [],
+   "claim": "No task says resume_decision rows 4 to 9 run again after a RECONCILE settle, yet Task 11 expects a not_applied ready request to stay HELD and be released after the publication check.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t1b-1",
+     "fid": "F3",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L4",
+   "fp": "0cc5f5acd063d2da",
+   "blocking": false,
+   "severity_max": "MAJOR",
+   "category": "missing-requirement",
+   "confidence": "single",
+   "status": "open",
+   "anchor": "`release_decision` called with `applied_edits=0` for a new cycle while the guard record already holds an earlier fixing cycle",
+   "anchor2": null,
+   "span": [
+    74,
+    75
+   ],
+   "span2": null,
+   "refs": [],
+   "claim": "The criterion does not say whether the earlier fixing cycle is released or still held, so an implementation can release a draft PR whose earlier fix is only local.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t1b-1",
+     "fid": "F4",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L5",
+   "fp": "0bd01f9f50b30d15",
+   "blocking": false,
+   "severity_max": "MINOR",
+   "category": "other",
+   "confidence": "single",
+   "status": "open",
+   "anchor": "asserts the exact event order `draft_guard_requested(draft)`",
+   "anchor2": null,
+   "span": [
+    169,
+    170
+   ],
+   "span2": null,
+   "refs": [],
+   "claim": "The source says the seven events must appear in this order, but a real log has push_initiated between fix_applied and push_completed, so 'exact' invites a trace weaker than the real push triad.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t1b-1",
+     "fid": "F5",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L6",
+   "fp": "1ebb32d105a7d902",
+   "blocking": false,
+   "severity_max": "MINOR",
+   "category": "missing-requirement",
+   "confidence": "single",
+   "status": "open",
+   "anchor": "`.dev/tasks` is staged with `git add .dev/tasks`",
+   "anchor2": null,
+   "span": [
+    199,
+    200
+   ],
+   "span2": null,
+   "refs": [],
+   "claim": "The acceptance criterion requires .dev/tasks to be staged but no step of Task 13 stages it.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t1b-1",
+     "fid": "F6",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L7",
+   "fp": "de519f0a078480f5",
+   "blocking": false,
+   "severity_max": "MINOR",
+   "category": "missing-requirement",
+   "confidence": "single",
+   "status": "open",
+   "anchor": "1 on a failing `gh` (JSON still printed with `ok:false`)",
+   "anchor2": null,
+   "span": [
+    111,
+    112
+   ],
+   "span2": null,
+   "refs": [],
+   "claim": "The exit-code criteria do not state the exit code for error not_open or verify_failed, which the source covers only for failed verification.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t1b-1",
+     "fid": "F7",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L8",
+   "fp": "8d6abecb3f7485c4",
+   "blocking": false,
+   "severity_max": "MAJOR",
+   "category": "missing-requirement",
+   "confidence": "single",
+   "status": "open",
+   "anchor": "resume_decision(*, mode, ordinal, guard, read, pending, dangling_branch, published) (all 9 rows, with the row 2 precedence",
+   "anchor2": null,
+   "span": null,
+   "span2": null,
+   "refs": [],
+   "claim": "Resume row 4 cannot re-enter release_decision because the resume signature lacks the edit count and target head release_decision needs.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t2b-1",
+     "fid": "F1",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L9",
+   "fp": "3d481fb29d3ed2d7",
+   "blocking": false,
+   "severity_max": "MAJOR",
+   "category": "missing-requirement",
+   "confidence": "single",
+   "status": "open",
+   "anchor": "The S5a re-trigger sentence and the Wave 6 pre-push sentence stay byte-identical.",
+   "anchor2": null,
+   "span": [
+    149,
+    150
+   ],
+   "span2": null,
+   "refs": [],
+   "claim": "Recording only the start text of the pinned sentences cannot prove the full sentences stay byte identical.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t2b-1",
+     "fid": "F2",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L10",
+   "fp": "0432b5b121028894",
+   "blocking": false,
+   "severity_max": "MINOR",
+   "category": "other",
+   "confidence": "single",
+   "status": "open",
+   "anchor": "`GuardMode`, `Direction`, `Phase`, `GuardAction`, `GuardRead`, `GuardDecision`;",
+   "anchor2": null,
+   "span": [
+    55,
+    56
+   ],
+   "span2": null,
+   "refs": [],
+   "claim": "Phase string values are unstated while a later task compares the folded phase with a lower case value.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t2b-1",
+     "fid": "F3",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  }
+ ]
+}

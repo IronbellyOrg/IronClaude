@@ -1,0 +1,437 @@
+{
+ "schema": "review-ledger/1",
+ "doc": "/home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/.dev/eval-workspaces/tasklist-review-panel/20261111-a1/TASK-WF-makeTheAliasOnly-20261105-051649/candidate.md",
+ "cap_reviews": 3,
+ "rounds": [
+  {
+   "n": 1,
+   "doc_sha256": "cfd8f983d22ab8af1638ffb2a464215e56048f753f7902e3066435d8de176ca4",
+   "reviewers": [
+    {
+     "reviewer_id": "t4-1",
+     "model": "claude-haiku-5-5",
+     "report": "/home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/.dev/eval-workspaces/tasklist-review-panel/20261111-a1/TASK-WF-makeTheAliasOnly-20261105-051649/reviews/combos/r2-terra/t4-1.md",
+     "report_sha256": "7ed5594cfb951249f8d28a5e8f4ffcb072a6c8ea762731ce2fbe7f4c7dbcb8c5",
+     "block_ok": true
+    },
+    {
+     "reviewer_id": "t3-1",
+     "model": "claude-haiku-5-5",
+     "report": "/home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/.dev/eval-workspaces/tasklist-review-panel/20261111-a1/TASK-WF-makeTheAliasOnly-20261105-051649/reviews/combos/r2-terra/t3-1.md",
+     "report_sha256": "ac472087e56d42a9a635bc865f17d00b531c05407d6298027e91338b38123bb5",
+     "block_ok": true
+    },
+    {
+     "reviewer_id": "t4-2",
+     "model": "grok-4.7",
+     "report": "/home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/.dev/eval-workspaces/tasklist-review-panel/20261111-a1/TASK-WF-makeTheAliasOnly-20261105-051649/reviews/combos/r2-terra/t4-2.md",
+     "report_sha256": "4e4eb4ca985a51f0e243759a3d7dc9b77faefe9e0743653a053b6ec5925b89fa",
+     "block_ok": true
+    },
+    {
+     "reviewer_id": "t2b-1",
+     "model": "gpt-6.1-terra",
+     "report": "/home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/.dev/eval-workspaces/tasklist-review-panel/20261111-a1/TASK-WF-makeTheAliasOnly-20261105-051649/reviews/combos/r2-terra/t2b-1.md",
+     "report_sha256": "5b8eb8539baa9f6c8a67efe5949a850b9f7b91e4e3190f4eb6ec41cd89f1fac9",
+     "block_ok": true
+    }
+   ],
+   "verdict": "FAIL",
+   "decision": "REVISE",
+   "brief_ids": [
+    "L1",
+    "L2",
+    "L4"
+   ]
+  }
+ ],
+ "rows": [
+  {
+   "lid": "L1",
+   "fp": "01e7976c6e6c24ed",
+   "blocking": true,
+   "severity_max": "MAJOR",
+   "category": "unpassable-check",
+   "confidence": "overlap",
+   "status": "open",
+   "anchor": "The text claude-gw-tier appears under src/superclaude/agents, commands, skills, cli, hooks and core only in TIER_TEXT_ALLOWED paths.",
+   "anchor2": "Agents, commands, skills and the Python package select models only through the plain aliases opus, sonnet and haiku",
+   "span": [
+    34,
+    35
+   ],
+   "span2": [
+    14,
+    15
+   ],
+   "refs": [],
+   "claim": "The tier-text test fails on review-tiers.default.json and review-panel.live7.json under src/superclaude/cli, which no task fixes or allows, so the remaining-tests-pass criterion cannot be met.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t4-1",
+     "fid": "F1",
+     "blocking": true
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t4-2",
+     "fid": "F2",
+     "blocking": true
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L2",
+   "fp": "a02f572d42a975c8",
+   "blocking": true,
+   "severity_max": "MAJOR",
+   "category": "contradiction",
+   "confidence": "overlap",
+   "status": "open",
+   "anchor": "The workspace exports T3Model01, T2Model01, T2Model02, T1Model01 and T1Model02 (no underscore)",
+   "anchor2": "in a workspace that exports the four variables (as /etc/aidev02/aienv.d/defaults.sh does",
+   "span": [
+    85,
+    86
+   ],
+   "span2": [
+    85,
+    86
+   ],
+   "refs": [],
+   "claim": "The note says defaults.sh exports four variables with T3Model01 as gpt-6.1-terra, but Task 5 lists five names and defaults.sh exports T2Model01 and sets T3Model01 to glm-5.3.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t4-1",
+     "fid": "F2",
+     "blocking": true
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t4-1",
+     "fid": "F3",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t4-1",
+     "fid": "F7",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t3-1",
+     "fid": "F2",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t3-1",
+     "fid": "F3",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t4-2",
+     "fid": "F3",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t4-2",
+     "fid": "F5",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L3",
+   "fp": "beeaa6833f7cf565",
+   "blocking": false,
+   "severity_max": "MAJOR",
+   "category": "other",
+   "confidence": "overlap",
+   "status": "open",
+   "anchor": "export ANTHROPIC_DEFAULT_OPUS_MODEL=claude-gw-tier1a",
+   "anchor2": "they run only when tier mode is on",
+   "span": [
+    128,
+    129
+   ],
+   "span2": [
+    128,
+    129
+   ],
+   "refs": [],
+   "claim": "The launcher already exports the variables with a [1m] suffix behind a usable-tier check, so following the spec literally drops the 1M context marker.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t4-1",
+     "fid": "F4",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t4-1",
+     "fid": "F5",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t3-1",
+     "fid": "F4",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t3-1",
+     "fid": "F7",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t4-2",
+     "fid": "F4",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L4",
+   "fp": "7100ecb4c621f2df",
+   "blocking": true,
+   "severity_max": "CRITICAL",
+   "category": "missing-requirement",
+   "confidence": "overlap",
+   "status": "open",
+   "anchor": "reflect reviewer diversity counts the three variable values",
+   "anchor2": "_DEFAULT_MODEL = \"claude-opus-4-8\"",
+   "span": [
+    98,
+    99
+   ],
+   "span2": [
+    55,
+    56
+   ],
+   "refs": [],
+   "claim": "The Known consequences list omits that the reflect default becomes the floating alias opus for every non-tier run.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t4-1",
+     "fid": "F6",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t3-1",
+     "fid": "F1",
+     "blocking": true
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t4-2",
+     "fid": "F1",
+     "blocking": true
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L5",
+   "fp": "5269fb2839c70439",
+   "blocking": false,
+   "severity_max": "MINOR",
+   "category": "other",
+   "confidence": "overlap",
+   "status": "open",
+   "anchor": "around lines 849 and 859",
+   "anchor2": "(line 411, which currently says",
+   "span": [
+    108,
+    109
+   ],
+   "span2": [
+    108,
+    109
+   ],
+   "refs": [],
+   "claim": "The cited commands.md and developer-guide lines do not hold the cited text at this checkout.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t4-1",
+     "fid": "F8",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t3-1",
+     "fid": "F6",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L6",
+   "fp": "524729a0d7cf1539",
+   "blocking": false,
+   "severity_max": "MINOR",
+   "category": "other",
+   "confidence": "single",
+   "status": "open",
+   "anchor": "the bullet at about line 237 that explains the workaround",
+   "anchor2": null,
+   "span": [
+    65,
+    66
+   ],
+   "span2": null,
+   "refs": [],
+   "claim": "Line 237 of the design doc is a table row, not a bullet.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t4-1",
+     "fid": "F9",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L7",
+   "fp": "84ab306d57548368",
+   "blocking": false,
+   "severity_max": "MAJOR",
+   "category": "other",
+   "confidence": "single",
+   "status": "open",
+   "anchor": "Where an edited src/superclaude file has a byte-identical copy under plugins/superclaude/, copy the edited file over that mirror",
+   "anchor2": null,
+   "span": [
+    20,
+    21
+   ],
+   "span2": null,
+   "refs": [],
+   "claim": "The byte-identical condition is ambiguous before versus after the edit, so the mirror copy may be skipped for files other than retry.md and ledger.md.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t3-1",
+     "fid": "F5",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L8",
+   "fp": "01e7976c6e6c24ed",
+   "blocking": false,
+   "severity_max": "MINOR",
+   "category": "other",
+   "confidence": "single",
+   "status": "open",
+   "anchor": "contains the word Haiku",
+   "anchor2": null,
+   "span": [
+    40,
+    41
+   ],
+   "span2": null,
+   "refs": [],
+   "claim": "The test's case handling differs from the case-sensitive grep in Task 4.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t3-1",
+     "fid": "F8",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L9",
+   "fp": "a45f8403488af966",
+   "blocking": false,
+   "severity_max": "MINOR",
+   "category": "other",
+   "confidence": "single",
+   "status": "open",
+   "anchor": "beyond the four listed spec items",
+   "anchor2": null,
+   "span": [
+    120,
+    121
+   ],
+   "span2": null,
+   "refs": [],
+   "claim": "The four listed spec items are not defined, and Task 9 has no Depends-on line.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t3-1",
+     "fid": "F9",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  }
+ ]
+}

@@ -1,0 +1,12 @@
+{
+  "reviewer_id": "t2-1",
+  "expected_model": "gpt-6.1-sol",
+  "observed_model": "gpt-6.1-sol",
+  "model_ok": true,
+  "findings_block": true,
+  "attempt": 1,
+  "wall_s": 51,
+  "output_tokens_main": 1143,
+  "output_tokens_all": 1143,
+  "exit": 0
+}

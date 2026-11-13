@@ -1,0 +1,395 @@
+{
+ "schema": "review-ledger/1",
+ "doc": "/home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/.dev/eval-workspaces/tasklist-review-panel/20261111-a1/TASK-WF-designSpec-20261107-075614/candidate.md",
+ "cap_reviews": 3,
+ "rounds": [
+  {
+   "n": 1,
+   "doc_sha256": "044809e3a963fad395cfbe0988bece975650a3adf17176893665d92338bd3481",
+   "reviewers": [
+    {
+     "reviewer_id": "t4-1",
+     "model": "claude-haiku-5-5",
+     "report": "/home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/.dev/eval-workspaces/tasklist-review-panel/20261111-a1/TASK-WF-designSpec-20261107-075614/reviews/combos/g4-haiku-ember-terra-r2/t4-1.md",
+     "report_sha256": "2bad2a8bdf6489eb4faacc69f9837542a1458a9abfcaab739a1f680fe797edd9",
+     "block_ok": true
+    },
+    {
+     "reviewer_id": "t2b-1",
+     "model": "muse-ember-1.0",
+     "report": "/home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/.dev/eval-workspaces/tasklist-review-panel/20261111-a1/TASK-WF-designSpec-20261107-075614/reviews/combos/g4-haiku-ember-terra-r2/t2b-1.md",
+     "report_sha256": "163a9839b503989939ec65928c8b83114b06ac5ba055e3716e11b03715c5e6d9",
+     "block_ok": true
+    },
+    {
+     "reviewer_id": "t2-1",
+     "model": "gpt-6.1-terra",
+     "report": "/home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/.dev/eval-workspaces/tasklist-review-panel/20261111-a1/TASK-WF-designSpec-20261107-075614/reviews/combos/g4-haiku-ember-terra-r2/t2-1.md",
+     "report_sha256": "b1c1906bbd912a328313e3c67961fd3876d1e4ac45aeb14f6c47a14127756021",
+     "block_ok": true
+    }
+   ],
+   "verdict": "FAIL",
+   "decision": "REVISE",
+   "brief_ids": [
+    "L1",
+    "L2"
+   ]
+  }
+ ],
+ "rows": [
+  {
+   "lid": "L1",
+   "fp": "620d50928ef7c789",
+   "blocking": true,
+   "severity_max": "MAJOR",
+   "category": "contradiction",
+   "confidence": "single",
+   "status": "open",
+   "anchor": "a PR is turned into a draft as soon as a verified Medium-or-higher finding is routed to a fix",
+   "anchor2": "Engage at the end of Wave 3 (L3, only when at least one verified finding of Medium severity or higher is routed to a fix, once per cycle id",
+   "span": [
+    14,
+    15
+   ],
+   "span2": [
+    123,
+    124
+   ],
+   "refs": [],
+   "claim": "The Goal says engage as soon as a finding is routed, but the owner decisions and Tasks 8 and 10 fix engage at the end of Wave 3, so no build satisfies both.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t4-1",
+     "fid": "F1",
+     "blocking": true
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L2",
+   "fp": "0cc5f5acd063d2da",
+   "blocking": true,
+   "severity_max": "MAJOR",
+   "category": "safety",
+   "confidence": "single",
+   "status": "open",
+   "anchor": "\"not_landed\"` returns `NOOP(held_through_redrive)`",
+   "anchor2": "(`landed` releases, `not_landed` holds, `ambiguous` holds)",
+   "span": [
+    76,
+    77
+   ],
+   "span2": [
+    165,
+    166
+   ],
+   "refs": [],
+   "claim": "Resume row 7 sends a ready call in phase RELEASE_PENDING whatever the dangling branch is, so a not_landed push can be made ready, which the plan says must keep the PR draft.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t4-1",
+     "fid": "F2",
+     "blocking": true
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t4-1",
+     "fid": "F5",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L3",
+   "fp": "8411375004688f54",
+   "blocking": false,
+   "severity_max": "MAJOR",
+   "category": "other",
+   "confidence": "overlap",
+   "status": "open",
+   "anchor": "contains no `L3 only` or `draft` gate wording",
+   "anchor2": null,
+   "span": [
+    136,
+    137
+   ],
+   "span2": null,
+   "refs": [],
+   "claim": "The Wave 0 test wording is undefined, so a bare substring check on draft rejects the required off-mode text.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t4-1",
+     "fid": "F3",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t2b-1",
+     "fid": "F1",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L4",
+   "fp": "1c6ba3cc03f4739e",
+   "blocking": false,
+   "severity_max": "MAJOR",
+   "category": "other",
+   "confidence": "overlap",
+   "status": "open",
+   "anchor": "a log that ends after only the request returns `unsettled == 1` and phase `engage_pending`",
+   "anchor2": null,
+   "span": [
+    89,
+    90
+   ],
+   "span2": null,
+   "refs": [],
+   "claim": "The Phase enum string values are never stated, so the test depends on a guessed spelling.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t4-1",
+     "fid": "F4",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t2b-1",
+     "fid": "F3",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L5",
+   "fp": "feb8395e9a53949d",
+   "blocking": false,
+   "severity_max": "MAJOR",
+   "category": "missing-requirement",
+   "confidence": "single",
+   "status": "open",
+   "anchor": "First record the base-commit state: run `make lint`",
+   "anchor2": null,
+   "span": [
+    32,
+    33
+   ],
+   "span2": null,
+   "refs": [],
+   "claim": "The plan assumes a pre-feature base, but the checkout already contains the feature files, so the base record and the create steps do not match this tree.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t4-1",
+     "fid": "F6",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t4-1",
+     "fid": "F10",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L6",
+   "fp": "de519f0a078480f5",
+   "blocking": false,
+   "severity_max": "MAJOR",
+   "category": "other",
+   "confidence": "single",
+   "status": "open",
+   "anchor": "the timeline count uses `gh api --paginate` with a `jq` filter on `convert_to_draft` and `ready_for_review` piped to `wc -l`",
+   "anchor2": null,
+   "span": [
+    107,
+    108
+   ],
+   "span2": null,
+   "refs": [],
+   "claim": "Under set -euo pipefail a failing timeline pipeline ends the script before it prints the JSON line, unless the plan says how to capture it.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t4-1",
+     "fid": "F7",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t4-1",
+     "fid": "F8",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L7",
+   "fp": "0432b5b121028894",
+   "blocking": false,
+   "severity_max": "MINOR",
+   "category": "other",
+   "confidence": "single",
+   "status": "open",
+   "anchor": "the string constants `BRANCH_LANDED = \"landed\"`",
+   "anchor2": null,
+   "span": [
+    55,
+    56
+   ],
+   "span2": null,
+   "refs": [],
+   "claim": "The BRANCH_* strings already exist in conflicts.py and are exported, and the plan adds a second copy without saying so.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t4-1",
+     "fid": "F9",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L8",
+   "fp": "0432b5b121028894",
+   "blocking": false,
+   "severity_max": "MINOR",
+   "category": "other",
+   "confidence": "single",
+   "status": "open",
+   "anchor": "no record at ordinal 3 (`released`)",
+   "anchor2": null,
+   "span": [
+    60,
+    61
+   ],
+   "span2": null,
+   "refs": [],
+   "claim": "A run that never engaged reports the same word as a run that released a held PR, which may mislead the reader.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t4-1",
+     "fid": "F11",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L9",
+   "fp": "8d6abecb3f7485c4",
+   "blocking": false,
+   "severity_max": "MINOR",
+   "category": "other",
+   "confidence": "single",
+   "status": "open",
+   "anchor": "foreign for one extra transition and for a `HELD`",
+   "anchor2": null,
+   "span": null,
+   "span2": null,
+   "refs": [],
+   "claim": "The one-extra-transition shorthand is ambiguous unless read with the exact rule that adds unsettled slack, so a test writer must confirm the guard has zero slack before asserting foreign.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t2b-1",
+     "fid": "F2",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L10",
+   "fp": "3d481fb29d3ed2d7",
+   "blocking": false,
+   "severity_max": "MINOR",
+   "category": "other",
+   "confidence": "single",
+   "status": "open",
+   "anchor": "are asserted byte-identical by comparing the live text with string constants",
+   "anchor2": null,
+   "span": [
+    153,
+    154
+   ],
+   "span2": null,
+   "refs": [],
+   "claim": "A literal-start prefix comparison cannot prove byte-identical full sentences, so the plan overstates the strength of the pinned-sentence check.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t2b-1",
+     "fid": "F4",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  }
+ ]
+}

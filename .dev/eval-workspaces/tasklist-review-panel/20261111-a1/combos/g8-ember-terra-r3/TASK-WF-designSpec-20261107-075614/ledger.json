@@ -1,0 +1,140 @@
+{
+ "schema": "review-ledger/1",
+ "doc": "/home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/.dev/eval-workspaces/tasklist-review-panel/20261111-a1/TASK-WF-designSpec-20261107-075614/candidate.md",
+ "cap_reviews": 3,
+ "rounds": [
+  {
+   "n": 1,
+   "doc_sha256": "044809e3a963fad395cfbe0988bece975650a3adf17176893665d92338bd3481",
+   "reviewers": [
+    {
+     "reviewer_id": "t2b-1",
+     "model": "muse-ember-1.0",
+     "report": "/home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/.dev/eval-workspaces/tasklist-review-panel/20261111-a1/TASK-WF-designSpec-20261107-075614/reviews/combos/g8-ember-terra-r3/t2b-1.md",
+     "report_sha256": "b1f93320c22c7f2e39e959c9c1a121de54161530626536d07cb64aac1dde1bbc",
+     "block_ok": true
+    },
+    {
+     "reviewer_id": "t2-1",
+     "model": "gpt-6.1-terra",
+     "report": "/home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/.dev/eval-workspaces/tasklist-review-panel/20261111-a1/TASK-WF-designSpec-20261107-075614/reviews/combos/g8-ember-terra-r3/t2-1.md",
+     "report_sha256": "0ea277b9d5896b6f43308f4031b7646d554faf7e8a40b17e22edc22aa5dc3826",
+     "block_ok": true
+    }
+   ],
+   "verdict": "PASS",
+   "decision": "PASS",
+   "brief_ids": []
+  }
+ ],
+ "rows": [
+  {
+   "lid": "L1",
+   "fp": "feb8395e9a53949d",
+   "blocking": false,
+   "severity_max": "MAJOR",
+   "category": "missing-requirement",
+   "confidence": "single",
+   "status": "open",
+   "anchor": "G1 and G2 live parts, G4, G5 and G6 `OPEN` as a release gate with the owner decision quoted.",
+   "anchor2": "and one row each for G1 to G6: G1 to G3 `CONFIRMED` for the locally verifiable part",
+   "span": [
+    35,
+    36
+   ],
+   "span2": [
+    35,
+    36
+   ],
+   "refs": [],
+   "claim": "G1/G2 rows must carry both CONFIRMED and OPEN but no column structure for a split verdict is stated",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t2b-1",
+     "fid": "F1",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L2",
+   "fp": "1c6ba3cc03f4739e",
+   "blocking": false,
+   "severity_max": "MAJOR",
+   "category": "missing-requirement",
+   "confidence": "single",
+   "status": "open",
+   "anchor": "Rebuilding a log that holds `requested(draft)` then `settled(draft, confirmed, changed=True)` returns `state[\"draft_guard\"][\"phase\"] == \"held\"`",
+   "anchor2": "`settled(draft, confirmed, not changed)` gives `HELD` with `owned_draft` true and no toggle;",
+   "span": [
+    89,
+    90
+   ],
+   "span2": [
+    59,
+    60
+   ],
+   "refs": [],
+   "claim": "Fold return type and phase string casing are not pinned, so dict-string and enum readings diverge",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t2b-1",
+     "fid": "F2",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t2b-1",
+     "fid": "F3",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L3",
+   "fp": "1ebb32d105a7d902",
+   "blocking": false,
+   "severity_max": "MINOR",
+   "category": "other",
+   "confidence": "single",
+   "status": "open",
+   "anchor": "`git status --short` lists changes only under `src/superclaude/`, `tests/`, `docs/user-guide/`, `.dev/` and gitignored `.claude/` mirrors;",
+   "anchor2": null,
+   "span": [
+    199,
+    200
+   ],
+   "span2": null,
+   "refs": [],
+   "claim": "The allow-list does not name the plan artifacts folder that Tasks 1 and 13 write",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t2b-1",
+     "fid": "F4",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  }
+ ]
+}

@@ -1,0 +1,49 @@
+comparison	metric	n1	n2	delta	se_rule(|d|>=2se)	Welch_t	Welch_p	perm_p
+ember+2x luna vs ember+luna	DR found	6	4	-0.42	within	-1.39	0.218	0.533
+ember+2x luna vs ember+luna	DR blocking	6	4	+0.50	within	1.73	0.182	0.133
+ember+2x luna vs ember+luna	ctl found	6	4	+0.83	beyond	5.00	0.004	0.048
+ember+2x luna vs ember+luna	DR wrong blockers	6	4	-0.17	within	-0.33	0.755	1.000
+2x ember+luna vs ember+luna	DR found	5	4	-0.65	within	-1.86	0.107	0.278
+2x ember+luna vs ember+luna	DR blocking	5	4	+0.50	within	1.73	0.182	0.167
+2x ember+luna vs ember+luna	ctl found	5	4	+0.60	beyond	2.45	0.070	0.167
+2x ember+luna vs ember+luna	DR wrong blockers	5	4	-0.20	within	-0.28	0.787	1.000
+2x luna+2x ember vs ember+luna	DR found	4	4	-0.50	within	-0.93	0.401	0.629
+2x luna+2x ember vs ember+luna	DR blocking	4	4	+0.00	within	0.00	1.000	1.000
+2x luna+2x ember vs ember+luna	ctl found	4	4	+0.25	within	1.00	0.391	1.000
+2x luna+2x ember vs ember+luna	DR wrong blockers	4	4	+2.75	beyond	5.74	0.002	0.029
+2x luna+2x ember vs ember+2x luna	DR found	4	6	-0.08	within	-0.16	0.878	1.000
+2x luna+2x ember vs ember+2x luna	DR blocking	4	6	-0.50	within	-1.73	0.182	0.133
+2x luna+2x ember vs ember+2x luna	ctl found	4	6	-0.58	within	-1.94	0.104	0.190
+2x luna+2x ember vs ember+2x luna	DR wrong blockers	4	6	+2.92	beyond	7.36	0.000	0.005
+2x luna+2x ember vs 2x ember+luna	DR found	4	5	+0.15	within	0.28	0.793	1.000
+2x luna+2x ember vs 2x ember+luna	DR blocking	4	5	-0.50	within	-1.73	0.182	0.167
+2x luna+2x ember vs 2x ember+luna	ctl found	4	5	-0.35	within	-1.00	0.351	0.524
+2x luna+2x ember vs 2x ember+luna	DR wrong blockers	4	5	+2.95	beyond	4.65	0.005	0.008
+h1 vs g6 (adding haiku)	DR found	4	4	+0.50	within	0.93	0.401	0.629
+h1 vs g6 (adding haiku)	DR blocking	4	4	+1.25	beyond	2.24	0.076	0.171
+h1 vs g6 (adding haiku)	ctl found	4	4	+0.75	beyond	3.00	0.058	0.143
+h1 vs g6 (adding haiku)	DR wrong blockers	4	4	-1.75	beyond	-3.66	0.015	0.057
+h2 vs g6 (adding sonnet)	DR found	4	4	+0.50	within	0.93	0.401	0.629
+h2 vs g6 (adding sonnet)	DR blocking	4	4	+0.25	within	0.65	0.537	1.000
+h2 vs g6 (adding sonnet)	ctl found	4	4	+1.25	beyond	3.27	0.017	0.086
+h2 vs g6 (adding sonnet)	DR wrong blockers	4	4	-1.25	within	-1.81	0.147	0.257
+h2 vs sonnet+luna+ember	DR found	4	5	+0.05	within	0.16	0.881	1.000
+h2 vs sonnet+luna+ember	DR blocking	4	5	+0.15	within	0.43	0.681	1.000
+h2 vs sonnet+luna+ember	ctl found	4	5	+0.70	within	1.99	0.097	0.119
+h2 vs sonnet+luna+ember	DR wrong blockers	4	5	+1.50	within	1.57	0.161	0.222
+h2 vs sonnet+ember	DR found	4	4	-0.25	within	-0.45	0.676	1.000
+h2 vs sonnet+ember	DR blocking	4	4	+0.50	within	1.41	0.207	0.486
+h2 vs sonnet+ember	ctl found	4	4	+0.75	within	1.96	0.098	0.286
+h2 vs sonnet+ember	DR wrong blockers	4	4	+3.25	beyond	4.70	0.010	0.029
+h1 vs haiku+2x luna	DR found	4	5	+0.05	within	0.16	0.881	1.000
+h1 vs haiku+2x luna	DR blocking	4	5	+0.35	within	0.65	0.547	0.683
+h1 vs haiku+2x luna	ctl found	4	5	+0.20	within	1.00	0.374	1.000
+h1 vs haiku+2x luna	DR wrong blockers	4	5	+0.00	within	0.00	1.000	1.000
+ember+terra vs ember+luna	DR found	4	4	-1.75	beyond	-4.58	0.004	0.029
+ember+terra vs ember+luna	DR blocking	4	4	-0.25	within	-0.65	0.537	1.000
+ember+terra vs ember+luna	ctl found	4	4	+0.50	within	1.73	0.182	0.429
+ember+terra vs ember+luna	DR wrong blockers	4	4	+0.75	within	0.68	0.537	0.686
+sonnet+ember vs ember+luna	DR found	4	4	+0.25	within	0.45	0.676	1.000
+sonnet+ember vs ember+luna	DR blocking	4	4	-0.25	within	-0.65	0.537	1.000
+sonnet+ember vs ember+luna	ctl found	4	4	+0.75	beyond	3.00	0.058	0.143
+sonnet+ember vs ember+luna	DR wrong blockers	4	4	-1.75	beyond	-3.66	0.015	0.057

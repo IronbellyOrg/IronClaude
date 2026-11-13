@@ -1,0 +1,56 @@
+check	row	package	reviewer(na)	severity(EXCLUDE|WARN)	reason
+3-completeness	b4-muse-luna2	designSpec-20261107-075614	na	EXCLUDE	no score.json for this package
+3-completeness	b4-muse-luna2	makeTheAliasOnly-20261105-051649	na	EXCLUDE	no score.json for this package
+3-completeness	b4-muse-luna2	design-20261108-041415	na	EXCLUDE	no score.json for this package
+3-completeness	e4-haiku2-ember	designSpec-20261107-075614	na	EXCLUDE	no score.json for this package
+3-completeness	e4-haiku2-ember	makeTheAliasOnly-20261105-051649	na	EXCLUDE	no score.json for this package
+3-completeness	e4-haiku2-ember	design-20261108-041415	na	EXCLUDE	no score.json for this package
+6-pitfall-retry-cost	g9-ember-luna-r1	makeTheAliasOnly-20261105-051649	t2b-1	WARN	cost counts 2 attempts: total_tokens_all 23280 vs final-attempt meta 11163
+1-mismatch	n2-sonnet-src	na	na	WARN	batch4/5 line 114 col any: report 8 vs recomputed 2
+1-mismatch	n2-sonnet-src	na	na	WARN	batch4/5 line 114 col blk: report 5 vs recomputed 0
+1-mismatch	n2-sonnet-src	na	na	WARN	batch4/5 line 114 col wb: report 2 vs recomputed 1
+6-pitfall-retry-cost	b4-muse-luna2	makeTheAliasOnly-20261105-051649	t2b-1	WARN	cost.json attempts=2 tokens_all=11351 wall=139 (retries counted in tokens/wall)
+6-pitfall-retry-cost	b4-muse-luna2	design-20261108-041415	t2b-1	WARN	cost.json attempts=2 tokens_all=7054 wall=117 (retries counted in tokens/wall)
+6-pitfall-retry-cost	g9-ember-luna-r1	makeTheAliasOnly-20261105-051649	t2b-1	WARN	cost.json attempts=2 tokens_all=23280 wall=80 (retries counted in tokens/wall)
+1-blocking-semantics	b4-terra-muse-haiku	defect-rich(both)	na	WARN	judge gt_covered_blocking=2 but only 1 of those GTs are blocking_in_implement in ground-truth.json (report '/8' column mixes the two definitions)
+1-blocking-semantics	c3-luna-grok-src	defect-rich(both)	na	WARN	judge gt_covered_blocking=3 but only 1 of those GTs are blocking_in_implement in ground-truth.json (report '/8' column mixes the two definitions)
+1-blocking-semantics	e1-grok-ember-luna	defect-rich(both)	na	WARN	judge gt_covered_blocking=1 but only 0 of those GTs are blocking_in_implement in ground-truth.json (report '/8' column mixes the two definitions)
+1-blocking-semantics	e2-ember-luna2-rep	defect-rich(both)	na	WARN	judge gt_covered_blocking=1 but only 0 of those GTs are blocking_in_implement in ground-truth.json (report '/8' column mixes the two definitions)
+1-blocking-semantics	e6-haiku-ember2	defect-rich(both)	na	WARN	judge gt_covered_blocking=1 but only 0 of those GTs are blocking_in_implement in ground-truth.json (report '/8' column mixes the two definitions)
+1-blocking-semantics	g1-ember-luna2-r1	defect-rich(both)	na	WARN	judge gt_covered_blocking=1 but only 0 of those GTs are blocking_in_implement in ground-truth.json (report '/8' column mixes the two definitions)
+1-blocking-semantics	g1-ember-luna2-r2	defect-rich(both)	na	WARN	judge gt_covered_blocking=1 but only 0 of those GTs are blocking_in_implement in ground-truth.json (report '/8' column mixes the two definitions)
+1-blocking-semantics	g1-ember-luna2-r3	defect-rich(both)	na	WARN	judge gt_covered_blocking=1 but only 0 of those GTs are blocking_in_implement in ground-truth.json (report '/8' column mixes the two definitions)
+1-blocking-semantics	g1-ember-luna2-r4	defect-rich(both)	na	WARN	judge gt_covered_blocking=1 but only 0 of those GTs are blocking_in_implement in ground-truth.json (report '/8' column mixes the two definitions)
+1-blocking-semantics	g3-sonnet-luna-ember-r1	defect-rich(both)	na	WARN	judge gt_covered_blocking=1 but only 0 of those GTs are blocking_in_implement in ground-truth.json (report '/8' column mixes the two definitions)
+1-blocking-semantics	g3-sonnet-luna-ember-r4	defect-rich(both)	na	WARN	judge gt_covered_blocking=1 but only 0 of those GTs are blocking_in_implement in ground-truth.json (report '/8' column mixes the two definitions)
+1-blocking-semantics	g5-ember2-luna-r1	defect-rich(both)	na	WARN	judge gt_covered_blocking=1 but only 0 of those GTs are blocking_in_implement in ground-truth.json (report '/8' column mixes the two definitions)
+1-blocking-semantics	g5-ember2-luna-r2	defect-rich(both)	na	WARN	judge gt_covered_blocking=1 but only 0 of those GTs are blocking_in_implement in ground-truth.json (report '/8' column mixes the two definitions)
+1-blocking-semantics	g5-ember2-luna-r4	defect-rich(both)	na	WARN	judge gt_covered_blocking=1 but only 0 of those GTs are blocking_in_implement in ground-truth.json (report '/8' column mixes the two definitions)
+1-blocking-semantics	g6-luna2-ember2-r2	defect-rich(both)	na	WARN	judge gt_covered_blocking=1 but only 0 of those GTs are blocking_in_implement in ground-truth.json (report '/8' column mixes the two definitions)
+1-blocking-semantics	g7-haiku-luna2-r3	defect-rich(both)	na	WARN	judge gt_covered_blocking=1 but only 0 of those GTs are blocking_in_implement in ground-truth.json (report '/8' column mixes the two definitions)
+1-blocking-semantics	h1-haiku-luna2-ember2-r1	defect-rich(both)	na	WARN	judge gt_covered_blocking=3 but only 2 of those GTs are blocking_in_implement in ground-truth.json (report '/8' column mixes the two definitions)
+1-blocking-semantics	h1-haiku-luna2-ember2-r3	defect-rich(both)	na	WARN	judge gt_covered_blocking=1 but only 0 of those GTs are blocking_in_implement in ground-truth.json (report '/8' column mixes the two definitions)
+1-blocking-semantics	h1-haiku-luna2-ember2-r4	defect-rich(both)	na	WARN	judge gt_covered_blocking=1 but only 0 of those GTs are blocking_in_implement in ground-truth.json (report '/8' column mixes the two definitions)
+1-blocking-semantics	h2-sonnet-luna2-ember2-r1	defect-rich(both)	na	WARN	judge gt_covered_blocking=1 but only 0 of those GTs are blocking_in_implement in ground-truth.json (report '/8' column mixes the two definitions)
+1-blocking-semantics	h2-sonnet-luna2-ember2-r4	defect-rich(both)	na	WARN	judge gt_covered_blocking=1 but only 0 of those GTs are blocking_in_implement in ground-truth.json (report '/8' column mixes the two definitions)
+1-blocking-semantics	n2-muse-haiku-grok-src	defect-rich(both)	na	WARN	judge gt_covered_blocking=2 but only 1 of those GTs are blocking_in_implement in ground-truth.json (report '/8' column mixes the two definitions)
+1-blocking-semantics	n5-muse-luna-src	defect-rich(both)	na	WARN	judge gt_covered_blocking=1 but only 0 of those GTs are blocking_in_implement in ground-truth.json (report '/8' column mixes the two definitions)
+1-blocking-semantics	r2-sonnet-ember	defect-rich(both)	na	WARN	judge gt_covered_blocking=1 but only 0 of those GTs are blocking_in_implement in ground-truth.json (report '/8' column mixes the two definitions)
+1-blocking-semantics	r2-sonnet-src	defect-rich(both)	na	WARN	judge gt_covered_blocking=4 but only 3 of those GTs are blocking_in_implement in ground-truth.json (report '/8' column mixes the two definitions)
+1-blocking-semantics	r3-luna2-grok-src	defect-rich(both)	na	WARN	judge gt_covered_blocking=1 but only 0 of those GTs are blocking_in_implement in ground-truth.json (report '/8' column mixes the two definitions)
+4-stale-claim	L114,L132-133,L144	na	na	WARN	n2-sonnet-src 8/14, 5/8 still in batch-4/5 table, headline and 'best quality' line; retracted at L146-148 (recomputed 2/14, 0/8, 1 wb)
+4-stale-claim	L163,L167	na	na	WARN	'muse-ember is a WEAKER reviewer than muse-wonder' unqualified; only partially qualified at L172 (4 comparisons, n=1 each, within the r2 variance); also L167 'r2-sonnet-src (muse-wonder version)' retracted at L173
+4-stale-claim	L151,L155,L163	na	na	WARN	r2-sonnet-ember treated as muse-ember swap of a muse row; r2 has no muse (corrected L170-174, table not amended)
+4-stale-claim	L189-190,L192-193	na	na	WARN	'adding haiku or grok bought no measurable catches', 'second run never caught a defect the first lacked (18 cases)', 'haiku overlap 8 of 8' and per-reviewer rates (attrib.py) left unstruck; retracted L195-200
+4-stale-claim	L282	na	na	WARN	'second same-model run adds little on defect-rich' cited as row-level evidence; rests on the retracted analysis (batch 8 gives only within-noise deltas, n=4-6)
+4-stale-claim	L53,L67,L102,L21-43,L45,L59-63	na	na	WARN	recommendations/rankings/efficiency view still cite pre-source.md rows with luna: r1-haiku-luna2, r3-luna2-grok, c1-haiku-luna, c3-luna-grok, c4-haiku-luna-grok, r4-haiku-luna2-grok, n1-muse-haiku-luna, n3-muse-luna-grok, n5-muse-glm-luna, n5-sonnet; L107 says superseded but text not marked
+4-stale-claim	L86-102	na	na	WARN	batch-3 terra/sol rows (r2-terra, r2-sol, n2/n4/n5-terra, n2/n4/n5-sol) and conclusion 'terra and sol return thin incomplete reports ... pure cost' come from the missing-source.md era; not citable for terra/sol
+4-stale-claim	L148,L280,L283	na	na	WARN	'r2-sonnet-src 4/8 best blocking recall' and 'c3 cheapest high blocking result 3/8' use judge blocking; true blocking-in-implement GTs caught by a blocking row: r2-sonnet-src 3, c3-luna-grok-src 1
+4-stale-claim	L206-244	na	na	WARN	batch-8 'Delta blocking' (+0.50 etc.) uses judge blocking; with true-blocking GTs ember+2x luna is 0.17 vs 0.50 for ember+luna (direction reverses)
+4-stale-claim	L238-240,L244	na	na	WARN	'beyond noise' control deltas: 2nd luna survives Welch (p=0.004) and permutation (p=0.048, borderline); 2nd ember (+0.60) does not (Welch 0.070, perm 0.167)
+4-stale-claim	L261-262	na	na	WARN	b9 'beyond noise': +1.25 blocking (haiku) Welch p=0.076/perm 0.171; +0.75 control (haiku) 0.058/0.143; +1.25 control (sonnet) Welch 0.017/perm 0.086: only the sonnet control delta passes Welch and none passes permutation at 0.05
+3-completeness	i1-grok-sonnet-r1..r4	na	na	WARN	reviews exist but no scoring dir; names are not valid-era per the stated rule and not in report
+3-completeness	i2-haiku-sonnet-r1..r4	na	na	WARN	reviews exist but no scoring dir; names are not valid-era per the stated rule and not in report
+6-pitfall-elapsed	all rows	na	na	WARN	'elapsed' = sum over packages of slowest reviewer assumes full parallelism; quarantined re-runs (h1-r1 alias, h2-r1 design, 42-min Qwen run) excluded from cost.json; load-dependent gateway time
+6-pitfall-tokens	all rows	na	na	WARN	only output tokens; no input tokens/price; 'found per 100k tokens' favors low-output models
+6-pitfall-stats	families	na	na	WARN	runs r1..r4 reuse the same 3 packages (pseudo-replication: generalizes over reviewer sampling only); ~48 tests in 12 comparisons x 4 metrics -> 2-3 false positives expected at 0.05; pooled rows span batches/eras (b4-, e2, e3, n5-sonnet-ember, r1-src)

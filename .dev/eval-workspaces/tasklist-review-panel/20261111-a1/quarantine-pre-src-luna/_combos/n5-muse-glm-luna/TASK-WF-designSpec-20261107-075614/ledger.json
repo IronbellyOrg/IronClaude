@@ -1,0 +1,292 @@
+{
+ "schema": "review-ledger/1",
+ "doc": "/home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/.dev/eval-workspaces/tasklist-review-panel/20261111-a1/TASK-WF-designSpec-20261107-075614/candidate.md",
+ "cap_reviews": 3,
+ "rounds": [
+  {
+   "n": 1,
+   "doc_sha256": "044809e3a963fad395cfbe0988bece975650a3adf17176893665d92338bd3481",
+   "reviewers": [
+    {
+     "reviewer_id": "t2b-1",
+     "model": "muse-wonder-1.0",
+     "report": "/home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/.dev/eval-workspaces/tasklist-review-panel/20261111-a1/TASK-WF-designSpec-20261107-075614/reviews/combos/n5-muse-glm-luna/t2b-1.md",
+     "report_sha256": "b90387130ebfed0116009aa410594ee5f7a602b4d86a9c9e797dd56db14d3ba8",
+     "block_ok": true
+    },
+    {
+     "reviewer_id": "t3-1",
+     "model": "glm-5.3",
+     "report": "/home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/.dev/eval-workspaces/tasklist-review-panel/20261111-a1/TASK-WF-designSpec-20261107-075614/reviews/combos/n5-muse-glm-luna/t3-1.md",
+     "report_sha256": "4203ac1ac3aeddfad3e53a130cf59c22a845aecde4ac63bccfbf968cf699dcc4",
+     "block_ok": true
+    },
+    {
+     "reviewer_id": "t4-1",
+     "model": "gpt-6-luna",
+     "report": "/home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/.dev/eval-workspaces/tasklist-review-panel/20261111-a1/TASK-WF-designSpec-20261107-075614/reviews/combos/n5-muse-glm-luna/t4-1.md",
+     "report_sha256": "1db4ab32c0953a4542b7e74cd60dd3e3d50bb6d9e58a86e47bbb718ec175dbec",
+     "block_ok": true
+    }
+   ],
+   "verdict": "FAIL",
+   "decision": "REVISE",
+   "brief_ids": [
+    "L1"
+   ]
+  }
+ ],
+ "rows": [
+  {
+   "lid": "L1",
+   "fp": "de519f0a078480f5",
+   "blocking": true,
+   "severity_max": "CRITICAL",
+   "category": "unpassable-check",
+   "confidence": "single",
+   "status": "open",
+   "anchor": "every `gh` call carries `--repo \"$REPO\"` or a `repos/${REPO}/...` path",
+   "anchor2": "Add the script to `_RESOLUTION_SCRIPTS` in `tests/pr_submit/test_static_grep.py`",
+   "span": [
+    107,
+    108
+   ],
+   "span2": [
+    107,
+    108
+   ],
+   "refs": [],
+   "claim": "The script cannot both have every gh line repo-scoped as stated and pass the _RESOLUTION_SCRIPTS tests, which require an unscoped gh repo view fallback line.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t2b-1",
+     "fid": "F1",
+     "blocking": true
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L2",
+   "fp": "0cc5f5acd063d2da",
+   "blocking": false,
+   "severity_max": "MAJOR",
+   "category": "missing-requirement",
+   "confidence": "single",
+   "status": "open",
+   "anchor": "`resume_decision(*, mode, ordinal, guard, read, pending, dangling_branch, published)`",
+   "anchor2": "each re-enter `release_decision` with `push_completed=True`",
+   "span": [
+    69,
+    70
+   ],
+   "span2": [
+    76,
+    77
+   ],
+   "refs": [],
+   "claim": "Resume row 4 re-enters release_decision but neither resume_decision nor the folded guard supplies target_sha or applied_edits for the head proof.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t2b-1",
+     "fid": "F2",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L3",
+   "fp": "8411375004688f54",
+   "blocking": false,
+   "severity_max": "MAJOR",
+   "category": "other",
+   "confidence": "overlap",
+   "status": "open",
+   "anchor": "at L3 with `--merge-guard off` the line \"Remediation is unprotected: --merge-guard off.\" is printed once",
+   "anchor2": "when it names an L3 or `draft` condition",
+   "span": [
+    136,
+    137
+   ],
+   "span2": [
+    139,
+    140
+   ],
+   "refs": [],
+   "claim": "The Wave 0 acceptance test as worded can reject the bullet for the L3 off-notice clause the same task requires it to contain.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t2b-1",
+     "fid": "F3",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t3-1",
+     "fid": "F2",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L4",
+   "fp": "feb8395e9a53949d",
+   "blocking": false,
+   "severity_max": "MAJOR",
+   "category": "missing-requirement",
+   "confidence": "single",
+   "status": "open",
+   "anchor": "Create `./artifacts/pre-build-gate.md` in this package from ./source.md sections 6, 8 and 10.",
+   "anchor2": "`git status --short` lists changes only under `src/superclaude/`, `tests/`, `docs/user-guide/`, `.dev/` and gitignored `.claude/` mirrors",
+   "span": [
+    32,
+    33
+   ],
+   "span2": [
+    199,
+    200
+   ],
+   "refs": [],
+   "claim": "If ./artifacts resolves at the repository root, the Task 1 and Task 13 records fall outside every path Task 13 allows in git status.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t2b-1",
+     "fid": "F4",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L5",
+   "fp": "0432b5b121028894",
+   "blocking": false,
+   "severity_max": "MAJOR",
+   "category": "missing-requirement",
+   "confidence": "single",
+   "status": "open",
+   "anchor": "no record at ordinal 3 (`released`)",
+   "anchor2": "Exit report (the `merge_guard` field mapping of `guard_status`",
+   "span": [
+    60,
+    61
+   ],
+   "span2": [
+    123,
+    124
+   ],
+   "refs": [],
+   "claim": "An engage-failure halt creates no guard record, so the stated exit mapping reports released for a run halted as draft_guard_unavailable.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t2b-1",
+     "fid": "F5",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L6",
+   "fp": "0432b5b121028894",
+   "blocking": false,
+   "severity_max": "MINOR",
+   "category": "missing-requirement",
+   "confidence": "overlap",
+   "status": "open",
+   "anchor": "Create `src/superclaude/pr_submit/merge_guard.py` following ./source.md sections 4.1, 4.2 and 4.6:",
+   "anchor2": null,
+   "span": [
+    55,
+    56
+   ],
+   "span2": null,
+   "refs": [],
+   "claim": "The decision and fold tables are delegated to a source file that is not in the candidate package, so the plan cannot be executed from the package as given.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t2b-1",
+     "fid": "F6",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t3-1",
+     "fid": "F1",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L7",
+   "fp": "7daf17384b2af15e",
+   "blocking": false,
+   "severity_max": "MAJOR",
+   "category": "missing-requirement",
+   "confidence": "single",
+   "status": "open",
+   "anchor": "Leave `RunConfig` and `run_skill` unchanged.",
+   "anchor2": null,
+   "span": [
+    97,
+    98
+   ],
+   "span2": null,
+   "refs": [],
+   "claim": "Programmatic callers of `run_skill` cannot express `--merge-guard off`; only argv parsing exposes the flag, a stated decision whose consequence deserves an owner's explicit sign-off.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t3-1",
+     "fid": "F3",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  }
+ ]
+}

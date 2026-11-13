@@ -1,0 +1,105 @@
+{
+  "package": "TASK-WF-makeTheAliasOnly-20261105-051649",
+  "items": [
+    {
+      "id": "GT1",
+      "class": "contradiction",
+      "plan_quote": "Sections: what a primitive may name (plain aliases only; the issue-worker allow-list and why; the test tests/skills/test_model_alias_policy.py enforces it)",
+      "description": "Task 6 (echoing the Goal's 'select models only through the plain aliases') told the page to state an aliases-only rule that the test enforces, but the plan's own Task 5 makes the retry ladder select by slot variables, sprint returns slot model ids, Auggie takes --model prism-b, and the test only rejects full claude ids, so reviewers blocked the universal claims and the page needed attempts 3 and 4 (attempt 3's added 'outside the test's scope' section to compensate failed again).",
+      "evidence": [
+        ".dev/tasks/done/TASK-WF-makeTheAliasOnly-20261105-051649/artifacts/retries/T6/review-2.md:6",
+        ".dev/tasks/done/TASK-WF-makeTheAliasOnly-20261105-051649/artifacts/retries/T6/review-2.md:7",
+        ".dev/tasks/done/TASK-WF-makeTheAliasOnly-20261105-051649/artifacts/retries/T6/approach-2.md:5",
+        ".dev/tasks/done/TASK-WF-makeTheAliasOnly-20261105-051649/artifacts/retries/T6/advice-3-a.md:5",
+        ".dev/tasks/done/TASK-WF-makeTheAliasOnly-20261105-051649/artifacts/retries/T6/review-3.md:9",
+        ".dev/tasks/done/TASK-WF-makeTheAliasOnly-20261105-051649/artifacts/retries/T6/advice-4-a.md:4",
+        ".dev/tasks/done/TASK-WF-makeTheAliasOnly-20261105-051649/progress.md:18",
+        ".dev/tasks/done/TASK-WF-makeTheAliasOnly-20261105-051649/progress.md:22"
+      ],
+      "cost": "extra_attempt",
+      "blocking_in_implement": true
+    },
+    {
+      "id": "GT2",
+      "class": "contradiction",
+      "plan_quote": "outside one nothing is set and opus, sonnet and haiku keep Claude Code's meaning",
+      "description": "Task 6 dictates a present-tense statement that outside a tier workspace nothing is set, which contradicts the plan's own constraint and status text that the workspace defaults file exports real model ids today (haiku is glm-5.3), so the first review blocked the page on it (F1.1) and forced a second attempt.",
+      "evidence": [
+        ".dev/tasks/done/TASK-WF-makeTheAliasOnly-20261105-051649/artifacts/retries/T6/review-1.md:4",
+        ".dev/tasks/done/TASK-WF-makeTheAliasOnly-20261105-051649/artifacts/retries/T6/probe-1-1.md:3",
+        ".dev/tasks/done/TASK-WF-makeTheAliasOnly-20261105-051649/artifacts/retries/T6/review-2.md:2"
+      ],
+      "cost": "extra_attempt",
+      "blocking_in_implement": true
+    },
+    {
+      "id": "GT3",
+      "class": "contradiction",
+      "plan_quote": "that the issue workers are the only primitives pinned to picker ids and all other primitives use aliases (docs/reference/model-aliases.md)",
+      "description": "Task 7 mandates a sentence in tiers.md claiming all other primitives use aliases, which is false because most agent, skill and command files have no model: line and the policy test skips them, so the reviewer graded the delivered sentence blocking (F1.1) and a repair had to narrow it.",
+      "evidence": [
+        ".dev/tasks/done/TASK-WF-makeTheAliasOnly-20261105-051649/artifacts/retries/T7/review-1.md:4",
+        ".dev/tasks/done/TASK-WF-makeTheAliasOnly-20261105-051649/artifacts/retries/T7/review-1.md:9",
+        ".dev/tasks/done/TASK-WF-makeTheAliasOnly-20261105-051649/artifacts/retries/T7/probe-1-1.md:3"
+      ],
+      "cost": "neither",
+      "blocking_in_implement": true
+    },
+    {
+      "id": "GT4",
+      "class": "ambiguity",
+      "plan_quote": "in a ccsession tier workspace opus, sonnet and haiku map to claude-gw-tier1a, claude-gw-tier1b and claude-gw-tier2 once the launcher sets them; see docs/reference/model-aliases.md",
+      "description": "Task 7's prescribed user-guide text omits the 'today the workspace defaults file exports real model ids' half that the plan's mapping constraint requires of new mapping text, so the delivered brainstorm.md, commands.md and tiers.md text drew caveat findings that were left unedited.",
+      "evidence": [
+        ".dev/tasks/done/TASK-WF-makeTheAliasOnly-20261105-051649/artifacts/retries/T7/review-1.md:5",
+        ".dev/tasks/done/TASK-WF-makeTheAliasOnly-20261105-051649/artifacts/retries/T7/review-1.md:6",
+        ".dev/tasks/done/TASK-WF-makeTheAliasOnly-20261105-051649/artifacts/retries/T7/review-1.md:7",
+        ".dev/tasks/done/TASK-WF-makeTheAliasOnly-20261105-051649/artifacts/retries/T7/notes.md:2"
+      ],
+      "cost": "neither",
+      "blocking_in_implement": false
+    }
+  ],
+  "dropped": [
+    {
+      "id": "GT5",
+      "reason": "Evidence (T2/notes.md:2-3) says the stale commands.py citations were inherited from the start tree and set aside as line drift from an earlier commit; it does not show the plan text caused them."
+    },
+    {
+      "id": "GT6",
+      "reason": "Evidence shows the executor's own code-path wording (F4.1, F4.2) caused the blocks; brief-5 says the bullet must not describe code paths, which the plan never required. Execution, not plan text."
+    }
+  ],
+  "verification": [
+    {
+      "id": "GT1",
+      "quote_grep_count": 1,
+      "evidence_ok": true
+    },
+    {
+      "id": "GT2",
+      "quote_grep_count": 1,
+      "evidence_ok": true
+    },
+    {
+      "id": "GT3",
+      "quote_grep_count": 1,
+      "evidence_ok": true
+    },
+    {
+      "id": "GT4",
+      "quote_grep_count": 1,
+      "evidence_ok": true
+    },
+    {
+      "id": "GT5",
+      "quote_grep_count": 1,
+      "evidence_ok": false
+    },
+    {
+      "id": "GT6",
+      "quote_grep_count": 1,
+      "evidence_ok": false
+    }
+  ]
+}

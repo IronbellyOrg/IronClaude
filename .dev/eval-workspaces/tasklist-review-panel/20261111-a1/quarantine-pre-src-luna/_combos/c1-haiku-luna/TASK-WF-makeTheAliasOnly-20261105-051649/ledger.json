@@ -1,0 +1,262 @@
+{
+ "schema": "review-ledger/1",
+ "doc": "TASK-WF-makeTheAliasOnly-20261105-051649/candidate.md",
+ "cap_reviews": 3,
+ "rounds": [
+  {
+   "n": 1,
+   "doc_sha256": "cfd8f983d22ab8af1638ffb2a464215e56048f753f7902e3066435d8de176ca4",
+   "reviewers": [
+    {
+     "reviewer_id": "t4-1",
+     "model": "claude-haiku-5-5",
+     "report": "TASK-WF-makeTheAliasOnly-20261105-051649/reviews/combos/c1-haiku-luna/t4-1.catfix.md",
+     "report_sha256": "b24c57fe237c9f4e686f51b6f1ee2974de5538a1aeef3b02755a83081ef895d9",
+     "block_ok": true
+    },
+    {
+     "reviewer_id": "t4-2",
+     "model": "gpt-6-luna",
+     "report": "TASK-WF-makeTheAliasOnly-20261105-051649/reviews/combos/c1-haiku-luna/t4-2.catfix.md",
+     "report_sha256": "e0f090024b384e9d53b429890a7da35428644082696f8614dc6006a897cc5a0b",
+     "block_ok": true
+    }
+   ],
+   "verdict": "FAIL",
+   "decision": "REVISE",
+   "brief_ids": [
+    "L1",
+    "L3",
+    "L5",
+    "L6"
+   ]
+  }
+ ],
+ "rows": [
+  {
+   "lid": "L1",
+   "fp": "01e7976c6e6c24ed",
+   "blocking": true,
+   "severity_max": "CRITICAL",
+   "category": "unpassable-check",
+   "confidence": "single",
+   "status": "open",
+   "anchor": "run on the unchanged tree fails exactly these seven tests",
+   "anchor2": "_DEFAULT_MODEL = \"claude-opus-4-8\"",
+   "span": [
+    45,
+    46
+   ],
+   "span2": [
+    55,
+    56
+   ],
+   "refs": [],
+   "claim": "On this checkout the policy file already passes 13 of 13, so the required seven-failure red run cannot be produced.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t4-1",
+     "fid": "F1",
+     "blocking": true
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L2",
+   "fp": "c82326e4408cc21b",
+   "blocking": false,
+   "severity_max": "MAJOR",
+   "category": "other",
+   "confidence": "single",
+   "status": "open",
+   "anchor": "commit 70ef6486 replaced haiku defaults with sonnet",
+   "anchor2": "the brainstorm model-selection text around lines 849 and 859",
+   "span": [
+    75,
+    76
+   ],
+   "span2": [
+    108,
+    109
+   ],
+   "refs": [],
+   "claim": "The cited commit is absent here and commands.md lines 849 and 859 are not brainstorm text, so the anchors cannot be checked as written.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t4-1",
+     "fid": "F2",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t4-1",
+     "fid": "F6",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L3",
+   "fp": "beeaa6833f7cf565",
+   "blocking": true,
+   "severity_max": "MAJOR",
+   "category": "other",
+   "confidence": "overlap",
+   "status": "open",
+   "anchor": "the tier-mode block at lines 776-785",
+   "anchor2": "export ANTHROPIC_DEFAULT_OPUS_MODEL=claude-gw-tier1a",
+   "span": [
+    128,
+    129
+   ],
+   "span2": [
+    128,
+    129
+   ],
+   "refs": [],
+   "claim": "The launcher already exports the three variables at lines 896-898 with a [1m] suffix, and the spec's exact lines would drop that suffix if placed after them.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t4-1",
+     "fid": "F3",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t4-1",
+     "fid": "F4",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t4-2",
+     "fid": "F3",
+     "blocking": true
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L4",
+   "fp": "01e7976c6e6c24ed",
+   "blocking": false,
+   "severity_max": "MAJOR",
+   "category": "missing-requirement",
+   "confidence": "single",
+   "status": "open",
+   "anchor": "The text claude-gw-tier appears under src/superclaude/agents",
+   "anchor2": null,
+   "span": [
+    34,
+    35
+   ],
+   "span2": null,
+   "refs": [],
+   "claim": "The scan has no file-type limit, so it fails on cli/review/data JSON files holding claude-gw-tier ids, which are outside the allow-list.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t4-1",
+     "fid": "F5",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t4-1",
+     "fid": "F7",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L5",
+   "fp": "a02f572d42a975c8",
+   "blocking": true,
+   "severity_max": "MAJOR",
+   "category": "other",
+   "confidence": "single",
+   "status": "open",
+   "anchor": "as /etc/aidev02/aienv.d/defaults.sh does: T3Model01 gpt-6.1-terra, T2Model02 glm-5.3",
+   "anchor2": null,
+   "span": [
+    85,
+    86
+   ],
+   "span2": null,
+   "refs": [],
+   "claim": "Task 5 requires documenting T3Model01 as gpt-6.1-terra, but the current defaults file sets it to glm-5.3.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t4-2",
+     "fid": "F1",
+     "blocking": true
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L6",
+   "fp": "7100ecb4c621f2df",
+   "blocking": true,
+   "severity_max": "MAJOR",
+   "category": "contradiction",
+   "confidence": "single",
+   "status": "open",
+   "anchor": "outside one nothing is set",
+   "anchor2": "a non-tier launch leaves the inherited environment untouched",
+   "span": [
+    98,
+    99
+   ],
+   "span2": null,
+   "refs": [],
+   "claim": "The plan says the variables are unset outside tier workspaces but also preserves inherited values on non-tier launches, despite the defaults file exporting real values.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t4-2",
+     "fid": "F2",
+     "blocking": true
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  }
+ ]
+}

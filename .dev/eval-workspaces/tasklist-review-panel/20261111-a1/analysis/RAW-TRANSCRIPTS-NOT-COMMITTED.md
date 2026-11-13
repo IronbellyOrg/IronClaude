@@ -1,0 +1,4 @@
+# Raw run transcripts are not in this commit
+About 1.48 GB of raw `claude -p` JSON transcripts were left out to keep the repository small: every `*.attempt<N>.json` (reviewer sessions) and every `judge.json` (blind-judge sessions), 2,916 files, still on the original machine under this folder's package directories and `arms/scoring/`.
+Everything derived from them IS committed: all reviewer reports (`*.md`, `*.attempt<N>.md`), `meta.json`/`cost.json`, merge outputs (`combos/`), blind scores (`arms/scoring/.../score.json`, `merged-anon.md`, `label-key.json`), harness scripts (`tools/`), the master report (`COMBO-REPORT.md`), the ops log (`combos/SPEC.md`), `PILOT-REPORT.md`, analysis scripts and the six audit outputs (`analysis/`).
+Start with `COMBO-REPORT.md`, section "FINAL RESULTS AND DECISION (2026-11-13)" near the end: it supersedes every earlier table in that file.

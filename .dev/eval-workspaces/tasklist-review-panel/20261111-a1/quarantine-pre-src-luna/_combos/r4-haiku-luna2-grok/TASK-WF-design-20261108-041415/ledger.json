@@ -1,0 +1,274 @@
+{
+ "schema": "review-ledger/1",
+ "doc": "/home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/.dev/eval-workspaces/tasklist-review-panel/20261111-a1/TASK-WF-design-20261108-041415/candidate.md",
+ "cap_reviews": 3,
+ "rounds": [
+  {
+   "n": 1,
+   "doc_sha256": "71d4a7455d11818d9ad4718605a9254142cf1e3e250889cfdfa89285eb5f7d24",
+   "reviewers": [
+    {
+     "reviewer_id": "t3-1",
+     "model": "claude-haiku-5-5",
+     "report": "/home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/.dev/eval-workspaces/tasklist-review-panel/20261111-a1/TASK-WF-design-20261108-041415/reviews/combos/r4-haiku-luna2-grok/t3-1.md",
+     "report_sha256": "d98f4e0f60c31a6a93eddca84f0195a0c3d38e46459c206421b5d669552db93f",
+     "block_ok": true
+    },
+    {
+     "reviewer_id": "t3-2",
+     "model": "gpt-6-luna",
+     "report": "/home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/.dev/eval-workspaces/tasklist-review-panel/20261111-a1/TASK-WF-design-20261108-041415/reviews/combos/r4-haiku-luna2-grok/t3-2.md",
+     "report_sha256": "c1d5466d5c2a866db0cbbac3743a9980f197cbadb824b466a05240c910d9b124",
+     "block_ok": true
+    },
+    {
+     "reviewer_id": "t4-1",
+     "model": "gpt-6-luna",
+     "report": "/home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/.dev/eval-workspaces/tasklist-review-panel/20261111-a1/TASK-WF-design-20261108-041415/reviews/combos/r4-haiku-luna2-grok/t4-1.md",
+     "report_sha256": "5c75af615ef875dfe7093d6c7454392815620ab1c40087006fe3c423540f3ec3",
+     "block_ok": true
+    },
+    {
+     "reviewer_id": "t4-2",
+     "model": "grok-4.7",
+     "report": "/home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/.dev/eval-workspaces/tasklist-review-panel/20261111-a1/TASK-WF-design-20261108-041415/reviews/combos/r4-haiku-luna2-grok/t4-2.md",
+     "report_sha256": "fdb947819a32e438652c02f36bb7672c4523c7271c5881c646d56cbad0447dc6",
+     "block_ok": true
+    }
+   ],
+   "verdict": "FAIL",
+   "decision": "REVISE",
+   "brief_ids": [
+    "L1",
+    "L2"
+   ]
+  }
+ ],
+ "rows": [
+  {
+   "lid": "L1",
+   "fp": "838e56235b92a9f4",
+   "blocking": true,
+   "severity_max": "MAJOR",
+   "category": "unpassable-check",
+   "confidence": "single",
+   "status": "open",
+   "anchor": "Reverting any one of Tasks 1 to 5 in a scratch copy would turn at least one new test red",
+   "anchor2": null,
+   "span": [
+    125,
+    126
+   ],
+   "span2": null,
+   "refs": [],
+   "claim": "Reverting Task 3 leaves all seven new tests green, so the Task 8 acceptance criterion cannot pass for Task 3.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t3-1",
+     "fid": "F1",
+     "blocking": true
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t3-1",
+     "fid": "N1",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L2",
+   "fp": "84ab306d57548368",
+   "blocking": true,
+   "severity_max": "MAJOR",
+   "category": "contradiction",
+   "confidence": "single",
+   "status": "open",
+   "anchor": "It writes exactly two things to a created issue besides the issue itself",
+   "anchor2": "pushback comment; final output with every `not applied` and `not set` line",
+   "span": [
+    22,
+    23
+   ],
+   "span2": [
+    46,
+    47
+   ],
+   "refs": [],
+   "claim": "Task 2 has the skill post a pushback comment on the created issue, which breaks the constraint that it writes only the issue type and the Complexity value.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t3-1",
+     "fid": "F2",
+     "blocking": true
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t3-1",
+     "fid": "M2",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t3-1",
+     "fid": "M3",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L3",
+   "fp": "13be5f40085513b0",
+   "blocking": false,
+   "severity_max": "MAJOR",
+   "category": "missing-requirement",
+   "confidence": "single",
+   "status": "open",
+   "anchor": "with every reason listed in specification 2.4",
+   "anchor2": null,
+   "span": [
+    38,
+    39
+   ],
+   "span2": null,
+   "refs": [],
+   "claim": "The reasons for the output lines exist only in the missing source file, so the implementer cannot copy them from the candidate.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t3-1",
+     "fid": "M1",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L4",
+   "fp": "dee94abb1083a654",
+   "blocking": false,
+   "severity_max": "MAJOR",
+   "category": "other",
+   "confidence": "single",
+   "status": "open",
+   "anchor": "the `/sc:issue` row that says \"labels from a fixed set\"",
+   "anchor2": "currently say labels from a fixed set and `type: <value>` labels",
+   "span": [
+    156,
+    157
+   ],
+   "span2": [
+    134,
+    135
+   ],
+   "refs": [],
+   "claim": "Neither stated phrase exists in its named file (HOW-WE-WORK line 329 is the index-repo row), so editing by the stated line could change the wrong row.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t3-1",
+     "fid": "M4",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L5",
+   "fp": "13be5f40085513b0",
+   "blocking": false,
+   "severity_max": "MAJOR",
+   "category": "missing-requirement",
+   "confidence": "single",
+   "status": "open",
+   "anchor": "Remove the 11 `type: ...` labels, the 3 `complexity: ...` labels",
+   "anchor2": null,
+   "span": [
+    33,
+    34
+   ],
+   "span2": null,
+   "refs": [],
+   "claim": "The plan describes a base state the repo no longer has and states no rule for steps already applied, so the implementer may duplicate or misjudge work.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t3-1",
+     "fid": "M5",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t3-1",
+     "fid": "M6",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L6",
+   "fp": "c75148bbd2a65845",
+   "blocking": false,
+   "severity_max": "MAJOR",
+   "category": "missing-requirement",
+   "confidence": "single",
+   "status": "open",
+   "anchor": "body `{\"issue_field_values\":[{\"field_id\":<id>,\"value\":\"<option name>\"}]}`; read-back with `gh api repos/<R>/issues/<N>/issue-field-values`",
+   "anchor2": null,
+   "span": [
+    33,
+    34
+   ],
+   "span2": null,
+   "refs": [
+    "2.1",
+    "2.4"
+   ],
+   "claim": "The read-back never compares single_select_option.name, so a check of the returned value against the posted option name reports a successful Complexity write as not set.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t4-2",
+     "fid": "F1",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  }
+ ]
+}

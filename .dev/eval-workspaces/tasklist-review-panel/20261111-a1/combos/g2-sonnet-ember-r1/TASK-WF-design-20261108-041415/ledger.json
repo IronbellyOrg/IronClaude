@@ -1,0 +1,372 @@
+{
+ "schema": "review-ledger/1",
+ "doc": "/home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/.dev/eval-workspaces/tasklist-review-panel/20261111-a1/TASK-WF-design-20261108-041415/candidate.md",
+ "cap_reviews": 3,
+ "rounds": [
+  {
+   "n": 1,
+   "doc_sha256": "71d4a7455d11818d9ad4718605a9254142cf1e3e250889cfdfa89285eb5f7d24",
+   "reviewers": [
+    {
+     "reviewer_id": "t1b-1",
+     "model": "claude-sonnet-5-5",
+     "report": "/home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/.dev/eval-workspaces/tasklist-review-panel/20261111-a1/TASK-WF-design-20261108-041415/reviews/combos/g2-sonnet-ember-r1/t1b-1.md",
+     "report_sha256": "d11066ae1c00d55e85fceab3241db2d029b18dcb932ba3df580b9daf37bc9252",
+     "block_ok": true
+    },
+    {
+     "reviewer_id": "t2b-1",
+     "model": "muse-ember-1.0",
+     "report": "/home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/.dev/eval-workspaces/tasklist-review-panel/20261111-a1/TASK-WF-design-20261108-041415/reviews/combos/g2-sonnet-ember-r1/t2b-1.md",
+     "report_sha256": "ec5a721667f133d2aff7ae984b3e26912e03932ffac5bc67b11450b4ef2580a7",
+     "block_ok": true
+    }
+   ],
+   "verdict": "FAIL",
+   "decision": "REVISE",
+   "brief_ids": [
+    "L1"
+   ]
+  }
+ ],
+ "rows": [
+  {
+   "lid": "L1",
+   "fp": "d9cef126707a6ddb",
+   "blocking": true,
+   "severity_max": "MAJOR",
+   "category": "unpassable-check",
+   "confidence": "single",
+   "status": "open",
+   "anchor": "Every `gh api` path in the file spells `repos/<R>/...` except the one documented `orgs/<owner of R>/issue-fields` read.",
+   "anchor2": "`--claim` behaviour and text stay unchanged, including its two-block part of the return contract.",
+   "span": [
+    150,
+    151
+   ],
+   "span2": [
+    21,
+    22
+   ],
+   "refs": [],
+   "claim": "The Task 10 check forbids any gh api path other than repos/<R> and the one orgs read, but docs/designs/sc-issue-command.md line 157 holds the unchanged claim-mode call `gh api user -q .login`, so the check cannot pass without rewriting correct claim text.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t1b-1",
+     "fid": "F1",
+     "blocking": true
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t1b-1",
+     "fid": "F6",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L2",
+   "fp": "838e56235b92a9f4",
+   "blocking": false,
+   "severity_max": "MAJOR",
+   "category": "unpassable-check",
+   "confidence": "overlap",
+   "status": "open",
+   "anchor": "Reverting any one of Tasks 1 to 5 in a scratch copy would turn at least one new test red",
+   "anchor2": "appears only in `create.md`, `SKILL.md` and `issue-worker-t3.md`",
+   "span": [
+    125,
+    126
+   ],
+   "span2": [
+    121,
+    122
+   ],
+   "refs": [],
+   "claim": "None of the new tests asserts on text that Task 3 adds to SKILL.md (the orgs test is a subset check and the POST test is folder-wide), so reverting Task 3 leaves every new test green.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t1b-1",
+     "fid": "F2",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t2b-1",
+     "fid": "M4",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L3",
+   "fp": "cdfe7b18475eba75",
+   "blocking": false,
+   "severity_max": "MAJOR",
+   "category": "missing-requirement",
+   "confidence": "overlap",
+   "status": "open",
+   "anchor": "a failure of `gh issue create` is still STOP `E-CREATE-FAILED`",
+   "anchor2": "`--type` only when the type is listed under `### Repo issue types`",
+   "span": [
+    52,
+    53
+   ],
+   "span2": [
+    33,
+    34
+   ],
+   "refs": [],
+   "claim": "A gh build without the --type flag makes gh issue create fail, so the optional type turns into STOP E-CREATE-FAILED and no issue is filed; the plan states no fallback or minimum gh version.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t1b-1",
+     "fid": "F3",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t2b-1",
+     "fid": "M2",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L4",
+   "fp": "a5c8825bbf2c5560",
+   "blocking": false,
+   "severity_max": "MAJOR",
+   "category": "missing-requirement",
+   "confidence": "overlap",
+   "status": "open",
+   "anchor": "The Will and Will Not lists agree with the skill's Will and Will Not lists on the new create behaviour.",
+   "anchor2": "the Will Not list (lines 172 to 177): keep every existing item and add that the skill never creates an issue type",
+   "span": [
+    102,
+    103
+   ],
+   "span2": [
+    59,
+    60
+   ],
+   "refs": [],
+   "claim": "Task 3 gives the skill no create Will line and a different Will Not wording than the command, so the Task 6 agreement check has nothing to compare and the two lists can differ while the token test passes.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t1b-1",
+     "fid": "F4",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t2b-1",
+     "fid": "M5",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L5",
+   "fp": "a42092ac8931b90f",
+   "blocking": false,
+   "severity_max": "MAJOR",
+   "category": "missing-requirement",
+   "confidence": "single",
+   "status": "open",
+   "anchor": "read-back with `gh api repos/<R>/issues/<N>/issue-field-values`",
+   "anchor2": null,
+   "span": [
+    33,
+    34
+   ],
+   "span2": null,
+   "refs": [
+    "2.1"
+   ],
+   "claim": "The plan never says how to match the read-back to the wanted option, so an implementer comparing the returned value to the option name could report a false 'not applied after create' on every successful write.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t1b-1",
+     "fid": "F5",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L6",
+   "fp": "d402633afe4bcdbe",
+   "blocking": false,
+   "severity_max": "MAJOR",
+   "category": "other",
+   "confidence": "overlap",
+   "status": "open",
+   "anchor": "fix any failure at its source in `src/superclaude/`, never by editing `.claude/`",
+   "anchor2": null,
+   "span": [
+    167,
+    168
+   ],
+   "span2": null,
+   "refs": [],
+   "claim": "A make lint failure in the edited tests file has no fix location under the stated rule, since the rule names only src/superclaude/.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t1b-1",
+     "fid": "F7",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t2b-1",
+     "fid": "M1",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L7",
+   "fp": "29054c61427c06e3",
+   "blocking": false,
+   "severity_max": "MINOR",
+   "category": "other",
+   "confidence": "single",
+   "status": "open",
+   "anchor": "lists every classification it could not set in its final output and in a third return-contract block",
+   "anchor2": null,
+   "span": [
+    14,
+    15
+   ],
+   "span2": null,
+   "refs": [],
+   "claim": "The third block lists only the not set lines; a missing label is reported in labels_missing in the first block, so the Goal sentence is looser than the contract.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t1b-1",
+     "fid": "F8",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L8",
+   "fp": "ec44014e87a383a8",
+   "blocking": false,
+   "severity_max": "MAJOR",
+   "category": "missing-requirement",
+   "confidence": "single",
+   "status": "open",
+   "anchor": "`### Complexity field` (field id, data type, option names, or `not found` / `lookup failed: <reason>`)",
+   "anchor2": null,
+   "span": [
+    73,
+    74
+   ],
+   "span2": null,
+   "refs": [],
+   "claim": "Behavior for a non-single-select Complexity field data type is never stated.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t2b-1",
+     "fid": "M3",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t2b-1",
+     "fid": "m1",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L9",
+   "fp": "d9cef126707a6ddb",
+   "blocking": false,
+   "severity_max": "MINOR",
+   "category": "other",
+   "confidence": "single",
+   "status": "open",
+   "anchor": "Leave history and decision-log entries as they are except for wording that is now false.",
+   "anchor2": null,
+   "span": [
+    145,
+    146
+   ],
+   "span2": null,
+   "refs": [],
+   "claim": "History-editing boundary in Task 10 is left to implementer judgment.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t2b-1",
+     "fid": "m2",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  }
+ ]
+}

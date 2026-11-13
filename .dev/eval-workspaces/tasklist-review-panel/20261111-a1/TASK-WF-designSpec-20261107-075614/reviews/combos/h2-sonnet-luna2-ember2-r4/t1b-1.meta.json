@@ -1,0 +1,12 @@
+{
+  "reviewer_id": "t1b-1",
+  "expected_model": "claude-sonnet-5-5",
+  "observed_model": "claude-sonnet-5-5",
+  "model_ok": true,
+  "findings_block": true,
+  "attempt": 1,
+  "wall_s": 172,
+  "output_tokens_main": 23264,
+  "output_tokens_all": 23264,
+  "exit": 0
+}

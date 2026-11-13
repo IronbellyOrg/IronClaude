@@ -1,0 +1,127 @@
+{
+ "block_ok": {
+  "t2-1": true,
+  "t2b-1": true,
+  "t4-1": true,
+  "t4-2": true
+ },
+ "brief_ids": [
+  "L1"
+ ],
+ "cleared": [],
+ "clusters": [
+  {
+   "event": "opened",
+   "lid": "L1",
+   "members": [
+    {
+     "blocking": true,
+     "fid": "F1",
+     "reviewer_id": "t2b-1"
+    },
+    {
+     "blocking": true,
+     "fid": "F2",
+     "reviewer_id": "t2b-1"
+    },
+    {
+     "blocking": false,
+     "fid": "F3",
+     "reviewer_id": "t2b-1"
+    },
+    {
+     "blocking": false,
+     "fid": "F4",
+     "reviewer_id": "t2b-1"
+    },
+    {
+     "blocking": true,
+     "fid": "F1",
+     "reviewer_id": "t4-1"
+    },
+    {
+     "blocking": false,
+     "fid": "F2",
+     "reviewer_id": "t4-1"
+    },
+    {
+     "blocking": false,
+     "fid": "F4",
+     "reviewer_id": "t4-1"
+    },
+    {
+     "blocking": false,
+     "fid": "F6",
+     "reviewer_id": "t4-1"
+    },
+    {
+     "blocking": false,
+     "fid": "F7",
+     "reviewer_id": "t4-1"
+    },
+    {
+     "blocking": false,
+     "fid": "F1",
+     "reviewer_id": "t4-2"
+    },
+    {
+     "blocking": false,
+     "fid": "F2",
+     "reviewer_id": "t4-2"
+    },
+    {
+     "blocking": false,
+     "fid": "F3",
+     "reviewer_id": "t4-2"
+    },
+    {
+     "blocking": false,
+     "fid": "F4",
+     "reviewer_id": "t4-2"
+    },
+    {
+     "blocking": false,
+     "fid": "F5",
+     "reviewer_id": "t4-2"
+    }
+   ]
+  },
+  {
+   "event": "opened",
+   "lid": "L2",
+   "members": [
+    {
+     "blocking": false,
+     "fid": "F5",
+     "reviewer_id": "t2b-1"
+    },
+    {
+     "blocking": false,
+     "fid": "F3",
+     "reviewer_id": "t4-1"
+    }
+   ]
+  },
+  {
+   "event": "opened",
+   "lid": "L3",
+   "members": [
+    {
+     "blocking": false,
+     "fid": "F5",
+     "reviewer_id": "t4-1"
+    }
+   ]
+  }
+ ],
+ "decision": "REVISE",
+ "new": [
+  "L1",
+  "L2",
+  "L3"
+ ],
+ "refound": [],
+ "regressed": [],
+ "verdict": "FAIL",
+ "warnings": []
+}

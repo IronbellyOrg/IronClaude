@@ -1,0 +1,231 @@
+check	row	package	reviewer	severity	reason
+1-incomplete	n2-sol	TASK-WF-design-20261108-041415	t2-1	EXCLUDE	positive 'incomplete' refusal; empty findings block
+1-incomplete	n2-terra	TASK-WF-design-20261108-041415	t2-1	EXCLUDE	positive 'incomplete' refusal; empty findings block
+1-incomplete	n2-terra	TASK-WF-design-20261108-041415	t4-1	EXCLUDE	positive 'incomplete' refusal; findings=8
+1-incomplete	n4-muse-glm-haiku	TASK-WF-design-20261108-041415	t4-1	EXCLUDE	positive 'incomplete' refusal; findings=9
+1-incomplete	n4-sol	TASK-WF-design-20261108-041415	t2-1	EXCLUDE	positive 'incomplete' refusal; empty findings block
+1-incomplete	n4-terra	TASK-WF-design-20261108-041415	t2-1	EXCLUDE	positive 'incomplete' refusal; empty findings block
+1-incomplete	n5-sol	TASK-WF-design-20261108-041415	t2-1	EXCLUDE	positive 'incomplete' refusal; empty findings block
+1-incomplete	n5-terra	TASK-WF-design-20261108-041415	t2-1	EXCLUDE	positive 'incomplete' refusal; empty findings block
+1-incomplete	r2-sol	TASK-WF-design-20261108-041415	t2-1	EXCLUDE	positive 'incomplete' refusal; empty findings block
+1-incomplete	r2-terra	TASK-WF-design-20261108-041415	t2b-1	EXCLUDE	positive 'incomplete' refusal (verdict: INCOMPLETE); empty findings block
+1-incomplete	b4-sonnet-terra	TASK-WF-designSpec-20261107-075614	t2-1	EXCLUDE	positive 'incomplete' refusal (verdict: INCOMPLETE); empty findings block
+1-incomplete	b4-terra-luna-muse	TASK-WF-designSpec-20261107-075614	t2-1	EXCLUDE	positive 'incomplete' refusal; empty findings block
+1-incomplete	b4-terra-muse-haiku	TASK-WF-designSpec-20261107-075614	t2-1	EXCLUDE	positive 'incomplete' refusal; empty findings block
+1-incomplete	e1-grok-ember-luna	TASK-WF-designSpec-20261107-075614	t4-1	EXCLUDE	positive 'incomplete' refusal; empty findings block
+1-incomplete	g4-haiku-ember-terra-r1	TASK-WF-designSpec-20261107-075614	t2-1	EXCLUDE	positive 'incomplete' refusal; empty findings block
+1-incomplete	g4-haiku-ember-terra-r2	TASK-WF-designSpec-20261107-075614	t2-1	EXCLUDE	positive 'incomplete' refusal; empty findings block
+1-incomplete	g4-haiku-ember-terra-r3	TASK-WF-designSpec-20261107-075614	t2-1	EXCLUDE	positive 'incomplete' refusal; findings=1
+1-incomplete	g4-haiku-ember-terra-r4	TASK-WF-designSpec-20261107-075614	t2-1	EXCLUDE	positive 'incomplete' refusal; empty findings block
+1-incomplete	g7-haiku-luna2-r4	TASK-WF-designSpec-20261107-075614	t3-1	EXCLUDE	positive 'incomplete' refusal; empty findings block
+1-incomplete	g8-ember-terra-r1	TASK-WF-designSpec-20261107-075614	t2-1	EXCLUDE	positive 'incomplete' refusal; empty findings block
+1-incomplete	g8-ember-terra-r2	TASK-WF-designSpec-20261107-075614	t2-1	EXCLUDE	positive 'incomplete' refusal; empty findings block
+1-incomplete	g8-ember-terra-r3	TASK-WF-designSpec-20261107-075614	t2-1	EXCLUDE	positive 'incomplete' refusal; empty findings block
+1-incomplete	g8-ember-terra-r4	TASK-WF-designSpec-20261107-075614	t2-1	EXCLUDE	positive 'incomplete' refusal; empty findings block
+1-incomplete	n2-muse-haiku-grok	TASK-WF-designSpec-20261107-075614	t4-1	EXCLUDE	positive 'incomplete' refusal; findings=9
+1-incomplete	n2-sol	TASK-WF-designSpec-20261107-075614	t2-1	EXCLUDE	positive 'incomplete' refusal; empty findings block
+1-incomplete	n2-sonnet	TASK-WF-designSpec-20261107-075614	t4-1	EXCLUDE	positive 'incomplete' refusal; empty findings block
+1-incomplete	n2-terra	TASK-WF-designSpec-20261107-075614	t2-1	EXCLUDE	positive 'incomplete' refusal (verdict: INCOMPLETE); empty findings block
+1-incomplete	n4-sol	TASK-WF-designSpec-20261107-075614	t2-1	EXCLUDE	positive 'incomplete' refusal; empty findings block
+1-incomplete	n4-terra	TASK-WF-designSpec-20261107-075614	t2-1	EXCLUDE	positive 'incomplete' refusal; empty findings block
+1-incomplete	n5-sol	TASK-WF-designSpec-20261107-075614	t2-1	EXCLUDE	positive 'incomplete' refusal; empty findings block
+1-incomplete	n5-terra	TASK-WF-designSpec-20261107-075614	t2-1	EXCLUDE	positive 'incomplete' refusal (verdict: INCOMPLETE); empty findings block
+1-incomplete	r2-haiku2-grok	TASK-WF-designSpec-20261107-075614	t3-1	EXCLUDE	positive 'incomplete' refusal; findings=7
+1-incomplete	r2-haiku2-grok	TASK-WF-designSpec-20261107-075614	t4-1	EXCLUDE	positive 'incomplete' refusal; findings=5
+1-incomplete	r2-sol	TASK-WF-designSpec-20261107-075614	t2-1	EXCLUDE	positive 'incomplete' refusal; empty findings block
+1-incomplete	r2-sol	TASK-WF-designSpec-20261107-075614	t4-1	EXCLUDE	positive 'incomplete' refusal; findings=6
+1-incomplete	r2-sonnet	TASK-WF-designSpec-20261107-075614	t3-1	EXCLUDE	positive 'incomplete' refusal (verdict: INCOMPLETE); findings=8
+1-incomplete	r2-terra	TASK-WF-designSpec-20261107-075614	t2b-1	EXCLUDE	positive 'incomplete' refusal; empty findings block
+1-incomplete	r2-terra	TASK-WF-designSpec-20261107-075614	t3-1	EXCLUDE	positive 'incomplete' refusal; findings=5
+1-incomplete	r4-haiku-luna2-grok	TASK-WF-designSpec-20261107-075614	t3-1	EXCLUDE	positive 'incomplete' refusal; findings=10
+1-incomplete	r5-glm-haiku2	TASK-WF-designSpec-20261107-075614	t4-1	EXCLUDE	positive 'incomplete' refusal; findings=6
+1-incomplete	terra-luna-muse-ember	TASK-WF-designSpec-20261107-075614	t2-1	EXCLUDE	positive 'incomplete' refusal; empty findings block
+1-incomplete	terra-muse-haiku-ember	TASK-WF-designSpec-20261107-075614	t2-1	EXCLUDE	positive 'incomplete' refusal; empty findings block
+1-incomplete	g8-ember-terra-r2	TASK-WF-makeTheAliasOnly-20261105-051649	t2-1	EXCLUDE	positive 'incomplete' refusal; empty findings block
+1-incomplete	n2-sol	TASK-WF-makeTheAliasOnly-20261105-051649	t2-1	EXCLUDE	positive 'incomplete' refusal; empty findings block
+1-incomplete	n2-terra	TASK-WF-makeTheAliasOnly-20261105-051649	t2-1	EXCLUDE	positive 'incomplete' refusal; empty findings block
+1-incomplete	n4-sol	TASK-WF-makeTheAliasOnly-20261105-051649	t2-1	EXCLUDE	positive 'incomplete' refusal; empty findings block
+1-incomplete	n4-terra	TASK-WF-makeTheAliasOnly-20261105-051649	t2-1	EXCLUDE	positive 'incomplete' refusal; empty findings block
+1-incomplete	n5-sol	TASK-WF-makeTheAliasOnly-20261105-051649	t2-1	EXCLUDE	positive 'incomplete' refusal; empty findings block
+1-incomplete	n5-terra	TASK-WF-makeTheAliasOnly-20261105-051649	t2-1	EXCLUDE	positive 'incomplete' refusal; empty findings block
+1-incomplete	r2-sol	TASK-WF-makeTheAliasOnly-20261105-051649	t2-1	EXCLUDE	positive 'incomplete' refusal; empty findings block
+1-incomplete	r2-terra	TASK-WF-makeTheAliasOnly-20261105-051649	t2b-1	EXCLUDE	positive 'incomplete' refusal; empty findings block
+1-short	g7-haiku-luna2-r4	TASK-WF-designSpec-20261107-075614	t3-1	EXCLUDE	report 582 bytes
+1-short	n2-terra	TASK-WF-designSpec-20261107-075614	t2-1	EXCLUDE	report 547 bytes
+3-anchors	b4-muse-ember-luna2	TASK-WF-designSpec-20261107-075614	t4-1	EXCLUDE	1/1 anchors not in candidate (ws-normalised); exact-invalid 1
+3-anchors	e3-ember2-luna	TASK-WF-designSpec-20261107-075614	t4-1	EXCLUDE	1/1 anchors not in candidate (ws-normalised); exact-invalid 1
+3-anchors	g3-sonnet-luna-ember-r2	TASK-WF-designSpec-20261107-075614	t4-1	EXCLUDE	1/1 anchors not in candidate (ws-normalised); exact-invalid 1
+3-anchors	g9-ember-luna-r3	TASK-WF-designSpec-20261107-075614	t4-1	EXCLUDE	1/1 anchors not in candidate (ws-normalised); exact-invalid 1
+3-anchors	h1-haiku-luna2-ember2-r2	TASK-WF-designSpec-20261107-075614	t4-2	EXCLUDE	1/1 anchors not in candidate (ws-normalised); exact-invalid 1
+3-anchors	h2-sonnet-luna2-ember2-r3	TASK-WF-designSpec-20261107-075614	t4-2	EXCLUDE	2/2 anchors not in candidate (ws-normalised); exact-invalid 2
+3-anchors	g1-ember-luna2-r4	TASK-WF-makeTheAliasOnly-20261105-051649	t3-1	EXCLUDE	1/1 anchors not in candidate (ws-normalised); exact-invalid 1
+3-anchors	g7-haiku-luna2-r3	TASK-WF-makeTheAliasOnly-20261105-051649	t3-1	EXCLUDE	1/1 anchors not in candidate (ws-normalised); exact-invalid 1
+3-anchors	h2-sonnet-luna2-ember2-r3	TASK-WF-makeTheAliasOnly-20261105-051649	t4-2	EXCLUDE	1/1 anchors not in candidate (ws-normalised); exact-invalid 1
+3-anchors	r3-luna2-grok-src	TASK-WF-makeTheAliasOnly-20261105-051649	t3-1	EXCLUDE	1/1 anchors not in candidate (ws-normalised); exact-invalid 1
+1-missing-input	c4-haiku-luna-grok	TASK-WF-design-20261108-041415	t3-1	WARN	mentions missing/unreadable input: ...candidate cites `./source.md` for every section, and that file is missing from the candidate'
+1-missing-input	h1-haiku-luna2-ember2-r2	TASK-WF-design-20261108-041415	t3-1	WARN	mentions missing/unreadable input: ...cification 2.4" via source.md instead of listing them in the plan; its truncated "remember `option not found`" invites a
+1-missing-input	n2-sol	TASK-WF-design-20261108-041415	t4-1	WARN	mentions missing/unreadable input: ...tion 2.4 live in `./source.md`, which does not exist beside the candidat
+1-missing-input	n2-terra	TASK-WF-design-20261108-041415	t2b-1	WARN	mentions missing/unreadable input: ...2.4, but `source: ./source.md` does not exist beside the candidat
+1-missing-input	n4-muse-glm-haiku	TASK-WF-design-20261108-041415	t3-1	WARN	mentions missing/unreadable input: ...ched by the plan. `source.md` is not in the package and could not be read; the review judges
+1-missing-input	n4-terra	TASK-WF-design-20261108-041415	t4-1	WARN	mentions missing/unreadable input: ...didate's `source: ./source.md` is missing from its folder, so
+1-missing-input	n5-muse-glm-luna	TASK-WF-design-20261108-041415	t2b-1	WARN	mentions missing/unreadable input: ...n one place, and `./source.md` does not exist next to the candida
+1-missing-input	r2-haiku2-grok	TASK-WF-design-20261108-041415	t3-1	WARN	mentions missing/unreadable input: ...whole candidate. - source.md is missing. the candidate's fr
+1-missing-input	c5-glm-haiku	TASK-WF-designSpec-20261107-075614	t4-1	WARN	mentions missing/unreadable input: ...not covered:** - `./source.md` was not found, so the decision ta
+1-missing-input	n2-sol	TASK-WF-designSpec-20261107-075614	t4-1	WARN	mentions missing/unreadable input: ...ndidate.md`. its `./source.md` is missing, and the tasks cite
+1-missing-input	n5-terra	TASK-WF-designSpec-20261107-075614	t2b-1	WARN	mentions missing/unreadable input: ...by reference to `./source.md` sections 3 to 10 could not be read directly and were c
+1-short	g6-luna2-ember2-r3	TASK-WF-designSpec-20261107-075614	t4-2	WARN	report 583 bytes but a valid zero-finding PASS with coverage statement
+1-short	g7-haiku-luna2-r3	TASK-WF-designSpec-20261107-075614	t4-2	WARN	report 586 bytes but a valid zero-finding PASS with coverage statement
+1-short	n3-muse-luna-grok-src	TASK-WF-designSpec-20261107-075614	t4-1	WARN	report 588 bytes but a valid zero-finding PASS with coverage statement
+2-firstline	g3-sonnet-luna-ember-r2	TASK-WF-design-20261108-041415	t1b-1	WARN	first line: Checking the candidate against its source and the live repo 
+2-firstline	n4-muse-glm-haiku	TASK-WF-design-20261108-041415	t3-1	WARN	first line: | Status | Result |
+2-firstline	n4-terra	TASK-WF-design-20261108-041415	t3-1	WARN	first line: | Status | Result |
+2-firstline	n5-muse-glm-luna	TASK-WF-design-20261108-041415	t3-1	WARN	first line: | Status | Result |
+2-firstline	n5-terra	TASK-WF-design-20261108-041415	t3-1	WARN	first line: | Status | Result |
+2-firstline	n3-muse-luna-grok	TASK-WF-designSpec-20261107-075614	t4-2	WARN	first line: The candidate hash matches. The plan’s own rules for the dra
+2-firstline	n5-muse-glm-luna	TASK-WF-designSpec-20261107-075614	t3-1	WARN	first line: | Status | Result |
+2-firstline	n5-terra	TASK-WF-makeTheAliasOnly-20261105-051649	t3-1	WARN	first line: | Status | Result |
+2-noverdict	r2-terra	TASK-WF-design-20261108-041415	t2b-1	WARN	no verdict line
+2-noverdict	b4-sonnet-terra	TASK-WF-designSpec-20261107-075614	t2-1	WARN	no verdict line
+2-noverdict	b4-terra-luna-muse	TASK-WF-designSpec-20261107-075614	t2-1	WARN	no verdict line
+2-noverdict	n2-sonnet	TASK-WF-designSpec-20261107-075614	t4-1	WARN	no verdict line
+2-noverdict	n2-terra	TASK-WF-designSpec-20261107-075614	t2-1	WARN	no verdict line
+2-noverdict	n5-terra	TASK-WF-designSpec-20261107-075614	t2-1	WARN	no verdict line
+2-noverdict	r2-sonnet	TASK-WF-designSpec-20261107-075614	t3-1	WARN	no verdict line
+2-noverdict	r2-terra	TASK-WF-makeTheAliasOnly-20261105-051649	t2b-1	WARN	no verdict line
+2-schema	c1-haiku-luna	TASK-WF-designSpec-20261107-075614	t4-1	WARN	F11:cat unpassable-ac
+2-schema	c4-haiku-luna-grok	TASK-WF-designSpec-20261107-075614	t3-1	WARN	F3:cat unpassable-ac
+2-schema	c5-glm-haiku	TASK-WF-designSpec-20261107-075614	t4-1	WARN	F2:cat unpassable-ac; F3:cat unpassable-ac; F4:cat unpassable-ac
+2-schema	c1-haiku-luna	TASK-WF-makeTheAliasOnly-20261105-051649	t4-1	WARN	F1:cat unpassable-ac
+2-schema	c2-haiku-grok	TASK-WF-makeTheAliasOnly-20261105-051649	t4-1	WARN	F1:cat unpassable-ac; F2:cat unpassable-ac
+2-schema	c2-haiku-grok	TASK-WF-makeTheAliasOnly-20261105-051649	t4-2	WARN	F1:cat unpassable-ac; F2:cat unpassable-ac
+2-schema	c3-luna-grok	TASK-WF-makeTheAliasOnly-20261105-051649	t4-2	WARN	F1:cat unpassable-ac; F2:cat unpassable-ac
+2-schema	c4-haiku-luna-grok	TASK-WF-makeTheAliasOnly-20261105-051649	t3-1	WARN	F1:cat unpassable-ac; F2:cat unpassable-ac
+2-schema	c5-glm-haiku	TASK-WF-makeTheAliasOnly-20261105-051649	t4-1	WARN	F1:cat unpassable-ac; F2:cat unpassable-ac
+2-schema	g4-haiku-ember-terra-r2	TASK-WF-makeTheAliasOnly-20261105-051649	t4-1	WARN	F6:sev MEDIUM; F9:sev MEDIUM; F10:sev MEDIUM
+2-verdict-inconsistent	n2-sol	TASK-WF-design-20261108-041415	t2-1	WARN	blocking=0 verdict=FAIL
+2-verdict-inconsistent	n2-terra	TASK-WF-design-20261108-041415	t2-1	WARN	blocking=0 verdict=FAIL
+2-verdict-inconsistent	n4-sol	TASK-WF-design-20261108-041415	t2-1	WARN	blocking=0 verdict=FAIL
+2-verdict-inconsistent	n4-terra	TASK-WF-design-20261108-041415	t2-1	WARN	blocking=0 verdict=FAIL
+2-verdict-inconsistent	n5-sol	TASK-WF-design-20261108-041415	t2-1	WARN	blocking=0 verdict=FAIL
+2-verdict-inconsistent	n5-terra	TASK-WF-design-20261108-041415	t2-1	WARN	blocking=0 verdict=FAIL
+2-verdict-inconsistent	r2-sol	TASK-WF-design-20261108-041415	t2-1	WARN	blocking=0 verdict=FAIL
+2-verdict-inconsistent	b4-terra-muse-haiku	TASK-WF-designSpec-20261107-075614	t2-1	WARN	blocking=0 verdict=FAIL
+2-verdict-inconsistent	e1-grok-ember-luna	TASK-WF-designSpec-20261107-075614	t4-1	WARN	blocking=0 verdict=FAIL
+2-verdict-inconsistent	g4-haiku-ember-terra-r1	TASK-WF-designSpec-20261107-075614	t2-1	WARN	blocking=0 verdict=FAIL
+2-verdict-inconsistent	g4-haiku-ember-terra-r2	TASK-WF-designSpec-20261107-075614	t2-1	WARN	blocking=0 verdict=FAIL
+2-verdict-inconsistent	g4-haiku-ember-terra-r4	TASK-WF-designSpec-20261107-075614	t2-1	WARN	blocking=0 verdict=FAIL
+2-verdict-inconsistent	g7-haiku-luna2-r4	TASK-WF-designSpec-20261107-075614	t3-1	WARN	blocking=0 verdict=FAIL
+2-verdict-inconsistent	g8-ember-terra-r1	TASK-WF-designSpec-20261107-075614	t2-1	WARN	blocking=0 verdict=FAIL
+2-verdict-inconsistent	g8-ember-terra-r2	TASK-WF-designSpec-20261107-075614	t2-1	WARN	blocking=0 verdict=FAIL
+2-verdict-inconsistent	g8-ember-terra-r3	TASK-WF-designSpec-20261107-075614	t2-1	WARN	blocking=0 verdict=FAIL
+2-verdict-inconsistent	g8-ember-terra-r4	TASK-WF-designSpec-20261107-075614	t2-1	WARN	blocking=0 verdict=FAIL
+2-verdict-inconsistent	n2-muse-haiku-grok	TASK-WF-designSpec-20261107-075614	t4-1	WARN	blocking=0 verdict=FAIL
+2-verdict-inconsistent	n2-sol	TASK-WF-designSpec-20261107-075614	t2-1	WARN	blocking=0 verdict=FAIL
+2-verdict-inconsistent	n4-sol	TASK-WF-designSpec-20261107-075614	t2-1	WARN	blocking=0 verdict=FAIL
+2-verdict-inconsistent	n4-terra	TASK-WF-designSpec-20261107-075614	t2-1	WARN	blocking=0 verdict=FAIL
+2-verdict-inconsistent	n5-sol	TASK-WF-designSpec-20261107-075614	t2-1	WARN	blocking=0 verdict=FAIL
+2-verdict-inconsistent	r2-haiku2-grok	TASK-WF-designSpec-20261107-075614	t3-1	WARN	blocking=0 verdict=FAIL
+2-verdict-inconsistent	r2-haiku2-grok	TASK-WF-designSpec-20261107-075614	t4-1	WARN	blocking=0 verdict=FAIL
+2-verdict-inconsistent	r2-sol	TASK-WF-designSpec-20261107-075614	t2-1	WARN	blocking=0 verdict=FAIL
+2-verdict-inconsistent	r2-sol	TASK-WF-designSpec-20261107-075614	t4-1	WARN	blocking=0 verdict=FAIL
+2-verdict-inconsistent	r2-terra	TASK-WF-designSpec-20261107-075614	t2b-1	WARN	blocking=0 verdict=FAIL
+2-verdict-inconsistent	r4-haiku-luna2-grok	TASK-WF-designSpec-20261107-075614	t3-1	WARN	blocking=0 verdict=FAIL
+2-verdict-inconsistent	r5-glm-haiku2	TASK-WF-designSpec-20261107-075614	t4-1	WARN	blocking=0 verdict=FAIL
+2-verdict-inconsistent	terra-luna-muse-ember	TASK-WF-designSpec-20261107-075614	t2-1	WARN	blocking=0 verdict=FAIL
+2-verdict-inconsistent	terra-muse-haiku-ember	TASK-WF-designSpec-20261107-075614	t2-1	WARN	blocking=0 verdict=FAIL
+2-verdict-inconsistent	g8-ember-terra-r2	TASK-WF-makeTheAliasOnly-20261105-051649	t2-1	WARN	blocking=0 verdict=FAIL
+2-verdict-inconsistent	n2-sol	TASK-WF-makeTheAliasOnly-20261105-051649	t2-1	WARN	blocking=0 verdict=FAIL
+2-verdict-inconsistent	n2-terra	TASK-WF-makeTheAliasOnly-20261105-051649	t2-1	WARN	blocking=0 verdict=FAIL
+2-verdict-inconsistent	n4-sol	TASK-WF-makeTheAliasOnly-20261105-051649	t2-1	WARN	blocking=0 verdict=FAIL
+2-verdict-inconsistent	n4-terra	TASK-WF-makeTheAliasOnly-20261105-051649	t2-1	WARN	blocking=0 verdict=FAIL
+2-verdict-inconsistent	n5-sol	TASK-WF-makeTheAliasOnly-20261105-051649	t2-1	WARN	blocking=0 verdict=FAIL
+2-verdict-inconsistent	n5-terra	TASK-WF-makeTheAliasOnly-20261105-051649	t2-1	WARN	blocking=0 verdict=FAIL
+2-verdict-inconsistent	r2-sol	TASK-WF-makeTheAliasOnly-20261105-051649	t2-1	WARN	blocking=0 verdict=FAIL
+3-anchor-length	b4-muse-luna2	TASK-WF-design-20261108-041415	t4-1	WARN	1/3 anchors outside 12-200 chars
+3-anchor-length	b4-terra-muse-haiku	TASK-WF-design-20261108-041415	t2b-1	WARN	1/6 anchors outside 12-200 chars
+3-anchor-length	g1-ember-luna2-r2	TASK-WF-design-20261108-041415	t3-1	WARN	1/2 anchors outside 12-200 chars
+3-anchor-length	g1-ember-luna2-r4	TASK-WF-design-20261108-041415	t4-1	WARN	1/2 anchors outside 12-200 chars
+3-anchor-length	g5-ember2-luna-r1	TASK-WF-design-20261108-041415	t4-1	WARN	1/2 anchors outside 12-200 chars
+3-anchor-length	g5-ember2-luna-r4	TASK-WF-design-20261108-041415	t4-1	WARN	2/4 anchors outside 12-200 chars
+3-anchor-length	g6-luna2-ember2-r1	TASK-WF-design-20261108-041415	t2b-1	WARN	2/5 anchors outside 12-200 chars
+3-anchor-length	g6-luna2-ember2-r1	TASK-WF-design-20261108-041415	t4-1	WARN	1/2 anchors outside 12-200 chars
+3-anchor-length	g6-luna2-ember2-r3	TASK-WF-design-20261108-041415	t4-1	WARN	1/2 anchors outside 12-200 chars
+3-anchor-length	g7-haiku-luna2-r1	TASK-WF-design-20261108-041415	t3-1	WARN	1/3 anchors outside 12-200 chars
+3-anchor-length	g7-haiku-luna2-r4	TASK-WF-design-20261108-041415	t3-1	WARN	1/4 anchors outside 12-200 chars
+3-anchor-length	g9-ember-luna-r2	TASK-WF-design-20261108-041415	t4-1	WARN	1/2 anchors outside 12-200 chars
+3-anchor-length	h1-haiku-luna2-ember2-r1	TASK-WF-design-20261108-041415	t4-1	WARN	1/5 anchors outside 12-200 chars
+3-anchor-length	h2-sonnet-luna2-ember2-r1	TASK-WF-design-20261108-041415	t4-2	WARN	1/2 anchors outside 12-200 chars
+3-anchor-length	h2-sonnet-luna2-ember2-r2	TASK-WF-design-20261108-041415	t4-2	WARN	1/2 anchors outside 12-200 chars
+3-anchor-length	n5-sonnet-ember	TASK-WF-design-20261108-041415	t4-1	WARN	2/3 anchors outside 12-200 chars
+3-anchor-length	r1-haiku-luna2-src	TASK-WF-design-20261108-041415	t3-1	WARN	1/2 anchors outside 12-200 chars
+3-anchor-length	b4-muse-luna2	TASK-WF-designSpec-20261107-075614	t2b-1	WARN	3/5 anchors outside 12-200 chars
+3-anchor-length	e6-haiku-ember2	TASK-WF-designSpec-20261107-075614	t3-1	WARN	2/3 anchors outside 12-200 chars
+3-anchor-length	g1-ember-luna2-r2	TASK-WF-designSpec-20261107-075614	t2b-1	WARN	1/3 anchors outside 12-200 chars
+3-anchor-length	g2-sonnet-ember-r4	TASK-WF-designSpec-20261107-075614	t2b-1	WARN	1/3 anchors outside 12-200 chars
+3-anchor-length	g5-ember2-luna-r4	TASK-WF-designSpec-20261107-075614	t2b-1	WARN	1/3 anchors outside 12-200 chars
+3-anchor-length	g6-luna2-ember2-r2	TASK-WF-designSpec-20261107-075614	t2b-1	WARN	2/6 anchors outside 12-200 chars
+3-anchor-length	g8-ember-terra-r2	TASK-WF-designSpec-20261107-075614	t2b-1	WARN	1/4 anchors outside 12-200 chars
+3-anchor-length	g8-ember-terra-r4	TASK-WF-designSpec-20261107-075614	t2b-1	WARN	1/4 anchors outside 12-200 chars
+3-anchor-length	h1-haiku-luna2-ember2-r1	TASK-WF-designSpec-20261107-075614	t3-1	WARN	1/4 anchors outside 12-200 chars
+3-anchor-length	h1-haiku-luna2-ember2-r2	TASK-WF-designSpec-20261107-075614	t2b-1	WARN	2/5 anchors outside 12-200 chars
+3-anchor-length	h1-haiku-luna2-ember2-r3	TASK-WF-designSpec-20261107-075614	t2b-1	WARN	1/4 anchors outside 12-200 chars
+3-anchor-length	h1-haiku-luna2-ember2-r3	TASK-WF-designSpec-20261107-075614	t4-1	WARN	1/1 anchors outside 12-200 chars
+3-anchor-length	h2-sonnet-luna2-ember2-r2	TASK-WF-designSpec-20261107-075614	t3-1	WARN	1/4 anchors outside 12-200 chars
+3-anchor-length	h2-sonnet-luna2-ember2-r3	TASK-WF-designSpec-20261107-075614	t2b-1	WARN	2/3 anchors outside 12-200 chars
+3-anchor-length	n5-sonnet-ember	TASK-WF-designSpec-20261107-075614	t2b-1	WARN	1/5 anchors outside 12-200 chars
+3-anchor-length	b4-muse-luna2	TASK-WF-makeTheAliasOnly-20261105-051649	t4-1	WARN	1/1 anchors outside 12-200 chars
+3-anchor-length	b4-sonnet-luna2	TASK-WF-makeTheAliasOnly-20261105-051649	t4-1	WARN	1/2 anchors outside 12-200 chars
+3-anchor-length	b4-terra-muse-haiku	TASK-WF-makeTheAliasOnly-20261105-051649	t2b-1	WARN	1/6 anchors outside 12-200 chars
+3-anchor-length	g1-ember-luna2-r3	TASK-WF-makeTheAliasOnly-20261105-051649	t3-1	WARN	1/2 anchors outside 12-200 chars
+3-anchor-length	g1-ember-luna2-r4	TASK-WF-makeTheAliasOnly-20261105-051649	t3-1	WARN	1/1 anchors outside 12-200 chars
+3-anchor-length	g2-sonnet-ember-r3	TASK-WF-makeTheAliasOnly-20261105-051649	t2b-1	WARN	1/5 anchors outside 12-200 chars
+3-anchor-length	g3-sonnet-luna-ember-r3	TASK-WF-makeTheAliasOnly-20261105-051649	t4-1	WARN	1/1 anchors outside 12-200 chars
+3-anchor-length	g5-ember2-luna-r2	TASK-WF-makeTheAliasOnly-20261105-051649	t3-1	WARN	1/5 anchors outside 12-200 chars
+3-anchor-length	g5-ember2-luna-r2	TASK-WF-makeTheAliasOnly-20261105-051649	t4-1	WARN	1/1 anchors outside 12-200 chars
+3-anchor-length	g5-ember2-luna-r4	TASK-WF-makeTheAliasOnly-20261105-051649	t2b-1	WARN	1/8 anchors outside 12-200 chars
+3-anchor-length	g7-haiku-luna2-r1	TASK-WF-makeTheAliasOnly-20261105-051649	t3-1	WARN	1/2 anchors outside 12-200 chars
+3-anchor-length	g9-ember-luna-r1	TASK-WF-makeTheAliasOnly-20261105-051649	t4-1	WARN	1/2 anchors outside 12-200 chars
+3-anchor-length	h1-haiku-luna2-ember2-r2	TASK-WF-makeTheAliasOnly-20261105-051649	t2b-1	WARN	1/5 anchors outside 12-200 chars
+3-anchor-length	h1-haiku-luna2-ember2-r3	TASK-WF-makeTheAliasOnly-20261105-051649	t4-2	WARN	1/2 anchors outside 12-200 chars
+3-anchor-length	h2-sonnet-luna2-ember2-r2	TASK-WF-makeTheAliasOnly-20261105-051649	t4-1	WARN	1/3 anchors outside 12-200 chars
+3-anchor-length	h2-sonnet-luna2-ember2-r4	TASK-WF-makeTheAliasOnly-20261105-051649	t2b-1	WARN	1/3 anchors outside 12-200 chars
+3-anchor-length	n3-muse-luna-grok-src	TASK-WF-makeTheAliasOnly-20261105-051649	t2b-1	WARN	1/6 anchors outside 12-200 chars
+3-anchor-length	n4-sol	TASK-WF-makeTheAliasOnly-20261105-051649	t2b-1	WARN	1/4 anchors outside 12-200 chars
+3-anchor-length	n5-muse-luna-src	TASK-WF-makeTheAliasOnly-20261105-051649	t2b-1	WARN	1/5 anchors outside 12-200 chars
+3-anchor-length	terra-luna-muse-ember	TASK-WF-makeTheAliasOnly-20261105-051649	t4-1	WARN	1/3 anchors outside 12-200 chars
+3-anchors	c3-luna-grok	TASK-WF-design-20261108-041415	t4-2	WARN	1/2 anchors not in candidate (ws-normalised); exact-invalid 1
+3-anchors	e1-grok-ember-luna	TASK-WF-design-20261108-041415	t4-1	WARN	1/2 anchors not in candidate (ws-normalised); exact-invalid 1
+3-anchors	g5-ember2-luna-r1	TASK-WF-design-20261108-041415	t4-1	WARN	1/2 anchors not in candidate (ws-normalised); exact-invalid 1
+3-anchors	g6-luna2-ember2-r1	TASK-WF-design-20261108-041415	t4-1	WARN	1/2 anchors not in candidate (ws-normalised); exact-invalid 1
+3-anchors	g6-luna2-ember2-r2	TASK-WF-design-20261108-041415	t4-2	WARN	1/2 anchors not in candidate (ws-normalised); exact-invalid 1
+3-anchors	h1-haiku-luna2-ember2-r1	TASK-WF-design-20261108-041415	t4-2	WARN	1/2 anchors not in candidate (ws-normalised); exact-invalid 1
+3-anchors	h1-haiku-luna2-ember2-r3	TASK-WF-design-20261108-041415	t4-1	WARN	1/2 anchors not in candidate (ws-normalised); exact-invalid 1
+3-anchors	g7-haiku-luna2-r2	TASK-WF-designSpec-20261107-075614	t4-2	WARN	1/2 anchors not in candidate (ws-normalised); exact-invalid 1
+3-anchors	h1-haiku-luna2-ember2-r1	TASK-WF-designSpec-20261107-075614	t4-2	WARN	1/2 anchors not in candidate (ws-normalised); exact-invalid 1
+3-anchors	n2-muse-haiku-grok-src	TASK-WF-designSpec-20261107-075614	t4-2	WARN	1/2 anchors not in candidate (ws-normalised); exact-invalid 1
+3-anchors	g3-sonnet-luna-ember-r1	TASK-WF-makeTheAliasOnly-20261105-051649	t4-1	WARN	1/2 anchors not in candidate (ws-normalised); exact-invalid 1
+3-anchors	g6-luna2-ember2-r3	TASK-WF-makeTheAliasOnly-20261105-051649	t4-1	WARN	1/2 anchors not in candidate (ws-normalised); exact-invalid 1
+3-anchors	g7-haiku-luna2-r1	TASK-WF-makeTheAliasOnly-20261105-051649	t3-1	WARN	1/2 anchors not in candidate (ws-normalised); exact-invalid 1
+3-anchors	h1-haiku-luna2-ember2-r3	TASK-WF-makeTheAliasOnly-20261105-051649	t4-2	WARN	1/2 anchors not in candidate (ws-normalised); exact-invalid 1
+3-anchors	r1-haiku-luna2-src	TASK-WF-makeTheAliasOnly-20261105-051649	t4-2	WARN	1/2 anchors not in candidate (ws-normalised); exact-invalid 1
+X-model-not-ok	b4-muse-luna2	TASK-WF-design-20261108-041415	t2b-1	WARN	expected muse-wonder-1.0 observed 'gpt-6.1-terra'
+X-model-not-ok	b4-muse-luna2	TASK-WF-makeTheAliasOnly-20261105-051649	t2b-1	WARN	expected muse-wonder-1.0 observed 'gpt-6.1-terra'
+X-truncated	g5-ember2-luna-r2	TASK-WF-design-20261108-041415	t2b-1	WARN	report does not end with verdict: F1 and F2 as in the Reviser brief, then run review 2 of 3. |
+X-truncated	h1-haiku-luna2-ember2-r3	TASK-WF-design-20261108-041415	t3-1	WARN	report does not end with verdict: ; the owner may fix the follow-up wording in a later pass. |
+X-truncated	b4-muse-luna2	TASK-WF-designSpec-20261107-075614	t4-1	WARN	report does not end with verdict: owner on a disposable fork PR. No other risks were verified.
+X-truncated	b4-terra-luna-muse	TASK-WF-designSpec-20261107-075614	t2-1	WARN	report does not end with verdict: ```
+X-truncated	g3-sonnet-luna-ember-r4	TASK-WF-designSpec-20261107-075614	t1b-1	WARN	report does not end with verdict: re, so the base-commit claims could not be checked directly.
+X-truncated	n2-sonnet	TASK-WF-designSpec-20261107-075614	t4-1	WARN	report does not end with verdict: tables cannot be checked against what they are meant to say.
+X-truncated	r2-sol	TASK-WF-designSpec-20261107-075614	t3-1	WARN	report does not end with verdict: ssue for this list. No issue is created without your answer.
+X-truncated	g3-sonnet-luna-ember-r2	TASK-WF-makeTheAliasOnly-20261105-051649	t2b-1	WARN	report does not end with verdict: er launcher scratch test, since this was a text review only.
+X-truncated	g9-ember-luna-r1	TASK-WF-makeTheAliasOnly-20261105-051649	t2b-1	WARN	report does not end with verdict:  checked against the plan's stated claims and current files.
+X-truncated	n4-sonnet-ember	TASK-WF-makeTheAliasOnly-20261105-051649	t2b-1	WARN	report does not end with verdict: e rerun; only policy tests and read-only greps were checked.
+X-truncated	r2-terra	TASK-WF-makeTheAliasOnly-20261105-051649	t2b-1	WARN	report does not end with verdict: ```
+X-verdict-not-last	g5-ember2-luna-r2	TASK-WF-design-20261108-041415	t2b-1	WARN	last line: | NEXT | Revise F1 and F2 as in the Reviser brief, then run 
+X-verdict-not-last	h1-haiku-luna2-ember2-r3	TASK-WF-design-20261108-041415	t3-1	WARN	last line: | NEXT | None. The plan may proceed; the owner may fix the f
+X-verdict-not-last	b4-muse-luna2	TASK-WF-designSpec-20261107-075614	t4-1	WARN	last line: Skipped the live release-gate checks because the plan explic
+X-verdict-not-last	g3-sonnet-luna-ember-r4	TASK-WF-designSpec-20261107-075614	t1b-1	WARN	last line: The working tree already contains a built version of this fe
+X-verdict-not-last	r2-sol	TASK-WF-designSpec-20261107-075614	t3-1	WARN	last line: F2, F3, F4, F5, F6, F7, F8 (Medium), and F9, F10, F11, F12 (
+X-verdict-not-last	g3-sonnet-luna-ember-r2	TASK-WF-makeTheAliasOnly-20261105-051649	t2b-1	WARN	last line: Skipped: running the full test suite and the later launcher 
+X-verdict-not-last	g9-ember-luna-r1	TASK-WF-makeTheAliasOnly-20261105-051649	t2b-1	WARN	last line: Skipped: full red-phase rerun of every task, since the repo 
+X-verdict-not-last	n4-sonnet-ember	TASK-WF-makeTheAliasOnly-20261105-051649	t2b-1	WARN	last line: Skipped: full-suite rerun; only policy tests and read-only g

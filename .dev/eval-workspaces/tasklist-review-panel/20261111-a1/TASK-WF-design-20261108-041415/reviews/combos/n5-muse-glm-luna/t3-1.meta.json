@@ -1,0 +1,12 @@
+{
+  "reviewer_id": "t3-1",
+  "expected_model": "glm-5.3",
+  "observed_model": "glm-5.3",
+  "model_ok": true,
+  "findings_block": true,
+  "attempt": 1,
+  "wall_s": 1076,
+  "output_tokens_main": 83363,
+  "output_tokens_all": 83363,
+  "exit": 0
+}

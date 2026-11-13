@@ -1,0 +1,107 @@
+check	row	package	reviewer	severity	reason
+5-retry	c5-glm-haiku	TASK-WF-designSpec-20261107-075614	t3-1	WARN	final_attempt=2 a1: exit=124 tok=0 wall=3000 obs='' outage=False err=[claude-code:unrecognized_model] {"model":"glm-5.3","query_source":"sdk"} 
+6-short-tokens	n2-terra	TASK-WF-designSpec-20261107-075614	t2-1	WARN	output_tokens_all=347
+5-retry	n5-muse-glm-luna	TASK-WF-designSpec-20261107-075614	t3-1	WARN	final_attempt=2 a1: exit=0 tok=95468 wall=1479 obs='glm-5.3,qwen3.8-max' outage=False err=[claude-code:unrecognized_model] {"model":"glm-5.3","query_source":"sdk"} 
+E5-earlier-attempt-other-model	n5-muse-glm-luna	TASK-WF-designSpec-20261107-075614	t3-1	WARN	attempt1 observed=glm-5.3,qwen3.8-max final=glm-5.3
+R1-missing-run	n5-sol	TASK-WF-designSpec-20261107-075614	t4-1	WARN	reviewer in resolution.json has no run output
+5-stale-attempt-leftover	n5-sol	TASK-WF-designSpec-20261107-075614	t3-1	WARN	attempt files [2] are older leftovers from an earlier run (final meta.attempt=1); cost.json counts them
+1b-name-derived-mismatch	n5-sonnet	TASK-WF-designSpec-20261107-075614	t2b-1	WARN	observed muse-wonder-1.0 not among models named in row name ['claude-sonnet-5-5'] [downgraded: n5-sonnet name does not list muse/glm; observed models equal sibling rows n5-sol/n5-terra resolution.json (t2b muse-wonder, t3 glm-5.3); intended UNVERIFIED]
+1b-name-derived-mismatch	n5-sonnet	TASK-WF-designSpec-20261107-075614	t3-1	WARN	observed glm-5.3 not among models named in row name ['claude-sonnet-5-5'] [downgraded: n5-sonnet name does not list muse/glm; observed models equal sibling rows n5-sol/n5-terra resolution.json (t2b muse-wonder, t3 glm-5.3); intended UNVERIFIED]
+R1-missing-run	n5-terra	TASK-WF-designSpec-20261107-075614	t4-1	WARN	reviewer in resolution.json has no run output
+5-retry	r5-glm-haiku2	TASK-WF-designSpec-20261107-075614	t3-1	WARN	final_attempt=2 a1: exit=0 tok=101501 wall=1654 obs='glm-5.3,qwen3.8-max' outage=False err=[claude-code:unrecognized_model] {"model":"glm-5.3","query_source":"sdk"} 
+E5-earlier-attempt-other-model	r5-glm-haiku2	TASK-WF-designSpec-20261107-075614	t3-1	WARN	attempt1 observed=glm-5.3,qwen3.8-max final=glm-5.3
+E8-self-identification	b4-muse-ember-luna2	TASK-WF-makeTheAliasOnly-20261105-051649	t3-1	WARN	report says 'as GPT even though the named defaults file ass'; observed=gpt-6-luna
+5-retry	b4-muse-luna2	TASK-WF-makeTheAliasOnly-20261105-051649	t2b-1	WARN	final_attempt=2 a1: exit=1 tok=8956 wall=76 obs='<synthetic>,muse-wonder-1.0' outage=False err=[claude-code:unrecognized_model] {"model":"muse-wonder-1.0","query_source":"sdk"} 
+E1-init-model-differs	b4-muse-luna2	TASK-WF-makeTheAliasOnly-20261105-051649	t2b-1	WARN	init.model=muse-wonder-1.0 observed=gpt-6.1-terra
+E2-modelUsage-extra-models	b4-muse-luna2	TASK-WF-makeTheAliasOnly-20261105-051649	t2b-1	WARN	modelUsage keys=['muse-wonder-1.0'] observed=gpt-6.1-terra
+1b-name-derived-mismatch	b4-muse-luna2	TASK-WF-makeTheAliasOnly-20261105-051649	t2b-1	EXCLUDE	observed gpt-6.1-terra not among models named in row name ['gpt-6-luna', 'muse-wonder-1.0']
+E4-model_ok-not-true	b4-muse-luna2	TASK-WF-makeTheAliasOnly-20261105-051649	t2b-1	EXCLUDE	model_ok=False
+E5-earlier-attempt-other-model	b4-muse-luna2	TASK-WF-makeTheAliasOnly-20261105-051649	t2b-1	WARN	attempt1 observed=<synthetic>,muse-wonder-1.0 final=gpt-6.1-terra
+E8-self-identification	e1-grok-ember-luna	TASK-WF-makeTheAliasOnly-20261105-051649	t4-1	WARN	report says 'as GPT, although the current workspace default'; observed=gpt-6-luna
+E8-self-identification	g7-haiku-luna2-r3	TASK-WF-makeTheAliasOnly-20261105-051649	t4-1	WARN	report says 'as GPT'; observed=claude-haiku-5-5
+5-retry	g9-ember-luna-r1	TASK-WF-makeTheAliasOnly-20261105-051649	t2b-1	WARN	final_attempt=2 a1: exit=0 tok=12117 wall=44 obs='muse-ember-1.0' outage=False err=[claude-code:unrecognized_model] {"model":"muse-ember-1.0","query_source":"sdk"} 
+E8-self-identification	h1-haiku-luna2-ember2-r4	TASK-WF-makeTheAliasOnly-20261105-051649	t2-1	WARN	report says 'as GPT, while defaults'; observed=claude-haiku-5-5
+E8-self-identification	n2-muse-haiku-grok-src	TASK-WF-makeTheAliasOnly-20261105-051649	t2b-1	WARN	report says "as Claude Code's field behaviour, although the fi"; observed=muse-wonder-1.0
+5-retry	n4-muse-glm-haiku	TASK-WF-makeTheAliasOnly-20261105-051649	t3-1	WARN	final_attempt=2 a1: exit=0 tok=115720 wall=1698 obs='glm-5.3,qwen3.8-max' outage=False err=[claude-code:unrecognized_model] {"model":"glm-5.3","query_source":"sdk"} 
+E5-earlier-attempt-other-model	n4-muse-glm-haiku	TASK-WF-makeTheAliasOnly-20261105-051649	t3-1	WARN	attempt1 observed=glm-5.3,qwen3.8-max final=glm-5.3
+5-stale-attempt-leftover	n4-sol	TASK-WF-makeTheAliasOnly-20261105-051649	t3-1	WARN	attempt files [2] are older leftovers from an earlier run (final meta.attempt=1); cost.json counts them
+E8-self-identification	n4-sonnet-src	TASK-WF-makeTheAliasOnly-20261105-051649	t2b-1	WARN	report says 'as Claude Code resolves it, when on this workspac'; observed=muse-wonder-1.0
+5-retry	n5-muse-glm-luna	TASK-WF-makeTheAliasOnly-20261105-051649	t3-1	WARN	final_attempt=2 a1: exit=0 tok=93347 wall=1386 obs='glm-5.3,qwen3.8-max' outage=False err=[claude-code:unrecognized_model] {"model":"glm-5.3","query_source":"sdk"} 
+E5-earlier-attempt-other-model	n5-muse-glm-luna	TASK-WF-makeTheAliasOnly-20261105-051649	t3-1	WARN	attempt1 observed=glm-5.3,qwen3.8-max final=glm-5.3
+R1-missing-run	n5-sol	TASK-WF-makeTheAliasOnly-20261105-051649	t4-1	WARN	reviewer in resolution.json has no run output
+1b-name-derived-mismatch	n5-sonnet	TASK-WF-makeTheAliasOnly-20261105-051649	t2b-1	WARN	observed muse-wonder-1.0 not among models named in row name ['claude-sonnet-5-5'] [downgraded: n5-sonnet name does not list muse/glm; observed models equal sibling rows n5-sol/n5-terra resolution.json (t2b muse-wonder, t3 glm-5.3); intended UNVERIFIED]
+1b-name-derived-mismatch	n5-sonnet	TASK-WF-makeTheAliasOnly-20261105-051649	t3-1	WARN	observed glm-5.3 not among models named in row name ['claude-sonnet-5-5'] [downgraded: n5-sonnet name does not list muse/glm; observed models equal sibling rows n5-sol/n5-terra resolution.json (t2b muse-wonder, t3 glm-5.3); intended UNVERIFIED]
+R1-missing-run	n5-terra	TASK-WF-makeTheAliasOnly-20261105-051649	t4-1	WARN	reviewer in resolution.json has no run output
+E2-modelUsage-extra-models	r2-sonnet-ember	TASK-WF-makeTheAliasOnly-20261105-051649	t3-1	WARN	modelUsage keys=['claude-gw-tier2[1m]', 'claude-haiku-5-5'] observed=claude-haiku-5-5
+5-stale-attempt-leftover	r2-terra	TASK-WF-makeTheAliasOnly-20261105-051649	t4-2	WARN	attempt files [2] are older leftovers from an earlier run (final meta.attempt=1); cost.json counts them
+5-retry	r5-glm-haiku2	TASK-WF-makeTheAliasOnly-20261105-051649	t3-1	WARN	final_attempt=2 a1: exit=0 tok=85744 wall=1434 obs='glm-5.3,qwen3.8-max' outage=False err=[claude-code:unrecognized_model] {"model":"glm-5.3","query_source":"sdk"} 
+E5-earlier-attempt-other-model	r5-glm-haiku2	TASK-WF-makeTheAliasOnly-20261105-051649	t3-1	WARN	attempt1 observed=glm-5.3,qwen3.8-max final=glm-5.3
+5-retry	b4-muse-luna2	TASK-WF-design-20261108-041415	t2b-1	WARN	final_attempt=2 a1: exit=0 tok=4827 wall=63 obs='gpt-6.1-terra,muse-wonder-1.0' outage=False err=[claude-code:unrecognized_model] {"model":"muse-wonder-1.0","query_source":"sdk"} 
+E1-init-model-differs	b4-muse-luna2	TASK-WF-design-20261108-041415	t2b-1	WARN	init.model=muse-wonder-1.0 observed=gpt-6.1-terra
+E2-modelUsage-extra-models	b4-muse-luna2	TASK-WF-design-20261108-041415	t2b-1	WARN	modelUsage keys=['muse-wonder-1.0'] observed=gpt-6.1-terra
+1b-name-derived-mismatch	b4-muse-luna2	TASK-WF-design-20261108-041415	t2b-1	EXCLUDE	observed gpt-6.1-terra not among models named in row name ['gpt-6-luna', 'muse-wonder-1.0']
+E4-model_ok-not-true	b4-muse-luna2	TASK-WF-design-20261108-041415	t2b-1	EXCLUDE	model_ok=False
+E5-earlier-attempt-other-model	b4-muse-luna2	TASK-WF-design-20261108-041415	t2b-1	WARN	attempt1 observed=gpt-6.1-terra,muse-wonder-1.0 final=gpt-6.1-terra
+E2-modelUsage-extra-models	b4-terra-muse-haiku	TASK-WF-design-20261108-041415	t4-1	WARN	modelUsage keys=['claude-gw-tier2[1m]', 'claude-haiku-5-5'] observed=claude-haiku-5-5
+E2-modelUsage-extra-models	c2-haiku-grok	TASK-WF-design-20261108-041415	t4-1	WARN	modelUsage keys=['claude-gw-tier2[1m]', 'claude-haiku-5-5'] observed=claude-haiku-5-5
+E2-modelUsage-extra-models	c4-haiku-luna-grok	TASK-WF-design-20261108-041415	t3-1	WARN	modelUsage keys=['claude-gw-tier2[1m]', 'claude-haiku-5-5'] observed=claude-haiku-5-5
+E2-modelUsage-extra-models	c5-glm-haiku	TASK-WF-design-20261108-041415	t4-1	WARN	modelUsage keys=['claude-gw-tier2[1m]', 'claude-haiku-5-5'] observed=claude-haiku-5-5
+E2-modelUsage-extra-models	e5-haiku-ember-luna	TASK-WF-design-20261108-041415	t4-1	WARN	modelUsage keys=['claude-gw-tier2[1m]', 'claude-haiku-5-5'] observed=claude-haiku-5-5
+E2-modelUsage-extra-models	g3-sonnet-luna-ember-r1	TASK-WF-design-20261108-041415	t1b-1	WARN	modelUsage keys=['claude-gw-tier2[1m]', 'claude-sonnet-5-5'] observed=claude-sonnet-5-5
+E2-modelUsage-extra-models	g3-sonnet-luna-ember-r3	TASK-WF-design-20261108-041415	t1b-1	WARN	modelUsage keys=['claude-gw-tier2[1m]', 'claude-sonnet-5-5'] observed=claude-sonnet-5-5
+E2-modelUsage-extra-models	g3-sonnet-luna-ember-r4	TASK-WF-design-20261108-041415	t1b-1	WARN	modelUsage keys=['claude-gw-tier2[1m]', 'claude-sonnet-5-5'] observed=claude-sonnet-5-5
+E2-modelUsage-extra-models	g4-haiku-ember-terra-r1	TASK-WF-design-20261108-041415	t4-1	WARN	modelUsage keys=['claude-gw-tier2[1m]', 'claude-haiku-5-5'] observed=claude-haiku-5-5
+E2-modelUsage-extra-models	g4-haiku-ember-terra-r2	TASK-WF-design-20261108-041415	t4-1	WARN	modelUsage keys=['claude-gw-tier2[1m]', 'claude-haiku-5-5'] observed=claude-haiku-5-5
+E2-modelUsage-extra-models	g4-haiku-ember-terra-r3	TASK-WF-design-20261108-041415	t4-1	WARN	modelUsage keys=['claude-gw-tier2[1m]', 'claude-haiku-5-5'] observed=claude-haiku-5-5
+E2-modelUsage-extra-models	g4-haiku-ember-terra-r4	TASK-WF-design-20261108-041415	t4-1	WARN	modelUsage keys=['claude-gw-tier2[1m]', 'claude-haiku-5-5'] observed=claude-haiku-5-5
+E2-modelUsage-extra-models	g7-haiku-luna2-r1	TASK-WF-design-20261108-041415	t4-1	WARN	modelUsage keys=['claude-gw-tier2[1m]', 'claude-haiku-5-5'] observed=claude-haiku-5-5
+E2-modelUsage-extra-models	g7-haiku-luna2-r2	TASK-WF-design-20261108-041415	t4-1	WARN	modelUsage keys=['claude-gw-tier2[1m]', 'claude-haiku-5-5'] observed=claude-haiku-5-5
+E2-modelUsage-extra-models	g7-haiku-luna2-r3	TASK-WF-design-20261108-041415	t4-1	WARN	modelUsage keys=['claude-gw-tier2[1m]', 'claude-haiku-5-5'] observed=claude-haiku-5-5
+E2-modelUsage-extra-models	g7-haiku-luna2-r4	TASK-WF-design-20261108-041415	t4-1	WARN	modelUsage keys=['claude-gw-tier2[1m]', 'claude-haiku-5-5'] observed=claude-haiku-5-5
+E2-modelUsage-extra-models	h1-haiku-luna2-ember2-r1	TASK-WF-design-20261108-041415	t2-1	WARN	modelUsage keys=['claude-gw-tier2[1m]', 'claude-haiku-5-5'] observed=claude-haiku-5-5
+E2-modelUsage-extra-models	h1-haiku-luna2-ember2-r2	TASK-WF-design-20261108-041415	t2-1	WARN	modelUsage keys=['claude-gw-tier2[1m]', 'claude-haiku-5-5'] observed=claude-haiku-5-5
+E2-modelUsage-extra-models	h1-haiku-luna2-ember2-r3	TASK-WF-design-20261108-041415	t2-1	WARN	modelUsage keys=['claude-gw-tier2[1m]', 'claude-haiku-5-5'] observed=claude-haiku-5-5
+E2-modelUsage-extra-models	h1-haiku-luna2-ember2-r4	TASK-WF-design-20261108-041415	t2-1	WARN	modelUsage keys=['claude-gw-tier2[1m]', 'claude-haiku-5-5'] observed=claude-haiku-5-5
+E2-modelUsage-extra-models	h2-sonnet-luna2-ember2-r1	TASK-WF-design-20261108-041415	t1b-1	WARN	modelUsage keys=['claude-gw-tier2[1m]', 'claude-sonnet-5-5'] observed=claude-sonnet-5-5
+E2-modelUsage-extra-models	h2-sonnet-luna2-ember2-r2	TASK-WF-design-20261108-041415	t1b-1	WARN	modelUsage keys=['claude-gw-tier2[1m]', 'claude-sonnet-5-5'] observed=claude-sonnet-5-5
+E2-modelUsage-extra-models	h2-sonnet-luna2-ember2-r3	TASK-WF-design-20261108-041415	t1b-1	WARN	modelUsage keys=['claude-gw-tier2[1m]', 'claude-sonnet-5-5'] observed=claude-sonnet-5-5
+E2-modelUsage-extra-models	n1-muse-haiku-luna	TASK-WF-design-20261108-041415	t4-1	WARN	modelUsage keys=['claude-gw-tier2[1m]', 'claude-haiku-5-5'] observed=claude-haiku-5-5
+E2-modelUsage-extra-models	n2-muse-haiku-grok	TASK-WF-design-20261108-041415	t4-1	WARN	modelUsage keys=['claude-gw-tier2[1m]', 'claude-haiku-5-5'] observed=claude-haiku-5-5
+E2-modelUsage-extra-models	n2-muse-haiku-grok-src	TASK-WF-design-20261108-041415	t4-1	WARN	modelUsage keys=['claude-gw-tier2[1m]', 'claude-haiku-5-5'] observed=claude-haiku-5-5
+E2-modelUsage-extra-models	n2-sonnet	TASK-WF-design-20261108-041415	t1b-1	WARN	modelUsage keys=['claude-gw-tier2[1m]', 'claude-sonnet-5-5'] observed=claude-sonnet-5-5
+E2-modelUsage-extra-models	n2-sonnet	TASK-WF-design-20261108-041415	t4-1	WARN	modelUsage keys=['claude-gw-tier2[1m]', 'claude-haiku-5-5'] observed=claude-haiku-5-5
+E2-modelUsage-extra-models	n2-sonnet-src	TASK-WF-design-20261108-041415	t1b-1	WARN	modelUsage keys=['claude-gw-tier2[1m]', 'claude-sonnet-5-5'] observed=claude-sonnet-5-5
+E2-modelUsage-extra-models	n2-sonnet-src	TASK-WF-design-20261108-041415	t4-1	WARN	modelUsage keys=['claude-gw-tier2[1m]', 'claude-haiku-5-5'] observed=claude-haiku-5-5
+5-retry	n4-muse-glm-haiku	TASK-WF-design-20261108-041415	t3-1	WARN	final_attempt=2 a1: exit=0 tok=52948 wall=844 obs='glm-5.3,qwen3.8-max' outage=False err=[claude-code:unrecognized_model] {"model":"glm-5.3","query_source":"sdk"} [claude-code:unrecognized_
+E5-earlier-attempt-other-model	n4-muse-glm-haiku	TASK-WF-design-20261108-041415	t3-1	WARN	attempt1 observed=glm-5.3,qwen3.8-max final=glm-5.3
+E2-modelUsage-extra-models	n4-muse-glm-haiku	TASK-WF-design-20261108-041415	t4-1	WARN	modelUsage keys=['claude-gw-tier2[1m]', 'claude-haiku-5-5'] observed=claude-haiku-5-5
+5-stale-attempt-leftover	n4-sol	TASK-WF-design-20261108-041415	t2b-1	WARN	attempt files [2] are older leftovers from an earlier run (final meta.attempt=1); cost.json counts them
+E2-modelUsage-extra-models	n4-sol	TASK-WF-design-20261108-041415	t4-1	WARN	modelUsage keys=['claude-gw-tier2[1m]', 'claude-haiku-5-5'] observed=claude-haiku-5-5
+E2-modelUsage-extra-models	n4-sonnet	TASK-WF-design-20261108-041415	t1b-1	WARN	modelUsage keys=['claude-gw-tier2[1m]', 'claude-sonnet-5-5'] observed=claude-sonnet-5-5
+E2-modelUsage-extra-models	n4-sonnet	TASK-WF-design-20261108-041415	t4-1	WARN	modelUsage keys=['claude-gw-tier2[1m]', 'claude-haiku-5-5'] observed=claude-haiku-5-5
+E2-modelUsage-extra-models	n4-sonnet-ember	TASK-WF-design-20261108-041415	t4-1	WARN	modelUsage keys=['claude-gw-tier2[1m]', 'claude-haiku-5-5'] observed=claude-haiku-5-5
+E2-modelUsage-extra-models	n4-sonnet-src	TASK-WF-design-20261108-041415	t4-1	WARN	modelUsage keys=['claude-gw-tier2[1m]', 'claude-haiku-5-5'] observed=claude-haiku-5-5
+R1-missing-run	n5-sol	TASK-WF-design-20261108-041415	t4-1	WARN	reviewer in resolution.json has no run output
+1b-name-derived-mismatch	n5-sonnet	TASK-WF-design-20261108-041415	t2b-1	WARN	observed muse-wonder-1.0 not among models named in row name ['claude-sonnet-5-5'] [downgraded: n5-sonnet name does not list muse/glm; observed models equal sibling rows n5-sol/n5-terra resolution.json (t2b muse-wonder, t3 glm-5.3); intended UNVERIFIED]
+1b-name-derived-mismatch	n5-sonnet	TASK-WF-design-20261108-041415	t3-1	WARN	observed glm-5.3 not among models named in row name ['claude-sonnet-5-5'] [downgraded: n5-sonnet name does not list muse/glm; observed models equal sibling rows n5-sol/n5-terra resolution.json (t2b muse-wonder, t3 glm-5.3); intended UNVERIFIED]
+R1-missing-run	n5-terra	TASK-WF-design-20261108-041415	t4-1	WARN	reviewer in resolution.json has no run output
+6-short-tokens	n5-terra	TASK-WF-design-20261108-041415	t2-1	WARN	output_tokens_all=374
+5-stale-attempt-leftover	n5-terra	TASK-WF-design-20261108-041415	t3-1	WARN	attempt files [2] are older leftovers from an earlier run (final meta.attempt=1); cost.json counts them
+6-other-stderr	n5-terra	TASK-WF-design-20261108-041415	t3-1	WARN	attempt2.err: /home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/.dev/eval-workspaces/tasklist-review-panel/20261111-a1/tools/run-reviewer.sh: l
+E2-modelUsage-extra-models	r1-haiku-luna2	TASK-WF-design-20261108-041415	t4-1	WARN	modelUsage keys=['claude-gw-tier2[1m]', 'claude-haiku-5-5'] observed=claude-haiku-5-5
+E2-modelUsage-extra-models	r2-haiku2-grok	TASK-WF-design-20261108-041415	t3-1	WARN	modelUsage keys=['claude-gw-tier2[1m]', 'claude-haiku-5-5'] observed=claude-haiku-5-5
+E2-modelUsage-extra-models	r2-haiku2-grok	TASK-WF-design-20261108-041415	t4-1	WARN	modelUsage keys=['claude-gw-tier2[1m]', 'claude-haiku-5-5'] observed=claude-haiku-5-5
+E2-modelUsage-extra-models	r2-sol	TASK-WF-design-20261108-041415	t3-1	WARN	modelUsage keys=['claude-gw-tier2[1m]', 'claude-haiku-5-5'] observed=claude-haiku-5-5
+E2-modelUsage-extra-models	r2-sol	TASK-WF-design-20261108-041415	t4-1	WARN	modelUsage keys=['claude-gw-tier2[1m]', 'claude-haiku-5-5'] observed=claude-haiku-5-5
+E2-modelUsage-extra-models	r2-sol	TASK-WF-design-20261108-041415	t4-2	WARN	modelUsage keys=['claude-gw-tier2[1m]', 'grok-4.7'] observed=grok-4.7-build
+E2-modelUsage-extra-models	r2-sonnet	TASK-WF-design-20261108-041415	t4-1	WARN	modelUsage keys=['claude-gw-tier2[1m]', 'claude-haiku-5-5'] observed=claude-haiku-5-5
+E2-modelUsage-extra-models	r2-sonnet-ember	TASK-WF-design-20261108-041415	t3-1	WARN	modelUsage keys=['claude-gw-tier2[1m]', 'claude-haiku-5-5'] observed=claude-haiku-5-5
+E2-modelUsage-extra-models	r2-sonnet-src	TASK-WF-design-20261108-041415	t1b-1	WARN	modelUsage keys=['claude-gw-tier2[1m]', 'claude-sonnet-5-5'] observed=claude-sonnet-5-5
+E2-modelUsage-extra-models	r2-terra	TASK-WF-design-20261108-041415	t3-1	WARN	modelUsage keys=['claude-gw-tier2[1m]', 'claude-haiku-5-5'] observed=claude-haiku-5-5
+E2-modelUsage-extra-models	r2-terra	TASK-WF-design-20261108-041415	t4-1	WARN	modelUsage keys=['claude-gw-tier2[1m]', 'claude-haiku-5-5'] observed=claude-haiku-5-5
+E2-modelUsage-extra-models	r4-haiku-luna2-grok	TASK-WF-design-20261108-041415	t3-1	WARN	modelUsage keys=['claude-gw-tier2[1m]', 'claude-haiku-5-5'] observed=claude-haiku-5-5
+E2-modelUsage-extra-models	r5-glm-haiku2	TASK-WF-design-20261108-041415	t4-1	WARN	modelUsage keys=['claude-gw-tier2[1m]', 'claude-haiku-5-5'] observed=claude-haiku-5-5
+E2-modelUsage-extra-models	r5-glm-haiku2	TASK-WF-design-20261108-041415	t4-2	WARN	modelUsage keys=['claude-gw-tier2[1m]', 'claude-haiku-5-5'] observed=claude-haiku-5-5
+E2-modelUsage-extra-models	terra-muse-haiku-ember	TASK-WF-design-20261108-041415	t4-1	WARN	modelUsage keys=['claude-gw-tier2[1m]', 'claude-haiku-5-5'] observed=claude-haiku-5-5
+E11-run-missing-in-package	e4-haiku2-ember	TASK-WF-design-20261108-041415	t2b-1	WARN	present in 2 of 3 packages (missing here; outage rerun in progress or never run)
+E10-cross-package-model-differs	b4-muse-luna2	*	t2b-1	EXCLUDE	models across packages ['gpt-6.1-terra', 'muse-wonder-1.0']

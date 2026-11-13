@@ -1,0 +1,177 @@
+{
+ "block_ok": {
+  "t2-1": true,
+  "t2b-1": true,
+  "t3-1": false,
+  "t4-1": true,
+  "t4-2": true
+ },
+ "brief_ids": [
+  "L2",
+  "L3",
+  "L6"
+ ],
+ "cleared": [],
+ "clusters": [
+  {
+   "event": "opened",
+   "lid": "L1",
+   "members": [
+    {
+     "blocking": false,
+     "fid": "F1",
+     "reviewer_id": "t2-1"
+    },
+    {
+     "blocking": false,
+     "fid": "F3",
+     "reviewer_id": "t2-1"
+    },
+    {
+     "blocking": false,
+     "fid": "F4",
+     "reviewer_id": "t2-1"
+    },
+    {
+     "blocking": false,
+     "fid": "F5",
+     "reviewer_id": "t2-1"
+    },
+    {
+     "blocking": false,
+     "fid": "m1",
+     "reviewer_id": "t2-1"
+    }
+   ]
+  },
+  {
+   "event": "opened",
+   "lid": "L2",
+   "members": [
+    {
+     "blocking": false,
+     "fid": "F2",
+     "reviewer_id": "t2-1"
+    },
+    {
+     "blocking": true,
+     "fid": "F1",
+     "reviewer_id": "t4-2"
+    },
+    {
+     "blocking": false,
+     "fid": "F2",
+     "reviewer_id": "t2b-1"
+    },
+    {
+     "blocking": false,
+     "fid": "F1",
+     "reviewer_id": "t3-1"
+    }
+   ]
+  },
+  {
+   "event": "opened",
+   "lid": "L3",
+   "members": [
+    {
+     "blocking": false,
+     "fid": "F6",
+     "reviewer_id": "t2-1"
+    },
+    {
+     "blocking": false,
+     "fid": "m4",
+     "reviewer_id": "t2-1"
+    },
+    {
+     "blocking": true,
+     "fid": "F1",
+     "reviewer_id": "t2b-1"
+    },
+    {
+     "blocking": false,
+     "fid": "F4",
+     "reviewer_id": "t3-1"
+    }
+   ]
+  },
+  {
+   "event": "opened",
+   "lid": "L4",
+   "members": [
+    {
+     "blocking": false,
+     "fid": "m2",
+     "reviewer_id": "t2-1"
+    }
+   ]
+  },
+  {
+   "event": "opened",
+   "lid": "L5",
+   "members": [
+    {
+     "blocking": false,
+     "fid": "m3",
+     "reviewer_id": "t2-1"
+    }
+   ]
+  },
+  {
+   "event": "opened",
+   "lid": "L6",
+   "members": [
+    {
+     "blocking": true,
+     "fid": "F1",
+     "reviewer_id": "t4-1"
+    },
+    {
+     "blocking": false,
+     "fid": "F2",
+     "reviewer_id": "t4-2"
+    }
+   ]
+  },
+  {
+   "event": "opened",
+   "lid": "L7",
+   "members": [
+    {
+     "blocking": false,
+     "fid": "F3",
+     "reviewer_id": "t2b-1"
+    }
+   ]
+  },
+  {
+   "event": "opened",
+   "lid": "L8",
+   "members": [
+    {
+     "blocking": false,
+     "fid": "F2",
+     "reviewer_id": "t3-1"
+    }
+   ]
+  }
+ ],
+ "decision": "REVISE",
+ "new": [
+  "L1",
+  "L2",
+  "L3",
+  "L4",
+  "L5",
+  "L6",
+  "L7",
+  "L8"
+ ],
+ "refound": [],
+ "regressed": [],
+ "verdict": "FAIL",
+ "warnings": [
+  "t3-1: findings block problem (1 error(s)), first: anchor must have at most 200 characters"
+ ]
+}

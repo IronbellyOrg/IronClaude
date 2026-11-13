@@ -1,0 +1,239 @@
+{
+ "block_ok": {
+  "t1b-1": true,
+  "t2-1": true,
+  "t2b-1": true,
+  "t3-1": true,
+  "t4-1": true,
+  "t4-2": true
+ },
+ "brief_ids": [
+  "L12"
+ ],
+ "cleared": [],
+ "clusters": [
+  {
+   "event": "opened",
+   "lid": "L1",
+   "members": [
+    {
+     "blocking": false,
+     "fid": "F1",
+     "reviewer_id": "t1b-1"
+    },
+    {
+     "blocking": false,
+     "fid": "F6",
+     "reviewer_id": "t2-1"
+    },
+    {
+     "blocking": false,
+     "fid": "M3",
+     "reviewer_id": "t4-1"
+    },
+    {
+     "blocking": false,
+     "fid": "F2",
+     "reviewer_id": "t4-2"
+    }
+   ]
+  },
+  {
+   "event": "opened",
+   "lid": "L2",
+   "members": [
+    {
+     "blocking": false,
+     "fid": "F2",
+     "reviewer_id": "t1b-1"
+    },
+    {
+     "blocking": false,
+     "fid": "M7",
+     "reviewer_id": "t4-1"
+    },
+    {
+     "blocking": false,
+     "fid": "M8",
+     "reviewer_id": "t4-1"
+    }
+   ]
+  },
+  {
+   "event": "opened",
+   "lid": "L3",
+   "members": [
+    {
+     "blocking": false,
+     "fid": "F3",
+     "reviewer_id": "t1b-1"
+    },
+    {
+     "blocking": false,
+     "fid": "M5",
+     "reviewer_id": "t4-1"
+    },
+    {
+     "blocking": false,
+     "fid": "M6",
+     "reviewer_id": "t4-1"
+    }
+   ]
+  },
+  {
+   "event": "opened",
+   "lid": "L4",
+   "members": [
+    {
+     "blocking": false,
+     "fid": "F4",
+     "reviewer_id": "t1b-1"
+    },
+    {
+     "blocking": false,
+     "fid": "m2",
+     "reviewer_id": "t4-1"
+    }
+   ]
+  },
+  {
+   "event": "opened",
+   "lid": "L5",
+   "members": [
+    {
+     "blocking": false,
+     "fid": "F1",
+     "reviewer_id": "t2-1"
+    }
+   ]
+  },
+  {
+   "event": "opened",
+   "lid": "L6",
+   "members": [
+    {
+     "blocking": false,
+     "fid": "F2",
+     "reviewer_id": "t2-1"
+    }
+   ]
+  },
+  {
+   "event": "opened",
+   "lid": "L7",
+   "members": [
+    {
+     "blocking": false,
+     "fid": "F3",
+     "reviewer_id": "t2-1"
+    }
+   ]
+  },
+  {
+   "event": "opened",
+   "lid": "L8",
+   "members": [
+    {
+     "blocking": false,
+     "fid": "F4",
+     "reviewer_id": "t2-1"
+    },
+    {
+     "blocking": false,
+     "fid": "M2",
+     "reviewer_id": "t4-1"
+    }
+   ]
+  },
+  {
+   "event": "opened",
+   "lid": "L9",
+   "members": [
+    {
+     "blocking": false,
+     "fid": "F5",
+     "reviewer_id": "t2-1"
+    },
+    {
+     "blocking": false,
+     "fid": "F1",
+     "reviewer_id": "t3-1"
+    }
+   ]
+  },
+  {
+   "event": "opened",
+   "lid": "L10",
+   "members": [
+    {
+     "blocking": false,
+     "fid": "M1",
+     "reviewer_id": "t4-1"
+    },
+    {
+     "blocking": false,
+     "fid": "F3",
+     "reviewer_id": "t4-2"
+    }
+   ]
+  },
+  {
+   "event": "opened",
+   "lid": "L11",
+   "members": [
+    {
+     "blocking": false,
+     "fid": "M4",
+     "reviewer_id": "t4-1"
+    },
+    {
+     "blocking": false,
+     "fid": "m1",
+     "reviewer_id": "t4-1"
+    }
+   ]
+  },
+  {
+   "event": "opened",
+   "lid": "L12",
+   "members": [
+    {
+     "blocking": true,
+     "fid": "F1",
+     "reviewer_id": "t4-2"
+    }
+   ]
+  },
+  {
+   "event": "opened",
+   "lid": "L13",
+   "members": [
+    {
+     "blocking": false,
+     "fid": "F4",
+     "reviewer_id": "t4-2"
+    }
+   ]
+  }
+ ],
+ "decision": "REVISE",
+ "new": [
+  "L1",
+  "L2",
+  "L3",
+  "L4",
+  "L5",
+  "L6",
+  "L7",
+  "L8",
+  "L9",
+  "L10",
+  "L11",
+  "L12",
+  "L13"
+ ],
+ "refound": [],
+ "regressed": [],
+ "verdict": "FAIL",
+ "warnings": []
+}

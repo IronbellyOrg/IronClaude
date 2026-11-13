@@ -1,0 +1,13 @@
+{
+  "label": "Y",
+  "combo": "terra-muse-haiku-ember",
+  "package": "TASK-WF-designSpec-20261107-075614",
+  "gt_total": 10,
+  "gt_covered_any": ["GT3", "GT7"],
+  "gt_covered_blocking": [],
+  "ledger_rows_total": 7,
+  "ledger_rows_blocking": 1,
+  "blocking_rows_gt_matched": 0,
+  "wrong_blockers": 1,
+  "notes": "L1 matches GT7 (resume row 4 re-enters release_decision without target sha or applied edits, so it holds instead of releasing) and L2 matches GT3 (the Wave 0 bullet must state the L3/off line while the test forbids L3 or draft wording); both are non-blocking. The only blocking row, L6, claims mode OFF at ordinal 3 reports released (F1) and that the Create files already exist (F6); neither matches any GT item (GT5 concerns the draft_guard_unavailable halt reporting released, a different case), so L6 is a wrong blocker. GT1, GT2, GT4, GT5, GT6, GT8, GT9 and GT10 are not covered."
+}

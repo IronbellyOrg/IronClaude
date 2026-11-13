@@ -1,0 +1,2 @@
+[claude-code:unrecognized_model] {"model":"glm-5.3","query_source":"sdk"}
+/home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/.dev/eval-workspaces/tasklist-review-panel/20261111-a1/tools/run-reviewer.sh: line 19: 4080502 Killed                  timeout 3000 claude -p --model "$MODEL" --output-format json --no-session-persistence --permission-mode bypassPermissions --disallowedTools Edit Write NotebookEdit <<< "$BRIEF"
