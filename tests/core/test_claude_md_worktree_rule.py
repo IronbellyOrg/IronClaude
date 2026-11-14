@@ -17,7 +17,9 @@ def test_every_worktree_gets_an_agent_and_its_creator_owns_it() -> None:
     assert "every worktree gets an agent" in section
     assert "never create a worktree for your own use" in section
     first_item = next(ln for ln in section.splitlines() if ln.startswith("- ")).lower()
-    for word in ("orchestrator", "coordinator", "owns"):
+    # The bullet names who owns the agent: the eligible session that creates the worktree,
+    # not a coordinator and not a supervised worker (wording set by #532).
+    for word in ("eligible session", "coordinator", "supervised worker", "owns"):
         assert word in first_item, word
 
 
