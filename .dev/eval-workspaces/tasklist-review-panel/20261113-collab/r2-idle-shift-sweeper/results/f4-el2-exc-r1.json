@@ -52,7 +52,7 @@
    "score_ok": true,
    "judge_api_error": false,
    "valid": true,
-   "audit_ok": false,
+   "audit_ok": true,
    "slo_breach": false,
    "elapsed_s": 105.927,
    "k": 1,
@@ -202,7 +202,5 @@
   "reask_count": 0,
   "dropped_lines": 0
  },
- "invalid": [
-  "TASK-WF-designSpec-20261107-075614: audit not ok"
- ]
+ "invalid": []
 }

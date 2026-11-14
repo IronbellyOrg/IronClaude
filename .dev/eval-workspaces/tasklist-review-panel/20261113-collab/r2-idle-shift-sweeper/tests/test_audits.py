@@ -148,3 +148,26 @@ def test_real_catalogue_against_real_ground_truth():
     r = pyrun("audits.py", "catalogue", "--gt", *gts)
     assert r.returncode == 0, r.stdout
     assert json.loads(r.stdout)["ok"]
+
+
+def _brief_text():
+    return (R2 / "config/brief-a1.tmpl").read_text()
+
+
+def test_brief_a1_short_overlap_is_a_note_not_a_violation(world):
+    # the shared A1 brief matched designSpec GT3 on ", or when th" and marked the package invalid in every row (fix 2026-11-14)
+    pd, _, gt = pkgdir(world)
+    gt.write_text(json.dumps({"items": [{"id": "GT1", "plan_quote": "zz cond, or when the literal off line zz", "description": "d"}]}))
+    assert ", or when th" in _brief_text()
+    rc, a = audit(world, pd, gt)
+    assert rc == 0 and a["ok"] and a["violations"] == []
+    assert any(n["rule"] == "brief_gt_overlap" and n["where"] == "brief_a1" for n in a["notes"])
+
+
+def test_brief_a1_long_overlap_still_violates(world):
+    pd, _, gt = pkgdir(world)
+    flat = " ".join(_brief_text().split())
+    gt.write_text(json.dumps({"items": [{"id": "GT1", "plan_quote": "zz " + flat[100:160] + " zz", "description": "d"}]}))
+    rc, a = audit(world, pd, gt)
+    assert rc == 1
+    assert any(x["rule"] == "ground_truth_text" and x["where"] == "brief_a1" for x in a["violations"])

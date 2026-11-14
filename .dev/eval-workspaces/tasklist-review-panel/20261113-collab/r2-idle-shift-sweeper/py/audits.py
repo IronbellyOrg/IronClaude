@@ -154,8 +154,18 @@ def run(pkgdir: Path, gt_paths: list[str]) -> dict:
                     # likewise a repo path (tests/skills/x.py) is a coordinate, not ground-truth prose: the sweeper is meant to
                     # find the very files a ground-truth quote names; only the prose around the paths is audited
                     texts.append((f"board.{key}", PATH_TOKEN.sub(" ", text)))
-        texts += [("brief_a1", (R2 / "config/brief-a1.tmpl").read_text()),
-                  ("sweeper_brief", (R2 / "config/sweeper-brief.tmpl").read_text()),
+        # fix 2026-11-14 (owner: "fix design 2"): the A1 brief is the shared, sha256-pinned harness brief that the isolated baseline
+        # arm uses too. Ordinary English in it can match a plan quote by chance (", or when th" matched designSpec GT3 and marked that
+        # package invalid in every row, both arms). Same reasoning as the anchor note above: a 12-character overlap is a note; only a
+        # long overlap (40 characters or more) would be ground-truth prose in the brief, and that stays a violation.
+        brief = (R2 / "config/brief-a1.tmpl").read_text()
+        quotes = [it.get("plan_quote", "") for it in load_gt(gt_paths)]
+        long_hit = gt_hit(brief, windows(quotes, 40), 40)
+        if long_hit:
+            v.append({"rule": "ground_truth_text", "where": "brief_a1", "hit": long_hit})
+        elif gt_hit(brief, wins):
+            notes.append({"rule": "brief_gt_overlap", "where": "brief_a1", "hit": gt_hit(brief, wins)})
+        texts += [("sweeper_brief", (R2 / "config/sweeper-brief.tmpl").read_text()),
                   ("catalogue", (R2 / "config/catalogue.json").read_text())]
         # a rendered delivery is the fixed template + catalogue text + the board line's fields: covered above
         for where, t in texts:
