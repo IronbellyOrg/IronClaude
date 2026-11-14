@@ -1,0 +1,23 @@
+{
+ "ok": false,
+ "violations": [
+  {
+   "rule": "ground_truth_text",
+   "where": "brief_a1",
+   "hit": ", or when th"
+  }
+ ],
+ "gt_checked": true,
+ "notes": [
+  {
+   "rule": "anchor_gt_overlap",
+   "id": "f-0",
+   "hit": " `src/superc"
+  },
+  {
+   "rule": "anchor_gt_overlap",
+   "id": "f-1",
+   "hit": " `src/superc"
+  }
+ ]
+}
