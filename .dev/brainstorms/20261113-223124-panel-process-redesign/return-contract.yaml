@@ -1,0 +1,19 @@
+contract_version: "1.0"
+status: success
+seed_brief_path: .dev/brainstorms/20261113-223124-panel-process-redesign/seed-brief.md
+merged_output_path: .dev/brainstorms/20261113-223124-panel-process-redesign/merged-requirements.md
+convergence_score: 0.9756
+adversarial_artifacts_dir: .dev/brainstorms/20261113-223124-panel-process-redesign/nested/adversarial-1/adversarial
+domain: architecture
+proposal_count: 3
+enrichment_used:
+  - {source: codebase, quality_tier: primary}      # generality investigation agent over .dev/tasks/done, .dev/reflect, .dev/research
+  - {source: research-light, quality_tier: primary} # external research agent (generic queries only)
+  - {source: research-deep, quality_tier: skipped}
+handoff_action: none
+handoff_output_path: null
+unresolved_conflicts: []
+deviations:
+  - "Proposals ran as 3 headless sessions (sonnet, sonnet, haiku), at most 2 at once, each with its own budget; debate and merge ran in one sonnet session (4258 s). Opus not used (Opus is for scoring only). Skill default is 3 opus/sonnet/haiku proposals."
+  - "Seed brief reused the first brainstorm's investigations instead of re-running them; two new enrichment agents were added (generality, external research)."
+  - "Up to 4 claude sessions overlapped while the implementation batch was still running (owner limit was 2 for the implementation restart)."

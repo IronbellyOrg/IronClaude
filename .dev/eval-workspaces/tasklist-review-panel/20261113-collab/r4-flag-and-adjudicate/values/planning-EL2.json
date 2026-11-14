@@ -1,0 +1,45 @@
+{
+ "kind": "planning",
+ "packages": {
+  "TASK-WF-design-20261108-041415": {
+   "B_A1": 116,
+   "T_report_p90": 6.4,
+   "cp_role": "adjudicator",
+   "deliver": true,
+   "finish_offset_s": 143.8,
+   "hang_s": 174.0,
+   "k": 2,
+   "n_runs": 0,
+   "planning": true,
+   "source_rows": [],
+   "turn_p90": 6.4
+  },
+  "TASK-WF-designSpec-20261107-075614": {
+   "B_A1": 116,
+   "T_report_p90": 6.4,
+   "cp_role": "adjudicator",
+   "deliver": true,
+   "finish_offset_s": 143.8,
+   "hang_s": 174.0,
+   "k": 2,
+   "n_runs": 0,
+   "planning": true,
+   "source_rows": [],
+   "turn_p90": 6.4
+  },
+  "TASK-WF-makeTheAliasOnly-20261105-051649": {
+   "B_A1": 116,
+   "T_report_p90": 6.4,
+   "cp_role": "adjudicator",
+   "deliver": true,
+   "finish_offset_s": 143.8,
+   "hang_s": 174.0,
+   "k": 2,
+   "n_runs": 0,
+   "planning": true,
+   "source_rows": [],
+   "turn_p90": 6.4
+  }
+ },
+ "panel": "EL2"
+}

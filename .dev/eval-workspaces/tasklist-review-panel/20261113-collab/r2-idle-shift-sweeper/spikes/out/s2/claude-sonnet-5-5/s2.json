@@ -1,0 +1,11 @@
+{
+  "model": "claude-sonnet-5-5",
+  "session_id": "ad4b1c81-2345-4d59-9ff6-85ab177d338f",
+  "first_model": "claude-sonnet-5-5",
+  "resume_model": "claude-sonnet-5-5",
+  "resume_result": "beta",
+  "stream_lines": 15,
+  "resume_first_line_ms": 1077,
+  "resume_wall_ms": 5094,
+  "verdict": "PASS"
+}

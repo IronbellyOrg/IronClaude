@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+# Stand-in for `claude` in tests. FAKE_CLAUDE_PY is the interpreter `uv run --no-project` resolves (set by conftest.py),
+# exec'd directly so that `timeout` signals reach the fake itself.
+exec "${FAKE_CLAUDE_PY:?}" -I "$(dirname "$0")/fake_claude.py" "$@"

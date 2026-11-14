@@ -1,0 +1,7 @@
+# Lint config for this redesign folder: the repo's ruff settings, minus four naming rules.
+# The code uses the design's own symbols (T0, B, B_f, T_report_p90, R, K, N, S) and "F" for the
+# findings module (DESIGN.md sections 4, 6.5, 14); renaming them would make the code differ from the design text.
+extend = "../../../../../pyproject.toml"
+
+[lint]
+extend-ignore = ["N802", "N803", "N806", "N812"]

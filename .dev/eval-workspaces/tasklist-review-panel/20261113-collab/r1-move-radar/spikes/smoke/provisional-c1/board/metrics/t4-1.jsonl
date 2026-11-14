@@ -1,0 +1,11 @@
+{"ev":"t","n":1,"ms":28}
+{"ev":"t","n":2,"ms":27}
+{"ev":"t","n":3,"ms":29}
+{"ev":"t","n":4,"ms":41}
+{"ev":"t","n":5,"ms":30}
+{"ev":"t","n":6,"ms":39}
+{"ev":"t","n":7,"ms":52}
+{"ev":"seal","t":1794611710445,"sha256":"d2cb8192af9fc4446df1334d612b4b3d402c54b7e41285aa026c2373d5ebbdb5"}
+{"ev":"inject","id":"m-t4-1-08","t":1794611710445,"n":8,"move":"M3","slot_type":"static","task_hint":["T2","T5"],"text":"For each acceptance criterion that says every, all or complete, state the finite check that proves it; if none exists, say so.","text_sha256":"1ac43ded39fb33aabe65f20bc4624c4d8b63e05ba86c0d4aea6d403992d4c1d0"}
+{"ev":"t","n":8,"ms":126}
+{"ev":"t","n":9,"ms":28}

@@ -1,0 +1,146 @@
+{
+  "paths": [
+    ".claude/settings.json",
+    "docs/designs/sc-issue-command.md",
+    "docs/user-guide/commands.md",
+    "docs/user-guide/flags.md",
+    "plugins/superclaude/skills/sc-recommend/refs/HOW-WE-WORK.md",
+    "src/superclaude/agents/issue-worker-t3.md",
+    "src/superclaude/commands/issue.md",
+    "src/superclaude/core/CLAUDE.md",
+    "src/superclaude/core/HOW-WE-WORK.md",
+    "src/superclaude/skills/sc-issue-protocol/SKILL.md",
+    "src/superclaude/skills/sc-issue-protocol/refs/create.md",
+    "src/superclaude/skills/sc-issue-protocol/refs/labels.md",
+    "src/superclaude/skills/sc-issue-protocol/refs/tiers.md",
+    "src/superclaude/skills/sc-issue-protocol/templates/create-review-comment.md",
+    "src/superclaude/skills/sc-issue-protocol/templates/flags-decision.md",
+    "src/superclaude/skills/sc-issue-protocol/templates/scout-report.md",
+    "tests/skills/test_issue_protocol.py"
+  ],
+  "keys": [
+    "CLAUDE",
+    "HOW-WE-WORK",
+    "SKILL",
+    "commands",
+    "create",
+    "create-review-comment",
+    "flags",
+    "flags-decision",
+    "issue",
+    "issue-worker-t3",
+    "labels",
+    "sc-issue-command",
+    "scout-report",
+    "settings",
+    "test_issue_protocol",
+    "tiers"
+  ],
+  "task_of_path": {
+    ".claude/settings.json": [
+      "T12"
+    ],
+    "docs/designs/sc-issue-command.md": [
+      "T10"
+    ],
+    "docs/user-guide/commands.md": [
+      "T9"
+    ],
+    "docs/user-guide/flags.md": [
+      "T9"
+    ],
+    "plugins/superclaude/skills/sc-recommend/refs/HOW-WE-WORK.md": [
+      "T11"
+    ],
+    "src/superclaude/agents/issue-worker-t3.md": [
+      "T5",
+      "T8"
+    ],
+    "src/superclaude/commands/issue.md": [
+      "T6"
+    ],
+    "src/superclaude/core/CLAUDE.md": [
+      "T11"
+    ],
+    "src/superclaude/core/HOW-WE-WORK.md": [
+      "T11"
+    ],
+    "src/superclaude/skills/sc-issue-protocol/SKILL.md": [
+      "T3"
+    ],
+    "src/superclaude/skills/sc-issue-protocol/refs/create.md": [
+      "T2",
+      "T3",
+      "T8"
+    ],
+    "src/superclaude/skills/sc-issue-protocol/refs/labels.md": [
+      "T1",
+      "T10",
+      "T3",
+      "T4",
+      "T8"
+    ],
+    "src/superclaude/skills/sc-issue-protocol/templates/create-review-comment.md": [
+      "T4"
+    ],
+    "src/superclaude/skills/sc-issue-protocol/templates/flags-decision.md": [
+      "T4"
+    ],
+    "src/superclaude/skills/sc-issue-protocol/templates/scout-report.md": [
+      "T4",
+      "T8"
+    ],
+    "tests/skills/test_issue_protocol.py": [
+      "T1",
+      "T12",
+      "T4",
+      "T6",
+      "T7",
+      "T8"
+    ]
+  },
+  "tasks": [
+    "T1",
+    "T2",
+    "T3",
+    "T4",
+    "T5",
+    "T6",
+    "T7",
+    "T8",
+    "T9",
+    "T10",
+    "T11",
+    "T12"
+  ],
+  "criterion_greps": [
+    "HOW-WE-WORK"
+  ],
+  "root_files": [
+    ".env.example",
+    ".gitignore",
+    ".gitmodules",
+    ".markdownlint.json",
+    ".pre-commit-config.yaml",
+    ".secrets.baseline",
+    "AGENTS.md",
+    "CHANGELOG.md",
+    "CLAUDE.md",
+    "CONTRIBUTING.md",
+    "KNOWLEDGE.md",
+    "LICENSE",
+    "Makefile",
+    "NOTICE",
+    "POST-REFLECT-TASK.md",
+    "PROJECT_INDEX.json",
+    "PROJECT_INDEX.md",
+    "README.md",
+    "SECURITY.md",
+    "VERSION",
+    "package.json",
+    "pyproject.toml",
+    "return-contract.yaml",
+    "superclaude",
+    "update.sh"
+  ]
+}

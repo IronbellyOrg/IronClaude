@@ -1,0 +1,19 @@
+{
+  "G-BASE": "pass",
+  "G-PINS": "pass",
+  "S0": "pass",
+  "S2": "pass",
+  "REQ-S3": "recorded",
+  "S3": "missing",
+  "Spike 4": "missing",
+  "reasons": {
+    "G-BASE": "",
+    "G-PINS": "",
+    "S0": "",
+    "S2": "",
+    "REQ-S3": "",
+    "S3": "no record /home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/.dev/eval-workspaces/tasklist-review-panel/20261113-collab/r1-move-radar/spikes/s3.json",
+    "Spike 4": "el2/TASK-WF-designSpec-20261107-075614; el2/TASK-WF-makeTheAliasOnly-20261105-051649; el2/TASK-WF-design-20261108-041415; sl2/TASK-WF-designSpec-20261107-075614; sl2/TASK-WF-makeTheAliasOnly-20261105-051649; sl2/TASK-WF-design-20261108-041415; hl2/TASK-WF-designSpec-20261107-075614; hl2/TASK-WF-makeTheAliasOnly-20261105-051649; hl2/TASK-WF-design-20261108-041415; "
+  },
+  "checked_utc": "2026-11-13T23:24:19Z"
+}

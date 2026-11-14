@@ -1,0 +1,30 @@
+{
+  "spike": "G0-HOOKS",
+  "sandbox_settings_hooks": {
+    "PreToolUse": [
+      "Write|Edit -> .claude/hooks/reject-workspace-writes.sh",
+      "Skill -> .claude/hooks/sc-recommend-phase0.sh"
+    ]
+  },
+  "hook_scripts_in_sandbox": false,
+  "evidence_runs": [
+    "runs/el2-c1-20261113T210019Z-b40c",
+    "runs/el2-c0-20261113T210437Z-169d"
+  ],
+  "observed": {
+    "A3": {
+      "hook_non_blocking_error": 1,
+      "hook_success": 97
+    },
+    "A1": {
+      "hook_non_blocking_error": 2,
+      "hook_success": 91
+    }
+  },
+  "error_kind": "PreToolUse:Skill exit 127 (script not found), non-blocking; every review completed with a valid block",
+  "codegraph_dir_in_sandbox_after": false,
+  "SUPERCLAUDE_CODEGRAPH_AUTOINIT": "0",
+  "same_hooks_both_arms": true,
+  "pass": true,
+  "note": "The ember phase 1 of the smoke run is the session the design asks for; a single standalone ember session was not run separately."
+}

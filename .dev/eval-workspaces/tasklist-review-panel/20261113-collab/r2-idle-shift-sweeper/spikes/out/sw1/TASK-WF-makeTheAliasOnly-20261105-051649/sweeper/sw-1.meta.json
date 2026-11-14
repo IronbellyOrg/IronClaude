@@ -1,0 +1,14 @@
+{
+  "model": "muse-ember-1.0",
+  "observed_model": "muse-ember-1.0",
+  "model_ok": true,
+  "skipped_late": false,
+  "skipped_k0": false,
+  "start_ms": 1794604899405,
+  "end_ms": 1794604932615,
+  "timeout_s": 299.965,
+  "exit": 0,
+  "killed": false,
+  "output_tokens": 5182,
+  "session_id": "f804c33a-ac2a-405f-a040-87e8764599d3"
+}

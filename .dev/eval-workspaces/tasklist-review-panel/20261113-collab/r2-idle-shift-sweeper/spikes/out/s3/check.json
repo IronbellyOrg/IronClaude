@@ -1,0 +1,144 @@
+{
+ "rows": [
+  "smoke-el2-collab",
+  "smoke-el2-iso",
+  "smoke-sl2-collab",
+  "smoke-sl2-iso",
+  "smoke-hl2-collab",
+  "smoke-hl2-iso"
+ ],
+ "acs": {
+  "AC-2": {
+   "pass": true,
+   "newer_files": [],
+   "read_path_references": [
+    "bin/lib/common.sh:5:EVAL=${R2_EVAL:-$REPO/.dev/eval-workspaces/tasklist-review-panel/20261111-a1}",
+    "py/audits.py:83:    rules = [(r\"ground-truth[^/\\s'\\\"]*\\.json\", \"ground_truth\"), (r\"20261111-a1\", \"eval_dir\"),",
+    "py/audits.py:203:        ev = Path(os.environ.get(\"R2_EVAL\") or R2.parents[1] / \"20261111-a1\")",
+    "py/results_row.py:20:EVAL = Path(os.environ.get(\"R2_EVAL\") or R2.parents[1] / \"20261111-a1\")",
+    "py/_lib.py:11:FINDINGS_PY = Path(os.environ.get(\"R2_FINDINGS_PY\") or REAL_REPO / \"src/superclaude/cli/review/findings.py\")"
+   ]
+  },
+  "AC-2b": {
+   "pass": true,
+   "dropped": [],
+   "reask_problems": []
+  },
+  "AC-4": {
+   "pass": true,
+   "exit": 0,
+   "schema_error": null,
+   "facts_posted": 4,
+   "facts_harvested": 0,
+   "delivered": {
+    "t4-1": 0,
+    "t3-1": 1
+   },
+   "k": 2,
+   "seal_before_delivery": [
+    true
+   ]
+  },
+  "AC-5": {
+   "pass": true,
+   "reviewers_in_merge": 3,
+   "anon": [
+    "scoring/23cf678032d3/TASK-WF-design-20261108-041415/V/merged-anon.md"
+   ],
+   "scores": [
+    "scoring/23cf678032d3/TASK-WF-design-20261108-041415/V/score.json"
+   ],
+   "new_under_eval_arms": [],
+   "missing_row_keys": []
+  },
+  "AC-6": {
+   "pass": true,
+   "violations": []
+  },
+  "AC-7": {
+   "pass": true,
+   "exit": 0,
+   "settings_used": [
+    false,
+    false,
+    false
+   ],
+   "all_own": true,
+   "counters": 0,
+   "note": "test_launch_command_diff.py is part of the pytest run"
+  },
+  "AC-8": {
+   "pass": true,
+   "rows": {
+    "smoke-sl2-collab": {
+     "exit": 0,
+     "model_ok": [
+      true,
+      true,
+      true,
+      true
+     ],
+     "sweeper_model": "muse-ember-1.0",
+     "k": 2
+    },
+    "smoke-sl2-iso": {
+     "exit": 0,
+     "model_ok": [
+      true,
+      true,
+      true
+     ],
+     "sweeper_model": "muse-ember-1.0",
+     "k": 2
+    },
+    "smoke-hl2-collab": {
+     "exit": 0,
+     "model_ok": [
+      true,
+      true,
+      true,
+      true
+     ],
+     "sweeper_model": "muse-ember-1.0",
+     "k": 2
+    },
+    "smoke-hl2-iso": {
+     "exit": 0,
+     "model_ok": [
+      true,
+      true,
+      true
+     ],
+     "sweeper_model": "muse-ember-1.0",
+     "k": 2
+    }
+   }
+  },
+  "AC-9": {
+   "pass": true,
+   "mismatches": [],
+   "fallback_files": []
+  },
+  "AC-10": {
+   "pass": true,
+   "elapsed": {
+    "smoke-el2-collab": 97.235,
+    "smoke-el2-iso": 130.422,
+    "smoke-sl2-collab": 184.372,
+    "smoke-sl2-iso": 220.371,
+    "smoke-hl2-collab": 230.535,
+    "smoke-hl2-iso": 161.314
+   },
+   "slo_breach": {
+    "smoke-el2-collab": false,
+    "smoke-el2-iso": false,
+    "smoke-sl2-collab": false,
+    "smoke-sl2-iso": false,
+    "smoke-hl2-collab": false,
+    "smoke-hl2-iso": false
+   },
+   "over_without_breach": []
+  }
+ },
+ "all_pass": true
+}

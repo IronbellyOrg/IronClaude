@@ -1,0 +1,106 @@
+{
+ "schema": "r2-results/1",
+ "row": "smoke-sl2-iso",
+ "arm": "A1",
+ "panel": "SL2",
+ "panel_collab": 0,
+ "models": {
+  "t1b-1": "claude-sonnet-5-5",
+  "t4-1": "gpt-6-luna",
+  "t3-1": "gpt-6-luna"
+ },
+ "sweeper_model": "muse-ember-1.0",
+ "planning": true,
+ "values_sha256": {
+  "TASK-WF-design-20261108-041415": "f5bc2cea1003e8c92276c1f11aef89eac36477f60109bf926f231b00cda81d7f"
+ },
+ "opaque": "811762f351cd",
+ "started_at": "2026-11-13T21:51:37Z",
+ "finished_at": "2026-11-13T22:53:54Z",
+ "found_14": null,
+ "real_blocking_8": null,
+ "judge_blocking": null,
+ "wrong_blockers": null,
+ "control_found_2": 0,
+ "control_wrong_blockers": 1,
+ "output_tokens": {
+  "total": 35076,
+  "reviewers": 35076,
+  "sweeper": 0,
+  "reask": 0
+ },
+ "elapsed_s": {
+  "TASK-WF-design-20261108-041415": 220.371
+ },
+ "overhead_pct": {
+  "TASK-WF-design-20261108-041415": -19.48
+ },
+ "per_package": {
+  "TASK-WF-design-20261108-041415": {
+   "gt_covered_any": [],
+   "gt_covered_blocking": [],
+   "wrong_blockers": 1,
+   "ledger_rows": 3,
+   "label": "U",
+   "score_ok": true,
+   "judge_api_error": false,
+   "valid": true,
+   "audit_ok": true,
+   "slo_breach": false,
+   "elapsed_s": 220.371,
+   "k": 2,
+   "facts_posted": 0,
+   "facts_harvested": 0,
+   "facts_delivered": {
+    "t4-1": 0,
+    "t3-1": 0
+   },
+   "snapshot_missing": 0,
+   "receivers": 2
+  }
+ },
+ "collab": {
+  "k": {
+   "TASK-WF-design-20261108-041415": 2
+  },
+  "facts_posted": 0,
+  "facts_harvested": 0,
+  "facts_rejected": 0,
+  "over_cap": 0,
+  "witness_facts": 0,
+  "facts_delivered": {
+   "t4-1": 0,
+   "t3-1": 0
+  },
+  "late": 0,
+  "not_delivered_cap": 0,
+  "isolated_for": {
+   "TASK-WF-design-20261108-041415": []
+  },
+  "snapshot_missing": 0,
+  "finish_signal_fired": 0,
+  "finish_would_fire": 0,
+  "hook_error": 0,
+  "hook_ms_p95": null,
+  "peer_lines": 0,
+  "peer_lines_first_hand": 0,
+  "reruns": 0,
+  "rerun_mismatches": 0,
+  "cmd_unrun": 0,
+  "echo_rate": {
+   "TASK-WF-design-20261108-041415": null
+  },
+  "own_line_jaccard": {
+   "TASK-WF-design-20261108-041415": 0.3333
+  },
+  "sweeper_start_t_s": {
+   "TASK-WF-design-20261108-041415": null
+  },
+  "hang_kill": 0,
+  "slo_breach": 0,
+  "retry_isolated": 0,
+  "reask_count": 0,
+  "dropped_lines": 0
+ },
+ "invalid": []
+}

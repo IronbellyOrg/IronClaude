@@ -1,0 +1,25 @@
+{
+ "panel": "sl2",
+ "pkg": "TASK-WF-design-20261108-041415",
+ "B_f_s": 176.91750000000002,
+ "turn_p90_s": 26.552000045776367,
+ "T_report_p90_s": 43.509000062942505,
+ "hooks_s": 2,
+ "k": 0,
+ "finish_offset_s": 168.77762489128116,
+ "hang_offset_s": 265.37625,
+ "slowdown_s": 0.5920679886685551,
+ "slowdown_limit": 0.33869529582997726,
+ "budget_ok": false,
+ "runs": [
+  "s4pilot-a1-sl2-r1",
+  "s4pilot-a1-sl2-r2"
+ ],
+ "kit_runs": [
+  "s4pilot-a2-sl2-r1"
+ ],
+ "n_turns": 36,
+ "n_reports": 2,
+ "p90_method": "nearest rank; with 4 runs p90 is close to the maximum",
+ "measured_at": "2026-11-13T21:29:16Z"
+}

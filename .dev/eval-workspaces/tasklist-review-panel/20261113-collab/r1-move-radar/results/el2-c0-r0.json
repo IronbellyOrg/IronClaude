@@ -1,0 +1,93 @@
+{
+ "schema": "r1-results/1",
+ "design": "r1-move-radar",
+ "row": "el2-c0-r0",
+ "panel": "el2",
+ "models": {
+  "t2b-1": "muse-ember-1.0",
+  "t4-1": "gpt-6-luna",
+  "t3-1": "gpt-6-luna"
+ },
+ "collab": 0,
+ "rep": 0,
+ "started_utc": "2026-11-13T23:03:35Z",
+ "values": {
+  "TASK-WF-designSpec-20261107-075614": "planning",
+  "TASK-WF-makeTheAliasOnly-20261105-051649": null,
+  "TASK-WF-design-20261108-041415": null
+ },
+ "status": "incomplete",
+ "found_14": null,
+ "real_blocking_8": null,
+ "judge_blocking": null,
+ "wrong_blockers": null,
+ "control_found_2": null,
+ "control_wrong_blockers": null,
+ "output_tokens": null,
+ "elapsed_s": {
+  "TASK-WF-designSpec-20261107-075614": 107.105,
+  "TASK-WF-makeTheAliasOnly-20261105-051649": null,
+  "TASK-WF-design-20261108-041415": null
+ },
+ "packages": {
+  "TASK-WF-designSpec-20261107-075614": {
+   "status": "ok",
+   "label": "Q",
+   "ledger_rows": 2,
+   "output_tokens": 21127,
+   "elapsed_s": 107.105,
+   "B_f": 116,
+   "overhead_pct": -7.668103448275854,
+   "slo_breach": false,
+   "k": {
+    "reader": 2,
+    "searcher": 2
+   },
+   "values": "planning",
+   "dropped_lines": 0,
+   "reask": 1,
+   "retry_isolated": 0,
+   "hang_kill": 0,
+   "gt_covered_any": [],
+   "real_blocking": [],
+   "judge_blocking": [],
+   "wrong_blockers": 0
+  },
+  "TASK-WF-makeTheAliasOnly-20261105-051649": {
+   "status": "not_run"
+  },
+  "TASK-WF-design-20261108-041415": {
+   "status": "not_run"
+  }
+ },
+ "collab_counters": {
+  "injections": 0,
+  "injections_by_move": {},
+  "src_checks": 0,
+  "search_injections": 0,
+  "static_injections": 0,
+  "observable_moves_executed": 0,
+  "skips_no_gap": 0,
+  "skips_guard": 0,
+  "finish_signals": 0,
+  "finish_would_fire": 0,
+  "hook_calls": 0,
+  "hook_errors": 0,
+  "hook_ms_p95": null,
+  "snapshot_missing": 0,
+  "late": 0,
+  "receivers": 0,
+  "leak_violations": 0,
+  "moves_covered_panel": {
+   "M1": 0,
+   "M2": 0,
+   "M4": 1,
+   "M7": 0,
+   "SRC_OPENED": 3,
+   "UNNAMED_TEST": 0
+  },
+  "own_line_jaccard": {
+   "TASK-WF-designSpec-20261107-075614": 0.0
+  }
+ }
+}

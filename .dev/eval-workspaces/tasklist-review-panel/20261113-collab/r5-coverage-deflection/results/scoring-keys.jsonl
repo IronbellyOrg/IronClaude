@@ -1,0 +1,5 @@
+{"token":"f2d8bf3df4be","row":"s4pilot-a1-sl2-r1","pkg":"TASK-WF-design-20261108-041415","label":"U","arm":"A1-sl2","redactions":3,"status":"ok"}
+{"token":"016fd72e1b84","row":"s4pilot-a1-sl2-r2","pkg":"TASK-WF-design-20261108-041415","label":"V","arm":"A1-sl2","redactions":3,"status":"ok"}
+{"token":"99aec195c988","row":"s4pilot-a2-sl2-r1","pkg":"TASK-WF-design-20261108-041415","label":"S","arm":"A2-sl2","redactions":3,"status":"ok"}
+{"token":"84c196d83b55","row":"smoke-a1-sl2-1","pkg":"TASK-WF-design-20261108-041415","label":"S","arm":"A1-sl2","redactions":3,"status":"ok"}
+{"token":"b62edef34011","row":"smoke-f6diag-sl2-1","pkg":"TASK-WF-design-20261108-041415","label":"T","arm":"F6-sl2","redactions":2,"status":"ok"}

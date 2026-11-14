@@ -1,0 +1,15 @@
+{
+ "base_sha": {
+  "TASK-WF-designSpec-20261107-075614": "0e486ab8d0eb24c6f2738ce1f895cc16755b26c1",
+  "TASK-WF-makeTheAliasOnly-20261105-051649": "38eb3c58afe6988b51060ae14117172869ea4c1e",
+  "TASK-WF-design-20261108-041415": "5fa680778718af9087ccbe7a823e3909f1bcceb6"
+ },
+ "base_rule": "first parent of the squash commit that first added the package folder",
+ "sha256": {
+  "judge-one.sh": "a01bd70d370d73cb32b55a7368aa28e2c12d93403237211c3a71f339ae82cfcc",
+  "catalogue.json": "769ea988983ca48c0de413d1b468e2e70c2d71000ea647cd92d1086d63f7508e",
+  "brief_a1": "3e052fee106511948422aff61eaef858871e088abde84934fc0007814e8012a0",
+  "sweeper_brief": "1cefe0ba8ea5fcffcb2b00c2664202d423a674a7b97734d1d7f1e3329d2e8f6c"
+ },
+ "committed_at": "2026-11-13T20:32:09Z"
+}
