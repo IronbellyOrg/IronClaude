@@ -1,0 +1,194 @@
+{
+ "schema": "r1-results/1",
+ "design": "r1-move-radar",
+ "row": "el2-c1x-r1",
+ "panel": "el2",
+ "models": {
+  "t2b-1": "muse-ember-1.0",
+  "t4-1": "gpt-6-luna",
+  "t3-1": "gpt-6-luna"
+ },
+ "collab": 1,
+ "rep": 1,
+ "started_utc": "2026-11-14T13:38:29Z",
+ "values": {
+  "TASK-WF-designSpec-20261107-075614": "4e4099fcfd6ca2df194edc00cf36b1496a834b39b9945859fdf0d1b793108514",
+  "TASK-WF-makeTheAliasOnly-20261105-051649": "bc152bb42ba18f1924cedc86ee7882e514edfdaa861bad4fda75ff71776d3920",
+  "TASK-WF-design-20261108-041415": "1f449d8f4d8da4c9b5b09478c1601f01a945ce5e57211c96a1a5eb5cf7de2e47"
+ },
+ "time_cap_exception": true,
+ "forced_k": 1,
+ "status": "complete",
+ "found_14": 1,
+ "real_blocking_8": 0,
+ "judge_blocking": 0,
+ "wrong_blockers": 1,
+ "control_found_2": 0,
+ "control_wrong_blockers": 2,
+ "output_tokens": 64752,
+ "elapsed_s": {
+  "TASK-WF-designSpec-20261107-075614": 104.228,
+  "TASK-WF-makeTheAliasOnly-20261105-051649": 131.223,
+  "TASK-WF-design-20261108-041415": 86.177
+ },
+ "packages": {
+  "TASK-WF-designSpec-20261107-075614": {
+   "status": "ok",
+   "label": "R",
+   "ledger_rows": 5,
+   "output_tokens": 25900,
+   "elapsed_s": 104.228,
+   "B_f": 83.8,
+   "overhead_pct": 24.37708830548926,
+   "slo_breach": false,
+   "k": {
+    "reader": 1,
+    "searcher": 1
+   },
+   "values": "4e4099fcfd6ca2df194edc00cf36b1496a834b39b9945859fdf0d1b793108514",
+   "dropped_lines": 0,
+   "reask": 0,
+   "retry_isolated": 0,
+   "hang_kill": 0,
+   "gt_covered_any": [
+    "GT3"
+   ],
+   "real_blocking": [],
+   "judge_blocking": [],
+   "wrong_blockers": 0,
+   "B_A1": 83.8,
+   "elapsed_over_baseline": 1.2437708830548926,
+   "forced_k": 1,
+   "k_measured": {
+    "reader": 0,
+    "searcher": 0
+   },
+   "forced_roles": [
+    "reader",
+    "searcher"
+   ],
+   "delivered": {
+    "t2b-1": 1,
+    "t4-1": 1,
+    "t3-1": 1
+   },
+   "hang_offset_s": 251.4
+  },
+  "TASK-WF-makeTheAliasOnly-20261105-051649": {
+   "status": "ok",
+   "label": "T",
+   "ledger_rows": 2,
+   "output_tokens": 22512,
+   "elapsed_s": 131.223,
+   "B_f": 145.058,
+   "overhead_pct": -9.537564284630962,
+   "slo_breach": false,
+   "k": {
+    "reader": 1,
+    "searcher": 1
+   },
+   "values": "bc152bb42ba18f1924cedc86ee7882e514edfdaa861bad4fda75ff71776d3920",
+   "dropped_lines": 0,
+   "reask": 0,
+   "retry_isolated": 0,
+   "hang_kill": 0,
+   "gt_covered_any": [],
+   "real_blocking": [],
+   "judge_blocking": [],
+   "wrong_blockers": 1,
+   "B_A1": 145.058,
+   "elapsed_over_baseline": 0.9046243571536904,
+   "forced_k": 1,
+   "k_measured": {
+    "reader": 0,
+    "searcher": 0
+   },
+   "forced_roles": [
+    "reader",
+    "searcher"
+   ],
+   "delivered": {
+    "t2b-1": 1,
+    "t4-1": 1,
+    "t3-1": 1
+   },
+   "hang_offset_s": 435.174
+  },
+  "TASK-WF-design-20261108-041415": {
+   "status": "ok",
+   "label": "Q",
+   "ledger_rows": 5,
+   "output_tokens": 16340,
+   "elapsed_s": 86.177,
+   "B_f": 96.976,
+   "overhead_pct": -11.135744926579761,
+   "slo_breach": false,
+   "k": {
+    "reader": 1,
+    "searcher": 1
+   },
+   "values": "1f449d8f4d8da4c9b5b09478c1601f01a945ce5e57211c96a1a5eb5cf7de2e47",
+   "dropped_lines": 0,
+   "reask": 0,
+   "retry_isolated": 0,
+   "hang_kill": 0,
+   "gt_covered_any": [],
+   "real_blocking": [],
+   "judge_blocking": [],
+   "wrong_blockers": 2,
+   "B_A1": 96.976,
+   "elapsed_over_baseline": 0.8886425507342024,
+   "forced_k": 1,
+   "k_measured": {
+    "reader": 0,
+    "searcher": 0
+   },
+   "forced_roles": [
+    "reader",
+    "searcher"
+   ],
+   "delivered": {
+    "t2b-1": 1,
+    "t4-1": 1,
+    "t3-1": 1
+   },
+   "hang_offset_s": 290.928
+  }
+ },
+ "collab_counters": {
+  "injections": 9,
+  "injections_by_move": {
+   "M2": 3,
+   "M3": 3,
+   "M8": 3
+  },
+  "src_checks": 0,
+  "search_injections": 3,
+  "static_injections": 6,
+  "observable_moves_executed": 1,
+  "skips_no_gap": 0,
+  "skips_guard": 0,
+  "finish_signals": 0,
+  "finish_would_fire": 0,
+  "hook_calls": 106,
+  "hook_errors": 0,
+  "hook_ms_p95": 154,
+  "snapshot_missing": 0,
+  "late": 0,
+  "receivers": 9,
+  "leak_violations": 0,
+  "moves_covered_panel": {
+   "M1": 2,
+   "M2": 3,
+   "M4": 3,
+   "M7": 3,
+   "SRC_OPENED": 11,
+   "UNNAMED_TEST": 0
+  },
+  "own_line_jaccard": {
+   "TASK-WF-designSpec-20261107-075614": 0.0,
+   "TASK-WF-makeTheAliasOnly-20261105-051649": 0.16666666666666666,
+   "TASK-WF-design-20261108-041415": 0.0
+  }
+ }
+}

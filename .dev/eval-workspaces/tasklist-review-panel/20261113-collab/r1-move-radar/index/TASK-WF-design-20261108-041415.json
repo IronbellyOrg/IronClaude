@@ -1,6 +1,7 @@
 {
   "paths": [
     ".claude/settings.json",
+    "commands/issue.md",
     "docs/designs/sc-issue-command.md",
     "docs/user-guide/commands.md",
     "docs/user-guide/flags.md",
@@ -12,10 +13,6 @@
     "src/superclaude/skills/sc-issue-protocol/SKILL.md",
     "src/superclaude/skills/sc-issue-protocol/refs/create.md",
     "src/superclaude/skills/sc-issue-protocol/refs/labels.md",
-    "src/superclaude/skills/sc-issue-protocol/refs/tiers.md",
-    "src/superclaude/skills/sc-issue-protocol/templates/create-review-comment.md",
-    "src/superclaude/skills/sc-issue-protocol/templates/flags-decision.md",
-    "src/superclaude/skills/sc-issue-protocol/templates/scout-report.md",
     "tests/skills/test_issue_protocol.py"
   ],
   "keys": [
@@ -24,21 +21,20 @@
     "SKILL",
     "commands",
     "create",
-    "create-review-comment",
     "flags",
-    "flags-decision",
     "issue",
     "issue-worker-t3",
     "labels",
     "sc-issue-command",
-    "scout-report",
     "settings",
-    "test_issue_protocol",
-    "tiers"
+    "test_issue_protocol"
   ],
   "task_of_path": {
     ".claude/settings.json": [
       "T12"
+    ],
+    "commands/issue.md": [
+      "T6"
     ],
     "docs/designs/sc-issue-command.md": [
       "T10"
@@ -53,8 +49,7 @@
       "T11"
     ],
     "src/superclaude/agents/issue-worker-t3.md": [
-      "T5",
-      "T8"
+      "T5"
     ],
     "src/superclaude/commands/issue.md": [
       "T6"
@@ -69,26 +64,10 @@
       "T3"
     ],
     "src/superclaude/skills/sc-issue-protocol/refs/create.md": [
-      "T2",
-      "T3",
-      "T8"
+      "T2"
     ],
     "src/superclaude/skills/sc-issue-protocol/refs/labels.md": [
-      "T1",
-      "T10",
-      "T3",
-      "T4",
-      "T8"
-    ],
-    "src/superclaude/skills/sc-issue-protocol/templates/create-review-comment.md": [
-      "T4"
-    ],
-    "src/superclaude/skills/sc-issue-protocol/templates/flags-decision.md": [
-      "T4"
-    ],
-    "src/superclaude/skills/sc-issue-protocol/templates/scout-report.md": [
-      "T4",
-      "T8"
+      "T1"
     ],
     "tests/skills/test_issue_protocol.py": [
       "T1",
@@ -141,6 +120,7 @@
     "pyproject.toml",
     "return-contract.yaml",
     "superclaude",
-    "update.sh"
+    "update.sh",
+    "uv.lock"
   ]
 }

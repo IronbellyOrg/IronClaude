@@ -15,6 +15,27 @@ pf() { echo "PREFLIGHT: $1" >&2; exit 2; }
 # ---- step 0: preflight (refuse before any model call)
 [ "${NOFALLBACK:-}" = 1 ] || pf "NOFALLBACK=1 is required"
 case "$COLLAB" in 0|1) ;; *) pf "PANEL_COLLAB must be 0 or 1";; esac
+# Time cap 1.35 B + SLACK_S (owner decision 2026-11-14). Only 0 (values/, manifest.json) and 30 (values-slack30/,
+# manifest-slack30.json) have frozen values; the manifest copy is passed to every child through R2_MANIFEST.
+SLACK=${PANEL_SLACK_S:-0}
+case "$SLACK" in
+  0) VALDIR=values;;
+  30) VALDIR=values-slack30; MANIFEST=${MANIFEST%.json}-slack30.json; export R2_MANIFEST=$MANIFEST
+      [ -f "$MANIFEST" ] || pf "PANEL_SLACK_S=30 needs $MANIFEST, which is missing"
+      [ "$PLANNING" = 0 ] || pf "--planning-values has no PANEL_SLACK_S=30 variant (planning values are fixed)";;
+  *) pf "PANEL_SLACK_S must be unset, 0 or 30 (only those have frozen values), got '$SLACK'";;
+esac
+# Owner-authorised time-cap exception (2026-11-14, see OVERRIDE.md): TIME_CAP_EXCEPTION=1 uses config/values-exception/ (k forced to 1
+# where the measured k is 0, hang guard max(old, 3.0 B_A1), finish and kill widened) and manifest-exception.json. Default 0 changes nothing.
+EXC=${TIME_CAP_EXCEPTION:-0}
+case "$EXC" in
+  0) ;;
+  1) [ "$SLACK" = 0 ] || pf "TIME_CAP_EXCEPTION=1 cannot be combined with PANEL_SLACK_S=$SLACK"
+     [ "$PLANNING" = 0 ] || pf "--planning-values has no TIME_CAP_EXCEPTION=1 variant"
+     VALDIR=values-exception; MANIFEST=${MANIFEST%.json}-exception.json; export R2_MANIFEST=$MANIFEST
+     [ -f "$MANIFEST" ] || pf "TIME_CAP_EXCEPTION=1 needs $MANIFEST, which is missing";;
+  *) pf "TIME_CAP_EXCEPTION must be unset, 0 or 1 (1 = forced k of 1), got '$EXC'";;
+esac
 [[ $ROW =~ ^[a-z0-9][a-z0-9-]{0,40}$ ]] || pf "bad --row '$ROW'"
 jq -e --arg p "$PANEL" 'has($p) and ($p|IN("EL2","SL2","HL2"))' "$PANELS" >/dev/null || pf "bad --panel '$PANEL'"
 [ -n "$PKGS" ] || PKGS=$(jq -r '.packages|join(" ")' "$PANELS")
@@ -32,9 +53,9 @@ chk sweeper_brief "$R2_HOME/config/sweeper-brief.tmpl"
 for p in $PKGS; do
   jq -e --arg p "$p" '.packages|index($p)' "$PANELS" >/dev/null || pf "unknown package $p"
   if [ $PLANNING = 0 ]; then
-    vf=$R2_HOME/config/values/$PANEL/$p.json
-    [ -f "$vf" ] || pf "values file $vf missing (run Spike 4, or pass --planning-values for a smoke row)"
-    chk "values/$PANEL/$p.json" "$vf"
+    vf=$R2_HOME/config/$VALDIR/$PANEL/$p.json
+    [ -f "$vf" ] || pf "values file $vf missing (PANEL_SLACK_S=$SLACK TIME_CAP_EXCEPTION=$EXC; run Spike 4 and the slack recompute, or pass --planning-values for a smoke row)"
+    chk "$VALDIR/$PANEL/$p.json" "$vf"
   fi
 done
 mkdir -p "$SBR" "$OUT/runs" "$OUT/results/keys" "$OUT/scoring"
@@ -51,13 +72,17 @@ if [ -d "$RD" ] && [ -f "$RD/runid" ]; then
   [ "$(cat "$RD/panel_collab")" = "$COLLAB" ] || pf "resume: PANEL_COLLAB differs from the first launch"
   [ "$(cat "$RD/sweeper_model")" = "$SWM" ] || pf "resume: sweeper model differs from the first launch"
   [ "$([ -e "$RD/planning" ] && echo 1 || echo 0)" = $PLANNING ] || pf "resume: --planning-values differs from the first launch"
+  [ "$(cat "$RD/slack_s" 2>/dev/null || echo 0)" = "$SLACK" ] || pf "resume: PANEL_SLACK_S differs from the first launch"
+  [ "$(cat "$RD/time_cap_exception" 2>/dev/null || echo 0)" = "$EXC" ] || pf "resume: TIME_CAP_EXCEPTION differs from the first launch"
   RUNID=$(cat "$RD/runid"); OPAQUE=$(cat "$RD/opaque")
 else
   # ---- step 1: first launch only
   mkdir -p "$RD"
   RUNID=$(od -An -N4 -tx1 /dev/urandom | tr -d ' \n'); OPAQUE=$(od -An -N6 -tx1 /dev/urandom | tr -d ' \n')
   echo "$RUNID" > "$RD/runid"; echo "$OPAQUE" > "$RD/opaque"; echo "$PANEL" > "$RD/panel"
-  echo "$COLLAB" > "$RD/panel_collab"; echo "$SWM" > "$RD/sweeper_model"; utc > "$RD/started_at"
+  echo "$COLLAB" > "$RD/panel_collab"; echo "$SWM" > "$RD/sweeper_model"; echo "$SLACK" > "$RD/slack_s"
+  [ "$EXC" = 1 ] && echo 1 > "$RD/time_cap_exception"
+  utc > "$RD/started_at"
   [ $PLANNING = 1 ] && : > "$RD/planning"
   jq -n --arg row "$ROW" --arg runid "$RUNID" --arg arm "$([ "$COLLAB" = 1 ] && echo F4 || echo A1)" \
     '{row:$row,runid:$runid,arm:$arm}' > "$OUT/results/keys/$OPAQUE.json"
@@ -68,7 +93,7 @@ values_for() {
   if [ $PLANNING = 1 ]; then
     jq --arg p "$1" --arg panel "$PANEL" '.[$panel] + {pkg:$p, source:"planning"}' "$R2_HOME/config/planning-values.json" > "$RD/values-$1.json"
     echo "$RD/values-$1.json"
-  else echo "$R2_HOME/config/values/$PANEL/$1.json"; fi
+  else echo "$R2_HOME/config/$VALDIR/$PANEL/$1.json"; fi
 }
 quarantine() { local s; s=$(date -u +%Y%m%dT%H%M%SZ); for d in "$@"; do [ -e "$d" ] && mv "$d" "$d.incomplete-$s"; done; return 0; }
 

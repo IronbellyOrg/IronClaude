@@ -89,8 +89,8 @@ def write_sb(root: Path) -> Path:
     return sb
 
 
-def write_values(cfg: Path, panel: str, pkgs=PKGS, **over):
-    vd = cfg / "values" / panel
+def write_values(cfg: Path, panel: str, pkgs=PKGS, dirname="values", **over):
+    vd = cfg / dirname / panel
     vd.mkdir(parents=True, exist_ok=True)
     sums = []
     for p in pkgs:
@@ -110,7 +110,7 @@ def env(tmp_path, monkeypatch):
     ev = write_eval(tmp_path)
     sb = write_sb(tmp_path)
     cfg = tmp_path / "config"
-    shutil.copytree(R5 / "config", cfg, ignore=shutil.ignore_patterns("values"))
+    shutil.copytree(R5 / "config", cfg, ignore=shutil.ignore_patterns("values", "values-slack*"))
     pins = json.loads((R5 / "config" / "pins.json").read_text())
     pins["judge_one_sha256"] = sha(ev / "tools" / "tmp-scripts" / "judge-one.sh")
     (tmp_path / "pins.json").write_text(json.dumps(pins))
@@ -128,7 +128,7 @@ def env(tmp_path, monkeypatch):
     }
     for k, v in e.items():
         monkeypatch.setenv(k, v)
-    for k in ("PANEL_COLLAB", "PANEL_KIT", "SPIKE4", "DRY_RUN"):
+    for k in ("PANEL_COLLAB", "PANEL_KIT", "SPIKE4", "DRY_RUN", "PANEL_SLACK_S", "TIME_CAP_EXCEPTION"):
         monkeypatch.delenv(k, raising=False)
     (tmp_path / "out").mkdir()
     return {"tmp": tmp_path, "eval": ev, "sb": sb, "cfg": cfg, "fake": fake, "out": tmp_path / "out"}

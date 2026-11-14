@@ -1,5 +1,6 @@
 """py/summarize_arm.py (R-24, R-25, MR 4 rule 3)."""
 import json
+import os
 import sys
 
 import pytest
@@ -85,3 +86,20 @@ def test_planning_rows_refused(tmp_path):
     (tmp_path / "b.json").write_text(json.dumps(BASE[0]))
     r = pyrun("summarize_arm.py", "--rows", str(tmp_path / "r.json"), "--baseline-rows", str(tmp_path / "b.json"), "--out", str(tmp_path / "o.json"))
     assert r.returncode == 2
+
+
+def test_slo_budget_cap_is_1_35_b_plus_slack(monkeypatch):
+    # B_c = 100 s (median of 10 rows at 100); two rows at 150 s: over 1.35 B = 135 s, inside 1.35 B + 30 = 165 s
+    rows = [row(f"r{i}") for i in range(10)] + [row("x", elapsed=150.0), row("y", elapsed=150.0)]
+    assert "slo_budget" in S(rows)["reasons"]
+    monkeypatch.setenv("PANEL_SLACK_S", "30")
+    assert "slo_budget" not in S(rows)["reasons"]
+    over = [row(f"r{i}") for i in range(10)] + [row("x", elapsed=170.0), row("y", elapsed=170.0)]
+    assert "slo_budget" in S(over)["reasons"]
+
+
+def test_bad_slack_env_exits_2(tmp_path):
+    (tmp_path / "r.json").write_text(json.dumps(row("x")))
+    r = pyrun("summarize_arm.py", "--rows", str(tmp_path / "r.json"), "--baseline-rows", str(tmp_path / "r.json"),
+              "--out", str(tmp_path / "o.json"), env={**os.environ, "PANEL_SLACK_S": "-5"})
+    assert r.returncode == 2 and "PANEL_SLACK_S" in r.stdout

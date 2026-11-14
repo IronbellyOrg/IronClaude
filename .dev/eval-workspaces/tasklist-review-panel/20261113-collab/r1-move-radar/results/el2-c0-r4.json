@@ -1,0 +1,135 @@
+{
+ "schema": "r1-results/1",
+ "design": "r1-move-radar",
+ "row": "el2-c0-r4",
+ "panel": "el2",
+ "models": {
+  "t2b-1": "muse-ember-1.0",
+  "t4-1": "gpt-6-luna",
+  "t3-1": "gpt-6-luna"
+ },
+ "collab": 0,
+ "rep": 4,
+ "started_utc": "2026-11-14T13:45:49Z",
+ "values": {
+  "TASK-WF-designSpec-20261107-075614": "4e4099fcfd6ca2df194edc00cf36b1496a834b39b9945859fdf0d1b793108514",
+  "TASK-WF-makeTheAliasOnly-20261105-051649": "bc152bb42ba18f1924cedc86ee7882e514edfdaa861bad4fda75ff71776d3920",
+  "TASK-WF-design-20261108-041415": "1f449d8f4d8da4c9b5b09478c1601f01a945ce5e57211c96a1a5eb5cf7de2e47"
+ },
+ "status": "complete",
+ "found_14": 0,
+ "real_blocking_8": 0,
+ "judge_blocking": 0,
+ "wrong_blockers": 2,
+ "control_found_2": 0,
+ "control_wrong_blockers": 2,
+ "output_tokens": 65236,
+ "elapsed_s": {
+  "TASK-WF-designSpec-20261107-075614": 78.679,
+  "TASK-WF-makeTheAliasOnly-20261105-051649": 165.981,
+  "TASK-WF-design-20261108-041415": 97.998
+ },
+ "packages": {
+  "TASK-WF-designSpec-20261107-075614": {
+   "status": "ok",
+   "label": "Q",
+   "ledger_rows": 3,
+   "output_tokens": 13591,
+   "elapsed_s": 78.679,
+   "B_f": 83.8,
+   "overhead_pct": -6.110978520286392,
+   "slo_breach": false,
+   "k": {
+    "reader": 0,
+    "searcher": 0
+   },
+   "values": "4e4099fcfd6ca2df194edc00cf36b1496a834b39b9945859fdf0d1b793108514",
+   "dropped_lines": 0,
+   "reask": 0,
+   "retry_isolated": 0,
+   "hang_kill": 0,
+   "gt_covered_any": [],
+   "real_blocking": [],
+   "judge_blocking": [],
+   "wrong_blockers": 1
+  },
+  "TASK-WF-makeTheAliasOnly-20261105-051649": {
+   "status": "ok",
+   "label": "S",
+   "ledger_rows": 4,
+   "output_tokens": 28746,
+   "elapsed_s": 165.981,
+   "B_f": 145.058,
+   "overhead_pct": 14.423885618166521,
+   "slo_breach": false,
+   "k": {
+    "reader": 0,
+    "searcher": 0
+   },
+   "values": "bc152bb42ba18f1924cedc86ee7882e514edfdaa861bad4fda75ff71776d3920",
+   "dropped_lines": 0,
+   "reask": 1,
+   "retry_isolated": 0,
+   "hang_kill": 0,
+   "gt_covered_any": [],
+   "real_blocking": [],
+   "judge_blocking": [],
+   "wrong_blockers": 1
+  },
+  "TASK-WF-design-20261108-041415": {
+   "status": "ok",
+   "label": "Q",
+   "ledger_rows": 5,
+   "output_tokens": 22899,
+   "elapsed_s": 97.998,
+   "B_f": 96.976,
+   "overhead_pct": 1.053868998515095,
+   "slo_breach": false,
+   "k": {
+    "reader": 0,
+    "searcher": 0
+   },
+   "values": "1f449d8f4d8da4c9b5b09478c1601f01a945ce5e57211c96a1a5eb5cf7de2e47",
+   "dropped_lines": 0,
+   "reask": 0,
+   "retry_isolated": 0,
+   "hang_kill": 0,
+   "gt_covered_any": [],
+   "real_blocking": [],
+   "judge_blocking": [],
+   "wrong_blockers": 2
+  }
+ },
+ "collab_counters": {
+  "injections": 0,
+  "injections_by_move": {},
+  "src_checks": 0,
+  "search_injections": 0,
+  "static_injections": 0,
+  "observable_moves_executed": 0,
+  "skips_no_gap": 0,
+  "skips_guard": 0,
+  "finish_signals": 0,
+  "finish_would_fire": 6,
+  "hook_calls": 0,
+  "hook_errors": 0,
+  "hook_ms_p95": null,
+  "snapshot_missing": 0,
+  "late": 0,
+  "receivers": 0,
+  "leak_violations": 0,
+  "moves_covered_panel": {
+   "M1": 3,
+   "M2": 1,
+   "M4": 1,
+   "M7": 0,
+   "SRC_OPENED": 11,
+   "UNNAMED_TEST": 0
+  },
+  "own_line_jaccard": {
+   "TASK-WF-designSpec-20261107-075614": 0.0,
+   "TASK-WF-makeTheAliasOnly-20261105-051649": 0.1111111111111111,
+   "TASK-WF-design-20261108-041415": 0.0
+  }
+ }
+}

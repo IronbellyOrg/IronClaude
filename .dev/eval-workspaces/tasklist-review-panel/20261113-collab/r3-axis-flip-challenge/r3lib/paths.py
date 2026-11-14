@@ -42,7 +42,12 @@ def values_file(panel: str) -> Path:
     v = os.environ.get("R3_VALUES_FILE")
     if v:
         return _root("R3_VALUES_FILE", Path(v))
-    return R3 / "values" / f"{panel}.json"
+    from . import values  # local import: values imports paths
+
+    s = values.slack_s()
+    return (
+        R3 / ("values" if s == 0 else f"values-{values.slack_tag(s)}") / f"{panel}.json"
+    )
 
 
 def claude_projects() -> Path:

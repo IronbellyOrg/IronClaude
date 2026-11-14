@@ -1,0 +1,120 @@
+{
+ "schema": "r2-results/1",
+ "row": "smoke-el2-exc-collab",
+ "arm": "F4",
+ "panel": "EL2",
+ "panel_collab": 1,
+ "models": {
+  "t2b-1": "muse-ember-1.0",
+  "t4-1": "gpt-6-luna",
+  "t3-1": "gpt-6-luna"
+ },
+ "sweeper_model": "muse-ember-1.0",
+ "planning": false,
+ "time_cap_exception": true,
+ "values_sha256": {
+  "TASK-WF-design-20261108-041415": "0d2a00be58fee07bc1a89f4a72a5157130123e0959f084d925576d8734bc6638"
+ },
+ "opaque": "42e0bb98d068",
+ "started_at": "2026-11-14T12:49:23Z",
+ "finished_at": "2026-11-14T12:51:31Z",
+ "found_14": null,
+ "real_blocking_8": null,
+ "judge_blocking": null,
+ "wrong_blockers": null,
+ "control_found_2": 0,
+ "control_wrong_blockers": 1,
+ "output_tokens": {
+  "total": 28801,
+  "reviewers": 26410,
+  "sweeper": 2391,
+  "reask": 0
+ },
+ "elapsed_s": {
+  "TASK-WF-design-20261108-041415": 86.407
+ },
+ "overhead_pct": {
+  "TASK-WF-design-20261108-041415": -15.96
+ },
+ "per_package": {
+  "TASK-WF-design-20261108-041415": {
+   "gt_covered_any": [],
+   "gt_covered_blocking": [],
+   "wrong_blockers": 1,
+   "ledger_rows": 5,
+   "label": "Q",
+   "score_ok": true,
+   "judge_api_error": false,
+   "valid": true,
+   "audit_ok": true,
+   "slo_breach": false,
+   "elapsed_s": 86.407,
+   "k": 1,
+   "facts_posted": 2,
+   "facts_harvested": 0,
+   "facts_delivered": {
+    "t4-1": 0,
+    "t3-1": 0
+   },
+   "snapshot_missing": 0,
+   "receivers": 2,
+   "time_cap_exception": true,
+   "time_cap_exception_applied": true,
+   "B_A1": 102.8185,
+   "elapsed_over_baseline": 0.8404,
+   "k_measured": 0,
+   "messages_delivered": {
+    "t2b-1": 0,
+    "t4-1": 0,
+    "t3-1": 0
+   }
+  }
+ },
+ "collab": {
+  "k": {
+   "TASK-WF-design-20261108-041415": 1
+  },
+  "facts_posted": 2,
+  "facts_harvested": 0,
+  "facts_rejected": 2,
+  "over_cap": 0,
+  "witness_facts": 0,
+  "facts_delivered": {
+   "t4-1": 0,
+   "t3-1": 0
+  },
+  "late": 2,
+  "not_delivered_cap": 0,
+  "isolated_for": {
+   "TASK-WF-design-20261108-041415": [
+    "t4-1",
+    "t3-1"
+   ]
+  },
+  "snapshot_missing": 0,
+  "finish_signal_fired": 0,
+  "finish_would_fire": 0,
+  "hook_error": 0,
+  "hook_ms_p95": 85,
+  "peer_lines": 0,
+  "peer_lines_first_hand": 0,
+  "reruns": 0,
+  "rerun_mismatches": 0,
+  "cmd_unrun": 2,
+  "echo_rate": {
+   "TASK-WF-design-20261108-041415": null
+  },
+  "own_line_jaccard": {
+   "TASK-WF-design-20261108-041415": 0.0
+  },
+  "sweeper_start_t_s": {
+   "TASK-WF-design-20261108-041415": 59.308
+  },
+  "hang_kill": 0,
+  "slo_breach": 0,
+  "retry_isolated": 0,
+  "reask_count": 0,
+  "dropped_lines": 0
+ },
+ "invalid": []
+}

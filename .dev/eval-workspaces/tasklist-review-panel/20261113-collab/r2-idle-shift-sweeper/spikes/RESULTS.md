@@ -31,3 +31,7 @@ One line per spike run: `<UTC> <spike> PASS|FAIL evidence=<path> <detail>`.
 - 2026-11-13T21:55:56Z S3 FAIL evidence=spikes/out/s3/check.json AC-2=true AC-2b=true AC-8=false AC-9=true AC-10=true
 - 2026-11-13T23:01:47Z S3 FAIL evidence=spikes/out/s3/check.json AC-2=true AC-2b=true AC-4=false AC-5=true AC-6=false AC-7=true AC-8=false AC-9=true AC-10=true
 - 2026-11-13T23:02:08Z S3 PASS evidence=spikes/out/s3/check.json re-check after audit rule fix (no new model runs): AC-2=true AC-2b=true AC-4=true AC-5=true AC-6=true AC-7=true AC-8=true AC-9=true AC-10=true
+- 2026-11-14T05:27:12Z Spike4[EL2] PASS evidence=spikes/out/spike4/EL2 n=4 values in config/values/EL2/
+- 2026-11-14T07:09:24Z Spike4[HL2] PASS evidence=spikes/out/spike4/HL2 n=4 values in config/values/HL2/
+- 2026-11-14T09:09:18Z Spike4[SL2] PASS evidence=spikes/out/spike4/SL2 n=4 values in config/values/SL2/
+- 2026-11-14T12:51:31Z S3-EXC FAIL evidence=spikes/out/s3-exception/check-smoke-el2-exc-collab.json AC-2=true AC-2b=true AC-4=false AC-5=true AC-6=true AC-9=true AC-10=true OV-1=true OV-2=true OV-3=true

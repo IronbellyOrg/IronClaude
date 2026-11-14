@@ -225,6 +225,16 @@ def build(pkgdir, rid, t_launch, start_cost) -> tuple[int, dict]:
         start_cost,
         pj["turn_p90"][me["model"]],
     )
+    n_base = n
+    # owner-authorised time-cap exception: a measured n of 0 becomes the forced n (pj["tce"] is absent when off)
+    n = values.tce_floor_n(
+        n,
+        pj.get("tce"),
+        t_launch - T0,
+        start_cost,
+        pj["turn_p90"][me["model"]],
+        me["cap"],
+    )
     board = pkgdir / "board"
     board.mkdir(exist_ok=True)
     log = {
@@ -232,6 +242,8 @@ def build(pkgdir, rid, t_launch, start_cost) -> tuple[int, dict]:
         "t_launch": t_launch,
         "start_cost": start_cost,
         "n": n,
+        "n_base": n_base,
+        "n_forced": n != n_base,
         "selection": {},
         "rejected": [],
     }

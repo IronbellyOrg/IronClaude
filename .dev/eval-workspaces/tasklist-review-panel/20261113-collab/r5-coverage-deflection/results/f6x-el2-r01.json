@@ -1,0 +1,248 @@
+{
+ "row": "f6x-el2-r01",
+ "arm": "F6-el2",
+ "panel": "el2",
+ "models": {
+  "t4-1": "gpt-6-luna",
+  "t3-1": "gpt-6-luna",
+  "t2b-1": "muse-ember-1.0"
+ },
+ "switches": {
+  "PANEL_COLLAB": 1,
+  "PANEL_KIT": 1,
+  "NOFALLBACK": 1,
+  "SPIKE4": false
+ },
+ "time_cap_exception": true,
+ "time_cap": {
+  "TASK-WF-designSpec-20261107-075614": {
+   "B_A1_s": 120.1605,
+   "elapsed_s": 141.664,
+   "elapsed_over_baseline": 1.1789564790426137,
+   "time_cap_s": 324.43335,
+   "k_measured": 0,
+   "k_forced": true,
+   "messages_delivered": {
+    "t4-1": 0,
+    "t3-1": 0,
+    "t2b-1": 0
+   },
+   "k_run": 1
+  },
+  "TASK-WF-makeTheAliasOnly-20261105-051649": {
+   "B_A1_s": 144.4515,
+   "elapsed_s": 163.905,
+   "elapsed_over_baseline": 1.1346714987383308,
+   "time_cap_s": 390.01905000000005,
+   "k_measured": 0,
+   "k_forced": true,
+   "messages_delivered": {
+    "t4-1": 1,
+    "t3-1": 1,
+    "t2b-1": 0
+   },
+   "k_run": 1
+  },
+  "TASK-WF-design-20261108-041415": {
+   "B_A1_s": 116.78200000000001,
+   "elapsed_s": 125.247,
+   "elapsed_over_baseline": 1.0724854857769175,
+   "time_cap_s": 315.31140000000005,
+   "k_measured": 0,
+   "k_forced": true,
+   "messages_delivered": {
+    "t4-1": 1,
+    "t3-1": 1,
+    "t2b-1": 0
+   },
+   "k_run": 1
+  }
+ },
+ "values_sha256": {
+  "TASK-WF-designSpec-20261107-075614": "b53866ecd3624649d2a06fc2dea9985f5201da34fe078ba873f4a0de4c2e87fa",
+  "TASK-WF-makeTheAliasOnly-20261105-051649": "0eb4ccf4019679874f0adbcb9bf98436f3d3ef894dcc8781859cd14dfae5d96c",
+  "TASK-WF-design-20261108-041415": "f112f760ed72570c588c33dfa745c2d2f273cdeab145c4512e062effb99cf31f"
+ },
+ "found_14": 1,
+ "real_blocking_8": 0,
+ "judge_blocking": 0,
+ "wrong_blockers": 1,
+ "control_found_2": 0,
+ "control_wrong_blockers": 2,
+ "issues": {
+  "credited_any": [
+   "I2"
+  ],
+  "credited_blocking": [],
+  "target_reach": false,
+  "hard_credits": 0
+ },
+ "output_tokens": {
+  "total": 81247,
+  "per_pkg": {
+   "TASK-WF-designSpec-20261107-075614": 21734,
+   "TASK-WF-makeTheAliasOnly-20261105-051649": 35335,
+   "TASK-WF-design-20261108-041415": 24178
+  },
+  "per_reviewer": {
+   "TASK-WF-designSpec-20261107-075614": {
+    "t2b-1": 11136,
+    "t3-1": 7142,
+    "t4-1": 3456
+   },
+   "TASK-WF-makeTheAliasOnly-20261105-051649": {
+    "t2b-1": 20550,
+    "t3-1": 6566,
+    "t4-1": 8219
+   },
+   "TASK-WF-design-20261108-041415": {
+    "t2b-1": 14556,
+    "t3-1": 3772,
+    "t4-1": 5850
+   }
+  }
+ },
+ "elapsed_s": {
+  "TASK-WF-designSpec-20261107-075614": 141.664,
+  "TASK-WF-makeTheAliasOnly-20261105-051649": 163.905,
+  "TASK-WF-design-20261108-041415": 125.247
+ },
+ "overhead_pct": {
+  "TASK-WF-designSpec-20261107-075614": 17.89564790426137,
+  "TASK-WF-makeTheAliasOnly-20261105-051649": 13.467149873833083,
+  "TASK-WF-design-20261108-041415": 7.248548577691749
+ },
+ "collab": {
+  "TASK-WF-designSpec-20261107-075614": {
+   "k": 1,
+   "finish_would_fire": false,
+   "k0_isolated": false,
+   "deflection_overlap": 0.0,
+   "union_anchored_tasks": 5,
+   "own_line_jaccard": 0.0,
+   "ledger_rows": 5,
+   "slo": "ok",
+   "cards_posted": 2,
+   "cards_delivered": 0,
+   "requests_delivered": 0,
+   "requests_acted": 0,
+   "superseded": 0,
+   "dup_card": 0,
+   "late": 2,
+   "snapshot_missing": 0,
+   "hook_calls": 23,
+   "hook_error": 0,
+   "hang_kill": 0,
+   "retry_isolated": 0,
+   "reask_s": 0,
+   "dropped_lines": 0,
+   "hook_ms_p95": 77,
+   "finish_signal_t": null
+  },
+  "TASK-WF-makeTheAliasOnly-20261105-051649": {
+   "k": 1,
+   "finish_would_fire": false,
+   "k0_isolated": false,
+   "deflection_overlap": 0.0,
+   "union_anchored_tasks": 7,
+   "own_line_jaccard": 0.0,
+   "ledger_rows": 7,
+   "slo": "ok",
+   "cards_posted": 2,
+   "cards_delivered": 2,
+   "requests_delivered": 2,
+   "requests_acted": 2,
+   "superseded": 0,
+   "dup_card": 0,
+   "late": 0,
+   "snapshot_missing": 0,
+   "hook_calls": 46,
+   "hook_error": 0,
+   "hang_kill": 0,
+   "retry_isolated": 0,
+   "reask_s": 0,
+   "dropped_lines": 0,
+   "hook_ms_p95": 97,
+   "finish_signal_t": null
+  },
+  "TASK-WF-design-20261108-041415": {
+   "k": 1,
+   "finish_would_fire": false,
+   "k0_isolated": false,
+   "deflection_overlap": 0.0,
+   "union_anchored_tasks": 7,
+   "own_line_jaccard": 0.0,
+   "ledger_rows": 8,
+   "slo": "ok",
+   "cards_posted": 2,
+   "cards_delivered": 2,
+   "requests_delivered": 2,
+   "requests_acted": 1,
+   "superseded": 0,
+   "dup_card": 0,
+   "late": 0,
+   "snapshot_missing": 0,
+   "hook_calls": 29,
+   "hook_error": 0,
+   "hang_kill": 0,
+   "retry_isolated": 0,
+   "reask_s": 0,
+   "dropped_lines": 0,
+   "hook_ms_p95": 96,
+   "finish_signal_t": null
+  }
+ },
+ "alarms": {
+  "TASK-WF-designSpec-20261107-075614": {
+   "CONVERGENCE": null,
+   "DEFLECTION": false,
+   "SLO": "ok"
+  },
+  "TASK-WF-makeTheAliasOnly-20261105-051649": {
+   "CONVERGENCE": null,
+   "DEFLECTION": false,
+   "SLO": "ok"
+  },
+  "TASK-WF-design-20261108-041415": {
+   "CONVERGENCE": null,
+   "DEFLECTION": false,
+   "SLO": "ok"
+  }
+ },
+ "audit": {
+  "TASK-WF-designSpec-20261107-075614": "pass",
+  "TASK-WF-makeTheAliasOnly-20261105-051649": "pass",
+  "TASK-WF-design-20261108-041415": "pass"
+ },
+ "invalid": [],
+ "pkg_status": {
+  "TASK-WF-designSpec-20261107-075614": {
+   "merge": "ok",
+   "merge_rc": 0,
+   "invalid": [],
+   "anon": "ok",
+   "anon_postcheck": 0,
+   "judge": "ok",
+   "judge_api_error": false
+  },
+  "TASK-WF-makeTheAliasOnly-20261105-051649": {
+   "merge": "ok",
+   "merge_rc": 0,
+   "invalid": [],
+   "anon": "ok",
+   "anon_postcheck": 0,
+   "judge": "ok",
+   "judge_api_error": false
+  },
+  "TASK-WF-design-20261108-041415": {
+   "merge": "ok",
+   "merge_rc": 0,
+   "invalid": [],
+   "anon": "ok",
+   "anon_postcheck": 0,
+   "judge": "ok",
+   "judge_api_error": false
+  }
+ },
+ "status": "complete"
+}

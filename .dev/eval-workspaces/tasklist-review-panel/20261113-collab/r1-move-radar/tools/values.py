@@ -4,10 +4,15 @@
 Usage (from REPO, uv run python tools/values.py ...):
   spike4 <panel> <row> <row> <row> [...] [--root R1]   write values/<panel>/<pkg>.json (+ .sha256) for the 3 packages
   show <panel> <pkg> [--root R1]                        print the values file, or the planning fallback
-  deadlines <panel> <pkg> <collab 0|1> <T0_MS> [--root R1]
+  deadlines <panel> <pkg> <collab 0|1> <T0_MS> [--root R1] [--cap-exception 1]
       print {"values","FINISH_MS","GUARD_MS","HANG_MS","k","T_report","finish_offset_s","guard_offset_s",
-             "hang_offset_s","B"}; exit 2 when collab 1 has no values file (k cannot be computed)
+             "hang_offset_s","B"}; exit 2 when collab 1 has no values file (k cannot be computed).
+      --cap-exception 1 (collab 1 only; launch.sh passes it for TIME_CAP_EXCEPTION=1): cap_exception() below, and the output
+      gains "time_cap_exception": true and "cap_exception": {...}. Without the flag the output is exactly as before.
 All times are seconds from T0. p90 is the nearest-rank 90th percentile.
+PANEL_SLACK_S (env, seconds, default 0): the owner's extra time on top of the +35% cap (cap = 1.35 B + SLACK_S). It enters k,
+the finish offset and the guard offset (and so the A-2 reader k); the 1.5 B hang guard is not derived from the cap and is unchanged.
+With a non-zero value the values files live in values-slack<S>/<panel>/ (never in values/) and carry "slack_s".
 """
 
 from __future__ import annotations
@@ -25,18 +30,31 @@ PKGS = ["TASK-WF-designSpec-20261107-075614", "TASK-WF-makeTheAliasOnly-20261105
 G_EL2 = 47.0
 
 
+def slack_s() -> float:
+    """PANEL_SLACK_S, read at call time; 0 when unset."""
+    v = float(os.environ.get("PANEL_SLACK_S", "0") or "0")
+    if v < 0:
+        raise SystemExit("PANEL_SLACK_S must be >= 0")
+    return v
+
+
+def values_dir() -> str:
+    s = slack_s()
+    return "values" if s == 0 else f"values-slack{s:g}"
+
+
 def _floor(x: float) -> int:
     return math.floor(round(x, 9))  # 0.35 * 238 - ... must not land on 0.9999999
 
 
 def k_for(B: float, turn: float, trep: float) -> int:
-    """R-42: k = max(0, min(2, floor((0.35 B - 2 - turn - T_report) / (2 turn))))."""
-    return max(0, min(2, _floor((0.35 * B - 2 - turn - trep) / (2 * turn))))
+    """R-42: k = max(0, min(2, floor((0.35 B + SLACK_S - 2 - turn - T_report) / (2 turn))))."""
+    return max(0, min(2, _floor((0.35 * B + slack_s() - 2 - turn - trep) / (2 * turn))))
 
 
 def finish_offset(B: float, turn: float, trep: float) -> float:
-    """PANEL_FINISH_AT - T0 = 1.35 B - turn_p90[crit] - T_report_p90[crit]."""
-    return 1.35 * B - turn - trep
+    """PANEL_FINISH_AT - T0 = 1.35 B + SLACK_S - turn_p90[crit] - T_report_p90[crit]."""
+    return 1.35 * B + slack_s() - turn - trep
 
 
 def guard_g(panel: str, turn_crit: float) -> float:
@@ -45,12 +63,34 @@ def guard_g(panel: str, turn_crit: float) -> float:
 
 
 def guard_offset(B: float, finish_off: float, G: float) -> float:
-    return min(1.35 * B - G, finish_off)
+    return min(1.35 * B + slack_s() - G, finish_off)
 
 
 def reader_k_a2(finish_off: float, e_reader: float, turn_reader: float) -> int:
     """Adaptation A-2 (sl2, hl2 only): the off-path luna role gets its own k from its p90 end time."""
     return max(0, min(2, _floor((finish_off - e_reader - 2) / (2 * turn_reader))))
+
+
+CAP_EXC_HANG_X = 3.0  # time-cap exception (OVERRIDE.md): hang guard = max(existing, 3.0 x B_f)
+
+
+def cap_exception(v: dict, forced: int) -> tuple[dict, dict]:
+    """Owner-authorised exception to the +35% rule (OVERRIDE.md, 2026-11-14). Returns (values to use, record).
+
+    Off (forced == 0), or no role with a measured k of 0: `v` comes back unchanged (the same object). On: every role whose measured k
+    is 0 gets k = forced; roles with a measured k >= 1 keep it. The hang guard becomes max(hang, 3.0 x B_f), and the finish offset
+    and the injection guard move with it: finish' = finish + (hang' - hang), guard' = finish' (the original guard headroom G was
+    derived from the waived cap; the finish signal stays the last point for an injection). The values file is never rewritten.
+    """
+    k0 = dict(v["k"])
+    roles = sorted(r for r, n in k0.items() if n == 0) if forced else []
+    if not roles:
+        return v, {"forced_k": forced, "k_measured": k0, "forced_roles": []}
+    hang = max(v["hang_offset_s"], CAP_EXC_HANG_X * v["B_f"])
+    fin = v["finish_offset_s"] + (hang - v["hang_offset_s"])
+    out = dict(v, k={r: (forced if n == 0 else n) for r, n in k0.items()}, hang_offset_s=hang, finish_offset_s=fin, guard_offset_s=fin)
+    return out, {"forced_k": forced, "k_measured": k0, "forced_roles": roles, "hang_offset_s_orig": v["hang_offset_s"],
+                 "finish_offset_s_orig": v["finish_offset_s"], "guard_offset_s_orig": v["guard_offset_s"]}
 
 
 def compute(panel: str, cfg: dict, B: float, turn: dict, trep: dict, e: dict) -> dict:
@@ -63,7 +103,7 @@ def compute(panel: str, cfg: dict, B: float, turn: dict, trep: dict, e: dict) ->
     else:
         k[other] = reader_k_a2(fin, e["reader"], turn["reader"])
     return {"critical_role": crit, "finish_offset_s": fin, "guard_offset_s": guard_offset(B, fin, guard_g(panel, turn[crit])),
-            "hang_offset_s": 1.5 * B, "k": k}
+            "hang_offset_s": 1.5 * B, "k": k, "slack_s": slack_s()}
 
 
 def planning(panel: str, cfg: dict) -> dict:
@@ -132,9 +172,9 @@ def spike4(panel: str, rows: list[str], root: str) -> int:
         return 2
     cfg = json.load(open(f"{root}/config/panels.json"))[panel]
     roles = {cfg["roles"]["searcher"]["rid"]: "searcher", **{r: "reader" for r in cfg["roles"]["reader"]["rids"]}}
-    outs = [f"{root}/values/{panel}/{p}.json" for p in PKGS]
+    outs = [f"{root}/{values_dir()}/{panel}/{p}.json" for p in PKGS]
     if any(os.path.exists(o) for o in outs):
-        print("REFUSE values file exists; values are written once", file=sys.stderr)
+        print(f"REFUSE {values_dir()} file exists; values are written once", file=sys.stderr)
         return 2
     for p, out in zip(PKGS, outs):
         elapsed, turns, rep, ends = [], {"searcher": [], "reader": []}, {"searcher": [], "reader": []}, {"searcher": [], "reader": []}
@@ -175,7 +215,7 @@ def spike4(panel: str, rows: list[str], root: str) -> int:
 
 def load(panel: str, pkg: str, root: str) -> dict | None:
     """The values file when it exists and matches its .sha256, else None."""
-    out = f"{root}/values/{panel}/{pkg}.json"
+    out = f"{root}/{values_dir()}/{panel}/{pkg}.json"
     if not os.path.exists(out):
         return None
     body = open(out, "rb").read()
@@ -183,23 +223,34 @@ def load(panel: str, pkg: str, root: str) -> dict | None:
     if hashlib.sha256(body).hexdigest() != want:
         raise SystemExit(f"values file {out} does not match its .sha256")
     v = json.loads(body)
+    if v.get("slack_s", 0) != slack_s():
+        raise SystemExit(f"values file {out} was computed with slack_s={v.get('slack_s', 0)}, PANEL_SLACK_S is {slack_s():g}")
     v["values"] = want
     return v
 
 
-def deadlines(panel: str, pkg: str, collab: int, t0: int, root: str) -> int:
+def deadlines(panel: str, pkg: str, collab: int, t0: int, root: str, cap_exc: int = 0) -> int:
     cfg = json.load(open(f"{root}/config/panels.json"))[panel]
+    if cap_exc and collab != 1:
+        print("REFUSE the time-cap exception applies only to collab 1 rows", file=sys.stderr)
+        return 2
     v = load(panel, pkg, root)
     if v is None:
-        if collab == 1:
-            print(f"REFUSE PANEL_COLLAB=1 needs values/{panel}/{pkg}.json (Spike 4)", file=sys.stderr)
+        if collab == 1 or slack_s() != 0:  # with slack there is no planning fallback, even for collab 0
+            print(f"REFUSE PANEL_COLLAB={collab} PANEL_SLACK_S={slack_s():g} needs {values_dir()}/{panel}/{pkg}.json (Spike 4)", file=sys.stderr)
             return 2
         v = planning(panel, cfg)
         v["hang_offset_s"] = 2.0 * cfg["planning_B"]  # Spike 4 rows: wider guard so slow rows are not truncated
+    info = None
+    if cap_exc:
+        v, info = cap_exception(v, cap_exc)
     out = {"values": v["values"], "B": v["B_f"], "k": v["k"], "T_report": v["T_report_p90"],
-           "finish_offset_s": v["finish_offset_s"], "guard_offset_s": v["guard_offset_s"], "hang_offset_s": v["hang_offset_s"],
+           "finish_offset_s": v["finish_offset_s"], "guard_offset_s": v["guard_offset_s"], "hang_offset_s": v["hang_offset_s"], "slack_s": slack_s(),
            "FINISH_MS": t0 + round(1000 * v["finish_offset_s"]), "GUARD_MS": t0 + round(1000 * v["guard_offset_s"]),
            "HANG_MS": t0 + round(1000 * v["hang_offset_s"])}
+    if info is not None:  # only with the override on: an override-off output keeps exactly its old keys
+        out["time_cap_exception"] = True
+        out["cap_exception"] = info
     print(json.dumps(out))
     return 0
 
@@ -212,8 +263,8 @@ def main(argv: list[str]) -> int:
         v = load(argv[1], argv[2], root) or planning(argv[1], json.load(open(f"{root}/config/panels.json"))[argv[1]])
         print(json.dumps(v, indent=1))
         return 0
-    if argv[:1] == ["deadlines"] and len(argv) == 5:
-        return deadlines(argv[1], argv[2], int(argv[3]), int(argv[4]), root)
+    if argv[:1] == ["deadlines"] and len(argv) in (5, 7) and (len(argv) == 5 or argv[5] == "--cap-exception"):
+        return deadlines(argv[1], argv[2], int(argv[3]), int(argv[4]), root, int(argv[6]) if len(argv) == 7 else 0)
     print(__doc__, file=sys.stderr)
     return 2
 

@@ -1,0 +1,13 @@
+{
+  "label": "V",
+  "combo": "../../../../20261113-collab/r5-coverage-deflection/scoring/d50cb43bb38b",
+  "package": "TASK-WF-makeTheAliasOnly-20261105-051649",
+  "gt_total": 4,
+  "gt_covered_any": ["GT2"],
+  "gt_covered_blocking": ["GT2"],
+  "ledger_rows_total": 6,
+  "ledger_rows_blocking": 1,
+  "blocking_rows_gt_matched": 1,
+  "wrong_blockers": 0,
+  "notes": "GT2 is covered only by sub-finding L1.R1 (F2), merged into blocking row L1, which anchors the exact 'outside one nothing is set' quote and says inherited variables stay set outside tier mode; L1's main claim (src-only constraint vs edits under tests/docs/plugins) matches no GT item, so the row counts as matched only through that sub-finding. GT1 (aliases-only rule contradicted by slot variables), GT3 ('all other primitives use aliases' is false) and GT4 (Task 7 text omits the today-real-ids caveat) are not covered: L1.R2 (F5) on fable and the constants-test gap, L2 on haiku resolving to glm-5.3, and L3 on the 'glm-5.3 here' grep describe different defects."
+}

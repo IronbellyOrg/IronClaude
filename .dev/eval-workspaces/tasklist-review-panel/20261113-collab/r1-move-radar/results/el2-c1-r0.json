@@ -1,0 +1,95 @@
+{
+ "schema": "r1-results/1",
+ "design": "r1-move-radar",
+ "row": "el2-c1-r0",
+ "panel": "el2",
+ "models": {
+  "t2b-1": "muse-ember-1.0",
+  "t4-1": "gpt-6-luna",
+  "t3-1": "gpt-6-luna"
+ },
+ "collab": 1,
+ "rep": 0,
+ "started_utc": "2026-11-14T05:02:26Z",
+ "values": {
+  "TASK-WF-designSpec-20261107-075614": "4e4099fcfd6ca2df194edc00cf36b1496a834b39b9945859fdf0d1b793108514",
+  "TASK-WF-makeTheAliasOnly-20261105-051649": null,
+  "TASK-WF-design-20261108-041415": null
+ },
+ "status": "incomplete",
+ "found_14": null,
+ "real_blocking_8": null,
+ "judge_blocking": null,
+ "wrong_blockers": null,
+ "control_found_2": null,
+ "control_wrong_blockers": null,
+ "output_tokens": null,
+ "elapsed_s": {
+  "TASK-WF-designSpec-20261107-075614": 69.23,
+  "TASK-WF-makeTheAliasOnly-20261105-051649": null,
+  "TASK-WF-design-20261108-041415": null
+ },
+ "packages": {
+  "TASK-WF-designSpec-20261107-075614": {
+   "status": "ok",
+   "label": "U",
+   "ledger_rows": 4,
+   "output_tokens": 16107,
+   "elapsed_s": 69.23,
+   "B_f": 83.8,
+   "overhead_pct": -17.38663484486873,
+   "slo_breach": false,
+   "k": {
+    "reader": 0,
+    "searcher": 0
+   },
+   "values": "4e4099fcfd6ca2df194edc00cf36b1496a834b39b9945859fdf0d1b793108514",
+   "dropped_lines": 0,
+   "reask": 0,
+   "retry_isolated": 0,
+   "hang_kill": 0,
+   "gt_covered_any": [
+    "GT3"
+   ],
+   "real_blocking": [],
+   "judge_blocking": [],
+   "wrong_blockers": 1
+  },
+  "TASK-WF-makeTheAliasOnly-20261105-051649": {
+   "status": "not_run"
+  },
+  "TASK-WF-design-20261108-041415": {
+   "status": "not_run"
+  }
+ },
+ "collab_counters": {
+  "injections": 0,
+  "injections_by_move": {},
+  "src_checks": 0,
+  "search_injections": 0,
+  "static_injections": 0,
+  "observable_moves_executed": 0,
+  "skips_no_gap": 0,
+  "skips_guard": 0,
+  "finish_signals": 0,
+  "finish_would_fire": 0,
+  "hook_calls": 25,
+  "hook_errors": 0,
+  "hook_ms_p95": 56,
+  "snapshot_missing": 0,
+  "late": 0,
+  "receivers": 0,
+  "leak_violations": 0,
+  "moves_covered_panel": {
+   "M1": 1,
+   "M2": 0,
+   "M4": 1,
+   "M7": 0,
+   "SRC_OPENED": 3,
+   "UNNAMED_TEST": 0
+  },
+  "own_line_jaccard": {
+   "TASK-WF-designSpec-20261107-075614": 0.19444444444444442
+  }
+ }
+}

@@ -1,0 +1,32 @@
+{
+ "critical_role": "reader",
+ "finish_offset_s": 83.8410002040863,
+ "guard_offset_s": 83.8410002040863,
+ "hang_offset_s": 125.69999999999999,
+ "k": {
+  "reader": 0,
+  "searcher": 0
+ },
+ "slack_s": 30.0,
+ "panel": "el2",
+ "pkg": "TASK-WF-designSpec-20261107-075614",
+ "B_f": 83.8,
+ "turn_p90": {
+  "searcher": 4.7769999504089355,
+  "reader": 18.691999912261963
+ },
+ "T_report_p90": {
+  "searcher": 8.80400013923645,
+  "reader": 40.59699988365173
+ },
+ "E_p90": {
+  "searcher": 57.488,
+  "reader": 84.336
+ },
+ "source_runs": [
+  "el2-c0-r1",
+  "el2-c0-r2",
+  "el2-c0-r3"
+ ],
+ "computed_utc": "2026-11-14T12:22:30Z"
+}

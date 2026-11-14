@@ -1,0 +1,143 @@
+{
+ "schema": "r1-results/1",
+ "design": "r1-move-radar",
+ "row": "el2-c0-r3",
+ "panel": "el2",
+ "models": {
+  "t2b-1": "muse-ember-1.0",
+  "t4-1": "gpt-6-luna",
+  "t3-1": "gpt-6-luna"
+ },
+ "collab": 0,
+ "rep": 3,
+ "started_utc": "2026-11-14T04:55:09Z",
+ "values": {
+  "TASK-WF-designSpec-20261107-075614": "planning",
+  "TASK-WF-makeTheAliasOnly-20261105-051649": "planning",
+  "TASK-WF-design-20261108-041415": "planning"
+ },
+ "status": "complete",
+ "found_14": 2,
+ "real_blocking_8": 1,
+ "judge_blocking": 1,
+ "wrong_blockers": 0,
+ "control_found_2": 0,
+ "control_wrong_blockers": 2,
+ "output_tokens": 72548,
+ "elapsed_s": {
+  "TASK-WF-designSpec-20261107-075614": 83.8,
+  "TASK-WF-makeTheAliasOnly-20261105-051649": 145.058,
+  "TASK-WF-design-20261108-041415": 96.976
+ },
+ "packages": {
+  "TASK-WF-designSpec-20261107-075614": {
+   "status": "ok",
+   "label": "S",
+   "ledger_rows": 5,
+   "output_tokens": 23901,
+   "elapsed_s": 83.8,
+   "B_f": 116,
+   "overhead_pct": -27.758620689655178,
+   "slo_breach": false,
+   "k": {
+    "reader": 2,
+    "searcher": 2
+   },
+   "values": "planning",
+   "dropped_lines": 0,
+   "reask": 0,
+   "retry_isolated": 0,
+   "hang_kill": 0,
+   "gt_covered_any": [
+    "GT3"
+   ],
+   "real_blocking": [],
+   "judge_blocking": [],
+   "wrong_blockers": 0
+  },
+  "TASK-WF-makeTheAliasOnly-20261105-051649": {
+   "status": "ok",
+   "label": "V",
+   "ledger_rows": 4,
+   "output_tokens": 27085,
+   "elapsed_s": 145.058,
+   "B_f": 116,
+   "overhead_pct": 25.049999999999994,
+   "slo_breach": false,
+   "k": {
+    "reader": 2,
+    "searcher": 2
+   },
+   "values": "planning",
+   "dropped_lines": 0,
+   "reask": 0,
+   "retry_isolated": 0,
+   "hang_kill": 0,
+   "gt_covered_any": [
+    "GT2"
+   ],
+   "real_blocking": [
+    "GT2"
+   ],
+   "judge_blocking": [
+    "GT2"
+   ],
+   "wrong_blockers": 0
+  },
+  "TASK-WF-design-20261108-041415": {
+   "status": "ok",
+   "label": "U",
+   "ledger_rows": 6,
+   "output_tokens": 21562,
+   "elapsed_s": 96.976,
+   "B_f": 116,
+   "overhead_pct": -16.400000000000002,
+   "slo_breach": false,
+   "k": {
+    "reader": 2,
+    "searcher": 2
+   },
+   "values": "planning",
+   "dropped_lines": 0,
+   "reask": 0,
+   "retry_isolated": 0,
+   "hang_kill": 0,
+   "gt_covered_any": [],
+   "real_blocking": [],
+   "judge_blocking": [],
+   "wrong_blockers": 2
+  }
+ },
+ "collab_counters": {
+  "injections": 0,
+  "injections_by_move": {},
+  "src_checks": 0,
+  "search_injections": 0,
+  "static_injections": 0,
+  "observable_moves_executed": 0,
+  "skips_no_gap": 0,
+  "skips_guard": 0,
+  "finish_signals": 0,
+  "finish_would_fire": 1,
+  "hook_calls": 0,
+  "hook_errors": 0,
+  "hook_ms_p95": null,
+  "snapshot_missing": 0,
+  "late": 0,
+  "receivers": 0,
+  "leak_violations": 0,
+  "moves_covered_panel": {
+   "M1": 5,
+   "M2": 2,
+   "M4": 4,
+   "M7": 0,
+   "SRC_OPENED": 12,
+   "UNNAMED_TEST": 0
+  },
+  "own_line_jaccard": {
+   "TASK-WF-designSpec-20261107-075614": 0.0,
+   "TASK-WF-makeTheAliasOnly-20261105-051649": 0.08333333333333333,
+   "TASK-WF-design-20261108-041415": 0.0
+  }
+ }
+}

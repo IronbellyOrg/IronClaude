@@ -1,0 +1,261 @@
+{
+ "row": "tce-smoke-f7-el2-1",
+ "arm": "F7",
+ "all_ok": true,
+ "failed": [],
+ "checks": {
+  "model_ok x3": {
+   "ok": true,
+   "detail": {
+    "t2b-1": "muse-ember-1.0",
+    "t4-1": "gpt-6-luna",
+    "t3-1": "gpt-6-luna"
+   }
+  },
+  "expected models only (no qwen/glm/grok/opus in reviewers)": {
+   "ok": true,
+   "detail": ""
+  },
+  "dropped_lines=0": {
+   "ok": true,
+   "detail": {
+    "t2b-1": 0,
+    "t4-1": 0,
+    "t3-1": 0
+   }
+  },
+  "final_ok x3": {
+   "ok": true,
+   "detail": ""
+  },
+  "no re-ask, 1 attempt each": {
+   "ok": true,
+   "detail": {
+    "t2b-1": [
+     1,
+     false
+    ],
+    "t4-1": [
+     1,
+     false
+    ],
+    "t3-1": [
+     1,
+     false
+    ]
+   }
+  },
+  "no hang_kill": {
+   "ok": true,
+   "detail": ""
+  },
+  "exists merged-1.md": {
+   "ok": true,
+   "detail": ""
+  },
+  "exists scoring/merged-anon.md": {
+   "ok": true,
+   "detail": ""
+  },
+  "exists scoring/score.json": {
+   "ok": true,
+   "detail": ""
+  },
+  "package status ok": {
+   "ok": true,
+   "detail": ""
+  },
+  "anonymiser clean": {
+   "ok": true,
+   "detail": ""
+  },
+  "collab.json keys": {
+   "ok": true,
+   "detail": []
+  },
+  "audit_ok": {
+   "ok": true,
+   "detail": []
+  },
+  "harness_text_gt_overlap=0": {
+   "ok": true,
+   "detail": ""
+  },
+  "sandbox_clean + candidate_sha_ok": {
+   "ok": true,
+   "detail": ""
+  },
+  "board_lines_invalid=0": {
+   "ok": true,
+   "detail": ""
+  },
+  "no QUARANTINED": {
+   "ok": true,
+   "detail": ""
+  },
+  "nothing under EVAL newer than run start": {
+   "ok": true,
+   "detail": []
+  },
+  "no /tmp/jdg.* left": {
+   "ok": true,
+   "detail": []
+  },
+  "results row keys (5.2 + stamp)": {
+   "ok": true,
+   "detail": []
+  },
+  "results row valid false (single package)": {
+   "ok": true,
+   "detail": ""
+  },
+  "nofallback=1 in run.json": {
+   "ok": true,
+   "detail": ""
+  },
+  "cards_sent>=1": {
+   "ok": true,
+   "detail": 2
+  },
+  "every card has a status": {
+   "ok": true,
+   "detail": [
+    "delivered",
+    "delivered"
+   ]
+  },
+  "at least one delivered, or every undelivered is late": {
+   "ok": true,
+   "detail": [
+    "delivered",
+    "delivered"
+   ]
+  },
+  "no no_snapshot": {
+   "ok": true,
+   "detail": [
+    "delivered",
+    "delivered"
+   ]
+  },
+  "seal_sha_ok for every delivered luna": {
+   "ok": true,
+   "detail": {
+    "t2b-1": null,
+    "t4-1": true,
+    "t3-1": true
+   }
+  },
+  "settings on in attempt 1": {
+   "ok": true,
+   "detail": ""
+  },
+  "no duplicate delivery": {
+   "ok": true,
+   "detail": ""
+  },
+  "stop_blocks=0, hook_error=0": {
+   "ok": true,
+   "detail": {
+    "t2b-1": 0,
+    "t4-1": 0,
+    "t3-1": 0
+   }
+  },
+  "flagger msgs_received=0, lunas msgs_sent=0": {
+   "ok": true,
+   "detail": ""
+  },
+  "override stamped: run.json, panel.json, collab.json, results row": {
+   "ok": true,
+   "detail": ""
+  },
+  "k forced to 1 (measured 0)": {
+   "ok": true,
+   "detail": ""
+  },
+  "hang guard = 3.0 B_A1": {
+   "ok": true,
+   "detail": [
+    342363,
+    342363.0
+   ]
+  },
+  "card cap 2 (2k)": {
+   "ok": true,
+   "detail": 2
+  },
+  "each luna received at most k=1": {
+   "ok": true,
+   "detail": {
+    "t2b-1": 0,
+    "t4-1": 1,
+    "t3-1": 1
+   }
+  },
+  "elapsed below hang guard": {
+   "ok": true,
+   "detail": 111.427
+  },
+  "results row carries the exception columns": {
+   "ok": true,
+   "detail": {
+    "t2b-1": 0,
+    "t4-1": 1,
+    "t3-1": 1
+   }
+  }
+ },
+ "B_A1": 114.121,
+ "elapsed_s": 111.427,
+ "elapsed_over_baseline": 0.9764,
+ "k": 1,
+ "k_measured": 0,
+ "hang_s": 342.363,
+ "finish_offset_s": 229.22,
+ "delivered_per_reviewer": {
+  "t2b-1": 0,
+  "t4-1": 1,
+  "t3-1": 1
+ },
+ "cards_sent": 2,
+ "cards_delivered": 2,
+ "slots": [
+  {
+   "id": "c0",
+   "recipient": "t4-1",
+   "card_form": "challenge",
+   "status": "delivered",
+   "converted": false,
+   "passed_line": false,
+   "card_task": "T1"
+  },
+  {
+   "id": "c1",
+   "recipient": "t3-1",
+   "card_form": "finding",
+   "status": "delivered",
+   "converted": false,
+   "passed_line": true,
+   "card_task": "T3"
+  }
+ ],
+ "finish_signal_fired": {
+  "t2b-1": null,
+  "t4-1": null,
+  "t3-1": null
+ },
+ "walls_s": {
+  "t2b-1": 68.698,
+  "t4-1": 111.346,
+  "t3-1": 82.195
+ },
+ "flag_finding_overlap": 0.0,
+ "adjudication_agreement": 0.0,
+ "judge": {
+  "status": "ok",
+  "gt_covered_any": [],
+  "wrong_blockers": 1,
+  "ledger_rows_total": 4
+ }
+}

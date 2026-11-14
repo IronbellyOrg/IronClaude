@@ -1,0 +1,115 @@
+{
+ "schema": "r1-results/1",
+ "design": "r1-move-radar",
+ "row": "el2-c1x-r0",
+ "panel": "el2",
+ "models": {
+  "t2b-1": "muse-ember-1.0",
+  "t4-1": "gpt-6-luna",
+  "t3-1": "gpt-6-luna"
+ },
+ "collab": 1,
+ "rep": 0,
+ "started_utc": "2026-11-14T12:29:09Z",
+ "values": {
+  "TASK-WF-designSpec-20261107-075614": null,
+  "TASK-WF-makeTheAliasOnly-20261105-051649": null,
+  "TASK-WF-design-20261108-041415": "1f449d8f4d8da4c9b5b09478c1601f01a945ce5e57211c96a1a5eb5cf7de2e47"
+ },
+ "time_cap_exception": true,
+ "forced_k": 1,
+ "status": "incomplete",
+ "found_14": null,
+ "real_blocking_8": null,
+ "judge_blocking": null,
+ "wrong_blockers": null,
+ "control_found_2": 0,
+ "control_wrong_blockers": 3,
+ "output_tokens": null,
+ "elapsed_s": {
+  "TASK-WF-designSpec-20261107-075614": null,
+  "TASK-WF-makeTheAliasOnly-20261105-051649": null,
+  "TASK-WF-design-20261108-041415": 106.014
+ },
+ "packages": {
+  "TASK-WF-designSpec-20261107-075614": {
+   "status": "not_run"
+  },
+  "TASK-WF-makeTheAliasOnly-20261105-051649": {
+   "status": "not_run"
+  },
+  "TASK-WF-design-20261108-041415": {
+   "status": "ok",
+   "label": "S",
+   "ledger_rows": 5,
+   "output_tokens": 18582,
+   "elapsed_s": 106.014,
+   "B_f": 96.976,
+   "overhead_pct": 9.319831710938775,
+   "slo_breach": false,
+   "k": {
+    "reader": 1,
+    "searcher": 1
+   },
+   "values": "1f449d8f4d8da4c9b5b09478c1601f01a945ce5e57211c96a1a5eb5cf7de2e47",
+   "dropped_lines": 0,
+   "reask": 0,
+   "retry_isolated": 0,
+   "hang_kill": 0,
+   "gt_covered_any": [],
+   "real_blocking": [],
+   "judge_blocking": [],
+   "wrong_blockers": 3,
+   "B_A1": 96.976,
+   "elapsed_over_baseline": 1.0931983171093878,
+   "forced_k": 1,
+   "k_measured": {
+    "reader": 0,
+    "searcher": 0
+   },
+   "forced_roles": [
+    "reader",
+    "searcher"
+   ],
+   "delivered": {
+    "t2b-1": 1,
+    "t4-1": 0,
+    "t3-1": 1
+   },
+   "hang_offset_s": 290.928
+  }
+ },
+ "collab_counters": {
+  "injections": 2,
+  "injections_by_move": {
+   "M2": 1,
+   "M8": 1
+  },
+  "src_checks": 0,
+  "search_injections": 1,
+  "static_injections": 1,
+  "observable_moves_executed": 0,
+  "skips_no_gap": 0,
+  "skips_guard": 0,
+  "finish_signals": 0,
+  "finish_would_fire": 0,
+  "hook_calls": 29,
+  "hook_errors": 0,
+  "hook_ms_p95": 144,
+  "snapshot_missing": 0,
+  "late": 0,
+  "receivers": 3,
+  "leak_violations": 0,
+  "moves_covered_panel": {
+   "M1": 1,
+   "M2": 0,
+   "M4": 1,
+   "M7": 0,
+   "SRC_OPENED": 3,
+   "UNNAMED_TEST": 0
+  },
+  "own_line_jaccard": {
+   "TASK-WF-design-20261108-041415": 0.05555555555555555
+  }
+ }
+}

@@ -26,6 +26,12 @@ def pytest_configure(config):
     config.addinivalue_line("markers", "live: needs real gateway models (skipped unless R2_LIVE=1)")
 
 
+@pytest.fixture(autouse=True)
+def _no_ambient_slack(monkeypatch):
+    """PANEL_SLACK_S defaults to 0 in every test unless the test sets it."""
+    monkeypatch.delenv("PANEL_SLACK_S", raising=False)
+
+
 def pytest_collection_modifyitems(config, items):
     if os.environ.get("R2_LIVE") == "1":
         return
@@ -156,6 +162,7 @@ echo "OK $C/$P/$L"
                   "FAKE_CLAUDE_STATE": str(self.state), "FAKE_CLAUDE_PROJECTS": str(self.tmp / "projects"),
                   "NOFALLBACK": "1"})
         e.pop("PANEL_COLLAB", None)
+        e.pop("PANEL_SLACK_S", None)
         return e
 
     def scenario_set(self, entries: dict):

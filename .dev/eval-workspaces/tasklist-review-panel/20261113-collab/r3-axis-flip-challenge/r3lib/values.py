@@ -6,6 +6,7 @@ import datetime as _dt
 import hashlib
 import json
 import math
+import os
 from pathlib import Path
 
 from . import paths
@@ -17,26 +18,133 @@ def _floor(x: float) -> int:
     return math.floor(x + EPS)
 
 
+def slack_s() -> float:
+    """Owner decision 2026-11-14: the time cap is 1.35 x B + SLACK_S. Env PANEL_SLACK_S, default 0."""
+    raw = os.environ.get("PANEL_SLACK_S", "").strip()
+    if not raw:
+        return 0.0
+    try:
+        s = float(raw)
+    except ValueError:
+        raise SystemExit(f"E_SLACK: PANEL_SLACK_S={raw!r} is not a number") from None
+    if not math.isfinite(s) or s < 0:
+        raise SystemExit(f"E_SLACK: PANEL_SLACK_S={raw!r} must be a finite number >= 0")
+    return s
+
+
+def slack_tag(s: float | None = None) -> str:
+    """Folder suffix of the slack values files: 30 -> 'slack30'."""
+    s = slack_s() if s is None else s
+    return f"slack{s:g}"
+
+
 def compute_n(T0, B_f, t_launch, box_cap, cap, start_cost, turn_p90) -> int:
-    """6.5: n per launch attempt; all arithmetic on times relative to T0."""
-    box = 1.30 * B_f - (t_launch - T0)
+    """6.5: n per launch attempt; all arithmetic on times relative to T0.
+
+    The phase-2 box is the 30% share of the 35% cap, so SLACK_S widens it (and its
+    fixed cap) by the same amount as the deadline in lib/package.sh.
+    """
+    s = slack_s()
+    box = 1.30 * B_f + s - (t_launch - T0)
     if box_cap is not None:
-        box = min(box_cap, box)
+        box = min(box_cap + s, box)
     return max(0, min(cap, _floor((box - start_cost) / (2 * turn_p90))))
 
 
 def compute_k(B, turn_p90, T_report_p90, hooks=2.0) -> int:
     return max(
-        0, min(2, _floor((0.35 * B - hooks - turn_p90 - T_report_p90) / (2 * turn_p90)))
+        0,
+        min(
+            2,
+            _floor(
+                (0.35 * B + slack_s() - hooks - turn_p90 - T_report_p90)
+                / (2 * turn_p90)
+            ),
+        ),
     )
 
 
 def finish_offset(B, turn_p90, T_report_p90) -> float:
-    return 1.35 * B - turn_p90 - T_report_p90
+    return 1.35 * B + slack_s() - turn_p90 - T_report_p90
 
 
 def finish_at(T0, B, turn_p90, T_report_p90) -> float:
     return T0 + finish_offset(B, turn_p90, T_report_p90)
+
+
+# ---- owner-authorised time-cap exception (2026-11-14, OVERRIDE.md). Default off: nothing above changes.
+TCE_HANG_MULT = 3.0  # hang guard = max(1.5 x B_f, 3.0 x B_A1)
+TCE_FALLBACK_START = 16.0  # a fresh fallback start costs 16 s (DESIGN 6.5)
+
+
+def tce_forced() -> int:
+    """Env TIME_CAP_EXCEPTION: unset or 0 = off; 1..3 = forced n per receiver (bounded by its cap)."""
+    raw = os.environ.get("TIME_CAP_EXCEPTION", "").strip()
+    if raw in ("", "0"):
+        return 0
+    if raw not in ("1", "2", "3"):
+        raise SystemExit(
+            f"E_TCE: TIME_CAP_EXCEPTION={raw!r}; allowed: unset, 0 (off), 1, 2 or 3"
+        )
+    return int(raw)
+
+
+def tce_plan(forced: int, panel: str, pkg: str, v: dict, b_a1: float, src: str) -> dict:
+    """Exception numbers for one package. v = the loaded values; b_a1 = frozen baseline B_A1 of the package."""
+    pc = paths.cfg("panels.json")[panel]
+    crit = (
+        pc["readers"][0]["model"]
+        if pc["critical_role"] == "readers"
+        else pc["searcher"]["model"]
+    )
+    p = v["packages"][pkg]
+    tmax = max(v["turn_p90"].values())
+    hang = max(1.5 * p["B_f"], TCE_HANG_MULT * b_a1)
+    p2 = max(
+        1.30 * p["B_f"] + float(v.get("slack_s", 0)),
+        hang + TCE_FALLBACK_START + 2 * forced * tmax,
+    )
+    fin = max(
+        p["panel_finish_offset_s"], hang - v["turn_p90"][crit] - p["T_report_p90"]
+    )
+    return {
+        "on": True,
+        "forced_n": forced,
+        "B_A1": b_a1,
+        "B_A1_source": src,
+        "hang_offset_s": hang,
+        "p2_deadline_offset_s": p2,
+        "finish_offset_s": fin,
+        "finish_offset_cap_s": p["panel_finish_offset_s"],
+        "k_measured": p["k"],
+    }
+
+
+def tce_all(forced: int, panel: str, v: dict) -> dict:
+    """tce_plan for every package of v. B_A1 comes from the frozen values file of the panel when it exists
+    (smoke runs load planning values otherwise), else from v itself."""
+    f = paths.values_file(panel)
+    frozen = paths.load_json(f)["packages"] if f.exists() else {}
+    out = {}
+    for pkg, p in v["packages"].items():
+        b, src = (
+            (frozen[pkg]["B_f"], "frozen")
+            if pkg in frozen
+            else (p["B_f"], v.get("status", "planning"))
+        )
+        out[pkg] = tce_plan(forced, panel, pkg, v, b, src)
+    return out
+
+
+def tce_floor_n(
+    n: int, tce: dict | None, t_rel: float, start_cost: float, turn_p90: float, cap: int
+) -> int:
+    """Raise a measured n of 0 to the forced n while the widened phase-2 deadline still has room for it."""
+    if not tce or n > 0:
+        return n
+    f = min(cap, int(tce["forced_n"]))
+    room = tce["p2_deadline_offset_s"] - t_rel - start_cost
+    return f if f > 0 and room >= 2 * f * turn_p90 else n
 
 
 def p90(xs):
@@ -97,6 +205,7 @@ def planning(panel: str) -> dict:
         "status": "planning",
         "source_runs": [],
         "frozen_at": None,
+        "slack_s": slack_s(),
         "turn_p90": turns,
         "packages": pkgs,
         "slowdown_s": None,
@@ -104,10 +213,14 @@ def planning(panel: str) -> dict:
 
 
 def load(
-    panel: str, smoke: bool = False, spike4: bool = False
+    panel: str, smoke: bool = False, spike4: bool = False, prefer_frozen: bool = False
 ) -> tuple[dict, str | None]:
-    """Return (values, sha256 or None). Frozen file required unless smoke or spike4."""
-    if smoke:
+    """Return (values, sha256 or None). Frozen file required unless smoke or spike4.
+
+    prefer_frozen (only the time-cap exception sets it): a smoke run uses the frozen file when one exists,
+    so the forced n is exercised on the measured numbers; otherwise smoke uses planning values (A10).
+    """
+    if smoke and not prefer_frozen:
         return planning(panel), None  # A10: smoke runs use planning values
     f = paths.values_file(panel)
     if f.exists():
@@ -119,6 +232,11 @@ def load(
             and shaf.exists()
             and shaf.read_text().split()[0] == sha
         ):
+            if float(v.get("slack_s", 0)) != slack_s():
+                raise SystemExit(
+                    f"E_VALUES: {f} was frozen with slack_s={v.get('slack_s', 0)} "
+                    f"but PANEL_SLACK_S={slack_s():g}"
+                )
             return v, sha
         if not (smoke or spike4):
             raise SystemExit(
@@ -127,6 +245,12 @@ def load(
     elif not (smoke or spike4):
         raise SystemExit(
             f"E_VALUES: {f} missing (only R3_SMOKE=1 or R3_SPIKE4=1 may run without it)"
+            + (
+                f"; PANEL_SLACK_S={slack_s():g} needs the slack values "
+                f"(r3_py values-freeze --panel {panel} --runs <spike-4 run ids>)"
+                if slack_s()
+                else ""
+            )
         )
     return planning(panel), None
 
@@ -195,6 +319,7 @@ def freeze(panel: str, run_dirs: list) -> dict:
         "status": "frozen",
         "source_runs": [Path(r).name for r in run_dirs],
         "frozen_at": _dt.datetime.now(_dt.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
+        "slack_s": slack_s(),
         "turn_p90": tp,
         "packages": pkgs,
         "slowdown_s": None,

@@ -5,11 +5,14 @@ Rows with rep 0 (smoke) are ignored. A block = the collab-0 and collab-1 rows of
 - CONVERGENCE fires for a collab-1 row when its own_line_jaccard mean exceeds the collab-0 mean + 0.15, or its ledger rows
   fall more than 20% below the collab-0 mean (pass: at most 2 of 12 rows).
 - SNAPSHOT fires for a collab-1 row when snapshot_missing exceeds 50% of its receiving reviewers.
-- SLO budget: each package with elapsed_s > 1.35 x B_c spends one unit (budget 1 in 12), B_c = the collab-0 median of that
+- SLO budget: each package with elapsed_s > 1.35 x B_c + PANEL_SLACK_S (env, default 0) spends one unit (budget 1 in 12), B_c = the collab-0 median of that
   package over the panel's rows.
 - baseline_drift per block = median over packages of (collab-0 elapsed / B_f); outside [0.963, 1.10] the block is reported
   but not used for the time verdict.
 - SAME_GAPS: every collab-1 row injected the same moves (expected for F3; reported, never a failure).
+- Rows stamped time_cap_exception (launched with TIME_CAP_EXCEPTION=1, ids <panel>-c1x-r<rep>, OVERRIDE.md) are left out of all of the
+  above and listed separately under "time_cap_exception" with B_A1, elapsed_s, elapsed_over_baseline, forced_k, k_measured and the
+  messages delivered per reviewer, per package (rep 0 included).
 """
 
 from __future__ import annotations
@@ -39,8 +42,18 @@ def row_ledger(r):
     return sum(p["ledger_rows"] for p in ps)
 
 
+CX_PKG_COLS = ("B_A1", "elapsed_s", "elapsed_over_baseline", "forced_k", "k_measured", "forced_roles", "delivered", "hang_offset_s")
+
+
+def cap_exception_rows(rows: list[dict]) -> list[dict]:
+    """Time-cap-exception rows (OVERRIDE.md) with their own columns; every rep, smoke included. Never fed to the checks below."""
+    return [{"row": r["row"], "rep": r["rep"], "status": r.get("status"),
+             "packages": {p: {c: v.get(c) for c in CX_PKG_COLS} for p, v in r["packages"].items()}} for r in rows if r.get("time_cap_exception")]
+
+
 def report(rows: list[dict]) -> dict:
-    rows = [r for r in rows if r["rep"] >= 1]
+    cx = cap_exception_rows(rows)
+    rows = [r for r in rows if r["rep"] >= 1 and not r.get("time_cap_exception")]  # exception rows never mix with rows that obeyed the cap
     c0 = [r for r in rows if r["collab"] == 0]
     c1 = [r for r in rows if r["collab"] == 1]
     j0, l0 = mean([row_jaccard(r) for r in c0]), mean([row_ledger(r) for r in c0])
@@ -59,10 +72,11 @@ def report(rows: list[dict]) -> dict:
     pkgs = sorted({p for r in rows for p in r["packages"]})
     b_c = {p: statistics.median([r["packages"][p]["elapsed_s"] for r in c0 if r["packages"].get(p, {}).get("elapsed_s") is not None] or [0]) or None
           for p in pkgs}
+    slack = float(os.environ.get("PANEL_SLACK_S", "0") or "0")
     arms = {}
     for name, rs in (("collab0", c0), ("collab1", c1)):
         spent = [(r["row"], p) for r in rs for p in pkgs
-                 if b_c[p] and r["packages"].get(p, {}).get("elapsed_s") is not None and r["packages"][p]["elapsed_s"] > 1.35 * b_c[p]]
+                 if b_c[p] and r["packages"].get(p, {}).get("elapsed_s") is not None and r["packages"][p]["elapsed_s"] > 1.35 * b_c[p] + slack]
         npk = sum(1 for r in rs for p in pkgs if r["packages"].get(p, {}).get("elapsed_s") is not None)
         hist = {}
         for r in rs:
@@ -84,7 +98,9 @@ def report(rows: list[dict]) -> dict:
     inj = [json.dumps(r["collab_counters"].get("injections_by_move", {}), sort_keys=True) for r in c1]
     return {"convergence": {"fired": conv, "count": len(conv), "pass": len(conv) <= 2, "collab0_jaccard_mean": j0, "collab0_ledger_mean": l0},
             "snapshot": {"fired": snap}, "arms": arms, "blocks": blocks,
-            "same_gaps": len(inj) >= 2 and len(set(inj)) == 1}
+            "same_gaps": len(inj) >= 2 and len(set(inj)) == 1,
+            "time_cap_exception": {"note": "rows run with TIME_CAP_EXCEPTION=1; not in convergence, snapshot, slo, drift or same_gaps above",
+                                   "rows": cx}}
 
 
 def main(argv: list[str]) -> int:

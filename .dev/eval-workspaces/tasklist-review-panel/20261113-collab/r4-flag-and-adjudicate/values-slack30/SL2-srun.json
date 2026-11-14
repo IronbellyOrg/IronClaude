@@ -1,0 +1,58 @@
+{
+ "kind": "srun",
+ "packages": {
+  "TASK-WF-design-20261108-041415": {
+   "B_A1": 258.964,
+   "T_report_p90": 22.088,
+   "cp_role": "flagger",
+   "deliver": false,
+   "finish_offset_s": 342.131,
+   "hang_s": 388.446,
+   "k": 2,
+   "n_runs": 4,
+   "source_rows": [
+    "s4-a1-sl2-1",
+    "s4-a1-sl2-2",
+    "s4-a1-sl2-3",
+    "s4-a1-sl2-4"
+   ],
+   "turn_p90": 15.382
+  },
+  "TASK-WF-designSpec-20261107-075614": {
+   "B_A1": 207.69,
+   "T_report_p90": 75.335,
+   "cp_role": "flagger",
+   "deliver": false,
+   "finish_offset_s": 206.532,
+   "hang_s": 311.535,
+   "k": 0,
+   "n_runs": 4,
+   "source_rows": [
+    "s4-a1-sl2-1",
+    "s4-a1-sl2-2",
+    "s4-a1-sl2-3",
+    "s4-a1-sl2-4"
+   ],
+   "turn_p90": 28.514
+  },
+  "TASK-WF-makeTheAliasOnly-20261105-051649": {
+   "B_A1": 211.948,
+   "T_report_p90": 17.947,
+   "cp_role": "flagger",
+   "deliver": false,
+   "finish_offset_s": 274.625,
+   "hang_s": 317.922,
+   "k": 1,
+   "n_runs": 4,
+   "source_rows": [
+    "s4-a1-sl2-1",
+    "s4-a1-sl2-2",
+    "s4-a1-sl2-3",
+    "s4-a1-sl2-4"
+   ],
+   "turn_p90": 23.557
+  }
+ },
+ "panel": "SL2",
+ "slack_s": 30
+}

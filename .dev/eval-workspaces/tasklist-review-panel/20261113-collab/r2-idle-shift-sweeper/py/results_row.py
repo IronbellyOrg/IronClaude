@@ -49,6 +49,7 @@ def build(row: str, opaque: str) -> dict:
     panels = json.loads((R2 / "config/panels.json").read_text())
     pkgs = [p for p in panels["packages"] if (rd / p).is_dir()]
     invalid = []
+    exception = (rd / "time_cap_exception").exists()  # written by launch-panel.sh when TIME_CAP_EXCEPTION=1
     per, coll, elapsed, overhead, vsha = {}, [], {}, {}, {}
     tok = {"reviewers": 0, "sweeper": 0, "reask": 0}
     for pkg in pkgs:
@@ -92,7 +93,15 @@ def build(row: str, opaque: str) -> dict:
             "facts_delivered": {r: v["msgs_received"] for r, v in (c.get("reviewers") or {}).items() if v["role"] == "receiver"},
             "snapshot_missing": sum(bool(v.get("snapshot_missing")) for v in (c.get("reviewers") or {}).values()),
             "receivers": sum(v["role"] == "receiver" for v in (c.get("reviewers") or {}).values()),
+            # owner-authorised time-cap exception columns (OVERRIDE.md); B_A1 is the Spike 4 baseline of this package
+            "time_cap_exception": bool(c.get("time_cap_exception")),
+            "time_cap_exception_applied": bool(c.get("time_cap_exception_applied")),
+            "B_A1": c.get("B_A1"), "elapsed_over_baseline": c.get("elapsed_over_baseline"),
+            "k_measured": c.get("k_measured"),
+            "messages_delivered": c.get("messages_delivered"),
         }
+        if exception and not c.get("time_cap_exception"):
+            invalid.append(f"{pkg}: time_cap_exception row but the package values carry no exception stamp")
 
     def gt_items(pkg):
         g = jload(EVAL / pkg / "ground-truth.json", {"items": []})
@@ -152,6 +161,7 @@ def build(row: str, opaque: str) -> dict:
         "schema": "r2-results/1", "row": row, "arm": "F4" if collab_flag == "1" else "A1", "panel": panel,
         "panel_collab": int(collab_flag) if collab_flag else None, "models": models,
         "sweeper_model": rtext(rd / "sweeper_model"), "planning": (rd / "planning").exists(),
+        "time_cap_exception": exception,
         "values_sha256": vsha, "opaque": opaque, "started_at": rtext(rd / "started_at"),
         "finished_at": finished.get("t") or rtext(rd / "finished_at"),
         "found_14": found, "real_blocking_8": real, "judge_blocking": jb, "wrong_blockers": wrong,

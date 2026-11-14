@@ -1,0 +1,356 @@
+{
+ "schema": "r4-results/1",
+ "row": "tce-f7-el2-r01",
+ "panel": "EL2",
+ "arm": "F7",
+ "panel_collab": 1,
+ "time_cap_exception": true,
+ "models": {
+  "t2b-1": "muse-ember-1.0",
+  "t4-1": "gpt-6-luna",
+  "t3-1": "gpt-6-luna"
+ },
+ "values_sha256": "0a915e1248c4c85f7126b10951f69c5193715603ad09a38257e9740fdae2755f",
+ "pins_ok": true,
+ "seed": 509144762,
+ "started": "2026-11-14T13:38:30Z",
+ "finished": null,
+ "valid": true,
+ "found_14": 2,
+ "real_blocking_8": 1,
+ "judge_blocking": 1,
+ "wrong_blockers": 1,
+ "control_found_2": 0,
+ "control_wrong_blockers": 2,
+ "output_tokens": 80952,
+ "elapsed_s": {
+  "DS": 105.357,
+  "AL": 146.971,
+  "DE": 178.799
+ },
+ "overhead_pct": {
+  "DS": 2.78,
+  "AL": 11.52,
+  "DE": 56.67
+ },
+ "reach": false,
+ "reach_ids": [],
+ "credited_method": "row anchor overlaps a covered plan_quote",
+ "packages": {
+  "TASK-WF-designSpec-20261107-075614": {
+   "status": "ok",
+   "label": "HZAK",
+   "gt_covered_any": [
+    "GT3"
+   ],
+   "gt_covered_blocking": [],
+   "real_blocking": [],
+   "wrong_blockers": 0,
+   "ledger_rows_total": 5,
+   "ledger_rows_blocking": 0,
+   "output_tokens": 15092,
+   "slo_breach": false,
+   "dropped_lines": 0,
+   "reask_count": 0
+  },
+  "TASK-WF-makeTheAliasOnly-20261105-051649": {
+   "status": "ok",
+   "label": "AHCX",
+   "gt_covered_any": [
+    "GT2"
+   ],
+   "gt_covered_blocking": [
+    "GT2"
+   ],
+   "real_blocking": [
+    "GT2"
+   ],
+   "wrong_blockers": 1,
+   "ledger_rows_total": 3,
+   "ledger_rows_blocking": 2,
+   "output_tokens": 31890,
+   "slo_breach": false,
+   "dropped_lines": 0,
+   "reask_count": 0
+  },
+  "TASK-WF-design-20261108-041415": {
+   "status": "ok",
+   "label": "FQXW",
+   "gt_covered_any": [],
+   "gt_covered_blocking": [],
+   "real_blocking": [],
+   "wrong_blockers": 2,
+   "ledger_rows_total": 6,
+   "ledger_rows_blocking": 2,
+   "output_tokens": 33970,
+   "slo_breach": false,
+   "dropped_lines": 0,
+   "reask_count": 0
+  }
+ },
+ "collab": {
+  "TASK-WF-designSpec-20261107-075614": {
+   "k": 1,
+   "k0_isolated": false,
+   "deal_r": 0,
+   "deal_c": 1,
+   "time_cap_exception": true,
+   "k_measured": 0,
+   "k_forced": true,
+   "hang_s": 307.536,
+   "finish_offset_s": 172.057,
+   "elapsed_s": 105.357,
+   "elapsed_over_baseline": 1.0278,
+   "delivered_per_reviewer": {
+    "t2b-1": 0,
+    "t4-1": 1,
+    "t3-1": 1
+   },
+   "cards_sent": 2,
+   "cards_rejected": {
+    "too_early": 0,
+    "over_cap": 0,
+    "after_finish": 0,
+    "bad_args": 0,
+    "bad_move": 0,
+    "bad_category": 0,
+    "bad_severity": 0,
+    "bad_anchor_length": 0,
+    "anchor_not_in_candidate": 0,
+    "invalid": 0
+   },
+   "cards_delivered": 2,
+   "late": 0,
+   "no_snapshot": 0,
+   "receiving_lunas": 2,
+   "snapshot_missing": 0,
+   "baseline_elapsed_s": 102.512,
+   "conversions": {
+    "challenge": {
+     "delivered": 1,
+     "converted": 0,
+     "credited": 0,
+     "uncredited": 0
+    },
+    "finding": {
+     "delivered": 1,
+     "converted": 0,
+     "credited": 0,
+     "uncredited": 0
+    }
+   },
+   "passed_lines": 2,
+   "card_tasks": [
+    "T3",
+    "T4"
+   ],
+   "early_tasks_only": true,
+   "flag_finding_overlap": 0.0,
+   "adjudication_agreement": 0.0,
+   "finish_signal_fired": false,
+   "finish_would_fire": false,
+   "hang_kill": false,
+   "retry_isolated": false,
+   "hook_error": 0,
+   "hook_ms_p95": 82,
+   "own_line_jaccard": 0.0,
+   "pairwise_task_jaccard": 0.0,
+   "ledger_rows": 5
+  },
+  "TASK-WF-makeTheAliasOnly-20261105-051649": {
+   "k": 1,
+   "k0_isolated": false,
+   "deal_r": 0,
+   "deal_c": 1,
+   "time_cap_exception": true,
+   "k_measured": 0,
+   "k_forced": true,
+   "hang_s": 395.37,
+   "finish_offset_s": 291.027,
+   "elapsed_s": 146.971,
+   "elapsed_over_baseline": 1.1152,
+   "delivered_per_reviewer": {
+    "t2b-1": 0,
+    "t4-1": 1,
+    "t3-1": 1
+   },
+   "cards_sent": 2,
+   "cards_rejected": {
+    "too_early": 0,
+    "over_cap": 0,
+    "after_finish": 0,
+    "bad_args": 0,
+    "bad_move": 0,
+    "bad_category": 0,
+    "bad_severity": 0,
+    "bad_anchor_length": 0,
+    "anchor_not_in_candidate": 0,
+    "invalid": 0
+   },
+   "cards_delivered": 2,
+   "late": 0,
+   "no_snapshot": 0,
+   "receiving_lunas": 2,
+   "snapshot_missing": 0,
+   "baseline_elapsed_s": 131.79,
+   "conversions": {
+    "challenge": {
+     "delivered": 1,
+     "converted": 0,
+     "credited": 0,
+     "uncredited": 0
+    },
+    "finding": {
+     "delivered": 1,
+     "converted": 0,
+     "credited": 0,
+     "uncredited": 0
+    }
+   },
+   "passed_lines": 2,
+   "card_tasks": [
+    "T6",
+    "T2"
+   ],
+   "early_tasks_only": null,
+   "flag_finding_overlap": 0.0,
+   "adjudication_agreement": 0.0,
+   "finish_signal_fired": false,
+   "finish_would_fire": false,
+   "hang_kill": false,
+   "retry_isolated": false,
+   "hook_error": 0,
+   "hook_ms_p95": 80,
+   "own_line_jaccard": 0.0,
+   "pairwise_task_jaccard": 0.0,
+   "ledger_rows": 3
+  },
+  "TASK-WF-design-20261108-041415": {
+   "k": 1,
+   "k0_isolated": false,
+   "deal_r": 1,
+   "deal_c": 1,
+   "time_cap_exception": true,
+   "k_measured": 0,
+   "k_forced": true,
+   "hang_s": 342.363,
+   "finish_offset_s": 229.22,
+   "elapsed_s": 178.799,
+   "elapsed_over_baseline": 1.5667,
+   "delivered_per_reviewer": {
+    "t2b-1": 0,
+    "t4-1": 1,
+    "t3-1": 1
+   },
+   "cards_sent": 2,
+   "cards_rejected": {
+    "too_early": 0,
+    "over_cap": 0,
+    "after_finish": 0,
+    "bad_args": 0,
+    "bad_move": 0,
+    "bad_category": 0,
+    "bad_severity": 0,
+    "bad_anchor_length": 0,
+    "anchor_not_in_candidate": 0,
+    "invalid": 0
+   },
+   "cards_delivered": 2,
+   "late": 0,
+   "no_snapshot": 0,
+   "receiving_lunas": 2,
+   "snapshot_missing": 0,
+   "baseline_elapsed_s": 114.121,
+   "conversions": {
+    "challenge": {
+     "delivered": 1,
+     "converted": 0,
+     "credited": 0,
+     "uncredited": 0
+    },
+    "finding": {
+     "delivered": 1,
+     "converted": 1,
+     "credited": 0,
+     "uncredited": 1
+    }
+   },
+   "passed_lines": 2,
+   "card_tasks": [
+    "T1",
+    "T1"
+   ],
+   "early_tasks_only": null,
+   "flag_finding_overlap": 0.0,
+   "adjudication_agreement": 0.5,
+   "finish_signal_fired": false,
+   "finish_would_fire": false,
+   "hang_kill": false,
+   "retry_isolated": false,
+   "hook_error": 0,
+   "hook_ms_p95": 102,
+   "own_line_jaccard": 0.0,
+   "pairwise_task_jaccard": 0.0,
+   "ledger_rows": 6
+  }
+ },
+ "audit": {
+  "audit_ok": true,
+  "violations": [],
+  "sandbox_clean": true,
+  "candidate_sha_ok": true,
+  "board_lines_invalid": 0,
+  "harness_text_gt_overlap": 0,
+  "a1_brief_gt_overlap": 1,
+  "anchor_gt_overlap": 2,
+  "first_hand_suspect": 0,
+  "ignored_only": [
+   "TASK-WF-design-20261108-041415:.codegraph/",
+   "TASK-WF-design-20261108-041415:.pytest_cache/",
+   "TASK-WF-design-20261108-041415:.venv/",
+   "TASK-WF-design-20261108-041415:src/superclaude/__pycache__/",
+   "TASK-WF-design-20261108-041415:src/superclaude/pm_agent/__pycache__/",
+   "TASK-WF-design-20261108-041415:tests/__pycache__/",
+   "TASK-WF-design-20261108-041415:tests/skills/__pycache__/",
+   "TASK-WF-design-20261108-041415:uv.lock",
+   "TASK-WF-designSpec-20261107-075614:.codegraph/",
+   "TASK-WF-designSpec-20261107-075614:.venv/",
+   "TASK-WF-designSpec-20261107-075614:src/superclaude/__pycache__/",
+   "TASK-WF-designSpec-20261107-075614:src/superclaude/pm_agent/__pycache__/",
+   "TASK-WF-designSpec-20261107-075614:src/superclaude/pr_submit/__pycache__/",
+   "TASK-WF-designSpec-20261107-075614:uv.lock",
+   "TASK-WF-makeTheAliasOnly-20261105-051649:.codegraph/",
+   "TASK-WF-makeTheAliasOnly-20261105-051649:.pytest_cache/",
+   "TASK-WF-makeTheAliasOnly-20261105-051649:.venv/",
+   "TASK-WF-makeTheAliasOnly-20261105-051649:src/superclaude/__pycache__/",
+   "TASK-WF-makeTheAliasOnly-20261105-051649:src/superclaude/cli/__pycache__/",
+   "TASK-WF-makeTheAliasOnly-20261105-051649:src/superclaude/cli/cleanup_audit/__pycache__/",
+   "TASK-WF-makeTheAliasOnly-20261105-051649:src/superclaude/cli/cli_portify/__pycache__/",
+   "TASK-WF-makeTheAliasOnly-20261105-051649:src/superclaude/cli/eval/__pycache__/",
+   "TASK-WF-makeTheAliasOnly-20261105-051649:src/superclaude/cli/eval/suites/__pycache__/",
+   "TASK-WF-makeTheAliasOnly-20261105-051649:src/superclaude/cli/pipeline/__pycache__/",
+   "TASK-WF-makeTheAliasOnly-20261105-051649:src/superclaude/cli/prd/__pycache__/",
+   "TASK-WF-makeTheAliasOnly-20261105-051649:src/superclaude/cli/recommend/__pycache__/",
+   "TASK-WF-makeTheAliasOnly-20261105-051649:src/superclaude/cli/reflect/__pycache__/",
+   "TASK-WF-makeTheAliasOnly-20261105-051649:src/superclaude/cli/roadmap/__pycache__/",
+   "TASK-WF-makeTheAliasOnly-20261105-051649:src/superclaude/cli/sprint/__pycache__/",
+   "TASK-WF-makeTheAliasOnly-20261105-051649:src/superclaude/cli/swarm/__pycache__/",
+   "TASK-WF-makeTheAliasOnly-20261105-051649:src/superclaude/cli/swarm/lenses/__pycache__/",
+   "TASK-WF-makeTheAliasOnly-20261105-051649:src/superclaude/cli/swarm/recipes/__pycache__/",
+   "TASK-WF-makeTheAliasOnly-20261105-051649:src/superclaude/cli/swarm/transports/__pycache__/",
+   "TASK-WF-makeTheAliasOnly-20261105-051649:src/superclaude/cli/tasklist/__pycache__/",
+   "TASK-WF-makeTheAliasOnly-20261105-051649:src/superclaude/execution/__pycache__/",
+   "TASK-WF-makeTheAliasOnly-20261105-051649:src/superclaude/pm_agent/__pycache__/",
+   "TASK-WF-makeTheAliasOnly-20261105-051649:tests/__pycache__/",
+   "TASK-WF-makeTheAliasOnly-20261105-051649:tests/skills/__pycache__/",
+   "TASK-WF-makeTheAliasOnly-20261105-051649:tests/sprint/__pycache__/",
+   "TASK-WF-makeTheAliasOnly-20261105-051649:uv.lock"
+  ],
+  "tmp_other": [],
+  "home_other": [
+   "/home/coder/.claude/rules/prompts/document_review_loop_prompts.md",
+   "~/.claude/rules/prompts/document_review_loop_prompts.md",
+   "~/.claude/rules/prompts/document_review_loop_prompts.md,"
+  ]
+ }
+}

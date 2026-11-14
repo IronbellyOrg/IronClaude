@@ -258,6 +258,18 @@ def test_f17_over_cap_counts_in_budget(env):
     assert read_json(d / "collab.json")["slo"] == "over_cap"
 
 
+def test_f17_slack_extends_over_cap(env, monkeypatch):
+    """Same 2 s receiver as above (B 1 s): over_cap with no slack; with PANEL_SLACK_S=30 the cap is 31.35 s, so ok."""
+    monkeypatch.setenv("PANEL_SLACK_S", "30")
+    write_values(env["cfg"], "sl2", dirname="values-slack30",
+                 all={"B_f_s": 1, "finish_offset_s": 31, "hang_offset_s": 30, "k": 2, "slack_s": 30})
+    base_scenario(env, calls=0)
+    put(env, "claude-sonnet-5-5", sleep=2)
+    d = panel(env, collab=0)
+    assert read_json(d / "run.json")["slack_s"] == 30
+    assert read_json(d / "collab.json")["slo"] == "ok"
+
+
 def test_ac10_el2_one_card_per_luna(env):
     values(env, panel="el2", k=2)
     put(env, "muse-ember-1.0", md=rep(ALL[:6]))

@@ -201,8 +201,13 @@ def cmd_values_freeze(a) -> int:
 
 
 def cmd_values_show(a) -> int:
-    v, sha = values.load(a.panel, smoke=a.smoke, spike4=a.spike4)
-    print(json.dumps({"values": v, "sha256": sha}))
+    v, sha = values.load(
+        a.panel, smoke=a.smoke, spike4=a.spike4, prefer_frozen=bool(a.tce)
+    )
+    out = {"values": v, "sha256": sha}
+    if a.tce:  # time-cap exception: per-package widened timers (OVERRIDE.md)
+        out["tce"] = values.tce_all(a.tce, a.panel, v)
+    print(json.dumps(out))
     return 0
 
 
@@ -362,6 +367,7 @@ def main(argv=None) -> int:
     s.add_argument("--panel", required=True)
     s.add_argument("--smoke", action="store_true")
     s.add_argument("--spike4", action="store_true")
+    s.add_argument("--tce", type=int, default=0)
     s.set_defaults(f=cmd_values_show)
     s = sp.add_parser("summarize")
     s.add_argument("--panel", required=True)

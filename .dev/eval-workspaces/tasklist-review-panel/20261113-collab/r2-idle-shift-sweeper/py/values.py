@@ -9,6 +9,7 @@ import datetime as _dt
 import hashlib
 import json
 import math
+import os
 import re
 import statistics
 import subprocess
@@ -19,9 +20,21 @@ HOOKS_S = 2.0
 EPS = 1e-9  # floor() guard: 12.8/12.8 computed in floats must give 1, not 0
 
 
+def slack_s() -> float:
+    """Owner decision 2026-11-14: the time cap is 1.35 B + SLACK_S. Read at call time from PANEL_SLACK_S (default 0)."""
+    raw = os.environ.get("PANEL_SLACK_S", "").strip() or "0"
+    try:
+        v = float(raw)
+    except ValueError:
+        raise ValueError(f"PANEL_SLACK_S must be a number of seconds, got {raw!r}") from None
+    if not math.isfinite(v) or v < 0:
+        raise ValueError(f"PANEL_SLACK_S must be a finite number >= 0, got {raw!r}")
+    return v
+
+
 def finish_at(B: float, turn_crit: float, report_crit: float) -> float:
-    """panel_finish_at_s = 1.35 B_f - turn_p90_crit - T_report_p90_crit (offset from T0)."""
-    return 1.35 * B - turn_crit - report_crit
+    """panel_finish_at_s = 1.35 B_f + SLACK_S - turn_p90_crit - T_report_p90_crit (offset from T0)."""
+    return 1.35 * B + slack_s() - turn_crit - report_crit
 
 
 def k(finish_s: float, e_recv: float, turn_recv: float, hooks: float = HOOKS_S) -> int:
@@ -30,8 +43,8 @@ def k(finish_s: float, e_recv: float, turn_recv: float, hooks: float = HOOKS_S) 
 
 
 def k_r42(B: float, turn: float, report: float, hooks: float = HOOKS_S) -> int:
-    """R-42 literal form: floor((0.35 B - hooks - turn - report) / (2 turn))."""
-    return max(0, min(2, math.floor((0.35 * B - hooks - turn - report) / (2 * turn) + EPS)))
+    """R-42 literal form: floor((0.35 B + SLACK_S - hooks - turn - report) / (2 turn))."""
+    return max(0, min(2, math.floor((0.35 * B + slack_s() - hooks - turn - report) / (2 * turn) + EPS)))
 
 
 def sweeper_kill(finish_s: float, turn_recv: float) -> float:
@@ -42,9 +55,42 @@ def hang(B: float) -> float:
     return 1.5 * B
 
 
+EXC_HANG_X = 3.0  # time-cap exception: hang guard = max(existing, 3.0 x B_A1)
+
+
+def time_cap_exception() -> int:
+    """Owner decision 2026-11-14: TIME_CAP_EXCEPTION=1 (default 0/unset) forces k = 1 on a package whose measured k is 0.
+    Only 0 and 1 are valid; 1 is the forced k."""
+    raw = os.environ.get("TIME_CAP_EXCEPTION", "").strip() or "0"
+    if raw not in ("0", "1"):
+        raise ValueError(f"TIME_CAP_EXCEPTION must be unset, 0 or 1 (1 = forced k of 1), got {raw!r}")
+    return int(raw)
+
+
+def exception_values(v: dict) -> dict:
+    """The exception variant of one measured values file. A package with measured k > 0 is returned unchanged except for the
+    stamp (applied: false). With k = 0: k = 1, hang = max(hang, 3.0 B_A1), finish = max(finish, hang - turn_crit - report_crit)
+    (the design's own 'cap - turn - report' relation with the cap now equal to the widened hang guard), kill = finish - 2 turn_recv."""
+    out = dict(v)
+    k0 = int(v["k"])
+    B = float(v["B_f"])
+    out["time_cap_exception"] = {"B_A1": B, "k_measured": k0, "k_forced": max(k0, 1), "applied": k0 == 0,
+                                 "hang_s_measured": v["hang_s"], "panel_finish_at_s_measured": v["panel_finish_at_s"],
+                                 "sweeper_kill_s_measured": v["sweeper_kill_s"]}
+    if k0 > 0:
+        return out
+    hang_s = max(float(v["hang_s"]), round(EXC_HANG_X * B, 3))
+    fin = max(float(v["panel_finish_at_s"]), round(hang_s - float(v["turn_p90_crit"]) - float(v["T_report_p90_crit"]), 3))
+    kill = max(float(v["sweeper_kill_s"]), round(sweeper_kill(fin, float(v["turn_p90_recv"])), 3))
+    if k(fin, float(v["E_recv"]), float(v["turn_p90_recv"]), float(v.get("hooks_s", HOOKS_S))) < 1:
+        raise ValueError(f"widened finish {fin} s still does not fit one message for {v.get('panel')}/{v.get('pkg')}")
+    out.update({"k": 1, "hang_s": round(hang_s, 3), "panel_finish_at_s": round(fin, 3), "sweeper_kill_s": round(kill, 3)})
+    return out
+
+
 def compute(panel, pkg, B, turn_crit, report_crit, e_recv, turn_recv, report_recv, source="planning", n_runs=0) -> dict:
     f = finish_at(B, turn_crit, report_crit)
-    return {
+    out = {
         "panel": panel, "pkg": pkg, "B_f": B,
         "turn_p90_crit": turn_crit, "T_report_p90_crit": report_crit,
         "E_recv": e_recv, "turn_p90_recv": turn_recv, "T_report_p90_recv": report_recv,
@@ -52,6 +98,9 @@ def compute(panel, pkg, B, turn_crit, report_crit, e_recv, turn_recv, report_rec
         "sweeper_kill_s": round(sweeper_kill(f, turn_recv), 3), "hang_s": round(hang(B), 3),
         "source": source, "n_runs": n_runs,
     }
+    if slack_s():  # recorded only when set, so default-0 files stay byte-identical to the pinned ones
+        out["slack_s"] = slack_s()
+    return out
 
 
 # ------------------------------------------------------------------ Spike 4 reducer
@@ -127,7 +176,7 @@ def sha256(p: Path) -> str:
     return hashlib.sha256(p.read_bytes()).hexdigest()
 
 
-def pin(r2: Path, repo: Path, eval_dir: Path, out: Path) -> dict:
+def pin(r2: Path, repo: Path, eval_dir: Path, out: Path, values_dir: str = "values") -> dict:
     panels = json.loads((r2 / "config/panels.json").read_text())
     base = {}
     for pkg in panels["packages"]:
@@ -142,8 +191,8 @@ def pin(r2: Path, repo: Path, eval_dir: Path, out: Path) -> dict:
         "brief_a1": sha256(r2 / "config/brief-a1.tmpl"),
         "sweeper_brief": sha256(r2 / "config/sweeper-brief.tmpl"),
     }
-    for f in sorted((r2 / "config/values").glob("*/*.json")):
-        shas[f"values/{f.parent.name}/{f.name}"] = sha256(f)
+    for f in sorted((r2 / "config" / values_dir).glob("*/*.json")):
+        shas[f"{values_dir}/{f.parent.name}/{f.name}"] = sha256(f)
     m = {"base_sha": base,
          "base_rule": "first parent of the squash commit that first added the package folder",
          "sha256": shas,
@@ -168,11 +217,15 @@ def main(argv=None) -> int:
     r.add_argument("--projects", default=str(Path.home() / ".claude/projects"))
     r.add_argument("--pkg")
     r.add_argument("--out")
+    x = sub.add_parser("exception", help="write the time-cap-exception variant of every pinned values file")
+    x.add_argument("--src", required=True, help="directory of <panel>/<pkg>.json (the pinned config/values)")
+    x.add_argument("--dst", required=True, help="directory to write (config/values-exception)")
     p = sub.add_parser("pin")
     p.add_argument("--r2", required=True)
     p.add_argument("--repo", required=True)
     p.add_argument("--eval", required=True)
     p.add_argument("--out", required=True)
+    p.add_argument("--values-dir", default="values")
     a = ap.parse_args(argv)
     if a.cmd == "compute":
         print(json.dumps(compute(a.panel, a.pkg, a.B, a.turn_crit, a.report_crit, a.e_recv,
@@ -190,8 +243,16 @@ def main(argv=None) -> int:
             Path(a.out).parent.mkdir(parents=True, exist_ok=True)
             Path(a.out).write_text(s + "\n")
         print(s)
+    elif a.cmd == "exception":
+        n = 0
+        for f in sorted(Path(a.src).glob("*/*.json")):
+            o = Path(a.dst) / f.parent.name / f.name
+            o.parent.mkdir(parents=True, exist_ok=True)
+            o.write_text(json.dumps(exception_values(json.loads(f.read_text()))) + "\n")
+            n += 1
+        print(json.dumps({"written": n}))
     else:
-        print(json.dumps(pin(Path(a.r2), Path(a.repo), Path(a.eval), Path(a.out))))
+        print(json.dumps(pin(Path(a.r2), Path(a.repo), Path(a.eval), Path(a.out), a.values_dir)))
     return 0
 
 

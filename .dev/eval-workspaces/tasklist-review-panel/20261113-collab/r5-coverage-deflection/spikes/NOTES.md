@@ -74,3 +74,48 @@ What the row showed (from `runs/smoke-f6diag-sl2-1/TASK-WF-design-20261108-04141
 - The card text and the finish text are both in the real sonnet session transcript under `~/.claude/projects/-tmp-evalsb-collab-r5-TASK-WF-design-20261108-041415-repo/99c55825-d4e1-4806-bbda-ac6183d846d6.jsonl` (3 matches each). `smoke-check.sh` item 4 reports `card_text_in_transcript_at=0` only because the runner copies the session file after the attempt, and a hang-killed process leaves no result message and no session id, so no copy exists.
 - The sonnet receiver then ran to the hang guard: finish text printed once at about 219 s, process killed at 266.4 s (1.5 x B_f = 265.4 s), `hang_kill: true`, `slo: SLO_BREACH`, no valid report (`model_ok` false), recorded INVALID in the merge, row `quarantined` (the audit's model check fails for t1b-1; the other audit checks pass). The A2 pilot row ended at 281.6 s, so sonnet with the catalogue kit takes about 280 s against 177 s for A1: this is the kit slowdown the pilot measured (0.59 against a limit of 0.34), seen again in a real F6 run.
 - Smoke items on this row: 1 FAIL (exit 1, quarantined), 2 FAIL (t1b-1 killed), 3 FAIL (1 dropped line from the killed receiver, 2 reviewer ids in the merge), 4 partial (card delivered, snapshot ok, no hook error, validator ok; card text in the transcript only in the uncopied session file), 5 PASS (A1 row), 6 FAIL (audit quarantined; the A1 row passes), 7 FAIL (elapsed 266.4 s, hang kill). The A1 row `smoke-a1-sl2-1` passes every A1-side item (exit 0, complete, all three models ok, 0 dropped lines, 3 ids in the merge, no board, no `--settings`, F6 fields null, anon post-check 0, score parsed, audit pass, 180.3 s elapsed).
+
+## Spike 4 el2 (prefix s4, A1 x4, A2 x2, packages all): PASS (2026-11-14T05:31:38Z)
+
+Command: `ROW_PREFIX=s4 A1_RUNS=4 A2_RUNS=2 PKGS= bash spikes/spike4.sh el2` (NOFALLBACK=1). Values written under `/home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/.dev/eval-workspaces/tasklist-review-panel/20261113-collab/r5-coverage-deflection/config/values/el2/`.
+
+- s4-a1-el2-r1: launch exit 0
+- s4-a1-el2-r2: launch exit 0
+- s4-a1-el2-r3: launch exit 0
+- s4-a1-el2-r4: launch exit 0
+- s4-a2-el2-r1: launch exit 0
+- s4-a2-el2-r2: launch exit 0
+```
+{"pkg": "TASK-WF-design-20261108-041415", "B_f_s": 116.78200000000001, "turn_p90_s": 40.38199996948242, "T_report_p90_s": 57.419999837875366, "k": 0, "budget_ok": false}
+{"pkg": "TASK-WF-designSpec-20261107-075614", "B_f_s": 120.1605, "turn_p90_s": 43.812000036239624, "T_report_p90_s": 88.4210000038147, "k": 0, "budget_ok": true}
+{"pkg": "TASK-WF-makeTheAliasOnly-20261105-051649", "B_f_s": 144.4515, "turn_p90_s": 31.486999988555908, "T_report_p90_s": 73.54299998283386, "k": 0, "budget_ok": true}
+```
+
+## Spike 4 hl2 (prefix s4, A1 x4, A2 x2, packages all): PASS (2026-11-14T07:27:57Z)
+
+Command: `ROW_PREFIX=s4 A1_RUNS=4 A2_RUNS=2 PKGS= bash spikes/spike4.sh hl2` (NOFALLBACK=1). Values written under `/home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/.dev/eval-workspaces/tasklist-review-panel/20261113-collab/r5-coverage-deflection/config/values/hl2/`.
+
+- s4-a1-hl2-r1: launch exit 0
+- s4-a1-hl2-r2: launch exit 1
+- s4-a1-hl2-r3: launch exit 0
+- s4-a1-hl2-r4: launch exit 0
+- s4-a2-hl2-r1: launch exit 1
+- s4-a2-hl2-r2: launch exit 0
+```
+{"pkg": "TASK-WF-design-20261108-041415", "B_f_s": 209.4955, "turn_p90_s": 59.514999866485596, "T_report_p90_s": 91.2649998664856, "k": 0, "budget_ok": true}
+{"pkg": "TASK-WF-designSpec-20261107-075614", "B_f_s": 220.9375, "turn_p90_s": 94.58400011062622, "T_report_p90_s": 247.70000004768372, "k": 0, "budget_ok": false}
+{"pkg": "TASK-WF-makeTheAliasOnly-20261105-051649", "B_f_s": 264.0575, "turn_p90_s": 76.65400004386902, "T_report_p90_s": 84.68499994277954, "k": 0, "budget_ok": true}
+```
+
+## Smoke test, TIME_CAP_EXCEPTION=1 (DESIGN 6.4 items 1-4, 6, 7 + stamps): PASS (2026-11-14T13:06:11Z)
+
+Row `smoke-tcx-el2-1` on `TASK-WF-design-20261108-041415`; checked by `spikes/smoke-check-tcx.sh`.
+
+- PASS 1 launch exit=0; results status=complete
+- PASS 2 final model_ok and observed model equals requested: t2b-1=muse-ember-1.0 t3-1=gpt-6-luna t4-1=gpt-6-luna 
+- PASS 3 dropped_lines total=0; reviewer ids in the merge=3
+- PASS 4 cards_delivered=1 snapshot_missing=0 hook_error=0 [t4-1 seal_t=1794661501078 card_text_in_transcript_at=1794661501123 validator=ok snapshot_sha_ok=true] 
+- PASS AC-9 cards=2 keys_and_items_ok=true posted_at_or_after_finish=0 delivered_at_or_after_finish=0 (k=1)
+- PASS 6 anon=ok score=parsed audit=pass
+- PASS 7 (exception form) elapsed_s=105.825 B_A1=116.78200000000001 hang_guard_s=350.346 ratio=0.9061756092548509 hang_kill=false slo=ok
+- PASS 8 stamps time_cap_exception=true in run/collab/results; k_measured=0 k_forced=true k=1; B_A1=116.78200000000001 equals values file 116.78200000000001; values_sha256=f112f760ed72570c588c33dfa745c2d2f273cdeab145c4512e062effb99cf31f; messages_delivered={"t4-1":1,"t3-1":0,"t2b-1":0}

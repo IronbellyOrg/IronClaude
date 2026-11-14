@@ -6,12 +6,19 @@ summarize_arm.py --rows results/*.json --baseline-rows <A1 rows...> --out <arm-s
 from __future__ import annotations
 
 import argparse
+import importlib.util
 import json
 import statistics
 import sys
 from pathlib import Path
 
 EPS = 1e-9
+
+# run under `python -I` (no script dir on sys.path), so load the sibling by path
+_spec = importlib.util.spec_from_file_location("r2_values", Path(__file__).with_name("values.py"))
+_values = importlib.util.module_from_spec(_spec)
+_spec.loader.exec_module(_values)
+slack_s = _values.slack_s
 
 
 def run_mean(d: dict) -> float | None:
@@ -32,6 +39,13 @@ def summarize(rows: list[dict], base: list[dict]) -> dict:
     planning = [r["row"] for r in rows + base if r.get("planning")]
     if planning:
         raise ValueError(f"planning rows are never counted: {planning}")
+    # time-cap exception rows (OVERRIDE.md) are never mixed with rows that obeyed the cap, in either direction
+    exc_flags = {bool(r.get("time_cap_exception")) for r in rows + base}
+    if len(exc_flags) > 1:
+        raise ValueError("rows with time_cap_exception true must not be mixed with rows that obeyed the cap: "
+                         f"exception {[r['row'] for r in rows + base if r.get('time_cap_exception')]}, "
+                         f"cap-obeying {[r['row'] for r in rows + base if not r.get('time_cap_exception')]}")
+    exception = exc_flags == {True}
     reasons, stop, fail = [], False, False
     # CONVERGENCE (own-line rule) and the independence guard
     a1_j = mean([run_mean(r["collab"]["own_line_jaccard"]) for r in base])
@@ -62,15 +76,20 @@ def summarize(rows: list[dict], base: list[dict]) -> dict:
     if reruns and mism / reruns > 0.10 + EPS:
         stop = True
         reasons.append("rerun_mismatch")
-    # SLO budget: elapsed above 1.35 B_c (concurrent per-package median) or slo_breach, more than 1 package
+    # SLO budget: elapsed above 1.35 B_c + SLACK_S (concurrent per-package median) or slo_breach, more than 1 package
+    # (run with the same PANEL_SLACK_S the rows were launched with)
+    slack = slack_s()
     by_pkg: dict[str, list[float]] = {}
     for r in rows:
         for p, pp in r["per_package"].items():
             if pp.get("elapsed_s") is not None:
                 by_pkg.setdefault(p, []).append(pp["elapsed_s"])
     B_c = {p: statistics.median(v) for p, v in by_pkg.items()}
+    # exception rows: the 35% cap is waived by the owner, so only the row's own slo_breach (hang_kill, or elapsed above the
+    # widened hang guard) counts; the elapsed / B_A1 ratio is reported below instead
     slo = sum(1 for r in rows for p, pp in r["per_package"].items()
-              if pp.get("slo_breach") or (pp.get("elapsed_s") is not None and pp["elapsed_s"] > 1.35 * B_c[p] + EPS))
+              if pp.get("slo_breach") or (not exception and pp.get("elapsed_s") is not None
+                                          and pp["elapsed_s"] > 1.35 * B_c[p] + slack + EPS))
     if slo > 1:
         stop = True
         reasons.append("slo_budget")
@@ -89,7 +108,12 @@ def summarize(rows: list[dict], base: list[dict]) -> dict:
                     flood_pk.append((r["row"], p))
     total_pk = sum(len(r["per_package"]) for r in rows)
     flood = bool(total_pk) and len(flood_pk) > total_pk / 2
-    return {"runs": n, "convergence_fires": fires, "independence_guard_pass": guard_pass,
+    exc_cols = [{"row": r["row"], "package": p, "applied": pp.get("time_cap_exception_applied"), "B_A1": pp.get("B_A1"),
+                 "elapsed_s": pp.get("elapsed_s"), "elapsed_over_baseline": pp.get("elapsed_over_baseline"),
+                 "k_measured": pp.get("k_measured"), "k": pp.get("k"), "messages_delivered": pp.get("messages_delivered")}
+                for r in rows for p, pp in r["per_package"].items()] if exception else None
+    return {"time_cap_exception": exception, "time_cap_exception_columns": exc_cols,
+            "runs": n, "convergence_fires": fires, "independence_guard_pass": guard_pass,
             "a1_own_line_jaccard": a1_j, "a1_ledger_rows": a1_l, "echo_alarms": echo,
             "snapshot_missing_rate": snap / rec_runs if rec_runs else None,
             "rerun_mismatch_rate": mism / reruns if reruns else None, "slo_packages": slo, "B_c": B_c,

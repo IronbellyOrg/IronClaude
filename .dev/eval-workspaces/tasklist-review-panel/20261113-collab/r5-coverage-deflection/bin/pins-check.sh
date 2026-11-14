@@ -29,9 +29,10 @@ for kind in findings ledger; do
   W=$(jq -r ".parser.worktree_$kind" "$PINS"); I=$(jq -r ".parser.installed_$kind" "$PINS"); P=$(jq -r ".parser.${kind}_sha256" "$PINS")
   chk "worktree $kind.py" "$P" "$(sum "$W")"; chk "installed $kind.py (D10)" "$P" "$(sum "$I")"
 done
-for s in "$CFG"/values/*/SHA256SUMS; do
+for s in "$CFG"/values*/*/SHA256SUMS; do  # values/ and values-slack<S>/ (owner decision 2026-11-14)
   [ -f "$s" ] || continue
-  if (cd "$(dirname "$s")" && sha256sum -c --quiet SHA256SUMS >/dev/null 2>&1); then echo "OK   values $(basename "$(dirname "$s")")"; else echo "FAIL values $(basename "$(dirname "$s")")"; vbad=1; fi
+  lbl="$(basename "$(dirname "$(dirname "$s")")")/$(basename "$(dirname "$s")")"
+  if (cd "$(dirname "$s")" && sha256sum -c --quiet SHA256SUMS >/dev/null 2>&1); then echo "OK   $lbl"; else echo "FAIL $lbl"; vbad=1; fi
 done
 if (cd "$REPO" && PYTHONPATH="$R5/lib" uv run --no-sync python -m r5.audit static >/dev/null); then echo "OK   audit static"; else echo "FAIL audit static"; bad=1; fi
 # exit 3 = only a values sum failed (launch.sh reports that per panel as "F6 not runnable", exit 3, R-30)
