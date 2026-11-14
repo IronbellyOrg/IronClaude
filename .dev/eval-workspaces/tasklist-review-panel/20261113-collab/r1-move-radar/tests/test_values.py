@@ -97,3 +97,13 @@ def test_deadlines_planning_and_refusal(root):
     assert r.returncode == 2
     d = json.loads(run(["uv", "run", "python", str(TOOLS / "values.py"), "deadlines", "sl2", pk, "0", "0", "--root", str(root)]).stdout)
     assert d["values"] == "planning" and d["HANG_MS"] == round(1000 * 2.0 * 273.7)  # 547.4 s
+
+
+def test_baseline_hang_x_widens_only_a_collab_0_hang_guard(root):
+    import os
+    pk = V.PKGS[0]
+    cmd = ["uv", "run", "python", str(TOOLS / "values.py"), "deadlines", "sl2", pk, "0", "0", "--root", str(root)]
+    d = json.loads(run(cmd, env={**os.environ, "BASELINE_HANG_X": "4"}).stdout)
+    assert d["HANG_MS"] == round(1000 * 4 * 273.7) and d["baseline_hang_x"] == 4.0
+    d = json.loads(run(cmd, env={k: v for k, v in os.environ.items() if k != "BASELINE_HANG_X"}).stdout)
+    assert d["HANG_MS"] == round(1000 * 2.0 * 273.7) and "baseline_hang_x" not in d
