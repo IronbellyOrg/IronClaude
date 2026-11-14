@@ -1,0 +1,29 @@
+{
+ "packages": {
+  "TASK-WF-design-20261108-041415": {
+   "budget_fail": false,
+   "k": 0,
+   "limit": null,
+   "n_a1": 4,
+   "n_srun": 0,
+   "s": null
+  },
+  "TASK-WF-designSpec-20261107-075614": {
+   "budget_fail": false,
+   "k": 0,
+   "limit": null,
+   "n_a1": 4,
+   "n_srun": 0,
+   "s": null
+  },
+  "TASK-WF-makeTheAliasOnly-20261105-051649": {
+   "budget_fail": false,
+   "k": 0,
+   "limit": null,
+   "n_a1": 4,
+   "n_srun": 0,
+   "s": null
+  }
+ },
+ "panel": "HL2"
+}

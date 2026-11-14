@@ -107,6 +107,7 @@ def env(tmp_path):
     e.pop("R3_SMOKE", None)
     e.pop("R3_SPIKE4", None)
     e.pop("PANEL_COLLAB", None)
+    e.pop("TIME_CAP_EXCEPTION", None)
     (root / "values").mkdir()
     return {"root": root, "env": e}
 

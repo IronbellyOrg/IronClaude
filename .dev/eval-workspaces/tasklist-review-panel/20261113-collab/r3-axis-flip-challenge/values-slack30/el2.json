@@ -1,0 +1,37 @@
+{
+ "schema": "r3-values/1",
+ "panel": "el2",
+ "status": "frozen",
+ "source_runs": [
+  "el2-c0-20261114T052713Z-43b2",
+  "el2-c0-20261114T052937Z-e3dc",
+  "el2-c0-20261114T053114Z-0af7"
+ ],
+ "frozen_at": "2026-11-14T12:28:21Z",
+ "slack_s": 30.0,
+ "turn_p90": {
+  "muse-ember-1.0": 2.8959999084472656,
+  "gpt-6-luna": 12.176000118255615
+ },
+ "packages": {
+  "TASK-WF-design-20261108-041415": {
+   "B_f": 137.81000018119812,
+   "T_report_p90": 13.604000091552734,
+   "k": 2,
+   "panel_finish_offset_s": 190.2635000348091
+  },
+  "TASK-WF-designSpec-20261107-075614": {
+   "B_f": 92.12299990653992,
+   "T_report_p90": 7.724999904632568,
+   "k": 1,
+   "panel_finish_offset_s": 134.46504985094072
+  },
+  "TASK-WF-makeTheAliasOnly-20261105-051649": {
+   "B_f": 100.90700006484985,
+   "T_report_p90": 9.396999835968018,
+   "k": 1,
+   "panel_finish_offset_s": 144.6514501333237
+  }
+ },
+ "slowdown_s": null
+}

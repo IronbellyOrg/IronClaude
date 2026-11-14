@@ -39,7 +39,9 @@ run_attempt() { # one attempt; returns 0 when model_ok && findings block && no A
   if [ "$tmo" -lt 1 ]; then HANG_KILL=true; return 2; fi
   if [ "$n" = 1 ] && [ "$COLLAB" = 1 ] && [ -n "$SETF" ]; then set_args=(--settings "$SETF"); settings=true; fi
   if [ "$n" -ge 2 ]; then brief=$BRIEF_A1; [ "$COLLAB" = 1 ] && RETRY_ISO=true; fi
-  SID=$(cat /proc/sys/kernel/random/uuid)  # uuidgen is not installed on this host
+  # uuidgen is not installed on this host; /proc uuid broke on 2026-11-14 ("Transport endpoint is not connected"), so fall back to a v4 built from /dev/urandom
+  SID=$(cat /proc/sys/kernel/random/uuid 2>/dev/null) || SID=""
+  [ -n "$SID" ] || SID=$(od -An -N16 -tx1 /dev/urandom | tr -d ' \n' | sed -E 's/^(.{8})(.{4}).(.{3}).(.{3})(.{12}).*/\1-\2-4\3-a\4-\5/')
   s=$(now_ms); [ -z "$T_FIRST" ] && T_FIRST=$s
   ( cd "$SB" && timeout --kill-after=5 "$tmo" claude -p --model "$MODEL" --output-format json --session-id "$SID" --permission-mode bypassPermissions --disallowedTools Edit Write NotebookEdit "${set_args[@]}" <<<"$brief" ) >"$OUT/$RID.attempt$n.json" 2>"$OUT/$RID.attempt$n.err"
   rc=$?; e=$(now_ms); T_LAST=$e

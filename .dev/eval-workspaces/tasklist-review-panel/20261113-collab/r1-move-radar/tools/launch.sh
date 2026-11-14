@@ -35,9 +35,19 @@ DS=TASK-WF-designSpec-20261107-075614; AL=TASK-WF-makeTheAliasOnly-20261105-0516
 # ---------------------------------------------------------------- 1. preflight
 COLLAB=${PANEL_COLLAB-1}  # unset-only default: a set-but-empty value is refused by the case below
 case $COLLAB in 0|1) ;; *) refuse "PANEL_COLLAB must be 0 or 1, got $COLLAB";; esac
+# Owner-authorised time-cap exception (OVERRIDE.md, 2026-11-14): 0 or unset = off (every value as before); 1 = k = 1 for every role whose
+# measured k is 0, with the hang guard, finish offset and injection guard widened. Rows get the id <panel>-c1x-r<rep>.
+CAPX=${TIME_CAP_EXCEPTION-0}
+case $CAPX in 0|1) ;; *) refuse "TIME_CAP_EXCEPTION must be 0 or 1, got '$CAPX'";; esac
+[ "$CAPX" = 0 ] || [ "$COLLAB" = 1 ] || refuse "TIME_CAP_EXCEPTION=1 applies only to PANEL_COLLAB=1 rows (the baseline keeps its own timers)"
+CAPARG=(); [ "$CAPX" = 1 ] && CAPARG=(--cap-exception 1)
 case $PANEL in el2|sl2|hl2) ;; *) refuse "panel must be el2, sl2 or hl2";; esac
 [[ $REP =~ ^[0-9]+$ ]] || refuse "rep must be a non-negative integer"
 for p in "${PKGS[@]}"; do case $p in $DS|$AL|$DE) ;; *) refuse "unknown package $p";; esac; done
+SLACK=${PANEL_SLACK_S-0}  # owner's extra seconds on top of the +35% cap; 0 = the original values/ files
+[[ $SLACK =~ ^(0|[1-9][0-9]*)$ ]] || refuse "PANEL_SLACK_S must be a whole number of seconds (0 or more), got '$SLACK'"
+export PANEL_SLACK_S=$SLACK
+VDIR=values; [ "$SLACK" != 0 ] && VDIR=values-slack$SLACK
 case ${NOFALLBACK-1} in 1) ;; *) refuse "NOFALLBACK must be unset or 1";; esac
 export NOFALLBACK=1
 for c in claude jq flock uv superclaude sha256sum; do command -v "$c" >/dev/null 2>&1 || refuse "$c is not on PATH"; done
@@ -49,9 +59,9 @@ JUDGE=$A1/tools/tmp-scripts/judge-one.sh
 [ "$(jq -r .judge_one_sha256 "$M")" = "$(sha "$JUDGE")" ] || refuse "judge-one.sh does not match its pin in manifest.json"
 for p in "${PKGS[@]}"; do
   jq -e --arg p "$p" '.base_commits[$p].sha|test("^[0-9a-f]{40}$")' "$M" >/dev/null 2>&1 || refuse "manifest.json has no base sha for $p"
-  if [ "$COLLAB" = 1 ]; then
-    V=$R1/values/$PANEL/$p.json
-    [ -f "$V" ] && [ "$(sha "$V")" = "$(cut -d' ' -f1 "$V.sha256" 2>/dev/null)" ] || refuse "PANEL_COLLAB=1 needs values/$PANEL/$p.json with a matching .sha256 (Spike 4)"
+  if [ "$COLLAB" = 1 ] || [ "$SLACK" != 0 ]; then
+    V=$R1/$VDIR/$PANEL/$p.json
+    [ -f "$V" ] && [ "$(sha "$V")" = "$(cut -d' ' -f1 "$V.sha256" 2>/dev/null)" ] || refuse "PANEL_COLLAB=$COLLAB PANEL_SLACK_S=$SLACK needs $VDIR/$PANEL/$p.json with a matching .sha256 (Spike 4$([ "$SLACK" != 0 ] && echo ", computed with PANEL_SLACK_S=$SLACK"))"
   fi
 done
 gate() { jq -r --arg k "$1" '.[$k] // "missing"' "$R1/spikes/gate0.json" 2>/dev/null || echo missing; }
@@ -59,13 +69,14 @@ NEED=(G-BASE G-PINS)
 [ "$COLLAB" = 1 ] && NEED+=(S0 S2)
 [ "$COLLAB" = 1 ] && [ "$REP" -ge 1 ] && NEED+=(S3)
 for g in "${NEED[@]}"; do [ "$(gate "$g")" = pass ] || refuse "Gate 0: $g is $(gate "$g"), not pass (gate order, DESIGN.md 6.3)"; done
-ROW=$PANEL-c$COLLAB-r$REP
+ROW=$PANEL-c$COLLAB$([ "$CAPX" = 1 ] && echo x)-r$REP
 [ ! -f "$R1/results/$ROW.json" ] || refuse "row $ROW is finished (results/$ROW.json exists)"
 mkdir -p "$R1/runs/$ROW"
 LOG=$R1/runs/$ROW/launch.log
 log() { printf '%s %s %s\n' "$(date -u +%FT%TZ)" "$1" "${*:2}" >> "$LOG"; }
-[ -f "$R1/runs/$ROW/run.json" ] || jq -n -c --arg row "$ROW" --arg panel "$PANEL" --argjson c "$COLLAB" --argjson rep "$REP" --arg t "$(date -u +%FT%TZ)" \
-  '{row:$row,panel:$panel,collab:$c,rep:$rep,started_utc:$t}' > "$R1/runs/$ROW/run.json"
+[ -f "$R1/runs/$ROW/run.json" ] || jq -n -c --arg row "$ROW" --arg panel "$PANEL" --argjson c "$COLLAB" --argjson rep "$REP" --arg t "$(date -u +%FT%TZ)" --arg cx "$CAPX" \
+  '{row:$row,panel:$panel,collab:$c,rep:$rep,started_utc:$t} + (if $cx == "1" then {time_cap_exception:true} else {} end)' > "$R1/runs/$ROW/run.json"
+[ "$CAPX" = 0 ] || log CAP_EXCEPTION "TIME_CAP_EXCEPTION=1: k = 1 where the measured k is 0; hang guard max(1.5 B, 3.0 B); finish offset and injection guard moved with it"
 
 # ---------------------------------------------------------------- 2-7. per package
 CFG=$R1/config/panels.json
@@ -88,8 +99,9 @@ run_package() { # run_package <pkg>; writes runs/<row>/<pkg>/status
     | ($r.searcher|"\(.rid):searcher:\(.model):\(.checkpoints[0]):\(.checkpoints[1])"),
       ($r.reader|.model as $m|.checkpoints as $c|.rids[]|"\(.):reader:\($m):\($c[0]):\($c[1])")' "$CFG")
   t0=$(date +%s%3N)
-  dl=$(py "$TOOLS/values.py" deadlines "$PANEL" "$pkg" "$COLLAB" "$t0" --root "$R1") || { log FAIL "$pkg deadlines"; echo invalid > "$d/status"; return; }
+  dl=$(py "$TOOLS/values.py" deadlines "$PANEL" "$pkg" "$COLLAB" "$t0" --root "$R1" "${CAPARG[@]}") || { log FAIL "$pkg deadlines"; echo invalid > "$d/status"; return; }
   fin=$(jq -r .FINISH_MS <<<"$dl"); guard=$(jq -r .GUARD_MS <<<"$dl")
+  [ "$CAPX" = 0 ] || log CAP_EXCEPTION "$pkg $(jq -c '{k,forced:.cap_exception.forced_roles,hang_s:.hang_offset_s,finish_s:.finish_offset_s}' <<<"$dl")"
   local roles='{}' models='{}' orders='{}'
   for spec in "${REV[@]}"; do
     IFS=: read -r rid role model cp1 cp2 <<<"$spec"; ord=$(order "$rid" "$role")
@@ -98,8 +110,9 @@ run_package() { # run_package <pkg>; writes runs/<row>/<pkg>/status
   done
   jq -n -c --arg row "$ROW" --arg pkg "$pkg" --arg panel "$PANEL" --argjson c "$COLLAB" --argjson t0 "$t0" --argjson dl "$dl" \
     --argjson roles "$roles" --argjson models "$models" --argjson orders "$orders" --arg cs "$(sha "$SB/cand/$pkg/candidate.md")" \
-    '{row:$row,pkg:$pkg,panel:$panel,collab:$c,T0_MS:$t0,FINISH_MS:$dl.FINISH_MS,GUARD_MS:$dl.GUARD_MS,HANG_MS:$dl.HANG_MS,B:$dl.B,
-      values:$dl.values,k:$dl.k,T_report:$dl.T_report,role:$roles,model:$models,order:$orders,cand_sha256:$cs}' > "$d/run.json"
+    '{row:$row,pkg:$pkg,panel:$panel,collab:$c,slack_s:$dl.slack_s,T0_MS:$t0,FINISH_MS:$dl.FINISH_MS,GUARD_MS:$dl.GUARD_MS,HANG_MS:$dl.HANG_MS,B:$dl.B,
+      values:$dl.values,k:$dl.k,T_report:$dl.T_report,role:$roles,model:$models,order:$orders,cand_sha256:$cs}
+      + (if $dl.time_cap_exception then {time_cap_exception:true,cap_exception:$dl.cap_exception} else {} end)' > "$d/run.json"
   if [ "$COLLAB" = 1 ]; then
     mkdir -p "$d/settings" "$d/board"/{tele,msgs,metrics,snap,state,ctx}  # ctx/: the hook's frozen inputs (radar-hook.sh header)
     cp "$R1/config/catalogue.json" "$d/board/ctx/catalogue.json"; cp "$R1/index/$pkg.json" "$d/board/ctx/index.json"

@@ -23,6 +23,15 @@ case $COLLAB in 0|1) ;; *) refuse "E_BAD_SWITCH: PANEL_COLLAB=$COLLAB";; esac
 SMOKE=${R3_SMOKE:-0}; SPIKE4=${R3_SPIKE4:-0}
 [ "$SPIKE4" = 1 ] && [ "$COLLAB" = 1 ] && refuse "R3_SPIKE4=1 needs PANEL_COLLAB=0"
 [ "$SPIKE4" = 1 ] && NOJUDGE=1
+# Owner-authorised time-cap exception (OVERRIDE.md): TIME_CAP_EXCEPTION=<forced n>, default off. Collaboration arm only.
+TCE=${TIME_CAP_EXCEPTION:-0}
+case $TCE in 0) ;; 1|2|3) [ "$COLLAB" = 1 ] && [ "$SPIKE4" != 1 ] || refuse "E_TCE: TIME_CAP_EXCEPTION=$TCE needs PANEL_COLLAB=1 and no R3_SPIKE4";; *) refuse "E_TCE: TIME_CAP_EXCEPTION=$TCE (allowed: unset, 0, 1, 2 or 3)";; esac
+# PANEL_SLACK_S > 0 (cap = 1.35 x B + SLACK_S) needs its own frozen values (values-slack<S>/<panel>.json); exit 2, never fall back to values/
+SLACK=${PANEL_SLACK_S:-0}
+if [ "$SMOKE" != 1 ] && [ "$SPIKE4" != 1 ] && [ -z "${R3_VALUES_FILE:-}" ] && awk -v s="$SLACK" 'BEGIN{exit !(s+0>0)}'; then
+  SVF=$R3/values-$(printf 'slack%g' "$SLACK")/$PANEL.json
+  [ -f "$SVF" ] || { echo "PREFLIGHT: PANEL_SLACK_S=$SLACK needs the slack values $SVF (missing); nothing launched. Freeze them: PANEL_SLACK_S=$SLACK r3_py values-freeze --panel $PANEL --runs <Spike-4 run ids>" >&2; exit 2; }
+fi
 jq -e --arg p "$PANEL" 'has($p)' "$R3/config/panels.json" >/dev/null || refuse "unknown panel '$PANEL'"
 for m in $(jq -r --arg p "$PANEL" '.[$p] | ([.searcher] + .readers)[] | .model' "$R3/config/panels.json"); do
   r3_assert_model "$m" || refuse "model $m"
@@ -31,7 +40,7 @@ for v in R3_RUNS_ROOT R3_SB_ROOT R3_SCORING_ROOT R3_RESULTS_ROOT R3_VALUES_FILE 
   [ -n "${!v:-}" ] && case "$(realpath -m -- "${!v}")/" in /tmp/*) ;; *) refuse "E_OVERRIDE $v";; esac
 done
 r3_py pin --check >/dev/null || refuse "E_PIN_MISMATCH (run: r3lib/cli.py pin --check)"
-VF=(); [ "$SMOKE" = 1 ] && VF+=(--smoke); [ "$SPIKE4" = 1 ] && VF+=(--spike4)
+VF=(); [ "$SMOKE" = 1 ] && VF+=(--smoke); [ "$SPIKE4" = 1 ] && VF+=(--spike4); [ "$TCE" != 0 ] && VF+=(--tce "$TCE")
 VALS=$(r3_py values-show --panel "$PANEL" "${VF[@]}" 2>&1) || refuse "values: $VALS"
 uv run --frozen --project "$REPO" superclaude review merge --help >/dev/null 2>&1 || refuse "superclaude review merge --help failed"
 [ ${#PKGS[@]} -gt 0 ] || mapfile -t PKGS < <(jq -r '.order[]' "$R3/config/packages.json")
@@ -47,7 +56,9 @@ mkdir -p "$RD"
 jq -n --arg id "$RUN_ID" --arg panel "$PANEL" --argjson collab "$COLLAB" --argjson vals "$VALS" --arg pins "$(sha256sum "$R3/config/pins.json" | cut -d' ' -f1)" \
   --arg head "$(git -C "$REPO" rev-parse HEAD)" --arg tag "$TAG" --argjson smoke "$([ "$SMOKE" = 1 ] && echo true || echo false)" \
   --argjson spike4 "$([ "$SPIKE4" = 1 ] && echo true || echo false)" --argjson nj "$([ "$NOJUDGE" = 1 ] && echo true || echo false)" \
-  --args '{run_id:$id,panel:$panel,collab:$collab,values_sha256:$vals.sha256,values_status:$vals.values.status,pins_sha256:$pins,
+  --argjson tce "$TCE" \
+  --args '{run_id:$id,panel:$panel,collab:$collab,values_sha256:$vals.sha256,values_status:$vals.values.status,slack_s:($vals.values.slack_s // 0),pins_sha256:$pins,
+    time_cap_exception:($tce>0),tce_forced_n:$tce,
     repo_head:$head,NOFALLBACK:"1",tag:$tag,smoke:$smoke,spike4:$spike4,no_judge:$nj,pkgs:$ARGS.positional,
     env:{SUPERCLAUDE_CODEGRAPH_AUTOINIT:"0",PYTHONDONTWRITEBYTECODE:"1"}}' "${PKGS[@]}" > "$RD/run.json"
 # --- packages in parallel (steps 3, 4)

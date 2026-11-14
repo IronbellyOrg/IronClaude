@@ -1,0 +1,118 @@
+{
+ "row": "smoke-tcx-el2-1",
+ "arm": "F6-el2",
+ "panel": "el2",
+ "models": {
+  "t4-1": "gpt-6-luna",
+  "t3-1": "gpt-6-luna",
+  "t2b-1": "muse-ember-1.0"
+ },
+ "switches": {
+  "PANEL_COLLAB": 1,
+  "PANEL_KIT": 1,
+  "NOFALLBACK": 1,
+  "SPIKE4": false
+ },
+ "time_cap_exception": true,
+ "time_cap": {
+  "TASK-WF-design-20261108-041415": {
+   "B_A1_s": 116.78200000000001,
+   "elapsed_s": 105.825,
+   "elapsed_over_baseline": 0.9061756092548509,
+   "time_cap_s": 315.31140000000005,
+   "k_measured": 0,
+   "k_forced": true,
+   "messages_delivered": {
+    "t4-1": 1,
+    "t3-1": 0,
+    "t2b-1": 0
+   },
+   "k_run": 1
+  }
+ },
+ "values_sha256": {
+  "TASK-WF-design-20261108-041415": "f112f760ed72570c588c33dfa745c2d2f273cdeab145c4512e062effb99cf31f"
+ },
+ "found_14": 0,
+ "real_blocking_8": 0,
+ "judge_blocking": 0,
+ "wrong_blockers": 0,
+ "control_found_2": 0,
+ "control_wrong_blockers": 1,
+ "issues": {
+  "credited_any": [],
+  "credited_blocking": [],
+  "target_reach": false,
+  "hard_credits": 0
+ },
+ "output_tokens": {
+  "total": 29533,
+  "per_pkg": {
+   "TASK-WF-design-20261108-041415": 29533
+  },
+  "per_reviewer": {
+   "TASK-WF-design-20261108-041415": {
+    "t2b-1": 19690,
+    "t3-1": 4763,
+    "t4-1": 5080
+   }
+  }
+ },
+ "elapsed_s": {
+  "TASK-WF-design-20261108-041415": 105.825
+ },
+ "overhead_pct": {
+  "TASK-WF-design-20261108-041415": -9.382439074514915
+ },
+ "collab": {
+  "TASK-WF-design-20261108-041415": {
+   "k": 1,
+   "finish_would_fire": false,
+   "k0_isolated": false,
+   "deflection_overlap": 0.0,
+   "union_anchored_tasks": 7,
+   "own_line_jaccard": 0.047619047619047616,
+   "ledger_rows": 7,
+   "slo": "ok",
+   "cards_posted": 2,
+   "cards_delivered": 1,
+   "requests_delivered": 1,
+   "requests_acted": 1,
+   "superseded": 0,
+   "dup_card": 0,
+   "late": 1,
+   "snapshot_missing": 0,
+   "hook_calls": 33,
+   "hook_error": 0,
+   "hang_kill": 0,
+   "retry_isolated": 0,
+   "reask_s": 0,
+   "dropped_lines": 0,
+   "hook_ms_p95": 60,
+   "finish_signal_t": null
+  }
+ },
+ "alarms": {
+  "TASK-WF-design-20261108-041415": {
+   "CONVERGENCE": null,
+   "DEFLECTION": false,
+   "SLO": "ok"
+  }
+ },
+ "audit": {
+  "TASK-WF-design-20261108-041415": "pass"
+ },
+ "invalid": [],
+ "pkg_status": {
+  "TASK-WF-design-20261108-041415": {
+   "merge": "ok",
+   "merge_rc": 0,
+   "invalid": [],
+   "anon": "ok",
+   "anon_postcheck": 0,
+   "judge": "ok",
+   "judge_api_error": false
+  }
+ },
+ "status": "complete"
+}

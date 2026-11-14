@@ -1,0 +1,24 @@
+{
+ "base_sha": {
+  "TASK-WF-designSpec-20261107-075614": "0e486ab8d0eb24c6f2738ce1f895cc16755b26c1",
+  "TASK-WF-makeTheAliasOnly-20261105-051649": "38eb3c58afe6988b51060ae14117172869ea4c1e",
+  "TASK-WF-design-20261108-041415": "5fa680778718af9087ccbe7a823e3909f1bcceb6"
+ },
+ "base_rule": "first parent of the squash commit that first added the package folder",
+ "sha256": {
+  "judge-one.sh": "a01bd70d370d73cb32b55a7368aa28e2c12d93403237211c3a71f339ae82cfcc",
+  "catalogue.json": "769ea988983ca48c0de413d1b468e2e70c2d71000ea647cd92d1086d63f7508e",
+  "brief_a1": "3e052fee106511948422aff61eaef858871e088abde84934fc0007814e8012a0",
+  "sweeper_brief": "1cefe0ba8ea5fcffcb2b00c2664202d423a674a7b97734d1d7f1e3329d2e8f6c",
+  "values-slack30/EL2/TASK-WF-design-20261108-041415.json": "855d4b7c36ac01d6bd8b7f0810f95d914a977d054a69e904f4e7793119cce2a3",
+  "values-slack30/EL2/TASK-WF-designSpec-20261107-075614.json": "4874a5263a9da650718fbebefcebafbb583c3a2c6ba03a44e6088c39efab59cf",
+  "values-slack30/EL2/TASK-WF-makeTheAliasOnly-20261105-051649.json": "e90e100cb8b0934577f1590bd230b24702e3d3e871b38d8b00ab38cd2dc0da1c",
+  "values-slack30/HL2/TASK-WF-design-20261108-041415.json": "5d1f2f2c1b19980b7eaaafcc3f1eea6bc93ef02d9eaca0f6851aa126efee4efb",
+  "values-slack30/HL2/TASK-WF-designSpec-20261107-075614.json": "95d9448aa1b970ee28bd27ef27e3668a908134cc1ff8658ece47e0f9261e3375",
+  "values-slack30/HL2/TASK-WF-makeTheAliasOnly-20261105-051649.json": "1099d7b1526fe7f0d871fa9a51e053f07f27c7a1b14a59db4a9ec05f71cbb0de",
+  "values-slack30/SL2/TASK-WF-design-20261108-041415.json": "5cce42fc491f6275239451c82ae5965d513477ae3296bf431248369e6059788a",
+  "values-slack30/SL2/TASK-WF-designSpec-20261107-075614.json": "ad661d106824d1ff5c290e0f13f7b0b1d0fe088fcbf94863279166c04e6a834f",
+  "values-slack30/SL2/TASK-WF-makeTheAliasOnly-20261105-051649.json": "04800b7ce7f2a96f3a3ffdbfe75c1f1260fcd6dc917f52bd4746a03ba73beb61"
+ },
+ "committed_at": "2026-11-14T12:22:37Z"
+}

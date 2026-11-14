@@ -9,7 +9,16 @@
   "judge-one.sh": "a01bd70d370d73cb32b55a7368aa28e2c12d93403237211c3a71f339ae82cfcc",
   "catalogue.json": "769ea988983ca48c0de413d1b468e2e70c2d71000ea647cd92d1086d63f7508e",
   "brief_a1": "3e052fee106511948422aff61eaef858871e088abde84934fc0007814e8012a0",
-  "sweeper_brief": "1cefe0ba8ea5fcffcb2b00c2664202d423a674a7b97734d1d7f1e3329d2e8f6c"
+  "sweeper_brief": "1cefe0ba8ea5fcffcb2b00c2664202d423a674a7b97734d1d7f1e3329d2e8f6c",
+  "values/EL2/TASK-WF-design-20261108-041415.json": "91732e9ebf6f044012e1d5be2b4e7ab93b128d1d9e9f742fd4de59153f9811bd",
+  "values/EL2/TASK-WF-designSpec-20261107-075614.json": "dd3c3d2c5ec6314a84219d8b28604e35d0dc8f35d4b8db0c02a62693ac8bede4",
+  "values/EL2/TASK-WF-makeTheAliasOnly-20261105-051649.json": "ae7b0476d457308b76b077d21c6ddcf1bc57399059ff8d4e1d3033b87c6b0097",
+  "values/HL2/TASK-WF-design-20261108-041415.json": "33e45713cbe3162aac3cdc779f07bc8e6b34f33d0af44eb90341fe8cd2ca0574",
+  "values/HL2/TASK-WF-designSpec-20261107-075614.json": "fb946af4b6b7ce1fdb70c3cfd6176522f8573d97e6d87444e3d30ffd9b365981",
+  "values/HL2/TASK-WF-makeTheAliasOnly-20261105-051649.json": "2d6d5b696008a6fad4c78e54f5fcf1cea14ed37e1dd9a68c356db280cb8e8ba0",
+  "values/SL2/TASK-WF-design-20261108-041415.json": "f73caa8551e5b30ae3c863e3b3281bfaf1738559dee45359e7bb4c803defb66c",
+  "values/SL2/TASK-WF-designSpec-20261107-075614.json": "5db37adbc5c19cab56941eb02844e125a2a628e76f5428e282dcf408498b4a4c",
+  "values/SL2/TASK-WF-makeTheAliasOnly-20261105-051649.json": "1d068f1f0182eed6ef3c80a4f1caa25e11db2a9d3f4acad9329f6654f67539c3"
  },
- "committed_at": "2026-11-13T20:32:09Z"
+ "committed_at": "2026-11-14T09:09:18Z"
 }

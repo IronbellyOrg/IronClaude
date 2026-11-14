@@ -327,6 +327,12 @@ def pre(row: str, pkg: str, root: str, sb: str, a1: str) -> int:
         "slo_breach": any(bool(m.get("hang_kill")) for m in metas.values()) or (elapsed is not None and elapsed > hang_s),
         "moves_covered": cover, "injections_by_move": byk, "alarms": flags,
     }
+    if run.get("time_cap_exception"):  # owner-authorised time-cap exception (OVERRIDE.md): the extra columns exist only on these rows
+        cx = run["cap_exception"]
+        collab_json.update({
+            "time_cap_exception": True, "B_A1": B, "elapsed_over_baseline": (elapsed / B) if elapsed is not None else None,
+            "forced_k": cx["forced_k"], "k_measured": cx["k_measured"], "forced_roles": cx["forced_roles"], "cap_exception": cx,
+            "delivered": {r: reviewers[r]["msgs_received"] for r in rids}})
     audit = {"schema": "r1-audit/1", "row": row, "pkg": pkg, "hard_failures": hard, "sandbox_clean": not dirty,
              "candidate_sha_unchanged": cand_ok, "gt_substrings_in_board": len(gth), "tele_naming_ground_truth": len(gt_tele),
              "validator_rejects": rejects, "spot_check": spot, "leak_violations": len(rejects) + len(gth), "anon_leak": None}

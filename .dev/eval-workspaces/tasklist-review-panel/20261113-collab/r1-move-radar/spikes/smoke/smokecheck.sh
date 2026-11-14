@@ -2,7 +2,7 @@
 # smokecheck.sh <R1root> <row> <collab 0|1> [<sb>]: decides the seven conditions of DESIGN.md 6.4 for one smoke row (one package).
 set -u -o pipefail
 ROOT=$1; ROW=$2; COLLAB=$3; SB=${4:-/tmp/evalsb-collab-r1}
-DS=TASK-WF-designSpec-20261107-075614
+DS=${SMOKE_PKG:-TASK-WF-designSpec-20261107-075614}  # SMOKE_PKG: the package of an override smoke row (OVERRIDE.md)
 D=$ROOT/runs/$ROW/$DS
 A1=/home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/.dev/eval-workspaces/tasklist-review-panel/20261111-a1
 res() { printf '%s\t%s\t%s\n' "$1" "$2" "$3"; }

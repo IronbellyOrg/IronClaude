@@ -11,8 +11,6 @@
     "plugins/superclaude/skills/sc-implement-protocol/refs/retry.md",
     "src/superclaude/agents/audit-scanner.md",
     "src/superclaude/agents/issue-worker-t1.md",
-    "src/superclaude/agents/issue-worker-t2.md",
-    "src/superclaude/agents/issue-worker-t3.md",
     "src/superclaude/cli/cli_portify/steps/discover_components.py",
     "src/superclaude/cli/reflect/commands.py",
     "src/superclaude/cli/sprint/aienv.py",
@@ -57,8 +55,6 @@
     "discover_components",
     "final-report",
     "issue-worker-t1",
-    "issue-worker-t2",
-    "issue-worker-t3",
     "ledger",
     "model-aliases",
     "models",
@@ -246,6 +242,7 @@
     "pyproject.toml",
     "return-contract.yaml",
     "superclaude",
-    "update.sh"
+    "update.sh",
+    "uv.lock"
   ]
 }

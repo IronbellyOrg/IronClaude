@@ -30,6 +30,10 @@ while [ $# -gt 0 ]; do
   esac
 done
 COLLAB=${PANEL_COLLAB:-1}
+# Owner-authorised time-cap exception (OVERRIDE.md, 2026-11-14), default off. TIME_CAP_EXCEPTION=1 forces k = 1 on a package
+# whose measured k is 0 and widens the hang guard and finish time (lib/values.py tce_entry); every such row is stamped.
+TCE=${TIME_CAP_EXCEPTION:-0}
+SLACK=${PANEL_SLACK_S:-0}  # seconds added to the 35% cap (cap = 1.35 B + SLACK); 0 = the old cap
 mkdir -p "$OUT/runs" "$OUT/results"
 RD="$OUT/runs/$ROW"
 
@@ -44,14 +48,26 @@ refuse() {
 [[ "$ROW" =~ ^[A-Za-z0-9._-]+$ ]] || refuse "bad row id"
 [ "${NOFALLBACK:-}" = 1 ] || refuse "NOFALLBACK is not 1"
 case "$COLLAB" in 0|1) ;; *) refuse "PANEL_COLLAB is not 0 or 1" ;; esac
+case "$TCE" in 0|1) ;; *) refuse "TIME_CAP_EXCEPTION is not 0 or 1" ;; esac
+[[ "$SLACK" =~ ^(0|[1-9][0-9]*(\.[0-9]+)?)$ ]] || refuse "PANEL_SLACK_S is not a plain non-negative number of seconds: $SLACK"
+[ "$TCE" = 0 ] || [ "$COLLAB" = 1 ] || refuse "TIME_CAP_EXCEPTION=1 needs PANEL_COLLAB=1"
 PDEF=$(jq -c --arg p "$PANEL" '.panels[$p] // empty' "$HERE/frozen/panels.json")
 [ -n "$PDEF" ] || refuse "unknown panel '$PANEL'"
 [ -e "$RD" ] && refuse "row directory exists: runs/$ROW"
 (cd "$HERE/frozen" && sha256sum -c --quiet pins.sha256 >/dev/null 2>&1) || refuse "pins check failed (frozen/pins.sha256)"
+if [ "$SLACK" != 0 ]; then  # owner decision 2026-11-14: cap = 1.35 B + PANEL_SLACK_S; the slack values live in values-slack<S>/
+  [ -n "$VALUES" ] || VALUES="$OUT/values-slack$SLACK/$PANEL.json"
+  [ -f "$VALUES" ] && [ -f "$VALUES.sha256" ] || refuse "PANEL_SLACK_S=$SLACK but the slack values file for $PANEL is missing ($VALUES or its .sha256); build it with PANEL_SLACK_S=$SLACK values.py build/srun/slowdown"
+fi
 [ -f "$VALUES" ] && [ -f "$VALUES.sha256" ] || refuse "values file or its .sha256 missing"
 VSHA=$(sha256sum "$VALUES" | cut -d' ' -f1)
 [ "$VSHA" = "$(cut -d' ' -f1 "$VALUES.sha256")" ] || refuse "values sha256 differs from $VALUES.sha256"
 [ "$(jq -r .panel "$VALUES")" = "$PANEL" ] || refuse "values file is for another panel"
+jq -e --argjson s "$SLACK" '(.slack_s // 0) == $s' "$VALUES" >/dev/null || refuse "values file slack_s ($(jq -r '.slack_s // 0' "$VALUES")) differs from PANEL_SLACK_S=$SLACK"
+if [ "$TCE" = 1 ]; then  # the exception is defined on a measured B_A1 and needs delivery on
+  case "$(jq -r '.kind // ""' "$VALUES")" in planning|srun) refuse "TIME_CAP_EXCEPTION=1 needs measured values, not kind $(jq -r .kind "$VALUES")" ;; esac
+fi
+declare -A TCEJ
 FLAGGER=$(jq -r .flagger.rid <<<"$PDEF"); FMODEL=$(jq -r .flagger.model <<<"$PDEF")
 mapfile -t ADJ < <(jq -r '.adjudicators[].rid' <<<"$PDEF")
 PEERS="${ADJ[0]},${ADJ[1]}"
@@ -68,21 +84,27 @@ for p in $PKGS; do
   [ -f "$SBR/sb/$p/built.json" ] || refuse "sandbox missing for $p (run build-sandbox.sh)"
   [ "$(sha256sum "$SBR/cand/$p/candidate.md" 2>/dev/null | cut -d' ' -f1)" = "$(jq -r --arg p "$p" '.packages[]|select(.package==$p)|.candidate_sha256' "$OUT/manifest.json" 2>/dev/null)" ] \
     || refuse "candidate copy for $p does not match manifest.json"
+  if [ "$TCE" = 1 ]; then
+    [ "$(jq -r --arg p "$p" '.packages[$p].deliver' "$VALUES")" = true ] || refuse "TIME_CAP_EXCEPTION=1 needs deliver true for $p"
+    TCEJ[$p]=$("${PY[@]}" "$HERE/lib/values.py" tce --values "$VALUES" --pkg "$p") || refuse "values.py tce failed for $p"
+  fi
 done
-if [ "$COLLAB" = 1 ]; then
+if [ "$COLLAB" = 1 ] && [ "$TCE" = 0 ]; then
   anyk=0; for p in $PKGS; do [ "$(jq -r --arg p "$p" '.packages[$p].k' "$VALUES")" -ge 1 ] && anyk=1; done
   [ "$anyk" = 1 ] || refuse "F7 not runnable on $PANEL: k = 0 on every package (values $VSHA)"
 fi
 
 # ---- 1. row start
+[ "$TCE" = 1 ] && echo "TIME_CAP_EXCEPTION=1: owner-authorised exception to the +35% cap; this row is stamped time_cap_exception and is not comparable with cap-obeying rows" >&2
 mkdir -p "$RD"
 [ -n "$SEED" ] || SEED=$(od -An -N4 -tu4 /dev/urandom | tr -d ' ')
 ARM=A1; [ "$COLLAB" = 1 ] && ARM=F7
 START_ISO=$(date -u +%FT%TZ); START_MS=$(now_ms)
 jq -n --arg row "$ROW" --arg panel "$PANEL" --argjson pdef "$PDEF" --argjson c "$COLLAB" --arg arm "$ARM" --arg v "$(realpath "$VALUES")" \
   --arg vsha "$VSHA" --argjson seed "$SEED" --arg block "$BLOCK" --arg st "$START_ISO" --argjson sms "$START_MS" --arg sbr "$SBR" --arg out "$OUT" \
+  --argjson tce "$TCE" --argjson slack "$SLACK" \
   '{row:$row,panel:$panel,models:([$pdef.flagger]+$pdef.adjudicators|map({(.rid):.model})|add),panel_collab:$c,arm:$arm,nofallback:"1",
-    values:$v,values_sha256:$vsha,pins_ok:true,seed:$seed,block:$block,started:$st,start:$sms,sbr:$sbr,out:$out,status:"running"}' > "$RD/run.json"
+    time_cap_exception:($tce==1),slack_s:$slack,values:$v,values_sha256:$vsha,pins_ok:true,seed:$seed,block:$block,started:$st,start:$sms,sbr:$sbr,out:$out,status:"running"}' > "$RD/run.json"
 runjson() { jq "$@" "$RD/run.json" > "$RD/run.json.tmp" && mv "$RD/run.json.tmp" "$RD/run.json"; }
 
 # ---- 2. packages, one after another
@@ -90,6 +112,7 @@ j=0; STATUS=done
 for PKG in $PKGS; do
   PD="$RD/$PKG"; mkdir -p "$PD"/{reviews,tags,scoring}
   V=$(jq -c --arg p "$PKG" '.packages[$p]' "$VALUES")
+  [ "$TCE" = 1 ] && V=$(jq -c --argjson t "${TCEJ[$PKG]}" '. + $t' <<<"$V")  # effective k, finish offset, hang guard
   K=$(jq -r .k <<<"$V"); DELIVER=$(jq -r 'if .deliver then 1 else 0 end' <<<"$V")
   R=$(( (SEED >> (2 * j)) & 1 )); C=$(( (SEED >> (2 * j + 1)) & 1 )); j=$((j + 1))
   PCOLLAB=$COLLAB; K0=false
@@ -128,8 +151,10 @@ for PKG in $PKGS; do
     --argjson k0 $K0 --argjson del "$DELIVER" --argjson r "$R" --argjson c "$C" --argjson t0 "$T0" --argjson f "$F" --argjson h "$H" \
     --argjson v "$V" --arg vsha "$VSHA" --arg sb "$SBR/sb/$PKG/repo" --arg cand "$CAND" --arg src "$SBR/cand/$PKG/source.md" \
     --arg cflat "$SBR/cand/$PKG/candidate.flat" --arg csha "$(sha256sum "$CAND" | cut -d' ' -f1)" --argjson set "$SETTINGS" \
-    --arg helper "$HELPER" --arg board "$BD" --argjson pdef "$PDEF" \
-    '{row:$row,pkg:$pkg,panel:$panel,arm:$arm,collab:$collab,k:$k,k0_isolated:$k0,deliver:$del,r:$r,c:$c,t0_ms:$t0,finish_ms:$f,hang_ms:$h,
+    --arg helper "$HELPER" --arg board "$BD" --argjson pdef "$PDEF" --argjson tce "$TCE" \
+    '{row:$row,pkg:$pkg,panel:$panel,arm:$arm,collab:$collab,k:$k,k0_isolated:$k0,deliver:$del,
+      time_cap_exception:($tce==1),k_measured:($v.k_measured // $v.k),k_forced:($v.k_forced // false),
+      finish_offset_s:$v.finish_offset_s,hang_s:$v.hang_s,r:$r,c:$c,t0_ms:$t0,finish_ms:$f,hang_ms:$h,
       B_A1:$v.B_A1,turn_p90:$v.turn_p90,T_report_p90:$v.T_report_p90,cp_role:$pdef.cp_role,values_sha256:$vsha,sandbox:$sb,cand:$cand,src:$src,
       cand_flat:$cflat,cand_sha:$csha,settings:$set,helper:(if $helper=="" then null else $helper end),board:(if $board=="" then null else $board end),
       flagger:$pdef.flagger.rid,peers:[$pdef.adjudicators[].rid],
@@ -193,7 +218,7 @@ for PKG in $PKGS; do s=$(cat "$RD/$PKG/status" 2>/dev/null || echo not_run); [ "
 [ "$NOJUDGE" = 0 ] && [ ! -f "$OUT/results/$ROW.json" ] && [ "$STATUS" = done ] && STATUS=results_failed
 runjson --arg e "$END_ISO" --arg s "$STATUS" --argjson em "$(now_ms)" '.finished=$e | .end=$em | .status=$s'
 jq -nc --arg row "$ROW" --arg panel "$PANEL" --arg arm "$ARM" --arg block "$BLOCK" --argjson s "$START_MS" --argjson e "$(now_ms)" \
-  '{row:$row,panel:$panel,arm:$arm,block:$block,start:$s,end:$e}' >> "$OUT/runs/schedule.jsonl"
+  --argjson tce "$TCE" '{row:$row,panel:$panel,arm:$arm,block:$block,start:$s,end:$e} + (if $tce == 1 then {time_cap_exception:true} else {} end)' >> "$OUT/runs/schedule.jsonl"
 [ -f "$OUT/results/$ROW.json" ] && jq -r '"\(.row): found \(.found_14)/14, real blocking \(.real_blocking_8)/8, control \(.control_found_2)/2, elapsed \(.elapsed_s|tostring), cards \([.collab[]?.cards_sent]|add)/\([.collab[]?.cards_delivered]|add)"' "$OUT/results/$ROW.json"
 [ "$STATUS" = done ] && [ "$NOJUDGE" = 0 ] && exit 0
 [ "$STATUS" = done ] && [ "$NOJUDGE" = 1 ] && exit 0

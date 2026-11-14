@@ -80,6 +80,34 @@ def test_f6_values_sum_mismatch(env):  # F-10 as well
     assert fake_log(env) == []
 
 
+def test_slack_values_missing_exit2(env):  # owner decision 2026-11-14: PANEL_SLACK_S=30 needs values-slack30/<panel>/
+    write_values(env["cfg"], "sl2")  # the normal values exist; they must not be used
+    for collab in ("1", "0"):
+        r = launch("sl2", f"r-sm{collab}", {"PANEL_SLACK_S": "30", "PANEL_COLLAB": collab, "PANEL_KIT": "0"})
+        assert r.returncode == 2 and "PANEL_SLACK_S=30" in r.stderr and "values-slack30" in r.stderr and "missing" in r.stderr
+    assert fake_log(env) == []
+
+
+def test_slack_values_bad_number(env):
+    r = launch("sl2", "r-sb", {"PANEL_SLACK_S": "30.5"})
+    assert r.returncode == 2 and "whole number" in r.stderr
+
+
+def test_slack_values_are_the_ones_read(env):  # values/ says k = 2 (would run), values-slack30/ says k = 0 everywhere
+    write_values(env["cfg"], "hl2")
+    write_values(env["cfg"], "hl2", dirname="values-slack30", all={"k": 0, "slack_s": 30})
+    r = launch("hl2", "r-sr", {"PANEL_SLACK_S": "30"}, pkgs="TASK-WF-designSpec-20261107-075614,TASK-WF-makeTheAliasOnly-20261105-051649," + CT)
+    assert r.returncode == 3 and "k = 0 on every package" in r.stderr
+    assert fake_log(env) == []
+
+
+def test_slack_values_computed_with_other_slack(env):  # run-panel refuses a values file whose slack_s differs from PANEL_SLACK_S
+    write_values(env["cfg"], "sl2", dirname="values-slack30")  # no slack_s in the file = 0
+    r = run(["bash", bin_("run-panel.sh"), "r-so", "sl2", CT], env={**os.environ, "PANEL_SLACK_S": "30", "PANEL_COLLAB": "0"})
+    assert r.returncode == 3 and "slack_s=0" in r.stderr and "PANEL_SLACK_S=30" in r.stderr
+    assert fake_log(env) == []
+
+
 # ---------------------------------------------------------------- T-22 sandbox
 
 

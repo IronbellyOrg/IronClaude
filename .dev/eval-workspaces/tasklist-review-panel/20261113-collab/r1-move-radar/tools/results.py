@@ -52,6 +52,9 @@ def package(root: str, a1: str, row: str, pkg: str) -> tuple[dict, dict | None]:
            "retry_isolated": sum(1 for m in metas if m.get("retry_isolated")),
            "hang_kill": sum(1 for m in metas if m.get("hang_kill")),
            "gt_covered_any": None, "real_blocking": None, "judge_blocking": None, "wrong_blockers": None}
+    if c.get("time_cap_exception"):  # time-cap exception columns (OVERRIDE.md); absent on rows that obeyed the cap
+        out.update({k: c.get(k) for k in ("B_A1", "elapsed_over_baseline", "forced_k", "k_measured", "forced_roles", "delivered")})
+        out["hang_offset_s"] = (run["HANG_MS"] - run["T0_MS"]) / 1000  # the widened hang guard this package ran with
     if status == "ok":
         gt = {i["id"]: i["blocking_in_implement"] for i in load(f"{a1}/{pkg}/ground-truth.json")["items"]}
         out.update({"gt_covered_any": score["gt_covered_any"], "judge_blocking": score["gt_covered_blocking"],
@@ -60,10 +63,10 @@ def package(root: str, a1: str, row: str, pkg: str) -> tuple[dict, dict | None]:
 
 
 def build(row: str, root: str, a1: str) -> dict:
-    m = re.fullmatch(r"(el2|sl2|hl2)-c([01])-r(\d+)", row)
-    if not m:
+    m = re.fullmatch(r"(el2|sl2|hl2)-c([01])(x?)-r(\d+)", row)  # c1x = a time-cap-exception row (OVERRIDE.md)
+    if not m or (m.group(3) and m.group(2) != "1"):
         raise SystemExit(f"bad row id {row}")
-    panel, collab, rep = m.group(1), int(m.group(2)), int(m.group(3))
+    panel, collab, rep, capx = m.group(1), int(m.group(2)), int(m.group(4)), bool(m.group(3))
     cfg = json.load(open(f"{root}/config/panels.json"))[panel]["roles"]
     models = {cfg["searcher"]["rid"]: cfg["searcher"]["model"], **{r: cfg["reader"]["model"] for r in cfg["reader"]["rids"]}}
     rowrun = load(f"{root}/runs/{row}/run.json", {}) or {}
@@ -118,6 +121,7 @@ def build(row: str, root: str, a1: str) -> dict:
     return {
         "schema": "r1-results/1", "design": "r1-move-radar", "row": row, "panel": panel, "models": models,
         "collab": collab, "rep": rep, "started_utc": rowrun.get("started_utc"), "values": {p: pk[p].get("values") for p in PKGS},
+        **({"time_cap_exception": True, "forced_k": 1} if capx else {}),
         "status": "complete" if all(ok.values()) else "incomplete",
         "found_14": total([DS, AL], lambda x: len(x["gt_covered_any"])),
         "real_blocking_8": total([DS, AL], lambda x: len(x["real_blocking"])),

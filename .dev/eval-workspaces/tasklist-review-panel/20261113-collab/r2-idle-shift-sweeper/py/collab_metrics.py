@@ -262,6 +262,10 @@ def compute(pkgdir: Path, panel: str, values_p: Path, arm: str, row: str, pkg: s
             "output_tokens": int(sm.get("output_tokens") or 0),
         }
     audit = jload(pkgdir / "audit.json", {})
+    # owner-authorised time-cap exception (OVERRIDE.md): the values file carries a `time_cap_exception` block only when the row
+    # was launched with TIME_CAP_EXCEPTION=1; `applied` is true for a package whose measured k was 0 (k forced to 1, guards widened)
+    exc = vals.get("time_cap_exception")
+    applied = bool(exc and exc.get("applied"))
     out = {
         "schema": "collab/1", "arm": arm, "panel": panel, "row": row, "pkg": pkg,
         "values_sha256": hashlib.sha256(values_p.read_bytes()).hexdigest(),
@@ -272,8 +276,12 @@ def compute(pkgdir: Path, panel: str, values_p: Path, arm: str, row: str, pkg: s
         "own_line_jaccard": mean_jaccard(own_sets), "pairwise_task_jaccard": mean_jaccard(all_sets),
         "echo_rate": round(echo_hits / peer_total, 4) if peer_total else None,
         "ledger_rows": 0, "isolated_for": isolated_for,
-        "slo_breach": any(v["hang_kill"] for v in reviewers.values()) or elapsed > 1.5 * B_f,
+        "slo_breach": any(v["hang_kill"] for v in reviewers.values()) or elapsed > (float(vals["hang_s"]) if applied else 1.5 * B_f),
         "audit_ok": bool(audit.get("ok", True)),
+        "time_cap_exception": exc is not None, "time_cap_exception_applied": applied,
+        "B_A1": B_f, "k_measured": int(exc["k_measured"]) if exc else k,
+        "elapsed_over_baseline": round(elapsed / B_f, 4) if B_f else None,
+        "messages_delivered": {rid: r["msgs_received"] for rid, r in reviewers.items()},
     }
     check_schema(out)
     return out

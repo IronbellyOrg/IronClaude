@@ -247,6 +247,37 @@ def collab_json(pkgdir) -> dict:
         },
     }
     cj["panel"]["panel"] = pj["panel"]
+    tce = pj.get(
+        "tce"
+    )  # owner-authorised time-cap exception (OVERRIDE.md); absent when off
+    cj["time_cap_exception"] = bool(tce)
+    cj["tce"] = (
+        None
+        if not tce
+        else {
+            "B_A1": tce["B_A1"],
+            "B_A1_source": tce["B_A1_source"],
+            "elapsed_s": elapsed,
+            "ratio": (elapsed / tce["B_A1"]) if elapsed is not None else None,
+            "forced_n": tce["forced_n"],
+            "delivered": {r: v["n_launched"] for r, v in revs.items()},
+            "n_planned": {r: v["n_planned"] for r, v in revs.items()},
+            "forced_applied": {
+                r: bool(
+                    (
+                        (_j(pkgdir / "board" / f"{r}.digest.json") or {}).get("log")
+                        or {}
+                    ).get("n_forced")
+                )
+                for r in revs
+            },
+            "hang_offset_s": tce["hang_offset_s"],
+            "p2_deadline_offset_s": tce["p2_deadline_offset_s"],
+            "finish_offset_s": tce["finish_offset_s"],
+            "finish_offset_cap_s": tce["finish_offset_cap_s"],
+            "k_measured": tce["k_measured"],
+        }
+    )
     paths.write_json(pkgdir / "collab.json", cj)
     return cj
 
@@ -607,6 +638,7 @@ def result_row(rundir) -> dict:
         "reask_count": 0,
     }
     echo, olj, lrows, fwf = {}, {}, {}, {}
+    tce_by_pkg: dict = {}
     leak = overlap = 0
     p2tok = reasktok = 0
     for p in pkgs:
@@ -617,6 +649,8 @@ def result_row(rundir) -> dict:
         if (pd / "QUARANTINE").exists():
             contaminated = True
         cj = _j(pd / "collab.json")
+        if cj and cj.get("tce"):
+            tce_by_pkg[p] = cj["tce"]
         if cj:
             pan = cj["panel"]
             elapsed[p], overhead[p], slo[p] = (
@@ -678,6 +712,13 @@ def result_row(rundir) -> dict:
         "values_sha256": run.get("values_sha256"),
         "values_status": run.get("values_status"),
         "smoke": bool(run.get("smoke")),
+        "time_cap_exception": bool(run.get("time_cap_exception")),
+        "tce": {
+            "forced_n": run.get("tce_forced_n"),
+            "by_pkg": tce_by_pkg,
+        }
+        if run.get("time_cap_exception")
+        else None,
         "tag": run.get("tag", ""),
         **{
             k: full[k]
@@ -780,6 +821,36 @@ def fisher_one_sided(a_hits, a_n, b_hits, b_n) -> float:
     )
 
 
+def tce_summary(exc_rows: list[dict], arm_stats) -> dict:
+    """Rows stamped time_cap_exception: reported on their own, never inside arms A1/A3 or the cap check."""
+    by_pkg: dict = {}
+    for r in exc_rows:
+        for p, t in ((r.get("tce") or {}).get("by_pkg") or {}).items():
+            d = by_pkg.setdefault(
+                p,
+                {
+                    "B_A1": t["B_A1"],
+                    "elapsed_s": [],
+                    "ratio": [],
+                    "forced_n": t["forced_n"],
+                    "delivered": {},
+                },
+            )
+            d["elapsed_s"].append(t["elapsed_s"])
+            d["ratio"].append(t["ratio"])
+            for rid, n in t["delivered"].items():
+                d["delivered"].setdefault(rid, []).append(n)
+    for d in by_pkg.values():
+        rs = [x for x in d["ratio"] if x is not None]
+        d["median_ratio"] = statistics.median(rs) if rs else None
+    return {
+        "rows": len(exc_rows),
+        "run_ids": [r.get("run_id") for r in exc_rows],
+        "arm_A3_exception": arm_stats(exc_rows),
+        "by_pkg": by_pkg,
+    }
+
+
 def summarize(rows: list[dict], panel: str, b_f: dict | None = None) -> dict:
     rows = [r for r in rows if r.get("panel") == panel]
     for r in rows:
@@ -787,9 +858,11 @@ def summarize(rows: list[dict], panel: str, b_f: dict | None = None) -> dict:
             raise SystemExit(
                 f"refused: row {r.get('run_id')} values_status={r.get('values_status')}"
             )
-    arms = {}
-    for arm in ("A1", "A3"):
-        rs = [r for r in rows if r["arm"] == arm]
+    # Rows run under the owner-authorised time-cap exception never mix with rows that obeyed the cap.
+    exc_rows = [r for r in rows if r.get("time_cap_exception")]
+    rows = [r for r in rows if not r.get("time_cap_exception")]
+
+    def arm_stats(rs: list[dict]) -> dict:
         good = [
             r
             for r in rs
@@ -814,7 +887,7 @@ def summarize(rows: list[dict], panel: str, b_f: dict | None = None) -> dict:
             for p, e in r["elapsed_s"].items():
                 if e is not None:
                     per_pkg.setdefault(p, []).append(e)
-        arms[arm] = {
+        return {
             "runs": len(rs),
             "quality_runs": len(good),
             "slo_breach": sum(1 for r in rs if any(r["slo_breach"].values())),
@@ -831,16 +904,27 @@ def summarize(rows: list[dict], panel: str, b_f: dict | None = None) -> dict:
             if good
             else None,
         }
-    out = {"panel": panel, "arms": arms}
+
+    arms = {
+        arm: arm_stats([r for r in rows if r["arm"] == arm]) for arm in ("A1", "A3")
+    }
+    out = {
+        "panel": panel,
+        "arms": arms,
+        "time_cap_exception": tce_summary(exc_rows, arm_stats),
+    }
     a1, a3 = arms["A1"], arms["A3"]
     cap = {}
+    slack = (
+        values.slack_s()
+    )  # cap is 1.35 x B_c + SLACK_S; the 1.5 x B_c limit is not derived from it
     for p, b_c in a1["median_elapsed"].items():
         xs = a3["elapsed"].get(p, [])
         cap[p] = {
             "B_c": b_c,
             "median_A3": statistics.median(xs) if xs else None,
-            "median_ok": (statistics.median(xs) <= 1.35 * b_c) if xs else None,
-            "over_135": sum(1 for x in xs if x > 1.35 * b_c),
+            "median_ok": (statistics.median(xs) <= 1.35 * b_c + slack) if xs else None,
+            "over_135": sum(1 for x in xs if x > 1.35 * b_c + slack),
             "over_150": sum(1 for x in xs if x > 1.5 * b_c),
         }
     out["cap_check"] = cap
@@ -910,6 +994,21 @@ def summary_table(s: dict) -> str:
             f"| {arm} | {a['runs']} | {a['quality_runs']} | {m['found14']['mean']} | {m['real_blocking8']['mean']} | "
             f"{m['wrong_blockers']['mean']} | {a['reach']} | {a['slo_breach']} | {a['invalid']} | {a['contaminated']} |"
         )
+    t = s.get("time_cap_exception") or {}
+    if t.get("rows"):
+        a = t["arm_A3_exception"]
+        m = a["means"]
+        lines += [
+            "",
+            f"time_cap_exception rows (not in the table above; {t['rows']} run(s)): found14 mean {m['found14']['mean']}, "
+            f"real_blocking8 mean {m['real_blocking8']['mean']}, wrong_blockers mean {m['wrong_blockers']['mean']}, reach {a['reach']}",
+            "| Package | B_A1 (s) | elapsed (s) | elapsed/B_A1 | forced n | delivered per reviewer |",
+            "|---|---|---|---|---|---|",
+        ]
+        for p, d in t["by_pkg"].items():
+            lines.append(
+                f"| {p} | {d['B_A1']:.1f} | {d['elapsed_s']} | {d['ratio']} | {d['forced_n']} | {d['delivered']} |"
+            )
     return "\n".join(lines)
 
 
