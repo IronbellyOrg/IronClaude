@@ -14,6 +14,9 @@ from r5.panelmsg import Ctx, candidate_tasks, validate
 
 FORBIDDEN = (".dev/reflect", "ground-truth", "20261111-a1", "20261113-collab", "/board/", "r5-coverage-deflection",
              ".claude/projects", "/home/coder/workspaces/worktrees/IronClaude")
+# A reviewer's own session spills long tool output to ~/.claude/projects/<its own sandbox>/<session>/tool-results/<id>.txt and reads it back.
+# That is its own folder, not another session's; any other path under .claude/projects stays forbidden (owner order 2026-11-14, false-alarm fix).
+OWN_OVERFLOW = re.compile(r"/[\w./-]*\.claude/projects/-tmp-evalsb-collab-r5-[\w.-]+-repo/[0-9a-f-]{36}/tool-results/[\w.-]+")
 PATH_TOKEN = re.compile(r"[\w.-]+(?:/[\w.-]+)+|[\w-]+\.(?:py|md|json|sh|ya?ml|txt|toml)\b")
 
 
@@ -134,6 +137,7 @@ def package(run_dir) -> dict:
     for f in sorted((d / "reviews").glob("*")):
         if f.name.endswith((".attempt1.json", ".attempt2.json", ".session.jsonl", ".reask.jsonl")):
             for inp in tool_inputs(f):
+                inp = OWN_OVERFLOW.sub("", inp)
                 for s in FORBIDDEN:
                     if s in inp:
                         hits.append({"file": f.name, "pattern": s})
