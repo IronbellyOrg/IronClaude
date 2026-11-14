@@ -295,6 +295,11 @@ FORBIDDEN = [
 ]
 
 
+# A reviewer's own session spills long tool output to ~/.claude/projects/<its own sandbox>/<session>/tool-results/<id>.txt and reads it back.
+# That is its own folder, not another session's; any other path under .claude/projects stays forbidden (owner order 2026-11-14, false-alarm fix).
+OWN_OVERFLOW = re.compile(r"/[\w./-]*\.claude/projects/-tmp-evalsb-collab-r3-[\w.-]+-repo/[0-9a-f-]{36}/tool-results/[\w.-]+")
+
+
 def _tool_inputs(obj, out: list):
     """Collect JSON-serialised tool_use inputs anywhere in an event structure."""
     if isinstance(obj, dict):
@@ -383,8 +388,9 @@ def audit(pkgdir) -> dict:
             _tool_inputs(obj, ins)
         forbidden = FORBIDDEN + [str(paths.claude_projects()).rstrip("/") + "/"]
         for s in ins:
+            s_chk = OWN_OVERFLOW.sub("", s)
             for bad in forbidden:
-                if bad in s:
+                if bad in s_chk:
                     viol.append(
                         {
                             "check": "forbidden_read",
@@ -603,6 +609,13 @@ def judge_ok(d: Path) -> bool:
     if not jj.exists():
         return False
     t = jj.read_text(errors="replace")
+    try:  # judge the final result event only: a failed tool call inside the judge's work is not a failed judge (false-alarm fix, 2026-11-14)
+        ev = json.loads(t)
+        res = [e for e in (ev if isinstance(ev, list) else [ev]) if isinstance(e, dict) and e.get("type") == "result"]
+        if res:
+            return not res[-1].get("is_error") and "API Error" not in str(res[-1].get("result", ""))
+    except ValueError:
+        pass
     return '"is_error":true' not in t.replace(" ", "") and "API Error" not in t
 
 
