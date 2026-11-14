@@ -568,7 +568,7 @@ These rules hold from the moment `enabled` is `true`:
 - **Run one enabled workspace per GitHub login** (OD-8 of the design). The local record cannot see another workspace, so two enabled workspaces on one login could launch the same issue twice. Every audit line carries `host`, so a double enablement shows up as lines from two hosts for one `login`. Every workspace also multiplies the GitHub calls. By the design's proposed figures, one workspace makes 2 calls in an idle cycle (24 an hour, 0.48% of the 5,000-an-hour limit) and at most 37 in a busy one.
 - **Leave an approved issue alone.** Any edit to the title or body, or a comment by someone other than the watcher's login, made at or after the approval time makes the issue `edited_after_approval`, and anyone who can comment can cause that (risk R17). The issue waits until you apply the approval label again: remove it, wait a few seconds, and add it back as one of the approvers (section 5).
 - **Change the approvers file deliberately.** It is the only list of who can approve. After each edit, run `check-config` and compare the modification time and the count with your notes (section 3; risk R10).
-- **Expect sessions to stay open.** A launched session runs until it ends (risk R7 of the design). The watcher starts at most one session per cycle and at most 6 in 24 hours, so look at the open sessions now and then.
+- **Expect sessions to stay open.** A launched session runs until it ends (risk R7 of the design). The watcher starts at most one session per cycle and at most 6 in 24 hours, so look at the open sessions now and then. Since 2026-11-14 each of those claim sessions also starts a second agent in worktree `issue-<N>` (the claim's default `worktree` level). Risk to monitor: the watcher's caps count only its own launches, not these second agents, so the number of open sessions can be higher than the caps suggest.
 - **Check `status` regularly.** It lists `stale` entries (section 11) and shows the day cap used.
 
 To remove the trigger label from a claimed issue (42 here):
@@ -626,6 +626,7 @@ The launch command carries no permission flag; a test pins it to its 12 elements
 
 - **Default: no override.** Do not add a permission flag or a default argument to the launch.
 - **A bypass mode needs your written acceptance.** Any mode that skips permission prompts is allowed only after you have accepted the risk in writing. This runbook suggests recording that acceptance in the live-test record.
+- **Owner acceptance recorded 2026-11-14.** The owner's written words: "Yes, first test session runs with permission checks off". It names the first test session only. The claim now starts a second agent (design decision D2, superseded 2026-11-14); whether this acceptance also covers that second agent is not confirmed, so it is not assumed to.
 - **Record the mode you saw.** Owner check: the design asks to trace whether Orca applies its own default arguments to a launched agent (follow-up FU-6). Read the mode off the session in the live test and do not assume it.
 - **Do not add a second approver before FU-6.** Per-actor permission checks inside the launched session are not built.
 
