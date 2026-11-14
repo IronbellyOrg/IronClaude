@@ -26,7 +26,7 @@ The binding requirements are `.dev/brainstorms/20261107-064825-github-issue-watc
 |---|---|
 | Package `src/superclaude/cli/issue_watch/` (8 modules plus `__init__.py`) | Anything live: no deployment, no cron entry, no real run |
 | Click group `superclaude issue-watch` registered in `src/superclaude/cli/main.py` after `reflect` | Any listener, port, webhook, GitHub Action or service |
-| Tests under `tests/issue_watch/`, all mocked: no real `gh`, `orca` or network call in any test | The post-claim pipeline (what the claim session does next) |
+| Tests under `tests/issue_watch/`, all mocked: no real `gh`, `orca` or network call in any test | The post-claim pipeline (what the claim session does next; since 2026-11-14 the claim at its default level starts a second agent, see D2 below, but the poller code and its tests still do not touch it) |
 | This design doc, plus `docs/designs/issue-watcher-setup.md` (label, approver and scheduler setup, operator runbook) | The Coder template and its `coder_script` cron (FU-2) |
 | `_assumed_shape` JSON fixtures standing in for unverified GitHub and Orca reply shapes | Writes to GitHub of any kind (NG-2), Project writes (NG-3) |
 
@@ -38,11 +38,15 @@ The binding requirements are `.dev/brainstorms/20261107-064825-github-issue-watc
 
 "D1 option A (workspace-side poller, pull); D2 claim-only; D3 only a validated integer issue number reaches a session prompt."
 
+**Superseded 2026-11-14: D2 "claim-only" (the owner's Q2 decision, option 3).** The watcher still launches `/sc:issue --claim <N>` with no `--pipeline` value, but the claim command's default level is `worktree`, not "stop at `next-steps.md`". So the claim session assigns the issue, posts two comments, writes its summary files, then creates the Orca worktree `issue-<N>` and starts a second, governed agent that stops at a plan for a person. No code change was made (`--pipeline none` is not added). The owner reversed their own 2026-11-07 decision knowingly; their words: "3 ... Yes, first test session runs with permission checks off ... Amend document re: option 3". The old D2 wording is kept in the table below for history. This change does not alter what the first live test (FU-1) requires. Separately, the claim command's own text (`src/superclaude/commands/issue.md`) says no governed claim (`worktree` or `full`) is used on a real issue until its hook checks OB-H1 item 1, OB-H2 and OB-H3 have passed, and that OB-H1 item 5 is needed before a claim at any level; those checks are that command's gate, not this design's.
+
 | Decision | Consequence in this design | Enforced by |
 |---|---|---|
 | D1 option A | No listener, inbound port or address registry. A pull poller run by cron in each workspace. | Package shape (section 5); NG-1 |
-| D2 claim-only | The job ends once the session has been asked to run `/sc:issue --claim <N>`. The claim stops at `next-steps.md`. The poller never assigns, comments or moves Project items. | NG-2 test over every argv and GraphQL constant (section 12) |
+| D2 claim-only (SUPERSEDED 2026-11-14 by option 3, see above) | Original wording: the job ends once the session has been asked to run `/sc:issue --claim <N>`. The claim stops at `next-steps.md`. **Still true:** the poller itself never assigns, comments or moves Project items; it only launches the claim session, and the claim session (not the poller) does the assigning and commenting. **Changed:** the claim no longer stops at `next-steps.md`; at its default `worktree` level it also creates worktree `issue-<N>` and starts a second agent that stops at a plan for a person. The poller still makes one launch per approved issue; downstream sessions per approval go from one to two. | NG-2 test over every argv and GraphQL constant (section 12); unchanged, it covers the poller only |
 | D3 integer only | The prompt is built only by `launch.build_claim_prompt(n)`, which accepts an `int` (not `bool`) in 1..999999999 and returns `/sc:issue --claim <n>`. No other text reaches the prompt. | FR-012, NFR-001 property test (section 9) |
+
+**Owner's review-and-approval flow (direction only; to be designed; not part of this change).** The owner intends that after the plan is ready it is posted as a reply on the issue, the issue moves to a review state, the assignee is mentioned and asked to approve, and the move to the next state counts as approval; the same approval could also be given inside Orca through the coordinator session or the TUI dashboard, with the risk of a double start between the two places reduced. Its mechanism is being explored separately and is not decided here.
 
 ### 2.2 Coder#477 statement (verbatim, spec section 9)
 
@@ -809,7 +813,7 @@ The Python floor is 3.10 (`pyproject.toml:16`, CI `test.yml:22`): no `tomllib`, 
 
 | Value | Default | Reason |
 |---|---|---|
-| `max_launches` per issue | 1 | D2 claim-only: one session per approval |
+| `max_launches` per issue | 1 | one poller launch per approval (the claim session it starts then starts a second agent at the default `worktree` level; D2 superseded 2026-11-14) |
 | `max_launches_per_cycle` | 1 | caps blast radius of a bad cycle |
 | `max_candidates` | 10 | OD-11 (alternatives 5, 8); at r = 4 the call cap already limits k to 8 (section 6.3), so 10 is a ceiling |
 | call cap | 35, 3 reserved | worst cycle 37 calls, 8.88% of 5,000 an hour |
@@ -857,7 +861,7 @@ The implementer records each UNVERIFIED answer in the matching `_assumed_shape` 
 | FU-4 | Alerting after three bad cycles | sink chosen |
 | FU-5 | ETag conditional reads | call budget pressure |
 | FU-6 | Launched-session permissions | before a second approver |
-| FU-7 | Revisit D1 and D2 | spec section 2 conditions |
+| FU-7 | Revisit D1 and D2 (D2 was revised once, 2026-11-14: claim at its default level) | spec section 2 conditions |
 | FU-8 | Automatic `--retry-launch` | C20 argv confirmed in FU-1 |
 | FU-9 | Approver role check (T14) | approver set grows |
 | FU-10 | SLO review with `slo_numbers` | after 7 days live |
