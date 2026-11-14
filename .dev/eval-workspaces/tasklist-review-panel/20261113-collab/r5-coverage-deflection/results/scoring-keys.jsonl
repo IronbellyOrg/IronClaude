@@ -46,3 +46,9 @@
 {"token":"3dc4c7c31d44","row":"f6x-el2-r01","pkg":"TASK-WF-designSpec-20261107-075614","label":"U","arm":"F6-el2","redactions":3,"status":"ok"}
 {"token":"25fe65a17b48","row":"f6x-el2-r01","pkg":"TASK-WF-makeTheAliasOnly-20261105-051649","label":"T","arm":"F6-el2","redactions":3,"status":"ok"}
 {"token":"c11aa5c10b3f","row":"f6x-el2-r01","pkg":"TASK-WF-design-20261108-041415","label":"T","arm":"F6-el2","redactions":3,"status":"ok"}
+{"token":"49814ab542d7","row":"a1x-hl2-r01","pkg":"TASK-WF-designSpec-20261107-075614","label":"V","arm":"A1-hl2","redactions":3,"status":"ok"}
+{"token":"365a10287147","row":"a1x-hl2-r01","pkg":"TASK-WF-makeTheAliasOnly-20261105-051649","label":"Q","arm":"A1-hl2","redactions":4,"status":"ok"}
+{"token":"cc06f0a5b64d","row":"a1x-hl2-r01","pkg":"TASK-WF-design-20261108-041415","label":"U","arm":"A1-hl2","redactions":3,"status":"ok"}
+{"token":"954ad70d53b4","row":"f6x-hl2-r01","pkg":"TASK-WF-designSpec-20261107-075614","label":"Q","arm":"F6-hl2","redactions":3,"status":"ok"}
+{"token":"380c9e333536","row":"f6x-hl2-r01","pkg":"TASK-WF-makeTheAliasOnly-20261105-051649","label":"Q","arm":"F6-hl2","redactions":3,"status":"ok"}
+{"token":"aa22500bad0d","row":"f6x-hl2-r01","pkg":"TASK-WF-design-20261108-041415","label":"S","arm":"F6-hl2","redactions":3,"status":"ok"}

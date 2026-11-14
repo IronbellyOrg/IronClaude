@@ -1,0 +1,204 @@
+{
+ "schema": "r1-results/1",
+ "design": "r1-move-radar",
+ "row": "sl2-c1x-r1",
+ "panel": "sl2",
+ "models": {
+  "t1b-1": "claude-sonnet-5-5",
+  "t4-1": "gpt-6-luna",
+  "t3-1": "gpt-6-luna"
+ },
+ "collab": 1,
+ "rep": 1,
+ "started_utc": "2026-11-14T15:04:43Z",
+ "values": {
+  "TASK-WF-designSpec-20261107-075614": "ea2cb7046b8d93cde0beb712b8f002d0daa29453eea1a92ed263173546248db0",
+  "TASK-WF-makeTheAliasOnly-20261105-051649": "327076dc5cf6c8822a10cc12f95818d27f0d8ebc4049a09d0066b940029ea3f1",
+  "TASK-WF-design-20261108-041415": "9f4a2b9ecb9fbaa1b257f58af28f6c4a47428801fd5fab178d471ce14e823aa9"
+ },
+ "time_cap_exception": true,
+ "forced_k": 1,
+ "status": "complete",
+ "found_14": 3,
+ "real_blocking_8": 1,
+ "judge_blocking": 1,
+ "wrong_blockers": 1,
+ "control_found_2": 1,
+ "control_wrong_blockers": 0,
+ "output_tokens": 133999,
+ "elapsed_s": {
+  "TASK-WF-designSpec-20261107-075614": 209.765,
+  "TASK-WF-makeTheAliasOnly-20261105-051649": 326.856,
+  "TASK-WF-design-20261108-041415": 243.845
+ },
+ "packages": {
+  "TASK-WF-designSpec-20261107-075614": {
+   "status": "ok",
+   "label": "T",
+   "ledger_rows": 7,
+   "output_tokens": 35502,
+   "elapsed_s": 209.765,
+   "B_f": 165.823,
+   "overhead_pct": 26.499339657345477,
+   "slo_breach": false,
+   "k": {
+    "searcher": 1,
+    "reader": 1
+   },
+   "values": "ea2cb7046b8d93cde0beb712b8f002d0daa29453eea1a92ed263173546248db0",
+   "dropped_lines": 0,
+   "reask": 0,
+   "retry_isolated": 0,
+   "hang_kill": 0,
+   "gt_covered_any": [
+    "GT3",
+    "GT7"
+   ],
+   "real_blocking": [],
+   "judge_blocking": [],
+   "wrong_blockers": 1,
+   "B_A1": 165.823,
+   "elapsed_over_baseline": 1.2649933965734548,
+   "forced_k": 1,
+   "k_measured": {
+    "searcher": 0,
+    "reader": 0
+   },
+   "forced_roles": [
+    "reader",
+    "searcher"
+   ],
+   "delivered": {
+    "t1b-1": 1,
+    "t4-1": 1,
+    "t3-1": 1
+   },
+   "hang_offset_s": 497.469
+  },
+  "TASK-WF-makeTheAliasOnly-20261105-051649": {
+   "status": "ok",
+   "label": "V",
+   "ledger_rows": 6,
+   "output_tokens": 54521,
+   "elapsed_s": 326.856,
+   "B_f": 302.295,
+   "overhead_pct": 8.124844936237775,
+   "slo_breach": false,
+   "k": {
+    "searcher": 1,
+    "reader": 2
+   },
+   "values": "327076dc5cf6c8822a10cc12f95818d27f0d8ebc4049a09d0066b940029ea3f1",
+   "dropped_lines": 0,
+   "reask": 0,
+   "retry_isolated": 0,
+   "hang_kill": 0,
+   "gt_covered_any": [
+    "GT3"
+   ],
+   "real_blocking": [
+    "GT3"
+   ],
+   "judge_blocking": [
+    "GT3"
+   ],
+   "wrong_blockers": 0,
+   "B_A1": 302.295,
+   "elapsed_over_baseline": 1.0812484493623777,
+   "forced_k": 1,
+   "k_measured": {
+    "searcher": 0,
+    "reader": 2
+   },
+   "forced_roles": [
+    "searcher"
+   ],
+   "delivered": {
+    "t1b-1": 1,
+    "t4-1": 2,
+    "t3-1": 1
+   },
+   "hang_offset_s": 906.885
+  },
+  "TASK-WF-design-20261108-041415": {
+   "status": "ok",
+   "label": "T",
+   "ledger_rows": 4,
+   "output_tokens": 43976,
+   "elapsed_s": 243.845,
+   "B_f": 197.644,
+   "overhead_pct": 23.37586772176237,
+   "slo_breach": false,
+   "k": {
+    "searcher": 1,
+    "reader": 1
+   },
+   "values": "9f4a2b9ecb9fbaa1b257f58af28f6c4a47428801fd5fab178d471ce14e823aa9",
+   "dropped_lines": 0,
+   "reask": 0,
+   "retry_isolated": 0,
+   "hang_kill": 0,
+   "gt_covered_any": [
+    "GT1"
+   ],
+   "real_blocking": [],
+   "judge_blocking": [
+    "GT1"
+   ],
+   "wrong_blockers": 0,
+   "B_A1": 197.644,
+   "elapsed_over_baseline": 1.2337586772176237,
+   "forced_k": 1,
+   "k_measured": {
+    "searcher": 0,
+    "reader": 1
+   },
+   "forced_roles": [
+    "searcher"
+   ],
+   "delivered": {
+    "t1b-1": 1,
+    "t4-1": 1,
+    "t3-1": 1
+   },
+   "hang_offset_s": 592.932
+  }
+ },
+ "collab_counters": {
+  "injections": 10,
+  "injections_by_move": {
+   "M7": 3,
+   "M3": 3,
+   "M8": 3,
+   "M5": 1
+  },
+  "src_checks": 0,
+  "search_injections": 3,
+  "static_injections": 7,
+  "observable_moves_executed": 2,
+  "skips_no_gap": 0,
+  "skips_guard": 0,
+  "finish_signals": 0,
+  "finish_would_fire": 0,
+  "hook_calls": 126,
+  "hook_errors": 0,
+  "hook_ms_p95": 137,
+  "snapshot_missing": 0,
+  "late": 0,
+  "receivers": 9,
+  "leak_violations": 0,
+  "moves_covered_panel": {
+   "M1": 6,
+   "M2": 7,
+   "M4": 7,
+   "M7": 2,
+   "SRC_OPENED": 9,
+   "UNNAMED_TEST": 1
+  },
+  "own_line_jaccard": {
+   "TASK-WF-designSpec-20261107-075614": 0.0,
+   "TASK-WF-makeTheAliasOnly-20261105-051649": 0.0,
+   "TASK-WF-design-20261108-041415": 0.0
+  }
+ }
+}
