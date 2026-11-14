@@ -244,10 +244,17 @@ def deadlines(panel: str, pkg: str, collab: int, t0: int, root: str, cap_exc: in
     info = None
     if cap_exc:
         v, info = cap_exception(v, cap_exc)
+    # Owner order 2026-11-14 (one baseline retry, sl2-c0-r4 designSpec, killed at 1.5 B while still working): BASELINE_HANG_X=<x> widens the
+    # hang guard of a collab 0 row to max(existing, x * B_f). Unset = no change and no new key. Collab 1 rows keep TIME_CAP_EXCEPTION.
+    bx = os.environ.get("BASELINE_HANG_X")
+    if bx and collab == 0:
+        v = dict(v, hang_offset_s=max(v["hang_offset_s"], float(bx) * v["B_f"]))
     out = {"values": v["values"], "B": v["B_f"], "k": v["k"], "T_report": v["T_report_p90"],
            "finish_offset_s": v["finish_offset_s"], "guard_offset_s": v["guard_offset_s"], "hang_offset_s": v["hang_offset_s"], "slack_s": slack_s(),
            "FINISH_MS": t0 + round(1000 * v["finish_offset_s"]), "GUARD_MS": t0 + round(1000 * v["guard_offset_s"]),
            "HANG_MS": t0 + round(1000 * v["hang_offset_s"])}
+    if bx and collab == 0:
+        out["baseline_hang_x"] = float(bx)
     if info is not None:  # only with the override on: an override-off output keeps exactly its old keys
         out["time_cap_exception"] = True
         out["cap_exception"] = info
