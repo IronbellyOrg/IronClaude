@@ -1,0 +1,41 @@
+contract_version: "1.0"
+status: partial
+seed_brief_path: .dev/brainstorms/20261114-jev-model-validation-hook/seed-brief.md
+merged_output_path: .dev/brainstorms/20261114-jev-model-validation-hook/merged-requirements.md
+convergence_score: 1.0
+adversarial_artifacts_dir: .dev/brainstorms/20261114-jev-model-validation-hook/nested/adversarial-1/adversarial/
+domain: architecture
+proposal_count: 3
+enrichment_used:
+  - source: codebase
+    quality_tier: fallback_1   # direct Read/Bash/gh on the checkout; no /sc:analyze call, no nested analyze directory
+  - source: research-light
+    quality_tier: fallback_1   # Claude Code docs read through context7; no /sc:research call, no nested research directory
+  - source: research-deep
+    quality_tier: skipped
+handoff_action: none
+handoff_output_path: null
+unresolved_conflicts:
+  - "The adversarial session (sonnet) timed out at 3000 s after diff analysis and a two-round debate; base selection, refactor plan and merge were finished by a second sonnet session from the saved artifacts, so no adversarial return contract exists and status is partial."
+  - "Convergence 1.0 is the debate tally script's figure (50 of 50 points agreed by 2 of 3 advocates, 0 unresolved); treat it as generous, not as an independent measure."
+  - "Open UNVERIFIED items are listed in merged-requirements.md section 10 (for example whether UserPromptSubmit fires for /model, and whether --settings can inject a per-child availableModels list)."
+worker_contract_version: "1"
+worker_status: partial
+command: "/sc:brainstorm --depth standard --proposals 3 --models sonnet,haiku --strategy systematic --unattended --output .dev/brainstorms/20261114-jev-model-validation-hook \"<topic: design version 1 of a Jev model-validation hook, issue #546>\""
+report_path: .dev/brainstorms/20261114-jev-model-validation-hook/merged-requirements.md
+artifacts:
+  - .dev/brainstorms/20261114-jev-model-validation-hook/enrichment/codebase-context.md
+  - .dev/brainstorms/20261114-jev-model-validation-hook/proposals/proposal-A.md
+  - .dev/brainstorms/20261114-jev-model-validation-hook/proposals/proposal-B.md
+  - .dev/brainstorms/20261114-jev-model-validation-hook/proposals/proposal-C.md
+  - .dev/brainstorms/20261114-jev-model-validation-hook/nested/adversarial-1/adversarial/
+  - .dev/brainstorms/20261114-jev-model-validation-hook/tools/
+# logs/ is gitignored and therefore not listed.
+telemetry:
+  model_rule: "no Opus used; proposals A and C on claude-sonnet-5-5, B on claude-haiku-5-5; adversarial and merge sessions on claude-sonnet-5-5"
+  concurrency: "at most 2 headless claude -p sessions at once (A and B together, C after the first finished)"
+  proposal_seconds: {A: 356, B: 281, C: 243}
+  adversarial_session_seconds: 3001   # rc 124, timed out
+  merge_session_seconds: 932
+  agent_spec: "sonnet:architect:'layered defence',haiku:analyzer:'chokepoint and evidence',sonnet:devops:'policy and operations'"
+  deviations_from_skill: "Wave 3 did not use the skill's single-budget --generate spec route; per the caller's constraint each proposal ran as its own claude -p session and sc-adversarial-protocol ran in --compare mode over the saved variants."

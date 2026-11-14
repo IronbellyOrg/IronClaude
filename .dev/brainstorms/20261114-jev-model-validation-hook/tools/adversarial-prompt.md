@@ -1,0 +1,9 @@
+You are running Wave 3 of a brainstorm. Do exactly this, in order, without asking any question:
+
+1. Invoke the Skill tool with skill "sc-adversarial-protocol" and these arguments (one line):
+
+--unattended --compare .dev/brainstorms/20261114-jev-model-validation-hook/proposals/proposal-A.md,.dev/brainstorms/20261114-jev-model-validation-hook/proposals/proposal-B.md,.dev/brainstorms/20261114-jev-model-validation-hook/proposals/proposal-C.md --depth standard --convergence 0.75 --output .dev/brainstorms/20261114-jev-model-validation-hook/nested/adversarial-1/
+
+2. Follow the loaded protocol fully (diff analysis, debate, base selection, refactoring plan, merge). Hard constraints that override the protocol: (a) use no Opus anywhere; every sub-agent or Task you spawn must pass model "sonnet" or "haiku" explicitly, and the protocol's own agent specs must use only those; (b) write only under .dev/brainstorms/20261114-jev-model-validation-hook/nested/adversarial-1/; do not edit any other file, do not stage, commit or push; (c) read-only on product code; (d) any Python goes through `uv run`; (e) do not touch .dev/eval-workspaces/.
+3. Merge guidance for the merged output: keep the ten-section structure of the proposals (events and visibility, policy, Jev versus code, rejection and override, bypass resistance, time cost, test plan with numbered REQ-xx requirements, implementation plan, room for version 2, risks and recommendation). Resolve contradictions explicitly (state which proposal's position won and why). Keep every claim marked UNVERIFIED that the proposals marked UNVERIFIED unless a debate step verified it. Renumber requirements REQ-01 upward with no duplicates, each with a verification method.
+4. When finished, print only: the merged output path, the convergence score, the status (success/partial/failed), and the list of unresolved conflicts, one per line.
