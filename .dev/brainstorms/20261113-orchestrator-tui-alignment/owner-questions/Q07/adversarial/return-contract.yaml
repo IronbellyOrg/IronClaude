@@ -1,0 +1,12 @@
+return_contract:
+  merged_output_path: "/home/coder/workspaces/worktrees/IronClaude/issue-339-orchestrator-mode/.dev/brainstorms/20261113-orchestrator-tui-alignment/owner-questions/Q07/merged-answer.md"
+  convergence_score: 1.0
+  artifacts_dir: "/home/coder/workspaces/worktrees/IronClaude/issue-339-orchestrator-mode/.dev/brainstorms/20261113-orchestrator-tui-alignment/owner-questions/Q07/adversarial"
+  status: "success"
+  base_variant: "variant-2 (proposal B)"
+  unresolved_conflicts: 0
+  fallback_mode: false
+  failure_stage: null
+  invocation_method: "skill-direct"
+  unaddressed_invariants: []
+  notes: "Depth quick: Round 1 only. Per-point convergence by majority 10 of 10; headline verdict 2 of 3 (two advocates chose a B-led combination, one an A-led combination with the same core). Advocates spawned in parallel; merge by a merge-executor agent."

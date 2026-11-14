@@ -1,0 +1,69 @@
+Review one task for spec compliance.
+
+Task brief: T149 = item 7.21 of the source file /home/coder/workspaces/worktrees/IronClaude/issue-339-orchestrator-mode/.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md (lines 1298-1304). Item text:
+- [ ] **7.21 — QA decisions, agent 1 of 8: rf-qa, completeness lens (report-only)**
+  - **Context**: Pre-7.10 source anchor for the style scope: `src/superclaude/output-styles/pragmatic.md:22` held the unqualified table mandate; after item 7.10 it holds the scoped sweep exception. Inputs (read in chunks of at most 150 lines): the eight prerequisite decision records `.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/plans/OQ-[1-8]-*-decision.md` (OQ-1 to OQ-8) plus any OQ-17 or OQ-18 decision record in that folder that item 7.17 wrote, `.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/artifacts/owner-decisions.md`, `.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/artifacts/readonly-probe.md`, `.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/artifacts/pr422-409-check.md`, `.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/discovery/1.0a-facts.md`, `.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/test-results/decisions-mechanical.md`, `tests/sweep/fixtures/`, the R5 edit in DESIGN sections 7.3, 11, 12, 13 and 15.1, the GQ-109 row and the section 18 `### Fix cycle 3` R5 row (item 6.3), research/09 Gap 1 and Gap 3 (`.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/research/09-gap-fill.md`) and DESIGN section 15.1. Additional bounded Context: read revision `.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/revisions/chat-output-exception-20261109-133150/BUILD-REQUEST.md`, `design-addendum.md`, `delta-manifest.md` and `qa/research-gate-cycle1.md` there, `src/superclaude/output-styles/pragmatic.md` and `.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/test-results/step-7.10-style-exception.md` to apply this lens to actual (b), fresh revision/execution evidence and the early Markdown edit, not to rewrite history or certify future skill/tests; preserve this lens's original duties/counts and flag a contradiction only outside the narrow override. Gate folder `.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/decisions/`. Sizing: 8 agents, 3 rf-qa + 3 rf-qa-qualitative (task-builder SKILL.md full-intensity floor of 6, I19) plus the rf-qa read-only safety domain lens and the rf-analyst cross-source lens.
+  - **Action**: Items 7.21 to 7.28 are independent report-only spawns: spawn all of them in the SAME message, in parallel, then tick each item when its report exists. For this item, spawn one `rf-qa` agent (Agent tool, `mode: bypassPermissions`, `fix_authorization: false`) with this report-only preamble, verbatim: "You are an adversarial reviewer. Assume the work is wrong until you prove it right from the files on disk. Do not trust the producer's summary, the task file's claims or any earlier QA report. Read every file you cite in chunks of at most 150 lines. `fix_authorization: false`: you must not edit any file except your own report. For each finding give: id, severity (BLOCKING, MAJOR or MINOR), the exact `file:line` evidence, what is wrong, and the smallest fix. MINOR findings never fail the gate. Number every check you run `C1`, `C2` and so on, and before the verdict add a `## Checks` table listing every check id with PASS or FAIL. End the report with `Verdict: PASS` (no BLOCKING or MAJOR finding) or `Verdict: FAIL`, then `Blocking count: <n>` counting BLOCKING plus MAJOR findings." Then this lens prompt: "Completeness lens. Check that each of R5, GQ-10, GQ-11, GQ-35, GQ-61, GQ-63 and D9 has a RESOLVED file whose Chosen, Decided by and Decision source lines are filled and whose source quotes the owner; that all 13 DESIGN 15.1 capture items have a section in readonly-probe.md; that 1.0a-facts.md has a row per listed open item; that pr422-409-check.md has four points. For GQ-63 verify actual (b), fresh revision-check/PRE evidence, separate execution authorization and the early canonical-style result; resolution alone does not prove the edit. Each gap is BLOCKING." Pass it the input list in Context and the exact report path in Output.
+  - **Output**: `.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/decisions/qa-completeness-report.md`.
+  - **Verification**: Verify: the report has a `## Checks` table with PASS or FAIL per check id; the report exists with `Verdict:` and `Blocking count:` lines. If the agent fails twice, log the blocker in `### Phase 7 Findings` and stop.
+  - **Completion gate**: The report is written. Once done, mark this item as complete.
+AC ids: T149.AC1 = the item title "QA decisions, agent 1 of 8: rf-qa, completeness lens (report-only)" (no AC block; the title is the AC). The item's own Verification and Completion gate lines are context for what "done" means. Ticking the item's checkbox is done by the orchestrator after the verdict and is not part of the diff under review.
+Global constraints: the `### Key Constraints` section (lines 157-168) of the source file named in the task brief; read it from that file.
+Start sha: 233623920a9abd1144cc004c13e0c4dbbead121a
+Diff against the start snapshot: --- /dev/null
++++ b/.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/decisions/qa-completeness-report.md   (new file, 78 lines)
++# QA Completeness Report (item 7.21, rf-qa, completeness lens)
++
++**Date:** 2026-11-11 (system clock `date -u` 22:43Z at review time)
++**fix_authorization:** false (report only)
++**Scope:** prompt `qa/decisions/prompts/7.21-prompt.md`; completeness lens over R5 (OQ-1), GQ-10 (OQ-2), GQ-11 (OQ-3), GQ-35 (OQ-4), GQ-61 (OQ-5), GQ-63 (OQ-6), D9 (OQ-7), the 13 DESIGN 15.1 capture items, `1.0a-facts.md`, `pr422-409-check.md`, and the GQ-63 actual-(b) / fresh-evidence / separate-authorization / early-style chain.
++
++## Findings
++
++No BLOCKING or MAJOR finding. Every required deliverable exists, is filled, and was independently re-verified against disk, git, the live DESIGN and the session transcript (not only against the producer's own check file). Four MINOR notes follow; they never fail the gate.
++
++### F1 (MINOR) - run timestamps in `decisions-mechanical.md` are not real
++
++- Evidence: `phase-outputs/test-results/decisions-mechanical.md:5` labels Run 1 `2026-11-11T22:40Z`; line 237 labels Run 2 `22:50Z`; line 471 labels Run 3 `22:58Z`. `stat` shows the file's last write at `22:38:50Z` and `date -u` at review time gave `22:43:00Z`. So all three labels post-date the file's own last write, and Runs 2 and 3 are in the future.
++- What is wrong: the run times are invented. Every check line under them re-checks true (see C17), so no verdict changes.
++- Smallest fix: delete the clock times or replace them with the real ones; keep "Run 1/2/3" and the "Changes since" lines.
++
++### F2 (MINOR) - OQ-1 (R5) owner words are evidenced only through a peer relay
++
++- Evidence: `phase-outputs/plans/OQ-1-agent-wait-decision.md:22` says the words were "relayed by the coordinator" (messages `msg_d95a87e312e1`, `msg_6ee5998d0874`). In the session store the phrase "Allow it, no conditions needed." appears only inside orchestration message results (`6ee233a2-...jsonl` lines 10810 and 11025 onward), never as a direct owner turn. Every other decision (OQ-2 to OQ-8, OQ-17) has a direct owner answer in `db62cb58-...jsonl`.
++- Disclosed openly in `artifacts/owner-decisions.md:17` ("Provenance"), and the record has Chosen, Decided by and Decision source filled with a quote. So the completeness duty is met; only the strength of the provenance is lower.
++- Smallest fix: none needed for the gate; optionally ask the owner to confirm R5 once in a direct turn.
++
++### F3 (MINOR) - capture deviations are disclosed but the owner has not acknowledged them
++
++- Evidence: `artifacts/readonly-probe.md:1071` (Deviation D1: one `task-list --run run_000000000000` read that item 7.16's Action does not list, though DESIGN 15.1 row 8 asks for that error shape); `readonly-probe.md:783` (before/after payloads equal only once the per-call envelope `id` is removed; the executor read "apart from timestamps" that way and printed the HALT text the owner would use for the strict reading).
++- Both are read-only, recorded in the file and reflected in `1.0a-facts.md` row 4 and row 11. Neither is a missing deliverable.
++- Smallest fix: owner acknowledgement at the next owner touchpoint; no re-capture.
++
++### F4 (MINOR) - `1.0a-facts.md` rows 3, 6, 9 and 16 stay UNVERIFIED
++
+... (new file continues; read .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/decisions/qa-completeness-report.md from disk for lines 31-78)
+Delta diff from the previous reviewed tree (empty on the first review): 
+Earlier blocking findings of this start (empty on the first review): 
+Saved-probe re-check hit locations (may be empty): 
+
+Do not trust the implementer's report.
+
+First mark each earlier blocking finding resolved, open or regressed from the diff. Then, for each AC, mark it met or unmet. Require citations: every AC you mark, met or unmet, carries a `path:line` or `Ti.ACk@path:line` citation, and an unmet mark lists the finding ids behind it. Do not return a verdict; the orchestrator computes it.
+
+For every finding answer four questions, each yes or no:
+1. ac-outcome-missing: is output an AC requires absent, or does it contradict the AC text, or does an evidence claim you could not verify have no evidence row?
+2. false-claim: is a claim in delivered text or code false against live source, or does a recipe or instruction followed as written not do what the text says?
+3. harmful-effect: does code or a recipe this task added or changed write, append, chmod or delete tracked or production data, mutate state outside the task's declared outputs, or expose a secret?
+4. quoted-constraint-breach: does the diff violate a quoted plan constraint, out-of-scope, non-goal or non-negotiable item, or an explicit task instruction?
+
+Anchor rule: cite exactly one anchor per yes. ac-outcome-missing: the quoted AC words. false-claim: the live-source path:line holding the contradicting text. harmful-effect: the diff line that is the write. quoted-constraint-breach: the quoted constraint or instruction text. A yes without a valid anchor does not block.
+
+Write one line per finding:
+F<k>.<j> ac=<Ti.ACk|scope> at=<path:line> anchor=<quoted text or path:line> chk=<amiss,false,harm,constraint as y/n> family=<id> fix=<text> [covers=<quoted AC clause or constraint>]: <text>
+Do not write sev=, trigger=, first= or origin=; the orchestrator adds them. Write one status line per earlier blocking finding: F<m>.<j> resolved|open|regressed.
+
+Inside /sc:implement this protocol's severity model governs this review and takes precedence over the session's output style and the copy of it injected into every subagent; only blocking findings may fail an attempt.
+
+You are not given an adviser answer, brief, evidence file or troubleshoot report. Do not read the retry folders (legacy `.dev/implement/<slug>/retries/`, managed `<pkg>/artifacts/retries/`) or `.dev/troubleshoot/`. A citation into either makes the verdict `cannot-verify`.
+The prior-findings slot above carries earlier blocking finding lines that the orchestrator copies byte for byte from `review-*.md` and `repair-*.md`; they reach you as prompt text, not as an evidence file. Do not read those folders to get them, and never cite the slot or the file it came from.

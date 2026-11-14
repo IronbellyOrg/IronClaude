@@ -1,0 +1,356 @@
+Review one task for spec compliance.
+
+Task brief: T331 = item 14.25 of the source file /home/coder/workspaces/worktrees/IronClaude/issue-339-orchestrator-mode/.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md (lines 2612-2618). Item text:
+- [ ] **14.25 — QA final: fix cycle 1 (one rf-qa fix agent, conditional)**
+  - **Context**: Pre-7.10 source anchor for the style scope: `src/superclaude/output-styles/pragmatic.md:22` held the unqualified table mandate; after item 7.10 it holds the scoped sweep exception. Input: `.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/final/consolidated-findings-cycle0.md` from item 14.24 (`F_0` and `|F_0|`). Additional Context to pass: DESIGN and SPEC, revision `.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/revisions/chat-output-exception-20261109-133150/BUILD-REQUEST.md` and `design-addendum.md` there, unchanged OQ-6 decision, canonical `src/superclaude/output-styles/pragmatic.md`, `src/superclaude/skills/sc-sweep-protocol/SKILL.md` and `tests/commands/test_sweep_command.py` and `.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/test-results/step-7.10-style-exception.md`, `test-sweep-command-summary.md` and `phase11-validation.md` there, to fix delivery against immutable new authority. Other inputs for the fix agent: the gate inputs listed in Context.
+  - **Action**: If `|F_0|` is 0 (only MINOR findings or none), write `SKIPPED: no blocking findings` to `.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/final/fix-log-cycle1.md` and mark items 14.25 to 14.31 complete with that note. Otherwise spawn ONE `rf-qa` agent (Agent tool, `mode: bypassPermissions`, `fix_authorization: true`) with this fix agent preamble, verbatim: "You are the single fix agent for this gate cycle. `fix_authorization: true`. Fix only the BLOCKING and MAJOR findings listed in the consolidated findings file you are given; leave MINOR findings as notes. Edit only the files the findings name. Anchor every edit by quoted text. Write a fix log listing each finding id, the change, and the `file:line` after the change. Never commit, push or stage a `.claude/` path." Pass it `.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/final/consolidated-findings-cycle0.md`, the other inputs in Context, and the output path `.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/final/fix-log-cycle1.md`. The fix agent edits only `src/superclaude/`, `tests/`, `docs/`, `plugins/superclaude/skills/sc-recommend/refs/HOW-WE-WORK.md` (only by copying `src/superclaude/core/HOW-WE-WORK.md` byte for byte), `CHANGELOG.md` and `.gitignore`, never a `.claude/` path, and never commits. For this revision the existing src allowlist includes only the bounded communication clauses of `src/superclaude/output-styles/pragmatic.md` beyond the original delivery; do not edit unrelated style, severity rules/tests, HOME/installed copies or grant new rights. The fix agent fixes the delivery, never DESIGN `docs/designs/orchestrator-mode.md` and never the SPEC `.dev/brainstorms/20261108-024258-orchestrator-mode-phase1/merged-requirements.md`, because they are the sources this gate checks the delivery against: a mismatch is fixed in the code, the tests or the other docs, and a finding that can only be closed by changing DESIGN or SPEC is left OPEN in the fix log with that reason (it needs a design revision or an owner decision), so the gate-decision item escalates it. Before spawning the agent, record the output of `sha256sum docs/designs/orchestrator-mode.md .dev/brainstorms/20261108-024258-orchestrator-mode-phase1/merged-requirements.md .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/revisions/chat-output-exception-20261109-133150/design-addendum.md .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/revisions/chat-output-exception-20261109-133150/BUILD-REQUEST.md` in the fix log; after it returns, re-run that command first and append a PASS line only when all four sums are unchanged (DESIGN including its append, SPEC, normative addendum and revision request are immutable; none enters the delivery-fix allowlist). Then re-run the commands of items 14.1 to 14.5: `make sync-dev`, `make verify-sync`, `git diff --cached --name-only -- .claude/` (expect nothing but `.claude/settings.json`), `make lint`, `uv run ruff check .`, `uv run ruff format --check src/ tests/`, `uv run pytest tests/sweep tests/commands tests/core tests/skills tests/recommend -v`, `uv run pytest` (Bash timeout 600000 ms), `grep -rn 'src/superclaude' src/superclaude/commands/sweep.md src/superclaude/skills/sc-sweep-protocol/ src/superclaude/core/WORKER-CONTRACT.md src/superclaude/core/HOW-WE-WORK.md plugins/superclaude/skills/sc-recommend/refs/HOW-WE-WORK.md` (expect no output) and `grep -rn 'src/superclaude' src/superclaude/commands src/superclaude/skills src/superclaude/agents src/superclaude/core src/superclaude/hooks | wc -l` (expect 168, or the base count item 14.5 recorded), and append each command, its output and a PASS or FAIL line to the fix log.
+  - **Output**: `.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/final/fix-log-cycle1.md` and the fixed files.
+  - **Verification**: Verify: the fix log lists every id in `F_0` with a change and a `file:line`, an OPEN reason, or the SKIPPED line; every appended re-check line is PASS. If the fix agent fails to return twice, log the blocker in `### Phase 14 Findings` and stop.
+  - **Completion gate**: The fix log is written. Once done, mark this item as complete.
+AC ids: T331.AC1 = the item title "QA final: fix cycle 1 (one rf-qa fix agent, conditional)" (no AC block; the title is the AC). The item's own Verification and Completion gate lines are context for what "done" means. Ticking the item's checkbox is done by the orchestrator after the verdict and is not part of the diff under review.
+Global constraints: the `### Key Constraints` section (lines 157-168) of the source file named in the task brief; read it from that file.
+Start sha: e662bf76fc89672773eaf9882410f9c676925370
+Diff against the start snapshot: The task (item 14.25, fix cycle 1 of the final gate) was done by one rf-qa fix agent, then repaired once by the orchestrator after review 1. Its fix log is .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/final/fix-log-cycle1.md (read it fully: per-finding FIXED/OPEN blocks FIN-F1 to FIN-F9, mutation proofs, re-check commands, the executor section, and the final section "Repair pass after review 1", which supersedes the FIN-F7 and FIN-F9 wording where they differ). The immutable-source checksums are at its top; verify them with sha256sum yourself.
+
+The code and test changes against the Q0 snapshot of this task, as they stand now, are in /home/coder/workspaces/worktrees/IronClaude/issue-339-orchestrator-mode/.dev/implement/task-rf-sweep-phase1-202-c7ea3265/work/T331/code-diff.txt (nine files: src/superclaude/cli/sweep/probes.py, classify.py, report.py, src/superclaude/skills/sc-sweep-protocol/SKILL.md, tests/sweep/test_classify.py, test_report.py, test_probes_allowlist.py, test_cli_contract.py, tests/commands/test_sweep_command.py). Six result files under .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/test-results/ were also updated; read them from disk. The source files are untracked in git, so use the diff files, not git diff.
+
+To judge the item's Verification line: the fix log must list every id in F_0 (FIN-F1 to FIN-F9; see qa/final/consolidated-findings-cycle0.md) with a change and a file:line, an OPEN reason, or SKIPPED; and every appended re-check line must be PASS. The pre-existing failures (12 Markdown format failures, 2 ruff-import test failures) were accepted at items 14.3 and 14.4 and are not new. Judge the repair pass: the earlier blocking findings F1.1 (outage sentence), F1.2 (ValueError) and F1.3 (stale result map) must each be resolved, and the repair must not introduce a new false claim anywhere in the changed text. Do a full audit of the diff as well; the delta since the first review is in the delta field.
+Delta diff from the previous reviewed tree (empty on the first review): --- a/src/superclaude/cli/sweep/probes.py
++++ b/src/superclaude/cli/sweep/probes.py
+@@ -674,11 +674,12 @@
+ 
+     ``yaml.safe_load`` is what ``cli/reflect/contract.py`` uses on the same file name. The
+     caller has already bounded ``text`` to ``CONTRACT_LIMIT``; ``safe_load`` never builds an
+-    object from a tag, and a document nested too deep for the parser is one more invalid file.
++    object from a tag, a document nested too deep for the parser is one more invalid file, and
++    a scalar the loader rejects (``ValueError``, for example the date ``2026-13-45``) is too.
+     """
+     try:
+         data = yaml.safe_load(text)
+-    except (yaml.YAMLError, RecursionError):
++    except (yaml.YAMLError, RecursionError, ValueError):
+         return {}
+     return data if isinstance(data, dict) else {}
+ 
+--- a/src/superclaude/skills/sc-sweep-protocol/SKILL.md
++++ b/src/superclaude/skills/sc-sweep-protocol/SKILL.md
+@@ -23,7 +23,7 @@
+ 1. Run `superclaude sweep run <args>` with the Bash timeout 120000 ms.
+ 2. Only when step 1 fails with "command not found", run `uv run --frozen --no-sync superclaude sweep run <args>` with the Bash timeout 120000 ms. No other failure leads to this step, and no step runs the command a third time.
+ 3. On exit 0, parse the standard output as JSON and take only `report_path`, `summary` and `orca_available`. Then Read the report at `report_path` in chunks of at most 150 lines (Read with `offset` and `limit`) until its last line, `Report complete`.
+-4. Print the genuine `summary` numbers (`total`, `visible`, `historical`, `bound_reached` and the per-class `counts`), say that the total is a lower bound when `total_is_lower_bound` is true, and print `report_path`. In Phase 1 the classes stalled (proved) and fenced are not observed, so a zero count there means nothing; the report says so. Print each of those two counts with the mark `(not observed in Phase 1)` after the number, so the caveat travels with the counts. In the ordinary reply, when `orca_available` is false, also print the one line `Orca was unavailable; the counts come from disk sources only.` The exempt reply described below stays the counts and the path alone. The format of this reply depends on who runs the skill (see "Final reply"): ordinary formatting by default; the counts and the path alone only for the one exempt reply described below.
++4. Print the genuine `summary` numbers (`total`, `visible`, `historical`, `bound_reached` and the per-class `counts`), say that the total is a lower bound when `total_is_lower_bound` is true, and print `report_path`. In Phase 1 the classes stalled (proved) and fenced are not observed, so a zero count there means nothing; the report says so. Print each of those two counts with the mark `(not observed in Phase 1)` after the number, so the caveat travels with the counts. In the ordinary reply, when `orca_available` is false, also print the one line `Orca was unavailable; the counts may be missing Orca data (see Source coverage in the report).` The exempt reply described below stays the counts and the path alone. The format of this reply depends on who runs the skill (see "Final reply"): ordinary formatting by default; the counts and the path alone only for the one exempt reply described below.
+ 5. On exit 1 or 2, print the standard error line exactly as it came and end the run. The reply keeps the ordinary formatting, and no summary and no report path are printed.
+ 
+ A failure of any other kind is reported accurately in ordinary formatting: step 2 also failed, the standard output is not JSON, `summary` or `report_path` is missing, or the Read of the report fails or is denied. Never print a made-up summary, never leave an error out to fit the success reply, and never go on to a different command.
+--- a/tests/commands/test_sweep_command.py
++++ b/tests/commands/test_sweep_command.py
+@@ -525,7 +525,7 @@
+ # normal run in the ordinary reply; the exempt reply is revision authority and is unchanged.
+ _OUTAGE_SENTENCE = (
+     "In the ordinary reply, when `orca_available` is false, also print the one line "
+-    "`Orca was unavailable; the counts come from disk sources only.`"
++    "`Orca was unavailable; the counts may be missing Orca data (see Source coverage in the report).`"
+ )
+ _EXEMPT_ALONE_SENTENCE = (
+     "The exempt reply described below stays the counts and the path alone."
+--- a/tests/sweep/test_probes_allowlist.py
++++ b/tests/sweep/test_probes_allowlist.py
+@@ -1764,6 +1764,12 @@
+         pytest.param(  # too deeply nested for the parser: still no error
+             "[" * 5000, "worker_status", None, id="nested-too-deep"
+         ),
++        pytest.param(  # a scalar the loader rejects raises ValueError, not YAMLError
++            "worker_status: blocked\nreason: 2026-13-45\n",
++            "worker_status",
++            None,
++            id="rejected-date-scalar",
++        ),
+     ],
+ )
+ def test_contract_fields_are_read_by_yaml_safe_load(sweep_root, text, field, expected):
+--- a/.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/test-results/test-classify.txt
++++ b/.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/test-results/test-classify.txt
+@@ -187,10 +187,10 @@
+ 
+ A. Rules and classes
+  1. One parametrized case per rule 1 to 9: test_rule_case_per_rule_1_to_9[blocked_contract|orca_exit_proof|fenced|waiting_signal|working|finished|idle|person_active|fallback]
+- 2. Every name in CLASSES is reached: test_every_class_name_is_reached
++ 2. Every name in CLASSES is reached: test_every_class_name_but_working_is_reached
+  3. Rule-name order pin [r.name for r in RULES] (NFR-010): test_rules_order_pin
+  4. Rule 4 sub-cases: test_rule_4_waiting_age_and_future_timestamp, test_rule_4_waiting_b[frozen-plan|ready-task], test_resume_needed_alone_is_not_a_frozen_plan, test_policy_of_is_independent_of_the_class
+- 5. Rule 5 four-condition case (SP-24): test_rule_5_needs_all_four_conditions
++ 5. Rule 5 four-condition case (SP-24): test_rule_5_never_matches_while_the_agent_wait_names_are_uncaptured
+ 
+ B. Window, last_activity source, future timestamp (FR-007, SP-15, SP-26)
+  6. 5 h old row, windows under and at 6 h (4 h, 5 h boundary, 6 h): test_5h_old_row_is_idle_only_when_window_is_under_5h[4-idle|5-person_active|6-person_active]
+--- a/.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/test-results/test-probes-allowlist.txt
++++ b/.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/test-results/test-probes-allowlist.txt
+@@ -9,7 +9,7 @@
+ rootdir: /home/coder/workspaces/worktrees/IronClaude/issue-339-orchestrator-mode
+ configfile: pyproject.toml
+ plugins: superclaude-5.0.0, anyio-4.16.0
+-collecting ... collected 253 items
++collecting ... collected 254 items
+ 
+ tests/sweep/test_probes_allowlist.py::test_allowed_orca_is_exactly_the_ten_templates PASSED [  0%]
+ tests/sweep/test_probes_allowlist.py::test_allowed_orca_names_seven_verbs PASSED [  0%]
+@@ -43,12 +43,12 @@
+ tests/sweep/test_probes_allowlist.py::test_negative_argv_raises_value_error_before_a_subprocess[reordered-flags] PASSED [ 11%]
+ tests/sweep/test_probes_allowlist.py::test_negative_argv_raises_value_error_before_a_subprocess[verb-prefix-only] PASSED [ 12%]
+ tests/sweep/test_probes_allowlist.py::test_negative_argv_raises_value_error_before_a_subprocess[empty] PASSED [ 12%]
+-tests/sweep/test_probes_allowlist.py::test_negative_argv_raises_value_error_before_a_subprocess[run-id-uppercase] PASSED [ 13%]
++tests/sweep/test_probes_allowlist.py::test_negative_argv_raises_value_error_before_a_subprocess[run-id-uppercase] PASSED [ 12%]
+ tests/sweep/test_probes_allowlist.py::test_negative_argv_raises_value_error_before_a_subprocess[run-id-too-short] PASSED [ 13%]
+ tests/sweep/test_probes_allowlist.py::test_negative_argv_raises_value_error_before_a_subprocess[run-id-with-suffix] PASSED [ 13%]
+ tests/sweep/test_probes_allowlist.py::test_negative_argv_raises_value_error_before_a_subprocess[dispatch-id-as-run] PASSED [ 14%]
+ tests/sweep/test_probes_allowlist.py::test_negative_argv_raises_value_error_before_a_subprocess[run-id-as-dispatch] PASSED [ 14%]
+-tests/sweep/test_probes_allowlist.py::test_negative_argv_raises_value_error_before_a_subprocess[dispatch-id-bad-shape] PASSED [ 15%]
++tests/sweep/test_probes_allowlist.py::test_negative_argv_raises_value_error_before_a_subprocess[dispatch-id-bad-shape] PASSED [ 14%]
+ tests/sweep/test_probes_allowlist.py::test_negative_argv_raises_value_error_before_a_subprocess[non-string-token] PASSED [ 15%]
+ tests/sweep/test_probes_allowlist.py::test_recorded_argv_fake_refuses_the_same_negatives[check] PASSED [ 15%]
+ tests/sweep/test_probes_allowlist.py::test_recorded_argv_fake_refuses_the_same_negatives[inbox] PASSED [ 16%]
+@@ -76,22 +76,22 @@
+ tests/sweep/test_probes_allowlist.py::test_recorded_argv_fake_refuses_the_same_negatives[non-string-token] PASSED [ 24%]
+ tests/sweep/test_probes_allowlist.py::test_fr021_forbidden_verbs_are_in_no_template_and_are_refused[check] PASSED [ 25%]
+ tests/sweep/test_probes_allowlist.py::test_fr021_forbidden_verbs_are_in_no_template_and_are_refused[ask] PASSED [ 25%]
+-tests/sweep/test_probes_allowlist.py::test_fr021_forbidden_verbs_are_in_no_template_and_are_refused[reply] PASSED [ 26%]
++tests/sweep/test_probes_allowlist.py::test_fr021_forbidden_verbs_are_in_no_template_and_are_refused[reply] PASSED [ 25%]
+ tests/sweep/test_probes_allowlist.py::test_fr021_forbidden_verbs_are_in_no_template_and_are_refused[send] PASSED [ 26%]
+ tests/sweep/test_probes_allowlist.py::test_fr021_forbidden_verbs_are_in_no_template_and_are_refused[inbox] PASSED [ 26%]
+ tests/sweep/test_probes_allowlist.py::test_fr021_forbidden_verbs_are_in_no_template_and_are_refused[open] PASSED [ 27%]
+ tests/sweep/test_probes_allowlist.py::test_fr021_forbidden_verbs_are_in_no_template_and_are_refused[worker-start] PASSED [ 27%]
+-tests/sweep/test_probes_allowlist.py::test_fr021_forbidden_verbs_are_in_no_template_and_are_refused[task-create] PASSED [ 28%]
++tests/sweep/test_probes_allowlist.py::test_fr021_forbidden_verbs_are_in_no_template_and_are_refused[task-create] PASSED [ 27%]
+ tests/sweep/test_probes_allowlist.py::test_fr021_forbidden_verbs_are_in_no_template_and_are_refused[task-update] PASSED [ 28%]
+ tests/sweep/test_probes_allowlist.py::test_fr021_forbidden_verbs_are_in_no_template_and_are_refused[dispatch] PASSED [ 28%]
+ tests/sweep/test_probes_allowlist.py::test_fr021_forbidden_verbs_are_in_no_template_and_are_refused[stop] PASSED [ 29%]
+ tests/sweep/test_probes_allowlist.py::test_fr021_forbidden_verbs_are_in_no_template_and_are_refused[rm] PASSED [ 29%]
+-tests/sweep/test_probes_allowlist.py::test_probes_source_holds_no_write_verb_even_as_a_string PASSED [ 30%]
++tests/sweep/test_probes_allowlist.py::test_probes_source_holds_no_write_verb_even_as_a_string PASSED [ 29%]
+ tests/sweep/test_probes_allowlist.py::test_git_negatives_raise_value_error_before_a_subprocess[rev-parse] PASSED [ 30%]
+ tests/sweep/test_probes_allowlist.py::test_git_negatives_raise_value_error_before_a_subprocess[rev-parse-bare] PASSED [ 30%]
+ tests/sweep/test_probes_allowlist.py::test_git_negatives_raise_value_error_before_a_subprocess[log] PASSED [ 31%]
+ tests/sweep/test_probes_allowlist.py::test_git_negatives_raise_value_error_before_a_subprocess[log-oneline] PASSED [ 31%]
+-tests/sweep/test_probes_allowlist.py::test_git_negatives_raise_value_error_before_a_subprocess[branch] PASSED [ 32%]
++tests/sweep/test_probes_allowlist.py::test_git_negatives_raise_value_error_before_a_subprocess[branch] PASSED [ 31%]
+ tests/sweep/test_probes_allowlist.py::test_git_negatives_raise_value_error_before_a_subprocess[version] PASSED [ 32%]
+ tests/sweep/test_probes_allowlist.py::test_git_negatives_raise_value_error_before_a_subprocess[stash] PASSED [ 32%]
+ tests/sweep/test_probes_allowlist.py::test_git_negatives_raise_value_error_before_a_subprocess[stash-list] PASSED [ 33%]
+@@ -109,32 +109,32 @@
+ tests/sweep/test_probes_allowlist.py::test_orca_binary_default_is_orca_ide_never_bare_orca PASSED [ 37%]
+ tests/sweep/test_probes_allowlist.py::test_orca_binary_is_orca_cli_command_when_set PASSED [ 38%]
+ tests/sweep/test_probes_allowlist.py::test_argv0_is_orca_ide_by_default_then_orca_cli_command PASSED [ 38%]
+-tests/sweep/test_probes_allowlist.py::test_full_sweep_records_only_template_argv PASSED [ 39%]
++tests/sweep/test_probes_allowlist.py::test_full_sweep_records_only_template_argv PASSED [ 38%]
+ tests/sweep/test_probes_allowlist.py::test_full_sweep_issues_zero_argv_for_the_not_called_templates[worktree list --json] PASSED [ 39%]
+ tests/sweep/test_probes_allowlist.py::test_full_sweep_issues_zero_argv_for_the_not_called_templates[worktree current --json] PASSED [ 39%]
+ tests/sweep/test_probes_allowlist.py::test_full_sweep_issues_zero_argv_for_the_not_called_templates[worktree ps --agent-wait] PASSED [ 40%]
+ tests/sweep/test_probes_allowlist.py::test_full_sweep_issues_zero_argv_for_the_not_called_templates[worktree ps --agent-wait --json] PASSED [ 40%]
+-tests/sweep/test_probes_allowlist.py::test_full_sweep_argv0_follows_orca_cli_command PASSED [ 41%]
++tests/sweep/test_probes_allowlist.py::test_full_sweep_argv0_follows_orca_cli_command PASSED [ 40%]
+ tests/sweep/test_probes_allowlist.py::test_full_sweep_runs_one_lock_free_git_status_per_worktree PASSED [ 41%]
+ tests/sweep/test_probes_allowlist.py::test_orca_result_classes[ok] PASSED [ 41%]
+ tests/sweep/test_probes_allowlist.py::test_orca_result_classes[binary-not-found] PASSED [ 42%]
+ tests/sweep/test_probes_allowlist.py::test_orca_result_classes[timeout] PASSED [ 42%]
+-tests/sweep/test_probes_allowlist.py::test_orca_result_classes[marker-as-error-code] PASSED [ 43%]
++tests/sweep/test_probes_allowlist.py::test_orca_result_classes[marker-as-error-code] PASSED [ 42%]
+ tests/sweep/test_probes_allowlist.py::test_orca_result_classes[marker-as-first-stderr-line] PASSED [ 43%]
+ tests/sweep/test_probes_allowlist.py::test_orca_result_classes[exit-1] PASSED [ 43%]
+ tests/sweep/test_probes_allowlist.py::test_orca_result_classes[exit-3-with-other-error-code] PASSED [ 44%]
+ tests/sweep/test_probes_allowlist.py::test_orca_result_classes[quoted-marker-in-stderr-line] PASSED [ 44%]
+-tests/sweep/test_probes_allowlist.py::test_orca_result_classes[marker-on-second-stderr-line] PASSED [ 45%]
++tests/sweep/test_probes_allowlist.py::test_orca_result_classes[marker-on-second-stderr-line] PASSED [ 44%]
+ tests/sweep/test_probes_allowlist.py::test_orca_result_classes[marker-inside-error-message] PASSED [ 45%]
+ tests/sweep/test_probes_allowlist.py::test_orca_result_classes[marker-in-plain-stdout] PASSED [ 45%]
+ tests/sweep/test_probes_allowlist.py::test_orca_result_classes[marker-inside-an-ok-result] PASSED [ 46%]
+ tests/sweep/test_probes_allowlist.py::test_orca_result_classes[zero-exit-not-json] PASSED [ 46%]
+-tests/sweep/test_probes_allowlist.py::test_orca_result_classes[zero-exit-empty-body] PASSED [ 47%]
++tests/sweep/test_probes_allowlist.py::test_orca_result_classes[zero-exit-empty-body] PASSED [ 46%]
+ tests/sweep/test_probes_allowlist.py::test_orca_result_classes[zero-exit-ok-without-result] PASSED [ 47%]
+ tests/sweep/test_probes_allowlist.py::test_orca_result_classes[zero-exit-ok-false] PASSED [ 47%]
+ tests/sweep/test_probes_allowlist.py::test_orca_result_classes[zero-exit-result-is-a-list] PASSED [ 48%]
+ tests/sweep/test_probes_allowlist.py::test_orca_result_classes[zero-exit-body-is-a-list] PASSED [ 48%]
+-tests/sweep/test_probes_allowlist.py::test_ok_data_is_the_envelope_result_object PASSED [ 49%]
++tests/sweep/test_probes_allowlist.py::test_ok_data_is_the_envelope_result_object PASSED [ 48%]
+ tests/sweep/test_probes_allowlist.py::test_a_process_that_cannot_start_is_unavailable_with_the_binary_named PASSED [ 49%]
+ tests/sweep/test_probes_allowlist.py::test_empty_run_current_body_is_call_failed_invalid_response PASSED [ 49%]
+ tests/sweep/test_probes_allowlist.py::test_captured_no_binding_fixture_is_no_binding PASSED [ 50%]
+@@ -142,99 +142,100 @@
+ tests/sweep/test_probes_allowlist.py::test_each_unavailable_cause_on_call_one_stops_the_binding[timeout] PASSED [ 50%]
+ tests/sweep/test_probes_allowlist.py::test_each_unavailable_cause_on_call_one_stops_the_binding[marker-as-error-code] PASSED [ 51%]
+ tests/sweep/test_probes_allowlist.py::test_each_unavailable_cause_on_call_one_stops_the_binding[marker-as-first-stderr-line] PASSED [ 51%]
+-tests/sweep/test_probes_allowlist.py::test_each_unavailable_cause_on_call_one_stops_the_binding[nonzero-exit] PASSED [ 52%]
++tests/sweep/test_probes_allowlist.py::test_each_unavailable_cause_on_call_one_stops_the_binding[nonzero-exit] PASSED [ 51%]
+ tests/sweep/test_probes_allowlist.py::test_each_unavailable_cause_on_call_one_stops_the_binding[empty-body] PASSED [ 52%]
+ tests/sweep/test_probes_allowlist.py::test_each_unavailable_cause_on_call_one_stops_the_binding[blank-body] PASSED [ 52%]
+ tests/sweep/test_probes_allowlist.py::test_each_unavailable_cause_on_call_one_stops_the_binding[two-run-ids] PASSED [ 53%]
+ tests/sweep/test_probes_allowlist.py::test_nonzero_exit_is_unavailable_on_call_one_and_call_failed_later PASSED [ 53%]
+-tests/sweep/test_probes_allowlist.py::test_empty_lists_are_accepted[worker-list] PASSED [ 54%]
++tests/sweep/test_probes_allowlist.py::test_empty_lists_are_accepted[worker-list] PASSED [ 53%]
+ tests/sweep/test_probes_allowlist.py::test_empty_lists_are_accepted[task-list-ready] PASSED [ 54%]
+ tests/sweep/test_probes_allowlist.py::test_empty_lists_are_accepted[task-list] PASSED [ 54%]
+ tests/sweep/test_probes_allowlist.py::test_empty_lists_are_accepted[worktree-ps] PASSED [ 55%]
+ tests/sweep/test_probes_allowlist.py::test_wrong_shape_list_reply_is_unavailable_on_call_one_and_call_failed_later[worker-list-missing] PASSED [ 55%]
+-tests/sweep/test_probes_allowlist.py::test_wrong_shape_list_reply_is_unavailable_on_call_one_and_call_failed_later[worker-list-null] PASSED [ 56%]
++tests/sweep/test_probes_allowlist.py::test_wrong_shape_list_reply_is_unavailable_on_call_one_and_call_failed_later[worker-list-null] PASSED [ 55%]
+ tests/sweep/test_probes_allowlist.py::test_wrong_shape_list_reply_is_unavailable_on_call_one_and_call_failed_later[worker-list-dict] PASSED [ 56%]
+ tests/sweep/test_probes_allowlist.py::test_wrong_shape_list_reply_is_unavailable_on_call_one_and_call_failed_later[worker-list-string] PASSED [ 56%]
+ tests/sweep/test_probes_allowlist.py::test_wrong_shape_list_reply_is_unavailable_on_call_one_and_call_failed_later[task-list-ready-missing] PASSED [ 57%]
+ tests/sweep/test_probes_allowlist.py::test_wrong_shape_list_reply_is_unavailable_on_call_one_and_call_failed_later[task-list-ready-null] PASSED [ 57%]
+-tests/sweep/test_probes_allowlist.py::test_wrong_shape_list_reply_is_unavailable_on_call_one_and_call_failed_later[task-list-ready-dict] PASSED [ 58%]
++tests/sweep/test_probes_allowlist.py::test_wrong_shape_list_reply_is_unavailable_on_call_one_and_call_failed_later[task-list-ready-dict] PASSED [ 57%]
+ tests/sweep/test_probes_allowlist.py::test_wrong_shape_list_reply_is_unavailable_on_call_one_and_call_failed_later[task-list-ready-string] PASSED [ 58%]
+ tests/sweep/test_probes_allowlist.py::test_wrong_shape_list_reply_is_unavailable_on_call_one_and_call_failed_later[task-list-missing] PASSED [ 58%]
+ tests/sweep/test_probes_allowlist.py::test_wrong_shape_list_reply_is_unavailable_on_call_one_and_call_failed_later[task-list-null] PASSED [ 59%]
+ tests/sweep/test_probes_allowlist.py::test_wrong_shape_list_reply_is_unavailable_on_call_one_and_call_failed_later[task-list-dict] PASSED [ 59%]
+-tests/sweep/test_probes_allowlist.py::test_wrong_shape_list_reply_is_unavailable_on_call_one_and_call_failed_later[task-list-string] PASSED [ 60%]
++tests/sweep/test_probes_allowlist.py::test_wrong_shape_list_reply_is_unavailable_on_call_one_and_call_failed_later[task-list-string] PASSED [ 59%]
+ tests/sweep/test_probes_allowlist.py::test_wrong_shape_list_reply_is_unavailable_on_call_one_and_call_failed_later[worktree-ps-missing] PASSED [ 60%]
+ tests/sweep/test_probes_allowlist.py::test_wrong_shape_list_reply_is_unavailable_on_call_one_and_call_failed_later[worktree-ps-null] PASSED [ 60%]
+ tests/sweep/test_probes_allowlist.py::test_wrong_shape_list_reply_is_unavailable_on_call_one_and_call_failed_later[worktree-ps-dict] PASSED [ 61%]
+ tests/sweep/test_probes_allowlist.py::test_wrong_shape_list_reply_is_unavailable_on_call_one_and_call_failed_later[worktree-ps-string] PASSED [ 61%]
+-tests/sweep/test_probes_allowlist.py::test_worker_show_reply_has_no_list_key_and_is_accepted PASSED [ 62%]
++tests/sweep/test_probes_allowlist.py::test_worker_show_reply_has_no_list_key_and_is_accepted PASSED [ 61%]
+ tests/sweep/test_probes_allowlist.py::test_collect_continues_on_disk_sources_after_an_unavailable_first_call PASSED [ 62%]
+ tests/sweep/test_probes_allowlist.py::test_a_middle_worker_show_failure_leaves_the_sweep_going[exit-1] PASSED [ 62%]
+-tests/sweep/test_probes_allowlist.py::test_a_middle_worker_show_failure_leaves_the_sweep_going[malformed-zero-exit] PASSED [ 63%]
++tests/sweep/test_probes_allowlist.py::test_a_middle_worker_show_failure_leaves_the_sweep_going[malformed-zero-exit] PASSED [ 62%]
+ tests/sweep/test_probes_allowlist.py::test_call_timeout_is_the_smaller_of_per_call_and_the_time_left PASSED [ 63%]
+-tests/sweep/test_probes_allowlist.py::test_with_20_s_left_the_per_call_timeout_is_at_most_20_s PASSED [ 64%]
++tests/sweep/test_probes_allowlist.py::test_with_20_s_left_the_per_call_timeout_is_at_most_20_s PASSED [ 63%]
+ tests/sweep/test_probes_allowlist.py::test_budget_reason_texts PASSED    [ 64%]
+ tests/sweep/test_probes_allowlist.py::test_share_shows_splits_evenly_and_the_remainder_goes_to_the_first_run PASSED [ 64%]
+-tests/sweep/test_probes_allowlist.py::test_share_shows_hands_unneeded_shows_to_the_runs_that_need_more PASSED [ 65%]
++tests/sweep/test_probes_allowlist.py::test_share_shows_hands_unneeded_shows_to_the_runs_that_need_more PASSED [ 64%]
+ tests/sweep/test_probes_allowlist.py::test_take_show_stops_at_the_cap_without_a_share PASSED [ 65%]
+-tests/sweep/test_probes_allowlist.py::test_budget_cut_timeout_is_call_failed_never_unavailable PASSED [ 66%]
++tests/sweep/test_probes_allowlist.py::test_budget_cut_timeout_is_call_failed_never_unavailable PASSED [ 65%]
+ tests/sweep/test_probes_allowlist.py::test_a_timeout_that_was_not_cut_is_unavailable PASSED [ 66%]
+ tests/sweep/test_probes_allowlist.py::test_with_20_s_left_every_orca_timeout_is_at_most_20_s PASSED [ 66%]
+-tests/sweep/test_probes_allowlist.py::test_60_rows_give_50_worker_show_and_bound_reached_10 PASSED [ 67%]
++tests/sweep/test_probes_allowlist.py::test_60_rows_give_50_worker_show_and_bound_reached_10 PASSED [ 66%]
+ tests/sweep/test_probes_allowlist.py::test_50_rows_give_50_worker_show_and_bound_reached_0 PASSED [ 67%]
+ tests/sweep/test_probes_allowlist.py::test_two_runs_of_40_rows_get_25_shows_each PASSED [ 67%]
+ tests/sweep/test_probes_allowlist.py::test_full_timeout_fakes_finish_under_120_s_and_still_publish PASSED [ 68%]
+ tests/sweep/test_probes_allowlist.py::test_every_call_timing_out_still_collects_and_publishes PASSED [ 68%]
+-tests/sweep/test_probes_allowlist.py::test_collect_worker_list_source_rows_and_truncated PASSED [ 69%]
++tests/sweep/test_probes_allowlist.py::test_collect_worker_list_source_rows_and_truncated PASSED [ 68%]
+ tests/sweep/test_probes_allowlist.py::test_collect_worker_list_source_rows_budget_spent_before_r2 PASSED [ 69%]
+ tests/sweep/test_probes_allowlist.py::test_collect_worker_list_source_rows_orca_tabs[missing] PASSED [ 69%]
+ tests/sweep/test_probes_allowlist.py::test_collect_worker_list_source_rows_orca_tabs[empty] PASSED [ 70%]
+ tests/sweep/test_probes_allowlist.py::test_collect_worker_list_source_rows_orca_tabs[unreadable] PASSED [ 70%]
+-tests/sweep/test_probes_allowlist.py::test_byte_limits_are_pinned PASSED [ 71%]
++tests/sweep/test_probes_allowlist.py::test_byte_limits_are_pinned PASSED [ 70%]
+ tests/sweep/test_probes_allowlist.py::test_contract_size_boundary[limit-minus-1] PASSED [ 71%]
+ tests/sweep/test_probes_allowlist.py::test_contract_size_boundary[at-the-limit] PASSED [ 71%]
+ tests/sweep/test_probes_allowlist.py::test_contract_size_boundary[limit-plus-1] PASSED [ 72%]
+ tests/sweep/test_probes_allowlist.py::test_ledger_size_boundary[limit-minus-1] PASSED [ 72%]
+-tests/sweep/test_probes_allowlist.py::test_ledger_size_boundary[at-the-limit] PASSED [ 73%]
++tests/sweep/test_probes_allowlist.py::test_ledger_size_boundary[at-the-limit] PASSED [ 72%]
+ tests/sweep/test_probes_allowlist.py::test_ledger_size_boundary[limit-plus-1] PASSED [ 73%]
+ tests/sweep/test_probes_allowlist.py::test_ledger_over_the_limit_is_read_as_head_and_tail PASSED [ 73%]
+ tests/sweep/test_probes_allowlist.py::test_ledger_tail_drops_a_first_line_that_the_cut_split PASSED [ 74%]
+ tests/sweep/test_probes_allowlist.py::test_a_contract_over_1_mib_is_unscanned_with_a_reason PASSED [ 74%]
+-tests/sweep/test_probes_allowlist.py::test_contract_mtime_and_source_age_come_from_the_file_time PASSED [ 75%]
++tests/sweep/test_probes_allowlist.py::test_contract_mtime_and_source_age_come_from_the_file_time PASSED [ 74%]
+ tests/sweep/test_probes_allowlist.py::test_transcript_tail_boundary[limit-minus-1] PASSED [ 75%]
+ tests/sweep/test_probes_allowlist.py::test_transcript_tail_boundary[at-the-limit] PASSED [ 75%]
+-tests/sweep/test_probes_allowlist.py::test_transcript_tail_boundary[limit-plus-1] PASSED [ 76%]
++tests/sweep/test_probes_allowlist.py::test_transcript_tail_boundary[limit-plus-1] PASSED [ 75%]
+ tests/sweep/test_probes_allowlist.py::test_subprocess_output_boundary_for_orca[limit-minus-1] PASSED [ 76%]
+-tests/sweep/test_probes_allowlist.py::test_subprocess_output_boundary_for_orca[at-the-limit] PASSED [ 77%]
++tests/sweep/test_probes_allowlist.py::test_subprocess_output_boundary_for_orca[at-the-limit] PASSED [ 76%]
+ tests/sweep/test_probes_allowlist.py::test_subprocess_output_boundary_for_orca[limit-plus-1] PASSED [ 77%]
+ tests/sweep/test_probes_allowlist.py::test_subprocess_output_boundary_for_git[limit-minus-1] PASSED [ 77%]
+-tests/sweep/test_probes_allowlist.py::test_subprocess_output_boundary_for_git[at-the-limit] PASSED [ 78%]
++tests/sweep/test_probes_allowlist.py::test_subprocess_output_boundary_for_git[at-the-limit] PASSED [ 77%]
+ tests/sweep/test_probes_allowlist.py::test_subprocess_output_boundary_for_git[limit-plus-1] PASSED [ 78%]
+-tests/sweep/test_probes_allowlist.py::test_worktree_removed_between_the_seams_is_unscanned_and_the_others_continue[stat-fails] PASSED [ 79%]
++tests/sweep/test_probes_allowlist.py::test_worktree_removed_between_the_seams_is_unscanned_and_the_others_continue[stat-fails] PASSED [ 78%]
+ tests/sweep/test_probes_allowlist.py::test_worktree_removed_between_the_seams_is_unscanned_and_the_others_continue[git-fails] PASSED [ 79%]
+ tests/sweep/test_probes_allowlist.py::test_list_and_show_disagree_and_the_show_value_is_used PASSED [ 79%]
+-tests/sweep/test_probes_allowlist.py::test_a_list_row_with_no_show_keeps_the_show_only_fields_unknown PASSED [ 80%]
++tests/sweep/test_probes_allowlist.py::test_a_list_row_with_no_show_keeps_the_show_only_fields_unknown PASSED [ 79%]
+ tests/sweep/test_probes_allowlist.py::test_parse_worker_show_reads_no_agent_wait_field_until_its_names_are_captured PASSED [ 80%]
+-tests/sweep/test_probes_allowlist.py::test_one_missing_and_one_extra_worker_show_key_raise_nothing PASSED [ 81%]
++tests/sweep/test_probes_allowlist.py::test_one_missing_and_one_extra_worker_show_key_raise_nothing PASSED [ 80%]
+ tests/sweep/test_probes_allowlist.py::test_a_show_of_the_wrong_shape_raises_nothing[show0] PASSED [ 81%]
+ tests/sweep/test_probes_allowlist.py::test_a_show_of_the_wrong_shape_raises_nothing[show1] PASSED [ 81%]
+-tests/sweep/test_probes_allowlist.py::test_a_show_of_the_wrong_shape_raises_nothing[text] PASSED [ 82%]
++tests/sweep/test_probes_allowlist.py::test_a_show_of_the_wrong_shape_raises_nothing[text] PASSED [ 81%]
+ tests/sweep/test_probes_allowlist.py::test_a_show_of_the_wrong_shape_raises_nothing[5] PASSED [ 82%]
+-tests/sweep/test_probes_allowlist.py::test_a_show_of_the_wrong_shape_raises_nothing[show4] PASSED [ 83%]
++tests/sweep/test_probes_allowlist.py::test_a_show_of_the_wrong_shape_raises_nothing[show4] PASSED [ 82%]
+ tests/sweep/test_probes_allowlist.py::test_a_show_of_the_wrong_shape_raises_nothing[show5] PASSED [ 83%]
+ tests/sweep/test_probes_allowlist.py::test_symlink_out_contract_is_outside_root PASSED [ 83%]
+-tests/sweep/test_probes_allowlist.py::test_symlink_out_ledger_is_outside_root PASSED [ 84%]
++tests/sweep/test_probes_allowlist.py::test_symlink_out_ledger_is_outside_root PASSED [ 83%]
+ tests/sweep/test_probes_allowlist.py::test_symlink_out_transcript_is_outside_root PASSED [ 84%]
+ tests/sweep/test_probes_allowlist.py::test_symlink_out_tab_map_entry_is_outside_root PASSED [ 84%]
+ tests/sweep/test_probes_allowlist.py::test_a_contract_changed_between_two_reads_is_re_read_once PASSED [ 85%]
+ tests/sweep/test_probes_allowlist.py::test_a_contract_that_changes_on_every_read_is_an_inconsistent_observation PASSED [ 85%]
+-tests/sweep/test_probes_allowlist.py::test_contract_fields_are_read_by_yaml_safe_load[trailing-comment] PASSED [ 86%]
++tests/sweep/test_probes_allowlist.py::test_contract_fields_are_read_by_yaml_safe_load[trailing-comment] PASSED [ 85%]
+ tests/sweep/test_probes_allowlist.py::test_contract_fields_are_read_by_yaml_safe_load[continued-plain-scalar] PASSED [ 86%]
+ tests/sweep/test_probes_allowlist.py::test_contract_fields_are_read_by_yaml_safe_load[quoted-flow-item-with-comma] PASSED [ 86%]
+ tests/sweep/test_probes_allowlist.py::test_contract_fields_are_read_by_yaml_safe_load[flow-list-with-comment] PASSED [ 87%]
+ tests/sweep/test_probes_allowlist.py::test_contract_fields_are_read_by_yaml_safe_load[invalid-yaml] PASSED [ 87%]
+-tests/sweep/test_probes_allowlist.py::test_contract_fields_are_read_by_yaml_safe_load[not-a-mapping] PASSED [ 88%]
++tests/sweep/test_probes_allowlist.py::test_contract_fields_are_read_by_yaml_safe_load[not-a-mapping] PASSED [ 87%]
+ tests/sweep/test_probes_allowlist.py::test_contract_fields_are_read_by_yaml_safe_load[nested-too-deep] PASSED [ 88%]
++tests/sweep/test_probes_allowlist.py::test_contract_fields_are_read_by_yaml_safe_load[rejected-date-scalar] PASSED [ 88%]
+ tests/sweep/test_probes_allowlist.py::test_a_changed_contract_is_re_read_only_while_the_budget_allows[budget-left] PASSED [ 88%]
+ tests/sweep/test_probes_allowlist.py::test_a_changed_contract_is_re_read_only_while_the_budget_allows[spent] PASSED [ 89%]
+ tests/sweep/test_probes_allowlist.py::test_duplicate_dispatch_rows_with_two_states_give_one_conflict_row PASSED [ 89%]
+@@ -265,7 +266,7 @@
+ tests/sweep/test_probes_allowlist.py::test_worker_show_dispatch_times_missing_or_bad[no-times] PASSED [ 99%]
+ tests/sweep/test_probes_allowlist.py::test_worker_show_dispatch_times_missing_or_bad[bad-times] PASSED [100%]
+ 
+-============================= 253 passed in 2.44s ==============================
++============================= 254 passed in 2.44s ==============================
+ exit code: 0
+ 
+ --- case-to-test map ---
+--- a/.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/final/fix-log-cycle1.md
++++ b/.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/final/fix-log-cycle1.md
+@@ -155,3 +155,12 @@
+ - `cmp src/superclaude/core/HOW-WE-WORK.md plugins/superclaude/skills/sc-recommend/refs/HOW-WE-WORK.md`: exit 0. PASS.
+ - Protected-file check (orchestrator, sha256 baseline of 126 files taken before the spawn): all 126 unchanged. PASS. Only the nine editable files listed above differ from their baselines (`models.py` and `commands.py` untouched).
+ - Pytest result of section 4 stands: 3 failed, of which 2 are pre-existing (ruff not importable in the venv) and 1 (sync) is cleared above; the timing test of item 14.4 passed this time.
++
++## Repair pass after review 1 (orchestrator, three findings of the independent review)
++
++The first independent review of this fix cycle raised three blocking findings in the fix agent's new text. The orchestrator fixed them in one pass; this section supersedes the wording of the FIN-F7 and FIN-F9 blocks above where they differ.
++
++- F1.1 (FIN-F7 wording): the ordinary-reply line said "the counts come from disk sources only", which is false after a mid-run Orca drop (Orca calls made before the drop were read). It now reads `Orca was unavailable; the counts may be missing Orca data (see Source coverage in the report).` Changed in `src/superclaude/skills/sc-sweep-protocol/SKILL.md:26` and in `_OUTAGE_SENTENCE` at `tests/commands/test_sweep_command.py:526-529`. Mutation proof: restoring the old sentence in the skill failed `test_sweep_skill_step4_prints_the_orca_outage_line_in_the_ordinary_reply` (1 failed, 123 passed).
++- F1.2 (FIN-F9): `yaml.safe_load` raises `ValueError`, not `YAMLError`, on a scalar such as the date `2026-13-45`. `_yaml_top` now also catches `ValueError` (`src/superclaude/cli/sweep/probes.py:682`, docstring `:673-679`) and a new case `rejected-date-scalar` (8 cases now) pins it in `test_contract_fields_are_read_by_yaml_safe_load`. Mutation proof: removing `ValueError` from the except tuple failed that case (1 failed, 253 deselected).
++- F1.3 (stale result map): `test-classify.txt:190` and `:193` now name `test_every_class_name_but_working_is_reached` and `test_rule_5_never_matches_while_the_agent_wait_names_are_uncaptured`. The pytest blocks of `test-probes-allowlist.txt` (254 passed) and `test-sweep-command.txt` (124 passed) were regenerated from real `-v` runs.
++- Re-checks: `make sync-dev` exit 0; `make verify-sync` exit 0; `uv run ruff check .` all checks passed; `ruff format --check` on `src/superclaude/cli/sweep`, `tests/sweep`, `tests/commands` clean; `uv run pytest tests/sweep tests/commands tests/core tests/skills tests/recommend tests/cli/test_verify_sync_hooks.py -q` 3249 passed; `cmp` of the two HOW-WE-WORK copies identical; nothing under `.claude/` staged; the 126 protected files unchanged. PASS.
+Earlier blocking findings of this start (empty on the first review): F1.1 sev=blocking trigger=B2 ac=T331.AC1 at=src/superclaude/skills/sc-sweep-protocol/SKILL.md:26 family=orca-outage-line: the ordinary-reply line said the counts come from disk sources only, false after a mid-run Orca drop.
+F1.2 sev=blocking trigger=B2 ac=T331.AC1 at=src/superclaude/cli/sweep/probes.py:681 family=yaml-safe-load-exceptions: yaml.safe_load raises ValueError on a scalar such as 2026-13-45, which _yaml_top did not catch.
+F1.3 sev=blocking trigger=B2 ac=T331.AC1 at=.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/test-results/test-classify.txt:190 family=stale-result-map: the case map named two tests that this task renamed.
+Saved-probe re-check hit locations (may be empty): probe orca-outage-line: no hits (the phrase "disk sources only" is gone from SKILL.md, the test file and the result files).
+probe yaml-safe-load-exceptions: src/superclaude/cli/sweep/probes.py:682 (the except tuple now holds ValueError).
+probe stale-result-map: no hits.
+
+Do not trust the implementer's report.
+
+First mark each earlier blocking finding resolved, open or regressed from the diff. Then, for each AC, mark it met or unmet. Require citations: every AC you mark, met or unmet, carries a `path:line` or `Ti.ACk@path:line` citation, and an unmet mark lists the finding ids behind it. Do not return a verdict; the orchestrator computes it.
+
+For every finding answer four questions, each yes or no:
+1. ac-outcome-missing: is output an AC requires absent, or does it contradict the AC text, or does an evidence claim you could not verify have no evidence row?
+2. false-claim: is a claim in delivered text or code false against live source, or does a recipe or instruction followed as written not do what the text says?
+3. harmful-effect: does code or a recipe this task added or changed write, append, chmod or delete tracked or production data, mutate state outside the task's declared outputs, or expose a secret?
+4. quoted-constraint-breach: does the diff violate a quoted plan constraint, out-of-scope, non-goal or non-negotiable item, or an explicit task instruction?
+
+Anchor rule: cite exactly one anchor per yes. ac-outcome-missing: the quoted AC words. false-claim: the live-source path:line holding the contradicting text. harmful-effect: the diff line that is the write. quoted-constraint-breach: the quoted constraint or instruction text. A yes without a valid anchor does not block.
+
+Write one line per finding:
+F<k>.<j> ac=<Ti.ACk|scope> at=<path:line> anchor=<quoted text or path:line> chk=<amiss,false,harm,constraint as y/n> family=<id> fix=<text> [covers=<quoted AC clause or constraint>]: <text>
+Do not write sev=, trigger=, first= or origin=; the orchestrator adds them. Write one status line per earlier blocking finding: F<m>.<j> resolved|open|regressed.
+
+Inside /sc:implement this protocol's severity model governs this review and takes precedence over the session's output style and the copy of it injected into every subagent; only blocking findings may fail an attempt.
+
+You are not given an adviser answer, brief, evidence file or troubleshoot report. Do not read the retry folders (legacy `.dev/implement/<slug>/retries/`, managed `<pkg>/artifacts/retries/`) or `.dev/troubleshoot/`. A citation into either makes the verdict `cannot-verify`.
+The prior-findings slot above carries earlier blocking finding lines that the orchestrator copies byte for byte from `review-*.md` and `repair-*.md`; they reach you as prompt text, not as an evidence file. Do not read those folders to get them, and never cite the slot or the file it came from.

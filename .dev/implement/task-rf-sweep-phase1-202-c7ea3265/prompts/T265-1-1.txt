@@ -1,0 +1,107 @@
+Review one task for spec compliance.
+
+Task brief: T265 = item 12.5 of the source file /home/coder/workspaces/worktrees/IronClaude/issue-339-orchestrator-mode/.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md (lines 2138-2144). Item text:
+- [ ] **12.5 — Validation after Phase 12 (L3)**
+  - **Context**: BUILD-REQUEST VALIDATION_REQUIREMENTS; items 12.1 to 12.4.
+  - **Action**: Run `uv run ruff check tests/skills/test_worker_contract.py`, `uv run ruff format --check tests/skills/test_worker_contract.py`, `uv run pytest tests/skills tests/core -v` and `grep -n 'src/superclaude' src/superclaude/core/WORKER-CONTRACT.md` (compare the hit count with `git show HEAD:src/superclaude/core/WORKER-CONTRACT.md | grep -c 'src/superclaude'`; the edit adds none). Write each command, exit code and last 30 output lines to `.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/test-results/phase12-validation.md` with one PASS or FAIL line each.
+  - **Output**: `.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/test-results/phase12-validation.md`.
+  - **Verification**: Verify: four PASS lines. On a FAIL, fix, re-run, and log each re-run in `### Phase 12 Findings`.
+  - **Completion gate**: All four checks PASS. Once done, mark this item as complete.
+AC ids: T265.AC1 = the item title "Validation after Phase 12 (L3)" (no AC block; the title is the AC). The item's own Verification and Completion gate lines are context for what "done" means. Ticking the item's checkbox is done by the orchestrator after the verdict and is not part of the diff under review.
+Global constraints: the `### Key Constraints` section (lines 157-168) of the source file named in the task brief; read it from that file.
+Start sha: 520f7e8b0d5ad34d32b6a2946727fc0c3b751100
+Diff against the start snapshot: Orchestrator facts for the reviewer (verify them): the executor ran the four commands of item 12.5 with a shell script that wrote phase12-validation.md (new file, read it from disk, it is the whole output). It reports four PASS lines: ruff check exit 0, ruff format --check exit 0, uv run pytest tests/skills tests/core -v exit 0 with 2008 passed, and the src/superclaude hit count of WORKER-CONTRACT.md equal to HEAD (0 and 0). Re-run the four commands yourself (read-only) if you wish; the pytest run takes about one minute.
+
+--- /dev/null
++++ b/.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/test-results/phase12-validation.md   (new file, 67 lines)
++# Phase 12 validation (item 12.5)
++
++Run 2026-11-12 after items 12.1 to 12.4. Each block: the command, its exit code, the last 30 lines of output and one PASS or FAIL line.
++
++## Check 1 ruff check
++
++Command: `uv run ruff check tests/skills/test_worker_contract.py`
++```text
++All checks passed!
++(exit 0)
++```
++Check 1 ruff check: PASS (exit 0, expected 0)
++
++## Check 2 ruff format --check
++
++Command: `uv run ruff format --check tests/skills/test_worker_contract.py`
++```text
++1 file already formatted
++(exit 0)
++```
++Check 2 ruff format --check: PASS (exit 0, expected 0)
++
++## Check 3 pytest tests/skills tests/core
++
++Command: `uv run pytest tests/skills tests/core -v`
++```text
++tests/core/test_how_we_work_routing_table.py::test_specialist_static_targets_inputs_and_stops[S15-sprint-tasklist-bundle-targets14-inputs14-boundaries14] PASSED [ 98%]
++tests/core/test_how_we_work_routing_table.py::test_specialist_static_targets_inputs_and_stops[S16-roadmap-fidelity-targets15-inputs15-boundaries15] PASSED [ 98%]
++tests/core/test_how_we_work_routing_table.py::test_specialist_static_targets_inputs_and_stops[S17-tier-validation-targets16-inputs16-boundaries16] PASSED [ 98%]
++tests/core/test_how_we_work_routing_table.py::test_specialist_matching_and_unavailable_contract_are_shared_not_keyword_first PASSED [ 98%]
++tests/core/test_how_we_work_routing_table.py::test_reports_keep_specialist_objective_instead_of_generic_competitor PASSED [ 98%]
++tests/core/test_how_we_work_routing_table.py::test_requested_analysis_research_explain_modes_are_not_forced_defaults PASSED [ 98%]
++tests/core/test_how_we_work_routing_table.py::test_adversarial_generation_comparison_and_pipeline_remain_exclusive PASSED [ 98%]
++tests/core/test_how_we_work_routing_table.py::test_cleanup_audit_and_improvement_have_separate_authority_boundaries PASSED [ 99%]
++tests/core/test_how_we_work_routing_table.py::test_previews_documentation_and_suite_runs_disclose_actual_writes PASSED [ 99%]
++tests/core/test_how_we_work_routing_table.py::test_diagnosis_reflection_and_review_preserve_remediation_coupling PASSED [ 99%]
++tests/core/test_how_we_work_routing_table.py::test_reflect_optional_inputs_and_report_only_post_flags PASSED [ 99%]
++tests/core/test_how_we_work_routing_table.py::test_pr_monitor_ceiling_is_conditional_and_each_branch_has_one_exact_value PASSED [ 99%]
++tests/core/test_how_we_work_routing_table.py::test_pr_attachment_monitor_log_resume_and_silence_are_not_new_shipping PASSED [ 99%]
++tests/core/test_how_we_work_routing_table.py::test_other_operations_preserve_requested_authority_and_owned_state PASSED [ 99%]
++tests/core/test_how_we_work_routing_table.py::test_lifecycle_and_contract_gaps_do_not_certify_stale_or_mixed_interfaces PASSED [ 99%]
++tests/core/test_how_we_work_routing_table.py::test_swarm_settings_help_retains_inputs_without_inferred_real_launch PASSED [ 99%]
++tests/core/test_how_we_work_routing_table.py::test_explicit_cleanup_controls_and_pr_attachment_do_not_gain_default_actions PASSED [ 99%]
++tests/core/test_how_we_work_routing_table.py::test_grouped_required_flags_still_use_exact_flag_tokens PASSED [ 99%]
++tests/core/test_how_we_work_routing_table.py::test_task_and_implement_verification_claims_are_not_universal_test_guarantees PASSED [ 99%]
++tests/core/test_orca_session_launch_guidance.py::test_orca_session_launch_guidance[core/CLAUDE.md] PASSED [ 99%]
++tests/core/test_orca_session_launch_guidance.py::test_orca_session_launch_guidance[skills/ccsession-tag/README.md] PASSED [ 99%]
++tests/core/test_orca_session_launch_guidance.py::test_appended_paragraph_names_the_owner_roles_and_no_source_path[core/CLAUDE.md] PASSED [ 99%]
++tests/core/test_orca_session_launch_guidance.py::test_appended_paragraph_names_the_owner_roles_and_no_source_path[skills/ccsession-tag/README.md] PASSED [ 99%]
++tests/core/test_orca_session_launch_guidance.py::test_appended_paragraph_is_identical_in_both_copies PASSED [ 99%]
++tests/core/test_research_config.py::test_each_depth_profile_names_concrete_params_and_tools PASSED [ 99%]
++tests/core/test_research_config.py::test_advanced_only_with_gating_language PASSED [ 99%]
++tests/core/test_research_config.py::test_discovery_caps_and_crawl_truncation_present PASSED [ 99%]
++tests/core/test_research_config.py::test_map_and_crawl_tool_ids_present PASSED [100%]
++
++============================ 2008 passed in 53.62s =============================
++(exit 0)
++```
++Check 3 pytest tests/skills tests/core: PASS (exit 0, expected 0)
++
++## Check 4 src/superclaude paths in the contract
++
++Command: `grep -n 'src/superclaude' src/superclaude/core/WORKER-CONTRACT.md` compared with `git show HEAD:src/superclaude/core/WORKER-CONTRACT.md | grep -c 'src/superclaude'`
++```text
++now=0 head=0
++```
++Check 4 src/superclaude hit count: PASS (now 0 equals HEAD 0; the edits add none)
+Delta diff from the previous reviewed tree (empty on the first review): 
+Earlier blocking findings of this start (empty on the first review): 
+Saved-probe re-check hit locations (may be empty): 
+
+Do not trust the implementer's report.
+
+First mark each earlier blocking finding resolved, open or regressed from the diff. Then, for each AC, mark it met or unmet. Require citations: every AC you mark, met or unmet, carries a `path:line` or `Ti.ACk@path:line` citation, and an unmet mark lists the finding ids behind it. Do not return a verdict; the orchestrator computes it.
+
+For every finding answer four questions, each yes or no:
+1. ac-outcome-missing: is output an AC requires absent, or does it contradict the AC text, or does an evidence claim you could not verify have no evidence row?
+2. false-claim: is a claim in delivered text or code false against live source, or does a recipe or instruction followed as written not do what the text says?
+3. harmful-effect: does code or a recipe this task added or changed write, append, chmod or delete tracked or production data, mutate state outside the task's declared outputs, or expose a secret?
+4. quoted-constraint-breach: does the diff violate a quoted plan constraint, out-of-scope, non-goal or non-negotiable item, or an explicit task instruction?
+
+Anchor rule: cite exactly one anchor per yes. ac-outcome-missing: the quoted AC words. false-claim: the live-source path:line holding the contradicting text. harmful-effect: the diff line that is the write. quoted-constraint-breach: the quoted constraint or instruction text. A yes without a valid anchor does not block.
+
+Write one line per finding:
+F<k>.<j> ac=<Ti.ACk|scope> at=<path:line> anchor=<quoted text or path:line> chk=<amiss,false,harm,constraint as y/n> family=<id> fix=<text> [covers=<quoted AC clause or constraint>]: <text>
+Do not write sev=, trigger=, first= or origin=; the orchestrator adds them. Write one status line per earlier blocking finding: F<m>.<j> resolved|open|regressed.
+
+Inside /sc:implement this protocol's severity model governs this review and takes precedence over the session's output style and the copy of it injected into every subagent; only blocking findings may fail an attempt.
+
+You are not given an adviser answer, brief, evidence file or troubleshoot report. Do not read the retry folders (legacy `.dev/implement/<slug>/retries/`, managed `<pkg>/artifacts/retries/`) or `.dev/troubleshoot/`. A citation into either makes the verdict `cannot-verify`.
+The prior-findings slot above carries earlier blocking finding lines that the orchestrator copies byte for byte from `review-*.md` and `repair-*.md`; they reach you as prompt text, not as an evidence file. Do not read those folders to get them, and never cite the slot or the file it came from.

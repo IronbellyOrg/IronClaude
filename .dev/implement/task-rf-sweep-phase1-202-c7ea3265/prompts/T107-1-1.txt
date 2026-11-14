@@ -1,0 +1,50 @@
+Review one task for spec compliance.
+
+Task brief: T107 = item 6.1 of the source file /home/coder/workspaces/worktrees/IronClaude/issue-339-orchestrator-mode/.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md (lines 983-989). Item text:
+- [ ] **6.1 — Confirm the OQ-1 decision record (L3, RESOLVED at build time)**
+  - **Context**: Master's coordinator sweep at `src/superclaude/core/WORKER-CONTRACT.md:110` runs "one prompt-wait listing (`worktree ps --agent-wait`)" (research/07:117). The INV-005 owner sign-off, condition 1 (SPEC section 13; NFR-014 at `merged-requirements.md:143`), said "`worktree ps` never carries `--agent-wait`". The owner resolved the conflict on 2026-11-08 in favour of allowing it; the coordinator relayed the decision (messages `msg_d95a87e312e1` and `msg_6ee5998d0874`), and it was written to the decision file at task-build time.
+  - **Action**: Read `.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/plans/OQ-1-agent-wait-decision.md`. Do not rewrite it. Confirm that it has `status: RESOLVED`; `Chosen:` naming allow `worktree ps --agent-wait` with and without `--json`; `Decided by:` the owner, 2026-11-08; `Decision source:` quoting "Allow it, no conditions needed."; the live-probe evidence (24 calls, 0 `index.lock` sightings at 5 ms polling, 0 failed calls, one idle worktree, Orca 1.4.245); and the line saying the allowlist pin and the version-scoped claim are NOT withdrawn.
+  - **Output**: None (read-only check). Findings go to `### Phase 6 Findings`.
+  - **Verification**: Verify: `grep -c 'status: RESOLVED\|Allow it, no conditions needed\|NOT withdrawn\|1.4.245' .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/plans/OQ-1-agent-wait-decision.md` prints 4 or more. If the file is missing or any part is absent, log a defect in `### Phase 6 Findings` and apply the HALT rule with `blocker_reason: "OQ-1 decision record is missing or incomplete; it was written at build time from the owner's 2026-11-08 decision"`.
+  - **Completion gate**: The decision record is confirmed. Once done, mark this item as complete.
+AC ids: T107.AC1 = the item title "Confirm the OQ-1 decision record (L3, RESOLVED at build time)" (no AC block; the title is the AC). The item's own Verification and Completion gate lines are context for what "done" means. Ticking the item's checkbox is done by the orchestrator after the verdict and is not part of the diff under review.
+Global constraints: the `### Key Constraints` section (lines 157-168) of the source file named in the task brief; read it from that file.
+Start sha: 8b104882d394c16d1e996771657b7735cc861f3e
+Diff against the start snapshot: Item 6.1 is a read-only check (Output: None). No file was changed by this task. The check performed by the parent:
+$ grep -c 'status: RESOLVED\|Allow it, no conditions needed\|NOT withdrawn\|1.4.245' .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/plans/OQ-1-agent-wait-decision.md
+5
+Lines found in the record (grep -n of status, Chosen, Decided by, Decision source, NOT withdrawn, 24 calls, index.lock, 1.4.245, Allow it):
+5:status: RESOLVED    # DECIDED by the owner on 2026-11-08; recorded at task-build time
+20:Chosen: allow `worktree ps --agent-wait`, with and without `--json`. This is option (a) without the extra lock-check condition: the owner waived it. Option (b) does not apply.
+21:Decided by: the owner, 2026-11-08.
+22:Decision source: the owner's words, relayed by the coordinator (run `run_93bfa00cae2b`, messages `msg_d95a87e312e1` and `msg_6ee5998d0874`): "Allow it, no conditions needed."
+26:The rest of the INV-005 sign-off is NOT withdrawn:
+29:- The report claim stays version-scoped: "unlikely (checked for Orca 1.4.245)", otherwise UNVERIFIED.
+34:The coordinator ran a live probe: 24 calls of `worktree ps --agent-wait` on one idle worktree.
+36:- Results: 0 `index.lock` sightings at 5 ms polling, and 0 failed calls.
+37:- Limits: locks shorter than 5 ms could be missed; only one idle worktree was tested; Orca 1.4.245.
+The parent claims the record is confirmed (all parts present) and logs no defect. To judge, read the record at .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/plans/OQ-1-agent-wait-decision.md in full (41 lines) and check each part named in the item's Action, and that the file was not modified (its mtime is Nov 8 12:08, before this run).
+Delta diff from the previous reviewed tree (empty on the first review): 
+Earlier blocking findings of this start (empty on the first review): 
+Saved-probe re-check hit locations (may be empty): 
+
+Do not trust the implementer's report.
+
+First mark each earlier blocking finding resolved, open or regressed from the diff. Then, for each AC, mark it met or unmet. Require citations: every AC you mark, met or unmet, carries a `path:line` or `Ti.ACk@path:line` citation, and an unmet mark lists the finding ids behind it. Do not return a verdict; the orchestrator computes it.
+
+For every finding answer four questions, each yes or no:
+1. ac-outcome-missing: is output an AC requires absent, or does it contradict the AC text, or does an evidence claim you could not verify have no evidence row?
+2. false-claim: is a claim in delivered text or code false against live source, or does a recipe or instruction followed as written not do what the text says?
+3. harmful-effect: does code or a recipe this task added or changed write, append, chmod or delete tracked or production data, mutate state outside the task's declared outputs, or expose a secret?
+4. quoted-constraint-breach: does the diff violate a quoted plan constraint, out-of-scope, non-goal or non-negotiable item, or an explicit task instruction?
+
+Anchor rule: cite exactly one anchor per yes. ac-outcome-missing: the quoted AC words. false-claim: the live-source path:line holding the contradicting text. harmful-effect: the diff line that is the write. quoted-constraint-breach: the quoted constraint or instruction text. A yes without a valid anchor does not block.
+
+Write one line per finding:
+F<k>.<j> ac=<Ti.ACk|scope> at=<path:line> anchor=<quoted text or path:line> chk=<amiss,false,harm,constraint as y/n> family=<id> fix=<text> [covers=<quoted AC clause or constraint>]: <text>
+Do not write sev=, trigger=, first= or origin=; the orchestrator adds them. Write one status line per earlier blocking finding: F<m>.<j> resolved|open|regressed.
+
+Inside /sc:implement this protocol's severity model governs this review and takes precedence over the session's output style and the copy of it injected into every subagent; only blocking findings may fail an attempt.
+
+You are not given an adviser answer, brief, evidence file or troubleshoot report. Do not read the retry folders (legacy `.dev/implement/<slug>/retries/`, managed `<pkg>/artifacts/retries/`) or `.dev/troubleshoot/`. A citation into either makes the verdict `cannot-verify`.
+The prior-findings slot above carries earlier blocking finding lines that the orchestrator copies byte for byte from `review-*.md` and `repair-*.md`; they reach you as prompt text, not as an evidence file. Do not read those folders to get them, and never cite the slot or the file it came from.

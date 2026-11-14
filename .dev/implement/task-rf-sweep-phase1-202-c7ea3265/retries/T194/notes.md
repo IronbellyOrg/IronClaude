@@ -1,0 +1,3 @@
+1449dba777d628e6dd7c55488d665a7f9fc01c1a
+A1 r1-1 F1.1 note .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md:2968 ac=scope amiss:n,false:n,harm:n,constraint:n the Phase 8 Findings bullet names the 57 MINOR findings by id range and points to consolidated-findings-cycle0.md instead of copying each one.
+A1 r1-1 F1.2 note .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md:2963 ac=scope amiss:n,false:n,harm:n,constraint:n the item 8.4 entry's choice (4) "no Waiting (a) age is computed, because models.py has no contract mtime" is now false (report.py uses contract.mtime); the new bullet's general "replaces the earlier statements where they differ" covers it.

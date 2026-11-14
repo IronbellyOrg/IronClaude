@@ -1,0 +1,3 @@
+de7a24649d2fed5c71781cb0a1d6b3a4ff7bc9c3
+A1 r1-1 F1.1 minor .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/r5/qa-numbers-metrics-report.md:5 ac=scope amiss:n,false:y,harm:n,constraint:n The report header calls itself the domain lens agent; item 6.10 is the numbers-metrics lens. No count is affected. Left as written.
+A1 r1-1 F1.2 minor .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/r5/qa-numbers-metrics-report.md:51 ac=scope amiss:n,false:y,harm:n,constraint:n C3 lists DESIGN line 1047 (the R5 row) as a label that says ten, but that row carries no template count. Immaterial. Left as written.

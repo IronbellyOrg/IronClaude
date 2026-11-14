@@ -1,0 +1,3 @@
+74f4c427b40ce03327e27a83f0af64fff828958e
+A1 r1-1 F1.1 minor .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/plans/OQ-10-pipx-decision.md:23 ac=T313.AC1 amiss:n,false:n,harm:n,constraint:n The Decision source quoted "go with A" as the owner own words; the message was sent by accepting a suggested reply. Fixed by the executor after the review (the line now says so).
+A1 r1-1 F1.2 minor .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md:2806 ac=scope amiss:n,false:n,harm:n,constraint:n The Execution Log said the owner answered before the run stopped for good; the run had paused at 14.7. Fixed by the executor after the review.

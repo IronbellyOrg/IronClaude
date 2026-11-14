@@ -1,0 +1,69 @@
+Review one task for spec compliance.
+
+Task brief: T156 = item 7.28 of the source file /home/coder/workspaces/worktrees/IronClaude/issue-339-orchestrator-mode/.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md (lines 1347-1353). Item text:
+- [ ] **7.28 — QA decisions, agent 8 of 8: rf-analyst, cross-source consistency (report-only)**
+  - **Context**: Pre-7.10 source anchor for the style scope: `src/superclaude/output-styles/pragmatic.md:22` held the unqualified table mandate; after item 7.10 it holds the scoped sweep exception. Inputs (read in chunks of at most 150 lines): the eight prerequisite decision records `.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/plans/OQ-[1-8]-*-decision.md` (OQ-1 to OQ-8) plus any OQ-17 or OQ-18 decision record in that folder that item 7.17 wrote, `.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/artifacts/owner-decisions.md`, `.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/artifacts/readonly-probe.md`, `.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/artifacts/pr422-409-check.md`, `.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/discovery/1.0a-facts.md`, `.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/test-results/decisions-mechanical.md`, `tests/sweep/fixtures/`, the R5 edit in DESIGN sections 7.3, 11, 12, 13 and 15.1, the GQ-109 row and the section 18 `### Fix cycle 3` R5 row (item 6.3), research/09 Gap 1 and Gap 3 (`.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/research/09-gap-fill.md`) and DESIGN section 15.1. Additional bounded Context: read revision `.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/revisions/chat-output-exception-20261109-133150/BUILD-REQUEST.md`, `design-addendum.md`, `delta-manifest.md` and `qa/research-gate-cycle1.md` there, `src/superclaude/output-styles/pragmatic.md` and `.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/test-results/step-7.10-style-exception.md` to apply this lens to actual (b), fresh revision/execution evidence and the early Markdown edit, not to rewrite history or certify future skill/tests; preserve this lens's original duties/counts and flag a contradiction only outside the narrow override. Gate folder `.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/decisions/`. Sizing: 8 agents, 3 rf-qa + 3 rf-qa-qualitative (task-builder SKILL.md full-intensity floor of 6, I19) plus the rf-qa read-only safety domain lens and the rf-analyst cross-source lens. Extra inputs for this lens: `.dev/orca-command-refactor/decisions/APPROVED.md` and SPEC section 13 (INV-005 sign-off).
+  - **Action**: Items 7.21 to 7.28 are independent report-only spawns: spawn all of them in the SAME message, in parallel, then tick each item when its report exists. For this item, spawn one `rf-analyst` agent (Agent tool, `mode: bypassPermissions`, `fix_authorization: false`) with this report-only preamble, verbatim: "You are an adversarial reviewer. Assume the work is wrong until you prove it right from the files on disk. Do not trust the producer's summary, the task file's claims or any earlier QA report. Read every file you cite in chunks of at most 150 lines. `fix_authorization: false`: you must not edit any file except your own report. For each finding give: id, severity (BLOCKING, MAJOR or MINOR), the exact `file:line` evidence, what is wrong, and the smallest fix. MINOR findings never fail the gate. Number every check you run `C1`, `C2` and so on, and before the verdict add a `## Checks` table listing every check id with PASS or FAIL. End the report with `Verdict: PASS` (no BLOCKING or MAJOR finding) or `Verdict: FAIL`, then `Blocking count: <n>` counting BLOCKING plus MAJOR findings." Then this lens prompt: "Cross-source consistency. Check every APPROVED quote in owner-decisions.md against its APPROVED line; check the decisions against SPEC section 13 (INV-005, both conditions) and DESIGN sections 7.3, 8 and 15; check 1.0a-facts.md against readonly-probe.md. Compare old no-exception text against the narrow revision authority: only the specified successful assigned-coordinator final chat is overridden, not runtime safety, Python report or ordinary replies. Report each mismatch with both `file:line` sides." Pass it the input list in Context and the exact report path in Output.
+  - **Output**: `.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/decisions/qa-cross-source-report.md`.
+  - **Verification**: Verify: the report has a `## Checks` table with PASS or FAIL per check id; the report exists with `Verdict:` and `Blocking count:` lines. If the agent fails twice, log the blocker in `### Phase 7 Findings` and stop.
+  - **Completion gate**: The report is written. Once done, mark this item as complete.
+AC ids: T156.AC1 = the item title "QA decisions, agent 8 of 8: rf-analyst, cross-source consistency (report-only)" (no AC block; the title is the AC). The item's own Verification and Completion gate lines are context for what "done" means. Ticking the item's checkbox is done by the orchestrator after the verdict and is not part of the diff under review.
+Global constraints: the `### Key Constraints` section (lines 157-168) of the source file named in the task brief; read it from that file.
+Start sha: 510c29621ef4bfe939ea041ddb538544beeddcd6
+Diff against the start snapshot: --- /dev/null
++++ b/.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/decisions/qa-cross-source-report.md   (new file, 112 lines)
++# QA Cross-Source Consistency Report (item 7.28, rf-analyst)
++
++fix_authorization: false. Read-only except this report. Date of review: 2026-11-12 (session date). Analysis type: cross-validation (cross-source consistency lens).
++
++Method. Every path below was read from disk in this session in chunks of at most 150 lines (large files by targeted ranges). No earlier QA report in `qa/decisions/` was read or relied on. Read-only commands run: `grep -F` of each APPROVED quote against its APPROVED line, `jq` over the fixtures, `git merge-base --is-ancestor`, `git diff --shortstat`, line probes with `sed -n`. `gh pr view 422` was not re-run (network call, not needed for a consistency check; the git ancestry halves were re-run). No web research was done.
++
++Result in one line: no BLOCKING and no MAJOR mismatch. Nine MINOR mismatches are listed, each with both `file:line` sides. In this report the task folder prefix `.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/` is written `T/`.
++
++## Findings
++
++All findings are MINOR. MINOR findings never fail the gate.
++
++### F1 (MINOR) The signed-off D9 text and open item 22 still say the sign-off is pending
++
++- Side A (decision): `T/phase-outputs/plans/OQ-7-D9-signoff-decision.md:40-43` is RESOLVED, option (a), owner, 2026-11-11. `T/phase-outputs/discovery/1.0a-facts.md:24` marks open item 22 CLOSED.
++- Side B (design): `docs/designs/orchestrator-mode.md:836` (D9: "which is still pending", "Needs the owner's sign-off at step 1.0b"), `:875` (SP-29 row: "which is still pending") and `:1012` (open item 22: "the classify step does not start until the owner signs off D9"). Task file `T/TASK-RF-sweep-phase1-20261108-072653.md:2873` says the same.
++- Why it is only MINOR. The owner signed the design text "as written" (OQ-7 record `:41`, `:43`), and the quote in OQ-7 matches design `:836` (both the SPEC-text and Design columns, checked with `grep -F`) and `:1012` (first 200 characters, checked with `grep -F`). The stale words are history inside a text the owner accepted verbatim. Item 7.12 Branch 2 does not ask for a design edit.
++- Smallest fix: when the classify item (8.4) is read, treat `1.0a-facts.md:24` and the OQ-7 record as the closure of D9 and open item 22. Optionally append one closure sentence under design section 13 after D9. Do not rewrite D9.
++
++### F2 (MINOR) `owner-decisions.md` calls OQ-8 and OQ-17 "still open", but both records are RESOLVED
++
++- Side A: `T/artifacts/owner-decisions.md:55` ("Still open and not recorded here as decisions: OQ-8 ... and the optional OQ-17 and OQ-18").
++- Side B: `T/phase-outputs/plans/OQ-8-run-id-decision.md:24-29` (Run id given, owner selection 2026-11-11), `T/phase-outputs/plans/OQ-17-cursor-template-decision.md:35-40` (owner kept 10 templates, 2026-11-11), `T/phase-outputs/discovery/1.0a-facts.md:54-56` (OQ-18 did not fire).
++- Why MINOR. The file was compiled by item 7.13, which runs before items 7.14 to 7.17 (task file `:1229` and `:1236`), so the sentence was true when written. Item 7.13 does not require OQ-8 or OQ-17 rows. A later reader of the 1.0b artifact alone would still get a wrong picture.
++- Smallest fix: add one dated line under that sentence naming OQ-8 and OQ-17 as RESOLVED with their record paths, or leave as is and rely on the records.
++
++### F3 (MINOR) The `--agent-wait` change to INV-005 condition 1 rests on a relayed quote, and the SPEC's stated reason for the ban is only partly answered
++
++- Side A (SPEC): `.dev/brainstorms/20261108-024258-orchestrator-mode-phase1/merged-requirements.md:500` ("`worktree ps` (never with `--agent-wait`)"), `:504` (negative test for `--agent-wait`), `:510` ("`--agent-wait` turns on terminal wait-state reads, which is why it is forbidden"), `:143` (NFR-014: "exactly the eight pinned templates"), `:562` (GQ-109).
++- Side B (decision): `T/phase-outputs/plans/OQ-1-agent-wait-decision.md:19-22` (allow, "Allow it, no conditions needed.", relayed by the coordinator, not selected by the owner in the executing session) and `:34-37` (24 calls, one idle worktree, 5 ms polling, locks under 5 ms could be missed). `T/artifacts/owner-decisions.md:17` states the relay.
+... (new file continues; read .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/decisions/qa-cross-source-report.md from disk for lines 31-112)
+Delta diff from the previous reviewed tree (empty on the first review): 
+Earlier blocking findings of this start (empty on the first review): 
+Saved-probe re-check hit locations (may be empty): 
+
+Do not trust the implementer's report.
+
+First mark each earlier blocking finding resolved, open or regressed from the diff. Then, for each AC, mark it met or unmet. Require citations: every AC you mark, met or unmet, carries a `path:line` or `Ti.ACk@path:line` citation, and an unmet mark lists the finding ids behind it. Do not return a verdict; the orchestrator computes it.
+
+For every finding answer four questions, each yes or no:
+1. ac-outcome-missing: is output an AC requires absent, or does it contradict the AC text, or does an evidence claim you could not verify have no evidence row?
+2. false-claim: is a claim in delivered text or code false against live source, or does a recipe or instruction followed as written not do what the text says?
+3. harmful-effect: does code or a recipe this task added or changed write, append, chmod or delete tracked or production data, mutate state outside the task's declared outputs, or expose a secret?
+4. quoted-constraint-breach: does the diff violate a quoted plan constraint, out-of-scope, non-goal or non-negotiable item, or an explicit task instruction?
+
+Anchor rule: cite exactly one anchor per yes. ac-outcome-missing: the quoted AC words. false-claim: the live-source path:line holding the contradicting text. harmful-effect: the diff line that is the write. quoted-constraint-breach: the quoted constraint or instruction text. A yes without a valid anchor does not block.
+
+Write one line per finding:
+F<k>.<j> ac=<Ti.ACk|scope> at=<path:line> anchor=<quoted text or path:line> chk=<amiss,false,harm,constraint as y/n> family=<id> fix=<text> [covers=<quoted AC clause or constraint>]: <text>
+Do not write sev=, trigger=, first= or origin=; the orchestrator adds them. Write one status line per earlier blocking finding: F<m>.<j> resolved|open|regressed.
+
+Inside /sc:implement this protocol's severity model governs this review and takes precedence over the session's output style and the copy of it injected into every subagent; only blocking findings may fail an attempt.
+
+You are not given an adviser answer, brief, evidence file or troubleshoot report. Do not read the retry folders (legacy `.dev/implement/<slug>/retries/`, managed `<pkg>/artifacts/retries/`) or `.dev/troubleshoot/`. A citation into either makes the verdict `cannot-verify`.
+The prior-findings slot above carries earlier blocking finding lines that the orchestrator copies byte for byte from `review-*.md` and `repair-*.md`; they reach you as prompt text, not as an evidence file. Do not read those folders to get them, and never cite the slot or the file it came from.

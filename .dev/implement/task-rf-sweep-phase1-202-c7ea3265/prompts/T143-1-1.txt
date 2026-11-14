@@ -1,0 +1,68 @@
+Review one task for spec compliance.
+
+Task brief: T143 = item 7.15 of the source file /home/coder/workspaces/worktrees/IronClaude/issue-339-orchestrator-mode/.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md (lines 1243-1249). Item text:
+- [ ] **7.15 — HALT until the person names the Run (OQ-8, L5)**
+  - **Context**: The decision record `.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/plans/OQ-8-run-id-decision.md`, written by item 7.14. The named Run must hold at least one Dispatch row: with zero Dispatch rows, item 7.16 step (1) learns no Dispatch id, template 3 never runs, and the `DISPATCH_ID_RE` half of DESIGN section 17 open item 2 (DESIGN line 970) stays unverified (research/09 Gap 3).
+  - **Action**: Branch 1: if `Run id:` is empty, or the record does not say the named Run has at least one Dispatch row, apply the HALT rule with `blocker_reason: "OQ-8: step 1.0a needs an existing Run id with at least one Dispatch row, named by the person, in phase-outputs/plans/OQ-8-run-id-decision.md"` and STOP. Branch 2: only when `Run id:` is filled, the record says the Run has at least one Dispatch row (in the person's words or a `Dispatch rows:` line with a count of 1 or more), `Given by:` names the person who gave it, and `Source:` quotes that person's own words giving the Run id, set `status: RESOLVED`, log the Run id in `### Execution Log`, reset the task status to "🟠 Doing" and clear `blocker_reason`. If `Given by:` is empty or `Source:` holds no quote of the person's own words, Branch 1 applies.
+  - **Output**: The file with `status: RESOLVED`, or a Blocked task.
+  - **Verification**: Verify: a Run id, the giver and the source are filled, the source quotes the person's own words, and the record says the Run has at least one Dispatch row. Otherwise stop before marking this item complete until the blocker is resolved.
+  - **Completion gate**: The Run id is recorded. Once done, mark this item as complete.
+AC ids: T143.AC1 = the item title "HALT until the person names the Run (OQ-8, L5)" (no AC block; the title is the AC). The item's own Verification and Completion gate lines are context for what "done" means. Ticking the item's checkbox is done by the orchestrator after the verdict and is not part of the diff under review.
+Global constraints: the `### Key Constraints` section (lines 157-168) of the source file named in the task brief; read it from that file.
+Start sha: 365a8f3f22a318cd22479a59b0a00907663f1783
+Diff against the start snapshot: --- a/.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/plans/OQ-8-run-id-decision.md
++++ b/.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/plans/OQ-8-run-id-decision.md
+@@ -1,6 +1,6 @@
+ ---
+ needs_human_decision: true
+-status: PENDING
++status: RESOLVED
+ ---
+ 
+ # Step 1.0a Run id request (OQ-8)
+@@ -23,6 +23,7 @@
+ 
+ ## Run id record
+ 
+-Run id:
+-Given by:
+-Source:
++Run id: run_a4723d345399
++Dispatch rows: 5 (counted by the executor on 2026-11-11T21:22:16Z with one read-only listing, `orca-ide orchestration worker-list --run run_a4723d345399 --json`: 5 worker rows, 5 distinct dispatch ids, every row dispatchStatus completed, workerState succeeded, terminalState released). No row is live: the Run has no live worker, so capture items that need a live worker may be recorded UNVERIFIED in step 1.0a.
++Given by: Ryan Wiancko, owner, 2026-11-11. The owner pasted the output of `orca-ide orchestration run-list` (five Runs) and delegated the choice among them; the executor chose the Run named here. The owner did not type a single Run id.
++Source: The owner's words, 2026-11-11, with the pasted list of five Runs (`run_52c9fe174991`, `run_14cfcbd8edf2`, `run_c1badaa6576b`, `run_a4723d345399`, `run_703283babf1b`): "pick one, your choice". The pasted list line for the chosen Run reads: "run_a4723d345399 Issue 504: add codegraph readiness check to /sc:analyze, /sc:design, /sc:implement, /sc:workflow and the general-purpose agent files (5 parallel sessions in worktree issue-504)". Why this Run: the other four hold fewer Dispatch rows (`run_52c9fe174991` 1 and `run_703283babf1b` 1, both completed; `run_c1badaa6576b` 0 and `run_14cfcbd8edf2` 0, no worker at all, so they fail the at-least-one-Dispatch requirement); this one has 5 completed rows, the most samples for capture items 4 and 13. This resolves OQ-8 only and grants nothing else.
+--- a/.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md
++++ b/.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md
+@@ -2803,6 +2803,8 @@
+ 
+ | Timestamp | Item | Event | Detail |
+ |---|---|---|---|
++| 2026-11-11 | 7.15 | RUN ID RECORDED | OQ-8: Run id run_a4723d345399 (5 Dispatch rows, all completed, no live worker). Given by Ryan Wiancko, owner, who pasted the five Runs from `orca-ide orchestration run-list` and wrote "pick one, your choice"; the executor chose this Run because it has the most Dispatch rows (the other four have 1, 1, 0 and 0). The owner did not type a single Run id; this delegation is recorded as such in phase-outputs/plans/OQ-8-run-id-decision.md, status RESOLVED. Task status Doing and blocker_reason cleared. No other gate is answered by this record. |
++| 2026-11-11T20:54:03Z | 7.15 | HALT: person input pending | OQ-8 (step 1.0a Run id) awaits the person's Run id in phase-outputs/plans/OQ-8-run-id-decision.md. Read confirmed status PENDING and empty Run id/Given by/Source lines; the record does not say the named Run has at least one Dispatch row. No Run id is inferred or taken from Orca. Item 7.15 remains unticked; subsequent items (7.16 onward) not started. |
+ | 2026-11-11 | 7.12 | OWNER DECISION RESOLVED | OQ-7/D9 chosen (a): sign off D9 as written, including its two residual path-B cases (a window with no end can join a person's later session in the pane as False; a live session serving two Dispatches joins the older row only). Decider Ryan Wiancko selected "Sign off D9 as written (Recommended)" in this session's D9 question. Source recorded in phase-outputs/plans/OQ-7-D9-signoff-decision.md; status RESOLVED. Task status Doing and blocker_reason cleared. No other owner gate is answered by this decision. |
+ | 2026-11-11T20:36:13Z | 7.12 | HALT: owner decision pending | OQ-7 (D9 sign-off) awaits the owner's decision in phase-outputs/plans/OQ-7-D9-signoff-decision.md. Read confirmed status PENDING and empty Chosen/Decided by/Decision source fields. The recommendation (a), D9 as written, does NOT authorize adoption and is not an approval. Item 7.12 remains unticked; subsequent items (7.13 onward) not started. |
+ | 2026-11-11 | 7.10 | OWNER EXECUTION AUTHORIZATION RECORDED; STYLE EXCEPTION IMPLEMENTED; RESUME | Ryan Wiancko, owner, answered the question whether to run item 7.10 now (first option, "Run 7.10 now (Recommended)") with "Accepted, I accepted, but it reported a decline.  Proceed" (2026-11-11T20:26:41Z; the question tool's result was lost, so the executor read the reply as that option). The dated verbatim quote and the paths of the supplied structural, alignment, qualitative and pre-execution reports are in phase-outputs/test-results/step-7.10-style-exception.md under "## Execution authorization (verbatim)", written before the style edit. Implemented choice (b) in src/superclaude/output-styles/pragmatic.md only: the common rule at lines 22-26, the six later restatements qualified (lines 57, 62, 64, 73, 84, 94), nothing from "## Work discipline" on changed. Bounded checks C1 to C10 PASS (the executor's own text and diff checks; before/after excerpts, diff and results are in the same result file). Independent per-task review follows under sc-implement-protocol and its verdict is recorded in the ledger, not here. Task status Doing and blocker_reason cleared. The nine open pre-execution findings stay open, including M-01 (item 7.17) and M-02 (item 7.24), which matter only if the optional OQ-17/OQ-18 branch fires. No skill, test, sync, install, HOME style change, commit or push; the installed HOME style is not updated and live model adherence is not tested. |
+Delta diff from the previous reviewed tree (empty on the first review): 
+Earlier blocking findings of this start (empty on the first review): 
+Saved-probe re-check hit locations (may be empty): 
+
+Do not trust the implementer's report.
+
+First mark each earlier blocking finding resolved, open or regressed from the diff. Then, for each AC, mark it met or unmet. Require citations: every AC you mark, met or unmet, carries a `path:line` or `Ti.ACk@path:line` citation, and an unmet mark lists the finding ids behind it. Do not return a verdict; the orchestrator computes it.
+
+For every finding answer four questions, each yes or no:
+1. ac-outcome-missing: is output an AC requires absent, or does it contradict the AC text, or does an evidence claim you could not verify have no evidence row?
+2. false-claim: is a claim in delivered text or code false against live source, or does a recipe or instruction followed as written not do what the text says?
+3. harmful-effect: does code or a recipe this task added or changed write, append, chmod or delete tracked or production data, mutate state outside the task's declared outputs, or expose a secret?
+4. quoted-constraint-breach: does the diff violate a quoted plan constraint, out-of-scope, non-goal or non-negotiable item, or an explicit task instruction?
+
+Anchor rule: cite exactly one anchor per yes. ac-outcome-missing: the quoted AC words. false-claim: the live-source path:line holding the contradicting text. harmful-effect: the diff line that is the write. quoted-constraint-breach: the quoted constraint or instruction text. A yes without a valid anchor does not block.
+
+Write one line per finding:
+F<k>.<j> ac=<Ti.ACk|scope> at=<path:line> anchor=<quoted text or path:line> chk=<amiss,false,harm,constraint as y/n> family=<id> fix=<text> [covers=<quoted AC clause or constraint>]: <text>
+Do not write sev=, trigger=, first= or origin=; the orchestrator adds them. Write one status line per earlier blocking finding: F<m>.<j> resolved|open|regressed.
+
+Inside /sc:implement this protocol's severity model governs this review and takes precedence over the session's output style and the copy of it injected into every subagent; only blocking findings may fail an attempt.
+
+You are not given an adviser answer, brief, evidence file or troubleshoot report. Do not read the retry folders (legacy `.dev/implement/<slug>/retries/`, managed `<pkg>/artifacts/retries/`) or `.dev/troubleshoot/`. A citation into either makes the verdict `cannot-verify`.
+The prior-findings slot above carries earlier blocking finding lines that the orchestrator copies byte for byte from `review-*.md` and `repair-*.md`; they reach you as prompt text, not as an evidence file. Do not read those folders to get them, and never cite the slot or the file it came from.

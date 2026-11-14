@@ -1,0 +1,1494 @@
+Review one task for spec compliance.
+
+Task brief: T175 = item 8.10 of the source file /home/coder/workspaces/worktrees/IronClaude/issue-339-orchestrator-mode/.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md (lines 1486-1492). Item text:
+- [ ] **8.10 — Step 1.4: the rest of `src/superclaude/cli/sweep/probes.py` (L2)**
+  - **Context**: Gate: step 1.0a facts (item 7.17) and item 8.9 passed. DESIGN section 7.1 probes signatures (from line 353): `Budget(shows=50, total_s=90.0, per_call_s=10.0, clock=time.monotonic)` with `share_shows`, `take_show`, `call_timeout`, `cut`; `OrcaResult(kind, data, reason)` with kinds `ok`, `no_binding`, `unavailable`, `call_failed`; `BindingError`; `orca_binary()` (`$ORCA_CLI_COMMAND` when set, else `ORCA_BINARY_DEFAULT = "orca-ide"`); `check_orca_argv`; `_orca(*args, timeout)`; `bind_run(budget)`; `collect(ctx, runs, root, budget)`; readers `read_worktree`, `parse_status`, `read_packages`, `read_ledger`, `read_contract`, `read_transcript_tail`, `read_tab_map`, `read_orca_version`. DESIGN section 7.3 (line 514): `ALLOWED_ORCA` (exactly 10 templates after item 6.3), `FORBIDDEN_TOKENS = frozenset({"--include-remote"})` (as changed by the R5 decision, item 6.3), `ORCA_VERSION_FILE`, `CONTRACT_LIMIT = LEDGER_LIMIT` 1 MiB, `LEDGER_SPLIT` 512 KiB, `TRANSCRIPT_TAIL` 256 KiB, `WORKER_LIST_PAGE` 100 (or the page size the 1.0a facts record); a limit is hit only when the size is over it. The FR-021 forbidden verb list lives only in the test (item 10.3). From the 1.0a facts: the field names, the time format, `RUN_ID_RE`, `DISPATCH_ID_RE`, the cursor field. Readers return data plus a `SourceCoverage` row and never raise past `collect` (DESIGN line 392). `--include-remote` timing is dropped (DESIGN line 912).
+  - **Action**: Append these names to `src/superclaude/cli/sweep/probes.py` in DESIGN order. `_orca` calls `check_orca_argv` before `subprocess.run` (through the module), caps output at `OUTPUT_LIMIT`, and maps results to `OrcaResult` kinds as DESIGN states. Every path a reader opens is re-resolved and rejected with `unscanned: outside root` when it escapes. The byte-limit declaration lines `CONTRACT_LIMIT = LEDGER_LIMIT`, `LEDGER_SPLIT` and `TRANSCRIPT_TAIL` each end with a comment that contains `proposed (DESIGN 17 open item 19)`, like `OUTPUT_LIMIT` from item 8.5 (DESIGN open item 19: the limits "are marked proposed in `probes.py`"). `probes.py` imports none of `classify`, `report` or `click` (DESIGN line 211); item 10.2 checks this. No write, no lock, no network.
+  - **Output**: `src/superclaude/cli/sweep/probes.py` (complete).
+  - **Verification**: Verify: `grep -c` finds each DESIGN 7.1 probes name and 7.3 constant; a count of `ALLOWED_ORCA` entries is 10; `grep -cE '^(OUTPUT_LIMIT|CONTRACT_LIMIT|LEDGER_SPLIT|TRANSCRIPT_TAIL) .*#.*proposed' src/superclaude/cli/sweep/probes.py` prints 4 (one marked line per byte-limit declaration); `grep -nE 'open\([^)]*["'"'"'](w|a|x)' src/superclaude/cli/sweep/probes.py` prints nothing; `uv run ruff check` on the file exits 0.
+  - **Completion gate**: probes.py holds every DESIGN name and opens nothing for writing. Once done, mark this item as complete.
+AC ids: T175.AC1 = the item title "Step 1.4: the rest of `src/superclaude/cli/sweep/probes.py` (L2)" (no AC block; the title is the AC). The item's own Verification and Completion gate lines are context for what "done" means. Ticking the item's checkbox is done by the orchestrator after the verdict and is not part of the diff under review.
+Global constraints: the `### Key Constraints` section (lines 157-168) of the source file named in the task brief; read it from that file.
+Start sha: b3bad51ece7137be7a6bbfd0ee7c21cd2bf669a1
+Diff against the start snapshot: --- a/src/superclaude/cli/sweep/probes.py
++++ b/src/superclaude/cli/sweep/probes.py
+@@ -1,34 +1,274 @@
+ """Read side of ``superclaude sweep``: the only module that starts a subprocess.
+ 
+-This part holds the lock-free git seam (DESIGN 2.1, 7.1 and 7.3); the Orca seam and the
+-disk readers are added by later steps.
++It holds the two seams (``_git`` and ``_orca``), the argv allowlists, the time budget,
++the readers for disk and git state, and ``collect``, which gathers one ``SweepInput``
++(DESIGN sections 2.1, 7.1 and 7.3). Nothing here writes a file, takes a lock or uses the
++network: every ``open`` is a read, every subprocess is one allowlisted ``git status`` or
++one allowlisted ``orca-ide`` read verb.
+ """
+ 
+ from __future__ import annotations
+ 
++import json
+ import os
++import re
+ import subprocess
++import time
++from collections.abc import Callable
++from dataclasses import dataclass, replace
++from datetime import datetime, timezone
+ from pathlib import Path
+ 
+-# Byte limit for a subprocess's stdout + stderr together.
+-OUTPUT_LIMIT = 8 * 1024 * 1024  # proposed (DESIGN 17 open item 19)
++from .models import (
++    ContractRecord,
++    OrcaObservation,
++    PackageRecord,
++    SourceCoverage,
++    StatusParse,
++    SweepContext,
++    SweepInput,
++    TabMapEntry,
++    TranscriptTail,
++    WorktreeState,
++)
++
++# --- Allowlist constants (DESIGN 7.3) ---------------------------------------------------
++
++ORCA_BINARY_DEFAULT = "orca-ide"  # never bare "orca" (SPEC section 8, INV-017)
++
++# Id shapes from the step 1.0a capture; matched with ``re.fullmatch``.
++RUN_ID_RE = r"run_[0-9a-f]{12}"
++DISPATCH_ID_RE = r"ctx_[0-9a-f]{12}"
++
++ALLOWED_ORCA: tuple[tuple[str, ...], ...] = (
++    ("orchestration", "run-current"),
++    ("orchestration", "worker-list", "--run", "<run>", "--json"),
++    ("orchestration", "worker-show", "--dispatch", "<dispatch>", "--json"),
++    ("orchestration", "task-list", "--ready", "--run", "<run>", "--json"),
++    ("orchestration", "task-list", "--run", "<run>", "--json"),
++    ("worktree", "ps", "--json"),
++    ("worktree", "list", "--json"),  # pinned, not called in Phase 1
++    ("worktree", "current", "--json"),  # pinned, not called in Phase 1
++    ("worktree", "ps", "--agent-wait"),  # allowed by R5 (owner 2026-11-08), not called
++    ("worktree", "ps", "--agent-wait", "--json"),  # allowed by R5, not called
++)  # 10 templates, 7 verbs (NFR-014)
++
++FORBIDDEN_TOKENS = frozenset({"--include-remote"})  # rejected in any position
+ 
+ # The one allowed git call; the seam prepends ``git --no-optional-locks -C <path>``.
+ ALLOWED_GIT: tuple[tuple[str, ...], ...] = (
+     ("status", "--porcelain=v1", "-z", "--branch", "--untracked-files=all"),
+ )
+ 
++ORCA_VERSION_FILE = Path("/opt/Orca/resources/app.asar.unpacked/out/package.json")
++# Byte limits; a limit is hit only when a size is over it.
++OUTPUT_LIMIT = 8 * 1024 * 1024  # proposed (DESIGN 17 open item 19)
++CONTRACT_LIMIT = LEDGER_LIMIT = 1024 * 1024  # proposed (DESIGN 17 open item 19)
++LEDGER_SPLIT = 512 * 1024  # proposed (DESIGN 17 open item 19)
++TRANSCRIPT_TAIL = 256 * 1024  # proposed (DESIGN 17 open item 19)
++WORKER_LIST_PAGE = 100  # a full page sets truncated (page size from the 1.0a capture)
++
++_PLACEHOLDERS = {"<run>": RUN_ID_RE, "<dispatch>": DISPATCH_ID_RE}
++_MIB = 1024 * 1024
++_NO_BINDING = "No Run is bound to this terminal."  # captured no-binding sentence
++# The two accepted time forms (DESIGN 7.2): SQLite, or ISO 8601 with seconds.
++_TIME_RE = re.compile(
++    r"\d{4}-\d{2}-\d{2}[ T]\d{2}:\d{2}:\d{2}(\.\d+)?(Z|z|[+-]\d{2}:\d{2})?"
++)
++
+ 
+ class GitCallFailed(Exception):
+     """A git call exited non-zero, timed out, could not start or printed too much."""
+ 
+ 
++class BindingError(Exception):
++    """No Run could be bound; ``commands`` maps this to exit 2 with the message."""
++
++
++class ReadFailed(Exception):
++    """A disk reader could not use a file; the message is the ``unscanned`` reason."""
++
++
++@dataclass(frozen=True)
++class OrcaResult:
++    kind: str  # "ok" | "no_binding" | "unavailable" | "call_failed"
++    data: (
++        object | None
++    )  # for "ok": the envelope's ``result`` object (run-current: the Run id)
++    reason: str | None
++
++
++# --- Budget -----------------------------------------------------------------------------
++
++
++class Budget:
++    """Call, show and time limits for one sweep; passed into ``collect``, never global."""
++
++    def __init__(
++        self,
++        shows: int = 50,
++        total_s: float = 90.0,
++        per_call_s: float = 10.0,
++        clock: Callable[[], float] = time.monotonic,
++    ) -> None:
++        self.shows = shows
++        self.total_s = total_s
++        self.per_call_s = per_call_s
++        self._clock = clock
++        self._start = clock()
++        self._shares: dict[str, int] = {}
++        self._taken: dict[str, int] = {}
++        self._cut = False
++        # Orca calls started so far; the first call's failure means unavailable.
++        self.orca_calls = 0
++
++    def share_shows(self, runs: tuple[str, ...]) -> None:
++        """Split the show cap evenly across ``runs``; the remainder goes to the first."""
++        self._shares = {}
++        if not runs:
++            return
++        base, rest = divmod(self.shows, len(runs))
++        for i, run in enumerate(runs):
++            self._shares[run] = base + (rest if i == 0 else 0)
++
++    def take_show(self, run: str) -> bool:
++        """True and count one show for ``run``; False once its share (plus carry) is spent."""
++        used = sum(self._taken.values())
++        if used >= self.shows:
++            return False
++        if run in self._shares:
++            order = list(self._shares)[: list(self._shares).index(run) + 1]
++            # A Run's unused share passes to the next Run: compare running totals.
++            allowed = sum(self._shares[r] for r in order) - sum(
++                self._taken.get(r, 0) for r in order
++            )
++        else:
++            allowed = self.shows - used
++        if allowed <= 0:
++            return False
++        self._taken[run] = self._taken.get(run, 0) + 1
++        return True
++
++    def call_timeout(self) -> float | None:
++        """``min(per_call_s, remaining)``, or None when under 1 s of the total is left."""
++        remaining = self.total_s - (self._clock() - self._start)
++        if remaining < 1.0:
++            return None
++        self._cut = remaining < self.per_call_s
++        return min(self.per_call_s, remaining)
++
++    def cut(self) -> bool:
++        """True when the last timeout handed out was cut below ``per_call_s``."""
++        return self._cut
++
++    def budget_reason(self) -> str:
++        return f"unscanned: time budget reached ({self.total_s:g} s)"
++
++    def show_cap_reason(self) -> str:
++        return f"show cap reached ({self.shows})"
++
++
++# --- Seams ------------------------------------------------------------------------------
++
++
++def orca_binary() -> str:
++    """``$ORCA_CLI_COMMAND`` when set, else ``orca-ide`` (never bare ``orca``)."""
++    return os.environ.get("ORCA_CLI_COMMAND") or ORCA_BINARY_DEFAULT
++
++
++def _token_matches(template: str, token: str) -> bool:
++    pattern = _PLACEHOLDERS.get(template)
++    if pattern is None:
++        return template == token
++    return re.fullmatch(pattern, token) is not None
++
++
++def check_orca_argv(args: tuple[str, ...]) -> None:
++    """Raise ValueError unless ``args`` matches one ``ALLOWED_ORCA`` template exactly."""
++    argv = tuple(args)
++    if not all(isinstance(a, str) for a in argv):
++        raise ValueError(f"orca arguments are not allowed: {argv!r}")
++    if FORBIDDEN_TOKENS.intersection(argv):
++        raise ValueError(f"orca arguments are not allowed: {argv!r}")
++    for template in ALLOWED_ORCA:
++        if len(template) == len(argv) and all(
++            _token_matches(t, a) for t, a in zip(template, argv)
++        ):
++            return
++    raise ValueError(f"orca arguments are not allowed: {argv!r}")
++
++
+ def check_git_args(args: tuple[str, ...]) -> None:
+     """Raise ValueError unless ``args`` equals an ``ALLOWED_GIT`` entry exactly."""
+     if tuple(args) not in ALLOWED_GIT:
+         raise ValueError(f"git arguments are not allowed: {args!r}")
+ 
+ 
++def _json_or_none(text: str) -> object | None:
++    try:
++        return json.loads(text)
++    except ValueError:
++        return None
++
++
++def _run_current_result(text: str) -> OrcaResult:
++    """Plain-text ``run-current``: the no-binding sentence, or exactly one Run id."""
++    if not text.strip():
++        return OrcaResult("call_failed", None, "orca call failed (invalid response)")
++    if text.strip().startswith(_NO_BINDING):
++        return OrcaResult("no_binding", None, "no Run bound")
++    ids = set(re.findall(rf"\b{RUN_ID_RE}\b", text))
++    if len(ids) == 1:
++        return OrcaResult("ok", ids.pop(), None)
++    return OrcaResult("call_failed", None, "orca call failed (invalid response)")
++
++
++def _orca(*args: str, timeout: float) -> OrcaResult:
++    """Run one allowlisted Orca read and classify the result once (SPEC section 8)."""
++    check_orca_argv(tuple(args))  # ValueError before any process starts
++    binary = orca_binary()
++    try:
++        proc = subprocess.run(
++            [binary, *args],
++            capture_output=True,
++            timeout=timeout,
++            check=False,
++            stdin=subprocess.DEVNULL,
++        )
++    except subprocess.TimeoutExpired:
++        return OrcaResult("unavailable", None, f"timeout after {timeout:g} s")
++    except FileNotFoundError:
++        return OrcaResult("unavailable", None, f"binary not found: {binary}")
++    except OSError as exc:
++        return OrcaResult("unavailable", None, f"could not start {binary}: {exc}")
++    if len(proc.stdout) + len(proc.stderr) > OUTPUT_LIMIT:
++        return OrcaResult(
++            "call_failed", None, f"output over {OUTPUT_LIMIT // _MIB} MiB"
++        )
++    out = proc.stdout.decode("utf-8", "replace")
++    err = proc.stderr.decode("utf-8", "replace").strip()
++    parsed = _json_or_none(out)
++    error = parsed.get("error") if isinstance(parsed, dict) else None
++    code = error.get("code") if isinstance(error, dict) else None
++    first_err = err.splitlines()[0].strip() if err else ""
++    # The marker counts only as the error code or the whole first stderr line.
++    if code == "runtime_unavailable" or first_err == "runtime_unavailable":
++        return OrcaResult("unavailable", None, "runtime_unavailable")
++    if proc.returncode != 0:
++        return OrcaResult(
++            "call_failed", None, f"orca call failed (exit {proc.returncode})"
++        )
++    if tuple(args) == ("orchestration", "run-current"):
++        return _run_current_result(out)
++    if (
++        isinstance(parsed, dict)
++        and parsed.get("ok") is True
++        and isinstance(parsed.get("result"), dict)
++    ):
++        return OrcaResult("ok", parsed["result"], None)
++    return OrcaResult("call_failed", None, "orca call failed (invalid response)")
++
++
+ def _git(cwd: Path, *args: str, timeout: float) -> str:
+     """Run the allowed git call in ``cwd`` and return its stdout as text.
+ 
+@@ -54,3 +294,1001 @@
+             f"git exited {proc.returncode}" + (f": {detail[0]}" if detail else "")
+         )
+     return proc.stdout.decode("utf-8", "replace")
++
++
++def _call(budget: Budget, *args: str) -> OrcaResult:
++    """One budgeted Orca call. A budget-cut timeout is ``call_failed``, never unavailable."""
++    timeout = budget.call_timeout()
++    if timeout is None:
++        return OrcaResult("call_failed", None, budget.budget_reason())
++    first = budget.orca_calls == 0
++    budget.orca_calls += 1
++    result = _orca(*args, timeout=timeout)
++    if (
++        result.kind == "unavailable"
++        and (result.reason or "").startswith("timeout")
++        and budget.cut()
++    ):
++        return OrcaResult("call_failed", None, budget.budget_reason())
++    if first and result.kind == "call_failed":
++        # A nonzero exit or invalid response on the very first Orca call means unavailable.
++        return OrcaResult("unavailable", None, result.reason)
++    return result
++
++
++def bind_run(budget: Budget) -> str:
++    """``run-current``: the bound Run id, else ``BindingError`` (commands maps it to exit 2)."""
++    result = _call(budget, "orchestration", "run-current")
++    if result.kind == "ok" and isinstance(result.data, str):
++        return result.data
++    if result.kind == "no_binding":
++        raise BindingError("no Run bound: pass --run <id>")
++    raise BindingError(
++        f"Orca unavailable ({result.reason}); no Run binding could be established: "
++        "pass --run <id>"
++    )
++
++
++# --- Parsing helpers --------------------------------------------------------------------
++
++
++def parse_time(value: object) -> datetime | None:
++    """Aware UTC ``datetime`` from the two accepted forms (DESIGN 7.2); never raises.
++
++    Accepted: SQLite ``YYYY-MM-DD HH:MM:SS`` (no zone, read as UTC) and ISO 8601 with
++    ``Z`` or an offset. Anything else, including a non-string, is None.
++    """
++    if not isinstance(value, str):
++        return None
++    text = value.strip()
++    if _TIME_RE.fullmatch(text) is None:  # date-only, no seconds or basic format
++        return None
++    if text.endswith(("Z", "z")):
++        text = text[:-1] + "+00:00"
++    try:
++        parsed = datetime.fromisoformat(text)
++    except ValueError:
++        return None
++    if parsed.tzinfo is None:
++        if "T" in text:  # a naive ISO form is neither accepted form
++            return None
++        return parsed.replace(tzinfo=timezone.utc)
++    try:
++        return parsed.astimezone(timezone.utc)
++    except (OverflowError, ValueError):
++        return None
++
++
++def _get(obj: object, *path: str) -> object | None:
++    """Nested dict lookup that returns None at the first missing step."""
++    for key in path:
++        if not isinstance(obj, dict):
++            return None
++        obj = obj.get(key)
++    return obj
++
++
++def _text(value: object) -> str | None:
++    return value if isinstance(value, str) else None
++
++
++def _first(*values: object) -> object | None:
++    """The first value that is not None: the ``worker-show`` value wins over the list row."""
++    return next((v for v in values if v is not None), None)
++
++
++def parse_worker_show(
++    run: str, list_row: object, show: object | None
++) -> OrcaObservation:
++    """Build one observation from a ``worker-list`` row and its ``worker-show`` result.
++
++    Never raises. The show value wins for every field both return. Fields that only the
++    show returns stay None when there is no show, so such a row prints could not
++    determine (WC-10) and counts toward ``bound_reached``.
++    """
++    dispatch = _text(_first(_get(list_row, "dispatchId"), _get(show, "dispatch", "id")))
++    shown = show is not None
++    return OrcaObservation(
++        dispatch=dispatch or "",
++        run=run,
++        session_join=_text(_get(show, "dispatch", "assigneeHandle")),
++        dispatch_started=parse_time(_get(show, "dispatch", "dispatchedAt")),
++        dispatch_ended=parse_time(_get(show, "dispatch", "completedAt")),
++        dispatch_status=_text(_get(show, "dispatch", "status")),
++        liveness_verdict=_text(_get(show, "projection", "liveness", "verdict")),
++        status=_text(_get(show, "dispatch", "status")),
++        outcome=_text(_get(show, "projection", "outcome")),
++        agent_wait=_agent_wait(show) if shown else None,
++        agent_wait_present=_agent_wait_present(show) if shown else False,
++        parent=_text(
++            _first(
++                _get(show, "projection", "parent"),
++                _get(list_row, "projection", "parent"),
++            )
++        ),
++        worktree_path=_text(_get(show, "terminal", "worktreePath")),
++        terminal_state=_text(
++            _first(
++                _get(show, "projection", "resource", "terminalState"),
++                _get(list_row, "terminalState"),
++                _get(list_row, "projection", "resource", "terminalState"),
++            )
++        ),
++        next_action=_text(
++            _first(
++                _get(show, "projection", "nextAction", "kind"),
++                _get(list_row, "projection", "nextAction", "kind"),
++            )
++        ),
++    )
++
++
++# The live location of ``agentWait`` was not observed (step 1.0a, open item 6): look in
++# the two places the other projection fields live.
++def _agent_wait_present(show: object) -> bool:
++    return any(
++        isinstance(holder, dict) and "agentWait" in holder
++        for holder in (_get(show, "projection"), show)
++    )
++
++
++def _agent_wait(show: object) -> object | None:
++    for holder in (_get(show, "projection"), show):
++        if isinstance(holder, dict) and "agentWait" in holder:
++            return holder["agentWait"]
++    return None
++
++
++def parse_status(raw: str) -> StatusParse:
++    """Parse ``git status --porcelain=v1 -z --branch`` output (NUL fields, rename pairs)."""
++    fields = raw.split("\0")
++    if fields and fields[-1] == "":
++        fields.pop()
++    header = ""
++    if fields and fields[0].startswith("## "):
++        header = fields.pop(0)[3:]
++    entries: list[tuple[str, str]] = []
++    i = 0
++    while i < len(fields):
++        field = fields[i]
++        i += 1
++        if len(field) < 4 or field[2] != " ":
++            continue
++        code, path = field[:2], field[3:]
++        entries.append((code, path))
++        if ("R" in code or "C" in code) and i < len(fields):
++            entries.append((code, fields[i]))  # rename or copy: the old path as well
++            i += 1
++    ahead, has_upstream, note = _parse_header(header)
++    return StatusParse(tuple(entries), header, ahead, has_upstream, note)
++
++
++def _parse_header(header: str) -> tuple[int | None, bool | None, str | None]:
++    """(ahead, has_upstream, note) from the branch header line (M7)."""
++    if header.startswith("No commits yet"):
++        return None, None, "no commits yet"
++    if header.startswith("HEAD (no branch)"):
++        return None, None, "detached HEAD"
++    names, _, counts = header.partition(" [")
++    if "..." not in names:
++        return None, False, "no upstream"
++    parts = [p.strip() for p in counts.rstrip("]").split(",")] if counts else []
++    if "gone" in parts:
++        return None, None, "upstream gone"
++    ahead = 0
++    for part in parts:
++        match = re.fullmatch(r"ahead (\d+)", part)
++        if match:
++            ahead = int(match.group(1))
++    return ahead, True, (f"ahead {ahead}" if ahead > 0 else None)
++
++
++# --- Disk readers -----------------------------------------------------------------------
++
++
++def _unscanned(reason: str | None) -> str | None:
++    """The ``SourceCoverage.unscanned`` text: a reason without its ``unscanned:`` prefix."""
++    if reason is None:
++        return None
++    return reason[len("unscanned: ") :] if reason.startswith("unscanned: ") else reason
++
++
++def _inside(path: Path, root: Path) -> bool:
++    """True when ``path`` re-resolved (symlinks followed) stays under ``root`` resolved."""
++    try:
++        return path.resolve().is_relative_to(root.resolve())
++    except (OSError, RuntimeError, ValueError):
++        return False
++
++
++def _check_inside(path: Path, root: Path | None) -> None:
++    if root is not None and not _inside(path, root):
++        raise ReadFailed("outside root")
++
++
++def _stat_key(path: Path) -> tuple[int, int]:
++    st = os.stat(path)
++    return st.st_size, st.st_mtime_ns
++
++
++def _stable(path: Path, read: Callable[[], object]) -> object:
++    """Run ``read``; if the file changed meanwhile read once more, else a conflict."""
++    for _ in range(2):
++        before = _stat_key(path)
++        result = read()
++        if _stat_key(path) == before:
++            return result
++    raise ReadFailed("conflict: inconsistent observation")
++
++
++def _ledger_has_final(path: Path) -> bool:
++    size = os.stat(path).st_size
++    with open(path, "rb") as handle:
++        if size > LEDGER_LIMIT:
++            # Over the limit: only the last LEDGER_SPLIT bytes are searched, and the first
++            # (partial) line of that tail is dropped.
++            handle.seek(size - LEDGER_SPLIT)
++            data = handle.read(LEDGER_SPLIT)
++            data = data.split(b"\n", 1)[1] if b"\n" in data else b""
++        else:
++            data = handle.read()
++    text = data.decode("utf-8", "replace")
++    return any(line.lstrip().startswith("FINAL:") for line in text.splitlines())
++
++
++def _ledger(path: Path, root: Path | None) -> tuple[bool | None, str | None]:
++    try:
++        _check_inside(path, root)
++        return bool(_stable(path, lambda: _ledger_has_final(path))), None
++    except ReadFailed as exc:
++        return None, str(exc)
++    except OSError:
++        return None, "ledger not readable"
++
++
++def read_ledger(path: Path, root: Path | None = None) -> bool | None:
++    """True when a line starts with ``FINAL:`` (after optional blanks); None when unread."""
++    return _ledger(path, root)[0]
++
++
++def _marker(path: Path) -> bool:
++    try:
++        os.stat(path)
++    except OSError:
++        return False
++    return True
++
++
++def _packages(
++    worktree: Path,
++) -> tuple[tuple[PackageRecord, ...], tuple[SourceCoverage, ...]]:
++    """Package records plus one unscanned row for each folder or ledger that was not read."""
++    where: dict[str, dict[str, Path]] = {}
++    rows: list[SourceCoverage] = []
++    for location in ("to-do", "done"):
++        folder = worktree / ".dev" / "tasks" / location
++        try:
++            with os.scandir(folder) as entries:
++                names = sorted(e.name for e in entries if e.is_dir())
++        except FileNotFoundError:
++            continue  # no such folder: nothing to read
++        except OSError:
++            rows.append(
++                SourceCoverage(
++                    f"package folder {folder}",
++                    "unscanned",
++                    None,
++                    "package folder not readable",
++                )
++            )
++            continue
++        for name in names:
++            where.setdefault(name, {})[location] = folder / name
++    records = []
++    for name in sorted(where):
++        places = where[name]
++        location = "both" if len(places) == 2 else next(iter(places))
++        marker = any(_marker(p / ".archiving") for p in places.values())
++        final: bool | None = None
++        if "to-do" in places:
++            ledger = places["to-do"] / "progress.md"
++            final, reason = _ledger(ledger, worktree)
++            if reason is not None:
++                rows.append(
++                    SourceCoverage(
++                        f"package ledger {ledger}", "unscanned", None, reason
++                    )
++                )
++        records.append(PackageRecord(name, location, final, marker, None, "unknown"))
++    return tuple(records), tuple(rows)
++
++
++def read_packages(worktree: Path) -> tuple[PackageRecord, ...]:
++    """Package folders under ``<worktree>/.dev/tasks/{to-do,done}/``; fixed pattern only.
++
++    ``active`` stays None (``read_worktree`` sets it from the one status call) and
++    ``state`` is a placeholder that ``classify.package_state`` replaces.
++    """
++    return _packages(worktree)[0]
++
++
++def _yaml_top(text: str) -> dict[str, object]:
++    """Top-level ``key: value`` pairs of a contract file (scalars, quoted, lists, blocks)."""
++    out: dict[str, object] = {}
++    lines = text.splitlines()
++    i = 0
++    while i < len(lines):
++        match = re.fullmatch(r"([A-Za-z_][A-Za-z0-9_]*):(?:[ \t]+(.*))?", lines[i])
++        i += 1
++        if match is None:
++            continue
++        key, value = match.group(1), (match.group(2) or "").strip()
++        block: list[str] = []
++        while i < len(lines) and (lines[i][:1] in (" ", "\t") or not lines[i].strip()):
++            block.append(lines[i])
++            i += 1
++        if value in ("|", ">", "|-", ">-", "|+", ">+"):
++            joiner = "\n" if value.startswith("|") else " "
++            out[key] = joiner.join(s.strip() for s in block if s.strip())
++        elif value == "":
++            items = [s.strip()[2:].strip() for s in block if s.strip().startswith("- ")]
++            out[key] = [_unquote(x) for x in items] if items else None
++        elif value.startswith("[") and value.endswith("]"):
++            inner = value[1:-1].strip()
++            out[key] = [_unquote(x.strip()) for x in inner.split(",")] if inner else []
++        else:
++            out[key] = _unquote(value)
++    return out
++
++
++def _unquote(value: str) -> str:
++    if len(value) >= 2 and value[0] == value[-1] and value[0] in "\"'":
++        inner = value[1:-1]
++        return (
++            inner.replace('\\"', '"') if value[0] == '"' else inner.replace("''", "'")
++        )
++    return value
++
++
++def _contract_from_text(path: Path, text: str) -> ContractRecord:
++    top = _yaml_top(text)
++
++    def scalar(key: str) -> str | None:
++        value = top.get(key)
++        return value if isinstance(value, str) and value else None
++
++    artifacts = top.get("artifacts")
++    report = scalar("report_path")
++    return ContractRecord(
++        path=path,
++        worker_status=scalar("worker_status"),
++        blocked_question=scalar("blocked_question"),
++        reason=scalar("reason"),
++        report_path=Path(report) if report else None,
++        artifacts=tuple(Path(a) for a in artifacts if a)
++        if isinstance(artifacts, list)
++        else (),
++        command=scalar("command"),
++    )
++
++
++def _contract(
++    path: Path, root: Path | None
++) -> tuple[ContractRecord | None, str | None]:
++    try:
++        _check_inside(path, root)
++        if os.stat(path).st_size > CONTRACT_LIMIT:
++            return None, f"over {CONTRACT_LIMIT // _MIB} MiB"
++        raw = _stable(path, lambda: path.read_bytes())
++    except ReadFailed as exc:
++        return None, str(exc)
++    except OSError:
++        return None, "contract not readable"
++    assert isinstance(raw, bytes)
++    return _contract_from_text(path, raw.decode("utf-8", "replace")), None
++
++
++def read_contract(path: Path, root: Path | None = None) -> ContractRecord | None:
++    """The parsed worker contract at ``path``; None when over 1 MiB, unreadable or escaping."""
++    return _contract(path, root)[0]
++
++
++def _tail_from_bytes(
++    path: Path, data: bytes, complete: bool, mtime: datetime
++) -> TranscriptTail:
++    stamps: list[datetime] = []
++    session_id: str | None = None
++    last_ts: datetime | None = None
++    for line in data.decode("utf-8", "replace").splitlines():
++        if not line.strip():
++            continue
++        record = _json_or_none(line)
++        if not isinstance(record, dict):
++            continue  # a last line cut mid-object, or not an object
++        ts = parse_time(record.get("timestamp"))
++        sid = record.get("sessionId")
++        last_ts = ts
++        if ts is not None:
++            stamps.append(ts)
++        if ts is not None and isinstance(sid, str) and sid:
++            session_id = sid  # a complete record: both fields
++    readable = session_id is not None
++    return TranscriptTail(
++        path=path,
++        session_id=session_id,
++        readable=readable,
++        last_record_ts=last_ts if readable else None,
++        first_record_ts=min(stamps) if readable and stamps else None,
++        tail_complete=complete,
++        mtime=mtime,
++        project_key=path.parent.name,
++    )
++
++
++def _transcript(path: Path, root: Path | None) -> tuple[TranscriptTail, str | None]:
++    epoch = datetime.fromtimestamp(0, timezone.utc)
++
++    def unreadable(mtime: datetime, reason: str) -> tuple[TranscriptTail, str]:
++        return (
++            TranscriptTail(
++                path, None, False, None, None, False, mtime, path.parent.name
++            ),
++            reason,
++        )
++
++    try:
++        _check_inside(path, root)
++        mtime = datetime.fromtimestamp(os.stat(path).st_mtime, timezone.utc)
++    except ReadFailed as exc:
++        return unreadable(epoch, str(exc))
++    except OSError:
++        return unreadable(epoch, "transcript not readable")
++
++    def read() -> tuple[bytes, bool]:
++        size = os.stat(path).st_size
++        with open(path, "rb") as handle:
++            if size > TRANSCRIPT_TAIL:
++                handle.seek(size - TRANSCRIPT_TAIL)
++                data = handle.read(TRANSCRIPT_TAIL)
++                # Drop bytes up to and including the first newline (a partial line).
++                return (data.split(b"\n", 1)[1] if b"\n" in data else b""), False
++            return handle.read(), True
++
++    try:
++        result = _stable(path, read)
++        reason = None
++    except ReadFailed as exc:
++        reason = str(exc)
++        try:  # keep the last read so the row still has data; the reason forces could not determine
++            result = read()
++        except OSError:
++            return unreadable(mtime, "transcript not readable")
++    except OSError:
++        return unreadable(mtime, "transcript not readable")
++    data, complete = result  # type: ignore[misc]
++    return _tail_from_bytes(path, data, complete, mtime), reason
++
++
++def read_transcript_tail(path: Path, root: Path | None = None) -> TranscriptTail:
++    """The last 256 KiB of a transcript, first partial line dropped (DESIGN 7.1)."""
++    return _transcript(path, root)[0]
++
++
++def _tab_map(state_dir: Path) -> tuple[tuple[TabMapEntry, ...], str | None]:
++    folder = state_dir / "ccsession" / "orca-tabs"
++    try:
++        with os.scandir(folder) as scan:
++            names = sorted(e.name for e in scan if not e.name.startswith("."))
++    except FileNotFoundError:
++        return (), None  # a missing folder is readable and empty
++    except OSError:
++        return (), "tab map folder not readable"
++    entries: list[TabMapEntry] = []
++    problem: str | None = None
++    for name in names:
++        path = folder / name
++        if not _inside(path, folder):
++            problem = "outside root"
++            continue
++        try:
++            if not path.is_file():
++                continue
++            lines = [s.strip() for s in path.read_text("utf-8", "replace").splitlines()]
++        except OSError:
++            problem = "tab map entry not readable"
++            continue
++        if len(lines) >= 3 and all(lines[:3]):
++            entries.append(TabMapEntry(name, lines[0], lines[1], lines[2]))
++    return tuple(entries), problem
++
++
++def read_tab_map(state_dir: Path) -> tuple[TabMapEntry, ...]:
++    """Entries of ``<state_dir>/ccsession/orca-tabs/``: pane key, session id, folder, handle."""
++    return _tab_map(state_dir)[0]
++
++
++def read_orca_version(path: Path = ORCA_VERSION_FILE) -> str | None:
++    """The ``version`` field of Orca's ``package.json``; None when it cannot be read."""
++    try:
++        with open(path, "rb") as handle:
++            data = handle.read(CONTRACT_LIMIT + 1)
++    except OSError:
++        return None
++    if len(data) > CONTRACT_LIMIT:
++        return None
++    parsed = _json_or_none(data.decode("utf-8", "replace"))
++    version = parsed.get("version") if isinstance(parsed, dict) else None
++    return version if isinstance(version, str) and version else None
++
++
++# --- Git reader -------------------------------------------------------------------------
++
++
++def _worktree_state(
++    path: Path, status: StatusParse | None, packages: tuple[PackageRecord, ...]
++) -> WorktreeState:
++    if status is None:
++        return WorktreeState(
++            path=str(path),
++            status_read=False,
++            uncommitted=None,
++            unpushed=None,
++            dev_tasks_unsaved=None,
++            changed_paths=(),
++            packages=packages,
++            shared_package_ids=(),
++            frozen=None,
++        )
++    changed = tuple(p for _, p in status.entries)
++    unpushed: bool | None
++    if status.ahead is not None and status.ahead > 0:
++        unpushed = True
++    elif status.has_upstream and status.ahead == 0:
++        unpushed = False
++    else:
++        unpushed = None
++    marked = tuple(
++        replace(pkg, active=_package_active(pkg, changed)) for pkg in packages
++    )
++    return WorktreeState(
++        path=str(path),
++        status_read=True,
++        uncommitted=bool(changed),
++        unpushed=unpushed,
++        dev_tasks_unsaved=any(p.startswith(".dev/tasks/") for p in changed),
++        changed_paths=changed,
++        packages=marked,
++        shared_package_ids=(),
++        frozen=None,  # no named source for a frozen plan in Phase 1
++        upstream_note=status.header_note,
++    )
++
++
++def _package_active(pkg: PackageRecord, changed: tuple[str, ...]) -> bool:
++    """GQ-101: active when the one status call lists a path inside the package folder."""
++    places = ("to-do", "done") if pkg.location == "both" else (pkg.location,)
++    prefixes = tuple(f".dev/tasks/{place}/{pkg.id}/" for place in places)
++    return any(p.startswith(prefixes) for p in changed)
++
++
++def _read_worktree(
++    path: Path, budget: Budget
++) -> tuple[WorktreeState, tuple[SourceCoverage, ...]]:
++    """The state plus its git row and one row per unread package folder or ledger."""
++    name = f"git status {path}"
++    packages, package_rows = _packages(path)
++    try:
++        os.stat(path)
++    except OSError:
++        state, row = _failed_worktree(path, packages, name, "worktree not readable")
++        return state, (row, *package_rows)
++    timeout = budget.call_timeout()
++    if timeout is None:
++        reason = _unscanned(budget.budget_reason())
++        state, row = _failed_worktree(path, packages, name, reason)
++        return state, (row, *package_rows)
++    try:
++        raw = _git(path, *ALLOWED_GIT[0], timeout=timeout)
++    except GitCallFailed as exc:
++        cut = str(exc).startswith("timeout") and budget.cut()
++        reason = _unscanned(budget.budget_reason()) if cut else "worktree not readable"
++        state, row = _failed_worktree(path, packages, name, reason)
++        return state, (row, *package_rows)
++    state = _worktree_state(path, parse_status(raw), packages)
++    return state, (SourceCoverage(name, "read", None, None), *package_rows)
++
++
++def read_worktree(path: Path, budget: Budget) -> tuple[WorktreeState, SourceCoverage]:
++    """One ``git status`` for ``path`` plus its package folders; never raises."""
++    state, rows = _read_worktree(path, budget)
++    return state, rows[0]
++
++
++def _failed_worktree(
++    path: Path, packages: tuple[PackageRecord, ...], name: str, reason: str | None
++) -> tuple[WorktreeState, SourceCoverage]:
++    state = _worktree_state(path, None, packages)
++    return state, SourceCoverage(name, "unscanned", None, reason)
++
++
++# --- collect ----------------------------------------------------------------------------
++
++
++def _utcnow() -> datetime:
++    return datetime.now(timezone.utc)
++
++
++def _age(now: datetime, mtime: datetime) -> int:
++    return max(0, int((now - mtime).total_seconds()))
++
++
++def _project_key(path: Path) -> str:
++    """Claude Code's project folder name: every non-alphanumeric character becomes ``-``."""
++    return re.sub(r"[^A-Za-z0-9]", "-", str(path))
++
++
++def _task_body(task: dict) -> str | None:
++    """The worker report ``body`` stored in a Task's ``result`` JSON, if any."""
++    result = task.get("result")
++    parsed = _json_or_none(result) if isinstance(result, str) else result
++    return _text(parsed.get("body")) if isinstance(parsed, dict) else None
++
++
++_CONTRACT_FILE = "return-contract.yaml"
++_CONTRACT_PATH_RE = re.compile(rf"(/[^\s'\"`<>()]*/{re.escape(_CONTRACT_FILE)})")
++_REPORT_DIR_RE = re.compile(
++    r"--(?:report-dir|output-dir|output)[ =]+(['\"]?)(/[^\s'\"`]+)\1"
++)
++
++
++def _contract_candidates(obs: OrcaObservation) -> tuple[Path, ...]:
++    """Contract files an Orca row's own text names: a full path or a report folder."""
++    found: dict[str, None] = {}
++    for text in (obs.task_spec_text, obs.body_text):
++        if not text:
++            continue
++        for match in _CONTRACT_PATH_RE.finditer(text):
++            found[match.group(1)] = None
++        for match in _REPORT_DIR_RE.finditer(text):
++            found[f"{match.group(2).rstrip('/')}/{_CONTRACT_FILE}"] = None
++    return tuple(Path(p) for p in found)
++
++
++@dataclass
++class _OrcaState:
++    available: bool = True
++    truncated: bool = False
++
++
++def _orca_reads(
++    runs: tuple[str, ...],
++    budget: Budget,
++    state: _OrcaState,
++    sources: list[SourceCoverage],
++) -> list[OrcaObservation]:
++    """worker-list, task-list (ready and all) and worker-show for every Run."""
++    rows: list[OrcaObservation] = []
++    budget.share_shows(runs)
++
++    def skip(name: str) -> None:
++        sources.append(SourceCoverage(name, "unscanned", None, "orca unavailable"))
++
++    def record(name: str, result: OrcaResult, note: str = "read") -> bool:
++        """Source row for one call; True when the call gave data."""
++        if result.kind == "ok":
++            sources.append(SourceCoverage(name, note, None, None))
++            return True
++        sources.append(
++            SourceCoverage(name, "unscanned", None, _unscanned(result.reason))
++        )
++        if result.kind == "unavailable":
++            state.available = False
++        return False
++
++    for run in runs:
++        list_name, task_name = f"orca worker-list {run}", f"orca task-list {run}"
++        ready_name = f"orca task-list --ready {run}"
++        if not state.available:
++            for name in (list_name, ready_name, task_name):
++                skip(name)
++            continue
++        listing = _call(budget, "orchestration", "worker-list", "--run", run, "--json")
++        workers: list[dict] = []
++        if record(list_name, listing):
++            raw = _get(listing.data, "workers")
++            workers = (
++                [w for w in raw if isinstance(w, dict)] if isinstance(raw, list) else []
++            )
++            more = _get(listing.data, "page", "hasMore") is True
++            if len(workers) >= WORKER_LIST_PAGE or more:
++                state.truncated = True
++        tasks_by_id: dict[str, dict] = {}
++        ready_tasks: list[dict] = []
++        if state.available:
++            ready = _call(
++                budget, "orchestration", "task-list", "--ready", "--run", run, "--json"
++            )
++            if record(ready_name, ready):
++                raw = _get(ready.data, "tasks")
++                ready_tasks = (
++                    [t for t in raw if isinstance(t, dict)]
++                    if isinstance(raw, list)
++                    else []
++                )
++        else:
++            skip(ready_name)
++        if state.available:
++            every = _call(budget, "orchestration", "task-list", "--run", run, "--json")
++            if record(task_name, every):
++                raw = _get(every.data, "tasks")
++                for task in raw if isinstance(raw, list) else []:
++                    if isinstance(task, dict) and isinstance(task.get("id"), str):
++                        tasks_by_id[task["id"]] = task
++        else:
++            skip(task_name)
++        rows.extend(
++            _run_rows(run, workers, ready_tasks, tasks_by_id, budget, state, sources)
++        )
++    return rows
++
++
++def _run_rows(
++    run: str,
++    workers: list[dict],
++    ready_tasks: list[dict],
++    tasks_by_id: dict[str, dict],
++    budget: Budget,
++    state: _OrcaState,
++    sources: list[SourceCoverage],
++) -> list[OrcaObservation]:
++    raws: dict[str, list[dict]] = {}
++    for row in workers:
++        raws.setdefault(str(row.get("dispatchId")), []).append(row)
++    shows: dict[str, object | None] = {}
++    rows: list[OrcaObservation] = []
++    for index, row in enumerate(workers):
++        dispatch = row.get("dispatchId")
++        if not isinstance(dispatch, str) or not re.fullmatch(DISPATCH_ID_RE, dispatch):
++            # An id the allowlist would refuse is never put into an argv.
++            name = f"orca worker-list {run} row {index}"
++            sources.append(
++                SourceCoverage(
++                    name, "unscanned", None, "row without a valid Dispatch id"
++                )
++            )
++            if isinstance(dispatch, str) and dispatch:
++                rows.append(
++                    _with_task(parse_worker_show(run, row, None), row, tasks_by_id)
++                )
++            continue
++        disagree = any(r != raws[dispatch][0] for r in raws[dispatch])
++        if disagree:
++            # Duplicate rows that differ are kept apart; no show is used to pick one.
++            obs = replace(
++                parse_worker_show(run, row, None),
++                dispatch_status=_text(row.get("dispatchStatus")),
++            )
++            rows.append(_with_task(obs, row, tasks_by_id))
++            continue
++        show = shows.get(dispatch)
++        if dispatch not in shows:
++            show = _show(dispatch, run, budget, state, sources)
++            shows[dispatch] = show
++        rows.append(_with_task(parse_worker_show(run, row, show), row, tasks_by_id))
++    known = {r.get("taskId") for r in workers}
++    for task in ready_tasks:
++        task_id = task.get("id")
++        if isinstance(task_id, str) and task_id not in known:
++            rows.append(
++                OrcaObservation(
++                    dispatch=task_id,
++                    run=run,
++                    status="ready",
++                    task_spec_text=_text(task.get("spec")),
++                )
++            )
++    return rows
++
++
++def _show(
++    dispatch: str,
++    run: str,
++    budget: Budget,
++    state: _OrcaState,
++    sources: list[SourceCoverage],
++) -> object | None:
++    name = f"orca worker-show {dispatch}"
++    if not state.available:
++        sources.append(SourceCoverage(name, "unscanned", None, "orca unavailable"))
++        return None
++    if not budget.take_show(run):
++        sources.append(
++            SourceCoverage(name, "unscanned", None, budget.show_cap_reason())
++        )
++        return None
++    result = _call(
++        budget, "orchestration", "worker-show", "--dispatch", dispatch, "--json"
++    )
++    if result.kind == "ok":
++        sources.append(SourceCoverage(name, "read", None, None))
++        return result.data
++    sources.append(SourceCoverage(name, "unscanned", None, _unscanned(result.reason)))
++    if result.kind == "unavailable":
++        state.available = False
++    return None
++
++
++def _with_task(
++    obs: OrcaObservation, row: dict, tasks_by_id: dict[str, dict]
++) -> OrcaObservation:
++    task = (
++        tasks_by_id.get(row.get("taskId"))
++        if isinstance(row.get("taskId"), str)
++        else None
++    )
++    if task is None:
++        return obs
++    return replace(
++        obs, task_spec_text=_text(task.get("spec")), body_text=_task_body(task)
++    )
++
++
++def _worktree_paths(root: Path, result: OrcaResult | None) -> tuple[Path, ...]:
++    """The root, then each distinct canonical path from ``worktree ps``."""
++    paths: dict[Path, None] = {root: None}
++    raw = _get(result.data, "worktrees") if result is not None else None
++    for item in raw if isinstance(raw, list) else []:
++        text = _get(item, "path")
++        if isinstance(text, str) and text:
++            try:
++                paths[Path(text).resolve()] = None
++            except (OSError, RuntimeError):
++                continue
++    return tuple(paths)
++
++
++def collect(
++    ctx: SweepContext, runs: tuple[str, ...], root: Path, budget: Budget
++) -> SweepInput:
++    """Gather every source into one ``SweepInput``; a failed source becomes an unscanned row."""
++    started = _utcnow()
++    runs = tuple(dict.fromkeys(runs))
++    sources: list[SourceCoverage] = []
++    version = read_orca_version()
++    state = _OrcaState()
++    orca_rows = _orca_reads(runs, budget, state, sources)
++
++    ps_result: OrcaResult | None = None
++    if state.available:
++        ps_result = _call(budget, "worktree", "ps", "--json")
++        if ps_result.kind == "ok":
++            cut = _get(ps_result.data, "truncated") is True
++            sources.append(
++                SourceCoverage(
++                    "orca worktree ps",
++                    "read",
++                    None,
++                    "worktree list truncated" if cut else None,
++                )
++            )
++        else:
++            sources.append(
++                SourceCoverage(
++                    "orca worktree ps", "unscanned", None, _unscanned(ps_result.reason)
++                )
++            )
++            if ps_result.kind == "unavailable":
++                state.available = False
++            ps_result = None
++    else:
++        sources.append(
++            SourceCoverage("orca worktree ps", "unscanned", None, "orca unavailable")
++        )
++
++    paths = _worktree_paths(root.resolve(), ps_result)
++    worktrees = []
++    for path in paths:
++        worktree, rows = _read_worktree(path, budget)
++        worktrees.append(worktree)
++        sources.extend(rows)
++
++    contracts = _read_contracts(orca_rows, paths, started, sources)
++    transcripts = _read_transcripts(paths, sources)
++    state_dir = Path(
++        os.environ.get("XDG_STATE_HOME") or (Path.home() / ".local" / "state")
++    )
++    tab_map, problem = _tab_map(state_dir)
++    sources.append(
++        SourceCoverage(
++            "ccsession orca-tabs",
++            "unscanned" if problem else f"{len(tab_map)} entries",
++            None,
++            problem,
++        )
++    )
++    sources.append(SourceCoverage("remote hosts", "unknown", None, None))
++
++    return SweepInput(
++        orca_rows=tuple(orca_rows),
++        contracts=contracts,
++        transcripts=transcripts,
++        tab_map=tab_map,
++        worktrees=tuple(worktrees),
++        sources=tuple(sources),
++        orca_available=state.available,
++        orca_binary=orca_binary(),
++        orca_version=version,
++        truncated=state.truncated,
++        collected_start=started,
++        collected_end=_utcnow(),
++    )
++
++
++def _read_contracts(
++    rows: list[OrcaObservation],
++    paths: tuple[Path, ...],
++    now: datetime,
++    sources: list[SourceCoverage],
++) -> tuple[ContractRecord, ...]:
++    allowed = tuple(paths)
++    loaded: dict[Path, tuple[ContractRecord | None, str | None]] = {}
++    records: dict[Path, ContractRecord] = {}
++    for obs in rows:
++        for candidate in _contract_candidates(obs):
++            name = f"contract {obs.dispatch}"
++            if candidate not in loaded:
++                if not any(_inside(candidate, base) for base in allowed):
++                    loaded[candidate] = (None, "outside root")
++                elif not candidate.exists():
++                    loaded[candidate] = (
++                        None,
++                        "absent",
++                    )  # not written yet: not a source
++                else:
++                    loaded[candidate] = _contract(candidate, None)
++            record, reason = loaded[candidate]
++            if reason == "absent":
++                continue
++            if record is not None:
++                records[candidate] = record
++                age = _age(
++                    now,
++                    datetime.fromtimestamp(os.stat(candidate).st_mtime, timezone.utc),
++                )
++                sources.append(SourceCoverage(name, "read", age, None))
++            else:
++                sources.append(SourceCoverage(name, "unscanned", None, reason))
++    return tuple(records.values())
++
++
++def _read_transcripts(
++    paths: tuple[Path, ...], sources: list[SourceCoverage]
++) -> tuple[TranscriptTail, ...]:
++    home = Path.home()
++    tails: dict[Path, TranscriptTail] = {}
++    for key in dict.fromkeys(_project_key(p) for p in paths):
++        folder = home / ".claude" / "projects" / key
++        name = f"claude project {key}"
++        try:
++            with os.scandir(folder) as scan:
++                files = sorted(
++                    e.name for e in scan if e.name.endswith(".jsonl") and e.is_file()
++                )
++        except FileNotFoundError:
++            sources.append(SourceCoverage(name, "no folder", None, None))
++            continue
++        except OSError:
++            sources.append(
++                SourceCoverage(name, "unscanned", None, "project folder not readable")
++            )
++            continue
++        sources.append(SourceCoverage(name, f"{len(files)} files", None, None))
++        for file_name in files:
++            path = folder / file_name
++            tail, reason = _transcript(path, folder)
++            tails[path] = tail
++            if reason is not None:  # only a problem gets its own row
++                sources.append(
++                    SourceCoverage(f"transcript {path}", "unscanned", None, reason)
++                )
++    return tuple(tails.values())
+Delta diff from the previous reviewed tree (empty on the first review): --- a/src/superclaude/cli/sweep/probes.py
++++ b/src/superclaude/cli/sweep/probes.py
+@@ -71,6 +71,10 @@
+ _PLACEHOLDERS = {"<run>": RUN_ID_RE, "<dispatch>": DISPATCH_ID_RE}
+ _MIB = 1024 * 1024
+ _NO_BINDING = "No Run is bound to this terminal."  # captured no-binding sentence
++# The two accepted time forms (DESIGN 7.2): SQLite, or ISO 8601 with seconds.
++_TIME_RE = re.compile(
++    r"\d{4}-\d{2}-\d{2}[ T]\d{2}:\d{2}:\d{2}(\.\d+)?(Z|z|[+-]\d{2}:\d{2})?"
++)
+ 
+ 
+ class GitCallFailed(Exception):
+@@ -337,6 +341,8 @@
+     if not isinstance(value, str):
+         return None
+     text = value.strip()
++    if _TIME_RE.fullmatch(text) is None:  # date-only, no seconds or basic format
++        return None
+     if text.endswith(("Z", "z")):
+         text = text[:-1] + "+00:00"
+     try:
+@@ -553,19 +559,28 @@
+     return True
+ 
+ 
+-def read_packages(worktree: Path) -> tuple[PackageRecord, ...]:
+-    """Package folders under ``<worktree>/.dev/tasks/{to-do,done}/``; fixed pattern only.
+-
+-    ``active`` stays None (``read_worktree`` sets it from the one status call) and
+-    ``state`` is a placeholder that ``classify.package_state`` replaces.
+-    """
++def _packages(
++    worktree: Path,
++) -> tuple[tuple[PackageRecord, ...], tuple[SourceCoverage, ...]]:
++    """Package records plus one unscanned row for each folder or ledger that was not read."""
+     where: dict[str, dict[str, Path]] = {}
++    rows: list[SourceCoverage] = []
+     for location in ("to-do", "done"):
+         folder = worktree / ".dev" / "tasks" / location
+         try:
+             with os.scandir(folder) as entries:
+                 names = sorted(e.name for e in entries if e.is_dir())
++        except FileNotFoundError:
++            continue  # no such folder: nothing to read
+         except OSError:
++            rows.append(
++                SourceCoverage(
++                    f"package folder {folder}",
++                    "unscanned",
++                    None,
++                    "package folder not readable",
++                )
++            )
+             continue
+         for name in names:
+             where.setdefault(name, {})[location] = folder / name
+@@ -576,9 +591,25 @@
+         marker = any(_marker(p / ".archiving") for p in places.values())
+         final: bool | None = None
+         if "to-do" in places:
+-            final = read_ledger(places["to-do"] / "progress.md", root=worktree)
++            ledger = places["to-do"] / "progress.md"
++            final, reason = _ledger(ledger, worktree)
++            if reason is not None:
++                rows.append(
++                    SourceCoverage(
++                        f"package ledger {ledger}", "unscanned", None, reason
++                    )
++                )
+         records.append(PackageRecord(name, location, final, marker, None, "unknown"))
+-    return tuple(records)
++    return tuple(records), tuple(rows)
++
++
++def read_packages(worktree: Path) -> tuple[PackageRecord, ...]:
++    """Package folders under ``<worktree>/.dev/tasks/{to-do,done}/``; fixed pattern only.
++
++    ``active`` stays None (``read_worktree`` sets it from the one status call) and
++    ``state`` is a placeholder that ``classify.package_state`` replaces.
++    """
++    return _packages(worktree)[0]
+ 
+ 
+ def _yaml_top(text: str) -> dict[str, object]:
+@@ -840,27 +871,37 @@
+     return any(p.startswith(prefixes) for p in changed)
+ 
+ 
+-def read_worktree(path: Path, budget: Budget) -> tuple[WorktreeState, SourceCoverage]:
+-    """One ``git status`` for ``path`` plus its package folders; never raises."""
++def _read_worktree(
++    path: Path, budget: Budget
++) -> tuple[WorktreeState, tuple[SourceCoverage, ...]]:
++    """The state plus its git row and one row per unread package folder or ledger."""
+     name = f"git status {path}"
+-    packages = read_packages(path)
++    packages, package_rows = _packages(path)
+     try:
+         os.stat(path)
+     except OSError:
+-        return _failed_worktree(path, packages, name, "worktree not readable")
++        state, row = _failed_worktree(path, packages, name, "worktree not readable")
++        return state, (row, *package_rows)
+     timeout = budget.call_timeout()
+     if timeout is None:
+-        return _failed_worktree(
+-            path, packages, name, _unscanned(budget.budget_reason())
+-        )
++        reason = _unscanned(budget.budget_reason())
++        state, row = _failed_worktree(path, packages, name, reason)
++        return state, (row, *package_rows)
+     try:
+         raw = _git(path, *ALLOWED_GIT[0], timeout=timeout)
+     except GitCallFailed as exc:
+         cut = str(exc).startswith("timeout") and budget.cut()
+         reason = _unscanned(budget.budget_reason()) if cut else "worktree not readable"
+-        return _failed_worktree(path, packages, name, reason)
++        state, row = _failed_worktree(path, packages, name, reason)
++        return state, (row, *package_rows)
+     state = _worktree_state(path, parse_status(raw), packages)
+-    return state, SourceCoverage(name, "read", None, None)
++    return state, (SourceCoverage(name, "read", None, None), *package_rows)
++
++
++def read_worktree(path: Path, budget: Budget) -> tuple[WorktreeState, SourceCoverage]:
++    """One ``git status`` for ``path`` plus its package folders; never raises."""
++    state, rows = _read_worktree(path, budget)
++    return state, rows[0]
+ 
+ 
+ def _failed_worktree(
+@@ -1147,9 +1188,9 @@
+     paths = _worktree_paths(root.resolve(), ps_result)
+     worktrees = []
+     for path in paths:
+-        worktree, coverage = read_worktree(path, budget)
++        worktree, rows = _read_worktree(path, budget)
+         worktrees.append(worktree)
+-        sources.append(coverage)
++        sources.extend(rows)
+ 
+     contracts = _read_contracts(orca_rows, paths, started, sources)
+     transcripts = _read_transcripts(paths, sources)
+Earlier blocking findings of this start (empty on the first review): F1.1 ac=T175.AC1 at=src/superclaude/cli/sweep/probes.py:579 anchor="Every path a reader opens is re-resolved and rejected with `unscanned: outside root` when it escapes." chk=y,n,n,n family=outside-root-report: read_packages calls read_ledger, which returns only the bool, so the `outside root` (and `ledger not readable`) reason is dropped and collect adds no source row for an escaping package ledger.
+Saved-probe re-check hit locations (may be empty): 456:            continue
+545:    except OSError:
+549:def read_ledger(path: Path, root: Path | None = None) -> bool | None:
+557:    except OSError:
+575:        except OSError:
+584:            continue
+606:def read_packages(worktree: Path) -> tuple[PackageRecord, ...]:
+624:            continue
+685:    except OSError:
+704:            continue
+744:    except OSError:
+764:        except OSError:
+766:    except OSError:
+784:    except OSError:
+792:            continue
+795:                continue
+797:        except OSError:
+799:            continue
+815:    except OSError:
+874:def _read_worktree(
+882:    except OSError:
+901:def read_worktree(path: Path, budget: Budget) -> tuple[WorktreeState, SourceCoverage]:
+903:    state, rows = _read_worktree(path, budget)
+949:            continue
+994:            continue
+1063:            continue
+1072:            continue
+1146:                continue
+1191:        worktree, rows = _read_worktree(path, budget)
+1251:                continue
+1279:            continue
+1280:        except OSError:
+1284:            continue
+
+Do not trust the implementer's report.
+
+First mark each earlier blocking finding resolved, open or regressed from the diff. Then, for each AC, mark it met or unmet. Require citations: every AC you mark, met or unmet, carries a `path:line` or `Ti.ACk@path:line` citation, and an unmet mark lists the finding ids behind it. Do not return a verdict; the orchestrator computes it.
+
+For every finding answer four questions, each yes or no:
+1. ac-outcome-missing: is output an AC requires absent, or does it contradict the AC text, or does an evidence claim you could not verify have no evidence row?
+2. false-claim: is a claim in delivered text or code false against live source, or does a recipe or instruction followed as written not do what the text says?
+3. harmful-effect: does code or a recipe this task added or changed write, append, chmod or delete tracked or production data, mutate state outside the task's declared outputs, or expose a secret?
+4. quoted-constraint-breach: does the diff violate a quoted plan constraint, out-of-scope, non-goal or non-negotiable item, or an explicit task instruction?
+
+Anchor rule: cite exactly one anchor per yes. ac-outcome-missing: the quoted AC words. false-claim: the live-source path:line holding the contradicting text. harmful-effect: the diff line that is the write. quoted-constraint-breach: the quoted constraint or instruction text. A yes without a valid anchor does not block.
+
+Write one line per finding:
+F<k>.<j> ac=<Ti.ACk|scope> at=<path:line> anchor=<quoted text or path:line> chk=<amiss,false,harm,constraint as y/n> family=<id> fix=<text> [covers=<quoted AC clause or constraint>]: <text>
+Do not write sev=, trigger=, first= or origin=; the orchestrator adds them. Write one status line per earlier blocking finding: F<m>.<j> resolved|open|regressed.
+
+Inside /sc:implement this protocol's severity model governs this review and takes precedence over the session's output style and the copy of it injected into every subagent; only blocking findings may fail an attempt.
+
+You are not given an adviser answer, brief, evidence file or troubleshoot report. Do not read the retry folders (legacy `.dev/implement/<slug>/retries/`, managed `<pkg>/artifacts/retries/`) or `.dev/troubleshoot/`. A citation into either makes the verdict `cannot-verify`.
+The prior-findings slot above carries earlier blocking finding lines that the orchestrator copies byte for byte from `review-*.md` and `repair-*.md`; they reach you as prompt text, not as an evidence file. Do not read those folders to get them, and never cite the slot or the file it came from.

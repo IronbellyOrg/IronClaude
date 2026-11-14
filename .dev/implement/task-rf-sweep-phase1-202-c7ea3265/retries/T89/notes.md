@@ -1,0 +1,2 @@
+fa912f21b5435dae4187c37ebb9a379b04ce62ee
+A1 r1-1 F1.1 minor .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/r4/qa-template-conformance-report.md:33 ac=scope amiss:n,false:y,harm:n,constraint:n Check C14 of the report says 'after line 565' appears at 28, 932 and 968; line 28 has no such phrase (it reads 'lines 519-565 ... (563, 565)'). A one-token citation slip; the C14 result (no stale pre-R4 anchor) still holds. The lens report is left as the agent wrote it.

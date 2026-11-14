@@ -1,0 +1,512 @@
+Review one task for spec compliance.
+
+Task brief: T144 = item 7.16 of the source file /home/coder/workspaces/worktrees/IronClaude/issue-339-orchestrator-mode/.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md (lines 1250-1265). Item text:
+- [ ] **7.16 — Run the step 1.0a read-only Orca capture (L1, live, allowlisted reads only)**
+  - **Context**: DESIGN section 15.1 (the 13 capture items) and section 7.3 `ALLOWED_ORCA`. The binary is `orca-ide` (`/home/coder/.local/bin/orca-ide`; `ORCA_CLI_COMMAND` unset, research/09 Gap 3). The ONLY commands allowed, with `<run>` the Run id recorded in `.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/plans/OQ-8-run-id-decision.md` (item 7.15) and `<dispatch>` each Dispatch id from the first `worker-list` call (Action step 1):
+    1. `orca-ide orchestration run-current`
+    2. `orca-ide orchestration worker-list --run <run> --json`
+    3. `orca-ide orchestration worker-show --dispatch <dispatch> --json`
+    4. `orca-ide orchestration task-list --ready --run <run> --json`
+    5. `orca-ide orchestration task-list --run <run> --json`
+    6. `orca-ide worktree ps --json`
+    7. `orca-ide worktree list --json`
+    8. `orca-ide worktree current --json`
+    Forbidden (DESIGN section 15.1): `worker-read` in any form, `gate-list`, `check`, `inbox`, `--include-remote`, any `git stash`, and `run-current --json` (`worktree ps --agent-wait` is allowed by R5 but is not run in step 1.0a). The ccsession tab-map folder is `${XDG_STATE_HOME:-~/.local/state}/ccsession/orca-tabs/` (DESIGN line 32).
+  - **Action**: Run these steps in this exact order. (1) Run template 2 (`orca-ide orchestration worker-list --run <run> --json`) once to learn the Dispatch ids; record it in the probe file as an extra read made only to learn the ids. (2) The "before" reads: template 3 for each Dispatch id from step 1, then templates 4 and 5. (3) Templates 1, 2, 6, 7 and 8, then template 2 once more with an obviously fake Run id of the same shape as the real one (capture item 8). (4) The "after" reads: template 3 for each Dispatch id from step 1, then templates 4 and 5 again. (5) Read `/opt/Orca/resources/app.asar.unpacked/out/package.json` for the version (capture item 12). (6) Resolve the tab-map folder with `echo "${XDG_STATE_HOME:-$HOME/.local/state}/ccsession/orca-tabs/"`, record the printed path, then list that folder with `ls -la <printed path>` and read only the files inside it (capture item 13); read no other folder. Record capture item 9 only if Orca is already unavailable; never induce it. Give every Bash call a timeout of 30000 ms. Write `.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/artifacts/readonly-probe.md` with one section per capture item 1 to 13: the exact command, exit code, stdout and stderr (paths, session ids and user names may be shown in full here, as the file stays in the task package), and what it settles. Compare before and after outputs with timestamps removed.
+  - **Output**: `.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/artifacts/readonly-probe.md`.
+  - **Verification**: Verify: every command in the file is one of the eight templates, a file read, or the step (6) `echo` and `ls -la` on the tab-map path; no recorded command line contains a forbidden token (`grep -n 'worker-read\|gate-list\|inbox\|include-remote\|stash\|run-current --json' .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/artifacts/readonly-probe.md` finds no hit on a recorded command line; stdout, stderr and the notes are not checked, because an honest note may name `run-current --json`); the first section records the step 1 `worker-list` call as the id-learning read; every file read for capture item 13 lies inside the recorded `${XDG_STATE_HOME:-$HOME/.local/state}/ccsession/orca-tabs/` path. If the before and after reads differ apart from timestamps, apply the HALT rule with `blocker_reason: "Step 1.0a: worker-show or task-list output changed between the before and after reads; owner review needed (DESIGN 15.1)"` and stop before marking this item complete until the blocker is resolved.
+  - **Completion gate**: All 13 capture items have a section (captured, or UNVERIFIED with the reason). Once done, mark this item as complete.
+AC ids: T144.AC1 = the item title "Run the step 1.0a read-only Orca capture (L1, live, allowlisted reads only)" (no AC block; the title is the AC). The item's own Verification and Completion gate lines are context for what "done" means. Ticking the item's checkbox is done by the orchestrator after the verdict and is not part of the diff under review.
+Global constraints: the `### Key Constraints` section (lines 157-168) of the source file named in the task brief; read it from that file.
+Start sha: d173296087168f5733efe0d51866ce41427d4f9f
+Diff against the start snapshot: --- /dev/null
++++ b/.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/artifacts/readonly-probe.md   (new file, 1071 lines)
++---
++needs_human_decision: false
++status: CAPTURED
++---
++
++# Step 1.0a read-only Orca capture (item 7.16)
++
++Captured 2026-11-11 against the Run named by the owner in `phase-outputs/plans/OQ-8-run-id-decision.md` (item 7.15): `run_a4723d345399`. Binary: `orca-ide` (`/home/coder/.local/bin/orca-ide`; `ORCA_CLI_COMMAND` unset). Every command below ran in its own Bash call with a tool timeout of 30000 ms, wrapped in an inner `timeout 8`. Only the eight allowlisted templates, file reads, and the step (6) `echo` and `ls -la` were issued; none of the forbidden commands was issued. The capture created no Run, Task or Dispatch. Scratch copies of each command's output were written under `/tmp/probe-7-16/` (outside this task package) while the file was built; they are not part of the deliverable. One Orca read went beyond the item's list of allowed uses: see Deviation D1 in the last section.
++
++Handling of large output: stdout under about 8 KB is shown in full in the section. Larger stdout is summarised in the section (shape, fields, counts, sha256 of the raw bytes) and, where it holds no other session's message text, the raw bytes are stored under `.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/artifacts/readonly-probe-raw/` (named in the section). The outputs of `worktree ps --json` and `worktree list --json` are not stored raw, because `worktree ps --json` carries other sessions' prompts and assistant messages; their sections hold the shape, counts, hashes and one redacted entry. This is a deliberate reading of "stdout" in the item's Action (the first sentence of the task: paths, session ids and user names may be shown, not other sessions' message text).
++
++## 0. Step 1: the id-learning read (extra read made only to learn the Dispatch ids)
++
++This is the Action step (1) read: `worker-list` run once to learn the Dispatch ids before the before/after reads. It is also the first of the two `worker-list` reads; capture item 3 uses both.
++
++Command: `orca-ide orchestration worker-list --run run_a4723d345399 --json`
++
++Exit code: 0. Stderr: empty. Stdout: 13779 bytes, sha256 `9f72ceb93665d30ecdef6da141b4b1b84ebdc03afe1bb34ae1b9d05bee817a1d`; raw bytes stored at `.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/artifacts/readonly-probe-raw/s1.json`.
++
++Learned from it (5 workers, 5 distinct Dispatch ids, all with `dispatchStatus: completed`, `workerState: succeeded`, `terminalState: released`):
++
++| Dispatch id | Task id | Terminal handle |
++|---|---|---|
++| ctx_6a0e3e3baaee | task_d7ba23de62d2 | term_12f4e391-99b0-4528-a6dc-483bd7c20dcf |
++| ctx_9a3728b21883 | task_e90102f005e0 | term_1212fabf-cde3-4350-a807-5d0aac19a520 |
++| ctx_4e3237d227c3 | task_38990284224c | term_bfc93c3a-75f5-46c7-bae1-eca8cc7c646e |
++| ctx_7c86fffa9716 | task_a6a2a3f9e170 | term_c2f40c56-7f46-4ba2-8f9f-4127b229d352 |
++| ctx_dad78c5c1332 | task_381ac7af9ed1 | term_88360819-3622-4c35-821d-e06faf346ab4 |
++
++Envelope: `{"counts": {"released": 5}, "page": {"limit": 100, "total": 5, "hasMore": false, "nextCursor": null}, "scope": {"run": "run_a4723d345399", "source": "flag"}}`, `_meta.runtimeId` `a7ee70a1-2e8b-4476-a228-51e9c7019b3f`.
++
++Full stdout:
++
++~~~
++{
++  "id": "e1936e60-f234-47e8-8d11-cdfae1d7f85f",
++  "ok": true,
++  "result": {
++    "workers": [
++      {
++        "dispatchId": "ctx_6a0e3e3baaee",
++        "taskId": "task_d7ba23de62d2",
++        "runId": "run_a4723d345399",
++        "workerState": "succeeded",
++        "dispatchStatus": "completed",
++        "agentTerminalHandle": "term_12f4e391-99b0-4528-a6dc-483bd7c20dcf",
++        "terminalState": "released",
++        "resource": {
++          "id": "wtr_e76d1735d8a2",
++          "ownershipState": "released",
++          "releaseState": "released",
++          "retainedReason": null,
++          "terminalHandle": "term_12f4e391-99b0-4528-a6dc-483bd7c20dcf",
++          "worktreeId": "de550e99-fa3c-42e2-abfe-1d092771c759::/home/coder/workspaces/worktrees/IronClaude/issue-504",
++          "endpointId": "a7ee70a1-2e8b-4476-a228-51e9c7019b3f",
++          "endpointIncarnation": "de550e99-fa3c-42e2-abfe-1d092771c759::/home/coder/workspaces/worktrees/IronClaude/issue-504@@98e8ea49:e3c1e8c5-d25e-482c-a447-ca5053e2edd3",
++          "originDispatchId": "ctx_6a0e3e3baaee",
++          "ownerDispatchId": "ctx_6a0e3e3baaee",
++          "releaseRequestedAt": "2026-11-11 19:51:11",
++          "releaseCompletedAt": "2026-11-11 19:51:13",
++          "releaseError": null,
++          "recoveryAttemptCount": 0,
++          "lastRecoveryAt": null,
++          "archive": {
++            "source": "transcript",
++            "status": "captured"
++          }
++        },
++        "projection": {
++          "id": "ctx_6a0e3e3baaee",
++          "dispatchId": "ctx_6a0e3e3baaee",
++          "taskId": "task_d7ba23de62d2",
++          "runId": "run_a4723d345399",
++          "role": "worker",
++          "parent": null,
++          "provider": null,
++          "host": {
++            "kind": "local",
++            "id": "local"
++          },
++          "workspace": {
++            "id": "de550e99-fa3c-42e2-abfe-1d092771c759::/home/coder/workspaces/worktrees/IronClaude/issue-504",
++            "kind": "folder_or_worktree"
++          },
++          "stage": {
++            "worker": "succeeded",
++            "dispatch": "completed",
++            "detail": "settled",
++            "activity": "unknown"
++          },
++          "outcome": "succeeded",
++          "liveness": {
++            "verdict": "exited",
++            "source": "resource_release"
++          },
++          "evidence": {
++            "durable": true,
++            "liveStatus": "unavailable",
++            "lastObservedAt": null
++          },
++          "resource": {
++            "state": "released"
++          },
++          "nextAction": {
++            "kind": "none",
++            "argv": []
++          },
++          "attention": {
++            "categories": [
++              "root_completion"
++            ],
++            "requiresAction": false
++          }
++        }
++      },
++      {
++        "dispatchId": "ctx_9a3728b21883",
++        "taskId": "task_e90102f005e0",
++        "runId": "run_a4723d345399",
++        "workerState": "succeeded",
++        "dispatchStatus": "completed",
++        "agentTerminalHandle": "term_1212fabf-cde3-4350-a807-5d0aac19a520",
++        "terminalState": "released",
++        "resource": {
++          "id": "wtr_b565ff1e9a33",
++          "ownershipState": "released",
++          "releaseState": "released",
++          "retainedReason": null,
++          "terminalHandle": "term_1212fabf-cde3-4350-a807-5d0aac19a520",
++          "worktreeId": "de550e99-fa3c-42e2-abfe-1d092771c759::/home/coder/workspaces/worktrees/IronClaude/issue-504",
++          "endpointId": "a7ee70a1-2e8b-4476-a228-51e9c7019b3f",
++          "endpointIncarnation": "de550e99-fa3c-42e2-abfe-1d092771c759::/home/coder/workspaces/worktrees/IronClaude/issue-504@@846850e6:37868cf7-bb20-4ead-9528-d2331eeba154",
++          "originDispatchId": "ctx_9a3728b21883",
++          "ownerDispatchId": "ctx_9a3728b21883",
++          "releaseRequestedAt": "2026-11-11 19:52:50",
++          "releaseCompletedAt": "2026-11-11 19:52:52",
++          "releaseError": null,
++          "recoveryAttemptCount": 0,
++          "lastRecoveryAt": null,
++          "archive": {
++            "source": "transcript",
++            "status": "captured"
++          }
++        },
++        "projection": {
++          "id": "ctx_9a3728b21883",
++          "dispatchId": "ctx_9a3728b21883",
++          "taskId": "task_e90102f005e0",
++          "runId": "run_a4723d345399",
++          "role": "worker",
++          "parent": null,
++          "provider": null,
++          "host": {
++            "kind": "local",
++            "id": "local"
++          },
++          "workspace": {
++            "id": "de550e99-fa3c-42e2-abfe-1d092771c759::/home/coder/workspaces/worktrees/IronClaude/issue-504",
++            "kind": "folder_or_worktree"
++          },
++          "stage": {
++            "worker": "succeeded",
++            "dispatch": "completed",
++            "detail": "settled",
++            "activity": "unknown"
++          },
++          "outcome": "succeeded",
++          "liveness": {
++            "verdict": "exited",
++            "source": "resource_release"
++          },
++          "evidence": {
++            "durable": true,
++            "liveStatus": "unavailable",
++            "lastObservedAt": null
++          },
++          "resource": {
++            "state": "released"
++          },
++          "nextAction": {
++            "kind": "none",
++            "argv": []
++          },
++          "attention": {
++            "categories": [
++              "root_completion"
++            ],
++            "requiresAction": false
++          }
++        }
++      },
++      {
++        "dispatchId": "ctx_4e3237d227c3",
++        "taskId": "task_38990284224c",
++        "runId": "run_a4723d345399",
++        "workerState": "succeeded",
++        "dispatchStatus": "completed",
++        "agentTerminalHandle": "term_bfc93c3a-75f5-46c7-bae1-eca8cc7c646e",
++        "terminalState": "released",
++        "resource": {
++          "id": "wtr_8fa5f5e6c0c9",
++          "ownershipState": "released",
++          "releaseState": "released",
++          "retainedReason": null,
++          "terminalHandle": "term_bfc93c3a-75f5-46c7-bae1-eca8cc7c646e",
++          "worktreeId": "de550e99-fa3c-42e2-abfe-1d092771c759::/home/coder/workspaces/worktrees/IronClaude/issue-504",
++          "endpointId": "a7ee70a1-2e8b-4476-a228-51e9c7019b3f",
++          "endpointIncarnation": "de550e99-fa3c-42e2-abfe-1d092771c759::/home/coder/workspaces/worktrees/IronClaude/issue-504@@ff748a50:d87771f2-b243-462b-b5e2-8fbf74345971",
++          "originDispatchId": "ctx_4e3237d227c3",
++          "ownerDispatchId": "ctx_4e3237d227c3",
++          "releaseRequestedAt": "2026-11-11 19:52:23",
++          "releaseCompletedAt": "2026-11-11 19:52:25",
++          "releaseError": null,
++          "recoveryAttemptCount": 0,
++          "lastRecoveryAt": null,
++          "archive": {
++            "source": "transcript",
++            "status": "captured"
++          }
++        },
++        "projection": {
++          "id": "ctx_4e3237d227c3",
++          "dispatchId": "ctx_4e3237d227c3",
++          "taskId": "task_38990284224c",
++          "runId": "run_a4723d345399",
++          "role": "worker",
++          "parent": null,
++          "provider": null,
++          "host": {
++            "kind": "local",
++            "id": "local"
++          },
++          "workspace": {
++            "id": "de550e99-fa3c-42e2-abfe-1d092771c759::/home/coder/workspaces/worktrees/IronClaude/issue-504",
++            "kind": "folder_or_worktree"
++          },
++          "stage": {
++            "worker": "succeeded",
++            "dispatch": "completed",
++            "detail": "settled",
++            "activity": "unknown"
++          },
++          "outcome": "succeeded",
++          "liveness": {
++            "verdict": "exited",
++            "source": "resource_release"
++          },
++          "evidence": {
++            "durable": true,
++            "liveStatus": "unavailable",
++            "lastObservedAt": null
++          },
++          "resource": {
++            "state": "released"
++          },
++          "nextAction": {
++            "kind": "none",
++            "argv": []
++          },
++          "attention": {
++            "categories": [
++              "root_completion"
++            ],
++            "requiresAction": false
++          }
++        }
++      },
++      {
++        "dispatchId": "ctx_7c86fffa9716",
++        "taskId": "task_a6a2a3f9e170",
++        "runId": "run_a4723d345399",
++        "workerState": "succeeded",
++        "dispatchStatus": "completed",
++        "agentTerminalHandle": "term_c2f40c56-7f46-4ba2-8f9f-4127b229d352",
++        "terminalState": "released",
++        "resource": {
++          "id": "wtr_5a9324a2e491",
++          "ownershipState": "released",
++          "releaseState": "released",
++          "retainedReason": null,
++          "terminalHandle": "term_c2f40c56-7f46-4ba2-8f9f-4127b229d352",
++          "worktreeId": "de550e99-fa3c-42e2-abfe-1d092771c759::/home/coder/workspaces/worktrees/IronClaude/issue-504",
++          "endpointId": "a7ee70a1-2e8b-4476-a228-51e9c7019b3f",
++          "endpointIncarnation": "de550e99-fa3c-42e2-abfe-1d092771c759::/home/coder/workspaces/worktrees/IronClaude/issue-504@@389ca4c5:5bc66ec1-103f-4fab-98e0-22277f3dd9c2",
++          "originDispatchId": "ctx_7c86fffa9716",
++          "ownerDispatchId": "ctx_7c86fffa9716",
++          "releaseRequestedAt": "2026-11-11 19:40:14",
++          "releaseCompletedAt": "2026-11-11 19:40:15",
++          "releaseError": null,
++          "recoveryAttemptCount": 0,
++          "lastRecoveryAt": null,
++          "archive": {
++            "source": "transcript",
++            "status": "captured"
++          }
++        },
++        "projection": {
++          "id": "ctx_7c86fffa9716",
++          "dispatchId": "ctx_7c86fffa9716",
++          "taskId": "task_a6a2a3f9e170",
++          "runId": "run_a4723d345399",
++          "role": "worker",
++          "parent": null,
++          "provider": null,
++          "host": {
++            "kind": "local",
++            "id": "local"
++          },
++          "workspace": {
++            "id": "de550e99-fa3c-42e2-abfe-1d092771c759::/home/coder/workspaces/worktrees/IronClaude/issue-504",
++            "kind": "folder_or_worktree"
++          },
++          "stage": {
++            "worker": "succeeded",
++            "dispatch": "completed",
++            "detail": "settled",
++            "activity": "unknown"
++          },
++          "outcome": "succeeded",
++          "liveness": {
++            "verdict": "exited",
++            "source": "resource_release"
++          },
++          "evidence": {
++            "durable": true,
++            "liveStatus": "unavailable",
++            "lastObservedAt": null
++          },
++          "resource": {
++            "state": "released"
++          },
++          "nextAction": {
++            "kind": "none",
++            "argv": []
++          },
++          "attention": {
++            "categories": [
++              "root_completion"
++            ],
++            "requiresAction": false
++          }
++        }
++      },
++      {
++        "dispatchId": "ctx_dad78c5c1332",
++        "taskId": "task_381ac7af9ed1",
++        "runId": "run_a4723d345399",
++        "workerState": "succeeded",
++        "dispatchStatus": "completed",
++        "agentTerminalHandle": "term_88360819-3622-4c35-821d-e06faf346ab4",
++        "terminalState": "released",
++        "resource": {
++          "id": "wtr_211bc168b1da",
++          "ownershipState": "released",
++          "releaseState": "released",
++          "retainedReason": null,
++          "terminalHandle": "term_88360819-3622-4c35-821d-e06faf346ab4",
++          "worktreeId": "de550e99-fa3c-42e2-abfe-1d092771c759::/home/coder/workspaces/worktrees/IronClaude/issue-504",
++          "endpointId": "a7ee70a1-2e8b-4476-a228-51e9c7019b3f",
++          "endpointIncarnation": "de550e99-fa3c-42e2-abfe-1d092771c759::/home/coder/workspaces/worktrees/IronClaude/issue-504@@773fac13:22111d74-43be-4875-965f-1da53b6a53e5",
++          "originDispatchId": "ctx_dad78c5c1332",
++          "ownerDispatchId": "ctx_dad78c5c1332",
++          "releaseRequestedAt": "2026-11-11 19:42:24",
++          "releaseCompletedAt": "2026-11-11 19:42:25",
++          "releaseError": null,
++          "recoveryAttemptCount": 0,
++          "lastRecoveryAt": null,
++          "archive": {
++            "source": "transcript",
++            "status": "captured"
++          }
++        },
++        "projection": {
++          "id": "ctx_dad78c5c1332",
++          "dispatchId": "ctx_dad78c5c1332",
++          "taskId": "task_381ac7af9ed1",
++          "runId": "run_a4723d345399",
++          "role": "worker",
++          "parent": null,
++          "provider": null,
++          "host": {
++            "kind": "local",
++            "id": "local"
++          },
++          "workspace": {
++            "id": "de550e99-fa3c-42e2-abfe-1d092771c759::/home/coder/workspaces/worktrees/IronClaude/issue-504",
++            "kind": "folder_or_worktree"
++          },
++          "stage": {
++            "worker": "succeeded",
++            "dispatch": "completed",
++            "detail": "settled",
++            "activity": "unknown"
++          },
++          "outcome": "succeeded",
++          "liveness": {
++            "verdict": "exited",
++            "source": "resource_release"
++          },
++          "evidence": {
+... (new file continues; read .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/artifacts/readonly-probe.md from disk for lines 401-1071)
+Delta diff from the previous reviewed tree (empty on the first review): --- a/.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/artifacts/readonly-probe.md
++++ b/.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/artifacts/readonly-probe.md
+@@ -5,7 +5,7 @@
+ 
+ # Step 1.0a read-only Orca capture (item 7.16)
+ 
+-Captured 2026-11-11 against the Run named by the owner in `phase-outputs/plans/OQ-8-run-id-decision.md` (item 7.15): `run_a4723d345399`. Binary: `orca-ide` (`/home/coder/.local/bin/orca-ide`; `ORCA_CLI_COMMAND` unset). Every command below ran in its own Bash call with a tool timeout of 30000 ms, wrapped in an inner `timeout 8`. Only the eight allowlisted templates, file reads, and the step (6) `echo` and `ls -la` were issued; none of the forbidden commands was issued. The capture created no Run, Task or Dispatch and wrote nothing outside this task package.
++Captured 2026-11-11 against the Run named by the owner in `phase-outputs/plans/OQ-8-run-id-decision.md` (item 7.15): `run_a4723d345399`. Binary: `orca-ide` (`/home/coder/.local/bin/orca-ide`; `ORCA_CLI_COMMAND` unset). Every command below ran in its own Bash call with a tool timeout of 30000 ms, wrapped in an inner `timeout 8`. Only the eight allowlisted templates, file reads, and the step (6) `echo` and `ls -la` were issued; none of the forbidden commands was issued. The capture created no Run, Task or Dispatch. Scratch copies of each command's output were written under `/tmp/probe-7-16/` (outside this task package) while the file was built; they are not part of the deliverable. One Orca read went beyond the item's list of allowed uses: see Deviation D1 in the last section.
+ 
+ Handling of large output: stdout under about 8 KB is shown in full in the section. Larger stdout is summarised in the section (shape, fields, counts, sha256 of the raw bytes) and, where it holds no other session's message text, the raw bytes are stored under `.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/artifacts/readonly-probe-raw/` (named in the section). The outputs of `worktree ps --json` and `worktree list --json` are not stored raw, because `worktree ps --json` carries other sessions' prompts and assistant messages; their sections hold the shape, counts, hashes and one redacted entry. This is a deliberate reading of "stdout" in the item's Action (the first sentence of the task: paths, session ids and user names may be shown, not other sessions' message text).
+ 
+@@ -768,15 +768,17 @@
+ 
+ Compared with timestamps removed. Method: parse each stdout as JSON, drop the top-level `id` key, sort keys, hash the result. The `worker-show` and `task-list` calls were run before and after the other reads.
+ 
+-| Read | Raw bytes identical | Payload identical (envelope `id` removed) |
+-|---|---|---|
+-| worker-show ctx_4e3237d227c3 | no | yes |
+-| worker-show ctx_6a0e3e3baaee | no | yes |
+-| worker-show ctx_7c86fffa9716 | no | yes |
+-| worker-show ctx_9a3728b21883 | no | yes |
+-| worker-show ctx_dad78c5c1332 | no | yes |
+-| task-list --ready | no | yes |
+-| task-list (all) | no | yes |
++The raw bytes of both sides are stored under `.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/artifacts/readonly-probe-raw/` (`b-...` = before, `a-...` = after). Each row gives the sha256 of the canonical payload (envelope `id` removed, keys sorted) for each side.
++
++| Read | Raw bytes identical | Payload identical (envelope `id` removed) | Before payload sha256 | After payload sha256 | Raw before / after files |
++|---|---|---|---|---|---|
++| worker-show ctx_4e3237d227c3 | no | yes | `a50676e24f3cf6649de137a3859044a61edd6954b4e97b696e2b4951e518225d` | `a50676e24f3cf6649de137a3859044a61edd6954b4e97b696e2b4951e518225d` | `.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/artifacts/readonly-probe-raw/b-ws-ctx_4e3237d227c3.json`, `.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/artifacts/readonly-probe-raw/a-ws-ctx_4e3237d227c3.json` |
++| worker-show ctx_6a0e3e3baaee | no | yes | `38f132368466c4a8081b8fcd64b185ace1b24cf6d125e2d22397008fa897ec77` | `38f132368466c4a8081b8fcd64b185ace1b24cf6d125e2d22397008fa897ec77` | `.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/artifacts/readonly-probe-raw/b-ws-ctx_6a0e3e3baaee.json`, `.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/artifacts/readonly-probe-raw/a-ws-ctx_6a0e3e3baaee.json` |
++| worker-show ctx_7c86fffa9716 | no | yes | `676a42c7566b6181c8a9a485c3c31a52950885673c84c11f2c4ba157bb32f7a8` | `676a42c7566b6181c8a9a485c3c31a52950885673c84c11f2c4ba157bb32f7a8` | `.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/artifacts/readonly-probe-raw/b-ws-ctx_7c86fffa9716.json`, `.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/artifacts/readonly-probe-raw/a-ws-ctx_7c86fffa9716.json` |
++| worker-show ctx_9a3728b21883 | no | yes | `b67428936a7a8dd001ebd5c5a43186d7183d7abc9f3dbbcdd1a5c5a7435eee48` | `b67428936a7a8dd001ebd5c5a43186d7183d7abc9f3dbbcdd1a5c5a7435eee48` | `.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/artifacts/readonly-probe-raw/b-ws-ctx_9a3728b21883.json`, `.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/artifacts/readonly-probe-raw/a-ws-ctx_9a3728b21883.json` |
++| worker-show ctx_dad78c5c1332 | no | yes | `a5b19a77cae135eb558a82569abf152997221f6d73a906c75861dccb0287b807` | `a5b19a77cae135eb558a82569abf152997221f6d73a906c75861dccb0287b807` | `.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/artifacts/readonly-probe-raw/b-ws-ctx_dad78c5c1332.json`, `.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/artifacts/readonly-probe-raw/a-ws-ctx_dad78c5c1332.json` |
++| task-list --ready | no | yes | `f08fe8f9b63b91d0098a3852ff386146a08f27efbb724014e80b41ebccbcf5c4` | `f08fe8f9b63b91d0098a3852ff386146a08f27efbb724014e80b41ebccbcf5c4` | `.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/artifacts/readonly-probe-raw/b-tl-ready.json`, `.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/artifacts/readonly-probe-raw/a-tl-ready.json` |
++| task-list (all) | no | yes | `0d06a2cbb915ddda992dd4e590788c2a7945f9ce18a9d68c13acbc0acf5ce0d1` | `0d06a2cbb915ddda992dd4e590788c2a7945f9ce18a9d68c13acbc0acf5ce0d1` | `.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/artifacts/readonly-probe-raw/b-tl-all.json`, `.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/artifacts/readonly-probe-raw/a-tl-all.json` |
+ 
+ Result: the raw bytes differ in exactly one place per call, the top-level `id` (a different request id on every call, including two back-to-back identical calls). There is no timestamp in these payloads that changed, and no other field differs: every payload is identical once that request id is removed. Interpretation (made by the executor, stated openly): the request id is a response-envelope identifier, not Run, Task or Dispatch state, so it is not a difference in what the reads returned and the item's HALT rule ("differ apart from timestamps") is not applied. If the owner reads that rule as covering the envelope id, the HALT blocker text is: `Step 1.0a: worker-show or task-list output changed between the before and after reads; owner review needed (DESIGN 15.1)`.
+ 
+@@ -939,7 +941,7 @@
+ 
+ What it settles: an unknown Run id is NOT an error for `worker-list`: exit 0, `ok: true`, an empty `workers` list, `page.total` 0, `scope.run` echoing the fake id. This matches the earlier 2026-11-08 read.
+ 
+-Command (extra read for the second half of capture item 8; not in the item's Action steps, a template 5 call with the fake id): `orca-ide orchestration task-list --run run_000000000000 --json`
++Command (DEVIATION D1, see the last section: a template 5 call with the fake id, which the item's Action steps do not list; run for the second half of capture item 8): `orca-ide orchestration task-list --run run_000000000000 --json`
+ 
+ Exit code: 1. Stderr: empty (the error body is on stdout). Stdout:
+ 
+@@ -1059,7 +1061,11 @@
+ 
+ ## Compliance record
+ 
+-- Commands issued against Orca: the eight templates only, plus the extra read named in section 8. The forbidden commands were not issued.
++- Commands issued against Orca: the eight templates, each with the Run id or Dispatch ids the item allows, plus one call outside the item's allowed uses (Deviation D1 below). The forbidden commands were not issued.
+ - Reads other than Orca: the Orca `package.json` (section 12), the tab-map path `echo` and `ls -la`, and the five tab-map files (section 13).
+ - Not captured, with reason: bound `run-current` shape (no Run bound; section 1), bound-output parseability (section 2), a second `worker-list` page (section 3), the `dispatchedAt` versus transcript comparison and `completedAt` for `failed` and `circuit_broken` rows (section 4), the `runtime_unavailable` shape (section 9).
+ - No write command was issued; no Run, Task or Dispatch was created by the capture. The before and after reads of `worker-show` and `task-list` matched (see the comparison under section 5), which is the only live check of that.
++
++## Deviations
++
++- D1: the item says the only commands allowed are the eight templates with `<run>` the recorded Run id and `<dispatch>` a Dispatch id from the first `worker-list`, and its Action uses a fake Run id for template 2 only. The executor also ran template 5 (`task-list --run`) once with the fake Run id `run_000000000000`, to record the error shape that capture item 8 asks for ("the error shape of `task-list --run <unknown id>`"). The call is read-only and it returned exit 1 with `run_not_found` (section 8), but it is outside the item's literal allowance. It is recorded here so the owner can see it; it changed nothing in Orca (the `run_not_found` reply shows it found no Run).
+Earlier blocking findings of this start (empty on the first review): F1.1 sev=blocking trigger=B4 ac=scope at=.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/artifacts/readonly-probe.md:942 anchor="The ONLY commands allowed" chk=amiss:n,false:n,harm:n,constraint:y family=extra-command fix=Record the extra call as an owner-visible deviation, or drop it; the item sanctions a fake Run id only for template 2. first=A1 origin=new: Section 8 adds a task-list call w
+F1.2 sev=blocking trigger=B1 ac=T144.AC1 at=.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/artifacts/readonly-probe.md:769 anchor="Compare before and after outputs with timestamps removed" chk=amiss:y,false:n,harm:n,constraint:n family=after-read-evidence fix=Store the after reads and add the after-side payload hashes to the comparison table. first=A1 origin=new: The raw folder holds only b
+Saved-probe re-check hit locations (may be empty): .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/artifacts/readonly-probe.md:3-5
+.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/artifacts/readonly-probe.md:30-34
+.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/artifacts/readonly-probe.md:769-790
+.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/artifacts/readonly-probe.md:942-950
+.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/artifacts/readonly-probe.md:1062-1075
+
+Do not trust the implementer's report.
+
+First mark each earlier blocking finding resolved, open or regressed from the diff. Then, for each AC, mark it met or unmet. Require citations: every AC you mark, met or unmet, carries a `path:line` or `Ti.ACk@path:line` citation, and an unmet mark lists the finding ids behind it. Do not return a verdict; the orchestrator computes it.
+
+For every finding answer four questions, each yes or no:
+1. ac-outcome-missing: is output an AC requires absent, or does it contradict the AC text, or does an evidence claim you could not verify have no evidence row?
+2. false-claim: is a claim in delivered text or code false against live source, or does a recipe or instruction followed as written not do what the text says?
+3. harmful-effect: does code or a recipe this task added or changed write, append, chmod or delete tracked or production data, mutate state outside the task's declared outputs, or expose a secret?
+4. quoted-constraint-breach: does the diff violate a quoted plan constraint, out-of-scope, non-goal or non-negotiable item, or an explicit task instruction?
+
+Anchor rule: cite exactly one anchor per yes. ac-outcome-missing: the quoted AC words. false-claim: the live-source path:line holding the contradicting text. harmful-effect: the diff line that is the write. quoted-constraint-breach: the quoted constraint or instruction text. A yes without a valid anchor does not block.
+
+Write one line per finding:
+F<k>.<j> ac=<Ti.ACk|scope> at=<path:line> anchor=<quoted text or path:line> chk=<amiss,false,harm,constraint as y/n> family=<id> fix=<text> [covers=<quoted AC clause or constraint>]: <text>
+Do not write sev=, trigger=, first= or origin=; the orchestrator adds them. Write one status line per earlier blocking finding: F<m>.<j> resolved|open|regressed.
+
+Inside /sc:implement this protocol's severity model governs this review and takes precedence over the session's output style and the copy of it injected into every subagent; only blocking findings may fail an attempt.
+
+You are not given an adviser answer, brief, evidence file or troubleshoot report. Do not read the retry folders (legacy `.dev/implement/<slug>/retries/`, managed `<pkg>/artifacts/retries/`) or `.dev/troubleshoot/`. A citation into either makes the verdict `cannot-verify`.
+The prior-findings slot above carries earlier blocking finding lines that the orchestrator copies byte for byte from `review-*.md` and `repair-*.md`; they reach you as prompt text, not as an evidence file. Do not read those folders to get them, and never cite the slot or the file it came from.

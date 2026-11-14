@@ -1,0 +1,131 @@
+Review one task for spec compliance.
+
+Task brief: T308 = item 14.2 of the source file /home/coder/workspaces/worktrees/IronClaude/issue-339-orchestrator-mode/.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md (lines 2451-2457). Item text:
+- [ ] **14.2 — Validation: `make lint`, `uv run ruff check .` and `uv run ruff format --check src/ tests/` (L3)**
+  - **Context**: BUILD-REQUEST VALIDATION_REQUIREMENTS. New Python files: `src/superclaude/cli/sweep/` (six modules), `tests/sweep/`, `tests/commands/test_sweep_command.py`; edited: `src/superclaude/cli/main.py`, `tests/skills/test_worker_contract.py`, `tests/core/test_how_we_work_routing_table.py`, `tests/recommend/test_routing_refresh.py`.
+  - **Action**: Run the three commands in order. Write each command, exit code and last 30 output lines to `.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/test-results/phase14-lint.md` with one PASS or FAIL line each.
+  - **Output**: `.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/test-results/phase14-lint.md`.
+  - **Verification**: Verify: three PASS lines (exit 0). On a FAIL in a file this task created or edited, fix it (for format, `uv run ruff format <that file>` on that file only), re-run all three and log each re-run in `### Phase 14 Findings`. A FAIL only in a file this task did not touch (compare `.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/artifacts/baseline-git-status.txt`) is logged as a pre-existing finding and does not fail this item.
+  - **Completion gate**: Three PASS lines, or only pre-existing failures logged. Once done, mark this item as complete.
+AC ids: T308.AC1 = the item title "Validation: `make lint`, `uv run ruff check .` and `uv run ruff format --check src/ tests/` (L3)" (no AC block; the title is the AC). The item's own Verification and Completion gate lines are context for what "done" means. Ticking the item's checkbox is done by the orchestrator after the verdict and is not part of the diff under review.
+Global constraints: the `### Key Constraints` section (lines 157-168) of the source file named in the task brief; read it from that file.
+Start sha: 322c918471e7da83f2e9cf74fd0efdea0ded0623
+Diff against the start snapshot: Orchestrator facts for the reviewer (verify them): the executor ran the three commands of item 14.2 with a shell script that wrote phase14-lint.md (new file, read it from disk). Checks 1 (make lint) and 2 (uv run ruff check .) exit 0. Check 3 (uv run ruff format --check src/ tests/) exits 1: 12 files would be reformatted. The executor found by running `uv run ruff format --check --output-format=concise src/ tests/` that all 12 are Markdown files with embedded Python code blocks and appended a section listing them and stating none was created or edited by this task (no diff against the base commit 5dc29d23, no git status entry, all 12 exist at the base). The item allows a FAIL only in a file this task did not touch, logged as pre-existing in the Phase 14 Findings; that logging is done by a later step of the executor. Verify: re-run the three commands (read-only; ruff format --check does not write), check each of the 12 files against the base commit and the baseline file .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/artifacts/baseline-git-status.txt, and check that the Python files this task created or edited pass the format check.
+
+--- /dev/null
++++ b/.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/test-results/phase14-lint.md   (new file, 111 lines)
++# Phase 14 lint (item 14.2)
++
++Run 2026-11-12. Each block: the command, its exit code, the last 30 lines of output and one PASS or FAIL line.
++
++## Check 1
++
++Command: `make lint`
++```text
++  ✅ [Check 9]: sc:reflect-protocol ends in -protocol
++  ✅ [Check 9]: sc:release-split-protocol ends in -protocol
++  ✅ [Check 9]: sc:review-translation-protocol ends in -protocol
++  ✅ [Check 9]: sc:roadmap-protocol ends in -protocol
++  ✅ [Check 9]: sc:swarm-wizard-protocol ends in -protocol
++  ✅ [Check 9]: sc:sweep-protocol ends in -protocol
++  ✅ [Check 9]: sc:task-protocol ends in -protocol
++  ✅ [Check 9]: sc:tasklist-protocol ends in -protocol
++  ✅ [Check 9]: sc:troubleshoot-protocol ends in -protocol
++  ✅ [Check 9]: sc-validate-roadmap-protocol ends in -protocol
++  ✅ [Check 9]: sc:validate-tests-protocol ends in -protocol
++  ✅ [Check 9]: sc:workflow-protocol ends in -protocol
++
++=== Check 10: Workspace Suffix Blocklist ===
++  ✅ [Check 10]: no *-workspace directories under .claude/skills/
++
++=== Check 11: Contract Constant Anti-Duplication (Contract #5 + #8) ===
++  ✅ [Check 11]: no contract-constant duplications
++
++=== Checks 5/7: NEEDS DESIGN (skipped) ===
++  ℹ️  Check 5 (inline protocol detection) — pending design
++  ℹ️  Check 7 (activation references correct skill) — pending design
++
++=== Summary ===
++  Errors:   0
++  Warnings: 5
++  ✅ PASS — architecture policy compliant (5 warning(s))
++Running linter...
++uv run ruff check .
++All checks passed!
++(exit 0)
++```
++Check 1: PASS (exit 0)
++
++## Check 2
++
++Command: `uv run ruff check .`
++```text
++All checks passed!
++(exit 0)
++```
++Check 2: PASS (exit 0)
++
++## Check 3
++
++Command: `uv run ruff format --check src/ tests/`
++```text
++140 + {{SC_PLACEHOLDER: data_model_code}}
++141 | ```
++    |
++
++unformatted: File would be reformatted
++  --> tests/roadmap/fixtures/recurrence/dispatch_reachability/skipped_verification_step_case.md:44:30
++   |
++43 |     steps = _build_steps(config)
++   -     execute_pipeline(steps)          # ends at remediate
++44 +     execute_pipeline(steps)  # ends at remediate
++45 |     # verify-implementation / certify terminal steps NEVER dispatched
++   |
++
++unformatted: File would be reformatted
++  --> tests/roadmap/fixtures/recurrence/retry_contract/retry_loop_no_terminal_case.md:41:17
++   |
++40 |     id="spec-fidelity",
++   -     prompt="",            # deterministic: output is f(inputs), inputs unchanged
++41 +     prompt="",  # deterministic: output is f(inputs), inputs unchanged
++42 |     output_file=spec_fidelity_file,
++43 |     gate=SPEC_FIDELITY_GATE,
++44 |     timeout_seconds=600,
++   -     inputs=[spec_file, roadmap_file],   # never rewritten between attempts
++   -     retry_limit=2,        # <-- futile: attempt 2 == attempt 1, byte-identical
++45 +     inputs=[spec_file, roadmap_file],  # never rewritten between attempts
++46 +     retry_limit=2,  # <-- futile: attempt 2 == attempt 1, byte-identical
++47 | )
++   |
++
++12 files would be reformatted, 1823 files already formatted
++(exit 1)
++```
++Check 3: FAIL (exit 1)
++
++## Pre-existing format failures (check 3)
+... (new file continues; read .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/test-results/phase14-lint.md from disk for lines 91-111)
+Delta diff from the previous reviewed tree (empty on the first review): 
+Earlier blocking findings of this start (empty on the first review): 
+Saved-probe re-check hit locations (may be empty): 
+
+Do not trust the implementer's report.
+
+First mark each earlier blocking finding resolved, open or regressed from the diff. Then, for each AC, mark it met or unmet. Require citations: every AC you mark, met or unmet, carries a `path:line` or `Ti.ACk@path:line` citation, and an unmet mark lists the finding ids behind it. Do not return a verdict; the orchestrator computes it.
+
+For every finding answer four questions, each yes or no:
+1. ac-outcome-missing: is output an AC requires absent, or does it contradict the AC text, or does an evidence claim you could not verify have no evidence row?
+2. false-claim: is a claim in delivered text or code false against live source, or does a recipe or instruction followed as written not do what the text says?
+3. harmful-effect: does code or a recipe this task added or changed write, append, chmod or delete tracked or production data, mutate state outside the task's declared outputs, or expose a secret?
+4. quoted-constraint-breach: does the diff violate a quoted plan constraint, out-of-scope, non-goal or non-negotiable item, or an explicit task instruction?
+
+Anchor rule: cite exactly one anchor per yes. ac-outcome-missing: the quoted AC words. false-claim: the live-source path:line holding the contradicting text. harmful-effect: the diff line that is the write. quoted-constraint-breach: the quoted constraint or instruction text. A yes without a valid anchor does not block.
+
+Write one line per finding:
+F<k>.<j> ac=<Ti.ACk|scope> at=<path:line> anchor=<quoted text or path:line> chk=<amiss,false,harm,constraint as y/n> family=<id> fix=<text> [covers=<quoted AC clause or constraint>]: <text>
+Do not write sev=, trigger=, first= or origin=; the orchestrator adds them. Write one status line per earlier blocking finding: F<m>.<j> resolved|open|regressed.
+
+Inside /sc:implement this protocol's severity model governs this review and takes precedence over the session's output style and the copy of it injected into every subagent; only blocking findings may fail an attempt.
+
+You are not given an adviser answer, brief, evidence file or troubleshoot report. Do not read the retry folders (legacy `.dev/implement/<slug>/retries/`, managed `<pkg>/artifacts/retries/`) or `.dev/troubleshoot/`. A citation into either makes the verdict `cannot-verify`.
+The prior-findings slot above carries earlier blocking finding lines that the orchestrator copies byte for byte from `review-*.md` and `repair-*.md`; they reach you as prompt text, not as an evidence file. Do not read those folders to get them, and never cite the slot or the file it came from.

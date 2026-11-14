@@ -1,0 +1,71 @@
+Review one task for spec compliance.
+
+Task brief: T5 = item 2.1 of the source file /home/coder/workspaces/worktrees/IronClaude/issue-339-orchestrator-mode/.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md (lines 245-251). Item text:
+- [ ] **2.1 — R3-B1 edits 1 to 3: the 7.2 model rows and the time-parsing rule**
+  - **Context**: The path-B window at DESIGN section 7.2 (worker bullet, near line 494) compares the earliest transcript timestamp with the Dispatch row's start and end, but `OrcaObservation` (near line 455) has no time field and `TranscriptTail` (near line 457) has only `last_record_ts`, so pure `classify.py` cannot evaluate the rule (research/04:80). The static Orca 1.4.245 bundle shows `worker-show --json` carries `dispatch.dispatchedAt`, `dispatch.completedAt` and `dispatch.status` (research/04 Summary, R3-B1).
+  - **Action**: Apply research/04 section 2.2 edits 1, 2 and 3 (research/04:87-89) with the wording given there: (1) in the 7.2 `OrcaObservation` row, replace the whole tail of the row, from "plus `dispatch: str`" to the end of its parenthesis (the row already holds "plus `dispatch: str`, `run: str`, `session_join: str \| None` (design: ...)"), with the edit 1 text, which restates those three fields and adds `dispatch_started: datetime | None`, `dispatch_ended: datetime | None` and `dispatch_status: str | None`, so the three existing fields appear once only; (2) insert `first_record_ts: datetime | None` after `last_record_ts: datetime \| None` in the `TranscriptTail` row; (3) add the "Time parsing (design)" sentence after the table that ends with the `TabMapEntry` row, before "Constants in `models.py`". Inside a table row, write every `|` that is part of the cell text as `\|` (DESIGN already writes `str \| None` this way at the `OrcaObservation` and `TranscriptTail` rows), so the copied type texts do not split the cells. Read the full wording of each edit from research/04 lines 87-89; do not shorten it.
+  - **Output**: DESIGN section 7.2 with the three edits.
+  - **Verification**: Verify: `grep -n 'first_record_ts' docs/designs/orchestrator-mode.md` shows a hit in the `TranscriptTail` row; `grep -n 'dispatch_started' docs/designs/orchestrator-mode.md` shows a hit in the `OrcaObservation` row; `grep -o 'plus `dispatch: str`' docs/designs/orchestrator-mode.md | wc -l` prints 1 (the field list is not duplicated); the `OrcaObservation` row and the `TranscriptTail` row each have the same count of unescaped `|` separators as the table's header row (count with `grep -o '[^\\]|'` on each line, plus one for a leading `|`); `grep -n 'Time parsing (design)' docs/designs/orchestrator-mode.md` shows one hit before "Constants in `models.py`". If an anchor text is not found, or a count differs, log it in `### Phase 2 Findings` with the text searched and stop.
+  - **Completion gate**: The three edits are in DESIGN. Once done, mark this item as complete.
+AC ids: T5.AC1 = the item title "R3-B1 edits 1 to 3: the 7.2 model rows and the time-parsing rule" (no AC block; the title is the AC). The item's own Verification and Completion gate lines are context for what "done" means. Ticking the item's checkbox is done by the orchestrator after the verdict and is not part of the diff under review.
+Global constraints: the `### Key Constraints` section (lines 157-168) of the source file named in the task brief; read it from that file.
+Start sha: bb81b38e05ceba722056deefcfe14c6e09506228
+Diff against the start snapshot: --- a/docs/designs/orchestrator-mode.md
++++ b/docs/designs/orchestrator-mode.md
+@@ -452,9 +452,9 @@
+ |---|---|
+ | `SweepContext` | `now`, `window`, `window_start = now - window`, `root`, `runs` |
+ | `SweepInput` | `orca_rows: tuple[OrcaObservation, ...]`, `contracts`, `transcripts: tuple[TranscriptTail, ...]`, `tab_map: tuple[TabMapEntry, ...]`, `worktrees: tuple[WorktreeState, ...]`, `sources: tuple[SourceCoverage, ...]`, `orca_available: bool`, `orca_binary: str`, `orca_version: str \| None`, `truncated: bool`, `collected_start`, `collected_end` (field names other than the last two are design) |
+-| `OrcaObservation` | SPEC list (line 231) plus `dispatch: str`, `run: str`, `session_join: str \| None` (design: the Orca-side join value, section 2.2 path A or B; None until step 1.0a names the field) |
++| `OrcaObservation` | SPEC list (line 231) plus `dispatch: str`, `run: str`, `session_join: str \| None` (design: the Orca-side join value, section 2.2 path A or B; None until step 1.0a names the field), `dispatch_started: datetime \| None`, `dispatch_ended: datetime \| None`, `dispatch_status: str \| None` (design: from `worker-show` `dispatch.dispatchedAt`, `dispatch.completedAt` and `dispatch.status`, names read statically from the Orca 1.4.245 bundle and confirmed by step 1.0a item 4, open item 23; all three are None for a row with no `worker-show` result, such as a row past the 50-call cap or a `call_failed` show) |
+ | `ContractRecord` | `path`, `worker_status`, `blocked_question`, `reason`, `report_path`, `artifacts`, `command` |
+-| `TranscriptTail` (design) | `path`, `session_id: str \| None`, `readable: bool`, `last_record_ts: datetime \| None`, `mtime: datetime`, `project_key: str` |
++| `TranscriptTail` (design) | `path`, `session_id: str \| None`, `readable: bool`, `last_record_ts: datetime \| None`, `first_record_ts: datetime \| None` (the earliest `timestamp` among the complete records in the tail; for a file over 256 KiB this is not the session start), `mtime: datetime`, `project_key: str` |
+ | `TabMapEntry` (design) | `file_name` (pane key with `:` written as `+`), `session_id`, `launch_dir`, `terminal_handle` (the three lines of the ccsession file) |
+ | `SessionRow` | SPEC list (line 235): `id`, `person_started`, `orca`, `contract`, `transcript_path`, `transcript_readable`, `last_activity`, `gate_policy`, `row_id`, the ten #409 dimensions |
+ | `StatusParse` (design) | `entries: tuple[tuple[str, str], ...]` (XY code, path), `branch_header: str`, `ahead: int \| None`, `has_upstream: bool \| None`, `header_note: str \| None` |
+@@ -465,6 +465,8 @@
+ | `SourceCoverage` | `name`, `coverage`, `age_seconds`, `unscanned` |
+ | `SweepResult` (design fields) | `rows: tuple[ClassifiedRow, ...]` (row plus `Classification`, policy and `SafeToClose`), `worktrees` (after `mark_shared_packages`, with `removable` and `removable_reason`), `waiting_a`, `waiting_b` (row ids), `summary` (counts per class with zeros, `bound_reached`, `visible`, `historical`, `total`, `total_is_lower_bound`), carried header data from `SweepInput` |
+ 
++Time parsing (design): every Orca and transcript time is parsed to an aware UTC `datetime`. Accepted forms are SQLite `YYYY-MM-DD HH:MM:SS` (no zone, read as UTC; the form `datetime('now')` writes) and ISO 8601 with `Z` or an offset (`Z` is rewritten to `+00:00` first, because Python 3.10 `datetime.fromisoformat` does not accept `Z`). An unparseable or missing value is None and raises nothing (the "Unknown row schema" bullet below).
++
+ Constants in `models.py`: `JSON_SCHEMA_VERSION = 1`; `CLASSES` (`waiting on a person`, `stalled (proved)`, `fenced`, `working`, `finished`, `idle`, `person session (active)`, `could not determine`); `PACKAGE_STATES` in precedence order (`conflict`, `interrupted-archive`, `archive-blocked`, `unfinished`, `archived`, `unknown`); `SAFE_VALUES` (`yes`, `no`, `could not determine`).
+ 
+ Rule table (`classify.RULES`, SPEC section 7 lines 247-257; numbering is the SPEC's 1 to 9, per M10):
+
+Orchestrator verification output (reproduce it yourself): grep -n 'first_record_ts' -> line 457; grep -n 'dispatch_started' -> line 455; grep -o 'plus `dispatch: str`' | wc -l -> 1; unescaped separators per table row all 2. The edit wording to compare against is research/04-design-fixes-r3.md lines 87-89 in .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/research/04-design-fixes-r3.md
+Delta diff from the previous reviewed tree (empty on the first review): --- a/docs/designs/orchestrator-mode.md
++++ b/docs/designs/orchestrator-mode.md
+@@ -465,7 +465,7 @@
+ | `SourceCoverage` | `name`, `coverage`, `age_seconds`, `unscanned` |
+ | `SweepResult` (design fields) | `rows: tuple[ClassifiedRow, ...]` (row plus `Classification`, policy and `SafeToClose`), `worktrees` (after `mark_shared_packages`, with `removable` and `removable_reason`), `waiting_a`, `waiting_b` (row ids), `summary` (counts per class with zeros, `bound_reached`, `visible`, `historical`, `total`, `total_is_lower_bound`), carried header data from `SweepInput` |
+ 
+-Time parsing (design): every Orca and transcript time is parsed to an aware UTC `datetime`. Accepted forms are SQLite `YYYY-MM-DD HH:MM:SS` (no zone, read as UTC; the form `datetime('now')` writes) and ISO 8601 with `Z` or an offset (`Z` is rewritten to `+00:00` first, because Python 3.10 `datetime.fromisoformat` does not accept `Z`). An unparseable or missing value is None and raises nothing (unknown row schema rule, line 504).
++Time parsing (design): every Orca and transcript time is parsed to an aware UTC `datetime`. Accepted forms are SQLite `YYYY-MM-DD HH:MM:SS` (no zone, read as UTC; the form `datetime('now')` writes) and ISO 8601 with `Z` or an offset (`Z` is rewritten to `+00:00` first, because Python 3.10 `datetime.fromisoformat` does not accept `Z`). An unparseable or missing value is None and raises nothing (the "Unknown row schema" bullet below).
+ 
+ Constants in `models.py`: `JSON_SCHEMA_VERSION = 1`; `CLASSES` (`waiting on a person`, `stalled (proved)`, `fenced`, `working`, `finished`, `idle`, `person session (active)`, `could not determine`); `PACKAGE_STATES` in precedence order (`conflict`, `interrupted-archive`, `archive-blocked`, `unfinished`, `archived`, `unknown`); `SAFE_VALUES` (`yes`, `no`, `could not determine`).
+ 
+Earlier blocking findings of this start (empty on the first review): F1.1 sev=blocking trigger=B2 ac=scope at=docs/designs/orchestrator-mode.md:468 anchor=docs/designs/orchestrator-mode.md:506 chk=amiss:n,false:y,harm:n,constraint:n family=stale-self-line-ref fix=change "line 504" to "line 506" at :468, or drop the line number and keep "unknown row schema rule" as the anchor first=A1 origin=new: The new sentence says "(unknown row schema rule, line 504)". After the two inserted lines, the "Unknown row schema" bullet is at :506. Line 504 is the WC-13 bullet.
+Saved-probe re-check hit locations (may be empty): Probe probe-1-1 (family stale-self-line-ref) re-run: no hits
+
+Do not trust the implementer's report.
+
+First mark each earlier blocking finding resolved, open or regressed from the diff. Then, for each AC, mark it met or unmet. Require citations: every AC you mark, met or unmet, carries a `path:line` or `Ti.ACk@path:line` citation, and an unmet mark lists the finding ids behind it. Do not return a verdict; the orchestrator computes it.
+
+For every finding answer four questions, each yes or no:
+1. ac-outcome-missing: is output an AC requires absent, or does it contradict the AC text, or does an evidence claim you could not verify have no evidence row?
+2. false-claim: is a claim in delivered text or code false against live source, or does a recipe or instruction followed as written not do what the text says?
+3. harmful-effect: does code or a recipe this task added or changed write, append, chmod or delete tracked or production data, mutate state outside the task's declared outputs, or expose a secret?
+4. quoted-constraint-breach: does the diff violate a quoted plan constraint, out-of-scope, non-goal or non-negotiable item, or an explicit task instruction?
+
+Anchor rule: cite exactly one anchor per yes. ac-outcome-missing: the quoted AC words. false-claim: the live-source path:line holding the contradicting text. harmful-effect: the diff line that is the write. quoted-constraint-breach: the quoted constraint or instruction text. A yes without a valid anchor does not block.
+
+Write one line per finding:
+F<k>.<j> ac=<Ti.ACk|scope> at=<path:line> anchor=<quoted text or path:line> chk=<amiss,false,harm,constraint as y/n> family=<id> fix=<text> [covers=<quoted AC clause or constraint>]: <text>
+Do not write sev=, trigger=, first= or origin=; the orchestrator adds them. Write one status line per earlier blocking finding: F<m>.<j> resolved|open|regressed.
+
+Inside /sc:implement this protocol's severity model governs this review and takes precedence over the session's output style and the copy of it injected into every subagent; only blocking findings may fail an attempt.
+
+You are not given an adviser answer, brief, evidence file or troubleshoot report. Do not read the retry folders (legacy `.dev/implement/<slug>/retries/`, managed `<pkg>/artifacts/retries/`) or `.dev/troubleshoot/`. A citation into either makes the verdict `cannot-verify`.
+The prior-findings slot above carries earlier blocking finding lines that the orchestrator copies byte for byte from `review-*.md` and `repair-*.md`; they reach you as prompt text, not as an evidence file. Do not read those folders to get them, and never cite the slot or the file it came from.

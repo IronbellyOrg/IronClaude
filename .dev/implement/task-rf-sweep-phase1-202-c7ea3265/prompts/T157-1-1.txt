@@ -1,0 +1,104 @@
+Review one task for spec compliance.
+
+Task brief: T157 = item 7.29 of the source file /home/coder/workspaces/worktrees/IronClaude/issue-339-orchestrator-mode/.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md (lines 1354-1360). Item text:
+- [ ] **7.29 — QA decisions: consolidate the eight reports (L6)**
+  - **Context**: Items 7.21 to 7.28 wrote 8 reports under `.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/decisions/`: `qa-completeness-report.md`, `qa-record-form-report.md`, `qa-evidence-quality-report.md`, `qa-readonly-safety-report.md`, `qa-decision-fidelity-report.md`, `qa-downstream-actionability-report.md`, `qa-crossref-chain-report.md`, `qa-cross-source-report.md`. Each report ends with a `## Checks` table (check id, PASS or FAIL), `Verdict:` and `Blocking count:`.
+  - **Action**: Glob `.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/decisions/qa-*-report.md` (do not hardcode the list). Merge every finding into `.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/decisions/consolidated-findings-cycle0.md` with these rules: (1) dedup: two findings are one finding when they name the same `file:line` and the same defect; keep the highest severity (BLOCKING over MAJOR over MINOR) and list the merged duplicates under the kept id; (2) give each kept finding a stable id `DEC-F<n>`; (3) list the BLOCKING and MAJOR findings first, then the MINOR ones; (4) write `F_0` = the ids of every BLOCKING or MAJOR finding, and `|F_0|`; (5) write the cycle-0 PASS set = every check id a report's `## Checks` table marks PASS, written `<report name>:C<n> (item <lens item id>)`. Then create `.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/decisions/cycle-ledger.md` with the header `| Cycle | PASS set | F set | |F| | Outcome |` and the cycle-0 row (the cycle-0 PASS set, `F_0`, `|F_0|`, `consolidated`). Later decision items append the cycle-1 and cycle-2 rows.
+  - **Output**: `.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/decisions/consolidated-findings-cycle0.md` and `.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/decisions/cycle-ledger.md`.
+  - **Verification**: Verify: the Glob found 8 reports; every report finding appears in the consolidated file or is listed as a duplicate of a named id; `F_0`, `|F_0|` and the cycle-0 PASS set are stated; `cycle-ledger.md` has the cycle-0 row. If fewer than 8 reports exist, return to the missing agent item (7.21 to 7.28).
+  - **Completion gate**: The consolidated file and the cycle ledger are written. Once done, mark this item as complete.
+AC ids: T157.AC1 = the item title "QA decisions: consolidate the eight reports (L6)" (no AC block; the title is the AC). The item's own Verification and Completion gate lines are context for what "done" means. Ticking the item's checkbox is done by the orchestrator after the verdict and is not part of the diff under review.
+Global constraints: the `### Key Constraints` section (lines 157-168) of the source file named in the task brief; read it from that file.
+Start sha: 969d080a03ee74ae22825bb37a7bb0318b977b36
+Diff against the start snapshot: --- /dev/null
++++ b/.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/decisions/consolidated-findings-cycle0.md   (new file, 314 lines)
++# Consolidated findings, cycle 0 (item 7.29)
++
++Source: a Glob of `.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/decisions/qa-*-report.md` found 8 reports (not a hard-coded list):
++
++| Report | Lens item | Verdict | Blocking count | Raw findings | Checks PASS | Checks FAIL |
++|---|---|---|---|---|---|---|
++| qa-completeness-report.md | 7.21 | PASS | 0 | 4 | 20 | C21 |
++| qa-cross-source-report.md | 7.28 | PASS | 0 | 9 | 26 | none |
++| qa-crossref-chain-report.md | 7.27 | FAIL | 1 | 6 | 18 | C13 |
++| qa-decision-fidelity-report.md | 7.25 | FAIL | 2 | 6 | 22 | C2, C15, C16 |
++| qa-downstream-actionability-report.md | 7.26 | FAIL | 2 | 7 | 16 | C8, C9 |
++| qa-evidence-quality-report.md | 7.23 | FAIL | 1 | 7 | 17 | C2, C18 |
++| qa-readonly-safety-report.md | 7.24 | PASS | 0 | 6 | 19 | C20 |
++| qa-record-form-report.md | 7.22 | FAIL | 1 | 3 | 14 | C12 |
++
++Dedup rule (item 7.29): two findings are one when they name the same `file:line` and the same defect; the highest severity is kept and the merged duplicates are listed under the kept id. 48 raw findings were merged into 36 kept findings. Severity words are the reporting agent's own (BLOCKING, MAJOR, MINOR); reports 7.24 and 7.28 used only MINOR.
++
++## F_0 and the cycle-0 PASS set
++
++- `F_0` = {DEC-F1, DEC-F2, DEC-F3, DEC-F4, DEC-F5}
++- `|F_0|` = 5
++- Cycle-0 PASS set: 152 check ids, listed in full in the section "Cycle-0 PASS set" at the end of this file (and in the cycle-0 row of `cycle-ledger.md`).
++- Open owner question inside `F_0`: DEC-F2 (OQ-1) can only be closed by the owner's own answer; the fix agent (item 7.30) must not invent it.
++
++## BLOCKING and MAJOR findings
++
++### DEC-F1 (BLOCKING): `artifacts/owner-decisions.md` has no row for the resolved OQ-17 decision, and its closing sentence says OQ-8 and OQ-17 are still open
++
++- Reported by: qa-record-form:F1, qa-decision-fidelity:F-2, qa-crossref-chain:X-1, qa-cross-source:F2. Kept severity BLOCKING; merged duplicates: qa-decision-fidelity:F-2, qa-crossref-chain:X-1, qa-cross-source:F2.
++- Evidence: `artifacts/owner-decisions.md:5` (heading says seven rows), `:9-15` (rows OQ-1 to OQ-7 only), `:55` ("Still open ... OQ-8 ... and the optional OQ-17 and OQ-18"); `phase-outputs/plans/OQ-17-cursor-template-decision.md:3,35-40` (RESOLVED, filled); `phase-outputs/plans/OQ-8-run-id-decision.md:3,26-29` (RESOLVED). Items 7.22 (task file line 1307) and 7.25 (line 1328) require one row for each resolved OQ-17 or OQ-18 file that exists.
++- Smallest fix: Append one OQ-17 row in the same shape (refuse the cursor command, allowlist stays at 10; words "Keep the 10 commands (Recommended)"; Ryan Wiancko, owner, 2026-11-11; source `OQ-17-cursor-template-decision.md:35-40`; unblocks 7.17 resume, step 1.2 on, 8.10 and 10.3 at 10 templates); change the heading count to eight rows; rewrite `:55` to say OQ-8 and OQ-17 are RESOLVED and OQ-18 was not written. Do not change any `Chosen:` line.
++
++### DEC-F2 (MAJOR): OQ-1 (R5, `worktree ps --agent-wait`) rests on a coordinator relay, not on the owner's own answer
++
++- Reported by: qa-decision-fidelity:F-1, qa-completeness:F2, qa-evidence-quality:F7, qa-cross-source:F3. Kept severity MAJOR; merged duplicates: qa-completeness:F2, qa-evidence-quality:F7, qa-cross-source:F3.
++- Evidence: `phase-outputs/plans/OQ-1-agent-wait-decision.md:22` ("relayed by the coordinator", messages `msg_d95a87e312e1` and `msg_6ee5998d0874`); the phrase appears in the session store only inside a tool result (2026-11-08T12:05:48Z), never as a direct owner turn; `revisions/chat-output-exception-20261109-133150/BUILD-REQUEST.md:15` ("Peer relays are corroboration only"); the R5 edit sits at DESIGN `:535-536`, `:837`, `:895`, `:1047`. Disclosed at `artifacts/owner-decisions.md:17`. Note from the review of item 7.25: the R5 gate logged this relay as MINOR (R5-F8), and the direct-answer rule comes from the 2026-11-09 revision, so the MAJOR rating is the lens's reading.
++- Smallest fix: Needs the owner: put one direct question ("May the sweep's allowlist include `worktree ps --agent-wait`, with and without `--json`?"). On yes, add the answer and date to the Decision source of `OQ-1-agent-wait-decision.md` and to the OQ-1 row of `owner-decisions.md` (mark the earlier words as relayed). On no, revert R5 by a design revision.
++
++### DEC-F3 (MAJOR): "No worker-show field holds a Claude session id" is contradicted by the stored raw outputs
++
++- Reported by: qa-evidence-quality:F1. Kept severity MAJOR; merged duplicates: none.
++- Evidence: `artifacts/readonly-probe.md:499` and `phase-outputs/discovery/1.0a-facts.md:11` (row 1) say no field holds a session id; in all five `artifacts/readonly-probe-raw/b-ws-*.json`, `result.terminal.preview` contains `claude --resume <session id>`, equal to line 1 of that worker's tab-map entry (`readonly-probe.md:1048-1052`); the probe admits it for one worker only (`:1059`).
++- Smallest fix: Replace the two sentences with: "No structured `worker-show` field holds a Claude session id. The id appears only as free text in `result.terminal.preview` (`claude --resume <id>`) for all 5 exited workers; whether a live worker's preview shows it is UNVERIFIED, so it is not used as a join. Path B applies." in `readonly-probe.md:499` and `1.0a-facts.md` row 1.
++
++### DEC-F4 (MAJOR): The join field for `session_join` is never chosen
++
++- Reported by: qa-downstream-actionability:F1. Kept severity MAJOR; merged duplicates: none.
++- Evidence: `phase-outputs/discovery/1.0a-facts.md:11` says `assigneePaneKey` "and" `assigneeHandle`; the field table at `:34` says "or"; DESIGN `:457` types `session_join: str | None` (one value); `:460` stores the tab-map `file_name` with `:` already written as `+`; `:497` compares `session_join` to `file_name` or `terminal_handle`; item 8.3 (task file line 1438) names no source field.
++- Smallest fix: Add one line to `1.0a-facts.md` (rows 1 and 22 and the field table): `session_join` = `result.dispatch.assigneeHandle`, compared by equality with `TabMapEntry.terminal_handle`; `assigneePaneKey` is not stored (or name the pane key plus the `:` to `+` rule).
++
++### DEC-F5 (MAJOR): No rule for comparing the live Orca version with `CHECKED_ORCA_VERSION`, and the design's test string is stale
++
++- Reported by: qa-downstream-actionability:F2. Kept severity MAJOR; merged duplicates: none.
++- Evidence: `1.0a-facts.md:22` records live `1.4.245-aidev02.9cfecdd30b2a`; DESIGN `:30` and the `test_report.py` row (`:761`) and item 10.5 (task file line 1812) still use `...780594c521aa`; `CHECKED_ORCA_VERSION = "1.4.245"` (DESIGN `:426`); DESIGN `:611-612` pick "unlikely" or "UNVERIFIED" with no comparison rule.
++- Smallest fix: State the rule in `1.0a-facts.md` row 15 or in item 8.12 (for example "text before the first `-` equals `CHECKED_ORCA_VERSION`") and make item 10.5 test the live string, `1.4.246` and a missing file.
++
++## MINOR findings (never fail the gate)
++
++### DEC-F6 (MINOR): `decisions-mechanical.md` run times are not real (22:40Z, 22:50Z, 22:58Z are later than the file's own last write)
++
+... (new file continues; read .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/decisions/consolidated-findings-cycle0.md from disk for lines 61-314)
+--- /dev/null
++++ b/.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/decisions/cycle-ledger.md   (new file, 3 lines)
++| Cycle | PASS set | F set | |F| | Outcome |
++|---|---|---|---|---|
++| 0 | qa-completeness:C1 (item 7.21), qa-completeness:C2 (item 7.21), qa-completeness:C3 (item 7.21), qa-completeness:C4 (item 7.21), qa-completeness:C5 (item 7.21), qa-completeness:C6 (item 7.21), qa-completeness:C7 (item 7.21), qa-completeness:C8 (item 7.21), qa-completeness:C9 (item 7.21), qa-completeness:C10 (item 7.21), qa-completeness:C11 (item 7.21), qa-completeness:C12 (item 7.21), qa-completeness:C13 (item 7.21), qa-completeness:C14 (item 7.21), qa-completeness:C15 (item 7.21), qa-completeness:C16 (item 7.21), qa-completeness:C17 (item 7.21), qa-completeness:C18 (item 7.21), qa-completeness:C19 (item 7.21), qa-completeness:C20 (item 7.21), qa-cross-source:C1 (item 7.28), qa-cross-source:C2 (item 7.28), qa-cross-source:C3 (item 7.28), qa-cross-source:C4 (item 7.28), qa-cross-source:C5 (item 7.28), qa-cross-source:C6 (item 7.28), qa-cross-source:C7 (item 7.28), qa-cross-source:C8 (item 7.28), qa-cross-source:C9 (item 7.28), qa-cross-source:C10 (item 7.28), qa-cross-source:C11 (item 7.28), qa-cross-source:C12 (item 7.28), qa-cross-source:C13 (item 7.28), qa-cross-source:C14 (item 7.28), qa-cross-source:C15 (item 7.28), qa-cross-source:C16 (item 7.28), qa-cross-source:C17 (item 7.28), qa-cross-source:C18 (item 7.28), qa-cross-source:C19 (item 7.28), qa-cross-source:C20 (item 7.28), qa-cross-source:C21 (item 7.28), qa-cross-source:C22 (item 7.28), qa-cross-source:C23 (item 7.28), qa-cross-source:C24 (item 7.28), qa-cross-source:C25 (item 7.28), qa-cross-source:C26 (item 7.28), qa-crossref-chain:C1 (item 7.27), qa-crossref-chain:C2 (item 7.27), qa-crossref-chain:C3 (item 7.27), qa-crossref-chain:C4 (item 7.27), qa-crossref-chain:C5 (item 7.27), qa-crossref-chain:C6 (item 7.27), qa-crossref-chain:C7 (item 7.27), qa-crossref-chain:C8 (item 7.27), qa-crossref-chain:C9 (item 7.27), qa-crossref-chain:C10 (item 7.27), qa-crossref-chain:C11 (item 7.27), qa-crossref-chain:C12 (item 7.27), qa-crossref-chain:C14 (item 7.27), qa-crossref-chain:C15 (item 7.27), qa-crossref-chain:C16 (item 7.27), qa-crossref-chain:C17 (item 7.27), qa-crossref-chain:C18 (item 7.27), qa-crossref-chain:C19 (item 7.27), qa-decision-fidelity:C1 (item 7.25), qa-decision-fidelity:C3 (item 7.25), qa-decision-fidelity:C4 (item 7.25), qa-decision-fidelity:C5 (item 7.25), qa-decision-fidelity:C6 (item 7.25), qa-decision-fidelity:C7 (item 7.25), qa-decision-fidelity:C8 (item 7.25), qa-decision-fidelity:C9 (item 7.25), qa-decision-fidelity:C10 (item 7.25), qa-decision-fidelity:C11 (item 7.25), qa-decision-fidelity:C12 (item 7.25), qa-decision-fidelity:C13 (item 7.25), qa-decision-fidelity:C14 (item 7.25), qa-decision-fidelity:C17 (item 7.25), qa-decision-fidelity:C18 (item 7.25), qa-decision-fidelity:C19 (item 7.25), qa-decision-fidelity:C20 (item 7.25), qa-decision-fidelity:C21 (item 7.25), qa-decision-fidelity:C22 (item 7.25), qa-decision-fidelity:C23 (item 7.25), qa-decision-fidelity:C24 (item 7.25), qa-decision-fidelity:C25 (item 7.25), qa-downstream-actionability:C1 (item 7.26), qa-downstream-actionability:C2 (item 7.26), qa-downstream-actionability:C3 (item 7.26), qa-downstream-actionability:C4 (item 7.26), qa-downstream-actionability:C5 (item 7.26), qa-downstream-actionability:C6 (item 7.26), qa-downstream-actionability:C7 (item 7.26), qa-downstream-actionability:C10 (item 7.26), qa-downstream-actionability:C11 (item 7.26), qa-downstream-actionability:C12 (item 7.26), qa-downstream-actionability:C13 (item 7.26), qa-downstream-actionability:C14 (item 7.26), qa-downstream-actionability:C15 (item 7.26), qa-downstream-actionability:C16 (item 7.26), qa-downstream-actionability:C17 (item 7.26), qa-downstream-actionability:C18 (item 7.26), qa-evidence-quality:C1 (item 7.23), qa-evidence-quality:C3 (item 7.23), qa-evidence-quality:C4 (item 7.23), qa-evidence-quality:C5 (item 7.23), qa-evidence-quality:C6 (item 7.23), qa-evidence-quality:C7 (item 7.23), qa-evidence-quality:C8 (item 7.23), qa-evidence-quality:C9 (item 7.23), qa-evidence-quality:C10 (item 7.23), qa-evidence-quality:C11 (item 7.23), qa-evidence-quality:C12 (item 7.23), qa-evidence-quality:C13 (item 7.23), qa-evidence-quality:C14 (item 7.23), qa-evidence-quality:C15 (item 7.23), qa-evidence-quality:C16 (item 7.23), qa-evidence-quality:C17 (item 7.23), qa-evidence-quality:C19 (item 7.23), qa-readonly-safety:C1 (item 7.24), qa-readonly-safety:C2 (item 7.24), qa-readonly-safety:C3 (item 7.24), qa-readonly-safety:C4 (item 7.24), qa-readonly-safety:C5 (item 7.24), qa-readonly-safety:C6 (item 7.24), qa-readonly-safety:C7 (item 7.24), qa-readonly-safety:C8 (item 7.24), qa-readonly-safety:C9 (item 7.24), qa-readonly-safety:C10 (item 7.24), qa-readonly-safety:C11 (item 7.24), qa-readonly-safety:C12 (item 7.24), qa-readonly-safety:C13 (item 7.24), qa-readonly-safety:C14 (item 7.24), qa-readonly-safety:C15 (item 7.24), qa-readonly-safety:C16 (item 7.24), qa-readonly-safety:C17 (item 7.24), qa-readonly-safety:C18 (item 7.24), qa-readonly-safety:C19 (item 7.24), qa-record-form:C1 (item 7.22), qa-record-form:C2 (item 7.22), qa-record-form:C3 (item 7.22), qa-record-form:C4 (item 7.22), qa-record-form:C5 (item 7.22), qa-record-form:C6 (item 7.22), qa-record-form:C7 (item 7.22), qa-record-form:C8 (item 7.22), qa-record-form:C9 (item 7.22), qa-record-form:C10 (item 7.22), qa-record-form:C11 (item 7.22), qa-record-form:C13 (item 7.22), qa-record-form:C14 (item 7.22), qa-record-form:C15 (item 7.22) | DEC-F1, DEC-F2, DEC-F3, DEC-F4, DEC-F5 | 5 | consolidated |
+Delta diff from the previous reviewed tree (empty on the first review): 
+Earlier blocking findings of this start (empty on the first review): 
+Saved-probe re-check hit locations (may be empty): 
+
+Do not trust the implementer's report.
+
+First mark each earlier blocking finding resolved, open or regressed from the diff. Then, for each AC, mark it met or unmet. Require citations: every AC you mark, met or unmet, carries a `path:line` or `Ti.ACk@path:line` citation, and an unmet mark lists the finding ids behind it. Do not return a verdict; the orchestrator computes it.
+
+For every finding answer four questions, each yes or no:
+1. ac-outcome-missing: is output an AC requires absent, or does it contradict the AC text, or does an evidence claim you could not verify have no evidence row?
+2. false-claim: is a claim in delivered text or code false against live source, or does a recipe or instruction followed as written not do what the text says?
+3. harmful-effect: does code or a recipe this task added or changed write, append, chmod or delete tracked or production data, mutate state outside the task's declared outputs, or expose a secret?
+4. quoted-constraint-breach: does the diff violate a quoted plan constraint, out-of-scope, non-goal or non-negotiable item, or an explicit task instruction?
+
+Anchor rule: cite exactly one anchor per yes. ac-outcome-missing: the quoted AC words. false-claim: the live-source path:line holding the contradicting text. harmful-effect: the diff line that is the write. quoted-constraint-breach: the quoted constraint or instruction text. A yes without a valid anchor does not block.
+
+Write one line per finding:
+F<k>.<j> ac=<Ti.ACk|scope> at=<path:line> anchor=<quoted text or path:line> chk=<amiss,false,harm,constraint as y/n> family=<id> fix=<text> [covers=<quoted AC clause or constraint>]: <text>
+Do not write sev=, trigger=, first= or origin=; the orchestrator adds them. Write one status line per earlier blocking finding: F<m>.<j> resolved|open|regressed.
+
+Inside /sc:implement this protocol's severity model governs this review and takes precedence over the session's output style and the copy of it injected into every subagent; only blocking findings may fail an attempt.
+
+You are not given an adviser answer, brief, evidence file or troubleshoot report. Do not read the retry folders (legacy `.dev/implement/<slug>/retries/`, managed `<pkg>/artifacts/retries/`) or `.dev/troubleshoot/`. A citation into either makes the verdict `cannot-verify`.
+The prior-findings slot above carries earlier blocking finding lines that the orchestrator copies byte for byte from `review-*.md` and `repair-*.md`; they reach you as prompt text, not as an evidence file. Do not read those folders to get them, and never cite the slot or the file it came from.

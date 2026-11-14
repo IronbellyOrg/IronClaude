@@ -1,0 +1,453 @@
+Review one task for spec compliance.
+
+Task brief: T232 = item 10.17 of the source file /home/coder/workspaces/worktrees/IronClaude/issue-339-orchestrator-mode/.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md (lines 1895-1901). Item text:
+- [ ] **10.17 — QA tests: fix cycle 1 (one rf-qa fix agent, conditional)**
+  - **Context**: Input: `.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/tests/consolidated-findings-cycle0.md` from item 10.16 (`F_0` and `|F_0|`). Other inputs for the fix agent: the gate inputs listed in Context.
+  - **Action**: If `|F_0|` is 0 (only MINOR findings or none), write `SKIPPED: no blocking findings` to `.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/tests/fix-log-cycle1.md` and mark items 10.17 to 10.23 complete with that note. Otherwise spawn ONE `rf-qa` agent (Agent tool, `mode: bypassPermissions`, `fix_authorization: true`) with this fix agent preamble, verbatim: "You are the single fix agent for this gate cycle. `fix_authorization: true`. Fix only the BLOCKING and MAJOR findings listed in the consolidated findings file you are given; leave MINOR findings as notes. Edit only the files the findings name. Anchor every edit by quoted text. Write a fix log listing each finding id, the change, and the `file:line` after the change. Never commit, push or stage a `.claude/` path." Pass it `.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/tests/consolidated-findings-cycle0.md`, the other inputs in Context, and the output path `.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/tests/fix-log-cycle1.md`. The fix agent edits `tests/sweep/` and, when a test exposes a code bug, the module under `src/superclaude/cli/sweep/`; it never weakens an assertion to make a test pass and never edits a captured fixture (`tests/sweep/fixtures/captured-*.json`). After the agent returns, re-run the item 10.8 commands: `uv run ruff check src/superclaude/cli/sweep tests/sweep`, `uv run ruff format --check src/superclaude/cli/sweep tests/sweep`, `uv run pytest tests/sweep -v` and `uv run pytest tests/sweep -m integration -v` (expect exit 0 each and exactly 1 selected integration test), and append each command, its output and a PASS or FAIL line to the fix log.
+  - **Output**: `.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/tests/fix-log-cycle1.md` and the fixed files.
+  - **Verification**: Verify: the fix log lists every id in `F_0` with a change and a `file:line`, an OPEN reason, or the SKIPPED line; every appended re-check line is PASS. If the fix agent fails to return twice, log the blocker in `### Phase 10 Findings` and stop.
+  - **Completion gate**: The fix log is written. Once done, mark this item as complete.
+AC ids: T232.AC1 = the item title "QA tests: fix cycle 1 (one rf-qa fix agent, conditional)" (no AC block; the title is the AC). The item's own Verification and Completion gate lines are context for what "done" means. Ticking the item's checkbox is done by the orchestrator after the verdict and is not part of the diff under review.
+Global constraints: the `### Key Constraints` section (lines 157-168) of the source file named in the task brief; read it from that file.
+Start sha: a9d6be7252ea167aab6d56f1fe55110894480bbc
+Diff against the start snapshot: The task (item 10.17, tests gate fix cycle 1) spawned ONE rf-qa fix agent (fix_authorization true) with the saved prompt .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/tests/prompts/T232-prompt.md (verbatim fix preamble plus scope rules, inputs and output path). F_0 = TST-F1 to TST-F6 (six MAJOR test-strength findings from the assertion-strength lens), listed in .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/tests/consolidated-findings-cycle0.md; read it and the weak-test entries of .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/tests/qa-assertion-strength-report.md. The fix log is .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/tests/fix-log-cycle1.md. The agent's log says it changed only tests/sweep/test_cli_contract.py (TST-F1, TST-F3), test_report.py (TST-F2, TST-F4), test_probes_allowlist.py (TST-F5) and test_classify.py (TST-F6) plus the four result maps in .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/test-results (test-classify.txt 159 to 161 tests, test-cli-contract.txt 90 to 94, test-probes-allowlist.txt 242 to 243, test-report.txt 41 to 48), no source module and no conftest.py, and that tests/sweep went from 559 to 573 passed with exactly 1 integration test. The orchestrator checked, after the agent returned, that 68 protected files (QA reports, consolidated file, ledger, prompts, artifacts, discovery and plans, captured fixtures, DESIGN, SPEC, plan file, phase10-validation.md, main.py) and every src/superclaude/cli/sweep/*.py file are byte-identical to before (sha256), and that the executor (not the agent) re-ran nothing yet. The diff below is against the start snapshot (hunks for the files above; an empty diff for conftest.py, test_readonly.py and test_cli_registration.py means unchanged). Do not trust the fix log. To judge the item's Verification line yourself: (1) the fix log lists every id in F_0 with a change and a file:line (check each file:line exists and is the test it names) or an OPEN reason, and every appended re-check line is PASS: re-run the four commands (uv run ruff check src/superclaude/cli/sweep tests/sweep; uv run ruff format --check src/superclaude/cli/sweep tests/sweep; uv run pytest tests/sweep -v; uv run pytest tests/sweep -m integration -v) and compare the counts (573 passed; 1 integration test); (2) for each of the six findings read the finding's Smallest fix in the consolidated file and the weak-test entry it cites, and check the new or strengthened test asserts exactly that (TST-F1 the JSON worktrees[].removable and the exact status_read, uncommitted and unpushed values; TST-F2 all seven DESIGN 7.5 header lines and the discovery-incomplete banner; TST-F3 --window reaching a classification through the command; TST-F4 the classifier-derived Lifecycle, Health, Result and Freshness cells through classify_all and report.render; TST-F5 the contract mtime and source-row age from a real read; TST-F6 the rule-2 realistic path with transcript_readable None and the exact (rule, class) per FR-010 exemption); (3) check no assertion was weakened or removed anywhere (compare the diff: removed lines, loosened comparisons, new xfail or skip), that the values the new tests pin are what DESIGN states and not merely what the code printed (for example TST-F1 pins removable_reason == 'unpushed branch: no upstream': check this against DESIGN FR-013 and classify.py and say whether it encodes a defect; TST-F4 pins (settled, unknown, succeeded, unknown) and similar tuples: check each against DESIGN 7.4 and 7.5 and the classify.py rules), and that no test pins a clock-dependent or order-dependent value; (4) check the discrimination claims: copy the package and tests to a private /tmp folder (never mutate the repository) and re-apply at least the mutations for TST-F1 (report.py: "removable": w.removable -> "yes"), TST-F3 (commands.py: window_start fixed at 6 hours), TST-F5 (probes.py: _age returns 0) and TST-F6 (classify.py rule 2 'is not False' -> 'is True'), and confirm the named test fails in each; (5) check each of the four result maps (test-classify.txt, test-cli-contract.txt, test-probes-allowlist.txt, test-report.txt) holds the real new pytest -v stdout (count and test names equal a live run of that file) and a map entry for every new test; (6) check no captured fixture, DESIGN, SPEC or QA report was edited and nothing was staged. A test that exposes a code bug must be fixed in the code, never weakened.
+
+Diff against the start snapshot (new tests are shown, long hunks may be cut: read the files from disk):
+--- a/tests/sweep/test_cli_contract.py
++++ b/tests/sweep/test_cli_contract.py
+@@ -506,6 +506,31 @@
+ 
+ 
+ @pytest.mark.parametrize(
++    ("window", "class_name", "historical"),
++    [
++        ("1h", "idle", 1),
++        ("12h", "person session (active)", 0),
++        ("2h", "person session (active)", 0),  # the edge: last_activity == window_start
++    ],
++    ids=["1h-is-idle", "12h-is-active", "2h-edge-is-active"],
++)
++def test_window_reaches_the_classification(env, window, class_name, historical):
++    # TST-F3 (FR-003, FR-007): ``--window`` sets ``window_start``, so the same 2 h old
++    # transcript is historical under 1h and an active person session under 12h. An empty
++    # Run has no scoped Dispatch row, so the join guard holds and the transcript is judged.
++    _world(env)
++    env.sweep_root.transcript("aged-session", (env.now - timedelta(hours=2),))
++
++    payload = _payload(_run(env, "--run", RUN, f"--window={window}"))
++
++    assert payload["window"] == window
++    assert _row(payload, "transcript:aged-session")["class"] == class_name
++    assert payload["summary"]["historical"] == historical
++    assert payload["summary"]["visible"] == 1 - historical
++    assert payload["summary"]["counts"]["idle"] == historical
++
++
++@pytest.mark.parametrize(
+     "text",
+     [
+         "0h",
+@@ -990,6 +1015,28 @@
+     )  # FR-012
+ 
+ 
++def test_json_worktree_values_are_exact_and_removable_is_never_yes(env):
++    # TST-F1: the JSON ``worktrees[]`` copy of the verdict is checked by value, not by type.
++    # The fake git reports a clean branch with no upstream line, so both worktrees were read
++    # (``status_read`` true), have no uncommitted change and an unknown push state.
++    other = _captured_world(env)
++
++    payload = _payload(_run(env, "--run", CAPTURED_RUN))
++
++    by_path = {w["path"]: w for w in payload["worktrees"]}
++    assert sorted(by_path) == sorted([str(env.root), str(other.resolve())])
++    for w in by_path.values():
++        assert w["status_read"] is True
++        assert w["uncommitted"] is False
++        assert w["unpushed"] is None
++        assert w["removable"] == "no"
++        assert w["removable_reason"] == "unpushed branch: no upstream"
++    # FR-012 and DESIGN 7.4: the machine-readable verdict is never ``yes``.
++    assert all(
++        w["removable"] in ("no", "could not determine") for w in payload["worktrees"]
++    )
++
++
+ def test_the_type_check_rejects_a_wrong_key_set_and_a_wrong_type():
+     good = {"a": 1, "b": [True]}
+     spec = {"a": int, "b": [bool]}
+--- a/tests/sweep/test_report.py
++++ b/tests/sweep/test_report.py
+@@ -19,6 +19,7 @@
+ import json
+ import re
+ import unicodedata
++from dataclasses import replace
+ from datetime import datetime, timedelta, timezone
+ from pathlib import Path
+ 
+@@ -45,6 +46,7 @@
+     SweepContext,
+     SweepInput,
+     SweepResult,
++    TranscriptTail,
+     WorktreeState,
+ )
+ 
+@@ -61,6 +63,7 @@
+ NO_RECORDS = "No matching records. This is not an all-clear."
+ BOUND_LINE = "[Show cap or time budget reached; row total is a lower bound]"
+ PAGE_LINE = "[Orca rows: 100 shown; total is a lower bound (paging not yet captured)]"
++WORKTREES_BANNER = "[child worktrees not discovered: Orca unavailable; worktree count is a lower bound]"
+ SP24 = "Stalled and fenced are not observed in Phase 1; a zero count does not mean none occurred."
+ SP16 = "could not join Orca workers to transcripts (tab map empty or stale)"
+ WC13 = "WC-13 violation, review"
+@@ -565,6 +568,51 @@
+     )
+ 
+ 
++def test_header_has_the_seven_exact_lines_of_design_7_5(ctx):
++    # TST-F2: the four lines after the scope line were unpinned. The resolved binary name is
++    # printed (never a bare ``orca``, NFR-003), the messages coverage is ``partial``, each
++    # source carries its age, and the version line is the UNVERIFIED form for no version file.
++    text = report.render(result_of(ctx, sources=base_sources()), ctx)
++
++    assert header_block(text).rstrip("\n").splitlines() == [
++        "READ ONLY . observed 2026-11-08T12:00:00Z . collected 2026-11-08T11:59:00Z "
++        "to 2026-11-08T12:00:00Z (not an atomic runtime snapshot)",
++        "Scope: Runs R1 . worktrees 0 . sessions 0/0 "
++        "(lower bound: remote hosts not scanned) . window 6h",
++        "Orca binary: orca-ide",
++        "Sources: orca worker-list R1 read (age 5s) . remote hosts unknown",
++        "Messages coverage: partial",
++        "Orca lock risk: UNVERIFIED (checked for Orca 1.4.245; observed unknown)",
++        "Untracked paths: listed per file (--untracked-files=all); not observed in a "
++        "worktree whose status was unread",
++    ]
++
++
++def test_header_sources_line_says_none_when_there_are_no_sources(ctx):
++    lines = header_block(report.render(empty_result(ctx), ctx)).splitlines()
++
++    assert "Sources: none" in lines
++    assert "Orca binary: orca-ide" in lines
++
++
++@pytest.mark.parametrize(
++    ("build", "banner_shown"),
++    [
++        (full_result, True),  # ``orca worktree ps`` is an unscanned source
++        (empty_result, False),
++        (lambda c: result_of(c, orca_available=False), True),  # Orca unavailable
++    ],
++    ids=["ps-unscanned", "complete", "orca-unavailable"],
++)
++def test_discovery_incomplete_banner_is_in_the_header_only_when_discovery_is_incomplete(
++    ctx, build, banner_shown
++):
++    text = report.render(build(ctx), ctx)
++
++    assert (WORKTREES_BANNER in header_block(text).splitlines()) is banner_shown
++    assert text.count(WORKTREES_BANNER) == int(banner_shown)
++
++
+ # ===========================================================================================
+ # Waiting (a) sort and Waiting (b) content (FR-011)
+ # ===========================================================================================
+@@ -1111,6 +1159,94 @@
+     assert all(set(r) == ROW_KEYS for r in payload["rows"])
+ 
+ 
++def dimension_cells(text: str) -> dict[str, tuple[str, str, str, str]]:
++    """``ID -> (Lifecycle, Health, Result, Freshness)`` as printed in the Sessions table."""
++    return {
++        r["ID"]: (r["Lifecycle"], r["Health"], r["Result"], r["Freshness"])
++        for r in sessions_table(text)
++    }
++
++
++def ttail(sid: str, last: datetime, *, readable: bool = True) -> TranscriptTail:
++    return TranscriptTail(
++        path=Path(f"/home/u/.claude/projects/key/{sid}.jsonl"),
++        session_id=sid,
++        readable=readable,
++        last_record_ts=last,
++        first_record_ts=last,
++        tail_complete=True,
++        mtime=last,
++        project_key="key",
++    )
++
++
++def test_lifecycle_health_and_result_cells_come_from_the_classifier(ctx):
++    # TST-F4: the cells are filled by ``classify_all`` (not by hand) and printed by ``render``.
++    # D1 settled with a succeeded contract; D2 settled with a failed contract; D3 running with
++    # no contract; D4 has no outcome and a blocked contract (the Result prints ``null``).
++    inp = sweep_input(
++        ctx.now,
++        orca_rows=(
++            obs("D1", outcome="succeeded", status="completed", worktree_path="/wt/ok"),
++            obs("D2", outcome="failed", status="completed", worktree_path="/wt/bad"),
++            obs("D3", outcome="pending", status="in_progress", worktree_path="/wt/run"),
++            obs("D4", status="in_progress", worktree_path="/wt/blocked"),
++        ),
++        contracts=(
++            ContractRecord(Path("/wt/ok/return-contract.yaml"), "succeeded"),
++            ContractRecord(Path("/wt/bad/return-contract.yaml"), "failed"),
++            ContractRecord(
++                Path("/wt/blocked/return-contract.yaml"),
++                "blocked",
++                blocked_question="Which branch?",
++            ),
++        ),
++    )
++
++    text = report.render(classify_all(inp, ctx), ctx)
++
++    assert dimension_cells(text) == {
++        "orca:D1": ("settled", "unknown", "succeeded", "unknown"),
++        "orca:D2": ("settled", "failed result", "failed", "unknown"),
++        "orca:D3": ("running", "unknown", "unknown", "unknown"),
++        "orca:D4": ("unknown", "unknown", "null", "unknown"),
++    }
++
++
++def test_freshness_cell_comes_from_the_classifier_for_a_fresh_and_a_stale_transcript(
++    ctx,
++):
++    # TST-F4: no Orca row is in scope, so the join guard holds and each transcript is a person
++    # session. The fresh one is 5 min old; the stale ones are 7 h old (the window is 6 h).
++    # A readable stale transcript is historical (idle) and not a Sessions row; an unreadable
++    # one is could not determine, so its stale freshness is printed.
++    fresh = ttail("fresh-one", ctx.now - 5 * MINUTE)
++    stale_readable = ttail("stale-readable", ctx.now - 7 * HOUR)
++    stale_unreadable = ttail("stale-unreadable", ctx.now - 7 * HOUR, readable=False)
++    inp = replace(
++        sweep_input(ctx.now),
++        transcripts=(fresh, stale_readable, stale_unreadable),
++    )
++
++    result = classify_all(inp, ctx)
++    text = report.render(result, ctx)
++
++    assert dimension_cells(text) == {
++        "transcript:fresh-one": ("unknown", "unknown", "unknown", "fresh (300s)"),
++        "transcript:stale-unreadable": (
++            "unknown",
++            "unknown",
++            "unknown",
++            "stale (25200s)",
++        ),
++    }
++    by_id = {r.row.row_id: r for r in result.rows}
++    assert by_id["transcript:stale-readable"].classification.class_name == IDLE
++    assert by_id["transcript:stale-readable"].row.freshness == "stale"
++    assert by_id["transcript:stale-readable"].row.freshness_age_s == 25200
++    assert "transcript:stale-readable" in block(text, "## Historical sessions")
++
++
+ def test_dimension_9_prints_frozen_or_unknown_never_not_frozen(ctx):
+     result = dimension_result(ctx)
+     text = report.render(result, ctx)
+--- a/tests/sweep/test_probes_allowlist.py
++++ b/tests/sweep/test_probes_allowlist.py
+@@ -1359,6 +1359,30 @@
+     assert inp.contracts == ()
+ 
+ 
++def test_contract_mtime_and_source_age_come_from_the_file_time(
++    sweep_root, patch_orca, patch_git, clock, monkeypatch
++):
++    # TST-F5 (SP-15): the Waiting (a) Age is computed from ``ContractRecord.mtime``, so the
++    # file time read from disk and the age of the ``contract <dispatch>`` source row are
++    # asserted from a real file whose time is set to exactly one hour before ``now``.
++    path = sweep_root.contract()
++    stamp = (NOW - timedelta(hours=1)).timestamp()
++    os.utime(path, (stamp, stamp))
++    monkeypatch.setattr(probes, "_utcnow", lambda: NOW)  # ``collect`` reads this clock
++    _stock_contract_run(patch_orca, path)
++
++    record = probes.read_contract(path, sweep_root.root)
++    inp = _collect(sweep_root, clock)
++
++    assert record is not None
++    assert record.mtime == NOW - timedelta(hours=1)
++    assert record.mtime.tzinfo is not None
++    row = next(s for s in inp.sources if s.name == f"contract {did(1)}")
++    assert (row.coverage, row.age_seconds) == ("read", 3600)
++    (collected,) = inp.contracts
++    assert collected.mtime == NOW - timedelta(hours=1)
++
++
+ def _record(ts: str, session: str = "s1", pad: int = 0) -> bytes:
+     fields = {"type": "user", "timestamp": ts, "sessionId": session, "pad": "x" * pad}
+     return (json.dumps(fields) + "\n").encode("utf-8")
+--- a/tests/sweep/test_classify.py
++++ b/tests/sweep/test_classify.py
+@@ -547,6 +547,38 @@
+     assert cls.class_name == UNKNOWN
+ 
+ 
++def test_rule_2_stalled_holds_when_no_transcript_was_joined(now):
++    # TST-F6: an Orca row with no joined transcript has ``transcript_readable=None``
++    # (``classify_all`` sets it so). Only an unreadable transcript (False) blocks rule 2.
++    proof = orca(
++        liveness_verdict="exited", worker_done_seen=False, fenced_evidence="absent"
++    )
++
++    cls = classify(row(orca=proof, transcript_readable=None), make_ctx(now))
++
++    assert (cls.rule, cls.class_name) == ("orca_exit_proof", STALLED)
++    unreadable = classify(row(orca=proof, transcript_readable=False), make_ctx(now))
++    assert (unreadable.rule, unreadable.class_name) == ("fallback", UNKNOWN)
++
++
++def test_rule_2_stalled_through_classify_all_for_an_orca_row_with_no_transcript(now):
++    proof = orca(
++        "D1",
++        liveness_verdict="exited",
++        worker_done_seen=False,
++        fenced_evidence="absent",
++    )
++
++    result = run(sweep_input(now, orca_rows=(proof,)), make_ctx(now))
++
++    only = by_id(result)["orca:D1"]
++    assert only.row.transcript_readable is None  # no transcript joined to this row
++    assert (only.classification.rule, only.classification.class_name) == (
++        "orca_exit_proof",
++        STALLED,
++    )
++
++
+ def test_fr009_case_1_guard_refused_body_is_finished_with_the_note(now):
+     exited = orca(
+         liveness_verdict="exited",
+@@ -965,14 +997,16 @@
+ 
+ 
+ @pytest.mark.parametrize(
+-    "case_row",
++    ("case_row", "expected"),
+     [
+         pytest.param(
+             row(person_started=True, transcript_readable=False, last_activity=at(1)),
++            ("fallback", UNKNOWN),
+             id="unreadable-transcript",
+         ),
+         pytest.param(
+             row(person_started=True, transcript_readable=True, last_activity=None),
++            ("fallback", UNKNOWN),
+             id="unknown-timestamp",
+         ),
+         pytest.param(
+@@ -982,6 +1016,7 @@
+                 last_activity=at(1),
+                 orca=orca(status="in_progress"),
+             ),
++            ("fallback", UNKNOWN),
+             id="open-task",
+         ),
+         pytest.param(
+@@ -991,6 +1026,7 @@
+                 last_activity=at(1),
+                 orca=orca(agent_wait={"since": "x"}),
+             ),
++            ("waiting_signal", WAITING),
+             id="explicit-wait",
+         ),
+         pytest.param(
+@@ -1000,12 +1036,16 @@
+                 last_activity=at(1),
+                 orca=orca(outcome="succeeded"),
+             ),
++            ("fallback", UNKNOWN),
+             id="unread-report-candidate",
+         ),
+     ],
+ )
+-def test_fr010_exemptions_never_become_idle(now, case_row):
+-    assert classify(case_row, make_ctx(now)).class_name != IDLE
++def test_fr010_exemptions_never_become_idle(now, case_row, expected):
++    # TST-F6: ``last_activity`` is at(1), 11 h before ``now`` and outside the 6 h window, so a
++    # missing window test in rule 8 would turn these rows into ``person session (active)``.
++    cls = classify(case_row, make_ctx(now))
++    assert (cls.rule, cls.class_name) == expected
+ 
+ 
+ def test_fr010_exemption_orca_rows_never_go_to_historical(now, path_a):
+--- /dev/null
++++ b/.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/tests/fix-log-cycle1.md   (new file, 100 lines)
++# Fix Log - cycle 1 (tests gate, F_0 = TST-F1 to TST-F6)
++
++**Date:** 2026-11-12
++**fix_authorization:** true
++**Scope:** six test-strength findings, fixed in `tests/sweep/` only (source changes are listed below if any were needed).
++
++Sections are appended below as each finding is finished.
++
++## Files edited
++
++- `tests/sweep/test_cli_contract.py` (TST-F1, TST-F3)
++- `tests/sweep/test_report.py` (TST-F2, TST-F4; `ruff format` was run on this file only, it joined one constant onto one line)
++- `tests/sweep/test_probes_allowlist.py` (TST-F5)
++- `tests/sweep/test_classify.py` (TST-F6)
++- Result maps in `.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/test-results/`: `test-classify.txt` (159 to 161 tests), `test-cli-contract.txt` (90 to 94), `test-probes-allowlist.txt` (242 to 243), `test-report.txt` (41 to 48). Each pytest stdout block is the real new `-v` output; each new test is added to the file's case-to-test map.
++- `tests/sweep/conftest.py`: no helper was needed.
++- Source modules under `src/superclaude/cli/sweep/`: no change. No strengthened test exposed a bug; every mutation below was applied only in the private copy.
++
++## Discrimination method
++
++A private copy of `src/`, `tests/sweep/`, `pyproject.toml` and `.gitignore` was made under `/tmp/t232/` and imported through `PYTHONPATH=/tmp/t232/src`; the pytest run printed paths under `/tmp/t232/`, and the unmutated copy gave 573 passed (the repository count after the fix). Each mutation was one exact-text change to one copied module, restored from a pristine copy before the next. The copy was deleted afterwards (`ls /tmp/t232` reports no such directory). No repository file was mutated.
++
++## TST-F1 - FIXED
++
++- Change: new test `test_json_worktree_values_are_exact_and_removable_is_never_yes` in `tests/sweep/test_cli_contract.py:1018`. For the two worktrees of `_captured_world` it asserts the paths and, per worktree, `status_read is True`, `uncommitted is False`, `unpushed is None`, `removable == "no"`, `removable_reason == "unpushed branch: no upstream"` (values observed from the real run, not guessed), and `all(w["removable"] in ("no", "could not determine") ...)` (FR-012).
++- file:line after the change: `tests/sweep/test_cli_contract.py:1018`.
++- Discrimination proof: mutation RP5, `report.py` `"removable": w.removable,` changed to `"removable": "yes",`. Failing test: `test_json_worktree_values_are_exact_and_removable_is_never_yes`.
++
++## TST-F2 - FIXED
++
+... (new file continues; read .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/tests/fix-log-cycle1.md from disk for lines 31-100)
+--- /dev/null
++++ b/.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/tests/prompts/T232-prompt.md   (new file, 16 lines)
++You are the single fix agent for this gate cycle. `fix_authorization: true`. Fix only the BLOCKING and MAJOR findings listed in the consolidated findings file you are given; leave MINOR findings as notes. Edit only the files the findings name. Anchor every edit by quoted text. Write a fix log listing each finding id, the change, and the `file:line` after the change. Never commit, push or stage a `.claude/` path.
++
++Consolidated findings file (F_0 = TST-F1 to TST-F6, |F_0| = 6; fix these six, leave the MINOR findings TST-F7 to TST-F45 alone): .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/tests/consolidated-findings-cycle0.md
++
++Repository root: /home/coder/workspaces/worktrees/IronClaude/issue-339-orchestrator-mode. Use `uv run` for every Python command (never bare python, never `python -m`). Read files in chunks of at most 150 lines. Run no live Orca, ccsession or Claude command.
++
++Scope rules for this cycle:
++- All six findings are test-strength gaps: strengthen or add tests in `tests/sweep/test_cli_contract.py` (TST-F1, TST-F3), `tests/sweep/test_report.py` (TST-F2, TST-F4), `tests/sweep/test_probes_allowlist.py` (TST-F5) and `tests/sweep/test_classify.py` (TST-F6), following the "Smallest fix" text of each finding (the W-... ids it cites are the weak-test entries of `qa-assertion-strength-report.md` in the same folder; read the entry for the exact stronger assertion). You may add small helpers to `tests/sweep/conftest.py` only if a test truly needs one (say so in the fix log).
++- When a strengthened test exposes a bug in a module under `src/superclaude/cli/sweep/`, fix the module with the smallest change that follows DESIGN (`docs/designs/orchestrator-mode.md`) and list the fix with its file:line in the fix log; never weaken an assertion to make a test pass; never edit a captured fixture (`tests/sweep/fixtures/captured-*.json`); never edit DESIGN, the SPEC, the plan file, any QA report, the consolidated file, the cycle ledger, or anything under `.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/artifacts/`.
++- The six result maps in `.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/test-results/` (`test-classify.txt`, `test-probes-allowlist.txt`, `test-readonly.txt`, `test-report.txt`, `test-cli-registration.txt`, `test-cli-contract.txt`) hold the real pytest output and a case-to-test map. When your change adds a test or changes a counted number in one of them, update that file's pytest stdout block with the real new output of its `-v` run and add the new test to its map; touch no other result file and do not edit `phase10-validation.md` (the executor records the re-checks in the fix log).
++- Prove each new or strengthened test discriminates: for each of the six findings, re-apply the mutation the finding names (for example TST-F1: make `"removable"` print `"yes"`; TST-F3: fix `window_start` at 6 hours) on a PRIVATE COPY of the package and tests under /tmp (never mutate a repository file for this), run the new test there and confirm it fails; delete the copy afterwards. Record in the fix log, per finding, the mutation and the failing test name.
++- After your edits run, in this order, and append each command, its exit code, the last lines of its output and a PASS or FAIL line to the fix log: `uv run ruff check src/superclaude/cli/sweep tests/sweep`, `uv run ruff format --check src/superclaude/cli/sweep tests/sweep` (if it fails, run `uv run ruff format` on the files you edited only, then re-run the check), `uv run pytest tests/sweep -v` and `uv run pytest tests/sweep -m integration -v` (expect exit 0 each and exactly 1 selected integration test). All four must exit 0.
++
++Gate inputs (read in chunks of at most 150 lines): `tests/sweep/` (all files), the six result maps and `phase10-validation.md` named above, DESIGN sections 7.4, 7.5, 11 and 12, the modules under `src/superclaude/cli/sweep/`, and the seven reports `qa-*-report.md` in `.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/tests/` (the assertion-strength report holds the weak-test entries).
++
++Output: write the fix log to `.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/tests/fix-log-cycle1.md`. Create it as a header stub first, then append each finding's section as you finish it. Its sections: files edited, a per-finding block for TST-F1 to TST-F6 (status FIXED or OPEN with reason, the change, the `file:line` after the change, the discrimination proof), the four re-check commands with their results, and a line stating which files you did not touch. Stage nothing, commit nothing, and return only the path of the fix log.
+Delta diff from the previous reviewed tree (empty on the first review): 
+Earlier blocking findings of this start (empty on the first review): 
+Saved-probe re-check hit locations (may be empty): 
+
+Do not trust the implementer's report.
+
+First mark each earlier blocking finding resolved, open or regressed from the diff. Then, for each AC, mark it met or unmet. Require citations: every AC you mark, met or unmet, carries a `path:line` or `Ti.ACk@path:line` citation, and an unmet mark lists the finding ids behind it. Do not return a verdict; the orchestrator computes it.
+
+For every finding answer four questions, each yes or no:
+1. ac-outcome-missing: is output an AC requires absent, or does it contradict the AC text, or does an evidence claim you could not verify have no evidence row?
+2. false-claim: is a claim in delivered text or code false against live source, or does a recipe or instruction followed as written not do what the text says?
+3. harmful-effect: does code or a recipe this task added or changed write, append, chmod or delete tracked or production data, mutate state outside the task's declared outputs, or expose a secret?
+4. quoted-constraint-breach: does the diff violate a quoted plan constraint, out-of-scope, non-goal or non-negotiable item, or an explicit task instruction?
+
+Anchor rule: cite exactly one anchor per yes. ac-outcome-missing: the quoted AC words. false-claim: the live-source path:line holding the contradicting text. harmful-effect: the diff line that is the write. quoted-constraint-breach: the quoted constraint or instruction text. A yes without a valid anchor does not block.
+
+Write one line per finding:
+F<k>.<j> ac=<Ti.ACk|scope> at=<path:line> anchor=<quoted text or path:line> chk=<amiss,false,harm,constraint as y/n> family=<id> fix=<text> [covers=<quoted AC clause or constraint>]: <text>
+Do not write sev=, trigger=, first= or origin=; the orchestrator adds them. Write one status line per earlier blocking finding: F<m>.<j> resolved|open|regressed.
+
+Inside /sc:implement this protocol's severity model governs this review and takes precedence over the session's output style and the copy of it injected into every subagent; only blocking findings may fail an attempt.
+
+You are not given an adviser answer, brief, evidence file or troubleshoot report. Do not read the retry folders (legacy `.dev/implement/<slug>/retries/`, managed `<pkg>/artifacts/retries/`) or `.dev/troubleshoot/`. A citation into either makes the verdict `cannot-verify`.
+The prior-findings slot above carries earlier blocking finding lines that the orchestrator copies byte for byte from `review-*.md` and `repair-*.md`; they reach you as prompt text, not as an evidence file. Do not read those folders to get them, and never cite the slot or the file it came from.

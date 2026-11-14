@@ -1,0 +1,32 @@
+return_contract:
+  version: 1
+  stable:
+    status: "partial"               # merge converged and passed independent review; INV-008 stays with the owner and 9 new owner questions are open
+    output_dir: ".dev/brainstorms/20261113-orchestrator-tui-alignment/"
+    seed_brief_path: ".dev/brainstorms/20261113-orchestrator-tui-alignment/seed-brief.md"
+    merged_requirements_path: ".dev/brainstorms/20261113-orchestrator-tui-alignment/merged-requirements.md"   # copy of adversarial/merged-spec.md (1347 lines)
+    adversarial_artifacts_dir: ".dev/brainstorms/20261113-orchestrator-tui-alignment/adversarial/adversarial/"
+    adversarial_status: "partial"
+    convergence_score: 1.0
+    unresolved_conflicts: 0
+    handoff: "none"
+    domain: "architecture"
+    strategy: "systematic"
+    depth: "deep"
+    launch_prompt_path: ".dev/brainstorms/20261113-orchestrator-tui-alignment/orchestrator-launch-prompt.md"
+  telemetry:
+    proposals_requested: 5
+    proposals_run: 3
+    agents: ["opus:architect", "opus:analyzer", "haiku:backend"]
+    enrichment_used:
+      - {source: "codebase (Augment search plus adjudicated facts)", quality_tier: "primary"}
+      - {source: "research", quality_tier: "skipped"}
+    rounds: ["round 1", "round 2", "round 2.5 invariant probe", "round 3 invariant resolution"]
+    base_variant: "V1"
+    independent_review: "PASS after one fix cycle (adversarial/adversarial/qa-merged-spec.md)"
+    carried_unresolved: ["INV-008 (owner Q1)", "A-009", "X-016"]
+    new_owner_questions: ["Q25", "Q26", "Q27", "Q28", "Q29", "Q30", "Q31", "Q32", "Q33"]
+    deviations:
+      - "3 proposals, not 5 (deep pre-flight rule)"
+      - "Socratic dialogue answered from sources, non-interactive"
+      - "Round 3 in parallel; advocate V3 text saved by the orchestrating session"

@@ -1,0 +1,3 @@
+416cc6f6a44f853b7edfca528faa40898771f30f
+A1 r1-1 F1.1 minor .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/final/fix-log-cycle2.md:83 ac=scope amiss:n,false:n,harm:n,constraint:n The fix log had no lines for make sync-dev, make verify-sync and the full pytest (the brief forbade the agent to run them); the orchestrator appended them.
+A1 r1-1 F1.2 minor .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/test-results/test-report.txt:109 ac=scope amiss:n,false:n,harm:n,constraint:n Case 25 of the case-to-test map described one banner form; reworded to name both forms and the added tests.

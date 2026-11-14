@@ -1,0 +1,4 @@
+c81b22a313fe97782e0d08f3bafe41b3f486a2a0
+A1 r1-1 F1.1 note src/superclaude/skills/sc-sweep-protocol/SKILL.md:26 ac=T242.AC1 amiss:n,false:n,harm:n,constraint:n Step 4 adds a lower-bound sentence (total_is_lower_bound is always true, classify.py:972-976), so every exempt reply carries one extra sentence beyond "counts and path"; a truthfulness caveat, not advice.
+A1 r1-1 F1.2 note src/superclaude/skills/sc-sweep-protocol/SKILL.md:27 ac=T242.AC1 amiss:n,false:n,harm:n,constraint:n Step 5 says "the standard error line" but a publish failure can print several stderr lines (commands.py:282-285); follows the item and DESIGN 7.6 wording.
+A1 r1-1 F1.3 note src/superclaude/skills/sc-sweep-protocol/SKILL.md:35 ac=T242.AC1 amiss:n,false:n,harm:n,constraint:n The exempt paragraph does not list "without any recommendation or action advice" as pragmatic.md:23 does; the ban is covered at SKILL.md:47 and :59.

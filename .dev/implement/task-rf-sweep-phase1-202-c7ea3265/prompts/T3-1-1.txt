@@ -1,0 +1,47 @@
+Review one task for spec compliance.
+
+Task brief: T3 = item 1.3 of the source file /home/coder/workspaces/worktrees/IronClaude/issue-339-orchestrator-mode/.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md (lines 225-231). Item text:
+- [ ] **1.3 — Record the start base commit and the baseline working-tree state**
+  - **Context**: The POST diff item (Phase 14) needs the base the task started from, because the project commits only when the user asks, so `{BASE}..HEAD` would audit nothing (BUILD-REQUEST POST_REFLECT_GATE; research/09-gap-fill.md Gap 6 step 1). At build time HEAD is `5dc29d23` (research/08-reanchor-routing.md header "Base: e8db2fe6 -> 5dc29d23").
+  - **Action**: Run `git rev-parse HEAD` and write its full output to `.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/artifacts/base-commit.txt`. Run `git status --porcelain` and write its output to `.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/artifacts/baseline-git-status.txt`. Run `git ls-files --others --exclude-standard -- src tests docs plugins` and write its output to `.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/artifacts/baseline-untracked.txt`; at build time it lists four files that exist before the task and are not its output: `docs/designs/orchestrator-mode.md` (DESIGN, never committed) and `docs/designs/orchestrator-mode-review-1.md`, `-review-2.md` and `-review-3.md`. Copy DESIGN as it is now to `.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/artifacts/design-base.md` (`cp docs/designs/orchestrator-mode.md .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/artifacts/design-base.md`), so Phase 14 can show the Phase 2 to 6 design edits as a real diff, since DESIGN has no commit to diff against. The git calls are read-only; the only writes are these four files. If the HEAD sha does not start with `5dc29d23`, record the actual sha and add a note to `### Phase 1 Findings` that every research anchor must be re-checked against the new base before it is used (research/07 and research/08 were read at `5dc29d23`).
+  - **Output**: `.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/artifacts/base-commit.txt` (one 40-character sha), `.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/artifacts/baseline-git-status.txt`, `.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/artifacts/baseline-untracked.txt` and `.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/artifacts/design-base.md`.
+  - **Verification**: Verify: `wc -c` of `base-commit.txt` is 41 (sha plus newline) and the content equals `git rev-parse HEAD`; `baseline-untracked.txt` exists (it may list other paths if the base moved; record what it lists); `cmp docs/designs/orchestrator-mode.md .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/artifacts/design-base.md` exits 0. If git or the copy fails, log the blocker in `### Phase 1 Findings` and stop.
+  - **Completion gate**: The base sha is recorded. Once done, mark this item as complete.
+AC ids: T3.AC1 = the item title "Record the start base commit and the baseline working-tree state" (no AC block; the title is the AC). The item's own Verification and Completion gate lines are context for what "done" means. Ticking the item's checkbox is done by the orchestrator after the verdict and is not part of the diff under review.
+Global constraints: the `### Key Constraints` section (lines 157-168) of the source file named in the task brief; read it from that file.
+Start sha: 5d96ad326e723933bb9d516aa69006a828c6a533
+Diff against the start snapshot: The task created four new untracked files (nothing tracked changed). Full contents of the small ones:
+--- new file .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/artifacts/base-commit.txt
+5dc29d23b15eb7db4ead50623bb409f696a0d7d3
+--- new file .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/artifacts/baseline-untracked.txt
+docs/designs/orchestrator-mode-review-1.md
+docs/designs/orchestrator-mode-review-2.md
+docs/designs/orchestrator-mode-review-3.md
+docs/designs/orchestrator-mode.md
+--- new file .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/artifacts/baseline-git-status.txt (291 lines, output of git status --porcelain; read it from disk)
+--- new file .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/artifacts/design-base.md: a copy of docs/designs/orchestrator-mode.md (1013 lines; read or cmp it from disk)
+Orchestrator checks run after the writes: wc -c base-commit.txt = 41; git rev-parse HEAD = 5dc29d23b15eb7db4ead50623bb409f696a0d7d3; cmp rc=0
+Delta diff from the previous reviewed tree (empty on the first review): 
+Earlier blocking findings of this start (empty on the first review): 
+Saved-probe re-check hit locations (may be empty): 
+
+Do not trust the implementer's report.
+
+First mark each earlier blocking finding resolved, open or regressed from the diff. Then, for each AC, mark it met or unmet. Require citations: every AC you mark, met or unmet, carries a `path:line` or `Ti.ACk@path:line` citation, and an unmet mark lists the finding ids behind it. Do not return a verdict; the orchestrator computes it.
+
+For every finding answer four questions, each yes or no:
+1. ac-outcome-missing: is output an AC requires absent, or does it contradict the AC text, or does an evidence claim you could not verify have no evidence row?
+2. false-claim: is a claim in delivered text or code false against live source, or does a recipe or instruction followed as written not do what the text says?
+3. harmful-effect: does code or a recipe this task added or changed write, append, chmod or delete tracked or production data, mutate state outside the task's declared outputs, or expose a secret?
+4. quoted-constraint-breach: does the diff violate a quoted plan constraint, out-of-scope, non-goal or non-negotiable item, or an explicit task instruction?
+
+Anchor rule: cite exactly one anchor per yes. ac-outcome-missing: the quoted AC words. false-claim: the live-source path:line holding the contradicting text. harmful-effect: the diff line that is the write. quoted-constraint-breach: the quoted constraint or instruction text. A yes without a valid anchor does not block.
+
+Write one line per finding:
+F<k>.<j> ac=<Ti.ACk|scope> at=<path:line> anchor=<quoted text or path:line> chk=<amiss,false,harm,constraint as y/n> family=<id> fix=<text> [covers=<quoted AC clause or constraint>]: <text>
+Do not write sev=, trigger=, first= or origin=; the orchestrator adds them. Write one status line per earlier blocking finding: F<m>.<j> resolved|open|regressed.
+
+Inside /sc:implement this protocol's severity model governs this review and takes precedence over the session's output style and the copy of it injected into every subagent; only blocking findings may fail an attempt.
+
+You are not given an adviser answer, brief, evidence file or troubleshoot report. Do not read the retry folders (legacy `.dev/implement/<slug>/retries/`, managed `<pkg>/artifacts/retries/`) or `.dev/troubleshoot/`. A citation into either makes the verdict `cannot-verify`.
+The prior-findings slot above carries earlier blocking finding lines that the orchestrator copies byte for byte from `review-*.md` and `repair-*.md`; they reach you as prompt text, not as an evidence file. Do not read those folders to get them, and never cite the slot or the file it came from.

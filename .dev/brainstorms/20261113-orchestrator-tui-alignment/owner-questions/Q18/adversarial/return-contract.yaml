@@ -1,0 +1,12 @@
+return_contract:
+  merged_output_path: "/home/coder/workspaces/worktrees/IronClaude/issue-339-orchestrator-mode/.dev/brainstorms/20261113-orchestrator-tui-alignment/owner-questions/Q18/merged-proposal.md"
+  convergence_score: 0.91
+  artifacts_dir: "/home/coder/workspaces/worktrees/IronClaude/issue-339-orchestrator-mode/.dev/brainstorms/20261113-orchestrator-tui-alignment/owner-questions/Q18/adversarial/"
+  status: "success"
+  base_variant: "variant-1 (proposal-A, current model, analyzer advocate)"
+  unresolved_conflicts: 1
+  fallback_mode: false
+  failure_stage: null
+  invocation_method: "skill-direct"
+  unaddressed_invariants: []
+  notes: "Depth quick: Round 1 only, Round 2.5 skipped. Unresolved debate point C-004 (contract-note wording) was split three ways; the orchestrator resolved it in the refactor plan (Change 4). Base chosen by tiebreaker level 1 (debate points) after a 2.0 point combined-score margin. Two post-merge contradictions (C1, C2) fixed by the orchestrator and recorded in merge-log.md. Steps 1, 3 and 4 run by the orchestrating session; advocates and merge-executor were spawned sub-agents."

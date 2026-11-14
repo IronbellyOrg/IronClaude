@@ -1,0 +1,4 @@
+e662bf76fc89672773eaf9882410f9c676925370
+A1 r1-2 F2.1 minor src/superclaude/cli/sweep/probes.py:684 ac=scope amiss:n,false:n,harm:n,constraint:n A contract with an unquoted colon and space in a value now raises ScannerError in _yaml_top, which returns {}, so rule 1 does not see that blocked worker and Source coverage still says contract read (the old reader accepted the line); follow-up candidate.
+A1 r1-2 F2.2 minor src/superclaude/skills/sc-sweep-protocol/SKILL.md:15 ac=scope amiss:n,false:n,harm:n,constraint:n Line 15 says the skill relays two facts, but step 3 takes three fields and step 4 can print a third item (wording).
+A1 r1-2 F2.3 note src/superclaude/cli/sweep/report.py:36 ac=scope amiss:n,false:n,harm:n,constraint:n SP24_LINE names only stalled and fenced as not observed, so a working count of 0 reads as none working although Rule 5 never matches now (open documentation gap).

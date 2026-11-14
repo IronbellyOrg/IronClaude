@@ -1,0 +1,66 @@
+Review one task for spec compliance.
+
+Task brief: T284 = item 13.3 of the source file /home/coder/workspaces/worktrees/IronClaude/issue-339-orchestrator-mode/.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md (lines 2277-2283). Item text:
+- [ ] **13.3 — Routing row R4: add `"sc:sweep"` to `_OTHER_COMMANDS` (L2)**
+  - **Context**: DESIGN section 9 row R4 (line 697 on the unrevised design). `tests/core/test_how_we_work_routing_table.py:27` `_OTHER_COMMANDS = {` (entries from :28, `"sc:spawn"` at :33).
+  - **Action**: Re-read lines 24-45 at HEAD. Insert `    "sc:sweep",` on the line after the quoted `    "sc:spawn",`. No other edit.
+  - **Output**: the edited `tests/core/test_how_we_work_routing_table.py`.
+  - **Verification**: Verify: `git diff --stat -- tests/core/test_how_we_work_routing_table.py` shows 1 insertion; `uv run pytest tests/core/test_how_we_work_routing_table.py -v` exits 0 (save stdout to `.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/test-results/r1-r4-routing-table.txt`).
+  - **Completion gate**: The test passes. Once done, mark this item as complete.
+AC ids: T284.AC1 = the item title "Routing row R4: add `"sc:sweep"` to `_OTHER_COMMANDS` (L2)" (no AC block; the title is the AC). The item's own Verification and Completion gate lines are context for what "done" means. Ticking the item's checkbox is done by the orchestrator after the verdict and is not part of the diff under review.
+Global constraints: the `### Key Constraints` section (lines 157-168) of the source file named in the task brief; read it from that file.
+Start sha: cdf0ab5d32cd8d531fa8d83846bf746ccd99c449
+Diff against the start snapshot: Orchestrator facts for the reviewer: the executor made the one edit with the Edit tool and ran `uv run pytest tests/core/test_how_we_work_routing_table.py -v`, saving stdout to .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/test-results/r1-r4-routing-table.txt (new file, read it from disk); it exited 0. The R1 row (item 13.2) is already in src/superclaude/core/HOW-WE-WORK.md:334 (earlier task, not part of this diff).
+
+--- a/tests/core/test_how_we_work_routing_table.py
++++ b/tests/core/test_how_we_work_routing_table.py
+@@ -31,6 +31,7 @@
+     "sc:impact",
+     "sc:issue",
+     "sc:spawn",
++    "sc:sweep",
+     "sc:index",
+     "sc:index-repo",
+     "sc:agent",
+--- /dev/null
++++ b/.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/test-results/r1-r4-routing-table.txt   (new file, 90 lines)
++============================= test session starts ==============================
++platform linux -- Python 3.11.15, pytest-9.2.0, pluggy-1.7.0 -- /home/coder/workspaces/worktrees/IronClaude/issue-339-orchestrator-mode/.venv/bin/python
++cachedir: .pytest_cache
++SuperClaude: 5.0.0
++rootdir: /home/coder/workspaces/worktrees/IronClaude/issue-339-orchestrator-mode
++configfile: pyproject.toml
++plugins: superclaude-5.0.0, anyio-4.16.0
++collecting ... collected 79 items
++
++tests/core/test_how_we_work_routing_table.py::test_each_marker_appears_exactly_once[<!-- level-table:v1 -->] PASSED [  1%]
++tests/core/test_how_we_work_routing_table.py::test_each_marker_appears_exactly_once[<!-- /level-table -->] PASSED [  2%]
++tests/core/test_how_we_work_routing_table.py::test_each_marker_appears_exactly_once[<!-- routing-table:v1 -->] PASSED [  3%]
++tests/core/test_how_we_work_routing_table.py::test_each_marker_appears_exactly_once[<!-- /routing-table -->] PASSED [  5%]
++tests/core/test_how_we_work_routing_table.py::test_markers_are_ordered PASSED [  6%]
++tests/core/test_how_we_work_routing_table.py::test_level_table_block PASSED [  7%]
+... (new file continues; read .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/test-results/r1-r4-routing-table.txt from disk for lines 16-90)
+Delta diff from the previous reviewed tree (empty on the first review): 
+Earlier blocking findings of this start (empty on the first review): 
+Saved-probe re-check hit locations (may be empty): 
+
+Do not trust the implementer's report.
+
+First mark each earlier blocking finding resolved, open or regressed from the diff. Then, for each AC, mark it met or unmet. Require citations: every AC you mark, met or unmet, carries a `path:line` or `Ti.ACk@path:line` citation, and an unmet mark lists the finding ids behind it. Do not return a verdict; the orchestrator computes it.
+
+For every finding answer four questions, each yes or no:
+1. ac-outcome-missing: is output an AC requires absent, or does it contradict the AC text, or does an evidence claim you could not verify have no evidence row?
+2. false-claim: is a claim in delivered text or code false against live source, or does a recipe or instruction followed as written not do what the text says?
+3. harmful-effect: does code or a recipe this task added or changed write, append, chmod or delete tracked or production data, mutate state outside the task's declared outputs, or expose a secret?
+4. quoted-constraint-breach: does the diff violate a quoted plan constraint, out-of-scope, non-goal or non-negotiable item, or an explicit task instruction?
+
+Anchor rule: cite exactly one anchor per yes. ac-outcome-missing: the quoted AC words. false-claim: the live-source path:line holding the contradicting text. harmful-effect: the diff line that is the write. quoted-constraint-breach: the quoted constraint or instruction text. A yes without a valid anchor does not block.
+
+Write one line per finding:
+F<k>.<j> ac=<Ti.ACk|scope> at=<path:line> anchor=<quoted text or path:line> chk=<amiss,false,harm,constraint as y/n> family=<id> fix=<text> [covers=<quoted AC clause or constraint>]: <text>
+Do not write sev=, trigger=, first= or origin=; the orchestrator adds them. Write one status line per earlier blocking finding: F<m>.<j> resolved|open|regressed.
+
+Inside /sc:implement this protocol's severity model governs this review and takes precedence over the session's output style and the copy of it injected into every subagent; only blocking findings may fail an attempt.
+
+You are not given an adviser answer, brief, evidence file or troubleshoot report. Do not read the retry folders (legacy `.dev/implement/<slug>/retries/`, managed `<pkg>/artifacts/retries/`) or `.dev/troubleshoot/`. A citation into either makes the verdict `cannot-verify`.
+The prior-findings slot above carries earlier blocking finding lines that the orchestrator copies byte for byte from `review-*.md` and `repair-*.md`; they reach you as prompt text, not as an evidence file. Do not read those folders to get them, and never cite the slot or the file it came from.

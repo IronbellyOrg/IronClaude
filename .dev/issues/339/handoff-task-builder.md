@@ -1,0 +1,32 @@
+# Handoff: /task-builder stage, task file BUILT (not executed)
+- Updated: 2026-11-08T12:10Z
+- Task file: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md (2892 lines, 355 items, 14 phases, template 02). Phases 2-5 are the required design fixes R3-B1, R3-B2, R3-B3 and R4 (WC-16), each closed by its own QA gate before any code; phase 6 is the R5 owner HALT; phase 7 holds the step-1.0b owner HALTs (GQ-10, 11, 35, 61, 63, D9). No commit, push or merge items.
+- Gates:
+  - research gate (A.8): all 5 reports FAIL; gaps filled in research/07-09, gate not re-run (coordinator deviation, bounded re-anchor).
+  - structural (A.10): FAIL after the 2-cycle cap, 1 open: N-01, item 5.12 puts DESIGN line 835 in section 14, it is in section 13 (escalated msg_d3fa170b4220, no reply yet).
+  - research alignment (A.10.25): fixed. Qualitative (A.10.5): PASS after 1 fix cycle.
+  - PRE reflect (A.10.7, depth deep, TCS 1641, Tier 2): verdict pass on coverage (0.95 vs floor 0.90), status partial. Report reflect/pre/REPORT.md; evidence-validator dropped 8 of 117 citations and 1 finding (F-17).
+- Must fix before /task (3 HIGH reflect findings, see REPORT R-01 to R-03):
+  - F-01: owner-gate deadlock. Branch 1 fires on `status: PENDING`, so the RESOLVED branch is never reached (items 6.2, 7.2-7.12, 7.15, 14.7).
+  - F-02: item 8.3 checks names with `grep -c`, which counts every line that holds a name, so a correct module fails.
+  - F-03: item 7.16 forbids the `echo` and `ls -la` it needs, so the check cannot pass.
+- Carried owner conditions: seven-verb Orca allowlist pinned by a test, version-scoped report claim (Orca 1.4.245), --no-optional-locks on the sweep's git calls, G-1, GQ-101 to GQ-113, issue #446.
+- 2026-11-08T12:30Z update:
+  - Coordinator-approved hand edits applied. N-01: item 5.12 now says section 13. R5 resolved by the owner as ALLOW: decision record phase-outputs/plans/OQ-1-agent-wait-decision.md; Phase 6 is no longer a HALT; after item 6.3 the design has D10, 10 templates and FORBIDDEN_TOKENS = {--include-remote}.
+  - The alignment check re-ran on the final file and FAILED with B-1 to B-4, all fixed in the one allowed fix cycle. The verify pass then found 2 new blocking leftovers in Phase 7: N-1 (the OQ-1 record checks) and N-2 (a stale "sections 8 and 18" scope).
+  - The cycle cap is reached. Escalated with a proposed hand fix (msg_2aa802c47572).
+  - The PRE reflect result above was run on the pre-edit file. The re-run is held until the file is final.
+- 2026-11-08T15:30Z update (coordinator msg_af424bb06bb1):
+  - N-1, N-2 and the 5.1/5.3 section-14 leftovers were fixed by hand and confirmed by grep.
+  - PRE reflect run 2 ran once on the final file: depth deep, Tier 2, adversarial merge, evidence-validator.
+    - Report: reflect/pre-run2/REPORT.md. Run id: reflect-pre-20261108T122857Z-TASK-RF-sweep-phase1-run2.
+    - Verdict pass: coverage 0.960 parsed, 0.914 union. Status partial (BLOCKED_BY_INVARIANTS). Grade 3, confidence 0.77.
+    - Evidence-validator: 105 of 105 citations revalidated, 0 dropped.
+    - 28 findings: HIGH 2, MEDIUM 13, LOW 13.
+  - Pure-text fixes applied after the run, with no second reflect cycle:
+    - HIGH F-01: item 8.3 now counts definitions, not occurrences.
+    - HIGH F-02: item 6.2 now appends a table row, and the anchored grep returns 0 today and 1 after a correct append.
+    - Known run-1 items: the Phase 7 preamble no longer points at item 6.2; 7.16 now allows echo and ls, and checks only command lines.
+  - Open: 13 MEDIUM and the remaining LOW findings (R-03 to R-28 in the report). F-03 is the most important: a step 1.0a cursor or `run-current --json` outcome has no owner route or approval follow-up.
+- Next: the coordinator decides whether the open MEDIUM findings are fixed before /task. Do NOT run /task or write code (coordinator order).
+- Coordinator: run:run_93bfa00cae2b.

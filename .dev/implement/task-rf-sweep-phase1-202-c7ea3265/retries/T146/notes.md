@@ -1,0 +1,3 @@
+1a002621c98982e7abc177374601861864aed9f7
+A1 r1-1 N1.1 note tests/sweep/fixtures/captured-task-list.json:1 ac=T146.AC1 amiss:n,false:n,harm:n,constraint:n Snake-case task_title and display_name are kept, while rule 5 of SOURCES.md names only camelCase taskTitle. They are short task labels with no personal data.
+A1 r1-1 N1.2 note tests/sweep/fixtures/captured-worktree-current.json:1 ac=T146.AC1 amiss:n,false:n,harm:n,constraint:n The ironbelly/ branch prefix and the project id github:superclaude-org/superclaude_framework are kept as captured values. Neither is a user name or a secret; the project id is Orca's own identifier for this checkout, not an interaction with the upstream repository.

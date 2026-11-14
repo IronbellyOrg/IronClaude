@@ -1,0 +1,112 @@
+Review one task for spec compliance.
+
+Task brief: T261 = item 12.1 of the source file /home/coder/workspaces/worktrees/IronClaude/issue-339-orchestrator-mode/.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md (lines 2110-2116). Item text:
+- [ ] **12.1 — Step 1.17: insert `### WC-16. Coordinator loop` into `src/superclaude/core/WORKER-CONTRACT.md` (L2)**
+  - **Context**: Gates: `.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/plans/OQ-3-GQ-11-rule-id-decision.md` (items 7.3 and 7.4) must be `status: RESOLVED` with option (a), and `.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/artifacts/pr422-409-check.md` (item 7.19) must exist; DESIGN section 8 "**Gate.**" paragraph. Placement: after the `### Fan-in rule (several workers, then one merge)` paragraph (heading at `WORKER-CONTRACT.md:271`, paragraph at :273) and before `### Worked example: gate hit, answer, new Task` (:275) (research/07 summary). Text: the fenced `### WC-16. Coordinator loop` block in DESIGN section 8 "**Final text.**" as revised in Phase 5, including the alignment with the 5-minute sweep bound at contract :110 that design fix R4 wrote. Test constraints (research/07 section (e)): `_check_rule` (`test_worker_contract.py:755-762`) needs the ident on the heading line; `_check_repo_setup_gated` (:813-828) fails on a code span starting with `uv`, `make`, `bash` and similar, so the paragraph names `` `/sc:sweep` `` only and never `` `uv run superclaude sweep run` ``.
+  - **Action**: Read both gate files; if either gate fails, apply the HALT rule with `blocker_reason: "Step 1.17 needs OQ-3 resolved to WC-16 and the 1.16a record"` and STOP. Re-read `src/superclaude/core/WORKER-CONTRACT.md:265-280` at HEAD and confirm the two quoted headings. Re-read DESIGN section 8 (anchor the quoted heading that begins `## 8. WC-16`) and copy the fenced rule text byte-for-byte. Insert it, with one blank line before and after, between the fan-in paragraph (anchor its quoted last sentence "the coordinator reports the single admitted result, or the failure, to the person.") and the quoted `### Worked example: gate hit, answer, new Task` heading.
+  - **Output**: the edited `src/superclaude/core/WORKER-CONTRACT.md` and `.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/test-results/step-1.17-checks.md`.
+  - **Verification**: Verify: `grep -n '^### WC-16. Coordinator loop$' src/superclaude/core/WORKER-CONTRACT.md` prints one line between the two headings; `grep -c '^### WC-14' src/superclaude/core/WORKER-CONTRACT.md` is unchanged from `git show HEAD:src/superclaude/core/WORKER-CONTRACT.md | grep -c '^### WC-14'`; `git diff -U0 -- src/superclaude/core/WORKER-CONTRACT.md` shows only added lines; the four pin phrases `WC-16. Coordinator loop`, `On every coordinator wake`, `it is never posted`, `It never stops watching on its own` each occur in the inserted text. If DESIGN section 8 drops one of those phrases, log it in `### Phase 12 Findings` and use the phrases the revised DESIGN pins instead. Write the outputs to the checks file.
+  - **Completion gate**: The rule is in place and every check holds. Once done, mark this item as complete.
+AC ids: T261.AC1 = the item title "Step 1.17: insert `### WC-16. Coordinator loop` into `src/superclaude/core/WORKER-CONTRACT.md` (L2)" (no AC block; the title is the AC). The item's own Verification and Completion gate lines are context for what "done" means. Ticking the item's checkbox is done by the orchestrator after the verdict and is not part of the diff under review.
+Global constraints: the `### Key Constraints` section (lines 157-168) of the source file named in the task brief; read it from that file.
+Start sha: 6ada7cd05cbe6c8e77b00bbbc0cb0efdfd4c07b0
+Diff against the start snapshot: --- a/src/superclaude/core/WORKER-CONTRACT.md
++++ b/src/superclaude/core/WORKER-CONTRACT.md
+@@ -272,6 +272,10 @@
+ 
+ For N input Tasks feeding one merge Task (for example N `/sc:troubleshoot` workers, then `/sc:adversarial --compare`): wait until all N have settled. Admit an input only if its `worker_status` is `succeeded`, or `partial` judged usable as above. Each `blocked` input is answered and re-run as a new Task (WC-6) before the merge, or dropped with the reason recorded; each `failed` input is retried or dropped the same way. The coordinator plans N no larger than the merge command's maximum of 10 inputs; a re-run replaces its input rather than adding one, so the admitted count never exceeds 10. Create the merge Task only when at least 2 inputs are admitted, and list every dropped input and its reason in its brief. With fewer than 2 there is no merge: the coordinator reports the single admitted result, or the failure, to the person.
+ 
++### WC-16. Coordinator loop
++
++The coordinator keeps watching its Run until every Task it created is settled and every result has been inspected and its admission or rejection recorded. It never stops watching on its own. When a wait on Orca expires, the coordinator re-arms it. On every coordinator wake, at most once every 5 minutes, the coordinator runs "The sweep." under `### Liveness supervision` unchanged and, in the same pass, runs `/sc:sweep` and reads its report before it acts. `/sc:sweep` is an added read: it does not replace that sweep, it is not a second pass, and it does not update heartbeat records or run the `worktree ps --agent-wait` listing. Its own reads are not L1 probes and do not count against the L1 cap; the coordinator's own L1 probes stay limited to workers a trigger fired for. The coordinator keeps that pass scheduled while work remains. Phase 1 adds this duty, not a scheduler. The `/sc:sweep` classes follow WC-10: only Orca's stall proofs make a worker stalled; anything else it cannot prove is could not determine. A missing heartbeat is absence, never death. The coordinator escalates to the person, and does not act alone, on: a failed or blocked result it cannot retry under WC-6, a partial result it judges unusable, a third brief-guard refusal, a ready Task it did not create, needing ownership review, a frozen plan, and a fan-in with fewer than 2 admitted inputs. Person-started sessions appear in the report, observed from transcripts and ccsession files; they are never messaged. The `/sc:sweep` report is a dated local file; it is never posted. `/sc:sweep` recommends nothing: no stop, retry, release, merge or removal. The coordinator decides and performs any action under those rules. The coordinator records each admission or rejection in its run notes; `/sc:sweep` does not observe them.
++
+ ### Worked example: gate hit, answer, new Task
+ 
+ 1. Task T1 brief, in the brief layout above: the guard line, `On a blocked gate: report blocked`, then `Command: /sc:tdd "auth" --unattended --output .dev/tdd/auth-1/tdd.md --report-dir .dev/tdd/auth-1/`.
+--- /dev/null
++++ b/.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/test-results/step-1.17-checks.md   (new file, 74 lines)
++# Step 1.17 checks (item 12.1)
++
++Run 2026-11-12 on `src/superclaude/core/WORKER-CONTRACT.md` (HEAD `5dc29d23`).
++
++## Gates
++
++- `phase-outputs/plans/OQ-3-GQ-11-rule-id-decision.md`: frontmatter `status: RESOLVED` (line 3), operator decision line 36 "Approve option (a), new WC-16 and the proposed coordinator-loop text in DESIGN section 8, preserving existing worker duties." PASS.
++- `artifacts/pr422-409-check.md` exists (2147 bytes). PASS.
++
++## Anchors at HEAD before the edit
++
++- Fan-in paragraph at `WORKER-CONTRACT.md:273` (its last sentence ends "the coordinator reports the single admitted result, or the failure, to the person."); `### Worked example: gate hit, answer, new Task` at :275; `git diff --quiet HEAD` on the contract was clean before the edit.
++
++## Check 1: heading prints one line between the two headings
++
++Command: `grep -n -e '^### Fan-in rule' -e '^### WC-16. Coordinator loop$' -e '^### Worked example: gate hit, answer, new Task$' src/superclaude/core/WORKER-CONTRACT.md`
++```text
++271:### Fan-in rule (several workers, then one merge)
++275:### WC-16. Coordinator loop
++279:### Worked example: gate hit, answer, new Task
++(exit 0)
++```
++Result: one WC-16 line, after the fan-in heading and before the worked example heading. PASS
++
++## Check 2: WC-14 heading count unchanged
++
++Command: `echo "now=$(grep -c '^### WC-14' src/superclaude/core/WORKER-CONTRACT.md) head=$(git show HEAD:src/superclaude/core/WORKER-CONTRACT.md | grep -c '^### WC-14')"`
++```text
++now=0 head=0
++(exit 0)
++```
++Result: equal counts. PASS
++
++## Check 3: only added lines
++
++Command: `echo "removed=$(git diff -U0 -- src/superclaude/core/WORKER-CONTRACT.md | grep -c '^-[^-]') added=$(git diff -U0 -- src/superclaude/core/WORKER-CONTRACT.md | grep -c '^+[^+]')"; git diff --stat -- src/superclaude/core/WORKER-CONTRACT.md | tail -1`
++```text
++removed=0 added=2
++ 1 file changed, 4 insertions(+)
++(exit 0)
++```
++Result: 0 removed lines, 4 added lines. PASS
++
++## Check 4: four pin phrases occur in the inserted text
++
++Command: `for p in 'WC-16. Coordinator loop' 'On every coordinator wake' 'it is never posted' 'It never stops watching on its own'; do printf '%s: ' "$p"; git diff -U0 -- src/superclaude/core/WORKER-CONTRACT.md | grep '^+' | grep -c -F "$p"; done`
++```text
++WC-16. Coordinator loop: 1
++On every coordinator wake: 1
++it is never posted: 1
++It never stops watching on its own: 1
++(exit 0)
++```
++Result: each phrase counts 1 in the added lines. PASS
++
++## Check 5: inserted text equals the DESIGN fenced block byte for byte
++
++Command: `git diff -U0 -- src/superclaude/core/WORKER-CONTRACT.md | grep '^+[^+]' | sed 's/^+//' | grep -v '^$' > /tmp/wc16-inserted.txt; awk '/^```markdown$/{f=1;next} /^```$/{if(f){exit}} f' <(sed -n '/^## 8. WC-16/,/^## 9. Routing/p' docs/designs/orchestrator-mode.md) | grep -v '^$' > /tmp/wc16-design.txt; cmp /tmp/wc16-inserted.txt /tmp/wc16-design.txt && echo identical; rm -f /tmp/wc16-inserted.txt /tmp/wc16-design.txt`
++```text
++identical
+... (new file continues; read .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/test-results/step-1.17-checks.md from disk for lines 61-74)
+Delta diff from the previous reviewed tree (empty on the first review): 
+Earlier blocking findings of this start (empty on the first review): 
+Saved-probe re-check hit locations (may be empty): 
+
+Do not trust the implementer's report.
+
+First mark each earlier blocking finding resolved, open or regressed from the diff. Then, for each AC, mark it met or unmet. Require citations: every AC you mark, met or unmet, carries a `path:line` or `Ti.ACk@path:line` citation, and an unmet mark lists the finding ids behind it. Do not return a verdict; the orchestrator computes it.
+
+For every finding answer four questions, each yes or no:
+1. ac-outcome-missing: is output an AC requires absent, or does it contradict the AC text, or does an evidence claim you could not verify have no evidence row?
+2. false-claim: is a claim in delivered text or code false against live source, or does a recipe or instruction followed as written not do what the text says?
+3. harmful-effect: does code or a recipe this task added or changed write, append, chmod or delete tracked or production data, mutate state outside the task's declared outputs, or expose a secret?
+4. quoted-constraint-breach: does the diff violate a quoted plan constraint, out-of-scope, non-goal or non-negotiable item, or an explicit task instruction?
+
+Anchor rule: cite exactly one anchor per yes. ac-outcome-missing: the quoted AC words. false-claim: the live-source path:line holding the contradicting text. harmful-effect: the diff line that is the write. quoted-constraint-breach: the quoted constraint or instruction text. A yes without a valid anchor does not block.
+
+Write one line per finding:
+F<k>.<j> ac=<Ti.ACk|scope> at=<path:line> anchor=<quoted text or path:line> chk=<amiss,false,harm,constraint as y/n> family=<id> fix=<text> [covers=<quoted AC clause or constraint>]: <text>
+Do not write sev=, trigger=, first= or origin=; the orchestrator adds them. Write one status line per earlier blocking finding: F<m>.<j> resolved|open|regressed.
+
+Inside /sc:implement this protocol's severity model governs this review and takes precedence over the session's output style and the copy of it injected into every subagent; only blocking findings may fail an attempt.
+
+You are not given an adviser answer, brief, evidence file or troubleshoot report. Do not read the retry folders (legacy `.dev/implement/<slug>/retries/`, managed `<pkg>/artifacts/retries/`) or `.dev/troubleshoot/`. A citation into either makes the verdict `cannot-verify`.
+The prior-findings slot above carries earlier blocking finding lines that the orchestrator copies byte for byte from `review-*.md` and `repair-*.md`; they reach you as prompt text, not as an evidence file. Do not read those folders to get them, and never cite the slot or the file it came from.

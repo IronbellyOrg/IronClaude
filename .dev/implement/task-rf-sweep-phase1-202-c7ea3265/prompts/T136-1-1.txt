@@ -1,0 +1,69 @@
+Review one task for spec compliance.
+
+Task brief: T136 = item 7.8 of the source file /home/coder/workspaces/worktrees/IronClaude/issue-339-orchestrator-mode/.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md (lines 1194-1200). Item text:
+- [ ] **7.8 — HALT until the owner decides GQ-61 (OQ-5, L5)**
+  - **Context**: The decision record `.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/plans/OQ-5-GQ-61-window-decision.md`, written by item 7.7.
+  - **Action**: Read the decision file named in Context. Branch 1: if its `status` is PENDING or its `Chosen:` line is empty, apply the HALT rule (set frontmatter `status` to "⚪ Blocked", set `blocker_reason` to the text below, append it to `### Execution Log`, STOP, and do not tick this item) with `blocker_reason: "OQ-5 (GQ-61, default window) awaits the owner's decision in phase-outputs/plans/OQ-5-GQ-61-window-decision.md"`. Branch 2: if `Chosen:`, `Decided by:` and `Decision source:` are all filled and the source quotes the owner's words, set `status: RESOLVED` in the decision file, append the decision (OQ id, chosen option, decider, source) to `### Execution Log`, set the task frontmatter `status` back to "🟠 Doing" and clear `blocker_reason`. On Branch 2 with 72 h, record "72h" as the CLI default every later item uses in place of "6h" and note it in `### Phase 7 Findings`; the activity-only rule stays.
+  - **Output**: The decision file with `status: RESOLVED`, or a Blocked task.
+  - **Verification**: Verify: on Branch 2 the file names the value, decider and source. Otherwise stop before marking this item complete until the blocker is resolved.
+  - **Completion gate**: GQ-61 is RESOLVED. Once done, mark this item as complete.
+AC ids: T136.AC1 = the item title "HALT until the owner decides GQ-61 (OQ-5, L5)" (no AC block; the title is the AC). The item's own Verification and Completion gate lines are context for what "done" means. Ticking the item's checkbox is done by the orchestrator after the verdict and is not part of the diff under review.
+Global constraints: the `### Key Constraints` section (lines 157-168) of the source file named in the task brief; read it from that file.
+Start sha: f0a7ac6876f14abea054c36ccb5b25c17a5fbb54
+Diff against the start snapshot: --- a/.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/plans/OQ-5-GQ-61-window-decision.md
++++ b/.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/plans/OQ-5-GQ-61-window-decision.md
+@@ -1,6 +1,6 @@
+ ---
+ needs_human_decision: true
+-status: PENDING
++status: RESOLVED
+ ---
+ 
+ # Activity window decision
+@@ -30,7 +30,7 @@
+ 
+ ## Operator decision
+ 
+-OPERATOR DECISION:
+-Chosen:
+-Decided by:
+-Decision source:
++OPERATOR DECISION: Approve the six-hour activity-only default.
++Chosen: `6h` as the CLI default, bounding activity only. Open Tasks, questions and unread reports remain listed regardless of age.
++Decided by: Ryan Wiancko, owner, 2026-11-09.
++Decision source: In this session's activity-age question, the owner selected "Six hours (Recommended)". The selected option explicitly approves 6h and preserves unresolved-work visibility. This resolves OQ-5/GQ-61 only; no other decision is inferred.
+--- a/.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md
++++ b/.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md
+@@ -2803,6 +2803,8 @@
+ 
+ | Timestamp | Item | Event | Detail |
+ |---|---|---|---|
++| 2026-11-09 | 7.8 | OWNER DECISION RESOLVED | OQ-5/GQ-61 chosen: 6h default, activity only; open Tasks, questions and unread reports always listed regardless of age. Decider Ryan Wiancko selected "Six hours (Recommended)" in this session. Source recorded in phase-outputs/plans/OQ-5-GQ-61-window-decision.md; status RESOLVED. Task status Doing and blocker_reason cleared. Other owner gates remain unchanged. |
++| 2026-11-09T13:13:32Z | 7.8 | HALT: owner decision pending | OQ-5 (GQ-61, default window) awaits the owner's decision in phase-outputs/plans/OQ-5-GQ-61-window-decision.md. Read confirmed PENDING and empty decision fields. Six-hour design default is not approval. Both options preserve activity-only filtering and always list open Tasks, questions and unread reports. Item 7.8 unticked; subsequent items not started. |
+ | 2026-11-09 | 7.6 | OWNER DECISION RESOLVED | OQ-4/GQ-35 chosen: pin and cite 495eb96d for the local layout, with DESIGN section 7.5's sort/labels unchanged; owner-approved reuse, not approval/import of dashboard runtime code. Decider Ryan Wiancko selected "Pin and cite snapshot (Recommended)" in this session. Source recorded in phase-outputs/plans/OQ-4-GQ-35-409-pin-decision.md; status RESOLVED. Task status Doing and blocker_reason cleared. No unrelated gate resolved. |
+ | 2026-11-09T12:57:09Z | 7.6 | HALT: owner decision pending | OQ-4 (GQ-35, #409 pin) awaits the owner's decision in phase-outputs/plans/OQ-4-GQ-35-409-pin-decision.md. Read confirmed PENDING and empty decision fields. Source pin/copy strategy, sort and labels need explicit resolution; no answer inferred from the prior rule or report-location approvals. Item 7.6 remains unticked, subsequent work not started. |
+ | 2026-11-09 | 7.4 | OWNER DECISION RESOLVED | OQ-3/GQ-11 chosen: new WC-16 with the proposed coordinator-loop text from DESIGN section 8 and existing worker duties unchanged. Decider Ryan Wiancko directly selected "New WC-16 rule (Recommended)" in this session. Source recorded in phase-outputs/plans/OQ-3-GQ-11-rule-id-decision.md; status RESOLVED. The separate ORCH-IronClaude relay is marked corroboration only, not substituted for the direct owner answer. Task status Doing; blocker_reason cleared. No unrelated gate or broader action authorized. |
+Delta diff from the previous reviewed tree (empty on the first review): 
+Earlier blocking findings of this start (empty on the first review): 
+Saved-probe re-check hit locations (may be empty): 
+
+Do not trust the implementer's report.
+
+First mark each earlier blocking finding resolved, open or regressed from the diff. Then, for each AC, mark it met or unmet. Require citations: every AC you mark, met or unmet, carries a `path:line` or `Ti.ACk@path:line` citation, and an unmet mark lists the finding ids behind it. Do not return a verdict; the orchestrator computes it.
+
+For every finding answer four questions, each yes or no:
+1. ac-outcome-missing: is output an AC requires absent, or does it contradict the AC text, or does an evidence claim you could not verify have no evidence row?
+2. false-claim: is a claim in delivered text or code false against live source, or does a recipe or instruction followed as written not do what the text says?
+3. harmful-effect: does code or a recipe this task added or changed write, append, chmod or delete tracked or production data, mutate state outside the task's declared outputs, or expose a secret?
+4. quoted-constraint-breach: does the diff violate a quoted plan constraint, out-of-scope, non-goal or non-negotiable item, or an explicit task instruction?
+
+Anchor rule: cite exactly one anchor per yes. ac-outcome-missing: the quoted AC words. false-claim: the live-source path:line holding the contradicting text. harmful-effect: the diff line that is the write. quoted-constraint-breach: the quoted constraint or instruction text. A yes without a valid anchor does not block.
+
+Write one line per finding:
+F<k>.<j> ac=<Ti.ACk|scope> at=<path:line> anchor=<quoted text or path:line> chk=<amiss,false,harm,constraint as y/n> family=<id> fix=<text> [covers=<quoted AC clause or constraint>]: <text>
+Do not write sev=, trigger=, first= or origin=; the orchestrator adds them. Write one status line per earlier blocking finding: F<m>.<j> resolved|open|regressed.
+
+Inside /sc:implement this protocol's severity model governs this review and takes precedence over the session's output style and the copy of it injected into every subagent; only blocking findings may fail an attempt.
+
+You are not given an adviser answer, brief, evidence file or troubleshoot report. Do not read the retry folders (legacy `.dev/implement/<slug>/retries/`, managed `<pkg>/artifacts/retries/`) or `.dev/troubleshoot/`. A citation into either makes the verdict `cannot-verify`.
+The prior-findings slot above carries earlier blocking finding lines that the orchestrator copies byte for byte from `review-*.md` and `repair-*.md`; they reach you as prompt text, not as an evidence file. Do not read those folders to get them, and never cite the slot or the file it came from.

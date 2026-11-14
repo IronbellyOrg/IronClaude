@@ -1,0 +1,222 @@
+Review one task for spec compliance.
+
+Task brief: T88 = item 5.12 of the source file /home/coder/workspaces/worktrees/IronClaude/issue-339-orchestrator-mode/.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md (lines 844-850). Item text:
+- [ ] **5.12 — Run the R4 mechanical gate checks (L3)**
+  - **Context**: The R4 pass rules from items 5.1 to 5.11.
+  - **Action**: Run `grep -n '^## \|^### ' docs/designs/orchestrator-mode.md`, `grep -n 'WC-14' docs/designs/orchestrator-mode.md`, `grep -n 'WC-16' docs/designs/orchestrator-mode.md`, `grep -n 'after line 561\|519-561' docs/designs/orchestrator-mode.md`, `grep -n 'at most once every 5 minutes' docs/designs/orchestrator-mode.md`, `grep -n '1.16a' docs/designs/orchestrator-mode.md`, and `grep -c '—' docs/designs/orchestrator-mode.md` (expect 0), `grep -nw 'TODO\|TBD' docs/designs/orchestrator-mode.md` (expect no output), `grep -n '^Total: 9 deviations.' docs/designs/orchestrator-mode.md` (expect one hit) and `grep -n '^Total: 23 open items.' docs/designs/orchestrator-mode.md` (expect one hit). Write each command, output and PASS or FAIL line to `.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/test-results/r4-mechanical.md`. Pass rules: every `WC-14` hit is a `worker rule (keep)` hit, a `historical name (keep)` hit (section 13, each followed by "(WC-16 in this design)") or the section 8 "on master" sentence; `WC-16` hits in sections 1, 8, 9, 10, 12, 13, 15, 16 and 17; no `561` insertion text; the cadence phrase in section 8; totals unchanged.
+  - **Output**: `.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/test-results/r4-mechanical.md`.
+  - **Verification**: Verify: one PASS or FAIL line per check. On a FAIL, fix it in the owning item (5.1 to 5.11) and re-run this item; log each re-run in `### Phase 5 Findings`.
+  - **Completion gate**: Every mechanical check PASSes. Once done, mark this item as complete.
+AC ids: T88.AC1 = the item title "Run the R4 mechanical gate checks (L3)" (no AC block; the title is the AC). The item's own Verification and Completion gate lines are context for what "done" means. Ticking the item's checkbox is done by the orchestrator after the verdict and is not part of the diff under review.
+Global constraints: the `### Key Constraints` section (lines 157-168) of the source file named in the task brief; read it from that file.
+Start sha: f3b593da5db6fe84c3faa5f9190cb9eb9821dbf8
+Diff against the start snapshot: --- /dev/null
++++ b/.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/test-results/r4-mechanical.md   (new file, 155 lines)
++# R4 mechanical gate checks (item 5.12)
++
++Design file: `docs/designs/orchestrator-mode.md` (1041 lines). Run on 2026-11-08T23:34:03Z.
++
++## Command 1: section map
++```
++$ grep -n '^## \|^### ' docs/designs/orchestrator-mode.md
++3:## 1. Status, scope and inputs
++37:## 2. GQ resolutions
++39:### 2.1 GQ-103(1) first: lock-free git in the seam
++51:### 2.2 GQ-101 to GQ-110
++74:### 2.3 GQ-111 to GQ-113 (stale REPORT citations)
++82:## 3. G-1 with SP-20: report publication
++86:### 3.1 Where the write lives
++99:### 3.2 The one write mechanism
++131:### 3.3 What a crash can leave, and why it is never reused
++149:### 3.4 Final exit-1 rule
++157:## 4. Component diagram
++223:## 5. Sequence diagram
++290:## 6. Data flow with counts
++351:## 7. Interfaces
++353:### 7.1 Module signatures
++449:### 7.2 Data model
++519:### 7.3 Allowlist constants
++559:### 7.4 JSON schema v1
++599:### 7.5 Report layout
++616:## Source coverage
++617:## Waiting on a person (a)
++621:## Waiting on a person (b)
++622:### Ready Tasks needing ownership review (creator not observable in Phase 1)
++624:## Could not determine
++625:## Retained problems
++626:## Sessions (<shown>/<total>)
++628:## Worktrees
++629:## Historical sessions
++630:## Shift Brief
++631:## What I could not determine
++647:### 7.6 Command and skill surface
++666:## 8. WC-16 and the never-as-worker list
++675:### WC-16. Coordinator loop
++705:## 9. Routing and documentation changes
++727:## 10. `.gitignore`
++741:## 11. Test plan mapped to files
++766:## 12. Traceability
++818:## 13. Deviations from SPEC
++854:## 14. Panel notes carried into the design
++881:## 15. REPORT step mapping for `/task-builder`
++883:### 15.1 What step 1.0a captures
++917:### 15.2 Step table
++961:## 16. Rollback
++980:## 17. Open items
++1012:## 18. Revision log: fix cycle 1
++1022:### Fix cycle 2
++1032:### Fix cycle 3
++```
++
++## Command 2: WC-14 hits
++```
++$ grep -n 'WC-14' docs/designs/orchestrator-mode.md
++668:**Gate.** Steps 1.17 to 1.19 are written only after the owner answers GQ-11 (step 1.0b) and step 1.16a has
++829:| D6 | WC-14 (WC-16 in this design) text of SPEC section 10 (lines 404-408) | The same text renumbered WC-
++852:| 1.17 | The REPORT's WC-14 (WC-16 in this design) draft | The SPEC section 10 text plus D6 (section 8) |
++1041:| R4 | DESIGN was written against base `e8db2fe6`; master `5dc29d23` already has WC-14 and WC-15, a coord
++```
++
++## Command 3: WC-16 hits
++```
++$ grep -n 'WC-16' docs/designs/orchestrator-mode.md
++5:Status: design for review, issue #339 Phase 1, written 2026-11-08 by `/sc:design --type architecture --forma
++13:Phase 1 adds one read-only command, `superclaude sweep run`, a thin `/sc:sweep` command and `sc-sweep-proto
++666:## 8. WC-16 and the never-as-worker list
++668:**Gate.** Steps 1.17 to 1.19 are written only after the owner answers GQ-11 (step 1.0b) and step 1.16a has
++672:**Final text.** The SPEC section 10 text (lines 404-408) with three changes, all deviation D6: the heading
++675:### WC-16. Coordinator loop
++684:- Add to `RULE_PHRASES` (the dict at line 25), after the `"WC-15"` entry (lines 165-172) and before the `"
++697:- `_check_rule` (lines 755-762) needs the rule ident on the heading line, so the WC-16 heading carries `WC
++712:| R2 | Same file, `## Orca coordination` (line 396) | One bullet after the never-workers bullet (line 403)
++718:| R8 | `CHANGELOG.md`, `## [Unreleased]` (line 5) | A `### sweep: read-only supervision snapshot (Phase 1)
++732:# superclaude sweep reports: dated, operator-local, never posted (WC-16). Never tracked.
++794:| FR-023 | WC-16 and the never-as-worker addition (8) | `tests/skills/test_worker_contract.py` |
++829:| D6 | WC-14 (WC-16 in this design) text of SPEC section 10 (lines 404-408) | The same text renumbered WC-
++852:| 1.17 | The REPORT's WC-14 (WC-16 in this design) draft | The SPEC section 10 text plus D6 (section 8) |
++943:| 1.17 | | WC-16 in `src/superclaude/core/WORKER-CONTRACT.md` | 8 | 1.0b (GQ-11 answered), 1.16a |
++970:| WC-16 with the D6 sentence, the line 23 never-as-worker entry, the `RULE_PHRASES` entry, the `NEVER_AS_W
++1005:| 20 | Owner decisions GQ-10, GQ-11 (WC-16 approval), GQ-35, GQ-61 and GQ-63 | Step 1.0b | Steps 1.17 to 
++1006:| 21 | PR #422 overlap with WC-16, the never-as-worker list and the #409 dimensions | Step 1.16a | Steps 
++1041:| R4 | DESIGN was written against base `e8db2fe6`; master `5dc29d23` already has WC-14 and WC-15, a coord
++```
++
++## Command 4: old insertion text
++```
++$ grep -n 'after line 561\|519-561' docs/designs/orchestrator-mode.md
++(no output expected; grep exit status 1)
++```
++
++## Command 5: cadence phrase
++```
++$ grep -n 'at most once every 5 minutes' docs/designs/orchestrator-mode.md
++672:**Final text.** The SPEC section 10 text (lines 404-408) with three changes, all deviation D6: the heading
++677:The coordinator keeps watching its Run until every Task it created is settled and every result has been in
++712:| R2 | Same file, `## Orca coordination` (line 396) | One bullet after the never-workers bullet (line 403)
++829:| D6 | WC-14 (WC-16 in this design) text of SPEC section 10 (lines 404-408) | The same text renumbered WC-
++1041:| R4 | DESIGN was written against base `e8db2fe6`; master `5dc29d23` already has WC-14 and WC-15, a coord
++```
++
++## Command 6: step 1.16a hits
++```
++$ grep -n '1.16a' docs/designs/orchestrator-mode.md
++668:**Gate.** Steps 1.17 to 1.19 are written only after the owner answers GQ-11 (step 1.0b) and step 1.16a has
++915:Pre-implementation steps: 1.0a (this capture), 1.0b (owner decisions) and 1.16a (the record-only PR #422 c
++942:| 1.16a | Pre | Record-only: write `.dev/tasks/<pkg>/artifacts/pr422-409-check.md` with four points: (1) t
++943:| 1.17 | | WC-16 in `src/superclaude/core/WORKER-CONTRACT.md` | 8 | 1.0b (GQ-11 answered), 1.16a |
++975:| Step artifacts under `.dev/tasks/<pkg>/artifacts/` (design: `readonly-probe.md`, `owner-decisions.md`, t
++1006:| 21 | PR #422 overlap with WC-16, the never-as-worker list and the #409 dimensions | Step 1.16a | Steps 
++1041:| R4 | DESIGN was written against base `e8db2fe6`; master `5dc29d23` already has WC-14 and WC-15, a coord
++```
++
++## Command 7: em-dash count
++```
++$ grep -c '—' docs/designs/orchestrator-mode.md
++0
++```
++
++## Command 8: TODO or TBD
++```
++$ grep -nw 'TODO\|TBD' docs/designs/orchestrator-mode.md
++(no output expected; grep exit status 1)
++```
++
++## Command 9: deviation total
++```
++$ grep -n '^Total: 9 deviations.' docs/designs/orchestrator-mode.md
++834:Total: 9 deviations.
++```
++
++## Command 10: open-item total
++```
++$ grep -n '^Total: 23 open items.' docs/designs/orchestrator-mode.md
++1010:Total: 23 open items.
++```
++
++## Checks
++
++- Check 1: PASS - every WC-14 hit is a worker rule (keep) hit (the section 8 on-master sentence, 1, and the section 18 R4 row that names master WC-14, 1) or one of the two section 13 historical names (2), each followed by (WC-16 in this design)
++- Check 2: PASS - WC-16 appears in sections 1, 8, 9, 10, 12, 13, 15, 16 and 17
++- Check 3: PASS - no 'after line 561' or '519-561' text; 'after line 565' appears 2 times
++- Check 4: PASS - the cadence phrase is in section 8 (2 lines) and in the WC-16 block (1)
++- Check 5: PASS - no 'wait for', 'follow-up PR', 'rebase' or 'if #422 is open' wording on any 1.16a line
++- Check 6: PASS - em-dash count is 0
++- Check 7: PASS - no TODO or TBD
++- Check 8: PASS - one 'Total: 9 deviations.' hit
++- Check 9: PASS - one 'Total: 23 open items.' hit
++- Check 10: PASS - 18 numbered ## sections, as before
++
++Result: 10 of 10 checks PASS.
+--- a/.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md
++++ b/.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md
+@@ -827,14 +827,14 @@
+   - **Verification**: Verify: routing row R8 contains `#### Added (sweep)` and no "One `### Added` entry".
+   - **Completion gate**: Routing row R8 matches the CHANGELOG style. Once done, mark this item as complete.
+ 
+-- [ ] **5.10 — R4: re-check every other contract and test citation in DESIGN (L1)**
++- [x] **5.10 — R4: re-check every other contract and test citation in DESIGN (L1)**
+   - **Context**: research/07:169: other WC anchors shifted by 1 to 3 lines, and WC-5, WC-7, WC-10, WC-11 and WC-12 gained text. research/08 confirms the HOW-WE-WORK, `docs/user-guide/commands.md` and CHANGELOG anchors at the same lines, with the `/sc:issue` rows at `HOW-WE-WORK.md:329` and `commands.md:115` changed in text only.
+   - **Action**: DESIGN cites changed files mostly in the bare form "line N" or "lines N-M" (for example "(line 396)", "`.gitignore` line 254"), not as `file:line`. Run `grep -n 'line[s]\? [0-9]\|\.md:[0-9]\|\.py:[0-9]' docs/designs/orchestrator-mode.md | grep 'WORKER-CONTRACT\|test_worker_contract\|HOW-WE-WORK\|commands\.md\|CHANGELOG\|main\.py\|test_routing_refresh\|test_how_we_work_routing_table\|test_routing_plugin_parity\|graph\.md\|Developer-Guide\|\.gitignore'` (18 hit lines at build time, in sections 1, 2, 7, 8, 9, 10, 13, 15 and 16). Also take the section 8 lines between `**Pins**` and `## 9.` that cite a line of `test_worker_contract.py` or `WORKER-CONTRACT.md` named in their lead-in line. For each cited line in a hit that items 5.5 and 5.6 did not already fix, read that line of the current file and mark it CONFIRMED, MOVED (update DESIGN) or CHANGED (update the DESIGN wording). Record each hit, the file it cites, the line text read, and its status in `.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/discovery/r4-reanchor.md`.
+   - **Output**: `.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/discovery/r4-reanchor.md` and DESIGN with every cited line current.
+   - **Verification**: Verify: the filtered grep returned at least one hit in each of sections 8, 9 and 10 (a run with zero hits, or none in one of those sections, is a FAIL: fix the pattern and re-run); every hit has a status row with the line text read; no MOVED or CHANGED row is left without a DESIGN edit. If a cited file no longer exists, log it in `### Phase 5 Findings` and stop.
+   - **Completion gate**: All citations are current. Once done, mark this item as complete.
+ 
+-- [ ] **5.11 — R4: the Fix cycle 3 R4 row**
++- [x] **5.11 — R4: the Fix cycle 3 R4 row**
+   - **Context**: The `### Fix cycle 3` table (items 2.6, 3.4, 4.5).
+   - **Action**: Append `| R4 | <finding> | <change> |` with the finding "DESIGN was written against base `e8db2fe6`; master `5dc29d23` already has WC-14 and WC-15, a coordinator sweep at most once every 5 minutes, and a moved `main.py` insertion point" and the change "Renamed the coordinator-loop rule to WC-16 everywhere (1, 8, 9, 10, 12, 15, 16, 17), and marked the SPEC and REPORT draft names in 13 and 14; aligned the cadence with contract line 110 in WC-16 and routing row R2, and recorded the renumbering and the cadence as part of D6 (8, 9, 13); re-anchored contract, test and `main.py` lines; added the fifth pin; recorded the master test constraints (7.6, 8); made step 1.16a record-only; routing row R8 uses the CHANGELOG topic-heading style (9)".
+   - **Output**: DESIGN section 18 with the R4 row.
+@@ -2858,6 +2858,9 @@
+ - Build time (2026-11-08), coordinator msg_df77dc7c7c15, after reflect run 2: R-04 (F-04) added one Key Constraints bullet carrying DESIGN section 2.3: never edit the REPORT, take gaps counts only from the GAPS count line named in that bullet (113 rows, 88 open, 25 resolved), keep the GQ-113 reading.
+ - Build time (2026-11-08), coordinator msg_df77dc7c7c15, after reflect run 2: R-05 (F-05) items 8.5 and 8.10 now mark `OUTPUT_LIMIT`, `CONTRACT_LIMIT = LEDGER_LIMIT`, `LEDGER_SPLIT` and `TRANSCRIPT_TAIL` "proposed" in a declaration comment and check it with a grep (8.5 expects 1, 8.10 expects 4); DESIGN open item 19 is carried as a [Medium] Follow-Up Item. DESIGN `Total: 23 open items.` and its four pins are unchanged.
+ 
++- Item 5.12 (R4 mechanical checks), re-run log: the first run FAILed check 1 (WC-14 hit classes) on line 1041, the new Fix cycle 3 R4 row, whose finding text names master's WC-14 and WC-15. That hit is a `worker rule (keep)` hit under the item's own pass rule, so the owning item (5.11) is correct and the check script's classification was missing it. The script was fixed and the item re-run: 10 of 10 checks PASS (`phase-outputs/test-results/r4-mechanical.md`). The design file was not changed by the re-run.
++- Items 5.1 to 5.12 process notes: (1) the start snapshots of T79 and T80 were taken after their edits had been made, so they were rebuilt with the edits reverted (script `revstart.sh`); (2) T86's complete line was written before its review had returned, the review then found a wrong hit count and two missing rows in `r4-reanchor.md` (fixed, then a fresh re-review was run).
++
+ ### Phase 6 Findings
+ 
+ - Build time (2026-11-08): R5 was resolved by the owner as allow. The decision record `phase-outputs/plans/OQ-1-agent-wait-decision.md` was written at build time, and items 6.1 to 6.4 were rewritten to apply the allow branch. The old branch (b) does not apply.
+Delta diff from the previous reviewed tree (empty on the first review): 
+Earlier blocking findings of this start (empty on the first review): 
+Saved-probe re-check hit locations (may be empty): 
+
+Do not trust the implementer's report.
+
+First mark each earlier blocking finding resolved, open or regressed from the diff. Then, for each AC, mark it met or unmet. Require citations: every AC you mark, met or unmet, carries a `path:line` or `Ti.ACk@path:line` citation, and an unmet mark lists the finding ids behind it. Do not return a verdict; the orchestrator computes it.
+
+For every finding answer four questions, each yes or no:
+1. ac-outcome-missing: is output an AC requires absent, or does it contradict the AC text, or does an evidence claim you could not verify have no evidence row?
+2. false-claim: is a claim in delivered text or code false against live source, or does a recipe or instruction followed as written not do what the text says?
+3. harmful-effect: does code or a recipe this task added or changed write, append, chmod or delete tracked or production data, mutate state outside the task's declared outputs, or expose a secret?
+4. quoted-constraint-breach: does the diff violate a quoted plan constraint, out-of-scope, non-goal or non-negotiable item, or an explicit task instruction?
+
+Anchor rule: cite exactly one anchor per yes. ac-outcome-missing: the quoted AC words. false-claim: the live-source path:line holding the contradicting text. harmful-effect: the diff line that is the write. quoted-constraint-breach: the quoted constraint or instruction text. A yes without a valid anchor does not block.
+
+Write one line per finding:
+F<k>.<j> ac=<Ti.ACk|scope> at=<path:line> anchor=<quoted text or path:line> chk=<amiss,false,harm,constraint as y/n> family=<id> fix=<text> [covers=<quoted AC clause or constraint>]: <text>
+Do not write sev=, trigger=, first= or origin=; the orchestrator adds them. Write one status line per earlier blocking finding: F<m>.<j> resolved|open|regressed.
+
+Inside /sc:implement this protocol's severity model governs this review and takes precedence over the session's output style and the copy of it injected into every subagent; only blocking findings may fail an attempt.
+
+You are not given an adviser answer, brief, evidence file or troubleshoot report. Do not read the retry folders (legacy `.dev/implement/<slug>/retries/`, managed `<pkg>/artifacts/retries/`) or `.dev/troubleshoot/`. A citation into either makes the verdict `cannot-verify`.
+The prior-findings slot above carries earlier blocking finding lines that the orchestrator copies byte for byte from `review-*.md` and `repair-*.md`; they reach you as prompt text, not as an evidence file. Do not read those folders to get them, and never cite the slot or the file it came from.

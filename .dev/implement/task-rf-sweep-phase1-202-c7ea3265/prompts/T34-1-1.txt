@@ -1,0 +1,156 @@
+Review one task for spec compliance.
+
+Task brief: T34 = item 3.5 of the source file /home/coder/workspaces/worktrees/IronClaude/issue-339-orchestrator-mode/.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md (lines 454-460). Item text:
+- [ ] **3.5 — Run the R3-B2 mechanical gate checks (L3)**
+  - **Context**: research/04:222 and :224: 7.2 gives exactly one outcome for one window holds, two or more hold, none holds; each outcome has a fixture in section 11 (research/09:172 maps them); D9, SP-29 and FR-010 agree; em-dash 0; no `TODO` or `TBD`; `Total: 9 deviations.`; `Total: 23 open items.`.
+  - **Action**: Run `grep -n '^## \|^### ' docs/designs/orchestrator-mode.md`, `grep -n 'conflict: one pane session\|pane moved to a later session\|joined by pane: latest session' docs/designs/orchestrator-mode.md`, `grep -n 'exactly one window holding it\|several rows matching one pane session' docs/designs/orchestrator-mode.md`, `grep -c '—' docs/designs/orchestrator-mode.md` (expect 0), `grep -nw 'TODO\|TBD' docs/designs/orchestrator-mode.md` (expect no output), `grep -n '^Total: 9 deviations.' docs/designs/orchestrator-mode.md` (expect one hit) and `grep -n '^Total: 23 open items.' docs/designs/orchestrator-mode.md` (expect one hit). Write each command, its output and a PASS or FAIL line to `.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/test-results/r3-b2-mechanical.md`, with an outcome-to-fixture table (three outcomes, each with its fixture name and the 7.2 sentence).
+  - **Output**: `.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/test-results/r3-b2-mechanical.md`.
+  - **Verification**: Verify: one PASS or FAIL line per check. On a FAIL, fix the edit in the owning item (3.1 to 3.4) and re-run this item; log each re-run in `### Phase 3 Findings`.
+  - **Completion gate**: Every mechanical check PASSes. Once done, mark this item as complete.
+AC ids: T34.AC1 = the item title "Run the R3-B2 mechanical gate checks (L3)" (no AC block; the title is the AC). The item's own Verification and Completion gate lines are context for what "done" means. Ticking the item's checkbox is done by the orchestrator after the verdict and is not part of the diff under review.
+Global constraints: the `### Key Constraints` section (lines 157-168) of the source file named in the task brief; read it from that file.
+Start sha: 836b9e9548d5ab067d68fd3be88508fee92d476d
+Diff against the start snapshot: --- /dev/null
++++ b/.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/test-results/r3-b2-mechanical.md   (new file, 116 lines)
++# R3-B2 mechanical gate checks (item 3.5)
++
++Design file: `docs/designs/orchestrator-mode.md` (1026 lines). Section 7.2 is lines 449-517, the worker bullet is line 498, section 11 is lines 728-752. Run on 2026-11-08T21:10:08Z.
++
++## Command 1: section map
++```
++$ grep -n '^## \|^### ' docs/designs/orchestrator-mode.md
++3:## 1. Status, scope and inputs
++37:## 2. GQ resolutions
++39:### 2.1 GQ-103(1) first: lock-free git in the seam
++51:### 2.2 GQ-101 to GQ-110
++74:### 2.3 GQ-111 to GQ-113 (stale REPORT citations)
++82:## 3. G-1 with SP-20: report publication
++86:### 3.1 Where the write lives
++99:### 3.2 The one write mechanism
++131:### 3.3 What a crash can leave, and why it is never reused
++149:### 3.4 Final exit-1 rule
++157:## 4. Component diagram
++223:## 5. Sequence diagram
++290:## 6. Data flow with counts
++351:## 7. Interfaces
++353:### 7.1 Module signatures
++449:### 7.2 Data model
++518:### 7.3 Allowlist constants
++558:### 7.4 JSON schema v1
++596:### 7.5 Report layout
++613:## Source coverage
++614:## Waiting on a person (a)
++618:## Waiting on a person (b)
++619:### Ready Tasks needing ownership review (creator not observable in Phase 1)
++621:## Could not determine
++622:## Retained problems
++623:## Sessions (<shown>/<total>)
++625:## Worktrees
++626:## Historical sessions
++627:## Shift Brief
++628:## What I could not determine
++644:### 7.6 Command and skill surface
++663:## 8. WC-14 and the never-as-worker list
++672:### WC-14. Coordinator loop
++692:## 9. Routing and documentation changes
++714:## 10. `.gitignore`
++728:## 11. Test plan mapped to files
++753:## 12. Traceability
++805:## 13. Deviations from SPEC
++841:## 14. Panel notes carried into the design
++868:## 15. REPORT step mapping for `/task-builder`
++870:### 15.1 What step 1.0a captures
++904:### 15.2 Step table
++948:## 16. Rollback
++967:## 17. Open items
++999:## 18. Revision log: fix cycle 1
++1009:### Fix cycle 2
++1019:### Fix cycle 3
++```
++
++## Command 2: note literals
++```
++$ grep -n 'conflict: one pane session\|pane moved to a later session\|joined by pane: latest session' docs/designs/orchestrator-mode.md
++498:- A worker, for FR-010, is a transcript that joins a Dis
++743:| `tests/sweep/test_classify.py` | FR-006 to FR-010, FR-
++1015:| R2-B1 | Under path B, a scoped worker's pane can move
++1026:| R3-B2 | Two Dispatch rows on one pane give conflictin
++```
++
++## Command 3: rule wording in rows
++```
++$ grep -n 'exactly one window holding it\|several rows matching one pane session' docs/designs/orchestrator-mode.md
++768:| FR-010 | `person_started
++819:| D9 | FR-010 and SP-29 (l
++857:| SP-29 | Applied with the
++```
++
++## Command 4: em-dash count
++```
++$ grep -c '—' docs/designs/orchestrator-mode.md
++0
++```
++
++## Command 5: TODO or TBD
++```
++$ grep -nw 'TODO\|TBD' docs/designs/orchestrator-mode.md
++(no output expected; grep exit status 1 means no match)
++```
++
++## Command 6: deviation total
++```
++$ grep -n '^Total: 9 deviations.' docs/designs/orchestrator-mode.md
++821:Total: 9 deviations.
++```
++
++## Command 7: open-item total
++```
++$ grep -n '^Total: 23 open items.' docs/designs/orchestrator-mode.md
++997:Total: 23 open items.
++```
++
++## Outcome-to-fixture table (check 2 reads it)
++
++| Outcome | 7.2 sentence (worker bullet, line 498) | Fixture in section 11 | Hits in 7.2 | Hits in 11 |
++|---|---|---|---|---|
++| One matching row's window holds the transcript | "If exactly one matching row's window holds the transcript, the transcript joins that row only and is False with note `joined by pane: latest session of the pane`" | `test_path_b_pane_reused_joins_later_row_only` | 1 | 1 |
++| Two or more matching rows' windows hold it | "If two or more matching rows' windows hold it, it joins none of them" (note `conflict: one pane session matches several Dispatch rows`) | `test_path_b_two_windows_hold_session_is_conflict` and `test_path_b_shared_boundary_second_is_conflict` | 1 | 1 and 1 |
++| No matching row's window holds it | "If no matching row's window holds it, every matching row is could not determine with its note" | `test_path_b_no_matching_window_holds` | 1 | 1 |
++
++## Checks
++
++- Check 1: PASS - 7.2 gives exactly one sentence for each of the three outcomes (one holds, two or more hold, none holds)
++- Check 2: PASS - each outcome has a fixture in section 11 (table above)
++- Check 3: PASS - D9, SP-29 and the FR-010 row carry the several-rows wording (1 1 1)
++- Check 4: PASS - em-dash count is 0
++- Check 5: PASS - no TODO or TBD
++- Check 6: PASS - one 'Total: 9 deviations.' hit
++- Check 7: PASS - one 'Total: 23 open items.' hit
++
++Result: 7 of 7 checks PASS.
+
+The task created the one new file above (.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/test-results/r3-b2-mechanical.md, 116 lines; shown in full unless a truncation marker appears). Re-run its commands yourself against docs/designs/orchestrator-mode.md and check the outcome-to-fixture table and the seven PASS lines. The item asks for each command, its output and a PASS or FAIL line, with an outcome-to-fixture table of three outcomes, each with its fixture name and the 7.2 sentence. Research mapping: research/09-gap-fill.md line 172.
+Delta diff from the previous reviewed tree (empty on the first review): 
+Earlier blocking findings of this start (empty on the first review): 
+Saved-probe re-check hit locations (may be empty): 
+
+Do not trust the implementer's report.
+
+First mark each earlier blocking finding resolved, open or regressed from the diff. Then, for each AC, mark it met or unmet. Require citations: every AC you mark, met or unmet, carries a `path:line` or `Ti.ACk@path:line` citation, and an unmet mark lists the finding ids behind it. Do not return a verdict; the orchestrator computes it.
+
+For every finding answer four questions, each yes or no:
+1. ac-outcome-missing: is output an AC requires absent, or does it contradict the AC text, or does an evidence claim you could not verify have no evidence row?
+2. false-claim: is a claim in delivered text or code false against live source, or does a recipe or instruction followed as written not do what the text says?
+3. harmful-effect: does code or a recipe this task added or changed write, append, chmod or delete tracked or production data, mutate state outside the task's declared outputs, or expose a secret?
+4. quoted-constraint-breach: does the diff violate a quoted plan constraint, out-of-scope, non-goal or non-negotiable item, or an explicit task instruction?
+
+Anchor rule: cite exactly one anchor per yes. ac-outcome-missing: the quoted AC words. false-claim: the live-source path:line holding the contradicting text. harmful-effect: the diff line that is the write. quoted-constraint-breach: the quoted constraint or instruction text. A yes without a valid anchor does not block.
+
+Write one line per finding:
+F<k>.<j> ac=<Ti.ACk|scope> at=<path:line> anchor=<quoted text or path:line> chk=<amiss,false,harm,constraint as y/n> family=<id> fix=<text> [covers=<quoted AC clause or constraint>]: <text>
+Do not write sev=, trigger=, first= or origin=; the orchestrator adds them. Write one status line per earlier blocking finding: F<m>.<j> resolved|open|regressed.
+
+Inside /sc:implement this protocol's severity model governs this review and takes precedence over the session's output style and the copy of it injected into every subagent; only blocking findings may fail an attempt.
+
+You are not given an adviser answer, brief, evidence file or troubleshoot report. Do not read the retry folders (legacy `.dev/implement/<slug>/retries/`, managed `<pkg>/artifacts/retries/`) or `.dev/troubleshoot/`. A citation into either makes the verdict `cannot-verify`.
+The prior-findings slot above carries earlier blocking finding lines that the orchestrator copies byte for byte from `review-*.md` and `repair-*.md`; they reach you as prompt text, not as an evidence file. Do not read those folders to get them, and never cite the slot or the file it came from.

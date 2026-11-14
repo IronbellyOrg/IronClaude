@@ -1,0 +1,2 @@
+ec0d2e5b1c25ae5bb9e80731a54e39c25a7e5a30
+A1 r1-1 F1.1 note .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/docs/qa-command-skill-report.md:19-24 ac=T291.AC1 amiss:n,false:n,harm:n,constraint:n The lens text says each departure is BLOCKING, but the report grades the missing test pins on the command frontmatter name, description, argument-hint and heading order as MINOR (C16 FAIL), based on DESIGN 7.6 Test bullet (orchestrator-mode.md:666). The evidence is accurate; the grade stays as the QA agent set it and the gap is listed as a follow-up.

@@ -1,0 +1,127 @@
+Review one task for spec compliance.
+
+Task brief: T110 = item 6.4 of the source file /home/coder/workspaces/worktrees/IronClaude/issue-339-orchestrator-mode/.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md (lines 1004-1010). Item text:
+- [ ] **6.4 — Run the R5 mechanical checks (L3)**
+  - **Context**: Item 6.3 allow-branch edits in DESIGN `docs/designs/orchestrator-mode.md` (sections 4 (the line 221 extension-point rule), 7.3, 11, 12 (NFR-014 row), 13 and 15.1, the GQ-109 row and the `### Fix cycle 3` R5 row). These checks feed the R5 gate (items 6.5 to 6.22, `.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/r5/`); the Phase 7 decisions gate re-reads the R5 edit only as one of its inputs.
+  - **Action**: Run `grep -n 'agent-wait' docs/designs/orchestrator-mode.md`, `grep -n '^| R5 | Master' docs/designs/orchestrator-mode.md`, `grep -c '—' docs/designs/orchestrator-mode.md`, `grep -nw 'TODO\|TBD' docs/designs/orchestrator-mode.md`, `grep -n '^Total: 10 deviations.' docs/designs/orchestrator-mode.md`, `grep -n '^Total: 23 open items.' docs/designs/orchestrator-mode.md`, `grep -n 'eight\|8 templates' docs/designs/orchestrator-mode.md` and `grep -n 'recorded owner decision (R5, 2026-11-08)' docs/designs/orchestrator-mode.md`. Write each command, output and a PASS or FAIL line to `.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/test-results/r5-mechanical.md`. Pass: no `agent-wait` hit forbids it, and the hits in 7.3 (the two `ALLOWED_ORCA` templates), 11, 13 (D10) and 15.1 (the sentence "`worktree ps --agent-wait` is allowed by R5 but is not run in step 1.0a" written by item 6.3 step (4)) allow it; the section 4 extension-point sentence (DESIGN lines 157-221) holds "recorded owner decision (R5, 2026-11-08)" once; `FORBIDDEN_TOKENS` holds only `--include-remote`; the Fix cycle 3 R5 row (`| R5 | Master's sweep runs ...`) exists once, and it lies after the `### Fix cycle 3` line (the section 9 routing row R5 starts `| R5 | \`tests/recommend/` and is a different row, not counted); em-dash 0; no `TODO`/`TBD`; `Total: 10 deviations.` (D10 added) and `Total: 23 open items.` unchanged; no `eight` or `8 templates` hit says the allowlist has eight templates.
+  - **Output**: `.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/test-results/r5-mechanical.md`.
+  - **Verification**: Verify: one PASS or FAIL line per check. On a FAIL, fix the edit in item 6.3 and re-run this item; log each re-run in `### Phase 6 Findings`.
+  - **Completion gate**: Every check PASSes. Once done, mark this item as complete.
+AC ids: T110.AC1 = the item title "Run the R5 mechanical checks (L3)" (no AC block; the title is the AC). The item's own Verification and Completion gate lines are context for what "done" means. Ticking the item's checkbox is done by the orchestrator after the verdict and is not part of the diff under review.
+Global constraints: the `### Key Constraints` section (lines 157-168) of the source file named in the task brief; read it from that file.
+Start sha: 79e50b923bdc8ed9993f9dd91200a07b9404d9f5
+Diff against the start snapshot: --- /dev/null
++++ b/.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/test-results/r5-mechanical.md   (new file, 89 lines)
++# R5 mechanical gate checks (item 6.4)
++
++Design file: `docs/designs/orchestrator-mode.md` (1047 lines). Section 4 is lines 157-222; `### Fix cycle 3` is at line 1037. Run on 2026-11-09T00:08:26Z.
++
++## Command 1: agent-wait hits
++```
++$ grep -n 'agent-wait' docs/designs/orchestrator-mode.md
++66:| GQ-109 | `gate-list`, `worker-read` and every `git stash` form are absent from both allowlists and from step 1.0a. 
++535:    ("worktree", "ps", "--agent-wait"),      # allowed by R5 (owner 2026-11-08), not called in Phase 1
++536:    ("worktree", "ps", "--agent-wait", "--json"),   # allowed by R5 (owner 2026-11-08), not called in Phase 1
++679:The coordinator keeps watching its Run until every Task it created is settled and every result has been inspected an
++759:| `tests/sweep/test_probes_allowlist.py` | NFR-003, NFR-014, FR-021, FR-026, FR-020, NFR-007, GQ-109, M7, SPEC secti
++833:| D6 | WC-14 (WC-16 in this design) text of SPEC section 10 (lines 404-408) | The same text renumbered WC-16, with m
++837:| D10 | NFR-003 (line 132), NFR-014 (line 143) and SPEC lines 310, 323, 500, 504, 510, 562 and 619: `worktree ps` ne
++895:- The `ALLOWED_ORCA` allowlist of section 7.3 has ten templates; step 1.0a issues only templates 1 to 8 of it, with 
++1047:| R5 | Master's sweep runs `worktree ps --agent-wait`; INV-005 condition 1 forbade it | RESOLVED by the owner 2026-
++```
++
++## Command 2: the Fix cycle 3 R5 row
++```
++$ grep -n '^| R5 | Master' docs/designs/orchestrator-mode.md
++1047:| R5 | Master's sweep runs `worktree ps --agent-wait`; INV-005 condition 1 forbade it | RESOLVE
++```
++
++## Command 3: em-dash count
++```
++$ grep -c '—' docs/designs/orchestrator-mode.md
++0
++```
++
++## Command 4: TODO or TBD
++```
++$ grep -nw 'TODO\|TBD' docs/designs/orchestrator-mode.md
++(no output expected; grep exit status 1)
++```
++
++## Command 5: deviation total
++```
++$ grep -n '^Total: 10 deviations.' docs/designs/orchestrator-mode.md
++839:Total: 10 deviations.
++```
++
++## Command 6: open-item total
++```
++$ grep -n '^Total: 23 open items.' docs/designs/orchestrator-mode.md
++1015:Total: 23 open items.
++```
++
++## Command 7: eight or 8 templates
++```
++$ grep -n 'eight\|8 templates' docs/designs/orchestrator-mode.md
++837:| D10 | NFR-003 (line 132), NFR-014 (line 143) and SPEC lines 310, 323, 500, 504, 510, 562 and 619: `worktree ps` ne
++```
++
++## Command 8: the section 4 extension-point sentence
++```
++$ grep -n 'recorded owner decision (R5, 2026-11-08)' docs/designs/orchestrator-mode.md
++221:Extension points, each additive: a new rule appended to `RULES` before `fall
++```
++
++## Command 9: FORBIDDEN_TOKENS
++```
++$ grep -n 'FORBIDDEN_TOKENS = frozenset' docs/designs/orchestrator-mode.md
++539:FORBIDDEN_TOKENS = frozenset({"--include-remote"})   # rejected in any position
++```
++
++## Command 10: the ps templates
++```
++$ grep -n '("worktree", "ps"' docs/designs/orchestrator-mode.md
++532:    ("worktree", "ps", "--json"),
++535:    ("worktree", "ps", "--agent-wait"),      # allowed by R5 (owner 2026-11-08), not called in Phase 1
++536:    ("worktree", "ps", "--agent-wait", "--json"),   # allowed by R5 (owner 2026-11-08), not called in Phase 1
++```
++
++## Checks
++
++- Check 1: PASS - no agent-wait hit forbids the flag; the allowing hits are present: 7.3 templates (2), section 11 positive case (1), section 13 D10 (1), section 15.1 sentence (1); the GQ-109, R5 and /sc:sweep lines allow or do not concern the allowlist
++- Check 2: PASS - 'recorded owner decision (R5, 2026-11-08)' appears once, in section 4 (line 221)
++- Check 3: PASS - FORBIDDEN_TOKENS holds only --include-remote
++- Check 4: PASS - the Fix cycle 3 R5 row exists once (line 1047, after line 1037); the section 9 routing row R5 starts with a different cell
++- Check 5: PASS - em-dash count is 0
++- Check 6: PASS - no TODO or TBD
++- Check 7: PASS - one 'Total: 10 deviations.' hit (D10 added)
++- Check 8: PASS - one 'Total: 23 open items.' hit (unchanged)
++- Check 9: PASS - no 'eight' or '8 templates' hit says the allowlist has eight templates (the one hit is the D10 row, which says ten, not eight)
++- Check 10: PASS - 3 ps templates in 7.3 (ps --json, ps --agent-wait, ps --agent-wait --json)
++- Check 11: PASS - no stale '9 deviations' text
++
++Result: 11 of 11 checks PASS.
+Delta diff from the previous reviewed tree (empty on the first review): 
+Earlier blocking findings of this start (empty on the first review): 
+Saved-probe re-check hit locations (may be empty): 
+
+Do not trust the implementer's report.
+
+First mark each earlier blocking finding resolved, open or regressed from the diff. Then, for each AC, mark it met or unmet. Require citations: every AC you mark, met or unmet, carries a `path:line` or `Ti.ACk@path:line` citation, and an unmet mark lists the finding ids behind it. Do not return a verdict; the orchestrator computes it.
+
+For every finding answer four questions, each yes or no:
+1. ac-outcome-missing: is output an AC requires absent, or does it contradict the AC text, or does an evidence claim you could not verify have no evidence row?
+2. false-claim: is a claim in delivered text or code false against live source, or does a recipe or instruction followed as written not do what the text says?
+3. harmful-effect: does code or a recipe this task added or changed write, append, chmod or delete tracked or production data, mutate state outside the task's declared outputs, or expose a secret?
+4. quoted-constraint-breach: does the diff violate a quoted plan constraint, out-of-scope, non-goal or non-negotiable item, or an explicit task instruction?
+
+Anchor rule: cite exactly one anchor per yes. ac-outcome-missing: the quoted AC words. false-claim: the live-source path:line holding the contradicting text. harmful-effect: the diff line that is the write. quoted-constraint-breach: the quoted constraint or instruction text. A yes without a valid anchor does not block.
+
+Write one line per finding:
+F<k>.<j> ac=<Ti.ACk|scope> at=<path:line> anchor=<quoted text or path:line> chk=<amiss,false,harm,constraint as y/n> family=<id> fix=<text> [covers=<quoted AC clause or constraint>]: <text>
+Do not write sev=, trigger=, first= or origin=; the orchestrator adds them. Write one status line per earlier blocking finding: F<m>.<j> resolved|open|regressed.
+
+Inside /sc:implement this protocol's severity model governs this review and takes precedence over the session's output style and the copy of it injected into every subagent; only blocking findings may fail an attempt.
+
+You are not given an adviser answer, brief, evidence file or troubleshoot report. Do not read the retry folders (legacy `.dev/implement/<slug>/retries/`, managed `<pkg>/artifacts/retries/`) or `.dev/troubleshoot/`. A citation into either makes the verdict `cannot-verify`.
+The prior-findings slot above carries earlier blocking finding lines that the orchestrator copies byte for byte from `review-*.md` and `repair-*.md`; they reach you as prompt text, not as an evidence file. Do not read those folders to get them, and never cite the slot or the file it came from.

@@ -1,0 +1,2 @@
+a6044e07ae6f860d03e66995caeda2d18a2d85fd
+A1 r1-1 F1.1 minor .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/r4/qa-crossref-chain-report.md:129-130 ac=scope amiss:n,false:y,harm:n,constraint:n The report's Summary says 14 of 24 checks passed, 10 failed and 7 MINOR findings span 8 checks; its Checks table has 15 PASS, 9 FAIL and 7 checks. Summary lines only; table, findings, Verdict and Blocking count are unaffected. The lens report is left as written.

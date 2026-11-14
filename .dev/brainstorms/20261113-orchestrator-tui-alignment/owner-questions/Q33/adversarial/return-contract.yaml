@@ -1,0 +1,17 @@
+return_contract:
+  merged_output_path: "/home/coder/workspaces/worktrees/IronClaude/issue-339-orchestrator-mode/.dev/brainstorms/20261113-orchestrator-tui-alignment/owner-questions/Q33/merged-output.md"
+  convergence_score: 0.92
+  artifacts_dir: "/home/coder/workspaces/worktrees/IronClaude/issue-339-orchestrator-mode/.dev/brainstorms/20261113-orchestrator-tui-alignment/owner-questions/Q33/adversarial"
+  status: "partial"
+  base_variant: "variant-1 (proposal-A)"
+  unresolved_conflicts: 1
+  fallback_mode: false
+  failure_stage: null
+  invocation_method: "skill-direct"
+  unaddressed_invariants: []
+  notes:
+    - "Depth quick: Round 1 only; Round 2, Round 2.5 invariant probe and Round 3 skipped."
+    - "Unresolved diff point: C-001 (who holds push authority on #539) split three ways; overall vote 2 of 3 for Variant 1."
+    - "Status partial: the post-merge contradiction re-scan found one tension (the fallback in 'Answer' launches a fresh session, while 'What it unlocks' says 'no new session' and 'adds no agent'; those hold only on the main path). Recorded in merge-log.md, not edited."
+    - "Advocates (3) and merge-executor were spawned agents; diff analysis, scoring and refactor plan were done by the orchestrating session; both position-bias passes ran in that one context (not independent)."
+    - "The skill was loaded once in this session (for Q31) and followed as written for Q33 without a second load."

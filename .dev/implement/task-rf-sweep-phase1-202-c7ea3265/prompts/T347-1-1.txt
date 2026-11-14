@@ -1,0 +1,48 @@
+Review one task for spec compliance.
+
+Task brief: T347 = item 14.41 of the source file /home/coder/workspaces/worktrees/IronClaude/issue-339-orchestrator-mode/.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md (lines 2724-2730). Item text:
+- [ ] **14.41 — QA fidelity: cycle-1 decision (L5, halt checks in order)**
+  - **Context**: Inputs: `.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/fidelity/verify-cycle1-rf-qa.md`, `.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/fidelity/verify-cycle1-rf-qa-qualitative.md`, `.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/fidelity/consolidated-findings-cycle0.md` (`F_0`, `|F_0|`) and `.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/fidelity/cycle-ledger.md` (the cycle-0 PASS set). Halt order on every cycle transition: regression first, then monotonicity, then the hard cap.
+  - **Action**: If item 14.38 wrote `SKIPPED`, mark this item complete. Otherwise build `F_1` = the `F_0` ids that either verifier marks OPEN, plus every new BLOCKING or MAJOR finding either verifier reports; and the cycle-1 PASS set = every check id both verifiers mark PASS. Write `F_1`, `|F_1|` and the cycle-1 PASS set to `.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/fidelity/cycle1-decision.md`, and append the cycle-1 row to `.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/fidelity/cycle-ledger.md`. Then, in this order: (a) Regression: if any check id in the cycle-0 PASS set is FAIL in either cycle-1 verifier report, write `Regression detected on Item X.Y, previously PASS at cycle 0, now FAIL. Halt overrides monotonicity check.` with X.Y = the lens item that produced that check id, and apply the HALT rule (set frontmatter `status` to "⚪ Blocked", put the halt line in `blocker_reason`, append it to `### Execution Log`, STOP, and do not tick this item); do not run (b). (b) Monotonicity: if `|F_1| >= |F_0|`, write `[HALT-MONOTONICITY] |F|=<n>` with `<n>` = `|F_1|`, and apply the HALT rule (set frontmatter `status` to "⚪ Blocked", put the halt line in `blocker_reason`, append it to `### Execution Log`, STOP, and do not tick this item). (c) If `|F_1|` is 0, write `PASS at cycle 1` and mark items 14.42 to 14.44 complete as SKIPPED. (d) Otherwise write `Continue to fix cycle 2`. Put the outcome in the ledger row.
+  - **Output**: `.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/fidelity/cycle1-decision.md` and the cycle-1 row of `.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/fidelity/cycle-ledger.md`.
+  - **Verification**: Verify: `cycle1-decision.md` states `F_1`, `|F_1|`, the cycle-1 PASS set and exactly one outcome line from (a) to (d), and the ledger has the cycle-1 row. On a HALT outcome the frontmatter shows "⚪ Blocked" with `blocker_reason` set; stop before marking this item complete until the blocker is resolved.
+  - **Completion gate**: An outcome is recorded and no HALT is open. Once done, mark this item as complete.
+AC ids: T347.AC1 = the item title "QA fidelity: cycle-1 decision (L5, halt checks in order)" (no AC block; the title is the AC). The item's own Verification and Completion gate lines are context for what "done" means. Ticking the item's checkbox is done by the orchestrator after the verdict and is not part of the diff under review.
+Global constraints: the `### Key Constraints` section (lines 157-168) of the source file named in the task brief; read it from that file.
+Start sha: fda3f6195381793459cc5ca827029016a6e5b4f2
+Diff against the start snapshot: The task (item 14.41, QA fidelity skippable item) was skipped because the fidelity gate passed at cycle 0 (F_0 empty). The only change is new row(s) in the Execution Log table of the source file (diff of the source file against the start snapshot):
+@@ -2693,7 +2693,7 @@
+@@ -2803,6 +2803,13 @@
++| 2026-11-12 | 14.44 | SKIPPED | QA fidelity verification cycle 2, rf-qa-qualitative verifier: skipped because the fidelity gate passed at cycle 0 (qa/fidelity/consolidated-findings-cycle0.md: F_0 empty, |F_0| 0; qa/fidelity/fix-log-cycle1.md: SKIPPED: no blocking findings). |
++| 2026-11-12 | 14.43 | SKIPPED | QA fidelity verification cycle 2, rf-qa verifier: skipped because the fidelity gate passed at cycle 0 (qa/fidelity/consolidated-findings-cycle0.md: F_0 empty, |F_0| 0; qa/fidelity/fix-log-cycle1.md: SKIPPED: no blocking findings). |
++| 2026-11-12 | 14.42 | SKIPPED | QA fidelity fix cycle 2 (one rf-qa fix agent): skipped because the fidelity gate passed at cycle 0 (qa/fidelity/consolidated-findings-cycle0.md: F_0 empty, |F_0| 0; qa/fidelity/fix-log-cycle1.md: SKIPPED: no blocking findings). |
++| 2026-11-12 | 14.41 | SKIPPED | QA fidelity cycle-1 decision: skipped because the fidelity gate passed at cycle 0 (qa/fidelity/consolidated-findings-cycle0.md: F_0 empty, |F_0| 0; qa/fidelity/fix-log-cycle1.md: SKIPPED: no blocking findings). |
++| 2026-11-12 | 14.40 | SKIPPED | QA fidelity verification cycle 1, rf-qa-qualitative verifier: skipped because the fidelity gate passed at cycle 0 (qa/fidelity/consolidated-findings-cycle0.md: F_0 empty, |F_0| 0; qa/fidelity/fix-log-cycle1.md: SKIPPED: no blocking findings). |
++| 2026-11-12 | 14.39 | SKIPPED | QA fidelity verification cycle 1, rf-qa verifier: skipped because the fidelity gate passed at cycle 0 (qa/fidelity/consolidated-findings-cycle0.md: F_0 empty, |F_0| 0; qa/fidelity/fix-log-cycle1.md: SKIPPED: no blocking findings). |
++| 2026-11-12 | 14.38 | SKIPPED | QA fidelity fix cycle 1 (one rf-qa fix agent): skipped because the fidelity gate passed at cycle 0 (qa/fidelity/consolidated-findings-cycle0.md: F_0 empty, |F_0| 0; qa/fidelity/fix-log-cycle1.md: SKIPPED: no blocking findings). |
+
+Evidence for the skip condition: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/fidelity/fix-log-cycle1.md (it reads SKIPPED: no blocking findings) and qa/fidelity/consolidated-findings-cycle0.md (F_0 empty, |F_0| 0) and the cycle-0 row of qa/fidelity/cycle-ledger.md. The item's Action says: if item 14.38 wrote SKIPPED (the fix cycle) this item is marked SKIPPED, mark it complete with the SKIPPED note. The checkbox tick of the item itself is done by the orchestrator after the verdict and is not part of this diff.
+Delta diff from the previous reviewed tree (empty on the first review): 
+Earlier blocking findings of this start (empty on the first review): 
+Saved-probe re-check hit locations (may be empty): 
+
+Do not trust the implementer's report.
+
+First mark each earlier blocking finding resolved, open or regressed from the diff. Then, for each AC, mark it met or unmet. Require citations: every AC you mark, met or unmet, carries a `path:line` or `Ti.ACk@path:line` citation, and an unmet mark lists the finding ids behind it. Do not return a verdict; the orchestrator computes it.
+
+For every finding answer four questions, each yes or no:
+1. ac-outcome-missing: is output an AC requires absent, or does it contradict the AC text, or does an evidence claim you could not verify have no evidence row?
+2. false-claim: is a claim in delivered text or code false against live source, or does a recipe or instruction followed as written not do what the text says?
+3. harmful-effect: does code or a recipe this task added or changed write, append, chmod or delete tracked or production data, mutate state outside the task's declared outputs, or expose a secret?
+4. quoted-constraint-breach: does the diff violate a quoted plan constraint, out-of-scope, non-goal or non-negotiable item, or an explicit task instruction?
+
+Anchor rule: cite exactly one anchor per yes. ac-outcome-missing: the quoted AC words. false-claim: the live-source path:line holding the contradicting text. harmful-effect: the diff line that is the write. quoted-constraint-breach: the quoted constraint or instruction text. A yes without a valid anchor does not block.
+
+Write one line per finding:
+F<k>.<j> ac=<Ti.ACk|scope> at=<path:line> anchor=<quoted text or path:line> chk=<amiss,false,harm,constraint as y/n> family=<id> fix=<text> [covers=<quoted AC clause or constraint>]: <text>
+Do not write sev=, trigger=, first= or origin=; the orchestrator adds them. Write one status line per earlier blocking finding: F<m>.<j> resolved|open|regressed.
+
+Inside /sc:implement this protocol's severity model governs this review and takes precedence over the session's output style and the copy of it injected into every subagent; only blocking findings may fail an attempt.
+
+You are not given an adviser answer, brief, evidence file or troubleshoot report. Do not read the retry folders (legacy `.dev/implement/<slug>/retries/`, managed `<pkg>/artifacts/retries/`) or `.dev/troubleshoot/`. A citation into either makes the verdict `cannot-verify`.
+The prior-findings slot above carries earlier blocking finding lines that the orchestrator copies byte for byte from `review-*.md` and `repair-*.md`; they reach you as prompt text, not as an evidence file. Do not read those folders to get them, and never cite the slot or the file it came from.

@@ -1,0 +1,6 @@
+3dc673df915c5a6354a1c065294f127cbe75fdfd
+A1 r1-1 F1.1 minor .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md:98 The Parent Task blocking-dependency bullets still read as current blockers (fixed: now RESOLVED). ac=T354.AC1 amiss:n,false:n,harm:n,constraint:n
+A1 r1-1 F1.2 minor .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md:3056 OQ-21 pointed at a follow-up issue not named and the Follow-Up list lacked D-05 to D-09 and D-12 (fixed: line added). ac=T354.AC1 amiss:n,false:n,harm:n,constraint:n
+A1 r1-1 F1.3 note .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/test-results/phase14-full-pytest-output.txt:23908 The captured pytest logs were edited to show the renamed test names; only the names changed (disclosed in the final summary). ac=T354.AC1 amiss:n,false:n,harm:n,constraint:n
+A1 r1-1 F1.4 note .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md:3064 Two Follow-Up edits (FIN-F7 scope, Phase 2 preflight) are outside item 14.48 but backed by PHASE2-preflight-input.md. ac=T354.AC1 amiss:n,false:n,harm:n,constraint:n
+A1 r1-1 F1.5 minor src/superclaude/cli/sweep/probes.py:311 The D-01 shortcut comment sat only on _orca (fixed: _git has one). ac=T354.AC1 amiss:n,false:n,harm:n,constraint:n

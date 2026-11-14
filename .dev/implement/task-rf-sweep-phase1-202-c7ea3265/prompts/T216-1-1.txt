@@ -1,0 +1,228 @@
+Review one task for spec compliance.
+
+Task brief: T216 = item 10.1 of the source file /home/coder/workspaces/worktrees/IronClaude/issue-339-orchestrator-mode/.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md (lines 1783-1789). Item text:
+- [ ] **10.1 — Step 1.8 rest: extend `tests/sweep/conftest.py` and add the fixture files (L2)**
+  - **Context**: DESIGN section 11 lines 728-733: the `tmp_path` layout holds packages, contracts, transcripts and a ccsession `orca-tabs/` folder; fixtures copied from captured Orca output keep their source name, hand-made ones carry `synthetic` in the file name. Captured fixtures already exist from item 7.18 (`tests/sweep/fixtures/captured-*.json` plus `SOURCES.md`). Base fixtures from item 8.8: the guard, `patch_orca`, `patch_git`, `fixed_now`, `sweep_home`.
+  - **Action**: Add to `tests/sweep/conftest.py` a `sweep_root` fixture that builds, under `tmp_path`, a root with `.dev/tasks/to-do/<pkg>/` packages (with `progress.md` ledgers and worker contracts), transcripts under `HOME`, and an `orca-tabs/` map under `XDG_STATE_HOME`, with small builder helpers the tests call. Hand-made fixture files form a closed set: read `tests/sweep/fixtures/SOURCES.md`, and for each of `ALLOWED_ORCA` templates 1 to 8 that has no `captured-` file there (templates 9 and 10, the two `worktree ps --agent-wait` forms allowed by R5, are not called in Phase 1 and get no fixture), write exactly one file with the name from this list: `synthetic-run-current.txt` (template 1, plain output), `synthetic-worker-list.json` (2), `synthetic-worker-show.json` (3), `synthetic-task-list-ready.json` (4), `synthetic-task-list.json` (5), `synthetic-worktree-ps.json` (6), `synthetic-worktree-list.json` (7) and `synthetic-worktree-current.json` (8). Shape each from the DESIGN section 7.2 field names and `.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/discovery/1.0a-facts.md`, and add one `SOURCES.md` row per file naming the template and "hand-made, synthetic". Every other variant a test needs (a malformed body, the quoted-marker negative, an empty `run-current` body, byte-boundary inputs, the `orca-tabs/` entries) is built in memory or under `tmp_path` by the builder helpers, never as a file under `tests/sweep/fixtures/`. Do not edit the captured files.
+  - **Output**: `tests/sweep/conftest.py` (extended); the `synthetic-*` files from the list above for exactly the templates `SOURCES.md` shows as not captured (none when all eight were captured); `tests/sweep/fixtures/SOURCES.md` with one row per new file.
+  - **Verification**: Verify: `ls tests/sweep/fixtures/` shows only `captured-*` files, `SOURCES.md` and names from the eight-name list above; each `synthetic-*` file's template has no `captured-` file; each `synthetic-*` file has a `SOURCES.md` row; every `synthetic-*.json` file parses with `uv run python -c "import json,sys; [json.load(open(p)) for p in sys.argv[1:]]" tests/sweep/fixtures/synthetic-*.json` (skip when there is none); `uv run pytest tests/sweep -v` still passes.
+  - **Completion gate**: The layout fixture exists and the existing tests pass. Once done, mark this item as complete.
+AC ids: T216.AC1 = the item title "Step 1.8 rest: extend `tests/sweep/conftest.py` and add the fixture files (L2)" (no AC block; the title is the AC). The item's own Verification and Completion gate lines are context for what "done" means. Ticking the item's checkbox is done by the orchestrator after the verdict and is not part of the diff under review.
+Global constraints: the `### Key Constraints` section (lines 157-168) of the source file named in the task brief; read it from that file.
+Start sha: b3c21a415583c468199eee92fb9c6c38b18a744c
+Diff against the start snapshot: The task (item 10.1) was done by an implementer agent; its report says: only tests/sweep/conftest.py was edited (a `sweep_root` fixture with builder helpers `package`, `contract`, `transcript`, `tab_entry`, `worktree`), no synthetic-* fixture was written because SOURCES.md shows a captured- file for all eight ALLOWED_ORCA templates 1 to 8, no source file under src/ changed, and `uv run pytest tests/sweep -v` gives 4 passed. Do not trust that report: verify from the files on disk (the diff below is conftest.py and the fixtures folder against the start snapshot; `ls tests/sweep/fixtures/` and `tests/sweep/fixtures/SOURCES.md` are the evidence for the synthetic-file rule, and you may run `uv run pytest tests/sweep -v` and `uv run ruff check src/superclaude/cli/sweep tests/sweep`). Also check the builders write what the real readers in src/superclaude/cli/sweep/probes.py read (package ledger and `FINAL:` line, `return-contract.yaml`, `~/.claude/projects/<key>/*.jsonl` with the key rule of probes, the `orca-tabs/` entry layout of captured-tab-map-*.json and DESIGN 7.2), that `sweep_root` puts HOME and XDG_STATE_HOME under tmp_path (DESIGN section 11 lines 728-733), and that the existing guard, `patch_orca`, `patch_git`, `fixed_now` and `sweep_home` are unchanged. If tests/sweep/fixtures shows no diff output below, no fixture changed.
+--- a/tests/sweep/conftest.py
++++ b/tests/sweep/conftest.py
+@@ -7,7 +7,9 @@
+ 
+ from __future__ import annotations
+ 
++import json
+ import os
++import re
+ import subprocess
+ from dataclasses import dataclass, field
+ from datetime import datetime, timezone
+@@ -155,3 +157,178 @@
+     monkeypatch.setenv("HOME", str(home))
+     monkeypatch.setenv("XDG_STATE_HOME", str(state))
+     return SweepHome(home=home, state=state)
++
++
++_ISO = "%Y-%m-%dT%H:%M:%S.%f"
++
++
++def _iso(value: datetime | str) -> str:
++    """A transcript record time: strings pass through, datetimes become ISO 8601 UTC."""
++    if isinstance(value, str):
++        return value
++    return value.astimezone(timezone.utc).strftime(_ISO)[:-3] + "Z"
++
++
++@dataclass
++class SweepRoot:
++    """A ``tmp_path`` layout for the disk sources (DESIGN section 11).
++
++    ``root`` is a checkout stand-in (an empty ``.git`` folder, so the root check passes;
++    git itself is never run). ``home`` and ``state`` are ``sweep_home``'s ``HOME`` and
++    ``XDG_STATE_HOME``. Every builder writes real files and returns the path it wrote,
++    so a test can then break the file (truncate it, make it a symlink, chmod it).
++    A malformed or boundary variant is built by the caller through ``text``, ``raw`` or
++    ``lines``; none of those is ever a file under ``tests/sweep/fixtures/``.
++    """
++
++    root: Path
++    home: Path
++    state: Path
++    base: Path
++
++    @property
++    def tabs(self) -> Path:
++        """The ccsession ``orca-tabs/`` folder (not created until an entry is added)."""
++        return self.state / "ccsession" / "orca-tabs"
++
++    def worktree(self, name: str) -> Path:
++        """A second checkout stand-in beside the root (a ``.git`` file, as in a worktree)."""
++        path = self.base / "worktrees" / name
++        path.mkdir(parents=True, exist_ok=True)
++        (path / ".git").write_text("gitdir: /nonexistent\n", encoding="utf-8")
++        return path
++
++    def package(
++        self,
++        name: str,
++        *,
++        worktree: Path | None = None,
++        location: str = "to-do",
++        ledger: str | bytes | None = "",
++        final: bool = False,
++        archiving: bool = False,
++    ) -> Path:
++        """``.dev/tasks/<location>/<name>/`` with a ``progress.md`` ledger.
++
++        ``ledger`` is the ledger text or bytes (None writes no ledger file); ``final`` appends
++        a ``FINAL:`` line to text; ``archiving`` adds the ``.archiving`` marker file.
++        """
++        folder = (worktree or self.root) / ".dev" / "tasks" / location / name
++        folder.mkdir(parents=True, exist_ok=True)
++        if ledger is not None:
++            if isinstance(ledger, bytes):
++                (folder / "progress.md").write_bytes(ledger)
++            else:
++                text = ledger + ("FINAL: all tasks complete\n" if final else "")
++                (folder / "progress.md").write_text(text, encoding="utf-8")
++        if archiving:
++            (folder / ".archiving").write_text("", encoding="utf-8")
++        return folder
++
++    def contract(
++        self,
++        report_dir: Path | str = "reports/run",
++        *,
++        worker_status: str | None = "succeeded",
++        command: str | None = None,
++        report_path: str | None = None,
++        artifacts: tuple[str, ...] = (),
++        blocked_question: str | None = None,
++        reason: str | None = None,
++        text: str | bytes | None = None,
++        worktree: Path | None = None,
++    ) -> Path:
++        """``<report_dir>/return-contract.yaml``; a relative ``report_dir`` is under ``.dev/``.
++
++        ``text`` replaces the whole body (use it for malformed or oversize contracts).
++        """
++        folder = Path(report_dir)
++        if not folder.is_absolute():
++            folder = (worktree or self.root) / ".dev" / folder
++        folder.mkdir(parents=True, exist_ok=True)
++        path = folder / "return-contract.yaml"
++        if isinstance(text, bytes):
++            path.write_bytes(text)
++            return path
++        if text is None:
++            lines = ['worker_contract_version: "1"']
++            for key, value in (
++                ("worker_status", worker_status),
++                ("command", command),
++                ("report_path", report_path),
++                ("blocked_question", blocked_question),
++                ("reason", reason),
++            ):
++                if value is not None:
++                    lines.append(f"{key}: {json.dumps(value)}")
++            if artifacts:
++                lines.append("artifacts:")
++                lines.extend(f"  - {json.dumps(a)}" for a in artifacts)
++            text = "\n".join(lines) + "\n"
++        path.write_text(text, encoding="utf-8")
++        return path
++
++    def transcript(
++        self,
++        session_id: str = "session-0001",
++        stamps: tuple[datetime | str, ...] = (),
++        *,
++        worktree: Path | None = None,
++        name: str | None = None,
++        raw: bytes | None = None,
++        mtime: datetime | None = None,
++    ) -> Path:
++        """``~/.claude/projects/<key>/<name>.jsonl`` with one record per stamp.
++
++        ``<key>`` is the worktree path with every non-alphanumeric character as ``-``. Each
++        record carries ``timestamp`` and ``sessionId``. ``raw`` replaces the whole file
++        (a cut last line, a record without a timestamp, a file over a byte limit);
++        ``mtime`` sets the file time.
++        """
++        key = re.sub(r"[^A-Za-z0-9]", "-", str(worktree or self.root))
++        folder = self.home / ".claude" / "projects" / key
++        folder.mkdir(parents=True, exist_ok=True)
++        path = folder / f"{name or session_id}.jsonl"
++        if raw is None:
++            records = [
++                json.dumps(
++                    {"type": "user", "timestamp": _iso(s), "sessionId": session_id}
++                )
++                for s in stamps
++            ]
++            raw = ("\n".join(records) + "\n" if records else "").encode("utf-8")
++        path.write_bytes(raw)
++        if mtime is not None:
++            stamp = mtime.timestamp()
++            os.utime(path, (stamp, stamp))
++        return path
++
++    def tab_entry(
++        self,
++        pane_key: str,
++        session_id: str,
++        folder: Path | str,
++        handle: str,
++        *,
++        lines: tuple[str, ...] | None = None,
++    ) -> Path:
++        """One ``orca-tabs/<pane_key>`` file: session id, launch folder, terminal handle.
++
++        ``pane_key`` is ``<tabId>+<leafId>`` (the captured shape). ``lines`` replaces the
++        three lines (a short or blank entry).
++        """
++        self.tabs.mkdir(parents=True, exist_ok=True)
++        path = self.tabs / pane_key
++        body = lines if lines is not None else (session_id, str(folder), handle)
++        path.write_text("\n".join(body) + "\n", encoding="utf-8")
++        return path
++
++
++@pytest.fixture
++def sweep_root(tmp_path, sweep_home) -> SweepRoot:
++    """A checkout stand-in under ``tmp_path`` plus builders for the disk sources."""
++    root = tmp_path / "root"
++    (root / ".git").mkdir(parents=True)
++    return SweepRoot(
++        root=root, home=sweep_home.home, state=sweep_home.state, base=tmp_path
++    )
+Delta diff from the previous reviewed tree (empty on the first review): 
+Earlier blocking findings of this start (empty on the first review): 
+Saved-probe re-check hit locations (may be empty): 
+
+Do not trust the implementer's report.
+
+First mark each earlier blocking finding resolved, open or regressed from the diff. Then, for each AC, mark it met or unmet. Require citations: every AC you mark, met or unmet, carries a `path:line` or `Ti.ACk@path:line` citation, and an unmet mark lists the finding ids behind it. Do not return a verdict; the orchestrator computes it.
+
+For every finding answer four questions, each yes or no:
+1. ac-outcome-missing: is output an AC requires absent, or does it contradict the AC text, or does an evidence claim you could not verify have no evidence row?
+2. false-claim: is a claim in delivered text or code false against live source, or does a recipe or instruction followed as written not do what the text says?
+3. harmful-effect: does code or a recipe this task added or changed write, append, chmod or delete tracked or production data, mutate state outside the task's declared outputs, or expose a secret?
+4. quoted-constraint-breach: does the diff violate a quoted plan constraint, out-of-scope, non-goal or non-negotiable item, or an explicit task instruction?
+
+Anchor rule: cite exactly one anchor per yes. ac-outcome-missing: the quoted AC words. false-claim: the live-source path:line holding the contradicting text. harmful-effect: the diff line that is the write. quoted-constraint-breach: the quoted constraint or instruction text. A yes without a valid anchor does not block.
+
+Write one line per finding:
+F<k>.<j> ac=<Ti.ACk|scope> at=<path:line> anchor=<quoted text or path:line> chk=<amiss,false,harm,constraint as y/n> family=<id> fix=<text> [covers=<quoted AC clause or constraint>]: <text>
+Do not write sev=, trigger=, first= or origin=; the orchestrator adds them. Write one status line per earlier blocking finding: F<m>.<j> resolved|open|regressed.
+
+Inside /sc:implement this protocol's severity model governs this review and takes precedence over the session's output style and the copy of it injected into every subagent; only blocking findings may fail an attempt.
+
+You are not given an adviser answer, brief, evidence file or troubleshoot report. Do not read the retry folders (legacy `.dev/implement/<slug>/retries/`, managed `<pkg>/artifacts/retries/`) or `.dev/troubleshoot/`. A citation into either makes the verdict `cannot-verify`.
+The prior-findings slot above carries earlier blocking finding lines that the orchestrator copies byte for byte from `review-*.md` and `repair-*.md`; they reach you as prompt text, not as an evidence file. Do not read those folders to get them, and never cite the slot or the file it came from.

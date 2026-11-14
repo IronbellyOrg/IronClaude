@@ -1,0 +1,4 @@
+dea6ba663097488c4fadb8fcc22746f0fd999363
+A1 r1-1 F1.1 note src/superclaude/cli/sweep/probes.py:129 ac=scope amiss:n,false:n,harm:n,constraint:n Budget.share_shows gained an optional `wanted` argument and a demand-based split; DESIGN 7.1 line 369 still reads "even split, remainder to the first Run" (the DESIGN call still works and gives 25 and 25 for two Runs of 40).
+A1 r1-1 F1.2 note src/superclaude/cli/sweep/probes.py:352 ac=scope amiss:n,false:n,harm:n,constraint:n the agentWait time now goes through parse_time, so a naive ISO value with a T and no zone gives no time; the live agentWait format is still UNVERIFIED (open item 6).
+A1 r1-1 F1.3 note src/superclaude/cli/sweep/probes.py:1015 ac=scope amiss:n,false:n,harm:n,constraint:n all worker-list and task-list source rows now come before the worker-show rows; nothing pins the order.

@@ -1,0 +1,65 @@
+Review one task for spec compliance.
+
+Task brief: T310 = item 14.4 of the source file /home/coder/workspaces/worktrees/IronClaude/issue-339-orchestrator-mode/.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md (lines 2465-2471). Item text:
+- [ ] **14.4 — Validation: the full test run (L3)**
+  - **Context**: BUILD-REQUEST VALIDATION_REQUIREMENTS: the full `uv run pytest` after the scoped run; `.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/artifacts/baseline-git-status.txt` (item 1.3) is the tree before this task.
+  - **Action**: Run `uv run pytest` with a Bash timeout of 600000 ms (run it in the background and wait if it needs longer). Write the command, exit code, counts and the list of failing test ids to `.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/test-results/phase14-full-pytest.md` with one PASS or FAIL line.
+  - **Output**: `.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/test-results/phase14-full-pytest.md`.
+  - **Verification**: Verify: exit 0. For each failing test, decide from `git stash`-free evidence (does the failing test import or read a file this task changed? `git diff --stat $(cat .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/artifacts/base-commit.txt)`) whether this task caused it; fix every task-caused failure and re-run; record any failure not caused by this task as pre-existing in `### Phase 14 Findings` with its test id and reason.
+  - **Completion gate**: The full run PASSes, or every remaining failure is logged as pre-existing with evidence. Once done, mark this item as complete.
+AC ids: T310.AC1 = the item title "Validation: the full test run (L3)" (no AC block; the title is the AC). The item's own Verification and Completion gate lines are context for what "done" means. Ticking the item's checkbox is done by the orchestrator after the verdict and is not part of the diff under review.
+Global constraints: the `### Key Constraints` section (lines 157-168) of the source file named in the task brief; read it from that file.
+Start sha: 3f45c5efdf4aa5230018161540d276d5fde2b2aa
+Diff against the start snapshot: Orchestrator facts for the reviewer (verify them): the executor ran the full `uv run pytest` in the background (output saved at /tmp/full-pytest.out, 16 minutes 40 seconds: 3 failed, 25252 passed, 149 skipped, 2 xpassed, exit 1) and wrote phase14-full-pytest.md (new file, read it from disk) with the failing test ids and the evidence that this task did not cause them. Verify: the three ids and the counts against /tmp/full-pytest.out, re-run the two ruff-adapter tests alone and confirm the failure message, check that no file those tests read or run was changed by this task (git diff against base 5dc29d23 in src/superclaude/cli/eval, tests/cli/eval, tests/hooks, src/superclaude/hooks), check the claim that ruff is not importable in the venv while 'uv run ruff' works, and judge the timing-test explanation (re-run test_speed_large_commands alone if you wish; it is slow). The item allows failures that are logged as pre-existing with evidence in the Phase 14 Findings (a later executor step writes that entry).
+
+--- /dev/null
++++ b/.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/test-results/phase14-full-pytest.md   (new file, 25 lines)
++# Phase 14 full test run (item 14.4)
++
++Run 2026-11-12 in the background (the run took 16 minutes 40 seconds, longer than the 600 s foreground limit).
++
++Command: `uv run pytest`
++
++Exit code: 1
++
++Counts: 3 failed, 25252 passed, 149 skipped, 2 xpassed, 32 warnings in 1000.47s
++
++Failing test ids:
++```text
++FAILED tests/cli/eval/test_claude_process_adapter.py::test_ruff_flags_synthetic_anthropic_import_under_cli_eval
++FAILED tests/cli/eval/test_claude_process_adapter.py::test_ruff_passes_on_real_adapter_module
++FAILED tests/hooks/test_launch_level_guard.py::test_speed_large_commands[1MB-big]
++```
++
++## Were the failures caused by this task?
++
++No. Evidence:
++
++- `tests/cli/eval/test_claude_process_adapter.py::test_ruff_flags_synthetic_anthropic_import_under_cli_eval` and `::test_ruff_passes_on_real_adapter_module`: re-run alone, both fail the same way, with the message `.venv/bin/python: No module named ruff`. The tests call `python -m ruff` in the project virtual environment, where `ruff` is not an importable module (`uv run python -c 'import importlib.util ...'` prints `ruff module in venv: False`), while `uv run ruff --version` works (ruff 0.17.3, installed as a tool). This is an environment condition of this checkout. `git diff --stat 5dc29d23 -- src/superclaude/cli/eval tests/cli/eval tests/hooks src/superclaude/hooks` shows no change, and `git status --short` on those paths is empty: this task changed none of the files these tests read or run.
++- `tests/hooks/test_launch_level_guard.py::test_speed_large_commands[1MB-big]`: a timing test. It passed when re-run alone (4 passed in the isolated run, which itself took 228 s on this loaded machine while about ten review agents were running). The full run overlapped those agents, so the time budget of the 1 MB case was exceeded. The same paths are unchanged against the base (no diff in `tests/hooks` or `src/superclaude/hooks`), so this task did not cause it.
++
++Result: FAIL by exit code (3 failures), each recorded as pre-existing or environment-caused with its test id and reason in `### Phase 14 Findings`; the item's completion gate allows this ("every remaining failure is logged as pre-existing with evidence").
+Delta diff from the previous reviewed tree (empty on the first review): 
+Earlier blocking findings of this start (empty on the first review): 
+Saved-probe re-check hit locations (may be empty): 
+
+Do not trust the implementer's report.
+
+First mark each earlier blocking finding resolved, open or regressed from the diff. Then, for each AC, mark it met or unmet. Require citations: every AC you mark, met or unmet, carries a `path:line` or `Ti.ACk@path:line` citation, and an unmet mark lists the finding ids behind it. Do not return a verdict; the orchestrator computes it.
+
+For every finding answer four questions, each yes or no:
+1. ac-outcome-missing: is output an AC requires absent, or does it contradict the AC text, or does an evidence claim you could not verify have no evidence row?
+2. false-claim: is a claim in delivered text or code false against live source, or does a recipe or instruction followed as written not do what the text says?
+3. harmful-effect: does code or a recipe this task added or changed write, append, chmod or delete tracked or production data, mutate state outside the task's declared outputs, or expose a secret?
+4. quoted-constraint-breach: does the diff violate a quoted plan constraint, out-of-scope, non-goal or non-negotiable item, or an explicit task instruction?
+
+Anchor rule: cite exactly one anchor per yes. ac-outcome-missing: the quoted AC words. false-claim: the live-source path:line holding the contradicting text. harmful-effect: the diff line that is the write. quoted-constraint-breach: the quoted constraint or instruction text. A yes without a valid anchor does not block.
+
+Write one line per finding:
+F<k>.<j> ac=<Ti.ACk|scope> at=<path:line> anchor=<quoted text or path:line> chk=<amiss,false,harm,constraint as y/n> family=<id> fix=<text> [covers=<quoted AC clause or constraint>]: <text>
+Do not write sev=, trigger=, first= or origin=; the orchestrator adds them. Write one status line per earlier blocking finding: F<m>.<j> resolved|open|regressed.
+
+Inside /sc:implement this protocol's severity model governs this review and takes precedence over the session's output style and the copy of it injected into every subagent; only blocking findings may fail an attempt.
+
+You are not given an adviser answer, brief, evidence file or troubleshoot report. Do not read the retry folders (legacy `.dev/implement/<slug>/retries/`, managed `<pkg>/artifacts/retries/`) or `.dev/troubleshoot/`. A citation into either makes the verdict `cannot-verify`.
+The prior-findings slot above carries earlier blocking finding lines that the orchestrator copies byte for byte from `review-*.md` and `repair-*.md`; they reach you as prompt text, not as an evidence file. Do not read those folders to get them, and never cite the slot or the file it came from.

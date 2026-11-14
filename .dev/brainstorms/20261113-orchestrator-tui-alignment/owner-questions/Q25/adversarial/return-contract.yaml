@@ -1,0 +1,11 @@
+return_contract:
+  merged_output_path: ".dev/brainstorms/20261113-orchestrator-tui-alignment/owner-questions/Q25/merged-proposal.md"
+  convergence_score: 0.91   # 10 of 11 diff points; overall advocate preference split 1-1-1
+  artifacts_dir: ".dev/brainstorms/20261113-orchestrator-tui-alignment/owner-questions/Q25/adversarial/"
+  status: "partial"   # quick depth: invariant probe skipped; C-001 unresolved; overall preference split
+  base_variant: "variant-1 (proposal-A), advocate persona architect"
+  unresolved_conflicts: 1
+  fallback_mode: false
+  failure_stage: null
+  invocation_method: "skill-direct"
+  unaddressed_invariants: []   # Round 2.5 skipped at --depth quick

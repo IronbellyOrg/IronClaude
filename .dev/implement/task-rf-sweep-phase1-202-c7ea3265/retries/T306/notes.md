@@ -1,0 +1,2 @@
+3aa1854667dedd8379ec4bdbc30e6e4bc2744ea6
+A1 r1-1 F1.1 minor .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md:3008 ac=scope amiss:n,false:y,harm:n,constraint:n The Phase 13 Findings bullets said the R2 bullet is at HOW-WE-WORK.md:404; the R1 row inserted at :334 moved it to :405. The content claim is true. Fixed by the executor after the review (and in followups.md).

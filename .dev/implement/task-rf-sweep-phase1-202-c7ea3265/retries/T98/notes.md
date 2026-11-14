@@ -1,0 +1,3 @@
+2775d41486a37b8a11d5778a504a30d6b903f02d
+A1 r1-1 F1.1 note .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/r4/consolidated-findings-cycle0.md:21 ac=T98.AC1 amiss:n,false:n,harm:n,constraint:n R4-F2 is raised to BLOCKING though its sources grade it MAJOR or MINOR; the file states why (the item 5.21 lens text). F_0 membership is the same either way.
+A1 r1-1 F1.2 minor .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/r4/consolidated-findings-cycle0.md:80 ac=scope amiss:n,false:n,harm:n,constraint:n The R4-F32 row contained the bare pipe it describes. Fixed in place by the parent (now escaped).

@@ -1,0 +1,16 @@
+return_contract:
+  merged_output_path: "/home/coder/workspaces/worktrees/IronClaude/issue-339-orchestrator-mode/.dev/brainstorms/20261113-orchestrator-tui-alignment/owner-questions/Q32/merged-output.md"
+  convergence_score: 1.0
+  artifacts_dir: "/home/coder/workspaces/worktrees/IronClaude/issue-339-orchestrator-mode/.dev/brainstorms/20261113-orchestrator-tui-alignment/owner-questions/Q32/adversarial"
+  status: "partial"
+  base_variant: "variant-2 (proposal-B)"
+  unresolved_conflicts: 0
+  fallback_mode: false
+  failure_stage: null
+  invocation_method: "skill-direct"
+  unaddressed_invariants: []
+  notes:
+    - "Depth quick: Round 1 only; Round 2, Round 2.5 invariant probe and Round 3 skipped."
+    - "Status partial (warning, not failure): combined scores put all three variants within 5 percent (0.91, 0.89, 0.87); the tiebreak by debate points was applied across all three, not only the top two as the protocol text says. Under the strict top-two reading Variant 3 would be the base. See base-selection.md."
+    - "Advocates (3) and merge-executor were spawned agents; diff analysis, scoring and refactor plan were done by the orchestrating session; both position-bias passes ran in that one context (not independent)."
+    - "The skill was loaded once in this session (for Q31) and followed as written for Q32 without a second load."

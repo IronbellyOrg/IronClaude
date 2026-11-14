@@ -1,0 +1,81 @@
+Review one task for spec compliance.
+
+Task brief: T133 = item 7.5 of the source file /home/coder/workspaces/worktrees/IronClaude/issue-339-orchestrator-mode/.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md (lines 1173-1179). Item text:
+- [ ] **7.5 — Record decision GQ-35, #409 pin `495eb96d` (OQ-4, L5, PENDING)**
+  - **Context**: research/09 Gap 1 row GQ-35: "#409 version pinning (`495eb96d`, unmerged) (AMBIGUITY 9)" (GAPS:58). Options (NOTES:311): "copy the layout into this repo or cite commit 495eb96d (unmerged); which sort tie-break to use; what approval label the reused design carries." Checked 2026-11-08: `495eb96d` is not an ancestor of `origin/master`; #409 is an open issue. DESIGN section 7.5 copies the layout "from #409 at `495eb96d`". Blocks the step 1.5 skeleton.
+  - **Action**: Write `.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/plans/OQ-4-GQ-35-409-pin-decision.md` with these parts: `needs_human_decision: true`; `status: PENDING`; the question quoted; the options quoted; the recommendation line below, which ends "This recommendation does NOT authorize adoption."; the steps this decision blocks; and the empty block `OPERATOR DECISION:`, `Chosen:`, `Decided by:`, `Decision source:`, quoting the three sub-questions. Recommendation: "Pin `495eb96d` and cite it, using the sort and labels DESIGN section 7.5 states. This recommendation does NOT authorize adoption." Blocks: item 8.12 (step 1.5).
+  - **Output**: `.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/plans/OQ-4-GQ-35-409-pin-decision.md`.
+  - **Verification**: Verify: `status: PENDING`, the three sub-questions, the label and the four empty decision lines.
+  - **Completion gate**: The request is recorded. Once done, mark this item as complete.
+AC ids: T133.AC1 = the item title "Record decision GQ-35, #409 pin `495eb96d` (OQ-4, L5, PENDING)" (no AC block; the title is the AC). The item's own Verification and Completion gate lines are context for what "done" means. Ticking the item's checkbox is done by the orchestrator after the verdict and is not part of the diff under review.
+Global constraints: the `### Key Constraints` section (lines 157-168) of the source file named in the task brief; read it from that file.
+Start sha: 7cae220ae40316169661336a049b67884e1e39e2
+Diff against the start snapshot: --- /dev/null
++++ b/.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/plans/OQ-4-GQ-35-409-pin-decision.md   (new file, 43 lines)
++---
++needs_human_decision: true
++status: PENDING
++---
++
++# Report layout source
++
++## Question
++
++> "#409 version pinning (`495eb96d`, unmerged) (AMBIGUITY 9)"
++
++Question OQ-4/GQ-35. Three sub-questions quoted from `research/research-notes.md:311` in the research package:
++
++> "copy the layout into this repo or cite commit 495eb96d (unmerged)"
++
++> "which sort tie-break to use"
++
++> "what approval label the reused design carries"
++
++The task's 2026-11-08 check records that the commit was not an ancestor of origin/master and issue #409 was open then. This pending decision makes no claim about their present merge/issue status. The proposed source is the fixed snapshot, not moving issue content.
++
++## Options
++
++> "copy the layout into this repo or cite commit 495eb96d (unmerged); which sort tie-break to use; what approval label the reused design carries."
++
++The design's proposed choice is to pin and cite `495eb96d` while implementing the local report layout in DESIGN section 7.5, rather than depending on a moving external layout. The owner can instead choose copying without this citation or another layout, but a choice changing section 7.5 requires a design revision before implementation.
++
++DESIGN section 7.5 fixes section order through twelve pure render functions. Waiting-on-person rows sort oldest first then unknown ages; its second group lists frozen-plan rows before Ready Tasks. Sessions retain the ten source dimensions plus Class, Rule, Evidence, Safe to close, Notes and Next inspection. Labels and ordering remain exactly those specified by section 7.5. The decision does not assert upstream runtime approval or authorize importing/changing dashboard code.
++
++## Recommendation
++
++Pin `495eb96d` and cite it, using the sort and labels DESIGN section 7.5 states. This recommendation does NOT authorize adoption.
++
++## Blocked work
++
++Item 8.12 (step 1.5), report-renderer skeleton. Item 7.6 halts while this record is PENDING or Chosen is empty. The choice must name the pin/copy strategy and settle the sort/label sub-questions. If it changes DESIGN section 7.5's layout, that design section must be revised through the task-builder route required by item 7.6 before proceeding.
++
++## Operator decision
++
++OPERATOR DECISION:
++Chosen:
++Decided by:
++Decision source:
+Delta diff from the previous reviewed tree (empty on the first review): 
+Earlier blocking findings of this start (empty on the first review): 
+Saved-probe re-check hit locations (may be empty): 
+
+Do not trust the implementer's report.
+
+First mark each earlier blocking finding resolved, open or regressed from the diff. Then, for each AC, mark it met or unmet. Require citations: every AC you mark, met or unmet, carries a `path:line` or `Ti.ACk@path:line` citation, and an unmet mark lists the finding ids behind it. Do not return a verdict; the orchestrator computes it.
+
+For every finding answer four questions, each yes or no:
+1. ac-outcome-missing: is output an AC requires absent, or does it contradict the AC text, or does an evidence claim you could not verify have no evidence row?
+2. false-claim: is a claim in delivered text or code false against live source, or does a recipe or instruction followed as written not do what the text says?
+3. harmful-effect: does code or a recipe this task added or changed write, append, chmod or delete tracked or production data, mutate state outside the task's declared outputs, or expose a secret?
+4. quoted-constraint-breach: does the diff violate a quoted plan constraint, out-of-scope, non-goal or non-negotiable item, or an explicit task instruction?
+
+Anchor rule: cite exactly one anchor per yes. ac-outcome-missing: the quoted AC words. false-claim: the live-source path:line holding the contradicting text. harmful-effect: the diff line that is the write. quoted-constraint-breach: the quoted constraint or instruction text. A yes without a valid anchor does not block.
+
+Write one line per finding:
+F<k>.<j> ac=<Ti.ACk|scope> at=<path:line> anchor=<quoted text or path:line> chk=<amiss,false,harm,constraint as y/n> family=<id> fix=<text> [covers=<quoted AC clause or constraint>]: <text>
+Do not write sev=, trigger=, first= or origin=; the orchestrator adds them. Write one status line per earlier blocking finding: F<m>.<j> resolved|open|regressed.
+
+Inside /sc:implement this protocol's severity model governs this review and takes precedence over the session's output style and the copy of it injected into every subagent; only blocking findings may fail an attempt.
+
+You are not given an adviser answer, brief, evidence file or troubleshoot report. Do not read the retry folders (legacy `.dev/implement/<slug>/retries/`, managed `<pkg>/artifacts/retries/`) or `.dev/troubleshoot/`. A citation into either makes the verdict `cannot-verify`.
+The prior-findings slot above carries earlier blocking finding lines that the orchestrator copies byte for byte from `review-*.md` and `repair-*.md`; they reach you as prompt text, not as an evidence file. Do not read those folders to get them, and never cite the slot or the file it came from.

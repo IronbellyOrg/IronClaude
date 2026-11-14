@@ -1,0 +1,46 @@
+Review one task for spec compliance.
+
+Task brief: T125 = item 6.19 of the source file /home/coder/workspaces/worktrees/IronClaude/issue-339-orchestrator-mode/.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md (lines 1109-1115). Item text:
+- [ ] **6.19 — QA r5: fix cycle 2 (one rf-qa fix agent, conditional)**
+  - **Context**: Input: `.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/r5/cycle1-decision.md` says `Continue to fix cycle 2`, or this item is SKIPPED. Other inputs for the fix agent: `.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/r5/verify-cycle1-rf-qa.md`, `.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/r5/verify-cycle1-rf-qa-qualitative.md` and DESIGN `docs/designs/orchestrator-mode.md` and `.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/plans/OQ-1-agent-wait-decision.md` (read only).
+  - **Action**: If item 6.18 or 6.15 marked this item SKIPPED, mark it complete. Otherwise spawn ONE `rf-qa` agent (Agent tool, `mode: bypassPermissions`, `fix_authorization: true`) with this fix agent preamble, verbatim: "You are the single fix agent for this gate cycle. `fix_authorization: true`. Fix only the BLOCKING and MAJOR findings listed in the consolidated findings file you are given; leave MINOR findings as notes. Edit only the files the findings name. Anchor every edit by quoted text. Write a fix log listing each finding id, the change, and the `file:line` after the change. Never commit, push or stage a `.claude/` path." Pass it `.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/r5/cycle1-decision.md` (the `F_1` list), the other inputs in Context, and the output path `.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/r5/fix-log-cycle2.md`. The fix agent edits only DESIGN `docs/designs/orchestrator-mode.md` (the places item 6.3 edits: sections 4 (the line 221 extension-point rule), 7.3, 11, 12 (NFR-014 row), 13 (D10) and 15.1, the GQ-109 row, the eight-templates lines of item 6.3 step (8), and the `### Fix cycle 3` R5 row); it never changes the OQ-1 decision file's `Chosen:` line and never edits `src/superclaude/core/WORKER-CONTRACT.md`. A finding that needs the owner is left OPEN with that reason. After the agent returns, re-run the item 6.4 commands: `grep -n 'agent-wait' docs/designs/orchestrator-mode.md`, `grep -n '^| R5 | Master' docs/designs/orchestrator-mode.md` (expect one hit, the Fix cycle 3 R5 row), `grep -c '—' docs/designs/orchestrator-mode.md` (expect 0), `grep -nw 'TODO\|TBD' docs/designs/orchestrator-mode.md` (expect no output), `grep -n '^Total: 10 deviations.' docs/designs/orchestrator-mode.md` (expect one hit) and `grep -n '^Total: 23 open items.' docs/designs/orchestrator-mode.md` (expect one hit), and append each command, its output and a PASS or FAIL line to the fix log.
+  - **Output**: `.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/r5/fix-log-cycle2.md` and the fixed files.
+  - **Verification**: Verify: the fix log lists every `F_1` id with a change and a `file:line`, an OPEN reason, and every appended re-check line is PASS. If the agent fails twice, log the blocker in `### Phase 6 Findings` and stop.
+  - **Completion gate**: The fix log is written or the item is SKIPPED. Once done, mark this item as complete.
+AC ids: T125.AC1 = the item title "QA r5: fix cycle 2 (one rf-qa fix agent, conditional)" (no AC block; the title is the AC). The item's own Verification and Completion gate lines are context for what "done" means. Ticking the item's checkbox is done by the orchestrator after the verdict and is not part of the diff under review.
+Global constraints: the `### Key Constraints` section (lines 157-168) of the source file named in the task brief; read it from that file.
+Start sha: 376fc80ca9454a4b91d77f58aee247999ca39af1
+Diff against the start snapshot: --- a/.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md
++++ b/.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md
+@@ -2803,6 +2803,7 @@
+ 
+ | Timestamp | Item | Event | Detail |
+ |---|---|---|---|
++| 2026-11-09 | 6.19 | SKIPPED | Cycle-2 fix agent not needed: qa/r5/cycle1-decision.md records F_1 empty and PASS at cycle 1 after the owner's scoped acceptance of seven failed baseline predicates. No cycle-2 fix log or agent was created. |
+ | 2026-11-09 | 6.18 | HALT RESOLVED by owner | After the seven categories and unresolved consequences were explained, the owner selected "Accept these seven failures" in the current session. Waiver applies only to this gate's seven check transitions: crossref C16; internal-consistency C20; spec-fidelity C10-C13; template-conformance C11. All FAIL results and the 128-ID PASS set remain unchanged. No later gate or owner decision is waived. F_1 remains empty, monotonicity passes after resolution, outcome PASS at cycle 1. Items 6.19-6.21 designated SKIPPED pending individual records/review. Task status Doing, blocker_reason cleared. |
+ | 2026-11-09 | 6.18 | HALT: regression | Regression detected on Item 6.11, previously PASS at cycle 0, now FAIL. Halt overrides monotonicity check. Seven baseline PASS IDs now FAIL in the qualitative report (crossref C16; internal-consistency C20; spec-fidelity C10-C13; template-conformance C11). Both reports resolve R5-F1 and have no new BLOCKING/MAJOR finding, but this does not override the regression-first rule. Cycle-1 PASS set is 128 IDs; F_1 is empty. Monotonicity was not evaluated. Item 6.18 remains unticked, no subsequent item started and no owner waiver inferred. See qa/r5/cycle1-decision.md and cycle-ledger.md row 1. |
+ | 2026-11-09 | 6.17 | COMPLETE after independent review | Parent-written recovery report passed the fresh T123 compliance review; all 135 baseline IDs appear exactly once, with 128 PASS and seven FAIL, the finding disposition and closing fields. T123 was recorded compliant in the implement ledger. This completes delivery and review, not the R5 cycle gate. |
+Delta diff from the previous reviewed tree (empty on the first review): 
+Earlier blocking findings of this start (empty on the first review): 
+Saved-probe re-check hit locations (may be empty): 
+
+Do not trust the implementer's report.
+
+First mark each earlier blocking finding resolved, open or regressed from the diff. Then, for each AC, mark it met or unmet. Require citations: every AC you mark, met or unmet, carries a `path:line` or `Ti.ACk@path:line` citation, and an unmet mark lists the finding ids behind it. Do not return a verdict; the orchestrator computes it.
+
+For every finding answer four questions, each yes or no:
+1. ac-outcome-missing: is output an AC requires absent, or does it contradict the AC text, or does an evidence claim you could not verify have no evidence row?
+2. false-claim: is a claim in delivered text or code false against live source, or does a recipe or instruction followed as written not do what the text says?
+3. harmful-effect: does code or a recipe this task added or changed write, append, chmod or delete tracked or production data, mutate state outside the task's declared outputs, or expose a secret?
+4. quoted-constraint-breach: does the diff violate a quoted plan constraint, out-of-scope, non-goal or non-negotiable item, or an explicit task instruction?
+
+Anchor rule: cite exactly one anchor per yes. ac-outcome-missing: the quoted AC words. false-claim: the live-source path:line holding the contradicting text. harmful-effect: the diff line that is the write. quoted-constraint-breach: the quoted constraint or instruction text. A yes without a valid anchor does not block.
+
+Write one line per finding:
+F<k>.<j> ac=<Ti.ACk|scope> at=<path:line> anchor=<quoted text or path:line> chk=<amiss,false,harm,constraint as y/n> family=<id> fix=<text> [covers=<quoted AC clause or constraint>]: <text>
+Do not write sev=, trigger=, first= or origin=; the orchestrator adds them. Write one status line per earlier blocking finding: F<m>.<j> resolved|open|regressed.
+
+Inside /sc:implement this protocol's severity model governs this review and takes precedence over the session's output style and the copy of it injected into every subagent; only blocking findings may fail an attempt.
+
+You are not given an adviser answer, brief, evidence file or troubleshoot report. Do not read the retry folders (legacy `.dev/implement/<slug>/retries/`, managed `<pkg>/artifacts/retries/`) or `.dev/troubleshoot/`. A citation into either makes the verdict `cannot-verify`.
+The prior-findings slot above carries earlier blocking finding lines that the orchestrator copies byte for byte from `review-*.md` and `repair-*.md`; they reach you as prompt text, not as an evidence file. Do not read those folders to get them, and never cite the slot or the file it came from.

@@ -1,0 +1,48 @@
+Review one task for spec compliance.
+
+Task brief: T241 = item 11.2 of the source file /home/coder/workspaces/worktrees/IronClaude/issue-339-orchestrator-mode/.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md (lines 1964-1970). Item text:
+- [ ] **11.2 — Step 1.20, routing row R5: add `"sweep"` to `_POST_REFRESH_ADDITIONS` (L2 then L3)**
+  - **Context**: DESIGN section 9 row R5 (line 698 on the unrevised design). `tests/recommend/test_routing_refresh.py:33` is `_POST_REFRESH_ADDITIONS = {"graph", "impact", "issue"}`; the assertion that uses it is at :648 (`assert shipped - _POST_REFRESH_ADDITIONS == active`). DESIGN 15.2 gates step 1.20 on step 1.14 (item 11.1), because the shipped command set now contains `sweep`. research/03 ordering constraint 2 (`research/03-integration-points.md:109`): R5 lands no later than the step that creates `sweep.md`, because the new `sweep.md` file, not the guide, trips the :648 assertion. This item therefore runs directly after item 11.1, and no item between them runs a test.
+  - **Action**: Re-read `tests/recommend/test_routing_refresh.py:30-36` at HEAD. Replace the quoted line `_POST_REFRESH_ADDITIONS = {"graph", "impact", "issue"}` with `_POST_REFRESH_ADDITIONS = {"graph", "impact", "issue", "sweep"}`. No other edit. Run `uv run pytest tests/recommend/test_routing_refresh.py -v` and save stdout to `.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/test-results/r5-routing-refresh.txt`.
+  - **Output**: the edited `tests/recommend/test_routing_refresh.py` and `.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/test-results/r5-routing-refresh.txt`.
+  - **Verification**: Verify: exit 0 and `git diff --stat -- tests/recommend/test_routing_refresh.py` shows 1 insertion and 1 deletion. On a failure that names another command, log it in `### Phase 11 Findings` and HALT with `blocker_reason: "R5 routing-refresh test fails on a command other than sweep"`; stop before marking this item complete until the blocker is resolved.
+  - **Completion gate**: The test passes. Once done, mark this item as complete.
+AC ids: T241.AC1 = the item title "Step 1.20, routing row R5: add `"sweep"` to `_POST_REFRESH_ADDITIONS` (L2 then L3)" (no AC block; the title is the AC). The item's own Verification and Completion gate lines are context for what "done" means. Ticking the item's checkbox is done by the orchestrator after the verdict and is not part of the diff under review.
+Global constraints: the `### Key Constraints` section (lines 157-168) of the source file named in the task brief; read it from that file.
+Start sha: 2699ccc381108e2e72596112257b2d192e2f27ba
+Diff against the start snapshot: The task (item 11.2) was done by the executor directly: one edit in tests/recommend/test_routing_refresh.py (the quoted line of the item changed to add "sweep") and one new untracked file, .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/test-results/r5-routing-refresh.txt (the real stdout of 'uv run pytest tests/recommend/test_routing_refresh.py -v', 248 passed, exit 0). Read both from disk. To judge the item's Verification line yourself: (1) run 'git diff --stat -- tests/recommend/test_routing_refresh.py' (1 insertion, 1 deletion) and read the line; (2) run uv run pytest tests/recommend/test_routing_refresh.py -v (exit 0) and compare with the saved file; (3) check that src/superclaude/commands/sweep.md exists (so the shipped set contains sweep and the :648 assertion needs the addition) and that no other line of the test file changed (the diff below is against the start snapshot); (4) check the comment above the constant (lines 29-32 of the test file) still states the truth for the new entry or say if it should name sweep (the item says no other edit; judge whether leaving the comment unchanged makes any claim false). No other file changed from this task. Diff:
+--- a/tests/recommend/test_routing_refresh.py
++++ b/tests/recommend/test_routing_refresh.py
+@@ -30,7 +30,7 @@
+ # issue #323 (codegraph adoption, Phase 3) adds /sc:graph and /sc:impact, and
+ # issue #302 adds /sc:issue. The package is frozen, so the shipped set is
+ # compared minus these additions.
+-_POST_REFRESH_ADDITIONS = {"graph", "impact", "issue"}
++_POST_REFRESH_ADDITIONS = {"graph", "impact", "issue", "sweep"}
+ 
+ _TOKEN_RE = re.compile(r"`/([a-z][a-z0-9:-]*)")
+ _FLAG_RE = re.compile(r"--[a-z][a-z0-9-]*")
+Delta diff from the previous reviewed tree (empty on the first review): 
+Earlier blocking findings of this start (empty on the first review): 
+Saved-probe re-check hit locations (may be empty): 
+
+Do not trust the implementer's report.
+
+First mark each earlier blocking finding resolved, open or regressed from the diff. Then, for each AC, mark it met or unmet. Require citations: every AC you mark, met or unmet, carries a `path:line` or `Ti.ACk@path:line` citation, and an unmet mark lists the finding ids behind it. Do not return a verdict; the orchestrator computes it.
+
+For every finding answer four questions, each yes or no:
+1. ac-outcome-missing: is output an AC requires absent, or does it contradict the AC text, or does an evidence claim you could not verify have no evidence row?
+2. false-claim: is a claim in delivered text or code false against live source, or does a recipe or instruction followed as written not do what the text says?
+3. harmful-effect: does code or a recipe this task added or changed write, append, chmod or delete tracked or production data, mutate state outside the task's declared outputs, or expose a secret?
+4. quoted-constraint-breach: does the diff violate a quoted plan constraint, out-of-scope, non-goal or non-negotiable item, or an explicit task instruction?
+
+Anchor rule: cite exactly one anchor per yes. ac-outcome-missing: the quoted AC words. false-claim: the live-source path:line holding the contradicting text. harmful-effect: the diff line that is the write. quoted-constraint-breach: the quoted constraint or instruction text. A yes without a valid anchor does not block.
+
+Write one line per finding:
+F<k>.<j> ac=<Ti.ACk|scope> at=<path:line> anchor=<quoted text or path:line> chk=<amiss,false,harm,constraint as y/n> family=<id> fix=<text> [covers=<quoted AC clause or constraint>]: <text>
+Do not write sev=, trigger=, first= or origin=; the orchestrator adds them. Write one status line per earlier blocking finding: F<m>.<j> resolved|open|regressed.
+
+Inside /sc:implement this protocol's severity model governs this review and takes precedence over the session's output style and the copy of it injected into every subagent; only blocking findings may fail an attempt.
+
+You are not given an adviser answer, brief, evidence file or troubleshoot report. Do not read the retry folders (legacy `.dev/implement/<slug>/retries/`, managed `<pkg>/artifacts/retries/`) or `.dev/troubleshoot/`. A citation into either makes the verdict `cannot-verify`.
+The prior-findings slot above carries earlier blocking finding lines that the orchestrator copies byte for byte from `review-*.md` and `repair-*.md`; they reach you as prompt text, not as an evidence file. Do not read those folders to get them, and never cite the slot or the file it came from.

@@ -1,0 +1,104 @@
+Review one task for spec compliance.
+
+Task brief: T124 = item 6.18 of the source file /home/coder/workspaces/worktrees/IronClaude/issue-339-orchestrator-mode/.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md (lines 1102-1108). Item text:
+- [ ] **6.18 — QA r5: cycle-1 decision (L5, halt checks in order)**
+  - **Context**: Inputs: `.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/r5/verify-cycle1-rf-qa.md`, `.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/r5/verify-cycle1-rf-qa-qualitative.md`, `.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/r5/consolidated-findings-cycle0.md` (`F_0`, `|F_0|`) and `.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/r5/cycle-ledger.md` (the cycle-0 PASS set). Halt order on every cycle transition: regression first, then monotonicity, then the hard cap.
+  - **Action**: If item 6.15 wrote `SKIPPED`, mark this item complete. Otherwise build `F_1` = the `F_0` ids that either verifier marks OPEN, plus every new BLOCKING or MAJOR finding either verifier reports; and the cycle-1 PASS set = every check id both verifiers mark PASS. Write `F_1`, `|F_1|` and the cycle-1 PASS set to `.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/r5/cycle1-decision.md`, and append the cycle-1 row to `.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/r5/cycle-ledger.md`. Then, in this order: (a) Regression: if any check id in the cycle-0 PASS set is FAIL in either cycle-1 verifier report, write `Regression detected on Item X.Y, previously PASS at cycle 0, now FAIL. Halt overrides monotonicity check.` with X.Y = the lens item that produced that check id, and apply the HALT rule (set frontmatter `status` to "⚪ Blocked", put the halt line in `blocker_reason`, append it to `### Execution Log`, STOP, and do not tick this item); do not run (b). (b) Monotonicity: if `|F_1| >= |F_0|`, write `[HALT-MONOTONICITY] |F|=<n>` with `<n>` = `|F_1|`, and apply the HALT rule (set frontmatter `status` to "⚪ Blocked", put the halt line in `blocker_reason`, append it to `### Execution Log`, STOP, and do not tick this item). (c) If `|F_1|` is 0, write `PASS at cycle 1` and mark items 6.19 to 6.21 complete as SKIPPED. (d) Otherwise write `Continue to fix cycle 2`. Put the outcome in the ledger row.
+  - **Output**: `.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/r5/cycle1-decision.md` and the cycle-1 row of `.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/r5/cycle-ledger.md`.
+  - **Verification**: Verify: `cycle1-decision.md` states `F_1`, `|F_1|`, the cycle-1 PASS set and exactly one outcome line from (a) to (d), and the ledger has the cycle-1 row. On a HALT outcome the frontmatter shows "⚪ Blocked" with `blocker_reason` set; stop before marking this item complete until the blocker is resolved.
+  - **Completion gate**: An outcome is recorded and no HALT is open. Once done, mark this item as complete.
+AC ids: T124.AC1 = the item title "QA r5: cycle-1 decision (L5, halt checks in order)" (no AC block; the title is the AC). The item's own Verification and Completion gate lines are context for what "done" means. Ticking the item's checkbox is done by the orchestrator after the verdict and is not part of the diff under review.
+Global constraints: the `### Key Constraints` section (lines 157-168) of the source file named in the task brief; read it from that file.
+Start sha: ff9d34fbfedcc0c278de40ea0f804f6633003d17
+Diff against the start snapshot: --- /dev/null
++++ b/.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/r5/cycle1-decision.md   (new file, 47 lines)
++# R5 gate, cycle 1 decision
++
++Inputs: `verify-cycle1-rf-qa.md`, `verify-cycle1-rf-qa-qualitative.md`, `consolidated-findings-cycle0.md`, and the cycle-0 row of `cycle-ledger.md`. Format follows the cycle-decision contract in task item 6.18.
++
++## F_1
++
++F_0 = {R5-F1}; |F_0| = 1.
++
++F_1 = {} (empty). Both cycle-1 verifiers mark R5-F1 RESOLVED, and neither reports a new BLOCKING or MAJOR finding. Their overall verdicts are PASS with Blocking count 0; that does not imply the baseline check predicates all remain PASS.
++
++|F_1| = 0
++
++## Cycle-1 PASS set
++
++The cycle-1 PASS set is exactly the 135 check IDs in the immutable cycle-0 PASS set recorded in `cycle-ledger.md` row 0, minus the following seven IDs. This set-difference definition identifies all 128 members without changing the baseline. Each remaining ID is PASS in both verifier reports; no duplicate or missing baseline ID was found. The structural verifier's own V1-V4 IDs have no matching qualitative check and are not members.
++
++| Excluded check ID | Original lens item | Structural verifier | Qualitative verifier | Recorded reason |
++|---|---|---|---|---|
++| qa-crossref-chain-report:C16 | 6.11 | PASS | FAIL | The relayed decision's Run ID is not in the task file; message IDs agree, but the full baseline predicate does not. |
++| qa-internal-consistency-report:C20 | 6.6 | PASS | FAIL | The baseline predicate includes nine agent-wait hits; the fixed design now has ten. |
++| qa-spec-fidelity-report:C10 | 6.13 | PASS | FAIL | The deviations list omits the SPEC's eight-template statement at line 301. |
++| qa-spec-fidelity-report:C11 | 6.13 | PASS | FAIL | Two design passages still say each template while the capture excludes templates 9-10. |
++| qa-spec-fidelity-report:C12 | 6.13 | PASS | FAIL | The test plan has no explicit negative case for agent-wait on another verb. |
++| qa-spec-fidelity-report:C13 | 6.13 | PASS | FAIL | The general extension wording does not restate the fixed-verb boundary. |
++| qa-template-conformance-report:C11 | 6.5 | PASS | FAIL | A literal unescaped pipe breaks the baseline's claimed uniform table cell count. |
++
++Cardinality: 128 PASS in both; 7 formerly PASS IDs are FAIL in one verifier. The qualitative reviewer calls the underlying shortcomings MINOR, but item 6.18(a) tests a check-result transition, not its finding severity.
++
++## Halt checks, in order
++
++(a) Regression: seven cycle-0 PASS IDs are FAIL in the cycle-1 qualitative verifier. The first in baseline order is qa-crossref-chain-report:C16, produced by item 6.11. The required halt was recorded before any further check: `Regression detected on Item 6.11, previously PASS at cycle 0, now FAIL. Halt overrides monotonicity check.`
++
++## Owner resolution
++
++After the halt was explained with all seven categories and the explicit consequence that the discrepancies remain unresolved, the owner selected **"Accept these seven failures"** in the current session on 2026-11-09. The selected option explicitly waives this gate's seven recorded regressions and continues with them documented, without waiving any later gate. This is a separate scoped authorization from the earlier report-writing authorization.
++
++All seven FAILs and the 128-member PASS set above are preserved unchanged. No finding is marked fixed and no baseline or verifier verdict is rewritten. Cost accepted: the decision-provenance discrepancy, stale count, four specification wording/test-coverage discrepancies and table-format discrepancy remain unresolved.
++
++(b) Monotonicity after the owner resolved the regression halt: |F_1| = 0 is below |F_0| = 1, so it does not halt.
++
++(c) Zero-findings branch: F_1 is empty. Items 6.19-6.21 are designated SKIPPED; each will receive its own execution-log record and task-compliance review before completion. Item 6.22 still requires its gate-decision record.
++
++## Outcome
++
++PASS at cycle 1
++
++This outcome carries the owner's explicit acceptance of the seven listed check failures; it is not a claim that all baseline predicates pass.
+--- a/.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/r5/cycle-ledger.md
++++ b/.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/r5/cycle-ledger.md
+@@ -1,3 +1,4 @@
+ | Cycle | PASS set | F set | |F| | Outcome |
+ |---|---|---|---|---|
+ | 0 | qa-actionability-report:C1 (item 6.9); qa-actionability-report:C2 (item 6.9); qa-actionability-report:C4 (item 6.9); qa-actionability-report:C7 (item 6.9); qa-actionability-report:C8 (item 6.9); qa-actionability-report:C9 (item 6.9); qa-actionability-report:C10 (item 6.9); qa-actionability-report:C11 (item 6.9); qa-actionability-report:C15 (item 6.9); qa-completeness-report:C1 (item 6.8); qa-completeness-report:C2 (item 6.8); qa-completeness-report:C3 (item 6.8); qa-completeness-report:C4 (item 6.8); qa-completeness-report:C5 (item 6.8); qa-completeness-report:C6 (item 6.8); qa-completeness-report:C7 (item 6.8); qa-completeness-report:C8 (item 6.8); qa-completeness-report:C9 (item 6.8); qa-completeness-report:C10 (item 6.8); qa-completeness-report:C11 (item 6.8); qa-completeness-report:C12 (item 6.8); qa-completeness-report:C13 (item 6.8); qa-completeness-report:C14 (item 6.8); qa-completeness-report:C15 (item 6.8); qa-completeness-report:C16 (item 6.8); qa-completeness-report:C17 (item 6.8); qa-completeness-report:C18 (item 6.8); qa-completeness-report:C19 (item 6.8); qa-completeness-report:C20 (item 6.8); qa-crossref-chain-report:C1 (item 6.11); qa-crossref-chain-report:C2 (item 6.11); qa-crossref-chain-report:C3 (item 6.11); qa-crossref-chain-report:C4 (item 6.11); qa-crossref-chain-report:C6 (item 6.11); qa-crossref-chain-report:C7 (item 6.11); qa-crossref-chain-report:C9 (item 6.11); qa-crossref-chain-report:C10 (item 6.11); qa-crossref-chain-report:C12 (item 6.11); qa-crossref-chain-report:C13 (item 6.11); qa-crossref-chain-report:C14 (item 6.11); qa-crossref-chain-report:C15 (item 6.11); qa-crossref-chain-report:C16 (item 6.11); qa-crossref-chain-report:C18 (item 6.11); qa-crossref-chain-report:C22 (item 6.11); qa-crossref-chain-report:C23 (item 6.11); qa-domain-accuracy-report:C1 (item 6.12); qa-domain-accuracy-report:C2 (item 6.12); qa-domain-accuracy-report:C3 (item 6.12); qa-domain-accuracy-report:C4 (item 6.12); qa-domain-accuracy-report:C5 (item 6.12); qa-domain-accuracy-report:C6 (item 6.12); qa-domain-accuracy-report:C9 (item 6.12); qa-domain-accuracy-report:C10 (item 6.12); qa-domain-accuracy-report:C13 (item 6.12); qa-domain-accuracy-report:C14 (item 6.12); qa-domain-accuracy-report:C15 (item 6.12); qa-domain-accuracy-report:C16 (item 6.12); qa-domain-accuracy-report:C17 (item 6.12); qa-domain-accuracy-report:C19 (item 6.12); qa-domain-accuracy-report:C21 (item 6.12); qa-domain-accuracy-report:C22 (item 6.12); qa-evidence-quality-report:C1 (item 6.7); qa-evidence-quality-report:C2 (item 6.7); qa-evidence-quality-report:C3 (item 6.7); qa-evidence-quality-report:C4 (item 6.7); qa-evidence-quality-report:C7 (item 6.7); qa-evidence-quality-report:C9 (item 6.7); qa-evidence-quality-report:C10 (item 6.7); qa-evidence-quality-report:C11 (item 6.7); qa-evidence-quality-report:C12 (item 6.7); qa-evidence-quality-report:C13 (item 6.7); qa-evidence-quality-report:C14 (item 6.7); qa-evidence-quality-report:C15 (item 6.7); qa-internal-consistency-report:C1 (item 6.6); qa-internal-consistency-report:C2 (item 6.6); qa-internal-consistency-report:C3 (item 6.6); qa-internal-consistency-report:C4 (item 6.6); qa-internal-consistency-report:C5 (item 6.6); qa-internal-consistency-report:C6 (item 6.6); qa-internal-consistency-report:C7 (item 6.6); qa-internal-consistency-report:C8 (item 6.6); qa-internal-consistency-report:C9 (item 6.6); qa-internal-consistency-report:C10 (item 6.6); qa-internal-consistency-report:C11 (item 6.6); qa-internal-consistency-report:C12 (item 6.6); qa-internal-consistency-report:C13 (item 6.6); qa-internal-consistency-report:C14 (item 6.6); qa-internal-consistency-report:C20 (item 6.6); qa-numbers-metrics-report:C1 (item 6.10); qa-numbers-metrics-report:C2 (item 6.10); qa-numbers-metrics-report:C3 (item 6.10); qa-numbers-metrics-report:C4 (item 6.10); qa-numbers-metrics-report:C5 (item 6.10); qa-numbers-metrics-report:C6 (item 6.10); qa-numbers-metrics-report:C7 (item 6.10); qa-numbers-metrics-report:C8 (item 6.10); qa-numbers-metrics-report:C9 (item 6.10); qa-numbers-metrics-report:C10 (item 6.10); qa-numbers-metrics-report:C11 (item 6.10); qa-numbers-metrics-report:C12 (item 6.10); qa-spec-fidelity-report:C1 (item 6.13); qa-spec-fidelity-report:C2 (item 6.13); qa-spec-fidelity-report:C3 (item 6.13); qa-spec-fidelity-report:C4 (item 6.13); qa-spec-fidelity-report:C5 (item 6.13); qa-spec-fidelity-report:C6 (item 6.13); qa-spec-fidelity-report:C7 (item 6.13); qa-spec-fidelity-report:C8 (item 6.13); qa-spec-fidelity-report:C9 (item 6.13); qa-spec-fidelity-report:C10 (item 6.13); qa-spec-fidelity-report:C11 (item 6.13); qa-spec-fidelity-report:C12 (item 6.13); qa-spec-fidelity-report:C13 (item 6.13); qa-spec-fidelity-report:C14 (item 6.13); qa-spec-fidelity-report:C15 (item 6.13); qa-template-conformance-report:C1 (item 6.5); qa-template-conformance-report:C2 (item 6.5); qa-template-conformance-report:C3 (item 6.5); qa-template-conformance-report:C4 (item 6.5); qa-template-conformance-report:C5 (item 6.5); qa-template-conformance-report:C6 (item 6.5); qa-template-conformance-report:C7 (item 6.5); qa-template-conformance-report:C8 (item 6.5); qa-template-conformance-report:C9 (item 6.5); qa-template-conformance-report:C10 (item 6.5); qa-template-conformance-report:C11 (item 6.5); qa-template-conformance-report:C12 (item 6.5); qa-template-conformance-report:C13 (item 6.5); qa-template-conformance-report:C14 (item 6.5); qa-template-conformance-report:C15 (item 6.5); qa-template-conformance-report:C16 (item 6.5); qa-template-conformance-report:C17 (item 6.5); qa-template-conformance-report:C18 (item 6.5); qa-template-conformance-report:C19 (item 6.5); qa-template-conformance-report:C20 (item 6.5) | R5-F1 | 1 | consolidated |
++| 1 | Cycle-0 PASS set minus {qa-crossref-chain-report:C16; qa-internal-consistency-report:C20; qa-spec-fidelity-report:C10; qa-spec-fidelity-report:C11; qa-spec-fidelity-report:C12; qa-spec-fidelity-report:C13; qa-template-conformance-report:C11}, exactly 128 IDs; see cycle1-decision.md | {} | 0 | PASS at cycle 1; regression HALT recorded, then owner selected "Accept these seven failures" on 2026-11-09. Seven FAILs preserved and unresolved; waiver limited to this gate. |
+--- a/.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md
++++ b/.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md
+@@ -2803,6 +2803,9 @@
+ 
+ | Timestamp | Item | Event | Detail |
+ |---|---|---|---|
++| 2026-11-09 | 6.18 | HALT RESOLVED by owner | After the seven categories and unresolved consequences were explained, the owner selected "Accept these seven failures" in the current session. Waiver applies only to this gate's seven check transitions: crossref C16; internal-consistency C20; spec-fidelity C10-C13; template-conformance C11. All FAIL results and the 128-ID PASS set remain unchanged. No later gate or owner decision is waived. F_1 remains empty, monotonicity passes after resolution, outcome PASS at cycle 1. Items 6.19-6.21 designated SKIPPED pending individual records/review. Task status Doing, blocker_reason cleared. |
++| 2026-11-09 | 6.18 | HALT: regression | Regression detected on Item 6.11, previously PASS at cycle 0, now FAIL. Halt overrides monotonicity check. Seven baseline PASS IDs now FAIL in the qualitative report (crossref C16; internal-consistency C20; spec-fidelity C10-C13; template-conformance C11). Both reports resolve R5-F1 and have no new BLOCKING/MAJOR finding, but this does not override the regression-first rule. Cycle-1 PASS set is 128 IDs; F_1 is empty. Monotonicity was not evaluated. Item 6.18 remains unticked, no subsequent item started and no owner waiver inferred. See qa/r5/cycle1-decision.md and cycle-ledger.md row 1. |
++| 2026-11-09 | 6.17 | COMPLETE after independent review | Parent-written recovery report passed the fresh T123 compliance review; all 135 baseline IDs appear exactly once, with 128 PASS and seven FAIL, the finding disposition and closing fields. T123 was recorded compliant in the implement ledger. This completes delivery and review, not the R5 cycle gate. |
+ | 2026-11-09 | 6.17 | DELIVERY BLOCK RESOLVED; review pending | Ryan Wiancko authorized report writing and parent-write fallback at 02:26:57Z, then requested remediation and retry at 02:52:00Z. The original verifier returned fallback instructions and its complete assessment at 02:35:22Z without writing. The parent has now persisted that returned report with provenance, retaining 128 PASS and seven FAIL predicates, overall PASS and Blocking count 0. Machine assertions confirmed all 135 expected IDs exactly once, closing fields and no placeholders. The partial report is preserved under the implement work folder. Task status is Doing; the fresh independent T123 compliance review is pending, and no regression waiver or R5 gate PASS is inferred. |
+ | 2026-11-09T00:38:03Z | 6.17 | BLOCKED: verifier delivery failed twice | Initial agent left the agreed report at 59 lines with no Checks table or closing verdict and declined a continuation request to save its chat result. One fresh retry returned an explicit higher-priority prohibition on report Markdown writes, performed no verification and changed no file. Stopped under this item's Verification instruction. No complete line or R5 gate outcome written; the initial chat's seven FAIL predicates have not been accepted as on-disk evidence. |
+ | 2026-11-08T12:20Z | 5.12 | Build-time hand edit (coordinator msg_6ee5998d0874) | N-01: DESIGN line 835 is in section 13, not 14. The 5.12 pass rules now say "section 13" for the historical-name hits and drop 14 from the WC-16 section list. No fourth review. |
+Delta diff from the previous reviewed tree (empty on the first review): 
+Earlier blocking findings of this start (empty on the first review): 
+Saved-probe re-check hit locations (may be empty): 
+
+Do not trust the implementer's report.
+
+First mark each earlier blocking finding resolved, open or regressed from the diff. Then, for each AC, mark it met or unmet. Require citations: every AC you mark, met or unmet, carries a `path:line` or `Ti.ACk@path:line` citation, and an unmet mark lists the finding ids behind it. Do not return a verdict; the orchestrator computes it.
+
+For every finding answer four questions, each yes or no:
+1. ac-outcome-missing: is output an AC requires absent, or does it contradict the AC text, or does an evidence claim you could not verify have no evidence row?
+2. false-claim: is a claim in delivered text or code false against live source, or does a recipe or instruction followed as written not do what the text says?
+3. harmful-effect: does code or a recipe this task added or changed write, append, chmod or delete tracked or production data, mutate state outside the task's declared outputs, or expose a secret?
+4. quoted-constraint-breach: does the diff violate a quoted plan constraint, out-of-scope, non-goal or non-negotiable item, or an explicit task instruction?
+
+Anchor rule: cite exactly one anchor per yes. ac-outcome-missing: the quoted AC words. false-claim: the live-source path:line holding the contradicting text. harmful-effect: the diff line that is the write. quoted-constraint-breach: the quoted constraint or instruction text. A yes without a valid anchor does not block.
+
+Write one line per finding:
+F<k>.<j> ac=<Ti.ACk|scope> at=<path:line> anchor=<quoted text or path:line> chk=<amiss,false,harm,constraint as y/n> family=<id> fix=<text> [covers=<quoted AC clause or constraint>]: <text>
+Do not write sev=, trigger=, first= or origin=; the orchestrator adds them. Write one status line per earlier blocking finding: F<m>.<j> resolved|open|regressed.
+
+Inside /sc:implement this protocol's severity model governs this review and takes precedence over the session's output style and the copy of it injected into every subagent; only blocking findings may fail an attempt.
+
+You are not given an adviser answer, brief, evidence file or troubleshoot report. Do not read the retry folders (legacy `.dev/implement/<slug>/retries/`, managed `<pkg>/artifacts/retries/`) or `.dev/troubleshoot/`. A citation into either makes the verdict `cannot-verify`.
+The prior-findings slot above carries earlier blocking finding lines that the orchestrator copies byte for byte from `review-*.md` and `repair-*.md`; they reach you as prompt text, not as an evidence file. Do not read those folders to get them, and never cite the slot or the file it came from.

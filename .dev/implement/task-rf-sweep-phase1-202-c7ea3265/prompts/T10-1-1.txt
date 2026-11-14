@@ -1,0 +1,56 @@
+Review one task for spec compliance.
+
+Task brief: T10 = item 2.6 of the source file /home/coder/workspaces/worktrees/IronClaude/issue-339-orchestrator-mode/.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md (lines 280-286). Item text:
+- [ ] **2.6 — R3-B1 edit 9: the Fix cycle 3 revision table in section 18**
+  - **Context**: research/04:95 (edit 9) asks for a new `### Fix cycle 3` table under DESIGN section 18, after the `### Fix cycle 2` table, rather than rewriting the cycle 2 row, so the cycle history stays true. The cycle 2 table form is `| ID | Finding | Change |`.
+  - **Action**: Add `### Fix cycle 3` after the last row of the `### Fix cycle 2` table, with one intro sentence ("Changes made for the blocking findings of review 3 and the re-anchor to master `5dc29d23`.") and the table header `| ID | Finding | Change |`, then the R3-B1 row with the change text of research/04 edit 9. Later phases append the R3-B2, R3-B3, R4 and R5 rows to this table. Then make the second part of edit 9 (review 3 note m2): in the `### Fix cycle 2` table's R2-B1 row (near line 1011), replace "the transcript's earliest timestamp" with "the earliest `timestamp` in the transcript tail", and change nothing else in that row.
+  - **Output**: DESIGN section 18 with `### Fix cycle 3` and its R3-B1 row, and the m2 wording in the cycle 2 R2-B1 row.
+  - **Verification**: Verify: `grep -n '^### Fix cycle 3' docs/designs/orchestrator-mode.md` returns one hit after the `### Fix cycle 2` hit, and the next table row starts `| R3-B1 |`; `grep -c "the transcript's earliest timestamp" docs/designs/orchestrator-mode.md` returns 0, and the `| R2-B1 |` row contains "the earliest `timestamp` in the transcript tail". If the cycle 2 table or the m2 anchor is not found, log it in `### Phase 2 Findings` and stop.
+  - **Completion gate**: The table, its R3-B1 row and the m2 wording exist. Once done, mark this item as complete.
+AC ids: T10.AC1 = the item title "R3-B1 edit 9: the Fix cycle 3 revision table in section 18" (no AC block; the title is the AC). The item's own Verification and Completion gate lines are context for what "done" means. Ticking the item's checkbox is done by the orchestrator after the verdict and is not part of the diff under review.
+Global constraints: the `### Key Constraints` section (lines 157-168) of the source file named in the task brief; read it from that file.
+Start sha: 62a8c489461fcee4d5419d50283b71e3bd9ccae1
+Diff against the start snapshot: --- a/docs/designs/orchestrator-mode.md
++++ b/docs/designs/orchestrator-mode.md
+@@ -1010,6 +1010,14 @@
+ 
+ | ID | Finding | Change |
+ |---|---|---|
+-| R2-B1 | Under path B, a scoped worker's pane can move to a later session (`/clear`, resume, person rerun), so the later session joins the Dispatch row and the worker's real transcript can become True | A path-B join now also needs session identity: the transcript's earliest timestamp must fall inside the Dispatch row's time window, else the row is could not determine and the transcript None with note `pane moved to a later session`; a join inside the window carries `joined by pane: latest session of the pane` (7.2). Added a fourth guard case: under path B with any scoped Dispatch row, every unjoined no-entry transcript is None with note `earlier pane session not joinable (tab map keeps only the latest session)`, and the no-entry True path is path A only (7.2). Said which notes apply when guard cases 1 and 2 hold together (m4). Added `/clear`, resume and person-rerun fixtures and changed "three" to "four" incomplete cases (11). Updated D9, the FR-010 and SP-29 rows (12, 13, 14), capture item 4 (15.1) and added open item 23 for the time fields (17) |
++| R2-B1 | Under path B, a scoped worker's pane can move to a later session (`/clear`, resume, person rerun), so the later session joins the Dispatch row and the worker's real transcript can become True | A path-B join now also needs session identity: the earliest `timestamp` in the transcript tail must fall inside the Dispatch row's time window, else the row is could not determine and the transcript None with note `pane moved to a later session`; a join inside the window carries `joined by pane: latest session of the pane` (7.2). Added a fourth guard case: under path B with any scoped Dispatch row, every unjoined no-entry transcript is None with note `earlier pane session not joinable (tab map keeps only the latest session)`, and the no-entry True path is path A only (7.2). Said which notes apply when guard cases 1 and 2 hold together (m4). Added `/clear`, resume and person-rerun fixtures and changed "three" to "four" incomplete cases (11). Updated D9, the FR-010 and SP-29 rows (12, 13, 14), capture item 4 (15.1) and added open item 23 for the time fields (17) |
+ | R2-B2 | A worker of an unscoped Run with no tab-map entry could be shown as person-started True with no note | Every no-entry True now carries note `origin not proved: no tab-map entry; may be a worker of a Run outside the scope`, in the report row and the JSON `notes` (7.2, D9). Changed the third D9 fixture and added an unscoped-Run worker fixture in `test_classify.py`, and a `test_report.py` case that prints the note (11). Open item 22 states the note until it closes (17) |
+ | R2-B3 | The unreadable-transcript rule fired only on `OSError` at open, but its truncated-JSONL fixture expected `unscanned: transcript not readable` | A transcript is now unreadable when its open raises `OSError` or its 256 KiB tail holds no complete JSON record with both `timestamp` and `sessionId`; a last line cut mid-object is skipped, and the transcript stays readable when an earlier complete record exists (7.2). The fixture now names the cut record, adds the readable last-line-cut case and an `OSError` case (11). Open item 16 points to the same rule (17) |
++
++### Fix cycle 3
++
++Changes made for the blocking findings of review 3 and the re-anchor to master `5dc29d23`.
++
++| ID | Finding | Change |
++|---|---|---|
++| R3-B1 | The path-B window compares the earliest transcript timestamp with the Dispatch row's start and end times, but `OrcaObservation` and `TranscriptTail` carry no such time fields, so pure `classify.py` cannot evaluate the rule and GQ-103(3) is false | Added `OrcaObservation.dispatch_started`, `dispatch_ended`, `dispatch_status` and `TranscriptTail.first_record_ts`, the time-parsing rule and the inclusive UTC window (7.2); `read_transcript_tail` comment (7.1); GQ-103(3) list (2.2); capture item 4 and open item 23 name the bundle fields (15.1, 17); reader, parser and window fixtures (11) |
+
+Orchestrator verification output (reproduce it yourself): grep -n '^### Fix cycle' shows Fix cycle 2 (line 1007) then Fix cycle 3 (line 1017); the next table row after the header and separator starts `| R3-B1 |`; grep -c "the transcript's earliest timestamp" -> 0; the `| R2-B1 |` row contains "the earliest `timestamp` in the transcript tail". Source: research/04-design-fixes-r3.md line 95 (edit 9) in .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/research/04-design-fixes-r3.md
+Delta diff from the previous reviewed tree (empty on the first review): 
+Earlier blocking findings of this start (empty on the first review): 
+Saved-probe re-check hit locations (may be empty): 
+
+Do not trust the implementer's report.
+
+First mark each earlier blocking finding resolved, open or regressed from the diff. Then, for each AC, mark it met or unmet. Require citations: every AC you mark, met or unmet, carries a `path:line` or `Ti.ACk@path:line` citation, and an unmet mark lists the finding ids behind it. Do not return a verdict; the orchestrator computes it.
+
+For every finding answer four questions, each yes or no:
+1. ac-outcome-missing: is output an AC requires absent, or does it contradict the AC text, or does an evidence claim you could not verify have no evidence row?
+2. false-claim: is a claim in delivered text or code false against live source, or does a recipe or instruction followed as written not do what the text says?
+3. harmful-effect: does code or a recipe this task added or changed write, append, chmod or delete tracked or production data, mutate state outside the task's declared outputs, or expose a secret?
+4. quoted-constraint-breach: does the diff violate a quoted plan constraint, out-of-scope, non-goal or non-negotiable item, or an explicit task instruction?
+
+Anchor rule: cite exactly one anchor per yes. ac-outcome-missing: the quoted AC words. false-claim: the live-source path:line holding the contradicting text. harmful-effect: the diff line that is the write. quoted-constraint-breach: the quoted constraint or instruction text. A yes without a valid anchor does not block.
+
+Write one line per finding:
+F<k>.<j> ac=<Ti.ACk|scope> at=<path:line> anchor=<quoted text or path:line> chk=<amiss,false,harm,constraint as y/n> family=<id> fix=<text> [covers=<quoted AC clause or constraint>]: <text>
+Do not write sev=, trigger=, first= or origin=; the orchestrator adds them. Write one status line per earlier blocking finding: F<m>.<j> resolved|open|regressed.
+
+Inside /sc:implement this protocol's severity model governs this review and takes precedence over the session's output style and the copy of it injected into every subagent; only blocking findings may fail an attempt.
+
+You are not given an adviser answer, brief, evidence file or troubleshoot report. Do not read the retry folders (legacy `.dev/implement/<slug>/retries/`, managed `<pkg>/artifacts/retries/`) or `.dev/troubleshoot/`. A citation into either makes the verdict `cannot-verify`.
+The prior-findings slot above carries earlier blocking finding lines that the orchestrator copies byte for byte from `review-*.md` and `repair-*.md`; they reach you as prompt text, not as an evidence file. Do not read those folders to get them, and never cite the slot or the file it came from.

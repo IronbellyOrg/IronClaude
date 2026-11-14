@@ -1,0 +1,63 @@
+Review one task for spec compliance.
+
+Task brief: T312 = item 14.6 of the source file /home/coder/workspaces/worktrees/IronClaude/issue-339-orchestrator-mode/.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md (lines 2479-2485). Item text:
+- [ ] **14.6 — Step 1.29: record the OQ-10 pipx decision request (L5, PENDING)**
+  - **Context**: DESIGN step 1.29 (near DESIGN line 940): "`superclaude sweep --help` under a pipx install; output saved to `.dev/tasks/<pkg>/artifacts/sweep-help-pipx.txt`", marked Manual. REPORT:1300: run once "from a directory that is not a uv project, time limit 30 s"; pass = exit 0 and the help lists the `run` subcommand. research/09:131: the `superclaude` on PATH is a pipx master install (`git+https://github.com/IronbellyOrg/IronClaude`) with no `sweep`. research/09:135: option A `pipx run --spec <worktree path> superclaude sweep --help` leaves the installed tool alone, read from help text only (that a local path works as `--spec` is UNVERIFIED); option B `pipx install --force <worktree path>`, then reinstall from master, changes the person's installed tool, an install under D4 (`.dev/orca-command-refactor/decisions/APPROVED.md:11`), so it needs the owner's approval and the coordinator runs it.
+  - **Action**: Write `.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/plans/OQ-10-pipx-decision.md` containing `needs_human_decision: true` and `status: PENDING`; the question "How should step 1.29 put the branch code under pipx?"; the two options verbatim: "(A) from /tmp, first run `pipx run --spec <worktree path> superclaude --version` with no time limit, which only builds and caches pipx's own temporary environment, then run `pipx run --spec <worktree path> superclaude sweep --help` with a 30 s limit on the help run only (REPORT:1300); the installed superclaude is not changed; that a local path works as --spec is UNVERIFIED." and "(B) the coordinator runs `pipx install --force <worktree path>`, runs `superclaude sweep --help` from /tmp, then reinstalls from `git+https://github.com/IronbellyOrg/IronClaude`; this changes the person's installed tool and needs owner approval (D4)."; the line "Builder recommendation: (A), because it changes no installed tool. This recommendation does NOT authorize adoption."; and the empty lines `OPERATOR DECISION:`, `Chosen:`, `Decided by:`, `Decision source:`.
+  - **Output**: `.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/plans/OQ-10-pipx-decision.md`.
+  - **Verification**: Verify: `status: PENDING`, both options, the "does NOT authorize adoption" label and the four empty decision lines. Add OQ-10 to `### Open Questions` if it is not already there.
+  - **Completion gate**: The decision request is recorded. Once done, mark this item as complete.
+AC ids: T312.AC1 = the item title "Step 1.29: record the OQ-10 pipx decision request (L5, PENDING)" (no AC block; the title is the AC). The item's own Verification and Completion gate lines are context for what "done" means. Ticking the item's checkbox is done by the orchestrator after the verdict and is not part of the diff under review.
+Global constraints: the `### Key Constraints` section (lines 157-168) of the source file named in the task brief; read it from that file.
+Start sha: eb9f502b62eac7efa272f916a8afd1b381f9327c
+Diff against the start snapshot: Orchestrator facts for the reviewer (verify them): the executor wrote the decision request .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/plans/OQ-10-pipx-decision.md (new file, read it from disk). Verify against the item text: status PENDING and needs_human_decision true, the question, both options verbatim, the 'does NOT authorize adoption' label and the four empty decision lines. OQ-10 is already listed in the plan's '### Open Questions' (line 3028), so no addition is needed. Item 14.7 (a separate task) handles the owner's answer.
+
+--- /dev/null
++++ b/.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/plans/OQ-10-pipx-decision.md   (new file, 23 lines)
++---
++needs_human_decision: true
++status: PENDING
++---
++
++# Step 1.29 pipx check decision (OQ-10)
++
++## Question
++
++How should step 1.29 put the branch code under pipx?
++
++## Options
++
++(A) from /tmp, first run `pipx run --spec <worktree path> superclaude --version` with no time limit, which only builds and caches pipx's own temporary environment, then run `pipx run --spec <worktree path> superclaude sweep --help` with a 30 s limit on the help run only (REPORT:1300); the installed superclaude is not changed; that a local path works as --spec is UNVERIFIED.
++
++(B) the coordinator runs `pipx install --force <worktree path>`, runs `superclaude sweep --help` from /tmp, then reinstalls from `git+https://github.com/IronbellyOrg/IronClaude`; this changes the person's installed tool and needs owner approval (D4).
++
++Builder recommendation: (A), because it changes no installed tool. This recommendation does NOT authorize adoption.
++
++OPERATOR DECISION:
++Chosen:
++Decided by:
++Decision source:
+Delta diff from the previous reviewed tree (empty on the first review): 
+Earlier blocking findings of this start (empty on the first review): 
+Saved-probe re-check hit locations (may be empty): 
+
+Do not trust the implementer's report.
+
+First mark each earlier blocking finding resolved, open or regressed from the diff. Then, for each AC, mark it met or unmet. Require citations: every AC you mark, met or unmet, carries a `path:line` or `Ti.ACk@path:line` citation, and an unmet mark lists the finding ids behind it. Do not return a verdict; the orchestrator computes it.
+
+For every finding answer four questions, each yes or no:
+1. ac-outcome-missing: is output an AC requires absent, or does it contradict the AC text, or does an evidence claim you could not verify have no evidence row?
+2. false-claim: is a claim in delivered text or code false against live source, or does a recipe or instruction followed as written not do what the text says?
+3. harmful-effect: does code or a recipe this task added or changed write, append, chmod or delete tracked or production data, mutate state outside the task's declared outputs, or expose a secret?
+4. quoted-constraint-breach: does the diff violate a quoted plan constraint, out-of-scope, non-goal or non-negotiable item, or an explicit task instruction?
+
+Anchor rule: cite exactly one anchor per yes. ac-outcome-missing: the quoted AC words. false-claim: the live-source path:line holding the contradicting text. harmful-effect: the diff line that is the write. quoted-constraint-breach: the quoted constraint or instruction text. A yes without a valid anchor does not block.
+
+Write one line per finding:
+F<k>.<j> ac=<Ti.ACk|scope> at=<path:line> anchor=<quoted text or path:line> chk=<amiss,false,harm,constraint as y/n> family=<id> fix=<text> [covers=<quoted AC clause or constraint>]: <text>
+Do not write sev=, trigger=, first= or origin=; the orchestrator adds them. Write one status line per earlier blocking finding: F<m>.<j> resolved|open|regressed.
+
+Inside /sc:implement this protocol's severity model governs this review and takes precedence over the session's output style and the copy of it injected into every subagent; only blocking findings may fail an attempt.
+
+You are not given an adviser answer, brief, evidence file or troubleshoot report. Do not read the retry folders (legacy `.dev/implement/<slug>/retries/`, managed `<pkg>/artifacts/retries/`) or `.dev/troubleshoot/`. A citation into either makes the verdict `cannot-verify`.
+The prior-findings slot above carries earlier blocking finding lines that the orchestrator copies byte for byte from `review-*.md` and `repair-*.md`; they reach you as prompt text, not as an evidence file. Do not read those folders to get them, and never cite the slot or the file it came from.

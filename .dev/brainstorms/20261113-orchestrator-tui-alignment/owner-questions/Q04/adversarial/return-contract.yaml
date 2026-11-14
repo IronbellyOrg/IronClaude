@@ -1,0 +1,11 @@
+return_contract:
+  merged_output_path: "/home/coder/workspaces/worktrees/IronClaude/issue-339-orchestrator-mode/.dev/brainstorms/20261113-orchestrator-tui-alignment/owner-questions/Q04/merged-proposal.md"
+  convergence_score: 1.0   # every point reached at least a 2-of-3 majority; all three advocates converged on the same amended reply line
+  artifacts_dir: "/home/coder/workspaces/worktrees/IronClaude/issue-339-orchestrator-mode/.dev/brainstorms/20261113-orchestrator-tui-alignment/owner-questions/Q04/adversarial/"
+  status: "success"
+  base_variant: "variant-2 (proposal-B, advocate persona architect), with variant-1's present-tense facts merged"
+  unresolved_conflicts: 0
+  fallback_mode: false
+  failure_stage: null
+  invocation_method: "skill-direct"
+  unaddressed_invariants: []   # Round 2.5 skipped at depth quick

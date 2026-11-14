@@ -1,0 +1,2 @@
+ba4155351caba42a2cb1d322d1d831f649a74268
+A1 r1-1 F1.1 minor .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md:2993 ac=scope amiss:n,false:n,harm:n,constraint:n The Phase 11 Findings bullet says items 12.1 and 12.2 add the sweep entry to the never-as-worker list and that CMD-F5 becomes BLOCKING at the final gate; only item 12.2 edits that list and the source names the final and contract gates. Wording only.

@@ -1,0 +1,45 @@
+Review one task for spec compliance.
+
+Task brief: T282 = item 13.1 of the source file /home/coder/workspaces/worktrees/IronClaude/issue-339-orchestrator-mode/.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md (lines 2263-2269). Item text:
+- [ ] **13.1 — Routing row R2: add the coordinator-sweep bullet to `## Orca coordination` (L2)**
+  - **Context**: DESIGN section 9 row R2 (line 695 on the unrevised design). `src/superclaude/core/HOW-WE-WORK.md:396` `## Orca coordination`; :403 the bullet that begins "- **Some commands are never workers.**"; :404 the bullet that begins "- **Orca creates the worktrees.**". research/08 section 3 (d): master has no sweep or wake text in the guide, so the bullet duplicates nothing.
+  - **Action**: Re-read `src/superclaude/core/HOW-WE-WORK.md:396-405` at HEAD. Insert one new line directly after the quoted line "- **Some commands are never workers.** `/sc:pr-submit` and the other commands on the never-as-worker list in `~/.claude/WORKER-CONTRACT.md` stay with the coordinator or the person." and before "- **Orca creates the worktrees.**": the R2 bullet from the revised DESIGN section 9 row R2 (DESIGN line 716 at the time of this revision; item 5.2 aligned it with master's 5-minute sweep bound at `src/superclaude/core/WORKER-CONTRACT.md:110`), which reads "- **The coordinator runs `/sc:sweep` on every wake, at most once every 5 minutes, beside "The sweep."** WC-16 in `~/.claude/WORKER-CONTRACT.md` has the coordinator run `/sc:sweep` in that same pass and read its report before it acts. `/sc:sweep` adds to that sweep and does not replace it. It is read-only and is itself never a worker." Re-read the DESIGN row R2 first and copy its bullet text exactly; if it differs from this text, the DESIGN text wins and the difference is logged in `### Phase 13 Findings`. Do not edit ticked item 5.2, which keeps the older sentence as history.
+  - **Output**: the edited `src/superclaude/core/HOW-WE-WORK.md`.
+  - **Verification**: Verify: `grep -nF 'The coordinator runs `/sc:sweep` on every wake, at most once every 5 minutes' src/superclaude/core/HOW-WE-WORK.md` (fixed-string search, because the bullet holds backticks and inner double quotes) prints one line, line 404, directly after the never-workers bullet and before the Orca-creates-the-worktrees bullet; `grep -c 'sweeps on every wake' src/superclaude/core/HOW-WE-WORK.md` is 0; `grep -c 'WC-14' ` on the new line is 0; `grep -c 'src/superclaude'` on the new line is 0.
+  - **Completion gate**: The bullet is in place. Once done, mark this item as complete.
+AC ids: T282.AC1 = the item title "Routing row R2: add the coordinator-sweep bullet to `## Orca coordination` (L2)" (no AC block; the title is the AC). The item's own Verification and Completion gate lines are context for what "done" means. Ticking the item's checkbox is done by the orchestrator after the verdict and is not part of the diff under review.
+Global constraints: the `### Key Constraints` section (lines 157-168) of the source file named in the task brief; read it from that file.
+Start sha: dc9767f6fd21cb79af732d00b77b15e996d852f5
+Diff against the start snapshot: --- a/src/superclaude/core/HOW-WE-WORK.md
++++ b/src/superclaude/core/HOW-WE-WORK.md
+@@ -401,5 +401,6 @@
+ - **Each worker runs one IronClaude command.** The coordinator writes each Task's brief from the brief template in `~/.claude/WORKER-CONTRACT.md`, with the guard line first and the command on its own `Command:` line. The command runs at the top level of the worker session, never inside a subagent, and commands themselves never call Orca.
+ - **`--unattended` only where the command supports it.** A command is dispatched with `--unattended` only when its command file has an `## Unattended mode` section. Check the command file instead of relying on a list here; which commands have the section changes as the rollout proceeds.
+ - **Some commands are never workers.** `/sc:pr-submit` and the other commands on the never-as-worker list in `~/.claude/WORKER-CONTRACT.md` stay with the coordinator or the person.
++- **The coordinator runs `/sc:sweep` on every wake, at most once every 5 minutes, beside "The sweep."** WC-16 in `~/.claude/WORKER-CONTRACT.md` has the coordinator run `/sc:sweep` in that same pass and read its report before it acts. `/sc:sweep` adds to that sweep and does not replace it. It is read-only and is itself never a worker.
+ - **Orca creates the worktrees.** Feature and child worktrees are created by Orca at its default paths, not with raw `git worktree add` and not under `.dev/worktrees/`.
+ - **Outward actions stay with the coordinator.** Every push, PR, merge, comment, install and paid run is done by the coordinator, on `IronbellyOrg/IronClaude` only, never on the SuperClaude upstream. PRs go through `/sc:pr-submit --monitor 3` as section 4 says.
+Delta diff from the previous reviewed tree (empty on the first review): 
+Earlier blocking findings of this start (empty on the first review): 
+Saved-probe re-check hit locations (may be empty): 
+
+Do not trust the implementer's report.
+
+First mark each earlier blocking finding resolved, open or regressed from the diff. Then, for each AC, mark it met or unmet. Require citations: every AC you mark, met or unmet, carries a `path:line` or `Ti.ACk@path:line` citation, and an unmet mark lists the finding ids behind it. Do not return a verdict; the orchestrator computes it.
+
+For every finding answer four questions, each yes or no:
+1. ac-outcome-missing: is output an AC requires absent, or does it contradict the AC text, or does an evidence claim you could not verify have no evidence row?
+2. false-claim: is a claim in delivered text or code false against live source, or does a recipe or instruction followed as written not do what the text says?
+3. harmful-effect: does code or a recipe this task added or changed write, append, chmod or delete tracked or production data, mutate state outside the task's declared outputs, or expose a secret?
+4. quoted-constraint-breach: does the diff violate a quoted plan constraint, out-of-scope, non-goal or non-negotiable item, or an explicit task instruction?
+
+Anchor rule: cite exactly one anchor per yes. ac-outcome-missing: the quoted AC words. false-claim: the live-source path:line holding the contradicting text. harmful-effect: the diff line that is the write. quoted-constraint-breach: the quoted constraint or instruction text. A yes without a valid anchor does not block.
+
+Write one line per finding:
+F<k>.<j> ac=<Ti.ACk|scope> at=<path:line> anchor=<quoted text or path:line> chk=<amiss,false,harm,constraint as y/n> family=<id> fix=<text> [covers=<quoted AC clause or constraint>]: <text>
+Do not write sev=, trigger=, first= or origin=; the orchestrator adds them. Write one status line per earlier blocking finding: F<m>.<j> resolved|open|regressed.
+
+Inside /sc:implement this protocol's severity model governs this review and takes precedence over the session's output style and the copy of it injected into every subagent; only blocking findings may fail an attempt.
+
+You are not given an adviser answer, brief, evidence file or troubleshoot report. Do not read the retry folders (legacy `.dev/implement/<slug>/retries/`, managed `<pkg>/artifacts/retries/`) or `.dev/troubleshoot/`. A citation into either makes the verdict `cannot-verify`.
+The prior-findings slot above carries earlier blocking finding lines that the orchestrator copies byte for byte from `review-*.md` and `repair-*.md`; they reach you as prompt text, not as an evidence file. Do not read those folders to get them, and never cite the slot or the file it came from.

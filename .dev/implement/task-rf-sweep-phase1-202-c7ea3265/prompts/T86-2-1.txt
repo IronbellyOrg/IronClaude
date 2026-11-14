@@ -1,0 +1,183 @@
+Review one task for spec compliance.
+
+Task brief: T86 = item 5.10 of the source file /home/coder/workspaces/worktrees/IronClaude/issue-339-orchestrator-mode/.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md (lines 830-836). Item text:
+- [ ] **5.10 — R4: re-check every other contract and test citation in DESIGN (L1)**
+  - **Context**: research/07:169: other WC anchors shifted by 1 to 3 lines, and WC-5, WC-7, WC-10, WC-11 and WC-12 gained text. research/08 confirms the HOW-WE-WORK, `docs/user-guide/commands.md` and CHANGELOG anchors at the same lines, with the `/sc:issue` rows at `HOW-WE-WORK.md:329` and `commands.md:115` changed in text only.
+  - **Action**: DESIGN cites changed files mostly in the bare form "line N" or "lines N-M" (for example "(line 396)", "`.gitignore` line 254"), not as `file:line`. Run `grep -n 'line[s]\? [0-9]\|\.md:[0-9]\|\.py:[0-9]' docs/designs/orchestrator-mode.md | grep 'WORKER-CONTRACT\|test_worker_contract\|HOW-WE-WORK\|commands\.md\|CHANGELOG\|main\.py\|test_routing_refresh\|test_how_we_work_routing_table\|test_routing_plugin_parity\|graph\.md\|Developer-Guide\|\.gitignore'` (18 hit lines at build time, in sections 1, 2, 7, 8, 9, 10, 13, 15 and 16). Also take the section 8 lines between `**Pins**` and `## 9.` that cite a line of `test_worker_contract.py` or `WORKER-CONTRACT.md` named in their lead-in line. For each cited line in a hit that items 5.5 and 5.6 did not already fix, read that line of the current file and mark it CONFIRMED, MOVED (update DESIGN) or CHANGED (update the DESIGN wording). Record each hit, the file it cites, the line text read, and its status in `.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/discovery/r4-reanchor.md`.
+  - **Output**: `.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/discovery/r4-reanchor.md` and DESIGN with every cited line current.
+  - **Verification**: Verify: the filtered grep returned at least one hit in each of sections 8, 9 and 10 (a run with zero hits, or none in one of those sections, is a FAIL: fix the pattern and re-run); every hit has a status row with the line text read; no MOVED or CHANGED row is left without a DESIGN edit. If a cited file no longer exists, log it in `### Phase 5 Findings` and stop.
+  - **Completion gate**: All citations are current. Once done, mark this item as complete.
+AC ids: T86.AC1 = the item title "R4: re-check every other contract and test citation in DESIGN (L1)" (no AC block; the title is the AC). The item's own Verification and Completion gate lines are context for what "done" means. Ticking the item's checkbox is done by the orchestrator after the verdict and is not part of the diff under review.
+Global constraints: the `### Key Constraints` section (lines 157-168) of the source file named in the task brief; read it from that file.
+Start sha: 13f923d0f9fe18bcebd5791132f1cb1516b3fa81
+Diff against the start snapshot: --- a/.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/discovery/r4-reanchor.md
++++ b/.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/discovery/r4-reanchor.md
+@@ -60,3 +60,70 @@
+ - `grep -n 'after line 561\|519-561' docs/designs/orchestrator-mode.md`: 0 hits (expect 0)
+ - `grep -c 'after line 565' docs/designs/orchestrator-mode.md`: 2 (expect at least 2: step 1.7 and the rollback row)
+ - DESIGN section 1 line: 28:- `src/superclaude/cli/main.py` registers deferred subcommands at lines 519-565; the last pair is `issue-watch` (563, 565); `if __name__ == "__main__":` is at 568.
++
++## Citation re-check (item 5.10)
++
++Filtered grep (the item's pattern) on `docs/designs/orchestrator-mode.md`: 19 hit lines now (28, 63, 654, 670, 699, 711 to 718, 729, 820, 932, 944, 968, 1041). Hits in section 8: 670, 699; section 9: 711 to 718; section 10: 729. Lines 28, 670, 932 and 968 were fixed by items 5.5 and 5.6 and are not re-listed. Line 1041 is the section 18 R4 row (item 5.11), added after the first version of this table; it cites contract line 110. Line 63 (GQ-106) cites the SPEC and GAPS, and has its own rows below. Each other cited line was read in the current file.
++
++| DESIGN hit | File:line read | Line text read (first 100 chars) | Status |
++|---|---|---|---|
++| 654 (graph.md line 9) | `src/superclaude/commands/graph.md:9` | `allowed-tools: Skill, Bash(codegraph init --yes *), Bash(codegraph init -i)` | CONFIRMED |
++| 654 (graph.md line 41) | `src/superclaude/commands/graph.md:41` | `## Activation` | CONFIRMED |
++| 699, 820, 944 (WORKER-CONTRACT.md line 23) | `src/superclaude/core/WORKER-CONTRACT.md:23` | `- **Never-as-worker list**: `/sc:agent`, `/sc:git`, `/sc:help`, `/sc:issue`, `/sc:pm`, `/sc:spawn` a` | CONFIRMED |
++| 711 R1 (other-commands table start) | `src/superclaude/core/HOW-WE-WORK.md:318` | `<!-- other-commands:v1 -->` | CONFIRMED |
++| 711 R1 (after /sc:spawn, line 333) | `src/superclaude/core/HOW-WE-WORK.md:333` | `\| `/sc:spawn` \| Requested decomposition with sequential/parallel/adaptive strategy and normal/deep d` | CONFIRMED |
++| 711 R1 (table end, line 337) | `src/superclaude/core/HOW-WE-WORK.md:337` | `<!-- /other-commands -->` | CONFIRMED |
++| 712 R2 (## Orca coordination, line 396) | `src/superclaude/core/HOW-WE-WORK.md:396` | `## Orca coordination` | CONFIRMED |
++| 712 R2 (never-workers bullet, line 403) | `src/superclaude/core/HOW-WE-WORK.md:403` | `- **Some commands are never workers.** `/sc:pr-submit` and the other commands on the never-as-worker` | CONFIRMED |
++| 713 R3 (parity test line 38) | `tests/commands/test_routing_plugin_parity.py:38` | `    assert filecmp.cmp(_GUIDE, _PLUG_SKILL / "refs/HOW-WE-WORK.md", shallow=False)` | CONFIRMED |
++| 714 R4 (_OTHER_COMMANDS line 27) | `tests/core/test_how_we_work_routing_table.py:27` | `_OTHER_COMMANDS = {` | CONFIRMED |
++| 715 R5 (_POST_REFRESH_ADDITIONS line 33) | `tests/recommend/test_routing_refresh.py:33` | `_POST_REFRESH_ADDITIONS = {"graph", "impact", "issue"}` | CONFIRMED |
++| 715 R5 (assertion line 648) | `tests/recommend/test_routing_refresh.py:648` | `    assert shipped - _POST_REFRESH_ADDITIONS == active` | CONFIRMED |
++| 716 R6 (### 8. UTILITIES line 105) | `docs/user-guide/commands.md:105` | `### 8. UTILITIES` | CONFIRMED |
++| 716 R6 (/sc:issue row line 115) | `docs/user-guide/commands.md:115` | `\| [`/sc:issue`](#scissue---github-issue-claim-and-create) \| Claim a GitHub issue (assign, accuracy c` | CONFIRMED (text changed by master, line unchanged) |
++| 717 R7 (Developer Guide line 991) | `docs/developer-guide/SuperClaude-Developer-Guide-Commands-Skills-Agents.md:991` | `- The never-as-worker list (`~/.claude/WORKER-CONTRACT.md`, section 1): `/sc:agent`, `/sc:git`, `/sc` | CONFIRMED (list still lacks /sc:sweep, as R7 expects) |
++| 718 R8 (CHANGELOG.md line 5) | `CHANGELOG.md:5` | `## [Unreleased]` | CONFIRMED |
++| 729 (.gitignore line 254) | `.gitignore:254` | `.dev/sprint-state/` | CONFIRMED |
++| 63 GQ-106 (SPEC FR-025 line 119) | `.dev/brainstorms/20261108-024258-orchestrator-mode-phase1/merged-requirements.md:119` | `\| FR-025 \| `.dev/sweeps/` is added to `.gitignore` (GQ-106). A grep on 2026-11-08 found no `sweeps` ` | CONFIRMED |
++| 63 GQ-106 (SPEC line 559) | `.dev/brainstorms/20261108-024258-orchestrator-mode-phase1/merged-requirements.md:559` | `\| GQ-106 \| The output folder was not ignored and not in the rollback table \| `.dev/sweeps/` in `.git` | CONFIRMED |
++| 63 GQ-106 (GAPS line 129) | `.dev/tasks/to-do/TASK-RESEARCH-orchestrator-supervision-20261107-073942/gaps-and-questions.md:129` | `\| GQ-106 \| /ponytail-review finding 6: reports under `<root>/.dev/sweeps/` are untracked, so each sw` | CONFIRMED |
++| 1041 R4 row (contract line 110) | `src/superclaude/core/WORKER-CONTRACT.md:110` | `**The sweep.** After every wake or timeout, at most once every 5 minutes, the coordinator runs one s` | CONFIRMED |
++
++Section 8 lines between `**Pins**` and `## 9.` that cite a line of `test_worker_contract.py` or `WORKER-CONTRACT.md` (written by items 5.5 and 5.8; each line read in the current file):
++
++| DESIGN citation | File:line read | Line text read (first 100 chars) | Status |
++|---|---|---|---|
++| section 8 pin or constraint | `tests/skills/test_worker_contract.py:25` | `RULE_PHRASES = {` | CONFIRMED |
++| section 8 pin or constraint | `tests/skills/test_worker_contract.py:89` | `            "`/sc:agent`, `/sc:git`, `/sc:help`, `/sc:issue`, `/sc:pm`, `/sc:spawn` and `/sc:swarm-w` | CONFIRMED |
++| section 8 pin or constraint | `tests/skills/test_worker_contract.py:165` | `    "WC-15": (` | CONFIRMED |
++| section 8 pin or constraint | `tests/skills/test_worker_contract.py:173` | `    "heartbeats": (` | CONFIRMED |
++| section 8 pin or constraint | `tests/skills/test_worker_contract.py:209` | `    "liveness-sweep-and-states": (` | CONFIRMED |
++| section 8 pin or constraint | `tests/skills/test_worker_contract.py:219` | `    ),` | CONFIRMED |
++| section 8 pin or constraint | `tests/skills/test_worker_contract.py:228` | `    "liveness-ladder-and-restart": (` | CONFIRMED |
++| section 8 pin or constraint | `tests/skills/test_worker_contract.py:237` | `    ),` | CONFIRMED |
++| section 8 pin or constraint | `tests/skills/test_worker_contract.py:382` | `NEVER_AS_WORKER = (` | CONFIRMED |
++| section 8 pin or constraint | `tests/skills/test_worker_contract.py:391` | `)` | CONFIRMED |
++| section 8 pin or constraint | `tests/skills/test_worker_contract.py:755` | `def _check_rule(text: str, rule: str) -> None:` | CONFIRMED |
++| section 8 pin or constraint | `tests/skills/test_worker_contract.py:762` | `        ), f"{rule}: {ident} is not stated on the line carrying {phrases[0]!r}"` | CONFIRMED |
++| section 8 pin or constraint | `tests/skills/test_worker_contract.py:765` | `def _check_never_as_worker(text: str) -> None:` | CONFIRMED |
++| section 8 pin or constraint | `tests/skills/test_worker_contract.py:831` | `def _check_no_unattended_sections() -> None:` | CONFIRMED |
++| section 8 pin or constraint | `tests/skills/test_worker_contract.py:837` | `    assert set(have) == set(UNATTENDED_COMMANDS), (` | CONFIRMED |
++| section 8 pin or constraint | `tests/skills/test_worker_contract.py:839` | `    )` | CONFIRMED |
++| section 8 pin or constraint | `tests/skills/test_worker_contract.py:912` | `def test_never_as_worker_list_names_all_seven_commands():` | CONFIRMED |
++| section 8 pin or constraint | `tests/skills/test_worker_contract.py:1081` | `@pytest.mark.parametrize("cmd", NEVER_AS_WORKER)` | CONFIRMED |
++| section 8 pin or constraint | `tests/skills/test_worker_contract.py:1082` | `def test_never_as_worker_check_fails_when_command_removed(cmd, tmp_path, monkeypatch):` | CONFIRMED |
++| section 8 pin or constraint | `tests/skills/test_worker_contract.py:1318` | `def test_load_usage_line_declares_checkpoint_and_load_is_not_converted():` | CONFIRMED |
++| section 8 pin or constraint | `tests/skills/test_worker_contract.py:1322` | `    assert "load" not in UNATTENDED_COMMANDS` | CONFIRMED |
++| section 8 pin or constraint | `tests/skills/test_worker_contract.py:1556` | `def _check_p2_set(p1, p2, expect) -> None:` | CONFIRMED |
++| section 8 pin or constraint | `tests/skills/test_worker_contract.py:1940` | `AUDIT_ROOTS = (` | CONFIRMED |
++| section 8 pin or constraint | `tests/skills/test_worker_contract.py:1944` | `)` | CONFIRMED |
++| section 8 pin or constraint | `tests/skills/test_worker_contract.py:1953` | `_CATEGORY_RE = re.compile(` | CONFIRMED |
++| section 8 pin or constraint | `tests/skills/test_worker_contract.py:1955` | `)` | CONFIRMED |
++| section 8 pin or constraint | `tests/skills/test_worker_contract.py:1966` | `def _is_gh_api_post(line: str) -> bool:` | CONFIRMED |
++| section 8 pin or constraint | `tests/skills/test_worker_contract.py:2016` | `WRITE_VERB_CLASSIFICATION = {` | CONFIRMED |
++| section 8 placement (line 273) | `src/superclaude/core/WORKER-CONTRACT.md:273` | `For N input Tasks feeding one merge Task (for example N `/sc:troubleshoot` workers, then `/sc:advers` | CONFIRMED |
++| section 8 placement (line 275) | `src/superclaude/core/WORKER-CONTRACT.md:275` | `### Worked example: gate hit, answer, new Task` | CONFIRMED |
++| section 8 (line 110) | `src/superclaude/core/WORKER-CONTRACT.md:110` | `**The sweep.** After every wake or timeout, at most once every 5 minutes, the coordinator runs one s` | CONFIRMED |
++| section 8 (line 151) | `src/superclaude/core/WORKER-CONTRACT.md:151` | `\| L1 probe \| Read-only: `worker-show`, `worker-read --source transcript`, a screen read, the contrac` | CONFIRMED |
++
++No hit is MOVED or CHANGED, so no further DESIGN edit was needed. Line 63 (GQ-106) cites the SPEC (FR-025 line 119, line 559) and GAPS line 129, which this task does not change; it matched the grep only through the word `.gitignore`, and it is left as it was.
+Delta diff from the previous reviewed tree (empty on the first review): --- a/.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/discovery/r4-reanchor.md
++++ b/.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/discovery/r4-reanchor.md
+@@ -60,3 +60,70 @@
+ - `grep -n 'after line 561\|519-561' docs/designs/orchestrator-mode.md`: 0 hits (expect 0)
+ - `grep -c 'after line 565' docs/designs/orchestrator-mode.md`: 2 (expect at least 2: step 1.7 and the rollback row)
+ - DESIGN section 1 line: 28:- `src/superclaude/cli/main.py` registers deferred subcommands at lines 519-565; the last pair is `issue-watch` (563, 565); `if __name__ == "__main__":` is at 568.
++
++## Citation re-check (item 5.10)
++
++Filtered grep (the item's pattern) on `docs/designs/orchestrator-mode.md`: 19 hit lines now (28, 63, 654, 670, 699, 711 to 718, 729, 820, 932, 944, 968, 1041). Hits in section 8: 670, 699; section 9: 711 to 718; section 10: 729. Lines 28, 670, 932 and 968 were fixed by items 5.5 and 5.6 and are not re-listed. Line 1041 is the section 18 R4 row (item 5.11), added after the first version of this table; it cites contract line 110. Line 63 (GQ-106) cites the SPEC and GAPS, and has its own rows below. Each other cited line was read in the current file.
++
++| DESIGN hit | File:line read | Line text read (first 100 chars) | Status |
++|---|---|---|---|
++| 654 (graph.md line 9) | `src/superclaude/commands/graph.md:9` | `allowed-tools: Skill, Bash(codegraph init --yes *), Bash(codegraph init -i)` | CONFIRMED |
++| 654 (graph.md line 41) | `src/superclaude/commands/graph.md:41` | `## Activation` | CONFIRMED |
++| 699, 820, 944 (WORKER-CONTRACT.md line 23) | `src/superclaude/core/WORKER-CONTRACT.md:23` | `- **Never-as-worker list**: `/sc:agent`, `/sc:git`, `/sc:help`, `/sc:issue`, `/sc:pm`, `/sc:spawn` a` | CONFIRMED |
++| 711 R1 (other-commands table start) | `src/superclaude/core/HOW-WE-WORK.md:318` | `<!-- other-commands:v1 -->` | CONFIRMED |
++| 711 R1 (after /sc:spawn, line 333) | `src/superclaude/core/HOW-WE-WORK.md:333` | `\| `/sc:spawn` \| Requested decomposition with sequential/parallel/adaptive strategy and normal/deep d` | CONFIRMED |
++| 711 R1 (table end, line 337) | `src/superclaude/core/HOW-WE-WORK.md:337` | `<!-- /other-commands -->` | CONFIRMED |
++| 712 R2 (## Orca coordination, line 396) | `src/superclaude/core/HOW-WE-WORK.md:396` | `## Orca coordination` | CONFIRMED |
++| 712 R2 (never-workers bullet, line 403) | `src/superclaude/core/HOW-WE-WORK.md:403` | `- **Some commands are never workers.** `/sc:pr-submit` and the other commands on the never-as-worker` | CONFIRMED |
++| 713 R3 (parity test line 38) | `tests/commands/test_routing_plugin_parity.py:38` | `    assert filecmp.cmp(_GUIDE, _PLUG_SKILL / "refs/HOW-WE-WORK.md", shallow=False)` | CONFIRMED |
++| 714 R4 (_OTHER_COMMANDS line 27) | `tests/core/test_how_we_work_routing_table.py:27` | `_OTHER_COMMANDS = {` | CONFIRMED |
++| 715 R5 (_POST_REFRESH_ADDITIONS line 33) | `tests/recommend/test_routing_refresh.py:33` | `_POST_REFRESH_ADDITIONS = {"graph", "impact", "issue"}` | CONFIRMED |
++| 715 R5 (assertion line 648) | `tests/recommend/test_routing_refresh.py:648` | `    assert shipped - _POST_REFRESH_ADDITIONS == active` | CONFIRMED |
++| 716 R6 (### 8. UTILITIES line 105) | `docs/user-guide/commands.md:105` | `### 8. UTILITIES` | CONFIRMED |
++| 716 R6 (/sc:issue row line 115) | `docs/user-guide/commands.md:115` | `\| [`/sc:issue`](#scissue---github-issue-claim-and-create) \| Claim a GitHub issue (assign, accuracy c` | CONFIRMED (text changed by master, line unchanged) |
++| 717 R7 (Developer Guide line 991) | `docs/developer-guide/SuperClaude-Developer-Guide-Commands-Skills-Agents.md:991` | `- The never-as-worker list (`~/.claude/WORKER-CONTRACT.md`, section 1): `/sc:agent`, `/sc:git`, `/sc` | CONFIRMED (list still lacks /sc:sweep, as R7 expects) |
++| 718 R8 (CHANGELOG.md line 5) | `CHANGELOG.md:5` | `## [Unreleased]` | CONFIRMED |
++| 729 (.gitignore line 254) | `.gitignore:254` | `.dev/sprint-state/` | CONFIRMED |
++| 63 GQ-106 (SPEC FR-025 line 119) | `.dev/brainstorms/20261108-024258-orchestrator-mode-phase1/merged-requirements.md:119` | `\| FR-025 \| `.dev/sweeps/` is added to `.gitignore` (GQ-106). A grep on 2026-11-08 found no `sweeps` ` | CONFIRMED |
++| 63 GQ-106 (SPEC line 559) | `.dev/brainstorms/20261108-024258-orchestrator-mode-phase1/merged-requirements.md:559` | `\| GQ-106 \| The output folder was not ignored and not in the rollback table \| `.dev/sweeps/` in `.git` | CONFIRMED |
++| 63 GQ-106 (GAPS line 129) | `.dev/tasks/to-do/TASK-RESEARCH-orchestrator-supervision-20261107-073942/gaps-and-questions.md:129` | `\| GQ-106 \| /ponytail-review finding 6: reports under `<root>/.dev/sweeps/` are untracked, so each sw` | CONFIRMED |
++| 1041 R4 row (contract line 110) | `src/superclaude/core/WORKER-CONTRACT.md:110` | `**The sweep.** After every wake or timeout, at most once every 5 minutes, the coordinator runs one s` | CONFIRMED |
++
++Section 8 lines between `**Pins**` and `## 9.` that cite a line of `test_worker_contract.py` or `WORKER-CONTRACT.md` (written by items 5.5 and 5.8; each line read in the current file):
++
++| DESIGN citation | File:line read | Line text read (first 100 chars) | Status |
++|---|---|---|---|
++| section 8 pin or constraint | `tests/skills/test_worker_contract.py:25` | `RULE_PHRASES = {` | CONFIRMED |
++| section 8 pin or constraint | `tests/skills/test_worker_contract.py:89` | `            "`/sc:agent`, `/sc:git`, `/sc:help`, `/sc:issue`, `/sc:pm`, `/sc:spawn` and `/sc:swarm-w` | CONFIRMED |
++| section 8 pin or constraint | `tests/skills/test_worker_contract.py:165` | `    "WC-15": (` | CONFIRMED |
++| section 8 pin or constraint | `tests/skills/test_worker_contract.py:173` | `    "heartbeats": (` | CONFIRMED |
++| section 8 pin or constraint | `tests/skills/test_worker_contract.py:209` | `    "liveness-sweep-and-states": (` | CONFIRMED |
++| section 8 pin or constraint | `tests/skills/test_worker_contract.py:219` | `    ),` | CONFIRMED |
++| section 8 pin or constraint | `tests/skills/test_worker_contract.py:228` | `    "liveness-ladder-and-restart": (` | CONFIRMED |
++| section 8 pin or constraint | `tests/skills/test_worker_contract.py:237` | `    ),` | CONFIRMED |
++| section 8 pin or constraint | `tests/skills/test_worker_contract.py:382` | `NEVER_AS_WORKER = (` | CONFIRMED |
++| section 8 pin or constraint | `tests/skills/test_worker_contract.py:391` | `)` | CONFIRMED |
++| section 8 pin or constraint | `tests/skills/test_worker_contract.py:755` | `def _check_rule(text: str, rule: str) -> None:` | CONFIRMED |
++| section 8 pin or constraint | `tests/skills/test_worker_contract.py:762` | `        ), f"{rule}: {ident} is not stated on the line carrying {phrases[0]!r}"` | CONFIRMED |
++| section 8 pin or constraint | `tests/skills/test_worker_contract.py:765` | `def _check_never_as_worker(text: str) -> None:` | CONFIRMED |
++| section 8 pin or constraint | `tests/skills/test_worker_contract.py:831` | `def _check_no_unattended_sections() -> None:` | CONFIRMED |
++| section 8 pin or constraint | `tests/skills/test_worker_contract.py:837` | `    assert set(have) == set(UNATTENDED_COMMANDS), (` | CONFIRMED |
++| section 8 pin or constraint | `tests/skills/test_worker_contract.py:839` | `    )` | CONFIRMED |
++| section 8 pin or constraint | `tests/skills/test_worker_contract.py:912` | `def test_never_as_worker_list_names_all_seven_commands():` | CONFIRMED |
++| section 8 pin or constraint | `tests/skills/test_worker_contract.py:1081` | `@pytest.mark.parametrize("cmd", NEVER_AS_WORKER)` | CONFIRMED |
++| section 8 pin or constraint | `tests/skills/test_worker_contract.py:1082` | `def test_never_as_worker_check_fails_when_command_removed(cmd, tmp_path, monkeypatch):` | CONFIRMED |
++| section 8 pin or constraint | `tests/skills/test_worker_contract.py:1318` | `def test_load_usage_line_declares_checkpoint_and_load_is_not_converted():` | CONFIRMED |
++| section 8 pin or constraint | `tests/skills/test_worker_contract.py:1322` | `    assert "load" not in UNATTENDED_COMMANDS` | CONFIRMED |
++| section 8 pin or constraint | `tests/skills/test_worker_contract.py:1556` | `def _check_p2_set(p1, p2, expect) -> None:` | CONFIRMED |
++| section 8 pin or constraint | `tests/skills/test_worker_contract.py:1940` | `AUDIT_ROOTS = (` | CONFIRMED |
++| section 8 pin or constraint | `tests/skills/test_worker_contract.py:1944` | `)` | CONFIRMED |
++| section 8 pin or constraint | `tests/skills/test_worker_contract.py:1953` | `_CATEGORY_RE = re.compile(` | CONFIRMED |
++| section 8 pin or constraint | `tests/skills/test_worker_contract.py:1955` | `)` | CONFIRMED |
++| section 8 pin or constraint | `tests/skills/test_worker_contract.py:1966` | `def _is_gh_api_post(line: str) -> bool:` | CONFIRMED |
++| section 8 pin or constraint | `tests/skills/test_worker_contract.py:2016` | `WRITE_VERB_CLASSIFICATION = {` | CONFIRMED |
++| section 8 placement (line 273) | `src/superclaude/core/WORKER-CONTRACT.md:273` | `For N input Tasks feeding one merge Task (for example N `/sc:troubleshoot` workers, then `/sc:advers` | CONFIRMED |
++| section 8 placement (line 275) | `src/superclaude/core/WORKER-CONTRACT.md:275` | `### Worked example: gate hit, answer, new Task` | CONFIRMED |
++| section 8 (line 110) | `src/superclaude/core/WORKER-CONTRACT.md:110` | `**The sweep.** After every wake or timeout, at most once every 5 minutes, the coordinator runs one s` | CONFIRMED |
++| section 8 (line 151) | `src/superclaude/core/WORKER-CONTRACT.md:151` | `\| L1 probe \| Read-only: `worker-show`, `worker-read --source transcript`, a screen read, the contrac` | CONFIRMED |
++
++No hit is MOVED or CHANGED, so no further DESIGN edit was needed. Line 63 (GQ-106) cites the SPEC (FR-025 line 119, line 559) and GAPS line 129, which this task does not change; it matched the grep only through the word `.gitignore`, and it is left as it was.
+Earlier blocking findings of this start (empty on the first review): Review 1 of T86 (fresh subagent, prompt-1-1.md), received after the parent had already written a premature complete line (process error, disclosed).
+F1.1 ac=T86.AC1 at=r4-reanchor.md:66 false-claim=y: the report says the filtered grep gives "29 hit lines now" and lists 18; the real count is 19 (the 18 plus line 1041, the section 18 R4 row).
+F1.2 ac=T86.AC1 at=r4-reanchor.md:125 ac-outcome-missing=y: hit 1041 has no status row and hit 63 has only a prose exclusion with no row and no line text read.
+Saved-probe re-check hit locations (may be empty): Re-check list: (1) the report's hit count equals the count the item's filtered grep gives now (19 hit lines) and lists every hit line; (2) every hit line has a status row with a line text read, including hit 63 (SPEC lines 119 and 559, GAPS line 129) and hit 1041 (contract line 110); (3) no MOVED or CHANGED row lacks a DESIGN edit; (4) the grep has at least one hit in each of sections 8, 9 and 10.
+
+Do not trust the implementer's report.
+
+First mark each earlier blocking finding resolved, open or regressed from the diff. Then, for each AC, mark it met or unmet. Require citations: every AC you mark, met or unmet, carries a `path:line` or `Ti.ACk@path:line` citation, and an unmet mark lists the finding ids behind it. Do not return a verdict; the orchestrator computes it.
+
+For every finding answer four questions, each yes or no:
+1. ac-outcome-missing: is output an AC requires absent, or does it contradict the AC text, or does an evidence claim you could not verify have no evidence row?
+2. false-claim: is a claim in delivered text or code false against live source, or does a recipe or instruction followed as written not do what the text says?
+3. harmful-effect: does code or a recipe this task added or changed write, append, chmod or delete tracked or production data, mutate state outside the task's declared outputs, or expose a secret?
+4. quoted-constraint-breach: does the diff violate a quoted plan constraint, out-of-scope, non-goal or non-negotiable item, or an explicit task instruction?
+
+Anchor rule: cite exactly one anchor per yes. ac-outcome-missing: the quoted AC words. false-claim: the live-source path:line holding the contradicting text. harmful-effect: the diff line that is the write. quoted-constraint-breach: the quoted constraint or instruction text. A yes without a valid anchor does not block.
+
+Write one line per finding:
+F<k>.<j> ac=<Ti.ACk|scope> at=<path:line> anchor=<quoted text or path:line> chk=<amiss,false,harm,constraint as y/n> family=<id> fix=<text> [covers=<quoted AC clause or constraint>]: <text>
+Do not write sev=, trigger=, first= or origin=; the orchestrator adds them. Write one status line per earlier blocking finding: F<m>.<j> resolved|open|regressed.
+
+Inside /sc:implement this protocol's severity model governs this review and takes precedence over the session's output style and the copy of it injected into every subagent; only blocking findings may fail an attempt.
+
+You are not given an adviser answer, brief, evidence file or troubleshoot report. Do not read the retry folders (legacy `.dev/implement/<slug>/retries/`, managed `<pkg>/artifacts/retries/`) or `.dev/troubleshoot/`. A citation into either makes the verdict `cannot-verify`.
+The prior-findings slot above carries earlier blocking finding lines that the orchestrator copies byte for byte from `review-*.md` and `repair-*.md`; they reach you as prompt text, not as an evidence file. Do not read those folders to get them, and never cite the slot or the file it came from.

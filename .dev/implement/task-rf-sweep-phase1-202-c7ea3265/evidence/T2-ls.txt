@@ -1,0 +1,31 @@
+$ ls -d qa/*/ | wc -l
+14
+$ ls phase-outputs
+discovery
+plans
+reports
+reviews
+test-results
+$ ls -d qa/*/
+qa/cmd-skill/
+qa/contract/
+qa/decisions/
+qa/docs/
+qa/fidelity/
+qa/final/
+qa/impl-cli/
+qa/impl-core/
+qa/r3-b1/
+qa/r3-b2/
+qa/r3-b3/
+qa/r4/
+qa/r5/
+qa/tests/
+$ ls reflect
+post
+pre
+pre-run2
+$ ls artifacts (dir exists?)
+.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/artifacts
+$ ls reflect/post/audit (must not exist)
+ls: cannot access '.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/reflect/post/audit': No such file or directory

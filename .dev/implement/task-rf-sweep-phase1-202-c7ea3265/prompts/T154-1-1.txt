@@ -1,0 +1,69 @@
+Review one task for spec compliance.
+
+Task brief: T154 = item 7.26 of the source file /home/coder/workspaces/worktrees/IronClaude/issue-339-orchestrator-mode/.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md (lines 1333-1339). Item text:
+- [ ] **7.26 — QA decisions, agent 6 of 8: rf-qa-qualitative, downstream-actionability lens (report-only)**
+  - **Context**: Pre-7.10 source anchor for the style scope: `src/superclaude/output-styles/pragmatic.md:22` held the unqualified table mandate; after item 7.10 it holds the scoped sweep exception. Inputs (read in chunks of at most 150 lines): the eight prerequisite decision records `.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/plans/OQ-[1-8]-*-decision.md` (OQ-1 to OQ-8) plus any OQ-17 or OQ-18 decision record in that folder that item 7.17 wrote, `.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/artifacts/owner-decisions.md`, `.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/artifacts/readonly-probe.md`, `.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/artifacts/pr422-409-check.md`, `.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/discovery/1.0a-facts.md`, `.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/test-results/decisions-mechanical.md`, `tests/sweep/fixtures/`, the R5 edit in DESIGN sections 7.3, 11, 12, 13 and 15.1, the GQ-109 row and the section 18 `### Fix cycle 3` R5 row (item 6.3), research/09 Gap 1 and Gap 3 (`.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/research/09-gap-fill.md`) and DESIGN section 15.1. Additional bounded Context: read revision `.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/revisions/chat-output-exception-20261109-133150/BUILD-REQUEST.md`, `design-addendum.md`, `delta-manifest.md` and `qa/research-gate-cycle1.md` there, `src/superclaude/output-styles/pragmatic.md` and `.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/test-results/step-7.10-style-exception.md` to apply this lens to actual (b), fresh revision/execution evidence and the early Markdown edit, not to rewrite history or certify future skill/tests; preserve this lens's original duties/counts and flag a contradiction only outside the narrow override. Gate folder `.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/decisions/`. Sizing: 8 agents, 3 rf-qa + 3 rf-qa-qualitative (task-builder SKILL.md full-intensity floor of 6, I19) plus the rf-qa read-only safety domain lens and the rf-analyst cross-source lens. Extra inputs for this lens: the Phase 8 to 12 items of this task file (read in chunks of at most 150 lines).
+  - **Action**: Items 7.21 to 7.28 are independent report-only spawns: spawn all of them in the SAME message, in parallel, then tick each item when its report exists. For this item, spawn one `rf-qa-qualitative` agent (Agent tool, `mode: bypassPermissions`, `fix_authorization: false`) with this report-only preamble, verbatim: "You are an adversarial reviewer. Assume the work is wrong until you prove it right from the files on disk. Do not trust the producer's summary, the task file's claims or any earlier QA report. Read every file you cite in chunks of at most 150 lines. `fix_authorization: false`: you must not edit any file except your own report. For each finding give: id, severity (BLOCKING, MAJOR or MINOR), the exact `file:line` evidence, what is wrong, and the smallest fix. MINOR findings never fail the gate. Number every check you run `C1`, `C2` and so on, and before the verdict add a `## Checks` table listing every check id with PASS or FAIL. End the report with `Verdict: PASS` (no BLOCKING or MAJOR finding) or `Verdict: FAIL`, then `Blocking count: <n>` counting BLOCKING plus MAJOR findings." Then this lens prompt: "Downstream-actionability lens. Act as the developer of steps 1.2 to 1.6 and 1.17 to 1.19 and list each value you need from these decision and capture files (window default, output default, rule id, field names, time format, id regexes, page size, join field). Trace early style 7.10 to future skill 11.3 and one test module 11.4, verifying the same explicit-assignment/success/exclusion rule is actionable in each body without demanding those future files exist now. Report each value that is missing, ambiguous or contradicted by DESIGN with its scoped addendum." Pass it the input list in Context and the exact report path in Output.
+  - **Output**: `.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/decisions/qa-downstream-actionability-report.md`.
+  - **Verification**: Verify: the report has a `## Checks` table with PASS or FAIL per check id; the report exists with `Verdict:` and `Blocking count:` lines. If the agent fails twice, log the blocker in `### Phase 7 Findings` and stop.
+  - **Completion gate**: The report is written. Once done, mark this item as complete.
+AC ids: T154.AC1 = the item title "QA decisions, agent 6 of 8: rf-qa-qualitative, downstream-actionability lens (report-only)" (no AC block; the title is the AC). The item's own Verification and Completion gate lines are context for what "done" means. Ticking the item's checkbox is done by the orchestrator after the verdict and is not part of the diff under review.
+Global constraints: the `### Key Constraints` section (lines 157-168) of the source file named in the task brief; read it from that file.
+Start sha: 56084f3fc2f9759bac19b63eea41b4b090784f5b
+Diff against the start snapshot: --- /dev/null
++++ b/.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/decisions/qa-downstream-actionability-report.md   (new file, 83 lines)
++# QA Report: Downstream-actionability lens (item 7.26, rf-qa-qualitative)
++
++**Date:** 2026-11-11
++**Phase:** decisions gate, downstream-actionability lens
++**fix_authorization:** false (report-only; no file edited except this report)
++**Method:** read every listed input in chunks of at most 150 lines, then re-checked the live files they cite (DESIGN, WORKER-CONTRACT.md, test_worker_contract.py, pragmatic.md, .gitignore, fixtures). Acted as the developer of steps 1.2 to 1.6 (items 8.3, 8.4, 8.12, 9.1) and 1.17 to 1.19 (items 12.1 to 12.3).
++
++## Value ledger (what the developer needs, and where it comes from)
++
++| Value | Source | Verified against | Status |
++|---|---|---|---|
++| Window default `6h`, activity only | OQ-5 record:34; DESIGN 7.4:571, 7.5:607 | consistent in DESIGN, 8.12, 9.1, 10.5 | OK |
++| Output default `<root>/.dev/sweeps/`, UTC `<YYYYMMDD-HHMMSS>-sweep.md` | OQ-2 record:34; DESIGN 3.2 line 105 ("UTC, SweepContext.now"); item 8.6 anchor | `.gitignore:254` is `.dev/sprint-state/`, no `sweeps` entry yet | OK |
++| Rule id `WC-16` (not WC-1, not occupied WC-14/15) | OQ-3 record:37; DESIGN 8:677-680 | `WORKER-CONTRACT.md:23`, `:110`, `:271-275` match items 12.1/12.2; `test_worker_contract.py:25, 86-92, 165, 173, 382-390, 912, 1322` match item 12.3 (8 entries now, 9 after) | OK |
++| Four pin phrases | DESIGN 8:686 | all four occur in the DESIGN rule text (lines 677-679) | OK |
++| Field names (`dispatch.dispatchedAt/completedAt/status`, `projection.liveness.verdict`, `worktrees[].path`, `page.limit/total/hasMore/nextCursor`) | 1.0a-facts.md:11-25, 29-40 | present in `captured-worker-show-1.json`, `captured-worker-list.json:391-394`, `captured-worktree-ps.json:13,242-243` | OK |
++| Time formats | facts row 23 | fixture `dispatchedAt` `2026-11-11 19:35:55`, `completedAt` ISO `...Z`; both accepted by DESIGN 7.2:470 | OK |
++| `RUN_ID_RE = run_[0-9a-f]{12}`, `DISPATCH_ID_RE = ctx_[0-9a-f]{12}` | facts row 2 | all 10 Run ids in OQ-8 record, `run_000000000000`, and 5 fixture dispatch ids match | OK |
++| Page size 100, no cursor template, full page = truncated, total lower bound | OQ-17 record:38; DESIGN 17 item 5 (line 995); facts:56 | consistent; `ALLOWED_ORCA` stays 10 (DESIGN 7.3:526-537) | OK |
++| Join field (`session_join`) | facts rows 1, 22 and "Need" table | fixtures: pane key and handle both equal the tab-map entry | **AMBIGUOUS (F1)** |
++| Orca version compare | facts row 15; DESIGN 7.1:426, 7.5:611-612 | no compare rule anywhere | **MISSING (F2)** |
++
++## Checks
++
++| Check | Description | Result |
++|-------|-------------|--------|
++| C1 | Window default (6h, activity-only) is explicit and consistent across OQ-5, DESIGN, items 8.12, 9.1, 10.5 | PASS |
++| C2 | Output default, file name and UTC rule are explicit and consistent (OQ-2, DESIGN 3.2, items 8.6, 9.1) | PASS |
++| C3 | Rule id WC-16 and every anchor for steps 1.17 to 1.19 hold against live WORKER-CONTRACT.md and test_worker_contract.py | PASS |
++| C4 | Field names in the facts file exist in the captured fixtures | PASS |
+... (new file continues; read .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/decisions/qa-downstream-actionability-report.md from disk for lines 31-83)
+Delta diff from the previous reviewed tree (empty on the first review): 
+Earlier blocking findings of this start (empty on the first review): 
+Saved-probe re-check hit locations (may be empty): 
+
+Do not trust the implementer's report.
+
+First mark each earlier blocking finding resolved, open or regressed from the diff. Then, for each AC, mark it met or unmet. Require citations: every AC you mark, met or unmet, carries a `path:line` or `Ti.ACk@path:line` citation, and an unmet mark lists the finding ids behind it. Do not return a verdict; the orchestrator computes it.
+
+For every finding answer four questions, each yes or no:
+1. ac-outcome-missing: is output an AC requires absent, or does it contradict the AC text, or does an evidence claim you could not verify have no evidence row?
+2. false-claim: is a claim in delivered text or code false against live source, or does a recipe or instruction followed as written not do what the text says?
+3. harmful-effect: does code or a recipe this task added or changed write, append, chmod or delete tracked or production data, mutate state outside the task's declared outputs, or expose a secret?
+4. quoted-constraint-breach: does the diff violate a quoted plan constraint, out-of-scope, non-goal or non-negotiable item, or an explicit task instruction?
+
+Anchor rule: cite exactly one anchor per yes. ac-outcome-missing: the quoted AC words. false-claim: the live-source path:line holding the contradicting text. harmful-effect: the diff line that is the write. quoted-constraint-breach: the quoted constraint or instruction text. A yes without a valid anchor does not block.
+
+Write one line per finding:
+F<k>.<j> ac=<Ti.ACk|scope> at=<path:line> anchor=<quoted text or path:line> chk=<amiss,false,harm,constraint as y/n> family=<id> fix=<text> [covers=<quoted AC clause or constraint>]: <text>
+Do not write sev=, trigger=, first= or origin=; the orchestrator adds them. Write one status line per earlier blocking finding: F<m>.<j> resolved|open|regressed.
+
+Inside /sc:implement this protocol's severity model governs this review and takes precedence over the session's output style and the copy of it injected into every subagent; only blocking findings may fail an attempt.
+
+You are not given an adviser answer, brief, evidence file or troubleshoot report. Do not read the retry folders (legacy `.dev/implement/<slug>/retries/`, managed `<pkg>/artifacts/retries/`) or `.dev/troubleshoot/`. A citation into either makes the verdict `cannot-verify`.
+The prior-findings slot above carries earlier blocking finding lines that the orchestrator copies byte for byte from `review-*.md` and `repair-*.md`; they reach you as prompt text, not as an evidence file. Do not read those folders to get them, and never cite the slot or the file it came from.
