@@ -1,0 +1,20 @@
+# sc:adversarial return contract, slot C-12 (collaboration-exchange-capability), Mode A, depth standard
+return_contract:
+  merged_output_path: "/home/coder/workspaces/worktrees/IronClaude/brainstorm-reflect-panel/.dev/tasks/to-do/TASK-RESEARCH-review-panel-run2-20261114-075454/reviews/adversarial/collaboration-exchange-capability/merged-collaboration-exchange-capability.md"
+  convergence_score: 0.96            # 24 of 25 diff points agreed (threshold 0.80); gate status BLOCKED_BY_INVARIANTS
+  artifacts_dir: "/home/coder/workspaces/worktrees/IronClaude/brainstorm-reflect-panel/.dev/tasks/to-do/TASK-RESEARCH-review-panel-run2-20261114-075454/reviews/adversarial/collaboration-exchange-capability/adversarial"
+  status: "partial"                  # pipeline completed; convergence blocked by 2 HIGH UNADDRESSED invariants and 1 unresolved diff point
+  base_variant: "Variant A (Proposal A)"   # combined 0.9198 vs 0.8747; margin 4.51% < 5%, tiebreaker level 1: debate points 12 vs 5
+  unresolved_conflicts: 1            # C-002 (label split: A 52 vs "Merge 62"; both advocates endorse the same staged-trigger resolution)
+  fallback_mode: false
+  failure_stage: null
+  invocation_method: "task-agent"
+  unaddressed_invariants:
+    - id: "INV-005"
+      category: "guard_conditions"
+      assumption: "H1 reaches reflect through the reflect brief with no call-site change, while cli/reflect stays unchanged and reflect results stay pinned (the brief is built in cli/reflect/ensemble.py:601-630 and does not carry spec_path)"
+      severity: "HIGH"
+    - id: "INV-009"
+      category: "interaction_effects"
+      assumption: "H2 (one pre-merge repair step, possibly a re-ask) is core now and compatible with C-01's placement inside both parse_block functions, while C-01 INV-003 and slot C-06 are open"
+      severity: "HIGH"

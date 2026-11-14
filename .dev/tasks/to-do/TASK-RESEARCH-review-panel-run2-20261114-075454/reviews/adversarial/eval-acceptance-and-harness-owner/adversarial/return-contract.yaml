@@ -1,0 +1,65 @@
+# sc:adversarial return contract (Mode A, --depth standard, --focus correctness,risk,test-coverage; slot X-14 eval-acceptance-and-harness-owner)
+# status is "partial": all 5 steps ran and the merge succeeded (13 of 13 changes applied, post-merge validation PASS), but convergence is
+# BLOCKED_BY_INVARIANTS: diff-point agreement 40 of 44 = 0.909 (83.3% counting only the 24 points where an advocate named a winner), above the
+# 0.80 threshold, with 12 HIGH UNADDRESSED invariants from Round 2.5. Standard depth has no Round 3, so none was resolved. The base was selected
+# by the tiebreaker (margin 0.97%, below 5%). Flagged for user review per the no_convergence handling.
+# 13 MEDIUM and 0 LOW UNADDRESSED invariants are listed in invariant-probe.md (and in section 10.5 of the merged file); 4 findings are ADDRESSED.
+return_contract:
+  merged_output_path: "/home/coder/workspaces/worktrees/IronClaude/brainstorm-reflect-panel/.dev/tasks/to-do/TASK-RESEARCH-review-panel-run2-20261114-075454/reviews/adversarial/eval-acceptance-and-harness-owner/merged-output.md"
+  convergence_score: 0.91
+  artifacts_dir: "/home/coder/workspaces/worktrees/IronClaude/brainstorm-reflect-panel/.dev/tasks/to-do/TASK-RESEARCH-review-panel-run2-20261114-075454/reviews/adversarial/eval-acceptance-and-harness-owner/adversarial"
+  status: "partial"
+  base_variant: "variant-1 (Proposal A; default model, default persona)"
+  unresolved_conflicts: 4   # diff points C-005, C-007, C-008, X-004 (the two Round 2 calls differ by label; substance converged on the status wording)
+  fallback_mode: false
+  failure_stage: null
+  invocation_method: "task-agent"
+  unaddressed_invariants:
+    - id: "INV-001"
+      category: "state_variables"
+      assumption: "The pre-registered rule is safe to commit once C-02 has landed, and an offline run on the 71 stored rows then predicts the live metric (the blocking-row population also moves with C-03 and C-06)"
+      severity: "HIGH"
+    - id: "INV-002"
+      category: "state_variables"
+      assumption: "Commit order in git proves the rule, analysis script and values file preceded the first run (git order is not execution order; no run record stamps the rule sha)"
+      severity: "HIGH"
+    - id: "INV-003"
+      category: "state_variables"
+      assumption: "The verifier can recompute kept counts by re-parsing stored reports with parse_block and compare them with ledger members (the entry stores no parser or policy version; C-06 puts the cut behind repair=False)"
+      severity: "HIGH"
+    - id: "INV-005"
+      category: "state_variables"
+      assumption: "The expected-cells manifest is written at dispatch, before panel.resolve drops skipped slots, and read unchanged at verify time (no adjudicated merged output contains such a manifest)"
+      severity: "HIGH"
+    - id: "INV-006"
+      category: "guard_conditions"
+      assumption: "The table builder's refusal of runs without a verifier record blocks the E2 defect classes (an all-unrecorded record or a truncated flags.tsv satisfies a record-exists test)"
+      severity: "HIGH"
+    - id: "INV-007"
+      category: "guard_conditions"
+      assumption: "The judge wrapper's check wrong_blockers = ledger_rows_blocking - blocking_rows_gt_matched makes 'found in a ledger row typed blocking' trustworthy (the judge writes all three counts itself; no GT id to row id map)"
+      severity: "HIGH"
+    - id: "INV-013"
+      category: "count_divergence"
+      assumption: "A minimum detectable effect and comparison count, once stated, make a 'no evidence' or 'lead' reading valid at n=3 packages (the unit of analysis is not named; 71 rows are 32 multisets with repeats)"
+      severity: "HIGH"
+    - id: "INV-019"
+      category: "interaction_effects"
+      assumption: "The consensus needs no ledger-entry additions and checks conservation by re-parsing stored reports (the adjudicated C-06 hybrid already adds repaired and dropped keys the verifier must read)"
+      severity: "HIGH"
+    - id: "INV-021"
+      category: "interaction_effects"
+      assumption: "The verifier's identity check and C-08's identity gate agree (one file, different absent-input semantics: unrecorded versus requested-pinned)"
+      severity: "HIGH"
+    - id: "INV-025"
+      category: "sufficiency_challenge"
+      assumption: "The metric of record and the conservation law cover the use cases the unified panel serves (both are defined on review-ledger/1 rows; no acceptance metric exists for the reflect Tier 2 panel)"
+      severity: "HIGH"
+    - id: "INV-026"
+      category: "sufficiency_challenge"
+      assumption: "The hybrid alone prevents the E2 defect classes (the answer-key and tool-use class has no component; if C-08 M1 fails identity stays unrecorded and 'accepted' is unreachable)"
+      severity: "HIGH"
+    - id: "INV-027"
+      category: "sufficiency_challenge"
+      assumption: "Every gate between design and acceptance statement catches its fault class (an identity swap, a dispatch-skipped cell and a post-hoc rule each pass every gate)"
+      severity: "HIGH"

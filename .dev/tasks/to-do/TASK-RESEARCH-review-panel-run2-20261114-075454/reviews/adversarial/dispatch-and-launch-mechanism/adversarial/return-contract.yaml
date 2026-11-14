@@ -1,0 +1,20 @@
+# sc:adversarial return contract (Mode A, --depth standard, --focus correctness,risk,test-coverage), slot C-07 dispatch-and-launch-mechanism
+# status is "partial": all 5 steps ran and the merge succeeded (12 of 12 planned changes applied, post-merge validation PASS), but convergence is
+# BLOCKED_BY_INVARIANTS: diff-point agreement 21 of 26 = 0.8077 (above the 0.80 threshold, all three taxonomy levels covered) with 1 HIGH
+# UNADDRESSED invariant from Round 2.5 (INV-017). Flagged for user review per the no_convergence handling.
+# 12 MEDIUM and 3 LOW UNADDRESSED invariants are listed in invariant-probe.md. Five diff points are unresolved: X-001, X-006, A-003, A-004, A-006.
+return_contract:
+  merged_output_path: "/home/coder/workspaces/worktrees/IronClaude/brainstorm-reflect-panel/.dev/tasks/to-do/TASK-RESEARCH-review-panel-run2-20261114-075454/reviews/adversarial/dispatch-and-launch-mechanism/merged-dispatch-and-launch-mechanism.md"
+  convergence_score: 0.81
+  artifacts_dir: "/home/coder/workspaces/worktrees/IronClaude/brainstorm-reflect-panel/.dev/tasks/to-do/TASK-RESEARCH-review-panel-run2-20261114-075454/reviews/adversarial/dispatch-and-launch-mechanism/adversarial"
+  status: "partial"
+  base_variant: "variant-2 (Proposal B; default model, default persona)"
+  unresolved_conflicts: 5   # X-001, X-006, A-003, A-004, A-006
+  fallback_mode: false
+  failure_stage: null
+  invocation_method: "task-agent"
+  unaddressed_invariants:
+    - id: "INV-017"
+      category: "sufficiency_challenge"
+      assumption: "The ship-now set S1-S6 closes the collapse failure of run A-r3 (all reviewers and calibrators served claude-sonnet-5-5 because the orchestrator passed no class): in shadow the dispatch is the legacy dispatch (SKILL.md:342), calibrator Agent calls carry a null word in six of 15 runs and no S item covers them, an omitted model falls back to the agent definition's model: sonnet (reflect-reviewer.md:6), and the only mechanical guard (S7, a PreToolUse check on Agent calls) is unbuilt with an unverified payload"
+      severity: "HIGH"

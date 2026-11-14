@@ -1,0 +1,41 @@
+{
+ "A": {
+  "RC": 1.0,
+  "RC_hits": 24,
+  "RC_total": 24,
+  "RC_missing": [],
+  "claims": 44,
+  "contra": 1,
+  "IC": 0.9772727272727273,
+  "concrete": 622,
+  "vague": 0,
+  "SR": 1.0,
+  "refs_total": 15,
+  "refs_resolved": 15,
+  "DC": 1.0,
+  "sections": 10,
+  "SC": 1.0,
+  "quant": 0.9943181818181819
+ },
+ "B": {
+  "RC": 0.9166666666666666,
+  "RC_hits": 22,
+  "RC_total": 24,
+  "RC_missing": [
+   "R09 research 05 cited",
+   "R10 gaps GQ-060 / GQ-160"
+  ],
+  "claims": 31,
+  "contra": 1,
+  "IC": 0.967741935483871,
+  "concrete": 366,
+  "vague": 0,
+  "SR": 1.0,
+  "refs_total": 36,
+  "refs_resolved": 35,
+  "DC": 0.9722222222222222,
+  "sections": 8,
+  "SC": 0.8,
+  "quant": 0.932768817204301
+ }
+}

@@ -1,0 +1,74 @@
+{
+  "A": {
+    "DC": 1.0,
+    "IC": 0.9921,
+    "RC": 1.0,
+    "SC": 1.0,
+    "SR": 1.0,
+    "detail": {
+      "concrete": 126,
+      "contradictions": 1,
+      "h2_count": 9,
+      "refs_resolved": 54,
+      "refs_total": 54,
+      "refs_unresolved": [],
+      "requirements_matched": [
+        "R1 acceptance model / tiers",
+        "R2 metric of record",
+        "R3 verify-run placement/ownership + design consequence for shared core and named modules",
+        "R4 judge and ground-truth registry owner",
+        "R5 harness placement (.dev/ vs scripts/)",
+        "R6 INV-F",
+        "R7 INV-H",
+        "R8 INV-K",
+        "R9 PR review and rf-qa effect",
+        "R10 test/measurement that shows right or wrong + verification-tagged evidence",
+        "R11 consistency with adjudicated slots C-01..C-03",
+        "R12 strongest objection and answer"
+      ],
+      "requirements_missed": [],
+      "scorable_claims": 126,
+      "sentences_total": 196,
+      "vague": 0
+    },
+    "quant_score": 0.998
+  },
+  "B": {
+    "DC": 1.0,
+    "IC": 0.9815,
+    "RC": 1.0,
+    "SC": 0.8889,
+    "SR": 1.0,
+    "detail": {
+      "concrete": 108,
+      "contradictions": 2,
+      "h2_count": 8,
+      "refs_resolved": 64,
+      "refs_total": 64,
+      "refs_unresolved": [],
+      "requirements_matched": [
+        "R1 acceptance model / tiers",
+        "R2 metric of record",
+        "R3 verify-run placement/ownership + design consequence for shared core and named modules",
+        "R4 judge and ground-truth registry owner",
+        "R5 harness placement (.dev/ vs scripts/)",
+        "R6 INV-F",
+        "R7 INV-H",
+        "R8 INV-K",
+        "R9 PR review and rf-qa effect",
+        "R10 test/measurement that shows right or wrong + verification-tagged evidence",
+        "R11 consistency with adjudicated slots C-01..C-03",
+        "R12 strongest objection and answer"
+      ],
+      "requirements_missed": [],
+      "scorable_claims": 108,
+      "sentences_total": 173,
+      "vague": 0
+    },
+    "quant_score": 0.9787
+  },
+  "input_sha256": {
+    "A": "6dd06616bc3fc5f3c53c338349741857db8d3d0cbbdb92c4cd5da1b495e2225a",
+    "B": "bb97aa23cf5ea84ef6cfb618d244946272a43d294b5bb2846ca8a338257591d5"
+  }
+}
