@@ -1,0 +1,6 @@
+# Lint config for this folder only: the repository rules, minus the two naming rules.
+# DESIGN.md names its quantities B, B_f, B_c, T0 and P (formulas of section 2.5); the code keeps those names.
+extend = "../../../../../pyproject.toml"
+
+[lint]
+extend-ignore = ["N803", "N806"]

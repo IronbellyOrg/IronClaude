@@ -1,0 +1,18 @@
+{
+ "select_categories": ["unpassable-check", "contradiction", "missing-requirement"],
+ "surface_regex": "(?i)(artifacts?/|\\bartifacts? (path|location|folder)\\b|\\.dev/|\\bsha-?256\\b|\\bhash(es)?\\b|\\bline[- ]?(numbers?|numbered|anchors?|references?|\\d+)\\b|\\b(edit|file) scope\\b|:\\d+\\b|\\bpath (does not|doesn't) exist\\b|\\bstale\\b)",
+ "classes": [
+   {"name": "quantifier", "regex": "(?i)\\b(every|all|complete|completely|only)\\b"},
+   {"name": "command",    "regex": "(?i)(`[^`]*\\b(grep|rg|find|pytest|uv|superclaude|jq|git|wc)\\b|\\bgrep\\b)"},
+   {"name": "mapping",    "regex": "(?i)(^\\||\\|.*\\||->|→|=>|\\b(maps?|mapping|mapped|table|row|column)\\b)"},
+   {"name": "constraint", "regex": "(?i)\\b(must|must not|never|shall|at most|at least|no more than|required|forbidden|do not)\\b"}
+ ],
+ "move_by_style": {
+   "quantifier":    {"reading": "M3", "search": "M2"},
+   "command":       {"reading": "M4", "search": "M7"},
+   "mapping":       {"reading": "M5", "search": "M6"},
+   "constraint":    {"reading": "M8", "search": "M8"},
+   "contradiction": {"reading": "M8", "search": "M8"}
+ },
+ "gap_probability": 0.3333333333333333
+}

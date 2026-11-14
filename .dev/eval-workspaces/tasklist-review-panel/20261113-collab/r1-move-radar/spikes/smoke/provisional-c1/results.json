@@ -1,0 +1,101 @@
+{
+ "schema": "r1-results/1",
+ "design": "r1-move-radar",
+ "row": "el2-c1-r0",
+ "panel": "el2",
+ "models": {
+  "t2b-1": "muse-ember-1.0",
+  "t4-1": "gpt-6-luna",
+  "t3-1": "gpt-6-luna"
+ },
+ "collab": 1,
+ "rep": 0,
+ "started_utc": "2026-11-13T23:14:36Z",
+ "values": {
+  "TASK-WF-designSpec-20261107-075614": "4625052a50eb64cc658d7419c8fedf2f8673d45710591f27d1beff8a346da894",
+  "TASK-WF-makeTheAliasOnly-20261105-051649": null,
+  "TASK-WF-design-20261108-041415": null
+ },
+ "status": "incomplete",
+ "found_14": null,
+ "real_blocking_8": null,
+ "judge_blocking": null,
+ "wrong_blockers": null,
+ "control_found_2": null,
+ "control_wrong_blockers": null,
+ "output_tokens": null,
+ "elapsed_s": {
+  "TASK-WF-designSpec-20261107-075614": 92.027,
+  "TASK-WF-makeTheAliasOnly-20261105-051649": null,
+  "TASK-WF-design-20261108-041415": null
+ },
+ "packages": {
+  "TASK-WF-designSpec-20261107-075614": {
+   "status": "ok",
+   "label": "Q",
+   "ledger_rows": 4,
+   "output_tokens": 14912,
+   "elapsed_s": 92.027,
+   "B_f": 116,
+   "overhead_pct": -20.66637931034483,
+   "slo_breach": false,
+   "k": {
+    "reader": 2,
+    "searcher": 2
+   },
+   "values": "4625052a50eb64cc658d7419c8fedf2f8673d45710591f27d1beff8a346da894",
+   "dropped_lines": 0,
+   "reask": 0,
+   "retry_isolated": 0,
+   "hang_kill": 0,
+   "gt_covered_any": [
+    "GT3",
+    "GT7"
+   ],
+   "real_blocking": [],
+   "judge_blocking": [],
+   "wrong_blockers": 0
+  },
+  "TASK-WF-makeTheAliasOnly-20261105-051649": {
+   "status": "not_run"
+  },
+  "TASK-WF-design-20261108-041415": {
+   "status": "not_run"
+  }
+ },
+ "collab_counters": {
+  "injections": 4,
+  "injections_by_move": {
+   "M2": 1,
+   "M7": 1,
+   "M3": 1,
+   "M8": 1
+  },
+  "src_checks": 0,
+  "search_injections": 2,
+  "static_injections": 2,
+  "observable_moves_executed": 0,
+  "skips_no_gap": 0,
+  "skips_guard": 0,
+  "finish_signals": 0,
+  "finish_would_fire": 0,
+  "hook_calls": 27,
+  "hook_errors": 0,
+  "hook_ms_p95": 139,
+  "snapshot_missing": 0,
+  "late": 0,
+  "receivers": 3,
+  "leak_violations": 0,
+  "moves_covered_panel": {
+   "M1": 0,
+   "M2": 0,
+   "M4": 0,
+   "M7": 0,
+   "SRC_OPENED": 3,
+   "UNNAMED_TEST": 0
+  },
+  "own_line_jaccard": {
+   "TASK-WF-designSpec-20261107-075614": 0.0
+  }
+ }
+}

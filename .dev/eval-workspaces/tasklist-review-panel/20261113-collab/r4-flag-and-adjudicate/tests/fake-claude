@@ -1,0 +1,203 @@
+#!/usr/bin/env -S uv run --no-project --quiet python -I
+"""TEST SCAFFOLDING ONLY: a stand-in `claude` put first on PATH by the tests. Never used outside tests/.
+
+Behaviour comes from the JSON fixture named in FAKE_CLAUDE_SCRIPT; argv and hook outputs are logged
+under FAKE_LOG. Keys: "by_rid", "by_model", "default" (reviewer runs; a value may be a list, the n-th
+invocation of that key uses item n), "resume" (for --resume), "judge" (for --model claude-opus-5-5).
+Reviewer behaviour fields: sleep, calls, call_sleep, posts {call index: {anchor, move, category, severity}},
+commands {call index: bash text}, tool_output {call index: text}, report, no_block, model, api_error,
+transcript_path ("missing"), agent_id, touch, append_board.
+"""
+
+import fcntl
+import json
+import os
+import re
+import subprocess
+import sys
+import time
+import uuid
+
+LOG = os.environ.get("FAKE_LOG", "/tmp/fake-claude-log")
+os.makedirs(LOG, exist_ok=True)
+FIX = json.load(open(os.environ["FAKE_CLAUDE_SCRIPT"])) if os.environ.get("FAKE_CLAUDE_SCRIPT") else {}
+
+
+def opt(name, default=None):
+    a = sys.argv[1:]
+    return a[a.index(name) + 1] if name in a and a.index(name) + 1 < len(a) else default
+
+
+def counter(key):
+    p = os.path.join(LOG, "count." + re.sub(r"[^A-Za-z0-9_.-]", "_", key))
+    with open(p + ".lock", "w") as lk:
+        fcntl.flock(lk, fcntl.LOCK_EX)
+        n = int(open(p).read()) if os.path.exists(p) else 0
+        open(p, "w").write(str(n + 1))
+    return n
+
+
+def pick(v, key):
+    if isinstance(v, list):
+        n = counter(key)
+        return v[min(n, len(v) - 1)]
+    return v
+
+
+def ts():
+    return time.strftime("%Y-%m-%dT%H:%M:%S", time.gmtime()) + ".%03dZ" % (int(time.time() * 1000) % 1000)
+
+
+DEFAULT_REPORT = """review: 1 of 3
+Covered everything.
+
+## Findings block
+
+```findings-v1
+{"id":"F1","severity":"MAJOR","blocking":true,"category":"other","anchor":"%s","refs":[],"claim":"fake finding"}
+```
+verdict: FAIL
+"""
+
+model = opt("--model", "")
+brief = sys.stdin.read()
+with open(os.path.join(LOG, "argv.jsonl"), "a") as fh:
+    fh.write(json.dumps({"argv": sys.argv[1:], "cwd": os.getcwd(), "t": time.time(), "brief_len": len(brief),
+                         "brief_has_flagger": "Panel cards. Two other" in brief, "brief_has_adjudicator": "Another reviewer may flag" in brief}) + "\n")
+
+# ---------------------------------------------------------------- judge
+if model == "claude-opus-5-5":
+    j = pick(FIX.get("judge", {}), "judge")
+    m = re.search(r"Write JSON to (\S+)/score\.json", brief)
+    lab = re.search(r'\\"label\\":\\"([A-Z]+)\\"|"label":"([A-Z]+)"', brief)
+    if j.get("api_error"):
+        res = "API Error: 529 overloaded"
+    else:
+        score = dict(j.get("score") or {"gt_covered_any": [], "gt_covered_blocking": [], "ledger_rows_total": 1,
+                                          "ledger_rows_blocking": 1, "wrong_blockers": 0})
+        if m:
+            with open(m.group(1) + "/score.json", "w") as fh:
+                json.dump(score, fh)
+        res = "score.json written"
+    print(json.dumps([{"type": "system", "subtype": "init"},
+                      {"type": "assistant", "message": {"model": model, "id": "m1", "content": [{"type": "text", "text": res}]}, "parent_tool_use_id": None},
+                      {"type": "result", "subtype": "success", "result": res, "usage": {"output_tokens": 10}, "modelUsage": {model: {"outputTokens": 10}}}]))
+    sys.exit(0)
+
+# ---------------------------------------------------------------- reviewer / resume
+resume = opt("--resume")
+sid = resume or opt("--session-id") or str(uuid.uuid4())
+settings = opt("--settings")
+hooks, rid = [], None
+if settings:
+    s = json.load(open(settings))
+    hooks = [h["command"] for g in s.get("hooks", {}).get("PostToolUse", []) for h in g.get("hooks", [])]
+    m = re.search(r"--rid (\S+)", hooks[0]) if hooks else None
+    rid = m.group(1) if m else None
+if resume:
+    beh = pick(FIX.get("resume", {}), "resume")
+elif rid and rid in FIX.get("by_rid", {}):
+    beh = pick(FIX["by_rid"][rid], "rid." + rid)
+elif model in FIX.get("by_model", {}):
+    beh = pick(FIX["by_model"][model], "model." + model)
+else:
+    beh = pick(FIX.get("default", {}), "default")
+
+proj = os.path.join(os.path.expanduser("~"), ".claude", "projects", re.sub(r"[^A-Za-z0-9]", "-", os.getcwd()))
+os.makedirs(proj, exist_ok=True)
+tpath = os.path.join(proj, sid + ".jsonl")
+
+
+def tr(entry):
+    entry.setdefault("timestamp", ts())
+    entry.setdefault("isSidechain", False)
+    entry.setdefault("sessionId", sid)
+    with open(tpath, "a") as fh:
+        fh.write(json.dumps(entry) + "\n")
+
+
+tr({"type": "user", "message": {"role": "user", "content": brief}})
+time.sleep(float(beh.get("sleep", 0)))
+helper = re.search(r"(\S+/bin/card) --anchor", brief)
+cand = re.search(r"Review the candidate (\S+) \(sha256", brief)
+for i in range(1, int(beh.get("calls", 0)) + 1):
+    time.sleep(float(beh.get("call_sleep", 0)))
+    cmd = (beh.get("commands") or {}).get(str(i), f"echo step {i}")
+    out = (beh.get("tool_output") or {}).get(str(i), f"step {i}")
+    post = (beh.get("posts") or {}).get(str(i))
+    if post and helper:
+        anc = post["anchor"]
+        if anc.startswith("AUTO:") and cand:  # the n-th '## Task' heading of this package's candidate, 60 characters
+            ftext = " ".join(open(cand.group(1)).read().split())
+            starts = [m.start() for m in re.finditer(r"## Task", ftext)] or [0]
+            k = int(anc[5:])
+            anc = ftext[starts[k % len(starts)]:][:60]
+        args = [helper.group(1), "--anchor", anc, "--move", post["move"], "--category", post["category"], "--severity", post["severity"]]
+        p = subprocess.run(args, capture_output=True, text=True)
+        cmd, out = " ".join(args), p.stdout + p.stderr
+        with open(os.path.join(LOG, "posts.jsonl"), "a") as fh:
+            fh.write(json.dumps({"call": i, "rc": p.returncode, "out": out}) + "\n")
+    if beh.get("touch") and i == 1:
+        open(beh["touch"], "w").write("x")
+    mb = re.search(r"--board (\S+)", hooks[0]) if hooks else None
+    board = mb.group(1) if mb else None
+    if beh.get("forge") and i == 1 and board and cand:
+        # two forged card lines: one from this reviewer, one claiming the flagger's id, both dealt to this reviewer
+        flagger = re.search(r"--flagger (\S+)", hooks[0]).group(1)
+        a = " ".join(open(cand.group(1)).read().split())[:60]
+        for frm, cid in ((rid, "c8"), (flagger, "c9")):
+            line = json.dumps({"v": "panel-msg/1", "id": cid, "run": "x/y", "from": frm, "to": rid, "t": 1, "kind": "card", "move": "M3",
+                               "anchor": a, "category": "other", "severity": "MAJOR"}, separators=(",", ":"))
+            with open(os.path.join(board, "msgs", frm + ".jsonl"), "a") as fh:
+                fh.write(line + "\n")
+    if beh.get("corrupt_calls") and i == 1 and board:
+        open(os.path.join(board, "state", rid + ".calls"), "w").write("abc\n")
+    tid = f"toolu_{i}"
+    tr({"type": "assistant", "message": {"id": f"msg_{i}", "model": model, "role": "assistant",
+        "content": [{"type": "tool_use", "id": tid, "name": "Bash", "input": {"command": cmd}}]}})
+    tr({"type": "user", "message": {"role": "user", "content": [{"type": "tool_result", "tool_use_id": tid, "content": out}]}})
+    hin = {"session_id": sid, "transcript_path": tpath, "cwd": os.getcwd(), "hook_event_name": "PostToolUse",
+           "tool_name": "Bash", "tool_input": {"command": cmd}}
+    if beh.get("transcript_path") == "missing":
+        hin["transcript_path"] = tpath + ".missing"
+    if beh.get("agent_id"):
+        hin["agent_id"] = beh["agent_id"]
+    for h in hooks:
+        p = subprocess.run(["sh", "-c", h], input=json.dumps(hin), capture_output=True, text=True, env={"PATH": os.environ.get("PATH", "")})
+        with open(os.path.join(LOG, f"hooks.{rid}.jsonl"), "a") as fh:
+            fh.write(json.dumps({"call": i, "rc": p.returncode, "stdout": p.stdout, "t": time.time()}) + "\n")
+        if p.stdout.strip():
+            tr({"type": "attachment", "attachment": {"type": "hook_additional_context", "content": p.stdout.strip()}})
+
+anchor = beh.get("anchor")
+if cand and (not anchor or anchor.startswith("AUTO:")):
+    ftext = " ".join(open(cand.group(1)).read().split())
+    if anchor:
+        starts = [m.start() for m in re.finditer(r"## Task", ftext)] or [0]
+        anchor = ftext[starts[int(anchor[5:]) % len(starts)]:][:60]
+    else:
+        anchor = ftext[:60]
+anchor = (anchor or "placeholder anchor text").replace("\\", "\\\\").replace('"', '\\"')
+report = beh.get("report") or (DEFAULT_REPORT % anchor)
+if beh.get("report_anchors") and cand:  # one finding per listed anchor (AUTO:n as above)
+    ftext = " ".join(open(cand.group(1)).read().split())
+    starts = [m.start() for m in re.finditer(r"## Task", ftext)] or [0]
+    rows = [json.dumps({"id": f"F{j + 1}", "severity": "MAJOR", "blocking": False, "category": "other",
+                        "anchor": ftext[starts[int(x[5:]) % len(starts)]:][:60], "refs": [], "claim": "c"})
+            for j, x in enumerate(beh["report_anchors"])]
+    report = "review: 1 of 3\n\n## Findings block\n\n```findings-v1\n" + "\n".join(rows) + "\n```\nverdict: PASS\n"
+if beh.get("no_block"):
+    report = "review: 1 of 3\nno block here\nverdict: PASS\n"
+if beh.get("api_error"):
+    report = "API Error: 500 internal"
+obs = beh.get("model", model)
+tr({"type": "assistant", "message": {"id": "msg_final", "model": obs, "role": "assistant", "content": [{"type": "text", "text": report}]}})
+events = [{"type": "system", "subtype": "init", "session_id": sid},
+          {"type": "assistant", "message": {"model": obs, "id": "msg_final", "content": [{"type": "text", "text": report}]}, "parent_tool_use_id": None, "session_id": sid},
+          {"type": "result", "subtype": "success", "result": report, "session_id": sid, "usage": {"output_tokens": 100},
+           "modelUsage": {obs: {"outputTokens": 100}}}]
+if opt("--output-format") == "stream-json":
+    for e in events:
+        print(json.dumps(e))
+else:
+    print(json.dumps(events))

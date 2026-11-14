@@ -1,0 +1,41 @@
+{
+  "V1": {
+    "RC": 1.0,
+    "RC_detail": "28/28 missing=[]",
+    "IC": 0.9878,
+    "IC_detail": "4 contradictions / 327 claims",
+    "SR": 0.9968,
+    "SR_detail": "310 concrete / 1 vague",
+    "DC": 0.9872,
+    "DC_detail": "77 resolved / 78 references",
+    "SC": 1.0,
+    "SC_detail": "6 H2 sections, max 6",
+    "quant": 0.9945
+  },
+  "V2": {
+    "RC": 1.0,
+    "RC_detail": "28/28 missing=[]",
+    "IC": 0.9923,
+    "IC_detail": "2 contradictions / 259 claims",
+    "SR": 1.0,
+    "SR_detail": "218 concrete / 0 vague",
+    "DC": 1.0,
+    "DC_detail": "42 resolved / 42 references",
+    "SC": 1.0,
+    "SC_detail": "6 H2 sections, max 6",
+    "quant": 0.9981
+  },
+  "V3": {
+    "RC": 0.9643,
+    "RC_detail": "27/28 missing=['redesign-to-theory mapping']",
+    "IC": 0.9713,
+    "IC_detail": "6 contradictions / 209 claims",
+    "SR": 0.9947,
+    "SR_detail": "188 concrete / 1 vague",
+    "DC": 0.8367,
+    "DC_detail": "41 resolved / 49 references",
+    "SC": 1.0,
+    "SC_detail": "6 H2 sections, max 6",
+    "quant": 0.9568
+  }
+}

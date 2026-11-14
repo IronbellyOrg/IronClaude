@@ -1,0 +1,16 @@
+{
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "*",
+        "hooks": [
+          {
+            "type": "command",
+            "timeout": 5,
+            "command": "/usr/bin/bash /home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/.dev/eval-workspaces/tasklist-review-panel/20261113-collab/r2-idle-shift-sweeper/spikes/probe-hook.sh --mode probe --state /home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/.dev/eval-workspaces/tasklist-review-panel/20261113-collab/r2-idle-shift-sweeper/spikes/out/reqs3/gpt-6-luna/probe/1/state"
+          }
+        ]
+      }
+    ]
+  }
+}

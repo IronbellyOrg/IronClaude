@@ -1,0 +1,20 @@
+criteria parsed: pass1=30 pass2=30 (expected 30 each)
+disagreements: 9 of 90
+  CR1 V2: pass1=NOT MET [Stated 128-150 s; table sums to 129-151; 24 vs 25 assignments] | pass2=MET [Recomputed: 1.63/3.55, 1.25/3.10, 254 runs, +23%, +18% correct] | final=NOT MET
+  CR3 V1: pass1=NOT MET [Hold-out H2/H5 collide with harness H1-H4; arm A3 tests Redesign B] | pass2=MET [Class IDs C1-C8, cards, probe, lens used consistently] | final=NOT MET
+  CR3 V2: pass1=NOT MET [Hold-out H5/H2 vs fixes H1-H4; step S1 vs extractor S] | pass2=MET [Conventions block; C1-C8, ledger, sheet used consistently] | final=NOT MET
+  CR4 V1: pass1=MET [None found; worst-case overrun of D acknowledged] | pass2=NOT MET [Luna +1.5k tokens at 48 tok/s conflicts with stated +12 s] | final=NOT MET
+  IV4 V2: pass1=NOT MET [128 vs 129 critical path; 25 vs 24 item assignments] | pass2=MET [I7 excluded from sums; 254-run total recomputes] | final=NOT MET
+  RK1 V1: pass1=MET [Kill rate 5% or less; luna files 31% surface blockers] | pass2=NOT MET [Failure tables list effect, no probability per risk] | final=NOT MET
+  RK1 V2: pass1=MET [Rubber-stamp 41% non-defects; compliance 91.4%; 2.75-3.25 wrong blockers] | pass2=NOT MET [Failure tables list effect, no probability per risk] | final=NOT MET
+  RK3 V3: pass1=NOT MET [Killed CRS reviewer lost; helper failure unhandled] | pass2=MET [Verifier timeout leaves claims unverified, listed in follow-up] | final=NOT MET
+  RK4 V2: pass1=MET [Block-randomised order cancels gateway load drift] | pass2=NOT MET [Only gateway-load randomisation; no dependency failure handling] | final=NOT MET
+Completeness             V1=5/5 V2=5/5 V3=3/5
+Correctness              V1=3/5 V2=2/5 V3=1/5
+Structure                V1=5/5 V2=5/5 V3=4/5
+Clarity                  V1=5/5 V2=5/5 V3=3/5
+Risk Coverage            V1=4/5 V2=3/5 V3=2/5
+Invariant & Edge Case    V1=5/5 V2=4/5 V3=4/5
+TOTAL V1=27/30=0.9000 V2=24/30=0.8000 V3=17/30=0.5667
+pass1 raw {'V1': 29, 'V2': 26, 'V3': 17}
+pass2 raw {'V1': 28, 'V2': 27, 'V3': 18}

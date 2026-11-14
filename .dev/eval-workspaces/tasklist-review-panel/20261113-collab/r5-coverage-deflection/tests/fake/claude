@@ -1,0 +1,60 @@
+#!/usr/bin/env bash
+# Fake `claude` for the R5 tests (DESIGN 6). Never calls a model.
+# Scenario files in $FAKE_DIR, keyed by <key> = <model> (or <model>.reask on --resume) and an optional per-key call number <n>:
+#   <key>[.<n>].md       result text            <key>[.<n>].obs     observed model (default: the requested model)
+#   <key>[.<n>].sleep    seconds before output   <key>.calls         simulated main tool calls (hook run once per call)
+#   <key>.callgap        seconds between calls   <key>.agentcall     the call number that carries agent_id
+#   <key>.toolinput      JSON tool input written into the transcript   <key>.touch   a path to create (a "Bash" write)
+#   judge.nonjson        the judge prints non-JSON              judge.score.json  score the judge writes
+# Every invocation appends its arguments (one JSON array) to $FAKE_LOG; hook stdout goes to $FAKE_DIR/hookout.<model>.jsonl.
+set -u
+FD=${FAKE_DIR:?}; ARGS=("$@")
+printf '%s\n' "$(printf '%s\n' "${ARGS[@]}" | jq -R . | jq -sc .)" >> "${FAKE_LOG:-$FD/log.jsonl}"
+MODEL=""; FMT=json; SET=""; RES=""
+while [ $# -gt 0 ]; do
+  case "$1" in
+    --model) MODEL=$2; shift;; --output-format) FMT=$2; shift;; --settings) SET=$2; shift;; --resume) RES=$2; shift;;
+    --version) echo "9.9.9 (fake)"; exit 0;;
+  esac; shift
+done
+IN=$(cat)
+if grep -q 'blind scoring judge' <<<"$IN"; then
+  D=$(grep -oE 'Write JSON to [^ ]+/score.json' <<<"$IN" | head -1 | sed -E 's/^Write JSON to (.+)\/score.json$/\1/')
+  [ -f "$FD/judge.nonjson" ] && { echo "not json"; exit 0; }
+  cp "$FD/judge.score.json" "$D/score.json"
+  echo '[{"type":"result","result":"score.json written"}]'; exit 0
+fi
+KEY=$MODEL; [ -n "$RES" ] && KEY=$MODEL.reask
+exec 8>>"$FD/.lock"; flock 8; N=$(( $(cat "$FD/$KEY.count" 2>/dev/null || echo 0) + 1 )); echo $N > "$FD/$KEY.count"; flock -u 8
+pick() { if [ -f "$FD/$KEY.$N.$1" ]; then cat "$FD/$KEY.$N.$1"; elif [ -f "$FD/$KEY.$1" ]; then cat "$FD/$KEY.$1"; else printf '%s' "$2"; fi; }
+REPORT=$(pick md "no report"); OBS=$(pick obs "$MODEL"); SLEEP=$(pick sleep 0)
+# <key>.badpkg holds a package id: in that package's sandbox the result has no findings block
+[ -f "$FD/$KEY.badpkg" ] && case "$(pwd)" in *"$(cat "$FD/$KEY.badpkg")"*) REPORT="review: 1 of 3 (no findings block)";; esac
+SID=${RES:-$(cat /proc/sys/kernel/random/uuid)}
+PROJ=${CLAUDE_PROJECTS_DIR:-$HOME/.claude/projects}/$(pwd -P | sed 's/[^A-Za-z0-9]/-/g'); mkdir -p "$PROJ"; TR=$PROJ/$SID.jsonl
+TI=$(pick toolinput '{"file_path":"candidate.md"}')
+ts() { date -u +%Y-%m-%dT%H:%M:%S.%3NZ; }
+jq -nc --arg t "$(ts)" '{type:"user",timestamp:$t,message:{role:"user",content:"brief"}}' >> "$TR"
+jq -nc --arg t "$(ts)" --arg m "$OBS" --argjson ti "$TI" '{type:"assistant",timestamp:$t,message:{id:"m1",model:$m,content:[{type:"tool_use",name:"Read",input:$ti}]}}' >> "$TR"
+[ -f "$FD/$KEY.touch" ] && touch "$(cat "$FD/$KEY.touch")"
+if [ -n "$SET" ]; then
+  CMD=$(jq -r '.hooks.PostToolUse[0].hooks[0].command' "$SET")
+  CALLS=$(cat "$FD/$KEY.calls" 2>/dev/null || echo 0); GAP=$(cat "$FD/$KEY.callgap" 2>/dev/null || echo 0)
+  AG=$(cat "$FD/$KEY.agentcall" 2>/dev/null || echo 0)
+  for i in $(seq 1 "$CALLS"); do
+    A=""; [ "$i" = "$AG" ] && A=agent-1
+    jq -nc --arg s "$SID" --arg tp "$TR" --arg a "$A" --arg i "tu$i" \
+      '{session_id:$s,transcript_path:$tp,hook_event_name:"PostToolUse",tool_name:"Bash",tool_input:{command:"ls"},tool_use_id:$i} + (if $a=="" then {} else {agent_id:$a} end)' \
+      | env -i PATH=/usr/bin:/bin bash -c "$CMD" | while IFS= read -r l; do jq -nc --argjson c "$i" --arg o "$l" '{call:$c,out:$o}'; done >> "$FD/hookout.$MODEL.jsonl"
+    jq -nc --arg t "$(ts)" '{type:"user",timestamp:$t,message:{role:"user",content:[{type:"tool_result"}]}}' >> "$TR"
+    jq -nc --arg t "$(ts)" --arg m "$OBS" '{type:"assistant",timestamp:$t,message:{id:"m2",model:$m,content:[{type:"tool_use",name:"Bash",input:{command:"ls"}}]}}' >> "$TR"
+    sleep "$GAP"
+  done
+fi
+sleep "$SLEEP"
+jq -nc --arg t "$(ts)" '{type:"user",timestamp:$t,message:{role:"user",content:[{type:"tool_result"}]}}' >> "$TR"
+jq -nc --arg t "$(ts)" --arg m "$OBS" '{type:"assistant",timestamp:$t,message:{id:"m3",model:$m,content:[{type:"text",text:"report"}]}}' >> "$TR"
+ARR=$(jq -nc --arg m "$OBS" --arg r "$REPORT" --arg s "$SID" --argjson ti "$TI" '[{type:"system",subtype:"init"},
+  {type:"assistant",parent_tool_use_id:null,message:{model:$m,content:[{type:"tool_use",name:"Read",input:$ti}]}},
+  {type:"result",result:$r,session_id:$s,usage:{output_tokens:100},modelUsage:{($m):{outputTokens:100}}}]')
+if [ "$FMT" = stream-json ]; then jq -c '.[]' <<<"$ARR"; else printf '%s\n' "$ARR"; fi

@@ -1,0 +1,16 @@
+{
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "*",
+        "hooks": [
+          {
+            "type": "command",
+            "timeout": 10,
+            "command": "bash /home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/.dev/eval-workspaces/tasklist-review-panel/20261113-collab/r5-coverage-deflection/spikes/out/reqs3/20261113T210646Z/probe-hook.sh /home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/.dev/eval-workspaces/tasklist-review-panel/20261113-collab/r5-coverage-deflection/spikes/out/reqs3/20261113T210646Z/claude-haiku-5-5/finish-4 /home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/.dev/eval-workspaces/tasklist-review-panel/20261113-collab/r5-coverage-deflection/spikes/out/reqs3/20261113T210646Z/finish.txt 3"
+          }
+        ]
+      }
+    ]
+  }
+}

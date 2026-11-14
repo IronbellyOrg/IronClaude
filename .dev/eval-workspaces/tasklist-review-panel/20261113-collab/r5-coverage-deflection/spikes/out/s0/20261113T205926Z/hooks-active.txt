@@ -1,0 +1,18 @@
+user hooks (~/.claude/settings.json):
+  SessionStart: ~/.claude/hooks/session-init.sh | ~/.claude/hooks/freshness-session-start.sh | ~/.claude/skills/ccsession-tag/hooks/session-start.sh | ~/.claude/hooks/codegraph-session-start.sh | if [ -z "${HOME-}" ]; then case "${OSTYPE-}" in msys*|cygwin*|win32*) printf '{}\n'; if [ 
+  UserPromptSubmit: ~/.claude/hooks/freshness-user-prompt.sh | ~/.claude/skills/ccsession-tag/hooks/session-name.sh | ~/.claude/hooks/launch-level-guard.sh | if [ -z "${HOME-}" ]; then case "${OSTYPE-}" in msys*|cygwin*|win32*) printf '{}\n'; if [ 
+  Stop: if [ -z "${HOME-}" ]; then case "${OSTYPE-}" in msys*|cygwin*|win32*) printf '{}\n'; if [ 
+  StopFailure: if [ -z "${HOME-}" ]; then case "${OSTYPE-}" in msys*|cygwin*|win32*) printf '{}\n'; if [ 
+  SubagentStart: ~/.claude/hooks/freshness-subagent-start.sh | node "$HOME/.claude/hooks/pragmatic-subagent.js" | if [ -z "${HOME-}" ]; then case "${OSTYPE-}" in msys*|cygwin*|win32*) printf '{}\n'; if [ 
+  SubagentStop: ~/.claude/hooks/freshness-subagent-stop.sh | if [ -z "${HOME-}" ]; then case "${OSTYPE-}" in msys*|cygwin*|win32*) printf '{}\n'; if [ 
+  TeammateIdle: if [ -z "${HOME-}" ]; then case "${OSTYPE-}" in msys*|cygwin*|win32*) printf '{}\n'; if [ 
+  PreToolUse: ~/.claude/hooks/freshness-pre-edit.sh | ~/.claude/hooks/block-bare-python.sh | ~/.claude/hooks/require-orca-worktree-agent.sh | ~/.claude/hooks/launch-level-guard.sh | ~/.claude/hooks/launch-job-identity.sh | if [ -z "${HOME-}" ]; then case "${OSTYPE-}" in msys*|cygwin*|win32*) printf '{}\n'; if [ 
+  PostToolUse: ~/.claude/hooks/freshness-post-read.sh | ~/.claude/hooks/auggie-flag-clear.sh | if [ -z "${HOME-}" ]; then case "${OSTYPE-}" in msys*|cygwin*|win32*) printf '{}\n'; if [ 
+  PostToolUseFailure: if [ -z "${HOME-}" ]; then case "${OSTYPE-}" in msys*|cygwin*|win32*) printf '{}\n'; if [ 
+  PermissionRequest: if [ -z "${HOME-}" ]; then case "${OSTYPE-}" in msys*|cygwin*|win32*) printf '{}\n'; if [ 
+  PostCompact: if [ -n "${HOME-}" ] && [ -f "${HOME-}/.orca/agent-hooks/claude-hook.sh" ] && [ -r "${HOME
+  SessionEnd: ~/.claude/skills/ccsession-tag/hooks/session-name.sh | if [ -z "${HOME-}" ]; then case "${OSTYPE-}" in msys*|cygwin*|win32*) printf '{}\n'; if [ 
+  Elicitation: if [ -z "${HOME-}" ]; then case "${OSTYPE-}" in msys*|cygwin*|win32*) printf '{}\n'; if [ 
+  ElicitationResult: if [ -z "${HOME-}" ]; then case "${OSTYPE-}" in msys*|cygwin*|win32*) printf '{}\n'; if [ 
+project settings in sandbox: /tmp/evalsb-collab-r5/TASK-WF-design-20261108-041415/repo/.claude/settings.json 
+sandbox git status lines after S0: 0

@@ -1,0 +1,9 @@
+[
+  "ls",
+  "ls tests",
+  "ls docs",
+  "ls /tmp/panel-probe",
+  "ls src",
+  "ls scripts",
+  "ls .github"
+]

@@ -1,0 +1,246 @@
+{
+  "paths": [
+    ".claude/settings.json",
+    "docs/user-guide/commands.md",
+    "docs/user-guide/flags.md",
+    "scripts/retrigger-review.sh",
+    "src/superclaude/commands/pr-submit.md",
+    "src/superclaude/pr_submit/__init__.py",
+    "src/superclaude/pr_submit/conflicts.py",
+    "src/superclaude/pr_submit/fsm.py",
+    "src/superclaude/pr_submit/merge_guard.py",
+    "src/superclaude/pr_submit/models.py",
+    "src/superclaude/pr_submit/run_log.py",
+    "src/superclaude/skills/sc-pr-submit-protocol/SKILL.md",
+    "src/superclaude/skills/sc-pr-submit-protocol/refs/loop-guard.md",
+    "src/superclaude/skills/sc-pr-submit-protocol/refs/merge-guard.md",
+    "src/superclaude/skills/sc-pr-submit-protocol/refs/state-machine.md",
+    "src/superclaude/skills/sc-pr-submit-protocol/scripts/set-draft-state.sh",
+    "tests/cli/test_verify_sync_hooks.py",
+    "tests/pr_submit/test_autonomy_gates.py",
+    "tests/pr_submit/test_codex_reviews.py",
+    "tests/pr_submit/test_conflict_scripts.py",
+    "tests/pr_submit/test_conflict_sync_protocol.py",
+    "tests/pr_submit/test_cosmos_protocol.py",
+    "tests/pr_submit/test_idempotency.py",
+    "tests/pr_submit/test_merge_guard.py",
+    "tests/pr_submit/test_merge_guard_protocol.py",
+    "tests/pr_submit/test_merge_guard_scenarios.py",
+    "tests/pr_submit/test_run_log.py",
+    "tests/pr_submit/test_set_draft_state.py",
+    "tests/pr_submit/test_skill_parse.py",
+    "tests/pr_submit/test_static_grep.py",
+    "tests/skills/test_worker_contract.py",
+    "tests/unit/test_cli_install.py"
+  ],
+  "keys": [
+    "SKILL",
+    "commands",
+    "conflicts",
+    "flags",
+    "loop-guard",
+    "merge-guard",
+    "merge_guard",
+    "models",
+    "pr-submit",
+    "retrigger-review",
+    "run_log",
+    "set-draft-state",
+    "settings",
+    "state-machine",
+    "test_autonomy_gates",
+    "test_cli_install",
+    "test_codex_reviews",
+    "test_conflict_scripts",
+    "test_conflict_sync_protocol",
+    "test_cosmos_protocol",
+    "test_idempotency",
+    "test_merge_guard",
+    "test_merge_guard_protocol",
+    "test_merge_guard_scenarios",
+    "test_run_log",
+    "test_set_draft_state",
+    "test_skill_parse",
+    "test_static_grep",
+    "test_verify_sync_hooks",
+    "test_worker_contract"
+  ],
+  "task_of_path": {
+    ".claude/settings.json": [
+      "T13"
+    ],
+    "docs/user-guide/commands.md": [
+      "T13"
+    ],
+    "docs/user-guide/flags.md": [
+      "T13"
+    ],
+    "scripts/retrigger-review.sh": [
+      "T7"
+    ],
+    "src/superclaude/commands/pr-submit.md": [
+      "T1",
+      "T12"
+    ],
+    "src/superclaude/pr_submit/__init__.py": [
+      "T5"
+    ],
+    "src/superclaude/pr_submit/conflicts.py": [
+      "T3"
+    ],
+    "src/superclaude/pr_submit/fsm.py": [
+      "T6"
+    ],
+    "src/superclaude/pr_submit/merge_guard.py": [
+      "T11",
+      "T3",
+      "T4",
+      "T5"
+    ],
+    "src/superclaude/pr_submit/models.py": [
+      "T2"
+    ],
+    "src/superclaude/pr_submit/run_log.py": [
+      "T2",
+      "T5"
+    ],
+    "src/superclaude/skills/sc-pr-submit-protocol/SKILL.md": [
+      "T1",
+      "T10",
+      "T9"
+    ],
+    "src/superclaude/skills/sc-pr-submit-protocol/refs/loop-guard.md": [
+      "T2"
+    ],
+    "src/superclaude/skills/sc-pr-submit-protocol/refs/merge-guard.md": [
+      "T10",
+      "T8",
+      "T9"
+    ],
+    "src/superclaude/skills/sc-pr-submit-protocol/refs/state-machine.md": [
+      "T10"
+    ],
+    "src/superclaude/skills/sc-pr-submit-protocol/scripts/set-draft-state.sh": [
+      "T11",
+      "T7",
+      "T8"
+    ],
+    "tests/cli/test_verify_sync_hooks.py": [
+      "T13"
+    ],
+    "tests/pr_submit/test_autonomy_gates.py": [
+      "T6"
+    ],
+    "tests/pr_submit/test_codex_reviews.py": [
+      "T2",
+      "T9"
+    ],
+    "tests/pr_submit/test_conflict_scripts.py": [
+      "T7"
+    ],
+    "tests/pr_submit/test_conflict_sync_protocol.py": [
+      "T1",
+      "T12",
+      "T7",
+      "T9"
+    ],
+    "tests/pr_submit/test_cosmos_protocol.py": [
+      "T9"
+    ],
+    "tests/pr_submit/test_idempotency.py": [
+      "T2",
+      "T5"
+    ],
+    "tests/pr_submit/test_merge_guard.py": [
+      "T3",
+      "T4"
+    ],
+    "tests/pr_submit/test_merge_guard_protocol.py": [
+      "T10",
+      "T12",
+      "T8",
+      "T9"
+    ],
+    "tests/pr_submit/test_merge_guard_scenarios.py": [
+      "T11"
+    ],
+    "tests/pr_submit/test_run_log.py": [
+      "T2",
+      "T5"
+    ],
+    "tests/pr_submit/test_set_draft_state.py": [
+      "T11",
+      "T7"
+    ],
+    "tests/pr_submit/test_skill_parse.py": [
+      "T6"
+    ],
+    "tests/pr_submit/test_static_grep.py": [
+      "T1",
+      "T2",
+      "T5",
+      "T7",
+      "T8",
+      "T9"
+    ],
+    "tests/skills/test_worker_contract.py": [
+      "T1",
+      "T10",
+      "T12",
+      "T7",
+      "T8",
+      "T9"
+    ],
+    "tests/unit/test_cli_install.py": [
+      "T13"
+    ]
+  },
+  "tasks": [
+    "T1",
+    "T2",
+    "T3",
+    "T4",
+    "T5",
+    "T6",
+    "T7",
+    "T8",
+    "T9",
+    "T10",
+    "T11",
+    "T12",
+    "T13"
+  ],
+  "criterion_greps": [
+    "43",
+    "merge-guard"
+  ],
+  "root_files": [
+    ".env.example",
+    ".gitignore",
+    ".gitmodules",
+    ".markdownlint.json",
+    ".mcp.json",
+    ".pre-commit-config.yaml",
+    ".secrets.baseline",
+    "AGENTS.md",
+    "CHANGELOG.md",
+    "CLAUDE.md",
+    "CONTRIBUTING.md",
+    "KNOWLEDGE.md",
+    "LICENSE",
+    "Makefile",
+    "NOTICE",
+    "POST-REFLECT-TASK.md",
+    "PROJECT_INDEX.json",
+    "PROJECT_INDEX.md",
+    "README.md",
+    "SECURITY.md",
+    "VERSION",
+    "package.json",
+    "pyproject.toml",
+    "return-contract.yaml",
+    "superclaude",
+    "update.sh",
+    "uv.lock"
+  ]
+}

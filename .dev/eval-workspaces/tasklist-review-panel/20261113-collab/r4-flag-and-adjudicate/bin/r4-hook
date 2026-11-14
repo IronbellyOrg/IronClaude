@@ -1,0 +1,138 @@
+#!/usr/bin/env bash
+# r4-hook: PostToolUse hook for every reviewer of a collaboration run (design 2.3).
+# Prints nothing or one hookSpecificOutput object; always exits 0 (R-22). Reads no environment (R-21):
+# every value is a baked argument; frozen texts are found next to this script.
+set -u -o pipefail
+export LC_ALL=C.UTF-8
+exec 2>/dev/null
+HERE=$(cd "$(dirname "$0")" && pwd)
+FROZEN="$HERE/../frozen"
+CARDJQ="$HERE/../lib/card.jq"
+START=$(date +%s%3N)
+BOARD="" RID="" ROLE="" FLAGGER="" T0="" FIN="" K="" DELIVER="" C=""
+EMIT=""
+
+logev() { [ -n "$BOARD" ] && [ -n "$RID" ] && printf '%s\n' "$1" >> "$BOARD/metrics/$RID.jsonl" || true; }
+finish() {
+  local rc=$?
+  if [ "$rc" -ne 0 ]; then
+    logev "$(jq -nc --arg m "rc=$rc line=${ERRLINE:-?}" --argjson t "$(date +%s%3N)" '{ev:"hook_error",msg:$m,t:$t}')"
+  elif [ -n "$EMIT" ]; then
+    printf '%s\n' "$EMIT"
+  fi
+  logev "$(jq -nc --argjson ms "$(( $(date +%s%3N) - START ))" '{ev:"hook_ms",ms:$ms}')"
+  exit 0
+}
+trap finish EXIT
+trap 'ERRLINE=$LINENO; exit 3' ERR
+
+while [ $# -gt 0 ]; do
+  case "$1" in
+    --board) BOARD=$2 ;; --rid) RID=$2 ;; --role) ROLE=$2 ;; --flagger) FLAGGER=$2 ;;
+    --t0-ms) T0=$2 ;; --finish-ms) FIN=$2 ;; --k) K=$2 ;; --deliver) DELIVER=$2 ;; --c) C=$2 ;;
+    *) exit 3 ;;
+  esac
+  shift 2
+done
+
+# 1. hook input
+INPUT=$(cat)
+IFS=$'\t' read -r TP AGENT < <(printf '%s' "$INPUT" | jq -r '[(.transcript_path // ""), (.agent_id // "")] | @tsv') || true
+TP=${TP:-}; AGENT=${AGENT:-}
+
+incr() { # incr <file>: add one under a lock and set VAL; a non-integer content is a hook error
+  local f=$1 v
+  exec 8>"$f.lock"; flock 8
+  v=0; [ -e "$f" ] && v=$(cat "$f")
+  [[ "$v" =~ ^[0-9]+$ ]] || { ERRLINE=$LINENO; exit 3; }
+  v=$((v + 1)); printf '%s\n' "$v" > "$f"
+  exec 8>&-
+  VAL=$v
+}
+VAL=0
+
+# 2. a tool call inside a subagent: count apart, deliver nothing
+if [ -n "$AGENT" ]; then
+  incr "$BOARD/state/$RID.subcalls"
+  logev '{"ev":"subagent_call"}'
+  exit 0
+fi
+
+# 3. main-thread call counter
+incr "$BOARD/state/$RID.calls"; CALLS=$VAL
+NOW=$(date +%s%3N)
+
+# 4. finish signal, once per reviewer; nothing is delivered afterwards (R-41)
+if [ "$NOW" -ge "$FIN" ]; then
+  if [ ! -e "$BOARD/state/$RID.finished" ]; then
+    echo "$NOW" > "$BOARD/state/$RID.finished"
+    logev "$(jq -nc --argjson t "$NOW" '{ev:"finish_signal",t:$t}')"
+    EMIT=$(jq -c '{hookSpecificOutput:{hookEventName:"PostToolUse",additionalContext:.finish}}' "$FROZEN/templates.json")
+  fi
+  exit 0
+fi
+
+# 5. the flagger receives nothing
+[ "$ROLE" = flagger ] && exit 0
+
+# 6. delivery gates. A reviewer's parallel tool calls fire hooks at the same time, so steps 6-10 run one at a time per
+# reviewer (lock held until exit); without it a card is delivered twice and the seal race sets nosnap.
+[ "$DELIVER" = 1 ] || exit 0
+[ "$CALLS" -ge 6 ] || exit 0
+exec 9>"$BOARD/state/$RID.deliver.lock"; flock 9
+NOW=$(date +%s%3N)
+[ "$NOW" -lt "$FIN" ] || exit 0  # the lock wait may have crossed the finish time (R-41)
+[ -e "$BOARD/state/$RID.nosnap" ] && exit 0
+DELIV="$BOARD/state/$RID.delivered"
+ND=0; [ -f "$DELIV" ] && ND=$(wc -l < "$DELIV")
+[ "$ND" -lt "$K" ] || exit 0
+
+# 7. first valid, writer-accepted card dealt to this reviewer and not yet delivered
+MSGS="$BOARD/msgs/$FLAGGER.jsonl"
+[ -f "$MSGS" ] || exit 0
+ACCEPTED=$(jq -r 'select(.ev=="post_accepted") | .sha256' "$BOARD/metrics/$FLAGGER.jsonl" 2>/dev/null || true)
+CARD=""
+while IFS= read -r line || [ -n "$line" ]; do
+  [ "$(printf '%s' "$line" | LC_ALL=C wc -c)" -le 600 ] || continue
+  [ -n "$(printf '%s\n' "$line" | jq -R -r --arg flagger "$FLAGGER" -f "$CARDJQ")" ] || continue
+  sha=$(printf '%s' "$line" | sha256sum | cut -d' ' -f1)
+  grep -qxF "$sha" <<<"$ACCEPTED" || continue
+  IFS=$'\t' read -r id to < <(printf '%s' "$line" | jq -r '[.id, .to] | @tsv')
+  [ "$to" = "$RID" ] || continue
+  [ -f "$DELIV" ] && grep -q "^$id " "$DELIV" && continue
+  CARD=$line; break
+done < "$MSGS"
+[ -n "$CARD" ] || exit 0
+
+# 8. seal before the first delivery; fail closed on the seal, open on the review
+if [ ! -e "$BOARD/snap/$RID.sha256" ]; then
+  if ! { [ -n "$TP" ] && [ -r "$TP" ] && cp "$TP" "$BOARD/snap/$RID.jsonl" \
+         && (cd "$BOARD/snap" && sha256sum "$RID.jsonl") > "$BOARD/snap/$RID.sha256.tmp" \
+         && mv "$BOARD/snap/$RID.sha256.tmp" "$BOARD/snap/$RID.sha256"; }; then
+    : > "$BOARD/state/$RID.nosnap" || true
+    rm -f "$BOARD/snap/$RID.sha256.tmp" || true
+    logev "$(jq -nc --argjson t "$(date +%s%3N)" '{ev:"snapshot_missing",t:$t}')"
+    exit 0
+  fi
+  logev "$(jq -nc --argjson t "$(date +%s%3N)" '{ev:"seal",t:$t}')"
+fi
+
+# 9. render: form from the card index and the run coin (R-35)
+I=${id#c}
+if [ $(( (I + I / 2 + C) % 2 )) -eq 0 ]; then FORM=challenge; else FORM=finding; fi
+TEXT=$(jq -r --arg form "$FORM" --argjson card "$CARD" --slurpfile moves "$FROZEN/moves.json" '
+  .[$form] | split("{id}") | join($card.id)
+  | split("{move_text}") | join($moves[0][$card.move])
+  | split("{category}") | join($card.category)
+  | split("{severity}") | join($card.severity)
+  | split("{anchor}") | join($card.anchor)' "$FROZEN/templates.json")
+if [ "${#TEXT}" -gt 1500 ]; then
+  logev "$(jq -nc --arg m "rendered card over 1500 characters" '{ev:"hook_error",msg:$m}')"
+  exit 0
+fi
+
+# 10. record and deliver
+echo "$id $NOW $FORM" >> "$DELIV"
+logev "$(jq -nc --arg c "$id" --arg f "$FORM" --argjson t "$NOW" --argjson call "$CALLS" '{ev:"delivery",card:$c,form:$f,t:$t,call:$call}')"
+EMIT=$(jq -nc --arg ctx "$TEXT" '{hookSpecificOutput:{hookEventName:"PostToolUse",additionalContext:$ctx}}')
+exit 0

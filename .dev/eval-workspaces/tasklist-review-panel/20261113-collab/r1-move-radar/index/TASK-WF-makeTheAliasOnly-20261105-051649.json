@@ -1,0 +1,251 @@
+{
+  "paths": [
+    "docs/designs/sc-issue-command.md",
+    "docs/developer-guide/SuperClaude-Developer-Guide-Commands-Skills-Agents.md",
+    "docs/reference/README.md",
+    "docs/reference/model-aliases.md",
+    "docs/testing/v5.0.0/user/D12-reflect.md",
+    "docs/user-guide/brainstorm.md",
+    "docs/user-guide/commands.md",
+    "plugins/superclaude/skills/sc-implement-protocol/refs/ledger.md",
+    "plugins/superclaude/skills/sc-implement-protocol/refs/retry.md",
+    "src/superclaude/agents/audit-scanner.md",
+    "src/superclaude/agents/issue-worker-t1.md",
+    "src/superclaude/agents/issue-worker-t2.md",
+    "src/superclaude/agents/issue-worker-t3.md",
+    "src/superclaude/cli/cli_portify/steps/discover_components.py",
+    "src/superclaude/cli/reflect/commands.py",
+    "src/superclaude/cli/sprint/aienv.py",
+    "src/superclaude/commands/cleanup-audit.md",
+    "src/superclaude/skills/ccsession-tag/MODEL-TIERS.md",
+    "src/superclaude/skills/ccsession-tag/ccsession",
+    "src/superclaude/skills/ccsession-tag/ccsession-models.json",
+    "src/superclaude/skills/ccsession-tag/models.py",
+    "src/superclaude/skills/sc-cleanup-audit-protocol/SKILL.md",
+    "src/superclaude/skills/sc-cleanup-audit-protocol/templates/final-report.md",
+    "src/superclaude/skills/sc-implement-protocol/refs/ledger.md",
+    "src/superclaude/skills/sc-implement-protocol/refs/retry.md",
+    "src/superclaude/skills/sc-implement-protocol/scripts/archive_workspace.py",
+    "src/superclaude/skills/sc-issue-protocol/refs/chains.md",
+    "src/superclaude/skills/sc-issue-protocol/refs/tiers.md",
+    "tests/cli_portify/test_discover_components.py",
+    "tests/skills/test_implement_adviser_family.py",
+    "tests/skills/test_issue_protocol.py",
+    "tests/skills/test_issue_worker_agents.py",
+    "tests/skills/test_model_alias_policy.py",
+    "tests/skills/test_task_workspace_lifecycle.py",
+    "tests/skills/test_workflow_archive.py",
+    "tests/sprint/test_aienv.py",
+    "tests/swarm/test_coder_tier_env_2026_10.py",
+    "tests/unit/test_ccsession_tiers.py"
+  ],
+  "keys": [
+    "D12-reflect",
+    "MODEL-TIERS",
+    "README",
+    "SKILL",
+    "SuperClaude-Developer-Guide-Commands-Skills-Agents",
+    "aienv",
+    "archive_workspace",
+    "audit-scanner",
+    "brainstorm",
+    "ccsession",
+    "ccsession-models",
+    "chains",
+    "cleanup-audit",
+    "commands",
+    "discover_components",
+    "final-report",
+    "issue-worker-t1",
+    "issue-worker-t2",
+    "issue-worker-t3",
+    "ledger",
+    "model-aliases",
+    "models",
+    "retry",
+    "sc-issue-command",
+    "test_aienv",
+    "test_ccsession_tiers",
+    "test_coder_tier_env_2026_10",
+    "test_discover_components",
+    "test_implement_adviser_family",
+    "test_issue_protocol",
+    "test_issue_worker_agents",
+    "test_model_alias_policy",
+    "test_task_workspace_lifecycle",
+    "test_workflow_archive",
+    "tiers"
+  ],
+  "task_of_path": {
+    "docs/designs/sc-issue-command.md": [
+      "T3"
+    ],
+    "docs/developer-guide/SuperClaude-Developer-Guide-Commands-Skills-Agents.md": [
+      "T7"
+    ],
+    "docs/reference/README.md": [
+      "T6"
+    ],
+    "docs/reference/model-aliases.md": [
+      "T1",
+      "T3",
+      "T6",
+      "T7",
+      "T8"
+    ],
+    "docs/testing/v5.0.0/user/D12-reflect.md": [
+      "T1",
+      "T2"
+    ],
+    "docs/user-guide/brainstorm.md": [
+      "T7"
+    ],
+    "docs/user-guide/commands.md": [
+      "T7"
+    ],
+    "plugins/superclaude/skills/sc-implement-protocol/refs/ledger.md": [
+      "T5"
+    ],
+    "plugins/superclaude/skills/sc-implement-protocol/refs/retry.md": [
+      "T5"
+    ],
+    "src/superclaude/agents/audit-scanner.md": [
+      "T1",
+      "T4"
+    ],
+    "src/superclaude/cli/cli_portify/steps/discover_components.py": [
+      "T4"
+    ],
+    "src/superclaude/cli/reflect/commands.py": [
+      "T1",
+      "T2"
+    ],
+    "src/superclaude/cli/sprint/aienv.py": [
+      "T6"
+    ],
+    "src/superclaude/commands/cleanup-audit.md": [
+      "T1",
+      "T4"
+    ],
+    "src/superclaude/skills/ccsession-tag/MODEL-TIERS.md": [
+      "T6"
+    ],
+    "src/superclaude/skills/ccsession-tag/ccsession": [
+      "T9"
+    ],
+    "src/superclaude/skills/ccsession-tag/ccsession-models.json": [
+      "T1"
+    ],
+    "src/superclaude/skills/ccsession-tag/models.py": [
+      "T9"
+    ],
+    "src/superclaude/skills/sc-cleanup-audit-protocol/SKILL.md": [
+      "T4"
+    ],
+    "src/superclaude/skills/sc-cleanup-audit-protocol/templates/final-report.md": [
+      "T4"
+    ],
+    "src/superclaude/skills/sc-implement-protocol/refs/ledger.md": [
+      "T5"
+    ],
+    "src/superclaude/skills/sc-implement-protocol/refs/retry.md": [
+      "T1",
+      "T5"
+    ],
+    "src/superclaude/skills/sc-implement-protocol/scripts/archive_workspace.py": [
+      "T5"
+    ],
+    "src/superclaude/skills/sc-issue-protocol/refs/chains.md": [
+      "T1",
+      "T3"
+    ],
+    "src/superclaude/skills/sc-issue-protocol/refs/tiers.md": [
+      "T1",
+      "T7"
+    ],
+    "tests/cli_portify/test_discover_components.py": [
+      "T4"
+    ],
+    "tests/skills/test_implement_adviser_family.py": [
+      "T5"
+    ],
+    "tests/skills/test_issue_protocol.py": [
+      "T3",
+      "T7"
+    ],
+    "tests/skills/test_issue_worker_agents.py": [
+      "T1",
+      "T3",
+      "T7"
+    ],
+    "tests/skills/test_model_alias_policy.py": [
+      "T1",
+      "T2",
+      "T3",
+      "T4",
+      "T5",
+      "T6",
+      "T8"
+    ],
+    "tests/skills/test_task_workspace_lifecycle.py": [
+      "T5"
+    ],
+    "tests/skills/test_workflow_archive.py": [
+      "T5"
+    ],
+    "tests/sprint/test_aienv.py": [
+      "T8"
+    ],
+    "tests/swarm/test_coder_tier_env_2026_10.py": [
+      "T8"
+    ],
+    "tests/unit/test_ccsession_tiers.py": [
+      "T9"
+    ]
+  },
+  "tasks": [
+    "T1",
+    "T2",
+    "T3",
+    "T4",
+    "T5",
+    "T6",
+    "T7",
+    "T8",
+    "T9"
+  ],
+  "criterion_greps": [
+    "--models",
+    "Haiku",
+    "claude-opus-4-8",
+    "sk-|token="
+  ],
+  "root_files": [
+    ".env.example",
+    ".gitignore",
+    ".gitmodules",
+    ".markdownlint.json",
+    ".mcp.json",
+    ".pre-commit-config.yaml",
+    ".secrets.baseline",
+    "AGENTS.md",
+    "CHANGELOG.md",
+    "CLAUDE.md",
+    "CONTRIBUTING.md",
+    "KNOWLEDGE.md",
+    "LICENSE",
+    "Makefile",
+    "NOTICE",
+    "POST-REFLECT-TASK.md",
+    "PROJECT_INDEX.json",
+    "PROJECT_INDEX.md",
+    "README.md",
+    "SECURITY.md",
+    "VERSION",
+    "package.json",
+    "pyproject.toml",
+    "return-contract.yaml",
+    "superclaude",
+    "update.sh"
+  ]
+}

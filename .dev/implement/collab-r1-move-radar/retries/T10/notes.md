@@ -1,0 +1,5 @@
+cac0f6915072cd2936a43e34329b3995b96f7f15
+A1 r1-1 F1.1 note .dev/eval-workspaces/tasklist-review-panel/20261113-collab/r1-move-radar/IMPLEMENTATION.md:131 ac=T10.AC1 n,n,n,n the clause 'a reviewer's next-turn reading gave luna 1.0, haiku 0.33' had no record in R1; reworded to say the stored within-session field is the closest measure and no next-turn rate is stored
+A1 r1-1 F1.2 minor .dev/eval-workspaces/tasklist-review-panel/20261113-collab/r1-move-radar/IMPLEMENTATION.md:107 ac=T10.AC1 n,n,n,n hook_cancelled evidence sits only in /tmp snapshots, not in R1; the doc now says so
+A1 r1-1 F1.3 minor .dev/eval-workspaces/tasklist-review-panel/20261113-collab/r1-move-radar/IMPLEMENTATION.md:73 ac=T10.AC1 n,n,n,n the Spike 4 recipe did not say that el2-c0-r1..r3 are the collab-0 baselines of reps 1-3 (a finished row is never re-run); the doc now says so
+A1 r1-1 F1.4 minor .dev/eval-workspaces/tasklist-review-panel/20261113-collab/r1-move-radar/IMPLEMENTATION.md:139 ac=T10.AC1 n,n,n,n condition 3 is decided as seal_t <= first_delivery_t plus event order, not strictly before; added to the deviation list

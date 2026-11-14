@@ -1,0 +1,3 @@
+{"items": [
+ {"id": "GT1", "class": "unpassable-ac", "blocking_in_implement": true, "description": "fixture", "plan_quote": "The guard keeps every retry visible to the operator"},
+ {"id": "GT2", "class": "contradiction", "blocking_in_implement": false, "description": "fixture", "plan_quote": "Edit `docs/guide.md` and `CHANGELOG.md`"}]}

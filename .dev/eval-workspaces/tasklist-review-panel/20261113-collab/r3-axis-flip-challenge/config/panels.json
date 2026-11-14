@@ -1,0 +1,17 @@
+{
+ "el2": {"label": "ember + 2x luna",
+   "searcher": {"rid": "t2b-1", "model": "muse-ember-1.0", "style": "search", "cap": 3},
+   "readers":  [{"rid": "t4-1", "model": "gpt-6-luna", "style": "reading", "cap": 2},
+                {"rid": "t3-1", "model": "gpt-6-luna", "style": "reading", "cap": 2}],
+   "box_cap_s": 35, "critical_role": "readers"},
+ "sl2": {"label": "sonnet + 2x luna",
+   "searcher": {"rid": "t1b-1", "model": "claude-sonnet-5-5", "style": "search", "cap": 3},
+   "readers":  [{"rid": "t4-1", "model": "gpt-6-luna", "style": "reading", "cap": 2},
+                {"rid": "t3-1", "model": "gpt-6-luna", "style": "reading", "cap": 2}],
+   "box_cap_s": null, "critical_role": "searcher"},
+ "hl2": {"label": "haiku + 2x luna",
+   "searcher": {"rid": "t2-1", "model": "claude-haiku-5-5", "style": "search", "cap": 3},
+   "readers":  [{"rid": "t4-1", "model": "gpt-6-luna", "style": "reading", "cap": 2},
+                {"rid": "t3-1", "model": "gpt-6-luna", "style": "reading", "cap": 2}],
+   "box_cap_s": null, "critical_role": "searcher"}
+}

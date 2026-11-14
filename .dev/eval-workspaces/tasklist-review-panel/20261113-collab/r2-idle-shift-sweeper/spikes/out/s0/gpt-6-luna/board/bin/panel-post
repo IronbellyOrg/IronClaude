@@ -1,0 +1,28 @@
+#!/usr/bin/bash
+# panel-post: the sweeper's only way to write the board (baked per package by run-package.sh).
+# usage: panel-post --move M1 --cmd '<command>' [--anchor '<plan phrase>'] [--n <int>] --item <path[:line]> [--item ...]
+PATH=/usr/bin:/bin
+BOARD=/tmp/evalsb-collab-r2/board/s0-8bed0f11/TASK-WF-design-20261108-041415
+LIB=/home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/.dev/eval-workspaces/tasklist-review-panel/20261113-collab/r2-idle-shift-sweeper/bin/lib
+JQ=/usr/bin/jq
+. "$LIB/common.sh"
+move="" cmd="" anchor="" n="" items=()
+have_anchor=0 have_n=0
+while [ $# -gt 0 ]; do
+  case "$1" in
+    --move) move=${2-}; shift 2 || { echo "rejected: bad_args"; exit 1; };;
+    --cmd) cmd=${2-}; shift 2 || { echo "rejected: bad_args"; exit 1; };;
+    --anchor) anchor=${2-}; have_anchor=1; shift 2 || { echo "rejected: bad_args"; exit 1; };;
+    --n) n=${2-}; have_n=1; shift 2 || { echo "rejected: bad_args"; exit 1; };;
+    --item) items+=("${2-}"); shift 2 || { echo "rejected: bad_args"; exit 1; };;
+    *) echo "rejected: unknown_flag:$1"; exit 1;;
+  esac
+done
+if [ $have_n = 1 ] && ! [[ $n =~ ^[0-9]+$ ]]; then echo "rejected: bad_n"; exit 1; fi
+# rank items: unnamed tests, then root-level documents, then the rest (stable)
+ranked=$(for i in "${!items[@]}"; do printf '%s\t%05d\t%s\n' "$(rank_class "${items[$i]}" "$BOARD/named.txt")" "$i" "${items[$i]}"; done | sort -t$'\t' -k1,1n -k2,2n | cut -f3-)
+partial=$("$JQ" -cn --arg move "$move" --arg cmd "$cmd" --arg anchor "$anchor" --argjson ha $have_anchor \
+  --argjson hn $have_n --arg n "${n:-0}" --arg items "$ranked" \
+  '{move:$move} + (if $ha == 1 then {anchor:$anchor} else {} end)
+   + {items:($items|split("\n")|map(select(length>0)))} + (if $hn == 1 then {n:($n|tonumber)} else {} end) + {cmd:$cmd}')
+board_post "$BOARD" sw-1 "$partial"

@@ -1,0 +1,214 @@
+{
+  "claude-haiku-5-5": {
+    "model": "claude-haiku-5-5",
+    "sessions": [
+      {
+        "session_id": "e691d50a-900a-48e5-9663-4f0032c20bb1",
+        "observed_model": "claude-haiku-5-5",
+        "exit": 0,
+        "wall_ms": 137592,
+        "main_calls": 8,
+        "item_injected": true,
+        "item_acted_next_call": false,
+        "item_acted_later": true,
+        "finish_injected": true,
+        "further_calls_after_finish": 0,
+        "finish_acted": true,
+        "session_ended_at_finish_call": true
+      },
+      {
+        "session_id": "c992f55f-6de3-4964-9c92-c7b77e467549",
+        "observed_model": "claude-haiku-5-5",
+        "exit": 0,
+        "wall_ms": 222252,
+        "main_calls": 8,
+        "item_injected": true,
+        "item_acted_next_call": false,
+        "item_acted_later": false,
+        "finish_injected": true,
+        "further_calls_after_finish": 0,
+        "finish_acted": true,
+        "session_ended_at_finish_call": true
+      },
+      {
+        "session_id": "d398b034-3481-4543-a412-6d6097f040ec",
+        "observed_model": "claude-haiku-5-5",
+        "exit": 0,
+        "wall_ms": 185838,
+        "main_calls": 8,
+        "item_injected": true,
+        "item_acted_next_call": false,
+        "item_acted_later": false,
+        "finish_injected": true,
+        "further_calls_after_finish": 0,
+        "finish_acted": true,
+        "session_ended_at_finish_call": true
+      }
+    ],
+    "n_sessions": 3,
+    "item_reached": 3,
+    "item_act_rate": 0,
+    "item_act_rate_within_session": 0.3333333333333333,
+    "finish_reached": 3,
+    "finish_act_rate": 1
+  },
+  "claude-sonnet-5-5": {
+    "model": "claude-sonnet-5-5",
+    "sessions": [
+      {
+        "session_id": "21e5cfa5-73b2-440f-a3ca-f5e87a106d98",
+        "observed_model": "claude-sonnet-5-5",
+        "exit": 0,
+        "wall_ms": 448973,
+        "main_calls": 8,
+        "item_injected": true,
+        "item_acted_next_call": true,
+        "item_acted_later": false,
+        "finish_injected": true,
+        "further_calls_after_finish": 0,
+        "finish_acted": true,
+        "session_ended_at_finish_call": true
+      },
+      {
+        "session_id": "1b699ae3-6d50-46fd-a20b-e89a8bb6a6dc",
+        "observed_model": "claude-sonnet-5-5",
+        "exit": 0,
+        "wall_ms": 469597,
+        "main_calls": 8,
+        "item_injected": true,
+        "item_acted_next_call": true,
+        "item_acted_later": false,
+        "finish_injected": true,
+        "further_calls_after_finish": 0,
+        "finish_acted": true,
+        "session_ended_at_finish_call": true
+      },
+      {
+        "session_id": "5c237fd6-48cb-4a77-8634-90e6ab59bc93",
+        "observed_model": "claude-sonnet-5-5",
+        "exit": 0,
+        "wall_ms": 447112,
+        "main_calls": 8,
+        "item_injected": true,
+        "item_acted_next_call": true,
+        "item_acted_later": false,
+        "finish_injected": true,
+        "further_calls_after_finish": 0,
+        "finish_acted": true,
+        "session_ended_at_finish_call": true
+      }
+    ],
+    "n_sessions": 3,
+    "item_reached": 3,
+    "item_act_rate": 1,
+    "item_act_rate_within_session": 1,
+    "finish_reached": 3,
+    "finish_act_rate": 1
+  },
+  "gpt-6-luna": {
+    "model": "gpt-6-luna",
+    "sessions": [
+      {
+        "session_id": "ca2a1596-62cc-4705-a19b-976db20aa76d",
+        "observed_model": "gpt-6-luna",
+        "exit": 0,
+        "wall_ms": 55578,
+        "main_calls": 8,
+        "item_injected": true,
+        "item_acted_next_call": false,
+        "item_acted_later": true,
+        "finish_injected": true,
+        "further_calls_after_finish": 0,
+        "finish_acted": true,
+        "session_ended_at_finish_call": true
+      },
+      {
+        "session_id": "dc624ec7-1193-4880-817a-53d88ba12bbb",
+        "observed_model": "gpt-6-luna",
+        "exit": 0,
+        "wall_ms": 64342,
+        "main_calls": 9,
+        "item_injected": true,
+        "item_acted_next_call": false,
+        "item_acted_later": true,
+        "finish_injected": true,
+        "further_calls_after_finish": 1,
+        "finish_acted": true,
+        "session_ended_at_finish_call": false
+      },
+      {
+        "session_id": "94515bd2-f8f7-459f-8574-3e994a6a038b",
+        "observed_model": "gpt-6-luna",
+        "exit": 0,
+        "wall_ms": 70950,
+        "main_calls": 9,
+        "item_injected": true,
+        "item_acted_next_call": true,
+        "item_acted_later": false,
+        "finish_injected": true,
+        "further_calls_after_finish": 1,
+        "finish_acted": true,
+        "session_ended_at_finish_call": false
+      }
+    ],
+    "n_sessions": 3,
+    "item_reached": 3,
+    "item_act_rate": 0.3333333333333333,
+    "item_act_rate_within_session": 1,
+    "finish_reached": 3,
+    "finish_act_rate": 1
+  },
+  "muse-ember-1.0": {
+    "model": "muse-ember-1.0",
+    "sessions": [
+      {
+        "session_id": "965daa15-52c0-467f-a1f0-3407ce980223",
+        "observed_model": "muse-ember-1.0",
+        "exit": 0,
+        "wall_ms": 42549,
+        "main_calls": 15,
+        "item_injected": true,
+        "item_acted_next_call": true,
+        "item_acted_later": false,
+        "finish_injected": true,
+        "further_calls_after_finish": 7,
+        "finish_acted": false,
+        "session_ended_at_finish_call": false
+      },
+      {
+        "session_id": "5e6d757c-077e-4b7f-9a01-5e37648dc205",
+        "observed_model": "muse-ember-1.0",
+        "exit": 0,
+        "wall_ms": 27457,
+        "main_calls": 8,
+        "item_injected": true,
+        "item_acted_next_call": true,
+        "item_acted_later": false,
+        "finish_injected": true,
+        "further_calls_after_finish": 0,
+        "finish_acted": true,
+        "session_ended_at_finish_call": true
+      },
+      {
+        "session_id": "1492737b-2841-43dc-8361-96bec9d37842",
+        "observed_model": "muse-ember-1.0",
+        "exit": 0,
+        "wall_ms": 36893,
+        "main_calls": 12,
+        "item_injected": true,
+        "item_acted_next_call": true,
+        "item_acted_later": false,
+        "finish_injected": true,
+        "further_calls_after_finish": 4,
+        "finish_acted": false,
+        "session_ended_at_finish_call": false
+      }
+    ],
+    "n_sessions": 3,
+    "item_reached": 3,
+    "item_act_rate": 1,
+    "item_act_rate_within_session": 1,
+    "finish_reached": 3,
+    "finish_act_rate": 0.3333333333333333
+  }
+}

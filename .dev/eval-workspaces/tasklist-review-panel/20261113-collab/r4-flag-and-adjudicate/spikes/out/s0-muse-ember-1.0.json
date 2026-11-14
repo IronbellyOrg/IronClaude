@@ -1,0 +1,85 @@
+{
+  "model": "muse-ember-1.0",
+  "note": "rebuilt from the raw hook logs; the script assembly failed after session 5 died (Claude Code self-update)",
+  "sessions": [
+    {
+      "model": "muse-ember-1.0",
+      "session": "sess1",
+      "work_dir": "/tmp/collab-r4/s0-muse-ember-1.0-1794604945/sess1",
+      "usable": true,
+      "main_calls": 8,
+      "subagent_calls": 1,
+      "snapshot_at_call2": "ok",
+      "transcript_readable": true,
+      "hook_ms_max": 25,
+      "failing_step5_fired": false,
+      "call4": "ls docs | head -5",
+      "act": false,
+      "calls_after_finish": [
+        "wc -l README.md",
+        "Agent"
+      ],
+      "finish_act": false
+    },
+    {
+      "model": "muse-ember-1.0",
+      "session": "sess2",
+      "work_dir": "/tmp/collab-r4/s0-muse-ember-1.0-1794604945/sess2",
+      "usable": true,
+      "main_calls": 7,
+      "subagent_calls": 0,
+      "snapshot_at_call2": "ok",
+      "transcript_readable": true,
+      "hook_ms_max": 27,
+      "failing_step5_fired": false,
+      "call4": "ls docs | head -5",
+      "act": false,
+      "calls_after_finish": [
+        "wc -l README.md"
+      ],
+      "finish_act": false
+    },
+    {
+      "model": "muse-ember-1.0",
+      "session": "sess3",
+      "work_dir": "/tmp/collab-r4/s0-muse-ember-1.0-1794604945/sess3",
+      "usable": true,
+      "main_calls": 7,
+      "subagent_calls": 0,
+      "snapshot_at_call2": "ok",
+      "transcript_readable": true,
+      "hook_ms_max": 24,
+      "failing_step5_fired": false,
+      "call4": "ls docs | head -5",
+      "act": false,
+      "calls_after_finish": [
+        "wc -l README.md"
+      ],
+      "finish_act": false
+    },
+    {
+      "model": "muse-ember-1.0",
+      "session": "sess4",
+      "work_dir": "/tmp/collab-r4/s0-muse-ember-1.0-1794604945/sess4",
+      "usable": true,
+      "main_calls": 7,
+      "subagent_calls": 0,
+      "snapshot_at_call2": "ok",
+      "transcript_readable": true,
+      "hook_ms_max": 22,
+      "failing_step5_fired": false,
+      "call4": "ls docs | head -5",
+      "act": false,
+      "calls_after_finish": [
+        "wc -l README.md"
+      ],
+      "finish_act": false
+    },
+    {
+      "model": "muse-ember-1.0",
+      "session": "sess5",
+      "usable": false,
+      "error": "/usr/local/bin/claude: 6: exec: /opt/nvm/versions/node/v24.22.2/bin/claude: not found"
+    }
+  ]
+}

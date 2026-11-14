@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+# Test stub: FAKE_PGREP_TOTAL / FAKE_PGREP_EMBER answer the admission counts; anything else goes to the real pgrep.
+if [ "${1:-}" = -fc ] && [ -n "${FAKE_PGREP_TOTAL:-}" ]; then
+  case "$2" in *muse-ember-1.0*) echo "${FAKE_PGREP_EMBER:-0}"; [ "${FAKE_PGREP_EMBER:-0}" -gt 0 ];; *) echo "$FAKE_PGREP_TOTAL"; [ "$FAKE_PGREP_TOTAL" -gt 0 ];; esac
+  exit
+fi
+exec /usr/bin/pgrep "$@"

@@ -1,0 +1,10 @@
+{
+  "allowed_models": ["muse-ember-1.0", "gpt-6-luna", "claude-haiku-5-5", "claude-sonnet-5-5", "grok-4.7"],
+  "TIER": {"t1b-1": "tier1b", "t2-1": "tier2", "t2b-1": "tier2b", "t3-1": "tier3", "t4-1": "tier4", "t4-2": "tier4"},
+  "ALIAS": {"t1b-1": "claude-gw-tier1b[1m]", "t2-1": "claude-gw-tier2[1m]", "t2b-1": "claude-gw-tier2b[1m]", "t3-1": "claude-gw-tier3[1m]", "t4-1": "claude-gw-tier4[1m]", "t4-2": "claude-gw-tier4[1m]"},
+  "panels": {
+    "EL2": {"flagger": {"rid": "t2b-1", "model": "muse-ember-1.0"}, "adjudicators": [{"rid": "t4-1", "model": "gpt-6-luna"}, {"rid": "t3-1", "model": "gpt-6-luna"}], "cp_role": "adjudicator", "planning": {"B": 116, "turn": 6.4, "rep": 6.4}},
+    "SL2": {"flagger": {"rid": "t1b-1", "model": "claude-sonnet-5-5"}, "adjudicators": [{"rid": "t4-1", "model": "gpt-6-luna"}, {"rid": "t3-1", "model": "gpt-6-luna"}], "cp_role": "flagger", "planning": {"B": 273.7, "turn": 14, "rep": 14}},
+    "HL2": {"flagger": {"rid": "t2-1", "model": "claude-haiku-5-5"}, "adjudicators": [{"rid": "t4-1", "model": "gpt-6-luna"}, {"rid": "t3-1", "model": "gpt-6-luna"}], "cp_role": "flagger", "planning": {"B": 238, "turn": 23, "rep": 23}}
+  }
+}

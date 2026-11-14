@@ -1,0 +1,21 @@
+{
+  "model": "claude-sonnet-5-5",
+  "fresh_session": "e357cc25-50f3-41a9-989b-9d774da39f58",
+  "fresh_model_ok": true,
+  "fresh_s": 12.389,
+  "resume_rc": 0,
+  "resume_session": "e357cc25-50f3-41a9-989b-9d774da39f58",
+  "same_session": true,
+  "resume_model_ok": true,
+  "resume_s": 6.471,
+  "resume_assistant_events": 1,
+  "killed_rc": 0,
+  "killed_assistant_events": 5,
+  "killed_text_events": 2,
+  "transcript_timestamps": true,
+  "pass": true,
+  "killed_mid_answer": false,
+  "kill_text_ok": false,
+  "resume_pass": true,
+  "pass_rule": "recomputed 21:2x with the 15.4 kill condition (luna required)"
+}

@@ -1,0 +1,11 @@
+return_contract:
+  merged_output_path: "/home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/.dev/brainstorms/20261113-223124-panel-process-redesign/nested/adversarial-1/merged-spec.md"
+  convergence_score: 0.9756        # strict: 40 of 41 diff points; 1.0 compatible; Round 1 was 0.7317
+  artifacts_dir: "/home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/.dev/brainstorms/20261113-223124-panel-process-redesign/nested/adversarial-1/adversarial"
+  status: "success"
+  base_variant: "sonnet:analyzer"  # won the tiebreaker (score margin 0.0482 < 0.05; 35 of 41 diff points)
+  unresolved_conflicts: 0
+  fallback_mode: false
+  failure_stage: null
+  invocation_method: "skill-direct"
+  unaddressed_invariants: []       # 14 INV findings (6 HIGH) all resolved in the merged text; verified by merge-review-2.md

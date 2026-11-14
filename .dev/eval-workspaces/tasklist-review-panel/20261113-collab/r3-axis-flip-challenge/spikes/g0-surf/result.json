@@ -1,0 +1,54 @@
+{
+ "share": {
+  "muse-ember-1.0": {
+   "n": 44,
+   "match_share": 0.22727272727272727
+  },
+  "gpt-6-luna": {
+   "n": 42,
+   "match_share": 0.16666666666666666
+  }
+ },
+ "overall": 0.19767441860465115,
+ "matches": [
+  "An implementer who follows the stated text as written writes `./artifacts/owner-manual-check.md` in the candidate package, and that is wrong because the constraints permit edits only under four other directory trees.",
+  "Task 12 artifacts path is ambiguous between package artifacts (staged) and repo-root artifacts (never staged); the phrase in this package resolves it toward the staged location.",
+  "These launcher line references are stale in the reviewed checkout, so the follow-up spec must verify and correct them before quoting the anchors.",
+  "The live HOW-WE-WORK.md already carries the new wording at the /sc:issue row, so the cited line and phrase are stale.",
+  "Launcher line anchors have drifted after the pending merge; the spec already marks them re-verify.",
+  "The required line-numbered launcher anchors point to profile parsing and an HTTP request in the checked-out launcher, so the follow-up spec cannot truthfully satisfy the anchor requirement as written.",
+  "The RUNGS and _rt line numbers cited for Task 5 have shifted and require a search rather than a direct jump.",
+  "An implementer who follows the stated text as written builds a plan execution that writes `./artifacts/owner-manual-check.md` and `./artifacts/t12-checks.log` outside the permitted directories, and that is wrong because the plan’s constraint forbids edits outside its listed paths.",
+  "Cited line numbers have drifted in the live files; only tasks that repeat the re-read instruction are explicit about it.",
+  "ccsession line anchors do not match current file; re-verify hedge covers this",
+  "The required launcher anchors do not match the current branch base, so the launcher-follow-up spec cannot satisfy the acceptance criterion for accurate quoted line references.",
+  "Task 12's artifacts path sits outside the Constraints' allowed edit roots; the intended artifacts location is never pinned.",
+  "The required line-numbered anchor is not the tier-mode block in the current launcher, and the launcher already exports the three model variables with [1m] suffixes, so the specified follow-up would document existing behavior inaccurately and prescribe different values.",
+  "The specified base-commit line references point to profile argument parsing and an HTTP request rather than the tier-mode block and custom-option exports, so the follow-up spec would anchor its implementation instructions to unrelated code.",
+  "The stated line numbers are stale, so the builder must search by name instead of line.",
+  "Task line numbers are stale against the live repo and the candidate relies on re-reading.",
+  "Task 9 line anchors for the launcher are stale and quote unrelated code if followed without re-verification."
+ ],
+ "non_matches": [
+  "Task 11's exact event order omits reply and resolve events that Task 8 orders between release and re-trigger, so a full-protocol driver fails it.",
+  "Without specifying the single-select option-name comparison, an implementation could compare the returned option ID with the desired name and report a successfully set field as missing.",
+  "Task 12 requires artifact files outside every location the plan permits editing.",
+  "The Wave 3 minting instruction and the Wave 8 CI engagement instruction leave it unclear whether a CI-fix cycle is engaged once or twice and where its cycle ID is assigned.",
+  "Task 12 requires writing an artifact outside the candidate’s expressly allowed edit locations.",
+  "The two-write limit excludes the mode label even though the goal and Task 1 require applying it.",
+  "Keeping the maintainer lines verbatim preserves the <owner/repo> placeholder the Constraints forbid; the plan never tells the implementer to rewrite them to <R>.",
+  "No task ensures the release-gate statement is included in the actual PR body when the user supplies an arbitrary body.",
+  "The required unchanged-tree run cannot fail exactly seven tests in the reviewed checkout because the existing policy test file runs green with 13 passed.",
+  "The live return-contract test already asserts three YAML blocks, so the described change is already in place.",
+  "The specified allow-list omits two existing review-tier data files containing `claude-gw-tier`, so a literal implementation of the policy test flags them unless the allow-list is expanded.",
+  "Task 12 output path sits outside the edit-only folders, so the two rules point at different folders.",
+  "Wave 0 bullet wording forces a guess about whether the required L3 off line may name L3.",
+  "The same check already exists in that test file, so the new test would be a duplicate.",
+  "The required sync command copies source files into `.claude/`, contradicting the explicit prohibition on editing that directory.",
+  "Task 12 lacks dependencies on Tasks 9 and 10 despite editing the same protocol and classification files.",
+  "The document leaves unclear whether outside a tier workspace inherited alias variables may remain present.",
+  "resume_decision's stated signature lacks the applied_edits, target_sha and cycle_id that release_decision needs, so row 4 behavior is unspecified.",
+  "Third-block value semantics (read-back names or null; classification_missing without prefix) are never stated, so a wrong value shape passes all candidate acceptance criteria.",
+  "The grep acceptance criterion is worded as a claim check while a literal grep for 43 still matches the retained 42nd-43rd comment."
+ ]
+}

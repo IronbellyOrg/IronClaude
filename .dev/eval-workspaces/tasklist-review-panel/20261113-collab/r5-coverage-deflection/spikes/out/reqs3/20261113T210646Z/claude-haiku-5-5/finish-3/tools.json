@@ -1,0 +1,8 @@
+[
+  "ls",
+  "ls tests",
+  "ls docs",
+  "ls src",
+  "ls scripts",
+  "ls .github"
+]

@@ -1,0 +1,7 @@
+{
+  "n": 5,
+  "injected": 5,
+  "acted": 4,
+  "model_ok": 5,
+  "not_injected_tool_calls": []
+}

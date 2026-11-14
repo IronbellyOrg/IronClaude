@@ -1,0 +1,146 @@
+{
+ "row": "smoke-a1-el2-1",
+ "arm": "A1",
+ "all_ok": true,
+ "failed": [],
+ "checks": {
+  "model_ok x3": {
+   "ok": true,
+   "detail": {
+    "t2b-1": "muse-ember-1.0",
+    "t4-1": "gpt-6-luna",
+    "t3-1": "gpt-6-luna"
+   }
+  },
+  "dropped_lines=0": {
+   "ok": true,
+   "detail": {
+    "t2b-1": 0,
+    "t4-1": 0,
+    "t3-1": 0
+   }
+  },
+  "final_ok x3": {
+   "ok": true,
+   "detail": ""
+  },
+  "exists merged-1.md": {
+   "ok": true,
+   "detail": ""
+  },
+  "exists scoring/merged-anon.md": {
+   "ok": true,
+   "detail": ""
+  },
+  "exists scoring/score.json": {
+   "ok": true,
+   "detail": ""
+  },
+  "anonymiser clean": {
+   "ok": true,
+   "detail": ""
+  },
+  "package status ok": {
+   "ok": true,
+   "detail": "ok"
+  },
+  "collab.json keys": {
+   "ok": true,
+   "detail": []
+  },
+  "audit_ok": {
+   "ok": true,
+   "detail": []
+  },
+  "harness_text_gt_overlap=0": {
+   "ok": true,
+   "detail": ""
+  },
+  "sandbox_clean + candidate_sha_ok": {
+   "ok": true,
+   "detail": ""
+  },
+  "board_lines_invalid=0": {
+   "ok": true,
+   "detail": ""
+  },
+  "no QUARANTINED": {
+   "ok": true,
+   "detail": ""
+  },
+  "nothing under EVAL newer than run start": {
+   "ok": true,
+   "detail": []
+  },
+  "no /tmp/jdg.* left (this row's)": {
+   "ok": true,
+   "detail": []
+  },
+  "results row keys (5.2)": {
+   "ok": true,
+   "detail": []
+  },
+  "results row valid false (single package)": {
+   "ok": true,
+   "detail": ""
+  },
+  "no board dir in run": {
+   "ok": true,
+   "detail": ""
+  },
+  "no board dir under SBR": {
+   "ok": true,
+   "detail": ""
+  },
+  "no --settings (meta settings false)": {
+   "ok": true,
+   "detail": [
+    [
+     "t2b-1",
+     null,
+     1
+    ],
+    [
+     "t4-1",
+     null,
+     1
+    ],
+    [
+     "t3-1",
+     null,
+     1
+    ]
+   ]
+  },
+  "cards 0": {
+   "ok": true,
+   "detail": ""
+  }
+ },
+ "elapsed_s": {
+  "DE": 110.041
+ },
+ "cards": {
+  "cards_sent": 0,
+  "cards_delivered": 0,
+  "ledger_rows": 2,
+  "overhead_pct": -5.14
+ },
+ "judge": {
+  "found_14": null
+ },
+ "package": {
+  "status": "ok",
+  "label": "YVIZ",
+  "gt_covered_any": [],
+  "gt_covered_blocking": [],
+  "real_blocking": [],
+  "wrong_blockers": 1,
+  "ledger_rows_total": 2,
+  "ledger_rows_blocking": 1,
+  "output_tokens": 22753,
+  "slo_breach": false,
+  "dropped_lines": 0,
+  "reask_count": 0
+ }
+}

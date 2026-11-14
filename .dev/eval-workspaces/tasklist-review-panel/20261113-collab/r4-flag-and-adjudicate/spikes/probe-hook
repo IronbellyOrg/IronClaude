@@ -1,0 +1,29 @@
+#!/usr/bin/env bash
+# probe-hook --log <dir>: spike-only PostToolUse hook (design 6.3). Logs every hook input with its time,
+# snapshots the transcript at main-thread call 2 (copy + sha256), injects "run ls /tmp/panel-probe" after
+# call 3 and the frozen finish text after call 6. Same output contract as r4-hook; always exits 0.
+set -u -o pipefail
+exec 2>/dev/null
+HERE=$(cd "$(dirname "$0")/.." && pwd)
+LOG=""; [ "${1:-}" = --log ] && LOG=$2
+S=$(date +%s%3N)
+IN=$(cat)
+mkdir -p "$LOG"
+exec 9>"$LOG/lock"; flock 9
+AGENT=$(jq -r '.agent_id // ""' <<<"$IN")
+N=0
+if [ -z "$AGENT" ]; then N=$(( $(cat "$LOG/calls" 2>/dev/null || echo 0) + 1 )); echo "$N" > "$LOG/calls"; fi
+TP=$(jq -r '.transcript_path // ""' <<<"$IN")
+OUT=""
+if [ "$N" = 2 ]; then
+  if [ -r "$TP" ] && cp "$TP" "$LOG/snap.jsonl" && sha256sum "$LOG/snap.jsonl" > "$LOG/snap.sha256"; then echo ok > "$LOG/snap.status"; else echo fail > "$LOG/snap.status"; fi
+fi
+[ "$N" = 3 ] && OUT=$(jq -nc '{hookSpecificOutput:{hookEventName:"PostToolUse",additionalContext:"run ls /tmp/panel-probe"}}')
+[ "$N" = 6 ] && OUT=$(jq -c '{hookSpecificOutput:{hookEventName:"PostToolUse",additionalContext:.finish}}' "$HERE/frozen/templates.json")
+RD=false; [ -n "$TP" ] && [ -r "$TP" ] && RD=true
+jq -c --argjson n "$N" --argjson t "$S" --argjson ms "$(( $(date +%s%3N) - S ))" --arg inj "$OUT" --argjson rd $RD \
+  '{n:$n,t:$t,hook_ms:$ms,injected:($inj!=""),agent_id:(.agent_id//null),tool_name:(.tool_name//null),
+    tool_input:(.tool_input//null),tool_response:((.tool_response//null)|tostring|.[0:300]),transcript_path:(.transcript_path//null),
+    transcript_readable:$rd,input_keys:keys}' <<<"$IN" >> "$LOG/inputs.jsonl"
+[ -n "$OUT" ] && printf '%s\n' "$OUT"
+exit 0

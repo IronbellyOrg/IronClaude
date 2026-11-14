@@ -1,0 +1,2 @@
+index_state=fresh access=mcp checked_at=2026-11-13T20:27:14Z worktree_root=/home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel projectPath=/home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel
+resume-run: index_state=fresh access=mcp checked_at=2026-11-13T22:09:09Z worktree_root=/home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel projectPath=/home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel

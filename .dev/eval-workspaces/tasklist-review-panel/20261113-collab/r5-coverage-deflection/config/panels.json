@@ -1,0 +1,92 @@
+{
+  "sl2": {
+    "name": "sonnet + 2x luna",
+    "baseline": "SL2",
+    "reviewers": [
+      {
+        "rid": "t1b-1",
+        "model": "claude-sonnet-5-5",
+        "role": "receiver"
+      },
+      {
+        "rid": "t4-1",
+        "model": "gpt-6-luna",
+        "role": "scout"
+      },
+      {
+        "rid": "t3-1",
+        "model": "gpt-6-luna",
+        "role": "scout"
+      }
+    ],
+    "receiver_turn_planning_s": 14,
+    "receiver_report_planning_s": 14,
+    "planning_B_s": {
+      "TASK-WF-designSpec-20261107-075614": 259,
+      "TASK-WF-makeTheAliasOnly-20261105-051649": 302,
+      "TASK-WF-design-20261108-041415": 269
+    },
+    "min_calls": 6,
+    "deal": "single"
+  },
+  "hl2": {
+    "name": "haiku + 2x luna",
+    "baseline": "HL2",
+    "reviewers": [
+      {
+        "rid": "t4-1",
+        "model": "claude-haiku-5-5",
+        "role": "receiver"
+      },
+      {
+        "rid": "t4-2",
+        "model": "gpt-6-luna",
+        "role": "scout"
+      },
+      {
+        "rid": "t3-1",
+        "model": "gpt-6-luna",
+        "role": "scout"
+      }
+    ],
+    "receiver_turn_planning_s": 23,
+    "receiver_report_planning_s": 23,
+    "planning_B_s": {
+      "TASK-WF-designSpec-20261107-075614": 220,
+      "TASK-WF-makeTheAliasOnly-20261105-051649": 238,
+      "TASK-WF-design-20261108-041415": 226
+    },
+    "min_calls": 6,
+    "deal": "single"
+  },
+  "el2": {
+    "name": "ember + 2x luna",
+    "baseline": "EL2",
+    "reviewers": [
+      {
+        "rid": "t4-1",
+        "model": "gpt-6-luna",
+        "role": "receiver"
+      },
+      {
+        "rid": "t3-1",
+        "model": "gpt-6-luna",
+        "role": "receiver"
+      },
+      {
+        "rid": "t2b-1",
+        "model": "muse-ember-1.0",
+        "role": "scout"
+      }
+    ],
+    "receiver_turn_planning_s": 6.4,
+    "receiver_report_planning_s": 6.4,
+    "planning_B_s": {
+      "TASK-WF-designSpec-20261107-075614": 100,
+      "TASK-WF-makeTheAliasOnly-20261105-051649": 120,
+      "TASK-WF-design-20261108-041415": 122
+    },
+    "min_calls": 6,
+    "deal": "split"
+  }
+}

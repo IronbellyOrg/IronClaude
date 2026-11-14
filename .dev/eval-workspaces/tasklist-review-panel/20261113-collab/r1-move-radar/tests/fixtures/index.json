@@ -1,0 +1,4 @@
+{"paths":["src/app/merge_guard.py","src/app/core.py","tests/app/test_core.py","docs/guide.md","CHANGELOG.md"],
+ "keys":["merge_guard","core","test_core","guide","CHANGELOG"],
+ "task_of_path":{"src/app/merge_guard.py":["T1"],"src/app/core.py":["T1"],"docs/guide.md":["T2"],"tests/app/test_core.py":["T3"]},
+ "tasks":["T1","T2","T3"],"criterion_greps":["merge_guard","HOW-WE-WORK"],"root_files":["CHANGELOG.md","Makefile"]}

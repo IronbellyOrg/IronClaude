@@ -1,0 +1,39 @@
+{
+ "share": {
+  "muse-ember-1.0": {
+   "n": 44,
+   "match_share": 0.0
+  },
+  "gpt-6-luna": {
+   "n": 42,
+   "match_share": 0.047619047619047616
+  }
+ },
+ "overall": 0.023255813953488372,
+ "matches": [
+  "An implementer who follows the stated text as written writes `./artifacts/owner-manual-check.md` in the candidate package, and that is wrong because the constraints permit edits only under four other directory trees.",
+  "An implementer who follows the stated text as written builds a plan execution that writes `./artifacts/owner-manual-check.md` and `./artifacts/t12-checks.log` outside the permitted directories, and that is wrong because the plan’s constraint forbids edits outside its listed paths."
+ ],
+ "non_matches": [
+  "The required sync command copies source files into `.claude/`, contradicting the explicit prohibition on editing that directory.",
+  "The required sync writes files under `.claude/`, which the plan simultaneously forbids editing.",
+  "Task 9 line anchors for the launcher are stale and quote unrelated code if followed without re-verification.",
+  "The src-only constraint literally forbids the docs and tests edits the later tasks require.",
+  "The required launcher anchors do not match the current branch base, so the launcher-follow-up spec cannot satisfy the acceptance criterion for accurate quoted line references.",
+  "Wave 0 bullet wording forces a guess about whether the required L3 off line may name L3.",
+  "An implementer who follows the stated text as written runs `make sync-dev`, and that is wrong because the same plan forbids editing `.claude/`, where the sync writes generated copies.",
+  "Task 8 orgs regex test does not state that a bare orgs/ prose token is not a path; a naive regex would over-match, the live test already excludes it.",
+  "The required line-numbered anchor is not the tier-mode block in the current launcher, and the launcher already exports the three model variables with [1m] suffixes, so the specified follow-up would document existing behavior inaccurately and prescribe different values.",
+  "Keeping the maintainer lines verbatim preserves the <owner/repo> placeholder the Constraints forbid; the plan never tells the implementer to rewrite them to <R>.",
+  "Resume lacks the target SHA or event data needed to verify that the fix push is the PR head, so it cannot safely meet the required release behavior.",
+  "Resume cannot verify that the held cycle's expected target SHA matches the PR head because neither its planned inputs nor folded guard state provide that SHA, so the required landed or published resume release cannot be safely implemented.",
+  "Task 12's artifacts path sits outside the Constraints' allowed edit roots; the intended artifacts location is never pinned.",
+  "The same check already exists in that test file, so the new test would be a duplicate.",
+  "Without specifying the single-select option-name comparison, an implementation could compare the returned option ID with the desired name and report a successfully set field as missing.",
+  "The test rule allows two spellings of the orgs path while the create rule names one.",
+  "Constraint 23 rules out the required mode label and Wave 5 pushback comment, so the plan's requirements cannot all be followed.",
+  "The specified resume inputs omit the held cycle's target SHA, so resume cannot verify the live PR head against it and cannot safely release as required.",
+  "The required tier-text test fails on existing tier identifiers in src/superclaude/cli/review/data/, which the specified allow-list omits.",
+  "The live return-contract test already asserts three YAML blocks, so the described change is already in place."
+ ]
+}

@@ -1,0 +1,28 @@
+{
+  "spike": "S3",
+  "command": "R3_SMOKE=1 NOFALLBACK=1 PANEL_COLLAB=1 bash bin/launch-panel.sh el2 --pkgs TASK-WF-design-20261108-041415",
+  "runs": {
+    "collab1": "runs/el2-c1-20261113T210019Z-b40c",
+    "collab0": "runs/el2-c0-20261113T210437Z-169d"
+  },
+  "exit": {
+    "collab1": 0,
+    "collab0": 0
+  },
+  "h2_dropped_lines": 0,
+  "p2_model_ok": {
+    "t2b-1": true,
+    "t4-1": true,
+    "t3-1": true
+  },
+  "p2_tokens_from_stream": {
+    "t2b-1": 16062,
+    "t4-1": 5132,
+    "t3-1": "none (killed at the phase-2 deadline, no result event)"
+  },
+  "merge_ok": true,
+  "anon_ok": true,
+  "judge_ok": true,
+  "audit_violations": 0,
+  "pass": true
+}

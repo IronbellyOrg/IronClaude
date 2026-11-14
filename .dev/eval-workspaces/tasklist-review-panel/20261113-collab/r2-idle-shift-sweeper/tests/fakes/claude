@@ -1,0 +1,202 @@
+#!/usr/bin/env -S uv run --no-project --script
+# /// script
+# requires-python = ">=3.10"
+# ///
+"""Fake `claude -p` for the R2 tests. Replays scripted tool calls, piping PostToolUse JSON into every hook command
+found in --settings (the real hooks), and prints output in the shape RR:50-53 parses.
+
+Scenario: JSON file named by FAKE_CLAUDE_SCENARIO (else $R2_SBR/fake-scenario.json), {"entries": {key: entry}}.
+Keys tried in order: "<model>#<rid>" (rid from the --settings hook command), "<model>@resume", "<model>@<n>"
+(n-th call of that model), "<model>", "default". Entry fields: model_reported, sleep_before, hang, tool_calls
+[{tool,input,response,sleep,run}], loop_until_ms, posts [[panel-post args]], read_delivered, rerun_delivered,
+rerun_output, report, exit_code, output_tokens.
+"""
+import datetime
+import fcntl
+import json
+import os
+import re
+import shlex
+import subprocess
+import sys
+import time
+import uuid
+from pathlib import Path
+
+
+def argv_parse(argv):
+    a = {"model": None, "fmt": "text", "settings": None, "resume": None, "verbose": False}
+    i = 0
+    while i < len(argv):
+        t = argv[i]
+        if t == "--model":
+            a["model"] = argv[i + 1]; i += 2
+        elif t == "--output-format":
+            a["fmt"] = argv[i + 1]; i += 2
+        elif t == "--settings":
+            a["settings"] = argv[i + 1]; i += 2
+        elif t == "--resume":
+            a["resume"] = argv[i + 1]; i += 2
+        elif t == "--permission-mode":
+            i += 2
+        elif t == "--disallowedTools":
+            i += 1
+            while i < len(argv) and not argv[i].startswith("--"):
+                i += 1
+        elif t == "--verbose":
+            a["verbose"] = True; i += 1
+        else:
+            i += 1
+    return a
+
+
+def now_iso():
+    return datetime.datetime.now(datetime.timezone.utc).isoformat().replace("+00:00", "Z")
+
+
+def main():
+    args = argv_parse(sys.argv[1:])
+    brief = sys.stdin.read()
+    sbr = os.environ.get("R2_SBR", "/tmp/evalsb-collab-r2")
+    scen_p = Path(os.environ.get("FAKE_CLAUDE_SCENARIO") or f"{sbr}/fake-scenario.json")
+    scen = json.loads(scen_p.read_text()) if scen_p.exists() else {"entries": {}}
+    state = Path(os.environ.get("FAKE_CLAUDE_STATE") or "/tmp/collab-r2/fake-state")
+    state.mkdir(parents=True, exist_ok=True)
+    model = args["model"] or "default"
+    hooks, rid = [], None
+    if args["settings"]:
+        s = json.loads(Path(args["settings"]).read_text())
+        for grp in s.get("hooks", {}).get("PostToolUse", []):
+            for h in grp.get("hooks", []):
+                hooks.append(h)
+                m = re.search(r"--rid (\S+)", h["command"])
+                rid = m.group(1) if m else ("sw" if "harvest-hook" in h["command"] else rid)
+    # per-model call counter under an exclusive lock: parallel fakes must never read a half-written file
+    with open(state / f"count-{model}", "a+") as cf:
+        fcntl.flock(cf, fcntl.LOCK_EX)
+        cf.seek(0)
+        n = int(cf.read().strip() or 0) + 1
+        cf.seek(0)
+        cf.truncate()
+        cf.write(str(n))
+    keys = ([f"{model}#{rid}"] if rid else []) + ([f"{model}@resume"] if args["resume"] else []) + \
+        [f"{model}@{n}", model, "default"]
+    entry = next((scen["entries"][k] for k in keys if k in scen.get("entries", {})), {})
+    log = os.environ.get("FAKE_CLAUDE_LOG")
+    if log:
+        with open(log, "a") as f:
+            f.write(json.dumps({"argv": sys.argv[1:], "cwd": os.getcwd(), "t": int(time.time() * 1000),
+                                "rid": rid, "key": next((k for k in keys if k in scen.get("entries", {})), None),
+                                "brief_head": brief[:200]}) + "\n")
+    rep_model = entry.get("model_reported", model)
+    sid = args["resume"] or str(uuid.uuid4())
+    proj = Path(os.environ.get("FAKE_CLAUDE_PROJECTS") or "/tmp/collab-r2/fake-projects") / re.sub(r"[^A-Za-z0-9]", "-", os.getcwd())
+    proj.mkdir(parents=True, exist_ok=True)
+    tpath = proj / f"{sid}.jsonl"
+    stream = args["fmt"] == "stream-json"
+    out = []
+
+    def emit(ev, transcript=True):
+        out.append(ev)
+        if transcript:
+            with open(tpath, "a") as f:
+                f.write(json.dumps({**ev, "timestamp": now_iso(), "sessionId": sid}) + "\n")
+        if stream:
+            print(json.dumps(ev), flush=True)
+
+    emit({"type": "system", "subtype": "init", "session_id": sid, "model": rep_model}, transcript=False)
+    time.sleep(float(entry.get("sleep_before", 0)))
+    if entry.get("hang"):
+        time.sleep(3600)
+    deliveries = []
+    post_bin = None
+    m = re.search(r"(\S+/bin/panel-post) --move", brief)
+    if m:
+        post_bin = m.group(1)
+    calls = [dict(c) for c in entry.get("tool_calls", [])]
+    for p in entry.get("posts", []):
+        calls.append({"tool": "Bash", "input": {"command": f"{post_bin} " + shlex.join(p)}, "run": True})
+    for c in entry.get("pre_post_calls", []):
+        calls.insert(0, dict(c))
+    idx = 0
+    pending = []
+    loop_until = entry.get("loop_until_ms")
+
+    def run_call(c):
+        nonlocal idx
+        idx += 1
+        time.sleep(float(c.get("sleep", 0)))
+        tid = f"toolu_{idx:04d}"
+        emit({"type": "assistant", "message": {"model": rep_model, "content": [
+            {"type": "tool_use", "id": tid, "name": c["tool"], "input": c["input"]}]}, "parent_tool_use_id": None})
+        resp = c.get("response")
+        if resp is None:
+            if c["tool"] == "Bash" and c.get("run"):
+                r = subprocess.run(["bash", "-c", c["input"]["command"]], capture_output=True, text=True)
+                resp = {"stdout": r.stdout, "stderr": r.stderr}
+            elif c["tool"] == "Read":
+                fp = Path(c["input"].get("file_path", ""))
+                resp = fp.read_text() if fp.is_file() else "File does not exist."
+            else:
+                resp = ""
+        text = resp["stdout"] if isinstance(resp, dict) and "stdout" in resp else (resp if isinstance(resp, str) else json.dumps(resp))
+        for h in hooks:
+            payload = {"session_id": sid, "transcript_path": str(tpath), "cwd": os.getcwd(),
+                       "hook_event_name": "PostToolUse", "tool_name": c["tool"], "tool_input": c["input"],
+                       "tool_response": resp}
+            try:
+                r = subprocess.run(["bash", "-c", h["command"]], input=json.dumps(payload), capture_output=True,
+                                   text=True, timeout=h.get("timeout", 60))
+                o = r.stdout.strip()
+            except subprocess.TimeoutExpired:
+                o = ""
+            if o:
+                try:
+                    ctx = json.loads(o)["hookSpecificOutput"]["additionalContext"]
+                except (json.JSONDecodeError, KeyError, TypeError):
+                    ctx = None
+                if ctx:
+                    deliveries.append(ctx)
+                    emit({"type": "system", "subtype": "hook_additional_context", "content": ctx})
+                    pm = re.search(r"^Paths: (.+)$", ctx, re.M)
+                    cm = re.search(r"^Command: (.+)$", ctx, re.M)
+                    if entry.get("read_delivered") and pm:
+                        p0 = pm.group(1).split(", ")[0].split(":")[0]
+                        pending.append({"tool": "Read", "input": {"file_path": str(Path.cwd() / p0)}})
+                    if entry.get("rerun_delivered") and cm:
+                        rc = {"tool": "Bash", "input": {"command": cm.group(1)}, "run": True}
+                        if "rerun_output" in entry:
+                            rc["response"] = {"stdout": entry["rerun_output"]}
+                        pending.append(rc)
+        emit({"type": "user", "message": {"content": [{"type": "tool_result", "tool_use_id": tid, "content": text}]}})
+
+    for c in calls:
+        run_call(c)
+        while pending:
+            run_call(pending.pop(0))
+    filler = entry.get("loop_call", {"tool": "Bash", "input": {"command": "ls"}, "response": {"stdout": "x"}, "sleep": 0.2})
+    while loop_until and time.time() * 1000 < loop_until:
+        run_call(filler)
+        while pending:
+            run_call(pending.pop(0))
+    report = entry.get("report")
+    if report is None and entry.get("report_file"):
+        report = Path(entry["report_file"]).read_text()
+    if report is None:
+        report = "done"
+    if deliveries:
+        pm = re.search(r"^Paths: ([^,\n]+)", deliveries[0], re.M)
+        report = report.replace("{DELIVERED_PATH}", pm.group(1) if pm else "")
+    toks = int(entry.get("output_tokens", 100))
+    emit({"type": "assistant", "message": {"model": rep_model, "content": [{"type": "text", "text": report}]},
+          "parent_tool_use_id": None})
+    emit({"type": "result", "subtype": "success", "result": report, "session_id": sid,
+          "usage": {"output_tokens": toks}, "modelUsage": {rep_model: {"outputTokens": toks}},
+          "deliveries": deliveries}, transcript=False)
+    if not stream:
+        print(json.dumps(out))
+    sys.exit(int(entry.get("exit_code", 0)))
+
+
+if __name__ == "__main__":
+    main()

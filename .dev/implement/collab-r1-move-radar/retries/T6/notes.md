@@ -1,0 +1,4 @@
+b6de60bca78d4bd884af1b3721cebe4d62c50bb9
+A1 r1-1 F1.2 note .dev/eval-workspaces/tasklist-review-panel/20261113-collab/r1-move-radar/tools/launch.sh:75 ac=T6.AC1 n,n,n,n resume skipped every package with a status file; fixed in the same attempt (only status ok is skipped, other attempts are kept aside as <pkg>.prev-<epoch>)
+A2 r2-1 F2.1 minor .dev/eval-workspaces/tasklist-review-panel/20261113-collab/r1-move-radar/tools/cleanup-sessions.sh:14 ac=T6.AC1 n,n,n,n a package kept aside as <pkg>.prev-<epoch> has its session files logged ABSENT by cleanup-sessions.sh (it builds the project dir from SB/<pkg>.prev-<epoch>); orphan transcripts only
+A2 r2-1 F2.2 minor .dev/eval-workspaces/tasklist-review-panel/20261113-collab/r1-move-radar/spikes/spike4.sh:14 ac=T6.AC1 n,n,n,n spike4.sh prints 'finished with a failing package' also when launch.sh refused with exit 2

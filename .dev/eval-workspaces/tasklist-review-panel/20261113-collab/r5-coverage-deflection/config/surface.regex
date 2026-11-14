@@ -1,0 +1,1 @@
+artifact|\b(?:file|output|log|package|repo(?:sitory)?|absolute|relative)\s+paths?\b|\bdirector(?:y|ies)\b|\bedit(?:s|ing)?\s+(?:scope|locations?|paths?|under)\b|\b(?:allowed|permitted|edit)\s+(?:paths|locations|scope)\b|\boutside\s+(?:the|its|their|this)\b|\bsha-?256\b|\bhash(?:es)?\b|\bchecksum|\bline[- ]numbers?\b|\blines?\s+\d+

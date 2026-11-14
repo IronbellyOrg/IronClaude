@@ -1,0 +1,7 @@
+# Lint config for this folder only: extends the repository rules; B, K and N are the design's own symbols
+# (B_A1, k, N), and lib/values.py is pinned by frozen/pins.sha256, so it is not renamed.
+extend = "../../../../../pyproject.toml"
+
+[lint.per-file-ignores]
+"lib/*.py" = ["N803", "N806"]
+"tests/*.py" = ["N803", "N806"]

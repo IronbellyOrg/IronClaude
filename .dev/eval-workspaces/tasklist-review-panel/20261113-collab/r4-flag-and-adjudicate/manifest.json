@@ -1,0 +1,56 @@
+{
+  "sbr": "/tmp/evalsb-collab-r4",
+  "packages": [
+    {
+      "package": "TASK-WF-designSpec-20261107-075614",
+      "base_tree": "69f360d58d89456f559ad3de21ea75027cd72bb0",
+      "files": 8757,
+      "removed_leak_dirs": [
+        ".dev/tasks/done",
+        ".dev/eval-workspaces",
+        ".dev/research",
+        ".dev/reflect"
+      ],
+      "candidate_sha256": "044809e3a963fad395cfbe0988bece975650a3adf17176893665d92338bd3481",
+      "source_sha256": "a865f397468a076c9c070c031f807b44d9cccd91059b2ad5efb1b926090ba10a",
+      "sandbox_head": "b4ba9214137e65cef11bf3d6ac3da45de9629d81",
+      "first_commit": "",
+      "first_commit_parent": "",
+      "parent_tree_equals_base": false
+    },
+    {
+      "package": "TASK-WF-makeTheAliasOnly-20261105-051649",
+      "base_tree": "fdb08e60c8c3f45bcd1681cd1c79c40da4247b65",
+      "files": 8457,
+      "removed_leak_dirs": [
+        ".dev/tasks/done",
+        ".dev/eval-workspaces",
+        ".dev/research",
+        ".dev/reflect"
+      ],
+      "candidate_sha256": "cfd8f983d22ab8af1638ffb2a464215e56048f753f7902e3066435d8de176ca4",
+      "source_sha256": "9c7df653062887a447c0baaa5803206cfefcc1e1647857c08f460b4d7088ef82",
+      "sandbox_head": "4574e72b0ce9438e1bf526de059c7770f0260069",
+      "first_commit": "",
+      "first_commit_parent": "",
+      "parent_tree_equals_base": false
+    },
+    {
+      "package": "TASK-WF-design-20261108-041415",
+      "base_tree": "c1a436aed894a854f1081211796117d03bda700a",
+      "files": 8851,
+      "removed_leak_dirs": [
+        ".dev/tasks/done",
+        ".dev/eval-workspaces",
+        ".dev/research",
+        ".dev/reflect"
+      ],
+      "candidate_sha256": "71d4a7455d11818d9ad4718605a9254142cf1e3e250889cfdfa89285eb5f7d24",
+      "source_sha256": "1e0d8cdca37abe7513c85eadb66042311d016187836e7df26f4d22f6af5181e8",
+      "sandbox_head": "496e3fbaabb06d81f16392a67e975cb3f37018d7",
+      "first_commit": "",
+      "first_commit_parent": "",
+      "parent_tree_equals_base": false
+    }
+  ]
+}

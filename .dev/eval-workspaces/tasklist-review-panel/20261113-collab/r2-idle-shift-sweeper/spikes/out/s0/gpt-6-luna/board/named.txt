@@ -1,0 +1,13 @@
+.claude/settings.json
+docs/designs/sc-issue-command.md
+docs/user-guide/commands.md
+docs/user-guide/flags.md
+plugins/superclaude/skills/sc-recommend/refs/HOW-WE-WORK.md
+src/superclaude/agents/issue-worker-t3.md
+src/superclaude/commands/issue.md
+src/superclaude/core/CLAUDE.md
+src/superclaude/core/HOW-WE-WORK.md
+src/superclaude/skills/sc-issue-protocol/SKILL.md
+src/superclaude/skills/sc-issue-protocol/refs/create.md
+src/superclaude/skills/sc-issue-protocol/refs/labels.md
+tests/skills/test_issue_protocol.py

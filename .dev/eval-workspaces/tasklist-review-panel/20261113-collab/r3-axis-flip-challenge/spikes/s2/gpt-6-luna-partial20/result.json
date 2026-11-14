@@ -1,0 +1,13 @@
+{
+  "model": "gpt-6-luna",
+  "variant": "resume killed at 20 s with --include-partial-messages (probe, 2026-11-13 22:28 UTC, not part of the design 15.4 procedure)",
+  "killed_rc": 124,
+  "assistant_events": 2,
+  "text_content_blocks": 0,
+  "text_delta_events": 0,
+  "delta_types": [
+    "input_json_delta",
+    "signature_delta"
+  ],
+  "kill_text_ok": false
+}

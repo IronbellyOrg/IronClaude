@@ -1,0 +1,20 @@
+{
+  "TASK-WF-designSpec-20261107-075614": {
+    "base": "0e486ab8d0eb24c6f2738ce1f895cc16755b26c1",
+    "squash": "0b8a5801d75f159bcbca7087b99507c2a50d8dba",
+    "verified_by": "git log --format=%P -1 <squash> (only parent); S-H3 checks refs/merge-guard.md absent",
+    "verified_at": "2026-11-13T20:27:01Z"
+  },
+  "TASK-WF-makeTheAliasOnly-20261105-051649": {
+    "base": "38eb3c58afe6988b51060ae14117172869ea4c1e",
+    "squash": "4eb75698d9d477ad21b515f05d470ece60497a02",
+    "verified_by": "git log --format=%P -1 <squash> (only parent)",
+    "verified_at": "2026-11-13T20:27:01Z"
+  },
+  "TASK-WF-design-20261108-041415": {
+    "base": "5fa680778718af9087ccbe7a823e3909f1bcceb6",
+    "squash": "54e21668f6a4887241cb76acc4f770669c5f5a49",
+    "verified_by": "git log --format=%P -1 <squash> (only parent); S-H3 checks tests/skills/test_worker_contract.py present",
+    "verified_at": "2026-11-13T20:27:01Z"
+  }
+}

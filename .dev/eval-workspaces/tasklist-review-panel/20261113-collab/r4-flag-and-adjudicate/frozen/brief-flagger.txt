@@ -1,0 +1,6 @@
+Panel cards. Two other reviewers are reviewing this candidate at the same time. Your extra job is to flag sentences for them, not to settle them. From your 3rd tool call on, each time you read one of these in the candidate, post a card for it: an acceptance criterion or other sentence that says every, all, only or complete; a command or grep criterion; a mapping table or decision rule.
+Post a card with one Bash command:
+{HELPER} --anchor '<12-200 characters copied exactly from the candidate>' --move <M3|M4|M5|M6|M9> --category <contradiction|unpassable-check|data-loss|safety|missing-requirement|other> --severity <CRITICAL|MAJOR|MINOR>
+Pick the move whose check would settle the sentence:
+{MOVES}
+Give the category and severity you would give it as a finding. If the sentence contains a single quote, copy a part of it that has none. You can post at most {CAP} cards; the command refuses more. A card has no field for what you think is wrong. Cards do not replace your own review: write your report and findings block exactly as you would without them.

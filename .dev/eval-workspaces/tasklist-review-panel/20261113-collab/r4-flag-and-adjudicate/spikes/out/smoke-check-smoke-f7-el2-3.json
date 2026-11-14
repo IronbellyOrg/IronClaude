@@ -1,0 +1,184 @@
+{
+ "row": "smoke-f7-el2-3",
+ "arm": "F7",
+ "all_ok": true,
+ "failed": [],
+ "checks": {
+  "model_ok x3": {
+   "ok": true,
+   "detail": {
+    "t2b-1": "muse-ember-1.0",
+    "t4-1": "gpt-6-luna",
+    "t3-1": "gpt-6-luna"
+   }
+  },
+  "dropped_lines=0": {
+   "ok": true,
+   "detail": {
+    "t2b-1": 0,
+    "t4-1": 0,
+    "t3-1": 0
+   }
+  },
+  "final_ok x3": {
+   "ok": true,
+   "detail": ""
+  },
+  "exists merged-1.md": {
+   "ok": true,
+   "detail": ""
+  },
+  "exists scoring/merged-anon.md": {
+   "ok": true,
+   "detail": ""
+  },
+  "exists scoring/score.json": {
+   "ok": true,
+   "detail": ""
+  },
+  "anonymiser clean": {
+   "ok": true,
+   "detail": ""
+  },
+  "package status ok": {
+   "ok": true,
+   "detail": "ok"
+  },
+  "collab.json keys": {
+   "ok": true,
+   "detail": []
+  },
+  "audit_ok": {
+   "ok": true,
+   "detail": []
+  },
+  "harness_text_gt_overlap=0": {
+   "ok": true,
+   "detail": ""
+  },
+  "sandbox_clean + candidate_sha_ok": {
+   "ok": true,
+   "detail": ""
+  },
+  "board_lines_invalid=0": {
+   "ok": true,
+   "detail": ""
+  },
+  "no QUARANTINED": {
+   "ok": true,
+   "detail": ""
+  },
+  "nothing under EVAL newer than run start": {
+   "ok": true,
+   "detail": []
+  },
+  "no /tmp/jdg.* left (this row's)": {
+   "ok": true,
+   "detail": []
+  },
+  "results row keys (5.2)": {
+   "ok": true,
+   "detail": []
+  },
+  "results row valid false (single package)": {
+   "ok": true,
+   "detail": ""
+  },
+  "cards_sent>=1": {
+   "ok": true,
+   "detail": 4
+  },
+  "every card has a status": {
+   "ok": true,
+   "detail": [
+    "delivered",
+    "delivered",
+    "delivered",
+    "delivered"
+   ]
+  },
+  "one delivered or all late": {
+   "ok": true,
+   "detail": [
+    "delivered",
+    "delivered",
+    "delivered",
+    "delivered"
+   ]
+  },
+  "no no_snapshot": {
+   "ok": true,
+   "detail": [
+    "delivered",
+    "delivered",
+    "delivered",
+    "delivered"
+   ]
+  },
+  "seal_sha_ok for every delivered luna": {
+   "ok": true,
+   "detail": {
+    "t4-1": true,
+    "t3-1": true
+   }
+  },
+  "settings on in attempt 1": {
+   "ok": true,
+   "detail": [
+    [
+     "t2b-1",
+     null,
+     1
+    ],
+    [
+     "t4-1",
+     null,
+     1
+    ],
+    [
+     "t3-1",
+     null,
+     1
+    ]
+   ]
+  },
+  "no duplicate delivery": {
+   "ok": true,
+   "detail": ""
+  },
+  "stop_blocks=0, hook_error=0": {
+   "ok": true,
+   "detail": ""
+  },
+  "flagger msgs_received=0, lunas msgs_sent=0": {
+   "ok": true,
+   "detail": ""
+  }
+ },
+ "elapsed_s": {
+  "DE": 117.694
+ },
+ "cards": {
+  "cards_sent": 4,
+  "cards_delivered": 4,
+  "ledger_rows": 1,
+  "overhead_pct": 1.46
+ },
+ "judge": {
+  "found_14": null
+ },
+ "package": {
+  "status": "ok",
+  "label": "LHQY",
+  "gt_covered_any": [],
+  "gt_covered_blocking": [],
+  "real_blocking": [],
+  "wrong_blockers": 1,
+  "ledger_rows_total": 1,
+  "ledger_rows_blocking": 1,
+  "output_tokens": 18462,
+  "slo_breach": false,
+  "dropped_lines": 0,
+  "reask_count": 0
+ }
+}

@@ -1,0 +1,23 @@
+{
+  "model": "muse-ember-1.0",
+  "observed": "muse-ember-1.0",
+  "tool_use": 10,
+  "hook_calls": 10,
+  "seal_deliver_order": "seal deliver ",
+  "snapshot_ok": true,
+  "delivered_text_in_transcript": true,
+  "hook_ms_p95": 73,
+  "hook_ms_max": 73,
+  "project_hooks": [
+    {
+      "event": "PreToolUse",
+      "commands": [
+        "$CLAUDE_PROJECT_DIR/.claude/hooks/reject-workspace-writes.sh",
+        "$CLAUDE_PROJECT_DIR/.claude/hooks/sc-recommend-phase0.sh"
+      ]
+    }
+  ],
+  "verdict": "PASS",
+  "why": "",
+  "sandbox": "/tmp/evalsb-collab-r2/sb/s0-7d2f216f/TASK-WF-design-20261108-041415"
+}

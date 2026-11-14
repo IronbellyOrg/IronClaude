@@ -1,0 +1,1 @@
+Panel request (from the harness, not from a reviewer): review these plan Tasks next: {TASKS}. Apply catalogue moves M1-M10 to them first; finish checks you have already started. Act on at most {K} requested Task(s) in total. Peer coverage is not clearance.

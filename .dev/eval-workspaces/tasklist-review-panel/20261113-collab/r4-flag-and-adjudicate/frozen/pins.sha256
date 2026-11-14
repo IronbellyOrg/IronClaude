@@ -1,0 +1,14 @@
+66504c92001f54566992b78f58a6ebc3cc71a882043be147cb2edc1b3d54e6b9  brief-a1.txt
+b98f4102b6a68728fb8330ef3e9217cd4c0838bdff069286a5741e4ad3e049a3  brief-adjudicator.txt
+77846aef37139d8396b01ddf7d2a7e8eab3044eb5d5cec1ca22e4d05e4582c73  brief-flagger.txt
+535a0ceea4dcd3ba3a4b826473cc638cb02290d629739df4469f37bf760235fc  moves.json
+e7866c3d0f78fe3a16f6b2020b6c9e5d5441e13aaf2067411caa4a7d10e4653e  packages.json
+93afc31de3bffaffca6d7c55a0364766b418e85ce4333a62f1b96f282f83e54f  panels.json
+cb554fad5d770acfb6466367200e5f6f6b0e89eb8b2165a0b0769e774079cea0  templates.json
+82b6d153539e8ce67e9f07910897a1da4222cbc4b34736f9f62a39875bbe14a7  ../lib/values.py
+0a828c5ce0f00dc5e1e7d2279634665e06f07a5907a6444aef9837dd7676f8a8  ../lib/results.py
+2133a663f197bc6590696ffde7ed4241006e0c8dd12520526e6da4f4f89dbd9c  ../lib/arm_summary.py
+aab6f67a55cdd057ca71c362b4e566d25bdaab6cb9bd659485b7a79e0524f242  /home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/.dev/brainstorms/20261113-163248-panel-collaboration/merged-requirements.md
+a01bd70d370d73cb32b55a7368aa28e2c12d93403237211c3a71f339ae82cfcc  /home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/.dev/eval-workspaces/tasklist-review-panel/20261111-a1/tools/tmp-scripts/judge-one.sh
+f0e53967a229e1d64a57451987e2922d98c0eb8808090110f1904ae1ba90ad5a  /home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/src/superclaude/cli/review/findings.py
+2908549846e1a6c63f692d18c7e4c375e257590eb4671a17dba1b315218b8179  /home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/src/superclaude/cli/review/ledger.py

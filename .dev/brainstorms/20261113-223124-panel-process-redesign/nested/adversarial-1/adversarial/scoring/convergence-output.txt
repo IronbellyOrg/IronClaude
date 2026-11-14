@@ -1,0 +1,7 @@
+Round 1: strict 30/41 = 0.7317; compatible 41/41 = 1.0000
+  not strict: ['A-001', 'A-002', 'A-004', 'C-003', 'C-005', 'C-012', 'C-013', 'C-018', 'C-020', 'C-023', 'X-003']
+  not even compatible: []
+Round 2: strict 40/41 = 0.9756; compatible 41/41 = 1.0000
+  not strict: ['C-005']
+  not even compatible: []
+points: 41 updated in round 2: ['A-001', 'A-002', 'A-004', 'C-003', 'C-005', 'C-012', 'C-013', 'C-018', 'C-020', 'C-023', 'X-003']

@@ -1,0 +1,21 @@
+{
+  "judge_one_sha256": "a01bd70d370d73cb32b55a7368aa28e2c12d93403237211c3a71f339ae82cfcc",
+  "config_files": {
+    "catalogue.md": "eab62d1230ac5558f62ab8c4c76093a6e01bed243d26970318ec489183dd690e",
+    "surface.regex": "99e6306b535cc55fe6de3f0de532b7bae11a8642242435e97b323dd6ae4dad61",
+    "templates/brief-a1.txt": "77e75550800b26b37390f69a81c9319262e9ce11dc3828740cbafe7ed9dfbff8",
+    "templates/brief-kit.txt": "fe07bde336a18fd3e61a3ccbf29b7e6f55bafe56bd4f6024a961bd3ba20002c2",
+    "templates/brief-receiver-f6.txt": "b60f1ad007c856b477407913705bbb8640c12ae618104f975eab2c7296eb4afd",
+    "templates/card-1.txt": "7e14c34e9e4af1861b4a4957691904bfb4732bed5ef2c5d2a9138a63aa14f1fa",
+    "templates/card-2.txt": "d12982203ff89e1c088eac8b8333cf94af3022c521c5c7e53c4bf5adc76a4986",
+    "templates/finish.txt": "e6f0b314badd5f31639b9b0e9afb1e55546b559d28eba2a9c45168c05ae45b59"
+  },
+  "parser": {
+    "worktree_findings": "/home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/src/superclaude/cli/review/findings.py",
+    "worktree_ledger": "/home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/src/superclaude/cli/review/ledger.py",
+    "installed_findings": "/home/coder/.local/share/uv/tools/superclaude/lib/python3.11/site-packages/superclaude/cli/review/findings.py",
+    "installed_ledger": "/home/coder/.local/share/uv/tools/superclaude/lib/python3.11/site-packages/superclaude/cli/review/ledger.py",
+    "findings_sha256": "f0e53967a229e1d64a57451987e2922d98c0eb8808090110f1904ae1ba90ad5a",
+    "ledger_sha256": "2908549846e1a6c63f692d18c7e4c375e257590eb4671a17dba1b315218b8179"
+  }
+}

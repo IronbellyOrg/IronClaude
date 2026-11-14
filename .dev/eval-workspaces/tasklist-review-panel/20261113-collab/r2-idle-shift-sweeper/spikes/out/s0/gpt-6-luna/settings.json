@@ -1,0 +1,16 @@
+{
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "*",
+        "hooks": [
+          {
+            "type": "command",
+            "timeout": 5,
+            "command": "/usr/bin/bash /home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/.dev/eval-workspaces/tasklist-review-panel/20261113-collab/r2-idle-shift-sweeper/bin/hooks/receiver-hook.sh --jq /usr/bin/jq --board /tmp/evalsb-collab-r2/board/s0-8bed0f11/TASK-WF-design-20261108-041415 --rid t4-1 --recv-index 0 --t0-ms 1794604215753 --finish-ms 1794605115753 --k 2 --deal-r 0 --catalogue /home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/.dev/eval-workspaces/tasklist-review-panel/20261113-collab/r2-idle-shift-sweeper/config/catalogue.json"
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -1,0 +1,27 @@
+{"ev":"call","t":1794604900916,"ms":40}
+{"ev":"harvest_skip","t":1794604903290,"reason":"bad_cmd","cmd":"grep -rn \"all \\|every \\|only \\|none \" /tmp/evalsb-collab-r2/sb/sw1-16ec8cc3/TASK-WF-designSpec-20261107-075614/cand/candidate.md | head -n 40"}
+{"ev":"call","t":1794604903296,"ms":46}
+{"ev":"harvest_skip","t":1794604903309,"reason":"bad_cmd","cmd":"grep -rln \"merge_guard\\|draft_guard_requested\\|set-draft-state\\|merge-guard\" tests/ docs/ --include=\"*.py\" --include=\"*.md\" ./*.md ./src/superclaude/pr_submit/ 2>/dev/null | head -n 50; echo ---; grep -rln \"EventType\" tests/ docs/ 2>/dev/null | head -n 30"}
+{"ev":"call","t":1794604903315,"ms":42}
+{"ev":"harvest_skip","t":1794604903544,"reason":"bad_cmd","cmd":"grep -rln \"draft_guard\\|merge_guard\" tests/ docs/ src/ ./*.md 2>/dev/null; echo EXIT:$?; ls tests/pr_submit/"}
+{"ev":"call","t":1794604903550,"ms":41}
+{"ev":"harvest_skip","t":1794604905809,"reason":"bad_cmd","cmd":"grep -rn \"detect_crash_window\\|resolve_crash_window\\|BRANCH_A_LANDED\\|BRANCH_B_NOT_LANDED\\|BRANCH_C_AMBIGUOUS\" tests/ src/superclaude/pr_submit/ docs/ --include=\"*.py\" | head -n 40"}
+{"ev":"call","t":1794604905816,"ms":53}
+{"ev":"harvest_skip","t":1794604905836,"reason":"bad_cmd","cmd":"grep -n \"EventType\\|draft_guard\\|43\" tests/swarm/test_worker_state_event.py tests/pr_submit/test_crash_recovery.py docs/swarm/observability-procedure.md 2>/dev/null | head -n 40"}
+{"ev":"call","t":1794604905844,"ms":55}
+{"ev":"harvest_skip","t":1794604905866,"reason":"bad_cmd","cmd":"grep -rn \"exactly 43\\|43 members\\|43 event\" src/ tests/ docs/ ./*.md 2>/dev/null | head -n 40; echo ---; grep -rn \"conflict-max-tier\" docs/ tests/ src/superclaude/commands/ --include=\"*.md\" --include=\"*.py\" | head -n 20"}
+{"ev":"call","t":1794604905872,"ms":42}
+{"ev":"harvest_skip","t":1794604909283,"reason":"bad_cmd","cmd":"grep -n \"CORE_PURE_FILES\" tests/pr_submit/test_static_grep.py | head; grep -A 30 \"CORE_PURE_FILES = \" tests/pr_submit/test_static_grep.py | head -n 40"}
+{"ev":"call","t":1794604909291,"ms":47}
+{"ev":"harvest_skip","t":1794604914012,"reason":"bad_cmd","cmd":"/tmp/evalsb-collab-r2/board/sw1-16ec8cc3/TASK-WF-designSpec-20261107-075614/bin/panel-post --help 2>&1 | head -n 80"}
+{"ev":"call","t":1794604914017,"ms":37}
+{"ev":"harvest_skip","t":1794604917067,"reason":"bad_cmd","cmd":"/tmp/evalsb-collab-r2/board/sw1-16ec8cc3/TASK-WF-designSpec-20261107-075614/bin/panel-post --move M1 --cmd 'grep -rn detect_crash_window tests/pr_submit/test_crash_recovery.py' --anchor 'crash after a dangling `push_initiated` with branch strings produced by the real `detect_crash_window`' --item tests/pr_submit/test_crash_recovery.py --n 1"}
+{"ev":"call","t":1794604917074,"ms":44}
+{"ev":"harvest_skip","t":1794604918833,"reason":"bad_cmd","cmd":"/tmp/evalsb-collab-r2/board/sw1-16ec8cc3/TASK-WF-designSpec-20261107-075614/bin/panel-post --move M7 --cmd 'grep -rn 43-members CHANGELOG.md' --anchor 'from \"exactly 43 members\" to 45' --item CHANGELOG.md:146 --n 1"}
+{"ev":"call","t":1794604918838,"ms":36}
+{"ev":"harvest_skip","t":1794604921005,"reason":"bad_cmd","cmd":"grep -rn \"43 members\" CHANGELOG.md; grep -c \"CORE_PURE_FILES\" tests/pr_submit/test_static_grep.py"}
+{"ev":"call","t":1794604921011,"ms":47}
+{"ev":"harvest_skip","t":1794604922593,"reason":"bad_cmd","cmd":"/tmp/evalsb-collab-r2/board/sw1-16ec8cc3/TASK-WF-designSpec-20261107-075614/bin/panel-post --move M1 --cmd 'grep -n EventType tests/swarm/test_worker_state_event.py' --anchor 'Leave `tests/pr_submit/test_idempotency.py` (7 sets) unchanged.' --item tests/swarm/test_worker_state_event.py --n 1"}
+{"ev":"call","t":1794604922599,"ms":38}
+{"ev":"harvest_skip","t":1794604924431,"reason":"bad_cmd","cmd":"/tmp/evalsb-collab-r2/board/sw1-16ec8cc3/TASK-WF-designSpec-20261107-075614/bin/panel-post --move M2 --cmd 'grep -n CORE_PURE_FILES tests/pr_submit/test_static_grep.py' --anchor 'every file already listed in `CORE_PURE_FILES` of `tests/pr_submit/test_static_grep.py`' --item tests/pr_submit/test_static_grep.py:37 --n 9"}
+{"ev":"call","t":1794604924437,"ms":35}

@@ -1,0 +1,50 @@
+{
+  "reviewer_id": "t3-1",
+  "expected_model": "gpt-6-luna",
+  "observed_model": "gpt-6-luna",
+  "model_ok": true,
+  "findings_block": true,
+  "attempt": 1,
+  "wall_s": 91,
+  "wall_ms": 91508,
+  "output_tokens_main": 4483,
+  "output_tokens_all": 4483,
+  "exit": 0,
+  "api_error": false,
+  "session_id": "54071d7a-a84d-4584-98a2-45967f51e229",
+  "session_ids": [
+    "54071d7a-a84d-4584-98a2-45967f51e229"
+  ],
+  "start_ms": 1794611676490,
+  "end_ms": 1794611768347,
+  "attempts": 1,
+  "retry_s": null,
+  "retry_isolated": false,
+  "reask_s": null,
+  "dropped_lines": 0,
+  "hang_kill": false,
+  "valid": true,
+  "role": "reader",
+  "collab": 1,
+  "argv": [
+    [
+      "timeout",
+      "--kill-after=5",
+      "173",
+      "claude",
+      "-p",
+      "--model",
+      "gpt-6-luna",
+      "--output-format",
+      "json",
+      "--permission-mode",
+      "bypassPermissions",
+      "--disallowedTools",
+      "Edit",
+      "Write",
+      "NotebookEdit",
+      "--settings",
+      "{\"hooks\":{\"PostToolUse\":[{\"matcher\":\"*\",\"hooks\":[{\"type\":\"command\",\"command\":\"bash /home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/.dev/eval-workspaces/tasklist-review-panel/20261113-collab/r1-move-radar/tools/radar-hook.sh '/tmp/collab-r1/r1scratch/runs/el2-c1-r0/TASK-WF-designSpec-20261107-075614/board' 'el2-c1-r0/TASK-WF-designSpec-20261107-075614' 't3-1' 'reader' '1794611676320' '1794611820120' '1794611785920' '2' '8' '12' 'M8,M10,M3,M5,M6,M9' 'TASK-WF-designSpec-20261107-075614' ''\",\"timeout\":5}]}]}}"
+    ]
+  ]
+}

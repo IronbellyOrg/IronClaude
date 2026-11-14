@@ -1,0 +1,242 @@
+{
+ "TASK-WF-design-20261108-041415/g1-ember-luna2-r1": {
+  "t2b-1": {
+   "qualifying": 4,
+   "n": 3,
+   "expected_real": 2.0,
+   "expected_gap": 1.0
+  },
+  "t4-1": {
+   "qualifying": 1,
+   "n": 2,
+   "expected_real": 0.6666666666666667,
+   "expected_gap": 0.6666666666666666
+  },
+  "t3-1": {
+   "qualifying": 1,
+   "n": 2,
+   "expected_real": 0.6666666666666667,
+   "expected_gap": 0.6666666666666666
+  }
+ },
+ "TASK-WF-design-20261108-041415/g1-ember-luna2-r2": {
+  "t2b-1": {
+   "qualifying": 3,
+   "n": 3,
+   "expected_real": 2.0,
+   "expected_gap": 1.0
+  },
+  "t4-1": {
+   "qualifying": 0,
+   "n": 2,
+   "expected_real": 0.0,
+   "expected_gap": 0.6666666666666666
+  },
+  "t3-1": {
+   "qualifying": 0,
+   "n": 2,
+   "expected_real": 0.0,
+   "expected_gap": 0.6666666666666666
+  }
+ },
+ "TASK-WF-design-20261108-041415/g1-ember-luna2-r3": {
+  "t2b-1": {
+   "qualifying": 3,
+   "n": 3,
+   "expected_real": 2.0,
+   "expected_gap": 1.0
+  },
+  "t4-1": {
+   "qualifying": 1,
+   "n": 2,
+   "expected_real": 0.6666666666666667,
+   "expected_gap": 0.6666666666666666
+  },
+  "t3-1": {
+   "qualifying": 1,
+   "n": 2,
+   "expected_real": 0.6666666666666667,
+   "expected_gap": 0.6666666666666666
+  }
+ },
+ "TASK-WF-design-20261108-041415/g1-ember-luna2-r4": {
+  "t2b-1": {
+   "qualifying": 2,
+   "n": 3,
+   "expected_real": 1.3333333333333335,
+   "expected_gap": 1.0
+  },
+  "t4-1": {
+   "qualifying": 1,
+   "n": 2,
+   "expected_real": 0.6666666666666667,
+   "expected_gap": 0.6666666666666666
+  },
+  "t3-1": {
+   "qualifying": 1,
+   "n": 2,
+   "expected_real": 0.6666666666666667,
+   "expected_gap": 0.6666666666666666
+  }
+ },
+ "TASK-WF-designSpec-20261107-075614/g1-ember-luna2-r1": {
+  "t2b-1": {
+   "qualifying": 0,
+   "n": 3,
+   "expected_real": 0.0,
+   "expected_gap": 1.0
+  },
+  "t4-1": {
+   "qualifying": 2,
+   "n": 1,
+   "expected_real": 0.6666666666666667,
+   "expected_gap": 0.3333333333333333
+  },
+  "t3-1": {
+   "qualifying": 2,
+   "n": 1,
+   "expected_real": 0.6666666666666667,
+   "expected_gap": 0.3333333333333333
+  }
+ },
+ "TASK-WF-designSpec-20261107-075614/g1-ember-luna2-r2": {
+  "t2b-1": {
+   "qualifying": 0,
+   "n": 3,
+   "expected_real": 0.0,
+   "expected_gap": 1.0
+  },
+  "t4-1": {
+   "qualifying": 1,
+   "n": 1,
+   "expected_real": 0.6666666666666667,
+   "expected_gap": 0.3333333333333333
+  },
+  "t3-1": {
+   "qualifying": 1,
+   "n": 1,
+   "expected_real": 0.6666666666666667,
+   "expected_gap": 0.3333333333333333
+  }
+ },
+ "TASK-WF-designSpec-20261107-075614/g1-ember-luna2-r3": {
+  "t2b-1": {
+   "qualifying": 0,
+   "n": 3,
+   "expected_real": 0.0,
+   "expected_gap": 1.0
+  },
+  "t4-1": {
+   "qualifying": 1,
+   "n": 1,
+   "expected_real": 0.6666666666666667,
+   "expected_gap": 0.3333333333333333
+  },
+  "t3-1": {
+   "qualifying": 1,
+   "n": 1,
+   "expected_real": 0.6666666666666667,
+   "expected_gap": 0.3333333333333333
+  }
+ },
+ "TASK-WF-designSpec-20261107-075614/g1-ember-luna2-r4": {
+  "t2b-1": {
+   "qualifying": 0,
+   "n": 3,
+   "expected_real": 0.0,
+   "expected_gap": 1.0
+  },
+  "t4-1": {
+   "qualifying": 1,
+   "n": 1,
+   "expected_real": 0.6666666666666667,
+   "expected_gap": 0.3333333333333333
+  },
+  "t3-1": {
+   "qualifying": 1,
+   "n": 1,
+   "expected_real": 0.6666666666666667,
+   "expected_gap": 0.3333333333333333
+  }
+ },
+ "TASK-WF-makeTheAliasOnly-20261105-051649/g1-ember-luna2-r1": {
+  "t2b-1": {
+   "qualifying": 1,
+   "n": 3,
+   "expected_real": 0.6666666666666667,
+   "expected_gap": 1.0
+  },
+  "t4-1": {
+   "qualifying": 1,
+   "n": 2,
+   "expected_real": 0.6666666666666667,
+   "expected_gap": 0.6666666666666666
+  },
+  "t3-1": {
+   "qualifying": 1,
+   "n": 2,
+   "expected_real": 0.6666666666666667,
+   "expected_gap": 0.6666666666666666
+  }
+ },
+ "TASK-WF-makeTheAliasOnly-20261105-051649/g1-ember-luna2-r2": {
+  "t2b-1": {
+   "qualifying": 1,
+   "n": 3,
+   "expected_real": 0.6666666666666667,
+   "expected_gap": 1.0
+  },
+  "t4-1": {
+   "qualifying": 0,
+   "n": 2,
+   "expected_real": 0.0,
+   "expected_gap": 0.6666666666666666
+  },
+  "t3-1": {
+   "qualifying": 0,
+   "n": 2,
+   "expected_real": 0.0,
+   "expected_gap": 0.6666666666666666
+  }
+ },
+ "TASK-WF-makeTheAliasOnly-20261105-051649/g1-ember-luna2-r3": {
+  "t2b-1": {
+   "qualifying": 1,
+   "n": 3,
+   "expected_real": 0.6666666666666667,
+   "expected_gap": 1.0
+  },
+  "t4-1": {
+   "qualifying": 1,
+   "n": 2,
+   "expected_real": 0.6666666666666667,
+   "expected_gap": 0.6666666666666666
+  },
+  "t3-1": {
+   "qualifying": 1,
+   "n": 2,
+   "expected_real": 0.6666666666666667,
+   "expected_gap": 0.6666666666666666
+  }
+ },
+ "TASK-WF-makeTheAliasOnly-20261105-051649/g1-ember-luna2-r4": {
+  "t2b-1": {
+   "qualifying": 0,
+   "n": 3,
+   "expected_real": 0.0,
+   "expected_gap": 1.0
+  },
+  "t4-1": {
+   "qualifying": 1,
+   "n": 2,
+   "expected_real": 0.6666666666666667,
+   "expected_gap": 0.6666666666666666
+  },
+  "t3-1": {
+   "qualifying": 1,
+   "n": 2,
+   "expected_real": 0.6666666666666667,
+   "expected_gap": 0.6666666666666666
+  }
+ }
+}

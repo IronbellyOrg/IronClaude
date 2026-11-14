@@ -1,0 +1,11 @@
+{
+  "model": "claude-haiku-5-5",
+  "session_id": "f642a61f-ed73-44b2-8de9-6930b6a0ebf5",
+  "first_model": "claude-haiku-5-5",
+  "resume_model": "claude-haiku-5-5",
+  "resume_result": "beta",
+  "stream_lines": 18,
+  "resume_first_line_ms": 1094,
+  "resume_wall_ms": 4006,
+  "verdict": "PASS"
+}

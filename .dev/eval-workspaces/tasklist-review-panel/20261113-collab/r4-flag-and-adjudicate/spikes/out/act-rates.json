@@ -1,0 +1,23 @@
+{
+  "claude-haiku-5-5": {
+    "sessions": 5,
+    "act_rate": 0,
+    "finish_act_rate": 0
+  },
+  "claude-sonnet-5-5": {
+    "sessions": 5,
+    "act_rate": 0.6,
+    "finish_act_rate": 1
+  },
+  "gpt-6-luna": {
+    "sessions": 5,
+    "act_rate": 0,
+    "finish_act_rate": 0.4
+  },
+  "muse-ember-1.0": {
+    "sessions": 4,
+    "act_rate": 0,
+    "finish_act_rate": 0
+  },
+  "source": "spikes/out/s0-summary.json (recomputed from hook logs)"
+}

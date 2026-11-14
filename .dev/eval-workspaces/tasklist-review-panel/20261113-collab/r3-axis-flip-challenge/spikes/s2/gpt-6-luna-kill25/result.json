@@ -1,0 +1,21 @@
+{
+  "model": "gpt-6-luna",
+  "fresh_session": "a068faff-f99e-4422-9984-545dc448f62b",
+  "fresh_model_ok": true,
+  "fresh_s": 11.245,
+  "resume_rc": 0,
+  "resume_session": "a068faff-f99e-4422-9984-545dc448f62b",
+  "same_session": true,
+  "resume_model_ok": true,
+  "resume_s": 5.538,
+  "resume_assistant_events": 1,
+  "killed_rc": 0,
+  "killed_assistant_events": 2,
+  "killed_text_events": 1,
+  "transcript_timestamps": true,
+  "pass": false,
+  "killed_mid_answer": false,
+  "kill_text_ok": false,
+  "resume_pass": true,
+  "pass_rule": "recomputed 21:2x with the 15.4 kill condition (luna required)"
+}

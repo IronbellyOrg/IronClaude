@@ -1,0 +1,2 @@
+blockquote shingles: 1230; ground-truth files: 3; hits: 1
+  'with the plan s'  <-  ['TASK-WF-designSpec-20261107-075614']

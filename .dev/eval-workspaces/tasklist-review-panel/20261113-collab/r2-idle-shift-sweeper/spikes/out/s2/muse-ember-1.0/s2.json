@@ -1,0 +1,11 @@
+{
+  "model": "muse-ember-1.0",
+  "session_id": "c26d06b2-97e7-4874-879c-0405915f78f9",
+  "first_model": "muse-ember-1.0",
+  "resume_model": "muse-ember-1.0",
+  "resume_result": "beta",
+  "stream_lines": 16,
+  "resume_first_line_ms": 1052,
+  "resume_wall_ms": 4184,
+  "verdict": "PASS"
+}
