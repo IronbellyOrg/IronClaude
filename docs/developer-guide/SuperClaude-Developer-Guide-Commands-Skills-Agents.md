@@ -1,6 +1,6 @@
 # SuperClaude Developer Guide: Commands, Skills, and Agents
 
-> **Version**: 1.0.0 | **Last Updated**: 2026-11-04
+> **Version**: 1.0.0 | **Last Updated**: 2026-11-12
 > **Audience**: Developers creating, extending, or maintaining SuperClaude framework components
 > **Source of Truth**: `src/superclaude/` -- all component source files live here
 
@@ -988,10 +988,19 @@ Orca can run IronClaude commands as workers under an Orca coordinator (the `/orc
 
 #### Deciding whether a new command can be a worker
 
-- The never-as-worker list (`~/.claude/WORKER-CONTRACT.md`, section 1): `/sc:agent`, `/sc:git`, `/sc:help`, `/sc:issue`, `/sc:pm`, `/sc:spawn` and `/sc:swarm-wizard`, plus `/sc:pr-submit` while decision D3 keeps it off workers. These commands are never dispatched as workers and get no `--unattended` mode.
+- The never-as-worker list (`~/.claude/WORKER-CONTRACT.md`, section 1): `/sc:agent`, `/sc:git`, `/sc:help`, `/sc:issue`, `/sc:pm`, `/sc:spawn`, `/sc:sweep` and `/sc:swarm-wizard`, plus `/sc:pr-submit` while decision D3 keeps it off workers. These commands are never dispatched as workers and get no `--unattended` mode.
 - Per the rollout plan, these are commands whose purpose is orchestration, a conversation with a human, or an outward action that must be authorized, so making them workers would remove their purpose.
 - Adding a command to the list is a maintainer edit of `src/superclaude/core/WORKER-CONTRACT.md` and of `NEVER_AS_WORKER` in `tests/skills/test_worker_contract.py`.
 - Any other command gets `--unattended` only after each of its gates has an unattended resolution (WC-2).
+
+#### Supervising a Run: `/sc:sweep` (Phase 1)
+
+- **What it is.** `superclaude sweep run` (`src/superclaude/cli/sweep/`) collects, classifies and publishes one read-only report; the `/sc:sweep` command and the `sc-sweep-protocol` skill run it and print the counts and the report path. The coordinator runs it beside its liveness sweep (rule WC-16 in `WORKER-CONTRACT.md`, at most once every 5 minutes). The design is `docs/designs/orchestrator-mode.md`.
+- **Package layout.** `probes.py` is the only module that starts a process or reads Orca, git, transcript and contract data: it holds the fixed allowlist of Orca read commands (`ALLOWED_ORCA`, 10 templates) and git read commands, the size limits and the time budget. `classify.py` and `report.py` are pure functions over a `SweepInput` (an import test bans `subprocess`, `click`, `os` and `shutil` in them). `models.py` holds the data shapes and `commands.py` the click command, the argument checks, the publish step and the exit codes.
+- **Read-only rule.** Nothing in the package grows a write verb. A later phase that closes or removes things (`/sc:close`) gets its own package, seam and allowlist. `tests/sweep/test_readonly.py` checks, with snapshot diffs, that a run adds no file except the report.
+- **Extending the report.** `SECTIONS` in `report.py` is a tuple of 12 functions; a later phase appends a function and does not edit the existing ones. The `Next inspection` text comes from a fixed map keyed by rule name.
+- **Tests.** `tests/sweep/` (classification, probes and allowlist, report, command contract, read-only guard, registration), `tests/commands/test_sweep_command.py` (command and skill text, including the narrow chat-summary exception) and the contract pins in `tests/skills/test_worker_contract.py`. The sweep tests never start a process: `tests/sweep/conftest.py` blocks `subprocess.run`, `subprocess.Popen` and `os.system` except for the one `integration` test.
+- **Known limits.** See the `Known limits (sweep, Phase 1)` entry in `CHANGELOG.md`.
 
 #### What a command does under `--unattended`
 

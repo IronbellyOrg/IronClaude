@@ -1,0 +1,190 @@
+Review one task for spec compliance.
+
+Task brief: T148 = item 7.20 of the source file /home/coder/workspaces/worktrees/IronClaude/issue-339-orchestrator-mode/.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md (lines 1291-1297). Item text:
+- [ ] **7.20 — Run the decisions mechanical checks (L3)**
+  - **Context**: Pre-7.10 source anchor for the style scope: `src/superclaude/output-styles/pragmatic.md:22` held the unqualified table mandate; after item 7.10 it holds the scoped sweep exception. Items 6.1 to 7.19, specifically the unchanged OQ-6 (b) decision `.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/plans/OQ-6-GQ-63-done-next-decision.md`, revision `.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/revisions/chat-output-exception-20261109-133150/BUILD-REQUEST.md` and `design-addendum.md` there, canonical `src/superclaude/output-styles/pragmatic.md` and `.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/test-results/step-7.10-style-exception.md`, to verify authorized early style work separately from decision resolution; later skill/tests are not yet required outputs.
+  - **Action**: Run `grep -l 'status: RESOLVED' .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/plans/OQ-[1-8]-*-decision.md | wc -l` (expect 8; this glob counts only the eight prerequisite records, because the optional OQ-17 and OQ-18 records that item 7.17 may write have two-digit numbers and do not match it), then for each of `.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/plans/OQ-17-cursor-template-decision.md` and `.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/plans/OQ-18-run-current-json-decision.md` run `test -e <file> && grep -c 'status: RESOLVED' <file>` (expect at least 1 for each file that exists; record SKIP for a file that is absent, which is not a failure; a present file that is not RESOLVED is a FAIL), `grep -c 'does NOT authorize adoption' .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/plans/OQ-*-decision.md` (expect at least 1 for each of the OQ-2 to OQ-7 files, including the OQ-6 no-recommendation sentence, at least 1 for each OQ-17 or OQ-18 file that exists because item 7.17 writes the recommendation line there, and 0 for the OQ-1 file, which the owner resolved at build time, and for the OQ-8 Run-id file), `test -s .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/artifacts/owner-decisions.md`, `test -s .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/artifacts/readonly-probe.md`, `test -s .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/artifacts/pr422-409-check.md`, `test -s .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/discovery/1.0a-facts.md` (expect exit 0 for each of the four) and `git status --short --untracked-files=all tests/sweep/fixtures/` (expect only lines starting `?? tests/sweep/fixtures/` that name a `captured-*.json` file or `SOURCES.md`; any modified, deleted or other path is a FAIL). Write each command, output and a PASS or FAIL line to `.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/test-results/decisions-mechanical.md`. Also read the revision authority/addendum and early style result in Context; record the actual canonical style diff and confirm only bounded communication text changed, all seven table sites agree (run `grep -c 'Except for the sweep chat-summary exception above,' src/superclaude/output-styles/pragmatic.md`, expect 6, one per separate later restatement line; the primary rule line is not counted), unrelated severity/work discipline and report/JSON are unchanged, and actual (b), fresh revision checks/PRE and separate execution authorization are evidenced (run `grep -c '^## Execution authorization (verbatim)' .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/test-results/step-7.10-style-exception.md`, expect 1, then read that section: it must hold a dated verbatim quote of the owner's separate execution authorization and the paths of the fresh structural, alignment, qualitative and PRE reports as supplied with it, and the quote must match the owner's words in the `## Authorization (direct, by the owner)` section of `.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/revisions/plan-defect-fixes-20261110/BUILD-REQUEST.md` or, when the separate execution authorization is a later dated owner message, that message as supplied with the fresh reports; a quote written by the executor is a record of that authorization, not independent evidence, so a mismatch or an empty section is a FAIL). Ensure no mere RESOLVED decision is treated as proof of implementation or later skill/test completion; on missing evidence or failed check log Phase 7 Findings and stop incomplete.
+  - **Output**: `.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/test-results/decisions-mechanical.md`.
+  - **Verification**: Verify: one PASS or FAIL line per check, each decided by the expected value written beside its command. On a FAIL, return to the owning item and re-run this item; log each re-run in `### Phase 7 Findings`.
+  - **Completion gate**: Every check PASSes. Once done, mark this item as complete.
+AC ids: T148.AC1 = the item title "Run the decisions mechanical checks (L3)" (no AC block; the title is the AC). The item's own Verification and Completion gate lines are context for what "done" means. Ticking the item's checkbox is done by the orchestrator after the verdict and is not part of the diff under review.
+Global constraints: the `### Key Constraints` section (lines 157-168) of the source file named in the task brief; read it from that file.
+Start sha: 1e9087e91003554e64917a90032131dceac04b4c
+Diff against the start snapshot: --- /dev/null
++++ b/.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/test-results/decisions-mechanical.md   (new file, 469 lines)
++# Decisions mechanical checks (item 7.20)
++
++Run in the worktree `/home/coder/workspaces/worktrees/IronClaude/issue-339-orchestrator-mode`. Each check gives the command, its output and a PASS, FAIL or SKIP line decided by the expected value written beside it. Section B reads the revision authority and early style result named in the item's Context: `revisions/chat-output-exception-20261109-133150/BUILD-REQUEST.md` and `design-addendum.md` (the authority for the style exception), the OQ-6 (b) decision, `src/superclaude/output-styles/pragmatic.md` and `phase-outputs/test-results/step-7.10-style-exception.md`. A RESOLVED decision is evidence of the decision only, never of later skill, CLI or test work.
++
++## Run 1 (2026-11-11T22:40Z, first run)
++
++### A. Decision records and artifacts
++
++Command: `grep -l 'status: RESOLVED' .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/plans/OQ-[1-8]-*-decision.md | wc -l`
++
++Exit code: 0. Output:
++
++~~~
++8
++~~~
++
++C1 PASS: eight prerequisite records are RESOLVED. Expected: 8. Got 8.
++
++Command: `test -e .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/plans/OQ-17-cursor-template-decision.md && grep -c 'status: RESOLVED' .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/plans/OQ-17-cursor-template-decision.md`
++
++Exit code: 0. Output:
++
++~~~
++1
++~~~
++
++C2 PASS: OQ-17-cursor-template-decision.md is RESOLVED. Expected: at least 1. Got 1.
++
++Command: `test -e .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/plans/OQ-18-run-current-json-decision.md && grep -c 'status: RESOLVED' .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/plans/OQ-18-run-current-json-decision.md`
++
+... (new file continues; read .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/test-results/decisions-mechanical.md from disk for lines 31-469)
+--- a/tests/sweep/fixtures/SOURCES.md
++++ b/tests/sweep/fixtures/SOURCES.md
+@@ -6,7 +6,7 @@
+ 
+ 1. Home paths: the capture machine's home directory prefix is replaced by `/home/user`.
+ 2. User names: the capture machine's account name, as a whole word, is replaced by `user`.
+-3. Session ids, pane keys, terminal handles and every other UUID (worktree, instance, runtime and request ids included): each distinct UUID is replaced by a stable fake UUID of the same shape, `00000000-0000-4000-8000-<12 digits>`, numbered in first-seen order across all files of this folder. The same real UUID gets the same fake value in every file, so the joins hold: a `captured-worker-show-<n>.json` `dispatch.assigneePaneKey` (`<tabId>:<leafId>`) matches the file name of its `captured-orca-tabs/` entry (`<tabId>+<leafId>`), and `dispatch.assigneeHandle` (`term_<uuid>`) matches line 3 of that entry. Checked for all 5 workers.
++3. Session ids, pane keys, terminal handles and every other UUID (worktree, instance, runtime and request ids included): each distinct UUID is replaced by a stable fake UUID of the same shape, `00000000-0000-4000-8000-<12 digits>`, numbered in first-seen order across all files of this folder. The same real UUID gets the same fake value in every file, so the joins hold: a `captured-worker-show-<n>.json` `dispatch.assigneePaneKey` (`<tabId>:<leafId>`) matches the `file_name` of its `captured-tab-map-<n>.json` entry (`<tabId>+<leafId>`), and `dispatch.assigneeHandle` (`term_<uuid>`) matches the third item of that entry's `lines`. Checked for all 5 workers.
+ 4. Orca Run, Dispatch, Task, message and resource ids (`run_...`, `ctx_...`, `task_...`, `msg_...`, `wtr_...`) are kept as captured: they carry no personal data and the id regexes in the design are written from their shape.
+ 5. Free text that could carry other sessions' conversation or task wording is replaced by the string `<text removed>` (the value stays a string; a dict or list value becomes `{}` or `[]`): the keys `spec`, `prompt`, `lastAssistantMessage`, `toolInput`, `taskTitle`, `comment`, and `preview` (except in the `worker-show` files, where the 266-300 character terminal preview is a short startup banner and is kept after rules 1 to 3). In `captured-task-list.json` the `result` value is a JSON string; its inner string values longer than 80 characters are replaced the same way and its keys are kept.
+ 6. Field names and value types are unchanged everywhere. Two arrays are cut and one count follows the cut: `worktrees[]` in `captured-worktree-ps.json` and `captured-worktree-list.json` keeps only 3 and 2 entries (this worktree first, then other worktrees under the capture machine's workspaces folder), and `result.totalCount` is set to the kept count. The captured `totalCount` was 28 and `truncated` false.
+@@ -15,7 +15,7 @@
+ 
+ | File | readonly-probe section | Template (command as issued) | Exit | Rules beyond 1 to 3 |
+ |---|---|---|---|---|
+-| `captured-run-current.txt` | 1 (capture item 1) | `orca-ide orchestration run-current` | 0 | Plain text, not JSON (the no-binding shape: one sentence). Kept byte for byte. |
++| `captured-run-current.json` | 1 (capture item 1) | `orca-ide orchestration run-current` | 0 | The captured stdout is plain text, not JSON (the no-binding shape: one sentence), so it is wrapped: `{command, exit_code, stdout_format, stdout}`; `stdout` is the captured text byte for byte. |
+ | `captured-worker-list.json` | 3 (and 0, the first read of the same call) | `orca-ide orchestration worker-list --run run_a4723d345399 --json` | 0 | None. 5 worker rows. |
+ | `captured-worker-show-1.json` | 4 | `orca-ide orchestration worker-show --dispatch ctx_4e3237d227c3 --json` | 0 | Rule 5 except `terminal.preview` kept. |
+ | `captured-worker-show-2.json` | 4 | `orca-ide orchestration worker-show --dispatch ctx_6a0e3e3baaee --json` | 0 | Same. |
+@@ -29,14 +29,14 @@
+ | `captured-worktree-current.json` | 7 | `orca-ide worktree current --json` | 0 | Rule 5. |
+ | `captured-worker-list-unknown-run.json` | 8 | `orca-ide orchestration worker-list --run run_000000000000 --json` | 0 | None. Empty list, not an error. |
+ | `captured-task-list-unknown-run.json` | 8 | `orca-ide orchestration task-list --run run_000000000000 --json` | 1 | None. Error body `run_not_found`; this read is Deviation D1 in the probe file. |
+-| `captured-orca-tabs/00000000-0000-4000-8000-000000000015+00000000-0000-4000-8000-000000000016` | 13 | file read inside `~/.local/state/ccsession/orca-tabs/` (worker `ctx_4e3237d227c3`) | n/a | Plain 3-line file (session id, launch folder, terminal handle), not JSON. File name is the fake pane key with `+`. |
+-| `captured-orca-tabs/00000000-0000-4000-8000-000000000019+00000000-0000-4000-8000-000000000020` | 13 | same folder (worker `ctx_6a0e3e3baaee`) | n/a | Same. |
+-| `captured-orca-tabs/00000000-0000-4000-8000-000000000023+00000000-0000-4000-8000-000000000024` | 13 | same folder (worker `ctx_7c86fffa9716`) | n/a | Same. |
+-| `captured-orca-tabs/00000000-0000-4000-8000-000000000027+00000000-0000-4000-8000-000000000028` | 13 | same folder (worker `ctx_9a3728b21883`) | n/a | Same. |
+-| `captured-orca-tabs/00000000-0000-4000-8000-000000000031+00000000-0000-4000-8000-000000000032` | 13 | same folder (worker `ctx_dad78c5c1332`) | n/a | Same. |
++| `captured-tab-map-1.json` | 13 | file read inside `~/.local/state/ccsession/orca-tabs/` (worker `ctx_4e3237d227c3`, file `00000000-0000-4000-8000-000000000015+00000000-0000-4000-8000-000000000016`) | n/a | The captured file is plain text (3 lines: session id, launch folder, Orca terminal handle), not JSON, so it is wrapped: `{source, file_format, file_name, lines}`; `file_name` is the fake pane key with `+`, `lines` are the 3 lines. |
++| `captured-tab-map-2.json` | 13 | same folder (worker `ctx_6a0e3e3baaee`, file `00000000-0000-4000-8000-000000000019+00000000-0000-4000-8000-000000000020`) | n/a | Same wrapper. |
++| `captured-tab-map-3.json` | 13 | same folder (worker `ctx_7c86fffa9716`, file `00000000-0000-4000-8000-000000000023+00000000-0000-4000-8000-000000000024`) | n/a | Same wrapper. |
++| `captured-tab-map-4.json` | 13 | same folder (worker `ctx_9a3728b21883`, file `00000000-0000-4000-8000-000000000027+00000000-0000-4000-8000-000000000028`) | n/a | Same wrapper. |
++| `captured-tab-map-5.json` | 13 | same folder (worker `ctx_dad78c5c1332`, file `00000000-0000-4000-8000-000000000031+00000000-0000-4000-8000-000000000032`) | n/a | Same wrapper. |
+ 
+ ## Notes
+ 
+-- Items 1 and 13 of the capture are not JSON (plain text), so they are stored as `.txt` and as plain files under `captured-orca-tabs/`; the JSON parse check applies to the 13 `captured-*.json` files.
++- Items 1 and 13 of the capture are plain text, not JSON. Each is stored as a small JSON wrapper that holds the captured text unchanged, so every fixture here is a `captured-*.json` file (19 files) and the folder holds only those and this file. A first version stored them as `.txt` and plain tab-map files; the item 7.20 check on this folder allows only `captured-*.json` and `SOURCES.md`, so they were converted (logged in `### Phase 7 Findings`).
+ - All five workers in this capture had exited (`liveness.verdict` `exited`, `dispatch.status` `completed`). No fixture shows a live worker, a `failed` or `circuit_broken` row, a bound `run-current`, a second `worker-list` page or the Orca-unavailable shape; those stay UNVERIFIED (`phase-outputs/discovery/1.0a-facts.md`).
+ - The sanitized UUID numbering is stable only for the file set above; regenerating from a new capture renumbers them.
+--- /dev/null
++++ b/tests/sweep/fixtures/captured-run-current.json   (new file, 6 lines)
++{
++  "command": "orca-ide orchestration run-current",
++  "exit_code": 0,
++  "stdout_format": "plain text, not JSON",
++  "stdout": "No Run is bound to this terminal.\n"
++}
+--- /dev/null
++++ b/tests/sweep/fixtures/captured-tab-map-1.json   (new file, 10 lines)
++{
++  "source": "file in the ccsession orca-tabs folder",
++  "file_format": "plain text, 3 lines: session id, launch folder, Orca terminal handle",
++  "file_name": "00000000-0000-4000-8000-000000000015+00000000-0000-4000-8000-000000000016",
++  "lines": [
++    "00000000-0000-4000-8000-000000000017",
++    "/home/user/workspaces/worktrees/IronClaude/issue-504",
++    "term_00000000-0000-4000-8000-000000000008"
++  ]
++}
+--- /dev/null
++++ b/tests/sweep/fixtures/captured-tab-map-2.json   (new file, 10 lines)
++{
++  "source": "file in the ccsession orca-tabs folder",
++  "file_format": "plain text, 3 lines: session id, launch folder, Orca terminal handle",
++  "file_name": "00000000-0000-4000-8000-000000000019+00000000-0000-4000-8000-000000000020",
++  "lines": [
++    "00000000-0000-4000-8000-000000000021",
++    "/home/user/workspaces/worktrees/IronClaude/issue-504",
++    "term_00000000-0000-4000-8000-000000000002"
++  ]
++}
+--- /dev/null
++++ b/tests/sweep/fixtures/captured-tab-map-3.json   (new file, 10 lines)
++{
++  "source": "file in the ccsession orca-tabs folder",
++  "file_format": "plain text, 3 lines: session id, launch folder, Orca terminal handle",
++  "file_name": "00000000-0000-4000-8000-000000000023+00000000-0000-4000-8000-000000000024",
++  "lines": [
++    "00000000-0000-4000-8000-000000000025",
++    "/home/user/workspaces/worktrees/IronClaude/issue-504",
++    "term_00000000-0000-4000-8000-000000000010"
++  ]
++}
+--- /dev/null
++++ b/tests/sweep/fixtures/captured-tab-map-4.json   (new file, 10 lines)
++{
++  "source": "file in the ccsession orca-tabs folder",
++  "file_format": "plain text, 3 lines: session id, launch folder, Orca terminal handle",
++  "file_name": "00000000-0000-4000-8000-000000000027+00000000-0000-4000-8000-000000000028",
++  "lines": [
++    "00000000-0000-4000-8000-000000000029",
++    "/home/user/workspaces/worktrees/IronClaude/issue-504",
++    "term_00000000-0000-4000-8000-000000000006"
++  ]
++}
+--- /dev/null
++++ b/tests/sweep/fixtures/captured-tab-map-5.json   (new file, 10 lines)
++{
++  "source": "file in the ccsession orca-tabs folder",
++  "file_format": "plain text, 3 lines: session id, launch folder, Orca terminal handle",
++  "file_name": "00000000-0000-4000-8000-000000000031+00000000-0000-4000-8000-000000000032",
++  "lines": [
++    "00000000-0000-4000-8000-000000000033",
++    "/home/user/workspaces/worktrees/IronClaude/issue-504",
++    "term_00000000-0000-4000-8000-000000000012"
++  ]
++}
+--- a/.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md
++++ b/.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md
+@@ -2948,6 +2948,9 @@
+ - Build time (2026-11-08), coordinator msg_df77dc7c7c15, after reflect run 2: R-13 (F-13) the existing 7.17 field-name branch now states what a resume requires, with the same option A follow-up wording as the R-03 branch step 2.
+ - Build time (2026-11-08), coordinator msg_df77dc7c7c15, after reflect run 2: R-14 (F-14) confirmed only: the 7.16 Verification already checks "no hit on a recorded command line"; no edit.
+ - Build time (2026-11-08), coordinator msg_df77dc7c7c15, after reflect run 2: R-15 (F-15) item 7.15 requires a Run with at least one Dispatch row before RESOLVED; item 7.17 splits the open item 2 HALT into a Run id sample HALT and a separate Dispatch id sample HALT.
++- Run time (2026-11-11), item 7.16: the capture ran one read the item does not list, `task-list --run` with the fake Run id (template 5, for the error shape of capture item 8). It is recorded as Deviation D1 in `artifacts/readonly-probe.md`. The before and after `worker-show` and `task-list` payloads were identical except the per-response envelope `id`; the executor read the "apart from timestamps" rule as not covering it, and the probe file states that reading and the HALT text for the owner to apply if they read the rule strictly.
++- Run time (2026-11-11), item 7.17: the owner decided OQ-17 (cursor template): keep the 10 commands, add no cursor command; no OQ-18 file was written because open item 3 is still UNVERIFIED (the bound `run-current` shape was not observed). Open items 3, 6 (`agentWait` only), 9 and 16 stay STILL UNVERIFIED in `phase-outputs/discovery/1.0a-facts.md`.
++- Run time (2026-11-11), item 7.20 re-run record: the first run of the 7.20 checks gave two FAILs. (1) C9: `tests/sweep/fixtures/` held six paths that are not `captured-*.json` or `SOURCES.md` (`captured-run-current.txt` and five tab-map files under `captured-orca-tabs/`), because capture items 1 and 13 are plain text. Owning item 7.18 was re-run: the six were converted to JSON wrappers that keep the captured text unchanged (`captured-run-current.json`, `captured-tab-map-1.json` to `-5.json`) and `SOURCES.md` was updated. (2) S3: a defect in the check command itself (`cut -c1-90` hid the qualifier text, so the count read 1); the command was corrected and no product text changed. Both runs are kept in `phase-outputs/test-results/decisions-mechanical.md`.
+ 
+ ### Phase 8 Findings
+ 
+Delta diff from the previous reviewed tree (empty on the first review): 
+Earlier blocking findings of this start (empty on the first review): 
+Saved-probe re-check hit locations (may be empty): 
+
+Do not trust the implementer's report.
+
+First mark each earlier blocking finding resolved, open or regressed from the diff. Then, for each AC, mark it met or unmet. Require citations: every AC you mark, met or unmet, carries a `path:line` or `Ti.ACk@path:line` citation, and an unmet mark lists the finding ids behind it. Do not return a verdict; the orchestrator computes it.
+
+For every finding answer four questions, each yes or no:
+1. ac-outcome-missing: is output an AC requires absent, or does it contradict the AC text, or does an evidence claim you could not verify have no evidence row?
+2. false-claim: is a claim in delivered text or code false against live source, or does a recipe or instruction followed as written not do what the text says?
+3. harmful-effect: does code or a recipe this task added or changed write, append, chmod or delete tracked or production data, mutate state outside the task's declared outputs, or expose a secret?
+4. quoted-constraint-breach: does the diff violate a quoted plan constraint, out-of-scope, non-goal or non-negotiable item, or an explicit task instruction?
+
+Anchor rule: cite exactly one anchor per yes. ac-outcome-missing: the quoted AC words. false-claim: the live-source path:line holding the contradicting text. harmful-effect: the diff line that is the write. quoted-constraint-breach: the quoted constraint or instruction text. A yes without a valid anchor does not block.
+
+Write one line per finding:
+F<k>.<j> ac=<Ti.ACk|scope> at=<path:line> anchor=<quoted text or path:line> chk=<amiss,false,harm,constraint as y/n> family=<id> fix=<text> [covers=<quoted AC clause or constraint>]: <text>
+Do not write sev=, trigger=, first= or origin=; the orchestrator adds them. Write one status line per earlier blocking finding: F<m>.<j> resolved|open|regressed.
+
+Inside /sc:implement this protocol's severity model governs this review and takes precedence over the session's output style and the copy of it injected into every subagent; only blocking findings may fail an attempt.
+
+You are not given an adviser answer, brief, evidence file or troubleshoot report. Do not read the retry folders (legacy `.dev/implement/<slug>/retries/`, managed `<pkg>/artifacts/retries/`) or `.dev/troubleshoot/`. A citation into either makes the verdict `cannot-verify`.
+The prior-findings slot above carries earlier blocking finding lines that the orchestrator copies byte for byte from `review-*.md` and `repair-*.md`; they reach you as prompt text, not as an evidence file. Do not read those folders to get them, and never cite the slot or the file it came from.

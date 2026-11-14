@@ -1,0 +1,321 @@
+# Reviewer 1 card with its blind calibration attached (Wave 3C), for the Wave 4 adversarial merge.
+# Part 1: reviewer card
+# Saved verbatim by the orchestrator from the read-only reflect-reviewer returned card.
+schema: sc-reflect-reviewer-card/v1
+mode: UC-1 pre-execution
+reviewer: 1
+persona: analyzer
+model_class: claude-gw-tier1b
+brief: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/reflect/pre/reviewer-briefs/reviewer-1.md
+spec: docs/designs/orchestrator-mode.md
+tasklist: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md
+codegraph_used: false
+row_verdicts:
+  - {id: FR-001, verdict: covered, items: ["10.6"], evidence: ["docs/designs/orchestrator-mode.md:755", ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md:1811"], tag: Grounded, note: "10.6 tests help and lazy import; 9.2 registers."}
+  - {id: FR-002, verdict: covered-in-substance, items: ["8.10", "9.1", "10.7"], evidence: ["docs/designs/orchestrator-mode.md:756", ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md:1818"], tag: Grounded, note: "Matrix item 9.10 is a QA lens, not delivery; 8.10 bind_run, 9.1 _check_run_ids, 10.7 run-id cases deliver."}
+  - {id: FR-003, verdict: covered, items: ["9.1", "10.7"], evidence: ["docs/designs/orchestrator-mode.md:757", ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md:1623"], tag: Grounded, note: "_parse_window built in 9.1, parser cases in 10.7."}
+  - {id: FR-004, verdict: covered, items: ["9.1", "10.7"], evidence: ["docs/designs/orchestrator-mode.md:758", ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md:1623"], tag: Grounded, note: "_find_root and _check_output in 9.1, root and output cases in 10.7."}
+  - {id: FR-005, verdict: covered, items: ["8.4", "10.7"], evidence: ["docs/designs/orchestrator-mode.md:759", ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md:1818"], tag: Grounded, note: "classify_all returns SweepResult; 10.7 carries the 4-row reconciliation fixture."}
+  - {id: FR-006, verdict: covered, items: ["10.2", "10.5"], evidence: ["docs/designs/orchestrator-mode.md:760", ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md:1783"], tag: Grounded, note: "Rule cases in 10.2; no admitted or accepted wording in 10.5."}
+  - {id: FR-007, verdict: covered-in-substance, items: ["8.4", "10.2"], evidence: ["docs/designs/orchestrator-mode.md:761", ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md:1784"], tag: Grounded, note: "10.2 delegates to the section 11 test_classify row; the ID is never named."}
+  - {id: FR-008, verdict: covered-in-substance, items: ["8.4", "10.2"], evidence: ["docs/designs/orchestrator-mode.md:762", ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md:1784"], tag: Grounded, note: "Row lists the four FR-008 inputs; reached by delegation."}
+  - {id: FR-009, verdict: covered-in-substance, items: ["8.4", "10.2"], evidence: ["docs/designs/orchestrator-mode.md:763", ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md:1784"], tag: Grounded, note: "The two FR-009 cases with the exact note sit in the delegated row."}
+  - {id: FR-010, verdict: covered, items: ["8.4", "10.2"], evidence: ["docs/designs/orchestrator-mode.md:764", ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md:1784"], tag: Grounded, note: "10.2 adds the R3-B1/B2/B3 join fixtures and the D9 gate sits on 8.4."}
+  - {id: FR-011, verdict: covered-in-substance, items: ["8.12", "10.5"], evidence: ["docs/designs/orchestrator-mode.md:765", ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md:1804"], tag: Grounded, note: "SECTIONS order and the (a) sort via the delegated test_report row."}
+  - {id: FR-012, verdict: covered, items: ["8.4", "10.2"], evidence: ["docs/designs/orchestrator-mode.md:766", ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md:1783"], tag: Grounded, note: "safe_to_close built in 8.4; worktree never yes tested in 10.2."}
+  - {id: FR-013, verdict: covered-in-substance, items: ["8.4", "10.2", "10.3"], evidence: ["docs/designs/orchestrator-mode.md:767", ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md:1790"], tag: Grounded, note: "removable in 8.4, parse_status M7 cases in 10.3 by delegation."}
+  - {id: FR-014, verdict: covered-in-substance, items: ["8.4", "10.2"], evidence: ["docs/designs/orchestrator-mode.md:768", ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md:1784"], tag: Grounded, note: "One fixture per package state incl. conflict, via the delegated row."}
+  - {id: FR-015, verdict: covered, items: ["8.5", "8.4", "10.2"], evidence: ["docs/designs/orchestrator-mode.md:769", ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md:1444"], tag: Grounded, note: "ALLOWED_GIT carries --untracked-files=all (8.5); mark_shared_packages fixtures in 10.2."}
+  - {id: FR-016, verdict: covered-in-substance, items: ["8.12", "10.5"], evidence: ["docs/designs/orchestrator-mode.md:770", ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md:1493"], tag: Grounded, note: "sanitize and cell in 8.12; injection fixture and 300-char cell in 10.5."}
+  - {id: FR-017, verdict: covered-in-substance, items: ["9.1", "10.7"], evidence: ["docs/designs/orchestrator-mode.md:771", ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md:1623"], tag: Grounded, note: "_publish suffixes stem.md to stem-99.md and the stem/stem-2 test."}
+  - {id: FR-018, verdict: covered-in-substance, items: ["9.1", "10.7"], evidence: ["docs/designs/orchestrator-mode.md:772", ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md:1623"], tag: Grounded, note: "Exit mapping spelled out in 9.1; one test per exit code in 10.7."}
+  - {id: FR-019, verdict: covered-in-substance, items: ["8.10", "9.1", "10.7"], evidence: ["docs/designs/orchestrator-mode.md:773", ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md:1818"], tag: Grounded, note: "OrcaResult unavailable in 8.10; disk-only continuation test in 10.7."}
+  - {id: FR-020, verdict: covered-in-substance, items: ["8.10", "10.3", "10.5"], evidence: ["docs/designs/orchestrator-mode.md:774", ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md:1790"], tag: Grounded, note: "Budget and byte limits in 8.10; nine boundary fixtures in 10.3; header line in 10.5."}
+  - {id: FR-021, verdict: covered, items: ["8.10", "10.3"], evidence: ["docs/designs/orchestrator-mode.md:775", ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md:1792"], tag: Grounded, note: "10.3 keeps the forbidden verb list as a literal in the test only."}
+  - {id: FR-022, verdict: covered-in-substance, items: ["11.1", "11.3", "11.4"], evidence: ["docs/designs/orchestrator-mode.md:776", ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md:1950"], tag: Grounded, note: "Command, skill and test_sweep_command built in order."}
+  - {id: FR-023, verdict: covered-in-substance, items: ["12.1", "12.2", "12.3"], evidence: ["docs/designs/orchestrator-mode.md:777", ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md:2103"], tag: Grounded, note: "Matrix hit is phase 5 only; delivery is WC-16 plus the never-as-worker pins, and the SPEC row still says WC-14."}
+  - {id: FR-024, verdict: covered-in-substance, items: ["11.2", "12.4", "13.1", "13.2", "13.3", "13.4", "13.5", "13.6"], evidence: ["docs/designs/orchestrator-mode.md:778", ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md:2256"], tag: Grounded, note: "All eight routing rows R1 to R8 have one item each."}
+  - {id: FR-025, verdict: covered-in-substance, items: ["8.6", "8.9", "13.7"], evidence: ["docs/designs/orchestrator-mode.md:779", ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md:1451"], tag: Grounded, note: "Matrix item 7.1 is only the GQ-10 decision record; gitignore line and real-git test deliver."}
+  - {id: FR-026, verdict: covered-in-substance, items: ["8.10", "10.3"], evidence: ["docs/designs/orchestrator-mode.md:780", ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md:1790"], tag: Grounded, note: "OrcaResult kinds in 8.10; result-class cases in 10.3."}
+  - {id: NFR-001, verdict: covered, items: ["9.1", "10.4", "10.7"], evidence: ["docs/designs/orchestrator-mode.md:781", ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md:1797"], tag: Grounded, note: "Snapshot diff in 10.4; unlink-failure case in 10.7."}
+  - {id: NFR-002, verdict: covered-in-substance, items: ["8.5", "8.9"], evidence: ["docs/designs/orchestrator-mode.md:782", ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md:1472"], tag: Grounded, note: "Recorded argv, env and real-git test in 8.9."}
+  - {id: NFR-003, verdict: covered-in-substance, items: ["8.5", "8.10", "10.3"], evidence: ["docs/designs/orchestrator-mode.md:783", ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md:1479"], tag: Grounded, note: "Matrix hit 2.16 is a phase 2 edit; check_orca_argv, check_git_args and the negatives deliver."}
+  - {id: NFR-004, verdict: covered, items: ["8.4", "10.2"], evidence: ["docs/designs/orchestrator-mode.md:784", ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md:1437"], tag: Grounded, note: "Import grep in 8.4 and the AST test in 10.2."}
+  - {id: NFR-005, verdict: covered-in-substance, items: ["8.12", "10.5"], evidence: ["docs/designs/orchestrator-mode.md:785", ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md:1493"], tag: Grounded, note: "8.12 forbids time and datetime.now; render-twice test in 10.5."}
+  - {id: NFR-006, verdict: covered, items: ["8.2", "10.6"], evidence: ["docs/designs/orchestrator-mode.md:786", ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md:1811"], tag: Grounded, note: "Lazy __getattr__ in 8.2; lazy-import test in 10.6."}
+  - {id: NFR-007, verdict: covered-in-substance, items: ["8.10", "10.3", "11.3", "11.4"], evidence: ["docs/designs/orchestrator-mode.md:787", ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md:1971"], tag: Grounded, note: "Budget 90 s in 8.10 and 10.3; 120000 ms asserted in 11.3 and 11.4."}
+  - {id: NFR-008, verdict: covered-in-substance, items: ["8.4", "10.5"], evidence: ["docs/designs/orchestrator-mode.md:788", ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md:1804"], tag: Grounded, note: "Source-loss fixture in the delegated test_report row."}
+  - {id: NFR-009, verdict: covered-in-substance, items: ["8.12", "10.7"], evidence: ["docs/designs/orchestrator-mode.md:789", ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md:1818"], tag: Grounded, note: "to_json emits the v1 key set; golden key-set test in 10.7."}
+  - {id: NFR-010, verdict: covered, items: ["8.4", "10.2"], evidence: ["docs/designs/orchestrator-mode.md:790", ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md:1437"], tag: Grounded, note: "RULES order stated in 8.4; name-order pin in 10.2."}
+  - {id: NFR-011, verdict: covered-in-substance, items: ["11.1", "11.3", "11.4", "14.5"], evidence: ["docs/designs/orchestrator-mode.md:791", ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md:2465"], tag: Grounded, note: "Zero-hit src/superclaude checks in 11.1 and 11.3; test in 11.4; scoped grep in 14.5."}
+  - {id: NFR-012, verdict: covered-in-substance, items: ["14.1", "14.2", "14.3", "14.4"], evidence: ["docs/designs/orchestrator-mode.md:792", ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md:2437"], tag: Grounded, note: "Section 12 maps NFR-012 to steps 1.25 to 1.27, which these four items run."}
+  - {id: NFR-013, verdict: covered, items: ["8.8", "10.4"], evidence: ["docs/designs/orchestrator-mode.md:793", ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md:1465"], tag: Grounded, note: "Autouse subprocess guard in 8.8; no-live-launch snapshot in 10.4."}
+  - {id: NFR-014, verdict: covered-in-substance, items: ["8.10", "10.3"], evidence: ["docs/designs/orchestrator-mode.md:794", ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md:1790"], tag: Grounded, note: "Matrix hit 14.35 is a QA lens; exact-set pin of eight templates is in 10.3."}
+  - {id: NFR-015, verdict: covered-in-substance, items: ["8.10", "8.12", "10.5"], evidence: ["docs/designs/orchestrator-mode.md:795", ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md:1804"], tag: Grounded, note: "read_orca_version in 8.10, CHECKED_ORCA_VERSION in 8.12, three version-line cases in 10.5."}
+  - {id: step-1.0a, verdict: partial, items: ["7.16", "7.17", "7.18"], evidence: ["docs/designs/orchestrator-mode.md:874", ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md:1258"], tag: Grounded, note: "No branch sends a run-current --json need to the owner (M2); see R1-G1. worker-list runs before the before-reads, which the item discloses."}
+  - {id: step-1.0b, verdict: covered, items: ["7.1", "7.13"], evidence: ["docs/designs/orchestrator-mode.md:907", ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md:1226"], tag: Grounded, note: "Records and HALTs for GQ-10, GQ-11, GQ-35, GQ-61, GQ-63, D9, then the compiled file."}
+  - {id: step-1.1, verdict: covered, items: ["8.2"], evidence: ["docs/designs/orchestrator-mode.md:908", ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md:1423"], tag: Grounded, note: "Lazy __getattr__ copied from the recommend package."}
+  - {id: step-1.2, verdict: covered, items: ["8.3"], evidence: ["docs/designs/orchestrator-mode.md:909", ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md:1430"], tag: Grounded, note: "models.py with the design 7.2 names."}
+  - {id: step-1.3, verdict: covered, items: ["8.4"], evidence: ["docs/designs/orchestrator-mode.md:910", ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md:1437"], tag: Grounded, note: "Nine rules; adds the D9 gate, which the SPEC column does not list."}
+  - {id: step-1.4a, verdict: covered, items: ["8.5", "8.6", "8.8", "8.9"], evidence: ["docs/designs/orchestrator-mode.md:911", ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md:1472"], tag: Grounded, note: "Git seam, gitignore and test_readonly all delivered; 'first code commit' is deliberately not run (line 1414)."}
+  - {id: step-1.4, verdict: covered, items: ["8.10", "8.11", "9.3"], evidence: ["docs/designs/orchestrator-mode.md:912", ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md:1637"], tag: Grounded, note: "Live check moved to 9.3 after the CLI exists; the reason is stated."}
+  - {id: step-1.5, verdict: covered, items: ["8.12"], evidence: ["docs/designs/orchestrator-mode.md:913", ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md:1493"], tag: Grounded, note: "report.py with no write_report."}
+  - {id: step-1.6, verdict: covered, items: ["9.1"], evidence: ["docs/designs/orchestrator-mode.md:914", ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md:1623"], tag: Grounded, note: "commands.py with the seven _publish steps and no run-list."}
+  - {id: step-1.7, verdict: covered, items: ["9.2"], evidence: ["docs/designs/orchestrator-mode.md:915", ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md:1630"], tag: Grounded, note: "Re-anchored after line 565, not 561."}
+  - {id: step-1.8, verdict: covered, items: ["8.8", "10.1"], evidence: ["docs/designs/orchestrator-mode.md:916", ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md:1465"], tag: Grounded, note: "Split into a base part before 1.4a tests and a rest part in 10.1."}
+  - {id: step-1.9, verdict: covered, items: ["10.2"], evidence: ["docs/designs/orchestrator-mode.md:917", ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md:1783"], tag: Grounded, note: "test_classify.py."}
+  - {id: step-1.10, verdict: covered, items: ["10.3"], evidence: ["docs/designs/orchestrator-mode.md:918", ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md:1790"], tag: Grounded, note: "test_probes_allowlist.py."}
+  - {id: step-1.11, verdict: covered, items: ["10.4"], evidence: ["docs/designs/orchestrator-mode.md:919", ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md:1797"], tag: Grounded, note: "Snapshot diff extension to test_readonly.py."}
+  - {id: step-1.12, verdict: covered, items: ["10.5"], evidence: ["docs/designs/orchestrator-mode.md:920", ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md:1804"], tag: Grounded, note: "test_report.py."}
+  - {id: step-1.13, verdict: covered, items: ["10.6", "10.7"], evidence: ["docs/designs/orchestrator-mode.md:921", ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md:1811"], tag: Grounded, note: "Registration and contract test files."}
+  - {id: step-1.14, verdict: covered, items: ["11.1"], evidence: ["docs/designs/orchestrator-mode.md:922", ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md:1950"], tag: Grounded, note: "sweep.md after 9.2."}
+  - {id: step-1.15, verdict: covered, items: ["11.3"], evidence: ["docs/designs/orchestrator-mode.md:923", ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md:1964"], tag: Grounded, note: "Skill gated on OQ-6, after 11.1."}
+  - {id: step-1.16, verdict: covered, items: ["11.4"], evidence: ["docs/designs/orchestrator-mode.md:924", ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md:1971"], tag: Grounded, note: "Matrix item 13.6 is R8, which only depends on this step."}
+  - {id: step-1.16a, verdict: covered-in-substance, items: ["7.19"], evidence: ["docs/designs/orchestrator-mode.md:925", ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md:1277"], tag: Grounded, note: "Runs before 12.1. Uses state,mergedAt,mergeCommit and merge-base, not the unrevised state,files; relies on the phase 5 R4 rewrite."}
+  - {id: step-1.17, verdict: covered, items: ["12.1"], evidence: ["docs/designs/orchestrator-mode.md:926", ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md:2103"], tag: Grounded, note: "Gated on OQ-3 and 7.19; WC-16 not WC-14."}
+  - {id: step-1.18, verdict: covered, items: ["12.2"], evidence: ["docs/designs/orchestrator-mode.md:927", ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md:2110"], tag: Grounded, note: "After 12.1."}
+  - {id: step-1.19, verdict: covered, items: ["12.3"], evidence: ["docs/designs/orchestrator-mode.md:928", ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md:2117"], tag: Grounded, note: "Five pin edits plus rename."}
+  - {id: step-1.20, verdict: covered, items: ["11.2"], evidence: ["docs/designs/orchestrator-mode.md:929", ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md:1957"], tag: Grounded, note: "R5 directly after 11.1, so no test runs between."}
+  - {id: step-1.21, verdict: covered-in-substance, items: ["13.1", "13.2"], evidence: ["docs/designs/orchestrator-mode.md:930", ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md:2256"], tag: Grounded, note: "R2 then R1 after 11.1; the one-commit grouping is not carried (R1-G4)."}
+  - {id: step-1.22, verdict: covered, items: ["13.3"], evidence: ["docs/designs/orchestrator-mode.md:931", ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md:2270"], tag: Grounded, note: "R4 after R1 and R2."}
+  - {id: step-1.23, verdict: covered-in-substance, items: ["13.4"], evidence: ["docs/designs/orchestrator-mode.md:932", ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md:2277"], tag: Grounded, note: "Byte copy after 13.1 to 13.3; same-commit-as-1.21 is not carried (R1-G4)."}
+  - {id: step-1.24, verdict: covered, items: ["13.5"], evidence: ["docs/designs/orchestrator-mode.md:933", ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md:2284"], tag: Grounded, note: "R6 after 11.1."}
+  - {id: step-1.24a, verdict: covered, items: ["12.4"], evidence: ["docs/designs/orchestrator-mode.md:934", ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md:2124"], tag: Grounded, note: "R7 after 12.2, matching the 1.18 gate."}
+  - {id: step-1.24b, verdict: covered, items: ["13.6"], evidence: ["docs/designs/orchestrator-mode.md:935", ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md:2291"], tag: Grounded, note: "R8 after 11.4, matching the 1.16 gate."}
+  - {id: step-1.25, verdict: covered, items: ["14.1"], evidence: ["docs/designs/orchestrator-mode.md:936", ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md:2437"], tag: Grounded, note: "Fix cycle 14.25 re-runs it."}
+  - {id: step-1.26, verdict: covered, items: ["14.2"], evidence: ["docs/designs/orchestrator-mode.md:937", ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md:2444"], tag: Grounded, note: "All three lint commands."}
+  - {id: step-1.27, verdict: covered, items: ["14.3", "14.4"], evidence: ["docs/designs/orchestrator-mode.md:938", ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md:2451"], tag: Grounded, note: "Scoped run then full run."}
+  - {id: step-1.28, verdict: covered-in-substance, items: ["14.5"], evidence: ["docs/designs/orchestrator-mode.md:939", ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md:2465"], tag: Grounded, note: "'Every hit justified' becomes zero scoped hits plus an unchanged count of 168; see R1-G6."}
+  - {id: step-1.29, verdict: covered-in-substance, items: ["14.6", "14.7", "14.8"], evidence: ["docs/designs/orchestrator-mode.md:940", ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md:2472"], tag: Grounded, note: "Owner picks run or install (OQ-10); the recommended pipx run is not an install; see R1-G6."}
+findings:
+  - id: R1-G1
+    gap_class: partial
+    severity: MEDIUM
+    tag: Grounded
+    t1_relation: new
+    claim: >-
+      SPEC 15.1 says run-current is read in plain form and, if that output is not parseable, the fact goes to the owner as an M2 allowlist-change note. Item 7.16 runs run-current plain, but no 7.x or 8.x item holds a branch for "not parseable". 7.17 has a HALT only for a changed field name and for open item 2 (Run id sample). The word M2 appears nowhere in the TASKLIST. If the plain body cannot be parsed, 8.10 builds bind_run on an unparseable source and the FR-002 fourth test and FR-026 case 4 stay gated with no owner step.
+    evidence:
+      - docs/designs/orchestrator-mode.md:874
+      - docs/designs/orchestrator-mode.md:971
+      - .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md:1258
+      - .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md:1265
+    recommendation: >-
+      In 7.17 Action, add: if the 7.17 row for open item 2 says the run-current plain output is not parseable, apply the HALT rule with blocker_reason "Step 1.0a: run-current needs --json; allowlist change goes to the owner (M2)" and stop. Check: the edited 7.17 text contains "M2" and a blocker_reason naming run-current.
+  - id: R1-G2
+    gap_class: traceability
+    severity: LOW
+    tag: Grounded
+    t1_relation: refines F4
+    claim: >-
+      F4 says 54 parsed IDs are unmapped, but the registry also counts rows as matched that no phase 7 to 14 delivery item names. FR-023 and NFR-003 match only phase 2 and 5 design edits. FR-002 matches only the QA lens 9.10, NFR-014 only the QA lens 14.35, and FR-025 only the decision record 7.1. Real delivery exists for all five (12.1 to 12.3, 8.10 with 10.3, 9.1 with 10.7, 8.6 with 8.9), so coverage is fine but the ID link is missing. F4's suggested final grep item would duplicate the existing 14.11 and 14.35 lenses.
+    evidence:
+      - .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md:1784
+      - .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md:2677
+      - docs/designs/orchestrator-mode.md:777
+      - docs/designs/orchestrator-mode.md:783
+    recommendation: >-
+      Do not add a new QA item. Add "(FR-023)", "(NFR-003)", "(FR-025)" and so on to the Context line of 12.1, 8.10, 8.6 and the 10.x items, and widen the 14.35 lens to list GQ, D, SP and step IDs. Check: each of those items names its FR or NFR ID in its Context text.
+  - id: R1-G3
+    gap_class: test-plan
+    severity: MEDIUM
+    tag: Grounded
+    t1_relation: new
+    claim: >-
+      The 14.11 test-traceability lens checks "every row of the section 12 trace" but tells the agent to find the test only in tests/sweep/ or tests/commands/test_sweep_command.py. Section 12 sends FR-023 to tests/skills/test_worker_contract.py and FR-024 to tests/recommend/, tests/core/ and tests/commands/test_routing_plugin_parity.py. Those rows cannot be found where the lens looks. The agent either raises a false BLOCKING "missing test", which opens a fix cycle, or skips the rows.
+    evidence:
+      - .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md:2509
+      - docs/designs/orchestrator-mode.md:777
+      - docs/designs/orchestrator-mode.md:778
+    recommendation: >-
+      In the 14.11 lens prompt, replace "in tests/sweep/ or tests/commands/test_sweep_command.py" with "in the test file the row names (tests/sweep/, tests/commands/, tests/skills/, tests/core/ or tests/recommend/)", and say NFR-012 has no test by design. Check: the edited prompt names the tests/skills and tests/recommend folders.
+  - id: R1-G4
+    gap_class: ordering
+    severity: LOW
+    tag: Grounded
+    t1_relation: confirms F6
+    claim: >-
+      The one-commit groupings (R1+R2+R3; 1.23 with 1.21) are not carried by any item. Phase 13's intro says R1, R2 and R3 "belong together" because of the parity test, and 8.1 notes the first code commit is not run. The 14.46 task summary closes with only "No commit, push or merge was made", so a later committer is not told that splitting 13.1/13.2 from 13.4 fails the parity test in that commit.
+    evidence:
+      - docs/designs/orchestrator-mode.md:705
+      - docs/designs/orchestrator-mode.md:932
+      - .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md:2254
+      - .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md:2754
+    recommendation: >-
+      In the 14.46 Action, add to the closing lines: "Commit R1, R2 and R3 (items 13.1, 13.2, 13.4) together; 13.4 goes with 13.2." Check: task-summary.md contains that sentence.
+  - id: R1-G5
+    gap_class: ordering
+    severity: LOW
+    tag: Grounded
+    t1_relation: refines F8
+    claim: >-
+      F8 says the order matches the SPEC dependency column. It does, but the TASKLIST adds gates the column lacks, all with stated reasons. 8.1 requires every QA gate, all eight decisions and the 1.0a facts before steps 1.1 and 1.2, which the column marks "none". 8.4 adds the D9 gate, 8.12 adds OQ-4/5/6, 9.1 adds the impl-core gate, and 9.3 moves the 1.4 live check after 9.2. Effect: the git seam step 1.4a waits behind D9 through 8.4. No required gate is dropped; 12.2 and 12.3 rely on 12.1 running first rather than re-checking GQ-11.
+    evidence:
+      - docs/designs/orchestrator-mode.md:907
+      - docs/designs/orchestrator-mode.md:908
+      - docs/designs/orchestrator-mode.md:909
+      - docs/designs/orchestrator-mode.md:912
+      - .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md:1416
+    recommendation: >-
+      No plan change needed. When F8 is cited, state that the extra gates come from BUILD-REQUEST phase order and the line 164 owner-decision rule.
+  - id: R1-G6
+    gap_class: partial
+    severity: LOW
+    tag: Grounded
+    t1_relation: new
+    claim: >-
+      Two final steps are weaker than the SPEC wording. Step 1.28 says "every hit justified"; 14.5 uses zero scoped hits plus an unchanged full-tree count of 168, which cannot see one hit removed and another added elsewhere. Step 1.29 says "under a pipx install"; the recommended option A is pipx run --spec, which installs nothing and whose local-path use is marked UNVERIFIED. Both are owner-visible or documented, not hidden.
+    evidence:
+      - docs/designs/orchestrator-mode.md:939
+      - docs/designs/orchestrator-mode.md:940
+      - .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md:2470
+      - .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md:2474
+    recommendation: >-
+      In 14.5 Verification, also run git diff on the five folders and confirm no added line contains src/superclaude. In the final report, label step 1.29 "pipx run, not install" when option A is chosen. Check: both lines appear in the edited text.
+best_practice_compliance:
+  grade: 4
+  scale: 0-5
+  reasons:
+    - "+ Every FR, NFR and step has a delivery item in phases 7 to 14 except the M2 owner-note branch."
+    - "+ Gate order matches the SPEC column; every added or moved gate states its reason."
+    - "+ Fix cycles in 14.25 re-run 14.1 to 14.5, so late edits are re-validated."
+    - "- IDs are not named in delivery items, so the link relies on delegation to DESIGN rows."
+    - "- The 14.11 lens searches the wrong folders for two section 12 rows."
+self_scores:
+  citation_grounding: 0.85
+  coverage_completeness: 0.75
+  deviation_classification_clarity: 0.85
+  risk_surface_coverage: 0.70
+  recommendation_actionability: 0.85
+  C: 0.80
+  rationale:
+    citation_grounding: "Every finding and row cites lines I Read in the brief hunks or the listed files."
+    coverage_completeness: "All 76 rows have verdicts; I did not open every QA item the matrix matched."
+    deviation_classification_clarity: "Each finding fits one gap class; R1-G2 and R1-G3 sit close to each other."
+    risk_surface_coverage: "Ordering was checked against both SPEC tables; test side effects of creating sweep.md on other test files were not traced."
+    recommendation_actionability: "Each recommendation names the item and a text check."
+summary:
+  rows_audited: 76
+  findings_high: 0
+  findings_medium: 2
+  findings_low: 4
+
+# Part 2: blind calibration (calibrated scores and per-finding verdicts outrank self-reports)
+# CAL: # Saved verbatim by the orchestrator from the read-only confidence-calibrator output.
+# CAL: card_ref: /home/coder/workspaces/worktrees/IronClaude/issue-339-orchestrator-mode/.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/reflect/pre/reviewer-cards/reviewer-1-card.yaml
+# CAL: calibrator_model_class: haiku
+# CAL: dimensions:
+# CAL:   citation_grounding:
+# CAL:     score: 0.80
+# CAL:     reason: "Most delivery mappings verify, but several conclusions overstate their citations, and the registry counts lack a direct artifact citation."
+# CAL:   coverage_completeness:
+# CAL:     score: 0.80
+# CAL:     reason: "All 76 listed requirement and step rows have verdicts, but the card admits incomplete QA-item inspection and does not establish full tasklist coverage."
+# CAL:   deviation_classification_clarity:
+# CAL:     score: 0.25
+# CAL:     reason: "Findings have gap classes, but none receives the required Aligned, Refinement, Drift or Regression category."
+# CAL:   risk_surface_coverage:
+# CAL:     score: 0.75
+# CAL:     reason: "The card covers false QA blockers, parser uncertainty, commit parity and weak validation, but admits that wider test effects were not traced."
+# CAL:   recommendation_actionability:
+# CAL:     score: 0.80
+# CAL:     reason: "Most recommendations name task items and checkable edits, but R1-G1 targets the wrong open-item number and R1-G5 remains advisory."
+# CAL: calibrated_confidence: 0.68
+# CAL: self_reported_confidence: 0.80
+# CAL: calibration_delta: -0.12
+# CAL: citations_checked:
+# CAL:   method: "Read every unique file:line reference in the evidence lists, including surrounding text. Checks establish plan content, not executed implementation."
+# CAL:   unique_references: 128
+# CAL:   files:
+# CAL:     - file: /home/coder/workspaces/worktrees/IronClaude/issue-339-orchestrator-mode/docs/designs/orchestrator-mode.md
+# CAL:       cited_line_ranges:
+# CAL:         - "705"
+# CAL:         - "755-795"
+# CAL:         - "874"
+# CAL:         - "907-940"
+# CAL:         - "971"
+# CAL:     - file: /home/coder/workspaces/worktrees/IronClaude/issue-339-orchestrator-mode/.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md
+# CAL:       cited_lines:
+# CAL:         - 1226
+# CAL:         - 1258
+# CAL:         - 1265
+# CAL:         - 1277
+# CAL:         - 1416
+# CAL:         - 1423
+# CAL:         - 1430
+# CAL:         - 1437
+# CAL:         - 1444
+# CAL:         - 1451
+# CAL:         - 1465
+# CAL:         - 1472
+# CAL:         - 1479
+# CAL:         - 1493
+# CAL:         - 1623
+# CAL:         - 1630
+# CAL:         - 1637
+# CAL:         - 1783
+# CAL:         - 1784
+# CAL:         - 1790
+# CAL:         - 1792
+# CAL:         - 1797
+# CAL:         - 1804
+# CAL:         - 1811
+# CAL:         - 1818
+# CAL:         - 1950
+# CAL:         - 1957
+# CAL:         - 1964
+# CAL:         - 1971
+# CAL:         - 2103
+# CAL:         - 2110
+# CAL:         - 2117
+# CAL:         - 2124
+# CAL:         - 2254
+# CAL:         - 2256
+# CAL:         - 2270
+# CAL:         - 2277
+# CAL:         - 2284
+# CAL:         - 2291
+# CAL:         - 2437
+# CAL:         - 2444
+# CAL:         - 2451
+# CAL:         - 2465
+# CAL:         - 2470
+# CAL:         - 2472
+# CAL:         - 2474
+# CAL:         - 2509
+# CAL:         - 2677
+# CAL:         - 2754
+# CAL: citations_failed:
+# CAL:   - finding: R1-G1
+# CAL:     issue: "The cited 7.17 Action explicitly inherits DESIGN behaviour until closed, which includes owner escalation for open item 3. It does not support an unconditional absence of an owner step."
+# CAL:   - finding: R1-G2
+# CAL:     issue: "The cited delivery and QA text does not establish the registry's exact match counts or exclusive matches. Those registry claims remain unsupported."
+# CAL:   - finding: R1-G4
+# CAL:     issue: "The cited Phase 13 introduction already states that R1, R2 and R3 belong together and explains the parity failure. Only the final-summary handoff omission is supported."
+# CAL:   - finding: R1-G6
+# CAL:     issue: "The cited option A builds and caches a temporary environment, and item 14.8 explicitly describes installing runtime dependencies. 'Installs nothing' is inaccurate."
+# CAL: finding_verdicts:
+# CAL:   - id: R1-G1
+# CAL:     holds: partly
+# CAL:     calibrated_severity: LOW
+# CAL:     reason: "An explicit parse-failure HALT is absent, but inherited DESIGN behaviour already sends the issue to the owner; the proposed condition wrongly names open item 2 instead of 3."
+# CAL:   - id: R1-G2
+# CAL:     holds: partly
+# CAL:     calibrated_severity: LOW
+# CAL:     reason: "Delivery exists and some direct requirement labels are missing, but the asserted registry matching and duplication conclusions are not fully demonstrated."
+# CAL:   - id: R1-G3
+# CAL:     holds: "yes"
+# CAL:     calibrated_severity: MEDIUM
+# CAL:     reason: "Item 14.11 restricts test searches to locations that exclude the FR-023 and FR-024 tests, creating a concrete risk of false blocking findings."
+# CAL:   - id: R1-G4
+# CAL:     holds: partly
+# CAL:     calibrated_severity: LOW
+# CAL:     reason: "The final summary lacks an explicit commit-group reminder, but the plan already documents grouping and parity, and execution makes no commits."
+# CAL:   - id: R1-G5
+# CAL:     holds: "yes"
+# CAL:     calibrated_severity: LOW
+# CAL:     reason: "The tasklist adds documented preconditions and moves the live check until after CLI registration; this is an explanatory refinement, not a demonstrated defect."
+# CAL:   - id: R1-G6
+# CAL:     holds: partly
+# CAL:     calibrated_severity: LOW
+# CAL:     reason: "An unchanged hit count can conceal changed matches, but temporary pipx installation is not absence of installation, and the owner explicitly chooses the verification route."

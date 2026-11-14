@@ -1,0 +1,365 @@
+schema: sc-reflect-card/v1
+tier: 1
+mode: UC-1 pre-execution
+run: 2
+created: 2026-11-08
+spec: docs/designs/orchestrator-mode.md
+spec_lines: 1013
+tasklist: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md
+tasklist_lines: 2896
+tasklist_items: 355
+coverage_matrix: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/reflect/pre-run2/coverage-matrix.yaml
+independence_note: >-
+  Run 1's card was used for its shape only. Every finding below comes from this run's own read of the current
+  DESIGN and the current task file; where a run 1 issue is still present it was re-found and re-cited here.
+
+coverage:
+  parsed_count: 126
+  inferred_count: 26
+  matched_parsed: 122          # 98 covered + 24 covered-in-substance
+  matched_inferred: 18
+  coverage_pct: 0.968
+  coverage_pct_union: 0.921
+  unmapped_requirements: 4     # GQ-111, GQ-112, GQ-113, SP-28 (all partial)
+  unmapped_requirements_union: 12
+  coverage_degraded: null      # parsed-sparse does not fire: inferred (26) is not greater than parsed (126)
+  note: >-
+    Run 2 expands 'X to Y' ranges (item 10.2 names 'FR-006 to FR-010, FR-012 to FR-015', tasklist line 1786) and
+    adds R3-B1..R3-B3, G-1, INV-005 and INV-017 to Pass 1, so the parsed set is 126, not run 1's 120. Statuses were
+    judged by reading each delivering item, not by token match alone. D10 is not counted: it does not exist in the
+    current DESIGN; item 6.3 creates it.
+
+signals:
+  S_scope: 355          # tasklist item count; above 10, exits the T1 STOP path
+  S_domains: 5          # code, tests, docs, config, infra; 3 or more escalates
+  S_dev_density: 0.079  # 12 unmapped / 152 union rows; at or below 0.20
+
+findings:
+  - id: F1
+    severity: MEDIUM
+    category: Gate defect (a design-required outcome of step 1.0a has no route)
+    tag: Grounded
+    claim: >-
+      DESIGN says the worker-list cursor template "is added only after step 1.0a captures the cursor field, as one
+      extra template", and that a run-current --json need "is a template change and needs the same owner note as any
+      other allowlist change". The task records the cursor field in item 7.17 and expects it (OQ-13 names
+      `page.nextCursor`), but item 8.10 requires "a count of `ALLOWED_ORCA` entries is 10" and item 10.3 pins
+      "exact-set pin of the ten templates". No item adds the cursor template, and none routes either case to the
+      owner. Item 7.17 HALTs only when a live field name differs from DESIGN. If the capture shows a cursor, the
+      executor must either break DESIGN 7.3 or fail item 8.10.
+    evidence:
+      - docs/designs/orchestrator-mode.md:550
+      - docs/designs/orchestrator-mode.md:552
+      - .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md:1267
+      - .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md:1485
+      - .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md:1793
+      - .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md:2878
+    recommendation: >-
+      Add a Branch to item 7.17: "If capture item 3 shows a cursor field, or capture item 2 shows run-current needs
+      --json, record it and apply the HALT rule with blocker_reason 'Step 1.0a: allowlist change needed (<template>);
+      owner note required (DESIGN 7.3)'." On RESOLVED, items 8.10 and 10.3 use the count from the owner note
+      (11 with the cursor template), not a fixed 10. Success: items 8.10 and 10.3 read the template count from
+      1.0a-facts.md or the owner note.
+    self_reported_confidence: 0.75
+
+  - id: F2
+    severity: MEDIUM
+    category: Check that cannot pass as written
+    tag: Grounded
+    claim: >-
+      Item 8.3 says "every class and constant name in DESIGN section 7.2 appears once (`grep -c` per name)". DESIGN
+      7.2 types fields with the other classes, for example `SweepInput.orca_rows: tuple[OrcaObservation, ...]` and
+      `transcripts: tuple[TranscriptTail, ...]`, and `SweepResult.rows: tuple[ClassifiedRow, ...]`. A correct
+      models.py therefore names OrcaObservation, TranscriptTail, TabMapEntry, WorktreeState, SourceCoverage,
+      ClassifiedRow and others on more than one line, so `grep -c` returns more than 1 and the check fails on correct
+      code.
+    evidence:
+      - .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md:1436
+      - docs/designs/orchestrator-mode.md:454
+      - docs/designs/orchestrator-mode.md:466
+    recommendation: >-
+      Replace the clause with "each class is defined once (`grep -c '^class <Name>\b'` returns 1) and each constant is
+      assigned once (`grep -c '^<NAME> ='` returns 1)". Success: the check passes on a models.py that uses the types
+      in annotations.
+    self_reported_confidence: 0.85
+
+  - id: F3
+    severity: MEDIUM
+    category: HALT / owner-gate logic defect
+    tag: Grounded
+    claim: >-
+      Three leftovers weaken the owner gates. (1) The Phase 7 preamble says every HALT item "follows the item 6.2
+      procedure", but item 6.2 is now "Log the OQ-1 decision (L3, no HALT)" and has no Branch procedure, so the
+      shared rule points at nothing (item 7.13 also calls OQ-1 "the RESOLVED OQ-1 file from item 6.2"; 6.1 confirms
+      it). (2) Item 7.15 Branch 2 sets `status: RESOLVED` with no condition; only its Verification line asks for the
+      giver and the source. (3) Item 14.7 Branch 2 needs only filled lines and drops "the source quotes the owner's
+      words", which items 7.2 to 7.12 require.
+    evidence:
+      - .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md:1142
+      - .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md:989
+      - .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md:1229
+      - .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md:1244
+      - .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md:1246
+      - .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md:2483
+    severity_rationale: >-
+      MEDIUM, not HIGH: each HALT item still spells out its own two branches, so a faithful executor halts. The
+      defect is a dangling shared rule plus two weaker Branch 2 conditions that a literal executor could satisfy
+      without the person or the owner.
+    recommendation: >-
+      In line 1142 replace "the item 6.2 procedure" with "the procedure written out in item 7.2"; in 7.13 say "from
+      item 6.1". In 7.15 Branch 2 add "if `Run id:`, `Given by:` and `Source:` are all filled and the source quotes
+      the person's words". In 14.7 Branch 2 add "and the source quotes the owner's words". Success: grep finds no
+      "item 6.2 procedure" and every Branch 2 carries the quote condition.
+    self_reported_confidence: 0.85
+
+  - id: F4
+    severity: MEDIUM
+    category: Deviation record incomplete (fidelity gate risk)
+    tag: Grounded
+    claim: >-
+      Item 6.3 writes D10 as "NFR-014 and SPEC lines 310, 500, 504, 562 and 619: `worktree ps` never carries
+      `--agent-wait`". The SPEC also requires the `worktree ps --agent-wait` negative in NFR-003 (line 132) and
+      forbids `--agent-wait` "in any argv" at line 323. Item 6.3 (3) removes that negative from the section 11 test
+      row, so NFR-003 changes with no deviation naming it. The R5 gate SPEC lens and the Phase 14 SPEC-fidelity lens
+      read the SPEC, so they can report NFR-003 as an unrecorded change and force a fix cycle.
+    evidence:
+      - .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md:998
+      - .dev/brainstorms/20261108-024258-orchestrator-mode-phase1/merged-requirements.md:132
+      - .dev/brainstorms/20261108-024258-orchestrator-mode-phase1/merged-requirements.md:323
+    recommendation: >-
+      In item 6.3 (6) change the D10 SPEC cell to "NFR-003 (line 132), NFR-014 and SPEC lines 310, 323, 500, 504,
+      562 and 619". Success: every SPEC line that grep -n 'agent-wait' returns is named in D10.
+    self_reported_confidence: 0.8
+
+  - id: F5
+    severity: MEDIUM
+    category: Gate that may not pass (spurious HALT)
+    tag: Partly [INFERRED]
+    claim: >-
+      Item 7.14 asks the person for a Run with "best one live and one settled worker". Item 7.16 HALTs if the
+      worker-show or task-list before and after reads "differ apart from timestamps" (DESIGN 15.1). A live worker's
+      worker-show output can change between the two reads for normal reasons, for example liveness verdict,
+      agentWait or status [INFERRED: field behaviour not observed; open items 6 and 23 say these fields are not
+      captured yet]. The HALT would then stop the build for an owner review that finds nothing wrong.
+    evidence:
+      - docs/designs/orchestrator-mode.md:875
+      - .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md:1236
+      - .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md:1262
+    recommendation: >-
+      In item 7.16 record the before and after comparison per Dispatch, and apply the HALT when a settled Dispatch
+      or a task-list output changed. A live Dispatch whose changes are limited to its own state fields is recorded
+      with the changed field names for the decisions gate to judge. Note this reading of DESIGN 15.1 in Phase 7
+      Findings. Success: a Run with one live worker can pass 7.16 when nothing else changed.
+    self_reported_confidence: 0.6
+
+  - id: F6
+    severity: MEDIUM
+    category: Coverage gap (explicit SPEC instruction to the task builder)
+    tag: Grounded
+    claim: >-
+      DESIGN section 2.3 says "`/task-builder` must copy the same rule into the task file: cite GAPS line 138 for
+      counts and never edit the REPORT." The current task file has no such rule: grep for "line 138" finds nothing,
+      and the only nearby wording is the fix-agent line "never edits a research file". GQ-111 to GQ-113 and INF-001
+      stay partial or missing. No item edits the REPORT or cites a stale count today, so the risk is a later edit,
+      not a present breach.
+    evidence:
+      - docs/designs/orchestrator-mode.md:78
+      - docs/designs/orchestrator-mode.md:80
+      - .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md:159
+      - .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md:365
+    recommendation: >-
+      Add one Key Constraints bullet after line 159: "**REPORT and gaps counts:** never edit REPORT; any gaps-log
+      count cites GAPS line 138 (113 rows, 88 open, 25 resolved), never the REPORT's 'Open 75' or '78 open' figures
+      (DESIGN 2.3, GQ-111 to GQ-113)." Success: grep -c 'GAPS line 138' on the task file returns 1.
+    self_reported_confidence: 0.85
+
+  - id: F7
+    severity: LOW
+    category: Leftover contradiction the checks cannot see
+    tag: Grounded
+    claim: >-
+      Item 6.3 (8) and the item 6.4 check find stale counts with `grep -n 'eight\|8 templates'`. The section 4
+      component diagram says "ALLOWED_ORCA (8)" and "8 read templates", which neither pattern matches, so after
+      Phase 6 the diagram still says 8 while section 7.3 says 10. The pinned "zero argv" assertion in DESIGN covers
+      worktree list and worktree current only; item 6.3 marks the two new templates "not called in Phase 1" but adds
+      no zero-argv pin for them.
+    evidence:
+      - docs/designs/orchestrator-mode.md:181
+      - docs/designs/orchestrator-mode.md:196
+      - docs/designs/orchestrator-mode.md:548
+      - .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md:998
+      - .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md:1005
+    recommendation: >-
+      Widen both greps to `'eight\|8 templates\|ALLOWED_ORCA (8)\|8 read templates'`, update the diagram to
+      `ALLOWED_ORCA (10)` and "10 read templates", and in 6.3 (3) add "zero argv for both `--agent-wait` templates"
+      to the recording-test case list.
+    self_reported_confidence: 0.85
+
+  - id: F8
+    severity: LOW
+    category: Leftover contradiction
+    tag: Grounded
+    claim: >-
+      Key Constraints says the allowlist has "ten read templates (eight called in Phase 1 plus the two R5 ...
+      forms)". DESIGN 7.3 says Phase 1 code does not call worktree list or worktree current, and the NFR-003 test
+      asserts zero argv for both, so the code calls six. Step 1.0a issues all eight once, which is what the sentence
+      may mean.
+    evidence:
+      - .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md:163
+      - docs/designs/orchestrator-mode.md:548
+    recommendation: >-
+      Reword to "ten read templates: eight from the INV-005 sign-off (six called by the code; step 1.0a issues all
+      eight) plus the two R5 `worktree ps --agent-wait` forms, which nothing calls in Phase 1".
+    self_reported_confidence: 0.85
+
+  - id: F9
+    severity: LOW
+    category: Coverage gap
+    tag: Grounded
+    claim: >-
+      SP-28 and open item 19 say the byte limits stay "proposed", are "marked proposed in `probes.py`", and that
+      their rationale is recorded in the task package before release. Item 8.10 lists the limit constants with no
+      "proposed" marking and no check, and no item records the rationale or lists open item 19 as a follow-up.
+    evidence:
+      - docs/designs/orchestrator-mode.md:852
+      - docs/designs/orchestrator-mode.md:987
+      - .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md:1482
+    recommendation: >-
+      In item 8.10 Action add "comment each limit constant `# proposed (SP-28, open item 19)`", with a Verification
+      grep that finds 4 such lines; in item 14.46 add open item 19 to `### Follow-Up Items Identified`.
+    self_reported_confidence: 0.75
+
+  - id: F10
+    severity: LOW
+    category: Design constraints with no check
+    tag: Grounded
+    claim: >-
+      Some DESIGN rules have no task check. The boundary table forbids probes.py from importing classify, report or
+      click (B1 one-way imports), and B5 forbids redeclaring types from superclaude.contracts; items 8.4 and 8.12
+      check imports of classify.py and report.py only, and item 8.13 runs lint and tests. Section 7.5 also says the
+      report holds "no command to paste and no advice to delete anything under `.dev/tasks/`"; item 8.12 greps only
+      stop, retry, release, merge and remov.
+    evidence:
+      - docs/designs/orchestrator-mode.md:211
+      - docs/designs/orchestrator-mode.md:219
+      - docs/designs/orchestrator-mode.md:638
+      - .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md:1443
+      - .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md:1499
+    recommendation: >-
+      In item 8.13 add `grep -nE '^(import|from) .*(classify|report|click)' src/superclaude/cli/sweep/probes.py`
+      (expect none) and `grep -rn 'superclaude.contracts' src/superclaude/cli/sweep/` (expect none); in item 8.12 add
+      `delete` and a shell-prompt pattern to the user-facing-text grep.
+    self_reported_confidence: 0.7
+
+  - id: F11
+    severity: LOW
+    category: Leftover contradiction (would write a false line into DESIGN)
+    tag: Grounded
+    claim: >-
+      The N-01 hand edit fixed item 5.12 and the 5.1 and 5.3 classing text, but item 5.3's title and Output still
+      list section 14, and the item 5.11 Fix cycle 3 R4 row text that the executor copies into DESIGN says "marked
+      the SPEC and REPORT draft names in 13 and 14". Both historical hits (D6 at DESIGN line 812, REPORT row 1.17 at
+      line 835) are in section 13. Phase 5 Findings records the 5.3 and 5.11 leftovers as harmless scan targets, but
+      the 5.11 text is a claim, not a scan.
+    evidence:
+      - .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md:780
+      - .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md:838
+      - .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md:2824
+      - docs/designs/orchestrator-mode.md:812
+      - docs/designs/orchestrator-mode.md:835
+    recommendation: >-
+      In item 5.11 change "in 13 and 14" to "in 13". Optionally drop 14 from the 5.3 title and Output.
+    self_reported_confidence: 0.9
+
+  - id: F12
+    severity: LOW
+    category: Fidelity question on who runs step 1.0a
+    tag: "[INFERRED]"
+    claim: >-
+      DESIGN 15.1 says the capture is "run by the person or the coordinator, never by a test". Item 7.16 has the
+      task executor (frontmatter `assigned_to: "rf-task-executor"`) run the live Orca reads itself. Whether the
+      executor counts as the coordinator here is not stated [INFERRED]. Item 14.8 Branch B shows the task already
+      knows how to hand a live step to the coordinator.
+    evidence:
+      - docs/designs/orchestrator-mode.md:868
+      - .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md:12
+      - .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md:1249
+    recommendation: >-
+      State in item 7.16 Context that the executor runs the capture for the coordinator, with the coordinator's
+      approval recorded in the OQ-8 file, or route it as 14.8 Branch B does.
+    self_reported_confidence: 0.5
+
+  - id: F13
+    severity: LOW
+    category: Check commands with loose pass rules
+    tag: Partly [INFERRED]
+    claim: >-
+      Two step 1.0a checks are loose. Item 7.18 fails on `grep -rn '/home/coder\|coder' tests/sweep/fixtures/`, which
+      also matches any key or value that contains "coder", for example "encoder" [INFERRED: no fixture exists yet].
+      Item 7.16 passes when its forbidden-token grep "finds only the forbidden-list sentence", but its Action never
+      tells the executor to write such a sentence into readonly-probe.md.
+    evidence:
+      - .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md:1260
+      - .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md:1262
+      - .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md:1276
+    recommendation: >-
+      Use `grep -rnw 'coder'` plus `grep -rn '/home/coder'` in 7.18; in 7.16 say "finds nothing, or only lines that
+      quote the forbidden list".
+    self_reported_confidence: 0.7
+
+best_practice_compliance:
+  grade: 4
+  scale: 0-5
+  reasons:
+    - "+ Every item carries Context, Action, Output, Verification and Completion gate; every edit is anchored by quoted text."
+    - "+ The R5 owner decision is applied consistently: ten templates, one forbidden token, D10 and 'Total: 10 deviations.' in 6.3, 6.4, the R5 gate re-checks (lines 1082, 1110), 8.10, 10.1 and 10.3."
+    - "+ Order matches DESIGN 15.2 gates (1.20 right after 1.14, 1.24b after 1.16, 1.17 after 1.0b and 1.16a, classify after the D9 sign-off)."
+    - "- One verification fails on correct code (F2) and one fixed count blocks a design-allowed outcome (F1)."
+    - "- The shared HALT procedure points at a rewritten item and two Branch 2 conditions are weaker (F3)."
+    - "- The R5 edit leaves a deviation record and a diagram incomplete (F4, F7)."
+
+gap_registry:
+  - group: GQ
+    ids: [GQ-111, GQ-112, GQ-113]
+    status: partial
+    via: "F6: no GAPS line 138 or never-edit-REPORT rule in the task file"
+  - group: SP
+    ids: [SP-28]
+    status: partial
+    via: "F9: limits set in 8.10, never marked proposed, rationale not recorded"
+  - group: INF
+    ids: [INF-001, INF-008, INF-024]
+    status: missing
+    via: "DESIGN:80 rule (F6); B5 contracts (F10); limits marked proposed (F9)"
+  - group: INF
+    ids: [INF-005, INF-017, INF-018, INF-019, INF-020]
+    status: partial
+    via: "B1 probes imports (F10); who runs 1.0a (F12); no paste or delete advice (F10); run-current --json and cursor template owner route (F1)"
+  - group: covered-in-substance
+    ids: [FR-024, NFR-008, NFR-012, GQ-101, GQ-102, GQ-105, GQ-108, D3, D5, D7, D8, SP-07, SP-09, SP-19, SP-21, SP-22, SP-26, step-1.21, step-1.22, step-1.23, step-1.24, step-1.25, step-1.26, step-1.27]
+    status: covered in substance
+    via: "items delegate to the DESIGN section 11 rows or name routing rows and commands instead of the IDs; each delegation target was read"
+
+self_scores:
+  citation_grounding: 0.90
+  coverage_completeness: 0.85
+  deviation_classification_clarity: 0.80
+  risk_surface_coverage: 0.80
+  recommendation_actionability: 0.85
+  C: 0.84
+  rationale:
+    citation_grounding: "Every finding cites file:line read this session; F5, F12 and F13 carry [INFERRED] parts about runtime behaviour or intent."
+    coverage_completeness: "Parsed coverage 0.968 and union 0.921 after reading each delivering item; QA gate items 2.8 onward were sampled (Phase 2 gate fully, others by their decision items), not read one by one."
+    deviation_classification_clarity: "Each finding has one category; F7 and F11 sit between contradiction and check defect."
+    risk_surface_coverage: "Owner gates, unpassable checks, 1.0a outcomes and the R5 edit surfaced; research/04, 07 and 08 texts that items copy verbatim were not read, so copied wording is unchecked."
+    recommendation_actionability: "Each recommendation names the item, the text and a success check."
+
+escalation:
+  escalate: true
+  reasons:
+    - "C 0.84 is below 0.85"
+    - "S_scope 355 is above 10"
+    - "S_domains 5 is 3 or more"
+  high_findings: 0
+  medium_findings: 6
+  low_findings: 7

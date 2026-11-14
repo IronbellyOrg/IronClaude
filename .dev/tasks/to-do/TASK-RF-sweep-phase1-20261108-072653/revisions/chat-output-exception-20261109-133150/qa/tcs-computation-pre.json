@@ -1,0 +1,21 @@
+{
+  "computed_at_utc": "2026-11-10T02:47:22Z",
+  "task": ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md",
+  "task_sha256": "f52e43a57ba6d3f3dc25120da937e1b7bf666782c732e5b042d2b938eb966855",
+  "spec_path": "docs/designs/orchestrator-mode.md",
+  "signals": {
+    "S1": 474,
+    "S2": 66,
+    "S3": 41,
+    "S4": 7,
+    "S5": 16,
+    "S6": 0
+  },
+  "type_field": "\"\u2728 Feature\"",
+  "checklist_items": 355,
+  "tcs": 1862,
+  "derived_depth": "deep",
+  "required_tier_reached": 2,
+  "fer": "task-builder SKILL.md Reflect Depth (Deterministic TCS) S1-S6 and O1-O4, applied by parent over the revised task",
+  "notes": "POST depth floor (O4) not applicable to PRE; quick permitted at PRE."
+}

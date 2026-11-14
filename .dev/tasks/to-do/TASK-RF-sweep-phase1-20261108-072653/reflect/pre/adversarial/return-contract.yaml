@@ -1,0 +1,20 @@
+return_contract:
+  merged_output_path: ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/reflect/pre/adversarial/merged-verdict.yaml"
+  convergence_score: 1.00
+  artifacts_dir: ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/reflect/pre/adversarial/"
+  status: "partial"
+  base_variant: "variant-2 (qa, claude-gw-tier2)"
+  unresolved_conflicts: 0
+  fallback_mode: false
+  failure_stage: null
+  invocation_method: "skill-direct"
+  unaddressed_invariants:
+    - {id: INV-001, category: sufficiency_challenge, assumption: "Fixing the shared HALT procedure alone resolves the owner-gate deadlock; inline HALT text in items 7.2 to 7.12 stays deadlocked", severity: HIGH}
+    - {id: INV-002, category: guard_conditions, assumption: "Item 7.15 is outside the deadlock; it deadlocks the same way and was excluded", severity: HIGH}
+    - {id: INV-009, category: sufficiency_challenge, assumption: "Allowing echo in 7.16 makes the check passable; TL:1248, TL:1260 and the 7.24 lens still reject it", severity: HIGH}
+notes:
+  convergence_status: "BLOCKED_BY_INVARIANTS: 39/39 diff points agreed by at least 2 of 3 advocates, but 3 HIGH invariant-probe items were UNADDRESSED by the consensus. Depth standard, so no Round 3. All 3 were folded into the merged fixes (Changes 1 and 3) per refactor-plan.md; they stay listed here because the debate itself did not address them."
+  status_reason: "partial because convergence is BLOCKED_BY_INVARIANTS, not because of a merge or validation failure."
+  base_selection: "V2 0.847, V1 0.737, V3 0.717; margin 0.110; no tiebreaker."
+  plan_reviews: "refactor-plan-review.md FAIL (B-1, B-2); fix cycle 1; refactor-plan-review-2.md PASS."
+  merge: "merge-log.md: 25 changes applied, 0 deviated; validation PASS (YAML loads, 43 citations read, 0 broken, 0 contradictions)."

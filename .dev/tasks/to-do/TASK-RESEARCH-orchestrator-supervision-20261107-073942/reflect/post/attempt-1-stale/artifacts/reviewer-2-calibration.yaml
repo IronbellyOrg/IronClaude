@@ -1,0 +1,21 @@
+wave: 3C
+card: reviewer-cards/reviewer-2-card.yaml
+reviewer_model_class: claude-gw-tier2
+calibrator: confidence-calibrator
+calibrator_model_class: claude-gw-tier1b
+blind: true
+dimensions:
+  citation_grounding: 0.90
+  coverage_completeness: 0.70
+  deviation_classification_clarity: 0.85
+  risk_surface_coverage: 0.75
+  recommendation_actionability: 0.90
+calibrated_confidence: 0.82
+reviewer_self_confidence: 0.94
+spot_checks:
+  - {citation: "RESEARCH-REPORT-orchestrator-mode.md:1547 (row 7)", result: confirmed, note: "GQ-09 row in 9.1 open table says 'Settled by the sources'; rows 57, 106, 109 not read"}
+  - {citation: "TASK-RESEARCH-orchestrator-supervision-20261107-073942.md:270", result: confirmed, note: "assembly rule: open questions in Section 9 are not answered elsewhere"}
+  - {citation: "RESEARCH-REPORT-orchestrator-mode.md:1738 vs research/web-01-agent-supervisor-session-health.md:213-229", result: confirmed, note: "report says 14 sources; table rows 1-15"}
+  - {citation: "RESEARCH-REPORT-orchestrator-mode.md:1537", result: confirmed, note: "quoted sentence exact"}
+weight_recommendation: keep
+rationale: "4/4 spot checks matched; classification follows the owner-exception rule; self-confidence 0.94 overstated (5 of 10 coverage rows partial, settled rows 57/106/109 unevidenced)."

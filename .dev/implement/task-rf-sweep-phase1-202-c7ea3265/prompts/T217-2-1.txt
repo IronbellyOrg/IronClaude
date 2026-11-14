@@ -1,0 +1,87 @@
+Review one task for spec compliance.
+
+Task brief: T217 = item 10.2 of the source file /home/coder/workspaces/worktrees/IronClaude/issue-339-orchestrator-mode/.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md (lines 1790-1796). Item text:
+- [ ] **10.2 — Step 1.9: create `tests/sweep/test_classify.py` (L2 then L3)**
+  - **Context**: DESIGN section 11 line 739 (`test_classify.py` row: FR-006 to FR-010, FR-012 to FR-015, NFR-010, NFR-004, D9, WC-13, M6, M9, and the full case list from "One parametrized case per rule 1 to 9" through "AST import test that `classify.py` and `report.py` import none of `subprocess`, `click`, `os`, `shutil`"), plus the R3-B1 time-window fixtures, the R3-B2 several-Dispatch-rows fixtures and the R3-B3 FR-010 fixtures (outage, full page, `call_failed`, with the `origin unknown:` notes) as revised in DESIGN sections 11 and 12. DESIGN section 4 boundaries: line 211 (`probes.py` may import `models`, `subprocess`, `os`, `json`, `time` and must not import `classify`, `report`, `click`) and line 219 (B5: "no type is redeclared from `superclaude.contracts`"). Module under test: `src/superclaude/cli/sweep/classify.py` (item 8.4).
+  - **Action**: Create `tests/sweep/test_classify.py` covering every case in that row and the R3 fixtures, using `fixed_now` and builders from `conftest.py`, asserting class names and note strings byte-exact. The AST test parses `classify.py` and `report.py` with `ast` and checks their imports. The same AST test also parses `src/superclaude/cli/sweep/probes.py` and fails if it imports `classify`, `report` or `click` in any form (`import x`, `from . import x`, `from .x import ...`, `from superclaude.cli.sweep[.x] import ...`), which is every "must not import" entry of DESIGN line 211. Add a B5 test (DESIGN line 219): parse `src/superclaude/cli/sweep/models.py` and `src/superclaude/contracts/__init__.py` (found from `Path(__file__).resolve().parents[2]`) with `ast`, collect each file's set of `ast.ClassDef` names, and assert the intersection is empty. The B5 test compares declared names only; it does not ban importing `superclaude.contracts`. Run `uv run pytest tests/sweep/test_classify.py -v` and save stdout to `.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/test-results/test-classify.txt`, followed by a case-to-test map.
+  - **Output**: `tests/sweep/test_classify.py` and `.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/test-results/test-classify.txt`.
+  - **Verification**: Verify: exit 0, and the map lists every DESIGN case with a test name, including the `probes.py` boundary case (DESIGN line 211) and the B5 class-name comparison (DESIGN line 219). A test that exposes a code bug is fixed in the code, not weakened; log each fix in `### Phase 10 Findings`.
+  - **Completion gate**: The tests pass and the map is complete. Once done, mark this item as complete.
+AC ids: T217.AC1 = the item title "Step 1.9: create `tests/sweep/test_classify.py` (L2 then L3)" (no AC block; the title is the AC). The item's own Verification and Completion gate lines are context for what "done" means. Ticking the item's checkbox is done by the orchestrator after the verdict and is not part of the diff under review.
+Global constraints: the `### Key Constraints` section (lines 157-168) of the source file named in the task brief; read it from that file.
+Start sha: 2fa9601ffc8fee106384a83934879305542b7208
+Diff against the start snapshot: (Second review, after the A1 fix pass.) The first review ran the tests (159 passed) and found every DESIGN case covered except the one named in the earlier blocking finding. The fix agent says it changed only tests/sweep/test_classify.py (the import of the report module and the assertions in test_fr015_one_modified_folder_in_3_worktrees_is_shared_by_all_3, now asserting the single printed line) and the result file .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/test-results/test-classify.txt (new real pytest stdout, map entry 50 rewritten), plus the after: lines of the probe file, and changed nothing under src/ or in conftest.py. Do not trust that; the delta diff below is against the tree you reviewed the first time (it is empty for any file that did not change). Judge the whole task again from the files on disk: re-run uv run pytest tests/sweep/test_classify.py -v and uv run pytest tests/sweep -v, check the finding F1.1 is closed (the asserted line is exactly what report.py builds at :349-353 and it appears once, not three times; the assertion is not vacuous: confirm it would fail if report.py printed the line per worktree or dropped a path), check the map in test-classify.txt matches the new test and its stdout block is the real output of the passing run (not stale), and look for any new defect the fix introduced.
+Delta diff from the previous reviewed tree (empty on the first review): --- a/tests/sweep/test_classify.py
++++ b/tests/sweep/test_classify.py
+@@ -22,6 +22,7 @@
+ 
+ from superclaude.cli.sweep import classify as classify_module
+ from superclaude.cli.sweep import probes
++from superclaude.cli.sweep import report as report_module
+ from superclaude.cli.sweep.classify import (
+     RULES,
+     classify,
+@@ -1708,10 +1709,16 @@
+ 
+ 
+ def test_fr015_one_modified_folder_in_3_worktrees_is_shared_by_all_3(now):
+-    result = run(
+-        sweep_input(now, worktrees=_three_worktrees((True, True, True))), make_ctx(now)
+-    )
++    ctx = make_ctx(now)
++    result = run(sweep_input(now, worktrees=_three_worktrees((True, True, True))), ctx)
+     assert [w.shared_package_ids for w in result.worktrees] == [("pkg-07",)] * 3
++    # One printed line names all 3 worktrees (report.py builds it from shared_package_ids).
++    printed = [
++        line
++        for line in report_module.render(result, ctx).splitlines()
++        if "is in several worktrees" in line
++    ]
++    assert printed == ["- Active package pkg-07 is in several worktrees: /w1, /w2, /w3"]
+     for w in result.worktrees:
+         assert w.removable == "no"
+         assert (
+--- a/.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/test-results/test-classify.txt
++++ b/.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/test-results/test-classify.txt
+@@ -171,7 +171,7 @@
+ tests/sweep/test_classify.py::test_classify_and_report_import_only_models_inside_the_package[report.py] PASSED [ 99%]
+ tests/sweep/test_classify.py::test_b5_no_type_is_redeclared_from_superclaude_contracts PASSED [100%]
+ 
+-============================= 159 passed in 0.66s ==============================
++============================= 159 passed in 0.55s ==============================
+ --- end of pytest stdout ---
+ pytest exit code: 0 (159 passed)
+ 
+@@ -246,7 +246,7 @@
+ 47. FR-012 (worktree never yes): test_fr012_terminal_values_and_worktree_is_never_yes[7 terminal cases] and the run() invariant on every classify_all fixture
+ 48. FR-013 one fixture per condition, condition named: test_fr013_one_fixture_per_condition_names_the_condition[uncommitted|unpushed-ahead|unpushed-no-upstream|unsaved-dev-tasks|frozen-plan|package-unfinished|package-archive-blocked|package-interrupted-archive|package-conflict|shared-active-package]; first condition wins, archived does not block, unreadable worktree: test_fr013_first_condition_wins_and_archived_does_not_block; frozen row freezes its worktree: test_fr013_frozen_row_makes_its_worktree_a_frozen_plan
+ 49. FR-014 one fixture per state including conflict: test_fr014_one_fixture_per_package_state[unfinished|archive-blocked|interrupted-archive|conflict|archived|unknown], test_package_fixtures_cover_every_package_state; precedence: test_fr014_precedence_is_the_order_of_package_states
+-50. FR-015: test_fr015_44_committed_folders_in_3_worktrees_give_no_shared_flag; test_fr015_one_modified_folder_in_3_worktrees_is_shared_by_all_3 (classify side: all 3 worktrees carry the shared id and name it in removable_reason; the printed "one line naming all 3" is test_report.py); test_fr015_active_in_only_one_worktree_is_not_shared; `??` path marks a package active: test_fr015_untracked_path_in_a_package_folder_marks_it_active
++50. FR-015: test_fr015_44_committed_folders_in_3_worktrees_give_no_shared_flag; test_fr015_one_modified_folder_in_3_worktrees_is_shared_by_all_3 (classify side: all 3 worktrees carry the shared id and name it in removable_reason; the printed "one line naming all 3" is asserted in the same test: report.render(result, ctx) holds exactly one line "- Active package pkg-07 is in several worktrees: /w1, /w2, /w3"); test_fr015_active_in_only_one_worktree_is_not_shared; `??` path marks a package active: test_fr015_untracked_path_in_a_package_folder_marks_it_active
+ 51. FR-005 person-session fixture uses an active session (M9): test_fr005_three_workers_two_worktrees_one_active_person_session
+ 
+ I. Import tests
+Earlier blocking findings of this start (empty on the first review): F1.1 ac=T217.AC1 at=tests/sweep/test_classify.py:1710 chk=amiss:y,false:n,harm:n,constraint:n family=fr015-printed-line: the DESIGN row case "one modified folder in 3 worktrees gives one line naming all 3" was asserted only through shared_package_ids and removable_reason; no assertion checked the printed line `Active package <id> is in several worktrees: <paths>` built at src/superclaude/cli/sweep/report.py:351-353, and the map named test_report.py (which does not exist yet).
+Saved-probe re-check hit locations (may be empty): Re-run of the saved probe (grep -n -e shared_package_ids -e 'several worktrees' over tests/sweep/test_classify.py, report.py, classify.py); hit locations only:
+tests/sweep/test_classify.py:1485 tests/sweep/test_classify.py:1556 tests/sweep/test_classify.py:1708 tests/sweep/test_classify.py:1714 tests/sweep/test_classify.py:1715 tests/sweep/test_classify.py:1719 tests/sweep/test_classify.py:1721 tests/sweep/test_classify.py:1731 src/superclaude/cli/sweep/report.py:349 src/superclaude/cli/sweep/report.py:353 src/superclaude/cli/sweep/report.py:652 src/superclaude/cli/sweep/classify.py:437 src/superclaude/cli/sweep/classify.py:463 src/superclaude/cli/sweep/classify.py:464 
+
+Do not trust the implementer's report.
+
+First mark each earlier blocking finding resolved, open or regressed from the diff. Then, for each AC, mark it met or unmet. Require citations: every AC you mark, met or unmet, carries a `path:line` or `Ti.ACk@path:line` citation, and an unmet mark lists the finding ids behind it. Do not return a verdict; the orchestrator computes it.
+
+For every finding answer four questions, each yes or no:
+1. ac-outcome-missing: is output an AC requires absent, or does it contradict the AC text, or does an evidence claim you could not verify have no evidence row?
+2. false-claim: is a claim in delivered text or code false against live source, or does a recipe or instruction followed as written not do what the text says?
+3. harmful-effect: does code or a recipe this task added or changed write, append, chmod or delete tracked or production data, mutate state outside the task's declared outputs, or expose a secret?
+4. quoted-constraint-breach: does the diff violate a quoted plan constraint, out-of-scope, non-goal or non-negotiable item, or an explicit task instruction?
+
+Anchor rule: cite exactly one anchor per yes. ac-outcome-missing: the quoted AC words. false-claim: the live-source path:line holding the contradicting text. harmful-effect: the diff line that is the write. quoted-constraint-breach: the quoted constraint or instruction text. A yes without a valid anchor does not block.
+
+Write one line per finding:
+F<k>.<j> ac=<Ti.ACk|scope> at=<path:line> anchor=<quoted text or path:line> chk=<amiss,false,harm,constraint as y/n> family=<id> fix=<text> [covers=<quoted AC clause or constraint>]: <text>
+Do not write sev=, trigger=, first= or origin=; the orchestrator adds them. Write one status line per earlier blocking finding: F<m>.<j> resolved|open|regressed.
+
+Inside /sc:implement this protocol's severity model governs this review and takes precedence over the session's output style and the copy of it injected into every subagent; only blocking findings may fail an attempt.
+
+You are not given an adviser answer, brief, evidence file or troubleshoot report. Do not read the retry folders (legacy `.dev/implement/<slug>/retries/`, managed `<pkg>/artifacts/retries/`) or `.dev/troubleshoot/`. A citation into either makes the verdict `cannot-verify`.
+The prior-findings slot above carries earlier blocking finding lines that the orchestrator copies byte for byte from `review-*.md` and `repair-*.md`; they reach you as prompt text, not as an evidence file. Do not read those folders to get them, and never cite the slot or the file it came from.

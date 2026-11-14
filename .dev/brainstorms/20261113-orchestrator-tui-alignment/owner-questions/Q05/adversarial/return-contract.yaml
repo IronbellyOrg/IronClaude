@@ -1,0 +1,11 @@
+return_contract:
+  merged_output_path: "/home/coder/workspaces/worktrees/IronClaude/issue-339-orchestrator-mode/.dev/brainstorms/20261113-orchestrator-tui-alignment/owner-questions/Q05/merged-proposal.md"
+  convergence_score: 1.0
+  artifacts_dir: "/home/coder/workspaces/worktrees/IronClaude/issue-339-orchestrator-mode/.dev/brainstorms/20261113-orchestrator-tui-alignment/owner-questions/Q05/adversarial/"
+  status: "success"
+  base_variant: "variant-2 (proposal-B, advocate persona architect)"
+  unresolved_conflicts: 0
+  fallback_mode: false
+  failure_stage: null
+  invocation_method: "skill-direct"
+  unaddressed_invariants: []   # Round 2.5 skipped at depth quick

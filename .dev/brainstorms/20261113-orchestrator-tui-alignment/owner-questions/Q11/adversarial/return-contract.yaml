@@ -1,0 +1,13 @@
+# Step 1 (diff analysis) and Step 5 (merge) were run by the orchestrating worker directly;
+# Step 2 advocates were three spawned sub-agents (no inline fallback for the debate itself).
+return_contract:
+  merged_output_path: "/home/coder/workspaces/worktrees/IronClaude/issue-339-orchestrator-mode/.dev/brainstorms/20261113-orchestrator-tui-alignment/owner-questions/Q11/merged-proposal.md"
+  convergence_score: 0.82
+  artifacts_dir: "/home/coder/workspaces/worktrees/IronClaude/issue-339-orchestrator-mode/.dev/brainstorms/20261113-orchestrator-tui-alignment/owner-questions/Q11/adversarial"
+  status: "success"
+  base_variant: "variant-2 (proposal-B)"
+  unresolved_conflicts: 2
+  fallback_mode: false
+  failure_stage: null
+  invocation_method: "skill-direct"
+  unaddressed_invariants: []

@@ -1,0 +1,31 @@
+promotion_log_version: "1.0"
+adapter: task
+mode: auto
+action: skipped
+source: /home/coder/workspaces/worktrees/IronClaude/issue-339-orchestrator-mode/.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653
+destination: null
+source_sha256_before: null
+sha_match: null
+gate_evaluation:
+  mode_post: pass
+  status_success: fail                        # status partial
+  tasklist_completion_pct_1_0: fail           # 0.994: items 14.48 and 14.49 unticked
+  no_drift_no_regression: fail                # 11 drift, 1 regression
+  frontmatter_present: pass
+  frontmatter_status_matches: fail            # status is "Doing", not a terminal value
+  no_citations_dropped: fail                  # 1 dropped (sample count)
+  no_grounding_gaps: fail                     # 9 rows
+  no_input_drift: pass
+  no_user_decision_pending: fail              # needs_human_decision true
+  adversarial_result_present: pass            # convergence 1.00, merge_method adversarial
+gate_evaluation_failures: [status_success, tasklist_completion_pct_1_0, no_drift_no_regression, frontmatter_status_matches, no_citations_dropped, no_grounding_gaps, no_user_decision_pending]
+gate_passed: false
+citation_revalidation_at_promotion: false
+pending: false
+cross_fs_promotion: false
+checkpoint_path: null
+skip_reason: gate-failed
+fail_reason: null
+override_used: null
+rollback_command: null
+timestamp: 2026-11-12T20:37:23Z

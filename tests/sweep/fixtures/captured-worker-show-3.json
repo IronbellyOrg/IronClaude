@@ -1,0 +1,210 @@
+{
+  "id": "00000000-0000-4000-8000-000000000022",
+  "ok": true,
+  "result": {
+    "dispatch": {
+      "id": "ctx_7c86fffa9716",
+      "runId": "run_a4723d345399",
+      "taskId": "task_a6a2a3f9e170",
+      "task_id": "task_a6a2a3f9e170",
+      "contractVersion": 1,
+      "assigneeHandle": "term_00000000-0000-4000-8000-000000000010",
+      "assigneePaneKey": "00000000-0000-4000-8000-000000000023:00000000-0000-4000-8000-000000000024",
+      "processIncarnation": "00000000-0000-4000-8000-000000000003::/home/user/workspaces/worktrees/IronClaude/issue-504@@389ca4c5:00000000-0000-4000-8000-000000000011",
+      "capabilityRevokedAt": "2026-11-11T19:39:59.733Z",
+      "retryOfDispatchId": null,
+      "creatorDispatchId": null,
+      "hostScope": {
+        "kind": "local",
+        "hostId": "local"
+      },
+      "status": "completed",
+      "failureCount": 0,
+      "lastFailure": null,
+      "terminationReason": null,
+      "depth": 1,
+      "dispatchedAt": "2026-11-11 19:35:02",
+      "completedAt": "2026-11-11T19:39:59.733Z",
+      "createdAt": "2026-11-11 19:35:02",
+      "lastHeartbeatAt": null
+    },
+    "worker": {
+      "dispatchId": "ctx_7c86fffa9716",
+      "runtimeEpoch": "00000000-0000-4000-8000-000000000004",
+      "state": "succeeded",
+      "stage": "settled",
+      "worktreeId": "00000000-0000-4000-8000-000000000003::/home/user/workspaces/worktrees/IronClaude/issue-504",
+      "agentTerminalHandle": "term_00000000-0000-4000-8000-000000000010",
+      "setupState": "not_applicable",
+      "effects": [
+        {
+          "kind": "worktree",
+          "action": "reused",
+          "id": "00000000-0000-4000-8000-000000000003::/home/user/workspaces/worktrees/IronClaude/issue-504"
+        },
+        {
+          "kind": "setup",
+          "action": "not_applicable",
+          "state": "not_applicable"
+        },
+        {
+          "kind": "terminal",
+          "role": "agent",
+          "action": "created",
+          "id": "term_00000000-0000-4000-8000-000000000010",
+          "surface": "background",
+          "warning": "Terminal term_00000000-0000-4000-8000-000000000010 is running, but Orca could not make it discoverable. Run `orca terminal focus --terminal term_00000000-0000-4000-8000-000000000010` to reveal and focus it."
+        },
+        {
+          "kind": "dispatch_input",
+          "role": "agent",
+          "id": "term_00000000-0000-4000-8000-000000000010",
+          "state": "accepted"
+        }
+      ],
+      "residualResources": [
+        {
+          "kind": "terminal",
+          "role": "agent",
+          "action": "created",
+          "id": "term_00000000-0000-4000-8000-000000000010",
+          "surface": "background",
+          "warning": "Terminal term_00000000-0000-4000-8000-000000000010 is running, but Orca could not make it discoverable. Run `orca terminal focus --terminal term_00000000-0000-4000-8000-000000000010` to reveal and focus it."
+        }
+      ],
+      "startOptions": {
+        "worktree": "id:00000000-0000-4000-8000-000000000003::/home/user/workspaces/worktrees/IronClaude/issue-504",
+        "mode": {
+          "mode": "terminal",
+          "preferred": "terminal",
+          "reason": "user_default",
+          "detail": "Started a terminal agent worker, the default for new agent tabs in your settings."
+        },
+        "resolvedWorktreeId": "00000000-0000-4000-8000-000000000003::/home/user/workspaces/worktrees/IronClaude/issue-504",
+        "name": null,
+        "repo": null,
+        "baseBranch": null,
+        "terminal": null,
+        "agent": "claude",
+        "launch": {
+          "requested": {
+            "agent": "claude",
+            "model": null,
+            "effort": null
+          },
+          "effective": {
+            "agent": "claude",
+            "model": null,
+            "effort": null
+          }
+        },
+        "timeoutMs": 60000,
+        "setup": "not_applicable",
+        "setupSource": "existing_worktree"
+      },
+      "lastError": null,
+      "createdAt": "2026-11-11 19:35:02",
+      "updatedAt": "2026-11-11T19:39:59.733Z"
+    },
+    "projection": {
+      "id": "ctx_7c86fffa9716",
+      "dispatchId": "ctx_7c86fffa9716",
+      "taskId": "task_a6a2a3f9e170",
+      "runId": "run_a4723d345399",
+      "role": "worker",
+      "parent": null,
+      "provider": null,
+      "host": {
+        "kind": "local",
+        "id": "local"
+      },
+      "workspace": {
+        "id": "00000000-0000-4000-8000-000000000003::/home/user/workspaces/worktrees/IronClaude/issue-504",
+        "kind": "folder_or_worktree"
+      },
+      "stage": {
+        "worker": "succeeded",
+        "dispatch": "completed",
+        "detail": "settled",
+        "activity": "unknown"
+      },
+      "outcome": "succeeded",
+      "liveness": {
+        "verdict": "exited",
+        "source": "resource_release"
+      },
+      "evidence": {
+        "durable": true,
+        "liveStatus": "unavailable",
+        "lastObservedAt": null
+      },
+      "resource": {
+        "state": "released",
+        "id": "wtr_5a9324a2e491",
+        "ownerDispatchId": "ctx_7c86fffa9716",
+        "releaseState": "released",
+        "terminalState": "released"
+      },
+      "nextAction": {
+        "kind": "none",
+        "argv": []
+      },
+      "attention": {
+        "categories": [
+          "root_completion"
+        ],
+        "requiresAction": false
+      }
+    },
+    "terminal": {
+      "handle": "term_00000000-0000-4000-8000-000000000010",
+      "ptyId": "00000000-0000-4000-8000-000000000003::/home/user/workspaces/worktrees/IronClaude/issue-504@@389ca4c5",
+      "incarnationId": "00000000-0000-4000-8000-000000000011",
+      "orphaned": false,
+      "worktreeId": "00000000-0000-4000-8000-000000000003::/home/user/workspaces/worktrees/IronClaude/issue-504",
+      "worktreePath": "/home/user/workspaces/worktrees/IronClaude/issue-504",
+      "branch": "refs/heads/ironbelly/issue-504",
+      "tabId": "00000000-0000-4000-8000-000000000023",
+      "leafId": "00000000-0000-4000-8000-000000000024",
+      "title": "issue-504-1111-193550-6ae8 · Claude Code",
+      "connected": false,
+      "writable": false,
+      "lastOutputAt": 1794426015506,
+      "preview": "[ccsession] Cached 21 curated gateway models before launch\n[ccsession] Starting new session labeled 'issue-504-1111-193550-6ae8'\n← 1 agentBB\nResume this session with:\nclaude --resume 00000000-0000-4000-8000-000000000025\nissue-504 ironbelly/issue-504 !",
+      "exitCause": {
+        "kind": "operator_close"
+      },
+      "executionHostId": "local",
+      "paneRuntimeId": -1,
+      "rendererGraphEpoch": 0
+    },
+    "observation": {
+      "status": "exited",
+      "exactWorker": true
+    },
+    "terminalResource": {
+      "id": "wtr_5a9324a2e491",
+      "ownershipState": "released",
+      "releaseState": "released",
+      "retainedReason": null,
+      "terminalHandle": "term_00000000-0000-4000-8000-000000000010",
+      "worktreeId": "00000000-0000-4000-8000-000000000003::/home/user/workspaces/worktrees/IronClaude/issue-504",
+      "endpointId": "00000000-0000-4000-8000-000000000004",
+      "endpointIncarnation": "00000000-0000-4000-8000-000000000003::/home/user/workspaces/worktrees/IronClaude/issue-504@@389ca4c5:00000000-0000-4000-8000-000000000011",
+      "originDispatchId": "ctx_7c86fffa9716",
+      "ownerDispatchId": "ctx_7c86fffa9716",
+      "releaseRequestedAt": "2026-11-11 19:40:14",
+      "releaseCompletedAt": "2026-11-11 19:40:15",
+      "releaseError": null,
+      "recoveryAttemptCount": 0,
+      "lastRecoveryAt": null,
+      "archive": {
+        "source": "transcript",
+        "status": "captured"
+      }
+    }
+  },
+  "_meta": {
+    "runtimeId": "00000000-0000-4000-8000-000000000004"
+  }
+}

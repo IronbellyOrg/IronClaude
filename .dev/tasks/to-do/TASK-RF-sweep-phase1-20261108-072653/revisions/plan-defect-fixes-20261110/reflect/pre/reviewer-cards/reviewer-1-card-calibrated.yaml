@@ -1,0 +1,26 @@
+# Blind calibration of reviewer 1's card. Parent-persisted from the returned report of confidence-calibrator agent afad4b9bee2643b56 (haiku class; recorded gpt-6.1-sol, a Tier1b slot); scores and notes are the calibrator's.
+schema: sc-reflect-calibration/v1
+card: reviewer-cards/reviewer-1-card.md
+reviewer: {n: 1, persona: analyzer, model_class: sonnet (recorded claude-sonnet-5-5)}
+calibrator_model_class: haiku
+self_reported_confidence: 0.72
+calibrated_confidence: 0.68      # (0.65 + 0.70 + 0.20 + 0.85 + 1.00) / 5
+delta: -0.04
+dimension_scores: {citation_grounding: 0.65, coverage_completeness: 0.70, deviation_classification_clarity: 0.20, risk_surface_coverage: 0.85, recommendation_actionability: 1.00}
+citations_checked: 42            # reference occurrences incl. repeats and the six named style lines
+citations_failed: 0              # all 15 evidence-block quotes match their lines
+per_finding:
+  R1-F1: "Partly: the permitted authorization source is ambiguous, but the R2 BUILD-REQUEST records the earlier execution direction and 7.20 also needs fresh reports; an automatic PASS from a planning-only quotation is not proved."
+  R1-F2: "Partly: resume handling of a partly done style edit is underspecified, but 7.10 already directs a resumed session to inspect the existing authorization section and preserve it; duplication is a possible mistake, not required behaviour."
+  R1-F3: "Verified: the pre-spawn baseline goes into the same log the fix agent writes, with no instruction to preserve it (risk established; no overwrite observed)."
+  R1-F4: "Partly: the rechecks omit the authorization check and the hashes exclude the result file, but later verifiers recheck earlier PASS checks, so 'without detection' is too categorical."
+  R1-F5: "Partly: the two clauses are absent from the embedded Action and the style-failure HALT route exists, but 7.10 also requires reading the full addendum; a compliant implementation is not shown to fail 11.4."
+qualifications:
+  - "Deviation-classification dimension scored 0.20: the rubric requires one of Aligned/Refinement/Drift/Regression per finding; the card used severity and closure labels instead (same point the run-3 calibrator made for PRE cards)."
+  - "Not independently checked: the current contents of the six decision records; BASE was undefined in the card and the manifest baseline was used."
+escalation:
+  verdict: ESCALATE
+  reason: "C 0.68 < 0.85 (automatic escalation); run-level escalation is forced by --depth deep anyway"
+calibrator_diversity: degraded
+input_absent: [now_iso, assertions_path, card_mtime]
+not_checked: "runtime behavior, test execution, installed activation"

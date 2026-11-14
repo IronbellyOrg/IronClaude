@@ -1,0 +1,15 @@
+============================= test session starts ==============================
+platform linux -- Python 3.11.15, pytest-9.2.0, pluggy-1.7.0 -- /home/coder/workspaces/worktrees/IronClaude/issue-339-orchestrator-mode/.venv/bin/python
+cachedir: .pytest_cache
+SuperClaude: 5.0.0
+rootdir: /home/coder/workspaces/worktrees/IronClaude/issue-339-orchestrator-mode
+configfile: pyproject.toml
+plugins: superclaude-5.0.0, anyio-4.16.0
+collecting ... collected 4 items
+
+tests/sweep/test_readonly.py::test_git_argv_and_env_are_lock_free PASSED [ 25%]
+tests/sweep/test_readonly.py::test_check_git_args_allows_only_the_listed_call PASSED [ 50%]
+tests/sweep/test_readonly.py::test_one_git_argv_per_worktree PASSED      [ 75%]
+tests/sweep/test_readonly.py::test_real_git_lock_free_status_and_gitignore PASSED [100%]
+
+============================== 4 passed in 0.31s ===============================

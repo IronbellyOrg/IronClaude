@@ -1,0 +1,117 @@
+Review one task for spec compliance.
+
+Task brief: T160 = item 7.32 of the source file /home/coder/workspaces/worktrees/IronClaude/issue-339-orchestrator-mode/.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md (lines 1375-1381). Item text:
+- [ ] **7.32 — QA decisions: verification cycle 1, rf-qa-qualitative verifier**
+  - **Context**: Pre-7.10 source anchor for the style scope: `src/superclaude/output-styles/pragmatic.md:22` held the unqualified table mandate; after item 7.10 it holds the scoped sweep exception. Inputs: `.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/decisions/consolidated-findings-cycle0.md` (the `F_0` list), `.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/decisions/fix-log-cycle1.md` (from item 7.30), `.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/decisions/cycle-ledger.md` (the cycle-0 PASS set), and the gate inputs: the eight prerequisite decision records `.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/plans/OQ-[1-8]-*-decision.md` (OQ-1 to OQ-8) plus any OQ-17 or OQ-18 decision record in that folder that item 7.17 wrote, `.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/artifacts/owner-decisions.md`, `.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/artifacts/readonly-probe.md`, `.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/artifacts/pr422-409-check.md`, `.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/discovery/1.0a-facts.md`, `.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/test-results/decisions-mechanical.md`, `tests/sweep/fixtures/`, the R5 edit in DESIGN sections 7.3, 11, 12, 13 and 15.1, the GQ-109 row and the section 18 `### Fix cycle 3` R5 row (item 6.3), research/09 Gap 1 and Gap 3 (`.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/research/09-gap-fill.md`) and DESIGN section 15.1. Additional bounded Context: read revision `.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/revisions/chat-output-exception-20261109-133150/BUILD-REQUEST.md`, `design-addendum.md`, `delta-manifest.md` and `qa/research-gate-cycle1.md` there, `src/superclaude/output-styles/pragmatic.md` and `.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/test-results/step-7.10-style-exception.md` to apply this lens to actual (b), fresh revision/execution evidence and the early Markdown edit, not to rewrite history or certify future skill/tests; preserve this lens's original duties/counts and flag a contradiction only outside the narrow override.
+  - **Action**: If item 7.30 wrote `SKIPPED`, mark this item complete with the SKIPPED note. Otherwise items 7.31 and 7.32 are independent verifier spawns: spawn both in the SAME message, in parallel. For this item spawn one `rf-qa-qualitative` agent (Agent tool, `mode: bypassPermissions`, `fix_authorization: false`) with this verifier preamble, verbatim: "You are a verifier. `fix_authorization: false`. Re-check every BLOCKING and MAJOR finding in the consolidated file against the files on disk now, and re-check every check id in the earlier cycle's PASS set (in `cycle-ledger.md`) to confirm none now fails. For each finding say RESOLVED or OPEN with `file:line` evidence. Add a `## Checks` table listing every check id (`<report name>:C<n>`) with PASS or FAIL. Report any new BLOCKING or MAJOR finding with its own id. End with `Verdict: PASS` or `Verdict: FAIL` and `Blocking count: <n>`." Pass it the inputs in Context and the output path `.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/decisions/verify-cycle1-rf-qa-qualitative.md`. Ask it also to re-read each changed passage as its intended reader would.
+  - **Output**: `.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/decisions/verify-cycle1-rf-qa-qualitative.md`.
+  - **Verification**: Verify: the report gives RESOLVED or OPEN for every `F_0` id, a `## Checks` table with PASS or FAIL for every check id in the cycle-0 PASS set, `Verdict:` and `Blocking count:`. If the agent fails twice, log the blocker in `### Phase 7 Findings` and stop.
+  - **Completion gate**: The verifier report is written or the item is SKIPPED. Once done, mark this item as complete.
+AC ids: T160.AC1 = the item title "QA decisions: verification cycle 1, rf-qa-qualitative verifier" (no AC block; the title is the AC). The item's own Verification and Completion gate lines are context for what "done" means. Ticking the item's checkbox is done by the orchestrator after the verdict and is not part of the diff under review.
+Global constraints: the `### Key Constraints` section (lines 157-168) of the source file named in the task brief; read it from that file.
+Start sha: d29d79dbffd22062a70c65c1a0e6c35a8881aec6
+Diff against the start snapshot: --- /dev/null
++++ b/.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/decisions/verify-cycle1-rf-qa-qualitative.md   (new file, 323 lines)
++# Verify, cycle 1 (item 7.32, rf-qa-qualitative, verifier)
++
++fix_authorization: false. No file other than this report was edited.
++
++**Date:** 2026-11-12. **Phase:** fix-cycle verification (cycle 1), decisions gate, rf-qa-qualitative verifier.
++**Inputs read:** `consolidated-findings-cycle0.md`, `fix-log-cycle1.md`, `cycle-ledger.md`, the eight cycle-0 reports (for the meaning of each check id), the five edited files, all nine decision records, `pragmatic.md`, the 7.10 result file, the revision `BUILD-REQUEST.md`, DESIGN lines named below, item 7.30 text. Paths are relative to `.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/` (`PKG/`) unless they start with `docs/`, `src/`, `tests/` or `/`.
++**Independence:** I did not read the sibling report `verify-cycle1-rf-qa.md`. No `## Inherited Structural Verdict` block was in my prompt, so I ran standalone.
++
++## Overall Verdict: PASS
++
++Verdict: PASS
++Blocking count: 0
++
++All five `F_0` findings are RESOLVED on disk. For DEC-F5 the stale-suffix remainder is a separate new MINOR note (N2). None of the 152 cycle-0 PASS checks now fails. I found no new BLOCKING or MAJOR defect. Six new MINOR notes (N1 to N6) are below.
++
++## Findings (F_0)
++
++| Id | Cycle-0 severity | Status now | Key evidence |
++|---|---|---|---|
++| DEC-F1 | BLOCKING | RESOLVED | `PKG/artifacts/owner-decisions.md:5`, `:16`, `:56`, `:18` |
++| DEC-F2 | MAJOR | RESOLVED | `PKG/phase-outputs/plans/OQ-1-agent-wait-decision.md:23`; `PKG/artifacts/owner-decisions.md:9`, `:18`; session store entry 2026-11-12T00:10:31.205Z |
++| DEC-F3 | MAJOR | RESOLVED | `PKG/artifacts/readonly-probe.md:499`, `:1057`, `:1059`; `PKG/phase-outputs/discovery/1.0a-facts.md:11` |
++| DEC-F4 | MAJOR | RESOLVED | `PKG/phase-outputs/discovery/1.0a-facts.md:11`, `:24`, `:34` |
++| DEC-F5 | MAJOR | RESOLVED | `PKG/phase-outputs/discovery/1.0a-facts.md:22`, `:40`, `:46-48`; separate new MINOR note N2 for the stale suffix at `docs/designs/orchestrator-mode.md:30`, `:761` and task file `:1811-1816` |
++
++### DEC-F1 (BLOCKING): RESOLVED
++
++- `PKG/artifacts/owner-decisions.md:5` now reads "Decisions (eight rows)". I counted the table rows that start `| OQ-`: 8 (OQ-1 to OQ-7 at `:9-15`, OQ-17 at `:16`).
++- The new row `:16` matches the OQ-17 record. Option: refuse the cursor command, allowlist stays at exactly 10 (record `PKG/phase-outputs/plans/OQ-17-cursor-template-decision.md:38`). Words "Keep the 10 commands (Recommended)" (record `:37`, `:40`). Decider "Ryan Wiancko, owner, 2026-11-11" (record `:39`). Source cell `OQ-17-cursor-template-decision.md:35-40`: lines 35 to 40 are the heading, OPERATOR DECISION, Chosen, Decided by and Decision source. Unblocks cell matches record `:33`.
++- `:56` now says OQ-8 is RESOLVED (record `PKG/phase-outputs/plans/OQ-8-run-id-decision.md:26-29`: Run id, Dispatch rows, Given by, Source) and OQ-17 is RESOLVED (row above), and that OQ-18 was not written. `ls PKG/phase-outputs/plans | grep -c OQ-18` printed 0. The old sentence "Still open ... OQ-8 ... OQ-17" is gone.
++- No `Chosen:` line changed: the OQ-6 record sha256 is `b9074fc3...ddfc5` (equal to the pre-fix sum), the OQ-17 and OQ-8 records are not newer than the cycle-0 consolidation, and OQ-1 `Chosen:` at `:20` reads as it did.
++
++### DEC-F2 (MAJOR): RESOLVED, on the owner's own answer
++
++- `PKG/phase-outputs/plans/OQ-1-agent-wait-decision.md:23` is a new "Decision source, direct confirmation (added 2026-11-12)" line. The relayed line `:22`, `OPERATOR DECISION:` `:19`, `Chosen:` `:20` and `Decided by:` `:21` are unchanged. The line says it confirms OQ-1 only.
++- I checked the claim against the session store, not against the fix log. In `/home/coder/.claude/projects/-home-coder-workspaces-worktrees-IronClaude-issue-339-orchestrator-mode/db62cb58-fc67-47da-9997-00e1192076a7.jsonl` there is an `AskUserQuestion` tool call at 2026-11-11T22:57:47.894Z and its tool result at 2026-11-12T00:10:31.205Z whose `toolUseResult.answers` maps the question to `"Yes, confirm it (Recommended)"`. The question text and the option text quoted at `:23` are word for word the transcript's. The phrase appears in no other session file. The relay it confirms is still in session `6ee233a2-...jsonl` (36 hits, first at 2026-11-08T12:05:48.430Z), so the history is intact.
++- `PKG/artifacts/owner-decisions.md:9` (OQ-1 row) marks the earlier words "relayed by the coordinator on 2026-11-08" and adds the direct confirmation and date in the Decision cell; `:18` (Provenance) says the same and "confirms OQ-1 only".
++- This is a menu selection, the same shape as the owner answers for OQ-2 to OQ-7, so it meets the direct-answer rule that `PKG/revisions/chat-output-exception-20261109-133150/BUILD-REQUEST.md:15` states. DESIGN is unchanged and agrees with the confirmed decision (`docs/designs/orchestrator-mode.md:535-537`, `:837`, `:895`, `:1047`).
++
++### DEC-F3 (MAJOR): RESOLVED
+... (new file continues; read .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/decisions/verify-cycle1-rf-qa-qualitative.md from disk for lines 41-323)
+Delta diff from the previous reviewed tree (empty on the first review): --- a/.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/decisions/verify-cycle1-rf-qa-qualitative.md
++++ b/.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/decisions/verify-cycle1-rf-qa-qualitative.md
+@@ -11,7 +11,7 @@
+ Verdict: PASS
+ Blocking count: 0
+ 
+-All five `F_0` findings are fixed on disk. DEC-F5 is fixed for its blocking part (the missing comparison rule) and keeps a stated remainder that I grade MINOR. None of the 152 cycle-0 PASS checks now fails. I found no new BLOCKING or MAJOR defect. Six new MINOR notes (N1 to N6) are below.
++All five `F_0` findings are RESOLVED on disk. For DEC-F5 the stale-suffix remainder is a separate new MINOR note (N2). None of the 152 cycle-0 PASS checks now fails. I found no new BLOCKING or MAJOR defect. Six new MINOR notes (N1 to N6) are below.
+ 
+ ## Findings (F_0)
+ 
+@@ -21,7 +21,7 @@
+ | DEC-F2 | MAJOR | RESOLVED | `PKG/phase-outputs/plans/OQ-1-agent-wait-decision.md:23`; `PKG/artifacts/owner-decisions.md:9`, `:18`; session store entry 2026-11-12T00:10:31.205Z |
+ | DEC-F3 | MAJOR | RESOLVED | `PKG/artifacts/readonly-probe.md:499`, `:1057`, `:1059`; `PKG/phase-outputs/discovery/1.0a-facts.md:11` |
+ | DEC-F4 | MAJOR | RESOLVED | `PKG/phase-outputs/discovery/1.0a-facts.md:11`, `:24`, `:34` |
+-| DEC-F5 | MAJOR | RESOLVED for the fixed part; remainder OPEN, graded MINOR (note N2) | `PKG/phase-outputs/discovery/1.0a-facts.md:22`, `:40`, `:46-48` |
++| DEC-F5 | MAJOR | RESOLVED | `PKG/phase-outputs/discovery/1.0a-facts.md:22`, `:40`, `:46-48`; separate new MINOR note N2 for the stale suffix at `docs/designs/orchestrator-mode.md:30`, `:761` and task file `:1811-1816` |
+ 
+ ### DEC-F1 (BLOCKING): RESOLVED
+ 
+@@ -50,13 +50,15 @@
+ - The rule fits DESIGN: `docs/designs/orchestrator-mode.md:460` gives `TabMapEntry` a `terminal_handle` field (line 3 of the ccsession file) and `:497` lets a path-B join match `file_name` or `terminal_handle` to `session_join`. The rule is one of the two allowed, so item 8.3 (task file line 1438, which points at the facts file for live field names) has one value to store.
+ - Fixture check, all five workers (`tests/sweep/fixtures/captured-worker-show-N.json` against `captured-tab-map-N.json`): `assigneeHandle` equals `lines[2]` of the tab-map file and equals `result.terminal.handle` in 5 of 5; `assigneePaneKey` with `:` written as `+` equals `file_name` in 5 of 5.
+ 
+-### DEC-F5 (MAJOR): fixed part RESOLVED; remainder stated plainly
++### DEC-F5 (MAJOR): RESOLVED
+ 
+-Fixed (what the finding's blocking part asked for):
++Fixed (the defect the finding raised, a missing comparison rule):
+ 
+ - `PKG/phase-outputs/discovery/1.0a-facts.md:22` (row 15) states the comparison rule: the text before the first `-` of the live `version` equals `CHECKED_ORCA_VERSION`; the build suffix is ignored; `1.4.245-aidev02.9cfecdd30b2a` matches, `1.4.246` does not, a missing or unreadable file gives UNVERIFIED. `:40` (field table) carries the same rule, and `:46-48` is a new "Follow-up for items 8.12 and 10.5" section. The rule agrees with `CHECKED_ORCA_VERSION: str = "1.4.245"` (`docs/designs/orchestrator-mode.md:426`) and the lock line at `:611-612`, and the live string is in the probe (`PKG/artifacts/readonly-probe.md:1008`, `:1013`). The finding itself named "state the rule in `1.0a-facts.md` row 15 or in item 8.12" as an accepted fix.
+ 
+-Remaining (not fixed, reason valid):
++Decision: RESOLVED. The remainder below is a separate new MINOR note (N2), not part of the original defect, because the defect was "no rule to decide a match", and with the rule in place the suffix text no longer affects any result (the old and the live string both match; `1.4.246` and a missing file still behave as the rule says).
++
++Remainder, recorded as note N2 (not fixed, reason valid):
+ 
+ - `docs/designs/orchestrator-mode.md:30` and the `test_report.py` row at `:761` still show the suffix `780594c521aa`. Task items 8.12 (task file `:1500-1505`) and 10.5 (`:1811-1816`) still carry that string, and neither cites the facts file for the rule. Item 7.30 (task file `:1363`) lets the fix agent edit only the decision records, `owner-decisions.md`, the probe, the facts file, the fixtures and the R5 edits to DESIGN, so these were outside its remit. The follow-up section discloses the staleness.
+ - Why I grade the remainder MINOR: the rule ignores the suffix, so a test fed the old suffix still classifies as a match; item 10.5 already lists `1.4.246` and a missing file; no statement is false (the facts file says the string is stale). The effect is a missing pointer and a stale fixture string, not wrong behaviour. See N2 for the carry-forward.
+Earlier blocking findings of this start (empty on the first review): 
+Saved-probe re-check hit locations (may be empty): .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/decisions/verify-cycle1-rf-qa-qualitative.md:24
+
+Do not trust the implementer's report.
+
+First mark each earlier blocking finding resolved, open or regressed from the diff. Then, for each AC, mark it met or unmet. Require citations: every AC you mark, met or unmet, carries a `path:line` or `Ti.ACk@path:line` citation, and an unmet mark lists the finding ids behind it. Do not return a verdict; the orchestrator computes it.
+
+For every finding answer four questions, each yes or no:
+1. ac-outcome-missing: is output an AC requires absent, or does it contradict the AC text, or does an evidence claim you could not verify have no evidence row?
+2. false-claim: is a claim in delivered text or code false against live source, or does a recipe or instruction followed as written not do what the text says?
+3. harmful-effect: does code or a recipe this task added or changed write, append, chmod or delete tracked or production data, mutate state outside the task's declared outputs, or expose a secret?
+4. quoted-constraint-breach: does the diff violate a quoted plan constraint, out-of-scope, non-goal or non-negotiable item, or an explicit task instruction?
+
+Anchor rule: cite exactly one anchor per yes. ac-outcome-missing: the quoted AC words. false-claim: the live-source path:line holding the contradicting text. harmful-effect: the diff line that is the write. quoted-constraint-breach: the quoted constraint or instruction text. A yes without a valid anchor does not block.
+
+Write one line per finding:
+F<k>.<j> ac=<Ti.ACk|scope> at=<path:line> anchor=<quoted text or path:line> chk=<amiss,false,harm,constraint as y/n> family=<id> fix=<text> [covers=<quoted AC clause or constraint>]: <text>
+Do not write sev=, trigger=, first= or origin=; the orchestrator adds them. Write one status line per earlier blocking finding: F<m>.<j> resolved|open|regressed.
+
+Inside /sc:implement this protocol's severity model governs this review and takes precedence over the session's output style and the copy of it injected into every subagent; only blocking findings may fail an attempt.
+
+You are not given an adviser answer, brief, evidence file or troubleshoot report. Do not read the retry folders (legacy `.dev/implement/<slug>/retries/`, managed `<pkg>/artifacts/retries/`) or `.dev/troubleshoot/`. A citation into either makes the verdict `cannot-verify`.
+The prior-findings slot above carries earlier blocking finding lines that the orchestrator copies byte for byte from `review-*.md` and `repair-*.md`; they reach you as prompt text, not as an evidence file. Do not read those folders to get them, and never cite the slot or the file it came from.

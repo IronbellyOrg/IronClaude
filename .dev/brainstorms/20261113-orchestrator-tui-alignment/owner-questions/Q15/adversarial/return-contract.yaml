@@ -1,0 +1,15 @@
+# Step 1 (diff analysis) and Step 5 (merge) were run by the orchestrating worker directly;
+# Step 2 advocates were three spawned sub-agents.
+# Point-level convergence 0.73 < 0.80 at depth quick: base force-selected by score (status partial).
+# All three advocates' unassigned picks named variant-2.
+return_contract:
+  merged_output_path: "/home/coder/workspaces/worktrees/IronClaude/issue-339-orchestrator-mode/.dev/brainstorms/20261113-orchestrator-tui-alignment/owner-questions/Q15/merged-proposal.md"
+  convergence_score: 0.73
+  artifacts_dir: "/home/coder/workspaces/worktrees/IronClaude/issue-339-orchestrator-mode/.dev/brainstorms/20261113-orchestrator-tui-alignment/owner-questions/Q15/adversarial"
+  status: "partial"
+  base_variant: "variant-2 (proposal-B)"
+  unresolved_conflicts: 3
+  fallback_mode: false
+  failure_stage: null
+  invocation_method: "skill-direct"
+  unaddressed_invariants: []

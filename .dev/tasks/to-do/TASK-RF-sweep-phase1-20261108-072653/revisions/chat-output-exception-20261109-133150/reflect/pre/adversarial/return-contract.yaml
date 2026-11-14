@@ -1,0 +1,21 @@
+return_contract:
+  merged_output_path: ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/revisions/chat-output-exception-20261109-133150/reflect/pre/adversarial/merged-verdict.yaml"
+  convergence_score: 0.947
+  artifacts_dir: ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/revisions/chat-output-exception-20261109-133150/reflect/pre/adversarial/"
+  status: "partial"
+  base_variant: "variant-2 (qa, claude-gw-tier2)"
+  unresolved_conflicts: 0
+  fallback_mode: false
+  failure_stage: null
+  invocation_method: "skill-direct"
+  unaddressed_invariants:
+    - {id: INV-005, category: guard_conditions, assumption: "M-02's fix edits item 13.1, which is not among the 82 bodies the bounded revision may change, so the fix needs a new bounded authorization or a manifest amendment", severity: HIGH}
+notes:
+  convergence_status: "BLOCKED_BY_INVARIANTS: 36 of 38 diff points agreed (0.947; 32 of 38 = 0.842 on the conservative reading), taxonomy L1/L2/L3 all covered, but one HIGH invariant (INV-005) was UNADDRESSED by the debate. Depth standard, so no Round 3. It is folded into F-02 of the merged verdict and is not recorded as accepted risk."
+  status_reason: "partial because convergence is BLOCKED_BY_INVARIANTS, not because a merge or validation step failed."
+  unresolved_conflicts_note: "0 unresolved disputes: the 2 unagreed diff points (S-008, S-009) were single-voice bookkeeping rows with no effect on the merged card."
+  base_selection: "V3 0.950, V2 0.933, V1 0.902; margin 1.7 pp < 5 pp, tiebreaker level 1 (debate points won V2 10, V3 4) chose variant 2. Quantitative metrics saturate near 1.0 for reviewer cards (RC, SR, DC and SC are 1.0 for V2 and V3), so they discriminate little; the qualitative layer and the debate carried the selection."
+  position_bias: "4 of 90 criterion-variant pairs disagreed between the forward and reverse judge passes; each was re-evaluated by the orchestrator and all four resolved to NOT MET."
+  plan_review: "refactor-plan-review.md: PASS, no blocking defect, ten minor findings applied as corrections during the merge."
+  merge: "merge-log.md: 12 changes applied, 0 failed, 0 skipped; 95 evidence refs checked, 0 broken (merge-executor); the parent parsed merged-verdict.yaml with PyYAML and confirmed 10 findings, severity counts 2 HIGH / 2 MEDIUM / 6 LOW."
+  models: "All adversarial-stage agents (diff analysis, advocates, scorer, probe, judges, plan review, merge) recorded models inside the live Tier1b slots (claude-sonnet-5-5, gpt-6.1-sol). Exception outside the slots: reviewer 3 of Wave 3 ran on claude-opus-5-5 (the opus alias of the reflect rotation)."

@@ -1,0 +1,11 @@
+return_contract:
+  merged_output_path: ".dev/brainstorms/20261113-orchestrator-tui-alignment/owner-questions/Q22/merged-proposal.md"
+  convergence_score: 1.0   # all 10 points by majority, 2 unanimous
+  artifacts_dir: ".dev/brainstorms/20261113-orchestrator-tui-alignment/owner-questions/Q22/adversarial/"
+  status: "partial"   # quick depth: invariant probe skipped; base won on tiebreaker level 1 (margin 3.7 percent)
+  base_variant: "variant-1 (proposal-A), advocate persona architect"
+  unresolved_conflicts: 0
+  fallback_mode: false
+  failure_stage: null
+  invocation_method: "skill-direct"
+  unaddressed_invariants: []   # Round 2.5 skipped at --depth quick

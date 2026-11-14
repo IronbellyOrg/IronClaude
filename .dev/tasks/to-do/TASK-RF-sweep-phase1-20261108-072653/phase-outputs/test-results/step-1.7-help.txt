@@ -1,0 +1,33 @@
+# Step 1.7 help outputs (item 9.2), 2026-11-12
+
+## uv run superclaude sweep --help
+```text
+Usage: superclaude sweep [OPTIONS] COMMAND [ARGS]...
+
+  Read-only sweep of Orca Runs, worktrees and sessions.
+
+Options:
+  --help  Show this message and exit.
+
+Commands:
+  run  Collect, classify and publish one read-only report; print one JSON...
+exit=0
+```
+
+## uv run superclaude sweep run --help
+```text
+Usage: superclaude sweep run [OPTIONS]
+
+  Collect, classify and publish one read-only report; print one JSON object.
+
+Options:
+  --run TEXT     Orca Run id to read; repeat for several. Default: the Run
+                 bound to this terminal.
+  --window TEXT  Activity window: <N>h or <N>d, at most 720h or 30d.
+                 [default: 6h]
+  --root TEXT    Checkout root. Default: found from the current folder.
+  --output TEXT  Report folder, <root>/.dev/sweeps/ or below. Default:
+                 <root>/.dev/sweeps/.
+  --help         Show this message and exit.
+exit=0
+```

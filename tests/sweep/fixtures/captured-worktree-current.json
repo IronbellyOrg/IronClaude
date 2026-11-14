@@ -1,0 +1,65 @@
+{
+  "id": "00000000-0000-4000-8000-000000000052",
+  "ok": true,
+  "result": {
+    "worktree": {
+      "id": "00000000-0000-4000-8000-000000000003::/home/user/workspaces/worktrees/IronClaude/issue-339-orchestrator-mode",
+      "identity": {
+        "key": "wt2:local:00000000-0000-4000-8000-000000000041",
+        "executionHostId": "local",
+        "instanceId": "00000000-0000-4000-8000-000000000041"
+      },
+      "instanceId": "00000000-0000-4000-8000-000000000041",
+      "repoId": "00000000-0000-4000-8000-000000000003",
+      "projectId": "github:superclaude-org/superclaude_framework",
+      "hostId": "local",
+      "projectHostSetupId": "00000000-0000-4000-8000-000000000003",
+      "creatorProvenance": {
+        "kind": "host"
+      },
+      "path": "/home/user/workspaces/worktrees/IronClaude/issue-339-orchestrator-mode",
+      "head": "5dc29d23b15eb7db4ead50623bb409f696a0d7d3",
+      "branch": "refs/heads/ironbelly/issue-339-orchestrator-mode",
+      "isBare": false,
+      "isMainWorktree": false,
+      "displayName": "issue-339-orchestrator-mode",
+      "displayNameMode": "fixed",
+      "comment": "",
+      "linkedIssue": null,
+      "linkedPR": null,
+      "linkedLinearIssue": null,
+      "linkedLinearIssueWorkspaceId": null,
+      "linkedLinearIssueOrganizationUrlKey": null,
+      "linkedGitLabMR": null,
+      "linkedGitLabIssue": null,
+      "linkedBitbucketPR": null,
+      "linkedAzureDevOpsPR": null,
+      "linkedGiteaPR": null,
+      "linkedWorkItem": null,
+      "linkedTaskSourceContext": null,
+      "isArchived": false,
+      "isUnread": true,
+      "isPinned": false,
+      "sortOrder": 1794432910840,
+      "lastActivityAt": 1794432847370,
+      "createdAt": 1794035783506,
+      "createdWithAgent": "claude",
+      "baseRef": "refs/remotes/origin/master",
+      "workspaceStatus": "in-progress",
+      "parentWorktreeId": null,
+      "childWorktreeIds": [],
+      "lineage": null,
+      "git": {
+        "path": "/home/user/workspaces/worktrees/IronClaude/issue-339-orchestrator-mode",
+        "head": "5dc29d23b15eb7db4ead50623bb409f696a0d7d3",
+        "branch": "refs/heads/ironbelly/issue-339-orchestrator-mode",
+        "isBare": false,
+        "isMainWorktree": false
+      },
+      "linkedItems": []
+    }
+  },
+  "_meta": {
+    "runtimeId": "00000000-0000-4000-8000-000000000004"
+  }
+}

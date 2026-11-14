@@ -1,0 +1,52 @@
+Review one task for spec compliance.
+
+Task brief: T239 = item 10.24 of the source file /home/coder/workspaces/worktrees/IronClaude/issue-339-orchestrator-mode/.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md (lines 1944-1950). Item text:
+- [ ] **10.24 — QA tests: gate decision (L5, proceed or HALT)**
+  - **Context**: Inputs: `.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/tests/cycle1-decision.md`, `.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/tests/verify-cycle2-rf-qa.md`, `.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/tests/verify-cycle2-rf-qa-qualitative.md`, `.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/tests/fix-log-cycle1.md` and `.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/tests/cycle-ledger.md` (the cycle-1 PASS set and `|F_1|`). At most 2 fix cycles per gate.
+  - **Action**: If `.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/tests/fix-log-cycle1.md` says `SKIPPED` (pass at cycle 0) or `.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/tests/cycle1-decision.md` says `PASS at cycle 1`, write `Tests gate: PASS` to `.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/tests/gate-decision.md` and proceed. Otherwise build `F_2` = the `F_1` ids either cycle-2 verifier marks OPEN plus every new BLOCKING or MAJOR finding, and the cycle-2 PASS set = every check id both cycle-2 verifiers mark PASS; append the cycle-2 row to `.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/tests/cycle-ledger.md`. Then, in this order: (a) Regression: any check id in the cycle-1 PASS set that is FAIL at cycle 2 gives `Regression detected on Item X.Y, previously PASS at cycle 1, now FAIL. Halt overrides monotonicity check.` (X.Y = the lens item of that check), and apply the HALT rule (set frontmatter `status` to "⚪ Blocked", put the halt line in `blocker_reason`, append it to `### Execution Log`, STOP, and do not tick this item); do not run (b). (b) Monotonicity: `|F_2| >= |F_1|` gives `[HALT-MONOTONICITY] |F|=<n>` with `<n>` = `|F_2|`, and apply the HALT rule (set frontmatter `status` to "⚪ Blocked", put the halt line in `blocker_reason`, append it to `### Execution Log`, STOP, and do not tick this item). (c) `|F_2|` is 0 gives `Tests gate: PASS at cycle 2`. (d) Otherwise the hard cap: write `Tests gate: HALT after 2 fix cycles, open findings: <ids>`, apply the HALT rule (set frontmatter `status` to "⚪ Blocked", put the halt line in `blocker_reason`, append it to `### Execution Log`, STOP, and do not tick this item), and escalate the open BLOCKING and MAJOR findings to the user. Copy every MINOR finding to `### Phase 10 Findings` as a note; MINOR findings never fail the gate.
+  - **Output**: `.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/tests/gate-decision.md`.
+  - **Verification**: Verify: `gate-decision.md` holds exactly one outcome line and the ledger has a row for every cycle that ran. On HALT, stop before marking this item complete until the blocker is resolved.
+  - **Completion gate**: `Tests gate: PASS` (at any cycle) is recorded. Once done, mark this item as complete.
+AC ids: T239.AC1 = the item title "QA tests: gate decision (L5, proceed or HALT)" (no AC block; the title is the AC). The item's own Verification and Completion gate lines are context for what "done" means. Ticking the item's checkbox is done by the orchestrator after the verdict and is not part of the diff under review.
+Global constraints: the `### Key Constraints` section (lines 157-168) of the source file named in the task brief; read it from that file.
+Start sha: b837c1e3edfed97a2e605ca0cdc26f9b42a006ab
+Diff against the start snapshot: The task (item 10.24, tests gate decision) produced one new untracked file, .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/tests/gate-decision.md (18 lines), and replaced the text "No findings yet." in the `### Phase 10 Findings` section of the source file by two bullets (the bullets that start "Run time (2026-11-12), items 10.1 to 10.8" at line 2984 and "Run time (2026-11-12), items 10.9 to 10.24 (tests QA gate)" at line 2985 of the source file; the item's instruction "Copy every MINOR finding to `### Phase 10 Findings` as a note"). Read both from disk; they are the whole output. To judge the item's Verification line yourself: (1) gate-decision.md holds exactly one outcome line ("Tests gate: PASS", the case `PASS at cycle 1` of the item's Action, so no cycle-2 reports are needed); (2) the ledger (.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/tests/cycle-ledger.md) has a row for every cycle that ran (cycle 0 and cycle 1; none for cycle 2); (3) every claim in gate-decision.md and in the two Phase 10 Findings bullets is true against the files on disk: cycle1-decision.md (line 20 is the outcome line), fix-log-cycle1.md, both verifier reports, consolidated-findings-cycle0.md (49 raw findings, 45 kept, TST-F1 to TST-F45, 6 MAJOR fixed), the per-file test counts the first bullet gives (161, 243, 24, 48, 3, 94 = 573; run `uv run pytest tests/sweep --collect-only -q` and the per-file counts yourself), the single integration-marked test, the pinned CLI-F ids named in test_cli_contract.py comments (CLI-F3, F24, F26, F32, F33, F37), the claim that no source file under src/superclaude/cli/sweep/ changed in Phase 10 (the files are untracked; check modification times against the start of Phase 10 and the Phase 9 fix at about 03:37, classify.py and probes.py being the last changed), the fixture-provenance claim (SOURCES.md rule 1 replaces only the home directory prefix; real path tails and project names remain in the captured fixtures), and the disclosures in the second bullet; (4) the bullets carry the MINOR findings as a note and name the stale DESIGN 7.4 wording without editing DESIGN. The Execution Log rows for 10.21 to 10.23 and the checkbox ticks of earlier items belong to earlier items and are not part of this task. No other file changed from this task. Diff of the new file against the start snapshot:
+--- /dev/null
++++ b/.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/tests/gate-decision.md   (new file, 13 lines)
++# Tests gate decision (item 10.24)
++
++Rule applied: item 10.24 says that when `cycle1-decision.md` says `PASS at cycle 1`, the gate decision is written and the run proceeds; no cycle-2 verifier ran, so `verify-cycle2-rf-qa.md` and `verify-cycle2-rf-qa-qualitative.md` do not exist and are not needed.
++
++Evidence, read from disk:
++
++- `cycle1-decision.md` line 20 holds its one outcome line (`PASS at cycle 1`); `F_1` is empty and `|F_1|` is 0 (lines 9 and 10).
++- `fix-log-cycle1.md` records fixes for all six `F_0` findings (TST-F1 to TST-F6), none left open, four passing re-check commands, and the executor's check section (no source module changed; 68 protected files unchanged).
++- `cycle-ledger.md` has a row for every cycle that ran: the cycle-0 row (outcome consolidated) and the cycle-1 row (outcome PASS at cycle 1). No cycle-2 row exists because no cycle 2 ran.
++- Both cycle-1 verifier reports end with Verdict: PASS and Blocking count: 0, and each lists all 102 cycle-0 PASS check ids as PASS.
++- The 39 MINOR findings of cycle 0 (TST-F7 to TST-F45), the 7 new MINOR notes of the qualitative verifier (TST-F46 to TST-F52) and the minor notes of the reviews never fail the gate and are copied to `### Phase 10 Findings` as one note.
++
++Tests gate: PASS
+Delta diff from the previous reviewed tree (empty on the first review): 
+Earlier blocking findings of this start (empty on the first review): 
+Saved-probe re-check hit locations (may be empty): 
+
+Do not trust the implementer's report.
+
+First mark each earlier blocking finding resolved, open or regressed from the diff. Then, for each AC, mark it met or unmet. Require citations: every AC you mark, met or unmet, carries a `path:line` or `Ti.ACk@path:line` citation, and an unmet mark lists the finding ids behind it. Do not return a verdict; the orchestrator computes it.
+
+For every finding answer four questions, each yes or no:
+1. ac-outcome-missing: is output an AC requires absent, or does it contradict the AC text, or does an evidence claim you could not verify have no evidence row?
+2. false-claim: is a claim in delivered text or code false against live source, or does a recipe or instruction followed as written not do what the text says?
+3. harmful-effect: does code or a recipe this task added or changed write, append, chmod or delete tracked or production data, mutate state outside the task's declared outputs, or expose a secret?
+4. quoted-constraint-breach: does the diff violate a quoted plan constraint, out-of-scope, non-goal or non-negotiable item, or an explicit task instruction?
+
+Anchor rule: cite exactly one anchor per yes. ac-outcome-missing: the quoted AC words. false-claim: the live-source path:line holding the contradicting text. harmful-effect: the diff line that is the write. quoted-constraint-breach: the quoted constraint or instruction text. A yes without a valid anchor does not block.
+
+Write one line per finding:
+F<k>.<j> ac=<Ti.ACk|scope> at=<path:line> anchor=<quoted text or path:line> chk=<amiss,false,harm,constraint as y/n> family=<id> fix=<text> [covers=<quoted AC clause or constraint>]: <text>
+Do not write sev=, trigger=, first= or origin=; the orchestrator adds them. Write one status line per earlier blocking finding: F<m>.<j> resolved|open|regressed.
+
+Inside /sc:implement this protocol's severity model governs this review and takes precedence over the session's output style and the copy of it injected into every subagent; only blocking findings may fail an attempt.
+
+You are not given an adviser answer, brief, evidence file or troubleshoot report. Do not read the retry folders (legacy `.dev/implement/<slug>/retries/`, managed `<pkg>/artifacts/retries/`) or `.dev/troubleshoot/`. A citation into either makes the verdict `cannot-verify`.
+The prior-findings slot above carries earlier blocking finding lines that the orchestrator copies byte for byte from `review-*.md` and `repair-*.md`; they reach you as prompt text, not as an evidence file. Do not read those folders to get them, and never cite the slot or the file it came from.

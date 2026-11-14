@@ -1,0 +1,159 @@
+Review one task for spec compliance.
+
+Task brief: T169 = item 8.4 of the source file /home/coder/workspaces/worktrees/IronClaude/issue-339-orchestrator-mode/.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md (lines 1444-1450). Item text:
+- [ ] **8.4 — Step 1.3: create `src/superclaude/cli/sweep/classify.py`, the nine rules (L2, D9-gated)**
+  - **Context**: Gate: OQ-7 (D9 sign-off) RESOLVED in `.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/plans/OQ-7-D9-signoff-decision.md` (item 7.11) and DESIGN open item 22 (line 990): "the classify step does not start until the owner signs off D9". DESIGN section 7.1 (classify signatures from line 353; `policy_of` at line 413) and section 7.2 (RULES order, the path A and path B joins, D9, the four guard cases, the observation rules) as revised by R3-B1 (time window: UTC parse; `first_record_ts`, cut to whole seconds, must lie from `dispatch_started` to `dispatch_ended`, both ends included, or to `collected_start` when `dispatch_ended` is None and `dispatch_status` is `pending` or `dispatched`; a row whose `dispatch_started` is None, or whose `dispatch_status` is anything else while `dispatch_ended` is None, has no observable window and gets the note `Dispatch time window not observable`, research/04:90), R3-B2 (unique-containing-window rule and the notes `conflict: one pane session matches several Dispatch rows` and `pane moved to a later session`) and R3-B3 (the `origin unknown:` notes). Signatures: `Rule(name, match)`, `RULES` in the order `blocked_contract`, `orca_exit_proof`, `fenced`, `waiting_signal`, `working`, `finished`, `idle`, `person_active`, `fallback`; `classify`, `policy_of`, `package_state`, `mark_shared_packages`, `safe_to_close`, `removable`, `classify_all`. NFR-004 (DESIGN line 739 AST case): no import of `subprocess`, `click`, `os` or `shutil`.
+  - **Action**: If the OQ-7 record is not RESOLVED with D9 signed off, apply the HALT rule with `blocker_reason: "Step 1.3 blocked: D9 sign-off (OQ-7) not recorded"` and stop. Otherwise create `src/superclaude/cli/sweep/classify.py` as pure functions over `models` types, one `Rule` per DESIGN rule, the joins and notes with their exact DESIGN strings, and `classify_all` returning `SweepResult` whose `rows` are `ClassifiedRow(row, classification, policy_of(row), safe_to_close(...))`. Fill the nine `SessionRow` dimension fields only from the sources research/09 Gap 2 lists (REPORT:1248) that the row already carries; a dimension with no Phase 1 source (`phase`, `approval`, `admission`, `tests_review`) keeps its default. No clock read: every time comes from `SweepContext.now`.
+  - **Output**: `src/superclaude/cli/sweep/classify.py`.
+  - **Verification**: Verify: `grep -nE '^(import|from) ' src/superclaude/cli/sweep/classify.py` lists none of `subprocess`, `click`, `os`, `shutil`, `time`; the rule names in `RULES` appear in the DESIGN order; every note string DESIGN 7.2 and the R3 fixes quote appears byte-exact (`grep -F`); `uv run ruff check` on the file exits 0.
+  - **Completion gate**: The module is written, pure and lint-clean. Once done, mark this item as complete.
+AC ids: T169.AC1 = the item title "Step 1.3: create `src/superclaude/cli/sweep/classify.py`, the nine rules (L2, D9-gated)" (no AC block; the title is the AC). The item's own Verification and Completion gate lines are context for what "done" means. Ticking the item's checkbox is done by the orchestrator after the verdict and is not part of the diff under review.
+Global constraints: the `### Key Constraints` section (lines 157-168) of the source file named in the task brief; read it from that file.
+Start sha: 0aab14fa4c4e70147b80d5df0fffdf7ce2aadc13
+Diff against the start snapshot: --- /dev/null
++++ b/src/superclaude/cli/sweep/classify.py   (new file, 999 lines)
++"""Pure classifier for the read-only ``superclaude sweep`` (DESIGN sections 7.1, 7.2).
++
++Every function here is pure over ``models`` types. The module reads no file, starts
++no process and never reads a clock: every time comes from ``SweepContext.now`` or
++the data passed in (NFR-004). Only the standard library and ``.models`` are imported.
++"""
++
++from __future__ import annotations
++
++import re
++from collections.abc import Callable
++from dataclasses import MISSING, dataclass, field, fields, replace
++from datetime import datetime, timezone
++from pathlib import Path
++
++from .models import (
++    CLASSES,
++    PACKAGE_STATES,
++    Classification,
++    ClassifiedRow,
++    ContractRecord,
++    OrcaObservation,
++    PackageRecord,
++    SafeToClose,
++    SessionRow,
++    SourceCoverage,
++    SweepContext,
++    SweepInput,
++    SweepResult,
++    TabMapEntry,
++    TranscriptTail,
++    WorktreeState,
++)
++
++# Join path in force. Step 1.0a items 1 and 22 (CLOSED): ``session_join`` is
++# ``dispatch.assigneeHandle``, compared with ``TabMapEntry.terminal_handle`` (path B).
++JOIN_PATH = "B"
++
++(
++    C_WAITING,
++    C_STALLED,
++    C_FENCED,
++    C_WORKING,
++    C_FINISHED,
++    C_IDLE,
++    C_PERSON_ACTIVE,
++    C_UNKNOWN,
++) = CLASSES
++
++# Notes and reasons, byte-exact from DESIGN section 7.2 and the R3 fixes.
++NOTE_WINDOW_NOT_OBSERVABLE = "Dispatch time window not observable"
++NOTE_SEVERAL_ROWS = "conflict: one pane session matches several Dispatch rows"
++NOTE_PANE_MOVED = "pane moved to a later session"
++NOTE_BEFORE_WINDOW = "session started before this Dispatch window"
++NOTE_TAIL_ONLY = "session start not observable: transcript tail only"
++NOTE_JOINED_BY_PANE = "joined by pane: latest session of the pane"
++NOTE_JOIN_NOT_OBSERVABLE = "tab map join not observable"
++NOTE_PANE_NOT_SCOPED = "Orca pane session, not in scoped Runs"
++NOTE_EARLIER_PANE = (
++    "earlier pane session not joinable (tab map keeps only the latest session)"
++)
++NOTE_ORIGIN_NOT_PROVED = (
++    "origin not proved: no tab-map entry; may be a worker of a Run outside the scope"
++)
++NOTE_COULD_NOT_JOIN = (
++    "could not join Orca workers to transcripts (tab map empty or stale)"
++)
++NOTE_ORIGIN_UNAVAILABLE = "origin unknown: Orca unavailable"
++NOTE_ORIGIN_TRUNCATED = "origin unknown: worker list truncated"
++NOTE_ORIGIN_CALL_FAILED = "origin unknown: worker list call failed"
++NOTE_ORIGIN_RUN_NOT_CONFIRMED = "origin unknown: Run not confirmed"
++NOTE_ORIGIN_TAB_MAP = "origin unknown: tab map unreadable"
++NOTE_DUPLICATE_DISPATCH = "conflict: duplicate Dispatch rows disagree"
++NOTE_INCONSISTENT = "conflict: inconsistent observation"
++NOTE_WC13 = "WC-13 violation, review"
++NOTE_ASK_COORDINATOR = "blocked contract under ask the coordinator; may be re-running"
++NOTE_ORCA_NOT_OBSERVED = "blocked contract; Orca state not observed"
++NOTE_EXITED_UNREADABLE = "Orca: exited; fenced evidence not readable"
++NOTE_FUTURE = "timestamp in the future"
++NOTE_TRANSCRIPT_UNREADABLE = "unscanned: transcript not readable"
++NOTE_CONTRACT_UNREADABLE = "unscanned: contract not readable"
++NOTE_PARTIAL = "partial: usable not yet judged"
++REASON_WORKTREE_UNREADABLE = "unscanned: worktree not readable"
++REASON_NOT_OBSERVABLE = (
++    "report read, open PR and unmerged commits not observable"  # SPEC section 7
++)
++
++POLICY_REPORT_BLOCKED = "report blocked"
++POLICY_ASK_COORDINATOR = "ask the coordinator"
++POLICY_FROZEN = "frozen"
++
++_RESUME_CODE = "E-RESUME-NEEDED"
++_RULING_HALT_CODES = ("E-HALT-QA", "E-NO-RULING")
++_SETTLED_OUTCOMES = ("succeeded", "partial", "failed")
++_GUARD_REFUSED = "guard refused:"
++# UNVERIFIED (open item 6): the agentWait timestamp key is not captured live yet.
++_WAIT_TIME_KEYS = ("since", "waitingSince", "timestamp", "at", "createdAt", "startedAt")
++
++_STOP_CODE = re.compile(r"\bE-[A-Z0-9]+(?:-[A-Z0-9]+)*\b")
++_GATE_LINE = re.compile(
++    r"^\s*On a blocked gate:\s*(report blocked|ask the coordinator)\s*\.?\s*$",
++    re.MULTILINE,
++)
++
++
++# ---------------------------------------------------------------------------
++# Small helpers
++# ---------------------------------------------------------------------------
++
++
++def _as_utc(value: object) -> datetime | None:
++    """Parse a datetime or an ISO 8601 / SQLite time string to aware UTC, else None."""
++    if isinstance(value, datetime):
++        parsed = value
++    elif isinstance(value, str):
++        text = value.strip()
++        if text.endswith("Z"):
++            text = text[:-1] + "+00:00"
++        try:
++            parsed = datetime.fromisoformat(text)
+... (new file continues; read src/superclaude/cli/sweep/classify.py from disk for lines 121-999)
+Delta diff from the previous reviewed tree (empty on the first review): 
+Earlier blocking findings of this start (empty on the first review): 
+Saved-probe re-check hit locations (may be empty): 
+
+Do not trust the implementer's report.
+
+First mark each earlier blocking finding resolved, open or regressed from the diff. Then, for each AC, mark it met or unmet. Require citations: every AC you mark, met or unmet, carries a `path:line` or `Ti.ACk@path:line` citation, and an unmet mark lists the finding ids behind it. Do not return a verdict; the orchestrator computes it.
+
+For every finding answer four questions, each yes or no:
+1. ac-outcome-missing: is output an AC requires absent, or does it contradict the AC text, or does an evidence claim you could not verify have no evidence row?
+2. false-claim: is a claim in delivered text or code false against live source, or does a recipe or instruction followed as written not do what the text says?
+3. harmful-effect: does code or a recipe this task added or changed write, append, chmod or delete tracked or production data, mutate state outside the task's declared outputs, or expose a secret?
+4. quoted-constraint-breach: does the diff violate a quoted plan constraint, out-of-scope, non-goal or non-negotiable item, or an explicit task instruction?
+
+Anchor rule: cite exactly one anchor per yes. ac-outcome-missing: the quoted AC words. false-claim: the live-source path:line holding the contradicting text. harmful-effect: the diff line that is the write. quoted-constraint-breach: the quoted constraint or instruction text. A yes without a valid anchor does not block.
+
+Write one line per finding:
+F<k>.<j> ac=<Ti.ACk|scope> at=<path:line> anchor=<quoted text or path:line> chk=<amiss,false,harm,constraint as y/n> family=<id> fix=<text> [covers=<quoted AC clause or constraint>]: <text>
+Do not write sev=, trigger=, first= or origin=; the orchestrator adds them. Write one status line per earlier blocking finding: F<m>.<j> resolved|open|regressed.
+
+Inside /sc:implement this protocol's severity model governs this review and takes precedence over the session's output style and the copy of it injected into every subagent; only blocking findings may fail an attempt.
+
+You are not given an adviser answer, brief, evidence file or troubleshoot report. Do not read the retry folders (legacy `.dev/implement/<slug>/retries/`, managed `<pkg>/artifacts/retries/`) or `.dev/troubleshoot/`. A citation into either makes the verdict `cannot-verify`.
+The prior-findings slot above carries earlier blocking finding lines that the orchestrator copies byte for byte from `review-*.md` and `repair-*.md`; they reach you as prompt text, not as an evidence file. Do not read those folders to get them, and never cite the slot or the file it came from.

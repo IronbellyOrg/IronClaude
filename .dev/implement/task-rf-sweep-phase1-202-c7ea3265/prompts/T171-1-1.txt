@@ -1,0 +1,89 @@
+Review one task for spec compliance.
+
+Task brief: T171 = item 8.6 of the source file /home/coder/workspaces/worktrees/IronClaude/issue-339-orchestrator-mode/.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md (lines 1458-1464). Item text:
+- [ ] **8.6 — Step 1.4a: add `.dev/sweeps/` to `.gitignore` (L2)**
+  - **Context**: DESIGN section 10 (line 710) as renumbered by R4 (item 5.2): two lines after `.gitignore:254` (`.dev/sprint-state/`, the end of the sprint-state block at :250-254). DESIGN line 942: the lines go into step 1.4a because the real-git test (item 8.9) copies the repository `.gitignore`. Expected text: `# superclaude sweep reports: dated, operator-local, never posted (WC-16). Never tracked.` then `.dev/sweeps/`.
+  - **Action**: Read `.gitignore:245-260`, then insert the two DESIGN section 10 lines (as revised; WC-16, not WC-14) after the `.dev/sprint-state/` line, anchored by that quoted text. Do not touch any `.claude/` or `.dev/tasks/` rule.
+  - **Output**: `.gitignore` (two added lines).
+  - **Verification**: Verify: `git check-ignore -q .dev/sweeps/x.md; echo $?` prints 0 and `git check-ignore -q .dev/tasks/to-do/x.md; echo $?` prints 1; `git diff --stat -- .gitignore` shows 2 insertions. Write the outputs to `.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/test-results/gitignore-check.md`.
+  - **Completion gate**: Both check-ignore results match. Once done, mark this item as complete.
+AC ids: T171.AC1 = the item title "Step 1.4a: add `.dev/sweeps/` to `.gitignore` (L2)" (no AC block; the title is the AC). The item's own Verification and Completion gate lines are context for what "done" means. Ticking the item's checkbox is done by the orchestrator after the verdict and is not part of the diff under review.
+Global constraints: the `### Key Constraints` section (lines 157-168) of the source file named in the task brief; read it from that file.
+Start sha: ff9d26280d889a0f4c6bc55ded44a72ecbb251b0
+Diff against the start snapshot: --- a/.gitignore
++++ b/.gitignore
+@@ -252,6 +252,8 @@
+ # Sprint runner transient state directory (post-FU-001 default). Holds
+ # .sprint-exitcode and other ephemeral per-run state; never tracked.
+ .dev/sprint-state/
++# superclaude sweep reports: dated, operator-local, never posted (WC-16). Never tracked.
++.dev/sweeps/
+ # e2e-reflect harness sprint-state (same ephemeral exitcode/state, nested
+ # under per-scenario test dirs). FU-001 forbids tracking .sprint-exitcode.
+ .dev/e2e-reflect/**/sprint-state/
+--- /dev/null
++++ b/.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/test-results/gitignore-check.md   (new file, 40 lines)
++# .gitignore check (item 8.6)
++
++Run 2026-11-12T01:47:19Z in the worktree.
++
++## Check 1: `.dev/sweeps/` is ignored
++
++Command: `git check-ignore -q .dev/sweeps/x.md; echo $?`
++
++~~~
++0
++~~~
++
++PASS: 0 (expected 0).
++
++## Check 2: `.dev/tasks/` is not ignored
++
++Command: `git check-ignore -q .dev/tasks/to-do/x.md; echo $?`
++
++~~~
++1
++~~~
++
++PASS: 1 (expected 1).
++
++## Check 3: two insertions in `.gitignore`
++
++Command: `git diff --stat -- .gitignore`
++
++~~~
++ .gitignore | 2 ++
++ 1 file changed, 2 insertions(+)
++~~~
++
++PASS: 2 insertions, 0 deletions (expected 2 insertions).
++
++## Result
++
++3 PASS lines, 0 FAIL lines.
++
++.gitignore check: PASS
+Delta diff from the previous reviewed tree (empty on the first review): 
+Earlier blocking findings of this start (empty on the first review): 
+Saved-probe re-check hit locations (may be empty): 
+
+Do not trust the implementer's report.
+
+First mark each earlier blocking finding resolved, open or regressed from the diff. Then, for each AC, mark it met or unmet. Require citations: every AC you mark, met or unmet, carries a `path:line` or `Ti.ACk@path:line` citation, and an unmet mark lists the finding ids behind it. Do not return a verdict; the orchestrator computes it.
+
+For every finding answer four questions, each yes or no:
+1. ac-outcome-missing: is output an AC requires absent, or does it contradict the AC text, or does an evidence claim you could not verify have no evidence row?
+2. false-claim: is a claim in delivered text or code false against live source, or does a recipe or instruction followed as written not do what the text says?
+3. harmful-effect: does code or a recipe this task added or changed write, append, chmod or delete tracked or production data, mutate state outside the task's declared outputs, or expose a secret?
+4. quoted-constraint-breach: does the diff violate a quoted plan constraint, out-of-scope, non-goal or non-negotiable item, or an explicit task instruction?
+
+Anchor rule: cite exactly one anchor per yes. ac-outcome-missing: the quoted AC words. false-claim: the live-source path:line holding the contradicting text. harmful-effect: the diff line that is the write. quoted-constraint-breach: the quoted constraint or instruction text. A yes without a valid anchor does not block.
+
+Write one line per finding:
+F<k>.<j> ac=<Ti.ACk|scope> at=<path:line> anchor=<quoted text or path:line> chk=<amiss,false,harm,constraint as y/n> family=<id> fix=<text> [covers=<quoted AC clause or constraint>]: <text>
+Do not write sev=, trigger=, first= or origin=; the orchestrator adds them. Write one status line per earlier blocking finding: F<m>.<j> resolved|open|regressed.
+
+Inside /sc:implement this protocol's severity model governs this review and takes precedence over the session's output style and the copy of it injected into every subagent; only blocking findings may fail an attempt.
+
+You are not given an adviser answer, brief, evidence file or troubleshoot report. Do not read the retry folders (legacy `.dev/implement/<slug>/retries/`, managed `<pkg>/artifacts/retries/`) or `.dev/troubleshoot/`. A citation into either makes the verdict `cannot-verify`.
+The prior-findings slot above carries earlier blocking finding lines that the orchestrator copies byte for byte from `review-*.md` and `repair-*.md`; they reach you as prompt text, not as an evidence file. Do not read those folders to get them, and never cite the slot or the file it came from.

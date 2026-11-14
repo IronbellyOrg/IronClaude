@@ -1,0 +1,19 @@
+# Wave 3C blind calibration of reviewer-1-card.yaml (confidence-calibrator agent a1529cbeb18711dab, model class opus)
+calibrator_model_class: opus
+calibrator_diversity: degraded
+dimension_scores: {citation_grounding: 0.85, coverage_completeness: 0.60, deviation_classification_clarity: 0.65, risk_surface_coverage: 0.70, recommendation_actionability: 0.45}
+C: 0.65
+self_reported_confidence: 0.60
+citations_checked: 32
+citations_failed:
+  - {cite: "FINAL-GATE-halt-resolution-decision.md:18-19 (lead_verdicts DC-1)", problem: "line 18 edits DESIGN :491 and :760 (the owner-edited test_classify.py row is :761), not open item 6 :997; the quote 'All 3 approved' is at :13"}
+finding_verdicts:
+  R1-F1: {verdict: supported, class: authorized, severity: minor, note: "the footnote gap (`working: 0` has no caveat) is not covered by the decision; it is open QA finding FIN-F15 (qa/final/consolidated-findings-cycle0.md:128); that part is drift"}
+  R1-F2: {verdict: supported, class: necessary, severity: minor}
+  R1-F3: {verdict: supported, class: drift, severity: medium, note: "probes.py:1115 keeps a row only for a non-empty string id; classify.py:690-694 never reads `orca worker-list <run> row <i>`; with every row dropped the guard cases are False and classify.py:759-762 returns True with 'origin not proved'. Drift defensible: no acceptance criterion shown to fail; no test"}
+  R1-F4: {verdict: supported, class: drift, severity: medium}
+  R1-F5: {verdict: supported, class: drift, severity: minor, note: "SPEC :286 wants `output over 8 MiB`; DESIGN :513 itself narrows the SPEC to `worktree not readable`"}
+  R1-F6: {verdict: supported, class: drift, severity: minor}
+  R1-F7: {verdict: overstated, calibrated_class: drift-for-constants-and-freshness_age_s / necessary-for-mtime-and-agent_wait_since, severity: minor, note: "FINAL-GATE:19 only approves marking unused fields reserved; FIN-F10 (consolidated-findings-cycle0.md:123) records the additions as a DESIGN 7.2 deviation"}
+  R1-F8: {verdict: overstated, calibrated_class: aligned, note: "DESIGN :346 plus :517 (remote hosts never scanned) make 'always True' what DESIGN asks for; no defect"}
+escalate: true

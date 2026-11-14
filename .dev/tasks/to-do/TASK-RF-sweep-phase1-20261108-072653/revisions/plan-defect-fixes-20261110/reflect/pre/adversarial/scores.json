@@ -1,0 +1,274 @@
+{
+  "method": "see base-selection.md: quant metrics adapted to reviewer cards (RC 9 brief-format elements; IC calibrator failures plus internal contradictions; SR concrete vs vague tokens; DC verbatim evidence quotes plus own internal refs, DC_now against today's files; SC top-level keys); qual = merge executor's 30-criterion verdicts, pass 1 V1-V2-V3, pass 2 V3-V2-V1, 6 disagreements re-evaluated; combined = 0.5 quant + 0.5 qual; tiebreaker only under a 0.05 margin",
+  "quant": {
+    "V1": {
+      "RC": 0.7778,
+      "IC": 1.0,
+      "SR": 1.0,
+      "DC": 1.0,
+      "DC_now": 1.0,
+      "SC": 1.0,
+      "quant": 0.9333,
+      "rc_checks": {
+        "header reviewer/persona/model": true,
+        "every finding has id, severity and tag": true,
+        "every claim is one sentence": false,
+        "every finding has ref plus quote": true,
+        "every finding has a fix": true,
+        "every verifier has an expected value": true,
+        "f_closure F-01..F-10 each with an allowed verdict": false,
+        "self_audit present": true,
+        "confidence present": true
+      },
+      "findings": 5,
+      "claims_one_sentence": [
+        false,
+        false,
+        false,
+        false,
+        false
+      ],
+      "f_closure_verdicts": {
+        "F-01": "fixed",
+        "F-02": "not checked",
+        "F-03": "fixed with minor omissions",
+        "F-04": "fixed with new defects",
+        "F-05": "fixed",
+        "F-06": "fixed in the items I read (7.20-7.26, 7.30, 7.34-7.36)",
+        "F-07": "partial",
+        "F-08": "fixed",
+        "F-09": "fixed",
+        "F-10": "not checked"
+      },
+      "citations_checked_by_calibrator": 42,
+      "citations_failed_by_calibrator": 0,
+      "internal_contradictions": 0,
+      "concrete": 169,
+      "vague": 0,
+      "evidence_refs": 15,
+      "evidence_resolved_now": 15,
+      "evidence_resolved_adj": 15,
+      "evidence_unresolved": [],
+      "internal_refs": 27,
+      "internal_refs_resolved": 27,
+      "top_level_keys": 5,
+      "qual": 0.7667,
+      "combined": 0.85
+    },
+    "V2": {
+      "RC": 1.0,
+      "IC": 1.0,
+      "SR": 1.0,
+      "DC": 1.0,
+      "DC_now": 1.0,
+      "SC": 1.0,
+      "quant": 1.0,
+      "rc_checks": {
+        "header reviewer/persona/model": true,
+        "every finding has id, severity and tag": true,
+        "every claim is one sentence": true,
+        "every finding has ref plus quote": true,
+        "every finding has a fix": true,
+        "every verifier has an expected value": true,
+        "f_closure F-01..F-10 each with an allowed verdict": true,
+        "self_audit present": true,
+        "confidence present": true
+      },
+      "findings": 2,
+      "claims_one_sentence": [
+        true,
+        true
+      ],
+      "f_closure_verdicts": {
+        "F-01": "partial",
+        "F-02": "fixed",
+        "F-03": "fixed",
+        "F-04": "fixed",
+        "F-05": "fixed",
+        "F-06": "fixed",
+        "F-07": "fixed",
+        "F-08": "fixed",
+        "F-09": "fixed",
+        "F-10": "fixed"
+      },
+      "citations_checked_by_calibrator": 31,
+      "citations_failed_by_calibrator": 0,
+      "internal_contradictions": 0,
+      "concrete": 105,
+      "vague": 0,
+      "evidence_refs": 10,
+      "evidence_resolved_now": 10,
+      "evidence_resolved_adj": 10,
+      "evidence_unresolved": [],
+      "internal_refs": 12,
+      "internal_refs_resolved": 12,
+      "top_level_keys": 5,
+      "qual": 0.9,
+      "combined": 0.95
+    },
+    "V3": {
+      "RC": 0.8889,
+      "IC": 1.0,
+      "SR": 1.0,
+      "DC": 1.0,
+      "DC_now": 0.8621,
+      "SC": 1.0,
+      "quant": 0.9667,
+      "rc_checks": {
+        "header reviewer/persona/model": true,
+        "every finding has id, severity and tag": true,
+        "every claim is one sentence": false,
+        "every finding has ref plus quote": true,
+        "every finding has a fix": true,
+        "every verifier has an expected value": true,
+        "f_closure F-01..F-10 each with an allowed verdict": true,
+        "self_audit present": true,
+        "confidence present": true
+      },
+      "findings": 3,
+      "claims_one_sentence": [
+        false,
+        false,
+        false
+      ],
+      "f_closure_verdicts": {
+        "F-01": "fixed",
+        "F-02": "fixed",
+        "F-03": "fixed",
+        "F-04": "fixed",
+        "F-05": "fixed",
+        "F-06": "fixed",
+        "F-07": "fixed",
+        "F-08": "fixed",
+        "F-09": "fixed",
+        "F-10": "fixed"
+      },
+      "citations_checked_by_calibrator": 30,
+      "citations_failed_by_calibrator": 0,
+      "internal_contradictions": 0,
+      "concrete": 133,
+      "vague": 0,
+      "evidence_refs": 11,
+      "evidence_resolved_now": 7,
+      "evidence_resolved_adj": 11,
+      "evidence_unresolved": [
+        ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/revisions/plan-defect-fixes-20261110/reflect/pre/coverage-matrix.yaml:1 (stale: matrix rebuilt after the card; verified by calibrator before)",
+        ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/revisions/plan-defect-fixes-20261110/reflect/pre/coverage-matrix.yaml:256 (stale: matrix rebuilt after the card; verified by calibrator before)",
+        ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/revisions/plan-defect-fixes-20261110/reflect/pre/coverage-matrix.yaml:165 (stale: matrix rebuilt after the card; verified by calibrator before)",
+        ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/revisions/plan-defect-fixes-20261110/reflect/pre/coverage-matrix.yaml:258 (stale: matrix rebuilt after the card; verified by calibrator before)"
+      ],
+      "internal_refs": 18,
+      "internal_refs_resolved": 18,
+      "top_level_keys": 5,
+      "qual": 0.8,
+      "combined": 0.8834
+    }
+  },
+  "qual_subtotals": {
+    "V1": {
+      "Completeness": 4,
+      "Correctness": 3,
+      "Structure": 4,
+      "Clarity": 3,
+      "Risk Coverage": 4,
+      "Invariant & Edge Case Coverage": 5
+    },
+    "V2": {
+      "Completeness": 5,
+      "Correctness": 4,
+      "Structure": 5,
+      "Clarity": 4,
+      "Risk Coverage": 4,
+      "Invariant & Edge Case Coverage": 5
+    },
+    "V3": {
+      "Completeness": 5,
+      "Correctness": 4,
+      "Structure": 4,
+      "Clarity": 3,
+      "Risk Coverage": 4,
+      "Invariant & Edge Case Coverage": 4
+    }
+  },
+  "qual_pass_totals": {
+    "pass1_forward_V1_V2_V3": {
+      "V1": 24,
+      "V2": 28,
+      "V3": 24
+    },
+    "pass2_reverse_V3_V2_V1": {
+      "V1": 23,
+      "V2": 26,
+      "V3": 25
+    }
+  },
+  "disagreements": [
+    {
+      "variant": "V3",
+      "criterion": "K1",
+      "pass1": 1,
+      "pass2": 0,
+      "final": 0
+    },
+    {
+      "variant": "V2",
+      "criterion": "K2",
+      "pass1": 1,
+      "pass2": 0,
+      "final": 0
+    },
+    {
+      "variant": "V1",
+      "criterion": "S5",
+      "pass1": 1,
+      "pass2": 0,
+      "final": 0
+    },
+    {
+      "variant": "V3",
+      "criterion": "S5",
+      "pass1": 0,
+      "pass2": 1,
+      "final": 0
+    },
+    {
+      "variant": "V2",
+      "criterion": "R3",
+      "pass1": 1,
+      "pass2": 0,
+      "final": 1
+    },
+    {
+      "variant": "V3",
+      "criterion": "R4",
+      "pass1": 0,
+      "pass2": 1,
+      "final": 1
+    }
+  ],
+  "points_won": {
+    "SCXA": {
+      "V1": 2,
+      "V2": 9,
+      "V3": 7
+    },
+    "U_O": {
+      "V1": 3,
+      "V2": 4,
+      "V3": 5
+    }
+  },
+  "ranked": [
+    "V2",
+    "V3",
+    "V1"
+  ],
+  "margin": 0.0666,
+  "tiebreaker": "No",
+  "base": "V2",
+  "floor_ok": {
+    "V1": true,
+    "V2": true,
+    "V3": true
+  }
+}

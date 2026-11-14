@@ -1,0 +1,55 @@
+# Saved verbatim by the orchestrator from the read-only confidence-calibrator output.
+card_ref: /home/coder/workspaces/worktrees/IronClaude/issue-339-orchestrator-mode/.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/reflect/pre/reviewer-cards/reviewer-3-card.yaml
+calibrator_model_class: sonnet
+dimensions:
+  citation_grounding: 0.88        # about 40 citations read and none failed. TL:423 and TL:792 point at an item heading, not at the exact line that holds the quoted text (TL:425 and TL:796). The items are still identifiable.
+  coverage_completeness: 0.78     # all 24 rows have a verdict. INF-005 and INF-014 are marked false-match and NFR-003 is only covered in substance, yet none of them produces a finding. No gap registry entry exists for them.
+  deviation_classification_clarity: 0.78  # every finding has one gap_class and one severity. G9 and G10 are positive confirmations filed as LOW findings. G1 is rated MEDIUM above what the text supports. G7 is labelled missing-reuse though it is a test-design point.
+  risk_surface_coverage: 0.72     # it catches the owner-approval gate gap (G4), the dead grep patterns (G3) and the transcript-clause ambiguity (G1). It gives little blast-radius reasoning. It does not follow up the false-match rows, and the only MEDIUM finding that stands is a process gate.
+  recommendation_actionability: 0.85  # most recommendations name an item, a grep string or an expected result. G1 offers two alternatives and G7 asks for a design change with no item target.
+calibrated_confidence: 0.80
+self_reported_confidence: 0.82
+calibration_delta: -0.02  # slight overstatement. The card is well grounded, but it rates G1 too high and it files positive checks as findings.
+citations_checked: 40
+citations_failed: 0
+finding_verdicts:
+  - id: R3-G1
+    holds: partly
+    calibrated_severity: LOW
+    reason: "Edit 4 does drop the single-row transcript clause (research/04:90). However, the R3-B2 text at research/04:148 speaks of matching rows in general and ends with 'a transcript with a tab-map entry that fails the window takes these notes'. That covers one row. The fixtures at research/04:115-117 pin S None, so this is wording ambiguity, not a lost rule."
+  - id: R3-G2
+    holds: yes
+    calibrated_severity: LOW
+    reason: "TL:425 offers '(as for duplicate Dispatch rows, in this bullet)' as an alternative. The duplicate-Dispatch rule is in the observation rules (design:505), not in the worker bullet at design:494. The same text says 'whichever is accurate', so an executor can avoid the error."
+  - id: R3-G3
+    holds: yes
+    calibrated_severity: LOW
+    reason: "The 5.5 grep at TL:796 uses ':545', ':865', ':470' and ':398'. Design lines 679-686 write '(line 545)' and the like, so four patterns cannot match. 'line 624' is not in that grep. Item 5.10 (TL:827) and the read-each-line step in 5.5 give partial cover."
+  - id: R3-G4
+    holds: yes
+    calibrated_severity: MEDIUM
+    reason: "Design line 5 and open item 20 (design:988) require owner approval of the rule text. Items 7.3 and 7.4 (TL:1156-1168) ask only for the rule id. The cadence change is a builder decision (OQ-15, TL:2877). It copies master's already merged line (WORKER-CONTRACT.md:110), so the substance risk is small and the gap is mainly in the gate."
+  - id: R3-G5
+    holds: yes
+    calibrated_severity: LOW
+    reason: "TL:1952 says 'the coordinator on every wake' with no bound. Items 5.2 (TL:773) and 13.1 (TL:2258) carry 'at most once every 5 minutes'. It is a wording mismatch in the planned command doc."
+  - id: R3-G6
+    holds: yes
+    calibrated_severity: LOW
+    reason: "TL:2293 adds the tests bullet. Design row R8 (design:701) lists only the command, skill, rule id and ignore entry. The extra is harmless and nearly a nit. The card does not mention that the never-as-worker bullet is also beyond R8."
+  - id: R3-G7
+    holds: partly
+    calibrated_severity: LOW
+    reason: "TL:1467 does say the fake records 'the env the real _git would build'. The reflect precedent (conftest.py:59-74) also replaces the whole _git, so its argv and env building are untested too. The point is a reasonable design preference, not a defect."
+  - id: R3-G8
+    holds: yes
+    calibrated_severity: LOW
+    reason: "The contracts exports (__init__.py:302-313) hold no sweep name, and lint-architecture is the guard (__init__.py:1-6, 35-36). The 8.3 verification at TL:1434 lacks it. Sweep models do not redefine contracts constants, so the added check has little value."
+  - id: R3-G9
+    holds: yes
+    calibrated_severity: LOW
+    reason: "recovery.py:424-433 links with no fsync, atomic.py:31-32 uses fsync then replace, and config.py:64-78 uses text=True and check=True with no env. The claim is accurate, but it is a confirmation with 'no change needed', so it should not count as a finding."
+  - id: R3-G10
+    holds: yes
+    calibrated_severity: LOW
+    reason: "test_worker_contract.py:25 and 155-173 match the card, and items 5.2, 5.5 and 6.4 behave as stated (TL:773, TL:796, TL:1003). It is a positive check with no defect, so it is informational only. I did not verify the claimed checks in 2.4, 3.3, 5.8 and 5.12."

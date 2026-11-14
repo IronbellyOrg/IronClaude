@@ -1,0 +1,77 @@
+Review one task for spec compliance.
+
+Task brief: T131 = item 7.3 of the source file /home/coder/workspaces/worktrees/IronClaude/issue-339-orchestrator-mode/.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md (lines 1159-1165). Item text:
+- [ ] **7.3 — Record decision GQ-11, rule id WC-16 versus amending WC-1 (OQ-3, L5, PENDING)**
+  - **Context**: research/09 Gap 1 row GQ-11: "Rule ID: new WC-14 versus amending WC-1 (AMBIGUITY 4)" (GAPS:34). Master now holds WC-14 and WC-15 (PR #434; research/07), so after design fix R4 the new id is WC-16. REPORT:1238: GQ-11 is a hard gate before 1.17 to 1.19; "working default accepted" counts only when the owner says it.
+  - **Action**: Write `.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/plans/OQ-3-GQ-11-rule-id-decision.md` with these parts: `needs_human_decision: true`; `status: PENDING`; the question quoted; the options quoted; the recommendation line below, which ends "This recommendation does NOT authorize adoption."; the steps this decision blocks; and the empty block `OPERATOR DECISION:`, `Chosen:`, `Decided by:`, `Decision source:`. Options: "(a) a new rule WC-16, the next free id on master `5dc29d23`;" "(b) amend the unused WC-1." Recommendation: "(a) WC-16, which DESIGN section 8 uses after design fix R4. This recommendation does NOT authorize adoption." Blocks: items 12.1 to 12.3 (steps 1.17 to 1.19). State the hard-gate rule in the file.
+  - **Output**: `.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/plans/OQ-3-GQ-11-rule-id-decision.md`.
+  - **Verification**: Verify: `status: PENDING`, both options, the hard-gate sentence, the label and the four empty decision lines.
+  - **Completion gate**: The request is recorded. Once done, mark this item as complete.
+AC ids: T131.AC1 = the item title "Record decision GQ-11, rule id WC-16 versus amending WC-1 (OQ-3, L5, PENDING)" (no AC block; the title is the AC). The item's own Verification and Completion gate lines are context for what "done" means. Ticking the item's checkbox is done by the orchestrator after the verdict and is not part of the diff under review.
+Global constraints: the `### Key Constraints` section (lines 157-168) of the source file named in the task brief; read it from that file.
+Start sha: 5770e623cf2fc4d1d3f8245da1bd4d4210442d63
+Diff against the start snapshot: --- /dev/null
++++ b/.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/plans/OQ-3-GQ-11-rule-id-decision.md   (new file, 39 lines)
++---
++needs_human_decision: true
++status: PENDING
++---
++
++# Coordinator rule decision
++
++## Question
++
++> "Rule ID: new WC-14 versus amending WC-1 (AMBIGUITY 4)"
++
++This is the historical question GQ-11 (OQ-3), quoted from research GAPS row 34. The design re-anchor found WC-14 and WC-15 already occupied on master `5dc29d23`; the proposed new identifier is therefore WC-16. The current choice is WC-16 versus amending WC-1, not reusing occupied WC-14.
++
++DESIGN section 8 also reserves the proposed coordinator-loop text for owner approval with this decision. The proposed rule keeps watching until all created Tasks are settled and results inspected/recorded, re-arms expired waits, and adds `/sc:sweep` as a read alongside the existing coordinator sweep at its bounded cadence. Its reads are not coordinator L1 probes; it does not replace the existing sweep or update heartbeats. The report is local and never posted; person-started sessions are observed but never messaged; `/sc:sweep` recommends no actions. The complete proposed text is in `docs/designs/orchestrator-mode.md:674-680`; this summary does not replace it.
++
++## Options
++
++> "(a) a new rule WC-16, the next free id on master `5dc29d23`;"
++
++> "(b) amend the unused WC-1."
++
++Option (a) uses the new identifier and proposed text in DESIGN section 8 without changing existing WC-14/WC-15 worker duties. Option (b) changes the chosen identifier and requires the design revision specified by task item 7.4 before implementation continues.
++
++## Recommendation
++
++(a) WC-16, which DESIGN section 8 uses after design fix R4. This recommendation does NOT authorize adoption.
++
++## Blocked work
++
++Items 12.1-12.3 (steps 1.17-1.19), the coordinator rule, never-as-worker addition and contract pins.
++
++Hard gate: GQ-11 must be answered by the owner before steps 1.17-1.19. "Working default accepted" counts only when the owner says it. Silence or an answer that merely says "use the default" without naming an option does not resolve the decision. Item 7.4 halts while this record is PENDING or Chosen is empty. Choosing WC-1 requires revisions to DESIGN sections 8, 9, 10, 12, 15 and 16 before proceeding.
++
++## Operator decision
++
++OPERATOR DECISION:
++Chosen:
++Decided by:
++Decision source:
+Delta diff from the previous reviewed tree (empty on the first review): 
+Earlier blocking findings of this start (empty on the first review): 
+Saved-probe re-check hit locations (may be empty): 
+
+Do not trust the implementer's report.
+
+First mark each earlier blocking finding resolved, open or regressed from the diff. Then, for each AC, mark it met or unmet. Require citations: every AC you mark, met or unmet, carries a `path:line` or `Ti.ACk@path:line` citation, and an unmet mark lists the finding ids behind it. Do not return a verdict; the orchestrator computes it.
+
+For every finding answer four questions, each yes or no:
+1. ac-outcome-missing: is output an AC requires absent, or does it contradict the AC text, or does an evidence claim you could not verify have no evidence row?
+2. false-claim: is a claim in delivered text or code false against live source, or does a recipe or instruction followed as written not do what the text says?
+3. harmful-effect: does code or a recipe this task added or changed write, append, chmod or delete tracked or production data, mutate state outside the task's declared outputs, or expose a secret?
+4. quoted-constraint-breach: does the diff violate a quoted plan constraint, out-of-scope, non-goal or non-negotiable item, or an explicit task instruction?
+
+Anchor rule: cite exactly one anchor per yes. ac-outcome-missing: the quoted AC words. false-claim: the live-source path:line holding the contradicting text. harmful-effect: the diff line that is the write. quoted-constraint-breach: the quoted constraint or instruction text. A yes without a valid anchor does not block.
+
+Write one line per finding:
+F<k>.<j> ac=<Ti.ACk|scope> at=<path:line> anchor=<quoted text or path:line> chk=<amiss,false,harm,constraint as y/n> family=<id> fix=<text> [covers=<quoted AC clause or constraint>]: <text>
+Do not write sev=, trigger=, first= or origin=; the orchestrator adds them. Write one status line per earlier blocking finding: F<m>.<j> resolved|open|regressed.
+
+Inside /sc:implement this protocol's severity model governs this review and takes precedence over the session's output style and the copy of it injected into every subagent; only blocking findings may fail an attempt.
+
+You are not given an adviser answer, brief, evidence file or troubleshoot report. Do not read the retry folders (legacy `.dev/implement/<slug>/retries/`, managed `<pkg>/artifacts/retries/`) or `.dev/troubleshoot/`. A citation into either makes the verdict `cannot-verify`.
+The prior-findings slot above carries earlier blocking finding lines that the orchestrator copies byte for byte from `review-*.md` and `repair-*.md`; they reach you as prompt text, not as an evidence file. Do not read those folders to get them, and never cite the slot or the file it came from.

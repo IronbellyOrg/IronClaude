@@ -1,0 +1,217 @@
+Review one task for spec compliance.
+
+Task brief: T174 = item 8.9 of the source file /home/coder/workspaces/worktrees/IronClaude/issue-339-orchestrator-mode/.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md (lines 1479-1485). Item text:
+- [ ] **8.9 — Step 1.4a test part: `tests/sweep/test_readonly.py` (recorded argv, env, the real-git test) and run it (L2 then L3)**
+  - **Context**: DESIGN section 11 line 737, "Step 1.4a part": every recorded `_git` argv has `--no-optional-locks` at index 1 and `-C <path>` after it; the child env holds `GIT_OPTIONAL_LOCKS=0`; one git argv per discovered worktree; one `integration`-marked real-git test in a `tmp_path` repository with the four SPEC assertions (control; `check-ignore` of `.dev/sweeps/x.md` succeeds; of `.dev/tasks/to-do/x.md` fails; a file under `.dev/sweeps/` leaves `git status --porcelain` unchanged). BUILD-REQUEST: "The real-git test copies the repo `.gitignore`." Real-git precedent: `tests/pr_submit/test_conflict_scripts.py:46` (`GIT = shutil.which("git")`) and `:48-64` (`_FIXED_IDENTITY`, `_base_env` with `HOME` at :63). Until item 8.10 adds `collect`, "one git argv per discovered worktree" is tested by calling `_git` once per path in a two-worktree list built by the test; item 10.4 re-points it at `collect`.
+  - **Action**: Create `tests/sweep/test_readonly.py` with: (1) a test that monkeypatches `probes.subprocess.run` with a recorder (inside the test, after the guard) and asserts argv index 1 is `--no-optional-locks`, index 2 is `-C`, index 3 is the path, and `env["GIT_OPTIONAL_LOCKS"] == "0"`; (2) a test that `check_git_args` raises `ValueError` for `("rev-parse",)` and passes the `ALLOWED_GIT` entry; (3) the per-worktree count test; (4) `@pytest.mark.integration` plus `@pytest.mark.skipif(shutil.which("git") is None, ...)` real-git test: `git init` in `tmp_path`, copy the repository `.gitignore` (found from `Path(__file__).resolve().parents[2] / ".gitignore"`) into it, run the four assertions with a fixed identity env, all through `subprocess.run` (allowed because the test carries its own marker). Then run `uv run pytest tests/sweep -v` and save stdout to `.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/test-results/step-1.4a-pytest.txt`.
+  - **Output**: `tests/sweep/test_readonly.py` and `.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/test-results/step-1.4a-pytest.txt`.
+  - **Verification**: Verify: the run exits 0 with the integration test PASSED (not skipped) when git is present; a deliberate check that the guard works: the saved output shows no test reaching a real subprocess except the marked one. On a failure, fix the code or test, re-run, and log each re-run in `### Phase 8 Findings`.
+  - **Completion gate**: `uv run pytest tests/sweep -v` passes and the output is saved. Once done, mark this item as complete.
+AC ids: T174.AC1 = the item title "Step 1.4a test part: `tests/sweep/test_readonly.py` (recorded argv, env, the real-git test) and run it (L2 then L3)" (no AC block; the title is the AC). The item's own Verification and Completion gate lines are context for what "done" means. Ticking the item's checkbox is done by the orchestrator after the verdict and is not part of the diff under review.
+Global constraints: the `### Key Constraints` section (lines 157-168) of the source file named in the task brief; read it from that file.
+Start sha: 2961a66a5e5a689689be4866ef8df8ba6df6e2a7
+Diff against the start snapshot: --- /dev/null
++++ b/tests/sweep/test_readonly.py   (new file, 162 lines)
++"""Read-only guarantees of the sweep's git seam (NFR-002, FR-025; DESIGN section 11).
++
++The recorded-argv and env tests patch ``probes.subprocess.run``. The one real-git
++test carries the ``integration`` marker, so the autouse guard in ``conftest.py`` lets
++it start git.
++"""
++
++from __future__ import annotations
++
++import os
++import shutil
++import subprocess
++import warnings
++from pathlib import Path
++from types import SimpleNamespace
++
++import pytest
++
++from superclaude.cli.sweep import probes
++
++REPO_ROOT = Path(__file__).resolve().parents[2]
++STATUS_ARGS = probes.ALLOWED_GIT[0]
++
++GIT = shutil.which("git")
++
++_FIXED_IDENTITY = {
++    "GIT_CONFIG_GLOBAL": "/dev/null",
++    "GIT_CONFIG_NOSYSTEM": "1",
++    "GIT_AUTHOR_NAME": "Sweep Test",
++    "GIT_AUTHOR_EMAIL": "sweep-test@example.com",
++    "GIT_COMMITTER_NAME": "Sweep Test",
++    "GIT_COMMITTER_EMAIL": "sweep-test@example.com",
++    "GIT_TERMINAL_PROMPT": "0",
++    "LC_ALL": "C",
++}
++
++
++class _RunRecorder:
++    """Stands in for ``subprocess.run``; keeps each argv, keyword set and env."""
++
++    def __init__(self) -> None:
++        self.calls: list[dict] = []
++
++    def __call__(self, argv, **kwargs):
++        self.calls.append({"argv": list(argv), "kwargs": kwargs, "env": kwargs.get("env")})
++        return SimpleNamespace(returncode=0, stdout=b"## main\0", stderr=b"")
++
++
++@pytest.fixture
++def recorder(monkeypatch) -> _RunRecorder:
++    rec = _RunRecorder()
++    # Patched inside the test, after the autouse guard has patched the same attribute.
++    monkeypatch.setattr(probes.subprocess, "run", rec)
++    return rec
++
++
++def test_git_argv_and_env_are_lock_free(recorder, monkeypatch):
++    monkeypatch.setenv("GIT_OPTIONAL_LOCKS", "1")  # a caller's value must not leak through
++    worktree = Path("/work/tree-a")
++
++    out = probes._git(worktree, *STATUS_ARGS, timeout=5.0)
++
++    assert out == "## main\0"
++    (call,) = recorder.calls
++    argv = call["argv"]
++    assert argv[0] == "git"
++    assert argv[1] == "--no-optional-locks"
++    assert argv[2] == "-C"
++    assert argv[3] == str(worktree)
++    assert argv[4:] == list(STATUS_ARGS)
++    assert call["env"]["GIT_OPTIONAL_LOCKS"] == "0"
++    assert call["kwargs"]["timeout"] == 5.0
++    assert call["kwargs"]["check"] is False
++
++
++def test_check_git_args_allows_only_the_listed_call(recorder):
++    probes.check_git_args(STATUS_ARGS)  # the one allowed call passes
++
++    with pytest.raises(ValueError):
++        probes.check_git_args(("rev-parse",))
++    with pytest.raises(ValueError):
++        probes._git(Path("/work/tree-a"), "rev-parse", timeout=5.0)
++    assert recorder.calls == []  # a rejected call never reaches a subprocess
++
++
++def test_one_git_argv_per_worktree(recorder):
++    # Item 10.4 re-points this at ``collect``; until then the test builds the list itself.
++    worktrees = [Path("/work/tree-a"), Path("/work/tree-b")]
++
++    for path in worktrees:
++        probes._git(path, *STATUS_ARGS, timeout=5.0)
++
++    assert len(recorder.calls) == len(worktrees)
++    assert [c["argv"][3] for c in recorder.calls] == [str(p) for p in worktrees]
++    assert all(c["argv"][1:3] == ["--no-optional-locks", "-C"] for c in recorder.calls)
++
++
++def _git_env(home: Path) -> dict[str, str]:
++    env = {k: v for k, v in os.environ.items() if not k.startswith("GIT_")}
++    env.update(_FIXED_IDENTITY)
++    env["HOME"] = str(home)
++    return env
++
++
++@pytest.mark.integration
++@pytest.mark.skipif(GIT is None, reason="git is not installed")
++def test_real_git_lock_free_status_and_gitignore(tmp_path):
++    repo = tmp_path / "repo"
++    repo.mkdir()
++    env = _git_env(tmp_path / "home")
++
++    def git(*args: str, check: bool = True) -> subprocess.CompletedProcess:
++        return subprocess.run(
++            [GIT, "-C", str(repo), *args],
++            env=env,
++            capture_output=True,
++            text=True,
++            timeout=30,
++            check=check,
++        )
++
++    git("init", "-q", "-b", "main")
++    shutil.copyfile(REPO_ROOT / ".gitignore", repo / ".gitignore")
++    tracked = repo / "tracked.txt"
++    tracked.write_text("one\n")
++    git("add", ".gitignore", "tracked.txt")
++    git("commit", "-q", "-m", "seed")
++
++    # (2) a report under .dev/sweeps/ is ignored.
++    assert git("check-ignore", ".dev/sweeps/x.md", check=False).returncode == 0
++    # (3) task packages under .dev/tasks/ are not.
++    assert git("check-ignore", ".dev/tasks/to-do/x.md", check=False).returncode == 1
++
++    # (4) writing a file under .dev/sweeps/ leaves the status output unchanged.
++    before = git("status", "--porcelain").stdout
++    (repo / ".dev" / "sweeps").mkdir(parents=True)
++    (repo / ".dev" / "sweeps" / "x.md").write_text("report\n")
++    assert git("status", "--porcelain").stdout == before == ""
++
++    # (1) control: make the index entry stat-dirty (same bytes, new mtime). The sweep's
++    # lock-free call must leave the index file alone; a plain status rewrites it.
++    index = repo / ".git" / "index"
++    st = tracked.stat()
++    os.utime(tracked, ns=(st.st_atime_ns, st.st_mtime_ns + 5_000_000_000))
++    index_before = index.read_bytes()
++
++    lock_free = subprocess.run(
++        [GIT, "--no-optional-locks", "-C", str(repo), *STATUS_ARGS],
++        env={**env, "GIT_OPTIONAL_LOCKS": "0"},
++        capture_output=True,
++        timeout=30,
++        check=True,
++    )
++    assert lock_free.returncode == 0
++    assert index.read_bytes() == index_before, "lock-free status rewrote the index"
++
++    git("status", "--porcelain")  # the plain call
++    if index.read_bytes() == index_before:
++        warnings.warn(
++            "control inconclusive: a plain git status did not rewrite the index here",
++            stacklevel=1,
++        )
+--- /dev/null
++++ b/.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/test-results/step-1.4a-pytest.txt   (new file, 15 lines)
++============================= test session starts ==============================
++platform linux -- Python 3.11.15, pytest-9.2.0, pluggy-1.7.0 -- /home/coder/workspaces/worktrees/IronClaude/issue-339-orchestrator-mode/.venv/bin/python
++cachedir: .pytest_cache
++SuperClaude: 5.0.0
++rootdir: /home/coder/workspaces/worktrees/IronClaude/issue-339-orchestrator-mode
++configfile: pyproject.toml
++plugins: superclaude-5.0.0, anyio-4.16.0
++collecting ... collected 4 items
++
++tests/sweep/test_readonly.py::test_git_argv_and_env_are_lock_free PASSED [ 25%]
++tests/sweep/test_readonly.py::test_check_git_args_allows_only_the_listed_call PASSED [ 50%]
++tests/sweep/test_readonly.py::test_one_git_argv_per_worktree PASSED      [ 75%]
++tests/sweep/test_readonly.py::test_real_git_lock_free_status_and_gitignore PASSED [100%]
++
++============================== 4 passed in 0.31s ===============================
+Delta diff from the previous reviewed tree (empty on the first review): 
+Earlier blocking findings of this start (empty on the first review): 
+Saved-probe re-check hit locations (may be empty): 
+
+Do not trust the implementer's report.
+
+First mark each earlier blocking finding resolved, open or regressed from the diff. Then, for each AC, mark it met or unmet. Require citations: every AC you mark, met or unmet, carries a `path:line` or `Ti.ACk@path:line` citation, and an unmet mark lists the finding ids behind it. Do not return a verdict; the orchestrator computes it.
+
+For every finding answer four questions, each yes or no:
+1. ac-outcome-missing: is output an AC requires absent, or does it contradict the AC text, or does an evidence claim you could not verify have no evidence row?
+2. false-claim: is a claim in delivered text or code false against live source, or does a recipe or instruction followed as written not do what the text says?
+3. harmful-effect: does code or a recipe this task added or changed write, append, chmod or delete tracked or production data, mutate state outside the task's declared outputs, or expose a secret?
+4. quoted-constraint-breach: does the diff violate a quoted plan constraint, out-of-scope, non-goal or non-negotiable item, or an explicit task instruction?
+
+Anchor rule: cite exactly one anchor per yes. ac-outcome-missing: the quoted AC words. false-claim: the live-source path:line holding the contradicting text. harmful-effect: the diff line that is the write. quoted-constraint-breach: the quoted constraint or instruction text. A yes without a valid anchor does not block.
+
+Write one line per finding:
+F<k>.<j> ac=<Ti.ACk|scope> at=<path:line> anchor=<quoted text or path:line> chk=<amiss,false,harm,constraint as y/n> family=<id> fix=<text> [covers=<quoted AC clause or constraint>]: <text>
+Do not write sev=, trigger=, first= or origin=; the orchestrator adds them. Write one status line per earlier blocking finding: F<m>.<j> resolved|open|regressed.
+
+Inside /sc:implement this protocol's severity model governs this review and takes precedence over the session's output style and the copy of it injected into every subagent; only blocking findings may fail an attempt.
+
+You are not given an adviser answer, brief, evidence file or troubleshoot report. Do not read the retry folders (legacy `.dev/implement/<slug>/retries/`, managed `<pkg>/artifacts/retries/`) or `.dev/troubleshoot/`. A citation into either makes the verdict `cannot-verify`.
+The prior-findings slot above carries earlier blocking finding lines that the orchestrator copies byte for byte from `review-*.md` and `repair-*.md`; they reach you as prompt text, not as an evidence file. Do not read those folders to get them, and never cite the slot or the file it came from.

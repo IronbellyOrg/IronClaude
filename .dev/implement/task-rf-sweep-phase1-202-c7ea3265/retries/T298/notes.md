@@ -1,0 +1,2 @@
+7852f00f8db5a6401971cf475c3db65eb387bdf6
+A1 r1-1 F1.1 minor .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/docs/consolidated-findings-cycle0.md:94 ac=scope amiss:n,false:n,harm:n,constraint:n The coverage map sends CAD-2 only to DOC-F8 and DOC-F5, but CAD-2 also names the R2 bullet as a drift site, the same gap as DOC-F10 (routing-rows MINOR-1). Cosmetic: no wrong id, no missing finding.

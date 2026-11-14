@@ -1,0 +1,401 @@
+Review one task for spec compliance.
+
+Task brief: T253 = item 11.14 of the source file /home/coder/workspaces/worktrees/IronClaude/issue-339-orchestrator-mode/.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md (lines 2048-2054). Item text:
+- [ ] **11.14 — QA cmd-skill: fix cycle 1 (one rf-qa fix agent, conditional)**
+  - **Context**: Pre-7.10 source anchor for the style scope: `src/superclaude/output-styles/pragmatic.md:22` held the unqualified table mandate; after item 7.10 it holds the scoped sweep exception. Input: `.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/cmd-skill/consolidated-findings-cycle0.md` from item 11.13 (`F_0` and `|F_0|`). Additional Context to pass: revision `.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/revisions/chat-output-exception-20261109-133150/BUILD-REQUEST.md` and `design-addendum.md` there, unchanged OQ-6 record, actual canonical `src/superclaude/output-styles/pragmatic.md`, `src/superclaude/skills/sc-sweep-protocol/SKILL.md` and `tests/commands/test_sweep_command.py` and `.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/test-results/step-7.10-style-exception.md`, `test-sweep-command-summary.md` and `phase11-validation.md` there to fix the common rule against immutable authority. Other inputs for the fix agent: the gate inputs listed in Context.
+  - **Action**: If `|F_0|` is 0 (only MINOR findings or none), write `SKIPPED: no blocking findings` to `.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/cmd-skill/fix-log-cycle1.md` and mark items 11.14 to 11.20 complete with that note. Otherwise spawn ONE `rf-qa` agent (Agent tool, `mode: bypassPermissions`, `fix_authorization: true`) with this fix agent preamble, verbatim: "You are the single fix agent for this gate cycle. `fix_authorization: true`. Fix only the BLOCKING and MAJOR findings listed in the consolidated findings file you are given; leave MINOR findings as notes. Edit only the files the findings name. Anchor every edit by quoted text. Write a fix log listing each finding id, the change, and the `file:line` after the change. Never commit, push or stage a `.claude/` path." Pass it `.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/cmd-skill/consolidated-findings-cycle0.md`, the other inputs in Context, and the output path `.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/cmd-skill/fix-log-cycle1.md`. The fix agent edits only `src/superclaude/commands/sweep.md`, `src/superclaude/skills/sc-sweep-protocol/SKILL.md`, `tests/commands/test_sweep_command.py`, `tests/recommend/test_routing_refresh.py` and only the bounded communication clauses of `src/superclaude/output-styles/pragmatic.md`, never a `.claude/` or installed HOME path; read revision `.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/revisions/chat-output-exception-20261109-133150/BUILD-REQUEST.md` and `design-addendum.md` there, the unchanged OQ-6 decision and `.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/test-results/step-7.10-style-exception.md` plus `test-sweep-command-summary.md` there as explicit context, with the command/skill/test sources. It never edits revision authority/DESIGN or severity tests and never weakens a test to make it pass; a finding that needs a DESIGN change is left OPEN with that reason (DESIGN wins). After the agent returns, re-run the item 11.5 commands: `uv run ruff check tests/commands/test_sweep_command.py tests/recommend/test_routing_refresh.py`, `uv run ruff format --check tests/commands/test_sweep_command.py tests/recommend/test_routing_refresh.py`, `uv run pytest tests/commands tests/recommend tests/skills/test_review_severity_rule.py tests/skills/test_implement_severity_static.py -v` (expect exit 0 each) and `grep -rn 'src/superclaude' src/superclaude/commands/sweep.md src/superclaude/skills/sc-sweep-protocol/` (expect exit 1), and append each command, its output and a PASS or FAIL line to the fix log.
+  - **Output**: `.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/cmd-skill/fix-log-cycle1.md` and the fixed files.
+  - **Verification**: Verify: the fix log lists every id in `F_0` with a change and a `file:line`, an OPEN reason, or the SKIPPED line; every appended re-check line is PASS. If the fix agent fails to return twice, log the blocker in `### Phase 11 Findings` and stop.
+  - **Completion gate**: The fix log is written. Once done, mark this item as complete.
+AC ids: T253.AC1 = the item title "QA cmd-skill: fix cycle 1 (one rf-qa fix agent, conditional)" (no AC block; the title is the AC). The item's own Verification and Completion gate lines are context for what "done" means. Ticking the item's checkbox is done by the orchestrator after the verdict and is not part of the diff under review.
+Global constraints: the `### Key Constraints` section (lines 157-168) of the source file named in the task brief; read it from that file.
+Start sha: f5d65bd5cd7da52f81101d3d9f64396417a746d0
+Diff against the start snapshot: Orchestrator facts for the reviewer (verify them; do not take them on trust): the fix agent was given the prompt saved at .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/cmd-skill/prompts/T253-prompt.md and returned the fix log .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/cmd-skill/fix-log-cycle1.md. At the task start the executor took sha256 of 63 protected files (DESIGN, revision folder, OQ records, pragmatic.md, WORKER-CONTRACT.md, sweep.md, the severity tests, all seven QA reports, the consolidated file, the ledger, phase11-validation.md and the other result files, everything under src/superclaude/cli/sweep and tests/sweep) and after the agent returned all 63 matched; the files it was allowed to edit changed as expected: SKILL.md, tests/commands/test_sweep_command.py, test-sweep-command.txt and test-sweep-command-summary.md (tests/recommend/test_routing_refresh.py is unchanged). The fix log's own last section (Executor re-run) was added by the executor after the agent returned. F_0 = CMD-F1 to CMD-F4 are listed in .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/cmd-skill/consolidated-findings-cycle0.md with their smallest fixes. The new wording the fix agent put into SKILL.md must carry no stop, retry, release, merge or removal word and no em dash. Judge the item's Verification line: the fix log lists every id in F_0 with a change and a file:line, an OPEN reason, or the SKIPPED line; every appended re-check line is PASS. Re-run the four re-check commands from the fix log yourself if you wish (read-only).
+
+The diff below (git-style, against the task start) shows the changes. New untracked files are summarised.
+
+--- a/src/superclaude/skills/sc-sweep-protocol/SKILL.md
++++ b/src/superclaude/skills/sc-sweep-protocol/SKILL.md
+@@ -24,7 +24,7 @@
+ 2. Only when step 1 fails with "command not found", run `uv run --frozen --no-sync superclaude sweep run <args>` with the Bash timeout 120000 ms. No other failure leads to this step, and no step runs the command a third time.
+ 3. On exit 0, parse the standard output as JSON and take only `report_path` and `summary`. Then Read the report at `report_path` in chunks of at most 150 lines (Read with `offset` and `limit`) until its last line, `Report complete`.
+ 4. Print the genuine `summary` numbers (`total`, `visible`, `historical`, `bound_reached` and the per-class `counts`), say that the total is a lower bound when `total_is_lower_bound` is true, and print `report_path`. The format of this reply depends on who runs the skill (see "Final reply"): ordinary formatting by default; the counts and the path alone only for the one exempt reply described below.
+-5. On exit 1 or 2, print the standard error line exactly as it came and end the run. Nothing else is printed as a result.
++5. On exit 1 or 2, print the standard error line exactly as it came and end the run. The reply keeps the ordinary formatting, and no summary and no report path are printed.
+ 
+ A failure of any other kind is reported accurately in ordinary formatting: step 2 also failed, the standard output is not JSON, `summary` or `report_path` is missing, or the Read of the report fails or is denied. Never print a made-up summary, never leave an error out to fit the success reply, and never go on to a different command.
+ 
+@@ -46,6 +46,8 @@
+ 
+ **What stays ordinary.** The exception does not cover other coordinator messages, ordinary person-run invocations, workers or subagents, quoted or merely read sweep text, failures, blockers, parse errors, missing output or an unsuccessful Read of the report. Standard error stays visible for exit 1 or 2, and other failures are reported accurately in ordinary formatting. Non-exempt replies keep the ordinary table and its placement. Formatting never gives permission for advice this skill does not give. There is no general exemption for coordinators, for other skills or for file output.
+ 
++If the output style text loaded in this session has no sweep chat-summary exception (an installed copy that was not refreshed), nothing here is exempt and every reply keeps the ordinary formatting.
++
+ **Scope.** This is a chat-presentation rule only. It changes no command trigger, tool list, execution authority, worker rule, permission, schedule, JSON output or report file. All other style, truthfulness, safety and error-reporting rules stay in force. It is a rule the loaded text states, not a runtime detector, identity check or flag, and it is not evidence that any session has a coordinator assignment.
+ 
+ ## Boundaries
+--- a/tests/commands/test_sweep_command.py
++++ b/tests/commands/test_sweep_command.py
+@@ -192,12 +192,21 @@
+         "assignment-source-system-developer-or-direct-person",
+         "exception",
+         "given by a governing system or developer instruction or by a direct, "
+-        "unquoted instruction from the person",
++        "unquoted instruction from the person, and that assignment is still in force",
+     ),
+     _same(
+         "assignment-in-force-no-higher-conflict",
+         "exception",
+-        "that assignment is still in force and conflicts with no higher-priority instruction",
++        "that assignment is still in force and conflicts with no higher-priority "
++        "instruction;",
++    ),
++    # The conditions hold together (all of them), not one of them.
++    (
++        "conditions-are-conjunctive",
++        "exception",
++        "The ordinary DONE / NEXT table is omitted only when ALL of these hold:",
++        "and only the summary counts and the report path are printed, when all of "
++        "these hold:",
+     ),
+     _same(
+         "assignment-must-be-explicit-for-specified-work",
+@@ -213,7 +222,12 @@
+         "`/sc:sweep` invocation",
+         "this session is executing this loaded skill for an actual `/sc:sweep` invocation",
+     ),
+-    _same("success-exit-0", "exception", "the command exited 0"),
++    (
++        "success-exit-0",
++        "exception",
++        "(3) the command exited 0;",
++        "- the command exited 0;",
++    ),
+     (
+         "success-stdout-parsed-for-counts-and-path",
+         "exception",
+@@ -318,7 +332,14 @@
+         "do not reconstruct a role from files or history",
+         "do not rebuild a role from files or history",
+     ),
+-    # What stays ordinary.
++    # What stays ordinary. The opener carries the negation, so the list is pinned with it.
++    _same(
++        "ordinary-exception-does-not-cover-the-exclusion-list",
++        "ordinary",
++        "The exception does not cover other coordinator messages, ordinary person-run "
++        "invocations, workers or subagents, quoted or merely read sweep text, failures, "
++        "blockers, parse errors,",
++    ),
+     _same(
+         "ordinary-other-coordinator-messages", "ordinary", "other coordinator messages"
+     ),
+@@ -339,8 +360,8 @@
+     (
+         "ordinary-missing-output-or-unsuccessful-read",
+         "ordinary",
+-        "missing required output or unsuccessful report Reads",
+-        "missing output or an unsuccessful Read of the report",
++        "parse errors, missing required output or unsuccessful report Reads.",
++        "parse errors, missing output or an unsuccessful Read of the report.",
+     ),
+     (
+         "stderr-visible-for-exit-1-or-2-other-failures-ordinary",
+@@ -429,6 +450,12 @@
+         "A failure of any other kind is reported accurately in ordinary formatting: "
+         "step 2 also failed,",
+     ),
++    (
++        "failure-list-is-framed-as-ordinary-formatting",
++        "A failure of any other kind is reported accurately in ordinary formatting: "
++        "step 2 also failed, the standard output is not JSON, `summary` or "
++        "`report_path` is missing, or the Read of the report fails or is denied.",
++    ),
+     ("failure-malformed-json", "the standard output is not JSON,"),
+     (
+         "failure-missing-summary-or-report-path",
+--- a/.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/test-results/test-sweep-command.txt
++++ b/.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/test-results/test-sweep-command.txt
+@@ -9,7 +9,7 @@
+ rootdir: /home/coder/workspaces/worktrees/IronClaude/issue-339-orchestrator-mode
+ configfile: pyproject.toml
+ plugins: superclaude-5.0.0, anyio-4.16.0
+-collecting ... collected 110 items
++collecting ... collected 115 items
+ 
+ tests/commands/test_sweep_command.py::test_sweep_command_allowed_tools_literal PASSED [  0%]
+ tests/commands/test_sweep_command.py::test_sweep_skill_allowed_tools_literal PASSED [  1%]
+@@ -18,16 +18,17 @@
+ tests/commands/test_sweep_command.py::test_sweep_project_copy_regex_rejects_installed_path_alone PASSED [  4%]
+ tests/commands/test_sweep_command.py::test_sweep_skill_path_first_order PASSED [  5%]
+ tests/commands/test_sweep_command.py::test_sweep_skill_fallback_only_on_command_not_found PASSED [  6%]
+-tests/commands/test_sweep_command.py::test_sweep_skill_fallback_literal_has_no_sync_and_frozen PASSED [  7%]
+-tests/commands/test_sweep_command.py::test_sweep_skill_step_timeout_120000[1] PASSED [  8%]
+-tests/commands/test_sweep_command.py::test_sweep_skill_step_timeout_120000[2] PASSED [  9%]
+-tests/commands/test_sweep_command.py::test_sweep_command_has_no_unattended_mode PASSED [ 10%]
++tests/commands/test_sweep_command.py::test_sweep_skill_fallback_literal_has_no_sync_and_frozen PASSED [  6%]
++tests/commands/test_sweep_command.py::test_sweep_skill_step_timeout_120000[1] PASSED [  7%]
++tests/commands/test_sweep_command.py::test_sweep_skill_step_timeout_120000[2] PASSED [  8%]
++tests/commands/test_sweep_command.py::test_sweep_command_has_no_unattended_mode PASSED [  9%]
+ tests/commands/test_sweep_command.py::test_sweep_no_src_superclaude_path[sweep.md] PASSED [ 10%]
+ tests/commands/test_sweep_command.py::test_sweep_no_src_superclaude_path[SKILL.md] PASSED [ 11%]
+ tests/commands/test_sweep_command.py::test_sweep_skill_has_no_stop_retry_release_merge_removal_advice PASSED [ 12%]
+ tests/commands/test_sweep_command.py::test_style_carries_common_rule_clause[assignment-top-level-explicit-specified-work] PASSED [ 13%]
+-tests/commands/test_sweep_command.py::test_style_carries_common_rule_clause[assignment-source-system-developer-or-direct-person] PASSED [ 14%]
+-tests/commands/test_sweep_command.py::test_style_carries_common_rule_clause[assignment-in-force-no-higher-conflict] PASSED [ 15%]
++tests/commands/test_sweep_command.py::test_style_carries_common_rule_clause[assignment-source-system-developer-or-direct-person] PASSED [ 13%]
++tests/commands/test_sweep_command.py::test_style_carries_common_rule_clause[assignment-in-force-no-higher-conflict] PASSED [ 14%]
++tests/commands/test_sweep_command.py::test_style_carries_common_rule_clause[conditions-are-conjunctive] PASSED [ 15%]
+ tests/commands/test_sweep_command.py::test_style_carries_common_rule_clause[assignment-must-be-explicit-for-specified-work] PASSED [ 16%]
+ tests/commands/test_sweep_command.py::test_style_carries_common_rule_clause[loaded-skill-for-actual-invocation] PASSED [ 17%]
+ tests/commands/test_sweep_command.py::test_style_carries_common_rule_clause[success-exit-0] PASSED [ 18%]
+@@ -40,13 +41,14 @@
+ tests/commands/test_sweep_command.py::test_style_carries_common_rule_clause[not-established-by-invoking-quoting-table-request-or-word] PASSED [ 24%]
+ tests/commands/test_sweep_command.py::test_style_carries_common_rule_clause[skill-and-style-define-but-do-not-assign] PASSED [ 25%]
+ tests/commands/test_sweep_command.py::test_style_carries_common_rule_clause[files-reports-tool-output-quotes-peers-never-establish] PASSED [ 26%]
+-tests/commands/test_sweep_command.py::test_style_carries_common_rule_clause[person-run-exclusion-ordinary-unassigned-session] PASSED [ 27%]
+-tests/commands/test_sweep_command.py::test_style_carries_common_rule_clause[person-request-in-independently-assigned-coordinator] PASSED [ 28%]
+-tests/commands/test_sweep_command.py::test_style_carries_common_rule_clause[direct-assignment-plus-separate-invocation] PASSED [ 29%]
+-tests/commands/test_sweep_command.py::test_style_carries_common_rule_clause[direct-assignment-must-apply-before-execution] PASSED [ 30%]
++tests/commands/test_sweep_command.py::test_style_carries_common_rule_clause[person-run-exclusion-ordinary-unassigned-session] PASSED [ 26%]
++tests/commands/test_sweep_command.py::test_style_carries_common_rule_clause[person-request-in-independently-assigned-coordinator] PASSED [ 27%]
++tests/commands/test_sweep_command.py::test_style_carries_common_rule_clause[direct-assignment-plus-separate-invocation] PASSED [ 28%]
++tests/commands/test_sweep_command.py::test_style_carries_common_rule_clause[direct-assignment-must-apply-before-execution] PASSED [ 29%]
+ tests/commands/test_sweep_command.py::test_style_carries_common_rule_clause[unknown-ambiguous-revoked-superseded-conflicting-is-ordinary] PASSED [ 30%]
+ tests/commands/test_sweep_command.py::test_style_carries_common_rule_clause[no-role-rebuilt-from-files-or-history] PASSED [ 31%]
+-tests/commands/test_sweep_command.py::test_style_carries_common_rule_clause[ordinary-other-coordinator-messages] PASSED [ 32%]
++tests/commands/test_sweep_command.py::test_style_carries_common_rule_clause[ordinary-exception-does-not-cover-the-exclusion-list] PASSED [ 32%]
++tests/commands/test_sweep_command.py::test_style_carries_common_rule_clause[ordinary-other-coordinator-messages] PASSED [ 33%]
+ tests/commands/test_sweep_command.py::test_style_carries_common_rule_clause[ordinary-person-run-invocations] PASSED [ 33%]
+ tests/commands/test_sweep_command.py::test_style_carries_common_rule_clause[ordinary-workers-and-subagents] PASSED [ 34%]
+ tests/commands/test_sweep_command.py::test_style_carries_common_rule_clause[ordinary-quoted-or-read-sweep-text] PASSED [ 35%]
+@@ -62,13 +64,14 @@
+ tests/commands/test_sweep_command.py::test_style_carries_common_rule_clause[scope-eligibility-is-text-contract-not-detector] PASSED [ 44%]
+ tests/commands/test_sweep_command.py::test_skill_carries_common_rule_clause[assignment-top-level-explicit-specified-work] PASSED [ 45%]
+ tests/commands/test_sweep_command.py::test_skill_carries_common_rule_clause[assignment-source-system-developer-or-direct-person] PASSED [ 46%]
+-tests/commands/test_sweep_command.py::test_skill_carries_common_rule_clause[assignment-in-force-no-higher-conflict] PASSED [ 47%]
++tests/commands/test_sweep_command.py::test_skill_carries_common_rule_clause[assignment-in-force-no-higher-conflict] PASSED [ 46%]
++tests/commands/test_sweep_command.py::test_skill_carries_common_rule_clause[conditions-are-conjunctive] PASSED [ 47%]
+ tests/commands/test_sweep_command.py::test_skill_carries_common_rule_clause[assignment-must-be-explicit-for-specified-work] PASSED [ 48%]
+ tests/commands/test_sweep_command.py::test_skill_carries_common_rule_clause[loaded-skill-for-actual-invocation] PASSED [ 49%]
+ tests/commands/test_sweep_command.py::test_skill_carries_common_rule_clause[success-exit-0] PASSED [ 50%]
+-tests/commands/test_sweep_command.py::test_skill_carries_common_rule_clause[success-stdout-parsed-for-counts-and-path] PASSED [ 50%]
+-tests/commands/test_sweep_command.py::test_skill_carries_common_rule_clause[success-report-read] PASSED [ 51%]
+-tests/commands/test_sweep_command.py::test_skill_carries_common_rule_clause[exempt-final-successful-reply-only] PASSED [ 52%]
++tests/commands/test_sweep_command.py::test_skill_carries_common_rule_clause[success-stdout-parsed-for-counts-and-path] PASSED [ 51%]
++tests/commands/test_sweep_command.py::test_skill_carries_common_rule_clause[success-report-read] PASSED [ 52%]
++tests/commands/test_sweep_command.py::test_skill_carries_common_rule_clause[exempt-final-successful-reply-only] PASSED [ 53%]
+ tests/commands/test_sweep_command.py::test_skill_carries_common_rule_clause[exempt-reply-is-counts-and-path] PASSED [ 53%]
+ tests/commands/test_sweep_command.py::test_skill_carries_common_rule_clause[exempt-reply-omits-table-wrapper-gloss] PASSED [ 54%]
+ tests/commands/test_sweep_command.py::test_skill_carries_common_rule_clause[exempt-reply-precedence-for-that-one-reply] PASSED [ 55%]
+@@ -81,16 +84,17 @@
+ tests/commands/test_sweep_command.py::test_skill_carries_common_rule_clause[direct-assignment-must-apply-before-execution] PASSED [ 61%]
+ tests/commands/test_sweep_command.py::test_skill_carries_common_rule_clause[unknown-ambiguous-revoked-superseded-conflicting-is-ordinary] PASSED [ 62%]
+ tests/commands/test_sweep_command.py::test_skill_carries_common_rule_clause[no-role-rebuilt-from-files-or-history] PASSED [ 63%]
+-tests/commands/test_sweep_command.py::test_skill_carries_common_rule_clause[ordinary-other-coordinator-messages] PASSED [ 64%]
+-tests/commands/test_sweep_command.py::test_skill_carries_common_rule_clause[ordinary-person-run-invocations] PASSED [ 65%]
++tests/commands/test_sweep_command.py::test_skill_carries_common_rule_clause[ordinary-exception-does-not-cover-the-exclusion-list] PASSED [ 64%]
++tests/commands/test_sweep_command.py::test_skill_carries_common_rule_clause[ordinary-other-coordinator-messages] PASSED [ 65%]
++tests/commands/test_sweep_command.py::test_skill_carries_common_rule_clause[ordinary-person-run-invocations] PASSED [ 66%]
+ tests/commands/test_sweep_command.py::test_skill_carries_common_rule_clause[ordinary-workers-and-subagents] PASSED [ 66%]
+ tests/commands/test_sweep_command.py::test_skill_carries_common_rule_clause[ordinary-quoted-or-read-sweep-text] PASSED [ 67%]
+ tests/commands/test_sweep_command.py::test_skill_carries_common_rule_clause[ordinary-failures-blockers-parse-errors] PASSED [ 68%]
+ tests/commands/test_sweep_command.py::test_skill_carries_common_rule_clause[ordinary-missing-output-or-unsuccessful-read] PASSED [ 69%]
+ tests/commands/test_sweep_command.py::test_skill_carries_common_rule_clause[stderr-visible-for-exit-1-or-2-other-failures-ordinary] PASSED [ 70%]
+-tests/commands/test_sweep_command.py::test_skill_carries_common_rule_clause[non-exempt-replies-keep-table-and-placement] PASSED [ 70%]
+-tests/commands/test_sweep_command.py::test_skill_carries_common_rule_clause[formatting-never-authorizes-advice] PASSED [ 71%]
+-tests/commands/test_sweep_command.py::test_skill_carries_common_rule_clause[no-general-exemption-for-coordinators-skills-or-files] PASSED [ 72%]
++tests/commands/test_sweep_command.py::test_skill_carries_common_rule_clause[non-exempt-replies-keep-table-and-placement] PASSED [ 71%]
++tests/commands/test_sweep_command.py::test_skill_carries_common_rule_clause[formatting-never-authorizes-advice] PASSED [ 72%]
++tests/commands/test_sweep_command.py::test_skill_carries_common_rule_clause[no-general-exemption-for-coordinators-skills-or-files] PASSED [ 73%]
+ tests/commands/test_sweep_command.py::test_skill_carries_common_rule_clause[scope-chat-presentation-only] PASSED [ 73%]
+ tests/commands/test_sweep_command.py::test_skill_carries_common_rule_clause[scope-changes-no-trigger-tool-authority-worker-rule-permission-schedule-output] PASSED [ 74%]
+ tests/commands/test_sweep_command.py::test_skill_carries_common_rule_clause[scope-other-truthfulness-safety-error-rules-stay] PASSED [ 75%]
+@@ -99,20 +103,21 @@
+ tests/commands/test_sweep_command.py::test_skill_states_clause[success-report-read-in-chunks-of-150-lines] PASSED [ 78%]
+ tests/commands/test_sweep_command.py::test_skill_states_clause[exit-1-or-2-prints-stderr-and-ends-run] PASSED [ 79%]
+ tests/commands/test_sweep_command.py::test_skill_states_clause[failure-exhausted-designed-fallback] PASSED [ 80%]
+-tests/commands/test_sweep_command.py::test_skill_states_clause[failure-malformed-json] PASSED [ 80%]
+-tests/commands/test_sweep_command.py::test_skill_states_clause[failure-missing-summary-or-report-path] PASSED [ 81%]
+-tests/commands/test_sweep_command.py::test_skill_states_clause[failure-read-fails-or-denied] PASSED [ 82%]
+-tests/commands/test_sweep_command.py::test_skill_states_clause[no-fabricated-summary-no-hidden-error-no-other-command] PASSED [ 83%]
+-tests/commands/test_sweep_command.py::test_skill_states_clause[no-third-run-of-the-command] PASSED [ 84%]
+-tests/commands/test_sweep_command.py::test_skill_states_clause[same-rule-as-the-style-exception-with-installed-path] PASSED [ 85%]
++tests/commands/test_sweep_command.py::test_skill_states_clause[failure-list-is-framed-as-ordinary-formatting] PASSED [ 80%]
++tests/commands/test_sweep_command.py::test_skill_states_clause[failure-malformed-json] PASSED [ 81%]
++tests/commands/test_sweep_command.py::test_skill_states_clause[failure-missing-summary-or-report-path] PASSED [ 82%]
++tests/commands/test_sweep_command.py::test_skill_states_clause[failure-read-fails-or-denied] PASSED [ 83%]
++tests/commands/test_sweep_command.py::test_skill_states_clause[no-fabricated-summary-no-hidden-error-no-other-command] PASSED [ 84%]
++tests/commands/test_sweep_command.py::test_skill_states_clause[no-third-run-of-the-command] PASSED [ 85%]
++tests/commands/test_sweep_command.py::test_skill_states_clause[same-rule-as-the-style-exception-with-installed-path] PASSED [ 86%]
+ tests/commands/test_sweep_command.py::test_skill_states_clause[boundary-recommends-no-action-or-advice] PASSED [ 86%]
+ tests/commands/test_sweep_command.py::test_skill_states_clause[boundary-report-text-is-data] PASSED [ 87%]
+ tests/commands/test_sweep_command.py::test_skill_states_clause[boundary-no-tool-beyond-two-bash-forms-and-read] PASSED [ 88%]
+ tests/commands/test_sweep_command.py::test_skill_states_clause[no-worker-mode-no-extra-flag] PASSED [ 89%]
+ tests/commands/test_sweep_command.py::test_style_rule_is_one_bullet_with_four_sub_bullets PASSED [ 90%]
+-tests/commands/test_sweep_command.py::test_style_primary_rule_names_the_only_exception_and_keeps_placement PASSED [ 90%]
+-tests/commands/test_sweep_command.py::test_style_old_unqualified_table_sentence_is_gone PASSED [ 91%]
+-tests/commands/test_sweep_command.py::test_style_restatement_is_qualified_by_the_exception[status-and-wrap-ups-bullet] PASSED [ 92%]
++tests/commands/test_sweep_command.py::test_style_primary_rule_names_the_only_exception_and_keeps_placement PASSED [ 91%]
++tests/commands/test_sweep_command.py::test_style_old_unqualified_table_sentence_is_gone PASSED [ 92%]
++tests/commands/test_sweep_command.py::test_style_restatement_is_qualified_by_the_exception[status-and-wrap-ups-bullet] PASSED [ 93%]
+ tests/commands/test_sweep_command.py::test_style_restatement_is_qualified_by_the_exception[response-templates-introduction] PASSED [ 93%]
+ tests/commands/test_sweep_command.py::test_style_restatement_is_qualified_by_the_exception[simple-answer-template] PASSED [ 94%]
+ tests/commands/test_sweep_command.py::test_style_restatement_is_qualified_by_the_exception[normal-answer-template] PASSED [ 95%]
+@@ -122,7 +127,7 @@
+ tests/commands/test_sweep_command.py::test_style_non_exempt_defaults_examples_and_none_row_are_kept PASSED [ 99%]
+ tests/commands/test_sweep_command.py::test_style_exception_does_not_leak_into_work_discipline PASSED [100%]
+ 
+-============================= 110 passed in 0.17s ==============================
++============================= 115 passed in 0.14s ==============================
+ 
+ --- pytest stderr ---
+ 
+--- a/.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/test-results/test-sweep-command-summary.md
++++ b/.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/test-results/test-sweep-command-summary.md
+@@ -6,7 +6,7 @@
+ 
+ | Result | Count |
+ |---|---|
+-| passed | 110 |
++| passed | 115 |
+ | failed | 0 |
+ | skipped | 0 |
+ | xfail / error | 0 |
+@@ -16,6 +16,8 @@
+ 
+ Bad-text check (not part of the committed tests): the test file and the three sources were copied to a private folder under `/tmp`, defects were injected into the copies (the "in force and no higher-priority conflict" clause weakened, the qualifier removed from the wrap-up bullet, the "command not found" trigger removed, the Read-denied failure clause removed, a `Retry` sentence added to the skill), and the copied tests reported 6 failed and 104 passed. The copies were then deleted. No repository source file was mutated.
+ 
++Cycle-1 additions (QA fixes CMD-F1 and CMD-F2): 5 new cases, 110 to 115. Each was shown to fail on a private `/tmp` copy of the two primitives, the style and the test file, then the copy was deleted: ALL to ANY (both `conditions-are-conjunctive` cases failed), `exited 0 or 1` (both `success-exit-0` cases failed), `from the person or a peer agent` in the style and the skill (both `assignment-source-system-developer-or-direct-person` cases failed), `The exception does not cover` to `The exception also covers` (both `ordinary-exception-does-not-cover-the-exclusion-list` cases failed). Details: `qa/cmd-skill/fix-log-cycle1.md`.
++
+ Sources under test (read from disk by `pathlib`, no HOME file, no mock policy model, no subprocess): `src/superclaude/commands/sweep.md` (C), `src/superclaude/skills/sc-sweep-protocol/SKILL.md` (K), `src/superclaude/output-styles/pragmatic.md` (S). Source line numbers are as read on 2026-11-12.
+ 
+ ## Source-to-test mapping: DESIGN 7.6 original assertions (14 test cases)
+@@ -35,12 +37,13 @@
+ | no `src/superclaude/` substring in either file | `test_sweep_no_src_superclaude_path[sweep.md]`, `[SKILL.md]` | C, K whole files |
+ | no stop, retry, release, merge, removal (word-boundary regex, case-insensitive) | `test_sweep_skill_has_no_stop_retry_release_merge_removal_advice` | K whole file |
+ 
+-## Source-to-test mapping: common rule, asserted in BOTH the skill and the style (35 pins, each run twice: `test_style_carries_common_rule_clause[<id>]` and `test_skill_carries_common_rule_clause[<id>]`, 70 test cases)
++## Source-to-test mapping: common rule, asserted in BOTH the skill and the style (37 pins, each run twice: `test_style_carries_common_rule_clause[<id>]` and `test_skill_carries_common_rule_clause[<id>]`, 74 test cases)
+ 
+-The style part is the rule block S:22-26 (primary bullet plus four sub-bullets); the skill part is `## Final reply`, K:31-49. Where the two files word a clause differently, the pin names each file's own wording.
++The style part is the rule block S:22-26 (primary bullet plus four sub-bullets); the skill part is `## Final reply`, K:31-51. Cycle 1 ended the assignment-source, in-force and exit-0 pins on their delimiters and added the two pins marked (cycle 1). Where the two files word a clause differently, the pin names each file's own wording.
+ 
+ | Added case (pin id) | Style line | Skill line |
+ |---|---|---|
++| conditions-are-conjunctive (cycle 1: all of the conditions must hold, not any one) | S:23 | K:35 |
+ | assignment-top-level-explicit-specified-work | S:23 | K:37 |
+ | assignment-source-system-developer-or-direct-person | S:23 | K:37 |
+ | assignment-in-force-no-higher-conflict (also the higher-priority conflict case) | S:23 | K:37 |
+@@ -62,6 +65,7 @@
+ | direct-assignment-must-apply-before-execution | S:24 | K:45 |
+ | unknown-ambiguous-revoked-superseded-conflicting-is-ordinary | S:24 | K:45 |
+ | no-role-rebuilt-from-files-or-history | S:24 | K:45 |
++| ordinary-exception-does-not-cover-the-exclusion-list (cycle 1: the opener that carries the negation, with the list) | S:25 | K:47 |
+ | ordinary-other-coordinator-messages | S:25 | K:47 |
+ | ordinary-person-run-invocations | S:25 | K:47 |
+ | ordinary-workers-and-subagents | S:25 | K:47 |
+@@ -72,12 +76,12 @@
+ | non-exempt-replies-keep-table-and-placement | S:25 | K:47 |
+ | formatting-never-authorizes-advice (no prohibited advice) | S:25 | K:47 |
+ | no-general-exemption-for-coordinators-skills-or-files | S:25 | K:47 |
+-| scope-chat-presentation-only | S:26 | K:49 |
+-| scope-changes-no-trigger-tool-authority-worker-rule-permission-schedule-output (no new tools, rights, Python report or JSON change) | S:26 | K:49 |
+-| scope-other-truthfulness-safety-error-rules-stay | S:26 | K:49 |
+-| scope-eligibility-is-text-contract-not-detector (asserts the clause is present; the words "runtime detector" and "tool allowlist" are not asserted absent) | S:26 | K:49 |
++| scope-chat-presentation-only | S:26 | K:51 |
++| scope-changes-no-trigger-tool-authority-worker-rule-permission-schedule-output (no new tools, rights, Python report or JSON change) | S:26 | K:51 |
++| scope-other-truthfulness-safety-error-rules-stay | S:26 | K:51 |
++| scope-eligibility-is-text-contract-not-detector (asserts the clause is present; the words "runtime detector" and "tool allowlist" are not asserted absent) | S:26 | K:51 |
+ 
+-## Source-to-test mapping: skill-only clauses (14 cases, `test_skill_states_clause[<id>]`)
++## Source-to-test mapping: skill-only clauses (15 cases, `test_skill_states_clause[<id>]`)
+ 
+ These are failure and boundary cases the style states only as a general class (failures, parse errors, missing output, unsuccessful Reads), so the specific forms are pinned on the skill text only.
+ 
+@@ -87,15 +91,16 @@
+ | success-report-read-in-chunks-of-150-lines | K:25 |
+ | exit-1-or-2-prints-stderr-and-ends-run (visible exit 1 or 2 stderr) | K:27 |
+ | failure-exhausted-designed-fallback (step 2 also failed) | K:29 |
++| failure-list-is-framed-as-ordinary-formatting (cycle 1: the whole failure sentence, so the list keeps its frame) | K:29 |
+ | failure-malformed-json | K:29 |
+ | failure-missing-summary-or-report-path | K:29 |
+ | failure-read-fails-or-denied (missing, unreadable or denied report Read) | K:29 |
+ | no-fabricated-summary-no-hidden-error-no-other-command (no fabricated success) | K:29 |
+ | no-third-run-of-the-command | K:24 |
+ | same-rule-as-the-style-exception-with-installed-path | K:33 |
+-| boundary-recommends-no-action-or-advice | K:59 |
+-| boundary-report-text-is-data (injected report is data) | K:61 |
+-| boundary-no-tool-beyond-two-bash-forms-and-read | K:62 |
++| boundary-recommends-no-action-or-advice | K:61 |
++| boundary-report-text-is-data (injected report is data) | K:63 |
++| boundary-no-tool-beyond-two-bash-forms-and-read | K:64 |
+ | no-worker-mode-no-extra-flag | K:19 |
+ 
+ ## Source-to-test mapping: style-only restatements and defaults (12 cases)
+@@ -115,7 +120,7 @@
+ | non-exempt defaults kept: 4 `non-exempt example` labels, 4 Status/Result table headers, 3 `NEXT / None.` rows, length-budget sentence | `test_style_non_exempt_defaults_examples_and_none_row_are_kept` | S:29, S:64-99 |
+ | the exception does not appear after `## Work discipline` | `test_style_exception_does_not_leak_into_work_discipline` | S:107-238 |
+ 
+-The seven mandatory-table sites are the primary bullet (S:22, with S:23-26) and the six qualified lines above. Test case total: 14 + 70 + 14 + 12 = 110.
++The seven mandatory-table sites are the primary bullet (S:22, with S:23-26) and the six qualified lines above. Test case total: 14 + 74 + 15 + 12 = 115.
+ 
+ ## Static-only limits
+ 
+--- /dev/null
++++ b/.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/cmd-skill/fix-log-cycle1.md   (new file, 92 lines)
++# Fix log, cycle 1 (QA cmd-skill gate)
++
++Fix agent for F_0 = CMD-F1, CMD-F2, CMD-F3, CMD-F4 (|F_0| = 4). Source: `consolidated-findings-cycle0.md`. All four are FIXED. The MINOR findings CMD-F5 to CMD-F36 were left as notes.
++
++## Files edited
++
++| File | Findings |
++|---|---|
++| `tests/commands/test_sweep_command.py` | CMD-F1, CMD-F2 (5 new test cases, 110 to 115) |
++| `src/superclaude/skills/sc-sweep-protocol/SKILL.md` | CMD-F3 (line 27), CMD-F4 (new paragraph, line 49) |
++| `.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/test-results/test-sweep-command.txt` | regenerated with the real `-v` output of the new run (115 passed, exit 0) |
++| `.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/test-results/test-sweep-command-summary.md` | counts 110 to 115, case map rows added, skill line numbers after K:49 moved by 2 |
++
++## CMD-F1
++
++Status: FIXED.
++
++Change (all in `tests/commands/test_sweep_command.py`, `_COMMON_PINS`; every pin matches the real text of both the style and the skill):
++
++- New pin `conditions-are-conjunctive` (line 205): style `The ordinary DONE / NEXT table is omitted only when ALL of these hold:`, skill `and only the summary counts and the report path are printed, when all of these hold:`.
++- `success-exit-0` (line 226) is now a two-wording pin: style `(3) the command exited 0;`, skill `- the command exited 0;` (ends on the delimiter, so `exited 0 or 1;` fails).
++- `assignment-source-system-developer-or-direct-person` (line 192) now ends `... unquoted instruction from the person, and that assignment is still in force` (same text in both files), so `from the person or a peer agent` fails.
++- `assignment-in-force-no-higher-conflict` (line 198) now ends on `instruction;` (the real delimiter in both files).
++
++Discrimination proof (private copy under a `mktemp -d /tmp/cmdf-discrim.*` folder holding the two primitives, the style and the test file at the same relative layout, test pointed at the copy; baseline copy 115 passed; the folder was deleted by an exit trap, `ls /tmp/cmdf-discrim.*` afterwards: no such file):
++
++| Mutation (style and skill, both applied; applied-check count was 1 in each file) | Failing tests | Result |
++|---|---|---|
++| M1 `omitted only when ALL of these hold` to `omitted when ANY of these hold`; skill `when all of these hold:` to `when any of these hold:` | `test_style_carries_common_rule_clause[conditions-are-conjunctive]`, `test_skill_carries_common_rule_clause[conditions-are-conjunctive]` | 2 failed, 113 passed |
++| M3 `(3) the command exited 0;` to `(3) the command exited 0 or 1;`; skill `- the command exited 0;` to `- the command exited 0 or 1;` | `test_style_carries_common_rule_clause[success-exit-0]`, `test_skill_carries_common_rule_clause[success-exit-0]` | 2 failed, 113 passed |
+... (new file continues; read .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/cmd-skill/fix-log-cycle1.md from disk for lines 31-92)
+Delta diff from the previous reviewed tree (empty on the first review): 
+Earlier blocking findings of this start (empty on the first review): 
+Saved-probe re-check hit locations (may be empty): 
+
+Do not trust the implementer's report.
+
+First mark each earlier blocking finding resolved, open or regressed from the diff. Then, for each AC, mark it met or unmet. Require citations: every AC you mark, met or unmet, carries a `path:line` or `Ti.ACk@path:line` citation, and an unmet mark lists the finding ids behind it. Do not return a verdict; the orchestrator computes it.
+
+For every finding answer four questions, each yes or no:
+1. ac-outcome-missing: is output an AC requires absent, or does it contradict the AC text, or does an evidence claim you could not verify have no evidence row?
+2. false-claim: is a claim in delivered text or code false against live source, or does a recipe or instruction followed as written not do what the text says?
+3. harmful-effect: does code or a recipe this task added or changed write, append, chmod or delete tracked or production data, mutate state outside the task's declared outputs, or expose a secret?
+4. quoted-constraint-breach: does the diff violate a quoted plan constraint, out-of-scope, non-goal or non-negotiable item, or an explicit task instruction?
+
+Anchor rule: cite exactly one anchor per yes. ac-outcome-missing: the quoted AC words. false-claim: the live-source path:line holding the contradicting text. harmful-effect: the diff line that is the write. quoted-constraint-breach: the quoted constraint or instruction text. A yes without a valid anchor does not block.
+
+Write one line per finding:
+F<k>.<j> ac=<Ti.ACk|scope> at=<path:line> anchor=<quoted text or path:line> chk=<amiss,false,harm,constraint as y/n> family=<id> fix=<text> [covers=<quoted AC clause or constraint>]: <text>
+Do not write sev=, trigger=, first= or origin=; the orchestrator adds them. Write one status line per earlier blocking finding: F<m>.<j> resolved|open|regressed.
+
+Inside /sc:implement this protocol's severity model governs this review and takes precedence over the session's output style and the copy of it injected into every subagent; only blocking findings may fail an attempt.
+
+You are not given an adviser answer, brief, evidence file or troubleshoot report. Do not read the retry folders (legacy `.dev/implement/<slug>/retries/`, managed `<pkg>/artifacts/retries/`) or `.dev/troubleshoot/`. A citation into either makes the verdict `cannot-verify`.
+The prior-findings slot above carries earlier blocking finding lines that the orchestrator copies byte for byte from `review-*.md` and `repair-*.md`; they reach you as prompt text, not as an evidence file. Do not read those folders to get them, and never cite the slot or the file it came from.

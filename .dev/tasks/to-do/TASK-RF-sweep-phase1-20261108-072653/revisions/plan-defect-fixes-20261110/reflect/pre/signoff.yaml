@@ -1,0 +1,23 @@
+# PRE reflect-gate sign-off for the EDITED task file (second bounded revision R2, A.10.7), supplied separately from the frozen task frontmatter
+# (the task frontmatter reflect_pre block still holds the run 2 record and is intentionally NOT edited because the preamble is frozen;
+# the revision folder carries fresh checks supplied separately, see ../../delta-manifest.md and the first revision's delta-manifest.md line 15).
+# Task file under review: sha256 eb291f0bdd1a787131a3b5295150b0f109b46943a1c43c638fd2ad4652d29f99 (3020 lines).
+# This sign-off replaces the first revision's sign-off, which named plan sha f52e43a5 and is history.
+reflect_pre:
+  verdict: pass          # A.10.7 routing rule: parsed coverage_pct 1.000 >= floor 0.90 and status partial (not failed). A coverage verdict, NOT an execution clearance.
+  skip_reason: null
+  coverage_pct: 1.000    # parsed-only; coverage_pct_union 0.990
+  depth: deep            # equals the TCS-derived depth
+  tcs: 1860              # real computed score (qa/tcs-computation-pre.json: S1 475, S2 66, S3 41, S4 7, S5 15, S6 0; qa/tcs_compute.py)
+  tier_reached: 2        # the deep band (tcs >= 35) requires tier_reached 2
+  run_id: "reflect-pre-20261110T0540Z-TASK-RF-sweep-phase1-run4-plan-defect-fixes"
+  report: ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/revisions/plan-defect-fixes-20261110/reflect/pre/REPORT.md"
+  reviewed_at: "2026-11-10T07:10:00Z"
+  open_findings: {HIGH: 2, MEDIUM: 1, LOW: 6}
+  open_high: ["M-01 (item 7.17 Verification fails after its own resume; only if the optional OQ-17/OQ-18 branch fires; outside the 85 allowed labels, needs a new bounded authorization)", "M-02 (item 7.24 safety lens rejects an owner-approved allowlist change; only if the branch fires and the owner approves; inside the 85 labels)"]
+  default_path: "sound: neither HIGH finding blocks starting 7.10 or any item before 7.16/7.17"
+  convergence_status: BLOCKED_BY_INVARIANTS     # INV-R4-003 and INV-R4-011 folded into M-01 and M-02, not accepted as risk
+  f_closure_run3: "F-02..F-06 and F-08..F-10 fixed; F-01 and F-07 partial (see REPORT.md section 3)"
+  citations: {total: 132, revalidated: 132, dropped: 0}
+  execution_clearance: false   # execution still needs the separate direct authorization (written first into the step-7.10 result file); no finding fix has been applied
+  consequence_of_fixes: "applying any M-01..M-09 edit changes the plan hash and invalidates this sign-off and the structural, alignment and qualitative reports; re-run them after the edits"

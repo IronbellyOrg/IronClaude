@@ -1,0 +1,145 @@
+# Reviewer 2 card with blind calibration (merge input, post run)
+
+Weight findings by the calibration: findings the calibrator marked overstated carry the calibrated class and severity; supported findings keep theirs. Calibrator class opus (diversity degraded).
+
+## Reviewer card
+```yaml
+# reviewer-2 card (persona qa, model class haiku). Persisted by the orchestrator from the reflect-reviewer agent's returned YAML (agentId ab1b64432f8adbbe1); evidence paths made repo-relative; reasoning shortened, nothing dropped.
+reviewer: 2
+persona: qa
+model_class: haiku
+lead_verdicts:
+  DC-6: "confirmed: the DESIGN approval banner and the task Open Questions keep pending statements that disagree with resolved decision records."
+  DC-8: "modified: counts-only reply and FIN-F7 limitation confirmed; the owner ruling permits continuation but does not say the limitation was fixed."
+  DC-10: "modified: the full suite and the formatting check were not green; the detailed completion gates (task file :2470) permit documented failures outside the task's changes."
+  DC-11: "modified: pending staging is not an authorized expansion; the approved L3 rule and unfinished item 14.49 put final staging at the end of the run. Exact index counts not independently verified."
+findings:
+  - id: R2-F1
+    title: "Current approval and blocking-status text is stale"
+    class: drift
+    severity: medium
+    lead_ref: DC-6
+    evidence:
+      - docs/designs/orchestrator-mode.md:5
+      - .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md:3037
+      - .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md:3042
+      - .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/plans/OQ-3-GQ-11-rule-id-decision.md:36
+      - .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/plans/OQ-7-D9-signoff-decision.md:40
+      - .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/artifacts/owner-decisions.md:10
+    authorization_source: null
+    reasoning: "DESIGN still says WC-16 approval is required while the decision record approves its identifier and text; the task labels resolved decisions pending, including D9 as blocking classification. These are current-looking instructions, not labelled historical statements."
+    confidence: 0.99
+  - id: R2-F2
+    title: "The exempt chat reply omits the outage warning under an explicitly accepted limitation"
+    class: authorized
+    severity: medium
+    lead_ref: DC-8
+    evidence:
+      - src/superclaude/skills/sc-sweep-protocol/SKILL.md:25
+      - src/superclaude/skills/sc-sweep-protocol/SKILL.md:35
+      - .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/final/gate-decision.md:13
+      - .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/plans/FINAL-GATE-FIN-F7-ruling.md:15
+    authorization_source: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/plans/FINAL-GATE-FIN-F7-ruling.md:17
+    reasoning: "The skill takes only report_path and summary and permits a counts-and-path-only reply, so it does not relay orca_available. The ruling records FIN-F7 as unfixed, permits continuation and specifies follow-up work: an accepted limitation, not a completed fix."
+    confidence: 0.97
+  - id: R2-F3
+    title: "Literal all-green validation objective was not achieved"
+    class: necessary
+    severity: medium
+    lead_ref: DC-10
+    evidence:
+      - .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/test-results/phase14-full-pytest.md:9
+      - .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/test-results/phase14-full-pytest.md:22
+      - .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/test-results/phase14-lint.md:109
+      - .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md:2456
+      - .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md:2470
+    authorization_source: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md:2470
+    reasoning: "Three failures in the saved full run and twelve unchanged Markdown files in the format check. The supplied verification corroborates the missing-ruff environment failures; the detailed task gates permit documented failures not caused by the task. Qualified completion, not a pass of the full suite."
+    confidence: 0.94
+  - id: R2-F4
+    title: "NFR-007 publication acceptance is not exercised by the timeout tests"
+    class: regression
+    severity: blocking
+    lead_ref: NEW
+    evidence:
+      - .dev/brainstorms/20261108-024258-orchestrator-mode-phase1/merged-requirements.md:136
+      - docs/designs/orchestrator-mode.md:760
+      - tests/sweep/test_probes_allowlist.py:1130
+      - tests/sweep/test_probes_allowlist.py:1144
+      - tests/sweep/test_probes_allowlist.py:1169
+    authorization_source: null
+    reasoning: "NFR-007 requires a report to be published under full-timeout fake probes and DESIGN claims that coverage. Both named publication tests stop at rendering a string; neither calls publication nor asserts a report file, footer, success JSON or CLI exit. They establish bounded collection and rendering, not publication. (The task logged this as FIN-F19, MINOR.)"
+    confidence: 0.99
+  - id: R2-F5
+    title: "Head-and-tail ledger reading is claimed but neither implemented nor pinned"
+    class: regression
+    severity: blocking
+    lead_ref: NEW
+    evidence:
+      - docs/designs/orchestrator-mode.md:62
+      - src/superclaude/cli/sweep/probes.py:563
+      - tests/sweep/test_probes_allowlist.py:1328
+      - tests/sweep/test_probes_allowlist.py:1331
+    authorization_source: null
+    reasoning: "DESIGN requires reading the first and last 512 KiB of an oversized ledger while searching only the tail. The code seeks to the tail and never reads the head; the test named for head-and-tail asserts only a tail-derived boolean. No difference in the FINAL detection value was found because DESIGN also specifies tail-only searching."
+    confidence: 0.99
+  - id: R2-F6
+    title: "FR-006 class coverage excludes working despite its unchanged acceptance criterion"
+    class: regression
+    severity: blocking
+    lead_ref: NEW
+    evidence:
+      - .dev/brainstorms/20261108-024258-orchestrator-mode-phase1/merged-requirements.md:100
+      - src/superclaude/cli/sweep/classify.py:257
+      - tests/sweep/test_classify.py:368
+      - tests/sweep/test_classify.py:376
+      - .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/plans/FINAL-GATE-halt-resolution-decision.md:18
+    authorization_source: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/plans/FINAL-GATE-halt-resolution-decision.md:18
+    reasoning: "FR-006 requires every class to be reached, but Rule 5 returns None and the tests require every class except working. The owner approved making DESIGN describe that limitation, so the code matches the revised DESIGN; the SPEC acceptance criterion stays unmet. Under the requested precedence, documented rationale and DESIGN approval do not make an unmet acceptance criterion a clean pass."
+    confidence: 0.96
+objective_checks:
+  1: "pass: R3/R4/R5 edits and gate records exist; time fields at src/superclaude/cli/sweep/models.py:72; closure table docs/designs/orchestrator-mode.md:1044. Pre-code chronology not reconstructed."
+  2: "pass: the three records exist with owner quotations and captured results (artifacts/owner-decisions.md:10, artifacts/pr422-409-check.md:39). A conflict about the unknown-Run capture restriction remains a grounding gap."
+  3: "fail: all six modules exist and registration follows issue-watch (src/superclaude/cli/main.py:567-569), but exact DESIGN conformity fails on the ledger reader (R2-F5)."
+  4: "pass: command and skill exist; WC-16 at src/superclaude/core/WORKER-CONTRACT.md:275; five pin edits at tests/skills/test_worker_contract.py lines 89, 173, 400, 922, 1333."
+  5: "pass: R1/R2 at src/superclaude/core/HOW-WE-WORK.md:334 and :405 and the plugin copy; R4/R5 registries include sweep; R6 docs/user-guide/commands.md:116; R7 docs/developer-guide/SuperClaude-Developer-Guide-Commands-Skills-Agents.md:991; R8 CHANGELOG.md:7; ignore entry .gitignore:256."
+  6: "fail: scoped validation has passing evidence but the literal all-green objective is not met; acceptance coverage has R2-F4 and R2-F6. The real-git test asserts ignore behaviour and unchanged status (tests/sweep/test_readonly.py:496)."
+  7: "fail (not yet complete, not an execution deviation): final and fidelity gates exist, reflect_post is still empty at the task file frontmatter (line 32); this audit is the unfinished gate."
+grounding_gaps:
+  - what: "Exact staging counts and final staging outcome"
+    why_not_classifiable: "No independent index listing; approved L3 permits end-of-run staging and item 14.49 is unfinished."
+    next_evidence: "a saved index-status artifact after item 14.49 (timing rule .dev/orca-command-refactor/decisions/APPROVED.md:20)"
+  - what: "Unknown-Run task-list capture restriction"
+    why_not_classifiable: "Task item 7.16 restricts Run substitutions while DESIGN requires the unknown-Run task-list error shape; the capture records the extra read (artifacts/readonly-probe.md:1071)."
+    next_evidence: "resolve instruction precedence between task file :1251, DESIGN :995 and the capture"
+  - what: "Full historical chronology and complete 355-item adherence"
+    why_not_classifiable: "This pass sampled seven objectives and eight requirement rows; it did not rebuild every execution event."
+    next_evidence: "an immutable chronological execution record for the design gates and first code changes"
+inferred_claims:
+  - "Eight requirement rows sampled (FR-005, FR-006, FR-010, FR-013, FR-014, NFR-007, NFR-014, FR-022): five have the sampled assertions, NFR-014 is the owner-approved ten-template variant, FR-006 and NFR-007 have the acceptance contradictions above."
+  - "FR-005 asserted at tests/sweep/test_cli_contract.py:852 and :872; FR-010 at tests/sweep/test_classify.py:906-960; FR-013 at :1642; FR-014 at :1720-1741; NFR-014 at tests/sweep/test_probes_allowlist.py:340-385; FR-022 at tests/commands/test_sweep_command.py:106-168."
+  - "The 3220-test phase run and the 1788-test audit run use different scopes; Phase 14 Findings is populated from task line 3023."
+  - "Runtime ledger DEGRADE rows reflect static-analysis limits, not proven unreachable code."
+self_reported_confidence: 0.94
+```
+
+## Blind calibration
+```yaml
+# Wave 3C blind calibration of reviewer-2-card.yaml (confidence-calibrator agent a0c8c36a74e3653a7, model class opus)
+calibrator_model_class: opus
+calibrator_diversity: degraded
+dimension_scores: {citation_grounding: 0.90, coverage_completeness: 0.65, deviation_classification_clarity: 0.40, risk_surface_coverage: 0.75, recommendation_actionability: 0.45}
+C: 0.63
+self_reported_confidence: 0.94
+citations_checked: 33
+citations_failed: 0
+finding_verdicts:
+  R2-F1: {verdict: supported, class: drift, severity: medium}
+  R2-F2: {verdict: supported, class: authorized, severity: medium}
+  R2-F3: {verdict: supported, class: necessary, severity: medium}
+  R2-F4: {verdict: overstated, calibrated_class: drift, calibrated_severity: medium, note: "tests stop at report.render (test_probes_allowlist.py:1144, :1169) while NFR-007 (SPEC :136) and DESIGN :760 claim publication; coverage gap, nothing shows publication fails. The reviewer's 'FIN-F19' cross-reference appears to point at the wrong item."}
+  R2-F5: {verdict: overstated, calibrated_class: drift, calibrated_severity: low, note: "head never read (probes.py:563) but DESIGN :62 also says only the tail is searched; no behaviour change; task logs it as FID-F5 MINOR"}
+  R2-F6: {verdict: overstated, calibrated_class: authorized, calibrated_severity: medium, note: "owner approval recorded at FINAL-GATE-halt-resolution-decision.md:18; the SPEC criterion stays unmet; task logs it as FID-F15 MINOR"}
+objective_check_note: "objective 3 'fail' rests on R2-F5 and is overstated"
+escalate: true
+```

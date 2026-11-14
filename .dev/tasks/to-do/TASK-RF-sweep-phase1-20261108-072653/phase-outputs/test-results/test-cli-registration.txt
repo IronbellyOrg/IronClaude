@@ -1,0 +1,28 @@
+# Item 10.6: tests/sweep/test_cli_registration.py results
+
+Command: uv run pytest tests/sweep/test_cli_registration.py -v
+--- pytest stdout ---
+============================= test session starts ==============================
+platform linux -- Python 3.11.15, pytest-9.2.0, pluggy-1.7.0 -- /home/coder/workspaces/worktrees/IronClaude/issue-339-orchestrator-mode/.venv/bin/python
+cachedir: .pytest_cache
+SuperClaude: 5.0.0
+rootdir: /home/coder/workspaces/worktrees/IronClaude/issue-339-orchestrator-mode
+configfile: pyproject.toml
+plugins: superclaude-5.0.0, anyio-4.16.0
+collecting ... collected 3 items
+
+tests/sweep/test_cli_registration.py::test_sweep_help_exits_zero PASSED  [ 33%]
+tests/sweep/test_cli_registration.py::test_sweep_run_help_exits_zero PASSED [ 66%]
+tests/sweep/test_cli_registration.py::test_import_is_lazy_and_runs_no_seam PASSED [100%]
+
+============================== 3 passed in 0.33s ===============================
+
+--- case-to-test map (DESIGN section 11, test_cli_registration.py row; FR-001, NFR-006) ---
+- `superclaude sweep --help` exits 0 under CliRunner on main: test_sweep_help_exits_zero
+- `superclaude sweep run --help` exits 0 under CliRunner on main: test_sweep_run_help_exits_zero
+- importing superclaude.cli.sweep records no seam call (patch_orca, patch_git) and does not import commands until sweep_group is read; sweep_group is a click.Group named "sweep": test_import_is_lazy_and_runs_no_seam
+
+--- order independence ---
+- uv run pytest tests/sweep -q: 469 passed
+- reverse file order with -p no:randomly: 469 passed
+- mutation check: an eager `from .commands import sweep_group` in sweep/__init__.py makes test_import_is_lazy_and_runs_no_seam fail (restored afterwards, cmp identical)

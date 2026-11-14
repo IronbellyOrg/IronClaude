@@ -1,0 +1,32 @@
+# Written by the orchestrator verbatim from the confidence-calibrator's returned YAML (the calibrator agent is Read-only).
+card_ref: /home/coder/workspaces/worktrees/IronClaude/issue-339-orchestrator-mode/.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/reflect/pre-run2/reflection-card-t1.yaml
+dimensions:
+  citation_grounding:
+    score: 0.90
+    reason: "I opened 48 file:line citations (18 in the design, 28 in the task file, 2 in merged-requirements) and every one says what the card claims. Two small deductions. F3 says the shared HALT rule points at nothing, but line 1142 spells out Branch 1 and Branch 2 in the same sentence, so only the item name is dangling. The card's negative claims (no item adds the cursor template, grep for line 138 finds nothing, no item records the byte-limit rationale) cannot be proven by reading. F5, F12 and F13 label their guesses [INFERRED], which is honest."
+  coverage_completeness:
+    score: 0.88
+    reason: "The coverage matrix header matches the card (126 parsed, 122 matched, 0.968; union 140 of 152, 0.921), and the 12 gap-registry ids equal the 12 unmapped union rows. Both ratios meet the 0.90 floor, so this is the 0.85 to 0.99 band, not 1.00. The card admits that 24 rows count as covered in substance through delegation, that QA gate items from 2.8 onward were sampled and not read one by one, and that research files 04, 07 and 08 were not read. No coverage_undefined flag."
+  deviation_classification_clarity:
+    score: 0.65
+    reason: "Each finding carries exactly one free-text category plus a severity and a Grounded or INFERRED tag, so nothing is hedged across two labels. None of them uses the rubric set Aligned, Refinement, Drift, Regression, and only F3 has a separate severity rationale. The card itself says F7 and F11 sit between contradiction and check defect. Single labels exist, but they are outside the taxonomy and the one-line category rationale is mostly implicit."
+  risk_surface_coverage:
+    score: 0.78
+    reason: "Primary risks are covered: an allowlist count that blocks a design-allowed outcome (F1), a verification that fails on correct code (F2), weak owner-gate branches (F3, F7 of HALT logic), a spurious HALT (F5), fidelity-gate fix cycles caused by an unrecorded NFR-003 change (F4), and missing B1 and B5 import checks (F10). F4 and F1 give blast-radius reasoning. Weaknesses: zero HIGH findings across 355 items, with F1 arguably HIGH because the executor must break the design or fail 8.10. Copied research wording and the QA gate items are unchecked. There is little analysis of the live capture beyond F5 and F12."
+  recommendation_actionability:
+    score: 0.90
+    reason: "F1 to F11 and F13 each name an item or line, give replacement wording or a grep, and state a checkable success condition, for example grep -c 'GAPS line 138' returning 1 in F6 and four proposed-comment lines in F9. F12 offers two alternatives with no success check, and F11 ends with an optional step. F10 gives concrete grep commands with expected results."
+calibrated_confidence: 0.82
+self_reported_confidence: 0.84
+calibration_delta: -0.02
+citations_checked: 48
+citations_failed: 0
+citations_unverifiable_notes:
+  - "Negative claims could not be proven because this session has Read only and no grep. These are F1 (no item adds the cursor template or routes it to the owner), F6 (the task file has no line 138 rule; I read the Key Constraints block at lines 157 to 164 and saw none), F9 (no item records the byte-limit rationale) and F7 (no zero-argv pin for the two new templates). Each is consistent with every line I read."
+  - "F3 is slightly overstated. Line 1142 writes the Branch 1 and Branch 2 procedure out in the same sentence that cites item 6.2, so the rule is not empty. Only the cross-reference to 6.2 is stale, and 7.15 Branch 2 (line 1244) and 14.7 Branch 2 (line 2483) do read weaker than the others as the card says."
+  - "The card's item numbers 8.3, 8.4, 8.12, 8.13, 7.2 to 7.12 and 14.46 were not each opened. Line content at 1436, 1443, 1499 and 1485 matches the described items (models, classify, report, probes verification)."
+  - "coverage-matrix.yaml was read only through its first 60 lines. The summary block matches the card's coverage numbers exactly: parsed 126, matched 122, union 140 of 152, density 0.079."
+  - "F4 treats merged-requirements.md lines 132 and 323 as the SPEC. The content fits (NFR-003 negative list and the any-argv ban on agent-wait), but I did not confirm the file name is the one the design calls SPEC."
+calibrator_model_class: sonnet
+recommendation: escalate
+recommendation_reason: "The mean is 0.82, under the 0.85 floor, so the rubric makes this an automatic ESCALATE. The structural signals agree: S_scope is 355 (above 10) and S_domains is 5 (3 or more). S_dev_density is 0.079, within the 0.20 limit. The card's own score of 0.84 also falls under 0.85. The grounding is sound, and no citation failed. The drag comes from the deviation taxonomy mismatch and from QA gate coverage that was only sampled."

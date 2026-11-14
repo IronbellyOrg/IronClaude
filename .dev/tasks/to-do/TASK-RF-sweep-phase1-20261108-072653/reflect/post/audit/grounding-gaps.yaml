@@ -1,0 +1,66 @@
+- hunk_ref: src/superclaude/cli/sweep/commands.py:214-245 and src/superclaude/cli/main.py:567-569
+  evidence_missing: "static reachability of the click group, the `run` command and the add_command registration cannot be decided from referrers (decorator, registry and packaging degrade oracle, runtime-surface.md section 3 a, b, c)"
+  why_not_classifiable: "runtime-surface DEGRADE is never UNREACHED and never Regression; supplementary real-entrypoint evidence (`uv run superclaude sweep --help` exit 0 listing `run`) shows the command is registered but not that `sweep run` publishes a report"
+  next_evidence_needed: "one real `superclaude sweep run` against a named Run (the task did this at item 9.3: artifacts/sweep-live-check-1.4.json); the auditor does not run it because it writes .dev/sweeps/"
+  owner: reviewer
+  decision_needed_by_user: false
+- hunk_ref: src/superclaude/cli/sweep/probes.py:298-322
+  evidence_missing: "reuse-auditor verdict mirror-shape, S_reuse 0.68, auggie unavailable (advisory cap)"
+  why_not_classifiable: "maybe-related, below rung L3"
+  next_evidence_needed: "none required; advisory"
+  owner: reviewer
+  decision_needed_by_user: false
+  reuse_candidate: probes._git
+  nearest_neighbour: src/superclaude/cli/reflect/config.py:64
+  similarity_tier: maybe-related
+  composite_scores: {C_cap: 0.70, C_shape: 0.65, C_aug: 0.0, S_reuse: 0.68}
+- hunk_ref: src/superclaude/cli/sweep/commands.py:153-208
+  evidence_missing: "reuse-auditor verdict extract-shared, S_reuse 0.70, auggie unavailable (advisory cap)"
+  why_not_classifiable: "maybe-related, below rung L3; the only shared atomic helper (swarm/atomic.py:14) overwrites"
+  next_evidence_needed: "none required; advisory"
+  owner: reviewer
+  decision_needed_by_user: false
+  reuse_candidate: commands._publish
+  nearest_neighbour: src/superclaude/cli/sprint/recovery.py:433
+  similarity_tier: maybe-related
+  composite_scores: {C_cap: 0.70, C_shape: 0.70, C_aug: 0.0, S_reuse: 0.70}
+- hunk_ref: src/superclaude/cli/sweep/probes.py:377-402
+  evidence_missing: "reuse-auditor verdict mirror-shape, S_reuse 0.67, auggie unavailable (advisory cap)"
+  why_not_classifiable: "maybe-related, below rung L3"
+  next_evidence_needed: "none required; advisory"
+  owner: reviewer
+  decision_needed_by_user: false
+  reuse_candidate: probes.parse_time
+  nearest_neighbour: src/superclaude/cli/swarm/tui.py:125
+  similarity_tier: maybe-related
+  composite_scores: {C_cap: 0.65, C_shape: 0.70, C_aug: 0.0, S_reuse: 0.67}
+- hunk_ref: tests/cli/eval/test_claude_process_adapter.py (not in the diff)
+  evidence_missing: "pytest exit 1 on two tests that call `python -m ruff` in .venv (module absent); mapped to Grounding Gap, not Regression, by evidence (taxonomy: unmapped/unrelated exit)"
+  why_not_classifiable: "failure cause is the environment, no diff file is read by these tests"
+  next_evidence_needed: "install ruff in the project venv (pyproject.toml pins ruff==0.15.20 as a dev dependency) and re-run"
+  owner: user
+  decision_needed_by_user: false
+- hunk_ref: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md (item 14.49) and the git index
+  evidence_missing: "final staging outcome: at audit time the work unit holds untracked and staged-then-modified files; item 14.49 (`git add .dev/tasks`) is unfinished; end-of-run staging is approved (.dev/orca-command-refactor/decisions/APPROVED.md:20)"
+  why_not_classifiable: "a pending process step, not a deviation; the auditor's own audit/ files add to the untracked count"
+  next_evidence_needed: "after item 14.49, `git status --porcelain -- .dev/tasks` shows no `??` line and `git diff --cached --name-only | grep ^.claude/` prints nothing (the auditor verified the second check now: none staged)"
+  owner: user
+  decision_needed_by_user: false
+- hunk_ref: src/superclaude/cli/sweep/probes.py:1192-1203
+  evidence_missing: "whether `orca worktree ps` lists worktrees of other repositories (git status would then run outside this checkout's worktrees)"
+  why_not_classifiable: "DESIGN :292 authorizes each distinct canonical path from worktree ps; Orca's scope was not captured"
+  next_evidence_needed: "a step 1.0a style capture of `worktree ps --json` on a host with two repositories"
+  owner: reviewer
+  decision_needed_by_user: false
+- hunk_ref: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/artifacts/readonly-probe.md:1071
+  evidence_missing: "which instruction wins when task item 7.16 restricts Run substitutions and DESIGN :995 requires the unknown-Run task-list error shape (the capture records the extra read as its own deviation)"
+  why_not_classifiable: "competing instructions, both documented"
+  next_evidence_needed: "owner ruling on instruction precedence, or confirmation that the capture's own deviation record is accepted"
+  owner: user
+  decision_needed_by_user: true
+- hunk_ref: src/superclaude/output-styles/pragmatic.md:19-26 and src/superclaude/skills/sc-sweep-protocol/SKILL.md:35-41
+  evidence_missing: "adherence of the exempt reply to the five conditions was not checked condition by condition, and the interaction of inert Rule 5, the style exception and the exempt reply was not probed (invariant INV-013 UNVERIFIED)"
+  why_not_classifiable: "no behaviour evidence either way; the canonical tests prove instruction text only (task file :3101)"
+  next_evidence_needed: "compare the five conditions in pragmatic.md with SKILL.md steps 3-4 line by line, then reinstall the output style and run one real /sc:sweep"
+  owner: reviewer
+  decision_needed_by_user: false

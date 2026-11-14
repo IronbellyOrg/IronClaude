@@ -1,0 +1,26 @@
+return_contract:
+  merged_output_path: ".dev/brainstorms/20261113-orchestrator-tui-alignment/adversarial/merged-spec.md"
+  convergence_score: 1.0            # 44 of 44 points agreed after Round 2 (Round 1: 0.932)
+  artifacts_dir: ".dev/brainstorms/20261113-orchestrator-tui-alignment/adversarial/adversarial/"
+  status: "partial"                 # agreement and taxonomy gates passed; the invariant gate passed only after Round 3 rules were merged; INV-008 (git config) stays UNRESOLVED-EXTERNAL with the owner
+  base_variant: "V1 (opus:architect)"   # 0.915987 vs V3 0.915111 vs V2 0.882671; tiebreaker level 1 (debate points won: V1 9, V3 4)
+  unresolved_conflicts: 0           # no unresolved diff point after Round 2
+  fallback_mode: true               # advocates ran as general-purpose agents; advocate V3 could not write files and its text was saved by the orchestrating session; Round 3 ran in parallel
+  failure_stage: null
+  invocation_method: "skill-direct"
+  unaddressed_invariants: []        # the 5 HIGH items of the Round 2.5 probe (R25-INV-001..005) were resolved by Round 3 rules adopted in the merge; independent review PASS after one fix cycle (qa-merged-spec.md)
+  carried_unresolved_external:
+    - id: "INV-008 (R25-INV-018)"
+      category: "guard_conditions"
+      assumption: "The git-config hole in the sweep's git status calls; owner ruling Q1 pending; the spec states the requirement and options, never the code fix"
+      severity: "HIGH"
+  deviations:
+    - "3 proposals instead of 5 (brainstorm token pre-flight downgrade for --depth deep; the planner could not verify the estimate)"
+    - "Round 3 (invariant resolution) ran as three parallel advocates, not sequentially"
+    - "Advocate V3 returned its text in messages; saved verbatim by the orchestrating session"
+    - "Merge executor could not edit base-selection.md (Change 10 target outside its write scope); no effect on the spec"
+    - "One fix cycle after independent review (2 blocking findings fixed, re-review PASS with 2 minor notes)"
+  minor_notes_open:
+    - "R2-N1: update-branch on PR #539 has no grant action"
+    - "R2-N2: edge 124 (XC-08 to V2-01, OB-09) missing from those items' blocked-by cells"
+    - "M2: naming rule for the ledger package; M3: whether the coordinator creates or binds its own Orca Run (both need a decision)"

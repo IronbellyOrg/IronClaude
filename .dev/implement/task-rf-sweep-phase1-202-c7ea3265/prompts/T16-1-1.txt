@@ -1,0 +1,37 @@
+Review one task for spec compliance.
+
+Task brief: T16 = item 2.12 of the source file /home/coder/workspaces/worktrees/IronClaude/issue-339-orchestrator-mode/.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md (lines 322-328). Item text:
+- [ ] **2.12 — QA r3-b1, agent 5 of 9: rf-qa-qualitative, actionability lens (report-only)**
+  - **Context**: Inputs (read in chunks of at most 150 lines): DESIGN `docs/designs/orchestrator-mode.md` as edited by items 2.1 to 2.6, research/04 section 2 (`.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/research/04-design-fixes-r3.md` lines 75-140), research/09 Gap 4 (`.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/research/09-gap-fill.md`) and `.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/test-results/r3-b1-mechanical.md`. Gate folder `.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/r3-b1/`. Sizing: 9 agents, 4 rf-qa + 4 rf-qa-qualitative + 1 domain lens (research/09 Gap 5, 500-1500 line row; DESIGN is 1013 lines at build time).
+  - **Action**: Items 2.8 to 2.16 are independent report-only spawns: spawn all of them in the SAME message, in parallel, then tick each item when its report exists. After the lens prompt below, append this r3-b1 scope note, verbatim: "Scope note: the R3-B2 several-rows rule (research/04 section 3.3 edit 1) is written by task item 3.1 in Phase 3. The forward reference 'Several matching rows follow the R3-B2 rule below.' and the transcript outcome for a path-B match that does not join are closed there; they are not R3-B1 findings." For this item, spawn one `rf-qa-qualitative` agent (Agent tool, `mode: bypassPermissions`, `fix_authorization: false`) with this report-only preamble, verbatim: "You are an adversarial reviewer. Assume the work is wrong until you prove it right from the files on disk. Do not trust the producer's summary, the task file's claims or any earlier QA report. Read every file you cite in chunks of at most 150 lines. `fix_authorization: false`: you must not edit any file except your own report. For each finding give: id, severity (BLOCKING, MAJOR or MINOR), the exact `file:line` evidence, what is wrong, and the smallest fix. MINOR findings never fail the gate. Number every check you run `C1`, `C2` and so on, and before the verdict add a `## Checks` table listing every check id with PASS or FAIL. End the report with `Verdict: PASS` (no BLOCKING or MAJOR finding) or `Verdict: FAIL`, then `Blocking count: <n>` counting BLOCKING plus MAJOR findings." Then this lens prompt: "Actionability lens. Act as the developer who must write `models.py`, `probes.read_transcript_tail`, the `worker-show` time parser and the path-B rule in `classify.py` from DESIGN alone. List every point where you would have to guess: time zone, inclusive bounds, whole-second truncation, a row with no end time, a row with no start time, a transcript over 256 KiB." Pass it the input list in Context and the exact report path in Output.
+  - **Output**: `.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/r3-b1/qa-actionability-report.md`.
+  - **Verification**: Verify: the report has a `## Checks` table with PASS or FAIL per check id; the report exists with `Verdict:` and `Blocking count:` lines. If the agent fails twice, log the blocker in `### Phase 2 Findings` and stop.
+  - **Completion gate**: The report is written. Once done, mark this item as complete.
+AC ids: T16.AC1 = the item title "QA r3-b1, agent 5 of 9: rf-qa-qualitative, actionability lens (report-only)" (no AC block; the title is the AC). The item's own Verification and Completion gate lines are context for what "done" means. Ticking the item's checkbox is done by the orchestrator after the verdict and is not part of the diff under review.
+Global constraints: the `### Key Constraints` section (lines 157-168) of the source file named in the task brief; read it from that file.
+Start sha: 79518442b319ac2a17c54d45c3133348f52b00cc
+Diff against the start snapshot: The task (item 2.12, a QA-gate report-only lens agent spawn, actionability lens) produced one new untracked file: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/r3-b1/qa-actionability-report.md (106 lines). Read it from disk; it is the whole output. The spawned agent was given the item's report-only preamble, the item's lens prompt, the r3-b1 scope note, the input list and the report path (the item's Action text is in the brief). The report's own last lines read: Verdict: FAIL Blocking count: 2 . No other file changed from this task.
+Delta diff from the previous reviewed tree (empty on the first review): 
+Earlier blocking findings of this start (empty on the first review): 
+Saved-probe re-check hit locations (may be empty): 
+
+Do not trust the implementer's report.
+
+First mark each earlier blocking finding resolved, open or regressed from the diff. Then, for each AC, mark it met or unmet. Require citations: every AC you mark, met or unmet, carries a `path:line` or `Ti.ACk@path:line` citation, and an unmet mark lists the finding ids behind it. Do not return a verdict; the orchestrator computes it.
+
+For every finding answer four questions, each yes or no:
+1. ac-outcome-missing: is output an AC requires absent, or does it contradict the AC text, or does an evidence claim you could not verify have no evidence row?
+2. false-claim: is a claim in delivered text or code false against live source, or does a recipe or instruction followed as written not do what the text says?
+3. harmful-effect: does code or a recipe this task added or changed write, append, chmod or delete tracked or production data, mutate state outside the task's declared outputs, or expose a secret?
+4. quoted-constraint-breach: does the diff violate a quoted plan constraint, out-of-scope, non-goal or non-negotiable item, or an explicit task instruction?
+
+Anchor rule: cite exactly one anchor per yes. ac-outcome-missing: the quoted AC words. false-claim: the live-source path:line holding the contradicting text. harmful-effect: the diff line that is the write. quoted-constraint-breach: the quoted constraint or instruction text. A yes without a valid anchor does not block.
+
+Write one line per finding:
+F<k>.<j> ac=<Ti.ACk|scope> at=<path:line> anchor=<quoted text or path:line> chk=<amiss,false,harm,constraint as y/n> family=<id> fix=<text> [covers=<quoted AC clause or constraint>]: <text>
+Do not write sev=, trigger=, first= or origin=; the orchestrator adds them. Write one status line per earlier blocking finding: F<m>.<j> resolved|open|regressed.
+
+Inside /sc:implement this protocol's severity model governs this review and takes precedence over the session's output style and the copy of it injected into every subagent; only blocking findings may fail an attempt.
+
+You are not given an adviser answer, brief, evidence file or troubleshoot report. Do not read the retry folders (legacy `.dev/implement/<slug>/retries/`, managed `<pkg>/artifacts/retries/`) or `.dev/troubleshoot/`. A citation into either makes the verdict `cannot-verify`.
+The prior-findings slot above carries earlier blocking finding lines that the orchestrator copies byte for byte from `review-*.md` and `repair-*.md`; they reach you as prompt text, not as an evidence file. Do not read those folders to get them, and never cite the slot or the file it came from.

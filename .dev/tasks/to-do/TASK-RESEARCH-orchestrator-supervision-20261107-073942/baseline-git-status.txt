@@ -1,0 +1,3 @@
+?? .dev/brainstorms/20261107-073115-orchestrator-mode/
+?? .dev/issues/339/
+?? .dev/tasks/to-do/TASK-RESEARCH-orchestrator-supervision-20261107-073942/

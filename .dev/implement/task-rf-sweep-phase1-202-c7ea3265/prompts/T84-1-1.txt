@@ -1,0 +1,63 @@
+Review one task for spec compliance.
+
+Task brief: T84 = item 5.8 of the source file /home/coder/workspaces/worktrees/IronClaude/issue-339-orchestrator-mode/.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md (lines 816-822). Item text:
+- [ ] **5.8 — R4: record the new master test constraints in section 8**
+  - **Context**: research/07:152-158. `_check_p2_set` (`test_worker_contract.py:1556`) asserts `UNATTENDED_EXPECT` has exactly 31 entries, so `sweep` is never added; `_check_no_unattended_sections` (`:831-839`) globs every `src/superclaude/commands/*.md`, so `sweep.md` has no `## Unattended mode`; the write-verb audit (`AUDIT_ROOTS` `:1940-1944`, categories `:1953-1955`) needs a `WRITE_VERB_CLASSIFICATION` row for any write-verb text in `sweep.md` or `sc-sweep-protocol/`, with `never-worker` available once `/sc:sweep` is on the list, and a `read-only` `gh api` entry must not look like a post (`_is_gh_api_post`, `:1966`); `RULE_PHRASES["liveness-sweep-and-states"]` (`:209-219`) and `["liveness-ladder-and-restart"]` (`:228-237`) must not be reworded; `_check_rule` (`:755-762`) needs the ident on the heading line.
+  - **Action**: Add a short list "Constraints from master `5dc29d23`" to DESIGN section 8 after the pins, one bullet per constraint above. Add to the section 7.6 `sweep.md` spec (near lines 644-648): "`sweep.md` has no `## Unattended mode` section." Do not add a new deviation; the count stays `Total: 9 deviations.`
+  - **Output**: DESIGN sections 7.6 and 8 with the constraints.
+  - **Verification**: Verify: section 8 names `UNATTENDED_EXPECT` with 31, `WRITE_VERB_CLASSIFICATION`, and the two liveness pins; section 7.6 contains `no \`## Unattended mode\``; `grep -n '^Total: 9 deviations.'` still returns one hit.
+  - **Completion gate**: The constraints are recorded. Once done, mark this item as complete.
+AC ids: T84.AC1 = the item title "R4: record the new master test constraints in section 8" (no AC block; the title is the AC). The item's own Verification and Completion gate lines are context for what "done" means. Ticking the item's checkbox is done by the orchestrator after the verdict and is not part of the diff under review.
+Global constraints: the `### Key Constraints` section (lines 157-168) of the source file named in the task brief; read it from that file.
+Start sha: 57b73da866b4a90bdf6a240a85898cc250015b4b
+Diff against the start snapshot: --- a/docs/designs/orchestrator-mode.md
++++ b/docs/designs/orchestrator-mode.md
+@@ -652,7 +652,7 @@
+ 
+ - Frontmatter: `name: sweep`, a one-line description, `allowed-tools: Skill`, and an `argument-hint` of `[--run <id>]... [--window <N>h|<N>d] [--root <dir>] [--output <dir>]`.
+ - Body headings follow `issue.md` (title, Triggers, Usage, Options), with an `## Activation` block in the form `graph.md` uses (`graph.md` line 9 has `allowed-tools: Skill, ...`, line 41 `## Activation`). The block invokes `~/.claude/skills/sc-sweep-protocol/SKILL.md`, and names the project `.claude/skills/sc-sweep-protocol/SKILL.md` copy as the dual surface (skills read `~/.claude/skills/` first).
+-- Triggers: explicit only. No `## Unattended mode` section, no `--unattended` flag. `/sc:sweep` is on the never-as-worker list (section 8).
++- Triggers: explicit only. No `## Unattended mode` section, no `--unattended` flag. `sweep.md` has no `## Unattended mode` section. `/sc:sweep` is on the never-as-worker list (section 8).
+ 
+ **Skill** `src/superclaude/skills/sc-sweep-protocol/SKILL.md`:
+ 
+@@ -687,6 +687,15 @@
+ - Add `assert "sweep" not in UNATTENDED_COMMANDS` next to the existing `"load"` assertion (line 1322, inside `test_load_usage_line_declares_checkpoint_and_load_is_not_converted`, def at line 1318). The equality check at line 837 holds with no edit, because `sweep.md` has no `## Unattended mode` section.
+ - Change the `RULE_PHRASES["never-as-worker"]` phrase at line 89 from ``"`/sc:spawn` and `/sc:swarm-wizard`, "`` to ``"`/sc:spawn`, `/sc:sweep` and `/sc:swarm-wizard`, "``, so the pinned phrase matches the new contract line 23 below.
+ 
++**Constraints from master `5dc29d23`** (read in `tests/skills/test_worker_contract.py`; they add no pin and no deviation):
++
++- `_check_p2_set` (line 1556) asserts `UNATTENDED_EXPECT` has exactly 31 entries, so `sweep` is never added to it.
++- `_check_no_unattended_sections` (lines 831-839) globs every `src/superclaude/commands/*.md`, so `sweep.md` has no `## Unattended mode` section.
++- The write-verb audit (`AUDIT_ROOTS`, lines 1940-1944; categories `wc9-allowed`, `deferred:P1` to `deferred:P4`, `never-worker`, `no-command` and `read-only`, lines 1953-1955) needs a `WRITE_VERB_CLASSIFICATION` row (the dict at line 2016) for any write-verb text in `sweep.md` or `sc-sweep-protocol/`. The `never-worker` category is available once `/sc:sweep` is on the never-as-worker list.
++- A `read-only` `gh api` entry must not look like a post to `_is_gh_api_post` (line 1966).
++- `RULE_PHRASES["liveness-sweep-and-states"]` (lines 209-219) and `RULE_PHRASES["liveness-ladder-and-restart"]` (lines 228-237) must not be reworded.
++- `_check_rule` (lines 755-762) needs the rule ident on the heading line, so the WC-16 heading carries `WC-16`.
++
+ **Never-as-worker addition.** `WORKER-CONTRACT.md` line 23 becomes:
+ 
+ > - **Never-as-worker list**: `/sc:agent`, `/sc:git`, `/sc:help`, `/sc:issue`, `/sc:pm`, `/sc:spawn`, `/sc:sweep` and `/sc:swarm-wizard`, plus `/sc:pr-submit` while the answer to decision D3 keeps it off workers. These are never dispatched as workers and get no `--unattended` mode. The list changes only when the coordinator-only command set or D3 changes, never per phase. If D3 adds a worker route for pr-submit, D3 also states how that route passes the brief guard.
+Delta diff from the previous reviewed tree (empty on the first review): 
+Earlier blocking findings of this start (empty on the first review): 
+Saved-probe re-check hit locations (may be empty): 
+
+Do not trust the implementer's report.
+
+First mark each earlier blocking finding resolved, open or regressed from the diff. Then, for each AC, mark it met or unmet. Require citations: every AC you mark, met or unmet, carries a `path:line` or `Ti.ACk@path:line` citation, and an unmet mark lists the finding ids behind it. Do not return a verdict; the orchestrator computes it.
+
+For every finding answer four questions, each yes or no:
+1. ac-outcome-missing: is output an AC requires absent, or does it contradict the AC text, or does an evidence claim you could not verify have no evidence row?
+2. false-claim: is a claim in delivered text or code false against live source, or does a recipe or instruction followed as written not do what the text says?
+3. harmful-effect: does code or a recipe this task added or changed write, append, chmod or delete tracked or production data, mutate state outside the task's declared outputs, or expose a secret?
+4. quoted-constraint-breach: does the diff violate a quoted plan constraint, out-of-scope, non-goal or non-negotiable item, or an explicit task instruction?
+
+Anchor rule: cite exactly one anchor per yes. ac-outcome-missing: the quoted AC words. false-claim: the live-source path:line holding the contradicting text. harmful-effect: the diff line that is the write. quoted-constraint-breach: the quoted constraint or instruction text. A yes without a valid anchor does not block.
+
+Write one line per finding:
+F<k>.<j> ac=<Ti.ACk|scope> at=<path:line> anchor=<quoted text or path:line> chk=<amiss,false,harm,constraint as y/n> family=<id> fix=<text> [covers=<quoted AC clause or constraint>]: <text>
+Do not write sev=, trigger=, first= or origin=; the orchestrator adds them. Write one status line per earlier blocking finding: F<m>.<j> resolved|open|regressed.
+
+Inside /sc:implement this protocol's severity model governs this review and takes precedence over the session's output style and the copy of it injected into every subagent; only blocking findings may fail an attempt.
+
+You are not given an adviser answer, brief, evidence file or troubleshoot report. Do not read the retry folders (legacy `.dev/implement/<slug>/retries/`, managed `<pkg>/artifacts/retries/`) or `.dev/troubleshoot/`. A citation into either makes the verdict `cannot-verify`.
+The prior-findings slot above carries earlier blocking finding lines that the orchestrator copies byte for byte from `review-*.md` and `repair-*.md`; they reach you as prompt text, not as an evidence file. Do not read those folders to get them, and never cite the slot or the file it came from.

@@ -1,0 +1,3 @@
+a881a9d23e9bbdf6efe380883fdb870a7da258b8
+A1 r1-1 F1.1 minor .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/r4/qa-master-contract-fidelity-report.md:36 ac=scope amiss:n,false:n,harm:n,constraint:y The lens says each predicted master-test break is BLOCKING; the report grades its one break (F1) MAJOR. Verdict, Blocking count (1) and F_0 membership are identical either way, so the parent treats it as minor and records F1 as BLOCKING in the consolidation (item 5.22) instead of editing the lens report.
+A1 r1-1 F1.2 note .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/r4/qa-master-contract-fidelity-report.md:32 ac=T97.AC1 amiss:n,false:n,harm:n,constraint:n Check C16 result cell reads 'PASS with MINOR F2', not a bare PASS.

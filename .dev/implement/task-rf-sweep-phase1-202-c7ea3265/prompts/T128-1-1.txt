@@ -1,0 +1,75 @@
+Review one task for spec compliance.
+
+Task brief: T128 = item 6.22 of the source file /home/coder/workspaces/worktrees/IronClaude/issue-339-orchestrator-mode/.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md (lines 1130-1136). Item text:
+- [ ] **6.22 — QA r5: gate decision (L5, proceed or HALT)**
+  - **Context**: Inputs: `.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/r5/cycle1-decision.md`, `.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/r5/verify-cycle2-rf-qa.md`, `.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/r5/verify-cycle2-rf-qa-qualitative.md`, `.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/r5/fix-log-cycle1.md` and `.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/r5/cycle-ledger.md` (the cycle-1 PASS set and `|F_1|`). At most 2 fix cycles per gate.
+  - **Action**: If `.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/r5/fix-log-cycle1.md` says `SKIPPED` (pass at cycle 0) or `.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/r5/cycle1-decision.md` says `PASS at cycle 1`, write `R5 gate: PASS` to `.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/r5/gate-decision.md` and proceed. Otherwise build `F_2` = the `F_1` ids either cycle-2 verifier marks OPEN plus every new BLOCKING or MAJOR finding, and the cycle-2 PASS set = every check id both cycle-2 verifiers mark PASS; append the cycle-2 row to `.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/r5/cycle-ledger.md`. Then, in this order: (a) Regression: any check id in the cycle-1 PASS set that is FAIL at cycle 2 gives `Regression detected on Item X.Y, previously PASS at cycle 1, now FAIL. Halt overrides monotonicity check.` (X.Y = the lens item of that check), and apply the HALT rule (set frontmatter `status` to "⚪ Blocked", put the halt line in `blocker_reason`, append it to `### Execution Log`, STOP, and do not tick this item); do not run (b). (b) Monotonicity: `|F_2| >= |F_1|` gives `[HALT-MONOTONICITY] |F|=<n>` with `<n>` = `|F_2|`, and apply the HALT rule (set frontmatter `status` to "⚪ Blocked", put the halt line in `blocker_reason`, append it to `### Execution Log`, STOP, and do not tick this item). (c) `|F_2|` is 0 gives `R5 gate: PASS at cycle 2`. (d) Otherwise the hard cap: write `R5 gate: HALT after 2 fix cycles, open findings: <ids>`, apply the HALT rule (set frontmatter `status` to "⚪ Blocked", put the halt line in `blocker_reason`, append it to `### Execution Log`, STOP, and do not tick this item), and escalate the open BLOCKING and MAJOR findings to the user. Copy every MINOR finding to `### Phase 6 Findings` as a note; MINOR findings never fail the gate.
+  - **Output**: `.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/r5/gate-decision.md`.
+  - **Verification**: Verify: `gate-decision.md` holds exactly one outcome line and the ledger has a row for every cycle that ran. On HALT, stop before marking this item complete until the blocker is resolved.
+  - **Completion gate**: `R5 gate: PASS` (at any cycle) is recorded. Once done, mark this item as complete.
+AC ids: T128.AC1 = the item title "QA r5: gate decision (L5, proceed or HALT)" (no AC block; the title is the AC). The item's own Verification and Completion gate lines are context for what "done" means. Ticking the item's checkbox is done by the orchestrator after the verdict and is not part of the diff under review.
+Global constraints: the `### Key Constraints` section (lines 157-168) of the source file named in the task brief; read it from that file.
+Start sha: 28ef5c7ff23611e609b69b5f16a62f54b7f5dad4
+Diff against the start snapshot: --- /dev/null
++++ b/.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/r5/gate-decision.md   (new file, 1 lines)
++R5 gate: PASS
+--- a/.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md
++++ b/.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md
+@@ -2880,6 +2880,33 @@
+ 
+ ### Phase 6 Findings
+ 
++- R5 gate closure (2026-11-09): `qa/r5/gate-decision.md` records PASS following the cycle-1 outcome and the owner's explicit acceptance of seven failed baseline predicates in `qa/r5/cycle1-decision.md`. The gate pass does not claim those seven checks pass. R5-F1 is resolved as a test-specification change; implementation/tests have not yet been built or run. Cycle-2 fix and verifier items 6.19-6.21 are individually recorded SKIPPED. The parent persisted the original qualitative agent's returned report using the owner's authorized fallback; a fresh independent compliance review accepted delivery. Report refusals and recovery are tracked separately in issue #465.
++- Owner attention: the owner allowed both agent-wait templates on 2026-11-08. "Not called in Phase 1" is the design's restriction, not an additional owner decision. The contract's existing coordinator sweep still runs its listing; `/sc:sweep` is separate. No live Orca behavior or primary relay-message bodies were verified by the cycle-1 reviewers.
++- R5 MINOR notes copied from `qa/r5/consolidated-findings-cycle0.md` (design line references are those recorded at review time):
++  - R5-F2: deviation D10 omits SPEC line 301's eight-template wording (design 837).
++  - R5-F3: capture/open-item wording says "each template" although capture excludes templates 9-10 (design 914, 1000, 895).
++  - R5-F4: "R5" names both an owner decision and a routing row, leaving comments ambiguous (design 535-536, 1047).
++  - R5-F5: deviation/revision introductions attribute changes only to reviews but the allowance was an owner decision (design 824, 1039).
++  - R5-F6: NFR-014 is cited for ten templates although SPEC pins eight; ten comes from D10 (design 555; SPEC 143).
++  - R5-F7: the revision row implies master's sweep collided with a condition that binds `/sc:sweep`'s own allowlist (design 1047; SPEC 495).
++  - R5-F8: owner quote and 24-call probe are relayed records only; primary messages/raw output are absent (OQ-1 record 22, 34-37).
++  - R5-F9: mechanical evidence includes an expectation line and cut-width command output (`phase-outputs/test-results/r5-mechanical.md`).
++  - R5-F10: the cycle-0 mechanical summary omitted the D6 occurrence from its hit accounting (design 833; same evidence file).
++  - R5-F11: OQ-1's applied-sections list is incomplete and D10/revision row omit links to that record/message IDs (OQ-1 41; design 837, 1047).
++  - R5-F12: item 6.2 cites G1's local-commit authorization as if it authorized decision logging (task 991; APPROVED 71 at review time).
++  - R5-F13: proposed rule says every wake but master says every wake or timeout (design 679, 716; contract 110).
++  - R5-F14: two agentWait views are read by the two sweeps without a precedence rule if they disagree (contract 122; design 491, open item 6).
++  - R5-F15: lock-risk wording has unclear call coverage; the agent-wait evidence is one idle worktree (design 7.3, 17).
++  - R5-F16: extension wording may read a one-off allowance as a standing extension route (design 221).
++  - R5-F17: "templates 1 to 8" depends on tuple order whereas the exact-set pin ignores order (design 851, 895, 526-537).
++  - R5-F18: section 8 does not explicitly state the non-use clause survives the allowance or that contract 110 stays unchanged; D10 omits section 8 (design 679, 837).
++  - R5-F19: the design does not locate application of FORBIDDEN_TOKENS in either validator signature (design 383-384, 539).
++  - R5-F20: comments align differently for the longer tuple; non-use wording is narrower than the owner's allowance (design 536).
++  - R5-F21: the design is untracked, requiring snapshot-based rather than ordinary tracked-base comparison (`docs/designs/orchestrator-mode.md`).
++  - R5-F22: SPEC retains old never-agent-wait/eight-template text; D10 records the deviation instead of editing it (SPEC 132, 143, 301, 310, 323, 500, 504, 510, 562, 619).
++  - R5-F23: no explicit replacement negative test for agent-wait on another verb; boundary relies on exact-set pin/generic extra flag (design 759).
++- Cycle-1 verifier MINOR notes copied from their reports: structural N-1 duplicated parenthetical lists at design 1047; N-2 mechanical summary says two section-7.3 hits rather than three after the edit; N-3 "a sweep" can be confused with master's sweep (design 555); N-4 section-4 counts row names only list/current despite four zero-argv templates (design 342). Qualitative V-N1 repeats the ambiguous "a sweep" wording (555), and V-N2 finds "The decision is revisited" has an unclear referent after the inserted sentences (555). All remain notes, not fixes or fresh owner decisions. The seven failed predicates additionally include missing Run-ID provenance, a stale nine-hit count, four previously noted specification discrepancies, and an unescaped table pipe; all are preserved in the cycle decision and explicitly accepted only for this gate.
++
+ - 2026-11-09T00:38:03Z, item 6.17 retry exhausted: the one fresh retry explicitly reported a higher-priority instruction prohibiting report Markdown writes, made no tool calls, performed no verification and changed no files. The task is Blocked under item 6.17's Verification instruction. Item 6.17 remains unticked, its existing implement start snapshot remains pinned, and items 6.18 onward have not started. This is an agent/report-delivery failure, not an accepted design regression or an owner ruling. No attempt was made to bypass the reported restriction.
+ 
+ - 2026-11-09, item 6.17 report-delivery failure: the first qualitative verifier returned a completed assessment in chat but left `qa/r5/verify-cycle1-rf-qa-qualitative.md` at 59 lines, ending `(Checks table follows.)`, without the required Checks table or verdict. A Read of the file and a second Read at offset 151 confirmed the missing output. On a continuation request the agent declined to persist it, claiming a direct-return restriction. The installed agent definition lists Write and Edit, but the coordinator did not treat that as permission to override an agent-local restriction or save its chat as verified evidence. One fresh retry of the prescribed verifier type was launched; item 6.17 remains incomplete pending the required file and independent review. The first agent's chat assessment mentioned seven failed baseline predicates; these remain unaccepted until delivered and checked on disk.
+Delta diff from the previous reviewed tree (empty on the first review): 
+Earlier blocking findings of this start (empty on the first review): 
+Saved-probe re-check hit locations (may be empty): 
+
+Do not trust the implementer's report.
+
+First mark each earlier blocking finding resolved, open or regressed from the diff. Then, for each AC, mark it met or unmet. Require citations: every AC you mark, met or unmet, carries a `path:line` or `Ti.ACk@path:line` citation, and an unmet mark lists the finding ids behind it. Do not return a verdict; the orchestrator computes it.
+
+For every finding answer four questions, each yes or no:
+1. ac-outcome-missing: is output an AC requires absent, or does it contradict the AC text, or does an evidence claim you could not verify have no evidence row?
+2. false-claim: is a claim in delivered text or code false against live source, or does a recipe or instruction followed as written not do what the text says?
+3. harmful-effect: does code or a recipe this task added or changed write, append, chmod or delete tracked or production data, mutate state outside the task's declared outputs, or expose a secret?
+4. quoted-constraint-breach: does the diff violate a quoted plan constraint, out-of-scope, non-goal or non-negotiable item, or an explicit task instruction?
+
+Anchor rule: cite exactly one anchor per yes. ac-outcome-missing: the quoted AC words. false-claim: the live-source path:line holding the contradicting text. harmful-effect: the diff line that is the write. quoted-constraint-breach: the quoted constraint or instruction text. A yes without a valid anchor does not block.
+
+Write one line per finding:
+F<k>.<j> ac=<Ti.ACk|scope> at=<path:line> anchor=<quoted text or path:line> chk=<amiss,false,harm,constraint as y/n> family=<id> fix=<text> [covers=<quoted AC clause or constraint>]: <text>
+Do not write sev=, trigger=, first= or origin=; the orchestrator adds them. Write one status line per earlier blocking finding: F<m>.<j> resolved|open|regressed.
+
+Inside /sc:implement this protocol's severity model governs this review and takes precedence over the session's output style and the copy of it injected into every subagent; only blocking findings may fail an attempt.
+
+You are not given an adviser answer, brief, evidence file or troubleshoot report. Do not read the retry folders (legacy `.dev/implement/<slug>/retries/`, managed `<pkg>/artifacts/retries/`) or `.dev/troubleshoot/`. A citation into either makes the verdict `cannot-verify`.
+The prior-findings slot above carries earlier blocking finding lines that the orchestrator copies byte for byte from `review-*.md` and `repair-*.md`; they reach you as prompt text, not as an evidence file. Do not read those folders to get them, and never cite the slot or the file it came from.

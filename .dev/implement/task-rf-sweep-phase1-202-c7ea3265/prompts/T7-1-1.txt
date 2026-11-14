@@ -1,0 +1,58 @@
+Review one task for spec compliance.
+
+Task brief: T7 = item 2.3 of the source file /home/coder/workspaces/worktrees/IronClaude/issue-339-orchestrator-mode/.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md (lines 259-265). Item text:
+- [ ] **2.3 — R3-B1 edits 5 and 6: the 7.1 reader comment and GQ-103(3) in 2.2**
+  - **Context**: DESIGN 7.1 (near line 398) has the transcript-tail reader comment; DESIGN 2.2 GQ-103(3) (near line 60) lists the fields pure `classify.py` reads (research/04:91-92).
+  - **Action**: (5) change the 7.1 comment to "`# last 256 KiB, first partial line dropped; sets first_record_ts and last_record_ts`"; (6) append to the GQ-103(3) field list: "`OrcaObservation.dispatch_started`, `dispatch_ended`, `dispatch_status` and `TranscriptTail.first_record_ts` (the path-B window)". Both texts are in research/04:91-92.
+  - **Output**: DESIGN sections 7.1 and 2.2 updated.
+  - **Verification**: Verify: `grep -n 'sets first_record_ts and last_record_ts' docs/designs/orchestrator-mode.md` returns one hit in section 7.1, and the GQ-103 row in section 2.2 contains `dispatch_status`. If an anchor is missing, log it in `### Phase 2 Findings` and stop.
+  - **Completion gate**: Both edits are in DESIGN. Once done, mark this item as complete.
+AC ids: T7.AC1 = the item title "R3-B1 edits 5 and 6: the 7.1 reader comment and GQ-103(3) in 2.2" (no AC block; the title is the AC). The item's own Verification and Completion gate lines are context for what "done" means. Ticking the item's checkbox is done by the orchestrator after the verdict and is not part of the diff under review.
+Global constraints: the `### Key Constraints` section (lines 157-168) of the source file named in the task brief; read it from that file.
+Start sha: 873f1e09e4815485760bb210940e140a58376972
+Diff against the start snapshot: --- a/docs/designs/orchestrator-mode.md
++++ b/docs/designs/orchestrator-mode.md
+@@ -57,7 +57,7 @@
+ | GQ-101 | A package counts toward "shared" only when it is active in a worktree: that worktree's one `git status` lists a changed or untracked path whose path starts with the package folder `.dev/tasks/{to-do,done}/<id>/`. Committed, unchanged folders never count. `mark_shared_packages` takes the per-worktree active sets and flags an id active in 2 or more worktrees; the report prints one Retained problems line naming every worktree. | `classify.mark_shared_packages(worktrees) -> tuple[WorktreeState, ...]`; `PackageRecord.active`; `WorktreeState.shared_package_ids` | SPEC FR-015 (line 109), line 553; GAPS line 124 |
+ | GQ-102 | `conflict` is the first package state checked: one id present as a folder in both `to-do/` and `done/` of the same worktree. It blocks removal and lists under Retained problems. | `classify.package_state`; state order in section 7.2 | SPEC FR-014 (line 108), line 554; GAPS line 125 |
+ | GQ-103(2) | The window is data, not a constant: `SweepContext(now, window, window_start, root, runs)` is the second argument of `classify_all`, and no module holds a window constant except the CLI default `"6h"`. | `classify.classify_all(SweepInput, SweepContext)` | SPEC FR-007 (line 101), line 555 |
+-| GQ-103(3) | The model carries every field a rule reads: `SessionRow.gate_policy` (from the Task spec text), `OrcaObservation.worker_done_seen`, `SessionRow.transcript_readable`, `ContractRecord.report_path` and `ContractRecord.artifacts`. | `models.py` (section 7.2) | SPEC line 556, section 7 lines 229-243 |
++| GQ-103(3) | The model carries every field a rule reads: `SessionRow.gate_policy` (from the Task spec text), `OrcaObservation.worker_done_seen`, `SessionRow.transcript_readable`, `ContractRecord.report_path`, `ContractRecord.artifacts`, `OrcaObservation.dispatch_started`, `dispatch_ended`, `dispatch_status` and `TranscriptTail.first_record_ts` (the path-B window). | `models.py` (section 7.2) | SPEC line 556, section 7 lines 229-243 |
+ | GQ-104 | No `run-list` call and no fallback. No `--run` plus no binding exits 2 (`no Run bound: pass --run <id>`); no `--run` plus an unavailable first call exits 2 with the SP-21 message (section 13, D3). `run-list` is not in `ALLOWED_ORCA`, so the seam refuses it. | `commands.run`, `probes.ALLOWED_ORCA` | SPEC FR-002 (line 96), line 557; GAPS line 127 |
+ | GQ-105 | `archive-blocked` is a package in `to-do/` whose `progress.md` has a line starting `FINAL:` after optional leading whitespace. A `to-do/` package without such a line is `unfinished`. For a ledger over 1 MiB the head 512 KiB and the tail 512 KiB are read and the tail is searched (M8 is accepted as a proposed split, SPEC line 295). | `probes` ledger reader sets `PackageRecord.has_final_line`; `classify.package_state` | SPEC FR-014, line 558; GAPS line 128 |
+ | GQ-106 | `.dev/sweeps/` goes into `.gitignore` and the rollback table, so a sweep's own report never makes its worktree look dirty. | Section 10, section 16 | SPEC FR-025 (line 119), line 559; GAPS line 129 |
+@@ -395,7 +395,7 @@
+ def read_packages(worktree: Path) -> tuple[PackageRecord, ...]
+ def read_ledger(path: Path) -> bool | None                   # has a FINAL: line; head 512 KiB + tail 512 KiB over 1 MiB
+ def read_contract(path: Path) -> ContractRecord | None       # None plus "over 1 MiB" coverage when too large
+-def read_transcript_tail(path: Path) -> TranscriptTail       # last 256 KiB, first partial line dropped
++def read_transcript_tail(path: Path) -> TranscriptTail       # last 256 KiB, first partial line dropped; sets first_record_ts and last_record_ts
+ def read_tab_map(state_dir: Path) -> tuple[TabMapEntry, ...]
+ def read_orca_version(path: Path = ORCA_VERSION_FILE) -> str | None
+ ```
+
+Orchestrator verification output (reproduce it yourself): grep -n 'sets first_record_ts and last_record_ts' docs/designs/orchestrator-mode.md -> one hit, line 398 (section 7.1); the GQ-103(3) row at line 60 contains `dispatch_status`. The wording to compare against is research/04-design-fixes-r3.md lines 91-92 (edits 5 and 6) in .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/research/04-design-fixes-r3.md
+Delta diff from the previous reviewed tree (empty on the first review): 
+Earlier blocking findings of this start (empty on the first review): 
+Saved-probe re-check hit locations (may be empty): 
+
+Do not trust the implementer's report.
+
+First mark each earlier blocking finding resolved, open or regressed from the diff. Then, for each AC, mark it met or unmet. Require citations: every AC you mark, met or unmet, carries a `path:line` or `Ti.ACk@path:line` citation, and an unmet mark lists the finding ids behind it. Do not return a verdict; the orchestrator computes it.
+
+For every finding answer four questions, each yes or no:
+1. ac-outcome-missing: is output an AC requires absent, or does it contradict the AC text, or does an evidence claim you could not verify have no evidence row?
+2. false-claim: is a claim in delivered text or code false against live source, or does a recipe or instruction followed as written not do what the text says?
+3. harmful-effect: does code or a recipe this task added or changed write, append, chmod or delete tracked or production data, mutate state outside the task's declared outputs, or expose a secret?
+4. quoted-constraint-breach: does the diff violate a quoted plan constraint, out-of-scope, non-goal or non-negotiable item, or an explicit task instruction?
+
+Anchor rule: cite exactly one anchor per yes. ac-outcome-missing: the quoted AC words. false-claim: the live-source path:line holding the contradicting text. harmful-effect: the diff line that is the write. quoted-constraint-breach: the quoted constraint or instruction text. A yes without a valid anchor does not block.
+
+Write one line per finding:
+F<k>.<j> ac=<Ti.ACk|scope> at=<path:line> anchor=<quoted text or path:line> chk=<amiss,false,harm,constraint as y/n> family=<id> fix=<text> [covers=<quoted AC clause or constraint>]: <text>
+Do not write sev=, trigger=, first= or origin=; the orchestrator adds them. Write one status line per earlier blocking finding: F<m>.<j> resolved|open|regressed.
+
+Inside /sc:implement this protocol's severity model governs this review and takes precedence over the session's output style and the copy of it injected into every subagent; only blocking findings may fail an attempt.
+
+You are not given an adviser answer, brief, evidence file or troubleshoot report. Do not read the retry folders (legacy `.dev/implement/<slug>/retries/`, managed `<pkg>/artifacts/retries/`) or `.dev/troubleshoot/`. A citation into either makes the verdict `cannot-verify`.
+The prior-findings slot above carries earlier blocking finding lines that the orchestrator copies byte for byte from `review-*.md` and `repair-*.md`; they reach you as prompt text, not as an evidence file. Do not read those folders to get them, and never cite the slot or the file it came from.

@@ -1,0 +1,15 @@
+return_contract:
+  merged_output_path: "/home/coder/workspaces/worktrees/IronClaude/issue-339-orchestrator-mode/.dev/brainstorms/20261113-orchestrator-tui-alignment/owner-questions/Q31/merged-output.md"
+  convergence_score: 1.0
+  artifacts_dir: "/home/coder/workspaces/worktrees/IronClaude/issue-339-orchestrator-mode/.dev/brainstorms/20261113-orchestrator-tui-alignment/owner-questions/Q31/adversarial"
+  status: "success"
+  base_variant: "variant-3 (proposal-C)"
+  unresolved_conflicts: 0
+  fallback_mode: false
+  failure_stage: null
+  invocation_method: "skill-direct"
+  unaddressed_invariants: []
+  notes:
+    - "Depth quick: Round 1 only; Round 2, Round 2.5 invariant probe and Round 3 skipped."
+    - "Advocates (3) and merge-executor were spawned agents; diff analysis, scoring and refactor plan were done by the orchestrating session. Both position-bias passes ran in that one context (not independent)."
+    - "Convergence 1.0 is by majority rule (at least 2 of 3 per point); unanimous on 8 of 14 points."

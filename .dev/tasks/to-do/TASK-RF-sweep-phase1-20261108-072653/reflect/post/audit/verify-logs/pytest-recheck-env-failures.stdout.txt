@@ -1,0 +1,4 @@
+2 failed, 6 passed, 3837 deselected in 251.65s
+FAILED tests/cli/eval/test_claude_process_adapter.py::test_ruff_flags_synthetic_anthropic_import_under_cli_eval
+FAILED tests/cli/eval/test_claude_process_adapter.py::test_ruff_passes_on_real_adapter_module
+cause: .venv/bin/python: No module named ruff (stderr in both assertions); tests/hooks/test_launch_level_guard.py speed_large tests: 6 passed on isolated re-run

@@ -1,0 +1,4 @@
+3bafafea2465300de675e35598d5cdf60a625ad5
+A1 r1-1 F1.2 note src/superclaude/cli/sweep/commands.py:75 ac=scope amiss:n,false:n,harm:n,constraint:n an empty --root string is not None, so Path("") resolves to the current folder and is accepted when that folder holds .git; the spec names missing, file and no-.git roots only.
+A1 r1-1 F1.3 note src/superclaude/cli/sweep/commands.py:129 ac=scope amiss:n,false:n,harm:n,constraint:n _sweeps_base takes the deepest folder named sweeps under .dev in the output path (Phase 9 choice 5); for .dev/sweeps/.dev/sweeps the re-resolve compares against the nested folder, while _check_output already enforced the real bound.
+A1 r1-1 F1.4 note src/superclaude/cli/sweep/commands.py:113 ac=scope amiss:n,false:n,harm:n,constraint:n the overlap check against .dev/tasks, ~/.claude/projects and the orca-tabs folder is almost always redundant after the .dev/sweeps containment check.

@@ -1,0 +1,2 @@
+fefb0290ddfad8310a410d1a86bc5fefa7386caa
+A1 r1-1 F1.1 note .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/r3-b2/qa-spec-fidelity-report.md:45 ac=scope amiss:n,false:n,harm:n,constraint:n The report cites DESIGN line 552 for "no allowlisted verb lists the rows of other Runs"; the allowlist itself is at lines 525-534 and line 552 only loosely supports the claim. A minor citation point; the verdict is unaffected.

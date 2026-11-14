@@ -1,0 +1,2 @@
+af8be4e4f2582dca2a89bf8512e94ca74b6fd822
+A1 r1-1 F1.1 note .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/plans/OQ-7-D9-signoff-decision.md:43 ac=T140.AC1 amiss:n,false:n,harm:n,constraint:n The repo cannot show the owner's chat selection; the record follows the same pattern as the resolved OQ-6 file and the item only asks that the source quote the owner's words, which it does. Advisory only.

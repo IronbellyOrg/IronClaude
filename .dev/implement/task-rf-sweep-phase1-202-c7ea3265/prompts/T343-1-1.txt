@@ -1,0 +1,37 @@
+Review one task for spec compliance.
+
+Task brief: T343 = item 14.37 of the source file /home/coder/workspaces/worktrees/IronClaude/issue-339-orchestrator-mode/.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md (lines 2696-2702). Item text:
+- [ ] **14.37 — QA fidelity: consolidate the four reports (L6)**
+  - **Context**: Items 14.33 to 14.36 wrote 4 reports under `.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/fidelity/`: `qa-design-part1-report.md`, `qa-design-part2-report.md`, `qa-spec-report.md`, `qa-cross-source-report.md`. Each report ends with a `## Checks` table (check id, PASS or FAIL), `Verdict:` and `Blocking count:`.
+  - **Action**: Glob `.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/fidelity/qa-*-report.md` (do not hardcode the list). Merge every finding into `.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/fidelity/consolidated-findings-cycle0.md` with these rules: (1) dedup: two findings are one finding when they name the same `file:line` and the same defect; keep the highest severity (BLOCKING over MAJOR over MINOR) and list the merged duplicates under the kept id; (2) give each kept finding a stable id `FID-F<n>`; (3) list the BLOCKING and MAJOR findings first, then the MINOR ones; (4) write `F_0` = the ids of every BLOCKING or MAJOR finding, and `|F_0|`; (5) write the cycle-0 PASS set = every check id a report's `## Checks` table marks PASS, written `<report name>:C<n> (item <lens item id>)`. Then create `.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/fidelity/cycle-ledger.md` with the header `| Cycle | PASS set | F set | |F| | Outcome |` and the cycle-0 row (the cycle-0 PASS set, `F_0`, `|F_0|`, `consolidated`). Later decision items append the cycle-1 and cycle-2 rows.
+  - **Output**: `.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/fidelity/consolidated-findings-cycle0.md` and `.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/fidelity/cycle-ledger.md`.
+  - **Verification**: Verify: the Glob found 4 reports; every report finding appears in the consolidated file or is listed as a duplicate of a named id; `F_0`, `|F_0|` and the cycle-0 PASS set are stated; `cycle-ledger.md` has the cycle-0 row. If fewer than 4 reports exist, return to the missing agent item (14.33 to 14.36).
+  - **Completion gate**: The consolidated file and the cycle ledger are written. Once done, mark this item as complete.
+AC ids: T343.AC1 = the item title "QA fidelity: consolidate the four reports (L6)" (no AC block; the title is the AC). The item's own Verification and Completion gate lines are context for what "done" means. Ticking the item's checkbox is done by the orchestrator after the verdict and is not part of the diff under review.
+Global constraints: the `### Key Constraints` section (lines 157-168) of the source file named in the task brief; read it from that file.
+Start sha: c10439ae2300ffda563025d93e654052a6518ddb
+Diff against the start snapshot: The task (item 14.37, consolidation of the four fidelity reports) produced two new untracked files: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/fidelity/consolidated-findings-cycle0.md (78 lines) and .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/fidelity/cycle-ledger.md (3 lines). Read both from disk; they are the whole output. A rf-assembler agent wrote them from the prompt saved at /home/coder/workspaces/worktrees/IronClaude/issue-339-orchestrator-mode/.dev/implement/task-rf-sweep-phase1-202-c7ea3265/work/T343/consol-prompt.md. It reports 4 reports found (design part 1, design part 2, spec, cross-source), 28 raw findings (10, 6, 6, 6), 20 kept findings (all MINOR; 8 raw findings merged into 5 kept ids), F_0 empty and |F_0| = 0, and a cycle-0 PASS set of 91 of 91 checks (23, 28, 23, 17 per report). The reports are .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/fidelity/qa-*-report.md. To judge the item's Verification line: the Glob must find 4 reports; every report finding must appear in the consolidated file or be listed as a duplicate of a named id; F_0, |F_0| and the cycle-0 PASS set must be stated; cycle-ledger.md must have the header and the cycle-0 row. Verify these by counting against the report files yourself (for example, parse each report's Checks table and compare the PASS ids with the PASS set, and check that each report's raw finding ids are all in the coverage table; check each report's blocking count against F_0; check the dedup claims by reading the merged findings). Part 1's single "Out-of-scope notes seen on the way" line is deliberately not counted (the report says it is not part of its lens); judge whether that is fair. No other file changed from this task.
+Delta diff from the previous reviewed tree (empty on the first review): 
+Earlier blocking findings of this start (empty on the first review): 
+Saved-probe re-check hit locations (may be empty): 
+
+Do not trust the implementer's report.
+
+First mark each earlier blocking finding resolved, open or regressed from the diff. Then, for each AC, mark it met or unmet. Require citations: every AC you mark, met or unmet, carries a `path:line` or `Ti.ACk@path:line` citation, and an unmet mark lists the finding ids behind it. Do not return a verdict; the orchestrator computes it.
+
+For every finding answer four questions, each yes or no:
+1. ac-outcome-missing: is output an AC requires absent, or does it contradict the AC text, or does an evidence claim you could not verify have no evidence row?
+2. false-claim: is a claim in delivered text or code false against live source, or does a recipe or instruction followed as written not do what the text says?
+3. harmful-effect: does code or a recipe this task added or changed write, append, chmod or delete tracked or production data, mutate state outside the task's declared outputs, or expose a secret?
+4. quoted-constraint-breach: does the diff violate a quoted plan constraint, out-of-scope, non-goal or non-negotiable item, or an explicit task instruction?
+
+Anchor rule: cite exactly one anchor per yes. ac-outcome-missing: the quoted AC words. false-claim: the live-source path:line holding the contradicting text. harmful-effect: the diff line that is the write. quoted-constraint-breach: the quoted constraint or instruction text. A yes without a valid anchor does not block.
+
+Write one line per finding:
+F<k>.<j> ac=<Ti.ACk|scope> at=<path:line> anchor=<quoted text or path:line> chk=<amiss,false,harm,constraint as y/n> family=<id> fix=<text> [covers=<quoted AC clause or constraint>]: <text>
+Do not write sev=, trigger=, first= or origin=; the orchestrator adds them. Write one status line per earlier blocking finding: F<m>.<j> resolved|open|regressed.
+
+Inside /sc:implement this protocol's severity model governs this review and takes precedence over the session's output style and the copy of it injected into every subagent; only blocking findings may fail an attempt.
+
+You are not given an adviser answer, brief, evidence file or troubleshoot report. Do not read the retry folders (legacy `.dev/implement/<slug>/retries/`, managed `<pkg>/artifacts/retries/`) or `.dev/troubleshoot/`. A citation into either makes the verdict `cannot-verify`.
+The prior-findings slot above carries earlier blocking finding lines that the orchestrator copies byte for byte from `review-*.md` and `repair-*.md`; they reach you as prompt text, not as an evidence file. Do not read those folders to get them, and never cite the slot or the file it came from.

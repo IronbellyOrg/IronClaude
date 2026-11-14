@@ -1,0 +1,27 @@
+# Blind calibration of reviewer 2's card. Parent-persisted from the returned report of confidence-calibrator agent a41d163fa6977553d (sonnet class; recorded claude-sonnet-5-5); scores and notes are the calibrator's.
+schema: sc-reflect-calibration/v1
+card: reviewer-cards/reviewer-2-card.md
+reviewer: {n: 2, persona: qa, model_class: haiku (recorded gpt-6.1-sol)}
+calibrator_model_class: sonnet
+self_reported_confidence: 0.89
+calibrated_confidence: 0.86
+delta: -0.03
+dimension_scores: {citation_grounding: 0.95, coverage_completeness: 0.85, deviation_classification_clarity: 0.80, risk_surface_coverage: 0.80, recommendation_actionability: 0.90}
+citations_checked: 31          # 31 citation instances across 20 distinct locations, every range <= 150 lines
+citations_failed: 0
+per_finding:
+  R2-F1: "Partly. The contradiction is real (TL:1274 requires PENDING/empty lines/halt, TL:1272 resolves and clears them, TL:1275 requires no open HALT), but 'cannot pass' is stronger than the text proves: TL:1274 ties the PENDING checks to 'before any step 1.2 item runs', so a reader could treat them as first-halt checks only; the text never says so, and the Completion gate comes only after resume, so the proposed split is justified."
+  R2-F2: "Verified. TL:1321 demands no run-current --json token and exactly ten templates with 'Each breach is BLOCKING' and has no clause for an owner-approved change; TL:1271 changes the count source to the approved count and the forbidden list; DESIGN:559 adds one extra template (11). A re-capture of run-current --json would breach the lens as written. The sibling lens TL:1328 already handles optional files, so the omission in 7.24 looks unintended."
+  F-01: "Partial: verified (the remaining defects are exactly F1 and F2)."
+  F-02: "Fixed: verified (partly; TL:2265 not compared with DESIGN:716 by this calibrator)."
+  F-03_to_F-10: "Fixed: verified (F-06 count of 58 not independently checked by this calibrator)."
+qualifications:
+  - "Not independently checked: the 58-line count, the 'twelve input lists' total, the claim that 7.17 is outside the 85-label edit surface."
+  - "Stale DESIGN line numbers in the plan, not reported by the card: TL:1267 cites DESIGN 'line 552' and 'line 550' for the cursor and run-current statements; in the file they are DESIGN:559 and DESIGN:557. Does not affect the card's quotes."
+  - "Both defects predate R2 (nothing the calibrator read contradicts that)."
+escalation:
+  verdict: HOLD
+  reason: "C 0.86 >= 0.85 floor and under the 0.90 strict-STOP ceiling; structural signals were not given to the calibrator. Run-level escalation is forced by --depth deep anyway."
+calibrator_diversity: degraded    # every class available is also a reviewer class
+input_absent: [now_iso, assertions_path, card_mtime]
+not_checked: "runtime behavior, test execution, installed activation"

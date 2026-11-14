@@ -1,0 +1,40 @@
+[
+  {
+    "prompt": ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/revisions/plan-defect-fixes-20261110/qa/prompt-qualitative-operational-cycle0.txt",
+    "producer": ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/revisions/plan-defect-fixes-20261110/qa/A10-verify1.md",
+    "producer_sha256": "76224b0ef310859a0c3dcb6e6844019f5d25bb181289c400c98750b60c113408",
+    "injected_block_sha256": "8dba65cb76d77ca99c450ba4ce39353bebfbf5d378f612d309c6a7d031d7af85",
+    "block_in_prompt": true,
+    "block_in_consolidated": true,
+    "live_tb_add": [
+      "TB-Add-1",
+      "TB-Add-3",
+      "TB-Add-4",
+      "TB-Add-5",
+      "TB-Add-6",
+      "TB-Add-7",
+      "TB-Add-8"
+    ],
+    "labels": 33,
+    "targets": 126
+  },
+  {
+    "prompt": ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/revisions/plan-defect-fixes-20261110/qa/prompt-qualitative-sufficiency-cycle0.txt",
+    "producer": ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/revisions/plan-defect-fixes-20261110/qa/A10-verify1.md",
+    "producer_sha256": "76224b0ef310859a0c3dcb6e6844019f5d25bb181289c400c98750b60c113408",
+    "injected_block_sha256": "8dba65cb76d77ca99c450ba4ce39353bebfbf5d378f612d309c6a7d031d7af85",
+    "block_in_prompt": true,
+    "block_in_consolidated": true,
+    "live_tb_add": [
+      "TB-Add-1",
+      "TB-Add-3",
+      "TB-Add-4",
+      "TB-Add-5",
+      "TB-Add-6",
+      "TB-Add-7",
+      "TB-Add-8"
+    ],
+    "labels": 31,
+    "targets": 99
+  }
+]

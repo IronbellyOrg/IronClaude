@@ -1,0 +1,3 @@
+145b2c0fb4c3fda0fecbc7c22d33d2bad975b505
+A1 r1-1 F1.1 minor .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/test-results/r3-b1-mechanical.md:88 ac=T11.AC1 amiss:n,false:n,harm:n,constraint:n The recorded TODO/TBD grep shows "(exit 0)" but grep exits 1 on no match (the echo read the exit status of the cut stage). The check outcome (no hits) is correct.
+A1 r1-1 F1.2 note .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/test-results/r3-b1-mechanical.md:59-61 ac=T11.AC1 amiss:n,false:n,harm:n,constraint:n The recorded grep output lines are cut to about 100 characters, so for some hits the matched names fall past the cut. The matrix counts and PASS lines are correct against live source.

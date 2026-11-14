@@ -1,0 +1,184 @@
+Review one task for spec compliance.
+
+Task brief: T208 = item 9.14 of the source file /home/coder/workspaces/worktrees/IronClaude/issue-339-orchestrator-mode/.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md (lines 1721-1727). Item text:
+- [ ] **9.14 — QA impl-cli: fix cycle 1 (one rf-qa fix agent, conditional)**
+  - **Context**: Input: `.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/impl-cli/consolidated-findings-cycle0.md` from item 9.13 (`F_0` and `|F_0|`). Other inputs for the fix agent: the gate inputs listed in Context.
+  - **Action**: If `|F_0|` is 0 (only MINOR findings or none), write `SKIPPED: no blocking findings` to `.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/impl-cli/fix-log-cycle1.md` and mark items 9.14 to 9.20 complete with that note. Otherwise spawn ONE `rf-qa` agent (Agent tool, `mode: bypassPermissions`, `fix_authorization: true`) with this fix agent preamble, verbatim: "You are the single fix agent for this gate cycle. `fix_authorization: true`. Fix only the BLOCKING and MAJOR findings listed in the consolidated findings file you are given; leave MINOR findings as notes. Edit only the files the findings name. Anchor every edit by quoted text. Write a fix log listing each finding id, the change, and the `file:line` after the change. Never commit, push or stage a `.claude/` path." Pass it `.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/impl-cli/consolidated-findings-cycle0.md`, the other inputs in Context, and the output path `.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/impl-cli/fix-log-cycle1.md`. The fix agent edits only `src/superclaude/cli/sweep/commands.py`, the `src/superclaude/cli/main.py` lines of item 9.2 and the Phase 8 modules under `src/superclaude/cli/sweep/`; it never re-runs the live check (the executor re-runs item 9.3 when a fix touches a probe or rule). A finding that needs a DESIGN change is left OPEN with that reason. After the agent returns, re-run the item 9.4 commands: `uv run ruff check src/superclaude/cli tests/sweep`, `uv run ruff format --check src/superclaude/cli/sweep src/superclaude/cli/main.py tests/sweep`, `uv run superclaude sweep --help` and `uv run pytest tests/sweep tests/unit -v` (expect exit 0 each), and append each command, its output and a PASS or FAIL line to the fix log.
+  - **Output**: `.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/impl-cli/fix-log-cycle1.md` and the fixed files.
+  - **Verification**: Verify: the fix log lists every id in `F_0` with a change and a `file:line`, an OPEN reason, or the SKIPPED line; every appended re-check line is PASS. If the fix agent fails to return twice, log the blocker in `### Phase 9 Findings` and stop.
+  - **Completion gate**: The fix log is written. Once done, mark this item as complete.
+AC ids: T208.AC1 = the item title "QA impl-cli: fix cycle 1 (one rf-qa fix agent, conditional)" (no AC block; the title is the AC). The item's own Verification and Completion gate lines are context for what "done" means. Ticking the item's checkbox is done by the orchestrator after the verdict and is not part of the diff under review.
+Global constraints: the `### Key Constraints` section (lines 157-168) of the source file named in the task brief; read it from that file.
+Start sha: 6063d86a4d71d7f9e99be5093811342210fe0388
+Diff against the start snapshot: Task 9.14 spawned ONE rf-qa fix agent (fix_authorization true) with the saved prompt .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/impl-cli/prompts/9.14-prompt.md (verbatim preamble from the item, plus scope rules, inputs and output path). F_0 = CLI-F1 and CLI-F2 (2 MAJOR findings), listed in .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/impl-cli/consolidated-findings-cycle0.md; read that file and the two source reports it cites (qa-operator-output-report.md for CLI-F1, qa-failure-path-report.md for CLI-F2). To judge the item's Verification line yourself: (a) the fix log fix-log-cycle1.md lists every id of F_0 with a change and a file:line, or an OPEN reason, or SKIPPED; read the changed lines in src/superclaude/cli/sweep/classify.py and src/superclaude/cli/sweep/probes.py on disk and check each file:line the log gives and that each change really fixes its finding without a new defect (the diff below shows the change; the files on disk are the truth); (b) every appended re-check line in the log is PASS (you may re-run `uv run ruff check src/superclaude/cli tests/sweep`, `uv run ruff format --check src/superclaude/cli/sweep src/superclaude/cli/main.py tests/sweep` and `uv run pytest tests/sweep -v`; do not re-run tests/unit, it takes 285 s, and run no live Orca command). Scope rule of the item: the fix agent may edit only commands.py, the main.py registration lines and the Phase 8 modules under src/superclaude/cli/sweep/; it must leave the 35 MINOR findings alone, never edit tests, DESIGN, SPEC, the task file or QA reports, and never re-run the live check. The executor (not the fix agent) added the section "Live re-run by the executor" to the fix log and wrote artifacts/sweep-live-check-1.4-rerun-9.14.md and .json (a read-only live sweep run per the item's rule); the executor also compared 74 protected files by sha256 before and after and found none changed. The diff below is against the start snapshot taken before the fix agent ran; main.py shows no change (it is not in the diff output). The pre-existing untracked sweep/ files other than classify.py and probes.py are unchanged by this task and appear only if they differ.
+
+--- a/src/superclaude/cli/sweep/classify.py
++++ b/src/superclaude/cli/sweep/classify.py
+@@ -964,16 +964,16 @@
+     historical = counts[C_IDLE]
+     cut = _show_cut(inp.sources)
+     bound_reached = sum(1 for o in orca_rows if f"orca worker-show {o.dispatch}" in cut)
+-    unscanned = any(s.unscanned is not None for s in inp.sources)
+     summary: dict[str, object] = {
+         "counts": counts,
+         "bound_reached": bound_reached,
+         "visible": len(classified) - historical,
+         "historical": historical,
+         "total": len(classified),
+-        "total_is_lower_bound": (
+-            inp.truncated or not inp.orca_available or unscanned or bound_reached >= 1
+-        ),
++        # shortcut: always true in Phase 1, because the report always prints "remote hosts
++        # not scanned" (report.py header and "What I could not determine"); make it
++        # conditional when remote hosts are scanned.
++        "total_is_lower_bound": True,
+     }
+     return SweepResult(
+         rows=tuple(classified),
+--- a/src/superclaude/cli/sweep/probes.py
++++ b/src/superclaude/cli/sweep/probes.py
+@@ -313,6 +313,14 @@
+     return proc.stdout.decode("utf-8", "replace")
+ 
+ 
++# The result key that must hold a list in each captured list reply (steps 1.0a and 1.4).
++_LIST_KEY = {
++    ("orchestration", "worker-list"): "workers",
++    ("orchestration", "task-list"): "tasks",
++    ("worktree", "ps"): "worktrees",
++}
++
++
+ def _call(budget: Budget, *args: str) -> OrcaResult:
+     """One budgeted Orca call. A budget-cut timeout is ``call_failed``, never unavailable."""
+     timeout = budget.call_timeout()
+@@ -321,6 +329,14 @@
+     first = budget.orca_calls == 0
+     budget.orca_calls += 1
+     result = _orca(*args, timeout=timeout)
++    list_key = _LIST_KEY.get(tuple(args[:2]))
++    if (
++        result.kind == "ok"
++        and list_key is not None
++        and not isinstance(_get(result.data, list_key), list)
++    ):
++        # SPEC section 8: JSON without the captured list shape is an invalid response.
++        result = OrcaResult("call_failed", None, "orca call failed (invalid response)")
+     if (
+         result.kind == "unavailable"
+         and (result.reason or "").startswith("timeout")
+--- /dev/null
++++ b/.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/impl-cli/fix-log-cycle1.md   (new file, 49 lines)
++# Fix log, cycle 1 (item 9.14)
++
++Fix agent for F_0 = {CLI-F1, CLI-F2}. fix_authorization: true. MINOR findings CLI-F3 to CLI-F37 left alone.
++Consolidated findings: `.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/impl-cli/consolidated-findings-cycle0.md`
++
++## Files edited
++
++- `src/superclaude/cli/sweep/classify.py` (CLI-F1)
++- `src/superclaude/cli/sweep/probes.py` (CLI-F2)
++
++## CLI-F1 (MAJOR): status FIXED
++
++- Change: in `classify_all`, the summary key `total_is_lower_bound` is now the constant `True`, with a `shortcut:` comment saying why and when to make it conditional again. The unused local `unscanned` (`unscanned = any(s.unscanned is not None for s in inp.sources)`) was deleted with it. The report wording was not touched; `report.py:178` and `report.py:510` still print the lower-bound lines unconditionally, so the JSON and the report now agree in every run.
++- After the change: `src/superclaude/cli/sweep/classify.py:976` (`"total_is_lower_bound": True,`; comment at :973-975).
++- Note for the coordinator (not a code change): DESIGN 7.4 (`docs/designs/orchestrator-mode.md:346`) still reads "true when any list is truncated or unscanned". The flag is now true in every Phase 1 run, so that row needs a wording change (or a remote-hosts scan) in a later design pass. I did not edit DESIGN.
++- Scratch proof: a fake Orca script chosen through `ORCA_CLI_COMMAND`, a throwaway `git init` root and `HOME` pointed at the scratch folder, all under `/tmp/f2-scratch.<random>` (deleted afterwards; `ls` confirmed it is gone). Command: `superclaude sweep run --run run_aaaaaaaaaaaa --root <scratch root>`, exit 0 in all five modes. With well-formed empty lists (the case that used to give `false`) the JSON showed `orca_available True | lower_bound True | total 0`. It showed `lower_bound True` in the four failure modes below as well.
++
++## CLI-F2 (MAJOR): status FIXED
++
++- Change: in `probes.py`, added the module constant `_LIST_KEY`, mapping `("orchestration","worker-list")` to `"workers"`, `("orchestration","task-list")` to `"tasks"` and `("worktree","ps")` to `"worktrees"`. In `_call`, right after `_orca(...)` returns, an `ok` result for one of those three verbs whose `result[key]` is not a list is replaced with `OrcaResult("call_failed", None, "orca call failed (invalid response)")`. The existing first-call rule (a first call that is `call_failed` becomes `unavailable`), `record()` and the origin-unknown logic then apply unchanged. The key names and the empty-list form come from the captured shapes (`artifacts/sweep-live-check-1.4-workers.json`: `result.workers`; `artifacts/readonly-probe-raw/a-tl-all.json`: `result.tasks: []`; `artifacts/readonly-probe.md:791`: `result.worktrees[]`).
++- After the change: `src/superclaude/cli/sweep/probes.py:316-321` (`_LIST_KEY`) and `:332-339` (the check in `_call`).
++- Scratch proof (same scratch setup as CLI-F1; the fake Orca switched by an environment variable):
++
++| Fake reply | Result |
++|---|---|
++| good shape, all lists empty | exit 0; `orca_available True`; all four Orca sources `read` (an empty list is still accepted) |
++| `{"ok":true,"result":{}}` for every verb (the F1 case) | exit 0; `orca_available False`; `worker-list` `unscanned: orca call failed (invalid response)`; the other three `unscanned: orca unavailable` (first-call rule) |
++| `worker-list` with `"workers":"nope"` | same as the row above |
++| `task-list` without `tasks` (a later call) | exit 0; `orca_available True`; both `task-list` sources `unscanned: orca call failed (invalid response)`; `worker-list` and `worktree ps` `read` |
++| `worktree ps` without `worktrees` (a later call) | exit 0; `orca_available True`; `worktree ps` `unscanned: orca call failed (invalid response)`; the others `read` |
++
++No live Orca command was run and no test file was added; the per-verb tests belong to Phase 10.
++
++## Re-check commands (required order, run after the edits)
++
++| # | Command | Exit | Last lines | Result |
++|---|---|---|---|---|
++| 1 | `uv run ruff check src/superclaude/cli tests/sweep` | 0 | `All checks passed!` | PASS |
++| 2 | `uv run ruff format --check src/superclaude/cli/sweep src/superclaude/cli/main.py tests/sweep` | 0 | `11 files already formatted` (no `ruff format` run was needed) | PASS |
++| 3 | `uv run superclaude sweep --help` | 0 | `Commands:` / `run  Collect, classify and publish one read-only report; print one JSON...` | PASS |
++| 4 | `uv run pytest tests/sweep tests/unit -v` | 0 | `726 passed, 2 skipped in 282.43s (0:04:42)` | PASS |
++
++## Live re-run by the executor (item 9.14 rule: a fix touched a probe and a rule)
++
++Written by the executor, not the fix agent. The read-only live check was re-run against Run `run_a4723d345399` after the edits: exit 0, stderr empty, 5.0 s, 182 rows all `could not determine`, 0 `unscanned` sources, `total_is_lower_bound` true, `orca_available` true (PASS). Record: `artifacts/sweep-live-check-1.4-rerun-9.14.md` and `.json`. The protected-file hash check (74 files: QA reports, artifacts, tests, DESIGN, SPEC, task file, `.gitignore`) showed no change after the fix agent returned.
++
++## Files not touched
++
++I did not edit `docs/designs/orchestrator-mode.md`, the SPEC (`merged-requirements.md`), the task file, anything under `tests/`, `.gitignore`, `src/superclaude/cli/main.py`, `commands.py`, `report.py`, `models.py`, `__init__.py`, any QA report, the consolidated findings file, the cycle ledger, or anything under `artifacts/` or `phase-outputs/`. Nothing was staged or committed. The MINOR findings CLI-F3 to CLI-F37 were left as notes.
+--- /dev/null
++++ b/.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/impl-cli/prompts/9.14-prompt.md   (new file, 15 lines)
++You are the single fix agent for this gate cycle. `fix_authorization: true`. Fix only the BLOCKING and MAJOR findings listed in the consolidated findings file you are given; leave MINOR findings as notes. Edit only the files the findings name. Anchor every edit by quoted text. Write a fix log listing each finding id, the change, and the `file:line` after the change. Never commit, push or stage a `.claude/` path.
++
++Consolidated findings file (F_0 = CLI-F1 and CLI-F2, |F_0| = 2; fix these two, leave the MINOR findings CLI-F3 to CLI-F37 alone): .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/impl-cli/consolidated-findings-cycle0.md
++
++Repository root: /home/coder/workspaces/worktrees/IronClaude/issue-339-orchestrator-mode. Use `uv run` for every Python command (never bare python, never `python -m`).
++
++Scope rules for this cycle:
++- You may edit only `src/superclaude/cli/sweep/commands.py`, the 4 lines of `src/superclaude/cli/main.py` that register `sweep`, and the Phase 8 modules under `src/superclaude/cli/sweep/` (`__init__.py`, `models.py`, `classify.py`, `probes.py`, `report.py`). Write your fix log, and nothing else outside those files.
++- Do not edit `docs/designs/orchestrator-mode.md`, the SPEC (`.dev/brainstorms/20261108-024258-orchestrator-mode-phase1/merged-requirements.md`), the task file, any file under `tests/`, `.gitignore`, any QA report, the consolidated file, the cycle ledger or any file under `.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/artifacts/` or `phase-outputs/`. DESIGN wins over the code: a finding that can only be closed by a DESIGN change is left OPEN with that reason in the fix log. The consolidated file lists the smallest fix for each finding. For CLI-F1 use the code-only way: make the JSON `total_is_lower_bound` true whenever the report prints the remote-hosts lower-bound wording (always in Phase 1), so the JSON and the report agree; do not change the report wording. Keep every public name and signature of DESIGN 7.1 to 7.3 as it is; new fields on a frozen dataclass need a default.
++- Never re-run the live check and never run any live Orca command (no `orca`, no `orca-ide`, no `superclaude sweep run` against the real Orca); the executor re-runs the live check afterwards. Prove each fix with a scratch check that uses a fake Orca script (chosen through `ORCA_CLI_COMMAND`) or the `tests/sweep` fakes, run under a private temporary folder, and delete the scratch afterwards. Do not leave a new test file; the real tests come in Phase 10. Record in the fix log what you ran and what it showed.
++- After your edits run, in this order, and append each command, its exit code, the last lines of its output and a PASS or FAIL line to the fix log: `uv run ruff check src/superclaude/cli tests/sweep`, `uv run ruff format --check src/superclaude/cli/sweep src/superclaude/cli/main.py tests/sweep` (if it fails, run `uv run ruff format` on the files you edited only, then re-run the check), `uv run superclaude sweep --help` and `uv run pytest tests/sweep tests/unit -v` (the last takes about 285 seconds; give it a long timeout). All four must exit 0.
++
++Gate inputs (read in chunks of at most 150 lines): `src/superclaude/cli/sweep/commands.py`, `src/superclaude/cli/sweep/probes.py`, `classify.py`, `report.py`, `models.py`, `__init__.py`, the `src/superclaude/cli/main.py` diff (`git diff -- src/superclaude/cli/main.py`), DESIGN `docs/designs/orchestrator-mode.md` sections 3, 5, 6, 7.1 to 7.5 as revised, the SPEC sections the findings cite (`merged-requirements.md` section 8, lines 280-290 and 430-455), `.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/test-results/step-1.7-help.txt`, `.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/test-results/phase9-validation.md`, `.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/artifacts/sweep-live-check-1.4.json` and `sweep-live-check-1.4-workers.json` (the captured live shapes, read only). The eight QA reports are in `.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/impl-cli/` (`qa-operator-output-report.md` for CLI-F1, `qa-failure-path-report.md` for CLI-F2); read the finding you fix there for its full evidence.
++
++Output: write the fix log to `.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/impl-cli/fix-log-cycle1.md`. Create it as a header stub first, then append each finding's section as you finish it. Its sections: files edited, a per-finding block for CLI-F1 and CLI-F2 (status FIXED or OPEN with reason, the change, the `file:line` after the change, the scratch proof), the four re-check commands with their results, and a line stating which files you did not touch. Stage nothing, commit nothing, and return only the path of the fix log.
+--- /dev/null
++++ b/.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/artifacts/sweep-live-check-1.4-rerun-9.14.md   (new file, 21 lines)
++# Step 1.4 live check, re-run after the item 9.14 fix (2026-11-12)
++
++Why: the item 9.14 fix agent changed `probes.py` (CLI-F2: a wrong-shape Orca reply is now an invalid response) and `classify.py` (CLI-F1: `total_is_lower_bound` is always true in Phase 1). Item 9.14 says the executor re-runs the live check when a fix touches a probe or rule. Read-only, same Run `run_a4723d345399` (OQ-8), `ORCA_CLI_COMMAND` unset (binary `orca-ide`).
++
++Command: `uv run superclaude sweep run --run run_a4723d345399`. Stdout saved to `artifacts/sweep-live-check-1.4-rerun-9.14.json`; stderr went to a scratch file and was 0 bytes. Exit code 0. Wall time 5.0 s. Report: `.dev/sweeps/20261112-034511-sweep.md` (gitignored; the earlier reports from the first live check stay there).
++
++Result against the five REPORT:1247 pass conditions:
++
++1. PASS: exit 0, stderr empty.
++2. PASS: 5.0 s, inside the 90 s budget; `summary.bound_reached` is 0.
++3. PASS: all 182 rows carry a class (`could not determine`).
++4. PASS: the same five worker rows as in the first record (`orca:ctx_4e3237d227c3`, `ctx_6a0e3e3baaee`, `ctx_7c86fffa9716`, `ctx_9a3728b21883`, `ctx_dad78c5c1332`) are present and each is `could not determine` (rule `fallback`), the class step 1.3 expects for them; no other class appears (all 182 rows are the fallback). The worker states were not re-read separately.
++5. PASS: 71 source rows, 0 `unscanned`; no row is `could not determine` because of a probe error or timeout.
++
++Differences from the first record (`artifacts/sweep-live-check-1.4.json`):
++
++- `summary.total` is 182 where it was 180: two more session rows exist in the live data now (the machine is live; no code path adds rows).
++- `summary.total_is_lower_bound` is now `true` (was `false`). This is the CLI-F1 fix working: the JSON now agrees with the report header `(lower bound: remote hosts not scanned)`.
++- `orca_available` is `true`: the new list-shape check accepted the real replies of `worker-list`, `task-list` and `worktree ps`, so CLI-F2 causes no false invalid-response on live data.
++
++The first record (`sweep-live-check-1.4.md` and `.json`) is kept unchanged for the verifiers.
+Delta diff from the previous reviewed tree (empty on the first review): 
+Earlier blocking findings of this start (empty on the first review): 
+Saved-probe re-check hit locations (may be empty): 
+
+Do not trust the implementer's report.
+
+First mark each earlier blocking finding resolved, open or regressed from the diff. Then, for each AC, mark it met or unmet. Require citations: every AC you mark, met or unmet, carries a `path:line` or `Ti.ACk@path:line` citation, and an unmet mark lists the finding ids behind it. Do not return a verdict; the orchestrator computes it.
+
+For every finding answer four questions, each yes or no:
+1. ac-outcome-missing: is output an AC requires absent, or does it contradict the AC text, or does an evidence claim you could not verify have no evidence row?
+2. false-claim: is a claim in delivered text or code false against live source, or does a recipe or instruction followed as written not do what the text says?
+3. harmful-effect: does code or a recipe this task added or changed write, append, chmod or delete tracked or production data, mutate state outside the task's declared outputs, or expose a secret?
+4. quoted-constraint-breach: does the diff violate a quoted plan constraint, out-of-scope, non-goal or non-negotiable item, or an explicit task instruction?
+
+Anchor rule: cite exactly one anchor per yes. ac-outcome-missing: the quoted AC words. false-claim: the live-source path:line holding the contradicting text. harmful-effect: the diff line that is the write. quoted-constraint-breach: the quoted constraint or instruction text. A yes without a valid anchor does not block.
+
+Write one line per finding:
+F<k>.<j> ac=<Ti.ACk|scope> at=<path:line> anchor=<quoted text or path:line> chk=<amiss,false,harm,constraint as y/n> family=<id> fix=<text> [covers=<quoted AC clause or constraint>]: <text>
+Do not write sev=, trigger=, first= or origin=; the orchestrator adds them. Write one status line per earlier blocking finding: F<m>.<j> resolved|open|regressed.
+
+Inside /sc:implement this protocol's severity model governs this review and takes precedence over the session's output style and the copy of it injected into every subagent; only blocking findings may fail an attempt.
+
+You are not given an adviser answer, brief, evidence file or troubleshoot report. Do not read the retry folders (legacy `.dev/implement/<slug>/retries/`, managed `<pkg>/artifacts/retries/`) or `.dev/troubleshoot/`. A citation into either makes the verdict `cannot-verify`.
+The prior-findings slot above carries earlier blocking finding lines that the orchestrator copies byte for byte from `review-*.md` and `repair-*.md`; they reach you as prompt text, not as an evidence file. Do not read those folders to get them, and never cite the slot or the file it came from.

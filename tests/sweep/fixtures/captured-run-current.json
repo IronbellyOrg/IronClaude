@@ -1,0 +1,6 @@
+{
+  "command": "orca-ide orchestration run-current",
+  "exit_code": 0,
+  "stdout_format": "plain text, not JSON",
+  "stdout": "No Run is bound to this terminal.\n"
+}

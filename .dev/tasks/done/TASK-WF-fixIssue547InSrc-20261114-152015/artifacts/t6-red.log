@@ -1,0 +1,19 @@
+============================= test session starts ==============================
+platform linux -- Python 3.11.15, pytest-9.2.0, pluggy-1.7.0
+SuperClaude: 5.0.0
+rootdir: /home/coder/workspaces/worktrees/IronClaude/sweep-git-fix
+configfile: pyproject.toml
+plugins: superclaude-5.0.0, anyio-4.16.0
+collected 279 items / 278 deselected / 1 selected
+
+tests/sweep/test_probes_allowlist.py F                                   [100%]
+
+=================================== FAILURES ===================================
+______ test_full_worker_page_with_a_malformed_entry_still_sets_truncated _______
+tests/sweep/test_probes_allowlist.py:1300: in test_full_worker_page_with_a_malformed_entry_still_sets_truncated
+    assert inp.truncated is True
+E   AssertionError: assert False is True
+E    +  where False = SweepInput(orca_rows=(OrcaObservation(dispatch='ctx_000000000000', run='run_000000000001', session_join='term_ctx_0000...atetime.timezone.utc), collected_end=datetime.datetime(2026, 11, 14, 15, 37, 32, 240613, tzinfo=datetime.timezone.utc)).truncated
+=========================== short test summary info ============================
+FAILED tests/sweep/test_probes_allowlist.py::test_full_worker_page_with_a_malformed_entry_still_sets_truncated
+====================== 1 failed, 278 deselected in 0.67s =======================

@@ -1,0 +1,12 @@
+return_contract:
+  merged_output_path: "/home/coder/workspaces/worktrees/IronClaude/issue-339-orchestrator-mode/.dev/brainstorms/20261113-orchestrator-tui-alignment/owner-questions/Q26/merged-output.md"
+  convergence_score: 1.0
+  artifacts_dir: "/home/coder/workspaces/worktrees/IronClaude/issue-339-orchestrator-mode/.dev/brainstorms/20261113-orchestrator-tui-alignment/owner-questions/Q26/adversarial"
+  status: "success"
+  base_variant: "variant-1 (proposal-A), selected by level-1 tiebreaker over variant-2 (margin 0.6%)"
+  unresolved_conflicts: 0
+  fallback_mode: false
+  failure_stage: null
+  invocation_method: "skill-direct"
+  unaddressed_invariants: []
+  notes: "Round 1 advocates were spawned as three parallel agents. Steps 1, 3, 4 and 5 (diff analysis, scoring, plan, merge) were run by the orchestrating worker in-context, not by separate analyzer or merge-executor agents. Round 2.5 skipped at depth quick."

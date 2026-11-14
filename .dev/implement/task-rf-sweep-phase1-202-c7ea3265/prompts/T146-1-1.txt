@@ -1,0 +1,588 @@
+Review one task for spec compliance.
+
+Task brief: T146 = item 7.18 of the source file /home/coder/workspaces/worktrees/IronClaude/issue-339-orchestrator-mode/.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md (lines 1277-1283). Item text:
+- [ ] **7.18 — Copy sanitized 1.0a samples into `tests/sweep/fixtures/` (L2)**
+  - **Context**: `.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/artifacts/readonly-probe.md`; DESIGN section 11 ("Fixtures copied from captured Orca output keep their source name; hand-made ones carry `synthetic` in the file name until step 1.0a replaces them") and section 15.1.
+  - **Action**: For each captured JSON output (items 1 to 8, 13), write one file `tests/sweep/fixtures/captured-<template>.json` (for example `captured-worker-list.json`, `captured-worker-show-<n>.json`). Sanitize: replace home paths with `/home/user`, session ids and pane keys with stable fake values of the same shape (keep joins between files consistent), and user names with `user`; keep every field name and value type. Write `tests/sweep/fixtures/SOURCES.md` naming, per file, the readonly-probe section and template it came from and the sanitize rules applied.
+  - **Output**: `tests/sweep/fixtures/captured-*.json` and `tests/sweep/fixtures/SOURCES.md`.
+  - **Verification**: Verify: `grep -rn '/home/coder\|coder' tests/sweep/fixtures/` returns nothing; each JSON file parses (`uv run python -c "import json,sys; [json.load(open(p)) for p in sys.argv[1:]]" tests/sweep/fixtures/captured-*.json`); `SOURCES.md` has a row per file. If nothing was captured, write `SOURCES.md` saying so and log it in `### Phase 7 Findings`.
+  - **Completion gate**: The fixtures and `SOURCES.md` are written. Once done, mark this item as complete.
+AC ids: T146.AC1 = the item title "Copy sanitized 1.0a samples into `tests/sweep/fixtures/` (L2)" (no AC block; the title is the AC). The item's own Verification and Completion gate lines are context for what "done" means. Ticking the item's checkbox is done by the orchestrator after the verdict and is not part of the diff under review.
+Global constraints: the `### Key Constraints` section (lines 157-168) of the source file named in the task brief; read it from that file.
+Start sha: 1a002621c98982e7abc177374601861864aed9f7
+Diff against the start snapshot: --- /dev/null
++++ b/tests/sweep/fixtures/SOURCES.md   (new file, 42 lines)
++# Captured Orca fixtures: sources and sanitize rules
++
++All files here were copied from the step 1.0a read-only capture (item 7.16) and then sanitized. Source of record: `.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/artifacts/readonly-probe.md` (capture date 2026-11-11, Orca `1.4.245-aidev02.9cfecdd30b2a`, Run `run_a4723d345399`). The section numbers below are that file's `## N.` headings. Hand-made fixtures would carry `synthetic` in the file name; none is here.
++
++## Sanitize rules applied (every file)
++
++1. Home paths: the capture machine's home directory prefix is replaced by `/home/user`.
++2. User names: the capture machine's account name, as a whole word, is replaced by `user`.
++3. Session ids, pane keys, terminal handles and every other UUID (worktree, instance, runtime and request ids included): each distinct UUID is replaced by a stable fake UUID of the same shape, `00000000-0000-4000-8000-<12 digits>`, numbered in first-seen order across all files of this folder. The same real UUID gets the same fake value in every file, so the joins hold: a `captured-worker-show-<n>.json` `dispatch.assigneePaneKey` (`<tabId>:<leafId>`) matches the file name of its `captured-orca-tabs/` entry (`<tabId>+<leafId>`), and `dispatch.assigneeHandle` (`term_<uuid>`) matches line 3 of that entry. Checked for all 5 workers.
++4. Orca Run, Dispatch, Task, message and resource ids (`run_...`, `ctx_...`, `task_...`, `msg_...`, `wtr_...`) are kept as captured: they carry no personal data and the id regexes in the design are written from their shape.
++5. Free text that could carry other sessions' conversation or task wording is replaced by the string `<text removed>` (the value stays a string; a dict or list value becomes `{}` or `[]`): the keys `spec`, `prompt`, `lastAssistantMessage`, `toolInput`, `taskTitle`, `comment`, and `preview` (except in the `worker-show` files, where the 266-300 character terminal preview is a short startup banner and is kept after rules 1 to 3). In `captured-task-list.json` the `result` value is a JSON string; its inner string values longer than 80 characters are replaced the same way and its keys are kept.
++6. Field names and value types are unchanged everywhere. Two arrays are cut and one count follows the cut: `worktrees[]` in `captured-worktree-ps.json` and `captured-worktree-list.json` keeps only 3 and 2 entries (this worktree first, then other worktrees under the capture machine's workspaces folder), and `result.totalCount` is set to the kept count. The captured `totalCount` was 28 and `truncated` false.
++
++## Files
++
++| File | readonly-probe section | Template (command as issued) | Exit | Rules beyond 1 to 3 |
++|---|---|---|---|---|
++| `captured-run-current.txt` | 1 (capture item 1) | `orca-ide orchestration run-current` | 0 | Plain text, not JSON (the no-binding shape: one sentence). Kept byte for byte. |
++| `captured-worker-list.json` | 3 (and 0, the first read of the same call) | `orca-ide orchestration worker-list --run run_a4723d345399 --json` | 0 | None. 5 worker rows. |
++| `captured-worker-show-1.json` | 4 | `orca-ide orchestration worker-show --dispatch ctx_4e3237d227c3 --json` | 0 | Rule 5 except `terminal.preview` kept. |
++| `captured-worker-show-2.json` | 4 | `orca-ide orchestration worker-show --dispatch ctx_6a0e3e3baaee --json` | 0 | Same. |
++| `captured-worker-show-3.json` | 4 | `orca-ide orchestration worker-show --dispatch ctx_7c86fffa9716 --json` | 0 | Same. |
++| `captured-worker-show-4.json` | 4 | `orca-ide orchestration worker-show --dispatch ctx_9a3728b21883 --json` | 0 | Same. |
++| `captured-worker-show-5.json` | 4 | `orca-ide orchestration worker-show --dispatch ctx_dad78c5c1332 --json` | 0 | Same. |
++| `captured-task-list-ready.json` | 5 | `orca-ide orchestration task-list --ready --run run_a4723d345399 --json` | 0 | None. Empty `tasks` list. |
++| `captured-task-list.json` | 5 | `orca-ide orchestration task-list --run run_a4723d345399 --json` | 0 | Rule 5 (`spec` and long `result` text removed). 5 tasks. |
++| `captured-worktree-ps.json` | 6 | `orca-ide worktree ps --json` | 0 | Rules 5 and 6 (3 of 28 worktrees kept). |
++| `captured-worktree-list.json` | 7 | `orca-ide worktree list --json` | 0 | Rules 5 and 6 (2 of 28 worktrees kept). |
++| `captured-worktree-current.json` | 7 | `orca-ide worktree current --json` | 0 | Rule 5. |
++| `captured-worker-list-unknown-run.json` | 8 | `orca-ide orchestration worker-list --run run_000000000000 --json` | 0 | None. Empty list, not an error. |
++| `captured-task-list-unknown-run.json` | 8 | `orca-ide orchestration task-list --run run_000000000000 --json` | 1 | None. Error body `run_not_found`; this read is Deviation D1 in the probe file. |
++| `captured-orca-tabs/00000000-0000-4000-8000-000000000015+00000000-0000-4000-8000-000000000016` | 13 | file read inside `~/.local/state/ccsession/orca-tabs/` (worker `ctx_4e3237d227c3`) | n/a | Plain 3-line file (session id, launch folder, terminal handle), not JSON. File name is the fake pane key with `+`. |
++| `captured-orca-tabs/00000000-0000-4000-8000-000000000019+00000000-0000-4000-8000-000000000020` | 13 | same folder (worker `ctx_6a0e3e3baaee`) | n/a | Same. |
++| `captured-orca-tabs/00000000-0000-4000-8000-000000000023+00000000-0000-4000-8000-000000000024` | 13 | same folder (worker `ctx_7c86fffa9716`) | n/a | Same. |
++| `captured-orca-tabs/00000000-0000-4000-8000-000000000027+00000000-0000-4000-8000-000000000028` | 13 | same folder (worker `ctx_9a3728b21883`) | n/a | Same. |
++| `captured-orca-tabs/00000000-0000-4000-8000-000000000031+00000000-0000-4000-8000-000000000032` | 13 | same folder (worker `ctx_dad78c5c1332`) | n/a | Same. |
++
++## Notes
++
++- Items 1 and 13 of the capture are not JSON (plain text), so they are stored as `.txt` and as plain files under `captured-orca-tabs/`; the JSON parse check applies to the 13 `captured-*.json` files.
+... (new file continues; read tests/sweep/fixtures/SOURCES.md from disk for lines 41-42)
+--- /dev/null
++++ b/tests/sweep/fixtures/captured-orca-tabs/00000000-0000-4000-8000-000000000015+00000000-0000-4000-8000-000000000016   (new file, 3 lines)
++00000000-0000-4000-8000-000000000017
++/home/user/workspaces/worktrees/IronClaude/issue-504
++term_00000000-0000-4000-8000-000000000008
+--- /dev/null
++++ b/tests/sweep/fixtures/captured-orca-tabs/00000000-0000-4000-8000-000000000019+00000000-0000-4000-8000-000000000020   (new file, 3 lines)
++00000000-0000-4000-8000-000000000021
++/home/user/workspaces/worktrees/IronClaude/issue-504
++term_00000000-0000-4000-8000-000000000002
+--- /dev/null
++++ b/tests/sweep/fixtures/captured-orca-tabs/00000000-0000-4000-8000-000000000023+00000000-0000-4000-8000-000000000024   (new file, 3 lines)
++00000000-0000-4000-8000-000000000025
++/home/user/workspaces/worktrees/IronClaude/issue-504
++term_00000000-0000-4000-8000-000000000010
+--- /dev/null
++++ b/tests/sweep/fixtures/captured-orca-tabs/00000000-0000-4000-8000-000000000027+00000000-0000-4000-8000-000000000028   (new file, 3 lines)
++00000000-0000-4000-8000-000000000029
++/home/user/workspaces/worktrees/IronClaude/issue-504
++term_00000000-0000-4000-8000-000000000006
+--- /dev/null
++++ b/tests/sweep/fixtures/captured-orca-tabs/00000000-0000-4000-8000-000000000031+00000000-0000-4000-8000-000000000032   (new file, 3 lines)
++00000000-0000-4000-8000-000000000033
++/home/user/workspaces/worktrees/IronClaude/issue-504
++term_00000000-0000-4000-8000-000000000012
+--- /dev/null
++++ b/tests/sweep/fixtures/captured-run-current.txt   (new file, 1 lines)
++No Run is bound to this terminal.
+--- /dev/null
++++ b/tests/sweep/fixtures/captured-task-list-ready.json   (new file, 13 lines)
++{
++  "id": "00000000-0000-4000-8000-000000000034",
++  "ok": true,
++  "result": {
++    "runId": "run_a4723d345399",
++    "legacyReadOnly": false,
++    "tasks": [],
++    "count": 0
++  },
++  "_meta": {
++    "runtimeId": "00000000-0000-4000-8000-000000000004"
++  }
++}
+--- /dev/null
++++ b/tests/sweep/fixtures/captured-task-list-unknown-run.json   (new file, 11 lines)
++{
++  "id": "00000000-0000-4000-8000-000000000054",
++  "ok": false,
++  "error": {
++    "code": "run_not_found",
++    "message": "Run run_000000000000 was not found."
++  },
++  "_meta": {
++    "runtimeId": "00000000-0000-4000-8000-000000000004"
++  }
++}
+--- /dev/null
++++ b/tests/sweep/fixtures/captured-task-list.json   (new file, 99 lines)
++{
++  "id": "00000000-0000-4000-8000-000000000035",
++  "ok": true,
++  "result": {
++    "runId": "run_a4723d345399",
++    "legacyReadOnly": false,
++    "tasks": [
++      {
++        "id": "task_381ac7af9ed1",
++        "run_id": "run_a4723d345399",
++        "parent_id": null,
++        "created_by_terminal_handle": "term_00000000-0000-4000-8000-000000000036",
++        "created_by_pane_key": "00000000-0000-4000-8000-000000000037:00000000-0000-4000-8000-000000000038",
++        "created_by_process_incarnation": "00000000-0000-4000-8000-000000000003::/home/user/workspaces/IronClaude@@jZX0PmCW:00000000-0000-4000-8000-000000000039",
++        "created_by_run_generation": 1,
++        "task_title": "504 analyze: codegraph",
++        "display_name": "504 analyze: codegraph",
++        "spec": "<text removed>",
++        "status": "completed",
++        "deps": "[]",
++        "result": "{\"provenance\":\"worker_report\",\"outcome\":\"succeeded\",\"messageId\":\"msg_7d2d216a9bbb\",\"reportedBy\":\"term_00000000-0000-4000-8000-000000000012\",\"subject\":\"#504 analyze: codegraph support in /sc:analyze done, archived\",\"body\":\"<text removed>\",\"completedBy\":\"term_00000000-0000-4000-8000-000000000012\",\"filesModified\":[\"src/superclaude/commands/analyze.md\"],\"reportPath\":\"<text removed>\",\"completedAt\":\"2026-11-11T19:41:42.168Z\"}",
++        "created_at": "2026-11-11 19:34:09",
++        "completed_at": "2026-11-11T19:41:42.169Z"
++      },
++      {
++        "id": "task_a6a2a3f9e170",
++        "run_id": "run_a4723d345399",
++        "parent_id": null,
++        "created_by_terminal_handle": "term_00000000-0000-4000-8000-000000000036",
++        "created_by_pane_key": "00000000-0000-4000-8000-000000000037:00000000-0000-4000-8000-000000000038",
++        "created_by_process_incarnation": "00000000-0000-4000-8000-000000000003::/home/user/workspaces/IronClaude@@jZX0PmCW:00000000-0000-4000-8000-000000000039",
++        "created_by_run_generation": 1,
++        "task_title": "504 design: codegraph",
++        "display_name": "504 design: codegraph",
++        "spec": "<text removed>",
++        "status": "completed",
++        "deps": "[]",
++        "result": "{\"provenance\":\"worker_report\",\"outcome\":\"succeeded\",\"messageId\":\"msg_4f159d5c84d6\",\"reportedBy\":\"term_00000000-0000-4000-8000-000000000010\",\"subject\":\"issue 504 design.md codegraph grounding done\",\"body\":\"<text removed>\",\"completedBy\":\"term_00000000-0000-4000-8000-000000000010\",\"filesModified\":[\"src/superclaude/commands/design.md\"],\"reportPath\":\"<text removed>\",\"completedAt\":\"2026-11-11T19:39:59.732Z\"}",
++        "created_at": "2026-11-11 19:35:02",
++        "completed_at": "2026-11-11T19:39:59.733Z"
+... (new file continues; read tests/sweep/fixtures/captured-task-list.json from disk for lines 41-99)
+--- /dev/null
++++ b/tests/sweep/fixtures/captured-worker-list-unknown-run.json   (new file, 21 lines)
++{
++  "id": "00000000-0000-4000-8000-000000000053",
++  "ok": true,
++  "result": {
++    "workers": [],
++    "counts": {},
++    "page": {
++      "limit": 100,
++      "total": 0,
++      "hasMore": false,
++      "nextCursor": null
++    },
++    "scope": {
++      "run": "run_000000000000",
++      "source": "flag"
++    }
++  },
++  "_meta": {
++    "runtimeId": "00000000-0000-4000-8000-000000000004"
++  }
++}
+--- /dev/null
++++ b/tests/sweep/fixtures/captured-worker-list.json   (new file, 404 lines)
++{
++  "id": "00000000-0000-4000-8000-000000000001",
++  "ok": true,
++  "result": {
++    "workers": [
++      {
++        "dispatchId": "ctx_6a0e3e3baaee",
++        "taskId": "task_d7ba23de62d2",
++        "runId": "run_a4723d345399",
++        "workerState": "succeeded",
++        "dispatchStatus": "completed",
++        "agentTerminalHandle": "term_00000000-0000-4000-8000-000000000002",
++        "terminalState": "released",
++        "resource": {
++          "id": "wtr_e76d1735d8a2",
++          "ownershipState": "released",
++          "releaseState": "released",
++          "retainedReason": null,
++          "terminalHandle": "term_00000000-0000-4000-8000-000000000002",
++          "worktreeId": "00000000-0000-4000-8000-000000000003::/home/user/workspaces/worktrees/IronClaude/issue-504",
++          "endpointId": "00000000-0000-4000-8000-000000000004",
++          "endpointIncarnation": "00000000-0000-4000-8000-000000000003::/home/user/workspaces/worktrees/IronClaude/issue-504@@98e8ea49:00000000-0000-4000-8000-000000000005",
++          "originDispatchId": "ctx_6a0e3e3baaee",
++          "ownerDispatchId": "ctx_6a0e3e3baaee",
++          "releaseRequestedAt": "2026-11-11 19:51:11",
++          "releaseCompletedAt": "2026-11-11 19:51:13",
++          "releaseError": null,
++          "recoveryAttemptCount": 0,
++          "lastRecoveryAt": null,
++          "archive": {
++            "source": "transcript",
++            "status": "captured"
++          }
++        },
++        "projection": {
++          "id": "ctx_6a0e3e3baaee",
++          "dispatchId": "ctx_6a0e3e3baaee",
++          "taskId": "task_d7ba23de62d2",
++          "runId": "run_a4723d345399",
++          "role": "worker",
+... (new file continues; read tests/sweep/fixtures/captured-worker-list.json from disk for lines 41-404)
+--- /dev/null
++++ b/tests/sweep/fixtures/captured-worker-show-1.json   (new file, 210 lines)
++{
++  "id": "00000000-0000-4000-8000-000000000014",
++  "ok": true,
++  "result": {
++    "dispatch": {
++      "id": "ctx_4e3237d227c3",
++      "runId": "run_a4723d345399",
++      "taskId": "task_38990284224c",
++      "task_id": "task_38990284224c",
++      "contractVersion": 1,
++      "assigneeHandle": "term_00000000-0000-4000-8000-000000000008",
++      "assigneePaneKey": "00000000-0000-4000-8000-000000000015:00000000-0000-4000-8000-000000000016",
++      "processIncarnation": "00000000-0000-4000-8000-000000000003::/home/user/workspaces/worktrees/IronClaude/issue-504@@ff748a50:00000000-0000-4000-8000-000000000009",
++      "capabilityRevokedAt": "2026-11-11T19:52:10.258Z",
++      "retryOfDispatchId": null,
++      "creatorDispatchId": null,
++      "hostScope": {
++        "kind": "local",
++        "hostId": "local"
++      },
++      "status": "completed",
++      "failureCount": 0,
++      "lastFailure": null,
++      "terminationReason": null,
++      "depth": 1,
++      "dispatchedAt": "2026-11-11 19:35:55",
++      "completedAt": "2026-11-11T19:52:10.258Z",
++      "createdAt": "2026-11-11 19:35:55",
++      "lastHeartbeatAt": "2026-11-11T19:40:28Z"
++    },
++    "worker": {
++      "dispatchId": "ctx_4e3237d227c3",
++      "runtimeEpoch": "00000000-0000-4000-8000-000000000004",
++      "state": "succeeded",
++      "stage": "settled",
++      "worktreeId": "00000000-0000-4000-8000-000000000003::/home/user/workspaces/worktrees/IronClaude/issue-504",
++      "agentTerminalHandle": "term_00000000-0000-4000-8000-000000000008",
++      "setupState": "not_applicable",
++      "effects": [
++        {
+... (new file continues; read tests/sweep/fixtures/captured-worker-show-1.json from disk for lines 41-210)
+--- /dev/null
++++ b/tests/sweep/fixtures/captured-worker-show-2.json   (new file, 210 lines)
++{
++  "id": "00000000-0000-4000-8000-000000000018",
++  "ok": true,
++  "result": {
++    "dispatch": {
++      "id": "ctx_6a0e3e3baaee",
++      "runId": "run_a4723d345399",
++      "taskId": "task_d7ba23de62d2",
++      "task_id": "task_d7ba23de62d2",
++      "contractVersion": 1,
++      "assigneeHandle": "term_00000000-0000-4000-8000-000000000002",
++      "assigneePaneKey": "00000000-0000-4000-8000-000000000019:00000000-0000-4000-8000-000000000020",
++      "processIncarnation": "00000000-0000-4000-8000-000000000003::/home/user/workspaces/worktrees/IronClaude/issue-504@@98e8ea49:00000000-0000-4000-8000-000000000005",
++      "capabilityRevokedAt": "2026-11-11T19:51:06.980Z",
++      "retryOfDispatchId": null,
++      "creatorDispatchId": null,
++      "hostScope": {
++        "kind": "local",
++        "hostId": "local"
++      },
++      "status": "completed",
++      "failureCount": 0,
++      "lastFailure": null,
++      "terminationReason": null,
++      "depth": 1,
++      "dispatchedAt": "2026-11-11 19:37:41",
++      "completedAt": "2026-11-11T19:51:06.980Z",
++      "createdAt": "2026-11-11 19:37:41",
++      "lastHeartbeatAt": "2026-11-11T19:48:31Z"
++    },
++    "worker": {
++      "dispatchId": "ctx_6a0e3e3baaee",
++      "runtimeEpoch": "00000000-0000-4000-8000-000000000004",
++      "state": "succeeded",
++      "stage": "settled",
++      "worktreeId": "00000000-0000-4000-8000-000000000003::/home/user/workspaces/worktrees/IronClaude/issue-504",
++      "agentTerminalHandle": "term_00000000-0000-4000-8000-000000000002",
++      "setupState": "not_applicable",
++      "effects": [
++        {
+... (new file continues; read tests/sweep/fixtures/captured-worker-show-2.json from disk for lines 41-210)
+--- /dev/null
++++ b/tests/sweep/fixtures/captured-worker-show-3.json   (new file, 210 lines)
++{
++  "id": "00000000-0000-4000-8000-000000000022",
++  "ok": true,
++  "result": {
++    "dispatch": {
++      "id": "ctx_7c86fffa9716",
++      "runId": "run_a4723d345399",
++      "taskId": "task_a6a2a3f9e170",
++      "task_id": "task_a6a2a3f9e170",
++      "contractVersion": 1,
++      "assigneeHandle": "term_00000000-0000-4000-8000-000000000010",
++      "assigneePaneKey": "00000000-0000-4000-8000-000000000023:00000000-0000-4000-8000-000000000024",
++      "processIncarnation": "00000000-0000-4000-8000-000000000003::/home/user/workspaces/worktrees/IronClaude/issue-504@@389ca4c5:00000000-0000-4000-8000-000000000011",
++      "capabilityRevokedAt": "2026-11-11T19:39:59.733Z",
++      "retryOfDispatchId": null,
++      "creatorDispatchId": null,
++      "hostScope": {
++        "kind": "local",
++        "hostId": "local"
++      },
++      "status": "completed",
++      "failureCount": 0,
++      "lastFailure": null,
++      "terminationReason": null,
++      "depth": 1,
++      "dispatchedAt": "2026-11-11 19:35:02",
++      "completedAt": "2026-11-11T19:39:59.733Z",
++      "createdAt": "2026-11-11 19:35:02",
++      "lastHeartbeatAt": null
++    },
++    "worker": {
++      "dispatchId": "ctx_7c86fffa9716",
++      "runtimeEpoch": "00000000-0000-4000-8000-000000000004",
++      "state": "succeeded",
++      "stage": "settled",
++      "worktreeId": "00000000-0000-4000-8000-000000000003::/home/user/workspaces/worktrees/IronClaude/issue-504",
++      "agentTerminalHandle": "term_00000000-0000-4000-8000-000000000010",
++      "setupState": "not_applicable",
++      "effects": [
++        {
+... (new file continues; read tests/sweep/fixtures/captured-worker-show-3.json from disk for lines 41-210)
+--- /dev/null
++++ b/tests/sweep/fixtures/captured-worker-show-4.json   (new file, 210 lines)
++{
++  "id": "00000000-0000-4000-8000-000000000026",
++  "ok": true,
++  "result": {
++    "dispatch": {
++      "id": "ctx_9a3728b21883",
++      "runId": "run_a4723d345399",
++      "taskId": "task_e90102f005e0",
++      "task_id": "task_e90102f005e0",
++      "contractVersion": 1,
++      "assigneeHandle": "term_00000000-0000-4000-8000-000000000006",
++      "assigneePaneKey": "00000000-0000-4000-8000-000000000027:00000000-0000-4000-8000-000000000028",
++      "processIncarnation": "00000000-0000-4000-8000-000000000003::/home/user/workspaces/worktrees/IronClaude/issue-504@@846850e6:00000000-0000-4000-8000-000000000007",
++      "capabilityRevokedAt": "2026-11-11T19:52:33.860Z",
++      "retryOfDispatchId": null,
++      "creatorDispatchId": null,
++      "hostScope": {
++        "kind": "local",
++        "hostId": "local"
++      },
++      "status": "completed",
++      "failureCount": 0,
++      "lastFailure": null,
++      "terminationReason": null,
++      "depth": 1,
++      "dispatchedAt": "2026-11-11 19:36:47",
++      "completedAt": "2026-11-11T19:52:33.860Z",
++      "createdAt": "2026-11-11 19:36:47",
++      "lastHeartbeatAt": null
++    },
++    "worker": {
++      "dispatchId": "ctx_9a3728b21883",
++      "runtimeEpoch": "00000000-0000-4000-8000-000000000004",
++      "state": "succeeded",
++      "stage": "settled",
++      "worktreeId": "00000000-0000-4000-8000-000000000003::/home/user/workspaces/worktrees/IronClaude/issue-504",
++      "agentTerminalHandle": "term_00000000-0000-4000-8000-000000000006",
++      "setupState": "not_applicable",
++      "effects": [
++        {
+... (new file continues; read tests/sweep/fixtures/captured-worker-show-4.json from disk for lines 41-210)
+--- /dev/null
++++ b/tests/sweep/fixtures/captured-worker-show-5.json   (new file, 210 lines)
++{
++  "id": "00000000-0000-4000-8000-000000000030",
++  "ok": true,
++  "result": {
++    "dispatch": {
++      "id": "ctx_dad78c5c1332",
++      "runId": "run_a4723d345399",
++      "taskId": "task_381ac7af9ed1",
++      "task_id": "task_381ac7af9ed1",
++      "contractVersion": 1,
++      "assigneeHandle": "term_00000000-0000-4000-8000-000000000012",
++      "assigneePaneKey": "00000000-0000-4000-8000-000000000031:00000000-0000-4000-8000-000000000032",
++      "processIncarnation": "00000000-0000-4000-8000-000000000003::/home/user/workspaces/worktrees/IronClaude/issue-504@@773fac13:00000000-0000-4000-8000-000000000013",
++      "capabilityRevokedAt": "2026-11-11T19:41:42.169Z",
++      "retryOfDispatchId": null,
++      "creatorDispatchId": null,
++      "hostScope": {
++        "kind": "local",
++        "hostId": "local"
++      },
++      "status": "completed",
++      "failureCount": 0,
++      "lastFailure": null,
++      "terminationReason": null,
++      "depth": 1,
++      "dispatchedAt": "2026-11-11 19:34:09",
++      "completedAt": "2026-11-11T19:41:42.169Z",
++      "createdAt": "2026-11-11 19:34:09",
++      "lastHeartbeatAt": "2026-11-11T19:37:52Z"
++    },
++    "worker": {
++      "dispatchId": "ctx_dad78c5c1332",
++      "runtimeEpoch": "00000000-0000-4000-8000-000000000004",
++      "state": "succeeded",
++      "stage": "settled",
++      "worktreeId": "00000000-0000-4000-8000-000000000003::/home/user/workspaces/worktrees/IronClaude/issue-504",
++      "agentTerminalHandle": "term_00000000-0000-4000-8000-000000000012",
++      "setupState": "not_applicable",
++      "effects": [
++        {
+... (new file continues; read tests/sweep/fixtures/captured-worker-show-5.json from disk for lines 41-210)
+--- /dev/null
++++ b/tests/sweep/fixtures/captured-worktree-current.json   (new file, 65 lines)
++{
++  "id": "00000000-0000-4000-8000-000000000052",
++  "ok": true,
++  "result": {
++    "worktree": {
++      "id": "00000000-0000-4000-8000-000000000003::/home/user/workspaces/worktrees/IronClaude/issue-339-orchestrator-mode",
++      "identity": {
++        "key": "wt2:local:00000000-0000-4000-8000-000000000041",
++        "executionHostId": "local",
++        "instanceId": "00000000-0000-4000-8000-000000000041"
++      },
++      "instanceId": "00000000-0000-4000-8000-000000000041",
++      "repoId": "00000000-0000-4000-8000-000000000003",
++      "projectId": "github:superclaude-org/superclaude_framework",
++      "hostId": "local",
++      "projectHostSetupId": "00000000-0000-4000-8000-000000000003",
++      "creatorProvenance": {
++        "kind": "host"
++      },
++      "path": "/home/user/workspaces/worktrees/IronClaude/issue-339-orchestrator-mode",
++      "head": "5dc29d23b15eb7db4ead50623bb409f696a0d7d3",
++      "branch": "refs/heads/ironbelly/issue-339-orchestrator-mode",
++      "isBare": false,
++      "isMainWorktree": false,
++      "displayName": "issue-339-orchestrator-mode",
++      "displayNameMode": "fixed",
++      "comment": "",
++      "linkedIssue": null,
++      "linkedPR": null,
++      "linkedLinearIssue": null,
++      "linkedLinearIssueWorkspaceId": null,
++      "linkedLinearIssueOrganizationUrlKey": null,
++      "linkedGitLabMR": null,
++      "linkedGitLabIssue": null,
++      "linkedBitbucketPR": null,
++      "linkedAzureDevOpsPR": null,
++      "linkedGiteaPR": null,
++      "linkedWorkItem": null,
++      "linkedTaskSourceContext": null,
++      "isArchived": false,
+... (new file continues; read tests/sweep/fixtures/captured-worktree-current.json from disk for lines 41-65)
+--- /dev/null
++++ b/tests/sweep/fixtures/captured-worktree-list.json   (new file, 123 lines)
++{
++  "id": "00000000-0000-4000-8000-000000000051",
++  "ok": true,
++  "result": {
++    "worktrees": [
++      {
++        "id": "00000000-0000-4000-8000-000000000003::/home/user/workspaces/worktrees/IronClaude/issue-339-orchestrator-mode",
++        "identity": {
++          "key": "wt2:local:00000000-0000-4000-8000-000000000041",
++          "executionHostId": "local",
++          "instanceId": "00000000-0000-4000-8000-000000000041"
++        },
++        "instanceId": "00000000-0000-4000-8000-000000000041",
++        "repoId": "00000000-0000-4000-8000-000000000003",
++        "projectId": "github:superclaude-org/superclaude_framework",
++        "hostId": "local",
++        "projectHostSetupId": "00000000-0000-4000-8000-000000000003",
++        "creatorProvenance": {
++          "kind": "host"
++        },
++        "path": "/home/user/workspaces/worktrees/IronClaude/issue-339-orchestrator-mode",
++        "head": "5dc29d23b15eb7db4ead50623bb409f696a0d7d3",
++        "branch": "refs/heads/ironbelly/issue-339-orchestrator-mode",
++        "isBare": false,
++        "isMainWorktree": false,
++        "displayName": "issue-339-orchestrator-mode",
++        "displayNameMode": "fixed",
++        "comment": "",
++        "linkedIssue": null,
++        "linkedPR": null,
++        "linkedLinearIssue": null,
++        "linkedLinearIssueWorkspaceId": null,
++        "linkedLinearIssueOrganizationUrlKey": null,
++        "linkedGitLabMR": null,
++        "linkedGitLabIssue": null,
++        "linkedBitbucketPR": null,
++        "linkedAzureDevOpsPR": null,
++        "linkedGiteaPR": null,
++        "linkedWorkItem": null,
++        "linkedTaskSourceContext": null,
+... (new file continues; read tests/sweep/fixtures/captured-worktree-list.json from disk for lines 41-123)
+--- /dev/null
++++ b/tests/sweep/fixtures/captured-worktree-ps.json   (new file, 248 lines)
++{
++  "id": "00000000-0000-4000-8000-000000000040",
++  "ok": true,
++  "result": {
++    "worktrees": [
++      {
++        "workspaceKind": "git",
++        "worktreeId": "00000000-0000-4000-8000-000000000003::/home/user/workspaces/worktrees/IronClaude/issue-339-orchestrator-mode",
++        "repoId": "00000000-0000-4000-8000-000000000003",
++        "hostId": "local",
++        "terminalPlatform": "linux",
++        "repo": "IronClaude",
++        "path": "/home/user/workspaces/worktrees/IronClaude/issue-339-orchestrator-mode",
++        "branch": "refs/heads/ironbelly/issue-339-orchestrator-mode",
++        "isArchived": false,
++        "isMainWorktree": false,
++        "hasHostSidebarActivity": true,
++        "defaultBranch": false,
++        "worktreeInstanceId": "00000000-0000-4000-8000-000000000041",
++        "parentWorktreeId": null,
++        "childWorktreeIds": [],
++        "displayName": "issue-339-orchestrator-mode",
++        "workspaceStatus": "in-progress",
++        "sortOrder": 1794432910840,
++        "lastActivityAt": 1794432847370,
++        "createdAt": 1794035783506,
++        "creatorProvenance": {
++          "kind": "host"
++        },
++        "linkedIssue": null,
++        "linkedPR": null,
++        "linkedLinearIssue": null,
++        "linkedGitLabMR": null,
++        "linkedGitLabIssue": null,
++        "linkedItems": [],
++        "comment": "",
++        "isPinned": false,
++        "isActive": false,
++        "unread": true,
++        "liveTerminalCount": 3,
+... (new file continues; read tests/sweep/fixtures/captured-worktree-ps.json from disk for lines 41-248)
+Delta diff from the previous reviewed tree (empty on the first review): 
+Earlier blocking findings of this start (empty on the first review): 
+Saved-probe re-check hit locations (may be empty): 
+
+Do not trust the implementer's report.
+
+First mark each earlier blocking finding resolved, open or regressed from the diff. Then, for each AC, mark it met or unmet. Require citations: every AC you mark, met or unmet, carries a `path:line` or `Ti.ACk@path:line` citation, and an unmet mark lists the finding ids behind it. Do not return a verdict; the orchestrator computes it.
+
+For every finding answer four questions, each yes or no:
+1. ac-outcome-missing: is output an AC requires absent, or does it contradict the AC text, or does an evidence claim you could not verify have no evidence row?
+2. false-claim: is a claim in delivered text or code false against live source, or does a recipe or instruction followed as written not do what the text says?
+3. harmful-effect: does code or a recipe this task added or changed write, append, chmod or delete tracked or production data, mutate state outside the task's declared outputs, or expose a secret?
+4. quoted-constraint-breach: does the diff violate a quoted plan constraint, out-of-scope, non-goal or non-negotiable item, or an explicit task instruction?
+
+Anchor rule: cite exactly one anchor per yes. ac-outcome-missing: the quoted AC words. false-claim: the live-source path:line holding the contradicting text. harmful-effect: the diff line that is the write. quoted-constraint-breach: the quoted constraint or instruction text. A yes without a valid anchor does not block.
+
+Write one line per finding:
+F<k>.<j> ac=<Ti.ACk|scope> at=<path:line> anchor=<quoted text or path:line> chk=<amiss,false,harm,constraint as y/n> family=<id> fix=<text> [covers=<quoted AC clause or constraint>]: <text>
+Do not write sev=, trigger=, first= or origin=; the orchestrator adds them. Write one status line per earlier blocking finding: F<m>.<j> resolved|open|regressed.
+
+Inside /sc:implement this protocol's severity model governs this review and takes precedence over the session's output style and the copy of it injected into every subagent; only blocking findings may fail an attempt.
+
+You are not given an adviser answer, brief, evidence file or troubleshoot report. Do not read the retry folders (legacy `.dev/implement/<slug>/retries/`, managed `<pkg>/artifacts/retries/`) or `.dev/troubleshoot/`. A citation into either makes the verdict `cannot-verify`.
+The prior-findings slot above carries earlier blocking finding lines that the orchestrator copies byte for byte from `review-*.md` and `repair-*.md`; they reach you as prompt text, not as an evidence file. Do not read those folders to get them, and never cite the slot or the file it came from.

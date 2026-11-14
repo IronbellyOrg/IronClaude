@@ -1,0 +1,101 @@
+# FR-2 hunk -> declaration map, taken from the diff hunk headers (git's own function-context). All 37 new files are whole-file additions (one hunk, no declaration context); the 12 edited tracked files and the DESIGN diff carry their own context.
+hunks:
+- {file: ".gitignore", new_range: "-252,6", declaration: "uv.lock"}
+- {file: "CHANGELOG.md", new_range: "-4,6", declaration: "All notable changes to IronClaude are documented in this file."}
+- {file: "docs/developer-guide/SuperClaude-Developer-Guide-Commands-Skills-Agents.md", new_range: "-988,7", declaration: "Orca can run IronClaude commands as workers under an Orca coordinator (the `/orc"}
+- {file: "docs/user-guide/commands.md", new_range: "-113,6", declaration: "This page is the per-command reference: exact syntax, options, and what each com"}
+- {file: "plugins/superclaude/skills/sc-recommend/refs/HOW-WE-WORK.md", new_range: "-331,6", declaration: "Additional operations and explicit coordination choices. These entries can be re"}
+- {file: "plugins/superclaude/skills/sc-recommend/refs/HOW-WE-WORK.md", new_range: "-401,5", declaration: "Orca can run IronClaude commands as workers. The rules live in `~/.claude/WORKER"}
+- {file: "src/superclaude/cli/main.py", new_range: "-564,6", declaration: "from superclaude.cli.issue_watch.cli import issue_watch_group  # noqa: E402,I001"}
+- {file: "src/superclaude/core/HOW-WE-WORK.md", new_range: "-331,6", declaration: "Additional operations and explicit coordination choices. These entries can be re"}
+- {file: "src/superclaude/core/HOW-WE-WORK.md", new_range: "-401,5", declaration: "Orca can run IronClaude commands as workers. The rules live in `~/.claude/WORKER"}
+- {file: "src/superclaude/core/WORKER-CONTRACT.md", new_range: "-20,7", declaration: "The dispatch preamble that Orca gives each worker is the authority for Orca verb"}
+- {file: "src/superclaude/core/WORKER-CONTRACT.md", new_range: "-272,6", declaration: "Orca settles a Task on any valid `worker_done` and does not start ready Tasks it"}
+- {file: "src/superclaude/output-styles/pragmatic.md", new_range: "-19,7", declaration: "engineering behavior, and quality controls in separate top-level sections."}
+- {file: "src/superclaude/output-styles/pragmatic.md", new_range: "-50,14", declaration: "This applies to ALL message types: status, narration, next steps, tables, and qu"}
+- {file: "src/superclaude/output-styles/pragmatic.md", new_range: "-66,7", declaration: "Pick the shortest template that fits. Never pad a template: no empty fields, no"}
+- {file: "src/superclaude/output-styles/pragmatic.md", new_range: "-77,7", declaration: "Pick the shortest template that fits. Never pad a template: no empty fields, no"}
+- {file: "src/superclaude/output-styles/pragmatic.md", new_range: "-87,7", declaration: "Pick the shortest template that fits. Never pad a template: no empty fields, no"}
+- {file: "tests/core/test_how_we_work_routing_table.py", new_range: "-31,6", declaration: "_OTHER_COMMANDS = {"}
+- {file: "tests/recommend/test_routing_refresh.py", new_range: "-30,7", declaration: "_PACKAGE = "TASK-RESEARCH-recommend-refresh-20261024-044336""}
+- {file: "tests/skills/test_worker_contract.py", new_range: "-86,8", declaration: "RULE_PHRASES = {"}
+- {file: "tests/skills/test_worker_contract.py", new_range: "-170,6", declaration: "RULE_PHRASES = {"}
+- {file: "tests/skills/test_worker_contract.py", new_range: "-388,6", declaration: "NEVER_AS_WORKER = ("}
+- {file: "tests/skills/test_worker_contract.py", new_range: "-909,7", declaration: "def test_contract_states_rule(rule):"}
+- {file: "tests/skills/test_worker_contract.py", new_range: "-1320,6", declaration: "def test_load_usage_line_declares_checkpoint_and_load_is_not_converted():"}
+- {file: "src/superclaude/cli/sweep/__init__.py", new_range: "-0,0", declaration: "(module level / whole new file)"}
+- {file: "src/superclaude/cli/sweep/classify.py", new_range: "-0,0", declaration: "(module level / whole new file)"}
+- {file: "src/superclaude/cli/sweep/commands.py", new_range: "-0,0", declaration: "(module level / whole new file)"}
+- {file: "src/superclaude/cli/sweep/models.py", new_range: "-0,0", declaration: "(module level / whole new file)"}
+- {file: "src/superclaude/cli/sweep/probes.py", new_range: "-0,0", declaration: "(module level / whole new file)"}
+- {file: "src/superclaude/cli/sweep/report.py", new_range: "-0,0", declaration: "(module level / whole new file)"}
+- {file: "src/superclaude/commands/sweep.md", new_range: "-0,0", declaration: "(module level / whole new file)"}
+- {file: "src/superclaude/skills/sc-sweep-protocol/SKILL.md", new_range: "-0,0", declaration: "(module level / whole new file)"}
+- {file: "tests/commands/test_sweep_command.py", new_range: "-0,0", declaration: "(module level / whole new file)"}
+- {file: "tests/sweep/conftest.py", new_range: "-0,0", declaration: "(module level / whole new file)"}
+- {file: "tests/sweep/fixtures/SOURCES.md", new_range: "-0,0", declaration: "(module level / whole new file)"}
+- {file: "tests/sweep/fixtures/captured-run-current.json", new_range: "-0,0", declaration: "(module level / whole new file)"}
+- {file: "tests/sweep/fixtures/captured-tab-map-1.json", new_range: "-0,0", declaration: "(module level / whole new file)"}
+- {file: "tests/sweep/fixtures/captured-tab-map-2.json", new_range: "-0,0", declaration: "(module level / whole new file)"}
+- {file: "tests/sweep/fixtures/captured-tab-map-3.json", new_range: "-0,0", declaration: "(module level / whole new file)"}
+- {file: "tests/sweep/fixtures/captured-tab-map-4.json", new_range: "-0,0", declaration: "(module level / whole new file)"}
+- {file: "tests/sweep/fixtures/captured-tab-map-5.json", new_range: "-0,0", declaration: "(module level / whole new file)"}
+- {file: "tests/sweep/fixtures/captured-task-list-ready.json", new_range: "-0,0", declaration: "(module level / whole new file)"}
+- {file: "tests/sweep/fixtures/captured-task-list-unknown-run.json", new_range: "-0,0", declaration: "(module level / whole new file)"}
+- {file: "tests/sweep/fixtures/captured-task-list.json", new_range: "-0,0", declaration: "(module level / whole new file)"}
+- {file: "tests/sweep/fixtures/captured-worker-list-unknown-run.json", new_range: "-0,0", declaration: "(module level / whole new file)"}
+- {file: "tests/sweep/fixtures/captured-worker-list.json", new_range: "-0,0", declaration: "(module level / whole new file)"}
+- {file: "tests/sweep/fixtures/captured-worker-show-1.json", new_range: "-0,0", declaration: "(module level / whole new file)"}
+- {file: "tests/sweep/fixtures/captured-worker-show-2.json", new_range: "-0,0", declaration: "(module level / whole new file)"}
+- {file: "tests/sweep/fixtures/captured-worker-show-3.json", new_range: "-0,0", declaration: "(module level / whole new file)"}
+- {file: "tests/sweep/fixtures/captured-worker-show-4.json", new_range: "-0,0", declaration: "(module level / whole new file)"}
+- {file: "tests/sweep/fixtures/captured-worker-show-5.json", new_range: "-0,0", declaration: "(module level / whole new file)"}
+- {file: "tests/sweep/fixtures/captured-worktree-current.json", new_range: "-0,0", declaration: "(module level / whole new file)"}
+- {file: "tests/sweep/fixtures/captured-worktree-list.json", new_range: "-0,0", declaration: "(module level / whole new file)"}
+- {file: "tests/sweep/fixtures/captured-worktree-ps.json", new_range: "-0,0", declaration: "(module level / whole new file)"}
+- {file: "tests/sweep/test_classify.py", new_range: "-0,0", declaration: "(module level / whole new file)"}
+- {file: "tests/sweep/test_cli_contract.py", new_range: "-0,0", declaration: "(module level / whole new file)"}
+- {file: "tests/sweep/test_cli_registration.py", new_range: "-0,0", declaration: "(module level / whole new file)"}
+- {file: "tests/sweep/test_probes_allowlist.py", new_range: "-0,0", declaration: "(module level / whole new file)"}
+- {file: "tests/sweep/test_readonly.py", new_range: "-0,0", declaration: "(module level / whole new file)"}
+- {file: "tests/sweep/test_report.py", new_range: "-0,0", declaration: "(module level / whole new file)"}
+- {file: "docs/designs/orchestrator-mode.md", new_range: "-2,7", declaration: "(module level / whole new file)"}
+- {file: "docs/designs/orchestrator-mode.md", new_range: "-10,7", declaration: "Review status: NOT a clean pass. Three blocking findings were still open after t"}
+- {file: "docs/designs/orchestrator-mode.md", new_range: "-25,7", declaration: "Inputs and the short names used below:"}
+- {file: "docs/designs/orchestrator-mode.md", new_range: "-57,13", declaration: "Each row takes the SPEC section 15 proposal (SPEC lines 553-563) and fixes the c"}
+- {file: "docs/designs/orchestrator-mode.md", new_range: "-178,7", declaration: "The allowlist miss (SPEC section 11 line 447) and every collection, classificati"}
+- {file: "docs/designs/orchestrator-mode.md", new_range: "-193,7", declaration: "The allowlist miss (SPEC section 11 line 447) and every collection, classificati"}
+- {file: "docs/designs/orchestrator-mode.md", new_range: "-208,7", declaration: "Boundaries (SPEC section 6, with D1 applied):"}
+- {file: "docs/designs/orchestrator-mode.md", new_range: "-218,7", declaration: "Boundaries (SPEC section 6, with D1 applied):"}
+- {file: "docs/designs/orchestrator-mode.md", new_range: "-242,7", declaration: "skill        commands.run            probes                 Orca / git / disk"}
+- {file: "docs/designs/orchestrator-mode.md", new_range: "-387,6", declaration: "def _git(cwd: Path, *args: str, timeout: float) -> str       # raises GitCallFai"}
+- {file: "docs/designs/orchestrator-mode.md", new_range: "-395,7", declaration: "def parse_status(raw: str) -> StatusParse                    # NUL fields, renam"}
+- {file: "docs/designs/orchestrator-mode.md", new_range: "-451,10", declaration: "All types are frozen dataclasses in `models.py`, as SPEC section 7 (lines 227-24"}
+- {file: "docs/designs/orchestrator-mode.md", new_range: "-465,6", declaration: "All types are frozen dataclasses in `models.py`, as SPEC section 7 (lines 227-24"}
+- {file: "docs/designs/orchestrator-mode.md", new_range: "-484,17", declaration: "Rule table (`classify.RULES`, SPEC section 7 lines 247-257; numbering is the SPE"}
+- {file: "docs/designs/orchestrator-mode.md", new_range: "-502,7", declaration: "Observation rules (SPEC section 11 failure modes and the section 7 cross-cutting"}
+- {file: "docs/designs/orchestrator-mode.md", new_range: "-527,9", declaration: "ALLOWED_ORCA: tuple[tuple[str, ...], ...] = ("}
+- {file: "docs/designs/orchestrator-mode.md", new_range: "-545,7", declaration: "WORKER_LIST_PAGE = 100                       # a full page sets truncated"}
+- {file: "docs/designs/orchestrator-mode.md", new_range: "-587,6", declaration: "One object on stdout, printed only after the commit point (section 3.2). Every k"}
+- {file: "docs/designs/orchestrator-mode.md", new_range: "-602,7", declaration: "Messages coverage: partial"}
+- {file: "docs/designs/orchestrator-mode.md", new_range: "-645,7", declaration: "Two new primitives, edited in `src/superclaude/` and copied by `make sync-dev`."}
+- {file: "docs/designs/orchestrator-mode.md", new_range: "-656,34", declaration: "Two new primitives, edited in `src/superclaude/` and copied by `make sync-dev`."}
+- {file: "docs/designs/orchestrator-mode.md", new_range: "-692,19", declaration: "All edits are to existing files; no new doc file. Rows and bullets are added, no"}
+- {file: "docs/designs/orchestrator-mode.md", new_range: "-712,7", declaration: "Rules:"}
+- {file: "docs/designs/orchestrator-mode.md", new_range: "-723,7", declaration: "A grep on 2026-11-08 found no `sweeps` entry (SPEC FR-025). Two lines go after t"}
+- {file: "docs/designs/orchestrator-mode.md", new_range: "-735,13", declaration: "Shared setup in `tests/sweep/conftest.py` (step 1.8):"}
+- {file: "docs/designs/orchestrator-mode.md", new_range: "-761,7", declaration: "Every SPEC requirement (SPEC lines 95 to 120 and 130 to 144) maps to the design"}
+- {file: "docs/designs/orchestrator-mode.md", new_range: "-774,7", declaration: "Every SPEC requirement (SPEC lines 95 to 120 and 130 to 144) maps to the design"}
+- {file: "docs/designs/orchestrator-mode.md", new_range: "-791,7", declaration: "Every SPEC requirement (SPEC lines 95 to 120 and 130 to 144) maps to the design"}
+- {file: "docs/designs/orchestrator-mode.md", new_range: "-809,12", declaration: "A deviation is a place where this design states something the SPEC text does not"}
+- {file: "docs/designs/orchestrator-mode.md", new_range: "-826,13", declaration: "REPORT differences. These are places where the design follows the SPEC over the"}
+- {file: "docs/designs/orchestrator-mode.md", new_range: "-850,7", declaration: "How each PANEL item (SP-19 to SP-27), the two SPEC items this design acts on (SP"}
+- {file: "docs/designs/orchestrator-mode.md", new_range: "-870,7", declaration: "Step 1.0a replaces the REPORT version (REPORT steps list, lines 1237 to 1300). I"}
+- {file: "docs/designs/orchestrator-mode.md", new_range: "-882,11", declaration: "What it records:"}
+- {file: "docs/designs/orchestrator-mode.md", new_range: "-895,7", declaration: "What it records:"}
+- {file: "docs/designs/orchestrator-mode.md", new_range: "-912,7", declaration: "REPORT step numbers are kept so the task file can cite the REPORT; one step is n"}
+- {file: "docs/designs/orchestrator-mode.md", new_range: "-922,17", declaration: "REPORT step numbers are kept so the task file can cite the REPORT; one step is n"}
+- {file: "docs/designs/orchestrator-mode.md", new_range: "-948,9", declaration: "The SPEC rollback (section 17, lines 587-607) holds unchanged: Phase 1 is additi"}
+- {file: "docs/designs/orchestrator-mode.md", new_range: "-969,7", declaration: "Each item is unverified or undecided today. The design names the safe behaviour"}
+- {file: "docs/designs/orchestrator-mode.md", new_range: "-985,10", declaration: "Each item is unverified or undecided today. The design names the safe behaviour"}
+- {file: "docs/designs/orchestrator-mode.md", new_range: "-1008,6", declaration: "Changes made for the blocking findings of `docs/designs/orchestrator-mode-review"}

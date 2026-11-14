@@ -1,0 +1,19 @@
+return_contract:
+  merged_output_path: ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/reflect/pre-run2/adversarial/merged-verdict.yaml"
+  convergence_score: 1.00
+  artifacts_dir: ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/reflect/pre-run2/adversarial/"
+  status: "partial"
+  base_variant: "variant-2 (qa, claude-gw-tier2)"
+  unresolved_conflicts: 0
+  fallback_mode: false
+  failure_stage: null
+  invocation_method: "skill-direct"
+  unaddressed_invariants:
+    - {id: INV-006, category: guard_conditions, assumption: "Item 6.2's check expects one grep hit for 'OQ-1 (R5) RESOLVED', but the item text and the build-time log row already match, so correct work cannot pass", severity: HIGH}
+    - {id: INV-021, category: sufficiency_challenge, assumption: "A 7.17 owner-routing branch alone is not enough: on approval, 8.10, 10.3 and 7.16 still pin ten templates and forbid run-current --json", severity: HIGH}
+notes:
+  convergence_status: "BLOCKED_BY_INVARIANTS: 50/50 diff points agreed (Round 1 0.94, Round 2 1.00), taxonomy L1/L2/L3 all covered, but 2 HIGH invariant-probe items were UNADDRESSED by the debate. Depth standard, so no Round 3. Both were folded into the merge: INV-006 as new finding F-02, INV-021 into F-03."
+  status_reason: "partial because convergence is BLOCKED_BY_INVARIANTS, not because of a merge or validation failure."
+  base_selection: "V2 0.798, V1 0.792, V3 0.698; margin 0.006 < 0.05, tiebreaker level 1 (debate points won V2 12, V1 9)."
+  plan_reviews: "refactor-plan-review.md FAIL (B-01); fix cycle 1; refactor-plan-review-2.md PASS (6 minor notes N-01..N-06 carried as notes)."
+  merge: "merge-log.md: 30 changes applied, 0 failed, 0 skipped; validation PASS (YAML loads, 93 evidence refs + 28 locations re-read, 0 broken, no new contradictions)."

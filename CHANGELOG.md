@@ -36,6 +36,29 @@ All notable changes to IronClaude are documented in this file.
 - `CCSESSION_FAILS_BEFORE_SWITCH=3`, `CCSESSION_PARK_SECONDS=300` and `CCSESSION_PARK_MAX_SECONDS=3600`; launches with different values get separate shims.
 - A default routing log at `${XDG_CACHE_HOME:-$HOME/.cache}/ccsession/proxy.log`, overridden by `GW_PROXY_LOGFILE`, capped at 5 MB with one older copy. Failure kinds, counts, parks, switches and answering models are recorded without credentials or request/reply bodies other than redacted gateway error messages. Multiple local shims serialize rotation; an unwritable cache does not stop routing.
 
+### sweep: read-only supervision snapshot (Phase 1, 2026-11-12)
+
+#### Added (sweep)
+
+- `superclaude sweep run`: a read-only sweep of an Orca Run, the worktrees of the checkout and the Claude Code sessions in an activity window. It writes one dated report under `.dev/sweeps/` and prints a JSON summary; it changes nothing in Orca, in git or in any worktree.
+- The `/sc:sweep` command and the `sc-sweep-protocol` skill behind it: the skill runs `superclaude sweep run` once, reads the report and prints the session counts and the report path. It recommends nothing.
+- WC-16, the coordinator-loop rule in `WORKER-CONTRACT.md`: the coordinator keeps watching its Run and runs `/sc:sweep` beside the existing liveness sweep, at most once every 5 minutes. `/sc:sweep` is on the never-as-worker list, so a dispatched worker never runs it.
+- `.dev/sweeps/` is ignored in `.gitignore`.
+- Tests: `tests/sweep/` for the sweep package and `tests/commands/test_sweep_command.py` for the command and the skill, plus the contract pins in `tests/skills/test_worker_contract.py`.
+- Routing: `HOW-WE-WORK.md` (and its plugin copy) name `/sc:sweep` in the command table and in the coordinator routing, and the routing tests cover the new rows. The user guide and the developer guide document the command.
+
+#### Changed (sweep)
+
+- The `pragmatic` output style (`src/superclaude/output-styles/pragmatic.md`) gets one narrow exception: after a successful `/sc:sweep` run, a session with an explicit coordinator assignment prints the session counts and the report path without the DONE / NEXT table. Every other reply, every failure and every worker keeps the table. The installed copy under `~/.claude/output-styles/` is refreshed by a new install, not by `make sync-dev`.
+
+#### Known limits (sweep, Phase 1)
+
+- The classes `stalled (proved)` and `fenced` are never observed, and `working` is never produced, because the live `agentWait` names were never captured (design open item 6). Healthy workers read `could not determine`.
+- `Safe to close` and `Removable` never say `yes`; remote hosts are never scanned; totals are a lower bound.
+- During an Orca outage on an exit 0 run the report states it, but the coordinator's exempt chat reply (counts and report path alone) does not.
+- Command output is held in memory until the command exits (8 MiB limit checked after the exit; a 10 second per-call timeout stops a runaway).
+- The open items and the minor findings of the Phase 1 quality gates are in IronbellyOrg/IronClaude#534.
+
 ### ccsession: a shim never forwards to another shim
 
 #### Fixed (ccsession shim upstream)

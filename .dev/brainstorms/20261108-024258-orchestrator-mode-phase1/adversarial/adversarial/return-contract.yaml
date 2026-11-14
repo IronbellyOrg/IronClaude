@@ -1,0 +1,27 @@
+return_contract:
+  merged_output_path: ".dev/brainstorms/20261108-024258-orchestrator-mode-phase1/adversarial/merged-output.md"
+  convergence_score: 1.00
+  artifacts_dir: ".dev/brainstorms/20261108-024258-orchestrator-mode-phase1/adversarial/adversarial/"
+  status: "partial"
+  base_variant: "opus:architect"
+  unresolved_conflicts: 1
+  fallback_mode: false
+  failure_stage: null
+  invocation_method: "skill-direct"
+  unaddressed_invariants:
+    - id: "INV-005"
+      category: "sufficiency_challenge"
+      assumption: "The consensus alone keeps a live worker undisturbed (no index.lock taken in its worktree, WC-9). Whether Orca read verbs run a plain git status in worker worktrees is UNVERIFIED."
+      severity: "HIGH"
+
+notes:
+  gate_status: "BLOCKED_BY_INVARIANTS: INV-005 is carried as an accepted risk that needs owner sign-off (merged-output.md section 13); not covered by auto-approval."
+  base_selection: "Force-selected by score per FR-006: V1 opus:architect 0.913, V2 0.865, V3 0.787."
+  unresolved_conflict_detail: "G-1 (merged-output.md section 18): no rule for files left after a run that exits 1. Refactor-plan review 3 blocking finding P1; fix budget spent (2 fix cycles, 3 reviews), carried as an open gap per owner rule. Sources: V3:184, V3:356-357."
+  open_warnings: ["INV-008", "INV-011", "INV-017 (with review 3 note on the no --run path)"]
+  minor_review_notes: "Not applied; kept in refactor-plan-review.md, refactor-plan-review-2.md, refactor-plan-review-3.md."
+  merge_log: "adversarial/adversarial/merge-log.md: 42 changes, 41 applied, 1 deviated (Change 13 narrowed). Some Before entries are summaries, not re-read V1 quotes."
+  nesting: "The skill writes to <output>/adversarial/; brainstorm passed --output <brainstorm>/adversarial/, so artifacts sit in adversarial/adversarial/."
+  advocate_file_errors: "Seed path ../../seed-brief.md should be ../../../seed-brief.md; V1R3:48 'never bare orca' contradicts orca-cli SKILL.md:27; INV-007 test as written stops at rule 1; V1R3:54 stale; V3R3 takes no position on INV-017, INV-010, INV-015; round 3 moved X-001 and C-015 to V3 without an advocate listing them."
+  binary_name: "Sweep resolves ORCA_CLI_COMMAND else orca-ide; ORCA_CLI_COMMAND presence UNVERIFIED (INV-017)."
+  pending_investigation: ".dev/issues/339/analysis/inv-005-orca-index-lock.md (commissioned 2026-11-08; read-only, no live Orca call)."

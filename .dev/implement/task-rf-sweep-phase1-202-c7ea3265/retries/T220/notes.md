@@ -1,0 +1,2 @@
+0aa9e20e42e248b7bd44eb685d68acbd72171e51
+A1 r1-1 F1.1 note tests/sweep/test_report.py:821-853 ac=scope amiss:n,false:n,harm:n,constraint:n The source-loss test checks "never finished, failed, not frozen" but has no explicit check for "or a recommendation"; the Next inspection cell is pinned to NEXT_INSPECTION["fallback"] and a banned-word test covers the whole map; DESIGN gives no exact text for "recommendation".

@@ -1,0 +1,3 @@
+da724a1a0464f214c95ad87bcc62444bf3e5d6c9
+A1 r1-1 F1.1 note .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/final/qa-readonly-safety-report.md:13 ac=scope amiss:n,false:n,harm:n,constraint:n RO-1: the git seam does not pin -c core.fsmonitor=false (probes.py:296-300); real but non-blocking, listed as a follow-up candidate.
+A1 r1-1 F1.2 note .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/final/qa-readonly-safety-report.md:14 ac=scope amiss:n,false:n,harm:n,constraint:n RO-2: no regular-file check before reading transcripts (probes.py:575, :756) so a FIFO could hang the read; availability only, listed as a follow-up candidate.

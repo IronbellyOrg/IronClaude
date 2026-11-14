@@ -1,0 +1,2 @@
+317445bf2734303c579837f517317e0ef80b586e
+A1 r1-1 F1.1 minor .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/r3-b1/qa-internal-consistency-report.md:105 ac=T13.AC1 amiss:n,false:n,harm:n,constraint:n Checks C16 and C3 are marked PASS in the Checks table while the report's own minor notes IC-3 and IC-2 say None-handling and the collected_start type are not stated in the design; each row carries a MINOR annotation and minors never fail the gate.

@@ -1,0 +1,265 @@
+# Item 10.2: tests/sweep/test_classify.py results
+
+Command: uv run pytest tests/sweep/test_classify.py -v
+--- pytest stdout ---
+============================= test session starts ==============================
+platform linux -- Python 3.11.15, pytest-9.2.0, pluggy-1.7.0 -- /home/coder/workspaces/worktrees/IronClaude/issue-339-orchestrator-mode/.venv/bin/python
+cachedir: .pytest_cache
+SuperClaude: 5.0.0
+rootdir: /home/coder/workspaces/worktrees/IronClaude/issue-339-orchestrator-mode
+configfile: pyproject.toml
+plugins: superclaude-5.0.0, anyio-4.16.0
+collecting ... collected 166 items
+
+tests/sweep/test_classify.py::test_rule_case_per_rule_1_to_9[blocked_contract] PASSED [  0%]
+tests/sweep/test_classify.py::test_rule_case_per_rule_1_to_9[orca_exit_proof] PASSED [  1%]
+tests/sweep/test_classify.py::test_rule_case_per_rule_1_to_9[fenced] PASSED [  1%]
+tests/sweep/test_classify.py::test_rule_case_per_rule_1_to_9[waiting_signal] PASSED [  2%]
+tests/sweep/test_classify.py::test_rule_case_per_rule_1_to_9[working] PASSED [  3%]
+tests/sweep/test_classify.py::test_rule_case_per_rule_1_to_9[finished] PASSED [  3%]
+tests/sweep/test_classify.py::test_rule_case_per_rule_1_to_9[idle] PASSED [  4%]
+tests/sweep/test_classify.py::test_rule_case_per_rule_1_to_9[person_active] PASSED [  4%]
+tests/sweep/test_classify.py::test_rule_case_per_rule_1_to_9[fallback] PASSED [  5%]
+tests/sweep/test_classify.py::test_every_class_name_but_working_is_reached PASSED [  6%]
+tests/sweep/test_classify.py::test_rules_order_pin PASSED                [  6%]
+tests/sweep/test_classify.py::test_rule_4_waiting_age_and_future_timestamp PASSED [  7%]
+tests/sweep/test_classify.py::test_rule_4_waiting_b[frozen-plan] PASSED  [  7%]
+tests/sweep/test_classify.py::test_rule_4_waiting_b[ready-task] PASSED   [  8%]
+tests/sweep/test_classify.py::test_resume_needed_alone_is_not_a_frozen_plan PASSED [  9%]
+tests/sweep/test_classify.py::test_policy_of_is_independent_of_the_class[case_row0-frozen] PASSED [  9%]
+tests/sweep/test_classify.py::test_policy_of_is_independent_of_the_class[case_row1-frozen] PASSED [ 10%]
+tests/sweep/test_classify.py::test_policy_of_is_independent_of_the_class[case_row2-frozen] PASSED [ 10%]
+tests/sweep/test_classify.py::test_policy_of_is_independent_of_the_class[case_row3-None] PASSED [ 11%]
+tests/sweep/test_classify.py::test_policy_of_is_independent_of_the_class[case_row4-None] PASSED [ 12%]
+tests/sweep/test_classify.py::test_policy_of_is_independent_of_the_class[case_row5-None] PASSED [ 12%]
+tests/sweep/test_classify.py::test_rule_5_never_matches_while_the_agent_wait_names_are_uncaptured PASSED [ 13%]
+tests/sweep/test_classify.py::test_5h_old_row_is_idle_only_when_window_is_under_5h[4-idle] PASSED [ 13%]
+tests/sweep/test_classify.py::test_5h_old_row_is_idle_only_when_window_is_under_5h[5-person_active] PASSED [ 14%]
+tests/sweep/test_classify.py::test_5h_old_row_is_idle_only_when_window_is_under_5h[6-person_active] PASSED [ 15%]
+tests/sweep/test_classify.py::test_record_timestamp_older_than_mtime_is_used_and_named PASSED [ 15%]
+tests/sweep/test_classify.py::test_mtime_is_the_source_when_no_record_carries_a_time PASSED [ 16%]
+tests/sweep/test_classify.py::test_future_timestamp_is_unknown_age_and_never_idle PASSED [ 16%]
+tests/sweep/test_classify.py::test_future_transcript_gets_no_age PASSED  [ 17%]
+tests/sweep/test_classify.py::test_fr008_four_inputs_are_could_not_determine_never_stalled[unverifiable] PASSED [ 18%]
+tests/sweep/test_classify.py::test_fr008_four_inputs_are_could_not_determine_never_stalled[late-heartbeat] PASSED [ 18%]
+tests/sweep/test_classify.py::test_fr008_four_inputs_are_could_not_determine_never_stalled[stale-liveStatus] PASSED [ 19%]
+tests/sweep/test_classify.py::test_fr008_four_inputs_are_could_not_determine_never_stalled[missing-worker-show-row] PASSED [ 19%]
+tests/sweep/test_classify.py::test_fr009_exited_row_without_proof_is_not_stalled PASSED [ 20%]
+tests/sweep/test_classify.py::test_rule_2_stalled_holds_when_no_transcript_was_joined PASSED [ 21%]
+tests/sweep/test_classify.py::test_rule_2_stalled_through_classify_all_for_an_orca_row_with_no_transcript PASSED [ 21%]
+tests/sweep/test_classify.py::test_fr009_case_1_guard_refused_body_is_finished_with_the_note PASSED [ 22%]
+tests/sweep/test_classify.py::test_fr009_case_2_exited_unreadable_and_nothing_else_is_fallback PASSED [ 22%]
+tests/sweep/test_classify.py::test_settled_orca_row_without_a_contract_names_the_missing_contract PASSED [ 23%]
+tests/sweep/test_classify.py::test_no_contract_note_is_only_for_a_settled_row_with_no_contract[not-settled] PASSED [ 24%]
+tests/sweep/test_classify.py::test_no_contract_note_is_only_for_a_settled_row_with_no_contract[no-orca-row] PASSED [ 24%]
+tests/sweep/test_classify.py::test_no_contract_note_is_only_for_a_settled_row_with_no_contract[contract-not-settled] PASSED [ 25%]
+tests/sweep/test_classify.py::test_no_contract_note_is_only_for_a_settled_row_with_no_contract[finished] PASSED [ 25%]
+tests/sweep/test_classify.py::test_rule1_ask_the_coordinator_declines_with_the_note PASSED [ 26%]
+tests/sweep/test_classify.py::test_rule1_gate_policy_none_declines_and_a_wait_reaches_rule_4 PASSED [ 27%]
+tests/sweep/test_classify.py::test_rule1_without_orca_row_declines_unless_ruling_halt PASSED [ 27%]
+tests/sweep/test_classify.py::test_rule1_matches[settled] PASSED         [ 28%]
+tests/sweep/test_classify.py::test_rule1_matches[report-blocked] PASSED  [ 28%]
+tests/sweep/test_classify.py::test_rule1_matches[ruling-halt] PASSED     [ 29%]
+tests/sweep/test_classify.py::test_rule1_and_2_decline_when_the_transcript_is_unreadable PASSED [ 30%]
+tests/sweep/test_classify.py::test_sp07_guard_refused_on_a_later_line_is_not_finished PASSED [ 30%]
+tests/sweep/test_classify.py::test_rule6_finished_never_says_admitted_or_accepted PASSED [ 31%]
+tests/sweep/test_classify.py::test_rule6_partial_carries_its_note PASSED [ 31%]
+tests/sweep/test_classify.py::test_wc13_parent_adds_the_note_and_keeps_the_class PASSED [ 32%]
+tests/sweep/test_classify.py::test_unreadable_transcript_row_is_could_not_determine PASSED [ 33%]
+tests/sweep/test_classify.py::test_truncated_jsonl_transcript_is_could_not_determine PASSED [ 33%]
+tests/sweep/test_classify.py::test_transcript_cut_only_in_its_last_line_is_classified_normally PASSED [ 34%]
+tests/sweep/test_classify.py::test_transcript_whose_open_raises_oserror_is_could_not_determine PASSED [ 34%]
+tests/sweep/test_classify.py::test_contract_whose_open_raises_oserror_is_could_not_determine PASSED [ 35%]
+tests/sweep/test_classify.py::test_inconsistent_contract_observation_is_named PASSED [ 36%]
+tests/sweep/test_classify.py::test_fr010_control_complete_list_older_transcript_is_true_and_historical PASSED [ 36%]
+tests/sweep/test_classify.py::test_fr010_outage_older_transcript_unknown_not_historical PASSED [ 37%]
+tests/sweep/test_classify.py::test_fr010_full_page_uncaptured_continuation PASSED [ 37%]
+tests/sweep/test_classify.py::test_fr010_call_failed_incomplete_list PASSED [ 38%]
+tests/sweep/test_classify.py::test_fr010_unknown_run_empty_list_unknown PASSED [ 39%]
+tests/sweep/test_classify.py::test_fr010_run_not_reached_budget_unknown PASSED [ 39%]
+tests/sweep/test_classify.py::test_fr010_tab_map_unreadable_older_transcript_unknown PASSED [ 40%]
+tests/sweep/test_classify.py::test_fr010_incomplete_notes_order PASSED   [ 40%]
+tests/sweep/test_classify.py::test_fr010_exemptions_never_become_idle[unreadable-transcript] PASSED [ 41%]
+tests/sweep/test_classify.py::test_fr010_exemptions_never_become_idle[unknown-timestamp] PASSED [ 42%]
+tests/sweep/test_classify.py::test_fr010_exemptions_never_become_idle[open-task] PASSED [ 42%]
+tests/sweep/test_classify.py::test_fr010_exemptions_never_become_idle[explicit-wait] PASSED [ 43%]
+tests/sweep/test_classify.py::test_fr010_exemptions_never_become_idle[unread-report-candidate] PASSED [ 43%]
+tests/sweep/test_classify.py::test_fr010_exemption_orca_rows_never_go_to_historical PASSED [ 44%]
+tests/sweep/test_classify.py::test_sp29_other_run_transcripts_are_never_true_or_historical PASSED [ 45%]
+tests/sweep/test_classify.py::test_person_started_is_none_for_every_unjoined_transcript_while_join_is_none PASSED [ 45%]
+tests/sweep/test_classify.py::test_d9_path_b_tab_map_join_is_false_and_shown_as_the_dispatch_row PASSED [ 46%]
+tests/sweep/test_classify.py::test_d9_tab_map_entry_that_joins_no_scoped_row_is_none_even_when_guard_holds PASSED [ 46%]
+tests/sweep/test_classify.py::test_d9_path_a_no_entry_true_carries_the_origin_not_proved_note PASSED [ 47%]
+tests/sweep/test_classify.py::test_d9_path_b_unmatched_session_join_makes_every_unjoined_transcript_none PASSED [ 48%]
+tests/sweep/test_classify.py::test_guard_cases_1_and_2_together_put_sp16_first_then_join_not_observable PASSED [ 48%]
+tests/sweep/test_classify.py::test_spec_line_236_worker_rows_present_no_transcript_joined PASSED [ 49%]
+tests/sweep/test_classify.py::test_r2_b1_pane_reuse_outside_window_does_not_join[clear] PASSED [ 50%]
+tests/sweep/test_classify.py::test_r2_b1_pane_reuse_outside_window_does_not_join[resume] PASSED [ 50%]
+tests/sweep/test_classify.py::test_r2_b1_pane_reuse_outside_window_does_not_join[person-rerun] PASSED [ 51%]
+tests/sweep/test_classify.py::test_r2_b1_later_session_inside_the_window_is_false_and_noted PASSED [ 51%]
+tests/sweep/test_classify.py::test_r2_b1_row_with_no_observable_start_never_joins_by_path_b PASSED [ 52%]
+tests/sweep/test_classify.py::test_path_b_window_open_row_joins PASSED   [ 53%]
+tests/sweep/test_classify.py::test_path_b_window_inclusive_bounds[start-second-cut] PASSED [ 53%]
+tests/sweep/test_classify.py::test_path_b_window_inclusive_bounds[end-second-cut] PASSED [ 54%]
+tests/sweep/test_classify.py::test_path_b_window_inclusive_bounds[one-second-after-end] PASSED [ 54%]
+tests/sweep/test_classify.py::test_path_b_terminal_row_without_end_has_no_window PASSED [ 55%]
+tests/sweep/test_classify.py::test_path_b_row_without_start_has_no_window PASSED [ 56%]
+tests/sweep/test_classify.py::test_path_b_incomplete_tail_has_no_session_start PASSED [ 56%]
+tests/sweep/test_classify.py::test_path_b_pane_reused_joins_later_row_only PASSED [ 57%]
+tests/sweep/test_classify.py::test_path_b_rows_share_terminal_handle PASSED [ 57%]
+tests/sweep/test_classify.py::test_path_b_two_windows_hold_session_is_conflict PASSED [ 58%]
+tests/sweep/test_classify.py::test_path_b_shared_boundary_second_is_conflict PASSED [ 59%]
+tests/sweep/test_classify.py::test_path_b_no_matching_window_holds PASSED [ 59%]
+tests/sweep/test_classify.py::test_path_b_multi_row_result_ignores_row_order[reused-pane] PASSED [ 60%]
+tests/sweep/test_classify.py::test_path_b_multi_row_result_ignores_row_order[two-windows] PASSED [ 60%]
+tests/sweep/test_classify.py::test_path_b_entry_failing_window_note_order PASSED [ 61%]
+tests/sweep/test_classify.py::test_path_b_two_rows_incomplete_tail[order0] PASSED [ 62%]
+tests/sweep/test_classify.py::test_path_b_two_rows_incomplete_tail[order1] PASSED [ 62%]
+tests/sweep/test_classify.py::test_path_b_live_session_spans_two_dispatches PASSED [ 63%]
+tests/sweep/test_classify.py::test_path_b_duplicate_dispatch_rows_count_once PASSED [ 63%]
+tests/sweep/test_classify.py::test_fr012_terminal_values_and_worktree_is_never_yes[retained-release-no] PASSED [ 64%]
+tests/sweep/test_classify.py::test_fr012_terminal_values_and_worktree_is_never_yes[retained-None-no] PASSED [ 65%]
+tests/sweep/test_classify.py::test_fr012_terminal_values_and_worktree_is_never_yes[None-release-could not determine] PASSED [ 65%]
+tests/sweep/test_classify.py::test_fr012_terminal_values_and_worktree_is_never_yes[reclaimable-None-could not determine] PASSED [ 66%]
+tests/sweep/test_classify.py::test_fr012_terminal_values_and_worktree_is_never_yes[reclaimable-release-could not determine] PASSED [ 66%]
+tests/sweep/test_classify.py::test_fr012_terminal_values_and_worktree_is_never_yes[reclaimable-keep-no] PASSED [ 67%]
+tests/sweep/test_classify.py::test_fr012_terminal_values_and_worktree_is_never_yes[other-release-no] PASSED [ 68%]
+tests/sweep/test_classify.py::test_fr013_one_fixture_per_condition_names_the_condition[uncommitted] PASSED [ 68%]
+tests/sweep/test_classify.py::test_fr013_one_fixture_per_condition_names_the_condition[unpushed-ahead] PASSED [ 69%]
+tests/sweep/test_classify.py::test_fr013_one_fixture_per_condition_names_the_condition[unpushed-no-upstream] PASSED [ 69%]
+tests/sweep/test_classify.py::test_fr013_one_fixture_per_condition_names_the_condition[unsaved-dev-tasks] PASSED [ 70%]
+tests/sweep/test_classify.py::test_fr013_one_fixture_per_condition_names_the_condition[frozen-plan] PASSED [ 71%]
+tests/sweep/test_classify.py::test_fr013_one_fixture_per_condition_names_the_condition[package-unfinished] PASSED [ 71%]
+tests/sweep/test_classify.py::test_fr013_one_fixture_per_condition_names_the_condition[package-archive-blocked] PASSED [ 72%]
+tests/sweep/test_classify.py::test_fr013_one_fixture_per_condition_names_the_condition[package-interrupted-archive] PASSED [ 72%]
+tests/sweep/test_classify.py::test_fr013_one_fixture_per_condition_names_the_condition[package-conflict] PASSED [ 73%]
+tests/sweep/test_classify.py::test_fr013_one_fixture_per_condition_names_the_condition[shared-active-package] PASSED [ 74%]
+tests/sweep/test_classify.py::test_fr013_first_condition_wins_and_archived_does_not_block PASSED [ 74%]
+tests/sweep/test_classify.py::test_fr013_frozen_row_makes_its_worktree_a_frozen_plan PASSED [ 75%]
+tests/sweep/test_classify.py::test_fr005_three_workers_two_worktrees_one_active_person_session PASSED [ 75%]
+tests/sweep/test_classify.py::test_package_fixtures_cover_every_package_state PASSED [ 76%]
+tests/sweep/test_classify.py::test_fr014_one_fixture_per_package_state[unfinished] PASSED [ 77%]
+tests/sweep/test_classify.py::test_fr014_one_fixture_per_package_state[archive-blocked] PASSED [ 77%]
+tests/sweep/test_classify.py::test_fr014_one_fixture_per_package_state[interrupted-archive] PASSED [ 78%]
+tests/sweep/test_classify.py::test_fr014_one_fixture_per_package_state[conflict] PASSED [ 78%]
+tests/sweep/test_classify.py::test_fr014_one_fixture_per_package_state[archived] PASSED [ 79%]
+tests/sweep/test_classify.py::test_fr014_one_fixture_per_package_state[unknown] PASSED [ 80%]
+tests/sweep/test_classify.py::test_sp07_final_counts_only_at_the_start_of_a_line[note: FINAL: is quoted here, not a line start\nmore\n-unfinished] PASSED [ 80%]
+tests/sweep/test_classify.py::test_sp07_final_counts_only_at_the_start_of_a_line[step 1\n   FINAL: all tasks complete\n-archive-blocked] PASSED [ 81%]
+tests/sweep/test_classify.py::test_fr014_precedence_is_the_order_of_package_states[record0-conflict] PASSED [ 81%]
+tests/sweep/test_classify.py::test_fr014_precedence_is_the_order_of_package_states[record1-interrupted-archive] PASSED [ 82%]
+tests/sweep/test_classify.py::test_fr014_precedence_is_the_order_of_package_states[record2-interrupted-archive] PASSED [ 83%]
+tests/sweep/test_classify.py::test_fr014_precedence_is_the_order_of_package_states[record3-archive-blocked] PASSED [ 83%]
+tests/sweep/test_classify.py::test_fr014_precedence_is_the_order_of_package_states[record4-unknown] PASSED [ 84%]
+tests/sweep/test_classify.py::test_fr015_44_committed_folders_in_3_worktrees_give_no_shared_flag PASSED [ 84%]
+tests/sweep/test_classify.py::test_fr015_one_modified_folder_in_3_worktrees_is_shared_by_all_3 PASSED [ 85%]
+tests/sweep/test_classify.py::test_fr015_active_in_only_one_worktree_is_not_shared PASSED [ 86%]
+tests/sweep/test_classify.py::test_fr015_untracked_path_in_a_package_folder_marks_it_active PASSED [ 86%]
+tests/sweep/test_classify.py::test_import_scanner_catches_every_import_form[import os-banned0] PASSED [ 87%]
+tests/sweep/test_classify.py::test_import_scanner_catches_every_import_form[import os.path-banned1] PASSED [ 87%]
+tests/sweep/test_classify.py::test_import_scanner_catches_every_import_form[from os import path-banned2] PASSED [ 88%]
+tests/sweep/test_classify.py::test_import_scanner_catches_every_import_form[from os.path import join-banned3] PASSED [ 89%]
+tests/sweep/test_classify.py::test_import_scanner_catches_every_import_form[import subprocess as sp-banned4] PASSED [ 89%]
+tests/sweep/test_classify.py::test_import_scanner_catches_every_import_form[import shutil-banned5] PASSED [ 90%]
+tests/sweep/test_classify.py::test_import_scanner_catches_every_import_form[import click-banned6] PASSED [ 90%]
+tests/sweep/test_classify.py::test_import_scanner_catches_every_import_form[from click import command-banned7] PASSED [ 91%]
+tests/sweep/test_classify.py::test_import_scanner_catches_every_import_form[from . import classify-banned8] PASSED [ 92%]
+tests/sweep/test_classify.py::test_import_scanner_catches_every_import_form[from . import report as r-banned9] PASSED [ 92%]
+tests/sweep/test_classify.py::test_import_scanner_catches_every_import_form[from .classify import classify_all-banned10] PASSED [ 93%]
+tests/sweep/test_classify.py::test_import_scanner_catches_every_import_form[from .report import render-banned11] PASSED [ 93%]
+tests/sweep/test_classify.py::test_import_scanner_catches_every_import_form[from superclaude.cli.sweep import classify-banned12] PASSED [ 94%]
+tests/sweep/test_classify.py::test_import_scanner_catches_every_import_form[from superclaude.cli.sweep.report import render-banned13] PASSED [ 95%]
+tests/sweep/test_classify.py::test_import_scanner_catches_every_import_form[import superclaude.cli.sweep.classify-banned14] PASSED [ 95%]
+tests/sweep/test_classify.py::test_import_scanner_ignores_allowed_imports PASSED [ 96%]
+tests/sweep/test_classify.py::test_nfr004_module_imports_nothing_it_must_not[classify.py-banned0] PASSED [ 96%]
+tests/sweep/test_classify.py::test_nfr004_module_imports_nothing_it_must_not[report.py-banned1] PASSED [ 97%]
+tests/sweep/test_classify.py::test_nfr004_module_imports_nothing_it_must_not[probes.py-banned2] PASSED [ 98%]
+tests/sweep/test_classify.py::test_classify_and_report_import_only_models_inside_the_package[classify.py] PASSED [ 98%]
+tests/sweep/test_classify.py::test_classify_and_report_import_only_models_inside_the_package[report.py] PASSED [ 99%]
+tests/sweep/test_classify.py::test_b5_no_type_is_redeclared_from_superclaude_contracts PASSED [100%]
+
+============================= 166 passed in 1.75s ==============================
+--- end of pytest stdout ---
+pytest exit code: 0 (166 passed)
+
+--- case-to-test map (DESIGN section 11 `test_classify.py` row, in the row's own order) ---
+All tests are in tests/sweep/test_classify.py. Every classify_all test goes through the helper run(), which also asserts FR-012 (safe_to_close.worktree and worktree removable are never "yes") and FR-006 (every class name is in CLASSES) on that fixture.
+
+A. Rules and classes
+ 1. One parametrized case per rule 1 to 9: test_rule_case_per_rule_1_to_9[blocked_contract|orca_exit_proof|fenced|waiting_signal|working|finished|idle|person_active|fallback]
+ 2. Every name in CLASSES is reached: test_every_class_name_but_working_is_reached
+ 3. Rule-name order pin [r.name for r in RULES] (NFR-010): test_rules_order_pin
+ 4. Rule 4 sub-cases: test_rule_4_waiting_age_and_future_timestamp, test_rule_4_waiting_b[frozen-plan|ready-task], test_resume_needed_alone_is_not_a_frozen_plan, test_policy_of_is_independent_of_the_class
+ 5. Rule 5 four-condition case (SP-24): test_rule_5_never_matches_while_the_agent_wait_names_are_uncaptured
+
+B. Window, last_activity source, future timestamp (FR-007, SP-15, SP-26)
+ 6. 5 h old row, windows under and at 6 h (4 h, 5 h boundary, 6 h): test_5h_old_row_is_idle_only_when_window_is_under_5h[4-idle|5-person_active|6-person_active]
+ 7. Record timestamp older than mtime, source named in evidence: test_record_timestamp_older_than_mtime_is_used_and_named
+ 8. mtime used when no record carries a time: test_mtime_is_the_source_when_no_record_carries_a_time
+ 9. Future timestamp: unknown age, never idle: test_future_timestamp_is_unknown_age_and_never_idle, test_future_transcript_gets_no_age, test_rule_4_waiting_age_and_future_timestamp
+
+C. FR-008, FR-009, rule 1 notes (M6)
+10. The four FR-008 inputs (unverifiable, late heartbeat, stale liveStatus, missing row) are could not determine, never stalled: test_fr008_four_inputs_are_could_not_determine_never_stalled[unverifiable|late-heartbeat|stale-liveStatus|missing-worker-show-row]
+11. A late-heartbeat live row is never stalled (SPEC line 444): same test, case late-heartbeat; plus test_fr009_exited_row_without_proof_is_not_stalled
+12. The two FR-009 cases with the exact note "Orca: exited; fenced evidence not readable": test_fr009_case_1_guard_refused_body_is_finished_with_the_note, test_fr009_case_2_exited_unreadable_and_nothing_else_is_fallback
+13. Rule 1 decline notes (M6): test_rule1_ask_the_coordinator_declines_with_the_note, test_rule1_gate_policy_none_declines_and_a_wait_reaches_rule_4, test_rule1_without_orca_row_declines_unless_ruling_halt; rule 1 matches: test_rule1_matches[settled|report-blocked|ruling-halt]; declines on unreadable transcript: test_rule1_and_2_decline_when_the_transcript_is_unreadable
+
+D. FR-010 and the R3-B3 fixtures (shared Given, path A)
+14. Complete-negative join control (T True, origin-not-proved note, Historical): test_fr010_control_complete_list_older_transcript_is_true_and_historical
+15. The three SPEC incomplete cases (R3-B3): test_fr010_outage_older_transcript_unknown_not_historical, test_fr010_full_page_uncaptured_continuation, test_fr010_call_failed_incomplete_list
+16. Three non-SPEC list-incomplete fixtures: test_fr010_unknown_run_empty_list_unknown (incl. the control-result variant), test_fr010_run_not_reached_budget_unknown, test_fr010_tab_map_unreadable_older_transcript_unknown (incl. the control-result variant)
+17. test_fr010_incomplete_notes_order (part (a) partial outage, part (b) every list-incomplete case together)
+18. The five exemptions (unreadable transcript, unknown timestamp, open Task, explicit wait, unread-report candidate), each now pinned to its exact (rule, class) after tests-gate fix cycle 1 (TST-F6): test_fr010_exemptions_never_become_idle[unreadable-transcript|unknown-timestamp|open-task|unread-report-candidate give ("fallback", could not determine); explicit-wait gives ("waiting_signal", waiting on a person)], test_fr010_exemption_orca_rows_never_go_to_historical
+18a. (TST-F6) Rule 2 holds for an Orca row with no joined transcript (`transcript_readable=None`) and still declines for an unreadable one: test_rule_2_stalled_holds_when_no_transcript_was_joined; the same row through `classify_all`: test_rule_2_stalled_through_classify_all_for_an_orca_row_with_no_transcript
+19. SP-29 two-Run fixture (none of the R2 transcripts True or Historical): test_sp29_other_run_transcripts_are_never_true_or_historical
+20. person_started None for every unjoined transcript while session_join is None: test_person_started_is_none_for_every_unjoined_transcript_while_join_is_none
+21. D9 join fixtures:
+    a. path-B tab-map join is False and shown as orca:<dispatch>: test_d9_path_b_tab_map_join_is_false_and_shown_as_the_dispatch_row
+    b. a tab-map entry that joins no scoped row is None with "Orca pane session, not in scoped Runs" even when the guard holds: test_d9_tab_map_entry_that_joins_no_scoped_row_is_none_even_when_guard_holds
+    c. path A, no entry and no join is True with the origin-not-proved note, and a worker of an unscoped Run with no entry is never True without it: test_d9_path_a_no_entry_true_carries_the_origin_not_proved_note
+    d. path-B session_join matching no tab-map entry makes every unjoined transcript None with the SP-16 literal: test_d9_path_b_unmatched_session_join_makes_every_unjoined_transcript_none
+22. R2-B1 pane-reuse fixtures (/clear, resume, person rerun; the three give identical input because the tab map keeps one session per pane): test_r2_b1_pane_reuse_outside_window_does_not_join[clear|resume|person-rerun]; later session inside the window is False with the joined note: test_r2_b1_later_session_inside_the_window_is_false_and_noted; row with no observable start time never joins by path B: test_r2_b1_row_with_no_observable_start_never_joins_by_path_b
+23. Guard cases 1 and 2 together put the SP-16 literal first, then "tab map join not observable": test_guard_cases_1_and_2_together_put_sp16_first_then_join_not_observable
+24. SPEC line 236 fixture (worker rows present, no transcript joined): test_spec_line_236_worker_rows_present_no_transcript_joined
+
+E. R3-B1 path-B window fixtures
+25. test_path_b_window_open_row_joins
+26. test_path_b_window_inclusive_bounds[start-second-cut|end-second-cut|one-second-after-end]
+27. test_path_b_terminal_row_without_end_has_no_window
+28. test_path_b_row_without_start_has_no_window
+29. test_path_b_incomplete_tail_has_no_session_start
+
+F. R3-B2 several-rows fixtures
+30. test_path_b_pane_reused_joins_later_row_only
+31. test_path_b_two_windows_hold_session_is_conflict
+32. test_path_b_shared_boundary_second_is_conflict
+33. test_path_b_no_matching_window_holds
+34. test_path_b_multi_row_result_ignores_row_order[reused-pane|two-windows]
+35. test_path_b_entry_failing_window_note_order
+36. test_path_b_rows_share_terminal_handle
+37. test_path_b_two_rows_incomplete_tail[order0|order1] (includes the "D2 dispatch_started None" variant)
+38. test_path_b_live_session_spans_two_dispatches
+39. test_path_b_duplicate_dispatch_rows_count_once
+
+G. SP-07, unreadable inputs, WC-13 (SPEC section 11 line 442)
+40. A body whose later line quotes "guard refused:" is not finished (SPEC line 259): test_sp07_guard_refused_on_a_later_line_is_not_finished; rule 6 wording (no admitted/accepted): test_rule6_finished_never_says_admitted_or_accepted; partial note: test_rule6_partial_carries_its_note
+41. progress.md with "FINAL:" inside other text is not archive-blocked (269): test_sp07_final_counts_only_at_the_start_of_a_line[unfinished|archive-blocked]
+42. Truncated-JSONL transcript (no complete record with both fields) is could not determine with its unscanned note: test_truncated_jsonl_transcript_is_could_not_determine
+43. Unreadable contract (open raises OSError): test_contract_whose_open_raises_oserror_is_could_not_determine; inconsistent observation: test_inconsistent_contract_observation_is_named
+44. Transcript cut only in its last line stays readable and is classified normally: test_transcript_cut_only_in_its_last_line_is_classified_normally
+45. Transcript whose open raises OSError gives "unscanned: transcript not readable": test_transcript_whose_open_raises_oserror_is_could_not_determine; row-level: test_unreadable_transcript_row_is_could_not_determine
+46. Non-null parent carries "WC-13 violation, review" and keeps its class (261): test_wc13_parent_adds_the_note_and_keeps_the_class
+
+H. FR-012 to FR-015, FR-005 (M9)
+47. FR-012 (worktree never yes): test_fr012_terminal_values_and_worktree_is_never_yes[7 terminal cases] and the run() invariant on every classify_all fixture
+48. FR-013 one fixture per condition, condition named: test_fr013_one_fixture_per_condition_names_the_condition[uncommitted|unpushed-ahead|unpushed-no-upstream|unsaved-dev-tasks|frozen-plan|package-unfinished|package-archive-blocked|package-interrupted-archive|package-conflict|shared-active-package]; first condition wins, archived does not block, unreadable worktree: test_fr013_first_condition_wins_and_archived_does_not_block; frozen row freezes its worktree: test_fr013_frozen_row_makes_its_worktree_a_frozen_plan
+49. FR-014 one fixture per state including conflict: test_fr014_one_fixture_per_package_state[unfinished|archive-blocked|interrupted-archive|conflict|archived|unknown], test_package_fixtures_cover_every_package_state; precedence: test_fr014_precedence_is_the_order_of_package_states
+50. FR-015: test_fr015_44_committed_folders_in_3_worktrees_give_no_shared_flag; test_fr015_one_modified_folder_in_3_worktrees_is_shared_by_all_3 (classify side: all 3 worktrees carry the shared id and name it in removable_reason; the printed "one line naming all 3" is asserted in the same test: report.render(result, ctx) holds exactly one line "- Active package pkg-07 is in several worktrees: /w1, /w2, /w3"); test_fr015_active_in_only_one_worktree_is_not_shared; `??` path marks a package active: test_fr015_untracked_path_in_a_package_folder_marks_it_active
+51. FR-005 person-session fixture uses an active session (M9): test_fr005_three_workers_two_worktrees_one_active_person_session
+
+I. Import tests
+52. AST import test: classify.py and report.py import none of subprocess, click, os, shutil (and none of probes/commands, plus classify/report cross-imports per DESIGN lines 210 and 212): test_nfr004_module_imports_nothing_it_must_not[classify.py|report.py]; only models inside the package: test_classify_and_report_import_only_models_inside_the_package[classify.py|report.py]
+53. probes.py boundary case (DESIGN line 211): probes.py imports none of classify, report, click: test_nfr004_module_imports_nothing_it_must_not[probes.py]; the scanner is shown to catch every form (import x, import x.y, from . import x, from .x import y, from superclaude.cli.sweep import x, from superclaude.cli.sweep.x import y, import superclaude.cli.sweep.x): test_import_scanner_catches_every_import_form[16 forms], test_import_scanner_ignores_allowed_imports
+54. B5 class-name comparison (DESIGN line 219): models.py versus contracts/__init__.py ClassDef names, both sides non-empty, intersection empty: test_b5_no_type_is_redeclared_from_superclaude_contracts
+
+Note on DESIGN line numbers: the task text cites section 11 line 739 and lines 211 and 219; in the current docs/designs/orchestrator-mode.md the test_classify.py row is at line 760, the import table row for probes.py is line 211 and B5 is line 219.

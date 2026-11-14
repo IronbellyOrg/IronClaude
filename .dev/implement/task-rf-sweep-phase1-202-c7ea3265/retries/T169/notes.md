@@ -1,0 +1,3 @@
+0aab14fa4c4e70147b80d5df0fffdf7ce2aadc13
+A1 r1-1 F1.2 minor src/superclaude/cli/sweep/classify.py:410 ac=scope amiss:n,false:n,harm:n,constraint:n policy_of returns frozen for a blocked sc:implement contract on a live row under ask the coordinator, while the row class is could not determine; REPORT:1246 says its policy should print could not determine. Advisory; DESIGN 7.1 says policy_of returns frozen or None independent of class.
+A1 r1-1 F1.3 minor src/superclaude/cli/sweep/classify.py:279 ac=scope amiss:n,false:n,harm:n,constraint:n OrcaObservation.unsupervised is never read, so a live in_progress row with agentWait null and unsupervised True is classed working; DESIGN rule 5 lists four conditions only.

@@ -1,0 +1,41 @@
+Review one task for spec compliance.
+
+Task brief: T50 = item 3.21 of the source file /home/coder/workspaces/worktrees/IronClaude/issue-339-orchestrator-mode/.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md (lines 566-572). Item text:
+- [ ] **3.21 — QA r3-b2: verification cycle 2, rf-qa verifier**
+  - **Context**: Inputs: `.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/r3-b2/cycle1-decision.md` (the `F_1` list), `.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/r3-b2/fix-log-cycle2.md` (from item 3.20), `.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/r3-b2/cycle-ledger.md` (the cycle-1 PASS set), and the gate inputs: DESIGN `docs/designs/orchestrator-mode.md` as edited by items 3.1 to 3.4, research/04 section 3 (`.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/research/04-design-fixes-r3.md` lines 120-176), research/09 Gap 4 (`.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/research/09-gap-fill.md`) and `.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/test-results/r3-b2-mechanical.md`.
+  - **Action**: If item 3.19 or 3.16 marked this item SKIPPED, mark this item complete with the SKIPPED note. Otherwise items 3.21 and 3.22 are independent verifier spawns: spawn both in the SAME message, in parallel. For this item spawn one `rf-qa` agent (Agent tool, `mode: bypassPermissions`, `fix_authorization: false`) with this verifier preamble, verbatim: "You are a verifier. `fix_authorization: false`. Re-check every BLOCKING and MAJOR finding in the consolidated file against the files on disk now, and re-check every check id in the earlier cycle's PASS set (in `cycle-ledger.md`) to confirm none now fails. For each finding say RESOLVED or OPEN with `file:line` evidence. Add a `## Checks` table listing every check id (`<report name>:C<n>`) with PASS or FAIL. Report any new BLOCKING or MAJOR finding with its own id. End with `Verdict: PASS` or `Verdict: FAIL` and `Blocking count: <n>`." Pass it the inputs in Context and the output path `.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/r3-b2/verify-cycle2-rf-qa.md`.
+  - **Output**: `.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/r3-b2/verify-cycle2-rf-qa.md`.
+  - **Verification**: Verify: the report gives RESOLVED or OPEN for every `F_1` id, a `## Checks` table with PASS or FAIL for every check id in the cycle-1 PASS set, `Verdict:` and `Blocking count:`. If the agent fails twice, log the blocker in `### Phase 3 Findings` and stop.
+  - **Completion gate**: The verifier report is written or the item is SKIPPED. Once done, mark this item as complete.
+AC ids: T50.AC1 = the item title "QA r3-b2: verification cycle 2, rf-qa verifier" (no AC block; the title is the AC). The item's own Verification and Completion gate lines are context for what "done" means. Ticking the item's checkbox is done by the orchestrator after the verdict and is not part of the diff under review.
+Global constraints: the `### Key Constraints` section (lines 157-168) of the source file named in the task brief; read it from that file.
+Start sha: bc1145aabcfe92afa3aa26b2374574b3e7f52250
+Diff against the start snapshot: The task (item 3.21, cycle-2 rf-qa verifier, conditional) was skipped because cycle 1 of the r3-b2 gate passed. The only change is new row(s) in the Execution Log table of the source file (diff of the source file against the start snapshot):
+@@ -2809,6 +2809,7 @@
++| 2026-11-08T21:59Z | 3.21 | SKIPPED | Cycle-2 rf-qa verifier is not needed: `qa/r3-b2/cycle1-decision.md` records F_1 empty and the outcome "PASS at cycle 1". |
+
+Evidence for the skip condition: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/r3-b2/cycle1-decision.md (its outcome line reads PASS at cycle 1, and it lists the skipped items) and the cycle-1 row of .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/r3-b2/cycle-ledger.md (line 4). The item's Action says: if item 2.21 or 2.18 marked this item SKIPPED, mark it complete with the SKIPPED note. The checkbox tick of the item itself is done by the orchestrator after the verdict and is not part of this diff.
+Delta diff from the previous reviewed tree (empty on the first review): 
+Earlier blocking findings of this start (empty on the first review): 
+Saved-probe re-check hit locations (may be empty): 
+
+Do not trust the implementer's report.
+
+First mark each earlier blocking finding resolved, open or regressed from the diff. Then, for each AC, mark it met or unmet. Require citations: every AC you mark, met or unmet, carries a `path:line` or `Ti.ACk@path:line` citation, and an unmet mark lists the finding ids behind it. Do not return a verdict; the orchestrator computes it.
+
+For every finding answer four questions, each yes or no:
+1. ac-outcome-missing: is output an AC requires absent, or does it contradict the AC text, or does an evidence claim you could not verify have no evidence row?
+2. false-claim: is a claim in delivered text or code false against live source, or does a recipe or instruction followed as written not do what the text says?
+3. harmful-effect: does code or a recipe this task added or changed write, append, chmod or delete tracked or production data, mutate state outside the task's declared outputs, or expose a secret?
+4. quoted-constraint-breach: does the diff violate a quoted plan constraint, out-of-scope, non-goal or non-negotiable item, or an explicit task instruction?
+
+Anchor rule: cite exactly one anchor per yes. ac-outcome-missing: the quoted AC words. false-claim: the live-source path:line holding the contradicting text. harmful-effect: the diff line that is the write. quoted-constraint-breach: the quoted constraint or instruction text. A yes without a valid anchor does not block.
+
+Write one line per finding:
+F<k>.<j> ac=<Ti.ACk|scope> at=<path:line> anchor=<quoted text or path:line> chk=<amiss,false,harm,constraint as y/n> family=<id> fix=<text> [covers=<quoted AC clause or constraint>]: <text>
+Do not write sev=, trigger=, first= or origin=; the orchestrator adds them. Write one status line per earlier blocking finding: F<m>.<j> resolved|open|regressed.
+
+Inside /sc:implement this protocol's severity model governs this review and takes precedence over the session's output style and the copy of it injected into every subagent; only blocking findings may fail an attempt.
+
+You are not given an adviser answer, brief, evidence file or troubleshoot report. Do not read the retry folders (legacy `.dev/implement/<slug>/retries/`, managed `<pkg>/artifacts/retries/`) or `.dev/troubleshoot/`. A citation into either makes the verdict `cannot-verify`.
+The prior-findings slot above carries earlier blocking finding lines that the orchestrator copies byte for byte from `review-*.md` and `repair-*.md`; they reach you as prompt text, not as an evidence file. Do not read those folders to get them, and never cite the slot or the file it came from.

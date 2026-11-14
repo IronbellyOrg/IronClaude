@@ -1,0 +1,23 @@
+# Wave 3C blind calibration of reviewer-3-card.yaml (confidence-calibrator agent a6e63add429148b74, model class opus)
+calibrator_model_class: opus
+calibrator_diversity: degraded
+dimension_scores: {citation_grounding: 0.88, coverage_completeness: 0.70, deviation_classification_clarity: 0.72, risk_surface_coverage: 0.82, recommendation_actionability: 0.55}
+C: 0.73
+self_reported_confidence: 0.72
+citations_checked: 42
+citations_failed:
+  - {cite: "src/superclaude/cli/sweep/probes.py:837", finding: R3-F2, issue: "line 837 is the tab-map reader's is_file check, not the transcript reader; the point that a sibling reader checks is_file still holds"}
+  - {cite: "src/superclaude/cli/sweep/commands.py:219-221", finding: R3-F6, issue: "weak: decorator lines, do not show multi-line error output; the _PublishError second line carries the finding"}
+finding_verdicts:
+  R3-F1: {verdict: supported, class: drift, severity: medium}
+  R3-F2: {verdict: supported, class: drift, severity: medium}
+  R3-F3: {verdict: overstated, calibrated_class: drift, calibrated_severity: medium, note: "recorded departure from SPEC :286, directed by the tasklist item, limit still enforced after the fact"}
+  R3-F4: {verdict: overstated, calibrated_class: drift, calibrated_severity: low-to-medium, note: "head not read, practical risk low per the card itself"}
+  R3-F5: {verdict: supported, class: drift, severity: medium}
+  R3-F6: {verdict: supported, class: drift, severity: minor}
+  R3-F7: {verdict: supported, class: drift, severity: minor}
+  R3-F8: {verdict: supported, class: drift, severity: minor}
+  R3-F9: {verdict: supported, class: authorized, severity: minor}
+  R3-F10: {verdict: supported, class: authorized, severity: minor}
+blocking_findings: none
+escalate: true

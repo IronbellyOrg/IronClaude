@@ -1,0 +1,20 @@
+# PRE reflect-gate sign-off for the REVISED task file (A.10.7), supplied separately from the frozen task frontmatter
+# (the revision folder carries fresh checks "supplied separately by the orchestrator", delta-manifest.md line 15; the task
+# frontmatter reflect_pre block still holds the run 2 record and is intentionally NOT edited because the preamble is frozen).
+# Task file under review: sha256 f52e43a57ba6d3f3dc25120da937e1b7bf666782c732e5b042d2b938eb966855 (3020 lines).
+reflect_pre:
+  verdict: pass          # A.10.7 routing rule: parsed coverage_pct 1.000 >= floor 0.90 and status partial (not failed). A coverage verdict, NOT an execution clearance.
+  skip_reason: null
+  coverage_pct: 1.000    # parsed-only; coverage_pct_union 0.985
+  depth: deep            # equals the TCS-derived depth
+  tcs: 1862              # real computed score (artifacts/../../qa/tcs-computation-pre.json: S1 474, S2 66, S3 41, S4 7, S5 16, S6 0)
+  tier_reached: 2        # the deep band (tcs >= 35) requires tier_reached 2
+  run_id: "reflect-pre-20261110T0430Z-TASK-RF-sweep-phase1-run3-chat-output-exception"
+  report: ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/revisions/chat-output-exception-20261109-133150/reflect/pre/REPORT.md"
+  reviewed_at: "2026-11-10T04:32:00Z"
+  open_findings: {HIGH: 2, MEDIUM: 2, LOW: 6}
+  open_high: ["F-01 (exact-8 decisions count, fix inside the 82 bodies)", "F-02 (13.1 stale literal, fix needs a new bounded authorization)"]
+  convergence_status: BLOCKED_BY_INVARIANTS     # INV-005 folded into F-02, not accepted as risk
+  citations: {total: 116, revalidated: 116, dropped: 0}
+  execution_clearance: false   # execution still needs the separate direct authorization; no fix has been applied to the task file
+  consequence_of_fixes: "applying any F-01..F-10 edit changes the plan hash and invalidates this sign-off and the structural, alignment and qualitative reports; re-run them after the edits"

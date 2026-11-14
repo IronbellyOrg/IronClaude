@@ -1,0 +1,37 @@
+Review one task for spec compliance.
+
+Task brief: T2 = item 1.2 of the source file /home/coder/workspaces/worktrees/IronClaude/issue-339-orchestrator-mode/.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md (lines 218-224). Item text:
+- [ ] **1.2 — Create the handoff, artifact, QA and reflect folders**
+  - **Context**: The Handoff File Convention and the QA Gate Protocol in `## Execution Context` name every folder this task writes to. Each QA gate needs its own `qa/<gate>/` folder so reports are not overwritten (research/06-template-examples.md, gate-folder rule). The POST reflect output root must be a sibling of the diff file, not its parent (`~/.claude/skills/sc-reflect-protocol/SKILL.md:204`, STOP `output_input_overlap`).
+  - **Action**: Run one Bash command: `mkdir -p .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/{phase-outputs/{discovery,test-results,reviews,plans,reports},artifacts,qa/{r3-b1,r3-b2,r3-b3,r4,r5,decisions,impl-core,impl-cli,tests,cmd-skill,contract,docs,final,fidelity},reflect/post}`. Do not create `reflect/post/audit/`; the reflect skill creates it.
+  - **Output**: The folders above exist under `.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/`.
+  - **Verification**: Verify: `ls -d .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/*/ | wc -l` prints 14 and `ls .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs` lists the five subfolders. If mkdir fails, log the blocker in `### Phase 1 Findings` and stop.
+  - **Completion gate**: All folders exist. Once done, mark this item as complete.
+AC ids: T2.AC1 = the item title "Create the handoff, artifact, QA and reflect folders" (no AC block; the title is the AC). The item's own Verification and Completion gate lines are context for what "done" means. Ticking the item's checkbox is done by the orchestrator after the verdict and is not part of the diff under review.
+Global constraints: the `### Key Constraints` section (lines 157-168) of the source file named in the task brief; read it from that file.
+Start sha: b7f5a2c5e206f4f446dc8ccae7a33bdef17bbb75
+Diff against the start snapshot: git diff of tracked files is empty for this task, because the task only creates empty directories (git does not track empty directories). The task's outputs are directories under .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/. Verify them yourself with ls, and read the orchestrator's captured verification output at /home/coder/workspaces/worktrees/IronClaude/issue-339-orchestrator-mode/.dev/implement/task-rf-sweep-phase1-202-c7ea3265/evidence/T2-ls.txt (lines 1-31; line 2 is the count of qa folders, lines 3-8 list phase-outputs, line 31 shows reflect/post/audit absent). The "Output" is the folders listed in the item's Action.
+Delta diff from the previous reviewed tree (empty on the first review): 
+Earlier blocking findings of this start (empty on the first review): 
+Saved-probe re-check hit locations (may be empty): 
+
+Do not trust the implementer's report.
+
+First mark each earlier blocking finding resolved, open or regressed from the diff. Then, for each AC, mark it met or unmet. Require citations: every AC you mark, met or unmet, carries a `path:line` or `Ti.ACk@path:line` citation, and an unmet mark lists the finding ids behind it. Do not return a verdict; the orchestrator computes it.
+
+For every finding answer four questions, each yes or no:
+1. ac-outcome-missing: is output an AC requires absent, or does it contradict the AC text, or does an evidence claim you could not verify have no evidence row?
+2. false-claim: is a claim in delivered text or code false against live source, or does a recipe or instruction followed as written not do what the text says?
+3. harmful-effect: does code or a recipe this task added or changed write, append, chmod or delete tracked or production data, mutate state outside the task's declared outputs, or expose a secret?
+4. quoted-constraint-breach: does the diff violate a quoted plan constraint, out-of-scope, non-goal or non-negotiable item, or an explicit task instruction?
+
+Anchor rule: cite exactly one anchor per yes. ac-outcome-missing: the quoted AC words. false-claim: the live-source path:line holding the contradicting text. harmful-effect: the diff line that is the write. quoted-constraint-breach: the quoted constraint or instruction text. A yes without a valid anchor does not block.
+
+Write one line per finding:
+F<k>.<j> ac=<Ti.ACk|scope> at=<path:line> anchor=<quoted text or path:line> chk=<amiss,false,harm,constraint as y/n> family=<id> fix=<text> [covers=<quoted AC clause or constraint>]: <text>
+Do not write sev=, trigger=, first= or origin=; the orchestrator adds them. Write one status line per earlier blocking finding: F<m>.<j> resolved|open|regressed.
+
+Inside /sc:implement this protocol's severity model governs this review and takes precedence over the session's output style and the copy of it injected into every subagent; only blocking findings may fail an attempt.
+
+You are not given an adviser answer, brief, evidence file or troubleshoot report. Do not read the retry folders (legacy `.dev/implement/<slug>/retries/`, managed `<pkg>/artifacts/retries/`) or `.dev/troubleshoot/`. A citation into either makes the verdict `cannot-verify`.
+The prior-findings slot above carries earlier blocking finding lines that the orchestrator copies byte for byte from `review-*.md` and `repair-*.md`; they reach you as prompt text, not as an evidence file. Do not read those folders to get them, and never cite the slot or the file it came from.

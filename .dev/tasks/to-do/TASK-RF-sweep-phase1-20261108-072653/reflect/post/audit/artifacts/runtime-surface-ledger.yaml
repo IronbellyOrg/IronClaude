@@ -1,0 +1,20 @@
+# FR-RSR runtime-surface ledger (UC-2). One row per evaluated edge.
+- requirement_id: null
+  symbol: superclaude.cli.sweep.commands.sweep_group
+  edge: "sweep_group -> superclaude.cli.main.main.add_command (main.py:569)"
+  status: DEGRADE            # degrade oracle (a) @click.group decorator, (c) registry add_command
+  production_referrers: ["src/superclaude/cli/main.py:569"]
+  evidence_ref: "src/superclaude/cli/sweep/commands.py:214-216"
+- requirement_id: null
+  symbol: superclaude.cli.sweep.commands.run
+  edge: "run -> sweep_group.command('run') (commands.py:219)"
+  status: DEGRADE            # degrade oracle (a) @sweep_group.command decorator
+  production_referrers: []
+  evidence_ref: "src/superclaude/cli/sweep/commands.py:219-245"
+- requirement_id: null
+  symbol: superclaude.cli.main:main (console script)
+  edge: "[project.scripts] superclaude -> superclaude.cli.main:main -> main.add_command(sweep_group)"
+  status: DEGRADE            # degrade oracle (b) packaging entrypoint
+  production_referrers: []
+  evidence_ref: "src/superclaude/cli/main.py:565-569"
+# Supplementary real-entrypoint evidence (does not change the degrade reduction): `uv run superclaude sweep --help` and `sweep run --help` exited 0 and list the subcommand and its four options (verify-logs/invocations.yaml entries 3 and 4).

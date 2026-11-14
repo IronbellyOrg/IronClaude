@@ -1,0 +1,43 @@
+Review one task for spec compliance.
+
+Task brief: T87 = item 5.11 of the source file /home/coder/workspaces/worktrees/IronClaude/issue-339-orchestrator-mode/.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md (lines 837-843). Item text:
+- [ ] **5.11 — R4: the Fix cycle 3 R4 row**
+  - **Context**: The `### Fix cycle 3` table (items 2.6, 3.4, 4.5).
+  - **Action**: Append `| R4 | <finding> | <change> |` with the finding "DESIGN was written against base `e8db2fe6`; master `5dc29d23` already has WC-14 and WC-15, a coordinator sweep at most once every 5 minutes, and a moved `main.py` insertion point" and the change "Renamed the coordinator-loop rule to WC-16 everywhere (1, 8, 9, 10, 12, 15, 16, 17), and marked the SPEC and REPORT draft names in 13 and 14; aligned the cadence with contract line 110 in WC-16 and routing row R2, and recorded the renumbering and the cadence as part of D6 (8, 9, 13); re-anchored contract, test and `main.py` lines; added the fifth pin; recorded the master test constraints (7.6, 8); made step 1.16a record-only; routing row R8 uses the CHANGELOG topic-heading style (9)".
+  - **Output**: DESIGN section 18 with the R4 row.
+  - **Verification**: Verify: the table has R3-B1, R3-B2, R3-B3 and R4 in that order.
+  - **Completion gate**: The row is in place. Once done, mark this item as complete.
+AC ids: T87.AC1 = the item title "R4: the Fix cycle 3 R4 row" (no AC block; the title is the AC). The item's own Verification and Completion gate lines are context for what "done" means. Ticking the item's checkbox is done by the orchestrator after the verdict and is not part of the diff under review.
+Global constraints: the `### Key Constraints` section (lines 157-168) of the source file named in the task brief; read it from that file.
+Start sha: b5403ed9294794feac8952360ab179deded3f997
+Diff against the start snapshot: --- a/docs/designs/orchestrator-mode.md
++++ b/docs/designs/orchestrator-mode.md
+@@ -1038,3 +1038,4 @@
+ | R3-B1 | The path-B window compares the earliest transcript timestamp with the Dispatch row's start and end times, but `OrcaObservation` and `TranscriptTail` carry no such time fields, so pure `classify.py` cannot evaluate the rule and GQ-103(3) is false | Added `OrcaObservation.dispatch_started`, `dispatch_ended`, `dispatch_status` and `TranscriptTail.first_record_ts` and `tail_complete`, the time-parsing rule, the aware-UTC statement for `now`, `collected_start`, `collected_end` and `mtime`, and the inclusive UTC window with its incomplete-tail case (7.2); `parse_time` and `parse_worker_show` signatures, the `datetime` import and the `read_transcript_tail` comment (4, 7.1); GQ-103(3) list (2.2); capture item 4 and open item 23 name the bundle fields and keep them UNVERIFIED (15.1, 17); reader, parser and window fixtures, the incomplete-tail fixture and the count of existing test files (11); the FR-010 row (12) |
+ | R3-B2 | Two Dispatch rows on one pane give conflicting results and no rule decides | Added the several-rows rule with the `conflict: one pane session matches several Dispatch rows` note, and the note order for a tab-map entry that fails the window (m11) (7.2); fixtures (11); FR-010, D9 and SP-29 rows (12, 13, 14). Gate fixes: the incomplete tail is handled before the several-rows count, duplicate Dispatch rows are merged first, a session earlier than a row's window gets `session started before this Dispatch window`, a join outcome replaces rules 1 to 8 with rule `fallback`, the SP-16 line is not printed for a pane-matched unjoined transcript, three more fixtures and the setup values of the others (7.2, 11), and the two residual path-B cases stated in D9, SP-29 and open item 22 (13, 14, 17) |
+ | R3-B3 | Three SPEC FR-010 fixtures (outage, full page, `call_failed`) were dropped from `test_classify.py` | Restored the three SPEC incomplete-case fixtures in `test_classify.py` (11), added the list-incomplete rule and its three `origin unknown:` notes (7.2), named them in the FR-010 row (12), and named the per-Run source row `orca worker-list <run>` (7.4). Corrects cycle 2's "changed three to four incomplete cases": the four join-incomplete cases stay in 7.2, D9 and the FR-010 and SP-29 rows. Gate fixes: an unknown Run id is a complete, empty `worker-list`, so the list-incomplete rule now has five cases, adding Run not confirmed (zero rows and a failed `task-list --run`, note `origin unknown: Run not confirmed`) and the SPEC's tab-map reason (note `origin unknown: tab map unreadable`); the `call_failed` case holds only while `orca_available` is True and covers a Run the budget never reached; all notes that hold are attached in one order; the join-guard bullet no longer says "in the window"; the shared Given has a joined second transcript, the full-page fixture is a hand-built `SweepInput`, the note-order fixture has an exact Given and note list, three fixtures were added (seven `test_fr010_*` in all), and a `collect` test and a lower-bound line test were added (7.2, 7.4, 11, 12). Capture item 8 and open item 4 were reworded, not added (15.1, 17) |
++| R4 | DESIGN was written against base `e8db2fe6`; master `5dc29d23` already has WC-14 and WC-15, a coordinator sweep at most once every 5 minutes, and a moved `main.py` insertion point | Renamed the coordinator-loop rule to WC-16 everywhere (1, 8, 9, 10, 12, 15, 16, 17), and marked the SPEC and REPORT draft names in 13 and 14; aligned the cadence with contract line 110 in WC-16 and routing row R2, and recorded the renumbering and the cadence as part of D6 (8, 9, 13); re-anchored contract, test and `main.py` lines; added the fifth pin; recorded the master test constraints (7.6, 8); made step 1.16a record-only; routing row R8 uses the CHANGELOG topic-heading style (9) |
+Delta diff from the previous reviewed tree (empty on the first review): 
+Earlier blocking findings of this start (empty on the first review): 
+Saved-probe re-check hit locations (may be empty): 
+
+Do not trust the implementer's report.
+
+First mark each earlier blocking finding resolved, open or regressed from the diff. Then, for each AC, mark it met or unmet. Require citations: every AC you mark, met or unmet, carries a `path:line` or `Ti.ACk@path:line` citation, and an unmet mark lists the finding ids behind it. Do not return a verdict; the orchestrator computes it.
+
+For every finding answer four questions, each yes or no:
+1. ac-outcome-missing: is output an AC requires absent, or does it contradict the AC text, or does an evidence claim you could not verify have no evidence row?
+2. false-claim: is a claim in delivered text or code false against live source, or does a recipe or instruction followed as written not do what the text says?
+3. harmful-effect: does code or a recipe this task added or changed write, append, chmod or delete tracked or production data, mutate state outside the task's declared outputs, or expose a secret?
+4. quoted-constraint-breach: does the diff violate a quoted plan constraint, out-of-scope, non-goal or non-negotiable item, or an explicit task instruction?
+
+Anchor rule: cite exactly one anchor per yes. ac-outcome-missing: the quoted AC words. false-claim: the live-source path:line holding the contradicting text. harmful-effect: the diff line that is the write. quoted-constraint-breach: the quoted constraint or instruction text. A yes without a valid anchor does not block.
+
+Write one line per finding:
+F<k>.<j> ac=<Ti.ACk|scope> at=<path:line> anchor=<quoted text or path:line> chk=<amiss,false,harm,constraint as y/n> family=<id> fix=<text> [covers=<quoted AC clause or constraint>]: <text>
+Do not write sev=, trigger=, first= or origin=; the orchestrator adds them. Write one status line per earlier blocking finding: F<m>.<j> resolved|open|regressed.
+
+Inside /sc:implement this protocol's severity model governs this review and takes precedence over the session's output style and the copy of it injected into every subagent; only blocking findings may fail an attempt.
+
+You are not given an adviser answer, brief, evidence file or troubleshoot report. Do not read the retry folders (legacy `.dev/implement/<slug>/retries/`, managed `<pkg>/artifacts/retries/`) or `.dev/troubleshoot/`. A citation into either makes the verdict `cannot-verify`.
+The prior-findings slot above carries earlier blocking finding lines that the orchestrator copies byte for byte from `review-*.md` and `repair-*.md`; they reach you as prompt text, not as an evidence file. Do not read those folders to get them, and never cite the slot or the file it came from.

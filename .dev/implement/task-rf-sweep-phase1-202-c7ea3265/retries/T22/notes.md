@@ -1,0 +1,2 @@
+b10949f1eac08d2ce3b551f62b8fd19b1897f5d2
+A1 r1-1 F1.1 note docs/designs/orchestrator-mode.md:498 ac=scope amiss:n,false:n,harm:n,constraint:n The fix gave the new incomplete-tail no-join case its own note and a None transcript outcome (as finding R3B1-F6 asks). The scope note covers the moved-pane outcome and the several-rows rule, which are untouched, so this is not a breach; the fix log scope line at :34 is slightly loose.

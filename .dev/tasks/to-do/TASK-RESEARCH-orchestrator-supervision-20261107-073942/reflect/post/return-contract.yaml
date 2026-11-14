@@ -1,0 +1,16 @@
+contract_version: "1.8.0"
+status: partial
+run_id: 2026-11-08T02:19:07Z-9607df87
+verdict: PASS-WITH-DRIFT
+tier_reached: 2
+report_path: /home/coder/workspaces/worktrees/IronClaude/issue-339-orchestrator-mode/.dev/tasks/to-do/TASK-RESEARCH-orchestrator-supervision-20261107-073942/reflect/post/REPORT.md
+report_written: false            # harness refused the subagent Write of REPORT.md; file is still a placeholder; content returned to coordinator as text
+deviation_count_by_class: {authorized_expansion: 2, necessary_deviation: 5, drift: 5, regression: 0}
+merge_method: adversarial
+calibrator_diversity: degraded
+remediation_offered: true
+remediation_accepted: false      # task-builder writes outside the task folder and OUTPUT_DIR; coordinator boundary forbids it
+remediation_task_path: null
+remediation_plan_path: null
+regression_present: false
+needs_human_decision: true       # R-1, R-2, R-5 edit the report, which the owner ruled out outside a gate (TASK:456)

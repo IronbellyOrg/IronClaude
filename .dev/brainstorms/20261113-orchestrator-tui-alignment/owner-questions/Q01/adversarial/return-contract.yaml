@@ -1,0 +1,11 @@
+return_contract:
+  merged_output_path: "/home/coder/workspaces/worktrees/IronClaude/issue-339-orchestrator-mode/.dev/brainstorms/20261113-orchestrator-tui-alignment/owner-questions/Q01/merged-proposal.md"
+  convergence_score: 0.923
+  artifacts_dir: "/home/coder/workspaces/worktrees/IronClaude/issue-339-orchestrator-mode/.dev/brainstorms/20261113-orchestrator-tui-alignment/owner-questions/Q01/adversarial/"
+  status: "partial"   # converged; partial because X-001 is unresolved and two source conflicts (CONTRADICTION-1, CONTRADICTION-2) are recorded, not resolved
+  base_variant: "variant-2 (proposal-B, advocate persona security)"
+  unresolved_conflicts: 1   # X-001
+  fallback_mode: false   # advocates and merge executor were spawned sub-agents; one advocate dispatch hit the concurrency limit and was retried once successfully
+  failure_stage: null
+  invocation_method: "skill-direct"
+  unaddressed_invariants: []   # Round 2.5 skipped at depth quick

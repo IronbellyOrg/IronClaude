@@ -1,0 +1,52 @@
+Review one task for spec compliance.
+
+Task brief: T215 = item 9.21 of the source file /home/coder/workspaces/worktrees/IronClaude/issue-339-orchestrator-mode/.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md (lines 1770-1776). Item text:
+- [ ] **9.21 — QA impl-cli: gate decision (L5, proceed or HALT)**
+  - **Context**: Inputs: `.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/impl-cli/cycle1-decision.md`, `.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/impl-cli/verify-cycle2-rf-qa.md`, `.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/impl-cli/verify-cycle2-rf-qa-qualitative.md`, `.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/impl-cli/fix-log-cycle1.md` and `.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/impl-cli/cycle-ledger.md` (the cycle-1 PASS set and `|F_1|`). At most 2 fix cycles per gate.
+  - **Action**: If `.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/impl-cli/fix-log-cycle1.md` says `SKIPPED` (pass at cycle 0) or `.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/impl-cli/cycle1-decision.md` says `PASS at cycle 1`, write `Impl-cli gate: PASS` to `.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/impl-cli/gate-decision.md` and proceed. Otherwise build `F_2` = the `F_1` ids either cycle-2 verifier marks OPEN plus every new BLOCKING or MAJOR finding, and the cycle-2 PASS set = every check id both cycle-2 verifiers mark PASS; append the cycle-2 row to `.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/impl-cli/cycle-ledger.md`. Then, in this order: (a) Regression: any check id in the cycle-1 PASS set that is FAIL at cycle 2 gives `Regression detected on Item X.Y, previously PASS at cycle 1, now FAIL. Halt overrides monotonicity check.` (X.Y = the lens item of that check), and apply the HALT rule (set frontmatter `status` to "⚪ Blocked", put the halt line in `blocker_reason`, append it to `### Execution Log`, STOP, and do not tick this item); do not run (b). (b) Monotonicity: `|F_2| >= |F_1|` gives `[HALT-MONOTONICITY] |F|=<n>` with `<n>` = `|F_2|`, and apply the HALT rule (set frontmatter `status` to "⚪ Blocked", put the halt line in `blocker_reason`, append it to `### Execution Log`, STOP, and do not tick this item). (c) `|F_2|` is 0 gives `Impl-cli gate: PASS at cycle 2`. (d) Otherwise the hard cap: write `Impl-cli gate: HALT after 2 fix cycles, open findings: <ids>`, apply the HALT rule (set frontmatter `status` to "⚪ Blocked", put the halt line in `blocker_reason`, append it to `### Execution Log`, STOP, and do not tick this item), and escalate the open BLOCKING and MAJOR findings to the user. Copy every MINOR finding to `### Phase 9 Findings` as a note; MINOR findings never fail the gate.
+  - **Output**: `.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/impl-cli/gate-decision.md`.
+  - **Verification**: Verify: `gate-decision.md` holds exactly one outcome line and the ledger has a row for every cycle that ran. On HALT, stop before marking this item complete until the blocker is resolved.
+  - **Completion gate**: `Impl-cli gate: PASS` (at any cycle) is recorded. Once done, mark this item as complete.
+AC ids: T215.AC1 = the item title "QA impl-cli: gate decision (L5, proceed or HALT)" (no AC block; the title is the AC). The item's own Verification and Completion gate lines are context for what "done" means. Ticking the item's checkbox is done by the orchestrator after the verdict and is not part of the diff under review.
+Global constraints: the `### Key Constraints` section (lines 157-168) of the source file named in the task brief; read it from that file.
+Start sha: 02b0323bb7687bd5223fc2f46791744460f7512d
+Diff against the start snapshot: The task (item 9.21, impl-cli gate decision) produced one new untracked file, .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/impl-cli/gate-decision.md (18 lines), and added one bullet to the `### Phase 9 Findings` section of the source file (the bullet that starts "Run time (2026-11-12), items 9.5 to 9.21 (impl-cli QA gate)", line 2977 of the source file, the item's instruction "Copy every MINOR finding to `### Phase 9 Findings` as a note"). Read both from disk; they are the whole output. To judge the item's Verification line yourself: (1) gate-decision.md holds exactly one outcome line ("Impl-cli gate: PASS", the case `PASS at cycle 1` of the item's Action, so no cycle-2 reports are needed); (2) the ledger (.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/impl-cli/cycle-ledger.md) has a row for every cycle that ran (cycle 0 and cycle 1; none for cycle 2, which did not run); (3) every claim in gate-decision.md and in the Phase 9 Findings bullet is true against the files on disk: cycle1-decision.md, fix-log-cycle1.md, both verifier reports, consolidated-findings-cycle0.md (43 raw findings, 37 kept, ids CLI-F1 to CLI-F37, the finding-id numbers the bullet cites for the minor items: CLI-F3, CLI-F28, CLI-F33, CLI-F7, CLI-F12, CLI-F25, CLI-F35), the source code changes the bullet names (classify.py `total_is_lower_bound`, probes.py `_LIST_KEY` and the shape check in `_call`), and the live re-run record artifacts/sweep-live-check-1.4-rerun-9.14.md; (4) the bullet carries the MINOR findings as a note and names the stale DESIGN 7.4 wording for the coordinator without editing DESIGN. The Execution Log rows for 9.18 to 9.20 and the checkbox ticks of earlier items in the source file belong to the earlier items 9.17 to 9.20 and are not part of this task. No other file changed from this task. Diff of the new file against the start snapshot:
+--- /dev/null
++++ b/.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/impl-cli/gate-decision.md   (new file, 13 lines)
++# Impl-cli gate decision (item 9.21)
++
++Rule applied: item 9.21 says that when `cycle1-decision.md` says `PASS at cycle 1`, the gate decision is written and the run proceeds; no cycle-2 verifier ran, so `verify-cycle2-rf-qa.md` and `verify-cycle2-rf-qa-qualitative.md` do not exist and are not needed.
++
++Evidence, read from disk:
++
++- `cycle1-decision.md` line 20 holds its one outcome line (`PASS at cycle 1`); `F_1` is empty and `|F_1|` is 0 (lines 9 and 10).
++- `fix-log-cycle1.md` records fixes for both `F_0` findings (CLI-F1 and CLI-F2), none left open, four passing re-check commands, and the executor's live re-run section (read-only sweep of Run `run_a4723d345399` after the `probes.py` change: exit 0, 182 rows, 0 unscanned sources).
++- `cycle-ledger.md` has a row for every cycle that ran: the cycle-0 row (outcome consolidated) and the cycle-1 row (outcome PASS at cycle 1). No cycle-2 row exists because no cycle 2 ran.
++- Both cycle-1 verifier reports end with Verdict: PASS and Blocking count: 0, and each lists all 147 cycle-0 PASS check ids as PASS.
++- The 35 MINOR findings (CLI-F3 to CLI-F37 in `consolidated-findings-cycle0.md`, plus the minor notes in the two verifier reports) never fail the gate and are copied to `### Phase 9 Findings` as one note.
++
++Impl-cli gate: PASS
+Delta diff from the previous reviewed tree (empty on the first review): 
+Earlier blocking findings of this start (empty on the first review): 
+Saved-probe re-check hit locations (may be empty): 
+
+Do not trust the implementer's report.
+
+First mark each earlier blocking finding resolved, open or regressed from the diff. Then, for each AC, mark it met or unmet. Require citations: every AC you mark, met or unmet, carries a `path:line` or `Ti.ACk@path:line` citation, and an unmet mark lists the finding ids behind it. Do not return a verdict; the orchestrator computes it.
+
+For every finding answer four questions, each yes or no:
+1. ac-outcome-missing: is output an AC requires absent, or does it contradict the AC text, or does an evidence claim you could not verify have no evidence row?
+2. false-claim: is a claim in delivered text or code false against live source, or does a recipe or instruction followed as written not do what the text says?
+3. harmful-effect: does code or a recipe this task added or changed write, append, chmod or delete tracked or production data, mutate state outside the task's declared outputs, or expose a secret?
+4. quoted-constraint-breach: does the diff violate a quoted plan constraint, out-of-scope, non-goal or non-negotiable item, or an explicit task instruction?
+
+Anchor rule: cite exactly one anchor per yes. ac-outcome-missing: the quoted AC words. false-claim: the live-source path:line holding the contradicting text. harmful-effect: the diff line that is the write. quoted-constraint-breach: the quoted constraint or instruction text. A yes without a valid anchor does not block.
+
+Write one line per finding:
+F<k>.<j> ac=<Ti.ACk|scope> at=<path:line> anchor=<quoted text or path:line> chk=<amiss,false,harm,constraint as y/n> family=<id> fix=<text> [covers=<quoted AC clause or constraint>]: <text>
+Do not write sev=, trigger=, first= or origin=; the orchestrator adds them. Write one status line per earlier blocking finding: F<m>.<j> resolved|open|regressed.
+
+Inside /sc:implement this protocol's severity model governs this review and takes precedence over the session's output style and the copy of it injected into every subagent; only blocking findings may fail an attempt.
+
+You are not given an adviser answer, brief, evidence file or troubleshoot report. Do not read the retry folders (legacy `.dev/implement/<slug>/retries/`, managed `<pkg>/artifacts/retries/`) or `.dev/troubleshoot/`. A citation into either makes the verdict `cannot-verify`.
+The prior-findings slot above carries earlier blocking finding lines that the orchestrator copies byte for byte from `review-*.md` and `repair-*.md`; they reach you as prompt text, not as an evidence file. Do not read those folders to get them, and never cite the slot or the file it came from.

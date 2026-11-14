@@ -1,0 +1,3 @@
+e2c1d51a27ae663ce88d730459052ca77e60abcb
+A1 r1-1 F1.2 note .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/plans/OQ-17-cursor-template-decision.md:25 ac=T145.AC1 amiss:n,false:n,harm:n,constraint:n The quoted refusal option text keeps the item text's "DESIGN 973" cite for open item 5 (live line 995). The decision file's own cite elsewhere is DESIGN line 995. Left as quoted.
+A1 r1-1 F1.3 note .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/plans/OQ-17-cursor-template-decision.md:40 ac=T145.AC1 amiss:n,false:n,harm:n,constraint:n The reviewer could not check from files that the owner asked for pros and cons before choosing; the claim comes from the session and follows the OQ-8 sourcing pattern.

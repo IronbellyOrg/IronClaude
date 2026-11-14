@@ -1,0 +1,16 @@
+schema_version: 1
+command: impact
+status: partial
+caller: sc-reflect-protocol
+output_dir: artifacts/impact
+input: {mode: diff, symbols: [], diff_base: 5dc29d23b15eb7db4ead50623bb409f696a0d7d3, depth: 1, limit: 100, tests: false}
+readiness: {access: mcp, index_state: fresh, checked_at: 2026-11-12T19:25:01Z, cli_version: 1.6.2, pin_match: true, worktree_relation: own}
+advisory: true            # reduced run by the reflect orchestrator; counts are logged only and change no severity
+degraded: [graph:unresolved]
+note: "git diff --merge-base lists only the 12 tracked edited files; the 37 new package/test files are untracked and are not in that diff, so they are listed as unmapped_files (not_indexed_by_diff). Tracked edited python files hold only module-level code (main.py) and test functions, so they have no production dependents."
+symbols:
+  - {name: sweep_group, file: src/superclaude/cli/sweep/commands.py, prod: {shown: 1, total: 1}, test: {shown: 3, total: 3}}   # main.py:567; tests/sweep/test_cli_contract.py, test_readonly.py, test_cli_registration.py
+  - {name: classify_all, file: src/superclaude/cli/sweep/classify.py, prod: {shown: 1, total: 1}, test: {shown: 0, total: 0}}   # commands.py (codegraph file-level: classify.py used by 1 file)
+  - {name: collect, file: src/superclaude/cli/sweep/probes.py, prod: {shown: 1, total: 1}, test: {shown: 0, total: 0}}      # commands.py (codegraph file-level: probes.py used by 1 file)
+unmapped_files: 37
+errors: []

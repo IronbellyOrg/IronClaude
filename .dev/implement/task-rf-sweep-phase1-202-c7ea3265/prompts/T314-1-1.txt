@@ -1,0 +1,60 @@
+Review one task for spec compliance.
+
+Task brief: T314 = item 14.8 of the source file /home/coder/workspaces/worktrees/IronClaude/issue-339-orchestrator-mode/.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md (lines 2493-2499). Item text:
+- [ ] **14.8 — Step 1.29: run or collect the pipx check (L3, both branches)**
+  - **Context**: The RESOLVED `.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/plans/OQ-10-pipx-decision.md`; pass rule REPORT:1300 (exit 0, the help lists `run`); output path DESIGN step 1.29 `.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/artifacts/sweep-help-pipx.txt`. No test runs this; it is a manual check (DESIGN line 940; research/09:136).
+  - **Action**: Branch (A): REPORT:1300 sets the 30 s limit for the help run only, and on a cold pipx cache `pipx run --spec` first builds a wheel from the worktree and installs its runtime dependencies, so run two calls. First the untimed warm-up, which only fills pipx's own cache and leaves the installed tool unchanged: `WT=$(git rev-parse --show-toplevel); cd /tmp && pipx run --spec "$WT" superclaude --version > "$WT/.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/artifacts/sweep-help-pipx-warmup.txt" 2>&1; echo "exit=$?" >> "$WT/.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/artifacts/sweep-help-pipx-warmup.txt"`. If the warm-up exit is not 0, log its output in `### Phase 14 Findings` and apply the HALT rule with `blocker_reason: "step 1.29 pipx warm-up failed: <exit line>"`. Then the timed help run, which reuses the cached environment: `WT=$(git rev-parse --show-toplevel); cd /tmp && timeout 30 pipx run --spec "$WT" superclaude sweep --help > "$WT/.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/artifacts/sweep-help-pipx.txt" 2>&1; echo "exit=$?" >> "$WT/.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/artifacts/sweep-help-pipx.txt"`. Branch (B): the install is the coordinator's (D4); apply the HALT rule with `blocker_reason: "OQ-10 option (B): the coordinator runs the pipx install, superclaude sweep --help from /tmp and the reinstall from master, and saves output plus exit code to .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/artifacts/sweep-help-pipx.txt"` and STOP; on resume, read the saved file. Do not run `pipx install` from this task on either branch.
+  - **Output**: `.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/artifacts/sweep-help-pipx.txt` holding the help output and an `exit=<n>` line.
+  - **Verification**: Verify: the file ends with `exit=0` and lists `run` as a command. If it shows `exit=124` (30 s limit) or another non-zero code, log the output in `### Phase 14 Findings` and apply the HALT rule with `blocker_reason: "step 1.29 pipx check failed: <exit line>"`; stop before marking this item complete until the blocker is resolved.
+  - **Completion gate**: `exit=0` and `run` are in the saved file. Once done, mark this item as complete.
+AC ids: T314.AC1 = the item title "Step 1.29: run or collect the pipx check (L3, both branches)" (no AC block; the title is the AC). The item's own Verification and Completion gate lines are context for what "done" means. Ticking the item's checkbox is done by the orchestrator after the verdict and is not part of the diff under review.
+Global constraints: the `### Key Constraints` section (lines 157-168) of the source file named in the task brief; read it from that file.
+Start sha: d7dd8de51b233a9901d3e2d0aa2d2f534daf0b3d
+Diff against the start snapshot: Orchestrator facts for the reviewer (verify them): option (A) was chosen by the owner (record phase-outputs/plans/OQ-10-pipx-decision.md, status RESOLVED, source the owner's words "go with A"). The executor ran the two calls of item 14.8 branch (A) exactly as written from /tmp: the untimed warm-up (pipx run --spec <worktree> superclaude --version, output in .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/artifacts/sweep-help-pipx-warmup.txt, ends exit=0, prints SuperClaude, version 5.0.0) and the timed help run (timeout 30 pipx run --spec <worktree> superclaude sweep --help, output in .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/artifacts/sweep-help-pipx.txt, ends exit=0 and lists the run command). No pipx install was run and nothing was installed or changed. Read both files from disk; judge the item's Verification (the file ends with exit=0 and lists run as a command), that branch (A)'s constraints hold (two calls, 30 s limit on the help run only, no pipx install), and anything false in the files.
+
+--- /dev/null
++++ b/.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/artifacts/sweep-help-pipx.txt   (new file, 12 lines)
++⚠️  superclaude is already on your PATH and installed at
++    /usr/local/bin/superclaude. Downloading and running anyway.
++Usage: superclaude sweep [OPTIONS] COMMAND [ARGS]...
++
++  Read-only sweep of Orca Runs, worktrees and sessions.
++
++Options:
++  --help  Show this message and exit.
++
++Commands:
++  run  Collect, classify and publish one read-only report; print one JSON...
++exit=0
+--- /dev/null
++++ b/.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/artifacts/sweep-help-pipx-warmup.txt   (new file, 6 lines)
++⚠️  superclaude is already on your PATH and installed at
++    /usr/local/bin/superclaude. Downloading and running anyway.
++creating virtual environment...
++installing superclaude from spec '/home/coder/workspaces/worktrees/IronClaude/issue-339-orchestrator-mode'...
++SuperClaude, version 5.0.0
++exit=0
+Delta diff from the previous reviewed tree (empty on the first review): 
+Earlier blocking findings of this start (empty on the first review): 
+Saved-probe re-check hit locations (may be empty): 
+
+Do not trust the implementer's report.
+
+First mark each earlier blocking finding resolved, open or regressed from the diff. Then, for each AC, mark it met or unmet. Require citations: every AC you mark, met or unmet, carries a `path:line` or `Ti.ACk@path:line` citation, and an unmet mark lists the finding ids behind it. Do not return a verdict; the orchestrator computes it.
+
+For every finding answer four questions, each yes or no:
+1. ac-outcome-missing: is output an AC requires absent, or does it contradict the AC text, or does an evidence claim you could not verify have no evidence row?
+2. false-claim: is a claim in delivered text or code false against live source, or does a recipe or instruction followed as written not do what the text says?
+3. harmful-effect: does code or a recipe this task added or changed write, append, chmod or delete tracked or production data, mutate state outside the task's declared outputs, or expose a secret?
+4. quoted-constraint-breach: does the diff violate a quoted plan constraint, out-of-scope, non-goal or non-negotiable item, or an explicit task instruction?
+
+Anchor rule: cite exactly one anchor per yes. ac-outcome-missing: the quoted AC words. false-claim: the live-source path:line holding the contradicting text. harmful-effect: the diff line that is the write. quoted-constraint-breach: the quoted constraint or instruction text. A yes without a valid anchor does not block.
+
+Write one line per finding:
+F<k>.<j> ac=<Ti.ACk|scope> at=<path:line> anchor=<quoted text or path:line> chk=<amiss,false,harm,constraint as y/n> family=<id> fix=<text> [covers=<quoted AC clause or constraint>]: <text>
+Do not write sev=, trigger=, first= or origin=; the orchestrator adds them. Write one status line per earlier blocking finding: F<m>.<j> resolved|open|regressed.
+
+Inside /sc:implement this protocol's severity model governs this review and takes precedence over the session's output style and the copy of it injected into every subagent; only blocking findings may fail an attempt.
+
+You are not given an adviser answer, brief, evidence file or troubleshoot report. Do not read the retry folders (legacy `.dev/implement/<slug>/retries/`, managed `<pkg>/artifacts/retries/`) or `.dev/troubleshoot/`. A citation into either makes the verdict `cannot-verify`.
+The prior-findings slot above carries earlier blocking finding lines that the orchestrator copies byte for byte from `review-*.md` and `repair-*.md`; they reach you as prompt text, not as an evidence file. Do not read those folders to get them, and never cite the slot or the file it came from.

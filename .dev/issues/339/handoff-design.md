@@ -1,0 +1,22 @@
+# Handoff: design stage (/sc:design --type architecture --format spec), DONE but NOT a clean pass
+- Updated: 2026-11-08T07:30Z
+- Status: the design closed with 3 blocking findings still open after the 3-review cap (2 fix cycles). With coordinator approval (delivery_17bd071084c5), they are carried as the FIRST required design-fix tasks in the /task-builder task file, ordered before every code task and each closed by its own QA gate. No fourth review. This is recorded in the design header too.
+- Design: docs/designs/orchestrator-mode.md (1007 lines; 9 deviations D1 to D9, 23 open items; revision log in section 18). Input: .dev/brainstorms/20261108-024258-orchestrator-mode-phase1/merged-requirements.md.
+- G-1 decided: the report is written to a temp file, fsynced, then published with os.link. A run that fails before the link leaves no report; an unlink failure after the link exits 1 and keeps the report.
+- Review loop, budget spent (2 fix cycles, 3 reviews), so no fourth review:
+  - review 1 (docs/designs/orchestrator-mode-review-1.md): FAIL, B1 to B3, all fixed;
+  - review 2 (orchestrator-mode-review-2.md): FAIL, R2-B1 to R2-B3; R2-B2 and R2-B3 confirmed fixed;
+  - review 3 (orchestrator-mode-review-3.md): FAIL, 3 still open:
+    - R3-B1: the path-B time window reads a Dispatch start time, an end time and the earliest transcript timestamp, but the data model (OrcaObservation, TranscriptTail) has none of them;
+    - R3-B2: with two Dispatch rows on one pane, one transcript comes out both False and None, or joins both rows; no rule decides;
+    - R3-B3: test_classify.py lost the SPEC's three FR-010 fixtures (outage, full page, call_failed).
+- Owner items in the design: D9 (only a join to a scoped Dispatch row makes a worker) needs sign-off at step 1.0b; step 1.0b also asks GQ-10, GQ-11, GQ-35, GQ-61 and GQ-63.
+- 2026-11-08T07:47Z (coordinator delivery_b55fdfcd1286):
+  - Branch fast-forwarded e8db2fe6 -> 5dc29d23 (origin/master). The 157 staged files are unchanged, both as a list and in content.
+  - New required design-fix items, ordered before any code:
+    - R4: reconcile the design with master. Renumber its rules to WC-16 and up (master has WC-14 and WC-15 from #434), align the coordinator loop with master's section 4 "The sweep", and re-anchor every cited line.
+    - R5: OWNER DECISION PENDING. Master's sweep uses `worktree ps --agent-wait`, which INV-005 condition 1 forbids. Option a: extend the sign-off after a lock check. Option b: keep "never" and fix the master contract text in a later PR.
+  - DEVIATION: re-anchoring is bounded to the 12 cited files that changed on master, and the research gates are not re-run. Re-anchor results go to research/07 and research/08; gap fill goes to research/09.
+- Next: /task-builder --spec docs/designs/orchestrator-mode.md. Stop after the task file; do not run /task or write code (coordinator order).
+- Rules: reads at most 150 lines; never stage .claude/ except settings.json; .dev/tasks/ always staged; commit only when asked; never merge.
+- Coordinator: run:run_93bfa00cae2b. Follow-up: IronbellyOrg/IronClaude#446.

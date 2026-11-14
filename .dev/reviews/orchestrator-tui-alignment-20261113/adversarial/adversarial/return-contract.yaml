@@ -1,0 +1,18 @@
+return_contract:
+  merged_output_path: ".dev/reviews/orchestrator-tui-alignment-20261113/adversarial/alignment-findings-adjudicated.md"
+  convergence_score: 1.0            # 36 of 36 X/A points resolved after Round 2 (Round 1: 0.639); status below is blocked by one invariant
+  artifacts_dir: ".dev/reviews/orchestrator-tui-alignment-20261113/adversarial/adversarial/"
+  status: "partial"                 # BLOCKED_BY_INVARIANTS: agreement and taxonomy gates passed, the invariant gate did not
+  base_variant: "V5 (variant-5-original.md, review of the built observer)"   # model/persona not applicable: variants are review reports, advocates ran on the session's default model
+  unresolved_conflicts: 3
+  fallback_mode: true               # debate-orchestrator role performed by the main session; Mode A used with non-competing variants (see debate-transcript.md metadata)
+  failure_stage: null
+  invocation_method: "skill-direct"
+  unaddressed_invariants:
+    - id: "INV-008"
+      category: "guard_conditions"
+      assumption: "The Codex-suggested fix (limit `git status` to the selected repository, or `-c core.fsmonitor=false`) closes the hole in the sweep's git reads"
+      severity: "HIGH"
+  unresolved_items_not_blocking:
+    - "A-009: whether Orca output shapes match across builds is unresolved by evidence"
+    - "X-016: whether Orca message reads (`check --all`) consume is unproven both ways"

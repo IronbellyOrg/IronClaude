@@ -1,0 +1,60 @@
+return_contract:
+  contract_version: 1.8.0
+  run_id: "reflect-pre-20261108T122857Z-TASK-RF-sweep-phase1-run2"   # audit.log header; supersedes run 1 (reflect-pre-20261108T095922Z-TASK-RF-sweep-phase1, pre-edit file)
+  mode: pre
+  status: partial                       # adversarial convergence BLOCKED_BY_INVARIANTS; no merge or validation failure
+  status_reason: "sc-adversarial returned partial: 50/50 points converged but INV-006 and INV-021 were HIGH and unaddressed by the debate; both folded into F-02 and F-03 by the merge."
+  tier_requested: deep
+  tier_reached: 2
+  tcs: 1641
+  report_path: ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/reflect/pre-run2/REPORT.md"
+  audit_log_path: ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/reflect/pre-run2/audit.log"
+  spec_path: "docs/designs/orchestrator-mode.md"
+  tasklist_path: ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md"
+  input_tree_sha256: "daaca8ba3f4f971b641dcacf75f80ee6942775b6f3f0483a7af68eb06f8eccf4"
+  input_tree_file_count: 40
+  input_tree_snapshot_path: ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/reflect/pre-run2/artifacts/input-snapshot.yaml"
+  input_drift_detected: false
+  coverage_pct: 0.960
+  coverage_pct_union: 0.914
+  coverage_floor: 0.90
+  coverage_undefined: false
+  coverage_degraded: null
+  unmapped_requirements: [GQ-111, GQ-112, GQ-113, SP-28, step-1.0a]   # parsed rows not fully covered (all partial)
+  unmapped_requirements_union: [GQ-111, GQ-112, GQ-113, SP-28, step-1.0a, INF-001, INF-005, INF-008, INF-017, INF-018, INF-019, INF-020, INF-024]
+  best_practice_grade: 3
+  confidence_calibrated: 0.77
+  escalation_rule_matched: null         # --depth deep hard override (section 5.1)
+  findings_total: 28
+  findings_by_severity: {HIGH: 2, MEDIUM: 13, LOW: 13}
+  high_findings: [F-01, F-02]
+  citations_total: 105
+  citations_revalidated: 105
+  citations_dropped: 0
+  citations_inferred: 3
+  citation_budget_policy: full_reread
+  evidence_validator_ran: true
+  zero_drop_flag: true
+  inf_rows_dropped: 0
+  grounding_gaps_path: null
+  needs_human_decision: false
+  reviewer_cards:
+    - reflect/pre-run2/reviewer-cards/reviewer-1-card.yaml
+    - reflect/pre-run2/reviewer-cards/reviewer-2-card.yaml
+    - reflect/pre-run2/reviewer-cards/reviewer-3-card.yaml
+  adversarial_artifacts_dir: ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/reflect/pre-run2/adversarial/"
+  adversarial_convergence_score: 1.00
+  adversarial_unavailable: false
+  merge_method: adversarial
+  t2_model_class_diversity: full
+  t2_vendor_diversity: single
+  t2_effective_diversity: model-only
+  calibrator_diversity: degraded
+  executor_class_resolved: false
+  degraded_components: [vendor-heterogeneity, calibrator-diversity]
+  remediation_offered: true
+  remediation_accepted: null            # Wave 6 offer only; coordinator order allows pure-text fixes to the task file, no remediation task built
+  remediation_task_path: null
+  remediation_plan_path: null
+  regression_present: false
+  promotion_action: not-applicable      # Wave 7 is UC-2 only

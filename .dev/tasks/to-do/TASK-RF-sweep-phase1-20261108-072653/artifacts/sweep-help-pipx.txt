@@ -1,0 +1,12 @@
+⚠️  superclaude is already on your PATH and installed at
+    /usr/local/bin/superclaude. Downloading and running anyway.
+Usage: superclaude sweep [OPTIONS] COMMAND [ARGS]...
+
+  Read-only sweep of Orca Runs, worktrees and sessions.
+
+Options:
+  --help  Show this message and exit.
+
+Commands:
+  run  Collect, classify and publish one read-only report; print one JSON...
+exit=0

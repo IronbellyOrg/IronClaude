@@ -252,6 +252,8 @@ uv.lock
 # Sprint runner transient state directory (post-FU-001 default). Holds
 # .sprint-exitcode and other ephemeral per-run state; never tracked.
 .dev/sprint-state/
+# superclaude sweep reports: dated, operator-local, never posted (WC-16). Never tracked.
+.dev/sweeps/
 # e2e-reflect harness sprint-state (same ephemeral exitcode/state, nested
 # under per-scenario test dirs). FU-001 forbids tracking .sprint-exitcode.
 .dev/e2e-reflect/**/sprint-state/

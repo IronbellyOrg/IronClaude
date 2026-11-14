@@ -30,7 +30,7 @@ _PACKAGE = "TASK-RESEARCH-recommend-refresh-20261024-044336"
 # issue #323 (codegraph adoption, Phase 3) adds /sc:graph and /sc:impact, and
 # issue #302 adds /sc:issue. The package is frozen, so the shipped set is
 # compared minus these additions.
-_POST_REFRESH_ADDITIONS = {"graph", "impact", "issue"}
+_POST_REFRESH_ADDITIONS = {"graph", "impact", "issue", "sweep"}
 
 _TOKEN_RE = re.compile(r"`/([a-z][a-z0-9:-]*)")
 _FLAG_RE = re.compile(r"--[a-z][a-z0-9-]*")

@@ -1,0 +1,19 @@
+# Merged Tier-2 deviation findings (sc:adversarial Step 5). Base: reviewer-3; provenance per row.
+verdict: PASS-WITH-DRIFT
+base_variant: reviewer-3 (opus:refactorer)
+regression_present: false
+deviations:
+  - {id: D-1, category: Drift, severity: Medium, source: V3+T1, note: "stale at 00:41Z edit, before 02:18Z ruling; 75/78/85 self-contradiction"}
+  - {id: D-2, category: Drift, severity: Low, source: V1+V3+T1}
+  - {id: D-3, category: Drift, severity: Low, source: V1+V2+T1, note: "Task Summary TASK:374; distinct from D-9"}
+  - {id: D-4, category: refuted, severity: null, source: V1, note: "GAPS:82 supports REP:1577 clause"}
+  - {id: D-5, category: Necessary deviation, severity: Low, source: V3+T1}
+  - {id: D-6, category: Necessary deviation, severity: Low, source: T1}
+  - {id: D-7, category: Necessary deviation, severity: Low, source: T1}
+  - {id: D-8, category: Necessary deviation, severity: Medium, source: V2+T1, note: "severity single-source (unresolved)"}
+  - {id: D-9, category: Necessary deviation, severity: Low, source: V2+V3+T1}
+  - {id: D-10, category: Authorized expansion, severity: null, source: T1+V3}
+  - {id: D-11, category: Authorized expansion, severity: null, source: T1+V3}
+  - {id: D-12, category: Drift, severity: Low, source: V3, note: "TASK:176 does not authorize a new file; not in ### Deviations"}
+  - {id: D-13, category: Drift, severity: Low, source: V3, note: "REP:1537 claims all open GQ rows cited; GQ-101..110 not"}
+counts: {Regression: 0, Drift: 5, Necessary_deviation: 5, Authorized_expansion: 2, refuted: 1}

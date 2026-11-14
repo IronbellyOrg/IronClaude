@@ -1,0 +1,22 @@
+wave: 1D
+card: t1-card.md
+calibrator: confidence-calibrator
+calibrator_model_class: claude-gw-tier2
+blind: true
+dimensions:
+  citation_grounding: 0.95
+  coverage_completeness: 0.95
+  deviation_classification_clarity: 0.85
+  risk_surface_coverage: 0.90
+  recommendation_actionability: 0.90
+calibrated_confidence: 0.91
+t1_self_confidence: 0.88
+spot_checks:
+  - {citation: "RESEARCH-REPORT-orchestrator-mode.md:229", result: confirmed, note: "stale :125 reference, Open 75, unqualified 'Open blocking QA finding: none'"}
+  - {citation: "gaps-and-questions.md:124-128", result: confirmed, note: "GQ-101..103 open Important; :128 states 103 rows, 78 open, 25 resolved"}
+  - {citation: "TASK-RESEARCH-orchestrator-supervision-20261107-073942.md:549-556", result: confirmed, note: "halt and explicit owner approval to pass with exceptions"}
+  - {citation: "RESEARCH-REPORT-orchestrator-mode.md:1537", result: confirmed, note: "'Every open GQ row is cited'"}
+  - {citation: "RESEARCH-REPORT-orchestrator-mode.md:1754", result: confirmed, note: "stale :125 kept; 'is re-checked' is present passive, so D-5 overstates 'future tense'"}
+escalation_recommendation: none
+tier_effect: none (Tier 2 already forced by --depth deep, rule 5.1)
+rationale: "Card covers every objective, separates authorized exceptions from stale reporting, gives concrete corrections; minor classification overstatement on D-5."

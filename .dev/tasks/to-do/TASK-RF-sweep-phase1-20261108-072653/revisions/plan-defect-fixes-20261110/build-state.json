@@ -1,0 +1,21 @@
+{
+  "schema": "revision-build-state/1",
+  "date": "2026-11-10",
+  "revision": "plan-defect-fixes-20261110 (R2)",
+  "predecessor": "chat-output-exception-20261109-133150 (R1)",
+  "authorization": "Owner answered 'Fix the plan first': bounded revision for F-01 to F-10 (85 labels), then re-run structural, alignment, qualitative and PRE checks, then execute. Execution of item 7.10 additionally needs the result-file authorization section the item now requires.",
+  "baseline_task_sha256": "f52e43a57ba6d3f3dc25120da937e1b7bf666782c732e5b042d2b938eb966855",
+  "plan_sha256_current": "eb291f0bdd1a787131a3b5295150b0f109b46943a1c43c638fd2ad4652d29f99",
+  "stage": "A.10, A.10.25, A.10.5 and A.10.7 complete on the edited plan; nine PRE findings open (2 HIGH conditional, 1 MEDIUM, 6 LOW); no further fix applied; execution not started; waiting for the owner's decision",
+  "edit_surface": {"allowed_labels": 85, "changed_labels": 64, "changed_lines": 73, "line_count": 3020},
+  "preservation": "qa/preservation-check.json: pass",
+  "structural_disposition": {"cycle0": "FAIL (b2 report 2 blocking B2-1,B2-2; structure report 1 blocking S16-1)", "fix_cycle": 1, "cycle1_verifier": "afd6029f1537b52aa, qa/A10-verify1.md, VERDICT PASS, blocking 0", "consolidated": "qa/qa-task-validation-consolidated.md", "agents": {"b2": "ab0a027e59951d68b", "structure": "a25282e247c1611a7"}},
+  "alignment_disposition": {"verdict": "PASS", "agent": "a2b8f9bef02915d89", "report": "qa/qa-task-research-alignment-report.md", "blocking": 0, "minor_notes": 7},
+  "qualitative_disposition": {"operational": {"verdict": "PASS", "agent": "af3154a83c936c920", "report": "qa/qa-qualitative-operational-report.md (parent-persisted)", "blocking": 0, "minor_notes": 8}, "sufficiency": {"verdict": "PASS", "agent": "a0ba432aa18e2f655", "report": "qa/qa-qualitative-sufficiency-report.md", "blocking": 0, "minor_notes": 2}, "injection_witness": "qa/qualitative-injection-cycle0.json"},
+  "pre_disposition": {"verdict": "pass (coverage rule; execution_clearance false)", "tcs": 1860, "depth": "deep", "tier_reached": 2, "run_id": "reflect-pre-20261110T0540Z-TASK-RF-sweep-phase1-run4-plan-defect-fixes", "report": "reflect/pre/REPORT.md", "signoff": "reflect/pre/signoff.yaml", "contract": "reflect/pre/return-contract.yaml", "findings": "9 (HIGH 2 conditional on the optional OQ-17/OQ-18 branch, MEDIUM 1, LOW 6); merged verdict at reflect/pre/adversarial/merged-verdict.yaml", "convergence": "0.935 primary, 0.774 strict, BLOCKED_BY_INVARIANTS (INV-R4-003, INV-R4-011)", "citations": "132 entries, 81 distinct ranges, 0 dropped", "model_note": "reviewer 3 ran on claude-opus-5-5 (outside the Tier1b slots); all other stages in slots", "task_frontmatter": "reflect_pre block intentionally not edited (frozen preamble; sign-off supplied separately)"},
+  "executor": {"ledger": ".dev/implement/task-rf-sweep-phase1-202-c7ea3265/progress.md", "complete_count": 137, "item_count": 355, "current": "T138 / item 7.10, start line only; not started"},
+  "old_signoffs": "R1 structural/alignment/qualitative/PRE are history (they name plan sha f52e43a5...)",
+  "retry_counters": {"A10": 1, "A1025": 0, "A105": 0, "A107": 0},
+  "remaining": ["owner decision on the nine PRE findings (M-01 outside the 85 labels needs a new bounded authorization; M-02, M-06, M-08, 14.x part of M-03 need acceptance by name)", "if the owner chooses to proceed: write the verbatim execution authorization first, then resume the executor at T138 (item 7.10)", "if the owner chooses to fix: a third bounded revision, then the full chain again"],
+  "constraints": ["No old verdict or retry reset", "No product/style/test/installed source edit or sync before the owner decides", "No commit push PR merge", "Stage .dev/tasks only"]
+}

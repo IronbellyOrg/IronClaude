@@ -6,7 +6,7 @@
 
 > This file serves two purposes: quick navigation for Claude Code and learning resource for humans.
 
-**Last Updated**: 2026-11-03
+**Last Updated**: 2026-11-12
 
 ---
 
@@ -113,6 +113,7 @@ This page is the per-command reference: exact syntax, options, and what each com
 | `/sc:help` | List installed commands, skills, process levels | `help.md` | No |
 | [`/sc:graph`](#scgraph---code-graph-index-status) | Code-graph index status; builds the index only on `init` | `graph.md` | Only with `init` |
 | [`/sc:issue`](#scissue---github-issue-claim-and-create) | Claim a GitHub issue (assign, accuracy check, summary, next-step prompt, then an Orca worktree and a launched agent) or create a templated issue | `issue.md` | Yes (posts to GitHub; writes `.dev/issues/`) |
+| [`/sc:sweep`](#scsweep---read-only-run-worktree-and-session-report) | Read-only snapshot of a Run, its worktrees and person sessions | `sweep.md` | Report only (writes `.dev/sweeps/`) |
 | `/sc:recommend` | Paste-ready prompt for the right command | `recommend.md` | Report only (inside an IronClaude checkout it writes its cache and telemetry under `.claude/cache/`) |
 | `/sc:init-lite` | Safe audit of project-local context surfaces | `init-lite.md` | Report only |
 | `/sc:pr-submit` | Open fork PR and monitor review fixes | `pr-submit.md` | Yes |
@@ -707,6 +708,47 @@ Full option list: `~/.claude/commands/sc/roadmap.md`.
 ```
 
 **MCP servers:** none
+
+---
+
+### `/sc:sweep` - Read-only Run, Worktree and Session Report
+
+**When to use:** A coordinator (or you) wants one snapshot of what the sessions of a supervised Orca Run are doing: which wait on a person, which look idle or finished, which worktrees hold changed or unpushed work, and what could not be read. It only reads. The coordinator runs it inside its liveness sweep, at most once every 5 minutes (rule WC-16 in `~/.claude/WORKER-CONTRACT.md`); you can also type it. A dispatched worker never runs it.
+
+**Syntax:**
+
+```
+/sc:sweep [--run <id>]... [--window <N>h|<N>d] [--root <dir>] [--output <dir>]
+```
+
+| Flag | Default | Meaning |
+|---|---|---|
+| `--run <id>` | the Run bound to this terminal | An Orca Run id (`run_` plus 12 lowercase hex digits). Repeat it to read several Runs. With no bound Run and no `--run`, the command exits with a message that asks for one. |
+| `--window <N>h\|<N>d` | `6h` | How far back a session counts as active (at most `720h` or `30d`). It bounds activity only; open Tasks, questions and unread reports are listed whatever their age. |
+| `--root <dir>` | the checkout above the current folder | The checkout root; it must hold `.git`. |
+| `--output <dir>` | `<root>/.dev/sweeps/` | The report folder: that folder or one below it. |
+
+**What it reads:** Orca through a fixed allowlist of 10 read-only commands (`worker-list`, `worker-show`, `task-list`, `worktree ps` and a few more), `git status` in each worktree (no optional locks), Claude Code session transcripts, and the `return-contract.yaml` and `progress.md` files of the sessions it finds. It changes nothing in Orca, in git or in any worktree. The one file it adds is the report.
+
+**What you get:**
+
+- One report, `<root>/.dev/sweeps/<YYYYMMDD-HHMMSS>-sweep.md`, ending with `Report complete`. It has twelve sections: header, source coverage, waiting on a person (a) and (b), could not determine, retained problems, sessions, worktrees, historical, shift brief, what could not be determined, and a footer. Every session lands in one of eight classes. The sessions table also states `Safe to close`, `Removable` and `Next inspection`; these are observations, not advice, and the coordinator or person decides.
+- One JSON object on standard output (schema version, scope, window, `orca_available`, sources, rows, worktrees, `summary` and `report_path`).
+- Exit codes: `0` the report was published; `1` an internal error or a publish failure (the message starts with `[sweep <stage>]`); `2` a usage error, with nothing written.
+- A chat reply that prints the session counts and the report path. It follows the normal reply format, except for the one narrowly defined reply that an assigned coordinator session sends after a successful run (see the sweep chat-summary exception in the `pragmatic` output style).
+
+**Phase 1 limits (read these before you trust a count):**
+
+- The classes `stalled (proved)` and `fenced` are never observed in Phase 1, so a zero there means nothing. The counts carry the mark `(not observed in Phase 1)`.
+- The class `working` is never produced yet, because the live names of Orca's `agentWait` field were never captured. Healthy workers read `could not determine`, and a waiting-on-a-person row from an agent wait cannot match on live data. Rows waiting because of a blocked contract or a frozen plan still work.
+- `Safe to close` and `Removable` never say `yes`.
+- Remote hosts are never scanned, so every total is a lower bound.
+- During an Orca outage on an exit 0 run, the report states the outage, but the coordinator's short chat reply prints the counts and the path alone.
+- The size limits (1 MiB for a contract, 256 KiB of a transcript tail, 8 MiB of command output) are proposed values. The 8 MiB output limit is checked after a command exits, and the 10 second per-call timeout stops a runaway.
+
+**MCP servers:** none
+
+**Related:** [How We Work](how-we-work.md) (routing rows for supervising a Run), `docs/designs/orchestrator-mode.md` (the design), and the Phase 1 follow-up issue IronbellyOrg/IronClaude#534.
 
 ---
 

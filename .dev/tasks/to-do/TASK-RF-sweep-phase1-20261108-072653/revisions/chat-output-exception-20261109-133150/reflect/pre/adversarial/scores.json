@@ -1,0 +1,126 @@
+{
+  "quant": {
+    "V1": {
+      "RC": 1.0,
+      "IC": 0.8846,
+      "SR": 0.9949,
+      "DC": 1.0,
+      "SC": 1.0,
+      "quant": 0.9704,
+      "concrete": 196,
+      "vague": 1,
+      "rc_checks": [
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true
+      ],
+      "refs": 33,
+      "resolved": 33,
+      "sections": 4,
+      "qual": 0.8333,
+      "combined": 0.9019
+    },
+    "V2": {
+      "RC": 1.0,
+      "IC": 1.0,
+      "SR": 1.0,
+      "DC": 1.0,
+      "SC": 1.0,
+      "quant": 1.0,
+      "concrete": 61,
+      "vague": 0,
+      "rc_checks": [
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true
+      ],
+      "refs": 24,
+      "resolved": 24,
+      "sections": 4,
+      "qual": 0.8667,
+      "combined": 0.9333
+    },
+    "V3": {
+      "RC": 1.0,
+      "IC": 1.0,
+      "SR": 1.0,
+      "DC": 1.0,
+      "SC": 1.0,
+      "quant": 1.0,
+      "concrete": 223,
+      "vague": 0,
+      "rc_checks": [
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true
+      ],
+      "refs": 26,
+      "resolved": 26,
+      "sections": 4,
+      "qual": 0.9,
+      "combined": 0.95
+    }
+  },
+  "qual_subtotals": {
+    "V1": {
+      "Completeness": 5,
+      "Correctness": 3,
+      "Structure": 5,
+      "Clarity": 3,
+      "Risk Coverage": 4,
+      "Invariant & Edge Case Coverage": 5
+    },
+    "V2": {
+      "Completeness": 5,
+      "Correctness": 5,
+      "Structure": 5,
+      "Clarity": 4,
+      "Risk Coverage": 2,
+      "Invariant & Edge Case Coverage": 5
+    },
+    "V3": {
+      "Completeness": 5,
+      "Correctness": 5,
+      "Structure": 5,
+      "Clarity": 4,
+      "Risk Coverage": 4,
+      "Invariant & Edge Case Coverage": 4
+    }
+  },
+  "points_won": {
+    "V1": 6,
+    "V2": 10,
+    "V3": 4
+  },
+  "ranked": [
+    "V3",
+    "V2",
+    "V1"
+  ],
+  "margin": 0.0167,
+  "tiebreaker": "Yes (level 1, debate points won V3 4 vs V2 10)",
+  "base": "V2",
+  "floor_ok": {
+    "V1": true,
+    "V2": true,
+    "V3": true
+  }
+}

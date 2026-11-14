@@ -1,0 +1,95 @@
+# reuse-audit.yaml (persisted by the reflect orchestrator from the reuse-auditor agent's returned findings; agent is read-only)
+# producer: reuse-auditor agent a49890e3304762423, stage=post, run reflect-post-20261112T192600Z-TASK-RF-sweep-phase1
+stage: post
+candidates_scanned: 12
+neighbours_found: 16
+max_overlap: 0.70            # candidate commands._publish; probes._git is 0.68
+degraded: ["neighbour-search:auggie_unavailable"]
+sampled: false
+notes:
+  - sweep imports nothing from sibling cli packages (Grep for cli.sprint|swarm|reflect|recommend|issue_watch|pipeline in cli/sweep: no match)
+  - existing shared helper checked for the publish pattern: src/superclaude/cli/swarm/atomic.py:14 write_prepared_bytes (tmp+fsync+os.replace; imported cross-package by issue_watch/record.py). It OVERWRITES, so it cannot give _publish its never-overwrite contract. No shared no-clobber link helper, git argv helper or Orca call helper exists.
+findings:
+  - candidate: probes._orca
+    tier: distinct
+    verdict: distinct
+    S_reuse: 0.54
+    confidence: 0.70
+    neighbours: ["src/superclaude/cli/issue_watch/runner.py:67", "src/superclaude/cli/install_user_setup.py:198"]
+    rationale: only the generic subprocess launch overlaps; envelope classification has no neighbour.
+  - candidate: probes._git
+    tier: maybe-related
+    verdict: mirror-shape
+    S_reuse: 0.68
+    confidence: 0.65
+    neighbours: ["src/superclaude/cli/reflect/config.py:64", "src/superclaude/cli/sprint/resume/drift.py:266", "src/superclaude/cli/issue_watch/launch.py:244"]
+    rationale: same one-call git -C idiom in 3 places with different failure handling; no shared git helper existed to import. Copy follows the repo convention noted in reflect/config.py.
+  - candidate: commands._publish
+    tier: maybe-related
+    verdict: extract-shared        # advisory only (degraded cap, below L3)
+    S_reuse: 0.70
+    confidence: 0.70
+    neighbours: ["src/superclaude/cli/sprint/recovery.py:433", "src/superclaude/cli/install_ccsession.py:83", "src/superclaude/cli/swarm/atomic.py:14", "src/superclaude/cli/reflect/runner.py:81"]
+    rationale: temp-file-then-os.link no-clobber idiom now has 3 copies in different domains; not pairwise confident duplicates; swarm.atomic uses os.replace and does not fit.
+  - candidate: commands._parse_window
+    tier: distinct
+    verdict: distinct
+    S_reuse: 0.07
+    confidence: 0.85
+    neighbours: []
+  - candidate: commands._find_root / _check_output
+    tier: distinct
+    verdict: distinct
+    S_reuse: 0.55
+    confidence: 0.70
+    neighbours: ["src/superclaude/cli/swarm/state.py:65"]
+  - candidate: probes.parse_time
+    tier: maybe-related
+    verdict: mirror-shape
+    S_reuse: 0.67
+    confidence: 0.60
+    neighbours: ["src/superclaude/cli/swarm/tui.py:125", "src/superclaude/cli/issue_watch/predicates.py:27"]
+    rationale: Z-to-offset then fromisoformat then None idiom repeated with a different accepted set each time; no drop-in import.
+  - candidate: probes._yaml_top / _contract_from_text
+    tier: distinct
+    verdict: distinct
+    S_reuse: 0.61
+    confidence: 0.65
+    neighbours: ["src/superclaude/cli/reflect/contract.py:65"]
+  - candidate: probes.read_transcript_tail / _tail_from_bytes
+    tier: distinct
+    verdict: distinct
+    S_reuse: 0.50
+    confidence: 0.70
+    neighbours: ["src/superclaude/cli/swarm/commands.py:3128"]
+    note: within-module repeat of the seek-from-end drop-first-partial-line skeleton at probes.py:557-569 and :790-798 (advisory local helper only)
+  - candidate: probes._tab_map
+    tier: distinct
+    verdict: distinct
+    S_reuse: 0.08
+    confidence: 0.85
+    neighbours: ["src/superclaude/skills/ccsession-tag/ccsession:564"]
+  - candidate: probes.Budget
+    tier: distinct
+    verdict: distinct
+    S_reuse: 0.28
+    confidence: 0.80
+    neighbours: ["src/superclaude/cli/audit/budget.py:70", "src/superclaude/cli/install_user_setup.py:224"]
+  - candidate: report.sanitize / report.cell
+    tier: distinct
+    verdict: distinct
+    S_reuse: 0.37
+    confidence: 0.70
+    neighbours: ["src/superclaude/cli/eval/pty_stream.py:94"]
+  - candidate: probes._stable
+    tier: distinct
+    verdict: distinct
+    S_reuse: 0.27
+    confidence: 0.80
+    neighbours: ["src/superclaude/cli/install_retired_mcp.py:343"]
+run_level:
+  confident_duplicates: 0
+  reuse_miss_blocking: 0         # no rung-L3 finding (S_reuse >= 0.82 AND confidence >= 0.85)
+  reuse_miss_advisory: 3         # _git, _publish, parse_time: maybe-related, capped at advisory L2
+  reuse_verdict_count_by_type: { reuse_by_import: 0, mirror_shape: 2, extract_shared: 1, distinct: 9 }
+  reuse_grounding_gap_count: 3

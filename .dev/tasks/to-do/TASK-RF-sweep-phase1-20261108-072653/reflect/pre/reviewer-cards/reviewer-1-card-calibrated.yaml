@@ -1,0 +1,118 @@
+# Saved verbatim by the orchestrator from the read-only confidence-calibrator output.
+card_ref: /home/coder/workspaces/worktrees/IronClaude/issue-339-orchestrator-mode/.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/reflect/pre/reviewer-cards/reviewer-1-card.yaml
+calibrator_model_class: haiku
+dimensions:
+  citation_grounding:
+    score: 0.80
+    reason: "Most delivery mappings verify, but several conclusions overstate their citations, and the registry counts lack a direct artifact citation."
+  coverage_completeness:
+    score: 0.80
+    reason: "All 76 listed requirement and step rows have verdicts, but the card admits incomplete QA-item inspection and does not establish full tasklist coverage."
+  deviation_classification_clarity:
+    score: 0.25
+    reason: "Findings have gap classes, but none receives the required Aligned, Refinement, Drift or Regression category."
+  risk_surface_coverage:
+    score: 0.75
+    reason: "The card covers false QA blockers, parser uncertainty, commit parity and weak validation, but admits that wider test effects were not traced."
+  recommendation_actionability:
+    score: 0.80
+    reason: "Most recommendations name task items and checkable edits, but R1-G1 targets the wrong open-item number and R1-G5 remains advisory."
+calibrated_confidence: 0.68
+self_reported_confidence: 0.80
+calibration_delta: -0.12
+citations_checked:
+  method: "Read every unique file:line reference in the evidence lists, including surrounding text. Checks establish plan content, not executed implementation."
+  unique_references: 128
+  files:
+    - file: /home/coder/workspaces/worktrees/IronClaude/issue-339-orchestrator-mode/docs/designs/orchestrator-mode.md
+      cited_line_ranges:
+        - "705"
+        - "755-795"
+        - "874"
+        - "907-940"
+        - "971"
+    - file: /home/coder/workspaces/worktrees/IronClaude/issue-339-orchestrator-mode/.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md
+      cited_lines:
+        - 1226
+        - 1258
+        - 1265
+        - 1277
+        - 1416
+        - 1423
+        - 1430
+        - 1437
+        - 1444
+        - 1451
+        - 1465
+        - 1472
+        - 1479
+        - 1493
+        - 1623
+        - 1630
+        - 1637
+        - 1783
+        - 1784
+        - 1790
+        - 1792
+        - 1797
+        - 1804
+        - 1811
+        - 1818
+        - 1950
+        - 1957
+        - 1964
+        - 1971
+        - 2103
+        - 2110
+        - 2117
+        - 2124
+        - 2254
+        - 2256
+        - 2270
+        - 2277
+        - 2284
+        - 2291
+        - 2437
+        - 2444
+        - 2451
+        - 2465
+        - 2470
+        - 2472
+        - 2474
+        - 2509
+        - 2677
+        - 2754
+citations_failed:
+  - finding: R1-G1
+    issue: "The cited 7.17 Action explicitly inherits DESIGN behaviour until closed, which includes owner escalation for open item 3. It does not support an unconditional absence of an owner step."
+  - finding: R1-G2
+    issue: "The cited delivery and QA text does not establish the registry's exact match counts or exclusive matches. Those registry claims remain unsupported."
+  - finding: R1-G4
+    issue: "The cited Phase 13 introduction already states that R1, R2 and R3 belong together and explains the parity failure. Only the final-summary handoff omission is supported."
+  - finding: R1-G6
+    issue: "The cited option A builds and caches a temporary environment, and item 14.8 explicitly describes installing runtime dependencies. 'Installs nothing' is inaccurate."
+finding_verdicts:
+  - id: R1-G1
+    holds: partly
+    calibrated_severity: LOW
+    reason: "An explicit parse-failure HALT is absent, but inherited DESIGN behaviour already sends the issue to the owner; the proposed condition wrongly names open item 2 instead of 3."
+  - id: R1-G2
+    holds: partly
+    calibrated_severity: LOW
+    reason: "Delivery exists and some direct requirement labels are missing, but the asserted registry matching and duplication conclusions are not fully demonstrated."
+  - id: R1-G3
+    holds: "yes"
+    calibrated_severity: MEDIUM
+    reason: "Item 14.11 restricts test searches to locations that exclude the FR-023 and FR-024 tests, creating a concrete risk of false blocking findings."
+  - id: R1-G4
+    holds: partly
+    calibrated_severity: LOW
+    reason: "The final summary lacks an explicit commit-group reminder, but the plan already documents grouping and parity, and execution makes no commits."
+  - id: R1-G5
+    holds: "yes"
+    calibrated_severity: LOW
+    reason: "The tasklist adds documented preconditions and moves the live check until after CLI registration; this is an explanatory refinement, not a demonstrated defect."
+  - id: R1-G6
+    holds: partly
+    calibrated_severity: LOW
+    reason: "An unchanged hit count can conceal changed matches, but temporary pipx installation is not absence of installation, and the owner explicitly chooses the verification route."

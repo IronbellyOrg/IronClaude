@@ -1,0 +1,3 @@
+e82e16a1712d77eff615ff5a847f309ab03c1259
+A1 r1-1 F1.1 minor .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md:2911 ac=scope amiss:n,false:n,harm:n,constraint:n The report's wording that the task holds every later decision to the direct-answer rule overstates the task-wide rule (it comes from the 2026-11-09 OQ-6 revision, BUILD-REQUEST.md:15), and the MAJOR rating differs from how the R5 gate logged the OQ-1 relay (MINOR). F-1 stays a real gap in OQ-1.
+A1 r1-1 F1.2 note .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/decisions/qa-decision-fidelity-report.md:74 ac=scope amiss:n,false:n,harm:n,constraint:n pr422-409-check.md stale origin/master note is correctly left to the evidence-quality lens.

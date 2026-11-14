@@ -1,0 +1,2 @@
+b279dbf19d31cf67a14fd930d2f0f425bd84f307
+A1 r1-1 F1.1 minor .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/r3-b1/qa-numbers-metrics-report.md:55 ac=T17.AC1 amiss:n,false:n,harm:n,constraint:n The report's minor note m2 says two path-B fixtures drop the pane and tab-map setup, but research/04:115 (the inclusive-bounds fixture) gives no such setup either; the note is accurate only for the first fixture. Non-blocking.

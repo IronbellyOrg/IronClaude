@@ -1,0 +1,12 @@
+return_contract:
+  merged_output_path: "/home/coder/workspaces/worktrees/IronClaude/issue-339-orchestrator-mode/.dev/brainstorms/20261113-orchestrator-tui-alignment/owner-questions/Q17/merged-proposal.md"
+  convergence_score: 1.0
+  artifacts_dir: "/home/coder/workspaces/worktrees/IronClaude/issue-339-orchestrator-mode/.dev/brainstorms/20261113-orchestrator-tui-alignment/owner-questions/Q17/adversarial/"
+  status: "success"
+  base_variant: "variant-2 (proposal-B, current model, analyzer advocate)"
+  unresolved_conflicts: 0
+  fallback_mode: false
+  failure_stage: null
+  invocation_method: "skill-direct"
+  unaddressed_invariants: []
+  notes: "Depth quick: Round 1 only, Round 2.5 skipped. Base chosen by tiebreaker level 1 (debate points) after a 0.4 point combined-score margin. Merge-executor reported partial (contradiction C-1); the orchestrator resolved it with one recorded edit. Steps 1, 3 and 4 were run by the orchestrating session; advocates and merge-executor were spawned sub-agents."

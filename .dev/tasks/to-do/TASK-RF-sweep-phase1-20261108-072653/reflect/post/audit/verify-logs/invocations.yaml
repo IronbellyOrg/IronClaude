@@ -1,0 +1,36 @@
+# Bash verification invocations (SKILL 6.1.1 envelope: allowlisted verb uv, no metacharacters, timeout wrap, env -u SUPERCLAUDE_REFLECT_WRAPPER_ACTIVE)
+- cmd: "timeout 120 env -u SUPERCLAUDE_REFLECT_WRAPPER_ACTIVE uv run ruff check src/superclaude/cli/sweep src/superclaude/cli/main.py tests/sweep tests/commands/test_sweep_command.py tests/skills/test_worker_contract.py tests/core/test_how_we_work_routing_table.py tests/recommend/test_routing_refresh.py"
+  exit_code: 0
+  duration_ms: null
+  stdout_path: verify-logs/ruff-check.stdout.txt
+  stderr_path: null
+  blocked_reason: null
+  deviation_class: none            # step 5 diagnostics
+- cmd: "timeout 600 env -u SUPERCLAUDE_REFLECT_WRAPPER_ACTIVE uv run pytest tests/sweep tests/commands/test_sweep_command.py tests/skills/test_worker_contract.py tests/core/test_how_we_work_routing_table.py tests/recommend/test_routing_refresh.py -q -p no:cacheprovider --no-header"
+  exit_code: 0
+  duration_ms: 6390
+  stdout_path: verify-logs/pytest-scoped.stdout.txt
+  stderr_path: null
+  blocked_reason: null
+  deviation_class: none            # 1788 passed; step 5.5 scoped verify
+- cmd: "timeout 120 env -u SUPERCLAUDE_REFLECT_WRAPPER_ACTIVE uv run superclaude sweep --help"
+  exit_code: 0
+  duration_ms: null
+  stdout_path: verify-logs/sweep-help.stdout.txt
+  stderr_path: null
+  blocked_reason: null
+  deviation_class: none            # real-entrypoint reachability evidence (CLI surface registered)
+- cmd: "timeout 120 env -u SUPERCLAUDE_REFLECT_WRAPPER_ACTIVE uv run superclaude sweep run --help"
+  exit_code: 0
+  duration_ms: null
+  stdout_path: verify-logs/sweep-run-help.stdout.txt
+  stderr_path: null
+  blocked_reason: null
+  deviation_class: none
+- cmd: "timeout 300 env -u SUPERCLAUDE_REFLECT_WRAPPER_ACTIVE uv run pytest tests/cli/eval/test_claude_process_adapter.py tests/hooks/test_launch_level_guard.py -q -p no:cacheprovider --no-header -k \"ruff or speed_large\""
+  exit_code: 1
+  duration_ms: 251650
+  stdout_path: verify-logs/pytest-recheck-env-failures.stdout.txt
+  stderr_path: null
+  blocked_reason: null
+  deviation_class: grounding_gap      # exit 1, but both failures are `No module named ruff` in .venv (python -m ruff); no file read by them is in the diff; the task logged the same cause. Not classified Regression by evidence. The timing test passed on isolated re-run.

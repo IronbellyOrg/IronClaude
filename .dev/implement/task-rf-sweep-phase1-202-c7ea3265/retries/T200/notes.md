@@ -1,0 +1,3 @@
+9390ff01f4236e92249afc4f664bacc22bc76400
+A1 r1-1 F1.1 note .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/impl-cli/qa-publication-report.md:103 ac=scope amiss:n,false:n,harm:n,constraint:n C19 and C20 read "PASS with note ..." instead of a bare PASS or FAIL; each still starts with PASS, so every check id is decidable.
+A1 r1-1 F1.2 note .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/impl-cli/qa-publication-report.md:76 ac=scope amiss:n,false:n,harm:n,constraint:n M1 cites src/superclaude/cli/sweep/commands.py:207 for the "could not remove temp file" message; it is on line 206 (line drift only; the conclusion holds).

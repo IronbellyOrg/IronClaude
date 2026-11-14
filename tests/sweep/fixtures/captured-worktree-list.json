@@ -1,0 +1,123 @@
+{
+  "id": "00000000-0000-4000-8000-000000000051",
+  "ok": true,
+  "result": {
+    "worktrees": [
+      {
+        "id": "00000000-0000-4000-8000-000000000003::/home/user/workspaces/worktrees/IronClaude/issue-339-orchestrator-mode",
+        "identity": {
+          "key": "wt2:local:00000000-0000-4000-8000-000000000041",
+          "executionHostId": "local",
+          "instanceId": "00000000-0000-4000-8000-000000000041"
+        },
+        "instanceId": "00000000-0000-4000-8000-000000000041",
+        "repoId": "00000000-0000-4000-8000-000000000003",
+        "projectId": "github:superclaude-org/superclaude_framework",
+        "hostId": "local",
+        "projectHostSetupId": "00000000-0000-4000-8000-000000000003",
+        "creatorProvenance": {
+          "kind": "host"
+        },
+        "path": "/home/user/workspaces/worktrees/IronClaude/issue-339-orchestrator-mode",
+        "head": "5dc29d23b15eb7db4ead50623bb409f696a0d7d3",
+        "branch": "refs/heads/ironbelly/issue-339-orchestrator-mode",
+        "isBare": false,
+        "isMainWorktree": false,
+        "displayName": "issue-339-orchestrator-mode",
+        "displayNameMode": "fixed",
+        "comment": "",
+        "linkedIssue": null,
+        "linkedPR": null,
+        "linkedLinearIssue": null,
+        "linkedLinearIssueWorkspaceId": null,
+        "linkedLinearIssueOrganizationUrlKey": null,
+        "linkedGitLabMR": null,
+        "linkedGitLabIssue": null,
+        "linkedBitbucketPR": null,
+        "linkedAzureDevOpsPR": null,
+        "linkedGiteaPR": null,
+        "linkedWorkItem": null,
+        "linkedTaskSourceContext": null,
+        "isArchived": false,
+        "isUnread": true,
+        "isPinned": false,
+        "sortOrder": 1794432910840,
+        "lastActivityAt": 1794432847370,
+        "createdAt": 1794035783506,
+        "createdWithAgent": "claude",
+        "baseRef": "refs/remotes/origin/master",
+        "workspaceStatus": "in-progress",
+        "parentWorktreeId": null,
+        "childWorktreeIds": [],
+        "lineage": null,
+        "git": {
+          "path": "/home/user/workspaces/worktrees/IronClaude/issue-339-orchestrator-mode",
+          "head": "5dc29d23b15eb7db4ead50623bb409f696a0d7d3",
+          "branch": "refs/heads/ironbelly/issue-339-orchestrator-mode",
+          "isBare": false,
+          "isMainWorktree": false
+        },
+        "linkedItems": []
+      },
+      {
+        "id": "00000000-0000-4000-8000-000000000046::/home/user/workspaces/Coder",
+        "identity": {
+          "key": "wt2:local:00000000-0000-4000-8000-000000000047",
+          "executionHostId": "local",
+          "instanceId": "00000000-0000-4000-8000-000000000047"
+        },
+        "instanceId": "00000000-0000-4000-8000-000000000047",
+        "repoId": "00000000-0000-4000-8000-000000000046",
+        "hostId": "local",
+        "path": "/home/user/workspaces/Coder",
+        "head": "abc9bd25e2afc36e6d3270214aeacb43ae6576ce",
+        "branch": "refs/heads/main",
+        "isBare": false,
+        "isMainWorktree": true,
+        "displayName": "main",
+        "displayNameMode": "automatic",
+        "comment": "",
+        "linkedIssue": null,
+        "linkedPR": null,
+        "linkedLinearIssue": null,
+        "linkedLinearIssueWorkspaceId": null,
+        "linkedLinearIssueOrganizationUrlKey": null,
+        "linkedGitLabMR": null,
+        "linkedGitLabIssue": null,
+        "linkedBitbucketPR": null,
+        "linkedAzureDevOpsPR": null,
+        "linkedGiteaPR": null,
+        "linkedWorkItem": null,
+        "linkedTaskSourceContext": null,
+        "isArchived": false,
+        "isUnread": true,
+        "isPinned": true,
+        "sortOrder": 1794432917840,
+        "lastActivityAt": 1794432158579,
+        "workspaceStatus": "todo",
+        "parentWorktreeId": null,
+        "childWorktreeIds": [],
+        "lineage": null,
+        "git": {
+          "path": "/home/user/workspaces/Coder",
+          "head": "abc9bd25e2afc36e6d3270214aeacb43ae6576ce",
+          "branch": "refs/heads/main",
+          "isBare": false,
+          "isMainWorktree": true
+        },
+        "linkedItems": []
+      }
+    ],
+    "hostScope": {
+      "hostIds": [
+        "local"
+      ],
+      "omittedHostIds": []
+    },
+    "totalCount": 2,
+    "truncated": false
+  },
+  "_meta": {
+    "runtimeId": "00000000-0000-4000-8000-000000000004"
+  }
+}

@@ -1,0 +1,89 @@
+Review one task for spec compliance.
+
+Task brief: T82 = item 5.6 of the source file /home/coder/workspaces/worktrees/IronClaude/issue-339-orchestrator-mode/.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md (lines 802-808). Item text:
+- [ ] **5.6 — R4: re-anchor the `main.py` insertion point (DESIGN lines near 28, 915, 951)**
+  - **Context**: PR #447 added the `issue-watch` pair to `src/superclaude/cli/main.py`: import at `:563`, `main.add_command(issue_watch_group, name="issue-watch")` at `:565`; `if __name__ == "__main__":` moved to `:568`; the file is 569 lines (research/08:15, :117). DESIGN still says "after line 561", the block 519-561, last pair reflect (559, 561) and `if __name__` 564.
+  - **Action**: At DESIGN near line 28 change to block 519-565, last pair `issue-watch` (563, 565), `if __name__` at 568. At step 1.7 (near 915) and the rollback row (near 951) change "after line 561" to "after line 565".
+  - **Output**: DESIGN with the 565 anchor.
+  - **Verification**: Verify: `grep -n 'after line 561\|519-561' docs/designs/orchestrator-mode.md` returns nothing; `grep -c 'after line 565'` is at least 2; read `src/superclaude/cli/main.py` lines 559-569 and record line 565's text in `.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/discovery/r4-reanchor.md`.
+  - **Completion gate**: The insertion point is 565 everywhere. Once done, mark this item as complete.
+AC ids: T82.AC1 = the item title "R4: re-anchor the `main.py` insertion point (DESIGN lines near 28, 915, 951)" (no AC block; the title is the AC). The item's own Verification and Completion gate lines are context for what "done" means. Ticking the item's checkbox is done by the orchestrator after the verdict and is not part of the diff under review.
+Global constraints: the `### Key Constraints` section (lines 157-168) of the source file named in the task brief; read it from that file.
+Start sha: 32b1eed538099aa55da227c154663e9527b31806
+Diff against the start snapshot: --- a/docs/designs/orchestrator-mode.md
++++ b/docs/designs/orchestrator-mode.md
+@@ -25,7 +25,7 @@
+ Facts checked on this host on 2026-11-08 for this design (read-only):
+ 
+ - `src/superclaude/cli/sweep/` does not exist yet.
+-- `src/superclaude/cli/main.py` registers deferred subcommands at lines 519-561; the last pair is `reflect` (559, 561); `if __name__ == "__main__":` is at 564.
++- `src/superclaude/cli/main.py` registers deferred subcommands at lines 519-565; the last pair is `issue-watch` (563, 565); `if __name__ == "__main__":` is at 568.
+ - `src/superclaude/cli/recommend/__init__.py:12-20` is the lazy `__getattr__` export pattern.
+ - `/opt/Orca/resources/app.asar.unpacked/out/package.json` has `"version": "1.4.245-aidev02.780594c521aa"`.
+ - `uv run --help` (uv 0.11.8) documents `--no-sync` as "Avoid syncing the virtual environment" and `--frozen` as "Run without updating the `uv.lock` file". This is the help text; the flags were not run.
+@@ -920,7 +920,7 @@
+ | 1.4 | | Rest of `probes.py`: `_orca`, `ALLOWED_ORCA`, `Budget`, `OrcaResult`, `bind_run`, `collect`, readers. Live check saved to `.dev/tasks/<pkg>/artifacts/sweep-live-check-1.4.json`; no `--include-remote` timing | 7.1, 7.3 | 1.0a (parsers, regexes), 1.4a |
+ | 1.5 | | `report.py`: `sanitize`, `cell`, `render`, `to_json`, `SECTIONS`; no `write_report` | 7.1, 7.4, 7.5, D1 | 1.3 |
+ | 1.6 | | `commands.py`: `run`, `_parse_window`, `_find_root`, `_check_output`, `_check_run_ids`, `_publish`; no `run-list` fallback; `--output` default `<root>/.dev/sweeps/` | 3, 5, 7.1 | 1.4, 1.5 |
+-| 1.7 | | Register `sweep_group` in `src/superclaude/cli/main.py` with the deferred-import pattern (after line 561) | 7.1 | 1.6 |
++| 1.7 | | Register `sweep_group` in `src/superclaude/cli/main.py` with the deferred-import pattern (after line 565) | 7.1 | 1.6 |
+ | 1.8 | | `tests/sweep/conftest.py` and fixtures | 11 | 1.0a for captured fixtures |
+ | 1.9 | | `tests/sweep/test_classify.py` | 11 | 1.3 |
+ | 1.10 | | `tests/sweep/test_probes_allowlist.py` | 11 | 1.4 |
+@@ -956,7 +956,7 @@
+ | Item | Rollback |
+ |---|---|
+ | `src/superclaude/cli/sweep/` and `tests/sweep/` (including `tests/sweep/fixtures/`) | Delete |
+-| `src/superclaude/cli/main.py` deferred import and `add_command` lines (after line 561) | Remove |
++| `src/superclaude/cli/main.py` deferred import and `add_command` lines (after line 565) | Remove |
+ | `src/superclaude/commands/sweep.md`, `src/superclaude/skills/sc-sweep-protocol/`, `tests/commands/test_sweep_command.py` | Delete; run `make sync-dev`. Whether it removes the `.claude/` copies is UNVERIFIED (section 17); if not, delete them by hand. Never stage them |
+ | WC-16 with the D6 sentence, the line 23 never-as-worker entry, the `RULE_PHRASES` entry, the `NEVER_AS_WORKER` entry, the `UNATTENDED_COMMANDS` assertion (design) and the test rename | Revert |
+ | R1, R2, R3, R4, R5 | Revert together, so the plugin byte copy stays equal |
+--- a/.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/discovery/r4-reanchor.md
++++ b/.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/discovery/r4-reanchor.md
+@@ -42,3 +42,21 @@
+ (exit 1; 1 means no old anchor remains in section 8)
+ ```
+ Pin list entries under "**Pins** (five edits)": 5
++
++## main.py insertion point (item 5.6)
++
++Read `src/superclaude/cli/main.py` lines 559-569:
++```
++559: from superclaude.cli.reflect.commands import reflect_group  # noqa: E402,I001  # intentional: deferred subcommand regist
++561: main.add_command(reflect_group, name="reflect")
++563: from superclaude.cli.issue_watch.cli import issue_watch_group  # noqa: E402,I001  # intentional: deferred subcommand reg
++565: main.add_command(issue_watch_group, name="issue-watch")
++568: if __name__ == "__main__":
++569:     main()
++```
++
++Line 565 is `main.add_command(issue_watch_group, name="issue-watch")`, the last registered pair. The new `sweep_group` registration goes after it. `if __name__ == "__main__":` is at line 568 and the file has 569 lines.
++
++- `grep -n 'after line 561\|519-561' docs/designs/orchestrator-mode.md`: 0 hits (expect 0)
++- `grep -c 'after line 565' docs/designs/orchestrator-mode.md`: 2 (expect at least 2: step 1.7 and the rollback row)
++- DESIGN section 1 line: 28:- `src/superclaude/cli/main.py` registers deferred subcommands at lines 519-565; the last pair is `issue-watch` (563, 565); `if __name__ == "__main__":` is at 568.
+Delta diff from the previous reviewed tree (empty on the first review): 
+Earlier blocking findings of this start (empty on the first review): 
+Saved-probe re-check hit locations (may be empty): 
+
+Do not trust the implementer's report.
+
+First mark each earlier blocking finding resolved, open or regressed from the diff. Then, for each AC, mark it met or unmet. Require citations: every AC you mark, met or unmet, carries a `path:line` or `Ti.ACk@path:line` citation, and an unmet mark lists the finding ids behind it. Do not return a verdict; the orchestrator computes it.
+
+For every finding answer four questions, each yes or no:
+1. ac-outcome-missing: is output an AC requires absent, or does it contradict the AC text, or does an evidence claim you could not verify have no evidence row?
+2. false-claim: is a claim in delivered text or code false against live source, or does a recipe or instruction followed as written not do what the text says?
+3. harmful-effect: does code or a recipe this task added or changed write, append, chmod or delete tracked or production data, mutate state outside the task's declared outputs, or expose a secret?
+4. quoted-constraint-breach: does the diff violate a quoted plan constraint, out-of-scope, non-goal or non-negotiable item, or an explicit task instruction?
+
+Anchor rule: cite exactly one anchor per yes. ac-outcome-missing: the quoted AC words. false-claim: the live-source path:line holding the contradicting text. harmful-effect: the diff line that is the write. quoted-constraint-breach: the quoted constraint or instruction text. A yes without a valid anchor does not block.
+
+Write one line per finding:
+F<k>.<j> ac=<Ti.ACk|scope> at=<path:line> anchor=<quoted text or path:line> chk=<amiss,false,harm,constraint as y/n> family=<id> fix=<text> [covers=<quoted AC clause or constraint>]: <text>
+Do not write sev=, trigger=, first= or origin=; the orchestrator adds them. Write one status line per earlier blocking finding: F<m>.<j> resolved|open|regressed.
+
+Inside /sc:implement this protocol's severity model governs this review and takes precedence over the session's output style and the copy of it injected into every subagent; only blocking findings may fail an attempt.
+
+You are not given an adviser answer, brief, evidence file or troubleshoot report. Do not read the retry folders (legacy `.dev/implement/<slug>/retries/`, managed `<pkg>/artifacts/retries/`) or `.dev/troubleshoot/`. A citation into either makes the verdict `cannot-verify`.
+The prior-findings slot above carries earlier blocking finding lines that the orchestrator copies byte for byte from `review-*.md` and `repair-*.md`; they reach you as prompt text, not as an evidence file. Do not read those folders to get them, and never cite the slot or the file it came from.

@@ -1,0 +1,3 @@
+0fb1aea4788c7bb689a60803c143b839fd37e84e
+A1 r1-1 F1.1 minor .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/decisions/qa-readonly-safety-report.md:61 ac=T152.AC1 amiss:n,false:n,harm:n,constraint:n M4 judges the kept capitalised folder and repo name Coder under SOURCES.md rule 2 (lowercase account name); disclosed, not a breach.
+A1 r1-1 F1.2 minor .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/artifacts/readonly-probe.md:8 ac=scope amiss:n,false:n,harm:n,constraint:n The probe header says every command ran in its own Bash call; the report records the mismatch as M2. Concerns the probe header, to be corrected in the fix cycle.

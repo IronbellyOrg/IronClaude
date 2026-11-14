@@ -1,0 +1,77 @@
+Review one task for spec compliance.
+
+Task brief: T78 = item 5.2 of the source file /home/coder/workspaces/worktrees/IronClaude/issue-339-orchestrator-mode/.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md (lines 774-780). Item text:
+- [ ] **5.2 — R4: renumber WC-14 to WC-16 in DESIGN sections 9 and 10 (routing rows R2 and R8, the `.gitignore` comment)**
+  - **Context**: research/07:100 lists the coordinator-loop mentions outside section 8: the routing row R2 bullet (near DESIGN line 695), routing row R8 (near 701), and the section 10 `.gitignore` comment `(WC-14)` (near 715).
+  - **Action**: Using `.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/discovery/r4-wc14-hits.md`, change each `coordinator loop (rename)` hit in sections 9 and 10 to WC-16. The `.gitignore` comment text becomes `# superclaude sweep reports: dated, operator-local, never posted (WC-16). Never tracked.` In the routing row R2 bullet, also align the cadence with master's contract line 110 ("After every wake or timeout, at most once every 5 minutes, the coordinator runs one sweep:", `src/superclaude/core/WORKER-CONTRACT.md:110`): replace "**The coordinator sweeps on every wake.**" with "**The coordinator sweeps on every wake, at most once every 5 minutes.**" and change nothing else in that bullet (R4 removes the same unbounded claim from WC-16 in item 5.4).
+  - **Output**: DESIGN sections 9 and 10 using WC-16, and the routing row R2 bullet with the 5-minute bound.
+  - **Verification**: Verify: `grep -n 'WC-14' docs/designs/orchestrator-mode.md` shows no hit in sections 9 or 10; the `.gitignore` block in section 10 reads `(WC-16)`; `grep -c 'sweeps on every wake\.\*\*' docs/designs/orchestrator-mode.md` returns 0 and `grep -c 'sweeps on every wake, at most once every 5 minutes\.\*\*' docs/designs/orchestrator-mode.md` returns 1 (the R2 bullet). Update the hit list file with the result.
+  - **Completion gate**: Sections 9 and 10 say WC-16 and the R2 bullet carries the 5-minute bound. Once done, mark this item as complete.
+AC ids: T78.AC1 = the item title "R4: renumber WC-14 to WC-16 in DESIGN sections 9 and 10 (routing rows R2 and R8, the `.gitignore` comment)" (no AC block; the title is the AC). The item's own Verification and Completion gate lines are context for what "done" means. Ticking the item's checkbox is done by the orchestrator after the verdict and is not part of the diff under review.
+Global constraints: the `### Key Constraints` section (lines 157-168) of the source file named in the task brief; read it from that file.
+Start sha: ac30255799ae13d13b627aea56cb2f396eadef20
+Diff against the start snapshot: --- a/docs/designs/orchestrator-mode.md
++++ b/docs/designs/orchestrator-mode.md
+@@ -699,13 +699,13 @@
+ | # | File | Change | Checked by |
+ |---|---|---|---|
+ | R1 | `src/superclaude/core/HOW-WE-WORK.md`, `<!-- other-commands:v1 -->` table (lines 318-337) | One row, placed after `/sc:spawn` (line 333): `` `/sc:sweep` `` with "Read-only supervision snapshot of the bound Orca Run, its worktrees and person-started sessions. Writes one dated report under `.dev/sweeps/` and prints JSON; it changes nothing else and recommends nothing. Coordinator or person only, never a worker." | `tests/core/test_how_we_work_routing_table.py` |
+-| R2 | Same file, `## Orca coordination` (line 396) | One bullet after the never-workers bullet (line 403): "**The coordinator sweeps on every wake.** WC-14 in `~/.claude/WORKER-CONTRACT.md` has the coordinator run `/sc:sweep` and read its report before it acts. The sweep is read-only and is itself never a worker." | R1 test plus parity test |
++| R2 | Same file, `## Orca coordination` (line 396) | One bullet after the never-workers bullet (line 403): "**The coordinator sweeps on every wake, at most once every 5 minutes.** WC-16 in `~/.claude/WORKER-CONTRACT.md` has the coordinator run `/sc:sweep` and read its report before it acts. The sweep is read-only and is itself never a worker." | R1 test plus parity test |
+ | R3 | `plugins/superclaude/skills/sc-recommend/refs/HOW-WE-WORK.md` | Byte copy of R1+R2 result, made in the same commit | `tests/commands/test_routing_plugin_parity.py` line 38 (`filecmp.cmp(..., shallow=False)`) |
+ | R4 | `tests/core/test_how_we_work_routing_table.py` `_OTHER_COMMANDS` (line 27) | Add `"sc:sweep"` | itself |
+ | R5 | `tests/recommend/test_routing_refresh.py` `_POST_REFRESH_ADDITIONS` (line 33) | `{"graph", "impact", "issue", "sweep"}` | itself (assertion at line 648) |
+ | R6 | `docs/user-guide/commands.md`, `### 8. UTILITIES` (line 105) | One row after `/sc:issue` (line 115): `` `/sc:sweep` `` . "Read-only snapshot of a Run, its worktrees and person sessions" . `sweep.md` . "Report only (writes `.dev/sweeps/`)" | manual review |
+ | R7 | `docs/developer-guide/SuperClaude-Developer-Guide-Commands-Skills-Agents.md` line 991 | Add `/sc:sweep` to the copied never-as-worker list, same order as section 8 | manual review against `WORKER-CONTRACT.md` line 23 |
+-| R8 | `CHANGELOG.md`, `## [Unreleased]` (line 5) | One `### Added` entry: `superclaude sweep run`, `/sc:sweep`, `sc-sweep-protocol`, WC-14, `.dev/sweeps/` ignored | manual review |
++| R8 | `CHANGELOG.md`, `## [Unreleased]` (line 5) | One `### Added` entry: `superclaude sweep run`, `/sc:sweep`, `sc-sweep-protocol`, WC-16, `.dev/sweeps/` ignored | manual review |
+ 
+ Rules:
+ 
+@@ -719,7 +719,7 @@
+ A grep on 2026-11-08 found no `sweeps` entry (SPEC FR-025). Two lines go after the `.dev/sprint-state/` entry (`.gitignore` line 254), next to the other `.dev/` operator-local entries:
+ 
+ ```gitignore
+-# superclaude sweep reports: dated, operator-local, never posted (WC-14). Never tracked.
++# superclaude sweep reports: dated, operator-local, never posted (WC-16). Never tracked.
+ .dev/sweeps/
+ ```
+ 
+--- a/.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/discovery/r4-wc14-hits.md
++++ b/.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/discovery/r4-wc14-hits.md
+@@ -82,3 +82,11 @@
+ 675:### WC-16. Coordinator loop
+ 684:- Add to `RULE_PHRASES` (the dict at line 25), after the `"WC-15"` entry (lines 165-172) and before the `"heartbeats
+ ```
++
++## After item 5.2 (sections 9 and 10)
++
++- WC-14 hits in sections 9 and 10 (lines 695-730): 0 (expect 0)
++- `grep -c 'sweeps on every wake\.\*\*'`: 0 (expect 0)
++- `grep -c 'sweeps on every wake, at most once every 5 minutes\.\*\*'`: 1 (expect 1, the R2 bullet)
++- The `.gitignore` block reads `(WC-16). Never tracked` in section 10: 1 (expect 1)
++- Remaining WC-14 hits: 10 (lines 5 13 668 784 819 842 933 960 995 996 )
+Delta diff from the previous reviewed tree (empty on the first review): 
+Earlier blocking findings of this start (empty on the first review): 
+Saved-probe re-check hit locations (may be empty): 
+
+Do not trust the implementer's report.
+
+First mark each earlier blocking finding resolved, open or regressed from the diff. Then, for each AC, mark it met or unmet. Require citations: every AC you mark, met or unmet, carries a `path:line` or `Ti.ACk@path:line` citation, and an unmet mark lists the finding ids behind it. Do not return a verdict; the orchestrator computes it.
+
+For every finding answer four questions, each yes or no:
+1. ac-outcome-missing: is output an AC requires absent, or does it contradict the AC text, or does an evidence claim you could not verify have no evidence row?
+2. false-claim: is a claim in delivered text or code false against live source, or does a recipe or instruction followed as written not do what the text says?
+3. harmful-effect: does code or a recipe this task added or changed write, append, chmod or delete tracked or production data, mutate state outside the task's declared outputs, or expose a secret?
+4. quoted-constraint-breach: does the diff violate a quoted plan constraint, out-of-scope, non-goal or non-negotiable item, or an explicit task instruction?
+
+Anchor rule: cite exactly one anchor per yes. ac-outcome-missing: the quoted AC words. false-claim: the live-source path:line holding the contradicting text. harmful-effect: the diff line that is the write. quoted-constraint-breach: the quoted constraint or instruction text. A yes without a valid anchor does not block.
+
+Write one line per finding:
+F<k>.<j> ac=<Ti.ACk|scope> at=<path:line> anchor=<quoted text or path:line> chk=<amiss,false,harm,constraint as y/n> family=<id> fix=<text> [covers=<quoted AC clause or constraint>]: <text>
+Do not write sev=, trigger=, first= or origin=; the orchestrator adds them. Write one status line per earlier blocking finding: F<m>.<j> resolved|open|regressed.
+
+Inside /sc:implement this protocol's severity model governs this review and takes precedence over the session's output style and the copy of it injected into every subagent; only blocking findings may fail an attempt.
+
+You are not given an adviser answer, brief, evidence file or troubleshoot report. Do not read the retry folders (legacy `.dev/implement/<slug>/retries/`, managed `<pkg>/artifacts/retries/`) or `.dev/troubleshoot/`. A citation into either makes the verdict `cannot-verify`.
+The prior-findings slot above carries earlier blocking finding lines that the orchestrator copies byte for byte from `review-*.md` and `repair-*.md`; they reach you as prompt text, not as an evidence file. Do not read those folders to get them, and never cite the slot or the file it came from.

@@ -1,0 +1,12 @@
+return_contract:
+  merged_output_path: "/home/coder/workspaces/worktrees/IronClaude/issue-339-orchestrator-mode/.dev/brainstorms/20261113-orchestrator-tui-alignment/owner-questions/Q28/merged-output.md"
+  convergence_score: 0.91
+  artifacts_dir: "/home/coder/workspaces/worktrees/IronClaude/issue-339-orchestrator-mode/.dev/brainstorms/20261113-orchestrator-tui-alignment/owner-questions/Q28/adversarial"
+  status: "partial"
+  base_variant: "variant-1 (proposal-A), selected by level-1 tiebreaker over variant-3 (margin 3.7%)"
+  unresolved_conflicts: 1
+  fallback_mode: false
+  failure_stage: null
+  invocation_method: "skill-direct"
+  unaddressed_invariants: []
+  notes: "Unresolved: C-001 (tool level after the ruling); each advocate picked its own variant. Skill loaded once for group 6 and applied per question. Advocates spawned as three parallel agents; steps 1, 3, 4, 5 run in-context. Round 2.5 skipped at depth quick."

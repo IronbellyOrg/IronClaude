@@ -1,0 +1,19 @@
+# Blind calibration of reviewer 2's card. Parent-persisted from the confidence-calibrator's returned report (agent a8dd6ccea02a12db4, sonnet class); scores and notes are the calibrator's.
+schema: sc-reflect-calibration/v1
+card: reviewer-cards/reviewer-2-card.md
+reviewer: {n: 2, persona: qa, model_class: haiku}
+calibrator_model_class: sonnet
+self_reported_confidence: 0.93
+calibrated_confidence: 0.86
+delta: -0.07
+dimension_scores: {citation_grounding: 0.95, coverage_completeness: 0.85, deviation_classification_clarity: 0.85, risk_surface_coverage: 0.78, recommendation_actionability: 0.88}
+citations_checked: 18            # 15 cited ranges plus 3 extra claim checks
+citations_failed: 0
+per_finding:
+  R2-F1: "Verified. Glob OQ-*-decision.md also matches OQ-17/OQ-18 files; TL:1272 sets them RESOLVED on approval or refusal; count can reach 9 or 10; the 'expect 8' check recurs at 7.30 and 7.34. Only arises if the 7.17 branch fires."
+  R2-F2: "Verified. TL:2265 says copy the design text; TL:2267 still greps the old wording; design:716 reads 'The coordinator runs /sc:sweep on every wake'. The matrix R2 row independently notes the change. The card's claim about the 'later routing review' was not read by the calibrator."
+  R2-F3: "Verified. Matrix line 249 maps INF-041 to the empty-section sentence only; design:645 also holds the 'Distinct affected sessions ... set union' sentence; items 8.12 and 10.5 deliver and test it; no other matrix row mentions it. A recall defect in the audit evidence, not missing work."
+  tier1_verdicts: "F9 and F10 refutations and F1 and F3 refinements are supported by the addendum and task lines."
+coverage_note: "The matrix's own non-covered rows (INF-017 partial, INF-A06 partial, INF-A29 missing) are not mentioned by the card; the '40 of 40 adherent' tally is an aggregate and was not independently verified."
+escalation: {verdict: STOP, reason: none, rule: "C 0.86 >= 0.85 (margin 0.01)", restriction: "--depth deep already runs Tier 2"}
+input_absent: [now_iso, assertions_path]

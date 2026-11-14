@@ -1,0 +1,3 @@
+f2d9aa599c7902998c3d2f468eac1a3adc628b85
+A2 r2-1 F2.1 note .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/artifacts/owner-decisions.md:1 ac=T141.AC1 amiss:n,false:n,harm:n,constraint:n The artifact never cites design-addendum.md, which the item text says to read. It is not a required output; the GQ-63 section cites the two BUILD-REQUEST files and the step-7.10 result file instead.
+A2 r2-1 F2.2 note .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/artifacts/owner-decisions.md:15 ac=T141.AC1 amiss:n,false:n,harm:n,constraint:n The OQ-7 row's "Steps it unblocks" cell begins "Blocks:", copied from the record. Cosmetic.

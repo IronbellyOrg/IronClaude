@@ -1,0 +1,21 @@
+wave: 3C
+card: reviewer-cards/reviewer-1-card.yaml
+reviewer_model_class: claude-gw-tier1b
+calibrator: confidence-calibrator
+calibrator_model_class: claude-gw-tier2
+blind: true
+dimensions:
+  citation_grounding: 0.80
+  coverage_completeness: 0.70
+  deviation_classification_clarity: 0.90
+  risk_surface_coverage: 0.65
+  recommendation_actionability: 0.85
+calibrated_confidence: 0.78
+reviewer_self_confidence: 0.85
+spot_checks:
+  - {citation: "gaps-and-questions.md:128", result: confirmed, note: "103 rows, 78 open, 25 resolved, gate qualifier, owner-carried blocking findings"}
+  - {citation: "RESEARCH-REPORT-orchestrator-mode.md:229", result: confirmed, note: "stale :125 pointer, Open: 75, unqualified no-blocking-findings quote"}
+  - {citation: "TASK-RESEARCH-orchestrator-supervision-20261107-073942.md:552", result: mismatch, note: "R1-D8 quoted owner exception is at :556, not :552; classification still supported; R1-D1 also mislocates the owner decision"}
+  - {citation: "RESEARCH-REPORT-orchestrator-mode.md:1537", result: confirmed, note: "every-open-row coverage claim present"}
+weight_recommendation: keep
+rationale: "Verified stale-summary findings and correctly classified exceptions; misplaced owner-decision line numbers and acknowledged unread evidence limit completeness."

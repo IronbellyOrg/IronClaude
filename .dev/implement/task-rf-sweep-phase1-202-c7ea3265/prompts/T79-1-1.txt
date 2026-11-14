@@ -1,0 +1,136 @@
+Review one task for spec compliance.
+
+Task brief: T79 = item 5.3 of the source file /home/coder/workspaces/worktrees/IronClaude/issue-339-orchestrator-mode/.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md (lines 781-787). Item text:
+- [ ] **5.3 — R4: renumber WC-14 to WC-16 in DESIGN sections 1, 12, 13, 14, 15, 16 and 17 (status line, summary, FR-023, D6, step 1.17, rollback, open items)**
+  - **Context**: research/07:100: the FR-023 row (near DESIGN line 777), step 1.17 (near 926) and the rollback table (near 953). BUILD-REQUEST R4 says "everywhere", and `grep -n 'WC-14' docs/designs/orchestrator-mode.md` at `5dc29d23` also hits section 1 (the status line near line 5, "Owner approval of the WC-14 text (section 8)", and the summary near line 13, "the WC-14 "Coordinator loop" contract text"), section 13 (row D6 near line 812, "WC-14 text of SPEC section 10"), section 13 (row 1.17 near line 835, "The REPORT's WC-14 draft") and section 17 (open item 20 near line 988, "GQ-11 (WC-14 approval)", and open item 21 near line 989, "PR #422 overlap with WC-14" and "WC-14 stays a deliverable") (qa/qa-task-research-alignment-report.md I-1).
+  - **Action**: Change each remaining `coordinator loop (rename)` hit in sections 1, 12, 15, 16 and 17 to WC-16 (lines near 5, 13, 777, 926, 953, 988 and both mentions near 989). In section 13 row D6 (near 812) and section 13 row 1.17 (near 835), keep `WC-14` because it names the SPEC's and the REPORT's draft, and append " (WC-16 in this design)" right after that `WC-14`; class both hits `historical name (keep)` in the hit list file. Change no other text in those rows, and leave the `Total: 23 open items.` count unchanged.
+  - **Output**: DESIGN sections 1, 12, 13, 14, 15, 16 and 17 using WC-16 for the coordinator loop.
+  - **Verification**: Verify: every remaining `grep -n 'WC-14'` hit in DESIGN is classed `worker rule (keep)` or `historical name (keep)` in the hit list file, or is the section 8 "WC-14 and WC-15 on master" sentence; `grep -c 'WC-14 (WC-16 in this design)' docs/designs/orchestrator-mode.md` is 2; `grep -n '^Total: 23 open items.' docs/designs/orchestrator-mode.md` returns one hit. If a hit cannot be classed, log it in `### Phase 5 Findings` and stop.
+  - **Completion gate**: No coordinator-loop mention of WC-14 remains. Once done, mark this item as complete.
+AC ids: T79.AC1 = the item title "R4: renumber WC-14 to WC-16 in DESIGN sections 1, 12, 13, 14, 15, 16 and 17 (status line, summary, FR-023, D6, step 1.17, rollback, open items)" (no AC block; the title is the AC). The item's own Verification and Completion gate lines are context for what "done" means. Ticking the item's checkbox is done by the orchestrator after the verdict and is not part of the diff under review.
+Global constraints: the `### Key Constraints` section (lines 157-168) of the source file named in the task brief; read it from that file.
+Start sha: f54209c2274a11295d6507f40e5001d13bc84558
+Diff against the start snapshot: --- a/docs/designs/orchestrator-mode.md
++++ b/docs/designs/orchestrator-mode.md
+@@ -2,7 +2,7 @@
+ 
+ ## 1. Status, scope and inputs
+ 
+-Status: design for review, issue #339 Phase 1, written 2026-11-08 by `/sc:design --type architecture --format spec`. It holds no implementation code. Owner approval of the WC-14 text (section 8) is still required.
++Status: design for review, issue #339 Phase 1, written 2026-11-08 by `/sc:design --type architecture --format spec`. It holds no implementation code. Owner approval of the WC-16 text (section 8) is still required.
+ 
+ Review status: NOT a clean pass. Three blocking findings were still open after the review cap (2 fix cycles, 3 reviews: `orchestrator-mode-review-1.md` to `-3.md`). With coordinator approval (the reply to `msg_ee6f54c3b8a4`, delivery `delivery_17bd071084c5`, 2026-11-08), they are carried as the first required design-fix tasks of the `/task-builder` task file. Each one is closed by its own review gate before any code task starts:
+ 
+@@ -10,7 +10,7 @@
+ - R3-B2: two Dispatch rows on one pane give conflicting results (False and None, or a join to both rows), and no rule decides between them.
+ - R3-B3: three SPEC FR-010 fixtures (outage, full page, `call_failed`) were dropped from `test_classify.py`.
+ 
+-Phase 1 adds one read-only command, `superclaude sweep run`, a thin `/sc:sweep` command and `sc-sweep-protocol` skill that call it, the WC-14 "Coordinator loop" contract text, and the routing and doc rows that name it. A successful run leaves one filesystem change: one dated report under `<root>/.dev/sweeps/`, plus that directory when it is new. A dot-prefixed temp file exists only during publication (section 3).
++Phase 1 adds one read-only command, `superclaude sweep run`, a thin `/sc:sweep` command and `sc-sweep-protocol` skill that call it, the WC-16 "Coordinator loop" contract text, and the routing and doc rows that name it. A successful run leaves one filesystem change: one dated report under `<root>/.dev/sweeps/`, plus that directory when it is new. A dot-prefixed temp file exists only during publication (section 3).
+ 
+ Inputs and the short names used below:
+ 
+@@ -781,7 +781,7 @@
+ | FR-020 | `Budget` (7.1); byte limits in the readers (7.1, 7.3); WC-13 rows under Retained problems (7.2) | `sweep/test_probes_allowlist.py` (budget cases, the nine byte-limit boundary fixtures), `sweep/test_report.py` (header line, WC-13 Retained problems line) |
+ | FR-021 | Read-only package; `FORBIDDEN` list held in the test only (7.3) | `sweep/test_probes_allowlist.py` |
+ | FR-022 | `/sc:sweep` command and `sc-sweep-protocol` skill (7.6) | `tests/commands/test_sweep_command.py` |
+-| FR-023 | WC-14 and the never-as-worker addition (8) | `tests/skills/test_worker_contract.py` |
++| FR-023 | WC-16 and the never-as-worker addition (8) | `tests/skills/test_worker_contract.py` |
+ | FR-024 | R1 to R8 (9) | `tests/recommend/`, `tests/core/`, `tests/commands/test_routing_plugin_parity.py` |
+ | FR-025 | `.gitignore` line (10) | `sweep/test_readonly.py` (real-git test) |
+ | FR-026 | `OrcaResult` kinds and the result parser in `_orca` (7.1) | `sweep/test_probes_allowlist.py` |
+@@ -816,7 +816,7 @@
+ | D3 | FR-002 and FR-019 message `Orca unavailable; no Run binding could be established: pass --run <id>` | `Orca unavailable (<reason>); no Run binding could be established: pass --run <id>`, with the `OrcaResult.reason` in the parentheses | SP-21 | 5 |
+ | D4 | No cell length limit | `report.cell` cuts a Markdown table cell at 200 characters ending `...`; JSON values are never cut | SP-23 | 7.1, 7.5 |
+ | D5 | Age has no rule for a timestamp after `now` | A future timestamp is unknown age, adds note `timestamp in the future`, and never satisfies rule 7 (idle) | SP-26 | 7.2 |
+-| D6 | WC-14 text of SPEC section 10 (lines 404-408) | The same text with one sentence appended: the coordinator records each admission or rejection in its run notes; the sweep does not observe them. No new pin | SP-27 | 8 |
++| D6 | WC-14 (WC-16 in this design) text of SPEC section 10 (lines 404-408) | The same text with one sentence appended: the coordinator records each admission or rejection in its run notes; the sweep does not observe them. No new pin | SP-27 | 8 |
+ | D7 | Rule 5 at line 253 reads only "`live`, `in_progress`, `agent_wait_present` and null"; the report says nothing about classes Phase 1 cannot observe | Rule 5 restated as four conditions, one per line, with each field source; the report adds the footnote that stalled and fenced are not observed in Phase 1 and a zero count does not mean none occurred | SP-24 | 7.2, 7.5 |
+ | D8 | Branch header case at line 335: `ahead N` gives `unpushed N` (a count) | `unpushed` is `bool \| None` as SPEC line 240 types it, with `upstream_note` carrying `ahead N` and the other notes; JSON `unpushed` is never a count | M7 | 2.2, 7.2, 7.4 |
+ | D9 | FR-010 and SP-29 (line 104): a transcript that the tab map marks as an Orca worker session (any Run), or whose session id appears in any Orca row of any Run, is never True | A worker is a transcript joined to a Dispatch row of a scoped Run (path A or B). A tab-map entry that joins no scoped row gives None with note `Orca pane session, not in scoped Runs`, so person sessions started through `ccsession` in Orca panes are never idle or Historical in Phase 1. Under path A only, a transcript with no tab-map entry and no scoped join may be True when the guard holds, so a worker of an unscoped Run that has no entry can be True. Every True reached this way carries note `origin not proved: no tab-map entry; may be a worker of a Run outside the scope`, in the report row and in the JSON `notes`, so such a session is never shown as person-started without a note. Under path B the guard has four join-incomplete cases; the fourth (an earlier session of a reused pane has no entry) makes every unjoined no-entry transcript None, and a path-B join also needs the Dispatch row's time window, a transcript whose tail is complete and, when several rows match one pane session, exactly one window holding it. D9 as first written covers only True becoming None. Two residual path-B cases are new and need the same owner sign-off, which is still pending: a window with no end (a row still `pending` or `dispatched`) has no upper bound, so a person's later session in that pane, started after the worker died, joins the row as False and is shown as `orca:<dispatch>`, not as a person session; and a live session that serves two Dispatches joins the older row only, while the newer row is could not determine. Reason: the ccsession file cannot tell a worker pane from a person pane and holds no Run id, it has no entry for plain `claude` launches or earlier sessions of a reused pane (section 1), and no allowlisted verb lists the rows of Runs outside the scope (section 7.3). Needs the owner's sign-off at step 1.0b. Pinned by the D9 join fixtures in `sweep/test_classify.py` | Review 1 B2; review 2 R2-B1 and R2-B2 | 1, 7.2, 11 |
+@@ -839,7 +839,7 @@
+ | 1.6 | A `run-list` fallback; an `--output` default outside `.dev/sweeps/` | No fallback (GQ-104); `--output` defaults to `<root>/.dev/sweeps/` (FR-004) |
+ | 1.14 | `allowed-tools` form of the REPORT draft | The two exact literals of FR-022 (section 7.6) |
+ | 1.15 | The skill recommends next actions | The skill recommends nothing (section 7.6) |
+-| 1.17 | The REPORT's WC-14 draft | The SPEC section 10 text plus D6 (section 8) |
++| 1.17 | The REPORT's WC-14 (WC-16 in this design) draft | The SPEC section 10 text plus D6 (section 8) |
+ 
+ ## 14. Panel notes carried into the design
+ 
+@@ -930,7 +930,7 @@
+ | 1.15 | | `src/superclaude/skills/sc-sweep-protocol/SKILL.md`, recommending nothing | 7.6 | 1.14 |
+ | 1.16 | | `tests/commands/test_sweep_command.py` | 7.6, 11 | 1.15 |
+ | 1.16a | Pre | `gh pr view 422 --repo IronbellyOrg/IronClaude --json state,files` and the #409 diff check; results to `.dev/tasks/<pkg>/artifacts/` | 8 | none; must finish before 1.17 |
+-| 1.17 | | WC-14 in `src/superclaude/core/WORKER-CONTRACT.md` | 8 | 1.0b (GQ-11 answered), 1.16a |
++| 1.17 | | WC-16 in `src/superclaude/core/WORKER-CONTRACT.md` | 8 | 1.0b (GQ-11 answered), 1.16a |
+ | 1.18 | | `WORKER-CONTRACT.md` line 23, never-as-worker list | 8 | 1.17 |
+ | 1.19 | | Pins in `tests/skills/test_worker_contract.py` and the rename | 8 | 1.18 |
+ | 1.20 | | R5 | 9 | 1.14 |
+@@ -957,7 +957,7 @@
+ | `src/superclaude/cli/sweep/` and `tests/sweep/` (including `tests/sweep/fixtures/`) | Delete |
+ | `src/superclaude/cli/main.py` deferred import and `add_command` lines (after line 561) | Remove |
+ | `src/superclaude/commands/sweep.md`, `src/superclaude/skills/sc-sweep-protocol/`, `tests/commands/test_sweep_command.py` | Delete; run `make sync-dev`. Whether it removes the `.claude/` copies is UNVERIFIED (section 17); if not, delete them by hand. Never stage them |
+-| WC-14 with the D6 sentence, the line 23 never-as-worker entry, the `RULE_PHRASES` entry, the `NEVER_AS_WORKER` entry, the `UNATTENDED_COMMANDS` assertion (design) and the test rename | Revert |
++| WC-16 with the D6 sentence, the line 23 never-as-worker entry, the `RULE_PHRASES` entry, the `NEVER_AS_WORKER` entry, the `UNATTENDED_COMMANDS` assertion (design) and the test rename | Revert |
+ | R1, R2, R3, R4, R5 | Revert together, so the plugin byte copy stays equal |
+ | R6, R7, R8 | Revert; add a CHANGELOG revert entry |
+ | `.gitignore` `.dev/sweeps/` lines | Keep until existing reports are dealt with, then remove (GQ-106) |
+@@ -992,8 +992,8 @@
+ | 17 | Whether `make sync-dev` removes deleted `.claude/` copies | First rollback, or a dry check at step 1.25 | Rollback deletes them by hand and never stages them (section 16) |
+ | 18 | The effect of `uv run --frozen --no-sync` (flags seen in `uv run --help`, not run) | Step 1.29 or a manual run before release | The skill tries PATH first; the fallback is used only on "command not found" |
+ | 19 | The rationale for the proposed byte limits (1 MiB, 256 KiB, 8 MiB; SP-28) | Before release, recorded in the task package | The limits apply as proposed and are marked proposed in `probes.py` |
+-| 20 | Owner decisions GQ-10, GQ-11 (WC-14 approval), GQ-35, GQ-61 and GQ-63 | Step 1.0b | Steps 1.17 to 1.19 do not start |
+-| 21 | PR #422 overlap with WC-14, the never-as-worker list and the #409 dimensions | Step 1.16a | Steps 1.17 to 1.19 do not start; WC-14 stays a deliverable of this PR whatever #422 does |
++| 20 | Owner decisions GQ-10, GQ-11 (WC-16 approval), GQ-35, GQ-61 and GQ-63 | Step 1.0b | Steps 1.17 to 1.19 do not start |
++| 21 | PR #422 overlap with WC-16, the never-as-worker list and the #409 dimensions | Step 1.16a | Steps 1.17 to 1.19 do not start; WC-16 stays a deliverable of this PR whatever #422 does |
+ | 22 | Whether Orca workers get tab-map entries (launched through `ccsession`) and which tab-map value equals the item 4 field; and the owner's sign-off on the D9 narrowing of SP-29 (D9 as first written covers only that True becomes None) and on its two residual path-B cases: a window with no end can join a person's later session in the pane as False, and a live session serving two Dispatches joins the older row only | Step 1.0a item 13; step 1.0b | Join path B is not used; a tab-map entry that joins no scoped row gives None; the classify step does not start until the owner signs off D9 or names a stricter rule. Until closed, every no-entry True carries the `origin not proved` note (7.2) |
+ | 23 | UNVERIFIED: that `worker-show` `dispatch.dispatchedAt`, `dispatch.completedAt` and `dispatch.status` (read statically from the 1.4.245 bundle) carry a Dispatch row's start time, end time and status live, in the parsed form of 7.2 | Step 1.0a item 4 | No path-B join is made: every path-B match is could not determine with note `Dispatch time window not observable`, and its transcript is None |
+ 
+--- a/.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/discovery/r4-wc14-hits.md
++++ b/.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/discovery/r4-wc14-hits.md
+@@ -90,3 +90,21 @@
+ - `grep -c 'sweeps on every wake, at most once every 5 minutes\.\*\*'`: 1 (expect 1, the R2 bullet)
+ - The `.gitignore` block reads `(WC-16). Never tracked` in section 10: 1 (expect 1)
+ - Remaining WC-14 hits: 10 (lines 5 13 668 784 819 842 933 960 995 996 )
++
++## After item 5.3 (sections 1, 12, 13, 14, 15, 16 and 17)
++
++```
++668:**Gate.** Steps 1.17 to 1.19 are written only after the owner answers GQ-11 (step 1.0b) and the 
++819:| D6 | WC-14 (WC-16 in this design) text of SPEC section 10 (lines 404-408) | The same text with
++842:| 1.17 | The REPORT's WC-14 (WC-16 in this design) draft | The SPEC section 10 text plus D6 (sec
++```
++
++| Line | Class |
++|---|---|
++| 668 | worker rule (keep) |
++| 819 | historical name (keep) |
++| 842 | historical name (keep) |
++
++- `grep -c 'WC-14 (WC-16 in this design)' docs/designs/orchestrator-mode.md`: 2 (expect 2, the section 13 rows D6 and 1.17)
++- `grep -n '^Total: 23 open items.' docs/designs/orchestrator-mode.md`: 1000:Total: 23 open items.
++- Every remaining WC-14 hit is the section 8 sentence about WC-14 and WC-15 on master (worker rule, keep) or one of the two section 13 rows that name the SPEC's and the REPORT's earlier draft (historical name, keep). No coordinator-loop mention of WC-14 remains.
+Delta diff from the previous reviewed tree (empty on the first review): 
+Earlier blocking findings of this start (empty on the first review): 
+Saved-probe re-check hit locations (may be empty): 
+
+Do not trust the implementer's report.
+
+First mark each earlier blocking finding resolved, open or regressed from the diff. Then, for each AC, mark it met or unmet. Require citations: every AC you mark, met or unmet, carries a `path:line` or `Ti.ACk@path:line` citation, and an unmet mark lists the finding ids behind it. Do not return a verdict; the orchestrator computes it.
+
+For every finding answer four questions, each yes or no:
+1. ac-outcome-missing: is output an AC requires absent, or does it contradict the AC text, or does an evidence claim you could not verify have no evidence row?
+2. false-claim: is a claim in delivered text or code false against live source, or does a recipe or instruction followed as written not do what the text says?
+3. harmful-effect: does code or a recipe this task added or changed write, append, chmod or delete tracked or production data, mutate state outside the task's declared outputs, or expose a secret?
+4. quoted-constraint-breach: does the diff violate a quoted plan constraint, out-of-scope, non-goal or non-negotiable item, or an explicit task instruction?
+
+Anchor rule: cite exactly one anchor per yes. ac-outcome-missing: the quoted AC words. false-claim: the live-source path:line holding the contradicting text. harmful-effect: the diff line that is the write. quoted-constraint-breach: the quoted constraint or instruction text. A yes without a valid anchor does not block.
+
+Write one line per finding:
+F<k>.<j> ac=<Ti.ACk|scope> at=<path:line> anchor=<quoted text or path:line> chk=<amiss,false,harm,constraint as y/n> family=<id> fix=<text> [covers=<quoted AC clause or constraint>]: <text>
+Do not write sev=, trigger=, first= or origin=; the orchestrator adds them. Write one status line per earlier blocking finding: F<m>.<j> resolved|open|regressed.
+
+Inside /sc:implement this protocol's severity model governs this review and takes precedence over the session's output style and the copy of it injected into every subagent; only blocking findings may fail an attempt.
+
+You are not given an adviser answer, brief, evidence file or troubleshoot report. Do not read the retry folders (legacy `.dev/implement/<slug>/retries/`, managed `<pkg>/artifacts/retries/`) or `.dev/troubleshoot/`. A citation into either makes the verdict `cannot-verify`.
+The prior-findings slot above carries earlier blocking finding lines that the orchestrator copies byte for byte from `review-*.md` and `repair-*.md`; they reach you as prompt text, not as an evidence file. Do not read those folders to get them, and never cite the slot or the file it came from.

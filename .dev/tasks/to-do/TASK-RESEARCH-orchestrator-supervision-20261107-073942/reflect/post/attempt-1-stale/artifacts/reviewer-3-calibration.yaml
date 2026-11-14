@@ -1,0 +1,21 @@
+wave: 3C
+card: reviewer-cards/reviewer-3-card.yaml
+reviewer_model_class: claude-gw-tier1a
+calibrator: confidence-calibrator
+calibrator_model_class: claude-gw-tier1b
+blind: true
+dimensions:
+  citation_grounding: 0.90
+  coverage_completeness: 0.80
+  deviation_classification_clarity: 0.80
+  risk_surface_coverage: 0.75
+  recommendation_actionability: 0.90
+calibrated_confidence: 0.83
+reviewer_self_confidence: 0.80
+spot_checks:
+  - {citation: "gaps-and-questions.md:7 (:4, :26)", result: confirmed, note: "NB-4 still 'carried below as an OPEN gap'; GQ-03 at :26 resolved; :4 reads 2026-11-07"}
+  - {citation: "RESEARCH-REPORT-orchestrator-mode.md:1601-1602", result: confirmed, note: "row 60 defers to 'the final report'; row 61 names the past Phase 5 gate"}
+  - {citation: "RESEARCH-REPORT-orchestrator-mode.md:1156", result: confirmed, note: "'Section 9, the canonical list'; 9.1 ends at row 64 / GQ-100 (:1605)"}
+  - {citation: "RESEARCH-REPORT-orchestrator-mode.md:3", result: confirmed, note: "only '**Date:** 2026-11-07', no Updated field; :15 records 2026-11-08 decision"}
+weight_recommendation: keep
+rationale: "All four spot checks matched incl. three T1-disagreement items; R3-D10 arguably not a deviation; some claims (gaps:120, 117-row count) unverified."

@@ -1,0 +1,17 @@
+{
+  "computed_at_utc": "2026-11-10T05:52:00Z",
+  "task": ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md",
+  "task_sha256": "eb291f0bdd1a787131a3b5295150b0f109b46943a1c43c638fd2ad4652d29f99",
+  "spec_path": "docs/designs/orchestrator-mode.md",
+  "script": "qa/tcs_compute.py (literal reading of the frozen extraction rules S1-S6 in task-builder SKILL.md); output in qa/tcs-recount.jsonl",
+  "signals": {"S1": 475, "S2": 66, "S3": 41, "S4": 7, "S5": 15, "S6": 0},
+  "type_field": "Feature",
+  "checklist_items": 355,
+  "tcs": 1860,
+  "derived_depth": "deep",
+  "required_tier_reached": 2,
+  "baseline_cross_check": {"file": "baseline/task-before-rev2.md", "signals": {"S1": 474, "S2": 66, "S3": 41, "S4": 7, "S5": 15, "S6": 0}, "tcs": 1857, "note": "Run 3 recorded 1862 for this same baseline (S5 = 16). S1-S4 and S6 reproduce exactly; S5 differs by 1 because this script counts distinct OQ tokens that appear both in an item Context line and in the Open Questions section (15; OQ-13 appears in no Context). Both values give band deep (TCS >= 35); the band and tier are insensitive to this difference."},
+  "delta_vs_baseline": "S1 +1 (the new path plan-defect-fixes-20261110/BUILD-REQUEST.md named in items 7.20, 7.30, 7.34); TCS +3",
+  "tcs_boundary_inference": "not applicable (far above the 35 band edge)",
+  "notes": "POST depth floor (O4) not applicable to PRE; quick permitted at PRE. Overrides: O1 S5>0 floors standard; O2 S6=0; O3 item count 355 > 40 floors standard; the band already yields deep."
+}

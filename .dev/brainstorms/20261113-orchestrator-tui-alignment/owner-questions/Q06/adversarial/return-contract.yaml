@@ -1,0 +1,12 @@
+return_contract:
+  merged_output_path: "/home/coder/workspaces/worktrees/IronClaude/issue-339-orchestrator-mode/.dev/brainstorms/20261113-orchestrator-tui-alignment/owner-questions/Q06/merged-answer.md"
+  convergence_score: 1.0
+  artifacts_dir: "/home/coder/workspaces/worktrees/IronClaude/issue-339-orchestrator-mode/.dev/brainstorms/20261113-orchestrator-tui-alignment/owner-questions/Q06/adversarial"
+  status: "success"
+  base_variant: "variant-3 (proposal C)"
+  unresolved_conflicts: 0
+  fallback_mode: false
+  failure_stage: null
+  invocation_method: "skill-direct"
+  unaddressed_invariants: []
+  notes: "Depth quick: Round 1 only; three advocates spawned in parallel as separate agents; merge by a merge-executor agent. Invariant probe skipped at quick depth."

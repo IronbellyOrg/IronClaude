@@ -1,0 +1,2 @@
+79e50b923bdc8ed9993f9dd91200a07b9404d9f5
+A1 r1-1 F1.1 note .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/test-results/r5-mechanical.md:33-35 ac=T110.AC1 amiss:n,false:n,harm:n,constraint:n Command 4 shows an expectation line with the grep exit status instead of a captured result, and long hit lines are cut to about 100 characters. Cosmetic. After this review the file was regenerated with a 12th check (the section 3 diagram labels) once item 6.3's re-review found the stale '8 read templates' label.

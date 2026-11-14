@@ -1,0 +1,368 @@
+Review one task for spec compliance.
+
+Task brief: T195 = item 9.1 of the source file /home/coder/workspaces/worktrees/IronClaude/issue-339-orchestrator-mode/.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md (lines 1630-1636). Item text:
+- [ ] **9.1 — Step 1.6: create `src/superclaude/cli/sweep/commands.py` (L2)**
+  - **Context**: Gates: `.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/impl-core/gate-decision.md` PASS; OQ-2 (GQ-10, report location, `--output` default) and OQ-5 (GQ-61, `--window` default) RESOLVED. DESIGN section 7.1 commands signatures (lines 433-445): `sweep_group: click.Group` named `sweep`; `run(run_ids, window, root, output)` for `sweep run`; `_parse_window` (FR-003, `click.UsageError`, exit 2); `_find_root` (FR-004 walk, plain stat only); `_check_output` (FR-004 containment); `_check_run_ids` (regex from step 1.0a, `.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/discovery/1.0a-facts.md`, deduplicated); `_publish(text, output_dir, now)`. Exit mapping (line 445): `click.UsageError` and `BindingError` exit 2 with the message; `ValueError` from an allowlist check, any other exception and every `_publish` failure exit 1 with a `[sweep <stage>]` stderr prefix; only `commands.run` calls `sys.exit`. DESIGN section 3.2 (lines 99-130), the seven `_publish` steps: stem `now.strftime("%Y%m%d-%H%M%S") + "-sweep"`; `os.makedirs(output_dir, exist_ok=True)` then re-resolve inside `<root>/.dev/sweeps/` (else `[sweep publish] output dir escaped <root>/.dev/sweeps/`); `os.open(output_dir / f".{stem}.{os.getpid()}.tmp", O_WRONLY | O_CREAT | O_EXCL, 0o666)`; write every byte, `os.fsync`, `os.close`; `os.link` to `stem.md`, then `stem-2.md` to `stem-99.md`, `FileExistsError` moving on, the first success being the commit point; none left gives `[sweep publish] report name space exhausted: <dir>`; then `os.unlink(tmp)`, failing with `[sweep publish] could not remove temp file <path>` and exit 1. The error table (lines 121-129) and the section 3.4 exit-1 rule (line 153) apply. DESIGN step 1.6 (line 914): no `run-list` fallback; `--output` default `<root>/.dev/sweeps/`. `_publish` runs only after every exit-2 check, `collect`, `classify_all` and `render` succeed (line 103). The six `[sweep publish]` messages in DESIGN section 3.2 (lines 106-128) are: `[sweep publish] output dir escaped <root>/.dev/sweeps/` (step 2), `[sweep publish] report name space exhausted: <dir>` (step 6), `[sweep publish] <error>` (`makedirs` fails), `[sweep publish] temp file exists: <path>` (`O_EXCL` fails), `[sweep publish] cannot link report: <error>` (`os.link` fails with anything but `FileExistsError`) and `[sweep publish] could not remove temp file <path>` (unlink after the commit point). Link-and-fsync precedents (research/02 section on atomic writes): the `os.link` plus `FileExistsError` handling at `src/superclaude/cli/sprint/recovery.py:424-434` (link at :433) and the `os.fsync` step at `src/superclaude/cli/swarm/atomic.py:28-31`; neither is a reusable helper (both use other names or `os.replace`), so `_publish` is written fresh.
+  - **Action**: Create `src/superclaude/cli/sweep/commands.py` with the Click group and the `run` subcommand (options `--run` repeatable, `--window`, `--root`, `--output`, defaults from the OQ-2 and OQ-5 records), the five helpers and `_publish` exactly as above, printing one success JSON object (from `report.to_json`) on stdout after `_publish` returns. `_publish` is the only function that writes. No retry, no lock, no `os.rename`, no `os.replace`.
+  - **Output**: `src/superclaude/cli/sweep/commands.py`.
+  - **Verification**: Verify: `grep -nE 'os\.(rename|replace)|run-list' src/superclaude/cli/sweep/commands.py` prints nothing; `grep -c 'sys.exit' src/superclaude/cli/sweep/commands.py` hits only inside `run`; each fixed part of the six `[sweep publish]` messages listed in Context is found with `grep -F` in `src/superclaude/cli/sweep/commands.py`: `output dir escaped`, `report name space exhausted:`, `temp file exists:`, `cannot link report:` and `could not remove temp file` (one hit each at least), and the `makedirs` message `[sweep publish] <error>` is checked by reading the `makedirs` error branch and recording its line in `### Phase 9 Findings`; `uv run ruff check src/superclaude/cli/sweep/commands.py` exits 0.
+  - **Completion gate**: commands.py matches DESIGN 3.2 and 7.1. Once done, mark this item as complete.
+AC ids: T195.AC1 = the item title "Step 1.6: create `src/superclaude/cli/sweep/commands.py` (L2)" (no AC block; the title is the AC). The item's own Verification and Completion gate lines are context for what "done" means. Ticking the item's checkbox is done by the orchestrator after the verdict and is not part of the diff under review.
+Global constraints: the `### Key Constraints` section (lines 157-168) of the source file named in the task brief; read it from that file.
+Start sha: 3bafafea2465300de675e35598d5cdf60a625ad5
+Diff against the start snapshot: --- /dev/null
++++ b/src/superclaude/cli/sweep/commands.py   (new file, 288 lines)
++"""Command line shell of ``superclaude sweep`` (DESIGN 3.2, 5, 7.1).
++
++``sweep run`` is the one impure step: it checks the arguments (exit 2), binds a Run,
++calls ``probes.collect``, ``classify.classify_all`` and ``report.render`` (the pure
++steps), publishes the report with ``_publish`` (the only function in the package that
++writes), and prints one JSON object. Exit 0 means the report was published; 1 is an
++internal error with a ``[sweep <stage>]`` stderr prefix; 2 is a usage error. Only
++``run`` ends the process.
++"""
++
++from __future__ import annotations
++
++import json
++import os
++import re
++import sys
++from datetime import datetime, timedelta, timezone
++from pathlib import Path
++
++import click
++
++from . import probes
++from .classify import classify_all
++from .models import SweepContext
++from .report import render, sanitize, to_json
++
++DEFAULT_WINDOW = "6h"  # FR-003, OQ-5
++MAX_WINDOW_HOURS = 720  # 30 days
++MAX_SUFFIX = 99  # report names: <stem>.md, then <stem>-2.md to <stem>-99.md (FR-017)
++
++
++class _PublishError(Exception):
++    """A failed publication; ``lines`` are the stderr lines, already prefixed."""
++
++    def __init__(self, *lines: str) -> None:
++        super().__init__(lines[0])
++        self.lines = lines
++
++
++# --- Argument checks (every failure is a usage error, exit 2, nothing written) ----------
++
++
++def _parse_window(text: str) -> timedelta:
++    """``<N>h`` or ``<N>d``: ASCII digits, 1 to 9999, at most 720h or 30d (FR-003)."""
++    if re.fullmatch(r"[1-9][0-9]{0,3}[hd]", text) is not None:
++        count, unit = int(text[:-1]), text[-1]
++        hours = count if unit == "h" else count * 24
++        if hours <= MAX_WINDOW_HOURS:
++            return timedelta(hours=hours)
++    raise click.UsageError(
++        f"invalid --window value: {sanitize(text)} (use <N>h or <N>d, at most 720h or 30d)"
++    )
++
++
++def _has_git(path: Path) -> bool:
++    """Plain stat only: ``.git`` may be a folder or, in a linked worktree, a file."""
++    try:
++        os.stat(path / ".git")
++    except OSError:
++        return False
++    return True
++
++
++def _find_root(start: Path) -> Path:
++    """Walk up from ``start`` to the first folder that holds ``.git`` (FR-004)."""
++    here = start.resolve()
++    for folder in (here, *here.parents):
++        if _has_git(folder):
++            return folder
++    raise click.UsageError(f"no git checkout found above {sanitize(start)}")
++
++
++def _check_root(root: str | None) -> Path:
++    if root is None:
++        return _find_root(Path.cwd())
++    path = Path(root)
++    try:
++        resolved = path.resolve()
++        usable = resolved.is_dir() and _has_git(resolved)
++    except (OSError, RuntimeError):
++        usable = False
++    if not usable:
++        raise click.UsageError(f"invalid --root: {sanitize(root)}")
++    return resolved
++
++
++def _check_run_ids(values: tuple[str, ...]) -> tuple[str, ...]:
++    """Each id must match the Run id regex; duplicates collapse, first-seen order (FR-002)."""
++    for value in values:
++        if re.fullmatch(probes.RUN_ID_RE, value) is None:
++            raise click.UsageError(f"invalid --run value: {sanitize(value)}")
++    return tuple(dict.fromkeys(values))
++
++
++def _within(path: Path, folder: Path) -> bool:
++    return path == folder or path.is_relative_to(folder)
++
++
++def _check_output(output: Path | None, root: Path, inputs: tuple[Path, ...]) -> Path:
++    """The resolved output folder: ``<root>/.dev/sweeps/`` or below, and apart from inputs."""
++    base = (
++        root / ".dev" / "sweeps"
++    )  # not resolved: a symlinked sweeps folder must fail below
++    try:
++        resolved = (output if output is not None else base).resolve()
++    except (OSError, RuntimeError):
++        raise click.UsageError(f"invalid --output: {sanitize(output)}") from None
++    if not _within(resolved, base):
++        raise click.UsageError(
++            f"invalid --output: {sanitize(output if output is not None else base)} "
++            f"(must be {sanitize(base)}/ or a folder below it)"
++        )
++    for source in inputs:
++        try:
++            where = source.resolve()
++        except (OSError, RuntimeError):
++            continue
++        if _within(resolved, where) or _within(where, resolved):
++            raise click.UsageError(
++                f"invalid --output: {sanitize(resolved)} overlaps the input folder "
++                f"{sanitize(where)}"
++            )
++    return resolved
++
++
++# --- Publication: the one write (DESIGN 3.2) ---------------------------------------------
++
++
++def _sweeps_base(output_dir: Path) -> Path | None:
++    """The ``<root>/.dev/sweeps`` folder that holds ``output_dir`` (it was checked first)."""
++    for folder in (output_dir, *output_dir.parents):
++        if folder.name == "sweeps" and folder.parent.name == ".dev":
++            return folder
++    return None
++
++
++def _drop_own_temp(tmp: Path) -> tuple[str, ...]:
++    """Unlink this run's own temp file; a failure becomes one extra stderr line."""
++    try:
++        os.unlink(tmp)
++    except OSError:
++        return (f"[sweep publish] left temp file {tmp}",)
++    return ()
++
++
++def _write_all(fd: int, data: bytes) -> None:
++    view = memoryview(data)
++    while view:
++        view = view[os.write(fd, view) :]
++    os.fsync(fd)
++
++
++def _publish(text: str, output_dir: Path, now: datetime) -> Path:
++    """Write ``text`` to a temp file, then link it to the first free report name."""
++    stem = now.strftime("%Y%m%d-%H%M%S") + "-sweep"
++    base = _sweeps_base(output_dir)
++    try:
++        os.makedirs(output_dir, exist_ok=True)
++    except OSError as exc:  # no file was written; folders it made may remain
++        raise _PublishError(f"[sweep publish] {exc}") from exc
++    if base is None or not _within(output_dir.resolve(), base):
++        raise _PublishError(
++            f"[sweep publish] output dir escaped {base if base else output_dir}/"
++        )
++    data = text.encode(
++        "utf-8"
++    )  # before the temp file exists, so an encode error leaves none
++    tmp = output_dir / f".{stem}.{os.getpid()}.tmp"
++    try:
++        fd = os.open(tmp, os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o666)
++    except FileExistsError as exc:  # not ours, so it is left alone
++        raise _PublishError(f"[sweep publish] temp file exists: {tmp}") from exc
++    except OSError as exc:
++        raise _PublishError(f"[sweep publish] {exc}") from exc
++    try:
++        try:
++            _write_all(fd, data)
++        finally:
++            os.close(fd)
++    except OSError as exc:
++        raise _PublishError(f"[sweep publish] {exc}", *_drop_own_temp(tmp)) from exc
++    names = [f"{stem}.md"] + [f"{stem}-{n}.md" for n in range(2, MAX_SUFFIX + 1)]
++    published: Path | None = None
++    for name in names:
++        try:
++            os.link(
++                tmp, output_dir / name
++            )  # fails when the name exists: never overwrites
++        except FileExistsError:
++            continue
++        except OSError as exc:
++            raise _PublishError(
++                f"[sweep publish] cannot link report: {exc}", *_drop_own_temp(tmp)
++            ) from exc
++        published = output_dir / name  # the commit point
++        break
++    if published is None:
++        raise _PublishError(
++            f"[sweep publish] report name space exhausted: {output_dir}",
++            *_drop_own_temp(tmp),
++        )
++    try:
++        os.unlink(tmp)
++    except OSError as exc:  # the complete report stays; no success JSON
++        raise _PublishError(
++            f"[sweep publish] could not remove temp file {tmp}"
++        ) from exc
++    return published
++
++
++# --- The command -------------------------------------------------------------------------
++
++
++@click.group("sweep")
++def sweep_group() -> None:
++    """Read-only sweep of Orca Runs, worktrees and sessions."""
++
++
++@sweep_group.command("run")
++@click.option(
++    "--run",
++    "run_ids",
++    multiple=True,
++    help="Orca Run id to read; repeat for several. Default: the Run bound to this terminal.",
++)
++@click.option(
++    "--window",
++    default=DEFAULT_WINDOW,
++    show_default=True,
++    help="Activity window: <N>h or <N>d, at most 720h or 30d.",
++)
++@click.option(
++    "--root",
++    default=None,
++    help="Checkout root. Default: found from the current folder.",
++)
++@click.option(
++    "--output",
++    default=None,
++    help="Report folder, <root>/.dev/sweeps/ or below. Default: <root>/.dev/sweeps/.",
++)
++def run(
++    run_ids: tuple[str, ...], window: str, root: str | None, output: str | None
++) -> None:
++    """Collect, classify and publish one read-only report; print one JSON object."""
++    stage = "args"
++    try:
++        now = datetime.now(timezone.utc).replace(microsecond=0)
++        span = _parse_window(window)
++        checkout = _check_root(root)
++        runs = _check_run_ids(tuple(run_ids))
++        home = Path.home()
++        state = Path(os.environ.get("XDG_STATE_HOME") or (home / ".local" / "state"))
++        output_dir = _check_output(
++            Path(output) if output is not None else None,
++            checkout,
++            (
++                checkout / ".dev" / "tasks",
++                home / ".claude" / "projects",
++                state / "ccsession" / "orca-tabs",
++            ),
++        )
++        budget = probes.Budget()
++        if not runs:
++            stage = "bind"
++            runs = (probes.bind_run(budget),)
++        ctx = SweepContext(now, span, now - span, checkout, runs)
++        stage = "collect"
++        collected = probes.collect(ctx, runs, checkout, budget)
++        stage = "classify"
++        result = classify_all(collected, ctx)
++        stage = "render"
++        text = render(result, ctx)
++        stage = "publish"
++        report = _publish(text, output_dir, now)
++        stage = "output"
++        payload = json.dumps(to_json(result, ctx, str(report)))
++        click.echo(payload)
++    except (click.UsageError, probes.BindingError) as exc:
++        click.echo(getattr(exc, "message", None) or str(exc), err=True)
++        sys.exit(2)
++    except _PublishError as exc:
++        for line in exc.lines:
++            click.echo(line, err=True)
++        sys.exit(1)
++    except Exception as exc:  # an allowlist ValueError or any internal error
++        click.echo(f"[sweep {stage}] {sanitize(exc)}", err=True)
++        sys.exit(1)
+Delta diff from the previous reviewed tree (empty on the first review): --- a/src/superclaude/cli/sweep/commands.py
++++ b/src/superclaude/cli/sweep/commands.py
+@@ -162,6 +162,9 @@
+         raise _PublishError(
+             f"[sweep publish] output dir escaped {base if base else output_dir}/"
+         )
++    data = text.encode(
++        "utf-8"
++    )  # before the temp file exists, so an encode error leaves none
+     tmp = output_dir / f".{stem}.{os.getpid()}.tmp"
+     try:
+         fd = os.open(tmp, os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o666)
+@@ -171,7 +174,7 @@
+         raise _PublishError(f"[sweep publish] {exc}") from exc
+     try:
+         try:
+-            _write_all(fd, text.encode("utf-8"))
++            _write_all(fd, data)
+         finally:
+             os.close(fd)
+     except OSError as exc:
+Earlier blocking findings of this start (empty on the first review): F1.1 ac=T195.AC1 at=src/superclaude/cli/sweep/commands.py:174 anchor="Write, fsync or close fails (for example a full disk) | Unlink this run's temp file, exit 1" chk=y,n,n,n family=publish-temp-cleanup: text.encode("utf-8") runs inside the try after os.open created the temp file; a UnicodeEncodeError is not an OSError, so the temp file is never unlinked (confirmed with _publish("ok \ud800 bad", ...)).
+Saved-probe re-check hit locations (may be empty): 59:    except OSError:
+80:    except (OSError, RuntimeError):
+106:    except (OSError, RuntimeError):
+116:        except (OSError, RuntimeError):
+137:def _drop_own_temp(tmp: Path) -> tuple[str, ...]:
+140:        os.unlink(tmp)
+141:    except OSError:
+159:    except OSError as exc:  # no file was written; folders it made may remain
+165:    data = text.encode(
+170:        fd = os.open(tmp, os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o666)
+171:    except FileExistsError as exc:  # not ours, so it is left alone
+173:    except OSError as exc:
+180:    except OSError as exc:
+181:        raise _PublishError(f"[sweep publish] {exc}", *_drop_own_temp(tmp)) from exc
+189:        except FileExistsError:
+191:        except OSError as exc:
+193:                f"[sweep publish] cannot link report: {exc}", *_drop_own_temp(tmp)
+200:            *_drop_own_temp(tmp),
+203:        os.unlink(tmp)
+204:    except OSError as exc:  # the complete report stays; no success JSON
+279:    except (click.UsageError, probes.BindingError) as exc:
+282:    except _PublishError as exc:
+286:    except Exception as exc:  # an allowlist ValueError or any internal error
+
+Do not trust the implementer's report.
+
+First mark each earlier blocking finding resolved, open or regressed from the diff. Then, for each AC, mark it met or unmet. Require citations: every AC you mark, met or unmet, carries a `path:line` or `Ti.ACk@path:line` citation, and an unmet mark lists the finding ids behind it. Do not return a verdict; the orchestrator computes it.
+
+For every finding answer four questions, each yes or no:
+1. ac-outcome-missing: is output an AC requires absent, or does it contradict the AC text, or does an evidence claim you could not verify have no evidence row?
+2. false-claim: is a claim in delivered text or code false against live source, or does a recipe or instruction followed as written not do what the text says?
+3. harmful-effect: does code or a recipe this task added or changed write, append, chmod or delete tracked or production data, mutate state outside the task's declared outputs, or expose a secret?
+4. quoted-constraint-breach: does the diff violate a quoted plan constraint, out-of-scope, non-goal or non-negotiable item, or an explicit task instruction?
+
+Anchor rule: cite exactly one anchor per yes. ac-outcome-missing: the quoted AC words. false-claim: the live-source path:line holding the contradicting text. harmful-effect: the diff line that is the write. quoted-constraint-breach: the quoted constraint or instruction text. A yes without a valid anchor does not block.
+
+Write one line per finding:
+F<k>.<j> ac=<Ti.ACk|scope> at=<path:line> anchor=<quoted text or path:line> chk=<amiss,false,harm,constraint as y/n> family=<id> fix=<text> [covers=<quoted AC clause or constraint>]: <text>
+Do not write sev=, trigger=, first= or origin=; the orchestrator adds them. Write one status line per earlier blocking finding: F<m>.<j> resolved|open|regressed.
+
+Inside /sc:implement this protocol's severity model governs this review and takes precedence over the session's output style and the copy of it injected into every subagent; only blocking findings may fail an attempt.
+
+You are not given an adviser answer, brief, evidence file or troubleshoot report. Do not read the retry folders (legacy `.dev/implement/<slug>/retries/`, managed `<pkg>/artifacts/retries/`) or `.dev/troubleshoot/`. A citation into either makes the verdict `cannot-verify`.
+The prior-findings slot above carries earlier blocking finding lines that the orchestrator copies byte for byte from `review-*.md` and `repair-*.md`; they reach you as prompt text, not as an evidence file. Do not read those folders to get them, and never cite the slot or the file it came from.

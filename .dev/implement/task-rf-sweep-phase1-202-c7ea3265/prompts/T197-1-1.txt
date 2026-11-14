@@ -1,0 +1,93 @@
+Review one task for spec compliance.
+
+Task brief: T197 = item 9.3 of the source file /home/coder/workspaces/worktrees/IronClaude/issue-339-orchestrator-mode/.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md (lines 1644-1650). Item text:
+- [ ] **9.3 — Step 1.4 live check against the OQ-8 Run (L3, live, read-only)**
+  - **Context**: DESIGN step 1.4 (line 912): "Live check saved to `.dev/tasks/<pkg>/artifacts/sweep-live-check-1.4.json`; no `--include-remote` timing". The check runs here, not in Phase 8, because `superclaude sweep run` exists only after items 9.1 and 9.2. research/09 Gap 3: the design gives no pass rule; the only one is REPORT:1247: record each worker's state, then run the sweep once through Bash with timeout 120000 ms; "Pass = exit 0, the probe calls finish inside the 90 s budget, every row carries a class, each recorded worker gets the class its recorded state maps to under step 1.3 (could not determine where step 1.3 says so), and no row is could not determine because of a probe error or timeout." The Run id is the one in `.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/plans/OQ-8-run-id-decision.md` (item 7.15). Only allowlisted reads: the `worker-list` template, which DESIGN section 7.3 (line 523) and `ALLOWED_ORCA` in `src/superclaude/cli/sweep/probes.py` hold as `("orchestration", "worker-list", "--run", "<run>", "--json")`, run with the binary `orca-ide` (`ORCA_CLI_COMMAND` is unset at build time, research/09 Gap 3; if `ORCA_CLI_COMMAND` is set when this item runs, use its value as the binary instead); never `--include-remote`, `worker-read`, `gate-list`, `check` or `inbox`. The run writes one report under `<root>/.dev/sweeps/`, which item 8.6 gitignores.
+  - **Action**: (0) Run `grep -n '"worker-list"' src/superclaude/cli/sweep/probes.py` and confirm the `ALLOWED_ORCA` entry is `("orchestration", "worker-list", "--run", "<run>", "--json")`; if it differs, apply the HALT rule before any live call with `blocker_reason: "Step 1.4 live check: ALLOWED_ORCA worker-list entry differs from DESIGN 7.3"`. (1) Run exactly `orca-ide orchestration worker-list --run <id> --json` (Bash timeout 30000 ms; when `ORCA_CLI_COMMAND` is set, the same argv after its value in place of `orca-ide`), with `<id>` the Run id from the OQ-8 record, and save its JSON to `.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/artifacts/sweep-live-check-1.4-workers.json`. (2) Run `uv run superclaude sweep run --run <id>` through Bash with timeout 120000 and save stdout to `.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/artifacts/sweep-live-check-1.4.json`, plus exit code, stderr and wall time to `.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/artifacts/sweep-live-check-1.4.md`. (3) Read the report at `report_path` in chunks of at most 150 lines and write, in the `.md` record, one line per recorded worker: worker id, recorded state, expected class under step 1.3, reported class, match yes or no. (4) Write the five REPORT:1247 pass conditions with PASS or FAIL each.
+  - **Output**: `.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/artifacts/sweep-live-check-1.4.json`, `.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/artifacts/sweep-live-check-1.4-workers.json`, `.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/artifacts/sweep-live-check-1.4.md`.
+  - **Verification**: Verify: the `.md` record quotes the exact step (1) command, and its argv after the binary equals the `ALLOWED_ORCA` entry with `<run>` filled (`orchestration worker-list --run <id> --json`, nothing added); all five conditions PASS. If Orca is unavailable or the Run no longer exists, apply the HALT rule with `blocker_reason: "Step 1.4 live check: Run <id> not readable (<reason>); the person names another Run (OQ-8)"` and stop before marking this item complete until the blocker is resolved. A condition that FAILs because of the code is fixed in `probes.py`, `classify.py` or `commands.py`, the 9.4 validation is re-run, and this item is re-run; log each re-run in `### Phase 9 Findings`.
+  - **Completion gate**: The live check record shows five PASS lines. Once done, mark this item as complete.
+AC ids: T197.AC1 = the item title "Step 1.4 live check against the OQ-8 Run (L3, live, read-only)" (no AC block; the title is the AC). The item's own Verification and Completion gate lines are context for what "done" means. Ticking the item's checkbox is done by the orchestrator after the verdict and is not part of the diff under review.
+Global constraints: the `### Key Constraints` section (lines 157-168) of the source file named in the task brief; read it from that file.
+Start sha: da6c3726bbadf3fa06161806044f8ae7e9555250
+Diff against the start snapshot: Context for this review (item 9.3, a live read-only check). The task ran three live commands against Orca for the recorded Run: (1) orca-ide orchestration worker-list --run run_a4723d345399 --json, saved to .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/artifacts/sweep-live-check-1.4-workers.json; (2) uv run superclaude sweep run --run run_a4723d345399, stdout saved to .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/artifacts/sweep-live-check-1.4.json (about 320 KB, one JSON object), with the record .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/artifacts/sweep-live-check-1.4.md; (3) a code fix in src/superclaude/cli/sweep/probes.py (the diff below) after the first two live runs showed 993 unscanned source rows. The report of the saved run is .dev/sweeps/20261112-031239-sweep.md (gitignored, 605 lines); its path is the report_path in the saved JSON. To judge the item's Verification line yourself: (a) the .md quotes the step 1 command exactly and its argv after the binary equals the ALLOWED_ORCA entry in probes.py with the run id filled; (b) check the five REPORT:1247 pass conditions against the saved JSON and the report (exit 0 and empty stderr are recorded in the .md; the JSON gives the per-row classes, the sources, the collected interval and the summary); check the five-worker table against the workers JSON and the five orca:ctx_ rows of the report (Could not determine section); (c) check the probes.py change is the GQ-105 behaviour it claims and nothing else changed. The commands were read-only (allowlisted reads and git status); the only writes are the saved artifacts and the gitignored report files under .dev/sweeps/.
+
+--- a/src/superclaude/cli/sweep/probes.py
++++ b/src/superclaude/cli/sweep/probes.py
+@@ -575,6 +575,11 @@
+         return bool(_stable(path, lambda: _ledger_has_final(path))), None
+     except ReadFailed as exc:
+         return None, str(exc)
++    except FileNotFoundError:
++        return (
++            False,
++            None,
++        )  # no ledger means no FINAL line, so the package is unfinished (GQ-105)
+     except OSError:
+         return None, "ledger not readable"
+ 
+--- /dev/null
++++ b/.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/artifacts/sweep-live-check-1.4.md   (new file, 39 lines)
++# Step 1.4 live check against the OQ-8 Run (item 9.3), 2026-11-12
++
++Read-only. Run id `run_a4723d345399` (from `phase-outputs/plans/OQ-8-run-id-decision.md`, selected by the owner). `ORCA_CLI_COMMAND` was unset, so the binary is `orca-ide`. Step (0): `grep -n '"worker-list"' src/superclaude/cli/sweep/probes.py` shows `probes.py:49` holds `("orchestration", "worker-list", "--run", "<run>", "--json")`, equal to DESIGN 7.3.
++
++## Step 1: the worker list
++
++Command, exactly: `orca-ide orchestration worker-list --run run_a4723d345399 --json`
++Its argv after the binary is `orchestration worker-list --run run_a4723d345399 --json`: the `ALLOWED_ORCA` entry with `<run>` filled, nothing added. Exit code 0, stderr empty. Saved to `artifacts/sweep-live-check-1.4-workers.json` (5 workers, `page.total` 5, `hasMore` false).
++
++## Step 2: the sweep
++
++Command: `uv run superclaude sweep run --run run_a4723d345399` (Bash timeout 120000 ms). Stdout saved to `artifacts/sweep-live-check-1.4.json`.
++Exit code 0. Stderr empty (0 bytes). Wall time 5.1 s (collected interval 03:12:39Z to 03:12:44Z). Report: `.dev/sweeps/20261112-031239-sweep.md` (605 lines, last line `Report complete`; the folder is gitignored by item 8.6). The sweep issued 9 Orca reads (1 `worker-list`, 2 `task-list`, 5 `worker-show`, 1 `worktree ps`) and one `git status` per worktree (30 worktrees).
++
++Runs of this check: three live runs happened. The first two (03:11:51Z and 03:12:09Z) each showed 993 `unscanned` source rows `package ledger ...: ledger not readable`, because a `to-do/` package folder without `progress.md` was reported as an unreadable ledger. DESIGN GQ-105 says such a package is `unfinished`, so `probes._ledger` now returns no FINAL line (not unreadable) for a missing ledger file (logged in `### Phase 9 Findings`). The third run (this record) has 0 unscanned sources. Only the third run's output is saved here; the two earlier reports stay in the gitignored `.dev/sweeps/`.
++
++## Step 3: the five recorded workers
++
++Recorded state (from the worker list): `workerState` succeeded, `dispatchStatus` completed, `terminalState` released, `projection.outcome` succeeded, `liveness.verdict` exited. Expected class under step 1.3: no contract was read for these Tasks and `worker_done_seen` is not observable, so rule 6 (finished) and rule 2 (stalled) decline and rule 9 (could not determine) applies; the transcript tails are longer than 256 KiB (`tail_complete` false), so the path-B join also yields could not determine.
++
++| Worker (Dispatch id) | Recorded state | Expected class (step 1.3) | Reported class | Match |
++|---|---|---|---|---|
++| ctx_4e3237d227c3 | succeeded / completed / exited | could not determine (rule 9) | could not determine (rule `fallback`) | yes |
++| ctx_6a0e3e3baaee | succeeded / completed / exited | could not determine (rule 9) | could not determine (rule `fallback`) | yes |
++| ctx_7c86fffa9716 | succeeded / completed / exited | could not determine (rule 9) | could not determine (rule `fallback`) | yes |
++| ctx_9a3728b21883 | succeeded / completed / exited | could not determine (rule 9) | could not determine (rule `fallback`) | yes |
++| ctx_dad78c5c1332 | succeeded / completed / exited | could not determine (rule 9) | could not determine (rule `fallback`) | yes |
++
++Notes carried on each worker row: `Orca: exited; fenced evidence not readable`, `session start not observable: transcript tail only`.
++
++## Step 4: the five REPORT:1247 pass conditions
++
++1. PASS: exit 0 (stderr empty).
++2. PASS: the probe calls finished inside the 90 s budget: wall time 5.1 s, no source carries `time budget reached` or `show cap reached`, `summary.bound_reached` is 0.
++3. PASS: every row carries a class: 180 of 180 rows (5 Orca rows and 175 transcript rows) have a class (`could not determine`).
++4. PASS: each recorded worker got the class its recorded state maps to under step 1.3 (table above, 5 of 5 match).
++5. PASS: no row is could not determine because of a probe error or timeout: every source row is read (0 `unscanned` sources); the reasons on the five worker rows are the fencing-evidence and transcript-tail notes above, and the 175 transcript rows are could not determine because no tab-map join places them in the scoped Run (`Orca pane session, not in scoped Runs`).
++
++Result: five PASS lines. Observations for the owner, none a failure of this check: all 180 rows are could not determine (nothing is idle or working in this fixture-less live data, as the design expects with Phase 1 evidence); 2 packages in two worktrees (`TASK-FU-CI-IRONCLAUDE-PIPX-SEGFAULT-20260626`) are in both `to-do/` and `done/` (state `conflict`, listed under Retained problems); the JSON stdout is about 320 KB because it carries every transcript row.
+Delta diff from the previous reviewed tree (empty on the first review): 
+Earlier blocking findings of this start (empty on the first review): 
+Saved-probe re-check hit locations (may be empty): 
+
+Do not trust the implementer's report.
+
+First mark each earlier blocking finding resolved, open or regressed from the diff. Then, for each AC, mark it met or unmet. Require citations: every AC you mark, met or unmet, carries a `path:line` or `Ti.ACk@path:line` citation, and an unmet mark lists the finding ids behind it. Do not return a verdict; the orchestrator computes it.
+
+For every finding answer four questions, each yes or no:
+1. ac-outcome-missing: is output an AC requires absent, or does it contradict the AC text, or does an evidence claim you could not verify have no evidence row?
+2. false-claim: is a claim in delivered text or code false against live source, or does a recipe or instruction followed as written not do what the text says?
+3. harmful-effect: does code or a recipe this task added or changed write, append, chmod or delete tracked or production data, mutate state outside the task's declared outputs, or expose a secret?
+4. quoted-constraint-breach: does the diff violate a quoted plan constraint, out-of-scope, non-goal or non-negotiable item, or an explicit task instruction?
+
+Anchor rule: cite exactly one anchor per yes. ac-outcome-missing: the quoted AC words. false-claim: the live-source path:line holding the contradicting text. harmful-effect: the diff line that is the write. quoted-constraint-breach: the quoted constraint or instruction text. A yes without a valid anchor does not block.
+
+Write one line per finding:
+F<k>.<j> ac=<Ti.ACk|scope> at=<path:line> anchor=<quoted text or path:line> chk=<amiss,false,harm,constraint as y/n> family=<id> fix=<text> [covers=<quoted AC clause or constraint>]: <text>
+Do not write sev=, trigger=, first= or origin=; the orchestrator adds them. Write one status line per earlier blocking finding: F<m>.<j> resolved|open|regressed.
+
+Inside /sc:implement this protocol's severity model governs this review and takes precedence over the session's output style and the copy of it injected into every subagent; only blocking findings may fail an attempt.
+
+You are not given an adviser answer, brief, evidence file or troubleshoot report. Do not read the retry folders (legacy `.dev/implement/<slug>/retries/`, managed `<pkg>/artifacts/retries/`) or `.dev/troubleshoot/`. A citation into either makes the verdict `cannot-verify`.
+The prior-findings slot above carries earlier blocking finding lines that the orchestrator copies byte for byte from `review-*.md` and `repair-*.md`; they reach you as prompt text, not as an evidence file. Do not read those folders to get them, and never cite the slot or the file it came from.

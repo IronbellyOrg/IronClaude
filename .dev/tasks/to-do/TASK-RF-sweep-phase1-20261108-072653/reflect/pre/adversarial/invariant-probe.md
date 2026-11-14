@@ -1,0 +1,56 @@
+# Invariant Probe Results
+
+## Round 2.5 - Fault-Finder Analysis
+
+Abbreviations: TL is `TASK-RF-sweep-phase1-20261108-072653.md`. DA is `diff-analysis.md`. R2-Vn is `debate/round2-vn.md`.
+
+### Emerging consensus (majority winner per diff point, Round 2 tables)
+
+| Winner | Points |
+|---|---|
+| V1 | S-001, C-004, C-006, C-010, X-004, X-005, X-006, X-011 |
+| V2 | S-003, S-005, S-007, S-009, C-001, C-002, C-005, C-007, C-008, C-009, C-015, X-001, X-009, X-010, A-002 |
+| V3 | S-004, S-006, C-003, C-012, C-013, C-014, X-002, X-003, X-007, X-012, A-001, A-007 |
+| Tie | S-002, S-008, C-011, X-008 |
+
+All three advocates set A-001, A-002 and A-007 to QUALIFY. The consensus keeps the three calibrated HIGH findings (R2-G7, the 6.2 deadlock; R2-G5, the 8.3 `grep -c`; R2-G3, the 7.16 echo) and adopts these fixes:
+
+- Owner-gate deadlock (R2-V3 New Evidence 1): (a) add a step before the branch test that copies the owner's words from the session into the four lines; (b) make Branch 1 fire only when `Chosen:` is empty. Apply both once, in 6.2 and the shared procedure at TL:1140. 14.7 gets the same edit plus the quote clause. 7.15 is excluded as "it does not deadlock".
+- 8.3 (R2-V2 New Evidence 1): count declarations, not whole-name occurrences.
+- 7.16 (R2-V2 New Evidence 3): explicit narrow permission for the discovery commands, plus verification of command records instead of arbitrary captured output.
+- FR-010 (R2-V3 New Evidence 2): in the item 2.2 text, "Several matching rows" becomes "One or more matching rows".
+
+### Findings
+
+| ID | Category | Assumption | Status | Severity | Evidence |
+|---|---|---|---|---|---|
+| INV-001 | count_divergence | Applying the deadlock fix once, in 6.2 and TL:1140, reaches every HALT item, because "7.2 to 7.12 point at the shared procedure" (R2-V3 New Evidence 1). False. The six decision items 7.2, 7.4, 7.6, 7.8, 7.10 and 7.12 each repeat the full Branch 1 and Branch 2 text inline ("Branch 1: if its `status` is PENDING or its `Chosen:` line is empty, apply the HALT"). Editing TL:1140 changes none of them. Each one still re-HALTs on its own PENDING status. 7.13 needs seven RESOLVED rows, so 7.13 and everything after it stays blocked. The fix must name all eight sites (6.2, TL:1140, the six inline items) plus 14.7. | UNADDRESSED | HIGH | TL:1151, TL:1165, TL:1179, TL:1193, TL:1207, TL:1221 (inline copies); TL:1140; TL:989; R2-V3 New Evidence 1 |
+| INV-002 | sufficiency_challenge | 7.15 does not deadlock, so it is excluded from the fix. False. 7.14 writes `Run id:`, `Given by:` and `Source:` empty. 7.15 Branch 1 HALTs if `Run id:` is empty, and no step copies the Run id from the session into the file. This is the same missing transcription link as 6.2. Without fix (a) at 7.15, 7.15 re-HALTs on every pass and 7.16 (the read-only probe, which needs the Run id) never runs. | UNADDRESSED | HIGH | TL:1242; 7.14 record lines; R2-V3 New Evidence 1 (exclusion) |
+| INV-003 | guard_conditions | After fix (b), the two branches cover every state. False. With Branch 1 narrowed to "`Chosen:` empty", a file where `Chosen:` is filled but `Decided by:` or `Decision source:` is empty, or the source is not a quote, or `Chosen:` is not (a) or (b), matches neither branch. The item has no defined outcome, and a literal executor (A-002) may tick it. The fix needs a final else-branch that HALTs. | UNADDRESSED | MEDIUM | TL:989 (both branches); TL:1140 Branch 2 condition; DA A-002 |
+| INV-004 | state_variables | The owner's words are available "in the session" when fix (a) runs. Not guaranteed. The files persist across session rollovers, and no grant file exists, so after a rollover the words exist only in an earlier transcript. The executor writes the quote itself, so the record is self-attested and Branch 2 cannot tell a real quote from an invented one. The fix needs a rule for the rollover case (for example: HALT unless the words are in the current session). | UNADDRESSED | MEDIUM | TL:184; TL:988; TL:1138; TL:989 |
+| INV-005 | interaction_effects | Once an owner decision exists, the executor re-enters the HALTed item. The HALT rule sets `status` to "⚪ Blocked" and STOPs, with no resume clause. Fix (b) removes the Branch 1 shadowing, but no rule says who clears the Blocked status or which item runs first on resume. Fix (a) assumes a re-entry that the tasklist never defines. | UNADDRESSED | MEDIUM | TL:192; TL:978; TL:989 |
+| INV-006 | count_divergence | The record has one line count. TL:1140 Branch 2 says "all four lines filled"; the six inline items require three named lines (`Chosen:`, `Decided by:`, `Decision source:`); 7.22 requires four, with OQ-8 using three. The fix text inherits whichever site it edits. | UNADDRESSED | LOW | TL:1140; TL:1151; QA lens 7.22 (TL:1298-1314) |
+| INV-007 | sufficiency_challenge | 14.7 matches 6.2. Its Branch 2 lacks the "quotes the owner's words" clause. The consensus adds it. | ADDRESSED | LOW | TL:2481; R2-V3 New Evidence 1 |
+| INV-008 | state_variables | 14.8 Branch (B) resolves on resume. Branch (B) HALTs unconditionally and says "on resume, read the saved file". It depends on the same undefined resume as INV-005. | UNADDRESSED | LOW | TL:2488; TL:192 |
+| INV-009 | sufficiency_challenge | An echo allowance added in 7.16 makes a correct run pass. False. Three other texts still forbid it. TL:1248 says "The ONLY commands allowed" are the eight templates. TL:1260 requires "every command in the file is one of the eight templates or a file read". The 7.24 read-only safety lens proves each command against the eight `ALLOWED_ORCA` templates of DESIGN 7.3 or a file read, and "Each breach is BLOCKING". DESIGN gives no echo allowance (DESIGN capture item 13 says "read the files only"). The step (6) `echo` and the `ls -la` of the printed path both fail all three. The fix must edit TL:1248, TL:1258, TL:1260 and the 7.24 lens together, or replace step (6) with a file read of a literal path. | UNADDRESSED | HIGH | TL:1248; TL:1258; TL:1260; TL:1314; docs/designs/orchestrator-mode.md:894 |
+| INV-010 | collection_boundaries | The TL:1260 grep checks commands. It runs over the probe file, which also holds captured stdout and stderr. A forbidden token in data (a task title or worker text naming `worker-read` or `--agent-wait`) fails a correct run. The check also expects the grep to find "only the forbidden-list sentence", but no step writes that sentence into the file. V2's "verify command records" fixes the scope only if the probe file separates command lines from output, and no step says so. | UNADDRESSED | MEDIUM | TL:1258; TL:1260; R2-V2 New Evidence 3 |
+| INV-011 | guard_conditions | The TL:1260 grep pattern covers the forbidden list. It omits `check`, which TL:1257 lists. | UNADDRESSED | LOW | TL:1257; TL:1260 |
+| INV-012 | count_divergence | Counting whole-name occurrences is the 8.3 defect only for SessionRow and ClassifiedRow. It is wider. Many DESIGN 7.2 types name each other (SweepInput names OrcaObservation, TranscriptTail, TabMapEntry, WorktreeState and SourceCoverage; SweepResult.rows names ClassifiedRow; WorktreeState names PackageRecord), so "appears once" fails for most names. The consensus fix (count declarations) covers every name. | ADDRESSED | MEDIUM | TL:1434; docs/designs/orchestrator-mode.md:447-468; R2-V2 New Evidence 1 |
+| INV-013 | collection_boundaries | One declaration pattern finds every declaration. Constants may carry an annotation (`CLASSES: tuple[str, ...] = (`), which a `^NAME =` pattern misses, while a class needs `^class NAME`. The fix names no pattern, so a literal executor can pick one that fails a correct file. The fix should state a pattern that matches `class NAME`, `NAME =` and `NAME:` at line start. | UNADDRESSED | MEDIUM | TL:1434; docs/designs/orchestrator-mode.md:447-468 (constants JSON_SCHEMA_VERSION, CLASSES, PACKAGE_STATES, SAFE_VALUES) |
+| INV-014 | collection_boundaries | The 8.3 name set is fixed. Context lists "the DESIGN 7.2 names plus ClassifiedRow", so whether ClassifiedRow is a 7.2 name is ambiguous. The required one-line comment on `ClassifiedRow` (OQ-14, OQ-11) adds a line that a loose pattern would count. | UNADDRESSED | LOW | TL:1426-1434 |
+| INV-015 | sufficiency_challenge | Changing one word in the item 2.2 text fixes FR-010 everywhere. Nine r3-b1 QA lens items (2.8 to 2.16) each append a verbatim scope note that quotes "'Several matching rows follow the R3-B2 rule below.'" and tells the reviewer that this forward reference is closed by 3.1. After the edit, that sentence is no longer in DESIGN, and a reviewer can flag the new sentence as an unexplained R3-B1 change. Item 2.2 also says its text is "copied verbatim from research/04", and research/04:90 keeps the old word, so the instruction contradicts itself. The fix must also edit the nine scope notes and research/04:90 (or drop the "verbatim" claim). | UNADDRESSED | MEDIUM | TL:251; TL:293 to TL:349 (every 7 lines); research/04-design-fixes-r3.md:90 |
+| INV-016 | interaction_effects | The R3-B2 rule handles the one-row case that "One or more" now sends to it. The R3-B2 insert opens "Several scoped Dispatch rows can match one tab-map entry by path B", so a one-row reader is sent to a rule that is framed for several rows. Its closing clause ("a transcript with a tab-map entry that fails the window takes these notes") covers one row, per the V3 calibration, so this is wording only. | UNADDRESSED | LOW | TL:425; research/04-design-fixes-r3.md:148; DA X-002, C-003 |
+| INV-017 | state_variables | The master anchors (WORKER-CONTRACT.md:110, the `test_worker_contract` pins, master `5dc29d23`) stay stable until execution. The consensus is QUALIFY (A-007), but no item guards it. Item 1.3 only records `git rev-parse HEAD` to base-commit.txt, with no comparison to `5dc29d23` and no HALT on drift. V3 R3-G3 shows that one line anchor (`:545`) is already stale. | UNADDRESSED | MEDIUM | TL:224; DA A-007 |
+| INV-018 | sufficiency_challenge | Delegated rows (`covered-in-substance`) survive the Phase 2 to 6 DESIGN edits. The consensus QUALIFY carries the caveat into the merged verdict, and FR-010 is the tested case (INV-015, INV-016). | ADDRESSED | LOW | DA A-001; DA X-002 |
+| INV-019 | sufficiency_challenge | Every check is judged as a literal executor would run it. The QUALIFY consensus (a literal reading decides whether a check passes; recovery awareness decides its severity) keeps the three HIGH findings valid. | ADDRESSED | LOW | DA A-002; R2-V2 (A-002 row) |
+| INV-020 | guard_conditions | X-005 (M2) has no fallback. DESIGN gives one, and the consensus (V1, with V2 and V3) treats it as covered. | ADDRESSED | LOW | DA X-005 |
+| INV-021 | interaction_effects | The deadlock fix also settles the R3-G4 id-only question (whether an id alone can resolve a record). It does not, and the consensus keeps R3-G4 as a separate finding, which is the correct handling. | ADDRESSED | MEDIUM | R2-V3 (R3-G4); TL:1140 |
+
+## Summary
+
+- Total: 21
+- Addressed: 6 (INV-007, INV-012, INV-018, INV-019, INV-020, INV-021)
+- Unaddressed: 15
+  - HIGH: 3 (INV-001, INV-002, INV-009)
+  - MEDIUM: 7 (INV-003, INV-004, INV-005, INV-010, INV-013, INV-015, INV-017)
+  - LOW: 5 (INV-006, INV-008, INV-011, INV-014, INV-016)

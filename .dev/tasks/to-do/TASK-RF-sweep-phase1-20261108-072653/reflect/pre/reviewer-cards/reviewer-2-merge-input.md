@@ -1,0 +1,271 @@
+# Reviewer 2 card with its blind calibration attached (Wave 3C), for the Wave 4 adversarial merge.
+# Part 1: reviewer card
+# Saved verbatim by the orchestrator from the read-only reflect-reviewer returned card.
+schema: sc-reflect-reviewer-card/v1
+mode: UC-1 pre-execution
+reviewer: 2
+persona: qa
+model_class: claude-gw-tier2
+grounding_root: /home/coder/workspaces/worktrees/IronClaude/issue-339-orchestrator-mode
+brief: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/reflect/pre/reviewer-briefs/reviewer-2.md
+spec: docs/designs/orchestrator-mode.md
+tasklist: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md
+codegraph_used: false
+row_verdicts:
+  - {id: GQ-101, verdict: covered-in-substance, items: ["8.4", "10.2"], evidence: [".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md:1784-1788"], tag: Grounded, note: "The complete classify test row is delegated, including active shared-package cases."}
+  - {id: GQ-102, verdict: covered-in-substance, items: ["8.4", "10.2"], evidence: [".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md:1784-1788"], tag: Grounded, note: "Package-state precedence and its conflict fixture are carried through the complete DESIGN row."}
+  - {id: GQ-103, verdict: covered, items: ["8.3", "8.4", "8.5", "8.9"], evidence: [".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md:1430-1449"], tag: Grounded, note: "The model, context-based classification and lock-free git seam cover the three subparts."}
+  - {id: GQ-104, verdict: covered-in-substance, items: ["9.1", "10.3", "10.7"], evidence: [".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md:1624-1628"], tag: Grounded, note: "The command explicitly has no run-list fallback."}
+  - {id: GQ-105, verdict: covered-in-substance, items: ["8.10", "10.2", "10.3"], evidence: [".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md:1480-1484"], tag: Grounded, note: "The ledger reader and delegated test rows carry the head-tail split and FINAL-line rule."}
+  - {id: GQ-106, verdict: covered-in-substance, items: ["8.6", "8.9"], evidence: [".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md:1451-1456"], tag: Grounded, note: "The ignore entry is delivered, although its insertion-count verification is brittle."}
+  - {id: GQ-107, verdict: covered-in-substance, items: ["8.12", "10.5"], evidence: [".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md:1494-1497"], tag: Grounded, note: "Sanitizing pipes and the report injection fixture are explicitly carried."}
+  - {id: GQ-108, verdict: covered-in-substance, items: ["7.16", "7.17", "8.4", "10.2"], evidence: [".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md:1438-1441"], tag: Grounded, note: "Both join paths and conservative unknown outcomes are assigned."}
+  - {id: GQ-109, verdict: covered-in-substance, items: ["8.10", "10.3"], evidence: [".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md:1791-1795"], tag: Grounded, note: "The forbidden tokens and rejected verbs are explicitly listed in the test item."}
+  - {id: GQ-110, verdict: covered-in-substance, items: ["8.5", "8.9", "10.4"], evidence: [".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md:1797-1802"], tag: Grounded, note: "The initially synthetic per-worktree count check is later connected to collect."}
+  - {id: GQ-111, verdict: missing, items: [], evidence: ["docs/designs/orchestrator-mode.md:78-80"], tag: Grounded, note: "The mandatory task-level count citation rule is absent."}
+  - {id: GQ-112, verdict: missing, items: [], evidence: ["docs/designs/orchestrator-mode.md:78-80"], tag: Grounded, note: "The authoritative count and prohibition on repeating stale REPORT counts are not copied."}
+  - {id: GQ-113, verdict: partial, items: [], evidence: ["docs/designs/orchestrator-mode.md:79-80"], tag: Grounded, note: "The design carries the stale-citation interpretation, but its required task-level REPORT protection is missing."}
+  - {id: D1, verdict: covered, items: ["8.12", "9.1"], evidence: [".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md:1494-1497"], tag: Grounded, note: "Rendering stays pure and publication belongs to commands."}
+  - {id: D2, verdict: covered-in-substance, items: ["9.1", "10.7"], evidence: [".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md:1624-1628"], tag: Grounded, note: "Exclusive linking, cleanup and publication failure cases are assigned."}
+  - {id: D3, verdict: covered-in-substance, items: ["9.1", "10.7"], evidence: [".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md:1818-1823"], tag: Grounded, note: "Binding tests delegate the design message; the matrix's owner-decision D3 hits are unrelated."}
+  - {id: D4, verdict: covered-in-substance, items: ["8.12", "10.5"], evidence: [".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md:1804-1809"], tag: Grounded, note: "The 200-character cell case is covered independently of unrelated owner-decision D4 hits."}
+  - {id: D5, verdict: covered-in-substance, items: ["8.4", "10.2"], evidence: [".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md:1784-1788"], tag: Grounded, note: "The delegated classify row includes future timestamps; the matrix's owner-decision D5 hit is unrelated."}
+  - {id: D6, verdict: covered, items: ["12.1"], evidence: [".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md:2104-2108"], tag: Grounded, note: "The revised fenced coordinator contract is copied byte-for-byte."}
+  - {id: D7, verdict: covered-in-substance, items: ["8.4", "8.19", "10.2", "10.5"], evidence: [".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md:1804-1809"], tag: Grounded, note: "Rule-five conditions and the unobservable-class footnote are assigned."}
+  - {id: D8, verdict: covered-in-substance, items: ["8.3", "10.3", "10.7"], evidence: [".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md:1791-1795"], tag: Grounded, note: "The complete model table, M7 parser cases and golden JSON types carry bool-or-null unpushed."}
+  - {id: D9, verdict: covered, items: ["7.12", "8.4", "10.2", "10.5"], evidence: [".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md:1219-1224"], tag: Grounded, note: "A dedicated owner gate precedes classification and its join fixtures."}
+  - {id: SP-07, verdict: covered-in-substance, items: ["10.2"], evidence: [".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md:1784-1788"], tag: Grounded, note: "The entire classify row includes the quoted guard-refusal negative case."}
+  - {id: SP-09, verdict: covered-in-substance, items: ["10.7"], evidence: [".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md:1818-1823"], tag: Grounded, note: "Invalid, duplicate and unknown Run cases are explicitly assigned."}
+  - {id: SP-16, verdict: covered, items: ["10.2", "10.5"], evidence: [".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md:1805-1809"], tag: Grounded, note: "The join-failure literal is explicitly named in the report tests."}
+  - {id: SP-19, verdict: covered-in-substance, items: ["10.7"], evidence: [".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md:1819-1823"], tag: Grounded, note: "Disk-only continuation and FR-002 binding behavior are carried together."}
+  - {id: SP-20, verdict: covered-in-substance, items: ["8.12", "9.1"], evidence: [".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md:1494-1497"], tag: Grounded, note: "The report module has no write_report function."}
+  - {id: SP-21, verdict: covered-in-substance, items: ["9.1", "10.7"], evidence: [".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md:1818-1823"], tag: Grounded, note: "The complete binding-test row delegates the reason-bearing unavailable message."}
+  - {id: SP-22, verdict: covered-in-substance, items: ["9.1"], evidence: ["docs/designs/orchestrator-mode.md:846", ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md:1624-1625"], tag: Grounded, note: "Publication only removes its own temporary output and adds no retention mechanism."}
+  - {id: SP-23, verdict: covered-in-substance, items: ["8.12", "10.5"], evidence: [".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md:1805-1809"], tag: Grounded, note: "The long-cell fixture and full JSON value are delegated."}
+  - {id: SP-24, verdict: covered, items: ["8.4", "8.19", "10.5"], evidence: [".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md:1543-1544"], tag: Grounded, note: "The report-surface reviewer explicitly checks the footnote."}
+  - {id: SP-25, verdict: covered-in-substance, items: ["11.3", "11.4"], evidence: [".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md:1971-1976"], tag: Grounded, note: "Both allowed-tools literals have exact assertions."}
+  - {id: SP-26, verdict: covered-in-substance, items: ["10.2", "8.18"], evidence: [".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md:1537"], tag: Grounded, note: "Future timestamps have both a delegated fixture and an explicit review check."}
+  - {id: SP-27, verdict: covered, items: ["12.1"], evidence: [".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md:2104-2108"], tag: Grounded, note: "Copying the complete revised contract preserves the admission-record sentence."}
+  - {id: SP-28, verdict: partial, items: ["8.10", "8.18", "10.3"], evidence: ["docs/designs/orchestrator-mode.md:987", ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md:1537"], tag: Grounded, note: "Limit behavior is tested, but the required before-release rationale has no assigned deliverable."}
+  - {id: SP-29, verdict: covered, items: ["7.12", "8.4", "10.2"], evidence: [".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md:1438-1441"], tag: Grounded, note: "The narrowed rule, owner sign-off and revised join cases are carried."}
+  - {id: INF-001, verdict: false-match, items: [], evidence: ["docs/designs/orchestrator-mode.md:80", ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md:1326-1331"], tag: Grounded, note: "Item 7.26 checks downstream values and does not copy the gaps-count or REPORT rule."}
+  - {id: INF-002, verdict: covered, items: ["8.12"], evidence: [".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md:1494-1498"], tag: Grounded, note: "The pure report module explicitly excludes write_report."}
+  - {id: INF-003, verdict: covered, items: ["9.1", "10.7"], evidence: [".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md:1624-1628"], tag: Grounded, note: "Temporary creation, fsync and exclusive linking are explicit."}
+  - {id: INF-004, verdict: covered, items: ["9.1"], evidence: [".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md:1624-1625"], tag: Grounded, note: "Publication is explicitly ordered after validation, collection, classification and rendering."}
+  - {id: INF-005, verdict: covered-in-substance, items: ["8.3", "8.4", "8.10", "8.12", "9.1"], evidence: [".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md:1432-1439"], tag: Grounded, note: "Module construction follows the design's dependency direction rather than the matrix's design-review-only match."}
+  - {id: INF-006, verdict: covered-in-substance, items: ["8.10", "10.3"], evidence: [".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md:1480-1484"], tag: Grounded, note: "The allowlist belongs to probes and the forbidden write verbs belong only to tests."}
+  - {id: INF-007, verdict: covered-in-substance, items: ["11.3", "11.4"], evidence: [".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md:1965-1969"], tag: Grounded, note: "The skill only invokes the CLI, consumes its JSON and reads the resulting report."}
+  - {id: INF-008, verdict: covered-in-substance, items: ["8.3"], evidence: [".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md:1431-1432"], tag: Grounded, note: "Model creation is constrained to the specified types and named builder additions."}
+  - {id: INF-009, verdict: covered-in-substance, items: ["13.1", "13.2", "13.4"], evidence: [".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md:2254", ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md:2277-2282"], tag: Grounded, note: "The paired edits and byte parity are delivered, while commits remain outside this executor's authorization."}
+  - {id: INF-010, verdict: covered-in-substance, items: ["13.2", "13.5"], evidence: [".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md:2267", ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md:2288"], tag: Grounded, note: "Both relevant routing rows have their own forbidden-advice checks."}
+  - {id: INF-011, verdict: covered, items: ["14.1"], evidence: [".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md:2437-2439"], tag: Grounded, note: "Sync and cached-path checks preserve the project settings exception."}
+  - {id: INF-012, verdict: covered-in-substance, items: ["8.6", "8.9"], evidence: [".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md:1453-1456"], tag: Grounded, note: "The narrow ignore edit and negative task-path check preserve tracked task packages."}
+  - {id: INF-013, verdict: covered, items: ["8.8", "8.9"], evidence: [".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md:1465-1476"], tag: Grounded, note: "Guard construction is explicit, but its claimed behavioral verification lacks a negative test."}
+  - {id: INF-014, verdict: covered-in-substance, items: ["7.2", "7.12"], evidence: [".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md:1138-1140"], tag: Grounded, note: "The human-gate procedure explicitly states that DESIGN overrides conflicting REPORT defaults."}
+  - {id: INF-015, verdict: covered, items: ["8.6", "8.9"], evidence: [".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md:1473-1474"], tag: Grounded, note: "The ignore entry precedes the real-git test that copies it."}
+findings:
+  - id: R2-G1
+    gap_class: missing
+    severity: HIGH
+    tag: Grounded
+    t1_relation: confirms F1
+    claim: "The tasklist omits the explicitly required task-level rule to cite GAPS line 138 for counts and never edit REPORT. The INF-001 match to item 7.26 is false: that item reviews downstream decision values, not this rule."
+    evidence: ["docs/designs/orchestrator-mode.md:78-80", ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md:1326-1331"]
+    recommendation: "Add the rule to Key Constraints, including the authoritative 113/88/25 counts and the carried GQ-113 interpretation; verify that the text explicitly protects REPORT and cites GAPS line 138."
+  - id: R2-G2
+    gap_class: gate-bypass
+    severity: HIGH
+    tag: Grounded
+    t1_relation: refines F2
+    claim: "Item 7.15 accepts a non-empty Run id and filled giver/source without requiring the person's quoted words. Item 7.16 then uses that record without rechecking its authorization. Item 14.7 similarly accepts filled fields without the quote condition used by 6.2. Executor transcription itself is not a defect; these weaker evidence conditions are."
+    evidence: [".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md:989", ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md:1242-1248", ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md:2481-2484"]
+    recommendation: "Require an actual quoted owner reply and its session source in 7.15 and 14.7 before RESOLVED; make 7.16 check that condition before live calls, without introducing a separate grant file."
+  - id: R2-G3
+    gap_class: unsound-check
+    severity: HIGH
+    tag: Grounded
+    t1_relation: confirms F3
+    claim: "Item 7.16 requires recording echo and ls commands but accepts only eight Orca templates or file reads. Its grep also expects a forbidden-list sentence that the Action never requires writing, and searches captured output rather than command records."
+    evidence: [".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md:1258-1261"]
+    recommendation: "Allow the two narrowly scoped discovery commands explicitly and check recorded command fields, not raw stdout/stderr; either require copying the forbidden-list sentence or remove that expected match."
+  - id: R2-G4
+    gap_class: unsound-check
+    severity: MEDIUM
+    tag: Grounded
+    t1_relation: refines F7
+    claim: "The fixed insertion count in 8.6 measures all working-tree changes, not this item's edit, and can reject correct work on a dirty file. Item 9.2 repeats the same weakness for main.py. These checks are stronger than their respective completion gates and leave contradictory acceptance rules."
+    evidence: [".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md:1453-1456", ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md:1635-1636"]
+    recommendation: "Replace total insertion counts in 8.6 and 9.2 with checks for the exact new content and placement, or compare against a per-item baseline; make Verification and Completion gate agree."
+  - id: R2-G5
+    gap_class: unsound-check
+    severity: HIGH
+    tag: Grounded
+    t1_relation: new
+    claim: "Item 8.3 requires every class name to occur exactly once using grep counts, but its required typed models necessarily reference those names elsewhere. SessionRow must occur in both its declaration and ClassifiedRow.row's annotation, so a correct module fails the stated verification."
+    evidence: [".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md:1431-1435"]
+    recommendation: "Count class declarations and constant assignments, not all name occurrences, in 8.3; the edited check must accept one SessionRow declaration plus its required type references."
+  - id: R2-G6
+    gap_class: unsound-check
+    severity: HIGH
+    tag: Grounded
+    t1_relation: new
+    claim: "Item 8.1 checks six combined grep matches rather than one valid outcome per gate file. One file can contribute two matches while another has no PASS, yet the stated six-line verification succeeds. The decision-file loop fixes this problem only for owner records, not QA gates."
+    evidence: [".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md:1417-1421"]
+    recommendation: "Check existence and the unique final PASS outcome separately for each of the six named gate files; require six named successful results, and reject duplicate or contradictory outcomes."
+  - id: R2-G7
+    gap_class: unsound-check
+    severity: HIGH
+    tag: Grounded
+    t1_relation: new
+    claim: "The owner-gate branches overlap. A decision record starts PENDING; even after its owner-answer fields are filled, 6.2 Branch 1 still orders STOP because status is PENDING, before Branch 2 can set RESOLVED. The shared Phase 7 procedure and 14.7 repeat this ambiguous resume path."
+    evidence: [".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md:982-992", ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md:1140", ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md:2481-2484"]
+    recommendation: "Make the branches mutually exclusive: validate and transcribe a genuine owner answer first, then resolve it; halt only when valid owner evidence is absent, regardless of the previous PENDING status."
+  - id: R2-G8
+    gap_class: unsound-check
+    severity: HIGH
+    tag: Grounded
+    t1_relation: new
+    claim: "Item 8.9 calls ordinary pytest output a deliberate proof that the subprocess guard works, but its Action creates no negative guard test or call audit. The fake-seam tests can pass with the guard disabled, and normal verbose pytest output does not identify real subprocess calls."
+    evidence: [".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md:1467-1476"]
+    recommendation: "Add a small non-integration guard test in 8.9 that asserts the three guarded entry points raise AssertionError before any seam override; require its named PASS result instead of inferring this from silence."
+  - id: R2-G9
+    gap_class: traceability
+    severity: MEDIUM
+    tag: Grounded
+    t1_relation: new
+    claim: "The matrix represents B1, B3, B4 and B5 but omits requirement-bearing B2. The NFR-004 row does not distinguish import restrictions from the separate prohibition on opening, statting or resolving path objects. The planned import-only AST check cannot establish that latter property."
+    evidence: ["docs/designs/orchestrator-mode.md:215-219", ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/reflect/pre/coverage-matrix.yaml:232-237", ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/reflect/pre/coverage-matrix.yaml:849-880", ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md:1784-1785"]
+    recommendation: "Add a B2 matrix row or explicitly expand NFR-004 to carry it; add an explicit path-as-data acceptance check to 8.4 and 8.12 that covers path methods as well as forbidden imports."
+  - id: R2-G10
+    gap_class: partial
+    severity: MEDIUM
+    tag: Grounded
+    t1_relation: new
+    claim: "SP-28 requires a byte-limit rationale recorded in the task package before release. Item 8.18 checks boundary behavior only, and no item assigns the rationale or an explicit release-blocking handoff. Passing the boundary tests does not close this open item."
+    evidence: ["docs/designs/orchestrator-mode.md:987", ".dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md:1535-1539"]
+    recommendation: "Add a rationale deliverable to 14.9, or explicitly carry SP-28 into the final handoff with an owner and before-release gate; retain proposed labels until that gate closes."
+best_practice_compliance:
+  grade: 2
+  scale: 0-5
+  reasons:
+    - "+ The four sampled sizing sentences match the supplied count rules: 9 design reviewers, 8 decision reviewers, 7 core reviewers, and 12 or 14 final reviewers."
+    - "+ Parallel spawning, one fix agent, two verifier types, regression-first checks and the two-cycle cap are explicitly specified."
+    - "+ All section 11 test-file rows have carrying items in 8.9, 10.2-10.7, 11.4 and 12.3; delegated complete-row coverage is real coverage."
+    - "- T1 grade 3 is too generous because additional model-count and owner-resume checks can block correct execution."
+    - "- Owner evidence conditions and the implementation pre-flight can accept inadequate records."
+    - "- Guard verification, B2 traceability and the SP-28 release handoff remain incomplete."
+self_scores:
+  citation_grounding: 1.00
+  coverage_completeness: 0.94
+  deviation_classification_clarity: 0.95
+  risk_surface_coverage: 0.94
+  recommendation_actionability: 0.97
+  C: 0.96
+  rationale:
+    citation_grounding: "Every finding and row verdict cites source text read directly or in the supplied verbatim hunks."
+    coverage_completeness: "All 51 assigned rows and the full supplied design body were reviewed, without treating literal-ID misses as delivery failures."
+    deviation_classification_clarity: "Findings use UC-1 gap classes and distinguish missing requirements, weak checks and authorization conditions."
+    risk_surface_coverage: "The review covers satisfiability, false passes, owner gates, sizing, guard behavior and test delegation."
+    recommendation_actionability: "Each finding names a small plan or matrix correction with a readable acceptance condition."
+summary:
+  rows_audited: 51
+  findings_high: 7
+  findings_medium: 3
+  findings_low: 0
+  recommended_action: "Correct the HIGH findings before execution, then recheck the affected gate and verification text."
+  not_checked: "No commands or tests were run, no implementation was audited, and no files were written."
+
+# Part 2: blind calibration (calibrated scores and per-finding verdicts outrank self-reports)
+# CAL: # Saved verbatim by the orchestrator from the read-only confidence-calibrator output.
+# CAL: card_ref: /home/coder/workspaces/worktrees/IronClaude/issue-339-orchestrator-mode/.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/reflect/pre/reviewer-cards/reviewer-2-card.yaml
+# CAL: calibrator_model_class: opus
+# CAL: # The card's own model_class field reads claude-gw-tier2, not haiku as the brief stated. Not rescored for this.
+# CAL: dimensions:
+# CAL:   citation_grounding:
+# CAL:     score: 0.88
+# CAL:     reason: "Every finding and row verdict has a citation. 23 of 24 checked ranges match. One 9.2 cite is off by two lines. G1 and G10 claim that something is absent from a 2,500-line file, and a line cite cannot prove that."
+# CAL:   coverage_completeness:
+# CAL:     score: 0.90
+# CAL:     reason: "There are 51 row verdicts, which matches rows_audited: 51. The coverage-matrix ranges were not checked. Some row verdicts disagree with the findings: INF-013 is marked covered while G8 rates the same guard check HIGH."
+# CAL:   deviation_classification_clarity:
+# CAL:     score: 0.70
+# CAL:     reason: "Each finding has exactly one gap class. Severity is inflated, though: only 3 of the 7 HIGH findings meet the HIGH bar. Some row verdicts also conflict with their findings (INF-013 with G8, GQ-106 with G4)."
+# CAL:   risk_surface_coverage:
+# CAL:     score: 0.85
+# CAL:     reason: "It finds the real deadlock in the owner-gate branches, weakened gate evidence, verification checks that cannot pass, a counting loophole and traceability gaps. Blast-radius reasoning is thin."
+# CAL:   recommendation_actionability:
+# CAL:     score: 0.90
+# CAL:     reason: "Every recommendation names the item to edit and the check to use. G10 and G9 give either-or options without one success criterion."
+# CAL: calibrated_confidence: 0.85
+# CAL: self_reported_confidence: 0.96
+# CAL: calibration_delta: -0.11
+# CAL: citations_checked:
+# CAL:   - docs/designs/orchestrator-mode.md:78-80
+# CAL:   - docs/designs/orchestrator-mode.md:215-219
+# CAL:   - docs/designs/orchestrator-mode.md:987
+# CAL:   - TASK-RF-sweep-phase1-20261108-072653.md:989
+# CAL:   - TASK-RF-sweep-phase1-20261108-072653.md:982-992
+# CAL:   - TASK-RF-sweep-phase1-20261108-072653.md:1138-1140
+# CAL:   - TASK-RF-sweep-phase1-20261108-072653.md:1140
+# CAL:   - TASK-RF-sweep-phase1-20261108-072653.md:1242-1248
+# CAL:   - TASK-RF-sweep-phase1-20261108-072653.md:1258-1261
+# CAL:   - TASK-RF-sweep-phase1-20261108-072653.md:1326-1331
+# CAL:   - TASK-RF-sweep-phase1-20261108-072653.md:1417-1421
+# CAL:   - TASK-RF-sweep-phase1-20261108-072653.md:1430-1449
+# CAL:   - TASK-RF-sweep-phase1-20261108-072653.md:1431-1432
+# CAL:   - TASK-RF-sweep-phase1-20261108-072653.md:1431-1435
+# CAL:   - TASK-RF-sweep-phase1-20261108-072653.md:1453-1456
+# CAL:   - TASK-RF-sweep-phase1-20261108-072653.md:1465-1476
+# CAL:   - TASK-RF-sweep-phase1-20261108-072653.md:1467-1476
+# CAL:   - TASK-RF-sweep-phase1-20261108-072653.md:1535-1539
+# CAL:   - TASK-RF-sweep-phase1-20261108-072653.md:1624-1625
+# CAL:   - TASK-RF-sweep-phase1-20261108-072653.md:1624-1628
+# CAL:   - TASK-RF-sweep-phase1-20261108-072653.md:1635-1636
+# CAL:   - TASK-RF-sweep-phase1-20261108-072653.md:2104-2108
+# CAL:   - TASK-RF-sweep-phase1-20261108-072653.md:2481-2484
+# CAL:   - TASK-RF-sweep-phase1-20261108-072653.md:2481-2484 (R2-G7 reuse, read once)
+# CAL: citations_failed:
+# CAL:   - ref: TASK-RF-sweep-phase1-20261108-072653.md:1635-1636
+# CAL:     finding: R2-G4
+# CAL:     reason: "The 9.2 insertion-count check is at line 1634. Lines 1635-1636 hold the completion gate and a blank line."
+# CAL: finding_verdicts:
+# CAL:   - id: R2-G1
+# CAL:     holds: partly
+# CAL:     calibrated_severity: MEDIUM
+# CAL:     reason: "Design line 80 does require the rule to be copied, and item 7.26 is a downstream-actionability review, not that rule. Its absence from the whole file was not verified. A missing count-citation rule does not make the run fail or bypass a gate."
+# CAL:   - id: R2-G2
+# CAL:     holds: yes
+# CAL:     calibrated_severity: MEDIUM
+# CAL:     reason: "In 7.15, Branch 2 has no condition at all beyond a non-empty Run id. 14.7 drops the 'source quotes the owner's words' condition that 6.2 has. The gate is weaker, but an executor following the text still waits for the person, so the gate is not bypassed."
+# CAL:   - id: R2-G3
+# CAL:     holds: yes
+# CAL:     calibrated_severity: HIGH
+# CAL:     reason: "The 7.16 Action requires an echo command, which is neither one of the eight templates nor a file read. The check therefore cannot pass for a correct run. Its grep also expects a forbidden-list sentence that the Action never writes."
+# CAL:   - id: R2-G4
+# CAL:     holds: partly
+# CAL:     calibrated_severity: LOW
+# CAL:     reason: "The total-insertion counts (2 and 4) do match the specified edits on a clean file. They fail only if .gitignore or main.py was already dirty, and no earlier item edits either file."
+# CAL:   - id: R2-G5
+# CAL:     holds: yes
+# CAL:     calibrated_severity: HIGH
+# CAL:     reason: "Item 8.3 requires each name to appear exactly once by grep -c, but the required ClassifiedRow.row: SessionRow annotation guarantees SessionRow appears at least twice. A correct module fails the check as written."
+# CAL:   - id: R2-G6
+# CAL:     holds: yes
+# CAL:     calibrated_severity: MEDIUM
+# CAL:     reason: "grep -h across six files that expects 6 lines can still pass with one file missing and another holding two matches. That needs a duplicate 'gate: PASS' line, which is plausible but not the normal path."
+# CAL:   - id: R2-G7
+# CAL:     holds: yes
+# CAL:     calibrated_severity: HIGH
+# CAL:     reason: "6.1 writes status: PENDING, and only Branch 2 sets RESOLVED. Branch 1 fires on PENDING, so Branch 2 can never be reached. Every HALT item that follows the 6.2 procedure (line 1140, and 14.7) deadlocks as written."
+# CAL:   - id: R2-G8
+# CAL:     holds: yes
+# CAL:     calibrated_severity: MEDIUM
+# CAL:     reason: "Normal pytest -v output cannot show whether a test reached a real subprocess, and 8.9 adds no negative guard test. This is false assurance, not a run failure or a gate bypass."
+# CAL:   - id: R2-G9
+# CAL:     holds: partly
+# CAL:     calibrated_severity: LOW
+# CAL:     reason: "B2 is confirmed at design line 216. However, the design itself says the NFR-004 import test enforces B2, so calling an import-only check insufficient departs from the design. The matrix ranges were not checked."
+# CAL:   - id: R2-G10
+# CAL:     holds: partly
+# CAL:     calibrated_severity: MEDIUM
+# CAL:     reason: "Design line 987 requires the rationale before release, and 8.18 tests the limits' behaviour only. The design's 'behaviour until closed' text lets the run proceed with the proposed limits, so this is a missing deliverable, not a failure. Absence elsewhere in the file was not verified."

@@ -1,0 +1,25 @@
+Agent 1 (rf-qa - B2 self-containment lens)
+LENS: b2-self-containment
+
+First read the common prompt: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/revisions/plan-defect-fixes-20261110/qa/prompt-a10-common.txt (it carries the task file path, the revision files to read, the escalation override, the stance and the report format). Everything there applies to you.
+
+YOUR LENS FOCUS: Verify every checklist item is SELF-CONTAINED per MDTM B2. An item must have context + action + output + verification + completion gate. An item that says "see above" or "continue from previous" FAILS.
+
+B2 Self-Containment Checklist:
+1. Every checklist item has all 5 B2 components?
+2. No item references context from a prior item without restating it?
+3. Agent-spawning items have fully embedded prompts (not "see SKILL.md")?
+4. File paths in items are specific (not "the relevant file")?
+5. Verification criteria are measurable (not "verify it works")?
+6. No batch items ("process all X") - each file/component has its own item?
+7. No items based on [CODE-CONTRADICTED] or [UNVERIFIED] findings?
+
+HOW TO APPLY IT HERE (regression-first):
+(a) Mechanical pass over the WHOLE file (use `uv run python -I` or grep/awk; never bare python): for all 355 items, each has exactly one Context, Action, Output, Verification and Completion gate line, each a single physical line, in that order. Report the counts.
+(b) Exhaustive read of every changed line (get them with `diff baseline/task-before-rev2.md <task file>`; 72 changed lines in 64 labels). For each: does the edited item still meet checks 1 to 7? New commands must carry an expected value, new file paths must be specific and spelled exactly (compare each path with the real file or with the item that creates it), and no new text may say "see above" or point to another item for something the item needs.
+(c) Fix-by-fix: for each of F-01 to F-10 confirm the `recommendation.fix` text of merged-verdict.yaml is now present in the edited lines named in delta-manifest.md, and run the finding's `recommendation.verifier` commands where they are shell-runnable (greps over the task file, HOW-WE-WORK.md, the style file); report actual output beside the expected value. Note which verifiers can only be true after later items run (for example the style-file count of 6 is 0 until item 7.10 runs) and record that as expected, not as a failure.
+(d) Regression check: no check that existed in the baseline for a changed item was lost or weakened (compare each changed line against its baseline line; list any removed command, expected value or gate).
+(e) Any tick-marked item changed? Confirm none (the preservation JSON says 137 completed items are untouched; spot check five by diff).
+
+OUTPUT FILE: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/revisions/plan-defect-fixes-20261110/qa/qa-task-validation-b2-report.md
+Write the file IMMEDIATELY with a header, then append findings incrementally.

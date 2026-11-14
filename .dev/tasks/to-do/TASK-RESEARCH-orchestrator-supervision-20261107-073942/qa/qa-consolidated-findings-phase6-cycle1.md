@@ -1,0 +1,25 @@
+# Consolidated findings: Phase 6 lens gate, repeat cycle 1 (second and last fix pass)
+
+- Sources: `qa/qa-fix-verification.md` (structural, FAIL), `qa/qa-fix-verification-qualitative.md` (qualitative, FAIL)
+- Previous: |F_0| = 49 (`qa/qa-consolidated-findings-phase6.md`), fix log `qa/qa-fix-log.md`
+- |F_1| = 5
+- Gate status: FAIL
+- Regression: none (cycle 1 is the first verification; no item had PASS before)
+- Monotonicity: |F_1| = 5 < |F_0| = 49, no halt
+- Merge rule: union of the open and new blocking findings of both verifiers; no overlap between them. Line numbers are as of the 1715-line report.
+- Constraints: keep the NB-4 exception record (`:13`, `:1644`) and both [CONTRADICTION] markers with their resolutions (`:1094`/`:1098`, `:1562`/`:1566`).
+- Orchestrator choices where a verifier offered two options: C1-04 takes the "could not determine" option, because a sweep reading `return-contract.yaml` does not show that the coordinator read the result (WC-10: no inferred fact). C1-05 takes the hard-gate option, because GQ-11 is an owner decision and a shared contract change must not land on a default the rollback text forbids.
+
+## Blocking findings
+
+| ID | Severity | Location | Issue | Required fix | Source |
+|---|---|---|---|---|---|
+| C1-01 | IMPORTANT | S6 A1 Description `:899` | Still says the skill writes the dated report; the A1 diagram `:931-932`, step 1.5 and step 1.15 say `report.py` writes it and the skill only reads the result. | At `:899` write: "The `/sc:sweep` command and the `sc-sweep-protocol` skill run `superclaude sweep run`; `report.py` renders and writes the dated report and the skill reads the result." Leave `:1000` (A3) unchanged. | qualitative P6-07 OPEN (`qa-fix-verification-qualitative.md:22`) |
+| C1-02 | IMPORTANT | Step 1.3 rule 4b-contract `:1204`; step 1.8 fixtures `:1214`; S3.1 precedence `:360-371`; S4.5 GQ-96 `:560` | First-match precedence sends a `worker_status: blocked` contract to waiting (a) at rule 1, so the 4b-contract rule and its step 1.8 fixture can never fire; a frozen `/sc:implement` plan would never list under "frozen or blocked by policy (b)" (`:405`), hiding a freeze (`WORKER-CONTRACT.md:133-136`). GQ-96 says the dimensions are independent, which the plan does not implement. | State in step 1.3 and S3.1 that the policy dimension ("policy: frozen / not frozen", `data-dictionary.md:27`) is computed for every row independently of the class: a blocked implement contract gets class waiting (a) from rule 1 and policy frozen, and is listed under (b) too. Rule 4b sets the class only for rows with no earlier match (the `failed` + non-`E-RESUME-NEEDED` contract, the ledger and the ready-Task cases). Change the step 1.8 "blocked implement contract" fixture to assert both outputs. Align GQ-96 `:560` wording. | qualitative N-2 (`:23`) |
+| C1-03 | IMPORTANT | S3.2 SC-1 `:437` vs step 1.11 `:1217` | SC-1's "How it is checked" still describes patching the forbidden write entry points; step 1.11, which proves SC-1 (Integration Checklist `:1457`), now uses a snapshot diff. | Update SC-1 to: "Snapshot diff of the isolated root (path, size, `st_mtime_ns`, SHA-256) before and after `sweep run`, with `HOME` and `XDG_STATE_HOME` inside it; only the dated report (and a new `--output` directory) may differ; subprocess entry points patched with `side_effect=AssertionError` (step 1.11)". Keep the `test_contract_status_cli.py:44-66` citation for the subprocess half only and add "snapshot diff: plan decision, no in-repo precedent". | qualitative N-3 (`:24`) |
+| C1-04 | IMPORTANT | Step 1.3 `:1204` vs S3.1 `:393` and S5 `:679` | Step 1.3 computes "terminal releasable: yes" from `terminalState` reclaimable and `nextAction` release alone; S3.1 and S5 also require that the session's result has been read, which no probe observes. | In step 1.3, for a terminal Orca reports as reclaimable with next action release, print "terminal releasable: could not determine (result read not observable); Orca: reclaimable, next action release". Use the same rule and wording at `:393` and `:679`. Do not add a proxy. | structural P6-18 OPEN (`qa-fix-verification.md:79`) |
+| C1-05 | IMPORTANT | Rollback `:1278` vs step 1.0b `:1196` | `:1278` says WC-14 does not land on the working default alone; step 1.0b lets unanswered decisions keep the working default, so steps 1.17-1.19 could change the shared contract with GQ-11 unanswered. | Make GQ-11 (and the WC-14 wording) a hard gate in step 1.0b: "steps 1.17-1.19 do not start until the owner's answer on GQ-11 is recorded; 'working default accepted' counts only when the owner says it". Other decisions in step 1.0b keep the working-default rule. Keep `:1278` and make sure both places use the same words. | qualitative N-4 (`:25`) |
+
+## MINOR notes (not fixed, not rechecked)
+
+Structural N-1 to N-9 (`qa-fix-verification.md`); qualitative minor notes 1-6 (`qa-fix-verification-qualitative.md`). N-5 (step 1.4 live check needs `superclaude sweep run`, which exists only after steps 1.6-1.7) is a useful ordering note for the plan stage.

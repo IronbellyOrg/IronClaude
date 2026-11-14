@@ -1,0 +1,1561 @@
+input_tree_sha256: 87321ca386fbe2ec99bba2cd56dcfc8411ca65d8fcb2d58930602c6459d48ec6
+file_count: 779
+file_list:
+  - path: .claude/commands/sc/sweep.md
+    sha256: ed730bf417555c28ce0a64df81a0319bb9807bb05636422ed6cce033d0f59902
+  - path: .claude/settings.json
+    sha256: 1f535104e6bb9145585a88418d0a094a4b38d6432e3b5fbd6226d550da33d41c
+  - path: .claude/skills/sc-sweep-protocol/SKILL.md
+    sha256: 5d8f9d90acb40e9889abbd51e773cad0ad7dc1cac6be767d53c06c6e444f5be1
+  - path: .claude/templates/workflow/02_mdtm_template_complex_task.md
+    sha256: f9f5283ceae1074bc4e0ccf9586c31db274bbef0c08dd19c6de5ecacb1535f81
+  - path: .dev/brainstorms/20261108-024258-orchestrator-mode-phase1/merged-requirements.md
+    sha256: 283054b289e95e565220bd8a9efe0375f790af6788849321aed80cf285e33300
+  - path: .dev/implement/task-rf-sweep-phase1-202-c7ea3265/followups.md
+    sha256: 37e01b09a9f812dde498336a53f17e995a51215c5d5da8066248440ce5b1cb46
+  - path: .dev/orca-command-refactor/decisions/APPROVED.md
+    sha256: d46dffaf862ec9bebc57773f60af4f424a585a9bf5aff10e253139d724c5902b
+  - path: .dev/sweeps/20261112-031239-sweep.md
+    sha256: 440d6a372b821fc93a6dd0a3a500bbc8890adf4fdee8619d039402c8e540c199
+  - path: .dev/tasks/to-do/TASK-RESEARCH-orchestrator-supervision-20261107-073942/RESEARCH-REPORT-orchestrator-mode.md
+    sha256: d9963a49d879adf7e8b1ce0363a561fa62b3c0afae27af22f2d07ccd61595e15
+  - path: .dev/tasks/to-do/TASK-RESEARCH-orchestrator-supervision-20261107-073942/gaps-and-questions.md
+    sha256: dcccf0772671ebebf928b71d051b6facc01fd62dfaa5e84ea329b611eb9d333d
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/BUILD-REQUEST.md
+    sha256: d39f19cc08e1d66ceb864c8756d85714a786ae0e3a42252e3de8edca0a13eaa8
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md
+    sha256: 2c5a47ae159b3f9206d6dbd210f67a325eef7012aeafe6569fce1f13ad282f00
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/artifacts/base-commit.txt
+    sha256: 36923236848ffeca16d530c570551dad3dfab56121ced5ad41a0fad759eff22d
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/artifacts/baseline-git-status.txt
+    sha256: a2235f0545a9d4a07bd61f3c13dedbb8484a99bf9af75076c9cefbd7d70c9523
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/artifacts/baseline-untracked.txt
+    sha256: 207086174d827c13622bed75aa04d5b04fedecd7374cfeb1495697c6577f791c
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/artifacts/design-base.md
+    sha256: 54689d0d0fce250259c23b838c440c8d5e68f695063abe4a90747d0ad26e1cf7
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/artifacts/owner-decisions.md
+    sha256: af52d8d8373aca15ba5ba6afb7ff4c90e6a008fe23c0c9403aa0e9b910a55187
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/artifacts/pr422-409-check.md
+    sha256: 784f43609161b19e6d7f5c2d43213c3cbe7c507c010a06bcf1cbb7836f3cc077
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/artifacts/readonly-probe-raw/a-tl-all.json
+    sha256: 4b2a90fc31c68d3b680edff5450fd52edb1b3efecea3f1fc017fb40e2ee306c3
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/artifacts/readonly-probe-raw/a-tl-ready.json
+    sha256: 28bd3f7dbcd8c2efd7a4370373a567dfe7f7b088b8af220139d9811f25cd5040
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/artifacts/readonly-probe-raw/a-ws-ctx_4e3237d227c3.json
+    sha256: 5316e2708d56d6e6b5467162c4a9faa01b57f7402c6b9ffb088aac2008a4cd8d
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/artifacts/readonly-probe-raw/a-ws-ctx_6a0e3e3baaee.json
+    sha256: 5e13b009510a6aa8babb5725e74e36cb53dec821f88ea1d7b5c4a60d655913da
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/artifacts/readonly-probe-raw/a-ws-ctx_7c86fffa9716.json
+    sha256: ba6ca918e6d1476ec8382a85f52c1593b58c7e6f8d7bc5eb4a9e56ebb61fa859
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/artifacts/readonly-probe-raw/a-ws-ctx_9a3728b21883.json
+    sha256: 3124e934dd02f3e0e95d06bac64b92f3d96d4283048c6bc94134532253033b40
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/artifacts/readonly-probe-raw/a-ws-ctx_dad78c5c1332.json
+    sha256: 39f15f297a55209e2e510f4b86500a64fc6b74ae1d3f0ba518972f1d68fd83c3
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/artifacts/readonly-probe-raw/b-tl-all.json
+    sha256: 56edebd8d79834b61942490b37d0c3cf6e1d74f41ac6bcac580a90e54c276075
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/artifacts/readonly-probe-raw/b-tl-ready.json
+    sha256: e79b486e96e857672b41840c9aa2541cbde1a2284f62893c4c26ac925e52abc7
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/artifacts/readonly-probe-raw/b-ws-ctx_4e3237d227c3.json
+    sha256: 16f72f82f86bce778d6ba6a9b6b881fa85e2619ed18f3449d7609cb1180ff7fe
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/artifacts/readonly-probe-raw/b-ws-ctx_6a0e3e3baaee.json
+    sha256: a20a0fcb5329ab3684a81991e172ce952c874b2f90ef16f4926a6b8c9a1ce322
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/artifacts/readonly-probe-raw/b-ws-ctx_7c86fffa9716.json
+    sha256: 2ef49655c791a1d9b6636edbd63d35be2a3677dd5534dca2915095f855ffe83f
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/artifacts/readonly-probe-raw/b-ws-ctx_9a3728b21883.json
+    sha256: 5fec253d0554e3330e3752c7bcad276bb6f55b4af628179d072c018323becb28
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/artifacts/readonly-probe-raw/b-ws-ctx_dad78c5c1332.json
+    sha256: 782fe237a205db515f6bd0a73d91b4d7889cf3e32621e687e17101061df67725
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/artifacts/readonly-probe-raw/m-t2-workerlist.json
+    sha256: 8fac1f4e91e0186776c2823eeea21388dd0ff693c70dec625fbdd121a85fd539
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/artifacts/readonly-probe-raw/s1.json
+    sha256: 9f72ceb93665d30ecdef6da141b4b1b84ebdc03afe1bb34ae1b9d05bee817a1d
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/artifacts/readonly-probe.md
+    sha256: fa3d819b999ab125574efd9fb15599226e3452cece5dfdc7a94cf5bdf88a203a
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/artifacts/sweep-help-pipx-warmup.txt
+    sha256: fee4d67757f55f9f3d48e11e71eb33c98c07bbcd0d1a39584cb38fcf610b0d70
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/artifacts/sweep-help-pipx.txt
+    sha256: be46cd8599a378b8deaa19a7a051225d7127cb5fe407695a00eeedfaa87120ad
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/artifacts/sweep-live-check-1.4-rerun-9.14.json
+    sha256: e4cbf45b1ede9e4d6ab0d0dc0799cc534d7531c1a1009f8db0fab82adb5d4f18
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/artifacts/sweep-live-check-1.4-rerun-9.14.md
+    sha256: 8b24aef16bea5d0b55fd226f4bb86347b83e31e683fa0dbbf97f99d7582b791f
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/artifacts/sweep-live-check-1.4-workers.json
+    sha256: 1589c55a440af233f660d9eb6e104458a0f8f483c595faca5d2a68e88e4cb6a2
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/artifacts/sweep-live-check-1.4.json
+    sha256: e86e674319f6f00effd9878f99b118e2bc0f1599708f221d3f3c85d469469fea
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/artifacts/sweep-live-check-1.4.md
+    sha256: aed176a07f69521010c945988a5e20b35dad092b69b7dffe143ff7e04884d151
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/discovery/1.0a-facts.md
+    sha256: 5917e2902a6ff4ec41090039e1e3a03cd0e5a1dccb7056fca51fb770264766e4
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/discovery/anchor-inventory.md
+    sha256: 36a0ef4805ae86da6b3ce5c3a0dc1c9b41589551edf80c3a0fbfe31265890eba
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/discovery/final-inventory.md
+    sha256: bfae3c087063fecef5b67fe767db0863b1af152f6cc71d0c4aa5799e9ea07e34
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/discovery/r4-reanchor.md
+    sha256: 0cec41c281f9e5f4d31f912c41e19d6ad914d5205d196837aa8037d30bc5b552
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/discovery/r4-wc14-hits.md
+    sha256: 5b1f73ea6b381291fdf6a29a3c4ad96747e6bc1d34430e0a44e07956769357cd
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/plans/FINAL-GATE-FIN-F7-ruling.md
+    sha256: 37058a202b498d820889865f4ca4d92b58ce114bb111d6451982a7d4308d4c6b
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/plans/FINAL-GATE-cycle2-scope-decision.md
+    sha256: 961b761de35db5ca0d3148a49606b30d1b75493ddaba47d0be2fa6aa01ee0b8d
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/plans/FINAL-GATE-halt-resolution-decision.md
+    sha256: 1f02d4c1a021f634000fb388f56730bd72061f923ad9c511ff0241dfb047a794
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/plans/OQ-1-agent-wait-decision.md
+    sha256: 76d72fac47eb0df239dfd6c5a9097821ab12bc0f26527ad88db3608e3104d8cf
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/plans/OQ-10-pipx-decision.md
+    sha256: 319aaa8087270b06afcf74b6795ac77591f886eb22093c02dc3fe9387240bb19
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/plans/OQ-17-cursor-template-decision.md
+    sha256: 3e7e97db583252fe1dec9304dac64e798ac620f831c5e6b55f94e9d7e5ae27f4
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/plans/OQ-2-GQ-10-report-location-decision.md
+    sha256: 2569ddcb15556bcb39a7d3430ae35ec7011a0703ee75da9a823b08b92ddfa988
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/plans/OQ-3-GQ-11-rule-id-decision.md
+    sha256: c504ae67c547542bcb35118a048763b0853cd6e7d643c794b73eeb891e1a5898
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/plans/OQ-3-addendum-wc16-wait-timeout-decision.md
+    sha256: dcfbb99422e99ac2c907640f796d5415dfa5bb2102dd4d893c2e10754b1b7e76
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/plans/OQ-4-GQ-35-409-pin-decision.md
+    sha256: e0b624ca818ffe5c8b5e26e0a93dab48582bd7b49544c9da878aaddd9cecbbd4
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/plans/OQ-5-GQ-61-window-decision.md
+    sha256: a8574f86904daf9d0d0391b435f3ae25f9fd30aba8b8b916f9f6978c79075303
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/plans/OQ-6-GQ-63-done-next-decision.md
+    sha256: b9074fc34e559dac559a9b1b46cb60c21912c8ed56967a522c7090d01b6ddfc5
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/plans/OQ-7-D9-signoff-decision.md
+    sha256: 7d79b47a8fd3f7cd2f6cff6504600fdc6116c35e9a72b7be0ac0ed967c95eef8
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/plans/OQ-8-run-id-decision.md
+    sha256: 0419dc8e4e838e4cfca7a92d57635d4e7d9dfc691a85a496bd594e5461b112c7
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/reports/phase1-diff-summary.md
+    sha256: 1fc364ad3f3eee6a6781282c7bc028f775b2c6ebdb1b0a369768b0e6fb8c956e
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/reports/task-summary.md
+    sha256: 012d484e865fb02e8897f17b0761e72b209ae8e1f7104baff6e97720998748c2
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/test-results/decisions-mechanical.md
+    sha256: 27451558f65888be825468794a6df43e55b082111f2891870b5b7913d4d58beb
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/test-results/gitignore-check.md
+    sha256: 4c7ebf49908cf0cb6b4d7fbeba1e9c8b48f3b89c7438ec5a1b90f442335d4c21
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/test-results/impl-preflight.md
+    sha256: 796f67c5ad65978ec6bf972eddab83a740b133e21dc7db66ea5e2d84abe9ea39
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/test-results/phase10-validation.md
+    sha256: 379e52b0edcf703159ac36ff1a496fb7bbf63a73b261db5ed7a922f9a5aeb1bc
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/test-results/phase11-validation.md
+    sha256: db6ef7a8609c2e1303d8c5118e3fe3b6856d334426bf70025da80dee219b4e55
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/test-results/phase12-validation.md
+    sha256: e746d810777401bf99ca7ee5b414deeb12b48e67e3dd2b829fa8db3fe4fe67b0
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/test-results/phase13-validation.md
+    sha256: 185c38d53bcb07761a1be9a9e2c48a469f3701e47b18bbcbfc16736785ff52fd
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/test-results/phase14-full-pytest-output.txt
+    sha256: c1290b321f205f09851ee90e38072d018b4dbb1b3fefaf2e0e77b4c6ddaa89ab
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/test-results/phase14-full-pytest.md
+    sha256: fb3686b27200450c55ec62909f930988467308f5e0f5df0718f9c168413dbafb
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/test-results/phase14-lint.md
+    sha256: ae0d905fc2c9c2c891c95d1e129ccd76c03b90731b8244256cdefce63c17b715
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/test-results/phase14-scoped-pytest.md
+    sha256: 4422f1a75bc4d14e12ce99d9e720e339dbe10b9f6a12d22306c28a3f404cae17
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/test-results/phase14-sync.md
+    sha256: b561da6b10eb905ce743590cbd815b5dbba19640a2afea9830b5ab0fa891ce7d
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/test-results/phase8-validation.md
+    sha256: e5ca0b33ae42d9f3047a6d72e32d9b5795ab06d484b31e46173b61d750ab96dc
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/test-results/phase9-validation.md
+    sha256: b652a16442740be8932ec666fcaabde0299db4b6f4799eabaca371f561badcba
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/test-results/r1-r4-routing-table.txt
+    sha256: 5a9109294d704cc2bfd59fba056cba03ce0f87401ef2b066a80dfa586602d472
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/test-results/r3-b1-mechanical.md
+    sha256: 60829669301b3372a3f5f42ac3f77e2831f5301ad8857e6b5e26d4a35e3f5f1b
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/test-results/r3-b2-mechanical.md
+    sha256: 78c9296bd72260b91ca4ae63bcf5d787a397e06625f576d913faf73d571547dc
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/test-results/r3-b3-mechanical.md
+    sha256: ccb5a443bcdfef23595b4c5427ea5cd8fe2f2c4fc517498321365569898b4d20
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/test-results/r3-parity.txt
+    sha256: 56e8441f4ff0a57c3e4a7531732d712967d5347e3ad9c5aea907e244068fd96f
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/test-results/r4-mechanical.md
+    sha256: 124aa9cf52e76409555f0d1d9f935a8c106b101f9a8a348dddcbaaaf6dbec9c7
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/test-results/r5-mechanical.md
+    sha256: bed4db0daa78e98b96569651af415aa79259b8a78e88fa2f7521bad83baf893a
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/test-results/r5-routing-refresh.txt
+    sha256: 771bd507a5a1e7cb2837acd380758301f558942be6424f5db576df484033fd7f
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/test-results/r7-check.md
+    sha256: 1398fa7bbf8b87dc50c1f3b0573ef94678aea3c0f3f6cbdedb1ca61a21ddcd3a
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/test-results/step-1.14-checks.md
+    sha256: caa25e6311147297196176dbbf025ac1e8babaa12b86f45d2c4f5c4badc08801
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/test-results/step-1.15-checks.md
+    sha256: 010be5385454dfea726460ef4db47952642f3fd7cb8fc5b5de40305a24ee920b
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/test-results/step-1.17-checks.md
+    sha256: 55d01edac919a6da69437dd7fedc84e65931913d6abf4bf27b4678deafac5504
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/test-results/step-1.19-pytest.txt
+    sha256: 2da9ec9bd86fd41a661a05fc9b711ae1f86fdfb4bb1757c806d0e680dc7e9a49
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/test-results/step-1.28-grep.md
+    sha256: 2b378d36ec7a27fb68d291e44dc291460cbd4a69a16c3b788eeea86d64ca9e0b
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/test-results/step-1.4-pytest.txt
+    sha256: b0484d559c9135aef54a02066c41071e277bfc3dcd6ac4a6713930766399a6e9
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/test-results/step-1.4a-pytest.txt
+    sha256: f672b3526ef0f8c21430f1f155fd54f4a47ce2273a2998900894d8fb34d0b134
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/test-results/step-1.7-help.txt
+    sha256: ec73f6addd4dc313438b0e83d75e3cc57460d034a3b3ee0e3bdfe0102ada6d2f
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/test-results/step-7.10-style-exception.md
+    sha256: 47e5c1f4f9257508ad05ca7fb9798ce78a7d144312696660e8861143922de10d
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/test-results/test-classify.txt
+    sha256: 0417b41a93dcff1007d124582ee60d3f4050ba74af13a0498134c750aa90d74d
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/test-results/test-cli-contract.txt
+    sha256: 54cda562de92b8cb2e319a80728da632a40283b0c46e98be6923c5f05490eb07
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/test-results/test-cli-registration.txt
+    sha256: 0643038ede7d945d3c48b7c23f379b18ffe9434fef84a542fbfa6808a33d4c13
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/test-results/test-probes-allowlist.txt
+    sha256: 96688f977c226d53e451c71225bdb780a74467b5bb172c0c0ad564a2cd1cabc2
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/test-results/test-readonly.txt
+    sha256: 076066806e0309e4701e6ea380b33e93533f8e09c6e149066d50c6b7991cfc19
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/test-results/test-report.txt
+    sha256: ab22210731d0ac7998bcdbc58bdc42fdd9e35c74d0626b9f09b878a6e927b475
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/test-results/test-sweep-command-summary.md
+    sha256: 2f192b7c5c75d62c62730aee76b50163ff381201d97919d8734de16e9a424d0b
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/test-results/test-sweep-command.txt
+    sha256: ed07fe71d16f159efb3ba9506e8e11ecec64efbc3241b4f4f3631f1514c6d6c7
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/analyst-completeness-report.md
+    sha256: acaa96f3b04d142329e3ad2fd89d8d4efeea45951ce553fb9ebd0fba6d9a3de7
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/analyst-cross-validation-report.md
+    sha256: 34c91ce8ad2a06e88613dd0e5f3c5c4bfc46e72c58270ff50822e6761bfb6057
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/cmd-skill/consolidated-findings-cycle0.md
+    sha256: 3b0f95273fb377ed188d6fab32c7956b82098dfbed0117fadc2a22f9eb2a8823
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/cmd-skill/cycle-ledger.md
+    sha256: cfe30ba6d4567f9b043bd89f9f36a00ca8d6dc33e6ab24d46cec87e0bd05422f
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/cmd-skill/cycle1-decision.md
+    sha256: f2b08ac64ce66969c6fb54be321c15c4d1cc8470d0cada808327f6adb72cb5d1
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/cmd-skill/fix-log-cycle1.md
+    sha256: abc21dd413bbd7694fb60364fbf2c72ba6af451c1d8ce068abe05922329842d6
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/cmd-skill/gate-decision.md
+    sha256: 979137cecf0eb27f6dca9b9dc362cdd6b4a02604ed51ad104ef5b4242b627552
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/cmd-skill/prompts/T245-prompt.md
+    sha256: 7479b478c350f85f8b091c82f1b78a54a96ed64dfd50b0fc3c98c6aafb107a79
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/cmd-skill/prompts/T246-prompt.md
+    sha256: 51bccb901365792e52b5acf1fc09cf144a894a22f850094e67ae64805aed6a42
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/cmd-skill/prompts/T247-prompt.md
+    sha256: 512b92838e6618708721cd7f90179dad6da8b798e4cbc8fa099d450f84cc6ba1
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/cmd-skill/prompts/T248-prompt.md
+    sha256: 2898571f7a4ef6172d7ebf4701d5eb929e301bccffc796e70650b7eef324241f
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/cmd-skill/prompts/T249-prompt.md
+    sha256: d54ce94c03838738baba4587a305844f92de4aa4e61978b9556f9e9072afc563
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/cmd-skill/prompts/T250-prompt.md
+    sha256: ee543462eb7797ac59a7a79ccd50b091ff8655017df6971e09610b3e3effb9ba
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/cmd-skill/prompts/T251-prompt.md
+    sha256: a36706efcb8712d9c6021e562b1c4da9e2224622d5538eba2ab4cb76df81b910
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/cmd-skill/prompts/T253-prompt.md
+    sha256: 2ffd86ba6308c8110b53503f4049a82871daee3c39fd033ae86297c60b6454cc
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/cmd-skill/prompts/T254-prompt.md
+    sha256: d4d249e6998253084213346c8f4d2d8b466fcef8c5eeb2594a4bf20fd26062c7
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/cmd-skill/prompts/T255-prompt.md
+    sha256: 0b5993054bdb85950a5c26088c762837993fcba21a6f9c1fcf6461ff445c9728
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/cmd-skill/qa-command-contract-report.md
+    sha256: 4a379b23570b4dc8363d6aa9d81f6fa987b994f3efe79818bb270850831ce860
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/cmd-skill/qa-conventions-report.md
+    sha256: b11a6787029e266add523ad514e4e109af11578dc6c4b0133665007099cbaba0
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/cmd-skill/qa-primitive-path-report.md
+    sha256: 5633fc8afd55bc0e4693c1953101feeff1b03d867719f639690bea8918a43b29
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/cmd-skill/qa-reader-clarity-report.md
+    sha256: f4f61bcf02b7b9d75d72fd7a0a8be7a25ac990bbe0a28ff6c124b162c0d84e4d
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/cmd-skill/qa-readonly-claims-report.md
+    sha256: 5dd768b07d7b3190c11f63dc4897eb7a5493077f450aff3c8622ece100560a8a
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/cmd-skill/qa-skill-contract-report.md
+    sha256: 68a6dedc509bd604cfb06ad1724a6581cae2cd57bbbe09ec5a3a715a79ab7e11
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/cmd-skill/qa-test-coverage-report.md
+    sha256: a9716127c9a034f08522ad74b2357d03746fdec04d5457e35a951beaf8698af8
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/cmd-skill/verify-cycle1-rf-qa-qualitative.md
+    sha256: 40d8dc9197846730fa5153c30b310110c07a2ed1b0964922019a266d1260b114
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/cmd-skill/verify-cycle1-rf-qa.md
+    sha256: 4ef7c4aacb6be839b384d17b23c9e94eaf47e9942b14358c02d62a3df460c7bc
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/contract/consolidated-findings-cycle0.md
+    sha256: 4ab93ad43a3e8e8f1c7927ca9cc9363441274c79a70eb0a71c565fa7168962bd
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/contract/cycle-ledger.md
+    sha256: 5ad55a58a205df985e08867a304a10e5a9e47cae44fcb3585080cdd4d834a722
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/contract/cycle1-decision.md
+    sha256: ffa603ab27f9900ad07d3dd296775fa91c6804bd6d9387d33a653867a31e70d6
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/contract/fix-log-cycle1.md
+    sha256: bdcd75e623254ca5ac8467cec04bef73dfcc2b34cde2a85ddd8c2e2a7cdbf745
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/contract/gate-decision.md
+    sha256: 3a93ac0ecfc07c398fa4f77fea10c6c7180e12aa4b21f4a840c224979721df26
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/contract/prompts/T266-prompt.md
+    sha256: 154638c2a8ab8552e5ecb83e8d6e6c7d2cc4501adbb9e165691825dcfb2d239f
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/contract/prompts/T267-prompt.md
+    sha256: 9188bf4002c1dc0c30d4f8a3b6a6c163bd9a71dc53e18eb62905b135680c929d
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/contract/prompts/T268-prompt.md
+    sha256: 3285ed378c2f846b32dc1cdddaa634a8fdf7016d848ff4b78d28318822e1994e
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/contract/prompts/T269-prompt.md
+    sha256: 00008bf78d905356f80b23861a04171a83181936c4fa63a0e1d9336530b65276
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/contract/prompts/T270-prompt.md
+    sha256: 688313e4c9a82d43bdaac505f834936ed8e91662ce85b145fd7e64c51b561467
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/contract/prompts/T271-prompt.md
+    sha256: eb4c6d0145d2fc7e45ea83080c573986b19e690847b8775dc8385462496acc6e
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/contract/prompts/T272-prompt.md
+    sha256: a0875ae0b4233e4f0ffb0e9efab971bdbc7aed65c9d28b6f60d063c1e1443d83
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/contract/prompts/T274-prompt.md
+    sha256: 666287711a8f3c95a475e9779b35985607b9bc8e29c4101077233d6b1ccdf524
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/contract/prompts/T275-prompt.md
+    sha256: 6c820a9d15e2ba9d56d630447084c9a6a43dd5078068ab47fc26ac0de0f7479f
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/contract/prompts/T276-prompt.md
+    sha256: 90cdbf52139b19c40d2ece2518ad912c5441d3868bccb64e092344cd8745df5b
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/contract/qa-contract-rule-report.md
+    sha256: a3769272504994f1a51ada5d21dd627a361ef677619180d7f6d4030ff7f57d06
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/contract/qa-conventions-report.md
+    sha256: 1ee9134d7eddc9ccf5ded1946785fac9f42aaac39aaa215f424b20e77810aeb5
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/contract/qa-coordinator-cadence-report.md
+    sha256: af075b16ee7df512dca41e306a1ad8abecf6d92a3bdbd1a9a9b5c67c97a4d61e
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/contract/qa-master-contract-report.md
+    sha256: 4ac7404398f632597aa43cb26c77b4f9e9de28f1acba6444279466b002a13889
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/contract/qa-r7-guide-report.md
+    sha256: 240d1f2c344c6bc06ab87cba7c63a087d74c4a39f7dc86fdcbda3620727a6aec
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/contract/qa-reader-clarity-report.md
+    sha256: 89ac49973ee1b57df44c98a01f71fc7088a252f6e26a1b3c5c9119ea9c330ec7
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/contract/qa-test-pins-report.md
+    sha256: 77aa6a67978a0496ea0aabb65bb11df4b722e60ebe4d582ef24c004fc8f4f088
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/contract/verify-cycle1-rf-qa-qualitative.md
+    sha256: 2f05c62f0c6d95bbca8636aa47547a75140aa56c9601f431d9eaf67010c26ad0
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/contract/verify-cycle1-rf-qa.md
+    sha256: a735476ca28f48b4ea9c12c0767c250723f8d5a98ff66af53b2dffc0e50a2dbd
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/decisions/consolidated-findings-cycle0.md
+    sha256: 632289d18f5cdde9033b00d2c44f1270fe07654bba05604d288cae947bf3c492
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/decisions/cycle-ledger.md
+    sha256: 270ba9c4e53b7982b3e80cc48d14a67a3160cd2fba4135a25f578ba5ca3d8506
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/decisions/cycle1-decision.md
+    sha256: 3a0c99a3747467a32e476029803de709f681099d146aa964aa33ff9f4bff3471
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/decisions/fix-log-cycle1.md
+    sha256: fb60b06589773fd94ac0bfcb8f67ef8d79747a41d531e80d6cefd0adaea1c304
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/decisions/fix-log-cycle2.md
+    sha256: 25f35dc561e378b22ea0473a0b30152e834bce61c1c02a7d502858a8469df39b
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/decisions/gate-decision.md
+    sha256: 11755cca76e0855b1d6d224b4ae5ca41a8371a37846f19802ee9335a9eaa4e25
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/decisions/prompts/7.21-prompt.md
+    sha256: edac2790cb07436aac4d5d9947cf1af25fada6f159731d75c6e29881e4d70047
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/decisions/prompts/7.22-prompt.md
+    sha256: 7a6449dca4c86c655adca8bc8a328daeb5d0275d64599905bf3454feb5b390ba
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/decisions/prompts/7.23-prompt.md
+    sha256: 929c8a268423ccf13780f9b297bca1e11d86822954e19675b13186d8adda2226
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/decisions/prompts/7.24-prompt.md
+    sha256: ac12a8ad6b9859aac9631252a62ec7685a7310d0ebef57eb89569ced06ef4795
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/decisions/prompts/7.25-prompt.md
+    sha256: 0284e3b9c88dd5a9027fc969b852596826f1e285b08080f7c8a7aef2c661816e
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/decisions/prompts/7.26-prompt.md
+    sha256: 1522efe7c8a597c52b4711f656b326d8b6f52f95187f61214dd49e6d8d3fc3d1
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/decisions/prompts/7.27-prompt.md
+    sha256: f92e27c3db1d8bceaabb6b3021c7d90ff9020192dc865e740e53ed6eb527429f
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/decisions/prompts/7.28-prompt.md
+    sha256: 2a2a4797a9d95d5f6c7d099fd3a383f3b114818f78f6c58a9e212ee677900228
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/decisions/prompts/7.30-prompt.md
+    sha256: f5f04945e52265f82f061f8ea67eda59daabc92c6574a755f39f93e3124060b1
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/decisions/prompts/7.31-prompt.md
+    sha256: 1909682a5c4c2f88a9ff5ec6adcae9420ddef7fc59ae7e430764318f32d00bed
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/decisions/prompts/7.32-prompt.md
+    sha256: 7fbe447421225cbd90202ea5fb0bd4969843a4ce6e4d2e3d813d86f7e8f1b7c2
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/decisions/qa-completeness-report.md
+    sha256: 84240ade388a852f3927cea6c326e038ce4c43622a8fb05acf20c2264da9eb74
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/decisions/qa-cross-source-report.md
+    sha256: 7b0769308b2eec33b0dcc92fbc5aa6c0a34d9fa06df997dd4bca275f0f0ed635
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/decisions/qa-crossref-chain-report.md
+    sha256: ab93251c016667b2bfea2641bd7e9498f252c19c0d3c9fc7a6ce59ccc3d2ab80
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/decisions/qa-decision-fidelity-report.md
+    sha256: 9c1e690ecd86b5a178dc8e0063ef2e7b71b181b50a76ca1d324cbd9966c0b6c7
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/decisions/qa-downstream-actionability-report.md
+    sha256: ae9fef6a580b26a8d037196f5790acf99d85b6e467ed4e3e0e0d5bac592a034c
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/decisions/qa-evidence-quality-report.md
+    sha256: c09e2fb8db1cf74eb5a3aa8205a201169937af126f5a939efa5603bac4f4d269
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/decisions/qa-readonly-safety-report.md
+    sha256: 75b86964a5a18a9e3b2eeb98f82504d8fe78569273a3240592fc571b87e82b84
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/decisions/qa-record-form-report.md
+    sha256: 5591b2353c368dda676291fe498f50c8392d5f7e8dc5a55eba7b46d2b2478753
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/decisions/verify-cycle1-rf-qa-qualitative.md
+    sha256: 3bf2e0ed33a42b3d7d85c7efe2545be2ca32dd3eb89cf0dd0132fa91af21c2ad
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/decisions/verify-cycle1-rf-qa.md
+    sha256: ce92a68464fdf73b24c6ba0280cdea1f5a61988a658ef4cbdb29faf348539403
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/docs/consolidated-findings-cycle0.md
+    sha256: ae04c2bf41533d2815f68d8f507a35abd519d2bc2d650cc09ae8b944cf37ac3d
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/docs/cycle-ledger.md
+    sha256: 786e986ab905a8039439faba3ee6c83ec397662e423186e9ec35fe88a16f7f55
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/docs/cycle1-decision.md
+    sha256: 3af261d8dff65056918a4d459181d7d0676bdc7b46643f6372e1fb64df0bb44a
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/docs/fix-log-cycle1.md
+    sha256: baf84e647abbc1e9321df9040212bc3ced5965dd888e224abcd7192d857251fa
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/docs/gate-decision.md
+    sha256: 41afd2839a9f16a875244b2699caac64403ada3c8ae9a8df29b6d8a820804735
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/docs/prompts/T290-prompt.md
+    sha256: 5796f861fd646ad39875896ec517d21dc3af9c4898ceee82a2a7b3946b92039b
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/docs/prompts/T291-prompt.md
+    sha256: d26c17f0a2a1ec43211a10d1f7c8ebf5041d3f9836fe27209ae9b3f000d62e0b
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/docs/prompts/T292-prompt.md
+    sha256: b8f83e4573d04cc505a3252a49ac947d9b5bb6d828d713a20b5b1ec825c67f2e
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/docs/prompts/T293-prompt.md
+    sha256: ee1f67fe5c808b13ceb7974897912afe6aeb4ff4f60c4392afeca174c681b6cd
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/docs/prompts/T294-prompt.md
+    sha256: 3f01ff3827125b89f6134f1dfefcdce1e0d236e84a671fab3cb44700b61f9c4f
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/docs/prompts/T295-prompt.md
+    sha256: 867795aee136607e172c7c33bcaf599a212d0573a3b1f8b8cc679cc267ff45c5
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/docs/prompts/T296-prompt.md
+    sha256: 0c59642e23f2a6d9521693af03eb0a8fb0a32d708beb1a9b98a8f2e2486d1ca8
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/docs/prompts/T297-prompt.md
+    sha256: 67d97b24e094c60c07f338b19b7b072354c32a2c151f7aa5333a48e2099cfac9
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/docs/prompts/T299-prompt.md
+    sha256: a166eaacebfca645ebfa88c56a8345f325c6811deebc7efa76f6cf51bf85cfd1
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/docs/prompts/T300-prompt.md
+    sha256: 17b491ae3c075d3b710097dc96fa0c1234d9572e9cc32f81b337fa98aa8f022f
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/docs/prompts/T301-prompt.md
+    sha256: 349a24b9f3770a5ea23ecb83346fc2a8be003c9c3ff29c2ea38f1bd5c0c98ded
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/docs/qa-command-skill-report.md
+    sha256: 931de283afc1f677143a64713ee9b855fb0faa3d03a7437567475cbf71dd299c
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/docs/qa-contract-rule-report.md
+    sha256: 37eeff203172958d448ef4782e767d31e78e31767bdee5f14d59a177e57aabd4
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/docs/qa-conventions-report.md
+    sha256: 9a4e53961dfdedc390edba8572f4917abfc51f2785dfbc0614ad7b31b8952b7e
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/docs/qa-coordinator-cadence-report.md
+    sha256: fca01173ebbfa386e770a07c81ce97eb70d084045c536ecfa0a8064715549209
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/docs/qa-primitive-path-report.md
+    sha256: c9d76ae8f3d2309a4d7d79b4f335786186cba11d27d231d25dc6eaff3bf89492
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/docs/qa-reader-clarity-report.md
+    sha256: 372a5b95dfb9f008823d18712113c8046fc36feb7f146e5743dde919f1b581ac
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/docs/qa-readonly-claims-report.md
+    sha256: a8c85df40c273e806351db4d3b3d7f9c9d1fb9a5bce30a894b8ecca85c11f550
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/docs/qa-routing-rows-report.md
+    sha256: b93a78e02051fe7f9ee839ae9f1edd7a9a2476cc0e3691144b845ee26b8e9815
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/docs/verify-cycle1-rf-qa-qualitative.md
+    sha256: 5fab2fcd5a741f6eddeb6d78ef53e842ff673ed0fb871ad1c29164a76ef0cdf2
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/docs/verify-cycle1-rf-qa.md
+    sha256: 6d3bfb11986bfa4d5e8c6ee1e512bf705d0738c2cf91201787156f8b5cebf266
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/fidelity/consolidated-findings-cycle0.md
+    sha256: a57cbcba0b959062a5172fc3c73559f2ca445fb1efd86ac05606a8364d0944fa
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/fidelity/cycle-ledger.md
+    sha256: de07b20ae6d959a29ffcb3624e828696282769217f92106a9fdcfb447b76bff2
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/fidelity/fix-log-cycle1.md
+    sha256: f7b35f0cbf0e5b55277e8a1f7b1461bb0fa61f8ac704d5b9465fc2aabda39f35
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/fidelity/gate-decision.md
+    sha256: 67dc6cfdf3b403b65009d347b4fdc58373c14836de286c406de4efaf5bbd2f50
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/fidelity/prompts/T339-prompt.md
+    sha256: 4d8705606e41e340cd82b0548049ac2ee046dc09bbbd021142eb86bb8f96618a
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/fidelity/prompts/T340-prompt.md
+    sha256: 5c1d9bca8e1e7ed5b5eb3007d9dead46b72d803eb9bfe4e62523390d222124ae
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/fidelity/prompts/T341-prompt.md
+    sha256: 4cf180dbab0776a8defae7e0688cc6b08166b18f0123f9402bb43b2aeeff9292
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/fidelity/prompts/T342-prompt.md
+    sha256: e9b028eabb9de8db5063e447616980f911c4e1f1f35444073ec4047d4fe2e1f0
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/fidelity/qa-cross-source-report.md
+    sha256: 766f952f4ac84173530d179004c70f726c80c2d677ab3e034a6e12877e01250c
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/fidelity/qa-design-part1-report.md
+    sha256: 17fb61a55cf291ac9c16e55710b7dc68a63ee45534637aca0791d137325354cf
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/fidelity/qa-design-part2-report.md
+    sha256: ed86e9b3f72e383708d511f026cd13239b51b2a8c0c43b21e2ea1cb29a1d9f15
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/fidelity/qa-spec-report.md
+    sha256: 1688befb3d9e62250586081217a96d838d259709896331e7cdabc38e9dfd1b53
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/final/consolidated-findings-cycle0.md
+    sha256: 77cb6717f26dbe967836271709d5f345238b8fa6a5d213863c05f882c020087f
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/final/cycle-ledger.md
+    sha256: 37be019df99d0058cecabbc2b70b6e631f66e7a62ba3b438015b52d0422f87cd
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/final/cycle1-decision-halted.md
+    sha256: ed872c431ffb75e3b5a7bbe3260226216a43580924467310eaba375e6997ec9a
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/final/cycle1-decision.md
+    sha256: 50fdcb0511d8279c5699ef0784040f3854a83852db376c709ebd270d48b7beff
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/final/cycle2-decision.md
+    sha256: 6e52bd6e22753548971d83b0484111fe527cd9decb689de5a2a929dd6d1c483a
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/final/fix-log-cycle1.md
+    sha256: 67dc6c18a12f87b35a0a0d603686c317e444511afd8c6e12e038e6d24fcb900e
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/final/fix-log-cycle2.md
+    sha256: 45be27b7f46aaaa5373aaad86df8e6308f8eeeedcae6036bc9e6c52ee1851b59
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/final/gate-decision.md
+    sha256: 74bf5174302345dba695afe43b1c54d6b5d257a4d0939a57dbd99d4938916c94
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/final/prompts/T316-prompt.md
+    sha256: 65d7d6f1d77a9480848822a85eb669b3e9fe71575f485b9ee29093b20a95a0e5
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/final/prompts/T317-prompt.md
+    sha256: b35e45bc137d92a09efae45adc34e083b2951bb97a8edc3bd3ccac5aa4c4166a
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/final/prompts/T318-prompt.md
+    sha256: 3c11ee4c62c98521ef70dd3d76bc4a85be8dfcef4154ae02c07ac04ab0d7f643
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/final/prompts/T319-prompt.md
+    sha256: 8a7bd8e304bf512b7d66973e58794d98cef95d82eecbb01253b494ac9f488912
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/final/prompts/T320-prompt.md
+    sha256: f29ed2d25e1f890be78c6bd1cd66f86fe44f9b9f85f4502f0d9ad47425ffc6b0
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/final/prompts/T321-prompt.md
+    sha256: 8ed1ba5e7c4a3885b2899c727f1cdf0638a6ae98d113b047164d548048ccd8ce
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/final/prompts/T322-prompt.md
+    sha256: 271c65819b2f042124b36e69cff5cbdeed6b6b69915d8d2046b2910caa4f1b00
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/final/prompts/T323-prompt.md
+    sha256: 6cfa2f780da2e0a06afb39ae18869474c7be4c2add633a774ad7b52f506762f3
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/final/prompts/T324-prompt.md
+    sha256: dd31b9c8a5324d42db501d156e0610e55af8de4777490b69faff3035e857cfe1
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/final/prompts/T325-prompt.md
+    sha256: 001f98dcf44a6765e145956640c38a8033119a8d2ba095afd18dd7c5622892d2
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/final/prompts/T326-prompt.md
+    sha256: 334541221187acbd8a64182ef07c6f541cb2d41933b869edcc8bf10d663ae5b1
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/final/prompts/T327-prompt.md
+    sha256: c867969ad5ac23f10b42b5389d4f56511af2de9216af6de074d84262f20d1a04
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/final/prompts/T328-prompt.md
+    sha256: bf74a5fae35fcbf5aa704a0ac1a5ca5ec1592ad5b7d41a9086a5fce90f46712f
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/final/prompts/T329-prompt.md
+    sha256: 61078277022aec4cd07b15f084fa050ea364504dc24082ae39527524642ac077
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/final/prompts/T331-prompt.md
+    sha256: ab8e30610a89e36dc492aa5d956e990610ea2be01894c58e43ad2584322db7f9
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/final/prompts/T332-prompt.md
+    sha256: 4c29af5568cbe6eae9d26cd6fce0a5e93c57baa5acdfc1760ca981a21cb54a02
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/final/prompts/T333-prompt.md
+    sha256: ca04827da7cffb26adc1034e5738033815d676a20d17f72866994cace26c09a0
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/final/prompts/T335-prompt.md
+    sha256: e78f39e44b17718800581636499f9f0923dc988a87fcf60b9f62fbd7846134b5
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/final/prompts/T336-prompt.md
+    sha256: a25e42b0a62774639a8776fa1a28cadfb568331783bc4d6c8da56034bc3c5c57
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/final/prompts/T337-prompt.md
+    sha256: afd5210db1c7f821b202f2bf05b280c6c200f3969676598f39842b3e7985d8d9
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/final/prompts/recheck-rf-qa-prompt.md
+    sha256: 7740110fef70d967a2bafbcd9eabcf030eebfb27a067af0d176d8ff50aa7a9a5
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/final/prompts/recheck-rf-qa-qualitative-prompt.md
+    sha256: c6fea696ad3659b4680d4ab3e53eb10a02a50ce933b5324ba1df0e75fbb36114
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/final/qa-completeness-report.md
+    sha256: 9437fbb3506b398e8bd3fd7dcc7ee0c3160e8028dd85471743fbf821d36a8201
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/final/qa-coordinator-usefulness-report.md
+    sha256: 50e290810e0fe21ba891afb3f86dcf78e5ce5826d3cf78f67803bbcf50902e5e
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/final/qa-cross-artifact-report.md
+    sha256: c92d2d0ae34ebe7386da5e3129663207cf6a8ab29e97d59a8f9c5c4a2c8db94b
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/final/qa-design-conformance-report.md
+    sha256: 93f9bd38cd12c1bc43ae31b5e1879894907ead08ef94b13422a229ee2384dcda
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/final/qa-evidence-quality-report.md
+    sha256: 8278d187171bbfb41ee3b56012bd6bcdec61afae538a7a82c9bc9bbdcca56e56
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/final/qa-failure-clarity-report.md
+    sha256: 175717e7cdb607563cb20ea53a632c8ba47235312fd8b462245a809788f25d93
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/final/qa-fork-never-commit-report.md
+    sha256: 1c214c9a8d349de1c8e7d803ae6f0d31a236fd7ffb3c5689aece0299a92b3687
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/final/qa-maintainability-report.md
+    sha256: 2eafacbf5602e193e2233c46a889f726f4e0cc54cf054307fcc13e6b4f37cfe4
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/final/qa-numbers-metrics-report.md
+    sha256: 6570f26a747e9d87de375d920ff47c936891bcac2d556d332aa440b5f1b61bb1
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/final/qa-operator-actionability-report.md
+    sha256: 9cbd5e00b66ea8f2d8ebbc41452ec6ca8348e44f4196ac24534ad137c341ea9d
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/final/qa-readonly-safety-report.md
+    sha256: f10f2bc66ae7a253fbadc21716c3ddee43fe1d7ca136d8150e1428e45a4c676f
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/final/qa-scope-report.md
+    sha256: 5c16294c9c9d720815b5d54ff3f7a3c04623799c8a58dc8327d3d05a2a5ec419
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/final/qa-test-traceability-report.md
+    sha256: ae10f9ec35f7e2ddf3ac371f9190c31e00b29d1bbfbd8b13f0dbb0caa67c39ee
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/final/qa-validation-evidence-report.md
+    sha256: 5ea5fc33221b9ffe91d6bcfbd8982a34182f1cca5e9ec061ea23ead33b0ef57d
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/final/verify-cycle1-rf-qa-qualitative-recheck.md
+    sha256: 802a716cf7a4fc0c2a043967fe7c1dad1c668649ee67e9feaecfde5f29c03df7
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/final/verify-cycle1-rf-qa-qualitative.md
+    sha256: 2ef7f3e4c1e3c5e9fe3eb7318b0552ac8ab6617fc81dd8cad9e6fcfc7f8ce86f
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/final/verify-cycle1-rf-qa-recheck.md
+    sha256: fb373109fd655718e8cf9c4e8ac9eb9003312745ed5d14cfff5ca05e145fe5a6
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/final/verify-cycle1-rf-qa.md
+    sha256: 78bce2aa2cf7dee3f41548df5a877560fd420d92b8478a16a85b0dd0b1d489d0
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/final/verify-cycle2-rf-qa-qualitative.md
+    sha256: ed615adb6671074d7c0d9eb26801e96ad7bd1144c20ff9885e0c0bda3502b25b
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/final/verify-cycle2-rf-qa.md
+    sha256: b0cb86f8593ebdad3c7d401b4f0f007421f950d0d63436d5f6b65604f9ed6786
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/impl-cli/consolidated-findings-cycle0.md
+    sha256: ff4ee17fdf822fd5a2d882c39a207d37ab76741902d751c19c5548e2f7585fe4
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/impl-cli/cycle-ledger.md
+    sha256: 830d96a808940a2902ad35aa0879d47e5a3e4bedf6b20a0afa4b5d7d7de04341
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/impl-cli/cycle1-decision.md
+    sha256: 0d09c74bbc415571ffe3ee6ccc574c92535ae78218c9299b2b3063d81bd1fea6
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/impl-cli/fix-log-cycle1.md
+    sha256: ad9bf964e47dc76957e59d7d9247dd490855a847c830b842d6ebc3df7c5b32e5
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/impl-cli/gate-decision.md
+    sha256: a8aac8147767341f7ef87067022b9a4f10efb57a03a6fc629542f882e785eeb9
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/impl-cli/prompts/9.14-prompt.md
+    sha256: 0e1d1edcfa838b506b7450a27c9373551672ae954f328b1d2ef50316f345e0a8
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/impl-cli/prompts/T199-prompt.md
+    sha256: fb55fb03ccf84929757a010a4c1b12700e55b4492574b4db9482e19bd0d7df67
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/impl-cli/prompts/T200-prompt.md
+    sha256: 35545fd5a9f8194523a6da9571c094b25adc41c68400b64571cf69ffc4e19eaa
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/impl-cli/prompts/T201-prompt.md
+    sha256: 3f9ace9fbf824a25ef070441ae76c12891327b137b70122a23c53b4f694ce07a
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/impl-cli/prompts/T202-prompt.md
+    sha256: fc1cecc24cacd8fdd35bfb3e5f7ad10ed5f464b1327ce53167171ba48aec0755
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/impl-cli/prompts/T203-prompt.md
+    sha256: 8567e47f26dad60e6e37fad86e6b6abaccb30add76c5360a7cf983325f61609f
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/impl-cli/prompts/T204-prompt.md
+    sha256: 4a83510ace558687a6c0f21ce9ecb62a38b1f99f4ed5e0698ebf6dc45316f0f3
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/impl-cli/prompts/T205-prompt.md
+    sha256: 51b6b4d9835e9530578175424fae01476b98a85d7e9c2142ae14022599312704
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/impl-cli/prompts/T206-prompt.md
+    sha256: 142747b8ebfe681e216f68ecc6445e4ef6ac245c2199b4a5de82fdc24ebafe8e
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/impl-cli/prompts/T209-prompt.md
+    sha256: 112c7a188a10e049f35568197d914a275028ce77a7ba8b8e26f94693e42704fd
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/impl-cli/prompts/T210-prompt.md
+    sha256: 5363dda8d2854f5fceda8a054262da3f8c9696c87b0a593a9674799ce7aa8f6f
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/impl-cli/qa-failure-path-report.md
+    sha256: f07d7848b61400da121b0c786226a4f222feb836f6a4cc21527c2349bad005a5
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/impl-cli/qa-input-edge-report.md
+    sha256: 7865e007f4fa91a820e62c90838dfb29676b08b9701827426cd250f40e7b4b3e
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/impl-cli/qa-interface-exit-report.md
+    sha256: c100f0b684e33cfc340201430a349d0e155c88bb2102a38a9e99c21e93f264d5
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/impl-cli/qa-live-check-report.md
+    sha256: ca1f0d6ab157413d0623ccff2ffc98d0dd14dd8c7f0c3e4db3794b7d27236199
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/impl-cli/qa-operator-output-report.md
+    sha256: 0e76aa54a7952409cdcd466f2d74215d3f36a635e21eeb028706ed7fc95353a4
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/impl-cli/qa-publication-report.md
+    sha256: f84adec1b243042d4b2029118201ad9289917514d684bae1b8878e2749099eb1
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/impl-cli/qa-readonly-safety-report.md
+    sha256: 55d9a3c2cdf7a30473157ae93374a2a05937030e314b5c6c2214c4ec59eb4cdc
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/impl-cli/qa-registration-report.md
+    sha256: 7be1b0f65b9aa7033e1d88a26fa506440b26e21dce0fbc229cb0f3cc50af649a
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/impl-cli/verify-cycle1-rf-qa-qualitative.md
+    sha256: ec7707857f460f4370fca639cc631b64341ff43e2574906996727b1b0a4e50d4
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/impl-cli/verify-cycle1-rf-qa.md
+    sha256: 65625174cc46daeea90bfb53269a90eac8d2a95670fad988e8a8419ba07fde99
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/impl-core/consolidated-findings-cycle0.md
+    sha256: cfbc86eed22e68d618f88965daf552ed93ea87aa375f5289320a51968bfec477
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/impl-core/cycle-ledger.md
+    sha256: fdd966faa1bc7f6763e78acaa797f3d82c2e9eb004fae5fd3efd8c170b370fa5
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/impl-core/cycle1-decision.md
+    sha256: 344102c477f2df06096036b6a8c56b0a1bcfd2e2826fe598ea7aa0706117937a
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/impl-core/fix-log-cycle1.md
+    sha256: 8342342c222aaa99e90f6a674188540ee8e11786dab129dd9f5b3cc6a89aef97
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/impl-core/gate-decision.md
+    sha256: b60bbd7c6ac5655e42d7943208f3be1578aa5eb90475f85357fb5138693c778f
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/impl-core/prompts/8.22-prompt.md
+    sha256: 549388eb0bfce251906c137f8a8ff19870b90dd48821710e06dc6a85b4623940
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/impl-core/prompts/T179-prompt.md
+    sha256: febe044464845bb20d1033f5a90537a0ea5e195c3163315fd5c8cd0134cd5e7a
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/impl-core/prompts/T180-prompt.md
+    sha256: d784336c493664e6edb1b0926f588bf8d7c131d7c97157b25d335d48607e4ded
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/impl-core/prompts/T181-prompt.md
+    sha256: 7d10d04e5f7e41346e0f2e22626135cd14e09a65d64678216f86361cc667d84a
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/impl-core/prompts/T182-prompt.md
+    sha256: 932ebfc365677158e1c7eecbfc9f953c297eab0d3ffa2cca3c1903b3b6c82a13
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/impl-core/prompts/T183-prompt.md
+    sha256: 0496129d2d8e09ac286f754663019e76e7582a02c03d4630e457e90c2090086d
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/impl-core/prompts/T184-prompt.md
+    sha256: b1694d40583aa5cefc714d1ae064cd77d961b70f014cfbb0d72dac07a50d364e
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/impl-core/prompts/T185-prompt.md
+    sha256: d5f582541d6c207fef8cbb828745f1dbdc3c5ae73b4db4ead473639eab3d12f7
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/impl-core/prompts/T188-prompt.md
+    sha256: 99abfd24efe2820801efdb5c85b2c05c57b87cb30880e26412267d585c2ae901
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/impl-core/prompts/T189-prompt.md
+    sha256: 664ca7ab360b0a81312d0efcb086cb524f8765dea6cc87bfb6bf741134966432
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/impl-core/qa-classification-report.md
+    sha256: 177f97754e3a8c3d3c7689c9d3baff1f55753a1612c450329ce12b41c1276705
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/impl-core/qa-conventions-report.md
+    sha256: 27df8a99056fb7e50b83cf24765afdf7b9e62a1488588e9053e2219014b44987
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/impl-core/qa-edge-case-report.md
+    sha256: 4cf158dd0826ac57efbcf1241239fb595b57f97d354cd21aca90aa5576e7cb05
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/impl-core/qa-interface-report.md
+    sha256: bcd767a330f3732349824557713d77338f8a4483618ade67332887fe11963499
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/impl-core/qa-readonly-safety-report.md
+    sha256: b7923462175c0cdb766f782999d674757377bf0e45486308e5ffcd2018f29ffd
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/impl-core/qa-report-surface-report.md
+    sha256: fb552d1200ef347356828f7aa6ee37f33bc8d37255ef7be71c4dc2778d8e8ac2
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/impl-core/qa-test-guard-report.md
+    sha256: 4c2de2ade6811b521adbe818d19b533a78bde0cb76fef31ae46a4fbb9be58c07
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/impl-core/verify-cycle1-rf-qa-qualitative.md
+    sha256: ee738d104dcb6713680c9ec1b1ef1884ec0a742a310f468cb037e9d3fd7839f9
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/impl-core/verify-cycle1-rf-qa.md
+    sha256: 30a71b2c9dc555f686b0eb626e4aa0fccff2f3a6a21e67ef8d93af3717893368
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/qa-qualitative-consolidated.md
+    sha256: 507ed65037352249a42bfee7c05ef55691d703b1d7daee9e46ab845ade2de1f4
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/qa-qualitative-fix-log-1.md
+    sha256: cb5322b61d2418c170bdfb24c7bad0080cceba5685983e383b285ab3d586ad1d
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/qa-qualitative-operational-report-p1.md
+    sha256: 9bbe32de27dea3af4025e3c51649dc593c47a5825ae7f664da80a276ff5a3384
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/qa-qualitative-operational-report-p2.md
+    sha256: 69163b47e435881303b620f16d1ba4ad9f8a501d3a322c6a2c7a9cf4551f7d7d
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/qa-qualitative-sufficiency-report.md
+    sha256: d33174cc5914ddca48a433ef6bab1a609a49d9f23cb9982bcbb3f136f5091a87
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/qa-qualitative-verify-1.md
+    sha256: 64bb7abeb5600fa5050144830c2692dd72514ac2ae1ecaf284891ace5d12d519
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/qa-research-depth-report.md
+    sha256: 8f730477669b5c7eed8a73f8ab70e0d2d060327c2b437a0ce749242abd7e5360
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/qa-research-evidence-report.md
+    sha256: a47016de9c8bd1d3b2ae33bc07d367b74329db931c4468f2a395f183746fd5d8
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/qa-research-gap-report.md
+    sha256: 7e97b88d1cbe9a3d2056801681372c455afcbcce16c1daa0e6008a2a9060851e
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/qa-task-research-alignment-fix-log-2.md
+    sha256: 7759e17e24bf729fdf9a2ccec69c1bbf7b7fde4381b7224b718535f02087a31d
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/qa-task-research-alignment-report-2.md
+    sha256: e6f933b30775588cdb2a096ddce81e1bf0b547c88f19a5948c56b6fb8363016c
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/qa-task-research-alignment-report.md
+    sha256: 64a1ea9186b9a36d5fb0901881ea566a4f26060409c257a096f918dcdb599b3f
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/qa-task-research-alignment-verify-2.md
+    sha256: 6aca7899e37fdac7d6d4d3ff038b3198d678e34188c3a567e837a49dc29186a2
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/qa-task-validation-b2-report-p1.md
+    sha256: 11d600478ec31ad89d655cb930a8a0422c01399fd46208db7f34c82036e8a857
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/qa-task-validation-b2-report-p2.md
+    sha256: b294fc9cd5c0c1379983db574e51c492530d7d61959e57af78ff5007c4a64d17
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/qa-task-validation-consolidated.md
+    sha256: 0824a080b295ddd87461e925a1a7e1172abf1548fe3f85a7e42f6e40505ee370
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/qa-task-validation-fix-log-1.md
+    sha256: 7e2dbc3da8b012d2e2383c111cd5ff5a47bcdf018097296941cc86378d3a19b2
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/qa-task-validation-fix-log-2.md
+    sha256: e4bb94a6a284b540d2cf930411c254b9fd2bee6f90c39def1a1d577825616e04
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/qa-task-validation-structure-report-p1.md
+    sha256: 3ca20777ce78dbc035a66a68224a6ea63b27885417a20196be5ad267062e9024
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/qa-task-validation-structure-report-p2.md
+    sha256: 67d4923090dbb3f9c1228486a875f3b6f7e0e26bdb34384c3b01dca572295ffb
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/qa-task-validation-verify-1.md
+    sha256: 134a87be9ef68c043a62b19bf729ebb030d18c87c17a68856ec95d182639e5c0
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/qa-task-validation-verify-2.md
+    sha256: a8502f58ebf16cf2b5b3a937f7977e8b41d205d93516f8ad66bc902a3a9ec96b
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/r3-b1/consolidated-findings-cycle0.md
+    sha256: d38d998ebff5c21083dea236a42bb838d9541ba6ab08677d77525290f8a13427
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/r3-b1/cycle-ledger.md
+    sha256: 6b58e09b491b3ea186dfd6df2d2b3fe990c8ac7f870280c8dddc90c9470924ab
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/r3-b1/cycle1-decision.md
+    sha256: cb2cc23cabed4b402f8dbd0bdf08d76885e6c2f1f6d07c50e4fd6a1a2f26e7f4
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/r3-b1/fix-log-cycle1.md
+    sha256: e7b4ea204cb316b6f8bb07b6d9dd5eec55238a028665fd923c7cbf1e6c89f2a1
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/r3-b1/gate-decision.md
+    sha256: af670ae27dfca03363fefa27b7eb58fbd4f51dce418c80cf3865f1a9bf8ff840
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/r3-b1/qa-actionability-report.md
+    sha256: 27a4e2e659699e1d9a7cc5a0e6d78573bad1c5b958b5b18712a3f15033f03f28
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/r3-b1/qa-completeness-report.md
+    sha256: fbab61d2e221dc779c12950dbdcaea2dcb50270352348cdee359d2bd0069a241
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/r3-b1/qa-crossref-chain-report.md
+    sha256: 10a600007ed3b12cf5d1e488595c868c158697d3502ebf2365e92a3dbc5dd018
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/r3-b1/qa-domain-accuracy-report.md
+    sha256: 1444fc0e11969234f2ace2a407b11ec32894429f749df5df92238dbe8cebc658
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/r3-b1/qa-evidence-quality-report.md
+    sha256: 638f19102faa99ba5262367999f761d251f9beddb67e4f1e561530fa11bf6b97
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/r3-b1/qa-internal-consistency-report.md
+    sha256: ef187ade6690a41fe77786215a5e4684fe7944d256b4ff7bdd7681522fe50ae7
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/r3-b1/qa-numbers-metrics-report.md
+    sha256: 82f32eeee54add9b4bce33ef772aaa45df6351ab1b395a99b19e0cd366f7b5e7
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/r3-b1/qa-spec-fidelity-report.md
+    sha256: 53e40a7394322526b29df96b5a0576679461366cdae75b8b1309be1380ec0332
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/r3-b1/qa-template-conformance-report.md
+    sha256: a02793a3f6620fa3f8ba68c697ccb7cf37356c75da6a9e16c359bc0237204da1
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/r3-b1/verify-cycle1-rf-qa-qualitative.md
+    sha256: dce4754a3be7271aa150a21d16d9d75dd838c2dee9f1e6b0f18d0d7d74d6b715
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/r3-b1/verify-cycle1-rf-qa.md
+    sha256: af6838f54f2937e838fa0f889008c7440214fd4ab70545dc99fc9f4282cb72be
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/r3-b2/consolidated-findings-cycle0.md
+    sha256: 217974871b9200c35f87ccdebf7428b3fe8a7ac7470bec3106bf745fe55741be
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/r3-b2/cycle-ledger.md
+    sha256: 5251a7bd19eee387d961203eec8a98cb1438f728b53d4d0f77bf8c87658e754c
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/r3-b2/cycle1-decision.md
+    sha256: 8d0c5453d0c648fb9d044768e459034c82c3fd44187c1223330b424ad4df27f8
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/r3-b2/fix-log-cycle1.md
+    sha256: 7c7280dd68ba88acc98398a31b484b44da4123cc59b57021fc37b96aa5bc7aa4
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/r3-b2/gate-decision.md
+    sha256: 201665e7580fc16d24d5256beb5cf6df2a60772c109a249362455426341a6fd6
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/r3-b2/qa-actionability-report.md
+    sha256: 78135a666f16c430793b4932eaedd6a92cce9cef7886db203cc66f2ccfb9cda1
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/r3-b2/qa-completeness-report.md
+    sha256: c4ae63aa882d5935d86f972870ef78c799bcc1bf490f6473b0645cf7d292c5ae
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/r3-b2/qa-crossref-chain-report.md
+    sha256: 0d1f6304030e36ea11cbfc805723ab73b53a869fbfd29f6a7fdd6ae10a6f2901
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/r3-b2/qa-domain-accuracy-report.md
+    sha256: 2870f2d94c68281525ffa5cac5a8b1c670b0de6dea1c0f69608736947e4c600d
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/r3-b2/qa-evidence-quality-report.md
+    sha256: 1b8a65640600513d35516283cff24b5305a1ec9e596d9a570d03d71d50d688aa
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/r3-b2/qa-internal-consistency-report.md
+    sha256: 6b992f28896d3e2073e68128d8928405e38cca662ea61197776b62d1c3e500ec
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/r3-b2/qa-numbers-metrics-report.md
+    sha256: 50f8e882fab047f2c2940fcfb39cbb8e0ad10caaea3b76751b692fd91d553229
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/r3-b2/qa-spec-fidelity-report.md
+    sha256: ecaee26ae1ede1a17593948e914f4a05d4259adda04aa3003213ef65b9908cce
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/r3-b2/qa-template-conformance-report.md
+    sha256: 5f0dabf7b4df48e0e649d55a69437af2683fd0c6cc7521ab7c6260ac97e7d067
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/r3-b2/verify-cycle1-rf-qa-qualitative.md
+    sha256: 75d30095438e231abb31317729fe7285d2fa5b6bc7687ea00af14a56d5955ca9
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/r3-b2/verify-cycle1-rf-qa.md
+    sha256: acf758f9b3111249b25ca07ee6d3f45e459db6c59fede6c8b0c3208db3dbbd28
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/r3-b3/consolidated-findings-cycle0.md
+    sha256: d55c18803d669ce3a635f2ab78daf761d0b7acb423e0eadf0c48de175866dad3
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/r3-b3/cycle-ledger.md
+    sha256: a0188da22378e777cb1422b64bd382195a7fb6371bfc51add40e23d3b0e922b9
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/r3-b3/cycle1-decision.md
+    sha256: ca209687c856f07de85a283807fb22f6e3d738b3fb195763748dff0093f6b792
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/r3-b3/fix-log-cycle1.md
+    sha256: 888b6449e4a55bd708d368699d6242dc00b32332be1bcfe39f60a4d8e9d48e6b
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/r3-b3/gate-decision.md
+    sha256: 4acdf1e4e0f4a4e4a9e3ebdede614296d496c2bbc720f784d5ac695c2d79f9ef
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/r3-b3/qa-actionability-report.md
+    sha256: 32e44b5c1e6762755b14d52c45968636fecdf99159236e5de94216e759951df6
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/r3-b3/qa-completeness-report.md
+    sha256: bfdfc66550efb56abfd343efb3bac3038372be7f4c9e257110f51dd9e49fd565
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/r3-b3/qa-crossref-chain-report.md
+    sha256: 843cfaf985e813424b9cdb743f967b3875bf4c9f430d57071269b24dfb2ea186
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/r3-b3/qa-domain-accuracy-report.md
+    sha256: 428a17e49af5c66594ea936a86c7a8675fefa827fa46855727a05d2baef862cb
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/r3-b3/qa-evidence-quality-report.md
+    sha256: be78e45c67927b041ebce54b3f2730b9ad95fcb3e338840594ec9b67647c6341
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/r3-b3/qa-internal-consistency-report.md
+    sha256: b1447cb695670ec268b739b26f54afa296da47b3824fc84c32497a8d1c613f9a
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/r3-b3/qa-numbers-metrics-report.md
+    sha256: 1b79e59ac9beed85aed0f463882f7761e46cc9e2979f7015e4c152b0fd8d2f71
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/r3-b3/qa-spec-fidelity-report.md
+    sha256: 425b5d2dd4d3aa6b90396d60d0ec02a5b13bd0c13397074851c2a73bef20586d
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/r3-b3/qa-template-conformance-report.md
+    sha256: 8fefa98578ce713d40f1826601dadb3499a96bbe5d5ce55a789a0d4712272ec0
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/r3-b3/verify-cycle1-rf-qa-qualitative.md
+    sha256: c9e34c87e087723d19a8c3f008bf9b682d621300d822415cb126a7c3ae22d9fa
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/r3-b3/verify-cycle1-rf-qa.md
+    sha256: 0cb5895b30ea6b2de11e34b1a5a824d708ae95178a2fc9ba8aeb20c04799a8eb
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/r4/consolidated-findings-cycle0.md
+    sha256: 6794da58345539563515e4f1f67a37d5363e29e99af8c65761170d2a010cb11c
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/r4/cycle-ledger.md
+    sha256: 07bd493c0cccaa35ee61eab4176ddb512d89cec5794e27d84c9304736a0f4bee
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/r4/cycle1-decision.md
+    sha256: e8cf119b16a807633351b5f28a25d0229db9ea00ab905b8de337a426666b41a4
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/r4/fix-log-cycle1.md
+    sha256: f0f682a57a39421515b41e68a7722f687665458c52b7d1f8d0daa67259cdd5c9
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/r4/gate-decision.md
+    sha256: 4be33dc75defbc7f58b40bd28b1389ff67eef316b5befe87192ecd7310120bf0
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/r4/qa-actionability-report.md
+    sha256: 5e84465663c531ceb0a36872cdbdf029c7fa44572abf8210aa85ff8cc34f90c5
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/r4/qa-completeness-report.md
+    sha256: 42fac500fa4e17479e4d42c42a8fe71ca82b906c85c5cf042004dfaf908fe673
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/r4/qa-crossref-chain-report.md
+    sha256: 67134b5d4cb441f7182689c6cef1e318842ac24e77c5d8370bd179bb5b447453
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/r4/qa-domain-accuracy-report.md
+    sha256: b4897dda42a9de59d4e827b28624dcb20fd4f8f9d8f1b0526c716363a96f0507
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/r4/qa-evidence-quality-report.md
+    sha256: 4ff49164a856aa10ab01b5dca5c983ab63137b1ae392b93ba5a68b8fbf7b44bc
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/r4/qa-internal-consistency-report.md
+    sha256: f900bc8b649128d76806b3c5c98376b6c3a992a5a66592d42dadb1ec691cbe99
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/r4/qa-master-contract-fidelity-report.md
+    sha256: 51d6e5cdb391c76f6b2ad7a28bfacc2a7cde4d0938ea0652572ecc2bf1361b45
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/r4/qa-numbers-metrics-report.md
+    sha256: 818e4e2b5341403d5d6943ffe0715fa9cc178d108bcf1619f01e4da6d30907a9
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/r4/qa-template-conformance-report.md
+    sha256: 173b5b4242ae4a8e5c180e6335cb3072207e863695b41f9a8e070ab4bf4e127e
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/r4/verify-cycle1-rf-qa-qualitative.md
+    sha256: c4b915d5570b3aa1087e4e911f30e900add9958be84682402e160b3a3ddc0b78
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/r4/verify-cycle1-rf-qa.md
+    sha256: 09e82737a087e2b177b43f2a164e86606dbe38c30e43d8132379ecfe392a8ef8
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/r5/consolidated-findings-cycle0.md
+    sha256: 5dc5e74aa170902c80bb6665292bc3467c0418ece8ca5e12f9b3ff6171f916f4
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/r5/cycle-ledger.md
+    sha256: f065e0914a50036f78186a3edc904ad038aaa032e21dd9abe9e746729b16a9c4
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/r5/cycle1-decision.md
+    sha256: b2fadfd55030a3f59142ebc6d4e6451d56ccbea3f44ba5e2c813407bb36afbc2
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/r5/fix-log-cycle1.md
+    sha256: c5d7c01702f49f209e8c8393e5d971832107d5c6cc5ca2a9f0e565d521159902
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/r5/gate-decision.md
+    sha256: 5502ee39f718adb8fdd2eadffef23f0b86b75d0a3f248f9b88cc9c8a16bc4c45
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/r5/qa-actionability-report.md
+    sha256: 6efe69b4be5f270203e54c63bc8cc30ef9abaa0c3d854b25dc9f2a4ca4e5d0f1
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/r5/qa-completeness-report.md
+    sha256: 1e0b3e7dbfcd6be6b28cc385c1f52fc96295e902f4127f08d74408ed47e177f8
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/r5/qa-crossref-chain-report.md
+    sha256: 2ce14b0fc68f8049ce2ec61b77b26d151dfe037f022d2d1e6a9eb731b3c683fc
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/r5/qa-domain-accuracy-report.md
+    sha256: a1444fea58f2b7c0725e88b2ef20aaba5b27868cf00e0d17f430ee67239dde4a
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/r5/qa-evidence-quality-report.md
+    sha256: 8560c1502cdfb60fbf8b7b071e319f617cd6fc6636a106f5a9be4a513c9236ab
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/r5/qa-internal-consistency-report.md
+    sha256: c4fe665f9153984ab5fb2c909e714707f9827133481f2eaf8f88333b8952c832
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/r5/qa-numbers-metrics-report.md
+    sha256: 55a463f9af96f01c600e79e6d0aa203483a964d706c34a14909ec6df98e2f45e
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/r5/qa-spec-fidelity-report.md
+    sha256: aeede130e1eacd503b72986ba1eecb85349d19e8eda4fbad33d7508b4f3e4460
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/r5/qa-template-conformance-report.md
+    sha256: 58172f8ccdc93074c469d3d618e3a2fff4ec651c0c781d0b6d619bf1314a4ddb
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/r5/verify-cycle1-rf-qa-qualitative.md
+    sha256: 69604f02c2f4459e278e1ab552e06e73f9e6ce92a6e1fe63f723dda4e6948ffa
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/r5/verify-cycle1-rf-qa.md
+    sha256: 5a48d74d889c14af8581d06b5836d563fcc32fb8d615b3fedbb8b8f03b763bda
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/reflect-run2-fix-log.md
+    sha256: 757b641decd994db44c870d6db7bc91444dddb265617d4e472055d38323762ed
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/tests/consolidated-findings-cycle0.md
+    sha256: f0ad1688d12b5628dba5f0d2e439630cd9fc08bb503d477c8acd3efaaa587b8f
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/tests/cycle-ledger.md
+    sha256: ad56aaf4950a22ef81a2b51ed0fa566483573d86eedfe7cf2f0c3b58582c3459
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/tests/cycle1-decision.md
+    sha256: e22417d583f3acd8897a7b7efa1b62001465264626abee22a11b1f868d11b654
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/tests/fix-log-cycle1.md
+    sha256: e9b0e1463d9cb0c39cef3670c08e90bb2b0097b05fe38f4026bddfb5cc68381e
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/tests/gate-decision.md
+    sha256: 52f8877f3a9227522b825f4da88c22dfc8f5536f8a12788837edb100355d6b31
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/tests/prompts/T224-prompt.md
+    sha256: ecc5d4664469b11d7826f02f00a2043d0c0b422dbb4bd4dab5775d4c3a6a68ce
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/tests/prompts/T225-prompt.md
+    sha256: 2377f42203b742300ce57fff7fe3be0f8b27791f515716aa4ef369ee7b62a486
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/tests/prompts/T226-prompt.md
+    sha256: 78fd5229681f894b6ad92571674d385c99088d44c5555295ec43b7b32f78b43d
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/tests/prompts/T227-prompt.md
+    sha256: 7f619b90af0580f29b1f20ef0dcfa9f3c850d4ef299bf053944b9518d886b5a5
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/tests/prompts/T228-prompt.md
+    sha256: 187461707d3d9e1f1e9e70fa0d3ff01fd9d203a070bb98d0c49d63fc0bc8176c
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/tests/prompts/T229-prompt.md
+    sha256: 34f249c4d5047295e1eb555b2762a650d0e080a68fb245b7b4cba94d3513d674
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/tests/prompts/T230-prompt.md
+    sha256: 01b015333dba5ffa6100c19b0b87f14a81d1dbace11c1b47ef79bbe30331bcaa
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/tests/prompts/T232-prompt.md
+    sha256: 64769ec2fb807fa192090c25567fa9e4bdbe9ec9aee20f63df4bed3b1cac2275
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/tests/prompts/T233-prompt.md
+    sha256: 6e1bcec4d0290de672720d186ddc93bc176d87d7fa991b94c8e0f3e9ba0ea571
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/tests/prompts/T234-prompt.md
+    sha256: 119a3eb516a7330537e6fa0e4d863132d8a37f55b450f949941f44c802b10b26
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/tests/qa-assertion-strength-report.md
+    sha256: e8c8a50c15884eab760262d4a674a899c5ba1d9c3019222979915b0f4dfa2e63
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/tests/qa-classify-coverage-report.md
+    sha256: 1ccd1aa5e11bbfa32f56290710f5bd96ded47d70203f54a1f5b7a64bf5d538b9
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/tests/qa-determinism-report.md
+    sha256: 8593c180044f57d5e30ba9e3ce35de24e1876147da95783090cace56a7103937
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/tests/qa-fixture-provenance-report.md
+    sha256: 94d2be1325c9fd4d90eba669e456068cde11ff57e3262aaa06c0351f5208e3cd
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/tests/qa-isolation-report.md
+    sha256: 8be0d1dcb0c1135dc725e42693c603ad77831ae85ce11d8242a4f36d50c8289d
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/tests/qa-probes-readonly-coverage-report.md
+    sha256: 2d12a82f7377e15b0ae7f4f3ab7a18cd9714907f685af4d2d5759f46a08f142b
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/tests/qa-report-cli-coverage-report.md
+    sha256: ea70d0998bc169c94c27308c74483144660a2527ad62d8f04758fba59cbfaadd
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/tests/verify-cycle1-rf-qa-qualitative.md
+    sha256: e64cdb95cb77cc30c81ae90bdf0bdc69c16b02df51c00fdc2dd20084329e53c6
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/tests/verify-cycle1-rf-qa.md
+    sha256: fe5f49725a8d54f769537638dfa83acb0933b96d72f5065a0f3ab1c1fa8b6d99
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/reflect/post/phase1.diff
+    sha256: 7ac8ac3cd36ada416f877565fff00d73de7e5b671732906367a16e923f0ec1f1
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/reflect/pre-run2/REPORT.md
+    sha256: bd77006ee0d464f27d395cc5c99da34f6e0c8eff10a05520019b2c7d5a33e3ba
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/reflect/pre-run2/adversarial/base-selection.md
+    sha256: a55217b2e8b2882b9603378820208bfbdc13ff43f98eab339682c4635394e822
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/reflect/pre-run2/adversarial/debate-transcript.md
+    sha256: 8e684d396cf12fe44c2eb4fafa1a87036209f69073a19e687c58239288ce6d95
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/reflect/pre-run2/adversarial/debate/consensus.md
+    sha256: 4f1820c134b4504461627482a353502d697b60f6420669961e4bd7e5b7a80dee
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/reflect/pre-run2/adversarial/debate/round1-v1.md
+    sha256: 1579ccc6778d352c8ccf6dd48e24dbb8cdd558bf3c3657bc2b0608e097895e61
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/reflect/pre-run2/adversarial/debate/round1-v2.md
+    sha256: 859b46f703cd7287de7162fba59b456a6ab47b9028eea3c398c1857d4e50a724
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/reflect/pre-run2/adversarial/debate/round1-v3.md
+    sha256: b6947f210c7c16e6e0f00ecbc9b237f4e1c0165aebf00b5b119a02f6542b9c04
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/reflect/pre-run2/adversarial/debate/round2-v1.md
+    sha256: 0eb6bb17cfabcf914f34e6ebcb54f639c2ffe5f992b32d12c44077b4a196a0a2
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/reflect/pre-run2/adversarial/debate/round2-v2.md
+    sha256: fb93395569f798d69eed2106dc7ac1a83cd789b7f6eee0035d0a75525ad5c6ed
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/reflect/pre-run2/adversarial/debate/round2-v3.md
+    sha256: c0237264bce7cde66d4a5915420b5d527bcb8e382bde2e35aaeab724008dc220
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/reflect/pre-run2/adversarial/diff-analysis.md
+    sha256: 64bafb5251fb2cf28f3ca2be0c6d35cc1ae5898315dc734cd74a1315a09ea7bc
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/reflect/pre-run2/adversarial/invariant-probe.md
+    sha256: c5d620a0dba1b73f6d4abd9e57ac1306fdfa040f04da3469eb3ab741249513f8
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/reflect/pre-run2/adversarial/merge-log.md
+    sha256: 7511a1d5c6557c872099baad170242c299c60446961c319811e3d0b96299c024
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/reflect/pre-run2/adversarial/merged-verdict.yaml
+    sha256: 31f196ac2fb1c152ee8c13090b82546734c8cfecb7d5358674f956fbaa696b03
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/reflect/pre-run2/adversarial/refactor-plan-fix-log-1.md
+    sha256: 8123bb3f3b66271c3dd92309daccd68b3d7485483e78edf0f6f3625d8d643264
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/reflect/pre-run2/adversarial/refactor-plan-review-2.md
+    sha256: bc341b30202e0c541a09f605d28f8129b214e0526052d4a2795a6579fa0aafdf
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/reflect/pre-run2/adversarial/refactor-plan-review.md
+    sha256: 460ade4d5df8e7039a6da4c0920a51626b7f421ac40114f19857aeab416c3a1c
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/reflect/pre-run2/adversarial/refactor-plan.md
+    sha256: bc31958fdb66dbbecb212ef17c79aab7b648dcbf61d5968d2894d4005cfb1da6
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/reflect/pre-run2/adversarial/return-contract.yaml
+    sha256: 7dc7e10fc548f51cc2752942bb15731380ebd8ed58278924cb120a90995c10c8
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/reflect/pre-run2/adversarial/variant-1-original.md
+    sha256: 49b7e4cf845623327b0ffc74ddb8b15b9ebf79de072e737a87fe0e544867c49d
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/reflect/pre-run2/adversarial/variant-2-original.md
+    sha256: 34786453fac4d7aecb3d012eb25eaed2aa6a105a698b443b753e75e5771591c9
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/reflect/pre-run2/adversarial/variant-3-original.md
+    sha256: 7a07d00e2a6c214a893ec622874346d6659e1c30455789dfaad91b630961b898
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/reflect/pre-run2/artifacts/build_briefs.py
+    sha256: dd6a75724c7899ee0c9e1a4bdd56a87e17ca9f505203f0fc8af75083dc829036
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/reflect/pre-run2/artifacts/input-snapshot.yaml
+    sha256: bf05ebf15a585a444ca0b8fe486df8885d8185add4ecbcd1bfc1c66293fa23fb
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/reflect/pre-run2/artifacts/literal-hits.json
+    sha256: d0ed7c1a0a52b5e97a4ea28c97ce34095fe5c8ddfcdec5f2b3bca8312951cbc6
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/reflect/pre-run2/artifacts/match_ids.py
+    sha256: 54ad7216aa061ea87e06a67fad8864713864943556f2e6cae102e68105cafb01
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/reflect/pre-run2/artifacts/tier_decision.yaml
+    sha256: f19b18c6fbea8e1bc690b50fb84bf4f7b268aab6911ab72bf570438f0f06eff6
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/reflect/pre-run2/audit.log
+    sha256: 1a8c701fba09a31fd968484e0039607d6e27e6714ca336d48d01ffe807103b6b
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/reflect/pre-run2/coverage-matrix.yaml
+    sha256: 07fa377de97be4829f06a7fb54d9b27ff12a273dff0cdd658c1ed7374d6bbde2
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/reflect/pre-run2/evidence-validation.yaml
+    sha256: 8bd8000d6c156563527d6dbfe727b30edb62f81cd9d6fb3e3cf0f33dd6b47bdf
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/reflect/pre-run2/reflection-card-t1-calibrated.yaml
+    sha256: 507238283212360ffc7013cd50cba562f16545a72afd7826bca9d7185111b0b1
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/reflect/pre-run2/reflection-card-t1.yaml
+    sha256: 45a150e16a1bb3825907419807d0365b6844922266635104670119b11973f442
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/reflect/pre-run2/report.md
+    sha256: bd77006ee0d464f27d395cc5c99da34f6e0c8eff10a05520019b2c7d5a33e3ba
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/reflect/pre-run2/return-contract.yaml
+    sha256: 48b4c0ee7b212cd8c53a183ff354d13e481056dec0fb1148f19c6c23b931b4d8
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/reflect/pre-run2/reviewer-briefs/reviewer-1.md
+    sha256: 488acbfcd2be1ba089ab3d602f744aee1de2eae0c2c512d1f688d7329f7ca86d
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/reflect/pre-run2/reviewer-briefs/reviewer-2.md
+    sha256: a950a6c17dd331b34e7821e9a128ecc03d393cd74c1c5f04a1579817e7436fb6
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/reflect/pre-run2/reviewer-briefs/reviewer-3.md
+    sha256: de16cc6aa4a98c5bfaed91ed4085a0c7bde396cdcce7ab2449eea35496e1d34a
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/reflect/pre-run2/reviewer-cards/reviewer-1-card-calibrated.yaml
+    sha256: 4017b6203874bcce4c256b94e2fdebaffbf50b7d318fe3349a444f5e71f13317
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/reflect/pre-run2/reviewer-cards/reviewer-1-card.yaml
+    sha256: 9291b39e1989f673c790fe87e8dcbe024f0ad635e377c133f96031ae7aa96e18
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/reflect/pre-run2/reviewer-cards/reviewer-1-merge-input.md
+    sha256: 49b7e4cf845623327b0ffc74ddb8b15b9ebf79de072e737a87fe0e544867c49d
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/reflect/pre-run2/reviewer-cards/reviewer-2-card-calibrated.yaml
+    sha256: 508724a7d2488c9095a025bc6cec15fcecb11ec9a42743694e0c4866698c3737
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/reflect/pre-run2/reviewer-cards/reviewer-2-card.yaml
+    sha256: 5710963ca0b0a791aeed6dc3b303f7212d750f565a2f22eeee7af0b760c82e35
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/reflect/pre-run2/reviewer-cards/reviewer-2-merge-input.md
+    sha256: 34786453fac4d7aecb3d012eb25eaed2aa6a105a698b443b753e75e5771591c9
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/reflect/pre-run2/reviewer-cards/reviewer-3-card-calibrated.yaml
+    sha256: c4c46454c04281ea5ee551afe2fa7fd5a50ec0921f032469d93b25ee84951318
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/reflect/pre-run2/reviewer-cards/reviewer-3-card.yaml
+    sha256: 32e706a76693bdda1c6fc6dcde5b715d6771a87bfb1c7485f9851c0d6b0faf0c
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/reflect/pre-run2/reviewer-cards/reviewer-3-merge-input.md
+    sha256: 7a07d00e2a6c214a893ec622874346d6659e1c30455789dfaad91b630961b898
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/reflect/pre/REPORT.md
+    sha256: 3c495a1adcab2407ebb90b801793ce99c5588f6fce39423de6c19f93dbb11395
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/reflect/pre/adversarial/base-selection.md
+    sha256: 8ad2035c844a752e04ab1c03a69a6b92709f732f3bef5bc4964bf6ea0625ea9d
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/reflect/pre/adversarial/debate-transcript.md
+    sha256: 2ae8261fe31ffad340f5d35c423fa90e7d1e52fe67770b99dab70525b17e6f7b
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/reflect/pre/adversarial/debate/round1-v1.md
+    sha256: 9781483805b11526d80ebcb893252168b12468f0c220813b96dd52a3854bb921
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/reflect/pre/adversarial/debate/round1-v2.md
+    sha256: 8fd23c437de3e5424f84ef0a0ba7cf973ed34cbf592449c3549052361408984f
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/reflect/pre/adversarial/debate/round1-v3.md
+    sha256: 345b6a7806ab2051d3b9c684f66324fdcdc93221ab2a62c694bc23f27c03bdee
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/reflect/pre/adversarial/debate/round2-v1.md
+    sha256: 5129f827c72e9e113d7ec9713a793c8ad98465ef29caceccf98f92a4c5206bd5
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/reflect/pre/adversarial/debate/round2-v2.md
+    sha256: 0df9de32966d62b17b1b33c5d3ee728e9296a73d47da42ee0eed594fa270c679
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/reflect/pre/adversarial/debate/round2-v3.md
+    sha256: 8c86ac974ac0ac45f566c4d174f931a927c91d7a55346092403eb1651f6de82f
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/reflect/pre/adversarial/diff-analysis.md
+    sha256: e9cd8e95d521c803aa41970aec6330d5e5da47862723c1c0bfd3d6bc7eb3aca3
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/reflect/pre/adversarial/invariant-probe.md
+    sha256: e3c61be67092ca65194b5180ed7ad961731769a8893c12bde2dd85dbba79b872
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/reflect/pre/adversarial/merge-log.md
+    sha256: 6b81ec8d2a2355ccf0ffcfc1756c221c10d41ca7e3b7a0183f8b5fa1e0a934f8
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/reflect/pre/adversarial/merged-verdict.yaml
+    sha256: c7a58a53b35e66fb2c715e8ca16175e8e08000564688f522148031884116432a
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/reflect/pre/adversarial/refactor-plan-review-2.md
+    sha256: 29f4e6e1f0f5080122ff6524633839eccfdd3f8afa9ce1f74ac08f19763e79df
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/reflect/pre/adversarial/refactor-plan-review.md
+    sha256: 8639eb8e6e4a4da6c89e0a0eb552adc8c8d17d168bd7ac38116141b83714d140
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/reflect/pre/adversarial/refactor-plan.md
+    sha256: 94d278bc06555ea4c65ec7682d478ebe05ed041257875f341c53e1ee94d80403
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/reflect/pre/adversarial/return-contract.yaml
+    sha256: 614ce237bdc183bfe5d4350465e9571d8e5c50e9a82616a1c5d615647cdaa238
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/reflect/pre/adversarial/variant-1-original.md
+    sha256: 9fc94b9633dfc6a010af0c65ad3fa2f4437739f2634fbecf8fe11006712238bf
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/reflect/pre/adversarial/variant-2-original.md
+    sha256: 23df0cb78eb2333a349deb6e80eb038e40de86afce89cbdba27f126f2e4e23bc
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/reflect/pre/adversarial/variant-3-original.md
+    sha256: e0afbf24d867472bf35177fb2e00c7b2a814db530746d455ffc9083b158a9da2
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/reflect/pre/artifacts/input-snapshot.yaml
+    sha256: d51f521eb1bbc6b848d75af39405d81bf1b1faf9f03d5d8ab76c1141ab00ad7d
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/reflect/pre/artifacts/tier_decision.yaml
+    sha256: cb8a1c072fc092c795e39b530440e3b3b620e9f934ac1af5025609bd14627087
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/reflect/pre/audit.log
+    sha256: 22af2e402fdc5588811f8c87e5c3758accafc216c9217684141cf0e9f2ed4b1b
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/reflect/pre/coverage-matrix.yaml
+    sha256: 98843817defbee929c7613e7adf4f40bf8927282f9fa54dd583f727088e66eef
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/reflect/pre/evidence-validation.md
+    sha256: 9fee7a4d87f67890c94a56635f18f0c1f3cd5354e8fd4833db456fe20cf54f4f
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/reflect/pre/reflection-card-t1-calibrated.yaml
+    sha256: 65c22f35b0f891a66d8aecc57043e4f252040446a45c71247ecdf31d223c0444
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/reflect/pre/reflection-card-t1.yaml
+    sha256: 0b2ff7fcdd773504712a0650f823793b3d5cf76834bad3273330bb35967d6262
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/reflect/pre/report.md
+    sha256: 3c495a1adcab2407ebb90b801793ce99c5588f6fce39423de6c19f93dbb11395
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/reflect/pre/return-contract.yaml
+    sha256: f4606ad06f4248b362446915acf06f0807995e1bf4934f4153ee076f1a3b94f5
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/reflect/pre/reviewer-briefs/reviewer-1.md
+    sha256: 4d53e07bdbb2014551543fd42e73fba346eb4b2104bd8bc0a5ea0eee8daf4085
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/reflect/pre/reviewer-briefs/reviewer-2.md
+    sha256: 1ca2270492a256fd055f3ffcf565f0d4f0f8bc3ad57bcc88deec66bfe51d8812
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/reflect/pre/reviewer-briefs/reviewer-3.md
+    sha256: 89f576b071723585f4ed50ddca6a97d48e80d354536cc6c12267646762ecbf6c
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/reflect/pre/reviewer-cards/reviewer-1-card-calibrated.yaml
+    sha256: c40f85b755e245488d09bc3bb36c168fd5876dcd3ceae7f28aa6dd70cb15c28e
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/reflect/pre/reviewer-cards/reviewer-1-card.yaml
+    sha256: 9a6eb587315a472bc2bbfc7c3c19741e80e300306f561dcc031f36036b757e1d
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/reflect/pre/reviewer-cards/reviewer-1-merge-input.md
+    sha256: 9fc94b9633dfc6a010af0c65ad3fa2f4437739f2634fbecf8fe11006712238bf
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/reflect/pre/reviewer-cards/reviewer-2-card-calibrated.yaml
+    sha256: 95de1e1afb0e43930aff1216a28cfefd1222f854a2fc06f72877c8b32020a0aa
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/reflect/pre/reviewer-cards/reviewer-2-card.yaml
+    sha256: 88901f2e66c9050bed3f4526d8c30d2a4f72809f7bfea135bd32c1ee1559c830
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/reflect/pre/reviewer-cards/reviewer-2-merge-input.md
+    sha256: 23df0cb78eb2333a349deb6e80eb038e40de86afce89cbdba27f126f2e4e23bc
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/reflect/pre/reviewer-cards/reviewer-3-card-calibrated.yaml
+    sha256: 540ce677d03b4d62f91993ea895207eef0d346dba24d3b035cebb37d868a30a4
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/reflect/pre/reviewer-cards/reviewer-3-card.yaml
+    sha256: 8f8a35dc16b3247f106e8fe6c36891dfadb17c5af81fbb99c9918df0e846cfdd
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/reflect/pre/reviewer-cards/reviewer-3-merge-input.md
+    sha256: e0afbf24d867472bf35177fb2e00c7b2a814db530746d455ffc9083b158a9da2
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/research-notes.md
+    sha256: e668b92009ec4feaf6a692010bffaac8b58b71089d331243e66290348b77eac5
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/research/01-file-inventory.md
+    sha256: aaf81366cfe85ccdd74c782685b7048cf9e531a8a3f9ae3e9ee5bd4ec1c6361c
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/research/02-patterns-conventions.md
+    sha256: 49d7fdfba08606e40c65aea6fa3cddda9835e6268f5e21a525812fa2f223ec1a
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/research/03-integration-points.md
+    sha256: 7ef3d2fa4cbbac4948088622efaaf9777f1a41db04e43e0b9224441479778ec4
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/research/04-design-fixes-r3.md
+    sha256: 7fa0bceacf15f80a2ed135f35b9109a0f063f22328af1abb05a62b1625e4c40f
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/research/05-test-verification.md
+    sha256: 8c9c23f435e4685d24f7243437d687965f15d5d300694320faf227ca402c37c8
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/research/06-template-examples.md
+    sha256: 1df32ae11ef92abd8a6c79766b8cccfa9317e25d458b508a0d6a3ee471e37671
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/research/07-reanchor-contract.md
+    sha256: 784547fc8ffedfa74b526e5f3c4cb387e52d78e8817c47cf0f7579ef60e5f429
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/research/08-reanchor-routing.md
+    sha256: 47759f8031aac4e985ded25b0c4b5b0ea669498172c19593879ce6f397069f69
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/research/09-gap-fill.md
+    sha256: c16dd545a42bc3a4472d2bd1b121dba4ecadbc6457c37957748495e8949f0d5e
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/revisions/chat-output-exception-20261109-133150/BUILD-REQUEST.md
+    sha256: 2f0328495ed73da58619d7fd38649bbcd2fb21f67618326bcdea48bfd0652eca
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/revisions/chat-output-exception-20261109-133150/baseline/BUILD-REQUEST.md
+    sha256: d39f19cc08e1d66ceb864c8756d85714a786ae0e3a42252e3de8edca0a13eaa8
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/revisions/chat-output-exception-20261109-133150/baseline/design.md
+    sha256: 08240a6e983c27455a81ddfcc1890c892afc03c5f9a66383f6b1a59640ed103a
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/revisions/chat-output-exception-20261109-133150/baseline/history-manifest.json
+    sha256: cfdcdb7f2bbec2dda6a998640b8be1c9ce89ba8d5ae66ca006be8e14215f91cc
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/revisions/chat-output-exception-20261109-133150/baseline/item-map.tsv
+    sha256: 2ec35fe4e529c21c62a28ce4292bb5d56fba918c0f613993c2115b3222eafbe4
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/revisions/chat-output-exception-20261109-133150/baseline/manifest.json
+    sha256: 8807528a11168c5bb202c24a2a1faf38e19411007e5047cfbb57b466704ec055
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/revisions/chat-output-exception-20261109-133150/baseline/progress.md
+    sha256: b72f92366cd55ade8b9225970514a31ded3c73b1b891ffcdc481ba95422bd2cc
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/revisions/chat-output-exception-20261109-133150/baseline/task-before-A10-fix1.md
+    sha256: ed47ead199cfd1284c3bace2cdaeda1fc781c9c489e12f8d491776e22395f35d
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/revisions/chat-output-exception-20261109-133150/baseline/task.md
+    sha256: 9408577011a6c63e6abf0237394d51945644765b75f97665b6a4cf6ae43a95b6
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/revisions/chat-output-exception-20261109-133150/build-state.json
+    sha256: 51541038550b5e07cbd76757f3da7ba732b6774b39202ff16e793bbabf32323a
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/revisions/chat-output-exception-20261109-133150/delta-manifest.md
+    sha256: 649913e4d99900299c7ba80371ef6ee006bde71c1926ad87e81bc9487e436c05
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/revisions/chat-output-exception-20261109-133150/design-addendum.md
+    sha256: 8a6f665983af0536732adf596bca8e3a5df34fb9dcfe1634c2f131cfe2a493e0
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/revisions/chat-output-exception-20261109-133150/qa/A10-fix1-log.md
+    sha256: b3056518aa48b5461204f9cdf474b38f6c0abe0abf56f07aced5e6cfafb387c8
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/revisions/chat-output-exception-20261109-133150/qa/A10-verify1.md
+    sha256: 647d6f0605c8112e55c842089be9105be3a275013d2ffb984be6c078463b6437
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/revisions/chat-output-exception-20261109-133150/qa/analyst-completeness-report.md
+    sha256: c073d652f45516473124fd42538e4094c24f3bef9a361c55dbd56ca5dd7f05dc
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/revisions/chat-output-exception-20261109-133150/qa/analyst-cross-validation-report.md
+    sha256: 383024f37dcdb19e73596cff939ec90fff34dcd9410bf18e62261508f0715572
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/revisions/chat-output-exception-20261109-133150/qa/cycle1-analyst-completeness.md
+    sha256: d535425f75ac54b80c3c1e94f60abc5981ac60f0940d9d36719a4b5760f46de2
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/revisions/chat-output-exception-20261109-133150/qa/cycle1-analyst-cross-validation.md
+    sha256: a2d99a907daf0126b1c3b31f09e9c2f157799ed7dd738836ec58064f8ca4636d
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/revisions/chat-output-exception-20261109-133150/qa/cycle1-depth.md
+    sha256: ae91c7c4d0ff2e4feec546594cbba8c800e616914d8f340eb15b243ace5eac97
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/revisions/chat-output-exception-20261109-133150/qa/cycle1-evidence.md
+    sha256: 4ba34080a1556e8db8570aee6b4db3e0bcc7bb549d0264742da92553d2438b5a
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/revisions/chat-output-exception-20261109-133150/qa/cycle1-gaps.md
+    sha256: 4d324994b2c2f7f46b8f638ed7d1259b1f4d951f059b49caeacb9968c1e8c0c4
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/revisions/chat-output-exception-20261109-133150/qa/delivery-log.json
+    sha256: f48ce8295f5548801f4a10e6c210ca2e2dff5f40fe94a1a1d0818daee7063c3a
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/revisions/chat-output-exception-20261109-133150/qa/preservation-check.json
+    sha256: 56e764a70bb3283af645fb1ae8c7585216f90d4b2fe6bad3dcc2d9c6639c9619
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/revisions/chat-output-exception-20261109-133150/qa/prompt-qualitative-operational-cycle0.txt
+    sha256: 1dfbcd3192f761d73facb8905b940ec7402efc91e9fdda7eca20100d8f1712a2
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/revisions/chat-output-exception-20261109-133150/qa/prompt-qualitative-sufficiency-cycle0.txt
+    sha256: cdbe4a6eb15d090f8f52a0410efe12d5ebe0715346f93a5abc2ce322dca08a7b
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/revisions/chat-output-exception-20261109-133150/qa/qa-qualitative-operational-report.md
+    sha256: 205a9f0068fc644121c7cdae19c987bd3560a7c7598c51dceb5dcbdbc27864b4
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/revisions/chat-output-exception-20261109-133150/qa/qa-qualitative-sufficiency-report.md
+    sha256: db81aa913005cd9e276926863e8404caf6f84338e34add1fe0faae7d2fd1d7f9
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/revisions/chat-output-exception-20261109-133150/qa/qa-research-depth-report.md
+    sha256: 6463c1c7d79a286dc49d6679e4664cd51199d64d4257fb6948fe338884527b2c
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/revisions/chat-output-exception-20261109-133150/qa/qa-research-evidence-report.md
+    sha256: 6ab8b78b4e0935cdbd0079bb6a46d18ae533eb5d0b9b57ca5c02271a735bcd7b
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/revisions/chat-output-exception-20261109-133150/qa/qa-research-gap-report.md
+    sha256: a0e3a47a115b8ae0be7810484e97828b814cae867b7454a5c5c194674332eb3c
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/revisions/chat-output-exception-20261109-133150/qa/qa-task-research-alignment-report.md
+    sha256: b28195753f0762e0ffa6cd55e73081a640d5c5104f1b2d96c551d7fd4c28b59a
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/revisions/chat-output-exception-20261109-133150/qa/qa-task-validation-b2-report.md
+    sha256: 198f4160c3aeb375cb603deeb6ea0d7f43b49c627766704c1f78535e423a6097
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/revisions/chat-output-exception-20261109-133150/qa/qa-task-validation-consolidated-cycle0.md
+    sha256: 4a83f471e5d0b4497beda9edea64e988c13b0cb4eebd25fa0afb7916b2489db9
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/revisions/chat-output-exception-20261109-133150/qa/qa-task-validation-consolidated.md
+    sha256: 274ba5fcf4ca5f090ffce16912fd368b0609d827214ba6aff95e6fe7da94d82d
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/revisions/chat-output-exception-20261109-133150/qa/qa-task-validation-structure-report.md
+    sha256: 763713087c0aceb39848ede004e2c1d231cd9c9836d5632d15bede0d8267c198
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/revisions/chat-output-exception-20261109-133150/qa/qualitative-injection-cycle0.json
+    sha256: 8189df1e17169d868d18b3b887e759e46f2803796b16b025a4c3d26288d09ddf
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/revisions/chat-output-exception-20261109-133150/qa/qualitative-prompt-template.txt
+    sha256: a1b020a7fcbb1add54c75f67a48fa80469be314c5d52cb339681366e84fc547a
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/revisions/chat-output-exception-20261109-133150/qa/research-gate-cycle0.md
+    sha256: 70c9ef33d771eb6d99516f93110ed088021e53e4578db37ed04397b8a2e6ab3e
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/revisions/chat-output-exception-20261109-133150/qa/research-gate-cycle1.md
+    sha256: a802c6ddd57f01f8f06203cfec46585f7404305e767303bf0437a84235653f28
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/revisions/chat-output-exception-20261109-133150/qa/structural-passthrough-witness.json
+    sha256: c969a69ecbfda876fc4f91dce93f5d8b13ae8fc69a2374f0a23bed7b97c4c90b
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/revisions/chat-output-exception-20261109-133150/qa/targets-operational.json
+    sha256: 239953875decf590a0c316dd56abeb29873ccc233619f929c4025b39d1ae028a
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/revisions/chat-output-exception-20261109-133150/qa/targets-sufficiency.json
+    sha256: 9a146f5f445c42006ec61b243c3a400e0de2bca771843c99091de1cce5220b31
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/revisions/chat-output-exception-20261109-133150/qa/tcs-computation-pre.json
+    sha256: e8deebc28caf04bd1d163fad18a17d81f7fb234d777ec0a4cb00b9949d421507
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/revisions/chat-output-exception-20261109-133150/reflect/pre/REPORT.md
+    sha256: b8cea97870aaa20593915330389c21bba482c11a5e2eba670c1349d1750da4a7
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/revisions/chat-output-exception-20261109-133150/reflect/pre/adversarial/base-selection.md
+    sha256: 0ad5f4f3175603950104f4dae5ab4a5edbd7859152204868712ef3adf216bd4a
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/revisions/chat-output-exception-20261109-133150/reflect/pre/adversarial/debate/consensus.md
+    sha256: 5a12205eeea2faebfe83dc7a9e417722cc94bc56a443f76ddd2f90ee3640d3c1
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/revisions/chat-output-exception-20261109-133150/reflect/pre/adversarial/debate/round1-v1.md
+    sha256: 73dfb0ec4f0da727195e218c00b6396af62687f607aef19b8f1aaf56e7e0f411
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/revisions/chat-output-exception-20261109-133150/reflect/pre/adversarial/debate/round1-v2.md
+    sha256: f23a318ee3852a39197522ab915cc1bb303c6da5f66ee5fbe51ec76f0234729a
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/revisions/chat-output-exception-20261109-133150/reflect/pre/adversarial/debate/round1-v3.md
+    sha256: f78c1cd42bb8e871e07501b0a34958594ce0f5086785bab842681ad248b5f6a6
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/revisions/chat-output-exception-20261109-133150/reflect/pre/adversarial/debate/round2-v1.md
+    sha256: 9483d37f01e960b7e1a92cc9f144156450c721fcd4cabd886b8e2e3db0407aa4
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/revisions/chat-output-exception-20261109-133150/reflect/pre/adversarial/debate/round2-v2.md
+    sha256: b748518eac2c080bf945fc2ace46dc3f9d4c990c413b75f9080b89885af13e1c
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/revisions/chat-output-exception-20261109-133150/reflect/pre/adversarial/debate/round2-v3.md
+    sha256: 5357578d8d6ed0966659b9e161be71ad11e5daadb4cdea6a8994b8ec23df9a8c
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/revisions/chat-output-exception-20261109-133150/reflect/pre/adversarial/diff-analysis.md
+    sha256: bffb807db04f8ecb46389a07c58dd9c98624aff4113e703e4309cad7cc297472
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/revisions/chat-output-exception-20261109-133150/reflect/pre/adversarial/invariant-probe.md
+    sha256: d8dc66ca68d48ff975a5929731d04a8ee666c6a8c054326a1e8972e6d96c06e5
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/revisions/chat-output-exception-20261109-133150/reflect/pre/adversarial/merge-log.md
+    sha256: 7574c6907bba425d4c2879e7fa7fe9e8a6a8407f3a34facb4e0adb34b6cb92bc
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/revisions/chat-output-exception-20261109-133150/reflect/pre/adversarial/merged-verdict.yaml
+    sha256: e6543e33097fb580151a499165d31eaa349e61499433c4d740b737e89370957d
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/revisions/chat-output-exception-20261109-133150/reflect/pre/adversarial/qual-pass1.json
+    sha256: d7348bddadc8e4442f278bfc29b154facb89f98562af5b6c42f0939d2faee421
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/revisions/chat-output-exception-20261109-133150/reflect/pre/adversarial/qual-pass2.json
+    sha256: fdd5e9afae783986474d70501d461fa997a372ba1bb1340fb910f3660d4b8531
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/revisions/chat-output-exception-20261109-133150/reflect/pre/adversarial/refactor-plan-review.md
+    sha256: ea8b16dfb4ad11b029bef046b7e85e0168d308ebc72fafd0b8089832b1e2f9f4
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/revisions/chat-output-exception-20261109-133150/reflect/pre/adversarial/refactor-plan.md
+    sha256: 5dae97faac9a5cc30bcbe32c2f79a3b92ee2661567a32d68eefd11bdfba57139
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/revisions/chat-output-exception-20261109-133150/reflect/pre/adversarial/return-contract.yaml
+    sha256: 5c0037f75b7debd3e3469c12248aacf2dfc19960146ef7e3395c161d09444123
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/revisions/chat-output-exception-20261109-133150/reflect/pre/adversarial/scores.json
+    sha256: cd3d4452d0236d04fb17f157833844ae61a098404e309523ad5b0908d5aba26e
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/revisions/chat-output-exception-20261109-133150/reflect/pre/adversarial/variant-1-original.md
+    sha256: fe41d3bd5314ea2ef478516b3a3a291fc74c5d987b1cac2aa43c6d39faa07e50
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/revisions/chat-output-exception-20261109-133150/reflect/pre/adversarial/variant-2-original.md
+    sha256: 39972ff2c6d8c96843d893643945a88126acd4ef6bac60236faaea10b9d8e030
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/revisions/chat-output-exception-20261109-133150/reflect/pre/adversarial/variant-3-original.md
+    sha256: a78f158b4d745584e11c9ee6b74f03b74252e02ffdf6d8e47fcc3d806823cb65
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/revisions/chat-output-exception-20261109-133150/reflect/pre/artifacts/build_briefs.py
+    sha256: 2e13d6204ea6d404be50d1aca6b078242b6819b9c9932efd2ff5c1aa4f756542
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/revisions/chat-output-exception-20261109-133150/reflect/pre/artifacts/build_matrix.py
+    sha256: d77bf92820b46615d9a40fcc80c81dfc3818e147c93cf69b6ac086c30d3ced5f
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/revisions/chat-output-exception-20261109-133150/reflect/pre/artifacts/build_report.py
+    sha256: 6e27e087a22315e71e7acdac0badcc53b24602cb352583019162a60e3c91642c
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/revisions/chat-output-exception-20261109-133150/reflect/pre/artifacts/citation-mechanical-check.json
+    sha256: f1066b98eaaca7c2a8249b456ae176a1d9fe4dcc4a0e6bce279e892c267b7f7e
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/revisions/chat-output-exception-20261109-133150/reflect/pre/artifacts/citations.json
+    sha256: fd774549803bb737080b0fd226efc701ffc074ce30e84ebd95ae2f4faa473f43
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/revisions/chat-output-exception-20261109-133150/reflect/pre/artifacts/input-sha-legacy.yaml
+    sha256: 766148bdcd46680acc8c93343c3192d683bc102117862e6f2b5b7bc6ac10984b
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/revisions/chat-output-exception-20261109-133150/reflect/pre/artifacts/input-snapshot.yaml
+    sha256: 3a9fd5eb973c425dd78467640f246186fc5fbefa82781f542dd440353a605c0c
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/revisions/chat-output-exception-20261109-133150/reflect/pre/artifacts/literal-hits-all.json
+    sha256: 6ae5e7b0daf9f18a2430cde4b857d79d773d155f29d7b35922bc28fa95061c63
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/revisions/chat-output-exception-20261109-133150/reflect/pre/artifacts/literal-hits.json
+    sha256: a3ef7c896f7b518518a6d3282ef8a4330de427815bee3806beb25cf91ec5a492
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/revisions/chat-output-exception-20261109-133150/reflect/pre/artifacts/match_ids.py
+    sha256: 54ad7216aa061ea87e06a67fad8864713864943556f2e6cae102e68105cafb01
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/revisions/chat-output-exception-20261109-133150/reflect/pre/artifacts/match_ids_all.py
+    sha256: 435b63dd9425e7b577d608d8330347c74ad616fef5476cd137865ef894482e7a
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/revisions/chat-output-exception-20261109-133150/reflect/pre/artifacts/score_variants.py
+    sha256: c994a2b8b73f53803b3ecba93bec861b01a0fbf481ff20098578160e86b25b32
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/revisions/chat-output-exception-20261109-133150/reflect/pre/artifacts/tier_decision.yaml
+    sha256: dbbf69f53c580f182331be3084d0d88b37e04afc6acee7b367147863ab3875df
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/revisions/chat-output-exception-20261109-133150/reflect/pre/audit.log
+    sha256: 8ac88fee5482015e3fca6148a3e2773f1a74010547cd2cc958f086e882bf10cb
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/revisions/chat-output-exception-20261109-133150/reflect/pre/coverage-matrix.yaml
+    sha256: 2867e0031bdac7b30492e94c75c7d5d482972b3b25298a2a7d28b06f588665d4
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/revisions/chat-output-exception-20261109-133150/reflect/pre/evidence-validation.yaml
+    sha256: 1d3076a3e30c10e186ac1d15e9aac0cdff9922ecf2693b8b5afe5889009621a2
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/revisions/chat-output-exception-20261109-133150/reflect/pre/metrics.json
+    sha256: 551a7b54663b4fccef597be101869a4fa0aab1ac9cf52e082ce06b9455bc21a9
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/revisions/chat-output-exception-20261109-133150/reflect/pre/reflection-card-t1-calibrated.yaml
+    sha256: 55638e75cbab0826b96576919fcc1053d30e3d2e0c4300f3a7a1432a70a182ce
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/revisions/chat-output-exception-20261109-133150/reflect/pre/reflection-card-t1.yaml
+    sha256: e85e8f12287df3685c4408644604ad2e2129ff75a533dee267e6b4cc814a4341
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/revisions/chat-output-exception-20261109-133150/reflect/pre/return-contract.yaml
+    sha256: bb954440b64ca4dbaf8ef215c903c5c04172c80dad10ee5ac4d299b5e1f15ba2
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/revisions/chat-output-exception-20261109-133150/reflect/pre/reviewer-briefs/reviewer-1.md
+    sha256: 3c48d3cff364f25405157c9d78e35cb9ba783a89aba276bdc3a8f4bc83e15e33
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/revisions/chat-output-exception-20261109-133150/reflect/pre/reviewer-briefs/reviewer-2.md
+    sha256: 22c208b1a158dcbb82e4bb2b55b8f719f191c3c90efc1362b32d92f3fda95032
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/revisions/chat-output-exception-20261109-133150/reflect/pre/reviewer-briefs/reviewer-3.md
+    sha256: 1ad2bc78b9fb0d6c6a06db43ac934b90d8836784b4d437bfd8370031df01ca94
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/revisions/chat-output-exception-20261109-133150/reflect/pre/reviewer-cards/reviewer-1-card-calibrated.yaml
+    sha256: 95c6e3cbeeb808e168c6dcc8e94ba17d0012ab100d489de3eab9d8ddb443a85b
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/revisions/chat-output-exception-20261109-133150/reflect/pre/reviewer-cards/reviewer-1-card.md
+    sha256: 5fc0c896e0b0ce609c17255e9fb2f41a405f99dbaec03088de96f19a8535a558
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/revisions/chat-output-exception-20261109-133150/reflect/pre/reviewer-cards/reviewer-1-merge-input.md
+    sha256: fe41d3bd5314ea2ef478516b3a3a291fc74c5d987b1cac2aa43c6d39faa07e50
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/revisions/chat-output-exception-20261109-133150/reflect/pre/reviewer-cards/reviewer-2-card-calibrated.yaml
+    sha256: d224d928acaab4f82fadafa51fabd5174ee3ad67880d7ee0635e419cf40f075b
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/revisions/chat-output-exception-20261109-133150/reflect/pre/reviewer-cards/reviewer-2-card.md
+    sha256: 9f8c476ef19d00770818a9f402be13e18d364ad367aa850d13491b919ce3bf58
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/revisions/chat-output-exception-20261109-133150/reflect/pre/reviewer-cards/reviewer-2-merge-input.md
+    sha256: 39972ff2c6d8c96843d893643945a88126acd4ef6bac60236faaea10b9d8e030
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/revisions/chat-output-exception-20261109-133150/reflect/pre/reviewer-cards/reviewer-3-card-calibrated.yaml
+    sha256: fd7f6609bec95b80ff413ffc455238249fc35914adf51aa7c4ee44f09779b5c2
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/revisions/chat-output-exception-20261109-133150/reflect/pre/reviewer-cards/reviewer-3-card.md
+    sha256: 0167ead476f9670f0a2e4de71eef00c04099605b37677a5dadf39861dfb055cf
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/revisions/chat-output-exception-20261109-133150/reflect/pre/reviewer-cards/reviewer-3-merge-input.md
+    sha256: a78f158b4d745584e11c9ee6b74f03b74252e02ffdf6d8e47fcc3d806823cb65
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/revisions/chat-output-exception-20261109-133150/reflect/pre/signoff.yaml
+    sha256: c76e05796d9bbef1a730e30ac48f35d5ec5580d160a5dcbb2fffa180d6a2606e
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/revisions/chat-output-exception-20261109-133150/research-notes.md
+    sha256: 40848e7807349366b1b491c0ad5ed7f1e72927a2c71527462ad48a8b5b46539b
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/revisions/chat-output-exception-20261109-133150/research/01-style-and-tests.md
+    sha256: cf25933ef2a09949513af174cd166221c7755e578da6220a72071aae3dabc971
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/revisions/chat-output-exception-20261109-133150/research/02-executor-preservation.md
+    sha256: bf1310833c93b47810a5876e634e876c0c3b121ccc22a84bfab4b444880d00ea
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/revisions/chat-output-exception-20261109-133150/research/03-template-and-plan-integration.md
+    sha256: a813a1d0a03d39c60b4a610a1993e8d7bed3231af049721a9ce41596e93d9f95
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/revisions/chat-output-exception-20261109-133150/research/04-coordinator-eligibility-gap-fill.md
+    sha256: e4389e2024d6061adc0e4e554f3a0609cbafe676f263d42df3631923fc53eafe
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/revisions/plan-defect-fixes-20261110/BUILD-REQUEST.md
+    sha256: c941d3920f27a6ef03a327b1f6247cd5cd7a35bdf60e4e0b03114ba9b9d9b341
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/revisions/plan-defect-fixes-20261110/baseline/progress-before-rev2.md
+    sha256: b72f92366cd55ade8b9225970514a31ded3c73b1b891ffcdc481ba95422bd2cc
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/revisions/plan-defect-fixes-20261110/baseline/task-before-rev2.md
+    sha256: f52e43a57ba6d3f3dc25120da937e1b7bf666782c732e5b042d2b938eb966855
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/revisions/plan-defect-fixes-20261110/build-state.json
+    sha256: fd462e1c8a17e6c81c229e2226bb52d0800cd5c212e885f85e40378697f5ddaf
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/revisions/plan-defect-fixes-20261110/delta-manifest.md
+    sha256: 1b93c40fa29791d9bd376a53bfeb762b387cc8ed74b88544030647f743a5f5d8
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/revisions/plan-defect-fixes-20261110/qa/A10-verify1.md
+    sha256: 76224b0ef310859a0c3dcb6e6844019f5d25bb181289c400c98750b60c113408
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/revisions/plan-defect-fixes-20261110/qa/build_qual.py
+    sha256: 126c05f91513b4163f528a3365bdd50f329b818952b0d7ce775528f744cbf5f0
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/revisions/plan-defect-fixes-20261110/qa/preservation-check.json
+    sha256: 3e5af67349faf6486dbc7740b2cd7c3c782df4a1a13de603253899e66d0143c5
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/revisions/plan-defect-fixes-20261110/qa/preservation_check.py
+    sha256: 1ce765a8589eea6235fd7e2e5db7ba74370cfcbef36c1e60fc3ced23fdf1cfb0
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/revisions/plan-defect-fixes-20261110/qa/prompt-a10-b2.txt
+    sha256: f47381b2cf6dca508ef59baca2b267240027a18256981e022a602409aaa76a06
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/revisions/plan-defect-fixes-20261110/qa/prompt-a10-common.txt
+    sha256: 0ee0e5a59392d3e26263691781a8ccc8e7bafee3baa69af0469375b14a03ff8e
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/revisions/plan-defect-fixes-20261110/qa/prompt-a10-structure.txt
+    sha256: c2204ab4e866e818e210ec0d89b6f9794c06cbb30e4f2019beadb1c0e18213b9
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/revisions/plan-defect-fixes-20261110/qa/prompt-a10-verify1.txt
+    sha256: e0456cc9024c0f5b3bec8f1b32cc48af9bd69b1e082a266d8a031741b0d5c45b
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/revisions/plan-defect-fixes-20261110/qa/prompt-a1025-alignment.txt
+    sha256: 6e1a12b218b30983a57f287fc0c3eaea5901d91f9fcf4e5f06d76aaf30253aa0
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/revisions/plan-defect-fixes-20261110/qa/prompt-qualitative-operational-cycle0.txt
+    sha256: 755aa926dc219f0271bd91e425791652512f03ea3ff6a22f500104da5e64b68a
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/revisions/plan-defect-fixes-20261110/qa/prompt-qualitative-sufficiency-cycle0.txt
+    sha256: cc184adafa51275081123e89ecc0590f8df970daa7ca95963df9d43a1e56455d
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/revisions/plan-defect-fixes-20261110/qa/qa-qualitative-operational-report.md
+    sha256: e32000269ea5cee32c711333e270e2bb14141c19a301d372d70ecdbba863b22e
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/revisions/plan-defect-fixes-20261110/qa/qa-qualitative-sufficiency-report.md
+    sha256: c0340766de25e1a1399e6caff4bcb5ce64119763908ef97300709133e5fc0fe8
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/revisions/plan-defect-fixes-20261110/qa/qa-task-research-alignment-report.md
+    sha256: 5c7fcf8b683c85d1a41abd6633acfe5b78bc584e0afc01cbfef8a7725c4a55c1
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/revisions/plan-defect-fixes-20261110/qa/qa-task-validation-b2-report.md
+    sha256: 2d8b09e3527e719d6d892df81bb38229209bcb4ccf0c8d1ba00043806b722ddf
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/revisions/plan-defect-fixes-20261110/qa/qa-task-validation-consolidated.md
+    sha256: db31eb9d1d1d733c28ba1da52776e778c8b7e44124ef7ac69cea144bc708594f
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/revisions/plan-defect-fixes-20261110/qa/qa-task-validation-structure-report.md
+    sha256: 37292ab5f8986db63298394e4204a01d5fe6e6d728380a1f1094e6f6e5101310
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/revisions/plan-defect-fixes-20261110/qa/qualitative-injection-cycle0.json
+    sha256: d1cfa9bab33680f655d88302e04d667393b381d82559ba291a9620445234a14a
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/revisions/plan-defect-fixes-20261110/qa/targets-operational.json
+    sha256: eb055e27e551fc8d3f9e571ddb232816435acac54db71b18230240e879d6c593
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/revisions/plan-defect-fixes-20261110/qa/targets-sufficiency.json
+    sha256: 53368aa799284751d4f54275017022486aa1fbf2d1a34cac5f7c652ab9c1a4d6
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/revisions/plan-defect-fixes-20261110/qa/tcs-computation-pre.json
+    sha256: 645275511f685b9f6c42a038f913a9bd6471e46f4c1cedf66df226e86ee51d31
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/revisions/plan-defect-fixes-20261110/qa/tcs-recount.jsonl
+    sha256: 68dd61e20954a05cb0e4eec27707ba7900cb82f22e84bbaa64d54be2f8122538
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/revisions/plan-defect-fixes-20261110/qa/tcs_compute.py
+    sha256: 75b97d8e41e4de04f96103845391fc62aebb7b5de305f67d63e637eb9007dfcb
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/revisions/plan-defect-fixes-20261110/reflect/pre/REPORT.md
+    sha256: 76a3af94dfb8bc7c20aba76b2323a36e552c6f67389a798899bcbd1ac2128b45
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/revisions/plan-defect-fixes-20261110/reflect/pre/adversarial/base-selection.md
+    sha256: 56a31031f1792bda4a80d4b5eb7381b254b5e489a76064cdd05cee52c75729c2
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/revisions/plan-defect-fixes-20261110/reflect/pre/adversarial/debate/advocate-prompt.md
+    sha256: eba0c64d6445978bcef23c671dbf5ee3d94356d2c78195331cd5a1c494d74287
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/revisions/plan-defect-fixes-20261110/reflect/pre/adversarial/debate/consensus.md
+    sha256: cba033898648943730e7148e3da4ec4f1e962f1b3b0fe6704d441f93d5a93088
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/revisions/plan-defect-fixes-20261110/reflect/pre/adversarial/debate/round1-v1.md
+    sha256: 986ce5ff5b2a2b1519cc33127f237cf5c93dacc64aa8b979545f2ca5aa99f243
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/revisions/plan-defect-fixes-20261110/reflect/pre/adversarial/debate/round1-v2.md
+    sha256: 7effb55647ddca3a4e465e7b4d0d0c9ff5f3d089c701e7e3fdb97d8ab80096d7
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/revisions/plan-defect-fixes-20261110/reflect/pre/adversarial/debate/round1-v3.md
+    sha256: 8b814853aeb3b09a249d65ad0ed7a12415c5085ca4c2dceb3b3a7b9990d2c55b
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/revisions/plan-defect-fixes-20261110/reflect/pre/adversarial/debate/round2-v1.md
+    sha256: e0a9f1335cf0b3c3835b803b33f4a611881839aba7b1624c791d11a113f97576
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/revisions/plan-defect-fixes-20261110/reflect/pre/adversarial/debate/round2-v2.md
+    sha256: 2ec37f57513a8edeee0be4048541d6fea6d15175d618479165151477a538c6ea
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/revisions/plan-defect-fixes-20261110/reflect/pre/adversarial/debate/round2-v3.md
+    sha256: f4119b5c138fdbb2b9f3568910d2eb8e390acc8497f14aa2f9bbb4f5928c9246
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/revisions/plan-defect-fixes-20261110/reflect/pre/adversarial/diff-analysis.md
+    sha256: 5856bc7a8aae0800ed8237a64bb929717f5b5d65bc2db23d931e14b14ac8a6b9
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/revisions/plan-defect-fixes-20261110/reflect/pre/adversarial/invariant-probe.md
+    sha256: 2b83da61182e6de101542da1ba7ad209ae60b61e722ad1001f4e2d105cfa639c
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/revisions/plan-defect-fixes-20261110/reflect/pre/adversarial/merge-log.md
+    sha256: e0bc9e3def914a0aa3709b4d7eefbcd2e66fb90b8aff50e3f719981c4a09703d
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/revisions/plan-defect-fixes-20261110/reflect/pre/adversarial/merged-verdict.yaml
+    sha256: 26a5e6c202cbe9cb1efc45b10517b428c4c4fcbc49ce7e4246be2e306e929ce3
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/revisions/plan-defect-fixes-20261110/reflect/pre/adversarial/refactor-plan.md
+    sha256: e53912baa5f9730bdaac310956deb1ebf2f1b69276b8a453d50247667ba79103
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/revisions/plan-defect-fixes-20261110/reflect/pre/adversarial/return-contract.yaml
+    sha256: a476b5f6a36b95c9669eac19bf4b1ae07caf57798db22d61004bbdd164017ee9
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/revisions/plan-defect-fixes-20261110/reflect/pre/adversarial/scores.json
+    sha256: 78ea20db4af870e0f1b0a3ee178bf085bf0e1f94414e14589b5091dc190cc2d4
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/revisions/plan-defect-fixes-20261110/reflect/pre/adversarial/variant-1-original.md
+    sha256: 380ca7552616793d3e3556dd99aba29787f233910881172c87a1c9909f8cc14a
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/revisions/plan-defect-fixes-20261110/reflect/pre/adversarial/variant-2-original.md
+    sha256: 41cb09353d15c1c805b299dc2e81af3f1138f855ea84f3d4a4a0344cf26966d9
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/revisions/plan-defect-fixes-20261110/reflect/pre/adversarial/variant-3-original.md
+    sha256: 402eec2434f64322908cc7feb2b2d7b6f9a6b441c096f7a979c59a53596ca9d2
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/revisions/plan-defect-fixes-20261110/reflect/pre/artifacts/build_briefs.py
+    sha256: 2e13d6204ea6d404be50d1aca6b078242b6819b9c9932efd2ff5c1aa4f756542
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/revisions/plan-defect-fixes-20261110/reflect/pre/artifacts/build_matrix.py
+    sha256: 5748a5f386261f90a18ef6434c84e78eb83b03ac990077d32e1b14d23a73f488
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/revisions/plan-defect-fixes-20261110/reflect/pre/artifacts/build_report.py
+    sha256: 8b72f33cb4ead1d3a622af13303ca31a3b2e55a7f82e716e6465b09ad4712659
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/revisions/plan-defect-fixes-20261110/reflect/pre/artifacts/citation-mechanical-check.json
+    sha256: 75b4b25ddc77611a9723cfb81a637308fbaef19ec5233184b39112439d730832
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/revisions/plan-defect-fixes-20261110/reflect/pre/artifacts/citations.json
+    sha256: c8359add2c00b5401f6a4d05d001043ebe0c74f164c838303eddd199fc55e368
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/revisions/plan-defect-fixes-20261110/reflect/pre/artifacts/input-sha-legacy.yaml
+    sha256: a5d8219b195d048c7edaabb4258302c0c8b702381c40cc14055eb8b24916620a
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/revisions/plan-defect-fixes-20261110/reflect/pre/artifacts/input-snapshot.yaml
+    sha256: 982461dfedb9b65bceaef7bbb5613cd4ab964e5c3a9022441b475c7c2b7993c4
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/revisions/plan-defect-fixes-20261110/reflect/pre/artifacts/literal-hits-all.json
+    sha256: 6ae5e7b0daf9f18a2430cde4b857d79d773d155f29d7b35922bc28fa95061c63
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/revisions/plan-defect-fixes-20261110/reflect/pre/artifacts/match_ids_all.py
+    sha256: 435b63dd9425e7b577d608d8330347c74ad616fef5476cd137865ef894482e7a
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/revisions/plan-defect-fixes-20261110/reflect/pre/artifacts/prompt-t1.txt
+    sha256: 1720072b5633ae8378eaa631142bd05b4259461819671101cab690088c508daa
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/revisions/plan-defect-fixes-20261110/reflect/pre/artifacts/run-id.txt
+    sha256: 8ba042bc8bf0a890072169220f188bc0b93b23101ddb34a045a1552e388298da
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/revisions/plan-defect-fixes-20261110/reflect/pre/artifacts/score_variants.py
+    sha256: c994a2b8b73f53803b3ecba93bec861b01a0fbf481ff20098578160e86b25b32
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/revisions/plan-defect-fixes-20261110/reflect/pre/artifacts/tier_decision.yaml
+    sha256: 147b8fe15a05dd6a0278c66ef897ac1b79bff0193fb47533d93757cd03546e8c
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/revisions/plan-defect-fixes-20261110/reflect/pre/audit.log
+    sha256: 356f8c5feb8df3b5c54b73df3b21836bb0f1480ba2d9c4fc3b0c8081c45bdbfe
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/revisions/plan-defect-fixes-20261110/reflect/pre/coverage-matrix.yaml
+    sha256: 6dd6d10974f1ea3038a440e8e5e7eec8ce36f3bf14f079bdaff7488ff8bac84f
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/revisions/plan-defect-fixes-20261110/reflect/pre/evidence-validation.yaml
+    sha256: 11ce0b3e4c791b2d934bda3a5c51fcb06de124b87ff2f075ba85cb6084298abc
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/revisions/plan-defect-fixes-20261110/reflect/pre/metrics.json
+    sha256: ab7b8c3a34fabcd7ff243ad4f978aa58287414c9ab59f6e84a78e1cd8b5aff53
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/revisions/plan-defect-fixes-20261110/reflect/pre/reflection-card-t1-calibrated.yaml
+    sha256: b82a385f84f72188ba5eda3f1f3a7fdd0571a393114f3871c09ae4de93a63cc8
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/revisions/plan-defect-fixes-20261110/reflect/pre/reflection-card-t1.yaml
+    sha256: 7e56c7be1d49f75362d2052bf920e2f811e6aa80f1a2529e6430f5e481acca0f
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/revisions/plan-defect-fixes-20261110/reflect/pre/return-contract.yaml
+    sha256: c2d7a54ffe29ba686f4f97b4e65e12f7d05e7a91b6233aa1bb7942c4f420c3eb
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/revisions/plan-defect-fixes-20261110/reflect/pre/reviewer-briefs/common.md
+    sha256: 70efa416d7f3478a83ca6ad48e932de18d403029138797d2ac8e3b3b8067390a
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/revisions/plan-defect-fixes-20261110/reflect/pre/reviewer-briefs/lens-1-analyzer.md
+    sha256: ba0a92b20c010280af4bf93f654db3df8f0d51995bc116cbf091c18d97ff0732
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/revisions/plan-defect-fixes-20261110/reflect/pre/reviewer-briefs/lens-2-qa.md
+    sha256: 50748e4b7b42ef1ba59583cd8268541577a9238a870f80413c8cfbce11a336e5
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/revisions/plan-defect-fixes-20261110/reflect/pre/reviewer-briefs/lens-3-refactorer.md
+    sha256: 5060b10eb9aafac98ebb78a9a32da7016c3a10d9eca1a4c5d22db8d1009d81c0
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/revisions/plan-defect-fixes-20261110/reflect/pre/reviewer-cards/reviewer-1-card-calibrated.yaml
+    sha256: 51f3935bb0225cb1f3254288045977249d0cf8c9a48b9f0a67af3e9294d679d4
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/revisions/plan-defect-fixes-20261110/reflect/pre/reviewer-cards/reviewer-1-card.md
+    sha256: 48cd8b5a83e31c1bc849d0cccc97b55e25603ff49f0af37ea04cba5ff6a0f948
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/revisions/plan-defect-fixes-20261110/reflect/pre/reviewer-cards/reviewer-2-card-calibrated.yaml
+    sha256: 9ea3440058fea43a898b2d921500fffee2de029ecdbd71ca48138212e10761e5
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/revisions/plan-defect-fixes-20261110/reflect/pre/reviewer-cards/reviewer-2-card.md
+    sha256: af58a2f4761b594bf1de8b79f15fcbe94ecfdadab042c82c0d89217891860a56
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/revisions/plan-defect-fixes-20261110/reflect/pre/reviewer-cards/reviewer-3-card-calibrated.yaml
+    sha256: 679ce9ba262d7640a75e63c5a5e8fa36cbcc2717fb01fe74e3031cc4ce2f8710
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/revisions/plan-defect-fixes-20261110/reflect/pre/reviewer-cards/reviewer-3-card.md
+    sha256: 16866d22255d57a2f8fdd4b991c12deb99e95aceed0806cc0787e2ad2ed568c6
+  - path: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/revisions/plan-defect-fixes-20261110/reflect/pre/signoff.yaml
+    sha256: 288282441beeef64556f6c7f9d33d677db33c52a8e901ee6f15c52cc6b22aaa2
+  - path: docs/designs/orchestrator-mode-review-1.md
+    sha256: 2b7bdf98f1d65f9634e4c980b785ca0d95381431a6f359da6d29d1de125144ed
+  - path: docs/designs/orchestrator-mode.md
+    sha256: 2b511485318f8c4cfd4ba4c67d97cff4b3dabffeff8a48623de1852ce4a258ba
+  - path: docs/developer-guide/SuperClaude-Developer-Guide-Commands-Skills-Agents.md
+    sha256: f80c6e62774cf63f5df083e0b8000077abda24b18e1d7fedfd76d802c6852a26
+  - path: docs/user-guide/commands.md
+    sha256: aa3acf1e97e61758d7fd2c97f81ac27f4511fc94662538ddf4cfb962e0bc7fe1
+  - path: plugins/superclaude/skills/sc-recommend/refs/HOW-WE-WORK.md
+    sha256: a70220e09640f7acaf2d19cb3de2492334ff3ffcfcc2b5c1be72722bee050541
+  - path: src/superclaude/cli/install_user_setup.py
+    sha256: 48f140321cf8ba5d0d19e105ef032b5a1fbc18ff721156965a36b0778118bed0
+  - path: src/superclaude/cli/issue_watch/cycle.py
+    sha256: b2cd68cdca9935b539cba26864eb5b51d866f1a89a1ed30f06eb7eb39a94c123
+  - path: src/superclaude/cli/main.py
+    sha256: 0bd1c9e83005c43a9553693d1b0817a9dc076848bef50ca848208bdd8c8d2adc
+  - path: src/superclaude/cli/recommend/__init__.py
+    sha256: fb963a9aa966125e7b8161f798891cfe59aa0fd1c944795f0c16170fb3bf4a95
+  - path: src/superclaude/cli/sprint/recovery.py
+    sha256: e6967cc4f6081aeefdc99f5b7b548e29b993236653afc0543be794d2684cd520
+  - path: src/superclaude/cli/swarm/atomic.py
+    sha256: a858a3dbba2404388d39ff3e6a6cc6595786ca760e4387dd91d618fd867411ca
+  - path: src/superclaude/cli/sweep/__init__.py
+    sha256: 023f0df37cb6bac28a13dcbeccf54eddd798573242ba4eaa00aa2fe6019c410b
+  - path: src/superclaude/cli/sweep/classify.py
+    sha256: 12f198178729e4cec07a1ede3f4d999a2d1b1af09e16b36fb6672ce36ceb75ce
+  - path: src/superclaude/cli/sweep/commands.py
+    sha256: b007ff79e0a15cc881ee25ebdb104689ec3b13b9b9b8c8fdba15da931c9c22a2
+  - path: src/superclaude/cli/sweep/models.py
+    sha256: c4b12fd2074e3bd253f665480d8fda45895db8e20d54941eaa4e54f70d42a698
+  - path: src/superclaude/cli/sweep/probes.py
+    sha256: 3bfdee070ba0b2d16503c78a4b349374e3161d56030dd08f2aed20bc264f3094
+  - path: src/superclaude/cli/sweep/report.py
+    sha256: 583ad6066bbdf408db016e0972d1054fd8faa76265cbdb0c9a0b7a2e0b5b65fa
+  - path: src/superclaude/commands/graph.md
+    sha256: 08c184023c29d3f75116eee01c17a7a7e6092db2cf9960a36ad9af1de3920844
+  - path: src/superclaude/commands/issue.md
+    sha256: 21edff9283c711b7361c5fb07399c60b1bbc49c468a8290098ea5025a70dc4fb
+  - path: src/superclaude/commands/sweep.md
+    sha256: ed730bf417555c28ce0a64df81a0319bb9807bb05636422ed6cce033d0f59902
+  - path: src/superclaude/contracts/__init__.py
+    sha256: 6431746f86cbd025103db198bb8254d2648bdc7ebda7a5d674d3c45d0fd53ac7
+  - path: src/superclaude/core/CLAUDE.md
+    sha256: f5e1ba51afaa05116dd2176ce01f7f0a75379b6feafad8cd2ff3e39683d83cdd
+  - path: src/superclaude/core/HOW-WE-WORK.md
+    sha256: a70220e09640f7acaf2d19cb3de2492334ff3ffcfcc2b5c1be72722bee050541
+  - path: src/superclaude/core/WORKER-CONTRACT.md
+    sha256: 8cf7496d5e8eb273cf3e682c24a3785d4092b2e589a9c3e7ece540b4b580b9ce
+  - path: src/superclaude/output-styles/pragmatic.md
+    sha256: 3d4cb9d9ea4f8b510824ff8ed20b07d91fc6415b593d2c39af863edeff22ff69
+  - path: src/superclaude/pytest_plugin.py
+    sha256: 7032be80d90a66b6bd446fd3831c61c74e87bc0765648a1988563a97cc069e78
+  - path: src/superclaude/skills/sc-graph-protocol/SKILL.md
+    sha256: 798fae148341498da3f681a089baeca05572568dbdb505b213d57929979e00bc
+  - path: src/superclaude/skills/sc-sweep-protocol/SKILL.md
+    sha256: 5d8f9d90acb40e9889abbd51e773cad0ad7dc1cac6be767d53c06c6e444f5be1
+  - path: tests/cli/eval/test_claude_process_adapter.py
+    sha256: 7d21778e574704d01a571f5340055da4fe66c18208ac72c3455e6d2369b48fe0
+  - path: tests/cli/reflect/conftest.py
+    sha256: 57e115f16160696a9e51839ccb96143e2dd36a362ca3a842f7f62b504a730c89
+  - path: tests/commands/test_graph_command.py
+    sha256: e31cb56053fa6c938e2f1a194fc1f261fb7babb04b1191e6da3b47c9daffde28
+  - path: tests/commands/test_routing_plugin_parity.py
+    sha256: c362104ffdea66a1164d0903a251f3fb11e614c02c60258a3b476b7e16aaa123
+  - path: tests/commands/test_sweep_command.py
+    sha256: b40637a46480cb390a8f0e92ffd13dc790cad1e47032819816da4ebb5c147274
+  - path: tests/core/test_how_we_work_routing_table.py
+    sha256: 1a2937a4920740399e6b7c794e83e59819c7f334fcd4670a64bf072c77fba3b4
+  - path: tests/hooks/test_launch_level_guard.py
+    sha256: 7f15302b15e65264bb98da65d0606d8c3d9ba98dd39ec64545fddd91cf091d3c
+  - path: tests/pr_submit/test_conflict_scripts.py
+    sha256: 40b5508986bee8b5e90bb4663779b1f192b01fa3d451ff3ce99b7a0db696e923
+  - path: tests/recommend/test_routing_refresh.py
+    sha256: 0ab5bf92a4599b46a953b832132ee3c5256c671c65ad26c3781174ea0522cadb
+  - path: tests/skills/test_implement_severity_static.py
+    sha256: 409cc67f2a50d66a32fb09132b98014cbd011d7827ed423c8ad29c306b277e39
+  - path: tests/skills/test_review_severity_rule.py
+    sha256: dc21823da962d14b40339e2081717177b3497b27b2a1e41f5637ed97ef10d961
+  - path: tests/skills/test_worker_contract.py
+    sha256: 8a2ae4f50578900bf0e626145fdaf925cb9584ece6723bfcaab8cc44a11902d7
+  - path: tests/sweep/__init__.py
+    sha256: e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+  - path: tests/sweep/conftest.py
+    sha256: 01a05dfcd17018816cecffa9d3d777c08b372ffe4bd414a669dbcd94ab100fbb
+  - path: tests/sweep/fixtures/SOURCES.md
+    sha256: 7ffd02779fb6de822b660c6da69a19a019c13f81b3a25b96e56c17918adb91ed
+  - path: tests/sweep/fixtures/captured-tab-map-1.json
+    sha256: a68aede118ce3ae2081584c45d8390ea3336afb96c077751f7a4719229fe2d4a
+  - path: tests/sweep/fixtures/captured-worker-list.json
+    sha256: cb6584ffda90dc3e041a2cab1c15a914663a571a97c468d325e0b12649a3c2f3
+  - path: tests/sweep/fixtures/captured-worker-show-1.json
+    sha256: 053e3c25144e2e1f9ec6d9609f11a1bc3d31bac6b28e06f002f17695b09f67b1
+  - path: tests/sweep/fixtures/captured-worktree-current.json
+    sha256: c119bb8eaabfd1feed5f0420c52f3c69baf3c18737654e7fcb6795465d8119f0
+  - path: tests/sweep/fixtures/captured-worktree-list.json
+    sha256: 651eb713ccd23aeda0a91933c73cb5d387fcb2d76eb6f4c0c5add2fc857b9bee
+  - path: tests/sweep/test_classify.py
+    sha256: 90305f719e50398b1a88df4845bf218e46380855305167839a11dbf1153c2715
+  - path: tests/sweep/test_cli_contract.py
+    sha256: b7c9141a7f55804651d20fb080384854f688c9a8608705c0ca9cd20a0843065c
+  - path: tests/sweep/test_cli_registration.py
+    sha256: 3f9e80367153728fadc37b751c8582de49b89a7ceca06a726dfe45046692e6e3
+  - path: tests/sweep/test_probes_allowlist.py
+    sha256: 51a300bfb6f85187a21fca6b1b81591312a47aa48abe1aaa8f1f9c8757513e8a
+  - path: tests/sweep/test_readonly.py
+    sha256: 6e39da2099dad25847faf26e1b89c3d155eaaf58797f69cb44b680f957872748
+  - path: tests/sweep/test_report.py
+    sha256: 14d0f2d943dc34e7b7a49450dd47a7c9baeeaa352efef4b0d40c4fb1164f62dd

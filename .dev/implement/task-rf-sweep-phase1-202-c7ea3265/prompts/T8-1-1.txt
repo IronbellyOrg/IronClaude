@@ -1,0 +1,58 @@
+Review one task for spec compliance.
+
+Task brief: T8 = item 2.4 of the source file /home/coder/workspaces/worktrees/IronClaude/issue-339-orchestrator-mode/.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md (lines 266-272). Item text:
+- [ ] **2.4 — R3-B1 edits 7 and 8: step 1.0a item 4 (15.1) and open item 23 (17)**
+  - **Context**: DESIGN 15.1 item 4 (near line 885) says "and the fields that carry the Dispatch start and end times"; DESIGN 17 open item 23 (near line 991) names those fields as unknown (research/04:93-94).
+  - **Action**: (7) replace the 15.1 item 4 phrase with the research/04 edit 7 text, naming `dispatch.dispatchedAt`, `dispatch.completedAt` and `dispatch.status` and the one-worker ordering record; (8) reword open item 23 with the research/04 edit 8 text, keeping it as item 23 (no new open item) and changing its "Behaviour until closed" note to `Dispatch time window not observable`.
+  - **Output**: DESIGN sections 15.1 and 17 updated.
+  - **Verification**: Verify: `grep -n '^Total: 23 open items.' docs/designs/orchestrator-mode.md` still returns one hit; 15.1 item 4 contains `dispatch.dispatchedAt`; open item 23 contains `Dispatch time window not observable`. If an anchor is missing, log it in `### Phase 2 Findings` and stop.
+  - **Completion gate**: Both edits are in DESIGN. Once done, mark this item as complete.
+AC ids: T8.AC1 = the item title "R3-B1 edits 7 and 8: step 1.0a item 4 (15.1) and open item 23 (17)" (no AC block; the title is the AC). The item's own Verification and Completion gate lines are context for what "done" means. Ticking the item's checkbox is done by the orchestrator after the verdict and is not part of the diff under review.
+Global constraints: the `### Key Constraints` section (lines 157-168) of the source file named in the task brief; read it from that file.
+Start sha: 8716d62373eed96147178b5cfb0e0438acbdc1ef
+Diff against the start snapshot: --- a/docs/designs/orchestrator-mode.md
++++ b/docs/designs/orchestrator-mode.md
+@@ -884,7 +884,7 @@
+ | 1 | `run-current` output when a Run is bound, and when none is bound (the no-binding shape) | `bind_run`, FR-002 fourth test, FR-026 case 4 |
+ | 2 | Whether `run-current` output is parseable without `--json` | M2, section 7.3 |
+ | 3 | `worker-list --run <run> --json` schema, page size and the cursor or continuation field, if any | `WORKER_LIST_PAGE`, the cursor template (section 7.3) |
+-| 4 | `worker-show --dispatch <dispatch> --json` field names: the field that can carry `session_join` (a Claude session id, pane key or terminal handle), `agentWait` presence and value, `liveness.verdict`, `status`, and the fields that carry the Dispatch start and end times | Rule 5, the join paths of section 7.2, the path-B time window, GQ-108, open item 23 |
++| 4 | `worker-show --dispatch <dispatch> --json` field names: the field that can carry `session_join` (a Claude session id, pane key or terminal handle), `agentWait` presence and value, `liveness.verdict`, `status`, and whether `dispatch.dispatchedAt`, `dispatch.completedAt` and `dispatch.status` are present with the shapes the static bundle read gives (SQLite `YYYY-MM-DD HH:MM:SS` UTC); also record, for one worker, whether `dispatchedAt` is earlier than the first transcript record of its session, and whether `completedAt` is set for `failed` and `circuit_broken` rows | Rule 5, the join paths of section 7.2, the path-B time window, GQ-108, open item 23 |
+ | 5 | `task-list --ready --run <run> --json` and `task-list --run <run> --json` shapes, and whether a creator field exists | Rule 4 (b), Waiting (b) sub-heading |
+ | 6 | `worktree ps --json`: the worktree path field | Worktree discovery, M3 |
+ | 7 | `worktree list --json` and `worktree current --json` shapes (recorded only; Phase 1 does not call them) | M3 |
+@@ -990,7 +990,7 @@
+ | 20 | Owner decisions GQ-10, GQ-11 (WC-14 approval), GQ-35, GQ-61 and GQ-63 | Step 1.0b | Steps 1.17 to 1.19 do not start |
+ | 21 | PR #422 overlap with WC-14, the never-as-worker list and the #409 dimensions | Step 1.16a | Steps 1.17 to 1.19 do not start; WC-14 stays a deliverable of this PR whatever #422 does |
+ | 22 | Whether Orca workers get tab-map entries (launched through `ccsession`) and which tab-map value equals the item 4 field; and the owner's sign-off on the D9 narrowing of SP-29 | Step 1.0a item 13; step 1.0b | Join path B is not used; a tab-map entry that joins no scoped row gives None; the classify step does not start until the owner signs off D9 or names a stricter rule. Until closed, every no-entry True carries the `origin not proved` note (7.2) |
+-| 23 | The `worker-show` fields that carry a Dispatch row's start and end times, used by the path-B time window (7.2) | Step 1.0a item 4 | No path-B join is made: every path-B match is could not determine with note `pane moved to a later session`, and its transcript is None |
++| 23 | That `worker-show` `dispatch.dispatchedAt`, `dispatch.completedAt` and `dispatch.status` (read statically from the 1.4.245 bundle) carry a Dispatch row's start time, end time and status live, in the parsed form of 7.2 | Step 1.0a item 4 | No path-B join is made: every path-B match is could not determine with note `Dispatch time window not observable`, and its transcript is None |
+ 
+ Total: 23 open items.
+ 
+
+Orchestrator verification output (reproduce it yourself): grep -n '^Total: 23 open items.' docs/designs/orchestrator-mode.md returns one hit; 15.1 item 4 (the row starting `| 4 | `worker-show --dispatch`) contains `dispatch.dispatchedAt`; open item 23 contains `Dispatch time window not observable`. The wording to compare against is research/04-design-fixes-r3.md lines 93-94 (edits 7 and 8) in .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/research/04-design-fixes-r3.md
+Delta diff from the previous reviewed tree (empty on the first review): 
+Earlier blocking findings of this start (empty on the first review): 
+Saved-probe re-check hit locations (may be empty): 
+
+Do not trust the implementer's report.
+
+First mark each earlier blocking finding resolved, open or regressed from the diff. Then, for each AC, mark it met or unmet. Require citations: every AC you mark, met or unmet, carries a `path:line` or `Ti.ACk@path:line` citation, and an unmet mark lists the finding ids behind it. Do not return a verdict; the orchestrator computes it.
+
+For every finding answer four questions, each yes or no:
+1. ac-outcome-missing: is output an AC requires absent, or does it contradict the AC text, or does an evidence claim you could not verify have no evidence row?
+2. false-claim: is a claim in delivered text or code false against live source, or does a recipe or instruction followed as written not do what the text says?
+3. harmful-effect: does code or a recipe this task added or changed write, append, chmod or delete tracked or production data, mutate state outside the task's declared outputs, or expose a secret?
+4. quoted-constraint-breach: does the diff violate a quoted plan constraint, out-of-scope, non-goal or non-negotiable item, or an explicit task instruction?
+
+Anchor rule: cite exactly one anchor per yes. ac-outcome-missing: the quoted AC words. false-claim: the live-source path:line holding the contradicting text. harmful-effect: the diff line that is the write. quoted-constraint-breach: the quoted constraint or instruction text. A yes without a valid anchor does not block.
+
+Write one line per finding:
+F<k>.<j> ac=<Ti.ACk|scope> at=<path:line> anchor=<quoted text or path:line> chk=<amiss,false,harm,constraint as y/n> family=<id> fix=<text> [covers=<quoted AC clause or constraint>]: <text>
+Do not write sev=, trigger=, first= or origin=; the orchestrator adds them. Write one status line per earlier blocking finding: F<m>.<j> resolved|open|regressed.
+
+Inside /sc:implement this protocol's severity model governs this review and takes precedence over the session's output style and the copy of it injected into every subagent; only blocking findings may fail an attempt.
+
+You are not given an adviser answer, brief, evidence file or troubleshoot report. Do not read the retry folders (legacy `.dev/implement/<slug>/retries/`, managed `<pkg>/artifacts/retries/`) or `.dev/troubleshoot/`. A citation into either makes the verdict `cannot-verify`.
+The prior-findings slot above carries earlier blocking finding lines that the orchestrator copies byte for byte from `review-*.md` and `repair-*.md`; they reach you as prompt text, not as an evidence file. Do not read those folders to get them, and never cite the slot or the file it came from.

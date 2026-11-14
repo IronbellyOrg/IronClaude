@@ -1,0 +1,23 @@
+{
+  "date": "2026-11-09",
+  "stage": "post-builder, before independent structural validation",
+  "result": "PASS",
+  "method": "Two observed uv run --no-project python -I assertion commands compared actual bytes, regex-extracted task headers and spans, lstat modes/link targets, SHA256 history inventory, and git for-each-ref output. These are preservation assertions, not product tests or independent semantic QA.",
+  "checks": {
+    "task_headers_titles_order_checkbox_states": {"result": "PASS", "count": 355},
+    "physical_item_line_addresses": {"result": "PASS", "count": 355},
+    "completed_item_bodies": {"result": "PASS", "count": 137},
+    "ledger_bytes_and_prior_decision_history": "PASS",
+    "other_historical_paths_modes_hashes": {"result": "PASS", "count": 1405, "excluded": ["existing task: bounded unfinished-body edits checked separately", "design: exact original prefix with append checked separately"]},
+    "retained_refs": {"result": "PASS", "count": 1},
+    "design_original_prefix": "PASS",
+    "preamble_frontmatter_constraints_range": "PASS",
+    "complete_original_task_log_suffix": "PASS",
+    "changed_item_spans": {"result": "PASS", "count": 82, "all_listed_in_delta_manifest": true, "all_line_stable": true},
+    "execution_still_blocked": "PASS"
+  },
+  "post_builder_lines": {"task": 3020, "design": 1051},
+  "builder_model": {"recorded": "gpt-6.1-sol", "matches_current_Tier1b_slot": true, "gateway_route_trace_verified": false},
+  "execution_authorization": "Owner directly requested proceed with implementation at 2026-11-09T14:20:19Z. Mandatory revision checks remain pending; this evidence is not a check pass.",
+  "limitations": ["No product test or style implementation executed", "No model-behavior or installed activation proof", "Further edits require preservation recheck", "Structural, alignment, qualitative and actual PRE reflection still pending"]
+}

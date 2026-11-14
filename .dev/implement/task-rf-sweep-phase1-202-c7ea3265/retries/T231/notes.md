@@ -1,0 +1,2 @@
+fb6d08de425fedd60da287f28de7a901b7613262
+A1 r1-1 F1.1 note .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/tests/consolidated-findings-cycle0.md:84 ac=scope amiss:n,false:n,harm:n,constraint:n TST-F19 (directory mode not recorded) and the weak-test W-RO5 inside TST-F32 (report file mode not read) share the same snapshot function and root cause; the partial overlap is not named in the consolidated file (the defects differ, so keeping them apart is defensible).

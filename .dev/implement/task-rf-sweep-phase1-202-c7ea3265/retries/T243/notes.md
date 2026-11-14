@@ -1,0 +1,3 @@
+c67639231b97aa0427f311708412f12df4a5bc40
+A1 r1-1 F1.1 note .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/test-results/test-sweep-command-summary.md:17 ac=scope amiss:n,false:n,harm:n,constraint:n The implementer's bad-text figures (5 defects, 6 failed, 104 passed) cannot be re-derived from the repository; the reviewer's own 47-mutant run supports the same conclusion.
+A1 r1-1 F1.2 note tests/commands/test_sweep_command.py:94-99 ac=scope amiss:n,false:n,harm:n,constraint:n The injected-report cases are covered only as the "contents stay data" clauses (static-only boundary stated by the item and the limits paragraph).

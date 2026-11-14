@@ -1,0 +1,3 @@
+02047f70b8d7f9b497c1bf65f88a73254a478952
+A1 r1-1 F1.1 note src/superclaude/commands/sweep.md:38 ac=T240.AC1 amiss:n,false:n,harm:n,constraint:n The Options row says the output folder must not overlap "the folders the sweep reads"; commands.py checks only .dev/tasks, ~/.claude/projects and the ccsession orca-tabs folder (a harmless generalisation).
+A1 r1-1 F1.2 note src/superclaude/commands/sweep.md:16 ac=scope amiss:n,false:n,harm:n,constraint:n The never-as-worker pointer is a forward reference: ~/.claude/WORKER-CONTRACT.md does not yet name /sc:sweep (items 12.1 and 12.2 add it; item 11.1's own text requires the line).

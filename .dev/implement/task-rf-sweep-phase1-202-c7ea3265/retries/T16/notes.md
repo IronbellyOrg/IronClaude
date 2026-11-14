@@ -1,0 +1,2 @@
+79518442b319ac2a17c54d45c3133348f52b00cc
+A1 r1-1 F1.1 minor .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/r3-b1/qa-actionability-report.md:38 ac=T16.AC1 amiss:n,false:n,harm:n,constraint:n The report says a grep for aware/naive/timezone hits only line 468 of the design, but line 740 also holds "aware". The claim that matters (no line says aware for now, collected_start, collected_end or mtime) is still true; the blocking count is unaffected.

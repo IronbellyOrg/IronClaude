@@ -1,0 +1,2 @@
+Usage: superclaude sweep run [OPTIONS]
+Options: --run TEXT, --window TEXT [default: 6h], --root TEXT, --output TEXT, --help

@@ -1,0 +1,3 @@
+2665f32cecc78ec6a2d3d8a583fc99ae018ffef9
+A1 r1-1 F1.1 minor .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/r3-b2/qa-domain-accuracy-report.md:61 ac=T42.AC1 amiss:n,false:n,harm:n,constraint:n Two minor notes in the report (M-2 and M-3) lack the file:line evidence or the smallest fix that the preamble asks for. Minor findings never fail the gate.
+A1 r1-1 F1.2 note .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/r3-b2/qa-domain-accuracy-report.md:35 ac=scope amiss:n,false:n,harm:n,constraint:n Finding D-1 says the several-rows text bypasses the incomplete-tail rule; the tail sentence is general and precedes it, so the real defect is an ambiguity between the two rules. Severity is the report agent's own judgment.

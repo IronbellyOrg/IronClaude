@@ -1,0 +1,2 @@
+277b8c8672de436b245c6c90f3bb28a6854cab3d
+A1 r1-1 F1.1 note .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/r3-b3/verify-cycle1-rf-qa-qualitative.md:128,145,156,167 ac=T71.AC1 amiss:n,false:n,harm:n,constraint:n Four cycle-0 PASS ids now read FAIL in this report (qa-crossref-chain-report:C13, qa-evidence-quality-report:C12, qa-internal-consistency-report:C15, qa-numbers-metrics-report:C11), all tied to the stale r3-b3-mechanical.md. Not a defect of this report; it feeds the item 4.20 regression check.
