@@ -1141,7 +1141,9 @@ def _orca_reads(
                 [w for w in raw if isinstance(w, dict)] if isinstance(raw, list) else []
             )
             more = _get(listing.data, "page", "hasMore") is True
-            if len(workers) >= WORKER_LIST_PAGE or more:
+            # The raw row count: a malformed entry dropped above must not hide a full page.
+            raw_count = len(raw) if isinstance(raw, list) else 0
+            if raw_count >= WORKER_LIST_PAGE or more:
                 state.truncated = True
         tasks_by_id: dict[str, dict] = {}
         ready_tasks: list[dict] = []

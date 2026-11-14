@@ -1283,6 +1283,23 @@ def test_collect_worker_list_source_rows_and_truncated(
         assert inp.truncated is expected, count
 
 
+def test_full_worker_page_with_a_malformed_entry_still_sets_truncated(
+    sweep_root, patch_orca, patch_git, clock
+):
+    # Issue 547 (review thread on PR 539): 99 valid rows plus one non-object entry is a
+    # full page of 100 raw rows; dropping the bad entry must not hide the full page.
+    good = _rows([did(i) for i in range(99)])
+    _stock_run(patch_orca, RUN1, good)
+    patch_orca.respond(
+        wl(RUN1),
+        {"workers": [*good, "not-an-object"], "page": {"limit": 100, "hasMore": False}},
+    )
+
+    inp = _collect(sweep_root, clock)
+
+    assert inp.truncated is True
+
+
 def test_collect_worker_list_source_rows_budget_spent_before_r2(
     sweep_root, patch_orca, patch_git, clock, monkeypatch
 ):
