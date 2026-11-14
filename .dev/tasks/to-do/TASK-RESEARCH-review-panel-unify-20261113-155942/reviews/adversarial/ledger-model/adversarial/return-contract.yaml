@@ -1,0 +1,73 @@
+# sc:adversarial return contract, Mode A, depth standard, conflict C13 (ledger-model)
+# Written by the debate-orchestrator at the end of the pipeline; the schema fields are exactly those of the protocol.
+#
+# Context that does not fit the schema (kept as comments so strict consumers are unaffected):
+# - Convergence: 33 of 37 debated diff points agreed (0.892; 24 on a single variant, 9 on a hybrid/open answer);
+#   taxonomy coverage gate PASSED; invariant probe gate BLOCKED (10 HIGH UNADDRESSED); debate status BLOCKED_BY_INVARIANTS.
+#   At --depth standard there is no Round 3, so the HIGH items were not debated. Hence status "partial", not "success".
+# - Base selection: Variant B (variant-2-original.md, Option B "find once, then verify-only"), combined score 0.9804 against
+#   0.9724 for Variant A (margin 0.8 points, inside the 5% band); decided by tiebreaker level 1 (points won 14 versus 10).
+#   Excluding the five structural points, the count is B 9 versus A 10, which would send the tiebreaker to level 2 (A leads on
+#   correctness criteria 5 versus 4). The selection is a narrow result; both advocates ended recommending a staged hybrid.
+# - unresolved_conflicts counts the four diff points on which the advocates' final positions differ: S-006, C-013, A-002, A-004.
+#   They are listed with both positions in proposal-merged.md ("Open decisions and unresolved conflicts"). Other open items kept
+#   visible there: C-015, A-005, A-007, the SPLIT/NEITHER points, OD-1 to OD-11 and one executor-flagged item
+#   (where refusals[] lives for a round-1 refusal before a ledger exists).
+# - unaddressed_invariants lists the 10 HIGH-severity UNADDRESSED items of the Round 2.5 probe (20 findings in total: 18
+#   UNADDRESSED = 10 HIGH + 7 MEDIUM + 1 LOW, and 2 ADDRESSED in principle). The merged proposal gives INV-003, INV-004,
+#   INV-005 and INV-006 the design status "closed-in-port" (a closure rule is written, conditional on four stated conditions)
+#   and several others "closed-by-design"; none is verified: no acceptance test exists yet, and none was debated.
+# - fallback_mode is false: advocates, fault-finder, scorers, plan reviewer and merge-executor all ran as separate Agent-tool
+#   subagents. One Round 1 Variant A advocate instance never returned and was replaced once (retry), as the error matrix allows.
+# - invocation_method is "task-agent": this run was launched as a debate-orchestrator agent by the calling session.
+return_contract:
+  merged_output_path: "/home/coder/workspaces/worktrees/IronClaude/brainstorm-reflect-panel/.dev/tasks/to-do/TASK-RESEARCH-review-panel-unify-20261113-155942/reviews/adversarial/ledger-model/proposal-merged.md"
+  convergence_score: 0.89
+  artifacts_dir: "/home/coder/workspaces/worktrees/IronClaude/brainstorm-reflect-panel/.dev/tasks/to-do/TASK-RESEARCH-review-panel-unify-20261113-155942/reviews/adversarial/ledger-model/adversarial/"
+  status: "partial"
+  base_variant: "B (variant-2-original.md; Option B: find once, then verify-only)"
+  unresolved_conflicts: 4
+  fallback_mode: false
+  failure_stage: null
+  invocation_method: "task-agent"
+  unaddressed_invariants:
+    - id: "INV-001"
+      category: "interaction_effects"
+      assumption: "Once a would-be PASS with an uncleared row is recorded as FAIL with `unverified`, the FAIL stays FAIL until a reviewer re-checks the rows (`defer` rewrites the stored round to PASS: ledger.py:350-360)"
+      severity: "HIGH"
+    - id: "INV-002"
+      category: "interaction_effects"
+      assumption: "Atomic refusal (nothing recorded) and bounded refusal (two refusals then ESCALATE) are compatible; no counter survives a refusal, so the refuse-and-rerun cycle is unbounded in code"
+      severity: "HIGH"
+    - id: "INV-003"
+      category: "guard_conditions"
+      assumption: "The clearing gate treats any `prior` line as a positive answer; a `prior` of status open or regressed with no finding line would clear the row"
+      severity: "HIGH"
+    - id: "INV-004"
+      category: "guard_conditions"
+      assumption: "\"A valid reviewer gave a `prior` line\" is well defined; priors are collected from reviewers with invalid blocks, duplicate prior ids are not deduplicated, several reviewers are unspecified"
+      severity: "HIGH"
+    - id: "INV-005"
+      category: "interaction_effects"
+      assumption: "A would-be PASS with an uncleared `resolved_check` row, recorded as FAIL with `unverified`, lets the next round clear those rows; the ids are named nowhere and the reviser is sent into a fix cycle with an empty id list"
+      severity: "HIGH"
+    - id: "INV-006"
+      category: "state_variables"
+      assumption: "`ledger revise` runs exactly once per fix cycle with `--new` equal to the next merge's `--doc`; a second run re-maps spans already in new-text coordinates and can mark an untouched row resolved_check"
+      severity: "HIGH"
+    - id: "INV-007"
+      category: "guard_conditions"
+      assumption: "The quorum denominator comes from `--resolution` and the coordinator passes the right file; a reused, empty, mismatched or omitted resolution shrinks or distorts the denominator"
+      severity: "HIGH"
+    - id: "INV-008"
+      category: "collection_boundaries"
+      assumption: "Rows have a span and the span points at the defect; a spanless row can never clear (`hunks_touch(None)` is False) and a duplicated anchor keeps the first occurrence"
+      severity: "HIGH"
+    - id: "INV-009"
+      category: "interaction_effects"
+      assumption: "An `evidence` field on the `prior` line gives mechanical proof of checking and the parsers carry it; v1 drops the key, v2 rejects prior lines, `locate` accepts any occurrence, deletion fixes leave nothing to quote"
+      severity: "HIGH"
+    - id: "INV-010"
+      category: "sufficiency_challenge"
+      assumption: "The consensus package alone yields a loop that cannot certify PASS wrongly, cannot clear a row wrongly and always terminates (falsifying conditions F1 to F6; claim restated as conditional in the merged proposal)"
+      severity: "HIGH"

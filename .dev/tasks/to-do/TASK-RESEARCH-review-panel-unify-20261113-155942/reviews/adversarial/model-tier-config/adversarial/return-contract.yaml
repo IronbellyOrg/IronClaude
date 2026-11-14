@@ -1,0 +1,56 @@
+# sc:adversarial return contract (written on every invocation)
+# Run: Mode A, --depth standard, --focus correctness,risk,test-coverage, conflict C03 (model-tier-config)
+return_contract:
+  merged_output_path: "/home/coder/workspaces/worktrees/IronClaude/brainstorm-reflect-panel/.dev/tasks/to-do/TASK-RESEARCH-review-panel-unify-20261113-155942/reviews/adversarial/model-tier-config/proposal-merged.md"
+  convergence_score: 0.86   # 25 of 29 diff points agreed (86.2%); threshold 0.80; convergence NOT declared (BLOCKED_BY_INVARIANTS)
+  artifacts_dir: "/home/coder/workspaces/worktrees/IronClaude/brainstorm-reflect-panel/.dev/tasks/to-do/TASK-RESEARCH-review-panel-unify-20261113-155942/reviews/adversarial/model-tier-config/adversarial"
+  status: "partial"          # all 5 steps ran; partial because convergence was blocked by 2 HIGH unaddressed invariants, 4 diff points stay unresolved, and the merge carries 3 open decisions
+  base_variant: "A"          # Variant A = proposal-a (synth-04 Option A: central panel targets anthropic-only, class launch). Advocates were general-purpose agents on the default model with no persona, so there is no model:persona pair.
+  unresolved_conflicts: 4    # S-007, C-001, C-006, X-003 (see details.unresolved_conflict_ids)
+  fallback_mode: false       # advocates, fault-finder, two scorers and the merge-executor were dispatched with the Agent tool as separate agents
+  failure_stage: null
+  invocation_method: "task-agent"   # run as a dispatched debate-orchestrator agent that read the protocol files; the Skill tool was not used
+  unaddressed_invariants:
+    - id: "INV-009"
+      category: "interaction_effects"
+      assumption: "The dispatch rule 'every Agent call carries model == launch' can be added to the reflect skill without breaking shadow mode (SKILL.md:342 'Dispatch is the legacy dispatch'; SKILL.md:341 panel_parity compares the resolution with the legacy rotation as it ran)"
+      severity: "HIGH"
+    - id: "INV-013"
+      category: "sufficiency_challenge"
+      assumption: "PR 1 alone (select_env flip + launch_binding + dispatch rule) makes every dispatched reviewer launch with a valid class; falsified because the loop prompt (document_review_loop_prompts.md:70) has no instruction to pass model from launch and reflect passes --env anthropic-only itself"
+      severity: "HIGH"
+
+# Supplementary information for the caller (not part of the contract fields above)
+details:
+  convergence_status: "BLOCKED_BY_INVARIANTS"
+  convergence_basis: "agreed label in both advocates' final Round 2 tables; shared assumptions included; 25/29"
+  rounds_run: ["round_1_parallel", "round_2_sequential", "round_2_5_invariant_probe"]
+  round_3_run: false   # depth standard has no third round, so the two HIGH invariants were not debated
+  taxonomy_coverage_gate: "passed (L1, L2, L3 all debated; no forced round)"
+  unresolved_conflict_ids: ["S-007", "C-001", "C-006", "X-003"]
+  base_selection:
+    base: "Variant A (proposal-a)"
+    quant_score: {A: 1.000, B: 0.993}
+    qual_score: {A: "25/30 = 0.833", B: "23/30 = 0.767"}
+    final_score: {A: 0.9167, B: 0.8798}
+    margin_percent: 3.68
+    tiebreaker: "level 1 debate performance: A won 10 diff points, B none outright; 7 MERGE, 4 NEITHER, 4 unresolved"
+    sensitivity: "with all four position-bias disagreements resolved to the Pass 2 verdict the totals tie 24/24 and the tiebreaker still selects A"
+  open_decisions_in_merged_output:
+    - "whether a resolved-stage payload without launch_binding is accepted as 'not recorded' or fails (Change 13)"
+    - "which count reviewers_requested records and which reviewers drop when N_eff is below the resolution count (Change 17)"
+    - "whether to confirm the INV-009 engine-mode split of the dispatch rule (not debated)"
+    - "O-2 target environment: stays an owner decision, not taken by this document"
+  merge:
+    changes_planned: 19
+    changes_applied: 19
+    changes_failed: 0
+    changes_skipped: 0
+    merge_log_status: "partial"
+    plan_inconsistencies_found_by_merge_executor: 10   # PI-1..PI-10 in merge-log.md
+  process_notes:
+    - "Step 1 diff analysis was written by the orchestrator (no separate analytical agent)."
+    - "Step 4 plan review by a separate analytical agent was not run; the merge-executor validated the plan during Step 5 and recorded PI-1..PI-10."
+    - "Qualitative scoring used two independent evaluator agents (Pass 1 order A,B; Pass 2 order B,A); 4 of 60 verdict pairs disagreed and were re-evaluated by the orchestrator, all four landing on the Pass 1 verdict (sensitivity shown above)."
+    - "Both advocates leaned to a MERGE in Round 1; Round 2 prompts told them to test that shape. Residual risk: shared blind spots (same two documentation fetches; E2 results not re-read; no in-session dispatch observed)."
+    - "diff-analysis.md was written in one write instead of incrementally; the later artifacts were built incrementally."

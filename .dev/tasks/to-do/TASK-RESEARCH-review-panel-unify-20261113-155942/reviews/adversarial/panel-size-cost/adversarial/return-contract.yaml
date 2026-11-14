@@ -1,0 +1,33 @@
+return_contract:
+  merged_output_path: ".dev/tasks/to-do/TASK-RESEARCH-review-panel-unify-20261113-155942/reviews/adversarial/panel-size-cost/proposal-merged.md"
+  convergence_score: 0.80          # 24 of 30 diff points agreed; at the 0.80 threshold but BLOCKED_BY_INVARIANTS
+  artifacts_dir: ".dev/tasks/to-do/TASK-RESEARCH-review-panel-unify-20261113-155942/reviews/adversarial/panel-size-cost/adversarial/"
+  status: "partial"                # all five steps completed; convergence blocked by 3 HIGH UNADDRESSED invariants; 6 diff points unresolved
+  base_variant: "variant-2 (Proposal B, Option B: fix the rubric first, keep the cap at 3, decide the count after H-A)"
+  unresolved_conflicts: 6          # S-002, S-006, C-003, C-010, C-013, C-016
+  fallback_mode: false             # advocates, scorers, fault-finder, plan reviewer and merge-executor were all spawned as separate agents with the Agent tool
+  failure_stage: null
+  invocation_method: "task-agent"  # run by the debate-orchestrator agent launched through the Agent tool
+  unaddressed_invariants:
+    - id: "INV-009"
+      category: "interaction_effects"
+      assumption: "A shortfall-rate rollback tripwire over the first 30 two-reviewer runs is observable (the legacy path writes no panel manifest; shadow is pinned at 3; accrual is about four months)"
+      severity: "HIGH"
+    - id: "INV-012"
+      category: "sufficiency_challenge"
+      assumption: "Skill-path consumers of reflect are advisory or user-run (the task-builder default POST gate is a blocking skill-path consumer that a skill default of two reviewers would move silently; src/superclaude/skills/task-builder/SKILL.md:2217-2236)"
+      severity: "HIGH"
+    - id: "INV-013"
+      category: "sufficiency_challenge"
+      assumption: "Prospective tier_decision.yaml audit keys give clean H-A strata (they are model-written; the E-6 run recorded row 8 against its own calibrated C of 0.68)"
+      severity: "HIGH"
+
+orchestrator_notes:
+  # Not part of the protocol's contract block; extra context for the caller.
+  escalation_figure_after_check: "parsed-sparse flag set in 35 of 39 recorded non-shadow runs (34 of the 38 Tier 2 runs); decisive in 0 certain and at most 1 of 39 (Proposal A's '35 of 39' and Proposal B's '1 certain, at most 5' are both overstated; 29 of the 34 flagged Tier 2 runs have a recorded escalate row 4, 5 or 6 and the E-6 run has calibrated C 0.68)"
+  convergence_detail: "raw 0.80 (24 of 30 points); taxonomy gate passed; invariant-probe gate BLOCKED; status BLOCKED_BY_INVARIANTS; no Round 3 at depth standard"
+  scoring: "quant A 0.9722 / B 0.9511; qual A 26/30 / B 27/30 (dual pass, 2 disagreements re-evaluated); combined A 0.9194 / B 0.9256; margin 0.0061 inside 5 percent; tiebreaker level 1 (debate points won B 6 to A 4) selected B"
+  base_note: "The advocates' Round 2 consensus favoured a narrowed 'A-min' (skill-path default of two reviewers) as the merge base; the protocol selected B by score, and the merged proposal carries A-min as owner-gated Decision D-1"
+  merged_status: "merge-executor reported success (15 of 15 changes, 15 of 15 amendments); orchestrator re-validated structure, forbidden phrases and open-item coverage and corrected one count (16 EDIT sites, not about nine)"
+  corrections_made_during_run: "probe-presence gap (13 of 23 vs 0 of 6) withdrawn as a path-counting artifact (corrected 20 of 23 vs 5 of 6); D2 cited at SKILL.md:318 not :316"
+  tooling_note: "the harness refused a second named teammate for the Round 2 rebuttals, so Round 2 advocates were spawned as unnamed separate agents; the invariant probe, scorers, plan reviewer and merge-executor were also separate agents"
