@@ -12,3 +12,5 @@ T5: start sha=53f08dfada9b1e87d0fdb92f483f1eb8a8d18de0
 T5: complete verdict=compliant ac=T5.AC1,T5.AC2,T5.AC3 evidence=T5.AC1@docs/designs/orchestrator-mode.md:67,T5.AC2@./artifacts/t2-green.log:25,T5.AC3@docs/designs/orchestrator-mode.md:765,notes@./artifacts/retries/T5/notes.md:1-2 extras=lint:skip,typecheck:skip,test:pass files=docs/designs/orchestrator-mode.md
 T6: start sha=2b4765e4baf07f0b9e3915cc14dcbf9b4d6d4e69
 T6: complete verdict=compliant ac=T6.AC1,T6.AC2,T6.AC3 evidence=T6.AC1@tests/sweep/test_probes_allowlist.py:1300,T6.AC2@src/superclaude/cli/sweep/probes.py:1145-1146,T6.AC3@./artifacts/t6-green.log:25 extras=lint:pass,typecheck:skip,test:pass files=src/superclaude/cli/sweep/probes.py,tests/sweep/test_probes_allowlist.py
+FINAL: pass evidence=src/superclaude/cli/sweep/probes.py:68-80,src/superclaude/cli/sweep/probes.py:1145-1146,tests/sweep/test_git_config_hole.py:104,./artifacts/t6-green.log:25 state=66e69836986c44f66927f0d734f496cf03c1b0ffc8800d33ccdd4f68f86735a8
+ARCHIVE: start id=TASK-WF-fixIssue547InSrc-20261114-152015 token=d4ef82c011b64408
