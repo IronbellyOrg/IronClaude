@@ -1,0 +1,28 @@
+{
+ "ok": false,
+ "violations": [
+  {
+   "rule": "ground_truth_text",
+   "where": "board.cmd",
+   "hit": "claude-gw-ti"
+  },
+  {
+   "rule": "ground_truth_text",
+   "where": "board.cmd",
+   "hit": "claude-gw-ti"
+  }
+ ],
+ "gt_checked": true,
+ "notes": [
+  {
+   "rule": "anchor_gt_overlap",
+   "id": "f-2",
+   "hit": " claude-gw-t"
+  },
+  {
+   "rule": "anchor_gt_overlap",
+   "id": "f-3",
+   "hit": " issue worke"
+  }
+ ]
+}

@@ -171,3 +171,32 @@ def test_brief_a1_long_overlap_still_violates(world):
     rc, a = audit(world, pd, gt)
     assert rc == 1
     assert any(x["rule"] == "ground_truth_text" and x["where"] == "brief_a1" for x in a["violations"])
+
+
+def _pv(value, who="sweeper"):
+    import sys
+    sys.path.insert(0, str(R2 / "py"))
+    import audits
+    return audits.path_violation(value, who, None)
+
+
+def test_sweeper_may_read_the_two_helper_files_panel_post_sources():
+    base = "/x/20261113-collab/r2-idle-shift-sweeper/bin/lib/"
+    for f in ("common.sh", "validate-msg.sh"):
+        assert _pv('{"file_path":"%s%s"}' % (base, f)) is None
+
+
+def test_sweeper_other_collab_files_stay_violations():
+    base = "/x/20261113-collab/r2-idle-shift-sweeper/"
+    assert _pv('{"file_path":"%sconfig/catalogue.json"}' % base) == "collab_dir"
+    assert _pv('{"file_path":"%sbin/lib/other.sh"}' % base) == "collab_dir"
+    assert _pv('{"file_path":"%sbin/lib/common.sh"}' % base, "reviewer") == "collab_dir"
+
+
+def test_cmd_single_identifier_overlap_is_a_note(world):
+    # f4 alias rows: `grep claude-gw-tier ...` shared " claude-gw-t" with a plan quote (fix 2026-11-14)
+    pd, _, gt = pkgdir(world)
+    gt.write_text(json.dumps({"items": [{"id": "GT1", "plan_quote": "map to claude-gw-tier1a, and more", "description": "d"}]}))
+    (pd / "board/msgs/board.jsonl").write_text(json.dumps({"cmd": "grep -rn claude-gw-tier1a src"}) + "\n")
+    rc, a = audit(world, pd, gt)
+    assert rc == 0 and any(n["rule"] == "cmd_identifier_overlap" for n in a["notes"])

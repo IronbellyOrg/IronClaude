@@ -80,6 +80,11 @@ def load_transcript(p: Path):
 def path_violation(value: str, who: str, own_post: str | None) -> str | None:
     if who == "sweeper" and own_post and own_post in value:
         return None
+    # fix 2026-11-14: panel-post's first line sources these two helper files by absolute path, so a sweeper that reads panel-post
+    # (allowed) and follows that line reads them. They are the tool's own code and hold no ground truth; any other file under the
+    # collab dir stays a violation.
+    if who == "sweeper" and re.search(r"/20261113-collab/r2-idle-shift-sweeper/bin/lib/(common|validate-msg)\.sh\"?\}?$", value):
+        return None
     rules = [(r"ground-truth[^/\s'\"]*\.json", "ground_truth"), (r"20261111-a1", "eval_dir"),
              (r"20261113-collab", "collab_dir"), (r"\.dev/reflect(/|\b)", "reflect")]
     if who == "reviewer":
@@ -170,7 +175,10 @@ def run(pkgdir: Path, gt_paths: list[str]) -> dict:
         # a rendered delivery is the fixed template + catalogue text + the board line's fields: covered above
         for where, t in texts:
             hit = gt_hit(t, wins)
-            if hit:
+            if hit and where == "board.cmd" and not re.search(r"\s", hit.strip()):
+                # fix 2026-11-14: a grep for one identifier (" claude-gw-t...") is a coordinate, not ground-truth prose; two or more words stay a violation
+                notes.append({"rule": "cmd_identifier_overlap", "where": where, "hit": hit})
+            elif hit:
                 v.append({"rule": "ground_truth_text", "where": where, "hit": hit})
     res = {"ok": not v, "violations": v, "gt_checked": bool(gt_paths)}
     if carried:
