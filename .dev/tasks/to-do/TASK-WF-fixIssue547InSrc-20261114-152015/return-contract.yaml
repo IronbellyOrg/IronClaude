@@ -1,0 +1,14 @@
+contract_version: "1.1"
+status: success
+slug: TASK-WF-fixIssue547InSrc-20261114-152015
+plan_path: ./TASK-WF-fixIssue547InSrc-20261114-152015.md
+source_path: ./source.md
+source_origin: inline
+strategy: systematic
+depth: standard
+handoff_action: none
+handoff_output_path: null
+reflect_status: partial
+reflect_report_path: ./artifacts/reflect-pre/REPORT.md
+unresolved:
+  - "Reflect ran as a bounded inline Tier 1 pass (no calibrator or evidence-validator agent); see artifacts/reflect-pre/REPORT.md."

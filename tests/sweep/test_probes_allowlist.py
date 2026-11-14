@@ -91,7 +91,18 @@ _ID_RES = {
     "<run>": re.compile(r"run_[0-9a-f]{12}"),
     "<dispatch>": re.compile(r"ctx_[0-9a-f]{12}"),
 }
-GIT_STATUS = ("status", "--porcelain=v1", "-z", "--branch", "--untracked-files=all")
+GIT_STATUS = (
+    "status",
+    "--porcelain=v1",
+    "-z",
+    "--branch",
+    "--untracked-files=all",
+    "--ignore-submodules=all",
+)
+GIT_CONFIG_LIST = ("config", "--show-origin", "--list", "-z")
+GIT_LS_FILES = ("ls-files", "-z")
+GIT_CHECK_ATTR = ("check-attr", "--stdin", "-z", "filter")
+GIT_FSMONITOR_OFF = ["-c", "core.fsmonitor=false"]  # after ``-C <path>`` (issue 547)
 
 CONCRETE_ARGV = tuple(
     tuple(
@@ -164,6 +175,11 @@ class FakeRun:
         self.calls: list[dict] = []
         self.orca: dict[tuple[str, ...], object] = {}
         self.git: object = (0, b"## main\0", b"")
+        self.git_inspect: object = (
+            0,
+            b"",
+            b"",
+        )  # reply to config, ls-files, check-attr
         self.default: object = (1, b"", b"no canned reply")
 
     def reply(self, *args, code=0, out=b"", err=b"", raises=None) -> None:
@@ -172,7 +188,8 @@ class FakeRun:
     def __call__(self, argv, **kwargs):
         self.calls.append({"argv": list(argv), "kwargs": kwargs})
         if argv[0] == "git":
-            reply = self.git
+            # The read-only inspections that precede status (issue 547) see an empty list.
+            reply = self.git if argv[6] == "status" else self.git_inspect
         else:
             reply = self.orca.get(tuple(argv[1:]), self.default)
         if isinstance(reply, BaseException):
@@ -188,7 +205,20 @@ class FakeRun:
 
     @property
     def git_argv(self) -> list[list[str]]:
-        return [c["argv"] for c in self.calls if c["argv"][0] == "git"]
+        """The status calls (the inspections before them are in ``git_inspect_argv``)."""
+        return [
+            c["argv"]
+            for c in self.calls
+            if c["argv"][0] == "git" and c["argv"][6] == "status"
+        ]
+
+    @property
+    def git_inspect_argv(self) -> list[list[str]]:
+        return [
+            c["argv"]
+            for c in self.calls
+            if c["argv"][0] == "git" and c["argv"][6] != "status"
+        ]
 
 
 @pytest.fixture
@@ -361,7 +391,12 @@ def test_allowed_orca_names_seven_verbs():
 def test_other_allowlist_constants_are_pinned():
     assert probes.ORCA_BINARY_DEFAULT == "orca-ide"
     assert probes.FORBIDDEN_TOKENS == frozenset({"--include-remote"})
-    assert probes.ALLOWED_GIT == (GIT_STATUS,)
+    assert probes.ALLOWED_GIT == (
+        GIT_STATUS,
+        GIT_CONFIG_LIST,
+        GIT_LS_FILES,
+        GIT_CHECK_ATTR,
+    )
     assert probes.RUN_ID_RE == r"run_[0-9a-f]{12}"
     assert probes.DISPATCH_ID_RE == r"ctx_[0-9a-f]{12}"
 
@@ -500,7 +535,43 @@ def test_the_one_git_call_is_accepted(fake_run):
     probes._git(Path("/work/tree-a"), *GIT_STATUS, timeout=5.0)
 
     (argv,) = fake_run.git_argv
-    assert argv == ["git", "--no-optional-locks", "-C", "/work/tree-a", *GIT_STATUS]
+    assert argv == [
+        "git",
+        "--no-optional-locks",
+        "-C",
+        "/work/tree-a",
+        *GIT_FSMONITOR_OFF,
+        *GIT_STATUS,
+    ]
+
+
+@pytest.mark.parametrize(
+    "template", [GIT_CONFIG_LIST, GIT_LS_FILES, GIT_CHECK_ATTR], ids=lambda t: t[0]
+)
+def test_the_three_inspection_calls_are_accepted_with_fsmonitor_off(fake_run, template):
+    probes.check_git_args(template)
+
+    probes._git(Path("/work/tree-a"), *template, timeout=5.0)
+
+    (argv,) = fake_run.git_inspect_argv
+    assert argv[:4] == ["git", "--no-optional-locks", "-C", "/work/tree-a"]
+    assert argv[4:6] == GIT_FSMONITOR_OFF
+    assert argv[6:] == list(template)
+
+
+def test_git_passes_stdin_and_returns_bytes_when_asked(fake_run):
+    fake_run.git_inspect = (0, b"a\0filter\0lfs\0", b"")
+
+    out = probes._git(
+        Path("/work/tree-a"), *GIT_CHECK_ATTR, timeout=5.0, stdin=b"a\0", binary=True
+    )
+
+    assert out == b"a\0filter\0lfs\0"
+    assert fake_run.calls[-1]["kwargs"]["input"] == b"a\0"
+    assert isinstance(
+        probes._git(Path("/work/tree-a"), *GIT_CHECK_ATTR, timeout=5.0, stdin=b""),
+        str,
+    )
 
 
 # ===========================================================================================
@@ -593,7 +664,8 @@ def test_full_sweep_runs_one_lock_free_git_status_per_worktree(
     assert [a[:4] for a in fake_run.git_argv] == [
         ["git", "--no-optional-locks", "-C", p] for p in paths
     ]
-    assert all(a[4:] == list(GIT_STATUS) for a in fake_run.git_argv)
+    assert all(a[4:6] == GIT_FSMONITOR_OFF for a in fake_run.git_argv)
+    assert all(a[6:] == list(GIT_STATUS) for a in fake_run.git_argv)
 
 
 # ===========================================================================================
@@ -2013,6 +2085,128 @@ def test_read_worktree_untracked_dev_tasks_path_is_unsaved_and_marks_the_package
     (package,) = state.packages
     assert package.id == "pkg"
     assert package.active is True
+
+
+# ===========================================================================================
+# Issue 547: a worktree where a git filter could run is not read
+# ===========================================================================================
+
+LFS_CONFIG = b"file:/etc/gitconfig\0filter.lfs.clean\ngit-lfs clean -- %f\0"
+SELECTED = b"a.txt\0filter\0lfs\0"
+NOT_SELECTED = b"a.txt\0filter\0unspecified\0"
+
+
+def _verbs(calls) -> list[str]:
+    return [c["args"][0] for c in calls]
+
+
+def test_no_filter_driver_means_status_runs_after_one_config_read(
+    sweep_root, patch_git
+):
+    patch_git.respond_inspect(sweep_root.root, "config", b"file:/x\0core.bare\nfalse\0")
+
+    _state, row = probes.read_worktree(sweep_root.root, probes.Budget())
+
+    assert row.coverage == "read"
+    assert _verbs(patch_git.precheck_calls) == ["config"]
+    assert _verbs(patch_git.calls) == ["status"]
+
+
+def test_driver_selected_by_no_tracked_path_still_reads_status(sweep_root, patch_git):
+    root = sweep_root.root
+    patch_git.respond_inspect(root, "config", LFS_CONFIG)
+    patch_git.respond_inspect(root, "ls-files", b"a.txt\0")
+    patch_git.respond_inspect(root, "check-attr", NOT_SELECTED)
+
+    _state, row = probes.read_worktree(root, probes.Budget())
+
+    assert row.coverage == "read"
+    assert _verbs(patch_git.precheck_calls) == ["config", "ls-files", "check-attr"]
+    assert _verbs(patch_git.calls) == ["status"]
+
+
+def test_driver_selected_by_a_tracked_path_skips_status_and_is_unscanned(
+    sweep_root, patch_git
+):
+    root = sweep_root.root
+    patch_git.respond_inspect(root, "config", LFS_CONFIG)
+    patch_git.respond_inspect(root, "ls-files", b"a.txt\0")
+    patch_git.respond_inspect(root, "check-attr", SELECTED)
+
+    state, row = probes.read_worktree(root, probes.Budget())
+
+    assert patch_git.calls == []  # no status call was made
+    assert row.coverage == "unscanned"
+    assert row.unscanned == probes.FILTER_REASON == "git filter could run a program"
+    assert state.status_read is False
+
+
+def test_driver_name_keeps_its_case_when_matched_against_the_attribute(
+    sweep_root, patch_git
+):
+    root = sweep_root.root
+    config = b"file:/x\0filter.LFS.process\nsomething\0"
+    patch_git.respond_inspect(root, "config", config)
+    patch_git.respond_inspect(root, "ls-files", b"a.txt\0")
+    patch_git.respond_inspect(root, "check-attr", b"a.txt\0filter\0LFS\0")
+
+    _state, row = probes.read_worktree(root, probes.Budget())
+
+    assert row.unscanned == probes.FILTER_REASON
+    assert patch_git.calls == []
+
+
+def test_a_later_empty_entry_removes_the_driver(sweep_root, patch_git):
+    config = (
+        b"file:/a\0filter.x.clean\ncmd\0file:/b\0filter.x.clean\n\0"
+        b"file:/c\0filter.y.smudge\ncmd\0"  # smudge never runs during status
+    )
+    patch_git.respond_inspect(sweep_root.root, "config", config)
+
+    _state, row = probes.read_worktree(sweep_root.root, probes.Budget())
+
+    assert row.coverage == "read"
+    assert _verbs(patch_git.precheck_calls) == ["config"]
+
+
+@pytest.mark.parametrize(
+    ("verb", "output"),
+    [
+        ("config", probes.GitCallFailed("git exited 128")),
+        ("config", b"unpaired"),  # odd number of fields: unclear, refused
+        ("ls-files", probes.GitCallFailed("git exited 128")),
+        ("check-attr", probes.GitCallFailed("git exited 128")),
+        ("check-attr", b"a.txt\0filter\0"),  # not a multiple of three: unclear
+    ],
+    ids=["config-fails", "config-odd", "ls-files-fails", "attr-fails", "attr-odd"],
+)
+def test_a_failed_or_unclear_inspection_is_refused_as_not_readable(
+    sweep_root, patch_git, verb, output
+):
+    root = sweep_root.root
+    patch_git.respond_inspect(root, "config", LFS_CONFIG)
+    patch_git.respond_inspect(root, "ls-files", b"a.txt\0")
+    patch_git.respond_inspect(root, verb, output)
+
+    _state, row = probes.read_worktree(root, probes.Budget())
+
+    assert row.coverage == "unscanned"
+    assert row.unscanned == "worktree not readable"
+    assert patch_git.calls == []
+
+
+def test_tracked_paths_reach_check_attr_byte_for_byte(sweep_root, patch_git):
+    root = sweep_root.root
+    paths = b"\xff-not-utf8.txt\0b.txt\0"
+    patch_git.respond_inspect(root, "config", LFS_CONFIG)
+    patch_git.respond_inspect(root, "ls-files", paths)
+    patch_git.respond_inspect(root, "check-attr", b"x\0filter\0unspecified\0" * 2)
+
+    probes.read_worktree(root, probes.Budget())
+
+    check_attr = patch_git.precheck_calls[-1]
+    assert check_attr["args"][0] == "check-attr"
+    assert check_attr["stdin"] == paths
 
 
 # ===========================================================================================

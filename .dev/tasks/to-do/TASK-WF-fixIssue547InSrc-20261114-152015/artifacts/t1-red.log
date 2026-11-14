@@ -1,0 +1,76 @@
+============================= test session starts ==============================
+platform linux -- Python 3.11.15, pytest-9.2.0, pluggy-1.7.0
+SuperClaude: 5.0.0
+rootdir: /home/coder/workspaces/worktrees/IronClaude/sweep-git-fix
+configfile: pyproject.toml
+plugins: superclaude-5.0.0, anyio-4.16.0
+collected 10 items
+
+tests/sweep/test_git_config_hole.py FFFFFFF.FF                           [100%]
+
+=================================== FAILURES ===================================
+_________________ test_fsmonitor_in_shared_config_does_not_run _________________
+tests/sweep/test_git_config_hole.py:112: in test_fsmonitor_in_shared_config_does_not_run
+    assert not marker.exists()
+E   AssertionError: assert not True
+E    +  where True = exists()
+E    +    where exists = PosixPath('/tmp/pytest-of-coder/pytest-99/test_fsmonitor_in_shared_confi0/marker').exists
+_______________ test_fsmonitor_through_include_path_does_not_run _______________
+tests/sweep/test_git_config_hole.py:126: in test_fsmonitor_through_include_path_does_not_run
+    assert not marker.exists()
+E   AssertionError: assert not True
+E    +  where True = exists()
+E    +    where exists = PosixPath('/tmp/pytest-of-coder/pytest-99/test_fsmonitor_through_include0/marker').exists
+___________________ test_per_worktree_fsmonitor_does_not_run ___________________
+tests/sweep/test_git_config_hole.py:139: in test_per_worktree_fsmonitor_does_not_run
+    assert not marker.exists()
+E   AssertionError: assert not True
+E    +  where True = exists()
+E    +    where exists = PosixPath('/tmp/pytest-of-coder/pytest-99/test_per_worktree_fsmonitor_do0/marker').exists
+____________ test_fsmonitor_from_git_config_count_env_does_not_run _____________
+tests/sweep/test_git_config_hole.py:153: in test_fsmonitor_from_git_config_count_env_does_not_run
+    assert not marker.exists()
+E   AssertionError: assert not True
+E    +  where True = exists()
+E    +    where exists = PosixPath('/tmp/pytest-of-coder/pytest-99/test_fsmonitor_from_git_config0/marker').exists
+__________ test_fsmonitor_from_git_config_parameters_env_does_not_run __________
+tests/sweep/test_git_config_hole.py:165: in test_fsmonitor_from_git_config_parameters_env_does_not_run
+    assert not marker.exists()
+E   AssertionError: assert not True
+E    +  where True = exists()
+E    +    where exists = PosixPath('/tmp/pytest-of-coder/pytest-99/test_fsmonitor_from_git_config1/marker').exists
+__________ test_filter_clean_selected_by_a_tracked_path_does_not_run ___________
+tests/sweep/test_git_config_hole.py:187: in test_filter_clean_selected_by_a_tracked_path_does_not_run
+    assert not marker.exists()
+E   AssertionError: assert not True
+E    +  where True = exists()
+E    +    where exists = PosixPath('/tmp/pytest-of-coder/pytest-99/test_filter_clean_selected_by_0/marker').exists
+_________ test_filter_process_selected_by_a_tracked_path_does_not_run __________
+tests/sweep/test_git_config_hole.py:204: in test_filter_process_selected_by_a_tracked_path_does_not_run
+    assert not marker.exists()
+E   AssertionError: assert not True
+E    +  where True = exists()
+E    +    where exists = PosixPath('/tmp/pytest-of-coder/pytest-99/test_filter_process_selected_b0/marker').exists
+____________________ test_submodule_fsmonitor_does_not_run _____________________
+tests/sweep/test_git_config_hole.py:250: in test_submodule_fsmonitor_does_not_run
+    assert not marker.exists()
+E   AssertionError: assert not True
+E    +  where True = exists()
+E    +    where exists = PosixPath('/tmp/pytest-of-coder/pytest-99/test_submodule_fsmonitor_does_0/marker').exists
+___________________ test_submodule_local_filter_does_not_run ___________________
+tests/sweep/test_git_config_hole.py:267: in test_submodule_local_filter_does_not_run
+    assert not marker.exists()
+E   AssertionError: assert not True
+E    +  where True = exists()
+E    +    where exists = PosixPath('/tmp/pytest-of-coder/pytest-99/test_submodule_local_filter_do0/marker').exists
+=========================== short test summary info ============================
+FAILED tests/sweep/test_git_config_hole.py::test_fsmonitor_in_shared_config_does_not_run
+FAILED tests/sweep/test_git_config_hole.py::test_fsmonitor_through_include_path_does_not_run
+FAILED tests/sweep/test_git_config_hole.py::test_per_worktree_fsmonitor_does_not_run
+FAILED tests/sweep/test_git_config_hole.py::test_fsmonitor_from_git_config_count_env_does_not_run
+FAILED tests/sweep/test_git_config_hole.py::test_fsmonitor_from_git_config_parameters_env_does_not_run
+FAILED tests/sweep/test_git_config_hole.py::test_filter_clean_selected_by_a_tracked_path_does_not_run
+FAILED tests/sweep/test_git_config_hole.py::test_filter_process_selected_by_a_tracked_path_does_not_run
+FAILED tests/sweep/test_git_config_hole.py::test_submodule_fsmonitor_does_not_run
+FAILED tests/sweep/test_git_config_hole.py::test_submodule_local_filter_does_not_run
+========================= 9 failed, 1 passed in 0.87s ==========================

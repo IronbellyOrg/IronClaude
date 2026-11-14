@@ -59,7 +59,9 @@ class _RunRecorder:
         self.calls.append(
             {"argv": list(argv), "kwargs": kwargs, "env": kwargs.get("env")}
         )
-        return SimpleNamespace(returncode=0, stdout=b"## main\0", stderr=b"")
+        # Only status prints a branch header; the inspections before it (issue 547) see none.
+        stdout = b"## main\0" if argv[6] == "status" else b""
+        return SimpleNamespace(returncode=0, stdout=stdout, stderr=b"")
 
 
 @pytest.fixture
@@ -85,7 +87,8 @@ def test_git_argv_and_env_are_lock_free(recorder, monkeypatch):
     assert argv[1] == "--no-optional-locks"
     assert argv[2] == "-C"
     assert argv[3] == str(worktree)
-    assert argv[4:] == list(STATUS_ARGS)
+    assert argv[4:6] == ["-c", "core.fsmonitor=false"]
+    assert argv[6:] == list(STATUS_ARGS)
     assert call["env"]["GIT_OPTIONAL_LOCKS"] == "0"
     assert call["kwargs"]["timeout"] == 5.0
     assert call["kwargs"]["check"] is False
@@ -151,10 +154,15 @@ def test_collect_reaches_git_with_a_lock_free_argv_for_each_worktree(
     _collect(sweep_root, fixed_now)
 
     expected = [sweep_root.root.resolve(), *(p.resolve() for p in others)]
-    assert [c["argv"][3] for c in recorder.calls] == [str(p) for p in expected]
-    for call in recorder.calls:
+    git_calls = [c for c in recorder.calls if c["argv"][0] == "git"]
+    status_calls = [c for c in git_calls if c["argv"][6] == "status"]
+    assert [c["argv"][3] for c in status_calls] == [str(p) for p in expected]
+    # Every worktree is inspected (config) before its one status; no driver, no more calls.
+    assert [c["argv"][6] for c in git_calls] == ["config", "status"] * len(expected)
+    for call in status_calls:
         assert call["argv"][:3] == ["git", "--no-optional-locks", "-C"]
-        assert call["argv"][4:] == list(STATUS_ARGS)
+        assert call["argv"][4:6] == ["-c", "core.fsmonitor=false"]
+        assert call["argv"][6:] == list(STATUS_ARGS)
         assert call["env"]["GIT_OPTIONAL_LOCKS"] == "0"
 
 

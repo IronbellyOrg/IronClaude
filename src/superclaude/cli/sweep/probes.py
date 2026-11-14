@@ -61,10 +61,24 @@ ALLOWED_ORCA: tuple[tuple[str, ...], ...] = (
 
 FORBIDDEN_TOKENS = frozenset({"--include-remote"})  # rejected in any position
 
-# The one allowed git call; the seam prepends ``git --no-optional-locks -C <path>``.
+# The allowed git calls; the seam prepends
+# ``git --no-optional-locks -C <path> -c core.fsmonitor=false``. Index 0 is the status
+# call (submodules are ignored: a submodule's own config could start a program, issue 547).
+# Indexes 1 to 3 are the read-only inspections that decide whether a git filter could run.
 ALLOWED_GIT: tuple[tuple[str, ...], ...] = (
-    ("status", "--porcelain=v1", "-z", "--branch", "--untracked-files=all"),
+    (
+        "status",
+        "--porcelain=v1",
+        "-z",
+        "--branch",
+        "--untracked-files=all",
+        "--ignore-submodules=all",
+    ),
+    ("config", "--show-origin", "--list", "-z"),
+    ("ls-files", "-z"),
+    ("check-attr", "--stdin", "-z", "filter"),
 )
+CONFIG_LIST, LS_FILES, CHECK_ATTR = ALLOWED_GIT[1], ALLOWED_GIT[2], ALLOWED_GIT[3]
 
 ORCA_VERSION_FILE = Path("/opt/Orca/resources/app.asar.unpacked/out/package.json")
 # Byte limits; a limit is hit only when a size is over it.
@@ -298,19 +312,37 @@ def _orca(*args: str, timeout: float) -> OrcaResult:
     return OrcaResult("call_failed", None, "orca call failed (invalid response)")
 
 
-def _git(cwd: Path, *args: str, timeout: float) -> str:
-    """Run the allowed git call in ``cwd`` and return its stdout as text.
+def _git(
+    cwd: Path,
+    *args: str,
+    timeout: float,
+    stdin: bytes | None = None,
+    binary: bool = False,
+) -> str | bytes:
+    """Run an allowed git call in ``cwd`` and return its stdout (text, or bytes if ``binary``).
 
-    The argv always starts ``git --no-optional-locks -C <cwd>`` and the child runs with
-    ``GIT_OPTIONAL_LOCKS=0``, so a caller cannot build a git argv without them.
+    The argv always starts ``git --no-optional-locks -C <cwd> -c core.fsmonitor=false`` and
+    the child runs with ``GIT_OPTIONAL_LOCKS=0``, so a caller cannot build a git argv
+    without them. Fsmonitor is always off: a command named by repository configuration or
+    by the inherited environment would otherwise run during status (issue 547). ``stdin``
+    is fed to the child; ``binary`` keeps paths that are not valid UTF-8 intact.
     """
     check_git_args(args)
-    argv = ["git", "--no-optional-locks", "-C", str(cwd), *args]
+    argv = [
+        "git",
+        "--no-optional-locks",
+        "-C",
+        str(cwd),
+        "-c",
+        "core.fsmonitor=false",
+        *args,
+    ]
     env = {**os.environ, "GIT_OPTIONAL_LOCKS": "0"}
+    extra = {} if stdin is None else {"input": stdin}
     # shortcut: same as ``_orca``: run buffers the output; see the note there (owner ruling 2026-11-12).
     try:
         proc = subprocess.run(
-            argv, capture_output=True, timeout=timeout, check=False, env=env
+            argv, capture_output=True, timeout=timeout, check=False, env=env, **extra
         )
     except subprocess.TimeoutExpired as exc:
         raise GitCallFailed(f"timeout after {timeout:g} s") from exc
@@ -323,7 +355,7 @@ def _git(cwd: Path, *args: str, timeout: float) -> str:
         raise GitCallFailed(
             f"git exited {proc.returncode}" + (f": {detail[0]}" if detail else "")
         )
-    return proc.stdout.decode("utf-8", "replace")
+    return proc.stdout if binary else proc.stdout.decode("utf-8", "replace")
 
 
 # The result key that must hold a list in each captured list reply (steps 1.0a and 1.4).
@@ -918,6 +950,60 @@ def _package_active(pkg: PackageRecord, changed: tuple[str, ...]) -> bool:
     return any(p.startswith(prefixes) for p in changed)
 
 
+FILTER_REASON = "git filter could run a program"
+
+
+def _filter_drivers(config: bytes) -> set[bytes]:
+    """Filter driver names whose effective ``clean`` or ``process`` command is non-empty.
+
+    ``config`` is ``git config --show-origin --list -z`` output: for each entry the origin,
+    then ``key\\nvalue``. Anything else raises ``GitCallFailed`` (an unclear list is refused).
+    """
+    parts = config.split(b"\0")
+    if parts and parts[-1] == b"":
+        parts.pop()
+    if len(parts) % 2:
+        raise GitCallFailed("unreadable git configuration")
+    effective: dict[bytes, bytes] = {}
+    for entry in parts[1::2]:
+        key, _, value = entry.partition(b"\n")
+        effective[key] = value  # a later entry overrides an earlier one
+    return {
+        key[len(b"filter.") : key.rindex(b".")]
+        for key, value in effective.items()
+        if value
+        and key.startswith(b"filter.")
+        and key.endswith((b".clean", b".process"))
+        and key.count(b".") >= 2
+    }
+
+
+def _filter_blocks_status(path: Path, timeout: float) -> bool:
+    """True when a git filter with a command is selected by a tracked path of ``path``.
+
+    ``git status`` runs that command for a file it has to re-read. The three calls only
+    read; each runs with fsmonitor off (``_git``). A driver defined only in a submodule's
+    own config is not seen here; ``--ignore-submodules=all`` on the status call closes it.
+    Raises ``GitCallFailed`` when any call fails or its output cannot be parsed.
+    """
+    # shortcut: a filter named only in a submodule's own config is not seen here; the status
+    # call's --ignore-submodules=all closes it. Upgrade if submodule state is ever reported.
+    drivers = _filter_drivers(_git(path, *CONFIG_LIST, timeout=timeout, binary=True))
+    if not drivers:
+        return False
+    tracked = _git(path, *LS_FILES, timeout=timeout, binary=True)
+    if not tracked:
+        return False
+    attrs = _git(path, *CHECK_ATTR, timeout=timeout, stdin=tracked, binary=True).split(
+        b"\0"
+    )
+    if attrs and attrs[-1] == b"":
+        attrs.pop()
+    if len(attrs) % 3:  # path, attribute, value per tracked path
+        raise GitCallFailed("unreadable git attributes")
+    return any(value in drivers for value in attrs[2::3])
+
+
 def _read_worktree(
     path: Path, budget: Budget
 ) -> tuple[WorktreeState, tuple[SourceCoverage, ...]]:
@@ -935,6 +1021,9 @@ def _read_worktree(
         state, row = _failed_worktree(path, packages, name, reason)
         return state, (row, *package_rows)
     try:
+        if _filter_blocks_status(path, timeout):
+            state, row = _failed_worktree(path, packages, name, FILTER_REASON)
+            return state, (row, *package_rows)
         raw = _git(path, *ALLOWED_GIT[0], timeout=timeout)
     except GitCallFailed as exc:
         cut = str(exc).startswith("timeout") and budget.cut()

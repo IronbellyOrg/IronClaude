@@ -1,0 +1,8 @@
+53f08dfada9b1e87d0fdb92f483f1eb8a8d18de0
+## family design-doc-stale-allowlist (probe for r1-1)
+defect form: the design doc still describes ALLOWED_GIT as one template or the seam argv without -c
+command: grep -nE 'ALLOWED_GIT|one allowed git' docs/designs/orchestrator-mode.md
+before: 47:and starts the child with `env={**os.environ, "GIT_OPTIONAL_LOCKS": "0"}`. `args` must equal the single `ALLOWED_GIT`|67:| GQ-110 | Exactly one `git status --porcelain=v1 -z --branch --untracked-files=all --ignore-submodules=all` per work|182: |   ALLOWED_GIT (1)          package_state                                          ||386:def check_git_args(args: tuple[str, ...]) -> None            # ValueError unless == ALLOWED_GIT[0]|543:ALLOWED_GIT: tuple[tuple[str, ...], ...] = (|797:| FR-015 | `mark_shared_packages`; `--untracked-files=all` in `ALLOWED_GIT` (2.2 GQ-101, 7.3) | `sweep/test_classify|940:| 1.4a | | `probes._git`, `ALLOWED_GIT`, `check_git_args`, and `tests/sweep/test_readonly.py` with the NFR-002 recor|
+coupled sites: every hit of the command
+after: 47:and starts the child with `env={**os.environ, "GIT_OPTIONAL_LOCKS": "0"}`. Fsmonitor is always of|67:| GQ-110 | Exactly one `git status --porcelain=v1 -z --branch --untracked-files=all --ignore-subm|182: |   ALLOWED_GIT (4)          package_state                                          ||386:def check_git_args(args: tuple[str, ...]) -> None            # ValueError unless args is an ALLO|543:ALLOWED_GIT: tuple[tuple[str, ...], ...] = (|797:| FR-015 | `mark_shared_packages`; `--untracked-files=all` in `ALLOWED_GIT` (2.2 GQ-101, 7.3) | |940:| 1.4a | | `probes._git`, `ALLOWED_GIT`, `check_git_args`, and `tests/sweep/test_readonly.py` wi|
+after: 0 hits of the old phrase

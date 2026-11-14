@@ -50,31 +50,54 @@ class GitFake:
     the ``env`` that the real ``_git`` would build. ``responses`` maps a worktree path
     (``str``) to canned porcelain output (``str`` or ``bytes``) or to an exception
     instance that is raised for that worktree (for example ``GitCallFailed``).
+
+    The read-only inspection calls (``config``, ``ls-files``, ``check-attr``) that decide
+    whether a git filter could run are recorded in ``precheck_calls``, not ``calls``, so
+    ``calls`` still holds one status call per worktree. They answer empty output unless
+    ``responses`` holds an entry for the key ``(str(cwd), <verb>)`` (``respond_inspect``).
     """
 
     calls: list[dict] = field(default_factory=list)
-    responses: dict[str, object] = field(default_factory=dict)
+    precheck_calls: list[dict] = field(default_factory=list)
+    responses: dict[object, object] = field(default_factory=dict)
     default: object = ""
 
     def respond(self, cwd: Path | str, output: object) -> None:
         self.responses[str(cwd)] = output
 
-    def __call__(self, cwd, *args, timeout=10.0):
+    def respond_inspect(self, cwd: Path | str, verb: str, output: object) -> None:
+        self.responses[(str(cwd), verb)] = output
+
+    def __call__(self, cwd, *args, timeout=10.0, stdin=None, binary=False):
         from superclaude.cli.sweep import probes
 
         probes.check_git_args(args)  # the real seam rejects anything else first
-        self.calls.append(
-            {
-                "cwd": Path(cwd),
-                "args": tuple(args),
-                "timeout": timeout,
-                "argv": ["git", "--no-optional-locks", "-C", str(cwd), *args],
-                "env": {**os.environ, "GIT_OPTIONAL_LOCKS": "0"},
-            }
-        )
-        out = self.responses.get(str(cwd), self.default)
+        record = {
+            "cwd": Path(cwd),
+            "args": tuple(args),
+            "timeout": timeout,
+            "stdin": stdin,
+            "argv": [
+                "git",
+                "--no-optional-locks",
+                "-C",
+                str(cwd),
+                "-c",
+                "core.fsmonitor=false",
+                *args,
+            ],
+            "env": {**os.environ, "GIT_OPTIONAL_LOCKS": "0"},
+        }
+        if args[0] == "status":
+            self.calls.append(record)
+            out = self.responses.get(str(cwd), self.default)
+        else:
+            self.precheck_calls.append(record)
+            out = self.responses.get((str(cwd), args[0]), b"")
         if isinstance(out, BaseException):
             raise out
+        if binary:
+            return out.encode() if isinstance(out, str) else out
         return out.decode("utf-8", "replace") if isinstance(out, bytes) else out
 
 
