@@ -1,0 +1,515 @@
+{
+ "convergence": 0.96,
+ "points": {
+  "S-001": {
+   "level": "L2",
+   "votes": [
+    "A",
+    "A",
+    "A"
+   ],
+   "agreed": true,
+   "winner": "A"
+  },
+  "S-002": {
+   "level": "L2",
+   "votes": [
+    "A",
+    "B",
+    "B"
+   ],
+   "agreed": true,
+   "winner": "B"
+  },
+  "S-003": {
+   "level": "L2",
+   "votes": [
+    "B",
+    "B",
+    "B"
+   ],
+   "agreed": true,
+   "winner": "B"
+  },
+  "S-004": {
+   "level": "L1",
+   "votes": [
+    "B",
+    "B",
+    "B"
+   ],
+   "agreed": true,
+   "winner": "B"
+  },
+  "S-005": {
+   "level": "L1",
+   "votes": [
+    "C",
+    "C",
+    "C"
+   ],
+   "agreed": true,
+   "winner": "C"
+  },
+  "S-006": {
+   "level": "L1",
+   "votes": [
+    "A",
+    "B",
+    "A"
+   ],
+   "agreed": true,
+   "winner": "A"
+  },
+  "C-001": {
+   "level": "L2",
+   "votes": [
+    "A",
+    "B",
+    "A"
+   ],
+   "agreed": true,
+   "winner": "A"
+  },
+  "C-002": {
+   "level": "L2",
+   "votes": [
+    "B",
+    "B",
+    "B"
+   ],
+   "agreed": true,
+   "winner": "B"
+  },
+  "C-003": {
+   "level": "L2",
+   "votes": [
+    "B",
+    "B",
+    "B"
+   ],
+   "agreed": true,
+   "winner": "B"
+  },
+  "C-004": {
+   "level": "L2",
+   "votes": [
+    "C",
+    "B",
+    "C"
+   ],
+   "agreed": true,
+   "winner": "C"
+  },
+  "C-005": {
+   "level": "L2",
+   "votes": [
+    "C",
+    "C",
+    "C"
+   ],
+   "agreed": true,
+   "winner": "C"
+  },
+  "C-006": {
+   "level": "L2",
+   "votes": [
+    "A",
+    "A",
+    "C"
+   ],
+   "agreed": true,
+   "winner": "A"
+  },
+  "C-007": {
+   "level": "L2",
+   "votes": [
+    "C",
+    "C",
+    "C"
+   ],
+   "agreed": true,
+   "winner": "C"
+  },
+  "C-008": {
+   "level": "L3",
+   "votes": [
+    "A",
+    "B",
+    "A"
+   ],
+   "agreed": true,
+   "winner": "A"
+  },
+  "C-009": {
+   "level": "L3",
+   "votes": [
+    "A",
+    "B",
+    "C"
+   ],
+   "agreed": false,
+   "winner": null
+  },
+  "C-010": {
+   "level": "L3",
+   "votes": [
+    "A",
+    "B",
+    "A"
+   ],
+   "agreed": true,
+   "winner": "A"
+  },
+  "C-011": {
+   "level": "L3",
+   "votes": [
+    "B",
+    "B",
+    "B"
+   ],
+   "agreed": true,
+   "winner": "B"
+  },
+  "C-012": {
+   "level": "L2",
+   "votes": [
+    "B",
+    "B",
+    "B"
+   ],
+   "agreed": true,
+   "winner": "B"
+  },
+  "C-013": {
+   "level": "L3",
+   "votes": [
+    "A",
+    "A",
+    "A"
+   ],
+   "agreed": true,
+   "winner": "A"
+  },
+  "C-014": {
+   "level": "L3",
+   "votes": [
+    "A",
+    "A",
+    "A"
+   ],
+   "agreed": true,
+   "winner": "A"
+  },
+  "C-015": {
+   "level": "L2",
+   "votes": [
+    "C",
+    "C",
+    "C"
+   ],
+   "agreed": true,
+   "winner": "C"
+  },
+  "C-016": {
+   "level": "L1",
+   "votes": [
+    "A",
+    "A",
+    "A"
+   ],
+   "agreed": true,
+   "winner": "A"
+  },
+  "C-017": {
+   "level": "L1",
+   "votes": [
+    "A",
+    "B",
+    "A"
+   ],
+   "agreed": true,
+   "winner": "A"
+  },
+  "C-018": {
+   "level": "L2",
+   "votes": [
+    "C",
+    "B",
+    "C"
+   ],
+   "agreed": true,
+   "winner": "C"
+  },
+  "C-019": {
+   "level": "L3",
+   "votes": [
+    "C",
+    "C",
+    "C"
+   ],
+   "agreed": true,
+   "winner": "C"
+  },
+  "C-020": {
+   "level": "L2",
+   "votes": [
+    "B",
+    "B",
+    "C"
+   ],
+   "agreed": true,
+   "winner": "B"
+  },
+  "C-021": {
+   "level": "L2",
+   "votes": [
+    "A",
+    "C",
+    "B"
+   ],
+   "agreed": false,
+   "winner": null
+  },
+  "C-022": {
+   "level": "L2",
+   "votes": [
+    "A",
+    "A",
+    "A"
+   ],
+   "agreed": true,
+   "winner": "A"
+  },
+  "C-023": {
+   "level": "L2",
+   "votes": [
+    "B",
+    "A",
+    "B"
+   ],
+   "agreed": true,
+   "winner": "B"
+  },
+  "C-024": {
+   "level": "L2",
+   "votes": [
+    "A",
+    "B",
+    "B"
+   ],
+   "agreed": true,
+   "winner": "B"
+  },
+  "C-025": {
+   "level": "L2",
+   "votes": [
+    "NONE",
+    "NONE",
+    "A"
+   ],
+   "agreed": true,
+   "winner": "NONE"
+  },
+  "C-026": {
+   "level": "L2",
+   "votes": [
+    "A",
+    "A",
+    "A"
+   ],
+   "agreed": true,
+   "winner": "A"
+  },
+  "X-001": {
+   "level": "L3",
+   "votes": [
+    "B",
+    "B",
+    "B"
+   ],
+   "agreed": true,
+   "winner": "B"
+  },
+  "X-002": {
+   "level": "L3",
+   "votes": [
+    "A",
+    "A",
+    "A"
+   ],
+   "agreed": true,
+   "winner": "A"
+  },
+  "X-003": {
+   "level": "L2",
+   "votes": [
+    "C",
+    "C",
+    "C"
+   ],
+   "agreed": true,
+   "winner": "C"
+  },
+  "X-004": {
+   "level": "L3",
+   "votes": [
+    "A",
+    "A",
+    "A"
+   ],
+   "agreed": true,
+   "winner": "A"
+  },
+  "X-005": {
+   "level": "L3",
+   "votes": [
+    "A",
+    "B",
+    "A"
+   ],
+   "agreed": true,
+   "winner": "A"
+  },
+  "X-006": {
+   "level": "L1",
+   "votes": [
+    "A",
+    "A",
+    "C"
+   ],
+   "agreed": true,
+   "winner": "A"
+  },
+  "X-007": {
+   "level": "L3",
+   "votes": [
+    "A",
+    "A",
+    "A"
+   ],
+   "agreed": true,
+   "winner": "A"
+  },
+  "X-008": {
+   "level": "L2",
+   "votes": [
+    "A",
+    "A",
+    "A"
+   ],
+   "agreed": true,
+   "winner": "A"
+  },
+  "X-009": {
+   "level": "L3",
+   "votes": [
+    "B",
+    "B",
+    "B"
+   ],
+   "agreed": true,
+   "winner": "B"
+  },
+  "X-010": {
+   "level": "L2",
+   "votes": [
+    "B",
+    "B",
+    "B"
+   ],
+   "agreed": true,
+   "winner": "B"
+  },
+  "X-011": {
+   "level": "L3",
+   "votes": [
+    "A",
+    "A",
+    "NONE"
+   ],
+   "agreed": true,
+   "winner": "A"
+  },
+  "X-012": {
+   "level": "L2",
+   "votes": [
+    "B",
+    "C",
+    "C"
+   ],
+   "agreed": true,
+   "winner": "C"
+  },
+  "X-013": {
+   "level": "L3",
+   "votes": [
+    "A",
+    "A",
+    "A"
+   ],
+   "agreed": true,
+   "winner": "A"
+  },
+  "X-014": {
+   "level": "L3",
+   "votes": [
+    "A",
+    "A",
+    "C"
+   ],
+   "agreed": true,
+   "winner": "A"
+  },
+  "A-001": {
+   "level": "L3",
+   "votes": [
+    "QUALIFY",
+    "QUALIFY",
+    "QUALIFY"
+   ],
+   "agreed": true,
+   "winner": "QUALIFY"
+  },
+  "A-002": {
+   "level": "L3",
+   "votes": [
+    "REJECT",
+    "QUALIFY",
+    "REJECT"
+   ],
+   "agreed": true,
+   "winner": "REJECT"
+  },
+  "A-003": {
+   "level": "L2",
+   "votes": [
+    "QUALIFY",
+    "REJECT",
+    "QUALIFY"
+   ],
+   "agreed": true,
+   "winner": "QUALIFY"
+  },
+  "A-004": {
+   "level": "L2",
+   "votes": [
+    "QUALIFY",
+    "QUALIFY",
+    "QUALIFY"
+   ],
+   "agreed": true,
+   "winner": "QUALIFY"
+  }
+ },
+ "omissions": {
+  "A": [],
+  "B": [],
+  "C": []
+ },
+ "problems": {
+  "A": [],
+  "B": [],
+  "C": []
+ }
+}
