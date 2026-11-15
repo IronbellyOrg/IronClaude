@@ -1,5 +1,7 @@
 # Classification of the 33 owner questions
 
+> **Context for a reader arriving cold.** This file belongs to the "orchestrator, observer and issue watcher alignment" program of the IronClaude repository. **Start with `open-decisions.md` in this folder** for the program, the terms and the current status of every question. This file explains why each of the first 33 questions was either accepted for the agent or sent to the owner.
+
 Written 2026-11-14 by the orchestrating session. Inputs: each question's quick three-way debate (`Q<nn>/final.md`, record in `Q<nn>/adversarial/`) and its rating block. The three-way debates all ran spawned advocate agents (`fallback_mode: false` for every question that reported it). Q1 part (a) was answered by the owner ("fix") on 2026-11-13 (`owner-answers.md`).
 
 ## The rule I applied
