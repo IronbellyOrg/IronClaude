@@ -92,10 +92,10 @@ State: **ANSWERED** = the owner answered; **ACCEPTED** = the debated recommendat
 | Q13 | May the observer fall back to a plain `orca` command | **OPEN** | card below |
 | Q14 | What "#339 is complete" means for #423's start | **OPEN** | card below. The first half (#539 merged) is now met |
 | Q15 | May v2 push corrections into non-worker sessions | **OPEN** | card below |
-| Q16 | How far the trust promise goes | **OPEN** | card below |
+| Q16 | How far the trust promise goes | ANSWERED | Option 1: shared permission/grant vocabulary and audit format; independent enforcement; no access expansion. See owner-answers.md, 2026-11-15 Q19/Q16 batch |
 | Q17 | Should the observer show sweep facts | ACCEPTED | Not now |
 | Q18 | Copy the observer snapshot to the TUIBBS machine | ACCEPTED | Not yet. The owner's new API idea is a candidate transport |
-| Q19 | Which dashboard improvement first | **OPEN** | card below |
+| Q19 | Which dashboard improvement first | ANSWERED | Option 2: plain-English summaries and named stages first in coordinator/sweep report; Q17 unchanged; Fleet Quilt/Decision Desk later. See owner-answers.md, 2026-11-15 Q19/Q16 batch |
 | Q20 | Who owns the watcher's working folder and sessions | **OPEN** | card below. Needed before the first live test |
 | Q21 | May the sweep label machine-started sessions | ACCEPTED | Phase 2, after the first live test |
 | Q22 | How old a status file may be before it counts as stale | **OPEN** | card below. Fills a blank in the narrowed Coder#477 text |
@@ -127,8 +127,6 @@ Q8: option 1, I will write it at <location>
 Q13: option 1
 Q14: option 1
 Q15: option 1
-Q16: option 1
-Q19: option 1, Fleet Quilt   (re-read the reviewer's 2026-11-11 comment on #409 first)
 Q20: option 1, owner is <name>   (the watcher folder and claim sessions only)
 Q22: option 1
 Q24: option 1, and I run the message test
@@ -215,6 +213,8 @@ The full original cards (with debate details) are in `human-decisions.md`; the d
 
 ### Q16. How far the trust promise goes across the three planned programs
 
+**ANSWERED 2026-11-15: option 1.** Shared permission/grant vocabulary and audit format, independently enforced by each component; no access expansion. Terms and format still need one owner and later reconfirmation. See [dated owner record](owner-answers.md#2026-11-15-q19-and-q16-owner-decisions-recorded-through-dot). The original card below is retained as history, not an open question or a grant.
+
 - **Question:** Promise one shared trust design for the observer, Orchestrator v2 and the Coder workspace listener, or only one shared set of permission names plus one shared audit log format, each program checking permissions its own way?
 - **Why it matters:** #409 decision 6 now says "Decide one design, not two." #423 and Coder#477 (in the separate `IronbellyOrg/Coder` repository) wait on this sentence, and so do the future trust layer, the v2 design and the observer's planned answer screen. Nothing is built; this is a promise in issue text. "Trust" means who may do what and how that is checked and logged. The three programs face different risks: the observer only reads on one machine; the first v2 release reads only what the same user can read; the listener would cross between Coder workspaces.
 - **Update since the card:** None.
@@ -227,6 +227,8 @@ The full original cards (with debate details) are in `human-decisions.md`; the d
 - **Reply:** `Q16: option 1` (or `option 2`, `option 3`).
 
 ### Q19. Which dashboard improvement first
+
+**ANSWERED 2026-11-15: option 2.** Plain-English task/done/remaining/needs-me summaries, issue/PR links and named stages first in the coordinator/sweep report. Fleet Quilt and Decision Desk later; Q17 remains unchanged (no sweep facts on observer now). See [dated owner record](owner-answers.md#2026-11-15-q19-and-q16-owner-decisions-recorded-through-dot). The original card below is retained as history, not an open question or a grant.
 
 - **Question:** Of the four improvements a reviewer asked for on the worker dashboard, which comes first, and does the dashboard itself or the coordinator's report carry it?
 - **Why it matters:** The dashboard's third release (the "Decision Desk" screen) cannot start until the first improvement and its home are named. The reviewer's 2026-11-11 comment on #409 asked for four things named after design pictures: Fleet Quilt, Decision Desk, Loop Detector or Mission Pulse (named steps with green, yellow, red), and a plain-English summary with issue and PR links. Decision Desk needs a coordinator-question-to-worker link that is not established. Fleet Quilt's data needs are not written down. The summary and named steps have a known data source today (each task's brief and the progress files workers write). Nobody confirmed the reviewer's priority order.
