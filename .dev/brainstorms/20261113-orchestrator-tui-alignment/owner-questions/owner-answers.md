@@ -204,3 +204,17 @@ Still unanswered from the route B plan: Q35 (claim-side change), Q36 (approval l
 | Plan fixes | "Proceed with fixing 5, 16s timing the show plan" | the design session was told to (1) align the stale Q39 wording, (2) record Q35 to Q40 as answered, (3) fix the five review findings, (4) re-run the plan format check, then stop and show the plan. No task is started. Still no `/sc:implement`, push, PR or GitHub write. |
 
 Effect of Q39 "now": removing plain `approved` is a change to a security hook (`launch-level-guard.sh` and its plugin copy) and a skill template. Until Task 16 is built, reviewed and merged, the old route still works on this host. Task 16 now has no dependency, but its build needs its own go.
+
+
+---
+
+## 2026-11-15: Q19 and Q16 owner decisions recorded through dot
+
+Recorded by dot at the owner's direction to add decisions to the branch documents. The interpretation below is separate from verbatim speech; it does not grant implementation or other outward actions.
+
+| Q | Owner response / source | Recorded as | Still open and limits |
+|---|---|---|---|
+| Q19 | "Okay, let's start there", accepting the recommendation to build the shared summaries and named stages first | Option 2: prioritize plain-English task/issue, done, remaining and needs-me summaries, issue/PR links, and human-readable named stages in the coordinator/sweep report as the shared foundation. Fleet Quilt and Decision Desk come later. | Q17 remains unchanged: no sweep facts on the observer now. No code, expanded sweep commands, observer data-path change, deployment or reply on #409 is authorized by this decision. |
+| Q16 | Owner approved option 1 in the voice discussion (paraphrase, not a verbatim quotation) | One shared permission/grant vocabulary and one shared audit-record format across the observer, Orchestrator v2 and Coder workspace listener; each component enforces its own boundary independently. | No access expansion, shared enforcement implementation, knowledge relay, issue edit or code is authorized. The actual terms and format are to be defined later with one owner and reconfirmed. |
+
+The owner's direction covers recording these decisions and their status-board entries on this branch only. Historical debate recommendations remain intact.
