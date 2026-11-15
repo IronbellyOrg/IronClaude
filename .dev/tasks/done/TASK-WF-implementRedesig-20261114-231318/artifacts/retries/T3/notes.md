@@ -1,0 +1,2 @@
+35a6aa27e6214d81e408a930e69a200dfa7264f2
+A1 r1-1 F1.1 minor .dev/eval-workspaces/tasklist-review-panel/20261114-recipe-ledger/config/shared-manifest.json:1 ac=T3.AC2 amiss=n,false=n,harm=n,constraint=n the 12 built-local entries carry the string ABSENT, not a sha256, because the sibling has not built those Tier B files yet; DESIGN.md 3.2 and the design-time tsv use ABSENT, the manifest test accepts it deliberately and copy-shared.sh records the real hash once a local file exists

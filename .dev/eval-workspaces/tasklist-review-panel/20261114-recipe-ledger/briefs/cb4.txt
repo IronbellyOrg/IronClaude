@@ -1,0 +1,1 @@
+The merge enforces these limits. Each finding id is unique and has at most 16 characters. The anchor is 12 to 200 characters. The claim is at most 300 characters. Refs are at most 8. Write one findings-v1 block only. Copy the shortest part of the text that identifies the problem.

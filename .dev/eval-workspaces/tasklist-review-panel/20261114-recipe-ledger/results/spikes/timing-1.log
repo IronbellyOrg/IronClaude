@@ -1,0 +1,12 @@
+run timing-rl-1: arm=RL panel=primary fallback=0 check_skipped=0 merged=2 merge_exit=0 elapsed_s=192.581
+run timing-z0-1: arm=Z0 panel=primary fallback=0 check_skipped=0 merged=3 merge_exit=0 elapsed_s=133.602
+run timing-rl-2: arm=RL panel=primary fallback=0 check_skipped=0 merged=3 merge_exit=0 elapsed_s=114.03
+run timing-z0-2: arm=Z0 panel=primary fallback=0 check_skipped=0 merged=3 merge_exit=0 elapsed_s=141.511
+run timing-rl-3: arm=RL panel=primary fallback=0 check_skipped=0 merged=3 merge_exit=0 elapsed_s=144.686
+run timing-z0-3: arm=Z0 panel=primary fallback=0 check_skipped=0 merged=3 merge_exit=0 elapsed_s=117.455
+run timing-rl-4: arm=RL panel=primary fallback=0 check_skipped=0 merged=1 merge_exit=0 elapsed_s=192.622
+E_SANDBOX_DIRTY: a reviewer left files in /tmp/evalsb-recipe/TASK-WF-designSpec-20261107-075614/repo; the run is flagged sandbox_dirty and the sandbox must be rebuilt
+E_SANDBOX_DIRTY: /tmp/evalsb-recipe/TASK-WF-designSpec-20261107-075614/repo; rebuild it
+E_SANDBOX_DIRTY: /tmp/evalsb-recipe/TASK-WF-designSpec-20261107-075614/repo; rebuild it
+E_SANDBOX_DIRTY: /tmp/evalsb-recipe/TASK-WF-designSpec-20261107-075614/repo; rebuild it
+{"baseline_runs": 3, "c_luna": 0.498, "date": "2026-11-15", "doc": "TASK-WF-designSpec-20261107-075614", "mean_rows": 13.666666666666666, "median_rl_s": 143.729, "median_z0_s": 132.923, "panel": "primary", "reading_s": 4, "rid": "t4-1", "runs": 3}

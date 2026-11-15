@@ -1,0 +1,1 @@
+A tool line or a recipe step is a fact or a question about the text. It becomes a blocking finding only if you can write the sentence 'An implementer who follows the stated text as written builds X, and X is wrong because Y.'
