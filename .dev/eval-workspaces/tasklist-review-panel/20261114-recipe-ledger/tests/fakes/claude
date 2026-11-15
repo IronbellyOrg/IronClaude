@@ -1,0 +1,209 @@
+#!/usr/bin/env bash
+# Stand-in for `claude -p --output-format json` (TESTING F-FAKE-RL, DESIGN 3.4). No model is started, no network is used.
+# Reads the brief on stdin, picks a scenario from FAKE_SCENARIO (default ok), prints the JSON array of a real run
+# (system init, assistant, user tool results where the scenario has a tool call, final assistant, result) and appends
+# one line per call to FAKE_CALL_LOG:
+#   <epoch seconds> TAB <scenario> TAB <requested model> TAB <kind: review or repair>
+# FAKE_SCENARIO_BY_MODEL: space-separated model=scenario pairs; a call for that model uses that scenario.
+# A brief that starts with the repair sentence of DESIGN 7.6 is the `repair` kind: the scenario is `repair` for it,
+# whatever the variables say, and it must not be set by hand.
+# Scenarios (rows are written for every recipe heading `R-C<n>.` of the brief; the budget is the N of the recipe's
+# sentence `Write at most N rows.`, 4 when it has none; no recipe, no ledger):
+#   ok                    rows C<n>.1 .. C<n>.<budget> for every recipe, all OK
+#   problem               as ok, but row C<first>.1 is PROBLEM with two exact candidate quotes and a Bash grep call,
+#                         and a blocking finding (CB-3 sentence in its claim) whose anchor holds the row's quote_plan
+#   none_found            one row C<n>.1 per recipe: OK, empty quote_plan, ran "NONE FOUND"; one grep with no output
+#   ledger_missing        findings block, no ledger
+#   ledger_after_findings the ledger block comes after the findings block
+#   over_budget           one row more than the budget for every recipe
+#   recipe_missing        the last recipe has no row (an empty ledger when there is only one recipe)
+#   long_anchor           the finding's anchor is 250 characters of the candidate (the parser limit is 200)
+#   bad_block             a findings line that is not JSON
+#   api_error             an error result, observed model <synthetic>
+#   wrong_model           another model than the requested one is observed
+#   sleep                 waits FAKE_SLEEP_S seconds (default 5; ends on TERM with exit 143), then answers as ok
+#   exit127               prints `command not found` on stderr, exit 127, no output
+#   repair                the message between the lines BEGIN and END with a ledger added directly above its
+#                         `## Findings block` (an old ledger section is removed); rows C<n>.1 for the classes of
+#                         the message's line `Recipes run: ...`; the findings block is not touched
+#                         FAKE_REPAIR_EDIT=1     the repaired message changes its findings block (id F1 -> F9)
+#                         FAKE_REPAIR_PROBLEM=1  with FAKE_CAND=<candidate path>: the first repaired row is a PROBLEM
+#                                                whose plan quote no findings line is linked to
+# The review message names its recipes in that line so the repair call, which sees only the message, can find them.
+# Quotes come from the candidate: the path after `Review the candidate` in the brief, else ./candidate.md.
+set -u
+SCEN=${FAKE_SCENARIO:-ok}
+MODEL=claude-sonnet-5-5
+while [ $# -gt 0 ]; do
+  [ "$1" = "--model" ] && [ $# -ge 2 ] && MODEL=$2
+  shift
+done
+for kv in ${FAKE_SCENARIO_BY_MODEL:-}; do
+  [ "${kv%%=*}" = "$MODEL" ] && SCEN=${kv#*=}
+done
+BRIEF=$(cat)
+
+KIND=review
+case "$BRIEF" in "Your final message was kept as your review"*) KIND=repair; SCEN=repair ;; esac
+case "$SCEN" in
+  ok | problem | none_found | ledger_missing | ledger_after_findings | over_budget | recipe_missing) ;;
+  long_anchor | bad_block | api_error | wrong_model | sleep | exit127) ;;
+  repair) [ "$KIND" = repair ] || { echo "fake claude: the repair scenario is chosen by a repair brief" >&2; exit 2; } ;;
+  *) echo "fake claude: unknown FAKE_SCENARIO=$SCEN" >&2; exit 2 ;;
+esac
+[ -z "${FAKE_CALL_LOG:-}" ] || printf '%s\t%s\t%s\t%s\n' "$(date +%s.%3N)" "$SCEN" "$MODEL" "$KIND" >>"$FAKE_CALL_LOG"
+
+if [ "$SCEN" = exit127 ]; then
+  echo "claude: command not found" >&2
+  exit 127
+fi
+if [ "$SCEN" = sleep ]; then
+  sleep "${FAKE_SLEEP_S:-5}" &
+  trap 'kill $! 2>/dev/null; exit 143' TERM INT
+  wait $!
+fi
+
+BT='```'
+OBS=$MODEL
+ISERR=false
+TOOL_CMD=""
+TOOL_OUT=""
+
+if [ "$SCEN" = repair ]; then
+  MSG=$(printf '%s\n' "$BRIEF" | awk '
+    { line[NR] = $0 }
+    $0 == "BEGIN" && !b { b = NR }
+    $0 == "END" { e = NR }
+    END { for (i = b + 1; i < e; i++) print line[i] }')
+  LEDGER=""
+  RQ1=""
+  RQ2=""
+  if [ "${FAKE_REPAIR_PROBLEM:-}" = 1 ] && [ -f "${FAKE_CAND:-}" ]; then
+    RQS=$({ grep -E '^[[:space:]]*- ' "$FAKE_CAND"; cat "$FAKE_CAND"; } | sed -E 's/^[[:space:]]*(- )?//' |
+      awk 'length($0) >= 12 && length($0) <= 200 && !seen[$0]++')
+    RQ1=$(printf '%s\n' "$RQS" | sed -n 1p)
+    RQ2=$(printf '%s\n' "$RQS" | sed -n 2p)
+  fi
+  for cls in $(printf '%s\n' "$MSG" | sed -n 's/^.*Recipes run: //p' | grep -oE 'C[0-9]+'); do
+    ROW=$(jq -nc --arg i "$cls.1" '{item:$i,verdict:"OK",quote_plan:"",quote_other:"",problem:"",ran:"compared both scopes"}')
+    if [ -n "$RQ1" ]; then # FAKE_REPAIR_PROBLEM: the first row is a PROBLEM that no finding line is linked to (its plan quote is the second line)
+      ROW=$(jq -nc --arg i "$cls.1" --arg a "$RQ2" --arg b "$RQ1" '{item:$i,verdict:"PROBLEM",quote_plan:$a,quote_other:$b,problem:"The two stated texts do not agree.",ran:"read both statements"}')
+      RQ1=""
+    fi
+    LEDGER+=$ROW$'\n'
+  done
+  SECTION="## Ledger"$'\n\n'"${BT}ledger-v1"$'\n'"${LEDGER}${BT}"$'\n\n'
+  # drop an old ledger section (heading, fenced block), then add the new one above the findings heading
+  REPORT=$(printf '%s\n' "$MSG" | SECTION=$SECTION awk '
+    skip == 1 && /^```ledger-v1/ { skip = 2; next }
+    skip == 2 { if ($0 ~ /^```/) skip = 3; next }
+    skip == 3 && /^$/ { skip = 0; next }
+    skip == 1 && /^$/ { next }
+    /^## Ledger/ { skip = 1; next }
+    /^## Findings block/ { printf "%s", ENVIRON["SECTION"] }
+    { print }')
+  # FAKE_REPAIR_EDIT=1: the repaired message changes its findings block (the id F1 becomes F9), so it must be rejected
+  [ "${FAKE_REPAIR_EDIT:-}" != 1 ] || REPORT=$(printf '%s\n' "$REPORT" | sed 's/"id":"F1"/"id":"F9"/')
+else
+  # recipes of the brief, one "<class> <budget>" line each, in brief order: the text between a heading and the next
+  # heading or blank line
+  RECIPES=$(printf '%s\n' "$BRIEF" | awk '
+    function flush() { if (cls != "") print cls, (n == "" ? 4 : n); cls = ""; n = "" }
+    /^R-C[0-9]+\. / { flush(); cls = $1; sub(/^R-/, "", cls); sub(/\.$/, "", cls) }
+    cls != "" && match($0, /Write at most [0-9]+ rows\./) {
+      s = substr($0, RSTART, RLENGTH); gsub(/[^0-9]/, "", s); n = s
+    }
+    /^$/ { flush() }
+    END { flush() }')
+  [ "$SCEN" != recipe_missing ] || RECIPES=$(printf '%s\n' "$RECIPES" | sed '$d')
+
+  CAND=$(printf '%s\n' "$BRIEF" | sed -nE 's/^.*Review the candidate ([^ ]+) .*$/\1/p' | head -n1)
+  [ -f "$CAND" ] || CAND=candidate.md
+  Q1=""
+  Q2=""
+  ANCHOR="the stated text of the first acceptance criterion"
+  if [ -f "$CAND" ]; then
+    # two different candidate lines of 12 to 200 characters, bullets first, without the bullet mark
+    QS=$({ grep -E '^[[:space:]]*- ' "$CAND"; cat "$CAND"; } | sed -E 's/^[[:space:]]*(- )?//' |
+      awk 'length($0) >= 12 && length($0) <= 200 && !seen[$0]++')
+    Q1=$(printf '%s\n' "$QS" | sed -n 1p)
+    Q2=$(printf '%s\n' "$QS" | sed -n 2p)
+    ANCHOR=$Q1
+    [ "$SCEN" != long_anchor ] || ANCHOR=$(tr -s '[:space:]' ' ' <"$CAND" | cut -c1-250)
+  elif [ "$SCEN" = problem ] || [ "$SCEN" = long_anchor ]; then
+    echo "fake claude: scenario $SCEN needs the candidate named in the brief or ./candidate.md" >&2
+    exit 2
+  fi
+
+  LEDGER=""
+  FIRST=1
+  while read -r cls budget; do
+    [ -n "${cls:-}" ] || continue
+    [ "$SCEN" != over_budget ] || budget=$((budget + 1))
+    [ "$SCEN" != none_found ] || budget=1
+    for k in $(seq 1 "$budget"); do
+      ROW=$(jq -nc --arg i "$cls.$k" '{item:$i,verdict:"OK",quote_plan:"",quote_other:"",problem:"",ran:"compared both scopes"}')
+      if [ "$SCEN" = problem ] && [ "$FIRST" = 1 ]; then
+        ROW=$(jq -nc --arg i "$cls.$k" --arg a "$Q1" --arg b "$Q2" '{item:$i,verdict:"PROBLEM",quote_plan:$a,quote_other:$b,problem:"The two stated texts do not agree.",ran:"read both statements"}')
+      elif [ "$SCEN" = none_found ]; then
+        ROW=$(jq -nc --arg i "$cls.$k" '{item:$i,verdict:"OK",quote_plan:"",quote_other:"",problem:"",ran:"NONE FOUND"}')
+      fi
+      FIRST=0
+      LEDGER+=$ROW$'\n'
+    done
+  done <<<"$RECIPES"
+
+  SEVERITY=MINOR
+  BLOCKING=false
+  CLAIM="The wording leaves one reading open."
+  VERDICT=PASS
+  if [ "$SCEN" = problem ]; then
+    SEVERITY=MAJOR
+    BLOCKING=true
+    CLAIM="An implementer who follows the stated text as written builds the first reading, and that is wrong because the second text states the other."
+    VERDICT=FAIL
+    TOOL_CMD="grep -n -F -m1 -- '$Q1' $CAND"
+    TOOL_OUT=$(grep -n -F -m1 -- "$Q1" "$CAND")
+  elif [ "$SCEN" = none_found ] && [ -f "$CAND" ]; then
+    TOOL_CMD="grep -n -F -m1 -- 'no-such-text-zq' $CAND"
+  fi
+  FINDING=$(jq -nc --arg a "$ANCHOR" --arg s "$SEVERITY" --argjson b "$BLOCKING" --arg c "$CLAIM" \
+    '{id:"F1",severity:$s,blocking:$b,category:"other",anchor:$a,refs:[],claim:$c}')
+  [ "$SCEN" != bad_block ] || FINDING="{not json"
+
+  RUN=""
+  [ -z "$RECIPES" ] || RUN=" Recipes run: $(printf '%s\n' "$RECIPES" | awk '{print $1}' | paste -sd' ' -)."
+  REPORT="review: 1 of 3"$'\n\n'"Covered: the candidate and the source.${RUN}"$'\n\n'
+  LEDGER_SECTION="## Ledger"$'\n\n'"${BT}ledger-v1"$'\n'"${LEDGER}${BT}"$'\n\n'
+  FINDINGS_SECTION="## Findings block"$'\n\n'"${BT}findings-v1"$'\n'"${FINDING}"$'\n'"${BT}"$'\n\n'
+  case "$SCEN" in
+    ledger_missing) REPORT+="${FINDINGS_SECTION}verdict: ${VERDICT}" ;;
+    ledger_after_findings) REPORT+="${FINDINGS_SECTION}${LEDGER_SECTION}verdict: ${VERDICT}" ;;
+    *) if [ -n "$LEDGER" ] || [ "$SCEN" = recipe_missing ]; then REPORT+=$LEDGER_SECTION; fi
+       REPORT+="${FINDINGS_SECTION}verdict: ${VERDICT}" ;;
+  esac
+
+  if [ "$SCEN" = wrong_model ]; then
+    OBS=claude-haiku-5-5
+    [ "$MODEL" != claude-haiku-5-5 ] || OBS=gpt-6-luna
+  fi
+  if [ "$SCEN" = api_error ]; then
+    OBS="<synthetic>"
+    ISERR=true
+    REPORT="API Error: 529 overloaded_error"
+  fi
+fi
+
+jq -nc --arg m "$MODEL" --arg o "$OBS" --arg r "$REPORT" --argjson e "$ISERR" --arg tc "$TOOL_CMD" --arg to "$TOOL_OUT" '
+  ($r | length / 4 | floor) as $n
+  | [ {type:"system", subtype:"init", session_id:"fake-session", model:$m} ]
+    + (if $tc == "" then [] else
+        [ {type:"assistant", parent_tool_use_id:null, session_id:"fake-session",
+           message:{model:$o, content:[{type:"tool_use", id:"toolu_01", name:"Bash", input:{command:$tc}}]}},
+          {type:"user", parent_tool_use_id:null, session_id:"fake-session",
+           message:{role:"user", content:[{type:"tool_result", tool_use_id:"toolu_01", content:$to}]}} ] end)
+    + [ {type:"assistant", parent_tool_use_id:null, session_id:"fake-session",
+         message:{model:$o, content:[{type:"text", text:$r}]}},
+        {type:"result", subtype:(if $e then "error_during_execution" else "success" end),
+         is_error:$e, result:$r, session_id:"fake-session",
+         usage:{output_tokens:$n}, modelUsage:{($o):{outputTokens:$n}}} ]'

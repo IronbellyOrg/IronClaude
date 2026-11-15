@@ -1,0 +1,2 @@
+845266a6d7932ecb01ef67c3d42cf4082300f05c
+A1 r1-1 F1.1 minor .dev/eval-workspaces/tasklist-review-panel/20261114-recipe-ledger/analysis/ran_check.py:99 ac=scope amiss=n,false=n,harm=n,constraint=n for non-Bash tools the shared-token test reads constant inputs such as projectPath and branch, so a luna codegraph_node call on an unrelated file can verify a row that names "repo"; this overstates verified in luna transcripts; no delivered test exercises it

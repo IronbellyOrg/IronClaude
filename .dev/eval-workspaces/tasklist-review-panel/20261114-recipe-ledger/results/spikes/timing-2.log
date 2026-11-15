@@ -1,0 +1,12 @@
+sandbox of TASK-WF-designSpec-20261107-075614 was left dirty by the previous run (!! uv.lock ); rebuilding it
+run timing-rl-1: arm=RL panel=primary fallback=0 check_skipped=0 merged=3 merge_exit=0 elapsed_s=111.528
+run timing-z0-1: arm=Z0 panel=primary fallback=0 check_skipped=0 merged=3 merge_exit=0 elapsed_s=100.425
+run timing-rl-2: arm=RL panel=primary fallback=0 check_skipped=0 merged=3 merge_exit=0 elapsed_s=134.762
+run timing-z0-2: arm=Z0 panel=primary fallback=0 check_skipped=0 merged=3 merge_exit=0 elapsed_s=147.108
+run timing-rl-3: arm=RL panel=primary fallback=0 check_skipped=0 merged=3 merge_exit=0 elapsed_s=136.114
+run timing-z0-3: arm=Z0 panel=primary fallback=0 check_skipped=0 merged=2 merge_exit=0 elapsed_s=150.264
+run timing-rl-4: arm=RL panel=primary fallback=0 check_skipped=0 merged=3 merge_exit=0 elapsed_s=181.372
+run timing-z0-4: arm=Z0 panel=primary fallback=0 check_skipped=0 merged=3 merge_exit=0 elapsed_s=122.266
+run timing-rl-5: arm=RL panel=primary fallback=0 check_skipped=0 merged=3 merge_exit=0 elapsed_s=148.033
+run timing-z0-5: arm=Z0 panel=primary fallback=0 check_skipped=0 merged=3 merge_exit=0 elapsed_s=97.979
+{"baseline_runs": 4, "c_luna": 2.278, "date": "2026-11-15", "doc": "TASK-WF-designSpec-20261107-075614", "mean_rows": 13.4, "median_rl_s": 133.04, "median_z0_s": 98.51650000000001, "panel": "primary", "reading_s": 4, "rid": "t4-1", "runs": 5}

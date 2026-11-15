@@ -1,0 +1,65 @@
+{
+  "schema": "synthetic-gt/1",
+  "note": "F-GT: invented ground truth for the two fixture plans of fixtures/plans (doc-a is p_basic.md, doc-b is p_clean.md). Every item is made up for the tests; it is not a study file and holds no study text.",
+  "docs": {
+    "doc-a": {
+      "plan": "fixtures/plans/p_basic.md",
+      "items": [
+        {
+          "id": "A1",
+          "class": "C4",
+          "blocking_in_implement": true,
+          "description": "The acceptance line says every module returns an empty result, but only the report module is touched",
+          "plan_quote": "Every module under `src/exporter/` returns an empty result for an empty report."
+        },
+        {
+          "id": "A2",
+          "class": "C2",
+          "blocking_in_implement": false,
+          "description": "The count of report formats in the guide is changed without the source saying which formats exist",
+          "plan_quote": "update the count from 3 report formats to 4 report formats"
+        },
+        {
+          "id": "A3",
+          "class": "C5",
+          "blocking_in_implement": true,
+          "description": "The notice task leaves a test file alone that its own rule would make fail",
+          "plan_quote": "Leave `tests/test_retention.py` as it is; it skips any report whose hold flag is set."
+        },
+        {
+          "id": "A4",
+          "class": "C8",
+          "blocking_in_implement": false,
+          "description": "The purge step names a flag that no other task creates",
+          "plan_quote": "The purge step keys on `legal_hold` and leaves such reports in place."
+        }
+      ]
+    },
+    "doc-b": {
+      "plan": "fixtures/plans/p_clean.md",
+      "items": [
+        {
+          "id": "B1",
+          "class": "C4",
+          "blocking_in_implement": true,
+          "description": "The edge case pair of the expiry check contradicts the stated comparison",
+          "plan_quote": "`is_expired(31, 30)` returns `True` and `is_expired(30, 30)` returns `False`."
+        },
+        {
+          "id": "B2",
+          "class": "C1",
+          "blocking_in_implement": false,
+          "description": "A test file is created for a function whose module task does not exist yet",
+          "plan_quote": "Create `tests/test_notice.py` for it."
+        },
+        {
+          "id": "B3",
+          "class": "C7",
+          "blocking_in_implement": true,
+          "description": "The age limit is a function argument here and a setting elsewhere",
+          "plan_quote": "The helper takes its age limit as a function argument."
+        }
+      ]
+    }
+  }
+}

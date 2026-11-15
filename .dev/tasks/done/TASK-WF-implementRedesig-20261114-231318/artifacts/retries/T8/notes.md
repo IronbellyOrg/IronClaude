@@ -1,0 +1,2 @@
+f9c01be6f4c25a3abaf89e27831da5618811e023
+A1 r1-1 F8.1 minor .dev/eval-workspaces/tasklist-review-panel/20261114-recipe-ledger/scaffold/ledgerv1.py:407 ac=scope amiss=n,false=n,harm=n,constraint=n promote also promotes a PROBLEM row whose only violation is a `ran` field over 15 words (limits_violated), although SW/DESIGN.md says a row that breaks a limit is kept for coverage and cannot be promoted; neither the Task 8 text nor RL/DESIGN.md 7.2 check 10 lists that condition

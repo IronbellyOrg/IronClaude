@@ -1,0 +1,21 @@
+contract_version: "1.8.0"
+status: partial
+mode: pre
+tier_reached: 1
+report_path: ./REPORT.md
+confidence_calibrated: 0.78
+coverage_pct: null
+coverage_pct_union: 1.0
+coverage_undefined: false
+coverage_degraded: parsed-sparse
+unmapped_requirements: []
+unmapped_requirements_union: []
+citations_total: 6
+citations_revalidated: 6
+citations_dropped: 0
+citations_inferred: 3
+citation_budget_policy: full_reread
+evidence_validator_ran: false
+degraded_components: ["calibrator:not-started", "evidence-validator:not-started", "tier-2:not-run"]
+needs_human_decision: false
+notes: "Tier 1 single-agent pass only. Tier 2 was not run because the task constraints forbid starting reviewer sessions; the parsed-sparse guard would otherwise have forced it. Memory and runs.jsonl writes were skipped (outside the allowed write area)."

@@ -1,0 +1,506 @@
+{
+  "files": {
+    "analysis/analyze.py": {
+      "bytes": 61697,
+      "copied_at": null,
+      "kind": "built-local",
+      "sha256": "276d585ebcd9711e6069149b51338660ec94af5555c5366652eb97ce3567181a",
+      "source": "SW/analysis/analyze.py",
+      "swd": "SWD 14.3 (analysis outputs)",
+      "tier": "B"
+    },
+    "analysis/g0.py": {
+      "bytes": 2995,
+      "copied_at": null,
+      "kind": "built-local",
+      "sha256": "48c38f63478f9c9e77ac0ddefd466c3e2e3139cb6e7cb6bcf64ee54c789a41cd",
+      "source": "SW/analysis/g0.py",
+      "swd": "SWD 14.1 (ledger-and-time half of gate G0 only)",
+      "tier": "B"
+    },
+    "bin/anon.sh": {
+      "bytes": 1328,
+      "copied_at": null,
+      "kind": "built-local",
+      "sha256": "bb6f18a5f40aba6ef9decdf7f467df85388f4a99a7f1bce3fcefa85c7b7c3f08",
+      "source": "SW/bin/anon.sh",
+      "swd": "SWD 11.3 (anonymisation)",
+      "tier": "B"
+    },
+    "bin/build-sandbox.sh": {
+      "bytes": 8352,
+      "copied_at": "2026-11-15T14:52:42Z",
+      "kind": "copied",
+      "sha256": "1e75f13ee826e4c27f608c29217a2952a1acf0b84ea1dbb42f86b21f7764cd15",
+      "source": "SW/bin/build-sandbox.sh",
+      "tier": "A"
+    },
+    "bin/common.sh": {
+      "bytes": 3819,
+      "copied_at": "2026-11-15T14:52:42Z",
+      "kind": "copied",
+      "sha256": "ae995cca8c720d53e19286ade818006605997ff5b8e5d9b5433f51166f5aa8eb",
+      "source": "SW/bin/common.sh",
+      "tier": "A"
+    },
+    "bin/judge-batch.sh": {
+      "bytes": 4064,
+      "copied_at": null,
+      "kind": "built-local",
+      "sha256": "14b3b8e4fe37eff7ee9d614a641704a5a0f1f2d926dc9c050416d6dfd88e2aba",
+      "source": "SW/bin/judge-batch.sh",
+      "swd": "SWD 11.3 (judge batch)",
+      "tier": "B"
+    },
+    "bin/judge-one.sh": {
+      "bytes": 4054,
+      "copied_at": null,
+      "kind": "built-local",
+      "sha256": "1791be158cf6e3aafc390f283c15dbd3f54ad1a0daa20b007b6ed02987acf765",
+      "source": "SW/bin/judge-one.sh",
+      "swd": "SWD 11.3 (blind judge, claude-opus-5-5 only)",
+      "tier": "B"
+    },
+    "bin/make-schedule.py": {
+      "bytes": 7913,
+      "copied_at": null,
+      "kind": "built-local",
+      "sha256": "ccaa9fd842b2a5832464453473925af9f017f873ec53e20eab6a7e7bc7265cb3",
+      "source": "SW/bin/make-schedule.py",
+      "swd": "SWD 11.6 (block-randomised schedule)",
+      "tier": "B"
+    },
+    "bin/run-panel.sh": {
+      "bytes": 12660,
+      "copied_at": null,
+      "kind": "built-local",
+      "sha256": "4974aa767529858d44a80ba28a5c7a79a51db1302ac8d07f11f28f51a3ada3e1",
+      "source": "SW/bin/run-panel.sh",
+      "swd": "SWD 11.4 to 11.7 (clock, hang guard, concurrency, merge)",
+      "tier": "B"
+    },
+    "bin/run-reviewer.sh": {
+      "bytes": 5564,
+      "copied_at": null,
+      "kind": "built-local",
+      "sha256": "b42dde2350ccdb4d60730dff485be6c5a8d4551322968b7746a16f29a4b44793",
+      "source": "SW/bin/run-reviewer.sh",
+      "swd": "SWD 11.1 (one attempt, hang guard, model-identity check)",
+      "tier": "B"
+    },
+    "bin/run-schedule.sh": {
+      "bytes": 6063,
+      "copied_at": null,
+      "kind": "built-local",
+      "sha256": "690f4910036574c11beadb0636068358f59022a36fb94064362eed1bf75d7819",
+      "source": "SW/bin/run-schedule.sh",
+      "swd": "SWD 11.6 (schedule runner)",
+      "tier": "B"
+    },
+    "briefs/base.txt": {
+      "bytes": 1764,
+      "copied_at": "2026-11-15T14:52:42Z",
+      "kind": "copied",
+      "sha256": "ae5494ebc84b9005ffd74c59912dc4c9a8701d84a3f3c45ada0d3388fa4bdb85",
+      "source": "SW/briefs/base.txt",
+      "tier": "A"
+    },
+    "briefs/cb1.txt": {
+      "bytes": 147,
+      "copied_at": "2026-11-15T14:52:42Z",
+      "kind": "copied",
+      "sha256": "d89d83f8cda6ce6ec5e945adfbfde0921764efa364ff16d76e2f6e16a05a7fcd",
+      "source": "SW/briefs/cb1.txt",
+      "tier": "A"
+    },
+    "briefs/cb2.txt": {
+      "bytes": 293,
+      "copied_at": "2026-11-15T14:52:42Z",
+      "kind": "copied",
+      "sha256": "cb529c943a509c7f4b9da1093baf1138da150a5d08e973c57faf592116008483",
+      "source": "SW/briefs/cb2.txt",
+      "tier": "A"
+    },
+    "briefs/cb3.txt": {
+      "bytes": 225,
+      "copied_at": "2026-11-15T14:52:42Z",
+      "kind": "copied",
+      "sha256": "5763cec5025fcd4be631236e14cf67e798f17d9394439527a31bab0cf87bdbff",
+      "source": "SW/briefs/cb3.txt",
+      "tier": "A"
+    },
+    "briefs/cb4.txt": {
+      "bytes": 280,
+      "copied_at": "2026-11-15T14:52:42Z",
+      "kind": "copied",
+      "sha256": "999c6fd68518a038a934e6073788782ecef4cab53962f5532544734681d97501",
+      "source": "SW/briefs/cb4.txt",
+      "tier": "A"
+    },
+    "briefs/cb5.txt": {
+      "bytes": 122,
+      "copied_at": "2026-11-15T14:52:42Z",
+      "kind": "copied",
+      "sha256": "d0b4fef63213776ed4bde9fa893e7d5475d104cd00d6b839a62bbadfff6b93ab",
+      "source": "SW/briefs/cb5.txt",
+      "tier": "A"
+    },
+    "briefs/k-lead.txt": {
+      "bytes": 269,
+      "copied_at": "2026-11-15T14:52:42Z",
+      "kind": "copied",
+      "sha256": "6712596b3c8d3e60ad8edb86755613ca9b12550f2198d04d303e1e68019afb57",
+      "source": "SW/briefs/k-lead.txt",
+      "tier": "A"
+    },
+    "briefs/ledger-rule.txt": {
+      "bytes": 473,
+      "copied_at": "2026-11-15T14:52:42Z",
+      "kind": "copied",
+      "sha256": "c4ae68bbcf1f785fadf7100dbc1539865a8eaec39cb8bd365863c148cc7ee266",
+      "source": "SW/briefs/ledger-rule.txt",
+      "tier": "A"
+    },
+    "briefs/sheet-block.txt": {
+      "bytes": 1015,
+      "copied_at": "2026-11-15T14:52:42Z",
+      "kind": "copied",
+      "sha256": "36aa69714a90c70d2241c5d0d181d9c0269c280ce482861035a8a904a68c0f0d",
+      "source": "SW/briefs/sheet-block.txt",
+      "tier": "A"
+    },
+    "cards/C1.json": {
+      "bytes": 1316,
+      "copied_at": "2026-11-15T14:52:42Z",
+      "kind": "copied",
+      "sha256": "d3c38495bf5c970099a4458285db5a2c50b24f38ec726fce2705db296cc2b63a",
+      "source": "SW/cards/C1.json",
+      "tier": "A"
+    },
+    "cards/C2.json": {
+      "bytes": 1177,
+      "copied_at": "2026-11-15T14:52:42Z",
+      "kind": "copied",
+      "sha256": "50fcae83e163c075642de75109000b7a6d6d7ce4faf855a82794b8393b606863",
+      "source": "SW/cards/C2.json",
+      "tier": "A"
+    },
+    "cards/C3.json": {
+      "bytes": 1145,
+      "copied_at": "2026-11-15T14:52:42Z",
+      "kind": "copied",
+      "sha256": "1177c185ffa2e70b9a0f78eabb67557e0ccc35e074edc53a71aef5636b709f76",
+      "source": "SW/cards/C3.json",
+      "tier": "A"
+    },
+    "cards/C4.json": {
+      "bytes": 1280,
+      "copied_at": "2026-11-15T14:52:42Z",
+      "kind": "copied",
+      "sha256": "a89921de4c292ebb4f69e628574849d80b04c609b9535b5d6f061d9d1683f2d0",
+      "source": "SW/cards/C4.json",
+      "tier": "A"
+    },
+    "cards/C5.json": {
+      "bytes": 1181,
+      "copied_at": "2026-11-15T14:52:42Z",
+      "kind": "copied",
+      "sha256": "f6b60c3ab1490007b5b7ad0a23c937c70deccd04975d41e60b51c02f17577388",
+      "source": "SW/cards/C5.json",
+      "tier": "A"
+    },
+    "cards/C6.json": {
+      "bytes": 1378,
+      "copied_at": "2026-11-15T14:52:42Z",
+      "kind": "copied",
+      "sha256": "d5670f460332de13b7e7d98f3280a197d5d2b944993cdb65552f14b155b45cb9",
+      "source": "SW/cards/C6.json",
+      "tier": "A"
+    },
+    "cards/C7.json": {
+      "bytes": 1160,
+      "copied_at": "2026-11-15T14:52:42Z",
+      "kind": "copied",
+      "sha256": "f03d7b1c22b40bb865501d377ae7a52b2ae8c047d95ef566387180c6e46dcd5f",
+      "source": "SW/cards/C7.json",
+      "tier": "A"
+    },
+    "cards/C8.json": {
+      "bytes": 1192,
+      "copied_at": "2026-11-15T14:52:42Z",
+      "kind": "copied",
+      "sha256": "57bca523e721ea2346fc4a18a87e8fb8a95a69561b2abb22ff9a7b24f0fa4ecd",
+      "source": "SW/cards/C8.json",
+      "tier": "A"
+    },
+    "cards/README.md": {
+      "bytes": 3872,
+      "copied_at": "2026-11-15T14:52:42Z",
+      "kind": "copied",
+      "sha256": "70eda05d191b5d17fb8a86b094d78c28d749da12996ed307b94d003a6d081e73",
+      "source": "SW/cards/README.md",
+      "tier": "A"
+    },
+    "cards/schema.json": {
+      "bytes": 1970,
+      "copied_at": "2026-11-15T14:52:42Z",
+      "kind": "copied",
+      "sha256": "07536c5170722559e50eef96fb6f7420a4c8890e8ab86d99945980968c805582",
+      "source": "SW/cards/schema.json",
+      "tier": "A"
+    },
+    "config/packages.json": {
+      "bytes": 1578,
+      "copied_at": "2026-11-14T23:35:56Z",
+      "kind": "copied",
+      "sha256": "68be56ce63e804c23679c9ff9672c689f19483feefa6d99a216ca75a595d10c3",
+      "source": "SW/config/packages.json",
+      "tier": "S"
+    },
+    "fixtures/docs/doc1.md": {
+      "bytes": 447,
+      "copied_at": "2026-11-15T14:52:43Z",
+      "kind": "copied",
+      "sha256": "c1af47b9ebcbb77b0ed9041b519356c038e44ddc54f589074f6fa10fbdba2917",
+      "source": "SW/fixtures/docs/doc1.md",
+      "tier": "T"
+    },
+    "fixtures/plans/p_basic.md": {
+      "bytes": 2641,
+      "copied_at": "2026-11-15T14:52:43Z",
+      "kind": "copied",
+      "sha256": "27944901063eba94c14dd87af10cfea0a8c39fba2bedcc4b237c748c6c069579",
+      "source": "SW/fixtures/plans/p_basic.md",
+      "tier": "T"
+    },
+    "fixtures/plans/p_clean.md": {
+      "bytes": 1629,
+      "copied_at": "2026-11-15T14:52:43Z",
+      "kind": "copied",
+      "sha256": "ccc98828da79d9aea5c9c4e2ec00b3bfaeb3908dc09422f4fcb15a84925bab24",
+      "source": "SW/fixtures/plans/p_clean.md",
+      "tier": "T"
+    },
+    "fixtures/plans/source.md": {
+      "bytes": 646,
+      "copied_at": "2026-11-15T14:52:43Z",
+      "kind": "copied",
+      "sha256": "bcf1136f8bdd3c357e7c06b6a92e32cd7fe4abb034e8c65bfaae8c1147b05d0a",
+      "source": "SW/fixtures/plans/source.md",
+      "tier": "T"
+    },
+    "fixtures/reports/anchor_250.md": {
+      "bytes": 1122,
+      "copied_at": "2026-11-15T14:52:43Z",
+      "kind": "copied",
+      "sha256": "0bc9aeb9e337c2c6475ce8db476859b948058dd2b3b18e5bf487e9dca8b6bb49",
+      "source": "SW/fixtures/reports/anchor_250.md",
+      "tier": "T"
+    },
+    "fixtures/reports/claim_301.md": {
+      "bytes": 643,
+      "copied_at": "2026-11-15T14:52:43Z",
+      "kind": "copied",
+      "sha256": "0e62d55cbb06ac72fef9326ce948f4a1d04190f3293dcfd0c58395f43b02a4cf",
+      "source": "SW/fixtures/reports/claim_301.md",
+      "tier": "T"
+    },
+    "fixtures/repos/build_repo.py": {
+      "bytes": 6047,
+      "copied_at": "2026-11-15T14:52:43Z",
+      "kind": "copied",
+      "sha256": "69dd87edcc1a90c76f2b4b22419f70c59f51f969d1fe7aef026a7bccd0f84c5e",
+      "source": "SW/fixtures/repos/build_repo.py",
+      "tier": "T"
+    },
+    "fixtures/specs/parent1.md": {
+      "bytes": 564,
+      "copied_at": "2026-11-15T14:52:43Z",
+      "kind": "copied",
+      "sha256": "f4ca559573bad08d2a5bed1c5395e41692fd6a3e113d78b9ced074d1efd1d640",
+      "source": "SW/fixtures/specs/parent1.md",
+      "tier": "T"
+    },
+    "fixtures/specs/spec1.md": {
+      "bytes": 1163,
+      "copied_at": "2026-11-15T14:52:43Z",
+      "kind": "copied",
+      "sha256": "a10e881a96adb5d1b4a8d7e20f0723d8f8b5ad9f6b978ba334b0c0ea86e671a3",
+      "source": "SW/fixtures/specs/spec1.md",
+      "tier": "T"
+    },
+    "scaffold/__init__.py": {
+      "bytes": 0,
+      "copied_at": "2026-11-15T14:52:42Z",
+      "kind": "copied",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "source": "SW/scaffold/__init__.py",
+      "tier": "A"
+    },
+    "scaffold/briefs.py": {
+      "bytes": 7205,
+      "copied_at": "2026-11-15T14:52:42Z",
+      "kind": "copied",
+      "sha256": "7e0d5aa4a2a3110cdd8f78eb67d8d7de13b810682e45b4a78a7df2499a3379f1",
+      "source": "SW/scaffold/briefs.py",
+      "tier": "A"
+    },
+    "scaffold/cards.py": {
+      "bytes": 5745,
+      "copied_at": "2026-11-15T14:52:42Z",
+      "kind": "copied",
+      "sha256": "98ed9ff46778bd9a97e58ee30a61d61a668178ca22c4e6e1ed256463aa91793a",
+      "source": "SW/scaffold/cards.py",
+      "tier": "A"
+    },
+    "scaffold/clock.py": {
+      "bytes": 4606,
+      "copied_at": null,
+      "kind": "built-local",
+      "sha256": "e3624bc4eb2d993c8a42c2344d328622e3a53357e118eef486841242c17af08f",
+      "source": "SW/scaffold/clock.py",
+      "swd": "SWD 11.4 (panel clock and the kill_s, hang_s, breakeven helpers)",
+      "tier": "B"
+    },
+    "scaffold/fnd.py": {
+      "bytes": 1145,
+      "copied_at": "2026-11-15T14:52:42Z",
+      "kind": "copied",
+      "sha256": "8fc271c86411e9c6953df8d7b6fbb3ae0642f73a5327897418fe8faf8d1a8db4",
+      "source": "SW/scaffold/fnd.py",
+      "tier": "A"
+    },
+    "scaffold/ledgerv1.py": {
+      "bytes": 22111,
+      "copied_at": null,
+      "kind": "built-local",
+      "sha256": "d4c57643e89b6ba80c287f099e8681ca2c16ecf21dfbafc3d98ef6dad16a336c",
+      "source": "SW/scaffold/ledgerv1.py",
+      "swd": "SWD 9.1 to 9.3 (ledger reader, checks, linking, demotion, promotion)",
+      "tier": "B"
+    },
+    "scaffold/lint.py": {
+      "bytes": 6851,
+      "copied_at": "2026-11-15T14:52:42Z",
+      "kind": "copied",
+      "sha256": "98c8f86808a5ec438772dfc5491ef8e5af9fb826cf1d06b43fc5cedbf32b8167",
+      "source": "SW/scaffold/lint.py",
+      "tier": "A"
+    },
+    "scaffold/normalise.py": {
+      "bytes": 3262,
+      "copied_at": "2026-11-15T14:52:42Z",
+      "kind": "copied",
+      "sha256": "3869197f94c2f4288eb8837d0bb24d19a71debcb100cfd5d60f84bf15520c756",
+      "source": "SW/scaffold/normalise.py",
+      "tier": "A"
+    },
+    "scaffold/telemetry.py": {
+      "bytes": 1962,
+      "copied_at": null,
+      "kind": "built-local",
+      "sha256": "9b6f6b6df24e350c76dc724d72156d3db9cc1371a04dac40f34bfef55fb1d7d2",
+      "source": "SW/scaffold/telemetry.py",
+      "swd": "SWD 9.2 and DD-12 (class, probe and src keys; MR 3.0.6)",
+      "tier": "B"
+    },
+    "tests/conftest.py": {
+      "bytes": 2316,
+      "copied_at": "2026-11-15T14:52:42Z",
+      "kind": "copied",
+      "sha256": "5439269229a1578540a17f62541f12897d790feb334303d10a5ba16781dddfb9",
+      "source": "SW/tests/conftest.py",
+      "tier": "T"
+    },
+    "tests/helpers.py": {
+      "bytes": 689,
+      "copied_at": "2026-11-15T14:52:42Z",
+      "kind": "copied",
+      "sha256": "b72666de94bc9715b156105ac80e47cd9d3fe14f434b0fedc04ccf2dfc8401d7",
+      "source": "SW/tests/helpers.py",
+      "tier": "T"
+    },
+    "tests/judge_support.py": {
+      "bytes": 5926,
+      "copied_at": "2026-11-15T14:52:42Z",
+      "kind": "copied",
+      "sha256": "45d45fbf92017e9a689a0a92d179c9d94d092b9155e244092dec88ace0c6a79b",
+      "source": "SW/tests/judge_support.py",
+      "tier": "T"
+    },
+    "tests/test_briefs.py": {
+      "bytes": 9068,
+      "copied_at": "2026-11-15T14:52:42Z",
+      "kind": "copied",
+      "sha256": "042fbc00eb9d9edd2586995d358ab799bd589ebc0420b99d0da8ba393409b756",
+      "source": "SW/tests/test_briefs.py",
+      "tier": "T"
+    },
+    "tests/test_cards.py": {
+      "bytes": 8235,
+      "copied_at": "2026-11-15T14:52:42Z",
+      "kind": "copied",
+      "sha256": "86941496e0bff182dd9ca653dfa208f6d8eac9beaed5773aa340791de557c09d",
+      "source": "SW/tests/test_cards.py",
+      "tier": "T"
+    },
+    "tests/test_fnd_contract.py": {
+      "bytes": 5539,
+      "copied_at": "2026-11-15T14:52:43Z",
+      "kind": "copied",
+      "sha256": "cc5609c19dfafaa5fec6ab851734dd5c2586e8b86bff71e1a6dc0052a6fb92f2",
+      "source": "SW/tests/test_fnd_contract.py",
+      "tier": "T"
+    },
+    "tests/test_lint.py": {
+      "bytes": 6407,
+      "copied_at": "2026-11-15T14:52:43Z",
+      "kind": "copied",
+      "sha256": "a4a6ab68e16cd4e841382a088e17465c5bf342f985ce722dbdff92a8b23acecc",
+      "source": "SW/tests/test_lint.py",
+      "tier": "T"
+    },
+    "tests/test_model_allowlist.py": {
+      "bytes": 1573,
+      "copied_at": "2026-11-15T14:52:43Z",
+      "kind": "copied",
+      "sha256": "98f9333c5db1b4355cc1a6eb6c73322409a6089e95a49d439afedd55808427a7",
+      "source": "SW/tests/test_model_allowlist.py",
+      "tier": "T"
+    },
+    "tests/test_normalise.py": {
+      "bytes": 6654,
+      "copied_at": "2026-11-15T14:52:43Z",
+      "kind": "copied",
+      "sha256": "4623273cada4a1c18ad5faf98303142179850ec3e71f55d412c85fb5c2f88c75",
+      "source": "SW/tests/test_normalise.py",
+      "tier": "T"
+    },
+    "tests/test_paths.py": {
+      "bytes": 3880,
+      "copied_at": "2026-11-15T14:52:43Z",
+      "kind": "copied",
+      "sha256": "87b7751154f6ecefabe391f5b6b75a329ac4ceaa056638a85013154fb8bca3fc",
+      "source": "SW/tests/test_paths.py",
+      "tier": "T"
+    },
+    "tests/test_readme.py": {
+      "bytes": 1720,
+      "copied_at": "2026-11-15T14:52:43Z",
+      "kind": "copied",
+      "sha256": "d1f2188a15c64b76351e0e1b6d513145b3d0f829d307697a9b27749cb40fe12b",
+      "source": "SW/tests/test_readme.py",
+      "tier": "T"
+    },
+    "tests/test_sandbox.py": {
+      "bytes": 10564,
+      "copied_at": "2026-11-15T14:52:43Z",
+      "kind": "copied",
+      "sha256": "41aa513c96318613ab8d1aae200ce167c244cf6e2db096023f2cde561ab71985",
+      "source": "SW/tests/test_sandbox.py",
+      "tier": "T"
+    }
+  },
+  "note": "sha256 ABSENT marks a built-local file that has not been written yet; bin/copy-shared.sh records its hash when it exists",
+  "schema": "rl-shared-manifest/1"
+}
