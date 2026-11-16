@@ -218,3 +218,28 @@ Recorded by dot at the owner's direction to add decisions to the branch document
 | Q16 | Owner approved option 1 in the voice discussion (paraphrase, not a verbatim quotation) | One shared permission/grant vocabulary and one shared audit-record format across the observer, Orchestrator v2 and Coder workspace listener; each component enforces its own boundary independently. | No access expansion, shared enforcement implementation, knowledge relay, issue edit or code is authorized. The actual terms and format are to be defined later with one owner and reconfirmed. |
 
 The owner's direction covers recording these decisions and their status-board entries on this branch only. Historical debate recommendations remain intact.
+
+---
+
+## 2026-11-16: answers routed from the `ironbelly/open-decisions` coordinator packet
+
+Recorded by the orchestrating session from text the owner pasted on 2026-11-16 (headed "Owner-answer routing, ironbelly/open-decisions"). **These answers do not belong to Q1 to Q41 of this program.** They answer items of a separate coordinator index, `.dev/research/open-decisions-20261115/OPEN-DECISIONS.md` on branch `ironbelly/open-decisions`, which covers 20 worktrees. That index was not read here (UNVERIFIED). Only the routing table and sections 1 and 7 of the packet were pasted; the packets it names (`ironbelly__shadow-runs__answers.md`, `ironbelly__eval-tasklist-review-panel__answers.md`, `issue-based__branch-unverified__answers.md`) were not supplied, so their answers are NOT recorded here. The paste's own limits apply: documentation only; no code change, test, issue filing, merge, deployment or automatic implementation is authorized; historical unanswered labels and "If GO" instructions in the coordinator source are not current authorization.
+
+**Routing as pasted** (so a reader knows where each answer lives):
+
+| Coordinator item | Owner-answer packet | Scope |
+|---|---|---|
+| D-12 Review Panel unification | `ironbelly__shadow-runs__answers.md` | PR sequence, diversity/PASS, findings, roster, gate and resume decisions |
+| D-13 Blocker-classification programme | `ironbelly__shadow-runs__answers.md` | Investigate Jev; follow-up ledger purpose and evidence remain unresolved |
+| D-15 Model-policy hook | `ironbelly__eval-tasklist-review-panel__answers.md` | Final v1 warning-only rule is limited to model-usage compliance; real blockers retain review/refactoring |
+| Issue #553 | `issue-based__branch-unverified__answers.md` | Pinned Jev with upstream monitor; owning branch unverified |
+| Issue #562 | `issue-based__branch-unverified__answers.md` | Isolated evaluation coverage decision only; implementation interpretation withdrawn |
+
+**Answers supplied in the paste:**
+
+| Item | Owner's answer (as pasted) | What it settles | What it leaves open | What it does NOT authorize |
+|---|---|---|---|---|
+| 1. Current workflow and legacy commands | The active workflow is `/sc:workflow` and `/sc:implement`. `sprint run` in its current form is obsolete and is not to be tested as the current workflow. `/sc:task` and the task-builder commands are to be retired, without an evaluation of those commands. Only Sprint run and its CLI tool suite are to be evaluated, for measurable benefits versus retirement; any proposed return must be refactored around workflow/implement and properly evaluated. Future agents must not revive obsolete-command testing as if it represented the current workflow. | A retirement decision for `/sc:task` and the task-builder commands. The current workflow is `/sc:workflow` plus `/sc:implement`. Obsolete-command testing is not to be revived. | The outcome of the Sprint run and CLI tool suite evaluation is not assumed (not started). The exact retirement steps and date are not set. | It is a decision, not a claim that removal has occurred. No command removal, no evaluation run and no edit to the routing guide (`HOW-WE-WORK.md`, whose level 4 still names `/task-builder` and `/task`) is authorized. |
+| 7. Session handling preference | Across all sessions, acknowledge an answer once, briefly (for example, "Received"), without repeating the answer, then proceed to the next applicable question. Do not invent a question or give duplicate receipts. | How agents acknowledge owner answers in every session. | Nothing. | It does not waive any other output rule. |
+
+**Coverage limit (from the paste):** the source inventory verified separate copies across the three named branches. It did not verify all underlying worktrees or then-uncommitted documents referenced by the central index. The issue-based packet keeps uncertain branch assignments explicit. No answers were supplied for the coordinator index's remaining unrelated items.
