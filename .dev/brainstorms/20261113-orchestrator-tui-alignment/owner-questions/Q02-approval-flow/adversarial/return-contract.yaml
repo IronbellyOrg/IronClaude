@@ -1,0 +1,11 @@
+return_contract:
+  merged_output_path: "/home/coder/workspaces/worktrees/IronClaude/issue-339-orchestrator-mode/.dev/brainstorms/20261113-orchestrator-tui-alignment/owner-questions/Q02-approval-flow/merged-proposal.md"
+  convergence_score: 0.95
+  artifacts_dir: "/home/coder/workspaces/worktrees/IronClaude/issue-339-orchestrator-mode/.dev/brainstorms/20261113-orchestrator-tui-alignment/owner-questions/Q02-approval-flow/adversarial/"
+  status: "partial"  # all five steps done and post-merge validation passed; partial because C-005 is unresolved and the merge log flags one carried-over gap (re-approval after revocation for the same plan version)
+  base_variant: "variant-2-original (proposal B, one actuator)"
+  unresolved_conflicts: 1  # C-005
+  fallback_mode: false  # three advocate sub-agents and one merge-executor sub-agent were spawned; diff analysis, scoring and the refactor plan were done inline by the orchestrating worker
+  failure_stage: null
+  invocation_method: "skill-direct"
+  unaddressed_invariants: []  # Round 2.5 skipped at depth quick
