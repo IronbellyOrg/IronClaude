@@ -1,0 +1,12 @@
+return_contract:
+  merged_output_path: "/home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/results/debate/3-k-lead/VERDICT.md"
+  convergence_score: 1.0
+  artifacts_dir: "/home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/results/debate/3-k-lead/adversarial"
+  status: "partial"
+  base_variant: "sonnet:architect"
+  unresolved_conflicts: 0
+  fallback_mode: true
+  failure_stage: null
+  invocation_method: "skill-direct"
+  unaddressed_invariants: []
+  notes: "partial because scoring was condensed and the orchestration and merge were done by the main Sonnet session, not the debate-orchestrator and merge-executor agents (Opus is not used); convergence 13 of 13 shares one untested premise (no real-model K run)"

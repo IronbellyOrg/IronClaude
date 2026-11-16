@@ -1,0 +1,22 @@
+# Orchestrator note for Round 2 (written after reading all three Round 1 statements)
+
+## Where Round 1 ended
+All three advocates answer NO to "is the default blocking" (V1 defender, V2 prosecutor, V3 architect). The prosecutor reached NO at once and offered no replacement. Unanimity this early is a risk, not a result: Round 2 must try to break the PASS with routes nobody has examined, and the two notes that two advocates raised independently (no apply verb; the word "driving document" with no source) must be ruled on, not carried as notes by default.
+
+## Corrections (read work/corrections.md first; CORR-1 to CORR-6 were checked on disk)
+Most important: CORR-2 (DESIGN.md 273 and 563: a plan with no source file is a designed case, C2 is "not applicable" for it, K prints definition (2) anyway) and CORR-5 (the owner approves one line; the paragraph as sent also has eight card definitions that are not final).
+
+## Routes: every advocate must rule on each, as BLOCKING, NOT BLOCKING or NOTE, with the evidence for the ruling
+- R-A. Direction and size of the D7 bias. V3 concedes the draft is softer than its design and leans toward SS. The arithmetic (F6) says D7 flips only if K minus Z0 is above about 0.08. Is a known-direction, unsized bias "unfair" under the verdict rule, or only a bias that can be shown able to move a gate? Give the strongest YES case, then say whether it survives. Also: MR 120 predicts a plain checklist helps little (K minus Z0 near 0). If that is right, D7 rarely binds, so what does the lead-in wording change, and what does K still measure (REQ-40 prompting share)?
+- R-B. The opposite error. V3's "Apply each one to the plan" gives K eight units of coverage, which MR 36 (T2) names as the mechanism the redesigns add ("a structural unit of coverage"). Does an apply verb turn K into an SS-lite and erase the contrast that D7 and the K-versus-RL row (MR 1100) test? Is the draft's missing verb a defect or the owner's definition of "a plain checklist" (MR 1035)?
+- R-C. No-source documents (CORR-2). K prints definition (2) where CB-1 is absent. Name the exact observable harm (time spent, an invented finding, a wrong per-class figure) and check `analysis/analyze.py` for how `no_source` or "not applicable" is handled in found fraction and per-class reach for K. Is it blocking, a note, or only a risk if a decision document has `source: null` (UNVERIFIED)? If blocking, state the exact lead-in sentence that fixes it inside the owner's K definition and say whether the fix adds a recipe.
+- R-D. "in your own review" against CB-5 "The checks you were given do not replace your own review". Which reading does each model most plausibly take, which direction does each push K, and can a lead-in-only edit remove the clash without touching CB-5 (verbatim, REQ-05)?
+- R-E. What is being approved. CORR-5: only line 2; the definitions are open until the freeze; line 1 (the DRAFT marker) is test-pinned and stays in the frozen file. Does a PASS leave any stated requirement unmet (REQ-33, AO-5, DD-14, owner-decisions.md "still open" list)? What would the owner have to record, and where?
+- R-F. Action cost. Any lead-in edit splits the byte-identical shared control with RL (DR-16) and this task may not edit RL. Is a FAIL on this decision actionable inside the allowed files, and what does the split cost (the shared Z0 and K schedule, debate 2 section 3)? State whether cost may enter the blocking test (the rule says the DEFAULT is judged, not the fix).
+- R-G. "Eight" (CORR-1) and the closing position of the paragraph (K is the last text of the brief, ending on definition (8) and not on a directive; SS ends on a sheet item with a per-item directive). Blocking, note, or nothing?
+
+## Allowed edits if the verdict is FAIL (so that proposals are feasible)
+SW briefs/k-lead.txt, SW DESIGN.md (DD-14 and 15.1), SW results/owner-decisions.md, and a test that pins the lead-in (only the draft marker line is pinned, test_briefs.py 196-198). Not allowed: RL, MR, TESTING.md, the card files, analysis code, scaffold/briefs.py.
+
+## Round 2 format
+Write your rebuttal to SW/results/debate/3-k-lead/adversarial/debate/round2-V<n>.md. Sections: (1) what changed in your position and why; (2) claims of other advocates you reject, with evidence; (3) rulings R-A to R-G, one line each plus evidence; (4) final: blocking YES/NO and the list of BD and N items you still hold. Under 700 words. Do not open any file whose name contains "ground-truth" or "score". Reply with only the file path.

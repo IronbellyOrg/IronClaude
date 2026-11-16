@@ -1,0 +1,44 @@
+[
+  {
+    "id": "s01",
+    "class": "C1",
+    "quote": "Every file name a worker could be told to write, in any file of the repository, is shown not to start with REPORT, SUMMARY, FINDINGS or ANALYSIS.",
+    "description": "The criterion covers any file of the repository, but the new test scans only the agent files, SKILL.md and the named references, so its scope differs from the instruction it checks and no finite method is given."
+  },
+  {
+    "id": "s02",
+    "class": "C2",
+    "quote": "apply `written_md_names` to the three agent files and `src/superclaude/skills/sc-issue-protocol/SKILL.md`",
+    "description": "The source asks the test to collect every file name a worker is told to write from the agent files, SKILL.md, the refs and the Outputs table; the test now skips the refs and the Outputs table, where names are also given."
+  },
+  {
+    "id": "s03",
+    "class": "C4",
+    "quote": "shows only `issue-summary.md` occurrences; saved to `./artifacts/t4-grep.log`",
+    "description": "The dated note this task orders names the old summary.md file twice, so the grep prints lines with the old name and the stated criterion can never pass."
+  },
+  {
+    "id": "s04",
+    "class": "C5",
+    "quote": "`templates/claim-comment.md`, `src/superclaude/agents/issue-worker-t1.md`",
+    "description": "The list of files to copy before editing now has nine entries, but the acceptance line still says ten unchanged pre-fix copies, and next-steps.md, which the same task edits, gets no pre-fix copy."
+  },
+  {
+    "id": "s05",
+    "class": "C6",
+    "quote": "After this task no `.md` file name anywhere under `src/superclaude/` starts with REPORT, SUMMARY, FINDINGS or ANALYSIS.",
+    "description": "Other skills under src/superclaude keep files such as report-template.md, summary.md and analysis-protocol.md, which the same task leaves alone, so a find over the tree falsifies the universal sentence."
+  },
+  {
+    "id": "s06",
+    "class": "C7",
+    "quote": "starts with REPORT, SUMMARY, FINDINGS or ANALYSIS (in upper case)",
+    "description": "The dictated paragraph, used word for word in three agent files and the test, says the block applies to upper case names only, while the goal and the pinned regex are case-insensitive, so workers may write report.md."
+  },
+  {
+    "id": "s07",
+    "class": "C7",
+    "quote": "was refused during live acceptance of #302.",
+    "description": "The dictated design-doc note leaves out the pinning test, which the acceptance line requires the note to name next to the cause and the regex."
+  }
+]

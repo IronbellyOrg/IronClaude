@@ -1,0 +1,1324 @@
+diff --git a/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/results/implement/retries/T12/q0-head b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/results/implement/retries/T12/q0-head
+new file mode 100644
+index 000000000..290a67eae
+--- /dev/null
++++ b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/results/implement/retries/T12/q0-head
+@@ -0,0 +1 @@
++6225ac3fd4d810614dc39e44863158bbd603b87d
+diff --git a/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/sweep/extractors.py b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/sweep/extractors.py
+index f78a0c656..87bec0e3e 100644
+--- a/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/sweep/extractors.py
++++ b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/sweep/extractors.py
+@@ -7,6 +7,7 @@
+     run_extractors      the two phases of DD-10: `find` for every extractor, then `attach` only for the top K
+                         candidates of each class (K_single when one class alone has candidates)
+     search              one `git grep -F -f` per call over the DD-5 scope, in the snapshot only
++    find_e2, attach_e2  extractor E2 (class C4, DESIGN 4.3): a literal pattern against the text the plan orders
+ 
+ Candidate.status values set here: `found` (as made by `find`), `attached` (evidence computed, not yet decided) and
+ `dropped:pre_rank` (below the top K of its class; no evidence). select.py sets the rest: `selected`,
+@@ -15,12 +16,15 @@ Candidate.status values set here: `found` (as made by `find`), `attached` (evide
+ 
+ from __future__ import annotations
+ 
++import ast
+ import hashlib
+ import json
+ import os
+ import re
++import shlex
+ import subprocess
+ import tempfile
++import warnings
+ from collections.abc import Callable
+ from dataclasses import dataclass, field
+ from functools import cached_property
+@@ -28,7 +32,7 @@ from pathlib import Path
+ from typing import NamedTuple
+ 
+ from scaffold import cards, fnd
+-from sweep import formats, plan
++from sweep import formats, plan, words
+ 
+ SW = Path(__file__).resolve().parents[1]
+ VALUES = SW / "config" / "values.json"
+@@ -466,3 +470,702 @@ def run_extractors(ctx: Ctx, registry: dict | None = None) -> list[Candidate]:
+             c.priority = max(0, min(100, int(c.priority)))
+             c.validate(ctx)
+     return found
++
++
++# ---------------------------------------------------------------- E2 (class C4): a literal pattern against ordered text
++#
++# DESIGN 4.3. `find_e2` is lexical (no repository access); `attach_e2` adds the evidence lines. The facts `attach_e2`
++# needs travel in `Candidate.features`, so a candidate read back from candidates.json can still be attached.
++# Evidence entries are {path, line, text}: `plan` entries carry the plan line of the ordered string; a fact about a
++# file (the selector count, the base-checkout count) carries that file's repo-relative path and line 0 (no single line).
++
++E2_FIRST_WORDS = ("grep", "egrep", "rg", "git", "pytest", "test")
++_COMMAND_STARTS = ("grep ", "egrep ", "rg ", "git grep ", "pytest ")
++E2_BASE_PRIORITY, E2_NO_MATCH, E2_NEAR_MISS, E2_SELECTOR_ZERO = 25, 45, 20, 5
++PATTERN_MAX = 200  # a longer pattern is not converted (pattern_kind = regex_unparsed)
++TEST_FILE_MAX = 1_000_000
++
++_BACKTICKED = re.compile(r"`([^`\n]+)`")
++_ORDERING = re.compile(
++    r"(?<![\w-])(?:"
++    + "|".join(
++        re.escape(w) for w in sorted(words.ORDERING_VERBS, key=lambda w: (-len(w), w))
++    )
++    + r")(?![\w-])",
++    re.IGNORECASE,
++)
++# the noun the sentence orders the string as, for the line "the task orders the heading ..."
++_NOUNS = {
++    "heading": "heading", "headings": "heading",
++    "title": "title", "titles": "title", "titled": "title",
++    "section": "section", "sections": "section",
++    "label": "label", "labels": "label", "labelled": "label", "labeled": "label",
++    "name": "name", "names": "name", "named": "name",
++}  # fmt: skip
++_NOUN = re.compile(r"(?<![\w-])(?:" + "|".join(_NOUNS) + r")(?![\w-])", re.IGNORECASE)
++_SHELL_PUNCT = frozenset("|&;<>()")
++_SAFE_PATH = re.compile(r"[\w.\-/+@%]+")
++_COMPUTED = re.compile(
++    r"\$[A-Za-z_{(]"
++)  # a pattern built by the shell: not read (DESIGN 4.3 blind spot)
++# options that take a value, per program (the value is not the pattern and not a path)
++_SHORT_VALUE = {
++    "grep": set("efmABCdD"),
++    "egrep": set("efmABCdD"),
++    "git grep": set("efABC"),
++    "rg": set("efgmABCtTEjM"),
++}
++_LONG_VALUE = {
++    "regexp", "file", "max-count", "include", "exclude", "exclude-dir", "after-context", "before-context",
++    "context", "directories", "devices", "label", "binary-files", "max-depth", "threads", "glob", "type",
++    "type-not", "max-columns", "encoding",
++}  # fmt: skip
++_PYTEST_SHORT_VALUE = set("kmpconWr")
++_PYTEST_LONG_VALUE = {
++    "maxfail", "rootdir", "junitxml", "tb", "deselect", "ignore", "ignore-glob", "confcutdir", "basetemp",
++    "import-mode", "log-level", "capture", "color", "durations", "override-ini", "numprocesses", "dist", "timeout",
++}  # fmt: skip
++_POSIX_CLASS = {
++    "alpha": "a-zA-Z", "digit": "0-9", "alnum": "a-zA-Z0-9", "upper": "A-Z", "lower": "a-z", "space": r"\s",
++    "blank": r" \t", "punct": r"!-/:-@\[-`{-~", "xdigit": "0-9A-Fa-f", "word": r"\w",
++}  # fmt: skip
++_BRE_SPECIAL = frozenset(".[]*^$\\")
++_ERE_SPECIAL = frozenset(".[]*^$\\+?(){}|")
++
++
++def _shell_words(span: str) -> list[str] | None:
++    """The words of a command line up to its first pipe, redirect or `;`; None when the quotes do not close."""
++    lex = shlex.shlex(span, posix=True, punctuation_chars=True)
++    lex.whitespace_split = True
++    out: list[str] = []
++    try:
++        for tok in lex:
++            if tok and set(tok) <= _SHELL_PUNCT:
++                break
++            out.append(tok)
++    except ValueError:
++        return None
++    return out
++
++
++def _clean_path(token: str) -> str | None:
++    """A repo-relative path a command names, or None (absolute, `..`, glob, or anything the shell would expand)."""
++    p = _clean_named(token)
++    return p if p and _SAFE_PATH.fullmatch(p) and not p.startswith("-") else None
++
++
++def _parse_grep(prog: str, args: list[str]) -> dict | None:
++    """The pattern, flags and paths of a grep-family command; None when the pattern is not a plain word."""
++    ext = prog in ("egrep", "rg")
++    fixed = icase = word = False
++    pattern: str | None = None
++    computed = False
++    positional: list[str] = []
++    short_value = _SHORT_VALUE[prog]
++    i, options_over = 0, False
++    while i < len(args):
++        a = args[i]
++        i += 1
++        if options_over or not a.startswith("-") or a == "-":
++            positional.append(a)
++        elif a == "--":
++            options_over = True
++        elif a.startswith("--"):
++            name, eq, val = a[2:].partition("=")
++            if name == "files":
++                return None
++            if name in ("ignore-case",):
++                icase = True
++            elif name == "fixed-strings":
++                fixed = True
++            elif name in ("extended-regexp", "perl-regexp"):
++                ext = True
++            elif name == "basic-regexp":
++                ext = False
++            elif name == "word-regexp":
++                word = True
++            elif name in _LONG_VALUE:
++                if not eq:
++                    val = args[i] if i < len(args) else ""
++                    i += 1
++                if name == "regexp" and pattern is None:
++                    pattern = val
++                elif name == "file":
++                    computed = True
++        else:
++            cluster = a[1:]
++            for j, ch in enumerate(cluster):
++                if ch == "i":
++                    icase = True
++                elif ch == "F":
++                    fixed = True
++                elif ch in "EP" and ch not in short_value:
++                    ext = True
++                elif ch == "w":
++                    word = True
++                elif ch in short_value:
++                    val = cluster[j + 1 :]
++                    if not val:
++                        val = args[i] if i < len(args) else ""
++                        i += 1
++                    if ch == "e" and pattern is None:
++                        pattern = val
++                    elif ch == "f":
++                        computed = True
++                    break
++    if computed:
++        return None
++    if pattern is None:
++        if not positional:
++            return None
++        pattern, positional = positional[0], positional[1:]
++    if not pattern or "\n" in pattern or "\r" in pattern or _COMPUTED.search(pattern):
++        return None
++    paths = [p for p in (_clean_path(t) for t in positional) if p]
++    return {
++        "kind": "pattern", "pattern": pattern, "icase": icase, "fixed": fixed, "word": word, "ext": ext,
++        "paths": list(dict.fromkeys(paths)),
++    }  # fmt: skip
++
++
++def _parse_pytest(args: list[str]) -> dict | None:
++    """The selector of a pytest command (`-k`, `-m`, a `path::name` id); None when it names none."""
++    k = m = None
++    positional: list[str] = []
++    i, options_over = 0, False
++    while i < len(args):
++        a = args[i]
++        i += 1
++        if options_over or not a.startswith("-") or a == "-":
++            positional.append(a)
++        elif a == "--":
++            options_over = True
++        elif a.startswith("--"):
++            name, eq, _ = a[2:].partition("=")
++            if name in _PYTEST_LONG_VALUE and not eq:
++                i += 1
++        else:
++            cluster = a[1:]
++            for j, ch in enumerate(cluster):
++                if ch in _PYTEST_SHORT_VALUE:
++                    val = cluster[j + 1 :]
++                    if not val:
++                        val = args[i] if i < len(args) else ""
++                        i += 1
++                    if ch == "k" and k is None:
++                        k = val
++                    elif ch == "m" and m is None:
++                        m = val
++                    break
++    ids = [p.partition("::") for p in positional if "::" in p]
++    files = [_clean_path(p.partition("::")[0]) for p in positional]
++    files = [
++        f for f in files if f and re.search(r"[^/.]\.\w+$", f)
++    ]  # a file name, not a folder
++    test_file = files[0] if files else None
++    ident = next(
++        (rest for f, _, rest in ids if rest and _clean_path(f) == test_file), None
++    )
++    if k is None and m is None and ident is None:
++        return None
++    return {
++        "kind": "selector", "k": k, "m": m, "id": ident, "test_file": test_file,
++        "paths": [test_file] if test_file else [],
++    }  # fmt: skip
++
++
++def _parse_command(span: str) -> dict | None:
++    """A backticked span as a command of the DESIGN 4.3 families, or None when it is not one (or not readable)."""
++    head = span.split(None, 1)[0] if span.strip() else ""
++    if head not in E2_FIRST_WORDS:
++        return None
++    toks = _shell_words(span)
++    if not toks:
++        return None
++    if toks[0] == "git" and toks[1:2] == ["grep"]:
++        return _parse_grep("git grep", toks[2:])
++    if toks[0] in ("grep", "egrep", "rg"):
++        return _parse_grep(toks[0], toks[1:])
++    if toks[0] == "pytest":
++        return _parse_pytest(toks[1:])
++    if (
++        toks[0] == "test"
++    ):  # `test "$(grep -c 'x' f)" -ge 1`: the grep inside is the pattern command
++        inner = re.search(r"\$\(\s*((?:git grep|egrep|grep|rg)\b.*)\)", span)
++        return _parse_command(inner.group(1)) if inner else None
++    return None
++
++
++def _to_python_regex(p: str, ext: bool) -> str | None:
++    """A POSIX basic (`ext` False) or extended pattern as Python `re` syntax; None when it cannot be converted."""
++    out: list[str] = []
++    i, n = 0, len(p)
++    while i < n:
++        c = p[i]
++        if c == "\\":
++            if i + 1 >= n:
++                return None
++            d = p[i + 1]
++            i += 2
++            if not ext and d in "(){}|+?":
++                out.append(d)
++            elif d in "<>":
++                out.append(r"\b")
++            elif d.isalnum():
++                out.append("\\" + d)
++            else:
++                out.append(re.escape(d))
++        elif c == "[":
++            j, body, neg = i + 1, [], ""
++            if j < n and p[j] == "^":
++                neg, j = "^", j + 1
++            if j < n and p[j] == "]":
++                body.append(r"\]")
++                j += 1
++            while j < n and p[j] != "]":
++                if p.startswith("[:", j):
++                    end = p.find(":]", j + 2)
++                    name = p[j + 2 : end] if end != -1 else None
++                    if name not in _POSIX_CLASS:
++                        return None
++                    body.append(_POSIX_CLASS[name])
++                    j = end + 2
++                    continue
++                body.append("\\" + p[j] if p[j] in "\\[]^&~|" else p[j])
++                j += 1
++            if j >= n:
++                return None  # no closing bracket
++            out.append("[" + neg + "".join(body) + "]")
++            i = j + 1
++        elif not ext and c in "(){}|+?":
++            out.append("\\" + c)
++            i += 1
++        elif not ext and c == "*" and (not out or out[-1] in ("(", "|", "^")):
++            out.append(r"\*")  # a leading star of a basic pattern is a plain star
++            i += 1
++        else:
++            out.append(c)
++            i += 1
++    return "".join(out)
++
++
++def _literal_test(cmd: dict, s: str) -> tuple[bool | None, str]:
++    """(matched, pattern_kind): matched is None when the pattern cannot be read as a regular expression."""
++    p, flags = cmd["pattern"], re.IGNORECASE if cmd["icase"] else 0
++    special = _ERE_SPECIAL if cmd["ext"] else _BRE_SPECIAL
++    if cmd["fixed"] or not any(ch in special for ch in p):
++        if cmd["word"]:
++            return bool(re.search(rf"(?<!\w){re.escape(p)}(?!\w)", s, flags)), "literal"
++        return (p.lower() in s.lower() if cmd["icase"] else p in s), "literal"
++    py = _to_python_regex(p, cmd["ext"]) if len(p) <= PATTERN_MAX else None
++    if py is not None and cmd["word"]:
++        py = rf"(?<!\w)(?:{py})(?!\w)"
++    try:
++        with warnings.catch_warnings():
++            warnings.simplefilter("ignore")
++            rx = re.compile(py, flags) if py is not None else None
++    except re.error:
++        rx = None
++    return (None, "regex_unparsed") if rx is None else (bool(rx.search(s)), "regex")
++
++
++def _collapse(x: str) -> str:
++    return re.sub(r"[-_\s]+", " ", x.lower()).strip()
++
++
++def _words_of(x: str) -> set[str]:
++    return {
++        w
++        for w in re.findall(r"[a-z0-9]+", re.sub(r"\\[a-zA-Z]", " ", x.lower()))
++        if len(w) >= 3
++    }
++
++
++def _ordered_strings(doc: plan.Doc, order: dict[str, int]) -> list[dict]:
++    """Double-quoted strings and backticked headings of sentences that hold an ordering verb, in plan order."""
++    found: dict[tuple[str, int], dict] = {}
++    for b in doc.of("task", "dictated_text"):
++        text = b["text"]
++        for start, _, sent in plan.sentences(text):
++            if not _ORDERING.search(sent):
++                continue
++            ticks = [m.span() for m in _BACKTICKED.finditer(sent)]
++            spans = [(m.start(1), m.group(1)) for m in _BACKTICKED.finditer(sent)]
++            for pat in formats.QUOTED_SPANS:
++                spans += [
++                    (m.start("q"), m.group("q"))
++                    for m in re.finditer(pat, sent)
++                    if not any(
++                        a <= m.start() < z for a, z in ticks
++                    )  # a quote inside a command is not ordered
++                ]
++            for at, s in spans:
++                s = s.strip()
++                if len(s) < 2 or _parse_command(s) or s.startswith(_COMMAND_STARTS):
++                    continue  # a command is not an ordered string
++                if re.fullmatch(formats.PATH_TOKEN, s):
++                    continue  # a path is not a heading
++                line = b["line_start"] + text.count("\n", 0, start + at)
++                nouns = _NOUN.findall(sent[:at])
++                found.setdefault(
++                    (s, line),
++                    {
++                        "text": s,
++                        "line": line,
++                        "at": start + at,
++                        "noun": _NOUNS[nouns[-1].lower()] if nouns else "string",
++                        "task": order.get(b["task"], -1),
++                    },
++                )
++    return sorted(found.values(), key=lambda d: (d["line"], d["at"], d["text"]))
++
++
++def find_e2(doc: plan.Doc, ctx: Ctx) -> list[Candidate]:
++    """DESIGN 4.3 `find`: one candidate per (command, ordered string) pair, one per command that has a selector."""
++    order = {t: i for i, t in enumerate(doc.tasks)}
++    strings = _ordered_strings(doc, order)
++    out: list[Candidate] = []
++    for b in doc.of("criterion"):
++        anchor = fnd.flat(b["text"])[:ANCHOR_MAX].rstrip()
++        if len(anchor) < ANCHOR_MIN:
++            continue
++        upto = order.get(
++            b["task"], len(order)
++        )  # the goal belongs to no task: every task is earlier
++        loc = {
++            "task": b["task"],
++            "line_start": b["line_start"],
++            "line_end": b["line_end"],
++        }
++        seen: set[tuple[str, str, int]] = set()
++        for span in _BACKTICKED.findall(b["text"]):
++            cmd = _parse_command(span)
++            if cmd is None:
++                continue
++            if cmd["kind"] == "selector":
++                if (span, "", 0) in seen:
++                    continue
++                seen.add((span, "", 0))
++                sel = {"k": cmd["k"], "m": cmd["m"], "id": cmd["id"]}
++                out.append(
++                    Candidate(
++                        "E2", "C4", "selector", anchor, dict(loc),
++                        features={
++                            "no_match": 0, "near_miss": 0, "pattern_kind": "selector", "selector": sel,
++                            "test_file": cmd["test_file"],
++                        },
++                        pre_priority=E2_BASE_PRIORITY,
++                    )
++                )  # fmt: skip
++                continue
++            for s in strings:
++                if s["task"] > upto or (span, s["text"], s["line"]) in seen:
++                    continue
++                matched, kind = _literal_test(cmd, s["text"])
++                near = matched is False and _collapse(cmd["pattern"]) == _collapse(
++                    s["text"]
++                )
++                if not (
++                    matched or near or _words_of(cmd["pattern"]) & _words_of(s["text"])
++                ):
++                    continue  # the string has nothing to do with this pattern
++                seen.add((span, s["text"], s["line"]))
++                no_match = int(matched is False)
++                out.append(
++                    Candidate(
++                        "E2", "C4", "pattern", anchor, dict(loc),
++                        features={
++                            "no_match": no_match, "near_miss": int(near), "pattern_kind": kind,
++                            "pattern": cmd["pattern"],
++                            "case": "case-insensitive" if cmd["icase"] else "case-sensitive",
++                            "string": s["text"], "string_line": s["line"], "noun": s["noun"],
++                            "paths": cmd["paths"],
++                        },
++                        pre_priority=E2_BASE_PRIORITY + E2_NO_MATCH * no_match + E2_NEAR_MISS * int(near),
++                    )
++                )  # fmt: skip
++    return out
++
++
++def _parse_expr(expr: str):
++    """A `-k` or `-m` expression (names, `and`, `or`, `not`, parentheses) as a tree; None when it does not parse."""
++    toks = re.findall(r"\(|\)|[^\s()]+", expr)
++    pos = 0
++
++    def peek():
++        return toks[pos] if pos < len(toks) else None
++
++    def take():
++        nonlocal pos
++        pos += 1
++        return toks[pos - 1]
++
++    def p_or():
++        node = p_and()
++        while peek() == "or":
++            take()
++            node = ("or", node, p_and())
++        return node
++
++    def p_and():
++        node = p_not()
++        while peek() == "and":
++            take()
++            node = ("and", node, p_not())
++        return node
++
++    def p_not():
++        t = peek()
++        if t is None or t in (")", "and", "or"):
++            raise ValueError(expr)
++        if t == "not":
++            take()
++            return ("not", p_not())
++        if t == "(":
++            take()
++            node = p_or()
++            if peek() != ")":
++                raise ValueError(expr)
++            take()
++            return node
++        return ("id", take())
++
++    try:
++        tree = p_or()
++        if pos != len(toks):
++            raise ValueError(expr)
++    except ValueError:
++        return None
++    return tree
++
++
++def _run_expr(tree, holds) -> bool:
++    op = tree[0]
++    if op == "id":
++        return holds(tree[1])
++    if op == "not":
++        return not _run_expr(tree[1], holds)
++    left, right = _run_expr(tree[1], holds), _run_expr(tree[2], holds)
++    return (left and right) if op == "and" else (left or right)
++
++
++def _mark_names(node) -> set[str]:
++    """Names of `pytest.mark.<name>` (or `mark.<name>`) in a decorator or a `pytestmark` value."""
++    marks: set[str] = set()
++    for n in ast.walk(node):
++        if isinstance(n, ast.Attribute):
++            base = n.value
++            if (isinstance(base, ast.Attribute) and base.attr == "mark") or (
++                isinstance(base, ast.Name) and base.id == "mark"
++            ):
++                marks.add(n.attr)
++    return marks
++
++
++def _test_names(src: str, filename: str):
++    """[(class or None, name, marker names)] of the test functions of a file; None when a Python file does not parse.
++
++    Python files are read with `ast` (functions `test_*` and methods `test_*` of classes `Test*`); any other file
++    by the `def test_` regex.
++    """
++    if not filename.endswith(".py"):
++        return [(None, n, frozenset()) for n in re.findall(r"\bdef\s+(test_\w*)", src)]
++    try:
++        tree = ast.parse(src)
++    except (SyntaxError, ValueError):
++        return None
++    module_marks: set[str] = set()
++    for node in tree.body:
++        if isinstance(node, ast.Assign) and any(
++            isinstance(t, ast.Name) and t.id == "pytestmark" for t in node.targets
++        ):
++            module_marks |= _mark_names(node.value)
++    found = []
++    funcs = (ast.FunctionDef, ast.AsyncFunctionDef)
++    for node in tree.body:
++        if isinstance(node, funcs) and node.name.startswith("test_"):
++            marks = module_marks.union(*(_mark_names(d) for d in node.decorator_list))
++            found.append((None, node.name, frozenset(marks)))
++        elif isinstance(node, ast.ClassDef) and node.name.startswith("Test"):
++            class_marks = module_marks.union(
++                *(_mark_names(d) for d in node.decorator_list)
++            )
++            for sub in node.body:
++                if isinstance(sub, funcs) and sub.name.startswith("test_"):
++                    marks = class_marks.union(
++                        *(_mark_names(d) for d in sub.decorator_list)
++                    )
++                    found.append((node.name, sub.name, frozenset(marks)))
++    return found
++
++
++def _count_selected(sel: dict, test_file: str, tests) -> int | None:
++    """How many of `tests` the selector picks; None when an expression cannot be read."""
++    k = _parse_expr(sel["k"]) if sel["k"] is not None else None
++    m = _parse_expr(sel["m"]) if sel["m"] is not None else None
++    if (sel["k"] is not None and k is None) or (sel["m"] is not None and m is None):
++        return None
++    ident = (
++        [part.partition("[")[0] for part in sel["id"].split("::")]
++        if sel["id"]
++        else None
++    )
++    base = test_file.rpartition("/")[2]
++    n = 0
++    for cls, name, marks in tests:
++        keys = [x.lower() for x in (name, cls, base, base.removesuffix(".py")) if x]
++        if ident and not (
++            (
++                len(ident) == 1
++                and ((cls is None and ident[0] == name) or ident[0] == cls)
++            )
++            or ident == [cls, name]
++        ):
++            continue  # `file::name` is a module-level test or a class; `file::Class::name` one method
++        if k is not None and not _run_expr(
++            k, lambda w, keys=keys: any(w.lower() in key for key in keys)
++        ):
++            continue
++        if m is not None and not _run_expr(m, lambda w, marks=marks: w in marks):
++            continue
++        n += 1
++    return n
++
++
++def _read_in_snapshot(root: Path, rel: str) -> str | None:
++    """A file of the snapshot as text, or None (missing, outside the snapshot, too large, or a ground-truth file)."""
++    if GROUND_TRUTH_NAME.match(rel.rpartition("/")[2]):
++        return None
++    try:
++        p = (root / rel).resolve()
++        if (
++            not p.is_relative_to(root)
++            or not p.is_file()
++            or p.stat().st_size > TEST_FILE_MAX
++        ):
++            return None
++        return p.read_text(encoding="utf-8", errors="replace")
++    except OSError:
++        return None
++
++
++def _base_count(root: Path, term: str, paths: list[str]) -> int | None:
++    """`git grep -c -F -e <term> -- <paths>` on the snapshot, summed over files; the DD-5 exclusions still apply."""
++    excluded = [":(exclude,glob,icase)**/ground[-_]truth*"] + [
++        f":(exclude,glob)**/{d}/**"
++        for d in (DEV_DIR, *DEPENDENCY_DIRS)
++        if not (
++            d == DEV_DIR
++            and any(p == DEV_DIR or p.startswith(DEV_DIR + "/") for p in paths)
++        )
++    ]
++    argv = [
++        "git",
++        "-C",
++        str(root),
++        "grep",
++        "-c",
++        "-F",
++        "-e",
++        term,
++        "--",
++        *paths,
++        *excluded,
++    ]
++    try:
++        r = subprocess.run(argv, capture_output=True, env=_git_env(), timeout=20)
++    except (OSError, subprocess.TimeoutExpired):
++        return None
++    if r.returncode not in (0, 1):
++        return None
++    total = 0
++    for line in r.stdout.decode("utf-8", "replace").splitlines():
++        head, _, count = line.rpartition(":")
++        total += int(count) if head and count.isdigit() else 0
++    return total
++
++
++def _selector_term(sel: dict) -> str | None:
++    """The one bare name a selector asks for (for the base-checkout line), or None when it is an expression."""
++    for raw in (
++        sel["id"] and sel["id"].split("::")[-1].partition("[")[0],
++        sel["k"],
++        sel["m"],
++    ):
++        if raw and re.fullmatch(r"[\w.\-]+", raw) and raw not in ("and", "or", "not"):
++            return raw
++    return None
++
++
++def _ev(path: str, line: int, text: str) -> dict:
++    return {"path": path, "line": int(line), "text": text[:EVIDENCE_TEXT_MAX]}
++
++
++def _shell_quote(s: str) -> str:
++    return "'" + s.replace("'", "'\\''") + "'"
++
++
++def attach_e2(cands: list[Candidate], ctx: Ctx) -> None:
++    """DESIGN 4.3 `attach`: the evidence lines, then `priority`. A missing file or snapshot only drops that line."""
++    root = git_root(ctx.snapshot) if ctx.snapshot is not None else None
++    for c in cands:
++        f = c.features
++        ev: list[dict] = []
++        zero = False
++        if c.kind == "pattern":
++            line, p, s = f["string_line"], f["pattern"], f["string"]
++            ev.append(_ev("plan", line, f'the task orders the {f["noun"]} "{s}"'))
++            if f["pattern_kind"] != "regex_unparsed":
++                result = "NO MATCH" if f["no_match"] else "MATCH"
++                ev.append(
++                    _ev(
++                        "plan",
++                        line,
++                        f"pattern '{p}' ({f['case']}) against ordered string '{s}': {result}",
++                    )
++                )
++            if f["near_miss"]:
++                ev.append(
++                    _ev(
++                        "plan",
++                        line,
++                        "after lowercasing and collapsing hyphens, spaces and underscores: MATCH",
++                    )
++                )
++            term = p
++        else:
++            test_file = f["test_file"]
++            src = (
++                _read_in_snapshot(root, test_file)
++                if root is not None and test_file
++                else None
++            )
++            tests = _test_names(src, test_file) if src is not None else None
++            n = (
++                _count_selected(f["selector"], test_file, tests)
++                if tests is not None
++                else None
++            )
++            if n is not None:
++                ev.append(
++                    _ev(
++                        test_file,
++                        0,
++                        f"{n} of {len(tests)} test names in {test_file} match the selector",
++                    )
++                )
++                zero = n == 0
++            term = _selector_term(f["selector"])
++        paths = (
++            f["paths"] if "paths" in f else [f["test_file"]] if f["test_file"] else []
++        )
++        if root is not None and term and "\n" not in term and paths:
++            count = _base_count(root, term, paths)
++            if count is not None:
++                text = f"base checkout: git grep -c -F -e {_shell_quote(term)} -- {' '.join(paths)} gives {count}"
++                ev.append(_ev(paths[0], 0, text))
++        c.evidence = ev[:EVIDENCE_MAX]
++        c.priority = min(100, c.pre_priority + (E2_SELECTOR_ZERO if zero else 0))
++
++
++EXTRACTORS["E2"] = (find_e2, attach_e2)
+diff --git a/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_e2.py b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_e2.py
+new file mode 100644
+index 000000000..abd3438b2
+--- /dev/null
++++ b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_e2.py
+@@ -0,0 +1,562 @@
++"""Extractor E2 (class C4, DESIGN 4.3): a literal pattern against the text the plan orders.
++
++Each extractor test has a positive case, a negative case, a near-miss case and a determinism case. `find_e2` is
++lexical; `attach_e2` reads the snapshot built by fixtures/repos/build_repo.py under /tmp (git runs there only).
++"""
++
++import json
++from pathlib import Path
++
++import pytest
++
++from fixtures.repos.build_repo import build_repo
++from sweep import extractors, plan
++from sweep.extractors import Ctx
++
++PLANS = Path(__file__).resolve().parents[1] / "fixtures" / "plans"
++ORDER_SENTENCE = 'Edit `docs/ops.md` and add the heading "Retry policy" to it.'
++TESTS_FILE = """import pytest
++
++
++def test_purge_keeps_held():
++    pass
++
++
++def test_purge_removes_expired():
++    pass
++
++
++@pytest.mark.slow
++def test_scan_everything():
++    pass
++
++
++class TestNotice:
++    def test_notice_text(self):
++        pass
++"""
++
++
++def mkplan(criterion, ordered=ORDER_SENTENCE):
++    """A one-task plan: line 3 is the ordering sentence and line 6 the criterion bullet."""
++    return plan.parse(
++        f"## Task 1: Document the policy\n\n{ordered}\n\nAcceptance criteria:\n- {criterion}\n"
++    )
++
++
++def find(doc, **kw):
++    return extractors.find_e2(doc, Ctx(doc, **kw))
++
++
++def run(doc, snapshot=None, **kw):
++    """find, then attach the candidates (all of them: the tests here have few)."""
++    ctx = Ctx(doc, snapshot=snapshot, **kw)
++    cands = extractors.find_e2(doc, ctx)
++    extractors.attach_e2(cands, ctx)
++    return cands
++
++
++@pytest.fixture
++def repo(tmp_path):
++    return build_repo(
++        tmp_path,
++        extra={
++            "docs/ops.md": "# Operations\n\n## Retry policy\n\nRetries stop after three attempts.\n",
++            "tests/test_retention.py": TESTS_FILE,
++        },
++    ).repo
++
++
++def texts(c):
++    return [e["text"] for e in c.evidence]
++
++
++# ---------------------------------------------------------------- positive: the pattern matches the ordered string
++
++
++def test_positive_literal_match_is_a_low_priority_pair(repo):
++    (c,) = run(mkplan("`grep -ci 'retry policy' docs/ops.md` prints at least 1."), repo)
++    assert (c.extractor, c.cls, c.kind) == ("E2", "C4", "pattern")
++    assert c.features["no_match"] == 0 and c.features["near_miss"] == 0
++    assert c.features["pattern_kind"] == "literal"
++    assert c.pre_priority == 25 and c.priority == 25
++    assert c.anchor_text == "`grep -ci 'retry policy' docs/ops.md` prints at least 1."
++    assert c.location == {"task": "T1", "line_start": 6, "line_end": 6}
++    assert texts(c) == [
++        'the task orders the heading "Retry policy"',
++        "pattern 'retry policy' (case-insensitive) against ordered string 'Retry policy': MATCH",
++        "base checkout: git grep -c -F -e 'retry policy' -- docs/ops.md gives 0",
++    ]
++    assert [(e["path"], e["line"]) for e in c.evidence] == [
++        ("plan", 3),
++        ("plan", 3),
++        ("docs/ops.md", 0),
++    ]
++
++
++def test_no_match_without_a_near_miss_ranks_70():
++    (c,) = find(mkplan("`grep -c 'retry limit' docs/ops.md` prints at least 1."))
++    assert c.features["no_match"] == 1 and c.features["near_miss"] == 0
++    assert c.pre_priority == 25 + 45 == 70
++    (c2,) = run(mkplan("`grep -c 'retry limit' docs/ops.md` prints at least 1."))
++    assert c2.priority == 70
++    assert texts(c2)[1].endswith(": NO MATCH")
++
++
++# ---------------------------------------------------------------- near miss: MATCH only after collapsing
++
++
++def test_near_miss_heading_matches_only_after_collapsing(repo):
++    doc = mkplan("`grep -c 'retry-policy' docs/ops.md` prints at least 1.")
++    (c,) = run(doc, repo)
++    assert c.features["no_match"] == 1 and c.features["near_miss"] == 1
++    assert c.pre_priority == 25 + 45 + 20 == 90 and c.priority == 90
++    # the evidence lines of DESIGN 4.3, in the order the example prints them
++    assert texts(c) == [
++        'the task orders the heading "Retry policy"',
++        "pattern 'retry-policy' (case-sensitive) against ordered string 'Retry policy': NO MATCH",
++        "after lowercasing and collapsing hyphens, spaces and underscores: MATCH",
++        "base checkout: git grep -c -F -e 'retry-policy' -- docs/ops.md gives 0",
++    ]
++    assert c.evidence[0] == {
++        "path": "plan",
++        "line": 3,
++        "text": 'the task orders the heading "Retry policy"',
++    }
++
++
++@pytest.mark.parametrize(
++    "pattern, string",
++    [
++        ("retry_policy", "Retry policy"),
++        ("RETRY-POLICY", "Retry policy"),
++        ("retry  policy", "Retry-Policy"),
++        ("retry-policy", "retry_policy"),
++    ],
++)
++def test_near_miss_collapsing_rule(pattern, string):
++    ordered = f'Edit `docs/ops.md` and add the heading "{string}" to it.'
++    (c,) = find(mkplan(f"`grep -c '{pattern}' docs/ops.md` prints 1.", ordered))
++    assert c.features["near_miss"] == 1 and c.pre_priority == 90
++
++
++def test_a_literal_hit_is_not_a_near_miss():
++    (c,) = find(mkplan("`grep -c 'Retry policy' docs/ops.md` prints 1."))
++    assert c.features["near_miss"] == 0 and c.features["no_match"] == 0
++
++
++# ---------------------------------------------------------------- negative: nothing to extract
++
++
++@pytest.mark.parametrize(
++    "criterion",
++    [
++        "`make test` exits 0.",
++        "`test_notice_text` passes and `src/exporter/notice.py` exists.",
++        "`pytest tests/test_retention.py -q` exits 0.",  # no selector
++        "`pytest tests/` exits 0.",
++        "`test -f docs/ops.md` exits 0.",  # `test` without a grep inside
++        "`grep -c 'unrelated words' docs/ops.md` prints 1.",  # nothing the plan orders shares a word with it
++        "`grep -f patterns.txt docs/ops.md` prints 1.",  # patterns from a file are computed
++        '`grep -c "$PATTERN" docs/ops.md` prints 1.',  # so are patterns from the shell
++        "`grep -c 'retry-policy` docs/ops.md prints 1.",  # unbalanced quotes
++        "`rg --files docs` lists the file.",
++        "The heading is `Retry policy` and the file is `docs/ops.md`.",
++    ],
++)
++def test_negative_nothing_extracted(criterion):
++    assert find(mkplan(criterion)) == []
++
++
++def test_negative_strings_that_are_not_ordered():
++    # the sentence holds no ordering verb, a string of a later task, and a path-like backticked span
++    cmd = "`grep -c 'retry-policy' docs/ops.md` prints 1."
++    assert find(mkplan(cmd, 'The page shows "Retry policy" today.')) == []
++    later = (
++        "## Task 1: Check\n\nRun the check.\n\nAcceptance criteria:\n"
++        f"- {cmd}\n\n## Task 2: Docs\n\n{ORDER_SENTENCE}\n\nAcceptance criteria:\n- The page exists.\n"
++    )
++    assert find(plan.parse(later)) == []
++    assert (
++        find(
++            mkplan(
++                "`grep -c 'ops.md' docs/ops.md` prints 1.",
++                "Add `docs/ops.md` to the tree.",
++            )
++        )
++        == []
++    )
++
++
++def test_negative_short_anchor_is_skipped():
++    assert (
++        find(mkplan("`grep -c a x`")) == []
++    )  # the whole bullet is under 12 characters
++
++
++def test_earlier_task_strings_are_used_and_the_goal_sees_every_task():
++    text = (
++        "Goal: `grep -c 'retry-policy' docs/ops.md` prints 1.\n\n"
++        f"## Task 1: Docs\n\n{ORDER_SENTENCE}\n\nAcceptance criteria:\n- The page exists.\n\n"
++        "## Task 2: Check\n\nRun the check.\n\nAcceptance criteria:\n"
++        "- `grep -c 'retry-policy' docs/ops.md` prints 1.\n"
++    )
++    cands = find(plan.parse(text))
++    assert [(c.location["task"], c.pre_priority) for c in cands] == [
++        (None, 90),
++        ("T2", 90),
++    ]
++
++
++# ---------------------------------------------------------------- the literal test and the command flags
++
++
++def pair(criterion, ordered=ORDER_SENTENCE):
++    (c,) = find(mkplan(criterion, ordered))
++    return c
++
++
++def test_flags_fixed_ignore_case_whole_word():
++    s = 'Edit `docs/ops.md` and add the heading "a.b Retry policy2" to it.'
++    assert pair("`grep -F 'a.b' docs/ops.md` prints 1.", s).features["no_match"] == 0
++    assert (
++        pair("`grep 'a.b' docs/ops.md` prints 1.", s).features["pattern_kind"]
++        == "regex"
++    )
++    assert (
++        pair("`grep -c 'retry policy' docs/ops.md` prints 1.", s).features["no_match"]
++        == 1
++    )
++    assert (
++        pair("`grep -ci 'retry policy' docs/ops.md` prints 1.", s).features["no_match"]
++        == 0
++    )
++    assert (
++        pair("`grep -wi 'retry policy' docs/ops.md` prints 1.", s).features["no_match"]
++        == 1
++    )  # policy2
++    assert (
++        pair("`grep -wi 'retry policy2' docs/ops.md` prints 1.", s).features["no_match"]
++        == 0
++    )
++    assert (
++        pair("`grep -e 'a.b' -e x docs/ops.md` prints 1.", s).features["pattern"]
++        == "a.b"
++    )
++
++
++def test_basic_and_extended_syntax():
++    s = 'Edit `docs/ops.md` and add the heading "retry policy" to it.'
++    # basic syntax: `\|` and `\(` are operators, a bare `|` and `+` are plain characters
++    assert (
++        pair(r"`grep 'retry\|nothing' docs/ops.md` prints 1.", s).features["no_match"]
++        == 0
++    )
++    assert (
++        pair(r"`grep 'policy\(x\)*' docs/ops.md` prints 1.", s).features["no_match"]
++        == 0
++    )
++    assert (
++        pair("`grep 'retry|policy' docs/ops.md` prints 1.", s).features["no_match"] == 1
++    )
++    assert pair("`grep 'retry+' docs/ops.md` prints 1.", s).features["no_match"] == 1
++    # extended syntax (-E, egrep, rg): the same characters are operators
++    for cmd in ("grep -E", "egrep", "rg"):
++        c = pair(f"`{cmd} 'retry+|nothing' docs/ops.md` prints 1.", s)
++        assert c.features["pattern_kind"] == "regex" and c.features["no_match"] == 0, (
++            cmd
++        )
++    assert (
++        pair("`grep '[[:alpha:]]* policy' docs/ops.md` prints 1.", s).features[
++            "no_match"
++        ]
++        == 0
++    )
++    assert (
++        pair("`grep -c '^retry policy$' docs/ops.md` prints 1.", s).features["no_match"]
++        == 0
++    )
++    assert (
++        pair("`grep -c '^policy' docs/ops.md` prints 1.", s).features["no_match"] == 1
++    )
++
++
++def test_unparsable_regex_has_no_match_line():
++    doc = mkplan("`grep -c 'retry[a' docs/ops.md` prints 1.")
++    (c,) = run(doc)
++    assert c.features["pattern_kind"] == "regex_unparsed"
++    assert (
++        c.features["no_match"] == 0
++        and c.features["near_miss"] == 0
++        and c.pre_priority == 25
++    )
++    assert texts(c) == ['the task orders the heading "Retry policy"']
++    long_pattern = "retry " + "x*" * 120
++    c = pair(f"`grep -c '{long_pattern}' docs/ops.md` prints 1.")
++    assert c.features["pattern_kind"] == "regex_unparsed"
++
++
++@pytest.mark.parametrize(
++    "cmd",
++    [
++        "grep -c 'retry policy' docs/ops.md",
++        "egrep -c 'retry policy' docs/ops.md",
++        "rg -c 'retry policy' docs/ops.md",
++        "git grep -c 'retry policy' -- docs/ops.md",
++        "grep -c 'retry policy' docs/ops.md | wc -l",
++        "grep -c 'retry policy' docs/ops.md > /dev/null",
++        "test \"$(grep -c 'retry policy' docs/ops.md)\" -ge 1",
++    ],
++)
++def test_command_families(cmd):
++    c = pair(f"`{cmd}` is run.")
++    assert c.features["pattern"] == "retry policy" and c.features["paths"] == [
++        "docs/ops.md"
++    ]
++
++
++def test_paths_are_repo_relative_only():
++    c = pair(
++        "`grep -c 'retry policy' /etc/passwd ../x.md ./docs/ops.md $HOME/y docs/*.md` is run."
++    )
++    assert c.features["paths"] == ["docs/ops.md"]
++
++
++# ---------------------------------------------------------------- attach: the base checkout, never outside it
++
++
++def test_base_checkout_count_skips_dev_and_dependency_noise(tmp_path):
++    repo = build_repo(tmp_path).repo
++    ordered = 'Add the name "report_exporter" to the plan.'
++    doc = mkplan("`grep -rc 'report_exporter' .` prints 2.", ordered)
++    (c,) = run(doc, repo)
++    # README.md and scripts/export.sh hold it once each; .dev/, node_modules/ and ground-truth.json are left out
++    assert (
++        texts(c)[-1]
++        == "base checkout: git grep -c -F -e 'report_exporter' -- . gives 2"
++    )
++    assert c.evidence[-1]["path"] == "."
++
++
++def test_attach_without_a_snapshot_or_a_file_never_raises(repo):
++    doc = mkplan("`grep -c 'retry-policy' docs/missing.md` prints 1.")
++    (c,) = run(doc)  # no snapshot: no base-checkout line
++    assert len(c.evidence) == 3
++    (c,) = run(doc, repo)  # a path that is not in the snapshot counts 0
++    assert texts(c)[-1].endswith("-- docs/missing.md gives 0")
++    sel = mkplan("`pytest tests/test_absent.py -k purge` exits 0.")
++    (c,) = run(
++        sel, repo
++    )  # no count of test names; the base-checkout line is information only
++    assert texts(c) == [
++        "base checkout: git grep -c -F -e 'purge' -- tests/test_absent.py gives 0"
++    ]
++    assert c.priority == 25
++    (c,) = run(sel)
++    assert c.evidence == [] and c.priority == 25
++
++
++def test_non_git_snapshot_raises(tmp_path):
++    folder = tmp_path / "plain"
++    folder.mkdir()
++    doc = mkplan("`grep -c 'retry-policy' docs/ops.md` prints 1.")
++    ctx = Ctx(doc, snapshot=folder)
++    with pytest.raises(extractors.NotAGitRepo):
++        extractors.attach_e2(extractors.find_e2(doc, ctx), ctx)
++
++
++# ---------------------------------------------------------------- selectors, counted with ast
++
++
++def selector(cmd, repo):
++    (c,) = run(mkplan(f"`{cmd}` exits 0."), repo)
++    return c
++
++
++def test_selector_k_counts_test_names(repo):
++    c = selector("pytest tests/test_retention.py -k purge_keeps_held", repo)
++    assert c.kind == "selector" and c.pre_priority == 25 and c.priority == 25
++    assert c.features["no_match"] == 0 and c.features["near_miss"] == 0
++    assert texts(c) == [
++        "1 of 4 test names in tests/test_retention.py match the selector",
++        "base checkout: git grep -c -F -e 'purge_keeps_held' -- tests/test_retention.py gives 1",
++    ]
++    assert c.evidence[0]["path"] == "tests/test_retention.py"
++    assert (
++        selector("pytest tests/test_retention.py -k purge", repo)
++        .evidence[0]["text"]
++        .startswith("2 of 4")
++    )
++    assert (
++        selector("pytest tests/test_retention.py -k 'purge and not removes'", repo)
++        .evidence[0]["text"]
++        .startswith("1 of 4")
++    )
++    assert (
++        selector("pytest tests/test_retention.py -k 'notice or scan'", repo)
++        .evidence[0]["text"]
++        .startswith("2 of 4")
++    )
++    # the module name is a keyword too: `-k test_retention` picks every test of the file
++    assert (
++        selector("pytest tests/test_retention.py -k test_retention", repo)
++        .evidence[0]["text"]
++        .startswith("4 of 4")
++    )
++
++
++def test_selector_m_and_id(repo):
++    assert (
++        selector("pytest tests/test_retention.py -m slow", repo)
++        .evidence[0]["text"]
++        .startswith("1 of 4")
++    )
++    assert (
++        selector("pytest tests/test_retention.py -m 'not slow'", repo)
++        .evidence[0]["text"]
++        .startswith("3 of 4")
++    )
++    assert (
++        selector("pytest tests/test_retention.py::test_notice_text", repo)
++        .evidence[0]["text"]
++        .startswith("0 of 4")
++    )
++    assert (
++        selector("pytest tests/test_retention.py::TestNotice::test_notice_text", repo)
++        .evidence[0]["text"]
++        .startswith("1 of 4")
++    )
++    assert (
++        selector("pytest tests/test_retention.py::TestNotice", repo)
++        .evidence[0]["text"]
++        .startswith("1 of 4")
++    )
++    assert (
++        selector("pytest -x tests/test_retention.py::test_scan_everything[a-1]", repo)
++        .evidence[0]["text"]
++        .startswith("1 of 4")
++    )
++
++
++def test_selector_with_zero_matches_adds_5(repo):
++    c = selector("pytest tests/test_retention.py -k no_such_test", repo)
++    assert (
++        texts(c)[0] == "0 of 4 test names in tests/test_retention.py match the selector"
++    )
++    assert c.pre_priority == 25 and c.priority == 30
++
++
++def test_selector_file_that_does_not_parse_gives_no_count(tmp_path):
++    repo = build_repo(tmp_path, extra={"tests/test_broken.py": "def test_x(:\n"}).repo
++    c = selector("pytest tests/test_broken.py -k x", repo)
++    assert c.evidence == [] or "test names" not in c.evidence[0]["text"]
++    assert c.priority == 25
++
++
++def test_selector_in_a_file_that_is_not_python_uses_the_def_regex(tmp_path):
++    repo = build_repo(
++        tmp_path,
++        extra={"tests/check.txt": "def test_a():\n def test_b():\ndef helper():\n"},
++    ).repo
++    c = selector("pytest tests/check.txt -k test_a", repo)
++    assert texts(c)[0] == "1 of 2 test names in tests/check.txt match the selector"
++
++
++def test_selector_is_never_read_outside_the_snapshot(tmp_path, repo):
++    secret = tmp_path / "outside.py"
++    secret.write_text("def test_secret():\n    pass\n")
++    link = repo / "tests" / "test_link.py"
++    link.symlink_to(secret)
++    c = selector("pytest tests/test_link.py -k secret", repo)
++    assert c.evidence == [] or "test names" not in c.evidence[0]["text"]
++
++
++# ---------------------------------------------------------------- the two plan fixtures, and determinism
++
++
++def dump(cands):
++    return json.dumps([c.to_dict() for c in cands], sort_keys=True)
++
++
++def test_p_basic_emits_the_pattern_and_the_selector(tmp_path):
++    doc = plan.read(PLANS / "p_basic.md")
++    repo = build_repo(tmp_path).repo
++    cands = run(doc, repo, seed=1)
++    assert [(c.kind, c.location["task"], c.pre_priority) for c in cands] == [
++        ("pattern", "T2", 90),
++        ("selector", "T3", 25),
++    ]
++    near = cands[0]
++    assert near.features["near_miss"] == 1
++    assert texts(near) == [
++        'the task orders the heading "Retention window"',
++        "pattern 'retention-window' (case-sensitive) against ordered string 'Retention window': NO MATCH",
++        "after lowercasing and collapsing hyphens, spaces and underscores: MATCH",
++        "base checkout: git grep -c -F -e 'retention-window' -- docs/guide.md gives 0",
++    ]
++    assert near.evidence[0]["line"] == 40  # the plan line that orders the heading
++    assert cands[
++        1
++    ].evidence == [  # tests/test_retention.py does not exist at the base commit
++        {
++            "path": "tests/test_retention.py",
++            "line": 0,
++            "text": "base checkout: git grep -c -F -e 'purge_keeps_held' -- tests/test_retention.py gives 0",
++        }
++    ]
++
++
++def test_p_clean_emits_nothing(tmp_path):
++    doc = plan.read(PLANS / "p_clean.md")
++    assert find(doc) == []
++    assert run(doc, build_repo(tmp_path).repo) == []
++
++
++def test_determinism_on_p_basic_and_p_clean(tmp_path):
++    repo = build_repo(tmp_path).repo
++    for name in ("p_basic.md", "p_clean.md"):
++        doc = plan.read(PLANS / name)
++        assert dump(run(doc, repo, seed=1)) == dump(run(doc, repo, seed=1))
++        assert dump(find(doc, seed=1)) == dump(
++            find(doc, seed=2)
++        )  # the seed only orders, in select
++
++
++def test_evidence_holds_no_claim_no_severity_no_defect(repo):
++    basic = plan.read(PLANS / "p_basic.md")
++    docs = [
++        basic,
++        mkplan("`grep -c 'retry-policy' docs/ops.md` prints at least 1."),
++        mkplan("`pytest tests/test_retention.py -k no_such_test` exits 0."),
++    ]
++    cands = [(doc, c) for doc in docs for c in run(doc, repo)]
++    blob = " ".join(e["text"] for _, c in cands for e in c.evidence).lower()
++    assert blob
++    for word in ("defect", "severity", "blocking", "wrong", "bug"):
++        assert word not in blob
++    for doc, c in cands:
++        c.validate(
++            Ctx(doc)
++        )  # every limit of DESIGN 4.1: anchor, location, priority, at most 5 entries, 160 chars
++
++
++# ---------------------------------------------------------------- the registry
++
++
++def test_registered_and_driven_by_run_extractors(tmp_path):
++    assert extractors.EXTRACTORS["E2"] == (extractors.find_e2, extractors.attach_e2)
++    doc = plan.read(PLANS / "p_basic.md")
++    ctx = Ctx(doc, snapshot=build_repo(tmp_path).repo, seed=1)
++    out = [
++        c for c in extractors.run_extractors(ctx, {"E2": extractors.EXTRACTORS["E2"]})
++    ]
++    assert [
++        (c.cls, c.route, c.status, c.evidence_computed, c.priority) for c in out
++    ] == [
++        ("C4", "search", "attached", True, 90),
++        ("C4", "search", "attached", True, 25),
++    ]
++    clean = extractors.run_extractors(
++        Ctx(plan.read(PLANS / "p_clean.md")), {"E2": extractors.EXTRACTORS["E2"]}
++    )
++    assert clean == []
+diff --git a/.dev/tasks/to-do/TASK-WF-implementHomeCod-20261114-200449/progress.md b/.dev/tasks/to-do/TASK-WF-implementHomeCod-20261114-200449/progress.md
+index 84d4f709b..cd018819f 100644
+--- a/.dev/tasks/to-do/TASK-WF-implementHomeCod-20261114-200449/progress.md
++++ b/.dev/tasks/to-do/TASK-WF-implementHomeCod-20261114-200449/progress.md
+@@ -22,3 +22,4 @@ T10: start sha=774207e4ad8c19d42db51ba0e6a78ffc3599e02f
+ T10: complete verdict=compliant ac=T10.AC1,T10.AC2,T10.AC3,T10.AC4 evidence=T10.AC1@.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_plan.py:510,T10.AC2@.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/results/implement/logs/T10-lint.log:12,T10.AC3@.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_plan.py:545,T10.AC4@.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/fixtures/docs/doc1.md:10 extras=lint:pass,typecheck:skip,test:pass files=.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/fixtures/docs/doc1.md,.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/fixtures/plans/gen_setwords.py,.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/fixtures/specs/parent1.md,.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/fixtures/specs/spec1.md,.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_plan.py
+ T11: start sha=7ed1481deba9cac18c095bc63df8916b236f0105
+ T11: complete verdict=compliant ac=T11.AC1,T11.AC2,T11.AC3,T11.AC4 evidence=T11.AC1@.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/results/implement/logs/T11-pytest.log:14,T11.AC2@.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/sweep/extractors.py:449,T11.AC3@.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/sweep/extractors.py:218,T11.AC4@.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/sweep/extractors.py:164 extras=lint:pass,typecheck:skip,test:pass files=.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/sweep/extractors.py,.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_extractors_common.py,.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_scope.py
++T12: start sha=c2094835807aa6e376bdcd73228beb8178589c7f

@@ -1,0 +1,4 @@
+All checks passed!
+72 files already formatted
+cmd: ruff check + ruff format --check
+rc=0

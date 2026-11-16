@@ -1,0 +1,874 @@
+diff --git a/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/cards/C1.json b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/cards/C1.json
+new file mode 100644
+index 000000000..fb2e41b59
+--- /dev/null
++++ b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/cards/C1.json
+@@ -0,0 +1,34 @@
++{
++  "id": "C1",
++  "name": "Unbounded completeness criterion",
++  "version": 1,
++  "definition": "A criterion asks for a complete or exhaustive result over a set with no bounded method or stopping rule, or the criterion's scope differs from the scope of the instruction it checks.",
++  "question_template": "What finite check would let a reviewer say yes to this criterion, and when does it stop? Do the instruction line and the criterion cover the same set?",
++  "extractor": "E1",
++  "route": "read",
++  "replicas": 2,
++  "applies_to": [
++    "plan",
++    "spec",
++    "doc"
++  ],
++  "instances": [
++    {
++      "cite": "experiments/346-validation/phase1/REPORT.md:124-132",
++      "target": "plan",
++      "kind": "P"
++    },
++    {
++      "cite": "experiments/346-validation/phase1/REPORT.md:172-178",
++      "target": "plan",
++      "kind": "P"
++    }
++  ],
++  "severity_guidance": "Blocking when the criterion can never be shown true, so every review round can add one more item; minor when only the wording is loose.",
++  "known_weakness": "A set word with no bound that the model must judge as bounded elsewhere; contradicting tasks are not scripted; the evidence is symptom-level.",
++  "promote_category": "unpassable-check",
++  "swap_test": {
++    "reviewer": "",
++    "date": ""
++  }
++}
+diff --git a/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/cards/C2.json b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/cards/C2.json
+new file mode 100644
+index 000000000..3d53d45f7
+--- /dev/null
++++ b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/cards/C2.json
+@@ -0,0 +1,34 @@
++{
++  "id": "C2",
++  "name": "Driving-document rule not carried over",
++  "version": 1,
++  "definition": "A rule stated in the driving document is not carried into the plan's task text or criterion.",
++  "question_template": "Does the candidate carry this rule, including each condition and failure path? Quote the carrying sentence, or answer PROBLEM.",
++  "extractor": "E5",
++  "route": "read",
++  "replicas": 2,
++  "applies_to": [
++    "plan",
++    "spec",
++    "doc"
++  ],
++  "instances": [
++    {
++      "cite": "reflect/pre-phase3CodegraphA-20261029205359/REPORT.md:110",
++      "target": "plan",
++      "kind": "P"
++    },
++    {
++      "cite": "reflect/pre-TASK-WF-scIssueClaimPipe-20261107-063237-20261107063558/REPORT.md:203-204",
++      "target": "plan",
++      "kind": "P"
++    }
++  ],
++  "severity_guidance": "Blocking when the dropped rule changes what the built artefact does; minor when the rule only affects wording.",
++  "known_weakness": "Rules carried in words and not in identifiers; high identifier overlap hides a missing rule.",
++  "promote_category": "missing-requirement",
++  "swap_test": {
++    "reviewer": "",
++    "date": ""
++  }
++}
+diff --git a/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/cards/C3.json b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/cards/C3.json
+new file mode 100644
+index 000000000..646d15032
+--- /dev/null
++++ b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/cards/C3.json
+@@ -0,0 +1,34 @@
++{
++  "id": "C3",
++  "name": "Value read and never written",
++  "version": 1,
++  "definition": "A value, field or state is read, mapped or required by one component and no row, task or step writes it for that case.",
++  "question_template": "This text reads or returns on the value «value». Does any row or task write that value? Quote it. PROBLEM if none does.",
++  "extractor": "E6",
++  "route": "read",
++  "replicas": 2,
++  "applies_to": [
++    "plan",
++    "spec",
++    "doc"
++  ],
++  "instances": [
++    {
++      "cite": "research/346-review-loop-experiments/p17/findings.jsonl:20",
++      "target": "spec",
++      "kind": "P"
++    },
++    {
++      "cite": "reflect/pre-task-rf-194013-20260609103200/REPORT.md:57",
++      "target": "plan",
++      "kind": "P"
++    }
++  ],
++  "severity_guidance": "Blocking when a reader keys on a value that nothing sets; minor when a stated default covers the case.",
++  "known_weakness": "High false-positive rate and low trust; class support is weak, so it is plausible only.",
++  "promote_category": "missing-requirement",
++  "swap_test": {
++    "reviewer": "",
++    "date": ""
++  }
++}
+diff --git a/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/cards/C4.json b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/cards/C4.json
+new file mode 100644
+index 000000000..47a372457
+--- /dev/null
++++ b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/cards/C4.json
+@@ -0,0 +1,34 @@
++{
++  "id": "C4",
++  "name": "Check that cannot match or pass",
++  "version": 1,
++  "definition": "A criterion embeds a command, pattern or test selector whose literal form cannot match or cannot pass against the text or state the same plan orders.",
++  "question_template": "Apply the criterion's literal pattern to the text this task orders. Does it pass on that text? Do not use the current file as evidence; it may already contain the finished work.",
++  "extractor": "E2",
++  "route": "search",
++  "replicas": 2,
++  "applies_to": [
++    "plan",
++    "spec",
++    "doc"
++  ],
++  "instances": [
++    {
++      "cite": "reflect/pre-workflowSource-20261102234109/REPORT.md:51",
++      "target": "plan",
++      "kind": "P"
++    },
++    {
++      "cite": "reflect/pre-refactorIronClau-20261102175540/adversarial/merged-findings.md:36",
++      "target": "plan",
++      "kind": "P"
++    }
++  ],
++  "severity_guidance": "Blocking when the check can never pass, or can never fail, on the text the document orders; minor when it only reads poorly.",
++  "known_weakness": "Commands with computed patterns; regular expressions that Python and POSIX read differently.",
++  "promote_category": "unpassable-check",
++  "swap_test": {
++    "reviewer": "",
++    "date": ""
++  }
++}
+diff --git a/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/cards/C5.json b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/cards/C5.json
+new file mode 100644
+index 000000000..fcfc03ef8
+--- /dev/null
++++ b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/cards/C5.json
+@@ -0,0 +1,33 @@
++{
++  "id": "C5",
++  "name": "Stale count, claim or copy in a second location",
++  "version": 1,
++  "definition": "After a change, a count, claim or copy in a second location is left stale because no task enumerates that location.",
++  "question_template": "Is each plan-unnamed hit false after the change? Does any task edit or check it?",
++  "extractor": "E4",
++  "route": "search",
++  "replicas": 2,
++  "applies_to": [
++    "plan",
++    "doc"
++  ],
++  "instances": [
++    {
++      "cite": "reflect/pre-TASK-WF-scIssueClaimPipe-20261107-063237-20261107063558/REPORT.md:249",
++      "target": "plan",
++      "kind": "P"
++    },
++    {
++      "cite": "reflect/pre-TASK-WF-workerContractFo-20261106-214402-20261106214804/REPORT.md:30,39",
++      "target": "plan",
++      "kind": "P"
++    }
++  ],
++  "severity_guidance": "Blocking when the stale count, claim or copy sits where a reader relies on it; minor in a code comment.",
++  "known_weakness": "Stale claims that use different wording than the plan; the search scope is fixed and can miss a location.",
++  "promote_category": "missing-requirement",
++  "swap_test": {
++    "reviewer": "",
++    "date": ""
++  }
++}
+diff --git a/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/cards/C6.json b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/cards/C6.json
+new file mode 100644
+index 000000000..f4e83f748
+--- /dev/null
++++ b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/cards/C6.json
+@@ -0,0 +1,34 @@
++{
++  "id": "C6",
++  "name": "Overbroad universal claim",
++  "version": 1,
++  "definition": "A sentence says \"all\", \"only\", \"never\" or \"outside X nothing\", and an inventory, the plan's other tasks or the scope of the enforcing test contradict it.",
++  "question_template": "Name the set this sentence covers. Find one member it leaves out or contradicts: look at the plan's other tasks, at what the enforcing test skips, and run one count or listing command over the tree.",
++  "extractor": "E1",
++  "route": "search",
++  "replicas": 2,
++  "applies_to": [
++    "plan",
++    "spec",
++    "doc"
++  ],
++  "instances": [
++    {
++      "cite": "reflect/pre-TASK-WF-workerContractFo-20261106-214402-20261106214804/REPORT.md:28",
++      "target": "plan",
++      "kind": "P"
++    },
++    {
++      "cite": "reflect/pre-TASK-WF-brainstormFixBri-20261106-021737/reviewer-cards/reviewer-1-card.yaml:44",
++      "target": "plan",
++      "kind": "P"
++    }
++  ],
++  "severity_guidance": "Blocking when one counter-example that the document itself shows falsifies the claim; minor when the claim is only loosely worded.",
++  "known_weakness": "Contradictions that sit in other tasks are not scripted; most recorded instances are delivered documents, not plan text.",
++  "promote_category": "contradiction",
++  "swap_test": {
++    "reviewer": "",
++    "date": ""
++  }
++}
+diff --git a/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/cards/C7.json b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/cards/C7.json
+new file mode 100644
+index 000000000..15eb8b509
+--- /dev/null
++++ b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/cards/C7.json
+@@ -0,0 +1,34 @@
++{
++  "id": "C7",
++  "name": "Dictated text drops or contradicts a constraint",
++  "version": 1,
++  "definition": "Verbatim text the plan dictates omits a clause of a constraint stated elsewhere, or contradicts the plan's own criterion.",
++  "question_template": "Does each dictated text carry every clause of this constraint? Tick each clause.",
++  "extractor": "E7",
++  "route": "read",
++  "replicas": 2,
++  "applies_to": [
++    "plan",
++    "spec",
++    "doc"
++  ],
++  "instances": [
++    {
++      "cite": "reflect/pre-TASK-WF-implementIronbel-20261104-130647-20261104130837/REPORT.md:48",
++      "target": "plan",
++      "kind": "P"
++    },
++    {
++      "cite": "reflect/pre-implementGitHubI-20261105171020/REPORT.md:67",
++      "target": "plan",
++      "kind": "P"
++    }
++  ],
++  "severity_guidance": "Blocking when the text, written as ordered, breaks the constraint; minor when only the wording differs.",
++  "known_weakness": "Clauses with no distinctive token; only the broad form is visible, the one-clause form is rarely seen.",
++  "promote_category": "contradiction",
++  "swap_test": {
++    "reviewer": "",
++    "date": ""
++  }
++}
+diff --git a/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/cards/C8.json b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/cards/C8.json
+new file mode 100644
+index 000000000..71914ccaa
+--- /dev/null
++++ b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/cards/C8.json
+@@ -0,0 +1,33 @@
++{
++  "id": "C8",
++  "name": "Edited file pinned by an untouched test",
++  "version": 1,
++  "definition": "A plan edits files or behavior that a test elsewhere pins, with no task that updates or runs that test.",
++  "question_template": "Open the referencing file the plan never names. Does it pin the text or behavior being changed? Does any task update or run it?",
++  "extractor": "E3",
++  "route": "search",
++  "replicas": 2,
++  "applies_to": [
++    "plan",
++    "spec"
++  ],
++  "instances": [
++    {
++      "cite": "reflect/pre-phase3CodegraphA-20261029205359/adversarial/merged-reviewer-findings.md:22",
++      "target": "plan",
++      "kind": "P"
++    },
++    {
++      "cite": "reflect/pre-TASK-WF-implementIronbel-20261104-130647-20261104130837/REPORT.md:44-46",
++      "target": "plan",
++      "kind": "P"
++    }
++  ],
++  "severity_guidance": "Blocking when the pinned test fails after the planned change and no task updates or runs it; minor when it pins only a comment.",
++  "known_weakness": "Dependents that refer to the file only by an indirect name.",
++  "promote_category": "missing-requirement",
++  "swap_test": {
++    "reviewer": "",
++    "date": ""
++  }
++}
+diff --git a/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/cards/README.md b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/cards/README.md
+new file mode 100644
+index 000000000..8e2455c1f
+--- /dev/null
++++ b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/cards/README.md
+@@ -0,0 +1,31 @@
++# Class cards
++
++One JSON file per defect class (`C1.json` to `C8.json`), checked against `schema.json` by `scaffold/cards.py`. A card is data: the printed question, the route, the replica count, the extractor name, the promotion category and the target-neutral definition all come from it. Nothing else in the build keeps a class list (MR 3.0.3, DESIGN 13.2).
++
++Fields: `id`, `name`, `version`, `definition`, `question_template`, `extractor`, `route` (`search` or `read`), `replicas`, `applies_to` (`plan`, `spec`, `doc`), `instances` (at least two citations, paths relative to `.dev/`, from the register of recorded cases outside the study packages), `severity_guidance`, `known_weakness` (for maintainers, never shown to a reviewer), `promote_category` (one of `FND.CATEGORIES`, DD-11) and `swap_test` (reviewer and date, filled by a second author).
++
++## Add a class
++
++1. Write `cards/C<n>.json` with every field above. The file name must equal its `id`.
++2. Run `uv run --frozen --project <repo> pytest -p no:cacheprovider <SW>/tests/test_cards.py`.
++3. Only if a deterministic trigger exists: register one extractor pair in `sweep/extractors.py` and name it in the card's `extractor`. With no extractor the class still enters the arm K paragraph.
++
++No change to `select.py`, `assign.py`, `render.py`, `scaffold/ledgerv1.py` or the launcher (REQ-10).
++
++## Add a target type (REQ-38)
++
++Add one dictionary to `sweep/formats.py` and fill one column of this table. Each cell says what to write down for that target; it is not a restatement of the row name.
++
++| Re-derive | Plan (done) | Specification (drafted) | Documentation (drafted) |
++|---|---|---|---|
++| Block patterns | `formats.py: plan`: `## Task N:` sections, `Acceptance criteria:` bullets, `## Constraints` bullets, quoted spans after a dictation verb, path tokens after an edit verb, the last task's criteria as the gate | `formats.py: spec`: numbered sections, lines with shall, must or should, fenced blocks under Example or Message format, items under Affects, a Verification section | `formats.py: doc`: headings, sentences with a set word, fenced command blocks and fenced text blocks of a how-to; no constraint or edit-target blocks |
++| Command dialect | grep, egrep, rg, git grep, pytest, test | the dialect the specification's verification rows name | shell commands inside fenced blocks |
++| Test and root-document paths | `tests/`, `scripts/`, `docs/`, root-level files, change-log style files anywhere, the folders of plan-named paths (DD-5) | the same, plus the parent folder of the specification | the repository paths of the documents and of the code they describe |
++| Severity guidance | each card's `severity_guidance`, where blocking means a builder cannot satisfy the text | each card's `severity_guidance`, where blocking means a shall line cannot be met or checked | each card's `severity_guidance`, where blocking means a reader who follows the text gets a wrong result |
++| Location of truth | the source document named on the `Source:` line | the parent requirement document | the code the text describes, or the change log |
++| Snapshot | the base commit of the plan | the base commit, or a recorded working tree | the commit before the fix |
++
++## Open manual checks
++
++- Second reader of this table (TESTING REQ-38, row M): reader: ______  date: ______  statement: "each row is specific, not a restatement of the heading". Status: OPEN.
++- Swap test (AO-2, REQ-08): the `swap_test` record of every card is empty until a second author who has not seen the ground truth has replaced the domain nouns by placeholders and signed. Status: OPEN for C1 to C8; Task 33 lists them.
+diff --git a/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/cards/schema.json b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/cards/schema.json
+new file mode 100644
+index 000000000..dbeadfa22
+--- /dev/null
++++ b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/cards/schema.json
+@@ -0,0 +1,64 @@
++{
++  "$schema": "https://json-schema.org/draft/2020-12/schema",
++  "title": "Defect-class card (MR 3.0.3 plus promote_category, DD-11)",
++  "type": "object",
++  "additionalProperties": false,
++  "required": [
++    "id",
++    "name",
++    "version",
++    "definition",
++    "question_template",
++    "extractor",
++    "route",
++    "replicas",
++    "applies_to",
++    "instances",
++    "severity_guidance",
++    "known_weakness",
++    "promote_category",
++    "swap_test"
++  ],
++  "properties": {
++    "id": { "type": "string", "pattern": "^C[0-9]+$" },
++    "name": { "type": "string", "minLength": 1 },
++    "version": { "type": "integer", "minimum": 1 },
++    "definition": { "type": "string", "minLength": 20 },
++    "question_template": { "type": "string", "minLength": 20 },
++    "extractor": { "type": ["string", "null"], "pattern": "^E[0-9]+$" },
++    "route": { "type": "string", "enum": ["search", "read"] },
++    "replicas": { "type": "integer", "enum": [1, 2] },
++    "applies_to": {
++      "type": "array",
++      "minItems": 1,
++      "uniqueItems": true,
++      "items": { "type": "string", "enum": ["plan", "spec", "doc"] }
++    },
++    "instances": {
++      "type": "array",
++      "minItems": 2,
++      "items": {
++        "type": "object",
++        "additionalProperties": false,
++        "required": ["cite", "target", "kind"],
++        "properties": {
++          "cite": { "type": "string", "minLength": 1 },
++          "target": { "type": "string", "enum": ["plan", "spec", "doc"] },
++          "kind": { "type": "string", "enum": ["P", "I"] }
++        }
++      }
++    },
++    "severity_guidance": { "type": "string", "minLength": 1 },
++    "known_weakness": { "type": "string", "minLength": 1 },
++    "promote_category": { "type": "string", "minLength": 1 },
++    "swap_test": {
++      "type": "object",
++      "additionalProperties": false,
++      "required": ["reviewer", "date"],
++      "properties": {
++        "reviewer": { "type": "string" },
++        "date": { "type": "string" }
++      }
++    }
++  }
++}
+diff --git a/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/results/implement/retries/T6/q0-head b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/results/implement/retries/T6/q0-head
+new file mode 100644
+index 000000000..290a67eae
+--- /dev/null
++++ b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/results/implement/retries/T6/q0-head
+@@ -0,0 +1 @@
++6225ac3fd4d810614dc39e44863158bbd603b87d
+diff --git a/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/scaffold/cards.py b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/scaffold/cards.py
+new file mode 100644
+index 000000000..f9c57daf9
+--- /dev/null
++++ b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/scaffold/cards.py
+@@ -0,0 +1,129 @@
++"""Class cards as data (MR 3.0.3, DESIGN 4.1, 6.2, 13.2, DD-11).
++
++One JSON file per class in cards/, checked against cards/schema.json. Everything that depends on the class list
++(quotas, the printed question, the route, the promotion category, the arm K paragraph) reads it from here, so a
++new class is one new card file and no code change (REQ-10).
++
++The schema check is a small interpreter of the schema subset the schema uses (stdlib only, so the pre-pass needs
++nothing else); tests cross-check it against the `jsonschema` package. `promote_category` is checked against the
++real findings categories through scaffold/fnd.py (DESIGN 2.3), so a category added there needs no schema change.
++"""
++
++from __future__ import annotations
++
++import json
++import re
++from pathlib import Path
++
++CARDS_DIR = Path(__file__).resolve().parents[1] / "cards"
++
++_TYPES = {
++    "string": lambda v: isinstance(v, str),
++    "integer": lambda v: isinstance(v, int) and not isinstance(v, bool),
++    "array": lambda v: isinstance(v, list),
++    "object": lambda v: isinstance(v, dict),
++    "null": lambda v: v is None,
++}
++
++
++def _check(value, schema: dict, path: str, errors: list[str]) -> None:
++    """Append one message to errors for every way value breaks schema (type, enum, pattern, sizes, members)."""
++    want = schema.get("type")
++    if want is not None:
++        kinds = want if isinstance(want, list) else [want]
++        if not any(_TYPES[k](value) for k in kinds):
++            errors.append(f"{path}: expected {'/'.join(kinds)}")
++            return
++    if "enum" in schema and value not in schema["enum"]:
++        errors.append(f"{path}: not one of {schema['enum']}")
++    if isinstance(value, str):
++        if len(value) < schema.get("minLength", 0):
++            errors.append(f"{path}: shorter than {schema['minLength']} characters")
++        if "pattern" in schema and not re.search(schema["pattern"], value):
++            errors.append(f"{path}: does not match {schema['pattern']}")
++    if _TYPES["integer"](value) and value < schema.get("minimum", value):
++        errors.append(f"{path}: below {schema['minimum']}")
++    if isinstance(value, list):
++        if len(value) < schema.get("minItems", 0):
++            errors.append(f"{path}: fewer than {schema['minItems']} items")
++        if schema.get("uniqueItems") and len({json.dumps(v) for v in value}) < len(
++            value
++        ):
++            errors.append(f"{path}: items repeat")
++        for i, item in enumerate(value):
++            _check(item, schema.get("items", {}), f"{path}[{i}]", errors)
++    if isinstance(value, dict):
++        props = schema.get("properties", {})
++        errors.extend(
++            f"{path}: missing {k}" for k in schema.get("required", []) if k not in value
++        )
++        if schema.get("additionalProperties") is False:
++            errors.extend(f"{path}: unknown field {k}" for k in value if k not in props)
++        for k, sub in props.items():
++            if k in value:
++                _check(value[k], sub, f"{path}.{k}", errors)
++
++
++def load_schema(directory: Path | str | None = None) -> dict:
++    return json.loads(
++        (Path(directory or CARDS_DIR) / "schema.json").read_text(encoding="utf-8")
++    )
++
++
++def validate(card: dict, schema: dict | None = None) -> list[str]:
++    """Every problem found in one card, as strings; [] means valid. Checks the schema, then promote_category."""
++    from scaffold import fnd  # the one coupling to the findings code (DESIGN 2.3)
++
++    errors: list[str] = []
++    _check(card, schema or load_schema(), "card", errors)
++    cat = card.get("promote_category") if isinstance(card, dict) else None
++    if isinstance(cat, str) and cat not in fnd.CATEGORIES:
++        errors.append(f"card.promote_category: {cat!r} is not in FND.CATEGORIES")
++    return errors
++
++
++def load(directory: Path | str | None = None) -> dict[str, dict]:
++    """{id: card} for every C<n>.json in directory (default cards/), in class order. Raises ValueError on a bad card.
++
++    The folder's own schema.json is used. A file whose name differs from its `id` is an error.
++    """
++    root = Path(directory or CARDS_DIR)
++    schema = load_schema(root)
++    cards: dict[str, dict] = {}
++    problems: list[str] = []
++    for f in sorted(root.glob("C*.json")):
++        card = json.loads(f.read_text(encoding="utf-8"))
++        problems.extend(f"{f.name}: {e}" for e in validate(card, schema))
++        if isinstance(card, dict) and card.get("id") != f.stem:
++            problems.append(
++                f"{f.name}: id {card.get('id')!r} differs from the file name"
++            )
++        if isinstance(card, dict) and isinstance(card.get("id"), str):
++            cards[card["id"]] = card
++    if problems:
++        raise ValueError("; ".join(problems))
++    return dict(sorted(cards.items(), key=lambda kv: int(kv[0][1:])))
++
++
++def _field(name: str, cards: dict[str, dict] | None) -> dict[str, str]:
++    return {i: c[name] for i, c in (cards if cards is not None else load()).items()}
++
++
++def questions(cards: dict[str, dict] | None = None) -> dict[str, str]:
++    """{class id: printed question}; only a card whose question holds «value» has a placeholder."""
++    return _field("question_template", cards)
++
++
++def routes(cards: dict[str, dict] | None = None) -> dict[str, str]:
++    """{class id: `search` or `read`}."""
++    return _field("route", cards)
++
++
++def promote_category(card_id: str, cards: dict[str, dict] | None = None) -> str:
++    """The findings category a promoted line of this class gets (DD-11)."""
++    return _field("promote_category", cards)[card_id]
++
++
++def definition(card_id: str, cards: dict[str, dict] | None = None) -> str:
++    """The target-neutral definition of one class (the source of the arm K paragraph, DD-14)."""
++    return _field("definition", cards)[card_id]
+diff --git a/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/scaffold/fnd.py b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/scaffold/fnd.py
+index 1deb371db..9e7acb8e8 100644
+--- a/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/scaffold/fnd.py
++++ b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/scaffold/fnd.py
+@@ -9,6 +9,7 @@ from __future__ import annotations
+ 
+ from superclaude.cli.review.findings import (  # noqa: F401  (re-exports)
+     _HEAD_FINDINGS,
++    CATEGORIES,
+     _blocks_after,
+     _check_finding,
+     flat,
+diff --git a/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_cards.py b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_cards.py
+new file mode 100644
+index 000000000..ba494e43d
+--- /dev/null
++++ b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_cards.py
+@@ -0,0 +1,208 @@
++"""Class cards (REQ-06, REQ-10, DD-11): schema, instances, promotion category, a ninth card as data only."""
++
++import copy
++import json
++import re
++import shutil
++
++import jsonschema
++import pytest
++from helpers import REPO, SW
++
++from scaffold import cards, fnd
++
++CARDS = SW / "cards"
++IDS = [f"C{i}" for i in range(1, 9)]
++MR = (
++    REPO
++    / ".dev/brainstorms/20261113-223124-panel-process-redesign/merged-requirements.md"
++)
++CITE = re.compile(r"^[\w./-]+(:\d+(-\d+)?(,\d+(-\d+)?)*)?$")
++# phrases that would tell the reviewer what the answer is (AO-8)
++OUTCOME = re.compile(
++    r"\b(is|are|was|were) (a |an )?(defect|defective|bug|wrong|broken|stale|missing)\b"
++    r"|\b(will|must|does|do) (always )?fail\b|\bnever (match|pass)|\bcannot (match|pass)\b"
++    r"|\bthe (defect|problem|bug)\b",
++    re.IGNORECASE,
++)
++
++
++def card_c9(**over):
++    """An invented ninth class; no real class, package or file name."""
++    c = {
++        "id": "C9",
++        "name": "Invented sample class",
++        "version": 1,
++        "definition": "A numbered step refers to a figure that no earlier step defines.",
++        "question_template": "Which earlier step defines this figure? Quote it, or answer PROBLEM.",
++        "extractor": None,
++        "route": "search",
++        "replicas": 1,
++        "applies_to": ["doc"],
++        "instances": [
++            {"cite": "notes/alpha.md:10", "target": "doc", "kind": "P"},
++            {"cite": "notes/beta.md:20-22", "target": "doc", "kind": "I"},
++        ],
++        "severity_guidance": "Blocking when the figure decides an outcome.",
++        "known_weakness": "Figures defined by a table the reader never sees.",
++        "promote_category": "other",
++        "swap_test": {"reviewer": "", "date": ""},
++    }
++    c.update(over)
++    return c
++
++
++def mr_questions():
++    out = {}
++    for ln in MR.read_text(encoding="utf-8").splitlines():
++        cells = [c.strip() for c in ln.strip().strip("|").split(" | ")]
++        if re.match(r"^C[1-8]$", cells[0]) and len(cells) == 3 and cells[2][:1] == '"':
++            out[cells[0]] = cells[2][1:-1]
++    return out
++
++
++def mr_definitions():
++    out = {}
++    for ln in MR.read_text(encoding="utf-8").splitlines():
++        cells = [c.strip() for c in ln.strip().strip("|").split(" | ")]
++        if re.match(r"^C[1-8]$", cells[0]) and len(cells) == 6:
++            out[cells[0]] = cells[1]
++    return out
++
++
++def test_schema_valid():
++    schema = json.loads((CARDS / "schema.json").read_text(encoding="utf-8"))
++    jsonschema.Draft202012Validator.check_schema(schema)
++    loaded = cards.load()
++    assert list(loaded) == IDS
++    for cid, card in loaded.items():
++        assert json.loads((CARDS / f"{cid}.json").read_text(encoding="utf-8")) == card
++        assert list(jsonschema.Draft202012Validator(schema).iter_errors(card)) == []
++        assert cards.validate(card) == []
++    assert cards.validate(card_c9()) == []
++
++
++def test_schema_checker_agrees_with_jsonschema_on_broken_cards():
++    """cards.validate is a stdlib reading of the schema; it must reject what the jsonschema package rejects."""
++    schema = json.loads((CARDS / "schema.json").read_text(encoding="utf-8"))
++    ref = jsonschema.Draft202012Validator(schema)
++    good = cards.load()["C4"]
++    mutations = {
++        "missing field": lambda c: c.pop("route"),
++        "unknown field": lambda c: c.update(extra=1),
++        "bad route": lambda c: c.update(route="skim"),
++        "bad id": lambda c: c.update(id="X4"),
++        "version string": lambda c: c.update(version="1"),
++        "version bool": lambda c: c.update(version=True),
++        "replicas 3": lambda c: c.update(replicas=3),
++        "extractor name": lambda c: c.update(extractor="Z9"),
++        "empty applies_to": lambda c: c.update(applies_to=[]),
++        "repeated applies_to": lambda c: c.update(applies_to=["plan", "plan"]),
++        "bad target": lambda c: c.update(applies_to=["slide"]),
++        "one instance": lambda c: c.update(instances=c["instances"][:1]),
++        "instance without kind": lambda c: c["instances"][0].pop("kind"),
++        "short question": lambda c: c.update(question_template="Why?"),
++        "swap_test without date": lambda c: c["swap_test"].pop("date"),
++    }
++    for name, mutate in mutations.items():
++        bad = copy.deepcopy(good)
++        mutate(bad)
++        assert list(ref.iter_errors(bad)), name
++        assert cards.validate(bad), name
++    ok = copy.deepcopy(good)
++    ok["extractor"] = None
++    assert not list(ref.iter_errors(ok)) and cards.validate(ok) == []
++
++
++def test_each_card_has_two_instances():
++    for cid, card in cards.load().items():
++        inst = card["instances"]
++        assert len(inst) >= 2, cid
++        cites = [i["cite"] for i in inst]
++        assert len(set(cites)) == len(cites), cid
++        for c in cites:
++            assert CITE.match(c), (cid, c)
++
++
++def test_promote_category_valid():
++    assert set(fnd.CATEGORIES) >= {"contradiction", "unpassable-check"}
++    for cid, card in cards.load().items():
++        assert card["promote_category"] in fnd.CATEGORIES, cid
++        assert cards.promote_category(cid) == card["promote_category"]
++    bad = copy.deepcopy(cards.load()["C1"])
++    bad["promote_category"] = "typo"
++    assert any("FND.CATEGORIES" in e for e in cards.validate(bad))
++
++
++def test_fixture_card_c9_needs_no_dispatcher_change(tmp_path):
++    """REQ-10: a ninth class is one data file. cards.py holds no class id and still serves the new card."""
++    src = (SW / "scaffold" / "cards.py").read_text(encoding="utf-8")
++    assert not re.search(r"\bC[0-9]\b", src)
++    work = tmp_path / "cards"
++    shutil.copytree(CARDS, work, ignore=shutil.ignore_patterns("README.md"))
++    c9 = card_c9()
++    (work / "C9.json").write_text(json.dumps(c9), encoding="utf-8")
++    loaded = cards.load(work)
++    assert list(loaded) == [*IDS, "C9"]
++    assert cards.questions(loaded)["C9"] == c9["question_template"]
++    assert cards.routes(loaded)["C9"] == "search"
++    assert cards.promote_category("C9", loaded) == "other"
++    assert cards.definition("C9", loaded) == c9["definition"]
++    assert len(cards.questions(loaded)) == 9
++    (work / "C10.json").write_text(
++        json.dumps(card_c9(id="C10", route="skim")), encoding="utf-8"
++    )
++    with pytest.raises(ValueError, match="C10.json"):
++        cards.load(work)
++    (work / "C10.json").write_text(json.dumps(card_c9(id="C11")), encoding="utf-8")
++    with pytest.raises(ValueError, match="differs from the file name"):
++        cards.load(work)
++
++
++def test_routes_extractors_and_replicas():
++    loaded = cards.load()
++    assert cards.routes(loaded) == {
++        "C1": "read",
++        "C2": "read",
++        "C3": "read",
++        "C4": "search",
++        "C5": "search",
++        "C6": "search",
++        "C7": "read",
++        "C8": "search",
++    }
++    assert {i: c["extractor"] for i, c in loaded.items()} == {
++        "C1": "E1",
++        "C2": "E5",
++        "C3": "E6",
++        "C4": "E2",
++        "C5": "E4",
++        "C6": "E1",
++        "C7": "E7",
++        "C8": "E3",
++    }
++    assert {c["replicas"] for c in loaded.values()} == {2}
++    assert all(c["swap_test"] == {"reviewer": "", "date": ""} for c in loaded.values())
++
++
++def test_questions_are_neutral_and_only_c3_has_a_placeholder():
++    qs = cards.questions()
++    assert len(qs) == 8
++    for cid, q in qs.items():
++        assert "?" in q or q.startswith("Name "), cid  # a question or an instruction
++        assert not OUTCOME.search(q), (cid, "states an expected outcome")
++        assert ("«value»" in q) == (cid == "C3"), cid
++        assert not re.search(r"[«»{}<>]", q.replace("«value»", "")), cid
++
++
++def test_outcome_pattern_is_not_vacuous():
++    assert OUTCOME.search("This criterion is wrong because it cannot match.")
++    assert OUTCOME.search("The test will fail here.")
++    assert not OUTCOME.search(cards.questions()["C4"])
++
++
++@pytest.mark.skipif(not MR.exists(), reason="the requirements file is not present")
++def test_questions_and_definitions_are_verbatim_from_mr():
++    assert cards.questions() == mr_questions()
++    loaded = cards.load()
++    assert {i: cards.definition(i, loaded) for i in loaded} == mr_definitions()
+diff --git a/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_lint.py b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_lint.py
+index fa803a620..da4c6ed6b 100644
+--- a/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_lint.py
++++ b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_lint.py
+@@ -158,9 +158,9 @@ def test_fixtures_clean(tmp_path, capsys):
+     """AO-1 over SW/fixtures and the other DESIGN 13.1 folders that exist, against an invented ground truth."""
+     gt = make_gt(tmp_path)
+     targets = lint.default_targets(SW)
+-    assert SW / "fixtures" in targets
++    assert SW / "fixtures" in targets and SW / "cards" in targets
+     files = lint.expand_targets(targets)
+-    assert files
++    assert {f.name for f in files} >= {"schema.json", "README.md", "C1.json", "C8.json"}
+     assert run(gt, *targets, extra=["--forbid", "orchard billing"]) == 0, (
+         capsys.readouterr().out
+     )
+diff --git a/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_readme.py b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_readme.py
+new file mode 100644
+index 000000000..be1e9d9ef
+--- /dev/null
++++ b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_readme.py
+@@ -0,0 +1,50 @@
++"""REQ-38: cards/README.md lists, per target type, what a maintainer must re-derive."""
++
++import re
++
++from helpers import SW
++
++README = SW / "cards" / "README.md"
++ROWS = (
++    "block patterns",
++    "command dialect",
++    "test and root-document paths",
++    "severity guidance",
++    "location of truth",
++    "snapshot",
++)
++TARGETS = ("plan", "specification", "documentation")
++
++
++def table():
++    """{row name (lower-case): [cell per target type]} for the re-derive table; its header names the target types."""
++    lines = [
++        ln
++        for ln in README.read_text(encoding="utf-8").splitlines()
++        if ln.startswith("|")
++    ]
++    rows = [[c.strip() for c in ln.strip().strip("|").split("|")] for ln in lines]
++    header = next(r for r in rows if r[0].lower() == "re-derive")
++    assert [h.lower().split(" (")[0] for h in header[1:]] == list(TARGETS)
++    return {r[0].lower(): r[1:] for r in rows if r is not header and len(r) == 4}
++
++
++def test_readme_lists_rederive_rows():
++    t = table()
++    for row in ROWS:
++        matches = [k for k in t if k.startswith(row)]
++        assert len(matches) == 1, row
++        cells = t[matches[0]]
++        assert len(cells) == len(TARGETS)
++        for target, cell in zip(TARGETS, cells):
++            assert len(cell) >= 20, (row, target)
++            assert cell.lower() != row, (row, target)
++        assert len({c.lower() for c in cells}) == len(cells), row
++
++
++def test_readme_footer_keeps_the_second_reader_open():
++    text = README.read_text(encoding="utf-8")
++    footer = text[text.index("## Open manual checks") :]
++    assert re.search(r"second reader.*REQ-38.*OPEN", footer, re.S | re.I)
++    assert "swap_test" in footer
++    assert re.search(r"reader: _+\s+date: _+", footer)
+diff --git a/.dev/tasks/to-do/TASK-WF-implementHomeCod-20261114-200449/progress.md b/.dev/tasks/to-do/TASK-WF-implementHomeCod-20261114-200449/progress.md
+index e62581514..abe76a6f0 100644
+--- a/.dev/tasks/to-do/TASK-WF-implementHomeCod-20261114-200449/progress.md
++++ b/.dev/tasks/to-do/TASK-WF-implementHomeCod-20261114-200449/progress.md
+@@ -10,3 +10,4 @@ T4: start sha=b1af94369a1c4e5ef03c53ba2c65d3b8b57b6947
+ T4: complete verdict=compliant ac=T4.AC1,T4.AC2,T4.AC3 evidence=T4.AC1@.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/results/implement/logs/T4-pytest.log:13,T4.AC2@.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_normalise.py:44,T4.AC3@.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/scaffold/normalise.py:15 extras=lint:pass,typecheck:skip,test:pass files=.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/fixtures/reports/anchor_250.md,.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/fixtures/reports/claim_301.md,.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/scaffold/normalise.py,.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_normalise.py
+ T5: start sha=4e7d389641f4a71c247771ce123062e9c9907721
+ T5: complete verdict=compliant ac=T5.AC1,T5.AC2,T5.AC3,T5.AC4 evidence=T5.AC1@.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/results/implement/logs/T5-lint.log:13,T5.AC2@.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_lint.py:44,T5.AC3@.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/scaffold/lint.py:166,T5.AC4@.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_lint.py:157 extras=lint:pass,typecheck:skip,test:pass files=.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/scaffold/lint.py,.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_lint.py
++T6: start sha=aab9cc6fac7ea758afce8d30d4712d9585547373

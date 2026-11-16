@@ -1,0 +1,2 @@
+c2094835807aa6e376bdcd73228beb8178589c7f
+A1 r1-1 F1.1 minor sweep/extractors.py:868 ac=scope amiss:n,false:n,harm:n,constraint:n E2 pairs a command with an ordered string only when the literal test matches, it is a near miss, or they share a word of 3 or more characters; DESIGN 4.3 reads as one candidate per pair, so this narrowing is undisclosed in the design (deliberate and tested at tests/test_e2.py:159); fix: state the filter in the design or drop it

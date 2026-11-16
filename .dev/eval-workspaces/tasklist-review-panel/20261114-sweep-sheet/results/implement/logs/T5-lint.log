@@ -1,0 +1,58 @@
+$ pytest test_lint.py -q -m "not freeze"
+============================= test session starts ==============================
+platform linux -- Python 3.11.15, pytest-9.2.0, pluggy-1.7.0
+SuperClaude: 5.0.0
+rootdir: /home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel
+configfile: pyproject.toml
+plugins: superclaude-5.0.0, anyio-4.16.0
+collected 10 items / 1 deselected / 9 selected
+
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_lint.py . [ 11%]
+........                                                                 [100%]
+
+======================= 9 passed, 1 deselected in 0.09s ========================
+rc=0
+$ pytest test_lint.py -q -m freeze  (NOT run by design; only collection shown)
+============================= test session starts ==============================
+platform linux -- Python 3.11.15, pytest-9.2.0, pluggy-1.7.0
+SuperClaude: 5.0.0
+rootdir: /home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel
+configfile: pyproject.toml
+plugins: superclaude-5.0.0, anyio-4.16.0
+collected 10 items / 9 deselected / 1 selected
+
+<Dir eval-tasklist-review-panel>
+  <Dir .dev>
+    <Dir eval-workspaces>
+      <Dir tasklist-review-panel>
+        <Dir 20261114-sweep-sheet>
+          <Dir tests>
+            <Module test_lint.py>
+              <Function test_real_files_against_real_gt>
+
+================= 1/10 tests collected (9 deselected) in 0.04s =================
+rc=0
+$ grep -n "ground-truth" scaffold/lint.py  (prose only, no path)
+3:Given the ground-truth files a person names with --gt-glob, it fails (exit 1) when a scanned file holds
+4:  * any four-word sequence found in a ground-truth `description` or `plan_quote`, or
+8:lower-cased phrase or name. The phrase itself is never printed, and neither is any ground-truth content.
+10:It opens nothing unless --gt-glob is given: there is no default ground-truth path in this file. Exit codes:
+80:    """(four-word phrases, forbidden names, both lower-case) read from the ground-truth files at `paths`."""
+157:        help="glob of ground-truth JSON files; required, nothing is opened without it",
+168:            "lint: --gt-glob is required (a person names the ground-truth files); nothing was opened",
+180:            "lint: a ground-truth file could not be read as JSON (content not shown)",
+rc=0
+$ ruff check
+All checks passed!
+rc=0
+$ ruff format --check
+29 files already formatted
+rc=0
+$ python -I scaffold/lint.py --gt-glob <tmp>/synthetic-gt.json <tmp>/t.md
+/tmp/lint-demo.qPEZNRNZ/t.md:2: leak phrase hash=a5def02821b1
+/tmp/lint-demo.qPEZNRNZ/t.md:3: leak phrase hash=af608050ce28
+lint: 2 hit(s) in 1 file(s)
+rc=1
+$ python -I scaffold/lint.py <tmp>/t.md   (no --gt-glob)
+lint: --gt-glob is required (a person names the ground-truth files); nothing was opened
+rc=2

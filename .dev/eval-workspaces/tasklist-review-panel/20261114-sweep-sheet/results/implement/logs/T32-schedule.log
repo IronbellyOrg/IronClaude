@@ -1,0 +1,5 @@
+# T32 AC2: make-schedule 60 rows then the Z0-raw append
+/tmp/sweep-schedule-check.tsv: 60 rows
+rc=0
+/tmp/sweep-schedule-check.tsv: 75 rows
+rc=0

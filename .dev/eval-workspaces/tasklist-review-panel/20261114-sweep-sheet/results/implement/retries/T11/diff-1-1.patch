@@ -1,0 +1,1035 @@
+diff --git a/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/results/implement/retries/T11/q0-head b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/results/implement/retries/T11/q0-head
+new file mode 100644
+index 000000000..290a67eae
+--- /dev/null
++++ b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/results/implement/retries/T11/q0-head
+@@ -0,0 +1 @@
++6225ac3fd4d810614dc39e44863158bbd603b87d
+diff --git a/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/sweep/extractors.py b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/sweep/extractors.py
+new file mode 100644
+index 000000000..f78a0c656
+--- /dev/null
++++ b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/sweep/extractors.py
+@@ -0,0 +1,468 @@
++"""Extractor core and the repository search helper (DESIGN section 4.1, DD-5, DD-10, section 5.1 step 2).
++
++    Candidate           what an extractor finds (the fields of DESIGN 4.1; `cls` holds the JSON key `class`)
++    Ctx                 parsed candidate, parsed source or None, snapshot root or None, seed, constants; the search
++                        scope (DD-5) is built on first use and `Ctx.scope_string` is the text Task 22 records
++    EXTRACTORS          {"E1": (find_e1, attach_e1), ...}; empty here, each extractor registers its pair
++    run_extractors      the two phases of DD-10: `find` for every extractor, then `attach` only for the top K
++                        candidates of each class (K_single when one class alone has candidates)
++    search              one `git grep -F -f` per call over the DD-5 scope, in the snapshot only
++
++Candidate.status values set here: `found` (as made by `find`), `attached` (evidence computed, not yet decided) and
++`dropped:pre_rank` (below the top K of its class; no evidence). select.py sets the rest: `selected`,
++`dropped:quota`, `dropped:ceiling`, `dropped:cap12`, `no_evidence_slot`.
++"""
++
++from __future__ import annotations
++
++import hashlib
++import json
++import os
++import re
++import subprocess
++import tempfile
++from collections.abc import Callable
++from dataclasses import dataclass, field
++from functools import cached_property
++from pathlib import Path
++from typing import NamedTuple
++
++from scaffold import cards, fnd
++from sweep import formats, plan
++
++SW = Path(__file__).resolve().parents[1]
++VALUES = SW / "config" / "values.json"
++
++CLASSES = tuple(f"C{i}" for i in range(1, 9))
++EXTRACTOR_IDS = tuple(f"E{i}" for i in range(1, 8))
++
++STATUS_FOUND = "found"
++STATUS_ATTACHED = "attached"
++STATUS_PRE_RANK = "dropped:pre_rank"
++
++ANCHOR_MIN, ANCHOR_MAX = 12, 200
++EVIDENCE_MAX, EVIDENCE_TEXT_MAX = 5, 160
++
++# the repository search helper (DESIGN 4.1)
++MAX_HITS_PER_FILE = 3
++MAX_LINES = 5000
++HIT_TEXT_MAX = 500  # a stored hit line is cut here after the pattern test, so a minified file cannot fill memory
++
++# the DD-5 scope
++TOP_DIRS = ("tests", "scripts", "docs")
++DEV_DIR = ".dev"
++DEPENDENCY_DIRS = (
++    "node_modules",
++    "vendor",
++    "bower_components",
++    "jspm_packages",
++    ".venv",
++    "venv",
++    "site-packages",
++    ".tox",
++    ".eggs",
++    "__pycache__",
++)
++CHANGELOG_NAME = re.compile(
++    r"^(change[-_]?logs?|changes|history|news|release[-_]?notes|releases)(\.[\w-]+)*$",
++    re.IGNORECASE,
++)
++GROUND_TRUTH_NAME = re.compile(
++    r"^ground[-_]truth", re.IGNORECASE
++)  # REQ-34: never searched
++_PATH_TOKEN = re.compile(formats.PATH_TOKEN)
++_GREP_LINE = re.compile(r"^(.+?):(\d+):(.*)$", re.DOTALL)
++
++
++class SearchError(RuntimeError):
++    """The repository search cannot run (a pre-pass error, so the run falls back)."""
++
++
++class NotAGitRepo(SearchError):
++    """The snapshot root is not the top of a git repository."""
++
++
++@dataclass
++class Candidate:
++    extractor: str
++    cls: str
++    kind: str
++    anchor_text: str
++    location: dict
++    evidence: list = field(default_factory=list)
++    features: dict = field(default_factory=dict)
++    pre_priority: int = 0
++    priority: int | None = None
++    route: str = ""
++    status: str = STATUS_FOUND
++    evidence_computed: bool = False
++
++    def to_dict(self) -> dict:
++        """One entry of candidates.json (the key `class` is the DESIGN name of `cls`)."""
++        return {
++            "extractor": self.extractor,
++            "class": self.cls,
++            "kind": self.kind,
++            "anchor_text": self.anchor_text,
++            "location": dict(self.location),
++            "evidence": [dict(e) for e in self.evidence],
++            "features": dict(self.features),
++            "pre_priority": self.pre_priority,
++            "priority": self.priority,
++            "route": self.route,
++            "status": self.status,
++            "evidence_computed": self.evidence_computed,
++        }
++
++    def validate(self, ctx: Ctx) -> None:
++        """Raise ValueError when a field breaks a limit of DESIGN 4.1."""
++
++        def bad(why):
++            raise ValueError(
++                f"{self.extractor} candidate {self.anchor_text[:40]!r}: {why}"
++            )
++
++        if self.extractor not in EXTRACTOR_IDS:
++            bad(f"extractor {self.extractor!r}")
++        if self.cls not in CLASSES:
++            bad(f"class {self.cls!r}")
++        if not ANCHOR_MIN <= len(self.anchor_text) <= ANCHOR_MAX:
++            bad(f"anchor_text has {len(self.anchor_text)} characters")
++        if fnd.flat(self.anchor_text) not in ctx.flat_text:
++            bad("anchor_text is not an exact quote of the candidate")
++        loc = self.location
++        if not (
++            isinstance(loc, dict)
++            and "task" in loc
++            and isinstance(loc.get("line_start"), int)
++            and isinstance(loc.get("line_end"), int)
++        ):
++            bad("location needs task, line_start and line_end")
++        for name in ("pre_priority", "priority"):
++            v = getattr(self, name)
++            if v is None and name == "priority":
++                continue
++            if not (isinstance(v, int) and 0 <= v <= 100):
++                bad(f"{name} {v!r} is not an integer from 0 to 100")
++        if len(self.evidence) > EVIDENCE_MAX:
++            bad(f"{len(self.evidence)} evidence entries")
++        for e in self.evidence:
++            if not (
++                isinstance(e, dict)
++                and set(e) == {"path", "line", "text"}
++                and isinstance(e["path"], str)
++                and isinstance(e["line"], int)
++                and isinstance(e["text"], str)
++            ):
++                bad(f"evidence entry {e!r} is not {{path, line, text}}")
++            if e["path"].startswith("/") or ".." in e["path"].split("/"):
++                bad(f"evidence path {e['path']!r} is not repo-relative")
++            if len(e["text"]) > EVIDENCE_TEXT_MAX:
++                bad(f"evidence text has {len(e['text'])} characters")
++
++
++# The registry: id -> (find, attach). find(doc, ctx) -> list[Candidate]; attach(cands, ctx) -> None.
++EXTRACTORS: dict[str, tuple[Callable, Callable]] = {}
++
++
++def load_constants(path: Path | str = VALUES) -> dict:
++    return json.loads(Path(path).read_text(encoding="utf-8"))
++
++
++def _clean_named(token: str) -> str | None:
++    p = token
++    while p.startswith("./"):
++        p = p[2:]
++    if not p or p.startswith("/") or "*" in p or any(c in p for c in "\n\r\0"):
++        return None
++    if any(seg in ("", "..") for seg in p.rstrip("/").split("/")):
++        return None
++    return p
++
++
++def named_paths(doc: plan.Doc) -> tuple[str, ...]:
++    """Every repo-relative path the plan names: its edit-target paths and every path-like token in its text.
++
++    Absolute paths, paths with a `..` segment and glob patterns are left out, so a plan cannot point the search
++    outside the snapshot.
++    """
++    found = {_clean_named(b["path"]) for b in doc.of("edit_target") if b.get("path")}
++    found |= {_clean_named(m.group(0)) for m in _PATH_TOKEN.finditer(doc.text)}
++    found.discard(None)
++    return tuple(sorted(found))
++
++
++@dataclass(frozen=True)
++class Scope:
++    """The DD-5 search scope of one snapshot: the tracked files it covers and the git pathspecs that select them."""
++
++    tracked: tuple[str, ...]
++    files: tuple[str, ...]
++    pathspecs: tuple[str, ...]
++    named_dirs: tuple[str, ...]
++    mirrors: tuple[str, ...]
++    string: str
++
++
++def _git_env() -> dict:
++    env = {k: v for k, v in os.environ.items() if not k.startswith("GIT_")}
++    env.update(
++        LC_ALL="C",
++        GIT_CONFIG_GLOBAL="/dev/null",
++        GIT_CONFIG_NOSYSTEM="1",
++        GIT_OPTIONAL_LOCKS="0",
++    )
++    return env
++
++
++def git_root(snapshot) -> Path:
++    """The resolved snapshot root; raises NotAGitRepo unless it is itself the top of a git repository.
++
++    A plain folder inside some other repository is refused too, so a search can never reach that outer tree.
++    """
++    root = Path(snapshot).resolve()
++    if not root.is_dir():
++        raise NotAGitRepo(f"snapshot is not a directory: {root}")
++    r = subprocess.run(
++        ["git", "-C", str(root), "rev-parse", "--show-toplevel"],
++        capture_output=True,
++        env=_git_env(),
++    )
++    if r.returncode != 0:
++        raise NotAGitRepo(f"snapshot is not a git repository: {root}")
++    if Path(r.stdout.decode("utf-8", "replace").strip()).resolve() != root:
++        raise NotAGitRepo(f"snapshot is not the top of its git repository: {root}")
++    return root
++
++
++def _tracked(root: Path) -> tuple[str, ...]:
++    r = subprocess.run(
++        ["git", "-C", str(root), "ls-files", "-z"], capture_output=True, env=_git_env()
++    )
++    if r.returncode != 0:
++        raise SearchError(
++            f"git ls-files failed: {r.stderr.decode('utf-8', 'replace').strip()}"
++        )
++    return tuple(
++        sorted(p for p in r.stdout.decode("utf-8", "replace").split("\0") if p)
++    )
++
++
++def _excluded(parts: list[str]) -> bool:
++    return any(d == DEV_DIR or d in DEPENDENCY_DIRS for d in parts[:-1])
++
++
++def build_scope(snapshot, named: tuple[str, ...] = ()) -> Scope:
++    """DD-5: tracked files under tests/, scripts/, docs/; root-level files; change-log style files anywhere; the
++    directories of plan-named paths; same-basename copies of plan-named files. `.dev/` and dependency folders out.
++    """
++    root = git_root(snapshot)
++    tracked = _tracked(root)
++    named_dirs = sorted(
++        {
++            d
++            for p in named
++            for d in [p.rstrip("/") if p.endswith("/") else p.rpartition("/")[0]]
++            if d
++        }
++    )
++    mirrors = sorted({p.rpartition("/")[2] for p in named if not p.endswith("/")})
++    dirs = sorted(set(TOP_DIRS) | set(named_dirs))
++
++    def in_scope(path: str) -> bool:
++        parts = path.split("/")
++        if _excluded(parts) or GROUND_TRUTH_NAME.match(parts[-1]):
++            return False
++        return (
++            len(parts) == 1
++            or any(path.startswith(d + "/") for d in dirs)
++            or bool(CHANGELOG_NAME.match(parts[-1]))
++            or parts[-1] in mirrors
++        )
++
++    files = tuple(f for f in tracked if in_scope(f))
++    # directories as one pathspec each; the other files (root-level, change logs, mirrors) by name
++    loose = [f for f in files if not any(f.startswith(d + "/") for d in dirs)]
++    pathspecs = (
++        [f":(literal){d}" for d in dirs]
++        + [f":(literal){f}" for f in loose]
++        + [f":(exclude,glob)**/{d}/**" for d in (DEV_DIR, *DEPENDENCY_DIRS)]
++        + [":(exclude,glob,icase)**/ground[-_]truth*"]
++    )
++    string = "; ".join(
++        [
++            "tracked files under " + ", ".join(d + "/" for d in TOP_DIRS),
++            "root-level files",
++            "change-log style files anywhere (names: changelog, changes, history, news, release-notes, releases)",
++            "directories of plan-named paths: " + (", ".join(named_dirs) or "none"),
++            "same-basename mirrors of plan-named files: "
++            + (", ".join(mirrors) or "none"),
++            f"excluded: {DEV_DIR}/, dependency folders ({', '.join(DEPENDENCY_DIRS)}) and ground-truth files",
++            f"files in scope: {len(files)}",
++        ]
++    )
++    return Scope(
++        tracked, files, tuple(pathspecs), tuple(named_dirs), tuple(mirrors), string
++    )
++
++
++@dataclass
++class Ctx:
++    """What every extractor gets: the parsed candidate, the parsed source or None, the snapshot root or None, the
++    search scope (built on first use), the seed and the constants (config/values.json unless given)."""
++
++    doc: plan.Doc
++    source: plan.Doc | None = None
++    snapshot: Path | None = None
++    seed: int | str = 0
++    constants: dict | None = None
++
++    def __post_init__(self):
++        if self.snapshot is not None:
++            self.snapshot = Path(self.snapshot)
++        if self.constants is None:
++            self.constants = load_constants()
++
++    @cached_property
++    def named_paths(self) -> tuple[str, ...]:
++        return named_paths(self.doc)
++
++    @cached_property
++    def scope(self) -> Scope:
++        if self.snapshot is None:
++            raise SearchError("no snapshot, so no search scope")
++        return build_scope(self.snapshot, self.named_paths)
++
++    @property
++    def scope_string(self) -> str:
++        """The scope as text, for prepass.json (REQ-24). It holds repo-relative names only."""
++        return (
++            "no snapshot: no repository search"
++            if self.snapshot is None
++            else self.scope.string
++        )
++
++    @cached_property
++    def flat_text(self) -> str:
++        return fnd.flat(self.doc.text)
++
++
++class Hit(NamedTuple):
++    path: str  # repo-relative
++    line: int
++    text: str  # the line, cut at HIT_TEXT_MAX
++    pattern: str  # the first of the given patterns that the line contains
++
++
++def search(ctx: Ctx, patterns, scope: Scope | None = None) -> list[Hit]:
++    """One `git grep -n -I -F --no-color -f <patterns file> -- <pathspecs>` over the scope (default ctx.scope).
++
++    LC_ALL=C; at most MAX_HITS_PER_FILE hits per file; only the first MAX_LINES output lines are read. Each
++    hit's pattern is found here by plain substring tests, first pattern in the given order. Hits come in git's
++    path order, then line order. Empty patterns and patterns with a line break are ignored. It raises SearchError
++    when ctx has no snapshot and NotAGitRepo when the snapshot is not a git repository. Only tracked files of the
++    snapshot are read (git does not follow a tracked symlink).
++    """
++    if ctx.snapshot is None:
++        raise SearchError("no snapshot to search")
++    root = git_root(ctx.snapshot)
++    scope = scope if scope is not None else ctx.scope
++    pats = list(
++        dict.fromkeys(p for p in patterns if p and "\n" not in p and "\r" not in p)
++    )
++    if not pats:
++        return []
++    hits: list[Hit] = []
++    per_file: dict[str, int] = {}
++    with tempfile.TemporaryDirectory(prefix="sweep-grep-") as tmp:
++        pfile, efile = Path(tmp) / "patterns.txt", Path(tmp) / "stderr.txt"
++        pfile.write_text("\n".join(pats) + "\n", encoding="utf-8")
++        argv = [
++            "git", "-C", str(root), "grep", "-n", "-I", "-F", "--no-color",
++            "-f", str(pfile), "--", *scope.pathspecs,
++        ]  # fmt: skip
++        truncated = False
++        with efile.open("wb") as err:
++            proc = subprocess.Popen(
++                argv,
++                stdin=subprocess.DEVNULL,
++                stdout=subprocess.PIPE,
++                stderr=err,
++                env=_git_env(),
++            )
++            try:
++                for n, raw in enumerate(iter(proc.stdout.readline, b"")):
++                    if n >= MAX_LINES:
++                        truncated = True
++                        proc.kill()
++                        break
++                    m = _GREP_LINE.match(raw.decode("utf-8", "replace").rstrip("\r\n"))
++                    if not m or per_file.get(m[1], 0) >= MAX_HITS_PER_FILE:
++                        continue
++                    text = m[3]
++                    pat = next((p for p in pats if p in text), None)
++                    if pat is None:
++                        continue
++                    per_file[m[1]] = per_file.get(m[1], 0) + 1
++                    hits.append(Hit(m[1], int(m[2]), text[:HIT_TEXT_MAX], pat))
++            finally:
++                proc.stdout.close()
++                rc = proc.wait()
++        if not truncated and rc not in (0, 1):
++            msg = efile.read_text(encoding="utf-8", errors="replace").strip()
++            raise SearchError(f"git grep failed (exit {rc}): {msg}")
++    return hits
++
++
++def _rank_key(seed, c: Candidate):
++    """DESIGN 5.1 step 2: higher pre_priority first; ties by earlier plan line, then sha256(seed + anchor_text)."""
++    digest = hashlib.sha256((str(seed) + c.anchor_text).encode("utf-8")).hexdigest()
++    return (-c.pre_priority, c.location["line_start"], digest, c.extractor, c.kind)
++
++
++def run_extractors(ctx: Ctx, registry: dict | None = None) -> list[Candidate]:
++    """The two phases of DD-10; every candidate found is returned, in `find` order (extractor id order).
++
++    1. `find` of every registered extractor (lexical, no repository access), then the candidates are grouped by
++       class.
++    2. The top K of each class by pre_priority get `attach` (K_single instead when only one class has any
++       candidate), one `attach` call per extractor with its kept candidates. They get evidence_computed=True and
++       status `attached`; `priority` falls back to pre_priority when attach leaves it unset.
++    The rest keep no evidence, no final `priority` (None) and get status `dropped:pre_rank`. K and K_single come
++    from ctx.constants.
++    """
++    registry = EXTRACTORS if registry is None else registry
++    k, k_single = int(ctx.constants["K"]), int(ctx.constants["K_single"])
++    routes = cards.routes()
++    found: list[Candidate] = []
++    for eid in sorted(registry):
++        for c in registry[eid][0](ctx.doc, ctx):
++            if c.extractor != eid:
++                raise ValueError(f"{eid} produced a candidate of {c.extractor}")
++            c.validate(ctx)
++            c.route = c.route or routes[c.cls]
++            c.status = STATUS_FOUND
++            found.append(c)
++    by_class: dict[str, list[Candidate]] = {}
++    for c in found:
++        by_class.setdefault(c.cls, []).append(c)
++    keep = k_single if len(by_class) == 1 else k
++    kept: set[int] = set()
++    for group in by_class.values():
++        group.sort(key=lambda c: _rank_key(ctx.seed, c))
++        kept.update(id(c) for c in group[:keep])
++        for c in group[keep:]:
++            c.status = STATUS_PRE_RANK
++    for eid in sorted(registry):
++        batch = [c for c in found if c.extractor == eid and id(c) in kept]
++        if not batch:
++            continue
++        registry[eid][1](batch, ctx)
++        for c in batch:
++            c.evidence_computed = True
++            c.status = STATUS_ATTACHED
++            if c.priority is None:
++                c.priority = c.pre_priority
++            c.priority = max(0, min(100, int(c.priority)))
++            c.validate(ctx)
++    return found
+diff --git a/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_extractors_common.py b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_extractors_common.py
+new file mode 100644
+index 000000000..89da3f727
+--- /dev/null
++++ b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_extractors_common.py
+@@ -0,0 +1,404 @@
++"""Extractor core (DESIGN 4.1, DD-10, 5.1 step 2) and the repository search helper, on invented candidates.
++
++The two-phase flow is tested with extractors defined in this file and handed to run_extractors (and, once, put
++into the real registry with monkeypatch), so no real extractor is needed. Git runs only inside a repository built
++by fixtures/repos/build_repo.py under /tmp.
++"""
++
++import hashlib
++import json
++import subprocess
++
++import pytest
++
++from fixtures.repos.build_repo import EDITED, SEARCH_STRINGS, _git, build_repo
++from scaffold import cards
++from sweep import extractors, plan
++from sweep.extractors import Candidate, Ctx
++
++N_SENTENCES = 40
++
++
++def sentence(i):
++    return f"Sentence number {i:03d} says every row is covered."
++
++
++def make_doc():
++    lines = ["# Plan", "", "## Task 1: demo", ""]
++    lines += [sentence(i) for i in range(N_SENTENCES)]
++    return plan.parse("\n".join(lines) + "\n")
++
++
++def cand(eid, cls, i, pre, **over):
++    return Candidate(
++        extractor=eid,
++        cls=cls,
++        kind="test",
++        anchor_text=sentence(i),
++        location={"task": "T1", "line_start": 5 + i, "line_end": 5 + i},
++        pre_priority=pre,
++        **over,
++    )
++
++
++def registry(n_first=30, n_second=0, pre=lambda i: 3 * i):
++    """Two local extractors: E1 finds n_first candidates of class C1, E2 finds n_second of class C4."""
++    seen = {"E1": [], "E2": []}
++
++    def finder(eid, cls, first, count):
++        def find(doc, ctx):
++            return [cand(eid, cls, first + i, pre(i)) for i in range(count)]
++
++        def attach(batch, ctx):
++            seen[eid].append([c.anchor_text for c in batch])
++            for c in batch:
++                c.evidence = [
++                    {"path": "plan", "line": c.location["line_start"], "text": "hit"}
++                ]
++                c.priority = c.pre_priority + 5
++
++        return find, attach
++
++    reg = {"E1": finder("E1", "C1", 0, n_first)}
++    if n_second:
++        reg["E2"] = finder("E2", "C4", 30, n_second)
++    return reg, seen
++
++
++def run(reg, **kw):
++    return extractors.run_extractors(Ctx(make_doc(), **kw), reg)
++
++
++def attached(cands, cls):
++    return [c for c in cands if c.cls == cls and c.evidence_computed]
++
++
++def test_attach_only_for_top_k():
++    reg, seen = registry(30, 5)
++    ctx = Ctx(make_doc(), seed=1)
++    assert (
++        ctx.constants["K"] == 8 and ctx.constants["K_single"] == 12
++    )  # config/values.json
++    out = extractors.run_extractors(ctx, reg)
++    c1 = [c for c in out if c.cls == "C1"]
++    top = sorted(c1, key=lambda c: -c.pre_priority)[:8]
++    assert len(c1) == 30
++    assert {c.anchor_text for c in attached(out, "C1")} == {c.anchor_text for c in top}
++    assert len(attached(out, "C4")) == 5  # fewer than K: all attached
++    # attach never saw a candidate below the top K
++    assert [len(b) for b in seen["E1"]] == [8] and [len(b) for b in seen["E2"]] == [5]
++    for c in c1:
++        if c.evidence_computed:
++            assert (
++                c.status == "attached"
++                and c.evidence
++                and c.priority == c.pre_priority + 5
++            )
++        else:
++            assert c.status == "dropped:pre_rank" and c.evidence == []
++            assert (
++                c.anchor_text not in seen["E1"][0] and c.priority is None
++            )  # no final rank
++
++
++def test_single_class_attaches_top_12():
++    reg, seen = registry(30)
++    out = run(reg, seed=1)
++    top = sorted(out, key=lambda c: -c.pre_priority)[:12]
++    assert {c.anchor_text for c in attached(out, "C1")} == {c.anchor_text for c in top}
++    assert [len(b) for b in seen["E1"]] == [
++        12
++    ]  # one attach call, bounded at 12 lookups
++    assert sum(c.status == "dropped:pre_rank" for c in out) == 18
++
++
++def test_k_values_come_from_the_constants():
++    reg, _ = registry(30, 5)
++    two = run(reg, constants={"K": 3, "K_single": 5})
++    assert len(attached(two, "C1")) == 3 and len(attached(two, "C4")) == 3
++    one = run(registry(30)[0], constants={"K": 3, "K_single": 5})
++    assert len(attached(one, "C1")) == 5
++
++
++def test_all_candidates_logged():
++    for n_second, kept_first, dropped in ((5, 8, 22), (0, 12, 18)):
++        reg, _ = registry(30, n_second)
++        out = run(reg, seed=1)
++        log = json.loads(json.dumps([c.to_dict() for c in out]))
++        c1 = [e for e in log if e["class"] == "C1"]
++        assert len(c1) == 30 and len(log) == 30 + n_second
++        assert {e["anchor_text"] for e in c1} == {sentence(i) for i in range(30)}
++        assert sum(e["status"] == "dropped:pre_rank" for e in c1) == dropped
++        assert sum(e["evidence_computed"] for e in c1) == kept_first
++        assert all(e["status"] and "evidence_computed" in e for e in log)
++        assert all(e["status"] == "attached" for e in log if e["evidence_computed"])
++
++
++def test_pre_rank_ties_earlier_line_then_seeded_hash():
++    # all pre_priority equal: earlier plan line first
++    reg, _ = registry(30, pre=lambda i: 50)
++    out = run(reg, seed=1)
++    assert {c.location["line_start"] for c in attached(out, "C1")} == set(range(5, 17))
++
++
++def test_hash_breaks_a_tie_on_the_same_line():
++    doc = make_doc()
++    a, b = sentence(5), sentence(6)  # two anchors reported at one line and one priority
++
++    def find(d, ctx):
++        return [
++            Candidate("E1", "C1", "k", t, {"task": "T1", "line_start": 9, "line_end": 9}, pre_priority=50)
++            for t in (a, b)
++        ]  # fmt: skip
++
++    picks = set()
++    for seed in range(1, 9):
++        ctx = Ctx(doc, seed=seed, constants={"K": 1, "K_single": 1})
++        out = extractors.run_extractors(ctx, {"E1": (find, lambda batch, c: None)})
++        winner = next(x for x in out if x.evidence_computed)
++        want = min(
++            (a, b), key=lambda t: hashlib.sha256((str(seed) + t).encode()).hexdigest()
++        )
++        assert winner.anchor_text == want
++        picks.add(winner.anchor_text)
++    assert picks == {a, b}  # the seed really moves the pick
++
++
++def test_route_is_copied_from_the_class_card():
++    out = run(registry(30, 5)[0])
++    routes = cards.routes()
++    assert {c.route for c in out if c.cls == "C1"} == {routes["C1"]}
++    assert {c.route for c in out if c.cls == "C4"} == {routes["C4"]}
++
++
++def test_registered_pairs_are_used_when_no_registry_is_given(monkeypatch):
++    reg, seen = registry(3)
++    monkeypatch.setitem(extractors.EXTRACTORS, "E1", reg["E1"])
++    out = extractors.run_extractors(Ctx(make_doc()))
++    assert len(out) == 3 and seen["E1"]
++
++
++@pytest.mark.parametrize(
++    "mutate, why",
++    [
++        (lambda c: setattr(c, "anchor_text", "too short"), "characters"),
++        (lambda c: setattr(c, "anchor_text", "x" * 201), "characters"),
++        (lambda c: setattr(c, "anchor_text", "A sentence that the plan never wrote."), "exact quote"),
++        (lambda c: setattr(c, "cls", "C9"), "class"),
++        (lambda c: setattr(c, "pre_priority", 101), "pre_priority"),
++        (lambda c: setattr(c, "evidence", [{"path": "plan", "line": 1, "text": "x"}] * 6), "evidence entries"),
++        (lambda c: setattr(c, "evidence", [{"path": "plan", "line": 1, "text": "x" * 161}]), "evidence text"),
++        (lambda c: setattr(c, "evidence", [{"path": "/etc/passwd", "line": 1, "text": "x"}]), "repo-relative"),
++        (lambda c: setattr(c, "evidence", [{"path": "a", "line": 1}]), "evidence entry"),
++        (lambda c: setattr(c, "location", {"task": "T1"}), "location"),
++    ],
++)  # fmt: skip
++def test_candidate_limits_are_enforced(mutate, why):
++    c = cand("E1", "C1", 0, 10)
++    mutate(c)
++    ctx = Ctx(make_doc())
++    with pytest.raises(ValueError, match=why):
++        c.validate(ctx)
++    with pytest.raises(ValueError):
++        extractors.run_extractors(ctx, {"E1": (lambda d, x: [c], lambda b, x: None)})
++
++
++def test_find_must_return_its_own_extractor_id():
++    with pytest.raises(ValueError, match="E2"):
++        extractors.run_extractors(
++            Ctx(make_doc()),
++            {"E1": (lambda d, x: [cand("E2", "C1", 0, 1)], lambda b, x: None)},
++        )
++
++
++def test_priority_is_clamped_and_defaults_to_pre_priority():
++    def attach(batch, ctx):
++        batch[0].priority = 250
++
++    reg = {
++        "E1": (lambda d, x: [cand("E1", "C1", 0, 40), cand("E1", "C1", 1, 30)], attach)
++    }
++    a, b = run(reg)
++    assert (a.priority, b.priority) == (100, 30)
++
++
++# ---- the repository search helper ----
++
++PLAN_TEXT = (
++    f"## Task 1: Edit the exporter\n\nEdit `{EDITED}` to write 3 report formats.\n"
++)
++
++
++def repo_ctx(root, extra=None, text=PLAN_TEXT, seed=1):
++    built = build_repo(root, extra=extra)
++    return built, Ctx(plan.parse(text), snapshot=built.repo, seed=seed)
++
++
++class Spy:
++    """Records every `git grep` the helper starts (rev-parse and ls-files, which build the scope, are not grep)."""
++
++    def __init__(self, monkeypatch):
++        self.calls = []
++        real = subprocess.Popen
++
++        def popen(argv, **kw):
++            if argv[3] == "grep":
++                self.calls.append((list(argv), kw))
++            return real(argv, **kw)
++
++        monkeypatch.setattr(extractors.subprocess, "Popen", popen)
++
++
++def test_search_runs_one_git_grep_with_the_designed_command(tmp_roots, monkeypatch):
++    built, ctx = repo_ctx(tmp_roots.root)
++    spy = Spy(monkeypatch)
++    hits = extractors.search(ctx, ["report_exporter", "retention_policy"])
++    assert hits
++    ((argv, kw),) = spy.calls
++    assert argv[:9] == [
++        "git",
++        "-C",
++        str(built.repo),
++        "grep",
++        "-n",
++        "-I",
++        "-F",
++        "--no-color",
++        "-f",
++    ]
++    assert argv[10] == "--" and argv[11:] == list(ctx.scope.pathspecs)
++    assert kw["env"]["LC_ALL"] == "C"
++    assert not [k for k in kw["env"] if k.startswith("GIT_DIR") or k == "GIT_WORK_TREE"]
++    assert not argv[9].startswith(
++        str(built.repo)
++    )  # the patterns file is scratch, outside the snapshot
++
++
++def test_search_matched_pattern_is_the_first_given_that_the_line_holds(tmp_roots):
++    _, ctx = repo_ctx(
++        tmp_roots.root,
++        extra={"tests/both.txt": "a retention_policy and report_exporter\n"},
++    )
++    for order in (
++        ["report_exporter", "retention_policy"],
++        ["retention_policy", "report_exporter"],
++    ):
++        both = [h for h in extractors.search(ctx, order) if h.path == "tests/both.txt"]
++        assert [(h.line, h.pattern) for h in both] == [(1, order[0])]
++    readme = [
++        h for h in extractors.search(ctx, ["retention_policy"]) if h.path == "README.md"
++    ]
++    assert readme and all(
++        h.pattern == "retention_policy" and "retention_policy" in h.text for h in readme
++    )
++
++
++def test_search_caps_three_hits_per_file(tmp_roots):
++    _, ctx = repo_ctx(
++        tmp_roots.root,
++        extra={"tests/many.txt": "".join(f"needle {i}\n" for i in range(10))},
++    )
++    many = [h for h in extractors.search(ctx, ["needle"]) if h.path == "tests/many.txt"]
++    assert [h.line for h in many] == [1, 2, 3]
++
++
++def test_search_reads_only_the_first_5000_lines(tmp_roots):
++    big = {
++        f"tests/big_{i}.txt": "".join(f"needle {n}\n" for n in range(1000))
++        for i in range(6)
++    }
++    _, ctx = repo_ctx(tmp_roots.root, extra=big)
++    hits = extractors.search(ctx, ["needle"])
++    # 5 files fill the 5,000 lines (3 hits kept from each); the 6th file is never read
++    assert sorted({h.path for h in hits}) == [f"tests/big_{i}.txt" for i in range(5)]
++    assert len(hits) == 15
++
++
++def test_search_is_deterministic_and_ordered(tmp_roots):
++    _, ctx = repo_ctx(tmp_roots.root)
++    first = extractors.search(ctx, list(SEARCH_STRINGS))
++    assert first == extractors.search(ctx, list(SEARCH_STRINGS))
++    assert [(h.path, h.line) for h in first] == sorted((h.path, h.line) for h in first)
++
++
++def test_search_ignores_empty_and_multiline_patterns(tmp_roots, monkeypatch):
++    _, ctx = repo_ctx(tmp_roots.root)
++    spy = Spy(monkeypatch)
++    assert extractors.search(ctx, ["", "a\nb", "c\rd"]) == []
++    assert spy.calls == []  # nothing usable: git grep is not started
++    assert (
++        extractors.search(ctx, ["no such string anywhere"]) == []
++    )  # git exit 1 is "no match"
++
++
++def test_non_git_snapshot_raises(tmp_path, tmp_roots):
++    plain = tmp_path / "plain"
++    plain.mkdir()
++    (plain / "tests").mkdir()
++    (plain / "tests" / "a.txt").write_text("needle\n")
++    ctx = Ctx(plan.parse(PLAN_TEXT), snapshot=plain)
++    with pytest.raises(extractors.NotAGitRepo):
++        extractors.search(ctx, ["needle"])
++    with pytest.raises(extractors.NotAGitRepo):
++        extractors.search(ctx, [])  # no patterns does not hide it
++    with pytest.raises(extractors.NotAGitRepo):
++        ctx.scope  # noqa: B018
++    with pytest.raises(extractors.NotAGitRepo):
++        extractors.search(
++            Ctx(plan.parse(PLAN_TEXT), snapshot=tmp_path / "missing"), ["needle"]
++        )
++
++
++def test_snapshot_inside_another_repository_raises(tmp_roots):
++    built, _ = repo_ctx(tmp_roots.root)
++    ctx = Ctx(
++        plan.parse(PLAN_TEXT), snapshot=built.repo / "tests"
++    )  # a folder of the repo, not its top
++    with pytest.raises(extractors.NotAGitRepo):
++        extractors.search(ctx, ["test_render"])
++
++
++def test_no_snapshot_means_no_search():
++    ctx = Ctx(make_doc())
++    with pytest.raises(extractors.SearchError):
++        extractors.search(ctx, ["needle"])
++    assert ctx.scope_string == "no snapshot: no repository search"
++
++
++def test_search_never_reads_outside_the_snapshot_root(tmp_roots):
++    outside = tmp_roots.root / "outside"
++    outside.mkdir()
++    (outside / "secret.txt").write_text("outside-secret needle\n")
++    text = (
++        PLAN_TEXT
++        + "Also read ../outside/secret.txt and ../outside/ and ../../ for the rest.\n"
++    )
++    built, ctx = repo_ctx(tmp_roots.root, text=text)
++    # a tracked symlink to a file outside the snapshot, and one to an outside folder
++    (built.repo / "tests" / "link.txt").symlink_to(outside / "secret.txt")
++    (built.repo / "docs" / "linkdir").symlink_to(outside)
++    _git(built.repo, "add", "-f", "tests/link.txt", "docs/linkdir")
++    _git(built.repo, "commit", "-q", "-m", "links")
++    assert not any(
++        p.startswith(("/", "..")) or ".." in p.split("/") for p in ctx.named_paths
++    )
++    assert extractors._clean_named("/etc/hosts") is None
++    assert extractors._clean_named("a/../../b.py") is None
++    assert extractors.search(ctx, ["outside-secret"]) == []
++    assert all(
++        not h.path.startswith(("/", ".."))
++        for h in extractors.search(ctx, ["report_exporter"])
++    )
++
++
++def test_search_does_not_start_inside_a_redirected_git_dir(tmp_roots, monkeypatch):
++    built, ctx = repo_ctx(tmp_roots.root)
++    other = tmp_roots.root / "other"
++    other.mkdir()
++    (other / "tests").mkdir()
++    (other / "tests" / "o.txt").write_text("report_exporter\n")
++    _git(other, "init", "-q")  # a second repository
++    monkeypatch.setenv("GIT_DIR", str(other / ".git"))
++    monkeypatch.setenv("GIT_WORK_TREE", str(other))
++    paths = {h.path for h in extractors.search(ctx, ["report_exporter"])}
++    assert "README.md" in paths and "tests/o.txt" not in paths
+diff --git a/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_scope.py b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_scope.py
+new file mode 100644
+index 000000000..8989823d7
+--- /dev/null
++++ b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_scope.py
+@@ -0,0 +1,129 @@
++"""Search scope (REQ-24, DD-5) on the F-REPO repository, with extra files planted in the base commit.
++
++The scope is tracked files under tests/, scripts/, docs/, root-level files, change-log style files anywhere, the
++directories of plan-named paths and same-basename mirrors of plan-named files; `.dev/` and dependency folders
++are out, wherever they sit. Git runs only inside the repository built under /tmp.
++"""
++
++import json
++
++from fixtures.repos.build_repo import EDITED, MIRROR, TRAP_MARKER, build_repo
++from sweep import extractors, plan
++from sweep.extractors import Ctx
++
++TOKEN = "report_exporter"
++PLAN_TEXT = (
++    f"## Task 1: Edit the exporter\n\nEdit `{EDITED}` to write 3 report formats.\n"
++)
++EXTRA = {
++    # in scope
++    "tests/test_scope_hit.py": f"# {TOKEN}\n",
++    "docs/doc_hit.md": f"{TOKEN}\n",
++    "pkg/sub/CHANGES.txt": f"- {TOKEN}\n",
++    "src/exporter/notes.py": f"# {TOKEN}\n",  # a directory the plan names
++    MIRROR: f"# {TOKEN}\n",  # same basename as the plan-named report.py
++    # out of scope
++    "pkg/sub/other.txt": f"{TOKEN}\n",
++    "other/dir/x.py": f"# {TOKEN}\n",
++    "tests/node_modules/dep.js": f"// {TOKEN}\n",
++    "docs/vendor/y.md": f"{TOKEN}\n",
++    "tests/.dev/n.md": f"{TOKEN}\n",
++    "tests/ground-truth.json": f'{{"x": "{TRAP_MARKER}"}}\n',
++}
++INCLUDED = {
++    "README.md",  # a root document
++    "scripts/export.sh",
++    "tests/test_scope_hit.py",
++    "docs/doc_hit.md",
++    "pkg/sub/CHANGES.txt",
++    "src/exporter/notes.py",
++    MIRROR,
++}
++EXCLUDED = {
++    ".dev/notes/search-noise.md",
++    "node_modules/pkg/index.js",
++    "pkg/sub/other.txt",
++    "other/dir/x.py",
++    "tests/node_modules/dep.js",
++    "docs/vendor/y.md",
++    "tests/.dev/n.md",
++}
++
++
++def make(root, text=PLAN_TEXT):
++    built = build_repo(root, extra=EXTRA)
++    return built, Ctx(plan.parse(text), snapshot=built.repo, seed=1)
++
++
++def hit_paths(ctx, *patterns):
++    return {h.path for h in extractors.search(ctx, list(patterns))}
++
++
++def holding(ctx, paths, token):
++    """The paths whose text holds token (a ground-truth fixture is never opened here)."""
++    return {
++        p
++        for p in paths
++        if not p.rpartition("/")[2].startswith("ground-truth")
++        and token in (ctx.snapshot / p).read_text(errors="ignore")
++    }
++
++
++def test_dev_and_dependency_folders_excluded(tmp_roots):
++    _, ctx = make(tmp_roots.root)
++    paths = hit_paths(ctx, TOKEN)
++    # the noise is really in the tree, so the exclusion is what keeps it out
++    assert EXCLUDED <= holding(ctx, ctx.scope.tracked, TOKEN)
++    assert not paths & EXCLUDED
++    assert not [p for p in paths if p.startswith(".dev/") or "/.dev/" in p]
++    assert not [p for p in paths if "node_modules/" in p or "/vendor/" in p]
++    # the same holds for what the scope reports as its files
++    assert not set(ctx.scope.files) & EXCLUDED
++    # a ground-truth file is never searched (REQ-34), even in an in-scope folder
++    assert hit_paths(ctx, TRAP_MARKER) == set()
++    assert (
++        "tests/ground-truth.json" not in ctx.scope.files
++        and "ground-truth.json" not in ctx.scope.files
++    )
++
++
++def test_named_paths_and_mirrors_included(tmp_roots):
++    _, ctx = make(tmp_roots.root)
++    assert EDITED in ctx.named_paths
++    paths = hit_paths(ctx, TOKEN)
++    assert INCLUDED <= paths, INCLUDED - paths
++    assert "src/exporter" in ctx.scope.named_dirs and "report.py" in ctx.scope.mirrors
++    # what the helper searches is exactly the files the scope lists (pathspecs and file list agree)
++    # (the pre-existing .dev noise is repeated in the tracked files, so compare through the same token)
++    assert paths == holding(ctx, ctx.scope.files, TOKEN)
++
++
++def test_scope_follows_the_plan(tmp_roots):
++    # a plan that names another folder and another file brings those in, and drops the first plan's folder
++    _, ctx = make(tmp_roots.root, text="## Task 1: x\n\nEdit `other/dir/x.py` now.\n")
++    paths = hit_paths(ctx, TOKEN)
++    assert "other/dir/x.py" in paths and "src/exporter/notes.py" not in paths
++    assert MIRROR not in paths
++
++
++def test_scope_string_recorded(tmp_roots):
++    _, ctx = make(tmp_roots.root)
++    s = ctx.scope_string
++    assert isinstance(s, str) and s == ctx.scope.string
++    assert (
++        "tests/, scripts/, docs/" in s and "root-level files" in s and "change-log" in s
++    )
++    assert ".dev/" in s and "node_modules" in s
++    assert (
++        "src/exporter" in s and "report.py" in s
++    )  # the plan-named folder and mirror name
++    assert f"files in scope: {len(ctx.scope.files)}" in s
++    assert "/tmp" not in s and str(ctx.snapshot) not in s  # repo-relative names only
++    assert json.loads(json.dumps({"scope": s}))["scope"] == s
++    # same input, same string; another plan, another string
++    _, again = make(tmp_roots.root.parent / (tmp_roots.root.name + "-again"))
++    assert again.scope_string == s
++    other = Ctx(
++        plan.parse("## Task 1: x\n\nEdit `other/dir/x.py`.\n"), snapshot=ctx.snapshot
++    )
++    assert other.scope_string != s and "other/dir" in other.scope_string
+diff --git a/.dev/tasks/to-do/TASK-WF-implementHomeCod-20261114-200449/progress.md b/.dev/tasks/to-do/TASK-WF-implementHomeCod-20261114-200449/progress.md
+index 5ee43ae0b..8bbcf2ad7 100644
+--- a/.dev/tasks/to-do/TASK-WF-implementHomeCod-20261114-200449/progress.md
++++ b/.dev/tasks/to-do/TASK-WF-implementHomeCod-20261114-200449/progress.md
+@@ -20,3 +20,4 @@ T9: start sha=16f640f38002b983c85adb7352c4a5ac5476d530
+ T9: complete verdict=compliant ac=T9.AC1,T9.AC2,T9.AC3,T9.AC4 evidence=T9.AC1@.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/results/implement/logs/T9-plan-formats.log:15,T9.AC2@.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_formats.py:68,T9.AC3@.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_lint.py:157,T9.AC4@.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/sweep/plan.py:72 extras=lint:pass,typecheck:skip,test:pass files=.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/fixtures/plans/p_basic.md,.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/fixtures/plans/p_clean.md,.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/fixtures/plans/source.md,.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/sweep/formats.py,.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/sweep/plan.py,.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/sweep/words.py,.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_formats.py,.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_plan.py
+ T10: start sha=774207e4ad8c19d42db51ba0e6a78ffc3599e02f
+ T10: complete verdict=compliant ac=T10.AC1,T10.AC2,T10.AC3,T10.AC4 evidence=T10.AC1@.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_plan.py:510,T10.AC2@.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/results/implement/logs/T10-lint.log:12,T10.AC3@.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_plan.py:545,T10.AC4@.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/fixtures/docs/doc1.md:10 extras=lint:pass,typecheck:skip,test:pass files=.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/fixtures/docs/doc1.md,.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/fixtures/plans/gen_setwords.py,.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/fixtures/specs/parent1.md,.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/fixtures/specs/spec1.md,.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_plan.py
++T11: start sha=7ed1481deba9cac18c095bc63df8916b236f0105

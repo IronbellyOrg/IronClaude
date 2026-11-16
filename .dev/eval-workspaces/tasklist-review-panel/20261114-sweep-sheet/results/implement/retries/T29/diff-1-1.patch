@@ -1,0 +1,1233 @@
+diff --git a/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/analysis/analyze.py b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/analysis/analyze.py
+new file mode 100644
+index 000000000..b7a592330
+--- /dev/null
++++ b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/analysis/analyze.py
+@@ -0,0 +1,508 @@
++"""Analysis of finished runs (DESIGN 14.3, REQ-39): the one place where every metric is defined.
++
++    analyze.py metrics --runs DIR [--gt PATH] [--out FILE]    per arm and per document metrics -> metrics.json
++    analyze.py d1      --runs DIR --arm ARM [--base Z0] [--out FILE]    the time inputs of gate D1 -> d1.json
++
++It reads only run folders (`DIR/<run>/run.json`, `timing.json`, `reviews/`, `normalised/`), the judge outputs that each run
++names in `scoring/label-key.json`, and `config/`. A ground-truth file is opened only for the path given with `--gt`
++(per-class reach needs the class of each item); there is no default ground-truth path in this file.
++
++Definitions (each name below is defined here and nowhere else; `test_analyze.py::test_one_definition_of_found_fraction`):
++  found_fraction           items the judge marks covered at any severity, over the items of the document, per run
++  found_blocking_fraction  the same for items covered by a blocking ledger row (found-any and found-blocking stay apart)
++  share_runs_found_half    share of runs whose found_fraction is at least 0.5
++  run_jaccard              mean over pairs of runs of the same arm and document of |A and B| / |A or B| of their found sets;
++                           a pair whose union is empty carries no information and is left out
++  consistent_items         items reached in at least 60% of the runs of an arm and document (3 of 5): reach * 10 >= 6 * runs
++  stable_hit_rate          consistent items over the items found in at least one run
++  wrong_blockers           the judge's `wrong_blockers` per run
++  nonprobe_findings        findings lines of the reports the merge read, without a `probe` value and without `src: ledger`;
++                           a reviewer that is not `ok` contributes no report and so zero
++  elapsed_s                `panel_elapsed_s` of timing.json (all runs, killed and fallback runs included: intention to treat)
++  output_tokens            sum of `total_output_tokens_all` of the reviewers' cost files (the `tokens` key of the output)
++  kills                    reviewers whose status is `killed`
++  invalid                  reviewers whose status is neither `ok` nor `killed` (invalid or error: no usable report)
++  retries                  sum over reviewers of (attempts - 1)
++  fallbacks                runs whose run.json has `fallback: true`
++  class_reach              per item class: found item-runs over item-runs, with a 95% Wilson interval
++"""
++
++from __future__ import annotations
++
++import argparse
++import json
++import math
++import sys
++from dataclasses import dataclass, field
++from pathlib import Path
++
++SW = Path(__file__).resolve().parents[1]
++sys.path.insert(0, str(SW))
++
++from scaffold import fnd  # noqa: E402
++
++SCHEMA = "sweep-metrics/1"
++CONSISTENT_NUM, CONSISTENT_DEN = 6, 10  # reached in at least 60% of the runs
++HALF_NUM, HALF_DEN = 1, 2
++WILSON_Z = 1.96
++DIGITS = 6
++METRICS = (
++    "found_fraction",
++    "found_blocking_fraction",
++    "share_runs_found_half",
++    "run_jaccard",
++    "consistent_items",
++    "stable_hit_rate",
++    "wrong_blockers",
++    "nonprobe_findings",
++    "elapsed_s",
++    "output_tokens",
++    "kills",
++    "invalid",
++    "retries",
++    "fallbacks",
++    "class_reach",
++)
++
++
++class AnalysisError(Exception):
++    """A run folder or an argument that cannot be analysed (never swallowed: the caller sees the reason)."""
++
++
++@dataclass
++class Run:
++    name: str
++    arm: str
++    doc: str
++    block: object
++    fallback: bool
++    reason: object
++    elapsed: float
++    reviewers: dict  # rid -> {"status", "attempts", "tokens", "nonprobe"}
++    found_any: frozenset | None = None
++    found_blocking: frozenset | None = None
++    gt_total: int = 0
++    wrong: int = 0
++    path: Path | None = field(default=None, repr=False)
++
++
++# --- reading ----------------------------------------------------------------------------------------------------------
++
++
++def _json(path: Path):
++    try:
++        return json.loads(path.read_text(encoding="utf-8"))
++    except (OSError, ValueError) as e:
++        raise AnalysisError(f"{path}: {type(e).__name__}: {e}") from e
++
++
++def _report_nonprobe(path: Path) -> int:
++    """Findings lines of one report that are neither probe lines nor promoted ledger lines."""
++    n = 0
++    for raw in fnd.lenient_lines(path.read_text(encoding="utf-8")):
++        try:
++            row = json.loads(raw)
++        except ValueError:
++            continue  # H2 and the reviewer check left only parseable lines for an accepted report
++        if not isinstance(row, dict):
++            continue
++        if row.get("probe") is None and row.get("src") != "ledger":
++            n += 1
++    return n
++
++
++def _reviewer(folder: Path, rid: str, status: str) -> dict:
++    cost = folder / "reviews" / f"{rid}.cost.json"
++    c = _json(cost) if cost.is_file() else {}
++    nonprobe = 0
++    if status == "ok":  # only an accepted reviewer has a report that the merge read
++        for sub in ("normalised", "reviews"):
++            rep = folder / sub / f"{rid}.md"
++            if rep.is_file():
++                nonprobe = _report_nonprobe(rep)
++                break
++    return {
++        "status": status,
++        "attempts": int(c.get("attempts", 1)),
++        "tokens": int(c.get("total_output_tokens_all", 0)),
++        "nonprobe": nonprobe,
++    }
++
++
++def _score(folder: Path):
++    key = folder / "scoring" / "label-key.json"
++    if not key.is_file():
++        return None
++    score = Path(_json(key)["dir"]) / "score.json"
++    return _json(score) if score.is_file() else None
++
++
++def load_run(folder, scores=True) -> Run:
++    folder = Path(folder)
++    meta = _json(folder / "run.json")
++    timing = folder / "timing.json"
++    if not timing.is_file():
++        raise AnalysisError(f"{folder}: run.json without timing.json")
++    t = _json(timing)
++    status = {
++        rid: v["status"] for rid, v in (meta.get("reviewer_status") or {}).items()
++    }
++    run = Run(
++        name=folder.name,
++        arm=meta["arm"],
++        doc=meta["doc"],
++        block=meta.get("block"),
++        fallback=bool(meta.get("fallback")),
++        reason=meta.get("reason"),
++        elapsed=float(t["panel_elapsed_s"]),
++        reviewers={rid: _reviewer(folder, rid, st) for rid, st in status.items()},
++        path=folder,
++    )
++    if scores:
++        s = _score(folder)
++        if s is None:
++            raise AnalysisError(f"{folder}: no judge score file")
++        run.found_any = frozenset(s["gt_covered_any"])
++        run.found_blocking = frozenset(s["gt_covered_blocking"])
++        run.gt_total = int(s["gt_total"])
++        run.wrong = int(s["wrong_blockers"])
++    return run
++
++
++def load_runs(stage_dir, scores=True) -> list[Run]:
++    """Every run folder under stage_dir that holds a run.json, in name order."""
++    root = Path(stage_dir)
++    if not root.is_dir():
++        raise AnalysisError(f"{root} is not a folder")
++    runs = [
++        load_run(f, scores)
++        for f in sorted(root.iterdir())
++        if (f / "run.json").is_file()
++    ]
++    if not runs:
++        raise AnalysisError(f"no run folder under {root}")
++    return runs
++
++
++def load_classes(gt_path, doc) -> dict:
++    """{item id: class} from a ground-truth file the caller named: a file (every document) or a folder (DIR/<doc>.json)."""
++    p = Path(gt_path)
++    if p.is_dir():
++        p = p / f"{doc}.json"
++    return {i["id"]: i["class"] for i in _json(p)["items"]}
++
++
++# --- arithmetic -------------------------------------------------------------------------------------------------------
++
++
++def _mean(xs):
++    return sum(xs) / len(xs) if xs else None
++
++
++def median(xs):
++    s = sorted(xs)
++    n = len(s)
++    if not n:
++        return None
++    return s[n // 2] if n % 2 else (s[n // 2 - 1] + s[n // 2]) / 2
++
++
++def percentile(xs, q):
++    """Linear interpolation between the closest ranks (q from 0 to 1)."""
++    s = sorted(xs)
++    if not s:
++        return None
++    pos = (len(s) - 1) * q
++    lo = math.floor(pos)
++    hi = min(lo + 1, len(s) - 1)
++    return s[lo] + (s[hi] - s[lo]) * (pos - lo)
++
++
++def wilson(k, n, z=WILSON_Z):
++    if n == 0:
++        return None
++    p = k / n
++    d = 1 + z * z / n
++    c = (p + z * z / (2 * n)) / d
++    h = z * math.sqrt(p * (1 - p) / n + z * z / (4 * n * n)) / d
++    return [max(0.0, c - h), min(1.0, c + h)]
++
++
++def _r(x):
++    """Round every float of a nested result (the output is stable and compares with an expected file)."""
++    if isinstance(x, float):
++        return round(x, DIGITS)
++    if isinstance(x, dict):
++        return {k: _r(v) for k, v in x.items()}
++    if isinstance(x, (list, tuple)):
++        return [_r(v) for v in x]
++    return x
++
++
++# --- the metrics (one definition each) ---------------------------------------------------------------------------------
++
++
++def found_fraction(run: Run) -> float:
++    return len(run.found_any) / run.gt_total
++
++
++def found_blocking_fraction(run: Run) -> float:
++    return len(run.found_blocking) / run.gt_total
++
++
++def share_runs_found_half(runs) -> float:
++    return sum(
++        len(r.found_any) * HALF_DEN >= HALF_NUM * r.gt_total for r in runs
++    ) / len(runs)
++
++
++def _by_doc(runs):
++    docs = {}
++    for r in runs:
++        docs.setdefault(r.doc, []).append(r)
++    return docs
++
++
++def run_jaccard(runs):
++    vals = []
++    for group in _by_doc(runs).values():
++        for i, a in enumerate(group):
++            for b in group[i + 1 :]:
++                union = a.found_any | b.found_any
++                if union:
++                    vals.append(len(a.found_any & b.found_any) / len(union))
++    return _mean(vals)
++
++
++def _reach(runs):
++    """[(doc, item id, runs that found it, runs of the document)] for every item of every document."""
++    out = []
++    for doc, group in sorted(_by_doc(runs).items()):
++        for i in range(1, group[0].gt_total + 1):
++            gid = f"GT{i}"
++            out.append((doc, gid, sum(gid in r.found_any for r in group), len(group)))
++    return out
++
++
++def consistent_items(runs) -> int:
++    return sum(
++        hit * CONSISTENT_DEN >= CONSISTENT_NUM * n for _, _, hit, n in _reach(runs)
++    )
++
++
++def stable_hit_rate(runs):
++    found = [(hit, n) for _, _, hit, n in _reach(runs) if hit]
++    if not found:
++        return None
++    return sum(hit * CONSISTENT_DEN >= CONSISTENT_NUM * n for hit, n in found) / len(
++        found
++    )
++
++
++def wrong_blockers(run: Run) -> int:
++    return run.wrong
++
++
++def nonprobe_findings(run: Run) -> int:
++    return sum(v["nonprobe"] for v in run.reviewers.values())
++
++
++def elapsed_s(run: Run) -> float:
++    return run.elapsed
++
++
++def output_tokens(run: Run) -> int:
++    return sum(v["tokens"] for v in run.reviewers.values())
++
++
++def kills(runs) -> int:
++    return sum(v["status"] == "killed" for r in runs for v in r.reviewers.values())
++
++
++def invalid(runs) -> int:
++    return sum(
++        v["status"] not in ("ok", "killed") for r in runs for v in r.reviewers.values()
++    )
++
++
++def retries(runs) -> int:
++    return sum(v["attempts"] - 1 for r in runs for v in r.reviewers.values())
++
++
++def fallbacks(runs) -> int:
++    return sum(r.fallback for r in runs)
++
++
++def class_reach(runs, classes) -> dict:
++    """{class: {found, trials, reach, wilson}} over item-runs; classes maps a document to {item id: class}."""
++    tally = {}
++    for r in runs:
++        for gid, cls in classes[r.doc].items():
++            t = tally.setdefault(cls, [0, 0])
++            t[0] += gid in r.found_any
++            t[1] += 1
++    return {
++        c: {"found": k, "trials": n, "reach": k / n, "wilson": wilson(k, n)}
++        for c, (k, n) in sorted(tally.items())
++    }
++
++
++# --- groups -----------------------------------------------------------------------------------------------------------
++
++
++def _series(values):
++    return {"per_run": list(values), "mean": _mean(values)}
++
++
++def group_metrics(runs, classes=None) -> dict:
++    """Every metric of DESIGN 14.3 for the runs of one arm (one document, or all of its documents)."""
++    el = [elapsed_s(r) for r in runs]
++    items = sum(r.gt_total for r in {r.doc: r for r in runs}.values())
++    consistent = consistent_items(runs)
++    out = {
++        "runs": len(runs),
++        "found_fraction": _series([found_fraction(r) for r in runs]),
++        "found_blocking_fraction": _series([found_blocking_fraction(r) for r in runs]),
++        "share_runs_found_half": share_runs_found_half(runs),
++        "run_jaccard": run_jaccard(runs),
++        "consistent_items": consistent,
++        "consistent_share": consistent / items,
++        "stable_hit_rate": stable_hit_rate(runs),
++        "wrong_blockers": _series([wrong_blockers(r) for r in runs]),
++        "nonprobe_findings": _series([nonprobe_findings(r) for r in runs]),
++        "elapsed_s": {
++            "per_run": el,
++            "mean": _mean(el),
++            "median": median(el),
++            "p90": percentile(el, 0.9),
++        },
++        "tokens": _series([output_tokens(r) for r in runs]),
++        "kills": kills(runs),
++        "retries": retries(runs),
++        "fallbacks": fallbacks(runs),
++        "invalid": invalid(runs),
++    }
++    if classes is not None:
++        out["class_reach"] = class_reach(runs, classes)
++    return out
++
++
++def metrics(runs, classes=None) -> dict:
++    """{schema, arms: {arm: {runs, docs: {doc: group}, pooled: group}}}. classes: {doc: {item id: class}} or None."""
++    arms = {}
++    for arm in sorted({r.arm for r in runs}):
++        mine = [r for r in runs if r.arm == arm]
++        arms[arm] = {
++            "runs": len(mine),
++            "docs": {
++                d: group_metrics(g, classes) for d, g in sorted(_by_doc(mine).items())
++            },
++            "pooled": group_metrics(mine, classes),
++        }
++    return _r({"schema": SCHEMA, "arms": arms})
++
++
++# --- gate D1 inputs ---------------------------------------------------------------------------------------------------
++
++
++def d1_inputs(runs, arm, base="Z0") -> dict:
++    """Per-document medians of the arm against the base arm's runs of the same randomised blocks only.
++
++    A base run whose block holds no run of the arm on that document is ignored (and listed); with no base run left for a
++    document the call raises. Every run counts, killed and fallback runs included (intention to treat).
++    """
++    docs, launched, killed = {}, 0, 0
++    mine = [r for r in runs if r.arm == arm]
++    if not mine:
++        raise AnalysisError(f"no run of arm {arm}")
++    for doc, group in sorted(_by_doc(mine).items()):
++        blocks = {r.block for r in group}
++        basis = [r for r in runs if r.arm == base and r.doc == doc]
++        same = [r for r in basis if r.block in blocks]
++        if not same:
++            raise AnalysisError(f"{doc}: no {base} run in the blocks of {arm}")
++        a, z = [r.elapsed for r in group], [r.elapsed for r in same]
++        docs[doc] = {
++            "arm_runs": len(a),
++            "base_runs": len(z),
++            "arm_median": median(a),
++            "base_median": median(z),
++            "ratio": median(a) / median(z),
++            "arm_p90": percentile(a, 0.9),
++            "base_p90": percentile(z, 0.9),
++            "p90_ratio": percentile(a, 0.9) / percentile(z, 0.9),
++            "ignored_base_runs": sorted(r.name for r in basis if r.block not in blocks),
++        }
++    for r in mine:
++        launched += len(r.reviewers)
++        killed += sum(v["status"] == "killed" for v in r.reviewers.values())
++    return _r(
++        {
++            "arm": arm,
++            "base": base,
++            "docs": docs,
++            "reviewers_launched": launched,
++            "reviewers_killed": killed,
++            "kill_share": killed / launched if launched else None,
++        }
++    )
++
++
++# --- command line -----------------------------------------------------------------------------------------------------
++
++
++def _writable(path) -> Path:
++    """K1: output only under SW or /tmp."""
++    p = Path(path).resolve()
++    if SW in p.parents or Path("/tmp") in p.parents:
++        return p
++    raise AnalysisError(f"E_NOT_WRITABLE: {path} resolves to {p}")
++
++
++def _write(obj, out):
++    p = _writable(out)
++    p.parent.mkdir(parents=True, exist_ok=True)
++    p.write_text(
++        json.dumps(obj, indent=1, sort_keys=True, ensure_ascii=False) + "\n",
++        encoding="utf-8",
++    )
++    return p
++
++
++def cmd_metrics(a):
++    runs = load_runs(a.runs)
++    classes = None
++    if a.gt:
++        classes = {d: load_classes(a.gt, d) for d in sorted({r.doc for r in runs})}
++    _write(metrics(runs, classes), a.out)
++
++
++def cmd_d1(a):
++    _write(d1_inputs(load_runs(a.runs, scores=False), a.arm, a.base), a.out)
++
++
++def main(argv=None) -> int:
++    ap = argparse.ArgumentParser(prog="analyze.py", description=__doc__.split("\n")[0])
++    sub = ap.add_subparsers(dest="cmd", required=True)
++    m = sub.add_parser("metrics", help="per arm and per document metrics")
++    m.add_argument("--runs", required=True)
++    m.add_argument("--gt", help="a ground-truth file or folder (per-class reach)")
++    m.add_argument("--out", default=str(SW / "results" / "metrics.json"))
++    m.set_defaults(fn=cmd_metrics)
++    d = sub.add_parser("d1", help="time inputs of gate D1")
++    d.add_argument("--runs", required=True)
++    d.add_argument("--arm", required=True)
++    d.add_argument("--base", default="Z0")
++    d.add_argument("--out", default=str(SW / "results" / "d1.json"))
++    d.set_defaults(fn=cmd_d1)
++    args = ap.parse_args(argv)
++    try:
++        args.fn(args)
++    except AnalysisError as e:
++        print(f"analyze: {e}", file=sys.stderr)
++        return 1
++    return 0
++
++
++if __name__ == "__main__":
++    sys.exit(main())
+diff --git a/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/fixtures/gt/synthetic-gt.json b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/fixtures/gt/synthetic-gt.json
+new file mode 100644
+index 000000000..7dac3a156
+--- /dev/null
++++ b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/fixtures/gt/synthetic-gt.json
+@@ -0,0 +1,63 @@
++{
++  "schema": "sweep-synthetic-gt/1",
++  "note": "Invented ground truth for fixtures/plans/p_basic.md (F-GT). Every item, class and description is made up for the tests; nothing is taken from a study file.",
++  "doc": "p_basic",
++  "items": [
++    {
++      "id": "GT1",
++      "class": "C1",
++      "blocking_in_implement": true,
++      "description": "The criterion says every module returns an empty result, but the task edits one module only, so the check covers a wider set than the instruction.",
++      "plan_quote": "Every module under `src/exporter/` returns an empty result for an empty report."
++    },
++    {
++      "id": "GT2",
++      "class": "C2",
++      "blocking_in_implement": false,
++      "description": "The task cites a source section whose rule about row order never reaches the task text.",
++      "plan_quote": "Source sections: 2.1"
++    },
++    {
++      "id": "GT3",
++      "class": "C3",
++      "blocking_in_implement": true,
++      "description": "The purge step reads the hold flag but nothing in the plan ever sets it, so the step keeps nothing.",
++      "plan_quote": "The purge step keys on `legal_hold` and leaves such reports in place."
++    },
++    {
++      "id": "GT4",
++      "class": "C4",
++      "blocking_in_implement": true,
++      "description": "The check searches for a hyphenated word, but the heading the task orders has a space, so the command prints zero.",
++      "plan_quote": "`grep -c 'retention-window' docs/guide.md` prints at least 1."
++    },
++    {
++      "id": "GT5",
++      "class": "C5",
++      "blocking_in_implement": false,
++      "description": "The count of report formats is changed in the guide, but a second document repeats the old count.",
++      "plan_quote": "update the count from 3 report formats to 4 report formats."
++    },
++    {
++      "id": "GT6",
++      "class": "C6",
++      "blocking_in_implement": true,
++      "description": "The criterion says only the retention job removes a report, while a later task leaves a skip rule that lets other code paths keep one.",
++      "plan_quote": "`tests/test_retention.py` shows that only the retention job removes a report file."
++    },
++    {
++      "id": "GT7",
++      "class": "C7",
++      "blocking_in_implement": false,
++      "description": "The dictated notice text omits two of the three items that the constraint demands in a deletion notice.",
++      "plan_quote": "Write the notice body exactly as the quote below, with the report id filled in."
++    },
++    {
++      "id": "GT8",
++      "class": "C8",
++      "blocking_in_implement": true,
++      "description": "The edited module is imported by a test the plan never names, and that test breaks when the format list grows.",
++      "plan_quote": "Edit `src/exporter/report.py` so that `render` accepts the format name `ndjson`"
++    }
++  ]
++}
+diff --git a/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/fixtures/runs/make_runs.py b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/fixtures/runs/make_runs.py
+new file mode 100644
+index 000000000..748e402be
+--- /dev/null
++++ b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/fixtures/runs/make_runs.py
+@@ -0,0 +1,360 @@
++"""F-RUNS (TESTING section 2): synthetic run folders, judge outputs and `expected.json` for the analysis tests.
++
++Everything is invented. `build(root)` writes, for 3 arms (Z0, K, SS; `arms=` adds Z0-raw), 2 documents and 5 replicates:
++  root/runs/stage1/<arm>-<doc>-r<k>/   run.json, timing.json, reviews/<rid>.{meta,cost}.json, normalised/<rid>.md
++                                       (reviews/<rid>.md for Z0-raw), scoring/label-key.json
++  root/scoring/stage1/<label>/score.json   the judge output that the label key names
++  root/expected.json                   the metrics, worked out below from the tables with plain loops and sets. It is NOT
++                                       made by calling analysis/analyze.py, so a shared mistake cannot hide.
++A document has 8 ground-truth items GT1 to GT8; item GTn has class Cn (the synthetic ground truth of fixtures/gt).
++Replicate k of every arm is in randomised block k. No ground-truth or score file of a study is read or copied.
++
++The tables list, per replicate: the items found at any severity, the items found by a blocking row, the wrong blockers,
++the panel seconds, the non-probe findings of the three reviewers, the probe lines and the promoted ledger lines.
++"""
++
++import json
++from pathlib import Path
++from types import SimpleNamespace
++
++DOCS = ("synth-a", "synth-b")
++DEFAULT_ARMS = ("Z0", "K", "SS")
++ALL_ARMS = ("Z0-raw", *DEFAULT_ARMS)
++REPS = 5
++ITEMS = 8
++RIDS = ("t2b-1", "t3-1", "t4-1")
++MODELS = {"t2b-1": "muse-ember-1.0", "t3-1": "gpt-6-luna", "t4-1": "gpt-6-luna"}
++
++# (found any, found blocking, wrong blockers, panel seconds, non-probe findings of t2b-1/t3-1/t4-1, probe lines, ledger lines)
++TABLE = {
++    ("Z0-raw", "synth-a"): [
++        ("12", "1", 3, 105, (1, 1, 1), 0, 0),
++        ("1", "1", 4, 115, (1, 0, 1), 0, 0),
++        ("123", "1", 2, 100, (2, 1, 1), 0, 0),
++        ("12", "1", 3, 125, (1, 1, 1), 0, 0),
++        ("1", "", 3, 110, (1, 1, 0), 0, 0),
++    ],
++    ("Z0-raw", "synth-b"): [
++        ("4", "4", 2, 85, (1, 1, 1), 0, 0),
++        ("45", "4", 2, 95, (1, 1, 1), 0, 0),
++        ("4", "", 1, 90, (1, 2, 1), 0, 0),
++        ("4", "4", 2, 75, (1, 1, 1), 0, 0),
++        ("45", "4", 1, 105, (1, 1, 1), 0, 0),
++    ],
++    ("Z0", "synth-a"): [
++        ("123", "12", 2, 100, (2, 1, 1), 0, 0),
++        ("12", "1", 3, 110, (1, 1, 1), 0, 0),
++        ("1234", "12", 1, 95, (2, 2, 1), 0, 0),
++        ("13", "1", 2, 120, (1, 1, 2), 0, 0),
++        ("123", "12", 2, 105, (2, 1, 0), 0, 0),
++    ],
++    ("Z0", "synth-b"): [
++        ("45", "4", 1, 80, (1, 1, 1), 0, 0),
++        ("456", "4", 2, 90, (1, 2, 1), 0, 0),
++        ("4", "4", 1, 85, (2, 1, 1), 0, 0),
++        ("45", "4", 1, 70, (1, 1, 1), 0, 0),
++        ("456", "46", 0, 110, (1, 1, 1), 0, 0),
++    ],
++    ("K", "synth-a"): [
++        ("1235", "12", 2, 115, (2, 1, 1), 0, 0),
++        ("125", "12", 2, 120, (1, 1, 1), 0, 0),
++        ("1235", "125", 3, 110, (2, 1, 2), 0, 0),
++        ("1234", "12", 2, 130, (1, 2, 1), 0, 0),
++        ("125", "12", 1, 125, (1, 1, 1), 0, 0),
++    ],
++    ("K", "synth-b"): [
++        ("457", "4", 1, 95, (1, 1, 1), 0, 0),
++        ("45", "4", 2, 105, (1, 1, 1), 0, 0),
++        ("4567", "46", 1, 100, (2, 1, 1), 0, 0),
++        ("457", "4", 1, 90, (1, 1, 1), 0, 0),
++        ("45", "4", 0, 110, (1, 1, 2), 0, 0),
++    ],
++    ("SS", "synth-a"): [
++        ("12356", "1235", 2, 135, (1, 1, 1), 3, 1),
++        ("1256", "125", 3, 140, (1, 1, 0), 4, 0),
++        ("1234", "12", 2, 190, (1, 1, 2), 0, 0),
++        ("1256", "1256", 2, 145, (2, 1, 1), 2, 1),
++        ("12356", "125", 1, 138, (1, 0, 1), 3, 2),
++    ],
++    ("SS", "synth-b"): [
++        ("45678", "468", 2, 130, (1, 1, 1), 2, 1),
++        ("4568", "46", 1, 150, (1, 1, 1), 3, 0),
++        ("45678", "4678", 1, 128, (2, 1, 1), 2, 1),
++        ("458", "48", 2, 160, (1, 1, 1), 2, 1),
++        ("4568", "468", 0, 142, (1, 2, 1), 3, 0),
++    ],
++}
++# special cases: (arm, doc, replicate) -> what happened
++FALLBACK = {
++    ("SS", "synth-a", 3): "kill"
++}  # the pre-pass was killed: no probe lines, the Z0 brief
++KILLED = {
++    ("SS", "synth-b", 4): "t4-1"
++}  # the hang guard killed this reviewer; a stray report file is left behind
++INVALID = {
++    ("K", "synth-b", 2): "t3-1"
++}  # a clean run whose findings block did not parse: no report
++RETRIED = {
++    ("K", "synth-a", 1): "t2b-1"
++}  # two attempts (a pre-DD-8 style run), one retry
++BLOCKS = {k: k for k in range(1, REPS + 1)}
++
++
++def _slug(arm):
++    return arm.lower().replace("-", "")
++
++
++def _line(n, extra=None):
++    row = {
++        "id": f"F{n}",
++        "severity": "MINOR",
++        "blocking": False,
++        "category": "other",
++        "anchor": "returns an empty result for an empty report",
++        "refs": [],
++        "claim": "The wording leaves one reading open.",
++    }
++    row.update(extra or {})
++    return json.dumps(row)
++
++
++def _report(nonprobe, probes, ledger):
++    lines, n = [], 1
++    for _ in range(nonprobe):
++        lines.append(_line(n))
++        n += 1
++    for i in range(probes):
++        lines.append(_line(n, {"probe": f"S{i + 1}", "class": "C4", "src": None}))
++        n += 1
++    for i in range(ledger):
++        lines.append(_line(n, {"probe": None, "class": "C1", "src": "ledger"}))
++        n += 1
++    return (
++        "review: 1 of 3\n\n## Findings block\n\n```findings-v1\n"
++        + "\n".join(lines)
++        + "\n```\n\nverdict: PASS\n"
++    )
++
++
++def specs(arms=DEFAULT_ARMS, docs=DOCS):
++    """One dict per run, in a fixed order, with everything the writer and the expected values need."""
++    out = []
++    for arm in arms:
++        for doc in docs:
++            for k, row in enumerate(TABLE[(arm, doc)], 1):
++                found, blocking, wrong, secs, np3, probes, ledger = row
++                key = (arm, doc, k)
++                status = {rid: "ok" for rid in RIDS}
++                if key in KILLED:
++                    status[KILLED[key]] = "killed"
++                if key in INVALID:
++                    status[INVALID[key]] = "invalid"
++                out.append(
++                    {
++                        "arm": arm,
++                        "doc": doc,
++                        "rep": k,
++                        "block": BLOCKS[k],
++                        "found": {f"GT{c}" for c in found},
++                        "blocking": {f"GT{c}" for c in blocking},
++                        "wrong": wrong,
++                        "secs": float(secs),
++                        "np": dict(zip(RIDS, np3)),
++                        "probes": probes,
++                        "ledger": ledger,
++                        "status": status,
++                        "fallback": key in FALLBACK,
++                        "reason": FALLBACK.get(key),
++                        "attempts": {
++                            rid: 2 if RETRIED.get(key) == rid else 1 for rid in RIDS
++                        },
++                        "tokens": {
++                            rid: 0 if status[rid] == "killed" else 1000 + 10 * k
++                            for rid in RIDS
++                        },
++                    }
++                )
++    return out
++
++
++def write_run(runs_dir, scoring_dir, s, label):
++    """Write one run folder and its judge folder from a spec dict (see specs); returns the run folder."""
++    run = Path(runs_dir) / f"{_slug(s['arm'])}-{s['doc']}-r{s['rep']}"
++    for sub in ("reviews", "normalised", "scoring"):
++        (run / sub).mkdir(parents=True)
++    (run / "run.json").write_text(
++        json.dumps(
++            {
++                "arm": s["arm"],
++                "panel": "primary",
++                "doc": s["doc"],
++                "replicate": s["rep"],
++                "seed": 1,
++                "block": s["block"],
++                "fallback": s["fallback"],
++                "reason": s["reason"],
++                "reviewers": len(RIDS),
++                "reviewer_status": {
++                    rid: {"model": MODELS[rid], "status": s["status"][rid]}
++                    for rid in RIDS
++                },
++            }
++        )
++    )
++    (run / "timing.json").write_text(json.dumps({"panel_elapsed_s": s["secs"]}))
++    probes = 0 if s["fallback"] else s["probes"]
++    ledger = 0 if s["fallback"] else s["ledger"]
++    folder = "reviews" if s["arm"] == "Z0-raw" else "normalised"
++    for i, rid in enumerate(RIDS):
++        st = s["status"][rid]
++        (run / "reviews" / f"{rid}.meta.json").write_text(json.dumps({"status": st}))
++        (run / "reviews" / f"{rid}.cost.json").write_text(
++            json.dumps(
++                {
++                    "attempts": s["attempts"][rid],
++                    "total_output_tokens_all": s["tokens"][rid],
++                    "killed": st == "killed",
++                }
++            )
++        )
++        # probe and ledger lines sit in the second and third reviewer's reports; a missing report is a reviewer not ok
++        text = _report(s["np"][rid], probes if i == 1 else 0, ledger if i == 2 else 0)
++        if st == "ok":
++            (run / folder / f"{rid}.md").write_text(text)
++        elif st == "killed":  # a leftover that the analysis must not count
++            (run / "normalised" / f"{rid}.md").write_text(_report(3, 0, 0))
++    jd = Path(scoring_dir) / label
++    jd.mkdir(parents=True)
++    (jd / "score.json").write_text(
++        json.dumps(
++            {
++                "label": label,
++                "combo": "blind",
++                "package": s["doc"],
++                "gt_total": ITEMS,
++                "gt_covered_any": sorted(s["found"]),
++                "gt_covered_blocking": sorted(s["blocking"]),
++                "ledger_rows_total": 4,
++                "ledger_rows_blocking": 1,
++                "blocking_rows_gt_matched": 0,
++                "wrong_blockers": s["wrong"],
++                "notes": "invented",
++            }
++        )
++    )
++    (run / "scoring" / "label-key.json").write_text(
++        json.dumps(
++            {
++                "label": label,
++                "dir": str(jd),
++                "run": run.name,
++                "doc": s["doc"],
++                "second": None,
++            }
++        )
++    )
++    return run
++
++
++# --- the expected values: plain loops and sets, written out from the tables above ------------------------------------
++
++
++def _expected_group(by_doc):
++    """by_doc: {doc: [spec, ...]}. Returns the group values that analysis.analyze.group_metrics must produce."""
++    runs = [s for g in by_doc.values() for s in g]
++    n = len(runs)
++    found = [len(s["found"]) / ITEMS for s in runs]
++    blk = [len(s["blocking"]) / ITEMS for s in runs]
++    secs = sorted(s["secs"] for s in runs)
++    median = secs[n // 2] if n % 2 else (secs[n // 2 - 1] + secs[n // 2]) / 2
++    pos = (n - 1) * 0.9
++    lo = int(pos)
++    p90 = secs[lo] + (secs[min(lo + 1, n - 1)] - secs[lo]) * (pos - lo)
++    consistent, seen = 0, 0
++    for g in by_doc.values():
++        for item in range(1, ITEMS + 1):
++            hits = sum(f"GT{item}" in s["found"] for s in g)
++            if hits:
++                seen += 1
++            if hits * 10 >= 6 * len(g):
++                consistent += 1
++    # run_jaccard pools the pairs of all documents (pairs never cross documents)
++    all_pairs = []
++    for g in by_doc.values():
++        sets = [s["found"] for s in g]
++        for i in range(len(sets)):
++            for j in range(i + 1, len(sets)):
++                if sets[i] | sets[j]:
++                    all_pairs.append(len(sets[i] & sets[j]) / len(sets[i] | sets[j]))
++    nonprobe = [
++        sum(c for rid, c in s["np"].items() if s["status"][rid] == "ok") for s in runs
++    ]
++    toks = [sum(s["tokens"].values()) for s in runs]
++    reach = {}
++    for s in runs:
++        for item in range(1, ITEMS + 1):
++            cls = f"C{item}"
++            k, t = reach.get(cls, (0, 0))
++            reach[cls] = (k + (f"GT{item}" in s["found"]), t + 1)
++    return {
++        "runs": n,
++        "found_fraction": {"per_run": found, "mean": sum(found) / n},
++        "found_blocking_fraction": {"per_run": blk, "mean": sum(blk) / n},
++        "share_runs_found_half": sum(len(s["found"]) >= ITEMS / 2 for s in runs) / n,
++        "run_jaccard": sum(all_pairs) / len(all_pairs) if all_pairs else None,
++        "consistent_items": consistent,
++        "consistent_share": consistent / (ITEMS * len(by_doc)),
++        "stable_hit_rate": consistent / seen if seen else None,
++        "wrong_blockers": {
++            "per_run": [s["wrong"] for s in runs],
++            "mean": sum(s["wrong"] for s in runs) / n,
++        },
++        "nonprobe_findings": {"per_run": nonprobe, "mean": sum(nonprobe) / n},
++        "elapsed_s": {
++            "per_run": [s["secs"] for s in runs],
++            "mean": sum(secs) / n,
++            "median": median,
++            "p90": p90,
++        },
++        "tokens": {"per_run": toks, "mean": sum(toks) / n},
++        "kills": sum(v == "killed" for s in runs for v in s["status"].values()),
++        "retries": sum(a - 1 for s in runs for a in s["attempts"].values()),
++        "fallbacks": sum(s["fallback"] for s in runs),
++        "invalid": sum(
++            v not in ("ok", "killed") for s in runs for v in s["status"].values()
++        ),
++        "class_reach": {
++            c: {"found": k, "trials": t, "reach": k / t}
++            for c, (k, t) in sorted(reach.items())
++        },
++    }
++
++
++def expected(spec_list):
++    arms = {}
++    for arm in sorted({s["arm"] for s in spec_list}):
++        mine = [s for s in spec_list if s["arm"] == arm]
++        by_doc = {}
++        for s in mine:
++            by_doc.setdefault(s["doc"], []).append(s)
++        arms[arm] = {
++            "runs": len(mine),
++            "docs": {d: _expected_group({d: g}) for d, g in sorted(by_doc.items())},
++            "pooled": _expected_group(dict(sorted(by_doc.items()))),
++        }
++    return {"schema": "sweep-metrics/1", "arms": arms}
++
++
++def build(root, arms=DEFAULT_ARMS, docs=DOCS):
++    """Write the runs, the judge folders and expected.json under root; returns a namespace of the paths and values."""
++    root = Path(root)
++    runs, scoring = root / "runs" / "stage1", root / "scoring" / "stage1"
++    runs.mkdir(parents=True)
++    spec_list = specs(arms, docs)
++    for n, s in enumerate(spec_list, 1):
++        write_run(runs, scoring, s, f"j{n:06x}")
++    exp = expected(spec_list)
++    (root / "expected.json").write_text(json.dumps(exp, indent=1, sort_keys=True))
++    return SimpleNamespace(
++        root=root, runs=runs, scoring=scoring, specs=spec_list, expected=exp
++    )
+diff --git a/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_analyze.py b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_analyze.py
+new file mode 100644
+index 000000000..ec641fc03
+--- /dev/null
++++ b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_analyze.py
+@@ -0,0 +1,278 @@
++"""REQ-29, REQ-30, REQ-39, REQ-42: the metrics of DESIGN 14.3 over synthetic run folders (F-RUNS).
++Every number below that is written as a literal was worked out by hand from the tables of fixtures/runs/make_runs.py."""
++
++import ast
++import json
++import shutil
++import subprocess
++import sys
++
++import pytest
++from helpers import SW
++
++from analysis import analyze
++from fixtures.runs import make_runs
++
++GT = SW / "fixtures" / "gt" / "synthetic-gt.json"
++
++
++@pytest.fixture
++def world(tmp_path):
++    return make_runs.build(tmp_path)
++
++
++def classes_of(runs):
++    return {d: analyze.load_classes(GT, d) for d in sorted({r.doc for r in runs})}
++
++
++def close(got, want, path="metrics"):
++    """Every key of `want` is in `got` with an equal value (floats within 1e-9)."""
++    if isinstance(want, dict):
++        assert isinstance(got, dict), path
++        for k, v in want.items():
++            assert k in got, f"{path}.{k} is missing"
++            close(got[k], v, f"{path}.{k}")
++    elif isinstance(want, list):
++        assert len(got) == len(want), path
++        for i, (g, w) in enumerate(zip(got, want)):
++            close(g, w, f"{path}[{i}]")
++    elif isinstance(want, float):
++        assert got == pytest.approx(want, abs=1e-6), path
++    else:
++        assert got == want, path
++
++
++def test_metrics_match_expected_json(world):
++    runs = analyze.load_runs(world.runs)
++    got = analyze.metrics(runs, classes_of(runs))
++    want = json.loads((world.root / "expected.json").read_text())
++    assert sorted(got["arms"]) == ["K", "SS", "Z0"] == sorted(want["arms"])
++    close(got, want)
++    # hand-worked literals, so that the oracle and the code cannot share a mistake
++    z = got["arms"]["Z0"]["docs"]["synth-a"]
++    assert z["found_fraction"]["per_run"] == [0.375, 0.25, 0.5, 0.25, 0.375]
++    assert z["found_fraction"]["mean"] == 0.35
++    assert z["found_blocking_fraction"]["per_run"] == [0.25, 0.125, 0.25, 0.125, 0.25]
++    assert z["found_blocking_fraction"]["mean"] == 0.2
++    assert z["share_runs_found_half"] == 0.2  # one run of five finds 4 of 8
++    assert (z["consistent_items"], z["stable_hit_rate"]) == (3, 0.75)
++    # the found sets {123}{12}{1234}{13}{123} give 10 pairs: 2/3 3/4 2/3 1 1/2 1/3 2/3 1/2 3/4 2/3 = 6.5, mean 0.65
++    assert z["run_jaccard"] == pytest.approx(0.65)
++    ss = got["arms"]["SS"]["pooled"]  # 22 + 21 items found over 10 runs of 8
++    assert ss["runs"] == 10 and ss["found_fraction"]["mean"] == pytest.approx(43 / 80)
++    # the per-class reach: class C1 is item GT1, found in 5 of 5 Z0 runs of synth-a and 0 of 5 of synth-b
++    c1 = got["arms"]["Z0"]["pooled"]["class_reach"]["C1"]
++    assert (c1["found"], c1["trials"], c1["reach"]) == (5, 10, 0.5)
++    assert c1["wilson"] == pytest.approx([0.2366, 0.7634], abs=1e-3)
++
++
++def test_wilson_interval_literals():
++    assert analyze.wilson(0, 0) is None
++    lo, hi = analyze.wilson(0, 5)
++    assert lo == 0.0 and hi == pytest.approx(0.4345, abs=1e-3)
++    lo, hi = analyze.wilson(5, 5)
++    assert hi == 1.0 and lo == pytest.approx(0.5655, abs=1e-3)
++
++
++def test_one_definition_of_found_fraction():
++    """REQ-39: an AST search over SW finds each metric name defined only in analysis/analyze.py.
++
++    A definition is a top-level function or class anywhere, or a top-level assignment outside tests/ (a test's own constant
++    or a local variable that happens to share a name is not a second definition of the metric)."""
++    here = SW / "analysis" / "analyze.py"
++    defined = {}
++    for path in SW.rglob("*.py"):
++        if "__pycache__" in path.parts:
++            continue
++        in_tests = "tests" in path.relative_to(SW).parts
++        for node in ast.parse(path.read_text(encoding="utf-8")).body:
++            names = []
++            if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef)):
++                names.append(node.name)
++            elif not in_tests and isinstance(node, (ast.Assign, ast.AnnAssign)):
++                targets = (
++                    node.targets if isinstance(node, ast.Assign) else [node.target]
++                )
++                names += [t.id for t in targets if isinstance(t, ast.Name)]
++            for n in names:
++                if n in analyze.METRICS:
++                    defined.setdefault(n, set()).add(path)
++    assert "found_fraction" in defined
++    for name in analyze.METRICS:
++        assert defined.get(name) == {here}, (name, defined.get(name))
++        assert callable(getattr(analyze, name))
++
++
++def d1_of(world, arm="SS"):
++    return analyze.d1_inputs(analyze.load_runs(world.runs, scores=False), arm)
++
++
++def test_d1_uses_medians(world):
++    d1 = d1_of(world)
++    a, b = d1["docs"]["synth-a"], d1["docs"]["synth-b"]
++    # SS synth-a: 135 140 190 145 138 -> median 140 (mean 149.6); Z0: 100 110 95 120 105 -> median 105
++    assert (a["arm_median"], a["base_median"]) == (140.0, 105.0)
++    assert a["ratio"] == pytest.approx(140 / 105)
++    assert a["ratio"] != pytest.approx(149.6 / 106)  # a mean ratio would differ
++    # SS synth-b: 130 150 128 160 142 -> 142; Z0: 80 90 85 70 110 -> 85
++    assert (b["arm_median"], b["base_median"]) == (142.0, 85.0)
++    assert b["ratio"] == pytest.approx(142 / 85, abs=1e-6)
++    # 90th percentile by linear interpolation at rank 3.6: SS synth-a sorted 135 138 140 145 190 -> 145 + 0.6 * 45 = 172;
++    # Z0 synth-a sorted 95 100 105 110 120 -> 110 + 0.6 * 10 = 116
++    assert a["arm_p90"] == 172.0 and a["base_p90"] == 116.0
++    # one of 15 reviewers was killed: intention to treat keeps the killed and fallback runs in
++    assert d1["reviewers_launched"] == 30 and d1["reviewers_killed"] == 1
++    assert d1["kill_share"] == pytest.approx(1 / 30, abs=1e-6)
++
++
++def test_d1_same_block_only(world):
++    base = d1_of(world)
++    stray = dict(make_runs.specs(("Z0",), ("synth-a",))[0], rep=9, block=9, secs=9999.0)
++    run = make_runs.write_run(world.runs, world.scoring, stray, "jffff01")
++    after = d1_of(world)
++    assert after["docs"]["synth-a"]["ratio"] == base["docs"]["synth-a"]["ratio"]
++    assert after["docs"]["synth-a"]["base_runs"] == 5
++    assert after["docs"]["synth-a"]["ignored_base_runs"] == [run.name]
++    # a base arm with no run in any block of the arm: the call raises instead of comparing across blocks
++    for p in world.runs.glob("z0-synth-b-*"):
++        shutil.rmtree(p)
++    with pytest.raises(analyze.AnalysisError, match="synth-b: no Z0 run"):
++        d1_of(world)
++
++
++def test_mean_and_median_reported(world, tmp_path):
++    runs = analyze.load_runs(world.runs)
++    el = analyze.group_metrics(
++        [r for r in runs if r.arm == "Z0" and r.doc == "synth-b"]
++    )["elapsed_s"]
++    assert (el["mean"], el["median"]) == (87.0, 85.0)  # 80 90 85 70 110
++    out = tmp_path / "out" / "metrics.json"
++    rc = analyze.main(
++        ["metrics", "--runs", str(world.runs), "--gt", str(GT), "--out", str(out)]
++    )
++    assert rc == 0
++    got = json.loads(out.read_text())["arms"]["Z0"]["docs"]["synth-b"]["elapsed_s"]
++    assert (
++        got["mean"] == 87.0 and got["median"] == 85.0 and got["p90"] == 102.0
++    )  # 70 80 85 90 110: 90 + 0.6 * 20
++    assert (
++        out.read_text().endswith("\n")
++        and json.loads(out.read_text())["schema"] == "sweep-metrics/1"
++    )
++
++
++def test_kills_retries_per_arm(world):
++    runs = analyze.load_runs(world.runs)
++    pooled = analyze.metrics(runs)["arms"]
++    count = {
++        arm: tuple(
++            pooled[arm]["pooled"][k]
++            for k in ("kills", "retries", "fallbacks", "invalid")
++        )
++        for arm in pooled
++    }
++    assert count == {"Z0": (0, 0, 0, 0), "K": (0, 1, 0, 1), "SS": (1, 0, 1, 0)}
++    assert pooled["SS"]["docs"]["synth-a"]["fallbacks"] == 1
++    assert pooled["SS"]["docs"]["synth-b"]["kills"] == 1
++
++
++def test_zero_findings_for_killed(world):
++    runs = {r.name: r for r in analyze.load_runs(world.runs)}
++    run = runs["ss-synth-b-r4"]
++    # the killed reviewer left a report with 3 lines behind; it contributes nothing, and nor do its tokens
++    stray = world.runs / run.name / "normalised" / "t4-1.md"
++    assert stray.read_text().count('"id"') == 3
++    assert run.reviewers["t4-1"] == {
++        "status": "killed",
++        "attempts": 1,
++        "tokens": 0,
++        "nonprobe": 0,
++    }
++    # the other two: t2b-1 has 1 non-probe line, t3-1 has 1 non-probe and 2 probe lines
++    assert analyze.nonprobe_findings(run) == 2
++    inv = runs["k-synth-b-r2"]
++    assert (
++        inv.reviewers["t3-1"]["status"] == "invalid"
++        and inv.reviewers["t3-1"]["nonprobe"] == 0
++    )
++
++
++def test_nonprobe_findings_per_run(world):
++    runs = analyze.load_runs(world.runs)
++    got = analyze.metrics(runs)["arms"]
++    # SS synth-a: reviewers (1,1,1) (1,1,0) (1,1,2) (2,1,1) (1,0,1) -> 3 2 4 4 2; the probe and ledger lines are not in it
++    assert got["SS"]["docs"]["synth-a"]["nonprobe_findings"]["per_run"] == [
++        3,
++        2,
++        4,
++        4,
++        2,
++    ]
++    assert got["SS"]["docs"]["synth-a"]["nonprobe_findings"]["mean"] == 3.0
++    report = (world.runs / "ss-synth-a-r1" / "normalised" / "t3-1.md").read_text()
++    assert (
++        report.count('"probe": "S') == 3
++    )  # 3 probe lines are in the file and are not counted
++    # Z0 has no sheet: its non-probe count is simply every line
++    assert got["Z0"]["docs"]["synth-a"]["nonprobe_findings"]["per_run"] == [
++        4,
++        3,
++        5,
++        4,
++        3,
++    ]
++
++
++def test_promoted_lines_not_counted_as_reviewer_findings(world):
++    runs = {r.name: r for r in analyze.load_runs(world.runs)}
++    run = runs["ss-synth-a-r5"]
++    text = (world.runs / run.name / "normalised" / "t4-1.md").read_text()
++    assert text.count('"src": "ledger"') == 2  # two promoted lines sit in this report
++    assert run.reviewers["t4-1"]["nonprobe"] == 1  # only its own finding counts
++    assert analyze.nonprobe_findings(run) == 2  # t2b-1 1 + t3-1 0 + t4-1 1
++
++
++def test_z0_raw_reads_the_raw_reports(tmp_path):
++    w = make_runs.build(tmp_path, arms=make_runs.ALL_ARMS)
++    run = w.runs / "z0raw-synth-a-r1"
++    assert (run / "reviews" / "t2b-1.md").is_file() and not (
++        run / "normalised" / "t2b-1.md"
++    ).exists()
++    runs = analyze.load_runs(w.runs)
++    assert analyze.nonprobe_findings({r.name: r for r in runs}["z0raw-synth-a-r1"]) == 3
++    want = json.loads((w.root / "expected.json").read_text())
++    close(analyze.metrics(runs, classes_of(runs)), want)
++    assert sorted(want["arms"]) == ["K", "SS", "Z0", "Z0-raw"]
++
++
++def test_unscored_run_and_unwritable_output_are_refused(world, tmp_path):
++    (world.runs / "z0-synth-a-r1" / "scoring" / "label-key.json").unlink()
++    with pytest.raises(analyze.AnalysisError, match="no judge score file"):
++        analyze.load_runs(world.runs)
++    assert (
++        len(analyze.load_runs(world.runs, scores=False)) == 30
++    )  # the time inputs need no judge
++    rc = analyze.main(
++        [
++            "d1",
++            "--runs",
++            str(world.runs),
++            "--arm",
++            "SS",
++            "--out",
++            "/var/tmp/sw-d1-refused.json",
++        ]
++    )
++    assert rc == 1
++
++
++def test_command_line_help():
++    # -B: `-I` ignores PYTHONDONTWRITEBYTECODE, and the script imports scaffold, so it would leave a __pycache__ in SW
++    before = set(SW.rglob("__pycache__"))
++    r = subprocess.run(
++        [sys.executable, "-I", "-B", str(SW / "analysis" / "analyze.py"), "--help"],
++        capture_output=True,
++        text=True,
++    )
++    assert r.returncode == 0 and "metrics" in r.stdout and "d1" in r.stdout
++    assert set(SW.rglob("__pycache__")) == before

@@ -1,0 +1,19 @@
+# T30 no ground-truth reads, help
+7:names in `scoring/label-key.json`, and `config/`. A ground-truth file is opened only for the path given with `--gt`
+8:(per-class reach needs the class of each item); there is no default ground-truth path in this file.
+196:    """{item id: class} from a ground-truth file the caller named: a file (every document) or a folder (DIR/<doc>.json)."""
+857:    """One row per ground-truth item of the run's document: extraction, selection, act, merge survival, judge credit.
+964:    """Share of OK rows among the rows on selected items that cover a ground-truth item of a planted document.
+966:    gt_by_doc maps a document to {"text": the candidate text, "items": the ground-truth items}. A row counts once in the
+1098:        "ground_truth_sha256": owner.get("ground_truth_sha256", {}),
+1340:    m.add_argument("--gt", help="a ground-truth file or folder (per-class reach)")
+1358:        "--gt", help="a ground-truth file or folder (stages, per-class reach)"
+1396:        help="a JSON file: selection_recall_floor, act_bands, ground_truth_sha256",
+usage: analyze.py [-h]
+                  {metrics,d1,all,audit-judges,sample-second-judge,compliance,prereg}
+                  ...
+
+Analysis of finished runs (DESIGN 14.3, REQ-39): the one place where every
+metric is defined.
+
+positional arguments:

@@ -1,0 +1,4 @@
+# T33 gitcheck over bin
+(end)
+# opus grep
+/home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/bin/judge-one.sh:44:timeout 900 claude -p --model claude-opus-5-5 --output-format json --no-session-persistence \

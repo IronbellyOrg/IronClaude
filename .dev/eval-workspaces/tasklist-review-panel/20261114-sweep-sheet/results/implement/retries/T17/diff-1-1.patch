@@ -1,0 +1,596 @@
+diff --git a/.dev/eval-workspaces/tasklist-review-panel/20261114-recipe-ledger/SHARED-MANIFEST-DESIGN-TIME.tsv b/.dev/eval-workspaces/tasklist-review-panel/20261114-recipe-ledger/SHARED-MANIFEST-DESIGN-TIME.tsv
+new file mode 100644
+index 000000000..0fd5e5a39
+--- /dev/null
++++ b/.dev/eval-workspaces/tasklist-review-panel/20261114-recipe-ledger/SHARED-MANIFEST-DESIGN-TIME.tsv
+@@ -0,0 +1,62 @@
++# Design-time record of the Sweep Sheet files that Recipe Ledger copies at build time (read-only reads of 20261114-sweep-sheet on 2026-11-14T22:54Z).
++# The sibling is still being built, so any hash here may change. The build-time copy script records the hashes it actually copied in config/shared-manifest.json.
++# columns: tier	path relative to the sweep-sheet folder	bytes	sha256
++A	cards/C1.json	1267	f440172dacc97968648cfcfaab2fa0ac5e3c4d59de76d0432d94420b514ea510
++A	cards/C2.json	1128	84af8f204f26c86afbeb23c066628781c351ecc0b40e9883612def0b5fad4253
++A	cards/C3.json	1096	56edaf086d0e44d21857d0ef9317ba0d6b498825b02ad4417eccf2e74e34faa4
++A	cards/C4.json	1231	15c697192dbaaf087bd32d28937c6338180111822badad859084da3f07ae0759
++A	cards/C5.json	1132	e23488f1a4c3fff9ebfca4f46529f097e48ad97a0188241b5370cff467b9b601
++A	cards/C6.json	1329	b0574a97fd9216fb00df5d2f75e18a5e59883655eb69168b5e7851d8a31775d0
++A	cards/C7.json	1111	3cf97ae03785b1bf05dae857ae60c83edcf535876b90b831bc804e677ad80801
++A	cards/C8.json	1143	a3e6d1a902ac6aa1639ca4eec7d47c5d2987f28eade74941b6360872429897dc
++A	cards/schema.json	1970	07536c5170722559e50eef96fb6f7420a4c8890e8ab86d99945980968c805582
++A	cards/README.md	3642	98ea84facc1a0969276c6d7f7052ac9bc940509053da478ed0d457702e7bd65d
++A	briefs/base.txt	1764	ae5494ebc84b9005ffd74c59912dc4c9a8701d84a3f3c45ada0d3388fa4bdb85
++A	briefs/cb1.txt	147	d89d83f8cda6ce6ec5e945adfbfde0921764efa364ff16d76e2f6e16a05a7fcd
++A	briefs/cb2.txt	293	cb529c943a509c7f4b9da1093baf1138da150a5d08e973c57faf592116008483
++A	briefs/cb3.txt	225	5763cec5025fcd4be631236e14cf67e798f17d9394439527a31bab0cf87bdbff
++A	briefs/cb4.txt	280	999c6fd68518a038a934e6073788782ecef4cab53962f5532544734681d97501
++A	briefs/cb5.txt	122	d0b4fef63213776ed4bde9fa893e7d5475d104cd00d6b839a62bbadfff6b93ab
++A	briefs/ledger-rule.txt	473	c4ae68bbcf1f785fadf7100dbc1539865a8eaec39cb8bd365863c148cc7ee266
++A	briefs/k-lead.txt	269	6712596b3c8d3e60ad8edb86755613ca9b12550f2198d04d303e1e68019afb57
++A	briefs/sheet-block.txt	1015	36aa69714a90c70d2241c5d0d181d9c0269c280ce482861035a8a904a68c0f0d
++A	scaffold/__init__.py	0	e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
++A	scaffold/briefs.py	7205	7e0d5aa4a2a3110cdd8f78eb67d8d7de13b810682e45b4a78a7df2499a3379f1
++A	scaffold/cards.py	5745	98ed9ff46778bd9a97e58ee30a61d61a668178ca22c4e6e1ed256463aa91793a
++A	scaffold/fnd.py	1145	8fc271c86411e9c6953df8d7b6fbb3ae0642f73a5327897418fe8faf8d1a8db4
++A	scaffold/lint.py	6851	98c8f86808a5ec438772dfc5491ef8e5af9fb826cf1d06b43fc5cedbf32b8167
++A	scaffold/normalise.py	3262	3869197f94c2f4288eb8837d0bb24d19a71debcb100cfd5d60f84bf15520c756
++A	bin/common.sh	3063	7b025111cd0288692dc3c79ff433abaebaba3bb2448a2d4f1e3d7181bfa6ac0b
++A	bin/build-sandbox.sh	8352	1e75f13ee826e4c27f608c29217a2952a1acf0b84ea1dbb42f86b21f7764cd15
++T	tests/conftest.py	2316	5439269229a1578540a17f62541f12897d790feb334303d10a5ba16781dddfb9
++T	tests/helpers.py	689	b72666de94bc9715b156105ac80e47cd9d3fe14f434b0fedc04ccf2dfc8401d7
++T	tests/test_briefs.py	8639	cef87e9cb817ec104ebd14d330412469e0f7135022890e17beb209d97394bbf3
++T	tests/test_cards.py	8072	0e5f2b37aa60a49bc0d0b118b6c4e4b99837f30e6b766f5bdeb5f8c2a67f1851
++T	tests/test_fnd_contract.py	5539	cc5609c19dfafaa5fec6ab851734dd5c2586e8b86bff71e1a6dc0052a6fb92f2
++T	tests/test_lint.py	6407	a4a6ab68e16cd4e841382a088e17465c5bf342f985ce722dbdff92a8b23acecc
++T	tests/test_model_allowlist.py	1573	98f9333c5db1b4355cc1a6eb6c73322409a6089e95a49d439afedd55808427a7
++T	tests/test_normalise.py	6654	4623273cada4a1c18ad5faf98303142179850ec3e71f55d412c85fb5c2f88c75
++T	tests/test_paths.py	3424	4fae6af24829d217e9179a4faa84864bcc68d3e8b72f84ee3fef34aa7f0caf40
++T	tests/test_readme.py	1720	d1f2188a15c64b76351e0e1b6d513145b3d0f829d307697a9b27749cb40fe12b
++T	tests/test_sandbox.py	10564	41aa513c96318613ab8d1aae200ce167c244cf6e2db096023f2cde561ab71985
++F	fixtures/repos/build_repo.py	6047	69dd87edcc1a90c76f2b4b22419f70c59f51f969d1fe7aef026a7bccd0f84c5e
++F	fixtures/reports/anchor_250.md	1122	0bc9aeb9e337c2c6475ce8db476859b948058dd2b3b18e5bf487e9dca8b6bb49
++F	fixtures/reports/claim_301.md	643	0e62d55cbb06ac72fef9326ce948f4a1d04190f3293dcfd0c58395f43b02a4cf
++F	fixtures/plans/p_basic.md	2641	27944901063eba94c14dd87af10cfea0a8c39fba2bedcc4b237c748c6c069579
++F	fixtures/plans/p_clean.md	1629	ccc98828da79d9aea5c9c4e2ec00b3bfaeb3908dc09422f4fcb15a84925bab24
++F	fixtures/plans/source.md	646	bcf1136f8bdd3c357e7c06b6a92e32cd7fe4abb034e8c65bfaae8c1147b05d0a
++F	fixtures/specs/spec1.md	1163	a10e881a96adb5d1b4a8d7e20f0723d8f8b5ad9f6b978ba334b0c0ea86e671a3
++F	fixtures/specs/parent1.md	564	f4ca559573bad08d2a5bed1c5395e41692fd6a3e113d78b9ced074d1efd1d640
++F	fixtures/docs/doc1.md	447	c1af47b9ebcbb77b0ed9041b519356c038e44ddc54f589074f6fa10fbdba2917
++B	scaffold/ledgerv1.py	ABSENT	ABSENT
++B	scaffold/telemetry.py	ABSENT	ABSENT
++B	scaffold/clock.py	ABSENT	ABSENT
++B	bin/run-reviewer.sh	ABSENT	ABSENT
++B	bin/run-panel.sh	ABSENT	ABSENT
++B	bin/judge-one.sh	ABSENT	ABSENT
++B	bin/anon.sh	ABSENT	ABSENT
++B	bin/judge-batch.sh	ABSENT	ABSENT
++B	analysis/analyze.py	ABSENT	ABSENT
++B	analysis/g0.py	ABSENT	ABSENT
++B	bin/make-schedule.py	ABSENT	ABSENT
++B	bin/run-schedule.sh	ABSENT	ABSENT
+diff --git a/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/results/implement/retries/T17/q0-head b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/results/implement/retries/T17/q0-head
+new file mode 100644
+index 000000000..290a67eae
+--- /dev/null
++++ b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/results/implement/retries/T17/q0-head
+@@ -0,0 +1 @@
++6225ac3fd4d810614dc39e44863158bbd603b87d
+diff --git a/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/sweep/extractors.py b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/sweep/extractors.py
+index f6cfdb37d..5dd0d1cdd 100644
+--- a/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/sweep/extractors.py
++++ b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/sweep/extractors.py
+@@ -12,6 +12,7 @@
+     find_e4, attach_e4  extractor E4 (class C5, DESIGN 4.5): a count or "no remaining" claim and the places that carry it
+     find_e1, attach_e1  extractor E1 (classes C1 and C6, DESIGN 4.2): set words and the scope they name
+     find_e5, attach_e5  extractor E5 (class C2, DESIGN 4.6): source rules whose identifiers no citing task carries
++    find_e7, attach_e7  extractor E7 (class C7, DESIGN 4.8): constraint clauses that dictated text leaves out
+ 
+ Candidate.status values set here: `found` (as made by `find`), `attached` (evidence computed, not yet decided) and
+ `dropped:pre_rank` (below the top K of its class; no evidence). select.py sets the rest: `selected`,
+@@ -2139,3 +2140,137 @@ def attach_e5(cands: list[Candidate], ctx: Ctx) -> None:
+ 
+ 
+ EXTRACTORS["E5"] = (find_e5, attach_e5)
++
++
++# ---------------------------------------------------------------- E7 (class C7): constraint clauses dictated text omits
++#
++# DESIGN 4.8. Lexical only: `find_e7` makes the whole grid and keeps it in `features`; `attach_e7` writes the evidence.
++
++E7_BASE_PRIORITY, E7_ZERO_WEIGHT, E7_ZERO_CAP, E7_SHARED_WEIGHT = 30, 15, 2, 10
++E7_CLAUSE_MIN_WORDS, E7_TOKEN_MIN, E7_SHARED_MIN = 4, 4, 2
++E7_CLAUSE_TEXT_MAX = 100
++_E7_STOP = frozenset(words.STOP)
++_E7_SPLIT = re.compile(r";|,| and ")
++_E7_TOKEN = re.compile(r"[a-z0-9_]+")
++
++
++def _e7_tokens(text: str) -> set[str]:
++    return {
++        t
++        for t in _E7_TOKEN.findall(text.lower())
++        if len(t) >= E7_TOKEN_MIN and t not in _E7_STOP
++    }
++
++
++def _e7_clauses(block: dict) -> list[tuple[int, str]]:
++    """(plan line, flattened clause) of each clause of 4 or more words of a constraint block, in order."""
++    # [first line, raw text] per bullet or paragraph of the block
++    items: list[list] = []
++    for n, raw in enumerate(block["text"].split("\n"), block["line_start"]):
++        if not raw.strip():
++            items.append([n, ""])
++        elif items and items[-1][1] and not _E5_BULLET.match(raw):
++            items[-1][1] += "\n" + raw
++        else:
++            items.append([n, _E5_BULLET.sub("", raw, count=1)])
++    out = []
++    for first, text in items:
++        for start, _, sent in plan.sentences(text):
++            line = first + text.count("\n", 0, start)
++            for part in _E7_SPLIT.split(fnd.flat(sent)):
++                part = part.strip()
++                if len(part.split()) >= E7_CLAUSE_MIN_WORDS:
++                    out.append((line, part))
++    return out
++
++
++def _e7_anchor(block: dict, ctx: Ctx) -> tuple[int, str, int] | None:
++    """(plan line, anchor, last line) of the first sentence of 12 or more characters of a dictated block, cut to 200
++    characters; when its text is not a quote of the plan (a quoted sentence that wraps over `> ` lines), its first
++    line is used instead."""
++    text = block["text"]
++    for start, _, sent in plan.sentences(text):
++        for part in (sent, sent.split("\n")[0]):
++            anchor = fnd.flat(part)[:ANCHOR_MAX].rstrip()
++            if len(anchor) >= ANCHOR_MIN and anchor in ctx.flat_text:
++                line = block["line_start"] + text.count("\n", 0, start)
++                return line, anchor, line + part.count("\n")
++        if len(fnd.flat(sent)) >= ANCHOR_MIN:
++            return None
++    return None
++
++
++# Where I narrowed or interpreted DESIGN 4.8 (each is also in the Task 17 report):
++#  1. A "word" is a run of [a-z0-9_] after lower-casing, so a number such as 2027 can be a distinctive token and a
++#     hyphenated or dotted name is several words; a token matches whole, with no stemming ("expiry" is not "expired").
++#  2. A constraint block is read as bullets and paragraphs, and each sentence of one is split at ";", "," and " and "
++#     (a line break or a sentence end is also a clause boundary, which 4.8 does not say; a block can hold several).
++#  3. A zero-overlap clause must hold at least one distinctive token (a clause with none is the blind spot of 4.8, so it
++#     proves nothing); the "one clause" with 2 or more shared tokens is the one with the most, earliest on a tie.
++#  4. The "first sentence" of a dictated block is its first sentence of 12 or more characters; one that is not an
++#     exact quote of the plan falls back to its first line, and a block with no such text makes no candidate.
++#  5. With more than 5 clauses the evidence keeps the sharing clause, up to 2 zero-overlap clauses, then the earliest.
++def find_e7(doc: plan.Doc, ctx: Ctx) -> list[Candidate]:
++    """DESIGN 4.8 `find`: one candidate per (constraint, dictated block) that shares tokens with one clause only."""
++    out: list[Candidate] = []
++    anchors: dict[int, tuple | None] = {}
++    for con in doc.of("constraint"):
++        clauses = _e7_clauses(con)
++        toks = [_e7_tokens(text) for _, text in clauses]
++        distinct = [
++            {t for t in tk if sum(t in other for other in toks) == 1} for tk in toks
++        ]
++        if len(clauses) < 2:
++            continue
++        for i, blk in enumerate(doc.of("dictated_text")):
++            block_toks = _e7_tokens(blk["text"])
++            shared = [sorted(d & block_toks) for d in distinct]
++            best = max(range(len(shared)), key=lambda k: (len(shared[k]), -k))
++            zero = [k for k, d in enumerate(distinct) if d and not shared[k]]
++            if len(shared[best]) < E7_SHARED_MIN or not zero:
++                continue
++            if i not in anchors:
++                anchors[i] = _e7_anchor(blk, ctx)
++            if anchors[i] is None:
++                continue
++            line, anchor, end = anchors[i]
++            out.append(
++                Candidate(
++                    "E7", "C7", "clause", anchor,
++                    {"task": blk["task"], "line_start": line, "line_end": end},
++                    features={
++                        "constraint": con["id"], "constraint_line": con["line_start"],
++                        "best": best, "zero": zero,
++                        "clauses": [
++                            {"line": ln, "text": text, "distinct": sorted(d), "shared": s}
++                            for (ln, text), d, s in zip(clauses, distinct, shared)
++                        ],
++                    },
++                    pre_priority=E7_BASE_PRIORITY
++                    + E7_ZERO_WEIGHT * min(len(zero), E7_ZERO_CAP)
++                    + E7_SHARED_WEIGHT,
++                )
++            )  # fmt: skip
++    return out
++
++
++def attach_e7(cands: list[Candidate], ctx: Ctx) -> None:
++    """DESIGN 4.8 `attach`: the clause-by-text grid, one entry per clause (at most 5); `priority = pre_priority`."""
++    for c in cands:
++        f = c.features
++        rows = f["clauses"]
++        keep = [f["best"], *f["zero"][:E7_ZERO_CAP]]
++        keep += [k for k in range(len(rows)) if k not in keep]
++        c.evidence = [
++            _ev(
++                "plan",
++                rows[k]["line"],
++                f"clause {k + 1}: '{rows[k]['text'][:E7_CLAUSE_TEXT_MAX]}' - tokens found in the block: "
++                + (", ".join(rows[k]["shared"]) or "none"),
++            )
++            for k in sorted(keep[:EVIDENCE_MAX])
++        ]
++        c.priority = c.pre_priority
++
++
++EXTRACTORS["E7"] = (find_e7, attach_e7)
+diff --git a/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_e7.py b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_e7.py
+new file mode 100644
+index 000000000..af9c0ab33
+--- /dev/null
++++ b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_e7.py
+@@ -0,0 +1,356 @@
++"""Extractor E7 (class C7, DESIGN 4.8): clauses of a constraint that dictated text leaves out.
++
++Each extractor test has a positive case, a negative case, a near-miss or boundary case and a determinism case.
++E7 is lexical (no repository, no source). On fixtures/plans/p_basic.md the constraint K2 ("A deletion notice must name
++the report id, state the expiry date, and give the appeal address.") has three clauses; the dictated block of Task 4
++("Report id 41 has expired. The expiry date is 2027-01-01.") shares `expiry` and `date` with clause 2, `report` with
++clause 1 and nothing with clause 3 (`appeal`, `address`).
++"""
++
++import json
++import re
++from pathlib import Path
++
++import pytest
++
++from sweep import extractors, plan
++from sweep.extractors import Candidate, Ctx
++
++PLANS = Path(__file__).resolve().parents[1] / "fixtures" / "plans"
++BASIC_TEXT = (PLANS / "p_basic.md").read_text(encoding="utf-8")
++CLEAN_TEXT = (PLANS / "p_clean.md").read_text(encoding="utf-8")
++FIRST_D1 = "Report id 41 has expired."
++K2 = "A deletion notice must name the report id, state the expiry date, and give the appeal address."
++FORBIDDEN = re.compile(r"defect|severity|\bclaim", re.IGNORECASE)
++
++
++def mkplan(
++    constraint=K2, dictated="> Report id 41 has expired. The expiry date is 2027-01-01."
++):
++    """A one-task plan: the constraint is line 3, the dictated text line 9."""
++    return plan.parse(
++        f"## Constraints\n\n- {constraint}\n\n## Task 1: Write it\n\nWrite the notice as quoted.\n\n{dictated}\n\n"
++        "Acceptance criteria:\n- `make test` exits 0.\n"
++    )
++
++
++def find(doc, **kw):
++    return extractors.find_e7(doc, Ctx(doc, **kw))
++
++
++def run(doc, **kw):
++    ctx = Ctx(doc, **kw)
++    cands = extractors.find_e7(doc, ctx)
++    extractors.attach_e7(cands, ctx)
++    return cands
++
++
++def basic(**kw):
++    return run(plan.parse(BASIC_TEXT), **kw)
++
++
++def dump(cands):
++    return json.dumps([c.to_dict() for c in cands], sort_keys=True)
++
++
++def shares(
++    constraint, dictated="> Report id 41 has expired. The expiry date is 2027-01-01."
++):
++    return find(mkplan(constraint, dictated))
++
++
++# ---------------------------------------------------------------- positive
++
++
++def test_basic_plan_gives_the_omitted_appeal_clause_for_the_task_4_text():
++    (c,) = basic()
++    assert (c.extractor, c.cls, c.kind) == ("E7", "C7", "clause")
++    assert c.anchor_text == FIRST_D1
++    assert c.location["task"] == "T4"
++    assert (
++        BASIC_TEXT.split("\n")[c.location["line_start"] - 1]
++        == "> " + FIRST_D1 + " The expiry date is 2027-01-01."
++    )
++    f = c.features
++    assert f["constraint"] == "K2" and BASIC_TEXT.split("\n")[
++        f["constraint_line"] - 1
++    ].endswith("appeal address.")
++    assert [r["shared"] for r in f["clauses"]] == [["report"], ["date", "expiry"], []]
++    assert f["clauses"][2]["distinct"] == ["address", "appeal"]
++    assert f["best"] == 1 and f["zero"] == [2]
++    assert c.pre_priority == 30 + 15 * 1 + 10 == 55 and c.priority == 55
++    line = f["constraint_line"]
++    assert c.evidence == [
++        {"path": "plan", "line": line, "text": "clause 1: 'A deletion notice must name the report id' - tokens found in the block: report"},
++        {"path": "plan", "line": line, "text": "clause 2: 'state the expiry date' - tokens found in the block: date, expiry"},
++        {"path": "plan", "line": line, "text": "clause 3: 'give the appeal address.' - tokens found in the block: none"},
++    ]  # fmt: skip
++
++
++def test_candidates_pass_the_core_checks_and_take_the_class_route():
++    doc = plan.parse(BASIC_TEXT)
++    got = extractors.run_extractors(Ctx(doc), {"E7": extractors.EXTRACTORS["E7"]})
++    assert [(c.cls, c.route, c.status) for c in got] == [("C7", "read", "attached")]
++    assert got[0].evidence_computed and got[0].priority == 55
++    assert extractors.EXTRACTORS["E7"] == (extractors.find_e7, extractors.attach_e7)
++
++
++def test_a_second_dictated_block_and_a_second_constraint_each_make_a_pair():
++    doc = plan.parse(
++        "## Constraints\n\n- "
++        + K2
++        + "\n- A deletion notice must carry the policy number, show the renewal period, "
++        "and list the refund channel.\n\n## Task 1: Write it\n\nWrite as quoted.\n\n> Expiry date set. The report is old.\n\n"
++        "## Task 2: Write more\n\nWrite as quoted.\n\n> Renewal period shown. The policy number is 7.\n"
++    )
++    got = find(doc)
++    assert [(c.features["constraint"], c.location["task"]) for c in got] == [
++        ("K1", "T1"), ("K2", "T2"),
++    ]  # fmt: skip
++
++
++# ---------------------------------------------------------------- negative
++
++
++def test_p_clean_gives_nothing():
++    doc = plan.parse(CLEAN_TEXT)
++    assert find(doc) == []
++    assert (
++        extractors.run_extractors(Ctx(doc), {"E7": extractors.EXTRACTORS["E7"]}) == []
++    )
++
++
++def test_a_plan_without_dictated_text_or_without_a_constraint_gives_nothing():
++    no_text = (
++        "## Constraints\n\n- "
++        + K2
++        + "\n\n## Task 1: Do\n\nEdit `a.py` for the notice.\n"
++    )
++    assert find(plan.parse(no_text)) == []
++    assert (
++        find(
++            plan.parse(
++                "## Task 1: Do\n\nWrite as quoted.\n\n> Expiry date set today.\n"
++            )
++        )
++        == []
++    )
++
++
++def test_a_text_that_carries_every_clause_gives_nothing():
++    text = (
++        "> The report names a deletion notice, the expiry date and the appeal address."
++    )
++    assert shares(K2, text) == []
++
++
++# ---------------------------------------------------------------- near misses and boundaries
++
++
++def test_one_shared_token_is_not_enough():
++    assert (
++        shares(K2, "> The expiry is soon.") == []
++    )  # `expiry` only (and `date` is missing)
++    assert len(shares(K2, "> The expiry date is soon.")) == 1
++
++
++def test_no_clause_with_zero_overlap_gives_nothing():
++    # `report` reaches clause 1 and `address` reaches clause 3, so no clause is left out
++    assert shares(K2, "> The report shows the expiry date and the address.") == []
++
++
++def test_a_token_found_in_two_clauses_is_not_distinctive():
++    c = "The notice must show the expiry date, show the expiry year now, and give the appeal address."
++    (cand,) = shares(
++        c, "> The expiry date and the notice are shown. The expiry year is clear."
++    )
++    rows = cand.features["clauses"]
++    assert [r["distinct"] for r in rows] == [
++        ["date", "notice"],
++        ["year"],
++        ["address", "appeal"],
++    ]  # not `expiry`, `show`
++    assert [r["shared"] for r in rows] == [["date", "notice"], ["year"], []]
++    # `expiry` alone is no distinctive token, so a text that holds only it matches nothing
++    assert shares(c, "> The expiry is shown. The expiry is clear.") == []
++    # with `expiry` the only shared word, nothing is distinctive enough
++    assert shares(c, "> The expiry is shown. The expiry is clear.") == []
++
++
++def test_a_clause_of_three_words_is_dropped():
++    block = mkplan(
++        "The notice must name the report id, state the date, and give the appeal address."
++    ).of("constraint")[0]
++    assert [t for _, t in extractors._e7_clauses(block)] == [
++        "The notice must name the report id",
++        "give the appeal address.",
++    ]  # "state the date" has 3 words; the sentence's last clause keeps its full stop
++
++
++def test_a_zero_overlap_clause_needs_a_distinctive_token():
++    # clause 3 has words, but each is a stop word or shorter than four characters, so it proves nothing
++    c = "The notice must name the report id, state the expiry date, and use it for all of them."
++    assert shares(c) == []
++
++
++def test_words_of_three_characters_and_stop_words_are_not_tokens():
++    assert extractors._e7_tokens("the report id must have been made with them") == {
++        "report"
++    }
++
++
++def test_splits_at_semicolon_comma_and_and_keeps_longer_clauses_whole():
++    c = "The notice must state the expiry date; the notice must name the report id and give the appeal address"
++    block = mkplan(c).of("constraint")[0]
++    assert [t for _, t in extractors._e7_clauses(block)] == [
++        "The notice must state the expiry date",
++        "the notice must name the report id",
++        "give the appeal address",
++    ]
++    block = mkplan("Keep the old format and the new format for the readers").of(
++        "constraint"
++    )[0]
++    assert [t for _, t in extractors._e7_clauses(block)] == [
++        "Keep the old format",
++        "the new format for the readers",
++    ]
++
++
++def test_a_nested_bullet_is_its_own_clause_group_and_lines_are_numbered():
++    doc = plan.parse(
++        "## Constraints\n\n- The notice must name the report id.\n  - It must state the expiry date.\n"
++        "- It must give the appeal address.\n\n## Task 1: W\n\nWrite as quoted.\n\n> Report id and expiry date.\n"
++    )
++    (block,) = [b for b in doc.of("constraint")][:1]
++    got = extractors._e7_clauses(block)
++    assert [(ln, t) for ln, t in got] == [
++        (3, "The notice must name the report id."),
++        (4, "It must state the expiry date."),
++    ]
++
++
++@pytest.mark.parametrize(
++    "extra,zero,expected",
++    [
++        ("", 1, 55),
++        (", and offer the refund channel", 2, 70),
++        (
++            ", and offer the refund channel, and show the policy number",
++            3,
++            70,
++        ),  # the zero-overlap term stops at 2
++    ],
++)
++def test_pre_priority_is_30_plus_15_per_zero_overlap_clause_plus_10(
++    extra, zero, expected
++):
++    c = K2.rstrip(".") + extra + "."
++    (cand,) = shares(c)
++    assert len(cand.features["zero"]) == zero and cand.pre_priority == expected
++    assert 55 <= cand.pre_priority <= 70
++
++
++def test_every_emitted_candidate_is_ranked_55_to_70():
++    seen = []
++    for text in (BASIC_TEXT, CLEAN_TEXT):
++        seen += basic() if text is BASIC_TEXT else run(plan.parse(text))
++    for n in range(1, 6):
++        c = (
++            K2.rstrip(".")
++            + "".join(
++                f", and offer the extra feature number {k} here" for k in range(n)
++            )
++            + "."
++        )
++        seen += run(mkplan(c))
++    assert seen and all(
++        55 <= c.pre_priority <= 70 and c.priority == c.pre_priority for c in seen
++    )
++
++
++def test_with_more_than_five_clauses_the_evidence_keeps_the_sharing_and_the_zero_overlap_clauses():
++    parts = [
++        f"offer the extra feature number {w} here"
++        for w in ("alpha", "bravo", "charlie", "delta", "echo")
++    ]
++    c = (
++        "A deletion notice must name the report id, state the expiry date, "
++        + ", ".join(parts)
++        + "."
++    )
++    (cand,) = run(mkplan(c))
++    assert len(cand.features["clauses"]) == 7
++    assert len(cand.evidence) == extractors.EVIDENCE_MAX
++    texts = [e["text"] for e in cand.evidence]
++    assert texts[0].startswith("clause 1:") and texts[1].startswith(
++        "clause 2:"
++    )  # the sharing clauses, in order
++    assert sum("tokens found in the block: none" in t for t in texts) >= 2
++    assert [int(re.match(r"clause (\d+):", t)[1]) for t in texts] == sorted(
++        int(re.match(r"clause (\d+):", t)[1]) for t in texts
++    )
++
++
++def test_the_anchor_is_the_first_sentence_of_twelve_characters_cut_to_200_and_an_exact_quote():
++    (c,) = shares(K2, "> Ok. Report id 41 has expired. The expiry date is 2027-01-01.")
++    assert c.anchor_text == FIRST_D1
++    long = (
++        "Report id 41 has expired "
++        + "and the notice goes out " * 12
++        + "today. The expiry date is soon."
++    )
++    (c,) = shares(K2, "> " + long)
++    assert len(c.anchor_text) <= 200 and c.anchor_text in " ".join(long.split())
++    c.validate(Ctx(mkplan(K2, "> " + long)))
++
++
++def test_a_fenced_dictated_block_is_read_too():
++    (c,) = shares(
++        K2, "```text\nReport id 41 has expired.\nThe expiry date is 2027-01-01.\n```"
++    )
++    assert c.anchor_text.startswith("Report id 41 has expired.")
++
++
++def test_evidence_texts_are_cut_to_160_characters_and_hold_no_claim_severity_or_defect():
++    long = (
++        "A deletion notice must name the report id, state the expiry date "
++        + "with a very long explanation " * 8
++        + ", and give the appeal address."
++    )
++    (c,) = run(mkplan(long))
++    assert len(c.evidence) <= extractors.EVIDENCE_MAX
++    assert all(len(e["text"]) <= 160 for e in c.evidence)
++    assert all(
++        len(re.match(r"clause \d+: '([^']*)'", e["text"])[1]) <= 100 for e in c.evidence
++    )
++    for cand in [c, *basic()]:
++        assert not any(FORBIDDEN.search(e["text"]) for e in cand.evidence)
++
++
++def test_attach_needs_no_snapshot_and_sets_priority_to_pre_priority():
++    (c,) = basic()
++    c.priority = None
++    extractors.attach_e7([c], Ctx(plan.parse(BASIC_TEXT)))
++    assert c.priority == c.pre_priority == 55
++
++
++def test_a_candidate_with_only_its_features_can_be_attached_again():
++    doc = plan.parse(BASIC_TEXT)
++    (c,) = find(doc)
++    twin = Candidate(
++        c.extractor, c.cls, c.kind, c.anchor_text, dict(c.location),
++        features=json.loads(json.dumps(c.features)), pre_priority=c.pre_priority,
++    )  # fmt: skip
++    extractors.attach_e7([c, twin], Ctx(doc))
++    assert twin.evidence == c.evidence and twin.priority == c.priority
++
++
++# ---------------------------------------------------------------- determinism
++
++
++def test_the_output_is_the_same_on_every_run():
++    assert dump(basic()) == dump(basic()) == dump(basic(seed=5))
++    doc = plan.parse(BASIC_TEXT)
++    a = extractors.run_extractors(Ctx(doc), {"E7": extractors.EXTRACTORS["E7"]})
++    b = extractors.run_extractors(Ctx(doc), {"E7": extractors.EXTRACTORS["E7"]})
++    assert dump(a) == dump(b)
+diff --git a/.dev/tasks/to-do/TASK-WF-implementHomeCod-20261114-200449/progress.md b/.dev/tasks/to-do/TASK-WF-implementHomeCod-20261114-200449/progress.md
+index 7f89d9847..59e16da5e 100644
+--- a/.dev/tasks/to-do/TASK-WF-implementHomeCod-20261114-200449/progress.md
++++ b/.dev/tasks/to-do/TASK-WF-implementHomeCod-20261114-200449/progress.md
+@@ -32,3 +32,4 @@ T15: start sha=45d6d73934f594793622eb4ab18fe56bd1774b57
+ T15: complete verdict=compliant ac=T15.AC1,T15.AC2,T15.AC3 evidence=T15.AC1@.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/results/implement/logs/T15-test-e1.log:12,T15.AC2@.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/sweep/extractors.py:1825,T15.AC3@.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/sweep/extractors.py:1873 extras=lint:pass,typecheck:skip,test:pass files=.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/sweep/extractors.py,.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_e1.py
+ T16: start sha=d7a2f4858e276d94cad7119505d48e3eadc1d49c
+ T16: complete verdict=compliant ac=T16.AC1,T16.AC2,T16.AC3,T16.AC4 evidence=T16.AC1@.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/results/implement/logs/T16-e5-formats.log:12,T16.AC2@.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_e5.py:74,T16.AC3@.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_formats.py:69,T16.AC4@.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/sweep/extractors.py:2141 extras=lint:pass,typecheck:skip,test:pass files=.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/sweep/extractors.py,.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_e5.py,.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_formats.py
++T17: start sha=915f5186f13b5b292abb136918284b9acb728532

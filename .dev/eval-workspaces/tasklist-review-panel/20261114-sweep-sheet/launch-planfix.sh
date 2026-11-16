@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+# Fix the two blocking findings and the three non-blocking findings of the advisory plan review (reflect REPORT.md) before /sc:implement.
+# Sonnet only. Edits only the plan package, DESIGN.md and TESTING.md of this folder. One session.
+set -u -o pipefail
+REPO=/home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel
+SW=$REPO/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet
+PLAN=$REPO/.dev/tasks/to-do/TASK-WF-implementHomeCod-20261114-200449/TASK-WF-implementHomeCod-20261114-200449.md
+REP=$REPO/.dev/reflect/pre-TASK-WF-implementHomeCod-20261114-200449-20261114201211/REPORT.md
+mkdir -p "$SW/workflow-report"
+PROMPT="Read the review report $REP, the plan $PLAN, and $SW/DESIGN.md and $SW/TESTING.md. Fix the findings by editing only those three files and $SW/IMPLEMENTATION.md if needed. (1) Blocking: DESIGN.md keeps the top 8 candidates per class but also says one triggered class can fill 12 items. Resolve it with this decision: when only one class triggers, the pre-pass attaches evidence to the top 12 candidates of that class (not 8), so the sheet can hold 12. Change DESIGN.md, TESTING.md (the two lines about the per-class cap), the K entry of the values file described in the design, and plan Tasks 11 and 19 together, and state in DESIGN.md that the effect of 12 lookups on the time budget is unmeasured and bounded at 12 lookups. (2) Blocking: plan Task 27's check 'grep git tag|git commit|git add under SW/bin' fails any faithful sandbox builder, which runs git add and one commit inside a throwaway repo. Replace it with a check that forbids git add, commit, tag and push only against the real repository (for example any git command without a -C pointing into the sandbox directory), and make Task 33 re-run it. (3) Non-blocking: allow the /tmp override guard to accept SW_KILL_S=1; create the test assertions and fixtures that no task creates (add them to the relevant tasks); fold sub-step 0.5 of IMPLEMENTATION.md into a task. Do not edit anything else: not src/, tests/, .claude/, any other folder under .dev/tasks/, and not the review report. Do not run any model other than yourself, do not stage, commit or push, do not open any ground-truth*.json. When done, write a 15-line change list to $SW/workflow-report/planfix.md listing each edited file and line range."
+S=$(date +%s)
+( cd "$REPO" && timeout 2400 claude -p --model claude-sonnet-5-5 --output-format json --no-session-persistence --permission-mode bypassPermissions <<<"$PROMPT" ) >"$SW/workflow-report/planfix.json" 2>"$SW/workflow-report/planfix.err"
+echo "END planfix rc=$? wall=$(( $(date +%s)-S ))s $(date -u +%T)"

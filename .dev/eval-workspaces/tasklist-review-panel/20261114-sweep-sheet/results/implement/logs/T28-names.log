@@ -1,0 +1,7 @@
+# T28 judge test names
+              <Function test_judge_brief_sha>
+              <Function test_model_is_opus_only_in_judge>
+              <Function test_audit_flags_error_with_score_file>
+              <Function test_audit_counts_match_merged_rows>
+              <Function test_second_judge_sample_15_percent_seeded>
+              <Function test_judge_brief_sha_equals_jj>

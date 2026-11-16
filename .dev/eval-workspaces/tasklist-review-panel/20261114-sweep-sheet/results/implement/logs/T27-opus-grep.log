@@ -1,0 +1,3 @@
+$ grep -rn claude-opus-5-5 bin sweep scaffold
+grep_hits=0
+rc=0

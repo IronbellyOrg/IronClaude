@@ -1,0 +1,929 @@
+diff --git a/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/results/implement/retries/T14/q0-head b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/results/implement/retries/T14/q0-head
+new file mode 100644
+index 000000000..290a67eae
+--- /dev/null
++++ b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/results/implement/retries/T14/q0-head
+@@ -0,0 +1 @@
++6225ac3fd4d810614dc39e44863158bbd603b87d
+diff --git a/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/sweep/extractors.py b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/sweep/extractors.py
+index 90bc1613d..47edc8f1f 100644
+--- a/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/sweep/extractors.py
++++ b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/sweep/extractors.py
+@@ -9,6 +9,7 @@
+     search              one `git grep -F -f` per call over the DD-5 scope, in the snapshot only
+     find_e2, attach_e2  extractor E2 (class C4, DESIGN 4.3): a literal pattern against the text the plan orders
+     find_e3, attach_e3  extractor E3 (class C8, DESIGN 4.4): files that refer to a file the plan edits
++    find_e4, attach_e4  extractor E4 (class C5, DESIGN 4.5): a count or "no remaining" claim and the places that carry it
+ 
+ Candidate.status values set here: `found` (as made by `find`), `attached` (evidence computed, not yet decided) and
+ `dropped:pre_rank` (below the top K of its class; no evidence). select.py sets the rest: `selected`,
+@@ -1311,3 +1312,236 @@ def attach_e3(cands: list[Candidate], ctx: Ctx) -> None:
+ 
+ 
+ EXTRACTORS["E3"] = (find_e3, attach_e3)
++
++
++# ---------------------------------------------------------------- E4 (class C5): a count or "no remaining" claim
++#
++# DESIGN 4.5. Every place where this code narrows, widens or interprets 4.5 (each is also in the report of Task 14):
++#  1. Evidence limit. 4.1 allows 5 evidence entries and 4.5 asks for up to 5 unnamed hits plus the `hits:` line, which
++#     is 6. At most 4 unnamed hits are listed (one entry per file, its first hit line) and the `hits:` line is the 5th
++#     entry. `unnamed_hits` and `unnamed_root_hits` still count every unnamed hit line, so `priority` does not depend
++#     on how many are listed. The plan-named files are not listed one by one (the `hits:` line counts them): 4.5
++#     "splits" hits into named and unnamed, and the split is shown as the `(<k> named by the plan)` count.
++#  2. "Hit" is a hit line. The search helper (4.1) keeps at most 3 lines per file and reads 5,000 output lines, so `n` in
++#     the `hits:` line is a floor, not an exact count. A hit belongs to a needle when the needle is a substring of the
++#     stored hit line (the line is cut at HIT_TEXT_MAX after the helper's own test).
++#  3. "Root-level document": a root-level file (no `/` in its path) with a documentation extension (E4_DOC_EXT), or a
++#     root-level change-log style file. The `+20` of `unnamed_root_hits` counts only these. For the ORDER of the listed
++#     hits, "root-level documents and change logs first" is read as: those root documents and the change-log style
++#     files anywhere (DD-5 names); then same-basename mirrors of plan-named files; then the rest, each in path order.
++#  4. "The plan names a file": the repo-relative path occurs as a path token in the plan (the tokens of `named_paths`),
++#     as for E3, and in addition a root-level file of the scope whose bare name (`README.md`) occurs in the plan text,
++#     because a path token needs a `/` and so can never name a root document.
++#  5. Triggers. (a) A negative claim is a word of words.NEGATIVE_CLAIMS in one sentence with a backticked phrase; the
++#     phrase nearest to the trigger is `needle`. A backticked span that is a command of the E2 families, a path token
++#     or shorter than E4_NEEDLE_MIN characters is not a phrase. No phrase, no candidate. (b) A count change is
++#     `[from] N [noun] to M [noun]` (needle: N and the first noun found, so "from 3 report formats to 4 report formats"
++#     gives "3 report formats", the OLD value a stale place still carries), `N-member`, or `N noun`. A count change
++#     with no noun anywhere is skipped (a bare digit is no search string). "N entries" is read as "a number followed
++#     by a noun": the noun is the 1 or 2 words after the number up to the first word of words.NOT_NOUN. Numbers that
++#     are part of a date, a version or a decimal, or that start with a zero before another digit (`007`: an id,
++#     not a count), are no count. Backticked spans are code, so a number in one is no
++#     count; the phrase of a negative claim may be backticked (a). A negative trigger such as "0 matches" is not read a
++#     second time as a count.
++#  6. Sentences. A block is split at blank lines first and then into sentences by the plan reader's `plan.sentences`,
++#     so a line such as `Depends on: Task 1` is not glued to the next sentence. `goal` is a `criterion` block.
++#     One candidate per (sentence line, needle, kind) so the same sentence in a `task` and a `criterion` block of a
++#     documentation fixture is one item.
++#  7. `anchor_text` is the sentence (first 200 characters, DESIGN 4.1); a sentence under 12 characters gives no item.
++#  8. A priority from the formula of 4.5 is clamped to 0-100 like the other extractors. The `hits:` line is an entry
++#     with path `plan` and the plan line of the sentence. Without a snapshot `attach` adds nothing.
++# The facts `attach_e4` needs travel in `Candidate.features` (`needle`), so a candidate read back from candidates.json
++# can still be attached.
++
++E4_BASE_PRIORITY, E4_COUNT_CHANGE, E4_LONG_NEEDLE = 30, 10, 10
++E4_ROOT_WEIGHT = 20
++E4_UNNAMED_WEIGHT, E4_UNNAMED_CAP = 10, 3
++E4_FILES_MAX = EVIDENCE_MAX - 1  # one entry of the 5 is the `hits:` line
++E4_NEEDLE_MIN = 3
++E4_NOUN_WORDS = 2
++E4_DOC_EXT = (".md", ".markdown", ".rst", ".txt", ".adoc")
++
++_NOT_NOUN = frozenset(words.NOT_NOUN)
++_NEGATIVE = re.compile(
++    r"(?<![\w-])(?:"
++    + "|".join(
++        re.escape(w).replace(r"\ ", r"[ \t]+")
++        for w in sorted(words.NEGATIVE_CLAIMS, key=lambda w: (-len(w), w))
++    )
++    + r")(?![\w-])",
++    re.IGNORECASE,
++)
++_NUM = r"(?<![\w.\-/$#])(?!0\d)\d+(?![\w\-/]|\.\d)"
++_NOUNS_RE = r"[A-Za-z][A-Za-z\-]*(?:[ \t]+[A-Za-z][A-Za-z\-]*)?"
++_COUNT_RANGE = re.compile(
++    rf"(?:\bfrom[ \t]+)?(?P<a>{_NUM})(?:[ \t]+(?P<an>{_NOUNS_RE}))?[ \t]+to[ \t]+(?P<b>{_NUM})(?:[ \t]+(?P<bn>{_NOUNS_RE}))?",
++    re.IGNORECASE,
++)
++_COUNT_MEMBER = re.compile(
++    r"(?<![\w.\-/$#])(?!0\d)(?P<n>\d+)-members?(?![\w-])", re.IGNORECASE
++)
++_COUNT_NOUN = re.compile(rf"(?P<n>{_NUM})[ \t]+(?P<w>{_NOUNS_RE})", re.IGNORECASE)
++_PARAGRAPH = re.compile(r"\S(?:[^\n]|\n(?![ \t]*\n))*")
++
++
++def _noun(phrase: str | None) -> str:
++    """The noun of a count: up to E4_NOUN_WORDS words of `phrase`, ended by the first word that cannot be a noun."""
++    out: list[str] = []
++    for w in (phrase or "").split():
++        if w.lower() in _NOT_NOUN or len(out) == E4_NOUN_WORDS:
++            break
++        out.append(w)
++    return " ".join(out)
++
++
++def _overlaps(span: tuple[int, int], used: list[tuple[int, int]]) -> bool:
++    return any(span[0] < z and a < span[1] for a, z in used)
++
++
++def _e4_triggers(sent: str) -> list[tuple[int, str, str]]:
++    """[(offset in the sentence, kind, needle)] of one sentence; kind is `negative` or `count`."""
++    ticks = [
++        (m.start(), m.end(), m.group(1).strip()) for m in _BACKTICKED.finditer(sent)
++    ]
++    masked = _BACKTICKED.sub(lambda m: " " * len(m.group(0)), sent)
++    phrases = [
++        (a, z, t)
++        for a, z, t in ticks
++        if len(t) >= E4_NEEDLE_MIN
++        and _parse_command(t) is None
++        and not re.fullmatch(formats.PATH_TOKEN, t)
++    ]
++    out: list[tuple[int, str, str]] = []
++    used: list[tuple[int, int]] = []
++    for m in _NEGATIVE.finditer(masked):
++        used.append(m.span())
++
++        def gap(p, m=m):
++            return (max(p[0] - m.end(), m.start() - p[1], 0), p[0])
++
++        near = min(phrases, key=gap, default=None)
++        if near is not None:
++            out.append((m.start(), "negative", near[2]))
++    for m in _COUNT_RANGE.finditer(masked):
++        if _overlaps(m.span(), used):
++            continue
++        used.append(m.span())
++        noun = _noun(m["an"]) or _noun(m["bn"])
++        if noun:
++            out.append((m.start(), "count", f"{m['a']} {noun}"))
++    for m in _COUNT_MEMBER.finditer(masked):
++        if not _overlaps(m.span(), used):
++            used.append(m.span())
++            out.append((m.start(), "count", f"{m['n']}-member"))
++    for m in _COUNT_NOUN.finditer(masked):
++        noun = _noun(m["w"])
++        if noun and not _overlaps(m.span(), used):
++            used.append(m.span())
++            out.append((m.start(), "count", f"{m['n']} {noun}"))
++    return sorted(out)
++
++
++def find_e4(doc: plan.Doc, ctx: Ctx) -> list[Candidate]:
++    """DESIGN 4.5 `find`: one candidate per trigger in a `task` or `criterion` block (`goal` is a criterion)."""
++    found: dict[tuple[int, str, str], tuple[int, Candidate]] = {}
++    for b in doc.of("task", "criterion"):
++        text = b["text"]
++        for para in _PARAGRAPH.finditer(text):
++            for start, _, sent in plan.sentences(para.group(0)):
++                anchor = fnd.flat(sent)[:ANCHOR_MAX].rstrip()
++                if len(anchor) < ANCHOR_MIN:
++                    continue
++                line = b["line_start"] + text.count("\n", 0, para.start() + start)
++                for at, kind, needle in _e4_triggers(sent):
++                    key = (line, needle, kind)
++                    if key in found:
++                        continue
++                    count = int(kind == "count")
++                    long_needle = int(
++                        len(needle.split()) >= 2
++                        or sum(c.isdigit() for c in needle) >= 2
++                    )
++                    found[key] = (
++                        at,
++                        Candidate(
++                            "E4", "C5", kind, anchor,
++                            {"task": b["task"], "line_start": line, "line_end": line + sent.count("\n")},
++                            features={"needle": needle, "count_change": count, "long_needle": long_needle},
++                            pre_priority=E4_BASE_PRIORITY + E4_COUNT_CHANGE * count + E4_LONG_NEEDLE * long_needle,
++                        ),
++                    )  # fmt: skip
++    return [
++        c
++        for _, c in sorted(
++            found.values(),
++            key=lambda v: (v[1].location["line_start"], v[0], v[1].features["needle"]),
++        )
++    ]
++
++
++def _e4_named(ctx: Ctx) -> set[str]:
++    """Files the plan names: its path tokens, and root-level scope files whose bare name occurs in the plan text."""
++    named = set(ctx.named_paths)
++    for f in ctx.scope.files:
++        if "/" not in f and re.search(
++            r"(?<![\w/.\-])" + re.escape(f) + r"(?![\w\-/]|\.\w)", ctx.doc.text
++        ):
++            named.add(f)
++    return named
++
++
++def _is_root_doc(path: str) -> bool:
++    return "/" not in path and (
++        path.lower().endswith(E4_DOC_EXT) or bool(CHANGELOG_NAME.match(path))
++    )
++
++
++def _e4_group(path: str, mirrors: tuple[str, ...]) -> int:
++    """0: root documents and change-log style files; 1: same-basename mirrors of plan-named files; 2: the rest."""
++    base = path.rpartition("/")[2]
++    if _is_root_doc(path) or CHANGELOG_NAME.match(base):
++        return 0
++    return 1 if base in mirrors else 2
++
++
++def attach_e4(cands: list[Candidate], ctx: Ctx) -> None:
++    """DESIGN 4.5 `attach`: one batched search for every needle, then the evidence and `priority`.
++
++    Without a snapshot there is nothing to search: no evidence, and `priority` is `pre_priority`.
++    """
++    if ctx.snapshot is None:
++        for c in cands:
++            c.evidence, c.priority = [], c.pre_priority
++        return
++    hits = search(ctx, sorted({c.features["needle"] for c in cands}))
++    named = _e4_named(ctx)
++    mirrors = ctx.scope.mirrors
++    for c in cands:
++        mine = [h for h in hits if c.features["needle"] in h.text]
++        unnamed = [h for h in mine if h.path not in named]
++        root = sum(_is_root_doc(h.path) for h in unnamed)
++        first: dict[str, Hit] = {}
++        for h in unnamed:
++            first.setdefault(h.path, h)
++        listed = sorted(first, key=lambda f: (_e4_group(f, mirrors), f))[:E4_FILES_MAX]
++        files = {h.path for h in mine}
++        c.features.update(unnamed_root_hits=root, unnamed_hits=len(unnamed))
++        c.evidence = [_ev(f, first[f].line, first[f].text.strip()) for f in listed] + [
++            _ev(
++                "plan",
++                c.location["line_start"],
++                f"hits: {len(mine)} in {len(files)} files ({len(files & named)} named by the plan)",
++            )
++        ]
++        c.priority = max(
++            0,
++            min(
++                100,
++                c.pre_priority
++                + E4_ROOT_WEIGHT * (root > 0)
++                + E4_UNNAMED_WEIGHT * min(len(unnamed), E4_UNNAMED_CAP),
++            ),
++        )
++
++
++EXTRACTORS["E4"] = (find_e4, attach_e4)
+diff --git a/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/sweep/words.py b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/sweep/words.py
+index c5da36950..5468107d5 100644
+--- a/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/sweep/words.py
++++ b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/sweep/words.py
+@@ -295,6 +295,25 @@ STOP = (
+     "text",
+ )
+ 
++# E4 negative claims (class C5): a claim that nothing is left, next to a backticked phrase
++NEGATIVE_CLAIMS = (
++    "no remaining",
++    "none",
++    "zero hits",
++    "no matches",
++    "0 matches",
++)
++
++# E4 count changes: words that cannot be the noun after a number ("41 has expired" is not a count). They also end a
++# noun phrase ("3 report formats to 4 report formats" -> "3 report formats").
++NOT_NOUN = (
++    "a", "an", "the", "and", "or", "but", "nor", "to", "of", "in", "on", "at", "by", "for", "from", "with",
++    "as", "if", "so", "than", "then", "that", "this", "these", "those", "it", "its", "is", "are", "was",
++    "were", "be", "been", "being", "has", "have", "had", "do", "does", "did", "will", "would", "can", "could",
++    "shall", "should", "may", "might", "must", "not", "no", "exist", "exists", "remain", "remains", "appear",
++    "appears", "per", "into", "onto", "over", "under", "up", "down", "out", "off",
++)  # fmt: skip
++
+ # The lists a format dictionary names (formats.py refers to these keys)
+ LISTS = {
+     "set_completeness": SET_COMPLETENESS,
+diff --git a/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_e4.py b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_e4.py
+new file mode 100644
+index 000000000..52116462b
+--- /dev/null
++++ b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_e4.py
+@@ -0,0 +1,628 @@
++"""Extractor E4 (class C5, DESIGN 4.5): a count or "no remaining" claim and the places that still carry it.
++
++Each extractor test has a positive case, a negative case, a near-miss or boundary case and a determinism case.
++`find_e4` is lexical (no repository access); `attach_e4` makes one batched search over the DD-5 scope of the snapshot
++built by fixtures/repos/build_repo.py (git runs there only). In that repository the root documents README.md and
++CHANGELOG.md and docs/guide.md all carry the string `3 report formats`; `.dev/` and `node_modules/` repeat it too.
++"""
++
++import json
++from pathlib import Path
++
++import pytest
++
++from fixtures.repos.build_repo import MIRROR, build_repo
++from sweep import extractors, plan
++from sweep.extractors import Candidate, Ctx
++
++PLANS = Path(__file__).resolve().parents[1] / "fixtures" / "plans"
++COUNT = "Edit `docs/guide.md` and update the count from 3 report formats to 4 report formats."
++NEG = "No remaining `3 report formats` text exists in `docs/guide.md`."
++HITS_LINE = "hits: 3 in 3 files (1 named by the plan)"
++
++
++def mkplan(sentence=COUNT, criterion="`make test` exits 0."):
++    """A one-task plan: line 3 holds the sentence and line 6 the criterion bullet."""
++    return plan.parse(
++        f"## Task 1: Change the guide\n\n{sentence}\n\nAcceptance criteria:\n- {criterion}\n"
++    )
++
++
++def find(doc, snapshot=None, **kw):
++    return extractors.find_e4(doc, Ctx(doc, snapshot=snapshot, **kw))
++
++
++def run(doc, snapshot=None, **kw):
++    ctx = Ctx(doc, snapshot=snapshot, **kw)
++    cands = extractors.find_e4(doc, ctx)
++    extractors.attach_e4(cands, ctx)
++    return cands
++
++
++def needles(doc):
++    return [(c.kind, c.features["needle"]) for c in find(doc)]
++
++
++def paths(c):
++    return [e["path"] for e in c.evidence]
++
++
++def dump(cands):
++    return json.dumps([c.to_dict() for c in cands], sort_keys=True)
++
++
++def zebra_repo(tmp_path, extra, needle="7 zebra stripes"):
++    """F-REPO plus `extra` files; a file whose text is None holds the needle on one line."""
++    files = {
++        p: (f"The {needle} are here.\n" if t is None else t) for p, t in extra.items()
++    }
++    return build_repo(tmp_path, extra=files).repo
++
++
++@pytest.fixture
++def repo(tmp_path):
++    return build_repo(tmp_path).repo
++
++
++# ---------------------------------------------------------------- positive: a count change and a negative claim
++
++
++def test_positive_count_change_finds_the_old_count_and_the_unnamed_root_documents(repo):
++    (c,) = run(mkplan(), repo)
++    assert (c.extractor, c.cls, c.kind) == ("E4", "C5", "count")
++    assert c.anchor_text == COUNT
++    assert c.location == {"task": "T1", "line_start": 3, "line_end": 3}
++    assert (
++        c.features["needle"] == "3 report formats"
++    )  # the old value, not "4 report formats"
++    # README.md and CHANGELOG.md are root documents the plan never names; docs/guide.md is named. Root documents and
++    # change logs first, in path order, then the `hits:` line (3 hit lines in 3 files, 1 of them named)
++    assert c.evidence == [
++        {
++            "path": "CHANGELOG.md",
++            "line": 3,
++            "text": "- 0.1.0: first release (3 report formats)",
++        },
++        {"path": "README.md", "line": 6, "text": "- 3 report formats"},
++        {"path": "plan", "line": 3, "text": HITS_LINE},
++    ]
++    assert (c.features["unnamed_root_hits"], c.features["unnamed_hits"]) == (2, 2)
++    assert c.pre_priority == 30 + 10 + 10  # a count change; three words
++    assert c.priority == 50 + 20 + 10 * 2
++
++
++def test_positive_negative_claim_takes_the_backticked_phrase(repo):
++    doc = mkplan("Edit `docs/guide.md`.", criterion=NEG)
++    (c,) = run(doc, repo)
++    assert (c.kind, c.anchor_text) == ("negative", NEG)
++    assert (
++        c.features["needle"] == "3 report formats"
++    )  # the phrase, not the path `docs/guide.md`
++    assert c.location == {"task": "T1", "line_start": 6, "line_end": 6}
++    assert c.pre_priority == 30 + 0 + 10  # not a count change; three words
++    assert c.priority == 40 + 20 + 10 * 2
++    assert c.evidence[-1] == {"path": "plan", "line": 6, "text": HITS_LINE}
++
++
++@pytest.mark.parametrize(
++    "trigger",
++    [
++        "No remaining",
++        "None of",
++        "It returns zero hits for",
++        "It prints no matches for",
++        "It prints 0 matches for",
++    ],
++)
++def test_positive_each_negative_trigger_word(trigger):
++    cs = find(mkplan(f"{trigger} `old banner text` appears in docs."))
++    assert [(c.kind, c.features["needle"]) for c in cs] == [
++        ("negative", "old banner text")
++    ]
++
++
++def test_positive_the_priority_terms_for_root_and_unnamed_hits(tmp_path):
++    # one unnamed hit in a root document: +20 and +10; a plan-named copy gives neither
++    repo = zebra_repo(tmp_path, {"NOTES.md": None, "docs/a.md": None})
++    sentence = "Edit `docs/a.md` so that it lists 7 zebra stripes."
++    (c,) = run(mkplan(sentence), repo)
++    assert c.features["needle"] == "7 zebra stripes"
++    assert (c.features["unnamed_root_hits"], c.features["unnamed_hits"]) == (1, 1)
++    assert paths(c) == ["NOTES.md", "plan"]
++    assert c.evidence[-1]["text"] == "hits: 2 in 2 files (1 named by the plan)"
++    assert c.priority == c.pre_priority + 20 + 10
++
++
++def test_positive_a_root_document_the_plan_names_gives_no_priority_bonus(repo):
++    # README.md and CHANGELOG.md repeat the count. Naming one leaves the other, so the bonus stays ...
++    one = f"{COUNT} The file `README.md` is in scope too."
++    (c,) = run(mkplan(one), repo)
++    assert (c.features["unnamed_root_hits"], c.features["unnamed_hits"]) == (1, 1)
++    assert paths(c) == ["CHANGELOG.md", "plan"]
++    assert c.priority == 50 + 20 + 10
++    # ... naming both removes it: no unnamed hit is left, so the item stays at its pre-priority
++    both = f"{COUNT} The files `README.md` and `CHANGELOG.md` are in scope too."
++    (c,) = run(mkplan(both), repo)
++    assert (c.features["unnamed_root_hits"], c.features["unnamed_hits"]) == (0, 0)
++    assert paths(c) == ["plan"]
++    assert c.evidence[0]["text"] == "hits: 3 in 3 files (3 named by the plan)"
++    assert c.priority == c.pre_priority == 50
++
++
++@pytest.mark.parametrize("token", ["./README.md", "README.md"])
++def test_a_root_document_is_named_by_its_bare_name_or_a_dot_slash_path(repo, token):
++    sentence = f"{COUNT} Do not touch `{token}` or `CHANGELOG.md`."
++    (c,) = run(mkplan(sentence), repo)
++    assert c.features["unnamed_hits"] == 0
++
++
++def test_the_name_of_a_file_in_a_folder_does_not_name_the_root_document(tmp_path):
++    repo = zebra_repo(tmp_path, {"NOTES.md": None, "docs/NOTES.md": None})
++    sentence = "Edit `docs/NOTES.md` so that it lists 7 zebra stripes."
++    (c,) = run(mkplan(sentence), repo)
++    assert paths(c) == ["NOTES.md", "plan"] and c.features["unnamed_root_hits"] == 1
++    assert c.evidence[-1]["text"] == "hits: 2 in 2 files (1 named by the plan)"
++
++
++def test_the_plan_names_a_file_by_a_path_token_like_e3(tmp_path):
++    repo = zebra_repo(tmp_path, {"docs/a.md": None, "docs/b.md": None})
++    (c,) = run(mkplan("Edit `docs/a.md` so that it lists 7 zebra stripes."), repo)
++    assert paths(c) == ["docs/b.md", "plan"]
++    assert c.evidence[-1]["text"] == "hits: 2 in 2 files (1 named by the plan)"
++
++
++def test_positive_the_two_sentences_of_p_basic_give_two_items(repo):
++    doc = plan.read(PLANS / "p_basic.md")
++    cands = run(doc, repo, seed=1)
++    assert [
++        (
++            c.kind,
++            c.features["needle"],
++            c.location["task"],
++            c.location["line_start"],
++            c.pre_priority,
++            c.priority,
++        )
++        for c in cands
++    ] == [
++        ("count", "3 report formats", "T2", 40, 50, 90),
++        ("negative", "3 report formats", "T2", 46, 40, 80),
++    ]
++    for c in cands:
++        assert paths(c) == ["CHANGELOG.md", "README.md", "plan"]
++        assert c.evidence[-1]["text"] == HITS_LINE  # docs/guide.md is named by p_basic
++        assert (c.features["unnamed_root_hits"], c.features["unnamed_hits"]) == (2, 2)
++
++
++def test_positive_the_doc_format_finds_the_count_once(repo):
++    doc = plan.read(PLANS.parent / "docs" / "doc1.md", "doc")
++    assert [b["kind"] for b in doc.blocks if "3 report formats" in b["text"]] == [
++        "task",
++        "criterion",
++    ]
++    (c,) = run(
++        doc, repo
++    )  # the sentence is in a `task` block and in a `criterion` block: one item
++    assert (c.kind, c.features["needle"], c.location["line_start"]) == (
++        "count",
++        "3 report formats",
++        3,
++    )
++    assert paths(c) == ["CHANGELOG.md", "README.md", "docs/guide.md", "plan"]
++    assert c.evidence[-1]["text"] == "hits: 3 in 3 files (0 named by the plan)"
++
++
++def test_positive_a_goal_is_an_input_block(repo):
++    doc = plan.parse(
++        "# Plan\n\nGoal: The guide lists 3 report formats and the plan changes nothing else.\n\n"
++        "## Task 1: Change the guide\n\nEdit `docs/guide.md`.\n\nAcceptance criteria:\n- `make test` exits 0.\n"
++    )
++    assert [
++        b["id"] for b in doc.blocks if b["task"] is None and b["kind"] == "criterion"
++    ] == ["goal"]
++    (c,) = find(doc, repo)
++    assert (c.location["task"], c.features["needle"]) == (None, "3 report formats")
++
++
++# ---------------------------------------------------------------- negative: nothing to extract
++
++
++def test_negative_p_clean_emits_nothing(repo):
++    doc = plan.read(PLANS / "p_clean.md")
++    assert find(doc) == [] and find(doc, repo) == []
++    assert run(doc, repo) == []
++    out = extractors.run_extractors(
++        Ctx(doc, snapshot=repo), {"E4": extractors.EXTRACTORS["E4"]}
++    )
++    assert out == []
++
++
++@pytest.mark.parametrize(
++    "sentence",
++    [
++        "Create `src/exporter/notice.py` and tell the reader that report id 41 has expired.",  # a number and a verb
++        "The notice for the report id 41 is written exactly as the quote.",  # a number and the end
++        "The expiry date is 2027-01-01 and the build is 1.2.3 under section 2.1.",  # a date, a version, a decimal
++        "Sentence number 007 says every row is covered.",  # an id with a leading zero
++        "Run `pytest -k '3 report formats'` and `render(rows, 3 formats)` once.",  # numbers inside code spans
++    ],
++)
++def test_negative_no_trigger_in_numbers_that_are_no_count(sentence):
++    assert needles(mkplan(sentence)) == []
++
++
++@pytest.mark.parametrize(
++    "sentence",
++    [
++        "None of the work in this task is large.",  # a negative word with no backticked phrase
++        "None of `docs/guide.md` and `src/exporter/` is touched.",  # only paths
++        "No remaining `grep -c 'x' docs/guide.md` call is needed.",  # only a command
++        "No remaining `ab` text is left.",  # shorter than 3 characters
++        "Move the count from 3 to 4 in the guide.",  # a count change with no noun
++        "Move the count from 3 to 4 and from 8 to 9.",
++    ],
++)
++def test_negative_a_trigger_without_a_search_string_gives_no_item(sentence):
++    assert needles(mkplan(sentence)) == []
++
++
++def test_negative_a_short_sentence_gives_no_item():
++    assert needles(mkplan("None `abc`.")) == []  # under 12 characters, so no anchor
++
++
++def test_negative_no_snapshot_means_no_evidence():
++    doc = mkplan()
++    (c,) = find(doc)
++    assert c.evidence == [] and c.priority is None
++    extractors.attach_e4([c], Ctx(doc))
++    assert c.evidence == [] and c.priority == c.pre_priority == 50
++
++
++def test_negative_with_zero_unnamed_hits_the_item_keeps_its_pre_priority(tmp_path):
++    repo = zebra_repo(
++        tmp_path, {"docs/a.md": None}
++    )  # the only hit is in the file the plan names
++    (c,) = run(mkplan("Edit `docs/a.md` so that it lists 7 zebra stripes."), repo)
++    assert paths(c) == ["plan"]
++    assert c.evidence[0]["text"] == "hits: 1 in 1 files (1 named by the plan)"
++    assert (c.features["unnamed_root_hits"], c.features["unnamed_hits"]) == (0, 0)
++    assert c.priority == c.pre_priority
++
++
++def test_negative_dev_dependency_and_ground_truth_files_are_never_evidence(tmp_path):
++    repo = zebra_repo(
++        tmp_path,
++        {
++            ".dev/notes/z.md": None,
++            "node_modules/pkg/z.js": None,
++            "docs/ground-truth.json": None,
++            "docs/progress.md": "nothing here\n",
++        },
++    )
++    (c,) = run(
++        mkplan("Edit `docs/progress.md` so that it lists 7 zebra stripes."), repo
++    )
++    assert paths(c) == ["plan"]
++    assert c.evidence[0]["text"] == "hits: 0 in 0 files (0 named by the plan)"
++    assert c.priority == c.pre_priority
++
++
++def test_negative_a_needle_that_is_nowhere_in_the_repository(repo):
++    (c,) = run(
++        mkplan("Edit `docs/guide.md` so that it lists 99 unicorn stripes."), repo
++    )
++    assert (
++        paths(c) == ["plan"]
++        and c.evidence[0]["text"] == "hits: 0 in 0 files (0 named by the plan)"
++    )
++
++
++# ---------------------------------------------------------------- boundaries and near misses
++
++
++@pytest.mark.parametrize(
++    "sentence, expected",
++    [
++        ("The guide lists 3 report formats.", [("count", "3 report formats")]),
++        (
++            "The guide lists 3 report formats exist.",
++            [("count", "3 report formats")],
++        ),  # two words at most
++        (
++            "The guide has 3 formats and 4 sections.",
++            [("count", "3 formats"), ("count", "4 sections")],
++        ),
++        ("The panel is a 5-member panel.", [("count", "5-member")]),
++        (
++            "Raise the limit from 12 to 14 entries.",
++            [("count", "12 entries")],
++        ),  # the noun after M
++        ("Raise it from 12 retries to 14 retries.", [("count", "12 retries")]),
++        (
++            "Raise it from 3 report formats to 4 report formats.",
++            [("count", "3 report formats")],
++        ),
++        (
++            "Raise it 3 report formats to 4 report formats.",
++            [("count", "3 report formats")],
++        ),
++        ("Keep 12 entries, then stop.", [("count", "12 entries")]),
++        ("The count is 3 and the formats are fixed.", []),  # `and` is no noun
++        ("The count is 3 to the power of 2.", []),  # `to the` is no noun phrase either
++    ],
++)
++def test_boundary_count_triggers(sentence, expected):
++    assert needles(mkplan(sentence)) == expected
++
++
++def test_boundary_a_count_change_is_one_trigger_not_two():
++    # "from 3 report formats to 4 report formats" holds two `N noun` phrases but one trigger
++    cs = find(mkplan("Raise it from 3 report formats to 4 report formats."))
++    assert len(cs) == 1
++
++
++def test_boundary_a_negative_trigger_is_not_read_again_as_a_count():
++    assert needles(mkplan("It prints 0 matches for `old banner`.")) == [
++        ("negative", "old banner")
++    ]
++
++
++def test_boundary_the_negative_phrase_is_the_nearest_backticked_phrase():
++    s = "Both `first phrase` and `second phrase` are kept, but none of `third phrase` remains."
++    assert needles(mkplan(s)) == [("negative", "third phrase")]
++    s = "No remaining `near phrase` is left, unlike the `far phrase` in the other place."
++    assert needles(mkplan(s)) == [("negative", "near phrase")]
++
++
++def test_boundary_two_triggers_in_one_sentence_give_two_items():
++    s = "Move from 3 report formats to 4 report formats; none of `3 report formats` stays."
++    assert needles(mkplan(s)) == [
++        ("count", "3 report formats"),
++        ("negative", "3 report formats"),
++    ]
++
++
++def test_boundary_blank_lines_split_blocks_so_a_label_line_is_not_part_of_the_sentence():
++    doc = plan.parse(
++        "## Task 1: A\n\nDepends on: Task 0\n\nUpdate the guide to 4 report formats.\n\n"
++        "Acceptance criteria:\n- `make test` exits 0.\n"
++    )
++    (c,) = find(doc)
++    assert (
++        c.anchor_text == "Update the guide to 4 report formats."
++        and c.location["line_start"] == 5
++    )
++
++
++@pytest.mark.parametrize(
++    "needle_sentence, pre",
++    [
++        ("Keep a 3-member panel.", 30 + 10 + 0),  # one word, one digit
++        ("Keep a 12-member panel.", 30 + 10 + 10),  # one word, two digits
++        ("Keep 3 entries.", 30 + 10 + 10),  # two words ("3 entries")
++        ("Keep 3 report formats.", 30 + 10 + 10),  # two words
++        ("None of `x-y-z` remains in the file.", 30 + 0 + 0),  # one word, no digit
++        ("None of `old text` remains in the file.", 30 + 0 + 10),
++        ("None of `v12` remains in the file.", 30 + 0 + 10),  # one word, two digits
++        ("None of `v1b` remains in the file.", 30 + 0 + 0),
++    ],
++)
++def test_boundary_pre_priority_terms(needle_sentence, pre):
++    (c,) = find(mkplan(needle_sentence))
++    assert c.pre_priority == pre
++
++
++def test_boundary_the_unnamed_term_stops_at_three_hits_and_evidence_holds_five_entries(
++    tmp_path,
++):
++    files = {f"docs/n{i}.md": None for i in range(6)}
++    repo = zebra_repo(tmp_path, files)
++    doc = mkplan("Edit `src/exporter/report.py` so that it lists 7 zebra stripes.")
++    (c,) = run(doc, repo)
++    assert c.features["unnamed_hits"] == 6 and c.features["unnamed_root_hits"] == 0
++    assert c.priority == c.pre_priority + 10 * 3  # 6 unnamed hits, the term stops at 3
++    # 4 listed files and the `hits:` line: the 5 entries DESIGN 4.1 allows
++    assert paths(c) == [f"docs/n{i}.md" for i in range(4)] + ["plan"]
++    assert c.evidence[-1]["text"] == "hits: 6 in 6 files (0 named by the plan)"
++    c.validate(Ctx(doc))
++
++
++@pytest.mark.parametrize(
++    "n, priority_add", [(0, 0), (1, 10), (2, 20), (3, 30), (4, 30)]
++)
++def test_boundary_unnamed_hit_term_per_count(tmp_path, n, priority_add):
++    repo = zebra_repo(
++        tmp_path, {**{f"docs/n{i}.md": None for i in range(n)}, "docs/a.md": None}
++    )
++    (c,) = run(mkplan("Edit `docs/a.md` so that it lists 7 zebra stripes."), repo)
++    assert c.features["unnamed_hits"] == n
++    assert c.priority == c.pre_priority + priority_add
++
++
++def test_boundary_the_helper_keeps_three_lines_per_file_so_the_count_is_a_floor(
++    tmp_path,
++):
++    repo = zebra_repo(tmp_path, {"docs/many.md": "7 zebra stripes\n" * 5})
++    (c,) = run(mkplan("Edit `docs/a.md` so that it lists 7 zebra stripes."), repo)
++    assert c.features["unnamed_hits"] == 3
++    assert c.evidence[-1]["text"] == "hits: 3 in 1 files (0 named by the plan)"
++    assert paths(c) == [
++        "docs/many.md",
++        "plan",
++    ]  # one entry per file: its first hit line
++
++
++def test_boundary_listing_order_root_documents_and_change_logs_then_mirrors_then_the_rest(
++    tmp_path,
++):
++    repo = zebra_repo(
++        tmp_path,
++        {
++            "docs/aa.md": None,
++            "scripts/run.sh": None,
++            "Makefile": "test:\n\t# 7 zebra stripes\n",
++            "NOTES.md": None,
++            "docs/CHANGELOG.md": None,
++            MIRROR: None,
++        },
++    )
++    doc = mkplan("Edit `src/exporter/report.py` so that it lists 7 zebra stripes.")
++    (c,) = run(doc, repo)
++    # 6 unnamed files; the 4 listed are: the root document, the change log (path order), the mirror, then the rest
++    assert paths(c) == ["NOTES.md", "docs/CHANGELOG.md", MIRROR, "Makefile", "plan"]
++    # only a root-level DOCUMENT counts for the bonus: NOTES.md, not docs/CHANGELOG.md or Makefile
++    assert c.features["unnamed_root_hits"] == 1 and c.features["unnamed_hits"] == 6
++    assert c.evidence[-1]["text"] == "hits: 6 in 6 files (0 named by the plan)"
++
++
++def test_boundary_a_root_file_that_is_not_a_document_gets_no_root_bonus(tmp_path):
++    repo = zebra_repo(
++        tmp_path, {"Makefile": "test:\n\t# 7 zebra stripes\n", "docs/a.md": None}
++    )
++    (c,) = run(mkplan("Edit `docs/a.md` so that it lists 7 zebra stripes."), repo)
++    assert (c.features["unnamed_root_hits"], c.features["unnamed_hits"]) == (0, 1)
++    assert c.priority == c.pre_priority + 10
++
++
++def test_boundary_one_batched_search_for_all_needles(repo, monkeypatch):
++    calls = []
++    real = extractors.search
++
++    def spy(ctx, patterns, scope=None):
++        calls.append(list(patterns))
++        return real(ctx, patterns, scope)
++
++    monkeypatch.setattr(extractors, "search", spy)
++    run(plan.read(PLANS / "p_basic.md"), repo)
++    assert calls == [["3 report formats"]]  # two items, one needle, one search
++    calls.clear()
++    run(
++        mkplan(
++            "Raise it from 3 report formats to 4 report formats and keep 12 entries."
++        ),
++        repo,
++    )
++    assert calls == [["12 entries", "3 report formats"]]
++
++
++def test_boundary_long_sentence_anchor_is_a_prefix(repo):
++    sentence = (
++        "Raise the count from 3 report formats to 4 report formats "
++        + "and then add more words " * 12
++        + "here."
++    )
++    doc = mkplan(sentence)
++    (c,) = run(doc, repo)
++    assert len(c.anchor_text) == 200 and sentence.startswith(c.anchor_text)
++    c.validate(Ctx(doc))
++
++
++# ---------------------------------------------------------------- determinism
++
++
++def test_determinism_on_p_basic_p_clean_and_the_doc_fixture(repo):
++    for path, fmt in (
++        (PLANS / "p_basic.md", None),
++        (PLANS / "p_clean.md", None),
++        (PLANS.parent / "docs" / "doc1.md", "doc"),
++    ):
++        doc = plan.read(path, fmt)
++        assert dump(run(doc, repo, seed=1)) == dump(run(doc, repo, seed=1))
++        assert dump(find(doc, repo, seed=1)) == dump(
++            find(doc, repo, seed=2)
++        )  # the seed only orders, in select
++
++
++def test_determinism_does_not_depend_on_the_order_the_candidates_are_attached(repo):
++    doc = plan.read(PLANS / "p_basic.md")
++    ctx = Ctx(doc, snapshot=repo)
++    one, two = extractors.find_e4(doc, ctx), extractors.find_e4(doc, ctx)
++    extractors.attach_e4(one, ctx)
++    extractors.attach_e4(list(reversed(two)), ctx)
++    assert dump(one) == dump(two)
++
++
++def test_attach_needs_only_the_candidate_and_ctx(repo):
++    doc = mkplan()
++    ctx = Ctx(doc, snapshot=repo)
++    (c,) = extractors.find_e4(doc, ctx)
++    copy = Candidate(
++        c.extractor,
++        c.cls,
++        c.kind,
++        c.anchor_text,
++        dict(c.location),
++        features=dict(c.features),
++        pre_priority=c.pre_priority,
++    )
++    extractors.attach_e4([c], ctx)
++    extractors.attach_e4([copy], Ctx(doc, snapshot=repo))
++    assert dump([c]) == dump([copy])
++
++
++# ---------------------------------------------------------------- the snapshot and the evidence rules
++
++
++def test_non_git_snapshot_raises_in_attach(tmp_path):
++    folder = tmp_path / "plain"
++    folder.mkdir()
++    doc = mkplan()
++    ctx = Ctx(doc, snapshot=folder)
++    cands = extractors.find_e4(doc, ctx)  # find needs no repository
++    assert len(cands) == 1
++    with pytest.raises(extractors.NotAGitRepo):
++        extractors.attach_e4(cands, ctx)
++
++
++def test_evidence_holds_no_claim_no_severity_no_defect(repo, tmp_path):
++    docs = [
++        (plan.read(PLANS / "p_basic.md"), repo),
++        (plan.read(PLANS.parent / "docs" / "doc1.md", "doc"), repo),
++        (mkplan(), repo),
++        (mkplan(criterion=NEG), repo),
++        (
++            mkplan("Edit `src/exporter/report.py` so that it lists 7 zebra stripes."),
++            zebra_repo(tmp_path / "z", {f"docs/n{i}.md": None for i in range(6)}),
++        ),
++    ]
++    cands = [(doc, c) for doc, snap in docs for c in run(doc, snap)]
++    assert len(cands) >= 5
++    blob = " ".join(e["text"] for _, c in cands for e in c.evidence).lower()
++    assert blob
++    for word in (
++        "defect",
++        "severity",
++        "blocking",
++        "wrong",
++        "bug",
++        "missing",
++        "should",
++        "must",
++        "stale",
++    ):
++        assert word not in blob
++    for doc, c in cands:
++        c.validate(
++            Ctx(doc)
++        )  # every limit of DESIGN 4.1: anchor, location, priority, at most 5 entries, 160 chars
++        assert len(c.evidence) <= 5 and c.evidence[-1]["text"].startswith("hits: ")
++        assert all(
++            e["path"] == "plan" or not e["path"].startswith((".dev/", "node_modules/"))
++            for e in c.evidence
++        )
++
++
++# ---------------------------------------------------------------- the registry
++
++
++def test_registered_and_driven_by_run_extractors(repo):
++    assert extractors.EXTRACTORS["E4"] == (extractors.find_e4, extractors.attach_e4)
++    doc = plan.read(PLANS / "p_basic.md")
++    ctx = Ctx(doc, snapshot=repo, seed=1)
++    out = extractors.run_extractors(ctx, {"E4": extractors.EXTRACTORS["E4"]})
++    assert [
++        (c.cls, c.route, c.status, c.evidence_computed, c.priority) for c in out
++    ] == [
++        ("C5", "search", "attached", True, 90),
++        ("C5", "search", "attached", True, 80),
++    ]
+diff --git a/.dev/tasks/to-do/TASK-WF-implementHomeCod-20261114-200449/progress.md b/.dev/tasks/to-do/TASK-WF-implementHomeCod-20261114-200449/progress.md
+index 77efab680..230d3390e 100644
+--- a/.dev/tasks/to-do/TASK-WF-implementHomeCod-20261114-200449/progress.md
++++ b/.dev/tasks/to-do/TASK-WF-implementHomeCod-20261114-200449/progress.md
+@@ -26,3 +26,4 @@ T12: start sha=c2094835807aa6e376bdcd73228beb8178589c7f
+ T12: complete verdict=compliant ac=T12.AC1,T12.AC2,T12.AC3 evidence=T12.AC1@.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/results/implement/logs/T12-pytest.log:12,T12.AC2@.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_e2.py:509,T12.AC3@.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/sweep/extractors.py:884,notes@.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/results/implement/retries/T12/notes.md:1-2 extras=lint:pass,typecheck:skip,test:pass files=.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/sweep/extractors.py,.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_e2.py
+ T13: start sha=c6e157c121dcba5e0f7c0647efc3f70839305ce0
+ T13: complete verdict=compliant ac=T13.AC1,T13.AC2,T13.AC3 evidence=T13.AC1@.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/results/implement/logs/T13-e3-tests.log:12,T13.AC2@.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/sweep/extractors.py:1308,T13.AC3@.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/sweep/extractors.py:1313 extras=lint:pass,typecheck:skip,test:pass files=.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/sweep/extractors.py,.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_e3.py
++T14: start sha=06e702069738d0dd9f8e769f2db25157d96c7850

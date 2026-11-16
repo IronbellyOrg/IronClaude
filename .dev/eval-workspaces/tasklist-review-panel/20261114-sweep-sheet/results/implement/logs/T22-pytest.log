@@ -1,0 +1,25 @@
+============================= test session starts ==============================
+platform linux -- Python 3.11.15, pytest-9.2.0, pluggy-1.7.0 -- /home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/.venv/bin/python
+SuperClaude: 5.0.0
+rootdir: /home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel
+configfile: pyproject.toml
+plugins: superclaude-5.0.0, anyio-4.16.0
+collecting ... collected 13 items
+
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_prepass.py::test_byte_identical_same_seed PASSED [  7%]
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_prepass.py::test_other_seed_changes_only_order PASSED [ 15%]
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_prepass.py::test_no_absolute_paths_in_json PASSED [ 23%]
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_prepass.py::test_snapshot_unchanged PASSED [ 30%]
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_prepass.py::test_no_network_no_model PASSED [ 38%]
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_prepass.py::test_failure_leaves_no_prepass_folder PASSED [ 46%]
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_prepass.py::test_cli_prepass_help_runs_as_a_script PASSED [ 53%]
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_prepass.py::test_cli_has_no_check_subcommand PASSED [ 61%]
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_prepass.py::test_cli_prepass_and_delegates PASSED [ 69%]
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_prepass_inputs.py::test_only_three_inputs PASSED [ 76%]
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_prepass_inputs.py::test_ground_truth_trap_not_read PASSED [ 84%]
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_prepass_inputs.py::test_sheets_hold_no_gt_markers PASSED [ 92%]
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_prepass_inputs.py::test_scope_string_and_no_source_in_prepass_json PASSED [100%]
+
+============================== 13 passed in 3.86s ==============================
+uv run --frozen --project /home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel pytest -p no:cacheprovider /home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_prepass.py /home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_prepass_inputs.py -q -v
+rc=0

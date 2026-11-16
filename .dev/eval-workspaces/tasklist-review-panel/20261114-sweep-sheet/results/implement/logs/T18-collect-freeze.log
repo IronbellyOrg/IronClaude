@@ -1,0 +1,23 @@
+$ uv run --frozen --project /home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel pytest -p no:cacheprovider /home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_recall.py --collect-only -m freeze -q
+============================= test session starts ==============================
+platform linux -- Python 3.11.15, pytest-9.2.0, pluggy-1.7.0
+SuperClaude: 5.0.0
+rootdir: /home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel
+configfile: pyproject.toml
+plugins: superclaude-5.0.0, anyio-4.16.0
+collected 3 items
+
+<Dir eval-tasklist-review-panel>
+  <Dir .dev>
+    <Dir eval-workspaces>
+      <Dir tasklist-review-panel>
+        <Dir 20261114-sweep-sheet>
+          <Dir tests>
+            <Module test_recall.py>
+              <Function test_recall_per_extractor>
+              <Function test_precision_reported>
+              <Function test_e6_marked_experimental>
+
+========================== 3 tests collected in 0.31s ==========================
+$ uv run --frozen --project /home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel pytest -p no:cacheprovider /home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_recall.py --collect-only -m freeze -q
+rc=0
