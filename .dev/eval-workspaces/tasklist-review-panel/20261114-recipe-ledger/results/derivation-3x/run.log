@@ -1,0 +1,5 @@
+START schedule 03:03:36
+END schedule rc=1 03:28:37
+START judge 03:28:37
+END judge rc=0 03:30:59
+ALLDONE
