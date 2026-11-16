@@ -1,0 +1,8 @@
+== grep (each pattern expected to match nothing)
+none: \bCODES\b
+== pytest
+.                                                                        [100%]
+
+============================= 685 passed in 21.87s =============================
+== ruff
+All checks passed!

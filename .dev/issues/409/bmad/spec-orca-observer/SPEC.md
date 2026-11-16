@@ -101,9 +101,9 @@ Pain to solve. One human supervising 5-10 Orca orchestrators and 50-100 sessions
 - Which production-integration reading applies (1: registering the command or any live subprocess outside the fake runner; 2: wiring into the shipped product)?
 - Final command name (recommended `superclaude observe`)?
 - Fallback date for QUESTION-OBSERVATION?
-- Sample capture and acquisition permission for live reads (open owner decision 6)?
+- Decided 2026-11-11 (`.dev/issues/409/owner-decisions-20261111.md`): sample capture and acquisition permission for live reads (open owner decision 6); granted for one named Run, `--types question`, never `run-use`.
 - Message-content exposure (open owner decision 7)?
-- What identifies a human question (open owner decision 8)?
+- Decided 2026-11-11 (`.dev/issues/409/owner-decisions-20261111.md`): what identifies a human question (open owner decision 8); coordinator questions only, messages of type `question`.
 - Multi-observer restriction (open owner decision 9)?
 - Licence opinion before any Go screen reads the snapshot?
 - Does TUIBBS become the staff platform?

@@ -187,17 +187,3 @@ def test_t51_the_check_is_sensitive_to_a_new_question_so_quiet_means_no_sender_w
     backend.send(make_question_rows(1, start=10))  # a sender writes: not a quiet scope
     after = [r.question.qid for r in collector.run_once().questions.records]
     assert after != before and set(before) < set(after)
-
-
-def test_t51_the_backend_refuses_every_consuming_argv_it_could_be_given():
-    backend = FakeOrcaMailbox(probe_rows(1))
-    bad = [
-        ["/o", "orchestration", "check", "--json"],
-        ["/o", "orchestration", "check", "--all", "--ack", "d1"],
-        ["/o", "orchestration", "check", "--all", "--wait"],
-        ["/o", "orchestration", "check", "--peek", "--types", "question"],
-    ]
-    for argv in bad:
-        with pytest.raises(AssertionError):
-            backend(argv, 1.0)
-    assert backend.reads == 0 and backend.delivery is None

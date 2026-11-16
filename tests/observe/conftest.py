@@ -7,10 +7,13 @@ function that raises, unless the test carries the marker ``observe_real_process`
 from __future__ import annotations
 
 import io
+import json
 import subprocess
 from datetime import datetime, timedelta, timezone
+from importlib import resources
 
 import pytest
+from jsonschema import Draft7Validator
 
 from superclaude.cli.observe.terminal import make_console, resolve_policy
 
@@ -18,6 +21,14 @@ BASE_TIME = datetime(2026, 11, 8, 12, 0, 0, tzinfo=timezone.utc)
 WORKER_LIST_BASE = ["orchestration", "worker-list", "--json", "--limit", "100"]
 DISCOVERY_TAIL = ["skills", "list", "--json"]
 QUESTION_BASE = ["orchestration", "check", "--all", "--types", "question"]
+
+# The snapshot schema as shipped in the package; a broken schema fails at collection.
+SCHEMA: dict = json.loads(
+    resources.files("superclaude.cli.observe")
+    .joinpath("snapshot.schema.json")
+    .read_text(encoding="utf-8")
+)
+Draft7Validator.check_schema(SCHEMA)
 
 
 # -- subprocess guard -------------------------------------------------------------------

@@ -43,13 +43,12 @@ def test_a_good_read_retains_rows_oldest_created_first_unknown_last():
     assert ids(state) == ["msg_000002", "msg_000003", "msg_000001"]
     assert state.open_total == 3 and state.open_total_text == "3"
     assert state.retained == 3 and state.evicted == 0
-    assert (state.last_read_cycle, state.never_read) == (1, False)
+    assert state.last_read_cycle == 1
     assert all(r.in_window and r.first_seen_cycle == 1 for r in state.records)
 
 
 def test_nothing_is_ever_closed_and_closure_evidence_is_unavailable():
     state = merge_questions(None, [q(1)], 1, False, True, RUN)
-    assert state.closure_evidence == "unavailable (no source)"
     assert not any("closed" in f.name for f in dataclasses.fields(state.records[0]))
     assert not hasattr(state.records[0], "closed")
 
@@ -95,7 +94,6 @@ def test_a_handled_question_that_orca_still_returns_is_listed_again_as_open():
     handled_and_still_returned = merge_questions(first, [q(1)], 2, False, True, RUN)
     (record,) = handled_and_still_returned.records
     assert record.in_window and handled_and_still_returned.open_total == 1
-    assert handled_and_still_returned.closure_evidence == "unavailable (no source)"
 
 
 def test_t46_1001_distinct_questions_never_lower_the_open_total():

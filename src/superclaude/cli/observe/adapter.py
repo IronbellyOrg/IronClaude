@@ -62,24 +62,6 @@ PER_CALL_TIMEOUT = (
 )
 KILL_GRACE_SECONDS = 2.0
 
-# Closed set of source codes besides ``exit:<n>``.
-CODES = frozenset(
-    {
-        "timeout",
-        "spawn-error",
-        "output-cap",
-        "json",
-        "shape",
-        "not-found",
-        "overrun",
-        "cursor-rejected",
-        "cursor-stalled",
-        "empty-page",
-        "consumer-fenced",
-        "no-active-terminal",
-        "no-question-fixture",
-    }
-)
 # Error codes of an ``{"ok": false, "error": {"code": ...}}`` envelope -> source codes.
 _ERROR_CODES = {
     "consumer_fenced": "consumer-fenced",
@@ -337,7 +319,7 @@ def _drive(proc: subprocess.Popen, timeout: float) -> tuple[int, str, str]:
 class SourceResult:
     state: str  # "OK" | "FAILED" | "PARTIAL"
     pages: tuple = ()  # decoded JSON of each page read, in order
-    code: str | None = None  # a code from CODES, or "exit:<n>"
+    code: str | None = None  # a source code such as "timeout" or "json", or "exit:<n>"
     diagnostic: str = ""  # sanitized stderr, at most 2 KiB
     capped: bool = False  # paging stopped at the per-cycle call cap
     calls: int = 0

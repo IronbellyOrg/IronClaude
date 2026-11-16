@@ -1,0 +1,23 @@
+== grep (each pattern expected to match nothing)
+none: SCHEMA_PACKAGE|SCHEMA_FILE
+none: export import .*SCHEMA\b
+== pytest
+.                                                                        [100%]
+
+============================= 685 passed in 22.90s =============================
+== ruff
+All checks passed!
+== export.py: jsonschema / importlib / SCHEMA uses (expect none besides SCHEMA_VERSION)
+20:SCHEMA_VERSION = 1
+183:        "schemaVersion": SCHEMA_VERSION,
+== SCHEMA readers in tests
+tests/observe/test_snapshot_schema.py:18:    SCHEMA,
+tests/observe/test_snapshot_schema.py:25:VALIDATOR = Draft7Validator(SCHEMA)
+tests/observe/test_snapshot_schema.py:60:    Draft7Validator.check_schema(SCHEMA)
+tests/observe/test_snapshot_schema.py:63:        SCHEMA,
+tests/observe/conftest.py:26:SCHEMA: dict = json.loads(
+tests/observe/conftest.py:31:Draft7Validator.check_schema(SCHEMA)
+tests/observe/test_commands.py:36:    SCHEMA,
+tests/observe/test_commands.py:43:VALIDATOR = Draft7Validator(SCHEMA)
+== snapshot_json import kept
+14:from superclaude.cli.observe.export import snapshot_json

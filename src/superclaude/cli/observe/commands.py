@@ -11,7 +11,7 @@ import io
 import os
 import sys
 import time
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
 from typing import Any, Callable
@@ -60,10 +60,10 @@ REDRAW_SECONDS = (
 )
 WIDTHS = ("160", "116", "80")
 
-# The live coordinator-questions read is guarded by this one constant. It stays False until
-# the owner has given a record that QUESTION-OBSERVATION passed (release-gates.md, "Agents
-# cite the owner's statement"); plan Task 18 flips it only against that
-# record, cited by path. While False, ``--questions`` makes no Orca call, not even discovery.
+# The live coordinator-questions read is guarded by this one constant. It is True because
+# the owner gave a record that QUESTION-OBSERVATION passed (release-gates.md, "Agents
+# cite the owner's statement"); plan Task 18 flipped it only against that
+# record, cited by path. When False, ``--questions`` makes no Orca call, not even discovery.
 QUESTION_GATE_PASSED = True  # owner record: .dev/issues/409/owner-pass-record-20261112.md
 QUESTION_GATE_TEXT = (
     "question read not enabled: QUESTION-OBSERVATION has not passed"  # PROPOSED wording
@@ -84,8 +84,9 @@ snapshot. It never writes to Orca: no key and no option maps to an Orca call.
 Poll caps (one read every 15 s, at most 5 calls per read) are per observer process; several
 observers running at once multiply the load on Orca.
 
-Coordinator questions (--questions, off until the owner records that QUESTION-OBSERVATION
-passed): with --run <runId> the observer lists the messages of type question of that one
+Coordinator questions (--questions; QUESTION-OBSERVATION passed on 2026-11-12, owner
+record .dev/issues/409/owner-pass-record-20261112.md): with --run <runId> the observer
+lists the messages of type question of that one
 named Run, from one read per cycle. Run it from the terminal that already holds the Run: the
 observer never runs run-use and never binds to a Run. The list is bounded best effort;
 coverage unknown; bursts over 100 rows between reads may be lost. Message bodies are
@@ -139,7 +140,6 @@ class Deps:
     state_directory: Path | None = None
     stdout: Any = None
     interval: float | None = None
-    extra: dict = field(default_factory=dict)
 
 
 def _policy_maker(options: Options, deps: Deps) -> Callable[[], Any]:
@@ -450,7 +450,8 @@ def _check_run(
     "questions",
     is_flag=True,
     help="List the coordinator questions (message type question) of the one Run named by "
-    "--run. Needs --run and a live source; refused until QUESTION-OBSERVATION has passed.",
+    "--run. Needs --run and a live source; QUESTION-OBSERVATION passed on 2026-11-12 "
+    "(owner record .dev/issues/409/owner-pass-record-20261112.md).",
 )
 @click.pass_context
 def observe_group(

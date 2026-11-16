@@ -31,9 +31,14 @@ from superclaude.cli.observe.commands import (
     observe_group,
     run_loop,
 )
-from superclaude.cli.observe.export import SCHEMA
 from superclaude.cli.observe.view import GAP_NOTICE, Key
-from tests.observe.conftest import FakeDiscover, FakeRunner, make_envelope, make_rows
+from tests.observe.conftest import (
+    SCHEMA,
+    FakeDiscover,
+    FakeRunner,
+    make_envelope,
+    make_rows,
+)
 
 VALIDATOR = Draft7Validator(SCHEMA)
 KEYS_MODULE = "superclaude.cli.observe.keys"

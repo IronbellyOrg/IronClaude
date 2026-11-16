@@ -174,7 +174,6 @@ class ParsedPage:
     counts: Any = UNKNOWN  # sanitized object, passed through, never summed
     warnings: tuple[str, ...] = ()
     malformed_rows: int = 0
-    unrecognised_keys: int = 0
 
 
 @dataclass(frozen=True)
@@ -192,7 +191,6 @@ class Coverage:
     collected: int = 0  # distinct rows read this cycle
     identity_unknown_rows: int = 0
     malformed_rows: int = 0
-    unrecognised_keys: int = 0
 
     @property
     def reported_total(self) -> Any:
@@ -406,7 +404,6 @@ def parse_page(
         if isinstance(warnings, list)
         else (),
         malformed_rows=malformed,
-        unrecognised_keys=sum(row.unrecognised_keys for row in rows),
     )
 
 
@@ -644,7 +641,6 @@ def merge(
         collected=len(this_cycle),
         identity_unknown_rows=sum(1 for row in this_cycle if row.identity_unknown),
         malformed_rows=sum(page.malformed_rows for page in pages),
-        unrecognised_keys=sum(page.unrecognised_keys for page in pages),
     )
 
     previous_rows = previous.rows if previous is not None else ()
@@ -719,18 +715,6 @@ class Fixture:
     def cycle(self, index: int) -> FixtureCycle:
         """Cycle ``index`` (0-based); past the end the last cycle repeats."""
         return self.cycles[min(index, len(self.cycles) - 1)]
-
-    def parse(
-        self, index: int, namespace: str, cycle: int, source_rank_base: int = 0
-    ) -> ParsedPage:
-        """Parse a non-failing cycle with ``parse_page``, then mark frozen rows."""
-        entry = self.cycle(index)
-        if entry.envelope is None:
-            raise ValueError(
-                f"fixture cycle {index} is a failure ({entry.fail}), it has no page"
-            )
-        parsed = parse_page(entry.envelope, namespace, cycle, source_rank_base)
-        return apply_frozen(parsed, entry.frozen, source_rank_base)
 
 
 def apply_frozen(

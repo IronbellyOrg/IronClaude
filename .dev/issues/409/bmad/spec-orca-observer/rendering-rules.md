@@ -86,7 +86,7 @@ The first observation in a process is the baseline; a restart discloses that a n
 |---|---|
 | Any operational control (approve, retry, terminate, spawn, merge, rebase, delete-worktree, worker instruction, reply) | No write path into Orca; the design package's mock-up action buttons are not built. |
 | Plain `check`, `--ack`, `--wait`, `--retry-request` | Plain `check` and `--ack` consume a delivery; `--wait` is a listener on the bound Run's FIFO. Forbidden set never shrinks (`adapter-contract.md`). |
-| Parsing `check --peek/--all` or `inbox --json` rows before QUESTION-OBSERVATION | Row fields UNVERIFIED; `check --all --types question --run <runId> --json` is the one candidate verb, behind the gate (status: not passed). |
+| Parsing `check --peek/--all` or `inbox --json` rows before QUESTION-OBSERVATION | Row fields UNVERIFIED; `check --all --types question --run <runId> --json` is the one candidate verb, behind the gate (status: passed 2026-11-12, owner record `.dev/issues/409/owner-pass-record-20261112.md`). |
 | Live question age, requester, owner | They exist only in message rows; `lastObservedAt` is an observation time, not a question open time. |
 | C's affected-session ledger before QUESTION-LINK | Needs authoritative question-to-dispatch-to-worktree joins; cross-host joins not established. |
 | Fleet SIGNALS bars | No verified mapping from `workerState`/`outcome` to "settled"; the COUNTS strip is shown instead. |
