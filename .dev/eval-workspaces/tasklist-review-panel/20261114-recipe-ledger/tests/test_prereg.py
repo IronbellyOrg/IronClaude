@@ -32,9 +32,9 @@ def test_act_bands_for_all_classes(tmp_path):
     assert az.main(["prereg", "--write", "--out", str(out)]) == 0
     written = json.loads(out.read_text(encoding="utf-8"))
     assert written["act_bands"] == rec["act_bands"]
-    assert not (
-        RL / "config" / "prereg.json"
-    ).exists()  # the build writes no real record
+    # the build writes no real record; since the freeze of 2026-11-16 the real record exists (config/freeze.json says so)
+    if not (RL / "config" / "freeze.json").exists():
+        assert not (RL / "config" / "prereg.json").exists()
 
 
 def test_prereg_holds_arms_counts_consistency_and_gates():

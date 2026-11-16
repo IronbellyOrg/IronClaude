@@ -1,0 +1,22 @@
+{
+  "doc_id": "HX-1",
+  "plan": "TASK-WF-applyTheV1Worker-20261107-211837",
+  "items": [
+    {
+      "id": "GT1",
+      "class": "unassigned",
+      "blocking_in_implement": false,
+      "description": "The Task 6 sweep bullet says only \"one `worker-list`\" and never names the fields the sweep must read from it (`projection.liveness` with verdict live|unverifiable|exited, observedAt and source; `projection.stage.activity`; `projection.attention.categories`; `requiresAction`/`nextAction`), although source.md lists them as coordinator-verified facts. An implementer following the plan writes a sweep with no stated data source for the liveness verdict, so the contract's 'unverifiable is absence' and positive-proof rules have nothing concrete to attach to. The correct outcome names those projection fields in the Liveness supervision subsection and in Task 6's acceptance criteria.",
+      "plan_quote": "the sweep after every wake or timeout, at most once every 5 minutes: one `worker-list`, one prompt-wait listing, one `stat` per worker contract path (WC-11)",
+      "evidence": "Gap G-1 (INF-003), REPORT.md:44-50; plan:96; source.md:1"
+    },
+    {
+      "id": "GT2",
+      "class": "unassigned",
+      "blocking_in_implement": false,
+      "description": "source.md requires the contract to respect that `worker-read --source transcript` entries carry millisecond timestamps, but no line of the plan mentions it. The plan's C-7 stall-proof sentence relies on 'a transcript whose final agent turn sent no `worker_done`' without saying that the coordinator reads that transcript and how its entries are dated. An implementer following the plan as written leaves the timestamp fact out of the contract text; the correct outcome states it where the transcript stall proof is described.",
+      "plan_quote": "It restarts a worker (L4) only on one of Orca's positive stall proofs (`exited`, the process exit, or a transcript whose final agent turn sent no `worker_done`)",
+      "evidence": "Gap G-2 (INF-004), REPORT.md:52-58; plan:94-104; source.md:1"
+    }
+  ]
+}
