@@ -1,0 +1,26 @@
+START 17:36:51
+START r4-el2-collab-r07 17:36:51
+END r4-el2-collab-r07 rc=0 17:45:00
+START r4-el2-base-r07 17:45:00
+END r4-el2-base-r07 rc=0 17:52:51
+START r4-el2-collab-r08 17:52:51
+END r4-el2-collab-r08 rc=0 18:00:38
+START r4-el2-base-r08 18:00:38
+END r4-el2-base-r08 rc=0 18:08:03
+START r4-el2-collab-r09 18:08:03
+END r4-el2-collab-r09 rc=0 18:15:58
+START r4-el2-base-r09 18:15:58
+END r4-el2-base-r09 rc=0 18:23:08
+START r4-el2-collab-r10 18:23:08
+END r4-el2-collab-r10 rc=0 18:30:06
+START r4-el2-base-r10 18:30:06
+END r4-el2-base-r10 rc=0 18:37:39
+START r4-el2-collab-r11 18:37:39
+END r4-el2-collab-r11 rc=0 18:48:44
+START r4-el2-base-r11 18:48:44
+END r4-el2-base-r11 rc=0 18:56:22
+START r4-el2-collab-r12 18:56:22
+END r4-el2-collab-r12 rc=0 19:03:14
+START r4-el2-base-r12 19:03:14
+END r4-el2-base-r12 rc=0 19:10:05
+ALLDONE 19:10:05

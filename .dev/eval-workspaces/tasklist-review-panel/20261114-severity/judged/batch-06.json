@@ -1,0 +1,28 @@
+
+[
+{"id":"X0137","verdict":"MEDIUM","deliverable":null,"real_contradiction":false,"reason":"The ban covers editing .claude/ by hand. make sync-dev is the approved way to regenerate it, and Task 12 says to fix failures at the source, never in .claude/."},
+{"id":"X0129","verdict":"MEDIUM","deliverable":null,"real_contradiction":false,"reason":"The --mode row gives the general rule and the --type row next to it states the tests exception. Read together they match Q7."},
+{"id":"X0236","verdict":"MEDIUM","deliverable":null,"real_contradiction":true,"reason":"The two texts disagree, but only about where an internal package artifact is saved. Task 12 names that path explicitly and no shipped file changes."},
+{"id":"X0254","verdict":"BLOCKING","deliverable":"refs/create.md Wave 5 (and refs/labels.md)","real_contradiction":true,"reason":"The pushback comment and the mode label are writes beyond the two allowed. An implementer obeying the constraint would remove them from the skill's create steps."},
+{"id":"X0174","verdict":"MEDIUM","deliverable":null,"real_contradiction":false,"reason":"sync-dev is the approved way to regenerate .claude/. The prohibition is on hand edits and staging, and Task 12 makes that clear."},
+{"id":"X0008","verdict":"MEDIUM","deliverable":null,"real_contradiction":true,"reason":"The conflict is only about where an internal package artifact goes. Task 12 states the exact path and no shipped file is affected."},
+{"id":"X0170","verdict":"MEDIUM","deliverable":null,"real_contradiction":true,"reason":"The disagreement is only about the location of an execution artifact. The explicit instruction in Task 12 decides it and nothing that ships changes."},
+{"id":"X0051","verdict":"MEDIUM","deliverable":null,"real_contradiction":true,"reason":"These are package artifacts, not shipped files. The edit-scope wording conflicts but changes no deliverable's behavior."},
+{"id":"X0173","verdict":"BLOCKING","deliverable":"refs/create.md Wave 5","real_contradiction":true,"reason":"The pushback comment is posted on the created issue, a third write. An implementer following the constraint would drop that step from the skill instruction."},
+{"id":"X0154","verdict":"MEDIUM","deliverable":null,"real_contradiction":false,"reason":"Missing labels are reported in labels_missing and classification_missing holds the not-set lines. Task 3 fixes the exact keys, so nothing conflicts."},
+{"id":"X0117","verdict":"MEDIUM","deliverable":null,"real_contradiction":false,"reason":"The same Task 6 text has the --type row select Test for a feature in tests. The two command rows together agree with Q7."},
+{"id":"X0267","verdict":"BLOCKING","deliverable":"refs/create.md Wave 5","real_contradiction":true,"reason":"The constraint allows exactly two writes, but Wave 5 keeps the pushback comment on the issue. The implementer has to pick which text governs the skill's create steps."},
+{"id":"X0244","verdict":"BLOCKING","deliverable":"refs/create.md Wave 5","real_contradiction":true,"reason":"The pushback comment is a third write to the created issue. Following the constraint would remove that step from the shipped skill instruction."},
+{"id":"X0066","verdict":"BLOCKING","deliverable":"refs/create.md Wave 5","real_contradiction":true,"reason":"The constraint and the Wave 5 pushback comment conflict on the skill's create-mode writes, and either choice changes the shipped instruction."},
+{"id":"X0063","verdict":"BLOCKING","deliverable":"refs/create.md Wave 5","real_contradiction":true,"reason":"The pushback comment goes beyond the two allowed writes. An implementer obeying the constraint would remove it from the skill."},
+{"id":"X0118","verdict":"MEDIUM","deliverable":null,"real_contradiction":true,"reason":"Only the location of the owner-check artifact is in conflict. The explicit path in Task 12 decides it and no shipped file changes."},
+{"id":"X0163","verdict":"BLOCKING","deliverable":"refs/labels.md and refs/create.md Wave 5","real_contradiction":true,"reason":"The mode label is a third classification write. Following the constraint would remove label application from the skill's labels and create rules."},
+{"id":"X0178","verdict":"MEDIUM","deliverable":null,"real_contradiction":false,"reason":"sync-dev is the approved regeneration of .claude/, and the prohibition targets hand edits and staging."},
+{"id":"X0233","verdict":"MEDIUM","deliverable":null,"real_contradiction":true,"reason":"The conflict concerns only where an internal package artifact is saved. The explicit instruction decides it and no shipped deliverable changes."},
+{"id":"X0206","verdict":"MEDIUM","deliverable":null,"real_contradiction":false,"reason":"The same sentence orders the sync. The ban covers editing .claude/ by hand, not regenerating it from source."},
+{"id":"X0237","verdict":"MEDIUM","deliverable":null,"real_contradiction":false,"reason":"Regenerating .claude/ with sync-dev is the approved route. The plan forbids only hand edits and staging there."},
+{"id":"X0125","verdict":"BLOCKING","deliverable":"refs/labels.md and refs/create.md Wave 5","real_contradiction":true,"reason":"The mode label and the pushback comment both exceed the two allowed writes, so the implementer must drop one or break the constraint in the skill."},
+{"id":"X0053","verdict":"BLOCKING","deliverable":"refs/labels.md and refs/create.md Wave 5","real_contradiction":true,"reason":"The mode label is a third write. Obeying the constraint would remove it from the shipped labels and create rules."},
+{"id":"X0135","verdict":"BLOCKING","deliverable":"refs/create.md Wave 5","real_contradiction":true,"reason":"The pushback comment is a third write to the created issue, so the constraint and Task 2 decide the skill's create steps differently."}
+]
+

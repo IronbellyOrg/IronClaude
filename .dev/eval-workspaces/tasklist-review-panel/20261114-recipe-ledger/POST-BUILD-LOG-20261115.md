@@ -38,6 +38,19 @@ The planning break-even was 2.07 s per row at b = 100 s and 14 rows; the measure
 - The 3 maintainer-only tests were not run.
 - A mistake to know about: my first sandbox build wrote into `/tmp/evalsb-sweep/` (the other session's root name). The folder did not exist before; I removed my copy and rebuilt under `/tmp/evalsb-recipe/`. Nothing in the repository was affected.
 
+## Update 2026-11-16 01:00 UTC: Sweep Sheet stopped
+
+The other redesign (Sweep Sheet, session SS) was stopped by the owner in its own session. Its freeze gate (extractor recall of at least 0.8 on independently seeded plans) failed twice: 7 of 34 seeds located. Consequences for RL, as reported by SS (details: `../20261114-sweep-sheet/results/freeze-check-20261115-rerun.md`, not read by RL):
+1. The shared pieces RL copied from SS (class cards, briefs, `bin/common.sh`, tests, the Z0 and K definitions; list in `config/shared-manifest.json`) are **copied provisional, SS stopped**: they will never be frozen by SS. RL keeps using them as they are; RL's own freeze tag will pin them.
+2. The shared-control question is void as written: there is no second launcher to compare with. RL's Z0 arm (its own control, built and run in the timing spike) is the control for RL. Any other control arrangement is the owner's decision.
+3. The parity test between the two launchers is void.
+4. The PROCESS.md rules for slots, pushes and "no ground truth" still hold.
+RL's own freeze is still blocked by people tasks (second author records for the cards RL copied, a ground-truth author, the tests that read the real answer files) and by the hold-out document list. Open questions are in `../OPEN-DECISIONS-20261115.md` (the owner is editing it; this section is not copied there).
+
+## Stopped 2026-11-16 01:42 UTC (owner order: "stop recipe ledger too")
+
+Recipe Ledger is stopped. State at the stop, verified on disk: no `claude`, spike, panel or schedule process running; both lock slots free; no scheduled jobs. The build, its tests (511 fast, 56 integration), the second-author recipe review, the compliance spike (attempt 2 passed, 0 of 15) and the timing spike are complete and were committed and pushed as ff5ddab48. Not done and not planned: the freeze, the maintainer-only tests, any experiment arm, any parity or control run, the sandbox-per-run fix for the full schedule. The recipe `override` entries, the strict-and-lenient reporting and the small allowances stay in the code as built. To restart: read `../OPEN-DECISIONS-20261115.md`, then `IMPLEMENTATION-REPORT.md` section 5.1 and this file; the people tasks listed above would be the first thing to settle.
+
 ## Where to go next
 
 Open questions for the owner: `../OPEN-DECISIONS-20261115.md`. Requirements not met or partly met: `IMPLEMENTATION-REPORT.md` section 5.1.
