@@ -1,0 +1,13 @@
+contract_version: "1.8.0"
+status: partial
+mode: pre
+tier_reached: 1
+report_path: /home/coder/workspaces/worktrees/IronClaude/sweep-working-fix/.dev/reflect/pre-restoreTheSweepS-20261116-223600/REPORT.md
+coverage_pct: null
+coverage_undefined: false
+coverage_degraded: parsed-sparse
+coverage_pct_union: 1.0
+unmapped_requirements_union: []
+evidence_validator_ran: false
+needs_human_decision: false
+degraded_components: ["tier2-not-run", "evidence-validator", "confidence-calibrator"]

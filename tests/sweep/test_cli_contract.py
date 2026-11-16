@@ -1091,8 +1091,8 @@ def test_waiting_lists_hold_row_ids_only(env):
         "workerState": "running",
         "dispatchStatus": "dispatched",
     }
-    # Waiting (a) comes from a blocked contract the Task names (rule 1): the live
-    # agentWait field is not read in Phase 1 (open item 6).
+    # Waiting (a) comes from a blocked contract the Task names (rule 1). This worker's
+    # show has no agentWait key, so rule 4's agentWait signal does not apply.
     contract = env.sweep_root.contract(worker_status="blocked", reason="needs a person")
     _canned(
         env,
@@ -1113,6 +1113,48 @@ def test_waiting_lists_hold_row_ids_only(env):
         from_rows = [r["row_id"] for r in payload["rows"] if r["waiting_kind"] == kind]
         assert waiting[kind] == from_rows
     assert payload["summary"]["counts"]["waiting on a person"] == 2
+
+
+def _single_worker_world(env, show_name: str) -> str:
+    """One captured worker (its real worker-show) in an otherwise empty Run."""
+    show = _captured(show_name)["result"]
+    dispatch = show["dispatch"]["id"]
+    worker = {
+        "dispatchId": dispatch,
+        "taskId": show["dispatch"]["taskId"],
+        "runId": RUN,
+        "dispatchStatus": show["dispatch"]["status"],
+    }
+    _canned(env, RUN, workers=[worker], shows={dispatch: show})
+    _ps(env)
+    return f"orca:{dispatch}"
+
+
+def test_a_captured_running_worker_is_reported_as_working(env):
+    row_id = _single_worker_world(env, "captured-worker-show-running.json")
+
+    payload = _payload(_run(env, "--run", RUN))
+
+    row = _row(payload, row_id)
+    assert (row["class"], row["rule"]) == ("working", "working")
+    assert payload["summary"]["counts"]["working"] == 1
+    text = Path(payload["report_path"]).read_text("utf-8")
+    assert row_id in _section(text, "## Sessions (1/1)")
+    # The sweep read the worker through the allowed worker-show call; nothing new was run.
+    asked = [c["args"] for c in env.orca.calls]
+    assert _worker_show(row_id.removeprefix("orca:")) in asked
+    # check_orca_argv raises ValueError unless the argv matches an ALLOWED_ORCA template.
+    for args in asked:
+        probes.check_orca_argv(args)
+
+
+def test_a_captured_finished_worker_is_not_reported_as_working(env):
+    row_id = _single_worker_world(env, "captured-worker-show-1.json")
+
+    payload = _payload(_run(env, "--run", RUN))
+
+    assert _row(payload, row_id)["class"] != "working"
+    assert payload["summary"]["counts"]["working"] == 0
 
 
 # =========================================================================================
