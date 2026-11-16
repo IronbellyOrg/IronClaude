@@ -1,0 +1,102 @@
+{
+  "doc_id": "HX-3",
+  "plan": "TASK-WF-scIssueCommand-20261104-064713",
+  "items": [
+    {
+      "id": "GT1",
+      "class": "unassigned",
+      "blocking_in_implement": false,
+      "description": "Task 17 verifies the E-FOREIGN-REPO acceptance criterion by running `/sc:issue --claim` live against octocat/Hello-World issue 1, while Task 1 only tests URL parsing and no deterministic URL-versus-origin check exists. A fault in Wave 0 plus a missed Wave 2 check would let a live run reach a real repository, and the criterion would be hoped for rather than guaranteed. The plan should add a tested URL-vs-origin check to origin_repo.py that Wave 0 calls, verify item 4 through unit tests, and keep any live run pending.",
+      "plan_quote": "run it once in a session that has the skill loaded (after Task 13) as `/sc:issue --claim https://github.com/octocat/Hello-World/issues/1` and record the output",
+      "evidence": "Finding F-01 (minor, safety-risk), REPORT.md:115-120; plan:26,254,259; source.md:143,470"
+    },
+    {
+      "id": "GT2",
+      "class": "unassigned",
+      "blocking_in_implement": false,
+      "description": "Task 15 gives two incompatible exits for a stale session: stop and ask the user to restart (it 'resumes at this task') versus accepting a pending row. The /sc:implement executor cannot stop to ask the user mid-run, so an implementer following the stop-and-ask text has no way to carry it out. The plan should state one exit: record the smoke checks as pending and end Task 17's record with a post-restart runbook.",
+      "plan_quote": "stop here and ask the user to start a new session in this checkout and re-run the same `/sc:implement` command; it resumes at this task.",
+      "evidence": "Finding F-02 (minor, ambiguous-ac), REPORT.md:122-127; plan:233,236"
+    },
+    {
+      "id": "GT3",
+      "class": "unassigned",
+      "blocking_in_implement": false,
+      "description": "Task 6 requires SKILL.md to carry the full section 14 error table, whose rows name `gh issue edit` and `gh issue create` without `--repo`, while Task 7's fork-safety test requires every line that runs `gh issue`, `gh pr` or `gh label` to carry `--repo`. An implementer who copies the table as written makes Task 7's own scan fail. The plan should define the scan once and require every such mention, prohibitions and table cells included, to be written with `--repo <R>`.",
+      "plan_quote": "every line in `SKILL.md`, `refs/*.md` and the three `src/superclaude/agents/issue-worker-t*.md` bodies that runs `gh issue`, `gh pr` or `gh label` carries `--repo`",
+      "evidence": "Finding F-03 (minor, cross-task-contradiction), REPORT.md:129-134; plan:111,131; source.md:336,340"
+    },
+    {
+      "id": "GT4",
+      "class": "unassigned",
+      "blocking_in_implement": false,
+      "description": "Task 2's tests clear only `CLICKUP_API_TOKEN` and `CLICKUP_WORKSPACE_ID`, but an exported `CLICKUP_MAX_PAGES` or `CLICKUP_LIST_IDS` still reaches tests that pin the page cap, the first page and the request URLs. An implementer following the plan writes tests that pass or fail depending on the developer's shell. Every test should clear all four `CLICKUP_*` variables.",
+      "plan_quote": "Every test clears `CLICKUP_API_TOKEN` and `CLICKUP_WORKSPACE_ID` with `monkeypatch.delenv(..., raising=False)` before setting the values it needs",
+      "evidence": "Finding F-05 (minor, test-isolation), REPORT.md:143-148; plan:23,43,45,50"
+    },
+    {
+      "id": "GT5",
+      "class": "unassigned",
+      "blocking_in_implement": false,
+      "description": "source.md acceptance item 5 has two halves; the first (token unset, claim completes and the comment says ClickUp was skipped) needs a live claim, but Task 17 places only the ClickUp-assignment half (Tasks 2 and 16). An implementer following the plan may mark the first half run on the script-only no_token output of Task 2. The plan should record that first half as pending in the Task 17 record.",
+      "plan_quote": "Items 7 and 9 point at the Task 3, Task 7, Task 14 and Task 15 evidence; item 5's ClickUp half points at Task 2 and Task 16.",
+      "evidence": "Finding F-08 (minor, dependency), REPORT.md:164-169; plan:50,254; source.md:471"
+    },
+    {
+      "id": "GT6",
+      "class": "unassigned",
+      "blocking_in_implement": false,
+      "description": "source.md acceptance item 8 says next-steps.md starts with the `/model` tier line, and Task 4 defines the template that way, but no Task 4 criterion or Task 7 test asserts that first line. An implementer following the plan can ship a template whose first line is wrong and every check still passes. The plan should add an assertion that templates/next-steps.md starts with the `/model` tier line and keep the live part of item 8 pending.",
+      "plan_quote": "`next-steps.md` starts with the `/model claude-gw-tier2` or `/model claude-gw-tier1a` tier line, then the ordered commands with flags and inputs",
+      "evidence": "Finding F-09 (minor, validation-rule), REPORT.md:171-176; plan:77,81-85,123-132; source.md:474"
+    },
+    {
+      "id": "GT7",
+      "class": "unassigned",
+      "blocking_in_implement": false,
+      "description": "source.md section 13 requires every `gh api` path to spell `repos/<R>/...`, but Task 7's fork-safety scan only checks `--repo` on `gh issue|pr|label` lines and bans the placeholder; nothing checks `gh api` paths. An implementer following the plan can write a `gh api` path without `repos/<R>/` and all tests pass. The scan should also require every `gh api` path other than the `user` login lookup to start with `repos/<R>/`.",
+      "plan_quote": "and no file in the skill or the three agents contains the `{owner}/{repo}` placeholder",
+      "evidence": "Finding F-10 (minor, validation-rule), REPORT.md:178-183; plan:131; source.md:148,319"
+    },
+    {
+      "id": "GT8",
+      "class": "unassigned",
+      "blocking_in_implement": false,
+      "description": "Task 16 asks the user only for the test issue URL and task ID and then runs the claim script, which finds its ClickUp task by a workspace-wide match and performs the assignment PUT inside the first run. Comparing the reported task_id afterwards cannot undo a wrong assignment. The plan should require `CLICKUP_LIST_IDS` to be exported for the test task's list and the URL and task ID to be supplied before the session, and otherwise record the task as pending.",
+      "plan_quote": "Ask the user only for the test issue URL and task ID; never ask for, print, echo or inline the token or workspace values.",
+      "evidence": "Finding F-11 (minor, guard), REPORT.md:185-190; plan:243,246; source.md:298,304-309"
+    },
+    {
+      "id": "GT9",
+      "class": "unassigned",
+      "blocking_in_implement": false,
+      "description": "Task 2 tells the implementer to define what the script does for a non-positive or non-integer `CLICKUP_MAX_PAGES` without bounding the choice, while source.md reserves exit 2 for bad arguments and exit 0 for every other outcome. An implementer may pick an exit-2 or crash behaviour that contradicts the spec. The plan should fix the rule: fall back to 20 (or print an error status) and exit 0.",
+      "plan_quote": "Define and document in the docstring what the script does when `CLICKUP_MAX_PAGES` is not a positive integer.",
+      "evidence": "Finding F-13 (minor, underspecified), REPORT.md:199-204; plan:43; source.md:310"
+    },
+    {
+      "id": "GT10",
+      "class": "unassigned",
+      "blocking_in_implement": false,
+      "description": "Task 3 tells the implementer to follow the frontmatter shape of evidence-validator.md, whose frontmatter carries `permissionMode: plan`. Copying it would leave every worker unable to write its file, so every claim or create would end in E-WORKER-NO-OUTPUT. The plan should forbid a `permissionMode` key in the worker agents and have Task 3's test assert it is absent.",
+      "plan_quote": "Follow the frontmatter shape of existing agents such as `src/superclaude/agents/evidence-validator.md`.",
+      "evidence": "Finding F-14 (minor, executability-trap), REPORT.md:206-211; plan:56; src/superclaude/agents/evidence-validator.md:8"
+    },
+    {
+      "id": "GT11",
+      "class": "unassigned",
+      "blocking_in_implement": false,
+      "description": "Task 7's inventory test requires every file in `refs/`, `templates/` and `scripts/` to be named in SKILL.md, which fails as soon as `scripts/__pycache__/` exists after tests run. An implementer following the plan writes a test that breaks on bytecode cache files. The inventory should be limited to `refs/*.md`, `templates/*.md` and `scripts/*.py`.",
+      "plan_quote": "Every ref, template and script named in `SKILL.md` exists, and every file in `refs/`, `templates/` and `scripts/` is named in `SKILL.md`.",
+      "evidence": "Finding F-16 (minor, test-spec-ambiguity), REPORT.md:220-225; plan:125,132"
+    },
+    {
+      "id": "GT12",
+      "class": "unassigned",
+      "blocking_in_implement": false,
+      "description": "Wave 2 must STOP with E-NOT-AN-ISSUE when the number is a pull request, but it decides from scout.md alone, and the scout-report claim section the plan defines has no url or pull-request field although Wave 1 fetches `url`. An implementer following the plan builds a Wave 2 check with nothing to read, so an open pull request number can reach the assign step. The scout claim section should add `url` and `is_pull_request`, and claim.md's Wave 2 STOP should read that field.",
+      "plan_quote": "`scout-report.md` has a claim section (state, assignees, current login, earlier claim and accuracy-check comment IDs, merged PRs and changed files since creation",
+      "evidence": "Finding F-18 (minor, state-variables), REPORT.md:234-239; plan:78,92,116; source.md:148,154,159"
+    }
+  ]
+}

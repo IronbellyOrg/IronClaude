@@ -1,0 +1,8 @@
+{
+  "base": "e8db2fe660d9104cbe8cdbcdc6f2c967f4994f4b",
+  "candidate": ".dev/tasks/done/TASK-WF-scIssueClaimPipe-20261107-063237/TASK-WF-scIssueClaimPipe-20261107-063237.md",
+  "source": ".dev/tasks/done/TASK-WF-scIssueClaimPipe-20261107-063237/source.md",
+  "kind": "plan",
+  "set": "holdout",
+  "masked_paths": []
+}

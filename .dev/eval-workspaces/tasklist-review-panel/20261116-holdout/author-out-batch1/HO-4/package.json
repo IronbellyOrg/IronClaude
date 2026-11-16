@@ -1,0 +1,8 @@
+{
+  "base": "5e163da0b1d172fa49ea4fbf58c6cafbe7904243",
+  "candidate": ".dev/tasks/done/TASK-WF-phase3CodegraphA-20261029-204913/TASK-WF-phase3CodegraphA-20261029-204913.md",
+  "source": ".dev/tasks/done/TASK-WF-phase3CodegraphA-20261029-204913/source.md",
+  "kind": "plan",
+  "set": "holdout",
+  "masked_paths": []
+}
