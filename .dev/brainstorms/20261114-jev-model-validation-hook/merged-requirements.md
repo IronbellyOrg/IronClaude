@@ -12,6 +12,8 @@ sources: proposal A (sonnet), B (haiku), C (sonnet); adversarial debate 2 rounds
 
 # Version 1 model-policy hook: merged design
 
+> **Status note 2026-11-16 (not authoritative).** Historical brainstorm. The owner decided that model-usage infractions warn and are reported after the fact and do not halt work; the current decisions are in `OPEN-QUESTIONS.md` in this folder, and the blocking, grant, tamper and fail-closed parts of this design are superseded by them. A much smaller reporting design is **proposed, not approved and not implemented**; its coverage against the owner's answers is in `OPEN-QUESTIONS.md`. All 63 requirements below are kept unchanged as history.
+
 Tags. "Docs B1 to B9" are the Claude Code documentation facts in `enrichment/codebase-context.md` section B (read through context7 earlier, not re-read here): B1 PreToolUse input fields; B2 exit 2 blocks, stderr goes to Claude; B3 UserPromptSubmit can block with JSON; B4 SessionStart `model` is optional, SubagentStart has no model; B5 Agent model resolution order; B6 `--model`, alias env, `modelOverrides`; B7 native `availableModels` and `deniedModels`; B8 `claude --bare` children run no hooks; B9 a non-zero exit other than 2 does not block. "Verified" means an advocate or the Step 1 diff analysis read the line during the debate. UNVERIFIED means no step read it; section 10 gives the cheapest check. Every file, rule and command name below is new; nothing here exists yet.
 
 ## 0. Recommendation
