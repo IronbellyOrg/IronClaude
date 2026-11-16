@@ -363,3 +363,40 @@ def test_wire_leaves_user_retention_alone_where_managed_settings_win(home, monke
     ok, msg = wire_ccsession(home)
     assert ok, msg
     assert not (home / ".claude/settings.json").exists()
+
+
+def _with_retention(home):
+    source = (
+        Path(__file__).resolve().parents[2] / "src/superclaude/skills/ccsession-tag"
+    )
+    shutil.copyfile(
+        source / "retention.py", home / ".claude/skills/ccsession-tag/retention.py"
+    )
+
+
+def test_wire_reports_when_managed_settings_keep_retention_short(home, monkeypatch):
+    # The value in force cannot be raised from ~/.claude/settings.json, so the
+    # install says so instead of hiding it.
+    _with_retention(home)
+    managed = home / "managed"
+    managed.mkdir()
+    (managed / "managed-settings.json").write_text('{"cleanupPeriodDays": 90}')
+    monkeypatch.setenv("CCSESSION_MANAGED_SETTINGS_DIR", str(managed))
+    ok, msg = wire_ccsession(home)
+    assert ok and "warning" in msg.lower()
+    assert "managed settings file" in msg and "cannot override" in msg
+
+
+def test_wire_reports_a_settings_file_it_cannot_use(home):
+    _with_retention(home)
+    settings = home / ".claude/settings.json"
+    settings.write_text("{ not json")
+    ok, msg = wire_ccsession(home)
+    assert ok and "warning" in msg.lower() and "not valid JSON" in msg
+    assert settings.read_text() == "{ not json"
+
+
+def test_wire_stays_quiet_when_retention_is_raised(home):
+    _with_retention(home)
+    ok, msg = wire_ccsession(home)
+    assert ok and "warning" not in msg.lower()

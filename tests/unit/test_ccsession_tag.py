@@ -5016,7 +5016,8 @@ def test_retention_ensure_leaves_a_file_it_cannot_judge_untouched(
     settings = _user_settings(tmp_path, content)
     raw = settings.read_bytes()
     result = _retention(tmp_path, "ensure", str(settings))
-    assert result.returncode == 0 and "WARNING" in result.stdout
+    # Exit 3: the value could not be raised, so a caller can report the line.
+    assert result.returncode == 3 and "WARNING" in result.stdout
     assert settings.read_bytes() == raw
     assert not list(settings.parent.glob("settings.json.bak.*"))
 
@@ -5031,7 +5032,7 @@ def test_retention_ensure_never_writes_where_managed_settings_win(
         str(settings),
         managed={"managed-settings.d/10-retention.json": {"cleanupPeriodDays": 90}},
     )
-    assert result.returncode == 0
+    assert result.returncode == 3
     assert "managed settings file" in result.stdout and "90" in result.stdout
     assert not settings.exists()
 

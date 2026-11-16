@@ -27,7 +27,11 @@ directory.
         MIN_DAYS, saying what it is, who set it and what to do. Prints nothing
         otherwise (including when the value cannot be read).
 
-Both always exit 0, so a problem here never stops an install or a listing.
+check always exits 0. ensure exits 0 when the value is now (or already) at least
+MIN_DAYS and 3 when it could not be raised (managed settings win, the file is not
+valid settings, the value is not a whole number); the line it printed says why, and
+a caller reports it. Neither ever raises, and install.sh ignores the status, so a
+problem here never stops an install or a listing.
 The command line and project settings files are not read: they apply to one
 session or folder, and the managed and user files decide the rest.
 
@@ -52,6 +56,7 @@ KEY = "cleanupPeriodDays"
 # a limit. Disk is not the constraint: transcripts are a few GB at most.
 MIN_DAYS = 365
 DEFAULT_DAYS = 30  # Claude Code's own default when no file sets the key
+EXIT_NOT_RAISED = 3  # ensure could not raise the value; the printed line says why
 
 
 def managed_dir() -> Path:
@@ -166,14 +171,20 @@ def write_settings(target: Path, data: dict) -> None:
             os.unlink(staged)
 
 
-def ensure(settings: Path) -> str:
-    """Raise the user's value to MIN_DAYS when absent or lower; returns what happened."""
+def ensure(settings: Path):
+    """Raise the user's value to MIN_DAYS when absent or lower.
+
+    Returns (what happened, ok). ok is False when the value in force could not be
+    raised to MIN_DAYS and the person should know (managed settings win, the file
+    cannot be read as settings, or the value is not a whole number).
+    """
     managed = managed_value()
     if managed is not None:
         value, path = managed
         return (
             "%s is %s in the managed settings file %s; %s cannot override it, so it is left alone."
-            % (KEY, value, path, tilde(settings))
+            % (KEY, value, path, tilde(settings)),
+            False,
         )
     data = {}
     if settings.exists():
@@ -182,44 +193,35 @@ def ensure(settings: Path) -> str:
         except (OSError, ValueError):
             return (
                 'WARNING: %s is not valid JSON; %s left unset. Add "%s": %d yourself.'
-                % (
-                    tilde(settings),
-                    KEY,
-                    KEY,
-                    MIN_DAYS,
-                )
+                % (tilde(settings), KEY, KEY, MIN_DAYS),
+                False,
             )
         if not isinstance(data, dict):
-            return "WARNING: %s is not a JSON object; %s left unset." % (
-                tilde(settings),
-                KEY,
+            return (
+                "WARNING: %s is not a JSON object; %s left unset."
+                % (tilde(settings), KEY),
+                False,
             )
     current = data.get(KEY)
     if KEY in data and not is_days(current):
-        return "WARNING: %s in %s is not a whole number (%r); left unchanged." % (
-            KEY,
-            tilde(settings),
-            current,
+        return (
+            "WARNING: %s in %s is not a whole number (%r); left unchanged."
+            % (KEY, tilde(settings), current),
+            False,
         )
     if is_days(current) and current >= MIN_DAYS:
-        return "%s is already %d in %s (at least %d); no change." % (
-            KEY,
-            current,
-            tilde(settings),
-            MIN_DAYS,
+        return (
+            "%s is already %d in %s (at least %d); no change."
+            % (KEY, current, tilde(settings), MIN_DAYS),
+            True,
         )
     was = "not set" if KEY not in data else "was %d" % current
     data[KEY] = MIN_DAYS
     write_settings(settings, data)
     return (
         "Set %s to %d in %s (%s). Claude Code now keeps saved sessions for %d days."
-        % (
-            KEY,
-            MIN_DAYS,
-            tilde(settings),
-            was,
-            MIN_DAYS,
-        )
+        % (KEY, MIN_DAYS, tilde(settings), was, MIN_DAYS),
+        True,
     )
 
 
@@ -228,17 +230,22 @@ def main(argv: list) -> int:
         print("usage: retention.py ensure|check [<settings.json>]", file=sys.stderr)
         return 2
     settings = Path(argv[2]) if len(argv) > 2 else user_settings()
+    ok = True
     try:
-        text = ensure(settings) if argv[1] == "ensure" else check(settings)
+        if argv[1] == "ensure":
+            text, ok = ensure(settings)
+        else:
+            text = check(settings)
     except OSError as exc:
-        text = (
-            "WARNING: could not update %s: %s" % (tilde(settings), exc)
-            if argv[1] == "ensure"
-            else ""
-        )
+        text = ""
+        if argv[1] == "ensure":
+            text, ok = (
+                "WARNING: could not update %s: %s" % (tilde(settings), exc),
+                False,
+            )
     if text:
         print(text)
-    return 0
+    return 0 if ok else EXIT_NOT_RAISED
 
 
 if __name__ == "__main__":

@@ -103,8 +103,9 @@ def wire_ccsession(home: Path | None = None) -> tuple[bool, str]:
         # kept, managed settings (which win) are never touched, and a plain
         # install can keep an older skill folder without the script.
         retention = skill / "retention.py"
+        retention_note = ""
         if retention.is_file() and not retention.is_symlink():
-            subprocess.run(
+            done = subprocess.run(
                 [
                     sys.executable,
                     str(retention),
@@ -113,10 +114,15 @@ def wire_ccsession(home: Path | None = None) -> tuple[bool, str]:
                 ],
                 check=False,
                 capture_output=True,
+                text=True,
                 stdin=subprocess.DEVNULL,
                 timeout=30,
                 env={**os.environ, "HOME": str(home)},
             )
+            # Exit 3: the value could not be raised (managed settings win, or the
+            # settings file is not usable); say so instead of hiding it.
+            if done.returncode == 3 and done.stdout.strip():
+                retention_note = done.stdout.strip()
         # Session names now belong to the repo; copy names saved per folder by
         # older versions into their repo's list (once per list, copies only),
         # and, once, the names given with Claude Code's /rename before then.
@@ -140,6 +146,8 @@ def wire_ccsession(home: Path | None = None) -> tuple[bool, str]:
     if not env.is_file():
         return False, f"ccsession env path is not a file: {env}"
     warnings = []
+    if retention_note:
+        warnings.append(retention_note)
     if unmanaged:
         paths = ", ".join(str(link) for link in unmanaged)
         verb, it = ("is", "it") if len(unmanaged) == 1 else ("are", "them")

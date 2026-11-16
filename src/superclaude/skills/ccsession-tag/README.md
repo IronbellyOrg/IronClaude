@@ -258,7 +258,10 @@ Linux, read in that order with the last file that sets the key winning;
 Where a managed value exists, such as the Coder workspace image's
 `managed-settings.d/10-retention.json`, a value in your user file is ignored:
 the installer then writes nothing, and ccsession never edits the managed folder.
-Only whoever manages the machine can change that value.
+Only whoever manages the machine can change that value. Whenever the installer
+cannot raise the value (a managed value, a settings file that is not valid JSON,
+or a value that is not a whole number) it says so: `install.sh` prints the line
+and `superclaude install` adds it to its result as a warning.
 
 `ccsession --list` and `ccsession --here` print one line on stderr (the rows on
 stdout do not change) when the value Claude Code will use is below 365, naming
