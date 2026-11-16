@@ -1,0 +1,24 @@
+{
+ "arm": "Z0",
+ "b": 100,
+ "check_s": 0,
+ "concurrent_panels_at_start": 0,
+ "doc": "TASK-WF-designSpec-20261107-075614",
+ "hang_s": 150.0,
+ "panel": "primary",
+ "panel_elapsed_s": 150.252,
+ "reask_s": 0,
+ "render_s": 0,
+ "rev_end": {
+  "t2b-1": 1794839412.157,
+  "t3-1": 1794839448.023,
+  "t4-1": 1794839533.149
+ },
+ "rev_start": {
+  "t2b-1": 1794839383.213,
+  "t3-1": 1794839383.214,
+  "t4-1": 1794839383.213
+ },
+ "slowest_reviewer_s": 149.936,
+ "t0": 1794839382.897
+}
