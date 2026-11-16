@@ -319,9 +319,9 @@ Done today, on your order to delete merged worktrees after validating that nothi
 **Still unspecified:** the exact pin (a reviewed release tag and commit; whether the Jev repository has release tags is "Not known yet" in #553's body), the monitor configuration and cadence, data-sharing approval (D-13, OD3) and evaluation access. #553's pinned route is an `ironclaudeMarketplace` entry that Coder's Renovate configuration watches, and its body expects no Coder change. Whether "update the upstream monitor" also means a Coder change is not stated.
 **Authorization:** documentation only. Nothing is implemented, installed, configured, stored, sent or posted to GitHub.
 **Recorded in:** `.dev/issues/553/issue-body.md` and `.dev/tasks/to-do/BLOCKER-CLASSIFICATION-PROGRAM-20261115/00b-jev-default-install-description.md`, both in `brainstorm-reflect-panel`. The second file is staged there, not committed.
-**Question for you:** which Jev release tag and commit should be pinned, and who reviews it?
-**Owner answer:**
-**Coordinator reply:** Recorded on 2026-11-16 in the two files above and in D-13 and D-61.
+**Question for you:** which Jev release tag and commit should be pinned, and who reviews it? ANSWERED 2026-11-16 (see below).
+**Owner answer:** (from chat, 2026-11-16) pin the latest release tag and commit. Later updates are reviewed through the central upstream monitor. If release tags are not posted, start unpinned and watched.
+**Coordinator reply:** Recorded on 2026-11-16 in the two files above and in D-13 and D-61, and the second answer in the same two files. A read-only lookup of `typesafe-ai/skills` (about 17:13 UTC, not independently reviewed) found git tags `v0.6.2` (commit `302eea662c54`, the same version as the local plugin cache) and `v0.5.7` (commit `65a39f393687`), and no GitHub Releases (the releases API answers 404). I read "release tag" as a git tag, so the pinned route applies and the latest tag is `v0.6.2`. If you meant a GitHub Release, the unpinned fallback applies instead. Nothing is pinned or implemented. Also not decided: whether the central monitor can follow a tag that has no GitHub Release (UNVERIFIED, Coder side).
 
 ### D-66 Eval coverage gate, issue #562 (decision recorded, not implemented)
 **Source:** the same answer packet. Issue #562 ("Should installed hook coverage reject unrelated packaged eval suites?") is open as a question. I found no document for it in any IronClaude worktree, so no worktree owns it.
