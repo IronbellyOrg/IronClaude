@@ -14,7 +14,24 @@
 
 **Rules for anyone working on this.** Push only to the fork `origin` (IronbellyOrg/IronClaude), only when the owner asks; never touch `SuperClaude-Org`. Edit under `src/superclaude/` and run `make sync-dev`; never stage `.claude/` paths other than `.claude/settings.json`. Python through `uv`. Open pull requests only with `/sc:pr-submit --monitor 3`. Implementation goes through a written plan (`/sc:workflow`, then `/sc:implement`), not ad hoc edits.
 
-## Decisions the owner still has to make
+## Owner decisions recorded November 16, 2026
+
+These decisions were given by Ryan during the November 16 review. They supersede conflicting recommendations in the historical table below. This update records decisions only; it does not implement or enable a hook, change policy/configuration, run an evaluation, or claim runtime validation.
+
+| Item | Owner decision | Remaining boundary |
+|---|---|---|
+| 1 | Approved evaluation scripts may select from their declared model list. Block unknown or mistyped models, selections outside that list, and known models used outside permitted stages. The principal concern is agents spawning models. | A variable/table-driven selection is not itself forbidden. The exact approval mechanism and implementation remain to be designed. |
+| 2 | An unattended job proceeds within its pre-approved job, model, stage and budget scope rather than stopping for live approval mid-run. | This does not authorize expanded scope or settle grant expiry, interruption or resume semantics. |
+| 3 | An explicit user's model choice in an interactive session overrides ordinary agent model policy. | Do not infer expanded permissions for agent-spawned children or an override of unrelated security controls. |
+| 4 | If a subagent's inherited model cannot be determined, run without that inheritance check. | This is not removal of the other model/list/stage checks. |
+| 5 | When a launch omits the model needed for its job or stage, automatically fill in the most appropriate model for that job. When required information or files are unavailable, use the user's default model as fallback; apply this logic to applicable open questions. | Preserve known stage requirements and existing restrictions. No specific default model was named, and conflicts between a stage requirement, default, declared evaluation list or other restrictions were not resolved. |
+| 7 (policy-file availability only) | If the model-policy file is missing or unreadable, continue with a warning. Apply the default-model fallback above where the required information/files are unavailable. | Missing `jq`, oversized scripts, hook timeouts and other failure cases in item 7 remain undecided; do not generalize this answer to disabling every guard. |
+
+Items 6 and 8–11 remain open, along with the unresolved portions and boundaries above. The version 2 issue and exact child-stage inheritance/logging mechanism also remain open. No code or policy implementation is authorized by this decision-record update.
+
+## Original decision questions and design recommendations
+
+The table below preserves the November 15 proposal for context. It is not a statement that the decisions recorded above are still unanswered.
 
 These are the restrictions the design would impose on legitimate work (full text in #551). For each: keep, narrow or drop.
 
