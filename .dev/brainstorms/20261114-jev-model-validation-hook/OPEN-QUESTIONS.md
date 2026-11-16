@@ -28,9 +28,11 @@ These decisions were given by Ryan during the November 16 review. They supersede
 | 6 | Protect installed policy files while allowing normal edits to repository source files. | This narrows the tamper-protection boundary; it does not authorize changing installed policy or implementing protection. |
 | 7 (policy-file availability only) | If the model-policy file is missing or unreadable, continue with a warning. Apply the default-model fallback above where the required information/files are unavailable. | Missing `jq`, oversized scripts, hook timeouts and other failure cases in item 7 remain undecided; do not generalize this answer to disabling every guard. |
 
+Ryan decided that the model policy applies uniformly by default everywhere IronClaude is used. Configurable developer strictness is a possible future option, not part of the current scope. This settles the uniform default; it does not approve an implementation or remove the previously recorded explicit-user and pre-approved-job exceptions.
+
 Ryan also approved starting the safeguard in observation mode. This records the rollout-mode decision only; his answer did not separately approve the proposed immediate blocking of explicitly forbidden models, and does not authorize implementation.
 
-Items 8–11 remain open, along with the unresolved portions and boundaries above. The version 2 issue and exact child-stage inheritance/logging mechanism also remain open. No code or policy implementation is authorized by this decision-record update.
+Items 8, 9 and 11 remain open, along with the unresolved portions and boundaries above. Item 10's scope is superseded by the uniform-default decision above; configurable developer strictness is deferred. The version 2 issue and exact child-stage inheritance/logging mechanism also remain open. No code or policy implementation is authorized by this decision-record update.
 
 Ryan suggested that a decision model such as Jev may suit this job. Assess that possibility only; this is not approval to integrate Jev, make model calls or implement a change. The existing version 1 no-Jev design remains the historical baseline pending assessment and a further decision.
 
