@@ -97,6 +97,26 @@ def wire_ccsession(home: Path | None = None) -> tuple[bool, str]:
                 capture_output=True,
                 timeout=30,
             )
+        # Claude Code deletes a saved conversation 30 days after its last change
+        # and keeps no exception for a named one: raise cleanupPeriodDays in the
+        # user's settings to a year when it is absent or lower. A larger value is
+        # kept, managed settings (which win) are never touched, and a plain
+        # install can keep an older skill folder without the script.
+        retention = skill / "retention.py"
+        if retention.is_file() and not retention.is_symlink():
+            subprocess.run(
+                [
+                    sys.executable,
+                    str(retention),
+                    "ensure",
+                    str(home / ".claude" / "settings.json"),
+                ],
+                check=False,
+                capture_output=True,
+                stdin=subprocess.DEVNULL,
+                timeout=30,
+                env={**os.environ, "HOME": str(home)},
+            )
         # Session names now belong to the repo; copy names saved per folder by
         # older versions into their repo's list (once per list, copies only),
         # and, once, the names given with Claude Code's /rename before then.

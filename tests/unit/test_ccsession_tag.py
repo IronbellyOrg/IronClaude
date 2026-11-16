@@ -45,6 +45,11 @@ def _offline_model_data(monkeypatch, tmp_path_factory):
     """
     monkeypatch.setenv("CCSESSION_MODELS_REFRESH", "0")
     monkeypatch.setenv("XDG_CACHE_HOME", str(tmp_path_factory.mktemp("cache")))
+    # A Coder workspace has a managed cleanupPeriodDays under /etc/claude-code;
+    # a test of the retention warning must not depend on it.
+    monkeypatch.setenv(
+        "CCSESSION_MANAGED_SETTINGS_DIR", str(tmp_path_factory.mktemp("managed"))
+    )
     monkeypatch.setenv(
         "AIDEV_AI_DEFAULTS_PATH", "/nonexistent/ccsession-test/defaults.sh"
     )
@@ -4821,3 +4826,330 @@ def test_a_deleted_folder_of_another_copy_of_the_repo_stays_with_that_copy(
     assert "clone sub" not in _listed(b, env, "--here")
     assert "clone sub" not in _listed(main, env, "--here")
     assert "WARNING" in _ccs(b, env, "clone sub").stderr
+
+
+# A list belongs to a repo, so its heading is the repo's name. It used to be the
+# folder in .cwd, which is only the worktree that wrote the list last.
+
+REPO_URL = "https://github.com/Some-Org/my-repo.git"  # dashed: the key cannot be split
+
+
+def _repo_list(tmp_path: Path):
+    """main, a worktree, and the repo's one list with a session; its .cwd names
+    the worktree, the last folder to write it."""
+    main, worktree, projects, env = _named_repo(tmp_path)
+    _git(main, "remote", "set-url", "origin", REPO_URL)
+    topics = projects / "github.com-Some-Org-my-repo" / "topics"
+    topics.mkdir(parents=True)
+    _transcript(projects, worktree, SESSION_ID)
+    (topics / "demo.txt").write_text(f"{SESSION_ID}\n")
+    (topics / ".cwd").write_text(f"{worktree}\n")
+    return main, worktree, projects, topics, env
+
+
+def _heading(out: str) -> str:
+    return next(line for line in out.splitlines() if line.strip())
+
+
+def test_list_heads_a_repo_list_with_the_repo_name_not_a_worktree(
+    tmp_path: Path,
+) -> None:
+    main, worktree, _, _, env = _repo_list(tmp_path)
+    for folder in (main, worktree):
+        out = _ccs(folder, env, "--list").stdout
+        assert _heading(out) == "my-repo"
+        assert "wt-feature" not in out.split("  demo")[0]
+
+
+def test_here_shows_the_repo_name_and_this_worktree(tmp_path: Path) -> None:
+    main, worktree, _, _, env = _repo_list(tmp_path)
+    assert _heading(_ccs(main, env, "--here").stdout) == "my-repo  (worktree: repo)"
+    assert (
+        _heading(_ccs(worktree, env, "--here").stdout)
+        == "my-repo  (worktree: wt-feature)"
+    )
+    # Every worktree's sessions are listed under the repo alone.
+    assert _heading(_ccs(worktree, env, "--here", "--all").stdout) == "my-repo"
+
+
+def test_the_repo_name_stays_after_its_worktrees_are_gone(tmp_path: Path) -> None:
+    main, worktree, _, topics, env = _repo_list(tmp_path)
+    _launched(worktree, env, "second")  # a named launch writes .cwd and .repo
+    assert (topics / ".repo").read_text() == "my-repo\n"
+    assert (topics / ".cwd").read_text().strip() == str(worktree)
+    _git(main, "worktree", "remove", "--force", str(worktree))
+    elsewhere = tmp_path / "elsewhere"
+    elsewhere.mkdir()
+    assert _heading(_ccs(elsewhere, env, "--list").stdout) == "my-repo"
+
+
+def test_the_heading_is_found_for_a_list_written_before_repo_files_existed(
+    tmp_path: Path,
+) -> None:
+    # No .repo yet: the folder in .cwd still is a checkout of the repo.
+    _, _, _, topics, env = _repo_list(tmp_path)
+    elsewhere = tmp_path / "elsewhere"
+    elsewhere.mkdir()
+    assert not (topics / ".repo").exists()
+    assert _heading(_ccs(elsewhere, env, "--list").stdout) == "my-repo"
+
+
+def test_lists_without_a_network_origin_keep_their_folder_heading(
+    tmp_path: Path,
+) -> None:
+    main, _, projects, env = _named_repo(tmp_path)
+    _git(main, "remote", "remove", "origin")  # a local-only repo
+    local = projects / str(main.resolve()).replace("/", "-") / "topics"
+    local.mkdir(parents=True)
+    _transcript(projects, main, SESSION_ID)
+    (local / "local work.txt").write_text(f"{SESSION_ID}\n")
+    (local / ".cwd").write_text(f"{main}\n")
+    # An old per-folder list whose folder is gone.
+    old = projects / str(tmp_path / "old-folder").replace("/", "-") / "topics"
+    old.mkdir(parents=True)
+    (old / "old.txt").write_text("99999999-0000-0000-0000-000000000000\n")
+    (old / ".cwd").write_text(f"{tmp_path / 'old-folder'}\n")
+    out = _ccs(main, env, "--list").stdout.splitlines()
+    assert "repo" in out and "old-folder" in out
+    assert _heading(_ccs(main, env, "--here").stdout) == "repo"
+    assert not list(projects.glob("*/topics/.repo"))
+
+
+def test_listing_never_writes_the_name_lists(tmp_path: Path) -> None:
+    main, worktree, projects, topics, env = _repo_list(tmp_path)
+    for args in (("--list",), ("--here",), ("--here", "--all")):
+        _ccs(main, env, *args)  # the first run may mark the migration done
+
+    def snapshot() -> dict[str, bytes]:
+        return {
+            str(p): p.read_bytes() for p in projects.glob("**/topics/*") if p.is_file()
+        }
+
+    before = snapshot()
+    for folder in (main, worktree):
+        for args in (("--list",), ("--here",), ("--here", "--all")):
+            _ccs(folder, env, *args)
+    assert snapshot() == before
+    assert (topics / "demo.txt").read_text() == f"{SESSION_ID}\n"
+
+
+# Claude Code deletes a saved conversation whose file was last changed more than
+# cleanupPeriodDays days ago (default 30) and has no exemption for a named
+# session, so retention.py raises the user's value and warns when it is low.
+
+RETENTION = SKILL_DIR / "retention.py"
+
+
+def _retention(tmp_path: Path, *args: str, managed: dict | None = None):
+    home = tmp_path / "home"
+    folder = tmp_path / "managed"
+    if managed is not None:
+        folder.mkdir(exist_ok=True)
+        for name, content in managed.items():
+            target = folder / name
+            target.parent.mkdir(exist_ok=True)
+            target.write_text(json.dumps(content))
+    return subprocess.run(
+        [sys.executable, str(RETENTION), *args],
+        env={
+            **os.environ,
+            "HOME": str(home),
+            "CCSESSION_MANAGED_SETTINGS_DIR": str(folder),
+        },
+        text=True,
+        capture_output=True,
+    )
+
+
+def _user_settings(tmp_path: Path, content: object | None) -> Path:
+    path = tmp_path / "home" / ".claude" / "settings.json"
+    path.parent.mkdir(parents=True, exist_ok=True)
+    if content is not None:
+        path.write_text(
+            content if isinstance(content, str) else json.dumps(content, indent=2)
+        )
+    return path
+
+
+@pytest.mark.parametrize(
+    "before, after",
+    [
+        ({"theme": "dark"}, 365),  # key absent
+        ({"theme": "dark", "cleanupPeriodDays": 30}, 365),  # lower
+        ({"theme": "dark", "cleanupPeriodDays": 364}, 365),
+        ({"theme": "dark", "cleanupPeriodDays": 365}, 365),  # equal
+        ({"theme": "dark", "cleanupPeriodDays": 3650}, 3650),  # higher: kept
+    ],
+)
+def test_retention_ensure_raises_a_low_value_and_keeps_a_high_one(
+    tmp_path: Path, before: dict, after: int
+) -> None:
+    settings = _user_settings(tmp_path, before)
+    raw = settings.read_bytes()
+    result = _retention(tmp_path, "ensure", str(settings))
+    assert result.returncode == 0, result.stderr
+    saved = json.loads(settings.read_text())
+    assert saved["cleanupPeriodDays"] == after
+    assert saved["theme"] == "dark"  # everything else is kept
+    backups = list(settings.parent.glob("settings.json.bak.*"))
+    if after == before.get("cleanupPeriodDays", 0) and "cleanupPeriodDays" in before:
+        assert settings.read_bytes() == raw and not backups  # untouched
+    else:
+        assert len(backups) == 1 and backups[0].read_bytes() == raw
+
+
+def test_retention_ensure_creates_the_settings_file_when_there_is_none(
+    tmp_path: Path,
+) -> None:
+    settings = _user_settings(tmp_path, None)
+    assert _retention(tmp_path, "ensure", str(settings)).returncode == 0
+    assert json.loads(settings.read_text()) == {"cleanupPeriodDays": 365}
+
+
+@pytest.mark.parametrize(
+    "content",
+    ["{ not json", "[1, 2]", {"cleanupPeriodDays": "30"}, {"cleanupPeriodDays": True}],
+)
+def test_retention_ensure_leaves_a_file_it_cannot_judge_untouched(
+    tmp_path: Path, content: object
+) -> None:
+    settings = _user_settings(tmp_path, content)
+    raw = settings.read_bytes()
+    result = _retention(tmp_path, "ensure", str(settings))
+    assert result.returncode == 0 and "WARNING" in result.stdout
+    assert settings.read_bytes() == raw
+    assert not list(settings.parent.glob("settings.json.bak.*"))
+
+
+def test_retention_ensure_never_writes_where_managed_settings_win(
+    tmp_path: Path,
+) -> None:
+    settings = _user_settings(tmp_path, None)
+    result = _retention(
+        tmp_path,
+        "ensure",
+        str(settings),
+        managed={"managed-settings.d/10-retention.json": {"cleanupPeriodDays": 90}},
+    )
+    assert result.returncode == 0
+    assert "managed settings file" in result.stdout and "90" in result.stdout
+    assert not settings.exists()
+
+
+def test_retention_check_names_the_source_of_a_low_value(tmp_path: Path) -> None:
+    settings = _user_settings(tmp_path, None)
+    unset = _retention(tmp_path, "check", str(settings)).stdout
+    assert "after 30 days" in unset and "Claude Code's default applies" in unset
+    settings.write_text(json.dumps({"cleanupPeriodDays": 60}))
+    user = _retention(tmp_path, "check", str(settings)).stdout
+    assert "after 60 days" in user and "set in ~/.claude/settings.json" in user
+    managed = _retention(
+        tmp_path,
+        "check",
+        str(settings),
+        managed={"managed-settings.d/10-retention.json": {"cleanupPeriodDays": 90}},
+    ).stdout
+    assert "after 90 days" in managed
+    assert "10-retention.json" in managed and "cannot override" in managed
+
+
+def test_retention_check_is_silent_when_the_value_in_force_is_long_enough(
+    tmp_path: Path,
+) -> None:
+    settings = _user_settings(tmp_path, {"cleanupPeriodDays": 3650})
+    assert _retention(tmp_path, "check", str(settings)).stdout == ""
+    # A managed value wins over a larger user value, in either direction.
+    low_managed = {"managed-settings.json": {"cleanupPeriodDays": 90}}
+    assert (
+        "after 90 days"
+        in _retention(tmp_path, "check", str(settings), managed=low_managed).stdout
+    )
+    settings.write_text(json.dumps({"cleanupPeriodDays": 30}))
+    long_managed = {"managed-settings.json": {"cleanupPeriodDays": 400}}
+    assert (
+        _retention(tmp_path, "check", str(settings), managed=long_managed).stdout == ""
+    )
+
+
+def test_retention_check_reads_managed_files_in_claude_codes_order(
+    tmp_path: Path,
+) -> None:
+    # managed-settings.json first, then managed-settings.d/*.json alphabetically;
+    # the last file that sets the key is the one in force.
+    settings = _user_settings(tmp_path, None)
+    managed = {
+        "managed-settings.json": {"cleanupPeriodDays": 30},
+        "managed-settings.d/10-a.json": {"cleanupPeriodDays": 400},
+        "managed-settings.d/20-b.json": {"other": 1},
+    }
+    assert _retention(tmp_path, "check", str(settings), managed=managed).stdout == ""
+    managed["managed-settings.d/30-c.json"] = {"cleanupPeriodDays": 45}
+    out = _retention(tmp_path, "check", str(settings), managed=managed).stdout
+    assert "after 45 days" in out and "30-c.json" in out
+
+
+def test_list_warns_on_stderr_only_and_only_when_retention_is_short(
+    tmp_path: Path,
+) -> None:
+    main, worktree, _, _, env = _repo_list(tmp_path)
+    settings = _user_settings(tmp_path, None)
+    for args in (("--list",), ("--here",)):
+        short = _ccs(main, env, *args)
+        assert "Claude Code deletes saved sessions after 30 days" in short.stderr
+        assert "days" not in short.stdout  # the rows are as before
+    settings.write_text(json.dumps({"cleanupPeriodDays": 365}))
+    assert _ccs(main, env, "--list").stderr == ""
+    assert _ccs(worktree, env, "--here").stderr == ""
+
+
+@pytest.mark.parametrize(
+    "before, after",
+    [(None, 365), (30, 365), (3650, 3650)],
+)
+def test_install_sh_sets_retention_only_when_absent_or_lower(
+    tmp_path: Path, before: int | None, after: int
+) -> None:
+    home = tmp_path / "home"
+    settings = home / ".claude" / "settings.json"
+    settings.parent.mkdir(parents=True)
+    if before is not None:
+        settings.write_text(json.dumps({"cleanupPeriodDays": before, "theme": "dark"}))
+    env = {**os.environ, "HOME": str(home)}
+    for _ in range(2):  # a second run changes nothing more
+        run = subprocess.run(
+            [str(SKILL_DIR / "install.sh")],
+            env=env,
+            text=True,
+            capture_output=True,
+            check=True,
+        )
+    saved = json.loads(settings.read_text())
+    assert saved["cleanupPeriodDays"] == after
+    assert "SessionStart" in saved["hooks"]  # the hook registration still happens
+    assert "Session retention" in run.stdout
+    if before is not None:
+        assert saved["theme"] == "dark"
+
+
+def test_install_sh_leaves_user_settings_alone_where_managed_settings_win(
+    tmp_path: Path,
+) -> None:
+    home = tmp_path / "home"
+    managed = tmp_path / "managed"
+    managed.mkdir()
+    (managed / "managed-settings.json").write_text('{"cleanupPeriodDays": 90}')
+    env = {
+        **os.environ,
+        "HOME": str(home),
+        "CCSESSION_MANAGED_SETTINGS_DIR": str(managed),
+    }
+    run = subprocess.run(
+        [str(SKILL_DIR / "install.sh")],
+        env=env,
+        text=True,
+        capture_output=True,
+        check=True,
+    )
+    saved = json.loads((home / ".claude" / "settings.json").read_text())
+    assert "cleanupPeriodDays" not in saved
+    assert "managed settings file" in run.stdout

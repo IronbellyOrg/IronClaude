@@ -12,7 +12,7 @@ from superclaude.cli.install_ccsession import wire_ccsession
 
 
 @pytest.fixture(autouse=True)
-def _no_ccsession_permission_env(monkeypatch):
+def _no_ccsession_permission_env(monkeypatch, tmp_path):
     """Keep the developer's shell out of every ccsession run in this file.
 
     The install step (``ccsession --migrate-names``) and the symlink tests run
@@ -21,6 +21,8 @@ def _no_ccsession_permission_env(monkeypatch):
     """
     monkeypatch.delenv("CCSESSION_PERMISSIONS", raising=False)
     monkeypatch.delenv("CC_CLAUDE_FLAGS", raising=False)
+    # The retention step reads the machine's managed settings; use an empty folder.
+    monkeypatch.setenv("CCSESSION_MANAGED_SETTINGS_DIR", str(tmp_path / "no-managed"))
 
 
 @pytest.fixture
@@ -321,3 +323,43 @@ def test_fallback_does_not_claim_user_hook_mentioning_script(home):
         for entry in group["hooks"]
     ]
     assert commands == [user_command, f'bash "{hook}"']
+
+
+@pytest.mark.parametrize(
+    "before, after",
+    [(None, 365), (30, 365), (365, 365), (3650, 3650)],
+)
+def test_wire_sets_session_retention_only_when_absent_or_lower(home, before, after):
+    # Claude Code deletes a conversation 30 days after its last change and has
+    # no exemption for a named one: install raises the user's cleanupPeriodDays.
+    source = (
+        Path(__file__).resolve().parents[2] / "src/superclaude/skills/ccsession-tag"
+    )
+    shutil.copyfile(
+        source / "retention.py", home / ".claude/skills/ccsession-tag/retention.py"
+    )
+    settings = home / ".claude/settings.json"
+    if before is not None:
+        settings.write_text(json.dumps({"cleanupPeriodDays": before, "theme": "dark"}))
+    ok, msg = wire_ccsession(home)
+    assert ok, msg
+    saved = json.loads(settings.read_text())
+    assert saved["cleanupPeriodDays"] == after
+    if before is not None:
+        assert saved["theme"] == "dark"
+
+
+def test_wire_leaves_user_retention_alone_where_managed_settings_win(home, monkeypatch):
+    source = (
+        Path(__file__).resolve().parents[2] / "src/superclaude/skills/ccsession-tag"
+    )
+    shutil.copyfile(
+        source / "retention.py", home / ".claude/skills/ccsession-tag/retention.py"
+    )
+    managed = home / "managed"
+    managed.mkdir()
+    (managed / "managed-settings.json").write_text('{"cleanupPeriodDays": 90}')
+    monkeypatch.setenv("CCSESSION_MANAGED_SETTINGS_DIR", str(managed))
+    ok, msg = wire_ccsession(home)
+    assert ok, msg
+    assert not (home / ".claude/settings.json").exists()

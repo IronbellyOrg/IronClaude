@@ -172,9 +172,13 @@ slugify() {
 # repo without one; for a separate or bare git folder, that folder), else the
 # current folder (not a git repo, as before).
 # Runs in a subshell so GIT_DIR and friends from the caller never redirect it.
-name_key() (
+#
+# origin_id prints that network origin as host/path and succeeds, or prints
+# nothing and fails (no origin, a local path, or text that is not a safe name).
+# name_key makes the list key from it; repo_name makes the repo's name.
+origin_id() (
   unset GIT_DIR GIT_WORK_TREE GIT_COMMON_DIR GIT_INDEX_FILE GIT_OBJECT_DIRECTORY
-  local origin path host common
+  local origin path host
   origin=$(git config --get remote.origin.url 2>/dev/null) || origin=""
   origin=${origin%%[?#]*}
   host="" path=""
@@ -204,11 +208,31 @@ name_key() (
     '' | *[!A-Za-z0-9._/~+-]* | */./* | */../* | */. | */..) : ;;
     *)
       if [ -n "$host" ] && [ -n "${path#/}" ]; then
-        slugify "$host$path"
-        return
+        printf '%s' "$host$path"
+        return 0
       fi
       ;;
   esac
+  return 1
+)
+
+repo_name() {
+  # The repo's name: the last segment of its origin path, without .git. Fails
+  # when the repo has no network origin. Not read from the list key, which
+  # turns every "/" into "-" and so cannot be split back (my-org/my-repo and
+  # my/org/my/repo give the same key).
+  local id
+  id=$(origin_id) || return 1
+  printf '%s' "${id##*/}"
+}
+
+name_key() (
+  unset GIT_DIR GIT_WORK_TREE GIT_COMMON_DIR GIT_INDEX_FILE GIT_OBJECT_DIRECTORY
+  local id common
+  if id=$(origin_id); then
+    slugify "$id"
+    return
+  fi
   if common=$(git rev-parse --git-common-dir 2>/dev/null) &&
     common=$(cd "$common" 2>/dev/null && pwd -P); then
     # A separate or bare git folder records no main checkout: key on it.
@@ -365,6 +389,20 @@ session_saved() {
   compgen -G "$PROJECTS_DIR/*/$1.jsonl" >/dev/null
 }
 
+note_repo() {
+  # <list folder>: keep the repo's name in <list>/.repo, next to .cwd, so
+  # --list can head the list with it even after the worktree that wrote .cwd is
+  # gone. .cwd names whichever worktree wrote last; this names the repo. Written
+  # only for a list whose key comes from the network origin, and only when the
+  # name changed. Never touches the session rows. Always succeeds.
+  local repo
+  repo=$(repo_name) || return 0
+  if [ "$(head -n 1 "$1/.repo" 2>/dev/null)" != "$repo" ]; then
+    printf '%s\n' "$repo" > "$1/.repo" 2>/dev/null || true
+  fi
+  return 0
+}
+
 sync_name() {
   # ccsession --sync-name <session id> <name> [--keep-others|--check-others]:
   # make <name> the session's name in the list of the repo in the current
@@ -454,6 +492,7 @@ sync_name_locked() {
   if [ -z "${CCSESSION_NAME_KEY:-}" ] && { [ "$changed" = 1 ] || [ ! -f "$dir/.cwd" ]; }; then
     pwd > "$dir/.cwd" || true
   fi
+  [ -n "${CCSESSION_NAME_KEY:-}" ] || note_repo "$dir"
   rm -f "$dir/$LIST_MIGRATED"  # a list written to again is live
   [ "$changed" = 1 ] && file_to_name "$file" && echo
   return 0
@@ -1294,6 +1333,39 @@ workspace_name() {
   echo "$slug" | sed 's|^-||; s|-|/|g' | xargs basename 2>/dev/null || echo "$slug"
 }
 
+list_heading() {
+  # <list folder> <list key> <"worktree" or other>: sets LIST_HEADING, the line
+  # that heads a list. A list belongs to a repo, so its heading is the repo's
+  # name (IronFlow), never the folder in .cwd, which is only the worktree that
+  # wrote the list last. The per-worktree view (--here) adds this worktree:
+  #   IronFlow  (worktree: coordinator)
+  # The name comes from, in order: the repo of this folder (when the list is
+  # its list), the list's .repo file, the folder in .cwd when that still exists
+  # and is a checkout of the same repo. A list without a network origin, or an
+  # old per-folder list, has none of these: it keeps the folder name it always
+  # had (workspace_name), and no worktree is added to it.
+  local dir="$1" slug="$2" view="$3" repo="" folder
+  if [ "$slug" = "${LIST_HERE_KEY-}" ]; then
+    repo=$(repo_name) || repo=""
+  fi
+  if [ -z "$repo" ]; then
+    repo=$(head -n 1 "$dir/.repo" 2>/dev/null | tr -d '[:cntrl:]') || repo=""
+  fi
+  if [ -z "$repo" ]; then
+    folder=$(head -n 1 "$dir/.cwd" 2>/dev/null) || folder=""
+    if [ -d "$folder" ] && [ "$(cd "$folder" && name_key)" = "$slug" ]; then
+      repo=$(cd "$folder" && repo_name) || repo=""
+    fi
+  fi
+  if [ -z "$repo" ]; then
+    LIST_HEADING=$(workspace_name "$dir")
+  elif [ "$view" = worktree ]; then
+    LIST_HEADING="$repo  (worktree: $(basename "${WT_HERE:-$PWD}"))"
+  else
+    LIST_HEADING=$repo
+  fi
+}
+
 # Which worktree a session belongs to: Claude Code works in the folder it is
 # started in, and --resume <id> continues a conversation in the folder it is
 # resumed from, whichever worktree the conversation was working in. Claude Code
@@ -1490,6 +1562,9 @@ list_sessions() {
   # Row colours, set by ask_session_name; plain text otherwise.
   local on="${LIST_NAME_ON-}" dim="${LIST_DETAIL_ON-}" off="${LIST_OFF-}"
   local found=0 heading="" other_n=0 here_rows=() gone_rows=()
+  # The list of the repo this folder is in, whose heading may be read live.
+  local LIST_HERE_KEY LIST_HEADING
+  LIST_HERE_KEY=$(name_key)
   [ "$filter" = worktree ] && load_worktrees
   for ws_dir in "$PROJECTS_DIR"/*/topics; do
     [ -d "$ws_dir" ] || continue
@@ -1501,13 +1576,17 @@ list_sessions() {
     [ -f "$ws_dir/$LIST_MIGRATED" ] && [ "$ws_slug" != "$scope_slug" ] && continue
 
     local first=1
-    [ "$filter" = worktree ] && heading=$(workspace_name "$ws_dir")
+    # Only a list with rows is headed, so only it pays for the lookup.
     for topic_file in "$ws_dir"/*.txt; do
       [ -f "$topic_file" ] || continue
-      if [ $first = 1 ] && [ "$filter" != worktree ]; then
-        echo ""
-        echo "$(workspace_name "$ws_dir")"
+      if [ $first = 1 ]; then
+        list_heading "$ws_dir" "$ws_slug" "$filter"
+        heading=$LIST_HEADING
         first=0
+        if [ "$filter" != worktree ]; then
+          echo ""
+          echo "$heading"
+        fi
       fi
       local topic uuid jsonl start_ts last_ts start_str last_str dur_str range
       local row place="here" was=""
@@ -1581,6 +1660,21 @@ list_sessions() {
     echo "Start one with: ccsession <topic>"
     echo "Or name an open session from inside Claude Code: /rename <topic>"
   fi
+}
+
+retention_warning() {
+  # One line on stderr, after --list and --here, when Claude Code will delete
+  # saved sessions sooner than retention.py's minimum: it names the days in
+  # force and where they come from (Claude Code's default of 30, the user's
+  # settings, or a managed settings file that ~/.claude/settings.json cannot
+  # override). A name outlives its conversation by nothing: past that many days
+  # the row reads "(transcript missing)". Silent when the value is long enough
+  # or cannot be read; never fails.
+  local line
+  [ -f "$CCSESSION_DIR/retention.py" ] || return 0
+  line=$(python3 "$CCSESSION_DIR/retention.py" check 2>/dev/null) || return 0
+  [ -z "$line" ] || printf '%s\n' "$line" >&2
+  return 0
 }
 
 ask_session_name() {
@@ -1787,6 +1881,7 @@ case "${1:-}" in
   --list)
     ensure_names_migrated
     list_sessions ""
+    retention_warning
     exit 0
     ;;
   --here)
@@ -1796,6 +1891,7 @@ case "${1:-}" in
     else
       list_sessions "$(name_key)" worktree
     fi
+    retention_warning
     exit 0
     ;;
   --ask)
@@ -1924,6 +2020,7 @@ mkdir -p "$TOPIC_DIR"
 # Cache the real workspace path so --list can show it accurately even when the
 # directory name contains dashes (slug encoding is lossy).
 echo "$(pwd)" > "$TOPIC_DIR/.cwd"
+note_repo "$TOPIC_DIR"
 rm -f "$TOPIC_DIR/$LIST_MIGRATED"  # a list written to again is live
 
 # Exported so the SessionStart hook can pick it up and write the label file.

@@ -22,6 +22,7 @@ Neither one changes anything on your gateway. Both run entirely on your machine.
 | `local-gateway-alias-proxy.py` | The shim, a small local proxy |
 | `ccsession-models.json` | Profiles and the curated model list (data only) |
 | `models.py` | Checks for, validates, and caches the latest model data |
+| `retention.py` | Keeps Claude Code from deleting named sessions after 30 days: raises `cleanupPeriodDays` at install and warns in `--list` (see "How long sessions are kept") |
 | `install.sh` | Standalone fallback when you only have this skill folder |
 | `ccsession.env.example` | Template for your gateway address and key |
 | `hooks/session-start.sh` | Records each session's ID so names can resume it |
@@ -164,6 +165,30 @@ and a fresh copy of the repo still sees its names. The same name in two
 different repos points at two different conversations. A folder that is not a
 git repo keeps its own list, as before.
 
+Each list is headed by its repo's name, the last part of the `origin` path
+without `.git` (`https://github.com/IronbellyOrg/IronFlow.git` is `IronFlow`),
+never by a worktree folder:
+
+```text
+$ ccsession --list
+IronFlow
+  alpha     started 2026-10-01 09:00  last 2026-10-05 17:20  (4d 8h)  11111111
+
+$ ccsession --here          # in the worktree "coordinator"
+IronFlow  (worktree: coordinator)
+  alpha     started ...
+```
+
+`--list` and `--here --all` show the repo name alone; `--here` adds the
+worktree you are in. A list with no network origin (a local-only repo, a folder
+that is not a repo, or an old per-folder list) has no repo name, so it keeps the
+folder name it always had and `--here` adds no worktree to it. The name is not
+read back from the list's key (`/` became `-`, so `my-org/my-tool` and
+`my/org/my/tool` are one key); it comes from the `origin` of the folder you run
+in, else from the list's `.repo` file (written beside `.cwd` whenever a name is
+saved or a named session starts), else from the checkout in `.cwd` while that
+folder still exists. Listing never writes any file.
+
 The list you see follows the worktree, like Claude Code's own `/resume`
 picker. Claude Code continues a resumed conversation in the folder you start
 it in, so a session that was working in another worktree would make its edits
@@ -205,6 +230,47 @@ Code, so its process id (the start of `CCSESSION_LAUNCH_ID`) is that Claude
 Code's, and the hooks check which Claude Code runs them. A `ccsession` run
 from inside Claude Code (its Bash tool) leaves the Orca tab alone, and an
 untagged one does not take the session's label either.
+
+---
+
+## How long sessions are kept
+
+A name is only a pointer; the conversation is Claude Code's file. Claude Code
+deletes a conversation (a `.jsonl` file under `~/.claude/projects`) whose file
+was last changed more than `cleanupPeriodDays` days ago. The default is 30. It
+runs about five seconds after Claude Code starts, at most once a day, and it has
+no exemption for a named session (Claude Code exempts only sessions started from
+Claude Desktop or Cowork). The name stays in ccsession's list and its row then
+reads `(transcript missing)`. This was checked against Claude Code's settings
+documentation and the 2.1.325 build on 2026-11-16.
+
+`superclaude install` and `install.sh` therefore set `cleanupPeriodDays` to
+**365** in `~/.claude/settings.json` when it is absent or lower (a copy of an
+existing file is saved first as `settings.json.bak.<time>`). A larger value you
+chose is never lowered, a file that is not valid JSON or holds a non-number is
+left alone, and everything else in the file is kept. A year keeps a named session
+through any normal pause and is still a limit; disk is not the constraint.
+
+**Managed settings win.** Claude Code applies managed settings
+(`/etc/claude-code/managed-settings.json` and `managed-settings.d/*.json` on
+Linux, read in that order with the last file that sets the key winning;
+`/Library/Application Support/ClaudeCode` on macOS) above `~/.claude/settings.json`.
+Where a managed value exists, such as the Coder workspace image's
+`managed-settings.d/10-retention.json`, a value in your user file is ignored:
+the installer then writes nothing, and ccsession never edits the managed folder.
+Only whoever manages the machine can change that value.
+
+`ccsession --list` and `ccsession --here` print one line on stderr (the rows on
+stdout do not change) when the value Claude Code will use is below 365, naming
+the days and where the value comes from: its default of 30, your settings file,
+or a managed file. It reads the managed files and `~/.claude/settings.json` only,
+not a project's `.claude/settings*.json`, `--settings` or an MDM or
+server-managed policy. `CCSESSION_MANAGED_SETTINGS_DIR` points it at another
+managed folder.
+
+ccsession does not touch transcript files to keep them young: `last` in the
+list is each file's change time, so touching would make every session look
+active.
 
 ---
 
@@ -740,7 +806,7 @@ shim by itself, because other sessions may be using it.
 | A new model or profile has not appeared | Run `ccsession --models-status`; `ccsession --refresh-models` checks immediately |
 | "input exceeds the context window" | The size you set is larger than the model truly accepts. Lower the profile number |
 | Image errors on some models | Certain models accept text only. Use a different model for conversations containing screenshots |
-| A named session says it cannot be found | The conversation was deleted. `ccsession --rm <name>` clears the stale name |
+| A named session says it cannot be found, or its row reads `(transcript missing)` | The conversation was deleted, usually by Claude Code's cleanup after `cleanupPeriodDays` (30 by default; see "How long sessions are kept"), or the transcript is on another computer. `ccsession --rm <name>` clears the stale name |
 | `API Error: 502 ccsession: gateway unreachable at http://127.0.0.1:<port>` | The shim's upstream is another shim's address, saved in `~/.claude/ccsession.env` or `~/.env` (older installers saved the shell's `ANTHROPIC_BASE_URL`, which inside a session is the shim). Set `ANTHROPIC_BASE_URL` there to the gateway, stop the broken shim (`curl -s http://127.0.0.1:<port>/__ccsession_shim` shows its `pid`), and start a new session. ccsession now refuses such an address before starting a shim |
 | `ccsession: gateway unreachable at <gateway>` | The gateway itself refused or dropped the connection: check that it is up on that host and port (a ping only proves the host is up) |
 
@@ -766,7 +832,10 @@ or the names will not line up.
   (for a separate or bare git folder, that folder); outside a git repo, the
   current folder. `ccsession --key` prints it. In the file name, `%`, `/` and
   a leading `.` are written `%25`, `%2F` and `%2E`.
-- The `.cwd` file beside them records the folder last used, for listings.
+- The `.cwd` file beside them records the folder last used, for listings. It
+  names whichever worktree wrote last, so it is not the list's heading. The
+  `.repo` file beside it holds the repo's name (the heading), for a list keyed
+  by a network origin.
 - `.ccsession-lock` beside them is locked (`flock`) while a name is saved, so
   two sessions saving at once take turns. The lock goes with the process that
   held it, so a killed run never leaves the list locked.

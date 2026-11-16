@@ -4,6 +4,11 @@ All notable changes to IronClaude are documented in this file.
 
 ## [Unreleased]
 
+### ccsession: lists are headed by the repo name; named sessions are kept for a year
+
+- `ccsession --list` heads each list with its repo's name (the last part of the `origin` path, without `.git`) instead of the folder in `.cwd`, which only names the worktree that wrote the list last. `ccsession --here` shows `<repo>  (worktree: <folder>)`. A list with no network origin, or an old per-folder list, keeps its old heading. The name comes from the folder's own `origin`, else a new `.repo` file beside `.cwd` (written whenever a name is saved or a named session starts), else the checkout in `.cwd`. Listing writes nothing, and no name file is rewritten.
+- Claude Code deletes a conversation whose file was last changed more than `cleanupPeriodDays` days ago (default 30) and exempts no named session. `superclaude install` and `install.sh` now set `cleanupPeriodDays` to 365 in `~/.claude/settings.json` when it is absent or lower (never lowering a larger value, never touching a file that is not valid JSON, with a `.bak.<time>` copy first), through the new `retention.py`. A managed value (for example the Coder image's `/etc/claude-code/managed-settings.d/10-retention.json`) wins over the user file, so the installer then writes nothing and never edits `/etc`. `ccsession --list` and `--here` print one warning line on stderr when the value in force is below 365, naming its source. The image's own value is a separate decision for the owner.
+
 ### /sc:issue: `issue-worker-t3` carries `effort: low`
 
 - Every `issue-worker-t3` spawn failed with `API Error: 400 This model always engages in thinking and cannot be disabled; please use low, high, or max`: a subagent without `effort` sends `medium`, which the first model of tier 3 rejects, and the ccsession proxy treats the 400 as a bad request instead of falling through to the second model. The agent now sets `effort: low` on line 7 (the `model` pin stays on line 6), and a test pins it. The t1 and t2 agents are unchanged.
