@@ -2,6 +2,24 @@
 
 > **Status box added 2026-11-16 (evening) by the Sweep Sheet session; the rows below are the 2026-11-15 14:00 UTC state.** Sweep Sheet: stopped by the owner after its recall gate failed twice. Recipe Ledger: stopped as a build, but its experiment was then run on the owner's order: 9 replicates x 3 arms x 3 study packages. RL found 2.00 of 14 per replicate against 0.67 (Z0) and 0.56 (K), but ran 1.46 x and 1.60 x Z0's time on two packages (cap 1.35) and depends on the format allowances (strict reading would fail 58% of reports). Exploratory only. See `20261114-recipe-ledger/results/derivation-3x/SUMMARY-9reps.md` and the update boxes of `OPEN-QUESTIONS-20261115.md`. **Q3 is answered by that run** (study packages, derivation check only). **Q6 (small allowances) was built for RL and its result depends on it.** The owner's 2026-11-16 answers (model-usage infractions warn and report, do not halt; workflow/implement are the current workflow; `/sc:task` and task-builder to be retired; evaluate only the Sprint run CLI tool suite) are recorded in `OPEN-QUESTIONS-20261115.md` and `../../brainstorms/20261114-jev-model-validation-hook/OPEN-QUESTIONS.md`. Q1, Q2, Q4, Q5, Q7 to Q13 are not answered by anything recorded so far.
 
+> **QUESTION STATUS 2026-11-16 (after a triage and an adversarial debate; the rows below are unchanged and keep their numbers).** This supersedes the sentence above about Q1, Q2, Q4, Q5 and Q7 to Q13. Items marked "RL reports" come from the Recipe Ledger session and are not independently verified here. Source: `TRIAGE-20261116.md`, `20261116-cuts-debate/adversarial/final-cuts.md`.
+>
+> | Q | Status | Note |
+> |---|---|---|
+> | Q1 | **SETTLED** | Independent Sonnet session wrote the hold-out answers (RL reports `f4adbe0c4`); the owner chose sessions. |
+> | Q2 | **SETTLED** | Documents used: HO-2, HO-3, HX-1, HX-3 (RL addendum 2). HO-1, HO-4 and HX-2 dropped. |
+> | Q3 | **SETTLED** | Run as a derivation check. |
+> | Q4 | **SETTLED for RL, VOID for the Sweep Sheet** | RL frozen (`4d4449928`, tag `rl-freeze-1553f5dd29b1`, RL reports). |
+> | Q5 | **VOID** | No shared control; RL runs its own Z0 arm. |
+> | Q6 | **BUILT for RL** | Its result depends on the allowances; RL registers lenient gating with strict reporting alongside (per the debate agents' reading of its addendum). |
+> | Q7 | **SETTLED by the RL pre-registration** | Lenient reading gates; strict is reported. Not read by this box's author. |
+> | Q8 | **REDUCED to a report line** | Warn and report under the owner's 2026-11-16 rule; a model-label mismatch still invalidates an experimental run (RL addendum 1). |
+> | Q9 | **SETTLED** | Owner chose a Sonnet session. |
+> | Q10 | **LIVE** | Not verified as resolved. Who runs the maintainer tests that read real answer files. |
+> | Q11 | **DEFERRED** | Severity change; after the hold-out. |
+> | Q12 | **NOT TODAY** | Three tracked scripts; owner rule is keep intermediates. |
+> | Q13 | **SETTLED** | Fork only, on the owner's order, one pusher at a time. |
+
 ## Read this first (context for a reader who has seen nothing else)
 
 **What this is.** A multi-day evaluation of how well cheap reviewer-model panels find real defects in tasks lists and plans produced by `/sc:workflow` (the "Review Panel" of this repository, code in `src/superclaude/cli/review/`). Three panels are compared: ember + 2x luna, haiku + 2x luna, sonnet + 2x luna (ember = `muse-ember-1.0`, luna = `gpt-6-luna`). A blind Opus judge scores each run against hidden ground truth. Opus is used only to judge; everything else uses Sonnet, Haiku, ember or luna.

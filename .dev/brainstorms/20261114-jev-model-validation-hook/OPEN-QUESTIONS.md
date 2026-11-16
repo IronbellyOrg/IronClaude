@@ -46,6 +46,26 @@ Items 8, 9 and 11 remain open, along with the unresolved portions and boundaries
 
 Ryan suggested that a decision model such as Jev may suit this job. Assess that possibility only; this is not approval to integrate Jev, make model calls or implement a change. The existing version 1 no-Jev design remains the historical baseline pending assessment and a further decision.
 
+## Proposed smaller reporting design and its coverage of the owner's answers (2026-11-16; proposed only, NOT approved, NOT implemented, not authoritative)
+
+Source: a read-only audit and an adversarial debate (`.dev/eval-workspaces/tasklist-review-panel/20261116-cuts-debate/adversarial/final-cuts.md`). The debate concluded the audit's idea cannot replace this record, only be mapped against it. **The smaller design:** one 10-line policy file listing restricted model ids, seeded by the installer, and one `superclaude model-report` command that scans headless-run output JSON (`modelUsage` keys) and session transcripts (`message.model`), sums output tokens per model, flags restricted ids with file paths, always exits 0 and appends incidents to a log. A missing policy file prints a warning and uses a built-in list. Nothing like it exists in `src/` today.
+
+| Owner answer (2026-11-16) | Covered by the smaller design? | Note |
+|---|---|---|
+| Evaluation scripts may pick from a declared list; unknown, out-of-list and wrong-stage uses are infractions, reported not halted | **Not covered** | The report only flags restricted ids. It needs declared lists and stages in the policy. Unresolved: how a script declares its list. |
+| Unattended jobs run within pre-approved scope | Covered (nothing halts) | Recording the pre-approved scope is unresolved. |
+| An explicit user model choice overrides agent policy | Covered (nothing halts) | Labelling a use as user-chosen needs a transcript signal; unresolved. |
+| Undeterminable inherited model: run without that check | Covered | The report lists "unknown model" lines. |
+| Missing model: fill in the most appropriate, else the user's default | **Not covered** | This is launcher behaviour, not reporting. Deferred. |
+| Policy file missing or unreadable: continue with a warning | Covered | |
+| Start in observation mode | Covered | The report is the observation. |
+| Protect installed policy files, allow normal source edits | **Not covered** | An install-time permission, not a hook. Deferred. |
+| Uniform framework-owned policy, no project overrides | Covered | One seeded file; no project layer. |
+| Warn on requested-versus-served mismatch | **Partly** | Output JSON shows what was served; what was requested is not recorded there. Unresolved. |
+| Jev as a decision model: assessment only | Deferred | |
+
+**Invariant kept from the debate (HIGH):** warn-and-report for model usage does not make an invalid experimental run valid. Incident reporting stays separate from run eligibility; the evaluation's own rule that a model-label mismatch invalidates a run (Recipe Ledger addendum 1) is unchanged. **Open before any build:** a rule that allows the intended blind Opus judge by role, verified layouts of the output files, owner authorisation, and a checked plan through `/sc:workflow`.
+
 ## Original decision questions and design recommendations
 
 The table below preserves the November 15 proposal for context. It is not a statement that the decisions recorded above are still unanswered.
