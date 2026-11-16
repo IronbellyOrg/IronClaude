@@ -69,8 +69,20 @@ RCDIR=$(mktemp -d /tmp/rl-run-schedule.XXXXXXXX) || exit 2
 trap 'rm -rf -- "$RCDIR"' EXIT
 STARTED=() SKIPPED=() MAXC=0
 
+fresh_sandbox() { # fresh_sandbox DOC: with one panel at a time, rebuild a sandbox that holds leftovers (uv.lock, .venv) of the previous run
+  local doc=$1 sbx
+  [ "$JOBS" = 1 ] || return 0
+  sbx="${SW_SB_ROOT:-/tmp/evalsb-recipe}/$doc"
+  [ -d "$sbx/repo/.git" ] || return 0
+  [ -n "$(git -C "$sbx/repo" status --porcelain --ignored)" ] || return 0
+  case "$(realpath -m -- "$sbx")/" in /tmp/evalsb-recipe/?*) ;; *) echo "E_SANDBOX: refusing to rebuild $sbx" >&2; return 2 ;; esac
+  echo "REBUILD sandbox $doc (leftovers: $(git -C "$sbx/repo" status --porcelain --ignored | head -3 | tr '\n' ' '))" >>"$LOG"
+  rm -rf -- "$sbx" && bash "$HERE/build-sandbox.sh" "$doc" >>"$LOG" 2>&1
+}
+
 launch() { # launch STAGE BLOCK ARM PANEL DOC REP SEED RUN: one run-panel.sh call in the background; its exit code goes to $RCDIR/<run>
   local arm=$3 panel=$4 bmin args
+  fresh_sandbox "$5" || { echo 2 >"$RCDIR/$8"; return 0; }
   args=(--arm "$arm" --panel "$panel" --doc "$5" --replicate "$6" --block "$2" --seed "$7" --run-id "$8")
   if [ "$arm" = RL ]; then
     bmin=$(jq -r --arg p "$panel" '[.b[$p][]] | min // empty' "$VALS")
