@@ -4,7 +4,7 @@ Single index of where decisions live, what the owner has answered, and what is s
 
 ## 0. State on 2026-11-16 after the cuts debate
 
-The owner asked for an adversarial debate on the proposed cuts and to proceed with the cuts that survived. Five read-only reviews (`/ponytail ultra`) proposed the cuts; three agents then debated them (`cuts-debate/adversarial/`); the merged result is `cuts-debate/final-cuts.md`. Result: 54 tasks in 5 plan packages became 19 tasks in 4 packages (stage 0: 3 tasks, stage 1: 2 tasks and absorbs stage 2's one surviving task, stage 3: 10, stage 4: 4; the stage 2 package is withdrawn). Section 3 below summarises what was cut and kept. Everything under "Pending" in section 4 is a recommendation, not an owner answer.
+The owner asked for an adversarial debate on the proposed cuts and to proceed with the cuts that survived. Five read-only reviews (`/ponytail ultra`) proposed the cuts; three agents then debated them (`cuts-debate/adversarial/`); the merged result is `cuts-debate/final-cuts.md`. Result: 54 tasks in 5 plan packages became 19 tasks in 4 packages (stage 0: 3 tasks, stage 1: 2 tasks and absorbs stage 2's one surviving task, stage 3: 10, stage 4: 4; the stage 2 package is withdrawn). Section 3 below summarises what was cut and kept. The owner approved all of section 4 on 2026-11-16 ("approved across the board"): the answers below are decided, the deferrals and drops are confirmed, and the plan-author decisions are confirmed. Recording a decision authorizes no implementation; no stage has an owner go yet.
 
 ## 1. Where the sources are
 
@@ -76,9 +76,9 @@ Reports: `.dev/reflect/pre-TASK-WF-blockerStage<N>-*/REPORT.md` (the subagents c
 
 ## 4. Open questions and decisions, trimmed
 
-Everything here is a recommendation from the cuts debate until the owner says otherwise.
+Owner approval, 2026-11-16: "approved across the board". Each item below is decided as written. The spec's section 15 table was not edited and still shows the earlier recommendations; this file is the record.
 
-### 4.1 Pending: needs an owner answer (recommendation in brackets)
+### 4.1 Decided (the answer is the bracketed text)
 - OD1 skill folder for the full rule [no new folder; edit the carriers].
 - OD2 how often the follow-up list is offered [once per run, plus at an escalation halt].
 - OD5 gap-list or open-question entry counts as decision basis [no].
@@ -89,18 +89,18 @@ Everything here is a recommendation from the cuts debate until the owner says ot
 - OD16 `rf-qa-qualitative` Rule 6 [option (b): rewrite and re-pin its one test].
 - Review Panel: exit-code numbers (code 12 is unused at `ledger_cmd.py:13`) and the quorum denominator [count of reports received].
 - DECIDED by the owner 2026-11-16: copying the two edited `sc-implement-protocol` files to their plugin twin is approved (two tests pin the twin byte for byte). The plans add no plugin mirror.
-- Confirm the two MDTM templates and the four rule prompts take the atomic copy of the rule text in stage 3 (the existing test pins them), while who dispatches those prompts is still unchecked.
+- The two MDTM templates and the four rule prompts take the atomic copy of the rule text in stage 3 (the existing test pins them); who dispatches those prompts is still unchecked.
 
-### 4.2 Deferred until named evidence exists
+### 4.2 Deferred until named evidence exists (confirmed by the owner)
 - OD3 and the Jev investigation: until a fresh, unseen set shows reviewer labels over-block; nothing leaves the machine meanwhile.
 - OD6 (no reflect data), OD7 (tasklist is in no plan), OD14 (needs real data; "never" holds).
 - Per-seat configuration, over-cap claim behaviour (keep reject-and-warn), plugin parity beyond the pinned twins, the post-gate engine (`ensemble.py`).
 - A cross-reviewer follow-up list file: add one plain file only if the owner later wants one list per run across reviewers.
 
-### 4.3 Dropped or out of version 1
+### 4.3 Dropped or out of version 1 (confirmed by the owner)
 OD4 as a question (one-line non-goal: the classifier has no authority), OD8, OD10, OD13, OD17 (grep for citations in kept tasks owed), the replace-or-augment question about `follow-ups/1` against `review-ledger/1` (the follow-up ledger is not built), ledger version skew (backwards compatibility is not a concern), run 1's 48 migration steps, the five changed outcomes of the Review Panel report.
 
-### 4.4 Decisions the plan author made that the owner has not confirmed
+### 4.4 Plan-author decisions (confirmed by the owner)
 - The carrier is print-only because `refs/qa.md:225` says the final summary never asks the user anything and `qa.md` is on the do-not-edit list. Under `/sc:implement` a normal run keeps minors in `notes.md` unprinted today (`qa.md:225` and `:301` print only for legacy, N=1 and skip-final runs), so the print step is what makes the approved carrier work.
 - `/sc:task`, task-builder and `rf-task-builder` are not edited; tests that pin only them are not re-pinned.
 - Stage 3 and stage 4 stay separate packages with separate owner gos; the atomic copy into all ten files happens in stage 3.
