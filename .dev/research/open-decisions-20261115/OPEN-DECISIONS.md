@@ -110,6 +110,7 @@ Done today, on your order to delete merged worktrees after validating that nothi
 **Open:** OD3 asks whether private finding text may go to TypeSafe or Jev, and whether to request a key. OD5, OD6, OD7, OD8, OD10 and OD17 are undecided. The draft plan (`TASK-WF-loosenBlockerCla-20261115-133045`, line 21) uses the recommendations for OD1, 2, 4, 9 and 11 to 16 "unless the owner changes them"; that is not your confirmation.
 **Document's recommendation:** decide privacy first; approve Jev for the 5-run experiment only with zero data retention or an accepted contract; OD17 defaults to no.
 **My recommendation:** answer OD3 first.
+**Update 2026-11-16:** the owner's answer packet (issue-based split, pasted in chat) says to use a pinned Jev version (issue #553, see D-65). It does not answer OD3 (data-sharing approval) or evaluation access; both stay open.
 **If GO:** none yet.
 **Owner answer:**
 **Coordinator reply:**
@@ -284,7 +285,7 @@ Done today, on your order to delete merged worktrees after validating that nothi
 **Coordinator reply:**
 
 ### D-61 Issues #463 (model and effort router research) and #470 (research pipeline block)
-**Facts:** #463's research task halted at its work-splitting check. Options in `.dev/tasks/to-do/TASK-RESEARCH-model-effort-router-20261109-023552/OPEN-DECISIONS.md:19-41`: (1) one more mechanically built correction plus one final review; (2) relax the task's rules; (3) set it aside for a smaller `/tech-research`; (4) stop. The document recommends option 1, with option 3 as the alternative. Also: ratify that the executor launched all workers itself because the named coordinator terminal no longer exists (document: yes); who is "Jev" (unresolved; must not be guessed); what happens to six workers still `unverifiable`. #470 stays on hold, as you ordered.
+**Facts:** #463's research task halted at its work-splitting check. Options in `.dev/tasks/to-do/TASK-RESEARCH-model-effort-router-20261109-023552/OPEN-DECISIONS.md:19-41`: (1) one more mechanically built correction plus one final review; (2) relax the task's rules; (3) set it aside for a smaller `/tech-research`; (4) stop. The document recommends option 1, with option 3 as the alternative. Also: ratify that the executor launched all workers itself because the named coordinator terminal no longer exists (document: yes); who is "Jev" (issue #553's body calls it the TypeSafe System One decision model and the blocker spec calls it the TypeSafe model `jev-1.14.0` that judges supplied text only; both are written descriptions, not your answer, and what it can do for #463 stays unresolved); what happens to six workers still `unverifiable`. #470 stays on hold, as you ordered.
 **My recommendation:** option 3. #463 should not start before #470's plan unblocks it.
 **If GO:** none yet.
 **Owner answer:**
@@ -311,6 +312,26 @@ Done today, on your order to delete merged worktrees after validating that nothi
 **If GO:** I read PR #513's files and review comments and report what the two sentences are.
 **Owner answer:**
 **Coordinator reply:**
+
+### D-65 Jev plugin pin and upstream monitor, issue #553
+**Source:** the owner's answer packet of 2026-11-16, issue-based split (pasted in chat; its branch mapping is not verified). Issue #553 ("Install the TypeSafe Jev agent skill plugin by default and have the upstream monitor watch it") is open. Its local package is in worktree `brainstorm-reflect-panel`, folder `.dev/issues/553/` (untracked, on no branch).
+**Decided:** use a pinned Jev version, and update the upstream monitor to track Jev upstream.
+**Still unspecified:** the exact pin (a reviewed release tag and commit; whether the Jev repository has release tags is "Not known yet" in #553's body), the monitor configuration and cadence, data-sharing approval (D-13, OD3) and evaluation access. #553's pinned route is an `ironclaudeMarketplace` entry that Coder's Renovate configuration watches, and its body expects no Coder change. Whether "update the upstream monitor" also means a Coder change is not stated.
+**Authorization:** documentation only. Nothing is implemented, installed, configured, stored, sent or posted to GitHub.
+**Recorded in:** `.dev/issues/553/issue-body.md` and `.dev/tasks/to-do/BLOCKER-CLASSIFICATION-PROGRAM-20261115/00b-jev-default-install-description.md`, both in `brainstorm-reflect-panel`. The second file is staged there, not committed.
+**Question for you:** which Jev release tag and commit should be pinned, and who reviews it?
+**Owner answer:**
+**Coordinator reply:** Recorded on 2026-11-16 in the two files above and in D-13 and D-61.
+
+### D-66 Eval coverage gate, issue #562 (decision recorded, not implemented)
+**Source:** the same answer packet. Issue #562 ("Should installed hook coverage reject unrelated packaged eval suites?") is open as a question. I found no document for it in any IronClaude worktree, so no worktree owns it.
+**Decided (decision only):** allow explicitly isolated component evaluation suites to avoid unrelated installed-hook coverage, while maintaining and verifying a separate installed-hook integration check that catches mismatches.
+**Owner's facts:** the recorded failure was the coverage preflight, not a demonstrated broken hook. Suites lacked an expected tool call matching an installed MCP PostToolUse pattern, and the guide identifies an Auggie pattern. It is not established that ordinary workflow or implement execution was blocked.
+**Authorization correction:** Ryan's "proceed with that" meant record the decision, not implement it. The earlier implementation reading was withdrawn, and that attempt was stopped before any code or tests changed. Implementation is not authorized.
+**Documents that describe today's gate and change only if implementation is authorized:** `src/superclaude/skills/sc-cli-eval-protocol/refs/eval-contracts.md:54-62`, `docs/guides/suites-guide.md:623`, `docs/user-guide/eval-pipeline.md:254`, `docs/testing/v5.0.0/user/D15-eval-harness.md:448,543`, and the docstring in `src/superclaude/cli/eval/coverage.py:3-11`. None was edited.
+**Unresolved, from the packet:** the conditional ledger replacement (pending developer evidence) and the per-seat future design and exit-code numbers. The packet does not say which document each belongs to, so none is mapped.
+**Owner answer:**
+**Coordinator reply:** Recorded on 2026-11-16 in this item only.
 
 ---
 
