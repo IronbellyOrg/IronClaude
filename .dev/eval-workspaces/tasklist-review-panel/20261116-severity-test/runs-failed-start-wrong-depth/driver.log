@@ -1,0 +1,121 @@
+sandbox built: /tmp/evalsb-sev/HO-2/repo
+candidate.md missing: /home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/.dev/.dev/tasks/done/TASK-WF-implementIronbel-20261104-130647/TASK-WF-implementIronbel-20261104-130647.md
+FAIL sandbox HO-2
+sandbox built: /tmp/evalsb-sev/HO-3/repo
+candidate.md missing: /home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/.dev/.dev/tasks/done/TASK-WF-scIssueClaimPipe-20261107-063237/TASK-WF-scIssueClaimPipe-20261107-063237.md
+FAIL sandbox HO-3
+START sev1-s-HO-2-r1 22:37:59
+E_SANDBOX: no sandbox for HO-2 under /tmp/evalsb-sev (run bin/build-sandbox.sh first, with --raw for Z0-raw)
+END sev1-s-HO-2-r1 rc=2 22:37:59
+sandbox built: /tmp/evalsb-sev/HX-1/repo
+candidate.md missing: /home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/.dev/.dev/tasks/done/TASK-WF-applyTheV1Worker-20261107-211837/TASK-WF-applyTheV1Worker-20261107-211837.md
+FAIL sandbox HX-1
+START sev1-s-HO-3-r1 22:38:05
+E_SANDBOX: no sandbox for HO-3 under /tmp/evalsb-sev (run bin/build-sandbox.sh first, with --raw for Z0-raw)
+END sev1-s-HO-3-r1 rc=2 22:38:06
+sandbox built: /tmp/evalsb-sev/HX-3/repo
+candidate.md missing: /home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/.dev/.dev/tasks/done/TASK-WF-scIssueCommand-20261104-064713/TASK-WF-scIssueCommand-20261104-064713.md
+FAIL sandbox HX-3
+START sev1-z0-HX-1-r1 22:38:11
+E_SANDBOX: no sandbox for HX-1 under /tmp/evalsb-sev (run bin/build-sandbox.sh first, with --raw for Z0-raw)
+END sev1-z0-HX-1-r1 rc=2 22:38:11
+START sev1-z0-HX-3-r1 22:38:11
+E_SANDBOX: no sandbox for HX-3 under /tmp/evalsb-sev (run bin/build-sandbox.sh first, with --raw for Z0-raw)
+END sev1-z0-HX-3-r1 rc=2 22:38:11
+START sev1-z0-HO-2-r2 22:38:11
+E_SANDBOX: no sandbox for HO-2 under /tmp/evalsb-sev (run bin/build-sandbox.sh first, with --raw for Z0-raw)
+END sev1-z0-HO-2-r2 rc=2 22:38:11
+START sev1-z0-HX-3-r2 22:38:11
+E_SANDBOX: no sandbox for HX-3 under /tmp/evalsb-sev (run bin/build-sandbox.sh first, with --raw for Z0-raw)
+END sev1-z0-HX-3-r2 rc=2 22:38:11
+START sev1-z0-HX-1-r2 22:38:11
+E_SANDBOX: no sandbox for HX-1 under /tmp/evalsb-sev (run bin/build-sandbox.sh first, with --raw for Z0-raw)
+END sev1-z0-HX-1-r2 rc=2 22:38:11
+START sev1-z0-HO-3-r2 22:38:11
+E_SANDBOX: no sandbox for HO-3 under /tmp/evalsb-sev (run bin/build-sandbox.sh first, with --raw for Z0-raw)
+END sev1-z0-HO-3-r2 rc=2 22:38:11
+START sev1-s-HO-3-r2 22:38:11
+E_SANDBOX: no sandbox for HO-3 under /tmp/evalsb-sev (run bin/build-sandbox.sh first, with --raw for Z0-raw)
+END sev1-s-HO-3-r2 rc=2 22:38:11
+START sev1-s-HO-2-r2 22:38:11
+E_SANDBOX: no sandbox for HO-2 under /tmp/evalsb-sev (run bin/build-sandbox.sh first, with --raw for Z0-raw)
+END sev1-s-HO-2-r2 rc=2 22:38:11
+START sev1-s-HX-1-r2 22:38:11
+E_SANDBOX: no sandbox for HX-1 under /tmp/evalsb-sev (run bin/build-sandbox.sh first, with --raw for Z0-raw)
+END sev1-s-HX-1-r2 rc=2 22:38:11
+START sev1-s-HX-3-r2 22:38:11
+E_SANDBOX: no sandbox for HX-3 under /tmp/evalsb-sev (run bin/build-sandbox.sh first, with --raw for Z0-raw)
+END sev1-s-HX-3-r2 rc=2 22:38:11
+START sev1-z0-HO-3-r3 22:38:11
+E_SANDBOX: no sandbox for HO-3 under /tmp/evalsb-sev (run bin/build-sandbox.sh first, with --raw for Z0-raw)
+END sev1-z0-HO-3-r3 rc=2 22:38:11
+START sev1-s-HX-3-r3 22:38:11
+E_SANDBOX: no sandbox for HX-3 under /tmp/evalsb-sev (run bin/build-sandbox.sh first, with --raw for Z0-raw)
+END sev1-s-HX-3-r3 rc=2 22:38:11
+START sev1-s-HO-2-r3 22:38:11
+E_SANDBOX: no sandbox for HO-2 under /tmp/evalsb-sev (run bin/build-sandbox.sh first, with --raw for Z0-raw)
+END sev1-s-HO-2-r3 rc=2 22:38:11
+START sev1-s-HO-3-r3 22:38:11
+E_SANDBOX: no sandbox for HO-3 under /tmp/evalsb-sev (run bin/build-sandbox.sh first, with --raw for Z0-raw)
+END sev1-s-HO-3-r3 rc=2 22:38:11
+START sev1-z0-HX-3-r3 22:38:11
+E_SANDBOX: no sandbox for HX-3 under /tmp/evalsb-sev (run bin/build-sandbox.sh first, with --raw for Z0-raw)
+END sev1-z0-HX-3-r3 rc=2 22:38:11
+START sev1-s-HX-1-r3 22:38:11
+E_SANDBOX: no sandbox for HX-1 under /tmp/evalsb-sev (run bin/build-sandbox.sh first, with --raw for Z0-raw)
+END sev1-s-HX-1-r3 rc=2 22:38:12
+START sev1-z0-HX-1-r3 22:38:12
+E_SANDBOX: no sandbox for HX-1 under /tmp/evalsb-sev (run bin/build-sandbox.sh first, with --raw for Z0-raw)
+END sev1-z0-HX-1-r3 rc=2 22:38:12
+START sev1-z0-HO-2-r3 22:38:12
+E_SANDBOX: no sandbox for HO-2 under /tmp/evalsb-sev (run bin/build-sandbox.sh first, with --raw for Z0-raw)
+END sev1-z0-HO-2-r3 rc=2 22:38:12
+START sev1-s-HO-3-r4 22:38:12
+E_SANDBOX: no sandbox for HO-3 under /tmp/evalsb-sev (run bin/build-sandbox.sh first, with --raw for Z0-raw)
+END sev1-s-HO-3-r4 rc=2 22:38:12
+START sev1-s-HO-2-r4 22:38:12
+E_SANDBOX: no sandbox for HO-2 under /tmp/evalsb-sev (run bin/build-sandbox.sh first, with --raw for Z0-raw)
+END sev1-s-HO-2-r4 rc=2 22:38:12
+START sev1-s-HX-3-r4 22:38:12
+E_SANDBOX: no sandbox for HX-3 under /tmp/evalsb-sev (run bin/build-sandbox.sh first, with --raw for Z0-raw)
+END sev1-s-HX-3-r4 rc=2 22:38:12
+START sev1-z0-HX-3-r4 22:38:12
+E_SANDBOX: no sandbox for HX-3 under /tmp/evalsb-sev (run bin/build-sandbox.sh first, with --raw for Z0-raw)
+END sev1-z0-HX-3-r4 rc=2 22:38:12
+START sev1-z0-HX-1-r4 22:38:12
+E_SANDBOX: no sandbox for HX-1 under /tmp/evalsb-sev (run bin/build-sandbox.sh first, with --raw for Z0-raw)
+END sev1-z0-HX-1-r4 rc=2 22:38:12
+START sev1-s-HX-1-r4 22:38:12
+E_SANDBOX: no sandbox for HX-1 under /tmp/evalsb-sev (run bin/build-sandbox.sh first, with --raw for Z0-raw)
+END sev1-s-HX-1-r4 rc=2 22:38:12
+START sev1-z0-HO-3-r4 22:38:12
+E_SANDBOX: no sandbox for HO-3 under /tmp/evalsb-sev (run bin/build-sandbox.sh first, with --raw for Z0-raw)
+END sev1-z0-HO-3-r4 rc=2 22:38:12
+START sev1-z0-HO-2-r4 22:38:12
+E_SANDBOX: no sandbox for HO-2 under /tmp/evalsb-sev (run bin/build-sandbox.sh first, with --raw for Z0-raw)
+END sev1-z0-HO-2-r4 rc=2 22:38:12
+START sev1-z0-HO-2-r5 22:38:12
+E_SANDBOX: no sandbox for HO-2 under /tmp/evalsb-sev (run bin/build-sandbox.sh first, with --raw for Z0-raw)
+END sev1-z0-HO-2-r5 rc=2 22:38:12
+START sev1-s-HO-2-r5 22:38:12
+E_SANDBOX: no sandbox for HO-2 under /tmp/evalsb-sev (run bin/build-sandbox.sh first, with --raw for Z0-raw)
+END sev1-s-HO-2-r5 rc=2 22:38:12
+START sev1-s-HX-3-r5 22:38:12
+E_SANDBOX: no sandbox for HX-3 under /tmp/evalsb-sev (run bin/build-sandbox.sh first, with --raw for Z0-raw)
+END sev1-s-HX-3-r5 rc=2 22:38:12
+START sev1-z0-HO-3-r5 22:38:12
+E_SANDBOX: no sandbox for HO-3 under /tmp/evalsb-sev (run bin/build-sandbox.sh first, with --raw for Z0-raw)
+END sev1-z0-HO-3-r5 rc=2 22:38:12
+START sev1-z0-HX-3-r5 22:38:12
+E_SANDBOX: no sandbox for HX-3 under /tmp/evalsb-sev (run bin/build-sandbox.sh first, with --raw for Z0-raw)
+END sev1-z0-HX-3-r5 rc=2 22:38:12
+START sev1-s-HX-1-r5 22:38:12
+E_SANDBOX: no sandbox for HX-1 under /tmp/evalsb-sev (run bin/build-sandbox.sh first, with --raw for Z0-raw)
+END sev1-s-HX-1-r5 rc=2 22:38:12
+START sev1-z0-HX-1-r5 22:38:12
+E_SANDBOX: no sandbox for HX-1 under /tmp/evalsb-sev (run bin/build-sandbox.sh first, with --raw for Z0-raw)
+END sev1-z0-HX-1-r5 rc=2 22:38:12
+START sev1-s-HO-3-r5 22:38:12
+E_SANDBOX: no sandbox for HO-3 under /tmp/evalsb-sev (run bin/build-sandbox.sh first, with --raw for Z0-raw)
+END sev1-s-HO-3-r5 rc=2 22:38:12
+DRIVER DONE 22:38:12

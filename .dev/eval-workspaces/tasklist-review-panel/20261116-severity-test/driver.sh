@@ -7,13 +7,14 @@ set -u -o pipefail
 HERE=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)
 SCHED=${1:?schedule file}
 [ "${NOFALLBACK:-}" = 1 ] || { echo "E_NOFALLBACK: set NOFALLBACK=1" >&2; exit 2; }
-export SW_SB_ROOT=/tmp/evalsb-sev RL_RUNS_ROOT=$HERE/runs
+# the harness writes run folders only under /tmp or its own folder (E_NOT_WRITABLE otherwise); results are copied here afterwards
+export SW_SB_ROOT=/tmp/evalsb-sev RL_RUNS_ROOT=/tmp/sev-runs
 mkdir -p "$RL_RUNS_ROOT"
-LOG=$HERE/runs/driver.log
+LOG=/tmp/sev-runs/driver.log
 while IFS=$'\t' read -r block arm doc run; do
   case $block in \#* | block) continue ;; esac
   [ -e "$RL_RUNS_ROOT/$run/run.json" ] && { echo "SKIP $run" >>"$LOG"; continue; }
-  h=$HERE/harness-z0; [ "$arm" = S ] && h=$HERE/harness-s
+  h=$HERE/../20261116-sev-z0; [ "$arm" = S ] && h=$HERE/../20261116-sev-s
   sbx=$SW_SB_ROOT/$doc
   if [ ! -d "$sbx/repo/.git" ]; then bash "$h/bin/build-sandbox.sh" "$doc" >>"$LOG" 2>&1 || { echo "FAIL sandbox $doc" >>"$LOG"; continue; }
   elif [ -n "$(git -C "$sbx/repo" status --porcelain --ignored)" ]; then

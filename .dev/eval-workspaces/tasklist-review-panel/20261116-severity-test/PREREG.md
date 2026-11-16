@@ -4,8 +4,8 @@
 
 ## Arms
 
-- **Z0:** the control brief exactly as used in the hold-out comparison (harness copy `harness-z0/`, byte-identical to the Recipe Ledger folder's `briefs/` and code at the time of copying).
-- **S:** the same harness (`harness-s/`) with ONE change: in `briefs/base.txt` the sentence "Blocking needs a sentence that holds with no further assumption: two stated texts that contradict each other, a stated text that causes data loss or breaks a security or safety boundary, or a stated text that an acceptance criterion cannot pass." is replaced by a version whose first cause requires that the contradiction "would, with high probability, change what ships" of a named final deliverable, and that a contradiction confined to text no deliverable reads or acts on is Medium. The data-loss, security/safety and unpassable-criterion causes are unchanged. The diff is the only difference between the two harness folders (`diff -rq` shows `briefs/base.txt` alone).
+- **Z0:** the control brief exactly as used in the hold-out comparison (harness copy `../20261116-sev-z0/`, byte-identical to the Recipe Ledger folder's `briefs/` and code at the time of copying).
+- **S:** the same harness (`../20261116-sev-s/`) with ONE change: in `briefs/base.txt` the sentence "Blocking needs a sentence that holds with no further assumption: two stated texts that contradict each other, a stated text that causes data loss or breaks a security or safety boundary, or a stated text that an acceptance criterion cannot pass." is replaced by a version whose first cause requires that the contradiction "would, with high probability, change what ships" of a named final deliverable, and that a contradiction confined to text no deliverable reads or acts on is Medium. The data-loss, security/safety and unpassable-criterion causes are unchanged. The diff is the only difference between the two harness folders (`diff -rq ../20261116-sev-z0 ../20261116-sev-s` shows `briefs/base.txt` alone). They sit beside this folder, not inside it, because the harness finds the repository by its folder depth.
 
 ## Design
 
