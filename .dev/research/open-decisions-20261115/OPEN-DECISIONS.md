@@ -12,7 +12,7 @@ Written 2026-11-15 by the coordinator (ORCH-IronClaude). Scope: the 20 IronClaud
 
 Evidence notes: facts come from the worktree scans I ran on 2026-11-15 and from this session. Anything I could not check is marked UNVERIFIED. File and line references come from the scans and were not all re-read by me. Numbers from workers (for example evaluation results) are theirs, not mine.
 
-**Watch window:** 2026-11-16 16:55 UTC to 18:55 UTC. The file was pushed on 2026-11-15 but I only saw the worker's report on 2026-11-16, so the watch starts then. Anything you wrote in chat instead of in this file is not recorded here yet.
+**Watch window:** 2026-11-16 16:55 UTC to 18:55 UTC. The file was pushed on 2026-11-15 but I only saw the worker's report on 2026-11-16, so the watch starts then. The monitor ran from about 17:00 to about 17:55 UTC (two 30-minute runs). I did not re-arm it for the last hour because the session was idle. A one-shot check at 19:27 UTC found no edits by you in this file or on the remote branch, so nothing was missed. The watch is now over: answers you write in this file after 18:55 UTC are read only when you tell me. Answers you gave in chat are recorded in D-13, D-61, D-65, D-66, D-67 and D-68.
 
 ---
 
@@ -111,6 +111,7 @@ Done today, on your order to delete merged worktrees after validating that nothi
 **Document's recommendation:** decide privacy first; approve Jev for the 5-run experiment only with zero data retention or an accepted contract; OD17 defaults to no.
 **My recommendation:** answer OD3 first.
 **Update 2026-11-16:** the owner's answer packet (issue-based split, pasted in chat) says to use a pinned Jev version (issue #553, see D-65). It does not answer OD3 (data-sharing approval) or evaluation access; both stay open.
+**Update 2026-11-16 (second):** for two other tools (issues #574 and #575, see D-67 and D-68) the owner said that sending conversation data, commands, output and code to Jev is a blocker at the moment, that live runs use public fixtures only, and that an alternative judge (a decision model from Anthropic, or a local model on a 3090 or 4090 GPU) and, for jev-pruner, a risk and legal assessment come first. That was stated for those two tools. Whether it also answers OD3 for the blocker classifier is not stated; please confirm.
 **If GO:** none yet.
 **Owner answer:**
 **Coordinator reply:**
@@ -332,6 +333,26 @@ Done today, on your order to delete merged worktrees after validating that nothi
 **Unresolved, from the packet:** the conditional ledger replacement (pending developer evidence) and the per-seat future design and exit-code numbers. The packet does not say which document each belongs to, so none is mapped.
 **Owner answer:**
 **Coordinator reply:** Recorded on 2026-11-16 in this item only.
+
+### D-67 Evaluate fast-jev-compaction, issue #574 (testing on hold)
+**Source:** your answers of 2026-11-16 to my question about the two drafts (in chat). Issue: https://github.com/IronbellyOrg/IronClaude/issues/574 (open, created 2026-11-16, type Feature, label `enhancement`, Complexity Simple). Its package is `.dev/issues/574/` in the main checkout (untracked).
+**Decided:** sending all conversation data over the wire is not acceptable for now, so there is no install or live test until a potential alternative judge is found and assessed (for example a decision model from Anthropic, or a local model on premises on a 3090 or 4090 GPU). Live runs, once allowed, use public fixtures only. Budget $50.
+**Posted:** the issue carries a HOLD banner and a runbook section 0 that holds stages S2 to S7 and allows reading the repository, document-only steps and an alternatives study (stage A0). Nothing was installed or run, and no key was used. No "blocked" label exists in the repository and I did not create one.
+**Open:** which alternative to study first and who runs A0; whether the risk and legal assessment you required for #575 also applies here; whether the $50 covers Jev credits and downstream model calls together (I read it that way).
+**My recommendation:** run A0 first. It is documents only.
+**If GO:** I start one worker to write the A0 alternatives study for #574 and #575 together (read-only; no tool code run; no TypeSafe call).
+**Owner answer:**
+**Coordinator reply:** Recorded on 2026-11-16.
+
+### D-68 Evaluate jev-pruner, issue #575 (testing on hold)
+**Source:** the same answers. Issue: https://github.com/IronbellyOrg/IronClaude/issues/575 (open, created 2026-11-16, type Feature, label `enhancement`, Complexity Simple). Package: `.dev/issues/575/` in the main checkout (untracked).
+**Decided:** everything command related that the tool sends to Jev, including code, is a blocker at the moment, so testing is on hold. A proper risk and legal assessment is needed, with local models tested. Live runs, once allowed, use public fixtures only. Budget $50. Claude Code only: no Codex integration.
+**Posted:** the issue carries a HOLD banner and a runbook section 0 that holds stages S2 to S8, with the hold lifted only when an alternative has been assessed and the risk and legal assessment is done, and then only by your written word on the issue. The Codex integration is out of scope.
+**Open:** who does the risk and legal assessment and what it covers (the runbook suggests: what is sent, where it goes, retention and contract terms, and what a local judge can do instead); which alternative to study first; whether the $50 covers Jev credits and Claude usage together.
+**My recommendation:** same as D-67: A0 first, then the assessment.
+**If GO:** same worker as D-67.
+**Owner answer:**
+**Coordinator reply:** Recorded on 2026-11-16.
 
 ---
 
