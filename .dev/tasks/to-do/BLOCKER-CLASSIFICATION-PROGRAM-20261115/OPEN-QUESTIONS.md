@@ -88,7 +88,7 @@ Everything here is a recommendation from the cuts debate until the owner says ot
 - OD15 how the one issue is filed [the top-level session posts with explicit `--repo`; no digest, read-back or overflow handling].
 - OD16 `rf-qa-qualitative` Rule 6 [option (b): rewrite and re-pin its one test].
 - Review Panel: exit-code numbers (code 12 is unused at `ledger_cmd.py:13`) and the quorum denominator [count of reports received].
-- Confirm that plugin parity is not removed: the plans add no plugin mirror but still copy the two `sc-implement-protocol` files to their plugin twin because two tests pin them.
+- DECIDED by the owner 2026-11-16: copying the two edited `sc-implement-protocol` files to their plugin twin is approved (two tests pin the twin byte for byte). The plans add no plugin mirror.
 - Confirm the two MDTM templates and the four rule prompts take the atomic copy of the rule text in stage 3 (the existing test pins them), while who dispatches those prompts is still unchecked.
 
 ### 4.2 Deferred until named evidence exists
