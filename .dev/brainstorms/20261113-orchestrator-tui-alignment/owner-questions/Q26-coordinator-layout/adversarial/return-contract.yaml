@@ -1,0 +1,14 @@
+return_contract:
+  merged_output_path: "/home/coder/workspaces/worktrees/IronClaude/issue-339-orchestrator-mode/.dev/brainstorms/20261113-orchestrator-tui-alignment/owner-questions/Q26-coordinator-layout/merged-output.md"
+  convergence_score: 1.0
+  artifacts_dir: "/home/coder/workspaces/worktrees/IronClaude/issue-339-orchestrator-mode/.dev/brainstorms/20261113-orchestrator-tui-alignment/owner-questions/Q26-coordinator-layout/adversarial"
+  status: "partial"
+  status_reason: "merge-executor reported 3 new contradictions (N1 to N3) plus a suffix ambiguity; the orchestrator fixed them in-context (merge-log.md, last section); the fixes were not re-validated by a separate agent"
+  base_variant: "variant-2-original (proposal B)"
+  unresolved_conflicts: 0
+  fallback_mode: false
+  fallback_notes: "three advocate agents and one merge-executor agent were spawned as separate agents; the diff analysis, debate transcript assembly, scoring (both bias passes in one context), refactor plan and post-merge fixes were done by this worker in-context; no debate-orchestrator agent was spawned"
+  failure_stage: null
+  invocation_method: "skill-direct"
+  unaddressed_invariants: []
+  invariant_probe: "skipped (depth quick)"
