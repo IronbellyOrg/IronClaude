@@ -12,7 +12,7 @@ Written 2026-11-15 by the coordinator (ORCH-IronClaude). Scope: the 20 IronClaud
 
 Evidence notes: facts come from the worktree scans I ran on 2026-11-15 and from this session. Anything I could not check is marked UNVERIFIED. File and line references come from the scans and were not all re-read by me. Numbers from workers (for example evaluation results) are theirs, not mine.
 
-**Watch window:** (filled in when the watch starts)
+**Watch window:** 2026-11-16 16:55 UTC to 18:55 UTC. The file was pushed on 2026-11-15 but I only saw the worker's report on 2026-11-16, so the watch starts then. Anything you wrote in chat instead of in this file is not recorded here yet.
 
 ---
 
