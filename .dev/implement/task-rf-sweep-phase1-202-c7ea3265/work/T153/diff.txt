@@ -1,0 +1,33 @@
+--- /dev/null
++++ b/.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/decisions/qa-decision-fidelity-report.md   (new file, 97 lines)
++# QA Report - Decision-fidelity lens (item 7.25)
++
++**Phase:** decisions-qualitative (rf-qa-qualitative), decision-fidelity lens
++**Date:** 2026-11-11
++**fix_authorization:** false (report-only)
++
++## Checks
++
++| Check | Description | Result |
++|-------|-------------|--------|
++| C1 | OQ-1: recorded Chosen (allow `worktree ps --agent-wait`, lock-check waived) matches the quoted words "Allow it, no conditions needed." | PASS |
++| C2 | OQ-1: the quoted owner words come from the owner directly, not from a peer relay (the standard this task applies to OQ-3 and OQ-6) | FAIL (F-1) |
++| C3 | OQ-2: Chosen, quote ".dev/sweeps/ (Recommended)", date and source lines match the record and the session transcript answer | PASS |
++| C4 | OQ-3: Chosen "New WC-16 rule", quote, date, source lines match; peer relay used as corroboration only | PASS |
++| C5 | OQ-4: Chosen (pin 495eb96d, DESIGN 7.5 ordering and labels unchanged), quote and source lines match; no import of dashboard code claimed | PASS |
++| C6 | OQ-5: Chosen (6h, activity only, open work always listed), quote and source lines match | PASS |
++| C7 | OQ-6: Chosen is actual option (b) and rests on the owner words "Add an exception" | PASS |
++| C8 | OQ-7: Chosen (a) with both residual path-B cases, quote, date and DESIGN line 836 anchor match | PASS |
++| C9 | OQ-8: Run id record matches the owner's selection "Use run_a4723d345399 (Recommended)" and records no extra consent | PASS (N-3) |
++| C10 | OQ-17 (resolved file exists): Chosen "refuse the cursor command, allowlist stays 10" matches the owner's selection and the option text quoted | PASS |
++| C11 | No recommendation was recorded as a decision without the owner's words (all nine records; each Chosen follows a located owner answer) | PASS (OQ-1 provenance is C2) |
++| C12 | GQ-63 (OQ-6) carries no recommendation: record lines 22-24 and the question put to the owner | PASS |
++| C13 | GQ-63 stays actual (b); quote, no-recommendation text and history unchanged (edit log, mtime, index copy) | PASS |
++| C14 | owner-decisions.md rows OQ-1 to OQ-7 match their seven decision files (option, words, decider, date, source line ranges, unblocked steps) | PASS |
++| C15 | owner-decisions.md has a row for the resolved OQ-17 file that exists | FAIL (F-2) |
++| C16 | owner-decisions.md statements about open decisions are current (line 55 on OQ-8, OQ-17, OQ-18) | FAIL (F-2) |
++| C17 | The 13 APPROVED constraint rows quote their APPROVED.md lines unchanged (lines 10-13, 20, 25, 29, 30, 35, 36, 47, 71, 90) | PASS |
++| C18 | GQ-63 section keeps decision, checked revision (planning only) and execution permission as three separate things | PASS (N-2) |
++| C19 | Bounded planning ("Authorize bounded revision") is not treated as execution consent anywhere (BUILD-REQUEST, addendum, DESIGN pointer, owner-decisions) | PASS |
++| C20 | The execution-permission quote "Accepted, I accepted, but it reported a decline.  Proceed" is the owner's own message (session transcript, 2026-11-11T20:26:41.816Z) | PASS |
+... (new file continues; read .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/decisions/qa-decision-fidelity-report.md from disk for lines 31-97)

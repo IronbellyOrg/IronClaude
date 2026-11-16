@@ -1,0 +1,50 @@
+--- a/tests/sweep/test_classify.py
++++ b/tests/sweep/test_classify.py
+@@ -22,6 +22,7 @@
+ 
+ from superclaude.cli.sweep import classify as classify_module
+ from superclaude.cli.sweep import probes
++from superclaude.cli.sweep import report as report_module
+ from superclaude.cli.sweep.classify import (
+     RULES,
+     classify,
+@@ -1708,10 +1709,16 @@
+ 
+ 
+ def test_fr015_one_modified_folder_in_3_worktrees_is_shared_by_all_3(now):
+-    result = run(
+-        sweep_input(now, worktrees=_three_worktrees((True, True, True))), make_ctx(now)
+-    )
++    ctx = make_ctx(now)
++    result = run(sweep_input(now, worktrees=_three_worktrees((True, True, True))), ctx)
+     assert [w.shared_package_ids for w in result.worktrees] == [("pkg-07",)] * 3
++    # One printed line names all 3 worktrees (report.py builds it from shared_package_ids).
++    printed = [
++        line
++        for line in report_module.render(result, ctx).splitlines()
++        if "is in several worktrees" in line
++    ]
++    assert printed == ["- Active package pkg-07 is in several worktrees: /w1, /w2, /w3"]
+     for w in result.worktrees:
+         assert w.removable == "no"
+         assert (
+--- a/.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/test-results/test-classify.txt
++++ b/.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/test-results/test-classify.txt
+@@ -171,7 +171,7 @@
+ tests/sweep/test_classify.py::test_classify_and_report_import_only_models_inside_the_package[report.py] PASSED [ 99%]
+ tests/sweep/test_classify.py::test_b5_no_type_is_redeclared_from_superclaude_contracts PASSED [100%]
+ 
+-============================= 159 passed in 0.66s ==============================
++============================= 159 passed in 0.55s ==============================
+ --- end of pytest stdout ---
+ pytest exit code: 0 (159 passed)
+ 
+@@ -246,7 +246,7 @@
+ 47. FR-012 (worktree never yes): test_fr012_terminal_values_and_worktree_is_never_yes[7 terminal cases] and the run() invariant on every classify_all fixture
+ 48. FR-013 one fixture per condition, condition named: test_fr013_one_fixture_per_condition_names_the_condition[uncommitted|unpushed-ahead|unpushed-no-upstream|unsaved-dev-tasks|frozen-plan|package-unfinished|package-archive-blocked|package-interrupted-archive|package-conflict|shared-active-package]; first condition wins, archived does not block, unreadable worktree: test_fr013_first_condition_wins_and_archived_does_not_block; frozen row freezes its worktree: test_fr013_frozen_row_makes_its_worktree_a_frozen_plan
+ 49. FR-014 one fixture per state including conflict: test_fr014_one_fixture_per_package_state[unfinished|archive-blocked|interrupted-archive|conflict|archived|unknown], test_package_fixtures_cover_every_package_state; precedence: test_fr014_precedence_is_the_order_of_package_states
+-50. FR-015: test_fr015_44_committed_folders_in_3_worktrees_give_no_shared_flag; test_fr015_one_modified_folder_in_3_worktrees_is_shared_by_all_3 (classify side: all 3 worktrees carry the shared id and name it in removable_reason; the printed "one line naming all 3" is test_report.py); test_fr015_active_in_only_one_worktree_is_not_shared; `??` path marks a package active: test_fr015_untracked_path_in_a_package_folder_marks_it_active
++50. FR-015: test_fr015_44_committed_folders_in_3_worktrees_give_no_shared_flag; test_fr015_one_modified_folder_in_3_worktrees_is_shared_by_all_3 (classify side: all 3 worktrees carry the shared id and name it in removable_reason; the printed "one line naming all 3" is asserted in the same test: report.render(result, ctx) holds exactly one line "- Active package pkg-07 is in several worktrees: /w1, /w2, /w3"); test_fr015_active_in_only_one_worktree_is_not_shared; `??` path marks a package active: test_fr015_untracked_path_in_a_package_folder_marks_it_active
+ 51. FR-005 person-session fixture uses an active session (M9): test_fr005_three_workers_two_worktrees_one_active_person_session
+ 
+ I. Import tests

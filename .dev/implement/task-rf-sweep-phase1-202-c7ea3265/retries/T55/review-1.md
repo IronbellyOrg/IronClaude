@@ -1,0 +1,3 @@
+eaffe48282629956ef0fd078e1a994737748e5a5 tree=4b176afc121f7115a0477fda7bbf960a38ebdcfb
+T55.AC1 met except for the finding below (reviewer marks verbatim: T55.AC1@docs/designs/orchestrator-mode.md:746).
+F1.1 sev=blocking trigger=B2 ac=scope at=docs/designs/orchestrator-mode.md:746 anchor=docs/designs/orchestrator-mode.md:746 chk=n,y,n,n family=row-wording-overclaim first=A1 origin=new: The row says all four fixtures each differ from the complete-negative-join control by one input and share the path-A Given; test_fr010_incomplete_notes_order combines two inputs and sets session_join None, so the sentence is false for it.

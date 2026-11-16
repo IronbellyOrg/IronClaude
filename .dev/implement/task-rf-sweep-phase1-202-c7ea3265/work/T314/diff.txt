@@ -1,0 +1,24 @@
+Orchestrator facts for the reviewer (verify them): option (A) was chosen by the owner (record phase-outputs/plans/OQ-10-pipx-decision.md, status RESOLVED, source the owner's words "go with A"). The executor ran the two calls of item 14.8 branch (A) exactly as written from /tmp: the untimed warm-up (pipx run --spec <worktree> superclaude --version, output in .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/artifacts/sweep-help-pipx-warmup.txt, ends exit=0, prints SuperClaude, version 5.0.0) and the timed help run (timeout 30 pipx run --spec <worktree> superclaude sweep --help, output in .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/artifacts/sweep-help-pipx.txt, ends exit=0 and lists the run command). No pipx install was run and nothing was installed or changed. Read both files from disk; judge the item's Verification (the file ends with exit=0 and lists run as a command), that branch (A)'s constraints hold (two calls, 30 s limit on the help run only, no pipx install), and anything false in the files.
+
+--- /dev/null
++++ b/.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/artifacts/sweep-help-pipx.txt   (new file, 12 lines)
++⚠️  superclaude is already on your PATH and installed at
++    /usr/local/bin/superclaude. Downloading and running anyway.
++Usage: superclaude sweep [OPTIONS] COMMAND [ARGS]...
++
++  Read-only sweep of Orca Runs, worktrees and sessions.
++
++Options:
++  --help  Show this message and exit.
++
++Commands:
++  run  Collect, classify and publish one read-only report; print one JSON...
++exit=0
+--- /dev/null
++++ b/.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/artifacts/sweep-help-pipx-warmup.txt   (new file, 6 lines)
++⚠️  superclaude is already on your PATH and installed at
++    /usr/local/bin/superclaude. Downloading and running anyway.
++creating virtual environment...
++installing superclaude from spec '/home/coder/workspaces/worktrees/IronClaude/issue-339-orchestrator-mode'...
++SuperClaude, version 5.0.0
++exit=0

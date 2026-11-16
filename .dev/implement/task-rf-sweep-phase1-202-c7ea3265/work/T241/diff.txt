@@ -1,0 +1,12 @@
+The task (item 11.2) was done by the executor directly: one edit in tests/recommend/test_routing_refresh.py (the quoted line of the item changed to add "sweep") and one new untracked file, .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/test-results/r5-routing-refresh.txt (the real stdout of 'uv run pytest tests/recommend/test_routing_refresh.py -v', 248 passed, exit 0). Read both from disk. To judge the item's Verification line yourself: (1) run 'git diff --stat -- tests/recommend/test_routing_refresh.py' (1 insertion, 1 deletion) and read the line; (2) run uv run pytest tests/recommend/test_routing_refresh.py -v (exit 0) and compare with the saved file; (3) check that src/superclaude/commands/sweep.md exists (so the shipped set contains sweep and the :648 assertion needs the addition) and that no other line of the test file changed (the diff below is against the start snapshot); (4) check the comment above the constant (lines 29-32 of the test file) still states the truth for the new entry or say if it should name sweep (the item says no other edit; judge whether leaving the comment unchanged makes any claim false). No other file changed from this task. Diff:
+--- a/tests/recommend/test_routing_refresh.py
++++ b/tests/recommend/test_routing_refresh.py
+@@ -30,7 +30,7 @@
+ # issue #323 (codegraph adoption, Phase 3) adds /sc:graph and /sc:impact, and
+ # issue #302 adds /sc:issue. The package is frozen, so the shipped set is
+ # compared minus these additions.
+-_POST_REFRESH_ADDITIONS = {"graph", "impact", "issue"}
++_POST_REFRESH_ADDITIONS = {"graph", "impact", "issue", "sweep"}
+ 
+ _TOKEN_RE = re.compile(r"`/([a-z][a-z0-9:-]*)")
+ _FLAG_RE = re.compile(r"--[a-z][a-z0-9-]*")

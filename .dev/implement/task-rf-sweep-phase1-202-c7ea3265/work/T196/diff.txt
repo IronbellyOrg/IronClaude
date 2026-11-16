@@ -1,0 +1,48 @@
+--- a/src/superclaude/cli/main.py
++++ b/src/superclaude/cli/main.py
+@@ -564,6 +564,10 @@
+ 
+ main.add_command(issue_watch_group, name="issue-watch")
+ 
++from superclaude.cli.sweep import sweep_group  # noqa: E402,I001  # intentional: deferred subcommand registration to avoid circular imports
++
++main.add_command(sweep_group, name="sweep")
++
+ 
+ if __name__ == "__main__":
+     main()
+--- /dev/null
++++ b/.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/test-results/step-1.7-help.txt   (new file, 33 lines)
++# Step 1.7 help outputs (item 9.2), 2026-11-12
++
++## uv run superclaude sweep --help
++```text
++Usage: superclaude sweep [OPTIONS] COMMAND [ARGS]...
++
++  Read-only sweep of Orca Runs, worktrees and sessions.
++
++Options:
++  --help  Show this message and exit.
++
++Commands:
++  run  Collect, classify and publish one read-only report; print one JSON...
++exit=0
++```
++
++## uv run superclaude sweep run --help
++```text
++Usage: superclaude sweep run [OPTIONS]
++
++  Collect, classify and publish one read-only report; print one JSON object.
++
++Options:
++  --run TEXT     Orca Run id to read; repeat for several. Default: the Run
++                 bound to this terminal.
++  --window TEXT  Activity window: <N>h or <N>d, at most 720h or 30d.
++                 [default: 6h]
++  --root TEXT    Checkout root. Default: found from the current folder.
++  --output TEXT  Report folder, <root>/.dev/sweeps/ or below. Default:
++                 <root>/.dev/sweeps/.
++  --help         Show this message and exit.
++exit=0
++```

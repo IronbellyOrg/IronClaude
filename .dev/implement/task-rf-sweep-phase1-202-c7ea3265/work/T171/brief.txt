@@ -1,0 +1,8 @@
+T171 = item 8.6 of the source file /home/coder/workspaces/worktrees/IronClaude/issue-339-orchestrator-mode/.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md (lines 1458-1464). Item text:
+- [ ] **8.6 — Step 1.4a: add `.dev/sweeps/` to `.gitignore` (L2)**
+  - **Context**: DESIGN section 10 (line 710) as renumbered by R4 (item 5.2): two lines after `.gitignore:254` (`.dev/sprint-state/`, the end of the sprint-state block at :250-254). DESIGN line 942: the lines go into step 1.4a because the real-git test (item 8.9) copies the repository `.gitignore`. Expected text: `# superclaude sweep reports: dated, operator-local, never posted (WC-16). Never tracked.` then `.dev/sweeps/`.
+  - **Action**: Read `.gitignore:245-260`, then insert the two DESIGN section 10 lines (as revised; WC-16, not WC-14) after the `.dev/sprint-state/` line, anchored by that quoted text. Do not touch any `.claude/` or `.dev/tasks/` rule.
+  - **Output**: `.gitignore` (two added lines).
+  - **Verification**: Verify: `git check-ignore -q .dev/sweeps/x.md; echo $?` prints 0 and `git check-ignore -q .dev/tasks/to-do/x.md; echo $?` prints 1; `git diff --stat -- .gitignore` shows 2 insertions. Write the outputs to `.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/test-results/gitignore-check.md`.
+  - **Completion gate**: Both check-ignore results match. Once done, mark this item as complete.
+AC ids: T171.AC1 = the item title "Step 1.4a: add `.dev/sweeps/` to `.gitignore` (L2)" (no AC block; the title is the AC). The item's own Verification and Completion gate lines are context for what "done" means. Ticking the item's checkbox is done by the orchestrator after the verdict and is not part of the diff under review.

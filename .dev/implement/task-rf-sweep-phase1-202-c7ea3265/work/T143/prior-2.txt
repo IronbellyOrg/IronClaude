@@ -1,0 +1,1 @@
+F2.1 sev=blocking trigger=B4 ac=scope at=.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md:2807 anchor="so the row above is withdrawn, not deleted" family=log-row-order

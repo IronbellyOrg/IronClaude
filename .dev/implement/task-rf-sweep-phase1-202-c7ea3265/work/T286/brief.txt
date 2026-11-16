@@ -1,0 +1,8 @@
+T286 = item 13.5 of the source file /home/coder/workspaces/worktrees/IronClaude/issue-339-orchestrator-mode/.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md (lines 2291-2297). Item text:
+- [ ] **13.5 — Routing row R6: add the `/sc:sweep` row to the user guide (L2)**
+  - **Context**: DESIGN section 9 row R6 (line 699 on the unrevised design). `docs/user-guide/commands.md:105` `### 8. UTILITIES`; table header :107-108 (`| Command | Purpose | File | Changes files? |`); the `/sc:issue` row at :115 (begins "| [`/sc:issue`](#scissue---github-issue-claim-and-create) |"); `/sc:recommend` at :116. research/08 section 2.4: :115 text changed in place on master, position unchanged.
+  - **Action**: Re-read lines 105-118 at HEAD. Insert after the quoted `/sc:issue` row the line "| `/sc:sweep` | Read-only snapshot of a Run, its worktrees and person sessions | `sweep.md` | Report only (writes `.dev/sweeps/`) |".
+  - **Output**: the edited `docs/user-guide/commands.md`.
+  - **Verification**: Verify: the new row is line 116 with four cells; `grep -niwE 'stop|retry|release|merge|removal'` on it prints nothing; `git diff --stat` shows 1 insertion.
+  - **Completion gate**: The row is in place. Once done, mark this item as complete.
+AC ids: T286.AC1 = the item title "Routing row R6: add the `/sc:sweep` row to the user guide (L2)" (no AC block; the title is the AC). The item's own Verification and Completion gate lines are context for what "done" means. Ticking the item's checkbox is done by the orchestrator after the verdict and is not part of the diff under review.

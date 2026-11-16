@@ -1,0 +1,43 @@
+--- /dev/null
++++ b/.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/decisions/verify-cycle1-rf-qa-qualitative.md   (new file, 343 lines)
++# Verify, cycle 1 (item 7.32, rf-qa-qualitative, verifier)
++
++fix_authorization: false. No file other than this report was edited.
++
++**Date:** 2026-11-12. **Phase:** fix-cycle verification (cycle 1), decisions gate, rf-qa-qualitative verifier.
++**Inputs read:** `consolidated-findings-cycle0.md`, `fix-log-cycle1.md`, `cycle-ledger.md`, the eight cycle-0 reports (for the meaning of each check id), the five edited files, all nine decision records, `pragmatic.md`, the 7.10 result file, the revision `BUILD-REQUEST.md`, DESIGN lines named below, item 7.30 text. Paths are relative to `.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/` (`PKG/`) unless they start with `docs/`, `src/`, `tests/` or `/`.
++**Independence:** I did not read the sibling report `verify-cycle1-rf-qa.md`. No `## Inherited Structural Verdict` block was in my prompt, so I ran standalone.
++
++## Overall Verdict: PASS
++
++Verdict: PASS
++Blocking count: 0
++
++All five `F_0` findings are RESOLVED on disk. For DEC-F5 the stale-suffix remainder is a separate new MINOR note (N2). None of the 152 cycle-0 PASS checks now fails. I found no new BLOCKING or MAJOR defect. Eight new MINOR notes (N1 to N8) are below; N7 and N8 come from the reader-level re-read near the end of this report.
++
++## Findings (F_0)
++
++| Id | Cycle-0 severity | Status now | Key evidence |
++|---|---|---|---|
++| DEC-F1 | BLOCKING | RESOLVED | `PKG/artifacts/owner-decisions.md:5`, `:16`, `:56`, `:18` |
++| DEC-F2 | MAJOR | RESOLVED | `PKG/phase-outputs/plans/OQ-1-agent-wait-decision.md:23`; `PKG/artifacts/owner-decisions.md:9`, `:18`; session store entry 2026-11-12T00:10:31.205Z |
++| DEC-F3 | MAJOR | RESOLVED | `PKG/artifacts/readonly-probe.md:499`, `:1057`, `:1059`; `PKG/phase-outputs/discovery/1.0a-facts.md:11` |
++| DEC-F4 | MAJOR | RESOLVED | `PKG/phase-outputs/discovery/1.0a-facts.md:11`, `:24`, `:34` |
++| DEC-F5 | MAJOR | RESOLVED | `PKG/phase-outputs/discovery/1.0a-facts.md:22`, `:40`, `:46-48`; separate new MINOR note N2 for the stale suffix at `docs/designs/orchestrator-mode.md:30`, `:761` and task file `:1811-1816` |
++
++### DEC-F1 (BLOCKING): RESOLVED
++
++- `PKG/artifacts/owner-decisions.md:5` now reads "Decisions (eight rows)". I counted the table rows that start `| OQ-`: 8 (OQ-1 to OQ-7 at `:9-15`, OQ-17 at `:16`).
++- The new row `:16` matches the OQ-17 record. Option: refuse the cursor command, allowlist stays at exactly 10 (record `PKG/phase-outputs/plans/OQ-17-cursor-template-decision.md:38`). Words "Keep the 10 commands (Recommended)" (record `:37`, `:40`). Decider "Ryan Wiancko, owner, 2026-11-11" (record `:39`). Source cell `OQ-17-cursor-template-decision.md:35-40`: lines 35 to 40 are the heading, OPERATOR DECISION, Chosen, Decided by and Decision source. Unblocks cell matches record `:33`.
++- `:56` now says OQ-8 is RESOLVED (record `PKG/phase-outputs/plans/OQ-8-run-id-decision.md:26-29`: Run id, Dispatch rows, Given by, Source) and OQ-17 is RESOLVED (row above), and that OQ-18 was not written. `ls PKG/phase-outputs/plans | grep -c OQ-18` printed 0. The old sentence "Still open ... OQ-8 ... OQ-17" is gone.
++- No `Chosen:` line changed: the OQ-6 record sha256 is `b9074fc3...ddfc5` (equal to the pre-fix sum), the OQ-17 and OQ-8 records are not newer than the cycle-0 consolidation, and OQ-1 `Chosen:` at `:20` reads as it did.
++
++### DEC-F2 (MAJOR): RESOLVED, on the owner's own answer
++
++- `PKG/phase-outputs/plans/OQ-1-agent-wait-decision.md:23` is a new "Decision source, direct confirmation (added 2026-11-12)" line. The relayed line `:22`, `OPERATOR DECISION:` `:19`, `Chosen:` `:20` and `Decided by:` `:21` are unchanged. The line says it confirms OQ-1 only.
++- I checked the claim against the session store, not against the fix log. In `/home/coder/.claude/projects/-home-coder-workspaces-worktrees-IronClaude-issue-339-orchestrator-mode/db62cb58-fc67-47da-9997-00e1192076a7.jsonl` there is an `AskUserQuestion` tool call at 2026-11-11T22:57:47.894Z and its tool result at 2026-11-12T00:10:31.205Z whose `toolUseResult.answers` maps the question to `"Yes, confirm it (Recommended)"`. The question text and the option text quoted at `:23` are word for word the transcript's. The phrase appears in no other session file. The relay it confirms is still in session `6ee233a2-...jsonl` (36 hits, first at 2026-11-08T12:05:48.430Z), so the history is intact.
++- `PKG/artifacts/owner-decisions.md:9` (OQ-1 row) marks the earlier words "relayed by the coordinator on 2026-11-08" and adds the direct confirmation and date in the Decision cell; `:18` (Provenance) says the same and "confirms OQ-1 only".
++- This is a menu selection, the same shape as the owner answers for OQ-2 to OQ-7, so it meets the direct-answer rule that `PKG/revisions/chat-output-exception-20261109-133150/BUILD-REQUEST.md:15` states. DESIGN is unchanged and agrees with the confirmed decision (`docs/designs/orchestrator-mode.md:535-537`, `:837`, `:895`, `:1047`).
++
++### DEC-F3 (MAJOR): RESOLVED
+... (new file continues; read .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/decisions/verify-cycle1-rf-qa-qualitative.md from disk for lines 41-343)

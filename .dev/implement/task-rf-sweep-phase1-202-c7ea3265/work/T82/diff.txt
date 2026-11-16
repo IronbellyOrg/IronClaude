@@ -1,0 +1,53 @@
+--- a/docs/designs/orchestrator-mode.md
++++ b/docs/designs/orchestrator-mode.md
+@@ -25,7 +25,7 @@
+ Facts checked on this host on 2026-11-08 for this design (read-only):
+ 
+ - `src/superclaude/cli/sweep/` does not exist yet.
+-- `src/superclaude/cli/main.py` registers deferred subcommands at lines 519-561; the last pair is `reflect` (559, 561); `if __name__ == "__main__":` is at 564.
++- `src/superclaude/cli/main.py` registers deferred subcommands at lines 519-565; the last pair is `issue-watch` (563, 565); `if __name__ == "__main__":` is at 568.
+ - `src/superclaude/cli/recommend/__init__.py:12-20` is the lazy `__getattr__` export pattern.
+ - `/opt/Orca/resources/app.asar.unpacked/out/package.json` has `"version": "1.4.245-aidev02.780594c521aa"`.
+ - `uv run --help` (uv 0.11.8) documents `--no-sync` as "Avoid syncing the virtual environment" and `--frozen` as "Run without updating the `uv.lock` file". This is the help text; the flags were not run.
+@@ -920,7 +920,7 @@
+ | 1.4 | | Rest of `probes.py`: `_orca`, `ALLOWED_ORCA`, `Budget`, `OrcaResult`, `bind_run`, `collect`, readers. Live check saved to `.dev/tasks/<pkg>/artifacts/sweep-live-check-1.4.json`; no `--include-remote` timing | 7.1, 7.3 | 1.0a (parsers, regexes), 1.4a |
+ | 1.5 | | `report.py`: `sanitize`, `cell`, `render`, `to_json`, `SECTIONS`; no `write_report` | 7.1, 7.4, 7.5, D1 | 1.3 |
+ | 1.6 | | `commands.py`: `run`, `_parse_window`, `_find_root`, `_check_output`, `_check_run_ids`, `_publish`; no `run-list` fallback; `--output` default `<root>/.dev/sweeps/` | 3, 5, 7.1 | 1.4, 1.5 |
+-| 1.7 | | Register `sweep_group` in `src/superclaude/cli/main.py` with the deferred-import pattern (after line 561) | 7.1 | 1.6 |
++| 1.7 | | Register `sweep_group` in `src/superclaude/cli/main.py` with the deferred-import pattern (after line 565) | 7.1 | 1.6 |
+ | 1.8 | | `tests/sweep/conftest.py` and fixtures | 11 | 1.0a for captured fixtures |
+ | 1.9 | | `tests/sweep/test_classify.py` | 11 | 1.3 |
+ | 1.10 | | `tests/sweep/test_probes_allowlist.py` | 11 | 1.4 |
+@@ -956,7 +956,7 @@
+ | Item | Rollback |
+ |---|---|
+ | `src/superclaude/cli/sweep/` and `tests/sweep/` (including `tests/sweep/fixtures/`) | Delete |
+-| `src/superclaude/cli/main.py` deferred import and `add_command` lines (after line 561) | Remove |
++| `src/superclaude/cli/main.py` deferred import and `add_command` lines (after line 565) | Remove |
+ | `src/superclaude/commands/sweep.md`, `src/superclaude/skills/sc-sweep-protocol/`, `tests/commands/test_sweep_command.py` | Delete; run `make sync-dev`. Whether it removes the `.claude/` copies is UNVERIFIED (section 17); if not, delete them by hand. Never stage them |
+ | WC-16 with the D6 sentence, the line 23 never-as-worker entry, the `RULE_PHRASES` entry, the `NEVER_AS_WORKER` entry, the `UNATTENDED_COMMANDS` assertion (design) and the test rename | Revert |
+ | R1, R2, R3, R4, R5 | Revert together, so the plugin byte copy stays equal |
+--- a/.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/discovery/r4-reanchor.md
++++ b/.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/discovery/r4-reanchor.md
+@@ -42,3 +42,21 @@
+ (exit 1; 1 means no old anchor remains in section 8)
+ ```
+ Pin list entries under "**Pins** (five edits)": 5
++
++## main.py insertion point (item 5.6)
++
++Read `src/superclaude/cli/main.py` lines 559-569:
++```
++559: from superclaude.cli.reflect.commands import reflect_group  # noqa: E402,I001  # intentional: deferred subcommand regist
++561: main.add_command(reflect_group, name="reflect")
++563: from superclaude.cli.issue_watch.cli import issue_watch_group  # noqa: E402,I001  # intentional: deferred subcommand reg
++565: main.add_command(issue_watch_group, name="issue-watch")
++568: if __name__ == "__main__":
++569:     main()
++```
++
++Line 565 is `main.add_command(issue_watch_group, name="issue-watch")`, the last registered pair. The new `sweep_group` registration goes after it. `if __name__ == "__main__":` is at line 568 and the file has 569 lines.
++
++- `grep -n 'after line 561\|519-561' docs/designs/orchestrator-mode.md`: 0 hits (expect 0)
++- `grep -c 'after line 565' docs/designs/orchestrator-mode.md`: 2 (expect at least 2: step 1.7 and the rollback row)
++- DESIGN section 1 line: 28:- `src/superclaude/cli/main.py` registers deferred subcommands at lines 519-565; the last pair is `issue-watch` (563, 565); `if __name__ == "__main__":` is at 568.

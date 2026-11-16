@@ -1,0 +1,33 @@
+--- a/.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/plans/OQ-3-GQ-11-rule-id-decision.md
++++ b/.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/plans/OQ-3-GQ-11-rule-id-decision.md
+@@ -1,6 +1,6 @@
+ ---
+ needs_human_decision: true
+-status: PENDING
++status: RESOLVED
+ ---
+ 
+ # Coordinator rule decision
+@@ -33,7 +33,7 @@
+ 
+ ## Operator decision
+ 
+-OPERATOR DECISION:
+-Chosen:
+-Decided by:
+-Decision source:
++OPERATOR DECISION: Approve option (a), new WC-16 and the proposed coordinator-loop text in DESIGN section 8, preserving existing worker duties.
++Chosen: New WC-16 rule, not amending WC-1.
++Decided by: Ryan Wiancko, owner, 2026-11-09.
++Decision source: The owner selected "New WC-16 rule (Recommended)" in this session's coordinator-loop question. That option explicitly approved the section-8 text and its new identifier while keeping existing worker rules unchanged. This direct answer resolves OQ-3/GQ-11 only. A separate peer relay from ORCH-IronClaude reports "Approved, proceed" at 12:15 UTC; that relay corroborates but is not the authority used here, which is the owner's direct answer in this session. No later decisions, retry reset, additional workers, commit, push, PR or merge are authorized by this selection.
+--- a/.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md
++++ b/.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md
+@@ -2803,6 +2803,8 @@
+ 
+ | Timestamp | Item | Event | Detail |
+ |---|---|---|---|
++| 2026-11-09 | 7.4 | OWNER DECISION RESOLVED | OQ-3/GQ-11 chosen: new WC-16 with the proposed coordinator-loop text from DESIGN section 8 and existing worker duties unchanged. Decider Ryan Wiancko directly selected "New WC-16 rule (Recommended)" in this session. Source recorded in phase-outputs/plans/OQ-3-GQ-11-rule-id-decision.md; status RESOLVED. The separate ORCH-IronClaude relay is marked corroboration only, not substituted for the direct owner answer. Task status Doing; blocker_reason cleared. No unrelated gate or broader action authorized. |
++| 2026-11-09T11:52:50Z | 7.4 | HALT: owner decision pending | OQ-3 (GQ-11, rule id) awaits the owner's decision in phase-outputs/plans/OQ-3-GQ-11-rule-id-decision.md. Record is PENDING with empty decision fields. No approval inferred from the report-folder decision or gate-scoped waiver. Proposed WC-16 text in DESIGN section 8 also awaits the owner's approval with this decision. Item 7.4 remains unticked and subsequent items have not started. |
+ | 2026-11-09 | 7.2 | OWNER DECISION RESOLVED | OQ-2/GQ-10 chosen: root .dev/sweeps/, gitignored, UTC YYYYMMDD-HHMMSS-sweep.md. Decider Ryan Wiancko selected ".dev/sweeps/ (Recommended)" in this session's report-folder question, explicitly approving this option. Source recorded in phase-outputs/plans/OQ-2-GQ-10-report-location-decision.md, status RESOLVED. Task status Doing and blocker_reason cleared. This decision does not answer any other owner gate. |
+ | 2026-11-09T11:41:20Z | 7.2 | HALT: owner decision pending | OQ-2 (GQ-10, report location) awaits the owner's decision in phase-outputs/plans/OQ-2-GQ-10-report-location-decision.md. Read confirmed status PENDING and empty Chosen/Decided by/Decision source fields. No approval inferred from the design default or earlier gate waiver. Item 7.2 remains unticked; no subsequent item started. |
+ | 2026-11-09 | 6.21 | SKIPPED | Cycle-2 qualitative verifier not needed: qa/r5/cycle1-decision.md records F_1 empty and PASS at cycle 1 after the owner's scoped acceptance of seven failed baseline predicates. No cycle-2 qualitative verifier or report was created. |

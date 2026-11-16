@@ -1,0 +1,122 @@
+The task (item 11.1) was done by the executor directly: it created two new untracked files, src/superclaude/commands/sweep.md (68 lines) and .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/test-results/step-1.14-checks.md (49 lines, the checks run twice: the first run's check 2 failed because a sentence said there is no `--unattended` flag, so the sentence was reworded and all checks were re-run; the file records this). Read both from disk; they are the whole output. To judge the item's Verification line yourself: (1) run the four greps of the item on src/superclaude/commands/sweep.md and compare with the saved output; (2) read DESIGN section 7.6 'Command' bullets in docs/designs/orchestrator-mode.md (search '### 7.6 Command and skill surface') and the item text, and check the frontmatter (name: sweep, a one-line description with no stop, retry, release, merge or removal wording, allowed-tools: Skill, the exact argument-hint), the body headings (title '# /sc:sweep: ...', Triggers explicit only, Usage, Options with one row per option and the defaults of src/superclaude/cli/sweep/commands.py: --window default 6h, <N>h or <N>d at most 720h or 30d, --root default found from the current folder, --output default <root>/.dev/sweeps/, --run repeatable and the bound Run default), the Activation block in the graph.md form (src/superclaude/commands/graph.md lines 41-46) invoking 'Skill sc:sweep-protocol' and naming both the installed skill path and the project copy path, no Unattended mode section and no --unattended flag, and the one line that /sc:sweep is coordinator or person only and on the never-as-worker list (~/.claude/WORKER-CONTRACT.md); (3) check every claim the new file makes about the tool is true against src/superclaude/cli/sweep/ (eight classes in models.CLASSES, the report folder, the exit message that asks for --run <id> when no Run is bound, the duplicate Run id rule, the folder-overlap rule) and that nothing in the file promises behaviour the command does not have; (4) check the file names no src/superclaude path and says nothing a reader in another project could not follow. The Execution Log and the checkbox tick are not part of this task. Diff against the start snapshot:
+--- /dev/null
++++ b/src/superclaude/commands/sweep.md   (new file, 68 lines)
++---
++name: sweep
++description: "Read Orca Runs, worktrees and sessions once and publish one report that says what each session is doing, which ones wait on a person, and what could not be read"
++category: utility
++complexity: basic
++mcp-servers: []
++personas: []
++argument-hint: "[--run <id>]... [--window <N>h|<N>d] [--root <dir>] [--output <dir>]"
++allowed-tools: Skill
++---
++
++# /sc:sweep: Read-only Report on Orca Runs, Worktrees and Sessions
++
++Reads the Orca Runs you name (or the Run bound to this terminal), the worktrees of this checkout and the Claude Code sessions in the activity window, and publishes one Markdown report under `<root>/.dev/sweeps/`. The report puts every session into one of eight classes (for example working, waiting on a person, idle, finished, stalled (proved), or could not determine), lists what waits on a person and why, and lists every source it could not read. It only reads: it changes nothing in Orca, in git or in any worktree, and the report is the one file it adds.
++
++`/sc:sweep` is coordinator or person only. It is on the never-as-worker list in `~/.claude/WORKER-CONTRACT.md`, so a dispatched worker never runs it.
++
++## Triggers
++
++Explicit only: the coordinator runs `/sc:sweep` on every wake, or a person types it. Nothing starts it automatically.
++
++## Usage
++
++```text
++/sc:sweep                                  # the Run bound to this terminal, window 6h
++/sc:sweep --run run_0123456789ab           # one named Run
++/sc:sweep --run run_0123456789ab --run run_fedcba987654 --window 2d
++/sc:sweep --root /path/to/checkout --output /path/to/checkout/.dev/sweeps/archive
++```
++
++## Options
++
++| Flag | Default | Meaning |
++|---|---|---|
++| `--run <id>` | the Run bound to this terminal | An Orca Run id (`run_` plus 12 lowercase hex digits). Repeat the flag to read several Runs; duplicates are read once. When no Run is bound and none is named, the command exits with a message that asks for `--run <id>`. |
++| `--window <N>h\|<N>d` | `6h` | How far back a session counts as active. `<N>` is 1 to 9999, at most `720h` or `30d`. |
++| `--root <dir>` | the checkout found by walking up from the current folder | The checkout root; it must hold `.git`. |
++| `--output <dir>` | `<root>/.dev/sweeps/` | The report folder. It must be `<root>/.dev/sweeps/` or a folder below it, and must not overlap the folders the sweep reads. |
++
++There is no worker mode and no flag for one.
++
++## Activation
++
++**MANDATORY**: Before executing any protocol steps, invoke:
++> Skill sc:sweep-protocol
++
++Pass the user's flags unchanged. Do NOT proceed using only this command file. The installed skill is:
++
++- `~/.claude/skills/sc-sweep-protocol/SKILL.md`
++
++When a project checkout holds its own copy (a dev checkout that ran `make sync-dev`), the dual surface is:
++
++- `.claude/skills/sc-sweep-protocol/SKILL.md`
++
++Skills read `~/.claude/skills/` first. The skill runs the `superclaude sweep run` command, reads the report it names, and prints the counts and the report path. It adds no recommendation and takes no action.
++
++## Boundaries
++
++**Will:**
++
++- Run `superclaude sweep run` with the flags you gave and print the session counts and the report path
++- Read the published report so the counts and the report agree
++
++**Will Not:**
++
++- Change anything in Orca, git or a worktree, or write any file except the one report
++- Add advice or a next step of its own to the report or to the reply
++- Run as a dispatched worker
+--- /dev/null
++++ b/.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/test-results/step-1.14-checks.md   (new file, 49 lines)
++# Step 1.14 checks (item 11.1)
++
++Run 2026-11-12 on `src/superclaude/commands/sweep.md` (second run: the first run found a literal `--unattended` in a sentence that said there is no such flag, so check 2 failed; the sentence was reworded to "There is no worker mode and no flag for one." and all checks were re-run).
++
++## Check 1: no `src/superclaude` substring
++
++Command: `grep -c 'src/superclaude' src/superclaude/commands/sweep.md`
++```text
++0
++```
++
++## Check 2: no Unattended mode heading or --unattended flag
++
++Command: `grep -n '^## Unattended mode\|--unattended' src/superclaude/commands/sweep.md` (must print nothing)
++```text
++(grep exit 1; 1 means no match)
++```
++
++## Check 3: installed skill path in the Activation block
++
++Command: `grep -nF '~/.claude/skills/sc-sweep-protocol/SKILL.md' src/superclaude/commands/sweep.md`
++```text
++49:- `~/.claude/skills/sc-sweep-protocol/SKILL.md`
++```
++
++## Check 4: project copy path (lookbehind rejects the installed path)
++
++Command: `grep -nP '(?<!~/)\.claude/skills/sc-sweep-protocol/SKILL\.md' src/superclaude/commands/sweep.md`
++```text
++53:- `.claude/skills/sc-sweep-protocol/SKILL.md`
++```
++
++## Section line numbers (the Activation block is lines 42 to 56)
++```text
++18:## Triggers
++22:## Usage
++31:## Options
++42:## Activation
++57:## Boundaries
++```
++
++## Description wording
++
++Command: `sed -n 3p src/superclaude/commands/sweep.md | grep -ciE 'stop|retry|release|merge|remov'` (must print 0)
++```text
++0
++```
++
++Result: all four checks hold (counts 0, no match, one line, one line) and the description holds none of the five words.

@@ -1,0 +1,75 @@
+Orchestrator facts for the reviewer (verify them): the executor ran the four commands of item 14.1 with a shell script that wrote phase14-sync.md (new file, read it from disk). It reports four PASS lines: make sync-dev exit 0, make verify-sync exit 0, the cached .claude list holds no path other than .claude/settings.json (empty), git status --short -- .claude/ prints nothing (the synced copies are gitignored). The file also records that the HOME output-style activation stays unverified and separately authorized. Re-run make verify-sync, git diff --cached --name-only -- .claude/ and git status --short -- .claude/ yourself (read-only); do not run make sync-dev.
+
+--- /dev/null
++++ b/.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/test-results/phase14-sync.md   (new file, 78 lines)
++# Phase 14 sync check (item 14.1)
++
++Run 2026-11-12. Each block: the command, its exit code, the last 30 lines of output and one PASS or FAIL line.
++
++## Check 1 make sync-dev
++
++Command: `make sync-dev`
++```text
++🔄 Syncing src/superclaude/ → .claude/ for local development...
++✅ Sync complete.
++   Skills:    40 directories
++   Agents:    48 files
++   Commands:  47 files
++   Hooks:     16 files
++   Templates: 52 files
++(exit 0)
++```
++Check 1: PASS (exit 0)
++
++## Check 2 make verify-sync
++
++Command: `make verify-sync`
++```text
++  ✅ modularization-template-review/qa-task-validation-structure_report_template.md
++  ✅ modularization-template-review/qa-cross-source-contradictions_template.md
++  ✅ modularization-template-review/track-scope-map_template.md
++  ✅ modularization-template-review/claim-evidence-matrix_template.md
++  ✅ modularization-template-review/qa-inventory_report_template.md
++  ✅ modularization-template-review/analyst-coverage-matrix_template.md
++  ✅ modularization-template-review/codebase-research_template.md
++  ✅ modularization-template-review/analyst-completeness_report_template.md
++  ✅ modularization-template-review/analyst-gap-analysis_template.md
++  ✅ modularization-template-review/qa-lens_report_template.md
++  ✅ modularization-template-review/qa-consolidated-findings_template.md
++  ✅ modularization-template-review/qa-task-validation-b2_report_template.md
++  ✅ modularization-template-review/qa-research-gap_report_template.md
++  ✅ modularization-template-review/qa-research-evidence_report_template.md
++  ✅ modularization-template-review/qa-qualitative-operational_report_template.md
++  ✅ modularization-template-review/qa-qualitative-sufficiency_report_template.md
++  ✅ modularization-template-review/analyst-cross-validation_report_template.md
++  ✅ modularization-template-review/qa-acceptance-methodology-audit_template.md
++  ✅ modularization-template-review/pipeline-complete_report_template.md
++  ✅ modularization-template-review/qa-source-fidelity_template.md
++  ✅ modularization-template-review/qa-research-depth_report_template.md
++  ✅ modularization-template-review/web-research_template.md
++
++=== Installer Registration ===
++  ✅ _FRESHNESS_SCRIPTS matches src/superclaude/hooks/scripts/*.sh and *.js
++
++=== Hooks Cross-Consistency ===
++  ✅ hooks.json matcher and auggie-flag-clear.sh case body agree on auggie prefixes
++
++✅ All components in sync.
++(exit 0)
++```
++Check 2: PASS (exit 0)
++
++## Check 3 staged .claude paths
++
++Command: `git diff --cached --name-only -- .claude/`
++```text
++
++(exit 0)
++```
++Check 3: PASS (the cached list holds no path other than .claude/settings.json)
++
++## Check 4 .claude status
++
++Command: `git status --short -- .claude/`
++```text
+... (new file continues; read .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/test-results/phase14-sync.md from disk for lines 71-78)

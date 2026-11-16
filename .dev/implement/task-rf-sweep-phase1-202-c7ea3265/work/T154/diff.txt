@@ -1,0 +1,33 @@
+--- /dev/null
++++ b/.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/decisions/qa-downstream-actionability-report.md   (new file, 83 lines)
++# QA Report: Downstream-actionability lens (item 7.26, rf-qa-qualitative)
++
++**Date:** 2026-11-11
++**Phase:** decisions gate, downstream-actionability lens
++**fix_authorization:** false (report-only; no file edited except this report)
++**Method:** read every listed input in chunks of at most 150 lines, then re-checked the live files they cite (DESIGN, WORKER-CONTRACT.md, test_worker_contract.py, pragmatic.md, .gitignore, fixtures). Acted as the developer of steps 1.2 to 1.6 (items 8.3, 8.4, 8.12, 9.1) and 1.17 to 1.19 (items 12.1 to 12.3).
++
++## Value ledger (what the developer needs, and where it comes from)
++
++| Value | Source | Verified against | Status |
++|---|---|---|---|
++| Window default `6h`, activity only | OQ-5 record:34; DESIGN 7.4:571, 7.5:607 | consistent in DESIGN, 8.12, 9.1, 10.5 | OK |
++| Output default `<root>/.dev/sweeps/`, UTC `<YYYYMMDD-HHMMSS>-sweep.md` | OQ-2 record:34; DESIGN 3.2 line 105 ("UTC, SweepContext.now"); item 8.6 anchor | `.gitignore:254` is `.dev/sprint-state/`, no `sweeps` entry yet | OK |
++| Rule id `WC-16` (not WC-1, not occupied WC-14/15) | OQ-3 record:37; DESIGN 8:677-680 | `WORKER-CONTRACT.md:23`, `:110`, `:271-275` match items 12.1/12.2; `test_worker_contract.py:25, 86-92, 165, 173, 382-390, 912, 1322` match item 12.3 (8 entries now, 9 after) | OK |
++| Four pin phrases | DESIGN 8:686 | all four occur in the DESIGN rule text (lines 677-679) | OK |
++| Field names (`dispatch.dispatchedAt/completedAt/status`, `projection.liveness.verdict`, `worktrees[].path`, `page.limit/total/hasMore/nextCursor`) | 1.0a-facts.md:11-25, 29-40 | present in `captured-worker-show-1.json`, `captured-worker-list.json:391-394`, `captured-worktree-ps.json:13,242-243` | OK |
++| Time formats | facts row 23 | fixture `dispatchedAt` `2026-11-11 19:35:55`, `completedAt` ISO `...Z`; both accepted by DESIGN 7.2:470 | OK |
++| `RUN_ID_RE = run_[0-9a-f]{12}`, `DISPATCH_ID_RE = ctx_[0-9a-f]{12}` | facts row 2 | all 10 Run ids in OQ-8 record, `run_000000000000`, and 5 fixture dispatch ids match | OK |
++| Page size 100, no cursor template, full page = truncated, total lower bound | OQ-17 record:38; DESIGN 17 item 5 (line 995); facts:56 | consistent; `ALLOWED_ORCA` stays 10 (DESIGN 7.3:526-537) | OK |
++| Join field (`session_join`) | facts rows 1, 22 and "Need" table | fixtures: pane key and handle both equal the tab-map entry | **AMBIGUOUS (F1)** |
++| Orca version compare | facts row 15; DESIGN 7.1:426, 7.5:611-612 | no compare rule anywhere | **MISSING (F2)** |
++
++## Checks
++
++| Check | Description | Result |
++|-------|-------------|--------|
++| C1 | Window default (6h, activity-only) is explicit and consistent across OQ-5, DESIGN, items 8.12, 9.1, 10.5 | PASS |
++| C2 | Output default, file name and UTC rule are explicit and consistent (OQ-2, DESIGN 3.2, items 8.6, 9.1) | PASS |
++| C3 | Rule id WC-16 and every anchor for steps 1.17 to 1.19 hold against live WORKER-CONTRACT.md and test_worker_contract.py | PASS |
++| C4 | Field names in the facts file exist in the captured fixtures | PASS |
+... (new file continues; read .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/decisions/qa-downstream-actionability-report.md from disk for lines 31-83)

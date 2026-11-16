@@ -1,0 +1,159 @@
+--- /dev/null
++++ b/tests/sweep/conftest.py   (new file, 157 lines)
++"""Shared fixtures for the ``superclaude sweep`` test suite (DESIGN section 11).
++
++Every test runs with the seams patched; none starts Orca, ccsession or Claude
++(NFR-013). The autouse guard blocks ``subprocess.run``, ``subprocess.Popen`` and
++``os.system`` unless the test function itself carries the ``integration`` marker.
++"""
++
++from __future__ import annotations
++
++import os
++import subprocess
++from dataclasses import dataclass, field
++from datetime import datetime, timezone
++from pathlib import Path
++from types import SimpleNamespace
++
++import pytest
++
++
++@pytest.fixture(autouse=True)
++def no_subprocess(request, monkeypatch):
++    """Raise AssertionError on any process start, except for an ``integration`` test.
++
++    Only the test function's own decorator marks are read. The superclaude pytest
++    plugin adds ``integration`` to every test whose path contains ``/integration/``,
++    so ``request.node``'s closest-marker lookup would let those tests through.
++    """
++    marks = getattr(request.function, "pytestmark", [])  # own decorator marks only
++    if any(m.name == "integration" for m in marks):
++        return
++
++    def _blocked(*args, **kwargs):
++        raise AssertionError(
++            "sweep tests must not start a process (subprocess.run, subprocess.Popen, "
++            "os.system); patch the probes seam instead"
++        )
++
++    monkeypatch.setattr(subprocess, "run", _blocked)
++    monkeypatch.setattr(subprocess, "Popen", _blocked)
++    monkeypatch.setattr(os, "system", _blocked)
++
++
++@dataclass
++class GitFake:
++    """Recording fake for ``probes._git``.
++
++    ``calls`` holds one dict per call: ``cwd``, ``args``, ``timeout``, the ``argv`` and
++    the ``env`` that the real ``_git`` would build. ``responses`` maps a worktree path
++    (``str``) to canned porcelain output (``str`` or ``bytes``) or to an exception
++    instance that is raised for that worktree (for example ``GitCallFailed``).
++    """
++
++    calls: list[dict] = field(default_factory=list)
++    responses: dict[str, object] = field(default_factory=dict)
++    default: object = ""
++
++    def respond(self, cwd: Path | str, output: object) -> None:
++        self.responses[str(cwd)] = output
++
++    def __call__(self, cwd, *args, timeout=10.0):
++        from superclaude.cli.sweep import probes
++
++        probes.check_git_args(args)  # the real seam rejects anything else first
++        self.calls.append(
++            {
++                "cwd": Path(cwd),
++                "args": tuple(args),
++                "timeout": timeout,
++                "argv": ["git", "--no-optional-locks", "-C", str(cwd), *args],
++                "env": {**os.environ, "GIT_OPTIONAL_LOCKS": "0"},
++            }
++        )
++        out = self.responses.get(str(cwd), self.default)
++        if isinstance(out, BaseException):
++            raise out
++        return out.decode("utf-8", "replace") if isinstance(out, bytes) else out
++
++
++@pytest.fixture
++def patch_git(monkeypatch) -> GitFake:
++    """Replace ``probes._git`` with a recording fake that returns canned porcelain."""
++    from superclaude.cli.sweep import probes
++
++    fake = GitFake()
++    monkeypatch.setattr(probes, "_git", fake)
++    return fake
++
++
++@dataclass
++class OrcaFake:
++    """Recording fake for ``probes._orca``.
++
++    ``calls`` holds one dict per call (``args`` and ``timeout``). ``responses`` maps an
++    argv tuple (the arguments after the binary) to canned data. The returned object is
++    ``probes.OrcaResult`` once item 8.10 defines it, else a namespace with the same
++    ``kind``, ``data`` and ``reason`` attributes.
++    """
++
++    calls: list[dict] = field(default_factory=list)
++    responses: dict[tuple[str, ...], tuple[str, object, str | None]] = field(
++        default_factory=dict
++    )
++
++    def respond(
++        self,
++        args: tuple[str, ...],
++        data: object = None,
++        kind: str = "ok",
++        reason: str | None = None,
++    ) -> None:
++        self.responses[tuple(args)] = (kind, data, reason)
++
++    def __call__(self, *args, timeout=10.0):
++        from superclaude.cli.sweep import probes
++
++        check = getattr(probes, "check_orca_argv", None)
++        if check is not None:  # added by item 8.10; the real seam checks first
++            check(tuple(args))
++        self.calls.append({"args": tuple(args), "timeout": timeout})
++        kind, data, reason = self.responses.get(
++            tuple(args), ("call_failed", None, "no canned response")
++        )
++        factory = getattr(probes, "OrcaResult", None) or SimpleNamespace
++        return factory(kind=kind, data=data, reason=reason)
++
++
++@pytest.fixture
++def patch_orca(monkeypatch) -> OrcaFake:
++    """Replace ``probes._orca`` with a recording fake (``_orca`` exists from item 8.10)."""
++    from superclaude.cli.sweep import probes
++
++    fake = OrcaFake()
++    monkeypatch.setattr(probes, "_orca", fake, raising=False)
++    return fake
++
++
++@pytest.fixture
++def fixed_now() -> datetime:
++    """A fixed, timezone-aware UTC clock value; tests never read the real clock."""
++    return datetime(2026, 11, 8, 12, 0, 0, tzinfo=timezone.utc)
++
++
++@dataclass(frozen=True)
++class SweepHome:
++    home: Path
++    state: Path
++
++
++@pytest.fixture
++def sweep_home(tmp_path, monkeypatch) -> SweepHome:
++    """Move ``HOME`` and ``XDG_STATE_HOME`` inside ``tmp_path``."""
++    home = tmp_path / "home"
++    state = home / ".local" / "state"
++    state.mkdir(parents=True)
++    monkeypatch.setenv("HOME", str(home))
++    monkeypatch.setenv("XDG_STATE_HOME", str(state))
++    return SweepHome(home=home, state=state)

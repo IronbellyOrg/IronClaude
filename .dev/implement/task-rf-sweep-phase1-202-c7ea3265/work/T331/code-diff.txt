@@ -1,0 +1,802 @@
+--- a/src/superclaude/cli/sweep/probes.py
++++ b/src/superclaude/cli/sweep/probes.py
+@@ -19,6 +19,8 @@
+ from datetime import datetime, timezone
+ from pathlib import Path
+ 
++import yaml
++
+ from .models import (
+     CONTRACT_FILE,
+     REPORT_DIR_RE,
+@@ -168,12 +170,19 @@
+ 
+     def call_timeout(self) -> float | None:
+         """``min(per_call_s, remaining)``, or None when under 1 s of the total is left."""
+-        remaining = self.total_s - (self._clock() - self._start)
++        remaining = self._remaining()
+         if remaining < 1.0:
+             return None
+         self._cut = remaining < self.per_call_s
+         return min(self.per_call_s, remaining)
+ 
++    def _remaining(self) -> float:
++        return self.total_s - (self._clock() - self._start)
++
++    def spent(self) -> bool:
++        """True when under 1 s of the total is left: no call gets a timeout and no re-read runs."""
++        return self._remaining() < 1.0
++
+     def cut(self) -> bool:
+         """True when the last timeout handed out was cut below ``per_call_s``."""
+         return self._cut
+@@ -420,8 +429,9 @@
+     determine (WC-10) and counts toward ``bound_reached``.
+     """
+     dispatch = _text(_first(_get(list_row, "dispatchId"), _get(show, "dispatch", "id")))
+-    shown = show is not None
+-    wait = _agent_wait(show) if shown else None
++    # No agentWait field is read: its live name was not captured (step 1.0a, open item 6),
++    # so ``agent_wait``, ``agent_wait_present`` and ``agent_wait_since`` keep their model
++    # defaults until a read-only capture records the names.
+     return OrcaObservation(
+         dispatch=dispatch or "",
+         run=run,
+@@ -432,9 +442,6 @@
+         liveness_verdict=_text(_get(show, "projection", "liveness", "verdict")),
+         status=_text(_get(show, "dispatch", "status")),
+         outcome=_text(_get(show, "projection", "outcome")),
+-        agent_wait=wait,
+-        agent_wait_present=_agent_wait_present(show) if shown else False,
+-        agent_wait_since=_wait_since(wait),
+         parent=_text(
+             _first(
+                 _get(show, "projection", "parent"),
+@@ -458,36 +465,6 @@
+     )
+ 
+ 
+-# The live location of ``agentWait`` was not observed (step 1.0a, open item 6): look in
+-# the two places the other projection fields live.
+-def _agent_wait_present(show: object) -> bool:
+-    return any(
+-        isinstance(holder, dict) and "agentWait" in holder
+-        for holder in (_get(show, "projection"), show)
+-    )
+-
+-
+-def _agent_wait(show: object) -> object | None:
+-    for holder in (_get(show, "projection"), show):
+-        if isinstance(holder, dict) and "agentWait" in holder:
+-            return holder["agentWait"]
+-    return None
+-
+-
+-# UNVERIFIED (open item 6): the agentWait timestamp key is not captured live yet.
+-_WAIT_TIME_KEYS = ("since", "waitingSince", "timestamp", "at", "createdAt", "startedAt")
+-
+-
+-def _wait_since(wait: object) -> datetime | None:
+-    """The agentWait time: the value itself, or the earliest of the guessed keys."""
+-    if isinstance(wait, dict):
+-        times = [
+-            t for k in _WAIT_TIME_KEYS if (t := parse_time(wait.get(k))) is not None
+-        ]
+-        return min(times) if times else None
+-    return parse_time(wait)
+-
+-
+ def parse_status(raw: str) -> StatusParse:
+     """Parse ``git status --porcelain=v1 -z --branch`` output (NUL fields, rename pairs)."""
+     fields = raw.split("\0")
+@@ -560,13 +537,20 @@
+     return st.st_size, st.st_mtime_ns
+ 
+ 
+-def _stable(path: Path, read: Callable[[], object]) -> object:
+-    """Run ``read``; if the file changed meanwhile read once more, else a conflict."""
++def _stable(
++    path: Path, read: Callable[[], object], budget: Budget | None = None
++) -> object:
++    """Run ``read``; if the file changed meanwhile read once more while ``budget`` allows.
++
++    A second change, or a change with no budget left (DESIGN 7.2, NFR-007), is a conflict.
++    """
+     for _ in range(2):
+         before = _stat_key(path)
+         result = read()
+         if _stat_key(path) == before:
+             return result
++        if budget is not None and budget.spent():
++            break
+     raise ReadFailed("conflict: inconsistent observation")
+ 
+ 
+@@ -585,10 +569,12 @@
+     return any(line.lstrip().startswith("FINAL:") for line in text.splitlines())
+ 
+ 
+-def _ledger(path: Path, root: Path | None) -> tuple[bool | None, str | None]:
++def _ledger(
++    path: Path, root: Path | None, budget: Budget | None = None
++) -> tuple[bool | None, str | None]:
+     try:
+         _check_inside(path, root)
+-        return bool(_stable(path, lambda: _ledger_has_final(path))), None
++        return bool(_stable(path, lambda: _ledger_has_final(path), budget)), None
+     except ReadFailed as exc:
+         return None, str(exc)
+     except FileNotFoundError:
+@@ -617,7 +603,7 @@
+ 
+ 
+ def _packages(
+-    worktree: Path,
++    worktree: Path, budget: Budget | None = None
+ ) -> tuple[tuple[PackageRecord, ...], tuple[SourceCoverage, ...]]:
+     """Package records plus one unscanned row for each folder or ledger that was not read."""
+     where: dict[str, dict[str, Path]] = {}
+@@ -663,7 +649,7 @@
+         final: bool | None = None
+         if "to-do" in places:
+             ledger = places["to-do"] / "progress.md"
+-            final, reason = _ledger(ledger, worktree)
++            final, reason = _ledger(ledger, worktree, budget)
+             if reason is not None:
+                 rows.append(
+                     SourceCoverage(
+@@ -684,41 +670,18 @@
+ 
+ 
+ def _yaml_top(text: str) -> dict[str, object]:
+-    """Top-level ``key: value`` pairs of a contract file (scalars, quoted, lists, blocks)."""
+-    out: dict[str, object] = {}
+-    lines = text.splitlines()
+-    i = 0
+-    while i < len(lines):
+-        match = re.fullmatch(r"([A-Za-z_][A-Za-z0-9_]*):(?:[ \t]+(.*))?", lines[i])
+-        i += 1
+-        if match is None:
+-            continue
+-        key, value = match.group(1), (match.group(2) or "").strip()
+-        block: list[str] = []
+-        while i < len(lines) and (lines[i][:1] in (" ", "\t") or not lines[i].strip()):
+-            block.append(lines[i])
+-            i += 1
+-        if value in ("|", ">", "|-", ">-", "|+", ">+"):
+-            joiner = "\n" if value.startswith("|") else " "
+-            out[key] = joiner.join(s.strip() for s in block if s.strip())
+-        elif value == "":
+-            items = [s.strip()[2:].strip() for s in block if s.strip().startswith("- ")]
+-            out[key] = [_unquote(x) for x in items] if items else None
+-        elif value.startswith("[") and value.endswith("]"):
+-            inner = value[1:-1].strip()
+-            out[key] = [_unquote(x.strip()) for x in inner.split(",")] if inner else []
+-        else:
+-            out[key] = _unquote(value)
+-    return out
+-
++    """The top-level mapping of a contract file; ``{}`` for invalid YAML or a non-mapping.
+ 
+-def _unquote(value: str) -> str:
+-    if len(value) >= 2 and value[0] == value[-1] and value[0] in "\"'":
+-        inner = value[1:-1]
+-        return (
+-            inner.replace('\\"', '"') if value[0] == '"' else inner.replace("''", "'")
+-        )
+-    return value
++    ``yaml.safe_load`` is what ``cli/reflect/contract.py`` uses on the same file name. The
++    caller has already bounded ``text`` to ``CONTRACT_LIMIT``; ``safe_load`` never builds an
++    object from a tag, a document nested too deep for the parser is one more invalid file, and
++    a scalar the loader rejects (``ValueError``, for example the date ``2026-13-45``) is too.
++    """
++    try:
++        data = yaml.safe_load(text)
++    except (yaml.YAMLError, RecursionError, ValueError):
++        return {}
++    return data if isinstance(data, dict) else {}
+ 
+ 
+ def _contract_from_text(
+@@ -728,7 +691,8 @@
+ 
+     def scalar(key: str) -> str | None:
+         value = top.get(key)
+-        return value if isinstance(value, str) and value else None
++        value = value.strip() if isinstance(value, str) else None
++        return value or None
+ 
+     artifacts = top.get("artifacts")
+     report = scalar("report_path")
+@@ -738,7 +702,7 @@
+         blocked_question=scalar("blocked_question"),
+         reason=scalar("reason"),
+         report_path=Path(report) if report else None,
+-        artifacts=tuple(Path(a) for a in artifacts if a)
++        artifacts=tuple(Path(a) for a in artifacts if isinstance(a, str) and a)
+         if isinstance(artifacts, list)
+         else (),
+         command=scalar("command"),
+@@ -747,13 +711,13 @@
+ 
+ 
+ def _contract(
+-    path: Path, root: Path | None
++    path: Path, root: Path | None, budget: Budget | None = None
+ ) -> tuple[ContractRecord | None, str | None]:
+     try:
+         _check_inside(path, root)
+         if os.stat(path).st_size > CONTRACT_LIMIT:
+             return None, f"over {CONTRACT_LIMIT // _MIB} MiB"
+-        raw = _stable(path, lambda: path.read_bytes())
++        raw = _stable(path, lambda: path.read_bytes(), budget)
+         # The file time of the bytes just read (SP-15 age); read once, here.
+         mtime = datetime.fromtimestamp(os.stat(path).st_mtime, timezone.utc)
+     except ReadFailed as exc:
+@@ -802,7 +766,9 @@
+     )
+ 
+ 
+-def _transcript(path: Path, root: Path | None) -> tuple[TranscriptTail, str | None]:
++def _transcript(
++    path: Path, root: Path | None, budget: Budget | None = None
++) -> tuple[TranscriptTail, str | None]:
+     epoch = datetime.fromtimestamp(0, timezone.utc)
+ 
+     def unreadable(mtime: datetime, reason: str) -> tuple[TranscriptTail, str]:
+@@ -832,7 +798,7 @@
+             return handle.read(), True
+ 
+     try:
+-        result = _stable(path, read)
++        result = _stable(path, read, budget)
+         reason = None
+     except ReadFailed as exc:
+         reason = str(exc)
+@@ -953,7 +919,7 @@
+ ) -> tuple[WorktreeState, tuple[SourceCoverage, ...]]:
+     """The state plus its git row and one row per unread package folder or ledger."""
+     name = f"git status {path}"
+-    packages, package_rows = _packages(path)
++    packages, package_rows = _packages(path, budget)
+     try:
+         os.stat(path)
+     except OSError:
+@@ -1282,8 +1248,8 @@
+         worktrees.append(worktree)
+         sources.extend(rows)
+ 
+-    contracts = _read_contracts(orca_rows, paths, started, sources)
+-    transcripts = _read_transcripts(paths, sources)
++    contracts = _read_contracts(orca_rows, paths, started, sources, budget)
++    transcripts = _read_transcripts(paths, sources, budget)
+     state_dir = Path(
+         os.environ.get("XDG_STATE_HOME") or (Path.home() / ".local" / "state")
+     )
+@@ -1319,6 +1285,7 @@
+     paths: tuple[Path, ...],
+     now: datetime,
+     sources: list[SourceCoverage],
++    budget: Budget | None = None,
+ ) -> tuple[ContractRecord, ...]:
+     allowed = tuple(paths)
+     loaded: dict[Path, tuple[ContractRecord | None, str | None]] = {}
+@@ -1336,7 +1303,7 @@
+                             "absent",
+                         )  # not written yet: not a source
+                     else:
+-                        loaded[candidate] = _contract(candidate, None)
++                        loaded[candidate] = _contract(candidate, None, budget)
+                 record, reason = loaded[candidate]
+                 if reason == "absent":
+                     continue
+@@ -1360,7 +1327,9 @@
+ 
+ 
+ def _read_transcripts(
+-    paths: tuple[Path, ...], sources: list[SourceCoverage]
++    paths: tuple[Path, ...],
++    sources: list[SourceCoverage],
++    budget: Budget | None = None,
+ ) -> tuple[TranscriptTail, ...]:
+     home = Path.home()
+     tails: dict[Path, TranscriptTail] = {}
+@@ -1383,7 +1352,7 @@
+         sources.append(SourceCoverage(name, f"{len(files)} files", None, None))
+         for file_name in files:
+             path = folder / file_name
+-            tail, reason = _transcript(path, folder)
++            tail, reason = _transcript(path, folder, budget)
+             tails[path] = tail
+             if reason is not None:  # only a problem gets its own row
+                 sources.append(
+--- a/src/superclaude/cli/sweep/classify.py
++++ b/src/superclaude/cli/sweep/classify.py
+@@ -83,6 +83,7 @@
+ NOTE_TRANSCRIPT_UNREADABLE = "unscanned: transcript not readable"
+ NOTE_CONTRACT_UNREADABLE = "unscanned: contract not readable"
+ NOTE_PARTIAL = "partial: usable not yet judged"
++NOTE_NO_CONTRACT = "no contract read for this row; finished needs a parsed contract"
+ REASON_WORKTREE_UNREADABLE = "unscanned: worktree not readable"
+ REASON_NOT_OBSERVABLE = (
+     "report read, open PR and unmerged commits not observable"  # SPEC section 7
+@@ -248,18 +249,11 @@
+ 
+ 
+ def _rule_working(row: SessionRow, ctx: SweepContext) -> Classification | None:
+-    orca = row.orca
+-    if (
+-        orca is not None
+-        and orca.liveness_verdict == "live"
+-        and orca.status == "in_progress"
+-        and orca.agent_wait_present is True
+-        and orca.agent_wait is None
+-    ):
+-        evidence = (
+-            "liveness_verdict live, status in_progress, agentWait present and null"
+-        )
+-        return _classification(C_WORKING, "working", evidence)
++    # Rule 5 cannot match in Phase 1 (DESIGN open item 6): the live names of the
++    # ``agentWait`` field and of the ``live`` and ``in_progress`` values were never
++    # captured, so a row that would reach it falls to the fallback. Once a read-only
++    # capture records them, restore the four conditions of DESIGN 7.2 (SP-24):
++    # liveness_verdict "live", status "in_progress", agent_wait_present True, agent_wait None.
+     return None
+ 
+ 
+@@ -331,7 +325,9 @@
+             f"status {orca.status}"
+         )
+     evidence = f"no rule 1 to 8 matched ({seen}; person_started {row.person_started})"
+-    return _classification(C_UNKNOWN, "fallback", evidence)
++    # An Orca row that is settled but not finished lacks a contract (rule 6 needs one).
++    notes = (NOTE_NO_CONTRACT,) if _settled(orca) and row.contract is None else ()
++    return _classification(C_UNKNOWN, "fallback", evidence, notes=notes)
+ 
+ 
+ RULES: tuple[Rule, ...] = (
+--- a/src/superclaude/cli/sweep/report.py
++++ b/src/superclaude/cli/sweep/report.py
+@@ -37,20 +37,28 @@
+     "Stalled and fenced are not observed in Phase 1; a zero count does not mean "
+     "none occurred."
+ )
++SAFE_TO_CLOSE_LINE = (
++    "Safe to close never prints yes in Phase 1: each cell gives the terminal value, "
++    "the worktree value and, in parentheses, the reason for both."
++)
+ 
+ # The ``next inspection`` value per rule name: what to read or check, nothing more.
++# One rule can match rows with different evidence, so ``waiting_signal`` and ``fallback``
++# name what the row's own Evidence cell names and stay true for every outcome of the rule.
+ NEXT_INSPECTION: dict[str, str] = {
+     "blocked_contract": "read the contract's blocked question and the worker's last "
+     "transcript lines",
+     "orca_exit_proof": "read the worker's last transcript lines and its Orca worker-show "
+     "result",
+     "fenced": "read the fencing evidence named in the row",
+-    "waiting_signal": "read the Orca agent-wait entry and the worker's last transcript lines",
++    "waiting_signal": "read what the Evidence cell names: the Orca agent-wait entry and the "
++    "worker's last transcript lines, the contract, or the ready Task in Orca task-list",
+     "working": "read the worker's last transcript lines to confirm it is active",
+     "finished": "read the worker's report file and its contract",
+     "idle": "read the session's last transcript lines",
+     "person_active": "read the session's last transcript lines",
+-    "fallback": "read the sources in Source coverage that were not scanned",
++    "fallback": "read the row's Evidence and Notes cells, then the sources marked "
++    "unscanned in Source coverage (if none, the session's last transcript lines)",
+ }
+ _NEXT_DEFAULT = "read the row's evidence and the source it names"
+ 
+@@ -389,7 +397,7 @@
+         key=lambda r: r.row.row_id,
+     )
+     total = result.summary["total"]
+-    out = [f"## Sessions ({len(rows)}/{total})", "", SP24_LINE, ""]
++    out = [f"## Sessions ({len(rows)}/{total})", "", SP24_LINE, SAFE_TO_CLOSE_LINE, ""]
+     if not rows:
+         out.append(NO_RECORDS)
+         return "\n".join(out)
+@@ -414,7 +422,8 @@
+                 label,
+                 c.rule,
+                 c.evidence,
+-                f"{r.safe.terminal} / {r.safe.worktree}",
++                f"{r.safe.terminal} / {r.safe.worktree}"
++                + (f" ({r.safe.reason})" if r.safe.reason else ""),
+                 "; ".join(c.notes),
+                 NEXT_INSPECTION.get(c.rule, _NEXT_DEFAULT),
+             )
+@@ -502,7 +511,9 @@
+         if s.unscanned
+     ]
+     if not result.orca_available:
+-        lines.append("- Orca was unavailable; Orca sources were not read")
++        lines.append(
++            "- Orca became unavailable; the Orca sources marked unscanned above were not read"
++        )
+     if result.truncated:
+         lines.append(
+             "- A worker list filled its page; the Orca row total is a lower bound"
+--- a/src/superclaude/skills/sc-sweep-protocol/SKILL.md
++++ b/src/superclaude/skills/sc-sweep-protocol/SKILL.md
+@@ -22,8 +22,8 @@
+ 
+ 1. Run `superclaude sweep run <args>` with the Bash timeout 120000 ms.
+ 2. Only when step 1 fails with "command not found", run `uv run --frozen --no-sync superclaude sweep run <args>` with the Bash timeout 120000 ms. No other failure leads to this step, and no step runs the command a third time.
+-3. On exit 0, parse the standard output as JSON and take only `report_path` and `summary`. Then Read the report at `report_path` in chunks of at most 150 lines (Read with `offset` and `limit`) until its last line, `Report complete`.
+-4. Print the genuine `summary` numbers (`total`, `visible`, `historical`, `bound_reached` and the per-class `counts`), say that the total is a lower bound when `total_is_lower_bound` is true, and print `report_path`. In Phase 1 the classes stalled (proved) and fenced are not observed, so a zero count there means nothing; the report says so. Print each of those two counts with the mark `(not observed in Phase 1)` after the number, so the caveat travels with the counts. The format of this reply depends on who runs the skill (see "Final reply"): ordinary formatting by default; the counts and the path alone only for the one exempt reply described below.
++3. On exit 0, parse the standard output as JSON and take only `report_path`, `summary` and `orca_available`. Then Read the report at `report_path` in chunks of at most 150 lines (Read with `offset` and `limit`) until its last line, `Report complete`.
++4. Print the genuine `summary` numbers (`total`, `visible`, `historical`, `bound_reached` and the per-class `counts`), say that the total is a lower bound when `total_is_lower_bound` is true, and print `report_path`. In Phase 1 the classes stalled (proved) and fenced are not observed, so a zero count there means nothing; the report says so. Print each of those two counts with the mark `(not observed in Phase 1)` after the number, so the caveat travels with the counts. In the ordinary reply, when `orca_available` is false, also print the one line `Orca was unavailable; the counts may be missing Orca data (see Source coverage in the report).` The exempt reply described below stays the counts and the path alone. The format of this reply depends on who runs the skill (see "Final reply"): ordinary formatting by default; the counts and the path alone only for the one exempt reply described below.
+ 5. On exit 1 or 2, print the standard error line exactly as it came and end the run. The reply keeps the ordinary formatting, and no summary and no report path are printed.
+ 
+ A failure of any other kind is reported accurately in ordinary formatting: step 2 also failed, the standard output is not JSON, `summary` or `report_path` is missing, or the Read of the report fails or is denied. Never print a made-up summary, never leave an error out to fit the success reply, and never go on to a different command.
+--- a/tests/sweep/test_classify.py
++++ b/tests/sweep/test_classify.py
+@@ -91,6 +91,7 @@
+ N_TRANSCRIPT = "unscanned: transcript not readable"
+ N_CONTRACT = "unscanned: contract not readable"
+ N_PARTIAL = "partial: usable not yet judged"
++N_NO_CONTRACT = "no contract read for this row; finished needs a parsed contract"
+ 
+ UTC = timezone.utc
+ HOUR = timedelta(hours=1)
+@@ -274,6 +275,9 @@
+ 
+ 
+ def _rule_cases(now: datetime) -> dict[str, tuple[SessionRow, str, str | None]]:
++    # Rule 5 (working) cannot match while the live agentWait, `live` and `in_progress`
++    # names are uncaptured (DESIGN open item 6): its case holds all four conditions and
++    # is expected to fall to the fallback rule.
+     live_unwaiting = orca(
+         liveness_verdict="live",
+         status="in_progress",
+@@ -313,7 +317,7 @@
+             WAITING,
+             "a",
+         ),
+-        "working": (row(orca=live_unwaiting), WORKING, None),
++        "working": (row(orca=live_unwaiting), UNKNOWN, None),
+         "finished": (
+             row(
+                 orca=orca(outcome="succeeded"),
+@@ -361,14 +365,15 @@
+ def test_rule_case_per_rule_1_to_9(now, rule):
+     case_row, class_name, kind = _rule_cases(now)[rule]
+     cls = classify(case_row, make_ctx(now))
+-    assert (cls.rule, cls.class_name, cls.waiting_kind) == (rule, class_name, kind)
++    matched = "fallback" if rule == "working" else rule  # rule 5 cannot match (item 6)
++    assert (cls.rule, cls.class_name, cls.waiting_kind) == (matched, class_name, kind)
+ 
+ 
+-def test_every_class_name_is_reached(now):
++def test_every_class_name_but_working_is_reached(now):
+     reached = {
+         classify(r, make_ctx(now)).class_name for r, _, _ in _rule_cases(now).values()
+     }
+-    assert reached == set(CLASSES)
++    assert reached == set(CLASSES) - {WORKING}  # no row is working in Phase 1
+ 
+ 
+ def test_rules_order_pin():
+@@ -428,7 +433,7 @@
+     assert policy_of(case_row) == expected
+ 
+ 
+-def test_rule_5_needs_all_four_conditions(now):
++def test_rule_5_never_matches_while_the_agent_wait_names_are_uncaptured(now):
+     full = dict(
+         liveness_verdict="live",
+         status="in_progress",
+@@ -436,7 +441,9 @@
+         agent_wait=None,
+     )
+     ctx = make_ctx(now)
+-    assert classify(row(orca=orca(**full)), ctx).class_name == WORKING
++    # All four conditions of DESIGN 7.2 hold, and the row still falls to the fallback.
++    cls = classify(row(orca=orca(**full)), ctx)
++    assert (cls.rule, cls.class_name) == ("fallback", UNKNOWN)  # open item 6
+     for broken in (
+         {"liveness_verdict": "unverifiable"},
+         {"status": "pending"},
+@@ -597,6 +604,37 @@
+     assert cls.notes == (N_EXITED,)
+ 
+ 
++def test_settled_orca_row_without_a_contract_names_the_missing_contract(now):
++    # FIN-F4: the five live Orca rows were exited, succeeded and completed, yet could not
++    # be `finished` because no contract was read; the row now says so.
++    settled = orca(liveness_verdict="exited", status="completed", outcome="succeeded")
++    cls = classify(row(orca=settled), make_ctx(now))
++    assert (cls.class_name, cls.rule) == (UNKNOWN, "fallback")
++    assert N_NO_CONTRACT in cls.notes
++    for outcome in ("partial", "failed"):
++        again = classify(row(orca=orca(outcome=outcome)), make_ctx(now))
++        assert N_NO_CONTRACT in again.notes, outcome
++
++
++@pytest.mark.parametrize(
++    "case_row",
++    [
++        pytest.param(row(orca=orca(outcome=None)), id="not-settled"),
++        pytest.param(row(), id="no-orca-row"),
++        pytest.param(
++            row(orca=orca(outcome="succeeded"), contract=contract("running")),
++            id="contract-not-settled",
++        ),
++        pytest.param(
++            row(orca=orca(outcome="succeeded"), contract=contract("succeeded")),
++            id="finished",
++        ),
++    ],
++)
++def test_no_contract_note_is_only_for_a_settled_row_with_no_contract(now, case_row):
++    assert N_NO_CONTRACT not in classify(case_row, make_ctx(now)).notes
++
++
+ def _live(**kw) -> OrcaObservation:
+     base = dict(
+         liveness_verdict="live",
+--- a/tests/sweep/test_report.py
++++ b/tests/sweep/test_report.py
+@@ -1032,6 +1032,65 @@
+     assert all(v.strip() and BANNED_WORD.search(v) is None for v in cells.values())
+ 
+ 
++def test_next_inspection_waiting_signal_and_fallback_fit_every_outcome():
++    # FIN-F3: one rule name matches rows with different evidence, so the map entry names
++    # what the row's own Evidence cell names and never a list that can be empty.
++    waiting = report.NEXT_INSPECTION["waiting_signal"]
++    for named in ("agent-wait entry", "contract", "Task in Orca task-list"):
++        assert named in waiting
++    fallback = report.NEXT_INSPECTION["fallback"]
++    assert "Evidence and Notes cells" in fallback
++    assert "(if none, the session's last transcript lines)" in fallback
++
++
++def test_sessions_safe_to_close_cell_carries_its_reason(ctx):
++    # FIN-F2: the report prints the reason behind each Safe to close value, not only the value.
++    hand = crow("orca:S1", UNKNOWN, "fallback")
++    released = real(
++        srow(
++            "orca:S2",
++            orca=obs(
++                "S2",
++                liveness_verdict="exited",
++                status="completed",
++                outcome="succeeded",
++                terminal_state="released",
++                next_action="none",
++            ),
++        ),
++        ctx,
++    )
++
++    text = report.render(result_of(ctx, [hand, released]), ctx)
++
++    column = "Safe to close (terminal / worktree)"
++    cells = {r["ID"]: r[column] for r in sessions_table(text)}
++    assert cells["orca:S1"] == (
++        "could not determine / could not determine "
++        "(terminal: not observed; worktree: not observed)"
++    )
++    assert cells["orca:S2"] == (
++        "no / could not determine (terminal: not releasable "
++        "(terminal_state=released, next_action=none); worktree: worktree not observed)"
++    )
++    assert block(text, "## Sessions").splitlines().count(report.SAFE_TO_CLOSE_LINE) == 1
++    assert "never prints yes in Phase 1" in report.SAFE_TO_CLOSE_LINE
++
++
++def test_orca_dropping_mid_run_is_not_reported_as_nothing_read(ctx):
++    # FIN-F6: Orca sources read before the drop are real, so the line names only the
++    # sources marked unscanned.
++    text = report.render(result_of(ctx, orca_available=False), ctx)
++
++    lines = block(text, "## What I could not determine").splitlines()
++
++    assert (
++        "- Orca became unavailable; the Orca sources marked unscanned above were not read"
++        in lines
++    )
++    assert not any("Orca sources were not read" in line for line in lines)
++
++
+ def test_sp16_literal_is_printed_under_could_not_determine(ctx):
+     with_note = result_of(ctx, [crow("orca:U1", UNKNOWN, "fallback", notes=(SP16,))])
+     section = block(report.render(with_note, ctx), "## Could not determine")
+--- a/tests/sweep/test_probes_allowlist.py
++++ b/tests/sweep/test_probes_allowlist.py
+@@ -1549,6 +1549,23 @@
+     assert obs.agent_wait_present is False
+ 
+ 
++def test_parse_worker_show_reads_no_agent_wait_field_until_its_names_are_captured():
++    # Open item 6: no live ``agentWait`` name was captured, so nothing is read from either
++    # place it might sit, and no wait time is guessed from any key (FIN-F1).
++    wait = {"since": "2026-11-08T10:00:00Z", "kind": "question"}
++    show = {
++        "dispatch": {"id": DISPATCH, "status": "dispatched"},
++        "projection": {"agentWait": wait},
++        "agentWait": wait,
++    }
++
++    obs = probes.parse_worker_show(RUN, {"dispatchId": DISPATCH}, show)
++
++    assert obs.agent_wait is None
++    assert obs.agent_wait_present is False
++    assert obs.agent_wait_since is None
++
++
+ def test_one_missing_and_one_extra_worker_show_key_raise_nothing():
+     list_row = {"dispatchId": DISPATCH}
+     result = _captured("captured-worker-show-1.json")["result"]
+@@ -1711,6 +1728,96 @@
+     assert inp.contracts == ()
+ 
+ 
++@pytest.mark.parametrize(
++    "text, field, expected",
++    [
++        pytest.param(  # a trailing comment is not part of the value
++            "worker_status: blocked  # waiting on owner\n",
++            "worker_status",
++            "blocked",
++            id="trailing-comment",
++        ),
++        pytest.param(  # a plain scalar continued on an indented line is one value
++            "blocked_question: first line\n  second line\n",
++            "blocked_question",
++            "first line second line",
++            id="continued-plain-scalar",
++        ),
++        pytest.param(  # a quoted flow item may hold a comma
++            'artifacts: [a.md, "b, c.md"]\nworker_status: succeeded\n',
++            "artifacts",
++            (Path("a.md"), Path("b, c.md")),
++            id="quoted-flow-item-with-comma",
++        ),
++        pytest.param(  # a flow list followed by a comment still parses as a list
++            "artifacts: [a.md, b.md]   # the outputs\n",
++            "artifacts",
++            (Path("a.md"), Path("b.md")),
++            id="flow-list-with-comment",
++        ),
++        pytest.param(  # invalid YAML is a record with no fields, never an error
++            "worker_status: [unclosed\n", "worker_status", None, id="invalid-yaml"
++        ),
++        pytest.param(  # a document that is not a mapping carries no fields
++            "- worker_status\n- blocked\n", "worker_status", None, id="not-a-mapping"
++        ),
++        pytest.param(  # too deeply nested for the parser: still no error
++            "[" * 5000, "worker_status", None, id="nested-too-deep"
++        ),
++        pytest.param(  # a scalar the loader rejects raises ValueError, not YAMLError
++            "worker_status: blocked\nreason: 2026-13-45\n",
++            "worker_status",
++            None,
++            id="rejected-date-scalar",
++        ),
++    ],
++)
++def test_contract_fields_are_read_by_yaml_safe_load(sweep_root, text, field, expected):
++    path = sweep_root.contract(text=text)
++
++    record = probes.read_contract(path, sweep_root.root)
++
++    assert record is not None
++    if field == "artifacts":
++        assert record.artifacts == expected
++    else:
++        assert getattr(record, field) == expected
++
++
++@pytest.mark.parametrize("budget_spent", [False, True], ids=["budget-left", "spent"])
++def test_a_changed_contract_is_re_read_only_while_the_budget_allows(
++    sweep_root, patch_orca, patch_git, clock, monkeypatch, budget_spent
++):
++    # NFR-007 (DESIGN 7.2): one re-read of a changed input only while the budget allows;
++    # with no budget left the row is a conflict after one read (FIN-F8).
++    path = sweep_root.contract(worker_status="running")
++    settled = path.read_bytes().replace(b"running", b"succeeded")
++
++    def change(n: int) -> None:
++        if n == 1:
++            path.write_bytes(settled)  # a second writer finishes the contract mid-read
++            if budget_spent:
++                clock.advance(1000.0)  # the 90 s total is gone before the re-read
++
++    reads = _change_on_read(monkeypatch, path, change)
++    _stock_contract_run(patch_orca, path)
++
++    inp = _collect(sweep_root, clock)
++
++    row = next(s for s in inp.sources if s.name == f"contract {did(1)}")
++    if budget_spent:
++        assert len(reads) == 1  # no re-read
++        assert (row.coverage, row.unscanned) == (
++            "unscanned",
++            "conflict: inconsistent observation",
++        )
++        assert inp.contracts == ()
++    else:
++        assert len(reads) == 2  # one read and one re-read
++        assert (row.coverage, row.unscanned) == ("read", None)
++        assert [c.worker_status for c in inp.contracts] == ["succeeded"]
++
++
+ def test_duplicate_dispatch_rows_with_two_states_give_one_conflict_row(
+     sweep_root, patch_orca, patch_git, clock
+ ):
+--- a/tests/sweep/test_cli_contract.py
++++ b/tests/sweep/test_cli_contract.py
+@@ -1071,12 +1071,16 @@
+         "workerState": "running",
+         "dispatchStatus": "dispatched",
+     }
++    # Waiting (a) comes from a blocked contract the Task names (rule 1): the live
++    # agentWait field is not read in Phase 1 (open item 6).
++    contract = env.sweep_root.contract(worker_status="blocked", reason="needs a person")
+     _canned(
+         env,
+         RUN,
+         workers=[worker],
+-        shows={dispatch: {"agentWait": {"kind": "question"}}},
++        shows={dispatch: {"dispatch": {"id": dispatch, "status": "dispatched"}}},
+         ready=[{"id": ready, "status": "ready", "spec": "x"}],
++        tasks=[{"id": "task_000000000001", "spec": f"Write {contract}"}],
+     )
+     _ps(env)
+ 
+--- a/tests/commands/test_sweep_command.py
++++ b/tests/commands/test_sweep_command.py
+@@ -433,8 +433,10 @@
+ # Clauses only the skill states (its own steps and boundaries), asserted on the skill text.
+ _SKILL_ONLY_PINS = [
+     (
+-        "success-parse-takes-only-report-path-and-summary",
+-        "On exit 0, parse the standard output as JSON and take only `report_path` and `summary`.",
++        # Moved with its text (FIN-F7): step 3 also takes `orca_available`.
++        "success-parse-takes-only-report-path-summary-and-orca-available",
++        "On exit 0, parse the standard output as JSON and take only `report_path`, "
++        "`summary` and `orca_available`.",
+     ),
+     (
+         "success-report-read-in-chunks-of-150-lines",
+@@ -519,6 +521,16 @@
+ )
+ _PHASE1_MARK = "`(not observed in Phase 1)`"
+ 
++# Final gate cycle 1 (FIN-F7): an exit 0 run that could not reach Orca must not read as a
++# normal run in the ordinary reply; the exempt reply is revision authority and is unchanged.
++_OUTAGE_SENTENCE = (
++    "In the ordinary reply, when `orca_available` is false, also print the one line "
++    "`Orca was unavailable; the counts may be missing Orca data (see Source coverage in the report).`"
++)
++_EXEMPT_ALONE_SENTENCE = (
++    "The exempt reply described below stays the counts and the path alone."
++)
++
+ 
+ def test_sweep_command_says_report_columns_are_observations_not_advice():
+     assert _REPORT_FACTS_SENTENCE in _text(_COMMAND).split("## Triggers", 1)[0]
+@@ -544,6 +556,19 @@
+     assert _PHASE1_MARK in _skill_parts()["exception"]
+ 
+ 
++def test_sweep_skill_step3_takes_orca_available_from_the_json():
++    assert "`orca_available`" in _step(3)
++
++
++def test_sweep_skill_step4_prints_the_orca_outage_line_in_the_ordinary_reply():
++    assert _OUTAGE_SENTENCE in _step(4)
++
++
++def test_sweep_skill_step4_keeps_the_exempt_reply_counts_and_path_alone():
++    assert _EXEMPT_ALONE_SENTENCE in _step(4)
++    assert "Orca was unavailable" not in _skill_parts()["exception"]
++
++
+ # --------------------------------------------------------------------------------------
+ # Group 3: the style keeps the table obligation everywhere else (all seven restatements)
+ # --------------------------------------------------------------------------------------

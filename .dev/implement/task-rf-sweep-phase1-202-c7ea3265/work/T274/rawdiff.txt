@@ -1,0 +1,81 @@
+--- a/src/superclaude/core/WORKER-CONTRACT.md
++++ b/src/superclaude/core/WORKER-CONTRACT.md
+@@ -274,7 +274,7 @@
+ 
+ ### WC-16. Coordinator loop
+ 
+-The coordinator keeps watching its Run until every Task it created is settled and every result has been inspected and its admission or rejection recorded. It never stops watching on its own. When a wait on Orca expires, the coordinator re-arms it. On every coordinator wake, at most once every 5 minutes, the coordinator runs "The sweep." under `### Liveness supervision` unchanged and, in the same pass, runs `/sc:sweep` and reads its report before it acts. `/sc:sweep` is an added read: it does not replace that sweep, it is not a second pass, and it does not update heartbeat records or run the `worktree ps --agent-wait` listing. Its own reads are not L1 probes and do not count against the L1 cap; the coordinator's own L1 probes stay limited to workers a trigger fired for. The coordinator keeps that pass scheduled while work remains. Phase 1 adds this duty, not a scheduler. The `/sc:sweep` classes follow WC-10: only Orca's stall proofs make a worker stalled; anything else it cannot prove is could not determine. A missing heartbeat is absence, never death. The coordinator escalates to the person, and does not act alone, on: a failed or blocked result it cannot retry under WC-6, a partial result it judges unusable, a third brief-guard refusal, a ready Task it did not create, needing ownership review, a frozen plan, and a fan-in with fewer than 2 admitted inputs. Person-started sessions appear in the report, observed from transcripts and ccsession files; they are never messaged. The `/sc:sweep` report is a dated local file; it is never posted. `/sc:sweep` recommends nothing: no stop, retry, release, merge or removal. The coordinator decides and performs any action under those rules. The coordinator records each admission or rejection in its run notes; `/sc:sweep` does not observe them.
++The coordinator keeps watching its Run until every Task it created is settled and every result has been inspected and its admission or rejection recorded. It never stops watching on its own. When a wait on Orca expires, the coordinator re-arms it. On every coordinator wake or wait timeout, at most once every 5 minutes, the coordinator runs "The sweep." under `### Liveness supervision` unchanged and, in the same pass, runs `/sc:sweep` and reads its report before it acts. `/sc:sweep` is an added read: it does not replace that sweep, it is not a second pass, and it does not update heartbeat records or run the `worktree ps --agent-wait` listing. Its own reads are not L1 probes and do not count against the L1 cap; the coordinator's own L1 probes stay limited to workers a trigger fired for. The coordinator keeps that pass scheduled while work remains. Phase 1 adds this duty, not a scheduler. The `/sc:sweep` classes follow WC-10: only Orca's stall proofs make a worker stalled; anything else it cannot prove is could not determine. A missing heartbeat is absence, never death. The coordinator escalates to the person, and does not act alone, on: a failed or blocked result it cannot retry under WC-6, a partial result it judges unusable, a third brief-guard refusal, a ready Task it did not create, needing ownership review, a frozen plan, and a fan-in with fewer than 2 admitted inputs. Person-started sessions appear in the report, observed from transcripts and ccsession files; they are never messaged. The `/sc:sweep` report is a dated local file; it is never posted. `/sc:sweep` recommends nothing: no stop, retry, release, merge or removal. The coordinator decides and performs any action under those rules. The coordinator records each admission or rejection in its run notes; `/sc:sweep` does not observe them.
+ 
+ ### Worked example: gate hit, answer, new Task
+ 
+--- a/docs/designs/orchestrator-mode.md
++++ b/docs/designs/orchestrator-mode.md
+@@ -676,7 +676,7 @@
+ ```markdown
+ ### WC-16. Coordinator loop
+ 
+-The coordinator keeps watching its Run until every Task it created is settled and every result has been inspected and its admission or rejection recorded. It never stops watching on its own. When a wait on Orca expires, the coordinator re-arms it. On every coordinator wake, at most once every 5 minutes, the coordinator runs "The sweep." under `### Liveness supervision` unchanged and, in the same pass, runs `/sc:sweep` and reads its report before it acts. `/sc:sweep` is an added read: it does not replace that sweep, it is not a second pass, and it does not update heartbeat records or run the `worktree ps --agent-wait` listing. Its own reads are not L1 probes and do not count against the L1 cap; the coordinator's own L1 probes stay limited to workers a trigger fired for. The coordinator keeps that pass scheduled while work remains. Phase 1 adds this duty, not a scheduler. The `/sc:sweep` classes follow WC-10: only Orca's stall proofs make a worker stalled; anything else it cannot prove is could not determine. A missing heartbeat is absence, never death. The coordinator escalates to the person, and does not act alone, on: a failed or blocked result it cannot retry under WC-6, a partial result it judges unusable, a third brief-guard refusal, a ready Task it did not create, needing ownership review, a frozen plan, and a fan-in with fewer than 2 admitted inputs. Person-started sessions appear in the report, observed from transcripts and ccsession files; they are never messaged. The `/sc:sweep` report is a dated local file; it is never posted. `/sc:sweep` recommends nothing: no stop, retry, release, merge or removal. The coordinator decides and performs any action under those rules. The coordinator records each admission or rejection in its run notes; `/sc:sweep` does not observe them.
++The coordinator keeps watching its Run until every Task it created is settled and every result has been inspected and its admission or rejection recorded. It never stops watching on its own. When a wait on Orca expires, the coordinator re-arms it. On every coordinator wake or wait timeout, at most once every 5 minutes, the coordinator runs "The sweep." under `### Liveness supervision` unchanged and, in the same pass, runs `/sc:sweep` and reads its report before it acts. `/sc:sweep` is an added read: it does not replace that sweep, it is not a second pass, and it does not update heartbeat records or run the `worktree ps --agent-wait` listing. Its own reads are not L1 probes and do not count against the L1 cap; the coordinator's own L1 probes stay limited to workers a trigger fired for. The coordinator keeps that pass scheduled while work remains. Phase 1 adds this duty, not a scheduler. The `/sc:sweep` classes follow WC-10: only Orca's stall proofs make a worker stalled; anything else it cannot prove is could not determine. A missing heartbeat is absence, never death. The coordinator escalates to the person, and does not act alone, on: a failed or blocked result it cannot retry under WC-6, a partial result it judges unusable, a third brief-guard refusal, a ready Task it did not create, needing ownership review, a frozen plan, and a fan-in with fewer than 2 admitted inputs. Person-started sessions appear in the report, observed from transcripts and ccsession files; they are never messaged. The `/sc:sweep` report is a dated local file; it is never posted. `/sc:sweep` recommends nothing: no stop, retry, release, merge or removal. The coordinator decides and performs any action under those rules. The coordinator records each admission or rejection in its run notes; `/sc:sweep` does not observe them.
+ ```
+ 
+ The appended sentence closes a gap the panel found (SP-27): the end condition names "admission or rejection recorded", but `/sc:sweep` has no source for that record, so the text says where it lives and that `/sc:sweep` cannot see it. It adds no pin. The text holds no lock sentence (SPEC line 410).
+--- a/src/superclaude/commands/sweep.md
++++ b/src/superclaude/commands/sweep.md
+@@ -17,7 +17,7 @@
+ 
+ ## Triggers
+ 
+-Explicit only: the coordinator runs `/sc:sweep` on every wake, or a person types it. Nothing starts it automatically.
++Explicit only: the coordinator runs `/sc:sweep` inside its liveness sweep pass, at most once every 5 minutes (WC-16 in `~/.claude/WORKER-CONTRACT.md`), or a person types it. Nothing starts it automatically.
+ 
+ ## Usage
+ 
+--- a/.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/test-results/step-1.17-checks.md
++++ b/.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/test-results/step-1.17-checks.md
+@@ -72,3 +72,19 @@
+ Result: 0 matches (grep exits 1). PASS
+ 
+ Overall: all checks PASS.
++
++## Re-run after the cycle-1 fix (2026-11-12, item 12.14)
++
++Owner-approved change (record: `phase-outputs/plans/OQ-3-addendum-wc16-wait-timeout-decision.md`): WC-16 now starts "On every coordinator wake or wait timeout, at most once every 5 minutes, ..." in `WORKER-CONTRACT.md:277` and in the DESIGN section 8 fenced block (`docs/designs/orchestrator-mode.md:679`). The commands of checks 1 to 6 above were run again, unchanged, in the same worktree. The contract diff against HEAD now also holds the line-23 change that item 12.2 added after the first record, so the totals in checks 3 and 5 differ from the first run for that reason, not because of the cycle-1 edit.
++
++- Check 1 (heading line between the two headings): output `271:### Fan-in rule ...`, `275:### WC-16. Coordinator loop`, `279:### Worked example: gate hit, answer, new Task`, exit 0. PASS
++- Check 2 (WC-14 heading count): `now=0 head=0`, exit 0. PASS (vacuous, see CON-F3 in `qa/contract/consolidated-findings-cycle0.md`; WC-14 is a bullet at `WORKER-CONTRACT.md:63`, not a `###` heading)
++- Check 3 (only added lines): `removed=0 added=3` and ` 1 file changed, 5 insertions(+), 1 deletion(-)`, exit 0. The 1 deletion and the third added line are the line-23 change (`/sc:sweep` in the never-as-worker list, item 12.2); the WC-16 hunk is still 4 pure insertions (heading, blank, paragraph, blank). PASS for the WC-16 hunk (the first run's "removed=0 added=2, 4 insertions" no longer holds for the whole file diff, as stated above)
++- Check 4 (four pin phrases in the added lines): `WC-16. Coordinator loop: 1`, `On every coordinator wake: 1`, `it is never posted: 1`, `It never stops watching on its own: 1`, exit 0. PASS (the new text "On every coordinator wake or wait timeout" still contains the pinned phrase)
++- Check 5 (inserted text equals the DESIGN fenced block), command exactly as above: output `/tmp/wc16-inserted.txt /tmp/wc16-design.txt differ: byte 1, line 1`, exit 1, with 3 lines against 2. FAIL as written, because the added lines now include the line-23 sentence from item 12.2. Not caused by the cycle-1 edit.
++  - Same comparison with the line-23 line (`- **Never-as-worker list**`) filtered out of the inserted side: `identical`, 2 lines against 2, exit 0. PASS
++  - Full byte compare including blank lines, `WORKER-CONTRACT.md` lines 275 to 277 against the whole DESIGN fenced block: `identical-with-blank-lines`, exit 0. PASS
++  - So the contract paragraph and the DESIGN block are byte-identical after the fix.
++- Check 6 (no `uv`, `make` or `bash` code span in the added lines): `0`, exit 1 (grep exit 1 means no match). PASS
++
++Overall: the contract and the DESIGN block are byte-identical; check 5 as written fails only because of the line-23 hunk (see above), and the two adjusted comparisons pass.
+--- /dev/null
++++ b/.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/contract/fix-log-cycle1.md   (new file, 67 lines)
++# Fix log, contract gate cycle 1 (item 12.14)
++
++Date: 2026-11-12. Fix agent: single fix agent, `fix_authorization: true`. Findings in scope: CON-F1 and CON-F2 (|F_0| = 2) from `qa/contract/consolidated-findings-cycle0.md`. Owner decision record: `phase-outputs/plans/OQ-3-addendum-wc16-wait-timeout-decision.md` (status RESOLVED, "Approve both fixes").
++
++## Files edited
++
++| File | Edit | Line after the change |
++|---|---|---|
++| `src/superclaude/commands/sweep.md` | the Triggers sentence (CON-F1) | `src/superclaude/commands/sweep.md:20` |
++| `src/superclaude/core/WORKER-CONTRACT.md` | WC-16 first words (CON-F2) | `src/superclaude/core/WORKER-CONTRACT.md:277` |
+... (new file continues; read .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/contract/fix-log-cycle1.md from disk for lines 11-67)
+--- /dev/null
++++ b/.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/plans/OQ-3-addendum-wc16-wait-timeout-decision.md   (new file, 27 lines)
++---
++needs_human_decision: false
++status: RESOLVED
++---
++
++# WC-16 wait-timeout wording and sweep.md cadence decision (contract gate, cycle 1)
++
++Recorded 2026-11-12 during item 12.14 (QA contract fix cycle 1). This record adds to `OQ-3-GQ-11-rule-id-decision.md`, which approved WC-16 and the DESIGN section 8 text as written; it does not replace it.
++
++## Question put to the owner
+... (new file continues; read .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/plans/OQ-3-addendum-wc16-wait-timeout-decision.md from disk for lines 11-27)

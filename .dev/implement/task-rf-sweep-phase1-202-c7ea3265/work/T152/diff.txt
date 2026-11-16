@@ -1,0 +1,33 @@
+--- /dev/null
++++ b/.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/decisions/qa-readonly-safety-report.md   (new file, 92 lines)
++# QA Report - Item 7.24 Read-only safety lens (rf-qa)
++
++**Date:** 2026-11-12
++**Phase:** decisions gate, agent 4 of 8, read-only safety lens
++**fix_authorization:** false (only this report was written)
++**Package:** `.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/` (paths below are relative to it unless they start with `docs/`, `src/`, `tests/` or `/`)
++
++## Checks
++
++| Check | Description | Result |
++|-------|-------------|--------|
++| C1 | Every command in `artifacts/readonly-probe.md` is one of DESIGN 7.3 templates 1 to 8, a file read, or the item's step (6) `echo` and `ls -la` | PASS |
++| C2 | No forbidden token was run (`worker-read`, `gate-list`, `check`, `inbox`, `--include-remote`, `git stash`, `run-current --json`) | PASS |
++| C3 | `run-current` was issued only in its plain form | PASS |
++| C4 | Step 1.0a ran no `--agent-wait` template; `worktree ps` was issued only as `worktree ps --json` | PASS |
++| C5 | Before and after `worker-show` and `task-list` reads match (checked by me from the raw files) | PASS (see M1) |
++| C6 | Read order was before, middle, after, as item 7.16 requires | PASS (see M5) |
++| C7 | DESIGN 7.3 `FORBIDDEN_TOKENS` is exactly `{"--include-remote"}` | PASS |
++| C8 | DESIGN 7.3 `ALLOWED_ORCA` holds ten templates; the two `worktree ps --agent-wait` forms are templates 9 and 10 | PASS |
++| C9 | R5 edit is consistent across DESIGN 7.3, 11, 12, 13, 15.1, the GQ-109 row and the section 18 `### Fix cycle 3` R5 row | PASS |
++| C10 | Fixtures hold no real home path prefix, session id, pane key, terminal handle or account name | PASS (see M4) |
++| C11 | Fixtures hold no free-text message bodies, secrets or other sessions' conversation | PASS |
++| C12 | Capture created no Run, Task or Dispatch and issued no write command to Orca | PASS |
++| C13 | Tab-map reads stayed inside the recorded `orca-tabs/` folder (five files) | PASS (producer record; see Confidence) |
++| C14 | OQ-17 refusal is consistent with the allowlist staying at ten and no cursor template | PASS |
++| C15 | `artifacts/pr422-409-check.md` ran only read commands, with `--repo IronbellyOrg/IronClaude`, and no fetch, push or upstream call | PASS |
++| C16 | The early Markdown style edit touched only `src/superclaude/output-styles/pragmatic.md`; no skill, CLI, test, mirror, sync or install change | PASS |
++| C17 | The style edit is not represented as a sweep runtime write, a new probe or an action right | PASS |
++| C18 | HOME activation is not inferred from sync | PASS |
++| C19 | Execution authorization for 7.10 is separate from the OQ-6 decision and the revision authorization, and covers item 7.10 only | PASS |
+... (new file continues; read .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/decisions/qa-readonly-safety-report.md from disk for lines 31-92)

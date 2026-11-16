@@ -1,0 +1,10 @@
+--- a/.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md
++++ b/.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md
+@@ -2803,6 +2803,7 @@
+ 
+ | Timestamp | Item | Event | Detail |
+ |---|---|---|---|
++| 2026-11-09 | 6.20 | SKIPPED | Cycle-2 structural verifier not needed: qa/r5/cycle1-decision.md records F_1 empty and PASS at cycle 1 after the owner's scoped acceptance of seven failed baseline predicates. No cycle-2 structural verifier or report was created. |
+ | 2026-11-09 | 6.19 | SKIPPED | Cycle-2 fix agent not needed: qa/r5/cycle1-decision.md records F_1 empty and PASS at cycle 1 after the owner's scoped acceptance of seven failed baseline predicates. No cycle-2 fix log or agent was created. |
+ | 2026-11-09 | 6.18 | HALT RESOLVED by owner | After the seven categories and unresolved consequences were explained, the owner selected "Accept these seven failures" in the current session. Waiver applies only to this gate's seven check transitions: crossref C16; internal-consistency C20; spec-fidelity C10-C13; template-conformance C11. All FAIL results and the 128-ID PASS set remain unchanged. No later gate or owner decision is waived. F_1 remains empty, monotonicity passes after resolution, outcome PASS at cycle 1. Items 6.19-6.21 designated SKIPPED pending individual records/review. Task status Doing, blocker_reason cleared. |
+ | 2026-11-09 | 6.18 | HALT: regression | Regression detected on Item 6.11, previously PASS at cycle 0, now FAIL. Halt overrides monotonicity check. Seven baseline PASS IDs now FAIL in the qualitative report (crossref C16; internal-consistency C20; spec-fidelity C10-C13; template-conformance C11). Both reports resolve R5-F1 and have no new BLOCKING/MAJOR finding, but this does not override the regression-first rule. Cycle-1 PASS set is 128 IDs; F_1 is empty. Monotonicity was not evaluated. Item 6.18 remains unticked, no subsequent item started and no owner waiver inferred. See qa/r5/cycle1-decision.md and cycle-ledger.md row 1. |

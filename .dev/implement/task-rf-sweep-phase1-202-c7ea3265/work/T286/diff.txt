@@ -1,0 +1,10 @@
+--- a/docs/user-guide/commands.md
++++ b/docs/user-guide/commands.md
+@@ -113,6 +113,7 @@
+ | `/sc:help` | List installed commands, skills, process levels | `help.md` | No |
+ | [`/sc:graph`](#scgraph---code-graph-index-status) | Code-graph index status; builds the index only on `init` | `graph.md` | Only with `init` |
+ | [`/sc:issue`](#scissue---github-issue-claim-and-create) | Claim a GitHub issue (assign, accuracy check, summary, next-step prompt, then an Orca worktree and a launched agent) or create a templated issue | `issue.md` | Yes (posts to GitHub; writes `.dev/issues/`) |
++| `/sc:sweep` | Read-only snapshot of a Run, its worktrees and person sessions | `sweep.md` | Report only (writes `.dev/sweeps/`) |
+ | `/sc:recommend` | Paste-ready prompt for the right command | `recommend.md` | Report only (inside an IronClaude checkout it writes its cache and telemetry under `.claude/cache/`) |
+ | `/sc:init-lite` | Safe audit of project-local context surfaces | `init-lite.md` | Report only |
+ | `/sc:pr-submit` | Open fork PR and monitor review fixes | `pr-submit.md` | Yes |

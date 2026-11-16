@@ -1,0 +1,8 @@
+T56 = item 4.4 of the source file /home/coder/workspaces/worktrees/IronClaude/issue-339-orchestrator-mode/.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md (lines 614-620). Item text:
+- [ ] **4.4 — R3-B3 edit 3: the FR-010 row in section 12**
+  - **Context**: research/04:188; FR-010 row near DESIGN line 764 (already edited by item 3.3).
+  - **Action**: In the design column, after "completeness guard", add "with its three list-incomplete cases (outage, full page, `call_failed`) and". In the test column, add "the three SPEC incomplete-case fixtures" to the `sweep/test_classify.py` parenthesis.
+  - **Output**: DESIGN section 12 FR-010 row updated.
+  - **Verification**: Verify: the FR-010 row contains `three list-incomplete cases` and `the three SPEC incomplete-case fixtures`, and keeps its cell count. If the anchor is missing, log it in `### Phase 4 Findings` and stop.
+  - **Completion gate**: The row is updated. Once done, mark this item as complete.
+AC ids: T56.AC1 = the item title "R3-B3 edit 3: the FR-010 row in section 12" (no AC block; the title is the AC). The item's own Verification and Completion gate lines are context for what "done" means. Ticking the item's checkbox is done by the orchestrator after the verdict and is not part of the diff under review.

@@ -1,0 +1,7 @@
+0aab14fa4c4e70147b80d5df0fffdf7ce2aadc13 tree=1a13646600458034484d9e9fc5e8a28d74b2ddfc
+Review 1 of T169 (fresh subagent, prompt-1-1.md). Reviewer AC mark: T169.AC1 met (rules, joins and notes verified by throwaway scripts; 300 input shuffles gave identical results), with one scope finding.
+F1.1 sev=blocking trigger=B4 ac=scope at=src/superclaude/cli/sweep/classify.py:810 anchor="Fill the nine `SessionRow` dimension fields only from the sources research/09 Gap 2 lists (REPORT:1248) that the row already carries" chk=amiss:n,false:n,harm:n,constraint:y family=dimension-sources fix=In _health keep only the failed-contract mapping and unknown; base _lifecycle only on the Orca outcome. first=A1 origin=new: _health added two mappings (orca outcome failed; live/exited to no issue observed) and _lifecycle used liveness and status presence, none of which research/09 Gap 2 lists. (Parent read-back: research/09-gap-fill.md:51 and :53 list outcome for lifecycle and the failed contract for health only; confirmed.)
+Non-blocking (to notes.md): F1.2 policy_of returns frozen for a blocked contract on a live row under ask the coordinator (advisory); F1.3 OrcaObservation.unsupervised is never read.
+Disposition (parent): family probe written (probe-1-1.md); one fix pass applied to _lifecycle and _health; next review is r2-1.
+Review 2-1 of T169 (fresh subagent, prompt-2-1.md): F1.1 resolved. T169.AC1 met. No new findings.
+F1.1 resolved

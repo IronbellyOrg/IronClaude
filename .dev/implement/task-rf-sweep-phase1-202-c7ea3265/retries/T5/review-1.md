@@ -1,0 +1,3 @@
+bb81b38e05ceba722056deefcfe14c6e09506228 tree=987ee34acb73cf00d9dfeb029e9b8b75525b2a30
+T5.AC1 met: T5.AC1@docs/designs/orchestrator-mode.md:455, :457, :468 (reviewer marks verbatim; the AC is met except for the finding below)
+F1.1 sev=blocking trigger=B2 ac=scope at=docs/designs/orchestrator-mode.md:468 anchor=docs/designs/orchestrator-mode.md:506 chk=amiss:n,false:y,harm:n,constraint:n family=stale-self-line-ref fix=change "line 504" to "line 506" at :468, or drop the line number and keep "unknown row schema rule" as the anchor first=A1 origin=new: The new sentence says "(unknown row schema rule, line 504)". After the two inserted lines, the "Unknown row schema" bullet is at :506. Line 504 is the WC-13 bullet.

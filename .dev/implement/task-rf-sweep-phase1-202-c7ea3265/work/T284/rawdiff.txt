@@ -1,0 +1,28 @@
+--- a/tests/core/test_how_we_work_routing_table.py
++++ b/tests/core/test_how_we_work_routing_table.py
+@@ -31,6 +31,7 @@
+     "sc:impact",
+     "sc:issue",
+     "sc:spawn",
++    "sc:sweep",
+     "sc:index",
+     "sc:index-repo",
+     "sc:agent",
+--- /dev/null
++++ b/.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/test-results/r1-r4-routing-table.txt   (new file, 90 lines)
++============================= test session starts ==============================
++platform linux -- Python 3.11.15, pytest-9.2.0, pluggy-1.7.0 -- /home/coder/workspaces/worktrees/IronClaude/issue-339-orchestrator-mode/.venv/bin/python
++cachedir: .pytest_cache
++SuperClaude: 5.0.0
++rootdir: /home/coder/workspaces/worktrees/IronClaude/issue-339-orchestrator-mode
++configfile: pyproject.toml
++plugins: superclaude-5.0.0, anyio-4.16.0
++collecting ... collected 79 items
++
++tests/core/test_how_we_work_routing_table.py::test_each_marker_appears_exactly_once[<!-- level-table:v1 -->] PASSED [  1%]
++tests/core/test_how_we_work_routing_table.py::test_each_marker_appears_exactly_once[<!-- /level-table -->] PASSED [  2%]
++tests/core/test_how_we_work_routing_table.py::test_each_marker_appears_exactly_once[<!-- routing-table:v1 -->] PASSED [  3%]
++tests/core/test_how_we_work_routing_table.py::test_each_marker_appears_exactly_once[<!-- /routing-table -->] PASSED [  5%]
++tests/core/test_how_we_work_routing_table.py::test_markers_are_ordered PASSED [  6%]
++tests/core/test_how_we_work_routing_table.py::test_level_table_block PASSED [  7%]
+... (new file continues; read .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/test-results/r1-r4-routing-table.txt from disk for lines 16-90)

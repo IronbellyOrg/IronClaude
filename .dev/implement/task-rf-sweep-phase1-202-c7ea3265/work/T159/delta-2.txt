@@ -1,0 +1,14 @@
+--- a/.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/decisions/fix-log-cycle1.md
++++ b/.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/decisions/fix-log-cycle1.md
+@@ -197,3 +197,11 @@
+ 
+ Summary: PASS 11, SKIP 1, FAIL none.
+ 
++
++## Owner ruling on the DEC-F5 remainder (recorded by the orchestrator)
++
++Item 7.30's fix agent could not edit DESIGN or the task file, so the stale Orca build suffix `780594c521aa` stays at DESIGN `docs/designs/orchestrator-mode.md:30` and `:761` and in the text of items 8.12 and 10.5 (DEC-F5 remainder, listed OPEN above). The cycle-1 verifiers (items 7.31 and 7.32) graded that remainder a separate new MINOR note (M-1 in `verify-cycle1-rf-qa.md`, N2 in `verify-cycle1-rf-qa-qualitative.md`) and marked DEC-F5 RESOLVED for the rule defect; one independent reviewer of item 7.31 held that the remainder keeps DEC-F5 OPEN. The owner was asked how the gate should treat it.
++
++- Question (this session's question tool): "The review panel's last open point (finding DEC-F5) is a stale Orca build suffix, `...780594c521aa`, in the design's test row (DESIGN line 761) and in plan item 10.5; the live build is `...9cfecdd30b2a`. ... How should the gate treat it?"
++- Answer: Ryan Wiancko, owner, selected "Accept as a minor note (Recommended)", recorded at 2026-11-12T01:04:30.551Z. The option text reads: "You rule that the remainder is a minor follow-up already recorded in the facts file for items 8.12 and 10.5. The decisions gate then passes at cycle 1 and the second fix cycle is skipped. I record your words as the ruling. Nothing is edited in DESIGN or the plan now."
++- Effect: the DEC-F5 remainder is an owner-accepted minor note, not a gate-blocking finding. The follow-up for the builders of items 8.12 and 10.5 stays in `phase-outputs/discovery/1.0a-facts.md:46-48`. This ruling covers DEC-F5 only.

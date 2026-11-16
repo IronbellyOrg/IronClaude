@@ -1,0 +1,93 @@
+--- /dev/null
++++ b/.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/test-results/phase14-lint.md   (new file, 111 lines)
++# Phase 14 lint (item 14.2)
++
++Run 2026-11-12. Each block: the command, its exit code, the last 30 lines of output and one PASS or FAIL line.
++
++## Check 1
++
++Command: `make lint`
++```text
++  ✅ [Check 9]: sc:reflect-protocol ends in -protocol
++  ✅ [Check 9]: sc:release-split-protocol ends in -protocol
++  ✅ [Check 9]: sc:review-translation-protocol ends in -protocol
++  ✅ [Check 9]: sc:roadmap-protocol ends in -protocol
++  ✅ [Check 9]: sc:swarm-wizard-protocol ends in -protocol
++  ✅ [Check 9]: sc:sweep-protocol ends in -protocol
++  ✅ [Check 9]: sc:task-protocol ends in -protocol
++  ✅ [Check 9]: sc:tasklist-protocol ends in -protocol
++  ✅ [Check 9]: sc:troubleshoot-protocol ends in -protocol
++  ✅ [Check 9]: sc-validate-roadmap-protocol ends in -protocol
++  ✅ [Check 9]: sc:validate-tests-protocol ends in -protocol
++  ✅ [Check 9]: sc:workflow-protocol ends in -protocol
++
++=== Check 10: Workspace Suffix Blocklist ===
++  ✅ [Check 10]: no *-workspace directories under .claude/skills/
++
++=== Check 11: Contract Constant Anti-Duplication (Contract #5 + #8) ===
++  ✅ [Check 11]: no contract-constant duplications
++
++=== Checks 5/7: NEEDS DESIGN (skipped) ===
++  ℹ️  Check 5 (inline protocol detection) — pending design
++  ℹ️  Check 7 (activation references correct skill) — pending design
++
++=== Summary ===
++  Errors:   0
++  Warnings: 5
++  ✅ PASS — architecture policy compliant (5 warning(s))
++Running linter...
++uv run ruff check .
++All checks passed!
++(exit 0)
++```
++Check 1: PASS (exit 0)
++
++## Check 2
++
++Command: `uv run ruff check .`
++```text
++All checks passed!
++(exit 0)
++```
++Check 2: PASS (exit 0)
++
++## Check 3
++
++Command: `uv run ruff format --check src/ tests/`
++```text
++140 + {{SC_PLACEHOLDER: data_model_code}}
++141 | ```
++    |
++
++unformatted: File would be reformatted
++  --> tests/roadmap/fixtures/recurrence/dispatch_reachability/skipped_verification_step_case.md:44:30
++   |
++43 |     steps = _build_steps(config)
++   -     execute_pipeline(steps)          # ends at remediate
++44 +     execute_pipeline(steps)  # ends at remediate
++45 |     # verify-implementation / certify terminal steps NEVER dispatched
++   |
++
++unformatted: File would be reformatted
++  --> tests/roadmap/fixtures/recurrence/retry_contract/retry_loop_no_terminal_case.md:41:17
++   |
++40 |     id="spec-fidelity",
++   -     prompt="",            # deterministic: output is f(inputs), inputs unchanged
++41 +     prompt="",  # deterministic: output is f(inputs), inputs unchanged
++42 |     output_file=spec_fidelity_file,
++43 |     gate=SPEC_FIDELITY_GATE,
++44 |     timeout_seconds=600,
++   -     inputs=[spec_file, roadmap_file],   # never rewritten between attempts
++   -     retry_limit=2,        # <-- futile: attempt 2 == attempt 1, byte-identical
++45 +     inputs=[spec_file, roadmap_file],  # never rewritten between attempts
++46 +     retry_limit=2,  # <-- futile: attempt 2 == attempt 1, byte-identical
++47 | )
++   |
++
++12 files would be reformatted, 1823 files already formatted
++(exit 1)
++```
++Check 3: FAIL (exit 1)
++
++## Pre-existing format failures (check 3)
+... (new file continues; read .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/test-results/phase14-lint.md from disk for lines 91-111)

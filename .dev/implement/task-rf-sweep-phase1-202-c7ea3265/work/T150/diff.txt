@@ -1,0 +1,33 @@
+--- /dev/null
++++ b/.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/decisions/qa-record-form-report.md   (new file, 77 lines)
++# QA Report - Record-form lens (item 7.22)
++
++**Reviewer:** rf-qa (report-only, fix_authorization: false)
++**Date:** 2026-11-12
++**Phase:** decisions gate, record-form lens
++**Base path:** `.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/` (shortened to `PKG/` below)
++
++## Checks
++
++| Check | Description | Result |
++|-------|-------------|--------|
++| C1 | OQ-1 file: `needs_human_decision: false`, `status: RESOLVED`, no recommendation line, filled four decision lines quoting "Allow it, no conditions needed." | PASS |
++| C2 | OQ-2 file: `needs_human_decision: true`, `status:`, question and options quoted, recommendation ends "This recommendation does NOT authorize adoption.", blocked steps, four decision lines | PASS |
++| C3 | OQ-3 file: same parts as C2 | PASS |
++| C4 | OQ-4 file: same parts as C2 | PASS |
++| C5 | OQ-5 file: same parts as C2 | PASS |
++| C6 | OQ-6 file: same parts as C2, with the no-recommendation sentence instead of a recommendation line | PASS |
++| C7 | OQ-7 file: same parts as C2 | PASS |
++| C8 | OQ-8 file: `needs_human_decision: true`, `status:`, request quoted, blocked steps, `Run id:` / `Given by:` / `Source:` filled, record says the Run holds at least one Dispatch row | PASS (MINOR note M1) |
++| C9 | OQ-17 file (exists, folder listing): same parts as C2 | PASS |
++| C10 | No OQ-18 file exists (so no OQ-18 row is owed) | PASS |
++| C11 | `owner-decisions.md` has seven decision rows OQ-1 to OQ-7 | PASS |
++| C12 | `owner-decisions.md` has one extra row for each resolved OQ-17 / OQ-18 file that exists (OQ-17 exists and is RESOLVED, so eight rows are owed) | FAIL |
++| C13 | `owner-decisions.md` APPROVED table present, 13 rows, each cell identical to `.dev/orca-command-refactor/decisions/APPROVED.md` at the cited line | PASS |
++| C14 | Owner quotes and `file:lines` ranges in `owner-decisions.md` rows 1-7 match the record files | PASS |
++| C15 | OQ-6 record versus the narrow style override: record unchanged, `pragmatic.md:22` carries the scoped exception, no contradiction outside the override | PASS |
++
++## Evidence by check
++
++- C1: `PKG/phase-outputs/plans/OQ-1-agent-wait-decision.md:4-5` (`needs_human_decision: false`, `status: RESOLVED`), `:19-22` (OPERATOR DECISION, Chosen, Decided by, Decision source), quote at `:22`. The whole file (42 lines read) has no recommendation sentence.
+... (new file continues; read .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/decisions/qa-record-form-report.md from disk for lines 31-77)

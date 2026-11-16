@@ -1,0 +1,14 @@
+0a7cee4faa2ae54bbc251ef09bea4d73cd38ed8d
+family=gate-outcome-waivers
+defect form: a summary line that states a gate or decision outcome in a simpler form than its source record (a bare PASS for a gate that passed by an owner waiver, or a question restated instead of the chosen option).
+command: grep -n -i -E -e 'waive|waiver|accept these' -- .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/r3-b3/cycle-ledger.md .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/r5/cycle-ledger.md .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/r3-b1/cycle-ledger.md .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/r3-b2/cycle-ledger.md .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/r4/cycle-ledger.md .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/decisions/cycle-ledger.md .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/impl-core/cycle-ledger.md .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/impl-cli/cycle-ledger.md .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/tests/cycle-ledger.md .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/cmd-skill/cycle-ledger.md .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/contract/cycle-ledger.md .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/docs/cycle-ledger.md .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/final/cycle-ledger.md .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/fidelity/cycle-ledger.md
+before-output: only qa/r3-b3/cycle-ledger.md:4 and qa/r5/cycle-ledger.md:4 contain a waiver.
+coupled sites: the summary gate lines for R3-B3 and R5, the Open MINOR notes section of the summary, and the OQ lines of the summary.
+after: both gate lines now say PASS by owner waiver and name the waived checks; no other ledger names a waiver.
+
+family=follow-up-coverage
+defect form: a follow-up named in a Phase N Findings entry, followups.md or a gate decision that is in no line of the Follow-Up Items section.
+command: grep -n -E -e 'step 5|conjunction|path tails|already on your PATH|open items 17 and 18|FID-F12' -- .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md
+after: the Follow-Up Items section now holds lines for the Phase 11 pins, the WC-16 wording weaknesses, DESIGN open items 17 and 18, the pipx ambiguity, the Phase 10 fixture sanitize, the R2 "on every wake" wording, the command frontmatter pins and the stale pointers.
+
+after (second repair, after review 1-2): a scan of the Phase 1 to 13 Findings entries for the phrases follow-up, later item, pick up, not fixed, left unfixed, stays open, owner may and candidate found three more uncovered items (the impl-cli pickup list, DESIGN 7.4 :346 and the impl-core MINOR set); lines for all three were added to the Follow-Up Items section, the aggregate MINOR line now names the earlier gates' notes, and the Phase 10 step citation and the stale-pointers line were corrected.

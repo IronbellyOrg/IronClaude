@@ -1,0 +1,3 @@
+Review 1-1 of T200 (fresh subagent, prompt-1-1.md): T200.AC1 met. F1.1 (checks table writes "PASS with note" instead of a bare PASS) and F1.2 (one-line citation drift) both answer no on all four checklist questions; no blocking finding. The reviewer re-checked the seven publish steps, the error table, the exit-2 ordering and the no-overwrite check against live source and found them true.
+F1.1 note qa-publication-report.md:103 C19 and C20 read "PASS with note M1" and "PASS with note M4" instead of a bare PASS; each still begins with PASS, so every check id is decidable.
+F1.2 note qa-publication-report.md:76 M1 cites commands.py:207 for the "could not remove temp file" message; the f-string is on line 206 (line 207 is the closing `) from exc`). Citation drift only.

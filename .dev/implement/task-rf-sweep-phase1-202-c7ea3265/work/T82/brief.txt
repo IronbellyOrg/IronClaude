@@ -1,0 +1,8 @@
+T82 = item 5.6 of the source file /home/coder/workspaces/worktrees/IronClaude/issue-339-orchestrator-mode/.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md (lines 802-808). Item text:
+- [ ] **5.6 — R4: re-anchor the `main.py` insertion point (DESIGN lines near 28, 915, 951)**
+  - **Context**: PR #447 added the `issue-watch` pair to `src/superclaude/cli/main.py`: import at `:563`, `main.add_command(issue_watch_group, name="issue-watch")` at `:565`; `if __name__ == "__main__":` moved to `:568`; the file is 569 lines (research/08:15, :117). DESIGN still says "after line 561", the block 519-561, last pair reflect (559, 561) and `if __name__` 564.
+  - **Action**: At DESIGN near line 28 change to block 519-565, last pair `issue-watch` (563, 565), `if __name__` at 568. At step 1.7 (near 915) and the rollback row (near 951) change "after line 561" to "after line 565".
+  - **Output**: DESIGN with the 565 anchor.
+  - **Verification**: Verify: `grep -n 'after line 561\|519-561' docs/designs/orchestrator-mode.md` returns nothing; `grep -c 'after line 565'` is at least 2; read `src/superclaude/cli/main.py` lines 559-569 and record line 565's text in `.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/discovery/r4-reanchor.md`.
+  - **Completion gate**: The insertion point is 565 everywhere. Once done, mark this item as complete.
+AC ids: T82.AC1 = the item title "R4: re-anchor the `main.py` insertion point (DESIGN lines near 28, 915, 951)" (no AC block; the title is the AC). The item's own Verification and Completion gate lines are context for what "done" means. Ticking the item's checkbox is done by the orchestrator after the verdict and is not part of the diff under review.

@@ -1,0 +1,21 @@
+--- a/src/superclaude/cli/sweep/commands.py
++++ b/src/superclaude/cli/sweep/commands.py
+@@ -162,6 +162,9 @@
+         raise _PublishError(
+             f"[sweep publish] output dir escaped {base if base else output_dir}/"
+         )
++    data = text.encode(
++        "utf-8"
++    )  # before the temp file exists, so an encode error leaves none
+     tmp = output_dir / f".{stem}.{os.getpid()}.tmp"
+     try:
+         fd = os.open(tmp, os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o666)
+@@ -171,7 +174,7 @@
+         raise _PublishError(f"[sweep publish] {exc}") from exc
+     try:
+         try:
+-            _write_all(fd, text.encode("utf-8"))
++            _write_all(fd, data)
+         finally:
+             os.close(fd)
+     except OSError as exc:

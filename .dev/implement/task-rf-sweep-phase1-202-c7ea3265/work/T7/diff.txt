@@ -1,0 +1,22 @@
+--- a/docs/designs/orchestrator-mode.md
++++ b/docs/designs/orchestrator-mode.md
+@@ -57,7 +57,7 @@
+ | GQ-101 | A package counts toward "shared" only when it is active in a worktree: that worktree's one `git status` lists a changed or untracked path whose path starts with the package folder `.dev/tasks/{to-do,done}/<id>/`. Committed, unchanged folders never count. `mark_shared_packages` takes the per-worktree active sets and flags an id active in 2 or more worktrees; the report prints one Retained problems line naming every worktree. | `classify.mark_shared_packages(worktrees) -> tuple[WorktreeState, ...]`; `PackageRecord.active`; `WorktreeState.shared_package_ids` | SPEC FR-015 (line 109), line 553; GAPS line 124 |
+ | GQ-102 | `conflict` is the first package state checked: one id present as a folder in both `to-do/` and `done/` of the same worktree. It blocks removal and lists under Retained problems. | `classify.package_state`; state order in section 7.2 | SPEC FR-014 (line 108), line 554; GAPS line 125 |
+ | GQ-103(2) | The window is data, not a constant: `SweepContext(now, window, window_start, root, runs)` is the second argument of `classify_all`, and no module holds a window constant except the CLI default `"6h"`. | `classify.classify_all(SweepInput, SweepContext)` | SPEC FR-007 (line 101), line 555 |
+-| GQ-103(3) | The model carries every field a rule reads: `SessionRow.gate_policy` (from the Task spec text), `OrcaObservation.worker_done_seen`, `SessionRow.transcript_readable`, `ContractRecord.report_path` and `ContractRecord.artifacts`. | `models.py` (section 7.2) | SPEC line 556, section 7 lines 229-243 |
++| GQ-103(3) | The model carries every field a rule reads: `SessionRow.gate_policy` (from the Task spec text), `OrcaObservation.worker_done_seen`, `SessionRow.transcript_readable`, `ContractRecord.report_path`, `ContractRecord.artifacts`, `OrcaObservation.dispatch_started`, `dispatch_ended`, `dispatch_status` and `TranscriptTail.first_record_ts` (the path-B window). | `models.py` (section 7.2) | SPEC line 556, section 7 lines 229-243 |
+ | GQ-104 | No `run-list` call and no fallback. No `--run` plus no binding exits 2 (`no Run bound: pass --run <id>`); no `--run` plus an unavailable first call exits 2 with the SP-21 message (section 13, D3). `run-list` is not in `ALLOWED_ORCA`, so the seam refuses it. | `commands.run`, `probes.ALLOWED_ORCA` | SPEC FR-002 (line 96), line 557; GAPS line 127 |
+ | GQ-105 | `archive-blocked` is a package in `to-do/` whose `progress.md` has a line starting `FINAL:` after optional leading whitespace. A `to-do/` package without such a line is `unfinished`. For a ledger over 1 MiB the head 512 KiB and the tail 512 KiB are read and the tail is searched (M8 is accepted as a proposed split, SPEC line 295). | `probes` ledger reader sets `PackageRecord.has_final_line`; `classify.package_state` | SPEC FR-014, line 558; GAPS line 128 |
+ | GQ-106 | `.dev/sweeps/` goes into `.gitignore` and the rollback table, so a sweep's own report never makes its worktree look dirty. | Section 10, section 16 | SPEC FR-025 (line 119), line 559; GAPS line 129 |
+@@ -395,7 +395,7 @@
+ def read_packages(worktree: Path) -> tuple[PackageRecord, ...]
+ def read_ledger(path: Path) -> bool | None                   # has a FINAL: line; head 512 KiB + tail 512 KiB over 1 MiB
+ def read_contract(path: Path) -> ContractRecord | None       # None plus "over 1 MiB" coverage when too large
+-def read_transcript_tail(path: Path) -> TranscriptTail       # last 256 KiB, first partial line dropped
++def read_transcript_tail(path: Path) -> TranscriptTail       # last 256 KiB, first partial line dropped; sets first_record_ts and last_record_ts
+ def read_tab_map(state_dir: Path) -> tuple[TabMapEntry, ...]
+ def read_orca_version(path: Path = ORCA_VERSION_FILE) -> str | None
+ ```
+
+Orchestrator verification output (reproduce it yourself): grep -n 'sets first_record_ts and last_record_ts' docs/designs/orchestrator-mode.md -> one hit, line 398 (section 7.1); the GQ-103(3) row at line 60 contains `dispatch_status`. The wording to compare against is research/04-design-fixes-r3.md lines 91-92 (edits 5 and 6) in .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/research/04-design-fixes-r3.md

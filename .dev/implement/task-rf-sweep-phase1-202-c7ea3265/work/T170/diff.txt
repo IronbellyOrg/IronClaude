@@ -1,0 +1,58 @@
+--- /dev/null
++++ b/src/superclaude/cli/sweep/probes.py   (new file, 56 lines)
++"""Read side of ``superclaude sweep``: the only module that starts a subprocess.
++
++This part holds the lock-free git seam (DESIGN 2.1, 7.1 and 7.3); the Orca seam and the
++disk readers are added by later steps.
++"""
++
++from __future__ import annotations
++
++import os
++import subprocess
++from pathlib import Path
++
++# Byte limit for a subprocess's stdout + stderr together.
++OUTPUT_LIMIT = 8 * 1024 * 1024  # proposed (DESIGN 17 open item 19)
++
++# The one allowed git call; the seam prepends ``git --no-optional-locks -C <path>``.
++ALLOWED_GIT: tuple[tuple[str, ...], ...] = (
++    ("status", "--porcelain=v1", "-z", "--branch", "--untracked-files=all"),
++)
++
++
++class GitCallFailed(Exception):
++    """A git call exited non-zero, timed out, could not start or printed too much."""
++
++
++def check_git_args(args: tuple[str, ...]) -> None:
++    """Raise ValueError unless ``args`` equals an ``ALLOWED_GIT`` entry exactly."""
++    if tuple(args) not in ALLOWED_GIT:
++        raise ValueError(f"git arguments are not allowed: {args!r}")
++
++
++def _git(cwd: Path, *args: str, timeout: float) -> str:
++    """Run the allowed git call in ``cwd`` and return its stdout as text.
++
++    The argv always starts ``git --no-optional-locks -C <cwd>`` and the child runs with
++    ``GIT_OPTIONAL_LOCKS=0``, so a caller cannot build a git argv without them.
++    """
++    check_git_args(args)
++    argv = ["git", "--no-optional-locks", "-C", str(cwd), *args]
++    env = {**os.environ, "GIT_OPTIONAL_LOCKS": "0"}
++    try:
++        proc = subprocess.run(
++            argv, capture_output=True, timeout=timeout, check=False, env=env
++        )
++    except subprocess.TimeoutExpired as exc:
++        raise GitCallFailed(f"timeout after {timeout:g} s") from exc
++    except OSError as exc:
++        raise GitCallFailed(f"could not start git: {exc}") from exc
++    if len(proc.stdout) + len(proc.stderr) > OUTPUT_LIMIT:
++        raise GitCallFailed(f"output over {OUTPUT_LIMIT} bytes")
++    if proc.returncode != 0:
++        detail = proc.stderr.decode("utf-8", "replace").strip().splitlines()
++        raise GitCallFailed(
++            f"git exited {proc.returncode}" + (f": {detail[0]}" if detail else "")
++        )
++    return proc.stdout.decode("utf-8", "replace")

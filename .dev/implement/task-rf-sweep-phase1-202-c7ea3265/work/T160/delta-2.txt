@@ -1,0 +1,66 @@
+--- a/.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/decisions/verify-cycle1-rf-qa-qualitative.md
++++ b/.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/decisions/verify-cycle1-rf-qa-qualitative.md
+@@ -11,7 +11,7 @@
+ Verdict: PASS
+ Blocking count: 0
+ 
+-All five `F_0` findings are RESOLVED on disk. For DEC-F5 the stale-suffix remainder is a separate new MINOR note (N2). None of the 152 cycle-0 PASS checks now fails. I found no new BLOCKING or MAJOR defect. Six new MINOR notes (N1 to N6) are below.
++All five `F_0` findings are RESOLVED on disk. For DEC-F5 the stale-suffix remainder is a separate new MINOR note (N2). None of the 152 cycle-0 PASS checks now fails. I found no new BLOCKING or MAJOR defect. Eight new MINOR notes (N1 to N8) are below; N7 and N8 come from the reader-level re-read near the end of this report.
+ 
+ ## Findings (F_0)
+ 
+@@ -73,6 +73,8 @@
+ | N4 | `PKG/artifacts/owner-decisions.md:3`, `:56` | Line 3 still says "Compiled ... on 2026-11-11" with no mention of the 2026-11-12 amendment. Line 56 calls OQ-8 "not a choice between options", while OQ-8's own Source (`OQ-8-run-id-decision.md:29`) shows the owner picked from two offered options. Neither changes a row. | Reword both when the file is next touched. |
+ | N5 | `PKG/artifacts/pr422-409-check.md:3`, `:31` | The record names the local `origin/master` as `35073356`. Today `git rev-parse origin/master` prints `7764bb6235524694684b426eb1e91c3e32dd0c3f` (another worktree refreshed the shared ref). The result still holds: `git merge-base --is-ancestor 2327fbd3 HEAD` exit 0, `git merge-base --is-ancestor 495eb96d origin/master` exit 1, HEAD `5dc29d23b15e...`, `gh pr view 422 --repo IronbellyOrg/IronClaude` MERGED `2327fbd37819...` at 2026-11-07T14:15:58Z. The ref value in the record is point-in-time. | None; the record is time-stamped. |
+ | N6 | Cycle-0 QA reports | The reports cite line numbers that moved: `owner-decisions.md` lines below row 9 are now +1, `OQ-1-agent-wait-decision.md` lines below `:22` are +1, and `1.0a-facts.md:56` (OQ-17 branch) is now `:60`. I searched `PKG`, `docs`, `src` and `tests` for live (non-report) citations of these three files with line numbers; the only one is `owner-decisions.md:9` citing `:19-22`, which is unaffected. | None. |
++| N7 | `PKG/phase-outputs/discovery/1.0a-facts.md:11` | Row 1 status cell says CLOSED while the same row says a live worker's preview is UNVERIFIED. The closure concerns the join decision, which does not use that fact. | Optional: write "CLOSED (live-worker preview UNVERIFIED, not used)". |
++| N8 | `PKG/artifacts/readonly-probe.md:1059`; `PKG/phase-outputs/discovery/1.0a-facts.md:46` | Gate tags ("cycle-1 fix, finding DEC-F3", "finding DEC-F5") sit in evidence and facts files, where an outside reader cannot resolve them. | Optional: drop the tags at the next edit. |
+ 
+ The cycle-0 MINOR findings DEC-F6 to DEC-F36 were not rechecked, per the review severity rule; they stay as notes. `qa-completeness:C21` (DEC-F6, the `decisions-mechanical.md` run times, `:232`, `:466`, `:767`) and `qa-readonly-safety:C20` (DEC-F16, DEC-F17) were MINOR-only failures in cycle 0 and are unchanged (their files are not newer than the consolidation).
+ 
+@@ -303,6 +305,8 @@
+ | 4 | MINOR | `PKG/artifacts/owner-decisions.md:3`, `:56` | N4: no amendment note; OQ-8 described as "not a choice" | reword |
+ | 5 | MINOR | `PKG/artifacts/pr422-409-check.md:3`, `:31` | N5: recorded `origin/master` value is point-in-time and has moved | none |
+ | 6 | MINOR | cycle-0 QA reports | N6: cited line numbers moved | none |
++| 7 | MINOR | `PKG/phase-outputs/discovery/1.0a-facts.md:11` | N7: CLOSED status next to an UNVERIFIED sub-fact | optional wording |
++| 8 | MINOR | `PKG/artifacts/readonly-probe.md:1059`; `PKG/phase-outputs/discovery/1.0a-facts.md:46` | N8: internal gate tags in evidence files | optional |
+ 
+ No CRITICAL or IMPORTANT (blocking) issue is open.
+ 
+@@ -316,6 +320,22 @@
+ - Carry N2 to the executor of items 8.12 and 10.5: read `1.0a-facts.md` row 15 (`:22`) and the "Follow-up" section (`:46-48`) before writing the version line or its test, and test `1.4.245-aidev02.9cfecdd30b2a`, `1.4.246` and a missing file. A one-clause pointer in each item at the next plan revision would make that automatic.
+ - The other notes (N1, N3 to N6) and the cycle-0 MINOR findings need no pass of their own.
+ 
++## Reader-level re-read of the changed passages
++
++I re-read each passage the cycle-1 fix agent changed (the list in `fix-log-cycle1.md`) a second time, as the person who will rely on it, after the evidence checks above. I looked for sentences that read clearly on their own and for places where two passages a reader would meet together disagree.
++
++| Passage | Read as | Reads clearly? | Contradiction a reader would meet? |
++|---|---|---|---|
++| `PKG/artifacts/owner-decisions.md:5`, `:9`, `:16`, `:18`, `:56` | the owner reading the decisions index | Yes. The heading says eight rows and eight rows follow. Row 9 says in one cell that the words were relayed on 2026-11-08 and confirmed directly on 2026-11-12, and `:18` repeats it and says "This confirms OQ-1 only". Row 16 (OQ-17) has the same shape as the rows above it. `:56` says what happened to OQ-8, OQ-17 and OQ-18 in plain terms. Row 9 is dense but every clause is needed. | No contradiction. Two small snags: the row's Source cell stops at record `:22`, so a reader who follows it does not land on the confirmation at `:23` (N3); `:3` still says "Compiled ... 2026-11-11" and `:56` calls OQ-8 "not a choice between options" although its own Source shows two offered Runs (N4). |
++| `PKG/phase-outputs/plans/OQ-1-agent-wait-decision.md:23` | the owner, or the builder of items 6.x who reads the record | Yes. The new line is labelled "direct confirmation (added 2026-11-12)", quotes the question and the chosen option as the owner saw them, says the relayed message is kept as history and that it confirms OQ-1 only. | No. The header comment at `:5` and `Decided by:` at `:21` still say 2026-11-08; because `:23` is clearly dated and labelled as an addition, a reader reads them as the history it says they are. |
++| `PKG/artifacts/readonly-probe.md:499`, `:1057`, `:1059` | the owner or a developer checking the evidence for the join | Yes. `:499` says in four short sentences what is and is not a session id field, what is unverified, and which path applies. `:1057` and `:1059` agree with it. | One: `:1056`, two lines above `:1057`, still says the pane-key and file-name match "is the join key for path B", while the facts file stores the handle (N1). A reader who stops at the probe could take the pane key. `:1059` also carries the internal tag "(cycle-1 fix, finding DEC-F3)", which means nothing to an outside reader (N8). |
++| `PKG/phase-outputs/discovery/1.0a-facts.md:11`, `:24`, `:34` | a developer building steps 1.2 to 1.4 | Yes. Row 1, row 22 and the field table now give one rule in the same words: store `result.dispatch.assigneeHandle`, compare it with `TabMapEntry.terminal_handle`, do not store the pane key. A developer can write `session_join` from the table without reading the probe. | No contradiction among the three places. Row 1 is marked CLOSED while it also says a live worker's preview is UNVERIFIED; the sentence says that fact is not used as a join, so the closure stands, but the status cell alone could mislead a skim reader (N7). |
++| `PKG/phase-outputs/discovery/1.0a-facts.md:22`, `:40`, `:46-48` | a developer building steps 1.5 and 1.12 (items 8.12 and 10.5) | Yes. The rule is one sentence with three worked cases (`1.4.245-aidev02.9cfecdd30b2a` matches, `1.4.246` does not, a missing file is UNVERIFIED). The follow-up section names the two items and says why the design and plan text are stale. | One the reader meets only if they read both: item 10.5 (task file `:1812`) lists the old suffix, the facts file says 10.5 must test the live string. The facts file does not say which wins. The two strings give the same result under the rule, and neither item 8.12 nor 10.5 points at the facts file (N2). |
++
++**Owner ruling on the DEC-F5 remainder.** The fix log's last section records that the owner chose "Accept as a minor note (Recommended)". I confirmed the answer in the session store: `db62cb58-...jsonl`, 2026-11-12T01:04:30.551Z, `toolUseResult.answers` value "Accept as a minor note (Recommended)". That matches my own grading: DEC-F5 is RESOLVED and the stale suffix is the separate MINOR note N2. The ruling covers DEC-F5 only.
++
++**Result.** The changed passages read clearly for their readers. I found two further MINOR notes (N7, N8) and no new BLOCKING or MAJOR finding. Verdict and Blocking count are unchanged.
++
+ ## QA Complete
+ 
+ Verdict: PASS
+--- a/.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/decisions/fix-log-cycle1.md
++++ b/.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/decisions/fix-log-cycle1.md
+@@ -197,3 +197,11 @@
+ 
+ Summary: PASS 11, SKIP 1, FAIL none.
+ 
++
++## Owner ruling on the DEC-F5 remainder (recorded by the orchestrator)
++
++Item 7.30's fix agent could not edit DESIGN or the task file, so the stale Orca build suffix `780594c521aa` stays at DESIGN `docs/designs/orchestrator-mode.md:30` and `:761` and in the text of items 8.12 and 10.5 (DEC-F5 remainder, listed OPEN above). The cycle-1 verifiers (items 7.31 and 7.32) graded that remainder a separate new MINOR note (M-1 in `verify-cycle1-rf-qa.md`, N2 in `verify-cycle1-rf-qa-qualitative.md`) and marked DEC-F5 RESOLVED for the rule defect; one independent reviewer of item 7.31 held that the remainder keeps DEC-F5 OPEN. The owner was asked how the gate should treat it.
++
++- Question (this session's question tool): "The review panel's last open point (finding DEC-F5) is a stale Orca build suffix, `...780594c521aa`, in the design's test row (DESIGN line 761) and in plan item 10.5; the live build is `...9cfecdd30b2a`. ... How should the gate treat it?"
++- Answer: Ryan Wiancko, owner, selected "Accept as a minor note (Recommended)", recorded at 2026-11-12T01:04:30.551Z. The option text reads: "You rule that the remainder is a minor follow-up already recorded in the facts file for items 8.12 and 10.5. The decisions gate then passes at cycle 1 and the second fix cycle is skipped. I record your words as the ruling. Nothing is edited in DESIGN or the plan now."
++- Effect: the DEC-F5 remainder is an owner-accepted minor note, not a gate-blocking finding. The follow-up for the builders of items 8.12 and 10.5 stays in `phase-outputs/discovery/1.0a-facts.md:46-48`. This ruling covers DEC-F5 only.

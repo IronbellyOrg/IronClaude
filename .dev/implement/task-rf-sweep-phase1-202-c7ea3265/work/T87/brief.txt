@@ -1,0 +1,8 @@
+T87 = item 5.11 of the source file /home/coder/workspaces/worktrees/IronClaude/issue-339-orchestrator-mode/.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md (lines 837-843). Item text:
+- [ ] **5.11 — R4: the Fix cycle 3 R4 row**
+  - **Context**: The `### Fix cycle 3` table (items 2.6, 3.4, 4.5).
+  - **Action**: Append `| R4 | <finding> | <change> |` with the finding "DESIGN was written against base `e8db2fe6`; master `5dc29d23` already has WC-14 and WC-15, a coordinator sweep at most once every 5 minutes, and a moved `main.py` insertion point" and the change "Renamed the coordinator-loop rule to WC-16 everywhere (1, 8, 9, 10, 12, 15, 16, 17), and marked the SPEC and REPORT draft names in 13 and 14; aligned the cadence with contract line 110 in WC-16 and routing row R2, and recorded the renumbering and the cadence as part of D6 (8, 9, 13); re-anchored contract, test and `main.py` lines; added the fifth pin; recorded the master test constraints (7.6, 8); made step 1.16a record-only; routing row R8 uses the CHANGELOG topic-heading style (9)".
+  - **Output**: DESIGN section 18 with the R4 row.
+  - **Verification**: Verify: the table has R3-B1, R3-B2, R3-B3 and R4 in that order.
+  - **Completion gate**: The row is in place. Once done, mark this item as complete.
+AC ids: T87.AC1 = the item title "R4: the Fix cycle 3 R4 row" (no AC block; the title is the AC). The item's own Verification and Completion gate lines are context for what "done" means. Ticking the item's checkbox is done by the orchestrator after the verdict and is not part of the diff under review.

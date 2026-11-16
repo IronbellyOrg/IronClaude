@@ -1,0 +1,8 @@
+T53 = item 4.1 of the source file /home/coder/workspaces/worktrees/IronClaude/issue-339-orchestrator-mode/.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md (lines 593-599). Item text:
+- [ ] **4.1 — R3-B3 edit 2: the list-incomplete bullet in 7.2**
+  - **Context**: DESIGN 7.2 has no rule or note for the list-incomplete half of the FR-010 guard (research/04:182). The SPEC reasons are "Orca unavailable, worker list truncated, worker list call failed" (SPEC near line 104).
+  - **Action**: Insert a new bullet before the bullet that begins "The guard's 'join completed' condition fails" (near DESIGN line 497), with the research/04:187 edit 2 text verbatim, from "List-incomplete cases (SPEC FR-010):" to "...even when its activity is older than the window."
+  - **Output**: DESIGN 7.2 with the list-incomplete bullet.
+  - **Verification**: Verify: `grep -n 'origin unknown: Orca unavailable\|origin unknown: worker list truncated\|origin unknown: worker list call failed' docs/designs/orchestrator-mode.md` shows all three literals in section 7.2, in that order. If the anchor bullet is not found, log it in `### Phase 4 Findings` and stop.
+  - **Completion gate**: The bullet is in 7.2. Once done, mark this item as complete.
+AC ids: T53.AC1 = the item title "R3-B3 edit 2: the list-incomplete bullet in 7.2" (no AC block; the title is the AC). The item's own Verification and Completion gate lines are context for what "done" means. Ticking the item's checkbox is done by the orchestrator after the verdict and is not part of the diff under review.

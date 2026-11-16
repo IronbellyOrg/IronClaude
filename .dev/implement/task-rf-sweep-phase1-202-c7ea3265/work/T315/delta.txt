@@ -1,0 +1,13 @@
+--- a/.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/discovery/final-inventory.md
++++ b/.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/discovery/final-inventory.md
+@@ -130,7 +130,9 @@
+ 
+ Revision inputs, bound as source inputs and not implementation paths (they sit under .dev, which the inventory excludes): `.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/revisions/chat-output-exception-20261109-133150/BUILD-REQUEST.md` and `design-addendum.md` there.
+ 
+-Style and exception-test coverage: `src/superclaude/output-styles/pragmatic.md` (edited), `tests/commands/test_sweep_command.py` (new, the style and skill pins) and `tests/recommend/test_routing_refresh.py` (edited).
++Style and exception-test coverage: `src/superclaude/output-styles/pragmatic.md` (edited) and `tests/commands/test_sweep_command.py` (new, the style and skill pins).
++
++Routing-test edits: `tests/recommend/test_routing_refresh.py` and `tests/core/test_how_we_work_routing_table.py` were edited only to add the new `sweep` command to the command sets those tests check (routing rows R4 and R5); they are not style or exception tests.
+ 
+ ## Size of the final gate input
+ 

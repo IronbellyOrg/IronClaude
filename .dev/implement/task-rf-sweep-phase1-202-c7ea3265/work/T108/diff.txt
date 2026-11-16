@@ -1,0 +1,10 @@
+--- a/.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md
++++ b/.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md
+@@ -2819,6 +2819,7 @@
+ | 2026-11-09T00:10Z | 5.27 | SKIPPED | Fix cycle 2 is not needed: `qa/r4/cycle1-decision.md` records F_1 empty and the outcome "PASS at cycle 1". |
+ | 2026-11-09T00:11Z | 5.28 | SKIPPED | Cycle-2 rf-qa verifier is not needed: `qa/r4/cycle1-decision.md` records F_1 empty and the outcome "PASS at cycle 1". |
+ | 2026-11-09T00:12Z | 5.29 | SKIPPED | Cycle-2 rf-qa-qualitative verifier is not needed: `qa/r4/cycle1-decision.md` records F_1 empty and the outcome "PASS at cycle 1". |
++| 2026-11-09T00:20Z | 6.2 | OQ-1 decision logged | OQ-1 (R5) RESOLVED by the owner 2026-11-08: allow worktree ps --agent-wait with and without --json; INV-005 allowlist pin and version-scoped claim kept. |
+ 
+ Every HALT line, every owner decision (OQ-n, chosen option, decider, source) and every resume is appended here as one row.
+ 

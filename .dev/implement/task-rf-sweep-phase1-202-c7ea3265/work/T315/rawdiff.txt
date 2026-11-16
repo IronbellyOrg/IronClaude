@@ -1,0 +1,33 @@
+--- /dev/null
++++ b/.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/discovery/final-inventory.md   (new file, 182 lines)
++# Final gate input inventory (item 14.9)
++
++Run 2026-11-12. Base commit `5dc29d23b15eb7db4ead50623bb409f696a0d7d3` (`artifacts/base-commit.txt`).
++
++## git diff --stat against the base, outside .dev
++
++```text
++git diff --stat "$BASE" -- . ':(exclude).dev'
++ .gitignore                                             |  2 ++
++ CHANGELOG.md                                           | 10 ++++++++++
++ ...perClaude-Developer-Guide-Commands-Skills-Agents.md |  2 +-
++ docs/user-guide/commands.md                            |  1 +
++ .../skills/sc-recommend/refs/HOW-WE-WORK.md            |  2 ++
++ src/superclaude/cli/main.py                            |  4 ++++
++ src/superclaude/core/HOW-WE-WORK.md                    |  2 ++
++ src/superclaude/core/WORKER-CONTRACT.md                |  6 +++++-
++ src/superclaude/output-styles/pragmatic.md             | 18 +++++++++++-------
++ tests/core/test_how_we_work_routing_table.py           |  1 +
++ tests/recommend/test_routing_refresh.py                |  2 +-
++ tests/skills/test_worker_contract.py                   | 17 ++++++++++++++---
++ 12 files changed, 54 insertions(+), 13 deletions(-)
++```
++
++## New files (untracked now, not untracked at the start)
++
++```text
++git ls-files --others --exclude-standard -- src tests docs plugins | grep -vxF -f artifacts/baseline-untracked.txt
++src/superclaude/cli/sweep/__init__.py
++src/superclaude/cli/sweep/classify.py
++src/superclaude/cli/sweep/commands.py
+... (new file continues; read .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/discovery/final-inventory.md from disk for lines 31-182)

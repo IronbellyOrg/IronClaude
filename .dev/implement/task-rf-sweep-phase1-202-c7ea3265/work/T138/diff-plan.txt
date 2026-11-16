@@ -1,0 +1,28 @@
+--- a/.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md
++++ b/.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md
+@@ -4,7 +4,7 @@
+ description: "Closes five required design items on docs/designs/orchestrator-mode.md (R3-B1, R3-B2, R3-B3, the R4 re-anchor to master 5dc29d23, and the R5 --agent-wait allow decision, resolved by the owner on 2026-11-08), records the step 1.0b owner decisions, the step 1.0a read-only Orca capture and the step 1.16a record, then implements, exactly as the design specifies, the read-only coordinator-only `superclaude sweep run` CLI package, its deferred registration, the thin /sc:sweep command, the sc-sweep-protocol skill, the WC-16 coordinator-loop rule with the never-as-worker addition and contract-test pins, routing rows R1 to R8, the .dev/sweeps/ ignore lines and the tests. Every phase is closed by a QA gate at full intensity. The task never commits, pushes or merges."
+ version: "1.0"
+ # status options: "🔵 Backlog" | "🟡 To Do" | "🟠 Doing" | "⚪ Blocked" | "🟢 Done" | "⚪ Cancelled"
+-status: "⚪ Blocked"
++status: "🟠 Doing"
+ type: "✨ Feature"
+ priority: "🔼 High"
+ created_date: "2026-11-08"
+@@ -60,7 +60,7 @@
+ due_date: ""
+ start_date: "2026-11-08"
+ completion_date: ""
+-blocker_reason: "GQ-63 chose an output-style exception; editing pragmatic.md is outside this design; re-run /task-builder"
++blocker_reason: ""
+ ai_model: ""
+ model_settings: ""
+ review_info:
+@@ -2803,6 +2803,7 @@
+ 
+ | Timestamp | Item | Event | Detail |
+ |---|---|---|---|
++| 2026-11-11 | 7.10 | OWNER EXECUTION AUTHORIZATION RECORDED; STYLE EXCEPTION IMPLEMENTED; RESUME | Ryan Wiancko, owner, answered the question whether to run item 7.10 now (first option, "Run 7.10 now (Recommended)") with "Accepted, I accepted, but it reported a decline.  Proceed" (2026-11-11T20:26:41Z; the question tool's result was lost, so the executor read the reply as that option). The dated verbatim quote and the paths of the supplied structural, alignment, qualitative and pre-execution reports are in phase-outputs/test-results/step-7.10-style-exception.md under "## Execution authorization (verbatim)", written before the style edit. Implemented choice (b) in src/superclaude/output-styles/pragmatic.md only: the common rule at lines 22-26, the six later restatements qualified (lines 57, 62, 64, 73, 84, 94), nothing from "## Work discipline" on changed. Bounded checks C1 to C10 PASS (the executor's own text and diff checks; before/after excerpts, diff and results are in the same result file). Independent per-task review follows under sc-implement-protocol and its verdict is recorded in the ledger, not here. Task status Doing and blocker_reason cleared. The nine open pre-execution findings stay open, including M-01 (item 7.17) and M-02 (item 7.24), which matter only if the optional OQ-17/OQ-18 branch fires. No skill, test, sync, install, HOME style change, commit or push; the installed HOME style is not updated and live model adherence is not tested. |
+ | 2026-11-09 | 7.10 | OWNER DECISION RESOLVED; HALT for revision | OQ-6/GQ-63 chosen (b): add an orchestrator exception to the skill's chat DONE / NEXT table; report file unaffected. Decider Ryan Wiancko selected "Add an exception" in this session's chat-summary question, whose option explicitly required a separate design/task revision before editing the style. Source in phase-outputs/plans/OQ-6-GQ-63-done-next-decision.md, status RESOLVED. GQ-63 chose an output-style exception; editing pragmatic.md is outside this design; re-run /task-builder. Task remains Blocked, item 7.10 unticked; no style source changed and no subsequent item started. |
+ | 2026-11-09T13:18:37Z | 7.10 | HALT: owner decision pending | OQ-6 (GQ-63, DONE / NEXT exception) awaits the owner's decision in phase-outputs/plans/OQ-6-GQ-63-done-next-decision.md. Record is PENDING with empty decision fields. No source recommendation exists; choice affects skill chat only, not Python report. Item 7.10 remains unticked; subsequent work not started. |
+ | 2026-11-09 | 7.8 | OWNER DECISION RESOLVED | OQ-5/GQ-61 chosen: 6h default, activity only; open Tasks, questions and unread reports always listed regardless of age. Decider Ryan Wiancko selected "Six hours (Recommended)" in this session. Source recorded in phase-outputs/plans/OQ-5-GQ-61-window-decision.md; status RESOLVED. Task status Doing and blocker_reason cleared. Other owner gates remain unchanged. |

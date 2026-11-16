@@ -1,0 +1,9 @@
+--- a/docs/designs/orchestrator-mode.md
++++ b/docs/designs/orchestrator-mode.md
+@@ -1023,3 +1023,4 @@
+ | ID | Finding | Change |
+ |---|---|---|
+ | R3-B1 | The path-B window compares the earliest transcript timestamp with the Dispatch row's start and end times, but `OrcaObservation` and `TranscriptTail` carry no such time fields, so pure `classify.py` cannot evaluate the rule and GQ-103(3) is false | Added `OrcaObservation.dispatch_started`, `dispatch_ended`, `dispatch_status` and `TranscriptTail.first_record_ts` and `tail_complete`, the time-parsing rule, the aware-UTC statement for `now`, `collected_start`, `collected_end` and `mtime`, and the inclusive UTC window with its incomplete-tail case (7.2); `parse_time` and `parse_worker_show` signatures, the `datetime` import and the `read_transcript_tail` comment (4, 7.1); GQ-103(3) list (2.2); capture item 4 and open item 23 name the bundle fields and keep them UNVERIFIED (15.1, 17); reader, parser and window fixtures, the incomplete-tail fixture and the count of existing test files (11); the FR-010 row (12) |
++| R3-B2 | Two Dispatch rows on one pane give conflicting results and no rule decides | Added the several-rows rule with the `conflict: one pane session matches several Dispatch rows` note, and the note order for a tab-map entry that fails the window (m11) (7.2); fixtures (11); FR-010, D9 and SP-29 rows (12, 13, 14) |
+
+Orchestrator verification output (reproduce it yourself): the `### Fix cycle 3` table in section 18 now ends with rows `R3-B1` then `R3-B2`, in that order; both rows have the same unescaped-separator count. Source of the change text: research/04-design-fixes-r3.md line 152 (section 3.3 edit 5) in .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/research/04-design-fixes-r3.md; the finding text is given in the item's Action.

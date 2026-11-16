@@ -1,0 +1,3 @@
+probe orca-outage-line: no hits (the phrase "disk sources only" is gone from SKILL.md, the test file and the result files).
+probe yaml-safe-load-exceptions: src/superclaude/cli/sweep/probes.py:682 (the except tuple now holds ValueError).
+probe stale-result-map: no hits.

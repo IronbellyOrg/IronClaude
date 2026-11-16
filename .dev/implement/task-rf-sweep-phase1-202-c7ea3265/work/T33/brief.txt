@@ -1,0 +1,8 @@
+T33 = item 3.4 of the source file /home/coder/workspaces/worktrees/IronClaude/issue-339-orchestrator-mode/.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md (lines 447-453). Item text:
+- [ ] **3.4 — R3-B2 edit 5: the Fix cycle 3 R3-B2 row**
+  - **Context**: Item 2.6 created `### Fix cycle 3` in DESIGN section 18; research/04:152 gives the row text.
+  - **Action**: Append the row `| R3-B2 | <finding> | <change> |` after the R3-B1 row, with the finding "Two Dispatch rows on one pane give conflicting results and no rule decides" and the change text of research/04:152.
+  - **Output**: DESIGN section 18 with the R3-B2 row.
+  - **Verification**: Verify: the `### Fix cycle 3` table has rows `R3-B1` and `R3-B2` in that order. If the table is missing, return to item 2.6.
+  - **Completion gate**: The row is in place. Once done, mark this item as complete.
+AC ids: T33.AC1 = the item title "R3-B2 edit 5: the Fix cycle 3 R3-B2 row" (no AC block; the title is the AC). The item's own Verification and Completion gate lines are context for what "done" means. Ticking the item's checkbox is done by the orchestrator after the verdict and is not part of the diff under review.

@@ -1,0 +1,8 @@
+T172 = item 8.7 of the source file /home/coder/workspaces/worktrees/IronClaude/issue-339-orchestrator-mode/.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md (lines 1465-1471). Item text:
+- [ ] **8.7 — Create `tests/sweep/__init__.py` (L2)**
+  - **Context**: research/05 section 3 ("Does `tests/sweep/` need `__init__.py`? Yes."): pytest runs with `rootdir` imports, and test module basenames such as `test_readonly.py` must not collide with other test folders. BUILD-REQUEST TESTING_REQUIREMENTS: "`tests/sweep/__init__.py` is required."
+  - **Action**: Create `tests/sweep/__init__.py` as an empty file.
+  - **Output**: `tests/sweep/__init__.py`.
+  - **Verification**: Verify: `test -f tests/sweep/__init__.py` exits 0.
+  - **Completion gate**: The file exists. Once done, mark this item as complete.
+AC ids: T172.AC1 = the item title "Create `tests/sweep/__init__.py` (L2)" (no AC block; the title is the AC). The item's own Verification and Completion gate lines are context for what "done" means. Ticking the item's checkbox is done by the orchestrator after the verdict and is not part of the diff under review.

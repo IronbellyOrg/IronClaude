@@ -1,0 +1,2 @@
+Re-run of the saved probe (grep -n for "Style and exception-test coverage" and "test_routing_refresh" over final-inventory.md); hit locations only:
+19 100 133 135 

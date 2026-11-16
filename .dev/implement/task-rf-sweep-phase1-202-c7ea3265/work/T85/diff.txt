@@ -1,0 +1,11 @@
+--- a/docs/designs/orchestrator-mode.md
++++ b/docs/designs/orchestrator-mode.md
+@@ -715,7 +715,7 @@
+ | R5 | `tests/recommend/test_routing_refresh.py` `_POST_REFRESH_ADDITIONS` (line 33) | `{"graph", "impact", "issue", "sweep"}` | itself (assertion at line 648) |
+ | R6 | `docs/user-guide/commands.md`, `### 8. UTILITIES` (line 105) | One row after `/sc:issue` (line 115): `` `/sc:sweep` `` . "Read-only snapshot of a Run, its worktrees and person sessions" . `sweep.md` . "Report only (writes `.dev/sweeps/`)" | manual review |
+ | R7 | `docs/developer-guide/SuperClaude-Developer-Guide-Commands-Skills-Agents.md` line 991 | Add `/sc:sweep` to the copied never-as-worker list, same order as section 8 | manual review against `WORKER-CONTRACT.md` line 23 |
+-| R8 | `CHANGELOG.md`, `## [Unreleased]` (line 5) | One `### Added` entry: `superclaude sweep run`, `/sc:sweep`, `sc-sweep-protocol`, WC-16, `.dev/sweeps/` ignored | manual review |
++| R8 | `CHANGELOG.md`, `## [Unreleased]` (line 5) | A `### sweep: read-only supervision snapshot (Phase 1)` heading under `## [Unreleased]` with a `#### Added (sweep)` sub-heading: `superclaude sweep run`, `/sc:sweep`, `sc-sweep-protocol`, WC-16, `.dev/sweeps/` ignored | manual review |
+ 
+ Rules:
+ 

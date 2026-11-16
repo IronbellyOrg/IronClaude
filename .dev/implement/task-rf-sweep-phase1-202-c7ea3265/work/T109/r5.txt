@@ -1,0 +1,1 @@
+| R5 | Master's sweep runs `worktree ps --agent-wait`; INV-005 condition 1 forbade it | RESOLVED by the owner 2026-11-08 ("Allow it, no conditions needed."): both `--agent-wait` templates added to `ALLOWED_ORCA`, `--agent-wait` removed from `FORBIDDEN_TOKENS`, D10 recorded; the allowlist pin and the version-scoped claim (Orca 1.4.245) are kept (2.2, 4, 7.3, 11, 12, 13, 15.1) |

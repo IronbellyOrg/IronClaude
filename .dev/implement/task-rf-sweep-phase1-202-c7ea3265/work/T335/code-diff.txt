@@ -1,0 +1,210 @@
+--- a/src/superclaude/cli/sweep/report.py
++++ b/src/superclaude/cli/sweep/report.py
+@@ -31,6 +31,12 @@
+ BOUND_LINE = "[Show cap or time budget reached; row total is a lower bound]"
+ PAGE_LINE = "[Orca rows: 100 shown; total is a lower bound (paging not yet captured)]"
+ WORKTREES_LINE = "[child worktrees not discovered: Orca unavailable; worktree count is a lower bound]"
++# Orca answered, but the ``orca worktree ps`` source is unscanned (DESIGN 7.5): the reason is
++# that source row's ``unscanned`` text, passed through ``sanitize``.
++WORKTREES_PS_LINE = (
++    "[child worktrees not discovered: orca worktree ps unscanned ({reason}); "
++    "worktree count is a lower bound]"
++)
+ COULD_NOT_JOIN = "could not join Orca workers to transcripts (tab map empty or stale)"
+ WC13_NOTE = "WC-13 violation, review"
+ SP24_LINE = (
+@@ -160,10 +166,14 @@
+     )
+ 
+ 
+-def _discovery_incomplete(result: SweepResult) -> bool:
++def _worktrees_line(result: SweepResult) -> str | None:
++    """The header banner for incomplete worktree discovery, or None when it is complete."""
+     if not result.orca_available:
+-        return True
+-    return any(s.name == "orca worktree ps" and s.unscanned for s in result.sources)
++        return WORKTREES_LINE
++    for s in result.sources:
++        if s.name == "orca worktree ps" and s.unscanned:
++            return WORKTREES_PS_LINE.format(reason=sanitize(s.unscanned))
++    return None
+ 
+ 
+ # --- Sections (DESIGN 7.5, in order) ----------------------------------------------------
+@@ -191,8 +201,9 @@
+         "Untracked paths: listed per file (--untracked-files=all); not observed in a "
+         "worktree whose status was unread",
+     ]
+-    if _discovery_incomplete(result):
+-        lines.append(WORKTREES_LINE)
++    worktrees_line = _worktrees_line(result)
++    if worktrees_line is not None:
++        lines.append(worktrees_line)
+     if int(summary["bound_reached"]) >= 1:  # type: ignore[call-overload]
+         lines.append(BOUND_LINE)
+     if result.truncated:
+--- a/tests/sweep/test_report.py
++++ b/tests/sweep/test_report.py
+@@ -64,6 +64,12 @@
+ BOUND_LINE = "[Show cap or time budget reached; row total is a lower bound]"
+ PAGE_LINE = "[Orca rows: 100 shown; total is a lower bound (paging not yet captured)]"
+ WORKTREES_BANNER = "[child worktrees not discovered: Orca unavailable; worktree count is a lower bound]"
++# DESIGN 7.5, second form: Orca answered but the ``orca worktree ps`` source is unscanned.
++# ``full_result`` carries that source row with the reason "orca call failed (exit 1)".
++WORKTREES_PS_BANNER = (
++    "[child worktrees not discovered: orca worktree ps unscanned "
++    "(orca call failed (exit 1)); worktree count is a lower bound]"
++)
+ SP24 = "Stalled and fenced are not observed in Phase 1; a zero count does not mean none occurred."
+ SP16 = "could not join Orca workers to transcripts (tab map empty or stale)"
+ WC13 = "WC-13 violation, review"
+@@ -596,21 +602,102 @@
+ 
+ 
+ @pytest.mark.parametrize(
+-    ("build", "banner_shown"),
++    ("build", "banner_shown", "ps_banner"),
+     [
+-        (full_result, True),  # ``orca worktree ps`` is an unscanned source
+-        (empty_result, False),
+-        (lambda c: result_of(c, orca_available=False), True),  # Orca unavailable
++        # Orca answered and ``orca worktree ps`` is an unscanned source: since the FIN-F5 fix
++        # the header prints the second DESIGN 7.5 form (WORKTREES_PS_BANNER), not the
++        # "Orca unavailable" text, so the old banner is not shown here.
++        (full_result, False, WORKTREES_PS_BANNER),
++        (empty_result, False, None),
++        (lambda c: result_of(c, orca_available=False), True, None),  # Orca unavailable
+     ],
+     ids=["ps-unscanned", "complete", "orca-unavailable"],
+ )
+ def test_discovery_incomplete_banner_is_in_the_header_only_when_discovery_is_incomplete(
+-    ctx, build, banner_shown
++    ctx, build, banner_shown, ps_banner
+ ):
+     text = report.render(build(ctx), ctx)
++    header_lines = header_block(text).splitlines()
+ 
+-    assert (WORKTREES_BANNER in header_block(text).splitlines()) is banner_shown
++    assert (WORKTREES_BANNER in header_lines) is banner_shown
+     assert text.count(WORKTREES_BANNER) == int(banner_shown)
++    assert (WORKTREES_PS_BANNER in header_lines) is (ps_banner is not None)
++    assert text.count(WORKTREES_PS_BANNER) == int(ps_banner is not None)
++    # Once, on one line, in the header block only: no other banner line appears anywhere.
++    assert text.count("[child worktrees not discovered") == int(
++        banner_shown or ps_banner is not None
++    )
++
++
++def ps_unscanned_result(
++    ctx: SweepContext, reason: str | None, coverage: str = "unscanned", **kw
++) -> SweepResult:
++    sources = (
++        SourceCoverage("orca worker-list R1", "read", 5, None),
++        SourceCoverage("orca worktree ps", coverage, None, reason),
++    )
++    return result_of(ctx, sources=sources, **kw)
++
++
++def test_banner_names_the_worktree_list_truncated_reason_in_the_ps_unscanned_form(ctx):
++    # Orca answered; only the ``orca worktree ps`` list was cut short (the probe records that
++    # source as coverage ``read`` with the reason "worktree list truncated").
++    text = report.render(
++        ps_unscanned_result(ctx, "worktree list truncated", coverage="read"), ctx
++    )
++
++    expected = (
++        "[child worktrees not discovered: orca worktree ps unscanned "
++        "(worktree list truncated); worktree count is a lower bound]"
++    )
++    assert expected in header_block(text).splitlines()
++    assert text.count("[child worktrees not discovered") == 1
++    assert WORKTREES_BANNER not in text  # Orca did answer: never "Orca unavailable"
++
++
++def test_banner_reason_is_the_sanitized_unscanned_text(ctx):
++    # ``sanitize`` escapes ``|``, ``<``, ``>``, ``[`` and ``]`` and folds a newline to a space;
++    # the banner must carry that sanitized text, on one line.
++    reason = "cut | see <log>\nnext [3]"
++    text = report.render(ps_unscanned_result(ctx, reason), ctx)
++
++    expected = (
++        "[child worktrees not discovered: orca worktree ps unscanned "
++        "(cut \\| see &lt;log&gt; next \\[3\\]); worktree count is a lower bound]"
++    )
++    assert report.sanitize(reason) == "cut \\| see &lt;log&gt; next \\[3\\]"
++    assert expected in header_block(text).splitlines()
++    assert text.count("[child worktrees not discovered") == 1
++    assert reason not in text
++
++
++def test_orca_unavailable_keeps_the_old_banner_even_when_the_ps_row_has_a_reason(ctx):
++    # Orca really was unavailable: the first DESIGN 7.5 form, unchanged, whatever the
++    # ``orca worktree ps`` row says.
++    result = ps_unscanned_result(ctx, "orca unavailable", orca_available=False)
++    text = report.render(result, ctx)
++
++    assert WORKTREES_BANNER in header_block(text).splitlines()
++    assert text.count("[child worktrees not discovered") == 1
++    assert (
++        "worktree ps unscanned (orca unavailable)" not in text
++    )  # no second-form banner
++
++
++@pytest.mark.parametrize(
++    "sources",
++    [
++        (SourceCoverage("orca worktree ps", "read", 3, None),),
++        (SourceCoverage("orca task-list R1", "unscanned", None, "orca call failed"),),
++    ],
++    ids=["ps-read", "other-source-unscanned"],
++)
++def test_no_banner_when_only_a_source_other_than_ps_is_unscanned_or_ps_was_read(
++    ctx, sources
++):
++    text = report.render(result_of(ctx, sources=sources), ctx)
++
++    assert "[child worktrees not discovered" not in text
+ 
+ 
+ # ===========================================================================================
+--- a/tests/sweep/test_cli_contract.py
++++ b/tests/sweep/test_cli_contract.py
+@@ -426,6 +426,26 @@
+     _assert_disk_only_continuation(env, payload, RUN)
+ 
+ 
++def test_orca_answered_but_worktree_list_truncated_prints_the_ps_unscanned_banner(env):
++    # DESIGN 7.5, second banner form: Orca answered, only ``orca worktree ps`` is incomplete.
++    _canned(env)
++    env.orca.respond(WORKTREE_PS, {"worktrees": [], "truncated": True})
++
++    payload = _payload(_run(env, "--run", RUN))
++
++    assert payload["orca_available"] is True
++    assert (
++        _source(payload, "orca worktree ps")["unscanned"] == "worktree list truncated"
++    )
++    text = (env.sweeps / f"{STEM}.md").read_text("utf-8")
++    assert text.count("[child worktrees not discovered") == 1
++    assert (
++        "[child worktrees not discovered: orca worktree ps unscanned "
++        "(worktree list truncated); worktree count is a lower bound]"
++    ) in text.splitlines()
++    assert "Orca unavailable" not in text
++
++
+ def _assert_disk_only_continuation(env, payload: dict, run: str) -> None:
+     """FR-019: the Orca reads after the failure are unscanned, the disk sources still read."""
+     for name in (
+--- a/docs/designs/orchestrator-mode.md
++++ b/docs/designs/orchestrator-mode.md
+@@ -611,7 +611,8 @@
+ Orca lock risk: unlikely (checked for Orca 1.4.245)
+             or: UNVERIFIED (checked for Orca 1.4.245; observed <version or unknown>)
+ Untracked paths: listed per file (--untracked-files=all); not observed in a worktree whose status was unread
+-[child worktrees not discovered: Orca unavailable; worktree count is a lower bound]     (when discovery incomplete)
++[child worktrees not discovered: Orca unavailable; worktree count is a lower bound]     (Orca unavailable)
++[child worktrees not discovered: orca worktree ps unscanned (<reason>); worktree count is a lower bound]     (Orca answered but the worktree list is incomplete: truncated, call failed or budget)
+ [Show cap or time budget reached; row total is a lower bound]                           (bound_reached >= 1)
+ [Orca rows: 100 shown; total is a lower bound (paging not yet captured)]                (full worker-list page)
+ 

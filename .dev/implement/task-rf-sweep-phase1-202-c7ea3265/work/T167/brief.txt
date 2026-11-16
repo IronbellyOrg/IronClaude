@@ -1,0 +1,8 @@
+T167 = item 8.2 of the source file /home/coder/workspaces/worktrees/IronClaude/issue-339-orchestrator-mode/.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md (lines 1430-1436). Item text:
+- [ ] **8.2 — Step 1.1: create `src/superclaude/cli/sweep/__init__.py` (L2)**
+  - **Context**: DESIGN section 7.1 (line 353): `__init__.__getattr__(name)` serves only `"sweep_group"`, so importing the package runs no seam and imports no `commands` module (test case DESIGN line 741). Pattern to copy: `src/superclaude/cli/recommend/__init__.py:12-20` (lazy `__getattr__` importing `from .commands import recommend_group`, else `AttributeError`, plus `__all__`).
+  - **Action**: Create `src/superclaude/cli/sweep/__init__.py` with a one-line module docstring, `def __getattr__(name: str)` that returns `sweep_group` from `.commands` when `name == "sweep_group"` and otherwise raises `AttributeError(f"module {__name__!r} has no attribute {name!r}")`, and `__all__ = ["sweep_group"]`. Nothing else.
+  - **Output**: `src/superclaude/cli/sweep/__init__.py`.
+  - **Verification**: Verify: the file matches the recommend pattern line for line apart from names, and `uv run ruff check src/superclaude/cli/sweep/__init__.py` exits 0. Record the command and result in `### Phase 8 Findings` only when it fails.
+  - **Completion gate**: The file exists and lints clean. Once done, mark this item as complete.
+AC ids: T167.AC1 = the item title "Step 1.1: create `src/superclaude/cli/sweep/__init__.py` (L2)" (no AC block; the title is the AC). The item's own Verification and Completion gate lines are context for what "done" means. Ticking the item's checkbox is done by the orchestrator after the verdict and is not part of the diff under review.

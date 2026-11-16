@@ -1,0 +1,2 @@
+Re-run of the saved probe (grep -n -i for "includes its frame", "each pin", "its frame" over the report); hit locations only:
+60 (unrelated phrase "each pinned string"; line 56 no longer hits)

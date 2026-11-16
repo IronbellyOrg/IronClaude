@@ -1,0 +1,43 @@
+80:    return value.isoformat(timespec="seconds").replace("+00:00", "Z")  # type: ignore[attr-defined]
+125:        return parsed.replace(tzinfo=now.tzinfo) if parsed.tzinfo is None else parsed  # type: ignore[attr-defined]
+141:def _table(headers: tuple[str, ...], rows: list[tuple[str, ...]]) -> str:
+148:        lines.append("| " + " | ".join(cell(c) or "none" for c in row) + " |")
+167:    seen = sanitize(observed) if observed else "unknown"
+187:        sanitize(f"{s.name} {s.coverage}")
+195:        f"Scope: Runs {sanitize(', '.join(ctx.runs)) or 'none'} . worktrees "
+198:        f"Orca binary: {sanitize(result.orca_binary)}",
+228:    out.append(_table(("Source", "Coverage", "Age (s)", "Unscanned"), rows))
+275:        out.append(_table((*headers, "Evidence"), table_rows))
+290:            _table(
+307:            _table(
+334:        _table(
+360:                    f"Worktree {sanitize(w.path)}: package {sanitize(pkg.id)} has an "
+365:                    f"Worktree {sanitize(w.path)}: package {sanitize(pkg.id)} is in both "
+371:        where = ", ".join(sanitize(p) for p in shared[pid])
+372:        lines.append(f"Active package {sanitize(pid)} is in several worktrees: {where}")
+375:            lines.append(f"{sanitize(r.row.row_id)}: {WC13_NOTE}")
+441:    out.append(_table(headers, body))
+473:    out.append(_table((*headers, "Removable", "Reason"), rows))
+484:        _table(
+519:        f"- {sanitize(s.name)}: unscanned: {sanitize(s.unscanned)}"
+538:    listing = [f"- {sanitize(s.name)}: {sanitize(s.coverage)}" for s in result.sources]
+566:def sanitize(text: object) -> str:
+595:        s = s.replace(old, new)
+599:def cell(text: object) -> str:
+601:    s = sanitize(text)
+624:            "runs": [sanitize(r) for r in ctx.runs],
+625:            "root": sanitize(ctx.root),
+632:                "name": sanitize(s.name),
+633:                "coverage": sanitize(s.coverage),
+635:                "unscanned": None if s.unscanned is None else sanitize(s.unscanned),
+641:                "row_id": sanitize(r.row.row_id),
+645:                "evidence": sanitize(r.classification.evidence),
+646:                "notes": [sanitize(n) for n in r.classification.notes],
+654:                    else sanitize(r.safe.reason),
+661:                "path": sanitize(w.path),
+668:                    {"id": sanitize(p.id), "location": p.location, "state": p.state}
+671:                "shared_package_ids": [sanitize(i) for i in w.shared_package_ids],
+674:                    None if w.removable_reason is None else sanitize(w.removable_reason)
+680:            "a": [sanitize(i) for i in result.waiting_a],
+681:            "b": [sanitize(i) for i in result.waiting_b],
+691:        "report_path": sanitize(report_path),

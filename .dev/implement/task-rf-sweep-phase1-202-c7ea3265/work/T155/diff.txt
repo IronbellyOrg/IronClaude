@@ -1,0 +1,33 @@
+--- /dev/null
++++ b/.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/decisions/qa-crossref-chain-report.md   (new file, 108 lines)
++# QA Report - Cross-reference chain (item 7.27, rf-qa-qualitative)
++
++**Date:** 2026-11-12
++**Phase:** decisions gate, cross-reference lens
++**Fix authorization:** false (report only)
++
++Convention used for the table: a check is FAIL only when a BLOCKING or MAJOR finding attaches to it. A check with only MINOR notes is PASS and the note is cited.
++
++Paths below are relative to `.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/` (call it `P`) unless they start with `src/`, `tests/` or `docs/`. `TASK` means `P/TASK-RF-sweep-phase1-20261108-072653.md`. `PLANS` means `P/phase-outputs/plans/`. `DESIGN` means `docs/designs/orchestrator-mode.md`. No `## Inherited Structural Verdict` block was in my prompt, so I ran standalone and re-checked links myself.
++
++## Checks
++
++| Check | What was traced | Result |
++|-------|-----------------|--------|
++| C1 | OQ-1 record `Applied by` <-> items 6.1 to 6.4 and gate 6.5 to 6.22 <-> the DESIGN R5 edit surface (note L-4) | PASS |
++| C2 | OQ-2 Blocks (9.1) <-> item 7.1 Blocks <-> item 7.2 halt text <-> item 9.1 Context | PASS |
++| C3 | OQ-3 Blocks (12.1 to 12.3) <-> items 7.3/7.4 <-> item 12.1 gate; items 12.2 and 12.3 only transitive (note L-3) | PASS |
++| C4 | OQ-4 Blocks (8.12) <-> items 7.5/7.6 <-> item 8.12 gate | PASS |
++| C5 | OQ-5 Blocks (8.12, 9.1, 10.5) <-> items 7.7/7.8 <-> items 8.12 and 9.1 cite it; item 10.5 does not (note L-2) | PASS |
++| C6 | OQ-6 historical Blocks (8.12, 11.3) <-> item 7.9 request <-> item 7.10 halt <-> items 8.12 and 11.3 gates; record and item 7.9 left unchanged, as the lens requires | PASS |
++| C7 | OQ-6 additive revision chain: 7.10 style -> 7.13 -> 7.20 -> 7.21 to 7.28 -> 8.12 -> 11.3 skill -> 11.4 tests -> 11.5, and the delta-manifest rows for those labels | PASS |
++| C8 | OQ-7 Blocks (8.4 and every later item) <-> items 7.11/7.12 <-> item 8.4 gate and Action | PASS |
++| C9 | OQ-8 Blocks (7.16, the 1.0a items, 9.3) <-> items 7.14/7.15 <-> items 7.16 and 9.3 Context | PASS |
++| C10 | OQ-17 Blocks (7.17, step 1.2 and later, 8.10, 10.3) <-> item 7.17 branch text <-> Execution Log HALT row <-> 1.0a-facts refusal line <-> items 8.10 and 10.3 (note L-3) | PASS |
++| C11 | OQ-18 absent <-> facts "outcome (b) does not fire" <-> item 7.20 SKIP rule | PASS |
++| C12 | `owner-decisions.md` seven rows and their "Steps it unblocks" cells <-> the Blocks line of each record OQ-1 to OQ-7 | PASS |
++| C13 | `owner-decisions.md` <-> the RESOLVED OQ-17 record, as items 7.22 and 7.25 require (finding X-1) | FAIL |
++| C14 | Anchors the records cite: DESIGN lines 559, 822, 836, 894, 995, 1012; probe section 3 at line 461; research/09 line 98; probe headings used by the facts file | PASS |
++| C15 | Gate-chain file names: items 7.21 to 7.28 Output <-> item 7.29 list <-> items 7.30 to 7.37 <-> item 8.1 `qa/decisions/gate-decision.md` | PASS |
++| C16 | `### Open Questions` entries OQ-1 to OQ-8, OQ-17, OQ-18 <-> records and Execution Log (note L-1) | PASS |
+... (new file continues; read .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/decisions/qa-crossref-chain-report.md from disk for lines 31-108)

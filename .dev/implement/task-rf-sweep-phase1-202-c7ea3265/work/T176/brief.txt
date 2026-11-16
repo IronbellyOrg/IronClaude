@@ -1,0 +1,8 @@
+T176 = item 8.11 of the source file /home/coder/workspaces/worktrees/IronClaude/issue-339-orchestrator-mode/.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md (lines 1493-1499). Item text:
+- [ ] **8.11 — Re-run the sweep tests after step 1.4 (L3)**
+  - **Context**: Items 8.5 to 8.10. The step 1.4a tests must still pass now that `probes.py` is complete; `patch_orca` now targets a real `_orca`.
+  - **Action**: In `tests/sweep/conftest.py`, remove the `raising=False` argument from the `monkeypatch.setattr(probes, "_orca", fake, raising=False)` call in the `patch_orca` fixture (item 8.8), so the default `raising=True` applies, anchored by that quoted call; change nothing else in the file. Then run `uv run pytest tests/sweep -v` and save stdout to `.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/test-results/step-1.4-pytest.txt`.
+  - **Output**: the edited `tests/sweep/conftest.py` and `.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/test-results/step-1.4-pytest.txt`.
+  - **Verification**: Verify: `grep -n 'raising=False' tests/sweep/conftest.py` prints nothing; `grep -n 'setattr(probes, "_orca"' tests/sweep/conftest.py` prints the `patch_orca` line; the pytest run exits 0. On a failure, fix the code, re-run, and log each re-run in `### Phase 8 Findings`.
+  - **Completion gate**: The run passes. Once done, mark this item as complete.
+AC ids: T176.AC1 = the item title "Re-run the sweep tests after step 1.4 (L3)" (no AC block; the title is the AC). The item's own Verification and Completion gate lines are context for what "done" means. Ticking the item's checkbox is done by the orchestrator after the verdict and is not part of the diff under review.

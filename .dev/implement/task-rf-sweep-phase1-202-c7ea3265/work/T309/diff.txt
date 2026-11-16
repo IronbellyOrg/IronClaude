@@ -1,0 +1,20 @@
+Orchestrator facts for the reviewer (verify them): the executor ran `uv run pytest tests/sweep tests/commands tests/core tests/skills tests/recommend -v` and wrote phase14-scoped-pytest.md (new file, read it from disk): exit 0, 3220 passed, one PASS line. Re-run the command yourself (read-only) if you wish; it takes about one minute. The item's constraints include that no test may launch Orca, ccsession or Claude (the tests/sweep/conftest.py guard blocks real subprocess calls except under the test's own integration marker): check the guard is in place and that the file's counts are honest.
+
+--- /dev/null
++++ b/.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/test-results/phase14-scoped-pytest.md   (new file, 56 lines)
++# Phase 14 scoped test run (item 14.3)
++
++Run 2026-11-12.
++
++Command: `uv run pytest tests/sweep tests/commands tests/core tests/skills tests/recommend -v`
++
++Exit code: 0
++
++Counts (last summary line): ============================ 3220 passed in 56.99s =============================
++FAILED lines: 0  ERROR lines: 0  SKIPPED lines: 0
++
++Last 40 lines of output:
++```text
++tests/recommend/test_routing_refresh.py::test_variants_name_real_primitives_and_wrong_cache_rows[S10] PASSED [ 98%]
++tests/recommend/test_routing_refresh.py::test_variants_name_real_primitives_and_wrong_cache_rows[S11] PASSED [ 98%]
+... (new file continues; read .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/test-results/phase14-scoped-pytest.md from disk for lines 16-56)

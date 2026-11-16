@@ -1,0 +1,16 @@
+The task (item 9.21, impl-cli gate decision) produced one new untracked file, .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/impl-cli/gate-decision.md (18 lines), and added one bullet to the `### Phase 9 Findings` section of the source file (the bullet that starts "Run time (2026-11-12), items 9.5 to 9.21 (impl-cli QA gate)", line 2977 of the source file, the item's instruction "Copy every MINOR finding to `### Phase 9 Findings` as a note"). Read both from disk; they are the whole output. To judge the item's Verification line yourself: (1) gate-decision.md holds exactly one outcome line ("Impl-cli gate: PASS", the case `PASS at cycle 1` of the item's Action, so no cycle-2 reports are needed); (2) the ledger (.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/impl-cli/cycle-ledger.md) has a row for every cycle that ran (cycle 0 and cycle 1; none for cycle 2, which did not run); (3) every claim in gate-decision.md and in the Phase 9 Findings bullet is true against the files on disk: cycle1-decision.md, fix-log-cycle1.md, both verifier reports, consolidated-findings-cycle0.md (43 raw findings, 37 kept, ids CLI-F1 to CLI-F37, the finding-id numbers the bullet cites for the minor items: CLI-F3, CLI-F28, CLI-F33, CLI-F7, CLI-F12, CLI-F25, CLI-F35), the source code changes the bullet names (classify.py `total_is_lower_bound`, probes.py `_LIST_KEY` and the shape check in `_call`), and the live re-run record artifacts/sweep-live-check-1.4-rerun-9.14.md; (4) the bullet carries the MINOR findings as a note and names the stale DESIGN 7.4 wording for the coordinator without editing DESIGN. The Execution Log rows for 9.18 to 9.20 and the checkbox ticks of earlier items in the source file belong to the earlier items 9.17 to 9.20 and are not part of this task. No other file changed from this task. Diff of the new file against the start snapshot:
+--- /dev/null
++++ b/.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/impl-cli/gate-decision.md   (new file, 13 lines)
++# Impl-cli gate decision (item 9.21)
++
++Rule applied: item 9.21 says that when `cycle1-decision.md` says `PASS at cycle 1`, the gate decision is written and the run proceeds; no cycle-2 verifier ran, so `verify-cycle2-rf-qa.md` and `verify-cycle2-rf-qa-qualitative.md` do not exist and are not needed.
++
++Evidence, read from disk:
++
++- `cycle1-decision.md` line 20 holds its one outcome line (`PASS at cycle 1`); `F_1` is empty and `|F_1|` is 0 (lines 9 and 10).
++- `fix-log-cycle1.md` records fixes for both `F_0` findings (CLI-F1 and CLI-F2), none left open, four passing re-check commands, and the executor's live re-run section (read-only sweep of Run `run_a4723d345399` after the `probes.py` change: exit 0, 182 rows, 0 unscanned sources).
++- `cycle-ledger.md` has a row for every cycle that ran: the cycle-0 row (outcome consolidated) and the cycle-1 row (outcome PASS at cycle 1). No cycle-2 row exists because no cycle 2 ran.
++- Both cycle-1 verifier reports end with Verdict: PASS and Blocking count: 0, and each lists all 147 cycle-0 PASS check ids as PASS.
++- The 35 MINOR findings (CLI-F3 to CLI-F37 in `consolidated-findings-cycle0.md`, plus the minor notes in the two verifier reports) never fail the gate and are copied to `### Phase 9 Findings` as one note.
++
++Impl-cli gate: PASS

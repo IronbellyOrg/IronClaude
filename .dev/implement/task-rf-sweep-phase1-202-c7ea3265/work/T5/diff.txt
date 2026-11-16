@@ -1,0 +1,25 @@
+--- a/docs/designs/orchestrator-mode.md
++++ b/docs/designs/orchestrator-mode.md
+@@ -452,9 +452,9 @@
+ |---|---|
+ | `SweepContext` | `now`, `window`, `window_start = now - window`, `root`, `runs` |
+ | `SweepInput` | `orca_rows: tuple[OrcaObservation, ...]`, `contracts`, `transcripts: tuple[TranscriptTail, ...]`, `tab_map: tuple[TabMapEntry, ...]`, `worktrees: tuple[WorktreeState, ...]`, `sources: tuple[SourceCoverage, ...]`, `orca_available: bool`, `orca_binary: str`, `orca_version: str \| None`, `truncated: bool`, `collected_start`, `collected_end` (field names other than the last two are design) |
+-| `OrcaObservation` | SPEC list (line 231) plus `dispatch: str`, `run: str`, `session_join: str \| None` (design: the Orca-side join value, section 2.2 path A or B; None until step 1.0a names the field) |
++| `OrcaObservation` | SPEC list (line 231) plus `dispatch: str`, `run: str`, `session_join: str \| None` (design: the Orca-side join value, section 2.2 path A or B; None until step 1.0a names the field), `dispatch_started: datetime \| None`, `dispatch_ended: datetime \| None`, `dispatch_status: str \| None` (design: from `worker-show` `dispatch.dispatchedAt`, `dispatch.completedAt` and `dispatch.status`, names read statically from the Orca 1.4.245 bundle and confirmed by step 1.0a item 4, open item 23; all three are None for a row with no `worker-show` result, such as a row past the 50-call cap or a `call_failed` show) |
+ | `ContractRecord` | `path`, `worker_status`, `blocked_question`, `reason`, `report_path`, `artifacts`, `command` |
+-| `TranscriptTail` (design) | `path`, `session_id: str \| None`, `readable: bool`, `last_record_ts: datetime \| None`, `mtime: datetime`, `project_key: str` |
++| `TranscriptTail` (design) | `path`, `session_id: str \| None`, `readable: bool`, `last_record_ts: datetime \| None`, `first_record_ts: datetime \| None` (the earliest `timestamp` among the complete records in the tail; for a file over 256 KiB this is not the session start), `mtime: datetime`, `project_key: str` |
+ | `TabMapEntry` (design) | `file_name` (pane key with `:` written as `+`), `session_id`, `launch_dir`, `terminal_handle` (the three lines of the ccsession file) |
+ | `SessionRow` | SPEC list (line 235): `id`, `person_started`, `orca`, `contract`, `transcript_path`, `transcript_readable`, `last_activity`, `gate_policy`, `row_id`, the ten #409 dimensions |
+ | `StatusParse` (design) | `entries: tuple[tuple[str, str], ...]` (XY code, path), `branch_header: str`, `ahead: int \| None`, `has_upstream: bool \| None`, `header_note: str \| None` |
+@@ -465,6 +465,8 @@
+ | `SourceCoverage` | `name`, `coverage`, `age_seconds`, `unscanned` |
+ | `SweepResult` (design fields) | `rows: tuple[ClassifiedRow, ...]` (row plus `Classification`, policy and `SafeToClose`), `worktrees` (after `mark_shared_packages`, with `removable` and `removable_reason`), `waiting_a`, `waiting_b` (row ids), `summary` (counts per class with zeros, `bound_reached`, `visible`, `historical`, `total`, `total_is_lower_bound`), carried header data from `SweepInput` |
+ 
++Time parsing (design): every Orca and transcript time is parsed to an aware UTC `datetime`. Accepted forms are SQLite `YYYY-MM-DD HH:MM:SS` (no zone, read as UTC; the form `datetime('now')` writes) and ISO 8601 with `Z` or an offset (`Z` is rewritten to `+00:00` first, because Python 3.10 `datetime.fromisoformat` does not accept `Z`). An unparseable or missing value is None and raises nothing (the "Unknown row schema" bullet below).
++
+ Constants in `models.py`: `JSON_SCHEMA_VERSION = 1`; `CLASSES` (`waiting on a person`, `stalled (proved)`, `fenced`, `working`, `finished`, `idle`, `person session (active)`, `could not determine`); `PACKAGE_STATES` in precedence order (`conflict`, `interrupted-archive`, `archive-blocked`, `unfinished`, `archived`, `unknown`); `SAFE_VALUES` (`yes`, `no`, `could not determine`).
+ 
+ Rule table (`classify.RULES`, SPEC section 7 lines 247-257; numbering is the SPEC's 1 to 9, per M10):
+
+Orchestrator verification output (reproduce it yourself): grep -n 'first_record_ts' -> line 457; grep -n 'dispatch_started' -> line 455; grep -o 'plus `dispatch: str`' | wc -l -> 1; unescaped separators per table row all 2. The edit wording to compare against is research/04-design-fixes-r3.md lines 87-89 in .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/research/04-design-fixes-r3.md

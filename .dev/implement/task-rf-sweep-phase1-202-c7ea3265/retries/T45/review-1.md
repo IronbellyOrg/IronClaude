@@ -1,0 +1,3 @@
+9498f25ef3e2b3692e123474ef1ea1d352114c54 tree=4a5e5c7dbf3bfa162f689acdb7da5d27eacf3f8d
+T45.AC1 unmet behind F1.1 (reviewer marks verbatim: T45.AC1@.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/r3-b2/fix-log-cycle1.md:96-108, false text at docs/designs/orchestrator-mode.md:819).
+F1.1 sev=blocking trigger=B2 ac=scope at=docs/designs/orchestrator-mode.md:819 anchor=.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md:1215 chk=n,y,n,n family=invented-owner-decision first=A1 origin=new: The fix added a claim that the owner's earlier decision covers only True becoming None (D9 :819, SP-29 :857, open item 22 :994, Fix cycle 3 if repeated, fix log :101). No owner decision exists: item 7.11 records the D9 sign-off as PENDING.

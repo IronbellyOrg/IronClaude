@@ -1,0 +1,1 @@
+F1.1 sev=blocking trigger=B1 ac=T159.AC1 at=.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/decisions/verify-cycle1-rf-qa.md:19 anchor="For each finding say RESOLVED or OPEN" family=verifier-result-label

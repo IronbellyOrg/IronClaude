@@ -1,0 +1,22 @@
+--- a/.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/discovery/1.0a-facts.md
++++ b/.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/discovery/1.0a-facts.md
+@@ -51,6 +51,6 @@
+ 
+ ## Owner allowlist branch (item 7.17)
+ 
+-- Outcome (a), a cursor field captured: FIRES. The field `result.page.nextCursor` was captured (null on this one-page Run). DESIGN line 552 says a cursor template is added only after step 1.0a captures the cursor field. The decision file `phase-outputs/plans/OQ-17-cursor-template-decision.md` was written PENDING, the task halted, and the owner has since answered (below).
++- Outcome (a), a cursor field captured: FIRES. The field `result.page.nextCursor` was captured (null on this one-page Run). DESIGN line 559 says a cursor template is added only after step 1.0a captures the cursor field. The decision file `phase-outputs/plans/OQ-17-cursor-template-decision.md` was written PENDING, the task halted, and the owner has since answered (below).
+ - Outcome (b), open item 3 CLOSED with `run-current` needing `--json`: does NOT fire. Open item 3 is STILL UNVERIFIED (row 3) and no need for `--json` was shown. No OQ-18 file is written.
+-- Owner answer (OQ-17), given by Ryan Wiancko, owner, 2026-11-11, recorded in `phase-outputs/plans/OQ-17-cursor-template-decision.md` (status RESOLVED): REFUSED. The owner selected "Keep the 10 commands (Recommended)". Recorded outcome: cursor field present, no cursor template; the DESIGN 973 full-page lower bound applies. Item 8.10 therefore keeps `ALLOWED_ORCA` at exactly 10, does not page by the captured cursor field, and treats a full page of `WORKER_LIST_PAGE` rows as truncated with a lower-bound total. No allowlist follow-up work (design edit, forbidden-list update, R5 re-run) is triggered.
++- Owner answer (OQ-17), given by Ryan Wiancko, owner, 2026-11-11, recorded in `phase-outputs/plans/OQ-17-cursor-template-decision.md` (status RESOLVED): REFUSED. The owner selected "Keep the 10 commands (Recommended)". Recorded outcome: cursor field present, no cursor template; the DESIGN 973 full-page lower bound applies (wording prescribed by the item text; "DESIGN 973" is the item text's older cite for open item 5, which is at DESIGN line 995 in the live design). Item 8.10 therefore keeps `ALLOWED_ORCA` at exactly 10, does not page by the captured cursor field, and treats a full page of `WORKER_LIST_PAGE` rows as truncated with a lower-bound total. No allowlist follow-up work (design edit, forbidden-list update, R5 re-run) is triggered.
+--- a/.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/plans/OQ-17-cursor-template-decision.md
++++ b/.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/plans/OQ-17-cursor-template-decision.md
+@@ -11,7 +11,7 @@
+ 
+ Quoted from the design and the capture:
+ 
+-> DESIGN line 552 (`docs/designs/orchestrator-mode.md`): "The `worker-list` cursor template is not in the set; it is added only after step 1.0a captures the cursor field, as one extra template (SPEC line 320)."
++> DESIGN line 559 (`docs/designs/orchestrator-mode.md`): "The `worker-list` cursor template is not in the set; it is added only after step 1.0a captures the cursor field, as one extra template (SPEC line 320)."
+ 
+ > DESIGN line 995, open item 5: "`worker-list` page size and cursor field", closed by "Step 1.0a item 3"; behaviour until closed: "A full page of `WORKER_LIST_PAGE` rows sets truncated and the total is a lower bound; no cursor template".
+ 

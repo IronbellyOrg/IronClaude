@@ -1,0 +1,8 @@
+T54 = item 4.2 of the source file /home/coder/workspaces/worktrees/IronClaude/issue-339-orchestrator-mode/.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md (lines 600-606). Item text:
+- [ ] **4.2 — R3-B3: name the per-Run source row `orca worker-list <run>` in 7.4**
+  - **Context**: The new 7.2 bullet reads the `sources` row `orca worker-list <run>` and its `unscanned` field, but DESIGN section 7.4 shows only `{"name": str, ...}` for a source row (research/04:187). research/04 calls the name a design choice that needs the gate's approval.
+  - **Action**: In section 7.4, beside the `sources` entry, add one sentence: "Each scoped Run's `worker-list` call has its own source row named `orca worker-list <run>`; a `call_failed` result sets its `unscanned` reason (for example `orca call failed (exit 1)`)." Do not change the JSON key set.
+  - **Output**: DESIGN section 7.4 updated.
+  - **Verification**: Verify: `grep -c 'orca worker-list <run>' docs/designs/orchestrator-mode.md` is at least 2 (7.2 and 7.4). If the `sources` entry is not found in 7.4, log it in `### Phase 4 Findings` and stop. Record in `### Phase 4 Findings` that the name is a design choice for the gate to approve.
+  - **Completion gate**: The source row is named. Once done, mark this item as complete.
+AC ids: T54.AC1 = the item title "R3-B3: name the per-Run source row `orca worker-list <run>` in 7.4" (no AC block; the title is the AC). The item's own Verification and Completion gate lines are context for what "done" means. Ticking the item's checkbox is done by the orchestrator after the verdict and is not part of the diff under review.

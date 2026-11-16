@@ -1,0 +1,8 @@
+T309 = item 14.3 of the source file /home/coder/workspaces/worktrees/IronClaude/issue-339-orchestrator-mode/.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md (lines 2458-2464). Item text:
+- [ ] **14.3 — Validation: the scoped test run (L3)**
+  - **Context**: BUILD-REQUEST VALIDATION_REQUIREMENTS: `uv run pytest tests/sweep tests/commands tests/core tests/skills tests/recommend`. No test may launch Orca, ccsession or Claude (the `tests/sweep/conftest.py` guard from item 8.8 blocks real subprocess calls except under the test's own `integration` marker).
+  - **Action**: Run `uv run pytest tests/sweep tests/commands tests/core tests/skills tests/recommend -v`. Write the command, exit code, the pass/fail/skip counts and the last 40 output lines to `.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/test-results/phase14-scoped-pytest.md` with one PASS or FAIL line.
+  - **Output**: `.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/test-results/phase14-scoped-pytest.md`.
+  - **Verification**: Verify: exit 0 and 0 failed. On a FAIL, fix the cause in this task's files, re-run and log each re-run in `### Phase 14 Findings`.
+  - **Completion gate**: The scoped run PASSes. Once done, mark this item as complete.
+AC ids: T309.AC1 = the item title "Validation: the scoped test run (L3)" (no AC block; the title is the AC). The item's own Verification and Completion gate lines are context for what "done" means. Ticking the item's checkbox is done by the orchestrator after the verdict and is not part of the diff under review.

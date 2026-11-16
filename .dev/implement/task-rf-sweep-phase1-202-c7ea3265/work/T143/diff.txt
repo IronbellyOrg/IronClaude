@@ -1,0 +1,49 @@
+--- a/.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/plans/OQ-8-run-id-decision.md
++++ b/.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/plans/OQ-8-run-id-decision.md
+@@ -1,6 +1,6 @@
+ ---
+ needs_human_decision: true
+-status: PENDING
++status: RESOLVED
+ ---
+ 
+ # Step 1.0a Run id request (OQ-8)
+@@ -23,6 +23,22 @@
+ 
+ ## Run id record
+ 
+-Run id:
+-Given by:
+-Source:
++Run id: run_a4723d345399
++Dispatch rows: 5 (counted by the executor on 2026-11-11 with one read-only listing, `orca-ide orchestration worker-list --run run_a4723d345399 --json`: 5 worker rows, 5 distinct dispatch ids, every row dispatchStatus completed, workerState succeeded, terminalState released). No row is live, so capture items that need a live worker may be recorded UNVERIFIED in step 1.0a.
++Given by: Ryan Wiancko, owner, 2026-11-11.
++Source: In this session's Run-id question the owner selected "Use run_a4723d345399 (Recommended)", whose option text reads: "Issue 504, 5 parallel sessions, 5 completed Dispatch rows. Small enough for the capture to inspect each one (one worker-show per Dispatch). I record your selection as the Run id and continue with the capture (item 7.16)." The owner had earlier pasted the output of `orca-ide orchestration run-list` (ten Runs) and written "pick one, your choice"; a first record built on that delegation alone was withdrawn after review, and this selection replaces it. The other offered option was `run_58af03dbfa92`. This resolves OQ-8 only and grants nothing else.
++
++## Executor's Dispatch counts (evidence behind the Dispatch rows line; not part of the answer)
++
++Counted on 2026-11-11 with the same read-only listing, counts and states only:
++
++| Run id | Dispatch rows | States |
++|---|---|---|
++| run_a4723d345399 | 5 | every Dispatch completed, worker succeeded, terminal released |
++| run_52c9fe174991 | 1 | completed, succeeded, terminal retained |
++| run_703283babf1b | 1 | completed, succeeded, terminal released |
++| run_3ceb5154f1d2 | 1 | completed, succeeded, terminal released |
++| run_58af03dbfa92 | at least 100 (the first page returned 100; its terminal-state counts add up to 137) | mixed: completed, failed and abandoned; terminals released, retained and reclaimable |
++| run_14cfcbd8edf2, run_c1badaa6576b, run_08fc0ad8a647, run_c51a03ef71a7, run_49770af7b34a | 0 | no worker, so not usable (item 7.15 needs at least one Dispatch row) |
++
++No listed Run has a live worker.
+--- a/.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md
++++ b/.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md
+@@ -2803,6 +2803,10 @@
+ 
+ | Timestamp | Item | Event | Detail |
+ |---|---|---|---|
++| 2026-11-11 | 7.15 | RUN ID RECORDED (owner selection) | OQ-8: Run id run_a4723d345399, 5 Dispatch rows (counted read-only by the executor; all completed, none live). Given by Ryan Wiancko, owner, who selected "Use run_a4723d345399 (Recommended)" in this session's Run-id question; this replaces the withdrawn delegated-pick record in the two rows below. Source recorded in phase-outputs/plans/OQ-8-run-id-decision.md, status RESOLVED. Task status Doing and blocker_reason cleared. No other gate is answered by this record. |
++| 2026-11-11 | 7.15 | RUN ID RECORD WITHDRAWN; HALT again | The independent review of item 7.15 ruled that a Run chosen by the executor after the owner wrote "pick one, your choice" does not meet Branch 2 (the Source must quote the person's own words giving the Run id), so the row above is withdrawn, not deleted. phase-outputs/plans/OQ-8-run-id-decision.md is back to status PENDING with empty Run id/Given by/Source lines; the executor's Dispatch counts for the pasted Runs are kept there in a section labelled "not an answer". Task status Blocked again with the Branch 1 blocker_reason. Item 7.15 remains unticked; subsequent items (7.16 onward) not started. |
++| 2026-11-11 | 7.15 | RUN ID RECORDED | OQ-8: Run id run_a4723d345399 (5 Dispatch rows, all completed, no live worker). Given by Ryan Wiancko, owner, who pasted the five Runs from `orca-ide orchestration run-list` and wrote "pick one, your choice"; the executor chose this Run because it has the most Dispatch rows (the other four have 1, 1, 0 and 0). The owner did not type a single Run id; this delegation is recorded as such in phase-outputs/plans/OQ-8-run-id-decision.md, status RESOLVED. Task status Doing and blocker_reason cleared. No other gate is answered by this record. |
++| 2026-11-11T20:54:03Z | 7.15 | HALT: person input pending | OQ-8 (step 1.0a Run id) awaits the person's Run id in phase-outputs/plans/OQ-8-run-id-decision.md. Read confirmed status PENDING and empty Run id/Given by/Source lines; the record does not say the named Run has at least one Dispatch row. No Run id is inferred or taken from Orca. Item 7.15 remains unticked; subsequent items (7.16 onward) not started. |
+ | 2026-11-11 | 7.12 | OWNER DECISION RESOLVED | OQ-7/D9 chosen (a): sign off D9 as written, including its two residual path-B cases (a window with no end can join a person's later session in the pane as False; a live session serving two Dispatches joins the older row only). Decider Ryan Wiancko selected "Sign off D9 as written (Recommended)" in this session's D9 question. Source recorded in phase-outputs/plans/OQ-7-D9-signoff-decision.md; status RESOLVED. Task status Doing and blocker_reason cleared. No other owner gate is answered by this decision. |
+ | 2026-11-11T20:36:13Z | 7.12 | HALT: owner decision pending | OQ-7 (D9 sign-off) awaits the owner's decision in phase-outputs/plans/OQ-7-D9-signoff-decision.md. Read confirmed status PENDING and empty Chosen/Decided by/Decision source fields. The recommendation (a), D9 as written, does NOT authorize adoption and is not an approval. Item 7.12 remains unticked; subsequent items (7.13 onward) not started. |
+ | 2026-11-11 | 7.10 | OWNER EXECUTION AUTHORIZATION RECORDED; STYLE EXCEPTION IMPLEMENTED; RESUME | Ryan Wiancko, owner, answered the question whether to run item 7.10 now (first option, "Run 7.10 now (Recommended)") with "Accepted, I accepted, but it reported a decline.  Proceed" (2026-11-11T20:26:41Z; the question tool's result was lost, so the executor read the reply as that option). The dated verbatim quote and the paths of the supplied structural, alignment, qualitative and pre-execution reports are in phase-outputs/test-results/step-7.10-style-exception.md under "## Execution authorization (verbatim)", written before the style edit. Implemented choice (b) in src/superclaude/output-styles/pragmatic.md only: the common rule at lines 22-26, the six later restatements qualified (lines 57, 62, 64, 73, 84, 94), nothing from "## Work discipline" on changed. Bounded checks C1 to C10 PASS (the executor's own text and diff checks; before/after excerpts, diff and results are in the same result file). Independent per-task review follows under sc-implement-protocol and its verdict is recorded in the ledger, not here. Task status Doing and blocker_reason cleared. The nine open pre-execution findings stay open, including M-01 (item 7.17) and M-02 (item 7.24), which matter only if the optional OQ-17/OQ-18 branch fires. No skill, test, sync, install, HOME style change, commit or push; the installed HOME style is not updated and live model adherence is not tested. |

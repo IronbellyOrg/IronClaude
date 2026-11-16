@@ -1,0 +1,23 @@
+59:    except OSError:
+80:    except (OSError, RuntimeError):
+106:    except (OSError, RuntimeError):
+116:        except (OSError, RuntimeError):
+137:def _drop_own_temp(tmp: Path) -> tuple[str, ...]:
+140:        os.unlink(tmp)
+141:    except OSError:
+159:    except OSError as exc:  # no file was written; folders it made may remain
+165:    data = text.encode(
+170:        fd = os.open(tmp, os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o666)
+171:    except FileExistsError as exc:  # not ours, so it is left alone
+173:    except OSError as exc:
+180:    except OSError as exc:
+181:        raise _PublishError(f"[sweep publish] {exc}", *_drop_own_temp(tmp)) from exc
+189:        except FileExistsError:
+191:        except OSError as exc:
+193:                f"[sweep publish] cannot link report: {exc}", *_drop_own_temp(tmp)
+200:            *_drop_own_temp(tmp),
+203:        os.unlink(tmp)
+204:    except OSError as exc:  # the complete report stays; no success JSON
+279:    except (click.UsageError, probes.BindingError) as exc:
+282:    except _PublishError as exc:
+286:    except Exception as exc:  # an allowlist ValueError or any internal error

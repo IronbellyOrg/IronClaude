@@ -1,0 +1,8 @@
+T32 = item 3.3 of the source file /home/coder/workspaces/worktrees/IronClaude/issue-339-orchestrator-mode/.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md (lines 440-446). Item text:
+- [ ] **3.3 — R3-B2 edits 3 and 4: the FR-010 row (12), D9 (13) and SP-29 (14)**
+  - **Context**: research/04:150-151 and research/09 Gap 4 (09:164, 09:167). FR-010 row near DESIGN line 764; D9 near line 815; SP-29 near line 853.
+  - **Action**: (3) In the FR-010 row, after "with a path-B join also needing the Dispatch row's time window", add ", and one rule for several rows matching one pane session (join only the one row whose window holds it; `conflict:` when two or more do)". (4) In D9, after "a path-B join also needs the Dispatch row's time window", and in SP-29, after "a path-B join needs the Dispatch row's time window", add "and, when several rows match one pane session, exactly one window holding it".
+  - **Output**: DESIGN sections 12, 13 and 14 updated.
+  - **Verification**: Verify: `grep -c 'exactly one window holding it' docs/designs/orchestrator-mode.md` returns 2 (D9 and SP-29); the FR-010 row contains `one rule for several rows matching one pane session`; `grep -n '^Total: 9 deviations.'` still returns one hit. If an anchor is missing, log it in `### Phase 3 Findings` and stop.
+  - **Completion gate**: The three rows agree with 7.2. Once done, mark this item as complete.
+AC ids: T32.AC1 = the item title "R3-B2 edits 3 and 4: the FR-010 row (12), D9 (13) and SP-29 (14)" (no AC block; the title is the AC). The item's own Verification and Completion gate lines are context for what "done" means. Ticking the item's checkbox is done by the orchestrator after the verdict and is not part of the diff under review.

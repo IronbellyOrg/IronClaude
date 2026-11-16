@@ -1,0 +1,5 @@
+The task (item 2.22, fix cycle 2, conditional) was skipped because cycle 1 passed. The only change is one new row in the Execution Log table of the source file (diff of the source file against the start snapshot, then the item's condition evidence):
+@@ -2805,6 +2805,7 @@
++| 2026-11-08T21:00Z | 2.22 | SKIPPED | Fix cycle 2 is not needed: `qa/r3-b1/cycle1-decision.md` records F_1 empty and the outcome "PASS at cycle 1". |
+
+Evidence for the skip condition: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/r3-b1/cycle1-decision.md (outcome line 19: PASS at cycle 1) and the cycle-1 row of .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/r3-b1/cycle-ledger.md (line 4). The item's Action says: if item 2.21 or 2.18 marked this item SKIPPED, mark it complete; item 2.21's Action (c) says that when |F_1| is 0 it writes PASS at cycle 1 and marks items 2.22 to 2.24 complete as SKIPPED. The checkbox tick of item 2.22 itself is done by the orchestrator after the verdict and is not part of this diff.

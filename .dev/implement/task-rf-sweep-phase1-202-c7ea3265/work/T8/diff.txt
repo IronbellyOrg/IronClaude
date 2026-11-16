@@ -1,0 +1,22 @@
+--- a/docs/designs/orchestrator-mode.md
++++ b/docs/designs/orchestrator-mode.md
+@@ -884,7 +884,7 @@
+ | 1 | `run-current` output when a Run is bound, and when none is bound (the no-binding shape) | `bind_run`, FR-002 fourth test, FR-026 case 4 |
+ | 2 | Whether `run-current` output is parseable without `--json` | M2, section 7.3 |
+ | 3 | `worker-list --run <run> --json` schema, page size and the cursor or continuation field, if any | `WORKER_LIST_PAGE`, the cursor template (section 7.3) |
+-| 4 | `worker-show --dispatch <dispatch> --json` field names: the field that can carry `session_join` (a Claude session id, pane key or terminal handle), `agentWait` presence and value, `liveness.verdict`, `status`, and the fields that carry the Dispatch start and end times | Rule 5, the join paths of section 7.2, the path-B time window, GQ-108, open item 23 |
++| 4 | `worker-show --dispatch <dispatch> --json` field names: the field that can carry `session_join` (a Claude session id, pane key or terminal handle), `agentWait` presence and value, `liveness.verdict`, `status`, and whether `dispatch.dispatchedAt`, `dispatch.completedAt` and `dispatch.status` are present with the shapes the static bundle read gives (SQLite `YYYY-MM-DD HH:MM:SS` UTC); also record, for one worker, whether `dispatchedAt` is earlier than the first transcript record of its session, and whether `completedAt` is set for `failed` and `circuit_broken` rows | Rule 5, the join paths of section 7.2, the path-B time window, GQ-108, open item 23 |
+ | 5 | `task-list --ready --run <run> --json` and `task-list --run <run> --json` shapes, and whether a creator field exists | Rule 4 (b), Waiting (b) sub-heading |
+ | 6 | `worktree ps --json`: the worktree path field | Worktree discovery, M3 |
+ | 7 | `worktree list --json` and `worktree current --json` shapes (recorded only; Phase 1 does not call them) | M3 |
+@@ -990,7 +990,7 @@
+ | 20 | Owner decisions GQ-10, GQ-11 (WC-14 approval), GQ-35, GQ-61 and GQ-63 | Step 1.0b | Steps 1.17 to 1.19 do not start |
+ | 21 | PR #422 overlap with WC-14, the never-as-worker list and the #409 dimensions | Step 1.16a | Steps 1.17 to 1.19 do not start; WC-14 stays a deliverable of this PR whatever #422 does |
+ | 22 | Whether Orca workers get tab-map entries (launched through `ccsession`) and which tab-map value equals the item 4 field; and the owner's sign-off on the D9 narrowing of SP-29 | Step 1.0a item 13; step 1.0b | Join path B is not used; a tab-map entry that joins no scoped row gives None; the classify step does not start until the owner signs off D9 or names a stricter rule. Until closed, every no-entry True carries the `origin not proved` note (7.2) |
+-| 23 | The `worker-show` fields that carry a Dispatch row's start and end times, used by the path-B time window (7.2) | Step 1.0a item 4 | No path-B join is made: every path-B match is could not determine with note `pane moved to a later session`, and its transcript is None |
++| 23 | That `worker-show` `dispatch.dispatchedAt`, `dispatch.completedAt` and `dispatch.status` (read statically from the 1.4.245 bundle) carry a Dispatch row's start time, end time and status live, in the parsed form of 7.2 | Step 1.0a item 4 | No path-B join is made: every path-B match is could not determine with note `Dispatch time window not observable`, and its transcript is None |
+ 
+ Total: 23 open items.
+ 
+
+Orchestrator verification output (reproduce it yourself): grep -n '^Total: 23 open items.' docs/designs/orchestrator-mode.md returns one hit; 15.1 item 4 (the row starting `| 4 | `worker-show --dispatch`) contains `dispatch.dispatchedAt`; open item 23 contains `Dispatch time window not observable`. The wording to compare against is research/04-design-fixes-r3.md lines 93-94 (edits 7 and 8) in .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/research/04-design-fixes-r3.md

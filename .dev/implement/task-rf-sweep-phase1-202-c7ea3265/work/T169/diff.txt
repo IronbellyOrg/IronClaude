@@ -1,0 +1,63 @@
+--- /dev/null
++++ b/src/superclaude/cli/sweep/classify.py   (new file, 996 lines)
++"""Pure classifier for the read-only ``superclaude sweep`` (DESIGN sections 7.1, 7.2).
++
++Every function here is pure over ``models`` types. The module reads no file, starts
++no process and never reads a clock: every time comes from ``SweepContext.now`` or
++the data passed in (NFR-004). Only the standard library and ``.models`` are imported.
++"""
++
++from __future__ import annotations
++
++import re
++from collections.abc import Callable
++from dataclasses import MISSING, dataclass, field, fields, replace
++from datetime import datetime, timezone
++from pathlib import Path
++
++from .models import (
++    CLASSES,
++    PACKAGE_STATES,
++    Classification,
++    ClassifiedRow,
++    ContractRecord,
++    OrcaObservation,
++    PackageRecord,
++    SafeToClose,
++    SessionRow,
++    SourceCoverage,
++    SweepContext,
++    SweepInput,
++    SweepResult,
++    TabMapEntry,
++    TranscriptTail,
++    WorktreeState,
++)
++
++# Join path in force. Step 1.0a items 1 and 22 (CLOSED): ``session_join`` is
++# ``dispatch.assigneeHandle``, compared with ``TabMapEntry.terminal_handle`` (path B).
++JOIN_PATH = "B"
++
++(
++    C_WAITING,
++    C_STALLED,
++    C_FENCED,
++    C_WORKING,
++    C_FINISHED,
++    C_IDLE,
++    C_PERSON_ACTIVE,
++    C_UNKNOWN,
++) = CLASSES
++
++# Notes and reasons, byte-exact from DESIGN section 7.2 and the R3 fixes.
++NOTE_WINDOW_NOT_OBSERVABLE = "Dispatch time window not observable"
++NOTE_SEVERAL_ROWS = "conflict: one pane session matches several Dispatch rows"
++NOTE_PANE_MOVED = "pane moved to a later session"
++NOTE_BEFORE_WINDOW = "session started before this Dispatch window"
++NOTE_TAIL_ONLY = "session start not observable: transcript tail only"
++NOTE_JOINED_BY_PANE = "joined by pane: latest session of the pane"
++NOTE_JOIN_NOT_OBSERVABLE = "tab map join not observable"
++NOTE_PANE_NOT_SCOPED = "Orca pane session, not in scoped Runs"
++NOTE_EARLIER_PANE = (
++    "earlier pane session not joinable (tab map keeps only the latest session)"
+... (new file continues; read src/superclaude/cli/sweep/classify.py from disk for lines 61-996)

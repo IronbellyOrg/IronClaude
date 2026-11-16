@@ -1,0 +1,33 @@
+--- /dev/null
++++ b/.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/decisions/qa-completeness-report.md   (new file, 78 lines)
++# QA Completeness Report (item 7.21, rf-qa, completeness lens)
++
++**Date:** 2026-11-11 (system clock `date -u` 22:43Z at review time)
++**fix_authorization:** false (report only)
++**Scope:** prompt `qa/decisions/prompts/7.21-prompt.md`; completeness lens over R5 (OQ-1), GQ-10 (OQ-2), GQ-11 (OQ-3), GQ-35 (OQ-4), GQ-61 (OQ-5), GQ-63 (OQ-6), D9 (OQ-7), the 13 DESIGN 15.1 capture items, `1.0a-facts.md`, `pr422-409-check.md`, and the GQ-63 actual-(b) / fresh-evidence / separate-authorization / early-style chain.
++
++## Findings
++
++No BLOCKING or MAJOR finding. Every required deliverable exists, is filled, and was independently re-verified against disk, git, the live DESIGN and the session transcript (not only against the producer's own check file). Four MINOR notes follow; they never fail the gate.
++
++### F1 (MINOR) - run timestamps in `decisions-mechanical.md` are not real
++
++- Evidence: `phase-outputs/test-results/decisions-mechanical.md:5` labels Run 1 `2026-11-11T22:40Z`; line 237 labels Run 2 `22:50Z`; line 471 labels Run 3 `22:58Z`. `stat` shows the file's last write at `22:38:50Z` and `date -u` at review time gave `22:43:00Z`. So all three labels post-date the file's own last write, and Runs 2 and 3 are in the future.
++- What is wrong: the run times are invented. Every check line under them re-checks true (see C17), so no verdict changes.
++- Smallest fix: delete the clock times or replace them with the real ones; keep "Run 1/2/3" and the "Changes since" lines.
++
++### F2 (MINOR) - OQ-1 (R5) owner words are evidenced only through a peer relay
++
++- Evidence: `phase-outputs/plans/OQ-1-agent-wait-decision.md:22` says the words were "relayed by the coordinator" (messages `msg_d95a87e312e1`, `msg_6ee5998d0874`). In the session store the phrase "Allow it, no conditions needed." appears only inside orchestration message results (`6ee233a2-...jsonl` lines 10810 and 11025 onward), never as a direct owner turn. Every other decision (OQ-2 to OQ-8, OQ-17) has a direct owner answer in `db62cb58-...jsonl`.
++- Disclosed openly in `artifacts/owner-decisions.md:17` ("Provenance"), and the record has Chosen, Decided by and Decision source filled with a quote. So the completeness duty is met; only the strength of the provenance is lower.
++- Smallest fix: none needed for the gate; optionally ask the owner to confirm R5 once in a direct turn.
++
++### F3 (MINOR) - capture deviations are disclosed but the owner has not acknowledged them
++
++- Evidence: `artifacts/readonly-probe.md:1071` (Deviation D1: one `task-list --run run_000000000000` read that item 7.16's Action does not list, though DESIGN 15.1 row 8 asks for that error shape); `readonly-probe.md:783` (before/after payloads equal only once the per-call envelope `id` is removed; the executor read "apart from timestamps" that way and printed the HALT text the owner would use for the strict reading).
++- Both are read-only, recorded in the file and reflected in `1.0a-facts.md` row 4 and row 11. Neither is a missing deliverable.
++- Smallest fix: owner acknowledgement at the next owner touchpoint; no re-capture.
++
++### F4 (MINOR) - `1.0a-facts.md` rows 3, 6, 9 and 16 stay UNVERIFIED
++
+... (new file continues; read .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/decisions/qa-completeness-report.md from disk for lines 31-78)

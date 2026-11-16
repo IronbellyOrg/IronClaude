@@ -1,0 +1,33 @@
+--- a/.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/plans/OQ-5-GQ-61-window-decision.md
++++ b/.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/plans/OQ-5-GQ-61-window-decision.md
+@@ -1,6 +1,6 @@
+ ---
+ needs_human_decision: true
+-status: PENDING
++status: RESOLVED
+ ---
+ 
+ # Activity window decision
+@@ -30,7 +30,7 @@
+ 
+ ## Operator decision
+ 
+-OPERATOR DECISION:
+-Chosen:
+-Decided by:
+-Decision source:
++OPERATOR DECISION: Approve the six-hour activity-only default.
++Chosen: `6h` as the CLI default, bounding activity only. Open Tasks, questions and unread reports remain listed regardless of age.
++Decided by: Ryan Wiancko, owner, 2026-11-09.
++Decision source: In this session's activity-age question, the owner selected "Six hours (Recommended)". The selected option explicitly approves 6h and preserves unresolved-work visibility. This resolves OQ-5/GQ-61 only; no other decision is inferred.
+--- a/.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md
++++ b/.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md
+@@ -2803,6 +2803,8 @@
+ 
+ | Timestamp | Item | Event | Detail |
+ |---|---|---|---|
++| 2026-11-09 | 7.8 | OWNER DECISION RESOLVED | OQ-5/GQ-61 chosen: 6h default, activity only; open Tasks, questions and unread reports always listed regardless of age. Decider Ryan Wiancko selected "Six hours (Recommended)" in this session. Source recorded in phase-outputs/plans/OQ-5-GQ-61-window-decision.md; status RESOLVED. Task status Doing and blocker_reason cleared. Other owner gates remain unchanged. |
++| 2026-11-09T13:13:32Z | 7.8 | HALT: owner decision pending | OQ-5 (GQ-61, default window) awaits the owner's decision in phase-outputs/plans/OQ-5-GQ-61-window-decision.md. Read confirmed PENDING and empty decision fields. Six-hour design default is not approval. Both options preserve activity-only filtering and always list open Tasks, questions and unread reports. Item 7.8 unticked; subsequent items not started. |
+ | 2026-11-09 | 7.6 | OWNER DECISION RESOLVED | OQ-4/GQ-35 chosen: pin and cite 495eb96d for the local layout, with DESIGN section 7.5's sort/labels unchanged; owner-approved reuse, not approval/import of dashboard runtime code. Decider Ryan Wiancko selected "Pin and cite snapshot (Recommended)" in this session. Source recorded in phase-outputs/plans/OQ-4-GQ-35-409-pin-decision.md; status RESOLVED. Task status Doing and blocker_reason cleared. No unrelated gate resolved. |
+ | 2026-11-09T12:57:09Z | 7.6 | HALT: owner decision pending | OQ-4 (GQ-35, #409 pin) awaits the owner's decision in phase-outputs/plans/OQ-4-GQ-35-409-pin-decision.md. Read confirmed PENDING and empty decision fields. Source pin/copy strategy, sort and labels need explicit resolution; no answer inferred from the prior rule or report-location approvals. Item 7.6 remains unticked, subsequent work not started. |
+ | 2026-11-09 | 7.4 | OWNER DECISION RESOLVED | OQ-3/GQ-11 chosen: new WC-16 with the proposed coordinator-loop text from DESIGN section 8 and existing worker duties unchanged. Decider Ryan Wiancko directly selected "New WC-16 rule (Recommended)" in this session. Source recorded in phase-outputs/plans/OQ-3-GQ-11-rule-id-decision.md; status RESOLVED. The separate ORCH-IronClaude relay is marked corroboration only, not substituted for the direct owner answer. Task status Doing; blocker_reason cleared. No unrelated gate or broader action authorized. |

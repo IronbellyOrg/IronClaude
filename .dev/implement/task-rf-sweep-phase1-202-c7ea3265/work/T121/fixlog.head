@@ -1,0 +1,36 @@
+# R5 gate, fix log for cycle 1
+
+Fix agent: single fix agent, `fix_authorization: true`. Input: `consolidated-findings-cycle0.md`, F_0 = {R5-F1}. Only file edited besides this log: `docs/designs/orchestrator-mode.md`. Line numbers below are the lines after the change; the DESIGN file is still 1047 lines (each edit stayed on its original line).
+
+## Findings fixed
+
+### R5-F1 (MAJOR): "not called in Phase 1" for the two `--agent-wait` templates had no test
+
+Three edits, each anchored by quoted text. No new test file, no new test name, no deviation row, no open item.
+
+| Edit | Anchor (old text) | Change | Line after change |
+|---|---|---|---|
+| 1. Section 7.3, decision paragraph on `worktree list` and `worktree current` (M3) | "The NFR-003 recording test asserts zero argv for both." | Now "The NFR-003 full-sweep recording test asserts zero argv for both, and also for both `worktree ps --agent-wait` templates, so all four templates marked "not called in Phase 1" are never issued by a sweep." Added: "That wording is a design statement; R5 only allowed the two `--agent-wait` templates." | `docs/designs/orchestrator-mode.md:555` |
+| 2. Section 11, `tests/sweep/test_probes_allowlist.py` row, "Full-sweep recording" sentence | "zero argv for `worktree list` and `worktree current`;" | Now "zero argv for all four templates marked "not called in Phase 1" (`worktree list`, `worktree current` and both `worktree ps --agent-wait` forms, with and without `--json`);" | `docs/designs/orchestrator-mode.md:759` |
+| 3. Section 13, `### Fix cycle 3` table, R5 row | "...the allowlist pin and the version-scoped claim (Orca 1.4.245) are kept (2.2, 4, 7.3, 11, 12, 13, 15.1) |" | Replaced the closing "are kept" clause with "are kept. Gate fixes: the full-sweep recording test now asserts zero argv for both `worktree ps --agent-wait` templates as well as for `worktree list` and `worktree current`, so the "not called in Phase 1" statement is tested for all four templates (7.3, 11)" followed by the original section list. | `docs/designs/orchestrator-mode.md:1047` |
+
+Kept as they were (checked by grep after the edits): `Total: 10 deviations.` (`docs/designs/orchestrator-mode.md:839`), `Total: 23 open items.` (`docs/designs/orchestrator-mode.md:1015`), the ten-template count, the one-token `FORBIDDEN_TOKENS`, the D10 row and the owner quote in the R5 row. The wording "not called in Phase 1" is kept as a design statement; the text does not say the owner decided it. No em dash in the file (grep count 0). The positive case "both `worktree ps --agent-wait` templates are accepted" in the same section 11 row is unchanged and does not conflict: the allowlist accepts the argv, the full-sweep test asserts a sweep never issues it.
+
+Not touched, by instruction: the other MINOR findings (R5-F2 to R5-F23) stay as notes. The summary row for `worktree list` and `worktree current` in section 4 (`docs/designs/orchestrator-mode.md:342`) was not extended, because the finding names only the two places above; it stays true as written.
+
+## Owner attention
+
+none. The change adds a test assertion to an existing test row and states that "not called in Phase 1" is a design statement. It does not widen or narrow what the owner allowed.
+
+## Consistency places updated
+
+| Place | Section | Line | Updated |
+|---|---|---|---|
+| Decision paragraph on `worktree list` and `worktree current` | 7.3 | `docs/designs/orchestrator-mode.md:555` | yes |
+| `test_probes_allowlist.py` row, full-sweep recording | 11 | `docs/designs/orchestrator-mode.md:759` | yes |
+| R5 row, `### Fix cycle 3` table, "Gate fixes" sentence | 13 | `docs/designs/orchestrator-mode.md:1047` | yes |
+| Templates 9 and 10 code comments "not called in Phase 1" | 7.3 | `docs/designs/orchestrator-mode.md:535-536` | no change needed, wording already matches |
+| Summary row for `worktree list`, `worktree current` (0 in Phase 1) | 4 | `docs/designs/orchestrator-mode.md:342` | no change, outside the finding |
+| Step 1.0a text "runs only templates 1 to 8" | 15.1 | `docs/designs/orchestrator-mode.md:895` | no change needed |
+| Deviation total and open-item total | 13, 17 | `docs/designs/orchestrator-mode.md:839`, `:1015` | unchanged |
+

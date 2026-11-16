@@ -1,0 +1,10 @@
+--- a/.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/decisions/gate-decision.md
++++ b/.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/decisions/gate-decision.md
+@@ -7,6 +7,6 @@
+ Decisions gate: PASS
+ 
+ Records that stay on the books for later items (none blocks the gate):
+-- The DEC-F5 remainder (stale Orca build suffix `780594c521aa` at DESIGN `docs/designs/orchestrator-mode.md:30` and `:761` and in the text of items 8.12 and 10.5) was accepted by the owner as a minor note on 2026-11-12 (Ryan Wiancko, owner, "Accept as a minor note (Recommended)", recorded in `fix-log-cycle1.md`, last section). The follow-up for the builders of items 8.12 and 10.5 is at `phase-outputs/discovery/1.0a-facts.md:46-48`.
++- The DEC-F5 remainder (stale Orca build suffix `780594c521aa` at DESIGN `docs/designs/orchestrator-mode.md:30` and `:761` and in the text of item 10.5 at task file line 1812; item 8.12 does not carry the string but has no pointer to the facts-file version rule) was accepted by the owner as a minor note on 2026-11-12 (Ryan Wiancko, owner, "Accept as a minor note (Recommended)", recorded in `fix-log-cycle1.md`, last section). The follow-up for the builders of items 8.12 and 10.5 is at `phase-outputs/discovery/1.0a-facts.md:46-48`.
+ - OQ-1 (R5) was confirmed directly by the owner on 2026-11-12 (`phase-outputs/plans/OQ-1-agent-wait-decision.md:23`).
+ - The two cycle-1 checks that stay FAIL (`qa-completeness:C21`, `qa-readonly-safety:C20`) are MINOR-only and were FAIL at cycle 0.

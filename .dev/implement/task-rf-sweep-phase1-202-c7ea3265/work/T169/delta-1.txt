@@ -1,0 +1,41 @@
+--- a/src/superclaude/cli/sweep/classify.py
++++ b/src/superclaude/cli/sweep/classify.py
+@@ -799,21 +799,18 @@
+ 
+ 
+ def _lifecycle(orca: OrcaObservation | None) -> str:
+-    if orca is None:
++    # REPORT:1248: source is the Orca outcome; settled -> settled, else running;
++    # no outcome observed -> unknown.
++    if orca is None or orca.outcome is None:
+         return "unknown"
+-    if _settled(orca):
+-        return "settled"
+-    seen = (orca.outcome, orca.liveness_verdict, orca.status)
+-    return "running" if any(v is not None for v in seen) else "unknown"
++    return "settled" if _settled(orca) else "running"
+ 
+ 
+-def _health(orca: OrcaObservation | None, contract: ContractRecord | None) -> str:
+-    if (contract is not None and contract.worker_status == "failed") or (
+-        orca is not None and orca.outcome == "failed"
+-    ):
++def _health(contract: ContractRecord | None) -> str:
++    # REPORT:1248: a failed contract gives "failed result"; liveness "unverifiable" and
++    # everything else give "unknown" ("no issue observed" has no Phase 1 source).
++    if contract is not None and contract.worker_status == "failed":
+         return "failed result"
+-    if orca is not None and orca.liveness_verdict in ("live", "exited"):
+-        return "no issue observed"
+     return "unknown"
+ 
+ 
+@@ -904,7 +901,7 @@
+             gate_policy=_gate_policy(o.task_spec_text),
+             row_id=f"orca:{o.dispatch}",
+             lifecycle=_lifecycle(o),
+-            health=_health(o, contract),
++            health=_health(contract),
+             result=_result(contract),
+         )
+         forced = list(joins.forced.get(o.dispatch, ()))

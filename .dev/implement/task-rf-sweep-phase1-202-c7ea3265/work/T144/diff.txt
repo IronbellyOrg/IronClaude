@@ -1,0 +1,403 @@
+--- /dev/null
++++ b/.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/artifacts/readonly-probe.md   (new file, 1071 lines)
++---
++needs_human_decision: false
++status: CAPTURED
++---
++
++# Step 1.0a read-only Orca capture (item 7.16)
++
++Captured 2026-11-11 against the Run named by the owner in `phase-outputs/plans/OQ-8-run-id-decision.md` (item 7.15): `run_a4723d345399`. Binary: `orca-ide` (`/home/coder/.local/bin/orca-ide`; `ORCA_CLI_COMMAND` unset). Every command below ran in its own Bash call with a tool timeout of 30000 ms, wrapped in an inner `timeout 8`. Only the eight allowlisted templates, file reads, and the step (6) `echo` and `ls -la` were issued; none of the forbidden commands was issued. The capture created no Run, Task or Dispatch. Scratch copies of each command's output were written under `/tmp/probe-7-16/` (outside this task package) while the file was built; they are not part of the deliverable. One Orca read went beyond the item's list of allowed uses: see Deviation D1 in the last section.
++
++Handling of large output: stdout under about 8 KB is shown in full in the section. Larger stdout is summarised in the section (shape, fields, counts, sha256 of the raw bytes) and, where it holds no other session's message text, the raw bytes are stored under `.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/artifacts/readonly-probe-raw/` (named in the section). The outputs of `worktree ps --json` and `worktree list --json` are not stored raw, because `worktree ps --json` carries other sessions' prompts and assistant messages; their sections hold the shape, counts, hashes and one redacted entry. This is a deliberate reading of "stdout" in the item's Action (the first sentence of the task: paths, session ids and user names may be shown, not other sessions' message text).
++
++## 0. Step 1: the id-learning read (extra read made only to learn the Dispatch ids)
++
++This is the Action step (1) read: `worker-list` run once to learn the Dispatch ids before the before/after reads. It is also the first of the two `worker-list` reads; capture item 3 uses both.
++
++Command: `orca-ide orchestration worker-list --run run_a4723d345399 --json`
++
++Exit code: 0. Stderr: empty. Stdout: 13779 bytes, sha256 `9f72ceb93665d30ecdef6da141b4b1b84ebdc03afe1bb34ae1b9d05bee817a1d`; raw bytes stored at `.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/artifacts/readonly-probe-raw/s1.json`.
++
++Learned from it (5 workers, 5 distinct Dispatch ids, all with `dispatchStatus: completed`, `workerState: succeeded`, `terminalState: released`):
++
++| Dispatch id | Task id | Terminal handle |
++|---|---|---|
++| ctx_6a0e3e3baaee | task_d7ba23de62d2 | term_12f4e391-99b0-4528-a6dc-483bd7c20dcf |
++| ctx_9a3728b21883 | task_e90102f005e0 | term_1212fabf-cde3-4350-a807-5d0aac19a520 |
++| ctx_4e3237d227c3 | task_38990284224c | term_bfc93c3a-75f5-46c7-bae1-eca8cc7c646e |
++| ctx_7c86fffa9716 | task_a6a2a3f9e170 | term_c2f40c56-7f46-4ba2-8f9f-4127b229d352 |
++| ctx_dad78c5c1332 | task_381ac7af9ed1 | term_88360819-3622-4c35-821d-e06faf346ab4 |
++
++Envelope: `{"counts": {"released": 5}, "page": {"limit": 100, "total": 5, "hasMore": false, "nextCursor": null}, "scope": {"run": "run_a4723d345399", "source": "flag"}}`, `_meta.runtimeId` `a7ee70a1-2e8b-4476-a228-51e9c7019b3f`.
++
++Full stdout:
++
++~~~
++{
++  "id": "e1936e60-f234-47e8-8d11-cdfae1d7f85f",
++  "ok": true,
++  "result": {
++    "workers": [
++      {
++        "dispatchId": "ctx_6a0e3e3baaee",
++        "taskId": "task_d7ba23de62d2",
++        "runId": "run_a4723d345399",
++        "workerState": "succeeded",
++        "dispatchStatus": "completed",
++        "agentTerminalHandle": "term_12f4e391-99b0-4528-a6dc-483bd7c20dcf",
++        "terminalState": "released",
++        "resource": {
++          "id": "wtr_e76d1735d8a2",
++          "ownershipState": "released",
++          "releaseState": "released",
++          "retainedReason": null,
++          "terminalHandle": "term_12f4e391-99b0-4528-a6dc-483bd7c20dcf",
++          "worktreeId": "de550e99-fa3c-42e2-abfe-1d092771c759::/home/coder/workspaces/worktrees/IronClaude/issue-504",
++          "endpointId": "a7ee70a1-2e8b-4476-a228-51e9c7019b3f",
++          "endpointIncarnation": "de550e99-fa3c-42e2-abfe-1d092771c759::/home/coder/workspaces/worktrees/IronClaude/issue-504@@98e8ea49:e3c1e8c5-d25e-482c-a447-ca5053e2edd3",
++          "originDispatchId": "ctx_6a0e3e3baaee",
++          "ownerDispatchId": "ctx_6a0e3e3baaee",
++          "releaseRequestedAt": "2026-11-11 19:51:11",
++          "releaseCompletedAt": "2026-11-11 19:51:13",
++          "releaseError": null,
++          "recoveryAttemptCount": 0,
++          "lastRecoveryAt": null,
++          "archive": {
++            "source": "transcript",
++            "status": "captured"
++          }
++        },
++        "projection": {
++          "id": "ctx_6a0e3e3baaee",
++          "dispatchId": "ctx_6a0e3e3baaee",
++          "taskId": "task_d7ba23de62d2",
++          "runId": "run_a4723d345399",
++          "role": "worker",
++          "parent": null,
++          "provider": null,
++          "host": {
++            "kind": "local",
++            "id": "local"
++          },
++          "workspace": {
++            "id": "de550e99-fa3c-42e2-abfe-1d092771c759::/home/coder/workspaces/worktrees/IronClaude/issue-504",
++            "kind": "folder_or_worktree"
++          },
++          "stage": {
++            "worker": "succeeded",
++            "dispatch": "completed",
++            "detail": "settled",
++            "activity": "unknown"
++          },
++          "outcome": "succeeded",
++          "liveness": {
++            "verdict": "exited",
++            "source": "resource_release"
++          },
++          "evidence": {
++            "durable": true,
++            "liveStatus": "unavailable",
++            "lastObservedAt": null
++          },
++          "resource": {
++            "state": "released"
++          },
++          "nextAction": {
++            "kind": "none",
++            "argv": []
++          },
++          "attention": {
++            "categories": [
++              "root_completion"
++            ],
++            "requiresAction": false
++          }
++        }
++      },
++      {
++        "dispatchId": "ctx_9a3728b21883",
++        "taskId": "task_e90102f005e0",
++        "runId": "run_a4723d345399",
++        "workerState": "succeeded",
++        "dispatchStatus": "completed",
++        "agentTerminalHandle": "term_1212fabf-cde3-4350-a807-5d0aac19a520",
++        "terminalState": "released",
++        "resource": {
++          "id": "wtr_b565ff1e9a33",
++          "ownershipState": "released",
++          "releaseState": "released",
++          "retainedReason": null,
++          "terminalHandle": "term_1212fabf-cde3-4350-a807-5d0aac19a520",
++          "worktreeId": "de550e99-fa3c-42e2-abfe-1d092771c759::/home/coder/workspaces/worktrees/IronClaude/issue-504",
++          "endpointId": "a7ee70a1-2e8b-4476-a228-51e9c7019b3f",
++          "endpointIncarnation": "de550e99-fa3c-42e2-abfe-1d092771c759::/home/coder/workspaces/worktrees/IronClaude/issue-504@@846850e6:37868cf7-bb20-4ead-9528-d2331eeba154",
++          "originDispatchId": "ctx_9a3728b21883",
++          "ownerDispatchId": "ctx_9a3728b21883",
++          "releaseRequestedAt": "2026-11-11 19:52:50",
++          "releaseCompletedAt": "2026-11-11 19:52:52",
++          "releaseError": null,
++          "recoveryAttemptCount": 0,
++          "lastRecoveryAt": null,
++          "archive": {
++            "source": "transcript",
++            "status": "captured"
++          }
++        },
++        "projection": {
++          "id": "ctx_9a3728b21883",
++          "dispatchId": "ctx_9a3728b21883",
++          "taskId": "task_e90102f005e0",
++          "runId": "run_a4723d345399",
++          "role": "worker",
++          "parent": null,
++          "provider": null,
++          "host": {
++            "kind": "local",
++            "id": "local"
++          },
++          "workspace": {
++            "id": "de550e99-fa3c-42e2-abfe-1d092771c759::/home/coder/workspaces/worktrees/IronClaude/issue-504",
++            "kind": "folder_or_worktree"
++          },
++          "stage": {
++            "worker": "succeeded",
++            "dispatch": "completed",
++            "detail": "settled",
++            "activity": "unknown"
++          },
++          "outcome": "succeeded",
++          "liveness": {
++            "verdict": "exited",
++            "source": "resource_release"
++          },
++          "evidence": {
++            "durable": true,
++            "liveStatus": "unavailable",
++            "lastObservedAt": null
++          },
++          "resource": {
++            "state": "released"
++          },
++          "nextAction": {
++            "kind": "none",
++            "argv": []
++          },
++          "attention": {
++            "categories": [
++              "root_completion"
++            ],
++            "requiresAction": false
++          }
++        }
++      },
++      {
++        "dispatchId": "ctx_4e3237d227c3",
++        "taskId": "task_38990284224c",
++        "runId": "run_a4723d345399",
++        "workerState": "succeeded",
++        "dispatchStatus": "completed",
++        "agentTerminalHandle": "term_bfc93c3a-75f5-46c7-bae1-eca8cc7c646e",
++        "terminalState": "released",
++        "resource": {
++          "id": "wtr_8fa5f5e6c0c9",
++          "ownershipState": "released",
++          "releaseState": "released",
++          "retainedReason": null,
++          "terminalHandle": "term_bfc93c3a-75f5-46c7-bae1-eca8cc7c646e",
++          "worktreeId": "de550e99-fa3c-42e2-abfe-1d092771c759::/home/coder/workspaces/worktrees/IronClaude/issue-504",
++          "endpointId": "a7ee70a1-2e8b-4476-a228-51e9c7019b3f",
++          "endpointIncarnation": "de550e99-fa3c-42e2-abfe-1d092771c759::/home/coder/workspaces/worktrees/IronClaude/issue-504@@ff748a50:d87771f2-b243-462b-b5e2-8fbf74345971",
++          "originDispatchId": "ctx_4e3237d227c3",
++          "ownerDispatchId": "ctx_4e3237d227c3",
++          "releaseRequestedAt": "2026-11-11 19:52:23",
++          "releaseCompletedAt": "2026-11-11 19:52:25",
++          "releaseError": null,
++          "recoveryAttemptCount": 0,
++          "lastRecoveryAt": null,
++          "archive": {
++            "source": "transcript",
++            "status": "captured"
++          }
++        },
++        "projection": {
++          "id": "ctx_4e3237d227c3",
++          "dispatchId": "ctx_4e3237d227c3",
++          "taskId": "task_38990284224c",
++          "runId": "run_a4723d345399",
++          "role": "worker",
++          "parent": null,
++          "provider": null,
++          "host": {
++            "kind": "local",
++            "id": "local"
++          },
++          "workspace": {
++            "id": "de550e99-fa3c-42e2-abfe-1d092771c759::/home/coder/workspaces/worktrees/IronClaude/issue-504",
++            "kind": "folder_or_worktree"
++          },
++          "stage": {
++            "worker": "succeeded",
++            "dispatch": "completed",
++            "detail": "settled",
++            "activity": "unknown"
++          },
++          "outcome": "succeeded",
++          "liveness": {
++            "verdict": "exited",
++            "source": "resource_release"
++          },
++          "evidence": {
++            "durable": true,
++            "liveStatus": "unavailable",
++            "lastObservedAt": null
++          },
++          "resource": {
++            "state": "released"
++          },
++          "nextAction": {
++            "kind": "none",
++            "argv": []
++          },
++          "attention": {
++            "categories": [
++              "root_completion"
++            ],
++            "requiresAction": false
++          }
++        }
++      },
++      {
++        "dispatchId": "ctx_7c86fffa9716",
++        "taskId": "task_a6a2a3f9e170",
++        "runId": "run_a4723d345399",
++        "workerState": "succeeded",
++        "dispatchStatus": "completed",
++        "agentTerminalHandle": "term_c2f40c56-7f46-4ba2-8f9f-4127b229d352",
++        "terminalState": "released",
++        "resource": {
++          "id": "wtr_5a9324a2e491",
++          "ownershipState": "released",
++          "releaseState": "released",
++          "retainedReason": null,
++          "terminalHandle": "term_c2f40c56-7f46-4ba2-8f9f-4127b229d352",
++          "worktreeId": "de550e99-fa3c-42e2-abfe-1d092771c759::/home/coder/workspaces/worktrees/IronClaude/issue-504",
++          "endpointId": "a7ee70a1-2e8b-4476-a228-51e9c7019b3f",
++          "endpointIncarnation": "de550e99-fa3c-42e2-abfe-1d092771c759::/home/coder/workspaces/worktrees/IronClaude/issue-504@@389ca4c5:5bc66ec1-103f-4fab-98e0-22277f3dd9c2",
++          "originDispatchId": "ctx_7c86fffa9716",
++          "ownerDispatchId": "ctx_7c86fffa9716",
++          "releaseRequestedAt": "2026-11-11 19:40:14",
++          "releaseCompletedAt": "2026-11-11 19:40:15",
++          "releaseError": null,
++          "recoveryAttemptCount": 0,
++          "lastRecoveryAt": null,
++          "archive": {
++            "source": "transcript",
++            "status": "captured"
++          }
++        },
++        "projection": {
++          "id": "ctx_7c86fffa9716",
++          "dispatchId": "ctx_7c86fffa9716",
++          "taskId": "task_a6a2a3f9e170",
++          "runId": "run_a4723d345399",
++          "role": "worker",
++          "parent": null,
++          "provider": null,
++          "host": {
++            "kind": "local",
++            "id": "local"
++          },
++          "workspace": {
++            "id": "de550e99-fa3c-42e2-abfe-1d092771c759::/home/coder/workspaces/worktrees/IronClaude/issue-504",
++            "kind": "folder_or_worktree"
++          },
++          "stage": {
++            "worker": "succeeded",
++            "dispatch": "completed",
++            "detail": "settled",
++            "activity": "unknown"
++          },
++          "outcome": "succeeded",
++          "liveness": {
++            "verdict": "exited",
++            "source": "resource_release"
++          },
++          "evidence": {
++            "durable": true,
++            "liveStatus": "unavailable",
++            "lastObservedAt": null
++          },
++          "resource": {
++            "state": "released"
++          },
++          "nextAction": {
++            "kind": "none",
++            "argv": []
++          },
++          "attention": {
++            "categories": [
++              "root_completion"
++            ],
++            "requiresAction": false
++          }
++        }
++      },
++      {
++        "dispatchId": "ctx_dad78c5c1332",
++        "taskId": "task_381ac7af9ed1",
++        "runId": "run_a4723d345399",
++        "workerState": "succeeded",
++        "dispatchStatus": "completed",
++        "agentTerminalHandle": "term_88360819-3622-4c35-821d-e06faf346ab4",
++        "terminalState": "released",
++        "resource": {
++          "id": "wtr_211bc168b1da",
++          "ownershipState": "released",
++          "releaseState": "released",
++          "retainedReason": null,
++          "terminalHandle": "term_88360819-3622-4c35-821d-e06faf346ab4",
++          "worktreeId": "de550e99-fa3c-42e2-abfe-1d092771c759::/home/coder/workspaces/worktrees/IronClaude/issue-504",
++          "endpointId": "a7ee70a1-2e8b-4476-a228-51e9c7019b3f",
++          "endpointIncarnation": "de550e99-fa3c-42e2-abfe-1d092771c759::/home/coder/workspaces/worktrees/IronClaude/issue-504@@773fac13:22111d74-43be-4875-965f-1da53b6a53e5",
++          "originDispatchId": "ctx_dad78c5c1332",
++          "ownerDispatchId": "ctx_dad78c5c1332",
++          "releaseRequestedAt": "2026-11-11 19:42:24",
++          "releaseCompletedAt": "2026-11-11 19:42:25",
++          "releaseError": null,
++          "recoveryAttemptCount": 0,
++          "lastRecoveryAt": null,
++          "archive": {
++            "source": "transcript",
++            "status": "captured"
++          }
++        },
++        "projection": {
++          "id": "ctx_dad78c5c1332",
++          "dispatchId": "ctx_dad78c5c1332",
++          "taskId": "task_381ac7af9ed1",
++          "runId": "run_a4723d345399",
++          "role": "worker",
++          "parent": null,
++          "provider": null,
++          "host": {
++            "kind": "local",
++            "id": "local"
++          },
++          "workspace": {
++            "id": "de550e99-fa3c-42e2-abfe-1d092771c759::/home/coder/workspaces/worktrees/IronClaude/issue-504",
++            "kind": "folder_or_worktree"
++          },
++          "stage": {
++            "worker": "succeeded",
++            "dispatch": "completed",
++            "detail": "settled",
++            "activity": "unknown"
++          },
++          "outcome": "succeeded",
++          "liveness": {
++            "verdict": "exited",
++            "source": "resource_release"
++          },
++          "evidence": {
+... (new file continues; read .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/artifacts/readonly-probe.md from disk for lines 401-1071)

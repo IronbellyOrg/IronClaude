@@ -1,0 +1,14 @@
+Item 6.1 is a read-only check (Output: None). No file was changed by this task. The check performed by the parent:
+$ grep -c 'status: RESOLVED\|Allow it, no conditions needed\|NOT withdrawn\|1.4.245' .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/plans/OQ-1-agent-wait-decision.md
+5
+Lines found in the record (grep -n of status, Chosen, Decided by, Decision source, NOT withdrawn, 24 calls, index.lock, 1.4.245, Allow it):
+5:status: RESOLVED    # DECIDED by the owner on 2026-11-08; recorded at task-build time
+20:Chosen: allow `worktree ps --agent-wait`, with and without `--json`. This is option (a) without the extra lock-check condition: the owner waived it. Option (b) does not apply.
+21:Decided by: the owner, 2026-11-08.
+22:Decision source: the owner's words, relayed by the coordinator (run `run_93bfa00cae2b`, messages `msg_d95a87e312e1` and `msg_6ee5998d0874`): "Allow it, no conditions needed."
+26:The rest of the INV-005 sign-off is NOT withdrawn:
+29:- The report claim stays version-scoped: "unlikely (checked for Orca 1.4.245)", otherwise UNVERIFIED.
+34:The coordinator ran a live probe: 24 calls of `worktree ps --agent-wait` on one idle worktree.
+36:- Results: 0 `index.lock` sightings at 5 ms polling, and 0 failed calls.
+37:- Limits: locks shorter than 5 ms could be missed; only one idle worktree was tested; Orca 1.4.245.
+The parent claims the record is confirmed (all parts present) and logs no defect. To judge, read the record at .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/plans/OQ-1-agent-wait-decision.md in full (41 lines) and check each part named in the item's Action, and that the file was not modified (its mtime is Nov 8 12:08, before this run).

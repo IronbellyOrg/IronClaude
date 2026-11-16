@@ -1,0 +1,4 @@
+| 63 GQ-106 (SPEC FR-025 line 119) | `.dev/brainstorms/20261108-024258-orchestrator-mode-phase1/merged-requirements.md:119` | `\| FR-025 \| `.dev/sweeps/` is added to `.gitignore` (GQ-106). A grep on 2026-11-08 found no `sweeps` ` | CONFIRMED |
+| 63 GQ-106 (SPEC line 559) | `.dev/brainstorms/20261108-024258-orchestrator-mode-phase1/merged-requirements.md:559` | `\| GQ-106 \| The output folder was not ignored and not in the rollback table \| `.dev/sweeps/` in `.git` | CONFIRMED |
+| 63 GQ-106 (GAPS line 129) | `.dev/tasks/to-do/TASK-RESEARCH-orchestrator-supervision-20261107-073942/gaps-and-questions.md:129` | `\| GQ-106 \| /ponytail-review finding 6: reports under `<root>/.dev/sweeps/` are untracked, so each sw` | CONFIRMED |
+| 1041 R4 row (contract line 110) | `src/superclaude/core/WORKER-CONTRACT.md:110` | `**The sweep.** After every wake or timeout, at most once every 5 minutes, the coordinator runs one s` | CONFIRMED |

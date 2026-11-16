@@ -1,0 +1,191 @@
+--- a/tests/sweep/conftest.py
++++ b/tests/sweep/conftest.py
+@@ -7,7 +7,9 @@
+ 
+ from __future__ import annotations
+ 
++import json
+ import os
++import re
+ import subprocess
+ from dataclasses import dataclass, field
+ from datetime import datetime, timezone
+@@ -155,3 +157,178 @@
+     monkeypatch.setenv("HOME", str(home))
+     monkeypatch.setenv("XDG_STATE_HOME", str(state))
+     return SweepHome(home=home, state=state)
++
++
++_ISO = "%Y-%m-%dT%H:%M:%S.%f"
++
++
++def _iso(value: datetime | str) -> str:
++    """A transcript record time: strings pass through, datetimes become ISO 8601 UTC."""
++    if isinstance(value, str):
++        return value
++    return value.astimezone(timezone.utc).strftime(_ISO)[:-3] + "Z"
++
++
++@dataclass
++class SweepRoot:
++    """A ``tmp_path`` layout for the disk sources (DESIGN section 11).
++
++    ``root`` is a checkout stand-in (an empty ``.git`` folder, so the root check passes;
++    git itself is never run). ``home`` and ``state`` are ``sweep_home``'s ``HOME`` and
++    ``XDG_STATE_HOME``. Every builder writes real files and returns the path it wrote,
++    so a test can then break the file (truncate it, make it a symlink, chmod it).
++    A malformed or boundary variant is built by the caller through ``text``, ``raw`` or
++    ``lines``; none of those is ever a file under ``tests/sweep/fixtures/``.
++    """
++
++    root: Path
++    home: Path
++    state: Path
++    base: Path
++
++    @property
++    def tabs(self) -> Path:
++        """The ccsession ``orca-tabs/`` folder (not created until an entry is added)."""
++        return self.state / "ccsession" / "orca-tabs"
++
++    def worktree(self, name: str) -> Path:
++        """A second checkout stand-in beside the root (a ``.git`` file, as in a worktree)."""
++        path = self.base / "worktrees" / name
++        path.mkdir(parents=True, exist_ok=True)
++        (path / ".git").write_text("gitdir: /nonexistent\n", encoding="utf-8")
++        return path
++
++    def package(
++        self,
++        name: str,
++        *,
++        worktree: Path | None = None,
++        location: str = "to-do",
++        ledger: str | bytes | None = "",
++        final: bool = False,
++        archiving: bool = False,
++    ) -> Path:
++        """``.dev/tasks/<location>/<name>/`` with a ``progress.md`` ledger.
++
++        ``ledger`` is the ledger text or bytes (None writes no ledger file); ``final`` appends
++        a ``FINAL:`` line to text; ``archiving`` adds the ``.archiving`` marker file.
++        """
++        folder = (worktree or self.root) / ".dev" / "tasks" / location / name
++        folder.mkdir(parents=True, exist_ok=True)
++        if ledger is not None:
++            if isinstance(ledger, bytes):
++                (folder / "progress.md").write_bytes(ledger)
++            else:
++                text = ledger + ("FINAL: all tasks complete\n" if final else "")
++                (folder / "progress.md").write_text(text, encoding="utf-8")
++        if archiving:
++            (folder / ".archiving").write_text("", encoding="utf-8")
++        return folder
++
++    def contract(
++        self,
++        report_dir: Path | str = "reports/run",
++        *,
++        worker_status: str | None = "succeeded",
++        command: str | None = None,
++        report_path: str | None = None,
++        artifacts: tuple[str, ...] = (),
++        blocked_question: str | None = None,
++        reason: str | None = None,
++        text: str | bytes | None = None,
++        worktree: Path | None = None,
++    ) -> Path:
++        """``<report_dir>/return-contract.yaml``; a relative ``report_dir`` is under ``.dev/``.
++
++        ``text`` replaces the whole body (use it for malformed or oversize contracts).
++        """
++        folder = Path(report_dir)
++        if not folder.is_absolute():
++            folder = (worktree or self.root) / ".dev" / folder
++        folder.mkdir(parents=True, exist_ok=True)
++        path = folder / "return-contract.yaml"
++        if isinstance(text, bytes):
++            path.write_bytes(text)
++            return path
++        if text is None:
++            lines = ['worker_contract_version: "1"']
++            for key, value in (
++                ("worker_status", worker_status),
++                ("command", command),
++                ("report_path", report_path),
++                ("blocked_question", blocked_question),
++                ("reason", reason),
++            ):
++                if value is not None:
++                    lines.append(f"{key}: {json.dumps(value)}")
++            if artifacts:
++                lines.append("artifacts:")
++                lines.extend(f"  - {json.dumps(a)}" for a in artifacts)
++            text = "\n".join(lines) + "\n"
++        path.write_text(text, encoding="utf-8")
++        return path
++
++    def transcript(
++        self,
++        session_id: str = "session-0001",
++        stamps: tuple[datetime | str, ...] = (),
++        *,
++        worktree: Path | None = None,
++        name: str | None = None,
++        raw: bytes | None = None,
++        mtime: datetime | None = None,
++    ) -> Path:
++        """``~/.claude/projects/<key>/<name>.jsonl`` with one record per stamp.
++
++        ``<key>`` is the worktree path with every non-alphanumeric character as ``-``. Each
++        record carries ``timestamp`` and ``sessionId``. ``raw`` replaces the whole file
++        (a cut last line, a record without a timestamp, a file over a byte limit);
++        ``mtime`` sets the file time.
++        """
++        key = re.sub(r"[^A-Za-z0-9]", "-", str(worktree or self.root))
++        folder = self.home / ".claude" / "projects" / key
++        folder.mkdir(parents=True, exist_ok=True)
++        path = folder / f"{name or session_id}.jsonl"
++        if raw is None:
++            records = [
++                json.dumps(
++                    {"type": "user", "timestamp": _iso(s), "sessionId": session_id}
++                )
++                for s in stamps
++            ]
++            raw = ("\n".join(records) + "\n" if records else "").encode("utf-8")
++        path.write_bytes(raw)
++        if mtime is not None:
++            stamp = mtime.timestamp()
++            os.utime(path, (stamp, stamp))
++        return path
++
++    def tab_entry(
++        self,
++        pane_key: str,
++        session_id: str,
++        folder: Path | str,
++        handle: str,
++        *,
++        lines: tuple[str, ...] | None = None,
++    ) -> Path:
++        """One ``orca-tabs/<pane_key>`` file: session id, launch folder, terminal handle.
++
++        ``pane_key`` is ``<tabId>+<leafId>`` (the captured shape). ``lines`` replaces the
++        three lines (a short or blank entry).
++        """
++        self.tabs.mkdir(parents=True, exist_ok=True)
++        path = self.tabs / pane_key
++        body = lines if lines is not None else (session_id, str(folder), handle)
++        path.write_text("\n".join(body) + "\n", encoding="utf-8")
++        return path
++
++
++@pytest.fixture
++def sweep_root(tmp_path, sweep_home) -> SweepRoot:
++    """A checkout stand-in under ``tmp_path`` plus builders for the disk sources."""
++    root = tmp_path / "root"
++    (root / ".git").mkdir(parents=True)
++    return SweepRoot(
++        root=root, home=sweep_home.home, state=sweep_home.state, base=tmp_path
++    )

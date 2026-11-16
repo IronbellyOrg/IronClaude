@@ -1,0 +1,32 @@
+2fa9601ffc8fee106384a83934879305542b7208
+Family: fr015-printed-line (covers F1.1 of review r1-1)
+- Defect form: a DESIGN case of the test_classify.py row ("one modified folder in 3 worktrees gives one line naming all 3") is asserted only through `shared_package_ids` and `removable_reason`; no assertion checks the printed line `Active package <id> is in several worktrees: <paths>` that report.py builds from `shared_package_ids`.
+- Probe command: grep -n -e "shared_package_ids" -e "several worktrees" tests/sweep/test_classify.py src/superclaude/cli/sweep/report.py src/superclaude/cli/sweep/classify.py
+- Before-output:
+  - tests/sweep/test_classify.py:1484: shared_package_ids=(),
+  - tests/sweep/test_classify.py:1555: dict(shared_package_ids=("p9",)),
+  - tests/sweep/test_classify.py:1707: assert all(w.shared_package_ids == () for w in marked)
+  - tests/sweep/test_classify.py:1714: assert [w.shared_package_ids for w in result.worktrees] == [("pkg-07",)] * 3
+  - tests/sweep/test_classify.py:1724: assert all(w.shared_package_ids == () for w in marked)
+  - src/superclaude/cli/sweep/report.py:349: for pid in w.shared_package_ids:
+  - src/superclaude/cli/sweep/report.py:353: lines.append(f"Active package {sanitize(pid)} is in several worktrees: {where}")
+  - src/superclaude/cli/sweep/report.py:652: "shared_package_ids": [sanitize(i) for i in w.shared_package_ids],
+  - src/superclaude/cli/sweep/classify.py:437: shared_package_ids=tuple(
+  - src/superclaude/cli/sweep/classify.py:463: if worktree.shared_package_ids:
+  - src/superclaude/cli/sweep/classify.py:464: pid = sorted(worktree.shared_package_ids)[0]
+- Coupled sites: tests/sweep/test_classify.py:1710-1719 (the test to extend), src/superclaude/cli/sweep/report.py:340-355 (the line builder and its path text), the result file `.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/test-results/test-classify.txt` (its map entry for this case says "test_report.py"; it must name the test that now asserts the line).
+- after:
+  - tests/sweep/test_classify.py:1485: shared_package_ids=(),
+  - tests/sweep/test_classify.py:1556: dict(shared_package_ids=("p9",)),
+  - tests/sweep/test_classify.py:1708: assert all(w.shared_package_ids == () for w in marked)
+  - tests/sweep/test_classify.py:1714: assert [w.shared_package_ids for w in result.worktrees] == [("pkg-07",)] * 3
+  - tests/sweep/test_classify.py:1715: # One printed line names all 3 worktrees (report.py builds it from shared_package_ids).
+  - tests/sweep/test_classify.py:1719: if "is in several worktrees" in line
+  - tests/sweep/test_classify.py:1721: assert printed == ["- Active package pkg-07 is in several worktrees: /w1, /w2, /w3"]
+  - tests/sweep/test_classify.py:1731: assert all(w.shared_package_ids == () for w in marked)
+  - src/superclaude/cli/sweep/report.py:349: for pid in w.shared_package_ids:
+  - src/superclaude/cli/sweep/report.py:353: lines.append(f"Active package {sanitize(pid)} is in several worktrees: {where}")
+  - src/superclaude/cli/sweep/report.py:652: "shared_package_ids": [sanitize(i) for i in w.shared_package_ids],
+  - src/superclaude/cli/sweep/classify.py:437: shared_package_ids=tuple(
+  - src/superclaude/cli/sweep/classify.py:463: if worktree.shared_package_ids:
+  - src/superclaude/cli/sweep/classify.py:464: pid = sorted(worktree.shared_package_ids)[0]

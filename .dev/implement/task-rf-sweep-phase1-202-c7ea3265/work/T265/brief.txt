@@ -1,0 +1,8 @@
+T265 = item 12.5 of the source file /home/coder/workspaces/worktrees/IronClaude/issue-339-orchestrator-mode/.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md (lines 2138-2144). Item text:
+- [ ] **12.5 — Validation after Phase 12 (L3)**
+  - **Context**: BUILD-REQUEST VALIDATION_REQUIREMENTS; items 12.1 to 12.4.
+  - **Action**: Run `uv run ruff check tests/skills/test_worker_contract.py`, `uv run ruff format --check tests/skills/test_worker_contract.py`, `uv run pytest tests/skills tests/core -v` and `grep -n 'src/superclaude' src/superclaude/core/WORKER-CONTRACT.md` (compare the hit count with `git show HEAD:src/superclaude/core/WORKER-CONTRACT.md | grep -c 'src/superclaude'`; the edit adds none). Write each command, exit code and last 30 output lines to `.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/test-results/phase12-validation.md` with one PASS or FAIL line each.
+  - **Output**: `.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/test-results/phase12-validation.md`.
+  - **Verification**: Verify: four PASS lines. On a FAIL, fix, re-run, and log each re-run in `### Phase 12 Findings`.
+  - **Completion gate**: All four checks PASS. Once done, mark this item as complete.
+AC ids: T265.AC1 = the item title "Validation after Phase 12 (L3)" (no AC block; the title is the AC). The item's own Verification and Completion gate lines are context for what "done" means. Ticking the item's checkbox is done by the orchestrator after the verdict and is not part of the diff under review.

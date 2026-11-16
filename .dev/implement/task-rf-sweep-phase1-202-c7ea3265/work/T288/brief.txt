@@ -1,0 +1,8 @@
+T288 = item 13.7 of the source file /home/coder/workspaces/worktrees/IronClaude/issue-339-orchestrator-mode/.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md (lines 2305-2311). Item text:
+- [ ] **13.7 — Check the `.gitignore` entry and the docs (L3)**
+  - **Context**: Item 8.6 added `.dev/sweeps/` to `.gitignore` after `.dev/sprint-state/` (:254); `.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/test-results/gitignore-check.md`. `.dev/tasks/` must stay tracked (project CLAUDE.md "`.dev/tasks/` Is Always Staged").
+  - **Action**: Run `git check-ignore -v .dev/sweeps/x.md; echo "exit=$?"` (expect exit 0), `git check-ignore -v .dev/tasks/x.md; echo "exit=$?"` (expect exit 1) and `grep -n 'WC-14' .gitignore` (expect no hit in the sweep comment). Append the outputs to `.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/test-results/gitignore-check.md`.
+  - **Output**: `.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/test-results/gitignore-check.md` (appended).
+  - **Verification**: Verify: the three expectations hold. On a miss, fix `.gitignore`, re-run and log it in `### Phase 13 Findings`.
+  - **Completion gate**: The three checks hold. Once done, mark this item as complete.
+AC ids: T288.AC1 = the item title "Check the `.gitignore` entry and the docs (L3)" (no AC block; the title is the AC). The item's own Verification and Completion gate lines are context for what "done" means. Ticking the item's checkbox is done by the orchestrator after the verdict and is not part of the diff under review.

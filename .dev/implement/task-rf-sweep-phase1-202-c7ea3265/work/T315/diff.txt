@@ -1,0 +1,35 @@
+Orchestrator facts for the reviewer (verify them): the executor ran the read-only git calls of item 14.9 with a shell script that wrote final-inventory.md (new file, read it from disk). It reports 12 edited files outside .dev (git diff --stat against the base), 37 new files (untracked now and not in artifacts/baseline-untracked.txt), DESIGN added as 'edited (against artifacts/design-base.md)' with the --no-index stat, the three review files beside DESIGN not listed, 'Final gate input lines: 15187' and 'Final gate size row: over 3000', the six phase validation files and the 12 gate-decision files each with a PASS line. Verify against the item's Verification line (every named path present: the six sweep modules, tests/sweep/__init__.py, sweep.md, SKILL.md, main.py, WORKER-CONTRACT.md, DESIGN tagged edited, pragmatic.md, test_sweep_command.py, .gitignore; no review path listed; the size number and the one size-row line; every earlier gate has a gate-decision.md with a PASS line). Recompute the size number yourself (wc -l of the new files, the current DESIGN and the added plus deleted lines of the edited files) and re-run the git calls (read-only); a count that is wrong is a false claim.
+
+--- /dev/null
++++ b/.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/discovery/final-inventory.md   (new file, 182 lines)
++# Final gate input inventory (item 14.9)
++
++Run 2026-11-12. Base commit `5dc29d23b15eb7db4ead50623bb409f696a0d7d3` (`artifacts/base-commit.txt`).
++
++## git diff --stat against the base, outside .dev
++
++```text
++git diff --stat "$BASE" -- . ':(exclude).dev'
++ .gitignore                                             |  2 ++
++ CHANGELOG.md                                           | 10 ++++++++++
++ ...perClaude-Developer-Guide-Commands-Skills-Agents.md |  2 +-
++ docs/user-guide/commands.md                            |  1 +
++ .../skills/sc-recommend/refs/HOW-WE-WORK.md            |  2 ++
++ src/superclaude/cli/main.py                            |  4 ++++
++ src/superclaude/core/HOW-WE-WORK.md                    |  2 ++
++ src/superclaude/core/WORKER-CONTRACT.md                |  6 +++++-
++ src/superclaude/output-styles/pragmatic.md             | 18 +++++++++++-------
++ tests/core/test_how_we_work_routing_table.py           |  1 +
++ tests/recommend/test_routing_refresh.py                |  2 +-
++ tests/skills/test_worker_contract.py                   | 17 ++++++++++++++---
++ 12 files changed, 54 insertions(+), 13 deletions(-)
++```
++
++## New files (untracked now, not untracked at the start)
++
++```text
++git ls-files --others --exclude-standard -- src tests docs plugins | grep -vxF -f artifacts/baseline-untracked.txt
++src/superclaude/cli/sweep/__init__.py
++src/superclaude/cli/sweep/classify.py
++src/superclaude/cli/sweep/commands.py
+... (new file continues; read .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/discovery/final-inventory.md from disk for lines 31-182)

@@ -1,0 +1,11 @@
+--- a/docs/designs/orchestrator-mode.md
++++ b/docs/designs/orchestrator-mode.md
+@@ -465,7 +465,7 @@
+ | `SourceCoverage` | `name`, `coverage`, `age_seconds`, `unscanned` |
+ | `SweepResult` (design fields) | `rows: tuple[ClassifiedRow, ...]` (row plus `Classification`, policy and `SafeToClose`), `worktrees` (after `mark_shared_packages`, with `removable` and `removable_reason`), `waiting_a`, `waiting_b` (row ids), `summary` (counts per class with zeros, `bound_reached`, `visible`, `historical`, `total`, `total_is_lower_bound`), carried header data from `SweepInput` |
+ 
+-Time parsing (design): every Orca and transcript time is parsed to an aware UTC `datetime`. Accepted forms are SQLite `YYYY-MM-DD HH:MM:SS` (no zone, read as UTC; the form `datetime('now')` writes) and ISO 8601 with `Z` or an offset (`Z` is rewritten to `+00:00` first, because Python 3.10 `datetime.fromisoformat` does not accept `Z`). An unparseable or missing value is None and raises nothing (unknown row schema rule, line 504).
++Time parsing (design): every Orca and transcript time is parsed to an aware UTC `datetime`. Accepted forms are SQLite `YYYY-MM-DD HH:MM:SS` (no zone, read as UTC; the form `datetime('now')` writes) and ISO 8601 with `Z` or an offset (`Z` is rewritten to `+00:00` first, because Python 3.10 `datetime.fromisoformat` does not accept `Z`). An unparseable or missing value is None and raises nothing (the "Unknown row schema" bullet below).
+ 
+ Constants in `models.py`: `JSON_SCHEMA_VERSION = 1`; `CLASSES` (`waiting on a person`, `stalled (proved)`, `fenced`, `working`, `finished`, `idle`, `person session (active)`, `could not determine`); `PACKAGE_STATES` in precedence order (`conflict`, `interrupted-archive`, `archive-blocked`, `unfinished`, `archived`, `unknown`); `SAFE_VALUES` (`yes`, `no`, `could not determine`).
+ 

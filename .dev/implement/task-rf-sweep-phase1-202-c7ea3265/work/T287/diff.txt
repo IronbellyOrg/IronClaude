@@ -1,0 +1,19 @@
+--- a/CHANGELOG.md
++++ b/CHANGELOG.md
+@@ -4,6 +4,16 @@
+ 
+ ## [Unreleased]
+ 
++### sweep: read-only supervision snapshot (Phase 1)
++
++#### Added (sweep)
++
++- `superclaude sweep run`: a read-only sweep of an Orca Run, the worktrees of the checkout and the Claude Code sessions in an activity window. It writes one dated report under `.dev/sweeps/` and prints a JSON summary; it changes nothing in Orca, in git or in any worktree.
++- The `/sc:sweep` command and the `sc-sweep-protocol` skill behind it: the skill runs `superclaude sweep run` once, reads the report and prints the session counts and the report path. It recommends nothing.
++- WC-16, the coordinator-loop rule in `WORKER-CONTRACT.md`: the coordinator keeps watching its Run and runs `/sc:sweep` beside the existing liveness sweep, at most once every 5 minutes. `/sc:sweep` is on the never-as-worker list, so a dispatched worker never runs it.
++- `.dev/sweeps/` is ignored in `.gitignore`.
++- Tests: `tests/sweep/` for the sweep package and `tests/commands/test_sweep_command.py` for the command and the skill, plus the contract pins in `tests/skills/test_worker_contract.py`.
++
+ ### ccsession: a shim never forwards to another shim
+ 
+ #### Fixed (ccsession shim upstream)

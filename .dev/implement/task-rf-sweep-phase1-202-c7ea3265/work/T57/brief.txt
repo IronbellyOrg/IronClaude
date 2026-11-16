@@ -1,0 +1,8 @@
+T57 = item 4.5 of the source file /home/coder/workspaces/worktrees/IronClaude/issue-339-orchestrator-mode/.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md (lines 621-627). Item text:
+- [ ] **4.5 — R3-B3 edit 4: the Fix cycle 3 R3-B3 row**
+  - **Context**: research/04:189 gives the row text, which also corrects the cycle 2 "changed three to four incomplete cases" wording.
+  - **Action**: Append `| R3-B3 | <finding> | <change> |` after the R3-B2 row, with the finding "Three SPEC FR-010 fixtures (outage, full page, `call_failed`) were dropped from `test_classify.py`" and the change text of research/04:189, adding "and named the per-Run source row `orca worker-list <run>` (7.4)". Leave the rest of the cycle 2 R2-B1 row unchanged (item 2.6 already applied the m2 wording); the cycle 3 row corrects the "three to four incomplete cases" wording.
+  - **Output**: DESIGN section 18 with the R3-B3 row.
+  - **Verification**: Verify: the `### Fix cycle 3` table has R3-B1, R3-B2 and R3-B3 in that order.
+  - **Completion gate**: The row is in place. Once done, mark this item as complete.
+AC ids: T57.AC1 = the item title "R3-B3 edit 4: the Fix cycle 3 R3-B3 row" (no AC block; the title is the AC). The item's own Verification and Completion gate lines are context for what "done" means. Ticking the item's checkbox is done by the orchestrator after the verdict and is not part of the diff under review.

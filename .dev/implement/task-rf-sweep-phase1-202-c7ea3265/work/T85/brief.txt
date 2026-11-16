@@ -1,0 +1,8 @@
+T85 = item 5.9 of the source file /home/coder/workspaces/worktrees/IronClaude/issue-339-orchestrator-mode/.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md (lines 823-829). Item text:
+- [ ] **5.9 — R4: fix the routing row R8 CHANGELOG heading style (section 9)**
+  - **Context**: Routing row R8 (DESIGN near line 701) says "One `### Added` entry". `CHANGELOG.md:5` `## [Unreleased]` uses topic headings `### <title>` (first at `:7`) with `#### Fixed (<topic>)` and `#### Added (<topic>)` sub-headings (`:9`, `:19`); there is no bare `### Added` (research/08:113).
+  - **Action**: Change routing row R8 to: "A `### sweep: read-only supervision snapshot (Phase 1)` heading under `## [Unreleased]` with a `#### Added (sweep)` sub-heading", keeping the rest of the row and its WC-16 reference from item 5.2.
+  - **Output**: DESIGN routing row R8 updated.
+  - **Verification**: Verify: routing row R8 contains `#### Added (sweep)` and no "One `### Added` entry".
+  - **Completion gate**: Routing row R8 matches the CHANGELOG style. Once done, mark this item as complete.
+AC ids: T85.AC1 = the item title "R4: fix the routing row R8 CHANGELOG heading style (section 9)" (no AC block; the title is the AC). The item's own Verification and Completion gate lines are context for what "done" means. Ticking the item's checkbox is done by the orchestrator after the verdict and is not part of the diff under review.

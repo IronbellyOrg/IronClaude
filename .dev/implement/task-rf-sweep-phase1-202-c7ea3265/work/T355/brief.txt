@@ -1,0 +1,8 @@
+T355 = item 14.49 of the source file /home/coder/workspaces/worktrees/IronClaude/issue-339-orchestrator-mode/.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md (lines 2791-2797). Item text:
+- [ ] **14.49 — Update task status to Done**
+  - **Context**: All phases complete; item 14.48 recorded `reflect_post`. Project CLAUDE.md "`.dev/tasks/` Is Always Staged": staging is not committing.
+  - **Action**: Update frontmatter: `status` to "🟢 Done", set `completion_date` to today's date (YYYY-MM-DD). Tick this item, then run `git add .dev/tasks` (stages only `.dev/tasks/`; no commit, no push, no `.claude/` path).
+  - **Output**: Task file updated and `.dev/tasks/` staged.
+  - **Verification**: Verify: frontmatter shows "🟢 Done" and a `completion_date`; `git diff --cached --name-only -- .claude/` lists nothing other than `.claude/settings.json`; `git rev-parse HEAD` still equals `.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/artifacts/base-commit.txt`.
+  - **Completion gate**: Task marked complete. Once done, mark this item as complete.
+AC ids: T355.AC1 = the item title "Update task status to Done" (no AC block; the title is the AC). The item's own Verification and Completion gate lines are context for what "done" means. Ticking the item's checkbox is done by the orchestrator after the verdict and is not part of the diff under review.

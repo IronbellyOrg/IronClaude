@@ -1,0 +1,8 @@
+T198 = item 9.4 of the source file /home/coder/workspaces/worktrees/IronClaude/issue-339-orchestrator-mode/.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md (lines 1651-1657). Item text:
+- [ ] **9.4 — Validation after Phase 9 (L3)**
+  - **Context**: BUILD-REQUEST VALIDATION_REQUIREMENTS. Files of items 9.1 and 9.2.
+  - **Action**: Run, in order, `uv run ruff check src/superclaude/cli tests/sweep`, `uv run ruff format --check src/superclaude/cli/sweep src/superclaude/cli/main.py tests/sweep`, `uv run superclaude sweep --help` and `uv run pytest tests/sweep tests/unit -v`. Write each command, exit code and the last 30 output lines to `.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/test-results/phase9-validation.md`, with one PASS or FAIL line each.
+  - **Output**: `.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/test-results/phase9-validation.md`.
+  - **Verification**: Verify: four PASS lines. On a FAIL, fix, re-run, and log each re-run in `### Phase 9 Findings`.
+  - **Completion gate**: All four checks PASS. Once done, mark this item as complete.
+AC ids: T198.AC1 = the item title "Validation after Phase 9 (L3)" (no AC block; the title is the AC). The item's own Verification and Completion gate lines are context for what "done" means. Ticking the item's checkbox is done by the orchestrator after the verdict and is not part of the diff under review.

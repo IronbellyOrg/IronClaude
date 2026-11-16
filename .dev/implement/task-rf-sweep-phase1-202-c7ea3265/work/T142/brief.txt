@@ -1,0 +1,8 @@
+T142 = item 7.14 of the source file /home/coder/workspaces/worktrees/IronClaude/issue-339-orchestrator-mode/.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md (lines 1236-1242). Item text:
+- [ ] **7.14 — Ask for the step 1.0a Run id (OQ-8, L5, PENDING)**
+  - **Context**: DESIGN section 15.1: the capture "runs against an existing Run that the person names. It creates no Run, Task or Dispatch". research/09 Gap 3: ask for one Run id with at least one Dispatch (best one live and one settled worker, so capture items 4 and 13 can be recorded); `orca-ide orchestration run-current` shows the bound Run if the person has none in mind. The same Run is used by the step 1.4 live check (item 9.3, run once the CLI is registered).
+  - **Action**: Write `.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/plans/OQ-8-run-id-decision.md` with `needs_human_decision: true`, `status: PENDING`, the request text above, and empty lines `Run id:`, `Given by:`, `Source:`.
+  - **Output**: `.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/plans/OQ-8-run-id-decision.md`.
+  - **Verification**: Verify: `status: PENDING` and the three empty lines.
+  - **Completion gate**: The request is recorded. Once done, mark this item as complete.
+AC ids: T142.AC1 = the item title "Ask for the step 1.0a Run id (OQ-8, L5, PENDING)" (no AC block; the title is the AC). The item's own Verification and Completion gate lines are context for what "done" means. Ticking the item's checkbox is done by the orchestrator after the verdict and is not part of the diff under review.

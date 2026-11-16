@@ -1,0 +1,4 @@
+--- before
++++ after (.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/impl-core/verify-cycle1-rf-qa.md line 3, last sentence only)
+-Status: in progress (sections are appended as each is checked).
++Status: complete (the sections were appended as each was checked; the verdict is at the end).

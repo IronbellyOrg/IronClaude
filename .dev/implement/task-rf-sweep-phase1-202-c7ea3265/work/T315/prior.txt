@@ -1,0 +1,1 @@
+F1.1 ac=scope at=tests/recommend/test_routing_refresh.py:33 chk=amiss:n,false:y,harm:n,constraint:n family=inventory-coverage-labels: final-inventory.md line 133 filed tests/recommend/test_routing_refresh.py under "Style and exception-test coverage", but its only diff adds "sweep" to a command-set allowance and it has no pragmatic or output-style reference.

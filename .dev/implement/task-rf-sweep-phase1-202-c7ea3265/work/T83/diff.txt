@@ -1,0 +1,29 @@
+--- a/docs/designs/orchestrator-mode.md
++++ b/docs/designs/orchestrator-mode.md
+@@ -665,7 +665,7 @@
+ 
+ ## 8. WC-16 and the never-as-worker list
+ 
+-**Gate.** Steps 1.17 to 1.19 are written only after the owner answers GQ-11 (step 1.0b) and the PR #422 overlap check (step 1.16a) is done. WC-16 and its pins stay deliverables of this PR whatever #422 does (SPEC line 420). WC-14 and WC-15 on master are worker duties from PR #434 and are not changed.
++**Gate.** Steps 1.17 to 1.19 are written only after the owner answers GQ-11 (step 1.0b) and step 1.16a has written its record. Step 1.16a is record-only: PR #422 is merged on master (merge commit `2327fbd3`), so the step waits for nothing and writes `artifacts/pr422-409-check.md` with four points (see section 15.2); the gate on step 1.17 is satisfied as soon as that record exists. WC-16 and its pins stay deliverables of this PR whatever #422 does (SPEC line 420). WC-14 and WC-15 on master are worker duties from PR #434 and are not changed.
+ 
+ **Placement.** `src/superclaude/core/WORKER-CONTRACT.md`, a new subsection after the fan-in rule paragraph (line 273) and before `### Worked example: gate hit, answer, new Task` (line 275).
+ 
+@@ -903,7 +903,7 @@
+ 
+ If an item cannot be captured, it stays UNVERIFIED in section 17 and the code path it feeds keeps its could-not-determine behaviour (for example, no `session_join` means `person_started` None for every unmatched transcript).
+ 
+-Pre-implementation steps: 1.0a (this capture), 1.0b (owner decisions) and 1.16a (PR #422 overlap check) run before any code for the steps they gate. Step 1.29 is a manual check after the build.
++Pre-implementation steps: 1.0a (this capture), 1.0b (owner decisions) and 1.16a (the record-only PR #422 check) run before any code for the steps they gate. Step 1.29 is a manual check after the build.
+ 
+ ### 15.2 Step table
+ 
+@@ -930,7 +930,7 @@
+ | 1.14 | | `src/superclaude/commands/sweep.md` | 7.6 | 1.7 |
+ | 1.15 | | `src/superclaude/skills/sc-sweep-protocol/SKILL.md`, recommending nothing | 7.6 | 1.14 |
+ | 1.16 | | `tests/commands/test_sweep_command.py` | 7.6, 11 | 1.15 |
+-| 1.16a | Pre | `gh pr view 422 --repo IronbellyOrg/IronClaude --json state,files` and the #409 diff check; results to `.dev/tasks/<pkg>/artifacts/` | 8 | none; must finish before 1.17 |
++| 1.16a | Pre | Record-only: write `.dev/tasks/<pkg>/artifacts/pr422-409-check.md` with four points: (1) the `gh pr view 422 --repo IronbellyOrg/IronClaude` state line (MERGED, merge commit `2327fbd3`); (2) `git merge-base --is-ancestor 2327fbd3 HEAD` succeeding; (3) `git merge-base --is-ancestor 495eb96d origin/master` failing, so the `495eb96d` pin stands and no layout diff is needed; (4) a note that every `WORKER-CONTRACT.md` and `test_worker_contract.py` line cited by steps 1.17 to 1.19 is re-read at HEAD before it is edited | 8 | none; the record gates 1.17 and is satisfied as soon as it is written |
+ | 1.17 | | WC-16 in `src/superclaude/core/WORKER-CONTRACT.md` | 8 | 1.0b (GQ-11 answered), 1.16a |
+ | 1.18 | | `WORKER-CONTRACT.md` line 23, never-as-worker list | 8 | 1.17 |
+ | 1.19 | | Pins in `tests/skills/test_worker_contract.py` and the rename | 8 | 1.18 |

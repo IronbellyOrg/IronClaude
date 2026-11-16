@@ -1,0 +1,18 @@
+--- a/.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md
++++ b/.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md
+@@ -2818,11 +2818,11 @@
+ ### Phase 2 Findings
+ 
+ R3-B1 gate: PASS at cycle 1 (`qa/r3-b1/gate-decision.md`). Fix cycle 1 closed all seven MAJOR findings (R3B1-F1 to F7). The MINOR findings never fail the gate and are kept here as notes (full list: `qa/r3-b1/consolidated-findings-cycle0.md`, R3B1-F8 to F24, and `qa/r3-b1/verify-cycle1-rf-qa-qualitative.md`, V1-m1 to V1-m6):
+-- Section 1 (DESIGN line 9) still says the model lacks three time fields; there are four after the fix. Correct until the gate closes; reword at the next DESIGN edit.
+-- Item 3.1 must count the R3-B1 window fixtures from five, not four: cycle 1 added `test_path_b_incomplete_tail_has_no_session_start`. It must also not contradict DESIGN line 498, which already gives the incomplete-tail outcome (note `session start not observable: transcript tail only`).
+-- DESIGN line 741 and open item 23 still say the later transcript is None for the moved-pane case; item 3.1 closes both.
++- Section 1 (the status bullet on the R3-B1 finding) still says the model lacks three time fields; there are four after the fix. Correct until the gate closes; reword at the next DESIGN edit.
++- Item 3.1 must count the R3-B1 window fixtures from five, not four: cycle 1 added `test_path_b_incomplete_tail_has_no_session_start`. It must also not contradict the 7.2 worker bullet, which already gives the incomplete-tail outcome (note `session start not observable: transcript tail only`).
++- The section 11 `test_classify.py` row (the text "that later transcript is None") and open item 23 still say the later transcript is None for the moved-pane case; item 3.1 closes both.
+ - `tail_complete` is False for every file over 256 KiB, so path B will join only short sessions; many workers will end as could not determine. Safe, but known before the build.
+-- Open minor wording points: the rationale at DESIGN line 498 has "later" and "earlier" the wrong way round; note precedence when the tail is incomplete and the first record is also outside the window is unstated; `commands.py` may-import row omits `datetime` and `timedelta`; D9 and SP-29 rows omit the complete-tail condition; `parse_worker_show` says `dispatch_status` is set "through `parse_time`" though only the two times are; whole-second cut applies to `first_record_ts` only.
++- Open minor wording points: the rationale in the 7.2 worker bullet has "later" and "earlier" the wrong way round; note precedence when the tail is incomplete and the first record is also outside the window is unstated; `commands.py` may-import row omits `datetime` and `timedelta`; D9 and SP-29 rows omit the complete-tail condition; `parse_worker_show` says `dispatch_status` is set "through `parse_time`" though only the two times are; whole-second cut applies to `first_record_ts` only.
+ - Section 8 line anchors into `WORKER-CONTRACT.md` and `test_worker_contract.py` are stale (they are re-anchored by design fix R4).
+ - Process notes: one lens agent (domain accuracy) ran bare `python3.10` for read-only checks against the "UV only" constraint; nothing was written by it. The consolidated findings file omits one MINOR note (actionability M2: an end earlier than the start). `phase-outputs/test-results/r3-b1-mechanical.md` is a pre-fix snapshot (1023 lines) and its fixture counts are four and six; its "(exit 0)" label on the TODO/TBD grep should read exit 1.
+ 

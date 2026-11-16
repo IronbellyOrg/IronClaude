@@ -1,0 +1,5 @@
+fb162b62d4c544b9bb1d9d4a941c0a0e9fee7cd338d1fef3d5d6bcbbf105bf91  src/superclaude/skills/sc-sweep-protocol/SKILL.md
+316edf9b89ce0018c961345bae6c05d11b795442b39669509c132e36dde75513  tests/commands/test_sweep_command.py
+0ab5bf92a4599b46a953b832132ee3c5256c671c65ad26c3781174ea0522cadb  tests/recommend/test_routing_refresh.py
+79d47bfd376c98868c93e1f42a1c3b78358fef1376cd6b98577a4246948cbf08  .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/test-results/test-sweep-command.txt
+310189de97b32eb4f32aaa83b37c9c9b8eebaf73c97da78a8db2db74abd1d9cc  .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/test-results/test-sweep-command-summary.md

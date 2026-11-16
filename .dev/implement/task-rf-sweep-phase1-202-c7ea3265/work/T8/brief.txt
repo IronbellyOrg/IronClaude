@@ -1,0 +1,8 @@
+T8 = item 2.4 of the source file /home/coder/workspaces/worktrees/IronClaude/issue-339-orchestrator-mode/.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md (lines 266-272). Item text:
+- [ ] **2.4 — R3-B1 edits 7 and 8: step 1.0a item 4 (15.1) and open item 23 (17)**
+  - **Context**: DESIGN 15.1 item 4 (near line 885) says "and the fields that carry the Dispatch start and end times"; DESIGN 17 open item 23 (near line 991) names those fields as unknown (research/04:93-94).
+  - **Action**: (7) replace the 15.1 item 4 phrase with the research/04 edit 7 text, naming `dispatch.dispatchedAt`, `dispatch.completedAt` and `dispatch.status` and the one-worker ordering record; (8) reword open item 23 with the research/04 edit 8 text, keeping it as item 23 (no new open item) and changing its "Behaviour until closed" note to `Dispatch time window not observable`.
+  - **Output**: DESIGN sections 15.1 and 17 updated.
+  - **Verification**: Verify: `grep -n '^Total: 23 open items.' docs/designs/orchestrator-mode.md` still returns one hit; 15.1 item 4 contains `dispatch.dispatchedAt`; open item 23 contains `Dispatch time window not observable`. If an anchor is missing, log it in `### Phase 2 Findings` and stop.
+  - **Completion gate**: Both edits are in DESIGN. Once done, mark this item as complete.
+AC ids: T8.AC1 = the item title "R3-B1 edits 7 and 8: step 1.0a item 4 (15.1) and open item 23 (17)" (no AC block; the title is the AC). The item's own Verification and Completion gate lines are context for what "done" means. Ticking the item's checkbox is done by the orchestrator after the verdict and is not part of the diff under review.

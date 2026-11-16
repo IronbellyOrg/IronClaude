@@ -1,0 +1,33 @@
+--- /dev/null
++++ b/.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/decisions/qa-cross-source-report.md   (new file, 112 lines)
++# QA Cross-Source Consistency Report (item 7.28, rf-analyst)
++
++fix_authorization: false. Read-only except this report. Date of review: 2026-11-12 (session date). Analysis type: cross-validation (cross-source consistency lens).
++
++Method. Every path below was read from disk in this session in chunks of at most 150 lines (large files by targeted ranges). No earlier QA report in `qa/decisions/` was read or relied on. Read-only commands run: `grep -F` of each APPROVED quote against its APPROVED line, `jq` over the fixtures, `git merge-base --is-ancestor`, `git diff --shortstat`, line probes with `sed -n`. `gh pr view 422` was not re-run (network call, not needed for a consistency check; the git ancestry halves were re-run). No web research was done.
++
++Result in one line: no BLOCKING and no MAJOR mismatch. Nine MINOR mismatches are listed, each with both `file:line` sides. In this report the task folder prefix `.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/` is written `T/`.
++
++## Findings
++
++All findings are MINOR. MINOR findings never fail the gate.
++
++### F1 (MINOR) The signed-off D9 text and open item 22 still say the sign-off is pending
++
++- Side A (decision): `T/phase-outputs/plans/OQ-7-D9-signoff-decision.md:40-43` is RESOLVED, option (a), owner, 2026-11-11. `T/phase-outputs/discovery/1.0a-facts.md:24` marks open item 22 CLOSED.
++- Side B (design): `docs/designs/orchestrator-mode.md:836` (D9: "which is still pending", "Needs the owner's sign-off at step 1.0b"), `:875` (SP-29 row: "which is still pending") and `:1012` (open item 22: "the classify step does not start until the owner signs off D9"). Task file `T/TASK-RF-sweep-phase1-20261108-072653.md:2873` says the same.
++- Why it is only MINOR. The owner signed the design text "as written" (OQ-7 record `:41`, `:43`), and the quote in OQ-7 matches design `:836` (both the SPEC-text and Design columns, checked with `grep -F`) and `:1012` (first 200 characters, checked with `grep -F`). The stale words are history inside a text the owner accepted verbatim. Item 7.12 Branch 2 does not ask for a design edit.
++- Smallest fix: when the classify item (8.4) is read, treat `1.0a-facts.md:24` and the OQ-7 record as the closure of D9 and open item 22. Optionally append one closure sentence under design section 13 after D9. Do not rewrite D9.
++
++### F2 (MINOR) `owner-decisions.md` calls OQ-8 and OQ-17 "still open", but both records are RESOLVED
++
++- Side A: `T/artifacts/owner-decisions.md:55` ("Still open and not recorded here as decisions: OQ-8 ... and the optional OQ-17 and OQ-18").
++- Side B: `T/phase-outputs/plans/OQ-8-run-id-decision.md:24-29` (Run id given, owner selection 2026-11-11), `T/phase-outputs/plans/OQ-17-cursor-template-decision.md:35-40` (owner kept 10 templates, 2026-11-11), `T/phase-outputs/discovery/1.0a-facts.md:54-56` (OQ-18 did not fire).
++- Why MINOR. The file was compiled by item 7.13, which runs before items 7.14 to 7.17 (task file `:1229` and `:1236`), so the sentence was true when written. Item 7.13 does not require OQ-8 or OQ-17 rows. A later reader of the 1.0b artifact alone would still get a wrong picture.
++- Smallest fix: add one dated line under that sentence naming OQ-8 and OQ-17 as RESOLVED with their record paths, or leave as is and rely on the records.
++
++### F3 (MINOR) The `--agent-wait` change to INV-005 condition 1 rests on a relayed quote, and the SPEC's stated reason for the ban is only partly answered
++
++- Side A (SPEC): `.dev/brainstorms/20261108-024258-orchestrator-mode-phase1/merged-requirements.md:500` ("`worktree ps` (never with `--agent-wait`)"), `:504` (negative test for `--agent-wait`), `:510` ("`--agent-wait` turns on terminal wait-state reads, which is why it is forbidden"), `:143` (NFR-014: "exactly the eight pinned templates"), `:562` (GQ-109).
++- Side B (decision): `T/phase-outputs/plans/OQ-1-agent-wait-decision.md:19-22` (allow, "Allow it, no conditions needed.", relayed by the coordinator, not selected by the owner in the executing session) and `:34-37` (24 calls, one idle worktree, 5 ms polling, locks under 5 ms could be missed). `T/artifacts/owner-decisions.md:17` states the relay.
+... (new file continues; read .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/decisions/qa-cross-source-report.md from disk for lines 31-112)

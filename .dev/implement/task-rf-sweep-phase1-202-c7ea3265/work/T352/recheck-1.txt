@@ -1,0 +1,2 @@
+probe gate-outcome-waivers: no other ledger names a waiver than qa/r3-b3/cycle-ledger.md:4 and qa/r5/cycle-ledger.md:4 (the summary lines now say PASS by owner waiver).
+probe follow-up-coverage: the Follow-Up Items section now holds the four missing items and four more from followups.md.

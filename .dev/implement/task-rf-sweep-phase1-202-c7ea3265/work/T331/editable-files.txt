@@ -1,0 +1,11 @@
+src/superclaude/cli/sweep/probes.py
+src/superclaude/cli/sweep/classify.py
+src/superclaude/cli/sweep/report.py
+src/superclaude/cli/sweep/models.py
+src/superclaude/cli/sweep/commands.py
+tests/sweep/test_classify.py
+tests/sweep/test_report.py
+tests/sweep/test_probes_allowlist.py
+tests/sweep/test_cli_contract.py
+src/superclaude/skills/sc-sweep-protocol/SKILL.md
+tests/commands/test_sweep_command.py

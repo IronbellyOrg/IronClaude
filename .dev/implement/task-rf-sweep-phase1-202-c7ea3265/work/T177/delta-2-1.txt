@@ -1,0 +1,22 @@
+--- a/src/superclaude/cli/sweep/report.py
++++ b/src/superclaude/cli/sweep/report.py
+@@ -567,7 +567,8 @@
+     """Make untrusted text safe for one table cell or line (FR-016, GQ-107).
+ 
+     Strips ESC, CSI and OSC sequences, control and bidi characters and carriage returns,
+-    folds newlines to a space, and neutralises ``|``, HTML tags and Markdown links.
++    folds newlines to a space, and neutralises backslashes, ``|``, HTML tags and Markdown
++    links.
+     """
+     s = _ESCAPES.sub("", "" if text is None else str(text))
+     kept = []
+@@ -582,7 +583,9 @@
+         else:
+             kept.append(ch)
+     s = "".join(kept)
++    # The backslash goes first, so a backslash in the text cannot pair with one added below.
+     for old, new in (
++        ("\\", "\\\\"),
+         ("|", "\\|"),
+         ("<", "&lt;"),
+         (">", "&gt;"),

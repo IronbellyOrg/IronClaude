@@ -1,0 +1,1 @@
+Review 1-1 of T204 (fresh subagent, prompt-1-1.md): T204.AC1 met. No finding on any of the four checklist questions; no blocking finding. The reviewer spot-checked the report's claims (window parser, root walk-up, run id pattern, empty --root, makedirs ordering, unknown-Run shape, test gap) against live source and found them true. It did not re-run the report's scratch harness.

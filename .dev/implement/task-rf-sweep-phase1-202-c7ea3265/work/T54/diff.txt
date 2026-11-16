@@ -1,0 +1,24 @@
+--- a/docs/designs/orchestrator-mode.md
++++ b/docs/designs/orchestrator-mode.md
+@@ -592,6 +592,8 @@
+ }
+ ```
+ 
++Each scoped Run's `worker-list` call has its own source row named `orca worker-list <run>`; a `call_failed` result sets its `unscanned` reason (for example `orca call failed (exit 1)`).
++
+ Pinned v1 key set (NFR-009 golden test): the SPEC top-level keys (`schema_version`, `observed_at`, `scope`, `window`, `orca_available`, `sources`, `rows`, `worktrees`, `waiting`, `summary`, `report_path`), the SPEC row keys (`row_id`, `class`, `rule`, `evidence`, `notes`, `safe_to_close`), the SPEC worktree keys (line 392) and the SPEC summary keys. The design additions `collected`, `waiting_kind`, `policy`, `person_started` and `summary.counts` as the container for per-class counts are in the v1 set from the first release, so they are additive, not a later change. `rows[].class` values are the `CLASSES` strings; `unpushed` is a bool or null, never a count (M7). `safe_to_close.worktree` is never `"yes"` (FR-012). NFR-005: two renders from one fixture give equal JSON apart from `report_path`.
+ 
+ ### 7.5 Report layout
+--- a/.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md
++++ b/.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md
+@@ -2840,7 +2840,7 @@
+ 
+ ### Phase 4 Findings
+ 
+-No findings yet.
++- Item 4.2: the source-row name `orca worker-list <run>` is a design choice, not taken from the SPEC (research/04 section 4.2 edit 2 says the design does not yet name per-Run source rows). It was written as one sentence after the JSON schema block in 7.4, because the `sources` entry sits inside a code block and the JSON key set must not change. The R3-B3 gate is asked to approve the name.
+ 
+ ### Phase 5 Findings
+ 
+
+Orchestrator verification output (reproduce it yourself): grep -c 'orca worker-list <run>' docs/designs/orchestrator-mode.md returns 2 (the 7.2 list-incomplete bullet and section 7.4); the JSON key set in the 7.4 code block is unchanged; the new sentence sits right after the closing code fence of the 7.4 JSON schema, because the `sources` entry is inside the code block. The design-choice note is in the source file's '### Phase 4 Findings' (shown in the diff). The sentence text is the one given in the item's Action.

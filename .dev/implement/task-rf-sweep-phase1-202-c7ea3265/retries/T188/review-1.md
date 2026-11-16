@@ -1,0 +1,3 @@
+Review 1-1 of T188 (fresh subagent, prompt-1-1.md): T188.AC1 met. One blocking finding.
+F1.1 ac=scope at=.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/impl-core/verify-cycle1-rf-qa.md:3 anchor="Status: in progress (sections are appended as each is checked)." chk=n,y,n,n family=stale-status-header: the report header still says it is in progress although the file is complete (all ten F_0 rows, all 130 check rows, the verdict).
+Review 2-1 of T188 (fresh subagent, prompt-2-1.md): T188.AC1 met. F1.1 resolved. No blocking findings.

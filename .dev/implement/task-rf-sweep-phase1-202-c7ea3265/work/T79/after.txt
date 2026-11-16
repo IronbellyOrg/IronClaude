@@ -1,0 +1,3 @@
+668:**Gate.** Steps 1.17 to 1.19 are written only after the owner answers GQ-11 (step 1.0b) and the 
+819:| D6 | WC-14 (WC-16 in this design) text of SPEC section 10 (lines 404-408) | The same text with
+842:| 1.17 | The REPORT's WC-14 (WC-16 in this design) draft | The SPEC section 10 text plus D6 (sec

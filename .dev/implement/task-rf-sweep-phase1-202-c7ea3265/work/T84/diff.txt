@@ -1,0 +1,27 @@
+--- a/docs/designs/orchestrator-mode.md
++++ b/docs/designs/orchestrator-mode.md
+@@ -652,7 +652,7 @@
+ 
+ - Frontmatter: `name: sweep`, a one-line description, `allowed-tools: Skill`, and an `argument-hint` of `[--run <id>]... [--window <N>h|<N>d] [--root <dir>] [--output <dir>]`.
+ - Body headings follow `issue.md` (title, Triggers, Usage, Options), with an `## Activation` block in the form `graph.md` uses (`graph.md` line 9 has `allowed-tools: Skill, ...`, line 41 `## Activation`). The block invokes `~/.claude/skills/sc-sweep-protocol/SKILL.md`, and names the project `.claude/skills/sc-sweep-protocol/SKILL.md` copy as the dual surface (skills read `~/.claude/skills/` first).
+-- Triggers: explicit only. No `## Unattended mode` section, no `--unattended` flag. `/sc:sweep` is on the never-as-worker list (section 8).
++- Triggers: explicit only. No `## Unattended mode` section, no `--unattended` flag. `sweep.md` has no `## Unattended mode` section. `/sc:sweep` is on the never-as-worker list (section 8).
+ 
+ **Skill** `src/superclaude/skills/sc-sweep-protocol/SKILL.md`:
+ 
+@@ -687,6 +687,15 @@
+ - Add `assert "sweep" not in UNATTENDED_COMMANDS` next to the existing `"load"` assertion (line 1322, inside `test_load_usage_line_declares_checkpoint_and_load_is_not_converted`, def at line 1318). The equality check at line 837 holds with no edit, because `sweep.md` has no `## Unattended mode` section.
+ - Change the `RULE_PHRASES["never-as-worker"]` phrase at line 89 from ``"`/sc:spawn` and `/sc:swarm-wizard`, "`` to ``"`/sc:spawn`, `/sc:sweep` and `/sc:swarm-wizard`, "``, so the pinned phrase matches the new contract line 23 below.
+ 
++**Constraints from master `5dc29d23`** (read in `tests/skills/test_worker_contract.py`; they add no pin and no deviation):
++
++- `_check_p2_set` (line 1556) asserts `UNATTENDED_EXPECT` has exactly 31 entries, so `sweep` is never added to it.
++- `_check_no_unattended_sections` (lines 831-839) globs every `src/superclaude/commands/*.md`, so `sweep.md` has no `## Unattended mode` section.
++- The write-verb audit (`AUDIT_ROOTS`, lines 1940-1944; categories `wc9-allowed`, `deferred:P1` to `deferred:P4`, `never-worker`, `no-command` and `read-only`, lines 1953-1955) needs a `WRITE_VERB_CLASSIFICATION` row (the dict at line 2016) for any write-verb text in `sweep.md` or `sc-sweep-protocol/`. The `never-worker` category is available once `/sc:sweep` is on the never-as-worker list.
++- A `read-only` `gh api` entry must not look like a post to `_is_gh_api_post` (line 1966).
++- `RULE_PHRASES["liveness-sweep-and-states"]` (lines 209-219) and `RULE_PHRASES["liveness-ladder-and-restart"]` (lines 228-237) must not be reworded.
++- `_check_rule` (lines 755-762) needs the rule ident on the heading line, so the WC-16 heading carries `WC-16`.
++
+ **Never-as-worker addition.** `WORKER-CONTRACT.md` line 23 becomes:
+ 
+ > - **Never-as-worker list**: `/sc:agent`, `/sc:git`, `/sc:help`, `/sc:issue`, `/sc:pm`, `/sc:spawn`, `/sc:sweep` and `/sc:swarm-wizard`, plus `/sc:pr-submit` while the answer to decision D3 keeps it off workers. These are never dispatched as workers and get no `--unattended` mode. The list changes only when the coordinator-only command set or D3 changes, never per phase. If D3 adds a worker route for pr-submit, D3 also states how that route passes the brief guard.

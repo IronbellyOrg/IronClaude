@@ -1,0 +1,1 @@
+The task created one new untracked file (nothing tracked changed): .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/discovery/anchor-inventory.md (41 lines). Read it from disk; it is the full diff. The 18 anchors it lists are in the item's Context paragraph; verify each against the live files yourself.

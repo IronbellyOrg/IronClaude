@@ -1,0 +1,8 @@
+T284 = item 13.3 of the source file /home/coder/workspaces/worktrees/IronClaude/issue-339-orchestrator-mode/.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md (lines 2277-2283). Item text:
+- [ ] **13.3 — Routing row R4: add `"sc:sweep"` to `_OTHER_COMMANDS` (L2)**
+  - **Context**: DESIGN section 9 row R4 (line 697 on the unrevised design). `tests/core/test_how_we_work_routing_table.py:27` `_OTHER_COMMANDS = {` (entries from :28, `"sc:spawn"` at :33).
+  - **Action**: Re-read lines 24-45 at HEAD. Insert `    "sc:sweep",` on the line after the quoted `    "sc:spawn",`. No other edit.
+  - **Output**: the edited `tests/core/test_how_we_work_routing_table.py`.
+  - **Verification**: Verify: `git diff --stat -- tests/core/test_how_we_work_routing_table.py` shows 1 insertion; `uv run pytest tests/core/test_how_we_work_routing_table.py -v` exits 0 (save stdout to `.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/test-results/r1-r4-routing-table.txt`).
+  - **Completion gate**: The test passes. Once done, mark this item as complete.
+AC ids: T284.AC1 = the item title "Routing row R4: add `"sc:sweep"` to `_OTHER_COMMANDS` (L2)" (no AC block; the title is the AC). The item's own Verification and Completion gate lines are context for what "done" means. Ticking the item's checkbox is done by the orchestrator after the verdict and is not part of the diff under review.

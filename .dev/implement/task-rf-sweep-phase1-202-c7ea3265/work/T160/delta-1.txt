@@ -1,0 +1,39 @@
+--- a/.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/decisions/verify-cycle1-rf-qa-qualitative.md
++++ b/.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/decisions/verify-cycle1-rf-qa-qualitative.md
+@@ -11,7 +11,7 @@
+ Verdict: PASS
+ Blocking count: 0
+ 
+-All five `F_0` findings are fixed on disk. DEC-F5 is fixed for its blocking part (the missing comparison rule) and keeps a stated remainder that I grade MINOR. None of the 152 cycle-0 PASS checks now fails. I found no new BLOCKING or MAJOR defect. Six new MINOR notes (N1 to N6) are below.
++All five `F_0` findings are RESOLVED on disk. For DEC-F5 the stale-suffix remainder is a separate new MINOR note (N2). None of the 152 cycle-0 PASS checks now fails. I found no new BLOCKING or MAJOR defect. Six new MINOR notes (N1 to N6) are below.
+ 
+ ## Findings (F_0)
+ 
+@@ -21,7 +21,7 @@
+ | DEC-F2 | MAJOR | RESOLVED | `PKG/phase-outputs/plans/OQ-1-agent-wait-decision.md:23`; `PKG/artifacts/owner-decisions.md:9`, `:18`; session store entry 2026-11-12T00:10:31.205Z |
+ | DEC-F3 | MAJOR | RESOLVED | `PKG/artifacts/readonly-probe.md:499`, `:1057`, `:1059`; `PKG/phase-outputs/discovery/1.0a-facts.md:11` |
+ | DEC-F4 | MAJOR | RESOLVED | `PKG/phase-outputs/discovery/1.0a-facts.md:11`, `:24`, `:34` |
+-| DEC-F5 | MAJOR | RESOLVED for the fixed part; remainder OPEN, graded MINOR (note N2) | `PKG/phase-outputs/discovery/1.0a-facts.md:22`, `:40`, `:46-48` |
++| DEC-F5 | MAJOR | RESOLVED | `PKG/phase-outputs/discovery/1.0a-facts.md:22`, `:40`, `:46-48`; separate new MINOR note N2 for the stale suffix at `docs/designs/orchestrator-mode.md:30`, `:761` and task file `:1811-1816` |
+ 
+ ### DEC-F1 (BLOCKING): RESOLVED
+ 
+@@ -50,13 +50,15 @@
+ - The rule fits DESIGN: `docs/designs/orchestrator-mode.md:460` gives `TabMapEntry` a `terminal_handle` field (line 3 of the ccsession file) and `:497` lets a path-B join match `file_name` or `terminal_handle` to `session_join`. The rule is one of the two allowed, so item 8.3 (task file line 1438, which points at the facts file for live field names) has one value to store.
+ - Fixture check, all five workers (`tests/sweep/fixtures/captured-worker-show-N.json` against `captured-tab-map-N.json`): `assigneeHandle` equals `lines[2]` of the tab-map file and equals `result.terminal.handle` in 5 of 5; `assigneePaneKey` with `:` written as `+` equals `file_name` in 5 of 5.
+ 
+-### DEC-F5 (MAJOR): fixed part RESOLVED; remainder stated plainly
++### DEC-F5 (MAJOR): RESOLVED
+ 
+-Fixed (what the finding's blocking part asked for):
++Fixed (the defect the finding raised, a missing comparison rule):
+ 
+ - `PKG/phase-outputs/discovery/1.0a-facts.md:22` (row 15) states the comparison rule: the text before the first `-` of the live `version` equals `CHECKED_ORCA_VERSION`; the build suffix is ignored; `1.4.245-aidev02.9cfecdd30b2a` matches, `1.4.246` does not, a missing or unreadable file gives UNVERIFIED. `:40` (field table) carries the same rule, and `:46-48` is a new "Follow-up for items 8.12 and 10.5" section. The rule agrees with `CHECKED_ORCA_VERSION: str = "1.4.245"` (`docs/designs/orchestrator-mode.md:426`) and the lock line at `:611-612`, and the live string is in the probe (`PKG/artifacts/readonly-probe.md:1008`, `:1013`). The finding itself named "state the rule in `1.0a-facts.md` row 15 or in item 8.12" as an accepted fix.
+ 
+-Remaining (not fixed, reason valid):
++Decision: RESOLVED. The remainder below is a separate new MINOR note (N2), not part of the original defect, because the defect was "no rule to decide a match", and with the rule in place the suffix text no longer affects any result (the old and the live string both match; `1.4.246` and a missing file still behave as the rule says).
++
++Remainder, recorded as note N2 (not fixed, reason valid):
+ 
+ - `docs/designs/orchestrator-mode.md:30` and the `test_report.py` row at `:761` still show the suffix `780594c521aa`. Task items 8.12 (task file `:1500-1505`) and 10.5 (`:1811-1816`) still carry that string, and neither cites the facts file for the rule. Item 7.30 (task file `:1363`) lets the fix agent edit only the decision records, `owner-decisions.md`, the probe, the facts file, the fixtures and the R5 edits to DESIGN, so these were outside its remit. The follow-up section discloses the staleness.
+ - Why I grade the remainder MINOR: the rule ignores the suffix, so a test fed the old suffix still classifies as a match; item 10.5 already lists `1.4.246` and a missing file; no statement is false (the facts file says the string is stale). The effect is a missing pointer and a stale fixture string, not wrong behaviour. See N2 for the carry-forward.

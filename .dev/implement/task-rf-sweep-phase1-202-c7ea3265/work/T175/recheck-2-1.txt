@@ -1,0 +1,33 @@
+456:            continue
+545:    except OSError:
+549:def read_ledger(path: Path, root: Path | None = None) -> bool | None:
+557:    except OSError:
+575:        except OSError:
+584:            continue
+606:def read_packages(worktree: Path) -> tuple[PackageRecord, ...]:
+624:            continue
+685:    except OSError:
+704:            continue
+744:    except OSError:
+764:        except OSError:
+766:    except OSError:
+784:    except OSError:
+792:            continue
+795:                continue
+797:        except OSError:
+799:            continue
+815:    except OSError:
+874:def _read_worktree(
+882:    except OSError:
+901:def read_worktree(path: Path, budget: Budget) -> tuple[WorktreeState, SourceCoverage]:
+903:    state, rows = _read_worktree(path, budget)
+949:            continue
+994:            continue
+1063:            continue
+1072:            continue
+1146:                continue
+1191:        worktree, rows = _read_worktree(path, budget)
+1251:                continue
+1279:            continue
+1280:        except OSError:
+1284:            continue

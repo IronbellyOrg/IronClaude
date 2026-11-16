@@ -1,0 +1,1 @@
+Review 1-1 of T201 (fresh subagent, prompt-1-1.md): T201.AC1 met. No finding with a valid anchor on any of the four checklist questions; no blocking finding. The reviewer re-checked the report's write-site, subprocess, run-list, git-seam, registration and live-check claims against live source and found them true. It did not re-run the report's scratch harnesses.

@@ -1,0 +1,7 @@
+The task (item 5.28, conditional cycle-2 rf-qa verifier) was skipped because cycle 1 of the r4 gate passed. The only change is new row(s) in the Execution Log table of the source file (diff of the source file against the start snapshot):
+@@ -2816,6 +2816,9 @@
++| 2026-11-09T00:10Z | 5.27 | SKIPPED | Fix cycle 2 is not needed: `qa/r4/cycle1-decision.md` records F_1 empty and the outcome "PASS at cycle 1". |
++| 2026-11-09T00:11Z | 5.28 | SKIPPED | Cycle-2 rf-qa verifier is not needed: `qa/r4/cycle1-decision.md` records F_1 empty and the outcome "PASS at cycle 1". |
++| 2026-11-09T00:12Z | 5.29 | SKIPPED | Cycle-2 rf-qa-qualitative verifier is not needed: `qa/r4/cycle1-decision.md` records F_1 empty and the outcome "PASS at cycle 1". |
+
+Evidence for the skip condition: .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/r4/cycle1-decision.md (its outcome line reads PASS at cycle 1, and it lists the skipped items) and the cycle-1 row of .dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/r4/cycle-ledger.md (line 4). The item's Action says: if item 2.21 or 2.18 marked this item SKIPPED, mark it complete with the SKIPPED note. The checkbox tick of the item itself is done by the orchestrator after the verdict and is not part of this diff.

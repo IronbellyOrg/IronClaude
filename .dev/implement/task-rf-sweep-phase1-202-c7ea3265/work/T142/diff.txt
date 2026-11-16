@@ -1,0 +1,30 @@
+--- /dev/null
++++ b/.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/phase-outputs/plans/OQ-8-run-id-decision.md   (new file, 28 lines)
++---
++needs_human_decision: true
++status: PENDING
++---
++
++# Step 1.0a Run id request (OQ-8)
++
++## Request
++
++The step 1.0a read-only Orca capture needs one existing Orca Run, named by the person. Quoted from the design and from the research:
++
++> DESIGN section 15.1, `docs/designs/orchestrator-mode.md:894`: "It runs against an existing Run that the person names. It creates no Run, Task or Dispatch; the REPORT's throwaway Run is dropped."
++
++> research/09 Gap 3, `.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/research/09-gap-fill.md:98`: "The task item should ask for one Run id with at least one Dispatch (better one live and one settled worker, so items 4 and 13 can be captured), and should note that template 1 (`run-current`) shows the bound Run if the person has none in mind."
++
++In plain words: please name one existing Run by its id. The Run must hold at least one Dispatch row (a worker assignment). Best is a Run with one live worker and one settled worker, so capture items 4 and 13 can be recorded. If you have no Run in mind, `orca-ide orchestration run-current` (plain output, never `--json`) shows the Run bound to the current session. The capture only reads: it creates no Run, Task or Dispatch. The same Run is used by the step 1.4 live check (item 9.3, run once the CLI is registered).
++
++How to answer: give the Run id in your own words, say how many Dispatch rows it holds (or say in your own words that it holds at least one), and the executor records your words below. A Run with zero Dispatch rows is not enough: item 7.16 step (1) would learn no Dispatch id, template 3 would never run, and the `DISPATCH_ID_RE` half of DESIGN section 17 open item 2 would stay unverified.
++
++## Blocked work
++
++Item 7.15 halts while `Run id:` is empty, or the record does not say the named Run has at least one Dispatch row, or `Given by:` or `Source:` is empty. This blocks item 7.16 (the step 1.0a capture), the step 1.0a items after it, and the step 1.4 live check (item 9.3).
++
++## Run id record
++
++Run id:
++Given by:
++Source:
