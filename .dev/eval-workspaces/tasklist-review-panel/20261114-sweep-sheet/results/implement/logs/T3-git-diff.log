@@ -1,0 +1,3 @@
+diff-stat-lines=0
+cmd: git diff --stat -- src tests
+rc=0

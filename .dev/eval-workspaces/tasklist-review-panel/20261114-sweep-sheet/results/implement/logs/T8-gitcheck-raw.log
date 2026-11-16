@@ -1,0 +1,4 @@
+raw grep before the exclusions (shows the check is not vacuous: only git -C "$SBT" lines remain)
+bin/build-sandbox.sh:163:  git -C "$SBT" add -A -f || fail "snapshot failed (stage)"
+bin/build-sandbox.sh:164:  git -C "$SBT" -c user.name=sw -c user.email=sw@localhost -c core.hooksPath=/dev/null -c commit.gpgsign=false commit -q -m snap || fail "snapshot failed (snapshot)"
+rc=0

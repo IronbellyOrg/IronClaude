@@ -1,0 +1,73 @@
+$ uv run --frozen --project /home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel ruff check --no-cache /home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet
+All checks passed!
+rc=0
+$ uv run --frozen --project /home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel ruff format --check --no-cache /home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet
+92 files already formatted
+rc=0
+$ uv run --frozen --project /home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel pytest -p no:cacheprovider /home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests -q -m not slow and not freeze
+============================= test session starts ==============================
+platform linux -- Python 3.11.15, pytest-9.2.0, pluggy-1.7.0
+SuperClaude: 5.0.0
+rootdir: /home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel
+configfile: pyproject.toml
+plugins: superclaude-5.0.0, anyio-4.16.0
+collected 605 items / 4 deselected / 601 selected
+
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_assign.py . [  0%]
+......................                                                   [  3%]
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_briefs.py . [  3%]
+................                                                         [  6%]
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_cards.py . [  6%]
+........                                                                 [  8%]
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_e1.py . [  8%]
+............................................                             [ 15%]
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_e2.py . [ 15%]
+..............................................                           [ 23%]
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_e3.py . [ 23%]
+............................................................             [ 33%]
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_e4.py . [ 33%]
+........................................................................ [ 45%]
+.                                                                        [ 45%]
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_e5.py . [ 46%]
+..............................................                           [ 53%]
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_e6.py . [ 53%]
+............................................                             [ 61%]
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_e7.py . [ 61%]
+........................                                                 [ 65%]
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_extractors_common.py . [ 65%]
+..............................                                           [ 70%]
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_fake_on_path.py . [ 70%]
+..................                                                       [ 73%]
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_fnd_contract.py . [ 73%]
+.........                                                                [ 75%]
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_formats.py . [ 75%]
+..........                                                               [ 77%]
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_layout.py . [ 77%]
+.......                                                                  [ 78%]
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_lint.py . [ 78%]
+........                                                                 [ 80%]
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_model_allowlist.py . [ 80%]
+...                                                                      [ 80%]
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_normalise.py . [ 80%]
+..........                                                               [ 82%]
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_paths.py . [ 82%]
+.......                                                                  [ 83%]
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_plan.py . [ 84%]
+........................................                                 [ 90%]
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_prepass.py . [ 90%]
+........                                                                 [ 92%]
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_prepass_inputs.py . [ 92%]
+...                                                                      [ 92%]
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_readme.py . [ 93%]
+.                                                                        [ 93%]
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_render.py . [ 93%]
+......                                                                   [ 94%]
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_sandbox.py . [ 94%]
+........                                                                 [ 95%]
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_scope.py . [ 96%]
+...                                                                      [ 96%]
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_select.py . [ 96%]
+....................                                                     [100%]
+
+====================== 601 passed, 4 deselected in 18.26s ======================
+rc=0

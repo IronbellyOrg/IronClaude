@@ -1,0 +1,62 @@
+============================= test session starts ==============================
+platform linux -- Python 3.11.15, pytest-9.2.0, pluggy-1.7.0 -- /home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/.venv/bin/python
+SuperClaude: 5.0.0
+rootdir: /home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel
+configfile: pyproject.toml
+plugins: superclaude-5.0.0, anyio-4.16.0
+collecting ... collected 50 items
+
+tests/test_e5.py::test_no_source_returns_nothing PASSED                  [  2%]
+tests/test_e5.py::test_with_a_source_class_c2_applies PASSED             [  4%]
+tests/test_e5.py::test_an_empty_source_gives_nothing_but_still_counts_tasks_without_citations PASSED [  6%]
+tests/test_e5.py::test_basic_plan_gives_the_retention_rule_for_task_3 PASSED [  8%]
+tests/test_e5.py::test_candidates_pass_the_core_checks_and_take_the_class_route PASSED [ 10%]
+tests/test_e5.py::test_a_decision_line_is_a_cited_section PASSED         [ 12%]
+tests/test_e5.py::test_a_decision_bullet_and_its_continuation_line PASSED [ 14%]
+tests/test_e5.py::test_sub_sections_belong_to_the_cited_section PASSED   [ 16%]
+tests/test_e5.py::test_task_that_carries_every_identifier_gives_no_candidate PASSED [ 18%]
+tests/test_e5.py::test_an_identifier_in_the_criteria_counts_as_carried PASSED [ 20%]
+tests/test_e5.py::test_a_rule_without_identifiers_gives_no_candidate PASSED [ 22%]
+tests/test_e5.py::test_a_task_that_cites_nothing_is_counted_and_gives_no_candidate PASSED [ 24%]
+tests/test_e5.py::test_tasks_without_citations_are_listed_for_the_basic_plan_and_reset_on_each_call PASSED [ 26%]
+tests/test_e5.py::test_a_citation_that_matches_no_source_section_gives_nothing_and_is_not_counted PASSED [ 28%]
+tests/test_e5.py::test_rule_sentence_selection[The job must write `deleted_count`.-True] PASSED [ 30%]
+tests/test_e5.py::test_rule_sentence_selection[The job returns `result_code` at the end.-True] PASSED [ 32%]
+tests/test_e5.py::test_rule_sentence_selection[The job halts on `RetentionError`.-True] PASSED [ 34%]
+tests/test_e5.py::test_rule_sentence_selection[The job likes `deleted_count` very much.-False] PASSED [ 36%]
+tests/test_e5.py::test_rule_sentence_selection[The job writes results to the log.-False] PASSED [ 38%]
+tests/test_e5.py::test_rule_sentence_selection[Mustard is a plant and `deleted_count` is a name.-False] PASSED [ 40%]
+tests/test_e5.py::test_rule_sentence_selection[Each run of `job_total` counts.-True] PASSED [ 42%]
+tests/test_e5.py::test_section_numbers_match_whole_numbers_only PASSED   [ 44%]
+tests/test_e5.py::test_fenced_lines_and_headings_are_no_rule_sentences PASSED [ 46%]
+tests/test_e5.py::test_a_numbered_heading_inside_a_fence_does_not_end_or_start_a_section PASSED [ 48%]
+tests/test_e5.py::test_identifiers_are_case_sensitive PASSED             [ 50%]
+tests/test_e5.py::test_identifier_extraction[It must set `a_b` and `Name`.-ids0] PASSED [ 52%]
+tests/test_e5.py::test_identifier_extraction[It must set door_open_ms and DoorTimeout.-ids1] PASSED [ 54%]
+tests/test_e5.py::test_identifier_extraction[It must set doorTimeout.-ids2] PASSED [ 56%]
+tests/test_e5.py::test_identifier_extraction[It must set JSON and Door and door.-ids3] PASSED [ 58%]
+tests/test_e5.py::test_identifier_extraction[It must set `src/a_b/c.py`.-ids4] PASSED [ 60%]
+tests/test_e5.py::test_identifier_extraction[It must run `make test`.-ids5] PASSED [ 62%]
+tests/test_e5.py::test_identifier_extraction[It must set `a_b` and a_b.-ids6] PASSED [ 64%]
+tests/test_e5.py::test_identifier_extraction[It must set `xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx`.-ids7] PASSED [ 66%]
+tests/test_e5.py::test_pre_priority_is_30_plus_15_per_missing_identifier_up_to_four[1-45] PASSED [ 68%]
+tests/test_e5.py::test_pre_priority_is_30_plus_15_per_missing_identifier_up_to_four[2-60] PASSED [ 70%]
+tests/test_e5.py::test_pre_priority_is_30_plus_15_per_missing_identifier_up_to_four[3-75] PASSED [ 72%]
+tests/test_e5.py::test_pre_priority_is_30_plus_15_per_missing_identifier_up_to_four[4-90] PASSED [ 74%]
+tests/test_e5.py::test_pre_priority_is_30_plus_15_per_missing_identifier_up_to_four[5-90] PASSED [ 76%]
+tests/test_e5.py::test_pre_priority_is_30_plus_15_per_missing_identifier_up_to_four[6-90] PASSED [ 78%]
+tests/test_e5.py::test_two_rule_sentences_are_two_candidates_with_one_anchor_in_source_order PASSED [ 80%]
+tests/test_e5.py::test_a_section_cited_twice_through_two_citations_makes_one_candidate PASSED [ 82%]
+tests/test_e5.py::test_a_task_without_a_sentence_of_twelve_characters_gives_no_candidate PASSED [ 84%]
+tests/test_e5.py::test_a_long_first_sentence_is_cut_to_200_characters_and_stays_an_exact_quote PASSED [ 86%]
+tests/test_e5.py::test_evidence_texts_are_cut_to_160_characters_and_there_are_three_entries PASSED [ 88%]
+tests/test_e5.py::test_attach_needs_no_snapshot_and_sets_priority_to_pre_priority PASSED [ 90%]
+tests/test_e5.py::test_a_candidate_with_only_its_features_can_be_attached_again PASSED [ 92%]
+tests/test_e5.py::test_the_output_is_the_same_on_every_run PASSED        [ 94%]
+tests/test_formats.py::test_new_format_is_data_only PASSED               [ 96%]
+tests/test_formats.py::test_spec_fixture_e1_e2_e5 PASSED                 [ 98%]
+tests/test_formats.py::test_doc_fixture_e4_e1 PASSED                     [100%]
+
+============================== 50 passed in 0.43s ==============================
+$ pytest -v test_e5 + 3 REQ-37 tests
+rc=0

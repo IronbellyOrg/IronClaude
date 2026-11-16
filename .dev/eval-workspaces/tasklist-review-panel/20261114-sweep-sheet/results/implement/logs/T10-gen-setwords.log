@@ -1,0 +1,2 @@
+$ uv run --frozen --project /home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel python /home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/fixtures/plans/gen_setwords.py --n 200 --out /tmp/gs200.md
+rc=0

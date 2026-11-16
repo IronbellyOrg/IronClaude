@@ -1,0 +1,14 @@
+contract_version: "1.1"
+status: success
+slug: TASK-WF-implementHomeCod-20261114-200449
+plan_path: ./TASK-WF-implementHomeCod-20261114-200449.md
+source_path: ./source.md
+source_origin: inline
+strategy: systematic
+depth: standard
+handoff_action: none
+handoff_output_path: null
+reflect_status: partial
+reflect_report_path: /home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/.dev/reflect/pre-TASK-WF-implementHomeCod-20261114-200449-20261114201211/REPORT.md
+unresolved:
+  - "Advisory reflect verdict FAIL (status partial): M1 top K = 8 against a 12-item single-class sheet (a design contradiction that needs an owner decision, DESIGN.md:316 against :321 and :325) and M2 the git-add grep criterion in Task 27 that a faithful sandbox builder fails. The plan was not edited from these findings; read REPORT.md before running /sc:implement."

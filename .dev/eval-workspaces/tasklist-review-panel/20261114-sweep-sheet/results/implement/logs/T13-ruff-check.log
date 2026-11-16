@@ -1,0 +1,3 @@
+All checks passed!
+cmd: ruff check --no-cache $SW
+rc=0

@@ -1,0 +1,40 @@
+$ uv run --frozen --project /home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel ruff check --no-cache /home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet
+All checks passed!
+rc=0
+$ uv run --frozen --project /home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel ruff format --check --no-cache /home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet
+42 files already formatted
+rc=0
+$ uv run --frozen --project /home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel pytest -p no:cacheprovider /home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests -q -m not slow and not freeze
+============================= test session starts ==============================
+platform linux -- Python 3.11.15, pytest-9.2.0, pluggy-1.7.0
+SuperClaude: 5.0.0
+rootdir: /home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel
+configfile: pyproject.toml
+plugins: superclaude-5.0.0, anyio-4.16.0
+collected 107 items / 1 deselected / 106 selected
+
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_briefs.py . [  0%]
+................                                                         [ 16%]
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_cards.py . [ 16%]
+........                                                                 [ 24%]
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_fake_on_path.py . [ 25%]
+..................                                                       [ 42%]
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_fnd_contract.py . [ 43%]
+.........                                                                [ 51%]
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_layout.py . [ 52%]
+.......                                                                  [ 59%]
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_lint.py . [ 60%]
+........                                                                 [ 67%]
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_model_allowlist.py . [ 68%]
+...                                                                      [ 71%]
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_normalise.py . [ 72%]
+..........                                                               [ 82%]
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_paths.py . [ 83%]
+.......                                                                  [ 89%]
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_readme.py . [ 90%]
+.                                                                        [ 91%]
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_sandbox.py . [ 92%]
+........                                                                 [100%]
+
+====================== 106 passed, 1 deselected in 6.39s =======================
+rc=0

@@ -1,0 +1,34 @@
+{
+  "id": "C4",
+  "name": "Check that cannot match or pass",
+  "version": 1,
+  "definition": "A criterion embeds a command, pattern or test selector whose literal form cannot match or cannot pass against the text or state the same plan orders.",
+  "question_template": "Apply the criterion's literal pattern to the text this task orders. Does it pass on that text? Do not use the current file as evidence; it may already contain the finished work.",
+  "extractor": "E2",
+  "route": "search",
+  "replicas": 2,
+  "applies_to": [
+    "plan",
+    "spec",
+    "doc"
+  ],
+  "instances": [
+    {
+      "cite": "reflect/pre-workflowSource-20261102234109/REPORT.md:51",
+      "target": "plan",
+      "kind": "P"
+    },
+    {
+      "cite": "reflect/pre-refactorIronClau-20261102175540/adversarial/merged-findings.md:36",
+      "target": "plan",
+      "kind": "P"
+    }
+  ],
+  "severity_guidance": "Blocking when the check can never pass, or can never fail, on the text the document orders; minor when it only reads poorly.",
+  "known_weakness": "Commands with computed patterns; regular expressions that Python and POSIX read differently.",
+  "promote_category": "unpassable-check",
+  "swap_test": {
+    "reviewer": "second-author-session claude-sonnet-5-5",
+    "date": "2026-11-15"
+  }
+}

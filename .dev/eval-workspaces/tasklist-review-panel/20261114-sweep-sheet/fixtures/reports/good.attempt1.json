@@ -1,0 +1,56 @@
+[
+ {
+  "type": "system",
+  "subtype": "init",
+  "model": "gpt-6-luna",
+  "session_id": "s0"
+ },
+ {
+  "type": "assistant",
+  "message": {
+   "model": "gpt-6-luna",
+   "content": [
+    {
+     "type": "text",
+     "text": "I will search the guide."
+    },
+    {
+     "type": "tool_use",
+     "id": "t1",
+     "name": "Bash",
+     "input": {
+      "command": "git grep -n 'report formats' -- docs/guide.md"
+     }
+    }
+   ]
+  }
+ },
+ {
+  "type": "user",
+  "message": {
+   "role": "user",
+   "content": [
+    {
+     "type": "tool_result",
+     "tool_use_id": "t1",
+     "content": "docs/guide.md:14: The exporter writes 3 report formats to disk.\ndocs/guide.md:20: See also the retention window."
+    }
+   ]
+  }
+ },
+ {
+  "type": "result",
+  "subtype": "success",
+  "result": "(final message, see good.md)",
+  "usage": {
+   "input_tokens": 100,
+   "output_tokens": 50
+  },
+  "modelUsage": {
+   "gpt-6-luna": {
+    "inputTokens": 100,
+    "outputTokens": 50
+   }
+  }
+ }
+]

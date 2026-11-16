@@ -1,0 +1,74 @@
+[
+  {
+    "id": "s01",
+    "class": "C1",
+    "quote": "Every worker claim in the guide, in every section, is verified against `src/superclaude/core/WORKER-CONTRACT.md` and none is left unverified.",
+    "description": "The criterion asks for every worker claim in the whole guide to be verified with no list of claims or stopping rule, while the tasks only edit named sections, so the check can always be extended by one more claim."
+  },
+  {
+    "id": "s02",
+    "class": "C1",
+    "quote": "so the guide contains no em dash or en dash",
+    "description": "The criterion covers the whole guide, but the constraint only governs new and edited text and says existing dashes in untouched lines stay, so the check does not match the scope of the instruction it checks."
+  },
+  {
+    "id": "s03",
+    "class": "C2",
+    "quote": "inside one four-backtick fence.",
+    "description": "The source requires a check that the Appendix C heading is outside any fence after the fence change; the criterion no longer carries it, so a fence that swallows Appendix C passes."
+  },
+  {
+    "id": "s04",
+    "class": "C2",
+    "quote": "is 0; counts saved to `./artifacts/t9-one-home.txt`.",
+    "description": "The source requires zero occurrences outside 7.6 and at least one inside it; the dropped second condition lets a 7.6 that never states the list pass the one-home check."
+  },
+  {
+    "id": "s05",
+    "class": "C4",
+    "quote": "grep -n '^## 7.6 Orca Orchestration: Commands as Workers'",
+    "description": "The pattern has two hash marks anchored at the line start, but the heading the task inserts has three, so the grep prints no line and the criterion cannot pass."
+  },
+  {
+    "id": "s06",
+    "class": "C4",
+    "quote": "`grep -c '^\\*\\*Worker fit\\*\\*' docs/developer-guide/SuperClaude-Developer-Guide-Commands-Skills-Agents.md` prints 3",
+    "description": "The task orders list bullets that begin with a dash and a space before the bold label, so a pattern anchored at the line start never matches and the count prints 0, not 3."
+  },
+  {
+    "id": "s07",
+    "class": "C5",
+    "quote": "Never-as-worker list, Pointer rule, Report directory",
+    "description": "The glossary list now names eleven new terms, but the acceptance line for Appendix E still says the ten new terms, so the stale count lets the check pass or fail on the wrong number."
+  },
+  {
+    "id": "s08",
+    "class": "C5",
+    "quote": "a brief that passes neither report-directory form (the worker is refused before any work",
+    "description": "Task 7 now lists eight anti-pattern rows, but its acceptance line still says 9.7 gains seven rows, one per anti-pattern listed, so the count no longer matches the list."
+  },
+  {
+    "id": "s09",
+    "class": "C6",
+    "quote": "No other file is created or modified anywhere in the repository.",
+    "description": "Tasks 1 to 9 write scripts and evidence files under the package's ./artifacts folder, so the sentence that nothing else is created anywhere is contradicted by the plan's own tasks."
+  },
+  {
+    "id": "s10",
+    "class": "C6",
+    "quote": "Outside 7.6, no section names a WC rule ID in its own text; every other section links to 7.6 instead.",
+    "description": "Tasks 3 to 7 order rule IDs such as WC-4, WC-7 and WC-8 in the text of 3.1, 4.2, 5.9 and 5.10, so the universal sentence is contradicted by other tasks of the same plan."
+  },
+  {
+    "id": "s11",
+    "class": "C7",
+    "quote": "marked \"only if this command has no directory-valued `--output` or `--output-dir`; both or neither is refused (WC-4, section 7.6)\"",
+    "description": "The dictated row text drops the clause that the flag is also for a brief that does not pass the command's own flag, which the constraint and the acceptance line for this row both require."
+  },
+  {
+    "id": "s12",
+    "class": "C7",
+    "quote": "passing both is refused before any work (WC-4); link to",
+    "description": "The dictated 3.1 sentence leaves out the neither-case refusal that the report-directory constraint and the acceptance line for 3.1 require."
+  }
+]

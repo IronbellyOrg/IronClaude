@@ -1,0 +1,39 @@
+git status before (repo root, short):
+895a813f13be742892255fa0f3040695  -
+# run 1
+prepass_s=0.51 rc=0 snapshot=/home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel
+scope: tracked files under tests/, scripts/, docs/; root-level files; change-log style files anywhere (names: changelog, changes, history, news, release-notes, 
+# run 2
+prepass_s=0.63 rc=0 snapshot=/home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel
+scope: tracked files under tests/, scripts/, docs/; root-level files; change-log style files anywhere (names: changelog, changes, history, news, release-notes, 
+# run 3
+prepass_s=0.59 rc=0 snapshot=/home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel
+scope: tracked files under tests/, scripts/, docs/; root-level files; change-log style files anywhere (names: changelog, changes, history, news, release-notes, 
+# run 1
+prepass_s=0.44 rc=0 snapshot=/tmp/prepass-timing-snaps/medium
+scope: tracked files under tests/, scripts/, docs/; root-level files; change-log style files anywhere (names: changelog, changes, history, news, release-notes, 
+# run 2
+prepass_s=0.43 rc=0 snapshot=/tmp/prepass-timing-snaps/medium
+scope: tracked files under tests/, scripts/, docs/; root-level files; change-log style files anywhere (names: changelog, changes, history, news, release-notes, 
+# run 3
+prepass_s=0.42 rc=0 snapshot=/tmp/prepass-timing-snaps/medium
+scope: tracked files under tests/, scripts/, docs/; root-level files; change-log style files anywhere (names: changelog, changes, history, news, release-notes, 
+# run 1
+prepass_s=0.40 rc=0 snapshot=/tmp/prepass-timing-snaps/small/repo
+scope: tracked files under tests/, scripts/, docs/; root-level files; change-log style files anywhere (names: changelog, changes, history, news, release-notes, 
+# run 2
+prepass_s=0.41 rc=0 snapshot=/tmp/prepass-timing-snaps/small/repo
+scope: tracked files under tests/, scripts/, docs/; root-level files; change-log style files anywhere (names: changelog, changes, history, news, release-notes, 
+# run 3
+prepass_s=0.39 rc=0 snapshot=/tmp/prepass-timing-snaps/small/repo
+scope: tracked files under tests/, scripts/, docs/; root-level files; change-log style files anywhere (names: changelog, changes, history, news, release-notes, 
+# supplementary: heavier real plan (read-only) as candidate, repo root, no source
+prepass_s=0.97 rc=0 snapshot=/home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel
+scope: tracked files under tests/, scripts/, docs/; root-level files; change-log style files anywhere (names: changelog, changes, history, news, release-notes, 
+prepass_s=0.95 rc=0 snapshot=/home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel
+scope: tracked files under tests/, scripts/, docs/; root-level files; change-log style files anywhere (names: changelog, changes, history, news, release-notes, 
+prepass_s=0.95 rc=0 snapshot=/home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel
+scope: tracked files under tests/, scripts/, docs/; root-level files; change-log style files anywhere (names: changelog, changes, history, news, release-notes, 
+git status after (repo root, short):
+895a813f13be742892255fa0f3040695  -
+cmd: bash bin/time-prepass.sh <snapshot> x3 each; rc=0

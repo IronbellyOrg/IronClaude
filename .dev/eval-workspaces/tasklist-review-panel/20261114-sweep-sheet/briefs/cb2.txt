@@ -1,0 +1,1 @@
+Every defect you confirm must appear as a line in the findings block, including every ledger row you marked PROBLEM. Set its severity with the grading check. A defect that is not blocking is still listed, as MAJOR or MINOR with blocking false. Do not leave a defect out because it looks small.

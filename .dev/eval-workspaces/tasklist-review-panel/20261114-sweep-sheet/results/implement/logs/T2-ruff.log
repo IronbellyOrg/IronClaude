@@ -1,0 +1,4 @@
+All checks passed!
+18 files already formatted
+command: ruff check --no-cache SW; ruff format --check --no-cache SW
+rc=0,0

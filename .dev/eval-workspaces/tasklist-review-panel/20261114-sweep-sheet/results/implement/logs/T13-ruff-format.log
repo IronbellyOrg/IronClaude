@@ -1,0 +1,3 @@
+64 files already formatted
+cmd: ruff format --check --no-cache $SW
+rc=0

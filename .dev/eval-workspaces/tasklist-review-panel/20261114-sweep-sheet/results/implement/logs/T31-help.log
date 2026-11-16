@@ -1,0 +1,16 @@
+# T31 AC3 help
+Uninstalled 1 package in 14ms
+Installed 1 package in 20ms
+usage: g0.py [-h] --docs DOCS [--manifest MANIFEST] [--packages PACKAGES]
+             [--sandbox-root SANDBOX_ROOT] [--gt-dir GT_DIR] [--seeds SEEDS]
+             [--floor FLOOR] [--floor-from FLOOR_FROM]
+             [--role {decision,derivation,both}] [--cap CAP] [--draws DRAWS]
+             [--ablate] [--out OUT]
+
+Gate G0, the offline selection-recall gate (DESIGN 14.1, REQ-22, REQ-35). No
+model is started.
+
+options:
+  -h, --help            show this help message and exit
+  --docs DOCS           a set (derivation, holdout) or document ids, comma
+rc=0

@@ -1,0 +1,12 @@
+# T33 AC5: git status after the build (2026-11-15T02:09:33Z)
+## git status --porcelain -- src tests .claude  (expected: nothing)
+(end)
+## git status --porcelain -- .dev/tasks
+?? .dev/tasks/to-do/TASK-WF-implementHomeCod-20261114-200449/
+?? .dev/tasks/to-do/TASK-WF-implementRedesig-20261114-231318/
+## who owns each entry
+TASK-WF-implementHomeCod-20261114-200449 is this plan's package (plan, source, contract, grounding note, progress.md ledger).
+TASK-WF-implementRedesig-20261114-231318 is another plan's package, created at 2026-11-14 23:13 and still written by another /sc:implement session in this checkout:
+-rw-r--r-- 1 coder coder 16359 2026-11-15 01:58 .dev/tasks/to-do/TASK-WF-implementRedesig-20261114-231318/progress.md
+refs/superclaude/implement/TASK-WF-implementRedesig-20261114-231318/T15
+This build never created, edited or deleted any file under that folder.

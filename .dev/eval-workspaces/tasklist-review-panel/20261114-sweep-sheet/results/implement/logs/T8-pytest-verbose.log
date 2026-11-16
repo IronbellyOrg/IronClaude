@@ -1,0 +1,20 @@
+============================= test session starts ==============================
+platform linux -- Python 3.11.15, pytest-9.2.0, pluggy-1.7.0 -- /home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/.venv/bin/python
+SuperClaude: 5.0.0
+rootdir: /home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel
+configfile: pyproject.toml
+plugins: superclaude-5.0.0, anyio-4.16.0
+collecting ... collected 9 items
+
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_sandbox.py::test_file_created_by_implementation_absent PASSED [ 11%]
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_sandbox.py::test_masked_path_equals_base PASSED [ 22%]
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_sandbox.py::test_tree_snapshot_kind PASSED [ 33%]
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_sandbox.py::test_dirty_sandbox_refused PASSED [ 44%]
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_sandbox.py::test_no_reflect_artifacts_progress PASSED [ 55%]
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_sandbox.py::test_no_doc_id_in_paths_or_contents PASSED [ 66%]
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_sandbox.py::test_no_ground_truth_file PASSED [ 77%]
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_sandbox.py::test_raw_mode_removes_only_gt PASSED [ 88%]
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_sandbox.py::test_refusals PASSED [100%]
+
+============================== 9 passed in 2.15s ===============================
+rc=0

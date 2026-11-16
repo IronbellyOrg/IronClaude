@@ -1,0 +1,30 @@
+============================= test session starts ==============================
+platform linux -- Python 3.11.15, pytest-9.2.0, pluggy-1.7.0
+SuperClaude: 5.0.0
+rootdir: /home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel
+configfile: pyproject.toml
+plugins: superclaude-5.0.0, anyio-4.16.0
+collected 81 items / 1 deselected / 80 selected
+
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_cards.py . [  1%]
+........                                                                 [ 11%]
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_fake_on_path.py . [ 12%]
+..................                                                       [ 35%]
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_fnd_contract.py . [ 36%]
+.........                                                                [ 47%]
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_layout.py . [ 48%]
+.......                                                                  [ 57%]
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_lint.py . [ 58%]
+........                                                                 [ 68%]
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_model_allowlist.py . [ 70%]
+...                                                                      [ 73%]
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_normalise.py . [ 75%]
+..........                                                               [ 87%]
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_paths.py . [ 88%]
+.......                                                                  [ 97%]
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_readme.py . [ 98%]
+.                                                                        [100%]
+
+======================= 80 passed, 1 deselected in 4.24s =======================
+uv run --frozen --project /home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel pytest -p no:cacheprovider /home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests -q -m "not slow and not freeze"
+rc=0

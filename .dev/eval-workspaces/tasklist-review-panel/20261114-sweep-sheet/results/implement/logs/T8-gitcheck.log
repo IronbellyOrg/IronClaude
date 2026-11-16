@@ -1,0 +1,2 @@
+gitcheck $SW/bin  (function from the plan Constraints, run as written)
+rc=1 (rc of the last grep: 1 = no line left = pass; nothing printed above)

@@ -1,0 +1,406 @@
+diff --git a/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/results/implement/retries/T5/q0-head b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/results/implement/retries/T5/q0-head
+new file mode 100644
+index 000000000..290a67eae
+--- /dev/null
++++ b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/results/implement/retries/T5/q0-head
+@@ -0,0 +1 @@
++6225ac3fd4d810614dc39e44863158bbd603b87d
+diff --git a/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/scaffold/lint.py b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/scaffold/lint.py
+new file mode 100644
+index 000000000..1d296e0a0
+--- /dev/null
++++ b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/scaffold/lint.py
+@@ -0,0 +1,202 @@
++"""AO-1 leak lint (DESIGN 13.1 row AO-1, REQ-07): no study answer text or name may appear in the build's files.
++
++Given the ground-truth files a person names with --gt-glob, it fails (exit 1) when a scanned file holds
++  * any four-word sequence found in a ground-truth `description` or `plan_quote`, or
++  * any forbidden name: a document id or task title found in the ground truth (keys in NAME_KEYS), a path token
++    found in the `description` or `plan_quote` text, or a name given with --forbid.
++It prints only `file:line: kind hash` for each hit, where hash is the first 12 hex digits of the sha256 of the
++lower-cased phrase or name. The phrase itself is never printed, and neither is any ground-truth content.
++
++It opens nothing unless --gt-glob is given: there is no default ground-truth path in this file. Exit codes:
++0 clean, 1 leak found, 2 usage or unreadable ground truth.
++"""
++
++from __future__ import annotations
++
++import argparse
++import glob
++import hashlib
++import json
++import re
++import sys
++from pathlib import Path
++
++SW = Path(__file__).resolve().parents[1]
++N = 4
++PHRASE_KEYS = ("description", "plan_quote")
++NAME_KEYS = (
++    "doc_id",
++    "document_id",
++    "plan_id",
++    "package",
++    "title",
++    "task_title",
++    "task_titles",
++    "plan_title",
++)
++# DESIGN 13.1: the files and folders the lint covers (those that exist when it runs).
++TARGETS = (
++    "cards",
++    "sweep/words.py",
++    "sweep/formats.py",
++    "sweep/extractors.py",
++    "briefs",
++    "fixtures",
++)
++_WORD = re.compile(r"[a-z0-9]+")
++_PATH = re.compile(
++    r"[\w.\-]*\w(?:/[\w.\-]+)+|\b[\w\-]+\.(?:py|md|json|sh|yaml|yml|toml|txt|js|ts|cfg|ini)\b"
++)
++
++
++def phrase_hash(text: str) -> str:
++    return hashlib.sha256(text.lower().encode("utf-8")).hexdigest()[:12]
++
++
++def words_with_lines(text: str) -> list[tuple[str, int]]:
++    """(lower-case word, 1-based line) for every run of letters and digits in text."""
++    return [
++        (w, n)
++        for n, line in enumerate(text.splitlines(), 1)
++        for w in _WORD.findall(line.lower())
++    ]
++
++
++def _walk(obj, keys):
++    """Every string under any of `keys` in a JSON value (a list of strings counts as its strings)."""
++    if isinstance(obj, dict):
++        for k, v in obj.items():
++            if k in keys:
++                yield from (
++                    x for x in (v if isinstance(v, list) else [v]) if isinstance(x, str)
++                )
++            yield from _walk(v, keys)
++    elif isinstance(obj, list):
++        for v in obj:
++            yield from _walk(v, keys)
++
++
++def load_gt(paths) -> tuple[set[str], set[str]]:
++    """(four-word phrases, forbidden names, both lower-case) read from the ground-truth files at `paths`."""
++    grams: set[str] = set()
++    names: set[str] = set()
++    for p in paths:
++        data = json.loads(Path(p).read_text(encoding="utf-8"))
++        for text in _walk(data, PHRASE_KEYS):
++            w = [x for x, _ in words_with_lines(text)]
++            grams.update(" ".join(w[i : i + N]) for i in range(len(w) - N + 1))
++            names.update(m.group(0).rstrip(".-").lower() for m in _PATH.finditer(text))
++        names.update(s.strip().lower() for s in _walk(data, NAME_KEYS))
++    names.discard("")
++    return grams, names
++
++
++def scan_text(
++    text: str, grams: set[str], names: set[str]
++) -> list[tuple[int, str, str]]:
++    """Sorted (line, kind, hash) hits in text; kind is `phrase` or `name`. A phrase is placed at its first word."""
++    hits: set[tuple[int, str, str]] = set()
++    w = words_with_lines(text)
++    for i in range(len(w) - N + 1):
++        gram = " ".join(x for x, _ in w[i : i + N])
++        if gram in grams:
++            hits.add((w[i][1], "phrase", phrase_hash(gram)))
++    if names:
++        rx = re.compile(
++            "(?<![a-z0-9])(?:"
++            + "|".join(re.escape(n) for n in sorted(names, key=len, reverse=True))
++            + ")(?![a-z0-9])"
++        )
++        for n, line in enumerate(text.lower().splitlines(), 1):
++            hits.update((n, "name", phrase_hash(m.group(0))) for m in rx.finditer(line))
++    return sorted(hits)
++
++
++def expand_targets(paths) -> list[Path]:
++    """Files named, plus every file under a named folder (sorted, `__pycache__` skipped)."""
++    out: list[Path] = []
++    for p in map(Path, paths):
++        if p.is_dir():
++            out.extend(
++                f
++                for f in sorted(p.rglob("*"))
++                if f.is_file() and "__pycache__" not in f.parts
++            )
++        else:
++            out.append(p)
++    return out
++
++
++def default_targets(sw: Path = SW) -> list[Path]:
++    """The DESIGN 13.1 targets that exist under sw."""
++    return [sw / t for t in TARGETS if (sw / t).exists()]
++
++
++def scan_files(
++    files, grams: set[str], names: set[str]
++) -> list[tuple[str, int, str, str]]:
++    out = []
++    for f in files:
++        text = Path(f).read_text(encoding="utf-8", errors="replace")
++        out.extend(
++            (str(f), line, kind, h) for line, kind, h in scan_text(text, grams, names)
++        )
++    return out
++
++
++def main(argv=None) -> int:
++    ap = argparse.ArgumentParser(
++        description="AO-1 leak lint: prints file, line and hash, never the phrase."
++    )
++    ap.add_argument("files", nargs="*", help="files or folders to scan")
++    ap.add_argument(
++        "--all", action="store_true", help="also scan the DESIGN 13.1 targets under SW"
++    )
++    ap.add_argument(
++        "--gt-glob",
++        help="glob of ground-truth JSON files; required, nothing is opened without it",
++    )
++    ap.add_argument(
++        "--forbid",
++        action="append",
++        default=[],
++        help="an extra forbidden name (repeatable)",
++    )
++    args = ap.parse_args(argv)
++    if not args.gt_glob:
++        print(
++            "lint: --gt-glob is required (a person names the ground-truth files); nothing was opened",
++            file=sys.stderr,
++        )
++        return 2
++    gt_files = sorted(glob.glob(args.gt_glob, recursive=True))
++    if not gt_files:
++        print("lint: --gt-glob matched no file", file=sys.stderr)
++        return 2
++    try:
++        grams, names = load_gt(gt_files)
++    except (OSError, ValueError):
++        print(
++            "lint: a ground-truth file could not be read as JSON (content not shown)",
++            file=sys.stderr,
++        )
++        return 2
++    names.update(n.strip().lower() for n in args.forbid if n.strip())
++    skip = {Path(f).resolve() for f in gt_files}
++    files = [
++        f
++        for f in expand_targets([*args.files, *(default_targets() if args.all else [])])
++        if f.resolve() not in skip
++    ]
++    if not files:
++        print("lint: nothing to scan", file=sys.stderr)
++        return 2
++    hits = scan_files(files, grams, names)
++    for f, line, kind, h in hits:
++        print(f"{f}:{line}: leak {kind} hash={h}")
++    print(f"lint: {len(hits)} hit(s) in {len(files)} file(s)")
++    return 1 if hits else 0
++
++
++if __name__ == "__main__":
++    sys.exit(main())
+diff --git a/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_lint.py b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_lint.py
+new file mode 100644
+index 000000000..fa803a620
+--- /dev/null
++++ b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_lint.py
+@@ -0,0 +1,176 @@
++"""AO-1 leak lint (REQ-07). Every ground-truth and text file below is invented and built in tmp_path by the test."""
++
++import builtins
++import json
++import os
++import re
++import subprocess
++import sys
++from pathlib import Path
++
++import pytest
++from helpers import SW
++
++from scaffold import lint
++
++LINT_PY = SW / "scaffold" / "lint.py"
++LEAK = "rotate before each tangerine"  # a four-word run of the invented description
++HASH = re.compile(r"hash=([0-9a-f]{12})\b")
++
++
++def make_gt(tmp_path, name="synthetic-gt.json"):
++    gt = {
++        "doc_id": "zebra-ledger-9",
++        "title": "Harvest Ledger Overhaul",
++        "items": [
++            {
++                "id": "G1",
++                "class": "C1",
++                "blocking_in_implement": True,
++                "description": f"Marmalade kettles must {LEAK} audit pass",
++                "plan_quote": "Run `orchard/billing/ledger_sync.py` after every harvest closes",
++            }
++        ],
++    }
++    p = tmp_path / name
++    p.write_text(json.dumps(gt), encoding="utf-8")
++    return p
++
++
++def run(gt, *files, extra=()):
++    return lint.main(["--gt-glob", str(gt), *map(str, files), *extra])
++
++
++def test_seeded_leak_fails(tmp_path, capsys):
++    gt = make_gt(tmp_path)
++    target = tmp_path / "target.md"
++    target.write_text(
++        "intro line\nnothing here\nplease Rotate Before\neach tangerine today\n",
++        encoding="utf-8",
++    )
++    assert run(gt, target) == 1
++    out = capsys.readouterr().out
++    assert str(target) in out
++    assert f"{target}:3:" in out  # the phrase starts on line 3 and wraps to line 4
++    assert HASH.search(out).group(1) == lint.phrase_hash(LEAK)
++    for word in ("rotate", "tangerine", "kettles", "Rotate"):
++        assert word not in out
++
++
++def test_seeded_leak_fails_as_a_process(tmp_path):
++    gt = make_gt(tmp_path)
++    target = tmp_path / "target.md"
++    target.write_text(f"x\n{LEAK}\n", encoding="utf-8")
++    r = subprocess.run(
++        [sys.executable, "-I", str(LINT_PY), "--gt-glob", str(gt), str(target)],
++        capture_output=True,
++        text=True,
++    )
++    assert r.returncode == 1
++    assert f"{target}:2:" in r.stdout and HASH.search(r.stdout)
++    assert "tangerine" not in r.stdout + r.stderr
++
++
++def test_clean_passes(tmp_path, capsys):
++    gt = make_gt(tmp_path)
++    target = tmp_path / "target.md"
++    # three-word overlaps and a reordered run are not four-word sequences of the description
++    target.write_text(
++        "rotate before each audit\ntangerine each before rotate\n",
++        encoding="utf-8",
++    )
++    assert run(gt, target) == 0
++    assert "0 hit(s)" in capsys.readouterr().out
++
++
++def test_forbidden_name_fails(tmp_path, capsys):
++    gt = make_gt(tmp_path)
++    by_id = tmp_path / "id.md"
++    by_id.write_text("one\nsee Zebra-Ledger-9 for details\n", encoding="utf-8")
++    by_title = tmp_path / "title.md"
++    by_title.write_text("the harvest ledger overhaul plan\n", encoding="utf-8")
++    by_path = tmp_path / "path.md"
++    by_path.write_text(
++        "a\nb\nc\nopen orchard/billing/ledger_sync.py now\n", encoding="utf-8"
++    )
++    by_flag = tmp_path / "flag.md"
++    by_flag.write_text("the mango protocol\n", encoding="utf-8")
++    near = tmp_path / "near.md"
++    near.write_text(
++        "zebra-ledger-90 and ledger_sync.pyc stay unflagged\n", encoding="utf-8"
++    )
++    assert run(gt, near) == 0
++    capsys.readouterr()
++    for f, line in ((by_id, 2), (by_title, 1), (by_path, 4), (by_flag, 1)):
++        assert run(gt, f, extra=["--forbid", "Mango Protocol"]) == 1
++        out = capsys.readouterr().out
++        assert f"{f}:{line}: leak name" in out
++        assert HASH.search(out)
++        for secret in ("zebra", "harvest", "orchard", "ledger_sync", "mango"):
++            assert secret not in out
++
++
++def test_walks_folders_and_skips_the_ground_truth_itself(tmp_path, capsys):
++    gt = make_gt(tmp_path)
++    folder = tmp_path / "scan" / "deep"
++    folder.mkdir(parents=True)
++    (folder / "a.txt").write_text(f"{LEAK}\n", encoding="utf-8")
++    (tmp_path / "scan" / "b.txt").write_text("clean text\n", encoding="utf-8")
++    assert run(gt, tmp_path / "scan") == 1
++    assert f"{folder / 'a.txt'}:1:" in capsys.readouterr().out
++    assert (
++        run(gt, gt) == 2
++    )  # the only target is the ground-truth file: nothing left to scan
++    assert "nothing to scan" in capsys.readouterr().err
++
++
++def test_nothing_is_opened_without_gt_glob(tmp_path, monkeypatch, capsys):
++    target = tmp_path / "target.md"
++    target.write_text("text\n", encoding="utf-8")
++
++    def refuse(*a, **k):
++        raise AssertionError("a path was opened without --gt-glob")
++
++    monkeypatch.setattr(builtins, "open", refuse)
++    monkeypatch.setattr(Path, "read_text", refuse)
++    monkeypatch.setattr(Path, "open", refuse)
++    assert lint.main([str(target)]) == 2
++    assert "--gt-glob is required" in capsys.readouterr().err
++    assert lint.main(["--all"]) == 2
++
++
++def test_bad_ground_truth_is_reported_without_content(tmp_path, capsys):
++    bad = tmp_path / "bad-gt.json"
++    bad.write_text("{secret phrase here", encoding="utf-8")
++    target = tmp_path / "target.md"
++    target.write_text("x\n", encoding="utf-8")
++    assert run(bad, target) == 2
++    assert "secret" not in capsys.readouterr().err
++    assert lint.main(["--gt-glob", str(tmp_path / "none-*.json"), str(target)]) == 2
++
++
++def test_no_real_ground_truth_path_in_lint_source():
++    src = LINT_PY.read_text(encoding="utf-8")
++    assert not re.search(r"ground-truth\S*\.json|ground-truth\*|/ground-truth", src)
++
++
++def test_fixtures_clean(tmp_path, capsys):
++    """AO-1 over SW/fixtures and the other DESIGN 13.1 folders that exist, against an invented ground truth."""
++    gt = make_gt(tmp_path)
++    targets = lint.default_targets(SW)
++    assert SW / "fixtures" in targets
++    files = lint.expand_targets(targets)
++    assert files
++    assert run(gt, *targets, extra=["--forbid", "orchard billing"]) == 0, (
++        capsys.readouterr().out
++    )
++
++
++@pytest.mark.freeze
++def test_real_files_against_real_gt():
++    """Written, not run by the build. A maintainer gives the real ground-truth glob in LINT_REAL_GT_GLOB (never hard-coded)."""
++    pattern = os.environ.get("LINT_REAL_GT_GLOB")
++    assert pattern, (
++        "LINT_REAL_GT_GLOB is not set: a maintainer must pass the real ground-truth glob"
++    )
++    assert lint.main(["--gt-glob", pattern, "--all"]) == 0
+diff --git a/.dev/tasks/to-do/TASK-WF-implementHomeCod-20261114-200449/progress.md b/.dev/tasks/to-do/TASK-WF-implementHomeCod-20261114-200449/progress.md
+index 38a1902b8..5707fd0fb 100644
+--- a/.dev/tasks/to-do/TASK-WF-implementHomeCod-20261114-200449/progress.md
++++ b/.dev/tasks/to-do/TASK-WF-implementHomeCod-20261114-200449/progress.md
+@@ -8,3 +8,4 @@ T3: start sha=21c1e64a6b8365f5669ce71917041998098874b9
+ T3: complete verdict=compliant ac=T3.AC1,T3.AC2,T3.AC3,T3.AC4 evidence=T3.AC1@.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/results/implement/logs/T3-contract.log:12,T3.AC2@.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_fnd_contract.py:80,T3.AC3@.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_fnd_contract.py:132,T3.AC4@.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/results/implement/logs/T3-review-suite.log:18 extras=lint:pass,typecheck:skip,test:pass files=.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/scaffold/fnd.py,.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_fnd_contract.py
+ T4: start sha=b1af94369a1c4e5ef03c53ba2c65d3b8b57b6947
+ T4: complete verdict=compliant ac=T4.AC1,T4.AC2,T4.AC3 evidence=T4.AC1@.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/results/implement/logs/T4-pytest.log:13,T4.AC2@.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_normalise.py:44,T4.AC3@.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/scaffold/normalise.py:15 extras=lint:pass,typecheck:skip,test:pass files=.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/fixtures/reports/anchor_250.md,.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/fixtures/reports/claim_301.md,.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/scaffold/normalise.py,.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_normalise.py
++T5: start sha=4e7d389641f4a71c247771ce123062e9c9907721

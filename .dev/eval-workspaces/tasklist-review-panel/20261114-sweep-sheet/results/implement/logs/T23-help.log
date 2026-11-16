@@ -1,0 +1,16 @@
+time-prepass.sh [options] <snapshot>   (DESIGN 12.1, 12.5, DD-5, DD-10; IMPLEMENTATION step 9 checkpoint)
+Runs `sweep prepass` once on a repository snapshot and prints and records the wall-clock seconds (S1).
+The seconds cover the whole command, Python start-up included, as the launcher's `timeout` sees it.
+  --candidate FILE   the candidate plan   (default: fixtures/plans/p_basic.md)
+  --source FILE      the source document  (default: fixtures/plans/source.md; "none" runs without one)
+  --seed N           the seed             (default: 1)
+  --panel NAME       the panel            (default: primary)
+  --record FILE      TSV file that gets one appended line (default: SW/results/prepass-timing.tsv)
+  --doc DOC          the snapshot is SB/DOC/repo, the candidate SB/cand/DOC/candidate.md and the source
+                     SB/cand/DOC/source.md (what bin/build-sandbox.sh built); no <snapshot> argument
+The snapshot is only read (git ls-files, git grep). The pre-pass output goes to a private folder under /tmp that is
+removed on exit; the record file must resolve under SW, SB or /tmp (K1).
+Exit 0: the pre-pass succeeded. Exit 1: it failed or was cut off after 300 s (the seconds are still printed and
+recorded). Exit 2: a usage error. Output: `prepass_s=<seconds> rc=<n> snapshot=<path>` then `scope: <string>`.
+cmd: bash /home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/bin/time-prepass.sh --help
+rc=0

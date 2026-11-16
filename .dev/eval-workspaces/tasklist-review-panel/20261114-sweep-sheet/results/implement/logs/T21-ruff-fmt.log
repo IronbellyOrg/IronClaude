@@ -1,0 +1,3 @@
+2 files left unchanged
+command: uv run --frozen --project /home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel ruff format --no-cache /home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/sweep/render.py /home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_render.py
+rc=0

@@ -1,0 +1,34 @@
+============================= test session starts ==============================
+platform linux -- Python 3.11.15, pytest-9.2.0, pluggy-1.7.0
+SuperClaude: 5.0.0
+rootdir: /home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel
+configfile: pyproject.toml
+plugins: superclaude-5.0.0, anyio-4.16.0
+collected 468 items / 1 deselected / 467 selected
+
+tests/test_briefs.py .................                                   [  3%]
+tests/test_cards.py .........                                            [  5%]
+tests/test_e1.py .............................................           [ 15%]
+tests/test_e2.py ...............................................         [ 25%]
+tests/test_e3.py ....................................................... [ 37%]
+......                                                                   [ 38%]
+tests/test_e4.py ....................................................... [ 50%]
+...................                                                      [ 54%]
+tests/test_e5.py ...............................................         [ 64%]
+tests/test_extractors_common.py ...............................          [ 70%]
+tests/test_fake_on_path.py ...................                           [ 74%]
+tests/test_fnd_contract.py ..........                                    [ 77%]
+tests/test_formats.py ...........                                        [ 79%]
+tests/test_layout.py ........                                            [ 81%]
+tests/test_lint.py .........                                             [ 83%]
+tests/test_model_allowlist.py ....                                       [ 83%]
+tests/test_normalise.py ...........                                      [ 86%]
+tests/test_paths.py ........                                             [ 88%]
+tests/test_plan.py .........................................             [ 96%]
+tests/test_readme.py ..                                                  [ 97%]
+tests/test_sandbox.py .........                                          [ 99%]
+tests/test_scope.py ....                                                 [100%]
+
+====================== 467 passed, 1 deselected in 14.10s ======================
+$ uv run --frozen --project /home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel pytest -p no:cacheprovider $SW/tests -q -m "not slow and not freeze"
+rc=0

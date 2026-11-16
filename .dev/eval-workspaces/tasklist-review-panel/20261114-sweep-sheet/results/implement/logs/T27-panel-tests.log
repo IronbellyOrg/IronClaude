@@ -1,0 +1,35 @@
+============================= test session starts ==============================
+platform linux -- Python 3.11.15, pytest-9.2.0, pluggy-1.7.0 -- /home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/.venv/bin/python
+SuperClaude: 5.0.0
+rootdir: /home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel
+configfile: pyproject.toml
+plugins: superclaude-5.0.0, anyio-4.16.0
+collecting ... collected 23 items
+
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_run_panel_fake.py::test_prepass_finishes_before_first_reviewer PASSED [  4%]
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_run_panel_fake.py::test_no_trigger_run PASSED [  8%]
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_run_panel_fake.py::test_sleeping_reviewer_killed PASSED [ 13%]
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_run_panel_fake.py::test_no_retry_on_failure[api_error-error] PASSED [ 17%]
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_run_panel_fake.py::test_no_retry_on_failure[wrong_model-invalid] PASSED [ 21%]
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_run_panel_fake.py::test_no_retry_on_failure[exit127-error] PASSED [ 26%]
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_run_panel_fake.py::test_killed_reviewer_absent_from_merge PASSED [ 30%]
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_run_panel_fake.py::test_forced_exception_in_check_merges_as_written PASSED [ 34%]
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_run_panel_fake.py::test_order_s5_then_h2_then_merge PASSED [ 39%]
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_run_panel_fake.py::test_no_source_run PASSED [ 43%]
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_run_panel_fake.py::test_reviewer_unavailable_reassigns_with_one_replica PASSED [ 47%]
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_run_panel_fake.py::test_ss_refused_without_time_budget PASSED [ 52%]
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_run_panel_fake.py::test_refuses_a_counted_run_in_a_used_folder PASSED [ 56%]
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_run_panel_fake.py::test_refuses_without_nofallback_and_a_verifier PASSED [ 60%]
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_run_panel_fake.py::test_refuses_model_outside_the_allowlist PASSED [ 65%]
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_run_panel_fake.py::test_no_model_starts_when_a_fake_variable_is_set_and_claude_is_not_the_fake PASSED [ 69%]
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_sandbox_clean.py::test_dirty_after_run_is_flagged PASSED [ 73%]
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_sandbox_clean.py::test_the_real_repository_is_not_touched PASSED [ 78%]
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_kill_fallback.py::test_kill_formula PASSED [ 82%]
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_kill_fallback.py::test_sleeping_stub_is_killed_and_falls_back PASSED [ 86%]
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_kill_fallback.py::test_forced_exception_in_prepass_and_render_falls_back[prepass] PASSED [ 91%]
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_kill_fallback.py::test_forced_exception_in_prepass_and_render_falls_back[render] PASSED [ 95%]
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_blindness.py::test_merged_report_has_no_telemetry_keys PASSED [100%]
+
+======================== 23 passed in 95.18s (0:01:35) =========================
+$ uv run --frozen --project /home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel pytest -p no:cacheprovider /home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_run_panel_fake.py /home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_sandbox_clean.py /home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_kill_fallback.py /home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_blindness.py -q
+rc=0

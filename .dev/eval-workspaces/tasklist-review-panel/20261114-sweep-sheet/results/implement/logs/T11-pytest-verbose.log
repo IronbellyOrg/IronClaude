@@ -1,0 +1,47 @@
+============================= test session starts ==============================
+platform linux -- Python 3.11.15, pytest-9.2.0, pluggy-1.7.0 -- /home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/.venv/bin/python
+SuperClaude: 5.0.0
+rootdir: /home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel
+configfile: pyproject.toml
+plugins: superclaude-5.0.0, anyio-4.16.0
+collecting ... collected 35 items
+
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_scope.py::test_dev_and_dependency_folders_excluded PASSED [  2%]
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_scope.py::test_named_paths_and_mirrors_included PASSED [  5%]
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_scope.py::test_scope_follows_the_plan PASSED [  8%]
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_scope.py::test_scope_string_recorded PASSED [ 11%]
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_extractors_common.py::test_attach_only_for_top_k PASSED [ 14%]
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_extractors_common.py::test_single_class_attaches_top_12 PASSED [ 17%]
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_extractors_common.py::test_k_values_come_from_the_constants PASSED [ 20%]
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_extractors_common.py::test_all_candidates_logged PASSED [ 22%]
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_extractors_common.py::test_pre_rank_ties_earlier_line_then_seeded_hash PASSED [ 25%]
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_extractors_common.py::test_hash_breaks_a_tie_on_the_same_line PASSED [ 28%]
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_extractors_common.py::test_route_is_copied_from_the_class_card PASSED [ 31%]
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_extractors_common.py::test_registered_pairs_are_used_when_no_registry_is_given PASSED [ 34%]
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_extractors_common.py::test_candidate_limits_are_enforced[<lambda>-characters0] PASSED [ 37%]
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_extractors_common.py::test_candidate_limits_are_enforced[<lambda>-characters1] PASSED [ 40%]
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_extractors_common.py::test_candidate_limits_are_enforced[<lambda>-exact quote] PASSED [ 42%]
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_extractors_common.py::test_candidate_limits_are_enforced[<lambda>-class] PASSED [ 45%]
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_extractors_common.py::test_candidate_limits_are_enforced[<lambda>-pre_priority] PASSED [ 48%]
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_extractors_common.py::test_candidate_limits_are_enforced[<lambda>-evidence entries] PASSED [ 51%]
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_extractors_common.py::test_candidate_limits_are_enforced[<lambda>-evidence text] PASSED [ 54%]
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_extractors_common.py::test_candidate_limits_are_enforced[<lambda>-repo-relative] PASSED [ 57%]
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_extractors_common.py::test_candidate_limits_are_enforced[<lambda>-evidence entry] PASSED [ 60%]
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_extractors_common.py::test_candidate_limits_are_enforced[<lambda>-location] PASSED [ 62%]
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_extractors_common.py::test_find_must_return_its_own_extractor_id PASSED [ 65%]
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_extractors_common.py::test_priority_is_clamped_and_defaults_to_pre_priority PASSED [ 68%]
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_extractors_common.py::test_search_runs_one_git_grep_with_the_designed_command PASSED [ 71%]
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_extractors_common.py::test_search_matched_pattern_is_the_first_given_that_the_line_holds PASSED [ 74%]
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_extractors_common.py::test_search_caps_three_hits_per_file PASSED [ 77%]
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_extractors_common.py::test_search_reads_only_the_first_5000_lines PASSED [ 80%]
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_extractors_common.py::test_search_is_deterministic_and_ordered PASSED [ 82%]
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_extractors_common.py::test_search_ignores_empty_and_multiline_patterns PASSED [ 85%]
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_extractors_common.py::test_non_git_snapshot_raises PASSED [ 88%]
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_extractors_common.py::test_snapshot_inside_another_repository_raises PASSED [ 91%]
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_extractors_common.py::test_no_snapshot_means_no_search PASSED [ 94%]
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_extractors_common.py::test_search_never_reads_outside_the_snapshot_root PASSED [ 97%]
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_extractors_common.py::test_search_does_not_start_inside_a_redirected_git_dir PASSED [100%]
+
+============================== 35 passed in 1.26s ==============================
+uv run --frozen --project /home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel pytest -p no:cacheprovider /home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_scope.py /home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_extractors_common.py -v
+rc=0

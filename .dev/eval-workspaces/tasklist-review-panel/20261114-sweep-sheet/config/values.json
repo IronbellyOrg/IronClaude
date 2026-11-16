@@ -1,0 +1,26 @@
+{
+ "schema": "sweep-values/1",
+ "status": "planning",
+ "note": "Planning values from DESIGN 12 (UNVERIFIED). Each is replaced by a measured value; the measured one is recorded next to it, never over it.",
+ "b": {
+  "primary": {"TASK-WF-designSpec-20261107-075614": 100, "TASK-WF-makeTheAliasOnly-20261105-051649": 120, "TASK-WF-design-20261108-041415": 122},
+  "haiku": {"TASK-WF-designSpec-20261107-075614": 220, "TASK-WF-makeTheAliasOnly-20261105-051649": 238, "TASK-WF-design-20261108-041415": 226},
+  "sonnet": {"TASK-WF-designSpec-20261107-075614": 259, "TASK-WF-makeTheAliasOnly-20261105-051649": 302, "TASK-WF-design-20261108-041415": 269}
+ },
+ "c": {"muse-ember-1.0": 0.4, "gpt-6-luna": 2, "claude-haiku-5-5": 4, "claude-sonnet-5-5": 3},
+ "sheet_read_s": 3,
+ "prepass_s": 0.59,
+ "prepass_s_planning": 8,
+ "prepass_measured": {"date": "2026-11-14", "unit": "s", "what": "median of 3 runs of bin/time-prepass.sh, whole command, p_basic.md plan with its source, DD-5 scope", "repository_root": 0.59, "medium_snapshot": 0.43, "small_snapshot": 0.40, "repository_root_with_real_plan": 0.95, "see": "results/prepass-timing.md"},
+ "select_render_s": 1,
+ "check_s": 1,
+ "kill_s": {"cap_s": 15, "frac_of_b": 0.10},
+ "hang_s": {"factor": 1.5, "expected_overhead_s": {"primary": 29, "haiku": 37, "sonnet": 31, "other_arms": 0}},
+ "launcher": {"b_from": "b[panel][document]", "overhead_from": "hang_s.expected_overhead_s[panel]", "overhead_arms": ["SS"], "overhead_other": "other_arms"},
+ "cap_factor": 1.35,
+ "no_budget": {"min_budget_s": 8},
+ "breakeven": {"n": 8, "c_ref": 2, "fixed_s": 5, "prepass_planning_s": 8},
+ "K": 8,
+ "K_single": 12,
+ "cap": 12
+}

@@ -1,0 +1,1447 @@
+diff --git a/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/bin/common.sh b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/bin/common.sh
+index ab6303e90..abc02f251 100644
+--- a/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/bin/common.sh
++++ b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/bin/common.sh
+@@ -55,6 +55,14 @@ sw_assert_override() {
+       echo "E_OVERRIDE: $name=$val is not a sleep or false stub" >&2
+       return 1
+       ;;
++    SW_RENDER_CMD)
++      # Stub of the render-failure test only (Task 27): the SS brief render of bin/run-panel.sh becomes `false`.
++      if [[ $val == false ]]; then
++        return 0
++      fi
++      echo "E_OVERRIDE: $name=$val is not the false stub" >&2
++      return 1
++      ;;
+   esac
+   echo "E_OVERRIDE: $name is not a known override" >&2
+   return 1
+@@ -63,7 +71,7 @@ sw_assert_override() {
+ # Check every override that is set in the environment.
+ sw_assert_overrides() {
+   local v rc=0
+-  for v in SW_SB_ROOT SW_SRC_REPO SW_KILL_S SW_PREPASS_CMD; do
++  for v in SW_SB_ROOT SW_SRC_REPO SW_KILL_S SW_PREPASS_CMD SW_RENDER_CMD; do
+     [ -n "${!v:-}" ] || continue
+     sw_assert_override "$v" || rc=1
+   done
+diff --git a/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/bin/run-panel.sh b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/bin/run-panel.sh
+new file mode 100755
+index 000000000..45635386e
+--- /dev/null
++++ b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/bin/run-panel.sh
+@@ -0,0 +1,331 @@
++#!/usr/bin/env bash
++# run-panel.sh --arm {Z0-raw|Z0|K|SS} --panel {primary|haiku|sonnet} --doc DOC --run RUN [options]   (DESIGN 2.1, 2.2, 10, 11)
++# One panel run on one document: S0 sandbox check, S1 pre-pass (SS only) under `timeout`, brief render, three reviewers in
++# parallel under the hang guard, S5 check (SS only), H2, the real `superclaude review merge`. It writes under RUN:
++#   run.json timing.json resolution.json briefs/ prepass/ reviews/ check/ normalised/ merged/ clock-events.tsv launcher.log
++# Options:
++#   --seed N --replicate N --block N --concurrent N   recorded in run.json (seed 1 when not given; the rest are null)
++#   --values FILE     a values file instead of config/values.json (test hook; accepted only under /tmp/)
++#   --packages FILE   passed to build-sandbox.sh (test hook; accepted only under /tmp/)
++#   --unavailable RID   a reviewer that cannot be launched (a model probe failed, DESIGN 10 row 9); repeatable
++# Environment: NOFALLBACK=1 is required (DD-8). VERIFIER defaults to 0; the optional verifier is not built, so any other
++# value is refused. Overrides of the tests, judged by bin/common.sh: SW_PREPASS_CMD (a `sleep N` or `false` stub that
++# replaces the pre-pass), SW_RENDER_CMD (`false`: the SS brief render fails), SW_KILL_S (the kill limit, 0.1 to 15 s).
++# CHECK_SCOPE is read by `sweep check` (DD-3); a bad value makes S5 raise, which is how the tests force row 11.
++# Exit: 0 the run is finished and recorded; 2 refused before any reviewer started (sandbox missing or dirty, bad
++# argument, run folder in use); 3 finished, but the sandbox was dirty afterwards (`sandbox_dirty`: K4, rebuild it);
++# 4 the SS start was refused because the time budget is under 8 s (`no_budget`, DESIGN 12.3).
++# Order inside a run (DD-9): S5 on the raw reports, then H2, then the merge. The fallback decision (pre-pass error, kill,
++# render error) is taken before any reviewer starts, so a running reviewer's brief never changes (INV-012).
++# Git: only `git -C <sandbox> status --porcelain`, read-only, on the sandbox. The real repository is never touched.
++# Gaps in the design resolved here (each is a choice the design leaves open):
++#   P1  S0 refuses a missing sandbox (row 7: it must be rebuilt), then runs build-sandbox.sh, which also checks it.
++#   P2  Z0-raw uses SB/<doc>/repo-raw, skips S1, S5 and H2 (DESIGN 2.1), and its merge reads reviews/<rid>.md as written.
++#   P3  `reason` in run.json: kill (S1 hit the kill limit), error (S1 failed or left no prepass.json), render (the SS
++#       brief render failed); null without a fallback. A fallback removes prepass/ and prepass.tmp/ so no step reads a
++#       pre-pass that was not used; prepass.error.json stays.
++#   P4  `no_trigger` is the pre-pass's own no_trigger (no item at all). A fallback or a no-trigger run skips the check:
++#       the reviewers had no ledger rule, so a missing ledger is not counted (`check_ran` false). The S5 stage still
++#       gets its start and end (about 0 s), so panel_elapsed_s of arm SS stays defined.
++#   P5  Only reviewers with status ok (run-reviewer.sh) go to S5, H2 and the merge; the rest are absent from the merge and
++#       scored zero findings (row 8). `lost_replica` lists the items assigned to them. A merge that is refused, or that
++#       has no report to read, is recorded `merge_refused` and is not repeated (DESIGN 11.7).
++#   P6  `--unavailable` is the pre-launch decision. The model probe itself is the caller's: it starts no model here. With
++#       fewer than three reviewers the pre-pass re-runs assign with the available set (replicas 1, DESIGN 7.3).
++#   P7  run.json holds the values used (`values`), `registry_version` (sha256 of cards/C*.json, first 16 hex characters) and
++#       `freeze_tag` (config/freeze.json, null before the freeze). A run folder that holds run.json is never reused.
++#   P8  timing.json is made by `sweep clock timing` from the event times in clock-events.tsv; it adds `stage_t` (the raw
++#       start and end of each stage) to the fields of DESIGN 11.4.
++set -u -o pipefail
++source "$(dirname "$0")/common.sh"
++
++VERIFIER=${VERIFIER:-0}
++usage() {
++  sed -n '2,3p' "$0" | sed 's/^# \{0,1\}//' >&2
++  exit 2
++}
++ARM= PANEL= DOC= RUN= SEED=1 REPLICATE=null BLOCK=null CONCURRENT=null VALUES= PKFILE=
++UNAVAIL=()
++while [ $# -gt 0 ]; do
++  case "$1" in
++    --arm | --panel | --doc | --run | --seed | --replicate | --block | --concurrent | --values | --packages | --unavailable)
++      [ $# -ge 2 ] || usage
++      case "$1" in
++        --arm) ARM=$2 ;;
++        --panel) PANEL=$2 ;;
++        --doc) DOC=$2 ;;
++        --run) RUN=$2 ;;
++        --seed) SEED=$2 ;;
++        --replicate) REPLICATE=$2 ;;
++        --block) BLOCK=$2 ;;
++        --concurrent) CONCURRENT=$2 ;;
++        --values) VALUES=$2 ;;
++        --packages) PKFILE=$2 ;;
++        --unavailable) UNAVAIL+=("$2") ;;
++      esac
++      shift
++      ;;
++    *) usage ;;
++  esac
++  shift
++done
++case "$ARM" in Z0-raw | Z0 | K | SS) ;; *) echo "E_ARM: --arm must be Z0-raw, Z0, K or SS" >&2; exit 2 ;; esac
++[[ $DOC =~ ^[A-Za-z0-9][A-Za-z0-9._-]*$ ]] || { echo "E_DOC: bad document id: $DOC" >&2; exit 2; }
++[ -n "$RUN" ] || usage
++for v in SEED; do [[ ${!v} =~ ^[0-9]+$ ]] || { echo "E_ARG: --seed is not a number" >&2; exit 2; }; done
++for v in REPLICATE BLOCK CONCURRENT; do
++  { [ "${!v}" = null ] || [[ ${!v} =~ ^[0-9]+$ ]]; } || { echo "E_ARG: $v is not a number" >&2; exit 2; }
++done
++for f in "$VALUES" "$PKFILE"; do
++  [ -z "$f" ] && continue
++  case "$(realpath -m -- "$f")/" in /tmp/?*) ;; *) echo "E_OVERRIDE: $f is outside /tmp/" >&2; exit 2 ;; esac
++done
++sw_assert_nofallback || exit 2
++[ "$VERIFIER" = 0 ] || { echo "E_VERIFIER: VERIFIER=$VERIFIER, but the optional verifier is not built (REQ-46); leave it 0" >&2; exit 2; }
++sw_assert_writable "$RUN" || exit 2
++[ ! -e "$RUN/run.json" ] || { echo "E_RUN_EXISTS: $RUN/run.json exists; a counted run is never repeated" >&2; exit 2; }
++
++# Reviewers of the panel (S, L1, L2), minus the unavailable ones; every model must be on the allowlist (K2).
++jq -e --arg p "$PANEL" '.panels[$p]' "$SW/config/panels.json" >/dev/null 2>&1 || { echo "E_PANEL: unknown panel $PANEL" >&2; exit 2; }
++RIDS=()
++declare -A MODEL_OF
++for role in S L1 L2; do
++  rid=$(jq -r --arg p "$PANEL" --arg r "$role" '.panels[$p][$r].rid' "$SW/config/panels.json")
++  model=$(jq -r --arg p "$PANEL" --arg r "$role" '.panels[$p][$r].model' "$SW/config/panels.json")
++  sw_assert_model "$model" || exit 2
++  MODEL_OF[$rid]=$model
++  skip=0
++  for u in ${UNAVAIL[@]+"${UNAVAIL[@]}"}; do [ "$u" = "$rid" ] && skip=1; done
++  [ "$skip" = 1 ] || RIDS+=("$rid")
++done
++for u in ${UNAVAIL[@]+"${UNAVAIL[@]}"}; do
++  [ -n "${MODEL_OF[$u]:-}" ] || { echo "E_ARG: --unavailable $u is not a reviewer of panel $PANEL" >&2; exit 2; }
++done
++[ ${#RIDS[@]} -ge 1 ] || { echo "E_ARG: no reviewer is available" >&2; exit 2; }
++
++# S0: the sandbox must exist (built once and reused), be valid and be clean (row 7); the run is refused otherwise.
++if [ "$ARM" = Z0-raw ]; then SUB=repo-raw; else SUB=repo; fi
++SBD=$SB/$DOC
++SANDBOX=$SBD/$SUB
++CAND=$SB/cand/$DOC/candidate.md
++SRC=$SB/cand/$DOC/source.md
++[ -d "$SANDBOX" ] || { echo "E_SANDBOX_MISSING: $SANDBOX; build it with bin/build-sandbox.sh" >&2; exit 2; }
++BS_ARGS=()
++[ "$ARM" = Z0-raw ] && BS_ARGS+=(--raw)
++[ -n "$PKFILE" ] && BS_ARGS+=(--packages "$PKFILE")
++bash "$SW/bin/build-sandbox.sh" ${BS_ARGS[@]+"${BS_ARGS[@]}"} "$DOC" >/dev/null || { echo "E_SANDBOX_DIRTY: build-sandbox.sh refused $SANDBOX" >&2; exit 2; }
++[ -z "$(git -C "$SANDBOX" status --porcelain 2>&1)" ] || { echo "E_SANDBOX_DIRTY: $SANDBOX is not clean before the run" >&2; exit 2; }
++[ -f "$CAND" ] || { echo "E_CANDIDATE: $CAND missing" >&2; exit 2; }
++HAS_SRC=true
++[ -f "$SRC" ] || HAS_SRC=false
++SRC_ARGS=()
++$HAS_SRC && SRC_ARGS=(--source "$SRC")
++
++mkdir -p "$RUN"
++TMPW=$(mktemp -d /tmp/run-panel.XXXXXXXX) || exit 2
++trap 'rm -rf -- "$TMPW"' EXIT
++CLI=("$SW/sweep/cli.py")
++
++# The numbers of the run: b, the kill limit and the hang guard (scaffold/clock.py through `sweep clock plan`).
++PLAN_ARGS=(--arm "$ARM" --panel "$PANEL" --doc "$DOC")
++[ -n "$VALUES" ] && PLAN_ARGS+=(--values "$VALUES")
++PLAN=$(sw_py "${CLI[@]}" clock plan "${PLAN_ARGS[@]}") || { echo "E_NO_B: no b for panel $PANEL and document $DOC in the values file" >&2; exit 2; }
++B=$(jq -r .b <<<"$PLAN")
++HANG_S=$(jq -r .hang_s <<<"$PLAN")
++KILL=${SW_KILL_S:-$(jq -r .kill_s <<<"$PLAN")}
++
++FT=$(jq -r '.freeze_tag // empty' "$SW/config/freeze.json" 2>/dev/null || true)
++REGV=$(cat "$SW"/cards/C*.json | sha256sum | cut -c1-16)
++RUNJ=$RUN/run.json
++jq -n --arg arm "$ARM" --arg panel "$PANEL" --arg doc "$DOC" --argjson seed "$SEED" --argjson replicate "$REPLICATE" \
++  --argjson block "$BLOCK" --argjson conc "$CONCURRENT" --arg ft "$FT" --arg regv "$REGV" \
++  --arg csha "$(sha256sum "$CAND" | cut -d' ' -f1)" --arg ssha "$($HAS_SRC && sha256sum "$SRC" | cut -d' ' -f1)" \
++  --argjson hs "$($HAS_SRC && echo true || echo false)" --argjson plan "$PLAN" --argjson n "${#RIDS[@]}" \
++  --argjson unav "$(printf '%s\n' ${UNAVAIL[@]+"${UNAVAIL[@]}"} | jq -R . | jq -sc 'map(select(length>0))')" \
++  '{arm:$arm,panel:$panel,doc:$doc,replicate:$replicate,seed:$seed,block:$block,
++    sweep_version:$plan.sweep_version,registry_version:$regv,freeze_tag:(if $ft=="" then null else $ft end),
++    candidate_sha256:$csha,source_sha256:(if $hs then $ssha else null end),briefs:{},
++    fallback:false,reason:null,no_trigger:false,no_source:($hs|not),check_skipped:false,check_ran:false,
++    sandbox_dirty:false,merge_refused:false,time_cap_exception:false,concurrent_panels_at_start:$conc,
++    reviewers:$n,reviewers_unavailable:$unav,b:$plan.b,expected_overhead_s:$plan.expected_overhead_s,
++    kill_s:$plan.kill_s,hang_s:$plan.hang_s,no_budget:false,values:$plan.values}' >"$RUNJ"
++runset() { # runset KEY JSON-VALUE: update one key of run.json
++  jq --arg k "$1" --argjson v "$2" '.[$k] = $v' "$RUNJ" >"$RUNJ.tmp" && mv -- "$RUNJ.tmp" "$RUNJ"
++}
++if [ "$ARM" = SS ] && [ "$(jq -r .no_budget <<<"$PLAN")" = true ]; then
++  runset no_budget true
++  echo "no_budget: b=$B leaves under 8 s for the items; the SS run is refused (DESIGN 12.3)" >&2
++  exit 4
++fi
++
++# The panel clock (DESIGN 11.4): t0 comes before S1 (SS) or before the first brief is rendered (other arms).
++EV=$RUN/clock-events.tsv
++: >"$EV"
++ev() { printf '%s\t%s\n' "$1" "${2:-$(sw_now)}" >>"$EV"; }
++T0=$(sw_now)
++ev t0 "$T0"
++
++FALLBACK=false
++REASON=null
++NO_TRIGGER=false
++RUN_FALLBACK() { # RUN_FALLBACK reason: the decision is taken here, before any reviewer starts
++  FALLBACK=true
++  REASON=\"$1\"
++  rm -rf -- "$RUN/prepass" "$RUN/prepass.tmp"
++  runset fallback true
++  runset reason "$REASON"
++}
++
++# S1: the pre-pass, serial, under timeout at the kill limit; a failed or killed pre-pass means the Z0 briefs.
++if [ "$ARM" = SS ]; then
++  ev prepass_start
++  if [ -n "${SW_PREPASS_CMD:-}" ]; then
++    read -r -a STUB <<<"$SW_PREPASS_CMD"
++    timeout -k 2 "$KILL" "${STUB[@]}" >"$RUN/prepass.out" 2>"$RUN/prepass.err"
++  else
++    PP=(--candidate "$CAND" ${SRC_ARGS[@]+"${SRC_ARGS[@]}"} --repo "$SANDBOX" --seed "$SEED" --panel "$PANEL" --out "$RUN")
++    [ ${#UNAVAIL[@]} -eq 0 ] || PP+=(--available "$(IFS=,; echo "${RIDS[*]}")")
++    timeout -k 2 "$KILL" uv run --frozen --project "$REPO" python "${CLI[@]}" prepass "${PP[@]}" >"$RUN/prepass.out" 2>"$RUN/prepass.err"
++  fi
++  PRC=$?
++  ev prepass_end
++  if [ "$PRC" -eq 124 ] || [ "$PRC" -eq 137 ]; then
++    RUN_FALLBACK kill
++  elif [ "$PRC" -ne 0 ] || [ ! -f "$RUN/prepass/prepass.json" ]; then
++    RUN_FALLBACK error
++  else
++    NO_TRIGGER=$(jq -r .no_trigger "$RUN/prepass/prepass.json")
++  fi
++  [ "$NO_TRIGGER" = true ] && runset no_trigger true
++  ev render_start
++fi
++
++# Brief render: one `sweep brief` per reviewer, in parallel; each writes briefs/<rid>.txt and briefs/<rid>.sha256.
++mkdir -p "$RUN/briefs" "$RUN/reviews"
++render_all() { # render_all normal|fallback; returns non-zero when any reviewer's brief failed
++  local mode=$1 rid pids=() bad=0 i=0
++  for rid in "${RIDS[@]}"; do
++    (
++      if [ "$mode" = normal ] && [ "$ARM" = SS ] && [ -n "${SW_RENDER_CMD:-}" ]; then
++        "$SW_RENDER_CMD"
++      else
++        A=(--arm "$ARM" --candidate-sb "$CAND" ${SRC_ARGS[@]+"${SRC_ARGS[@]}"} --out "$RUN/briefs/$rid.txt")
++        if [ "$ARM" = SS ]; then
++          [ "$mode" = fallback ] && A+=(--fallback)
++          # a no-trigger pre-pass may leave no sheet file for a reviewer: that is an empty sheet, not a render error
++          if [ "$mode" = normal ] && { [ -f "$RUN/prepass/sheets/$rid.md" ] || [ "$NO_TRIGGER" != true ]; }; then
++            A+=(--sheet "$RUN/prepass/sheets/$rid.md")
++          fi
++        fi
++        sw_py "${CLI[@]}" brief "${A[@]}" >"$TMPW/brief.$rid.json" 2>>"$TMPW/brief.err"
++      fi
++    ) &
++    pids+=($!)
++  done
++  for rid in "${RIDS[@]}"; do
++    wait "${pids[$i]}" || bad=1
++    i=$((i + 1))
++  done
++  return $bad
++}
++if [ "$ARM" = SS ] && ! $FALLBACK; then
++  render_all normal || RUN_FALLBACK render
++fi
++if $FALLBACK || [ "$ARM" != SS ]; then
++  [ "$ARM" = SS ] && MODE=fallback || MODE=plain
++  render_all "$MODE" || { cat "$TMPW/brief.err" >&2; echo "E_RENDER: the briefs could not be rendered, no fallback is left" >&2; exit 2; }
++fi
++[ "$ARM" = SS ] && ev render_end
++BR=$(for rid in "${RIDS[@]}"; do jq -nc --arg r "$rid" --arg s "$(tr -d '\n' <"$RUN/briefs/$rid.sha256")" '{($r):$s}'; done | jq -sc 'add')
++runset briefs "$BR"
++
++# S4: three reviewers in parallel, one attempt each, each under the hang guard measured from t0.
++RRARGS=()
++[ "$ARM" = Z0-raw ] && RRARGS+=(--raw)
++rev_run() { # rev_run rid
++  local rid=$1 now left
++  now=$(sw_now)
++  left=$(awk -v h="$HANG_S" -v t0="$T0" -v n="$now" 'BEGIN{r = h - (n - t0); if (r < 1) r = 1; printf "%.3f", r}')
++  ev "rev_start:$rid" "$now"
++  bash "$SW/bin/run-reviewer.sh" ${RRARGS[@]+"${RRARGS[@]}"} "$RUN" "$DOC" "$rid" "${MODEL_OF[$rid]}" "$left" \
++    <"$RUN/briefs/$rid.txt" >"$TMPW/rev.$rid.log" 2>&1
++  ev "rev_end:$rid"
++}
++for rid in "${RIDS[@]}"; do rev_run "$rid" & done
++wait
++for rid in "${RIDS[@]}"; do sed "s/^/[$rid] /" "$TMPW/rev.$rid.log" >>"$RUN/launcher.log"; done
++
++# K4: the sandbox must still be clean; a reviewer that wrote into it flags the run.
++DIRTY=$(git -C "$SANDBOX" status --porcelain 2>&1)
++if [ -n "$DIRTY" ]; then
++  runset sandbox_dirty true
++  printf '%s\n' "$DIRTY" >"$RUN/sandbox-dirty.txt"
++fi
++
++# Who finished (row 8): status ok goes on; killed, invalid and error are absent from the merge and score zero.
++OK=()
++STAT=$(
++  for rid in "${RIDS[@]}"; do
++    s=error
++    [ -f "$RUN/reviews/$rid.meta.json" ] && s=$(jq -r .status "$RUN/reviews/$rid.meta.json")
++    jq -nc --arg r "$rid" --arg m "${MODEL_OF[$rid]}" --arg s "$s" '{($r):{model:$m,status:$s}}'
++  done | jq -sc 'add'
++)
++runset reviewer_status "$STAT"
++for rid in "${RIDS[@]}"; do
++  [ "$(jq -r --arg r "$rid" '.[$r].status' <<<"$STAT")" = ok ] && OK+=("$rid")
++done
++if [ "$ARM" = SS ] && ! $FALLBACK && [ -f "$RUN/prepass/assignment.json" ]; then
++  FAILED=$(for rid in "${RIDS[@]}"; do jq -r --arg r "$rid" 'select(.[$r].status != "ok") | $r' <<<"$STAT"; done | jq -R . | jq -sc 'map(select(length>0))')
++  runset lost_replica "$(jq -c --argjson f "$FAILED" '[$f[] as $r | .reviewers[$r][]?] | unique' "$RUN/prepass/assignment.json")"
++fi
++
++# S5: the check on the raw reports, caught as a whole (row 11); skipped when the reviewers had no ledger rule (P4).
++if [ "$ARM" = SS ]; then
++  ev s5_start
++  if ! $FALLBACK && [ "$NO_TRIGGER" != true ]; then
++    if sw_py "${CLI[@]}" check --run "$RUN" --candidate "$CAND" ${SRC_ARGS[@]+"${SRC_ARGS[@]}"} >/dev/null 2>"$TMPW/check.err"; then
++      runset check_ran true
++    else
++      runset check_skipped true
++      mkdir -p "$RUN/check"
++      cp -- "$TMPW/check.err" "$RUN/check/error.log"
++    fi
++  fi
++  ev s5_end
++fi
++CHECK_RAN=$(jq -r .check_ran "$RUNJ")
++
++# H2 (every arm but Z0-raw), then the merge. Inputs: checked reports when S5 ran, else the raw reports.
++MERGE_ARGS=()
++RES=
++H2_FAILED=()
++for rid in ${OK[@]+"${OK[@]}"}; do
++  IN=$RUN/reviews/$rid.md
++  [ "$CHECK_RAN" = true ] && [ -f "$RUN/check/$rid.checked.md" ] && IN=$RUN/check/$rid.checked.md
++  if [ "$ARM" != Z0-raw ]; then
++    if sw_py "${CLI[@]}" normalise --report "$IN" --out-dir "$RUN/normalised" --rid "$rid" >/dev/null 2>>"$RUN/launcher.log"; then
++      IN=$RUN/normalised/$rid.md
++    else
++      H2_FAILED+=("$rid")
++      continue
++    fi
++  fi
++  MERGE_ARGS+=(--report "$rid=$IN")
++  RES+=$(printf '%s\t%s' "$rid" "${MODEL_OF[$rid]}")$'\n'
++done
++runset h2_failed "$(printf '%s\n' ${H2_FAILED[@]+"${H2_FAILED[@]}"} | jq -R . | jq -sc 'map(select(length>0))')"
++jq -n --arg t "$RES" '{reviewers: ($t | split("\n") | map(select(length > 0) | split("\t") | {reviewer_id: .[0], model: .[1]}))}' >"$RUN/resolution.json"
++mkdir -p "$RUN/merged"
++if [ ${#MERGE_ARGS[@]} -eq 0 ]; then
++  runset merge_refused true
++  echo "merge: no reviewer report is left to merge" >>"$RUN/launcher.log"
++elif ! uv run --frozen --project "$REPO" superclaude review merge --ledger "$RUN/merged/ledger.json" --doc "$CAND" --round 1 \
++  "${MERGE_ARGS[@]}" --resolution "$RUN/resolution.json" --out "$RUN/merged/merged-1.md" \
++  >"$RUN/merged/merge.out.json" 2>"$RUN/merged/merge.err"; then
++  runset merge_refused true
++fi
++
++sw_py "${CLI[@]}" clock timing --arm "$ARM" --events "$EV" --out "$RUN/timing.json" || { echo "E_TIMING: timing.json was not written" >&2; exit 1; }
++[ "$(jq -r .sandbox_dirty "$RUNJ")" = true ] && { echo "sandbox_dirty: a reviewer changed $SANDBOX" >&2; exit 3; }
++exit 0
+diff --git a/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/bin/run-reviewer.sh b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/bin/run-reviewer.sh
+new file mode 100755
+index 000000000..e1c66558e
+--- /dev/null
++++ b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/bin/run-reviewer.sh
+@@ -0,0 +1,116 @@
++#!/usr/bin/env bash
++# run-reviewer.sh [--raw] <RUN abs> <doc> <reviewer_id> <model> <hang_s>   < brief file   (DESIGN 11.1, 10 row 8, DD-8)
++# Runs ONE first-review reviewer in a fresh `claude -p` session. Adapted from RR (tools/run-reviewer.sh); the changes
++# are the rows of DESIGN 11.1:
++#   RR 6-12   output goes to RUN/reviews; the candidate and the source are SB/cand/<doc>/ (built by build-sandbox.sh)
++#   RR 13-17  the brief is the file on stdin (scaffold/briefs.py wrote it); its sha256 goes to the meta file
++#   RR 19-44, 65-83  the model ladder and the second attempt are gone: NOFALLBACK=1 is required, one attempt, no retry
++#   RR 48     `cd SB/<doc>/repo` (repo-raw with --raw), `timeout <hang_s>`, the flags of RR line 48 unchanged
++#   RR 50-56  only the final result message is kept; the model-identity check is kept
++#   RR 57     BLOCK_OK is `parse_block` ok after H2 on a temporary copy (sweep normalise); a missing ledger-v1 block
++#             does not make it false (DESIGN 9.1). With --raw (arm Z0-raw, which skips H2) it is `parse_block` ok on
++#             the raw text.
++#   RR 58, 85-87  meta.json and cost.json, plus hang_s, killed and prompt_sha256
++# Files written under RUN/reviews: <rid>.attempt1.{json,err,md,meta.json}, <rid>.meta.json, <rid>.cost.json and, only
++# when the reviewer is accepted (status ok), <rid>.md (the report the check, H2 and the merge read).
++# Gaps in the design resolved here:
++#   R1  `status` in meta.json is one of ok, killed, invalid, error (DESIGN 10 row 8 names the three failures, not the
++#       tests): killed = the hang guard fired (timeout exit 124, or 137 after the KILL that follows it); error = an API
++#       error text, an is_error result, a non-zero exit or an empty report; invalid = a clean run whose model identity
++#       differs from the one asked for, or whose findings block does not parse. The first match wins in that order.
++#   R2  hang_s, killed and prompt_sha256 are written to both meta.json and cost.json (11.1 row 58 names the two files
++#       together).
++#   R3  the scripts start no model unless the first `claude` on PATH is the fake of the tests, whenever a FAKE_*
++#       variable is set (a test environment): E_NOT_FAKE otherwise.
++# Exit: 0 reviewer accepted; 1 reviewer recorded as killed, invalid or error; 2 usage or refusal (nothing was run).
++set -u -o pipefail
++source "$(dirname "$0")/common.sh"
++
++usage() {
++  sed -n '2,3p' "$0" | sed 's/^# \{0,1\}//' >&2
++  exit 2
++}
++RAW=0
++if [ "${1:-}" = "--raw" ]; then RAW=1; shift; fi
++[ $# -eq 5 ] || usage
++RUN=$1 DOC=$2 RID=$3 MODEL=$4 HANG=$5
++[[ $DOC =~ ^[A-Za-z0-9][A-Za-z0-9._-]*$ ]] || { echo "E_DOC: bad document id: $DOC" >&2; exit 2; }
++[[ $RID =~ ^[A-Za-z0-9][A-Za-z0-9._-]*$ ]] || { echo "E_RID: bad reviewer id: $RID" >&2; exit 2; }
++[[ $HANG =~ ^[0-9]+(\.[0-9]+)?$ ]] || { echo "E_HANG: not a number of seconds: $HANG" >&2; exit 2; }
++sw_assert_nofallback || exit 2
++sw_assert_model "$MODEL" || exit 2
++sw_assert_writable "$RUN" || exit 2
++if [ -n "${FAKE_CALL_LOG:-}${FAKE_SCENARIO:-}${FAKE_SCENARIOS:-}${FAKE_WRITE:-}${FAKE_PROBE:-}" ] &&
++  [ "$(command -v claude)" != "$SW/tests/fakes/claude" ]; then
++  echo "E_NOT_FAKE: a FAKE_* variable is set but the first claude on PATH is $(command -v claude)" >&2
++  exit 2
++fi
++
++if [ "$RAW" = 1 ]; then SUB=repo-raw; else SUB=repo; fi
++REPO_SB=$SB/$DOC/$SUB
++[ -d "$REPO_SB" ] || { echo "E_SANDBOX_MISSING: $REPO_SB" >&2; exit 2; }
++[ -f "$SB/cand/$DOC/candidate.md" ] || { echo "E_CANDIDATE: $SB/cand/$DOC/candidate.md missing" >&2; exit 2; }
++OUT=$RUN/reviews
++mkdir -p "$OUT"
++
++umask 077
++TMPD=$(mktemp -d /tmp/run-reviewer.XXXXXXXX) || exit 2
++trap 'rm -rf -- "$TMPD"' EXIT
++PROMPT=$TMPD/prompt.txt
++cat >"$PROMPT"
++[ -s "$PROMPT" ] || { echo "E_BRIEF: the brief on stdin is empty" >&2; exit 2; }
++PSHA=$(sha256sum "$PROMPT" | cut -d' ' -f1)
++
++A=$OUT/$RID.attempt1
++S=$(sw_now)
++( cd "$REPO_SB" && timeout -k 5 "$HANG" claude -p --model "$MODEL" --output-format json --no-session-persistence --permission-mode bypassPermissions --disallowedTools Edit Write NotebookEdit <"$PROMPT" ) >"$A.json" 2>"$A.err"
++RC=$?
++W=$(awk -v a="$S" -v b="$(sw_now)" 'BEGIN{printf "%.3f", b - a}')
++KILLED=false
++{ [ "$RC" -eq 124 ] || [ "$RC" -eq 137 ]; } && KILLED=true
++
++jq -r '[.[]|select(.type=="result")|.result]|.[0] // ""' "$A.json" >"$A.md" 2>/dev/null || : >"$A.md"
++OBS=$(jq -r '[.[]|select(.type=="assistant" and (.parent_tool_use_id==null))|.message.model]|unique|join(",")' "$A.json" 2>/dev/null)
++TOK=$(jq '[.[]|select(.type=="result")|.usage.output_tokens]|.[0] // 0' "$A.json" 2>/dev/null)
++TOKALL=$(jq '[.[]|select(.type=="result")|.modelUsage|to_entries[]|.value.outputTokens]|add // 0' "$A.json" 2>/dev/null)
++ISERR=$(jq -r '[.[]|select(.type=="result")|.is_error]|.[0] // false' "$A.json" 2>/dev/null)
++APIERR=false
++{ grep -q 'API Error' "$A.md" 2>/dev/null || [ "$ISERR" = true ]; } && APIERR=true
++LOWOBS=$(echo "$OBS" | tr 'A-Z' 'a-z')
++LOWEXP=$(echo "$MODEL" | tr 'A-Z' 'a-z')
++MODEL_OK=false
++[ -n "$OBS" ] && [ "$OBS" != "<synthetic>" ] && { [ "$LOWOBS" = "$LOWEXP" ] || [ "$LOWOBS" = "$LOWEXP-build" ]; } && MODEL_OK=true
++
++# BLOCK_OK: parse_block after H2 on a temporary copy (a prefix of an exact quote is an exact quote, DESIGN 11.2 H2).
++BLOCK_OK=false
++if [ -s "$A.md" ]; then
++  H2=$(sw_py "$SW/sweep/cli.py" normalise --report "$A.md" --out-dir "$TMPD/h2" --rid "$RID" 2>/dev/null) || H2=
++  if [ "$RAW" = 1 ]; then # Z0-raw skips H2: the raw text must parse as written, so no field may have been cut
++    [ "$(jq -r '.ok and (.changed | length == 0)' <<<"${H2:-null}" 2>/dev/null)" = true ] && BLOCK_OK=true
++  else
++    [ "$(jq -r '.ok' <<<"${H2:-null}" 2>/dev/null)" = true ] && BLOCK_OK=true
++  fi
++fi
++
++if $KILLED; then STATUS=killed
++elif $APIERR || [ "$RC" -ne 0 ] || [ ! -s "$A.md" ]; then STATUS=error
++elif ! $MODEL_OK || ! $BLOCK_OK; then STATUS=invalid
++else STATUS=ok; fi
++
++jq -n --arg rid "$RID" --arg exp "$MODEL" --arg obs "$OBS" --arg st "$STATUS" --arg psha "$PSHA" \
++  --argjson mok "$MODEL_OK" --argjson bok "$BLOCK_OK" --argjson w "$W" --argjson hang "$HANG" \
++  --argjson tok "${TOK:-0}" --argjson tokall "${TOKALL:-0}" --argjson rc "$RC" --argjson killed "$KILLED" \
++  '{reviewer_id:$rid,expected_model:$exp,observed_model:$obs,model_ok:$mok,findings_block:$bok,attempt:1,wall_s:$w,
++    output_tokens_main:$tok,output_tokens_all:$tokall,exit:$rc,status:$st,hang_s:$hang,killed:$killed,prompt_sha256:$psha}' \
++  >"$A.meta.json"
++cp -- "$A.meta.json" "$OUT/$RID.meta.json"
++jq '{attempts:1,total_wall_s:.wall_s,total_output_tokens_all:.output_tokens_all,hang_s:.hang_s,killed:.killed,prompt_sha256:.prompt_sha256}' \
++  "$A.meta.json" >"$OUT/$RID.cost.json"
++rm -f -- "$OUT/$RID.md"
++if [ "$STATUS" = ok ]; then
++  cp -- "$A.md" "$OUT/$RID.md"
++  echo "reviewer $RID ($MODEL): ok in ${W}s"
++  exit 0
++fi
++echo "reviewer $RID ($MODEL): $STATUS in ${W}s" >&2
++exit 1
+diff --git a/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/sweep/cli.py b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/sweep/cli.py
+index f13acfa14..1129d5ed9 100644
+--- a/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/sweep/cli.py
++++ b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/sweep/cli.py
+@@ -1,4 +1,4 @@
+-"""The sweep command line (DESIGN 2.2, 2.3): `prepass`, `lint`, `brief`, `normalise` and `check`.
++"""The sweep command line (DESIGN 2.2, 2.3): `prepass`, `lint`, `brief`, `normalise`, `check` and `clock`.
+ 
+ Run it as a script: `uv run --frozen --project REPO python SW/sweep/cli.py <subcommand> ...`.
+ 
+@@ -8,6 +8,10 @@ Run it as a script: `uv run --frozen --project REPO python SW/sweep/cli.py <subc
+     normalise  scaffold/normalise.py normalise_file: H2 on one report, written to --out-dir/<rid>.md and h2.json
+     check      S5 (scaffold/ledgerv1.py): the raw reviews/<rid>.md of every reviewer of the run in; check/<rid>.checked.md,
+                check/<rid>.ledger.json and check/check.json out. The raw reports are only read.
++    clock      `plan` prints b, the kill limit, the hang guard and no_budget as JSON; `timing` writes timing.json from the
++               event times of bin/run-panel.sh (scaffold/clock.py does the arithmetic; Task 27, DESIGN 11.4, 11.5)
++
++`prepass --available RID,RID` re-runs the assignment with the reviewers that can still be launched (DESIGN 7.3, Task 27).
+ 
+ Exit codes: 0 success; 1 the pre-pass raised (prepass.error.json is written, DESIGN 10 row 1) or `check` raised
+ (DESIGN 10 row 11: nothing is written, the caller sets check_skipped); 2 a usage error or an unreadable input of `brief`
+@@ -43,7 +47,7 @@ import hashlib  # noqa: E402
+ import json  # noqa: E402
+ from pathlib import Path  # noqa: E402
+ 
+-from scaffold import briefs, ledgerv1, lint, normalise  # noqa: E402
++from scaffold import briefs, clock, ledgerv1, lint, normalise  # noqa: E402
+ from sweep import assign, prepass  # noqa: E402
+ 
+ DELEGATED = {"lint": lint.main}
+@@ -58,6 +62,7 @@ def _prepass(args) -> int:
+             seed=args.seed,
+             out=args.out,
+             panel=args.panel,
++            available=args.available.split(",") if args.available else None,
+         )
+     except (
+         Exception
+@@ -173,10 +178,72 @@ def _check(args) -> int:
+     return 0
+ 
+ 
++def _clock_plan(args) -> int:
++    """The numbers bin/run-panel.sh needs before it starts: b, expected overhead, kill limit, hang guard, no_budget."""
++    try:
++        values = (
++            clock.load_values(Path(args.values)) if args.values else clock.load_values()
++        )
++        b = values["b"][args.panel][args.doc]
++        overhead = clock.expected_overhead(args.arm, args.panel, values)
++        out = {
++            "b": b,
++            "expected_overhead_s": overhead,
++            "kill_s": clock.kill_s(b, values),
++            "hang_s": clock.hang_s(b, overhead, values),
++            "no_budget": clock.no_budget(b, values),
++            "sweep_version": prepass.SWEEP_VERSION,
++            "values": values,
++        }
++    except (OSError, KeyError, ValueError) as e:
++        print(f"clock plan failed: {type(e).__name__}: {e}", file=sys.stderr)
++        return 2
++    print(json.dumps(out, sort_keys=True))
++    return 0
++
++
++def _clock_timing(args) -> int:
++    """timing.json (DESIGN 11.4) from the event times the launcher wrote: lines `<event><TAB><epoch seconds>`.
++
++    Events: t0, prepass_start, prepass_end, render_start, render_end, s5_start, s5_end, rev_start:<rid>,
++    rev_end:<rid>. They are replayed in time order (ties keep file order) through PanelClock, so the arithmetic is the
++    one test_clock.py tests. `stage_t` (the raw start and end of each stage) is added for the launcher tests.
++    """
++    try:
++        events = []
++        for line in Path(args.events).read_text(encoding="utf-8").splitlines():
++            name, _, t = line.partition("\t")
++            events.append((float(t), len(events), name))
++        now = [0.0]
++        c = clock.PanelClock(args.arm, lambda: now[0])
++        for t, _, name in sorted(events):
++            now[0] = t
++            if name == "t0":
++                c.start()
++            elif name.startswith("rev_start:"):
++                c.reviewer_start(name.split(":", 1)[1])
++            elif name.startswith("rev_end:"):
++                c.reviewer_end(name.split(":", 1)[1])
++            elif name.endswith("_start"):
++                c.stage_start(name[: -len("_start")])
++            elif name.endswith("_end"):
++                c.stage_end(name[: -len("_end")])
++            else:
++                raise ValueError(f"unknown clock event {name!r}")
++        out = {**c.timing(), "stage_t": c.stage_t}
++    except (OSError, ValueError, clock.ClockError) as e:
++        print(f"clock timing failed: {type(e).__name__}: {e}", file=sys.stderr)
++        return 1
++    dest = Path(args.out)
++    dest.parent.mkdir(parents=True, exist_ok=True)
++    dest.write_text(json.dumps(out, indent=1, sort_keys=True) + "\n", encoding="utf-8")
++    return 0
++
++
+ def build_parser() -> argparse.ArgumentParser:
+     ap = argparse.ArgumentParser(prog="sweep", description="The sweep sheet tools.")
+     sub = ap.add_subparsers(
+-        dest="cmd", required=True, metavar="{prepass,lint,brief,normalise,check}"
++        dest="cmd", required=True, metavar="{prepass,lint,brief,normalise,check,clock}"
+     )
+ 
+     p = sub.add_parser(
+@@ -192,6 +259,10 @@ def build_parser() -> argparse.ArgumentParser:
+         "--out", required=True, help="the run folder; prepass/ is made inside it"
+     )
+     p.add_argument("--panel", default="primary", choices=sorted(assign.load_panels()))
++    p.add_argument(
++        "--available",
++        help="comma-separated reviewer ids that can still be launched (DESIGN 7.3); default all of the panel",
++    )
+     p.set_defaults(run=_prepass)
+ 
+     sub.add_parser(
+@@ -248,6 +319,27 @@ def build_parser() -> argparse.ArgumentParser:
+     c.add_argument("--source", help="the source document, when there is one")
+     c.add_argument("--out-dir", help="default RUN/check")
+     c.set_defaults(run=_check)
++
++    k = sub.add_parser(
++        "clock",
++        help="the numbers and the timing.json of bin/run-panel.sh (DESIGN 11.4, 11.5)",
++    )
++    ks = k.add_subparsers(dest="clock_cmd", required=True, metavar="{plan,timing}")
++    kp = ks.add_parser(
++        "plan", help="print b, kill_s, hang_s, no_budget and the values as JSON"
++    )
++    kp.add_argument("--arm", required=True, choices=briefs.ARMS)
++    kp.add_argument("--panel", required=True)
++    kp.add_argument("--doc", required=True)
++    kp.add_argument("--values", help="a values file (default config/values.json)")
++    kp.set_defaults(run=_clock_plan)
++    kt = ks.add_parser(
++        "timing", help="write timing.json from the launcher's event times"
++    )
++    kt.add_argument("--arm", required=True, choices=briefs.ARMS)
++    kt.add_argument("--events", required=True)
++    kt.add_argument("--out", required=True)
++    kt.set_defaults(run=_clock_timing)
+     return ap
+ 
+ 
+diff --git a/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/sweep/prepass.py b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/sweep/prepass.py
+index 92e0a6818..6832da484 100644
+--- a/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/sweep/prepass.py
++++ b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/sweep/prepass.py
+@@ -67,7 +67,9 @@ def _counts(rows, key) -> dict:
+     return dict(sorted(out.items()))
+ 
+ 
+-def _build(candidate, source, repo, seed, panel, tmp: Path, stage: list) -> None:
++def _build(
++    candidate, source, repo, seed, panel, tmp: Path, stage: list, available=None
++) -> None:
+     """Every step of the pre-pass; the files land in tmp. stage[0] names the step now running (for the error file)."""
+     stage[0] = "parse"
+     cand_bytes = Path(candidate).read_bytes()
+@@ -86,7 +88,7 @@ def _build(candidate, source, repo, seed, panel, tmp: Path, stage: list) -> None
+     sel = select.select(cands, seed, ctx.constants)
+ 
+     stage[0] = "assign"
+-    asg = assign.assign(sel.items, panel=panel, seed=seed)
++    asg = assign.assign(sel.items, panel=panel, available=available, seed=seed)
+     cand_rows = sel.candidates
+     for row in cand_rows:  # P4
+         if row["item_id"] in asg.dropped:
+@@ -167,8 +169,12 @@ def _error_info(exc: BaseException, stage: str) -> dict:
+     return {"error": type(exc).__name__, "extractor": ext, "stage": stage}
+ 
+ 
+-def run(candidate, source, repo, *, seed, out, panel="primary") -> Path:
+-    """Run the pre-pass; return the path of `out/prepass/`. See the module text for the failure behaviour."""
++def run(candidate, source, repo, *, seed, out, panel="primary", available=None) -> Path:
++    """Run the pre-pass; return the path of `out/prepass/`. See the module text for the failure behaviour.
++
++    `available` (P9): the reviewer ids that can still be launched, for the pre-launch reviewer-unavailable case
++    (DESIGN 7.3, 10 row 9); None means all of the panel's reviewers. It goes to assign.assign unchanged.
++    """
+     stage = ["start"]
+     out = Path(out)
+     out.mkdir(parents=True, exist_ok=True)
+@@ -177,7 +183,7 @@ def run(candidate, source, repo, *, seed, out, panel="primary") -> Path:
+     err.unlink(missing_ok=True)
+     tmp.mkdir()
+     try:
+-        _build(candidate, source, repo, seed, panel, tmp, stage)
++        _build(candidate, source, repo, seed, panel, tmp, stage, available)
+     except BaseException as e:
+         shutil.rmtree(tmp, ignore_errors=True)
+         if isinstance(e, Exception):
+diff --git a/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/fakes/claude b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/fakes/claude
+index 84d3aea1a..1ef9803b7 100755
+--- a/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/fakes/claude
++++ b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/fakes/claude
+@@ -6,6 +6,11 @@
+ # Scenarios: ok, ledger_missing, long_anchor, api_error, wrong_model, sleep (FAKE_SLEEP_S, default 5),
+ # bad_block, exit127. FAKE_ANCHOR is the findings anchor (12 to 200 chars; default below).
+ # Ledger rows cover every item id of the form S<n> found in the brief, else S1.
++# Options added by Task 27 (the launcher tests need one failing reviewer among three, a sandbox write and a telemetry key):
++#   FAKE_SCENARIOS  space-separated model=scenario pairs; a call for that model uses the scenario instead of FAKE_SCENARIO
++#   FAKE_WRITE      a file name; the call creates it in the current directory (a reviewer that dirties the sandbox)
++#   FAKE_PROBE      an item id, or `first` for the first sheet item of the brief; the finding line carries "probe": <id>
++#                   (the telemetry key a real SS reviewer writes)
+ set -u
+ SCEN=${FAKE_SCENARIO:-ok}
+ MODEL=claude-sonnet-5-5
+@@ -13,6 +18,9 @@ while [ $# -gt 0 ]; do
+   [ "$1" = "--model" ] && [ $# -ge 2 ] && MODEL=$2
+   shift
+ done
++for kv in ${FAKE_SCENARIOS:-}; do
++  [ "${kv%%=*}" = "$MODEL" ] && SCEN=${kv#*=}
++done
+ BRIEF=$(cat)
+ 
+ case "$SCEN" in
+@@ -20,6 +28,7 @@ case "$SCEN" in
+   *) echo "fake claude: unknown FAKE_SCENARIO=$SCEN" >&2; exit 2 ;;
+ esac
+ [ -z "${FAKE_CALL_LOG:-}" ] || printf '%s\t%s\t%s\n' "$(date +%s.%3N)" "$SCEN" "$MODEL" >>"$FAKE_CALL_LOG"
++[ -z "${FAKE_WRITE:-}" ] || printf 'written by the fake reviewer\n' >"$FAKE_WRITE"
+ 
+ if [ "$SCEN" = exit127 ]; then
+   echo "claude: command not found" >&2
+@@ -35,12 +44,14 @@ ANCHOR=${FAKE_ANCHOR:-the stated text of the first acceptance criterion}
+ [ "$SCEN" != long_anchor ] || ANCHOR=$(printf 'x%.0s' $(seq 1 250))
+ ITEMS=$(printf '%s' "$BRIEF" | grep -oE '\bS[0-9]+\b' | awk '!s[$1]++')
+ [ -n "$ITEMS" ] || ITEMS=S1
++PROBE=${FAKE_PROBE:-}
++[ "$PROBE" != first ] || PROBE=$(printf '%s\n' $ITEMS | head -n 1)
+ 
+ LEDGER=""
+ for it in $ITEMS; do
+   LEDGER+=$(jq -nc --arg i "$it" '{item:$i,verdict:"OK",quote_plan:"",quote_other:"",problem:"",ran:"compared both scopes"}')$'\n'
+ done
+-FINDING=$(jq -nc --arg a "$ANCHOR" '{id:"F1",severity:"MINOR",blocking:false,category:"other",anchor:$a,refs:[],claim:"The wording leaves one reading open."}')
++FINDING=$(jq -nc --arg a "$ANCHOR" --arg p "$PROBE" '{id:"F1",severity:"MINOR",blocking:false,category:"other",anchor:$a,refs:[],claim:"The wording leaves one reading open."} + (if $p != "" then {probe:$p} else {} end)')
+ [ "$SCEN" != bad_block ] || FINDING="{not json"
+ 
+ BT='```'
+diff --git a/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/panel_support.py b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/panel_support.py
+new file mode 100644
+index 000000000..4d8e3aaed
+--- /dev/null
++++ b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/panel_support.py
+@@ -0,0 +1,125 @@
++"""Set-up of the launcher tests (Task 27): a sandbox built by bin/build-sandbox.sh over F-REPO, a values file, one run.
++
++Every test that starts bin/run-panel.sh takes the fake claude first on PATH from the tmp_roots fixture (conftest.py).
++"""
++
++import json
++import shutil
++import subprocess
++from types import SimpleNamespace
++
++from helpers import SW
++
++from fixtures.repos.build_repo import DOC_ID, OTHER_DOC_ID, build_repo
++
++PLANS = SW / "fixtures" / "plans"
++RUN_PANEL = SW / "bin" / "run-panel.sh"
++RUN_REVIEWER = SW / "bin" / "run-reviewer.sh"
++BUILD_SANDBOX = SW / "bin" / "build-sandbox.sh"
++PRIMARY = {"t2b-1": "muse-ember-1.0", "t4-1": "gpt-6-luna", "t3-1": "gpt-6-luna"}
++RIDS = tuple(PRIMARY)
++EMBER = "muse-ember-1.0"
++# an anchor that is a flattened substring of fixtures/plans/p_basic.md and holds none of the words that the blindness test looks for
++ANCHOR = "returns an empty result for an empty report"
++
++
++def make_world(roots, *, plan="p_basic.md", source=True, b=100):
++    """Build F-REPO, the candidate (and source) inside it, packages.json and values.json, then the sandbox (S0).
++
++    Returns a namespace with: doc, repo, sandbox, cand, packages, values, roots, run (see run()).
++    """
++    built = build_repo(roots.root, doc_id=DOC_ID)
++    cand_dir = built.repo / ".dev" / "eval-workspaces" / "cand"
++    cand_dir.mkdir(parents=True)
++    shutil.copy(PLANS / plan, cand_dir / "candidate.md")
++    src_rel = None
++    if source:
++        shutil.copy(PLANS / "source.md", cand_dir / "source.md")
++        src_rel = ".dev/eval-workspaces/cand/source.md"
++    entry = {
++        "kind": "plan",
++        "set": "control",
++        "base": built.base,
++        "candidate": ".dev/eval-workspaces/cand/candidate.md",
++        "source": src_rel,
++        "masked_paths": [built.added, built.edited],
++    }
++    packages = roots.root / "packages.json"
++    packages.write_text(
++        json.dumps(
++            {
++                "schema": "sweep-packages/1",
++                "packages": {DOC_ID: entry, OTHER_DOC_ID: dict(entry, set="other")},
++            }
++        )
++    )
++    values = roots.root / "values.json"
++    v = json.loads((SW / "config" / "values.json").read_text())
++    for panel in v["b"]:
++        v["b"][panel][DOC_ID] = b
++    values.write_text(json.dumps(v))
++    world = SimpleNamespace(
++        doc=DOC_ID,
++        repo=built.repo,
++        sandbox=roots.sb / DOC_ID / "repo",
++        cand=roots.sb / "cand" / DOC_ID,
++        packages=packages,
++        values=values,
++        roots=roots,
++    )
++    r = subprocess.run(
++        ["bash", str(BUILD_SANDBOX), "--packages", str(packages), DOC_ID],
++        capture_output=True,
++        text=True,
++        env=roots.with_env(SW_SRC_REPO=str(built.repo)),
++    )
++    assert r.returncode == 0, r.stderr
++    world.run = lambda arm, name, **kw: run_panel(world, arm, name, **kw)
++    return world
++
++
++def run_panel(world, arm, name, *, panel="primary", env=None, args=(), timeout=180):
++    """Run bin/run-panel.sh into roots.runs/<name>. Returns a CompletedProcess with .dir, .json(name) and .calls()."""
++    roots = world.roots
++    run_dir = roots.runs / name
++    cmd = [
++        "bash",
++        str(RUN_PANEL),
++        "--arm",
++        arm,
++        "--panel",
++        panel,
++        "--doc",
++        world.doc,
++        "--run",
++        str(run_dir),
++        "--seed",
++        "1",
++        "--values",
++        str(world.values),
++        "--packages",
++        str(world.packages),
++        *args,
++    ]
++    e = roots.with_env(SW_SRC_REPO=str(world.repo), **(env or {}))
++    r = subprocess.run(cmd, capture_output=True, text=True, env=e, timeout=timeout)
++    r.dir = run_dir
++    r.json = lambda rel: json.loads((run_dir / rel).read_text())
++    r.calls = lambda: call_log(roots)
++    return r
++
++
++def call_log(roots):
++    """FAKE_CALL_LOG as a list of (epoch, scenario, model)."""
++    if not roots.call_log.exists():
++        return []
++    rows = [ln.split("\t") for ln in roots.call_log.read_text().splitlines()]
++    return [(float(t), s, m) for t, s, m in rows]
++
++
++def brief_shas(run_dir):
++    """{rid: sha256 of the brief} from briefs/<rid>.sha256."""
++    return {
++        p.stem: p.read_text().strip()
++        for p in sorted((run_dir / "briefs").glob("*.sha256"))
++    }
+diff --git a/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_blindness.py b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_blindness.py
+new file mode 100644
+index 000000000..7d3ecf1dc
+--- /dev/null
++++ b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_blindness.py
+@@ -0,0 +1,26 @@
++"""DESIGN 9.3 and 11.3: the judge cannot tell the arm. The merged report carries no telemetry (TESTING section 4, REQ-34 blindness)."""
++
++from panel_support import ANCHOR, make_world
++
++KEYS = ("probe", "src", "class", "ledger-v1")
++
++
++def test_merged_report_has_no_telemetry_keys(tmp_roots):
++    w = make_world(tmp_roots)
++    r = w.run("SS", "ss", env={"FAKE_PROBE": "first", "FAKE_ANCHOR": ANCHOR})
++    assert r.returncode == 0, r.stderr
++    assert r.json("run.json")["check_ran"] is True
++
++    # the control: what the merge reads does carry the keys and the ledger block, so the absence below means something
++    for rid in ("t2b-1", "t4-1", "t3-1"):
++        fed = (r.dir / "normalised" / f"{rid}.md").read_text()
++        assert '"probe"' in fed and '"class"' in fed and "ledger-v1" in fed, rid
++
++    merged = r.dir / "merged" / "merged-1.md"
++    ledger = r.dir / "merged" / "ledger.json"
++    assert merged.read_text().strip() and ledger.read_text().strip()
++    assert r.json("run.json")["merge_refused"] is False
++    for path in (merged, ledger):
++        text = path.read_text()
++        for key in KEYS:
++            assert key not in text, f"{key!r} found in {path.name}"
+diff --git a/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_kill_fallback.py b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_kill_fallback.py
+index d2e12ed9a..945612f9f 100644
+--- a/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_kill_fallback.py
++++ b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_kill_fallback.py
+@@ -1,4 +1,9 @@
+-"""REQ-18 (DESIGN 12.2): the pre-pass kill limit and its fallback. Task 26 holds the formula; Task 27 adds the rest."""
++"""REQ-18 (DESIGN 12.2) and REQ-12 (a): the pre-pass kill limit and the fallback. Task 26 holds the formula, Task 27 the rest."""
++
++import time
++
++import pytest
++from panel_support import RIDS, brief_shas, make_world
+ 
+ from scaffold.clock import kill_s
+ 
+@@ -8,3 +13,72 @@ def test_kill_formula():
+     assert kill_s(122) == 12.2
+     assert kill_s(200) == 15.0
+     assert kill_s(150) == 15.0  # 0.10 b reaches the 15 s cap at b = 150
++
++
++def z0_sha(w):
++    """The sha256 of the Z0 brief of the document (one text for every reviewer)."""
++    z0 = w.run("Z0", "z0")
++    assert z0.returncode == 0, z0.stderr
++    shas = set(brief_shas(z0.dir).values())
++    assert len(shas) == 1
++    return shas.pop()
++
++
++def test_sleeping_stub_is_killed_and_falls_back(tmp_roots):
++    w = make_world(tmp_roots)
++    expected = z0_sha(w)
++    t = time.monotonic()
++    r = w.run("SS", "ss", env={"SW_PREPASS_CMD": "sleep 5", "SW_KILL_S": "1"})
++    wall = time.monotonic() - t
++    assert r.returncode == 0, r.stderr
++    tm = r.json("timing.json")
++    # the process group was killed after about 1 s, not after the 5 s of the stub
++    assert 0.9 <= tm["prepass_s"] < 2.5, tm["prepass_s"]
++    assert wall < 30
++    assert not (r.dir / "prepass").exists() and not (r.dir / "prepass.tmp").exists()
++    run = r.json("run.json")
++    assert (run["fallback"], run["reason"], run["no_trigger"]) == (True, "kill", False)
++    # the run used the Z0 brief: the same sha256 for every reviewer
++    assert set(brief_shas(r.dir).values()) == {expected}
++    assert set(run["briefs"]) == set(RIDS) and set(run["briefs"].values()) == {expected}
++    # the run stays in arm SS and its reviewers all ran (intention to treat); no check ran
++    assert (
++        run["arm"] == "SS"
++        and run["check_ran"] is False
++        and not (r.dir / "check").exists()
++    )
++    assert len(r.calls()) == 6  # 3 for the Z0 control run, 3 here
++    assert all(v["status"] == "ok" for v in run["reviewer_status"].values())
++    assert (
++        run["merge_refused"] is False and (r.dir / "merged" / "merged-1.md").is_file()
++    )
++
++
++@pytest.mark.parametrize(
++    "env,reason",
++    [
++        ({"SW_PREPASS_CMD": "false"}, "error"),  # the pre-pass raises (DESIGN 10 row 1)
++        ({"SW_RENDER_CMD": "false"}, "render"),  # the SS brief render raises
++    ],
++    ids=["prepass", "render"],
++)
++def test_forced_exception_in_prepass_and_render_falls_back(tmp_roots, env, reason):
++    w = make_world(tmp_roots)
++    expected = z0_sha(w)
++    r = w.run("SS", "ss", env=env)
++    assert r.returncode == 0, r.stderr
++    run = r.json("run.json")
++    assert (run["fallback"], run["reason"], run["arm"]) == (True, reason, "SS")
++    assert set(brief_shas(r.dir).values()) == {
++        expected
++    }  # REQ-23: the fallback brief equals Z0's by hash
++    assert not (r.dir / "prepass").exists() and not (r.dir / "prepass.tmp").exists()
++    assert run["check_ran"] is False and run["check_skipped"] is False
++    assert len(r.calls()) == 6 and all(
++        v["status"] == "ok" for v in run["reviewer_status"].values()
++    )
++    assert (r.dir / "merged" / "merged-1.md").is_file()
++    # the decision was taken before any reviewer started: the clock has the failed stage, then the reviewers
++    tm = r.json("timing.json")
++    assert tm["stage_t"]["prepass"][1] <= min(tm["rev_start"].values())
++    assert tm["s5_s"] < 0.5
+diff --git a/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_paths.py b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_paths.py
+index 20df0098e..3cb600b46 100644
+--- a/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_paths.py
++++ b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_paths.py
+@@ -77,6 +77,15 @@ def test_prepass_cmd_stub_only():
+     assert r.returncode == 1 and "reached" not in r.stdout
+ 
+ 
++def test_render_cmd_stub_only():
++    assert sh("sw_assert_override SW_RENDER_CMD false").returncode == 0
++    for bad in ("true", "", "false; rm -rf x", "sleep 5", "false false"):
++        assert sh(f"sw_assert_override SW_RENDER_CMD '{bad}'").returncode == 1, bad
++    assert sh("echo reached", {"SW_RENDER_CMD": "false"}).returncode == 0
++    r = sh("echo reached", {"SW_RENDER_CMD": "rm -rf x"})
++    assert r.returncode == 1 and "reached" not in r.stdout
++
++
+ def test_unknown_override_refused():
+     assert sh("sw_assert_override SW_OTHER x").returncode == 1
+ 
+diff --git a/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_prepass.py b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_prepass.py
+index 84c32cee3..b6dddd71a 100644
+--- a/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_prepass.py
++++ b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_prepass.py
+@@ -189,11 +189,15 @@ def test_cli_prepass_help_runs_as_a_script():
+ 
+ 
+ def test_cli_has_check_subcommand():
+-    """`check` was added by Task 25 (this test asserted it absent before): it is in the parser and `check --help` exits 0."""
++    """`check` was added by Task 25 and `clock` by Task 27: both are in the parser and answer `--help` with exit 0."""
+     choices = cli.build_parser()._subparsers._group_actions[0].choices
+-    assert set(choices) == {"prepass", "lint", "brief", "normalise", "check"}
++    assert set(choices) == {"prepass", "lint", "brief", "normalise", "check", "clock"}
+     r = cli_run("check", "--help")
+     assert r.returncode == 0 and "--run" in r.stdout
++    r = cli_run("clock", "plan", "--help")
++    assert r.returncode == 0 and "--panel" in r.stdout
++    r = cli_run("prepass", "--help")
++    assert r.returncode == 0 and "--available" in r.stdout
+ 
+ 
+ def test_cli_prepass_and_delegates(tmp_path):
+diff --git a/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_prepass_inputs.py b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_prepass_inputs.py
+index fc7dbf263..7da0a4079 100644
+--- a/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_prepass_inputs.py
++++ b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_prepass_inputs.py
+@@ -36,12 +36,15 @@ def opened(monkeypatch):
+ 
+ def test_only_three_inputs():
+     """The entry point takes the candidate, the source and the repository; everything else is the seed, the run
+-    folder and the panel name, and nothing else names a root."""
++    folder, the panel name and (Task 27, DESIGN 7.3) the reviewer ids still available, and nothing else names a root."""
+     sig = inspect.signature(prepass.run)
+     pos = [p.name for p in sig.parameters.values() if p.kind is p.POSITIONAL_OR_KEYWORD]
+     kw = [p.name for p in sig.parameters.values() if p.kind is p.KEYWORD_ONLY]
+     assert pos == ["candidate", "source", "repo"]
+-    assert kw == ["seed", "out", "panel"]
++    assert kw == ["seed", "out", "panel", "available"]
++    assert (
++        sig.parameters["available"].default is None
++    )  # ids, not a path; None means the whole panel
+ 
+ 
+ def test_ground_truth_trap_not_read(tmp_path, opened):
+diff --git a/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_run_panel_fake.py b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_run_panel_fake.py
+new file mode 100644
+index 000000000..341cb2649
+--- /dev/null
++++ b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_run_panel_fake.py
+@@ -0,0 +1,327 @@
++"""Integration tests of bin/run-panel.sh and bin/run-reviewer.sh with the fake claude (TESTING F-FAKE, section 3 rows I).
++
++REQ-12 (b), REQ-23 (whole run), REQ-30 (kill, no retry, absent from the merge), DD-8, DD-9. No model is started: every
++environment from tmp_roots has tests/fakes first on PATH, and the scripts refuse to run otherwise (last tests).
++"""
++
++import os
++import subprocess
++import sys
++
++import pytest
++from helpers import SW
++from panel_support import (
++    ANCHOR,
++    EMBER,
++    RIDS,
++    RUN_REVIEWER,
++    brief_shas,
++    make_world,
++)
++
++sys.path.insert(0, str(SW))
++from scaffold import briefs  # noqa: E402
++
++
++def models_called(r):
++    return [m for _, _, m in r.calls()]
++
++
++def test_prepass_finishes_before_first_reviewer(tmp_roots):
++    w = make_world(tmp_roots)
++    r = w.run("SS", "ss")
++    assert r.returncode == 0, r.stderr
++    run = r.json("run.json")
++    assert (run["arm"], run["fallback"], run["no_trigger"]) == ("SS", False, False)
++    assert (r.dir / "prepass" / "prepass.json").is_file()
++    t = r.json("timing.json")
++    prepass_start, prepass_end = t["stage_t"]["prepass"]
++    first_call = min(c[0] for c in r.calls())
++    assert len(r.calls()) == 3
++    assert t["t0"] <= prepass_start < prepass_end < first_call
++    # every reviewer starts after the pre-pass and the render, and the clock covers the pre-pass (REQ-29)
++    assert all(s >= t["stage_t"]["render"][1] for s in t["rev_start"].values())
++    assert t["panel_elapsed_s"] >= t["prepass_s"] > 0
++    # the SS brief is not the Z0 brief: it carries the ledger rule and the sheet, and CB-1 with the source path
++    text = (r.dir / "briefs" / "t4-1.txt").read_text()
++    assert "## SWEEP SHEET ITEMS" in text and "Driving document:" in text
++    assert run["briefs"] == brief_shas(r.dir) and set(run["briefs"]) == set(RIDS)
++
++
++def test_no_trigger_run(tmp_roots):
++    w = make_world(tmp_roots, plan="p_clean.md")
++    z0 = w.run("Z0", "z0")
++    ss = w.run("SS", "ss")
++    assert z0.returncode == 0 and ss.returncode == 0, ss.stderr
++    run = ss.json("run.json")
++    assert run["no_trigger"] is True and run["fallback"] is False
++    z0_sha = set(brief_shas(z0.dir).values())
++    assert len(z0_sha) == 1  # one brief text for the document, whichever reviewer
++    assert set(brief_shas(ss.dir).values()) == z0_sha  # REQ-23: equal to Z0's by hash
++    # no ledger was required: S5 did not run, so no ledger_missing is counted
++    assert run["check_ran"] is False and run["check_skipped"] is False
++    assert not (ss.dir / "check").exists()
++    assert run["reviewer_status"] == {
++        rid: {"model": m, "status": "ok"}
++        for rid, m in (("t2b-1", EMBER), ("t4-1", "gpt-6-luna"), ("t3-1", "gpt-6-luna"))
++    }
++
++
++def killed_run(w, name, b=3):
++    """Z0 run in which the ember reviewer sleeps 30 s and the hang guard is 1.5 * b."""
++    return w.run(
++        "Z0",
++        name,
++        env={"FAKE_SCENARIOS": f"{EMBER}=sleep", "FAKE_SLEEP_S": "30"},
++    )
++
++
++def test_sleeping_reviewer_killed(tmp_roots):
++    w = make_world(tmp_roots, b=3)
++    r = killed_run(w, "z0")
++    assert r.returncode == 0, r.stderr
++    st = r.json("run.json")["reviewer_status"]
++    assert st["t2b-1"]["status"] == "killed"
++    assert st["t4-1"]["status"] == st["t3-1"]["status"] == "ok"
++    meta = r.json("reviews/t2b-1.meta.json")
++    assert (
++        meta["killed"] is True
++        and meta["status"] == "killed"
++        and meta["exit"] in (124, 137)
++    )
++    assert (
++        meta["hang_s"] <= 4.5 and meta["wall_s"] < 6
++    )  # killed at the guard, not after the 30 s sleep
++    cost = r.json("reviews/t2b-1.cost.json")
++    assert cost["killed"] is True and cost["hang_s"] == meta["hang_s"]
++    assert len(cost["prompt_sha256"]) == 64
++    assert not (r.dir / "reviews" / "t2b-1.md").exists()  # no accepted report
++    assert r.json("run.json")["hang_s"] == 4.5  # 1.5 * (3 + 0) for arm Z0
++    # the others finish; the clock's slowest reviewer is the killed one
++    t = r.json("timing.json")
++    assert t["slowest_reviewer_s"] >= meta["wall_s"] > 2
++    assert r.json("reviews/t4-1.meta.json")["killed"] is False
++
++
++@pytest.mark.parametrize(
++    "scenario,status",
++    [("api_error", "error"), ("wrong_model", "invalid"), ("exit127", "error")],
++)
++def test_no_retry_on_failure(tmp_roots, scenario, status):
++    w = make_world(tmp_roots)
++    r = w.run("Z0", "z0", env={"FAKE_SCENARIOS": f"gpt-6-luna={scenario}"})
++    assert r.returncode == 0, r.stderr
++    # DD-8: one call per reviewer, even after a failure; no second attempt and no other model
++    assert sorted(models_called(r)) == sorted(
++        ["muse-ember-1.0", "gpt-6-luna", "gpt-6-luna"]
++    )
++    assert not list((r.dir / "reviews").glob("*.attempt2*"))
++    st = r.json("run.json")["reviewer_status"]
++    assert (st["t4-1"]["status"], st["t3-1"]["status"], st["t2b-1"]["status"]) == (
++        status,
++        status,
++        "ok",
++    )
++    assert not (r.dir / "reviews" / "t4-1.fallback.log").exists()
++    assert r.json("reviews/t4-1.meta.json")["attempt"] == 1
++
++
++def test_killed_reviewer_absent_from_merge(tmp_roots):
++    w = make_world(tmp_roots, b=3)
++    control = w.run("Z0", "ctl")  # nobody fails: every reviewer is in the merge
++    assert control.returncode == 0, control.stderr
++    ledger = (control.dir / "merged" / "ledger.json").read_text()
++    assert (
++        "t2b-1" in ledger and "t4-1" in ledger
++    )  # the control proves the ids would show up
++    r = killed_run(w, "killed")
++    assert r.returncode == 0, r.stderr
++    assert r.json("run.json")["merge_refused"] is False
++    assert sorted(p.name for p in (r.dir / "normalised").glob("*.md")) == [
++        "t3-1.md",
++        "t4-1.md",
++    ]
++    res = r.json("resolution.json")["reviewers"]
++    assert sorted(x["reviewer_id"] for x in res) == ["t3-1", "t4-1"]
++    merged = (r.dir / "merged" / "ledger.json").read_text() + (
++        r.dir / "merged" / "merged-1.md"
++    ).read_text()
++    assert "t2b-1" not in merged and "t4-1" in merged
++
++
++def test_forced_exception_in_check_merges_as_written(tmp_roots):
++    w = make_world(tmp_roots)
++    # control: S5 runs and adds the telemetry key `class` to the line that carries a probe
++    env = {"FAKE_PROBE": "first", "FAKE_ANCHOR": ANCHOR}
++    ok = w.run("SS", "ok", env=env)
++    assert ok.returncode == 0, ok.stderr
++    assert ok.json("run.json")["check_ran"] is True
++    assert '"class"' in (ok.dir / "check" / "t4-1.checked.md").read_text()
++    # CHECK_SCOPE=bogus makes the real check raise (REQ-12 b): the run goes on without S5
++    r = w.run("SS", "skipped", env=dict(env, CHECK_SCOPE="bogus"))
++    assert r.returncode == 0, r.stderr
++    run = r.json("run.json")
++    assert (
++        run["check_skipped"] is True
++        and run["check_ran"] is False
++        and run["fallback"] is False
++    )
++    assert "ValueError" in (r.dir / "check" / "error.log").read_text()
++    assert not (r.dir / "check" / "check.json").exists()
++    assert (
++        run["merge_refused"] is False and (r.dir / "merged" / "merged-1.md").is_file()
++    )
++    for rid in RIDS:  # the text given to the merge is the raw reviewer text
++        raw = (r.dir / "reviews" / f"{rid}.md").read_text()
++        assert (r.dir / "normalised" / f"{rid}.md").read_text() == raw
++        assert '"class"' not in raw
++    # S5 skipped, the clock still has its S5 stage (about 0 s)
++    assert r.json("timing.json")["s5_s"] < 0.5
++
++
++def test_order_s5_then_h2_then_merge(tmp_roots):
++    w = make_world(tmp_roots)
++    r = w.run("SS", "ss", env={"FAKE_SCENARIOS": f"{EMBER}=long_anchor"})
++    assert r.returncode == 0, r.stderr
++    d = r.dir
++    check = [p.stat().st_mtime_ns for p in (d / "check").iterdir()]
++    h2 = [p.stat().st_mtime_ns for p in (d / "normalised").iterdir()]
++    merged = (d / "merged" / "merged-1.md").stat().st_mtime_ns
++    assert check and h2 and max(check) < min(h2) and max(h2) < merged
++    # S5 read the raw report (the 250-character anchor); H2 cut it afterwards, in the report that went to the merge
++    raw_anchor = "x" * 250
++    assert raw_anchor in (d / "reviews" / "t2b-1.md").read_text()
++    assert raw_anchor in (d / "check" / "t2b-1.checked.md").read_text()
++    norm = (d / "normalised" / "t2b-1.md").read_text()
++    assert raw_anchor not in norm and "x" * 200 in norm
++    h2_json = r.json("normalised/h2.json")
++    assert h2_json["reports"]["t2b-1"]["changed"][0]["fields"] == ["anchor"]
++    assert r.json("run.json")["reviewer_status"]["t2b-1"]["status"] == "ok"
++
++
++def test_no_source_run(tmp_roots):
++    w = make_world(tmp_roots, source=False)
++    assert not (w.cand / "source.md").exists()
++    cb1 = (
++        (SW / "briefs" / "cb1.txt")
++        .read_text()
++        .strip()
++        .split("{{SOURCE_ABS}}")[0]
++        .strip()
++    )
++    assert len(cb1) >= 12
++    # the snippet is what CB-1 contributes: a brief made with a source holds it
++    with_src = briefs.render(
++        "Z0", {"cand_sb": "/x/c.md", "sha": "0" * 64}, None, "/x/source.md"
++    )
++    assert cb1 in with_src["text"]
++    r = w.run("SS", "ss")
++    assert r.returncode == 0, r.stderr
++    run = r.json("run.json")
++    assert run["no_source"] is True and run["source_sha256"] is None
++    shas = brief_shas(r.dir)
++    assert set(shas) == set(RIDS)
++    for rid in RIDS:
++        assert cb1 not in (r.dir / "briefs" / f"{rid}.txt").read_text()
++    # E5 had no source, so the pre-pass marks it not applicable (when it ran) or fell back
++    assert run["fallback"] is False
++    assert r.json("prepass/prepass.json")["no_source"] is True
++
++
++def test_reviewer_unavailable_reassigns_with_one_replica(tmp_roots):
++    w = make_world(tmp_roots)
++    r = w.run("SS", "ss", args=("--unavailable", "t3-1"))
++    assert r.returncode == 0, r.stderr
++    run = r.json("run.json")
++    assert run["reviewers"] == 2 and run["reviewers_unavailable"] == ["t3-1"]
++    asg = r.json("prepass/assignment.json")
++    assert sorted(asg["reviewers"]) == ["t2b-1", "t4-1"]
++    assert set(asg["replicas"].values()) == {
++        1
++    }  # fewer than three reviewers: every item has one replica
++    assert sorted(m for _, _, m in r.calls()) == ["gpt-6-luna", "muse-ember-1.0"]
++    assert not (r.dir / "briefs" / "t3-1.txt").exists()
++
++
++def test_ss_refused_without_time_budget(tmp_roots):
++    w = make_world(tmp_roots, b=40)  # 0.35 * 40 - 13 = 1 s of budget, under 8 s
++    r = w.run("SS", "ss")
++    assert r.returncode == 4 and "no_budget" in r.stderr
++    assert r.json("run.json")["no_budget"] is True
++    assert r.calls() == []
++    z0 = w.run("Z0", "z0")  # the other arms are not refused
++    assert z0.returncode == 0, z0.stderr
++
++
++def test_refuses_a_counted_run_in_a_used_folder(tmp_roots):
++    w = make_world(tmp_roots)
++    assert w.run("Z0", "z0").returncode == 0
++    n = len(tmp_roots.call_log.read_text().splitlines())
++    again = w.run("Z0", "z0")
++    assert again.returncode == 2 and "E_RUN_EXISTS" in again.stderr
++    assert len(tmp_roots.call_log.read_text().splitlines()) == n
++
++
++def test_refuses_without_nofallback_and_a_verifier(tmp_roots):
++    w = make_world(tmp_roots)
++    env = {k: v for k, v in tmp_roots.with_env().items() if k != "NOFALLBACK"}
++    r = subprocess.run(
++        ["bash", str(SW / "bin" / "run-panel.sh"), "--arm", "Z0", "--panel", "primary", "--doc", w.doc,
++         "--run", str(tmp_roots.runs / "x")],
++        capture_output=True, text=True, env=env,
++    )  # fmt: skip
++    assert r.returncode == 2 and "E_NOFALLBACK" in r.stderr
++    v = w.run("Z0", "v", env={"VERIFIER": "1"})
++    assert v.returncode == 2 and "E_VERIFIER" in v.stderr
++    assert v.calls() == []
++    assert "VERIFIER=${VERIFIER:-0}" in (SW / "bin" / "run-panel.sh").read_text()
++
++
++def reviewer(roots, *, model, env_extra=None, path=None, nofallback=True):
++    """Call run-reviewer.sh directly with a brief on stdin; nothing is built, so every refusal must come first."""
++    env = roots.with_env()
++    env.update(env_extra or {})
++    if path is not None:
++        env["PATH"] = path
++    if not nofallback:
++        env.pop("NOFALLBACK")
++    return subprocess.run(
++        [
++            "bash",
++            str(RUN_REVIEWER),
++            str(roots.runs / "r"),
++            "TASK-WF-x-1",
++            "t4-1",
++            model,
++            "30",
++        ],
++        input="brief text\n",
++        capture_output=True,
++        text=True,
++        env=env,
++    )
++
++
++def test_refuses_model_outside_the_allowlist(tmp_roots):
++    for bad in ("claude-opus-5-5", "Qwen3.8-max", "glm-5.3", "muse-ember-1.0 x"):
++        r = reviewer(tmp_roots, model=bad)
++        assert r.returncode == 2 and "E_MODEL" in r.stderr, bad
++    assert not tmp_roots.call_log.exists()  # no call reached claude
++    r = reviewer(tmp_roots, model="gpt-6-luna", nofallback=False)
++    assert r.returncode == 2 and "E_NOFALLBACK" in r.stderr
++    assert not tmp_roots.call_log.exists()
++
++
++def test_no_model_starts_when_a_fake_variable_is_set_and_claude_is_not_the_fake(
++    tmp_roots,
++):
++    marker = tmp_roots.root / "real-claude-started"
++    stub_dir = tmp_roots.root / "bin"
++    stub_dir.mkdir()
++    stub = stub_dir / "claude"
++    stub.write_text(f"#!/usr/bin/env bash\ntouch {marker}\n")
++    stub.chmod(0o755)
++    path = f"{stub_dir}{os.pathsep}{os.environ['PATH']}"
++    r = reviewer(tmp_roots, model="gpt-6-luna", path=path)
++    assert r.returncode == 2 and "E_NOT_FAKE" in r.stderr
++    assert not marker.exists()
+diff --git a/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_sandbox_clean.py b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_sandbox_clean.py
+new file mode 100644
+index 000000000..c588d0648
+--- /dev/null
++++ b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_sandbox_clean.py
+@@ -0,0 +1,57 @@
++"""K4 (DESIGN 1.2, TESTING section 4): reviewers are read-only; the launcher checks the sandbox before and after every run."""
++
++import subprocess
++
++from panel_support import make_world
++
++
++def test_dirty_after_run_is_flagged(tmp_roots):
++    w = make_world(tmp_roots)
++    clean = w.run("Z0", "clean")
++    assert clean.returncode == 0, clean.stderr
++    assert (
++        clean.json("run.json")["sandbox_dirty"] is False
++    )  # the control: a clean run is not flagged
++    assert not (clean.dir / "sandbox-dirty.txt").exists()
++
++    # a fake reviewer that writes a file in the sandbox (its working folder is SB/<doc>/repo)
++    dirty = w.run("Z0", "dirty", env={"FAKE_WRITE": "stray-note.txt"})
++    assert dirty.returncode == 3 and "sandbox_dirty" in dirty.stderr
++    assert (w.sandbox / "stray-note.txt").is_file()
++    run = dirty.json("run.json")
++    assert run["sandbox_dirty"] is True
++    assert "stray-note.txt" in (dirty.dir / "sandbox-dirty.txt").read_text()
++    # the run is still finished and recorded (the merge ran), only flagged
++    assert (dirty.dir / "timing.json").is_file() and run["merge_refused"] is False
++
++    # K4 before the run: the dirty sandbox is refused, no reviewer starts, nothing is written
++    n = len(tmp_roots.call_log.read_text().splitlines())
++    again = w.run("Z0", "again")
++    assert again.returncode == 2 and "E_SANDBOX_DIRTY" in again.stderr
++    assert len(tmp_roots.call_log.read_text().splitlines()) == n
++    assert not (again.dir / "run.json").exists()
++
++
++def test_the_real_repository_is_not_touched(tmp_roots):
++    """The scripts run git only inside the sandbox (K5): a run leaves the source repository's status and HEAD as they were."""
++    w = make_world(tmp_roots)
++
++    def state():
++        out = subprocess.run(
++            ["git", "-C", str(w.repo), "status", "--porcelain", "--ignored"],
++            capture_output=True,
++            text=True,
++            check=True,
++        ).stdout
++        head = subprocess.run(
++            ["git", "-C", str(w.repo), "rev-parse", "HEAD"],
++            capture_output=True,
++            text=True,
++            check=True,
++        ).stdout
++        return out, head
++
++    before = state()
++    r = w.run("SS", "ss")
++    assert r.returncode == 0, r.stderr
++    assert state() == before

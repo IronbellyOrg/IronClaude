@@ -1,0 +1,11 @@
+return_contract:
+  merged_output_path: "/home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/DESIGN.md"  # section 15.1a
+  convergence_score: 1.0            # 15 of 15 diff points
+  artifacts_dir: "/home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/results/debate/1-act-bands/adversarial"
+  status: "partial"                 # completed; the INV-013 fix was applied in the merge but not re-debated; scoring condensed
+  base_variant: "sonnet:architect"  # V3 structure, amended with V2's denominator
+  unresolved_conflicts: 0
+  fallback_mode: true               # the main session (Sonnet) orchestrated and merged; no debate-orchestrator or merge-executor agent, so no Opus
+  failure_stage: null
+  invocation_method: "skill-direct"
+  unaddressed_invariants: []        # INV-013 (HIGH) was fixed in the merge text; 8 MEDIUM rows logged in debate/invariant-probe.md

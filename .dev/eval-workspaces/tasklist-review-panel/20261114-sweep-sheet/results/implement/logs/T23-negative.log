@@ -1,0 +1,4 @@
+recorded). Exit 2: a usage error. Output: `prepass_s=<seconds> rc=<n> snapshot=<path>` then `scope: 
+rc=2
+E_NOT_WRITABLE: /etc/x (resolves to /etc/x)
+rc=2

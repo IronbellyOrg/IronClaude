@@ -1,0 +1,63 @@
+{
+  "schema": "sweep-synthetic-gt/1",
+  "note": "Invented ground truth for fixtures/plans/p_basic.md (F-GT). Every item, class and description is made up for the tests; nothing is taken from a study file.",
+  "doc": "p_basic",
+  "items": [
+    {
+      "id": "GT1",
+      "class": "C1",
+      "blocking_in_implement": true,
+      "description": "The criterion says every module returns an empty result, but the task edits one module only, so the check covers a wider set than the instruction.",
+      "plan_quote": "Every module under `src/exporter/` returns an empty result for an empty report."
+    },
+    {
+      "id": "GT2",
+      "class": "C2",
+      "blocking_in_implement": false,
+      "description": "The task cites a source section whose rule about row order never reaches the task text.",
+      "plan_quote": "Source sections: 2.1"
+    },
+    {
+      "id": "GT3",
+      "class": "C3",
+      "blocking_in_implement": true,
+      "description": "The purge step reads the hold flag but nothing in the plan ever sets it, so the step keeps nothing.",
+      "plan_quote": "The purge step keys on `legal_hold` and leaves such reports in place."
+    },
+    {
+      "id": "GT4",
+      "class": "C4",
+      "blocking_in_implement": true,
+      "description": "The check searches for a hyphenated word, but the heading the task orders has a space, so the command prints zero.",
+      "plan_quote": "`grep -c 'retention-window' docs/guide.md` prints at least 1."
+    },
+    {
+      "id": "GT5",
+      "class": "C5",
+      "blocking_in_implement": false,
+      "description": "The count of report formats is changed in the guide, but a second document repeats the old count.",
+      "plan_quote": "update the count from 3 report formats to 4 report formats."
+    },
+    {
+      "id": "GT6",
+      "class": "C6",
+      "blocking_in_implement": true,
+      "description": "The criterion says only the retention job removes a report, while a later task leaves a skip rule that lets other code paths keep one.",
+      "plan_quote": "`tests/test_retention.py` shows that only the retention job removes a report file."
+    },
+    {
+      "id": "GT7",
+      "class": "C7",
+      "blocking_in_implement": false,
+      "description": "The dictated notice text omits two of the three items that the constraint demands in a deletion notice.",
+      "plan_quote": "Write the notice body exactly as the quote below, with the report id filled in."
+    },
+    {
+      "id": "GT8",
+      "class": "C8",
+      "blocking_in_implement": true,
+      "description": "The edited module is imported by a test the plan never names, and that test breaks when the format list grows.",
+      "plan_quote": "Edit `src/exporter/report.py` so that `render` accepts the format name `ndjson`"
+    }
+  ]
+}

@@ -1,0 +1,31 @@
+============================= test session starts ==============================
+platform linux -- Python 3.11.15, pytest-9.2.0, pluggy-1.7.0 -- /home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/.venv/bin/python
+SuperClaude: 5.0.0
+rootdir: /home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel
+configfile: pyproject.toml
+plugins: superclaude-5.0.0, anyio-4.16.0
+collecting ... collected 61 items / 42 deselected / 19 selected
+
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_e3.py::test_positive_unnamed_test_that_names_the_stem_is_found_first PASSED [  5%]
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_e3.py::test_negative_a_target_the_plan_creates_is_not_a_candidate PASSED [ 10%]
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_e3.py::test_negative_a_target_that_is_not_in_the_snapshot_is_not_a_candidate PASSED [ 15%]
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_e3.py::test_negative_no_snapshot_means_no_target_is_present PASSED [ 21%]
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_e3.py::test_negative_a_sentence_without_an_edit_target_gives_nothing PASSED [ 26%]
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_e3.py::test_negative_dev_dependency_and_ground_truth_files_are_never_evidence PASSED [ 31%]
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_e3.py::test_negative_the_edited_file_is_not_its_own_dependent PASSED [ 36%]
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_e3.py::test_negative_a_referencing_file_the_plan_names_is_not_unnamed PASSED [ 42%]
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_e3.py::test_a_stem_that_hits_more_than_40_files_lowers_priority_by_20[39-0] PASSED [ 47%]
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_e3.py::test_a_stem_that_hits_more_than_40_files_lowers_priority_by_20[40-0] PASSED [ 52%]
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_e3.py::test_a_stem_that_hits_more_than_40_files_lowers_priority_by_20[41-20] PASSED [ 57%]
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_e3.py::test_a_stem_that_hits_more_than_40_files_lowers_priority_by_20[60-20] PASSED [ 63%]
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_e3.py::test_stem_length_8_is_the_long_stem_boundary[src/exporter/abcdefg.py-7-40] PASSED [ 68%]
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_e3.py::test_stem_length_8_is_the_long_stem_boundary[src/exporter/abcdefgh.py-8-50] PASSED [ 73%]
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_e3.py::test_stem_length_8_is_the_long_stem_boundary[src/exporter/abcdefghi.py-9-50] PASSED [ 78%]
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_e3.py::test_p_clean_emits_nothing PASSED [ 84%]
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_e3.py::test_determinism_on_p_basic_and_p_clean PASSED [ 89%]
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_e3.py::test_determinism_does_not_depend_on_the_order_the_candidates_are_attached PASSED [ 94%]
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_e3.py::test_evidence_holds_no_claim_no_severity_no_defect PASSED [100%]
+
+====================== 19 passed, 42 deselected in 1.40s =======================
+cmd: pytest test_e3.py -v -k <AC-selected cases>
+rc=0

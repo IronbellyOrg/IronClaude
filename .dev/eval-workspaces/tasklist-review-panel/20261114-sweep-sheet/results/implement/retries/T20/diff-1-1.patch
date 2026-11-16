@@ -1,0 +1,470 @@
+diff --git a/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/sweep/assign.py b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/sweep/assign.py
+new file mode 100644
+index 000000000..aa69c7cab
+--- /dev/null
++++ b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/sweep/assign.py
+@@ -0,0 +1,214 @@
++"""Item-to-reviewer assignment (DESIGN 7, REQ-20).
++
++Inputs are the selected items (select.py rows: `item_id`, `class`, `priority`, `route`, `evidence`), a panel name from
++config/panels.json, the set of available reviewer ids and the seed. Roles: `S` the search reviewer, `L1` and `L2` the
++two lunas; each has a `rid` and a `cap`. Nothing here reads a clock or the network; the same input gives the same output.
++
++    replica target   1 for an item with empty evidence, else 2; every item 1 when fewer than three reviewers are
++                     available (the caps are not raised)
++    pass 1           descending priority; a search item goes to S when S is allowed and under cap, else the lighter
++                     luna; a read item goes to the lighter luna (ties: L1)
++    pass 2           descending priority, items with target 2: the lighter luna that is not the first reviewer, else S
++                     (allowed, under cap); never the first reviewer; none free -> `replica_dropped`
++    cap_slots        an item that cannot get even one reviewer is `dropped:cap_slots`
++    S allowed        the panel's `classes` is "any", or the item has evidence and its class is in the list
++                     (haiku: C4, C5, C8)
++    order            each reviewer's items are shuffled with random.Random(f"{seed}:{rid}")
++
++Gaps in DESIGN 7.2 resolved here (all consistent with DD-4, REQ-20 and 7.3):
++  G1  A pass-1 read item whose two lunas are both at cap (7.2 names only the lighter luna) goes to S if S is allowed
++      and under cap, so it keeps a reviewer instead of being dropped; a pass-1 search item that cannot go to S
++      uses the lighter luna, and then the other luna, for the same reason.
++  G2  "Lighter luna" ignores a luna that is at cap or is the first reviewer; the choice is by current load, ties L1.
++      For pass 2, the search rule ("the lighter luna") and the read rule ("the other luna, then S") reduce to one
++      order: lunas other than the first by load, then S. When the first reviewer is S, both lunas compete by load.
++  G3  A reviewer that is not in `available` takes nothing and has no entry; with S missing no item has S allowed.
++      With fewer than three available reviewers (including one or none) the same two passes run with every target 1.
++  G4  The pre-launch unavailable case (7.3, "the harness re-runs assign") is `assign(..., available=...)`.
++      The after-launch failure (7.3, REQ-20) is `fail`: survivors keep exactly their lists and loads, the failed
++      reviewer's items are listed in `lost_replica`; nothing is re-assigned and nothing can exceed a cap.
++  G5  Pass 1 and pass 2 both visit items by descending priority; equal priorities keep the input order (items.json
++      order, already tie-broken by select.py).
++  G6  The pass-2 order alone can strand a slot: with 7 search and 5 read items the lunas can fill with other second
++      replicas before the last search item's second is placed, while S still has room (S ends at 7, sum 23), which
++      contradicts the 8, 8, 8 of the worked check and of REQ-20. A second replica that no reviewer can take is
++      therefore retried once after pass 2: another item's second replica that sits on a reviewer who may take it is
++      moved to a free reviewer (never the first one, never a cap exceeded), and the stranded item takes the freed
++      slot. Only second replicas move; first replicas never do. It is listed in `replica_dropped` only if no such
++      move exists.
++"""
++
++from __future__ import annotations
++
++import copy
++import json
++import random
++from dataclasses import dataclass, field
++from pathlib import Path
++
++PANELS_PATH = Path(__file__).resolve().parents[1] / "config" / "panels.json"
++ROLES = ("S", "L1", "L2")
++STATUS_CAP_SLOTS = "dropped:cap_slots"
++
++
++def load_panels(path=None) -> dict:
++    """The `panels` mapping of config/panels.json: {panel: {label, S, L1, L2}}."""
++    p = Path(path) if path else PANELS_PATH
++    return json.loads(p.read_text(encoding="utf-8"))["panels"]
++
++
++@dataclass
++class Assignment:
++    panel: str
++    seed: int | str
++    caps: dict  # rid -> cap, available reviewers only
++    reviewers: dict  # rid -> item ids in the shuffled print order
++    item_reviewers: dict  # item id -> reviewer ids (first, then second)
++    replicas: dict  # item id -> replica target (1 or 2)
++    replica_dropped: list = field(default_factory=list)
++    dropped: dict = field(default_factory=dict)  # item id -> "dropped:cap_slots"
++    lost_replica: list = field(default_factory=list)
++    failed: list = field(default_factory=list)
++
++    @property
++    def loads(self) -> dict:
++        return {rid: len(ids) for rid, ids in self.reviewers.items()}
++
++    def to_json(self) -> dict:
++        return {
++            "panel": self.panel,
++            "seed": self.seed,
++            "caps": dict(self.caps),
++            "loads": self.loads,
++            "reviewers": {r: list(v) for r, v in self.reviewers.items()},
++            "item_reviewers": {i: list(v) for i, v in self.item_reviewers.items()},
++            "replicas": dict(self.replicas),
++            "replica_dropped": list(self.replica_dropped),
++            "dropped": dict(self.dropped),
++            "lost_replica": list(self.lost_replica),
++            "failed": list(self.failed),
++        }
++
++
++def s_allowed(item: dict, s_cfg: dict) -> bool:
++    """May the search reviewer take this item (DESIGN 7.1: the haiku panel only takes evidence-bearing C4, C5, C8)."""
++    classes = s_cfg.get("classes", "any")
++    if classes == "any":
++        return True
++    return bool(item.get("evidence")) and item["class"] in classes
++
++
++def assign(items, panel="primary", available=None, seed=0, panels=None) -> Assignment:
++    """Assign `items` to the reviewers of `panel` (DESIGN 7.2) and shuffle each reviewer's list (7.3)."""
++    cfg = (panels if panels is not None else load_panels())[panel]
++    role_of = {cfg[r]["rid"]: r for r in ROLES}
++    rids = [
++        cfg[r]["rid"] for r in ROLES if available is None or cfg[r]["rid"] in available
++    ]
++    caps = {rid: cfg[role_of[rid]]["cap"] for rid in rids}
++    s_rid = cfg["S"]["rid"] if cfg["S"]["rid"] in rids else None
++    lunas = [
++        cfg[r]["rid"] for r in ("L1", "L2") if cfg[r]["rid"] in rids
++    ]  # L1 first: the tie-break
++    load = dict.fromkeys(rids, 0)
++    given: dict[str, list] = {rid: [] for rid in rids}
++    of_item: dict[str, list] = {}
++    order = sorted(range(len(items)), key=lambda n: (-items[n]["priority"], n))
++    ordered = [items[n] for n in order]
++    full = len(rids) >= 3
++    target = {
++        it["item_id"]: (2 if full and it.get("evidence") else 1) for it in ordered
++    }
++
++    def lighter(exclude=()):
++        free = [r for r in lunas if r not in exclude and load[r] < caps[r]]
++        return sorted(free, key=lambda r: (load[r], lunas.index(r)))
++
++    def s_free(it, exclude=()):
++        ok = (
++            s_rid
++            and s_rid not in exclude
++            and load[s_rid] < caps[s_rid]
++            and s_allowed(it, cfg["S"])
++        )
++        return [s_rid] if ok else []
++
++    def put(it, rid):
++        load[rid] += 1
++        given[rid].append(it["item_id"])
++        of_item.setdefault(it["item_id"], []).append(rid)
++
++    dropped, replica_dropped = {}, []
++    for it in ordered:  # pass 1
++        pick = (
++            s_free(it) + lighter()
++            if it["route"] == "search"
++            else lighter() + s_free(it)
++        )  # G1: both lists fall back to the other kind of reviewer
++        if pick:
++            put(it, pick[0])
++        else:
++            dropped[it["item_id"]] = STATUS_CAP_SLOTS
++    for it in ordered:  # pass 2
++        iid = it["item_id"]
++        if target[iid] < 2 or iid in dropped:
++            continue
++        first = of_item[iid]
++        pick = lighter(first) + s_free(it, first)  # G2
++        if pick:
++            put(it, pick[0])
++        else:
++            replica_dropped.append(iid)
++
++    def make_room(it) -> bool:
++        """G6: free a slot for `it`'s second replica by moving another item's second replica elsewhere."""
++        first = of_item[it["item_id"]]
++        for y in rids:
++            if y in first or (y == s_rid and not s_allowed(it, cfg["S"])):
++                continue
++            for x in ordered:
++                who = of_item.get(x["item_id"], [])
++                if x is it or len(who) != 2 or who[1] != y:
++                    continue
++                to = (lighter(who) + s_free(x, who))[:1]
++                if to:
++                    load[y] -= 1
++                    given[y].remove(x["item_id"])
++                    who[1] = to[0]
++                    load[to[0]] += 1
++                    given[to[0]].append(x["item_id"])
++                    put(it, y)
++                    return True
++        return False
++
++    by_id = {it["item_id"]: it for it in ordered}
++    replica_dropped = [i for i in replica_dropped if not make_room(by_id[i])]
++
++    for rid in rids:  # shuffle once, after both passes (7.3)
++        random.Random(f"{seed}:{rid}").shuffle(given[rid])
++    return Assignment(
++        panel=panel,
++        seed=seed,
++        caps=caps,
++        reviewers=given,
++        item_reviewers=of_item,
++        replicas=target,
++        replica_dropped=replica_dropped,
++        dropped=dropped,
++    )
++
++
++def fail(a: Assignment, rid: str) -> Assignment:
++    """A reviewer failed after launch (DESIGN 7.3): the survivors keep exactly their lists, so no load grows.
++
++    The failed reviewer's items are listed in `lost_replica`; nothing is re-assigned (REQ-20)."""
++    if rid not in a.reviewers:
++        raise ValueError(f"{rid} is not a reviewer of this assignment")
++    b = copy.deepcopy(a)
++    b.lost_replica += [i for i in b.reviewers.pop(rid) if i not in b.lost_replica]
++    b.caps.pop(rid, None)
++    b.failed.append(rid)
++    for iid, who in b.item_reviewers.items():
++        if rid in who:
++            b.item_reviewers[iid] = [r for r in who if r != rid]
++    return b
+diff --git a/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_assign.py b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_assign.py
+new file mode 100644
+index 000000000..51d6d9819
+--- /dev/null
++++ b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_assign.py
+@@ -0,0 +1,244 @@
++"""Item-to-reviewer assignment (DESIGN 7, TESTING REQ-20) on synthetic item lists; no repository, no model."""
++
++import itertools
++
++import pytest
++
++from sweep import assign
++
++PANELS = assign.load_panels()
++SEARCH_CLASSES = ("C4", "C5", "C6", "C8")
++READ_CLASSES = ("C1", "C2", "C3", "C7")
++EV = [{"path": "a.py", "line": 1, "text": "x"}]
++
++
++def item(n, route, evidence=True, cls=None, priority=None):
++    cls = cls or (SEARCH_CLASSES if route == "search" else READ_CLASSES)[n % 4]
++    return {
++        "item_id": f"S{n}",
++        "class": cls,
++        "route": route,
++        "priority": 100 - n if priority is None else priority,
++        "evidence": list(EV) if evidence else [],
++    }
++
++
++def twelve(routes):
++    """12 items with evidence, priority descending in list order; `routes` is a string of s (search) and r (read)."""
++    return [item(n, "search" if c == "s" else "read") for n, c in enumerate(routes, 1)]
++
++
++def check_invariants(items, a):
++    for rid, ids in a.reviewers.items():
++        assert len(ids) <= a.caps[rid]
++    for it in items:
++        who = a.item_reviewers.get(it["item_id"], [])
++        assert len(who) == len(set(who)) <= 2
++        if not who:
++            assert a.dropped[it["item_id"]] == "dropped:cap_slots"
++        else:
++            assert it["item_id"] not in a.dropped
++        for rid in who:
++            assert it["item_id"] in a.reviewers[rid]
++    assert sum(len(v) for v in a.reviewers.values()) == sum(
++        len(v) for v in a.item_reviewers.values()
++    )
++
++
++def test_caps_sum_24_all_panels():
++    assert set(PANELS) == {"primary", "haiku", "sonnet"}
++    for name, cfg in PANELS.items():
++        assert sum(cfg[r]["cap"] for r in assign.ROLES) == 24, name
++    assert [PANELS["primary"][r]["cap"] for r in assign.ROLES] == [8, 8, 8]
++    assert [PANELS["haiku"][r]["cap"] for r in assign.ROLES] == [6, 9, 9]
++    assert [PANELS["sonnet"][r]["cap"] for r in assign.ROLES] == [6, 9, 9]
++    a = assign.assign(twelve("srsrsrsrsrss"), "sonnet", seed=3)
++    assert a.caps == {"t1b-1": 6, "t4-1": 9, "t3-1": 9}
++
++
++@pytest.mark.parametrize(
++    "routes",
++    [
++        "sssssssrrrrr",
++        "rrrrrsssssss",
++        "srsrsrsrsrss",
++        "rsrsrsrsrsss",
++        "ssrrssrrssrs",
++        "srrsssrssrsr",
++    ],
++)
++def test_primary_12_items_fills_caps(routes):
++    items = twelve(routes)
++    assert routes.count("s") == 7
++    a = assign.assign(items, "primary", seed=1)
++    assert a.loads == {"t2b-1": 8, "t4-1": 8, "t3-1": 8}
++    assert sum(a.loads.values()) == 24 == sum(a.replicas.values())
++    assert not a.replica_dropped and not a.dropped
++    check_invariants(items, a)
++
++
++def test_primary_every_search_read_arrangement_fills_caps():
++    """All 792 ways to place 7 search items among 12 priorities end at 8, 8, 8 (the pass-2 retry, DESIGN 7.2 worked check)."""
++    for pos in itertools.combinations(range(12), 7):
++        items = twelve("".join("s" if n in pos else "r" for n in range(12)))
++        a = assign.assign(items, "primary", seed=1)
++        assert a.loads == {"t2b-1": 8, "t4-1": 8, "t3-1": 8}, pos
++        assert not a.replica_dropped and not a.dropped, pos
++        check_invariants(items, a)
++
++
++def test_haiku_only_evidence_items():
++    # evidence-bearing C4/C5/C8 are allowed; an empty-evidence C4, a C6 search item and read items are not
++    items = [
++        item(1, "search", cls="C4"),
++        item(2, "search", cls="C6"),
++        item(3, "search", evidence=False, cls="C4"),
++        item(4, "search", cls="C5"),
++        item(5, "read", cls="C1"),
++        item(6, "search", cls="C8"),
++        item(7, "read", cls="C7"),
++        item(8, "search", cls="C8"),
++        item(9, "search", cls="C5"),
++        item(10, "read", cls="C2"),
++        item(11, "search", cls="C4"),
++        item(12, "search", cls="C6"),
++    ]
++    a = assign.assign(items, "haiku", seed=2)
++    by_id = {it["item_id"]: it for it in items}
++    s_items = a.reviewers["t2-1"]
++    assert s_items, "the haiku reviewer takes the allowed items"
++    for iid in s_items:
++        assert by_id[iid]["evidence"] and by_id[iid]["class"] in ("C4", "C5", "C8")
++    assert a.loads["t2-1"] <= 6
++    check_invariants(items, a)
++    # the allowed items fill the haiku reviewer first: all six allowed items are on it
++    allowed = {"S1", "S4", "S6", "S8", "S9", "S11"}
++    assert set(s_items) == allowed
++    # no S reviewer when it may take none
++    none_allowed = [item(n, "search", cls="C6") for n in range(1, 5)]
++    b = assign.assign(none_allowed, "haiku", seed=2)
++    assert b.reviewers["t2-1"] == []
++    assert all(len(v) == 2 for v in b.item_reviewers.values())
++
++
++def test_no_evidence_replica_1():
++    items = [
++        item(1, "search", evidence=False),
++        item(2, "read", evidence=False),
++        item(3, "read"),
++    ]
++    a = assign.assign(items, "primary", seed=4)
++    assert a.replicas == {"S1": 1, "S2": 1, "S3": 2}
++    assert len(a.item_reviewers["S1"]) == 1
++    assert len(a.item_reviewers["S2"]) == 1
++    assert len(a.item_reviewers["S3"]) == 2
++    assert not a.replica_dropped
++    check_invariants(items, a)
++
++
++@pytest.mark.parametrize("panel", ["primary", "haiku", "sonnet"])
++@pytest.mark.parametrize("seed", [0, 1, 2])
++def test_no_duplicate_reviewer_per_item(panel, seed):
++    for routes in ("sssssssrrrrr", "rrrrrrrrrrrr", "ssssssssssss", "srsrsrsrsrsr"):
++        items = twelve(routes)
++        a = assign.assign(items, panel, seed=seed)
++        for iid, who in a.item_reviewers.items():
++            assert len(who) == len(set(who)), (panel, routes, iid)
++        check_invariants(items, a)
++
++
++def test_replica_dropped_lowest_priority_first_and_cap_slots():
++    # haiku panel, 12 read items: S may take none, the lunas hold 18 slots for 24 wanted
++    items = twelve("rrrrrrrrrrrr")
++    a = assign.assign(items, "haiku", seed=0)
++    assert a.loads == {"t2-1": 0, "t4-1": 9, "t3-1": 9}
++    assert a.replica_dropped == ["S7", "S8", "S9", "S10", "S11", "S12"]
++    assert not a.dropped
++    check_invariants(items, a)
++    # one reviewer left (cap 8): 12 items, 8 kept (descending priority), 4 logged dropped:cap_slots
++    b = assign.assign(items, "primary", available={"t4-1"}, seed=0)
++    assert b.loads == {"t4-1": 8}
++    assert b.dropped == {f"S{n}": "dropped:cap_slots" for n in range(9, 13)}
++    assert set(b.reviewers["t4-1"]) == {f"S{n}" for n in range(1, 9)}
++    check_invariants(items, b)
++
++
++def test_failure_never_raises_survivor_load():
++    items = twelve("sssssssrrrrr")
++    for panel in PANELS:
++        a = assign.assign(items, panel, seed=5)
++        for dead in list(a.reviewers):
++            b = assign.fail(a, dead)
++            assert dead not in b.reviewers and dead not in b.caps
++            for rid in b.reviewers:
++                assert b.reviewers[rid] == a.reviewers[rid]  # same items, same order
++                assert len(b.reviewers[rid]) == len(a.reviewers[rid]) <= b.caps[rid]
++            assert set(b.lost_replica) == set(a.reviewers[dead])
++            assert all(dead not in who for who in b.item_reviewers.values())
++            # a second failure on top of the first keeps the same property
++            for dead2 in list(b.reviewers):
++                c = assign.fail(b, dead2)
++                for rid in c.reviewers:
++                    assert c.reviewers[rid] == a.reviewers[rid]
++        assert a.lost_replica == []  # the input is not modified
++    with pytest.raises(ValueError):
++        assign.fail(assign.assign(items, "primary", seed=5), "nobody")
++
++
++def test_two_reviewers_replica_1():
++    items = twelve("sssssssrrrrr")
++    for avail in ({"t4-1", "t3-1"}, {"t2b-1", "t3-1"}):
++        a = assign.assign(items, "primary", available=avail, seed=6)
++        assert set(a.reviewers) == avail
++        assert set(a.replicas.values()) == {1}
++        assert all(len(who) == 1 for who in a.item_reviewers.values())
++        assert not a.dropped and not a.replica_dropped
++        for rid, ids in a.reviewers.items():
++            assert (
++                len(ids)
++                <= PANELS["primary"][{"t2b-1": "S", "t4-1": "L1", "t3-1": "L2"}[rid]][
++                    "cap"
++                ]
++            )
++        check_invariants(items, a)
++    # S and one luna in the haiku panel (caps 6 and 9): replica 1, the haiku restriction and the caps still hold
++    b = assign.assign(
++        twelve("ssssssssssss"), "haiku", available={"t2-1", "t4-1"}, seed=6
++    )
++    assert b.loads["t2-1"] <= 6 and b.loads["t4-1"] <= 9
++    assert set(b.replicas.values()) == {1}
++    assert sum(b.loads.values()) == 12 - len(b.dropped)
++
++
++def test_order_shuffled_per_reviewer_deterministic():
++    items = twelve("sssssssrrrrr")
++    a = assign.assign(items, "primary", seed=7)
++    again = assign.assign(items, "primary", seed=7)
++    assert a.to_json() == again.to_json()
++    # a reviewer's list is a permutation of what it was given, not the priority order
++    for rid, ids in a.reviewers.items():
++        assert sorted(ids) == sorted(set(ids))
++    assert any(
++        ids != sorted(ids, key=lambda i: int(i[1:])) for ids in a.reviewers.values()
++    )
++
++    # the two lunas share items; some seed gives them different relative orders, and the order follows the seed
++    def common(x):
++        shared = set(x.reviewers["t4-1"]) & set(x.reviewers["t3-1"])
++        return {r: [i for i in x.reviewers[r] if i in shared] for r in ("t4-1", "t3-1")}
++
++    assert any(
++        common(assign.assign(items, "primary", seed=s))["t4-1"]
++        != common(assign.assign(items, "primary", seed=s))["t3-1"]
++        for s in range(6)
++    )
++    orders = {
++        tuple(assign.assign(items, "primary", seed=s).reviewers["t4-1"])
++        for s in range(6)
++    }
++    assert len(orders) > 1
++    # the shuffle does not change who gets what
++    other = assign.assign(items, "primary", seed=8)
++    assert {r: sorted(v) for r, v in other.reviewers.items()} == {
++        r: sorted(v) for r, v in a.reviewers.items()
++    }

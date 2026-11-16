@@ -1,0 +1,96 @@
+[
+  {
+    "id": "s01",
+    "class": "C1",
+    "quote": "No sentence anywhere in the repository, in any wording, still tells a reviewer to fail a review on a minor finding.",
+    "description": "The criterion asks for no sentence anywhere in any wording, with no list of patterns or files and no stopping rule, so it can never be shown true and the new test scans only fixed phrases."
+  },
+  {
+    "id": "s02",
+    "class": "C2",
+    "quote": "Copies of S1-S5 are taken from `.dev/review-severity-rule/inventory.md` section 1 (no",
+    "description": "The source rule R-001 says every later copy of S1-S5 comes from the Pragmatic output style, never from the inventory text; the constraint now says the opposite, so copies can drift from the style."
+  },
+  {
+    "id": "s03",
+    "class": "C2",
+    "quote": "'- **Fix Cycles**: ' -- src/superclaude/agents/rf-team-lead.md` prints one line",
+    "description": "The source rule R-012 asks for a check that the Fix Cycles line says a fix runs only for blocking findings; the criterion now only finds the prefix and the old wording's absence, so a line without the blocking wording passes."
+  },
+  {
+    "id": "s04",
+    "class": "C4",
+    "quote": "'any severity|minor issues still pass|fix cycles|\\(S[1-5]'",
+    "description": "The added alternative fix cycles occurs in S3, which the same task orders into the file (at most 2 fix cycles (3 reviews)), so the grep prints that line and the criterion can never pass."
+  },
+  {
+    "id": "s05",
+    "class": "C4",
+    "quote": "-i -F 'FAIL: Issues found|strictly fewer issues|logged for human review|zero-tolerance policy for errors'",
+    "description": "With the fixed-string flag the vertical bars are literal characters, so the pattern matches no line of any file and the prints-nothing check can never fail."
+  },
+  {
+    "id": "s06",
+    "class": "C5",
+    "quote": "Apply every row of group `portify` (22 rows):",
+    "description": "The group row counts now add up to 163, while the Constraints and the source state 161 rows in total and the other groups are unchanged, so the stale count hides which rows are applied."
+  },
+  {
+    "id": "s07",
+    "class": "C6",
+    "quote": "The old default of 3 appears nowhere outside `commands.py` and `convergence.py`.",
+    "description": "The same task orders default edits in config.py, models.py, prompts.py, resume.py, the protocol SKILL.md, decisions.yaml and the convergence test, so the sentence that no other file carries the old default is contradicted by the plan itself."
+  },
+  {
+    "id": "s08",
+    "class": "C6",
+    "quote": "no other file in the repository is touched by any task",
+    "description": "Every task saves logs under its package ./artifacts folder and Task 20 reads and copies files from .dev/review-severity-rule, so the universal sentence is contradicted by the plan's own tasks."
+  },
+  {
+    "id": "s09",
+    "class": "C7",
+    "quote": "reads \"max 3 cycles per phase\"",
+    "description": "The dictated line says max 3 cycles per phase, while the same task's acceptance line requires max 2 cycles per phase and a grep for the 3-cycle wording to print nothing, and the goal caps loops at 2 fix cycles."
+  },
+  {
+    "id": "s10",
+    "class": "C7",
+    "quote": "becomes \"All blocking findings must be resolved.\"; its cap fragment is Task 12's",
+    "description": "The dictated rule 10 sentence drops the clause that minor findings are recorded as notes, which Tasks 3 and 4 state as part of the same sentence, so rf-qa carries a different rule from the other agents."
+  },
+  {
+    "id": "s11",
+    "class": "C8",
+    "quote": "the scorer to fail only on CRITICAL or IMPORTANT gap rows",
+    "description": "Task 2 changes the scorer so one MINOR gap passes, but the composite invariant test that imports the same scorer is no longer named, updated or searched for, so that test keeps its old expectation and tests/audit fails."
+  },
+  {
+    "id": "s12",
+    "class": "C8",
+    "quote": "`src/superclaude/skills/tdd/refs/build-request-template.md` lines 124 and 152",
+    "description": "Task 7 rewrites the fail-on-any-severity and zero-leniency wording of the tdd build-request template, but the release guide that documents the same rule and the 3-cycle research cap is never named, searched or updated, so it keeps stating the old rule.",
+    "note": "Pinned by docs/guides/tdd-skill-release-guide.md:345 (\"Zero leniency: All severity levels (CRITICAL, IMPORTANT, MINOR) must be resolved before proceeding.\") and :271 (\"max 3 fix cycles\"); found with git grep -n -F \"Zero leniency\" in the snapshot. The plan names no docs/guides file and no plan command reads one. Inserted: seeded.md drops the original out-of-scope note that named this guide."
+  },
+  {
+    "id": "s13",
+    "class": "C8",
+    "quote": "`src/superclaude/skills/prd/refs/build-request-template.md` lines 129 and 157",
+    "description": "Task 7 rewrites the fail-on-any-severity and zero-leniency wording of the prd build-request template, but the prd release guide that documents the same rule is never named, searched or updated, so it keeps stating that every severity level must be resolved.",
+    "note": "Pinned by docs/guides/prd-skill-release-guide.md:332 (\"Zero leniency: All severity levels (CRITICAL, IMPORTANT, MINOR) must be resolved before proceeding.\") and :261; found with git grep -n -F \"Zero leniency\" in the snapshot. The plan names no docs/guides file and no plan command reads one. Located: the sentence is unchanged from original.md; the original never named this guide."
+  },
+  {
+    "id": "s14",
+    "class": "C8",
+    "quote": "`src/superclaude/cli/prd/models.py:203` (`max_research_fix_cycles` 2;",
+    "description": "Task 17 changes the prd CLI research fix-cycle default from 3 to 2, but the prd release guide states the research cap as 3 and is never named or updated, and no test pins the value, so the change leaves the guide wrong without any check noticing.",
+    "note": "Pinned by docs/guides/prd-skill-release-guide.md:455 (\"max 3 for research, max 2 for synthesis\") and :261 (\"max 3 fix cycles\"); snapshot value is src/superclaude/cli/prd/models.py:203 max_research_fix_cycles: int = 3 (git grep -n max_research_fix_cycles shows only models.py and executor.py, no test). Located: sentence unchanged from original.md."
+  },
+  {
+    "id": "s15",
+    "class": "C8",
+    "quote": "the research-gate Verdict bullets (171-172)",
+    "description": "Task 2 rewrites the rf-qa research-gate verdict so a minor gap no longer fails, but the reference page that quotes this exact gate rule and says it fails on any gap including MINOR is never named or updated, so it keeps stating the old rule.",
+    "note": "Pinned by docs/reference/nfr-conv-2-prose-determinism.md:131-133 (the rf-qa gate rule \"Any gaps exist (CRITICAL, IMPORTANT, or MINOR) → FAIL\", wrapped across two lines; found with git grep -n -F \"exist (CRITICAL, IMPORTANT, or MINOR) → FAIL\" -- docs, line 132); the snapshot text of that rule is src/superclaude/agents/rf-qa.md:172. The plan names no docs/reference file; tests/audit only checks that the page exists (test_nfr_conv_9_zero_trust.py:137). Located: sentence unchanged from original.md."
+  }
+]
