@@ -9,22 +9,22 @@
 **Where things are.**
 - Incident and requirements: IronClaude issue #546 (https://github.com/IronbellyOrg/IronClaude/issues/546), with a comment dated 2026-11-15 recording the second case.
 - Follow-up with the restrictions the hook would impose and where it is wanted: issue #551 (https://github.com/IronbellyOrg/IronClaude/issues/551).
-- The version 1 design (a brainstorm, not a design document): `merged-requirements.md` in this folder. It has 63 numbered requirements, an 8-step plan and a list of unverified facts (its section 10). Four layers: a floor in the platform's own settings, one deterministic hook (no Jev call), one in-process helper that the Python launchers call, and a detective check after the fact. Observe mode first, except a literal forbidden model, which is blocked from day one. Nothing is implemented.
+- The version 1 design (a brainstorm, not a design document): `merged-requirements.md` in this folder. It has 63 numbered requirements, an 8-step plan and a list of unverified facts (its section 10). Four layers: a floor in the platform's own settings, one deterministic hook (no Jev call), one in-process helper that the Python launchers call, and a detective check after the fact. The historical proposal was observe mode first except for immediate blocking of a literal forbidden model; the owner decision below supersedes that model-usage blocking proposal. Nothing is implemented.
 - Other files in this folder: `seed-brief.md`, `enrichment/codebase-context.md`, `proposals/proposal-{A,B,C}.md`, `nested/adversarial-1/adversarial/` (debate rounds and tallies). The adversarial session timed out before its merge; a second session finished the merge from saved artifacts, so the convergence score of 1.0 is the debate script's own tally, not an independent check.
 
 **Rules for anyone working on this.** Push only to the fork `origin` (IronbellyOrg/IronClaude), only when the owner asks; never touch `SuperClaude-Org`. Edit under `src/superclaude/` and run `make sync-dev`; never stage `.claude/` paths other than `.claude/settings.json`. Python through `uv`. Open pull requests only with `/sc:pr-submit --monitor 3`. Implementation goes through a written plan (`/sc:workflow`, then `/sc:implement`), not ad hoc edits.
 
-## Superseding owner decision: warn and report, do not halt
+## Superseding owner decision: model-usage infractions only are warn-and-report
 
-Ryan's latest November 16 decision overrides the earlier version 1 model-policy blocking proposals and the earlier answers below wherever they conflict: **no model-policy compliance issue is to halt development or other work.** Log incidents and surface warnings in the after-the-fact report instead. This includes forbidden or unknown models, evaluation selections outside the declared list, stage restrictions and requested-versus-served-model discrepancies. The earlier lists and stage rules inform observation, incident classification and warnings, not immediate blocking.
+Ryan's latest November 16 decision overrides the earlier version 1 model-policy blocking proposals and the earlier answers below wherever they conflict: **model-usage compliance infractions alone must not halt development or other work.** Log incidents and surface warnings in the after-the-fact report instead. This includes forbidden or unknown models, evaluation selections outside the declared list, stage restrictions and requested-versus-served-model discrepancies. The earlier lists and stage rules inform observation, incident classification and warnings, not immediate blocking.
 
-Ryan rejects strict served-model compliance gating. This supersedes both the proposed immediate blocking of explicitly forbidden models and any earlier approval of model-policy blocking. Preserve those earlier statements as history, not current enforcement instructions. This direction concerns the model-policy safeguard; it does not purport to remove unrelated security or platform safeguards.
+Ryan rejects strict served-model compliance gating. This supersedes both the proposed immediate blocking of explicitly forbidden models and any earlier approval of model-policy blocking. Preserve those earlier statements as history, not current enforcement instructions. This exception is limited to model-usage compliance infractions. **Actual blocking findings must continue through the established refactoring and review process.** It does not bypass blocker resolution, implementation/compliance reviews, quality gates, or unrelated security/platform safeguards. Do not classify an actual blocking finding as a model-usage warning merely to continue work.
 
 This is a decision-documentation update only. No hook, launcher, policy, code or deployed behavior has been changed by this record.
 
 ## Owner decisions recorded November 16, 2026
 
-These decisions were given by Ryan during the November 16 review. They supersede conflicting recommendations in the historical table below. This update records decisions only; it does not implement or enable a hook, change policy/configuration, run an evaluation, or claim runtime validation.
+These earlier decisions were given by Ryan during the November 16 review. They supersede conflicting recommendations in the historical table below, but are themselves superseded wherever the model-usage-only clarification above applies. This update records decisions only; it does not implement or enable a hook, change policy/configuration, run an evaluation, or claim runtime validation.
 
 | Item | Owner decision | Remaining boundary |
 |---|---|---|
@@ -80,7 +80,9 @@ Also open: should a **version 2** issue (dynamic routing, may use Jev) be opened
 - Whether the existing literal-check tests scan `.json.example`; how the installer merges one command registered four times.
 - All latency figures are estimates.
 
-## Next steps once the owner decides
+## Historical proposed next steps, subject to the owner decisions above
+
+These original proposed steps are retained for history, not as implementation authorization. In particular, the enforcement proposal below cannot override the model-usage-only warn-and-report decision; actual blocking findings still follow the established refactoring and review process.
 
 1. Record the decisions above in #551.
 2. Run the cheap checks on the unverified facts (the design's step 1) and record the results.
