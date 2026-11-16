@@ -71,7 +71,7 @@ Pain to solve. One human supervising 5-10 Orca orchestrators and 50-100 sessions
 - Deterministic, bounded collection: no LLM in the loop, fixed 15 s cycle, at most 5 subprocesses per cycle and 8 MiB output per call.
 - Every fact keeps its evidence label; anything unchecked is UNVERIFIED; no Orca API field is invented. The source-to-dashboard schema is PROPOSED, not an Orca contract (`unverified-register.md`).
 - Unknown is never rendered as 0, false, `-` or blank. Source loss never closes a question, lowers an open count or turns a value into `failed`.
-- Staged releases with data gates (`release-gates.md`). DIRECTION-SELECTED is not shown to have passed; owner to say (owner-decisions-20261108.md item 1). Until the owner confirms a production-integration reading the stricter one applies: offline R0 work only. Issue 409 does not authorize production code changes or deployment.
+- Staged releases with data gates (`release-gates.md`). DIRECTION-SELECTED passed 2026-11-16 (`.dev/issues/409/owner-direction-record-20261116.md`), which also authorizes running the tool as a command and reading the real system. Issue 409 does not authorize production code changes or deployment.
 - Stack is Python + Rich as a `superclaude observe`-style subcommand in the IronClaude repo; the key-reader spike comes first; Textual replaces Rich only if the spike fails, never both (`stack.md`).
 - No dependency on TUIBBS, no AGPL code copied, and the design prototype (`canvas.py`) is never imported.
 - R1 output (screen, text export, snapshot) contains no message bodies, prompts, file contents or credentials; raw source output never goes into logs, fixtures or exports.

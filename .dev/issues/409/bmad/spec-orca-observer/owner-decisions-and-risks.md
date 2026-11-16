@@ -63,4 +63,4 @@
 
 - Invariant probe recorded 16 MEDIUM findings; Round 3 advocate texts refer to the 14 left after Round 2. Both counts are correct for what they describe.
 - X-001: the design prototype does not match the seed brief's claim that Signal Bridge collapses at 116 columns; the prototype is visual reference only.
-- DIRECTION-SELECTED is not shown to have passed; owner to say (owner-decisions-20261108.md item 1). The INV-019 design defect is resolved but no owner selection record exists in the source; until the owner says, the stricter reading applies.
+- DIRECTION-SELECTED passed 2026-11-16 on the owner-written record `.dev/issues/409/owner-direction-record-20261116.md`; the stricter production-integration reading no longer applies.
