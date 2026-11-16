@@ -1,0 +1,140 @@
+PLAN j181b2428d5 first
+PLAN ja477eb19dc first
+PLAN j85af514c26 first
+PLAN ja55003767c first
+PLAN j6a42a4e605 first
+PLAN je2d87668a6 first
+PLAN jfdeaa7b915 first
+PLAN j31af24e17b first
+PLAN j284af8e6df first
+PLAN j2ee1a2ab53 first
+PLAN j3d890f1d32 first
+PLAN j4104644090 first
+PLAN j5b2e5453ad first
+PLAN je7ef3f8c62 first
+PLAN j3f61c32f13 first
+PLAN jb4291a4fed first
+PLAN j4aa65db220 first
+PLAN jcb6fd22dbd first
+PLAN j445e03495b first
+PLAN j3538744c08 first
+PLAN j659f1d71b7 first
+PLAN jb73b0bcff0 first
+PLAN j3909f3c0ed first
+PLAN jd5a10e94e9 first
+PLAN jc097ee9866 first
+PLAN jdf3d2c2a52 first
+PLAN jd6c6ebcd40 first
+PLAN jaa2bfd051b first
+PLAN ja1b3b6648a first
+PLAN j2ea27f0119 first
+PLAN jda487aad80 first
+PLAN jf5bc1e46c2 first
+PLAN jd4319baaae first
+PLAN jf08bdb8885 first
+PLAN j082dbdbb76 first
+PLAN je742032625 first
+PLAN j50260aa3e6 first
+PLAN j603870059d first
+PLAN jc87b1c74a6 first
+PLAN j4736606172 first
+PLAN j29a855f860 first
+PLAN jd0e4af628a first
+PLAN j3a3f941bd9 first
+PLAN ja9bc9ec936 first
+PLAN je771e72501 first
+PLAN j2f3011d403 first
+PLAN jaf7c5e32e6 first
+PLAN j203ebfa64f first
+PLAN j5f6cc30dd7 first
+PLAN j9ca2d82b14 first
+PLAN j6f1441f1ad first
+PLAN ja488f6ec48 first
+PLAN j47c362f1a0 first
+PLAN jd2b2bf4165 first
+PLAN j833d1d6032 first
+PLAN j8bb432c617 first
+PLAN jf07feff725 first
+PLAN jf24886c6df first
+PLAN j60922fbc00 first
+PLAN j549598a47f first
+PLAN jcff030a413 second
+PLAN j070e8e3ca3 second
+PLAN jc411a1e337 second
+PLAN j2f2671f74d second
+PLAN j0cacb2a8fe second
+PLAN j43f1fd8443 second
+PLAN j88aef87688 second
+PLAN j11ea4fd2fb second
+PLAN j9596b3d66b second
+OK j181b2428d5/HO-2/j181b2428d5
+OK ja477eb19dc/HO-2/ja477eb19dc
+OK j85af514c26/HO-2/j85af514c26
+OK ja55003767c/HO-2/ja55003767c
+OK j6a42a4e605/HO-2/j6a42a4e605
+OK je2d87668a6/HO-3/je2d87668a6
+OK jfdeaa7b915/HO-3/jfdeaa7b915
+OK j31af24e17b/HO-3/j31af24e17b
+OK j284af8e6df/HO-3/j284af8e6df
+OK j2ee1a2ab53/HO-3/j2ee1a2ab53
+OK j3d890f1d32/HX-1/j3d890f1d32
+OK j4104644090/HX-1/j4104644090
+OK j5b2e5453ad/HX-1/j5b2e5453ad
+OK je7ef3f8c62/HX-1/je7ef3f8c62
+OK j3f61c32f13/HX-1/j3f61c32f13
+OK jb4291a4fed/HX-3/jb4291a4fed
+OK j4aa65db220/HX-3/j4aa65db220
+OK jcb6fd22dbd/HX-3/jcb6fd22dbd
+OK j445e03495b/HX-3/j445e03495b
+OK j3538744c08/HX-3/j3538744c08
+OK j659f1d71b7/HO-2/j659f1d71b7
+OK jb73b0bcff0/HO-2/jb73b0bcff0
+OK j3909f3c0ed/HO-2/j3909f3c0ed
+OK jd5a10e94e9/HO-2/jd5a10e94e9
+OK jc097ee9866/HO-2/jc097ee9866
+OK jdf3d2c2a52/HO-3/jdf3d2c2a52
+OK jd6c6ebcd40/HO-3/jd6c6ebcd40
+OK jaa2bfd051b/HO-3/jaa2bfd051b
+OK ja1b3b6648a/HO-3/ja1b3b6648a
+OK jda487aad80/HX-1/jda487aad80
+OK j2ea27f0119/HO-3/j2ea27f0119
+OK jd4319baaae/HX-1/jd4319baaae
+OK jf5bc1e46c2/HX-1/jf5bc1e46c2
+OK jf08bdb8885/HX-1/jf08bdb8885
+OK j082dbdbb76/HX-1/j082dbdbb76
+OK je742032625/HX-3/je742032625
+OK j50260aa3e6/HX-3/j50260aa3e6
+OK j603870059d/HX-3/j603870059d
+OK jc87b1c74a6/HX-3/jc87b1c74a6
+OK j4736606172/HX-3/j4736606172
+OK j29a855f860/HO-2/j29a855f860
+OK j3a3f941bd9/HO-2/j3a3f941bd9
+OK jd0e4af628a/HO-2/jd0e4af628a
+OK ja9bc9ec936/HO-2/ja9bc9ec936
+OK je771e72501/HO-2/je771e72501
+OK j2f3011d403/HO-3/j2f3011d403
+OK jaf7c5e32e6/HO-3/jaf7c5e32e6
+OK j5f6cc30dd7/HO-3/j5f6cc30dd7
+OK j203ebfa64f/HO-3/j203ebfa64f
+OK j6f1441f1ad/HX-1/j6f1441f1ad
+OK j9ca2d82b14/HO-3/j9ca2d82b14
+OK ja488f6ec48/HX-1/ja488f6ec48
+OK j47c362f1a0/HX-1/j47c362f1a0
+OK j833d1d6032/HX-1/j833d1d6032
+OK jd2b2bf4165/HX-1/jd2b2bf4165
+OK jf07feff725/HX-3/jf07feff725
+OK j8bb432c617/HX-3/j8bb432c617
+OK j60922fbc00/HX-3/j60922fbc00
+OK jf24886c6df/HX-3/jf24886c6df
+OK j549598a47f/HX-3/j549598a47f
+OK jcff030a413/HO-2/jcff030a413
+OK jc411a1e337/HX-1/jc411a1e337
+OK j070e8e3ca3/HX-1/j070e8e3ca3
+OK j2f2671f74d/HX-1/j2f2671f74d
+OK j0cacb2a8fe/HX-3/j0cacb2a8fe
+OK j88aef87688/HO-3/j88aef87688
+OK j43f1fd8443/HO-3/j43f1fd8443
+OK j11ea4fd2fb/HX-1/j11ea4fd2fb
+OK j9596b3d66b/HX-3/j9596b3d66b
+judge audit: 69 folders, bad = 0
+judge audit: 69 folders, bad = 0

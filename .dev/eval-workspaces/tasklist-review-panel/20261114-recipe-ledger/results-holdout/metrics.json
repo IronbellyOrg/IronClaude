@@ -1,0 +1,1719 @@
+{
+ "ablation": {
+  "C1": {
+   "gained": 0,
+   "points": 0.0,
+   "rows": 540
+  },
+  "C2": {
+   "gained": 0,
+   "points": 0.0,
+   "rows": 540
+  },
+  "C3": {
+   "gained": 0,
+   "points": 0.0,
+   "rows": 540
+  },
+  "C4": {
+   "gained": 0,
+   "points": 0.0,
+   "rows": 540
+  },
+  "C5": {
+   "gained": 0,
+   "points": 0.0,
+   "rows": 540
+  },
+  "C6": {
+   "gained": 0,
+   "points": 0.0,
+   "rows": 540
+  },
+  "C7": {
+   "gained": 0,
+   "points": 0.0,
+   "rows": 540
+  },
+  "C8": {
+   "gained": 0,
+   "points": 0.0,
+   "rows": 540
+  }
+ },
+ "arms": {
+  "K": {
+   "documents": {
+    "HO-2": {
+     "check_skipped": 0,
+     "class_reach": {
+      "unassigned": {
+       "hi": 0.35241815689459555,
+       "hits": 11,
+       "lo": 0.12753786224302288,
+       "rate": 0.22,
+       "trials": 50
+      }
+     },
+     "classes_lost": {},
+     "consistent_item_ids": [
+      "HO-2/GT2",
+      "HO-2/GT9"
+     ],
+     "consistent_items": 2,
+     "consistent_share": 0.2,
+     "elapsed_mean": 137.5336,
+     "elapsed_median": 147.142,
+     "elapsed_p90": 150.25379999999998,
+     "fallbacks": 0,
+     "found_any_mean": 0.22000000000000003,
+     "found_blocking_mean": 0.1,
+     "found_fraction_mean": 0.22000000000000003,
+     "half_found_share": 0.0,
+     "invalid": 0,
+     "item_reach": {
+      "HO-2/GT1": 0.0,
+      "HO-2/GT10": 0.0,
+      "HO-2/GT2": 0.8,
+      "HO-2/GT3": 0.0,
+      "HO-2/GT4": 0.4,
+      "HO-2/GT5": 0.0,
+      "HO-2/GT6": 0.0,
+      "HO-2/GT7": 0.0,
+      "HO-2/GT8": 0.2,
+      "HO-2/GT9": 0.8
+     },
+     "jaccard_mean": 0.425,
+     "jaccard_pairs": 10,
+     "kills": 3,
+     "none_found_share": {},
+     "nonprobe_findings_per_run": 9.2,
+     "over_budget": {
+      "lens": 0,
+      "recipe": 0
+     },
+     "reask_accepted": 0,
+     "reask_asked": 0,
+     "reask_yield": {
+      "with": {
+       "found_fraction_mean": null,
+       "runs": 0
+      },
+      "without": {
+       "found_fraction_mean": 0.22000000000000003,
+       "runs": 5
+      }
+     },
+     "reasks": 0,
+     "recipe_missing": {},
+     "retries": 0,
+     "reviewer_runs": 15,
+     "rows_per_lens": {},
+     "runs": 5,
+     "stable_hit_rate": 0.5,
+     "tokens_per_run": 22477.0,
+     "unknown_item": 0,
+     "wrong_blockers_per_run": 1.6
+    },
+    "HO-3": {
+     "check_skipped": 0,
+     "class_reach": {
+      "unassigned": {
+       "hi": 0.2217902059985814,
+       "hits": 7,
+       "lo": 0.05767647403450049,
+       "rate": 0.11666666666666667,
+       "trials": 60
+      }
+     },
+     "classes_lost": {},
+     "consistent_item_ids": [
+      "HO-3/GT6"
+     ],
+     "consistent_items": 1,
+     "consistent_share": 0.08333333333333333,
+     "elapsed_mean": 119.4156,
+     "elapsed_median": 124.801,
+     "elapsed_p90": 143.083,
+     "fallbacks": 0,
+     "found_any_mean": 0.11666666666666665,
+     "found_blocking_mean": 0.0,
+     "found_fraction_mean": 0.11666666666666665,
+     "half_found_share": 0.0,
+     "invalid": 0,
+     "item_reach": {
+      "HO-3/GT1": 0.0,
+      "HO-3/GT10": 0.0,
+      "HO-3/GT11": 0.0,
+      "HO-3/GT12": 0.0,
+      "HO-3/GT2": 0.0,
+      "HO-3/GT3": 0.0,
+      "HO-3/GT4": 0.0,
+      "HO-3/GT5": 0.0,
+      "HO-3/GT6": 1.0,
+      "HO-3/GT7": 0.0,
+      "HO-3/GT8": 0.0,
+      "HO-3/GT9": 0.4
+     },
+     "jaccard_mean": 0.7,
+     "jaccard_pairs": 10,
+     "kills": 1,
+     "none_found_share": {},
+     "nonprobe_findings_per_run": 9.0,
+     "over_budget": {
+      "lens": 0,
+      "recipe": 0
+     },
+     "reask_accepted": 0,
+     "reask_asked": 0,
+     "reask_yield": {
+      "with": {
+       "found_fraction_mean": null,
+       "runs": 0
+      },
+      "without": {
+       "found_fraction_mean": 0.11666666666666665,
+       "runs": 5
+      }
+     },
+     "reasks": 0,
+     "recipe_missing": {},
+     "retries": 0,
+     "reviewer_runs": 15,
+     "rows_per_lens": {},
+     "runs": 5,
+     "stable_hit_rate": 0.5,
+     "tokens_per_run": 21732.0,
+     "unknown_item": 0,
+     "wrong_blockers_per_run": 2.0
+    },
+    "HX-1": {
+     "check_skipped": 0,
+     "class_reach": {
+      "unassigned": {
+       "hi": 0.7634104063845126,
+       "hits": 5,
+       "lo": 0.23658959361548731,
+       "rate": 0.5,
+       "trials": 10
+      }
+     },
+     "classes_lost": {},
+     "consistent_item_ids": [
+      "HX-1/GT2"
+     ],
+     "consistent_items": 1,
+     "consistent_share": 0.5,
+     "elapsed_mean": 81.7766,
+     "elapsed_median": 67.072,
+     "elapsed_p90": 124.77440000000001,
+     "fallbacks": 0,
+     "found_any_mean": 0.5,
+     "found_blocking_mean": 0.0,
+     "found_fraction_mean": 0.5,
+     "half_found_share": 0.6,
+     "invalid": 0,
+     "item_reach": {
+      "HX-1/GT1": 0.4,
+      "HX-1/GT2": 0.6
+     },
+     "jaccard_mean": 0.2222222222222222,
+     "jaccard_pairs": 9,
+     "kills": 0,
+     "none_found_share": {},
+     "nonprobe_findings_per_run": 3.6,
+     "over_budget": {
+      "lens": 0,
+      "recipe": 0
+     },
+     "reask_accepted": 0,
+     "reask_asked": 0,
+     "reask_yield": {
+      "with": {
+       "found_fraction_mean": null,
+       "runs": 0
+      },
+      "without": {
+       "found_fraction_mean": 0.5,
+       "runs": 5
+      }
+     },
+     "reasks": 0,
+     "recipe_missing": {},
+     "retries": 0,
+     "reviewer_runs": 15,
+     "rows_per_lens": {},
+     "runs": 5,
+     "stable_hit_rate": 0.5,
+     "tokens_per_run": 16224.0,
+     "unknown_item": 0,
+     "wrong_blockers_per_run": 0.2
+    },
+    "HX-3": {
+     "check_skipped": 0,
+     "class_reach": {
+      "unassigned": {
+       "hi": 0.08855338226779477,
+       "hits": 1,
+       "lo": 0.002948083860873682,
+       "rate": 0.016666666666666666,
+       "trials": 60
+      }
+     },
+     "classes_lost": {},
+     "consistent_item_ids": [],
+     "consistent_items": 0,
+     "consistent_share": 0.0,
+     "elapsed_mean": 96.1892,
+     "elapsed_median": 81.328,
+     "elapsed_p90": 124.74879999999999,
+     "fallbacks": 0,
+     "found_any_mean": 0.016666666666666666,
+     "found_blocking_mean": 0.016666666666666666,
+     "found_fraction_mean": 0.016666666666666666,
+     "half_found_share": 0.0,
+     "invalid": 0,
+     "item_reach": {
+      "HX-3/GT1": 0.0,
+      "HX-3/GT10": 0.2,
+      "HX-3/GT11": 0.0,
+      "HX-3/GT12": 0.0,
+      "HX-3/GT2": 0.0,
+      "HX-3/GT3": 0.0,
+      "HX-3/GT4": 0.0,
+      "HX-3/GT5": 0.0,
+      "HX-3/GT6": 0.0,
+      "HX-3/GT7": 0.0,
+      "HX-3/GT8": 0.0,
+      "HX-3/GT9": 0.0
+     },
+     "jaccard_mean": 0.0,
+     "jaccard_pairs": 4,
+     "kills": 0,
+     "none_found_share": {},
+     "nonprobe_findings_per_run": 7.8,
+     "over_budget": {
+      "lens": 0,
+      "recipe": 0
+     },
+     "reask_accepted": 0,
+     "reask_asked": 0,
+     "reask_yield": {
+      "with": {
+       "found_fraction_mean": null,
+       "runs": 0
+      },
+      "without": {
+       "found_fraction_mean": 0.016666666666666666,
+       "runs": 5
+      }
+     },
+     "reasks": 0,
+     "recipe_missing": {},
+     "retries": 0,
+     "reviewer_runs": 15,
+     "rows_per_lens": {},
+     "runs": 5,
+     "stable_hit_rate": 0.0,
+     "tokens_per_run": 23055.4,
+     "unknown_item": 0,
+     "wrong_blockers_per_run": 1.8
+    }
+   },
+   "pooled": {
+    "check_skipped": 0,
+    "class_reach": {
+     "unassigned": {
+      "hi": 0.19072841296549836,
+      "hits": 24,
+      "lo": 0.09126217023221093,
+      "rate": 0.13333333333333333,
+      "trials": 180
+     }
+    },
+    "classes_lost": {},
+    "consistent_item_ids": [
+     "HO-2/GT2",
+     "HO-2/GT9",
+     "HO-3/GT6",
+     "HX-1/GT2"
+    ],
+    "consistent_items": 4,
+    "consistent_share": 0.1111111111111111,
+    "elapsed_mean": 108.72874999999999,
+    "elapsed_median": 117.257,
+    "elapsed_p90": 150.2304,
+    "fallbacks": 0,
+    "found_any_mean": 0.21333333333333332,
+    "found_blocking_mean": 0.029166666666666667,
+    "found_fraction_mean": 0.21333333333333332,
+    "half_found_share": 0.15,
+    "invalid": 0,
+    "item_reach": {
+     "HO-2/GT1": 0.0,
+     "HO-2/GT10": 0.0,
+     "HO-2/GT2": 0.8,
+     "HO-2/GT3": 0.0,
+     "HO-2/GT4": 0.4,
+     "HO-2/GT5": 0.0,
+     "HO-2/GT6": 0.0,
+     "HO-2/GT7": 0.0,
+     "HO-2/GT8": 0.2,
+     "HO-2/GT9": 0.8,
+     "HO-3/GT1": 0.0,
+     "HO-3/GT10": 0.0,
+     "HO-3/GT11": 0.0,
+     "HO-3/GT12": 0.0,
+     "HO-3/GT2": 0.0,
+     "HO-3/GT3": 0.0,
+     "HO-3/GT4": 0.0,
+     "HO-3/GT5": 0.0,
+     "HO-3/GT6": 1.0,
+     "HO-3/GT7": 0.0,
+     "HO-3/GT8": 0.0,
+     "HO-3/GT9": 0.4,
+     "HX-1/GT1": 0.4,
+     "HX-1/GT2": 0.6,
+     "HX-3/GT1": 0.0,
+     "HX-3/GT10": 0.2,
+     "HX-3/GT11": 0.0,
+     "HX-3/GT12": 0.0,
+     "HX-3/GT2": 0.0,
+     "HX-3/GT3": 0.0,
+     "HX-3/GT4": 0.0,
+     "HX-3/GT5": 0.0,
+     "HX-3/GT6": 0.0,
+     "HX-3/GT7": 0.0,
+     "HX-3/GT8": 0.0,
+     "HX-3/GT9": 0.0
+    },
+    "jaccard_mean": 0.4015151515151515,
+    "jaccard_pairs": 33,
+    "kills": 4,
+    "none_found_share": {},
+    "nonprobe_findings_per_run": 7.4,
+    "over_budget": {
+     "lens": 0,
+     "recipe": 0
+    },
+    "reask_accepted": 0,
+    "reask_asked": 0,
+    "reask_yield": {
+     "with": {
+      "found_fraction_mean": null,
+      "runs": 0
+     },
+     "without": {
+      "found_fraction_mean": 0.21333333333333332,
+      "runs": 20
+     }
+    },
+    "reasks": 0,
+    "recipe_missing": {},
+    "retries": 0,
+    "reviewer_runs": 60,
+    "rows_per_lens": {},
+    "runs": 20,
+    "stable_hit_rate": 0.4444444444444444,
+    "tokens_per_run": 20872.1,
+    "unknown_item": 0,
+    "wrong_blockers_per_run": 1.4
+   }
+  },
+  "RL": {
+   "documents": {
+    "HO-2": {
+     "check_skipped": 0,
+     "class_reach": {
+      "unassigned": {
+       "hi": 0.35241815689459555,
+       "hits": 11,
+       "lo": 0.12753786224302288,
+       "rate": 0.22,
+       "trials": 50
+      }
+     },
+     "classes_lost": {
+      "C7": 1
+     },
+     "consistent_item_ids": [
+      "HO-2/GT8",
+      "HO-2/GT9"
+     ],
+     "consistent_items": 2,
+     "consistent_share": 0.2,
+     "elapsed_mean": 159.4444,
+     "elapsed_median": 145.438,
+     "elapsed_p90": 185.345,
+     "fallbacks": 0,
+     "found_any_mean": 0.22000000000000003,
+     "found_blocking_mean": 0.18,
+     "found_fraction_mean": 0.22000000000000003,
+     "half_found_share": 0.0,
+     "invalid": 0,
+     "item_reach": {
+      "HO-2/GT1": 0.2,
+      "HO-2/GT10": 0.0,
+      "HO-2/GT2": 0.2,
+      "HO-2/GT3": 0.2,
+      "HO-2/GT4": 0.0,
+      "HO-2/GT5": 0.0,
+      "HO-2/GT6": 0.2,
+      "HO-2/GT7": 0.0,
+      "HO-2/GT8": 0.6,
+      "HO-2/GT9": 0.8
+     },
+     "jaccard_mean": 0.2783333333333333,
+     "jaccard_pairs": 10,
+     "kills": 1,
+     "none_found_share": {
+      "C1": {
+       "none_found": 0,
+       "ran": 5,
+       "share": 0.0
+      },
+      "C2": {
+       "none_found": 3,
+       "ran": 9,
+       "share": 0.3333333333333333
+      },
+      "C3": {
+       "none_found": 0,
+       "ran": 5,
+       "share": 0.0
+      },
+      "C4": {
+       "none_found": 0,
+       "ran": 9,
+       "share": 0.0
+      },
+      "C5": {
+       "none_found": 0,
+       "ran": 5,
+       "share": 0.0
+      },
+      "C6": {
+       "none_found": 0,
+       "ran": 5,
+       "share": 0.0
+      },
+      "C7": {
+       "none_found": 0,
+       "ran": 4,
+       "share": 0.0
+      },
+      "C8": {
+       "none_found": 0,
+       "ran": 5,
+       "share": 0.0
+      }
+     },
+     "nonprobe_findings_per_run": 3.8,
+     "over_budget": {
+      "lens": 2,
+      "recipe": 0
+     },
+     "reask_accepted": 0,
+     "reask_asked": 0,
+     "reask_yield": {
+      "with": {
+       "found_fraction_mean": null,
+       "runs": 0
+      },
+      "without": {
+       "found_fraction_mean": 0.22000000000000003,
+       "runs": 5
+      }
+     },
+     "reasks": 0,
+     "recipe_missing": {},
+     "retries": 0,
+     "reviewer_runs": 15,
+     "rows_per_lens": {
+      "t2b-1": 13.4,
+      "t3-1": 7.75,
+      "t4-1": 9.4
+     },
+     "runs": 5,
+     "stable_hit_rate": 0.3333333333333333,
+     "tokens_per_run": 25877.4,
+     "unknown_item": 0,
+     "wrong_blockers_per_run": 0.4
+    },
+    "HO-3": {
+     "check_skipped": 0,
+     "class_reach": {
+      "unassigned": {
+       "hi": 0.28031851497207827,
+       "hits": 10,
+       "lo": 0.09313077201321032,
+       "rate": 0.16666666666666666,
+       "trials": 60
+      }
+     },
+     "classes_lost": {
+      "C1": 1,
+      "C3": 1
+     },
+     "consistent_item_ids": [
+      "HO-3/GT6"
+     ],
+     "consistent_items": 1,
+     "consistent_share": 0.08333333333333333,
+     "elapsed_mean": 152.0276,
+     "elapsed_median": 157.651,
+     "elapsed_p90": 182.76479999999998,
+     "fallbacks": 0,
+     "found_any_mean": 0.16666666666666666,
+     "found_blocking_mean": 0.03333333333333333,
+     "found_fraction_mean": 0.16666666666666666,
+     "half_found_share": 0.0,
+     "invalid": 0,
+     "item_reach": {
+      "HO-3/GT1": 0.0,
+      "HO-3/GT10": 0.0,
+      "HO-3/GT11": 0.0,
+      "HO-3/GT12": 0.0,
+      "HO-3/GT2": 0.0,
+      "HO-3/GT3": 0.2,
+      "HO-3/GT4": 0.0,
+      "HO-3/GT5": 0.0,
+      "HO-3/GT6": 1.0,
+      "HO-3/GT7": 0.0,
+      "HO-3/GT8": 0.4,
+      "HO-3/GT9": 0.4
+     },
+     "jaccard_mean": 0.475,
+     "jaccard_pairs": 10,
+     "kills": 1,
+     "none_found_share": {
+      "C1": {
+       "none_found": 0,
+       "ran": 4,
+       "share": 0.0
+      },
+      "C2": {
+       "none_found": 0,
+       "ran": 9,
+       "share": 0.0
+      },
+      "C3": {
+       "none_found": 0,
+       "ran": 4,
+       "share": 0.0
+      },
+      "C4": {
+       "none_found": 0,
+       "ran": 10,
+       "share": 0.0
+      },
+      "C5": {
+       "none_found": 0,
+       "ran": 5,
+       "share": 0.0
+      },
+      "C6": {
+       "none_found": 0,
+       "ran": 5,
+       "share": 0.0
+      },
+      "C7": {
+       "none_found": 0,
+       "ran": 5,
+       "share": 0.0
+      },
+      "C8": {
+       "none_found": 0,
+       "ran": 5,
+       "share": 0.0
+      }
+     },
+     "nonprobe_findings_per_run": 2.2,
+     "over_budget": {
+      "lens": 0,
+      "recipe": 0
+     },
+     "reask_accepted": 0,
+     "reask_asked": 0,
+     "reask_yield": {
+      "with": {
+       "found_fraction_mean": null,
+       "runs": 0
+      },
+      "without": {
+       "found_fraction_mean": 0.16666666666666666,
+       "runs": 5
+      }
+     },
+     "reasks": 0,
+     "recipe_missing": {},
+     "retries": 0,
+     "reviewer_runs": 15,
+     "rows_per_lens": {
+      "t2b-1": 11.6,
+      "t3-1": 11.0,
+      "t4-1": 11.0
+     },
+     "runs": 5,
+     "stable_hit_rate": 0.25,
+     "tokens_per_run": 23387.6,
+     "unknown_item": 0,
+     "wrong_blockers_per_run": 1.0
+    },
+    "HX-1": {
+     "check_skipped": 0,
+     "class_reach": {
+      "unassigned": {
+       "hi": 0.8318224187964902,
+       "hits": 6,
+       "lo": 0.3126695474501864,
+       "rate": 0.6,
+       "trials": 10
+      }
+     },
+     "classes_lost": {
+      "C7": 2
+     },
+     "consistent_item_ids": [
+      "HX-1/GT1",
+      "HX-1/GT2"
+     ],
+     "consistent_items": 2,
+     "consistent_share": 1.0,
+     "elapsed_mean": 143.92860000000002,
+     "elapsed_median": 140.083,
+     "elapsed_p90": 192.587,
+     "fallbacks": 0,
+     "found_any_mean": 0.6,
+     "found_blocking_mean": 0.0,
+     "found_fraction_mean": 0.6,
+     "half_found_share": 0.6,
+     "invalid": 0,
+     "item_reach": {
+      "HX-1/GT1": 0.6,
+      "HX-1/GT2": 0.6
+     },
+     "jaccard_mean": 0.3333333333333333,
+     "jaccard_pairs": 9,
+     "kills": 2,
+     "none_found_share": {
+      "C1": {
+       "none_found": 0,
+       "ran": 4,
+       "share": 0.0
+      },
+      "C2": {
+       "none_found": 0,
+       "ran": 6,
+       "share": 0.0
+      },
+      "C3": {
+       "none_found": 0,
+       "ran": 4,
+       "share": 0.0
+      },
+      "C4": {
+       "none_found": 0,
+       "ran": 7,
+       "share": 0.0
+      },
+      "C5": {
+       "none_found": 0,
+       "ran": 5,
+       "share": 0.0
+      },
+      "C6": {
+       "none_found": 0,
+       "ran": 5,
+       "share": 0.0
+      },
+      "C7": {
+       "none_found": 0,
+       "ran": 2,
+       "share": 0.0
+      },
+      "C8": {
+       "none_found": 0,
+       "ran": 5,
+       "share": 0.0
+      }
+     },
+     "nonprobe_findings_per_run": 3.0,
+     "over_budget": {
+      "lens": 2,
+      "recipe": 0
+     },
+     "reask_accepted": 0,
+     "reask_asked": 0,
+     "reask_yield": {
+      "with": {
+       "found_fraction_mean": null,
+       "runs": 0
+      },
+      "without": {
+       "found_fraction_mean": 0.6,
+       "runs": 5
+      }
+     },
+     "reasks": 0,
+     "recipe_missing": {
+      "C1": 1,
+      "C2": 2,
+      "C3": 1,
+      "C4": 1,
+      "C7": 1
+     },
+     "retries": 0,
+     "reviewer_runs": 15,
+     "rows_per_lens": {
+      "t2b-1": 12.6,
+      "t3-1": 4.333333333333333,
+      "t4-1": 9.6
+     },
+     "runs": 5,
+     "stable_hit_rate": 1.0,
+     "tokens_per_run": 20788.8,
+     "unknown_item": 3,
+     "wrong_blockers_per_run": 0.2
+    },
+    "HX-3": {
+     "check_skipped": 0,
+     "class_reach": {
+      "unassigned": {
+       "hi": 0.13700734625099836,
+       "hits": 3,
+       "lo": 0.01714919117914121,
+       "rate": 0.05,
+       "trials": 60
+      }
+     },
+     "classes_lost": {},
+     "consistent_item_ids": [
+      "HX-3/GT9"
+     ],
+     "consistent_items": 1,
+     "consistent_share": 0.08333333333333333,
+     "elapsed_mean": 112.96340000000001,
+     "elapsed_median": 109.154,
+     "elapsed_p90": 129.9786,
+     "fallbacks": 0,
+     "found_any_mean": 0.05,
+     "found_blocking_mean": 0.0,
+     "found_fraction_mean": 0.05,
+     "half_found_share": 0.0,
+     "invalid": 0,
+     "item_reach": {
+      "HX-3/GT1": 0.0,
+      "HX-3/GT10": 0.0,
+      "HX-3/GT11": 0.0,
+      "HX-3/GT12": 0.0,
+      "HX-3/GT2": 0.0,
+      "HX-3/GT3": 0.0,
+      "HX-3/GT4": 0.0,
+      "HX-3/GT5": 0.0,
+      "HX-3/GT6": 0.0,
+      "HX-3/GT7": 0.0,
+      "HX-3/GT8": 0.0,
+      "HX-3/GT9": 0.6
+     },
+     "jaccard_mean": 0.3333333333333333,
+     "jaccard_pairs": 9,
+     "kills": 0,
+     "none_found_share": {
+      "C1": {
+       "none_found": 0,
+       "ran": 5,
+       "share": 0.0
+      },
+      "C2": {
+       "none_found": 0,
+       "ran": 10,
+       "share": 0.0
+      },
+      "C3": {
+       "none_found": 0,
+       "ran": 5,
+       "share": 0.0
+      },
+      "C4": {
+       "none_found": 0,
+       "ran": 10,
+       "share": 0.0
+      },
+      "C5": {
+       "none_found": 0,
+       "ran": 5,
+       "share": 0.0
+      },
+      "C6": {
+       "none_found": 0,
+       "ran": 5,
+       "share": 0.0
+      },
+      "C7": {
+       "none_found": 0,
+       "ran": 5,
+       "share": 0.0
+      },
+      "C8": {
+       "none_found": 0,
+       "ran": 5,
+       "share": 0.0
+      }
+     },
+     "nonprobe_findings_per_run": 3.6,
+     "over_budget": {
+      "lens": 4,
+      "recipe": 0
+     },
+     "reask_accepted": 0,
+     "reask_asked": 0,
+     "reask_yield": {
+      "with": {
+       "found_fraction_mean": null,
+       "runs": 0
+      },
+      "without": {
+       "found_fraction_mean": 0.05,
+       "runs": 5
+      }
+     },
+     "reasks": 0,
+     "recipe_missing": {},
+     "retries": 0,
+     "reviewer_runs": 15,
+     "rows_per_lens": {
+      "t2b-1": 12.2,
+      "t3-1": 12.0,
+      "t4-1": 12.4
+     },
+     "runs": 5,
+     "stable_hit_rate": 1.0,
+     "tokens_per_run": 27302.8,
+     "unknown_item": 0,
+     "wrong_blockers_per_run": 0.4
+    }
+   },
+   "pooled": {
+    "check_skipped": 0,
+    "class_reach": {
+     "unassigned": {
+      "hi": 0.22795311002228752,
+      "hits": 30,
+      "lo": 0.11931105652108459,
+      "rate": 0.16666666666666666,
+      "trials": 180
+     }
+    },
+    "classes_lost": {
+     "C1": 1,
+     "C3": 1,
+     "C7": 3
+    },
+    "consistent_item_ids": [
+     "HO-2/GT8",
+     "HO-2/GT9",
+     "HO-3/GT6",
+     "HX-1/GT1",
+     "HX-1/GT2",
+     "HX-3/GT9"
+    ],
+    "consistent_items": 6,
+    "consistent_share": 0.16666666666666666,
+    "elapsed_mean": 142.091,
+    "elapsed_median": 141.7665,
+    "elapsed_p90": 192.582,
+    "fallbacks": 0,
+    "found_any_mean": 0.25916666666666666,
+    "found_blocking_mean": 0.05333333333333333,
+    "found_fraction_mean": 0.25916666666666666,
+    "half_found_share": 0.15,
+    "invalid": 0,
+    "item_reach": {
+     "HO-2/GT1": 0.2,
+     "HO-2/GT10": 0.0,
+     "HO-2/GT2": 0.2,
+     "HO-2/GT3": 0.2,
+     "HO-2/GT4": 0.0,
+     "HO-2/GT5": 0.0,
+     "HO-2/GT6": 0.2,
+     "HO-2/GT7": 0.0,
+     "HO-2/GT8": 0.6,
+     "HO-2/GT9": 0.8,
+     "HO-3/GT1": 0.0,
+     "HO-3/GT10": 0.0,
+     "HO-3/GT11": 0.0,
+     "HO-3/GT12": 0.0,
+     "HO-3/GT2": 0.0,
+     "HO-3/GT3": 0.2,
+     "HO-3/GT4": 0.0,
+     "HO-3/GT5": 0.0,
+     "HO-3/GT6": 1.0,
+     "HO-3/GT7": 0.0,
+     "HO-3/GT8": 0.4,
+     "HO-3/GT9": 0.4,
+     "HX-1/GT1": 0.6,
+     "HX-1/GT2": 0.6,
+     "HX-3/GT1": 0.0,
+     "HX-3/GT10": 0.0,
+     "HX-3/GT11": 0.0,
+     "HX-3/GT12": 0.0,
+     "HX-3/GT2": 0.0,
+     "HX-3/GT3": 0.0,
+     "HX-3/GT4": 0.0,
+     "HX-3/GT5": 0.0,
+     "HX-3/GT6": 0.0,
+     "HX-3/GT7": 0.0,
+     "HX-3/GT8": 0.0,
+     "HX-3/GT9": 0.6
+    },
+    "jaccard_mean": 0.356140350877193,
+    "jaccard_pairs": 38,
+    "kills": 4,
+    "none_found_share": {
+     "C1": {
+      "none_found": 0,
+      "ran": 18,
+      "share": 0.0
+     },
+     "C2": {
+      "none_found": 3,
+      "ran": 34,
+      "share": 0.08823529411764706
+     },
+     "C3": {
+      "none_found": 0,
+      "ran": 18,
+      "share": 0.0
+     },
+     "C4": {
+      "none_found": 0,
+      "ran": 36,
+      "share": 0.0
+     },
+     "C5": {
+      "none_found": 0,
+      "ran": 20,
+      "share": 0.0
+     },
+     "C6": {
+      "none_found": 0,
+      "ran": 20,
+      "share": 0.0
+     },
+     "C7": {
+      "none_found": 0,
+      "ran": 16,
+      "share": 0.0
+     },
+     "C8": {
+      "none_found": 0,
+      "ran": 20,
+      "share": 0.0
+     }
+    },
+    "nonprobe_findings_per_run": 3.15,
+    "over_budget": {
+     "lens": 8,
+     "recipe": 0
+    },
+    "reask_accepted": 0,
+    "reask_asked": 0,
+    "reask_yield": {
+     "with": {
+      "found_fraction_mean": null,
+      "runs": 0
+     },
+     "without": {
+      "found_fraction_mean": 0.25916666666666666,
+      "runs": 20
+     }
+    },
+    "reasks": 0,
+    "recipe_missing": {
+     "C1": 1,
+     "C2": 2,
+     "C3": 1,
+     "C4": 1,
+     "C7": 1
+    },
+    "retries": 0,
+    "reviewer_runs": 60,
+    "rows_per_lens": {
+     "t2b-1": 12.45,
+     "t3-1": 9.352941176470589,
+     "t4-1": 10.578947368421053
+    },
+    "runs": 20,
+    "stable_hit_rate": 0.46153846153846156,
+    "tokens_per_run": 24339.15,
+    "unknown_item": 3,
+    "wrong_blockers_per_run": 0.5
+   }
+  },
+  "Z0": {
+   "documents": {
+    "HO-2": {
+     "check_skipped": 0,
+     "class_reach": {
+      "unassigned": {
+       "hi": 0.3955342198899992,
+       "hits": 13,
+       "lo": 0.15871379651367384,
+       "rate": 0.26,
+       "trials": 50
+      }
+     },
+     "classes_lost": {},
+     "consistent_item_ids": [
+      "HO-2/GT2",
+      "HO-2/GT3",
+      "HO-2/GT9"
+     ],
+     "consistent_items": 3,
+     "consistent_share": 0.3,
+     "elapsed_mean": 115.7548,
+     "elapsed_median": 121.663,
+     "elapsed_p90": 144.8798,
+     "fallbacks": 0,
+     "found_any_mean": 0.26,
+     "found_blocking_mean": 0.16,
+     "found_fraction_mean": 0.26,
+     "half_found_share": 0.0,
+     "invalid": 0,
+     "item_reach": {
+      "HO-2/GT1": 0.0,
+      "HO-2/GT10": 0.2,
+      "HO-2/GT2": 0.6,
+      "HO-2/GT3": 0.8,
+      "HO-2/GT4": 0.2,
+      "HO-2/GT5": 0.0,
+      "HO-2/GT6": 0.0,
+      "HO-2/GT7": 0.2,
+      "HO-2/GT8": 0.0,
+      "HO-2/GT9": 0.6
+     },
+     "jaccard_mean": 0.33166666666666667,
+     "jaccard_pairs": 10,
+     "kills": 0,
+     "none_found_share": {},
+     "nonprobe_findings_per_run": 9.0,
+     "over_budget": {
+      "lens": 0,
+      "recipe": 0
+     },
+     "reask_accepted": 0,
+     "reask_asked": 0,
+     "reask_yield": {
+      "with": {
+       "found_fraction_mean": null,
+       "runs": 0
+      },
+      "without": {
+       "found_fraction_mean": 0.26,
+       "runs": 5
+      }
+     },
+     "reasks": 0,
+     "recipe_missing": {},
+     "retries": 0,
+     "reviewer_runs": 15,
+     "rows_per_lens": {},
+     "runs": 5,
+     "stable_hit_rate": 0.5,
+     "tokens_per_run": 19215.2,
+     "unknown_item": 0,
+     "wrong_blockers_per_run": 0.4
+    },
+    "HO-3": {
+     "check_skipped": 0,
+     "class_reach": {
+      "unassigned": {
+       "hi": 0.20149694492511044,
+       "hits": 6,
+       "lo": 0.04664219945723587,
+       "rate": 0.1,
+       "trials": 60
+      }
+     },
+     "classes_lost": {},
+     "consistent_item_ids": [
+      "HO-3/GT6"
+     ],
+     "consistent_items": 1,
+     "consistent_share": 0.08333333333333333,
+     "elapsed_mean": 110.43140000000001,
+     "elapsed_median": 103.384,
+     "elapsed_p90": 138.1878,
+     "fallbacks": 0,
+     "found_any_mean": 0.1,
+     "found_blocking_mean": 0.0,
+     "found_fraction_mean": 0.1,
+     "half_found_share": 0.0,
+     "invalid": 0,
+     "item_reach": {
+      "HO-3/GT1": 0.0,
+      "HO-3/GT10": 0.0,
+      "HO-3/GT11": 0.0,
+      "HO-3/GT12": 0.0,
+      "HO-3/GT2": 0.0,
+      "HO-3/GT3": 0.0,
+      "HO-3/GT4": 0.0,
+      "HO-3/GT5": 0.0,
+      "HO-3/GT6": 0.8,
+      "HO-3/GT7": 0.0,
+      "HO-3/GT8": 0.4,
+      "HO-3/GT9": 0.0
+     },
+     "jaccard_mean": 0.5,
+     "jaccard_pairs": 10,
+     "kills": 0,
+     "none_found_share": {},
+     "nonprobe_findings_per_run": 11.6,
+     "over_budget": {
+      "lens": 0,
+      "recipe": 0
+     },
+     "reask_accepted": 0,
+     "reask_asked": 0,
+     "reask_yield": {
+      "with": {
+       "found_fraction_mean": null,
+       "runs": 0
+      },
+      "without": {
+       "found_fraction_mean": 0.1,
+       "runs": 5
+      }
+     },
+     "reasks": 0,
+     "recipe_missing": {},
+     "retries": 0,
+     "reviewer_runs": 15,
+     "rows_per_lens": {},
+     "runs": 5,
+     "stable_hit_rate": 0.5,
+     "tokens_per_run": 25963.8,
+     "unknown_item": 0,
+     "wrong_blockers_per_run": 1.4
+    },
+    "HX-1": {
+     "check_skipped": 0,
+     "class_reach": {
+      "unassigned": {
+       "hi": 0.7634104063845126,
+       "hits": 5,
+       "lo": 0.23658959361548731,
+       "rate": 0.5,
+       "trials": 10
+      }
+     },
+     "classes_lost": {},
+     "consistent_item_ids": [
+      "HX-1/GT1"
+     ],
+     "consistent_items": 1,
+     "consistent_share": 0.5,
+     "elapsed_mean": 68.2562,
+     "elapsed_median": 76.807,
+     "elapsed_p90": 78.18939999999999,
+     "fallbacks": 0,
+     "found_any_mean": 0.5,
+     "found_blocking_mean": 0.0,
+     "found_fraction_mean": 0.5,
+     "half_found_share": 0.6,
+     "invalid": 1,
+     "item_reach": {
+      "HX-1/GT1": 0.6,
+      "HX-1/GT2": 0.4
+     },
+     "jaccard_mean": 0.2222222222222222,
+     "jaccard_pairs": 9,
+     "kills": 0,
+     "none_found_share": {},
+     "nonprobe_findings_per_run": 4.0,
+     "over_budget": {
+      "lens": 0,
+      "recipe": 0
+     },
+     "reask_accepted": 0,
+     "reask_asked": 0,
+     "reask_yield": {
+      "with": {
+       "found_fraction_mean": null,
+       "runs": 0
+      },
+      "without": {
+       "found_fraction_mean": 0.5,
+       "runs": 5
+      }
+     },
+     "reasks": 0,
+     "recipe_missing": {},
+     "retries": 0,
+     "reviewer_runs": 15,
+     "rows_per_lens": {},
+     "runs": 5,
+     "stable_hit_rate": 0.5,
+     "tokens_per_run": 17891.8,
+     "unknown_item": 0,
+     "wrong_blockers_per_run": 0.4
+    },
+    "HX-3": {
+     "check_skipped": 0,
+     "class_reach": {
+      "unassigned": {
+       "hi": 0.11363987528925378,
+       "hits": 2,
+       "lo": 0.009189126490150246,
+       "rate": 0.03333333333333333,
+       "trials": 60
+      }
+     },
+     "classes_lost": {},
+     "consistent_item_ids": [],
+     "consistent_items": 0,
+     "consistent_share": 0.0,
+     "elapsed_mean": 106.88879999999999,
+     "elapsed_median": 102.678,
+     "elapsed_p90": 132.8934,
+     "fallbacks": 0,
+     "found_any_mean": 0.03333333333333333,
+     "found_blocking_mean": 0.0,
+     "found_fraction_mean": 0.03333333333333333,
+     "half_found_share": 0.0,
+     "invalid": 0,
+     "item_reach": {
+      "HX-3/GT1": 0.0,
+      "HX-3/GT10": 0.0,
+      "HX-3/GT11": 0.0,
+      "HX-3/GT12": 0.0,
+      "HX-3/GT2": 0.0,
+      "HX-3/GT3": 0.0,
+      "HX-3/GT4": 0.0,
+      "HX-3/GT5": 0.0,
+      "HX-3/GT6": 0.0,
+      "HX-3/GT7": 0.0,
+      "HX-3/GT8": 0.0,
+      "HX-3/GT9": 0.4
+     },
+     "jaccard_mean": 0.14285714285714285,
+     "jaccard_pairs": 7,
+     "kills": 1,
+     "none_found_share": {},
+     "nonprobe_findings_per_run": 8.8,
+     "over_budget": {
+      "lens": 0,
+      "recipe": 0
+     },
+     "reask_accepted": 0,
+     "reask_asked": 0,
+     "reask_yield": {
+      "with": {
+       "found_fraction_mean": null,
+       "runs": 0
+      },
+      "without": {
+       "found_fraction_mean": 0.03333333333333333,
+       "runs": 5
+      }
+     },
+     "reasks": 0,
+     "recipe_missing": {},
+     "retries": 0,
+     "reviewer_runs": 15,
+     "rows_per_lens": {},
+     "runs": 5,
+     "stable_hit_rate": 0.0,
+     "tokens_per_run": 21072.2,
+     "unknown_item": 0,
+     "wrong_blockers_per_run": 1.6
+    }
+   },
+   "pooled": {
+    "check_skipped": 0,
+    "class_reach": {
+     "unassigned": {
+      "hi": 0.2032314544471833,
+      "hits": 26,
+      "lo": 0.10051698986574695,
+      "rate": 0.14444444444444443,
+      "trials": 180
+     }
+    },
+    "classes_lost": {},
+    "consistent_item_ids": [
+     "HO-2/GT2",
+     "HO-2/GT3",
+     "HO-2/GT9",
+     "HO-3/GT6",
+     "HX-1/GT1"
+    ],
+    "consistent_items": 5,
+    "consistent_share": 0.1388888888888889,
+    "elapsed_mean": 100.33279999999999,
+    "elapsed_median": 99.762,
+    "elapsed_p90": 144.8608,
+    "fallbacks": 0,
+    "found_any_mean": 0.22333333333333333,
+    "found_blocking_mean": 0.04,
+    "found_fraction_mean": 0.22333333333333333,
+    "half_found_share": 0.15,
+    "invalid": 1,
+    "item_reach": {
+     "HO-2/GT1": 0.0,
+     "HO-2/GT10": 0.2,
+     "HO-2/GT2": 0.6,
+     "HO-2/GT3": 0.8,
+     "HO-2/GT4": 0.2,
+     "HO-2/GT5": 0.0,
+     "HO-2/GT6": 0.0,
+     "HO-2/GT7": 0.2,
+     "HO-2/GT8": 0.0,
+     "HO-2/GT9": 0.6,
+     "HO-3/GT1": 0.0,
+     "HO-3/GT10": 0.0,
+     "HO-3/GT11": 0.0,
+     "HO-3/GT12": 0.0,
+     "HO-3/GT2": 0.0,
+     "HO-3/GT3": 0.0,
+     "HO-3/GT4": 0.0,
+     "HO-3/GT5": 0.0,
+     "HO-3/GT6": 0.8,
+     "HO-3/GT7": 0.0,
+     "HO-3/GT8": 0.4,
+     "HO-3/GT9": 0.0,
+     "HX-1/GT1": 0.6,
+     "HX-1/GT2": 0.4,
+     "HX-3/GT1": 0.0,
+     "HX-3/GT10": 0.0,
+     "HX-3/GT11": 0.0,
+     "HX-3/GT12": 0.0,
+     "HX-3/GT2": 0.0,
+     "HX-3/GT3": 0.0,
+     "HX-3/GT4": 0.0,
+     "HX-3/GT5": 0.0,
+     "HX-3/GT6": 0.0,
+     "HX-3/GT7": 0.0,
+     "HX-3/GT8": 0.0,
+     "HX-3/GT9": 0.4
+    },
+    "jaccard_mean": 0.3143518518518518,
+    "jaccard_pairs": 36,
+    "kills": 1,
+    "none_found_share": {},
+    "nonprobe_findings_per_run": 8.35,
+    "over_budget": {
+     "lens": 0,
+     "recipe": 0
+    },
+    "reask_accepted": 0,
+    "reask_asked": 0,
+    "reask_yield": {
+     "with": {
+      "found_fraction_mean": null,
+      "runs": 0
+     },
+     "without": {
+      "found_fraction_mean": 0.22333333333333333,
+      "runs": 20
+     }
+    },
+    "reasks": 0,
+    "recipe_missing": {},
+    "retries": 0,
+    "reviewer_runs": 60,
+    "rows_per_lens": {},
+    "runs": 20,
+    "stable_hit_rate": 0.45454545454545453,
+    "tokens_per_run": 21035.75,
+    "unknown_item": 0,
+    "wrong_blockers_per_run": 0.95
+   }
+  }
+ },
+ "bootstrap_draws": 2000,
+ "claim": "raises the per-run found fraction; consistency is expected only for I4 and I7 (classes C4 and C8), and only for Redesign 1 at the high end of its range",
+ "decisions": {
+  "RL": {
+   "blocking_failed": [
+    "D6"
+   ],
+   "decision": "do not adopt",
+   "failed": [
+    "D1",
+    "D2",
+    "D3",
+    "D6"
+   ],
+   "required": [
+    "D1",
+    "D2",
+    "D3",
+    "D4",
+    "D6",
+    "D7"
+   ]
+  }
+ },
+ "gates": {
+  "RL": {
+   "D1": {
+    "kill_rate": 0.06666666666666667,
+    "kills": 4,
+    "pass": false,
+    "per_doc": {
+     "HO-2": {
+      "candidate": {
+       "mean": 159.4444,
+       "median": 145.438,
+       "p90": 185.345
+      },
+      "control": {
+       "mean": 115.7548,
+       "median": 121.663,
+       "p90": 144.8798
+      },
+      "ignored_control_runs": [],
+      "ratio_mean": 1.3774322965440742,
+      "ratio_median": 1.1954168481789862,
+      "ratio_p90": 1.2793018764520658
+     },
+     "HO-3": {
+      "candidate": {
+       "mean": 152.0276,
+       "median": 157.651,
+       "p90": 182.76479999999998
+      },
+      "control": {
+       "mean": 110.43140000000001,
+       "median": 103.384,
+       "p90": 138.1878
+      },
+      "ignored_control_runs": [],
+      "ratio_mean": 1.376670041310714,
+      "ratio_median": 1.5249071423044185,
+      "ratio_p90": 1.3225827460890178
+     },
+     "HX-1": {
+      "candidate": {
+       "mean": 143.92860000000002,
+       "median": 140.083,
+       "p90": 192.587
+      },
+      "control": {
+       "mean": 68.2562,
+       "median": 76.807,
+       "p90": 78.18939999999999
+      },
+      "ignored_control_runs": [],
+      "ratio_mean": 2.1086524008075456,
+      "ratio_median": 1.8238311612222844,
+      "ratio_p90": 2.463083231230832
+     },
+     "HX-3": {
+      "candidate": {
+       "mean": 112.96340000000001,
+       "median": 109.154,
+       "p90": 129.9786
+      },
+      "control": {
+       "mean": 106.88879999999999,
+       "median": 102.678,
+       "p90": 132.8934
+      },
+      "ignored_control_runs": [],
+      "ratio_mean": 1.0568310243917045,
+      "ratio_median": 1.063070959699254,
+      "ratio_p90": 0.9780666308484844
+     }
+    }
+   },
+   "D2": {
+    "diff": 0.03583333333333333,
+    "lower": -0.09000000000000002,
+    "pass": false
+   },
+   "D3": {
+    "candidate": 6,
+    "control": 5,
+    "pass": false
+   },
+   "D4": {
+    "clean_blocking_diff": null,
+    "pass": true,
+    "wrong_blockers_diff": -0.44999999999999996
+   },
+   "D5": {
+    "pass": null,
+    "status": "no planted documents in --sets"
+   },
+   "D6": {
+    "blocking": true,
+    "pass": false,
+    "regressed_items": {
+     "HO-2/GT2": {
+      "candidate": 0.2,
+      "control": 0.6
+     },
+     "HO-2/GT3": {
+      "candidate": 0.2,
+      "control": 0.8
+     }
+    }
+   },
+   "D7": {
+    "gain_over_k": 0.04583333333333334,
+    "k_within_0_03": false,
+    "pass": true
+   }
+  }
+ },
+ "runs": 60,
+ "schema": "rl-metrics/1",
+ "seed": 20261119,
+ "shares": {
+  "H share": {
+   "label": "Z0 - Z0raw",
+   "value": null
+  },
+  "prompting share": {
+   "documents": [
+    "HO-2",
+    "HO-3",
+    "HX-1",
+    "HX-3"
+   ],
+   "label": "K - Z0",
+   "value": -0.010000000000000009
+  },
+  "redesign share": {
+   "documents": [
+    "HO-2",
+    "HO-3",
+    "HX-1",
+    "HX-3"
+   ],
+   "label": "RL - Z0",
+   "value": 0.03583333333333333
+  }
+ },
+ "stage": 1,
+ "stages": {
+  "K": {
+   "unassigned": {
+    "by_reviewer": {
+     "t2b-1": {
+      "act": 0,
+      "ledger_rows": 0,
+      "merge_survival": 69,
+      "rows": 180,
+      "selection": 0
+     },
+     "t3-1": {
+      "act": 0,
+      "ledger_rows": 0,
+      "merge_survival": 24,
+      "rows": 180,
+      "selection": 0
+     },
+     "t4-1": {
+      "act": 0,
+      "ledger_rows": 0,
+      "merge_survival": 34,
+      "rows": 180,
+      "selection": 0
+     }
+    },
+    "items": 180,
+    "judge_credit_any": 24,
+    "judge_credit_blocking": 6
+   }
+  },
+  "RL": {
+   "unassigned": {
+    "by_reviewer": {
+     "t2b-1": {
+      "act": 18,
+      "ledger_rows": 180,
+      "merge_survival": 30,
+      "rows": 180,
+      "selection": 87
+     },
+     "t3-1": {
+      "act": 14,
+      "ledger_rows": 180,
+      "merge_survival": 16,
+      "rows": 180,
+      "selection": 94
+     },
+     "t4-1": {
+      "act": 17,
+      "ledger_rows": 180,
+      "merge_survival": 22,
+      "rows": 180,
+      "selection": 85
+     }
+    },
+    "items": 180,
+    "judge_credit_any": 30,
+    "judge_credit_blocking": 11
+   }
+  },
+  "Z0": {
+   "unassigned": {
+    "by_reviewer": {
+     "t2b-1": {
+      "act": 0,
+      "ledger_rows": 0,
+      "merge_survival": 77,
+      "rows": 180,
+      "selection": 0
+     },
+     "t3-1": {
+      "act": 0,
+      "ledger_rows": 0,
+      "merge_survival": 20,
+      "rows": 180,
+      "selection": 0
+     },
+     "t4-1": {
+      "act": 0,
+      "ledger_rows": 0,
+      "merge_survival": 21,
+      "rows": 180,
+      "selection": 0
+     }
+    },
+    "items": 180,
+    "judge_credit_any": 26,
+    "judge_credit_blocking": 8
+   }
+  }
+ },
+ "time": {
+  "b": {
+   "measured": 76.489,
+   "planned": 100
+  },
+  "b_per_doc_measured": {
+   "HO-2": 121.343,
+   "HO-3": 103.056,
+   "HX-1": 76.489,
+   "HX-3": 102.349
+  },
+  "breakeven_row_cost_14": {
+   "measured": 1.48,
+   "planned": 2.07
+  },
+  "luna_cost_per_row": {
+   "measured": 2.4283000000000015,
+   "planned": 2
+  },
+  "luna_row_cap": {
+   "measured": 8,
+   "planned": 14
+  }
+ },
+ "unscored": []
+}
