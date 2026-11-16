@@ -1,0 +1,14 @@
+src/superclaude/agents/rf-qa.md:83:- Merging partition reports after all instances complete (union of findings, take the more severe rating for shared items)
+src/superclaude/agents/rf-qa-qualitative.md:84:- Merging partition reports after all instances complete (union of findings, take the more severe rating for shared items)
+src/superclaude/agents/rf-analyst.md:75:- Merging partition reports after all instances complete (union of findings, take the more severe rating for shared items, merge g
+src/superclaude/skills/readme/SKILL.md:542:- Step 3.2: Consolidate all 5 reports into `${TASK_DIR}qa/qa-consolidated-research-findings.md`. Union all findings, take more 
+src/superclaude/skills/readme/SKILL.md:547:- **Parallel partitioning for large workloads:** When >6 research files exist, spawn MULTIPLE instances of each of the 5 agent 
+src/superclaude/skills/tdd/refs/build-request-template.md:122:- **Parallel partitioning for large workloads:** When >6 research files exist, spawn MULTIPLE analyst + QA i
+src/superclaude/skills/sc-auggie-review-protocol/SKILL.md:228:   - Findings on the same `file:line` with similar titles → merge, keep the higher severity and union the 
+src/superclaude/skills/tech-reference/SKILL.md:510:- **Parallel partitioning for large workloads:** When >6 research files exist, spawn MULTIPLE analyst instances and MUL
+src/superclaude/skills/tech-reference/SKILL.md:513:  1. **Consolidate findings:** Merge all 5 agent reports into a single findings list at `${TASK_DIR}qa/qa-research-cons
+src/superclaude/skills/operational-guide/SKILL.md:511:- **Parallel partitioning for large workloads:** When >6 research files exist, DOUBLE agent counts: spawn 4 rf-analy
+src/superclaude/skills/task/SKILL.md:252:6. **Findings Consolidation (M3 Step 5)** — After ALL lens agents (Steps 3-5) return, read all QA reports and consolidate into 
+src/superclaude/skills/task/SKILL.md:361:2. **Consolidate findings:** Read all QA reports. Merge findings into a single consolidated findings list at the designated path 
+src/superclaude/templates/documents/agent_template_analysis.md:466:- Merging partition reports after all instances complete (union of findings, take the more severe ratin
+src/superclaude/templates/documents/agent_template_qa.md:85:- Merging partition reports after all instances complete (union of findings, take the more severe rating for s

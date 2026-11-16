@@ -1,0 +1,9 @@
+calibration:
+  calibrator_class: sonnet
+  calibrator_diversity: full
+  citation_grounding: 0.65
+  coverage_completeness: 0.75
+  deviation_clarity: 0.60
+  risk_surface: 0.80
+  actionability: 0.60
+  C: 0.68

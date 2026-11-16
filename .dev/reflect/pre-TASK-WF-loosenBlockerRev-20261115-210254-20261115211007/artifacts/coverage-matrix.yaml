@@ -1,0 +1,247 @@
+coverage_matrix:
+- requirement_id: INF-001
+  source: inferred
+  quote: The Constraints must state three owner gates, not two
+  citation: .dev/tasks/to-do/TASK-WF-loosenBlockerRev-20261115-210254/source.md:13
+  matched_task_ids: []
+  best_task: 14
+  best_ratio: 0.571
+  match_method: none
+- requirement_id: INF-002
+  source: inferred
+  quote: Remove the sentence that lets Phases 1 to 3 "run in one pass".
+  citation: .dev/tasks/to-do/TASK-WF-loosenBlockerRev-20261115-210254/source.md:13
+  matched_task_ids: []
+  best_task: 12
+  best_ratio: 0.571
+  match_method: none
+- requirement_id: INF-003
+  source: inferred
+  quote: Phase 1 gains a task that records stage 0 step 0a
+  citation: .dev/tasks/to-do/TASK-WF-loosenBlockerRev-20261115-210254/source.md:14
+  matched_task_ids:
+  - 14
+  best_task: 14
+  best_ratio: 0.667
+  match_method: containment-0.6
+- requirement_id: INF-004
+  source: inferred
+  quote: Phase 1 gains a task that defines and sizes the seeded-defect recall set of spec section 8.3
+  citation: .dev/tasks/to-do/TASK-WF-loosenBlockerRev-20261115-210254/source.md:15
+  matched_task_ids:
+  - 7
+  best_task: 7
+  best_ratio: 0.636
+  match_method: containment-0.6
+- requirement_id: INF-005
+  source: inferred
+  quote: running the set under both rule texts is part of stage 3 entry and is a Phase 4 task
+  citation: .dev/tasks/to-do/TASK-WF-loosenBlockerRev-20261115-210254/source.md:15
+  matched_task_ids:
+  - 31
+  best_task: 31
+  best_ratio: 0.636
+  match_method: containment-0.6
+- requirement_id: INF-006
+  source: inferred
+  quote: Phase 1 gains a task that builds the fresh-findings set the reconciliation requires
+  citation: .dev/tasks/to-do/TASK-WF-loosenBlockerRev-20261115-210254/source.md:16
+  matched_task_ids: []
+  best_task: 5
+  best_ratio: 0.556
+  match_method: none
+- requirement_id: INF-007
+  source: inferred
+  quote: Phase 1 gains a task that reports, for the 318 scored rows, how many rows had each code-supplied input
+  citation: .dev/tasks/to-do/TASK-WF-loosenBlockerRev-20261115-210254/source.md:17
+  matched_task_ids:
+  - 8
+  best_task: 8
+  best_ratio: 0.769
+  match_method: containment-0.6
+- requirement_id: INF-008
+  source: inferred
+  quote: Phase 2 gains a task that builds the supplier of those inputs
+  citation: .dev/tasks/to-do/TASK-WF-loosenBlockerRev-20261115-210254/source.md:18
+  matched_task_ids: []
+  best_task: 0
+  best_ratio: 0.857
+  match_method: containment-0.6
+- requirement_id: INF-009
+  source: inferred
+  quote: The classify command and the classifier run the M, C and E questions only when this module supplied their inputs
+  citation: .dev/tasks/to-do/TASK-WF-loosenBlockerRev-20261115-210254/source.md:18
+  matched_task_ids:
+  - 22
+  best_task: 22
+  best_ratio: 0.7
+  match_method: containment-0.6
+- requirement_id: INF-010
+  source: inferred
+  quote: The registry schema gets a `kind` field with the values `digest`, `canonical`, `pointer-only` and `installed-only`.
+  citation: .dev/tasks/to-do/TASK-WF-loosenBlockerRev-20261115-210254/source.md:22
+  matched_task_ids:
+  - 16
+  best_task: 16
+  best_ratio: 0.7
+  match_method: containment-0.6
+- requirement_id: INF-011
+  source: inferred
+  quote: '`skills/task/SKILL.md` is not a digest carrier and gets no registry row'
+  citation: .dev/tasks/to-do/TASK-WF-loosenBlockerRev-20261115-210254/source.md:23
+  matched_task_ids:
+  - 16
+  best_task: 16
+  best_ratio: 1.0
+  match_method: containment-0.6
+- requirement_id: INF-012
+  source: inferred
+  quote: '`rules/prompts/document_review_loop_prompts.md` and `commands/spec-panel.md` are `pointer-only` rows'
+  citation: .dev/tasks/to-do/TASK-WF-loosenBlockerRev-20261115-210254/source.md:23
+  matched_task_ids:
+  - 16
+  best_task: 16
+  best_ratio: 1.0
+  match_method: containment-0.6
+- requirement_id: INF-013
+  source: inferred
+  quote: Task 33's scan covers Markdown files only
+  citation: .dev/tasks/to-do/TASK-WF-loosenBlockerRev-20261115-210254/source.md:27
+  matched_task_ids:
+  - 40
+  best_task: 40
+  best_ratio: 0.8
+  match_method: containment-0.6
+- requirement_id: INF-014
+  source: inferred
+  quote: Phase 5 tasks remove those six from the allow-list in the same task that edits each file
+  citation: .dev/tasks/to-do/TASK-WF-loosenBlockerRev-20261115-210254/source.md:27
+  matched_task_ids:
+  - 40
+  best_task: 40
+  best_ratio: 0.909
+  match_method: containment-0.6
+- requirement_id: INF-015
+  source: inferred
+  quote: The final-gate sweep and the once-per-run offer are wired once, into the task skill's Post-Completion Validation
+  citation: .dev/tasks/to-do/TASK-WF-loosenBlockerRev-20261115-210254/source.md:31
+  matched_task_ids:
+  - 27
+  best_task: 27
+  best_ratio: 0.923
+  match_method: containment-0.6
+- requirement_id: INF-016
+  source: inferred
+  quote: In stage 2 (Phase 3) the sweep only records
+  citation: .dev/tasks/to-do/TASK-WF-loosenBlockerRev-20261115-210254/source.md:32
+  matched_task_ids:
+  - 14
+  best_task: 14
+  best_ratio: 1.0
+  match_method: containment-0.6
+- requirement_id: INF-017
+  source: inferred
+  quote: Add a test (extending T12) that the stage 2 sweep changes no gate result.
+  citation: .dev/tasks/to-do/TASK-WF-loosenBlockerRev-20261115-210254/source.md:32
+  matched_task_ids:
+  - 21
+  best_task: 21
+  best_ratio: 0.667
+  match_method: containment-0.6
+- requirement_id: INF-018
+  source: inferred
+  quote: Add the escalation-halt offer (OD2) at the cap sites
+  citation: .dev/tasks/to-do/TASK-WF-loosenBlockerRev-20261115-210254/source.md:33
+  matched_task_ids: []
+  best_task: 28
+  best_ratio: 0.571
+  match_method: none
+- requirement_id: INF-019
+  source: inferred
+  quote: Task 28 (rf-qa-qualitative) also rewrites, or keeps as named mechanical gates recorded in the scale map, the eight verdict pairs
+  citation: .dev/tasks/to-do/TASK-WF-loosenBlockerRev-20261115-210254/source.md:37
+  matched_task_ids:
+  - 35
+  best_task: 35
+  best_ratio: 0.786
+  match_method: containment-0.6
+- requirement_id: INF-020
+  source: inferred
+  quote: Task 34 (templates) does the same for `src/superclaude/templates/documents/agent_template_qa.md` line 158.
+  citation: .dev/tasks/to-do/TASK-WF-loosenBlockerRev-20261115-210254/source.md:37
+  matched_task_ids:
+  - 40
+  best_task: 40
+  best_ratio: 0.8
+  match_method: containment-0.6
+- requirement_id: INF-021
+  source: inferred
+  quote: Task 1's frozen patterns add `Any CRITICAL or IMPORTANT issue exists`
+  citation: .dev/tasks/to-do/TASK-WF-loosenBlockerRev-20261115-210254/source.md:37
+  matched_task_ids:
+  - 1
+  best_task: 1
+  best_ratio: 0.75
+  match_method: containment-0.6
+- requirement_id: INF-022
+  source: inferred
+  quote: Acceptance checks that pin a line number pin the content instead
+  citation: .dev/tasks/to-do/TASK-WF-loosenBlockerRev-20261115-210254/source.md:41
+  matched_task_ids: []
+  best_task: 0
+  best_ratio: 0.571
+  match_method: none
+- requirement_id: INF-023
+  source: inferred
+  quote: Task 26 replaces three bullets of `pragmatic.md`
+  citation: .dev/tasks/to-do/TASK-WF-loosenBlockerRev-20261115-210254/source.md:42
+  matched_task_ids:
+  - 31
+  best_task: 31
+  best_ratio: 0.8
+  match_method: containment-0.6
+- requirement_id: INF-024
+  source: inferred
+  quote: Task 24's pin of `pragmatic.md` lines 225 to 231 is keyed to the registry row
+  citation: .dev/tasks/to-do/TASK-WF-loosenBlockerRev-20261115-210254/source.md:43
+  matched_task_ids:
+  - 33
+  best_task: 33
+  best_ratio: 0.667
+  match_method: containment-0.6
+- requirement_id: INF-025
+  source: inferred
+  quote: L3 (three choices at the cap) is applied at every cap site
+  citation: .dev/tasks/to-do/TASK-WF-loosenBlockerRev-20261115-210254/source.md:44
+  matched_task_ids:
+  - 34
+  best_task: 34
+  best_ratio: 0.667
+  match_method: containment-0.6
+- requirement_id: INF-026
+  source: inferred
+  quote: Task 31 also updates the two plan tables that the fixtures must be byte copies of
+  citation: .dev/tasks/to-do/TASK-WF-loosenBlockerRev-20261115-210254/source.md:45
+  matched_task_ids:
+  - 38
+  best_task: 38
+  best_ratio: 0.9
+  match_method: containment-0.6
+- requirement_id: INF-027
+  source: inferred
+  quote: Task 30's check on the cap text uses the wording the task skill actually has
+  citation: .dev/tasks/to-do/TASK-WF-loosenBlockerRev-20261115-210254/source.md:46
+  matched_task_ids: []
+  best_task: 0
+  best_ratio: 0.778
+  match_method: containment-0.6
+- requirement_id: INF-028
+  source: inferred
+  quote: Do not change the cap of 2 fix cycles, the own-scale primitives, `sc-implement-protocol/refs/qa.md`, or the 35 percent target. No Jev call, key or account.
+  citation: .dev/tasks/to-do/TASK-WF-loosenBlockerRev-20261115-210254/source.md:55
+  matched_task_ids: []
+  best_task: 0
+  best_ratio: 1.0
+  match_method: containment-0.6
+parsed_count: 0
+inferred_count: 28

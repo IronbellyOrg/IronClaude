@@ -1,0 +1,25 @@
+calibrator_class: opus                  # blind confidence-calibrator agents, one independent instance per card, run in parallel (Wave 3C)
+calibrator_diversity: degraded          # sonnet, haiku and opus are all reviewer classes; disjoint set empty; opus is the highest class not used by more reviewers than any other (each used once)
+note_class_overlap: "calibrator of card 3 shares the opus class with that card's reviewer"
+cards:
+  reviewer-1-card.md:
+    persona: analyzer
+    reviewer_class: sonnet
+    calibrated_C: 0.77
+    dimensions: {citation_grounding: 0.88, coverage_completeness: 0.80, deviation_classification_clarity: 0.85, risk_surface_coverage: 0.80, recommendation_actionability: 0.50}
+    per_finding: {F1: 0.72, F2: 0.45, F3: 0.62, F4: 0.68, F5: 0.65, F6: 0.65}
+    calibrator_notes: "All cited lines verified. F2 blocking grade overstated for stage 1 (T5 is not a stage 1 exit test; the scan gap itself is real). F3 joins two defects; the verify-sync half is weak because PLAN:25 tells every task to run make sync-dev. F4 wording error: Task 12 depends on Tasks 7, 9 and 10 (PLAN:169), none of which depends on Task 3; the finding stands."
+  reviewer-2-card.md:
+    persona: qa
+    reviewer_class: haiku
+    calibrated_C: 0.75
+    dimensions: {citation_grounding: 0.85, coverage_completeness: 0.80, deviation_classification_clarity: 0.90, risk_surface_coverage: 0.70, recommendation_actionability: 0.50}
+    per_finding: {F1: 0.75, F2: 0.45, F3: 0.65}
+    calibrator_notes: "Quotes verified. F1 arguable as non-blocking (one-phrase fix). F2: SPEC:740 names rubric.md, not only finding-grader, as the stoprule defining file; the calibrator could not list directories to check whether rubric.md is in the repo (the orchestrator did: it is not under src/). F3: no task defines the review-ledger/1 mapping; the spec does not say which stage owns it. Reviewer self-reported an OpenAI model against the haiku pin (identity mismatch suspected)."
+  reviewer-3-card.md:
+    persona: refactorer
+    reviewer_class: opus
+    calibrated_C: 0.76
+    dimensions: {citation_grounding: 0.85, coverage_completeness: 0.75, deviation_classification_clarity: 0.90, risk_surface_coverage: 0.75, recommendation_actionability: 0.55}
+    per_finding: {F1: 0.72, F2: 0.75, F3: 0.55, F4: 0.50}
+    calibrator_notes: "All ten cited ranges verified. F1: an executor might cite an in-repo spec file as the defining file, which would pass the check weakly. F2: the real break is Task 10's classifier_inputs.py importing the Task 7 reader; classify_cmd.py probably counts as command wiring. F3: T2 is non-strict in this phase so doctor.py would not fail it. F4: ruff exclusion is beside the point; the real risk is the archive path."

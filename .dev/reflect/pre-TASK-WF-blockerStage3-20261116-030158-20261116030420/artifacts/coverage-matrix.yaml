@@ -1,0 +1,225 @@
+parsed_count: 0
+inferred_count: 25
+coverage_pct: null
+coverage_pct_union: 0.72
+coverage_degraded: parsed-sparse
+rows:
+- id: INF-001
+  source: inferred
+  quote: the owner's go in chat is recorded in the stage ledger
+  citation: .dev/tasks/to-do/TASK-WF-blockerStage3-20261116-030158/source.md:3
+  match_method: containment
+  matched_task_ids:
+  - Task 1
+  best_ratio: 1.0
+  best_task: 1
+- id: INF-002
+  source: inferred
+  quote: the stage 2 package's `./artifacts/stage2-summary-for-owner.md` exists and the owner has read it
+  citation: .dev/tasks/to-do/TASK-WF-blockerStage3-20261116-030158/source.md:3
+  match_method: containment
+  matched_task_ids:
+  - Task 1
+  best_ratio: 0.889
+  best_task: 1
+- id: INF-003
+  source: inferred
+  quote: at least 5 shadow runs have been observed with zero safety misses (by the stage 0 definition) and no capture failure
+  citation: .dev/tasks/to-do/TASK-WF-blockerStage3-20261116-030158/source.md:3
+  match_method: containment
+  matched_task_ids:
+  - Task 1
+  best_ratio: 1.0
+  best_task: 1
+- id: INF-004
+  source: inferred
+  quote: stage 0b's escape result is written and stage 0c's re-grade is written
+  citation: .dev/tasks/to-do/TASK-WF-blockerStage3-20261116-030158/source.md:3
+  match_method: none
+  matched_task_ids: []
+  best_ratio: 0.375
+  best_task: 1
+- id: INF-005
+  source: inferred
+  quote: The seeded-recall result is produced INSIDE this package (first task) and gates the rule switch by an acceptance line, not by a dependency line.
+  citation: .dev/tasks/to-do/TASK-WF-blockerStage3-20261116-030158/source.md:3
+  match_method: containment
+  matched_task_ids:
+  - Task 3
+  best_ratio: 0.643
+  best_task: 3
+- id: INF-006
+  source: inferred
+  quote: renumbered 1 onward, with its `## Constraints` (stage 3 parts)
+  citation: .dev/tasks/to-do/TASK-WF-blockerStage3-20261116-030158/source.md:7
+  match_method: none
+  matched_task_ids: []
+  best_ratio: 0.2
+  best_task: 1
+- id: INF-007
+  source: inferred
+  quote: Earlier stages' evidence is read by package id.
+  citation: .dev/tasks/to-do/TASK-WF-blockerStage3-20261116-030158/source.md:7
+  match_method: containment
+  matched_task_ids:
+  - Task 1
+  best_ratio: 0.833
+  best_task: 1
+- id: INF-008
+  source: inferred
+  quote: State this is stage 3 and say what must be true at start (the list above).
+  citation: .dev/tasks/to-do/TASK-WF-blockerStage3-20261116-030158/source.md:11
+  match_method: none
+  matched_task_ids: []
+  best_ratio: 0.5
+  best_task: 11
+- id: INF-009
+  source: inferred
+  quote: Stage 4 starts only after one audit window with no revert trigger tripped (the spec's section 13.2 triggers RT1 and RT2) and the owner's go in chat.
+  citation: .dev/tasks/to-do/TASK-WF-blockerStage3-20261116-030158/source.md:11
+  match_method: containment
+  matched_task_ids:
+  - Task 11
+  best_ratio: 0.824
+  best_task: 11
+- id: INF-010
+  source: inferred
+  quote: State that `/sc:implement` runs the whole package in order, so the rule switch cannot start unless the first tasks pass.
+  citation: .dev/tasks/to-do/TASK-WF-blockerStage3-20261116-030158/source.md:11
+  match_method: none
+  matched_task_ids: []
+  best_ratio: 0.4
+  best_task: 3
+- id: INF-011
+  source: inferred
+  quote: Read the seeded set and answer key from the stage 0 package by id.
+  citation: .dev/tasks/to-do/TASK-WF-blockerStage3-20261116-030158/source.md:12
+  match_method: containment
+  matched_task_ids:
+  - Task 1
+  best_ratio: 1.0
+  best_task: 1
+- id: INF-012
+  source: inferred
+  quote: Each pass (old rule text, new rule text) is run with freshly spawned agents, never agents continued from an earlier pass, and the pass order is alternated across the three reviewers.
+  citation: .dev/tasks/to-do/TASK-WF-blockerStage3-20261116-030158/source.md:12
+  match_method: containment
+  matched_task_ids:
+  - Task 1
+  best_ratio: 0.941
+  best_task: 1
+- id: INF-013
+  source: inferred
+  quote: Write `./artifacts/seeded-recall-result.md` with per-class recall under both texts and the intervals, the cosmetic block share under both, and a pass or fail line for each of the three spec requirements.
+  citation: .dev/tasks/to-do/TASK-WF-blockerStage3-20261116-030158/source.md:12
+  match_method: containment
+  matched_task_ids:
+  - Task 1
+  best_ratio: 1.0
+  best_task: 1
+- id: INF-014
+  source: inferred
+  quote: '`./artifacts/seeded-recall-result.md` exists and shows pass on all three requirements'
+  citation: .dev/tasks/to-do/TASK-WF-blockerStage3-20261116-030158/source.md:13
+  match_method: containment
+  matched_task_ids:
+  - Task 3
+  best_ratio: 1.0
+  best_task: 3
+- id: INF-015
+  source: inferred
+  quote: when a line shows fail, the task's check fails and the run halts for the owner's Ruling
+  citation: .dev/tasks/to-do/TASK-WF-blockerStage3-20261116-030158/source.md:13
+  match_method: containment
+  matched_task_ids:
+  - Task 3
+  best_ratio: 1.0
+  best_task: 3
+- id: INF-016
+  source: inferred
+  quote: Keep the other lines (three bullets replaced, cap and own-scale bullets pinned by content, hook check through `src/superclaude/hooks/hooks.json`). Do not rely on `Depends on:` for this gate.
+  citation: .dev/tasks/to-do/TASK-WF-blockerStage3-20261116-030158/source.md:13
+  match_method: containment
+  matched_task_ids:
+  - Task 3
+  best_ratio: 0.778
+  best_task: 3
+- id: INF-017
+  source: inferred
+  quote: 'reads the allow-list from `refs/scale-map.md` and allow-lists only files that exist in this stage: the auggie file, `refs/rule.md` and the six stage 4 files.'
+  citation: .dev/tasks/to-do/TASK-WF-blockerStage3-20261116-030158/source.md:14
+  match_method: containment
+  matched_task_ids:
+  - Task 10
+  best_ratio: 0.933
+  best_task: 10
+- id: INF-018
+  source: inferred
+  quote: The plugin mirror is NOT in the allow-list here (stage 4 adds it). The existence check applies to every file named in the allow-list and passes in this stage.
+  citation: .dev/tasks/to-do/TASK-WF-blockerStage3-20261116-030158/source.md:14
+  match_method: containment
+  matched_task_ids:
+  - Task 10
+  best_ratio: 0.769
+  best_task: 10
+- id: INF-019
+  source: inferred
+  quote: that a later task of the same package makes false get an end point ("until Task N").
+  citation: .dev/tasks/to-do/TASK-WF-blockerStage3-20261116-030158/source.md:15
+  match_method: none
+  matched_task_ids: []
+  best_ratio: 0.444
+  best_task: 11
+- id: INF-020
+  source: inferred
+  quote: 'Write `./artifacts/stage3-summary-for-owner.md`: the seeded-recall result headline, the re-pinned test results, and the audit-window measures the spec''s section 13 defines'
+  citation: .dev/tasks/to-do/TASK-WF-blockerStage3-20261116-030158/source.md:16
+  match_method: containment
+  matched_task_ids:
+  - Task 11
+  best_ratio: 1.0
+  best_task: 11
+- id: INF-021
+  source: inferred
+  quote: the M-numbers it lists for stage 3 including M12, the rf-qa FAIL count per pilot gate, and the revert triggers RT1 and RT2 with their current state, read from the spec's text and not restated from
+    memory
+  citation: .dev/tasks/to-do/TASK-WF-blockerStage3-20261116-030158/source.md:16
+  match_method: containment
+  matched_task_ids:
+  - Task 11
+  best_ratio: 0.913
+  best_task: 11
+- id: INF-022
+  source: inferred
+  quote: Say that the audit window runs after this package and is observed by the owner or operator, and end with the sentence that the owner's go for stage 4 is given in chat and not by this file.
+  citation: .dev/tasks/to-do/TASK-WF-blockerStage3-20261116-030158/source.md:16
+  match_method: containment
+  matched_task_ids:
+  - Task 11
+  best_ratio: 0.933
+  best_task: 11
+- id: INF-023
+  source: inferred
+  quote: No template, rule-prompt, builder, researcher or spec-panel edit (stage 4).
+  citation: .dev/tasks/to-do/TASK-WF-blockerStage3-20261116-030158/source.md:20
+  match_method: none
+  matched_task_ids: []
+  best_ratio: 0.444
+  best_task: 3
+- id: INF-024
+  source: inferred
+  quote: No change to `sc-implement-protocol/refs/qa.md`, the own-scale primitives, the severity code under `src/superclaude/cli/**/*.py`, the cap of 2 fix cycles or the 35 percent target.
+  citation: .dev/tasks/to-do/TASK-WF-blockerStage3-20261116-030158/source.md:20
+  match_method: containment
+  matched_task_ids:
+  - Task 3
+  best_ratio: 0.667
+  best_task: 3
+- id: INF-025
+  source: inferred
+  quote: No Jev call, key or account.
+  citation: .dev/tasks/to-do/TASK-WF-blockerStage3-20261116-030158/source.md:20
+  match_method: none
+  matched_task_ids: []
+  best_ratio: 0.25
+  best_task: 1

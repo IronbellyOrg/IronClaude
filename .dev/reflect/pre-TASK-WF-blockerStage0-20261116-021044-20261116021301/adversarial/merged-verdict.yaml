@@ -1,0 +1,21 @@
+merge_method: adversarial
+verdict: NEEDS-REVISION
+convergence_score: 1.0            # 9 of 9 diff points with the same winner after Round 2; the one HIGH unaddressed probe item (INV-006) is carried into the merged card as blocking finding F2
+base_variant: "haiku:analyzer"    # variant 1 (reviewer-1 card), chosen by the tiebreaker (correctness criteria 9 against 7); the two scoring passes disagreed on the winner and the means were within 5 percent. Advocate for V1 ran as opus, advocate for V2 as haiku; scorers and judge ran as sonnet
+source_cards:
+  - reviewer-cards/reviewer-1-card.md
+  - reviewer-cards/reviewer-2-card.md
+merged_review_card: adversarial/merged-review-card.md
+findings:
+  total: 11
+  blocking: 2                     # F1, F2
+  non_blocking: 9                 # F3 to F11
+unresolved_conflicts: 0
+judge_rulings:
+  X-001: NEEDS-REVISION (V2 advocate conceded)
+  C-001: blocking
+  INV-006: blocking
+  C-002: minor
+  C-003: Medium
+  C-004: minor note
+  C-005: Medium

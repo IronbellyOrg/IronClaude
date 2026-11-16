@@ -1,0 +1,17 @@
+merge_method: adversarial
+verdict: NEEDS-REVISION
+convergence_score: 1.0            # 12 of 12 diff points with the same winner after Round 2 (Round 1: 9 of 12 = 0.75); 5 HIGH unaddressed probe items carried into the merged card as F1 to F8, not accepted as risk
+base_variant: "opus:qa"           # variant 2 (reviewer-2 card); advocate for V1 ran as opus, advocate for V2 ran as haiku; scorers and judge ran as sonnet
+source_cards:
+  - reviewer-cards/reviewer-1-card.md
+  - reviewer-cards/reviewer-2-card.md
+merged_review_card: adversarial/merged-review-card.md
+findings:
+  total: 15
+  blocking: 8                     # F1 to F8
+  non_blocking: 7                 # F9 to F15
+unresolved_conflicts: 0
+judge_rulings:
+  C-004: blocking (widened by probe INV-006)
+  C-007: minor
+  C-009: minor

@@ -1,0 +1,20 @@
+merge_method: adversarial
+verdict: NEEDS-REVISION
+convergence_score: 1.0            # 21 of 21 diff points agreed after Round 2 (Round 1: 17 of 21 = 0.81); 3 HIGH unaddressed probe items carried into the merged card (F1, F3), not accepted as risk
+base_variant: "opus:qa"           # variant 2 (reviewer-2 card); advocate for V1 ran as haiku, advocate for V2 ran as opus; scorers, calibrators and the fault-finder ran as sonnet
+source_cards:
+  - reviewer-cards/reviewer-1-card.md
+  - reviewer-cards/reviewer-2-card.md
+merged_review_card: adversarial/merged-review-card.md
+findings:
+  total: 15
+  blocking: 7                     # F1 to F7
+  non_blocking: 8                 # F8 to F15
+unresolved_conflicts: 0
+judge_rulings:
+  C-004: minor (PLAN:19 makes the inventory path recoverable)
+  C-006: minor (a weak check, not an unmeetable one)
+  U-006: minor (under-specification; the executor can dispatch by registry state)
+  U-001: blocking (narrowed to naming the switch steps b and c and the install check)
+  X-001: dropped
+merged_from: reviewer-1, reviewer-2, invariant-probe

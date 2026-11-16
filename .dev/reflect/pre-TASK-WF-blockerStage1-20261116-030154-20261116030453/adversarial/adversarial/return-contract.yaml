@@ -1,0 +1,12 @@
+return_contract:
+  merged_output_path: .dev/reflect/pre-TASK-WF-blockerStage1-20261116-030154-20261116030453/adversarial/merged-review-card.md
+  convergence_score: 1.0
+  artifacts_dir: .dev/reflect/pre-TASK-WF-blockerStage1-20261116-030154-20261116030453/adversarial/adversarial
+  status: success
+  base_variant: "sonnet:analyzer"
+  unresolved_conflicts: 0
+  fallback_mode: false
+  failure_stage: null
+  invocation_method: skill-direct
+  unaddressed_invariants: []
+  notes: "16 of 16 diff points agreed (13 unanimous, 3 by 2 of 3 majority); dissent recorded on C-004/X-001 and C-008; 5 invariant probe items, none HIGH; post-merge validation passed"

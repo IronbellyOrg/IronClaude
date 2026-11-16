@@ -1,0 +1,18 @@
+merge_method: adversarial
+verdict: NEEDS-REVISION
+convergence_score: 0.9565   # unanimous basis (22 of 23); 1.0 on the protocol's majority basis
+base_variant: "V1 (reviewer 1, analyzer, sonnet class)"
+source_cards:
+  - reviewer-cards/reviewer-1-card.md
+  - reviewer-cards/reviewer-2-card.md
+  - reviewer-cards/reviewer-3-card.md
+merged_review_card: adversarial/merged-review-card.md
+findings_total: 14
+findings_blocking: 2
+findings_non_blocking: 12   # 4 MEDIUM warnings (G3 to G6) and 8 minor (G7 to G14)
+blocking_findings:
+  - "G1 Task 1 acceptance line P4:37 requires the stage 3 summary to state a passed audit window; stage 3 writes it before the window"
+  - "G2 Task 5 acceptance P4:89 removes 'follow-up candidates' that tests/skills/test_review_severity_mapping.py pins on both spec-panel surfaces; no stage 4 task re-pins or runs that test (conditional on stage 3 as written)"
+judge_identity: "scoring evaluators: pass 1 opus class, pass 2 sonnet class (model ids not reported by the harness)"
+judge_class_collision: true   # three classes, all used by reviewers; a disjoint judge class does not exist
+unaddressed_invariants: []    # probe: 0 HIGH unaddressed; 5 MEDIUM warnings logged

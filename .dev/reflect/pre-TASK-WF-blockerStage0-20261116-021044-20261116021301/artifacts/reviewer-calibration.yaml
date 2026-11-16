@@ -1,0 +1,13 @@
+calibrator_class: sonnet            # confidence-calibrator agents, model sonnet; reviewer classes are {haiku, opus}, so the sets are disjoint
+calibrator_diversity: full
+executor_class: sonnet
+reviewer-1:
+  C: 0.71
+  dimensions: {citation_grounding: 0.95, coverage_completeness: 0.50, deviation_classification_clarity: 0.85, risk_surface_coverage: 0.55, recommendation_actionability: 0.70}
+  per_finding: {F1: 0.93}
+  calibrator_note: "all four F1 citations match the live files; the card covers only 1 of 9 tasks and gives no fix; whether git still holds the hand-edited results.md (it is staged, so the loss may be recoverable) was not tested"
+reviewer-2:
+  C: 0.67
+  dimensions: {citation_grounding: 0.85, coverage_completeness: 0.60, deviation_classification_clarity: 0.70, risk_surface_coverage: 0.60, recommendation_actionability: 0.60}
+  per_finding: {F1: 0.90, F2: 0.65, F3: 0.65}
+  calibrator_note: "F2's '139 files' count was not verified by the calibrator; F2 is MAJOR yet blocking false, which reads high; F3(a) is a likely outcome the plan already allows, F3(b) double counting happens only if stage 2 pools the sets. Missed by the card: Task 10's acceptance lines (PLAN:139-142) do not require the 'five most important findings' or the owner-decision list that the task body asks for."

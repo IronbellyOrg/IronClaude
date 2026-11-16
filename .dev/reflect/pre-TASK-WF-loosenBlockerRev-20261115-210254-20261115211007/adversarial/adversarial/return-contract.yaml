@@ -1,0 +1,16 @@
+return_contract:
+  merged_output_path: ".dev/reflect/pre-TASK-WF-loosenBlockerRev-20261115-210254-20261115211007/adversarial/merged-review-card.md"
+  convergence_score: 1.0            # 12 of 12 diff points agreed after Round 2 (Round 1: 9 of 12 = 0.75)
+  artifacts_dir: ".dev/reflect/pre-TASK-WF-loosenBlockerRev-20261115-210254-20261115211007/adversarial/adversarial/"
+  status: "success"
+  base_variant: "opus:qa"           # variant 2 (reviewer-2 card); advocate for V1 ran as opus, advocate for V2 ran as haiku
+  unresolved_conflicts: 0
+  fallback_mode: false
+  failure_stage: null
+  invocation_method: "skill-direct"  # orchestrator ran steps 1 to 4 and the scoring coordination itself; advocates, fault-finder, two scorers and the merge-executor were spawned agents
+  unaddressed_invariants:           # HIGH UNADDRESSED probe items; each is carried into the merged card as a finding
+    - {id: "INV-001", category: "state_variables", assumption: "C-006 fix is a dependency line; /sc:implement ignores Depends on", severity: "HIGH", resolution: "merged card F2"}
+    - {id: "INV-002", category: "sufficiency_challenge", assumption: "Moving Task 31 to Phase 3 fixes C-006; source.md keeps it in Phase 4", severity: "HIGH", resolution: "merged card F2"}
+    - {id: "INV-004", category: "guard_conditions", assumption: "Acceptance lines are checked only at task end; the archive gate re-checks all", severity: "HIGH", resolution: "merged card F6"}
+    - {id: "INV-005", category: "guard_conditions", assumption: "Phase 4 and 5 entry numbers can be checked", severity: "HIGH", resolution: "merged card F8"}
+    - {id: "INV-006", category: "count_divergence", assumption: "C-004 is limited to the fresh-findings set; the held-out split is also unused", severity: "HIGH", resolution: "merged card F7"}

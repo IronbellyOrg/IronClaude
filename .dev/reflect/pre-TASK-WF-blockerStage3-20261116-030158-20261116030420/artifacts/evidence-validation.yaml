@@ -1,0 +1,19 @@
+evidence_validator_ran: true
+validators:
+  - {agent_id: a5ca5aa9dac2e3237, class: sonnet, partition: "merged card F1-F8 citation bullets (52) + coverage-matrix INF rows (25)", checked: 77, verified: 77, dropped: 0}
+  - {agent_id: a1885e5f52b07407a, class: sonnet, partition: "merged card F9-F15 citation bullets (24) + Checked section (25)", checked: 49, verified: 49, dropped: 0}
+citations_total: 126
+citations_revalidated: 126
+citations_dropped: 0
+citation_budget_policy: full_reread
+zero_drop_flag: true            # the protocol treats a zero-drop pass as an audit flag, not a clean bill
+shifted_lines: 0
+weak_points_noted_by_validators:
+  - "F4 cites Makefile:108 with the one-word quote 'Sync'; the claim that sync-dev copies nothing for output styles rests on lines 110-163 (a Grep of the Makefile finds no output-styles); the validator suggests also citing Makefile:110-163"
+  - "F4 'REQ-26 puts steps (b) and (c) with the owner or operator' is an inference (SPEC:762 lists the steps and names no actor); 'RK15' is supported at SPEC:1018 (not cited)"
+  - "F2 'the old text today' about the installed pragmatic.md is runtime state the validator did not check; the orchestrator ran diff -q src vs ~/.claude copy on 2026-11-16: identical, and the src file still holds the old bullets (pragmatic.md:225,226,229)"
+  - "F6 'the gate can pass while RT1 has tripped' is a reasoned inference from SPEC:985 and PLAN:33/62"
+  - "F7 'only quotes RT1, RT2 and M12' is slightly strong: PLAN:158 also asks for the section 13.1 metric list and the rf-qa FAIL count per pilot gate; the baseline-gap argument still holds"
+  - "F10 'the pattern matches other rows' paths' is a prediction: registry.yaml does not exist yet (stage 1 creates it, S1:38)"
+  - "F12 'the plan forbids dropping a pin' rests on PLAN:127 'No pinning test is deleted wholesale', which bans deleting a test, not dropping a file from a list"
+  - "Checked bullet on the cap sentence omits the third task/SKILL.md occurrence at line 372 (omission only); the R-002/R-003 'met' statements concern an earlier review and cannot be checked from the cited lines"

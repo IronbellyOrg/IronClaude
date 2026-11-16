@@ -1,0 +1,8 @@
+calibrator_class: sonnet
+calibrator_diversity: full          # reviewer classes {haiku, opus}; calibrator sonnet is disjoint from them
+reviewer-1:
+  C: 0.81
+  per_finding: {F1: 0.80, F2: 0.75, F3: 0.80, F4: 0.80, F5: 0.65, F6: 0.60}
+reviewer-2:
+  C: 0.81
+  per_finding: {F1: 0.75, F2: 0.80, F3: 0.80, F4: 0.70, F5: 0.75, F6: 0.70, F7: 0.80, F8: 0.60, F9: 0.70}

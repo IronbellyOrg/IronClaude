@@ -1,0 +1,17 @@
+point_id	taxonomy_level	round_1_verdicts(v1|v2|v3)	round_2_verdicts(v1|v2|v3)	agreement	agreed	winner
+S-001	L2	N/A|N/A|N/A	unchanged	unanimous	true	tie
+S-002	L1	N/A|N/A|N/A	unchanged	unanimous	true	tie
+C-001	L3	BLOCKING|BLOCKING|BLOCKING	BLOCKING|BLOCKING|BLOCKING	unanimous	true	variant 3 (with variant 1's Task 12 addition)
+C-002	L3	BLOCKING|BLOCKING|BLOCKING	BLOCKING|BLOCKING|BLOCKING	unanimous	true	variant 1
+C-003	L2	NOT-BLOCKING|BLOCKING|NOT-BLOCKING	NOT-BLOCKING|NOT-BLOCKING|NOT-BLOCKING	unanimous (V2 moved)	true	variant 1 (finder), grade non-blocking
+C-004	L2	NOT-BLOCKING|BLOCKING|BLOCKING	NOT-BLOCKING|BLOCKING|NOT-BLOCKING	majority 2/3 (V3 moved)	true	variant 1
+C-005	L2	NOT-BLOCKING x3	unchanged	unanimous	true	variant 1
+C-006	L2	NOT-BLOCKING|NOT-A-DEFECT|NOT-BLOCKING	NOT-A-DEFECT x3	unanimous (V1, V3 moved)	true	variant 2 (no defect)
+C-007	L2	NOT-BLOCKING x3	unchanged	unanimous	true	variant 1
+C-008	L2	NOT-BLOCKING|NOT-A-DEFECT|NOT-BLOCKING	NOT-BLOCKING|NOT-A-DEFECT|NOT-A-DEFECT	majority 2/3 (V3 moved)	true	variant 2 (no defect)
+C-009	L2	NOT-BLOCKING|NOT-A-DEFECT|NOT-BLOCKING	NOT-A-DEFECT x3	unanimous (V1, V3 moved)	true	variant 2 (no defect)
+C-010	L2	NOT-A-DEFECT x3	unchanged	unanimous	true	none (V2, V3 right to omit)
+X-001	L2	NOT-BLOCKING|BLOCKING|BLOCKING	NOT-BLOCKING|BLOCKING|NOT-BLOCKING	majority 2/3 (V3 moved)	true	variant 1
+X-002	L3	BLOCKING x3	unchanged	unanimous	true	tie
+A-001	L3	QUALIFY x3	unchanged	unanimous	true	tie
+A-003	L3	QUALIFY|ACCEPT|ACCEPT	ACCEPT x3	unanimous (V1 moved)	true	tie

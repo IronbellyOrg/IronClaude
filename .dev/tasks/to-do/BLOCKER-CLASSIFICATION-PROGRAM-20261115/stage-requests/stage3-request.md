@@ -1,0 +1,20 @@
+# Stage 3 plan request: pilot the new rule (issue #552)
+
+Fourth of five plan packages (see `stage-requests/README.md`). This package changes the live review rule in `pragmatic.md`, `rf-qa.md`, `rf-qa-qualitative.md`, `rf-analyst.md` and the task skill. Generate it only when ALL of these hold, each verified by reading the files and not by memory: the owner's go in chat is recorded in the stage ledger; the stage 2 package's `./artifacts/stage2-summary-for-owner.md` exists and the owner has read it; at least 5 shadow runs have been observed with zero safety misses (by the stage 0 definition) and no capture failure; stage 0b's escape result is written and stage 0c's re-grade is written. The seeded-recall result is produced INSIDE this package (first task) and gates the rule switch by an acceptance line, not by a dependency line.
+
+## Base text
+
+Reuse Tasks 31 to 40 of the revised 46-task plan `TASK-WF-loosenBlockerRev-20261115-210254` (Phase 4, stage 3; found by that folder name under `.dev/tasks/to-do/`), renumbered 1 onward, with its `## Constraints` (stage 3 parts). Earlier stages' evidence is read by package id.
+
+## Changes to apply
+
+- **Constraints.** State this is stage 3 and say what must be true at start (the list above). Stage 4 starts only after one audit window with no revert trigger tripped (the spec's section 13.2 triggers RT1 and RT2) and the owner's go in chat. State that `/sc:implement` runs the whole package in order, so the rule switch cannot start unless the first tasks pass.
+- **Task 1 (the old Task 31, seeded recall run).** Read the seeded set and answer key from the stage 0 package by id. Each pass (old rule text, new rule text) is run with freshly spawned agents, never agents continued from an earlier pass, and the pass order is alternated across the three reviewers. Write `./artifacts/seeded-recall-result.md` with per-class recall under both texts and the intervals, the cosmetic block share under both, and a pass or fail line for each of the three spec requirements.
+- **Task for pragmatic.md (the old Task 33).** Its acceptance lines gain: `./artifacts/seeded-recall-result.md` exists and shows pass on all three requirements (safety recall equal to the old rule's, decision-bearing and missing recall within 5 points, cosmetic block share falls); when a line shows fail, the task's check fails and the run halts for the owner's Ruling. Keep the other lines (three bullets replaced, cap and own-scale bullets pinned by content, hook check through `src/superclaude/hooks/hooks.json`). Do not rely on `Depends on:` for this gate.
+- **Constraints on the scan test (the old Task 40).** `tests/skills/test_review_merge_rule_scan.py` reads the allow-list from `refs/scale-map.md` and allow-lists only files that exist in this stage: the auggie file, `refs/rule.md` and the six stage 4 files. The plugin mirror is NOT in the allow-list here (stage 4 adds it). The existence check applies to every file named in the allow-list and passes in this stage.
+- **Acceptance lines inside this package** that a later task of the same package makes false get an end point ("until Task N").
+- **New final task: stage 3 audit and owner summary (finding F8).** Write `./artifacts/stage3-summary-for-owner.md`: the seeded-recall result headline, the re-pinned test results, and the audit-window measures the spec's section 13 defines (the M-numbers it lists for stage 3 including M12, the rf-qa FAIL count per pilot gate, and the revert triggers RT1 and RT2 with their current state, read from the spec's text and not restated from memory). Say that the audit window runs after this package and is observed by the owner or operator, and end with the sentence that the owner's go for stage 4 is given in chat and not by this file.
+
+## Not to be done by the plan
+
+No template, rule-prompt, builder, researcher or spec-panel edit (stage 4). No change to `sc-implement-protocol/refs/qa.md`, the own-scale primitives, the severity code under `src/superclaude/cli/**/*.py`, the cap of 2 fix cycles or the 35 percent target. No Jev call, key or account.
