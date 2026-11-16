@@ -1,0 +1,7 @@
+# Stage 1 incidents (written while the schedule runs)
+
+Context for a reader with no history: this is the log of everything that went wrong or changed during the frozen hold-out comparison of Recipe Ledger (60 panel runs; background in `../config/PREREG-ADDENDUM-20261116.md`).
+
+1. **2026-11-16 19:55 UTC: the Claude Code CLI binary was replaced mid-run** (symlink `/opt/nvm/versions/node/v24.22.2/bin/claude` rewritten at 19:55; version now 2.1.325). Run `stage1-z0-HX-3-r1` started in the window where the target was missing: all three reviewers exited 127 after 0.005 s, merged 0 reports. It is INVALID (pre-registration item 9): it is moved aside and rerun once with the same seed and block after the schedule ends. Runs started before 19:55 used the earlier CLI version (not recorded per run); this is a confound to report, not a reason to discard runs.
+2. **2026-11-16 21:49 UTC:** stage 1 ended with 60 of 60 runs recorded. The invalid run was moved aside and rerun once alone (`rerun-invalid.sh`, valid: all reviewers exit 0). The moved-aside folder was then moved out of `runs-holdout/` to `runs-holdout-invalid/` because the analysis selects every `stage1-*` folder.
+3. **2026-11-16 21:51 to 22:20 UTC:** blind judging of 69 items (60 first judges, 9 second judges), judge audit 0 bad; second judge identical on 9 of 9. `check-runtime-hashes.sh`: all 37 files match after the runs and after judging.
