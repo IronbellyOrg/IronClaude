@@ -400,3 +400,15 @@ def test_wire_stays_quiet_when_retention_is_raised(home):
     _with_retention(home)
     ok, msg = wire_ccsession(home)
     assert ok and "warning" not in msg.lower()
+
+
+def test_wire_stays_quiet_when_managed_retention_is_long_enough(home, monkeypatch):
+    # A managed value of a year or more already keeps sessions long enough.
+    _with_retention(home)
+    managed = home / "managed"
+    managed.mkdir()
+    (managed / "managed-settings.json").write_text('{"cleanupPeriodDays": 365}')
+    monkeypatch.setenv("CCSESSION_MANAGED_SETTINGS_DIR", str(managed))
+    ok, msg = wire_ccsession(home)
+    assert ok and "warning" not in msg.lower()
+    assert not (home / ".claude/settings.json").exists()

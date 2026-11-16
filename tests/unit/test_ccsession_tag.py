@@ -5154,3 +5154,20 @@ def test_install_sh_leaves_user_settings_alone_where_managed_settings_win(
     saved = json.loads((home / ".claude" / "settings.json").read_text())
     assert "cleanupPeriodDays" not in saved
     assert "managed settings file" in run.stdout
+
+
+def test_retention_ensure_accepts_a_managed_value_that_is_long_enough(
+    tmp_path: Path,
+) -> None:
+    # Managed settings win and already keep sessions for a year: nothing to
+    # raise and nothing to warn about (exit 0), and the user file is not created.
+    settings = _user_settings(tmp_path, None)
+    result = _retention(
+        tmp_path,
+        "ensure",
+        str(settings),
+        managed={"managed-settings.json": {"cleanupPeriodDays": 365}},
+    )
+    assert result.returncode == 0
+    assert "at least 365" in result.stdout and "managed settings file" in result.stdout
+    assert not settings.exists()

@@ -181,6 +181,13 @@ def ensure(settings: Path):
     managed = managed_value()
     if managed is not None:
         value, path = managed
+        if is_days(value) and value >= MIN_DAYS:
+            # Managed settings win and already keep sessions long enough.
+            return (
+                "%s is %d in the managed settings file %s (at least %d); no change."
+                % (KEY, value, path, MIN_DAYS),
+                True,
+            )
         return (
             "%s is %s in the managed settings file %s; %s cannot override it, so it is left alone."
             % (KEY, value, path, tilde(settings)),
