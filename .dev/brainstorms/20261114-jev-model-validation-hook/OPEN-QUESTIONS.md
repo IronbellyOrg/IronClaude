@@ -14,6 +14,14 @@
 
 **Rules for anyone working on this.** Push only to the fork `origin` (IronbellyOrg/IronClaude), only when the owner asks; never touch `SuperClaude-Org`. Edit under `src/superclaude/` and run `make sync-dev`; never stage `.claude/` paths other than `.claude/settings.json`. Python through `uv`. Open pull requests only with `/sc:pr-submit --monitor 3`. Implementation goes through a written plan (`/sc:workflow`, then `/sc:implement`), not ad hoc edits.
 
+## Superseding owner decision: warn and report, do not halt
+
+Ryan's latest November 16 decision overrides the earlier version 1 model-policy blocking proposals and the earlier answers below wherever they conflict: **no model-policy compliance issue is to halt development or other work.** Log incidents and surface warnings in the after-the-fact report instead. This includes forbidden or unknown models, evaluation selections outside the declared list, stage restrictions and requested-versus-served-model discrepancies. The earlier lists and stage rules inform observation, incident classification and warnings, not immediate blocking.
+
+Ryan rejects strict served-model compliance gating. This supersedes both the proposed immediate blocking of explicitly forbidden models and any earlier approval of model-policy blocking. Preserve those earlier statements as history, not current enforcement instructions. This direction concerns the model-policy safeguard; it does not purport to remove unrelated security or platform safeguards.
+
+This is a decision-documentation update only. No hook, launcher, policy, code or deployed behavior has been changed by this record.
+
 ## Owner decisions recorded November 16, 2026
 
 These decisions were given by Ryan during the November 16 review. They supersede conflicting recommendations in the historical table below. This update records decisions only; it does not implement or enable a hook, change policy/configuration, run an evaluation, or claim runtime validation.
