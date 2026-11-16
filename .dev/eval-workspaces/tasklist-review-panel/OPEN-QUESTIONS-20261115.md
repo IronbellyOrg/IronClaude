@@ -1,5 +1,7 @@
 # Tasklist review panel evaluation: where things stand, open questions and decisions left (2026-11-15)
 
+> **UPDATE 2026-11-16:** the owner **stopped the Sweep Sheet**. Its recall gate failed twice (7 of 34 independently seeded defects located, 21%, against 80% required); see `20261114-sweep-sheet/results/freeze-check-20261115-rerun.md` and the status box in `20261114-sweep-sheet/OPEN-ITEMS.md`. Rows below that concern the Sweep Sheet freeze, its parity test, hold-out author or format-forgiveness build are void for it. Still live: the Recipe Ledger (`20261114-recipe-ledger/`, its own open decisions are in `OPEN-DECISIONS-20261115.md`), the shared control for the Recipe Ledger against Z0, and the model-policy hook (#546, #551). The table below is otherwise the 2026-11-15 13:50 UTC state.
+
 ## Read this first (context for someone arriving with no history)
 
 **What this is.** IronClaude is a framework of commands for Claude Code. One command, `/sc:workflow`, writes an implementation plan (a "tasklist") and then has a group of AI reviewer models, called a **panel**, review that plan before anyone builds it. The owner is evaluating **which cheap reviewer models, and which ways of running the panel, find the most real defects**, because the cheap panels miss many of them. This folder (`.dev/eval-workspaces/tasklist-review-panel/`) holds that evaluation.

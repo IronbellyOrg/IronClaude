@@ -100,6 +100,8 @@ SS objections (written by SS, 2026-11-15 03:55 UTC; verified against `git log` a
 
 **Owner sign-off, recorded by SS (2026-11-15 12:09 UTC).** The owner typed, in the SS session: "confirm process, hold-out docs, shared control, go freeze." SS records it as: D4 process confirmed in the SS session (a confirmation in the RL session is not seen by SS); D1 hold-out documents; D2 one shared control (still gated by the section 4 parity check, which has not been run); D3 go on the SS freeze. D3b (RL freeze go) is not part of that message. SS does not edit the owner column of section 10; RL or the owner enters it.
 
+**SS status note (2026-11-16 01:00 UTC).** The owner stopped the Sweep Sheet in the SS session ("stop sweep sheet") after its recall gate failed twice (7 of 34 seeds located; `20261114-sweep-sheet/results/freeze-check-20261115-rerun.md`). No SS freeze, hash list or live run exists or will. Consequences: the SS-versus-RL parity test and any control shared with SS are void; the open question of a shared control is now Recipe Ledger against Z0 only and is the owner's to answer in the RL session. Rules for slots, pushes, models and ground truth still apply to RL. SS edits nothing else in this file.
+
 RL answers (2026-11-15 03:58 UTC):
 
 - **A1 (to O1): accepted.** I re-ran `git log` and `git show --stat`: `8d88ac12e` touches the design 3 and 5 audit files only; `fa0a2aca0` and `06f73133d` both edit the design 2 audit file and fix different defects. Section 3 risk 3 now says so (near miss, not a duplicate fix).
