@@ -1,0 +1,157 @@
+{
+ "package": "TASK-WF-design-20261108-041415",
+ "candidate": "/home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/.dev/eval-workspaces/tasklist-review-panel/20261111-a1/TASK-WF-design-20261108-041415/candidate.md",
+ "source": "/home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/.dev/tasks/done/TASK-WF-design-20261108-041415/source.md",
+ "items": [
+  {
+   "anchor": "Never edit or stage anything under `.claude/` except `.claude/settings.json`; run `make sync-dev` after the `src/superclaude/` edits.",
+   "anchor2": null,
+   "claim": "The plan requires running a command that writes generated files under `.claude/` while forbidding edits there.",
+   "id": "X0137"
+  },
+  {
+   "anchor": "Picks the feature or bug template, the Feature or Bug issue type and the `enhancement` / `bug` label",
+   "anchor2": "which selects issue type Test for a feature in `tests`",
+   "claim": "For --mode feature with --type tests the --mode row sets Feature while the --type row and Q7 set Test.",
+   "id": "X0129"
+  },
+  {
+   "anchor": "Constraints\n\n- Edit only under `src/superclaude/`, `tests/`, `docs/` and `plugins/superclaude/skills/sc-recommend/refs/`.",
+   "anchor2": "Then write `./artifacts/owner-manual-check.md` in this package.",
+   "claim": "Task 12 requires artifact files outside the only permitted edit paths, so its acceptance criteria cannot pass while obeying the constraint.",
+   "id": "X0236"
+  },
+  {
+   "anchor": "It writes exactly two things to a created issue besides the issue itself",
+   "anchor2": "pushback comment; final output with every `not applied` and `not set` line",
+   "claim": "Constraint 23 allows only the issue type and the Complexity field as writes to the created issue, but Task 2 Wave 5 posts a pushback comment and Task 1 applies a mode label.",
+   "id": "X0254"
+  },
+  {
+   "anchor": "Never edit or stage anything under `.claude/` except `.claude/settings.json`; run `make sync-dev` after the `src/superclaude/` edits.",
+   "anchor2": "Run `make sync-dev`, then `make verify-sync`, `make lint` and `uv run pytest tests/skills/test_issue_protocol.py -v`",
+   "claim": "The plan forbids editing `.claude/` while requiring `make sync-dev`, which copies changed source files into `.claude/`.",
+   "id": "X0174"
+  },
+  {
+   "anchor": "Edit only under `src/superclaude/`, `tests/`, `docs/` and `plugins/superclaude/skills/sc-recommend/refs/`.",
+   "anchor2": "Then write `./artifacts/owner-manual-check.md` in this package.",
+   "claim": "The required package artifact is outside every permitted edit location, so completing Task 12 violates the stated scope restriction.",
+   "id": "X0008"
+  },
+  {
+   "anchor": "Then write `./artifacts/owner-manual-check.md` in this package.",
+   "anchor2": null,
+   "claim": "Task 12 requires writing an artifact outside every location permitted by constraint 19.",
+   "id": "X0170"
+  },
+  {
+   "anchor": "Edit only under `src/superclaude/`, `tests/`, `docs/` and `plugins/superclaude/skills/sc-recommend/refs/`. Never edit or stage anything under `.claude/` except `.claude/settings.json`; run `make sync-dev` after the `src/superclaude/` edits.",
+   "anchor2": "Then write `./artifacts/owner-manual-check.md` in this package.",
+   "claim": "An implementer who follows the stated text as written builds a plan execution that writes `./artifacts/owner-manual-check.md` and `./artifacts/t12-checks.log` outside the permitted directories, and that is wrong because the plan\u2019s constraint forbids edits outside its listed paths.",
+   "id": "X0051"
+  },
+  {
+   "anchor": "It writes exactly two things to a created issue besides the issue itself",
+   "anchor2": "pushback comment; final output with every `not applied` and `not set` line",
+   "claim": "Constraints say the skill writes exactly two things to a created issue, but Task 2 Wave 5 adds a pushback comment on that issue, so an implementer cannot satisfy both.",
+   "id": "X0173"
+  },
+  {
+   "anchor": "lists every classification it could not set in its final output and in a third return-contract block",
+   "anchor2": "Source sections: decisions Q4, Q6; specification 2.2, 2.3, 2.5.",
+   "claim": "The goal requires missing labels in the third return block while the referenced return contract includes only not-set lines.",
+   "id": "X0154"
+  },
+  {
+   "anchor": "the Feature or Bug issue type and the `enhancement` / `bug` label",
+   "anchor2": "mode `feature` with area `tests` gives Test",
+   "claim": "For a feature in the tests area, Task 6 directs the command to describe Feature as the issue type while Q7 requires Test.",
+   "id": "X0117"
+  },
+  {
+   "anchor": "It writes exactly two things to a created issue besides the issue itself",
+   "anchor2": "field POST and read-back; pushback comment; final output",
+   "claim": "The constraint allows exactly two writes to a created issue, but the Wave 5 sequence keeps a pushback comment posted to that issue.",
+   "id": "X0267"
+  },
+  {
+   "anchor": "It writes exactly two things to a created issue besides the issue itself",
+   "anchor2": "field POST and read-back; pushback comment; final output with every",
+   "claim": "Constraint 23 allows exactly two writes to a created issue, but Task 2 keeps a pushback comment (a third write) in Wave 5.",
+   "id": "X0244"
+  },
+  {
+   "anchor": "It writes exactly two things to a created issue besides the issue itself",
+   "anchor2": "field POST and read-back; pushback comment; final output with every `not applied` and `not set` line",
+   "claim": "The Constraints allow exactly two writes to a created issue, but Task 2 keeps a pushback comment, which is a third write.",
+   "id": "X0066"
+  },
+  {
+   "anchor": "Edit only under `src/superclaude/`, `tests/`, `docs/` and `plugins/superclaude/skills/sc-recommend/refs/`.",
+   "anchor2": "Then write `./artifacts/owner-manual-check.md` in this package.",
+   "claim": "Task 12 requires a new file under ./artifacts/, outside the four directories the Constraints allow edits under, so no single implementation satisfies both texts.",
+   "id": "X0197"
+  },
+  {
+   "anchor": "It writes exactly two things to a created issue besides the issue itself:",
+   "anchor2": "field POST and read-back; pushback comment; final output",
+   "claim": "The required pushback comment adds an issue write beyond the two writes expressly permitted.",
+   "id": "X0063"
+  },
+  {
+   "anchor": "Edit only under `src/superclaude/`, `tests/`, `docs/` and `plugins/superclaude/skills/sc-recommend/refs/`.",
+   "anchor2": "Then write `./artifacts/owner-manual-check.md` in this package.",
+   "claim": "Task 12 requires writing the owner check under artifacts, outside the allowed edit locations.",
+   "id": "X0118"
+  },
+  {
+   "anchor": "It writes exactly two things to a created issue besides the issue itself: the issue type (through `gh issue create --type`) and the Complexity field value (through one POST).",
+   "anchor2": "applies only the mode label (`bug` or `enhancement`)",
+   "claim": "Constraint forbids a third classification write while Goal and Task 1 require the mode label: implementer must break one text, so acceptance cannot pass as written",
+   "id": "X0163"
+  },
+  {
+   "anchor": "run `make sync-dev` after the `src/superclaude/` edits.",
+   "anchor2": "Never edit or stage anything under `.claude/` except `.claude/settings.json`",
+   "claim": "The plan requires a sync that edits `.claude/` while forbidding edits there.",
+   "id": "X0178"
+  },
+  {
+   "anchor": "Edit only under `src/superclaude/`, `tests/`, `docs/` and `plugins/superclaude/skills/sc-recommend/refs/`.",
+   "anchor2": "Then write `./artifacts/owner-manual-check.md` in this package.",
+   "claim": "Task 12 requires creating an artifact outside the plan's explicitly allowed edit paths, making its acceptance criteria incompatible with the scope constraint.",
+   "id": "X0233"
+  },
+  {
+   "anchor": "Never edit or stage anything under `.claude/` except `.claude/settings.json`; run `make sync-dev` after the `src/superclaude/` edits.",
+   "anchor2": null,
+   "claim": "Running the required sync changes generated files under `.claude/`, contrary to the explicit prohibition on editing that directory.",
+   "id": "X0206"
+  },
+  {
+   "anchor": "Never edit or stage anything under `.claude/` except `.claude/settings.json`; run `make sync-dev` after the `src/superclaude/` edits.",
+   "anchor2": null,
+   "claim": "The required sync edits generated files under `.claude/`, contradicting the explicit prohibition on editing that directory.",
+   "id": "X0237"
+  },
+  {
+   "anchor": "It writes exactly two things to a created issue besides the issue itself: the issue type (through `gh issue create --type`) and the Complexity field value (through one POST).",
+   "anchor2": "applies only the mode label (`bug` or `enhancement`)",
+   "claim": "The plan requires applying a mode label and potentially posting a pushback comment while also stating that only the issue type and Complexity field are written besides issue creation.",
+   "id": "X0125"
+  },
+  {
+   "anchor": "It writes exactly two things to a created issue besides the issue itself: the issue type (through `gh issue create --type`) and the Complexity field value (through one POST).",
+   "anchor2": "applies only the mode label (`bug` or `enhancement`)",
+   "claim": "Constraints limits create mode to exactly two writes while Goal and Task 1 require a third write (the mode label), so both texts cannot hold.",
+   "id": "X0053"
+  },
+  {
+   "anchor": "It writes exactly two things to a created issue besides the issue itself",
+   "anchor2": "pushback comment; final output with every `not applied` and `not set` line",
+   "claim": "The constraint allows exactly two writes to the created issue, but Task 2 keeps the pushback comment, which is a third write.",
+   "id": "X0135"
+  }
+ ]
+}

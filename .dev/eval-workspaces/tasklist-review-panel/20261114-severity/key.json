@@ -1,0 +1,2530 @@
+{
+ "X0001": {
+  "pkg": "TASK-WF-design-20261108-041415",
+  "run": "b4-muse-ember-luna2",
+  "rid": "t3-1",
+  "model": "luna",
+  "kind": "reviewer",
+  "severity": "MAJOR"
+ },
+ "X0002": {
+  "pkg": "TASK-WF-designSpec-20261107-075614",
+  "run": "b4-muse-ember-luna2",
+  "rid": "t3-1",
+  "model": "luna",
+  "kind": "reviewer",
+  "severity": "CRITICAL"
+ },
+ "X0003": {
+  "pkg": "TASK-WF-makeTheAliasOnly-20261105-051649",
+  "run": "b4-muse-ember-luna2",
+  "rid": "t2b-1",
+  "model": "ember",
+  "kind": "reviewer",
+  "severity": "MAJOR"
+ },
+ "X0004": {
+  "pkg": "TASK-WF-makeTheAliasOnly-20261105-051649",
+  "run": "b4-muse-ember-luna2",
+  "rid": "t3-1",
+  "model": "luna",
+  "kind": "reviewer",
+  "severity": "CRITICAL"
+ },
+ "X0005": {
+  "pkg": "TASK-WF-makeTheAliasOnly-20261105-051649",
+  "run": "b4-muse-ember-luna2",
+  "rid": "t4-1",
+  "model": "luna",
+  "kind": "reviewer",
+  "severity": "MAJOR"
+ },
+ "X0006": {
+  "pkg": "TASK-WF-design-20261108-041415",
+  "run": "b4-sonnet-luna2",
+  "rid": "t3-1",
+  "model": "luna",
+  "kind": "reviewer",
+  "severity": "MAJOR"
+ },
+ "X0007": {
+  "pkg": "TASK-WF-design-20261108-041415",
+  "run": "b4-sonnet-luna2",
+  "rid": "t4-1",
+  "model": "luna",
+  "kind": "reviewer",
+  "severity": "MAJOR"
+ },
+ "X0008": {
+  "pkg": "TASK-WF-design-20261108-041415",
+  "run": "b4-sonnet-terra",
+  "rid": "t2-1",
+  "model": "terra",
+  "kind": "reviewer",
+  "severity": "MAJOR"
+ },
+ "X0009": {
+  "pkg": "TASK-WF-makeTheAliasOnly-20261105-051649",
+  "run": "b4-sonnet-terra",
+  "rid": "t2-1",
+  "model": "terra",
+  "kind": "reviewer",
+  "severity": "MAJOR"
+ },
+ "X0010": {
+  "pkg": "TASK-WF-design-20261108-041415",
+  "run": "b4-terra-luna-muse",
+  "rid": "t2-1",
+  "model": "terra",
+  "kind": "reviewer",
+  "severity": "MAJOR"
+ },
+ "X0011": {
+  "pkg": "TASK-WF-design-20261108-041415",
+  "run": "b4-terra-luna-muse",
+  "rid": "t2-1",
+  "model": "terra",
+  "kind": "reviewer",
+  "severity": "MAJOR"
+ },
+ "X0012": {
+  "pkg": "TASK-WF-design-20261108-041415",
+  "run": "b4-terra-luna-muse",
+  "rid": "t2-1",
+  "model": "terra",
+  "kind": "reviewer",
+  "severity": "MAJOR"
+ },
+ "X0013": {
+  "pkg": "TASK-WF-design-20261108-041415",
+  "run": "b4-terra-luna-muse",
+  "rid": "t2b-1",
+  "model": "wonder",
+  "kind": "reviewer",
+  "severity": "CRITICAL"
+ },
+ "X0014": {
+  "pkg": "TASK-WF-design-20261108-041415",
+  "run": "b4-terra-luna-muse",
+  "rid": "t4-1",
+  "model": "luna",
+  "kind": "reviewer",
+  "severity": "MAJOR"
+ },
+ "X0015": {
+  "pkg": "TASK-WF-design-20261108-041415",
+  "run": "b4-terra-luna-muse",
+  "rid": "t4-1",
+  "model": "luna",
+  "kind": "reviewer",
+  "severity": "MAJOR"
+ },
+ "X0016": {
+  "pkg": "TASK-WF-designSpec-20261107-075614",
+  "run": "b4-terra-luna-muse",
+  "rid": "t4-1",
+  "model": "luna",
+  "kind": "reviewer",
+  "severity": "MAJOR"
+ },
+ "X0017": {
+  "pkg": "TASK-WF-makeTheAliasOnly-20261105-051649",
+  "run": "b4-terra-luna-muse",
+  "rid": "t4-1",
+  "model": "luna",
+  "kind": "reviewer",
+  "severity": "MAJOR"
+ },
+ "X0018": {
+  "pkg": "TASK-WF-design-20261108-041415",
+  "run": "b4-terra-muse-haiku",
+  "rid": "t2-1",
+  "model": "terra",
+  "kind": "reviewer",
+  "severity": "MAJOR"
+ },
+ "X0019": {
+  "pkg": "TASK-WF-design-20261108-041415",
+  "run": "b4-terra-muse-haiku",
+  "rid": "t2-1",
+  "model": "terra",
+  "kind": "reviewer",
+  "severity": "MAJOR"
+ },
+ "X0020": {
+  "pkg": "TASK-WF-design-20261108-041415",
+  "run": "b4-terra-muse-haiku",
+  "rid": "t2b-1",
+  "model": "wonder",
+  "kind": "reviewer",
+  "severity": "CRITICAL"
+ },
+ "X0021": {
+  "pkg": "TASK-WF-design-20261108-041415",
+  "run": "b4-terra-muse-haiku",
+  "rid": "t4-1",
+  "model": "haiku",
+  "kind": "reviewer",
+  "severity": "MAJOR"
+ },
+ "X0022": {
+  "pkg": "TASK-WF-makeTheAliasOnly-20261105-051649",
+  "run": "b4-terra-muse-haiku",
+  "rid": "t2-1",
+  "model": "terra",
+  "kind": "reviewer",
+  "severity": "MAJOR"
+ },
+ "X0023": {
+  "pkg": "TASK-WF-makeTheAliasOnly-20261105-051649",
+  "run": "b4-terra-muse-haiku",
+  "rid": "t2-1",
+  "model": "terra",
+  "kind": "reviewer",
+  "severity": "MAJOR"
+ },
+ "X0024": {
+  "pkg": "TASK-WF-makeTheAliasOnly-20261105-051649",
+  "run": "b4-terra-muse-haiku",
+  "rid": "t2b-1",
+  "model": "wonder",
+  "kind": "reviewer",
+  "severity": "CRITICAL"
+ },
+ "X0025": {
+  "pkg": "TASK-WF-makeTheAliasOnly-20261105-051649",
+  "run": "b4-terra-muse-haiku",
+  "rid": "t4-1",
+  "model": "haiku",
+  "kind": "reviewer",
+  "severity": "MAJOR"
+ },
+ "X0026": {
+  "pkg": "TASK-WF-makeTheAliasOnly-20261105-051649",
+  "run": "c3-luna-grok-src",
+  "rid": "t4-1",
+  "model": "luna",
+  "kind": "reviewer",
+  "severity": "MAJOR"
+ },
+ "X0027": {
+  "pkg": "TASK-WF-makeTheAliasOnly-20261105-051649",
+  "run": "c3-luna-grok-src",
+  "rid": "t4-1",
+  "model": "luna",
+  "kind": "reviewer",
+  "severity": "MAJOR"
+ },
+ "X0028": {
+  "pkg": "TASK-WF-design-20261108-041415",
+  "run": "e1-grok-ember-luna",
+  "rid": "t4-1",
+  "model": "luna",
+  "kind": "reviewer",
+  "severity": "MAJOR"
+ },
+ "X0029": {
+  "pkg": "TASK-WF-design-20261108-041415",
+  "run": "e2-ember-luna2-rep",
+  "rid": "t3-1",
+  "model": "luna",
+  "kind": "reviewer",
+  "severity": "CRITICAL"
+ },
+ "X0030": {
+  "pkg": "TASK-WF-design-20261108-041415",
+  "run": "e2-ember-luna2-rep",
+  "rid": "t4-1",
+  "model": "luna",
+  "kind": "reviewer",
+  "severity": "MAJOR"
+ },
+ "X0031": {
+  "pkg": "TASK-WF-designSpec-20261107-075614",
+  "run": "e2-ember-luna2-rep",
+  "rid": "t4-1",
+  "model": "luna",
+  "kind": "reviewer",
+  "severity": "MAJOR"
+ },
+ "X0032": {
+  "pkg": "TASK-WF-design-20261108-041415",
+  "run": "e3-ember2-luna",
+  "rid": "t4-1",
+  "model": "luna",
+  "kind": "reviewer",
+  "severity": "MAJOR"
+ },
+ "X0033": {
+  "pkg": "TASK-WF-designSpec-20261107-075614",
+  "run": "e3-ember2-luna",
+  "rid": "t4-1",
+  "model": "luna",
+  "kind": "reviewer",
+  "severity": "MAJOR"
+ },
+ "X0034": {
+  "pkg": "TASK-WF-design-20261108-041415",
+  "run": "e5-haiku-ember-luna",
+  "rid": "t3-1",
+  "model": "luna",
+  "kind": "reviewer",
+  "severity": "MAJOR"
+ },
+ "X0035": {
+  "pkg": "TASK-WF-design-20261108-041415",
+  "run": "e5-haiku-ember-luna",
+  "rid": "t4-1",
+  "model": "haiku",
+  "kind": "reviewer",
+  "severity": "MAJOR"
+ },
+ "X0036": {
+  "pkg": "TASK-WF-designSpec-20261107-075614",
+  "run": "e5-haiku-ember-luna",
+  "rid": "t4-1",
+  "model": "haiku",
+  "kind": "reviewer",
+  "severity": "MAJOR"
+ },
+ "X0037": {
+  "pkg": "TASK-WF-makeTheAliasOnly-20261105-051649",
+  "run": "e5-haiku-ember-luna",
+  "rid": "t4-1",
+  "model": "haiku",
+  "kind": "reviewer",
+  "severity": "MAJOR"
+ },
+ "X0038": {
+  "pkg": "TASK-WF-design-20261108-041415",
+  "run": "e6-haiku-ember2",
+  "rid": "t4-1",
+  "model": "haiku",
+  "kind": "reviewer",
+  "severity": "MAJOR"
+ },
+ "X0039": {
+  "pkg": "TASK-WF-makeTheAliasOnly-20261105-051649",
+  "run": "e6-haiku-ember2",
+  "rid": "t2b-1",
+  "model": "ember",
+  "kind": "reviewer",
+  "severity": "CRITICAL"
+ },
+ "X0040": {
+  "pkg": "TASK-WF-makeTheAliasOnly-20261105-051649",
+  "run": "e6-haiku-ember2",
+  "rid": "t3-1",
+  "model": "ember",
+  "kind": "reviewer",
+  "severity": "CRITICAL"
+ },
+ "X0041": {
+  "pkg": "TASK-WF-design-20261108-041415",
+  "run": "g1-ember-luna2-r1",
+  "rid": "t3-1",
+  "model": "luna",
+  "kind": "reviewer",
+  "severity": "MAJOR"
+ },
+ "X0042": {
+  "pkg": "TASK-WF-design-20261108-041415",
+  "run": "g1-ember-luna2-r1",
+  "rid": "t3-1",
+  "model": "luna",
+  "kind": "reviewer",
+  "severity": "MAJOR"
+ },
+ "X0043": {
+  "pkg": "TASK-WF-design-20261108-041415",
+  "run": "g1-ember-luna2-r1",
+  "rid": "t4-1",
+  "model": "luna",
+  "kind": "reviewer",
+  "severity": "MAJOR"
+ },
+ "X0044": {
+  "pkg": "TASK-WF-design-20261108-041415",
+  "run": "g1-ember-luna2-r2",
+  "rid": "t3-1",
+  "model": "luna",
+  "kind": "reviewer",
+  "severity": "CRITICAL"
+ },
+ "X0045": {
+  "pkg": "TASK-WF-design-20261108-041415",
+  "run": "g1-ember-luna2-r3",
+  "rid": "t3-1",
+  "model": "luna",
+  "kind": "reviewer",
+  "severity": "MAJOR"
+ },
+ "X0046": {
+  "pkg": "TASK-WF-design-20261108-041415",
+  "run": "g1-ember-luna2-r3",
+  "rid": "t3-1",
+  "model": "luna",
+  "kind": "reviewer",
+  "severity": "MAJOR"
+ },
+ "X0047": {
+  "pkg": "TASK-WF-design-20261108-041415",
+  "run": "g1-ember-luna2-r3",
+  "rid": "t4-1",
+  "model": "luna",
+  "kind": "reviewer",
+  "severity": "MAJOR"
+ },
+ "X0048": {
+  "pkg": "TASK-WF-design-20261108-041415",
+  "run": "g1-ember-luna2-r3",
+  "rid": "t4-1",
+  "model": "luna",
+  "kind": "reviewer",
+  "severity": "MAJOR"
+ },
+ "X0049": {
+  "pkg": "TASK-WF-designSpec-20261107-075614",
+  "run": "g1-ember-luna2-r3",
+  "rid": "t2b-1",
+  "model": "ember",
+  "kind": "reviewer",
+  "severity": "CRITICAL"
+ },
+ "X0050": {
+  "pkg": "TASK-WF-design-20261108-041415",
+  "run": "g1-ember-luna2-r4",
+  "rid": "t3-1",
+  "model": "luna",
+  "kind": "reviewer",
+  "severity": "MAJOR"
+ },
+ "X0051": {
+  "pkg": "TASK-WF-design-20261108-041415",
+  "run": "g1-ember-luna2-r4",
+  "rid": "t4-1",
+  "model": "luna",
+  "kind": "reviewer",
+  "severity": "MAJOR"
+ },
+ "X0052": {
+  "pkg": "TASK-WF-makeTheAliasOnly-20261105-051649",
+  "run": "g1-ember-luna2-r4",
+  "rid": "t3-1",
+  "model": "luna",
+  "kind": "reviewer",
+  "severity": "MAJOR"
+ },
+ "X0053": {
+  "pkg": "TASK-WF-design-20261108-041415",
+  "run": "g2-sonnet-ember-r2",
+  "rid": "t2b-1",
+  "model": "ember",
+  "kind": "reviewer",
+  "severity": "CRITICAL"
+ },
+ "X0054": {
+  "pkg": "TASK-WF-design-20261108-041415",
+  "run": "g2-sonnet-ember-r3",
+  "rid": "t2b-1",
+  "model": "ember",
+  "kind": "reviewer",
+  "severity": "MAJOR"
+ },
+ "X0055": {
+  "pkg": "TASK-WF-design-20261108-041415",
+  "run": "g2-sonnet-ember-r4",
+  "rid": "t2b-1",
+  "model": "ember",
+  "kind": "reviewer",
+  "severity": "CRITICAL"
+ },
+ "X0056": {
+  "pkg": "TASK-WF-design-20261108-041415",
+  "run": "g3-sonnet-luna-ember-r1",
+  "rid": "t2b-1",
+  "model": "ember",
+  "kind": "reviewer",
+  "severity": "CRITICAL"
+ },
+ "X0057": {
+  "pkg": "TASK-WF-design-20261108-041415",
+  "run": "g3-sonnet-luna-ember-r1",
+  "rid": "t4-1",
+  "model": "luna",
+  "kind": "reviewer",
+  "severity": "MAJOR"
+ },
+ "X0058": {
+  "pkg": "TASK-WF-makeTheAliasOnly-20261105-051649",
+  "run": "g3-sonnet-luna-ember-r2",
+  "rid": "t4-1",
+  "model": "luna",
+  "kind": "reviewer",
+  "severity": "MAJOR"
+ },
+ "X0059": {
+  "pkg": "TASK-WF-design-20261108-041415",
+  "run": "g3-sonnet-luna-ember-r3",
+  "rid": "t4-1",
+  "model": "luna",
+  "kind": "reviewer",
+  "severity": "MAJOR"
+ },
+ "X0060": {
+  "pkg": "TASK-WF-design-20261108-041415",
+  "run": "g3-sonnet-luna-ember-r4",
+  "rid": "t2b-1",
+  "model": "ember",
+  "kind": "reviewer",
+  "severity": "MAJOR"
+ },
+ "X0061": {
+  "pkg": "TASK-WF-design-20261108-041415",
+  "run": "g3-sonnet-luna-ember-r4",
+  "rid": "t4-1",
+  "model": "luna",
+  "kind": "reviewer",
+  "severity": "MAJOR"
+ },
+ "X0062": {
+  "pkg": "TASK-WF-design-20261108-041415",
+  "run": "g4-haiku-ember-terra-r1",
+  "rid": "t2-1",
+  "model": "terra",
+  "kind": "reviewer",
+  "severity": "MAJOR"
+ },
+ "X0063": {
+  "pkg": "TASK-WF-design-20261108-041415",
+  "run": "g4-haiku-ember-terra-r1",
+  "rid": "t2-1",
+  "model": "terra",
+  "kind": "reviewer",
+  "severity": "MAJOR"
+ },
+ "X0064": {
+  "pkg": "TASK-WF-design-20261108-041415",
+  "run": "g4-haiku-ember-terra-r1",
+  "rid": "t2-1",
+  "model": "terra",
+  "kind": "reviewer",
+  "severity": "MAJOR"
+ },
+ "X0065": {
+  "pkg": "TASK-WF-design-20261108-041415",
+  "run": "g4-haiku-ember-terra-r1",
+  "rid": "t2b-1",
+  "model": "ember",
+  "kind": "reviewer",
+  "severity": "MAJOR"
+ },
+ "X0066": {
+  "pkg": "TASK-WF-design-20261108-041415",
+  "run": "g4-haiku-ember-terra-r1",
+  "rid": "t4-1",
+  "model": "haiku",
+  "kind": "reviewer",
+  "severity": "MAJOR"
+ },
+ "X0067": {
+  "pkg": "TASK-WF-designSpec-20261107-075614",
+  "run": "g4-haiku-ember-terra-r1",
+  "rid": "t2b-1",
+  "model": "ember",
+  "kind": "reviewer",
+  "severity": "CRITICAL"
+ },
+ "X0068": {
+  "pkg": "TASK-WF-makeTheAliasOnly-20261105-051649",
+  "run": "g4-haiku-ember-terra-r1",
+  "rid": "t2-1",
+  "model": "terra",
+  "kind": "reviewer",
+  "severity": "MAJOR"
+ },
+ "X0069": {
+  "pkg": "TASK-WF-makeTheAliasOnly-20261105-051649",
+  "run": "g4-haiku-ember-terra-r1",
+  "rid": "t2-1",
+  "model": "terra",
+  "kind": "reviewer",
+  "severity": "MAJOR"
+ },
+ "X0070": {
+  "pkg": "TASK-WF-makeTheAliasOnly-20261105-051649",
+  "run": "g4-haiku-ember-terra-r1",
+  "rid": "t2b-1",
+  "model": "ember",
+  "kind": "reviewer",
+  "severity": "CRITICAL"
+ },
+ "X0071": {
+  "pkg": "TASK-WF-design-20261108-041415",
+  "run": "g4-haiku-ember-terra-r2",
+  "rid": "t2-1",
+  "model": "terra",
+  "kind": "reviewer",
+  "severity": "MAJOR"
+ },
+ "X0072": {
+  "pkg": "TASK-WF-design-20261108-041415",
+  "run": "g4-haiku-ember-terra-r2",
+  "rid": "t2-1",
+  "model": "terra",
+  "kind": "reviewer",
+  "severity": "MAJOR"
+ },
+ "X0073": {
+  "pkg": "TASK-WF-design-20261108-041415",
+  "run": "g4-haiku-ember-terra-r2",
+  "rid": "t2-1",
+  "model": "terra",
+  "kind": "reviewer",
+  "severity": "MAJOR"
+ },
+ "X0074": {
+  "pkg": "TASK-WF-design-20261108-041415",
+  "run": "g4-haiku-ember-terra-r2",
+  "rid": "t4-1",
+  "model": "haiku",
+  "kind": "reviewer",
+  "severity": "MAJOR"
+ },
+ "X0075": {
+  "pkg": "TASK-WF-designSpec-20261107-075614",
+  "run": "g4-haiku-ember-terra-r2",
+  "rid": "t4-1",
+  "model": "haiku",
+  "kind": "reviewer",
+  "severity": "MAJOR"
+ },
+ "X0076": {
+  "pkg": "TASK-WF-makeTheAliasOnly-20261105-051649",
+  "run": "g4-haiku-ember-terra-r2",
+  "rid": "t2-1",
+  "model": "terra",
+  "kind": "reviewer",
+  "severity": "MAJOR"
+ },
+ "X0077": {
+  "pkg": "TASK-WF-makeTheAliasOnly-20261105-051649",
+  "run": "g4-haiku-ember-terra-r2",
+  "rid": "t2-1",
+  "model": "terra",
+  "kind": "reviewer",
+  "severity": "MAJOR"
+ },
+ "X0078": {
+  "pkg": "TASK-WF-makeTheAliasOnly-20261105-051649",
+  "run": "g4-haiku-ember-terra-r2",
+  "rid": "t2b-1",
+  "model": "ember",
+  "kind": "reviewer",
+  "severity": "CRITICAL"
+ },
+ "X0079": {
+  "pkg": "TASK-WF-design-20261108-041415",
+  "run": "g4-haiku-ember-terra-r3",
+  "rid": "t2-1",
+  "model": "terra",
+  "kind": "reviewer",
+  "severity": "MAJOR"
+ },
+ "X0080": {
+  "pkg": "TASK-WF-design-20261108-041415",
+  "run": "g4-haiku-ember-terra-r3",
+  "rid": "t2-1",
+  "model": "terra",
+  "kind": "reviewer",
+  "severity": "MAJOR"
+ },
+ "X0081": {
+  "pkg": "TASK-WF-design-20261108-041415",
+  "run": "g4-haiku-ember-terra-r3",
+  "rid": "t2-1",
+  "model": "terra",
+  "kind": "reviewer",
+  "severity": "MAJOR"
+ },
+ "X0082": {
+  "pkg": "TASK-WF-design-20261108-041415",
+  "run": "g4-haiku-ember-terra-r3",
+  "rid": "t4-1",
+  "model": "haiku",
+  "kind": "reviewer",
+  "severity": "MAJOR"
+ },
+ "X0083": {
+  "pkg": "TASK-WF-designSpec-20261107-075614",
+  "run": "g4-haiku-ember-terra-r3",
+  "rid": "t2-1",
+  "model": "terra",
+  "kind": "reviewer",
+  "severity": "MAJOR"
+ },
+ "X0084": {
+  "pkg": "TASK-WF-designSpec-20261107-075614",
+  "run": "g4-haiku-ember-terra-r3",
+  "rid": "t4-1",
+  "model": "haiku",
+  "kind": "reviewer",
+  "severity": "MAJOR"
+ },
+ "X0085": {
+  "pkg": "TASK-WF-design-20261108-041415",
+  "run": "g4-haiku-ember-terra-r4",
+  "rid": "t2-1",
+  "model": "terra",
+  "kind": "reviewer",
+  "severity": "MAJOR"
+ },
+ "X0086": {
+  "pkg": "TASK-WF-design-20261108-041415",
+  "run": "g4-haiku-ember-terra-r4",
+  "rid": "t2-1",
+  "model": "terra",
+  "kind": "reviewer",
+  "severity": "MAJOR"
+ },
+ "X0087": {
+  "pkg": "TASK-WF-design-20261108-041415",
+  "run": "g4-haiku-ember-terra-r4",
+  "rid": "t2-1",
+  "model": "terra",
+  "kind": "reviewer",
+  "severity": "MAJOR"
+ },
+ "X0088": {
+  "pkg": "TASK-WF-design-20261108-041415",
+  "run": "g4-haiku-ember-terra-r4",
+  "rid": "t4-1",
+  "model": "haiku",
+  "kind": "reviewer",
+  "severity": "MAJOR"
+ },
+ "X0089": {
+  "pkg": "TASK-WF-design-20261108-041415",
+  "run": "g5-ember2-luna-r1",
+  "rid": "t3-1",
+  "model": "ember",
+  "kind": "reviewer",
+  "severity": "CRITICAL"
+ },
+ "X0090": {
+  "pkg": "TASK-WF-design-20261108-041415",
+  "run": "g5-ember2-luna-r1",
+  "rid": "t4-1",
+  "model": "luna",
+  "kind": "reviewer",
+  "severity": "MAJOR"
+ },
+ "X0091": {
+  "pkg": "TASK-WF-makeTheAliasOnly-20261105-051649",
+  "run": "g5-ember2-luna-r1",
+  "rid": "t3-1",
+  "model": "ember",
+  "kind": "reviewer",
+  "severity": "MAJOR"
+ },
+ "X0092": {
+  "pkg": "TASK-WF-makeTheAliasOnly-20261105-051649",
+  "run": "g5-ember2-luna-r1",
+  "rid": "t4-1",
+  "model": "luna",
+  "kind": "reviewer",
+  "severity": "MAJOR"
+ },
+ "X0093": {
+  "pkg": "TASK-WF-design-20261108-041415",
+  "run": "g5-ember2-luna-r2",
+  "rid": "t2b-1",
+  "model": "ember",
+  "kind": "reviewer",
+  "severity": "CRITICAL"
+ },
+ "X0094": {
+  "pkg": "TASK-WF-design-20261108-041415",
+  "run": "g5-ember2-luna-r2",
+  "rid": "t4-1",
+  "model": "luna",
+  "kind": "reviewer",
+  "severity": "MAJOR"
+ },
+ "X0095": {
+  "pkg": "TASK-WF-design-20261108-041415",
+  "run": "g5-ember2-luna-r3",
+  "rid": "t4-1",
+  "model": "luna",
+  "kind": "reviewer",
+  "severity": "MAJOR"
+ },
+ "X0096": {
+  "pkg": "TASK-WF-design-20261108-041415",
+  "run": "g5-ember2-luna-r3",
+  "rid": "t4-1",
+  "model": "luna",
+  "kind": "reviewer",
+  "severity": "MAJOR"
+ },
+ "X0097": {
+  "pkg": "TASK-WF-designSpec-20261107-075614",
+  "run": "g5-ember2-luna-r3",
+  "rid": "t4-1",
+  "model": "luna",
+  "kind": "reviewer",
+  "severity": "MAJOR"
+ },
+ "X0098": {
+  "pkg": "TASK-WF-design-20261108-041415",
+  "run": "g5-ember2-luna-r4",
+  "rid": "t3-1",
+  "model": "ember",
+  "kind": "reviewer",
+  "severity": "CRITICAL"
+ },
+ "X0099": {
+  "pkg": "TASK-WF-design-20261108-041415",
+  "run": "g5-ember2-luna-r4",
+  "rid": "t4-1",
+  "model": "luna",
+  "kind": "reviewer",
+  "severity": "MAJOR"
+ },
+ "X0100": {
+  "pkg": "TASK-WF-designSpec-20261107-075614",
+  "run": "g5-ember2-luna-r4",
+  "rid": "t4-1",
+  "model": "luna",
+  "kind": "reviewer",
+  "severity": "CRITICAL"
+ },
+ "X0101": {
+  "pkg": "TASK-WF-design-20261108-041415",
+  "run": "g6-luna2-ember2-r1",
+  "rid": "t2b-1",
+  "model": "ember",
+  "kind": "reviewer",
+  "severity": "MAJOR"
+ },
+ "X0102": {
+  "pkg": "TASK-WF-design-20261108-041415",
+  "run": "g6-luna2-ember2-r1",
+  "rid": "t3-1",
+  "model": "ember",
+  "kind": "reviewer",
+  "severity": "CRITICAL"
+ },
+ "X0103": {
+  "pkg": "TASK-WF-design-20261108-041415",
+  "run": "g6-luna2-ember2-r1",
+  "rid": "t4-2",
+  "model": "luna",
+  "kind": "reviewer",
+  "severity": "CRITICAL"
+ },
+ "X0104": {
+  "pkg": "TASK-WF-designSpec-20261107-075614",
+  "run": "g6-luna2-ember2-r1",
+  "rid": "t4-2",
+  "model": "luna",
+  "kind": "reviewer",
+  "severity": "MAJOR"
+ },
+ "X0105": {
+  "pkg": "TASK-WF-makeTheAliasOnly-20261105-051649",
+  "run": "g6-luna2-ember2-r1",
+  "rid": "t3-1",
+  "model": "ember",
+  "kind": "reviewer",
+  "severity": "CRITICAL"
+ },
+ "X0106": {
+  "pkg": "TASK-WF-design-20261108-041415",
+  "run": "g6-luna2-ember2-r2",
+  "rid": "t2b-1",
+  "model": "ember",
+  "kind": "reviewer",
+  "severity": "CRITICAL"
+ },
+ "X0107": {
+  "pkg": "TASK-WF-design-20261108-041415",
+  "run": "g6-luna2-ember2-r2",
+  "rid": "t4-1",
+  "model": "luna",
+  "kind": "reviewer",
+  "severity": "CRITICAL"
+ },
+ "X0108": {
+  "pkg": "TASK-WF-designSpec-20261107-075614",
+  "run": "g6-luna2-ember2-r2",
+  "rid": "t2b-1",
+  "model": "ember",
+  "kind": "reviewer",
+  "severity": "CRITICAL"
+ },
+ "X0109": {
+  "pkg": "TASK-WF-designSpec-20261107-075614",
+  "run": "g6-luna2-ember2-r2",
+  "rid": "t4-1",
+  "model": "luna",
+  "kind": "reviewer",
+  "severity": "MAJOR"
+ },
+ "X0110": {
+  "pkg": "TASK-WF-designSpec-20261107-075614",
+  "run": "g6-luna2-ember2-r2",
+  "rid": "t4-2",
+  "model": "luna",
+  "kind": "reviewer",
+  "severity": "MAJOR"
+ },
+ "X0111": {
+  "pkg": "TASK-WF-makeTheAliasOnly-20261105-051649",
+  "run": "g6-luna2-ember2-r2",
+  "rid": "t4-1",
+  "model": "luna",
+  "kind": "reviewer",
+  "severity": "CRITICAL"
+ },
+ "X0112": {
+  "pkg": "TASK-WF-design-20261108-041415",
+  "run": "g6-luna2-ember2-r3",
+  "rid": "t4-1",
+  "model": "luna",
+  "kind": "reviewer",
+  "severity": "MAJOR"
+ },
+ "X0113": {
+  "pkg": "TASK-WF-design-20261108-041415",
+  "run": "g6-luna2-ember2-r3",
+  "rid": "t4-2",
+  "model": "luna",
+  "kind": "reviewer",
+  "severity": "MAJOR"
+ },
+ "X0114": {
+  "pkg": "TASK-WF-design-20261108-041415",
+  "run": "g6-luna2-ember2-r3",
+  "rid": "t4-2",
+  "model": "luna",
+  "kind": "reviewer",
+  "severity": "MAJOR"
+ },
+ "X0115": {
+  "pkg": "TASK-WF-designSpec-20261107-075614",
+  "run": "g6-luna2-ember2-r3",
+  "rid": "t4-1",
+  "model": "luna",
+  "kind": "reviewer",
+  "severity": "MAJOR"
+ },
+ "X0116": {
+  "pkg": "TASK-WF-design-20261108-041415",
+  "run": "g6-luna2-ember2-r4",
+  "rid": "t3-1",
+  "model": "ember",
+  "kind": "reviewer",
+  "severity": "MAJOR"
+ },
+ "X0117": {
+  "pkg": "TASK-WF-design-20261108-041415",
+  "run": "g6-luna2-ember2-r4",
+  "rid": "t4-1",
+  "model": "luna",
+  "kind": "reviewer",
+  "severity": "MAJOR"
+ },
+ "X0118": {
+  "pkg": "TASK-WF-design-20261108-041415",
+  "run": "g6-luna2-ember2-r4",
+  "rid": "t4-1",
+  "model": "luna",
+  "kind": "reviewer",
+  "severity": "MAJOR"
+ },
+ "X0119": {
+  "pkg": "TASK-WF-design-20261108-041415",
+  "run": "g6-luna2-ember2-r4",
+  "rid": "t4-2",
+  "model": "luna",
+  "kind": "reviewer",
+  "severity": "CRITICAL"
+ },
+ "X0120": {
+  "pkg": "TASK-WF-designSpec-20261107-075614",
+  "run": "g6-luna2-ember2-r4",
+  "rid": "t4-1",
+  "model": "luna",
+  "kind": "reviewer",
+  "severity": "CRITICAL"
+ },
+ "X0121": {
+  "pkg": "TASK-WF-makeTheAliasOnly-20261105-051649",
+  "run": "g6-luna2-ember2-r4",
+  "rid": "t4-1",
+  "model": "luna",
+  "kind": "reviewer",
+  "severity": "MAJOR"
+ },
+ "X0122": {
+  "pkg": "TASK-WF-makeTheAliasOnly-20261105-051649",
+  "run": "g6-luna2-ember2-r4",
+  "rid": "t4-2",
+  "model": "luna",
+  "kind": "reviewer",
+  "severity": "MAJOR"
+ },
+ "X0123": {
+  "pkg": "TASK-WF-design-20261108-041415",
+  "run": "g7-haiku-luna2-r1",
+  "rid": "t3-1",
+  "model": "luna",
+  "kind": "reviewer",
+  "severity": "MAJOR"
+ },
+ "X0124": {
+  "pkg": "TASK-WF-design-20261108-041415",
+  "run": "g7-haiku-luna2-r1",
+  "rid": "t3-1",
+  "model": "luna",
+  "kind": "reviewer",
+  "severity": "MAJOR"
+ },
+ "X0125": {
+  "pkg": "TASK-WF-design-20261108-041415",
+  "run": "g7-haiku-luna2-r1",
+  "rid": "t4-2",
+  "model": "luna",
+  "kind": "reviewer",
+  "severity": "MAJOR"
+ },
+ "X0126": {
+  "pkg": "TASK-WF-designSpec-20261107-075614",
+  "run": "g7-haiku-luna2-r1",
+  "rid": "t4-1",
+  "model": "haiku",
+  "kind": "reviewer",
+  "severity": "MAJOR"
+ },
+ "X0127": {
+  "pkg": "TASK-WF-makeTheAliasOnly-20261105-051649",
+  "run": "g7-haiku-luna2-r1",
+  "rid": "t3-1",
+  "model": "luna",
+  "kind": "reviewer",
+  "severity": "MAJOR"
+ },
+ "X0128": {
+  "pkg": "TASK-WF-design-20261108-041415",
+  "run": "g7-haiku-luna2-r2",
+  "rid": "t4-1",
+  "model": "haiku",
+  "kind": "reviewer",
+  "severity": "MAJOR"
+ },
+ "X0129": {
+  "pkg": "TASK-WF-design-20261108-041415",
+  "run": "g7-haiku-luna2-r2",
+  "rid": "t4-1",
+  "model": "haiku",
+  "kind": "reviewer",
+  "severity": "MAJOR"
+ },
+ "X0130": {
+  "pkg": "TASK-WF-design-20261108-041415",
+  "run": "g7-haiku-luna2-r2",
+  "rid": "t4-1",
+  "model": "haiku",
+  "kind": "reviewer",
+  "severity": "MAJOR"
+ },
+ "X0131": {
+  "pkg": "TASK-WF-design-20261108-041415",
+  "run": "g7-haiku-luna2-r2",
+  "rid": "t4-2",
+  "model": "luna",
+  "kind": "reviewer",
+  "severity": "MAJOR"
+ },
+ "X0132": {
+  "pkg": "TASK-WF-designSpec-20261107-075614",
+  "run": "g7-haiku-luna2-r2",
+  "rid": "t4-2",
+  "model": "luna",
+  "kind": "reviewer",
+  "severity": "MAJOR"
+ },
+ "X0133": {
+  "pkg": "TASK-WF-makeTheAliasOnly-20261105-051649",
+  "run": "g7-haiku-luna2-r2",
+  "rid": "t4-2",
+  "model": "luna",
+  "kind": "reviewer",
+  "severity": "MAJOR"
+ },
+ "X0134": {
+  "pkg": "TASK-WF-design-20261108-041415",
+  "run": "g7-haiku-luna2-r3",
+  "rid": "t3-1",
+  "model": "luna",
+  "kind": "reviewer",
+  "severity": "MAJOR"
+ },
+ "X0135": {
+  "pkg": "TASK-WF-design-20261108-041415",
+  "run": "g7-haiku-luna2-r3",
+  "rid": "t4-1",
+  "model": "haiku",
+  "kind": "reviewer",
+  "severity": "MAJOR"
+ },
+ "X0136": {
+  "pkg": "TASK-WF-design-20261108-041415",
+  "run": "g7-haiku-luna2-r3",
+  "rid": "t4-2",
+  "model": "luna",
+  "kind": "reviewer",
+  "severity": "CRITICAL"
+ },
+ "X0137": {
+  "pkg": "TASK-WF-design-20261108-041415",
+  "run": "g7-haiku-luna2-r3",
+  "rid": "t4-2",
+  "model": "luna",
+  "kind": "reviewer",
+  "severity": "CRITICAL"
+ },
+ "X0138": {
+  "pkg": "TASK-WF-design-20261108-041415",
+  "run": "g7-haiku-luna2-r4",
+  "rid": "t3-1",
+  "model": "luna",
+  "kind": "reviewer",
+  "severity": "MAJOR"
+ },
+ "X0139": {
+  "pkg": "TASK-WF-design-20261108-041415",
+  "run": "g7-haiku-luna2-r4",
+  "rid": "t3-1",
+  "model": "luna",
+  "kind": "reviewer",
+  "severity": "MAJOR"
+ },
+ "X0140": {
+  "pkg": "TASK-WF-design-20261108-041415",
+  "run": "g7-haiku-luna2-r4",
+  "rid": "t4-1",
+  "model": "haiku",
+  "kind": "reviewer",
+  "severity": "MAJOR"
+ },
+ "X0141": {
+  "pkg": "TASK-WF-design-20261108-041415",
+  "run": "g7-haiku-luna2-r4",
+  "rid": "t4-2",
+  "model": "luna",
+  "kind": "reviewer",
+  "severity": "CRITICAL"
+ },
+ "X0142": {
+  "pkg": "TASK-WF-makeTheAliasOnly-20261105-051649",
+  "run": "g7-haiku-luna2-r4",
+  "rid": "t3-1",
+  "model": "luna",
+  "kind": "reviewer",
+  "severity": "MAJOR"
+ },
+ "X0143": {
+  "pkg": "TASK-WF-makeTheAliasOnly-20261105-051649",
+  "run": "g7-haiku-luna2-r4",
+  "rid": "t4-1",
+  "model": "haiku",
+  "kind": "reviewer",
+  "severity": "MAJOR"
+ },
+ "X0144": {
+  "pkg": "TASK-WF-makeTheAliasOnly-20261105-051649",
+  "run": "g7-haiku-luna2-r4",
+  "rid": "t4-2",
+  "model": "luna",
+  "kind": "reviewer",
+  "severity": "MAJOR"
+ },
+ "X0145": {
+  "pkg": "TASK-WF-design-20261108-041415",
+  "run": "g8-ember-terra-r1",
+  "rid": "t2-1",
+  "model": "terra",
+  "kind": "reviewer",
+  "severity": "MAJOR"
+ },
+ "X0146": {
+  "pkg": "TASK-WF-design-20261108-041415",
+  "run": "g8-ember-terra-r1",
+  "rid": "t2-1",
+  "model": "terra",
+  "kind": "reviewer",
+  "severity": "MAJOR"
+ },
+ "X0147": {
+  "pkg": "TASK-WF-design-20261108-041415",
+  "run": "g8-ember-terra-r1",
+  "rid": "t2-1",
+  "model": "terra",
+  "kind": "reviewer",
+  "severity": "MAJOR"
+ },
+ "X0148": {
+  "pkg": "TASK-WF-design-20261108-041415",
+  "run": "g8-ember-terra-r1",
+  "rid": "t2b-1",
+  "model": "ember",
+  "kind": "reviewer",
+  "severity": "CRITICAL"
+ },
+ "X0149": {
+  "pkg": "TASK-WF-makeTheAliasOnly-20261105-051649",
+  "run": "g8-ember-terra-r1",
+  "rid": "t2b-1",
+  "model": "ember",
+  "kind": "reviewer",
+  "severity": "MAJOR"
+ },
+ "X0150": {
+  "pkg": "TASK-WF-makeTheAliasOnly-20261105-051649",
+  "run": "g8-ember-terra-r1",
+  "rid": "t2b-1",
+  "model": "ember",
+  "kind": "reviewer",
+  "severity": "MAJOR"
+ },
+ "X0151": {
+  "pkg": "TASK-WF-design-20261108-041415",
+  "run": "g8-ember-terra-r2",
+  "rid": "t2-1",
+  "model": "terra",
+  "kind": "reviewer",
+  "severity": "MAJOR"
+ },
+ "X0152": {
+  "pkg": "TASK-WF-design-20261108-041415",
+  "run": "g8-ember-terra-r2",
+  "rid": "t2-1",
+  "model": "terra",
+  "kind": "reviewer",
+  "severity": "MAJOR"
+ },
+ "X0153": {
+  "pkg": "TASK-WF-design-20261108-041415",
+  "run": "g8-ember-terra-r2",
+  "rid": "t2-1",
+  "model": "terra",
+  "kind": "reviewer",
+  "severity": "MAJOR"
+ },
+ "X0154": {
+  "pkg": "TASK-WF-design-20261108-041415",
+  "run": "g8-ember-terra-r2",
+  "rid": "t2-1",
+  "model": "terra",
+  "kind": "reviewer",
+  "severity": "MAJOR"
+ },
+ "X0155": {
+  "pkg": "TASK-WF-makeTheAliasOnly-20261105-051649",
+  "run": "g8-ember-terra-r2",
+  "rid": "t2b-1",
+  "model": "ember",
+  "kind": "reviewer",
+  "severity": "MAJOR"
+ },
+ "X0156": {
+  "pkg": "TASK-WF-design-20261108-041415",
+  "run": "g8-ember-terra-r3",
+  "rid": "t2-1",
+  "model": "terra",
+  "kind": "reviewer",
+  "severity": "MAJOR"
+ },
+ "X0157": {
+  "pkg": "TASK-WF-design-20261108-041415",
+  "run": "g8-ember-terra-r3",
+  "rid": "t2-1",
+  "model": "terra",
+  "kind": "reviewer",
+  "severity": "MAJOR"
+ },
+ "X0158": {
+  "pkg": "TASK-WF-design-20261108-041415",
+  "run": "g8-ember-terra-r3",
+  "rid": "t2-1",
+  "model": "terra",
+  "kind": "reviewer",
+  "severity": "MAJOR"
+ },
+ "X0159": {
+  "pkg": "TASK-WF-design-20261108-041415",
+  "run": "g8-ember-terra-r3",
+  "rid": "t2b-1",
+  "model": "ember",
+  "kind": "reviewer",
+  "severity": "CRITICAL"
+ },
+ "X0160": {
+  "pkg": "TASK-WF-design-20261108-041415",
+  "run": "g8-ember-terra-r4",
+  "rid": "t2-1",
+  "model": "terra",
+  "kind": "reviewer",
+  "severity": "MAJOR"
+ },
+ "X0161": {
+  "pkg": "TASK-WF-design-20261108-041415",
+  "run": "g8-ember-terra-r4",
+  "rid": "t2-1",
+  "model": "terra",
+  "kind": "reviewer",
+  "severity": "MAJOR"
+ },
+ "X0162": {
+  "pkg": "TASK-WF-design-20261108-041415",
+  "run": "g8-ember-terra-r4",
+  "rid": "t2-1",
+  "model": "terra",
+  "kind": "reviewer",
+  "severity": "MAJOR"
+ },
+ "X0163": {
+  "pkg": "TASK-WF-design-20261108-041415",
+  "run": "g8-ember-terra-r4",
+  "rid": "t2b-1",
+  "model": "ember",
+  "kind": "reviewer",
+  "severity": "CRITICAL"
+ },
+ "X0164": {
+  "pkg": "TASK-WF-makeTheAliasOnly-20261105-051649",
+  "run": "g8-ember-terra-r4",
+  "rid": "t2b-1",
+  "model": "ember",
+  "kind": "reviewer",
+  "severity": "CRITICAL"
+ },
+ "X0165": {
+  "pkg": "TASK-WF-design-20261108-041415",
+  "run": "g9-ember-luna-r1",
+  "rid": "t4-1",
+  "model": "luna",
+  "kind": "reviewer",
+  "severity": "CRITICAL"
+ },
+ "X0166": {
+  "pkg": "TASK-WF-design-20261108-041415",
+  "run": "g9-ember-luna-r1",
+  "rid": "t4-1",
+  "model": "luna",
+  "kind": "reviewer",
+  "severity": "CRITICAL"
+ },
+ "X0167": {
+  "pkg": "TASK-WF-design-20261108-041415",
+  "run": "g9-ember-luna-r1",
+  "rid": "t4-1",
+  "model": "luna",
+  "kind": "reviewer",
+  "severity": "CRITICAL"
+ },
+ "X0168": {
+  "pkg": "TASK-WF-design-20261108-041415",
+  "run": "g9-ember-luna-r2",
+  "rid": "t4-1",
+  "model": "luna",
+  "kind": "reviewer",
+  "severity": "MAJOR"
+ },
+ "X0169": {
+  "pkg": "TASK-WF-design-20261108-041415",
+  "run": "g9-ember-luna-r3",
+  "rid": "t4-1",
+  "model": "luna",
+  "kind": "reviewer",
+  "severity": "MAJOR"
+ },
+ "X0170": {
+  "pkg": "TASK-WF-design-20261108-041415",
+  "run": "g9-ember-luna-r3",
+  "rid": "t4-1",
+  "model": "luna",
+  "kind": "reviewer",
+  "severity": "MAJOR"
+ },
+ "X0171": {
+  "pkg": "TASK-WF-design-20261108-041415",
+  "run": "g9-ember-luna-r4",
+  "rid": "t4-1",
+  "model": "luna",
+  "kind": "reviewer",
+  "severity": "MAJOR"
+ },
+ "X0172": {
+  "pkg": "TASK-WF-designSpec-20261107-075614",
+  "run": "g9-ember-luna-r4",
+  "rid": "t4-1",
+  "model": "luna",
+  "kind": "reviewer",
+  "severity": "MAJOR"
+ },
+ "X0173": {
+  "pkg": "TASK-WF-design-20261108-041415",
+  "run": "h1-haiku-luna2-ember2-r1",
+  "rid": "t2-1",
+  "model": "haiku",
+  "kind": "reviewer",
+  "severity": "MAJOR"
+ },
+ "X0174": {
+  "pkg": "TASK-WF-design-20261108-041415",
+  "run": "h1-haiku-luna2-ember2-r1",
+  "rid": "t4-1",
+  "model": "luna",
+  "kind": "reviewer",
+  "severity": "MAJOR"
+ },
+ "X0175": {
+  "pkg": "TASK-WF-design-20261108-041415",
+  "run": "h1-haiku-luna2-ember2-r1",
+  "rid": "t4-1",
+  "model": "luna",
+  "kind": "reviewer",
+  "severity": "MAJOR"
+ },
+ "X0176": {
+  "pkg": "TASK-WF-design-20261108-041415",
+  "run": "h1-haiku-luna2-ember2-r1",
+  "rid": "t4-1",
+  "model": "luna",
+  "kind": "reviewer",
+  "severity": "MAJOR"
+ },
+ "X0177": {
+  "pkg": "TASK-WF-design-20261108-041415",
+  "run": "h1-haiku-luna2-ember2-r2",
+  "rid": "t2-1",
+  "model": "haiku",
+  "kind": "reviewer",
+  "severity": "MAJOR"
+ },
+ "X0178": {
+  "pkg": "TASK-WF-design-20261108-041415",
+  "run": "h1-haiku-luna2-ember2-r2",
+  "rid": "t4-1",
+  "model": "luna",
+  "kind": "reviewer",
+  "severity": "CRITICAL"
+ },
+ "X0179": {
+  "pkg": "TASK-WF-design-20261108-041415",
+  "run": "h1-haiku-luna2-ember2-r2",
+  "rid": "t4-2",
+  "model": "luna",
+  "kind": "reviewer",
+  "severity": "MAJOR"
+ },
+ "X0180": {
+  "pkg": "TASK-WF-designSpec-20261107-075614",
+  "run": "h1-haiku-luna2-ember2-r2",
+  "rid": "t2-1",
+  "model": "haiku",
+  "kind": "reviewer",
+  "severity": "MAJOR"
+ },
+ "X0181": {
+  "pkg": "TASK-WF-designSpec-20261107-075614",
+  "run": "h1-haiku-luna2-ember2-r2",
+  "rid": "t2b-1",
+  "model": "ember",
+  "kind": "reviewer",
+  "severity": "MAJOR"
+ },
+ "X0182": {
+  "pkg": "TASK-WF-designSpec-20261107-075614",
+  "run": "h1-haiku-luna2-ember2-r2",
+  "rid": "t4-1",
+  "model": "luna",
+  "kind": "reviewer",
+  "severity": "CRITICAL"
+ },
+ "X0183": {
+  "pkg": "TASK-WF-designSpec-20261107-075614",
+  "run": "h1-haiku-luna2-ember2-r2",
+  "rid": "t4-2",
+  "model": "luna",
+  "kind": "reviewer",
+  "severity": "MAJOR"
+ },
+ "X0184": {
+  "pkg": "TASK-WF-makeTheAliasOnly-20261105-051649",
+  "run": "h1-haiku-luna2-ember2-r2",
+  "rid": "t3-1",
+  "model": "ember",
+  "kind": "reviewer",
+  "severity": "CRITICAL"
+ },
+ "X0185": {
+  "pkg": "TASK-WF-makeTheAliasOnly-20261105-051649",
+  "run": "h1-haiku-luna2-ember2-r2",
+  "rid": "t4-1",
+  "model": "luna",
+  "kind": "reviewer",
+  "severity": "MAJOR"
+ },
+ "X0186": {
+  "pkg": "TASK-WF-makeTheAliasOnly-20261105-051649",
+  "run": "h1-haiku-luna2-ember2-r2",
+  "rid": "t4-1",
+  "model": "luna",
+  "kind": "reviewer",
+  "severity": "MAJOR"
+ },
+ "X0187": {
+  "pkg": "TASK-WF-design-20261108-041415",
+  "run": "h1-haiku-luna2-ember2-r3",
+  "rid": "t2-1",
+  "model": "haiku",
+  "kind": "reviewer",
+  "severity": "MAJOR"
+ },
+ "X0188": {
+  "pkg": "TASK-WF-design-20261108-041415",
+  "run": "h1-haiku-luna2-ember2-r3",
+  "rid": "t4-1",
+  "model": "luna",
+  "kind": "reviewer",
+  "severity": "MAJOR"
+ },
+ "X0189": {
+  "pkg": "TASK-WF-makeTheAliasOnly-20261105-051649",
+  "run": "h1-haiku-luna2-ember2-r3",
+  "rid": "t2-1",
+  "model": "haiku",
+  "kind": "reviewer",
+  "severity": "CRITICAL"
+ },
+ "X0190": {
+  "pkg": "TASK-WF-makeTheAliasOnly-20261105-051649",
+  "run": "h1-haiku-luna2-ember2-r3",
+  "rid": "t2-1",
+  "model": "haiku",
+  "kind": "reviewer",
+  "severity": "MAJOR"
+ },
+ "X0191": {
+  "pkg": "TASK-WF-makeTheAliasOnly-20261105-051649",
+  "run": "h1-haiku-luna2-ember2-r3",
+  "rid": "t2-1",
+  "model": "haiku",
+  "kind": "reviewer",
+  "severity": "MAJOR"
+ },
+ "X0192": {
+  "pkg": "TASK-WF-makeTheAliasOnly-20261105-051649",
+  "run": "h1-haiku-luna2-ember2-r3",
+  "rid": "t4-1",
+  "model": "luna",
+  "kind": "reviewer",
+  "severity": "MAJOR"
+ },
+ "X0193": {
+  "pkg": "TASK-WF-makeTheAliasOnly-20261105-051649",
+  "run": "h1-haiku-luna2-ember2-r3",
+  "rid": "t4-2",
+  "model": "luna",
+  "kind": "reviewer",
+  "severity": "MAJOR"
+ },
+ "X0194": {
+  "pkg": "TASK-WF-design-20261108-041415",
+  "run": "h1-haiku-luna2-ember2-r4",
+  "rid": "t2-1",
+  "model": "haiku",
+  "kind": "reviewer",
+  "severity": "MAJOR"
+ },
+ "X0195": {
+  "pkg": "TASK-WF-design-20261108-041415",
+  "run": "h1-haiku-luna2-ember2-r4",
+  "rid": "t2-1",
+  "model": "haiku",
+  "kind": "reviewer",
+  "severity": "MAJOR"
+ },
+ "X0196": {
+  "pkg": "TASK-WF-design-20261108-041415",
+  "run": "h1-haiku-luna2-ember2-r4",
+  "rid": "t2-1",
+  "model": "haiku",
+  "kind": "reviewer",
+  "severity": "MAJOR"
+ },
+ "X0197": {
+  "pkg": "TASK-WF-design-20261108-041415",
+  "run": "h1-haiku-luna2-ember2-r4",
+  "rid": "t2b-1",
+  "model": "ember",
+  "kind": "reviewer",
+  "severity": "MAJOR"
+ },
+ "X0198": {
+  "pkg": "TASK-WF-design-20261108-041415",
+  "run": "h1-haiku-luna2-ember2-r4",
+  "rid": "t4-1",
+  "model": "luna",
+  "kind": "reviewer",
+  "severity": "MAJOR"
+ },
+ "X0199": {
+  "pkg": "TASK-WF-design-20261108-041415",
+  "run": "h1-haiku-luna2-ember2-r4",
+  "rid": "t4-2",
+  "model": "luna",
+  "kind": "reviewer",
+  "severity": "MAJOR"
+ },
+ "X0200": {
+  "pkg": "TASK-WF-design-20261108-041415",
+  "run": "h1-haiku-luna2-ember2-r4",
+  "rid": "t4-2",
+  "model": "luna",
+  "kind": "reviewer",
+  "severity": "MAJOR"
+ },
+ "X0201": {
+  "pkg": "TASK-WF-designSpec-20261107-075614",
+  "run": "h1-haiku-luna2-ember2-r4",
+  "rid": "t2-1",
+  "model": "haiku",
+  "kind": "reviewer",
+  "severity": "MAJOR"
+ },
+ "X0202": {
+  "pkg": "TASK-WF-makeTheAliasOnly-20261105-051649",
+  "run": "h1-haiku-luna2-ember2-r4",
+  "rid": "t2-1",
+  "model": "haiku",
+  "kind": "reviewer",
+  "severity": "MAJOR"
+ },
+ "X0203": {
+  "pkg": "TASK-WF-design-20261108-041415",
+  "run": "h2-sonnet-luna2-ember2-r1",
+  "rid": "t2b-1",
+  "model": "ember",
+  "kind": "reviewer",
+  "severity": "MAJOR"
+ },
+ "X0204": {
+  "pkg": "TASK-WF-design-20261108-041415",
+  "run": "h2-sonnet-luna2-ember2-r1",
+  "rid": "t4-1",
+  "model": "luna",
+  "kind": "reviewer",
+  "severity": "MAJOR"
+ },
+ "X0205": {
+  "pkg": "TASK-WF-design-20261108-041415",
+  "run": "h2-sonnet-luna2-ember2-r1",
+  "rid": "t4-1",
+  "model": "luna",
+  "kind": "reviewer",
+  "severity": "MAJOR"
+ },
+ "X0206": {
+  "pkg": "TASK-WF-design-20261108-041415",
+  "run": "h2-sonnet-luna2-ember2-r1",
+  "rid": "t4-2",
+  "model": "luna",
+  "kind": "reviewer",
+  "severity": "MAJOR"
+ },
+ "X0207": {
+  "pkg": "TASK-WF-designSpec-20261107-075614",
+  "run": "h2-sonnet-luna2-ember2-r1",
+  "rid": "t4-1",
+  "model": "luna",
+  "kind": "reviewer",
+  "severity": "MAJOR"
+ },
+ "X0208": {
+  "pkg": "TASK-WF-designSpec-20261107-075614",
+  "run": "h2-sonnet-luna2-ember2-r1",
+  "rid": "t4-2",
+  "model": "luna",
+  "kind": "reviewer",
+  "severity": "MAJOR"
+ },
+ "X0209": {
+  "pkg": "TASK-WF-makeTheAliasOnly-20261105-051649",
+  "run": "h2-sonnet-luna2-ember2-r1",
+  "rid": "t4-1",
+  "model": "luna",
+  "kind": "reviewer",
+  "severity": "MAJOR"
+ },
+ "X0210": {
+  "pkg": "TASK-WF-design-20261108-041415",
+  "run": "h2-sonnet-luna2-ember2-r2",
+  "rid": "t4-1",
+  "model": "luna",
+  "kind": "reviewer",
+  "severity": "MAJOR"
+ },
+ "X0211": {
+  "pkg": "TASK-WF-design-20261108-041415",
+  "run": "h2-sonnet-luna2-ember2-r2",
+  "rid": "t4-1",
+  "model": "luna",
+  "kind": "reviewer",
+  "severity": "MAJOR"
+ },
+ "X0212": {
+  "pkg": "TASK-WF-design-20261108-041415",
+  "run": "h2-sonnet-luna2-ember2-r2",
+  "rid": "t4-2",
+  "model": "luna",
+  "kind": "reviewer",
+  "severity": "MAJOR"
+ },
+ "X0213": {
+  "pkg": "TASK-WF-design-20261108-041415",
+  "run": "h2-sonnet-luna2-ember2-r2",
+  "rid": "t4-2",
+  "model": "luna",
+  "kind": "reviewer",
+  "severity": "MAJOR"
+ },
+ "X0214": {
+  "pkg": "TASK-WF-makeTheAliasOnly-20261105-051649",
+  "run": "h2-sonnet-luna2-ember2-r2",
+  "rid": "t3-1",
+  "model": "ember",
+  "kind": "reviewer",
+  "severity": "CRITICAL"
+ },
+ "X0215": {
+  "pkg": "TASK-WF-design-20261108-041415",
+  "run": "h2-sonnet-luna2-ember2-r3",
+  "rid": "t4-2",
+  "model": "luna",
+  "kind": "reviewer",
+  "severity": "MAJOR"
+ },
+ "X0216": {
+  "pkg": "TASK-WF-makeTheAliasOnly-20261105-051649",
+  "run": "h2-sonnet-luna2-ember2-r3",
+  "rid": "t2b-1",
+  "model": "ember",
+  "kind": "reviewer",
+  "severity": "MAJOR"
+ },
+ "X0217": {
+  "pkg": "TASK-WF-makeTheAliasOnly-20261105-051649",
+  "run": "h2-sonnet-luna2-ember2-r3",
+  "rid": "t2b-1",
+  "model": "ember",
+  "kind": "reviewer",
+  "severity": "MAJOR"
+ },
+ "X0218": {
+  "pkg": "TASK-WF-makeTheAliasOnly-20261105-051649",
+  "run": "h2-sonnet-luna2-ember2-r3",
+  "rid": "t3-1",
+  "model": "ember",
+  "kind": "reviewer",
+  "severity": "CRITICAL"
+ },
+ "X0219": {
+  "pkg": "TASK-WF-makeTheAliasOnly-20261105-051649",
+  "run": "h2-sonnet-luna2-ember2-r3",
+  "rid": "t4-2",
+  "model": "luna",
+  "kind": "reviewer",
+  "severity": "MAJOR"
+ },
+ "X0220": {
+  "pkg": "TASK-WF-design-20261108-041415",
+  "run": "h2-sonnet-luna2-ember2-r4",
+  "rid": "t2b-1",
+  "model": "ember",
+  "kind": "reviewer",
+  "severity": "CRITICAL"
+ },
+ "X0221": {
+  "pkg": "TASK-WF-design-20261108-041415",
+  "run": "h2-sonnet-luna2-ember2-r4",
+  "rid": "t4-1",
+  "model": "luna",
+  "kind": "reviewer",
+  "severity": "CRITICAL"
+ },
+ "X0222": {
+  "pkg": "TASK-WF-design-20261108-041415",
+  "run": "h2-sonnet-luna2-ember2-r4",
+  "rid": "t4-2",
+  "model": "luna",
+  "kind": "reviewer",
+  "severity": "MAJOR"
+ },
+ "X0223": {
+  "pkg": "TASK-WF-designSpec-20261107-075614",
+  "run": "h2-sonnet-luna2-ember2-r4",
+  "rid": "t4-1",
+  "model": "luna",
+  "kind": "reviewer",
+  "severity": "MAJOR"
+ },
+ "X0224": {
+  "pkg": "TASK-WF-makeTheAliasOnly-20261105-051649",
+  "run": "h2-sonnet-luna2-ember2-r4",
+  "rid": "t4-1",
+  "model": "luna",
+  "kind": "reviewer",
+  "severity": "CRITICAL"
+ },
+ "X0225": {
+  "pkg": "TASK-WF-makeTheAliasOnly-20261105-051649",
+  "run": "h2-sonnet-luna2-ember2-r4",
+  "rid": "t4-2",
+  "model": "luna",
+  "kind": "reviewer",
+  "severity": "MAJOR"
+ },
+ "X0226": {
+  "pkg": "TASK-WF-design-20261108-041415",
+  "run": "j1-sonnet-luna2-r1",
+  "rid": "t3-1",
+  "model": "luna",
+  "kind": "reviewer",
+  "severity": "CRITICAL"
+ },
+ "X0227": {
+  "pkg": "TASK-WF-design-20261108-041415",
+  "run": "j1-sonnet-luna2-r1",
+  "rid": "t4-1",
+  "model": "luna",
+  "kind": "reviewer",
+  "severity": "MAJOR"
+ },
+ "X0228": {
+  "pkg": "TASK-WF-makeTheAliasOnly-20261105-051649",
+  "run": "j1-sonnet-luna2-r1",
+  "rid": "t3-1",
+  "model": "luna",
+  "kind": "reviewer",
+  "severity": "MAJOR"
+ },
+ "X0229": {
+  "pkg": "TASK-WF-design-20261108-041415",
+  "run": "j1-sonnet-luna2-r2",
+  "rid": "t3-1",
+  "model": "luna",
+  "kind": "reviewer",
+  "severity": "MAJOR"
+ },
+ "X0230": {
+  "pkg": "TASK-WF-design-20261108-041415",
+  "run": "j1-sonnet-luna2-r2",
+  "rid": "t3-1",
+  "model": "luna",
+  "kind": "reviewer",
+  "severity": "MAJOR"
+ },
+ "X0231": {
+  "pkg": "TASK-WF-design-20261108-041415",
+  "run": "j1-sonnet-luna2-r2",
+  "rid": "t4-1",
+  "model": "luna",
+  "kind": "reviewer",
+  "severity": "MAJOR"
+ },
+ "X0232": {
+  "pkg": "TASK-WF-makeTheAliasOnly-20261105-051649",
+  "run": "j1-sonnet-luna2-r2",
+  "rid": "t4-1",
+  "model": "luna",
+  "kind": "reviewer",
+  "severity": "CRITICAL"
+ },
+ "X0233": {
+  "pkg": "TASK-WF-design-20261108-041415",
+  "run": "j1-sonnet-luna2-r3",
+  "rid": "t3-1",
+  "model": "luna",
+  "kind": "reviewer",
+  "severity": "MAJOR"
+ },
+ "X0234": {
+  "pkg": "TASK-WF-design-20261108-041415",
+  "run": "j1-sonnet-luna2-r3",
+  "rid": "t4-1",
+  "model": "luna",
+  "kind": "reviewer",
+  "severity": "MAJOR"
+ },
+ "X0235": {
+  "pkg": "TASK-WF-makeTheAliasOnly-20261105-051649",
+  "run": "j1-sonnet-luna2-r3",
+  "rid": "t3-1",
+  "model": "luna",
+  "kind": "reviewer",
+  "severity": "MAJOR"
+ },
+ "X0236": {
+  "pkg": "TASK-WF-design-20261108-041415",
+  "run": "j1-sonnet-luna2-r4",
+  "rid": "t3-1",
+  "model": "luna",
+  "kind": "reviewer",
+  "severity": "CRITICAL"
+ },
+ "X0237": {
+  "pkg": "TASK-WF-design-20261108-041415",
+  "run": "j1-sonnet-luna2-r4",
+  "rid": "t3-1",
+  "model": "luna",
+  "kind": "reviewer",
+  "severity": "CRITICAL"
+ },
+ "X0238": {
+  "pkg": "TASK-WF-design-20261108-041415",
+  "run": "j1-sonnet-luna2-r4",
+  "rid": "t4-1",
+  "model": "luna",
+  "kind": "reviewer",
+  "severity": "CRITICAL"
+ },
+ "X0239": {
+  "pkg": "TASK-WF-designSpec-20261107-075614",
+  "run": "j1-sonnet-luna2-r4",
+  "rid": "t3-1",
+  "model": "luna",
+  "kind": "reviewer",
+  "severity": "MAJOR"
+ },
+ "X0240": {
+  "pkg": "TASK-WF-makeTheAliasOnly-20261105-051649",
+  "run": "j1-sonnet-luna2-r4",
+  "rid": "t4-1",
+  "model": "luna",
+  "kind": "reviewer",
+  "severity": "CRITICAL"
+ },
+ "X0241": {
+  "pkg": "TASK-WF-design-20261108-041415",
+  "run": "j1-sonnet-luna2-r5",
+  "rid": "t3-1",
+  "model": "luna",
+  "kind": "reviewer",
+  "severity": "MAJOR"
+ },
+ "X0242": {
+  "pkg": "TASK-WF-design-20261108-041415",
+  "run": "j1-sonnet-luna2-r5",
+  "rid": "t4-1",
+  "model": "luna",
+  "kind": "reviewer",
+  "severity": "CRITICAL"
+ },
+ "X0243": {
+  "pkg": "TASK-WF-makeTheAliasOnly-20261105-051649",
+  "run": "j1-sonnet-luna2-r5",
+  "rid": "t4-1",
+  "model": "luna",
+  "kind": "reviewer",
+  "severity": "MAJOR"
+ },
+ "X0244": {
+  "pkg": "TASK-WF-design-20261108-041415",
+  "run": "n2-muse-haiku-grok-src",
+  "rid": "t4-1",
+  "model": "haiku",
+  "kind": "reviewer",
+  "severity": "MAJOR"
+ },
+ "X0245": {
+  "pkg": "TASK-WF-design-20261108-041415",
+  "run": "n2-muse-haiku-grok-src",
+  "rid": "t4-2",
+  "model": "grok",
+  "kind": "reviewer",
+  "severity": "MAJOR"
+ },
+ "X0246": {
+  "pkg": "TASK-WF-designSpec-20261107-075614",
+  "run": "n2-muse-haiku-grok-src",
+  "rid": "t2b-1",
+  "model": "wonder",
+  "kind": "reviewer",
+  "severity": "CRITICAL"
+ },
+ "X0247": {
+  "pkg": "TASK-WF-designSpec-20261107-075614",
+  "run": "n2-muse-haiku-grok-src",
+  "rid": "t4-2",
+  "model": "grok",
+  "kind": "reviewer",
+  "severity": "MAJOR"
+ },
+ "X0248": {
+  "pkg": "TASK-WF-design-20261108-041415",
+  "run": "n2-sonnet-src",
+  "rid": "t4-1",
+  "model": "haiku",
+  "kind": "reviewer",
+  "severity": "MAJOR"
+ },
+ "X0249": {
+  "pkg": "TASK-WF-makeTheAliasOnly-20261105-051649",
+  "run": "n2-sonnet-src",
+  "rid": "t4-1",
+  "model": "haiku",
+  "kind": "reviewer",
+  "severity": "MAJOR"
+ },
+ "X0250": {
+  "pkg": "TASK-WF-design-20261108-041415",
+  "run": "n3-muse-luna-grok-src",
+  "rid": "t4-1",
+  "model": "luna",
+  "kind": "reviewer",
+  "severity": "MAJOR"
+ },
+ "X0251": {
+  "pkg": "TASK-WF-design-20261108-041415",
+  "run": "n3-muse-luna-grok-src",
+  "rid": "t4-1",
+  "model": "luna",
+  "kind": "reviewer",
+  "severity": "MAJOR"
+ },
+ "X0252": {
+  "pkg": "TASK-WF-design-20261108-041415",
+  "run": "n3-muse-luna-grok-src",
+  "rid": "t4-2",
+  "model": "grok",
+  "kind": "reviewer",
+  "severity": "MAJOR"
+ },
+ "X0253": {
+  "pkg": "TASK-WF-design-20261108-041415",
+  "run": "n4-sonnet-ember",
+  "rid": "t2b-1",
+  "model": "ember",
+  "kind": "reviewer",
+  "severity": "CRITICAL"
+ },
+ "X0254": {
+  "pkg": "TASK-WF-design-20261108-041415",
+  "run": "n4-sonnet-ember",
+  "rid": "t4-1",
+  "model": "haiku",
+  "kind": "reviewer",
+  "severity": "MAJOR"
+ },
+ "X0255": {
+  "pkg": "TASK-WF-makeTheAliasOnly-20261105-051649",
+  "run": "n4-sonnet-ember",
+  "rid": "t2b-1",
+  "model": "ember",
+  "kind": "reviewer",
+  "severity": "CRITICAL"
+ },
+ "X0256": {
+  "pkg": "TASK-WF-design-20261108-041415",
+  "run": "n4-sonnet-src",
+  "rid": "t4-1",
+  "model": "haiku",
+  "kind": "reviewer",
+  "severity": "MAJOR"
+ },
+ "X0257": {
+  "pkg": "TASK-WF-designSpec-20261107-075614",
+  "run": "n4-sonnet-src",
+  "rid": "t4-1",
+  "model": "haiku",
+  "kind": "reviewer",
+  "severity": "MAJOR"
+ },
+ "X0258": {
+  "pkg": "TASK-WF-makeTheAliasOnly-20261105-051649",
+  "run": "n4-sonnet-src",
+  "rid": "t2b-1",
+  "model": "wonder",
+  "kind": "reviewer",
+  "severity": "MAJOR"
+ },
+ "X0259": {
+  "pkg": "TASK-WF-design-20261108-041415",
+  "run": "n5-muse-luna-src",
+  "rid": "t2b-1",
+  "model": "wonder",
+  "kind": "reviewer",
+  "severity": "MAJOR"
+ },
+ "X0260": {
+  "pkg": "TASK-WF-design-20261108-041415",
+  "run": "n5-muse-luna-src",
+  "rid": "t4-1",
+  "model": "luna",
+  "kind": "reviewer",
+  "severity": "MAJOR"
+ },
+ "X0261": {
+  "pkg": "TASK-WF-design-20261108-041415",
+  "run": "n5-muse-luna-src",
+  "rid": "t4-1",
+  "model": "luna",
+  "kind": "reviewer",
+  "severity": "MAJOR"
+ },
+ "X0262": {
+  "pkg": "TASK-WF-design-20261108-041415",
+  "run": "n5-sonnet-ember",
+  "rid": "t4-1",
+  "model": "luna",
+  "kind": "reviewer",
+  "severity": "MAJOR"
+ },
+ "X0263": {
+  "pkg": "TASK-WF-design-20261108-041415",
+  "run": "n5-sonnet-src",
+  "rid": "t2b-1",
+  "model": "wonder",
+  "kind": "reviewer",
+  "severity": "CRITICAL"
+ },
+ "X0264": {
+  "pkg": "TASK-WF-design-20261108-041415",
+  "run": "n5-sonnet-src",
+  "rid": "t2b-1",
+  "model": "wonder",
+  "kind": "reviewer",
+  "severity": "CRITICAL"
+ },
+ "X0265": {
+  "pkg": "TASK-WF-design-20261108-041415",
+  "run": "n5-sonnet-src",
+  "rid": "t4-1",
+  "model": "luna",
+  "kind": "reviewer",
+  "severity": "MAJOR"
+ },
+ "X0266": {
+  "pkg": "TASK-WF-designSpec-20261107-075614",
+  "run": "n5-sonnet-src",
+  "rid": "t2b-1",
+  "model": "wonder",
+  "kind": "reviewer",
+  "severity": "CRITICAL"
+ },
+ "X0267": {
+  "pkg": "TASK-WF-design-20261108-041415",
+  "run": "r1-haiku-luna2-src",
+  "rid": "t4-1",
+  "model": "haiku",
+  "kind": "reviewer",
+  "severity": "MAJOR"
+ },
+ "X0268": {
+  "pkg": "TASK-WF-design-20261108-041415",
+  "run": "r1-haiku-luna2-src",
+  "rid": "t4-2",
+  "model": "luna",
+  "kind": "reviewer",
+  "severity": "MAJOR"
+ },
+ "X0269": {
+  "pkg": "TASK-WF-design-20261108-041415",
+  "run": "r1-haiku-luna2-src",
+  "rid": "t4-2",
+  "model": "luna",
+  "kind": "reviewer",
+  "severity": "MAJOR"
+ },
+ "X0270": {
+  "pkg": "TASK-WF-designSpec-20261107-075614",
+  "run": "r1-haiku-luna2-src",
+  "rid": "t4-1",
+  "model": "haiku",
+  "kind": "reviewer",
+  "severity": "MAJOR"
+ },
+ "X0271": {
+  "pkg": "TASK-WF-makeTheAliasOnly-20261105-051649",
+  "run": "r1-haiku-luna2-src",
+  "rid": "t3-1",
+  "model": "luna",
+  "kind": "reviewer",
+  "severity": "MAJOR"
+ },
+ "X0272": {
+  "pkg": "TASK-WF-makeTheAliasOnly-20261105-051649",
+  "run": "r1-haiku-luna2-src",
+  "rid": "t4-2",
+  "model": "luna",
+  "kind": "reviewer",
+  "severity": "MAJOR"
+ },
+ "X0273": {
+  "pkg": "TASK-WF-design-20261108-041415",
+  "run": "r2-sonnet-ember",
+  "rid": "t3-1",
+  "model": "haiku",
+  "kind": "reviewer",
+  "severity": "MAJOR"
+ },
+ "X0274": {
+  "pkg": "TASK-WF-design-20261108-041415",
+  "run": "r2-sonnet-ember",
+  "rid": "t4-1",
+  "model": "haiku",
+  "kind": "reviewer",
+  "severity": "MAJOR"
+ },
+ "X0275": {
+  "pkg": "TASK-WF-makeTheAliasOnly-20261105-051649",
+  "run": "r2-sonnet-ember",
+  "rid": "t3-1",
+  "model": "haiku",
+  "kind": "reviewer",
+  "severity": "MAJOR"
+ },
+ "X0276": {
+  "pkg": "TASK-WF-makeTheAliasOnly-20261105-051649",
+  "run": "r2-sonnet-ember",
+  "rid": "t4-1",
+  "model": "haiku",
+  "kind": "reviewer",
+  "severity": "MAJOR"
+ },
+ "X0277": {
+  "pkg": "TASK-WF-makeTheAliasOnly-20261105-051649",
+  "run": "r2-sonnet-ember",
+  "rid": "t4-2",
+  "model": "grok",
+  "kind": "reviewer",
+  "severity": "MAJOR"
+ },
+ "X0278": {
+  "pkg": "TASK-WF-design-20261108-041415",
+  "run": "r2-sonnet-src",
+  "rid": "t3-1",
+  "model": "haiku",
+  "kind": "reviewer",
+  "severity": "MAJOR"
+ },
+ "X0279": {
+  "pkg": "TASK-WF-design-20261108-041415",
+  "run": "r2-sonnet-src",
+  "rid": "t4-1",
+  "model": "haiku",
+  "kind": "reviewer",
+  "severity": "MAJOR"
+ },
+ "X0280": {
+  "pkg": "TASK-WF-design-20261108-041415",
+  "run": "r2-sonnet-src",
+  "rid": "t4-2",
+  "model": "grok",
+  "kind": "reviewer",
+  "severity": "MAJOR"
+ },
+ "X0281": {
+  "pkg": "TASK-WF-designSpec-20261107-075614",
+  "run": "r2-sonnet-src",
+  "rid": "t3-1",
+  "model": "haiku",
+  "kind": "reviewer",
+  "severity": "MAJOR"
+ },
+ "X0282": {
+  "pkg": "TASK-WF-designSpec-20261107-075614",
+  "run": "r2-sonnet-src",
+  "rid": "t4-1",
+  "model": "haiku",
+  "kind": "reviewer",
+  "severity": "MAJOR"
+ },
+ "X0283": {
+  "pkg": "TASK-WF-makeTheAliasOnly-20261105-051649",
+  "run": "r2-sonnet-src",
+  "rid": "t4-1",
+  "model": "haiku",
+  "kind": "reviewer",
+  "severity": "MAJOR"
+ },
+ "X0284": {
+  "pkg": "TASK-WF-design-20261108-041415",
+  "run": "r3-luna2-grok-src",
+  "rid": "t3-1",
+  "model": "luna",
+  "kind": "reviewer",
+  "severity": "MAJOR"
+ },
+ "X0285": {
+  "pkg": "TASK-WF-design-20261108-041415",
+  "run": "r3-luna2-grok-src",
+  "rid": "t4-1",
+  "model": "luna",
+  "kind": "reviewer",
+  "severity": "MAJOR"
+ },
+ "X0286": {
+  "pkg": "TASK-WF-design-20261108-041415",
+  "run": "r3-luna2-grok-src",
+  "rid": "t4-1",
+  "model": "luna",
+  "kind": "reviewer",
+  "severity": "MAJOR"
+ },
+ "X0287": {
+  "pkg": "TASK-WF-design-20261108-041415",
+  "run": "r3-luna2-grok-src",
+  "rid": "t4-2",
+  "model": "grok",
+  "kind": "reviewer",
+  "severity": "MAJOR"
+ },
+ "X0288": {
+  "pkg": "TASK-WF-designSpec-20261107-075614",
+  "run": "r3-luna2-grok-src",
+  "rid": "t4-1",
+  "model": "luna",
+  "kind": "reviewer",
+  "severity": "MAJOR"
+ },
+ "X0289": {
+  "pkg": "TASK-WF-makeTheAliasOnly-20261105-051649",
+  "run": "r3-luna2-grok-src",
+  "rid": "t3-1",
+  "model": "luna",
+  "kind": "reviewer",
+  "severity": "CRITICAL"
+ },
+ "X0290": {
+  "pkg": "TASK-WF-design-20261108-041415",
+  "run": "sol-alone-src",
+  "rid": "t2-1",
+  "model": "sol",
+  "kind": "reviewer",
+  "severity": "MAJOR"
+ },
+ "X0291": {
+  "pkg": "TASK-WF-design-20261108-041415",
+  "run": "sol-alone-src",
+  "rid": "t2-1",
+  "model": "sol",
+  "kind": "reviewer",
+  "severity": "MAJOR"
+ },
+ "X0292": {
+  "pkg": "TASK-WF-design-20261108-041415",
+  "run": "terra-alone-src",
+  "rid": "t2-1",
+  "model": "terra",
+  "kind": "reviewer",
+  "severity": "MAJOR"
+ },
+ "X0293": {
+  "pkg": "TASK-WF-design-20261108-041415",
+  "run": "terra-alone-src",
+  "rid": "t2-1",
+  "model": "terra",
+  "kind": "reviewer",
+  "severity": "MAJOR"
+ },
+ "X0294": {
+  "pkg": "TASK-WF-designSpec-20261107-075614",
+  "run": "terra-alone-src",
+  "rid": "t2-1",
+  "model": "terra",
+  "kind": "reviewer",
+  "severity": "MAJOR"
+ },
+ "X0295": {
+  "pkg": "TASK-WF-makeTheAliasOnly-20261105-051649",
+  "run": "terra-alone-src",
+  "rid": "t2-1",
+  "model": "terra",
+  "kind": "reviewer",
+  "severity": "MAJOR"
+ },
+ "X0296": {
+  "pkg": "TASK-WF-design-20261108-041415",
+  "run": "terra-luna-muse-ember",
+  "rid": "t2-1",
+  "model": "terra",
+  "kind": "reviewer",
+  "severity": "MAJOR"
+ },
+ "X0297": {
+  "pkg": "TASK-WF-design-20261108-041415",
+  "run": "terra-luna-muse-ember",
+  "rid": "t2-1",
+  "model": "terra",
+  "kind": "reviewer",
+  "severity": "MAJOR"
+ },
+ "X0298": {
+  "pkg": "TASK-WF-design-20261108-041415",
+  "run": "terra-luna-muse-ember",
+  "rid": "t2-1",
+  "model": "terra",
+  "kind": "reviewer",
+  "severity": "MAJOR"
+ },
+ "X0299": {
+  "pkg": "TASK-WF-design-20261108-041415",
+  "run": "terra-luna-muse-ember",
+  "rid": "t4-1",
+  "model": "luna",
+  "kind": "reviewer",
+  "severity": "MAJOR"
+ },
+ "X0300": {
+  "pkg": "TASK-WF-designSpec-20261107-075614",
+  "run": "terra-luna-muse-ember",
+  "rid": "t4-1",
+  "model": "luna",
+  "kind": "reviewer",
+  "severity": "CRITICAL"
+ },
+ "X0301": {
+  "pkg": "TASK-WF-makeTheAliasOnly-20261105-051649",
+  "run": "terra-luna-muse-ember",
+  "rid": "t2-1",
+  "model": "terra",
+  "kind": "reviewer",
+  "severity": "MAJOR"
+ },
+ "X0302": {
+  "pkg": "TASK-WF-makeTheAliasOnly-20261105-051649",
+  "run": "terra-luna-muse-ember",
+  "rid": "t4-1",
+  "model": "luna",
+  "kind": "reviewer",
+  "severity": "MAJOR"
+ },
+ "X0303": {
+  "pkg": "TASK-WF-design-20261108-041415",
+  "run": "terra-muse-haiku-ember",
+  "rid": "t2-1",
+  "model": "terra",
+  "kind": "reviewer",
+  "severity": "MAJOR"
+ },
+ "X0304": {
+  "pkg": "TASK-WF-design-20261108-041415",
+  "run": "terra-muse-haiku-ember",
+  "rid": "t2-1",
+  "model": "terra",
+  "kind": "reviewer",
+  "severity": "MAJOR"
+ },
+ "X0305": {
+  "pkg": "TASK-WF-design-20261108-041415",
+  "run": "terra-muse-haiku-ember",
+  "rid": "t2-1",
+  "model": "terra",
+  "kind": "reviewer",
+  "severity": "MAJOR"
+ },
+ "X0306": {
+  "pkg": "TASK-WF-design-20261108-041415",
+  "run": "terra-muse-haiku-ember",
+  "rid": "t4-1",
+  "model": "haiku",
+  "kind": "reviewer",
+  "severity": "MAJOR"
+ },
+ "X0307": {
+  "pkg": "TASK-WF-designSpec-20261107-075614",
+  "run": "terra-muse-haiku-ember",
+  "rid": "t4-1",
+  "model": "haiku",
+  "kind": "reviewer",
+  "severity": "MAJOR"
+ },
+ "X0308": {
+  "pkg": "TASK-WF-designSpec-20261107-075614",
+  "run": null,
+  "rid": null,
+  "model": null,
+  "kind": "control",
+  "gt": "GT4",
+  "blocking_in_implement": true
+ },
+ "X0309": {
+  "pkg": "TASK-WF-designSpec-20261107-075614",
+  "run": null,
+  "rid": null,
+  "model": null,
+  "kind": "control",
+  "gt": "GT6",
+  "blocking_in_implement": false
+ },
+ "X0310": {
+  "pkg": "TASK-WF-designSpec-20261107-075614",
+  "run": null,
+  "rid": null,
+  "model": null,
+  "kind": "control",
+  "gt": "GT7",
+  "blocking_in_implement": false
+ },
+ "X0311": {
+  "pkg": "TASK-WF-designSpec-20261107-075614",
+  "run": null,
+  "rid": null,
+  "model": null,
+  "kind": "control",
+  "gt": "GT8",
+  "blocking_in_implement": false
+ },
+ "X0312": {
+  "pkg": "TASK-WF-designSpec-20261107-075614",
+  "run": null,
+  "rid": null,
+  "model": null,
+  "kind": "control",
+  "gt": "GT9",
+  "blocking_in_implement": false
+ },
+ "X0313": {
+  "pkg": "TASK-WF-makeTheAliasOnly-20261105-051649",
+  "run": null,
+  "rid": null,
+  "model": null,
+  "kind": "control",
+  "gt": "GT1",
+  "blocking_in_implement": true
+ },
+ "X0314": {
+  "pkg": "TASK-WF-makeTheAliasOnly-20261105-051649",
+  "run": null,
+  "rid": null,
+  "model": null,
+  "kind": "control",
+  "gt": "GT2",
+  "blocking_in_implement": true
+ },
+ "X0315": {
+  "pkg": "TASK-WF-makeTheAliasOnly-20261105-051649",
+  "run": null,
+  "rid": null,
+  "model": null,
+  "kind": "control",
+  "gt": "GT3",
+  "blocking_in_implement": true
+ }
+}

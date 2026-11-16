@@ -1,0 +1,23 @@
+
+[
+{"id":"X0064","verdict":"MEDIUM","deliverable":null,"real_contradiction":false,"reason":"The --mode row is a summary. The --type row in the same command file says area tests switches a feature to Test, so the file is consistent."},
+{"id":"X0203","verdict":"BLOCKING","deliverable":"docs/designs/sc-issue-command.md (Task 10 acceptance check)","real_contradiction":true,"reason":"The design doc keeps the claim lookup's `gh api user` path. Task 10's repos-only check fails it, so the implementer would wrongly remove that claim text or fail the task."},
+{"id":"X0099","verdict":"MEDIUM","deliverable":null,"real_contradiction":true,"reason":"The 'exactly two writes' constraint leaves out the mode label. The goal and Tasks 1-3 order the mode label explicitly, so it would still ship."},
+{"id":"X0290","verdict":"MEDIUM","deliverable":null,"real_contradiction":true,"reason":"The edit-scope list is literally narrower than the package artifact path. Task 12 orders the artifact explicitly and the scope rule targets repo edits, so the outcome is unchanged."},
+{"id":"X0268","verdict":"MEDIUM","deliverable":null,"real_contradiction":false,"reason":"The same sentence forbids hand edits and orders sync-dev. Generated dev copies are the intended exception, matching the project rule."},
+{"id":"X0234","verdict":"MEDIUM","deliverable":null,"real_contradiction":false,"reason":"The ban covers hand edits and staging. sync-dev output is explicitly required in the same constraint, so there is no conflict."},
+{"id":"X0123","verdict":"MEDIUM","deliverable":null,"real_contradiction":true,"reason":"The two-write constraint leaves out the mode label and the pushback comment. Explicit task steps require both, so the shipped behavior is unchanged."},
+{"id":"X0113","verdict":"MEDIUM","deliverable":null,"real_contradiction":false,"reason":"The plan pairs the ban with sync-dev deliberately. Regenerating the gitignored copies is not a forbidden hand edit."},
+{"id":"X0139","verdict":"MEDIUM","deliverable":null,"real_contradiction":true,"reason":"The goal's mode label is a third write the constraint leaves out. Tasks consistently require the label, so the constraint will not drop it."},
+{"id":"X0204","verdict":"MEDIUM","deliverable":null,"real_contradiction":false,"reason":"The mode row summarizes the default. The --type row states the Test override for area tests, so the plan does not assign two types."},
+{"id":"X0195","verdict":"MEDIUM","deliverable":null,"real_contradiction":true,"reason":"The pushback comment is an extra write the constraint leaves out. Task 2 explicitly keeps it, so the shipped behavior is unchanged."},
+{"id":"X0014","verdict":"MEDIUM","deliverable":null,"real_contradiction":false,"reason":"Forbidding edits there while running sync-dev is the intended pattern stated in one sentence. Generated copies are not hand edits."},
+{"id":"X0079","verdict":"MEDIUM","deliverable":null,"real_contradiction":true,"reason":"The package artifact lies literally outside the listed edit paths. Task 12 orders it explicitly, so the implementer still writes it."},
+{"id":"X0221","verdict":"MEDIUM","deliverable":null,"real_contradiction":false,"reason":"The prohibition targets manual edits and staging. sync-dev regeneration is explicitly ordered alongside it."},
+{"id":"X0013","verdict":"BLOCKING","deliverable":"docs/designs/sc-issue-command.md (Task 10 acceptance check)","real_contradiction":true,"reason":"The unchanged claim Wave 1 in the design doc uses `gh api user`, so Task 10's repos-only criterion forces a false edit to the claim text or a failed check."},
+{"id":"X0259","verdict":"BLOCKING","deliverable":"docs/designs/sc-issue-command.md (Task 10 acceptance check)","real_contradiction":true,"reason":"The acceptance check cannot pass while the design doc keeps `gh api user -q .login` for claim. The implementer would edit the claim text or fail Task 10."},
+{"id":"X0248","verdict":"MEDIUM","deliverable":null,"real_contradiction":true,"reason":"The constraint leaves out the mode label and the pushback comment. Tasks 1 and 2 order both explicitly, so the shipped skill keeps them."},
+{"id":"X0284","verdict":"MEDIUM","deliverable":null,"real_contradiction":true,"reason":"The artifact path is outside the literal edit scope. The explicit Task 12 instruction prevails and nothing shipped changes."},
+{"id":"X0124","verdict":"MEDIUM","deliverable":null,"real_contradiction":true,"reason":"The owner-check file lies outside the listed paths. Task 12 requires it explicitly, so the scope rule will not stop it being written."}
+]
+

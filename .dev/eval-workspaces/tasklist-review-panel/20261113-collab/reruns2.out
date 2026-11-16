@@ -1,0 +1,9 @@
+WAIT 16:27:39
+GO 17:26:40
+START r1-sl2-base 17:26:40
+START r1-hl2-base 17:26:40
+END r1-hl2-base rc=0 17:26:41
+START r2-hl2-collab 17:26:41
+END r1-sl2-base rc=1 17:30:50
+END r2-hl2-collab rc=1 17:33:07
+ALLDONE

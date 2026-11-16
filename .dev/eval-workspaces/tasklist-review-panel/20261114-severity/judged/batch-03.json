@@ -1,0 +1,29 @@
+
+[
+{"id":"X0057","verdict":"MEDIUM","deliverable":null,"real_contradiction":false,"reason":"The .claude/ ban does not cover ./artifacts/ in the task package, so writing owner-manual-check.md there breaks no rule."},
+{"id":"X0098","verdict":"MEDIUM","deliverable":null,"real_contradiction":false,"reason":"The edit scope limits repo source edits; the package's own artifacts are execution records the plan names explicitly, and nothing that ships changes."},
+{"id":"X0278","verdict":"MEDIUM","deliverable":null,"real_contradiction":true,"reason":"The pushback comment is a third write, but Tasks 2 and 3 order it explicitly and no acceptance check enforces 'exactly two', so the skill ships it."},
+{"id":"X0292","verdict":"MEDIUM","deliverable":null,"real_contradiction":false,"reason":"Package artifacts are the plan's own working outputs, not repo edits, so the edit-scope constraint does not govern them."},
+{"id":"X0157","verdict":"MEDIUM","deliverable":null,"real_contradiction":false,"reason":"Package artifacts are the plan's own working outputs, not repo edits, so the edit-scope constraint does not govern them."},
+{"id":"X0285","verdict":"MEDIUM","deliverable":null,"real_contradiction":false,"reason":"The --mode row simplifies; the --type row next to it says a feature in tests gets Test, so together they agree."},
+{"id":"X0054","verdict":"MEDIUM","deliverable":null,"real_contradiction":false,"reason":"'In this package' fixes the path unambiguously, and the edit scope covers repo source, not package artifacts."},
+{"id":"X0055","verdict":"BLOCKING","deliverable":"docs/designs/sc-issue-command.md (Task 10 acceptance check)","real_contradiction":true,"reason":"The design doc keeps the claim-mode 'gh api user', so the AC fails; QA would fail Task 10 or an implementer would drop that documented call."},
+{"id":"X0059","verdict":"MEDIUM","deliverable":null,"real_contradiction":true,"reason":"The pushback comment exceeds 'exactly two', but explicit task steps order it and no acceptance check enforces the limit, so shipped behavior is unaffected."},
+{"id":"X0171","verdict":"MEDIUM","deliverable":null,"real_contradiction":true,"reason":"The mode label is a third write, but the Goal and Task 2 order it explicitly and no check enforces the limit, so the skill still applies it."},
+{"id":"X0102","verdict":"MEDIUM","deliverable":null,"real_contradiction":false,"reason":"Package artifacts are the plan's own working outputs, not repo edits, so the edit-scope constraint does not govern them."},
+{"id":"X0060","verdict":"MEDIUM","deliverable":null,"real_contradiction":false,"reason":"Package artifacts are the plan's own working outputs, not repo edits, so the edit-scope constraint does not govern them."},
+{"id":"X0298","verdict":"MEDIUM","deliverable":null,"real_contradiction":true,"reason":"The pushback comment exceeds 'exactly two', but explicit task steps order it and no acceptance check enforces the limit."},
+{"id":"X0065","verdict":"MEDIUM","deliverable":null,"real_contradiction":true,"reason":"The pushback comment exceeds 'exactly two', but explicit task steps order it and no acceptance check enforces the limit."},
+{"id":"X0089","verdict":"MEDIUM","deliverable":null,"real_contradiction":true,"reason":"The mode label is a third write, but it is ordered explicitly and no check enforces the limit, so shipped behavior is unchanged."},
+{"id":"X0062","verdict":"MEDIUM","deliverable":null,"real_contradiction":false,"reason":"Package artifacts are the plan's own working outputs, not repo edits, so the edit-scope constraint does not govern them."},
+{"id":"X0107","verdict":"MEDIUM","deliverable":null,"real_contradiction":false,"reason":"Package artifacts are the plan's own working outputs, not repo edits, so the edit-scope constraint does not govern them."},
+{"id":"X0021","verdict":"MEDIUM","deliverable":null,"real_contradiction":true,"reason":"The pushback comment exceeds 'exactly two', but Task 2 orders it explicitly and no acceptance check enforces the limit."},
+{"id":"X0151","verdict":"MEDIUM","deliverable":null,"real_contradiction":false,"reason":"Package artifacts are the plan's own working outputs, not repo edits, so the edit-scope constraint does not govern them."},
+{"id":"X0080","verdict":"MEDIUM","deliverable":null,"real_contradiction":true,"reason":"The plan's constraint conflicts with the pushback step, but the explicit step and its STOP code make the implementer keep the comment."},
+{"id":"X0279","verdict":"MEDIUM","deliverable":null,"real_contradiction":true,"reason":"The label and the comment both exceed 'exactly two', but both are ordered explicitly and no check enforces the limit."},
+{"id":"X0081","verdict":"MEDIUM","deliverable":null,"real_contradiction":false,"reason":"The Goal separates labels applied from classifications set; a missing label goes in labels_missing, matching source 2.2."},
+{"id":"X0305","verdict":"MEDIUM","deliverable":null,"real_contradiction":false,"reason":"The --mode row simplifies; the --type row next to it states the Test case, so the command file stays consistent."},
+{"id":"X0213","verdict":"MEDIUM","deliverable":null,"real_contradiction":true,"reason":"The mode label is a third write, but the Goal and tasks order it explicitly and no check enforces the limit."},
+{"id":"X0179","verdict":"MEDIUM","deliverable":null,"real_contradiction":true,"reason":"The mode label is a third write, but the Goal and tasks order it explicitly and no check enforces the limit."}
+]
+
