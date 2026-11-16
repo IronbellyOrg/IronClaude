@@ -1,0 +1,16 @@
+{
+ "reviewers": [
+  {
+   "model": "muse-ember-1.0",
+   "reviewer_id": "t2b-1"
+  },
+  {
+   "model": "gpt-6-luna",
+   "reviewer_id": "t3-1"
+  },
+  {
+   "model": "gpt-6-luna",
+   "reviewer_id": "t4-1"
+  }
+ ]
+}
