@@ -1,0 +1,26 @@
+START pass loop 03:32:10
+rebuilt TASK-WF-makeTheAliasOnly-20261105-051649
+rebuilt TASK-WF-design-20261108-041415
+PASS 1 03:32:23
+SCHEDULE started=16 skipped=11 failed=13 no_budget=0 max_concurrent=1 c_luna=2.278
+rebuilt TASK-WF-makeTheAliasOnly-20261105-051649
+rebuilt TASK-WF-design-20261108-041415
+PASS 2 03:40:01
+SCHEDULE started=11 skipped=16 failed=8 no_budget=0 max_concurrent=1 c_luna=2.278
+rebuilt TASK-WF-makeTheAliasOnly-20261105-051649
+rebuilt TASK-WF-design-20261108-041415
+PASS 3 03:50:29
+SCHEDULE started=6 skipped=21 failed=4 no_budget=0 max_concurrent=1 c_luna=2.278
+rebuilt TASK-WF-makeTheAliasOnly-20261105-051649
+PASS 4 03:58:33
+SCHEDULE started=3 skipped=24 failed=2 no_budget=0 max_concurrent=1 c_luna=2.278
+rebuilt TASK-WF-makeTheAliasOnly-20261105-051649
+PASS 5 04:04:15
+SCHEDULE started=1 skipped=26 failed=1 no_budget=0 max_concurrent=1 c_luna=2.278
+rebuilt TASK-WF-makeTheAliasOnly-20261105-051649
+PASS 6 04:06:04
+SCHEDULE started=0 skipped=27 failed=0 no_budget=0 max_concurrent=0 c_luna=2.278
+all runs done after pass 6
+START judge 04:06:04
+END judge rc=0 04:14:51
+ALLDONE
