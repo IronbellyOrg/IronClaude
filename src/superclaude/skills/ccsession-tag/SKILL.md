@@ -22,5 +22,14 @@ list, in Claude Code's prompt box and on the Orca tab:
   list at the next message or when the session ends, and `ccsession <name>`
   reopens it.
 
+Each list in `ccsession --list` is headed by its repo's name, and `ccsession
+--here` adds the current worktree (`IronFlow  (worktree: coordinator)`).
+
+Claude Code deletes a conversation 30 days after its last change by default,
+and a name does not protect it. The installer sets `cleanupPeriodDays` to 365 in
+`~/.claude/settings.json` when it is absent or lower; a managed value (for
+example `/etc/claude-code/managed-settings.d/`) wins over it, and `ccsession
+--list` warns when the value in force is below 365.
+
 See `~/.claude/skills/ccsession-tag/README.md` for install, names, Orca and
 tiers.
