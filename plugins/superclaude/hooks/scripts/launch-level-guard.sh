@@ -42,7 +42,7 @@ ll_say() {
     LL-IMPL)
         b='starting /sc:implement, /task, /sc:improve, /sc:cleanup, /sc:spawn or /sc:build (or their skills).'
         w='At the worktree level the agent stops at a plan until a person approves it.'
-        y='Read the plan, then type /sc:implement or /task, or reply approved, in this session.' ;;
+        y='Read the plan, then type /sc:implement or /task in this session.' ;;
     LL-COMMIT)
         b='creating a commit (git commit, cherry-pick, revert, am, or moving a branch with update-ref).'
         w='Only a launch with --pipeline full --submit lets the agent commit.'
@@ -338,19 +338,16 @@ if [ "$LL_BRANCH" = prompt ]; then
     if [ "$LL_GOVERNED" = 1 ]; then
         # B8: already bound; the level never changes, a supplied record is consumed.
         [ "$LL_USABLE" = 1 ] && rm -f -- "$LL_PEND/$LL_NONCE" 2>/dev/null
-        # Approval (FR-L-15 to FR-L-17): only at worktree (an invalid word
-        # included), never at full or full-submit. The whole prompt trimmed and
-        # lower-cased is approved, approved. or approved!; or the first line,
-        # leading whitespace removed, starts /sc:implement, /sc:task or /task
-        # as a whole word. The [[:space:]] after the command name also matches
-        # the newline that ends the first line.
+        # Release (FR-L-15 to FR-L-17): only at worktree (an invalid word
+        # included), never at full or full-submit. Only a first line, leading
+        # whitespace removed, that starts /sc:implement, /sc:task or /task as a
+        # whole word releases; a plain typed word no longer does. The
+        # [[:space:]] after the command name also matches the newline that ends
+        # the first line.
         LL_RE_APR='^[[:space:]]*/(sc:implement|sc:task|task)([[:space:]]|$)'
         LL_APR=0
         if [ "$LL_LEVEL" = W ]; then
             [[ $LL_PROMPT =~ $LL_RE_APR ]] && LL_APR=1
-            LL_P=${LL_PROMPT#"${LL_PROMPT%%[![:space:]]*}"}
-            LL_P=${LL_P%"${LL_P##*[![:space:]]}"}
-            [[ ${LL_P,,} =~ ^approved[.!]?$ ]] && LL_APR=1
         fi
         if [ "$LL_APR" = 1 ]; then
             # No-replace create of a regular file in the owned sessions

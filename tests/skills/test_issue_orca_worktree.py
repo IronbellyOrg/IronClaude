@@ -1167,6 +1167,15 @@ def test_pr4_prompt_no_pr_tokens_outside_the_worktree_prohibition_and_submit(
         assert token not in common, token
 
 
+def test_pr16_worktree_prompt_never_tells_the_agent_to_wait_for_approved(
+    tmp_path: Path,
+) -> None:
+    # Q39: the plain `approved` reply no longer releases a worktree-level agent.
+    worktree = render(tmp_path, "worktree")[1].read_text()
+    assert "`approved`" not in worktree and "replying approved" not in worktree
+    assert "only by running the printed implement command" in worktree
+
+
 def test_prompt_unusable_template_is_reported_not_raised(tmp_path: Path) -> None:
     proc, out = render(tmp_path, "full", template=tmp_path / "missing.md")
     data = json.loads(proc.stdout)
