@@ -1,6 +1,6 @@
 # Open decisions and questions: orchestrator, observer, issue watcher and approval flow
 
-**Status as of 2026-11-16 (Q16 and Q19 answered 2026-11-15; routed answers from another program recorded 2026-11-16, see section 3 item 11; agent triage of the open questions on 2026-11-16, see section 3 item 12: 3 items need you today). Written for someone arriving with no context, a person or an AI agent. Read the preamble first; it is short.**
+**Status as of 2026-11-16 evening (Q16 and Q19 answered 2026-11-15; routed answers from another program recorded 2026-11-16, see section 3 item 11; agent triage of the open questions on 2026-11-16, see section 3 item 12; Q7, Q8, Q13, Q14, Q15, Q24 and Q41 answered the same evening, see `owner-answers.md` "2026-11-16, evening": nothing is waiting for an answer, two items wait for a go). Written for someone arriving with no context, a person or an AI agent. Read the preamble first; it is short.**
 
 ## Preamble: what this is and why it exists
 
@@ -46,7 +46,7 @@ The route B plan (18 to 19 tasks) is NOT in this repository yet: it lives in a l
 
 ### How to answer
 
-Each open card ends with a one-line reply format, for example `Q7: option 1, I will commit them myself`. Answer in any order, a few at a time. "Reply with the default" is always allowed: every card says what happens if you say nothing. The recommended replies for all open cards are collected in one block at the end of section 1.
+Each open card ends with a one-line reply format, for example `Q7: option 1, I will commit them myself`. Answer in any order, a few at a time. "Reply with the default" is always allowed: every card says what happens if you say nothing. What is still waiting for the owner is listed in one block at the end of section 1.
 
 ### Rules for any agent reading this file
 
@@ -74,7 +74,7 @@ Each open card ends with a one-line reply format, for example `Q7: option 1, I w
 
 ## 1. Status board for all questions
 
-**What needs you today (after the 2026-11-16 triage): 3 items, down from 11.** Q7 (shrunk to a plain backup), Q24 (shrunk to two read-only captures) and Q41 (one line: confirm A). The other eight were trimmed to a labelled default or deferred to a named event. That triage is an agent recommendation after a three-way debate (`ponytail-cuts-adversarial/final-cut-list.md` in this folder), not an owner answer. Say `reinstate Q<nn>` to put any card back.
+**Nothing is waiting for an owner answer after the evening of 2026-11-16.** The triage cut the list from 11 to 3 (Q7, Q24, Q41); the owner then answered those three and also Q8, Q13, Q14 and Q15 (see `owner-answers.md`). The triage was an agent recommendation after a three-way debate (`ponytail-cuts-adversarial/final-cut-list.md` in this folder), not an owner answer. Say `reinstate Q<nn>` to put any deferred card back. **Two items wait for the owner's go, not an answer:** launching the Q24 capture session, and the remaining Q8 record fields once the owner has read the draft paragraph.
 
 State: **ANSWERED** = the owner answered; **ACCEPTED** = the debated recommendation was accepted for the agent (reversible, no grant); **OPEN** = needs the owner (card in section 2); **OPEN, SHRUNK** = still open in a smaller form; **TRIMMED (default applies)** = the card's own "if you do not answer" outcome applies, labelled as a default and never as an owner answer; **DEFERRED** = waits for a named event; **MOOT** = overtaken by events.
 
@@ -86,15 +86,15 @@ State: **ANSWERED** = the owner answered; **ACCEPTED** = the debated recommendat
 | Q4 | What "TUI Panel" meant | ANSWERED | Owner's own line recorded; NOT posted. Idea: keep single-host with a read-only API a TUIBBS dashboard connects to |
 | Q5 | Keep both programs, one contract note | ACCEPTED | |
 | Q6 | When to switch on the observer's questions panel | ACCEPTED (half) | Not before the seeded test. The scope sentence stays the owner's and returns later |
-| Q7 | Save the owner's decision records from a side checkout | **OPEN, SHRUNK** | Plain backup only: a local copy of `/home/coder/workspaces/worktrees/IronClaude/issue-409-mvp` files with a sha256 list kept outside git, no push, no commit. A backup is not approval of the pass record. The two unpushed commits (`1ae72e1a1`, `f104ca51a`) must not go into any PR until you confirm that record |
-| Q8 | The dated design-direction record for #409 | **DEFERRED** | Until release 3 of the dashboard is scheduled. Until then the #409 correction says "not met as recorded" |
+| Q7 | Save the owner's decision records from a side checkout | ANSWERED and DONE (2026-11-16) | Owner confirmed the 2026-11-12 pass record is theirs and said go with the recommendation. Backup made at `/home/coder/backups/issue-409-mvp-20261116/` (bundle with the two unpushed commits, tarball of 119 untracked files, patch of tracked changes, `SHA256SUMS.txt`), no push, no commit. The two commits (`1ae72e1a1`, `f104ca51a`) still go into no PR or merge without their own grant |
+| Q8 | The dated design-direction record for #409 | ANSWERED in part (2026-11-16); draft paragraph written, record fields still open | Owner direction: ANSI-enhanced TUI with panes, tabs and panels, "cool" and very functional, taken from the approved images in #409. Draft paragraph: `owner-questions/Q08/visual-direction-paragraph.md` (agent-written at the owner's instruction, not yet confirmed as theirs). The other record fields (defaults, post-link choice, fallback date, stack, command name, meaning of "production integration") are not answered. The #409 correction waits on them |
 | Q9 | Store the sweep's JSON output | ACCEPTED | Not now |
 | Q10 | May the sweep read Orca messages | ACCEPTED | The observer's alone for now |
 | Q11 | What the "static report in chat" is | ACCEPTED | The sweep summary only |
 | Q12 | Routing-guide row for the observer | ACCEPTED | One row, own small PR after #539 (now possible) |
-| Q13 | May the observer fall back to a plain `orca` command | **TRIMMED (default applies)** | The contract note records both lookup rules as facts, with no verdict. One fact to keep: the observer's probe runs the candidate program once before checking it is Orca (`src/superclaude/cli/install_user_setup.py:259`) |
-| Q14 | What "#339 is complete" means for #423's start | **TRIMMED (default applies)** | Labelled default (option 1). Options 2 and 3 dropped. Never make a code change a start gate. The first half (#539 merged) is met |
-| Q15 | May v2 push corrections into non-worker sessions | **TRIMMED (default applies)** | v2 reports only. Caveat: the "never messaged" sentence (`src/superclaude/core/WORKER-CONTRACT.md:288`) covers person-started sessions, not watcher-started ones |
+| Q13 | May the observer fall back to a plain `orca` command | ANSWERED (2026-11-16) | Owner: "Yes" = option 1. The contract note records both lookup rules, the limit (proves "this is Orca", not "the same Orca the sweep reads") and the Orca build per capture. One fact to keep: the observer's probe runs the candidate program once before checking it is Orca (`src/superclaude/cli/install_user_setup.py:259`) |
+| Q14 | What "#339 is complete" means for #423's start | ANSWERED (2026-11-16) | Owner: "option 1 accepted". v2 waits for the sweep merge (done) and the shared capture record; the code fix for the sweep's `working` class stays a follow-up. Never make a code change a start gate. The capture is not made yet (needs Q24) |
+| Q15 | May v2 push corrections into non-worker sessions | ANSWERED (2026-11-16) | Owner: "Option 1 accepted". v2 reports only, reopened only when a channel, a threat model, an approval rule and a shared grant vocabulary exist. Caveat: the "never messaged" sentence (`src/superclaude/core/WORKER-CONTRACT.md:288`) covers person-started sessions, not watcher-started ones |
 | Q16 | How far the trust promise goes | ANSWERED | Option 1: shared permission/grant vocabulary and audit format; independent enforcement; no access expansion. See owner-answers.md, 2026-11-15 Q19/Q16 batch |
 | Q17 | Should the observer show sweep facts | ACCEPTED | Not now |
 | Q18 | Copy the observer snapshot to the TUIBBS machine | ACCEPTED | Not yet. The owner's new API idea is a candidate transport |
@@ -103,7 +103,7 @@ State: **ANSWERED** = the owner answered; **ACCEPTED** = the debated recommendat
 | Q21 | May the sweep label machine-started sessions | ACCEPTED | Phase 2, after the first live test |
 | Q22 | How old a status file may be before it counts as stale | **DEFERRED** | Until a reader of `snapshot.json` exists (none in `src/` today). The unposted Coder#477 draft keeps its blank "[N minutes: owner decides]" |
 | Q23 | Is a "reclaimable" worker live, historical or its own state | ACCEPTED | Its own state |
-| Q24 | Who runs the live Orca checks | **OPEN, SHRUNK** | Two read-only captures only: `orca-ide worktree ps --agent-wait --json` and `orca-ide orchestration worker-show --dispatch <one live id> --json` (both in the sweep allow list, `src/superclaude/cli/sweep/probes.py:52` and `:58-59`), pasted into one file that stays untracked unless you say otherwise. The worker-id comparison and the message-write test are deferred, not erased. Each capture still needs its own permission row |
+| Q24 | Who runs the live Orca checks | ANSWERED (2026-11-16), launch waits for a go | Owner: "a live session on master made for this job" = option 1. The session is not created yet. Two read-only captures only: `orca-ide worktree ps --agent-wait --json` and `orca-ide orchestration worker-show --dispatch <one live id> --json` (both in the sweep allow list, `src/superclaude/cli/sweep/probes.py:52` and `:58-59`), pasted into one file that stays untracked unless you say otherwise. The worker-id comparison and the message-write test are deferred, not erased. Each capture still needs its own permission row |
 | Q25 | Who runs `/sc:pr-submit` for program PRs | ANSWERED | Option 3: one agent per change builds and publishes it, no supervised worker. Watch-out: such agents are invisible to Orca's worker list, and the owner declined a recurring timer (Q31). A per-item deadline in the decision ledger is recommended |
 | Q26 | Where the coordinator lives, and the layout | ANSWERED | A dedicated worktree through Orca counts as person-opened. Shared branch `coordinators` (CREATED 2026-11-14 15:39 at master `d2d8a2d16`, no README yet), folders `.dev/coordinators/<kind>-<slug>/<github-login>/`, standing narrowed push approval, branch protection dropped, scope folder `epic-orchestrator-tui-alignment`, the `.dev/README.md` entry later. The 11 edits it implies for the plan are listed, not applied |
 | Q27 | May SW-02's plan package ship in PR #539 | ACCEPTED | Done in practice: the fix's plan package was archived inside #539 |
@@ -120,17 +120,18 @@ State: **ANSWERED** = the owner answered; **ACCEPTED** = the debated recommendat
 | Q38 | How a coordinator approval releases a guarded worker | ANSWERED | Default: G2 not built yet |
 | Q39 | Remove plain `approved` typed in a session | ANSWERED | Remove it now, everywhere (the owner reversed his own first reading; "remove now" is final) |
 | Q40 | Where the design amendments go | ANSWERED | One follow-up documentation PR, opened only after the owner reads the plan |
-| Q41 | A worktree with no agent for a moment under B1b | NEEDS CONFIRMATION (one line, no card) | The plan records "answered 2026-11-14: A" (Task 19, line 226). The answer is not in `owner-answers.md`. Reply `Q41: confirm A` or correct it; an agent does not write that row for you |
+| Q41 | A worktree with no agent for a moment under B1b | ANSWERED (2026-11-16) | Owner: "yes accepted" = answer A. Matches plan Task 19 (line 226), now also recorded in `owner-answers.md` |
 
-### What needs you today: the recommended replies in one block
+### What is waiting after the evening of 2026-11-16
+
+No question waits for an answer. Two things wait for the owner:
 
 ```text
-Q7: backup only (local copy plus sha256 list, no push, no commit); I confirm the pass record separately
-Q24: two read-only captures only
-Q41: confirm A
+Q24: go to launch the fresh session on master for the two read-only captures (needs a live-test grant and its own permission rows)
+Q8: say whether the draft paragraph is yours, and answer the remaining record fields (or "deferred to release 3" where allowed)
 ```
 
-Recommendations are not decisions. Q8, Q13, Q14, Q15, Q20, Q22, Q29 and Q30 were trimmed or deferred by agent triage on 2026-11-16 (see section 3 item 12); their full cards stay in section 2 as history. The original recommended replies for them were: Q8 option 1, Q13 option 1, Q14 option 1, Q15 option 1, Q20 option 1 (with a named owner), Q22 option 1, Q29 option 1, Q30 option 1.
+Recommendations are not decisions. Q20, Q22, Q29 and Q30 stay deferred by agent triage (see section 3 item 12); their full cards stay in section 2 as history. Their original recommended replies were: Q20 option 1 (with a named owner), Q22 option 1, Q29 option 1, Q30 option 1.
 
 ---
 
@@ -145,7 +146,7 @@ The full original cards (with debate details) are in `human-decisions.md`; the d
 
 ### Q7. Save your own decision records before a side checkout is cleaned up
 
-> **Triage 2026-11-16 (agent recommendation, not an owner answer): SHRUNK.** Do a plain backup only: a local copy of the files below plus a sha256 list kept outside git. No push and no commit, because commit `1ae72e1a1` sets `QUESTION_GATE_PASSED = True` on a record its own message calls "typed by the executor from the owner's words", and `f104ca51a` repoints it to a first-person record headed "Written by the owner" that git cannot attribute. A backup is not approval of that record; you confirm it separately. Those two commits go into no PR until you do. Reply: `Q7: backup only`.
+> **ANSWERED 2026-11-16 (owner: "I confirm this was me ... go with the recommendation"); backup done, see `owner-answers.md` "2026-11-16, evening".** The earlier triage (agent recommendation) read: SHRUNK. Do a plain backup only: a local copy of the files below plus a sha256 list kept outside git. No push and no commit, because commit `1ae72e1a1` sets `QUESTION_GATE_PASSED = True` on a record its own message calls "typed by the executor from the owner's words", and `f104ca51a` repoints it to a first-person record headed "Written by the owner" that git cannot attribute. A backup is not approval of that record; you confirm it separately. Those two commits go into no PR until you do. Reply: `Q7: backup only`.
 
 - **Question:** Will you confirm your 2026-11-12 approval record is your own text, and get it and your other decision records out of the side checkout where they are the only copies?
 - **Why it matters:** The side checkout `/home/coder/workspaces/worktrees/IronClaude/issue-409-mvp` holds your "pass" approval record and your 2026-11-12 decision record (two unpushed commits), plus untracked `owner-decisions-20261108.md`, `live-test-guide.md`, `tuibbs-review/` and `handoff-mvp-brainstorm.md`. If it is cleaned or the disk fails they are gone. The record says "Written by the owner" but an agent session made the commits, so git cannot prove who typed it. Project rule: agents may quote your records, never write them. The switch-on of the dashboard's questions panel must cite the approval record.
@@ -160,7 +161,7 @@ The full original cards (with debate details) are in `human-decisions.md`; the d
 
 ### Q8. Record, in your own words, the dashboard design direction you chose
 
-> **Triage 2026-11-16 (agent recommendation, not an owner answer): DEFERRED** until release 3 of the dashboard is scheduled. Your Q19 answer moved the next work to summaries, so a record written today would describe a direction that already changed. Until then the #409 correction says "not met as recorded".
+> **ANSWERED IN PART 2026-11-16: the owner gave the visual direction and asked for a paragraph; a draft is at `owner-questions/Q08/visual-direction-paragraph.md` (not yet confirmed as the owner's). The other record fields are still open.** The earlier triage (agent recommendation) read: DEFERRED until release 3 of the dashboard is scheduled. Your Q19 answer moved the next work to summaries, so a record written today would describe a direction that already changed. Until then the #409 correction says "not met as recorded".
 
 - **Question:** Will you write one short dated paragraph recording the design direction you chose for the dashboard, or rewrite the issue's first acceptance criterion instead?
 - **Why it matters:** Issue #409 says "A human selects the visual direction before production integration." The dashboard's rules say only your own dated record meets it. You chose a staged direction on 2026-11-08 (worker list, then question list, then Decision Desk), but an agent relayed it, so it does not count. Without the record the criterion cannot be marked met, the issue text cannot be corrected on this point, and the next release is blocked. The record must cover: date, option, who decided, where your statement lives, defaults before and after questions are shown, post-link choice, fallback date, stack, command name, and what "production integration" means (the command in the shipped tool, or the dashboard switched on in the product; the stricter one applies until you say).
@@ -175,7 +176,7 @@ The full original cards (with debate details) are in `human-decisions.md`; the d
 
 ### Q13. May the observer fall back to a plain `orca` command
 
-> **Triage 2026-11-16 (agent recommendation, not an owner answer): TRIMMED.** The card's own default applies (the contract note records both rules as facts, no verdict). Reason: the observer accepts a program only if `skills list --json` lists `orca-cli` (`src/superclaude/cli/install_user_setup.py:268`), so the screen reader cannot be chosen. One residual to keep in the note: that probe runs the candidate program once (line 259), so a wrong program would be run once.
+> **ANSWERED 2026-11-16 (owner: "Yes" = option 1).** The earlier triage (agent recommendation) read: TRIMMED. The card's own default applies (the contract note records both rules as facts, no verdict). Reason: the observer accepts a program only if `skills list --json` lists `orca-cli` (`src/superclaude/cli/install_user_setup.py:268`), so the screen reader cannot be chosen. One residual to keep in the note: that probe runs the candidate program once (line 259), so a wrong program would be run once.
 
 - **Question:** May the observer dashboard fall back to a program named `orca` on the system path, when the sweep's rule is never to do that?
 - **Why it matters:** The planned contract note between the two programs must say whether this difference is accepted. Accepting it is a small written acceptance of risk. On Linux a program named `orca` outside Orca's terminals is usually the GNOME screen reader, not Orca. The observer tries `orca-ide`, then `orca`, and uses one only if `skills list --json` lists `orca-cli`. The sweep uses `ORCA_CLI_COMMAND` if set, else `orca-ide`, never `orca`, and asks no question first. Today the variable is unset and both use `orca-ide`.
@@ -190,7 +191,7 @@ The full original cards (with debate details) are in `human-decisions.md`; the d
 
 ### Q14. What "#339 is complete" means for when Orchestrator v2 may start
 
-> **Triage 2026-11-16 (agent recommendation, not an owner answer): TRIMMED.** Option 1 applies as a labelled default; options 2 and 3 are dropped. Never make a code change a start gate. Issue #423 itself says nothing starts before a brainstorm and research, and it is open and untouched since 2026-11-08.
+> **ANSWERED 2026-11-16 (owner: "option 1 accepted").** The earlier triage (agent recommendation) read: TRIMMED. Option 1 applies as a labelled default; options 2 and 3 are dropped. Never make a code change a start gate. Issue #423 itself says nothing starts before a brainstorm and research, and it is open and untouched since 2026-11-08.
 
 - **Question:** Issue #423 (Orchestrator v2) says it starts "after #339 is complete". What must be finished first?
 - **Why it matters:** The words can be read several ways, so the start gate cannot be checked. Your answer sets the #423 rewrite's sequencing sentence and whether a small sweep code change becomes a prerequisite. The sweep's `working` class is switched off because the exact names Orca uses for "live" and "waiting" were never recorded. A one-time read-only "shared capture" of live Orca values (tracked in issue #534) would record them. Restoring the class afterwards is a separate small code PR.
@@ -205,7 +206,7 @@ The full original cards (with debate details) are in `human-decisions.md`; the d
 
 ### Q15. May v2 push corrections into sessions that are not Orca workers
 
-> **Triage 2026-11-16 (agent recommendation, not an owner answer): TRIMMED.** The default applies: v2 reports only. Caveat to keep: `src/superclaude/core/WORKER-CONTRACT.md:288` says person-started sessions "are never messaged"; it does not mention sessions the issue watcher starts, which is the card's open case.
+> **ANSWERED 2026-11-16 (owner: "Option 1 accepted").** The earlier triage (agent recommendation) read: TRIMMED. The default applies: v2 reports only. Caveat to keep: `src/superclaude/core/WORKER-CONTRACT.md:288` says person-started sessions "are never messaged"; it does not mention sessions the issue watcher starts, which is the card's open case.
 
 - **Question:** Must the planned v2 knowledge layer ever send a correction directly into a session that is not an Orca worker, or only report to you or the coordinator?
 - **Why it matters:** #423 says v2 should "relay them to affected agents". That would push content into sessions the current rules say are never messaged (ones you start, ones the issue watcher starts, ones with no Orca run). Today the coordinator corrects a worker only by leaving a message the worker picks up itself (rule WC-12). No known channel delivers into a non-worker session, and signing messages does not stop harmful text inside them. It is a trust-boundary call and decides whether the unbuilt trust layer becomes a v2 prerequisite.
@@ -280,7 +281,7 @@ The full original cards (with debate details) are in `human-decisions.md`; the d
 
 ### Q24. Who runs the live Orca checks
 
-> **Triage 2026-11-16 (agent recommendation, not an owner answer): SHRUNK** to two read-only captures, pasted into one file that stays untracked unless you say otherwise: `orca-ide worktree ps --agent-wait --json` and `orca-ide orchestration worker-show --dispatch <one live id> --json`. The observer snapshot already holds two of the three unknown Orca names; only `agentWait` is missing. The worker-id comparison and the message-write test are deferred, not erased: they answer different questions. Each capture still needs its own permission row. Reply: `Q24: two captures only`.
+> **ANSWERED 2026-11-16 (owner: "a live session on master made for this job" = option 1); the session is not launched yet and waits for the owner's go.** The earlier triage (agent recommendation) read: SHRUNK to two read-only captures, pasted into one file that stays untracked unless you say otherwise: `orca-ide worktree ps --agent-wait --json` and `orca-ide orchestration worker-show --dispatch <one live id> --json`. The observer snapshot already holds two of the three unknown Orca names; only `agentWait` is missing. The worker-id comparison and the message-write test are deferred, not erased: they answer different questions. Each capture still needs its own permission row. Reply: `Q24: two captures only`.
 
 - **Question:** Which session or person runs three live checks against Orca: a read-only capture of a few unknown fields, a one-time comparison of worker ids between the dashboard and the sweep report, and a test that writes throwaway messages?
 - **Why it matters:** Without a named runner none runs. That blocks the Orchestrator v2 gate (#423) and the dashboard's PR that turns on its questions panel. The review suggested "the 409 session". The debate found two problems: that session's worktree is on an unmerged branch holding unpushed work and nobody checked it is alive, and the comparison must run the sweep on merged master code (now possible, but see Q29).
@@ -325,7 +326,7 @@ The full original cards (with debate details) are in `human-decisions.md`; the d
 
 ### Q41. A worktree with no agent for a short moment under the chosen handoff
 
-> **Triage 2026-11-16 (agent recommendation, not an owner answer): one line, no card.** Plan Task 19 already records "answered 2026-11-14: A". Reply `Q41: confirm A` and an agent adds the row you wrote; an agent does not write it for you.
+> **ANSWERED 2026-11-16 (owner: "yes accepted" = A).** The earlier triage (agent recommendation) read: one line, no card. Plan Task 19 already records "answered 2026-11-14: A". Reply `Q41: confirm A` and an agent adds the row you wrote; an agent does not write it for you.
 
 - **Question:** Under the chosen design (B1b), the coordinator runs the worktree script, and only then starts the worker. For a short moment the new worktree has no agent, which the "every worktree gets an agent" rule normally forbids. Accept that and say so in the plan?
 - **Where it stands:** The route B plan records "answered A: accept it and say so", but the answer is not in `owner-answers.md`. Confirm or correct.
@@ -350,7 +351,7 @@ These need an owner action or a grant. None is a grant by being listed here.
 11. **Answers from a separate coordinator index, recorded 2026-11-16** (details in `owner-answers.md`, section "2026-11-16"). They close none of Q1 to Q41. Two were pasted: the active workflow is `/sc:workflow` plus `/sc:implement`, `sprint run` in its current form is obsolete, and `/sc:task` and the task-builder commands are to be retired (a decision, not done); only Sprint run and its CLI tool suite get an evaluation against retirement. Still open from that decision: the evaluation itself, the retirement steps and date, and the routing guide `HOW-WE-WORK.md`, whose level 4 still names `/task-builder` and `/task`, so it will need a change when retirement is done. The packet's other answers (D-12, D-13, D-15, issues #553 and #562) live in three packet files that were not supplied here and are not recorded.
 
 12. **Agent triage of the open questions, 2026-11-16.** Three reviewers and a three-way debate (`adversarial/` and `final-cut-list.md` in `ponytail-cuts-adversarial/`, with the review summary in `ponytail-triage-20261116.md`, both in this folder) produced the status changes above. They are recommendations, not owner answers, and nothing in them is a grant. What else came out of it:
-    - **Hold.** Commits `1ae72e1a1` and `f104ca51a` in `/home/coder/workspaces/worktrees/IronClaude/issue-409-mvp` go into no pull request or merge until you confirm the 2026-11-12 pass record (see Q7).
+    - **Hold.** Commits `1ae72e1a1` and `f104ca51a` in `/home/coder/workspaces/worktrees/IronClaude/issue-409-mvp` go into no pull request or merge without their own grant. The provenance condition (the owner confirming the 2026-11-12 pass record) was met on 2026-11-16 (see Q7); the owner said they do not care what happens to the commits, so nothing is planned for them. A backup of them is at `/home/coder/backups/issue-409-mvp-20261116/`.
     - **Kept as decided, cut not taken.** The approval flow stays as you approved it (label with Status move; exact comment "ideally"); Task 16 (remove plain `approved`) stays as planned; the owner-written-record rule and the `QUESTION_GATE_PASSED` constant stay; `slo_numbers` stays because `docs/designs/issue-watcher-setup.md:470` still calls it; the questions-panel code, the snapshot export and the three Orca finders stay. If you want less to build, the comment-approval input is the one piece an advocate would drop; it was not raised as a question.
     - **Needs a pull request, not started.** One line in the sweep report saying the `working` class is off (the class is a stub that returns nothing, `src/superclaude/cli/sweep/classify.py:251-257`), so `working: 0` is not read as "nothing is running".
     - **Recommendation to the route B plan, not applied.** Run one throwaway delivery test (`worker-start`, `ask`, `reply`) before the GitHub-reading tasks, and keep Task 16 first and unblocked.
