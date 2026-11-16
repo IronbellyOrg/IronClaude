@@ -219,7 +219,10 @@ else
   [ "$MERGE_EXIT" = 0 ] || log "merge_refused exit=$MERGE_EXIT"
 fi
 DIRTY=0
-[ -z "$(sandbox_state)" ] || DIRTY=1
+# Owner order 2026-11-16 (frozen hold-out run): a run is dirty only when a reviewer changed a tracked file or added a
+# file git does not ignore. Side files that git ignores (`uv run` writes uv.lock and .venv) do not change what the next
+# reviewer reads of the plan or the tree; bin/run-schedule.sh rebuilds the sandbox before the next run when any remain.
+[ -z "$(git -C "$REPO_SB" status --porcelain)" ] || DIRTY=1
 REC=(--run "$RUN" --arm "$ARM" --t0 "$T0" --render-s "$RENDER_S" --check-s "$CHECK_S" --r3-end "$R3_END" --merge-exit "$MERGE_EXIT")
 [ "$CHECK_SKIPPED" = 0 ] || REC+=(--check-skipped)
 [ "$CHECK_RAN" = 0 ] || REC+=(--check-ran)
