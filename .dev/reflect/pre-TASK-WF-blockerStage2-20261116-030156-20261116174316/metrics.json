@@ -1,0 +1,7 @@
+{"metrics_schema_version":"1.0","skill":"sc-reflect","skill_version":"1.8.0","mode":"pre","tier_reached":2,"status":"partial",
+ "calibration":{"calibrator_diversity":"degraded","calibrated_confidence_initial":0.80,"calibrated_confidence_final":0.82,"calibration_delta":0.02},
+ "ensemble":{"t2_model_class_diversity":"full","t2_vendor_diversity":"single","t2_effective_diversity":"model-only","reviewer_count":3,"executor_class_resolved":false,"executor_exclusion_degraded":false},
+ "evidence_validator":{"ran":true,"citations_total":125,"citations_revalidated":125,"citations_dropped":2,"citations_dropped_extrapolated":2,"drop_rate":0.016,"budget_policy":"full_reread"},
+ "adversarial":{"convergence_score":0.90,"merge_method":"adversarial","adversarial_unavailable":false,"fallback_path":null},
+ "promotion":{"action":"not-applicable","gate_conditions_passed":0,"gate_conditions_total":9,"cross_fs":false},
+ "input_drift_detected":false,"needs_human_decision":true}

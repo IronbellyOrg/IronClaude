@@ -1,0 +1,13 @@
+validators:
+  - {agent_id: ad62ffa2dad86a82d, share: "card findings F1 to F6 (43 citation lines) + inferred rows INF-001 to INF-020", checked: 63, verified: 63, dropped: 0}
+  - {agent_id: a41ba07676b067136, share: "card findings F7 to F16 (29 citation lines) + inferred rows INF-021 to INF-041", checked: 50, verified: 50, dropped: 0}
+citations_total: 113
+citations_revalidated: 113
+citations_dropped: 0
+citation_budget_policy: full_reread
+zero_drop_flag: true            # audit flag, not a clean signal
+script_recheck: "72 of 72 card citation quotes verbatim on the cited line (script /tmp/reflect3_cite.py, run before and after the merge)"
+notes_from_validators_applied:
+  - "F5 prose said the Task 6 body names rf-qa.md lines 170, 327, 389, 476; those numbers come from SPEC:853, the plan names the triggers by text: fixed in the card"
+  - "F5 prose said Task 7 has no acceptance check; Task 7's first acceptance line (PLAN:157) greps the eight verdict pairs: fixed in the card"
+  - "INF-004, INF-006, INF-032, INF-038 have match_method none in the matrix; quotes verbatim; read by hand all four are covered (not citation drops)"

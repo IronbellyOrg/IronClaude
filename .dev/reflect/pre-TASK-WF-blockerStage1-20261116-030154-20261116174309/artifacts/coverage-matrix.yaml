@@ -1,0 +1,75 @@
+# mechanical containment match (threshold 0.6, stopwords stripped, single best task); manual mapping is in REPORT.md
+parsed_count: 0
+inferred_count: 68
+coverage_degraded: parsed-sparse
+coverage_pct: null
+coverage_pct_union: 0.6471
+rows:
+  - {requirement_id: INF-001, source: inferred, citation: 'source.md:3', best_task: 1, ratio: 0.778, match_method: containment}
+  - {requirement_id: INF-002, source: inferred, citation: 'source.md:3', best_task: 7, ratio: 0.556, match_method: none}
+  - {requirement_id: INF-003, source: inferred, citation: 'source.md:7', best_task: 16, ratio: 0.25, match_method: none}
+  - {requirement_id: INF-004, source: inferred, citation: 'source.md:7', best_task: 1, ratio: 0.286, match_method: none}
+  - {requirement_id: INF-005, source: inferred, citation: 'source.md:7', best_task: 9, ratio: 0.571, match_method: none}
+  - {requirement_id: INF-006, source: inferred, citation: 'source.md:7', best_task: 1, ratio: 0.429, match_method: none}
+  - {requirement_id: INF-007, source: inferred, citation: 'source.md:11', best_task: 6, ratio: 0.714, match_method: containment}
+  - {requirement_id: INF-008, source: inferred, citation: 'source.md:11', best_task: 1, ratio: 0.556, match_method: none}
+  - {requirement_id: INF-009, source: inferred, citation: 'source.md:11', best_task: 6, ratio: 0.167, match_method: none}
+  - {requirement_id: INF-010, source: inferred, citation: 'source.md:12', best_task: 3, ratio: 0.929, match_method: containment}
+  - {requirement_id: INF-011, source: inferred, citation: 'source.md:12', best_task: 3, ratio: 0.875, match_method: containment}
+  - {requirement_id: INF-012, source: inferred, citation: 'source.md:12', best_task: 3, ratio: 0.571, match_method: none}
+  - {requirement_id: INF-013, source: inferred, citation: 'source.md:13', best_task: 2, ratio: 0.875, match_method: containment}
+  - {requirement_id: INF-014, source: inferred, citation: 'source.md:13', best_task: 2, ratio: 0.812, match_method: containment}
+  - {requirement_id: INF-015, source: inferred, citation: 'source.md:13', best_task: 5, ratio: 0.818, match_method: containment}
+  - {requirement_id: INF-016, source: inferred, citation: 'source.md:14', best_task: 3, ratio: 0.714, match_method: containment}
+  - {requirement_id: INF-017, source: inferred, citation: 'source.md:14', best_task: 5, ratio: 1.0, match_method: containment}
+  - {requirement_id: INF-018, source: inferred, citation: 'source.md:14', best_task: 4, ratio: 0.5, match_method: none}
+  - {requirement_id: INF-019, source: inferred, citation: 'source.md:15', best_task: 6, ratio: 0.9, match_method: containment}
+  - {requirement_id: INF-020, source: inferred, citation: 'source.md:15', best_task: 6, ratio: 0.667, match_method: containment}
+  - {requirement_id: INF-021, source: inferred, citation: 'source.md:16', best_task: 15, ratio: 1.0, match_method: containment}
+  - {requirement_id: INF-022, source: inferred, citation: 'source.md:16', best_task: 15, ratio: 1.0, match_method: containment}
+  - {requirement_id: INF-023, source: inferred, citation: 'source.md:16', best_task: 15, ratio: 1.0, match_method: containment}
+  - {requirement_id: INF-024, source: inferred, citation: 'source.md:16', best_task: 15, ratio: 0.6, match_method: containment}
+  - {requirement_id: INF-025, source: inferred, citation: 'source.md:16', best_task: 15, ratio: 0.667, match_method: containment}
+  - {requirement_id: INF-026, source: inferred, citation: 'source.md:17', best_task: 4, ratio: 0.467, match_method: none}
+  - {requirement_id: INF-027, source: inferred, citation: 'source.md:18', best_task: 16, ratio: 0.571, match_method: none}
+  - {requirement_id: INF-028, source: inferred, citation: 'source.md:18', best_task: 16, ratio: 0.643, match_method: containment}
+  - {requirement_id: INF-029, source: inferred, citation: 'source.md:18', best_task: 16, ratio: 1.0, match_method: containment}
+  - {requirement_id: INF-030, source: inferred, citation: 'source.md:18', best_task: 16, ratio: 0.667, match_method: containment}
+  - {requirement_id: INF-031, source: inferred, citation: 'source.md:18', best_task: 16, ratio: 1.0, match_method: containment}
+  - {requirement_id: INF-032, source: inferred, citation: 'source.md:22', best_task: 6, ratio: 0.357, match_method: none}
+  - {requirement_id: INF-033, source: inferred, citation: 'source.md:22', best_task: 2, ratio: 0.3, match_method: none}
+  - {requirement_id: INF-034, source: inferred, citation: 'source.md:22', best_task: 8, ratio: 0.25, match_method: none}
+  - {requirement_id: INF-035, source: inferred, citation: 'source.md:26', best_task: 1, ratio: 0.231, match_method: none}
+  - {requirement_id: INF-036, source: inferred, citation: 'source.md:26', best_task: 3, ratio: 0.571, match_method: none}
+  - {requirement_id: INF-037, source: inferred, citation: 'source.md:28', best_task: 7, ratio: 1.0, match_method: containment}
+  - {requirement_id: INF-038, source: inferred, citation: 'source.md:28', best_task: 7, ratio: 1.0, match_method: containment}
+  - {requirement_id: INF-039, source: inferred, citation: 'source.md:28', best_task: 7, ratio: 0.5, match_method: none}
+  - {requirement_id: INF-040, source: inferred, citation: 'source.md:29', best_task: 3, ratio: 1.0, match_method: containment}
+  - {requirement_id: INF-041, source: inferred, citation: 'source.md:29', best_task: 3, ratio: 1.0, match_method: containment}
+  - {requirement_id: INF-042, source: inferred, citation: 'source.md:29', best_task: 3, ratio: 0.556, match_method: none}
+  - {requirement_id: INF-043, source: inferred, citation: 'source.md:30', best_task: 3, ratio: 0.917, match_method: containment}
+  - {requirement_id: INF-044, source: inferred, citation: 'source.md:31', best_task: 7, ratio: 0.889, match_method: containment}
+  - {requirement_id: INF-045, source: inferred, citation: 'source.md:31', best_task: 7, ratio: 0.875, match_method: containment}
+  - {requirement_id: INF-046, source: inferred, citation: 'source.md:31', best_task: 7, ratio: 0.833, match_method: containment}
+  - {requirement_id: INF-047, source: inferred, citation: 'source.md:31', best_task: 7, ratio: 0.5, match_method: none}
+  - {requirement_id: INF-048, source: inferred, citation: 'source.md:32', best_task: 3, ratio: 0.8, match_method: containment}
+  - {requirement_id: INF-049, source: inferred, citation: 'source.md:32', best_task: 15, ratio: 0.833, match_method: containment}
+  - {requirement_id: INF-050, source: inferred, citation: 'source.md:32', best_task: 3, ratio: 0.714, match_method: containment}
+  - {requirement_id: INF-051, source: inferred, citation: 'source.md:33', best_task: 7, ratio: 0.833, match_method: containment}
+  - {requirement_id: INF-052, source: inferred, citation: 'source.md:33', best_task: 11, ratio: 0.778, match_method: containment}
+  - {requirement_id: INF-053, source: inferred, citation: 'source.md:33', best_task: 11, ratio: 0.786, match_method: containment}
+  - {requirement_id: INF-054, source: inferred, citation: 'source.md:34', best_task: 2, ratio: 0.6, match_method: containment}
+  - {requirement_id: INF-055, source: inferred, citation: 'source.md:34', best_task: 12, ratio: 0.733, match_method: containment}
+  - {requirement_id: INF-056, source: inferred, citation: 'source.md:34', best_task: 4, ratio: 0.938, match_method: containment}
+  - {requirement_id: INF-057, source: inferred, citation: 'source.md:35', best_task: 3, ratio: 1.0, match_method: containment}
+  - {requirement_id: INF-058, source: inferred, citation: 'source.md:35', best_task: 3, ratio: 1.0, match_method: containment}
+  - {requirement_id: INF-059, source: inferred, citation: 'source.md:35', best_task: 7, ratio: 0.429, match_method: none}
+  - {requirement_id: INF-060, source: inferred, citation: 'source.md:36', best_task: 4, ratio: 0.938, match_method: containment}
+  - {requirement_id: INF-061, source: inferred, citation: 'source.md:36', best_task: 4, ratio: 1.0, match_method: containment}
+  - {requirement_id: INF-062, source: inferred, citation: 'source.md:36', best_task: 7, ratio: 0.429, match_method: none}
+  - {requirement_id: INF-063, source: inferred, citation: 'source.md:37', best_task: 3, ratio: 0.571, match_method: none}
+  - {requirement_id: INF-064, source: inferred, citation: 'source.md:37', best_task: 6, ratio: 0.867, match_method: containment}
+  - {requirement_id: INF-065, source: inferred, citation: 'source.md:37', best_task: 15, ratio: 0.444, match_method: none}
+  - {requirement_id: INF-066, source: inferred, citation: 'source.md:37', best_task: 7, ratio: 0.6, match_method: containment}
+  - {requirement_id: INF-067, source: inferred, citation: 'source.md:37', best_task: 6, ratio: 0.8, match_method: containment}
+  - {requirement_id: INF-068, source: inferred, citation: 'source.md:38', best_task: 1, ratio: 0.333, match_method: none}

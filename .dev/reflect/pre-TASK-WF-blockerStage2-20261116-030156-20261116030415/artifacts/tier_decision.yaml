@@ -1,0 +1,22 @@
+selected_tier: 2
+fired_rule_number: 4
+coverage_degraded: parsed-sparse
+surface_unreached: null
+composite_score: 7
+per_signal_breakdown:
+  scope_size: 1
+  task_count: 1
+  blast_radius: 2
+  spec_density: 2
+  ambiguity_signals: 1
+escalation_reason: "S_domains=3 (code, tests, docs) fires rule 4; the parse-density guard (parsed 0, inferred 16) forbids any Tier-1 stop; calibrated C=0.74 (<0.85, rule 6) and S_dev_density 0.25 by the mechanical containment rule (rule 5) would also escalate"
+t2_engine_requested: null
+t2_engine_effective: null
+panel_fallback_reason: null
+inputs:
+  confidence_calibrated: 0.74
+  S_scope: 7
+  S_domains: 3
+  S_dev_density: 0.25
+  coverage_pct_union: 0.75
+  coverage_undefined: false

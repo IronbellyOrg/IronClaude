@@ -5,7 +5,7 @@ plan_path: ./TASK-WF-blockerStage0-20261116-021044.md
 source_path: ./source.md
 source_origin: file
 strategy: systematic
-depth: standard
+depth: quick
 handoff_action: none
 handoff_output_path: null
 reflect_status: success

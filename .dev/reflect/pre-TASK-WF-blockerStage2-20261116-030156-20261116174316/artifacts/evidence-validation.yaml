@@ -1,0 +1,19 @@
+validator: evidence-validator agent (sonnet), full re-read of every citation in the card (more than the sampling rule required)
+citation_budget_policy: full_reread
+citations_total: 125
+citations_revalidated: 125
+citations_dropped: 2
+line_drift: 2
+inferred: 4
+dropped:
+  - {finding: MN-11, citation: "plan:141 (quote)", reason: "'from the repo root' is the card's inference; plan:33 only says outputs go under ./artifacts/ in the package"}
+  - {finding: MN-8, citation: "stage1 plan:125", reason: "line lists classifier_inputs.py, classify_cmd.py and safety_route.py, not the card's three files; count unsupported, direction holds"}
+weak_kept:
+  - {finding: MN-4, citation: "plan:126", note: "supports only the later use of classify; scale-map and registry reads are supported by plan:56, 88, 113"}
+  - {finding: MN-10, citation: second quote, note: "paraphrase, supported by plan:88 and plan:92"}
+  - {finding: MN-1, citation: "plan:125 in a debate line", note: "shorthand error: stage1 plan:125"}
+line_drift:
+  - "Output Locations table: heading line 129, rows 133-152 (card said 129-150)"
+  - "archive_workspace.py: ./ skip logic at 395-401, digest call 404-405 (card said 396-405)"
+blocking_findings_MB1_to_MB4: "every citation and every quote verified"
+zero_drop_flag: false

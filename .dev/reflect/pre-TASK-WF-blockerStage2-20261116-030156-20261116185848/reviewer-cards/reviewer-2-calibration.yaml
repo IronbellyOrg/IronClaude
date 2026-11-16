@@ -1,0 +1,13 @@
+calibrator_model_class: opus
+calibrator_diversity: degraded   # all three available classes (sonnet, haiku, opus) are reviewer classes; opus is the highest class and each class has one reviewer
+card: reviewer-2-card.md
+citation_grounding: 0.95
+coverage_completeness: 0.85
+deviation_classification_clarity: 0.85
+risk_surface_coverage: 0.85
+recommendation_actionability: 0.80
+C: 0.86
+citations_checked: 22
+citations_unfounded: 0
+per_finding_grade_ok: {R2-1: true, R2-2: true, R2-3: true, R2-4: true}
+note: "calibrator notes R2-1 lists plan:57 first but its first quote is plan:95; R2-4 borderline medium/minor"

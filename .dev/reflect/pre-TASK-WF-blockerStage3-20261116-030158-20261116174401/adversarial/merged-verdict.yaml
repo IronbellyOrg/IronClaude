@@ -1,0 +1,14 @@
+merge_method: adversarial
+verdict: NEEDS-REVISION
+convergence_score: 0.889          # 8 of 9 diff points agreed after Round 2 (S-001, C-001 to C-003, X-002, A-001 to A-003; X-001 settled by evidence)
+base_variant: "variant-2-original.md (reviewer-2, qa persona, opus class)"
+source_cards:
+  - reviewer-cards/reviewer-1-card.md
+  - reviewer-cards/reviewer-2-card.md
+merged_findings_path: adversarial/merged-review-card.md
+findings: {total: 16, blocking: 3, non_blocking: 13}
+debate_skipped_similar: false
+judge_identity: "sonnet-class scoring passes (agents ad6f2b0ae78c7053d, ac769198a6d2eb27e); debaters haiku and opus; judge class differs from both debaters"
+unaddressed_invariants:
+  - {id: INV-001, category: sufficiency_challenge, severity: HIGH, assumption: "Rewriting the Task 5 acceptance lines makes the seeded-recall gate sound", carried_as: F1}
+  - {id: INV-003, category: collection_boundaries, severity: HIGH, assumption: "The with-and-without recall variants are computable", carried_as: F2}

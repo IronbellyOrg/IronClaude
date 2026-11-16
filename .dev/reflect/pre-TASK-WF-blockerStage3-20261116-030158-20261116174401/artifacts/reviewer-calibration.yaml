@@ -1,0 +1,26 @@
+calibrator_class: sonnet            # confidence-calibrator agents (model sonnet), one per card, blind; disjoint from reviewer classes {haiku, opus}
+calibrator_diversity: full
+reviewer_models: [haiku, opus]
+reviewer_personas: [analyzer, qa]
+cards:
+  reviewer-1:
+    reviewer_agent_id: a787b8b160e38817a
+    calibrator_agent_id: a3b79610c317ad26d
+    self_reported: 0.90
+    calibrated_C: 0.88
+    dimensions: {citation_grounding: 0.93, coverage_completeness: 0.88, deviation_classification_clarity: 0.82, risk_surface_coverage: 0.85, recommendation_actionability: 0.90}
+    per_finding_confidence: {F1: 0.85, F2: 0.78, F3: 0.80, F4: 0.95}
+    grade_comments: "F1 medium rather than blocking (edit is uncommitted, source tree only, reaches machines only after a refresh); F2 blocking only if the pilot is meant to measure the rule change cleanly; F3 blocking-medium; F4 non-blocking agreed"
+    verdict_by_calibrator: "STOP (C 0.88 >= 0.85); the Tier 2 decision was already made by the rubric rule 4"
+  reviewer-2:
+    reviewer_agent_id: a8fcf47976cac48d7
+    calibrator_agent_id: a56d36f56e17d824a
+    self_reported: 0.80
+    calibrated_C: 0.87
+    dimensions: {citation_grounding: 0.93, coverage_completeness: 0.80, deviation_classification_clarity: 0.85, risk_surface_coverage: 0.88, recommendation_actionability: 0.88}
+    per_finding_confidence: {F1: 0.85, F2: 0.85, F3: 0.60, F4: 0.90, F5: 0.70, F6: 0.85, F7: 0.85, F8: 0.90, F9: 0.80, F10: 0.80}
+    grade_comments: "F1 keep blocking but only 0.65 sure: :548 and :796 strong, :99/:100/:810 closer to minor; F3 minor, because the SubagentStart hook injects the old 221-231 text into both arms (PLAN:78), blocking only if reviewers are spawned without the injection; F7 understated (M5, M9, M11 also have baselines); also rf-qa.md:494 listed at SPEC:853 is unaddressed"
+    verdict_by_calibrator: "C 0.87, between the 0.85 floor and the 0.90 ceiling"
+mean_C: 0.875
+orchestrator_notes:
+  - "Both calibrators had only Read; per-card claim_class frontmatter was not applicable to the 5-dimension reflection rubric."

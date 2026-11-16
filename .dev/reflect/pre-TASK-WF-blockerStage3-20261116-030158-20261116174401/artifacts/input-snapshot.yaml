@@ -1,0 +1,79 @@
+input_tree_sha256: 6f7954708b794e2e6d3a75d6bb8be2a4128a029d3ad99872352c648921cc0d04
+file_list:
+  - path: .claude/settings.json
+    sha256: 1f535104e6bb9145585a88418d0a094a4b38d6432e3b5fbd6226d550da33d41c
+  - path: .dev/review-severity-rule/cap-edits.yaml
+    sha256: bbb164e96422aad41276182ac42cf2b19e88e9a8388b629e44cfd1d852b4c570
+  - path: .dev/review-severity-rule/sweep-edits.yaml
+    sha256: b40e26debfa217b32f2bf8e9cf67445ed8c903d3a4d1338055a9ef14837ac03b
+  - path: .dev/tasks/to-do/BLOCKER-CLASSIFICATION-PROGRAM-20261115/02-brainstorm/merged-requirements.md
+    sha256: d9ab642687da087dfccb9e62911f3a53b334128f3b700f9019ae1524ad16fbfb
+  - path: .dev/tasks/to-do/BLOCKER-CLASSIFICATION-PROGRAM-20261115/OPEN-QUESTIONS.md
+    sha256: 5e0dffab7573dfe0c0c3b0416578d4cef2ffae05df1ce725c1c39e2b7f2cc5c7
+  - path: .dev/tasks/to-do/BLOCKER-CLASSIFICATION-PROGRAM-20261115/stage-requests/README.md
+    sha256: f58090264b76c268051529b70895fcc921a1ef613c52703d9751ea6ea03b948a
+  - path: .dev/tasks/to-do/BLOCKER-CLASSIFICATION-PROGRAM-20261115/stage-requests/revision2-brief.md
+    sha256: b9405de741dd7ac1a2ce2d8956779b12bf564938be8800dd77879bce99b6ea84
+  - path: .dev/tasks/to-do/BLOCKER-CLASSIFICATION-PROGRAM-20261115/stage-requests/stage3-request.md
+    sha256: a9939958ce1e6d69edfadd4bbc8476159a55c44e7466fa7ad862bc87a7600431
+  - path: .dev/tasks/to-do/TASK-WF-blockerStage3-20261116-030158/TASK-WF-blockerStage3-20261116-030158.md
+    sha256: 23ceccbd6c973b0360ef9f432942196224e61458c4067e2afde2a44b4b56032a
+  - path: .dev/tasks/to-do/TASK-WF-blockerStage3-20261116-030158/artifacts/codegraph-grounding.md
+    sha256: 114951032153c5328558fa7f1f3f50d844de932a42bcd521ca8c7768a1629740
+  - path: .dev/tasks/to-do/TASK-WF-blockerStage3-20261116-030158/source.md
+    sha256: a9939958ce1e6d69edfadd4bbc8476159a55c44e7466fa7ad862bc87a7600431
+  - path: plugins/superclaude/skills/sc-implement-protocol/SKILL.md
+    sha256: 9cfa9dd1d3396f55505be00c8497cd2e5d8870082f455b7c083deac2a74ec5c6
+  - path: plugins/superclaude/skills/sc-implement-protocol/refs/managed-workspace.md
+    sha256: 179ffb8e54473a8ef8c9f9bebbd8c4cbb5169d64007b3977b40bb1379f40ef09
+  - path: src/superclaude/agents/rf-analyst.md
+    sha256: 91550149cf2eb51b825bb3f6eceacfdef7d38fd15f82b6af7d9464ecfe21c3b8
+  - path: src/superclaude/agents/rf-qa-qualitative.md
+    sha256: c205eff2c1e80bef31ba0778b2705177e756d6f9a949cbb05cfe71d3445005f8
+  - path: src/superclaude/agents/rf-qa.md
+    sha256: b59b4b1ba9959b0d8965429c517f4cd8c8c25f0ea644a299fc36dcb9561e36dc
+  - path: src/superclaude/agents/rf-task-builder.md
+    sha256: 0da901a0c7b7985b6655a4981dc14c756005ea20f7dc81032381f284210e815d
+  - path: src/superclaude/cli/review/__init__.py
+    sha256: f0f0abc6c87a80ee608d36e3ed96f032c625b1d99ce6b256e17479f78f47324c
+  - path: src/superclaude/cli/review/ledger.py
+    sha256: 2908549846e1a6c63f692d18c7e4c375e257590eb4671a17dba1b315218b8179
+  - path: src/superclaude/commands/spec-panel.md
+    sha256: e62e70b98e878cb4b60ba8f95f1cc3442a25e815828a3ef3d17a95b65ea97494
+  - path: src/superclaude/hooks/hooks.json
+    sha256: b6d06cfff050c583706db71b27c59962a8e65e8b8fc5eeba863538ad4e0d981c
+  - path: src/superclaude/output-styles/pragmatic.md
+    sha256: 84107fb5718c2189205d4cacbf2979aec8fb9b77758167eb31c3a35e6fe757f9
+  - path: src/superclaude/skills/sc-implement-protocol/SKILL.md
+    sha256: 9cfa9dd1d3396f55505be00c8497cd2e5d8870082f455b7c083deac2a74ec5c6
+  - path: src/superclaude/skills/sc-implement-protocol/refs/managed-workspace.md
+    sha256: 179ffb8e54473a8ef8c9f9bebbd8c4cbb5169d64007b3977b40bb1379f40ef09
+  - path: src/superclaude/skills/sc-implement-protocol/refs/qa.md
+    sha256: 93e232f5d49207624c24da25bc6f2e9a0686b4f7f7ca99a38e4b95f56edaf004
+  - path: src/superclaude/skills/task/SKILL.md
+    sha256: a4e51b0d3cb10c2289d824ac9b6500c978a60cb03e8621580ed47c1ce53d94f2
+  - path: tests/audit/test_dnsp_all_agents_fail_bypass.py
+    sha256: ceba005fac42ff479108be0890ed4bb2b5f094362d4ce84e73cb98199d8f0eb9
+  - path: tests/audit/test_invariant_preservation_NFR_6_through_10.py
+    sha256: a6ee8d20027b92a7b103ff78032d9b2618afdabe7b65c0b4e7eea51c4d97ab5f
+  - path: tests/audit/test_nfr_conv_9_zero_trust.py
+    sha256: 5a428b1bf5ae5008e9302d2504d949bb88a211fa95c28b5ca5fb1566533623e4
+  - path: tests/audit/test_severity_floor_unweakened.py
+    sha256: 3a657c078884ad6015505b9d0b18549587c411dc32102ed0866b18e06b1fc1f7
+  - path: tests/review/test_review_rules_text.py
+    sha256: d28b6fd30858e105c28a8706b8688df9da1c8c8f7cfc8e953ffa0c98b8da98b6
+  - path: tests/skills/fixtures/review_severity_cap_edits.yaml
+    sha256: bbb164e96422aad41276182ac42cf2b19e88e9a8388b629e44cfd1d852b4c570
+  - path: tests/skills/test_implement_severity_static.py
+    sha256: 409cc67f2a50d66a32fb09132b98014cbd011d7827ed423c8ad29c306b277e39
+  - path: tests/skills/test_review_loop_extension.py
+    sha256: 11ddb048f1528fc4a740b5be578e970d1571fc8e1f6adebd9e2b298862915c76
+  - path: tests/skills/test_review_severity_mapping.py
+    sha256: 3d053c668ac5ada012ba5129ef84a8083c166cc937c4affe07ba04827e8293f8
+  - path: tests/skills/test_review_severity_rule.py
+    sha256: dc21823da962d14b40339e2081717177b3497b27b2a1e41f5637ed97ef10d961
+  - path: tests/skills/test_spec_panel_review_loop.py
+    sha256: e3bc8cb4924d184748dca8a8ebcabb74af41f0bc614eb80dae0a4b1ad31f1ae3
+  - path: tests/skills/test_task_builder_merge.py
+    sha256: 107aa094e8860e5e99f043e0850212c55bddc331910b6325cc8a3af702c02355
+file_count: 38

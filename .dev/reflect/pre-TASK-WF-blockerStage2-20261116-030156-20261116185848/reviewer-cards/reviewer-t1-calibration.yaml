@@ -1,0 +1,8 @@
+calibrator_model_class: opus
+card: ../t1-card.md
+citation_grounding: 0.88
+coverage_completeness: 0.88
+deviation_classification_clarity: 0.75
+risk_surface_coverage: 0.75
+recommendation_actionability: 0.55
+C: 0.76

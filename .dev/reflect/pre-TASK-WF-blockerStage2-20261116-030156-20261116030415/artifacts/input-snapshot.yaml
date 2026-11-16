@@ -1,0 +1,21 @@
+input_tree_sha256: c870fc18b1feb5b778fd46f6ba15998652a19c6f35bded479e324b4df97e6587
+file_list:
+  - path: .claude/settings.json
+    sha256: 1f535104e6bb9145585a88418d0a094a4b38d6432e3b5fbd6226d550da33d41c
+  - path: .dev/tasks/to-do/TASK-WF-blockerStage2-20261116-030156/TASK-WF-blockerStage2-20261116-030156.md
+    sha256: 836e55bd67cd446764c429cfd0c2c53303733f2c9d53a8bc57f0636d87f20329
+  - path: .dev/tasks/to-do/TASK-WF-blockerStage2-20261116-030156/source.md
+    sha256: 58359c52baf2f81992afc297ed7cae93657e2163db0dd25562be7eb37d66b673
+  - path: src/superclaude/core/WORKER-CONTRACT.md
+    sha256: 72df3388439f567446751cb7bc6d1a835a6421fc0cc6f5e14939fa24e6c939e8
+  - path: src/superclaude/output-styles/pragmatic.md
+    sha256: 84107fb5718c2189205d4cacbf2979aec8fb9b77758167eb31c3a35e6fe757f9
+  - path: src/superclaude/skills/sc-implement-protocol/refs/qa.md
+    sha256: 93e232f5d49207624c24da25bc6f2e9a0686b4f7f7ca99a38e4b95f56edaf004
+  - path: src/superclaude/skills/task/SKILL.md
+    sha256: a4e51b0d3cb10c2289d824ac9b6500c978a60cb03e8621580ed47c1ce53d94f2
+  - path: src/superclaude/skills/tech-research/SKILL.md
+    sha256: 874aec18630faa2a75128d913c8272e85e920bec87c9a813518f093e7e40b113
+  - path: tests/skills/test_worker_contract.py
+    sha256: 563aec4ae87af837230348277eec84220d48309258fa97a7fdf73e65a6d3ab49
+file_count: 9

@@ -14,6 +14,10 @@ So the change belongs in IronClaude (the defaults file, installer tests and docs
 ## What to build
 
 1. Add the plugin and its marketplace to the IronClaude defaults. Two ways, an owner decision with a recommendation: (a) unpinned, like Understand-Anything: `typesafe@typesafe-ai` in `enabledPlugins` and `typesafe-ai` (repo `typesafe-ai/skills`) in `extraKnownMarketplaces`; the monitor then watches it automatically; (b) pinned, like Ponytail: an `ironclaudeMarketplace` entry with a reviewed release tag and commit and a description ending `vX.Y.Z, pinned by IronClaude`, so Renovate proposes updates. Recommendation: pin if the repository has a release tag to pin, because the skill text steers agents; otherwise start unpinned and watched. Whether the repository has release tags is Not known yet.
+
+**Owner decision, 2026-11-16 (documentation only; branch mapping not verified):** route (b), pinned. Use a pinned Jev version and update the upstream monitor to track Jev upstream. The exact pin and cadence are unspecified. This note installs, configures, stores and sends nothing, and implements nothing.
+
+**Owner answer, 2026-11-16 (second note):** pin the latest release tag and commit; later updates are reviewed through the central upstream monitor; if release tags are not posted, start unpinned and watched. A read-only lookup on 2026-11-16 found git tags `v0.6.2` (commit `302eea662c54`) and `v0.5.7` (commit `65a39f393687`) in `typesafe-ai/skills` and no GitHub Releases, so route (b) applies: the owner confirmed on 2026-11-16 that release tags or plain tags suffice. Nothing is pinned by this note.
 2. Update the installer tests and `docs/getting-started/installation.md` for the new default.
 3. Verify the monitor: after the change merges, the next Coder health run lists `typesafe-ai/skills` (route a) or Renovate proposes a pin PR (route b).
 4. Ship no API key. The skill only gives guidance; calling Jev needs a TypeSafe API key (`TYPESAFE_API_KEY`) that each user supplies. The installer and docs must say so and must not send any data to the API by default.

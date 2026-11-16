@@ -1,0 +1,12 @@
+- hunk_ref: adversarial/merged-review-card.md MN-11 (plan:141, plan:33)
+  evidence_missing: "the plan never states the working directory of the Task 8 commands; the card's 'run from the repo root' is the card's inference"
+  why_not_classifiable: "the finding rests on an unstated assumption about where `./artifacts/shadow_summary.py` is run"
+  next_evidence_needed: "the plan author states the working directory (package folder or repo root) for the Task 8 commands; if the package folder, the finding is void"
+  owner: user
+  decision_needed_by_user: false
+- hunk_ref: adversarial/merged-review-card.md MN-8 (stage1 plan:125)
+  evidence_missing: "stage1 plan:125 says that from Task 10 on, classifier_inputs.py, classify_cmd.py and safety_route.py may also mention follow_ups; it does not support the card's 'three files' count"
+  why_not_classifiable: "the exact number of files that will match `grep -rln follow_ups` depends on stage 1 code that does not exist yet; the direction of the finding (plan:27 'two more files' is too low) holds"
+  next_evidence_needed: "re-count after stage 1 and Task 2 exist, or reword plan:27 without a number"
+  owner: user
+  decision_needed_by_user: false

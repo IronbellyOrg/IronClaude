@@ -1,0 +1,293 @@
+parsed_count: 0
+inferred_count: 41
+coverage_pct: null
+coverage_pct_union: 0.9024
+coverage_degraded: parsed-sparse
+rows:
+- id: INF-001
+  source: inferred
+  quote: "the owner's go in chat is recorded in the stage ledger"
+  citation: .dev/tasks/to-do/TASK-WF-blockerStage3-20261116-030158/source.md:3
+  match_method: containment
+  matched_task_ids: ["Task 1"]
+  best_ratio: 1.0
+- id: INF-002
+  source: inferred
+  quote: "the stage 2 package's `./artifacts/stage2-summary-for-owner.md` exists and the owner has read it"
+  citation: .dev/tasks/to-do/TASK-WF-blockerStage3-20261116-030158/source.md:3
+  match_method: containment
+  matched_task_ids: ["Task 1"]
+  best_ratio: 0.889
+- id: INF-003
+  source: inferred
+  quote: "at least 5 shadow runs have been observed with zero safety misses (by the stage 0 definition) and no capture failure"
+  citation: .dev/tasks/to-do/TASK-WF-blockerStage3-20261116-030158/source.md:3
+  match_method: containment
+  matched_task_ids: ["Constraints"]
+  best_ratio: 0.929
+- id: INF-004
+  source: inferred
+  quote: "stage 0b's escape result is written and stage 0c's re-grade is written"
+  citation: .dev/tasks/to-do/TASK-WF-blockerStage3-20261116-030158/source.md:3
+  match_method: none
+  matched_task_ids: []
+  best_ratio: 0.5
+- id: INF-005
+  source: inferred
+  quote: "The seeded-recall result is produced INSIDE this package (first task) and gates the rule switch by an acceptance line, not by a dependency line."
+  citation: .dev/tasks/to-do/TASK-WF-blockerStage3-20261116-030158/source.md:3
+  match_method: containment
+  matched_task_ids: ["Constraints"]
+  best_ratio: 0.786
+- id: INF-006
+  source: inferred
+  quote: "renumbered 1 onward, with its `## Constraints` (stage 3 parts)"
+  citation: .dev/tasks/to-do/TASK-WF-blockerStage3-20261116-030158/source.md:7
+  match_method: none
+  matched_task_ids: []
+  best_ratio: 0.571
+- id: INF-007
+  source: inferred
+  quote: "Earlier stages' evidence is read by package id."
+  citation: .dev/tasks/to-do/TASK-WF-blockerStage3-20261116-030158/source.md:7
+  match_method: containment
+  matched_task_ids: ["Constraints"]
+  best_ratio: 0.833
+- id: INF-008
+  source: inferred
+  quote: "State this is stage 3 and say what must be true at start (the list above)."
+  citation: .dev/tasks/to-do/TASK-WF-blockerStage3-20261116-030158/source.md:11
+  match_method: containment
+  matched_task_ids: ["Task 3"]
+  best_ratio: 0.667
+- id: INF-009
+  source: inferred
+  quote: "Stage 4 starts only after one audit window with no revert trigger tripped (the spec's section 13.2 triggers RT1 and RT2) and the owner's go in chat."
+  citation: .dev/tasks/to-do/TASK-WF-blockerStage3-20261116-030158/source.md:11
+  match_method: containment
+  matched_task_ids: ["Constraints"]
+  best_ratio: 0.947
+- id: INF-010
+  source: inferred
+  quote: "State that `/sc:implement` runs the whole package in order, so the rule switch cannot start unless the first tasks pass."
+  citation: .dev/tasks/to-do/TASK-WF-blockerStage3-20261116-030158/source.md:11
+  match_method: containment
+  matched_task_ids: ["Constraints"]
+  best_ratio: 0.667
+- id: INF-011
+  source: inferred
+  quote: "Read the seeded set and answer key from the stage 0 package by id."
+  citation: .dev/tasks/to-do/TASK-WF-blockerStage3-20261116-030158/source.md:12
+  match_method: containment
+  matched_task_ids: ["Task 3"]
+  best_ratio: 0.889
+- id: INF-012
+  source: inferred
+  quote: "Each pass (old rule text, new rule text) is run with freshly spawned agents, never agents continued from an earlier pass, and the pass order is alternated across the three reviewers."
+  citation: .dev/tasks/to-do/TASK-WF-blockerStage3-20261116-030158/source.md:12
+  match_method: containment
+  matched_task_ids: ["Task 3"]
+  best_ratio: 0.938
+- id: INF-013
+  source: inferred
+  quote: "Write `./artifacts/seeded-recall-result.md` with per-class recall under both texts and the intervals, the cosmetic block share under both, and a pass or fail line for each of the three spec requirements."
+  citation: .dev/tasks/to-do/TASK-WF-blockerStage3-20261116-030158/source.md:12
+  match_method: containment
+  matched_task_ids: ["Task 3"]
+  best_ratio: 0.929
+- id: INF-014
+  source: inferred
+  quote: "`./artifacts/seeded-recall-result.md` exists and shows pass on all three requirements"
+  citation: .dev/tasks/to-do/TASK-WF-blockerStage3-20261116-030158/source.md:13
+  match_method: containment
+  matched_task_ids: ["Task 5"]
+  best_ratio: 0.8
+- id: INF-015
+  source: inferred
+  quote: "when a line shows fail, the task's check fails and the run halts for the owner's Ruling"
+  citation: .dev/tasks/to-do/TASK-WF-blockerStage3-20261116-030158/source.md:13
+  match_method: containment
+  matched_task_ids: ["Task 5"]
+  best_ratio: 1.0
+- id: INF-016
+  source: inferred
+  quote: "Do not rely on `Depends on:` for this gate."
+  citation: .dev/tasks/to-do/TASK-WF-blockerStage3-20261116-030158/source.md:13
+  match_method: containment
+  matched_task_ids: ["Task 5"]
+  best_ratio: 0.75
+- id: INF-017
+  source: inferred
+  quote: "`tests/skills/test_review_merge_rule_scan.py` reads the allow-list from `refs/scale-map.md`"
+  citation: .dev/tasks/to-do/TASK-WF-blockerStage3-20261116-030158/source.md:14
+  match_method: containment
+  matched_task_ids: ["Task 12"]
+  best_ratio: 1.0
+- id: INF-018
+  source: inferred
+  quote: "No plugin mirror is listed (no package makes one)."
+  citation: .dev/tasks/to-do/TASK-WF-blockerStage3-20261116-030158/source.md:14
+  match_method: containment
+  matched_task_ids: ["Constraints"]
+  best_ratio: 1.0
+- id: INF-019
+  source: inferred
+  quote: "The existence check applies to every file named in the allow-list and passes in this stage."
+  citation: .dev/tasks/to-do/TASK-WF-blockerStage3-20261116-030158/source.md:14
+  match_method: containment
+  matched_task_ids: ["Task 4"]
+  best_ratio: 0.625
+- id: INF-020
+  source: inferred
+  quote: "that a later task of the same package makes false get an end point (\"until Task N\")."
+  citation: .dev/tasks/to-do/TASK-WF-blockerStage3-20261116-030158/source.md:15
+  match_method: containment
+  matched_task_ids: ["Constraints"]
+  best_ratio: 0.818
+- id: INF-021
+  source: inferred
+  quote: "Write `./artifacts/stage3-summary-for-owner.md`: the seeded-recall result headline, the re-pinned test results, and the audit-window measures the spec's section 13 defines"
+  citation: .dev/tasks/to-do/TASK-WF-blockerStage3-20261116-030158/source.md:16
+  match_method: containment
+  matched_task_ids: ["Task 13"]
+  best_ratio: 0.8
+- id: INF-022
+  source: inferred
+  quote: "and the revert triggers RT1 and RT2 with their current state, read from the spec's text and not restated from memory"
+  citation: .dev/tasks/to-do/TASK-WF-blockerStage3-20261116-030158/source.md:16
+  match_method: containment
+  matched_task_ids: ["Task 13"]
+  best_ratio: 0.769
+- id: INF-023
+  source: inferred
+  quote: "Say that the audit window runs after this package and is observed by the owner or operator, and end with the sentence that the owner's go for stage 4 is given in chat and not by this file."
+  citation: .dev/tasks/to-do/TASK-WF-blockerStage3-20261116-030158/source.md:16
+  match_method: containment
+  matched_task_ids: ["Task 13"]
+  best_ratio: 1.0
+- id: INF-024
+  source: inferred
+  quote: "No template, rule-prompt, builder, researcher or spec-panel edit (stage 4)."
+  citation: .dev/tasks/to-do/TASK-WF-blockerStage3-20261116-030158/source.md:20
+  match_method: containment
+  matched_task_ids: ["Constraints"]
+  best_ratio: 1.0
+- id: INF-025
+  source: inferred
+  quote: "No change to `sc-implement-protocol/refs/qa.md`, the own-scale primitives, the severity code under `src/superclaude/cli/**/*.py`, the cap of 2 fix cycles or the 35 percent target."
+  citation: .dev/tasks/to-do/TASK-WF-blockerStage3-20261116-030158/source.md:20
+  match_method: containment
+  matched_task_ids: ["Constraints"]
+  best_ratio: 0.867
+- id: INF-026
+  source: inferred
+  quote: "No Jev call, key or account."
+  citation: .dev/tasks/to-do/TASK-WF-blockerStage3-20261116-030158/source.md:20
+  match_method: containment
+  matched_task_ids: ["Constraints"]
+  best_ratio: 0.75
+- id: INF-027
+  source: inferred
+  quote: "New Task 1 runs every entry check before any agent is spawned or file is edited."
+  citation: .dev/tasks/to-do/TASK-WF-blockerStage3-20261116-030158/source.md:28
+  match_method: containment
+  matched_task_ids: ["Task 1"]
+  best_ratio: 0.818
+- id: INF-028
+  source: inferred
+  quote: "Missing or short counts halt the run; no fix pass edits a checked file"
+  citation: .dev/tasks/to-do/TASK-WF-blockerStage3-20261116-030158/source.md:28
+  match_method: containment
+  matched_task_ids: ["Constraints"]
+  best_ratio: 0.9
+- id: INF-029
+  source: inferred
+  quote: "New Task 2 writes `./artifacts/stage3-baselines.md`: M1 and M12 counted per run and gate from the shadow-run folders, the RT5 threshold (75 percent of the M1 mean), and M10b stated as having no earlier baseline."
+  citation: .dev/tasks/to-do/TASK-WF-blockerStage3-20261116-030158/source.md:29
+  match_method: containment
+  matched_task_ids: ["Task 2"]
+  best_ratio: 0.773
+- id: INF-030
+  source: inferred
+  quote: "tells every reviewer to apply and quote only the text given, keeps model class and brief identical across arms"
+  citation: .dev/tasks/to-do/TASK-WF-blockerStage3-20261116-030158/source.md:30
+  match_method: containment
+  matched_task_ids: ["Task 3"]
+  best_ratio: 0.846
+- id: INF-031
+  source: inferred
+  quote: "five result lines (R1, R1b, R2a, R2b, R3) and the outcome words PASS, FAIL, ADVISORY-PASS, ADVISORY-FAIL and NOT-MEASURABLE for advisory classes, zero bases and small n"
+  citation: .dev/tasks/to-do/TASK-WF-blockerStage3-20261116-030158/source.md:30
+  match_method: containment
+  matched_task_ids: ["Task 3"]
+  best_ratio: 0.85
+- id: INF-032
+  source: inferred
+  quote: "Task 4 (old Task 2) gains a command, `superclaude review fixcheck`, so the Fix Cycle text of the QA agents has something to call."
+  citation: .dev/tasks/to-do/TASK-WF-blockerStage3-20261116-030158/source.md:31
+  match_method: none
+  matched_task_ids: []
+  best_ratio: 0.588
+- id: INF-033
+  source: inferred
+  quote: "Task 5 gates on the Task 3 outcome lines (acceptance line, not a dependency), checks that the shipped digest's SHA-256 equals the tested one and that the registry row reads `v2`, and owns the Medium cadence change from per loop to per run"
+  citation: .dev/tasks/to-do/TASK-WF-blockerStage3-20261116-030158/source.md:32
+  match_method: containment
+  matched_task_ids: ["Task 5"]
+  best_ratio: 0.808
+- id: INF-034
+  source: inferred
+  quote: "Tasks 6 and 7 name the stage 0 package for the frozen inventory, check that the registry row reads `v2`, run the registry drift test, keep the Retry Monotonicity tokens, and Task 7 applies the L2 and L3 text at the cap sentences of lines 809 and 994 of `rf-qa-qualitative.md`."
+  citation: .dev/tasks/to-do/TASK-WF-blockerStage3-20261116-030158/source.md:33
+  match_method: containment
+  matched_task_ids: ["Task 6"]
+  best_ratio: 0.688
+- id: INF-035
+  source: inferred
+  quote: "Old Task 7 (edits to `src/superclaude/skills/task/SKILL.md`: consolidation text, fix agent step, cap choices, `promote` on, registry check F10) is removed."
+  citation: .dev/tasks/to-do/TASK-WF-blockerStage3-20261116-030158/source.md:34
+  match_method: containment
+  matched_task_ids: ["Constraints"]
+  best_ratio: 0.647
+- id: INF-036
+  source: inferred
+  quote: "New Task 9 adds `--promote` to the one sweep call in `src/superclaude/skills/sc-implement-protocol/SKILL.md` and `refs/managed-workspace.md`, updates the stage 2 test `tests/skills/test_implement_follow_up_sweep.py`, and leaves `refs/qa.md` unedited."
+  citation: .dev/tasks/to-do/TASK-WF-blockerStage3-20261116-030158/source.md:35
+  match_method: containment
+  matched_task_ids: ["Task 9"]
+  best_ratio: 0.765
+- id: INF-037
+  source: inferred
+  quote: "The only plugin files touched are the byte-equal twins of the two implement-protocol files Task 9 edits"
+  citation: .dev/tasks/to-do/TASK-WF-blockerStage3-20261116-030158/source.md:36
+  match_method: containment
+  matched_task_ids: ["Constraints"]
+  best_ratio: 0.889
+- id: INF-038
+  source: inferred
+  quote: "Task 10 (old Task 8) adds `test_review_severity_registry.py`, `test_implement_follow_up_sweep.py`, `test_task_builder_merge.py` and `tests/review/test_review_rules_text.py` to the re-run list"
+  citation: .dev/tasks/to-do/TASK-WF-blockerStage3-20261116-030158/source.md:37
+  match_method: none
+  matched_task_ids: []
+  best_ratio: 0.545
+- id: INF-039
+  source: inferred
+  quote: "Task 13 (old Task 11) judges RT1 (seeded part) and RT3 from the Task 3 result and marks only the window-dependent triggers pending"
+  citation: .dev/tasks/to-do/TASK-WF-blockerStage3-20261116-030158/source.md:38
+  match_method: containment
+  matched_task_ids: ["Task 13"]
+  best_ratio: 0.867
+- id: INF-040
+  source: inferred
+  quote: "Added: the stage 4 items are not done here; retired carriers; follow-up carrier; plugin surface; no mapping of `follow-ups.md` to `review-ledger/1`; gates are read, never edited."
+  citation: .dev/tasks/to-do/TASK-WF-blockerStage3-20261116-030158/source.md:39
+  match_method: containment
+  matched_task_ids: ["Constraints"]
+  best_ratio: 0.895
+- id: INF-041
+  source: inferred
+  quote: "the stage ledger row for stage 3 must name the folders and the confirmation file; the stage 2 sweep call lines must stay free of `--promote` and `--write` until this stage."
+  citation: .dev/tasks/to-do/TASK-WF-blockerStage3-20261116-030158/source.md:41
+  match_method: containment
+  matched_task_ids: ["Constraints"]
+  best_ratio: 0.778

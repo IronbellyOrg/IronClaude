@@ -1,0 +1,81 @@
+contract_version: "1.8.0"
+status: partial                      # review verdict is PASS; partial only because REPORT.md was refused by the Write tool (see partial_reason)
+partial_reason: report_file_not_written
+verdict: PASS
+mode: pre
+tier_reached: 2
+report_path: null                    # report body is at adversarial/merged-review-card.md between <!-- BEGIN REPORT BODY --> and <!-- END REPORT BODY -->
+report_body_path: .dev/reflect/pre-TASK-WF-blockerStage4-20261116-030206-20261116185839/adversarial/merged-review-card.md
+audit_log_path: .dev/reflect/pre-TASK-WF-blockerStage4-20261116-030206-20261116185839/audit.log
+confidence_calibrated: 0.85
+escalation_rule_matched: 4
+onboarding_ran: false
+coverage_pct: null
+coverage_pct_union: 0.8846
+coverage_undefined: false
+coverage_degraded: parsed-sparse
+unmapped_requirements: []
+unmapped_requirements_union: [INF-008, INF-010, INF-020]
+findings:
+  blocking: 0
+  non_blocking: 11
+  medium: 7
+  minor: 4
+input_tree_sha256: fda3e513c47aa16be34bccc1bc3c434310609f11a43303d4c449c151942f8546
+input_tree_file_count: 22
+input_tree_snapshot_path: .dev/reflect/pre-TASK-WF-blockerStage4-20261116-030206-20261116185839/artifacts/input-snapshot.yaml
+input_drift_detected: false
+input_drift_diff: null
+citations_total: 194
+citations_revalidated: 172
+citations_dropped: 0
+citations_dropped_extrapolated: 0
+citations_inferred: 0
+citation_budget_policy: sampled
+evidence_validator_ran: true
+reviewer_cards:
+  - .dev/reflect/pre-TASK-WF-blockerStage4-20261116-030206-20261116185839/reviewer-cards/reviewer-1-card.md
+  - .dev/reflect/pre-TASK-WF-blockerStage4-20261116-030206-20261116185839/reviewer-cards/reviewer-2-card.md
+  - .dev/reflect/pre-TASK-WF-blockerStage4-20261116-030206-20261116185839/reviewer-cards/reviewer-3-card.md
+adversarial_artifacts_dir: .dev/reflect/pre-TASK-WF-blockerStage4-20261116-030206-20261116185839/adversarial/adversarial
+adversarial_convergence_score: 1.0
+adversarial_unavailable: false
+merge_method: adversarial
+t2_model_class_diversity: full
+t2_vendor_diversity: single
+t2_effective_diversity: model-only
+calibrator_diversity: degraded
+remediation_offered: false
+remediation_accepted: null
+remediation_task_path: null
+remediation_plan_path: null
+handoff_memory_key: null
+cannot_validate_without_user_input: false
+regression_present: false
+unauthorized_deviation_present: false
+blocked_by_low_confidence: false
+spec_is_wrong: false
+user_decision_required: false
+needs_human_decision: false
+per_task_verdicts: []
+interaction_effects_scanned: false
+budget_check_skipped: true
+budget_forced_tier_downgrade: false
+budget_forced_stop: false
+forced_tier: null
+promotion_action: not-applicable
+degraded_components: [calibrator-diversity, executor-class-unresolved, vendor-diversity-single, report-write-refused]
+telemetry:
+  t2_engine_requested: legacy
+  t2_engine_effective: legacy
+  executor_class_source: unknown
+  executor_class_resolved: false
+  executor_exclusion_degraded: false
+  reviewer_models: [sonnet, haiku, opus]
+  reviewer_personas: [analyzer, qa, refactorer]
+  memory_hits: 0
+  memory_misses: 2
+  memory_persist_skipped: true
+  zero_drop_flag: true
+  evidence_validator_support_weak: 6
+  fault_finder_first_agent_failed: true

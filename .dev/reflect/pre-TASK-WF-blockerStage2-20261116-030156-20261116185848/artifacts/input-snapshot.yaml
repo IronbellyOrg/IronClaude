@@ -1,0 +1,11 @@
+# Wave 0 step 0.4 input tree snapshot (UC-1). Pinned output_root = .dev/reflect/pre-TASK-WF-blockerStage2-20261116-030156-20261116185848 (outside the work-unit tree, so the output exclusion is a no-op).
+# Tree = the tasklist and the --spec file. Files only read as grounding (merged-requirements.md, OPEN-QUESTIONS.md, revision2-brief.md, the stage 1 and stage 3 plans, the earlier REPORT.md) are not part of the drift tree.
+input_tree_sha256: 120ea0672b31833a14de46deb491d2bb6544e55f95f89debb999034e15d17ca7
+file_list:
+  - path: .dev/tasks/to-do/TASK-WF-blockerStage2-20261116-030156/TASK-WF-blockerStage2-20261116-030156.md
+    sha256: d196f1de170d269cb613dbad74f68a9d81b1915e86c7c051793e144793c12716
+  - path: .dev/tasks/to-do/TASK-WF-blockerStage2-20261116-030156/source.md
+    sha256: 2ba48e754610dae971af9bcfc94c11e9e36046495d94073c03ec73156e36a6d0
+file_count: 2
+snapshot_taken_at: 2026-11-16T18:58:48Z
+git_head: f33c467b8

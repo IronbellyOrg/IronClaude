@@ -1,0 +1,7 @@
+calibrator_class: opus
+calibrator_diversity: degraded   # all three Anthropic-slot classes are reviewer classes (sonnet, haiku, opus); disjoint set empty; opus is the highest-capability class and each class has exactly one reviewer
+reviewers:
+  - {id: reviewer-1, persona: analyzer, model_class: sonnet, self_reported: 0.80, calibrated_C: 0.85, citations_checked: 29, matched: 29}
+  - {id: reviewer-2, persona: qa, model_class: haiku, self_reported: 0.90, calibrated_C: 0.83, citations_checked: 20, matched: 20}
+  - {id: reviewer-3, persona: refactorer, model_class: opus, self_reported: 0.85, calibrated_C: 0.86, citations_checked: 30, matched: 30}
+notes: "reviewer-2 reported no model id (identity not verifiable). Calibrator for reviewer-3 shares the opus class with reviewer-3 (degraded diversity)."

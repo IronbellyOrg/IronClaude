@@ -1,0 +1,19 @@
+{
+  "metrics_schema_version": "1.0",
+  "run_id": "2026-11-16T17:44:01Z-pre-stage3-rereview",
+  "skill": "sc-reflect",
+  "skill_version": "1.8.0",
+  "mode": "pre",
+  "tier_reached": 2,
+  "status": "partial",
+  "wall_clock_ms": 3389000,
+  "calibration": {"calibrator_diversity": "full", "calibrated_confidence_initial": 0.76, "calibrated_confidence_final": 0.875, "calibration_delta": 0.115},
+  "ensemble": {"t2_model_class_diversity": "degraded", "t2_vendor_diversity": "single", "t2_effective_diversity": "model-only", "reviewer_count": 2, "executor_class_resolved": true, "executor_exclusion_degraded": false},
+  "evidence_validator": {"ran": true, "citations_total": 113, "citations_revalidated": 113, "citations_dropped": 0, "citations_dropped_extrapolated": 0, "drop_rate": 0.0, "budget_policy": "full_reread"},
+  "adversarial": {"convergence_score": 0.889, "merge_method": "adversarial", "adversarial_unavailable": false, "fallback_path": null},
+  "promotion": {"action": "not-applicable", "gate_conditions_passed": 0, "gate_conditions_total": 9, "cross_fs": false},
+  "degraded_components": ["env-aliases-partial"],
+  "input_drift_detected": false,
+  "needs_human_decision": false,
+  "findings": {"total": 16, "blocking": 3, "non_blocking": 13}
+}

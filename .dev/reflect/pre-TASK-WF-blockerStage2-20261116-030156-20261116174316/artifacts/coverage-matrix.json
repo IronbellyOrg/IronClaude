@@ -1,0 +1,256 @@
+{
+ "rows": [
+  {
+   "id": "INF-001",
+   "line": 7,
+   "task": "none",
+   "ratio": 0.286,
+   "quote": "Reuse Tasks 26 to 30 of the revised 46-task plan"
+  },
+  {
+   "id": "INF-002",
+   "line": 11,
+   "task": "Task 4",
+   "ratio": 0.6,
+   "quote": "the sweep only records (`promote` off), the classifier has no authority"
+  },
+  {
+   "id": "INF-003",
+   "line": 11,
+   "task": "Task 8",
+   "ratio": 0.727,
+   "quote": "Stage 3 starts only after the owner reads this package's summary and says go"
+  },
+  {
+   "id": "INF-004",
+   "line": 13,
+   "task": "Task 7",
+   "ratio": 1.0,
+   "quote": "Run the classifier of the stage 1 modules"
+  },
+  {
+   "id": "INF-005",
+   "line": 13,
+   "task": "Task 7",
+   "ratio": 1.0,
+   "quote": "Write `./artifacts/stage2-classifier-eval.md`: agreement with the panel consensus, Cohen's kappa, confusion matrix, recall on the panel's blockers, flip rate over three replicates"
+  },
+  {
+   "id": "INF-006",
+   "line": 13,
+   "task": "Task 7",
+   "ratio": 1.0,
+   "quote": "State that it is not an authority test (OD4)."
+  },
+  {
+   "id": "INF-007",
+   "line": 14,
+   "task": "Task 8",
+   "ratio": 1.0,
+   "quote": "Write `./artifacts/shadow_summary.py` (run with `uv run python`) that reads a list of shadow-run folders and their `qa/follow-ups.md` ledgers"
+  },
+  {
+   "id": "INF-008",
+   "line": 14,
+   "task": "Task 8",
+   "ratio": 1.0,
+   "quote": "with a test over fixture ledgers"
+  },
+  {
+   "id": "INF-009",
+   "line": 14,
+   "task": "Task 8",
+   "ratio": 1.0,
+   "quote": "Then write `./artifacts/stage2-summary-for-owner.md`"
+  },
+  {
+   "id": "INF-010",
+   "line": 15,
+   "task": "none",
+   "ratio": 0.538,
+   "quote": "Acceptance lines inside this package** that a later task of the same package makes false get an end point."
+  },
+  {
+   "id": "INF-011",
+   "line": 19,
+   "task": "none",
+   "ratio": 0.286,
+   "quote": "No edit of `pragmatic.md`, `rf-qa.md`, `rf-qa-qualitative.md`, `rf-analyst.md`, templates, rule prompts, builders or researchers, and no promotion of swept rows to Blocking."
+  },
+  {
+   "id": "INF-012",
+   "line": 19,
+   "task": "none",
+   "ratio": 0.455,
+   "quote": "Do not change `sc-implement-protocol/refs/qa.md`, the own-scale primitives, the cap of 2 fix cycles or the 35 percent target."
+  },
+  {
+   "id": "INF-013",
+   "line": 19,
+   "task": "none",
+   "ratio": 0.25,
+   "quote": "No Jev call, key or account."
+  },
+  {
+   "id": "INF-014",
+   "line": 27,
+   "task": "none",
+   "ratio": 0.5,
+   "quote": "Every task that edited `src/superclaude/skills/task/SKILL.md` is dropped"
+  },
+  {
+   "id": "INF-015",
+   "line": 28,
+   "task": "Task 3",
+   "ratio": 0.765,
+   "quote": "The sweep call and the printed list moved from the task skill's \"Post-Completion Validation (Final Phase Only)\" to the final review step of `/sc:implement`"
+  },
+  {
+   "id": "INF-016",
+   "line": 28,
+   "task": "Task 3",
+   "ratio": 0.857,
+   "quote": "Record and print only: one read-only call, no `--promote`, no `--write`, no question."
+  },
+  {
+   "id": "INF-017",
+   "line": 28,
+   "task": "Task 3",
+   "ratio": 1.0,
+   "quote": "`refs/qa.md` is not edited"
+  },
+  {
+   "id": "INF-018",
+   "line": 29,
+   "task": "Task 4",
+   "ratio": 0.625,
+   "quote": "tech-research keeps its ledger-writing edit (Task 4); no sweep, no offer"
+  },
+  {
+   "id": "INF-019",
+   "line": 30,
+   "task": "Task 3",
+   "ratio": 0.667,
+   "quote": "No new plugin surface."
+  },
+  {
+   "id": "INF-020",
+   "line": 30,
+   "task": "Task 3",
+   "ratio": 0.8,
+   "quote": "copied byte for byte in Task 3"
+  },
+  {
+   "id": "INF-021",
+   "line": 31,
+   "task": "none",
+   "ratio": 0.25,
+   "quote": "`follow-ups.md` stays a separate file; no mapping to `review-ledger/1`; `ledger.py` is not edited."
+  },
+  {
+   "id": "INF-022",
+   "line": 32,
+   "task": "none",
+   "ratio": 0.375,
+   "quote": "No `/sc:implement` run, no commit, no push; `.dev/tasks` staged only."
+  },
+  {
+   "id": "INF-023",
+   "line": 36,
+   "task": "Task 2",
+   "ratio": 0.769,
+   "quote": "New Task 2 builds `follow_ups_cmd.py` (group `follow-ups`: `write`, `safety`, `sweep`, `summary`) and registers it."
+  },
+  {
+   "id": "INF-024",
+   "line": 37,
+   "task": "Task 3",
+   "ratio": 0.636,
+   "quote": "Task 5 adds a test that the unattended commands make no GitHub call and ask no question."
+  },
+  {
+   "id": "INF-025",
+   "line": 38,
+   "task": "Task 8",
+   "ratio": 0.818,
+   "quote": "Task 8's script takes `--confirmed-misses <file>` and prints \"not computable\" without it."
+  },
+  {
+   "id": "INF-026",
+   "line": 39,
+   "task": "Task 8",
+   "ratio": 0.75,
+   "quote": "Task 8 splits agreement by judge id, prints the `unavailable` count and counts no reviewer-label row."
+  },
+  {
+   "id": "INF-027",
+   "line": 40,
+   "task": "Task 7",
+   "ratio": 0.75,
+   "quote": "Task 7 (each agent is its own judge id, median of 3, blind table only, per-agent figures)."
+  },
+  {
+   "id": "INF-028",
+   "line": 41,
+   "task": "Task 8",
+   "ratio": 0.75,
+   "quote": "\"zero safety misses and no capture failure\" in Task 8 and the Constraints."
+  },
+  {
+   "id": "INF-029",
+   "line": 42,
+   "task": "Task 7",
+   "ratio": 0.643,
+   "quote": "Task 7 names PF `04-historical/master-table.md`, PF `05-scoring/consensus.md`, `stage0b-sample.md`, `fresh-findings.md` and `stage0-heldout-ids.json`, and counts `@E2` rows separately"
+  },
+  {
+   "id": "INF-030",
+   "line": 42,
+   "task": "Task 1",
+   "ratio": 0.818,
+   "quote": "Task 1 checks that the ledger holds the stage 0 and stage 1 package ids."
+  },
+  {
+   "id": "INF-031",
+   "line": 44,
+   "task": "Task 8",
+   "ratio": 0.625,
+   "quote": "Tasks 3 and 4 now name the test files explicitly"
+  },
+  {
+   "id": "INF-032",
+   "line": 44,
+   "task": "Task 3",
+   "ratio": 0.667,
+   "quote": "Task 8 adds the `git diff --stat HEAD` no-edit check."
+  },
+  {
+   "id": "INF-033",
+   "line": 45,
+   "task": "Task 1",
+   "ratio": 0.8,
+   "quote": "Task 1 opens with \"Before any edit\"."
+  },
+  {
+   "id": "INF-034",
+   "line": 46,
+   "task": "Task 3",
+   "ratio": 0.6,
+   "quote": "Task 1 fixes arguments (ledgers, deliverables, kind) and counts skipped kinds."
+  },
+  {
+   "id": "INF-035",
+   "line": 51,
+   "task": "Task 5",
+   "ratio": 0.8,
+   "quote": "Task 5 names `follow-ups summary` as the producer and Task 8 states the limit that no command emits the keys live yet."
+  },
+  {
+   "id": "INF-036",
+   "line": 53,
+   "task": "Task 4",
+   "ratio": 1.0,
+   "quote": "for every finding you grade non-blocking under your current definition"
+  }
+ ]
+}
