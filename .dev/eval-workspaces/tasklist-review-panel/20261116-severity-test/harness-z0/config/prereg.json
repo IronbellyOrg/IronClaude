@@ -1,0 +1,84 @@
+{
+  "act_bands": {
+    "C1": [
+      0.1,
+      0.4
+    ],
+    "C2": [
+      0.2,
+      0.45
+    ],
+    "C3": [
+      0.03,
+      0.15
+    ],
+    "C4": [
+      0.5,
+      0.75
+    ],
+    "C5": [
+      0.35,
+      0.6
+    ],
+    "C6": [
+      0.05,
+      0.3
+    ],
+    "C7": [
+      0.15,
+      0.35
+    ],
+    "C8": [
+      0.4,
+      0.65
+    ]
+  },
+  "arms": {
+    "panels": [
+      "Zh",
+      "RLh",
+      "Zs",
+      "RLs"
+    ],
+    "stage1": [
+      "Z0",
+      "K",
+      "RL"
+    ],
+    "stage1_harness": [
+      "Z0-raw"
+    ],
+    "stage2": [
+      "Z0",
+      "RL"
+    ]
+  },
+  "consistency": {
+    "definition": "an item reached in at least 60% of the runs of an arm (3 of 5)",
+    "primary_metric": "share of hold-out items that are consistent, per arm",
+    "reach_at": 0.6
+  },
+  "gates": {
+    "D1": "per-document median elapsed at most 1.35 x Z0 in the same block, 90th percentile at most 1.5 x, kills at most 10%",
+    "D2": "mean found fraction at least Z0 + 0.12, 90% bootstrap lower bound above Z0 + 0.04",
+    "D3": "consistent items at least Z0's count + 3",
+    "D4": "wrong blockers per run at most Z0 + 1.0, blocking findings on clean twins at most Z0 + 0.7",
+    "D5": "planted detection at least 0.4 on at least 3 of C2, C4, C5, C6, C8; documentation and HO-5: D2 holds with lower bound above 0, else the claim is withdrawn to plans only",
+    "D6": "items Z0 reaches at 0.5 or more stay within 0.1 of Z0 (blocking gate)",
+    "D7": "gain over K at least 0.04 on D2's metric, otherwise K wins",
+    "G0": "ledger_missing at most 10% in the compliance spike, luna cost per row at or below its break-even"
+  },
+  "gt_sha256": {
+    "holdout-gt/HO-2/ground-truth.json": "ca56ede69064d27ac48520d0108bb4d6022bdd70bae1c38d061c64711a046aa7",
+    "holdout-gt/HO-3/ground-truth.json": "c82b2374c99ed5c566420dee974d96b81cdb5561b9ef904239408212b8525672",
+    "holdout-gt/HX-1/ground-truth.json": "f037947d57876ec5db4d8a15f805f4e92d30a36d481a5380a9bf5994be356366",
+    "holdout-gt/HX-3/ground-truth.json": "c4582264fb0b884de5b82307048978b08a2b6073f1a44924eda93143c639d4f4"
+  },
+  "run_counts": {
+    "note": "DESIGN 12.1: 3 arms x 4 documents x 5 plus Z0-raw 3 x 5; Stage 2 without SS",
+    "per_document": 5,
+    "stage1_panel_runs": 75,
+    "stage2_panel_runs": 154
+  },
+  "schema": "rl-prereg/1"
+}
