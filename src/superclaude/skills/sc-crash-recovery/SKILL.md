@@ -154,4 +154,3 @@ The synthesis report must surface every `unscanned:` marker in a "What I could n
 - It does not run recovery commands. It proposes them.
 - It does not modify any files. Pure read-only — enforced by `allowed-tools`.
 - It does not make judgment calls about whether to abandon vs. resume work — that's the user's call, informed by your diagnosis.
-- It does not replace `/sc:load` (project-context loader). They're complementary: `/sc:load` loads project context into the session; this skill diagnoses outstanding work.

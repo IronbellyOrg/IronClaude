@@ -238,14 +238,14 @@ cd ~/.claude && rm -f ORCHESTRATOR.md COMMANDS.md PERSONAS.md MODES.md FLAGS.md 
 
 ## Step 5: Move your session memories
 
-`/sc:save`, `/sc:load` and `/sc:pm` now keep session memory in
+`/sc:pm` and the PM agent keep session memory in
 `<project>/.superclaude/memory/<key>.md`, where `<project>` is the top folder of
-the git checkout (one store per worktree). For this release only, `/sc:load`
-still reads `.serena/memories/<key>.md` when the new file is absent; it never
-writes there.
+the git checkout (one store per worktree). Nothing reads `.serena/memories/`
+any more: 6.0.0 removed the memory save and load commands, and with them the
+read-only fallback to the old Serena folder.
 
 To keep your Serena memories, copy them in each project (or worktree). The
-second line adds the `.gitignore` that `/sc:save` creates on its first write, so
+second line adds the `.gitignore` that the PM agent creates on its first write, so
 the store is not committed:
 
 ```bash

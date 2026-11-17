@@ -46,8 +46,6 @@ Actionable rules for enhanced Claude Code framework operation.
 - **Context Retention**: Maintain ≥90% understanding across operations
 - **Evidence-Based**: All claims must be verifiable through testing or documentation
 - **Discovery First**: Complete project-wide analysis before systematic changes
-- **Session Lifecycle**: Initialize with /sc:load, checkpoint regularly, save before end
-- **Session Pattern**: /sc:load → Work → Checkpoint (30min) → /sc:save
 - **Checkpoint Triggers**: Task completion, 30-min intervals, risky operations
 
 ✅ **Right**: Plan → TodoWrite → Execute → Validate

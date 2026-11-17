@@ -107,8 +107,6 @@ This page is the per-command reference: exact syntax, options, and what each com
 |---------|---------|------|----------------|
 | [`/sc:git`](#scgit---git-operations) | Git + smart commits | `git.md` | Yes |
 | [`/sc:reflect`](#screflect---tiered-reflection) | Pre/post-execution audit | `reflect.md` | Only with `--mode post` (moves the work folder on a pass unless you add `--no-promote`) |
-| `/sc:load` | Load project memory from `.superclaude/memory/` (not a resume method) | `load.md` | No |
-| `/sc:save` | Save project memory to `.superclaude/memory/` (not a resume method) | `save.md` | Report only |
 | `/sc:help` | List installed commands, skills, process levels | `help.md` | No |
 | [`/sc:graph`](#scgraph---code-graph-index-status) | Code-graph index status; builds the index only on `init` | `graph.md` | Only with `init` |
 | [`/sc:issue`](#scissue---github-issue-claim-and-create) | Claim a GitHub issue (assign, accuracy check, summary, next-step prompt, then an Orca worktree and a launched agent) or create a templated issue | `issue.md` | Yes (posts to GitHub; writes `.dev/issues/`) |
@@ -408,23 +406,6 @@ The task is found by the issue URL in its description or a custom field, or else
 
 ---
 
-### `/sc:load` - Project Context Loading
-
-**When to use:** Load project memory from the `.superclaude/memory/` files (project context, memories and checkpoints) at the start of a session. It is not a way to resume work: to continue a task, rerun `/task <task file>` or `/sc:implement <plan path>`, or reopen a tagged session with `ccsession <name>` (see [How We Work](how-we-work.md), section 3.12). It does not modify project structure or configuration, or override existing session context without a checkpoint.
-
-- For 5.0.0 only, when `<project>/.superclaude/memory/<key>.md` is absent it reads the old `<project>/.serena/memories/<key>.md` instead, read-only: it never writes there and tells you that folder is read-only history.
-- It ends its summary by pointing you to `/sc:graph status` to see whether this worktree's code-graph index is ready; it never runs `/sc:graph` itself.
-
-**Syntax:**
-
-```
-/sc:load [target] [--type project|config|deps|checkpoint] [--refresh] [--analyze]
-```
-
-**MCP servers:** none
-
----
-
 ### `/sc:pm` - Project Manager Agent
 
 **Status:** A command. It runs only when you invoke it; nothing activates it automatically.
@@ -645,20 +626,6 @@ Full option list: `~/.claude/commands/sc/roadmap.md`.
 ```bash
 /sc:roadmap spec.md tdd.md prd.md --output .dev/releases/current/example-release/
 /sc:roadmap spec.md --dry-run
-```
-
-**MCP servers:** none
-
----
-
-### `/sc:save` - Session Context Persistence
-
-**When to use:** Save session context, learnings and checkpoints to project memory in `.superclaude/memory/` so a later session can read them with `/sc:load`. It is not a way to resume work (see [How We Work](how-we-work.md), section 3.12). It does not override existing session context without checkpoint preservation.
-
-**Syntax:**
-
-```
-/sc:save [--type session|learnings|context|all] [--summarize] [--checkpoint]
 ```
 
 **MCP servers:** none
