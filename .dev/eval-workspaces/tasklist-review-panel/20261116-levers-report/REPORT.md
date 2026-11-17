@@ -96,7 +96,17 @@ HX-1 has only 2 known defects, so one run there swings the pooled mean by up to 
 ## Controls
 
 The two ember Z0 controls (sev/Z0, stronger/B) differ by a 90% interval of -0.435 to 0.083 on found fraction and -1.000 to 0.200 on wrong blockers: **pooled analysis allowed**.
-The severity test's control is interleaved with its arm in the same blocks; the stronger-panel test's arm B ran as its own block earlier (arm A is interleaved with B).
+The severity test's control is interleaved with its arm in the same blocks. In the stronger-panel test, arms A and B were interleaved with each other (22:33 to 00:40 UTC on 2026-11-16); sole2 and wonder1 then ran alone (00:47 to 02:39); sonsol, wonsol and emsol2 overlapped each other from 03:44. So arm B is 3 to 5 hours older than the last three arms.
+
+## Causes of the moved-aside runs with an error (from the other session's review)
+
+- emsol2 HO-2 r1: `claude: not found` (a short window with no Claude Code binary).
+- sonsol HO-2 r3 and wonsol HX-3 r5: `[claude-code:unrecognized_model]` for `muse-ember-1.0` and `muse-wonder-1.0` respectively (the program rejected the model name once, one reviewer each; both happened while three panels ran at once, so a link to load cannot be excluded).
+- wonsol: one run was cut short by the other session's own restart. sonsol HO-3 r3 was killed again in its rerun and stays as run; sonsol HX-1 r2 has a format-invalid reviewer report and was kept as run (not rerun).
+
+## Judging
+
+One blind Opus judge per run; a second judge on a sample (21 runs in the stronger-panel test, agreeing on all 21 found-item sets; 6 in the severity test, agreeing on all 6; 9 in the Recipe Ledger comparison, agreeing on all 9). Judge noise is not the explanation for arm differences; the answer key holds 36 items, and wrong-blocker counts depend on it.
 
 ## Limits
 
