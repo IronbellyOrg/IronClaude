@@ -260,6 +260,38 @@ def test_a_forged_release_from_the_workers_own_session_is_blocked_as_tampering(
     _assert_decision(_run(_skill("sc:implement"), tmp_path), tmp_path, "LL-IMPL", "W")
 
 
+@pytest.mark.parametrize(
+    "command",
+    [
+        f"superclaude issue-pipeline release-worker {SID}",
+        f"uv run superclaude issue-pipeline release-worker {SID}",
+        "superclaude issue-pipeline adopt-create 12",
+        "superclaude issue-pipeline record-create x",
+        "superclaude issue-pipeline record-mark x",
+        'python -c "from superclaude.cli.issue_pipeline import release"',
+    ],
+)
+def test_a_bound_worker_cannot_run_the_coordinator_side_pipeline_verbs(
+    tmp_path, command
+):
+    _bind_worker(tmp_path)
+    _assert_decision(
+        _run(_bash(command), tmp_path), tmp_path, "LL-TAMPER", "W", text=True
+    )
+
+
+@pytest.mark.parametrize(
+    "command",
+    [
+        "superclaude issue-pipeline plan-hash plan.md",
+        "superclaude issue-pipeline check-approval 12",
+    ],
+)
+def test_a_bound_worker_may_still_run_plan_hash_and_check_approval(tmp_path, command):
+    _bind_worker(tmp_path)
+    assert _allowed(_run(_bash(command), tmp_path))
+
+
 def test_a_brief_built_with_a_pending_nonce_binds_the_worker_and_one_without_does_not(
     tmp_path,
 ):

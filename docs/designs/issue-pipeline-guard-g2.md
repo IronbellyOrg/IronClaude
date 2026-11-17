@@ -33,6 +33,8 @@ Letting a bound worker run `orchestration send` and `ask` would otherwise let it
 
 If the first measurement below shows the guard cannot read the address reliably, Task 14 records the residual risk instead, in one paragraph in this note: a bound worker could message another worker, and the coordinator treats any message it did not ask for as untrusted data.
 
+**Known residual risk (found in the PR #591 review):** the guard checks only that `--to` has the shape `run:<id>`. It does not check that the id is the worker's own coordinator Run, because the hook has no trusted source for that id (neither the marker nor the pending record carries it). A bound worker that learns another Run's id could message that Run's mailbox. The coordinator must treat any message it did not ask for as untrusted data. Closing this needs the coordinator's Run id recorded in the pending record at launch; that is a follow-up, not part of this change.
+
 ## 6. Facts to measure before Task 14 chooses
 
 1. How the coordinator can read a worker's session id (the `sessions/<id>` file name, `worker-show`, a transcript or a ccsession file), and that it is the same id the guard uses. UNVERIFIED.

@@ -438,6 +438,10 @@ if [ "$LL_BRANCH" = tool ]; then
             # so install_hooks is looked for in T.
             LL_TT=$T
             case $T in *install_hooks*) LL_CLASSES+='TAMPER ' ;; esac
+            # G2: the coordinator-side issue-pipeline commands write the approval rows and the
+            # worker's release (.ok) file; a bound worker must not run them (plan-hash and
+            # check-approval stay allowed: the worker needs them).
+            case $T in *release-worker* | *release_worker* | *issue-pipeline*adopt-* | *issue-pipeline*record-* | *issue_pipeline*release* | *issue_pipeline*approval_record*) LL_CLASSES+='TAMPER ' ;; esac
             LL_CL=0 LL_CF=0 LL_SA=0 # a claude word; a claude launch flag word (whole command); an orca send or ask word
             LL_GLOB=0 # once per command: a glob character in the text
             case $T in *[\*\?\[\{]*) LL_GLOB=1 ;; esac
