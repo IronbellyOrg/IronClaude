@@ -147,3 +147,60 @@ def test_unknown_preset_still_exits_2(tmp_path):
     proc = run_ic(tmp_path, ["-p", "nosuchpreset"])
     assert proc.returncode == 2
     assert "unknown preset 'nosuchpreset'" in proc.stderr
+
+
+# ---------------------------------------------------------------------------
+# #542: only alias names resolve through a variable; everything else is literal
+# ---------------------------------------------------------------------------
+
+ALIASES = "export kimi=kimi-k2.6\n"
+
+# (arguments that carry one model value as "{v}", slot line the stub prints)
+SLOT_FORMS = [
+    (["-H", "{v}"], "HAIKU"),
+    (["--haiku", "{v}"], "HAIKU"),
+    (["-S", "{v}"], "SONNET"),
+    (["--sonnet", "{v}"], "SONNET"),
+    (["-O", "{v}"], "OPUS"),
+    (["--opus", "{v}"], "OPUS"),
+    (["{v}"], "HAIKU"),  # bare positional shortcut sets the haiku slot
+]
+
+
+def slot_args(form: list[str], value: str) -> list[str]:
+    return [a.replace("{v}", value) for a in form]
+
+
+@pytest.mark.parametrize("name", ["HOME", "PATH"])
+@pytest.mark.parametrize("form,slot", SLOT_FORMS)
+def test_environment_variable_names_are_not_resolved(tmp_path, form, slot, name):
+    proc = run_ic(tmp_path, ["--no-yolo", *slot_args(form, name)], aienv=ALIASES)
+    assert proc.returncode == 0, proc.stderr
+    assert f"{slot}={name}" in proc.stdout.splitlines()
+
+
+def test_uppercase_variable_defined_in_aienv_is_not_an_alias(tmp_path):
+    aienv = ALIASES + "export SOME_SETTING=not-a-model\n"
+    proc = run_ic(tmp_path, ["-H", "SOME_SETTING"], aienv=aienv)
+    assert "HAIKU=SOME_SETTING" in proc.stdout.splitlines()
+
+
+@pytest.mark.parametrize("form,slot", SLOT_FORMS)
+def test_lowercase_alias_from_aienv_still_resolves(tmp_path, form, slot):
+    proc = run_ic(tmp_path, slot_args(form, "kimi"), aienv=ALIASES)
+    assert proc.returncode == 0, proc.stderr
+    assert f"{slot}=kimi-k2.6" in proc.stdout.splitlines()
+
+
+def test_literal_model_ids_pass_through(tmp_path):
+    for value in ("qwen3.6-plus", "nosuchalias"):
+        proc = run_ic(tmp_path, ["-H", value], aienv=ALIASES)
+        assert f"HAIKU={value}" in proc.stdout.splitlines()
+
+
+def test_preset_values_follow_the_same_rule(tmp_path):
+    aienv = ALIASES + 'export IC_PRESET_mix="opus=HOME sonnet=PATH haiku=kimi"\n'
+    proc = run_ic(tmp_path, ["-p", "mix"], aienv=aienv)
+    assert proc.returncode == 0, proc.stderr
+    lines = proc.stdout.splitlines()
+    assert {"OPUS=HOME", "SONNET=PATH", "HAIKU=kimi-k2.6"} <= set(lines)

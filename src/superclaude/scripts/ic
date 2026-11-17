@@ -10,8 +10,8 @@
 #   ic --no-yolo                # launch claude WITHOUT --dangerously-skip-permissions
 #   ic <alias> -- <claude-args> # forward args after -- to claude
 #
-# Resolution: each model value is looked up in $IC_ALIASES (declared in ~/.aienv);
-# if no alias matches, the literal value is passed through to claude.
+# Resolution: a model value that is a lowercase name (kimi, qwen) becomes the value of
+# the variable of that name from ~/.aienv; any other value is passed to claude as is.
 #
 # ~/.aienv should define (in addition to existing exports):
 #   export kimi=kimi-k2.6
@@ -45,13 +45,14 @@ fi
 
 # Resolve a token through ~/.aienv exports; fall back to literal value.
 # Looks up $<key> via indirect expansion — e.g. resolve kimi → $kimi → kimi-k2.6.
-# Only treats the env var as an alias if its name is a "safe" shape (avoids
-# accidentally resolving PATH, HOME, etc. if a user passes those literally).
+# Only a name that starts with a lowercase letter can be an alias, as in the header
+# examples (kimi, qwen). That keeps environment variables such as PATH, HOME or
+# LITELLM_API_KEY from being picked up when a user passes those names literally.
 resolve() {
   local key="$1"
-  # Only attempt indirect expansion if key is a valid bash identifier
+  # Only attempt indirect expansion for an alias-shaped name
   # (literal model IDs like "qwen3.6-plus" contain "." / "-" and fall through).
-  if [[ "$key" =~ ^[a-zA-Z_][a-zA-Z0-9_]*$ ]] && [[ -n "${!key:-}" ]]; then
+  if [[ "$key" =~ ^[a-z][a-zA-Z0-9_]*$ ]] && [[ -n "${!key:-}" ]]; then
     printf '%s' "${!key}"
   else
     printf '%s' "$key"
