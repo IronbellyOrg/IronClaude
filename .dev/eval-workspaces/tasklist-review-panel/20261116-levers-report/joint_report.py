@@ -257,10 +257,9 @@ json.dump(res, open(out / "metrics.json", "w"), indent=1, default=str)
 
 f3 = lambda x: "-" if x is None else f"{x:.3f}"
 L = ["# Joint report: levers on the plain ember panel, four hold-out plans", ""]
-_plain = Path(__file__).resolve().parent / "SUMMARY-plain.md"
-if _plain.exists():  # hand-written plain-language summary (owner order 2026-11-17); the tables below are generated
-    L += [_plain.read_text().rstrip(), ""]
-L += [f"Built by `joint_report.py` from {res['n_runs_scored']} scored runs; rerun it to reproduce every number in the tables. The summary above and the notes after the tables are hand-written.", ""]
+L += ["**Full experiment write-up (statistics, why each model behaved as it did, recommendations): "
+      "`../20261116-stronger-panel/EXPERIMENT-REPORT.md`. How to read this report: `READING.md` in this folder.**", ""]
+L += [f"Built by `joint_report.py` from {res['n_runs_scored']} scored runs; rerun it to reproduce every number in the tables. The notes after the tables are hand-written.", ""]
 for view in ("as_run", "rerun_substituted"):
     L += [f"## All arms ({view.replace('_', ' ')})", "",
           "| Source/arm | runs | found fraction | blocking found | wrong blockers/run | blocking precision | median s | load at start (other claude processes, min-max) | runs with a killed reviewer |", "|---|---|---|---|---|---|---|---|---|"]

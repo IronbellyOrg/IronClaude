@@ -15,6 +15,21 @@
 7. **The narrowed severity rule** passed G1 (wrong blockers), G2 (real blockers) and G4 (time) and failed G3 (found fraction -0.076, all of it from HX-1); the sensitivity table shows it ahead of its control on the other three plans.
 8. **Recipe Ledger** failed D1, D2, D3 and D6 in its frozen test; the lever table lists it for context (found fraction +0.036).
 
+## Added 2026-11-17 from the other session's full report (`../20261116-stronger-panel/EXPERIMENT-REPORT.md`, section 3.2)
+
+The "only wonsol is a lever" statement in point 1 holds only for the registered metric (mean of per-run found fractions, every plan weighted equally). The other session re-ran the same bootstrap (`../20261116-stronger-panel/analysis/arms-items.py`, output `arms-items-results.txt`; quoted here, not recomputed by `joint_report.py`):
+
+| Arm | Registered | Every defect equal (36) | Registered, no HX-1 | Every defect equal, no HX-1 |
+|---|---|---|---|---|
+| A (Sonnet in seat S) | +0.050 (bound -0.154) | **+0.139 (+0.023)** | **+0.167 (+0.100)** | **+0.165 (+0.100)** |
+| sole2 | +0.092 (-0.033) | +0.033 (-0.032) | +0.023 (-0.039) | +0.018 (-0.039) |
+| wonder1 | +0.126 (-0.013) | +0.072 (-0.013) | +0.068 (-0.028) | +0.059 (-0.028) |
+| sonsol (Sonnet in seat S) | +0.125 (-0.029) | **+0.150 (+0.057)** | **+0.167 (+0.078)** | **+0.159 (+0.078)** |
+| wonsol | **+0.243 (+0.032)** | +0.117 (+0.021) | +0.091 (-0.006) | +0.082 (-0.006) |
+| emsol2 | +0.132 (-0.025) | +0.033 (-0.030) | +0.010 (-0.044) | +0.006 (-0.044) |
+
+Reading: the winner depends on the weighting. The two arms with Sonnet in seat S (A and sonsol) are levers whenever the large plans carry their weight; wonsol is a lever on the registered metric and, by a smaller margin, with every defect equal, but not without HX-1. My leave-one-plan-out table shows the same HX-1 effect. One correction to the other report: its recommendation 3 calls sonsol "the only arm" that is a lever on the three larger-plan weightings; by its own table arm A is too (A is cheaper in neither time nor accuracy: 3.4 times the time, 1.10 wrong blockers). Per-model behaviour, per-seat effects and the 8 of 36 defects no arm found are in that report (sections 4 and 3.3), from its own per-reviewer tables, which this report does not reproduce.
+
 ## What this means for the review panel's goals
 
 - **A different reviewer panel is the more promising lever than a process redesign or a brief rule on these plans,** but only one arm shows it, with a lead that depends on a 2-defect plan, a low control and a 1.8 times time cost. It is a candidate for a confirming test, not an adoption.
