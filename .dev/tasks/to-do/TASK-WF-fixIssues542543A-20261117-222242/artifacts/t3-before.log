@@ -1,0 +1,151 @@
+============================= test session starts ==============================
+platform linux -- Python 3.10.20, pytest-9.2.0, pluggy-1.7.0 -- /home/coder/workspaces/worktrees/IronClaude/v6-ic-launcher-fixes/.venv/bin/python3
+SuperClaude: 5.0.0
+benchmark: 5.3.1 (defaults: timer=time.perf_counter disable_gc=False min_rounds=5 min_time=0.000005 max_time=1.0 calibration_precision=10 warmup=False warmup_iterations=100000)
+rootdir: /home/coder/workspaces/worktrees/IronClaude/v6-ic-launcher-fixes
+configfile: pyproject.toml
+plugins: superclaude-5.0.0, benchmark-5.3.1, anyio-4.16.0, cov-7.1.0, xdist-3.8.0
+collecting ... collected 41 items
+
+tests/cli/test_ic_launcher.py::test_help_works_when_aienv_file_fails[--help] PASSED [  2%]
+tests/cli/test_ic_launcher.py::test_help_works_when_aienv_file_fails[-h] PASSED [  4%]
+tests/cli/test_ic_launcher.py::test_help_works_when_aienv_file_is_missing PASSED [  7%]
+tests/cli/test_ic_launcher.py::test_normal_launch_still_stops_on_failing_aienv_file PASSED [  9%]
+tests/cli/test_ic_launcher.py::test_arguments_after_double_dash_are_not_help PASSED [ 12%]
+tests/cli/test_ic_launcher.py::test_option_value_named_help_is_not_help PASSED [ 14%]
+tests/cli/test_ic_launcher.py::test_option_without_value_prints_a_clear_message[-p] PASSED [ 17%]
+tests/cli/test_ic_launcher.py::test_option_without_value_prints_a_clear_message[--preset] PASSED [ 19%]
+tests/cli/test_ic_launcher.py::test_option_without_value_prints_a_clear_message[-H] PASSED [ 21%]
+tests/cli/test_ic_launcher.py::test_option_without_value_prints_a_clear_message[--haiku] PASSED [ 24%]
+tests/cli/test_ic_launcher.py::test_option_without_value_prints_a_clear_message[-S] PASSED [ 26%]
+tests/cli/test_ic_launcher.py::test_option_without_value_prints_a_clear_message[--sonnet] PASSED [ 29%]
+tests/cli/test_ic_launcher.py::test_option_without_value_prints_a_clear_message[-O] PASSED [ 31%]
+tests/cli/test_ic_launcher.py::test_option_without_value_prints_a_clear_message[--opus] PASSED [ 34%]
+tests/cli/test_ic_launcher.py::test_option_without_value_after_other_arguments PASSED [ 36%]
+tests/cli/test_ic_launcher.py::test_preset_with_a_value_still_sets_every_slot PASSED [ 39%]
+tests/cli/test_ic_launcher.py::test_unknown_preset_still_exits_2 PASSED  [ 41%]
+tests/cli/test_ic_launcher.py::test_environment_variable_names_are_not_resolved[form0-HAIKU-HOME] FAILED [ 43%]
+tests/cli/test_ic_launcher.py::test_environment_variable_names_are_not_resolved[form0-HAIKU-PATH] FAILED [ 46%]
+tests/cli/test_ic_launcher.py::test_environment_variable_names_are_not_resolved[form1-HAIKU-HOME] FAILED [ 48%]
+tests/cli/test_ic_launcher.py::test_environment_variable_names_are_not_resolved[form1-HAIKU-PATH] FAILED [ 51%]
+tests/cli/test_ic_launcher.py::test_environment_variable_names_are_not_resolved[form2-SONNET-HOME] FAILED [ 53%]
+tests/cli/test_ic_launcher.py::test_environment_variable_names_are_not_resolved[form2-SONNET-PATH] FAILED [ 56%]
+tests/cli/test_ic_launcher.py::test_environment_variable_names_are_not_resolved[form3-SONNET-HOME] FAILED [ 58%]
+tests/cli/test_ic_launcher.py::test_environment_variable_names_are_not_resolved[form3-SONNET-PATH] FAILED [ 60%]
+tests/cli/test_ic_launcher.py::test_environment_variable_names_are_not_resolved[form4-OPUS-HOME] FAILED [ 63%]
+tests/cli/test_ic_launcher.py::test_environment_variable_names_are_not_resolved[form4-OPUS-PATH] FAILED [ 65%]
+tests/cli/test_ic_launcher.py::test_environment_variable_names_are_not_resolved[form5-OPUS-HOME] FAILED [ 68%]
+tests/cli/test_ic_launcher.py::test_environment_variable_names_are_not_resolved[form5-OPUS-PATH] FAILED [ 70%]
+tests/cli/test_ic_launcher.py::test_environment_variable_names_are_not_resolved[form6-HAIKU-HOME] FAILED [ 73%]
+tests/cli/test_ic_launcher.py::test_environment_variable_names_are_not_resolved[form6-HAIKU-PATH] FAILED [ 75%]
+tests/cli/test_ic_launcher.py::test_uppercase_variable_defined_in_aienv_is_not_an_alias FAILED [ 78%]
+tests/cli/test_ic_launcher.py::test_lowercase_alias_from_aienv_still_resolves[form0-HAIKU] PASSED [ 80%]
+tests/cli/test_ic_launcher.py::test_lowercase_alias_from_aienv_still_resolves[form1-HAIKU] PASSED [ 82%]
+tests/cli/test_ic_launcher.py::test_lowercase_alias_from_aienv_still_resolves[form2-SONNET] PASSED [ 85%]
+tests/cli/test_ic_launcher.py::test_lowercase_alias_from_aienv_still_resolves[form3-SONNET] PASSED [ 87%]
+tests/cli/test_ic_launcher.py::test_lowercase_alias_from_aienv_still_resolves[form4-OPUS] PASSED [ 90%]
+tests/cli/test_ic_launcher.py::test_lowercase_alias_from_aienv_still_resolves[form5-OPUS] PASSED [ 92%]
+tests/cli/test_ic_launcher.py::test_lowercase_alias_from_aienv_still_resolves[form6-HAIKU] PASSED [ 95%]
+tests/cli/test_ic_launcher.py::test_literal_model_ids_pass_through PASSED [ 97%]
+tests/cli/test_ic_launcher.py::test_preset_values_follow_the_same_rule FAILED [100%]
+
+=================================== FAILURES ===================================
+E   AssertionError: assert 'HAIKU=HOME' in ['ran-claude', 'OPUS=', 'SONNET=', 'HAIKU=/tmp/pytest-of-coder/pytest-127/test_environment_variable_name0/home']
+     +  where ['ran-claude', 'OPUS=', 'SONNET=', 'HAIKU=/tmp/pytest-of-coder/pytest-127/test_environment_variable_name0/home'] = <built-in method splitlines of str object at 0x7b3075895ed0>()
+     +    where <built-in method splitlines of str object at 0x7b3075895ed0> = 'ran-claude\nOPUS=\nSONNET=\nHAIKU=/tmp/pytest-of-coder/pytest-127/test_environment_variable_name0/home\n'.splitlines
+     +      where 'ran-claude\nOPUS=\nSONNET=\nHAIKU=/tmp/pytest-of-coder/pytest-127/test_environment_variable_name0/home\n' = CompletedProcess(args=['bash', '/home/coder/workspaces/worktrees/IronClaude/v6-ic-launcher-fixes/src/superclaude/scripts/ic', '--no-yolo', '-H', 'HOME'], returncode=0, stdout='ran-claude\nOPUS=\nSONNET=\nHAIKU=/tmp/pytest-of-coder/pytest-127/test_environment_variable_name0/home\n', stderr='').stdout
+/home/coder/workspaces/worktrees/IronClaude/v6-ic-launcher-fixes/tests/cli/test_ic_launcher.py:179: AssertionError: assert 'HAIKU=HOME' in ['ran-claude', 'OPUS=', 'SONNET=', 'HAIKU=/tmp/pytest-of-coder/pytest-127/test_environment_variable_name0/home']
+E   AssertionError: assert 'HAIKU=PATH' in ['ran-claude', 'OPUS=', 'SONNET=', 'HAIKU=/tmp/pytest-of-coder/pytest-127/test_environment_variable_name1/bin:/usr/bin:/bin']
+     +  where ['ran-claude', 'OPUS=', 'SONNET=', 'HAIKU=/tmp/pytest-of-coder/pytest-127/test_environment_variable_name1/bin:/usr/bin:/bin'] = <built-in method splitlines of str object at 0x7b307562d370>()
+     +    where <built-in method splitlines of str object at 0x7b307562d370> = 'ran-claude\nOPUS=\nSONNET=\nHAIKU=/tmp/pytest-of-coder/pytest-127/test_environment_variable_name1/bin:/usr/bin:/bin\n'.splitlines
+     +      where 'ran-claude\nOPUS=\nSONNET=\nHAIKU=/tmp/pytest-of-coder/pytest-127/test_environment_variable_name1/bin:/usr/bin:/bin\n' = CompletedProcess(args=['bash', '/home/coder/workspaces/worktrees/IronClaude/v6-ic-launcher-fixes/src/superclaude/scripts/ic', '--no-yolo', '-H', 'PATH'], returncode=0, stdout='ran-claude\nOPUS=\nSONNET=\nHAIKU=/tmp/pytest-of-coder/pytest-127/test_environment_variable_name1/bin:/usr/bin:/bin\n', stderr='').stdout
+/home/coder/workspaces/worktrees/IronClaude/v6-ic-launcher-fixes/tests/cli/test_ic_launcher.py:179: AssertionError: assert 'HAIKU=PATH' in ['ran-claude', 'OPUS=', 'SONNET=', 'HAIKU=/tmp/pytest-of-coder/pytest-127/test_environment_variable_name1/bin:/usr/bin:/bin']
+E   AssertionError: assert 'HAIKU=HOME' in ['ran-claude', 'OPUS=', 'SONNET=', 'HAIKU=/tmp/pytest-of-coder/pytest-127/test_environment_variable_name2/home']
+     +  where ['ran-claude', 'OPUS=', 'SONNET=', 'HAIKU=/tmp/pytest-of-coder/pytest-127/test_environment_variable_name2/home'] = <built-in method splitlines of str object at 0x7b3075897f50>()
+     +    where <built-in method splitlines of str object at 0x7b3075897f50> = 'ran-claude\nOPUS=\nSONNET=\nHAIKU=/tmp/pytest-of-coder/pytest-127/test_environment_variable_name2/home\n'.splitlines
+     +      where 'ran-claude\nOPUS=\nSONNET=\nHAIKU=/tmp/pytest-of-coder/pytest-127/test_environment_variable_name2/home\n' = CompletedProcess(args=['bash', '/home/coder/workspaces/worktrees/IronClaude/v6-ic-launcher-fixes/src/superclaude/scripts/ic', '--no-yolo', '--haiku', 'HOME'], returncode=0, stdout='ran-claude\nOPUS=\nSONNET=\nHAIKU=/tmp/pytest-of-coder/pytest-127/test_environment_variable_name2/home\n', stderr='').stdout
+/home/coder/workspaces/worktrees/IronClaude/v6-ic-launcher-fixes/tests/cli/test_ic_launcher.py:179: AssertionError: assert 'HAIKU=HOME' in ['ran-claude', 'OPUS=', 'SONNET=', 'HAIKU=/tmp/pytest-of-coder/pytest-127/test_environment_variable_name2/home']
+E   AssertionError: assert 'HAIKU=PATH' in ['ran-claude', 'OPUS=', 'SONNET=', 'HAIKU=/tmp/pytest-of-coder/pytest-127/test_environment_variable_name3/bin:/usr/bin:/bin']
+     +  where ['ran-claude', 'OPUS=', 'SONNET=', 'HAIKU=/tmp/pytest-of-coder/pytest-127/test_environment_variable_name3/bin:/usr/bin:/bin'] = <built-in method splitlines of str object at 0x7b307562e1e0>()
+     +    where <built-in method splitlines of str object at 0x7b307562e1e0> = 'ran-claude\nOPUS=\nSONNET=\nHAIKU=/tmp/pytest-of-coder/pytest-127/test_environment_variable_name3/bin:/usr/bin:/bin\n'.splitlines
+     +      where 'ran-claude\nOPUS=\nSONNET=\nHAIKU=/tmp/pytest-of-coder/pytest-127/test_environment_variable_name3/bin:/usr/bin:/bin\n' = CompletedProcess(args=['bash', '/home/coder/workspaces/worktrees/IronClaude/v6-ic-launcher-fixes/src/superclaude/scripts/ic', '--no-yolo', '--haiku', 'PATH'], returncode=0, stdout='ran-claude\nOPUS=\nSONNET=\nHAIKU=/tmp/pytest-of-coder/pytest-127/test_environment_variable_name3/bin:/usr/bin:/bin\n', stderr='').stdout
+/home/coder/workspaces/worktrees/IronClaude/v6-ic-launcher-fixes/tests/cli/test_ic_launcher.py:179: AssertionError: assert 'HAIKU=PATH' in ['ran-claude', 'OPUS=', 'SONNET=', 'HAIKU=/tmp/pytest-of-coder/pytest-127/test_environment_variable_name3/bin:/usr/bin:/bin']
+E   AssertionError: assert 'SONNET=HOME' in ['ran-claude', 'OPUS=', 'SONNET=/tmp/pytest-of-coder/pytest-127/test_environment_variable_name4/home', 'HAIKU=']
+     +  where ['ran-claude', 'OPUS=', 'SONNET=/tmp/pytest-of-coder/pytest-127/test_environment_variable_name4/home', 'HAIKU='] = <built-in method splitlines of str object at 0x7b307560c170>()
+     +    where <built-in method splitlines of str object at 0x7b307560c170> = 'ran-claude\nOPUS=\nSONNET=/tmp/pytest-of-coder/pytest-127/test_environment_variable_name4/home\nHAIKU=\n'.splitlines
+     +      where 'ran-claude\nOPUS=\nSONNET=/tmp/pytest-of-coder/pytest-127/test_environment_variable_name4/home\nHAIKU=\n' = CompletedProcess(args=['bash', '/home/coder/workspaces/worktrees/IronClaude/v6-ic-launcher-fixes/src/superclaude/scripts/ic', '--no-yolo', '-S', 'HOME'], returncode=0, stdout='ran-claude\nOPUS=\nSONNET=/tmp/pytest-of-coder/pytest-127/test_environment_variable_name4/home\nHAIKU=\n', stderr='').stdout
+/home/coder/workspaces/worktrees/IronClaude/v6-ic-launcher-fixes/tests/cli/test_ic_launcher.py:179: AssertionError: assert 'SONNET=HOME' in ['ran-claude', 'OPUS=', 'SONNET=/tmp/pytest-of-coder/pytest-127/test_environment_variable_name4/home', 'HAIKU=']
+E   AssertionError: assert 'SONNET=PATH' in ['ran-claude', 'OPUS=', 'SONNET=/tmp/pytest-of-coder/pytest-127/test_environment_variable_name5/bin:/usr/bin:/bin', 'HAIKU=']
+     +  where ['ran-claude', 'OPUS=', 'SONNET=/tmp/pytest-of-coder/pytest-127/test_environment_variable_name5/bin:/usr/bin:/bin', 'HAIKU='] = <built-in method splitlines of str object at 0x7b307562f050>()
+     +    where <built-in method splitlines of str object at 0x7b307562f050> = 'ran-claude\nOPUS=\nSONNET=/tmp/pytest-of-coder/pytest-127/test_environment_variable_name5/bin:/usr/bin:/bin\nHAIKU=\n'.splitlines
+     +      where 'ran-claude\nOPUS=\nSONNET=/tmp/pytest-of-coder/pytest-127/test_environment_variable_name5/bin:/usr/bin:/bin\nHAIKU=\n' = CompletedProcess(args=['bash', '/home/coder/workspaces/worktrees/IronClaude/v6-ic-launcher-fixes/src/superclaude/scripts/ic', '--no-yolo', '-S', 'PATH'], returncode=0, stdout='ran-claude\nOPUS=\nSONNET=/tmp/pytest-of-coder/pytest-127/test_environment_variable_name5/bin:/usr/bin:/bin\nHAIKU=\n', stderr='').stdout
+/home/coder/workspaces/worktrees/IronClaude/v6-ic-launcher-fixes/tests/cli/test_ic_launcher.py:179: AssertionError: assert 'SONNET=PATH' in ['ran-claude', 'OPUS=', 'SONNET=/tmp/pytest-of-coder/pytest-127/test_environment_variable_name5/bin:/usr/bin:/bin', 'HAIKU=']
+E   AssertionError: assert 'SONNET=HOME' in ['ran-claude', 'OPUS=', 'SONNET=/tmp/pytest-of-coder/pytest-127/test_environment_variable_name6/home', 'HAIKU=']
+     +  where ['ran-claude', 'OPUS=', 'SONNET=/tmp/pytest-of-coder/pytest-127/test_environment_variable_name6/home', 'HAIKU='] = <built-in method splitlines of str object at 0x7b307560c170>()
+     +    where <built-in method splitlines of str object at 0x7b307560c170> = 'ran-claude\nOPUS=\nSONNET=/tmp/pytest-of-coder/pytest-127/test_environment_variable_name6/home\nHAIKU=\n'.splitlines
+     +      where 'ran-claude\nOPUS=\nSONNET=/tmp/pytest-of-coder/pytest-127/test_environment_variable_name6/home\nHAIKU=\n' = CompletedProcess(args=['bash', '/home/coder/workspaces/worktrees/IronClaude/v6-ic-launcher-fixes/src/superclaude/scripts/ic', '--no-yolo', '--sonnet', 'HOME'], returncode=0, stdout='ran-claude\nOPUS=\nSONNET=/tmp/pytest-of-coder/pytest-127/test_environment_variable_name6/home\nHAIKU=\n', stderr='').stdout
+/home/coder/workspaces/worktrees/IronClaude/v6-ic-launcher-fixes/tests/cli/test_ic_launcher.py:179: AssertionError: assert 'SONNET=HOME' in ['ran-claude', 'OPUS=', 'SONNET=/tmp/pytest-of-coder/pytest-127/test_environment_variable_name6/home', 'HAIKU=']
+E   AssertionError: assert 'SONNET=PATH' in ['ran-claude', 'OPUS=', 'SONNET=/tmp/pytest-of-coder/pytest-127/test_environment_variable_name7/bin:/usr/bin:/bin', 'HAIKU=']
+     +  where ['ran-claude', 'OPUS=', 'SONNET=/tmp/pytest-of-coder/pytest-127/test_environment_variable_name7/bin:/usr/bin:/bin', 'HAIKU='] = <built-in method splitlines of str object at 0x7b307562f260>()
+     +    where <built-in method splitlines of str object at 0x7b307562f260> = 'ran-claude\nOPUS=\nSONNET=/tmp/pytest-of-coder/pytest-127/test_environment_variable_name7/bin:/usr/bin:/bin\nHAIKU=\n'.splitlines
+     +      where 'ran-claude\nOPUS=\nSONNET=/tmp/pytest-of-coder/pytest-127/test_environment_variable_name7/bin:/usr/bin:/bin\nHAIKU=\n' = CompletedProcess(args=['bash', '/home/coder/workspaces/worktrees/IronClaude/v6-ic-launcher-fixes/src/superclaude/scripts/ic', '--no-yolo', '--sonnet', 'PATH'], returncode=0, stdout='ran-claude\nOPUS=\nSONNET=/tmp/pytest-of-coder/pytest-127/test_environment_variable_name7/bin:/usr/bin:/bin\nHAIKU=\n', stderr='').stdout
+/home/coder/workspaces/worktrees/IronClaude/v6-ic-launcher-fixes/tests/cli/test_ic_launcher.py:179: AssertionError: assert 'SONNET=PATH' in ['ran-claude', 'OPUS=', 'SONNET=/tmp/pytest-of-coder/pytest-127/test_environment_variable_name7/bin:/usr/bin:/bin', 'HAIKU=']
+E   AssertionError: assert 'OPUS=HOME' in ['ran-claude', 'OPUS=/tmp/pytest-of-coder/pytest-127/test_environment_variable_name8/home', 'SONNET=', 'HAIKU=']
+     +  where ['ran-claude', 'OPUS=/tmp/pytest-of-coder/pytest-127/test_environment_variable_name8/home', 'SONNET=', 'HAIKU='] = <built-in method splitlines of str object at 0x7b307560c210>()
+     +    where <built-in method splitlines of str object at 0x7b307560c210> = 'ran-claude\nOPUS=/tmp/pytest-of-coder/pytest-127/test_environment_variable_name8/home\nSONNET=\nHAIKU=\n'.splitlines
+     +      where 'ran-claude\nOPUS=/tmp/pytest-of-coder/pytest-127/test_environment_variable_name8/home\nSONNET=\nHAIKU=\n' = CompletedProcess(args=['bash', '/home/coder/workspaces/worktrees/IronClaude/v6-ic-launcher-fixes/src/superclaude/scripts/ic', '--no-yolo', '-O', 'HOME'], returncode=0, stdout='ran-claude\nOPUS=/tmp/pytest-of-coder/pytest-127/test_environment_variable_name8/home\nSONNET=\nHAIKU=\n', stderr='').stdout
+/home/coder/workspaces/worktrees/IronClaude/v6-ic-launcher-fixes/tests/cli/test_ic_launcher.py:179: AssertionError: assert 'OPUS=HOME' in ['ran-claude', 'OPUS=/tmp/pytest-of-coder/pytest-127/test_environment_variable_name8/home', 'SONNET=', 'HAIKU=']
+E   AssertionError: assert 'OPUS=PATH' in ['ran-claude', 'OPUS=/tmp/pytest-of-coder/pytest-127/test_environment_variable_name9/bin:/usr/bin:/bin', 'SONNET=', 'HAIKU=']
+     +  where ['ran-claude', 'OPUS=/tmp/pytest-of-coder/pytest-127/test_environment_variable_name9/bin:/usr/bin:/bin', 'SONNET=', 'HAIKU='] = <built-in method splitlines of str object at 0x7b30755e0190>()
+     +    where <built-in method splitlines of str object at 0x7b30755e0190> = 'ran-claude\nOPUS=/tmp/pytest-of-coder/pytest-127/test_environment_variable_name9/bin:/usr/bin:/bin\nSONNET=\nHAIKU=\n'.splitlines
+     +      where 'ran-claude\nOPUS=/tmp/pytest-of-coder/pytest-127/test_environment_variable_name9/bin:/usr/bin:/bin\nSONNET=\nHAIKU=\n' = CompletedProcess(args=['bash', '/home/coder/workspaces/worktrees/IronClaude/v6-ic-launcher-fixes/src/superclaude/scripts/ic', '--no-yolo', '-O', 'PATH'], returncode=0, stdout='ran-claude\nOPUS=/tmp/pytest-of-coder/pytest-127/test_environment_variable_name9/bin:/usr/bin:/bin\nSONNET=\nHAIKU=\n', stderr='').stdout
+/home/coder/workspaces/worktrees/IronClaude/v6-ic-launcher-fixes/tests/cli/test_ic_launcher.py:179: AssertionError: assert 'OPUS=PATH' in ['ran-claude', 'OPUS=/tmp/pytest-of-coder/pytest-127/test_environment_variable_name9/bin:/usr/bin:/bin', 'SONNET=', 'HAIKU=']
+E   AssertionError: assert 'OPUS=HOME' in ['ran-claude', 'OPUS=/tmp/pytest-of-coder/pytest-127/test_environment_variable_name10/home', 'SONNET=', 'HAIKU=']
+     +  where ['ran-claude', 'OPUS=/tmp/pytest-of-coder/pytest-127/test_environment_variable_name10/home', 'SONNET=', 'HAIKU='] = <built-in method splitlines of str object at 0x7b307560c670>()
+     +    where <built-in method splitlines of str object at 0x7b307560c670> = 'ran-claude\nOPUS=/tmp/pytest-of-coder/pytest-127/test_environment_variable_name10/home\nSONNET=\nHAIKU=\n'.splitlines
+     +      where 'ran-claude\nOPUS=/tmp/pytest-of-coder/pytest-127/test_environment_variable_name10/home\nSONNET=\nHAIKU=\n' = CompletedProcess(args=['bash', '/home/coder/workspaces/worktrees/IronClaude/v6-ic-launcher-fixes/src/superclaude/scripts/ic', '--no-yolo', '--opus', 'HOME'], returncode=0, stdout='ran-claude\nOPUS=/tmp/pytest-of-coder/pytest-127/test_environment_variable_name10/home\nSONNET=\nHAIKU=\n', stderr='').stdout
+/home/coder/workspaces/worktrees/IronClaude/v6-ic-launcher-fixes/tests/cli/test_ic_launcher.py:179: AssertionError: assert 'OPUS=HOME' in ['ran-claude', 'OPUS=/tmp/pytest-of-coder/pytest-127/test_environment_variable_name10/home', 'SONNET=', 'HAIKU=']
+E   AssertionError: assert 'OPUS=PATH' in ['ran-claude', 'OPUS=/tmp/pytest-of-coder/pytest-127/test_environment_variable_name11/bin:/usr/bin:/bin', 'SONNET=', 'HAIKU=']
+     +  where ['ran-claude', 'OPUS=/tmp/pytest-of-coder/pytest-127/test_environment_variable_name11/bin:/usr/bin:/bin', 'SONNET=', 'HAIKU='] = <built-in method splitlines of str object at 0x7b30755e0c90>()
+     +    where <built-in method splitlines of str object at 0x7b30755e0c90> = 'ran-claude\nOPUS=/tmp/pytest-of-coder/pytest-127/test_environment_variable_name11/bin:/usr/bin:/bin\nSONNET=\nHAIKU=\n'.splitlines
+     +      where 'ran-claude\nOPUS=/tmp/pytest-of-coder/pytest-127/test_environment_variable_name11/bin:/usr/bin:/bin\nSONNET=\nHAIKU=\n' = CompletedProcess(args=['bash', '/home/coder/workspaces/worktrees/IronClaude/v6-ic-launcher-fixes/src/superclaude/scripts/ic', '--no-yolo', '--opus', 'PATH'], returncode=0, stdout='ran-claude\nOPUS=/tmp/pytest-of-coder/pytest-127/test_environment_variable_name11/bin:/usr/bin:/bin\nSONNET=\nHAIKU=\n', stderr='').stdout
+/home/coder/workspaces/worktrees/IronClaude/v6-ic-launcher-fixes/tests/cli/test_ic_launcher.py:179: AssertionError: assert 'OPUS=PATH' in ['ran-claude', 'OPUS=/tmp/pytest-of-coder/pytest-127/test_environment_variable_name11/bin:/usr/bin:/bin', 'SONNET=', 'HAIKU=']
+E   AssertionError: assert 'HAIKU=HOME' in ['ran-claude', 'OPUS=', 'SONNET=', 'HAIKU=/tmp/pytest-of-coder/pytest-127/test_environment_variable_name12/home']
+     +  where ['ran-claude', 'OPUS=', 'SONNET=', 'HAIKU=/tmp/pytest-of-coder/pytest-127/test_environment_variable_name12/home'] = <built-in method splitlines of str object at 0x7b307560c8f0>()
+     +    where <built-in method splitlines of str object at 0x7b307560c8f0> = 'ran-claude\nOPUS=\nSONNET=\nHAIKU=/tmp/pytest-of-coder/pytest-127/test_environment_variable_name12/home\n'.splitlines
+     +      where 'ran-claude\nOPUS=\nSONNET=\nHAIKU=/tmp/pytest-of-coder/pytest-127/test_environment_variable_name12/home\n' = CompletedProcess(args=['bash', '/home/coder/workspaces/worktrees/IronClaude/v6-ic-launcher-fixes/src/superclaude/scripts/ic', '--no-yolo', 'HOME'], returncode=0, stdout='ran-claude\nOPUS=\nSONNET=\nHAIKU=/tmp/pytest-of-coder/pytest-127/test_environment_variable_name12/home\n', stderr='').stdout
+/home/coder/workspaces/worktrees/IronClaude/v6-ic-launcher-fixes/tests/cli/test_ic_launcher.py:179: AssertionError: assert 'HAIKU=HOME' in ['ran-claude', 'OPUS=', 'SONNET=', 'HAIKU=/tmp/pytest-of-coder/pytest-127/test_environment_variable_name12/home']
+E   AssertionError: assert 'HAIKU=PATH' in ['ran-claude', 'OPUS=', 'SONNET=', 'HAIKU=/tmp/pytest-of-coder/pytest-127/test_environment_variable_name13/bin:/usr/bin:/bin']
+     +  where ['ran-claude', 'OPUS=', 'SONNET=', 'HAIKU=/tmp/pytest-of-coder/pytest-127/test_environment_variable_name13/bin:/usr/bin:/bin'] = <built-in method splitlines of str object at 0x7b30755e1210>()
+     +    where <built-in method splitlines of str object at 0x7b30755e1210> = 'ran-claude\nOPUS=\nSONNET=\nHAIKU=/tmp/pytest-of-coder/pytest-127/test_environment_variable_name13/bin:/usr/bin:/bin\n'.splitlines
+     +      where 'ran-claude\nOPUS=\nSONNET=\nHAIKU=/tmp/pytest-of-coder/pytest-127/test_environment_variable_name13/bin:/usr/bin:/bin\n' = CompletedProcess(args=['bash', '/home/coder/workspaces/worktrees/IronClaude/v6-ic-launcher-fixes/src/superclaude/scripts/ic', '--no-yolo', 'PATH'], returncode=0, stdout='ran-claude\nOPUS=\nSONNET=\nHAIKU=/tmp/pytest-of-coder/pytest-127/test_environment_variable_name13/bin:/usr/bin:/bin\n', stderr='').stdout
+/home/coder/workspaces/worktrees/IronClaude/v6-ic-launcher-fixes/tests/cli/test_ic_launcher.py:179: AssertionError: assert 'HAIKU=PATH' in ['ran-claude', 'OPUS=', 'SONNET=', 'HAIKU=/tmp/pytest-of-coder/pytest-127/test_environment_variable_name13/bin:/usr/bin:/bin']
+E   AssertionError: assert 'HAIKU=SOME_SETTING' in ['ran-claude', 'OPUS=', 'SONNET=', 'HAIKU=not-a-model', 'ARG=--dangerously-skip-permissions']
+     +  where ['ran-claude', 'OPUS=', 'SONNET=', 'HAIKU=not-a-model', 'ARG=--dangerously-skip-permissions'] = <built-in method splitlines of str object at 0x7b3075661c30>()
+     +    where <built-in method splitlines of str object at 0x7b3075661c30> = 'ran-claude\nOPUS=\nSONNET=\nHAIKU=not-a-model\nARG=--dangerously-skip-permissions\n'.splitlines
+     +      where 'ran-claude\nOPUS=\nSONNET=\nHAIKU=not-a-model\nARG=--dangerously-skip-permissions\n' = CompletedProcess(args=['bash', '/home/coder/workspaces/worktrees/IronClaude/v6-ic-launcher-fixes/src/superclaude/scripts/ic', '-H', 'SOME_SETTING'], returncode=0, stdout='ran-claude\nOPUS=\nSONNET=\nHAIKU=not-a-model\nARG=--dangerously-skip-permissions\n', stderr='').stdout
+/home/coder/workspaces/worktrees/IronClaude/v6-ic-launcher-fixes/tests/cli/test_ic_launcher.py:185: AssertionError: assert 'HAIKU=SOME_SETTING' in ['ran-claude', 'OPUS=', 'SONNET=', 'HAIKU=not-a-model', 'ARG=--dangerously-skip-permissions']
+E   AssertionError: assert {'HAIKU=kimi-...'SONNET=PATH'} <= {'ARG=--dange... 'ran-claude'}
+      
+      Extra items in the left set:
+      'SONNET=PATH'
+      'OPUS=HOME'
+/home/coder/workspaces/worktrees/IronClaude/v6-ic-launcher-fixes/tests/cli/test_ic_launcher.py:206: AssertionError: assert {'HAIKU=kimi-...'SONNET=PATH'} <= {'ARG=--dange... 'ran-claude'}
+=========================== short test summary info ============================
+FAILED tests/cli/test_ic_launcher.py::test_environment_variable_names_are_not_resolved[form0-HAIKU-HOME]
+FAILED tests/cli/test_ic_launcher.py::test_environment_variable_names_are_not_resolved[form0-HAIKU-PATH]
+FAILED tests/cli/test_ic_launcher.py::test_environment_variable_names_are_not_resolved[form1-HAIKU-HOME]
+FAILED tests/cli/test_ic_launcher.py::test_environment_variable_names_are_not_resolved[form1-HAIKU-PATH]
+FAILED tests/cli/test_ic_launcher.py::test_environment_variable_names_are_not_resolved[form2-SONNET-HOME]
+FAILED tests/cli/test_ic_launcher.py::test_environment_variable_names_are_not_resolved[form2-SONNET-PATH]
+FAILED tests/cli/test_ic_launcher.py::test_environment_variable_names_are_not_resolved[form3-SONNET-HOME]
+FAILED tests/cli/test_ic_launcher.py::test_environment_variable_names_are_not_resolved[form3-SONNET-PATH]
+FAILED tests/cli/test_ic_launcher.py::test_environment_variable_names_are_not_resolved[form4-OPUS-HOME]
+FAILED tests/cli/test_ic_launcher.py::test_environment_variable_names_are_not_resolved[form4-OPUS-PATH]
+FAILED tests/cli/test_ic_launcher.py::test_environment_variable_names_are_not_resolved[form5-OPUS-HOME]
+FAILED tests/cli/test_ic_launcher.py::test_environment_variable_names_are_not_resolved[form5-OPUS-PATH]
+FAILED tests/cli/test_ic_launcher.py::test_environment_variable_names_are_not_resolved[form6-HAIKU-HOME]
+FAILED tests/cli/test_ic_launcher.py::test_environment_variable_names_are_not_resolved[form6-HAIKU-PATH]
+FAILED tests/cli/test_ic_launcher.py::test_uppercase_variable_defined_in_aienv_is_not_an_alias
+FAILED tests/cli/test_ic_launcher.py::test_preset_values_follow_the_same_rule
+======================== 16 failed, 25 passed in 0.33s =========================
