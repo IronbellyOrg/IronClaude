@@ -1,0 +1,612 @@
+{
+ "views": {
+  "as_run": {
+   "holdout/K": {
+    "runs": 20,
+    "found_fraction": 0.21333333333333332,
+    "blocking_found_fraction": 0.125,
+    "wrong_per_run": 1.4,
+    "blocking_rows_per_run": 1.6,
+    "matched_total": 4,
+    "blocking_rows_total": 32,
+    "precision": 0.125,
+    "median_s": 117.257,
+    "killed_runs": 3,
+    "bad_status_runs": 3,
+    "conc_range": [
+     0,
+     0
+    ]
+   },
+   "holdout/RL": {
+    "runs": 20,
+    "found_fraction": 0.25916666666666666,
+    "blocking_found_fraction": 0.25833333333333336,
+    "wrong_per_run": 0.5,
+    "blocking_rows_per_run": 0.9,
+    "matched_total": 8,
+    "blocking_rows_total": 18,
+    "precision": 0.4444444444444444,
+    "median_s": 141.7665,
+    "killed_runs": 4,
+    "bad_status_runs": 4,
+    "conc_range": [
+     0,
+     0
+    ]
+   },
+   "holdout/Z0": {
+    "runs": 20,
+    "found_fraction": 0.22333333333333333,
+    "blocking_found_fraction": 0.2,
+    "wrong_per_run": 0.95,
+    "blocking_rows_per_run": 1.3,
+    "matched_total": 7,
+    "blocking_rows_total": 26,
+    "precision": 0.2692307692307692,
+    "median_s": 99.762,
+    "killed_runs": 1,
+    "bad_status_runs": 2,
+    "conc_range": [
+     0,
+     0
+    ]
+   },
+   "sev/S": {
+    "runs": 20,
+    "found_fraction": 0.24916666666666668,
+    "blocking_found_fraction": 0.11666666666666665,
+    "wrong_per_run": 1.0,
+    "blocking_rows_per_run": 1.3,
+    "matched_total": 6,
+    "blocking_rows_total": 26,
+    "precision": 0.23076923076923078,
+    "median_s": 81.4665,
+    "killed_runs": 2,
+    "bad_status_runs": 4,
+    "conc_range": [
+     2,
+     4
+    ]
+   },
+   "sev/Z0": {
+    "runs": 20,
+    "found_fraction": 0.325,
+    "blocking_found_fraction": 0.075,
+    "wrong_per_run": 1.5,
+    "blocking_rows_per_run": 1.7,
+    "matched_total": 4,
+    "blocking_rows_total": 34,
+    "precision": 0.11764705882352941,
+    "median_s": 88.22749999999999,
+    "killed_runs": 0,
+    "bad_status_runs": 1,
+    "conc_range": [
+     2,
+     4
+    ]
+   },
+   "stronger/A": {
+    "runs": 20,
+    "found_fraction": 0.23833333333333334,
+    "blocking_found_fraction": 0.4083333333333333,
+    "wrong_per_run": 1.1,
+    "blocking_rows_per_run": 1.55,
+    "matched_total": 9,
+    "blocking_rows_total": 31,
+    "precision": 0.2903225806451613,
+    "median_s": 289.09000000000003,
+    "killed_runs": 0,
+    "bad_status_runs": 1,
+    "conc_range": [
+     0,
+     4
+    ]
+   },
+   "stronger/B": {
+    "runs": 20,
+    "found_fraction": 0.18833333333333332,
+    "blocking_found_fraction": 0.225,
+    "wrong_per_run": 1.1,
+    "blocking_rows_per_run": 1.6,
+    "matched_total": 10,
+    "blocking_rows_total": 32,
+    "precision": 0.3125,
+    "median_s": 85.3675,
+    "killed_runs": 0,
+    "bad_status_runs": 1,
+    "conc_range": [
+     0,
+     4
+    ]
+   },
+   "stronger/emsol2": {
+    "runs": 20,
+    "found_fraction": 0.32083333333333336,
+    "blocking_found_fraction": 0.31666666666666665,
+    "wrong_per_run": 0.7,
+    "blocking_rows_per_run": 1.0,
+    "matched_total": 6,
+    "blocking_rows_total": 20,
+    "precision": 0.3,
+    "median_s": 136.499,
+    "killed_runs": 0,
+    "bad_status_runs": 1,
+    "conc_range": [
+     3,
+     8
+    ]
+   },
+   "stronger/sole2": {
+    "runs": 20,
+    "found_fraction": 0.2808333333333333,
+    "blocking_found_fraction": 0.3416666666666667,
+    "wrong_per_run": 0.95,
+    "blocking_rows_per_run": 1.3,
+    "matched_total": 7,
+    "blocking_rows_total": 26,
+    "precision": 0.2692307692307692,
+    "median_s": 125.743,
+    "killed_runs": 0,
+    "bad_status_runs": 0,
+    "conc_range": [
+     0,
+     0
+    ]
+   },
+   "stronger/sonsol": {
+    "runs": 20,
+    "found_fraction": 0.31333333333333335,
+    "blocking_found_fraction": 0.5333333333333333,
+    "wrong_per_run": 0.9,
+    "blocking_rows_per_run": 1.45,
+    "matched_total": 11,
+    "blocking_rows_total": 29,
+    "precision": 0.3793103448275862,
+    "median_s": 264.1875,
+    "killed_runs": 1,
+    "bad_status_runs": 2,
+    "conc_range": [
+     0,
+     8
+    ]
+   },
+   "stronger/wonder1": {
+    "runs": 20,
+    "found_fraction": 0.31416666666666665,
+    "blocking_found_fraction": 0.425,
+    "wrong_per_run": 1.65,
+    "blocking_rows_per_run": 2.25,
+    "matched_total": 12,
+    "blocking_rows_total": 45,
+    "precision": 0.26666666666666666,
+    "median_s": 150.0115,
+    "killed_runs": 0,
+    "bad_status_runs": 1,
+    "conc_range": [
+     0,
+     0
+    ]
+   },
+   "stronger/wonsol": {
+    "runs": 20,
+    "found_fraction": 0.43166666666666664,
+    "blocking_found_fraction": 0.4583333333333333,
+    "wrong_per_run": 0.9,
+    "blocking_rows_per_run": 1.45,
+    "matched_total": 11,
+    "blocking_rows_total": 29,
+    "precision": 0.3793103448275862,
+    "median_s": 151.1145,
+    "killed_runs": 0,
+    "bad_status_runs": 3,
+    "conc_range": [
+     0,
+     7
+    ]
+   }
+  },
+  "rerun_substituted": {
+   "holdout/K": {
+    "runs": 20,
+    "found_fraction": 0.21333333333333332,
+    "blocking_found_fraction": 0.125,
+    "wrong_per_run": 1.4,
+    "blocking_rows_per_run": 1.6,
+    "matched_total": 4,
+    "blocking_rows_total": 32,
+    "precision": 0.125,
+    "median_s": 117.257,
+    "killed_runs": 3,
+    "bad_status_runs": 3,
+    "conc_range": [
+     0,
+     0
+    ]
+   },
+   "holdout/RL": {
+    "runs": 20,
+    "found_fraction": 0.25916666666666666,
+    "blocking_found_fraction": 0.25833333333333336,
+    "wrong_per_run": 0.5,
+    "blocking_rows_per_run": 0.9,
+    "matched_total": 8,
+    "blocking_rows_total": 18,
+    "precision": 0.4444444444444444,
+    "median_s": 141.7665,
+    "killed_runs": 4,
+    "bad_status_runs": 4,
+    "conc_range": [
+     0,
+     0
+    ]
+   },
+   "holdout/Z0": {
+    "runs": 20,
+    "found_fraction": 0.22333333333333333,
+    "blocking_found_fraction": 0.2,
+    "wrong_per_run": 0.95,
+    "blocking_rows_per_run": 1.3,
+    "matched_total": 7,
+    "blocking_rows_total": 26,
+    "precision": 0.2692307692307692,
+    "median_s": 99.762,
+    "killed_runs": 1,
+    "bad_status_runs": 2,
+    "conc_range": [
+     0,
+     0
+    ]
+   },
+   "sev/S": {
+    "runs": 20,
+    "found_fraction": 0.24916666666666668,
+    "blocking_found_fraction": 0.11666666666666665,
+    "wrong_per_run": 1.0,
+    "blocking_rows_per_run": 1.3,
+    "matched_total": 6,
+    "blocking_rows_total": 26,
+    "precision": 0.23076923076923078,
+    "median_s": 81.4665,
+    "killed_runs": 2,
+    "bad_status_runs": 4,
+    "conc_range": [
+     2,
+     4
+    ]
+   },
+   "sev/Z0": {
+    "runs": 20,
+    "found_fraction": 0.325,
+    "blocking_found_fraction": 0.075,
+    "wrong_per_run": 1.5,
+    "blocking_rows_per_run": 1.7,
+    "matched_total": 4,
+    "blocking_rows_total": 34,
+    "precision": 0.11764705882352941,
+    "median_s": 88.22749999999999,
+    "killed_runs": 0,
+    "bad_status_runs": 1,
+    "conc_range": [
+     2,
+     4
+    ]
+   },
+   "stronger/A": {
+    "runs": 20,
+    "found_fraction": 0.23833333333333334,
+    "blocking_found_fraction": 0.4083333333333333,
+    "wrong_per_run": 1.1,
+    "blocking_rows_per_run": 1.55,
+    "matched_total": 9,
+    "blocking_rows_total": 31,
+    "precision": 0.2903225806451613,
+    "median_s": 289.09000000000003,
+    "killed_runs": 0,
+    "bad_status_runs": 1,
+    "conc_range": [
+     0,
+     4
+    ]
+   },
+   "stronger/B": {
+    "runs": 20,
+    "found_fraction": 0.18833333333333332,
+    "blocking_found_fraction": 0.225,
+    "wrong_per_run": 1.1,
+    "blocking_rows_per_run": 1.6,
+    "matched_total": 10,
+    "blocking_rows_total": 32,
+    "precision": 0.3125,
+    "median_s": 85.3675,
+    "killed_runs": 0,
+    "bad_status_runs": 1,
+    "conc_range": [
+     0,
+     4
+    ]
+   },
+   "stronger/emsol2": {
+    "runs": 20,
+    "found_fraction": 0.32083333333333336,
+    "blocking_found_fraction": 0.31666666666666665,
+    "wrong_per_run": 0.7,
+    "blocking_rows_per_run": 1.0,
+    "matched_total": 6,
+    "blocking_rows_total": 20,
+    "precision": 0.3,
+    "median_s": 136.499,
+    "killed_runs": 0,
+    "bad_status_runs": 1,
+    "conc_range": [
+     3,
+     8
+    ]
+   },
+   "stronger/sole2": {
+    "runs": 20,
+    "found_fraction": 0.2808333333333333,
+    "blocking_found_fraction": 0.3416666666666667,
+    "wrong_per_run": 0.95,
+    "blocking_rows_per_run": 1.3,
+    "matched_total": 7,
+    "blocking_rows_total": 26,
+    "precision": 0.2692307692307692,
+    "median_s": 125.743,
+    "killed_runs": 0,
+    "bad_status_runs": 0,
+    "conc_range": [
+     0,
+     0
+    ]
+   },
+   "stronger/sonsol": {
+    "runs": 20,
+    "found_fraction": 0.31333333333333335,
+    "blocking_found_fraction": 0.5333333333333333,
+    "wrong_per_run": 0.9,
+    "blocking_rows_per_run": 1.45,
+    "matched_total": 11,
+    "blocking_rows_total": 29,
+    "precision": 0.3793103448275862,
+    "median_s": 264.1875,
+    "killed_runs": 1,
+    "bad_status_runs": 2,
+    "conc_range": [
+     0,
+     8
+    ]
+   },
+   "stronger/wonder1": {
+    "runs": 20,
+    "found_fraction": 0.31416666666666665,
+    "blocking_found_fraction": 0.425,
+    "wrong_per_run": 1.65,
+    "blocking_rows_per_run": 2.25,
+    "matched_total": 12,
+    "blocking_rows_total": 45,
+    "precision": 0.26666666666666666,
+    "median_s": 150.0115,
+    "killed_runs": 0,
+    "bad_status_runs": 1,
+    "conc_range": [
+     0,
+     0
+    ]
+   },
+   "stronger/wonsol": {
+    "runs": 20,
+    "found_fraction": 0.43166666666666664,
+    "blocking_found_fraction": 0.4583333333333333,
+    "wrong_per_run": 0.9,
+    "blocking_rows_per_run": 1.45,
+    "matched_total": 11,
+    "blocking_rows_total": 29,
+    "precision": 0.3793103448275862,
+    "median_s": 151.1145,
+    "killed_runs": 0,
+    "bad_status_runs": 3,
+    "conc_range": [
+     0,
+     7
+    ]
+   }
+  }
+ },
+ "n_runs_scored": 240,
+ "controls": [
+  "sev/Z0",
+  "stronger/B"
+ ],
+ "control_difference_90pct": {
+  "found_fraction": [
+   -0.43500000000000005,
+   0.0825
+  ],
+  "wrong_blockers": [
+   -1.0,
+   0.19999999999999996
+  ]
+ },
+ "pool_controls": true,
+ "stronger_panel": {
+  "A": {
+   "difference": 0.05000000000000002,
+   "lower_bound_5pct": -0.15416666666666667,
+   "lever": false
+  },
+  "sole2": {
+   "difference": 0.0925,
+   "lower_bound_5pct": -0.031666666666666676,
+   "lever": false
+  },
+  "wonder1": {
+   "difference": 0.12583333333333332,
+   "lower_bound_5pct": -0.008333333333333331,
+   "lever": false
+  },
+  "sonsol": {
+   "difference": 0.12500000000000003,
+   "lower_bound_5pct": -0.020833333333333315,
+   "lever": false
+  },
+  "wonsol": {
+   "difference": 0.24333333333333332,
+   "lower_bound_5pct": 0.025000000000000022,
+   "lever": true
+  },
+  "emsol2": {
+   "difference": 0.13250000000000003,
+   "lower_bound_5pct": -0.025,
+   "lever": false
+  }
+ },
+ "stronger_vs_pooled_controls": {
+  "A": {
+   "difference": -0.018333333333333313,
+   "lower_bound_5pct": -0.3549999999999999,
+   "lever": false
+  },
+  "sole2": {
+   "difference": 0.02416666666666667,
+   "lower_bound_5pct": -0.11249999999999999,
+   "lever": false
+  },
+  "wonder1": {
+   "difference": 0.057499999999999996,
+   "lower_bound_5pct": -0.09125,
+   "lever": false
+  },
+  "sonsol": {
+   "difference": 0.0566666666666667,
+   "lower_bound_5pct": -0.1925,
+   "lever": false
+  },
+  "wonsol": {
+   "difference": 0.175,
+   "lower_bound_5pct": 0.03958333333333332,
+   "lever": true
+  },
+  "emsol2": {
+   "difference": 0.0641666666666667,
+   "lower_bound_5pct": -0.03541666666666671,
+   "lever": false
+  }
+ },
+ "pooled_control_found_fraction": 0.25666666666666665,
+ "leave_one_document_out": {
+  "holdout/K": {
+   "without HO-2": 0.0,
+   "without HO-3": -0.018888888888888872,
+   "without HX-1": -0.013333333333333322,
+   "without HX-3": -0.007777777777777772,
+   "all four": -0.010000000000000009
+  },
+  "holdout/RL": {
+   "without HO-2": 0.06111111111111109,
+   "without HO-3": 0.025555555555555554,
+   "without HX-1": 0.014444444444444454,
+   "without HX-3": 0.04222222222222222,
+   "all four": 0.03583333333333333
+  },
+  "sev/S": {
+   "without HO-2": -0.12777777777777782,
+   "without HO-3": -0.11222222222222222,
+   "without HX-1": 0.03222222222222221,
+   "without HX-3": -0.09555555555555562,
+   "all four": -0.07583333333333334
+  },
+  "stronger/A": {
+   "without HO-2": 0.0,
+   "without HO-3": 0.0222222222222222,
+   "without HX-1": 0.16666666666666666,
+   "without HX-3": 0.011111111111111127,
+   "all four": 0.05000000000000002
+  },
+  "stronger/emsol2": {
+   "without HO-2": 0.15000000000000002,
+   "without HO-3": 0.19333333333333336,
+   "without HX-1": 0.009999999999999981,
+   "without HX-3": 0.17666666666666672,
+   "all four": 0.13250000000000003
+  },
+  "stronger/sole2": {
+   "without HO-2": 0.08333333333333337,
+   "without HO-3": 0.13444444444444442,
+   "without HX-1": 0.023333333333333345,
+   "without HX-3": 0.12888888888888891,
+   "all four": 0.0925
+  },
+  "stronger/sonsol": {
+   "without HO-2": 0.06666666666666668,
+   "without HO-3": 0.1333333333333333,
+   "without HX-1": 0.16666666666666666,
+   "without HX-3": 0.13333333333333333,
+   "all four": 0.12500000000000003
+  },
+  "stronger/wonder1": {
+   "without HO-2": 0.09444444444444444,
+   "without HO-3": 0.17333333333333334,
+   "without HX-1": 0.06777777777777777,
+   "without HX-3": 0.16777777777777778,
+   "all four": 0.12583333333333332
+  },
+  "stronger/wonsol": {
+   "without HO-2": 0.24444444444444446,
+   "without HO-3": 0.31888888888888883,
+   "without HX-1": 0.09111111111111111,
+   "without HX-3": 0.3188888888888889,
+   "all four": 0.24333333333333332
+  }
+ },
+ "severity_gates": {
+  "G1 wrong blockers S <= 0.70 x Z0": true,
+  "G2 real blocking matches S >= Z0": true,
+  "G3 found fraction S >= Z0 - 0.02": false,
+  "G4 pooled median time S <= 1.10 x Z0": true
+ },
+ "moved_aside_originals": {
+  "holdout/Z0": {
+   "runs": 1,
+   "killed": 0,
+   "bad_status": 1,
+   "other": 0
+  },
+  "stronger/B": {
+   "runs": 1,
+   "killed": 1,
+   "bad_status": 0,
+   "other": 0
+  },
+  "stronger/A": {
+   "runs": 1,
+   "killed": 1,
+   "bad_status": 0,
+   "other": 0
+  },
+  "stronger/sole2": {
+   "runs": 1,
+   "killed": 1,
+   "bad_status": 0,
+   "other": 0
+  },
+  "stronger/sonsol": {
+   "runs": 5,
+   "killed": 4,
+   "bad_status": 1,
+   "other": 0
+  },
+  "stronger/wonsol": {
+   "runs": 2,
+   "killed": 0,
+   "bad_status": 1,
+   "other": 1
+  },
+  "stronger/emsol2": {
+   "runs": 1,
+   "killed": 0,
+   "bad_status": 1,
+   "other": 0
+  }
+ }
+}

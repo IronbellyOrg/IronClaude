@@ -95,7 +95,8 @@ def collect(source, scoring, run_dirs, invalid_dir):
             rows.append(dict(source=source, arm=arm, doc=doc, rep=int(m.group(1)) if m else 0, run=run, original=is_inv or ".original" in run,
                              found=len(s["gt_covered_any"]), blk=len(s["gt_covered_blocking"]), rows_blk=s["ledger_rows_blocking"],
                              matched=s["blocking_rows_gt_matched"], wrong=s["wrong_blockers"], rows=s["ledger_rows_total"],
-                             elapsed=tj.get("panel_elapsed_s"), killed=any(v.get("killed") for v in rev.values()),
+                             elapsed=tj.get("panel_elapsed_s"), conc=rj.get("concurrent_panels_at_start"),
+                             killed=any(v.get("killed") for v in rev.values()),
                              bad_status=any(v.get("status") not in ("ok", None) for v in rev.values())))
     return rows
 
@@ -132,7 +133,32 @@ def agg(rs):
                 wrong_per_run=statistics.fmean(r["wrong"] for r in rs), blocking_rows_per_run=statistics.fmean(r["rows_blk"] for r in rs),
                 matched_total=mt, blocking_rows_total=rb, precision=mt / rb if rb else None,
                 median_s=statistics.median(el) if el else None, killed_runs=sum(r["killed"] for r in rs),
-                bad_status_runs=sum(r["bad_status"] for r in rs))
+                bad_status_runs=sum(r["bad_status"] for r in rs),
+                conc_range=[min(c), max(c)] if (c := [r["conc"] for r in rs if isinstance(r.get("conc"), int)]) else None)
+
+
+def census_originals():
+    """Moved-aside originals (never judged): per source/arm, how many and why (killed reviewer, bad report status, other)."""
+    out_ = defaultdict(lambda: {"runs": 0, "killed": 0, "bad_status": 0, "other": 0})
+    for spec in a.source:
+        name, rest = spec.split("=", 1)
+        parts = rest.split(":")
+        inv = parts[2] if len(parts) > 2 else None
+        for d in ([inv] if inv else []):
+            for rdir in sorted(Path(d).iterdir()) if Path(d).is_dir() else []:
+                rj = read_json(rdir / "run.json") if rdir.is_dir() else None
+                arm = arm_of(name, rdir.name)
+                if rj is None or arm is None:
+                    continue
+                rev = rj.get("reviewers") or {}
+                c = out_[f"{name}/{arm}"]
+                c["runs"] += 1
+                k = any(v.get("killed") for v in rev.values())
+                b = any(v.get("status") not in ("ok", None) for v in rev.values())
+                c["killed"] += k
+                c["bad_status"] += (b and not k)
+                c["other"] += (not k and not b)
+    return dict(out_)
 
 
 def boot_diff(x, y, key, rng, draws):
@@ -192,6 +218,32 @@ for (s, ar), v in byk.items():
         diff = statistics.fmean(map(ff, v)) - statistics.fmean(map(ff, byk[("stronger", "B")]))
         res["stronger_panel"][ar] = dict(difference=diff, lower_bound_5pct=lo, lever=bool(diff >= 0.10 and lo is not None and lo > 0))
 
+# secondary (not a pre-registered decision): the same lever rule against the two same-day controls pooled, only if pooling was allowed
+res["stronger_vs_pooled_controls"] = {}
+if res.get("pool_controls"):
+    pooled = [r for k in controls for r in byk[k]]
+    for (s, ar), v in byk.items():
+        if s == "stronger" and ar != "B":
+            d = boot_diff(pooled, v, ff, random.Random(a.seed), a.draws)
+            lo, _ = interval(d, 0.05, 0.95)
+            diff = statistics.fmean(map(ff, v)) - statistics.fmean(map(ff, pooled))
+            res["stronger_vs_pooled_controls"][ar] = dict(difference=diff, lower_bound_5pct=lo, lever=bool(diff >= 0.10 and lo is not None and lo > 0))
+    res["pooled_control_found_fraction"] = statistics.fmean(map(ff, pooled))
+
+# sensitivity (descriptive): found-fraction difference against the arm's own control when one document is left out, all arms
+res["leave_one_document_out"] = {}
+own = {"stronger": ("stronger", "B"), "sev": ("sev", "Z0"), "holdout": ("holdout", "Z0")}
+for (s, ar), v in sorted(byk.items()):
+    ck = own.get(s)
+    if ck is None or ck not in byk or ar in (ck[1],):
+        continue
+    row = {}
+    for d in sorted(n_items):
+        keep = lambda rs: [r for r in rs if r["doc"] != d]
+        row[f"without {d}"] = statistics.fmean(map(ff, keep(v))) - statistics.fmean(map(ff, keep(byk[ck])))
+    row["all four"] = statistics.fmean(map(ff, v)) - statistics.fmean(map(ff, byk[ck]))
+    res["leave_one_document_out"][f"{s}/{ar}"] = row
+
 # severity test gates (source 'sev': arms Z0 and S)
 sz, ss = agg(byk.get(("sev", "Z0"), [])), agg(byk.get(("sev", "S"), []))
 if sz and ss:
@@ -208,11 +260,22 @@ L = ["# Joint report: levers on the plain ember panel, four hold-out plans", "",
      f"Built by `joint_report.py` from {res['n_runs_scored']} scored runs; rerun it to reproduce every number. Nothing here is typed by hand.", ""]
 for view in ("as_run", "rerun_substituted"):
     L += [f"## All arms ({view.replace('_', ' ')})", "",
-          "| Source/arm | runs | found fraction | blocking found | wrong blockers/run | blocking precision | median s | runs with a killed reviewer |", "|---|---|---|---|---|---|---|---|"]
+          "| Source/arm | runs | found fraction | blocking found | wrong blockers/run | blocking precision | median s | load at start (other claude processes, min-max) | runs with a killed reviewer |", "|---|---|---|---|---|---|---|---|---|"]
     for k, v in res["views"][view].items():
+        cr = "-" if not v["conc_range"] else f"{v['conc_range'][0]}-{v['conc_range'][1]}"
         L.append(f"| {k} | {v['runs']} | {f3(v['found_fraction'])} | {f3(v['blocking_found_fraction'])} | {v['wrong_per_run']:.2f} | "
-                 f"{f3(v['precision'])} ({v['matched_total']}/{v['blocking_rows_total']}) | {f3(v['median_s'])} | {v['killed_runs']} |")
+                 f"{f3(v['precision'])} ({v['matched_total']}/{v['blocking_rows_total']}) | {f3(v['median_s'])} | {cr} | {v['killed_runs']} |")
     L.append("")
+    if view == "as_run":
+        L += ["Moved-aside originals are never judged, so as-run scores exist only where a run needed no rerun; the table below lists what was moved aside and why. "
+              "Elapsed times are comparable only between arms with a similar load column.", ""]
+res["moved_aside_originals"] = census_originals()
+if res["moved_aside_originals"]:
+    L += ["## Moved-aside originals (invalid first attempts, rerun once; never judged)", "", "| Source/arm | moved aside | killed reviewer | other bad report status | other |", "|---|---|---|---|---|"]
+    for k, c in sorted(res["moved_aside_originals"].items()):
+        L.append(f"| {k} | {c['runs']} | {c['killed']} | {c['bad_status']} | {c['other']} |")
+    L.append("")
+json.dump(res, open(out / "metrics.json", "w"), indent=1, default=str)
 if "severity_gates" in res:
     L += ["## Severity-rule test gates (own control, interleaved)", ""] + [f"- {'PASS' if v else 'FAIL'} {k}" for k, v in res["severity_gates"].items()] + [""]
 if res["stronger_panel"]:
@@ -220,6 +283,19 @@ if res["stronger_panel"]:
     for ar, v in res["stronger_panel"].items():
         L.append(f"- {ar}: difference {v['difference']:+.3f}, lower bound {f3(v['lower_bound_5pct'])}: {'LEVER' if v['lever'] else 'no demonstrated lever'}")
     L += ["", "Several arms are compared with one control: a single hit among them is weak evidence; no multiplicity correction is applied.", ""]
+    if res.get("stronger_vs_pooled_controls"):
+        L += [f"Secondary, not the registered decision: the same rule against the two same-day controls pooled (found fraction {res['pooled_control_found_fraction']:.3f}; pooling allowed by the rule fixed before any score was read):", ""]
+        for ar, v in res["stronger_vs_pooled_controls"].items():
+            L.append(f"- {ar}: difference {v['difference']:+.3f}, lower bound {f3(v['lower_bound_5pct'])}: {'LEVER' if v['lever'] else 'no demonstrated lever'}")
+        L.append("")
+if res["leave_one_document_out"]:
+    docs_ = sorted(n_items)
+    L += ["## Sensitivity: found-fraction difference against the arm's own control, leaving one plan out (descriptive)", "",
+          "HX-1 has only 2 known defects, so one run there swings the pooled mean by up to 0.5 of its plan weight.", "",
+          "| Arm | all four plans | " + " | ".join(f"without {d}" for d in docs_) + " |", "|---|---|" + "---|" * len(docs_)]
+    for k, row in res["leave_one_document_out"].items():
+        L.append(f"| {k} | {row['all four']:+.3f} | " + " | ".join(f"{row['without ' + d]:+.3f}" for d in docs_) + " |")
+    L.append("")
 if "pool_controls" in res:
     d = res["control_difference_90pct"]
     L += ["## Controls", "",
