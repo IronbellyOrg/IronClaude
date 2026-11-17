@@ -30,7 +30,6 @@ from superclaude.cli.main import main
 # command should force a deliberate test update.
 EXPECTED_TOP_LEVEL_COMMANDS: frozenset[str] = frozenset(
     {
-        "cleanup-audit",
         "cli-portify",
         "doctor",
         "eval",

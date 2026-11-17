@@ -524,10 +524,6 @@ from superclaude.cli.roadmap import roadmap_group  # noqa: E402,I001  # intentio
 
 main.add_command(roadmap_group, name="roadmap")
 
-from superclaude.cli.cleanup_audit import cleanup_audit_group  # noqa: E402,I001  # intentional: deferred subcommand registration to avoid circular imports
-
-main.add_command(cleanup_audit_group, name="cleanup-audit")
-
 from superclaude.cli.tasklist import tasklist_group  # noqa: E402,I001  # intentional: deferred subcommand registration to avoid circular imports
 
 main.add_command(tasklist_group, name="tasklist")

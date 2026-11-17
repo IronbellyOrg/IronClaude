@@ -1,0 +1,4 @@
+remaining cleanup lines:
+180:Support library for cleanup/audit-oriented analysis. The package docstring calls it a cleanup-audit v2 module covering classification, c
+table-separator sanity (| --- count per table block): 14
+headings: 13

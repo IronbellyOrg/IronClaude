@@ -159,7 +159,6 @@ The CLI tree also contains larger workflow subsystems:
 
 - `sprint/`
 - `roadmap/`
-- `cleanup_audit/`
 - `pipeline/`
 - `audit/`
 
@@ -299,7 +298,6 @@ flowchart TD
     F --> N[version]
     F --> O[sprint group]
     F --> P[roadmap group]
-    F --> Q[cleanup-audit group]
 ```
 
 A second useful view is the CLI subsystem structure:
@@ -312,13 +310,11 @@ flowchart TB
     CLI --> INSTALLERS[install_*.py]
     CLI --> SPRINT[sprint/]
     CLI --> ROADMAP[roadmap/]
-    CLI --> CLEANUP[cleanup_audit/]
     CLI --> PIPELINE[pipeline/]
     CLI --> AUDIT[audit/]
 
     SPRINT --> SPRINT_PARTS[commands / executor / config / models / tmux / tui]
     ROADMAP --> ROADMAP_PARTS[commands / executor / validate_executor / gates / prompts / models]
-    CLEANUP --> CLEANUP_PARTS[commands / executor / config / models / prompts / gates / tui]
     PIPELINE --> PIPELINE_PARTS[shared runners / gates / passes / process / diagnostics]
     AUDIT --> AUDIT_PARTS[classification / validation / duplication / reports / orchestration]
 ```

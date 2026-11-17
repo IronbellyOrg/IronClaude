@@ -26,8 +26,6 @@ _KNOWN_CLI_MODULES = frozenset(
         "sprint",
         "roadmap",
         "tasklist",
-        "cleanup-audit",
-        "cleanup_audit",
         "audit",
         "pipeline",
         "main",
