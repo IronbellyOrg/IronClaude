@@ -55,7 +55,7 @@ first prompt (UserPromptSubmit)    consume nonce; publish sid without replacemen
   v
 each matched call (PreToolUse)     no bound id: exit 0 | jq -> level -> classes -> grid -> exit 0 or 2  FR-L-10
   v
-typed prompt (UserPromptSubmit)    "approved" or /sc:implement /sc:task /task at W: touch <sid>.ok  FR-L-15
+typed prompt (UserPromptSubmit)    /sc:implement /sc:task /task at W: touch <sid>.ok  FR-L-15
   v
 release                            a person runs rm sessions/<sid> sessions/<sid>.ok  FR-L-07
 ```
@@ -186,7 +186,7 @@ No match: PUSHFORM. Match: destination is capture 5, else 3, minus one `refs/hea
 ## 6. Human approval and human versus agent
 
 - **Event:** UserPromptSubmit only (O-4).
-- **Match (FR-L-16):** whole prompt trimmed and lower-cased matches `^approved[.!]?$`, or first line matches `^/(sc:implement|sc:task|task)([[:space:]]|$)`. `/task-builder`, `/tasks`, `/sc:implement-protocol`, `please approved`, `approved, but`, `/sc:pr-submit` do not.
+- **Match (FR-L-16):** only the first line matching `^/(sc:implement|sc:task|task)([[:space:]]|$)` releases. `/task-builder`, `/tasks`, `/sc:implement-protocol`, `approved`, `please approved`, `approved, but`, `/sc:pr-submit` do not. Amended: the plain `approved` route (a whole prompt `approved`, `approved.` or `approved!`) was removed for every worktree-level claim (owner decision Q39).
 - **Where (FR-L-15):** bound session, no `agent_id`, level `worktree` (or invalid word). Nothing at `F`, `FS`.
 - **Effect (FR-L-17):** `touch .ok`; `W` becomes `WA`. It unlocks IMPL (the grid also allows TURN at `WA`), never COMMIT, PUSH, SUBMIT or MERGE. A failed `touch` shows later as LL-IMPL. Lasts until a person deletes the files (O-6).
 - **Order (FR-L-18):** the prompt event runs before expansion, so `.ok` exists before Skill `sc:implement-protocol`. OB-H1 item 4 checks; fallback is UserPromptExpansion with exact `command_name`.
@@ -233,7 +233,7 @@ To stderr, then exit 2. Header: `Launch-level guard: this session was started by
 
 | Id | Blocked: | Why: | You can: |
 |---|---|---|---|
-| LL-IMPL | starting /sc:implement, /task, /sc:improve, /sc:cleanup, /sc:spawn or /sc:build (or their skills). | At the worktree level the agent stops at a plan until a person approves it. | Read the plan, then type /sc:implement or /task, or reply approved, in this session. |
+| LL-IMPL | starting /sc:implement, /task, /sc:improve, /sc:cleanup, /sc:spawn or /sc:build (or their skills). | At the worktree level the agent stops at a plan until a person approves it. | Read the plan, then type /sc:implement or /task in this session. |
 | LL-COMMIT | creating a commit (git commit, cherry-pick, revert, am, or moving a branch with update-ref). | Only a launch with --pipeline full --submit lets the agent commit. | Review the changes and commit them yourself, or claim the issue again with --pipeline full --submit. |
 | LL-PUSH | a git push. | Only a launch with --pipeline full --submit lets the agent push. | Push the branch yourself after review, or claim the issue again with --pipeline full --submit. |
 | LL-PUSH-FORM | a push that is not one plain git push command, or a command that names git and push together. | The guard can check a push only when the whole command is git push [-u] origin <branch> (or <source>:<branch>), with nothing before or after it; other forms (force, --all, another remote, variables, backticks, line continuations, chained or piped commands) can reach another remote or the main branch. | Run the push as its own command, exactly: git push origin <branch> or git push -u origin <branch>, with the branch name written out. |

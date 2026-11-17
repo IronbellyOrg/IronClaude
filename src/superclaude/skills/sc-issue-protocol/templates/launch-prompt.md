@@ -20,7 +20,7 @@ Never merge anything, and never push to `master` or `main`.
 <!-- block:worktree -->
 Level: worktree. Follow the steps of `next-steps.md` up to the line `Plan boundary: after step <K>` (the number after `after step` is the last step you may run before a human approves). If the line reads `Plan boundary: before step 1`, there is nothing to run yet. Do not run `/sc:implement`, `/task`, `git commit`, `git push` or `/sc:pr-submit`.
 
-When the plan exists, print its path and the words `Waiting for approval`, then wait. A human approves by replying `approved` in this session or by running the printed implement command. After that, run the remaining steps, still with no commit, no push and no `/sc:pr-submit`.
+When the plan exists, print its path and the words `Waiting for approval`, then wait. A human approves only by running the printed implement command in this session, a prompt whose first line starts `/sc:implement`, `/sc:task` or `/task`. After that, run the remaining steps, still with no commit, no push and no `/sc:pr-submit`.
 
 <!-- block:full -->
 Level: full. Run every step of `next-steps.md` through the last one; the `Plan boundary` line does not apply. Leave all changes in the working tree and stage nothing. Make no commit, push no branch and open no pull request, by any command or skill; if a step would do any of these, skip that part and say so. Finish by printing `git status --short`.

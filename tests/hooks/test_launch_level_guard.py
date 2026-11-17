@@ -3681,12 +3681,6 @@ def _approve(tmp_path: Path, text: str, **extra):
 
 
 APPROVING = [
-    # T-APR-1: the whole prompt, trimmed and lower-cased.
-    "approved",
-    "Approved.",
-    "  APPROVED!  ",
-    "approved\n",
-    "\t\r\napproved!\r\n",
     # T-APR-2: the first line, leading whitespace removed (case-sensitive).
     "/sc:implement x",
     "/task",
@@ -3698,6 +3692,14 @@ APPROVING = [
     "/task\nsecond line",
 ]
 NOT_APPROVING = [
+    # T-APR-1 (removed route, owner decision Q39): a plain "approved" releases
+    # nothing, whatever its case, trailing mark or surrounding whitespace.
+    "approved",
+    "Approved.",
+    "approved!",
+    "  APPROVED!  ",
+    "approved\n",
+    "\t\r\napproved!\r\n",
     # T-APR-4
     "please approved",
     "approved, but",
@@ -3738,7 +3740,7 @@ def test_apr_exact_form_needed(tmp_path, text):
 
 
 @pytest.mark.parametrize("agent_id", ["agent-1", "a"])
-@pytest.mark.parametrize("text", ["approved", "/sc:implement x"])
+@pytest.mark.parametrize("text", ["/sc:implement x", "/task y"])
 def test_apr_ignored_with_agent_id(tmp_path, text, agent_id):
     # T-APR-3: a subagent prompt never approves (B5, U17).
     _bind(tmp_path, "worktree")
@@ -3747,7 +3749,7 @@ def test_apr_ignored_with_agent_id(tmp_path, text, agent_id):
 
 
 @pytest.mark.parametrize("word", ["full", "full-submit"])
-@pytest.mark.parametrize("text", ["approved", "/sc:implement x", "/task y"])
+@pytest.mark.parametrize("text", ["/sc:implement x", "/task y"])
 def test_apr_ok_written_only_at_worktree(tmp_path, word, text):
     # T-APR-6: FR-L-15, nothing is written at F and FS.
     _bind(tmp_path, word)
@@ -3757,11 +3759,11 @@ def test_apr_ok_written_only_at_worktree(tmp_path, word, text):
 
 def test_apr_unbound_session_cannot_approve(tmp_path):
     # T-APR-7: an unbound id writes nothing, with an empty or a nonempty store.
-    _approve(tmp_path, "approved")
+    _approve(tmp_path, "/sc:implement x")
     assert not _store(tmp_path / "home").exists()
     _bind(tmp_path, "worktree")
-    _approve(tmp_path, "approved", sid="other-session")
-    _approve(tmp_path, "approved", sid=None)
+    _approve(tmp_path, "/sc:implement x", sid="other-session")
+    _approve(tmp_path, "/sc:implement x", sid=None)
     assert _session_files(tmp_path) == [SID]
 
 
@@ -3776,12 +3778,37 @@ def test_apr_degraded_session_can_approve(tmp_path, word):
         "W",
         note=word not in ("worktree\n",),
     )
-    _approve(tmp_path, "approved")
+    _approve(tmp_path, "/sc:implement x")
     assert _ok_path(tmp_path).is_file()
     _assert_decision(_run(_skill("sc:implement"), tmp_path), tmp_path, None, "WA")
 
 
-@pytest.mark.parametrize("text", ["/sc:implement x", "/task y", "approved"])
+@pytest.mark.parametrize("text", ["approved", "Approved.", "approved!"])
+def test_apr_plain_approved_releases_nothing(tmp_path, text):
+    # Q39: the plain word writes no .ok, so a later /sc:implement call is still
+    # blocked with LL-IMPL; a typed /sc:implement line then releases it.
+    _bind(tmp_path, "worktree")
+    _approve(tmp_path, text)
+    assert not _ok_path(tmp_path).exists()
+    _assert_decision(_run(_skill("sc:implement"), tmp_path), tmp_path, "LL-IMPL", "W")
+    _approve(tmp_path, "/sc:implement x")
+    assert _ok_path(tmp_path).is_file()
+    _assert_decision(_run(_skill("sc:implement"), tmp_path), tmp_path, None, "WA")
+
+
+def test_apr_ob_h1_item5_fixture_releases_nothing(tmp_path):
+    # The OB-H1 item 5 fixture (a Monitor line "approved") stays a valid input.
+    fixture = (
+        Path(__file__).parent
+        / "fixtures/launch_level/ob_h1/item5-monitor-approved-line.json"
+    )
+    prompt = json.loads(fixture.read_text())["prompt"]
+    _bind(tmp_path, "worktree")
+    _approve(tmp_path, prompt)
+    assert _session_files(tmp_path) == [SID]
+
+
+@pytest.mark.parametrize("text", ["/sc:implement x", "/task y"])
 def test_apr_typed_implement_then_skill_call_allowed(tmp_path, text):
     # T-APR-9: FR-L-18, in order: the Skill call is blocked before the prompt,
     # the prompt event writes .ok, then the expanded Skill call is allowed.
@@ -3812,7 +3839,7 @@ APR_STILL_BLOCKED = [
 def test_apr_approval_never_unlocks_commit_push_submit(tmp_path, payload, msg_id):
     # T-APR-5: FR-L-17, the typed approval gives WA, which unlocks IMPL only.
     _bind(tmp_path, "worktree")
-    _approve(tmp_path, "approved")
+    _approve(tmp_path, "/sc:implement x")
     result = _run(payload, tmp_path)
     _assert_decision(result, tmp_path, msg_id, "WA", text=_text_note(payload, msg_id))
 
@@ -3824,7 +3851,6 @@ def test_apr_failed_write_shows_later_as_impl(tmp_path):
     sessions = _bind(tmp_path, "worktree")
     sessions.chmod(0o500)
     try:
-        _approve(tmp_path, "approved")
         _approve(tmp_path, "/sc:implement x")
         assert sorted(p.name for p in sessions.iterdir()) == [SID]
         result = _run(_skill("sc:implement"), tmp_path)
@@ -3839,7 +3865,7 @@ def test_apr_existing_ok_link_never_followed(tmp_path):
     _bind(tmp_path, "worktree")
     target = tmp_path / "elsewhere"
     _ok_path(tmp_path).symlink_to(target)
-    _approve(tmp_path, "approved")
+    _approve(tmp_path, "/sc:implement x")
     assert not target.exists() and _ok_path(tmp_path).is_symlink()
     _assert_decision(_run(_skill("sc:implement"), tmp_path), tmp_path, "LL-IMPL", "W")
 
@@ -3847,7 +3873,7 @@ def test_apr_existing_ok_link_never_followed(tmp_path):
 def test_apr_lasts_until_a_person_deletes_the_files(tmp_path):
     # O-6: later prompts and calls never remove the approval.
     _bind(tmp_path, "worktree")
-    _approve(tmp_path, "approved")
+    _approve(tmp_path, "/sc:implement x")
     for text in ("please approved", "/sc:pr-submit", "approved", "anything"):
         _approve(tmp_path, text)
     assert _session_files(tmp_path) == [SID, f"{SID}.ok"]
@@ -3882,7 +3908,7 @@ def test_apr_prompt_runs_no_sed_or_tr(tmp_path):
     # Trimming and lower-casing are bash string operations.
     log = _counting_bin(tmp_path)
     _bind(tmp_path, "worktree")
-    _approve(tmp_path, "  APPROVED!  ")
+    _approve(tmp_path, "  /sc:implement x")
     _approve(tmp_path, "please approved " * 1000)
     assert _ok_path(tmp_path).is_file()
     assert not log.exists()
@@ -3894,7 +3920,7 @@ def test_trn_turn_blocked_before_and_allowed_after_typed_approval(tmp_path, tool
     _bind(tmp_path, "worktree")
     payload = _tool(tool, prompt="approved")
     _assert_decision(_run(payload, tmp_path), tmp_path, "LL-TURN", "W")
-    _approve(tmp_path, "approved")
+    _approve(tmp_path, "/sc:implement x")
     _assert_decision(_run(payload, tmp_path), tmp_path, None, "WA")
 
 
