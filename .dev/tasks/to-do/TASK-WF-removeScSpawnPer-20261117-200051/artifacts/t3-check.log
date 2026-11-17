@@ -1,0 +1,6 @@
+# T3 checks
+AC1 diff of the two guide copies (expect empty):
+AC1 spawn mentions in the guide: 0
+AC2 twin readers:
+  
+  ============================== 84 passed in 1.19s ==============================

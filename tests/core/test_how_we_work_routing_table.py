@@ -30,7 +30,6 @@ _OTHER_COMMANDS = {
     "sc:graph",
     "sc:impact",
     "sc:issue",
-    "sc:spawn",
     "sc:sweep",
     "sc:index",
     "sc:index-repo",
@@ -1064,7 +1063,7 @@ def test_pr_attachment_monitor_log_resume_and_silence_are_not_new_shipping():
 
 
 def test_other_operations_preserve_requested_authority_and_owned_state():
-    """S23-S27/T19/T72: utility operations are not generic implementation."""
+    """S23-S26/T19/T72: utility operations are not generic implementation."""
     other = _block(_text(), _OTHER_BEGIN, _OTHER_END)
     assert "Status-only stays inspection" in other
     assert "a commit needs authorization" in other
@@ -1082,9 +1081,6 @@ def test_other_operations_preserve_requested_authority_and_owned_state():
     assert "inspect status, orient, then wait" in other
     assert "self-contained, not a missing protocol" in other
     assert "Not a default planner, automatic-start guarantee" in other
-    assert "critical stop is a task hierarchy only" in other
-    assert "no source edits or downstream implementation" in other
-    assert "Branch tracing is limited" in other
 
 
 def test_lifecycle_and_contract_gaps_do_not_certify_stale_or_mixed_interfaces():

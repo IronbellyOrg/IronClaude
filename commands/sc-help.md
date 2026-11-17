@@ -41,7 +41,6 @@ Here is a complete list of all available SuperClaude (`/sc:sc`) commands.
 | `/sc:sc:improve` | Apply systematic improvements to code quality, performance, and maintainability |
 | `/sc:sc:index` | Generate comprehensive project documentation and knowledge base with intelligent organization |
 | `/sc:sc:select-tool` | Intelligent MCP tool selection based on complexity scoring and operation analysis |
-| `/sc:sc:spawn` | Meta-system task orchestration with intelligent breakdown and delegation |
 | `/sc:sc:spec-panel` | Multi-expert specification review and improvement using renowned specification and software engineering experts |
 | `/sc:sc:task` | Execute complex tasks with intelligent workflow management and delegation |
 | `/sc:sc:test` | Execute tests with coverage analysis and automated quality reporting |

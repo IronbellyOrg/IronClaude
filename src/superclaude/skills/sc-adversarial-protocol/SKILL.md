@@ -1200,7 +1200,7 @@ round_2_5_invariant_probe:
         - "Unenumerated downstream gates"
         - "Claims of 'this fix is enough' with no traversal of the post-fix code path"
       applies_when: "Any debate producing a 'fix X greens test Y' or 'approach X resolves problem Y' claim. Always-on regardless of pipeline shape (~250 tokens/debate)."
-      evidence_preference: "If a Stage 1 `branch-trace.md` artifact exists (per `~/.claude/commands/sc/spawn.md` Rule 2.5), the fault-finder MUST consult it and cite the specific branch(es) the fix does or does not handle. If no branch-trace exists, the fault-finder must produce an inline source-file enumeration in the EVIDENCE field."
+      evidence_preference: "If a Stage 1 `branch-trace.md` artifact exists, the fault-finder MUST consult it and cite the specific branch(es) the fix does or does not handle. If no branch-trace exists, the fault-finder must produce an inline source-file enumeration in the EVIDENCE field."
 
   prompt_template: |
     ROUND 2.5: INVARIANT PROBE — FAULT-FINDER AGENT
@@ -1258,8 +1258,8 @@ round_2_5_invariant_probe:
       condition" without evidence.
     - For each filter/gate between the proposed fix site and the
       assertion site, has the fix's target input been shown to pass it?
-    - If a `branch-trace.md` artifact exists (Stage 1, per
-      spawn.md Rule 2.5), cite specific branch line numbers in EVIDENCE.
+    - If a `branch-trace.md` artifact exists (Stage 1), cite specific
+      branch line numbers in EVIDENCE.
 
     OUTPUT FORMAT (one entry per finding):
     ID: INV-NNN
