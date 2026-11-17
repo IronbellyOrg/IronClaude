@@ -130,6 +130,12 @@ One entry per step. Each entry: date and time (UTC), the step, the commands or s
 - **Also from the agent's notes:** the root `commands/` folder (names spelled `/sc:sc:...`) is a static v4-era copy that nothing generates, reads or tests; every removal PR still edits it for consistency. The plan's file counts missed shared sentences (8 files for the `improve` and `cleanup` sentence) and root `commands/` copies.
 - **Wave 3 totals:** PRs 8, A and B merged: #627 `da12c4d76`, #626 `3e2b5dd45`, #625 `ff52d57ab`; 27 tests gone net from PR 8, and the small fixes added tests (PR A: 21 new tests; PR B: new tests in `tests/cli/test_ic_launcher.py`, count not separately recorded). Time from agent start (22:18Z) to the last merge: 94 minutes. Nudges: one (the idle PR 8 agent). Questions to Clay: one, non-blocking (the #510 checklist, entry 17).
 
+### 20. Wave 3 reported; wave 4 started (2026-11-17 23:53Z to 23:55Z)
+- **Step:** posted the wave 3 comment on issue 571 (https://github.com/IronbellyOrg/IronClaude/issues/571#issuecomment-6964532968); sent the summary and the #510 checklist question to `GeneralIronFlow`; master into `integration` returned 204 (up to date, `integration` at `da12c4d76`); wrote the PR 4 `cli-portify` prompt (no kept module may import from `cli/cli_portify`; the Generator-Constraint body section; PR 11 comes after) and launched its worktree and agent alone; started its watch.
+- **Time:** about 3 minutes.
+- **Went well:** the prompt generator, the verify script and the watch script made a launch a one-call job.
+- **Change next time:** none new.
+
 ## Out of scope, for later
 - The task and documentation bundle (Part B of issue 571) and the agents evaluation (issue 572).
 - Ryan's request of 2026-11-17 14:40 to fold the eight analysis documents (`sweep`, `observe`, `review-safety-scan`, `review-fixcheck-and-consequence-rule`, `shadow-run-and-review-panel`, `issue-pipeline`, `launch-level-guard`, `ccsession-retention`) into the docs and processes.
