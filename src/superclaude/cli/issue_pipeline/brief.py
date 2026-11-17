@@ -10,6 +10,7 @@ The rows stop before ``/sc:implement`` and ``/task``.
 
 from __future__ import annotations
 
+import re
 from importlib import resources
 
 from superclaude.cli.issue_watch.predicates import valid_issue_number
@@ -44,8 +45,18 @@ def _sections() -> dict[str, list[str]]:
     return sections
 
 
-def build(issue: object, type_: object, complexity: object) -> str:
-    """Return the brief for a Feature issue, or raise ``BriefRefused`` with a closed reason."""
+_NONCE = re.compile(r"[0-9a-f]{32}")
+
+
+def build(
+    issue: object, type_: object, complexity: object, nonce: object = None
+) -> str:
+    """Return the brief for a Feature issue, or raise ``BriefRefused`` with a closed reason.
+
+    ``nonce`` is the launch nonce a governed worker is bound with (the coordinator gets
+    it from ``orca_worktree.py pending``); only then does the brief carry the one
+    ``[sc-launch:v1:<nonce>]`` marker line. The brief of the one G1 test issue has none.
+    """
     if not valid_issue_number(issue):
         raise BriefRefused("bad-issue")
     if type_ not in TYPES:
@@ -54,6 +65,10 @@ def build(issue: object, type_: object, complexity: object) -> str:
         raise BriefRefused("type-not-supported")
     if complexity not in COMPLEXITIES:
         raise BriefRefused("bad-complexity")
+    if nonce is not None and not (isinstance(nonce, str) and _NONCE.fullmatch(nonce)):
+        raise BriefRefused("bad-nonce")
     sections = _sections()
-    lines = [*sections["head"], *sections[str(complexity)]]
-    return "\n".join(lines).replace("{N}", str(issue)) + "\n"
+    marker = sections["marker"] if nonce is not None else []
+    lines = [*sections["head"], *marker, *sections[str(complexity)]]
+    text = "\n".join(lines).replace("{N}", str(issue))
+    return text.replace("{NONCE}", str(nonce)) + "\n"

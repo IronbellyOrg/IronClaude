@@ -1,0 +1,17 @@
+contract_version: "1.1"
+status: success
+slug: TASK-WF-planDecision6BFo-20261114-174909
+plan_path: ./TASK-WF-planDecision6BFo-20261114-174909.md
+source_path: ./source.md
+source_origin: inline
+strategy: systematic
+depth: standard
+handoff_action: none
+handoff_output_path: null
+reflect_status: partial
+reflect_report_path: /home/coder/workspaces/worktrees/IronClaude/claim-handoff-b/.dev/reflect/pre-planDecision6BFo-t2-20261114220310/REPORT.md
+unresolved:
+  - "Tier 2 review ran with three reviewer classes and blind grades (0.85, 0.85, 0.83), but its merge was a single adjudicator, not an adversarial debate with advocates, so reflect_status is partial."
+  - "The plan was revised after that review to apply the confirmed findings (it grew from 18 to 19 tasks: Task 14 was split and Task 15 added). On 2026-11-15 it was split into Plan A (this plan_path: Tasks 16, 1, 2, 8, 3 to 7, 19) and Plan B (own package .dev/tasks/to-do/TASK-WF-planDecision6BFo-20261114-174909-planB/plan-b-gated-tasks.md: gate Task 20, then Tasks 9 to 15, 17, 18; no managed front matter). Neither revision has been reviewed."
+  - "Owner input O-1 is open: the number of one issue the owner wrote, written to tests/issue_pipeline/fixtures/recorded/OWNER-INPUT.md, needed by Task 4."
+  - "No owner decision is open. The owner answers of 2026-11-14 (Q34 to Q41) are recorded in Task 19."

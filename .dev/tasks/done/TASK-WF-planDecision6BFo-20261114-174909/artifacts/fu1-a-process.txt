@@ -1,0 +1,9 @@
+PID 2678640
+/opt/nvm/versions/node/v24.22.2/bin/claude --dangerously-skip-permissions --allowedTools=Grep --settings {"modelSettings":{"claude-gw-tier1b":{"autoCompactWindow":850000},"claude-gw-tier0":{"autoCompactWindow":850000},"claude-fable-5-1":{"autoCompactWindow":850000},"gpt-6-astra":{"autoCompactWindow":850000},"claude-gw-tier1a":{"autoCompactWindow":850000},"claude-opus-5-5":{"autoCompactWindow":8500
+
+(env names checked)
+PID 2704061
+/bin/bash -c source /home/coder/.claude/shell-snapshots/snapshot-bash-1794874367844-lmdprj.sh 2>/dev/null || true && CLAUDE_SESSION_ID=48fde902-5b04-4e5d-8962-2bc36784e975
+: && \builtin shopt -u extglob 2>/dev/null || true && { \builtin unalias -- 'which'; \builtin unset -f -- 'which'; } >/dev/null 2>&1 || true && { \builtin unalias -- 'unsetenv'; \builtin unset -f -- 'unsetenv'; } >/dev/null 2>&1 || true && eval 'orca orchestration ask --from term_e7042ba6-24b4-41e7-a079-175625700816 --question "FU1 c: reply with the single word pong" --timeout-ms 600000' < /dev/nu
+
+(env names checked)

@@ -20,7 +20,7 @@ This updated design is authoritative for **new planning**. `merged-requirements.
 
 ## 1. Purpose and scope
 
-One script, `launch-level-guard.sh`, enforces the level that `/sc:issue --claim --pipeline <level>` gives a launched agent. Only sessions the claim script launched are governed; every other session is ordinary and never blocked.
+One script, `launch-level-guard.sh`, enforces the level that `/sc:issue --claim --pipeline <level>` gives a launched agent. Only sessions the claim script launched are governed; every other session is ordinary and never blocked. A worker that a coordinator starts after a `--pipeline none` claim (the coordinator handoff, amended 2026-11-17) is not launched by the claim script, so this guard does not govern it.
 
 | Level | Short | Allowed |
 |---|---|---|

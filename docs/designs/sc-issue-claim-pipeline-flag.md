@@ -21,7 +21,7 @@ Today `/sc:issue --claim` assigns the issue, checks its accuracy, writes `next-s
 | `worktree` (default) | `--pipeline worktree` or nothing | An Orca worktree `issue-<N>` is created (or reused) and a Claude Code agent is launched in it. It runs `next-steps.md` up to the plan boundary. | An approved plan: it prints the plan path and "Waiting for approval" until a human approves |
 | `full` | `--pipeline full` | Same, but the agent runs every step including `/sc:implement` or `/task`. | Finished implementation, unstaged, uncommitted, unpushed |
 | `full` + `--submit` | `--pipeline full --submit` | Same, then the agent commits, pushes a feature branch to `origin` and runs `/sc:pr-submit --monitor 3`. | A pushed branch with an open PR on the fork |
-| `none` | `--pipeline none` | The claim ends after the comments (amended 2026-11-08): no worktree is created, no agent is launched. | Nothing runs; the user runs `next-steps.md` from the main checkout's `.dev/issues/<N>/` |
+| `none` | `--pipeline none` | The claim ends after the comments (amended 2026-11-08): no worktree is created, no agent is launched. | The claim itself runs nothing. Without a coordinator, the user runs `next-steps.md` from the main checkout's `.dev/issues/<N>/`. With a coordinator that owns the issue (amended 2026-11-17), the coordinator creates the worktree with `orca_worktree.py worktree` and starts a worker in it with `worker-start`; see the "Coordinator handoff for `--pipeline none`" paragraph of `src/superclaude/commands/issue.md` |
 
 No level merges anything. Humans only review and merge; nobody opens a PR by hand, because with `--submit` the agent's `/sc:pr-submit` opens it.
 

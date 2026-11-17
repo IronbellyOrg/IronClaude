@@ -2380,7 +2380,7 @@ _LAUNCH_TRACE = [
     "items:9",
     "origin",
 ]
-_CLAIM_9 = "/sc:issue --claim 9"
+_CLAIM_9 = "/sc:issue --claim 9 --pipeline none"
 _T_MARK = T_APPROVED + timedelta(minutes=1)  # a claim marker after the approval
 _SHADOW_AT = "2026-11-07T13:00:00Z"  # CYCLE_NOW, as dry-run.json writes it
 
@@ -3769,7 +3769,7 @@ def test_s1_case_b_fifteen_eligible_issues_examine_and_launch_exactly_one__fr016
     lines1 = _lines_of(tmp_state, res1)
     assert (res1.exit_code, res1.launched_issue) == (0, 1)
     assert _decisions(lines1) == [(1, "launched")]
-    assert [c[2] for c in launcher.calls] == ["/sc:issue --claim 1"]
+    assert [c[2] for c in launcher.calls] == ["/sc:issue --claim 1 --pipeline none"]
     assert _touched(world) == {1}  # later candidates are neither read ...
     stored = tmp_state.load()
     assert dict(stored.considered) == {1: CYCLE_NOW}  # ... nor stamped
@@ -3780,8 +3780,8 @@ def test_s1_case_b_fifteen_eligible_issues_examine_and_launch_exactly_one__fr016
     res2, _ = _run(tmp_path, tmp_state, world, launcher=launcher)
     assert _decisions(_lines_of(tmp_state, res2)) == [(2, "launched")]
     assert [c[2] for c in launcher.calls] == [
-        "/sc:issue --claim 1",
-        "/sc:issue --claim 2",
+        "/sc:issue --claim 1 --pipeline none",
+        "/sc:issue --claim 2 --pipeline none",
     ]
     assert sorted(tmp_state.load().entries) == [1, 2]
     assert dict(tmp_state.load().considered) == {
@@ -4244,7 +4244,9 @@ def _prompt_numbers(launcher) -> list[int]:
     """The issue numbers the launcher was asked for, after checking each prompt."""
     numbers = []
     for _orca, _worktree, prompt, _timeout in launcher.calls:
-        prefix, _, digits = prompt.rpartition(" ")
+        head, _, tail = prompt.rpartition(" ")
+        assert tail == "none" and head.endswith(" --pipeline")
+        prefix, _, digits = head[: -len(" --pipeline")].rpartition(" ")
         assert prefix == "/sc:issue --claim"
         assert digits.isdigit() and digits == str(int(digits))
         numbers.append(int(digits))
@@ -4358,7 +4360,10 @@ def test_acceptance_property(tmp_path, tmp_state, gh_world, count):
         assert made in (0, 1)  # at most one launch per cycle
         assert (res.exit_code, res.launched_issue is None) == (0, made == 0)
         if made:
-            assert launcher.calls[-1][2] == f"/sc:issue --claim {res.launched_issue}"
+            assert (
+                launcher.calls[-1][2]
+                == f"/sc:issue --claim {res.launched_issue} --pipeline none"
+            )
         world.clock.advance(_HALF_HOUR)
         return res, lines
 
@@ -4478,7 +4483,9 @@ def test_the_three_reserved_calls_remain_for_the_re_read__nfr009(
     assert _per_issue_calls(world) == 35
     assert _the_cycle_line(lines)["gh_calls"] == 2 + 35
     assert _reads(world, 9) == [] and _reads(world, 10) == []
-    assert [c[2] for c in deps.launcher.calls] == ["/sc:issue --claim 8"]
+    assert [c[2] for c in deps.launcher.calls] == [
+        "/sc:issue --claim 8 --pipeline none"
+    ]
     assert _entry(tmp_state, 8).state == "launched"
 
 

@@ -17,7 +17,14 @@ from superclaude.cli.issue_watch import cycle
 from superclaude.cli.issue_watch import github as gh
 from superclaude.cli.issue_watch.runner import Runner, SubprocessRunner
 
-from . import approval_line, approval_record, plan_hash, reads, stage_predicates
+from . import (
+    approval_line,
+    approval_record,
+    plan_hash,
+    reads,
+    release,
+    stage_predicates,
+)
 
 _EXIT_REFUSED = 1
 _EXIT_CONFIG = 2
@@ -188,6 +195,23 @@ def record_mark_command(
             approvals_dir, issue, stage, plan_hash_value, state
         )
     )
+
+
+@issue_pipeline_group.command("release-worker")
+@click.argument("session_id")
+@click.option(
+    "--store",
+    type=click.Path(path_type=Path),
+    default=None,
+    help="The launch-level store; default ~/.claude/state/launch-level.",
+)
+def release_worker_command(session_id: str, store: Path | None) -> None:
+    """Release a bound worker's session after its plan approval is recorded."""
+    try:
+        click.echo(release.release(session_id, store))
+    except release.ReleaseError as exc:
+        click.echo(f"refused:{exc.reason}")
+        raise SystemExit(_EXIT_REFUSED) from None
 
 
 # --- stage-status: read-only -------------------------------------------------
