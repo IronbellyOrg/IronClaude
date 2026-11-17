@@ -22,6 +22,19 @@
 
 set -euo pipefail
 
+# Handle -h/--help before sourcing $AIENV: a failing line in that file must not
+# block help. Walk the arguments like the parser below does: an option that takes
+# a value skips it, and `--` ends the scan (everything after it is for claude).
+for ((i = 1; i <= $#; i++)); do
+  case "${!i}" in
+    -p|--preset|-H|--haiku|-S|--sonnet|-O|--opus) i=$((i + 1)) ;;
+    --) break ;;
+    -h|--help)
+      sed -n '2,15p' "$0" | sed 's/^# \{0,1\}//'
+      exit 0 ;;
+  esac
+done
+
 AIENV="${AIENV:-$HOME/.aienv}"
 if [[ -f "$AIENV" ]]; then
   # shellcheck disable=SC1090
@@ -77,9 +90,6 @@ while [[ $# -gt 0 ]]; do
     -O|--opus)     ANTHROPIC_DEFAULT_OPUS_MODEL="$(resolve "$2")";   shift 2 ;;
     --no-yolo)     yolo=0; shift ;;
     --)            shift; claude_args+=("$@"); break ;;
-    -h|--help)
-      sed -n '2,15p' "$0" | sed 's/^# \{0,1\}//'
-      exit 0 ;;
     -*)
       # Unknown flag — forward to claude.
       claude_args+=("$1"); shift ;;
