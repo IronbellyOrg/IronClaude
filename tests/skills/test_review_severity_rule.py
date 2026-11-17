@@ -222,7 +222,7 @@ def test_c_reflect_reviewer_grade_bullets_pinned():
         "`Note:`",
         "also name the affected action",
         "`consumer-unknown`",
-        "stays in the Correctness gaps table",
+        "stays in the Correctness gaps table, never the Deviations table, and never gates on its own",
         "the orchestrator still makes the gating decision",
     ):
         assert _flat(needle) in flat, needle
