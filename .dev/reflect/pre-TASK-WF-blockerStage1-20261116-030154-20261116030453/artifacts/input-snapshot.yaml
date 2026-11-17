@@ -1,0 +1,137 @@
+input_tree_sha256: 8d1f41f1cb3d77ddd62a6a176cd3bfcada5d97314f1022194f130379ffc8e6dd
+file_list:
+- path: .claude/settings.json
+  sha256: 1f535104e6bb9145585a88418d0a094a4b38d6432e3b5fbd6226d550da33d41c
+- path: .dev/tasks/to-do/BLOCKER-CLASSIFICATION-PROGRAM-20261115/02-brainstorm/blocker_truth_table_sketch.py
+  sha256: 2308f6a31be36c99f2c7bf926f82114255d1289da7ee74258aac0f59e23c6c66
+- path: .dev/tasks/to-do/BLOCKER-CLASSIFICATION-PROGRAM-20261115/02-brainstorm/merged-requirements.md
+  sha256: d9ab642687da087dfccb9e62911f3a53b334128f3b700f9019ae1524ad16fbfb
+- path: .dev/tasks/to-do/BLOCKER-CLASSIFICATION-PROGRAM-20261115/07-classifier/truth_table.py
+  sha256: c00c82b28dfeaae19ce6318686aa6c94cdc56867526ceae5974959325d41203c
+- path: .dev/tasks/to-do/BLOCKER-CLASSIFICATION-PROGRAM-20261115/08-test/results.md
+  sha256: bdce4bae0e2593263eaa97bbf785922609792ede7c9e7494680fe5ef604f004b
+- path: .dev/tasks/to-do/BLOCKER-CLASSIFICATION-PROGRAM-20261115/09-plan-input.md
+  sha256: 6d260b6d4e7a2fbf315d5040d331e2610bbb660df781f731abf43d5556b3fd2a
+- path: .dev/tasks/to-do/BLOCKER-CLASSIFICATION-PROGRAM-20261115/stage-requests/README.md
+  sha256: 7917ff80e85cc3fd4d3900678edf034bbf630ecbc1cec40bcd4e25fc5133a82c
+- path: .dev/tasks/to-do/TASK-WF-blockerStage1-20261116-030154/TASK-WF-blockerStage1-20261116-030154.md
+  sha256: 8a065f9c2a0b8f297f810bb606eb829d817b7defe2fae7aa8c998bfcd1fbd1e7
+- path: .dev/tasks/to-do/TASK-WF-blockerStage1-20261116-030154/artifacts/codegraph-grounding.md
+  sha256: fd4a03a7f62d7d3100b6e03515a318138671c90faea525e0294281d819d04876
+- path: .dev/tasks/to-do/TASK-WF-blockerStage1-20261116-030154/source.md
+  sha256: e32f6c86bd67cc5c1094a1de7b2d2744c14d80cbdc5686b02dd7ff90cf56fe40
+- path: src/superclaude/agents/rf-qa-qualitative.md
+  sha256: c205eff2c1e80bef31ba0778b2705177e756d6f9a949cbb05cfe71d3445005f8
+- path: src/superclaude/agents/rf-qa.md
+  sha256: b59b4b1ba9959b0d8965429c517f4cd8c8c25f0ea644a299fc36dcb9561e36dc
+- path: src/superclaude/cli/doctor.py
+  sha256: 1708ff8dbfaaf48e3e2b8a27f7833e2232ef9d594b406f01aa250c5b9ef16922
+- path: src/superclaude/cli/review/__init__.py
+  sha256: f0f0abc6c87a80ee608d36e3ed96f032c625b1d99ce6b256e17479f78f47324c
+- path: src/superclaude/cli/review/card_convert.py
+  sha256: aba1262c34f28a19a2997e39e28fc932faf98e8a5a674ce3a3014521b6bd4528
+- path: src/superclaude/cli/review/findings_v2.py
+  sha256: 76ad2580e267d313271875904930e8d3009b8fc3c1675c2332be07e678ef3aac
+- path: src/superclaude/cli/review/ledger.py
+  sha256: 2908549846e1a6c63f692d18c7e4c375e257590eb4671a17dba1b315218b8179
+- path: src/superclaude/commands/spec-panel.md
+  sha256: e62e70b98e878cb4b60ba8f95f1cc3442a25e815828a3ef3d17a95b65ea97494
+- path: src/superclaude/output-styles/pragmatic.md
+  sha256: 84107fb5718c2189205d4cacbf2979aec8fb9b77758167eb31c3a35e6fe757f9
+- path: src/superclaude/rules/prompts/automated_qa_workflow_qa_prompt.md
+  sha256: ff6b492f834ac016407afdca520b002076c91ae66a848e410c6d7c58557db1b7
+- path: src/superclaude/rules/prompts/doc_code_analyst_qa_prompt.md
+  sha256: b0d4a975bba0f20e436491a6415c2016ec3763f8291085acecb0602ae3b40c51
+- path: src/superclaude/rules/prompts/document_review_loop_prompts.md
+  sha256: 75a29b95a21a7113f236d82da71d7ea3b4e43e729bff5be654c08cbc16e93f84
+- path: src/superclaude/rules/prompts/documentation_expert_qa_prompt.md
+  sha256: 936e119e218c1c9eb132e04c9e895d4a1dcb6d5f5bfe54a1ef6778348d6937f1
+- path: src/superclaude/rules/prompts/recruiting_expert_qa_prompt.md
+  sha256: fc36bea33a59565bb121915fb166082aa7c8dbbf6a145df2c75b11686daf74e8
+- path: src/superclaude/skills/sc-implement-protocol/refs/qa.md
+  sha256: 93e232f5d49207624c24da25bc6f2e9a0686b4f7f7ca99a38e4b95f56edaf004
+- path: src/superclaude/skills/sc-issue-protocol/scripts/origin_repo.py
+  sha256: 47bd0d899aaa2a1b03b2fe2f297118c99850a3a15a292794270337475916cf0d
+- path: src/superclaude/skills/sc-tasklist-protocol/SKILL.md
+  sha256: c5196c08bbcbca17fdc97b36f73b4d033b87557b4d032f0ee26b70c5323d479b
+- path: src/superclaude/skills/task/SKILL.md
+  sha256: a4e51b0d3cb10c2289d824ac9b6500c978a60cb03e8621580ed47c1ce53d94f2
+- path: src/superclaude/templates/documents/agent_template_analysis.md
+  sha256: 49821b43d8415390f31aff44e0f468d74183e95f5f6124f70ce79978df13ea52
+- path: src/superclaude/templates/documents/agent_template_qa.md
+  sha256: 80763f9cf2934229cf1b5648f1ff346b132a10fd9d382a0e0ec3e46d6b1f17bb
+- path: src/superclaude/templates/documents/skill_template.md
+  sha256: a15f9efe080281be0501be638daa45b45cd179eb1f7c05177f66c1ec7f1f147a
+- path: src/superclaude/templates/workflow/01_mdtm_template_generic_task.md
+  sha256: 778d174148e1fa34acce852955df120596226450f4c19c89ac6d416d0d5a002d
+- path: src/superclaude/templates/workflow/02_mdtm_template_complex_task.md
+  sha256: 2eff71d4cbb208435b3576f29e80b04d8321597d4f21f722a4517b9bb1f73637
+- path: tests/cli/test_install_retired_mcp.py
+  sha256: cf5333da23c759e81d634b6356a4ec68de488f7a71ad8ae68bfea6e1a431d2f2
+- path: tests/unit/test_cli_doctor.py
+  sha256: d1a2cca30afcd1cf3108fb2f806a23dc8c16090bb2281cede09ded2293708144
+file_count: 35
+tasklist_sha256: 8a065f9c2a0b8f297f810bb606eb829d817b7defe2fae7aa8c998bfcd1fbd1e7
+spec_sha256: e32f6c86bd67cc5c1094a1de7b2d2744c14d80cbdc5686b02dd7ff90cf56fe40
+output_root: /home/coder/workspaces/worktrees/IronClaude/brainstorm-reflect-panel/.dev/reflect/pre-TASK-WF-blockerStage1-20261116-030154-20261116030453
+unresolved_tasklist_refs:
+- .claude/
+- .claude/...
+- .claude/skills/sc-review-severity/...
+- .dev/
+- .dev/tasks/
+- /sc:implement
+- IronbellyOrg/IronClaude
+- WORKER-CONTRACT.md
+- card_convert.py
+- classifier_inputs.py
+- cli/review
+- commands/sc/spec-panel-armb.md
+- commands/sc/spec-panel.md
+- fmea_classifier.py
+- follow-ups.md
+- ledger.py
+- origin_repo.py
+- plugins/
+- pragmatic.md
+- refs/classifier-questions.md
+- refs/follow-up-ledger.md
+- refs/qa.md
+- refs/registry.yaml
+- refs/rule.md
+- refs/scale-map.md
+- registry.yaml
+- remediate_parser.py
+- review-ledger/1
+- rf-qa-qualitative.md
+- rf-qa.md
+- sc-auggie-review-protocol/SKILL.md:228
+- skills/sc-review-severity/refs/rule.md
+- spec-panel-diffgate.md
+- spec-panel-ledger.md
+- spec-panel-ponytail.md
+- spec-panel-stoprule.md
+- src/
+- src/superclaude
+- src/superclaude/
+- src/superclaude/cli/review/classifier.py
+- src/superclaude/cli/review/classifier_inputs.py
+- src/superclaude/cli/review/classify_cmd.py
+- src/superclaude/cli/review/data/classifier_thresholds.json
+- src/superclaude/cli/review/follow_ups.py
+- src/superclaude/cli/review/safety_route.py
+- src/superclaude/skills/sc-review-severity/SKILL.md
+- src/superclaude/skills/sc-review-severity/refs/classifier-questions.md
+- src/superclaude/skills/sc-review-severity/refs/follow-up-ledger.md
+- src/superclaude/skills/sc-review-severity/refs/registry.yaml
+- src/superclaude/skills/sc-review-severity/refs/rule.md
+- src/superclaude/skills/sc-review-severity/refs/scale-map.md
+- stage-requests/
+- stage0a-result.md
+- tests/review/test_review_classifier.py
+- tests/review/test_review_classifier_inputs.py
+- tests/review/test_review_classify_cmd.py
+- tests/review/test_review_follow_ups.py
+- tests/review/test_review_follow_ups_filing.py
+- tests/review/test_review_safety_route.py
+- tests/skills/test_review_severity_registry.py

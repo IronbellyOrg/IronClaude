@@ -1,0 +1,9 @@
+selected_tier: 2
+fired_rule_number: 0            # hard override §5.1: --tier 2 pin; rubric not evaluated for selection
+coverage_degraded: parsed-sparse
+composite_score: 7.0
+per_signal_breakdown: {scope_size: 1, task_count: 2, blast_radius: 2, spec_density: 1, ambiguity_signals: 1}
+escalation_reason: "--tier 2 pin (user); parsed-sparse pre-filter would also force T2 (0 parsed IDs, 8 inferred rows)"
+t2_engine_requested: shadow
+t2_engine_effective: shadow
+panel_fallback_reason: null

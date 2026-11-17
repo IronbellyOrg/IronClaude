@@ -1,0 +1,266 @@
+{
+ "pass1": {
+  "C1": [
+   "MET",
+   "MET"
+  ],
+  "C2": [
+   "MET",
+   "MET"
+  ],
+  "C3": [
+   "MET",
+   "MET"
+  ],
+  "C4": [
+   "MET",
+   "MET"
+  ],
+  "C5": [
+   "MET",
+   "MET"
+  ],
+  "K1": [
+   "NOT MET",
+   "NOT MET"
+  ],
+  "K2": [
+   "MET",
+   "MET"
+  ],
+  "K3": [
+   "NOT MET",
+   "NOT MET"
+  ],
+  "K4": [
+   "NOT MET",
+   "NOT MET"
+  ],
+  "K5": [
+   "MET",
+   "MET"
+  ],
+  "S1": [
+   "MET",
+   "MET"
+  ],
+  "S2": [
+   "NOT MET",
+   "NOT MET"
+  ],
+  "S3": [
+   "MET",
+   "NOT MET"
+  ],
+  "S4": [
+   "MET",
+   "MET"
+  ],
+  "S5": [
+   "MET",
+   "MET"
+  ],
+  "L1": [
+   "MET",
+   "MET"
+  ],
+  "L2": [
+   "MET",
+   "MET"
+  ],
+  "L3": [
+   "MET",
+   "MET"
+  ],
+  "L4": [
+   "NOT MET",
+   "NOT MET"
+  ],
+  "L5": [
+   "MET",
+   "MET"
+  ],
+  "R1": [
+   "MET",
+   null
+  ],
+  "R2": [
+   "MET",
+   null
+  ],
+  "R3": [
+   "MET",
+   "MET"
+  ],
+  "R4": [
+   "MET",
+   "MET"
+  ],
+  "R5": [
+   "MET",
+   "MET"
+  ],
+  "E1": [
+   "MET",
+   "MET"
+  ],
+  "E2": [
+   "MET",
+   "MET"
+  ],
+  "E3": [
+   "MET",
+   "MET"
+  ],
+  "E4": [
+   "MET",
+   "MET"
+  ],
+  "E5": [
+   "MET",
+   "MET"
+  ]
+ },
+ "pass2": {
+  "E1": [
+   "MET",
+   "MET"
+  ],
+  "E2": [
+   "MET",
+   "MET"
+  ],
+  "E3": [
+   "MET",
+   "MET"
+  ],
+  "E4": [
+   "MET",
+   "MET"
+  ],
+  "E5": [
+   "MET",
+   "MET"
+  ],
+  "R1": [
+   "MET",
+   "NOT MET"
+  ],
+  "R2": [
+   "MET",
+   "NOT MET"
+  ],
+  "R3": [
+   "MET",
+   "MET"
+  ],
+  "R4": [
+   "MET",
+   "MET"
+  ],
+  "R5": [
+   "MET",
+   "MET"
+  ],
+  "L1": [
+   "MET",
+   "MET"
+  ],
+  "L2": [
+   "MET",
+   "MET"
+  ],
+  "L3": [
+   "MET",
+   "MET"
+  ],
+  "L4": [
+   "NOT MET",
+   "NOT MET"
+  ],
+  "L5": [
+   "MET",
+   "MET"
+  ],
+  "S1": [
+   "MET",
+   "MET"
+  ],
+  "S2": [
+   "NOT MET",
+   "NOT MET"
+  ],
+  "S3": [
+   "MET",
+   "NOT MET"
+  ],
+  "S4": [
+   "MET",
+   "MET"
+  ],
+  "S5": [
+   "MET",
+   "MET"
+  ],
+  "K1": [
+   "NOT MET",
+   "NOT MET"
+  ],
+  "K2": [
+   "MET",
+   "MET"
+  ],
+  "K3": [
+   "NOT MET",
+   "NOT MET"
+  ],
+  "K4": [
+   "NOT MET",
+   "NOT MET"
+  ],
+  "K5": [
+   "MET",
+   "MET"
+  ],
+  "C1": [
+   "MET",
+   "NOT MET"
+  ],
+  "C2": [
+   "MET",
+   "MET"
+  ],
+  "C3": [
+   "MET",
+   "MET"
+  ],
+  "C4": [
+   "MET",
+   "MET"
+  ],
+  "C5": [
+   "MET",
+   "MET"
+  ]
+ },
+ "disagreements": [
+  [
+   "C1",
+   "V2",
+   "MET",
+   "NOT MET"
+  ],
+  [
+   "R1",
+   "V2",
+   null,
+   "NOT MET"
+  ],
+  [
+   "R2",
+   "V2",
+   null,
+   "NOT MET"
+  ]
+ ]
+}

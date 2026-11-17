@@ -1,0 +1,490 @@
+{
+  "layer": "quantitative (scoring-protocol.md A.1)",
+  "slot": "X-13 process-redesign-modules",
+  "variants": {
+    "A": {
+      "DC": {
+        "refs": [
+          {
+            "kind": "section",
+            "line": 12,
+            "resolved": true,
+            "target": "5"
+          },
+          {
+            "kind": "section",
+            "line": 52,
+            "resolved": true,
+            "target": "5"
+          },
+          {
+            "kind": "section",
+            "line": 71,
+            "resolved": true,
+            "target": "5"
+          },
+          {
+            "kind": "subsection",
+            "line": 79,
+            "resolved": true,
+            "target": "3.5"
+          },
+          {
+            "kind": "subsection",
+            "line": 81,
+            "resolved": true,
+            "target": "3.6"
+          },
+          {
+            "kind": "subsection",
+            "line": 105,
+            "resolved": true,
+            "target": "3.1"
+          },
+          {
+            "kind": "section",
+            "line": 106,
+            "resolved": true,
+            "target": "8"
+          }
+        ],
+        "resolved": 7,
+        "total": 7,
+        "value": 1.0
+      },
+      "H2_count": 8,
+      "IC": {
+        "contradiction_list": [
+          {
+            "claim": "an item with no finding 'is reported in observed through the existing mechanism'",
+            "contradicts": "A line 110 'observed is a declaration'; code: nothing writes observed but the orchestrator (findings_v2.py:6, SKILL.md:345)",
+            "id": "A-X1",
+            "lines": [
+              20,
+              110
+            ],
+            "verified_by": "round1-advocate-A concession 1; round1-advocate-B weakness 1; round2-advocate-A section 'B weakness 1' (conceded)"
+          },
+          {
+            "claim": "'At HEAD no component edits a reviewer finding before the merge' resting on ledger.py:3-4",
+            "contradicts": "A's own quote of ledger.py:3-4 is a status rule ('Only this module changes a finding's status'); the cite does not carry the claim",
+            "id": "A-X2",
+            "lines": [
+              43
+            ],
+            "verified_by": "round1-advocate-B weakness 5; round2-advocate-A (gave up this argument, ledger.py:3-4 is a status rule); diff-analysis X-003; debate-transcript X-003 (both agree)"
+          },
+          {
+            "claim": "core adds additive advisory item-evidence flags to precheck.json built on verify_cmd._check",
+            "contradicts": "_check reaches only findings-v2 citations (verify_cmd.py:133-143); script-attached item evidence has no checker; A line 69 itself lists byte-identity of precheck.json as endangered",
+            "id": "A-X3",
+            "lines": [
+              18,
+              69
+            ],
+            "verified_by": "round1-advocate-B weakness 2; round1-advocate-A concession 6; round2-advocate-A item 1 (withdrew part (c))"
+          },
+          {
+            "claim": "v1 engine carries item answers under an open unknown key such as 'probe', checkable by the module",
+            "contradicts": "ledger copies only round, reviewer_id, fid, blocking into members (ledger.py:172-179, re-read by this scorer); no host exists for the module check on v1",
+            "id": "A-X4",
+            "lines": [
+              20,
+              89
+            ],
+            "verified_by": "round1-advocate-A concession 5; round2-advocate-A (v1 loop has no snapshot/sidecar/precheck step); round2-advocate-B (CONFIRMED)"
+          },
+          {
+            "claim": "if no extractor passes M1, A 'degrades, by construction' to a leftover with value (card loader plus sidecar entry point)",
+            "contradicts": "leftover equals arm K (a plain-words checklist with a loader); A's own advocate withdrew the 'has value' wording; A line 117 concedes the core cannot prove examination",
+            "id": "A-X5",
+            "lines": [
+              12,
+              113
+            ],
+            "verified_by": "round1-advocate-B weakness 4; round2-advocate-A ('a claim about harm, not value'; withdrawn)"
+          }
+        ],
+        "contradictions": 5,
+        "total_claims": 27,
+        "value": 0.8148148148148149
+      },
+      "RC": {
+        "detail": [
+          {
+            "id": "R1",
+            "matched": true,
+            "requirement": "core shape: pre-pass or sidecar/assigned/observed"
+          },
+          {
+            "id": "R2",
+            "matched": true,
+            "requirement": "advisory vs demotion/promotion (CO-23, GQ-130)"
+          },
+          {
+            "id": "R3",
+            "matched": true,
+            "requirement": "recipes for read-only tools"
+          },
+          {
+            "id": "R4",
+            "matched": true,
+            "requirement": "CB-2 vs Medium routing (CO-24)"
+          },
+          {
+            "id": "R5",
+            "matched": true,
+            "requirement": "slot keys / lens binding (GQ-131)"
+          },
+          {
+            "id": "R6",
+            "matched": true,
+            "requirement": "gates G0 and D1-D7 (GQ-135)"
+          },
+          {
+            "id": "R7",
+            "matched": true,
+            "requirement": "design consequence for core and modules"
+          },
+          {
+            "id": "R8",
+            "matched": true,
+            "requirement": "invariants preserved/endangered"
+          },
+          {
+            "id": "R9",
+            "matched": true,
+            "requirement": "test or measurement that shows it right or wrong"
+          },
+          {
+            "id": "R10",
+            "matched": true,
+            "requirement": "consistency with adjudicated C-01, C-02, C-03"
+          },
+          {
+            "id": "R11",
+            "matched": true,
+            "requirement": "effect on PR code review and rf-qa"
+          },
+          {
+            "id": "R12",
+            "matched": true,
+            "requirement": "strongest objection and answer"
+          }
+        ],
+        "matched": 12,
+        "total": 12,
+        "value": 1.0
+      },
+      "SC": {
+        "h2": 8,
+        "max_h2": 9,
+        "value": 0.8888888888888888
+      },
+      "SR": {
+        "concrete_lines": 72,
+        "concrete_share_of_substantive_lines_info_only": 0.9,
+        "substantive_lines": 80,
+        "vague_occurrences": 0,
+        "value": 1.0
+      },
+      "file": "variant-1-original.md",
+      "quant_score": 0.937037
+    },
+    "B": {
+      "DC": {
+        "refs": [
+          {
+            "kind": "section",
+            "line": 19,
+            "resolved": true,
+            "target": "4"
+          },
+          {
+            "kind": "section",
+            "line": 19,
+            "resolved": true,
+            "target": "3"
+          },
+          {
+            "kind": "evidence",
+            "line": 19,
+            "resolved": true,
+            "target": "E5"
+          },
+          {
+            "kind": "section",
+            "line": 21,
+            "resolved": true,
+            "target": "3"
+          },
+          {
+            "kind": "section",
+            "line": 23,
+            "resolved": true,
+            "target": "3"
+          },
+          {
+            "kind": "section",
+            "line": 24,
+            "resolved": true,
+            "target": "8"
+          },
+          {
+            "kind": "evidence",
+            "line": 43,
+            "resolved": true,
+            "target": "E2"
+          },
+          {
+            "kind": "section",
+            "line": 46,
+            "resolved": true,
+            "target": "7"
+          },
+          {
+            "kind": "evidence",
+            "line": 53,
+            "resolved": true,
+            "target": "E7"
+          },
+          {
+            "kind": "evidence",
+            "line": 53,
+            "resolved": true,
+            "target": "E6"
+          },
+          {
+            "kind": "evidence",
+            "line": 55,
+            "resolved": true,
+            "target": "E5"
+          },
+          {
+            "kind": "evidence",
+            "line": 64,
+            "resolved": true,
+            "target": "E2"
+          },
+          {
+            "kind": "evidence",
+            "line": 84,
+            "resolved": true,
+            "target": "E2"
+          },
+          {
+            "kind": "evidence",
+            "line": 84,
+            "resolved": true,
+            "target": "E10"
+          },
+          {
+            "kind": "section",
+            "line": 85,
+            "resolved": true,
+            "target": "8"
+          },
+          {
+            "kind": "evidence",
+            "line": 86,
+            "resolved": true,
+            "target": "E7"
+          },
+          {
+            "kind": "evidence",
+            "line": 106,
+            "resolved": true,
+            "target": "E14"
+          },
+          {
+            "kind": "evidence",
+            "line": 112,
+            "resolved": true,
+            "target": "E12"
+          },
+          {
+            "kind": "evidence",
+            "line": 112,
+            "resolved": true,
+            "target": "E11"
+          },
+          {
+            "kind": "section",
+            "line": 118,
+            "resolved": true,
+            "target": "6"
+          },
+          {
+            "kind": "evidence",
+            "line": 122,
+            "resolved": true,
+            "target": "E3"
+          },
+          {
+            "kind": "evidence",
+            "line": 122,
+            "resolved": true,
+            "target": "E13"
+          },
+          {
+            "kind": "evidence",
+            "line": 122,
+            "resolved": true,
+            "target": "E14"
+          }
+        ],
+        "resolved": 23,
+        "total": 23,
+        "value": 1.0
+      },
+      "H2_count": 9,
+      "IC": {
+        "contradiction_list": [
+          {
+            "claim": "'The brief renderer appends ... each card's recipe_text'; T-B1 golden files of rendered briefs",
+            "contradicts": "no brief renderer exists in cli/review (only ledger._brief_ids); briefs are orchestrator prose",
+            "id": "B-X1",
+            "lines": [
+              35,
+              93
+            ],
+            "verified_by": "round1-advocate-A weakness 4; round1-advocate-B concession 1; round2.5 INV-019 re-ran the search"
+          },
+          {
+            "claim": "a PROBLEM row without a finding is listed under follow-up candidates by the report builder (non-blocking rows are already listed, ledger.py:468)",
+            "contradicts": "ledger.py:467-474 prints ledger rows only (others = [r for r in ledger['rows'] if not r['blocking']]); a PROBLEM row with no finding is not a ledger row (re-read by this scorer)",
+            "id": "B-X2",
+            "lines": [
+              43
+            ],
+            "verified_by": "round1-advocate-A weakness 6; round2-advocate-B item g (CONFIRMED; 'My R1 citation ledger.py:468 was wrong')"
+          },
+          {
+            "claim": "reviewer ids are <slot_id>-<i> (panel.py:668) and feed the existing sidecar keyed by reviewer id",
+            "contradicts": "the sidecar key is the card file stem (cluster_cmd.py:146), 'reviewer-<N>' in the reflect flow; three reviewer-id spaces exist",
+            "id": "B-X3",
+            "lines": [
+              34,
+              36
+            ],
+            "verified_by": "round1-advocate-B concession 6; round2.5 INV-003"
+          },
+          {
+            "claim": "the merge reads the overlay only when the profile says rowcheck: apply; the core 'puts no behaviour in the core that a profile does not switch on'",
+            "contradicts": "merge_cmd.command (merge_cmd.py:71-118) hands raw text to ledger.merge_round, no extension point or profile layer; the overlay needs merge_cmd and ledger.py changes (INV-D)",
+            "id": "B-X4",
+            "lines": [
+              38,
+              118
+            ],
+            "verified_by": "round1-advocate-A weakness 4; round1-advocate-B concession 3; round2-advocate-B decision (i) (dropped the profile value and overlay)"
+          },
+          {
+            "claim": "row block placed after the findings block while 'the brief file document_review_loop_prompts.md is untouched'",
+            "contradicts": "that brief says 'end the report with the findings block' (document_review_loop_prompts.md:33) and a pinned sentence says the last section is the Findings block",
+            "id": "B-X5",
+            "lines": [
+              36,
+              43,
+              79
+            ],
+            "verified_by": "round1-advocate-A weakness 8; round1-advocate-B concession 2; round2.5 INV-015"
+          },
+          {
+            "claim": "slot key 'recipes' chosen after checking name collisions (only recipe_name in the swarm lens registry)",
+            "contradicts": "src/superclaude/cli/swarm/recipes/ is an existing package (ls re-run by this scorer); the check missed it",
+            "id": "B-X6",
+            "lines": [
+              34
+            ],
+            "verified_by": "round1-advocate-B concession 5; round2-advocate-A new fact; debate-transcript C-013"
+          }
+        ],
+        "contradictions": 6,
+        "total_claims": 31,
+        "value": 0.8064516129032258
+      },
+      "RC": {
+        "detail": [
+          {
+            "id": "R1",
+            "matched": true,
+            "requirement": "core shape: pre-pass or sidecar/assigned/observed"
+          },
+          {
+            "id": "R2",
+            "matched": true,
+            "requirement": "advisory vs demotion/promotion (CO-23, GQ-130)"
+          },
+          {
+            "id": "R3",
+            "matched": true,
+            "requirement": "recipes for read-only tools"
+          },
+          {
+            "id": "R4",
+            "matched": true,
+            "requirement": "CB-2 vs Medium routing (CO-24)"
+          },
+          {
+            "id": "R5",
+            "matched": true,
+            "requirement": "slot keys / lens binding (GQ-131)"
+          },
+          {
+            "id": "R6",
+            "matched": true,
+            "requirement": "gates G0 and D1-D7 (GQ-135)"
+          },
+          {
+            "id": "R7",
+            "matched": true,
+            "requirement": "design consequence for core and modules"
+          },
+          {
+            "id": "R8",
+            "matched": true,
+            "requirement": "invariants preserved/endangered"
+          },
+          {
+            "id": "R9",
+            "matched": true,
+            "requirement": "test or measurement that shows it right or wrong"
+          },
+          {
+            "id": "R10",
+            "matched": true,
+            "requirement": "consistency with adjudicated C-01, C-02, C-03"
+          },
+          {
+            "id": "R11",
+            "matched": true,
+            "requirement": "effect on PR code review and rf-qa"
+          },
+          {
+            "id": "R12",
+            "matched": true,
+            "requirement": "strongest objection and answer"
+          }
+        ],
+        "matched": 12,
+        "total": 12,
+        "value": 1.0
+      },
+      "SC": {
+        "h2": 9,
+        "max_h2": 9,
+        "value": 1.0
+      },
+      "SR": {
+        "concrete_lines": 65,
+        "concrete_share_of_substantive_lines_info_only": 0.866667,
+        "substantive_lines": 75,
+        "vague_occurrences": 0,
+        "value": 1.0
+      },
+      "file": "variant-2-original.md",
+      "quant_score": 0.951613
+    }
+  }
+}

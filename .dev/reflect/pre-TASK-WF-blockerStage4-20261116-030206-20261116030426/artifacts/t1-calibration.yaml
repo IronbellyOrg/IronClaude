@@ -1,0 +1,16 @@
+calibrator_class: opus   # agent confidence-calibrator, model alias opus (claude-gw-tier1a); the T1 card author is the sonnet-class orchestrator
+calibrator_diversity: full   # for the T1 card the calibrator class differs from the card author's class
+blind: true   # only input was the card path and the rubric path
+per_dimension:
+  citation_grounding: 0.92
+  coverage_completeness: 0.80
+  deviation_classification_clarity: 0.35
+  risk_surface_coverage: 0.85
+  recommendation_actionability: 0.80
+calibrated_confidence: 0.74
+citations_checked_by_calibrator: 11 of 11 hold
+escalation_recommendation: escalate (C below 0.85)
+calibrator_notes:
+  - "Small overstatement in T1 item 8: Task 6 does not edit the files the pinning test covers."
+  - "coverage_pct_union 0.625 explained by the card's manual gap list."
+  - "Items 6, 7, 9, 10 carry no recommendation; item 10 hedges."

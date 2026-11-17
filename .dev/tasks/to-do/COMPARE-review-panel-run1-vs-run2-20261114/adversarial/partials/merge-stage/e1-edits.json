@@ -1,0 +1,642 @@
+[
+ {
+  "change": "M-01",
+  "line": 5,
+  "old": "**Research files:** 24 codebase + 4 web research (+ 12 scope slices)",
+  "new": "**Research files:** Run 2: 24 codebase + 4 web research files (12 scope slices listed, not opened, V2:108). Run 1: 13 codebase + 4 web research files, plus 6 scope slices S00-S05 used as evidence (V1:113).",
+  "reason": "research-files line covers both runs",
+  "file_count_of_old_in_base": 1
+ },
+ {
+  "change": "M-24 item 9",
+  "line": 108,
+  "old": "and are not cited as evidence.",
+  "new": "and are not cited as evidence. [Compare-merge baseline note: `origin/master` `d4d1662a8` (2026-11-14) is 3 commits past merge-base `d2d8a2d16`; HEAD `ad8f57560` is 5 commits past it; line numbers in this document are valid at HEAD; on `origin/master` the pins that C14 and C26 cite sit at `tests/skills/test_worker_contract.py:787, :796, :1872` and `src/superclaude/output-styles/pragmatic.md:229, :235` (fault-finder row 3). `e2f2ac268` (E2) is 7 commits after `6c09843` and was not read by either report.]",
+  "reason": "baseline note: origin/master moved, HEAD ad8f57560, e2f2ac268",
+  "file_count_of_old_in_base": 1
+ },
+ {
+  "change": "M-24 item 12",
+  "line": 154,
+  "old": "**Two Tier 2 engines that share only `contract.py`.**",
+  "new": "**Two Tier 2 engines that share only `contract.py`.** Provenance: engine A predates the E1 shadow work (master baseline; PRs #213, #214, #220, #329; run 1 V1:414).",
+  "reason": "engine A provenance",
+  "file_count_of_old_in_base": 1
+ },
+ {
+  "change": "M-24 item 6",
+  "line": 179,
+  "old": "89 of the 110 stable names absent |",
+  "new": "89 of the 110 stable names absent [engine-A contract keys: 32 keys by default; 33 when `t2_fallback` is set (`ensemble.py:363`, 833-834); 10 outside both frozen lists by default, 11 with the key; run 1 counted 33/11] |",
+  "reason": "engine-A key count basis",
+  "file_count_of_old_in_base": 1
+ },
+ {
+  "change": "M-24 item 10",
+  "line": 215,
+  "old": "mean 0.704 over 9 runs (pilot)",
+  "new": "mean 0.704 over 9 runs (pilot) (mixed definitions: values written before commit 9874d63fb were not first-parse; `git show 9874d63fb`, diff-analysis X-027; run 1 V1:162)",
+  "reason": "0.704 mixed definitions",
+  "file_count_of_old_in_base": 1
+ },
+ {
+  "change": "M-24 item 11",
+  "line": 216,
+  "old": "(`cluster.py:50`) |",
+  "new": "(`cluster.py:50`); shadow09 holds the one non-1.0 calibrated value 0.9328 (`.dev/reflect/*shadow09*/panel/clusters*.json`), which the exit script does not read because the contract does not parse; run 1 V1:163 |",
+  "reason": "shadow09 0.9328 not read",
+  "file_count_of_old_in_base": 1
+ },
+ {
+  "change": "M-24 item 7",
+  "line": 683,
+  "old": "lines in 8 SKILL.md files",
+  "new": "lines in 8 SKILL.md files [run 1 counted 43 call sites in 11 files (unit not stated, not reproducible by the grep); `grep -rEn 'subagent_type: *\"?rf-' src/superclaude/skills` gives 52 lines in 11 files, 44 of them in 8 SKILL.md files]",
+  "reason": "rf-* census unit note",
+  "file_count_of_old_in_base": 6
+ },
+ {
+  "change": "M-24 item 4",
+  "line": 710,
+  "old": "50 `tests/pr_submit/` files",
+  "new": "47 `tests/pr_submit/` test files [corrected from 50: `tests/pr_submit` has 47 test files, 49 tracked `.py`]",
+  "reason": "pr_submit test-file count",
+  "file_count_of_old_in_base": 2
+ },
+ {
+  "change": "M-24 item 12",
+  "line": 845,
+  "old": "behind `superclaude reflect run`).",
+  "new": "behind `superclaude reflect run`); engine A predates the E1 shadow work (master baseline; PRs #213, #214, #220, #329; run 1 V1:414).",
+  "reason": "engine A provenance",
+  "file_count_of_old_in_base": 1
+ },
+ {
+  "change": "M-24 item 13",
+  "line": 874,
+  "old": "195 of 1,398 rows chained",
+  "new": "195 chains among 1,398 rows (1,398 counts all rows; `audit2.py` increments `rows_total` before the `<3` members filter)",
+  "reason": "1,398 unit",
+  "file_count_of_old_in_base": 2
+ },
+ {
+  "change": "M-24 item 11",
+  "line": 874,
+  "old": "1.000 over 9 runs [CODE-VERIFIED by execution, R06 section 0]",
+  "new": "1.000 over 9 runs [CODE-VERIFIED by execution, R06 section 0]; shadow09 holds the one non-1.0 calibrated value 0.9328 (`.dev/reflect/*shadow09*/panel/clusters*.json`), which the exit script does not read because the contract does not parse; run 1 V1:163",
+  "reason": "shadow09 0.9328 not read",
+  "file_count_of_old_in_base": 1
+ },
+ {
+  "change": "M-24 item 3",
+  "line": 891,
+  "old": "reflect's 5 [UNVERIFIED]",
+  "new": "reflect's 5 [CODE-VERIFIED: `src/superclaude/agents/confidence-calibrator.md:3,61` says 6 dimensions; `src/superclaude/skills/sc-reflect-protocol/SKILL.md:1262,1835` says 5; diff-analysis X-030]",
+  "reason": "calibrator 6 vs 5 is code-verified",
+  "file_count_of_old_in_base": 1
+ },
+ {
+  "change": "M-24 item 6",
+  "line": 892,
+  "old": "89 of the 110 stable names are absent",
+  "new": "89 of the 110 stable names are absent [engine-A contract keys: 32 keys by default; 33 when `t2_fallback` is set (`ensemble.py:363`, 833-834); 10 outside both frozen lists by default, 11 with the key; run 1 counted 33/11]",
+  "reason": "engine-A key count basis",
+  "file_count_of_old_in_base": 2
+ },
+ {
+  "change": "M-24 item 1",
+  "line": 940,
+  "old": "A citation-only finding raises `KeyError: 'anchor'` in v1 `annotate` (`findings.py:349`, probe P-a), so it cannot enter the v1 ledger path (`ledger.merge_round` calls `annotate` at `ledger.py:136`)",
+  "new": "A citation-only finding cannot enter the v1 ledger path: a v2 citation-only finding is rejected by the v1 parser (`findings.py:104` `_check_flat(anchor)`; `parse_block` skips it at `findings.py:188-192`), so `annotate` never sees it on the shipped merge path; `findings.annotate` raises `KeyError: 'anchor'` (`findings.py:349`) only on a direct call or if the ledger were switched to the v2 parser [CODE-VERIFIED by the compare orchestrator at HEAD ad8f57560] (probe P-a is a direct `annotate` call)",
+  "reason": "KeyError mechanism",
+  "file_count_of_old_in_base": 1
+ },
+ {
+  "change": "M-24 item 13",
+  "line": 1027,
+  "old": "195 of 1,398 rows chained",
+  "new": "195 chains among 1,398 rows (1,398 counts all rows; `audit2.py` increments `rows_total` before the `<3` members filter)",
+  "reason": "1,398 unit",
+  "file_count_of_old_in_base": 2
+ },
+ {
+  "change": "M-24 item 3",
+  "line": 1033,
+  "old": "(6 against 5 dimensions)",
+  "new": "(6 against 5 dimensions) [now CODE-VERIFIED, see Appendix E]",
+  "reason": "calibrator code-verified",
+  "file_count_of_old_in_base": 1
+ },
+ {
+  "change": "M-24 item 1",
+  "line": 1177,
+  "old": "or a recorded `anchor_status`",
+  "new": "or a recorded `anchor_status` [mechanism note: today such a line never reaches `annotate`: the v1 parser rejects it (`findings.py:104`; `parse_block` skips it at `findings.py:188-192`); `KeyError: 'anchor'` (`findings.py:349`) arises only on a direct `annotate` call or with the v2 parser; CODE-VERIFIED by the compare orchestrator at HEAD ad8f57560]",
+  "reason": "KeyError mechanism note on a target criterion",
+  "file_count_of_old_in_base": 1
+ },
+ {
+  "change": "M-24 item 4",
+  "line": 1202,
+  "old": "50 `tests/pr_submit/` files green",
+  "new": "47 `tests/pr_submit/` test files [corrected from 50: `tests/pr_submit` has 47 test files, 49 tracked `.py`] green",
+  "reason": "pr_submit test-file count",
+  "file_count_of_old_in_base": 1
+ },
+ {
+  "change": "M-24 item 1",
+  "line": 1236,
+  "old": "A v2 citation-only finding raises `KeyError: 'anchor'` in `findings.annotate` (`findings.py:349`), which `ledger.merge_round` calls (`ledger.py:136`);",
+  "new": "A v2 citation-only finding is rejected by the v1 parser (`findings.py:104` `_check_flat(anchor)`; `parse_block` skips it at `findings.py:188-192`), so `annotate` never sees it on the shipped merge path; `findings.annotate` raises `KeyError: 'anchor'` (`findings.py:349`) only on a direct call or if the ledger were switched to the v2 parser [CODE-VERIFIED by the compare orchestrator at HEAD ad8f57560];",
+  "reason": "KeyError mechanism",
+  "file_count_of_old_in_base": 1
+ },
+ {
+  "change": "M-24 item 6",
+  "line": 1255,
+  "old": "89 of the 110 stable names absent",
+  "new": "89 of the 110 stable names absent [engine-A contract keys: 32 keys by default; 33 when `t2_fallback` is set (`ensemble.py:363`, 833-834); 10 outside both frozen lists by default, 11 with the key; run 1 counted 33/11]",
+  "reason": "engine-A key count basis",
+  "file_count_of_old_in_base": 2
+ },
+ {
+  "change": "M-24 item 10",
+  "line": 1282,
+  "old": "first-parse compliance mean 0.704.",
+  "new": "first-parse compliance mean 0.704 (mixed definitions: values written before commit 9874d63fb were not first-parse; `git show 9874d63fb`, diff-analysis X-027; run 1 V1:162).",
+  "reason": "0.704 mixed definitions (extra site)",
+  "file_count_of_old_in_base": 1
+ },
+ {
+  "change": "M-24 item 8",
+  "line": 1331,
+  "old": "`sc-reflect-protocol/SKILL.md` (6)",
+  "new": "`sc-reflect-protocol/SKILL.md` (5 lines, 7 occurrences [corrected from \"(6)\"; `grep -c` and `grep -o`])",
+  "reason": "superclaude review mention count",
+  "file_count_of_old_in_base": 1
+ },
+ {
+  "change": "M-24 item 1",
+  "line": 1334,
+  "old": "the v2 PARSER accepts citation-only findings but `ledger.merge_round` -> `annotate` raises `KeyError: 'anchor'` (`findings.py:346-349`, `ledger.py:127-138`)",
+  "new": "the v2 PARSER accepts citation-only findings, but on the ledger path a v2 citation-only finding is rejected by the v1 parser (`findings.py:104` `_check_flat(anchor)`; `parse_block` skips it at `findings.py:188-192`), so `annotate` never sees it on the shipped merge path; `findings.annotate` raises `KeyError: 'anchor'` (`findings.py:349`) only on a direct call or if the ledger were switched to the v2 parser [CODE-VERIFIED by the compare orchestrator at HEAD ad8f57560]",
+  "reason": "KeyError mechanism",
+  "file_count_of_old_in_base": 1
+ },
+ {
+  "change": "M-24 item 4",
+  "line": 1335,
+  "old": "has 50 test files",
+  "new": "has 47 test files [corrected from 50: `tests/pr_submit` has 47 test files, 49 tracked `.py`]",
+  "reason": "pr_submit test-file count",
+  "file_count_of_old_in_base": 1
+ },
+ {
+  "change": "M-24 item 7",
+  "line": 1341,
+  "old": "(52 lines in 11 files in the tree)",
+  "new": "(52 lines in 11 files in the tree) [run 1 counted 43 call sites in 11 files (unit not stated, not reproducible by the grep); `grep -rEn 'subagent_type: *\"?rf-' src/superclaude/skills` gives 52 lines in 11 files, 44 of them in 8 SKILL.md files]",
+  "reason": "rf-* census unit note",
+  "file_count_of_old_in_base": 1
+ },
+ {
+  "change": "M-24 item 13",
+  "line": 1368,
+  "old": "195 of 1,398 multi-member rows are chains",
+  "new": "195 chains among 1,398 rows (1,398 counts all rows; `audit2.py` increments `rows_total` before the `<3` members filter)",
+  "reason": "1,398 unit",
+  "file_count_of_old_in_base": 1
+ },
+ {
+  "change": "M-24 item 6",
+  "line": 1430,
+  "old": "89 of 110 absent)",
+  "new": "89 of 110 absent) [engine-A contract keys: 32 keys by default; 33 when `t2_fallback` is set (`ensemble.py:363`, 833-834); 10 outside both frozen lists by default, 11 with the key; run 1 counted 33/11]",
+  "reason": "engine-A key count basis",
+  "file_count_of_old_in_base": 1
+ },
+ {
+  "change": "M-24 item 1",
+  "line": 1437,
+  "old": "(`annotate` `KeyError`)",
+  "new": "(`annotate` `KeyError`) [corrected: on the shipped merge path the v1 parser rejects a citation-only line first (`findings.py:104`; `parse_block` skips it at `findings.py:188-192`), so `annotate` never sees it; `KeyError: 'anchor'` (`findings.py:349`) arises only on a direct `annotate` call or if the ledger were switched to the v2 parser; CODE-VERIFIED by the compare orchestrator at HEAD ad8f57560]",
+  "reason": "KeyError mechanism",
+  "file_count_of_old_in_base": 1
+ },
+ {
+  "change": "M-24 item 2",
+  "line": 1647,
+  "old": "in contrast to the 2023 literature.",
+  "new": "in contrast to the 2023 literature. [SOURCE WITHDRAWN: arXiv 2606.19544, withdrawn by arXiv Admin, v2 2026-11-03; figure not used]",
+  "reason": "withdrawn source",
+  "file_count_of_old_in_base": 1
+ },
+ {
+  "change": "M-24 item 2",
+  "line": 1648,
+  "old": "https://arxiv.org/html/2606.19544v1 ;",
+  "new": "https://arxiv.org/html/2606.19544v1 [SOURCE WITHDRAWN: arXiv 2606.19544, withdrawn by arXiv Admin, v2 2026-11-03; figure not used] ;",
+  "reason": "withdrawn source",
+  "file_count_of_old_in_base": 1
+ },
+ {
+  "change": "M-24 item 2",
+  "line": 1648,
+  "old": "2606.19544 carries a mid-2026 id)",
+  "new": "2606.19544 carries a mid-2026 id) [corrected: arXiv lists 2510.27106 as accepted at EMNLP 2025 (run 2 QA P6-054, `qa-consolidated-findings-phase6.md:76`); 2606.19544 is withdrawn]",
+  "reason": "2510.27106 tier",
+  "file_count_of_old_in_base": 1
+ },
+ {
+  "change": "M-24 item 2",
+  "line": 1655,
+  "old": "(AE-1 found it much reduced)",
+  "new": "(AE-1 found it much reduced) [SOURCE WITHDRAWN: arXiv 2606.19544, withdrawn by arXiv Admin, v2 2026-11-03; figure not used]",
+  "reason": "withdrawn source",
+  "file_count_of_old_in_base": 1
+ },
+ {
+  "change": "M-24 item 5",
+  "line": 1728,
+  "old": "not `--allowedTools` (a common mistake).",
+  "new": "not `--allowedTools` (a common mistake). [R25-INV-006, R25-INV-007: `--tools <read-only set>` and `--restricted` leave MCP servers available, so `--strict-mcp-config` is also needed; `--restricted` refuses `bypassPermissions` and confines file tools to the working directories; the gate G2 must read the MCP server list from the `system/init` event; the product already has a restricted `claude --print` child (`src/superclaude/cli/pipeline/process.py:145-154` `reviewer_profile=True`, used at `runner.py:566` and `ensemble.py:548`), and the \"gated, not built\" launcher must say whether it reuses or replaces it. Flag help text source: local `claude --help` 2.1.325 (fault-finder row 27)]",
+  "reason": "read-only mechanism incomplete (MCP)",
+  "file_count_of_old_in_base": 1
+ },
+ {
+  "change": "M-24 item 5",
+  "line": 1792,
+  "old": "(which applies only to Agent-tool subagents).",
+  "new": "(which applies only to Agent-tool subagents). [R25-INV-006, R25-INV-007: `--tools` and `--restricted` leave MCP servers available, so `--strict-mcp-config` is also needed and G2 must read the MCP server list from the `system/init` event (local `claude --help` 2.1.325, fault-finder row 27); a restricted `claude --print` child already exists (`pipeline/process.py:145-154`, `reviewer_profile=True`); full note in 5.2.4]",
+  "reason": "read-only mechanism incomplete (MCP)",
+  "file_count_of_old_in_base": 1
+ },
+ {
+  "change": "M-24 item 2",
+  "line": 2044,
+  "old": "Verbosity bias appears much smaller in recent judges.",
+  "new": "Verbosity bias appears much smaller in recent judges. [SOURCE WITHDRAWN: arXiv 2606.19544, withdrawn by arXiv Admin, v2 2026-11-03; figure not used]",
+  "reason": "withdrawn source",
+  "file_count_of_old_in_base": 1
+ },
+ {
+  "change": "M-24 item 5",
+  "line": 2054,
+  "old": "covers only the Agent path.",
+  "new": "covers only the Agent path. [R25-INV-006, R25-INV-007: `--tools` and `--restricted` leave MCP servers available, so `--strict-mcp-config` is also needed and G2 must read the MCP server list from the `system/init` event (local `claude --help` 2.1.325, fault-finder row 27); a restricted `claude --print` child already exists (`pipeline/process.py:145-154`, `reviewer_profile=True`); full note in 5.2.4]",
+  "reason": "read-only mechanism incomplete (MCP)",
+  "file_count_of_old_in_base": 1
+ },
+ {
+  "change": "M-24 item 2",
+  "line": 2072,
+  "old": "| 5.1.5 AE-1 | Included |",
+  "new": "| 5.1.5 AE-1 | Included (AE-1's figures from arXiv 2606.19544 are marked [SOURCE WITHDRAWN: arXiv 2606.19544, withdrawn by arXiv Admin, v2 2026-11-03; figure not used]) |",
+  "reason": "withdrawn source",
+  "file_count_of_old_in_base": 1
+ },
+ {
+  "change": "M-24 item 2",
+  "line": 2078,
+  "old": "5.1.5 AE-1 | Included as source option |",
+  "new": "5.1.5 AE-1 | Included as source option (AE-1's figures from arXiv 2606.19544 are marked [SOURCE WITHDRAWN: arXiv 2606.19544, withdrawn by arXiv Admin, v2 2026-11-03; figure not used]) |",
+  "reason": "withdrawn source",
+  "file_count_of_old_in_base": 1
+ },
+ {
+  "change": "M-24 item 1",
+  "line": 2177,
+  "old": "a v2 citation-only finding crashes the v1 ledger path (`KeyError: 'anchor'`, `findings.py:349`, called from `ledger.py:136`).",
+  "new": "a v2 citation-only finding is rejected by the v1 parser (`findings.py:104` `_check_flat(anchor)`; `parse_block` skips it at `findings.py:188-192`), so `annotate` never sees it on the shipped merge path; `findings.annotate` raises `KeyError: 'anchor'` (`findings.py:349`) only on a direct call or if the ledger were switched to the v2 parser [CODE-VERIFIED by the compare orchestrator at HEAD ad8f57560].",
+  "reason": "KeyError mechanism",
+  "file_count_of_old_in_base": 1
+ },
+ {
+  "change": "M-24 item 1",
+  "line": 2226,
+  "old": "a citation-only finding crashes the v1 ledger path (R01 P-a);",
+  "new": "a citation-only finding crashes the v1 ledger path (R01 P-a) [corrected: on the shipped merge path the v1 parser rejects a citation-only line first (`findings.py:104`; `parse_block` skips it at `findings.py:188-192`), so `annotate` never sees it; `KeyError: 'anchor'` (`findings.py:349`) arises only on a direct `annotate` call or if the ledger were switched to the v2 parser; CODE-VERIFIED by the compare orchestrator at HEAD ad8f57560];",
+  "reason": "KeyError mechanism (extra site)",
+  "file_count_of_old_in_base": 1
+ },
+ {
+  "change": "M-24 item 10",
+  "line": 2370,
+  "old": "pilot mean 0.704 over 9 runs",
+  "new": "pilot mean 0.704 over 9 runs (mixed definitions: values written before commit 9874d63fb were not first-parse; `git show 9874d63fb`, diff-analysis X-027; run 1 V1:162)",
+  "reason": "0.704 mixed definitions (extra site)",
+  "file_count_of_old_in_base": 1
+ },
+ {
+  "change": "M-24 item 6",
+  "line": 2507,
+  "old": "10 keys outside the frozen lists",
+  "new": "10 keys outside the frozen lists [engine-A contract keys: 32 keys by default; 33 when `t2_fallback` is set (`ensemble.py:363`, 833-834); 10 outside both frozen lists by default, 11 with the key; run 1 counted 33/11]",
+  "reason": "engine-A key count basis (extra site)",
+  "file_count_of_old_in_base": 1
+ },
+ {
+  "change": "M-24 item 6",
+  "line": 2703,
+  "old": "89 of 110 stable names absent",
+  "new": "89 of 110 stable names absent [engine-A contract keys: 32 keys by default; 33 when `t2_fallback` is set (`ensemble.py:363`, 833-834); 10 outside both frozen lists by default, 11 with the key; run 1 counted 33/11]",
+  "reason": "engine-A key count basis",
+  "file_count_of_old_in_base": 1
+ },
+ {
+  "change": "M-24 item 2",
+  "line": 2829,
+  "old": "(W01 AE-1; external, transfer unverified).",
+  "new": "(W01 AE-1; external, transfer unverified). [SOURCE WITHDRAWN: arXiv 2606.19544, withdrawn by arXiv Admin, v2 2026-11-03; figure not used]",
+  "reason": "withdrawn source",
+  "file_count_of_old_in_base": 1
+ },
+ {
+  "change": "M-24 item 7",
+  "line": 2953,
+  "old": "lines in 8 SKILL.md files",
+  "new": "lines in 8 SKILL.md files [run 1 counted 43 call sites in 11 files (unit not stated, not reproducible by the grep); `grep -rEn 'subagent_type: *\"?rf-' src/superclaude/skills` gives 52 lines in 11 files, 44 of them in 8 SKILL.md files]",
+  "reason": "rf-* census unit note",
+  "file_count_of_old_in_base": 6
+ },
+ {
+  "change": "M-24 item 4",
+  "line": 2973,
+  "old": "50 test files pin",
+  "new": "47 test files [corrected from 50: `tests/pr_submit` has 47 test files, 49 tracked `.py`] pin",
+  "reason": "pr_submit test-file count",
+  "file_count_of_old_in_base": 2
+ },
+ {
+  "change": "M-24 item 3",
+  "line": 3323,
+  "old": "the claim is [UNVERIFIED], carried from slice 10 and not re-read",
+  "new": "the claim is [UNVERIFIED], carried from slice 10 and not re-read; the calibrator part is now [CODE-VERIFIED: `src/superclaude/agents/confidence-calibrator.md:3,61` says 6 dimensions; `src/superclaude/skills/sc-reflect-protocol/SKILL.md:1262,1835` says 5; diff-analysis X-030]",
+  "reason": "calibrator 6 vs 5 is code-verified",
+  "file_count_of_old_in_base": 1
+ },
+ {
+  "change": "M-24 item 1",
+  "line": 3329,
+  "old": "a citation-only finding raises `KeyError: 'anchor'` in `annotate`, so v2 findings cannot enter the v1 ledger path (no code path from v2 findings to the ledger)",
+  "new": "a v2 citation-only finding is rejected by the v1 parser (`findings.py:104` `_check_flat(anchor)`; `parse_block` skips it at `findings.py:188-192`), so `annotate` never sees it on the shipped merge path; `findings.annotate` raises `KeyError: 'anchor'` (`findings.py:349`) only on a direct call or if the ledger were switched to the v2 parser [CODE-VERIFIED by the compare orchestrator at HEAD ad8f57560]; so v2 findings cannot enter the v1 ledger path (no code path from v2 findings to the ledger)",
+  "reason": "KeyError mechanism",
+  "file_count_of_old_in_base": 1
+ },
+ {
+  "change": "M-24 item 4",
+  "line": 3357,
+  "old": "the 50 `tests/pr_submit` files",
+  "new": "the 47 `tests/pr_submit` test files [corrected from 50: `tests/pr_submit` has 47 test files, 49 tracked `.py`]",
+  "reason": "pr_submit test-file count",
+  "file_count_of_old_in_base": 2
+ },
+ {
+  "change": "M-24 item 7",
+  "line": 3387,
+  "old": "lines over 8 skills are exact",
+  "new": "lines over 8 skills are exact [run 1 counted 43 call sites in 11 files (unit not stated, not reproducible by the grep); `grep -rEn 'subagent_type: *\"?rf-' src/superclaude/skills` gives 52 lines in 11 files, 44 of them in 8 SKILL.md files]",
+  "reason": "rf-* census unit note (extra site)",
+  "file_count_of_old_in_base": 1
+ },
+ {
+  "change": "M-24 item 1",
+  "line": 3411,
+  "old": "a v2 citation-only finding raises `KeyError` in `annotate`, so location type blocks the ledger and merge path",
+  "new": "a v2 citation-only finding is rejected by the v1 parser (`findings.py:104` `_check_flat(anchor)`; `parse_block` skips it at `findings.py:188-192`), so `annotate` never sees it on the shipped merge path; `findings.annotate` raises `KeyError: 'anchor'` (`findings.py:349`) only on a direct call or if the ledger were switched to the v2 parser [CODE-VERIFIED by the compare orchestrator at HEAD ad8f57560]; so location type blocks the ledger and merge path",
+  "reason": "KeyError mechanism",
+  "file_count_of_old_in_base": 1
+ },
+ {
+  "change": "M-24 item 3",
+  "line": 3474,
+  "old": "5- versus 6-dimension calibrator",
+  "new": "5- versus 6-dimension calibrator [now CODE-VERIFIED, see Appendix E]",
+  "reason": "calibrator code-verified",
+  "file_count_of_old_in_base": 1
+ },
+ {
+  "change": "M-24 item 1",
+  "line": 3487,
+  "old": "a v2 citation-only finding raises `KeyError` in `annotate`;",
+  "new": "a v2 citation-only finding is rejected by the v1 parser (`findings.py:104` `_check_flat(anchor)`; `parse_block` skips it at `findings.py:188-192`), so `annotate` never sees it on the shipped merge path; `findings.annotate` raises `KeyError: 'anchor'` (`findings.py:349`) only on a direct call or if the ledger were switched to the v2 parser [CODE-VERIFIED by the compare orchestrator at HEAD ad8f57560];",
+  "reason": "KeyError mechanism",
+  "file_count_of_old_in_base": 1
+ },
+ {
+  "change": "M-24 item 4",
+  "line": 3496,
+  "old": "the 50 `tests/pr_submit` files",
+  "new": "the 47 `tests/pr_submit` test files [corrected from 50: `tests/pr_submit` has 47 test files, 49 tracked `.py`]",
+  "reason": "pr_submit test-file count",
+  "file_count_of_old_in_base": 2
+ },
+ {
+  "change": "M-24 item 14",
+  "line": 3516,
+  "old": "a dropped-blocking refusal with an acknowledgement exit",
+  "new": "a dropped-blocking refusal with an acknowledgement exit (this narrows the fail-open path but does not close it: the acknowledgement is not bound to item ids (C-06 INV-006), the acknowledged-drop flag state is undefined (X-14 INV-019), `blocking_state` comes from the line's own flag (Q-60))",
+  "reason": "fail-open narrowed, not closed",
+  "file_count_of_old_in_base": 2
+ },
+ {
+  "change": "M-24 item 5",
+  "line": 3517,
+  "old": "(no `--restricted` run on a gateway id exists)",
+  "new": "(no `--restricted` run on a gateway id exists) [R25-INV-006, R25-INV-007: `--tools` and `--restricted` leave MCP servers available, so `--strict-mcp-config` is also needed and G2 must read the MCP server list from the `system/init` event (local `claude --help` 2.1.325, fault-finder row 27); a restricted `claude --print` child already exists (`pipeline/process.py:145-154`, `reviewer_profile=True`); full note in 5.2.4]",
+  "reason": "read-only mechanism incomplete (MCP)",
+  "file_count_of_old_in_base": 2
+ },
+ {
+  "change": "M-24 item 1",
+  "line": 3636,
+  "old": "a citation-only finding crashes the v1 ledger path,",
+  "new": "a citation-only finding crashes the v1 ledger path [corrected: on the shipped merge path the v1 parser rejects a citation-only line first (`findings.py:104`; `parse_block` skips it at `findings.py:188-192`), so `annotate` never sees it; `KeyError: 'anchor'` (`findings.py:349`) arises only on a direct `annotate` call or if the ledger were switched to the v2 parser; CODE-VERIFIED by the compare orchestrator at HEAD ad8f57560],",
+  "reason": "KeyError mechanism (extra site)",
+  "file_count_of_old_in_base": 1
+ },
+ {
+  "change": "M-24 item 1",
+  "line": 3637,
+  "old": "a v2 citation-only line crashes the v1 ledger path with `KeyError 'anchor'` (r01 §3 P-a, r17 DR-113, REPRODUCED)",
+  "new": "a v2 citation-only finding is rejected by the v1 parser (`findings.py:104` `_check_flat(anchor)`; `parse_block` skips it at `findings.py:188-192`), so `annotate` never sees it on the shipped merge path; `findings.annotate` raises `KeyError: 'anchor'` (`findings.py:349`) only on a direct call or if the ledger were switched to the v2 parser [CODE-VERIFIED by the compare orchestrator at HEAD ad8f57560] (r01 §3 P-a, r17 DR-113, REPRODUCED as a direct `annotate` call)",
+  "reason": "KeyError mechanism",
+  "file_count_of_old_in_base": 1
+ },
+ {
+  "change": "M-24 item 14",
+  "line": 3638,
+  "old": "a fail-closed refusal with an acknowledgement exit when a blocking line was dropped",
+  "new": "a fail-closed refusal with an acknowledgement exit when a blocking line was dropped (this narrows the fail-open path but does not close it: the acknowledgement is not bound to item ids (C-06 INV-006), the acknowledged-drop flag state is undefined (X-14 INV-019), `blocking_state` comes from the line's own flag (Q-60))",
+  "reason": "fail-open narrowed, not closed",
+  "file_count_of_old_in_base": 1
+ },
+ {
+  "change": "M-24 item 5",
+  "line": 3640,
+  "old": "the CLI flags `--tools` and `--restricted` are named in W02 sections 4, 10).",
+  "new": "the CLI flags `--tools` and `--restricted` are named in W02 sections 4, 10). [R25-INV-006, R25-INV-007: `--tools <read-only set>` and `--restricted` leave MCP servers available, so `--strict-mcp-config` is also needed; `--restricted` refuses `bypassPermissions` and confines file tools to the working directories; the gate G2 must read the MCP server list from the `system/init` event; the product already has a restricted `claude --print` child (`src/superclaude/cli/pipeline/process.py:145-154` `reviewer_profile=True`, used at `runner.py:566` and `ensemble.py:548`), and the \"gated, not built\" launcher must say whether it reuses or replaces it. Flag help text source: local `claude --help` 2.1.325 (fault-finder row 27)]",
+  "reason": "read-only mechanism incomplete (MCP)",
+  "file_count_of_old_in_base": 1
+ },
+ {
+  "change": "M-24 item 5",
+  "line": 3658,
+  "old": "(no `--restricted` run on a gateway id exists)",
+  "new": "(no `--restricted` run on a gateway id exists) [R25-INV-006, R25-INV-007: `--tools` and `--restricted` leave MCP servers available, so `--strict-mcp-config` is also needed and G2 must read the MCP server list from the `system/init` event (local `claude --help` 2.1.325, fault-finder row 27); a restricted `claude --print` child already exists (`pipeline/process.py:145-154`, `reviewer_profile=True`); full note in 5.2.4]",
+  "reason": "read-only mechanism incomplete (MCP)",
+  "file_count_of_old_in_base": 2
+ },
+ {
+  "change": "M-24 item 1",
+  "line": 3666,
+  "old": "a v2 citation-only finding raises `KeyError` in `annotate` (r01 §3 P-a)",
+  "new": "a v2 citation-only finding is rejected by the v1 parser (`findings.py:104` `_check_flat(anchor)`; `parse_block` skips it at `findings.py:188-192`), so `annotate` never sees it on the shipped merge path; `findings.annotate` raises `KeyError: 'anchor'` (`findings.py:349`) only on a direct call or if the ledger were switched to the v2 parser [CODE-VERIFIED by the compare orchestrator at HEAD ad8f57560] (r01 §3 P-a)",
+  "reason": "KeyError mechanism",
+  "file_count_of_old_in_base": 1
+ },
+ {
+  "change": "M-24 item 4",
+  "line": 3735,
+  "old": "50 test files under",
+  "new": "47 test files [corrected from 50: `tests/pr_submit` has 47 test files, 49 tracked `.py`] under",
+  "reason": "pr_submit test-file count",
+  "file_count_of_old_in_base": 2
+ },
+ {
+  "change": "M-24 item 7",
+  "line": 3736,
+  "old": "(44 structured `subagent_type` lines in 8 SKILL.md files)",
+  "new": "(44 structured `subagent_type` lines in 8 SKILL.md files) [run 1 counted 43 call sites in 11 files (unit not stated, not reproducible by the grep); `grep -rEn 'subagent_type: *\"?rf-' src/superclaude/skills` gives 52 lines in 11 files, 44 of them in 8 SKILL.md files]",
+  "reason": "rf-* census unit note",
+  "file_count_of_old_in_base": 1
+ },
+ {
+  "change": "M-24 item 13",
+  "line": 3743,
+  "old": "195 of 1,398 multi-member rows chained",
+  "new": "195 chains among 1,398 rows (1,398 counts all rows; `audit2.py` increments `rows_total` before the `<3` members filter)",
+  "reason": "1,398 unit",
+  "file_count_of_old_in_base": 1
+ },
+ {
+  "change": "M-24 item 4",
+  "line": 3797,
+  "old": "(50 files, 47 `test_*.py`)",
+  "new": "(50 files, 47 `test_*.py`) [corrected: 49 tracked `.py` files, 47 of them `test_*.py`; 91 tracked files including fixtures; no count gives 50]",
+  "reason": "pr_submit file count (extra site)",
+  "file_count_of_old_in_base": 1
+ },
+ {
+  "change": "M-24 item 4",
+  "line": 3804,
+  "old": "50 test files under",
+  "new": "47 test files [corrected from 50: `tests/pr_submit` has 47 test files, 49 tracked `.py`] under",
+  "reason": "pr_submit test-file count",
+  "file_count_of_old_in_base": 2
+ },
+ {
+  "change": "M-24 item 7",
+  "line": 3820,
+  "old": "lines in 8 SKILL.md files",
+  "new": "lines in 8 SKILL.md files [run 1 counted 43 call sites in 11 files (unit not stated, not reproducible by the grep); `grep -rEn 'subagent_type: *\"?rf-' src/superclaude/skills` gives 52 lines in 11 files, 44 of them in 8 SKILL.md files]",
+  "reason": "rf-* census unit note",
+  "file_count_of_old_in_base": 6
+ },
+ {
+  "change": "M-24 item 1",
+  "line": 3882,
+  "old": "a v2 citation-only line raises `KeyError 'anchor'` in the ledger path",
+  "new": "a v2 citation-only finding is rejected by the v1 parser (`findings.py:104` `_check_flat(anchor)`; `parse_block` skips it at `findings.py:188-192`), so `annotate` never sees it on the shipped merge path; `findings.annotate` raises `KeyError: 'anchor'` (`findings.py:349`) only on a direct call or if the ledger were switched to the v2 parser [CODE-VERIFIED by the compare orchestrator at HEAD ad8f57560]",
+  "reason": "KeyError mechanism",
+  "file_count_of_old_in_base": 1
+ },
+ {
+  "change": "M-24 item 7",
+  "line": 3892,
+  "old": "44 structured lines exact",
+  "new": "44 structured lines exact [run 1 counted 43 call sites in 11 files (unit not stated, not reproducible by the grep); `grep -rEn 'subagent_type: *\"?rf-' src/superclaude/skills` gives 52 lines in 11 files, 44 of them in 8 SKILL.md files]",
+  "reason": "rf-* census unit note",
+  "file_count_of_old_in_base": 1
+ },
+ {
+  "change": "M-24 item 5",
+  "line": 4085,
+  "old": "confines file tools to the working directories",
+  "new": "confines file tools to the working directories [R25-INV-006, R25-INV-007: `--tools` and `--restricted` leave MCP servers available, so `--strict-mcp-config` is also needed and G2 must read the MCP server list from the `system/init` event (local `claude --help` 2.1.325, fault-finder row 27); a restricted `claude --print` child already exists (`pipeline/process.py:145-154`, `reviewer_profile=True`); full note in 5.2.4]",
+  "reason": "read-only mechanism incomplete (MCP)",
+  "file_count_of_old_in_base": 2
+ },
+ {
+  "change": "M-12",
+  "line": 4234,
+  "old": "## 8. Value Inventory and Inputs for a Later Plan",
+  "new": "## 8. Value Inventory, Migration and Value-Capture Content, and Inputs for a Later Plan",
+  "reason": "Section 8 retitle",
+  "file_count_of_old_in_base": 1
+ },
+ {
+  "change": "M-12",
+  "line": 4236,
+  "old": "Section 8 gives the value inventory (8.1) and the sequence and gates (8.2). Both are inputs for a later plan. Neither is a roadmap, a branch plan, a PR plan or a risk register.",
+  "new": "Section 8 gives run 2's value inventory (8.1) and the sequence and gates (8.2). Both are inputs for a later plan. For what this document adds there is no roadmap, no branch plan, no PR plan, no risk register, no estimate and no schedule. Subsections 8.3 to 8.8 carry run 1's value-capture and migration content as content (inventory rows, steps with their status against the adopted design, gates, risk inputs); that content orders no work and is not a plan.",
+  "reason": "Section 8 lead",
+  "file_count_of_old_in_base": 1
+ },
+ {
+  "change": "M-13",
+  "line": 4280,
+  "old": "which is the file `.dev/tasks/to-do/TASK-RESEARCH-review-panel-run2-20261114-075454/synthesis/synth-08-value-inventory.md` (2,024,775 bytes, 6,127 lines, unchanged). Appendix A is part of the report package.",
+  "new": "which is the file `.dev/tasks/to-do/TASK-RESEARCH-review-panel-run2-20261114-075454/synthesis/synth-08-value-inventory.md` (2,024,775 bytes, 6,127 lines, unchanged). The 5,950 rows live in `.dev/tasks/to-do/TASK-RESEARCH-review-panel-run2-20261114-075454/synthesis/synth-08-value-inventory.md`, committed at `ad8f57560`; the pointer is `ad8f57560:.dev/tasks/to-do/TASK-RESEARCH-review-panel-run2-20261114-075454/synthesis/synth-08-value-inventory.md`, which still resolves if the task folder moves (R25-INV-023). Run 2's Q-35 asked whether its `.dev/tasks` output may be committed; it was committed at `ad8f57560`; whether it was pushed is not checked here.",
+  "reason": "value-inventory pointer pinned to a commit",
+  "file_count_of_old_in_base": 1
+ },
+ {
+  "change": "M-24 item 6",
+  "line": 4503,
+  "old": "lacks 89 of the 110 stable names.",
+  "new": "lacks 89 of the 110 stable names [engine-A contract keys: 32 keys by default; 33 when `t2_fallback` is set (`ensemble.py:363`, 833-834); 10 outside both frozen lists by default, 11 with the key; run 1 counted 33/11].",
+  "reason": "engine-A key count basis (extra site)",
+  "file_count_of_old_in_base": 1
+ },
+ {
+  "change": "M-24 item 1",
+  "line": 4508,
+  "old": "but `ledger.merge_round` calls `annotate` on every parsed finding and `annotate` does `locate(text, finding[\"anchor\"])` with no default, so the finding raises `KeyError 'anchor'`.",
+  "new": "but a v2 citation-only finding is rejected by the v1 parser (`findings.py:104` `_check_flat(anchor)`; `parse_block` skips it at `findings.py:188-192`), so `annotate` never sees it on the shipped merge path; `findings.annotate` raises `KeyError: 'anchor'` (`findings.py:349`) only on a direct call or if the ledger were switched to the v2 parser [CODE-VERIFIED by the compare orchestrator at HEAD ad8f57560] (`annotate` does `locate(text, finding[\"anchor\"])` with no default).",
+  "reason": "KeyError mechanism",
+  "file_count_of_old_in_base": 1
+ },
+ {
+  "change": "M-24 item 4",
+  "line": 4479,
+  "old": "(50 test files plus",
+  "new": "(47 test files [corrected from 50: `tests/pr_submit` has 47 test files, 49 tracked `.py`] plus",
+  "reason": "pr_submit test-file count",
+  "file_count_of_old_in_base": 1
+ },
+ {
+  "change": "M-24 item 4",
+  "line": 4593,
+  "old": "(50 test files)",
+  "new": "(47 test files [corrected from 50: `tests/pr_submit` has 47 test files, 49 tracked `.py`])",
+  "reason": "pr_submit test-file count",
+  "file_count_of_old_in_base": 1
+ },
+ {
+  "change": "M-24 item 7",
+  "line": 4602,
+  "old": "operational-guide, tdd)",
+  "new": "operational-guide, tdd) [run 1 counted 43 call sites in 11 files (unit not stated, not reproducible by the grep); `grep -rEn 'subagent_type: *\"?rf-' src/superclaude/skills` gives 52 lines in 11 files, 44 of them in 8 SKILL.md files]",
+  "reason": "rf-* census unit note",
+  "file_count_of_old_in_base": 1
+ },
+ {
+  "change": "M-24 item 1",
+  "line": 4677,
+  "old": "on the ledger path:",
+  "new": "on the ledger path [corrected: on the shipped merge path the v1 parser rejects a citation-only line first (`findings.py:104`; `parse_block` skips it at `findings.py:188-192`), so `annotate` never sees it; `KeyError: 'anchor'` (`findings.py:349`) arises only on a direct `annotate` call or if the ledger were switched to the v2 parser; CODE-VERIFIED by the compare orchestrator at HEAD ad8f57560]:",
+  "reason": "KeyError mechanism",
+  "file_count_of_old_in_base": 1
+ }
+]

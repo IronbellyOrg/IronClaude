@@ -1,0 +1,94 @@
+input_tree_sha256: 625969ecc2c8233cc96d275cceb1736dc646092a022a7e5b72c7a339f787c6a5
+file_count: 44
+file_list:
+  - path: .dev/tasks/done/TASK-WF-authorizedNarrow-20261106-214325/TASK-WF-authorizedNarrow-20261106-214325.md
+    sha256: 881cacd5ca2ce651a10b96df15285e5ff82cf490287833469c024e27aedb7d54
+  - path: .dev/tasks/done/TASK-WF-authorizedNarrow-20261106-214325/artifacts/distribution-fix-tests.log
+    sha256: a0dcf2f5b1993d15438e4eb8acf8bfe3d560bfa69dc4b7f83d5112c812f97729
+  - path: .dev/tasks/done/TASK-WF-authorizedNarrow-20261106-214325/artifacts/distribution-tests.log
+    sha256: 54b90bc2ea9eed553a2d78f57df32d98530ca9b6a17ceac29babd0527fc77b98
+  - path: .dev/tasks/done/TASK-WF-authorizedNarrow-20261106-214325/artifacts/identity-integration-evidence.md
+    sha256: 5868b6ca37166d12d1f63cd841b9c602f2a661b9864f4595c7e31a9befd6b054
+  - path: .dev/tasks/done/TASK-WF-authorizedNarrow-20261106-214325/artifacts/integration-tests.log
+    sha256: 5b22980b388d9234d5ade9ef6f20270b6b8a9902dd40be207ad4360c1b0cf35a
+  - path: .dev/tasks/done/TASK-WF-authorizedNarrow-20261106-214325/artifacts/job-runner-tests.log
+    sha256: 16f78b93e94a560f281dff8e6476ee94663319e6d4d0c63bf0be87997a80c1c6
+  - path: .dev/tasks/done/TASK-WF-authorizedNarrow-20261106-214325/artifacts/live-harness-events.jsonl
+    sha256: 771c3cb429c897a70be25830e625dd80b6cfe7369554502cfab0efaa9c812cce
+  - path: .dev/tasks/done/TASK-WF-authorizedNarrow-20261106-214325/artifacts/retries/T1/prompt-1-1.md
+    sha256: d61c1d590013a4121e596ea91238987145f6463b78fa359db5de73ef8cb65949
+  - path: .dev/tasks/done/TASK-WF-authorizedNarrow-20261106-214325/artifacts/retries/T1/q0-head
+    sha256: f1bdf79988b5ada919bee0e9943db9ae8f12091565872f73e16dfd365def5e7d
+  - path: .dev/tasks/done/TASK-WF-authorizedNarrow-20261106-214325/artifacts/retries/T2/family-probe.md
+    sha256: 3a08f045a054b46d47a1463fcc48007b162ba945ee76fa562f6ca0f1fca0cf35
+  - path: .dev/tasks/done/TASK-WF-authorizedNarrow-20261106-214325/artifacts/retries/T2/prompt-1-1.md
+    sha256: 3d20998f0880d1fb2943cd828ad2ca290af2463e5f0a4a6c2e3d773751c96887
+  - path: .dev/tasks/done/TASK-WF-authorizedNarrow-20261106-214325/artifacts/retries/T2/prompt-2-1.md
+    sha256: e11dda6a74b6b39568fd71d546dc3a989fc6003594f2c022331c66c1f36384be
+  - path: .dev/tasks/done/TASK-WF-authorizedNarrow-20261106-214325/artifacts/retries/T2/q0-head
+    sha256: f1bdf79988b5ada919bee0e9943db9ae8f12091565872f73e16dfd365def5e7d
+  - path: .dev/tasks/done/TASK-WF-authorizedNarrow-20261106-214325/artifacts/retries/T2/review-1.md
+    sha256: 504428fbeddf50eac28c6d14374abf04ffb39a355b686247cfaa9252f9d67c62
+  - path: .dev/tasks/done/TASK-WF-authorizedNarrow-20261106-214325/artifacts/retries/T3/family-probe.md
+    sha256: 776994ce6eecf991bbc1b737b0ec029fc65f0420898547bdf854ecd8ba528628
+  - path: .dev/tasks/done/TASK-WF-authorizedNarrow-20261106-214325/artifacts/retries/T3/prompt-1-1.md
+    sha256: 7ac005e6a1c32c7395d1d1585f61fba1c16399ede1ddc1932a1c3ce18189fe4b
+  - path: .dev/tasks/done/TASK-WF-authorizedNarrow-20261106-214325/artifacts/retries/T3/prompt-2-1.md
+    sha256: c9dad0bb52a0a389240420a815a44929dd5a6e26abafadba548a558cfa4dfea7
+  - path: .dev/tasks/done/TASK-WF-authorizedNarrow-20261106-214325/artifacts/retries/T3/q0-head
+    sha256: f1bdf79988b5ada919bee0e9943db9ae8f12091565872f73e16dfd365def5e7d
+  - path: .dev/tasks/done/TASK-WF-authorizedNarrow-20261106-214325/artifacts/retries/T3/review-1.md
+    sha256: e5c2d0391903d6872035c9f962dce26b9cc386ee06b8ebe9d07f14cc0024f335
+  - path: .dev/tasks/done/TASK-WF-authorizedNarrow-20261106-214325/artifacts/retries/T4/prompt-1-1.md
+    sha256: c0fba6b8e0de2d7a4de09b865a68c7f54ea2482d82fbdda2f8346d6008d1a9cf
+  - path: .dev/tasks/done/TASK-WF-authorizedNarrow-20261106-214325/artifacts/retries/T4/q0-head
+    sha256: f1bdf79988b5ada919bee0e9943db9ae8f12091565872f73e16dfd365def5e7d
+  - path: .dev/tasks/done/TASK-WF-authorizedNarrow-20261106-214325/artifacts/task2-fix-delta.diff
+    sha256: 781cc5db7b556ca72aaf1b15fe8034e4ac2d6e47ac06ad52cdaefb63088945d2
+  - path: .dev/tasks/done/TASK-WF-authorizedNarrow-20261106-214325/artifacts/task2-source.diff
+    sha256: 676a6bc467a49832b3c93eb01b239e4991c8bde9f4fe1a8046d1d6070fbf03f5
+  - path: .dev/tasks/done/TASK-WF-authorizedNarrow-20261106-214325/artifacts/task3-fix-delta.diff
+    sha256: f7710cebde086a2ad760a3f5925b043b1c61ed50508d98d495631bff0b1b064f
+  - path: .dev/tasks/done/TASK-WF-authorizedNarrow-20261106-214325/artifacts/task3-source.diff
+    sha256: d02c5bf6ef988c8d212f75c36e8cc3c237ccecb0d78f320f5b7f5fe0307926d8
+  - path: .dev/tasks/done/TASK-WF-authorizedNarrow-20261106-214325/artifacts/task4-source.diff
+    sha256: 5f70d70b289d03d8d9b1304373fd6e3b80c9a83e48b2f1db6901eb714fbfe95a
+  - path: .dev/tasks/done/TASK-WF-authorizedNarrow-20261106-214325/artifacts/tool-adapter-fix-tests.log
+    sha256: 43c4d03c0c427b575de10fa62f55165babb99b2acf1362456942ee6d31bf1251
+  - path: .dev/tasks/done/TASK-WF-authorizedNarrow-20261106-214325/artifacts/tool-adapter-tests.log
+    sha256: b2286454ccff99f552b9346c7dead0230f6c0abfc9f85363708771719e4e44d4
+  - path: .dev/tasks/done/TASK-WF-authorizedNarrow-20261106-214325/progress.md
+    sha256: 40cd457bff4951aaa5320a775b1be4632d4877f634d675b666f1abb70c247240
+  - path: .dev/tasks/done/TASK-WF-authorizedNarrow-20261106-214325/return-contract.yaml
+    sha256: c643266defafc9a8b6b5ff08f4b158a5ab490cf2056f31eb46b3dd7ca70d2b6c
+  - path: .dev/tasks/done/TASK-WF-authorizedNarrow-20261106-214325/source.md
+    sha256: ebc3e4e31bc0559139dce82c8a6b3d0431d3291c4b520d05186c987a2ed42dc1
+  - path: Makefile
+    sha256: 2ecf8285bb2fda4c389de9d07e454d34a2952fc97d206ec645c03a7a8ee71877
+  - path: docs/designs/sc-issue-launch-level-hook.md
+    sha256: caa5703352fb3b9ce0b2f8d9cbdd0fa0e16b694c245b789de282ba2eabcf1005
+  - path: plugins/superclaude/hooks/hooks.json
+    sha256: a42474095fe0595688c41d3345bebb31ed48325409371f34b40e42add7f9b71a
+  - path: plugins/superclaude/hooks/scripts/launch-job-identity.sh
+    sha256: 463f71ccc9552d165d67ff6b0a8b17d412240de4f702b7dbcd6116d7153eafc4
+  - path: src/superclaude/cli/install_hooks.py
+    sha256: b3897f88ff49341e98b9b11148a6e646fe363f6462ace911b0894098fa1df48a
+  - path: src/superclaude/cli/sprint/recovery.py
+    sha256: e6967cc4f6081aeefdc99f5b7b548e29b993236653afc0543be794d2684cd520
+  - path: src/superclaude/hooks/hooks.json
+    sha256: b6d06cfff050c583706db71b27c59962a8e65e8b8fc5eeba863538ad4e0d981c
+  - path: src/superclaude/hooks/scripts/launch-job-identity.sh
+    sha256: 463f71ccc9552d165d67ff6b0a8b17d412240de4f702b7dbcd6116d7153eafc4
+  - path: src/superclaude/skills/ccsession-tag/hooks/session-name.sh
+    sha256: 781ccfcf286f1ae2e7b91b82caf674d4544093100a45bb0f1128bb785eb1d049
+  - path: tests/cli/test_install_hooks.py
+    sha256: 88afdfc157bf2b0820163ad15891e241f3871bdc8bb7a368141198fc3d8413d4
+  - path: tests/hooks/fixtures/launch_level/live_probe.py
+    sha256: ce248e4d5f110f661a27db91562ee898848b5b819acd7add1717a85f19325652
+  - path: tests/hooks/test_freshness_subagent_start_policy.py
+    sha256: 63202bb5a5ef7a741cd1996350b9415ad468fac203b7268e5ea4f377e4bd2391
+  - path: tests/hooks/test_launch_job_identity.py
+    sha256: 4d9a43e0065f5ef99b161a503b484b787ad5917e834861cf6b2ae0e542fe542a
+legacy_input_sha256:
+  tasklist: 881cacd5ca2ce651a10b96df15285e5ff82cf490287833469c024e27aedb7d54
+  spec: ebc3e4e31bc0559139dce82c8a6b3d0431d3291c4b520d05186c987a2ed42dc1

@@ -1,0 +1,23 @@
+# sc:adversarial return contract (Mode A, --depth standard, --focus correctness,risk,test-coverage)
+# status is "partial": all 5 steps ran and the merge succeeded, but convergence is BLOCKED_BY_INVARIANTS
+# (diff-point agreement 25 of 26 = 0.9615, above the 0.80 threshold; 2 HIGH UNADDRESSED invariants from Round 2.5).
+# Flagged for user review per the no_convergence handling. 8 MEDIUM and 2 LOW UNADDRESSED invariants are listed in invariant-probe.md.
+return_contract:
+  merged_output_path: "/home/coder/workspaces/worktrees/IronClaude/brainstorm-reflect-panel/.dev/tasks/to-do/TASK-RESEARCH-review-panel-run2-20261114-075454/reviews/adversarial/merge-verdict-policy-and-quorum/merged-output.md"
+  convergence_score: 0.96
+  artifacts_dir: "/home/coder/workspaces/worktrees/IronClaude/brainstorm-reflect-panel/.dev/tasks/to-do/TASK-RESEARCH-review-panel-run2-20261114-075454/reviews/adversarial/merge-verdict-policy-and-quorum/adversarial"
+  status: "partial"
+  base_variant: "variant-1 (Proposal A; default model, default persona)"
+  unresolved_conflicts: 1   # A-003 (label split A REJECT / B QUALIFY; substance converged)
+  fallback_mode: false
+  failure_stage: null
+  invocation_method: "task-agent"
+  unaddressed_invariants:
+    - id: "INV-006"
+      category: "guard_conditions"
+      assumption: "The consensus text 'any complete reviewer's blocking flag' matches what merge_round does (it unions every parsable finding, including those of a reviewer whose block is invalid, ledger.py:127-138; no test pins this)"
+      severity: "HIGH"
+    - id: "INV-007"
+      category: "count_divergence"
+      assumption: "len(resolution.reviewers) is the dispatched panel size (panel.resolve drops skipped slots and writes skipped_slots only when an exclusion flag is used, panel.py:636-656, 700-706), so requested = max(len(resolution.reviewers), len(--report)) can collapse to 1 and one valid empty block passes"
+      severity: "HIGH"

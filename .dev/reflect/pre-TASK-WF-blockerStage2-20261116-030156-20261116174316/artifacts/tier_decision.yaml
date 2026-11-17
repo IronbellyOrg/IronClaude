@@ -1,0 +1,15 @@
+selected_tier: 2
+fired_rule_number: 4
+coverage_degraded: parsed-sparse
+surface_unreached: null
+composite_score: 6.0
+per_signal_breakdown:
+  scope_size: 1
+  task_count: 1
+  blast_radius: 1
+  spec_density: 2
+  ambiguity_signals: 1
+escalation_reason: "coverage_degraded parsed-sparse table-wide pre-filter forbids T1 stop; also C=0.80 < 0.85, S_dev_density 0.222 > 0.20, S_domains 3 (code, tests, docs)"
+t2_engine_requested: null
+t2_engine_effective: legacy
+panel_fallback_reason: null

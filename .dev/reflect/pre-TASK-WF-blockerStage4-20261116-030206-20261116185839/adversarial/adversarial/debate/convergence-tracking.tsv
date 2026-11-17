@@ -1,0 +1,22 @@
+point	level	r1_v1	r1_v2	r1_v3	r2_v1	r2_v2	r2_v3	agreed	winner_grade
+S-001	L2	PASS	NEEDS-REV	PASS	PASS	PASS	PASS	true	PASS with Medium findings
+S-002	L1	-	-	-	-	-	-	true	minor (no objection raised)
+C-001	L3	minor/Medium	minor	Medium	Medium	Medium	Medium	true	Medium
+C-002	L1	minor	minor	minor	minor	minor	minor	true	minor
+C-003	L3	Medium	Medium	Medium	Medium	Medium	Medium	true	Medium
+C-004	L3	minor	Medium	Medium	Medium	Medium	Medium	true	Medium
+C-005	L1	minor	minor	minor	minor	minor	minor	true	minor
+C-006	L2	not-defect	blocking	minor	minor	minor	minor	true	minor (owner-tracking item)
+C-007	L2	Medium	blocking	minor	Medium	Medium	Medium	true	Medium
+C-008	L2	minor/Medium	Medium	Medium	Medium	Medium	Medium	true	Medium
+C-009	L1	minor	blocking	minor	Medium	Medium	Medium	true	Medium
+C-010	L1	minor	minor	minor	minor	minor	minor	true	minor
+C-011	L1	minor	minor	minor	minor	minor	minor	true	minor
+X-001	L3	minor	minor	Medium	Medium	Medium	Medium	true	Medium (met by the fold)
+X-002	L2	not-defect	blocking	not-blocking	minor	minor	minor	true	minor (not blocking)
+X-003	L3	Medium	Medium	Medium	Medium	Medium	Medium	true	Medium
+A-002	L2	QUALIFY	QUALIFY	QUALIFY	-	-	-	true	QUALIFY
+A-003	L3	ACCEPT	QUALIFY	QUALIFY	-	-	-	true	QUALIFY (majority)
+# total_diff_points = 18 (S 2, C 11, X 3, A 2). agreed = 18. convergence after Round 2 = 18/18 = 1.00; threshold 0.80.
+# taxonomy coverage: L1 = 6, L2 = 6, L3 = 6. All levels covered; no forced round.
+# convergence status before Round 2.5: CONVERGED on diff points; the invariant-probe gate (Round 2.5) is still to run.

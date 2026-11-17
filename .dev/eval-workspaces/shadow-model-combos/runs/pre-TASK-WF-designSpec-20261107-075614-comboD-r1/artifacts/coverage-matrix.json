@@ -1,0 +1,405 @@
+{
+ "rows": [
+  {
+   "id": "INF-001",
+   "source": "inferred",
+   "citation": "source.md:6-6",
+   "quote": "draft not label; engage at the first verified Medium-or-higher finding routed to a fix; default on at `--monitor 3` via `--merge-guard {draft,off}`",
+   "match_method": "containment",
+   "task": "T8",
+   "best_ratio": 0.688,
+   "best_task": "T8"
+  },
+  {
+   "id": "INF-002",
+   "source": "inferred",
+   "citation": "source.md:6-6",
+   "quote": "release when the fix push is confirmed on the PR head, before replies and the re-trigger",
+   "match_method": "containment",
+   "task": "T8",
+   "best_ratio": 0.9,
+   "best_task": "T8"
+  },
+  {
+   "id": "INF-003",
+   "source": "inferred",
+   "citation": "source.md:6-6",
+   "quote": "an unreadable timeline or an exit with unpublished fixes keeps the PR draft and reports",
+   "match_method": "containment",
+   "task": "T8",
+   "best_ratio": 0.778,
+   "best_task": "T8"
+  },
+  {
+   "id": "INF-004",
+   "source": "inferred",
+   "citation": "source.md:75-75",
+   "quote": "No `gh` or `git` word on any line, comments included (F6).",
+   "match_method": "none",
+   "task": null,
+   "best_ratio": 0.571,
+   "best_task": "T3"
+  },
+  {
+   "id": "INF-005",
+   "source": "inferred",
+   "citation": "source.md:101-101",
+   "quote": "`ValueError` otherwise or when `n < 1`",
+   "match_method": "none",
+   "task": null,
+   "best_ratio": 0.5,
+   "best_task": "T3"
+  },
+  {
+   "id": "INF-006",
+   "source": "inferred",
+   "citation": "source.md:112-112",
+   "quote": "phase `DISABLED` with cause `already_draft` gives `off`",
+   "match_method": "containment",
+   "task": "T3",
+   "best_ratio": 1.0,
+   "best_task": "T3"
+  },
+  {
+   "id": "INF-007",
+   "source": "inferred",
+   "citation": "source.md:114-114",
+   "quote": "the only foreign-toggle test; no actor identity, F11",
+   "match_method": "none",
+   "task": null,
+   "best_ratio": 0.571,
+   "best_task": "T8"
+  },
+  {
+   "id": "INF-008",
+   "source": "inferred",
+   "citation": "source.md:129-129",
+   "quote": "`engage_decision`, first matching row wins",
+   "match_method": "containment",
+   "task": "T4",
+   "best_ratio": 0.8,
+   "best_task": "T4"
+  },
+  {
+   "id": "INF-009",
+   "source": "inferred",
+   "citation": "source.md:145-145",
+   "quote": "`release_decision`, first matching row wins",
+   "match_method": "containment",
+   "task": "T4",
+   "best_ratio": 0.8,
+   "best_task": "T4"
+  },
+  {
+   "id": "INF-010",
+   "source": "inferred",
+   "citation": "source.md:159-159",
+   "quote": "`resume_decision`, first matching row wins",
+   "match_method": "containment",
+   "task": "T4",
+   "best_ratio": 0.8,
+   "best_task": "T4"
+  },
+  {
+   "id": "INF-011",
+   "source": "inferred",
+   "citation": "source.md:175-175",
+   "quote": "update the docstring and the `models.py:3,24` count, and the 43 text at `run_log.py:117`",
+   "match_method": "containment",
+   "task": "T2",
+   "best_ratio": 0.7,
+   "best_task": "T2"
+  },
+  {
+   "id": "INF-012",
+   "source": "inferred",
+   "citation": "source.md:187-187",
+   "quote": "`run_log.rebuild_state()` stores it as `state[\"draft_guard\"]` (default `None`, added to `_NEW_KEY_DEFAULTS`)",
+   "match_method": "containment",
+   "task": "T5",
+   "best_ratio": 0.778,
+   "best_task": "T5"
+  },
+  {
+   "id": "INF-013",
+   "source": "inferred",
+   "citation": "source.md:201-201",
+   "quote": "the whole record is erased (the fold returns `None`, including `baseline` and `original_is_draft`)",
+   "match_method": "containment",
+   "task": "T3",
+   "best_ratio": 0.889,
+   "best_task": "T3"
+  },
+  {
+   "id": "INF-014",
+   "source": "inferred",
+   "citation": "source.md:214-214",
+   "quote": "`--merge-guard` with `dest=\"merge_guard\"`, `choices=[\"draft\", \"off\"]`",
+   "match_method": "containment",
+   "task": "T6",
+   "best_ratio": 1.0,
+   "best_task": "T6"
+  },
+  {
+   "id": "INF-015",
+   "source": "inferred",
+   "citation": "source.md:216-216",
+   "quote": "`off` makes the skill print one line: \"Remediation is unprotected: --merge-guard off.\"",
+   "match_method": "containment",
+   "task": "T9",
+   "best_ratio": 0.9,
+   "best_task": "T9"
+  },
+  {
+   "id": "INF-016",
+   "source": "inferred",
+   "citation": "source.md:221-221",
+   "quote": "`set -euo pipefail`, same `die`, same `--repo` resolution from the origin remote, numeric `--pr` check, exit 127 when `gh` or `jq` is missing",
+   "match_method": "containment",
+   "task": "T7",
+   "best_ratio": 0.882,
+   "best_task": "T7"
+  },
+  {
+   "id": "INF-017",
+   "source": "inferred",
+   "citation": "source.md:234-234",
+   "quote": "A verification mismatch after a mutation is `ok:false, error:\"verify_failed\"`",
+   "match_method": "containment",
+   "task": "T7",
+   "best_ratio": 0.875,
+   "best_task": "T7"
+  },
+  {
+   "id": "INF-018",
+   "source": "inferred",
+   "citation": "source.md:240-240",
+   "quote": "Loaded lazily at L3 Wave 3, Wave 6 and Wave 8.",
+   "match_method": "containment",
+   "task": "T8",
+   "best_ratio": 0.75,
+   "best_task": "T8"
+  },
+  {
+   "id": "INF-019",
+   "source": "inferred",
+   "citation": "source.md:241-241",
+   "quote": "The Wave 0 bullet applies at every ordinal and in both modes",
+   "match_method": "containment",
+   "task": "T9",
+   "best_ratio": 1.0,
+   "best_task": "T9"
+  },
+  {
+   "id": "INF-020",
+   "source": "inferred",
+   "citation": "source.md:241-241",
+   "quote": "which also carries the literal L2 line",
+   "match_method": "containment",
+   "task": "T8",
+   "best_ratio": 1.0,
+   "best_task": "T8"
+  },
+  {
+   "id": "INF-021",
+   "source": "inferred",
+   "citation": "source.md:242-242",
+   "quote": "update it to 45 and name `draft_guard_requested` and `draft_guard_settled`",
+   "match_method": "containment",
+   "task": "T2",
+   "best_ratio": 1.0,
+   "best_task": "T2"
+  },
+  {
+   "id": "INF-022",
+   "source": "inferred",
+   "citation": "source.md:243-243",
+   "quote": "the guard phases are fold values, not `MonitorState` members",
+   "match_method": "containment",
+   "task": "T10",
+   "best_ratio": 0.833,
+   "best_task": "T10"
+  },
+  {
+   "id": "INF-023",
+   "source": "inferred",
+   "citation": "source.md:244-244",
+   "quote": "`--merge-guard {draft,off}` in the argument-hint and the Options table; a short \"Merge guard\" section next to \"Merge-conflict handling\"",
+   "match_method": "containment",
+   "task": "T12",
+   "best_ratio": 1.0,
+   "best_task": "T12"
+  },
+  {
+   "id": "INF-024",
+   "source": "inferred",
+   "citation": "source.md:245-245",
+   "quote": "Flag row and a paragraph: what it does, the clear command, `held` meaning, default on.",
+   "match_method": "containment",
+   "task": "T13",
+   "best_ratio": 0.778,
+   "best_task": "T13"
+  },
+  {
+   "id": "INF-025",
+   "source": "inferred",
+   "citation": "source.md:247-247",
+   "quote": "A `held` report always carries the reason and `gh pr ready <N> --repo <REPO>`",
+   "match_method": "containment",
+   "task": "T8",
+   "best_ratio": 0.889,
+   "best_task": "T8"
+  },
+  {
+   "id": "INF-026",
+   "source": "inferred",
+   "citation": "source.md:251-251",
+   "quote": "The build must first confirm where the SKILL assigns a fix cycle's id today and keep exactly one source for it (open item O1).",
+   "match_method": "containment",
+   "task": "T1",
+   "best_ratio": 0.706,
+   "best_task": "T1"
+  },
+  {
+   "id": "INF-027",
+   "source": "inferred",
+   "citation": "source.md:255-255",
+   "quote": "needs one entry in `WRITE_VERB_CLASSIFICATION`",
+   "match_method": "containment",
+   "task": "T9",
+   "best_ratio": 1.0,
+   "best_task": "T9"
+  },
+  {
+   "id": "INF-028",
+   "source": "inferred",
+   "citation": "source.md:270-270",
+   "quote": "Acceptance trace (must appear in this order in the run log)",
+   "match_method": "containment",
+   "task": "T11",
+   "best_ratio": 0.833,
+   "best_task": "T11"
+  },
+  {
+   "id": "INF-029",
+   "source": "inferred",
+   "citation": "source.md:301-301",
+   "quote": "the final task runs the FULL suite (`uv run pytest -q tests`) and compares its failures with the base-commit record",
+   "match_method": "containment",
+   "task": "T1",
+   "best_ratio": 0.857,
+   "best_task": "T1"
+  },
+  {
+   "id": "INF-030",
+   "source": "inferred",
+   "citation": "source.md:301-301",
+   "quote": "Run `make sync-dev` at the end of every task that edits a file under `src/superclaude/skills/` or `src/superclaude/commands/`",
+   "match_method": "containment",
+   "task": "T8",
+   "best_ratio": 0.923,
+   "best_task": "T8"
+  },
+  {
+   "id": "INF-031",
+   "source": "inferred",
+   "citation": "source.md:326-326",
+   "quote": "No task makes a live PR call, and the run that opens the PR must not enable the feature (`--merge-guard off`).",
+   "match_method": "containment",
+   "task": "T1",
+   "best_ratio": 0.833,
+   "best_task": "T1"
+  },
+  {
+   "id": "INF-032",
+   "source": "inferred",
+   "citation": "source.md:322-322",
+   "quote": "the script test for a missing `jq` (exit 127)",
+   "match_method": "containment",
+   "task": "T7",
+   "best_ratio": 1.0,
+   "best_task": "T7"
+  },
+  {
+   "id": "INF-033",
+   "source": "inferred",
+   "citation": "source.md:318-318",
+   "quote": "the `landed`, `not_landed` and `ambiguous` branches produced by the real `detect_crash_window` and `resolve_crash_window` over a real `RunLog` (never injected strings)",
+   "match_method": "containment",
+   "task": "T11",
+   "best_ratio": 0.846,
+   "best_task": "T11"
+  },
+  {
+   "id": "INF-034",
+   "source": "inferred",
+   "citation": "source.md:362-362",
+   "quote": "Cite tests and constants by symbol name",
+   "match_method": "containment",
+   "task": "T1",
+   "best_ratio": 0.6,
+   "best_task": "T1"
+  },
+  {
+   "id": "INF-035",
+   "source": "inferred",
+   "citation": "source.md:374-374",
+   "quote": "The L2 line is written into the SKILL.md output table",
+   "match_method": "containment",
+   "task": "T9",
+   "best_ratio": 1.0,
+   "best_task": "T9"
+  },
+  {
+   "id": "INF-036",
+   "source": "inferred",
+   "citation": "source.md:377-377",
+   "quote": "scenario tests import only helpers and fixtures from `test_set_draft_state.py`, never `test_*` functions",
+   "match_method": "containment",
+   "task": "T11",
+   "best_ratio": 0.727,
+   "best_task": "T11"
+  },
+  {
+   "id": "INF-037",
+   "source": "inferred",
+   "citation": "source.md:299-299",
+   "quote": "`merge_guard.py` into the zero-token file set",
+   "match_method": "containment",
+   "task": "T8",
+   "best_ratio": 0.833,
+   "best_task": "T8"
+  },
+  {
+   "id": "INF-038",
+   "source": "inferred",
+   "citation": "source.md:291-291",
+   "quote": "export the public guard names",
+   "match_method": "containment",
+   "task": "T5",
+   "best_ratio": 1.0,
+   "best_task": "T5"
+  },
+  {
+   "id": "INF-039",
+   "source": "inferred",
+   "citation": "source.md:301-301",
+   "quote": "`tests/cli/test_verify_sync_hooks.py` runs `make verify-sync` inside the full suite",
+   "match_method": "containment",
+   "task": "T13",
+   "best_ratio": 0.909,
+   "best_task": "T13"
+  },
+  {
+   "id": "INF-040",
+   "source": "inferred",
+   "citation": "source.md:281-281",
+   "quote": "next checkpoint: `state != OPEN` -> halt `pr_not_open`, nothing pushed, report the local commit `<target_sha>`.",
+   "match_method": "containment",
+   "task": "T8",
+   "best_ratio": 0.75,
+   "best_task": "T8"
+  }
+ ],
+ "dropped_invalid": []
+}

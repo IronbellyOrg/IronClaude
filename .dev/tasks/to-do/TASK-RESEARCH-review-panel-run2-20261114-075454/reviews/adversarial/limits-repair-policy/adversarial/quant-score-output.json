@@ -1,0 +1,570 @@
+{
+  "definitions": {
+    "dc_rule": "'section N[.N]' refs resolved by a numbered heading; refs right after 'research/...' are external and excluded",
+    "ic_rule": "1 - contradictions/claims; claims = sentences and table rows with a digit, file:line cite or evidence tag; contradictions = CONTRADICTIONS table (scorer reading)",
+    "rc_rule": "matched when >= 3 stems present (case-insensitive substring; a|b = either)",
+    "requirements": [
+      {
+        "desc": "policy for over-limit anchor/anchor2/claim lines",
+        "id": "R01",
+        "stems": [
+          "anchor",
+          "claim",
+          "200",
+          "300",
+          "over-limit|over limit|exceed|longer"
+        ]
+      },
+      {
+        "desc": "bounded re-ask",
+        "id": "R02",
+        "stems": [
+          "re-ask",
+          "one",
+          "bounded"
+        ]
+      },
+      {
+        "desc": "itemised record of dropped/repaired lines",
+        "id": "R03",
+        "stems": [
+          "itemis|itemiz|record",
+          "dropped",
+          "line"
+        ]
+      },
+      {
+        "desc": "fail-closed handling of a dropped blocking line",
+        "id": "R04",
+        "stems": [
+          "blocking",
+          "fail",
+          "refus|fail-closed|fail closed"
+        ]
+      },
+      {
+        "desc": "raise-the-limits / constants option",
+        "id": "R05",
+        "stems": [
+          "raise|raising",
+          "limit",
+          "constants"
+        ]
+      },
+      {
+        "desc": "INV-C (findings-v1 grammar and review merge unchanged)",
+        "id": "R06",
+        "stems": [
+          "INV-C",
+          "grammar|findings-v1",
+          "merge"
+        ]
+      },
+      {
+        "desc": "INV-I (a review that did not happen never certifies PASS)",
+        "id": "R07",
+        "stems": [
+          "INV-I",
+          "PASS",
+          "review"
+        ]
+      },
+      {
+        "desc": "INV-G (reviewers blind and read-only)",
+        "id": "R08",
+        "stems": [
+          "INV-G",
+          "blind|read-only|mutually",
+          "reviewer"
+        ]
+      },
+      {
+        "desc": "a test or measurement that shows the position right or wrong",
+        "id": "R09",
+        "stems": [
+          "measurement|replay",
+          "wrong",
+          "test"
+        ]
+      },
+      {
+        "desc": "effect on PR code review and rf-qa",
+        "id": "R10",
+        "stems": [
+          "PR",
+          "rf-qa",
+          "review"
+        ]
+      },
+      {
+        "desc": "strongest objection and answer",
+        "id": "R11",
+        "stems": [
+          "objection",
+          "answer",
+          "strongest"
+        ]
+      },
+      {
+        "desc": "consistency with adjudicated slots C-01, C-02, C-03",
+        "id": "R12",
+        "stems": [
+          "C-01",
+          "C-02",
+          "C-03"
+        ]
+      },
+      {
+        "desc": "both parsers / loss unit (v1 finding vs v2 reviewer)",
+        "id": "R13",
+        "stems": [
+          "v1",
+          "v2",
+          "loss unit|unit"
+        ]
+      },
+      {
+        "desc": "the audit-D figures (92 dropped, 49 blocking, 88, 48)",
+        "id": "R14",
+        "stems": [
+          "92",
+          "49",
+          "88|48"
+        ]
+      }
+    ],
+    "sc_rule": "H2 count / max H2 count",
+    "sr_rule": "concrete body lines / (concrete body lines + vague phrase occurrences); body = lines after first 6, minus headings, blanks, table separators",
+    "vague_phrases": [
+      "appropriate",
+      "as needed",
+      "properly",
+      "adequate",
+      "should consider",
+      "might",
+      "various",
+      "etc.",
+      "best practices",
+      "industry standard"
+    ],
+    "weights": {
+      "DC": 0.15,
+      "IC": 0.25,
+      "RC": 0.3,
+      "SC": 0.15,
+      "SR": 0.15
+    }
+  },
+  "variants": {
+    "A": {
+      "DC": 1.0,
+      "DC_external_excluded": [
+        "3",
+        "5"
+      ],
+      "DC_numbered_headings": [
+        "1",
+        "2",
+        "3",
+        "3.1",
+        "3.2",
+        "3.3",
+        "3.4",
+        "4",
+        "4.1",
+        "5",
+        "6",
+        "7"
+      ],
+      "DC_refs": [
+        {
+          "ref": "7",
+          "resolved": true
+        },
+        {
+          "ref": "2",
+          "resolved": true
+        },
+        {
+          "ref": "5",
+          "resolved": true
+        },
+        {
+          "ref": "3.2",
+          "resolved": true
+        },
+        {
+          "ref": "3.2",
+          "resolved": true
+        },
+        {
+          "ref": "5",
+          "resolved": true
+        }
+      ],
+      "DC_resolved": 6,
+      "DC_total": 6,
+      "IC": 0.9725,
+      "IC_claims": 109,
+      "IC_considered_not_counted": [
+        "section 2 item 8 (compliance metric computed from a repair=False parse) vs item 2 (cluster_cmd passes repair=True): A does not say where first-parse state is carried; an omission, not a stated opposite.",
+        "section 2 item 6 ('--resume ... documented nowhere') vs section 3.3 (E2 spike S2 passed --resume): documented vs tested, not opposed."
+      ],
+      "IC_contradiction_list": [
+        {
+          "id": "A-X1",
+          "side1": "section 1: \"It touches no field the limits do not name.\"",
+          "side2": "section 5 'Reference tokens survive the cut': \"The step therefore copies any reference token found only in the cut text into `refs` while it has room (cap 8), and records `refs_lost` otherwise.\" (A itself adds: \"it is not in E2 R-02\")",
+          "why": "The step writes to `refs`, which is not one of the fields the limits name (anchor, anchor2, quote, claim)."
+        },
+        {
+          "id": "A-X2",
+          "side1": "line 5: \"Truncate `anchor` and `anchor2` to 200 and `claim` to 300 as an exact prefix\"",
+          "side2": "section 2 item 7: \"claim to 297 characters plus `...` ... Position A takes that exact rule as the claim cut\"",
+          "why": "A claim of 297 characters plus a marker is not an exact prefix of the first 300 characters; A's own item 7 says only anchors, anchor2 and quote are cut as exact prefixes."
+        },
+        {
+          "id": "A-X3",
+          "side1": "section 1: \"removes 88 of the 92 measured drops, so ... the expensive, unmeasured step (re-ask) is left with at most 4 lines\" (and section 3.4 \"at most 4 lines\")",
+          "side2": "section 3.1: \"88 of 92 ... [derived upper bound, not measured]\" and section 5 M1: \"a lower number means a second violation on the same line\"",
+          "why": "An upper bound on lines the cut can fix is a lower bound on the residual (at least 4); \"at most 4\" cannot follow from it, and A's own M1 allows a larger residual."
+        }
+      ],
+      "IC_contradictions": 3,
+      "IC_units": 160,
+      "RC": 1.0,
+      "RC_matched": 14,
+      "RC_rows": [
+        {
+          "id": "R01",
+          "matched": true,
+          "stems_present": 5,
+          "stems_total": 5
+        },
+        {
+          "id": "R02",
+          "matched": true,
+          "stems_present": 3,
+          "stems_total": 3
+        },
+        {
+          "id": "R03",
+          "matched": true,
+          "stems_present": 3,
+          "stems_total": 3
+        },
+        {
+          "id": "R04",
+          "matched": true,
+          "stems_present": 3,
+          "stems_total": 3
+        },
+        {
+          "id": "R05",
+          "matched": true,
+          "stems_present": 3,
+          "stems_total": 3
+        },
+        {
+          "id": "R06",
+          "matched": true,
+          "stems_present": 3,
+          "stems_total": 3
+        },
+        {
+          "id": "R07",
+          "matched": true,
+          "stems_present": 3,
+          "stems_total": 3
+        },
+        {
+          "id": "R08",
+          "matched": true,
+          "stems_present": 3,
+          "stems_total": 3
+        },
+        {
+          "id": "R09",
+          "matched": true,
+          "stems_present": 3,
+          "stems_total": 3
+        },
+        {
+          "id": "R10",
+          "matched": true,
+          "stems_present": 3,
+          "stems_total": 3
+        },
+        {
+          "id": "R11",
+          "matched": true,
+          "stems_present": 3,
+          "stems_total": 3
+        },
+        {
+          "id": "R12",
+          "matched": true,
+          "stems_present": 3,
+          "stems_total": 3
+        },
+        {
+          "id": "R13",
+          "matched": true,
+          "stems_present": 3,
+          "stems_total": 3
+        },
+        {
+          "id": "R14",
+          "matched": true,
+          "stems_present": 3,
+          "stems_total": 3
+        }
+      ],
+      "RC_total": 14,
+      "SC": 0.7778,
+      "SC_h2": 7,
+      "SC_max_h2": 9,
+      "SR": 1.0,
+      "SR_body_lines": 66,
+      "SR_concrete_lines": 60,
+      "SR_vague_detail": {
+        "adequate": 0,
+        "appropriate": 0,
+        "as needed": 0,
+        "best practices": 0,
+        "etc.": 0,
+        "industry standard": 0,
+        "might": 0,
+        "properly": 0,
+        "should consider": 0,
+        "various": 0
+      },
+      "SR_vague_occurrences": 0,
+      "file": "variant-1-original.md",
+      "quant_score": 0.9598
+    },
+    "B": {
+      "DC": 1.0,
+      "DC_external_excluded": [
+        "7"
+      ],
+      "DC_numbered_headings": [
+        "1",
+        "2",
+        "3",
+        "3.1",
+        "3.2",
+        "3.3",
+        "3.4",
+        "3.5",
+        "3.6",
+        "4",
+        "4.1",
+        "4.2",
+        "4.3",
+        "4.4",
+        "4.5",
+        "4.6",
+        "5",
+        "6",
+        "7",
+        "8",
+        "9"
+      ],
+      "DC_refs": [
+        {
+          "ref": "5",
+          "resolved": true
+        },
+        {
+          "ref": "4.3",
+          "resolved": true
+        },
+        {
+          "ref": "8",
+          "resolved": true
+        },
+        {
+          "ref": "3.3",
+          "resolved": true
+        },
+        {
+          "ref": "4.2",
+          "resolved": true
+        },
+        {
+          "ref": "4.4",
+          "resolved": true
+        },
+        {
+          "ref": "4.2",
+          "resolved": true
+        },
+        {
+          "ref": "7",
+          "resolved": true
+        },
+        {
+          "ref": "7",
+          "resolved": true
+        },
+        {
+          "ref": "4.3",
+          "resolved": true
+        },
+        {
+          "ref": "5",
+          "resolved": true
+        },
+        {
+          "ref": "4.1",
+          "resolved": true
+        },
+        {
+          "ref": "4.5",
+          "resolved": true
+        }
+      ],
+      "DC_resolved": 13,
+      "DC_total": 13,
+      "IC": 0.9792,
+      "IC_claims": 144,
+      "IC_considered_not_counted": [
+        "section 3.2 (re-ask only for blocking true/unknown drops) vs section 2 C-02 row (any over-limit line makes block_ok False until the re-ask): a reviewer whose only drops say blocking:false never regains a valid block; an unaddressed gap, not a stated opposite.",
+        "section 4.5 bullet 4 (SKILL.md:343 forbids any normalisation by the orchestrator) vs last bullet (a code normaliser bears on where a repair may live): B qualifies itself in the same list; not opposed."
+      ],
+      "IC_contradiction_list": [
+        {
+          "id": "B-X1",
+          "side1": "section 4.4 totals and 4.6: \"all 5 re-asked blocks recorded valid afterwards\" / \"5 of 5 re-asked blocks recorded valid\"",
+          "side2": "section 4.4 table, row E3: \"reviewer 3 fully fixed; reviewer 2 still had two bad citations; '3 of 3 (to be confirmed by `review cluster`)'\"",
+          "why": "B's own table shows a re-asked block that was still invalid and one outcome unconfirmed, so \"5 of 5 valid\" is not supported by the table beside it."
+        },
+        {
+          "id": "B-X2",
+          "side1": "section 4.2 'What this gives B': \"and on none of the 42 merges where a blocking row survived\"",
+          "side2": "section 4.2 table: \"49 rows in 44 distinct triples and 42 distinct (row, package) merges\" and \"4 rows in 3 merges\" where no blocking row was left",
+          "why": "The 42 merges are all merges with a dropped blocking line, 3 of which have no surviving blocking row; the merges where a blocking row survived number 39, not 42."
+        },
+        {
+          "id": "B-X3",
+          "side1": "sections 3.5 and 5 (INV-C, B-raise): \"rewrites four boundary assertions\"",
+          "side2": "section 3.1 and section 2 INV-010 row: `card_convert.py` (`MAX_CLAIM = 300`) \"must import the same constants under either policy\"; its pin `tests/review/test_review_card_convert.py:500` asserts `len(f[\"claim\"]) == 300`",
+          "why": "If card_convert imports the raised claim constant, a fifth pin (test_review_card_convert.py:500, read at HEAD) fails; B's count of four omits it."
+        }
+      ],
+      "IC_contradictions": 3,
+      "IC_units": 197,
+      "RC": 1.0,
+      "RC_matched": 14,
+      "RC_rows": [
+        {
+          "id": "R01",
+          "matched": true,
+          "stems_present": 5,
+          "stems_total": 5
+        },
+        {
+          "id": "R02",
+          "matched": true,
+          "stems_present": 3,
+          "stems_total": 3
+        },
+        {
+          "id": "R03",
+          "matched": true,
+          "stems_present": 3,
+          "stems_total": 3
+        },
+        {
+          "id": "R04",
+          "matched": true,
+          "stems_present": 3,
+          "stems_total": 3
+        },
+        {
+          "id": "R05",
+          "matched": true,
+          "stems_present": 3,
+          "stems_total": 3
+        },
+        {
+          "id": "R06",
+          "matched": true,
+          "stems_present": 3,
+          "stems_total": 3
+        },
+        {
+          "id": "R07",
+          "matched": true,
+          "stems_present": 3,
+          "stems_total": 3
+        },
+        {
+          "id": "R08",
+          "matched": true,
+          "stems_present": 3,
+          "stems_total": 3
+        },
+        {
+          "id": "R09",
+          "matched": true,
+          "stems_present": 3,
+          "stems_total": 3
+        },
+        {
+          "id": "R10",
+          "matched": true,
+          "stems_present": 3,
+          "stems_total": 3
+        },
+        {
+          "id": "R11",
+          "matched": true,
+          "stems_present": 3,
+          "stems_total": 3
+        },
+        {
+          "id": "R12",
+          "matched": true,
+          "stems_present": 3,
+          "stems_total": 3
+        },
+        {
+          "id": "R13",
+          "matched": true,
+          "stems_present": 3,
+          "stems_total": 3
+        },
+        {
+          "id": "R14",
+          "matched": true,
+          "stems_present": 3,
+          "stems_total": 3
+        }
+      ],
+      "RC_total": 14,
+      "SC": 1.0,
+      "SC_h2": 9,
+      "SC_max_h2": 9,
+      "SR": 1.0,
+      "SR_body_lines": 135,
+      "SR_concrete_lines": 120,
+      "SR_vague_detail": {
+        "adequate": 0,
+        "appropriate": 0,
+        "as needed": 0,
+        "best practices": 0,
+        "etc.": 0,
+        "industry standard": 0,
+        "might": 0,
+        "properly": 0,
+        "should consider": 0,
+        "various": 0
+      },
+      "SR_vague_occurrences": 0,
+      "file": "variant-2-original.md",
+      "quant_score": 0.9948
+    }
+  }
+}

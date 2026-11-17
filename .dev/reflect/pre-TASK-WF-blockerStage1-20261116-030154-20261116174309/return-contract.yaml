@@ -1,0 +1,149 @@
+contract_version: 1.8.0
+status: partial                      # forced by the evidence gate: 9 unfounded citations were dropped and corrected (protocol 11.2); no plan finding changed
+mode: pre
+tier_reached: 2
+report_path: /home/coder/workspaces/worktrees/IronClaude/brainstorm-reflect-panel/.dev/reflect/pre-TASK-WF-blockerStage1-20261116-030154-20261116174309/REPORT.md
+report_written_by_run: false         # the Write tool refused REPORT.md for a subagent; the full body is in adversarial/merged-review-card.md between the BEGIN and END REPORT BODY markers, for the team lead to write
+audit_log_path: /home/coder/workspaces/worktrees/IronClaude/brainstorm-reflect-panel/.dev/reflect/pre-TASK-WF-blockerStage1-20261116-030154-20261116174309/audit.log
+confidence_calibrated: 0.83
+escalation_rule_matched: 4
+onboarding_ran: false
+coverage_pct: null
+coverage_pct_union: 0.6471
+coverage_undefined: false
+coverage_degraded: parsed-sparse
+unmapped_requirements: []
+unmapped_requirements_union:
+- INF-002
+- INF-003
+- INF-004
+- INF-005
+- INF-006
+- INF-008
+- INF-009
+- INF-012
+- INF-018
+- INF-026
+- INF-027
+- INF-032
+- INF-033
+- INF-034
+- INF-035
+- INF-036
+- INF-039
+- INF-042
+- INF-047
+- INF-059
+- INF-062
+- INF-063
+- INF-065
+- INF-068
+best_practice_grade: null
+implementation_coverage_pct: null
+missing_implementations: []
+hierarchy_slice_path: null
+hierarchy_coverage_pct: null
+input_sha256:
+  tasklist: f48de5f760c6ac7271e785b104e8f3ef133d94f86509e0f51104a6a776892c37
+  spec: 99e870bd775848806b860ef235b94ef9dd5a10aa46d3768be70e0cc6400fa7f4
+input_tree_sha256: 3df56b2f1e1f4f53cebaeedfa634fa0b555043c8fbe89cf06b9c8d1277289724
+input_tree_file_count: 17
+input_tree_snapshot_path: /home/coder/workspaces/worktrees/IronClaude/brainstorm-reflect-panel/.dev/reflect/pre-TASK-WF-blockerStage1-20261116-030154-20261116174309/artifacts/input-snapshot.yaml
+input_drift_detected: false
+input_drift_diff: null
+citations_total: 308
+citations_revalidated: 308
+citations_dropped: 9
+citations_dropped_extrapolated: 9
+citations_inferred: 0
+citation_budget_policy: full_reread
+evidence_validator_ran: true
+zero_drop_flag: false
+citation_revalidation_at_promotion: false
+reviewer_cards:
+- reviewer-cards/reviewer-1-card.md
+- reviewer-cards/reviewer-2-card.md
+- reviewer-cards/reviewer-3-card.md
+adversarial_artifacts_dir: adversarial/adversarial/
+adversarial_convergence_score: 1.0
+adversarial_unavailable: false
+merge_method: adversarial
+t2_model_class_diversity: full
+t2_vendor_diversity: single
+t2_effective_diversity: model-only
+calibrator_diversity: degraded
+remediation_offered: false
+remediation_accepted: null
+task_file_path: null
+remediation_task_path: null
+remediation_plan_path: null
+handoff_memory_key: null
+cannot_validate_without_user_input: false
+regression_present: false
+unauthorized_deviation_present: false
+blocked_by_low_confidence: false
+spec_is_wrong: false
+user_decision_required: false
+needs_human_decision: false
+per_task_verdicts: []
+interaction_effects_scanned: false
+interaction_effects_findings: 0
+budget_forced_tier_downgrade: false
+budget_forced_stop: false
+budget_check_skipped: true
+forced_tier: null
+promotion_action: not-applicable
+promotion_adapter: null
+promotion_gate_passed: null
+findings_total: 10
+findings_blocking: 1
+verdict: NEEDS-REVISION
+blocking_findings:
+- "M-F1 Task 7 grep acceptance line (PLAN:125) also lists .pyc files, so it fails after Task 7's own test run"
+telemetry:
+  reviewer_models:
+  - sonnet (observed claude-gw-tier1b[1m])
+  - haiku (self-reported OpenAI model; mismatch suspected)
+  - opus (observed claude-gw-tier1a)
+  reviewer_personas:
+  - analyzer
+  - qa
+  - refactorer
+  reviewer_vendors:
+  - anthropic
+  - anthropic
+  - anthropic
+  degraded_components:
+  - executor_class_unknown
+  - t2_vendor_single
+  - calibrator_diversity_degraded
+  - judge_class_collision
+  - reviewer_identity_mismatch_suspected
+  fallback_path: null
+  executor_class_source: unknown
+  executor_class_resolved: false
+  executor_exclusion_degraded: false
+  t2_engine_requested: legacy
+  t2_engine_effective: legacy
+  reviewer_isolation: disabled
+  identity_source: requested-pinned
+  verification_ran: false
+  verification_skip_reason: not applicable (UC-1)
+  memory_hits: 2
+  memory_misses: 0
+  memory_persist_skipped: "lead restricted output to the run folder; no last-pass note, no deviation-patterns update, no runs.jsonl append"
+  references_extended_info_used: false
+  type_hierarchy_invoked: false
+  summarize_changes_invoked: false
+  findings_total: 10
+  debate_points: 22
+  debate_unanimous: 21
+  debate_majority: 1
+  invariant_findings: 13
+  invariant_high_unaddressed: 0
+  invariant_medium_unaddressed: 2
+  protocol_deviations:
+  - "REPORT.md not written: the Write tool refused it for a subagent (body kept in adversarial/merged-review-card.md)"
+  - "sc-adversarial live probe folded into the real Skill call"
+  - "T1 card, diff analysis and refactor plan drafted by the orchestrator; advocate statements persisted in condensed form"
+  - "memory and runs.jsonl writes skipped per the lead's output rule"

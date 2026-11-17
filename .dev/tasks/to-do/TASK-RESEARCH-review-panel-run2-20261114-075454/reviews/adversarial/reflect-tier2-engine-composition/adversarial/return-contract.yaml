@@ -1,0 +1,11 @@
+return_contract:
+  merged_output_path: "/home/coder/workspaces/worktrees/IronClaude/brainstorm-reflect-panel/.dev/tasks/to-do/TASK-RESEARCH-review-panel-run2-20261114-075454/reviews/adversarial/reflect-tier2-engine-composition/merged-output.md"
+  convergence_score: 0.9333   # 42 of 45 debate points agreed after Round 2 (Round 1: 36 of 45 = 0.80); status CONVERGED; threshold 0.80
+  artifacts_dir: "/home/coder/workspaces/worktrees/IronClaude/brainstorm-reflect-panel/.dev/tasks/to-do/TASK-RESEARCH-review-panel-run2-20261114-075454/reviews/adversarial/reflect-tier2-engine-composition/adversarial"
+  status: "partial"           # all five steps completed and the merge validated (27 of 27 changes applied); partial because 3 diff-point labels stayed unresolved (C-007, C-009, C-018) and 6 sub-disputes inside the merged hybrid are carried as OPEN; depth standard has no Round 3
+  base_variant: "Variant 1 (Proposal A, variant-1-original.md; default model, default persona)"   # combined 0.9302 against 0.8611, margin 6.91%, no tiebreaker
+  unresolved_conflicts: 3     # C-007 (Hybrid vs Variant 2), C-009 (Variant 2 vs Hybrid), C-018 (Hybrid vs Variant 2); plus 6 two-sided sub-disputes inside the hybrid (see merged-output.md section 9.2)
+  fallback_mode: false
+  failure_stage: null
+  invocation_method: "task-agent"
+  unaddressed_invariants: []  # no HIGH-severity UNADDRESSED item; invariant probe: 20 findings, 3 ADDRESSED, 17 UNADDRESSED (15 MEDIUM, 2 LOW)

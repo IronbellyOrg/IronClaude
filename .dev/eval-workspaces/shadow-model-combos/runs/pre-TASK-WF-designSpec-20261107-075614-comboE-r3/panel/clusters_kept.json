@@ -1,0 +1,595 @@
+{
+  "agreement_clusters": [
+    "C1",
+    "C3",
+    "C4",
+    "C6"
+  ],
+  "blocking_clusters": 5,
+  "calibration_coverage": {
+    "calibrated_findings": 15,
+    "clustered_findings": 15
+  },
+  "cards": [
+    {
+      "block_state": "complete",
+      "card": "reviewer-1.md",
+      "errors": [],
+      "reviewer_id": "reviewer-1",
+      "state": "complete"
+    },
+    {
+      "block_state": "complete",
+      "card": "reviewer-2.md",
+      "errors": [],
+      "reviewer_id": "reviewer-2",
+      "state": "complete"
+    },
+    {
+      "block_state": "complete",
+      "card": "reviewer-3.md",
+      "errors": [],
+      "reviewer_id": "reviewer-3",
+      "state": "complete"
+    }
+  ],
+  "chained": [
+    "C2"
+  ],
+  "citations": {
+    "malformed": 0,
+    "resolved": 50,
+    "unresolved": 1
+  },
+  "cluster_agreement": 0.3184306569343066,
+  "clusters": [
+    {
+      "blocking_all": true,
+      "blocking_any": true,
+      "chained": false,
+      "claim": "Cycle-id continuity is prose only: the spec requires one minted fix or ci id shared by the push triad, rereview_requested and the guard, but plan Task 8 AC only requires naming the mint place, and the trace AC checks event order, not cycle_id equality.",
+      "cluster_id": "C1",
+      "disputed": true,
+      "member_scores": [
+        0.78
+      ],
+      "members": [
+        {
+          "blocking": true,
+          "deviation_class": null,
+          "finding_confidence": 0.78,
+          "fp": "c9ca0b7c1007341cefdc23be97e0de52380092d9a5645bd964439bd351d889ac",
+          "id": "F1",
+          "ordinal": 1,
+          "primary_citation": {
+            "index": 1,
+            "line_end": 124,
+            "line_start": 124,
+            "path": ".dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/TASK-WF-designSpec-20261107-075614.md",
+            "role": "plan",
+            "status": "resolved"
+          },
+          "refs_norm": [
+            "4.6"
+          ],
+          "reviewer_id": "reviewer-1"
+        }
+      ],
+      "representative": {
+        "id": "F1",
+        "reviewer_id": "reviewer-1"
+      },
+      "reviewers": [
+        "reviewer-1"
+      ],
+      "support": 0.28467153284671537,
+      "uncalibrated": false
+    },
+    {
+      "blocking_all": false,
+      "blocking_any": true,
+      "chained": true,
+      "claim": "Resume row 4 re-enters release_decision, which needs target_sha and this cycle's applied_edits, but the resume_decision signature and the fold fields carry neither. A placeholder 0 hits release row 7 and skips the head check.",
+      "cluster_id": "C2",
+      "disputed": true,
+      "member_scores": [
+        0.94,
+        0.83,
+        0.76,
+        0.92
+      ],
+      "members": [
+        {
+          "blocking": true,
+          "deviation_class": null,
+          "finding_confidence": 0.94,
+          "fp": "00bf89e4c45366fccb565c75494dfce49b757ff62f2c7f5eb9370dfe240b671a",
+          "id": "F2",
+          "ordinal": 1,
+          "primary_citation": {
+            "index": 4,
+            "line_end": 77,
+            "line_start": 77,
+            "path": ".dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/TASK-WF-designSpec-20261107-075614.md",
+            "role": "plan",
+            "status": "resolved"
+          },
+          "refs_norm": [
+            "4.1"
+          ],
+          "reviewer_id": "reviewer-1"
+        },
+        {
+          "blocking": true,
+          "deviation_class": null,
+          "finding_confidence": 0.83,
+          "fp": "00bf89e4c45366fccb565c75494dfce49b757ff62f2c7f5eb9370dfe240b671a",
+          "id": "F4",
+          "ordinal": 1,
+          "primary_citation": {
+            "index": 3,
+            "line_end": 62,
+            "line_start": 62,
+            "path": ".dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/TASK-WF-designSpec-20261107-075614.md",
+            "role": "plan",
+            "status": "resolved"
+          },
+          "refs_norm": [
+            "4.1"
+          ],
+          "reviewer_id": "reviewer-1"
+        },
+        {
+          "blocking": false,
+          "deviation_class": null,
+          "finding_confidence": 0.76,
+          "fp": "00bf89e4c45366fccb565c75494dfce49b757ff62f2c7f5eb9370dfe240b671a",
+          "id": "F10",
+          "ordinal": 1,
+          "primary_citation": {
+            "index": 1,
+            "line_end": 90,
+            "line_start": 90,
+            "path": ".dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/TASK-WF-designSpec-20261107-075614.md",
+            "role": "plan",
+            "status": "resolved"
+          },
+          "refs_norm": [
+            "4.1"
+          ],
+          "reviewer_id": "reviewer-1"
+        },
+        {
+          "blocking": true,
+          "deviation_class": null,
+          "finding_confidence": 0.92,
+          "fp": "7f35ff247c3c64a00cdb2c276c5fcad3886c76e07f902e87b4ef66466f72f73e",
+          "id": "F13",
+          "ordinal": 1,
+          "primary_citation": {
+            "index": 0,
+            "line_end": 137,
+            "line_start": 137,
+            "path": ".dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/source.md",
+            "role": "spec",
+            "status": "resolved"
+          },
+          "refs_norm": [
+            "4.1"
+          ],
+          "reviewer_id": "reviewer-1"
+        }
+      ],
+      "representative": {
+        "id": "F2",
+        "reviewer_id": "reviewer-1"
+      },
+      "reviewers": [
+        "reviewer-1"
+      ],
+      "support": 0.34306569343065696,
+      "uncalibrated": false
+    },
+    {
+      "blocking_all": false,
+      "blocking_any": true,
+      "chained": false,
+      "claim": "A ready not_applied may restore RELEASE_PENDING, but plan AC tests only HELD, and no fold row sets phase_before_request, which the restore needs. A HELD restore makes resume row 9 NOOP and drops the release retry.",
+      "cluster_id": "C3",
+      "disputed": true,
+      "member_scores": [
+        0.91,
+        0.79
+      ],
+      "members": [
+        {
+          "blocking": true,
+          "deviation_class": null,
+          "finding_confidence": 0.91,
+          "fp": "d4fc14291083b5a55e90d00746a314adb7f7aecf22841c5624a43df96b054caf",
+          "id": "F3",
+          "ordinal": 1,
+          "primary_citation": {
+            "index": 4,
+            "line_end": 60,
+            "line_start": 60,
+            "path": ".dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/TASK-WF-designSpec-20261107-075614.md",
+            "role": "plan",
+            "status": "resolved"
+          },
+          "refs_norm": [
+            "4.2"
+          ],
+          "reviewer_id": "reviewer-1"
+        },
+        {
+          "blocking": false,
+          "deviation_class": null,
+          "finding_confidence": 0.79,
+          "fp": "553e87f9a4a347dadf5533006eb929d3b49fd0a13985f08275a67b170ffc612c",
+          "id": "F9",
+          "ordinal": 1,
+          "primary_citation": {
+            "index": 0,
+            "line_end": 108,
+            "line_start": 108,
+            "path": ".dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/source.md",
+            "role": "spec",
+            "status": "resolved"
+          },
+          "refs_norm": [
+            "4.2"
+          ],
+          "reviewer_id": "reviewer-1"
+        }
+      ],
+      "representative": {
+        "id": "F3",
+        "reviewer_id": "reviewer-1"
+      },
+      "reviewers": [
+        "reviewer-1"
+      ],
+      "support": 0.3321167883211679,
+      "uncalibrated": false
+    },
+    {
+      "blocking_all": true,
+      "blocking_any": true,
+      "chained": false,
+      "claim": "The Wave 0 row promises that unsettled requests are reconciled before any edit, but resume row 2 returns REPORT_HELD with no mutation for mode off or ordinal below 3, ahead of the RECONCILE row. Plan codifies row 2 and does not resolve the promise.",
+      "cluster_id": "C4",
+      "disputed": true,
+      "member_scores": [
+        0.92
+      ],
+      "members": [
+        {
+          "blocking": true,
+          "deviation_class": null,
+          "finding_confidence": 0.92,
+          "fp": "24cd29b8b9f30956a0bcb3f8b310686080447ef55995d8a6bea9c4e3a39564d3",
+          "id": "F5",
+          "ordinal": 1,
+          "primary_citation": {
+            "index": 2,
+            "line_end": 76,
+            "line_start": 76,
+            "path": ".dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/TASK-WF-designSpec-20261107-075614.md",
+            "role": "plan",
+            "status": "resolved"
+          },
+          "refs_norm": [
+            "INF-005"
+          ],
+          "reviewer_id": "reviewer-1"
+        }
+      ],
+      "representative": {
+        "id": "F5",
+        "reviewer_id": "reviewer-1"
+      },
+      "reviewers": [
+        "reviewer-1"
+      ],
+      "support": 0.33576642335766427,
+      "uncalibrated": false
+    },
+    {
+      "blocking_all": false,
+      "blocking_any": false,
+      "chained": false,
+      "claim": "The script JSON has no mapping to settle outcome, changed or cause. ok:false with error not_open is unmapped. The already-in-state cause is named already_in_state in section 7 but 'already in target state' in plan Task 8.",
+      "cluster_id": "C5",
+      "disputed": true,
+      "member_scores": [
+        0.79
+      ],
+      "members": [
+        {
+          "blocking": false,
+          "deviation_class": null,
+          "finding_confidence": 0.79,
+          "fp": "4cc4882a5d6e4e42e3e7e2477d0663596cfca01677ccdc43cdde5e0b0e7307e3",
+          "id": "F6",
+          "ordinal": 1,
+          "primary_citation": {
+            "index": 2,
+            "line_end": 124,
+            "line_start": 124,
+            "path": ".dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/TASK-WF-designSpec-20261107-075614.md",
+            "role": "plan",
+            "status": "resolved"
+          },
+          "refs_norm": [
+            "4.4"
+          ],
+          "reviewer_id": "reviewer-1"
+        }
+      ],
+      "representative": {
+        "id": "F6",
+        "reviewer_id": "reviewer-1"
+      },
+      "reviewers": [
+        "reviewer-1"
+      ],
+      "support": 0.2883211678832117,
+      "uncalibrated": false
+    },
+    {
+      "blocking_all": true,
+      "blocking_any": true,
+      "chained": false,
+      "claim": "The CI-fix engage trigger is undefined. The spec puts CI-fix cycles under the Medium-or-higher routed-finding trigger but never gives a CI-fix cycle a severity, and plan Task 10 engages a CI-fix cycle with no trigger.",
+      "cluster_id": "C6",
+      "disputed": true,
+      "member_scores": [
+        0.88
+      ],
+      "members": [
+        {
+          "blocking": true,
+          "deviation_class": null,
+          "finding_confidence": 0.88,
+          "fp": "68cd9d5dfb21244b184380adca41b303447ea2ead0d63bbb410d47f6b4cdf7d0",
+          "id": "F7",
+          "ordinal": 1,
+          "primary_citation": {
+            "index": 2,
+            "line_end": 124,
+            "line_start": 124,
+            "path": ".dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/TASK-WF-designSpec-20261107-075614.md",
+            "role": "plan",
+            "status": "resolved"
+          },
+          "refs_norm": [
+            "INF-001"
+          ],
+          "reviewer_id": "reviewer-1"
+        }
+      ],
+      "representative": {
+        "id": "F7",
+        "reviewer_id": "reviewer-1"
+      },
+      "reviewers": [
+        "reviewer-1"
+      ],
+      "support": 0.3211678832116789,
+      "uncalibrated": false
+    },
+    {
+      "blocking_all": false,
+      "blocking_any": false,
+      "chained": false,
+      "claim": "Task 11 requires several scenario test names, but its acceptance criteria do not require assertions for release-failure retry, unreadable-timeline handling, or moved-head behavior; those cases could be omitted while the names exist.",
+      "cluster_id": "C7",
+      "disputed": true,
+      "member_scores": [
+        0.84
+      ],
+      "members": [
+        {
+          "blocking": false,
+          "deviation_class": null,
+          "finding_confidence": 0.84,
+          "fp": "929dca47101b99581522654814f0f26853dbfdbc871ca0a6b78bae23c6aed4c6",
+          "id": "F1",
+          "ordinal": 2,
+          "primary_citation": {
+            "index": 1,
+            "line_end": 169,
+            "line_start": 166,
+            "path": ".dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/TASK-WF-designSpec-20261107-075614.md",
+            "role": "plan",
+            "status": "resolved"
+          },
+          "refs_norm": [],
+          "reviewer_id": "reviewer-2"
+        }
+      ],
+      "representative": {
+        "id": "F1",
+        "reviewer_id": "reviewer-2"
+      },
+      "reviewers": [
+        "reviewer-2"
+      ],
+      "support": 0.30656934306569344,
+      "uncalibrated": false
+    },
+    {
+      "blocking_all": false,
+      "blocking_any": false,
+      "chained": false,
+      "claim": "Task 7's output assertion checks that autoMergeRequest is present but not its required boolean type, so the acceptance check could pass with an object or null instead of the specified boolean.",
+      "cluster_id": "C8",
+      "disputed": true,
+      "member_scores": [
+        0.76
+      ],
+      "members": [
+        {
+          "blocking": false,
+          "deviation_class": null,
+          "finding_confidence": 0.76,
+          "fp": "929dca47101b99581522654814f0f26853dbfdbc871ca0a6b78bae23c6aed4c6",
+          "id": "F2",
+          "ordinal": 2,
+          "primary_citation": {
+            "index": 1,
+            "line_end": 518,
+            "line_start": 517,
+            "path": ".dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/TASK-WF-designSpec-20261107-075614.md",
+            "role": "plan",
+            "status": "resolved"
+          },
+          "refs_norm": [],
+          "reviewer_id": "reviewer-2"
+        }
+      ],
+      "representative": {
+        "id": "F2",
+        "reviewer_id": "reviewer-2"
+      },
+      "reviewers": [
+        "reviewer-2"
+      ],
+      "support": 0.2773722627737227,
+      "uncalibrated": false
+    },
+    {
+      "blocking_all": false,
+      "blocking_any": false,
+      "chained": false,
+      "claim": "The plan requires protocol prose to omit file:NNN pointers, but Task 8's listed static acceptance checks do not check that constraint.",
+      "cluster_id": "C9",
+      "disputed": true,
+      "member_scores": [
+        0.88
+      ],
+      "members": [
+        {
+          "blocking": false,
+          "deviation_class": null,
+          "finding_confidence": 0.88,
+          "fp": "929dca47101b99581522654814f0f26853dbfdbc871ca0a6b78bae23c6aed4c6",
+          "id": "F3",
+          "ordinal": 2,
+          "primary_citation": {
+            "index": 1,
+            "line_end": 23,
+            "line_start": 23,
+            "path": ".dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/TASK-WF-designSpec-20261107-075614.md",
+            "role": "plan",
+            "status": "resolved"
+          },
+          "refs_norm": [],
+          "reviewer_id": "reviewer-2"
+        }
+      ],
+      "representative": {
+        "id": "F3",
+        "reviewer_id": "reviewer-2"
+      },
+      "reviewers": [
+        "reviewer-2"
+      ],
+      "support": 0.3211678832116789,
+      "uncalibrated": false
+    },
+    {
+      "blocking_all": false,
+      "blocking_any": false,
+      "chained": false,
+      "claim": "Task 8 requires reusing one cycle ID for the push triad and rereview request, but its acceptance criterion checks only where the ID is minted, not that both reuse it.",
+      "cluster_id": "C10",
+      "disputed": true,
+      "member_scores": [
+        0.88
+      ],
+      "members": [
+        {
+          "blocking": false,
+          "deviation_class": null,
+          "finding_confidence": 0.88,
+          "fp": "5c860a6592c0f8acc0fce9a3b309a6b729c9b6965ba92828e90b8fbcfccc3e67",
+          "id": "F1",
+          "ordinal": 3,
+          "primary_citation": {
+            "index": 1,
+            "line_end": 124,
+            "line_start": 124,
+            "path": ".dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/TASK-WF-designSpec-20261107-075614.md",
+            "role": "plan",
+            "status": "resolved"
+          },
+          "refs_norm": [
+            "INF-049"
+          ],
+          "reviewer_id": "reviewer-3"
+        }
+      ],
+      "representative": {
+        "id": "F1",
+        "reviewer_id": "reviewer-3"
+      },
+      "reviewers": [
+        "reviewer-3"
+      ],
+      "support": 0.3211678832116789,
+      "uncalibrated": false
+    },
+    {
+      "blocking_all": false,
+      "blocking_any": false,
+      "chained": false,
+      "claim": "Task 7 makes adding the script to `_RESOLUTION_SCRIPTS` conditional on Task 1's investigation, but its acceptance criterion does not say whether the script must be included; the required outcome is unclear.",
+      "cluster_id": "C11",
+      "disputed": true,
+      "member_scores": [
+        0.92
+      ],
+      "members": [
+        {
+          "blocking": false,
+          "deviation_class": null,
+          "finding_confidence": 0.92,
+          "fp": "929dca47101b99581522654814f0f26853dbfdbc871ca0a6b78bae23c6aed4c6",
+          "id": "F2",
+          "ordinal": 3,
+          "primary_citation": {
+            "index": 1,
+            "line_end": 108,
+            "line_start": 108,
+            "path": ".dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/TASK-WF-designSpec-20261107-075614.md",
+            "role": "plan",
+            "status": "resolved"
+          },
+          "refs_norm": [],
+          "reviewer_id": "reviewer-3"
+        }
+      ],
+      "representative": {
+        "id": "F2",
+        "reviewer_id": "reviewer-3"
+      },
+      "reviewers": [
+        "reviewer-3"
+      ],
+      "support": 0.33576642335766427,
+      "uncalibrated": false
+    }
+  ],
+  "complete_reviewers": [
+    "reviewer-1",
+    "reviewer-2",
+    "reviewer-3"
+  ],
+  "invalid_reviewers": [],
+  "problems": [],
+  "uncalibrated": [],
+  "uncalibrated_findings": [],
+  "valid_blocks": 3
+}

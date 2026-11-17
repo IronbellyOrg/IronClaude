@@ -1,0 +1,68 @@
+contract_version: "1.8.0"
+status: partial   # the evidence gate is clean (163 of 163 citations founded) but REPORT.md could not be written: the harness refused the Write call for a report file (subagent rule: return findings as text)
+mode: pre
+tier_reached: 2
+report_path: null
+report_unwritten_reason: "Write of REPORT.md was refused by the harness; the report body was sent to team-lead as a message. The validated findings are on disk in merged_review_card_path."
+merged_review_card_path: /home/coder/workspaces/worktrees/IronClaude/brainstorm-reflect-panel/.dev/reflect/pre-TASK-WF-blockerStage4-20261116-030206-20261116030426/adversarial/merged-review-card.md
+audit_log_path: /home/coder/workspaces/worktrees/IronClaude/brainstorm-reflect-panel/.dev/reflect/pre-TASK-WF-blockerStage4-20261116-030206-20261116030426/audit.log
+confidence_calibrated: 0.79
+escalation_rule_matched: 4
+onboarding_ran: false
+verdict: NEEDS-REVISION
+coverage_pct: null
+coverage_pct_union: 0.625
+coverage_undefined: false
+coverage_degraded: parsed-sparse
+unmapped_requirements: []
+unmapped_requirements_union: [INF-002, INF-008, INF-012, INF-013, INF-015, INF-016]   # mechanical rule; a manual read maps all of them (Constraints block and Tasks 2 to 4)
+input_tree_sha256: 90593fa7247e4cfc1ffec22b624b7f83cb2203dfb866ec9ffdd96e9fafb5ddc7
+input_tree_file_count: 24
+input_tree_snapshot_path: /home/coder/workspaces/worktrees/IronClaude/brainstorm-reflect-panel/.dev/reflect/pre-TASK-WF-blockerStage4-20261116-030206-20261116030426/artifacts/input-snapshot.yaml
+input_drift_detected: false
+citations_total: 163
+citations_revalidated: 163
+citations_dropped: 0
+citations_dropped_extrapolated: 0
+citations_inferred: 0
+citation_budget_policy: full_reread
+evidence_validator_ran: true
+zero_drop_flag: true
+reviewer_cards: [reviewer-cards/reviewer-1-card.md, reviewer-cards/reviewer-2-card.md, reviewer-cards/reviewer-3-card.md]
+adversarial_artifacts_dir: adversarial/adversarial/
+adversarial_convergence_score: 0.9565
+adversarial_unavailable: false
+merge_method: adversarial
+t2_model_class_diversity: full
+t2_vendor_diversity: single
+t2_effective_diversity: model-only
+calibrator_diversity: degraded
+remediation_offered: false
+remediation_accepted: null
+remediation_task_path: null
+remediation_plan_path: null
+handoff_memory_key: null
+cannot_validate_without_user_input: false
+regression_present: false
+unauthorized_deviation_present: false
+blocked_by_low_confidence: false
+spec_is_wrong: false
+user_decision_required: false
+needs_human_decision: false
+per_task_verdicts: []
+interaction_effects_scanned: false
+budget_check_skipped: true
+promotion_action: not-applicable
+telemetry:
+  reviewer_models: [claude-gw-tier1b, claude-gw-tier2, claude-gw-tier1a]
+  reviewer_personas: [analyzer, qa, refactorer]
+  executor_class_source: unknown
+  executor_class_resolved: false
+  executor_exclusion_degraded: false
+  degraded_components: [executor_class_unresolved, t2_vendor_single, calibrator_degraded, judge_class_collision, report_write_refused]
+  identity_mismatch_suspected: [reviewer-2 self-reported GPT-5 against its haiku pin]
+  findings_total: 14
+  findings_blocking: 2
+  findings_non_blocking: 12
+  memory_hits: 2
+  memory_misses: 1

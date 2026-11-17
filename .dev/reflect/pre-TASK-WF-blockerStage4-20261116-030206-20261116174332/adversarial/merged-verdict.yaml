@@ -1,0 +1,17 @@
+merge_method: adversarial
+verdict: PASS   # no blocking finding; 5 MEDIUM warnings and 8 minor notes; dissent recorded (V2 advocate graded the spec section 10.5 gap blocking)
+convergence_score: 0.75   # unanimous basis (15 of 20 diff points); 1.0 on the protocol's majority basis (20 of 20)
+convergence_majority_basis: 1.0
+base_variant: "V3 (reviewer 3, refactorer, opus class)"
+source_cards:
+  - reviewer-cards/reviewer-1-card.md
+  - reviewer-cards/reviewer-2-card.md
+  - reviewer-cards/reviewer-3-card.md
+merged_review_card: adversarial/merged-review-card.md
+findings_total: 13
+findings_blocking: 0
+findings_non_blocking: 13   # 5 MEDIUM warnings (H1 to H5) and 8 minor (H6 to H13)
+blocking_findings: []
+judge_identity: "scoring evaluators: pass 1 opus class, pass 2 sonnet class, re-evaluation opus class (model ids not reported by the harness)"
+judge_class_collision: true   # three classes, all used by reviewers; a disjoint judge class does not exist
+unaddressed_invariants: []    # probe: 1 HIGH (INV-001) debated in an extra round and graded MEDIUM; 1 MEDIUM (INV-002) warning

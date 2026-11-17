@@ -1,0 +1,21 @@
+# Wave 1B coverage matrix (deterministic Pass 1 + quote-pinned Pass 2)
+parsed_rows: []          # ID_REGEX found no R-/REQ-/SPEC-/T- tokens in spec or tasklist
+inferred_rows:
+  - id: INF-001
+    quote: "Detach the ccsession gateway shim from the terminal that starts it"
+    citation: ".dev/tasks/done/TASK-WF-detachTheCcsessi-20261102-034618/source.md:1"
+    matched_task_ids: [Task 3, Task 4]
+    match_method: containment
+  - id: INF-002
+    quote: "as specified in .dev/troubleshoot/deployment-ccsession-proxy-4114-stalls-20261102031709/remediation-source.md"
+    citation: ".dev/tasks/done/TASK-WF-detachTheCcsessi-20261102-034618/source.md:1"
+    matched_task_ids: [Constraints, Task 1, Task 2, Task 3, Task 4, Task 5]
+    match_method: containment
+coverage_pct: null            # parsed-only denominator 0
+coverage_pct_union: 1.0
+coverage_undefined: false
+coverage_degraded: parsed-sparse
+unmapped_requirements: []
+unmapped_requirements_union: []
+S_dev_density: 0.0
+total_tasks: 5

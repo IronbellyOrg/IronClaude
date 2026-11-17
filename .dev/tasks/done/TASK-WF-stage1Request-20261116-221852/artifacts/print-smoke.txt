@@ -1,0 +1,20 @@
+## Task 1 smoke: clean file
+$ superclaude review safety-scan <clean file>
+safety-scan: 2 rows read, 0 skipped, 0 hits
+exit=0
+
+## Task 1 smoke: missing path
+$ superclaude review safety-scan <missing file>
+safety-scan: cannot read <tmp>/missing.md: no such file
+exit=2
+
+## Task 2 smoke: follow-up print over a temporary folder (T1 has notes.md, T2 has none)
+--- T1
+$ superclaude review safety-scan <T1 notes file>
+SAFETY HIT line 2 (delete), graded blocking: A1 r1-1 F1.1 minor src/x.py:3 ac=T1.AC1 n,n,n,n the recipe will delete the cache folder
+safety-scan: 2 rows read, 1 skipped, 1 hits
+Show these rows to the person before they are treated as follow-ups.
+printed minor lines (lines 2 to m, non-superseded):
+A1 r1-1 F1.1 minor src/x.py:3 ac=T1.AC1 n,n,n,n the recipe will delete the cache folder
+--- T2
+no notes file for T2

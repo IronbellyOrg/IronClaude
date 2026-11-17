@@ -1,0 +1,11 @@
+return_contract:
+  merged_output_path: ".dev/eval-workspaces/shadow-model-combos/runs/pre-TASK-WF-designSpec-20261107-075614-comboD-r3/adversarial/adversarial/merged-output.md"
+  convergence_score: 1.0
+  artifacts_dir: ".dev/eval-workspaces/shadow-model-combos/runs/pre-TASK-WF-designSpec-20261107-075614-comboD-r3/adversarial/adversarial"
+  status: "success"
+  base_variant: "variant-2 (reviewer-2 card, qa lens)"
+  unresolved_conflicts: 0
+  fallback_mode: false
+  failure_stage: null
+  invocation_method: "skill-direct"
+  unaddressed_invariants: []   # HIGH-severity UNADDRESSED only; INV-001, INV-002 (MEDIUM) and INV-003, INV-004, INV-006 (LOW) are listed in invariant-probe.md

@@ -1,0 +1,28 @@
+calibrator_class: sonnet            # blind calibrator (confidence-calibrator agent, model sonnet); disjoint from reviewer classes {haiku, opus}
+calibrator_agent_id: a967c7782f10997d9
+calibrator_diversity: full
+calibrator_ran_before_reviewers: true
+calibrated_C: 0.79
+self_reported_C: 0.80
+dimensions:
+  citation_grounding: 0.90
+  coverage_completeness: 0.85
+  deviation_classification_clarity: 0.60
+  risk_surface_coverage: 0.80
+  recommendation_actionability: 0.82
+per_finding_confidence:
+  O1_stage2_summary_cannot_state_5_runs: 0.70
+  O2_stage0_inventory_path_not_in_this_package: 0.90
+  O3_old_rule_injected_in_new_rule_pass: 0.85
+  O4_pass_rule_undefined_advisory_unpassable: 0.75
+  O5_entry_checks_after_spawn_package_id_missing: 0.75
+  O6_stale_numbering_tasks_34_to_37_t38: 0.95
+  O7_registry_grep_pattern_wrong: 0.85
+  O8_grounding_holds: 0.85
+calibrator_corrections_to_t1_card:
+  - "O1 wording too strong ('cannot exist by construction'): an operator could regenerate the summary; the plan names no way to do so."
+  - "O3: byte-identity of installed and src pragmatic.md was not verified by the calibrator (the orchestrator ran diff -q: identical on 2026-11-16)."
+calibrator_new_observations:
+  - "N1 (0.60): make sync-dev does not copy output-styles/; the hook reads the installed ~/.claude copy; Task 3 names no install step, so the pilot may not reach subagents and the new-rule pass in Task 1 runs with the old rule injected until an install happens."
+  - "N2 (0.50): Task 3 says to run the tests that Task 8 re-pins; they fail until Task 8 and no 'until Task 8' end point is given (breaks the plan's own Pins rule)."
+escalation_verdict: ESCALATE   # C 0.79 < 0.85, reason low_confidence

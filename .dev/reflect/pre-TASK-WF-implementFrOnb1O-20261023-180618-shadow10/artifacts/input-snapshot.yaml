@@ -1,0 +1,59 @@
+input_tree_sha256: 45b662cfd9edbd8d1fcdabc2cf80ab441b9f92cea2f4f8d7ce1b97194b409625
+file_count: 28
+file_list:
+  - path: .dev/tasks/done/TASK-WF-implementFrOnb1O-20261023-180618/TASK-WF-implementFrOnb1O-20261023-180618.md
+    sha256: c0f2d33c07bc735eae4b9de09fa586d08747fa2c8d72c24bb03ec5f77dc57cb2
+  - path: .dev/tasks/done/TASK-WF-implementFrOnb1O-20261023-180618/artifacts/t1-checks.log
+    sha256: a03bc5002806d12c2f38765fc1d0c6162f8fbf3e4157031ad450841ac8c79fe3
+  - path: .dev/tasks/done/TASK-WF-implementFrOnb1O-20261023-180618/artifacts/t1-extras.log
+    sha256: 5794d9d75166e120163ec4aaa52595827a64c4ef700ae875a39cdf6300fda156
+  - path: .dev/tasks/done/TASK-WF-implementFrOnb1O-20261023-180618/artifacts/t1.diff
+    sha256: e43a1b22838bc4c8c356b2e51d9e244908c10b336c74ab49dcb4cf3e10d2ff6b
+  - path: .dev/tasks/done/TASK-WF-implementFrOnb1O-20261023-180618/artifacts/t2-extras.log
+    sha256: ab527e0eb748ac7587c29436368142d214d76571f9b32eb3443aa5a74eb878b8
+  - path: .dev/tasks/done/TASK-WF-implementFrOnb1O-20261023-180618/artifacts/t2-few-files.log
+    sha256: 04181dbdd42891128456876e8552fefd9ca746fdad0a5ab315fae555094e42b9
+  - path: .dev/tasks/done/TASK-WF-implementFrOnb1O-20261023-180618/artifacts/t2.diff
+    sha256: e68f02e000ced38ced2b7d1be16ab7424843f3c777503baa0034d96d004efc85
+  - path: .dev/tasks/done/TASK-WF-implementFrOnb1O-20261023-180618/artifacts/t3-consistency.log
+    sha256: 8507680aa310b2241c6ac7201e8cd3f65522101fd745bb90143cf1abe1e304fb
+  - path: .dev/tasks/done/TASK-WF-implementFrOnb1O-20261023-180618/artifacts/t3-sync.log
+    sha256: adc6ec60218597ba981cbde47fb49c8bb01e633e2ea26d771666200ea645888a
+  - path: .dev/tasks/done/TASK-WF-implementFrOnb1O-20261023-180618/artifacts/t3-tests.log
+    sha256: 0eef402c0386afc62bd7a7bf35c92ef39e9f42a06e65f4c3a777b9e5fcdc3722
+  - path: .dev/tasks/done/TASK-WF-implementFrOnb1O-20261023-180618/artifacts/t3.diff
+    sha256: f3e5beb8ffcc13614ec72285bfc86c094b380c80d6cd55f45b7d1e29544fa116
+  - path: .dev/tasks/done/TASK-WF-implementFrOnb1O-20261023-180618/artifacts/t4-checks.log
+    sha256: a854f4a6ea0846545524bc0d5057685c653799841ed53b174bf0848326f967c0
+  - path: .dev/tasks/done/TASK-WF-implementFrOnb1O-20261023-180618/artifacts/t4-recommend-walk.md
+    sha256: 456d07e6488c065b537010f12fc41a9959551d9269db2d322591fa02d524def8
+  - path: .dev/tasks/done/TASK-WF-implementFrOnb1O-20261023-180618/artifacts/t4-sync.log
+    sha256: adc6ec60218597ba981cbde47fb49c8bb01e633e2ea26d771666200ea645888a
+  - path: .dev/tasks/done/TASK-WF-implementFrOnb1O-20261023-180618/artifacts/t4-tests.log
+    sha256: a7884015e688b9e1ac3c9c4e493115d8dc60cfa73e3b03e555dbb374e60bb4cb
+  - path: .dev/tasks/done/TASK-WF-implementFrOnb1O-20261023-180618/artifacts/t4.diff
+    sha256: ec13ca58d311ee15ce745867a7bbd1250f4dd3ab545a75788f4c74c88eb26f2e
+  - path: .dev/tasks/done/TASK-WF-implementFrOnb1O-20261023-180618/artifacts/t5-checks.log
+    sha256: 53eea76afe59f55e1740da1da3f194c5c52f4506d136b8b09aec17c18526bb3a
+  - path: .dev/tasks/done/TASK-WF-implementFrOnb1O-20261023-180618/artifacts/t5-tests.log
+    sha256: bd529a8038b5f6bcdf0296d2a0e2509a9dcd16af06332ee78af071224d15f310
+  - path: .dev/tasks/done/TASK-WF-implementFrOnb1O-20261023-180618/artifacts/t5.diff
+    sha256: 40b17cf76f8fc291ae0bd1a50def72e29dafc8e868ec47587f883852a2a6b1d9
+  - path: .dev/tasks/done/TASK-WF-implementFrOnb1O-20261023-180618/artifacts/t6-sweep.log
+    sha256: ef900a4701dd85204aa064b14d72a9367b1e498c293944afa4de8b315fda1941
+  - path: .dev/tasks/done/TASK-WF-implementFrOnb1O-20261023-180618/artifacts/t6.diff
+    sha256: d57d7e25c05f12646007265d30df3b1f423ffe34d781be1123a8c191055b3e62
+  - path: .dev/tasks/done/TASK-WF-implementFrOnb1O-20261023-180618/artifacts/t7-manual-check.md
+    sha256: 36c47032373e70c74f7002e32319ddcdf6381032fa87d41a12144bdffb4b7976
+  - path: .dev/tasks/done/TASK-WF-implementFrOnb1O-20261023-180618/artifacts/t7-regression.log
+    sha256: 6ce5ea1ce8b0c1ba08466765c39ff80d9e75b771aab0208d760772af8014c902
+  - path: .dev/tasks/done/TASK-WF-implementFrOnb1O-20261023-180618/artifacts/t7-tests.log
+    sha256: 5a44842e20a13473f8d0b17e64e080477c8d1dd76af382c8d9877f6dd818ea1f
+  - path: .dev/tasks/done/TASK-WF-implementFrOnb1O-20261023-180618/artifacts/t7.diff
+    sha256: 22843fe6c51224889d345fc061be826c9ddd6792ccd88b0ac9a1595ed1bced24
+  - path: .dev/tasks/done/TASK-WF-implementFrOnb1O-20261023-180618/progress.md
+    sha256: cbe2fbfb5dfa024a1079f1ad2532dfa2d23cd4209547356374b75d1f41d08e77
+  - path: .dev/tasks/done/TASK-WF-implementFrOnb1O-20261023-180618/return-contract.yaml
+    sha256: b9863d89c9729eefab966baaa8cf0989a4d3e9eb646563d9aa595a257328df37
+  - path: .dev/tasks/done/TASK-WF-implementFrOnb1O-20261023-180618/source.md
+    sha256: 63b28da00b47a33b0a7719f3ea39270491e840c683a977c8cff25200d1e8534e

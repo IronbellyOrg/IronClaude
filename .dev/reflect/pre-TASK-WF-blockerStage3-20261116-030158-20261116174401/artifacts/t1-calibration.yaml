@@ -1,0 +1,20 @@
+calibrator_class: sonnet            # confidence-calibrator agent (model sonnet), blind; reviewers are haiku and opus
+calibrator_agent_id: ae9d14624b66134c9
+calibrator_diversity: full
+calibrator_ran_before_reviewers: true
+now_iso_passed: 2026-11-16T17:55:00Z   # supplied to the calibrator; the real clock at this step was about 17:55Z
+self_reported_C: 0.80
+calibrated_C: 0.76
+dimensions:
+  citation_grounding: 0.90
+  coverage_completeness: 0.90
+  deviation_classification_clarity: 0.50
+  risk_surface_coverage: 0.75
+  recommendation_actionability: 0.75
+per_observation_confidence: {O1: 0.85, O2: 0.80, O3: 0.85, O4: 0.80, O5: 0.90, O6: 0.85, O7: 0.60, O8: 0.85, O9: 0.75}
+calibrator_corrections_applied_to_card:
+  - "sync-dev copies skills, agents, commands, hooks and templates (Makefile:109-157), not skills and agents only; only output-styles is missing (card fixed)"
+  - "cli/review/__init__.py holds nine names, two of them without modules (card fixed)"
+  - "O9 ordinal and the S1:53 cite fixed"
+calibrator_suggested_grades: "O1 low to medium; O2 lower because the hook injects the old style into both arms; O5 low (Task 10 catches it); O6 low; O4 widen to rule 9 'When in doubt, fail it' (rf-qa.md:548, rf-qa-qualitative.md:993)"
+escalation_verdict: ESCALATE   # C 0.76 < 0.85, reason low_confidence

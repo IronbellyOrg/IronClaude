@@ -1,0 +1,15 @@
+selected_tier: 2
+fired_rule_number: 6              # C < 0.85 (calibrated 0.70); the parse-density pre-filter (coverage_degraded: parsed-sparse) independently forbids a T1 stop
+coverage_degraded: parsed-sparse
+surface_unreached: null
+composite_score: 6
+per_signal_breakdown:
+  scope_size: 2          # tasklist items: 14 tasks
+  task_count: 2
+  blast_radius: 1        # edits to 3 agent/style files, 1 protocol pair, a CLI module and ~12 tests; no runtime code path
+  spec_density: 1
+  ambiguity_signals: 0
+escalation_reason: "C = 0.70 < 0.85 (rule 6); coverage_degraded parsed-sparse (45 inferred rows vs 1 parsed) is a table-wide pre-filter that forbids a Tier-1 stop; S_domains = 3 (docs/agents, code, tests) would also fire rule 4"
+t2_engine_requested: null   # flag not passed (default legacy; the flag is read only when the final tier is 2, and legacy never calls the panel)
+t2_engine_effective: legacy
+panel_fallback_reason: null

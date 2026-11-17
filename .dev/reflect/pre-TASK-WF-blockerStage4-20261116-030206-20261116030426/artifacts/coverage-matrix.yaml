@@ -1,0 +1,90 @@
+parsed_ids: []
+parsed_count: 0
+inferred_count: 16
+rows:
+  - id: INF-001
+    citation: source.md:3
+    quote: "Generate it only after the stage 3 package is done, one audit window has passed with no revert trigger tripped (the spec's section 13.2), the owner has read `./artifacts/stage3-summary-for-owner.md`, and the owner's go in chat is recorded in the stage ledger."
+    containment_match: Task 1
+    containment_ratio: 0.636
+  - id: INF-002
+    citation: source.md:7
+    quote: "Reuse Tasks 41 to 46 of the revised 46-task plan `TASK-WF-loosenBlockerRev-20261115-210254` (Phase 5, stage 4; found by that folder name under `.dev/tasks/to-do/`), renumbered 1 onward, with its `## Constraints` (stage 4 parts)."
+    containment_match: none
+    containment_ratio: 0.105
+  - id: INF-003
+    citation: source.md:11
+    quote: "The digest goes into four templates: `agent_template_qa.md`, `skill_template.md`, `01_mdtm_template_generic_task.md` and `02_mdtm_template_complex_task.md`."
+    containment_match: Task 1
+    containment_ratio: 0.625
+  - id: INF-004
+    citation: source.md:11
+    quote: "`agent_template_analysis.md` gets the merge-rule text only (no digest, no registry row, no fence)."
+    containment_match: Task 1
+    containment_ratio: 0.875
+  - id: INF-005
+    citation: source.md:11
+    quote: "The registry keeps exactly 11 `digest` rows."
+    containment_match: Task 1
+    containment_ratio: 0.833
+  - id: INF-006
+    citation: source.md:11
+    quote: "Acceptance: \"four template files hold exactly one digest\", the analysis template holds none and no `more severe rating` text, and `agent_template_qa.md` holds none of the \"Any CRITICAL or IMPORTANT issue exists\" FAIL bullet unless it is listed as a kept mechanical gate in `refs/scale-map.md`."
+    containment_match: Task 1
+    containment_ratio: 0.852
+  - id: INF-007
+    citation: source.md:11
+    quote: "Remove `agent_template_qa.md` and `agent_template_analysis.md` from the scan allow-list in the same change."
+    containment_match: Task 1
+    containment_ratio: 0.714
+  - id: INF-008
+    citation: source.md:12
+    quote: "As the base text, with the two `pointer-only` rows left at `pointer-only` and the cap sentences kept by content."
+    containment_match: none
+    containment_ratio: 0.444
+  - id: INF-009
+    citation: source.md:13
+    quote: "As the base text; the existing `src/superclaude/examples/...` mention in `commands/spec-panel.md` and its twins stays, since T3 does not check `pointer-only` rows for that path."
+    containment_match: Task 5
+    containment_ratio: 0.667
+  - id: INF-010
+    citation: source.md:14
+    quote: "Order the work so the registry and the allow-list are correct BEFORE the copy: first add the plugin mirror of `refs/rule.md` to the `canonical` registry rows and to the allow-list in `refs/scale-map.md` (path only, no merge-rule phrases), then copy the skill folder to `plugins/superclaude/skills/sc-review-severity/`, then run T15 parity, strict T2 and the merge-rule scan."
+    containment_match: Task 6
+    containment_ratio: 0.815
+  - id: INF-011
+    citation: source.md:14
+    quote: "Acceptance includes `uv run pytest tests/skills/test_review_merge_rule_scan.py tests/skills/test_review_severity_plugin_parity.py tests/skills/test_review_severity_registry.py -v` passing, `make verify-sync` passing, and no `.claude/` path other than `.claude/settings.json` staged."
+    containment_match: Task 6
+    containment_ratio: 0.824
+  - id: INF-012
+    citation: source.md:15
+    quote: "State this is stage 4 and the last package; strict T2 is switched on here."
+    containment_match: none
+    containment_ratio: 0.375
+  - id: INF-013
+    citation: source.md:15
+    quote: "Acceptance lines that a later task of this package makes false get an end point."
+    containment_match: none
+    containment_ratio: 0.3
+  - id: INF-014
+    citation: source.md:16
+    quote: "Write `./artifacts/stage4-summary-for-owner.md`: per carrier the digest state and the test that pins it, the final scan and parity results, and the revert command per row (the spec's three-step revert), ending with the sentence that a second audit window is observed by the owner or operator and is not a task of this package."
+    containment_match: Task 7
+    containment_ratio: 0.926
+  - id: INF-015
+    citation: source.md:20
+    quote: "No change to `sc-implement-protocol/refs/qa.md`, the own-scale primitives, the severity code under `src/superclaude/cli/**/*.py`, the cap of 2 fix cycles or the 35 percent target."
+    containment_match: none
+    containment_ratio: 0.267
+  - id: INF-016
+    citation: source.md:20
+    quote: "No Jev call, key or account."
+    containment_match: none
+    containment_ratio: 0.0
+matched_count: 10
+total_count: 16
+coverage_pct_union: 0.6250
+unmapped_union: ["INF-002", "INF-008", "INF-012", "INF-013", "INF-015", "INF-016"]
+coverage_degraded: parsed-sparse
+total_tasks: 7

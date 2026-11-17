@@ -1,0 +1,524 @@
+{
+  "by_flag": {
+    "missing-file": 7,
+    "out-of-range": 0,
+    "quote-not-found": 0
+  },
+  "cards": [
+    {
+      "block_state": "complete",
+      "card": "reviewer-1.md",
+      "reviewer_id": "reviewer-1"
+    },
+    {
+      "block_state": "complete",
+      "card": "reviewer-2.md",
+      "reviewer_id": "reviewer-2"
+    },
+    {
+      "block_state": "complete",
+      "card": "reviewer-3.md",
+      "reviewer_id": "reviewer-3"
+    }
+  ],
+  "checked": 37,
+  "citations": [
+    {
+      "advisory": false,
+      "citation": 1,
+      "finding_id": "A1",
+      "flag": null,
+      "line_end": 82,
+      "line_start": 82,
+      "path": ".dev/tasks/done/TASK-WF-detachTheCcsessi-20261102-034618/TASK-WF-detachTheCcsessi-20261102-034618.md",
+      "reason": null,
+      "reviewer_id": "reviewer-1",
+      "role": "plan"
+    },
+    {
+      "advisory": false,
+      "citation": 2,
+      "finding_id": "A1",
+      "flag": null,
+      "line_end": 19,
+      "line_start": 19,
+      "path": ".dev/tasks/done/TASK-WF-detachTheCcsessi-20261102-034618/TASK-WF-detachTheCcsessi-20261102-034618.md",
+      "reason": null,
+      "reviewer_id": "reviewer-1",
+      "role": "plan"
+    },
+    {
+      "advisory": false,
+      "citation": 3,
+      "finding_id": "A1",
+      "flag": "missing-file",
+      "line_end": 182,
+      "line_start": 178,
+      "path": "Makefile",
+      "reason": "not-in-snapshot",
+      "reviewer_id": "reviewer-1",
+      "role": "source"
+    },
+    {
+      "advisory": false,
+      "citation": 1,
+      "finding_id": "A2",
+      "flag": null,
+      "line_end": 22,
+      "line_start": 22,
+      "path": ".dev/tasks/done/TASK-WF-detachTheCcsessi-20261102-034618/TASK-WF-detachTheCcsessi-20261102-034618.md",
+      "reason": null,
+      "reviewer_id": "reviewer-1",
+      "role": "plan"
+    },
+    {
+      "advisory": false,
+      "citation": 2,
+      "finding_id": "A2",
+      "flag": null,
+      "line_end": 69,
+      "line_start": 69,
+      "path": ".dev/tasks/done/TASK-WF-detachTheCcsessi-20261102-034618/TASK-WF-detachTheCcsessi-20261102-034618.md",
+      "reason": null,
+      "reviewer_id": "reviewer-1",
+      "role": "plan"
+    },
+    {
+      "advisory": false,
+      "citation": 1,
+      "finding_id": "Q1",
+      "flag": null,
+      "line_end": 82,
+      "line_start": 82,
+      "path": ".dev/tasks/done/TASK-WF-detachTheCcsessi-20261102-034618/TASK-WF-detachTheCcsessi-20261102-034618.md",
+      "reason": null,
+      "reviewer_id": "reviewer-2",
+      "role": "plan"
+    },
+    {
+      "advisory": false,
+      "citation": 2,
+      "finding_id": "Q1",
+      "flag": null,
+      "line_end": 24,
+      "line_start": 24,
+      "path": ".dev/troubleshoot/deployment-ccsession-proxy-4114-stalls-20261102031709/remediation-source.md",
+      "reason": null,
+      "reviewer_id": "reviewer-2",
+      "role": "spec"
+    },
+    {
+      "advisory": false,
+      "citation": 3,
+      "finding_id": "Q1",
+      "flag": "missing-file",
+      "line_end": 165,
+      "line_start": 165,
+      "path": "Makefile",
+      "reason": "not-in-snapshot",
+      "reviewer_id": "reviewer-2",
+      "role": "source"
+    },
+    {
+      "advisory": false,
+      "citation": 4,
+      "finding_id": "Q1",
+      "flag": "missing-file",
+      "line_end": 178,
+      "line_start": 178,
+      "path": "Makefile",
+      "reason": "not-in-snapshot",
+      "reviewer_id": "reviewer-2",
+      "role": "source"
+    },
+    {
+      "advisory": false,
+      "citation": 1,
+      "finding_id": "Q2",
+      "flag": null,
+      "line_end": 34,
+      "line_start": 34,
+      "path": ".dev/tasks/done/TASK-WF-detachTheCcsessi-20261102-034618/TASK-WF-detachTheCcsessi-20261102-034618.md",
+      "reason": null,
+      "reviewer_id": "reviewer-2",
+      "role": "plan"
+    },
+    {
+      "advisory": false,
+      "citation": 2,
+      "finding_id": "Q2",
+      "flag": null,
+      "line_end": 29,
+      "line_start": 29,
+      "path": ".dev/tasks/done/TASK-WF-detachTheCcsessi-20261102-034618/TASK-WF-detachTheCcsessi-20261102-034618.md",
+      "reason": null,
+      "reviewer_id": "reviewer-2",
+      "role": "plan"
+    },
+    {
+      "advisory": false,
+      "citation": 3,
+      "finding_id": "Q2",
+      "flag": null,
+      "line_end": 14,
+      "line_start": 14,
+      "path": ".dev/troubleshoot/deployment-ccsession-proxy-4114-stalls-20261102031709/remediation-source.md",
+      "reason": null,
+      "reviewer_id": "reviewer-2",
+      "role": "spec"
+    },
+    {
+      "advisory": false,
+      "citation": 4,
+      "finding_id": "Q2",
+      "flag": null,
+      "line_end": 29,
+      "line_start": 29,
+      "path": ".dev/tasks/done/TASK-WF-detachTheCcsessi-20261102-034618/TASK-WF-detachTheCcsessi-20261102-034618.md",
+      "reason": null,
+      "reviewer_id": "reviewer-2",
+      "role": "plan"
+    },
+    {
+      "advisory": false,
+      "citation": 1,
+      "finding_id": "Q3",
+      "flag": null,
+      "line_end": 35,
+      "line_start": 35,
+      "path": ".dev/troubleshoot/deployment-ccsession-proxy-4114-stalls-20261102031709/remediation-source.md",
+      "reason": null,
+      "reviewer_id": "reviewer-2",
+      "role": "spec"
+    },
+    {
+      "advisory": false,
+      "citation": 2,
+      "finding_id": "Q3",
+      "flag": null,
+      "line_end": 74,
+      "line_start": 74,
+      "path": ".dev/tasks/done/TASK-WF-detachTheCcsessi-20261102-034618/TASK-WF-detachTheCcsessi-20261102-034618.md",
+      "reason": null,
+      "reviewer_id": "reviewer-2",
+      "role": "plan"
+    },
+    {
+      "advisory": false,
+      "citation": 3,
+      "finding_id": "Q3",
+      "flag": null,
+      "line_end": 82,
+      "line_start": 82,
+      "path": ".dev/tasks/done/TASK-WF-detachTheCcsessi-20261102-034618/TASK-WF-detachTheCcsessi-20261102-034618.md",
+      "reason": null,
+      "reviewer_id": "reviewer-2",
+      "role": "plan"
+    },
+    {
+      "advisory": false,
+      "citation": 1,
+      "finding_id": "Q4",
+      "flag": "missing-file",
+      "line_end": 186,
+      "line_start": 186,
+      "path": ".dev/reflect/pre-TASK-WF-detachTheCcsessi-20261102-034618-shadow02/reviewer-briefs/reviewer-2.md",
+      "reason": "not-in-snapshot",
+      "reviewer_id": "reviewer-2",
+      "role": "artifact"
+    },
+    {
+      "advisory": false,
+      "citation": 2,
+      "finding_id": "Q4",
+      "flag": "missing-file",
+      "line_end": 187,
+      "line_start": 187,
+      "path": ".dev/reflect/pre-TASK-WF-detachTheCcsessi-20261102-034618-shadow02/reviewer-briefs/reviewer-2.md",
+      "reason": "not-in-snapshot",
+      "reviewer_id": "reviewer-2",
+      "role": "artifact"
+    },
+    {
+      "advisory": false,
+      "citation": 3,
+      "finding_id": "Q4",
+      "flag": null,
+      "line_end": 9,
+      "line_start": 9,
+      "path": ".dev/troubleshoot/deployment-ccsession-proxy-4114-stalls-20261102031709/remediation-source.md",
+      "reason": null,
+      "reviewer_id": "reviewer-2",
+      "role": "spec"
+    },
+    {
+      "advisory": false,
+      "citation": 4,
+      "finding_id": "Q4",
+      "flag": null,
+      "line_end": 21,
+      "line_start": 21,
+      "path": ".dev/troubleshoot/deployment-ccsession-proxy-4114-stalls-20261102031709/remediation-source.md",
+      "reason": null,
+      "reviewer_id": "reviewer-2",
+      "role": "spec"
+    },
+    {
+      "advisory": false,
+      "citation": 5,
+      "finding_id": "Q4",
+      "flag": null,
+      "line_end": 35,
+      "line_start": 35,
+      "path": ".dev/troubleshoot/deployment-ccsession-proxy-4114-stalls-20261102031709/remediation-source.md",
+      "reason": null,
+      "reviewer_id": "reviewer-2",
+      "role": "spec"
+    },
+    {
+      "advisory": false,
+      "citation": 1,
+      "finding_id": "R1",
+      "flag": null,
+      "line_end": 82,
+      "line_start": 82,
+      "path": ".dev/tasks/done/TASK-WF-detachTheCcsessi-20261102-034618/TASK-WF-detachTheCcsessi-20261102-034618.md",
+      "reason": null,
+      "reviewer_id": "reviewer-3",
+      "role": "plan"
+    },
+    {
+      "advisory": false,
+      "citation": 2,
+      "finding_id": "R1",
+      "flag": null,
+      "line_end": 19,
+      "line_start": 19,
+      "path": ".dev/tasks/done/TASK-WF-detachTheCcsessi-20261102-034618/TASK-WF-detachTheCcsessi-20261102-034618.md",
+      "reason": null,
+      "reviewer_id": "reviewer-3",
+      "role": "plan"
+    },
+    {
+      "advisory": false,
+      "citation": 3,
+      "finding_id": "R1",
+      "flag": "missing-file",
+      "line_end": 175,
+      "line_start": 175,
+      "path": "Makefile",
+      "reason": "not-in-snapshot",
+      "reviewer_id": "reviewer-3",
+      "role": "source"
+    },
+    {
+      "advisory": false,
+      "citation": 4,
+      "finding_id": "R1",
+      "flag": "missing-file",
+      "line_end": 195,
+      "line_start": 195,
+      "path": "CLAUDE.md",
+      "reason": "not-in-snapshot",
+      "reviewer_id": "reviewer-3",
+      "role": "source"
+    },
+    {
+      "advisory": false,
+      "citation": 5,
+      "finding_id": "R1",
+      "flag": null,
+      "line_end": 24,
+      "line_start": 24,
+      "path": ".dev/troubleshoot/deployment-ccsession-proxy-4114-stalls-20261102031709/remediation-source.md",
+      "reason": null,
+      "reviewer_id": "reviewer-3",
+      "role": "spec"
+    },
+    {
+      "advisory": false,
+      "citation": 1,
+      "finding_id": "R2",
+      "flag": null,
+      "line_end": 69,
+      "line_start": 69,
+      "path": ".dev/tasks/done/TASK-WF-detachTheCcsessi-20261102-034618/TASK-WF-detachTheCcsessi-20261102-034618.md",
+      "reason": null,
+      "reviewer_id": "reviewer-3",
+      "role": "plan"
+    },
+    {
+      "advisory": false,
+      "citation": 2,
+      "finding_id": "R2",
+      "flag": null,
+      "line_end": 22,
+      "line_start": 22,
+      "path": ".dev/tasks/done/TASK-WF-detachTheCcsessi-20261102-034618/TASK-WF-detachTheCcsessi-20261102-034618.md",
+      "reason": null,
+      "reviewer_id": "reviewer-3",
+      "role": "plan"
+    },
+    {
+      "advisory": false,
+      "citation": 3,
+      "finding_id": "R2",
+      "flag": null,
+      "line_end": 23,
+      "line_start": 23,
+      "path": ".dev/troubleshoot/deployment-ccsession-proxy-4114-stalls-20261102031709/remediation-source.md",
+      "reason": null,
+      "reviewer_id": "reviewer-3",
+      "role": "spec"
+    },
+    {
+      "advisory": false,
+      "citation": 4,
+      "finding_id": "R2",
+      "flag": null,
+      "line_end": 141,
+      "line_start": 141,
+      "path": "CHANGELOG.md",
+      "reason": null,
+      "reviewer_id": "reviewer-3",
+      "role": "source"
+    },
+    {
+      "advisory": false,
+      "citation": 1,
+      "finding_id": "R3",
+      "flag": null,
+      "line_end": 78,
+      "line_start": 78,
+      "path": ".dev/tasks/done/TASK-WF-detachTheCcsessi-20261102-034618/TASK-WF-detachTheCcsessi-20261102-034618.md",
+      "reason": null,
+      "reviewer_id": "reviewer-3",
+      "role": "plan"
+    },
+    {
+      "advisory": false,
+      "citation": 2,
+      "finding_id": "R3",
+      "flag": null,
+      "line_end": 27,
+      "line_start": 27,
+      "path": "CHANGELOG.md",
+      "reason": null,
+      "reviewer_id": "reviewer-3",
+      "role": "source"
+    },
+    {
+      "advisory": false,
+      "citation": 3,
+      "finding_id": "R3",
+      "flag": null,
+      "line_end": 41,
+      "line_start": 41,
+      "path": "CHANGELOG.md",
+      "reason": null,
+      "reviewer_id": "reviewer-3",
+      "role": "source"
+    },
+    {
+      "advisory": false,
+      "citation": 4,
+      "finding_id": "R3",
+      "flag": null,
+      "line_end": 194,
+      "line_start": 194,
+      "path": "CHANGELOG.md",
+      "reason": null,
+      "reviewer_id": "reviewer-3",
+      "role": "source"
+    },
+    {
+      "advisory": false,
+      "citation": 1,
+      "finding_id": "R4",
+      "flag": null,
+      "line_end": 34,
+      "line_start": 34,
+      "path": ".dev/tasks/done/TASK-WF-detachTheCcsessi-20261102-034618/TASK-WF-detachTheCcsessi-20261102-034618.md",
+      "reason": null,
+      "reviewer_id": "reviewer-3",
+      "role": "plan"
+    },
+    {
+      "advisory": false,
+      "citation": 2,
+      "finding_id": "R4",
+      "flag": null,
+      "line_end": 29,
+      "line_start": 29,
+      "path": ".dev/tasks/done/TASK-WF-detachTheCcsessi-20261102-034618/TASK-WF-detachTheCcsessi-20261102-034618.md",
+      "reason": null,
+      "reviewer_id": "reviewer-3",
+      "role": "plan"
+    },
+    {
+      "advisory": false,
+      "citation": 1,
+      "finding_id": "R5",
+      "flag": null,
+      "line_end": 70,
+      "line_start": 70,
+      "path": ".dev/tasks/done/TASK-WF-detachTheCcsessi-20261102-034618/TASK-WF-detachTheCcsessi-20261102-034618.md",
+      "reason": null,
+      "reviewer_id": "reviewer-3",
+      "role": "plan"
+    }
+  ],
+  "flagged": 7,
+  "reread_set": [
+    {
+      "citation": 3,
+      "finding_id": "A1",
+      "flag": "missing-file",
+      "path": "Makefile",
+      "reviewer_id": "reviewer-1"
+    },
+    {
+      "citation": 3,
+      "finding_id": "Q1",
+      "flag": "missing-file",
+      "path": "Makefile",
+      "reviewer_id": "reviewer-2"
+    },
+    {
+      "citation": 4,
+      "finding_id": "Q1",
+      "flag": "missing-file",
+      "path": "Makefile",
+      "reviewer_id": "reviewer-2"
+    },
+    {
+      "citation": 1,
+      "finding_id": "Q4",
+      "flag": "missing-file",
+      "path": ".dev/reflect/pre-TASK-WF-detachTheCcsessi-20261102-034618-shadow02/reviewer-briefs/reviewer-2.md",
+      "reviewer_id": "reviewer-2"
+    },
+    {
+      "citation": 2,
+      "finding_id": "Q4",
+      "flag": "missing-file",
+      "path": ".dev/reflect/pre-TASK-WF-detachTheCcsessi-20261102-034618-shadow02/reviewer-briefs/reviewer-2.md",
+      "reviewer_id": "reviewer-2"
+    },
+    {
+      "citation": 3,
+      "finding_id": "R1",
+      "flag": "missing-file",
+      "path": "Makefile",
+      "reviewer_id": "reviewer-3"
+    },
+    {
+      "citation": 4,
+      "finding_id": "R1",
+      "flag": "missing-file",
+      "path": "CLAUDE.md",
+      "reviewer_id": "reviewer-3"
+    }
+  ],
+  "schema": "review-precheck/1"
+}

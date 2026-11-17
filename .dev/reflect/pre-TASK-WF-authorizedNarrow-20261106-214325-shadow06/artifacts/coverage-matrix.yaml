@@ -1,0 +1,67 @@
+mode: pre
+parsed_count: 0
+inferred_count: 8
+coverage_pct: null
+coverage_pct_union: 1.0000
+coverage_degraded: parsed-sparse
+coverage_undefined: false
+S_dev_density_union: 0.00
+unmapped_requirements: []
+unmapped_requirements_union: []
+rows:
+  - id: INF-001
+    quote: "authorized narrowly scoped launcher/harness identity integration so jo..."
+    citation: source.md:1
+    source: inferred
+    match: mapped
+    match_method: containment
+    mapped_to: Task 1 (kernel job identity) + Task 2 (adapter binds tool executions); containme
+  - id: INF-002
+    quote: "Preserve the existing immutable blocked plan; this new authorization p..."
+    citation: source.md:5
+    source: inferred
+    match: mapped
+    match_method: containment
+    mapped_to: Constraints bullet 1 (preserve blocked package, no manufactured observations); T
+  - id: INF-003
+    quote: "Use existing hook/launcher distribution and no new dependencies or ser..."
+    citation: source.md:5
+    source: inferred
+    match: mapped
+    match_method: containment
+    mapped_to: Task 3 (install_hooks _FRESHNESS_SCRIPTS entry, hooks.json registration); Constr
+  - id: INF-004
+    quote: "Record supported lifecycle behavior, same-user guardrail limits and an..."
+    citation: source.md:5
+    source: inferred
+    match: mapped
+    match_method: containment
+    mapped_to: Task 1 AC5 (document exact limits alongside unknown/ordinary outcomes with regre
+  - id: INF-005
+    quote: "All Git test targets are disposable local bare repositories, not prote..."
+    citation: source.md:5
+    source: inferred
+    match: mapped
+    match_method: containment
+    mapped_to: Constraints bullet 6 (disposable local bare repositories; never write protected 
+  - id: INF-006
+    quote: "Submit the completed work only through /sc:pr-submit --monitor 3 on Ir..."
+    citation: source.md:3
+    source: inferred
+    match: mapped
+    match_method: containment
+    mapped_to: Constraints bullet 7 (commit/push/PR only after executor completion via user-req
+  - id: INF-007
+    quote: "once done run /sc:implement to implement and /sc:pr-submit..."
+    citation: source.md:3
+    source: inferred
+    match: mapped
+    match_method: containment
+    mapped_to: Workflow package created by sc:workflow + executed via /sc:implement; progress.m
+  - id: INF-008
+    quote: "no new model/provider or dependency is authorized; A stdlib Python bod..."
+    citation: TASK-WF-authorizedNarrow-20261106-214325.md:21
+    source: inferred
+    match: mapped
+    match_method: containment
+    mapped_to: Constraints bullet 3 verbatim restatement (tasklist:21); exact-quote match

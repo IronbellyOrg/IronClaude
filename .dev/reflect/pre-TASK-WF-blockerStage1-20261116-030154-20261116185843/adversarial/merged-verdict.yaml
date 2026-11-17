@@ -1,0 +1,16 @@
+merge_method: adversarial
+verdict: NEEDS-REVISION
+convergence_score: 1.0           # share of debated-and-stated diff points with a majority winner (25 of 25); weak evidence by itself (RK18); the invariant gate was cleared through refactor-plan change PC-01
+base_variant: variant-1 (reviewer 1, analyzer, sonnet class)
+source_cards:
+  - reviewer-cards/reviewer-1-card.md
+  - reviewer-cards/reviewer-2-card.md
+  - reviewer-cards/reviewer-3-card.md
+merged_card: adversarial/merged-review-card.md
+findings_total: 11
+findings_blocking: 1
+blocking_findings:
+  - "N-F1 (C-001) Task 3 gives no outcome values for the lens-scale labels while stage 2 sets every imported row's tier from that cell (closest call; one owner decision, two forms)"
+judge_identity: unknown
+judge_class_collision: true
+debate_skipped_similar: false

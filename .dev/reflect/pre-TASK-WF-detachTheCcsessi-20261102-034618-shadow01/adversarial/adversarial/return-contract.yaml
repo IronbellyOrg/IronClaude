@@ -1,0 +1,12 @@
+return_contract:
+  merged_output_path: /home/coder/workspaces/worktrees/IronClaude/brainstorm-reflect-panel/.dev/reflect/pre-TASK-WF-detachTheCcsessi-20261102-034618-shadow01/adversarial/merged-verdict.md
+  convergence_score: 0.80
+  artifacts_dir: /home/coder/workspaces/worktrees/IronClaude/brainstorm-reflect-panel/.dev/reflect/pre-TASK-WF-detachTheCcsessi-20261102-034618-shadow01/adversarial/adversarial
+  status: success
+  base_variant: "opus:refactorer (variant-3)"
+  unresolved_conflicts: 0
+  fallback_mode: true            # position-bias dual pass not run with independent evaluators (disclosed in base-selection.md)
+  failure_stage: null
+  invocation_method: skill-direct
+  unaddressed_invariants: []     # 3 MEDIUM UNADDRESSED (INV-001..003) are warnings, no HIGH
+  notes: "advocates were general-purpose read-only agents; Round 1 parallel, Round 2 sequential; Round 2.5 probe ran"

@@ -1,0 +1,112 @@
+contract_version: "1.8.0"
+status: partial
+mode: pre
+tier_reached: 2
+report_path: "/home/coder/workspaces/worktrees/IronClaude/brainstorm-reflect-panel/.dev/eval-workspaces/shadow-model-combos/runs/pre-TASK-WF-designSpec-20261107-075614-comboE-r1/REPORT.md"
+audit_log_path: "/home/coder/workspaces/worktrees/IronClaude/brainstorm-reflect-panel/.dev/eval-workspaces/shadow-model-combos/runs/pre-TASK-WF-designSpec-20261107-075614-comboE-r1/audit.log"
+confidence_calibrated: 0.53
+escalation_rule_matched: 6
+onboarding_ran: false
+coverage_pct: null
+coverage_pct_union: 0.75
+coverage_undefined: false
+coverage_degraded: "parsed-sparse"
+unmapped_requirements: []
+unmapped_requirements_union: ["INF-004","INF-011","INF-013","INF-014","INF-015","INF-019","INF-026","INF-032"]
+best_practice_grade: null
+implementation_coverage_pct: null
+missing_implementations: []
+hierarchy_slice_path: null
+hierarchy_coverage_pct: null
+tasklist_completion_pct: null
+deviation_count_by_class: {authorized: 0, necessary: 0, drift: 0, regression: 0}
+deviation_register_path: null
+grounding_gaps_path: null
+input_sha256: {tasklist: "044809e3a963fad395cfbe0988bece975650a3adf17176893665d92338bd3481", spec: "a865f397468a076c9c070c031f807b44d9cccd91059b2ad5efb1b926090ba10a"}
+input_tree_sha256: "e4c6fdfa1ebecc7a97508af7009352b5f246d57c01043c88c19a420a7cfbe72b"
+input_tree_file_count: 2
+input_tree_snapshot_path: "/home/coder/workspaces/worktrees/IronClaude/brainstorm-reflect-panel/.dev/eval-workspaces/shadow-model-combos/runs/pre-TASK-WF-designSpec-20261107-075614-comboE-r1/artifacts/input-snapshot.yaml"
+input_drift_detected: false
+input_drift_diff: null
+citations_total: 92
+citations_revalidated: 92
+citations_dropped: 7
+citations_dropped_extrapolated: 7
+citations_inferred: 0
+citation_budget_policy: full_reread
+evidence_validator_ran: true
+citation_revalidation_at_promotion: false
+reviewer_cards: ["/home/coder/workspaces/worktrees/IronClaude/brainstorm-reflect-panel/.dev/eval-workspaces/shadow-model-combos/runs/pre-TASK-WF-designSpec-20261107-075614-comboE-r1/reviewer-cards/reviewer-1-card.md", "/home/coder/workspaces/worktrees/IronClaude/brainstorm-reflect-panel/.dev/eval-workspaces/shadow-model-combos/runs/pre-TASK-WF-designSpec-20261107-075614-comboE-r1/reviewer-cards/reviewer-2-card.md", "/home/coder/workspaces/worktrees/IronClaude/brainstorm-reflect-panel/.dev/eval-workspaces/shadow-model-combos/runs/pre-TASK-WF-designSpec-20261107-075614-comboE-r1/reviewer-cards/reviewer-3-card.md"]
+adversarial_artifacts_dir: "/home/coder/workspaces/worktrees/IronClaude/brainstorm-reflect-panel/.dev/eval-workspaces/shadow-model-combos/runs/pre-TASK-WF-designSpec-20261107-075614-comboE-r1/adversarial/adversarial"
+adversarial_convergence_score: 0.8947
+adversarial_unavailable: false
+merge_method: adversarial
+t2_model_class_diversity: full
+t2_vendor_diversity: multi
+t2_effective_diversity: full
+calibrator_diversity: degraded
+remediation_offered: false
+remediation_accepted: null
+task_file_path: null
+remediation_task_path: null
+remediation_plan_path: null
+handoff_memory_key: null
+cannot_validate_without_user_input: false
+regression_present: false
+unauthorized_deviation_present: false
+blocked_by_low_confidence: false
+spec_is_wrong: false
+user_decision_required: false
+needs_human_decision: false
+per_task_verdicts: []
+interaction_effects_scanned: false
+interaction_effects_findings: 0
+budget_forced_tier_downgrade: false
+budget_forced_stop: false
+budget_check_skipped: true
+forced_tier: null
+promotion_action: not-applicable
+promotion_adapter: null
+promotion_source: null
+promotion_destination: null
+promotion_log_path: null
+promotion_gate_passed: null
+promotion_skip_reason: null
+promotion_fail_reason: null
+promotion_override_used: null
+promotion_rollback_command: null
+promotion_checkpoint_path: null
+promotion_cross_fs: false
+promotion_pending: false
+reviewer_personas: ["analyzer", "qa", "refactorer"]
+reviewer_models: ["claude-sonnet-5-5", "claude-haiku-5-5", "claude-opus-5-5"]
+telemetry:
+  t2_engine_requested: shadow
+  t2_engine_effective: shadow
+  panel_fallback_reason: null
+  t2_floor_unmet: false
+  identity_source: requested-pinned
+  identity_mismatch_suspected: true
+  judge_identity: "claude-gw-tier1b[1m]"
+  judge_class_collision: false
+  debate_skipped_similar: false
+  cluster_agreement: 0.3703
+  calibration_coverage: "23/23"
+  panel_parity: true
+  anchor_replaced: false
+  manifest_path: "/home/coder/workspaces/worktrees/IronClaude/brainstorm-reflect-panel/.dev/eval-workspaces/shadow-model-combos/runs/pre-TASK-WF-designSpec-20261107-075614-comboE-r1/panel/manifest.json"
+  reviewers_requested: 3
+  reviewers_resolved: 3
+  reviewers_complete: 3
+  panel_shortfall_2_of_3: false
+  findings_block_compliance_rate: 1.0
+  degraded_components: ["calibrator-class-collision"]
+  fallback_path: null
+  executor_class_source: unknown
+  executor_class_resolved: false
+  executor_exclusion_degraded: false
+  reviewer_models_observed: ["claude-haiku-5-5", "gpt-6-luna", "claude-gw-tier4[1m]"]
+  memory_hits: 2
+  memory_misses: 0
+  memory_retention_actions: 0
+  wall_clock_ms: 1287000

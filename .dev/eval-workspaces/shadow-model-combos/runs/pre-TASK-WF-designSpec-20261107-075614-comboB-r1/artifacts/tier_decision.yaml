@@ -1,0 +1,16 @@
+selected_tier: 2
+fired_rule_number: null          # hard override: --tier 2 (SKILL 5.1); no 5.3 rule evaluated as deciding
+override: "--tier 2"
+coverage_degraded: parsed-sparse # Step 1B.2b: inferred 73 > parsed 0; would forbid a T1 stop regardless
+surface_unreached: null
+composite_score: 7.0             # recording only
+per_signal_breakdown:
+  scope_size: 2
+  task_count: 2
+  blast_radius: 1
+  spec_density: 2
+  ambiguity_signals: 0
+escalation_reason: "explicit --tier 2 pin; parsed-sparse guard also set; S_domains >= 3"
+t2_engine_requested: shadow
+t2_engine_effective: shadow
+panel_fallback_reason: null

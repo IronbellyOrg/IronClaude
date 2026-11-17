@@ -1,0 +1,93 @@
+contract_version: 1.8.0
+status: partial                      # forced by the evidence gate (7 dropped citations corrected); the review verdict itself is NEEDS-REVISION
+mode: pre
+tier_reached: 2
+report_path: null                    # REPORT.md was not written: the Write tool refused it for this teammate; the full body is in adversarial/merged-review-card.md between the BEGIN and END REPORT BODY markers
+report_body_path: /home/coder/workspaces/worktrees/IronClaude/brainstorm-reflect-panel/.dev/reflect/pre-TASK-WF-blockerStage1-20261116-030154-20261116185843/adversarial/merged-review-card.md
+audit_log_path: /home/coder/workspaces/worktrees/IronClaude/brainstorm-reflect-panel/.dev/reflect/pre-TASK-WF-blockerStage1-20261116-030154-20261116185843/audit.log
+confidence_calibrated: 0.80
+escalation_rule_matched: 4
+onboarding_ran: false
+coverage_pct: 0.1111
+coverage_pct_union: 0.6724
+coverage_undefined: false
+coverage_degraded: parsed-sparse
+unmapped_requirements: [R-001, R-002, R-003, R-004, R-005, R-006, R-007, R-008]   # false positives of the ID regex (review recommendation labels)
+best_practice_grade: null
+implementation_coverage_pct: null
+missing_implementations: []
+input_sha256:
+  tasklist: 3f651f3be3fa
+  spec: a71fe65c36fe
+input_tree_sha256: 8ed58ea33aa60dd0c0708121023253e8ab23cb743919d047df97be5f2fc78ed7
+input_tree_file_count: 18
+input_tree_snapshot_path: /home/coder/workspaces/worktrees/IronClaude/brainstorm-reflect-panel/.dev/reflect/pre-TASK-WF-blockerStage1-20261116-030154-20261116185843/artifacts/input-snapshot.yaml
+input_drift_detected: false
+input_drift_diff: null
+citations_total: 311
+citations_revalidated: 311
+citations_dropped: 7
+citations_dropped_extrapolated: 7
+citations_inferred: 0
+citation_budget_policy: full_reread
+evidence_validator_ran: true
+zero_drop_flag: false
+citation_revalidation_at_promotion: false
+reviewer_cards:
+  - reviewer-cards/reviewer-1-card.md
+  - reviewer-cards/reviewer-2-card.md
+  - reviewer-cards/reviewer-3-card.md
+adversarial_artifacts_dir: adversarial/adversarial/
+adversarial_convergence_score: 1.0
+adversarial_unavailable: false
+merge_method: adversarial
+t2_model_class_diversity: full
+t2_vendor_diversity: single
+t2_effective_diversity: model-only
+calibrator_diversity: degraded
+remediation_offered: false
+remediation_accepted: null
+task_file_path: null
+remediation_task_path: null
+remediation_plan_path: null
+handoff_memory_key: null
+cannot_validate_without_user_input: false
+regression_present: false
+unauthorized_deviation_present: false
+blocked_by_low_confidence: false
+spec_is_wrong: false
+user_decision_required: true         # N-F1 needs one owner decision (two forms)
+needs_human_decision: true
+per_task_verdicts: []
+interaction_effects_scanned: false
+interaction_effects_findings: 0
+budget_forced_tier_downgrade: false
+budget_forced_stop: false
+budget_check_skipped: true
+forced_tier: null
+promotion_action: not-applicable
+promotion_adapter: null
+promotion_gate_passed: null
+findings_total: 11
+findings_blocking: 1
+verdict: NEEDS-REVISION
+blocking_findings:
+  - "N-F1 Task 3 gives no outcome values for the lens-scale labels while stage 2 (STAGE2:57) sets every imported row's tier from that cell (closest call; one owner decision, two forms)"
+telemetry:
+  reviewer_models: ["sonnet (observed claude-gw-tier1b[1m])", "haiku pin (self-reported an OpenAI model; mismatch suspected)", "opus (observed claude-gw-tier1a)"]
+  reviewer_personas: [analyzer, qa, refactorer]
+  degraded_components: [executor_class_unknown, t2_vendor_single, calibrator_diversity_degraded, judge_class_collision, reviewer_identity_mismatch_suspected]
+  t2_engine_requested: legacy
+  t2_engine_effective: legacy
+  reviewer_isolation: disabled
+  verification_ran: false
+  memory_persist_skipped: "lead restricted output to the run folder"
+  debate_points: 25
+  invariant_findings: 8
+  invariant_high_unaddressed_before_merge: 2
+  protocol_deviations:
+    - "REPORT.md not written: the Write tool refused it for a teammate (body kept in adversarial/merged-review-card.md)"
+    - "sc-adversarial live probe folded into the real Skill call"
+    - "T1 card, diff analysis, quantitative scoring and refactor plan drafted by the orchestrator; advocate statements persisted in condensed form"
+    - "run interrupted once by a rejected tool call and resumed on the owner's approval"
+    - "memory and runs.jsonl writes skipped per the lead's output rule"

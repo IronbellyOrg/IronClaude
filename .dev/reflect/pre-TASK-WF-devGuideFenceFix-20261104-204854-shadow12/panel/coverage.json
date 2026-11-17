@@ -1,0 +1,74 @@
+{
+  "reviewer-1": {
+    "assigned": [
+      "INF-001",
+      "INF-002",
+      "INF-003",
+      "INF-004",
+      "INF-005",
+      "INF-006",
+      "INF-007",
+      "INF-008",
+      "INF-009"
+    ],
+    "observed": [
+      "INF-001",
+      "INF-002",
+      "INF-003",
+      "INF-004",
+      "INF-005",
+      "INF-006",
+      "INF-007",
+      "INF-008",
+      "INF-009"
+    ]
+  },
+  "reviewer-2": {
+    "assigned": [
+      "INF-001",
+      "INF-002",
+      "INF-003",
+      "INF-004",
+      "INF-005",
+      "INF-006",
+      "INF-007",
+      "INF-008",
+      "INF-009"
+    ],
+    "observed": [
+      "INF-001",
+      "INF-002",
+      "INF-003",
+      "INF-004",
+      "INF-005",
+      "INF-006",
+      "INF-007",
+      "INF-008",
+      "INF-009"
+    ]
+  },
+  "reviewer-3": {
+    "assigned": [
+      "INF-001",
+      "INF-002",
+      "INF-003",
+      "INF-004",
+      "INF-005",
+      "INF-006",
+      "INF-007",
+      "INF-008",
+      "INF-009"
+    ],
+    "observed": [
+      "INF-001",
+      "INF-002",
+      "INF-003",
+      "INF-004",
+      "INF-005",
+      "INF-006",
+      "INF-007",
+      "INF-008",
+      "INF-009"
+    ]
+  }
+}

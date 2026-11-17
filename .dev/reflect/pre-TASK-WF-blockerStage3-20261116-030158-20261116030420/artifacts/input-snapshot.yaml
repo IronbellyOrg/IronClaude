@@ -1,0 +1,68 @@
+input_tree_sha256: 764d88199c4e1b1a6d3e74397f2fa435f513748610d0e5ba348af255a9f5db72
+file_count: 31
+legacy_input_sha256:
+  tasklist: 920d9e781eb58c7cf24d715b91cf94b66a11f03e409be2d38cb247f48c1d3b81
+  spec: 7534cda1abccab5d31f136f801214e0f09f31581c5fcc74ef55f276eb00371ef
+file_list:
+  - path: .claude/settings.json
+    sha256: 1f535104e6bb9145585a88418d0a094a4b38d6432e3b5fbd6226d550da33d41c
+  - path: .dev/review-severity-rule/cap-edits.yaml
+    sha256: bbb164e96422aad41276182ac42cf2b19e88e9a8388b629e44cfd1d852b4c570
+  - path: .dev/review-severity-rule/sweep-edits.yaml
+    sha256: b40e26debfa217b32f2bf8e9cf67445ed8c903d3a4d1338055a9ef14837ac03b
+  - path: .dev/tasks/to-do/TASK-WF-blockerStage3-20261116-030158/TASK-WF-blockerStage3-20261116-030158.md
+    sha256: 920d9e781eb58c7cf24d715b91cf94b66a11f03e409be2d38cb247f48c1d3b81
+  - path: .dev/tasks/to-do/TASK-WF-blockerStage3-20261116-030158/artifacts/codegraph-grounding.md
+    sha256: 3512a31923bf48c60e46d0a8687facaecaa4e0d9939b2d32c66313fdac53479a
+  - path: .dev/tasks/to-do/TASK-WF-blockerStage3-20261116-030158/source.md
+    sha256: 7534cda1abccab5d31f136f801214e0f09f31581c5fcc74ef55f276eb00371ef
+  - path: src/superclaude/agents/rf-analyst.md
+    sha256: 91550149cf2eb51b825bb3f6eceacfdef7d38fd15f82b6af7d9464ecfe21c3b8
+  - path: src/superclaude/agents/rf-qa-qualitative.md
+    sha256: c205eff2c1e80bef31ba0778b2705177e756d6f9a949cbb05cfe71d3445005f8
+  - path: src/superclaude/agents/rf-qa.md
+    sha256: b59b4b1ba9959b0d8965429c517f4cd8c8c25f0ea644a299fc36dcb9561e36dc
+  - path: src/superclaude/hooks/hooks.json
+    sha256: b6d06cfff050c583706db71b27c59962a8e65e8b8fc5eeba863538ad4e0d981c
+  - path: src/superclaude/output-styles/pragmatic.md
+    sha256: 84107fb5718c2189205d4cacbf2979aec8fb9b77758167eb31c3a35e6fe757f9
+  - path: src/superclaude/skills/operational-guide/SKILL.md
+    sha256: e212e9a8a9d7cecc00deb38f84de83b165aa2f62bf35f8ad7bcc4437b2aaed97
+  - path: src/superclaude/skills/readme/SKILL.md
+    sha256: 7825123de22c3135526aa5806b37de9fe02bcce676eb49626147d5a222aa952a
+  - path: src/superclaude/skills/sc-auggie-review-protocol/SKILL.md
+    sha256: b264f297454595b73ff2371b9241b7d0796f52af4f6ee9ca2e19740bd5fddf48
+  - path: src/superclaude/skills/sc-implement-protocol/refs/qa.md
+    sha256: 93e232f5d49207624c24da25bc6f2e9a0686b4f7f7ca99a38e4b95f56edaf004
+  - path: src/superclaude/skills/task/SKILL.md
+    sha256: a4e51b0d3cb10c2289d824ac9b6500c978a60cb03e8621580ed47c1ce53d94f2
+  - path: src/superclaude/skills/tdd/refs/build-request-template.md
+    sha256: d5d14a55e14de37f252c65984c07d893ec277a06c41ec068d9f6e40fddd43f72
+  - path: src/superclaude/skills/tech-reference/SKILL.md
+    sha256: 82bca4bbd3c5215120961225a97d1bfcecfae199ddd1b5d15d04af5cc04f1bfc
+  - path: src/superclaude/templates/documents/agent_template_analysis.md
+    sha256: 49821b43d8415390f31aff44e0f468d74183e95f5f6124f70ce79978df13ea52
+  - path: src/superclaude/templates/documents/agent_template_qa.md
+    sha256: 80763f9cf2934229cf1b5648f1ff346b132a10fd9d382a0e0ec3e46d6b1f17bb
+  - path: tests/audit/test_dnsp_all_agents_fail_bypass.py
+    sha256: ceba005fac42ff479108be0890ed4bb2b5f094362d4ce84e73cb98199d8f0eb9
+  - path: tests/audit/test_invariant_preservation_NFR_6_through_10.py
+    sha256: a6ee8d20027b92a7b103ff78032d9b2618afdabe7b65c0b4e7eea51c4d97ab5f
+  - path: tests/audit/test_nfr_conv_9_zero_trust.py
+    sha256: 5a428b1bf5ae5008e9302d2504d949bb88a211fa95c28b5ca5fb1566533623e4
+  - path: tests/audit/test_severity_floor_unweakened.py
+    sha256: 3a657c078884ad6015505b9d0b18549587c411dc32102ed0866b18e06b1fc1f7
+  - path: tests/skills/fixtures/review_severity_cap_edits.yaml
+    sha256: bbb164e96422aad41276182ac42cf2b19e88e9a8388b629e44cfd1d852b4c570
+  - path: tests/skills/test_implement_severity_static.py
+    sha256: 409cc67f2a50d66a32fb09132b98014cbd011d7827ed423c8ad29c306b277e39
+  - path: tests/skills/test_review_loop_extension.py
+    sha256: 11ddb048f1528fc4a740b5be578e970d1571fc8e1f6adebd9e2b298862915c76
+  - path: tests/skills/test_review_prompt_overrides.py
+    sha256: 6724c1dc87af8e7c0d8de79cbb0615de4dee1cd7609a622993604bdefbec9a32
+  - path: tests/skills/test_review_severity_mapping.py
+    sha256: 3d053c668ac5ada012ba5129ef84a8083c166cc937c4affe07ba04827e8293f8
+  - path: tests/skills/test_review_severity_rule.py
+    sha256: dc21823da962d14b40339e2081717177b3497b27b2a1e41f5637ed97ef10d961
+  - path: tests/skills/test_spec_panel_review_loop.py
+    sha256: e3bc8cb4924d184748dca8a8ebcabb74af41f0bc614eb80dae0a4b1ad31f1ae3

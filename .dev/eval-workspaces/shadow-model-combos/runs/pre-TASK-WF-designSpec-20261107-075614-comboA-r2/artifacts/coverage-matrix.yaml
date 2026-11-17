@@ -1,0 +1,371 @@
+parsed_count: 0
+inferred_count: 45
+coverage_pct: null
+coverage_pct_union: 0.5778
+coverage_undefined: false
+coverage_degraded: parsed-sparse
+unmapped_requirements: []
+unmapped_requirements_union:
+- INF-001
+- INF-003
+- INF-004
+- INF-009
+- INF-011
+- INF-012
+- INF-015
+- INF-016
+- INF-019
+- INF-030
+- INF-033
+- INF-034
+- INF-035
+- INF-039
+- INF-040
+- INF-041
+- INF-042
+- INF-043
+- INF-044
+S_dev_density_union: 0.4222
+total_tasks: 13
+matrix:
+- requirement_id: INF-001
+  quote_head: 'Owner decisions (accepted 2026-11-07, relayed by the coordinator): draft not lab'
+  citation: source.md:6
+  matched_task_ids: []
+  match_method: none
+  ratio: 0.5833
+  source: inferred
+- requirement_id: INF-002
+  quote_head: 'Every `gh` line in a protocol script or ref must be repo-scoped (`--repo`, or a '
+  citation: source.md:23
+  matched_task_ids:
+  - Task 8
+  match_method: containment
+  ratio: 0.9
+  source: inferred
+- requirement_id: INF-003
+  quote_head: 'Rule: the core DECIDES and the SKILL performs, the same split as the push triad '
+  citation: source.md:51
+  matched_task_ids: []
+  match_method: none
+  ratio: 0.5
+  source: inferred
+- requirement_id: INF-004
+  quote_head: '| Ordinal < 3, `--merge-guard off`, or a conflict-merge cycle | Nothing mutates.'
+  citation: source.md:57
+  matched_task_ids: []
+  match_method: none
+  ratio: 0.5714
+  source: inferred
+- requirement_id: INF-005
+  quote_head: '| `--resume` at any ordinal and in either mode, or a run log that already holds '
+  citation: source.md:58
+  matched_task_ids:
+  - Task 9
+  match_method: containment
+  ratio: 0.7037
+  source: inferred
+- requirement_id: INF-006
+  quote_head: '| End of Wave 3 at L3: at least one verified, Medium-or-higher finding routed to'
+  citation: source.md:61
+  matched_task_ids:
+  - Task 8
+  match_method: containment
+  ratio: 0.8261
+  source: inferred
+- requirement_id: INF-007
+  quote_head: '| Pre-push head guard (Wave 6) | Script `--read` must show `state == OPEN`; othe'
+  citation: source.md:64
+  matched_task_ids:
+  - Task 8
+  match_method: containment
+  ratio: 0.9286
+  source: inferred
+- requirement_id: INF-008
+  quote_head: '| Any exit after engage with no confirmed push and no zero-edit proof | PR stays'
+  citation: source.md:69
+  matched_task_ids:
+  - Task 8
+  match_method: containment
+  ratio: 0.8571
+  source: inferred
+- requirement_id: INF-009
+  quote_head: 'No `gh` or `git` word on any line, comments included (F6). Imports only `enum`, '
+  citation: source.md:75
+  matched_task_ids: []
+  match_method: none
+  ratio: 0.5455
+  source: inferred
+- requirement_id: INF-010
+  quote_head: '`applied_edits` is THIS cycle''s count of applied edits; it is not the run-wide `'
+  citation: source.md:107
+  matched_task_ids:
+  - Task 4
+  match_method: containment
+  ratio: 0.6667
+  source: inferred
+- requirement_id: INF-011
+  quote_head: '`True` when `guard` is not `None` and the log holds a `push_completed` event who'
+  citation: source.md:108
+  matched_task_ids: []
+  match_method: none
+  ratio: 0.5
+  source: inferred
+- requirement_id: INF-012
+  quote_head: '`dangling_branch` is `None` or one of the module constants `BRANCH_LANDED = "lan'
+  citation: source.md:109
+  matched_task_ids: []
+  match_method: none
+  ratio: 0.5
+  source: inferred
+- requirement_id: INF-013
+  quote_head: '`guard_status(guard, mode, ordinal)` maps, first match wins: `mode == OFF` or `o'
+  citation: source.md:112
+  matched_task_ids:
+  - Task 3
+  match_method: containment
+  ratio: 0.6765
+  source: inferred
+- requirement_id: INF-014
+  quote_head: '`RECONCILE`, with `reason` one of `resume_reconciled`, `not_applied`, `ambiguous'
+  citation: source.md:165
+  matched_task_ids:
+  - Task 4
+  match_method: containment
+  ratio: 0.64
+  source: inferred
+- requirement_id: INF-015
+  quote_head: Add to `EventType` in `models.py` (43 to 45, update the docstring and the `model
+  citation: source.md:175
+  matched_task_ids: []
+  match_method: none
+  ratio: 0.5833
+  source: inferred
+- requirement_id: INF-016
+  quote_head: '# appended and fsynced BEFORE the draft/ready call'
+  citation: source.md:178
+  matched_task_ids: []
+  match_method: none
+  ratio: 0.4
+  source: inferred
+- requirement_id: INF-017
+  quote_head: '`fold_draft_guard(events)` returns `None` or this dict, and `run_log.rebuild_sta'
+  citation: source.md:187
+  matched_task_ids:
+  - Task 5
+  match_method: containment
+  ratio: 0.6364
+  source: inferred
+- requirement_id: INF-018
+  quote_head: the pending key is cleared and the phase returns to `phase_before_request`; `own
+  citation: source.md:201
+  matched_task_ids:
+  - Task 3
+  match_method: containment
+  ratio: 0.6667
+  source: inferred
+- requirement_id: INF-019
+  quote_head: '`original_is_draft` is never read from GitHub after the first record, so a resum'
+  citation: source.md:208
+  matched_task_ids: []
+  match_method: none
+  ratio: 0.5385
+  source: inferred
+- requirement_id: INF-020
+  quote_head: Effective only at `--monitor 3`; accepted and inert below. `off` makes the skill
+  citation: source.md:216
+  matched_task_ids:
+  - Task 12
+  match_method: containment
+  ratio: 0.6
+  source: inferred
+- requirement_id: INF-021
+  quote_head: 'Exit codes: 0 success; 1 `gh` failure or failed verification (the JSON line is s'
+  citation: source.md:234
+  matched_task_ids:
+  - Task 7
+  match_method: containment
+  ratio: 0.6087
+  source: inferred
+- requirement_id: INF-022
+  quote_head: The procedure of sections 3 and 4.1 to 4.4 as protocol steps (read, decide, requ
+  citation: source.md:240
+  matched_task_ids:
+  - Task 8
+  match_method: containment
+  ratio: 0.6364
+  source: inferred
+- requirement_id: INF-023
+  quote_head: One short bullet under each of Wave 0, Wave 3, Wave 6 and Wave 8, written as new
+  citation: source.md:241
+  matched_task_ids:
+  - Task 10
+  match_method: containment
+  ratio: 1.0
+  source: inferred
+- requirement_id: INF-024
+  quote_head: the Wave 3 bullet states that engage happens at the end of Wave 3 only when at l
+  citation: source.md:241
+  matched_task_ids:
+  - Task 10
+  match_method: containment
+  ratio: 0.8627
+  source: inferred
+- requirement_id: INF-025
+  quote_head: Also one `--merge-guard {draft,off}` row in the Required Input flag table beside
+  citation: source.md:241
+  matched_task_ids:
+  - Task 9
+  match_method: containment
+  ratio: 0.9412
+  source: inferred
+- requirement_id: INF-026
+  quote_head: '`--merge-guard {draft,off}` in the argument-hint and the Options table; a short '
+  citation: source.md:244
+  matched_task_ids:
+  - Task 12
+  match_method: containment
+  ratio: 1.0
+  source: inferred
+- requirement_id: INF-027
+  quote_head: 'Flag row and a paragraph: what it does, the clear command, `held` meaning, defau'
+  citation: source.md:245
+  matched_task_ids:
+  - Task 12
+  match_method: containment
+  ratio: 0.6
+  source: inferred
+- requirement_id: INF-028
+  quote_head: 'Output field `merge_guard`: `off`, `released`, `held`, `user_override`, `unavail'
+  citation: source.md:247
+  matched_task_ids:
+  - Task 8
+  match_method: containment
+  ratio: 0.6087
+  source: inferred
+- requirement_id: INF-029
+  quote_head: The SKILL mints it at the end of Wave 3 and uses the same id as the `cycle_id` o
+  citation: source.md:251
+  matched_task_ids:
+  - Task 8
+  match_method: containment
+  ratio: 0.7619
+  source: inferred
+- requirement_id: INF-030
+  quote_head: Every new line under `src/superclaude/skills/`, `src/superclaude/commands/` or `
+  citation: source.md:255
+  matched_task_ids: []
+  match_method: none
+  ratio: 0.5789
+  source: inferred
+- requirement_id: INF-031
+  quote_head: 'The entries are added after the text of each file is final, as the last step of '
+  citation: source.md:255
+  matched_task_ids:
+  - Task 12
+  match_method: containment
+  ratio: 0.6
+  source: inferred
+- requirement_id: INF-032
+  quote_head: 'Acceptance trace (must appear in this order in the run log): `draft_guard_reques'
+  citation: source.md:270
+  matched_task_ids:
+  - Task 11
+  match_method: containment
+  ratio: 0.9286
+  source: inferred
+- requirement_id: INF-033
+  quote_head: No dangling window (`detect_crash_window` returns `None`), so there is no branch
+  citation: source.md:280
+  matched_task_ids: []
+  match_method: none
+  ratio: 0.5
+  source: inferred
+- requirement_id: INF-034
+  quote_head: Run `make sync-dev` at the end of every task that edits a file under `src/superc
+  citation: source.md:301
+  matched_task_ids: []
+  match_method: none
+  ratio: 0.4857
+  source: inferred
+- requirement_id: INF-035
+  quote_head: 'The twelve minimum tests of the requirements, mapped to what they assert:'
+  citation: source.md:305
+  matched_task_ids: []
+  match_method: none
+  ratio: 0.25
+  source: inferred
+- requirement_id: INF-036
+  quote_head: crash before and after each request and settle; the `landed`, `not_landed` and `
+  citation: source.md:318
+  matched_task_ids:
+  - Task 11
+  match_method: containment
+  ratio: 0.8235
+  source: inferred
+- requirement_id: INF-037
+  quote_head: 'Owner decision (2026-11-07, relayed by the coordinator): the build proceeds now '
+  citation: source.md:326
+  matched_task_ids:
+  - Task 1
+  match_method: containment
+  ratio: 0.7568
+  source: inferred
+- requirement_id: INF-038
+  quote_head: 'The user guide states that draft behaviour is unverified until then, and the PR '
+  citation: source.md:326
+  matched_task_ids:
+  - Task 1
+  match_method: containment
+  ratio: 0.8571
+  source: inferred
+- requirement_id: INF-039
+  quote_head: '**O4** The extra `retrigger` guard: the S5a text must stay unchanged; release is'
+  citation: source.md:342
+  matched_task_ids: []
+  match_method: none
+  ratio: 0.5625
+  source: inferred
+- requirement_id: INF-040
+  quote_head: Cite tests and constants by symbol name (for example `_NEW_KEY_DEFAULTS`, `_RESO
+  citation: source.md:362
+  matched_task_ids: []
+  match_method: none
+  ratio: 0.5238
+  source: inferred
+- requirement_id: INF-041
+  quote_head: 'Declare dependencies completely, one `Depends on:` line per dependency: a task d'
+  citation: source.md:363
+  matched_task_ids: []
+  match_method: none
+  ratio: 0.36
+  source: inferred
+- requirement_id: INF-042
+  quote_head: The fold, `guard_status`, resume-reason and per-cycle `applied_edits` rules of s
+  citation: source.md:366
+  matched_task_ids: []
+  match_method: none
+  ratio: 0.3571
+  source: inferred
+- requirement_id: INF-043
+  quote_head: Protocol prose written by the plan never carries `file:NNN` pointers and never c
+  citation: source.md:369
+  matched_task_ids: []
+  match_method: none
+  ratio: 0.5333
+  source: inferred
+- requirement_id: INF-044
+  quote_head: 'Test hygiene: scenario tests import only helpers and fixtures from `test_set_dra'
+  citation: source.md:377
+  matched_task_ids: []
+  match_method: none
+  ratio: 0.4
+  source: inferred
+- requirement_id: INF-045
+  quote_head: The Wave 3 and Wave 0 bullet acceptance criteria assert wording and position, no
+  citation: source.md:378
+  matched_task_ids:
+  - Task 10
+  match_method: containment
+  ratio: 0.6842
+  source: inferred

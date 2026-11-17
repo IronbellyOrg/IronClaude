@@ -1,0 +1,12 @@
+return_contract:
+  merged_output_path: ".dev/reflect/pre-TASK-WF-blockerStage3-20261116-030158-20261116185913/adversarial/merged-review-card.md"
+  convergence_score: 0.95
+  artifacts_dir: ".dev/reflect/pre-TASK-WF-blockerStage3-20261116-030158-20261116185913/adversarial/adversarial/"
+  status: "partial"          # one HIGH UNADDRESSED invariant (INV-001) carried into the card instead of a Round 3 (depth standard)
+  base_variant: "variant-2-original.md (reviewer-2, qa, opus)"
+  unresolved_conflicts: 1    # C-007: advocates non-blocking, fault-finder and orchestrator blocking; settled by evidence (SKILL.md:145, qa.md:245, retry.md:109 and :158)
+  fallback_mode: false
+  failure_stage: null
+  invocation_method: "skill-direct"
+  unaddressed_invariants:
+    - {id: INV-001, category: sufficiency_challenge, assumption: "Task 4 plus Task 6's own check alone leave no rule file switched when the gate fails", severity: HIGH}

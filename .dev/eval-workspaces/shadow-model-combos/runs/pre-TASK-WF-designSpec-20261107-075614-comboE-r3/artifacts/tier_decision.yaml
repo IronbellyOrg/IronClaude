@@ -1,0 +1,15 @@
+selected_tier: 2
+fired_rule_number: 6   # C 0.68 < 0.85; also hard override --tier 2 (section 5.1) and the coverage_degraded pre-filter
+coverage_degraded: parsed-sparse
+surface_unreached: null
+composite_score: 6.0
+per_signal_breakdown:
+  scope_size: 1
+  task_count: 2
+  blast_radius: 1
+  spec_density: 2
+  ambiguity_signals: 0
+escalation_reason: "--tier 2 pin; calibrated C 0.68 < 0.85; 0 parsed IDs, 61 inferred rows (parsed-sparse forbids a Tier-1 stop)"
+t2_engine_requested: shadow
+t2_engine_effective: shadow
+panel_fallback_reason: null

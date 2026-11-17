@@ -289,17 +289,14 @@ def test_the_required_count_is_an_option(tmp_path, capsys):
 # ------------------------------------------------------------ the current repository (AC2)
 
 
-def test_the_current_repository_has_no_shadow_runs(capsys):
-    code, out = (
-        run(ROOT / ".dev" / "reflect", capsys)
-        if (ROOT / ".dev" / "reflect").is_dir()
-        else (3, "")
-    )
+def test_the_current_repository_reports_without_crashing(capsys):
+    """The recorded runs of this checkout (any number of shadow runs, 0 included) give a report and a documented exit."""
     if not (ROOT / ".dev" / "reflect").is_dir():
         pytest.skip("no recorded reflect runs in this checkout")
-    assert code == 3
-    assert "shadow runs counted: 0 of 20 required" in out
-    assert "OVERALL: INSUFFICIENT-RUNS (shadow runs 0 of 20)" in out
+    code, out = run(ROOT / ".dev" / "reflect", capsys)
+    assert code in set(se.EXIT.values())
+    assert "Stage 2 shadow-exit report" in out and "of 20 required" in out
+    assert out.rstrip().splitlines()[-1].startswith("OVERALL: ")
 
 
 def test_exit_codes_are_documented():

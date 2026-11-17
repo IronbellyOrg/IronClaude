@@ -1,0 +1,15 @@
+return_contract:
+  merged_output_path: "/home/coder/workspaces/worktrees/IronClaude/brainstorm-reflect-panel/.dev/tasks/to-do/TASK-RESEARCH-review-panel-run2-20261114-075454/reviews/adversarial/core-shape-and-finding-contract/merged-core-shape-and-finding-contract.md"
+  convergence_score: 1.0   # 23 of 23 debate points agreed after Round 2 (0.783 after Round 1); status BLOCKED_BY_INVARIANTS
+  artifacts_dir: "/home/coder/workspaces/worktrees/IronClaude/brainstorm-reflect-panel/.dev/tasks/to-do/TASK-RESEARCH-review-panel-run2-20261114-075454/reviews/adversarial/core-shape-and-finding-contract/adversarial"
+  status: "partial"        # pipeline completed; convergence blocked by one HIGH UNADDRESSED invariant (INV-003); depth standard has no Round 3
+  base_variant: "Variant B (opus:architect+qa, variant-2-original.md)"
+  unresolved_conflicts: 2  # no diff point is unresolved by advocate agreement; 2 sub-disputes inside the C-008 hybrid were not reconciled (locator policy as data vs hard-coded keep-and-surface; "say it is gone" in the next-round request)
+  fallback_mode: false
+  failure_stage: null
+  invocation_method: "task-agent"
+  unaddressed_invariants:
+    - id: "INV-003"
+      category: "guard_conditions"
+      assumption: "A repair step inside both parse_block functions can rescue over-limit lines while T1 keeps every existing pin unmodified"
+      severity: "HIGH"

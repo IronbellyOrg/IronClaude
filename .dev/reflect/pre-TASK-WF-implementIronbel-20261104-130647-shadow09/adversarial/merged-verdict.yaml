@@ -1,0 +1,66 @@
+merge_method: adversarial            # inline Mode-A merge per series convention (sc-adversarial return contract names no separate judge)
+judge_identity: sonnet-class inline orchestrator
+judge_class_collision: true          # collides with reviewer-1 (sonnet slot); recorded per §4.3a step 7
+convergence_score: 0.93              # cluster agreement 0.933; 3/3 unanimity on C1-C3; PASS (>= 0.75)
+merged_findings:
+  - id: C1
+    headline: "plan:37 double-quote rule lets bare python run via x=\"$(python3 -c 1)\""
+    finding_ids: [R1-F1, R2-F2, R3-F2]
+    agreement: 3/3 (sonnet+haiku+opus)
+    severity: MAJOR, blocking (plan as written)
+    calibrated_mean: 0.83
+    disposition: confirmed plan defect; remediated at implement time by AMD-03/AMD-04 (scanner scans $( ) and backticks inside double quotes; test 'quoted-dollar-subst' exists at tests/hooks/test_block_bare_python.py:76)
+  - id: C2
+    headline: "Task 2 AC (; chained in both directions) unmeetable from the plan:58 allowed table"
+    finding_ids: [R1-F3, R2-F1, R3-F1]
+    agreement: 3/3
+    severity: MAJOR, blocking (plan as written)
+    calibrated_mean: 0.84
+    disposition: confirmed plan defect; remediated by AMD-02 (allowed ;-chained cases added)
+  - id: C3
+    headline: "Task 3 breaks existing subagent-policy Bash-matcher assertion; Task 4 test list omits tests/hooks"
+    finding_ids: [R1-F2, R2-F3, R3-F3]
+    agreement: 3/3
+    severity: MAJOR, blocking (plan as written)
+    calibrated_mean: 0.82
+    disposition: confirmed plan defect; remediated by AMD-01 (allowlist rewrite of the assertion; tests/hooks added to Task 4 run); shipped test at tests/hooks/test_freshness_subagent_start_policy.py:105-114 asserts the allowlist including block-bare-python.sh
+  - id: C4
+    headline: "Task 7 live check not guaranteed to issue the bare call (bypassPermissions + prompt only)"
+    finding_ids: [R2-F4, R3-F5]
+    agreement: 2/3
+    severity: MAJOR, non-blocking
+    calibrated_mean: 0.63
+    disposition: confirmed weakness; remediated by AMD-08 (--allowedTools + --append-system-prompt drive; refusal/rewrite recorded as blocked)
+  - id: C5
+    headline: "Constraints line 20 cross-references Task 6 for the live check; the live check is Task 7"
+    finding_ids: [R1-F4, R2-F6, R3-F4]
+    agreement: 3/3
+    severity: MINOR
+    calibrated_mean: 0.89
+    disposition: confirmed; M-CONSTRAINTS amendment recorded the correction
+  - id: C6
+    headline: "Task 3 'git diff shows only that addition' is ambiguous where unrelated plugin drift exists"
+    finding_ids: [R2-F5]
+    agreement: 1/3 (single reviewer)
+    severity: MINOR
+    calibrated_mean: 0.55
+    disposition: new observation (no amendment row); the executed Task 3 passed via t3-verify-sync.log and per-file diff discipline; documentation-level only
+  - id: C7
+    headline: "Task 5/6 lack explicit Depends-on (Task 5 needs Task 1's script; Task 6 changelog needs Task 5)"
+    finding_ids: [R1-F5]
+    agreement: 1/3
+    severity: MINOR
+    calibrated_mean: 0.65
+    disposition: confirmed; R1-F7 amendment (order row) recorded it; source order already correct
+  - id: C8
+    headline: "100 KB timing case cannot catch the 128 KB awk -v / env limit (stdin feeding unspecified)"
+    finding_ids: [R3-F6]
+    agreement: 1/3
+    severity: MINOR
+    calibrated_mean: 0.60
+    disposition: confirmed; remediated by AMD-06 (~200 KB stdin case); shipped header documents stdin design at block-bare-python.sh:16-18
+verdict:
+  plan_quality: "5 confirmed plan defects (C1-C5) + 3 minor; ALL already caught by the 2026-11-04 advisory pre-reflect and applied as AMD-01..AMD-08 / M-CONSTRAINTS / R1-F7; C6 is the only observation with no amendment counterpart (documentation-level)"
+  regression_present: false
+  status_recommendation: success      # audit clean; archived execution passed with amendments
+  zero_drop_flag: pending-evidence-gate

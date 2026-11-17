@@ -1,0 +1,3 @@
+calibrator_model: claude-gw-tier1b (Sonnet class, self-report)
+C: 0.67
+dimensions: {citation_grounding: 0.95, coverage_completeness: 0.45, classification_clarity: 0.75, risk_surface: 0.5, actionability: 0.7}

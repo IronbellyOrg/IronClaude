@@ -1,0 +1,17 @@
+calibrator_class: opus   # agent confidence-calibrator, model alias opus (claude-gw-tier1a); the T1 card author is the sonnet-class orchestrator
+calibrator_diversity: full   # for the T1 card the calibrator class differs from the card author's class
+blind: true   # inputs were the card path and the rubric path only
+per_dimension:
+  citation_grounding: 0.92
+  coverage_completeness: 0.80
+  deviation_classification_clarity: 0.45
+  risk_surface_coverage: 0.80
+  recommendation_actionability: 0.55
+calibrated_confidence: 0.70
+citations_checked_by_calibrator: 46 of 46 hold (1 loose mapping: INF-002 mapped to P4:19)
+escalation_recommendation: escalate (C below 0.85)
+calibrator_notes:
+  - "Facts hold; the weak spot is format: the card does not classify observations under the deviation classes and its recommendations point at reviewers, not at plan fixes."
+  - "Observations 1 (strict mode not proven), 2 (contradictory archive-blocked check), 3 (ambiguous Rule 6 grep) and 4 (spec section 10.5 rows) were confirmed in the files."
+  - "Shell results (cmp, git grep, re-counts) were not re-run by the calibrator (Read only)."
+reviewer_model_self_report: "claude-gw-tier1a"

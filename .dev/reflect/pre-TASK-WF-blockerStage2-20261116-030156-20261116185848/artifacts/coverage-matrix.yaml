@@ -1,0 +1,33 @@
+# UC-1 coverage matrix (Step 1B.0). parsed rows: none (zero labeled ids in source.md).
+parsed_count: 0
+inferred_count: 22
+coverage_pct: null
+coverage_pct_union: 0.9091
+unmapped_requirements: []
+unmapped_requirements_union: [INF-009, INF-022]   # both covered by hand: see inferred-table.md
+coverage_undefined: false
+coverage_degraded: parsed-sparse
+S_dev_density_mechanical: 0.0909
+rows:
+  - {id: INF-001, source: inferred, citation: "source.md:11", match: containment, item: Constraints, ratio: 1.0}
+  - {id: INF-002, source: inferred, citation: "source.md:12", match: containment, item: Constraints, ratio: 0.857}
+  - {id: INF-003, source: inferred, citation: "source.md:13", match: containment, item: "Task 7", ratio: 1.0}
+  - {id: INF-004, source: inferred, citation: "source.md:14", match: containment, item: "Task 8", ratio: 1.0}
+  - {id: INF-005, source: inferred, citation: "source.md:14", match: containment, item: "Task 8", ratio: 1.0}
+  - {id: INF-006, source: inferred, citation: "source.md:15", match: containment, item: Constraints, ratio: 0.818}
+  - {id: INF-007, source: inferred, citation: "source.md:19", match: containment, item: Constraints, ratio: 1.0}
+  - {id: INF-008, source: inferred, citation: "source.md:19", match: containment, item: Constraints, ratio: 0.714}
+  - {id: INF-009, source: inferred, citation: "source.md:27", match: none, item: Constraints, ratio: 0.429}
+  - {id: INF-010, source: inferred, citation: "source.md:28", match: containment, item: "Task 3", ratio: 0.875}
+  - {id: INF-011, source: inferred, citation: "source.md:29", match: containment, item: Constraints, ratio: 0.688}
+  - {id: INF-012, source: inferred, citation: "source.md:30", match: containment, item: Constraints, ratio: 1.0}
+  - {id: INF-013, source: inferred, citation: "source.md:31", match: containment, item: Constraints, ratio: 0.875}
+  - {id: INF-014, source: inferred, citation: "source.md:69", match: containment, item: "Task 8", ratio: 1.0}
+  - {id: INF-015, source: inferred, citation: "source.md:70", match: containment, item: "Task 7", ratio: 0.871}
+  - {id: INF-016, source: inferred, citation: "source.md:71", match: containment, item: "Task 5", ratio: 0.781}
+  - {id: INF-017, source: inferred, citation: "source.md:72", match: containment, item: "Task 4", ratio: 0.867}
+  - {id: INF-018, source: inferred, citation: "source.md:76", match: containment, item: "Task 2", ratio: 0.941}
+  - {id: INF-019, source: inferred, citation: "source.md:78", match: containment, item: "Task 3", ratio: 1.0}
+  - {id: INF-020, source: inferred, citation: "source.md:87", match: containment, item: Constraints, ratio: 1.0}
+  - {id: INF-021, source: inferred, citation: "source.md:88", match: containment, item: Constraints, ratio: 0.75}
+  - {id: INF-022, source: inferred, citation: "source.md:89", match: none, item: "Task 2", ratio: 0.5}

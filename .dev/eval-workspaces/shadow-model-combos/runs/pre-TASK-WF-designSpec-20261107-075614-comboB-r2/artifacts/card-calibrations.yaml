@@ -1,0 +1,4 @@
+calibrator_class: opus (all three Anthropic classes are reviewers; disjoint set empty) -> calibrator_diversity: degraded
+reviewer-1: {C: 0.73, dims: [0.55, 0.80, 0.75, 0.80, 0.75], per_finding: {F1: 0.85, F2: 0.80, F3: 0.80, F4: 0.70, F5: 0.60, F6: 0.70, F7: 0.55, F8: 0.40, F9: 0.20}, note: "about 10 citations carry wrong line numbers (spec cites 39 low, plan cites 87 low); repo-file cites exact; repo files tagged role plan"}
+reviewer-2: {C: 0.81, dims: [0.88, 0.80, 0.75, 0.82, 0.80], per_finding: {F1: 0.80, F2: 0.60, F3: 0.85, F4: 0.80, F5: 0.60, F6: 0.55}, note: "13 of 13 checked citations ok; F5 MAJOR but non-blocking inconsistent"}
+reviewer-3: {C: 0.79, dims: [0.92, 0.85, 0.70, 0.85, 0.65], per_finding: {F1: 0.80, F2: 0.80, F3: 0.75, F4: 0.65, F5: 0.55, F6: 0.45, F7: 0.60, F8: 0.70, F9: 0.50, F10: 0.55}, note: "16 of 17 ok; F9 evidence misleading; blocking set unevenly"}

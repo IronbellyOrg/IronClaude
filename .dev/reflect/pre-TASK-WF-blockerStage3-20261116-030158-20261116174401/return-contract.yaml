@@ -1,0 +1,104 @@
+contract_version: "1.8.0"
+status: partial                 # reflect protocol: success (0 citations dropped, validator ran); forced to partial here because REPORT.md could not be written (see report_blocked)
+mode: pre
+tier_reached: 2
+report_path: null
+report_blocked: "The Write tool refused REPORT.md: 'Subagents should return findings as text, not write report files.' No other route to the same file was tried. The findings, with all 72 card citations, are in findings_path."
+findings_path: "/home/coder/workspaces/worktrees/IronClaude/brainstorm-reflect-panel/.dev/reflect/pre-TASK-WF-blockerStage3-20261116-030158-20261116174401/adversarial/merged-review-card.md"
+audit_log_path: "/home/coder/workspaces/worktrees/IronClaude/brainstorm-reflect-panel/.dev/reflect/pre-TASK-WF-blockerStage3-20261116-030158-20261116174401/audit.log"
+confidence_calibrated: 0.875    # mean of the two reviewer-card calibrations (0.88 and 0.87); T1 card calibrated 0.76
+escalation_rule_matched: 4
+onboarding_ran: false
+verdict: NEEDS-REVISION
+coverage_pct: null
+coverage_pct_union: 0.9024
+coverage_undefined: false
+coverage_degraded: parsed-sparse
+unmapped_requirements: []
+unmapped_requirements_union: [INF-004, INF-006, INF-032, INF-038]   # mechanical; a hand read maps all four
+best_practice_grade: null
+implementation_coverage_pct: null
+missing_implementations: []
+hierarchy_slice_path: null
+hierarchy_coverage_pct: null
+input_sha256:
+  tasklist: 23ceccbd6c97   # first 12 hex characters; full hashes in artifacts/input-snapshot.yaml
+  spec: a9939958ce1e
+input_tree_sha256: 6f7954708b794e2e6d3a75d6bb8be2a4128a029d3ad99872352c648921cc0d04
+input_tree_file_count: 38
+input_tree_snapshot_path: "/home/coder/workspaces/worktrees/IronClaude/brainstorm-reflect-panel/.dev/reflect/pre-TASK-WF-blockerStage3-20261116-030158-20261116174401/artifacts/input-snapshot.yaml"
+input_drift_detected: false
+input_drift_diff: null
+citations_total: 113
+citations_revalidated: 113
+citations_dropped: 0
+citations_inferred: 0
+citation_budget_policy: full_reread
+evidence_validator_ran: true
+citation_revalidation_at_promotion: false
+reviewer_cards: [reviewer-cards/reviewer-1-card.md, reviewer-cards/reviewer-2-card.md]
+adversarial_artifacts_dir: ".dev/reflect/pre-TASK-WF-blockerStage3-20261116-030158-20261116174401/adversarial/adversarial/"
+adversarial_convergence_score: 0.889
+adversarial_unavailable: false
+merge_method: adversarial
+t2_model_class_diversity: degraded
+t2_vendor_diversity: single
+t2_effective_diversity: model-only
+calibrator_diversity: full
+remediation_offered: false
+remediation_accepted: null
+task_file_path: null
+remediation_task_path: null
+remediation_plan_path: null
+handoff_memory_key: null
+cannot_validate_without_user_input: false
+regression_present: false
+unauthorized_deviation_present: false
+blocked_by_low_confidence: false
+spec_is_wrong: false
+user_decision_required: false
+needs_human_decision: false
+findings: {total: 16, blocking: 3, non_blocking: 13}
+blocking_titles:
+  F1: "Task 5 seeded-recall gate is checked after the live-rule edit (a halt leaves the edit; a protocol Ruling skips the hash rule)"
+  F2: "Task 3 has no controlling variant or reduced-panel threshold for the with-and-without recall lines"
+  F3: "Both QA agents keep rule 8 and rule 9 lines that contradict the digest, outside the Task 6 and 7 edit lists"
+unaddressed_invariants: [INV-001, INV-003]   # HIGH, carried as F1 and F2
+per_task_verdicts: []
+interaction_effects_scanned: false
+interaction_effects_findings: 0
+budget_forced_tier_downgrade: false
+budget_forced_stop: false
+budget_check_skipped: true
+forced_tier: null
+promotion_action: not-applicable
+promotion_adapter: null
+promotion_source: null
+promotion_destination: null
+promotion_log_path: null
+promotion_gate_passed: null
+promotion_skip_reason: null
+promotion_fail_reason: null
+promotion_override_used: null
+promotion_rollback_command: null
+promotion_checkpoint_path: null
+promotion_cross_fs: false
+promotion_pending: false
+telemetry:
+  reviewer_models: [haiku, opus]
+  reviewer_personas: [analyzer, qa]
+  reviewer_vendors: [anthropic, anthropic]
+  degraded_components: [env-aliases-partial]
+  fallback_path: null
+  executor_class_source: log-heuristic
+  executor_class_resolved: true
+  executor_exclusion_degraded: false
+  memory_hits: 2
+  memory_misses: 0
+  memory_persist_skipped: true      # the lead allowed output only under the run folder
+  t2_engine_requested: null
+  t2_engine_effective: legacy
+  reviewer_briefs_materialized: 2
+  zero_drop_flag: true
+parsed_count: 0
+inferred_count: 41

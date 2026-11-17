@@ -1,0 +1,3 @@
+calibrator_model_class: opus
+calibrator_diversity: degraded
+cards: {reviewer-1: 0.57, reviewer-2: 0.76, reviewer-3: 0.72}

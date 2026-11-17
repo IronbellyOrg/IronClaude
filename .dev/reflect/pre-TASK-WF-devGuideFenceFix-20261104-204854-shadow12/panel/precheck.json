@@ -1,0 +1,29 @@
+{
+  "by_flag": {
+    "missing-file": 0,
+    "out-of-range": 0,
+    "quote-not-found": 0
+  },
+  "cards": [
+    {
+      "block_state": "complete",
+      "card": "reviewer-1.md",
+      "reviewer_id": "reviewer-1"
+    },
+    {
+      "block_state": "complete",
+      "card": "reviewer-2.md",
+      "reviewer_id": "reviewer-2"
+    },
+    {
+      "block_state": "complete",
+      "card": "reviewer-3.md",
+      "reviewer_id": "reviewer-3"
+    }
+  ],
+  "checked": 0,
+  "citations": [],
+  "flagged": 0,
+  "reread_set": [],
+  "schema": "review-precheck/1"
+}

@@ -1,0 +1,26 @@
+merge_method: adversarial
+verdict: no_blocking_findings
+convergence_score: 1.0
+base_variant: "variant-3 (reviewer-3, refactorer, opus class)"
+source_cards:
+  - reviewer-cards/reviewer-1.md
+  - reviewer-cards/reviewer-2.md
+  - reviewer-cards/reviewer-3.md
+merged_output_path: adversarial/merged-findings.md
+judge_identity: unknown
+judge_class_collision: unknown
+debate_skipped_similar: false
+invariant_probe: {high_unaddressed: 0, medium_unaddressed: 2, low_unaddressed: 3}
+findings_count: {blocking: 0, medium: 3, minor: 8}
+findings:
+  - {id: M1, severity: MEDIUM, blocking: false}
+  - {id: M2, severity: MEDIUM, blocking: false}
+  - {id: M3, severity: MEDIUM, blocking: false}
+  - {id: M4, severity: LOW, blocking: false}
+  - {id: M5, severity: LOW, blocking: false}
+  - {id: M6, severity: LOW, blocking: false}
+  - {id: M7, severity: LOW, blocking: false}
+  - {id: M8, severity: LOW, blocking: false}
+  - {id: M9, severity: LOW, blocking: false}
+  - {id: M10, severity: LOW, blocking: false}
+  - {id: M11, severity: LOW, blocking: false}

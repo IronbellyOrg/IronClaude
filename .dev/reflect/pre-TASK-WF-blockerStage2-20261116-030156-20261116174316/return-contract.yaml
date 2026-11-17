@@ -1,0 +1,81 @@
+contract_version: "1.8.0"
+status: partial
+mode: pre
+tier_reached: 2
+report_path: null        # REPORT.md not written (see audit.log wave 5 step 5.2); findings are in adversarial/merged-review-card.md
+audit_log_path: /home/coder/workspaces/worktrees/IronClaude/brainstorm-reflect-panel/.dev/reflect/pre-TASK-WF-blockerStage2-20261116-030156-20261116174316/audit.log
+confidence_calibrated: 0.82
+escalation_rule_matched: 4
+onboarding_ran: false
+coverage_pct: null
+coverage_pct_union: 0.7778
+coverage_undefined: false
+coverage_degraded: parsed-sparse
+unmapped_requirements: []
+unmapped_requirements_union: [INF-001, INF-010, INF-011, INF-012, INF-013, INF-014, INF-021, INF-022]   # all eight are Constraints-section rules, covered by hand
+best_practice_grade: null
+implementation_coverage_pct: null
+missing_implementations: []
+grounding_gaps_path: /home/coder/workspaces/worktrees/IronClaude/brainstorm-reflect-panel/.dev/reflect/pre-TASK-WF-blockerStage2-20261116-030156-20261116174316/grounding-gaps.yaml
+input_sha256: {tasklist: c264745d666b6119b607366f14efeb97700aae8d6ae14b7e3ec05f5080f03d56, spec: c7ccb5743f3114f645545ec4d49db3daccc05a056f540c0202cf1556eca6399b}
+input_tree_sha256: 186b5af44c8ccd8417bc8c2393498d4c675b7ff1a633b98c36042cc79964fbd0
+input_tree_file_count: 2
+input_tree_snapshot_path: /home/coder/workspaces/worktrees/IronClaude/brainstorm-reflect-panel/.dev/reflect/pre-TASK-WF-blockerStage2-20261116-030156-20261116174316/artifacts/input-snapshot.yaml
+input_drift_detected: false
+input_drift_diff: null
+citations_total: 125
+citations_revalidated: 125
+citations_dropped: 2
+citations_dropped_extrapolated: 2
+citations_inferred: 4
+citation_budget_policy: full_reread
+evidence_validator_ran: true
+citation_revalidation_at_promotion: false
+reviewer_cards: [/home/coder/workspaces/worktrees/IronClaude/brainstorm-reflect-panel/.dev/reflect/pre-TASK-WF-blockerStage2-20261116-030156-20261116174316/reviewer-cards/reviewer-1-card.md, /home/coder/workspaces/worktrees/IronClaude/brainstorm-reflect-panel/.dev/reflect/pre-TASK-WF-blockerStage2-20261116-030156-20261116174316/reviewer-cards/reviewer-2-card.md, /home/coder/workspaces/worktrees/IronClaude/brainstorm-reflect-panel/.dev/reflect/pre-TASK-WF-blockerStage2-20261116-030156-20261116174316/reviewer-cards/reviewer-3-card.md]
+adversarial_artifacts_dir: /home/coder/workspaces/worktrees/IronClaude/brainstorm-reflect-panel/.dev/reflect/pre-TASK-WF-blockerStage2-20261116-030156-20261116174316/adversarial/adversarial
+adversarial_convergence_score: 0.90
+adversarial_unavailable: false
+merge_method: adversarial
+t2_model_class_diversity: full
+t2_vendor_diversity: single
+t2_effective_diversity: model-only
+calibrator_diversity: degraded
+remediation_offered: false
+remediation_accepted: null
+task_file_path: null
+remediation_task_path: null
+remediation_plan_path: null
+handoff_memory_key: null
+cannot_validate_without_user_input: false
+regression_present: false
+unauthorized_deviation_present: false
+blocked_by_low_confidence: false
+spec_is_wrong: false
+user_decision_required: false
+needs_human_decision: true      # grounding-gaps.yaml is non-empty (2 rows, both low consequence)
+per_task_verdicts: []
+interaction_effects_scanned: false
+interaction_effects_findings: 0
+budget_forced_tier_downgrade: false
+budget_forced_stop: false
+budget_check_skipped: true
+forced_tier: null
+promotion_action: not-applicable
+promotion_adapter: null
+promotion_gate_passed: null
+verdict: NEEDS-REVISION
+blocking_findings: 4
+non_blocking_findings: 14
+telemetry:
+  degraded_components: ["executor-class-unresolved", "reviewer-isolation-disabled"]
+  reviewer_models: [claude-gw-tier1b (sonnet), claude-gw-tier2 (haiku), claude-gw-tier1a (opus)]
+  reviewer_personas: [analyzer, qa, refactorer]
+  executor_class_source: unknown
+  executor_class_resolved: false
+  executor_exclusion_degraded: false
+  t2_engine_requested: null
+  t2_engine_effective: legacy
+  memory_persist_skipped: "lead rule: output only under this run folder"
+  type_hierarchy_invoked: false
+  summarize_changes_invoked: false
+  references_extended_info_used: false

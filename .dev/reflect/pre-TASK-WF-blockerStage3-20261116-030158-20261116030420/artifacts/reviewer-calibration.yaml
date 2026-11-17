@@ -1,0 +1,25 @@
+calibrator_class: sonnet            # confidence-calibrator agents (model sonnet), one per card, blind; disjoint from reviewer classes {haiku, opus}
+calibrator_diversity: full
+reviewer_models: [haiku, opus]
+reviewer_personas: [analyzer, qa]
+cards:
+  reviewer-1:
+    reviewer_agent_id: a549e87af5172c1cb
+    calibrator_agent_id: a97b321385fcd2798
+    self_reported: 0.91
+    calibrated_C: 0.83
+    dimensions: {citation_grounding: 0.93, coverage_completeness: 0.80, deviation_classification_clarity: 0.75, risk_surface_coverage: 0.80, recommendation_actionability: 0.85}
+    per_finding_confidence: {F1: 0.90, F2: 0.88, F3: 0.75, F4: 0.80, F5: 0.82, F6: 0.85, F7: 0.85, F8: 0.95}
+    grade_comments: "F5 should be non-blocking (Constraints say earlier-stage evidence is read by package id); F2 a safe halt, grade slightly high; F6 borderline blocking"
+    corrections: ["F1: installed copy is refreshed only by superclaude install/update; the card never names it", "F2: failure is a halt at Task 1, not a wrong result", "F3: confound depends on what the installed style holds at run time"]
+    verdict: ESCALATE (C 0.83 < 0.85, low_confidence)
+  reviewer-2:
+    reviewer_agent_id: a3e03a12d407466bd
+    calibrator_agent_id: a22c879eb51285c73
+    self_reported: 0.80
+    calibrated_C: 0.79
+    dimensions: {citation_grounding: 0.80, coverage_completeness: 0.75, deviation_classification_clarity: 0.80, risk_surface_coverage: 0.75, recommendation_actionability: 0.85}
+    per_finding_confidence: {F1: 0.85, F2: 0.70, F3: 0.80, F4: 0.90, F5: 0.85, F6: 0.65, F7: 0.90, F8: 0.75, F9: 0.80, F10: 0.95, F11: 0.85}
+    grade_comments: "F2 and F3 graded a bit generously (plan :33 and :39 define the three tests; plan :19 says evidence is read by package id)"
+    corrections: ["F1/F5/F6: calibrator could not resolve the stage 1 and stage 2 plan citations (it looked for them through the blank ledger rows); orchestrator confirms both plans exist at .dev/tasks/to-do/TASK-WF-blockerStage1-20261116-030154/ and .dev/tasks/to-do/TASK-WF-blockerStage2-20261116-030156/ and re-read the cited lines (stage 1 Task 15 line 209 holds T1 and names tests/skills/test_review_severity_registry.py; stage 2 Task 7 line 114)", "F4: calibrator said the hook file lives only under ~/.claude/hooks; orchestrator confirms src/superclaude/hooks/scripts/pragmatic-subagent.js exists (the reviewer's citation is right)", "F8: the 10-file list holds 8 files that Tasks 4 and 5 do not edit"]
+    verdict: ESCALATE (C 0.79 < 0.85, low_confidence)

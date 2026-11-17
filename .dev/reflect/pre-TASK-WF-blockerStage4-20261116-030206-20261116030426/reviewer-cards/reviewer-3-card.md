@@ -1,0 +1,39 @@
+persona: refactorer
+model_class: opus
+model: claude-gw-tier1a
+
+## Verdict
+Task 6's steps are in a workable order, and the files edited by several tasks end up consistent. One check cannot be met (Task 1's audit-window line). One check passes without testing anything (Task 6's claim about the reverse scan of the plugin mirror). Three wording or verification gaps are minor.
+
+## Findings
+F1 | MAJOR | blocking true | unpassable-check | Who: the Task 1 executor and its QA. Wrong result: no one can pass the check, because the stage 3 summary is written before the audit window and says the opposite. The run halts in Task 1 unless someone edits a finished stage 3 file by hand. The owner's go row in the ledger is the record that exists after the window. | citations: .dev/tasks/to-do/TASK-WF-blockerStage4-20261116-030206/TASK-WF-blockerStage4-20261116-030206.md:37 "exists and states that one audit window has passed with no revert trigger tripped"; .dev/tasks/to-do/TASK-WF-blockerStage3-20261116-030158/TASK-WF-blockerStage3-20261116-030158.md:158 "State that the audit window runs after this package"; .dev/tasks/to-do/TASK-WF-blockerStage3-20261116-030158/TASK-WF-blockerStage3-20261116-030158.md:162 "no revert trigger can be judged until the audit window has run"
+
+F2 | MINOR | blocking false | other | Who: the Task 6 executor and QA. Wrong result: T2 scans only git-tracked files, and Task 6 never stages the new plugin folder. The strict reverse scan therefore never reads the plugin mirror, so "accepted by the reverse scan through its canonical row" passes without testing anything. Not blocking: T15 parity ties the mirror to the source, and the source is scanned. Fix: stage `plugins/superclaude/skills/sc-review-severity/` before running the three tests, or make T2 read the filesystem. | citations: .dev/tasks/to-do/TASK-WF-blockerStage1-20261116-030154/TASK-WF-blockerStage1-20261116-030154.md:209 "a reverse scan of the tracked `src/` and `plugins/` trees"; tests/skills/test_review_severity_rule.py:39 "[\"git\", \"ls-files\", \"-z\", \"--\", *_SCAN_TREES],"; .dev/tasks/to-do/TASK-WF-blockerStage4-20261116-030206/TASK-WF-blockerStage4-20261116-030206.md:102 "the plugin mirror of `refs/rule.md` is accepted by the reverse scan through its `canonical` row"
+
+F3 | MINOR | blocking false | contradiction | Who: the Task 6 executor editing registry.yaml. Wrong result: a registry row stores a path relative to the install root plus a list of surfaces, and `plugin` is already a surface value. Task 6 instead adds a second `canonical` row with a repo path (`plugins/superclaude/...`). Its logical path would duplicate the existing rule.md row, and T1 or T3 may resolve the wrong file. The executor has to guess between "add `plugin` to the existing row's surfaces" and "add a new row". | citations: .dev/tasks/to-do/TASK-WF-blockerStage1-20261116-030154/TASK-WF-blockerStage1-20261116-030154.md:96 "Each row has the logical path relative to the install root, a `kind`"; .dev/tasks/to-do/TASK-WF-blockerStage4-20261116-030206/TASK-WF-blockerStage4-20261116-030206.md:99 "(`plugins/superclaude/skills/sc-review-severity/refs/rule.md`) as a `canonical` row"
+
+F4 | MINOR | blocking false | other | Who: the executor of Tasks 3, 4 and 6. Wrong result: Task 4 edits both MDTM templates after Task 1 has placed the digest there, but runs only the task-builder test. If the consumer line lands inside the fence, Task 1's line "T1 passes for them" becomes false and nobody sees it until Task 6. Separately, stage 3 re-pinned `test_review_severity_rule.py` so its pinned file list comes from the registry's `digest` rows. Stage 4 moves 8 of those rows to `v2` and no task runs that test. | citations: .dev/tasks/to-do/TASK-WF-blockerStage4-20261116-030206/TASK-WF-blockerStage4-20261116-030206.md:39 "T1 passes for them"; .dev/tasks/to-do/TASK-WF-blockerStage4-20261116-030206/TASK-WF-blockerStage4-20261116-030206.md:74 "`uv run pytest tests/skills/test_task_builder_merge.py -v` passes."; .dev/tasks/to-do/TASK-WF-blockerStage3-20261116-030158/TASK-WF-blockerStage3-20261116-030158.md:122 "`S1_S3_FILES` and its `[:6]` slice `S5_FILES` become registry rows of kind `digest`"; tests/skills/test_review_severity_rule.py:184 "\"src/superclaude/templates/documents/agent_template_qa.md\","
+
+F5 | MINOR | blocking false | other | Who: the executor of Tasks 1 and 3. Wrong result: both tasks say to remove files from "the allow-list of the stage 3 scan test". The test file holds no list; it reads the list from `refs/scale-map.md`. An executor may hunt for a list in the test file or add one there. | citations: .dev/tasks/to-do/TASK-WF-blockerStage4-20261116-030206/TASK-WF-blockerStage4-20261116-030206.md:33 "remove `agent_template_qa.md` and `agent_template_analysis.md` from the allow-list of the stage 3 scan test"; .dev/tasks/to-do/TASK-WF-blockerStage4-20261116-030206/TASK-WF-blockerStage4-20261116-030206.md:59 "remove those four files from the allow-list of the stage 3 scan test"; .dev/tasks/to-do/TASK-WF-blockerStage1-20261116-030154/TASK-WF-blockerStage1-20261116-030154.md:59 "so the stage 3 scan test reads its allow-list from one place"
+
+## Checked
+- **Task 6, step by step (P4:99):**
+  - Step 1, registry and allow-list edit: both now name a plugin file that does not exist yet. The merge-rule scan's existence check (OLD:477) and T1's canonical check would fail at this point, but no test runs before the copy.
+  - Step 2, folder copy: the plugin's `skills/` gets 5 folders, and the plugin copies of `registry.yaml` and `scale-map.md` match the source.
+  - Step 3, parity test: passes on a byte copy.
+  - Step 4, digest rows to `v2`: expected to change nothing, because Tasks 1 and 2 plus stage 3 already set all 11 rows. The "repeat the copy" clause covers the case where it does change something.
+  - Step 5, strict T2: the old sentence is in exactly 11 files under `src/superclaude` today and none under `plugins/superclaude`, and all 11 are replaced by Tasks 1 and 2 plus stage 3.
+  - Step 6, `make sync-dev` and `make verify-sync`: `verify-sync` never looks at `plugins/` (Makefile:166-353), so the mirror cannot make it fail.
+  - Step 7, the three tests: no failure expected apart from F2 and F3.
+- **Merge-rule phrases today:** they sit only on the lines the plan names (agent_template_qa.md:85, agent_template_analysis.md:466, tech-reference :510/:513, readme :542/:547, build-request-template :122, operational-guide :511), plus the stage 3 files and the auggie file. There are none under `plugins/superclaude`.
+- **Allow-list end state:** stage 3 lists 8 paths; Task 1 removes 2, Task 3 removes 4, Task 6 adds the plugin mirror. That leaves the auggie file, `refs/rule.md` and its plugin mirror, and all three exist after the copy.
+- **Registry end state:** 11 `digest` rows at `v2`, 2 `pointer-only`, 5 `installed-only`, and `canonical` rows for the source and the plugin mirror, which matches P4:39.
+- **Depends on lines:** Task 2 after Task 1 (registry), Task 4 after Task 1 (MDTM templates), Task 5 after Task 2 (plugin twin of `document_review_loop_prompts.md`), and Task 6 after Task 5 (same registry test file) are all correct. Task 3 has no Depends on line although it edits `scale-map.md` like Task 1. The removals are independent and `/sc:implement` runs tasks in order, so this is harmless.
+- **Plugin skills folder:** holds confidence-check, sc-implement-protocol, sc-recommend, sc-workflow-protocol and `__init__.py`, as the orchestrator stated.
+- **Task 1's Rule 6 edit (near :333):** it sits in an example comment and does not touch the cap fixture row C-021 at agent_template_qa.md:341.
+
+## Self-report
+confidence: 0.80
+reviewer_model_self_report: claude-gw-tier1a (Opus-class), read-only refactorer pass
+
+Not checked: the spec section 10.5 cap lines and the exact L1 merge text. Tests from stages 1 to 3 do not exist yet, so F2 and F3 depend on how those packages implement T2 and T1.

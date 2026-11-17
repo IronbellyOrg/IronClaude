@@ -1,0 +1,18 @@
+selected_tier: 2
+fired_rule_number: 5   # pre-filter path: coverage_degraded=parsed-sparse forbids T1 stop; rule 6 (C=0.76 < 0.85) would also have escalated; --tier 2 pin (§5.1) independently forces T2
+coverage_degraded: parsed-sparse
+surface_unreached: null
+composite_score: 5.0
+per_signal_breakdown:
+  scope_size: 1        # 2 tasks (0-2 scale, small)
+  task_count: 1        # 2 tasks
+  blast_radius: 1      # guidance docs + 1 hook + mirrors + tests; no runtime code
+  spec_density: 1      # 1-line spec, 4 inferred requirements
+  ambiguity_signals: 1 # parsed-sparse (0 Pass-1 IDs) + hedged ACs ("where necessary", "only as necessary")
+escalation_reason: "parsed-sparse pre-filter (0 parsed < 4 inferred IDs) forbids T1 stop; calibrated C=0.76 < 0.85 (rule 6); --tier 2 hard override pins T2 regardless"
+t2_engine_requested: shadow
+t2_engine_effective: shadow   # engine read at start of Wave 3 per D2; final tier is 2
+panel_fallback_reason: null
+calibrated_confidence_t1: 0.76
+budget_forced_tier_downgrade: false
+budget_check_skipped: true

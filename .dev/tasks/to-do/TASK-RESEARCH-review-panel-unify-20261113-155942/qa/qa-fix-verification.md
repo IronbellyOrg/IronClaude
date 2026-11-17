@@ -1,0 +1,118 @@
+# QA Report: Report-Validation Fix Verification (cycle 1)
+
+**Topic:** Unified Review Panel investigation
+**Date:** 2026-11-14
+**Phase:** report-validation (verification)
+**Fix cycle:** 1
+**Fix authorization:** false (report only; no file edited except this report)
+**Inputs:** `qa/qa-consolidated-findings-phase6.md` (39 blocking findings P6-B1 to P6-B39), `qa/qa-fix-log.md` (Cycle 1), `RESEARCH-REPORT-review-panel-unification.md` (4282 lines)
+
+---
+
+## Overall Verdict: FAIL
+
+38 of 39 blocking findings are fixed and verified. One new blocking defect (N-1) was introduced by the fix of P6-B35: the new gate row G-skills states a false derivation and does not cover all suites that name the three skills. Open blocking count |F_2| = 1, below |F_1| = 39. This was fix cycle 1; one more fix cycle is available.
+
+## Executor checks (a) to (g)
+
+| Check | Result | Evidence |
+|---|---|---|
+| (a) fix log has exactly one row per P6-B1..B39 | PASS | `grep -cE '^\| P6-B[0-9]+ \|'` = 39; a loop over 1..39 found no missing id and `uniq -c` no duplicate. Rows are out of numeric order (B1-B11, B14-B17, B32, B33, B12, B13, B18-B31, B34-B39), which is harmless. Status column: 34 rows read plain `fixed` (matches the `grep '| fixed |'` count of 34); 5 rows read `fixed (...)` with a note: B10, B18, B20, B24, B35. No row reads could-not-fix. The log's summary names four open owner items (B10, B18, B20, B24 = Q-05, Q-59, Q-60, Q-61); the fifth parenthetical (B35) is a caveat, and its status "fixed" is wrong in one respect (N-1). |
+| (b1) only the allowed `[CONTRADICTION]` text remains | PASS | `grep -on '\[CONTRADICTION:[^]]*\]'` finds exactly one colon-form flag, at L2777 (Section 7.1.3 Merge and verdict row). The other 12 of the 13 lines containing the word are bracket-only echoes: L2911, L2919, L3371 (V-433), L3633, M1-07 (L3649), M1-08 (L3650), M1-16 (L3658), M3-08 (L3700), L3891 (8.5), L3921 and L3929 (8.6), Q-54 (L4187). All concern the core verdict vocabulary; none is a new flag. The assembler flags in V-037 and Section 9 are gone. |
+| (b2) 8.1 rows keep 7 columns | PASS | Script: 173 tables in the report, none with a non-constant unescaped-pipe column count; 691 `\| V-` rows in 8.1, 0 with a count other than 7, 691 unique ids. |
+| (b3) Section 4 gap table is one contiguous table | PASS | Script: Section 4 holds exactly one table (L586-L732, 5 columns) with 145 data rows (D 16, BL 23, MS 24, ENS 9, OPEN 2, DOC 71). Severities Critical 15, Important 66, Minor 64; tracks M1 56, M2 21, M3 18, M4 16, none 34; exactly 11 rows carry the C8 remediation note. These match Sections 1, 4.1 row 15, 4.2, 4.3, the 8.2 gap coverage ("15 Critical, 66 Important") and Section 9. No "65 Important" or "144 rows" remains. |
+| (b4) Table of Contents matches headings | PASS | Script: the 72 ToC entries equal the 72 `##` and `###` headings (excluding "Table of Contents") in order and text; 0 anchors without a heading. Sections 1-10 present in order (L90, 105, 480, 578, 782, 1153, 2624, 2915, 3933, 4196). |
+| (b5) G-01..G-94 once each in 9.1; Q-59+ indexed | PASS | Script: 61 rows Q-01..Q-61 in 9.1, none missing or duplicated; every G-01..G-94 appears exactly once and none outside the range; Q-45..Q-61 map to "none (...)"; Section 9's main table plus 9.5 hold the same 61 ids. All 81 Critical and Important Section 4 rows appear in the 8.2 gap coverage table; every M step id referenced exists (48 defined, 0 undefined); every SC and Q id referenced exists. |
+| (b6) no placeholder text | PASS | `grep` for `TODO`, `TBD`, `PLACEHOLDER`, `filled after`, `planned,` returns no line. |
+| (c) no debate winner changed; four debates `partial` | PASS | `return-contract.yaml`: ledger-model `status: "partial"` (base B), model-tier-config `partial` (A), panel-size-cost `partial` (variant-2, Option B), who-judges-blocking `partial` (B, Option D). Report: C-03 Option A (L1378), C-05 Option D (L1536), C-13 Option B (L2051), C-14 Option B (L2116); Section 10 (L4259-4262) says `partial` for all four. HIGH invariants 2 / 11 / 10 / 3 = 26 equal `grep -c 'severity: "HIGH"'` on the four contracts. Each added "Rating of the adopted resolution" line (C-03 L1380, C-05 L1538, C-11 L1923, C-14 L2118) says the winner is unchanged. |
+| (d) E2 cited at 4a22d74213f93837d00c2c314075dd967b9a98e3 only | PASS | 14 occurrences of the full 40-hex SHA, no other 40-hex string; 6 short forms `4a22d742`; no other E2 commit named. |
+| (e) report-only | PASS | No `/tech-reference` suggestion (one hit is a skill-file census item in Q-41); `/sc:workflow` appears only in negations (L101, L2917) and as a product name; `sprint` only as "no order, date or sprint" (L3633), "sprint routing" (a contract-consumer name) and the L2917 negation; dates are evidence dates (2026-11-08 to 2026-11-14), not schedule dates; "roadmap" only as "the later roadmap". |
+| (f) parsed-sparse not the measured driver | PASS | All hits of `parsed-sparse`, `35 of 39`, `driven by`: L168 and L643 concern the combo A orchestrator; L720, L2904, L2910, L2919, L3495, L3680 say the "driven by" claim is not carried; L1849, L2059, L2106, L2120, L2637, L3254, L3456 state "flag set in 35 of 39 ... decisive in 0 for certain and at most 1" and that the cause is not established. L2059 and L3254 quote MR:142's old "34 by the pre-filter" and mark it superseded in the same row. |
+| (g) added commands reproduce | PASS | Next table. |
+
+### (g) Command reproduction (read-only commands run from the repository root)
+
+| Command (as in the report) | Report quotes | Observed |
+|---|---|---|
+| `uv run python .dev/tasks/to-do/.../panel-size-cost/adversarial/recount_tier_decision.py` (L2106) | TOTAL 39; tier2 38; flag set 35; flag&tier2 34; `fired_rule_number` 4 in 18, 6 in 9, 5 in 2, 8 in 1, 0 in 1, none in 3 | identical (`TOTAL 39; tier2 38; flag set 35; flag&tier2 34`; `{6: 9, 4: 18, 8: 1, None: 3, 5: 2, 0: 1}`); 18 + 9 + 2 = 29 |
+| `uv run python scripts/reflect_shadow_exit.py` (L98, L497, L3860) | exit 1, `OVERALL: FAIL (shadow runs 13 of 20)`, EV-1 8/13 = 0.615 vs 3/39 = 0.077, 6 parity failures, 9 lint or manifest failures, 0 new degraded reasons | identical: exit 1, `OVERALL: FAIL (shadow runs 13 of 20)`, `shadow 8/13 = 0.615; legacy baseline 3/39 = 0.077`, 6 "parity does not hold" lines, 9 "lint or manifest problems" lines, `new degraded reasons 0` |
+| `uv run pytest --collect-only -qq -p no:cacheprovider tests/pr_submit` (L3857) | 2258 collected; `test_severity_router.py` 28 | `2258 tests collected`; `28 tests collected` |
+| G-skills nine-file collect (L3858) | 1087 collected | `1087 tests collected` |
+| `uv run superclaude review panel resolve --template @live7 --env gateway --run-id run1` (L1435) | Qwen3.8-max at `t2b-1` and `t3-2` | `t2b-1 Qwen3.8-max`, `t3-2 Qwen3.8-max` |
+| same with `--run-id x` | glm-5.3 at `t3-1` and `t3-2` | `t3-1 glm-5.3`, `t3-2 glm-5.3` |
+| `uv run superclaude review panel resolve --template @reflect-pre --env gateway --run-id x` (L1369) | fails "launch None is not one of sonnet, opus, haiku"; without `--run-id`: `Missing option '--run-id'` | rc 1 with `invalid reflect resolution: t1b-1: launch None is not one of sonnet, opus, haiku ...`; without `--run-id`: `Error: Missing option '--run-id'.` |
+
+## Table of finding ids
+
+| Finding ID | Fixed? | Evidence |
+|---|---|---|
+| P6-B1 | Yes | V-037 (L2975): "30 findings lost at merge (all dropped findings, not only blocking ones; E2's blocking-lost total is 49)", Reason cell gives 24/14/10/1 and points to V-167 (L3105); no assembler flag left. |
+| P6-B2 | Yes | Section 9 (L3937, L3939): "Under the gap-log rating no gap is Critical"; one sentence gives gap-log 94 = 0/30/64 and Section 4 = 15 Critical + 66 Important with the 11 + 4 basis. Flag removed. 66 matches the script count. |
+| P6-B3 | Yes | Section 1 (L100), 4 intro (L582), 4.1 row 15 (L752), 4.2 (L761, L766): 15 Critical rows = 11 distinct gaps (7 C8 + 4 impact) + 4 restatements. Script: 11 rows carry the C8 note (D14, MS-11, MS-14, ENS-1, ENS-3, ENS-4, ENS-5, DOC-20, DOC-63..65). D1, D3, D4, ENS-2 each carry "Rating basis" in Notes (L588, L590, L591, L652). |
+| P6-B4 | Yes | L499: "only caller of `review merge` and `ledger revise`; `panel resolve` is also called by reflect shadow step 1 (`SKILL.md:340`, shadow path only)". |
+| P6-B5 | Yes | Q-58 added (L4191) with impact and resolution; D14 note (L601) and 4 intro (L582) name Q-58; 9.1 indexes it. 9.2 not changed (minor note M5). |
+| P6-B6 | Yes | L2442: "Of the 41 review call sites among the 43 rf-* spawning call sites, 32 depend on an in-place fix step"; grep finds no "32 of 43". |
+| P6-B7 | Yes | D12 Status (L2533): "the check is decided (C-03 merge: read-only `panel verify`, V2 slot existence per template; the C-03 winner stays Option A)"; C-03 resolution (L1378) lists V1, V2, V4 under "Taken from Option B into the merge". |
+| P6-B8 | Yes | L176: "106 scored panel runs (rows; 62 reviewer-model sets, incl. 3 pilot arms and 30 pre-source rows), of which 71 valid-era rows (213 row-packages, 665 individual reviewer runs)"; L595, L1800, L2529 say "valid-era reviewer runs (individual reviewers, not panel rows)". Unqualified "156 of 665 runs" at L452, L1178 is the right unit (minor note M2). |
+| P6-B9 | Yes | L158, L444, L593, L1019, L1931: "precision 21 of 25 (0.84, n=25), 50-pair stratified sample; recall 21 of 22 not a population recall". TP 21, FP 4, FN 1, TN 24 (L3273) agree. Q-05 (L3949), L1180 and L3272 still say "0.84 / 0.95 ... AI-labelled sample figures" (minor note M2). |
+| P6-B10 | Yes | SC-6 (L530) has pass rule (i)-(iv): zero components above the cap on a replay of `audit-D/audit2.py`; mega-rows from 83 with zero as the target; cap value an open decision with owner Q-05; no precision floor until the labels exist. This is the "or mark open with its owner" branch of the proposed fix. |
+| P6-B11 | Yes | SC-10 (L534) states it is a measurement precondition, names the owner decision (Q-09, Q-51) and gives a [proposed, not decided] default rule. |
+| P6-B12 | Yes | SC-18..SC-22 (L542-546) each have a pass statement and a test; SC-12 (L536) says a caller grep does not show the capability is applied and names `runner.py:480-481`; M3-03 (L3695) cites SC-13 for exit 10 and SC-22 for the loop; M2-03, M3-04, M3-05 name their SC; G-new (L3864) lists SC-18 to SC-22. |
+| P6-B13 | Yes | M1-04 (L3646) names `test_review_severity_mapping.py:51-60` (read: `test_grading_bullet_grades_by_consequence` asserts the "otherwise it is Medium" literal) and the added agreement test (SC-23, L547); G10 (L3855) has the replacement assertion; G-new has SC-23. |
+| P6-B14 | Yes | L203 and V-043 (L2981): "`tier2` (4th of 6), `tier2b` (3rd of 4) and `tier3` (2nd of 2)". Confirmed from `review-tiers.default.json`: tier2 [sol, glm, grok, Qwen3.8-max, wonder, spark]; tier2b [terra, glm, Qwen3.8-max, wonder]; tier3 [glm, Qwen3.8-max]. |
+| P6-B15 | Yes | L498 and MS-08 (L634): Wave 4 passes defaults; Stage 10.5 passes `--remediate`, a computed `--depth` and `--tier` and its own spec resolution; neither passes `--t2-engine`. |
+| P6-B16 | Yes | D13 (L600) and the 2.4 shape paragraph cite `test_review_cluster_cmd.py:260`, `test_review_verify_citations.py:194`, `test_review_manifest.py:434-439` (each read: a help-lists test) and `test_review_cli.py:44-49` (4 of 7); "disappears silently" removed (grep 0); the exact-set and ghost-name gap is stated. |
+| P6-B17 | Yes | Command with "default arguments, run 2026-11-14" at L98, L497 and in G-exit (L3860: "the default invocation produces the quoted result; other arguments are unchecked"). Reproduced (see (g)). |
+| P6-B18 | Yes | SC-16 (L540), MS-12 (L638), new gap row MS-24 (L650), C-11 "Route and derivation rule" (L1921), 7.1.3 Merge row (L2777) and M2-02 (L3675) all state route 1 (reflect-side code writer), leave route 2 as owner item Q-59, give the `merge_method` derivation rule and require the writer to fail when no evidence exists (three fixtures). Verified: `sc-adversarial-protocol/SKILL.md:438-447` return-contract fields and `:371-386` artifact list without `merged-verdict.yaml`; `panel_lint.py:286-293` fallback evidence; `SKILL.md:346,714,837`. C-11 rated M / Medium; winner unchanged. Wording residue: minor note M3. |
+| P6-B19 | Yes | SC-14 (L538) "once M1 delivers X1-X14" with one stub lens per consumer shape; 6.X Option B pros (L2581), 7.1.4, 7.2 intro (L2796), M4 Goal (L3705) and Dependencies (L3706: M1-07, M1-08, M1-16, M1-20, M1-21, C-13 gate, non-core prerequisites); M1-20 and M1-21 added (L3662-3663) and referenced by M4-05 and M4-07. `pr_submit/fsm.py:823-826,941` and `finding-verify.md:54-63` cited by M1-21 exist as described. |
+| P6-B20 | Yes | Exposure X14 (L2812) with per-mode quorum, `degraded` and `support` rules marked [proposed]; 7.1.4 rf-qa row (L2792) maps a partition run onto `partitioned`, the PR row onto `redundant` + `verify-only`; thresholds left as Q-60 (L4193). Partitioning by `assigned_files` confirmed at `rf-qa.md:54-74`. |
+| P6-B21 | Yes | C-10 resolution (L1855), 7.1.3 Brief row (L2769) and M1-11 (L3653) name `cli/review/brief.py` and `superclaude review brief [--check]` [proposed] with inputs, output, recorded `source_injected` fields and a produced-brief check; M1-15 (L3657) adds it to the registered set. |
+| P6-B22 | Yes | 7.1.3 Dispatch row (L2768) and M1-10 (L3652): "instructed in the skill text and audited where sidechain transcripts exist"; `unknown` rule stated [proposed]; M1-22 added (L3664); G-38 and G-45 removed from M1-10 "Closes gaps"; MS-11 (L3729) and DOC-20 (L3736) coverage rows say `unknown`, not closed. Residual "enforce the pin" wording in C-08 and C-09 (minor note M4). |
+| P6-B23 | Yes | "Rating of the adopted resolution" lines at L1380 (C-03: M / Medium), L1538 (C-05: L / High, aligned with 8.5), L1923 (C-11), L2118 (C-14); condition paragraph (L2619): 26 = 2 + 11 + 10 + 3 HIGH invariants (verified against the four contracts), unnamed owners O-4 and G-59. No winner changed. |
+| P6-B24 | Yes | C-18 open point (L2382) classifies rf-qa checks, cites `rf-qa.md:10,133,518,327-328` (all confirmed in the agent file), states two ways forward and a default (restrict); Q-61 (L4194); M4-06 (L3716), 7.1.3 and 7.1.4 refer to it. |
+| P6-B25 | Yes | M1-10 (L3652) Files include `SKILL.md:341,348`, `:342` (confirmed: step 3 "Briefs and dispatch") and `:646` (confirmed: §7.1 rotation rule, outside the C6 allowed sections; G8 first); the step delivers the launch-grammar parse and rule text; M3-01 carries the dispatch procedure and M1-10 does not depend on it. |
+| P6-B26 | Yes | M2-08 (L3681) targets `SKILL.md:87` and `:311` (both confirmed as the C5 sentences); decision step waits on Q-28; edits and tests follow each answer. |
+| P6-B27 | Yes | `cli/review/lenses.py` with `load_lens(name, lens_dir=None)` and `--lens-dir` (M1-04); `review merge --snapshot` and `merge_round(..., snapshot=None)` (M1-05; read `ledger.py:107` signature and the `--snapshot` option at `cluster_cmd.py:98-103`, both as described); `register_check` and `manifest validate --profile` (M1-14); "generic writer interface" deleted (7.1.3, M2-02). All marked [proposed]. |
+| P6-B28 | Yes | L3633, L2919, L3891, L3921, Q-54 (L4187) all say "M1-07, M1-08, M1-16, M3-08"; M4-05 inherits via M1-16; M4 Dependencies list M1-16. Section 7 flag text (L2777) unchanged. |
+| P6-B29 | Yes | L2808, L2835 and M1-05: v1 `parse_block` rejects a citation-only finding with "anchor must be a string" and the round is refused; `KeyError` only on a direct `annotate`. Reproduced: `findings.parse_block` of a citation-only block returned `errors: 'anchor must be a string'`; `findings.annotate({"id":"L1","citations":[1]}, "text")` raised `KeyError 'anchor'`. |
+| P6-B30 | Yes | V-443 (L3381), V-457 (L3395), 7.1.4, 7.2, BL-01, BL-21, M4-07 (L3717): eight document-type phases plus a fix-cycle phase, `:144-788`. `grep -n '^## QA Phase' rf-qa-qualitative.md`: 144, 244, 295, 366, 433, 504, 571, 754 (eight document types) and 788 (Fix Cycle). No "nine document" remains. |
+| P6-B31 | Yes | V-532 (L3470), 7.1.3 Run manifest row (L2770) and M1-12 (L3654): the three hashes are caller-supplied required options; the CLI computes `snapshot_sha256` and takes `input_tree_sha256` from the snapshot; CLI-computed hashes marked [proposed]. Confirmed in `manifest_cmd.py:67-69,94-95`. |
+| P6-B32 | Yes | L1369 and L1435 carry `uv run` and `--run-id`; run-id dependence stated; both reproduced (see (g)). |
+| P6-B33 | Yes | C-14 Evidence (L2106) holds the command, glob, `coverage_degraded` key mapping, script output and the source of "decisive in 0 for certain, at most 1" (`escalation_figure_after_check`, confirmed at `return-contract.yaml:27`); other occurrences point to it; counts only. |
+| P6-B34 | Yes | M1-11, M3-01, M3-08 and G10 name `plugins/superclaude/rules/prompts/document_review_loop_prompts.md` and `plugins/superclaude/commands/spec-panel.md` and the `test_review_brief_placement.py:129-134` pin; `plugins/superclaude/skills/sc-workflow-protocol/` exists. |
+| P6-B35 | Partly (see N-1) | G-pr (L3857) is correct: 2258 / 28 reproduced; `test_t301`, `test_t302`, `test_t310-312` exist at the cited lines 34, 40, 46, 56, 63. G-skills (L3858) is added, but its provenance statement is false and its suite list incomplete: N-1. |
+| P6-B36 | Yes | G1, G2, G3, G6, G7, G10, G11 each give a replacement assertion or a reason none is needed; G2 splits `:277-298` from `:299-304`; G3 follows C-04; M1-09 points to G3; 8.6 item 4 (L3917) softened ("a row that names none says why none is needed"). Spot-checked against the tests: `test_review_panel_exclusion.py:56-72` (8 golden keys x implicit/explicit = 16), `:97-98`, `:208-213`, `test_review_panel_live7.py:48-60`, `test_review_panel.py:265-281`. |
+| P6-B37 | Yes | Persisted-format rule at the head of M1 (L3639), M1-05, M1-07, M1-12 rows, rollback lines for M2, M3, M4 (L3670, L3689, L3707), G-new reload tests, 8.5 risk row (L3909). `scripts/reflect_shadow_exit.py:209-232` cited as the manifest validator. |
+| P6-B38 | Yes | M1-08 (L3650) and 7.1.3 Blocking decider hook (L2775) name the dispatch site (new shadow step after `SKILL.md:347`, before `:348`; confirmed steps 8 and 9 there; loop paragraph `document_review_loop_prompts.md:70`), the grades input (reply file in the grader's JSON-lines schema, `grade prep` / `grade apply`, `panel/decisions.json`, all [proposed]) and the grader location (installed `~/.claude/agents/finding-grader.md` only; a `src/` copy only if O-1 promotes it; the dispatch half waits for O-1). |
+| P6-B39 | Yes | L2826: "branch layouts, gates and dependencies are in Section 8; ordering is deliberately absent and belongs to the later roadmap"; L2913: "before the later roadmap can sequence them". |
+
+## New blocking defects
+
+| # | Severity | Location | Defect | Evidence | Required fix |
+|---|---|---|---|---|---|
+| N-1 | IMPORTANT | Section 8.3, row G-skills (L3858); fix of P6-B35; fix-log row P6-B35 | The row says its nine-file suite list is the "file list from `grep -rl` for `sc-workflow-protocol`, `sc-tasklist-protocol` and `sc-brainstorm-protocol` under `tests/`". That is false: a content search for those three names under `tests/` (`*.py`, `*.yaml`, `*.md`) matches 16 files, not nine. The gate row is the report's answer to P6-B35 ("no gate covers suites that mention the three skills"), so the omissions make the gate incomplete. | Omitted matches: `tests/cli/eval/test_workflow_vs_task_builder_companion.py` (L375-376 asserts `.claude/skills/sc-workflow-protocol/SKILL.md` equals the `src` file, and M3-02 edits that file), `tests/skills/test_primitive_dual_surface_lookup.py` and `tests/skills/test_tier2_tavily_consistency.py` (both read `sc-brainstorm-protocol/SKILL.md`, which M3-09 edits), `tests/unit/test_cli_install.py` (23 hits), `tests/cli_portify/test_brainstorm_gaps.py`, `tests/review/test_reflect_consumer_inventory.py` (covered by G7, so acceptable) and the fixture `tests/skills/fixtures/review_severity_sweep_edits.yaml` (used by G10 suites). The nine listed files are all real matches, so the list is a subset, not a different set. The fix log marks P6-B35 plain "fixed" and describes G-skills as "nine suites that name the workflow, tasklist or brainstorm skills". | Re-run the search (all of `tests/`, not only `*.py`), list every matching suite or state which are covered by another gate (G7, G10) and which are added, update the collected count (1087) to the new file set, and replace the "file list from `grep -rl`" sentence with what was actually run. |
+
+## New MINOR notes (never fail the gate, never rechecked)
+
+| # | Where | Note |
+|---|---|---|
+| M1 | 7.2 / M1-21 (L3663) vs 7.1.3 Citation checks (L2773) | M1-21 says the verify seam is "a callable that takes a finding and returns a state, the shape of `RunConfig.verify`"; `RunConfig.verify` is `Callable[[Finding], bool]` (`fsm.py:941`), as L2773 says. The three-state return is new, not the existing shape. |
+| M2 | L452, L1178, L3103 (V-row "106 runs"), L3272-3273, L3949 (Q-05), L1180 | A few secondary mentions keep the old unit ("156 of 665 runs", "106 runs") or "0.84 / 0.95" without the stratified-sample qualifier. The primary statements are fixed. |
+| M3 | 7.1.3 Merge row (L2777), 7.1.4 reflect row (L2787), 7.3 (L2860), 7.4.1 (L2875), M2-02 title (L3675), C-11 Option A heading (L1867) | Still say "the merge step writes `merged-verdict.yaml` itself". After MS-24 and route 1 the writer is a reflect-side module, not the merge step; the sentence reads as route 2. The route is stated clearly in SC-16, MS-12, MS-24, C-11 and M2-02's body. |
+| M4 | C-08 resolution (L1728), C-09 resolution (L1791), V-row L3285 | Still say "enforce the pin at dispatch" or "Option A's enforced `model` argument", against L2768 and L3652 ("no code can enforce the `model` argument"). These are debate-winner texts and were not in the P6-B22 list. |
+| M5 | 9.2 (L4062-4066) | Not updated for Q-58 (the D14 premise); the finding proposed adding it. Q-58 is indexed in 9.1 and named in D14 and the 4 intro. |
+| M6 | Fix log summary | Says four rows leave an open item; five rows carry a parenthetical status (B35's is a caveat, see N-1). |
+| M7 | Section 10 "QA Reports" | Lists the Phase 5 reports and earlier ones, not the Phase 6 lens, consolidated, fix-log and verification reports; to be added when the gate closes. |
+
+## Confidence and tooling
+
+- **Checks:** 10 checks (fix-log rows; scripted structure incl. 6 sub-checks; debate winners; E2 SHA; report-only; parsed-sparse; command reproduction; 39 finding verifications; new-defect search; ten sections present and ordered). Verified: 10/10 examined with tool evidence; 9 pass, 1 fails (new-defect search found N-1).
+- **Confidence:** Verified: 10/10 | Unverifiable: 0 | Unchecked: 0 | Confidence: 100.0% of the examined checks. Limits: of 39 finding fixes, the cited code lines and tests were opened for P6-B13, B14, B16, B18, B24, B25, B26, B27, B29, B30, B31, B35, B36, B38; the rest were verified in the report text against the finding's required change and the report's own consistency (counts, ids, cross-references by script).
+- **Tool engagement:** Read: 24 | Grep: 4 | Glob: 0 | Bash: about 32 (scripts via `uv run python` on stdin, `grep`, `sed`, `jq`, `uv run pytest --collect-only`, `uv run superclaude review panel resolve`, `uv run python scripts/reflect_shadow_exit.py`). No Tavily or web calls. No file was edited except this report.
+
+## Recommendations
+
+1. Fix N-1 only (one row in Section 8.3). Everything else passes; the cycle count is 1 of 2.
+2. Minor notes M1 to M7 may be fixed in the same edit but never fail the gate and are not rechecked.
+
+## QA Complete

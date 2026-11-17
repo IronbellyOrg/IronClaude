@@ -1,0 +1,24 @@
+merge_method: adversarial
+verdict: NEEDS-REVISION
+convergence_score: 1.0
+base_variant: "sonnet:analyzer"
+source_cards:
+  - reviewer-cards/reviewer-1-card.md
+  - reviewer-cards/reviewer-2-card.md
+  - reviewer-cards/reviewer-3-card.md
+merged_review_card: adversarial/merged-review-card.md
+adversarial_artifacts_dir: adversarial/adversarial/
+findings_total: 9
+findings_blocking: 2
+findings_non_blocking: 7
+blocking_findings:
+  - "F1 Task 7 grep acceptance line false after Tasks 10 and 12, no end point"
+  - "F2 stoprule/finding-grader family has no defining file in the repository"
+judge_scorer_class: sonnet
+judge_class_collision: true
+invariant_probe:
+  total: 5
+  high_unaddressed: 0
+  medium_unaddressed: 3
+  low_unaddressed: 2
+generated_at: 2026-11-16T04:00:17Z

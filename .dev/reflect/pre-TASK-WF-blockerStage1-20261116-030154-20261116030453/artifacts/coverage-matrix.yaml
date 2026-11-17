@@ -1,0 +1,281 @@
+parsed_total: 0
+parsed_matched: 0
+coverage_pct: null
+inferred_count: 24
+union_total: 24
+union_matched: 16
+coverage_pct_union: 0.6667
+unmapped_requirements_union:
+- INF-002
+- INF-003
+- INF-004
+- INF-005
+- INF-008
+- INF-020
+- INF-023
+- INF-024
+S_dev_density_union: 0.3333
+coverage_degraded: parsed-sparse
+task_count: 16
+coverage_matrix:
+- requirement_id: INF-001
+  source: inferred
+  quote: Generate it only after the owner has read the stage 0 package's `./artifacts/stage0-summary-for-owner.md` and said go in chat, and after the stage ledger row for stage 0 has the package id.
+  citation: .dev/tasks/to-do/TASK-WF-blockerStage1-20261116-030154/source.md:3
+  quote_verbatim_at_cited_line: true
+  matched_task_ids:
+  - 1
+  best_task: 1
+  best_ratio: 0.882
+  constraints_block_ratio: 0.882
+  match_method: containment
+- requirement_id: INF-002
+  source: inferred
+  quote: This stage creates new files only (the skill folder, new CLI modules, new tests, one doctor check); it edits no review-loop carrier.
+  citation: .dev/tasks/to-do/TASK-WF-blockerStage1-20261116-030154/source.md:3
+  quote_verbatim_at_cited_line: true
+  matched_task_ids: []
+  best_task: 14
+  best_ratio: 0.556
+  constraints_block_ratio: 1.0
+  match_method: none
+- requirement_id: INF-003
+  source: inferred
+  quote: Reuse Tasks 11 to 25 of the revised 46-task plan `TASK-WF-loosenBlockerRev-20261115-210254` (Phase 2, stage 1; found by that folder name under `.dev/tasks/to-do/`), renumbered 1 onward.
+  citation: .dev/tasks/to-do/TASK-WF-blockerStage1-20261116-030154/source.md:7
+  quote_verbatim_at_cited_line: true
+  matched_task_ids: []
+  best_task: 1
+  best_ratio: 0.25
+  constraints_block_ratio: 0.5
+  match_method: none
+- requirement_id: INF-004
+  source: inferred
+  quote: 'Read its `## Constraints` and carry over what applies to stage 1: spec and PF naming, owner-decision defaults, the not-built list, the classifier facts (M, C and E run only with code-supplied
+    inputs; the "M or C is Y gives BLOCKING" row is never enabled; confidence is an ordinal band), pins by content, `src/superclaude/` as source of truth with `make sync-dev`, UV only.'
+  citation: .dev/tasks/to-do/TASK-WF-blockerStage1-20261116-030154/source.md:7
+  quote_verbatim_at_cited_line: true
+  matched_task_ids: []
+  best_task: 10
+  best_ratio: 0.45
+  constraints_block_ratio: 0.85
+  match_method: none
+- requirement_id: INF-005
+  source: inferred
+  quote: The stage 0 package's evidence (inventory freeze, availability counts, spec reconciliation) is read by package id.
+  citation: .dev/tasks/to-do/TASK-WF-blockerStage1-20261116-030154/source.md:7
+  quote_verbatim_at_cited_line: true
+  matched_task_ids: []
+  best_task: 1
+  best_ratio: 0.455
+  constraints_block_ratio: 0.636
+  match_method: none
+- requirement_id: INF-006
+  source: inferred
+  quote: 'State this package is stage 1: new files only, no carrier edited, every registry `digest` row stays `legacy`.'
+  citation: .dev/tasks/to-do/TASK-WF-blockerStage1-20261116-030154/source.md:11
+  quote_verbatim_at_cited_line: true
+  matched_task_ids:
+  - 6
+  best_task: 6
+  best_ratio: 0.733
+  constraints_block_ratio: 0.867
+  match_method: containment
+- requirement_id: INF-007
+  source: inferred
+  quote: The next package (stage 2) starts only after the owner's go in chat.
+  citation: .dev/tasks/to-do/TASK-WF-blockerStage1-20261116-030154/source.md:11
+  quote_verbatim_at_cited_line: true
+  matched_task_ids:
+  - 1
+  best_task: 1
+  best_ratio: 0.778
+  constraints_block_ratio: 0.889
+  match_method: containment
+- requirement_id: INF-008
+  source: inferred
+  quote: Drop the base plan's Phase 3 to 5 gate prose.
+  citation: .dev/tasks/to-do/TASK-WF-blockerStage1-20261116-030154/source.md:11
+  quote_verbatim_at_cited_line: true
+  matched_task_ids: []
+  best_task: 4
+  best_ratio: 0.167
+  constraints_block_ratio: 0.333
+  match_method: none
+- requirement_id: INF-009
+  source: inferred
+  quote: The "Merge-rule allow-list" section lists files by path and never writes the three merge-rule phrases or the old definition sentence.
+  citation: .dev/tasks/to-do/TASK-WF-blockerStage1-20261116-030154/source.md:12
+  quote_verbatim_at_cited_line: true
+  matched_task_ids:
+  - 3
+  best_task: 3
+  best_ratio: 1.0
+  constraints_block_ratio: 0.533
+  match_method: containment
+- requirement_id: INF-010
+  source: inferred
+  quote: At stage 1 it lists the auggie file, `refs/rule.md` and the six stage 4 files.
+  citation: .dev/tasks/to-do/TASK-WF-blockerStage1-20261116-030154/source.md:12
+  quote_verbatim_at_cited_line: true
+  matched_task_ids:
+  - 3
+  best_task: 3
+  best_ratio: 1.0
+  constraints_block_ratio: 0.667
+  match_method: containment
+- requirement_id: INF-011
+  source: inferred
+  quote: Say in the task that the plugin mirror is added in stage 4, not here.
+  citation: .dev/tasks/to-do/TASK-WF-blockerStage1-20261116-030154/source.md:12
+  quote_verbatim_at_cited_line: true
+  matched_task_ids:
+  - 3
+  best_task: 3
+  best_ratio: 0.857
+  constraints_block_ratio: 0.429
+  match_method: containment
+- requirement_id: INF-012
+  source: inferred
+  quote: '`refs/rule.md` holds the GR5 sentence with the phrase `highest severity` (allow-listed) but never quotes the old definition sentence "Grade every review finding as blocking or minor" outside the
+    digest''s own fence history; state this as an acceptance line (`grep` of the old sentence over the skill folder prints nothing).'
+  citation: .dev/tasks/to-do/TASK-WF-blockerStage1-20261116-030154/source.md:13
+  quote_verbatim_at_cited_line: true
+  matched_task_ids:
+  - 2
+  best_task: 2
+  best_ratio: 0.765
+  constraints_block_ratio: 0.559
+  match_method: containment
+- requirement_id: INF-013
+  source: inferred
+  quote: 'No file under `src/superclaude/skills/sc-review-severity/` cites a `.dev/` or `./artifacts/` path (acceptance: `grep -rn "\.dev/\|artifacts/" src/superclaude/skills/sc-review-severity` prints
+    nothing).'
+  citation: .dev/tasks/to-do/TASK-WF-blockerStage1-20261116-030154/source.md:14
+  quote_verbatim_at_cited_line: true
+  matched_task_ids:
+  - 5
+  best_task: 5
+  best_ratio: 1.0
+  constraints_block_ratio: 0.706
+  match_method: containment
+- requirement_id: INF-014
+  source: inferred
+  quote: State the M, C and E input rule in words.
+  citation: .dev/tasks/to-do/TASK-WF-blockerStage1-20261116-030154/source.md:14
+  quote_verbatim_at_cited_line: true
+  matched_task_ids:
+  - 5
+  best_task: 5
+  best_ratio: 0.75
+  constraints_block_ratio: 0.5
+  match_method: containment
+- requirement_id: INF-015
+  source: inferred
+  quote: Keep exactly 11 `digest` rows, 1 `canonical`, 2 `pointer-only`, 5 `installed-only` (19 rows).
+  citation: .dev/tasks/to-do/TASK-WF-blockerStage1-20261116-030154/source.md:15
+  quote_verbatim_at_cited_line: true
+  matched_task_ids:
+  - 6
+  best_task: 6
+  best_ratio: 0.9
+  constraints_block_ratio: 0.5
+  match_method: containment
+- requirement_id: INF-016
+  source: inferred
+  quote: Say the analysis template is not a carrier row (merge-rule text only in stage 4).
+  citation: .dev/tasks/to-do/TASK-WF-blockerStage1-20261116-030154/source.md:15
+  quote_verbatim_at_cited_line: true
+  matched_task_ids:
+  - 6
+  best_task: 6
+  best_ratio: 0.727
+  constraints_block_ratio: 0.636
+  match_method: containment
+- requirement_id: INF-017
+  source: inferred
+  quote: T3's `src/superclaude` check applies to `digest` and `canonical` rows only; `pointer-only` and `installed-only` rows are checked for pointer order only, and a `pointer-only` row only once its pointer
+    is present; the test never reads `~/.claude`.
+  citation: .dev/tasks/to-do/TASK-WF-blockerStage1-20261116-030154/source.md:16
+  quote_verbatim_at_cited_line: true
+  matched_task_ids:
+  - 15
+  best_task: 15
+  best_ratio: 1.0
+  constraints_block_ratio: 0.7
+  match_method: containment
+- requirement_id: INF-018
+  source: inferred
+  quote: T2 is non-strict (strict only in stage 4).
+  citation: .dev/tasks/to-do/TASK-WF-blockerStage1-20261116-030154/source.md:16
+  quote_verbatim_at_cited_line: true
+  matched_task_ids:
+  - 3
+  best_task: 3
+  best_ratio: 0.6
+  constraints_block_ratio: 0.4
+  match_method: containment
+- requirement_id: INF-019
+  source: inferred
+  quote: Acceptance includes a temporary-tree test of each exemption.
+  citation: .dev/tasks/to-do/TASK-WF-blockerStage1-20261116-030154/source.md:16
+  quote_verbatim_at_cited_line: true
+  matched_task_ids:
+  - 15
+  best_task: 15
+  best_ratio: 0.857
+  constraints_block_ratio: 0.286
+  match_method: containment
+- requirement_id: INF-020
+  source: inferred
+  quote: '**Acceptance lines inside this package** that a later task of the same package makes false get an end point ("until Task N").'
+  citation: .dev/tasks/to-do/TASK-WF-blockerStage1-20261116-030154/source.md:17
+  quote_verbatim_at_cited_line: true
+  matched_task_ids: []
+  best_task: 3
+  best_ratio: 0.385
+  constraints_block_ratio: 0.846
+  match_method: none
+- requirement_id: INF-021
+  source: inferred
+  quote: 'Write `./artifacts/stage1-summary-for-owner.md`: for each task its artifact or file and its observed test result (the commands run and their pass counts), the list of files created, a statement
+    that no carrier was edited (`git diff --stat` over carriers is empty), the open items, and the sentence that the owner''s go for stage 2 is given in chat and not by this file.'
+  citation: .dev/tasks/to-do/TASK-WF-blockerStage1-20261116-030154/source.md:18
+  quote_verbatim_at_cited_line: true
+  matched_task_ids:
+  - 16
+  best_task: 16
+  best_ratio: 0.838
+  constraints_block_ratio: 0.514
+  match_method: containment
+- requirement_id: INF-022
+  source: inferred
+  quote: No edit of any carrier (`pragmatic.md`, agents, templates, rule prompts, task skill, tech-research, WORKER-CONTRACT) and no stage 2 to 4 task.
+  citation: .dev/tasks/to-do/TASK-WF-blockerStage1-20261116-030154/source.md:22
+  quote_verbatim_at_cited_line: true
+  matched_task_ids:
+  - 6
+  best_task: 6
+  best_ratio: 0.647
+  constraints_block_ratio: 1.0
+  match_method: containment
+- requirement_id: INF-023
+  source: inferred
+  quote: Do not change `sc-implement-protocol/refs/qa.md`, the own-scale primitives, the cap of 2 fix cycles or the 35 percent target.
+  citation: .dev/tasks/to-do/TASK-WF-blockerStage1-20261116-030154/source.md:22
+  quote_verbatim_at_cited_line: true
+  matched_task_ids: []
+  best_task: 3
+  best_ratio: 0.529
+  constraints_block_ratio: 1.0
+  match_method: none
+- requirement_id: INF-024
+  source: inferred
+  quote: No Jev call, key or account.
+  citation: .dev/tasks/to-do/TASK-WF-blockerStage1-20261116-030154/source.md:22
+  quote_verbatim_at_cited_line: true
+  matched_task_ids: []
+  best_task: 8
+  best_ratio: 0.4
+  constraints_block_ratio: 1.0
+  match_method: none

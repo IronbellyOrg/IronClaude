@@ -1,0 +1,8 @@
+calibration:
+  per_finding:
+    R3-F1: 0.85
+    R3-F2: 0.80
+    R3-F3: 0.85
+    R3-F4: 0.90
+    R3-F5: 0.55
+    R3-F6: 0.60

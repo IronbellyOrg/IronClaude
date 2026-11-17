@@ -1,0 +1,7 @@
+input_tree_sha256: 186b5af44c8ccd8417bc8c2393498d4c675b7ff1a633b98c36042cc79964fbd0
+file_list:
+  - path: .dev/tasks/to-do/TASK-WF-blockerStage2-20261116-030156/TASK-WF-blockerStage2-20261116-030156.md
+    sha256: c264745d666b6119b607366f14efeb97700aae8d6ae14b7e3ec05f5080f03d56
+  - path: .dev/tasks/to-do/TASK-WF-blockerStage2-20261116-030156/source.md
+    sha256: c7ccb5743f3114f645545ec4d49db3daccc05a056f540c0202cf1556eca6399b
+file_count: 2

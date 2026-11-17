@@ -1,0 +1,327 @@
+{
+  "agreement_clusters": [],
+  "blocking_clusters": 1,
+  "calibration_coverage": {
+    "calibrated_findings": 11,
+    "clustered_findings": 11
+  },
+  "cards": [
+    {
+      "block_state": "complete",
+      "card": "reviewer-1.md",
+      "errors": [],
+      "reviewer_id": "reviewer-1",
+      "state": "complete"
+    },
+    {
+      "block_state": "complete",
+      "card": "reviewer-2.md",
+      "errors": [],
+      "reviewer_id": "reviewer-2",
+      "state": "complete"
+    },
+    {
+      "block_state": "complete",
+      "card": "reviewer-3.md",
+      "errors": [],
+      "reviewer_id": "reviewer-3",
+      "state": "complete"
+    }
+  ],
+  "chained": [
+    "C1"
+  ],
+  "citations": {
+    "malformed": 0,
+    "resolved": 30,
+    "unresolved": 7
+  },
+  "cluster_agreement": null,
+  "clusters": [
+    {
+      "blocking_all": false,
+      "blocking_any": true,
+      "chained": true,
+      "claim": "Task 5 requires verify-sync after Tasks 3\u20134 edit source skills, but no step updates the development mirrors. The check detects the resulting drift; add synchronization and clarify generated-mirror scope.",
+      "cluster_id": "C1",
+      "disputed": true,
+      "member_scores": [
+        0.8,
+        0.75,
+        0.85,
+        0.6,
+        0.7,
+        0.8,
+        0.8,
+        0.45
+      ],
+      "members": [
+        {
+          "blocking": true,
+          "deviation_class": null,
+          "finding_confidence": 0.8,
+          "fp": "eed462f095a416b38d2d7dfd212fd8e7c64f02402a75b35e89fb0f2554fec37c",
+          "id": "A1",
+          "ordinal": 1,
+          "primary_citation": {
+            "index": 0,
+            "line_end": 82,
+            "line_start": 82,
+            "path": ".dev/tasks/done/TASK-WF-detachTheCcsessi-20261102-034618/TASK-WF-detachTheCcsessi-20261102-034618.md",
+            "role": "plan",
+            "status": "resolved"
+          },
+          "refs_norm": [],
+          "reviewer_id": "reviewer-1"
+        },
+        {
+          "blocking": false,
+          "deviation_class": null,
+          "finding_confidence": 0.75,
+          "fp": "eed462f095a416b38d2d7dfd212fd8e7c64f02402a75b35e89fb0f2554fec37c",
+          "id": "A2",
+          "ordinal": 1,
+          "primary_citation": {
+            "index": 0,
+            "line_end": 22,
+            "line_start": 22,
+            "path": ".dev/tasks/done/TASK-WF-detachTheCcsessi-20261102-034618/TASK-WF-detachTheCcsessi-20261102-034618.md",
+            "role": "plan",
+            "status": "resolved"
+          },
+          "refs_norm": [],
+          "reviewer_id": "reviewer-1"
+        },
+        {
+          "blocking": true,
+          "deviation_class": null,
+          "finding_confidence": 0.85,
+          "fp": "eed462f095a416b38d2d7dfd212fd8e7c64f02402a75b35e89fb0f2554fec37c",
+          "id": "Q1",
+          "ordinal": 2,
+          "primary_citation": {
+            "index": 0,
+            "line_end": 82,
+            "line_start": 82,
+            "path": ".dev/tasks/done/TASK-WF-detachTheCcsessi-20261102-034618/TASK-WF-detachTheCcsessi-20261102-034618.md",
+            "role": "plan",
+            "status": "resolved"
+          },
+          "refs_norm": [],
+          "reviewer_id": "reviewer-2"
+        },
+        {
+          "blocking": true,
+          "deviation_class": null,
+          "finding_confidence": 0.6,
+          "fp": "eed462f095a416b38d2d7dfd212fd8e7c64f02402a75b35e89fb0f2554fec37c",
+          "id": "Q3",
+          "ordinal": 2,
+          "primary_citation": {
+            "index": 1,
+            "line_end": 74,
+            "line_start": 74,
+            "path": ".dev/tasks/done/TASK-WF-detachTheCcsessi-20261102-034618/TASK-WF-detachTheCcsessi-20261102-034618.md",
+            "role": "plan",
+            "status": "resolved"
+          },
+          "refs_norm": [],
+          "reviewer_id": "reviewer-2"
+        },
+        {
+          "blocking": false,
+          "deviation_class": null,
+          "finding_confidence": 0.7,
+          "fp": null,
+          "id": "Q4",
+          "ordinal": 2,
+          "primary_citation": {
+            "index": 0,
+            "line_end": 186,
+            "line_start": 186,
+            "path": ".dev/reflect/pre-TASK-WF-detachTheCcsessi-20261102-034618-shadow02/reviewer-briefs/reviewer-2.md",
+            "role": "artifact",
+            "status": "unresolved"
+          },
+          "refs_norm": [],
+          "reviewer_id": "reviewer-2"
+        },
+        {
+          "blocking": true,
+          "deviation_class": null,
+          "finding_confidence": 0.8,
+          "fp": "eed462f095a416b38d2d7dfd212fd8e7c64f02402a75b35e89fb0f2554fec37c",
+          "id": "R1",
+          "ordinal": 3,
+          "primary_citation": {
+            "index": 0,
+            "line_end": 82,
+            "line_start": 82,
+            "path": ".dev/tasks/done/TASK-WF-detachTheCcsessi-20261102-034618/TASK-WF-detachTheCcsessi-20261102-034618.md",
+            "role": "plan",
+            "status": "resolved"
+          },
+          "refs_norm": [],
+          "reviewer_id": "reviewer-3"
+        },
+        {
+          "blocking": false,
+          "deviation_class": null,
+          "finding_confidence": 0.8,
+          "fp": "eed462f095a416b38d2d7dfd212fd8e7c64f02402a75b35e89fb0f2554fec37c",
+          "id": "R2",
+          "ordinal": 3,
+          "primary_citation": {
+            "index": 0,
+            "line_end": 69,
+            "line_start": 69,
+            "path": ".dev/tasks/done/TASK-WF-detachTheCcsessi-20261102-034618/TASK-WF-detachTheCcsessi-20261102-034618.md",
+            "role": "plan",
+            "status": "resolved"
+          },
+          "refs_norm": [],
+          "reviewer_id": "reviewer-3"
+        },
+        {
+          "blocking": false,
+          "deviation_class": null,
+          "finding_confidence": 0.45,
+          "fp": "eed462f095a416b38d2d7dfd212fd8e7c64f02402a75b35e89fb0f2554fec37c",
+          "id": "R5",
+          "ordinal": 3,
+          "primary_citation": {
+            "index": 0,
+            "line_end": 70,
+            "line_start": 70,
+            "path": ".dev/tasks/done/TASK-WF-detachTheCcsessi-20261102-034618/TASK-WF-detachTheCcsessi-20261102-034618.md",
+            "role": "plan",
+            "status": "resolved"
+          },
+          "refs_norm": [],
+          "reviewer_id": "reviewer-3"
+        }
+      ],
+      "representative": {
+        "id": "Q1",
+        "reviewer_id": "reviewer-2"
+      },
+      "reviewers": [
+        "reviewer-1",
+        "reviewer-2",
+        "reviewer-3"
+      ],
+      "support": 1.0,
+      "uncalibrated": false
+    },
+    {
+      "blocking_all": false,
+      "blocking_any": false,
+      "chained": false,
+      "claim": "Task 1's path-based pgrep cannot detect a surviving exec sleep 60. Its finally cleanup also replaces the required root-group cleanup with root-only cleanup, leaving the no-survivor criterion insufficiently verified.",
+      "cluster_id": "C2",
+      "disputed": false,
+      "member_scores": [
+        0.85,
+        0.75
+      ],
+      "members": [
+        {
+          "blocking": false,
+          "deviation_class": null,
+          "finding_confidence": 0.85,
+          "fp": "eed462f095a416b38d2d7dfd212fd8e7c64f02402a75b35e89fb0f2554fec37c",
+          "id": "Q2",
+          "ordinal": 2,
+          "primary_citation": {
+            "index": 0,
+            "line_end": 34,
+            "line_start": 34,
+            "path": ".dev/tasks/done/TASK-WF-detachTheCcsessi-20261102-034618/TASK-WF-detachTheCcsessi-20261102-034618.md",
+            "role": "plan",
+            "status": "resolved"
+          },
+          "refs_norm": [],
+          "reviewer_id": "reviewer-2"
+        },
+        {
+          "blocking": false,
+          "deviation_class": null,
+          "finding_confidence": 0.75,
+          "fp": "eed462f095a416b38d2d7dfd212fd8e7c64f02402a75b35e89fb0f2554fec37c",
+          "id": "R4",
+          "ordinal": 3,
+          "primary_citation": {
+            "index": 0,
+            "line_end": 34,
+            "line_start": 34,
+            "path": ".dev/tasks/done/TASK-WF-detachTheCcsessi-20261102-034618/TASK-WF-detachTheCcsessi-20261102-034618.md",
+            "role": "plan",
+            "status": "resolved"
+          },
+          "refs_norm": [],
+          "reviewer_id": "reviewer-3"
+        }
+      ],
+      "representative": {
+        "id": "Q2",
+        "reviewer_id": "reviewer-2"
+      },
+      "reviewers": [
+        "reviewer-2",
+        "reviewer-3"
+      ],
+      "support": 0.6530612244897959,
+      "uncalibrated": false
+    },
+    {
+      "blocking_all": false,
+      "blocking_any": false,
+      "chained": false,
+      "claim": "Task 5 prescribes a bare '#### Fixed' heading; CHANGELOG convention qualifies every subheading as '#### Fixed (<scope>)', and the executed entry had to deviate from the plan to follow it.",
+      "cluster_id": "C3",
+      "disputed": true,
+      "member_scores": [
+        0.6
+      ],
+      "members": [
+        {
+          "blocking": false,
+          "deviation_class": null,
+          "finding_confidence": 0.6,
+          "fp": "eed462f095a416b38d2d7dfd212fd8e7c64f02402a75b35e89fb0f2554fec37c",
+          "id": "R3",
+          "ordinal": 3,
+          "primary_citation": {
+            "index": 0,
+            "line_end": 78,
+            "line_start": 78,
+            "path": ".dev/tasks/done/TASK-WF-detachTheCcsessi-20261102-034618/TASK-WF-detachTheCcsessi-20261102-034618.md",
+            "role": "plan",
+            "status": "resolved"
+          },
+          "refs_norm": [],
+          "reviewer_id": "reviewer-3"
+        }
+      ],
+      "representative": {
+        "id": "R3",
+        "reviewer_id": "reviewer-3"
+      },
+      "reviewers": [
+        "reviewer-3"
+      ],
+      "support": 0.24489795918367344,
+      "uncalibrated": false
+    }
+  ],
+  "complete_reviewers": [
+    "reviewer-1",
+    "reviewer-2",
+    "reviewer-3"
+  ],
+  "invalid_reviewers": [],
+  "problems": [],
+  "uncalibrated": [],
+  "uncalibrated_findings": [],
+  "valid_blocks": 3
+}

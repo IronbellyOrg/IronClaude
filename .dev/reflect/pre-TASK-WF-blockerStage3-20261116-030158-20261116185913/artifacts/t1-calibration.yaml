@@ -1,0 +1,12 @@
+# Wave 1D blind calibration of the T1 card (confidence-calibrator agent, sonnet class, spawned without formation context; card path and rubric only)
+calibrator_model_class: sonnet
+calibrator_diversity: full        # reviewer classes are haiku and opus
+dimensions:
+  citation_grounding: 0.90        # spot-checked 14 PLAN lines and SRC:3, SRC:13: all match
+  coverage_completeness: 0.68     # card lists its own gaps (SPEC sections, audit tests, stage 2 and 4 details)
+  deviation_classification_clarity: 0.65   # findings tagged other / contradiction / missing-requirement, not mapped onto the rubric classes
+  risk_surface_coverage: 0.70
+  recommendation_actionability: 0.55       # the card has no recommendations section
+calibrated_confidence: 0.70       # (0.90 + 0.68 + 0.65 + 0.70 + 0.55) / 5 = 0.696
+escalation_recommendation: ESCALATE
+self_reported_confidence: 0.72

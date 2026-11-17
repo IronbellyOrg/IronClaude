@@ -1,0 +1,156 @@
+[
+ {
+  "file": "base-corrected.md (V2:4447, C18)",
+  "item": "(a)",
+  "why": "M-17: R1-G2 pins added to C18 rewrite list",
+  "before": "| C18 | Tests that assert the old clearing, verdict and verdict-storage behaviour are rewritten together with the change: `tests/review/test_review_ledger.py:193-217, 376-385, 396-405`; `tests/review/test_review_cli.py:274-292, 298-313`; the docstring at `ledger.py:3-4`. Anchor status is surfaced in the per-row `### Lx` block of `## Blocking findings`, not in the reviser-brief id line pinned at `test_review_ledger.py:459-467`, and with no prompt-file change. [ADJUDICATED CONDITION] | `reviews/adversarial/ledger-clearing-and-verdict-authority/ADJUDICATION-RESULT.md` (conditions); `reviews/adversarial/core-shape-and-finding-contract/ADJUDICATION-RESULT.md` (condition 4) | the named tests | The pins are changed in the same change as the behaviour, never earlier; the quorum refusal also rewrites the zero-valid refusal pin whose message text the new `refusal` object lacks (C-03 INV-010) |",
+  "after": "| C18 | Tests that assert the old clearing, verdict and verdict-storage behaviour are rewritten together with the change: `tests/review/test_review_ledger.py:193-217, 376-385, 396-405`; `tests/review/test_review_cli.py:274-292, 298-313`; the docstring at `ledger.py:3-4`. Anchor status is surfaced in the per-row `### Lx` block of `## Blocking findings`, not in the reviser-brief id line pinned at `test_review_ledger.py:459-467`, and with no prompt-file change. [ADJUDICATED CONDITION] Merge addition: the rewrite list also takes `tests/review/test_review_ledger.py:299-304` and `:468-472`, which run 1's gate R1-G2 pins as \"must NOT change\" only under run 1's verdict design, which is not adopted (8.5; R25-INV-026). | `reviews/adversarial/ledger-clearing-and-verdict-authority/ADJUDICATION-RESULT.md` (conditions); `reviews/adversarial/core-shape-and-finding-contract/ADJUDICATION-RESULT.md` (condition 4) | the named tests | The pins are changed in the same change as the behaviour, never earlier; the quorum refusal also rewrites the zero-valid refusal pin whose message text the new `refusal` object lacks (C-03 INV-010) | <!-- Source: Base (original, modified) — M-17: run 1 R1-G2 pins, R25-INV-026 -->"
+ },
+ {
+  "file": "base-corrected.md (V2:108)",
+  "item": "(b)",
+  "why": "duplicate origin/master facts reduced to a pointer",
+  "before": "**Baseline.** Code at HEAD `50d4d2b9d` on branch `ironbelly/shadow-runs`; E2 branch `origin/ironbelly/eval-tasklist-review-panel` at tip `6c0984326cbb8fb06c4a36065de58b171d3f8175`, read only through git. Every fact below comes from the research files `research/01-*.md` to `research/18-*.md` (cited as R01 to R18) and from `gaps-and-questions.md` (cited as GQ-nnn). The scope slices `research/scope/01-*.md` to `12-*.md` were not opened by this synthesis (they were assigned for orientation only; every slice figure that the research files kept is cited through the research file that re-derived or tagged it) and are not cited as evidence. [Compare-merge baseline note: `origin/master` `d4d1662a8` (2026-11-14) is 3 commits past merge-base `d2d8a2d16`; HEAD `ad8f57560` is 5 commits past it; line numbers in this document are valid at HEAD; on `origin/master` the pins that C14 and C26 cite sit at `tests/skills/test_worker_contract.py:787, :796, :1872` and `src/superclaude/output-styles/pragmatic.md:229, :235` (fault-finder row 3). `e2f2ac268` (E2) is 7 commits after `6c09843` and was not read by either report.] <!-- Source: Base (original, modified) — M-24 item 9: baseline note: origin/master moved, HEAD ad8f57560, e2f2ac268 -->",
+  "after": "**Baseline.** Code at HEAD `50d4d2b9d` on branch `ironbelly/shadow-runs`; E2 branch `origin/ironbelly/eval-tasklist-review-panel` at tip `6c0984326cbb8fb06c4a36065de58b171d3f8175`, read only through git. Every fact below comes from the research files `research/01-*.md` to `research/18-*.md` (cited as R01 to R18) and from `gaps-and-questions.md` (cited as GQ-nnn). The scope slices `research/scope/01-*.md` to `12-*.md` were not opened by this synthesis (they were assigned for orientation only; every slice figure that the research files kept is cited through the research file that re-derived or tagged it) and are not cited as evidence. [Compare-merge baseline note: `origin/master`, HEAD `ad8f57560` and the later E2 commit `e2f2ac268` are stated once, in the merge addendum at the end of this section.] <!-- Source: Base (original, modified) — M-24 item 9: pointer to the merge addendum (E4 replaced E1's inline note, which repeated the M-02 addendum) -->"
+ },
+ {
+  "file": "new-blocks/M00-merge-notes.md",
+  "item": "(d)",
+  "why": "authoritative count: 220 resolved",
+  "before": "| Points resolved (both advocates name the same winner, `Both (merge)` included) | 218 of 234 |",
+  "after": "| Points resolved (both advocates name the same winner, `Both (merge)` included) | 220 of 234 |"
+ },
+ {
+  "file": "new-blocks/M00-merge-notes.md",
+  "item": "(d)",
+  "why": "authoritative split: 8 points (3 + 5)",
+  "before": "| Points still split after Round 2 | 10: 3 real label disputes (C-005, C-076, X-051) and 7 artefacts of cluster inheritance (C-010, C-017, C-018, C-020, C-021, C-024, C-025) | same; `invariant-probe.md` R25-INV-004 |",
+  "after": "| Points where the advocates still differ after Round 2 | 8: 3 real label disputes on the core shape (C-005, C-076, X-051) and 5 Medium/Low rows where one advocate's explicit Round 1 exception was not mirrored by the other (C-053, C-065, S-044, C-014, C-025) | same; `partials/convergence-r2.md` |"
+ },
+ {
+  "file": "new-blocks/M00-merge-notes.md",
+  "item": "(d)",
+  "why": "authoritative convergence 94.0% / 96.6%, Round 1 82.5%",
+  "before": "| Strict convergence (resolved points only) | 93.2% (218 of 234); 95.7% if the 6 both-open points are counted as agreement; threshold 80% | `partials/matrix.json` (`strict` = 0.93162) |",
+  "after": "| Strict convergence (resolved points only) | 94.0% (220 of 234); 96.6% if the 6 both-open points are counted as agreement; 82.5% after Round 1; threshold 80% | `partials/matrix.json` (`strict` = 0.94017); `partials/scoring-matrix.md` |"
+ },
+ {
+  "file": "new-blocks/M00-merge-notes.md",
+  "item": "(d)",
+  "why": "authoritative tally 33 / 123 / 64",
+  "before": "| Points won (strict tally) | Variant 1 (run 1) 26, Variant 2 (run 2) 130, Both (merge) 62, Neither 0 |",
+  "after": "| Points won (strict tally) | Variant 1 (run 1) 33, Variant 2 (run 2) 123, Both (merge) 64, Neither 0 |"
+ },
+ {
+  "file": "new-blocks/M00-merge-notes.md",
+  "item": "(d)",
+  "why": "split-point paragraph rewritten for the 8 split points of the regenerated matrix",
+  "before": "How the 10 split points are read in this document (refactor-plan rule 4). C-005, C-076 and X-051 are a dispute about labels only: the run 1 advocate holds BOTH (run 1's superset core kept as the documented one-engine target), the run 2 advocate holds \"Variant 2 governing, run 1 detail carried\" (`partials/r2-advocate-V1.md:167`; `partials/r2-advocate-V2.md:176`). Both positions are stated where the core shape is discussed (3.6, 7.4). The other 7 are artefacts of `partials/r2-state.json`, where points inherited a cluster label: C-017 and C-025 are Variant 2 for both advocates (`partials/r1-advocate-V1.md:253-254`); for C-010, C-018, C-020, C-021 and C-024 the run 1 advocate's actual position is \"V1 on the post gate (C-084, X-043, X-054), BOTH on the rest\" (`partials/r2-advocate-V1.md:116`), not a per-point Variant 1 verdict (R25-INV-004; fault-finder correction 14). The consensus summary's figure \"224 of 234\" counts the 6 both-open points as resolved; 218 is the resolved count (R25-INV-016).",
+  "after": "How the 8 split points are read in this document (refactor-plan rule 4, applied to the regenerated matrix). C-005, C-076 and X-051 are a dispute about labels only on the core shape: the run 1 advocate holds BOTH (run 1's superset core kept as the documented one-engine target), the run 2 advocate holds \"Variant 2 governing, run 1 detail carried\" (`partials/r2-advocate-V1.md:167`; `partials/r2-advocate-V2.md:176`). Both positions are stated where the core shape is discussed (3.6, 7.4). The other 5 are Medium or Low rows where one advocate's explicit Round 1 exception was not mirrored by the other advocate (run 1 advocate: `partials/r1-advocate-V1.md`, \"Inherited verdicts and exceptions\"; run 2 advocate: `partials/r1-advocate-V2.md`, \"Inherited points and exceptions\" and its cluster table): C-053 (invalid-block unit of loss): run 1 advocate Variant 1, 65% (`partials/r1-advocate-V1.md:247`); run 2 advocate Variant 2, its CL-02 cluster verdict, no exception for C-053 (`partials/r1-advocate-V2.md:94`). C-065 (blocking predicate and severity vocabulary): run 1 advocate Variant 1, 55% (`partials/r1-advocate-V1.md:249`); run 2 advocate Variant 2, its CL-04 cluster verdict (`partials/r1-advocate-V2.md:96`). S-044 (post-debate re-rating of options): run 1 advocate Variant 1, 55% (`partials/r1-advocate-V1.md:262`); run 2 advocate Variant 2, its CL-17 cluster verdict (`partials/r1-advocate-V2.md:109`). C-014 (future consumers, PR code review and rf-qa): run 1 advocate Variant 1, 55% (`partials/r1-advocate-V1.md:259`); run 2 advocate Both, 60% (`partials/r1-advocate-V2.md:279`). C-025 (reflect memory writes): run 1 advocate Variant 2, 70% (`partials/r1-advocate-V1.md:254`); run 2 advocate MERGE, its CL-09 cluster verdict (`partials/r1-advocate-V2.md:101`). The matrix (`partials/scoring-matrix.md`, `partials/matrix.json`) applies each advocate's Round 1 exception list over the inherited cluster label (R25-INV-004); with it, C-010 and C-018 are Variant 1, C-017 is Variant 2, and C-020, C-021 and C-024 are Both (merge) for both advocates. The first line of `partials/consensus-summary.md` still reads \"224 of 234 = 0.957\" and \"10 points still disputed\"; the regenerated figures are 220 resolved, 226 counting the both-open points (0.966, `partials/convergence-r2.md`) and 8 split (R25-INV-016)."
+ },
+ {
+  "file": "new-blocks/M00-merge-notes.md",
+  "item": "(d)",
+  "why": "E3 caveat removed: the regenerated matrix applies the advocates' exception lists (C-053, C-065 now split; C-056, S-039 now Variant 1)",
+  "before": "A further read-only check made for this merge found the same inheritance effect on four points that the matrix records as Variant 2. C-056 (calibration) and S-039 (run 1's defect-to-test table) are Variant 1 in both advocates' Round 1 exception lists (`partials/r1-advocate-V1.md:248, 261`; `partials/r1-advocate-V2.md:275, 278`). C-053 (invalid-block policy) and C-065 (per-lens blocking predicate) are Variant 1 in the run 1 advocate's exception list (`partials/r1-advocate-V1.md:247, 249`) and Variant 2 by cluster inheritance for the run 2 advocate. `partials/r2-state.json` has no point entry for any of the four. The counts in the table above are the matrix's and are not re-tallied here; 6.13.0 states the advocates' positions on C-053, C-056 and C-065, and run 1's defect-to-test table (S-039) is carried in 6.13.\n\n",
+  "after": ""
+ },
+ {
+  "file": "new-blocks/M00-merge-notes.md",
+  "item": "(d)",
+  "why": "tiebreaker numbers 123 / 33 / 64",
+  "before": "at tiebreaker level 1 run 2 won 130 of 234 points against run 1's 26 (`base-selection.md`, Combined Scoring).",
+  "after": "at tiebreaker level 1 run 2 won 123 of 234 points against run 1's 33, with 64 points Both (merge) (`base-selection.md`, Combined Scoring)."
+ },
+ {
+  "file": "new-blocks/M08-disposition-table.md",
+  "item": "(d)",
+  "why": "regenerated matrix records C-056 Variant 1",
+  "before": "C-056: the matrix records Variant 2 (cluster CL-04), but both advocates give Variant 1 in their Round 1 exceptions",
+  "after": "C-056 Variant 1: both advocates give Variant 1 in their Round 1 exceptions"
+ },
+ {
+  "file": "new-blocks/M08-disposition-table.md",
+  "item": "(d)",
+  "why": "regenerated matrix records C-053 as an unresolved split",
+  "before": "C-053: the matrix records Variant 2 (cluster CL-02); the run 1 advocate's Round 1 exception gives Variant 1",
+  "after": "C-053: unresolved split in the matrix (run 2 advocate: Variant 2, its CL-02 cluster verdict); the run 1 advocate's Round 1 exception gives Variant 1"
+ },
+ {
+  "file": "new-blocks/M08-disposition-table.md",
+  "item": "(d)",
+  "why": "regenerated matrix records C-065 as an unresolved split",
+  "before": "C-065: the matrix records Variant 2 (cluster CL-04); the run 1 advocate's",
+  "after": "C-065: unresolved split in the matrix; the run 1 advocate's"
+ },
+ {
+  "file": "new-blocks/M29-appendices-D-E.md",
+  "item": "(d)",
+  "why": "authoritative count 220 / 226",
+  "before": "| Merge Notes (a) (218 resolved; the 6 both-open points counted apart) |",
+  "after": "| Merge Notes (a) (220 resolved; the 6 both-open points counted apart, 226 with them) |"
+ },
+ {
+  "file": "new-blocks/M29-appendices-D-E.md",
+  "item": "(b)",
+  "why": "M-24.9 row follows the de-duplication at V2:108",
+  "before": "| E1 (base line); the M-02 merge addendum (E3) states the same facts |",
+  "after": "| E1 (base line; E4 replaced the inline note by a pointer to the merge addendum); the facts are stated once, in the M-02 merge addendum (E3) |"
+ },
+ {
+  "file": "new-blocks/M29-appendices-D-E.md",
+  "item": "assembly",
+  "why": "generator marker replaced by a separator and the Source comment of Appendix E",
+  "before": "<!-- APPENDIX-E -->\n## Appendix E:",
+  "after": "---\n\n<!-- Source: new text — merged per Change #M-29 (Appendix E) -->\n\n## Appendix E:"
+ },
+ {
+  "file": "new-blocks/M22b-compare-artifacts-10B.md",
+  "item": "(d)",
+  "why": "pointer follows the rewritten Merge Notes paragraph",
+  "before": "(see Merge Notes (a) on the inheritance artefacts in `r2-state.json`)",
+  "after": "(see Merge Notes (a) on cluster-label inheritance and the advocates' exception lists)"
+ },
+ {
+  "file": "v1-blocks/M14-sec8-inventory.md",
+  "item": "M-30",
+  "why": "X-025 re-scan: rows R1-V-043 / R1-V-098 keep run 1's text with the verified value as a note",
+  "before": "Qwen3.8-max timed out 3000 s on 3 of 3 slots (9000 s wasted)",
+  "after": "Qwen3.8-max timed out 3000 s on 3 of 3 slots (9000 s wasted) [corrected per Appendix C X-025: 3 of 4 Qwen runs timed out; a 4th finished]"
+ },
+ {
+  "file": "v1-blocks/M14-sec8-inventory.md",
+  "item": "M-30",
+  "why": "X-025 re-scan: rows R1-V-043 / R1-V-098 keep run 1's text with the verified value as a note",
+  "before": "Qwen3.8-max excluded everywhere (3 of 3 slots timed out at 3000 s)",
+  "after": "Qwen3.8-max excluded everywhere (3 of 3 slots timed out at 3000 s) [corrected per Appendix C X-025: 3 of 4 Qwen runs timed out; a 4th finished]"
+ },
+ {
+  "file": "v1-blocks/M14-sec8-inventory.md",
+  "item": "M-30",
+  "why": "provenance tag on R1-V-043",
+  "before": "| R1-V-043 | Model role: Qwen3.8-max timed out 3000 s on 3 of 3 slots (9000 s wasted) [corrected per Appendix C X-025: 3 of 4 Qwen runs timed out; a 4th finished]; disqualified, yet still listed in the packaged `tier2` (4th of 6), `tier2b` (3rd of 4) and `tier3` (2nd of 2) lists | finding | E2 | scope/00:95; scope/01:94 | Panel resolution | Dated tier-data input; contradicts the packaged lists (scope/00:240; order re-read from `review-tiers.default.json` at HEAD 792cf8c52); a gateway `live7` resolution can draw it into two slots (R1-D11; run-id dependent) |",
+  "after": "| R1-V-043 | Model role: Qwen3.8-max timed out 3000 s on 3 of 3 slots (9000 s wasted) [corrected per Appendix C X-025: 3 of 4 Qwen runs timed out; a 4th finished]; disqualified, yet still listed in the packaged `tier2` (4th of 6), `tier2b` (3rd of 4) and `tier3` (2nd of 2) lists | finding | E2 | scope/00:95; scope/01:94 | Panel resolution | Dated tier-data input; contradicts the packaged lists (scope/00:240; order re-read from `review-tiers.default.json` at HEAD 792cf8c52); a gateway `live7` resolution can draw it into two slots (R1-D11; run-id dependent) | <!-- Variant 1 (modified) — E4, M-30 re-scan: X-025 note -->"
+ },
+ {
+  "file": "v1-blocks/M14-sec8-inventory.md",
+  "item": "M-30",
+  "why": "provenance tag on R1-V-098",
+  "before": "| R1-V-098 | Decision made: Qwen3.8-max excluded everywhere (3 of 3 slots timed out at 3000 s) [corrected per Appendix C X-025: 3 of 4 Qwen runs timed out; a 4th finished] | strategy | E2 | scope/00:184 | Panel resolution | Dated tier-data input (2026-11-11); packaged lists still carry it; tier edits are owner-decided |",
+  "after": "| R1-V-098 | Decision made: Qwen3.8-max excluded everywhere (3 of 3 slots timed out at 3000 s) [corrected per Appendix C X-025: 3 of 4 Qwen runs timed out; a 4th finished] | strategy | E2 | scope/00:184 | Panel resolution | Dated tier-data input (2026-11-11); packaged lists still carry it; tier edits are owner-decided | <!-- Variant 1 (modified) — E4, M-30 re-scan: X-025 note -->"
+ },
+ {
+  "file": "v1-blocks/M20-sec8-risk.md",
+  "item": "(c)",
+  "why": "grammar fix of the plan's replacement text",
+  "before": "Confirm the branch names (see 8.7 constraint) does not create both",
+  "after": "Confirm the branch names (see 8.7 constraint) do not create both"
+ },
+ {
+  "file": "v1-blocks/M20-sec8-risk.md",
+  "item": "(c)",
+  "why": "provenance tag records the grammar fix",
+  "before": "replaced by 'the branch names (see 8.7 constraint)' (text as the plan gives it) -->",
+  "after": "replaced by 'the branch names (see 8.7 constraint)' (plan text; verb agreement 'do not create' fixed by E4) -->"
+ }
+]

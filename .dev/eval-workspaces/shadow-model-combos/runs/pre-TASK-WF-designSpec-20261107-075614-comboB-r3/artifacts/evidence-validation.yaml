@@ -1,0 +1,15 @@
+validator: evidence-validator (sonnet class), full_reread
+scope: 15 merged findings of adversarial/merged-reflect-card.md (the 34 pre-check "not-in-snapshot" flags of the reviewer cards are the same cited lines and are covered by this re-read)
+counts: {total: 51, founded: 50, dropped: 1}
+dropped:
+  - finding: F7
+    path_tail: TASK-WF-designSpec-20261107-075614.md
+    lines: "148-150"
+    reason: "Task 10 lines 148-150 show Depends on: Task 9 only; Task 10 names pre-build-gate.md at its acceptance criteria (line 154), outside the cited span. The claim holds from the other F7 citations (134-137, 179-182, 190-195)."
+per_finding: {F1: kept, F2: kept, F3: kept, F4: kept, F5: kept, F6: kept, F7: kept, F8: kept, F9: kept, F10: kept, F11: kept, F12: kept, F13: kept, F14: kept, F15: kept}
+inferred_requirement_rows:
+  checked: 75
+  method: "deterministic re-run of artifacts/coverage.py at validation time: every quote is a substring of its cited spec line"
+  dropped: 0
+  coverage_pct_union_after_validation: 0.8133
+zero_drop_flag: false

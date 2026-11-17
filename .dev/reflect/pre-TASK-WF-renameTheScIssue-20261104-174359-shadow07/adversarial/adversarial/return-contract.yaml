@@ -1,0 +1,35 @@
+return_contract:
+  merged_output_path: ".dev/reflect/pre-TASK-WF-renameTheScIssue-20261104-174359-shadow07/adversarial/adversarial/merged-verdict.md"
+  machine_verdict_path: ".dev/reflect/pre-TASK-WF-renameTheScIssue-20261104-174359-shadow07/adversarial/adversarial/merged-verdict.yaml"
+  convergence_score: 0.857
+  artifacts_dir: ".dev/reflect/pre-TASK-WF-renameTheScIssue-20261104-174359-shadow07/adversarial/adversarial"
+  status: success
+  base_variant: "card 1 (analyzer, calibrated 0.80; combined score 0.816)"
+  merge_method: adversarial
+  unresolved_conflicts: 0
+  fallback_mode: false
+  failure_stage: null
+  invocation_method: skill-direct
+  unaddressed_invariants: []
+  findings_count: 4
+  non_findings_count: 2
+  invariant_probe: "invariant-probe.md (3 corrections applied: topic A remedy, topic B scope, topic E disposition; 0 HIGH unaddressed)"
+  execution_notes:
+    - "Round 2 dispatched as one parallel batch instead of sequential; every Round 1 statement already carried mandatory cross-card positions/concessions and every Round 2 prompt included all Round 1 criticisms, so no rebuttal depended on another's Round 2 text. Logged in debate-transcript.md."
+    - "Topic F (card 3 F2, outside the caller's five-topic map) retained as a sixth topic; reclassified to non-finding by the debate."
+  artifacts:
+    - round1-card1.md
+    - round1-card2.md
+    - round1-card3.md
+    - variant-1-original.md
+    - variant-2-original.md
+    - variant-3-original.md
+    - diff-analysis.md
+    - debate-transcript.md
+    - base-selection.md
+    - refactor-plan.md
+    - invariant-probe.md
+    - merged-verdict.md
+    - merged-verdict.yaml
+    - merge-log.md
+    - return-contract.yaml
