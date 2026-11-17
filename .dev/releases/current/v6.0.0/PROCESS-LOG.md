@@ -99,6 +99,13 @@ One entry per step. Each entry: date and time (UTC), the step, the commands or s
 - **What went well:** a conflicting PR costs about 5 to 10 minutes of agent time plus a CI run (about 13 minutes).
 - **Got in the way:** the agents' baselines show 9 and 3 failures for the same tree, because the full suite fails different load-sensitive tests depending on how many agents run it at once. A fixed pass-count rule is unreliable while three agents run suites in parallel; the right check is "no failing id that passes alone is new" plus CI.
 
+### 16. PR 7 verified and merged; wave 2 finished (2026-11-17 22:16Z)
+- **PR 7 merged:** #622 on final head `09029d936` (the agent rebased to `251ed47fa`, then pushed `09029d936` after a review finding): 6 of 6 checks SUCCESS, merge CLEAN, Augment completed with 0 suggestions on that head (two earlier findings, about the replacement text pointing at `/sc:implement` for feature flags and for performance work, answered and resolved), Codex code and security reviews completed on that head, 0 unresolved threads (3 threads, all resolved; Codex's P2 "retire installed commands" is PR 12). Merged as `551d5ad38`. I checked one thing myself: Augment's text shows `/sc:sc:implement`, and the 24 added lines with that spelling are in the generated mirror `commands/sc-recommend.md`, which already uses that spelling elsewhere on `integration`; the sync check passes.
+- **Test counts (agent's run, before the rebase, machine load 25 to 100):** before 27637 passed, 3 failed; after 27632 passed, 2 failed (timing tests that pass alone); 6 tests removed.
+- **Wave 2 totals:** PRs 6, 7 and 10 merged: #620 `c106d7165`, #621 `7dbabd045`, #622 `551d5ad38`; 10 + 68 + 6 = 84 tests removed. Time from agent start (20:51Z) to the last merge: 85 minutes (wave 1: 60). Nudges: one rebase each for #621 and #622. Questions to Clay: none.
+- **Got in the way:** the rebase of the last PR came after the second merge, which made it the slowest (about 25 minutes from nudge to green, with a new review round). Three PRs per wave on the same shared files means the last to merge pays twice.
+- **Change next time:** for removals that share docs and tests, run two per wave, or give the third agent the merge order so it starts from the state after the first two.
+
 ## Out of scope, for later
 - The task and documentation bundle (Part B of issue 571) and the agents evaluation (issue 572).
 - Ryan's request of 2026-11-17 14:40 to fold the eight analysis documents (`sweep`, `observe`, `review-safety-scan`, `review-fixcheck-and-consequence-rule`, `shadow-run-and-review-panel`, `issue-pipeline`, `launch-level-guard`, `ccsession-retention`) into the docs and processes.
