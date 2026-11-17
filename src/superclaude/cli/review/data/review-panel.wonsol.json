@@ -1,0 +1,13 @@
+{
+  "schema": "review-panel/1",
+  "template_id": "wonsol",
+  "version": "1.0.0",
+  "description": "Production review panel (provisional): 3 parallel independent reviewers on muse-wonder-1.0 (fixed anchor, falls back to claude-sonnet-5-5), gpt-6.1-sol and muse-ember-1.0. The choice is provisional by owner order: the confirming test did not meet its pre-registered bar. Only the model mix ships, not the evaluation seat lenses.",
+  "distinct_across_slots": true,
+  "apply_to": ["first"],
+  "slots": [
+    {"slot_id": "t5a", "tier": "tier5a", "count": 1, "strategy": "fixed"},
+    {"slot_id": "t5b", "tier": "tier5b", "count": 1, "strategy": "random"},
+    {"slot_id": "t5c", "tier": "tier5c", "count": 1, "strategy": "random"}
+  ]
+}

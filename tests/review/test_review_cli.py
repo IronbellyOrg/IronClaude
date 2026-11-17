@@ -50,7 +50,17 @@ def test_review_help_lists_the_subcommands():
 
 
 def test_panel_resolve_prints_json():
-    res = run("review", "panel", "resolve", "--env", "anthropic-only", "--run-id", "x")
+    res = run(
+        "review",
+        "panel",
+        "resolve",
+        "--template",
+        "@classic",
+        "--env",
+        "anthropic-only",
+        "--run-id",
+        "x",
+    )
     assert res.exit_code == 0, res.output
     out = json.loads(res.output)
     assert [r["reviewer_id"] for r in out["reviewers"]] == [
@@ -65,6 +75,8 @@ def test_panel_resolve_prints_json():
             "review",
             "panel",
             "resolve",
+            "--template",
+            "@classic",
             "--env",
             "anthropic-only",
             "--run-id",
@@ -75,7 +87,15 @@ def test_panel_resolve_prints_json():
     )
     assert [r["reviewer_id"] for r in rr["reviewers"]] == ["t1b-1"]
     again = run(
-        "review", "panel", "resolve", "--env", "anthropic-only", "--run-id", "x"
+        "review",
+        "panel",
+        "resolve",
+        "--template",
+        "@classic",
+        "--env",
+        "anthropic-only",
+        "--run-id",
+        "x",
     )
     assert again.output == res.output
 
@@ -204,7 +224,15 @@ def test_merge_revise_verdict_round_trip(tmp_path):
     resolution = tmp_path / "panel.json"
     resolution.write_text(
         run(
-            "review", "panel", "resolve", "--env", "anthropic-only", "--run-id", "x"
+            "review",
+            "panel",
+            "resolve",
+            "--template",
+            "@classic",
+            "--env",
+            "anthropic-only",
+            "--run-id",
+            "x",
         ).output
     )
     out1 = tmp_path / "review" / "round1.md"
