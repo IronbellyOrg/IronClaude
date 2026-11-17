@@ -187,7 +187,7 @@ When this lane is active and a gate failure classifies as `is_pure_cosmetic=True
    - Verify `return-contract.yaml` exists in the directory. If not: abort with `"return-contract.yaml not found in --resume-from directory: <path>"`
 9. Log all fallback decisions
 
-**Exit Criteria**: All prerequisites validated. Trigger `sc:save` with current session state. Emit: `"Wave 0 complete: prerequisites validated."`
+**Exit Criteria**: All prerequisites validated. Emit: `"Wave 0 complete: prerequisites validated."`
 
 ### Wave 1A: Spec Consolidation (conditional)
 
@@ -212,7 +212,7 @@ When this lane is active and a gate failure classifies as `is_pure_cosmetic=True
 
 **Error propagation (combined mode)**: If Wave 1A fails (status: failed or aborted), do NOT proceed to Wave 2's multi-roadmap generation. Abort entirely — no partial combined mode.
 
-**Exit Criteria**: Unified spec available. Trigger `sc:save` with adversarial results. Emit: `"Wave 1A complete: spec consolidation finished (convergence: XX%)."`
+**Exit Criteria**: Unified spec available. Emit: `"Wave 1A complete: spec consolidation finished (convergence: XX%)."`
 
 ### Wave 1B: Detection & Analysis
 
@@ -231,7 +231,7 @@ When this lane is active and a gate failure classifies as `is_pure_cosmetic=True
 9. If `--interactive`: display auto-detected persona with confidence score, prompt user to confirm or override. If not `--interactive`: use auto-detected persona silently
 10. Edge case: if extraction produces 0 actionable requirements, abort with `"No actionable requirements found in specification. Verify the spec contains functional or non-functional requirements."`
 
-**Exit Criteria**: extraction.md written, complexity scored, personas activated. Include `pipeline_diagnostics` block in extraction.md frontmatter per the schema in `refs/templates.md` "extraction.md Frontmatter" section. Populate `prereq_checks` from Wave 0 results carried in pipeline state. If adversarial mode is not active, omit the `contract_validation` sub-block entirely. Trigger `sc:save` with extraction results. Emit: `"Wave 1B complete: extraction finished (XX requirements, complexity: X.XX). extraction.md written."`
+**Exit Criteria**: extraction.md written, complexity scored, personas activated. Include `pipeline_diagnostics` block in extraction.md frontmatter per the schema in `refs/templates.md` "extraction.md Frontmatter" section. Populate `prereq_checks` from Wave 0 results carried in pipeline state. If adversarial mode is not active, omit the `contract_validation` sub-block entirely. Emit: `"Wave 1B complete: extraction finished (XX requirements, complexity: X.XX). extraction.md written."`
 
 ### Wave 2: Planning & Template Selection
 
@@ -269,7 +269,7 @@ When this lane is active and a gate failure classifies as `is_pure_cosmetic=True
 6. Compute effort estimates for each milestone using the effort estimation algorithm from `refs/templates.md`
 7. Record template selection decision in Decision Summary (template name or "inline", compatibility scores, rationale)
 
-**Exit Criteria**: Milestone structure with effort estimates determined. Trigger `sc:save` with milestone structure. Emit: `"Wave 2 complete: N milestones planned."` If `--dry-run`: output structured console preview (FR-018 format — spec info, complexity, persona, template, milestone structure with dependencies, domain distribution, estimated deliverables/risks, output paths) and STOP. Skip Waves 3-4. No files written, no session persistence.
+**Exit Criteria**: Milestone structure with effort estimates determined. Emit: `"Wave 2 complete: N milestones planned."` If `--dry-run`: output structured console preview (FR-018 format — spec info, complexity, persona, template, milestone structure with dependencies, domain distribution, estimated deliverables/risks, output paths) and STOP. Skip Waves 3-4. No files written, no session persistence.
 
 ### Wave 3: Generation
 
@@ -294,7 +294,7 @@ When this lane is active and a gate failure classifies as `is_pure_cosmetic=True
 - Multi-spec: use `spec_sources: [<path1>, <path2>]` (never `spec_source`)
 - Exactly one of these fields present, never both, never neither
 
-**Exit Criteria**: roadmap.md + test-strategy.md written, extraction.md frontmatter updated. Trigger `sc:save` with generation state. Emit: `"Wave 3 complete: roadmap.md + test-strategy.md generated."`
+**Exit Criteria**: roadmap.md + test-strategy.md written, extraction.md frontmatter updated. Emit: `"Wave 3 complete: roadmap.md + test-strategy.md generated."`
 
 ### Wave 4: Validation (Multi-Agent)
 
@@ -313,7 +313,7 @@ When this lane is active and a gate failure classifies as `is_pure_cosmetic=True
 7. **REVISE loop** (per FR-017): If 70-84%, follow the REVISE loop protocol from `refs/validation.md` "REVISE Loop" section: collect improvement recommendations from both agents, re-run Wave 3 → Wave 4 with recommendations as input. Max 2 iterations. If still REVISE after iteration 2: set `validation_status: PASS_WITH_WARNINGS`
 8. If `--no-validate`: skip entirely per `refs/validation.md` "No-Validate Behavior" section. Set `validation_status: SKIPPED` and `validation_score: 0.0`. No agents are dispatched. Emit: `"Wave 4 skipped: --no-validate flag set."`
 
-**Exit Criteria**: Validation complete. Trigger `sc:save` with validation results (final). Emit: `"Wave 4 complete: validation score X.XX (STATUS)."` (or skip message if `--no-validate`)
+**Exit Criteria**: Validation complete. Emit: `"Wave 4 complete: validation score X.XX (STATUS)."` (or skip message if `--no-validate`)
 
 ### Post-Wave: Completion
 
@@ -323,9 +323,8 @@ After Wave 4, perform completion steps:
 
 1. Verify all 3 artifacts exist and are non-empty
 2. Persist session state to `<output_dir>/.session-memory.md`
-3. Trigger `sc:save` for cross-session resumability
-4. Emit final output summary with artifact locations and next steps
-5. **Final message** (per FR-008): State artifacts written, recommend user review before proceeding. No references to downstream commands.
+3. Emit final output summary with artifact locations and next steps
+4. **Final message** (per FR-008): State artifacts written, recommend user review before proceeding. No references to downstream commands.
 
 ### Ref Loading Summary
 
@@ -417,7 +416,7 @@ Wave analysis, validation reasoning, and complexity assessment in Waves 1-4 use 
 
 ### Session Persistence & Resumability
 
-sc:roadmap triggers `sc:save` at each wave boundary for cross-session resumability.
+sc:roadmap persists session state at each wave boundary for cross-session resumability.
 
 **Save points**: After each wave completion, persist session state to `<output_dir>/.session-memory.md`. State accumulates progressively:
 

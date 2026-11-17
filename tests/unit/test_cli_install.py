@@ -113,9 +113,9 @@ swarm/lenses/templates/troubleshoot-hypothesis-output.md user_settings_defaults.
 README.md __init__.py adversarial.md agent.md analyze.md auggie-review.md
 brainstorm.md build.md business-panel.md cleanup-audit.md cleanup.md cli-eval.md
 cli-portify.md design.md document.md explain.md git.md graph.md help.md impact.md implement.md
-improve.md index-repo.md index.md init-lite.md load.md pm.md post-release.md
+improve.md index-repo.md index.md init-lite.md pm.md post-release.md
 pr-submit.md recommend.md reflect.md release-split.md research.md
-review-translation.md roadmap.md save.md spec-panel.md swarm-wizard.md
+review-translation.md roadmap.md spec-panel.md swarm-wizard.md
 task.md tasklist.md tdd.md test.md troubleshoot.md validate-roadmap.md
 validate-tests.md workflow.md
 """
@@ -401,7 +401,7 @@ system-architect.md technical-writer.md
         """
 __init__.py agent.md analyze.md brainstorm.md build.md business-panel.md cleanup.md
 design.md document.md explain.md git.md help.md implement.md improve.md
-index-repo.md index.md load.md pm.md recommend.md reflect.md research.md save.md
+index-repo.md index.md pm.md recommend.md reflect.md research.md
 spec-panel.md task.md test.md troubleshoot.md workflow.md
 """
     ),

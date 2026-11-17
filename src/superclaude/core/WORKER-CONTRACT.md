@@ -201,7 +201,7 @@ Silence authorizes only L1, L2 and L3.
 
 ### Brief layout
 
-The brief puts the preamble-facing instructions and the guard line before the commands, and gives each command its own labelled `Command:` line in run order (for example `Command: /sc:load ...`, then the converted command), so the Task text never starts with `/sc:`. Guard line:
+The brief puts the preamble-facing instructions and the guard line before the commands, and gives each command its own labelled `Command:` line in run order (for example `Command: /sc:design ...`, then `Command: /sc:workflow ...`), so the Task text never starts with `/sc:`. Guard line:
 
 ```text
 Guard: before running anything, check every Command: line below under the brief guard in ~/.claude/WORKER-CONTRACT.md; on a refusal run nothing and send worker_done --outcome failed with a body starting "guard refused:".

@@ -35,8 +35,6 @@ _OTHER_COMMANDS = {
     "sc:index-repo",
     "sc:agent",
     "sc:pm",
-    "sc:save",
-    "sc:load",
 }
 
 _COLUMNS = [
@@ -1063,7 +1061,7 @@ def test_pr_attachment_monitor_log_resume_and_silence_are_not_new_shipping():
 
 
 def test_other_operations_preserve_requested_authority_and_owned_state():
-    """S23-S26/T19/T72: utility operations are not generic implementation."""
+    """S23-S24, S26/T19/T72 (S25 and S27 retired): utility operations are not generic implementation."""
     other = _block(_text(), _OTHER_BEGIN, _OTHER_END)
     assert "Status-only stays inspection" in other
     assert "a commit needs authorization" in other
@@ -1074,10 +1072,6 @@ def test_other_operations_preserve_requested_authority_and_owned_state():
     assert "mode=quick or mode=update" in other
     assert "PROJECT_INDEX.md and PROJECT_INDEX.json" in other
     assert "Coordinated project docs/API/structure/README" in other
-    assert "needs no MCP server" in other
-    assert ".superclaude/memory/" in other
-    assert "writes memory; not durable task execution state" in other
-    assert "Not executor resume" in other
     assert "inspect status, orient, then wait" in other
     assert "self-contained, not a missing protocol" in other
     assert "Not a default planner, automatic-start guarantee" in other

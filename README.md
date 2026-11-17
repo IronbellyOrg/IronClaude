@@ -97,7 +97,7 @@ Not sure which command to use? Read [How We Work](docs/user-guide/how-we-work.md
 
 - `/sc:impact` lists the definitions of a symbol (or of the symbols a diff touches) and their production and test dependents from the code graph. See [codegraph](docs/user-guide/codegraph.md).
 - `/sc:graph` shows whether the current checkout's code-graph index is ready; `/sc:graph init` builds it. See [codegraph](docs/user-guide/codegraph.md).
-- Session memory lives in `<project>/.superclaude/memory/` as markdown files that `/sc:save` writes and `/sc:load` reads. See [Session management](docs/user-guide/session-management.md).
+- Session memory lives in `<project>/.superclaude/memory/` as markdown files that `/sc:pm` and the PM agent read and write. See [Session management](docs/user-guide/session-management.md).
 
 ### Core CLI commands
 

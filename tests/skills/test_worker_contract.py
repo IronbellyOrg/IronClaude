@@ -1426,14 +1426,6 @@ def test_business_panel_frontmatter_is_not_inside_a_code_fence():
     assert not re.search(r"^```yaml", head, re.M)
 
 
-def test_load_usage_line_declares_checkpoint_and_load_is_not_converted():
-    text = (Path(_THIS.COMMANDS_DIR) / "load.md").read_text(encoding="utf-8")
-    usage = text.split("## Usage", 1)[1].split("\n## ", 1)[0]
-    assert "--checkpoint <name>" in usage
-    assert "load" not in UNATTENDED_COMMANDS
-    assert "sweep" not in UNATTENDED_COMMANDS
-
-
 def test_unattended_section_check_forbids_nested_text_without_a_nested_list():
     text = _SYNTHETIC_SECTION
     with pytest.raises(AssertionError):
@@ -1445,7 +1437,6 @@ def test_unattended_section_check_forbids_nested_text_without_a_nested_list():
 # Commands that never get the section in P1 (later phases extend the converted set;
 # the set-equality test above already fails for any other command with a section).
 NOT_CONVERTED_IN_P1 = (
-    "load",
     "pr-submit",
     "agent",
     "git",
@@ -1599,12 +1590,10 @@ def test_no_section_check_fails_when_an_unconverted_command_has_one(
 ):
     cmds = tmp_path / "commands"
     cmds.mkdir()
-    (cmds / "load.md").write_text(
-        "# load\n\n## Unattended mode\n\nx\n", encoding="utf-8"
-    )
+    (cmds / "pm.md").write_text("# pm\n\n## Unattended mode\n\nx\n", encoding="utf-8")
     monkeypatch.setattr(_THIS, "COMMANDS_DIR", cmds)
     with pytest.raises(AssertionError):
-        _check_no_section_in(["load"])
+        _check_no_section_in(["pm"])
     # A command whose file does not exist is skipped.
     _check_no_section_in(["issue"])
 

@@ -1,0 +1,18 @@
+# T1 checks
+AC1 deleted files (expect 6 D):
+D  commands/sc-load.md
+D  commands/sc-save.md
+D  plugins/superclaude/commands/load.md
+D  plugins/superclaude/commands/save.md
+D  src/superclaude/commands/load.md
+D  src/superclaude/commands/save.md
+AC1 untracked/other changes outside .dev:
+  none
+AC1 stale dev copies:
+  none
+AC2 verify-sync:
+  ✅ hooks.json matcher and auggie-flag-clear.sh case body agree on auggie prefixes
+
+✅ All components in sync.
+AC3 install set (commands dir listing, expect no save/load):
+  none
