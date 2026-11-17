@@ -1,0 +1,16 @@
+    4.746 s  session_home
+    1.512 s  session_place
+    1.152 s  list_sessions
+    0.359 s  epoch_to_var
+    0.190 s  stat_times
+    0.156 s  file_to_name
+    0.134 s  main
+    0.067 s  build_transcript_index
+    0.062 s  find_transcript
+    0.054 s  index_var_name
+    0.042 s  load_worktrees
+    0.031 s  retention_warning
+    0.027 s  format_duration
+    0.017 s  origin_id
+    0.003 s  slugify
+100972 traced commands
