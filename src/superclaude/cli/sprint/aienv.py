@@ -36,8 +36,8 @@ from superclaude.cli.swarm.config import T2_MODEL_ENV_PREFIX, T2_MODEL_MAX_SLOTS
 
 __all__ = ["suggest_alternate_model"]
 
-# The three Anthropic model slots set by ``scripts/ic`` (ic:61-63, exported at
-# ic:98) and read by Claude Code. Ordered OPUS → SONNET → HAIKU (most → least
+# The three Anthropic model slots set by ``scripts/ic`` (ic:75-77, exported at
+# ic:118) and read by Claude Code. Ordered OPUS → SONNET → HAIKU (most → least
 # capable) so an exhausted ``opus`` rotates down to ``sonnet`` first. The short
 # alias each slot maps to is the ``--model`` value an operator would pass.
 _ANTHROPIC_SLOTS: tuple[tuple[str, str], ...] = (
