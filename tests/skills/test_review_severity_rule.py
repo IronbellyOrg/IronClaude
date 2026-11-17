@@ -278,14 +278,14 @@ def _failing_rows(fixture: str) -> list[str]:
 
 def test_e_every_cap_edits_row_holds():
     rows = _rows("review_severity_cap_edits.yaml")
-    assert len(rows) == 161
+    assert len(rows) == 160
     bad = _failing_rows("review_severity_cap_edits.yaml")
     assert not bad, "cap-edits rows not applied:\n" + "\n".join(bad)
 
 
 def test_j_every_sweep_edits_row_holds():
     rows = _rows("review_severity_sweep_edits.yaml")
-    assert len(rows) == 139
+    assert len(rows) == 137
     bad = _failing_rows("review_severity_sweep_edits.yaml")
     assert not bad, "sweep-edits rows not applied:\n" + "\n".join(bad)
 

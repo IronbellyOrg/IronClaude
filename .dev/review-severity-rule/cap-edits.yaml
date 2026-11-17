@@ -18,7 +18,7 @@
 #   - Multi-line `old` (one test row) uses YAML "\n" escapes; its uniqueness is anchored by a unique line inside it.
 # Groups: agents | templates | skills-a (operational-guide, readme, roadmap, tech-reference, tech-research, prd/tdd
 # build-request templates) | skills-b (task, task-builder) | portify (cli_portify code, sc-cli-portify-protocol,
-# tests/cli_portify/test_convergence.py) | prd-core (cli/prd/models.py, rules/core/ib_agent_core.md).
+# tests/cli_portify/test_convergence.py) | prd-core (rules/core/ib_agent_core.md).
 rows:
   # ---------------------------------------------------------------- agents
   - id: C-001
@@ -1253,15 +1253,6 @@ rows:
     kind: cap
     occurrences: 1
   # ---------------------------------------------------------------- prd-core
-  - id: C-152
-    file: src/superclaude/cli/prd/models.py
-    line: 203
-    group: prd-core
-    old: "max_research_fix_cycles: int = 3"
-    new: "max_research_fix_cycles: int = 2"
-    kind: cap
-    occurrences: 1
-    note: "executor.py runs range(max_cycles + 1) = initial QA + N fix cycles, so 2 gives 3 QA runs"
   - id: C-153
     file: src/superclaude/rules/core/ib_agent_core.md
     line: 574
@@ -1383,16 +1374,16 @@ flagged_for_decision:   # RESOLVED 2026-11-02 by the orchestrator under rule B1:
     why: "already flagged OUT in cap-sites.md section 17 (schema-loader fix loop, not a review); listed again so the decision is not lost"
 
 totals:
-  rows: 161
+  rows: 160
   by_group:
     agents: 17
     templates: 37
     skills-a: 51
     skills-b: 31
     portify: 20
-    prd-core: 5
+    prd-core: 4
   by_kind:
-    cap: 111
+    cap: 110
     at-cap: 23
     both: 27
   multi_site_rows: [C-071, C-072, C-143]

@@ -1,0 +1,6 @@
+$ ls tests/cli/prd
+ls: cannot access 'tests/cli/prd': No such file or directory
+$ pytest tests/cli --collect-only -q | grep -c ^tests/cli/prd/
+0
+$ pytest tests/cli --collect-only -q | tail -1
+======================== 2356 tests collected in 1.19s =========================

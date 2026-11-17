@@ -1,0 +1,9 @@
+$ sed -n 22p reuse-auditor.md | grep -c -w prd
+0
+$ git diff --stat reuse-auditor.md
+ src/superclaude/agents/reuse-auditor.md | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+$ make sync-dev; make verify-sync
+✅ All components in sync.
+$ pytest agent tests
+================ 3 passed, 1 skipped, 27871 deselected in 8.42s ================

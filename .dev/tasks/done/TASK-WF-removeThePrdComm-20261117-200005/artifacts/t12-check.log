@@ -1,0 +1,6 @@
+$ git grep -n -E "prd CLI|cli/prd" doc
+none
+$ grep counts
+93:160 cap-edit or 137 sweep-edit rows
+$ table cells per row (lines 64-71)
+3 3 3 3 3 3 3 3

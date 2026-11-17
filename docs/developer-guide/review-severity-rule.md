@@ -66,7 +66,6 @@ The 5.0.0 changelog lists the scope (`CHANGELOG.md:29-33`). Representative sites
 | Pragmatic output style | S1-S5 replace "any issue of ANY severity fails" | `src/superclaude/output-styles/pragmatic.md:225-229` |
 | rf-qa, rf-qa-qualitative, rf-analyst, rf-team-lead agents; QA and skill templates; both MDTM templates | PASS allows minor findings as notes; FAIL needs a blocking finding; fix agents receive, apply and recheck blocking findings only | `CHANGELOG.md:30`; copies pinned by `test_review_severity_rule.py:181-203` |
 | prd, tdd, tech-reference, tech-research, readme, operational-guide, task, task-builder skills | Same rule; task-builder's gate passes with minor findings as notes and HALTs at the cap | `src/superclaude/skills/task-builder/SKILL.md:865,873` |
-| prd CLI | Research and synthesis fix cycles default to 2 | `src/superclaude/cli/prd/models.py:203-204` |
 | `/sc:tasklist` patch loop | Capped at pass `k=2`; open High or Medium (blocking) findings HALT and escalate instead of shipping "logged for human review"; Low findings stay notes | `src/superclaude/skills/sc-tasklist-protocol/SKILL.md:1598,1608` |
 | `/sc:cli-portify` | Convergence engine runs 1 iteration | `src/superclaude/cli/cli_portify/convergence.py:165`; `cli_portify/steps/panel_review.py:352` |
 | At-cap behaviour everywhere | HALT and escalate the open blocking findings instead of turning them into Open Questions and proceeding | `CHANGELOG.md:31` |
@@ -91,7 +90,7 @@ uv run pytest tests/skills/test_review_severity_rule.py -v
 | (a) any-severity wording | Phrases such as "any issue of any severity", "regardless of severity", "must still be fixed" in `src/`, `plugins/`, `commands/`, `agents/` | `112-176` |
 | (c) copies | S1-S3 (and S5 where required) not verbatim in the ten-file set | `181-210` |
 | (d) cap text | The canonical cap text or the at-cap HALT clause missing | `215-246` |
-| (e), (j) edit tables | Any of the 161 cap-edit or 139 sweep-edit rows not applied (fixtures in `tests/skills/fixtures/review_severity_cap_edits.yaml` and `review_severity_sweep_edits.yaml`) | `261-283` |
+| (e), (j) edit tables | Any of the 160 cap-edit or 137 sweep-edit rows not applied (fixtures in `tests/skills/fixtures/review_severity_cap_edits.yaml` and `review_severity_sweep_edits.yaml`) | `261-283` |
 | (f) old caps | A review-loop cap above 2 ("Max 3 fix cycles", "after 3 failed cycles", ...) outside `sc-implement-protocol` and two allowlisted lines | `288-339` |
 | (g) verdict suffixes | "Only PASS or FAIL — no conditional pass." removed from the listed skills | `344-365` |
 | (h) plugin twins | `plugins/superclaude/skills/sc-implement-protocol/` not byte-equal to `src/` | `371-385` |
