@@ -167,7 +167,7 @@ Each rule names how to check it. None of these checks exists as a hook or script
 7. **Identity comes from GitHub.** Every `coordinator.md` records a handle equal to its folder name (without `--<N>`) and to that developer's `gh api user --jq .login`; no name is taken from `git config user.name`.
 8. **Every grant is citable and owned.** Every grant a ledger row cites by `<coordinator id>/<grant id>` resolves to exactly one file in that coordinator's own `grants/` folder.
 9. **Worktrees come from Orca with an agent.** `orca worktree list` on each host shows each coordinator worktree named `coord-<dev>-<kind>-<slug>` with its agent; none sits under `.dev/worktrees/` or `.claude/worktrees/`.
-10. **Nothing private is pushed, and the old ledger home is retired.** A search of `.dev/coordinators/` on `origin/coordinators` for tokens, secrets, host names or contact details finds none; no new coordinator ledger appears under `.dev/tasks/`; the branch adds nothing under `.claude/` of its own: `git diff --name-only origin/master origin/coordinators -- .claude/` prints nothing (the inherited `.claude/settings.json` is expected).
+10. **Nothing private is pushed, and the old ledger home is retired.** A search of `.dev/coordinators/` on `origin/coordinators` for tokens, secrets, host names or contact details finds none; no new coordinator ledger appears under `.dev/tasks/`; the branch adds nothing under `.claude/` of its own: `git diff --name-only origin/master...origin/coordinators -- .claude/` prints nothing (three dots: it compares against the common ancestor, so later changes on master do not count, and the inherited `.claude/settings.json` is not listed).
 
 ## What to decide later
 
