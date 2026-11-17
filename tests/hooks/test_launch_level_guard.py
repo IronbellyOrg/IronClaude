@@ -3684,7 +3684,6 @@ APPROVING = [
     # T-APR-2: the first line, leading whitespace removed (case-sensitive).
     "/sc:implement x",
     "/task",
-    "/sc:task y",
     "/task y",
     "/sc:implement",
     "  /sc:implement x\nmore text",
@@ -3692,6 +3691,8 @@ APPROVING = [
     "/task\nsecond line",
 ]
 NOT_APPROVING = [
+    # /sc:task is never a release word (owner rule 2026-11-17).
+    "/sc:task y",
     # T-APR-1 (removed route, owner decision Q39): a plain "approved" releases
     # nothing, whatever its case, trailing mark or surrounding whitespace.
     "approved",
