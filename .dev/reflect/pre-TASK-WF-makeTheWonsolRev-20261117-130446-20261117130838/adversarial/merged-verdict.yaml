@@ -1,0 +1,13 @@
+merge_method: adversarial
+verdict: plan-has-blocking-findings
+convergence_score: 0.94
+base_variant: "reviewer-3 (refactorer, opus)"
+source_cards:
+  - reviewer-cards/reviewer-1-card.md
+  - reviewer-cards/reviewer-2-card.md
+  - reviewer-cards/reviewer-3-card.md
+merged_output: adversarial/adversarial/merged-output.md
+debate_depth: quick
+rubric_note: "full 30-criterion rubric not run (see adversarial/adversarial/base-selection.md); base chosen by calibrated score, debate points and correctness tiebreak"
+blocking_findings: [F1, F2, F4]
+nonblocking_findings: [F3, F5, F6, F7, F8, F9, F10, F11, F12, F13, F14]

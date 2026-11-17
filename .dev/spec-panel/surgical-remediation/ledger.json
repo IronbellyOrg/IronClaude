@@ -1,0 +1,690 @@
+{
+ "schema": "review-ledger/1",
+ "doc": "docs/designs/surgical-remediation.md",
+ "cap_reviews": 3,
+ "rounds": [
+  {
+   "n": 1,
+   "doc_sha256": "fb26244a2f37a20f9d179383ebb0dc27b54ebe66b641e6acfff0043adc084a64",
+   "reviewers": [
+    {
+     "reviewer_id": "t1b-1",
+     "model": "claude-sonnet-5-5",
+     "report": ".dev/spec-panel/surgical-remediation/round-1/t1b-1.md",
+     "report_sha256": "02840951d8f6b16df29f8f5e545e30905beaf07cfdb26b76e7f3f4e1f9d48283",
+     "block_ok": true
+    },
+    {
+     "reviewer_id": "t2-1",
+     "model": "muse-spark-1.3",
+     "report": ".dev/spec-panel/surgical-remediation/round-1/t2-1.md",
+     "report_sha256": "fde6e44906a3147821de16664c023bf2b057c5aa1399a9f78ed9c7b6ed0f1960",
+     "block_ok": true
+    },
+    {
+     "reviewer_id": "t3-1",
+     "model": "glm-5.3",
+     "report": ".dev/spec-panel/surgical-remediation/round-1/t3-1.md",
+     "report_sha256": "38ea2366f5a11e0a85a97d0ba08ad4a464feb81d85ab541a6a0aa2d115851e45",
+     "block_ok": false
+    },
+    {
+     "reviewer_id": "t3-2",
+     "model": "Qwen3.8-max",
+     "report": ".dev/spec-panel/surgical-remediation/round-1/t3-2.md",
+     "report_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+     "block_ok": false
+    }
+   ],
+   "verdict": "FAIL",
+   "decision": "REVISE",
+   "brief_ids": [
+    "L4"
+   ]
+  },
+  {
+   "n": 2,
+   "doc_sha256": "1333d41ed0abcd621d1c1e1ccca93b086327b475c48342c961ba89171e2ddb76",
+   "reviewers": [
+    {
+     "reviewer_id": "t1b-1",
+     "model": "claude-sonnet-5-5",
+     "report": ".dev/spec-panel/surgical-remediation/round-2/t1b-1.md",
+     "report_sha256": "b93b9528941707ba598b86e4f436d78714a0cfeab11da24b1576c22ccc94071e",
+     "block_ok": true
+    }
+   ],
+   "verdict": "PASS",
+   "decision": "PASS",
+   "brief_ids": []
+  }
+ ],
+ "rows": [
+  {
+   "lid": "L1",
+   "fp": "71bff1837346d2d3",
+   "blocking": false,
+   "severity_max": "MAJOR",
+   "category": "missing-requirement",
+   "confidence": "single",
+   "status": "open",
+   "anchor": "findings whose reviewer label is HIGH (the label column of the reflect reviewer's Deviations table), whatever their grade",
+   "anchor2": null,
+   "span": [
+    37,
+    38
+   ],
+   "span2": null,
+   "refs": [
+    "3",
+    "5.1"
+   ],
+   "claim": "H counts a HIGH label that Wave 4 pre-mode reviewers never emit (they return CRITICAL, MAJOR or MINOR), so the owner's high-severity guard never fires.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t1b-1",
+     "fid": "F1",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L2",
+   "fp": "7df686df2430f281",
+   "blocking": false,
+   "severity_max": "MAJOR",
+   "category": "missing-requirement",
+   "confidence": "overlap",
+   "status": "open",
+   "anchor": "`/sc:implement` refuses a package whose contract carries `review_verdict: FAIL`",
+   "anchor2": "new fields `remediation_route`, `supersedes`, `superseded_by`, `finding_counts`, `fix_cycles`.",
+   "span": [
+    64,
+    65
+   ],
+   "span2": [
+    92,
+    93
+   ],
+   "refs": [
+    "4.1",
+    "4.2",
+    "5.2",
+    "5.3",
+    "6",
+    "7",
+    "9"
+   ],
+   "claim": "The text does not say which review is the re-review, and reflect_status and reflect_report_path cannot hold its verdict, and no contract field exists for the follow-up candidates section 3 says are written there.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t1b-1",
+     "fid": "F2",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t1b-1",
+     "fid": "F3",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t1b-1",
+     "fid": "F9",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t1b-1",
+     "fid": "F10",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t1b-1",
+     "fid": "F12",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t1b-1",
+     "fid": "F14",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t1b-1",
+     "fid": "F20",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t3-1",
+     "fid": "F4",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t3-1",
+     "fid": "F6",
+     "blocking": false
+    },
+    {
+     "round": 2,
+     "reviewer_id": "t1b-1",
+     "fid": "F1",
+     "blocking": false
+    },
+    {
+     "round": 2,
+     "reviewer_id": "t1b-1",
+     "fid": "F2",
+     "blocking": false
+    },
+    {
+     "round": 2,
+     "reviewer_id": "t1b-1",
+     "fid": "F4",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    },
+    {
+     "round": 2,
+     "event": "refound"
+    }
+   ]
+  },
+  {
+   "lid": "L3",
+   "fp": "3ae90093965939f5",
+   "blocking": false,
+   "severity_max": "MAJOR",
+   "category": "missing-requirement",
+   "confidence": "overlap",
+   "status": "open",
+   "anchor": "run the route for a package that was reviewed outside workflow (as on 2026-11-17)",
+   "anchor2": "Add `finding_counts: {blocking, label_high, medium, note}` to the stable contract",
+   "span": [
+    79,
+    80
+   ],
+   "span2": [
+    86,
+    87
+   ],
+   "refs": [
+    "4.4",
+    "5.1",
+    "UC-1"
+   ],
+   "claim": "--revise takes only a REPORT.md, but the counts that choose the route exist only in reflect's return-contract.yaml, so the route cannot be chosen for an outside review.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t1b-1",
+     "fid": "F4",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t1b-1",
+     "fid": "F13",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t3-1",
+     "fid": "F8",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L4",
+   "fp": "df29feb5ddef829d",
+   "blocking": false,
+   "severity_max": "CRITICAL",
+   "category": "missing-requirement",
+   "confidence": "overlap",
+   "status": "regressed",
+   "anchor": "(L4: a failed generation archives nothing)",
+   "anchor2": null,
+   "span": [
+    72,
+    73
+   ],
+   "span2": null,
+   "refs": [
+    "3",
+    "4.3",
+    "7",
+    "9"
+   ],
+   "claim": "The old package can be archived when the new package is only a failed directory, and a normal generation that includes Wave 4R has no bound on regenerate loops.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t1b-1",
+     "fid": "F5",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t1b-1",
+     "fid": "F7",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t1b-1",
+     "fid": "F8",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t2-1",
+     "fid": "F1",
+     "blocking": true
+    },
+    {
+     "round": 2,
+     "reviewer_id": "t1b-1",
+     "fid": "F3",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    },
+    {
+     "round": 1,
+     "event": "resolved_check"
+    },
+    {
+     "round": 2,
+     "event": "refound"
+    },
+    {
+     "round": 2,
+     "event": "prior_note",
+     "reviewer_id": "t1b-1",
+     "status": "resolved"
+    }
+   ]
+  },
+  {
+   "lid": "L5",
+   "fp": "c44808c3481c63ea",
+   "blocking": false,
+   "severity_max": "MAJOR",
+   "category": "missing-requirement",
+   "confidence": "single",
+   "status": "open",
+   "anchor": "ESC[\"Escalate to the user: nothing placed, nothing archived\"]",
+   "anchor2": "W5[\"Wave 5 contract and handoff\"]",
+   "span": [
+    133,
+    134
+   ],
+   "span2": [
+    133,
+    134
+   ],
+   "refs": [
+    "4.4",
+    "5.2",
+    "7"
+   ],
+   "claim": "Wave 5 does not say which package it writes to, and after escalation an --handoff implement can still run on the original plan with open blockers.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t1b-1",
+     "fid": "F6",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L6",
+   "fp": "40df6c2ebce920b2",
+   "blocking": false,
+   "severity_max": "MAJOR",
+   "category": "missing-requirement",
+   "confidence": "overlap",
+   "status": "open",
+   "anchor": "Point it at workflow's Wave 4R instead, so the same routing rule applies.",
+   "anchor2": null,
+   "span": [
+    102,
+    103
+   ],
+   "span2": null,
+   "refs": [
+    "2",
+    "5.4"
+   ],
+   "claim": "Reflect's remediation_plan_path can point at a package that Wave 4R archived, and the headless wrapper's /sc:implement call on it is refused.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t1b-1",
+     "fid": "F11",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t1b-1",
+     "fid": "F19",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t3-1",
+     "fid": "F5",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L7",
+   "fp": "16a866de3763b237",
+   "blocking": false,
+   "severity_max": "MAJOR",
+   "category": "missing-requirement",
+   "confidence": "overlap",
+   "status": "open",
+   "anchor": "Four such packages are there today",
+   "anchor2": "move the four superseded packages named in section 1 to `archive/`",
+   "span": [
+    17,
+    18
+   ],
+   "span2": [
+    121,
+    122
+   ],
+   "refs": [
+    "1",
+    "6",
+    "9"
+   ],
+   "claim": "Other superseded packages, such as removeTheAnyIssu-20261102-042031 and blockerStage4-20261116-030206, stay in to-do/ and the uppercase-token acceptance check does not catch them.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t1b-1",
+     "fid": "F15",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t1b-1",
+     "fid": "F18",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t3-1",
+     "fid": "F7",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L8",
+   "fp": "6bd144bc2261efb8",
+   "blocking": false,
+   "severity_max": "MAJOR",
+   "category": "unpassable-check",
+   "confidence": "overlap",
+   "status": "open",
+   "anchor": "unit tests for the routing rule (boundary values 3/4, 5/6, 9/10 and `B == 0`)",
+   "anchor2": "Tests: unit tests for the routing rule",
+   "span": [
+    160,
+    161
+   ],
+   "span2": [
+    160,
+    161
+   ],
+   "refs": [
+    "9"
+   ],
+   "claim": "The routing rule is prose with no code unit to test, the end-to-end fixture needs live agents, and the fix-map check is self-reported.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t1b-1",
+     "fid": "F16",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t2-1",
+     "fid": "F5",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L9",
+   "fp": "13a2964dafc58623",
+   "blocking": false,
+   "severity_max": "MAJOR",
+   "category": "missing-requirement",
+   "confidence": "single",
+   "status": "open",
+   "anchor": "H = findings whose reviewer label is HIGH (the label column of the reflect reviewer's Deviations table), whatever their grade.",
+   "anchor2": null,
+   "span": null,
+   "span2": null,
+   "refs": [
+    "3",
+    "8"
+   ],
+   "claim": "HIGH-labeled Medium/Note wording findings count toward forced regeneration even though the severity rule says labels never gate.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t2-1",
+     "fid": "F2",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L10",
+   "fp": "94aa7f41547367f1",
+   "blocking": false,
+   "severity_max": "MAJOR",
+   "category": "missing-requirement",
+   "confidence": "single",
+   "status": "open",
+   "anchor": "move the original package from `.dev/tasks/to-do/<old-id>/` to `.dev/tasks/archive/<old-id>/`",
+   "anchor2": null,
+   "span": [
+    60,
+    61
+   ],
+   "span2": null,
+   "refs": [
+    "4"
+   ],
+   "claim": "Re-archiving onto an existing archive destination nests or clobbers the package because no destination-exists rule and no helper call is specified.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t2-1",
+     "fid": "F3",
+     "blocking": false
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t2-1",
+     "fid": "F6",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L11",
+   "fp": "a0e432a7e631f816",
+   "blocking": false,
+   "severity_max": "MAJOR",
+   "category": "missing-requirement",
+   "confidence": "single",
+   "status": "open",
+   "anchor": "runs a normal generation into a new package, runs Wave 4 on it, and archives the old package with a `SUPERSEDED` line once the new package exists.",
+   "anchor2": null,
+   "span": [
+    72,
+    73
+   ],
+   "span2": null,
+   "refs": [
+    "4"
+   ],
+   "claim": "Wave 4 blockers on a regenerated package retrigger regeneration with no cycle cap or escalation.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t2-1",
+     "fid": "F4",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L12",
+   "fp": "8e7e63531aa4200a",
+   "blocking": false,
+   "severity_max": "MINOR",
+   "category": "other",
+   "confidence": "single",
+   "status": "open",
+   "anchor": "it follows the REVISE prompt and fix map of `src/superclaude/rules/prompts/document_review_loop_prompts.md:51-66`",
+   "anchor2": null,
+   "span": null,
+   "span2": null,
+   "refs": [
+    "4"
+   ],
+   "claim": "The cited line span covers the REVISE prompt plus the unrelated Findings-block section instead of just the prompt and fix map.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t2-1",
+     "fid": "F7",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  },
+  {
+   "lid": "L13",
+   "fp": "49f503bca692a903",
+   "blocking": false,
+   "severity_max": "MAJOR",
+   "category": "missing-requirement",
+   "confidence": "single",
+   "status": "open",
+   "anchor": "After Wave 4 returns, workflow counts the findings of the merged review and picks one route.",
+   "anchor2": null,
+   "span": [
+    32,
+    33
+   ],
+   "span2": null,
+   "refs": [
+    "3",
+    "4.4"
+   ],
+   "claim": "The design never states what Wave 4R does when reflect is unavailable or failed (the SKILL.md:93 path that today proceeds to Wave 5 with an unresolved line), so the route is undefined exactly when the counts do not exist.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t3-1",
+     "fid": "F3",
+     "blocking": false
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    }
+   ]
+  }
+ ]
+}

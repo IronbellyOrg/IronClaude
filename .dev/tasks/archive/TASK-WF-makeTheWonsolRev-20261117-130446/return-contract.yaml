@@ -1,0 +1,15 @@
+contract_version: "1.1"
+status: success
+slug: TASK-WF-makeTheWonsolRev-20261117-130446
+plan_path: ./TASK-WF-makeTheWonsolRev-20261117-130446.md
+source_path: ./source.md
+source_origin: inline
+strategy: systematic
+depth: standard
+handoff_action: none
+handoff_output_path: null
+reflect_status: partial
+reflect_report_path: /home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/.dev/reflect/pre-TASK-WF-makeTheWonsolRev-20261117-130446-20261117130838/REPORT.md
+unresolved:
+  - "reflect found 3 blocking findings (F1 goldens and exclusion tests, F2 tpl fixture breakage, F4 default_template_name return contract); the plan was not edited from them (advisory)"
+  - "SUPERSEDED (2026-11-17): retired. Do NOT run /sc:implement on this package. Its plan has 3 blocking findings (F1, F2, F4) and is replaced by the package TASK-WF-wonsolDefaultV2-20261117-185458, a hand copy with surgical edits that passed re-review 2 of 3. The folder was moved from .dev/tasks/to-do/ to .dev/tasks/archive/ on 2026-11-17 (owner order); the plan file and its artifacts are unchanged, and a byte copy of the plan is held in the new package as artifacts/old-plan-v1.md. It is not in done/ because done/ means implemented and archived by the implement helper. Paths inside the reflect report of this package still name the old .dev/tasks/to-do/ location; they are a historical record."
