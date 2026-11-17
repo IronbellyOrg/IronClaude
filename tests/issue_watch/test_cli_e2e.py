@@ -252,7 +252,7 @@ def launch_argv_literal(orca: str, worktree: Path) -> list[str]:
         "--surface",
         "terminal",
         "--prompt",
-        "/sc:issue --claim 9",
+        "/sc:issue --claim 9 --pipeline none",
         "--json",
     ]
 
@@ -363,7 +363,7 @@ def test_fr010_fr013_eligible_issue_launches_once_through_orca_ide(tmp_path, stu
     )
     assert len([orca_ide, *launch_call["argv"]]) == 12
     assert launch_call["argv"][launch_call["argv"].index("--prompt") + 1] == (
-        "/sc:issue --claim 9"
+        "/sc:issue --claim 9 --pipeline none"
     )
     assert Path(launch_call["cwd"]).resolve() == watcher.config.worktree.resolve()
     # orca-ide is resolved first, so the plain orca stub is never called

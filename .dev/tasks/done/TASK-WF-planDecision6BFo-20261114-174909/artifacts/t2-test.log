@@ -1,0 +1,12 @@
+============================= test session starts ==============================
+platform linux -- Python 3.11.15, pytest-9.2.0, pluggy-1.7.0
+SuperClaude: 5.0.0
+rootdir: /home/coder/workspaces/worktrees/IronClaude/claim-handoff-b
+configfile: pyproject.toml
+plugins: superclaude-5.0.0, anyio-4.16.0
+collected 43 items
+
+tests/issue_pipeline/test_approval_line.py ............................  [ 65%]
+tests/issue_pipeline/test_plan_hash.py ...............                   [100%]
+
+============================== 43 passed in 0.45s ==============================

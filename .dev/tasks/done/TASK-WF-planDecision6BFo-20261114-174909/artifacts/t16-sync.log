@@ -1,0 +1,7 @@
+   Commands:  47 files
+   Hooks:     17 files
+   Templates: 52 files
+=== Hooks Cross-Consistency ===
+  ✅ hooks.json matcher and auggie-flag-clear.sh case body agree on auggie prefixes
+
+✅ All components in sync.

@@ -1,0 +1,13 @@
+before (HEAD a98541153) on docs/designs/issue-watcher-setup.md:
+coordinator phrase: 0
+second agent not superseded: 1
+second agent total: 2
+after:
+coordinator phrase: 1
+second agent not superseded: 0
+second agent total: 0
+fu1 pointers: 4
+after the post-review wording edit:
+phrase: 1
+second agent not superseded: 0
+fu1 pointers: 4

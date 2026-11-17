@@ -1,0 +1,5 @@
+tests/cli/test_issue_pipeline_registered.py .                            [100%]
+
+============================ 2831 passed in 20.44s =============================
+✅ All components in sync.
+All checks passed!

@@ -17,6 +17,7 @@ TEMPLATE = ROOT / "src/superclaude/cli/issue_pipeline/templates/worker-brief.txt
 HEAD = """Guard: before running anything, check every Command: line below under the brief guard in ~/.claude/WORKER-CONTRACT.md; on a refusal run nothing and send worker_done --outcome failed with a body starting "guard refused:".
 Chain: run every Command: line in one turn without stopping between them (WC-14); write a handoff file after each (WC-15); send ack lines for coordinator answers (WC-12).
 On a blocked gate: report blocked
+Plan approval: after writing the plan, follow rule WC-17 in ~/.claude/WORKER-CONTRACT.md before any further step.
 Local commit: not authorized
 Report directory: .dev/issues/452/worker-plan
 Worktree: path:<existing worktree>
@@ -176,3 +177,48 @@ def test_fixed_lines_equal_the_contract_template_word_for_word() -> None:
         "Worktree: <shared feature worktree"
     )
     assert "Worktree: path:<existing worktree>" in ours
+
+
+def test_brief_points_at_the_plan_approval_rule_of_the_contract() -> None:
+    contract = CONTRACT.read_text()
+    assert "**WC-17. Plan approval is the reply to the worker's own ask.**" in contract
+    for complexity in ("simple", "medium", "complex"):
+        lines = brief.build(452, "feature", complexity).splitlines()
+        pointer = [line for line in lines if line.startswith("Plan approval:")]
+        assert len(pointer) == 1 and "WC-17" in pointer[0]
+        assert lines.index(pointer[0]) < next(
+            i for i, line in enumerate(lines) if line.startswith("Command:")
+        )
+
+
+NONCE = "0123456789abcdef0123456789abcdef"
+MARKER_RE = re.compile(r"\[sc-launch:v1:[0-9a-f]{32}\]")
+
+
+@pytest.mark.parametrize("complexity", ["simple", "medium", "complex"])
+def test_a_governed_brief_carries_exactly_one_marker_line(complexity: str) -> None:
+    text = brief.build(452, "feature", complexity, NONCE)
+    lines = text.splitlines()
+    marked = [line for line in lines if MARKER_RE.search(line)]
+    assert marked == [f"Launch marker: [sc-launch:v1:{NONCE}]"]
+    assert len(MARKER_RE.findall(text)) == 1
+    # it sits in the head, before the first command, and the rest is the plain brief
+    assert lines.index(marked[0]) < next(
+        i for i, line in enumerate(lines) if line.startswith("Command:")
+    )
+    assert text.replace(marked[0] + "\n", "") == brief.build(452, "feature", complexity)
+
+
+@pytest.mark.parametrize("complexity", ["simple", "medium", "complex"])
+def test_the_g1_test_issue_brief_carries_no_marker(complexity: str) -> None:
+    assert "sc-launch" not in brief.build(452, "feature", complexity)
+
+
+@pytest.mark.parametrize(
+    "nonce",
+    ["", "abc", "A" * 32, "0" * 31, "0" * 33, "g" * 32, 5, [NONCE], NONCE + "\n"],
+)
+def test_a_nonce_outside_the_guard_form_is_refused(nonce: object) -> None:
+    with pytest.raises(brief.BriefRefused) as err:
+        brief.build(452, "feature", "simple", nonce)
+    assert err.value.reason == "bad-nonce"

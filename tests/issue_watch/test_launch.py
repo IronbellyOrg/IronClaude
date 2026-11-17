@@ -33,14 +33,14 @@ from .conftest import result
 
 ORCA = "/opt/orca/bin/orca-ide"
 WORKTREE = "/work/tree"
-PROMPT = "/sc:issue --claim 9"
+PROMPT = "/sc:issue --claim 9 --pipeline none"
 
 # --- prompt (FR-012, design 9.3) ----------------------------------------------
 
 
 def test_ac7_prompt_accepts_only_the_int_nine__fr012_nfr001():
     """AC-7 FR-012 NFR-001: of the spec's seven inputs only ``9`` returns a prompt."""
-    assert build_claim_prompt(9) == "/sc:issue --claim 9"
+    assert build_claim_prompt(9) == "/sc:issue --claim 9 --pipeline none"
 
 
 @pytest.mark.parametrize("value", ["9", True, 0, -1, 10**9, 9.0])
@@ -60,8 +60,8 @@ def test_ac7_prompt_rejects_hostile_non_ints__fr012_nfr001(value):
 @pytest.mark.parametrize(
     ("value", "expected"),
     [
-        (1, "/sc:issue --claim 1"),
-        (999999999, "/sc:issue --claim 999999999"),
+        (1, "/sc:issue --claim 1 --pipeline none"),
+        (999999999, "/sc:issue --claim 999999999 --pipeline none"),
     ],
 )
 def test_ac7_prompt_accepts_both_range_ends__fr012(value, expected):
@@ -86,7 +86,7 @@ def test_ac8_launch_argv_equals_the_literal_twelve_elements__fr013():
         "--surface",
         "terminal",
         "--prompt",
-        "/sc:issue --claim 9",
+        "/sc:issue --claim 9 --pipeline none",
         "--json",
     ]
     assert len(argv) == 12
@@ -118,9 +118,17 @@ def test_ac8_orca_agent_constant_is_claude__fr013():
     "prompt",
     [
         "",
+        "/sc:issue --claim 9",
+        "/sc:issue --claim 9 --pipeline worktree",
+        "/sc:issue --claim 9 --pipeline none --pipeline full",
+        "/sc:issue --claim 9 --pipeline none ",
+        "/sc:issue --claim 0 --pipeline none",
+        "/sc:issue --claim 09 --pipeline none",
+        "/sc:issue --claim 1000000000 --pipeline none",
         "/sc:issue --claim 0",
         "/sc:issue --claim 09",
         "/sc:issue --claim 1000000000",
+        "/sc:issue --claim 9 --pipeline none --dangerously-skip-permissions",
         "/sc:issue --claim 9 --dangerously-skip-permissions",
         "/sc:issue --claim 9\n",
         "/sc:issue --claim 9\n/sc:issue --claim 10",
@@ -163,7 +171,7 @@ def test_ac9_retry_argv_puts_retry_launch_right_before_json__fr015():
         "--surface",
         "terminal",
         "--prompt",
-        "/sc:issue --claim 9",
+        "/sc:issue --claim 9 --pipeline none",
         "--retry-launch",
         "op-1",
         "--json",
@@ -916,3 +924,29 @@ def test_ac8_orca_agent_is_pinned_to_the_literal_claude__fr013_df11():
     assert ORCA_AGENT == "claude"
     assert ORCA_AGENT == EXPECTED_AGENT
     assert launch_argv(ORCA, WORKTREE, PROMPT)[4] == EXPECTED_AGENT
+
+
+# --- the claim prompt carries --pipeline none (Plan B Task 11) ------------------
+
+
+def test_build_claim_prompt_returns_exactly_the_pipeline_none_form():
+    assert build_claim_prompt(9) == "/sc:issue --claim 9 --pipeline none"
+
+
+def test_the_old_claim_prompt_no_longer_matches_and_launch_argv_refuses_it():
+    old = "/sc:issue --claim 9"
+    assert launch.PROMPT_PATTERN.fullmatch(old) is None
+    assert launch.PROMPT_PATTERN.fullmatch(build_claim_prompt(9)) is not None
+    with pytest.raises(ValueError):
+        launch_argv(ORCA, WORKTREE, old)
+    with pytest.raises(ValueError):
+        retry_argv(ORCA, WORKTREE, old, "op-1")
+
+
+def test_launch_and_retry_argv_keep_their_shape_with_the_longer_prompt():
+    prompt = build_claim_prompt(9)
+    argv = launch_argv(ORCA, WORKTREE, prompt)
+    assert len(argv) == 12 and argv[9:] == ["--prompt", prompt, "--json"]
+    retry = retry_argv(ORCA, WORKTREE, prompt, "op-1")
+    assert len(retry) == 14
+    assert retry[-4:] == [prompt, "--retry-launch", "op-1", "--json"]

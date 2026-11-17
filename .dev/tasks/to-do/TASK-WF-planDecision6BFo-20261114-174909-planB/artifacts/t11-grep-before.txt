@@ -1,0 +1,6 @@
+before (HEAD a98541153):
+claim {n}: 1
+claim [1-9]: 1
+after:
+claim {n}: 0
+claim [1-9]: 0
