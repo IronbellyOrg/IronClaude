@@ -1,0 +1,5 @@
+# T5 checks
+AC1 twin diff (expect empty):
+AC1 grep -c build src: 0 plugin: 0
+AC2 bash -n src exit 0
+-rwx------

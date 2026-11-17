@@ -339,7 +339,7 @@ Commands that decompose work and delegate to sub-agents without directly executi
 
 Commands that handle the full lifecycle from classification through execution to verification.
 
-- **Examples**: `/sc:task`, `/sc:implement`, `/sc:build`
+- **Examples**: `/sc:task`, `/sc:implement`
 - **Characteristics**: Multiple MCP servers, many personas, tiered compliance, sub-agent delegation
 - **Worker fit**: outward actions and the command's own commit step are off under `--unattended` (WC-9); per the rollout plan, `/sc:implement` is converted in P4. See [section 7.7](#77-orca-orchestration-commands-as-workers).
 - **Typical frontmatter**:
@@ -973,8 +973,8 @@ Orca can run IronClaude commands as workers under an Orca coordinator (the `/orc
 
 #### Rollout state
 
-- All 30 converted commands have an `## Unattended mode` section (16 from phase 1, 14 from phase 2), and `UNATTENDED_EXPECT` in `tests/skills/test_worker_contract.py` holds exactly those 30 entries.
-- A coordinator puts `--unattended` and one report directory on the 16 phase 1 commands by default; the phase 2 commands join that default after a phase 2 live check passes. It decides by the two-copy test in `~/.claude/WORKER-CONTRACT.md` ("Before the first task-create for a command"), not by a list in this guide. A command gains `--unattended` and its section in the phase that converts its gates, so no command accepts the flag while it can still stop for a human.
+- All 29 converted commands have an `## Unattended mode` section (15 from phase 1, 14 from phase 2), and `UNATTENDED_EXPECT` in `tests/skills/test_worker_contract.py` holds exactly those 29 entries.
+- A coordinator puts `--unattended` and one report directory on the 15 phase 1 commands by default; the phase 2 commands join that default after a phase 2 live check passes. It decides by the two-copy test in `~/.claude/WORKER-CONTRACT.md` ("Before the first task-create for a command"), not by a list in this guide. A command gains `--unattended` and its section in the phase that converts its gates, so no command accepts the flag while it can still stop for a human.
 - Per the rollout plan (SA-1), without `--unattended` every command behaves exactly as it does today: the same prompts, approval gates, default values, output paths and outward defaults.
 
 #### Deciding whether a new command can be a worker

@@ -34,9 +34,9 @@ _PACKAGE = "TASK-RESEARCH-recommend-refresh-20261024-044336"
 # compared minus these additions.
 _POST_REFRESH_ADDITIONS = {"graph", "impact", "issue", "sweep"}
 # Commands removed after the frozen package was written: /sc:spawn (replaced by
-# Orca), save, load and review-translation (moved to the snapshot fork) went in
-# 6.0.0. The frozen command record still lists them as active.
-_POST_REFRESH_REMOVALS = {"spawn", "save", "load", "review-translation"}
+# Orca), build, save, load and review-translation (moved to the snapshot fork)
+# went in 6.0.0. The frozen command record still lists them as active.
+_POST_REFRESH_REMOVALS = {"spawn", "build", "save", "load", "review-translation"}
 
 _TOKEN_RE = re.compile(r"`/([a-z][a-z0-9:-]*)")
 _FLAG_RE = re.compile(r"--[a-z][a-z0-9-]*")
@@ -589,8 +589,8 @@ def test_unmatched_cache_hints_are_consulted_then_rejected():
 
 
 def test_example_only_flags_are_not_declared_or_routed():
-    """T44: build --validate and cleanup --preview are examples; the guide never routes design --output."""
-    for name, flag in (("build", "--validate"), ("cleanup", "--preview")):
+    """T44: cleanup --preview is an example; the guide never routes design --output."""
+    for name, flag in (("cleanup", "--preview"),):
         source = (_COMMANDS / f"{name}.md").read_text(encoding="utf-8")
         usage = _section(source, "## Usage", "\n## ")
         examples = _section(source, "## Examples", "\n## ")
@@ -600,7 +600,6 @@ def test_example_only_flags_are_not_declared_or_routed():
     design = (_COMMANDS / "design.md").read_text(encoding="utf-8")
     assert "--output" in _section(design, "## Usage", "\n## ")
     for route, flag in (
-        ({"block": "other", "command": "sc:build"}, "--validate"),
         ({"block": "routing", "row": "cleanup"}, "--preview"),
         ({"block": "routing", "row": "focused-design"}, "--output"),
     ):

@@ -28,7 +28,6 @@ Here is a complete list of all available SuperClaude (`/sc:sc`) commands.
 |---|---|
 | `/sc:sc:analyze` | Comprehensive code analysis across quality, security, performance, and architecture domains |
 | `/sc:sc:brainstorm` | Interactive requirements discovery through Socratic dialogue and systematic exploration |
-| `/sc:sc:build` | Build, compile, and package projects with intelligent error handling and optimization |
 | `/sc:sc:business-panel` | Multi-expert business analysis with adaptive interaction modes |
 | `/sc:sc:cleanup` | Systematically clean up code, remove dead code, and optimize project structure |
 | `/sc:sc:design` | Design system architecture, APIs, and component interfaces with comprehensive specifications |
@@ -118,9 +117,6 @@ SuperClaude supports behavioral flags to enable specific execution modes and too
 
 # Token-efficient task management
 /sc:sc:task --token-efficient --delegate auto "Refactor authentication system"
-
-# Safe production deployment
-/sc:sc:build --safe-mode --validate --focus security
 ```
 
 ## Boundaries

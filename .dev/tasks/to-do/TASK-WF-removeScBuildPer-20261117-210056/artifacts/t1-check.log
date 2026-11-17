@@ -1,0 +1,11 @@
+# T1 checks
+gone   src/superclaude/commands/build.md
+gone   plugins/superclaude/commands/build.md
+gone   commands/sc-build.md
+gone   .claude/commands/sc/build.md
+AC1 ls src/superclaude/commands | grep -c '^build': 0
+AC2 git status:
+ D commands/sc-build.md
+ D plugins/superclaude/commands/build.md
+ D src/superclaude/commands/build.md
+staged .claude paths: 0

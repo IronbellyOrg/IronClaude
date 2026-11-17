@@ -67,7 +67,6 @@ This page is the per-command reference: exact syntax, options, and what each com
 | [`/sc:troubleshoot`](#sctroubleshoot---issue-diagnosis) | Root cause analysis | `troubleshoot.md` | Report only (`--fix` offers a `/sc:workflow` plan you run with `/sc:implement`; `--fix --depth deep` offers a `/task-builder` task file you run with `/task`) |
 | [`/sc:impact`](#scimpact---change-impact-report) | What depends on a symbol or a diff, from the code graph | `impact.md` | Report only |
 | [`/sc:test`](#sctest---testing) | Tests + coverage | `test.md` | Only with `--fix` |
-| [`/sc:build`](#scbuild---project-building) | Build project | `build.md` | Yes |
 | `/sc:adversarial` | Adversarial debate, compare, merge of artifacts | `adversarial.md` | Report only |
 | `/sc:auggie-review` | Auggie code review of PRs and diffs | `auggie-review.md` | Report only |
 | `/sc:cleanup-audit` | Read-only multi-pass repository cleanup audit | `cleanup-audit.md` | Report only |
@@ -1117,35 +1116,6 @@ The command hands its arguments to the `sc-validate-roadmap-protocol` skill, whi
 /sc:test src/components --type unit --coverage
 /sc:test --type e2e  # Activates Playwright MCP
 /sc:test --watch --fix
-```
-
-**MCP servers:** playwright
-
----
-
-### `/sc:build` - Project Building
-
-**When to use:** Need to build the project.
-
-**What it does:**
-
-- Compilation
-- Bundling
-- Optimization
-- Error analysis
-
-**Syntax:**
-
-```
-/sc:build [target] [--type dev|prod|test] [--clean] [--optimize] [--verbose]
-```
-
-**Examples:**
-
-```bash
-/sc:build
-/sc:build --type prod --clean --optimize
-/sc:build frontend --verbose
 ```
 
 **MCP servers:** playwright

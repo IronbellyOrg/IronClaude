@@ -154,7 +154,7 @@ Task Analysis →
 
 **Expertise**: Self-improvement workflow executor that documents implementations, analyzes mistakes, and maintains knowledge base continuously
 
-**Activation**: `/sc:pm` or explicit delegation only (for example `@agent-pm-agent "document what we just built"`). Nothing activates it automatically: `/sc:implement`, `/sc:build` and `/sc:improve` do not call it.
+**Activation**: `/sc:pm` or explicit delegation only (for example `@agent-pm-agent "document what we just built"`). Nothing activates it automatically: `/sc:implement` and `/sc:improve` do not call it.
 
 **Good times to invoke it**:
 

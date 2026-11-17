@@ -25,7 +25,6 @@ _OTHER_BEGIN, _OTHER_END = "<!-- other-commands:v1 -->", "<!-- /other-commands -
 
 # Additional operations and explicit coordination, not an Other-only namespace.
 _OTHER_COMMANDS = {
-    "sc:build",
     "sc:git",
     "sc:graph",
     "sc:impact",
@@ -1049,9 +1048,6 @@ def test_other_operations_preserve_requested_authority_and_owned_state():
     assert "Status-only stays inspection" in other
     assert "a commit needs authorization" in other
     assert "Do not append push, merge or PR creation" in other
-    assert "Compile/package existing code" in other
-    assert "not new-feature implementation" in other
-    assert "Broken compilation needs diagnosis" in other
     assert "mode=quick or mode=update" in other
     assert "PROJECT_INDEX.md and PROJECT_INDEX.json" in other
     assert "Coordinated project docs/API/structure/README" in other

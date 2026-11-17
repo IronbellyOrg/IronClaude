@@ -155,7 +155,6 @@ If a feature is framed around “how work should be executed” rather than “w
 
 - `implement.md`
 - `analyze.md`
-- `build.md`
 - `document.md`
 - `task.md`
 - `task-unified.md`
