@@ -471,7 +471,7 @@ LINK_NOT_READABLE = "payload not readable"
 LINK_NO_DISPATCH = "payload has no dispatchId"
 LINK_SENDER_MISMATCH = "sender mismatch"
 
-PAYLOAD_CAP = 64 * 1024  # a payload string longer than this is not parsed
+PAYLOAD_CAP = 64 * 1024  # a payload string of more UTF-8 bytes than this is not parsed
 ASK_CAP = 400  # characters of question text kept; a cut text ends in "..."
 _DISPATCH_ID = re.compile(r"[A-Za-z0-9_][A-Za-z0-9_.:-]{0,127}")
 
@@ -482,7 +482,9 @@ def _read_payload(payload: Any, sender: Any) -> tuple[Any, Any, str]:
         return UNKNOWN, UNKNOWN, LINK_NO_PAYLOAD
     data = payload
     if isinstance(payload, str):
-        if len(payload) > PAYLOAD_CAP:
+        if (
+            len(payload.encode("utf-8", "surrogatepass")) > PAYLOAD_CAP
+        ):  # bytes, not characters
             return UNKNOWN, UNKNOWN, LINK_NOT_READABLE
         try:
             data = json.loads(payload)
@@ -574,8 +576,10 @@ def parse_questions(
         epoch = parse_timestamp(raw.get("created_at"))
         linked: dict[str, Any] = {}
         if link:
+            # the sender is compared as the source gave it: the sanitized copy in ``values``
+            # would let a hidden format character pass for a clean ``dispatch:<id>``
             ask, dispatch, state = _read_payload(
-                raw.get("payload"), values["from_handle"]
+                raw.get("payload"), raw.get("from_handle")
             )
             linked = {"ask": ask, "dispatch_id": dispatch, "link": state}
         rows.append(

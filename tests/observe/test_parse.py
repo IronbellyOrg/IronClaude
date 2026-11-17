@@ -707,6 +707,19 @@ def test_a_dict_payload_is_read_like_a_json_string():
         ("42", "dispatch:disp_a", "payload not readable", UNKNOWN),
         ([1], "dispatch:disp_a", "payload not readable", UNKNOWN),
         ("[" * 100_000, "dispatch:disp_a", "payload not readable", UNKNOWN),
+        ("[" * 60_000, "dispatch:disp_a", "payload not readable", UNKNOWN),  # in cap
+        (  # 30,000 characters but about 90,000 bytes: over the 64 KiB cap
+            '{"dispatchId": "disp_a", "question": "' + "日" * 30_000 + '"}',
+            "dispatch:disp_a",
+            "payload not readable",
+            UNKNOWN,
+        ),
+        (  # a hidden format character in the source sender is not a clean sender
+            question_payload("disp_a", "kept?"),
+            "dispatch:disp_a​",
+            "sender mismatch",
+            "kept?",
+        ),
         (
             "{" + " " * (70 * 1024) + '"dispatchId": "disp_a"}',
             "dispatch:disp_a",
