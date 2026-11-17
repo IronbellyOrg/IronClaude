@@ -76,9 +76,10 @@ def _design_section_9() -> str:
 
 # The design is a historical record and is not edited. Commands removed after it
 # was written drop out of the printed text, so the expected text applies each
-# removal here (6.0.0 removed /sc:spawn).
+# removal here (6.0.0 removed /sc:spawn and /sc:build). The entries apply in order.
 _REMOVED_COMMAND_TEXT = (
     ("/sc:cleanup, /sc:spawn or /sc:build", "/sc:cleanup or /sc:build"),
+    ("/sc:improve, /sc:cleanup or /sc:build", "/sc:improve or /sc:cleanup"),
 )
 
 
@@ -914,7 +915,6 @@ IMPL_SPELLINGS = [
     "sc:task-protocol",
     "sc:improve",
     "sc:cleanup",
-    "sc:build",
     "SC:IMPLEMENT",
     "/sc:implement args",
     "superclaude:sc-implement-protocol",

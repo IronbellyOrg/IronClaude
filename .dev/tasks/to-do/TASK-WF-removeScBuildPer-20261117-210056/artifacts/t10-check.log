@@ -1,0 +1,3 @@
+# T10 checks
+AC1 git grep sc:build in developer-guide and architecture: 0
+AC2 converted sections in src/superclaude/commands: 30

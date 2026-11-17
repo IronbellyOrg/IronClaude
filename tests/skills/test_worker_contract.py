@@ -470,7 +470,7 @@ NEVER_AS_WORKER = (
     "/sc:sweep",
 )
 
-# The sixteen commands that get an `## Unattended mode` section in P1, in the order
+# The fifteen commands that get an `## Unattended mode` section in P1, in the order
 # of the spec's phase table.
 P1_COMMANDS = (
     "adversarial",
@@ -482,7 +482,6 @@ P1_COMMANDS = (
     "init-lite",
     "workflow",
     "analyze",
-    "build",
     "business-panel",
     "design",
     "document",
@@ -577,11 +576,6 @@ UNATTENDED_EXPECT: dict = {
     "analyze": {
         "flags": ["--output"],
         "phrases": ["analyze-report.md", "no gate", "consent is never given"],
-        "nested": [],
-    },
-    "build": {
-        "flags": ["--output"],
-        "phrases": ["build-report.md", "no gate"],
         "nested": [],
     },
     "design": {
@@ -1376,12 +1370,6 @@ def test_unattended_artifacts_list_only_files_the_run_wrote():
         assert "as each file is written" in clause or "as it is written" in clause, (
             clause
         )
-    build = _artifacts_clause(_unattended_section("build"))
-    assert "git check-ignore" in build and "paths git ignores are left out" in build, (
-        build
-    )
-    assert "WC-4" in build and "git refuses" not in build, build
-    assert not WRITE_VERB_RE.search(build), build
     test = _artifacts_clause(_unattended_section("test"))
     assert "paths git ignores are left out" in test and "WC-4" in test, test
     assert "`[]`" in test and not WRITE_VERB_RE.search(test), test
@@ -1440,8 +1428,8 @@ _WORKER_CONTRACT_HEADING = "## Worker contract (`--unattended`)"
 
 
 def _check_p1_set(commands, expect) -> None:
-    assert len(commands) == 16, f"P1 lists {len(commands)} commands, not 16"
-    assert len(set(commands)) == 16, "P1_COMMANDS has a duplicate"
+    assert len(commands) == 15, f"P1 lists {len(commands)} commands, not 15"
+    assert len(set(commands)) == 15, "P1_COMMANDS has a duplicate"
     # The P2 entries arrive one task at a time, so `expect` may also hold any of
     # P2_COMMANDS; a name outside both sets, or a missing P1 name, fails.
     assert set(commands) <= set(expect) <= set(commands) | set(P2_COMMANDS), (
@@ -1646,7 +1634,7 @@ def _check_p2_set(p1, p2, expect) -> None:
     assert set(expect) == both, (
         f"UNATTENDED_EXPECT differs from P1 + P2: {sorted(set(expect) ^ both)}"
     )
-    assert len(expect) == 30, f"UNATTENDED_EXPECT has {len(expect)} entries, not 30"
+    assert len(expect) == 29, f"UNATTENDED_EXPECT has {len(expect)} entries, not 29"
     for name in (*p1, *p2):
         assert (Path(_THIS.COMMANDS_DIR) / f"{name}.md").exists(), f"{name}: no file"
 

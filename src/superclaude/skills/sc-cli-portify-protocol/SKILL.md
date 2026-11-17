@@ -591,4 +591,3 @@ When `--dry-run` is active, the contract is emitted with:
 - `/sc:implement` — General feature implementation
 - `/sc:design` — System architecture design
 - `/sc:analyze` — Code analysis for understanding workflows
-- `/sc:build` — Build and compile after generating

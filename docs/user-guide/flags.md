@@ -57,15 +57,6 @@ Since 5.0.0 `FLAGS.md` and `MODES.md` are no longer shipped, and old copies left
 | `--depth` | Analysis thoroughness | `quick`, `deep` |
 | `--format` | Output format | `text`, `json`, `report` |
 
-### Build Command Flags (`/sc:build`)
-
-| Flag | Purpose | Values |
-|------|---------|--------|
-| `--type` | Build configuration | `dev`, `prod`, `test` |
-| `--clean` | Clean before build | Boolean |
-| `--optimize` | Enable optimizations | Boolean |
-| `--verbose` | Detailed output | Boolean |
-
 ### Design Command Flags (`/sc:design`)
 
 | Flag | Purpose | Values |

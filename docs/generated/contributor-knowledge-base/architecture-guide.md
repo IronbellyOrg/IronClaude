@@ -236,7 +236,6 @@ This tree contains a large set of markdown-defined commands, including:
 
 - `implement.md`
 - `analyze.md`
-- `build.md`
 - `document.md`
 - `research.md`
 - `task-unified.md`

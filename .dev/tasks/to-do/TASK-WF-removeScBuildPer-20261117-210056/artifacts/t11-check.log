@@ -1,0 +1,6 @@
+# T11 checks
+AC1 git grep sc:sc:build|sc:build|build.md in docs/generated and commands: 0
+AC2 diff stat sc-recommend:
+ commands/sc-help.md      |  4 ----
+ commands/sc-recommend.md | 50 ++++++++++++++++++++++++------------------------
+ 2 files changed, 25 insertions(+), 29 deletions(-)
