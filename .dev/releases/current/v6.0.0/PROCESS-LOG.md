@@ -52,6 +52,20 @@ One entry per step. Each entry: date and time (UTC), the step, the commands or s
 - **Change next time:** give each agent its own temp directory for test runs (for example set `TMPDIR` per worktree) or run the full suite for at most one agent at a time; record a fresh `integration` baseline in `RELEASE-READINESS.md` before wave 1.
 - **From the agent's PROCESS-NOTES:** the first `/sc:workflow` call swallowed `--depth` and `--handoff` because of unbalanced quotes; the plan's acceptance wording said "neither cleanup_audit nor cleanup-audit" but the kept skill and command still say `cleanup-audit`, so the criterion should name only the removed runner (the module `cleanup_audit` or the command `superclaude cleanup-audit`).
 
+### 8. Permission prompts on agent cleanup (2026-11-17 20:28Z)
+- **Step:** the PR 2 and PR 5 agents each stopped at a Claude Code permission prompt ("Dangerous rm operation on statically-unresolvable target") for `rm -rf "$(cat /tmp/throwaway-home-path)"`, their own throwaway install directory. I checked the path (`/tmp/throwaway-home.*`, not the real home). `orca terminal send --text 1 --enter` is refused with `agent_prompt_blocked` (Orca wants text and Enter as separate commands and a retry id). I did not answer the prompt: the agent's work was finished and an unanswered prompt auto-blocks after about 90 seconds.
+- **Change next time:** tell agents in the prompt to delete their throwaway HOME with a literal path (for example `rm -rf /tmp/throwaway-home.XXXX`) or leave it, so no prompt appears. Prompts that hold an unattended agent are a risk for the watch loop.
+
+### 9. PR 1 conflict after PR 2 merged, rebase nudge (2026-11-17 20:29Z)
+- **Step:** after #615 merged, #616 became DIRTY (conflicts in `PROJECT_INDEX.json`, `PROJECT_INDEX.md`, `docs/developer-guide/technical-architecture.md`). `git merge-tree` against `origin/integration` showed the three files. I sent one nudge telling the agent to rebase on `origin/integration`, keep both removals, re-run `make sync-dev` and `make verify-sync`, and push with `--force-with-lease`. It rebased and pushed within about 8 minutes (head `cfb88bd8c`).
+- **Got in the way:** the generated index files (`PROJECT_INDEX.*`) and `technical-architecture.md` are touched by every removal PR, so every PR after the first in a wave conflicts.
+- **Change next time:** stagger merges so the agent with the most files rebases once; or make `PROJECT_INDEX.*` regenerate after the wave instead of in each PR (proposal: a rule that removal PRs do not edit generated index files, and one follow-up commit regenerates them).
+
+### 10. PR 1 verified and merged (2026-11-17 20:41Z)
+- **Step:** checked #616 on GitHub on final head `cfb88bd8c`: 7 of 7 checks SUCCESS (latest runs), merge CLEAN, Augment completed with 0 findings on that head (its one earlier finding is resolved), Codex code review and security review completed on that head, 0 unresolved threads. Merged with `gh pr merge 616 --repo IronbellyOrg/IronClaude --squash --delete-branch` as `b637fd0d8`.
+- **Test counts (agent's run):** baseline 27914 passed, 3 failed, 178 skipped; after 27687 passed, 1 failed (`tests/cli/test_install_keep.py::test_same_content_is_true_only_for_identical_readable_files`, also failing before), 178 skipped, 2 xpassed; 229 tests removed (`tests/cli/prd`). 27914 + 2 baseline failures that passed - 229 = 27687.
+- **From the agent's PROCESS-NOTES:** run the baseline once on `integration` and reuse it for every PR of the wave instead of three copies (each takes about 9 minutes). `test_real_user_claude_dir_is_untouched` flaked once because a live session writes `~/.claude`.
+
 ## Out of scope, for later
 - The task and documentation bundle (Part B of issue 571) and the agents evaluation (issue 572).
 - Ryan's request of 2026-11-17 14:40 to fold the eight analysis documents (`sweep`, `observe`, `review-safety-scan`, `review-fixcheck-and-consequence-rule`, `shadow-run-and-review-panel`, `issue-pipeline`, `launch-level-guard`, `ccsession-retention`) into the docs and processes.
