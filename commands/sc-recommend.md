@@ -182,8 +182,8 @@ category_mapping:
     flags: ["--validate", "--coverage", "--monitoring"]
 
   improve_category:
-    primary_commands: ["/sc:sc:cleanup --code --all"]
-    secondary_commands: ["/sc:sc:analyze --code", "/sc:sc:refactor --quality"]
+    primary_commands: ["/sc:sc:analyze --focus quality"]
+    secondary_commands: ["/sc:sc:cleanup --type code --safe", "/sc:sc:refactor --quality"]
     personas: ["--persona-refactorer", "--persona-mentor"]
     flags: ["--threshold", "--iterate", "--profile"]
 
