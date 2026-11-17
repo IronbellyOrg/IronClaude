@@ -23,7 +23,7 @@ State key: NOT STARTED, RUNNING (agent working), GREEN (agent stopped, checks gr
 | Wave | PR item | Branch | State | PR link | Tests before / after | Merged |
 |---|---|---|---|---|---|---|
 | 1 | 1: `prd` command-line pipeline (`cli/prd`) | `clayphi/v6-prd-cli` | RUNNING (agent started 2026-11-17 19:50Z) | | | |
-| 1 | 2: cleanup-audit runner (`cli/cleanup_audit`) | `clayphi/v6-cleanup-audit-runner` | RUNNING (agent started 2026-11-17 19:50Z) | | | |
+| 1 | 2: cleanup-audit runner (`cli/cleanup_audit`) | `clayphi/v6-cleanup-audit-runner` | MERGED | [#615](https://github.com/IronbellyOrg/IronClaude/pull/615) | 27912 passed, 5 failed (agent baseline) / 27875 passed, 4 failed (38 tests removed; the failures are pre-existing or concurrent-run collisions, see PROCESS-LOG entry 7). CI `Test on Python 3.10`: success | 2026-11-17 20:25Z, `049dcbbf0` |
 | 1 | 5: `/sc:spawn` | `clayphi/v6-spawn` | RUNNING (agent started 2026-11-17 19:50Z) | | | |
 | 2 | 6: `/sc:save` and `/sc:load` | `clayphi/v6-save-load` | NOT STARTED | | | |
 | 2 | 7: `/sc:build` | `clayphi/v6-build` | NOT STARTED | | | |
