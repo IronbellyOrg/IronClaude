@@ -1,0 +1,267 @@
+{
+  "agreement_clusters": [],
+  "blocking_clusters": 0,
+  "calibration_coverage": {
+    "calibrated_findings": 9,
+    "clustered_findings": 9
+  },
+  "cards": [
+    {
+      "block_state": "complete",
+      "card": "reviewer-1.md",
+      "errors": [],
+      "reviewer_id": "reviewer-1",
+      "state": "complete"
+    },
+    {
+      "block_state": "complete",
+      "card": "reviewer-2.md",
+      "errors": [],
+      "reviewer_id": "reviewer-2",
+      "state": "complete"
+    },
+    {
+      "block_state": "complete",
+      "card": "reviewer-3.md",
+      "errors": [],
+      "reviewer_id": "reviewer-3",
+      "state": "complete"
+    }
+  ],
+  "chained": [],
+  "citations": {
+    "malformed": 0,
+    "resolved": 18,
+    "unresolved": 11
+  },
+  "cluster_agreement": 1.0,
+  "clusters": [
+    {
+      "blocking_all": false,
+      "blocking_any": false,
+      "chained": false,
+      "claim": "Task 2's second AC says 'pass, or their actual failures are reported', so the gate cannot fail. Reword: all four commands exit 0, and any failure blocks completion until fixed.",
+      "cluster_id": "C1",
+      "disputed": false,
+      "member_scores": [
+        0.4,
+        0.3,
+        0.6,
+        0.75,
+        0.65,
+        0.4,
+        0.6,
+        0.45
+      ],
+      "members": [
+        {
+          "blocking": false,
+          "deviation_class": null,
+          "finding_confidence": 0.4,
+          "fp": "d2b547fe7c0fa2fbcc42ac1d56f4b7adb326a74ef345abc8b582a7f37a3fe4b5",
+          "id": "F1",
+          "ordinal": 1,
+          "primary_citation": {
+            "index": 0,
+            "line_end": 31,
+            "line_start": 27,
+            "path": ".dev/tasks/done/TASK-WF-planTheExplicitl-20261110-024937/TASK-WF-planTheExplicitl-20261110-024937.md",
+            "role": "plan",
+            "status": "resolved"
+          },
+          "refs_norm": [],
+          "reviewer_id": "reviewer-1"
+        },
+        {
+          "blocking": false,
+          "deviation_class": null,
+          "finding_confidence": 0.3,
+          "fp": "d2b547fe7c0fa2fbcc42ac1d56f4b7adb326a74ef345abc8b582a7f37a3fe4b5",
+          "id": "F2",
+          "ordinal": 1,
+          "primary_citation": {
+            "index": 0,
+            "line_end": 31,
+            "line_start": 29,
+            "path": ".dev/tasks/done/TASK-WF-planTheExplicitl-20261110-024937/TASK-WF-planTheExplicitl-20261110-024937.md",
+            "role": "plan",
+            "status": "resolved"
+          },
+          "refs_norm": [],
+          "reviewer_id": "reviewer-1"
+        },
+        {
+          "blocking": false,
+          "deviation_class": null,
+          "finding_confidence": 0.6,
+          "fp": "d2b547fe7c0fa2fbcc42ac1d56f4b7adb326a74ef345abc8b582a7f37a3fe4b5",
+          "id": "F3",
+          "ordinal": 1,
+          "primary_citation": {
+            "index": 0,
+            "line_end": 30,
+            "line_start": 27,
+            "path": ".dev/tasks/done/TASK-WF-planTheExplicitl-20261110-024937/TASK-WF-planTheExplicitl-20261110-024937.md",
+            "role": "plan",
+            "status": "resolved"
+          },
+          "refs_norm": [],
+          "reviewer_id": "reviewer-1"
+        },
+        {
+          "blocking": false,
+          "deviation_class": null,
+          "finding_confidence": 0.75,
+          "fp": "d2b547fe7c0fa2fbcc42ac1d56f4b7adb326a74ef345abc8b582a7f37a3fe4b5",
+          "id": "F1",
+          "ordinal": 2,
+          "primary_citation": {
+            "index": 0,
+            "line_end": 43,
+            "line_start": 43,
+            "path": ".dev/tasks/done/TASK-WF-planTheExplicitl-20261110-024937/TASK-WF-planTheExplicitl-20261110-024937.md",
+            "role": "plan",
+            "status": "resolved"
+          },
+          "refs_norm": [],
+          "reviewer_id": "reviewer-2"
+        },
+        {
+          "blocking": false,
+          "deviation_class": null,
+          "finding_confidence": 0.65,
+          "fp": "d2b547fe7c0fa2fbcc42ac1d56f4b7adb326a74ef345abc8b582a7f37a3fe4b5",
+          "id": "F2",
+          "ordinal": 2,
+          "primary_citation": {
+            "index": 0,
+            "line_end": 31,
+            "line_start": 30,
+            "path": ".dev/tasks/done/TASK-WF-planTheExplicitl-20261110-024937/TASK-WF-planTheExplicitl-20261110-024937.md",
+            "role": "plan",
+            "status": "resolved"
+          },
+          "refs_norm": [],
+          "reviewer_id": "reviewer-2"
+        },
+        {
+          "blocking": false,
+          "deviation_class": null,
+          "finding_confidence": 0.4,
+          "fp": "d2b547fe7c0fa2fbcc42ac1d56f4b7adb326a74ef345abc8b582a7f37a3fe4b5",
+          "id": "F3",
+          "ordinal": 2,
+          "primary_citation": {
+            "index": 0,
+            "line_end": 43,
+            "line_start": 39,
+            "path": ".dev/tasks/done/TASK-WF-planTheExplicitl-20261110-024937/TASK-WF-planTheExplicitl-20261110-024937.md",
+            "role": "plan",
+            "status": "resolved"
+          },
+          "refs_norm": [],
+          "reviewer_id": "reviewer-2"
+        },
+        {
+          "blocking": false,
+          "deviation_class": null,
+          "finding_confidence": 0.6,
+          "fp": "d2b547fe7c0fa2fbcc42ac1d56f4b7adb326a74ef345abc8b582a7f37a3fe4b5",
+          "id": "F1",
+          "ordinal": 3,
+          "primary_citation": {
+            "index": 0,
+            "line_end": 27,
+            "line_start": 27,
+            "path": ".dev/tasks/done/TASK-WF-planTheExplicitl-20261110-024937/TASK-WF-planTheExplicitl-20261110-024937.md",
+            "role": "plan",
+            "status": "resolved"
+          },
+          "refs_norm": [],
+          "reviewer_id": "reviewer-3"
+        },
+        {
+          "blocking": false,
+          "deviation_class": null,
+          "finding_confidence": 0.45,
+          "fp": "d2b547fe7c0fa2fbcc42ac1d56f4b7adb326a74ef345abc8b582a7f37a3fe4b5",
+          "id": "F2",
+          "ordinal": 3,
+          "primary_citation": {
+            "index": 0,
+            "line_end": 39,
+            "line_start": 39,
+            "path": ".dev/tasks/done/TASK-WF-planTheExplicitl-20261110-024937/TASK-WF-planTheExplicitl-20261110-024937.md",
+            "role": "plan",
+            "status": "resolved"
+          },
+          "refs_norm": [],
+          "reviewer_id": "reviewer-3"
+        }
+      ],
+      "representative": {
+        "id": "F1",
+        "reviewer_id": "reviewer-2"
+      },
+      "reviewers": [
+        "reviewer-1",
+        "reviewer-2",
+        "reviewer-3"
+      ],
+      "support": 1.0,
+      "uncalibrated": false
+    },
+    {
+      "blocking_all": false,
+      "blocking_any": false,
+      "chained": false,
+      "claim": "Task 2 test additions are hedged ('where necessary') and the plan lists no condition that triggers them. INF-003 ('only as necessary') is marked covered, but whether test edits happen is left undecided.",
+      "cluster_id": "C2",
+      "disputed": true,
+      "member_scores": [
+        0.25
+      ],
+      "members": [
+        {
+          "blocking": false,
+          "deviation_class": null,
+          "finding_confidence": 0.25,
+          "fp": "2ad5636d79beac8b7131829c846ba39c65e38325a342ae59628081d9f6bff304",
+          "id": "F4",
+          "ordinal": 1,
+          "primary_citation": {
+            "index": 0,
+            "line_end": 43,
+            "line_start": 39,
+            "path": ".dev/tasks/done/TASK-WF-planTheExplicitl-20261110-024937/TASK-WF-planTheExplicitl-20261110-024937.md",
+            "role": "plan",
+            "status": "resolved"
+          },
+          "refs_norm": [
+            "INF-003"
+          ],
+          "reviewer_id": "reviewer-1"
+        }
+      ],
+      "representative": {
+        "id": "F4",
+        "reviewer_id": "reviewer-1"
+      },
+      "reviewers": [
+        "reviewer-1"
+      ],
+      "support": 0.1282051282051282,
+      "uncalibrated": false
+    }
+  ],
+  "complete_reviewers": [
+    "reviewer-1",
+    "reviewer-2",
+    "reviewer-3"
+  ],
+  "invalid_reviewers": [],
+  "problems": [],
+  "uncalibrated": [],
+  "uncalibrated_findings": [],
+  "valid_blocks": 3
+}

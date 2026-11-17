@@ -1,0 +1,807 @@
+{
+  "parsed_count": 0,
+  "inferred_count": 66,
+  "inferred_dropped": [],
+  "coverage_pct": null,
+  "coverage_pct_union": 0.9091,
+  "unmapped_requirements": [],
+  "unmapped_requirements_union": [
+    "INF-006",
+    "INF-023",
+    "INF-025",
+    "INF-038",
+    "INF-042",
+    "INF-065"
+  ],
+  "coverage_degraded": "parsed-sparse",
+  "coverage_undefined": false,
+  "S_dev_density": 0.0909,
+  "matrix": [
+    {
+      "id": "INF-001",
+      "quote": "engage at the first verified Medium-or-higher finding routed to a fix",
+      "citation": "source.md:6",
+      "source": "inferred",
+      "line": 6,
+      "matched_task_ids": [
+        "Goal+Constraints"
+      ],
+      "match_method": "containment",
+      "ratio": 0.875
+    },
+    {
+      "id": "INF-002",
+      "quote": "default on at `--monitor 3` via `--merge-guard {draft,off}`",
+      "citation": "source.md:6",
+      "source": "inferred",
+      "line": 6,
+      "matched_task_ids": [
+        "Task 12"
+      ],
+      "match_method": "containment",
+      "ratio": 1.0
+    },
+    {
+      "id": "INF-003",
+      "quote": "release when the fix push is confirmed on the PR head, before replies and the re-trigger",
+      "citation": "source.md:6",
+      "source": "inferred",
+      "line": 6,
+      "matched_task_ids": [
+        "Goal+Constraints"
+      ],
+      "match_method": "containment",
+      "ratio": 1.0
+    },
+    {
+      "id": "INF-004",
+      "quote": "an unreadable timeline or an exit with unpublished fixes keeps the PR draft and reports",
+      "citation": "source.md:6",
+      "source": "inferred",
+      "line": 6,
+      "matched_task_ids": [
+        "Goal+Constraints"
+      ],
+      "match_method": "containment",
+      "ratio": 0.778
+    },
+    {
+      "id": "INF-005",
+      "quote": "No new `MonitorState`.",
+      "citation": "source.md:51",
+      "source": "inferred",
+      "line": 51,
+      "matched_task_ids": [
+        "Task 10"
+      ],
+      "match_method": "containment",
+      "ratio": 1.0
+    },
+    {
+      "id": "INF-006",
+      "quote": "Nothing mutates. A held guard found in the log is reported with the clear command.",
+      "citation": "source.md:57",
+      "source": "inferred",
+      "line": 57,
+      "matched_task_ids": [],
+      "match_method": "none",
+      "ratio": 0.556,
+      "best_candidate": "Task 8"
+    },
+    {
+      "id": "INF-007",
+      "quote": "unsettled requests are reconciled before any edit, release or re-trigger",
+      "citation": "source.md:58",
+      "source": "inferred",
+      "line": 58,
+      "matched_task_ids": [
+        "Goal+Constraints"
+      ],
+      "match_method": "containment",
+      "ratio": 0.625
+    },
+    {
+      "id": "INF-008",
+      "quote": "Wave 0 prints once: \"Remediation is unprotected: --merge-guard off.\"",
+      "citation": "source.md:59",
+      "source": "inferred",
+      "line": 59,
+      "matched_task_ids": [
+        "Task 9"
+      ],
+      "match_method": "containment",
+      "ratio": 1.0
+    },
+    {
+      "id": "INF-009",
+      "quote": "PR #N is still mergeable; this run's fixes are local only.",
+      "citation": "source.md:60",
+      "source": "inferred",
+      "line": 60,
+      "matched_task_ids": [
+        "Task 9"
+      ],
+      "match_method": "containment",
+      "ratio": 1.0
+    },
+    {
+      "id": "INF-010",
+      "quote": "Print the clear command once.",
+      "citation": "source.md:61",
+      "source": "inferred",
+      "line": 61,
+      "matched_task_ids": [
+        "Task 9"
+      ],
+      "match_method": "containment",
+      "ratio": 1.0
+    },
+    {
+      "id": "INF-011",
+      "quote": "Settle `skipped/already_draft`, phase `disabled`, never mutate.",
+      "citation": "source.md:62",
+      "source": "inferred",
+      "line": 62,
+      "matched_task_ids": [
+        "Task 3"
+      ],
+      "match_method": "containment",
+      "ratio": 0.857
+    },
+    {
+      "id": "INF-012",
+      "quote": "Release, cause `no_edits`.",
+      "citation": "source.md:63",
+      "source": "inferred",
+      "line": 63,
+      "matched_task_ids": [
+        "Task 4"
+      ],
+      "match_method": "containment",
+      "ratio": 1.0
+    },
+    {
+      "id": "INF-013",
+      "quote": "Script `--read` must show `state == OPEN`; otherwise halt `pr_not_open`, push nothing.",
+      "citation": "source.md:64",
+      "source": "inferred",
+      "line": 64,
+      "matched_task_ids": [
+        "Task 8"
+      ],
+      "match_method": "containment",
+      "ratio": 1.0
+    },
+    {
+      "id": "INF-014",
+      "quote": "Release, cause `pushed`, before reply, resolve and the S5a re-trigger.",
+      "citation": "source.md:65",
+      "source": "inferred",
+      "line": 65,
+      "matched_task_ids": [
+        "Task 8"
+      ],
+      "match_method": "containment",
+      "ratio": 0.778
+    },
+    {
+      "id": "INF-015",
+      "quote": "Settle `skipped/user_override`, phase `disabled`, no more draft calls, keep pushing, report.",
+      "citation": "source.md:66",
+      "source": "inferred",
+      "line": 66,
+      "matched_task_ids": [
+        "Task 3"
+      ],
+      "match_method": "containment",
+      "ratio": 0.6
+    },
+    {
+      "id": "INF-016",
+      "quote": "Do not release; report `held (timeline unreadable)`; keep pushing.",
+      "citation": "source.md:67",
+      "source": "inferred",
+      "line": 67,
+      "matched_task_ids": [
+        "Goal+Constraints"
+      ],
+      "match_method": "containment",
+      "ratio": 0.857
+    },
+    {
+      "id": "INF-017",
+      "quote": "Halt before any edit: `terminal_halted`, reason `draft_guard_unavailable`.",
+      "citation": "source.md:68",
+      "source": "inferred",
+      "line": 68,
+      "matched_task_ids": [
+        "Task 8"
+      ],
+      "match_method": "containment",
+      "ratio": 1.0
+    },
+    {
+      "id": "INF-018",
+      "quote": "PR stays draft; report `held` with the clear command.",
+      "citation": "source.md:69",
+      "source": "inferred",
+      "line": 69,
+      "matched_task_ids": [
+        "Task 8"
+      ],
+      "match_method": "containment",
+      "ratio": 0.857
+    },
+    {
+      "id": "INF-019",
+      "quote": "No `gh` or `git` word on any line, comments included (F6).",
+      "citation": "source.md:75",
+      "source": "inferred",
+      "line": 75,
+      "matched_task_ids": [
+        "Goal+Constraints"
+      ],
+      "match_method": "containment",
+      "ratio": 0.857
+    },
+    {
+      "id": "INF-020",
+      "quote": "Never collides with `CONFLICT_CYCLE_PREFIXES`.",
+      "citation": "source.md:101",
+      "source": "inferred",
+      "line": 101,
+      "matched_task_ids": [
+        "Task 3"
+      ],
+      "match_method": "containment",
+      "ratio": 0.667
+    },
+    {
+      "id": "INF-021",
+      "quote": "Guard requests with no matching settle, matched by `idempotency_key`",
+      "citation": "source.md:104",
+      "source": "inferred",
+      "line": 104,
+      "matched_task_ids": [
+        "Task 3"
+      ],
+      "match_method": "containment",
+      "ratio": 0.833
+    },
+    {
+      "id": "INF-022",
+      "quote": "THIS cycle's count of applied edits",
+      "citation": "source.md:107",
+      "source": "inferred",
+      "line": 107,
+      "matched_task_ids": [
+        "Task 4"
+      ],
+      "match_method": "containment",
+      "ratio": 1.0
+    },
+    {
+      "id": "INF-023",
+      "quote": "a test imports both modules and asserts equality, because the core cannot import `recovery`",
+      "citation": "source.md:109",
+      "source": "inferred",
+      "line": 109,
+      "matched_task_ids": [],
+      "match_method": "none",
+      "ratio": 0.455,
+      "best_candidate": "Task 3"
+    },
+    {
+      "id": "INF-024",
+      "quote": "A halt with reason `draft_guard_unavailable` reports `unavailable`.",
+      "citation": "source.md:112",
+      "source": "inferred",
+      "line": 112,
+      "matched_task_ids": [
+        "Task 8"
+      ],
+      "match_method": "containment",
+      "ratio": 0.8
+    },
+    {
+      "id": "INF-025",
+      "quote": "the only foreign-toggle test; no actor identity, F11",
+      "citation": "source.md:114",
+      "source": "inferred",
+      "line": 114,
+      "matched_task_ids": [],
+      "match_method": "none",
+      "ratio": 0.5,
+      "best_candidate": "Task 4"
+    },
+    {
+      "id": "INF-026",
+      "quote": "`mode == OFF`, or `ordinal < 3`, or `is_conflict_cycle(cycle_id)`",
+      "citation": "source.md:133",
+      "source": "inferred",
+      "line": 133,
+      "matched_task_ids": [
+        "Task 3"
+      ],
+      "match_method": "containment",
+      "ratio": 1.0
+    },
+    {
+      "id": "INF-027",
+      "quote": "`read.state != \"OPEN\"` | `HALT_PR_NOT_OPEN`",
+      "citation": "source.md:136",
+      "source": "inferred",
+      "line": 136,
+      "matched_task_ids": [
+        "Task 1"
+      ],
+      "match_method": "containment",
+      "ratio": 0.75
+    },
+    {
+      "id": "INF-028",
+      "quote": "`push_completed` and `read.head_sha == target_sha` | `RELEASE(cause=pushed)`",
+      "citation": "source.md:156",
+      "source": "inferred",
+      "line": 156,
+      "matched_task_ids": [
+        "Task 4"
+      ],
+      "match_method": "containment",
+      "ratio": 0.714
+    },
+    {
+      "id": "INF-029",
+      "quote": "`REPORT_HELD` (no mutation; prints the clear command)",
+      "citation": "source.md:164",
+      "source": "inferred",
+      "line": 164,
+      "matched_task_ids": [
+        "Task 8"
+      ],
+      "match_method": "containment",
+      "ratio": 0.6
+    },
+    {
+      "id": "INF-030",
+      "quote": "Each reason has its own test.",
+      "citation": "source.md:165",
+      "source": "inferred",
+      "line": 165,
+      "matched_task_ids": [
+        "Goal+Constraints"
+      ],
+      "match_method": "containment",
+      "ratio": 0.667
+    },
+    {
+      "id": "INF-031",
+      "quote": "`landed` is a push recovery just completed; `published` is a push that completed normally before the crash",
+      "citation": "source.md:166",
+      "source": "inferred",
+      "line": 166,
+      "matched_task_ids": [
+        "Task 8"
+      ],
+      "match_method": "containment",
+      "ratio": 0.889
+    },
+    {
+      "id": "INF-032",
+      "quote": "43 to 45, update the docstring",
+      "citation": "source.md:175",
+      "source": "inferred",
+      "line": 175,
+      "matched_task_ids": [
+        "Task 2"
+      ],
+      "match_method": "containment",
+      "ratio": 1.0
+    },
+    {
+      "id": "INF-033",
+      "quote": "appended and fsynced BEFORE the draft/ready call",
+      "citation": "source.md:178",
+      "source": "inferred",
+      "line": 178,
+      "matched_task_ids": [
+        "Goal+Constraints"
+      ],
+      "match_method": "containment",
+      "ratio": 0.667
+    },
+    {
+      "id": "INF-034",
+      "quote": "`run_log.rebuild_state()` stores it as `state[\"draft_guard\"]` (default `None`, added to `_NEW_KEY_DEFAULTS`)",
+      "citation": "source.md:187",
+      "source": "inferred",
+      "line": 187,
+      "matched_task_ids": [
+        "Task 5"
+      ],
+      "match_method": "containment",
+      "ratio": 0.778
+    },
+    {
+      "id": "INF-035",
+      "quote": "For a draft request that was the first guard record, the whole record is erased",
+      "citation": "source.md:201",
+      "source": "inferred",
+      "line": 201,
+      "matched_task_ids": [
+        "Task 3"
+      ],
+      "match_method": "containment",
+      "ratio": 0.857
+    },
+    {
+      "id": "INF-036",
+      "quote": "`original_is_draft` is never read from GitHub after the first record",
+      "citation": "source.md:208",
+      "source": "inferred",
+      "line": 208,
+      "matched_task_ids": [
+        "Task 3"
+      ],
+      "match_method": "containment",
+      "ratio": 0.857
+    },
+    {
+      "id": "INF-037",
+      "quote": "`SkillArgs.merge_guard: str = DEFAULT_MERGE_GUARD`",
+      "citation": "source.md:215",
+      "source": "inferred",
+      "line": 215,
+      "matched_task_ids": [
+        "Task 6"
+      ],
+      "match_method": "containment",
+      "ratio": 1.0
+    },
+    {
+      "id": "INF-038",
+      "quote": "`RunConfig` and `run_skill` do not change (F5): the guard is SKILL-orchestrated.",
+      "citation": "source.md:217",
+      "source": "inferred",
+      "line": 217,
+      "matched_task_ids": [],
+      "match_method": "none",
+      "ratio": 0.429,
+      "best_candidate": "Goal+Constraints"
+    },
+    {
+      "id": "INF-039",
+      "quote": "`set -euo pipefail`, same `die`, same `--repo` resolution from the origin remote, numeric `--pr` check, exit 127 when `gh` or `jq` is missing",
+      "citation": "source.md:221",
+      "source": "inferred",
+      "line": 221,
+      "matched_task_ids": [
+        "Task 7"
+      ],
+      "match_method": "containment",
+      "ratio": 0.882
+    },
+    {
+      "id": "INF-040",
+      "quote": "gh api --paginate \"repos/${REPO}/issues/${PR}/timeline\"",
+      "citation": "source.md:230",
+      "source": "inferred",
+      "line": 230,
+      "matched_task_ids": [
+        "Task 7"
+      ],
+      "match_method": "containment",
+      "ratio": 0.875
+    },
+    {
+      "id": "INF-041",
+      "quote": "if not `OPEN`, emit `ok:false,error:\"not_open\"`; if already draft, `changed:false`",
+      "citation": "source.md:231",
+      "source": "inferred",
+      "line": 231,
+      "matched_task_ids": [
+        "Task 7"
+      ],
+      "match_method": "containment",
+      "ratio": 0.889
+    },
+    {
+      "id": "INF-042",
+      "quote": "`--to` is idempotent, so a retry or a resume re-issue is safe.",
+      "citation": "source.md:234",
+      "source": "inferred",
+      "line": 234,
+      "matched_task_ids": [],
+      "match_method": "none",
+      "ratio": 0.5,
+      "best_candidate": "Goal+Constraints"
+    },
+    {
+      "id": "INF-043",
+      "quote": "Loaded lazily at L3 Wave 3, Wave 6 and Wave 8.",
+      "citation": "source.md:240",
+      "source": "inferred",
+      "line": 240,
+      "matched_task_ids": [
+        "Task 8"
+      ],
+      "match_method": "containment",
+      "ratio": 0.75
+    },
+    {
+      "id": "INF-044",
+      "quote": "No new python fence",
+      "citation": "source.md:241",
+      "source": "inferred",
+      "line": 241,
+      "matched_task_ids": [
+        "Goal+Constraints"
+      ],
+      "match_method": "containment",
+      "ratio": 1.0
+    },
+    {
+      "id": "INF-045",
+      "quote": "update it to 45 and name `draft_guard_requested` and `draft_guard_settled`, without the words `gh` or `git`",
+      "citation": "source.md:242",
+      "source": "inferred",
+      "line": 242,
+      "matched_task_ids": [
+        "Task 2"
+      ],
+      "match_method": "containment",
+      "ratio": 1.0
+    },
+    {
+      "id": "INF-046",
+      "quote": "the guard phases are fold values, not `MonitorState` members",
+      "citation": "source.md:243",
+      "source": "inferred",
+      "line": 243,
+      "matched_task_ids": [
+        "Task 10"
+      ],
+      "match_method": "containment",
+      "ratio": 0.833
+    },
+    {
+      "id": "INF-047",
+      "quote": "Flag row and a paragraph: what it does, the clear command, `held` meaning, default on.",
+      "citation": "source.md:245",
+      "source": "inferred",
+      "line": 245,
+      "matched_task_ids": [
+        "Task 13"
+      ],
+      "match_method": "containment",
+      "ratio": 0.778
+    },
+    {
+      "id": "INF-048",
+      "quote": "The SKILL mints it at the end of Wave 3",
+      "citation": "source.md:251",
+      "source": "inferred",
+      "line": 251,
+      "matched_task_ids": [
+        "Task 8"
+      ],
+      "match_method": "containment",
+      "ratio": 1.0
+    },
+    {
+      "id": "INF-049",
+      "quote": "The entries are added after the text of each file is final, as the last step of the task that writes the file",
+      "citation": "source.md:255",
+      "source": "inferred",
+      "line": 255,
+      "matched_task_ids": [
+        "Goal+Constraints"
+      ],
+      "match_method": "containment",
+      "ratio": 0.7
+    },
+    {
+      "id": "INF-050",
+      "quote": "Acceptance trace (must appear in this order in the run log)",
+      "citation": "source.md:270",
+      "source": "inferred",
+      "line": 270,
+      "matched_task_ids": [
+        "Task 11"
+      ],
+      "match_method": "containment",
+      "ratio": 0.833
+    },
+    {
+      "id": "INF-051",
+      "quote": "Without `published` no row would match and the PR would stay draft.",
+      "citation": "source.md:280",
+      "source": "inferred",
+      "line": 280,
+      "matched_task_ids": [
+        "Task 3"
+      ],
+      "match_method": "containment",
+      "ratio": 0.714
+    },
+    {
+      "id": "INF-052",
+      "quote": "halt `pr_not_open`, nothing pushed, report the local commit `<target_sha>`.",
+      "citation": "source.md:281",
+      "source": "inferred",
+      "line": 281,
+      "matched_task_ids": [
+        "Task 8"
+      ],
+      "match_method": "containment",
+      "ratio": 0.875
+    },
+    {
+      "id": "INF-053",
+      "quote": "Run `make sync-dev` at the end of every task that edits a file under `src/superclaude/skills/` or `src/superclaude/commands/`",
+      "citation": "source.md:301",
+      "source": "inferred",
+      "line": 301,
+      "matched_task_ids": [
+        "Goal+Constraints"
+      ],
+      "match_method": "containment",
+      "ratio": 1.0
+    },
+    {
+      "id": "INF-054",
+      "quote": "the final task runs the FULL suite (`uv run pytest -q tests`) and compares its failures with the base-commit record",
+      "citation": "source.md:301",
+      "source": "inferred",
+      "line": 301,
+      "matched_task_ids": [
+        "Task 1"
+      ],
+      "match_method": "containment",
+      "ratio": 0.857
+    },
+    {
+      "id": "INF-055",
+      "quote": "Never stage `.claude/`.",
+      "citation": "source.md:301",
+      "source": "inferred",
+      "line": 301,
+      "matched_task_ids": [
+        "Goal+Constraints"
+      ],
+      "match_method": "containment",
+      "ratio": 1.0
+    },
+    {
+      "id": "INF-056",
+      "quote": "No task makes a live PR call, and the run that opens the PR must not enable the feature (`--merge-guard off`).",
+      "citation": "source.md:326",
+      "source": "inferred",
+      "line": 326,
+      "matched_task_ids": [
+        "Task 1"
+      ],
+      "match_method": "containment",
+      "ratio": 0.833
+    },
+    {
+      "id": "INF-057",
+      "quote": "A static test asserts `merge_guard.py` has no `gh` or `git` word.",
+      "citation": "source.md:322",
+      "source": "inferred",
+      "line": 322,
+      "matched_task_ids": [
+        "Task 3"
+      ],
+      "match_method": "containment",
+      "ratio": 1.0
+    },
+    {
+      "id": "INF-058",
+      "quote": "the script test for a missing `jq` (exit 127)",
+      "citation": "source.md:322",
+      "source": "inferred",
+      "line": 322,
+      "matched_task_ids": [
+        "Task 7"
+      ],
+      "match_method": "containment",
+      "ratio": 1.0
+    },
+    {
+      "id": "INF-059",
+      "quote": "Cite tests and constants by symbol name",
+      "citation": "source.md:362",
+      "source": "inferred",
+      "line": 362,
+      "matched_task_ids": [
+        "Goal+Constraints"
+      ],
+      "match_method": "containment",
+      "ratio": 1.0
+    },
+    {
+      "id": "INF-060",
+      "quote": "Update the 43-member enumeration in `refs/loop-guard.md` in the event-enum task.",
+      "citation": "source.md:368",
+      "source": "inferred",
+      "line": 368,
+      "matched_task_ids": [
+        "Task 2"
+      ],
+      "match_method": "containment",
+      "ratio": 0.909
+    },
+    {
+      "id": "INF-061",
+      "quote": "Protocol prose written by the plan never carries `file:NNN` pointers",
+      "citation": "source.md:369",
+      "source": "inferred",
+      "line": 369,
+      "matched_task_ids": [
+        "Goal+Constraints"
+      ],
+      "match_method": "containment",
+      "ratio": 0.889
+    },
+    {
+      "id": "INF-062",
+      "quote": "a crash after a normal `push_completed` (no dangling window, `published` true) releases before the re-trigger",
+      "citation": "source.md:318",
+      "source": "inferred",
+      "line": 318,
+      "matched_task_ids": [
+        "Task 11"
+      ],
+      "match_method": "containment",
+      "ratio": 1.0
+    },
+    {
+      "id": "INF-063",
+      "quote": "Add the acceptance trace of section 5 as a fixture over `RunLog`.",
+      "citation": "source.md:322",
+      "source": "inferred",
+      "line": 322,
+      "matched_task_ids": [
+        "Task 11"
+      ],
+      "match_method": "containment",
+      "ratio": 0.857
+    },
+    {
+      "id": "INF-064",
+      "quote": "a settled `not_applied` of either direction returns to `phase_before_request`",
+      "citation": "source.md:376",
+      "source": "inferred",
+      "line": 376,
+      "matched_task_ids": [
+        "Task 3"
+      ],
+      "match_method": "containment",
+      "ratio": 0.833
+    },
+    {
+      "id": "INF-065",
+      "quote": "whether written by the push triad or synthesized by recovery (`recovered: true`)",
+      "citation": "source.md:108",
+      "source": "inferred",
+      "line": 108,
+      "matched_task_ids": [],
+      "match_method": "none",
+      "ratio": 0.375,
+      "best_candidate": "Task 1"
+    },
+    {
+      "id": "INF-066",
+      "quote": "phase `DISABLED` with cause `already_draft` gives `off`",
+      "citation": "source.md:112",
+      "source": "inferred",
+      "line": 112,
+      "matched_task_ids": [
+        "Task 3"
+      ],
+      "match_method": "containment",
+      "ratio": 1.0
+    }
+  ]
+}

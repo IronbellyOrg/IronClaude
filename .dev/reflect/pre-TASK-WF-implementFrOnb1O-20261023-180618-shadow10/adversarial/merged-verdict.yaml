@@ -1,0 +1,71 @@
+merge_method: adversarial
+convergence_score: 1.0
+status: success
+base_variant: reviewer-2 (qa)
+judge_identity: inline-orchestrator-sonnet (class collision with reviewer-1 recorded)
+unresolved_conflicts: 0
+findings:
+  - id: M-001
+    severity: MINOR
+    blocking: false
+    category: missing-requirement
+    claim: "Task 7 requires a CHANGELOG.md entry but none of its five ACs verifies it and the ledger cites no CHANGELOG anchor (t7.diff does contain the entry)."
+    source_reviewers: [reviewer-1 F2, reviewer-2 F2]
+    calibrated_confidence: 0.70
+    citations: [".dev/tasks/done/TASK-WF-implementFrOnb1O-20261023-180618/TASK-WF-implementFrOnb1O-20261023-180618.md:160-168"]
+  - id: M-002
+    severity: MINOR
+    blocking: false
+    category: missing-requirement
+    claim: "Six plan instructions have no matching AC: 3.3 step 2 rewording (plan:59), 3.1 step 1 + 3.6 row re-pointing (plan:61), T4 bullet 2 simple-plan-default (plan:114), T5 key-description reword (plan:133), and the 'few files' routing-row re-check deferred to Task 3 by t2-few-files.log:2-3. The 3.4 step 1 sub-item originally raised was dropped: plan:70 covers it."
+    source_reviewers: [reviewer-1 F3 reduced, reviewer-2 F3]
+    calibrated_confidence: 0.55
+    citations: [".dev/tasks/done/TASK-WF-implementFrOnb1O-20261023-180618/TASK-WF-implementFrOnb1O-20261023-180618.md:59-62", ".dev/tasks/done/TASK-WF-implementFrOnb1O-20261023-180618/TASK-WF-implementFrOnb1O-20261023-180618.md:67-74", ".dev/tasks/done/TASK-WF-implementFrOnb1O-20261023-180618/TASK-WF-implementFrOnb1O-20261023-180618.md:113-124", ".dev/tasks/done/TASK-WF-implementFrOnb1O-20261023-180618/artifacts/t2-few-files.log:2-3"]
+  - id: M-003
+    severity: MINOR
+    blocking: false
+    category: other
+    claim: "Tasks 1-2 edit the level table while the copy-parity test (test_level_table_copy_matches_guide) fails until Task 3 re-copies it; the plan never notes the expected intermediate failure, so the ledger records test:fail beside verdict=compliant with no reader guidance."
+    source_reviewers: [reviewer-1 F1]
+    calibrated_confidence: 0.55
+    citations: [".dev/tasks/done/TASK-WF-implementFrOnb1O-20261023-180618/TASK-WF-implementFrOnb1O-20261023-180618.md:35-50", ".dev/tasks/done/TASK-WF-implementFrOnb1O-20261023-180618/artifacts/t1-extras.log:1-3"]
+  - id: M-004
+    severity: MINOR
+    blocking: false
+    category: contradiction
+    claim: "QUALIFIED: T5.AC2's evidence (t5-checks.log:5-6 'key list and examples unchanged vs start', rc=1) does not name its scope, and t5.diff:9-14 rewrites description lines inside the key block; the AC is satisfied under the names+examples reading, so this is evidence-scope ambiguity, not inaccuracy."
+    source_reviewers: [reviewer-2 F1]
+    calibrated_confidence: 0.55
+    citations: [".dev/tasks/done/TASK-WF-implementFrOnb1O-20261023-180618/TASK-WF-implementFrOnb1O-20261023-180618.md:133-138", ".dev/tasks/done/TASK-WF-implementFrOnb1O-20261023-180618/artifacts/t5-checks.log:5-6", ".dev/tasks/done/TASK-WF-implementFrOnb1O-20261023-180618/artifacts/t5.diff:9-14"]
+  - id: M-005
+    severity: MINOR
+    blocking: false
+    category: missing-requirement
+    claim: "Coverage of the spec's 'Part A rows of section 4.2' span is asserted rather than shown: the plan never enumerates those rows and their edit targets live in Tasks 4-6, while the matrix maps the span to Task 1 only; the driving spec is absent on disk so the rows cannot be listed."
+    source_reviewers: [reviewer-2 F4]
+    calibrated_confidence: 0.40
+    citations: [".dev/tasks/done/TASK-WF-implementFrOnb1O-20261023-180618/source.md:1", ".dev/tasks/done/TASK-WF-implementFrOnb1O-20261023-180618/TASK-WF-implementFrOnb1O-20261023-180618.md:19"]
+  - id: M-006
+    severity: MINOR
+    blocking: false
+    category: other
+    claim: "T6.AC1's ledger evidence anchors only 5 of the 10 listed doc lines (commands.md 294, 506, 551, 806, 927 unanchored; the diff does show all edited) and T6.AC2 anchors t6-sweep.log:1 though the log carries no per-hit verdict."
+    source_reviewers: [reviewer-2 F5]
+    calibrated_confidence: 0.60
+    citations: [".dev/tasks/done/TASK-WF-implementFrOnb1O-20261023-180618/TASK-WF-implementFrOnb1O-20261023-180618.md:146-153", ".dev/tasks/done/TASK-WF-implementFrOnb1O-20261023-180618/artifacts/t6-sweep.log:1-22"]
+  - id: M-007
+    severity: MINOR
+    blocking: false
+    category: other
+    claim: "T2.AC4 (3.1 steps 2-11 byte-unchanged) is anchored to the one edited line (HOW-WE-WORK.md:53) and T2.AC3's 3.7/3.8 sub-items are unanchored; t2.diff supports both claims but the ledger anchors do not prove them."
+    source_reviewers: [reviewer-2 F6]
+    calibrated_confidence: 0.55
+    citations: [".dev/tasks/done/TASK-WF-implementFrOnb1O-20261023-180618/TASK-WF-implementFrOnb1O-20261023-180618.md:67-73"]
+  - id: M-008
+    severity: MINOR
+    blocking: false
+    category: missing-requirement
+    claim: "The agent rule is hand-copied into guide section 4 and an unmarked core/CLAUDE.md paragraph outside the level-table markers, and no plan task adds a test pinning the two copies (only a manual AC); that mirror can drift silently (the repo's recorded plugin-mirror drift class)."
+    source_reviewers: [reviewer-3 F1]
+    calibrated_confidence: 0.68
+    citations: [".dev/tasks/done/TASK-WF-implementFrOnb1O-20261023-180618/TASK-WF-implementFrOnb1O-20261023-180618.md:96-104", ".dev/tasks/done/TASK-WF-implementFrOnb1O-20261023-180618/artifacts/t7.diff:47-54"]

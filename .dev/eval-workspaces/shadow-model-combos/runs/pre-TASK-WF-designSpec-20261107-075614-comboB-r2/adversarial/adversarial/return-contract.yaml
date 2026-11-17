@@ -1,0 +1,13 @@
+return_contract:
+  merged_output_path: "/home/coder/workspaces/worktrees/IronClaude/brainstorm-reflect-panel/.dev/eval-workspaces/shadow-model-combos/runs/pre-TASK-WF-designSpec-20261107-075614-comboB-r2/adversarial/adversarial/merged-output.md"
+  convergence_score: 1.0            # 13 of 13 debate points agreed (11 unanimous, 2 by majority)
+  artifacts_dir: "/home/coder/workspaces/worktrees/IronClaude/brainstorm-reflect-panel/.dev/eval-workspaces/shadow-model-combos/runs/pre-TASK-WF-designSpec-20261107-075614-comboB-r2/adversarial/adversarial"
+  status: "partial"                 # invariant gate: 2 HIGH UNADDRESSED (INV-001, INV-002) blocked convergence at standard depth
+  base_variant: "variant-1 (analyzer card, sonnet class)"
+  unresolved_conflicts: 0
+  fallback_mode: false
+  failure_stage: null
+  invocation_method: "skill-direct"
+  unaddressed_invariants:
+    - {id: INV-001, category: sufficiency_challenge, assumption: "Reusing _repo_scoped alone resolves the Task 7 conflict", severity: HIGH}
+    - {id: INV-002, category: sufficiency_challenge, assumption: "Adding cycle_id, applied_edits and target_sha to resume_decision alone closes the release-safety gap", severity: HIGH}

@@ -1,0 +1,22 @@
+calibrator_class: opus
+calibrator_diversity: degraded   # all three Anthropic classes are reviewers, so the disjoint set is empty
+cards:
+  reviewer-1:
+    reviewer: {persona: analyzer, model_class: sonnet}
+    calibrated_C: 0.81
+    per_dimension: {citation_grounding: 0.92, coverage_completeness: 0.80, deviation_classification_clarity: 0.60, risk_surface_coverage: 0.85, recommendation_actionability: 0.88}
+    verified_citations: "18 re-read, all held"
+    blocking_grade_support: {R1-F1 (written R3-F1 in the card): partly}
+  reviewer-2:
+    reviewer: {persona: qa, model_class: haiku}
+    calibrated_C: 0.82
+    per_dimension: {citation_grounding: 0.90, coverage_completeness: 0.85, deviation_classification_clarity: 0.75, risk_surface_coverage: 0.75, recommendation_actionability: 0.85}
+    verified_citations: "14 re-read, all held"
+    blocking_grade_support: {R2-F1: yes, R2-F2: partly}
+  reviewer-3:
+    reviewer: {persona: refactorer, model_class: opus}
+    calibrated_C: 0.77
+    per_dimension: {citation_grounding: 0.92, coverage_completeness: 0.80, deviation_classification_clarity: 0.35, risk_surface_coverage: 0.85, recommendation_actionability: 0.92}
+    verified_citations: "22 re-read, all held; STAGE2:57 not checked"
+    blocking_grade_support: {none marked blocking: "R3-F1 evidence could support blocking (calibrator note)"}
+mean_calibrated_C: 0.80

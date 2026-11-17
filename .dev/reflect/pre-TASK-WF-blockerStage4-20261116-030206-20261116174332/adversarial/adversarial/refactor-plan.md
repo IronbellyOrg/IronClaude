@@ -1,0 +1,45 @@
+# Refactoring Plan: merged review card for the stage 4 plan (second review)
+
+## Overview
+- Base variant: V3 (`variant-3-original.md`, reviewer 3, refactorer, opus class; combined score 0.8987)
+- Incorporated: V1 (`variant-1-original.md`), V2 (`variant-2-original.md`), the invariant probe (`invariant-probe.md`), the Round 2 and Round 3 evidence (`debate/round2-rebuttals.md`, `debate/round3-invariant-resolution.md`)
+- Output: `adversarial/merged-review-card.md` (the folder one level above this one), same card shape as the first review's merged card: `# Merged review card`, `Keys`, `## Verdict`, `## Findings` (lines `H<n> | blocking true or false | grade | category | Who: ... Wrong result: ... | citations: ...` followed by a `<!-- Source: ... -->` comment), `## Earlier-review findings`, `## Reviewer disagreement, as settled by the debate`, `## Dropped`, `## Checked`
+- Grades are the settled debate grades; the merge executor changes none. Grade vocabulary: blocking, MEDIUM (a non-blocking warning), minor. There is no blocking finding.
+- Verdict line: PASS (with 5 MEDIUM warnings and 7 minor notes; no blocking finding). Record the dissent: the V2 advocate graded C-002 blocking and held NEEDS-REVISION; V3's original F1 was blocking and was lowered by the debate.
+- Citation rule: every citation is copied from a variant, the probe or a Round 2/3 statement (path:line "verbatim quote"); where a source used a key (P4, S1, S3, SPEC, MAP), expand it with the key list at the top of the card. Where none held the line needed, re-Read the repository line and quote it exactly.
+
+## Planned Changes (findings of the merged card, in this order)
+
+| Id | Grade | Category | Source rows | Who and wrong result (one line each) | Fix direction | Citations to take |
+|----|-------|----------|-------------|--------------------------------------|---------------|-------------------|
+| H1 | MEDIUM | unpassable-check | V3 F1 (lowered from blocking), V1 F1, V2 F2; C-001, X-001 | Who: the Task 5 executor and the FINAL reviewer. Wrong result: none demonstrated; the strict-T2 acceptance cannot tell strict mode from non-strict (the temporary-tree case already fails under stage 1's non-strict T2), so a missing or no-op switch passes every check and nothing runs after stage 4. Not blocking because P4:108 and P4:112 both require strict mode and the worse reading is not the only one the text allows | name the switch; add a case that a registered `digest` row file still holding the old sentence fails with the switch on and passes with it off | V3 F1; V1 F1 (S1 source.md:16); Round 2 V1 "New evidence 1"; V3 Round 2 "Final grades" C-001 |
+| H2 | MEDIUM | missing-requirement | V1 F6, V2 F1 (blocking dissent), V3 F8; C-002, X-002 | Who: the owner reading the stage 4 summary. Wrong result: none demonstrated; spec section 10.5 asks the roadmap and tech-research cap lines to "point at the shared rule", no stage 4 task does it, and the plan records no exclusion (stage 2 adds no text beside the cap sentences, stage 3 hands researcher edits to stage 4). The lines are marked [E]; roadmap's cap text already says "open blocking findings" | add the two pointer edits, or one Constraints line recording the exclusion | SPEC:867, SPEC:861, SPEC:948, SPEC:1105; P4:70, P4:74; S3:26; S2:88; roadmap SKILL.md:563 (V2 Round 2); V3 Round 2 point list |
+| H3 | MEDIUM | missing-requirement | probe INV-001 (HIGH, lowered), Round 3 | Who: the Task 1 executor and the owner. Wrong result: none demonstrated; `agent_template_qa.md:140` holds the S5 bullet, 21 lines above the definition bullets at 161 to 163, and Task 1 names lines 85, 157, 158, 161 and 333 and never S5; the spec requires each carrier to replace S1, S2 and S5; no check greps for S5, so QA agents made from the template could keep "CRITICAL and IMPORTANT findings are blocking" beside the digest. Graded MEDIUM by the orchestrator ruling (advocates: blocking, MEDIUM, minor) | name the S5 bullet near line 140 and its siblings in the other three templates; add `grep -c "CRITICAL and IMPORTANT findings are blocking"` printing 0 in `src/superclaude/templates` | invariant-probe.md INV-001 evidence; SPEC:815, SPEC:737, SPEC:203; S3:125; the four S5 lines (orchestrator Grep) |
+| H4 | MEDIUM | other | probe INV-002, Round 3 | Who: the Task 4 executor and a coordinator reading the spec-panel return contract. Wrong result: none demonstrated; the new Unattended line writes `<report-dir>/follow-ups.md` while the Contract bullet says `artifacts` is `[]` unless the Improve step ran, and stage 2 lists the ledger in `artifacts` when tracked | amend the Contract bullet in the same task; re-check the `artifacts` pins in test_worker_contract.py | spec-panel.md:461; S2:102; P4:89; Round 3 V1 and V3 INV-002 |
+| H5 | MEDIUM | missing-requirement | V3 F6; C-009 | Who: the Task 5 executor. Wrong result: none demonstrated; Task 5 may reword a literal in `src/superclaude/cli/doctor.py` but its final run omits `tests/unit/test_cli_doctor.py` and `tests/cli/test_install_retired_mcp.py`; unlikely in practice since stage 1's non-strict T2 would already flag such a literal (INV-007) | add the two doctor tests to the run list | V3 F6; S1:214 (V1 Round 2); Round 2 V3 "Response to criticisms" |
+| H6 | minor | contradiction | V1 F2, V2 F3, V3 F2; C-003 | Task 1 acceptance P4:41 passes an all-complete archive-blocked package in one clause and fails it in the parenthesis | name the ledger line that marks the package blocked | V3 F2; managed-workspace.md:48, :62 |
+| H7 | minor | other | V1 F3, V3 F3; C-004 | the Rule 6 grep at P4:37 returns about ten lines; only line 990 is Critical Rule 6; "equals the heading words" is open to two readings | pin the grep to the `## Critical Rules` block | V3 F3; V1 F3 |
+| H8 | minor | missing-requirement | V1 F4; C-005 | Task 4 keeps "CRITICAL is blocking" unconditional although SPEC:739 says narrow both; defensible because the same spec row maps CRITICAL to Blocking, but the stated reason is a test pin that the same task re-pins around | state the decision in the plan | V1 F4; P4:85; SPEC:739; source.md:32 |
+| H9 | minor | other | V1 F5; C-006 | the "digest ends with the sentence" greps (P4:43, P4:60) already print 1 today; only the `digest v2 begin` count discriminates | rely on the `v2 begin` grep, drop "ends with" wording | V1 F5; agent_template_qa.md:163; Round 2 V1 C-006 |
+| H10 | minor | contradiction | V3 F4; C-007 | the plugin FR-8 line is edited "because the mapping test pins them" but MAP:102 pins only "otherwise it is Medium"; the plugin twin ends half-narrowed | reword the reason (the P4:96 grep needs the edit) | V3 F4; MAP:102; P4:23, P4:91 |
+| H11 | minor | contradiction | V3 F5; C-008 | the stage 3 plan still says stage 4 adds the plugin mirror (belongs to the stage 3 plan, not this plan) | fix S3:214 in the stage 3 plan | V3 F5 |
+| H12 | minor | other | V3 F7; C-010 | Task 5 acceptance P4:116 cites a file Task 6 writes later | add "until Task 6" or check by `git diff` | V3 F7 |
+| H13 | minor | other | probe INV-006, INV-008, INV-010 | (a) a named exemption for a literal still fails the P4:115 grep (only reword satisfies both); (b) the rule path is named twice in `agent_template_qa.md` (digest pointer and L1 merge line) against "names the rule once" (P4:25); (c) the P4:48 parenthetical omits the two `cli/` allow-list rows | wording fixes | invariant-probe.md rows INV-006, INV-008, INV-010 |
+
+## Earlier-review findings (table)
+Status of the first review's G1 to G14 against the live plan (V1 checked G1 to G8, V2 G9 to G14, V3 G1 to G3): G1 fixed (P4:40 to P4:42), G2 fixed (P4:93, P4:100), G3 fixed with one gap (H5), G4 removed by the plugin decision (P4:23), G5 fixed (P4:88, P4:97), G6 fixed (P4:37), G7 fixed (P4:37, P4:70), G8 fixed (P4:70, P4:75; recounted 5, 6, 1, 2), G9 fixed (P4:25), G10 fixed (P4:60, P4:61), G11 and G12 removed (P4:23), G13 fixed (P4:108, P4:111), G14 fixed in (a), (c), (d) with two wording gaps (H6, H7). Evidence per row from V1, V2 and V3 Checked sections.
+
+## Reviewer disagreement (to render)
+C-001 (V3 blocking, V1 and V2 minor, all MEDIUM after Round 2), C-002 (V2 blocking, V1 minor, V3 minor, then V1 and V3 MEDIUM), INV-001 (three grades), the overall verdict (V2 and V3 NEEDS-REVISION, V1 no blocking; settled: none blocking), the V2 advocate's dissent on C-002.
+
+## Changes NOT Being Made (dropped)
+- C-011 (V2 F4): coverage-matrix omissions are a defect of the review's own matrix, not of the plan (all advocates agree).
+- X-004 (V1 Checked cites P4:87 for the plugin decision; it is at P4:23 and P4:91) and V1's F1 category label: errors in a card, not in the plan; recorded as process notes.
+- X-005: V3's F8 paraphrase of SPEC:867 is incomplete, not false (re-evaluation: MET on K1).
+- V2's model-identity self-report ("OpenAI model") against its haiku pin: a process note (identity mismatch suspected), no grade effect.
+
+## Risk Summary
+All changes are additive wording in a review card; no finding text changes grade. Rollback: the variants and this plan stay on disk.
+
+## Review Status
+auto-approved

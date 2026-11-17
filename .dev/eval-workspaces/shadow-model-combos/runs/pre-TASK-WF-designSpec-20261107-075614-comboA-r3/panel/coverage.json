@@ -1,0 +1,74 @@
+{
+  "reviewer-1": {
+    "assigned": [
+      "FR-1",
+      "FR-2",
+      "FR-3",
+      "FR-4",
+      "FR-5",
+      "FR-6",
+      "FR-7",
+      "FR-8",
+      "FR-9",
+      "FR-10",
+      "FR-11"
+    ],
+    "observed": [
+      "FR-1",
+      "FR-10",
+      "FR-11",
+      "FR-2",
+      "FR-3",
+      "FR-5",
+      "FR-9"
+    ]
+  },
+  "reviewer-2": {
+    "assigned": [
+      "FR-12",
+      "FR-13",
+      "FR-14",
+      "FR-15",
+      "FR-16",
+      "FR-17",
+      "FR-18",
+      "FR-19",
+      "FR-20",
+      "FR-21",
+      "FR-22",
+      "FR-23"
+    ],
+    "observed": [
+      "FR-12",
+      "FR-13",
+      "FR-15",
+      "FR-16",
+      "FR-17",
+      "FR-18",
+      "FR-19",
+      "FR-20",
+      "FR-21",
+      "FR-22",
+      "FR-23"
+    ]
+  },
+  "reviewer-3": {
+    "assigned": [
+      "INF-1",
+      "INF-2",
+      "INF-3",
+      "INF-4",
+      "INF-5",
+      "INF-6",
+      "INF-7"
+    ],
+    "observed": [
+      "INF-1",
+      "INF-3",
+      "INF-4",
+      "INF-5",
+      "INF-6",
+      "INF-7"
+    ]
+  }
+}

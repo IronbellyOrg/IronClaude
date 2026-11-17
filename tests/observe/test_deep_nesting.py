@@ -4,6 +4,8 @@ from __future__ import annotations
 
 import json
 
+import pytest
+
 from superclaude.cli.observe.adapter import LiveSource
 from superclaude.cli.observe.collector import Collector
 from superclaude.cli.observe.export import snapshot_json
@@ -25,6 +27,22 @@ def test_a_reply_nested_beyond_the_recursion_limit_is_a_json_failure(fake_clock)
     source = LiveSource(runner, FakeDiscover([], "/usr/bin/orca"))
     result = source.read_pages(fake_clock, fake_clock.monotonic() + 15.0, None)
     assert (result.state, result.code, result.pages) == ("FAILED", "json", ())
+
+
+def test_a_deeply_nested_question_payload_is_unlinked_and_the_list_still_parses():
+    from superclaude.cli.observe.parse import parse_questions
+    from tests.observe.conftest import QRUN, make_question_envelope, make_question_rows
+
+    # in-cap (under 64 KiB) but nested past the recursion limit: reaches json.loads, which
+    # raises RecursionError, so the handler (not the size cap) is what makes it unlinked
+    payload = "[" * 60_000
+    assert len(payload) < 64 * 1024
+    with pytest.raises(RecursionError):
+        json.loads(payload)
+    rows = make_question_rows(2, payload=payload, from_handle="dispatch:disp_a")
+    parsed = parse_questions(make_question_envelope(rows), "orca-a", 1, QRUN, link=True)
+    assert len(parsed.rows) == 2
+    assert {q.link for q in parsed.rows} == {"payload not readable"}
 
 
 def test_the_snapshot_survives_a_deeply_nested_scope_and_counts(fake_clock):

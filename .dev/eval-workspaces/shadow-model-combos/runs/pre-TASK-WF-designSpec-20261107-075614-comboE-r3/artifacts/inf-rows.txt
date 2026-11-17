@@ -1,0 +1,61 @@
+6|||engage at the first verified Medium-or-higher finding routed to a fix; default on at `--monitor 3` via `--merge-guard {draft,off}`
+6|||release when the fix push is confirmed on the PR head, before replies and the re-trigger
+6|||an unreadable timeline or an exit with unpublished fixes keeps the PR draft and reports
+57|||Nothing mutates. A held guard found in the log is reported with the clear command.
+58|||Wave 0 loads the ref (Resume and Exit report) before Wave 1: unsettled requests are reconciled before any edit, release or re-trigger
+59|||Wave 0 prints once: "Remediation is unprotected: --merge-guard off." No draft call is made.
+60|||PR #N is still mergeable; this run's fixes are local only.
+61|||Read, decide, request, `--to draft`, settle. Print the clear command once.
+62|||Settle `skipped/already_draft`, phase `disabled`, never mutate.
+63|||Release, cause `no_edits`.
+64|||Script `--read` must show `state == OPEN`; otherwise halt `pr_not_open`, push nothing.
+65|||Release, cause `pushed`, before reply, resolve and the S5a re-trigger.
+66|||Settle `skipped/user_override`, phase `disabled`, no more draft calls, keep pushing, report.
+67|||Do not release; report `held (timeline unreadable)`; keep pushing.
+68|||Halt before any edit: `terminal_halted`, reason `draft_guard_unavailable`.
+69|||PR stays draft; report `held` with the clear command.
+75|||No `gh` or `git` word on any line, comments included (F6).
+101|||`ValueError` otherwise or when `n < 1`.
+102|||1 + the highest `<kind>-<n>` seen in any event's `cycle_id`; 1 when none.
+103|||Returns `None` when the log holds no guard record.
+104|||Guard requests with no matching settle, matched by `idempotency_key`
+108|||`True` when `guard` is not `None` and the log holds a `push_completed` event whose `cycle_id` equals `guard.cycle_id`
+109|||a test imports both modules and asserts equality, because the core cannot import `recovery`.
+112|||`mode == OFF` or `ordinal < 3` with no guard record gives `off`; no guard record gives `released`
+120|||if observed < guard.run_toggles:
+121|||if observed > guard.run_toggles + slack:
+127|||`failed_mutations` keeps a call that failed on the client but landed on the server from being read as a user action
+133|||`mode == OFF`, or `ordinal < 3`, or `is_conflict_cycle(cycle_id)`
+136|||`read.state != "OPEN"` | `HALT_PR_NOT_OPEN`
+141|||`guard` exists and `classify_toggles == "foreign"` | `SKIP_USER_OVERRIDE`
+142|||`guard is None` and `read.is_draft` | `SKIP_ALREADY_DRAFT`
+155|||`applied_edits == 0` | `RELEASE(cause=no_edits)`
+156|||`push_completed` and `read.head_sha == target_sha` | `RELEASE(cause=pushed)`
+164|||`REPORT_HELD` (no mutation; prints the clear command)
+165|||`RECONCILE`, with `reason` one of `resume_reconciled`, `not_applied`, `ambiguous`
+166|||re-enter `release_decision` with `push_completed=True`
+178|||appended and fsynced BEFORE the draft/ready call
+184|||`idempotency_key` = `guard:<run_id>:<cycle_id>:<to>:a<k>`
+201|||the whole record is erased (the fold returns `None`, including `baseline` and `original_is_draft`)
+208|||`original_is_draft` is never read from GitHub after the first record
+214|||`DEFAULT_MERGE_GUARD = "draft"`
+217|||`RunConfig` and `run_skill` do not change (F5): the guard is SKILL-orchestrated.
+221|||exit 127 when `gh` or `jq` is missing.
+230|||gh api --paginate "repos/${REPO}/issues/${PR}/timeline"
+234|||Exit codes: 0 success; 1 `gh` failure or failed verification (the JSON line is still printed with `ok:false`); 2 usage; 127 missing dependency.
+241|||No new python fence
+242|||the enum has 43 members; update it to 45
+247|||A `held` report always carries the reason and `gh pr ready <N> --repo <REPO>`
+251|||The SKILL mints it at the end of Wave 3 and uses the same id as the `cycle_id` of the push triad (`push_idempotency_key`) and of `rereview_requested`
+255|||needs one entry in `WRITE_VERB_CLASSIFICATION`
+270|||Acceptance trace (must appear in this order in the run log)
+281|||next checkpoint: `state != OPEN` -> halt `pr_not_open`, nothing pushed
+301|||the final task runs the FULL suite (`uv run pytest -q tests`) and compares its failures with the base-commit record
+326|||No task makes a live PR call, and the run that opens the PR must not enable the feature (`--merge-guard off`).
+362|||Cite tests and constants by symbol name
+363|||Declare dependencies completely, one `Depends on:` line per dependency
+369|||Protocol prose written by the plan never carries `file:NNN` pointers
+374|||its acceptance criterion is a test that the literal line is in `SKILL.md`
+375|||the crash scenario tests derive branches from a real `RunLog`
+377|||scenario tests import only helpers and fixtures from `test_set_draft_state.py`, never `test_*` functions
+378|||the Wave 0 bullet sits before the Wave 1 bullet and has no L3 or `draft` condition

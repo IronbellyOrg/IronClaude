@@ -1,0 +1,25 @@
+input_tree_sha256: 7f0a69c4fe88c94c32c1d6b68b9fa13f703dca49e4a845f05c28b1e55153a1ab
+file_list:
+- path: .dev/reflect/pre-TASK-WF-loosenBlockerCla-20261115-133045-20261115133706/REPORT.md
+  sha256: d90959c66034237467efc1e538c19c8370cf00b2f09cf3bb79f36a35a44e7902
+- path: .dev/reflect/pre-TASK-WF-loosenBlockerCla-20261115-133045-20261115133706/adversarial/merged-review-card.md
+  sha256: a9e1af37a0d63757a8500797bb79f8873d8c19b485cce8e40af3b9fb43fcac91
+- path: .dev/tasks/to-do/BLOCKER-CLASSIFICATION-PROGRAM-20261115/02-brainstorm/merged-requirements.md
+  sha256: d9ab642687da087dfccb9e62911f3a53b334128f3b700f9019ae1524ad16fbfb
+- path: .dev/tasks/to-do/BLOCKER-CLASSIFICATION-PROGRAM-20261115/06-blocker-characteristics.md
+  sha256: 367a6ddbca96a854b6dc1bb4a611ba5f7ff326a897a9dc381882dbbc2e8565af
+- path: .dev/tasks/to-do/BLOCKER-CLASSIFICATION-PROGRAM-20261115/08-test/results.md
+  sha256: bdce4bae0e2593263eaa97bbf785922609792ede7c9e7494680fe5ef604f004b
+- path: .dev/tasks/to-do/BLOCKER-CLASSIFICATION-PROGRAM-20261115/09-plan-input.md
+  sha256: 6d260b6d4e7a2fbf315d5040d331e2610bbb660df781f731abf43d5556b3fd2a
+- path: .dev/tasks/to-do/BLOCKER-CLASSIFICATION-PROGRAM-20261115/stage-requests/README.md
+  sha256: 2ed95a3b7515641ff7d4c840905c1faec79d489e1d13cf18d8743883c987c7f6
+- path: .dev/tasks/to-do/TASK-WF-blockerStage0-20261116-021044/TASK-WF-blockerStage0-20261116-021044.md
+  sha256: b2a70540fe732620a0cc2a6af3d92c15255ee96df9a539838d4e7d3d860bab63
+- path: .dev/tasks/to-do/TASK-WF-blockerStage0-20261116-021044/artifacts/codegraph-grounding.md
+  sha256: 26e78d3d3761f3434051e19c3f31410686e8bff3ddbe0d5515b79cf870e1534e
+- path: .dev/tasks/to-do/TASK-WF-blockerStage0-20261116-021044/source.md
+  sha256: cf9d42ae17107ed0c1d2711dfb423e76187134b8ebe25b786a1b1f8e0edee296
+- path: src/superclaude/output-styles/pragmatic.md
+  sha256: 84107fb5718c2189205d4cacbf2979aec8fb9b77758167eb31c3a35e6fe757f9
+file_count: 11

@@ -1,0 +1,11 @@
+return_contract:
+  merged_output_path: /home/coder/workspaces/worktrees/IronClaude/brainstorm-reflect-panel/.dev/reflect/pre-TASK-WF-detachTheCcsessi-20261102-034618-shadow03/adversarial/adversarial/merged-verdict.md
+  convergence_score: 0.90
+  artifacts_dir: /home/coder/workspaces/worktrees/IronClaude/brainstorm-reflect-panel/.dev/reflect/pre-TASK-WF-detachTheCcsessi-20261102-034618-shadow03/adversarial/adversarial
+  status: success
+  base_variant: card-1-analyzer
+  unresolved_conflicts: 0
+  fallback_mode: false
+  failure_stage: null
+  invocation_method: skill-direct
+  unaddressed_invariants: []

@@ -1,0 +1,95 @@
+contract_version: "1.8.0"
+status: partial                 # one citation dropped by the evidence gate (F8 PLAN:45) forces partial; REPORT.md not written (see report_blocked)
+mode: pre
+tier_reached: 2
+report_path: null
+report_blocked: "The Write tool refused REPORT.md: 'Subagents should return findings as text, not write report files.' No other route to the same file was tried. The report body is between the BEGIN REPORT BODY and END REPORT BODY lines at the end of findings_path."
+findings_path: "/home/coder/workspaces/worktrees/IronClaude/brainstorm-reflect-panel/.dev/reflect/pre-TASK-WF-blockerStage3-20261116-030158-20261116185913/adversarial/merged-review-card.md"
+audit_log_path: "/home/coder/workspaces/worktrees/IronClaude/brainstorm-reflect-panel/.dev/reflect/pre-TASK-WF-blockerStage3-20261116-030158-20261116185913/audit.log"
+confidence_calibrated: 0.86     # mean of the two reviewer-card calibrations (0.88 and 0.84); T1 card calibrated 0.70
+escalation_rule_matched: 6
+onboarding_ran: false
+verdict: NEEDS-REVISION
+coverage_pct: 1.0               # parsed-only: 1 parsed row (REQ-04)
+coverage_pct_union: 0.9783
+coverage_undefined: false
+coverage_degraded: parsed-sparse
+unmapped_requirements: []
+unmapped_requirements_union: [INF-002]   # mechanical; covered by hand in Task 1 (PLAN:42)
+best_practice_grade: null
+implementation_coverage_pct: null
+missing_implementations: []
+hierarchy_slice_path: null
+hierarchy_coverage_pct: null
+input_sha256:
+  tasklist: 8be09711c02d        # first 12 hex characters; full hashes in artifacts/input-snapshot.yaml
+  spec: 86329737a341
+input_tree_sha256: 121b43910506c1ebaa4386f4fe9849262687d6d552337ee890ad0eb898ce3101
+input_tree_file_count: 35
+input_tree_snapshot_path: "/home/coder/workspaces/worktrees/IronClaude/brainstorm-reflect-panel/.dev/reflect/pre-TASK-WF-blockerStage3-20261116-030158-20261116185913/artifacts/input-snapshot.yaml"
+input_drift_detected: false
+input_drift_diff: null
+citations_total: 100
+citations_revalidated: 100
+citations_dropped: 1
+citations_inferred: 0
+citation_budget_policy: full_reread
+evidence_validator_ran: true
+citation_revalidation_at_promotion: false
+reviewer_cards: [reviewer-cards/reviewer-1-card.md, reviewer-cards/reviewer-2-card.md]
+adversarial_artifacts_dir: "/home/coder/workspaces/worktrees/IronClaude/brainstorm-reflect-panel/.dev/reflect/pre-TASK-WF-blockerStage3-20261116-030158-20261116185913/adversarial/adversarial/"
+adversarial_convergence_score: 0.95
+adversarial_unavailable: false
+merge_method: adversarial
+t2_model_class_diversity: degraded
+t2_vendor_diversity: single
+t2_effective_diversity: model-only
+calibrator_diversity: full
+remediation_offered: false
+remediation_accepted: null
+task_file_path: null
+remediation_task_path: null
+remediation_plan_path: null
+handoff_memory_key: null
+cannot_validate_without_user_input: false
+regression_present: false
+unauthorized_deviation_present: false
+blocked_by_low_confidence: false
+spec_is_wrong: false
+user_decision_required: false
+needs_human_decision: false
+per_task_verdicts: []
+interaction_effects_scanned: false
+interaction_effects_findings: 0
+budget_forced_tier_downgrade: false
+budget_forced_stop: false
+budget_check_skipped: true
+forced_tier: null
+promotion_action: not-applicable
+promotion_adapter: null
+promotion_source: null
+promotion_destination: null
+promotion_log_path: null
+promotion_gate_passed: null
+promotion_skip_reason: null
+promotion_fail_reason: null
+promotion_override_used: null
+promotion_rollback_command: null
+promotion_checkpoint_path: null
+promotion_cross_fs: false
+promotion_pending: false
+telemetry:
+  degraded_components: [env-aliases]
+  executor_class_source: log-heuristic
+  executor_class_resolved: true
+  executor_exclusion_degraded: false
+  reviewer_models: [haiku, opus]
+  reviewer_personas: [analyzer, qa]
+  t2_engine_requested: null     # --t2-engine not passed; legacy engine, panel code never called
+  t2_engine_effective: legacy
+  fallback_path: null
+  memory_hits: 0
+  memory_misses: 2
+  memory_persist_skipped: true
+  runs_jsonl_append_skipped: true
+  unaddressed_invariants: [INV-001]

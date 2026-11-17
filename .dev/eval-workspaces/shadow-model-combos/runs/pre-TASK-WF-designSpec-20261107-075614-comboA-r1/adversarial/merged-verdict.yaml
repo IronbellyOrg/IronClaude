@@ -1,0 +1,36 @@
+# merged-verdict.yaml — copied from sc-adversarial return-contract.yaml + merged-output.md (EV-1; never synthesized)
+merge_method: adversarial
+verdict: blocking-findings-present
+convergence_score: 0.917
+base_variant: "opus:refactorer"
+status: success
+unresolved_conflicts: 0
+fallback_mode: false
+failure_stage: null
+invocation_method: skill-direct
+unaddressed_invariants: []
+artifacts_dir: .dev/eval-workspaces/shadow-model-combos/runs/pre-TASK-WF-designSpec-20261107-075614-comboA-r1/adversarial/adversarial
+merged_output_path: .dev/eval-workspaces/shadow-model-combos/runs/pre-TASK-WF-designSpec-20261107-075614-comboA-r1/adversarial/merged-output.md
+source_cards:
+  - panel/cards/reviewer-1.md
+  - panel/cards/reviewer-2.md
+  - panel/cards/reviewer-3.md
+merged_findings:
+  - {id: MF1, severity: MAJOR, blocking: true,  category: missing-requirement, confidence: 0.75, claim: "Task 8 drops spec section 4.2 from the ref scope; event fields (idempotency_key, k, baseline) ungated"}
+  - {id: MF2, severity: MAJOR, blocking: true,  category: unpassable-check,    confidence: 0.80, claim: "Task 11 ACs gate test names, not FR-16 retry/already-in-state/release_pending behaviours; empty bodies pass"}
+  - {id: MF3, severity: MAJOR, blocking: false, category: contradiction,       confidence: 0.80, claim: "Tasks 9/10/12/13 read pre-build-gate.md without Depends on Task 1 (spec:363 rule); refutes T1 H3"}
+  - {id: MF4, severity: MINOR, blocking: false, category: unpassable-check,    confidence: 0.65, claim: "Wave 0 bullet AC 'names an L3 or draft condition' fails the real bullet read literally"}
+  - {id: MF5, severity: MINOR, blocking: false, category: missing-requirement, confidence: 0.72, claim: "Corrupt-line still-raises invariant gated by no AC"}
+  - {id: MF6, severity: MINOR, blocking: false, category: missing-requirement, confidence: 0.65, claim: "Engage row 11 auto_merge_armed note ungated by Task 4 ACs"}
+  - {id: MF7, severity: MINOR, blocking: false, category: contradiction,       confidence: 0.75, claim: "Byte-pin uses start-text only; suffix edits escape the gate"}
+  - {id: MF8, severity: MINOR, blocking: false, category: missing-requirement, confidence: 0.75, claim: "Halt message content (--merge-guard off + clear command) ungated"}
+  - {id: MF9, severity: MINOR, blocking: false, category: contradiction,       confidence: 0.80, claim: "Clear command literal form differs across Tasks 8/12/13"}
+  - {id: MF10, severity: MINOR, blocking: false, category: contradiction,      confidence: 0.60, claim: "Cycle-id minting written into two places; no AC ties Wave 3 bullet to O1 place"}
+  - {id: MF11, severity: MINOR, blocking: false, category: missing-requirement, confidence: 0.70, claim: "user_override fold sets no disabled_cause; guard_status mapping can disagree"}
+  - {id: MF12, severity: MINOR, blocking: false, category: missing-requirement, confidence: 0.75, claim: "RELEASE_PENDING not_applied fold case untested"}
+  - {id: MF13, severity: MINOR, blocking: false, category: missing-requirement, confidence: 0.75, claim: "draft_guard_unavailable halt to 'unavailable' mapping has no owner"}
+  - {id: MF14, severity: MINOR, blocking: false, category: missing-requirement, confidence: 0.60, claim: "O2 front-matter script grant has no owning task"}
+  - {id: MF15, severity: MINOR, blocking: false, category: contradiction,      confidence: 0.80, claim: "Two new test files absent from spec files-to-change table; deviation unrecorded"}
+  - {id: MF16, severity: MINOR, blocking: false, category: contradiction,      confidence: 0.65, claim: "12th named test narrowed vs its spec mapping"}
+  - {id: MF17, severity: MINOR, blocking: false, category: other,              confidence: 0.60, claim: "Unordered tasks 5/7 and 9/12 edit same files; parallel conflict risk"}
+  - {id: MF18, severity: MINOR, blocking: false, category: unpassable-check,   confidence: 0.55, claim: "Task 2 grep-43 AC has no mechanical pass condition"}

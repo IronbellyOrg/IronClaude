@@ -1,0 +1,27 @@
+return_contract:
+  merged_output_path: "/home/coder/workspaces/worktrees/IronClaude/issue-409-mvp/.dev/issues/409/ponytail-review-20261116/cuts-debate/final-cut-list.md"
+  convergence_score: 0.934   # 57 of 61 diff points; S-001..S-003 (format observations) and C-012 counted as not agreed
+  artifacts_dir: "/home/coder/workspaces/worktrees/IronClaude/issue-409-mvp/.dev/issues/409/ponytail-review-20261116/cuts-debate/adversarial/"
+  status: "success"
+  base_variant: "sonnet:qa"   # top two by score were opus:analyzer 0.9507 and sonnet:qa 0.9201 (margin 3.06 percent); tiebreak levels 1 and 2 tied, level 3 input order picked sonnet:qa
+  unresolved_conflicts: 4     # C-012 (T2 exact scope split), S-001, S-002, S-003 (no advocate position; cosmetic)
+  fallback_mode: false
+  failure_stage: null
+  invocation_method: "task-agent"
+  unaddressed_invariants: []  # Round 2.5 invariant probe skipped at depth quick
+  depth: "quick"
+  rounds_run: ["round_1_parallel"]
+  items: 39                   # source brief said 36; the ID list R1-R10, T1-T10, S1-S6, D1-D13 is 39
+  final_verdict_counts:
+    CUT: 0
+    CUT-SMALLER: 15
+    DEFER-OWNER: 9
+    KEEP: 15
+    REJECTED: 0
+  execution_class_counts:
+    EXECUTE-NOW: 11
+    OWNER-NEEDED: 9
+    NOT-NOW: 19
+  steps_not_run_as_written:
+    - "Round 2, Round 2.5 and Round 3 skipped by design at depth quick; taxonomy coverage gate satisfied without a forced round"
+    - "pytest and ruff were not run by any agent (read-only brief); the 694 baseline is the source's figure"

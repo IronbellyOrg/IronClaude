@@ -374,7 +374,7 @@ When codegraph, the index or its lookup tools are not usable, it falls back to G
 
 | Level | What the launched agent does | Commit, push, PR |
 |-------|------------------------------|------------------|
-| `worktree` (default) | Runs the steps of `next-steps.md` up to the plan boundary, prints the plan path and `Waiting for approval`, then waits until you reply `approved` (or run the printed implement command) | No |
+| `worktree` (default) | Runs the steps of `next-steps.md` up to the plan boundary, prints the plan path and `Waiting for approval`, then waits until you run the printed implement command (a plain `approved` reply no longer releases it) | No |
 | `full` | Runs every step, implementation included, and leaves the changes in the working tree, nothing staged | No |
 | `full` with `--submit` | Does the same, then commits, pushes a feature branch to `origin` and opens a PR through `/sc:pr-submit --monitor 3` | Yes; never merges |
 | `none` | Stops after the comments: no worktree, no agent. You run `.dev/issues/<N>/next-steps.md` yourself from this checkout | No |

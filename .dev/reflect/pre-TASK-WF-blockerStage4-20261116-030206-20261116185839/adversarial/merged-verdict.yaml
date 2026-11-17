@@ -1,0 +1,24 @@
+merge_method: adversarial
+verdict: PASS
+convergence_score: 1.0
+convergence_basis: "18 of 18 diff points agreed after Round 2 (threshold 0.80); invariant gate: 0 HIGH unaddressed"
+base_variant: "V1 (analyzer, sonnet class)"
+base_selection: "combined V3 0.890, V1 0.859, V2 0.723; margin 0.031 below 5 percent; tiebreaker level 1 (debate performance 7 points to 3) selected V1"
+source_cards:
+  - reviewer-cards/reviewer-1-card.md
+  - reviewer-cards/reviewer-2-card.md
+  - reviewer-cards/reviewer-3-card.md
+merged_review_card: adversarial/merged-review-card.md
+findings:
+  blocking: 0
+  non_blocking: 11
+  medium: 7
+  minor: 4
+  ids_medium: [K1, K2, K3, K4, K5, K6, K7]
+  ids_minor: [K8, K9, K10, K11]
+debate_depth: standard
+debate_rounds: 2
+round_2_5_invariant_probe: "8 findings, 0 HIGH unaddressed; the first fault-finder agent stopped at its turn limit with no findings and was retried once"
+unresolved_conflicts: 0
+adversarial_unavailable: false
+fallback_mode: false

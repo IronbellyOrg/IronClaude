@@ -1,0 +1,14 @@
+{
+  "reviewer-1": {
+    "assigned": ["INF-001", "INF-002", "INF-004"],
+    "observed": ["INF-001", "INF-002", "INF-004"]
+  },
+  "reviewer-2": {
+    "assigned": ["INF-003", "test-pin-completeness", "verification-honesty"],
+    "observed": ["INF-003", "test-pin-completeness", "verification-honesty"]
+  },
+  "reviewer-3": {
+    "assigned": ["INF-004", "cross-surface-consistency", "staging-mirror-discipline"],
+    "observed": ["INF-004", "cross-surface-consistency", "staging-mirror-discipline"]
+  }
+}

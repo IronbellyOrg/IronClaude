@@ -1,0 +1,904 @@
+{
+  "formula": "quant_score = RC*0.30 + IC*0.25 + SR*0.15 + DC*0.15 + SC*0.15",
+  "source_ids": [
+    "RE-1",
+    "RE-4",
+    "CV-8",
+    "CV-4",
+    "CV-5",
+    "INV-A",
+    "INV-B",
+    "INV-L",
+    "INV-M",
+    "INV-K",
+    "GQ-067"
+  ],
+  "variants": {
+    "variant_1": {
+      "DC": {
+        "DC": 1.0,
+        "defined": {
+          "E": [
+            "E1",
+            "E2",
+            "E3",
+            "E4",
+            "E5",
+            "E6",
+            "E7",
+            "E8"
+          ],
+          "INV": [
+            "INV-A",
+            "INV-B",
+            "INV-C",
+            "INV-D",
+            "INV-E",
+            "INV-F",
+            "INV-G",
+            "INV-H",
+            "INV-I",
+            "INV-J",
+            "INV-K",
+            "INV-L",
+            "INV-M",
+            "INV-N"
+          ],
+          "M": [
+            "M1",
+            "M10",
+            "M13",
+            "M2",
+            "M3",
+            "M4",
+            "M5",
+            "M6",
+            "M9"
+          ],
+          "sections": [
+            "0",
+            "1",
+            "2",
+            "3",
+            "3.1",
+            "3.2",
+            "3.3",
+            "3.4",
+            "3.5",
+            "4",
+            "4.1",
+            "4.2",
+            "4.3",
+            "5",
+            "6",
+            "7",
+            "8"
+          ]
+        },
+        "resolved": 35,
+        "total": 35,
+        "unresolved": []
+      },
+      "DC_all_refs": [
+        {
+          "kind": "INV",
+          "line": 14,
+          "ref": "INV-A",
+          "resolved": true,
+          "text": "INV-A"
+        },
+        {
+          "kind": "INV",
+          "line": 14,
+          "ref": "INV-N",
+          "resolved": true,
+          "text": "INV-N"
+        },
+        {
+          "kind": "section",
+          "line": 19,
+          "ref": "4",
+          "resolved": true,
+          "text": "section 4"
+        },
+        {
+          "kind": "INV",
+          "line": 53,
+          "ref": "INV-G",
+          "resolved": true,
+          "text": "INV-G"
+        },
+        {
+          "kind": "section",
+          "line": 56,
+          "ref": "3.5",
+          "resolved": true,
+          "text": "see 3.5"
+        },
+        {
+          "kind": "INV",
+          "line": 75,
+          "ref": "INV-F",
+          "resolved": true,
+          "text": "INV-F"
+        },
+        {
+          "kind": "section",
+          "line": 99,
+          "ref": "3.3",
+          "resolved": true,
+          "text": "in 3.3"
+        },
+        {
+          "kind": "section",
+          "line": 104,
+          "ref": "3.1",
+          "resolved": true,
+          "text": "(3.1)"
+        },
+        {
+          "kind": "section",
+          "line": 121,
+          "ref": "3.5",
+          "resolved": true,
+          "text": "(3.5)"
+        },
+        {
+          "kind": "section",
+          "line": 122,
+          "ref": "3.5",
+          "resolved": true,
+          "text": "(3.5)"
+        },
+        {
+          "kind": "section",
+          "line": 124,
+          "ref": "2",
+          "resolved": true,
+          "text": "section 2"
+        },
+        {
+          "kind": "section",
+          "line": 131,
+          "ref": "3.3",
+          "resolved": true,
+          "text": "(3.3)"
+        },
+        {
+          "kind": "section",
+          "line": 132,
+          "ref": "6",
+          "resolved": true,
+          "text": "section 6"
+        },
+        {
+          "kind": "M",
+          "line": 132,
+          "ref": "M2",
+          "resolved": true,
+          "text": "M2"
+        },
+        {
+          "kind": "section",
+          "line": 138,
+          "ref": "5",
+          "resolved": true,
+          "text": "section 5"
+        },
+        {
+          "kind": "section",
+          "line": 140,
+          "ref": "3.2",
+          "resolved": true,
+          "text": "in 3.2"
+        },
+        {
+          "kind": "M",
+          "line": 151,
+          "ref": "M2",
+          "resolved": true,
+          "text": "M2"
+        },
+        {
+          "kind": "section",
+          "line": 154,
+          "ref": "3.3",
+          "resolved": true,
+          "text": "Sections 3.3 and 5"
+        },
+        {
+          "kind": "section",
+          "line": 154,
+          "ref": "5",
+          "resolved": true,
+          "text": "Sections 3.3 and 5"
+        },
+        {
+          "kind": "E",
+          "line": 161,
+          "ref": "E7",
+          "resolved": true,
+          "text": "E7"
+        },
+        {
+          "kind": "E",
+          "line": 161,
+          "ref": "E4",
+          "resolved": true,
+          "text": "E4"
+        },
+        {
+          "kind": "section",
+          "line": 162,
+          "ref": "5",
+          "resolved": true,
+          "text": "section 5"
+        },
+        {
+          "kind": "section",
+          "line": 162,
+          "ref": "3.2",
+          "resolved": true,
+          "text": "in 3.2"
+        },
+        {
+          "kind": "section",
+          "line": 162,
+          "ref": "3.4",
+          "resolved": true,
+          "text": "(3.4)"
+        },
+        {
+          "kind": "section",
+          "line": 162,
+          "ref": "3.3",
+          "resolved": true,
+          "text": "(3.3)"
+        },
+        {
+          "kind": "section",
+          "line": 163,
+          "ref": "4.3",
+          "resolved": true,
+          "text": "section 4.3"
+        },
+        {
+          "kind": "M",
+          "line": 163,
+          "ref": "M5",
+          "resolved": true,
+          "text": "M5"
+        },
+        {
+          "kind": "INV",
+          "line": 164,
+          "ref": "INV-I",
+          "resolved": true,
+          "text": "INV-I"
+        },
+        {
+          "kind": "section",
+          "line": 165,
+          "ref": "5",
+          "resolved": true,
+          "text": "section 5"
+        },
+        {
+          "kind": "section",
+          "line": 165,
+          "ref": "4.3",
+          "resolved": true,
+          "text": "(4.3)"
+        },
+        {
+          "kind": "M",
+          "line": 165,
+          "ref": "M2",
+          "resolved": true,
+          "text": "M2"
+        },
+        {
+          "kind": "M",
+          "line": 165,
+          "ref": "M2",
+          "resolved": true,
+          "text": "M2"
+        },
+        {
+          "kind": "M",
+          "line": 165,
+          "ref": "M3",
+          "resolved": true,
+          "text": "M3"
+        },
+        {
+          "kind": "M",
+          "line": 165,
+          "ref": "M5",
+          "resolved": true,
+          "text": "M5"
+        },
+        {
+          "kind": "INV",
+          "line": 165,
+          "ref": "INV-L",
+          "resolved": true,
+          "text": "INV-L"
+        }
+      ],
+      "IC": {
+        "contradiction_list": [
+          {
+            "basis": "diff-analysis X-008 (intra-A), V-28",
+            "id": "X-008",
+            "note": "INV-M row says headless output directories are Preserved; M4 says a stub-lane run passes the 1.8.0 lint, which reads directories the headless lane does not create.",
+            "statements": [
+              {
+                "line": 133,
+                "quote": "headless output directories"
+              },
+              {
+                "line": 141,
+                "quote": "passes the lint"
+              }
+            ]
+          },
+          {
+            "basis": "own scan; diff-analysis X-007 and V-15",
+            "id": "X-007(A side)",
+            "note": "Section 3.5 reconciles prose at SKILL.md :703, :839, :1317, :1481 as a text edit, while INV-K says edits stay under ### 4.3a and INV-A says the ### 9.1 block is not edited; V-15 shows those lines sit outside the allow-list and :838-839 inside 9.1.",
+            "statements": [
+              {
+                "line": 88,
+                "quote": "that is a skill text edit"
+              },
+              {
+                "line": 121,
+                "quote": "the `### 9.1` block is not edited"
+              },
+              {
+                "line": 131,
+                "quote": "SKILL.md edits stay under"
+              }
+            ]
+          }
+        ],
+        "contradictions": 2,
+        "strict_value_diff_analysis_intra_rows_only": 0.9876543209876543,
+        "total_claims": 81,
+        "value": 0.9753086419753086
+      },
+      "RC": {
+        "found": [
+          "RE-1",
+          "RE-4",
+          "CV-8",
+          "CV-4",
+          "CV-5",
+          "INV-A",
+          "INV-B",
+          "INV-L",
+          "INV-M",
+          "INV-K",
+          "GQ-067"
+        ],
+        "matched": 11,
+        "missing": [],
+        "total": 11,
+        "value": 1.0
+      },
+      "SC": {
+        "h2_count": 9,
+        "max_h2": 9,
+        "value": 1.0
+      },
+      "SR": {
+        "SR": 1.0,
+        "backtick_identifiers": 253,
+        "citations": 114,
+        "concrete": 516,
+        "numbers": 149,
+        "vague": 0
+      },
+      "file": "variant-1-original.md",
+      "metrics": {
+        "DC": 1.0,
+        "IC": 0.975309,
+        "RC": 1.0,
+        "SC": 1.0,
+        "SR": 1.0
+      },
+      "quant_score": 0.993827,
+      "quant_score_ic_strict": 0.996914
+    },
+    "variant_2": {
+      "DC": {
+        "DC": 0.9787234042553191,
+        "defined": {
+          "E": [
+            "E1",
+            "E10",
+            "E11",
+            "E12",
+            "E13",
+            "E14",
+            "E15",
+            "E16",
+            "E17",
+            "E18",
+            "E19",
+            "E2",
+            "E20",
+            "E21",
+            "E22",
+            "E3",
+            "E4",
+            "E5",
+            "E6",
+            "E7",
+            "E8",
+            "E9"
+          ],
+          "INV": [
+            "INV-A",
+            "INV-B",
+            "INV-K",
+            "INV-L",
+            "INV-M"
+          ],
+          "M": [
+            "M1",
+            "M2",
+            "M3",
+            "M4"
+          ],
+          "sections": [
+            "0",
+            "1",
+            "2",
+            "3",
+            "3.1",
+            "3.2",
+            "3.3",
+            "3.4",
+            "3.5",
+            "4",
+            "5",
+            "6",
+            "7",
+            "8"
+          ]
+        },
+        "resolved": 46,
+        "total": 47,
+        "unresolved": [
+          {
+            "kind": "INV",
+            "line": 105,
+            "ref": "INV-F",
+            "resolved": false,
+            "text": "INV-F"
+          }
+        ]
+      },
+      "DC_all_refs": [
+        {
+          "kind": "section",
+          "line": 24,
+          "ref": "6",
+          "resolved": true,
+          "text": "section 6"
+        },
+        {
+          "kind": "INV",
+          "line": 38,
+          "ref": "INV-A",
+          "resolved": true,
+          "text": "INV-A"
+        },
+        {
+          "kind": "E",
+          "line": 64,
+          "ref": "E6",
+          "resolved": true,
+          "text": "E6"
+        },
+        {
+          "kind": "E",
+          "line": 64,
+          "ref": "E5",
+          "resolved": true,
+          "text": "E5"
+        },
+        {
+          "kind": "E",
+          "line": 64,
+          "ref": "E1",
+          "resolved": true,
+          "text": "E1"
+        },
+        {
+          "kind": "E",
+          "line": 64,
+          "ref": "E5",
+          "resolved": true,
+          "text": "E5"
+        },
+        {
+          "kind": "E",
+          "line": 64,
+          "ref": "E9",
+          "resolved": true,
+          "text": "E9"
+        },
+        {
+          "kind": "INV",
+          "line": 95,
+          "ref": "INV-A",
+          "resolved": true,
+          "text": "INV-A"
+        },
+        {
+          "kind": "INV",
+          "line": 95,
+          "ref": "INV-B",
+          "resolved": true,
+          "text": "INV-B"
+        },
+        {
+          "kind": "INV",
+          "line": 95,
+          "ref": "INV-L",
+          "resolved": true,
+          "text": "INV-L"
+        },
+        {
+          "kind": "INV",
+          "line": 95,
+          "ref": "INV-M",
+          "resolved": true,
+          "text": "INV-M"
+        },
+        {
+          "kind": "INV",
+          "line": 95,
+          "ref": "INV-K",
+          "resolved": true,
+          "text": "INV-K"
+        },
+        {
+          "kind": "INV",
+          "line": 99,
+          "ref": "INV-A",
+          "resolved": true,
+          "text": "INV-A"
+        },
+        {
+          "kind": "INV",
+          "line": 101,
+          "ref": "INV-L",
+          "resolved": true,
+          "text": "INV-L"
+        },
+        {
+          "kind": "E",
+          "line": 102,
+          "ref": "E4",
+          "resolved": true,
+          "text": "E4"
+        },
+        {
+          "kind": "E",
+          "line": 102,
+          "ref": "E4",
+          "resolved": true,
+          "text": "E4"
+        },
+        {
+          "kind": "INV",
+          "line": 105,
+          "ref": "INV-A",
+          "resolved": true,
+          "text": "INV-A"
+        },
+        {
+          "kind": "INV",
+          "line": 105,
+          "ref": "INV-B",
+          "resolved": true,
+          "text": "INV-B"
+        },
+        {
+          "kind": "INV",
+          "line": 105,
+          "ref": "INV-F",
+          "resolved": false,
+          "text": "INV-F"
+        },
+        {
+          "kind": "INV",
+          "line": 108,
+          "ref": "INV-L",
+          "resolved": true,
+          "text": "INV-L"
+        },
+        {
+          "kind": "E",
+          "line": 109,
+          "ref": "E11",
+          "resolved": true,
+          "text": "E11"
+        },
+        {
+          "kind": "E",
+          "line": 110,
+          "ref": "E11",
+          "resolved": true,
+          "text": "E11"
+        },
+        {
+          "kind": "E",
+          "line": 121,
+          "ref": "E9",
+          "resolved": true,
+          "text": "E9"
+        },
+        {
+          "kind": "E",
+          "line": 121,
+          "ref": "E10",
+          "resolved": true,
+          "text": "E10"
+        },
+        {
+          "kind": "M",
+          "line": 124,
+          "ref": "M4",
+          "resolved": true,
+          "text": "M4"
+        },
+        {
+          "kind": "M",
+          "line": 124,
+          "ref": "M1",
+          "resolved": true,
+          "text": "M1"
+        },
+        {
+          "kind": "M",
+          "line": 124,
+          "ref": "M1",
+          "resolved": true,
+          "text": "M1"
+        },
+        {
+          "kind": "E",
+          "line": 128,
+          "ref": "E6",
+          "resolved": true,
+          "text": "E6"
+        },
+        {
+          "kind": "E",
+          "line": 128,
+          "ref": "E7",
+          "resolved": true,
+          "text": "E7"
+        },
+        {
+          "kind": "M",
+          "line": 131,
+          "ref": "M1",
+          "resolved": true,
+          "text": "M1"
+        },
+        {
+          "kind": "E",
+          "line": 136,
+          "ref": "E11",
+          "resolved": true,
+          "text": "E11"
+        },
+        {
+          "kind": "E",
+          "line": 141,
+          "ref": "E6",
+          "resolved": true,
+          "text": "E6"
+        },
+        {
+          "kind": "E",
+          "line": 141,
+          "ref": "E10",
+          "resolved": true,
+          "text": "E10"
+        },
+        {
+          "kind": "E",
+          "line": 141,
+          "ref": "E5",
+          "resolved": true,
+          "text": "E5"
+        },
+        {
+          "kind": "E",
+          "line": 141,
+          "ref": "E9",
+          "resolved": true,
+          "text": "E9"
+        },
+        {
+          "kind": "M",
+          "line": 141,
+          "ref": "M3",
+          "resolved": true,
+          "text": "M3"
+        },
+        {
+          "kind": "section",
+          "line": 142,
+          "ref": "4",
+          "resolved": true,
+          "text": "section 4"
+        },
+        {
+          "kind": "E",
+          "line": 142,
+          "ref": "E16",
+          "resolved": true,
+          "text": "E16"
+        },
+        {
+          "kind": "E",
+          "line": 142,
+          "ref": "E17",
+          "resolved": true,
+          "text": "E17"
+        },
+        {
+          "kind": "E",
+          "line": 142,
+          "ref": "E19",
+          "resolved": true,
+          "text": "E19"
+        },
+        {
+          "kind": "M",
+          "line": 143,
+          "ref": "M1",
+          "resolved": true,
+          "text": "M1"
+        },
+        {
+          "kind": "M",
+          "line": 143,
+          "ref": "M1",
+          "resolved": true,
+          "text": "M1"
+        },
+        {
+          "kind": "M",
+          "line": 145,
+          "ref": "M4",
+          "resolved": true,
+          "text": "M4"
+        },
+        {
+          "kind": "E",
+          "line": 151,
+          "ref": "E9",
+          "resolved": true,
+          "text": "E9"
+        },
+        {
+          "kind": "M",
+          "line": 151,
+          "ref": "M3",
+          "resolved": true,
+          "text": "M3"
+        },
+        {
+          "kind": "section",
+          "line": 152,
+          "ref": "4",
+          "resolved": true,
+          "text": "section 4"
+        },
+        {
+          "kind": "INV",
+          "line": 152,
+          "ref": "INV-L",
+          "resolved": true,
+          "text": "INV-L"
+        }
+      ],
+      "IC": {
+        "contradiction_list": [
+          {
+            "basis": "diff-analysis X-009 (intra-B), V-08",
+            "id": "X-009",
+            "note": "Section 1 (i) says CV-5 makes adversarial mean a disk-confirmed merge; section 2 keeps the count-derived label as engine A's own meaning.",
+            "statements": [
+              {
+                "line": 24,
+                "quote": "CV-5 `merge_method: adversarial` means a disk-confirmed merge"
+              },
+              {
+                "line": 34,
+                "quote": "own meaning and that EV-2"
+              }
+            ]
+          },
+          {
+            "basis": "own scan; diff-analysis X-006 ('also inconsistent inside B'), V-32",
+            "id": "X-006(B side)",
+            "note": "Section 1 (and the section 5 trigger) uses GQ-067 as the owner question about the wrapper switching engines; section 8 defines GQ-067/OQ-8 as the readers-of-ten-keys question.",
+            "statements": [
+              {
+                "line": 24,
+                "quote": "GQ-067: \"does the wrapper switch to engine B"
+              },
+              {
+                "line": 149,
+                "quote": "GQ-067 / OQ-8: readers outside"
+              }
+            ]
+          }
+        ],
+        "contradictions": 2,
+        "strict_value_diff_analysis_intra_rows_only": 0.9841269841269842,
+        "total_claims": 63,
+        "value": 0.9682539682539683
+      },
+      "RC": {
+        "found": [
+          "RE-1",
+          "RE-4",
+          "CV-8",
+          "CV-4",
+          "CV-5",
+          "INV-A",
+          "INV-B",
+          "INV-L",
+          "INV-M",
+          "INV-K",
+          "GQ-067"
+        ],
+        "matched": 11,
+        "missing": [],
+        "total": 11,
+        "value": 1.0
+      },
+      "SC": {
+        "h2_count": 9,
+        "max_h2": 9,
+        "value": 1.0
+      },
+      "SR": {
+        "SR": 1.0,
+        "backtick_identifiers": 248,
+        "citations": 88,
+        "concrete": 444,
+        "numbers": 108,
+        "vague": 0
+      },
+      "file": "variant-2-original.md",
+      "metrics": {
+        "DC": 0.978723,
+        "IC": 0.968254,
+        "RC": 1.0,
+        "SC": 1.0,
+        "SR": 1.0
+      },
+      "quant_score": 0.988872,
+      "quant_score_ic_strict": 0.99284
+    }
+  },
+  "weights": {
+    "DC": 0.15,
+    "IC": 0.25,
+    "RC": 0.3,
+    "SC": 0.15,
+    "SR": 0.15
+  }
+}

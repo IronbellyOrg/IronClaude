@@ -94,14 +94,11 @@ class FixtureSource:
 
     mode = "fixture"
 
-    def __init__(self, variant: str, question_fixture: list | None = None) -> None:
+    def __init__(self, variant: str) -> None:
         self.variant = variant
         self._fixture = load_fixture(variant)
         self._index = 0
         self.frozen_positions: frozenset = frozenset()  # of the cycle read last
-        # SYNTHETIC question cycles: each an envelope dict or ``{"fail": <code>}``.
-        self._question_fixture = question_fixture
-        self._question_index = 0
 
     @property
     def available(self) -> bool:
@@ -128,16 +125,8 @@ class FixtureSource:
     def read_questions(
         self, clock: Any, budget_deadline: float, run_id: str
     ) -> SourceResult:
-        """Replay the supplied synthetic question cycles, else fail with a plain code."""
-        if not self._question_fixture:
-            return SourceResult("FAILED", code="no-question-fixture")
-        entry = self._question_fixture[
-            min(self._question_index, len(self._question_fixture) - 1)
-        ]
-        self._question_index += 1
-        if isinstance(entry, dict) and "fail" in entry and "result" not in entry:
-            return SourceResult("FAILED", code=str(entry["fail"]))
-        return SourceResult("OK", pages=(entry,), calls=1)
+        """A fixture source has no question fixture: fail with a plain code."""
+        return SourceResult("FAILED", code="no-question-fixture")
 
 
 class Collector:
@@ -152,6 +141,7 @@ class Collector:
         max_backoff: float = MAX_BACKOFF,
         run_id: str | None = None,
         questions: bool = False,
+        link: bool = False,
     ) -> None:
         self._source = source
         self._clock = clock
@@ -160,6 +150,7 @@ class Collector:
         self._max_backoff = max_backoff
         self._run_id = run_id
         self._questions = bool(questions and run_id)  # one named Run only
+        self._link = bool(link and self._questions)  # read the payload link (R3)
         self._wait = interval
         self._lock = threading.Lock()  # guards the published reference
         self._cycle_lock = threading.Lock()  # one cycle at a time
@@ -226,7 +217,7 @@ class Collector:
         if reply.state == "OK" and reply.pages:
             try:
                 parsed = parse_questions(
-                    reply.pages[0], namespace, number, self._run_id
+                    reply.pages[0], namespace, number, self._run_id, link=self._link
                 )
             except ShapeError:
                 code = "shape"

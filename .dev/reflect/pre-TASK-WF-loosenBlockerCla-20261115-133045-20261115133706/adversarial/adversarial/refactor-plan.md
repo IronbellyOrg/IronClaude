@@ -1,0 +1,183 @@
+# Refactoring Plan: Merge into Base (Variant 2)
+
+## Overview
+- Base: Variant 2 (opus:qa, reviewer-2 card, variant-2-original.md)
+- Incorporating strengths from: Variant 1 (haiku:analyzer, variant-1-original.md); the Round 2.5 fault-finder (origin: fault-finder, only INV-001, INV-002, INV-003, INV-008, and fix notes from INV-004 to INV-007, INV-009 to INV-011)
+- Planned changes: 17 findings in the merged card (12 blocking, 5 non-blocking), re-numbered F1-F17
+- Risk level: Medium (long findings; every citation was re-read by the orchestrator on 2026-11-15; the merge-executor must copy the text below without rewording the citations)
+- Output: one merged card in the output dir `.dev/reflect/pre-TASK-WF-loosenBlockerCla-20261115-133045-20261115133706/adversarial/merged-review-card.md`, same shape as the inputs: persona/model header lines, a citation legend, `## Verdict`, `## Findings` with `F<n> | severity | blocking | category | claim | citations | provenance` blocks, `## Checked`, `## Self-report`.
+
+## Merge rules the executor must follow
+1. Write the file incrementally: header stub first, then one section at a time.
+2. Findings are listed blocking first (F1-F12), then non-blocking (F13-F17). Keep the numbering and the order below.
+3. One line per finding with the fields separated by ` | `, exactly as in the input cards; the long text of each finding is in the "Final text" blocks below. Add an HTML provenance comment on its own line directly above each finding line, in the form `<!-- Source: <card and original id>, ... - merged per Change #N -->`.
+4. Do not change any citation (path, line number, quote). Do not add a finding. Do not drop a finding. If a citation looks wrong, stop and report it in merge-log.md instead of fixing it.
+5. Validate after writing: heading hierarchy, 17 finding lines F1 to F17 with contiguous numbers, 12 lines with `blocking true` and 5 with `blocking false`, every finding line has a provenance comment above it, and the two lines tagged `origin: fault-finder` that are blocking (F11, F12) and the two that are non-blocking (F15, F16) carry that tag.
+6. Write merge-log.md (template section 5 of the artifact templates) listing each change with Status, Source, Target, Before/After summary and validation marks.
+
+## Planned Changes
+
+### Change 1: F1 registry rows set to v2 for files with no digest (merge of V1 F2, V1 F3 into V2 F2)
+- **Source**: Variant 1 F2 and F3; Variant 2 F2
+- **Target**: Base F2 (replace and widen: V2's text names the two files; V1 adds the Task 39 mechanism)
+- **Rationale**: C-001; both advocates, Round 2 Q1: Task 39 (plan:459, 462) detects but does not resolve either half; blocking under limb (i)
+- **Integration point**: new F1
+- **Risk**: Low
+
+### Change 2: F2 canonical rule.md versus the T2 reverse scan (from V1 F1)
+- **Source**: Variant 1 F1 plus INV-006 fix note
+- **Target**: new F2
+- **Rationale**: C-002; unique to V1; both advocates agree blocking; the fix choice (register or exempt) breaks other plan checks (plan:150, 230)
+- **Risk**: Low
+
+### Change 3: F3 sweep not wired into the task skill (from V1 F4)
+- **Source**: Variant 1 F4 plus INV-005 fix note
+- **Target**: new F3
+- **Rationale**: C-003; both advocates agree blocking (silent)
+- **Risk**: Low
+
+### Change 4: F4 owner go skipped by the one-pass instruction (from V1 F5)
+- **Source**: Variant 1 F5 plus INV-009 note
+- **Target**: new F4
+- **Rationale**: C-004; both advocates agree blocking; harm lands in stage 2
+- **Risk**: Low
+
+### Change 5: F5 Task 33 scan allow-list (from V2 F1, widened)
+- **Source**: Variant 2 F1 plus INV-007 evidence
+- **Target**: base F1, widened with the skill-folder hits
+- **Rationale**: C-006; both advocates agree blocking
+- **Risk**: Low
+
+### Change 6: F6 rf-qa-qualitative FAIL-by-label bullets (V2 F3, corrected)
+- **Source**: Variant 2 F3
+- **Target**: base F3; count corrected from 7 to 8 pairs; M12 consequence removed (spec:974 defines M12 on rf-qa only)
+- **Rationale**: C-007; both advocates agree blocking
+- **Risk**: Low
+
+### Change 7: F7 tech-research offer (V2 F5 plus INV-004 note)
+- **Source**: Variant 2 F5
+- **Target**: base F5
+- **Rationale**: C-009
+- **Risk**: Low
+
+### Change 8: F8 seeded-defect recall set (V2 F6, seeded half only)
+- **Source**: Variant 2 F6
+- **Target**: base F6; audit half kept as a note inside the finding and not as a blocking claim
+- **Rationale**: C-010; both advocates revised to blocking for the seeded half
+- **Risk**: Medium (orchestrator initially leaned owner-gated; advocates converged; flagged in Self-report)
+
+### Change 9: F9 fresh findings (from V1 F6 plus INV-010)
+- **Source**: Variant 1 F6
+- **Target**: new F9
+- **Rationale**: C-005; both advocates blocking; the orchestrator initially leaned non-blocking (flagged)
+- **Risk**: Medium
+
+### Change 10: F10 row counts and code input suppliers (V2 F4, row-count limb only, plus INV-011)
+- **Source**: Variant 2 F4
+- **Target**: base F4 narrowed
+- **Rationale**: C-008 split; enforcement limb dropped (plan:23, 135, 197 forbid the behaviour)
+- **Risk**: Medium
+
+### Change 11: F11 and F12 from the fault-finder (INV-001, INV-002)
+- **Source**: Round 2.5 fault-finder, citations re-read by the orchestrator
+- **Target**: new F11, F12, tagged origin: fault-finder
+- **Rationale**: invariant probe gate for HIGH UNADDRESSED items; carried only with verified citations
+- **Risk**: Medium (F12 is a plan-internal contradiction found by one agent; both quoted lines were re-read)
+
+### Change 12: F13 to F17 non-blocking findings (V2 F7, V2 F8, INV-003, INV-008, V2 F9)
+- **Source**: Variant 2 F7, F8, F9; fault-finder INV-003, INV-008 (and N1 as evidence)
+- **Target**: base F7, F8, F9, plus two fault-finder findings; F7 and F8 downgraded or kept non-blocking per the debate
+- **Rationale**: C-011, C-012, C-013, X-001; INV-003 and INV-008 are MEDIUM and non-blocking
+- **Risk**: Low
+
+## Final text of the merged card (the executor copies these blocks)
+
+### Header lines
+```
+persona: merged (orchestrator of /sc:adversarial; card 1 analyzer, card 2 qa)
+model_class: merged (card 1 haiku-class, card 2 opus-class)
+```
+Citation legend line: `(Citation legend: "plan" = .dev/tasks/to-do/TASK-WF-loosenBlockerCla-20261115-133045/TASK-WF-loosenBlockerCla-20261115-133045.md; "spec" = .dev/tasks/to-do/BLOCKER-CLASSIFICATION-PROGRAM-20261115/02-brainstorm/merged-requirements.md; "plan-input" = .dev/tasks/to-do/BLOCKER-CLASSIFICATION-PROGRAM-20261115/09-plan-input.md; other paths are repo-relative. Provenance: "V1 Fn" = reviewer-1 card finding n, "V2 Fn" = reviewer-2 card finding n, "origin: fault-finder INV-n" = Round 2.5 invariant probe. Blocking rule used: a finding blocks when following the plan as written makes an executor reach a wrong or impossible result that no later plan step catches, and it is not wording.)`
+
+### Verdict
+`NEEDS-REVISION. Twelve blocking defects: registry, digest and scan checks that cannot all pass (F1, F2, F5), a sweep, an offer and an owner checkpoint that are missing or bypassed (F3, F4, F7, F12), fail-by-label rules left beside the new digest (F6, F11), and three measurement items the plan must carry but does not (F8, F9, F10); five non-blocking defects follow.`
+
+### Findings
+
+F1 | MAJOR | blocking true | contradiction | Registry rows are set to v2 for files that hold no digest, so T1 (every registry row's file holds exactly one digest) cannot pass. (a) Task 30 tells the executor to update the task skill's registry row to v2, but Task 11 creates no such row and Task 30 inserts no digest (the spec moves only the merge-rule lines in the task skill at stage 3); adding the row leaves a v2 row whose file fails digest equality, and skipping it silently drops Task 30's instruction. (b) Task 35 sets document_review_loop_prompts.md to v2 while its own acceptance allows "the pointer plus the ledger sentence", so that row also holds no digest. Task 39 only raises rows to v2 where the file holds a digest and never resets a v2 row, so its registry test fails at the last task with no stated resolution. | plan:361 "Update the registry row for the task skill to `v2`"; plan:146 (Task 11 row list has no skills/task/SKILL.md row); plan:416 "Update registry rows to `v2`"; plan:419 "the pointer plus the ledger sentence"; plan:237 "every registry row's file holds exactly one digest"; plan:459 "set every registry row to `v2` where its file now holds the digest"; plan:462 "passes with strict T2"; spec:947 (stage 3 moves digests only for pragmatic.md, rf-qa.md and rf-qa-qualitative.md) | provenance: V1 F2, V1 F3, V2 F2 (de-duplicated)
+
+F2 | MAJOR | blocking true | unpassable-check | The canonical refs/rule.md is rejected by the plan's own reverse scan. Task 7 requires rule.md to hold exactly one fenced digest; Task 11 registers no row for it and says "exactly the 11 carriers"; Task 19's T2 fails on any file that holds a fence opener and is not a registry row, so Task 19's "passes with all carriers at `legacy`" cannot hold, and Task 39 repeats the problem for the plugin mirror of rule.md. Neither obvious fix is free: registering rule.md breaks "exactly the 11 carriers" (plan:150) and the install check's "no mismatch" at legacy (plan:230), and an exemption has to cover both the source and the plugin copy. The plan does not choose. | plan:101 "between the HTML-comment fence lines `review-severity:digest v2 begin` and `review-severity:digest v2 end`"; plan:104 "exactly one fenced digest"; plan:146; plan:150 "exactly the 11 carriers"; plan:230 "reports no mismatch"; plan:237 "fails on any file that holds the old definition sentence or a fence opener and is not a registry row"; plan:240 "passes with all carriers at `legacy`"; plan:459; spec:917 (T2 has the same wording and no exemption) | provenance: V1 F1; fix-sufficiency note from fault-finder INV-006
+
+F3 | MAJOR | blocking true | missing-requirement | The final-gate sweep (Task 20) is wired into tech-research (Task 22) but not into the task skill: Tasks 21 and 30 prescribe no call, although the sweep is meant for the last gate of both loops and the spec makes it the only way a recorded Medium row becomes Blocking. After Task 30, a Medium row whose flawed figure reaches the final decision basis ships unchanged from the task skill. The one correct place is the task skill's Post-Completion Validation, which also runs after tech-research's Gate 5 because tech-research executes inside /task, so the plan needs one sweep at the end of the run, not one per skill. | plan:250 "every open Medium row is re-tested"; plan:261 (Task 21 has no sweep step); plan:273 "a final-gate sweep step at Gate 5"; plan:361 (Task 30 has no sweep step); spec:274 "The final-gate sweep (GR7) and a linked escalation (section 6.2) are the only ways a recorded row becomes blocking"; spec:653 (GR7 names task/SKILL.md:290-292 as a final gate); src/superclaude/skills/task/SKILL.md:288 "Post-Completion Validation (Final Phase Only)"; src/superclaude/skills/task/SKILL.md:290 "run a final validation pass"; src/superclaude/skills/tech-research/SKILL.md:614 "Execution transfers to /task" | provenance: V1 F4; fix note from fault-finder INV-005
+
+F4 | MAJOR | blocking true | contradiction | The plan lets Phases 1 to 3 run "in one pass", so an executor goes from the stage 0 measurements straight into stage 1 and stage 2 without the owner reading the numbers and saying go. The spec requires "stage 0 result written; owner go" before stage 1 and that the owner has seen the numbers before any stage starts; the plan names an owner go only for Phases 4 and 5. Stage 1 alone is cheap to undo, but stage 2 (Tasks 21 to 23) edits the live task skill, tech-research and WORKER-CONTRACT.md before the owner has seen results that might argue for stopping. Also, the plan says stage 0 steps 0a and 0c are not skipped, yet no Phase 1 task runs or records step 0a (the only five runs on file used a stand-in judge), so the owner would be shown a stage 0 with a required step missing. | plan:20 "Phases 1 to 3 are stages 0, 1 and 2 and can run in one pass"; plan:88 (Task 6 depends only on Task 5); plan:77 "steps 0a and 0c are not skipped"; spec:945 "stage 0 result written; owner go"; spec:940 "No stage starts before its entry condition is met and the owner has seen the numbers"; spec:944 (step 0a defined); plan-input:14 "This is not a Jev run" | provenance: V1 F5; 0a note from fault-finder INV-009
+
+F5 | MAJOR | blocking true | unpassable-check | Task 33's merge-rule scan cannot pass on correct work. It scans all tracked src/ and plugins/ for "highest severity", "more severe rating" or "higher severity" and must pass after Tasks 27 to 30, but five lines in two code files hold those phrases and no task changes or allow-lists them; the plan's allow-list names only auggie:228 and the six stage 4 files, and the spec calls both code files out of scope. The new skill's own files add more hits: Task 7 copies guardrails GR1 to GR12 into rule.md, and GR5 contains "highest severity wins", and Task 39 mirrors the folder into plugins/. The executor must choose between narrowing the scan to markdown and allow-listing code and skill files, and whether the scan is case-sensitive (remediate_parser.py:365 is capitalised); the plan chooses none. | plan:394 "fails when `highest severity`, `more severe rating` or `higher severity` appears outside an allow-list"; plan:397 "passes after Tasks 27 to 30"; plan:399; src/superclaude/cli/pipeline/fmea_classifier.py:304 "Silent corruption from either signal = highest severity."; src/superclaude/cli/pipeline/fmea_classifier.py:323 "Silent corruption = always highest severity"; src/superclaude/cli/roadmap/remediate_parser.py:55 "higher severity wins (BLOCKING > WARNING > INFO)"; src/superclaude/cli/roadmap/remediate_parser.py:301; src/superclaude/cli/roadmap/remediate_parser.py:365 "Higher severity wins"; spec:845 "remediate_parser.py ... is out of scope"; spec:651 (GR5 "without re-creating 'highest severity wins'"); plan:101; plan:459 | provenance: V2 F1; skill-folder hits from fault-finder INV-007
+
+F6 | MAJOR | blocking true | missing-requirement | rf-qa-qualitative.md keeps eight label-based verdict pairs that Task 28 does not touch and Task 1's patterns cannot find. After Task 28 the agent holds the v2 digest ("the label ... is information, never the grade") beside eight bullets that FAIL a review on "Any CRITICAL or IMPORTANT issue exists". Task 27 rewrites the identical pair in rf-qa.md (lines 182-183) and Task 32 re-pins it, but nothing does either for this file, and the precedence sentence does not order two texts that both sit in the agent's own file. No pilot metric observes these lines (spec:974 defines M12 on rf-qa only). | src/superclaude/agents/rf-qa-qualitative.md:240 "**FAIL** — Any CRITICAL or IMPORTANT issue exists", with the same bullet at 291, 362, 429, 500, 567, 746 and 784 and the PASS bullets one line above each; src/superclaude/agents/rf-qa.md:183 (the rf-qa twin that Task 27 rewrites); plan:340 (Task 28 edits lines 108, 84, 990 only); plan:328 (Task 27 includes rf-qa "182 to 183"); plan:32 (Task 1 patterns do not match); spec:275 (L6 "lines that fail a review by label"); spec:854 (inventory lists only Rule 6 for this file); spec:203 "information, never the grade"; spec:205 (precedence sentence); spec:974 | provenance: V2 F3 (pair count corrected from 7 to 8; the original M12 consequence is dropped)
+
+F7 | MAJOR | blocking true | missing-requirement | Task 22 wires tech-research without the per-run offer that spec stage 2 requires of both gates, and no task shows the offer at an escalation halt, which owner decision OD2 (adopted at plan:21) requires. Task 21 adds "one offer per run" for the task skill only, and Task 26 later moves the output style's once-per-loop ask out of pragmatic.md, so from stage 3 tech-research has no offer step at all. Because tech-research runs inside /task, the fix must name one owner of the offer so a run does not show two, and place the halt offer at the cap sites (task/SKILL.md:258, 372, 409 and tech-research Step 3.2 line 490). | plan:273 (no offer in the Task 22 list); plan:261 "one offer per run"; plan:21 "OD2 once per run plus at any escalation halt"; plan:316; spec:946 "the task skill and tech-research gates write the ledger and make the per-run offer"; spec:323 "At the end of the run, and at any escalation halt"; src/superclaude/output-styles/pragmatic.md:230 "asks the user once per loop"; src/superclaude/skills/tech-research/SKILL.md:490 "After 2 fix cycles (3 reviews), HALT and escalate"; src/superclaude/skills/tech-research/SKILL.md:614 | provenance: V2 F5; double-offer note from fault-finder INV-004
+
+F8 | MAJOR | blocking true | missing-requirement | No task builds or sizes the seeded-defect recall set (spec 8.3), although the spec says to size it in the plan and the stage 3 entry requires "seeded recall met". The plan calls seeded recall something "no executor can produce"; that is false, because the spec gives an executable procedure (plant defects of four classes in a held-out deliverable and review it under the old and the new rule text with the same reviewers), and the same plan sentence lists stage 0c, which Task 3 produces. The owner's go at Phase 4 cannot clear this gate without work the plan neither contains nor sizes, and revert triggers RT1 and RT3 need the set. The audit window of 8.2 is different: it samples pilot rows, cannot be built beforehand and is already the Phase 5 gate (plan:20), so that half is not part of this finding. | plan:20 "seeded recall met ... no executor can produce"; plan:54 (Task 3 produces stage 0c); spec:947 "seeded recall (section 8.3) met"; spec:680 "Plant known defects in a held-out deliverable"; spec:987 "the planted set must be large enough to see 5 points; size it in the plan"; spec:985 (RT1 "audit or the seeded set"); spec:665 (audit frame is the pilot window) | provenance: V2 F6 (seeded-recall half only)
+
+F9 | MAJOR | blocking true | missing-requirement | Nothing in the plan evaluates the classifier on fresh findings that were not among the 318, which the reconciliation says the plan must carry; the plan never mentions the item. Tasks 3 and 4 reuse the historical table; Task 4's reviewer-called-minor set is a random sample with no "proved real" label; and the shadow runs of Tasks 16, 21 and 22 compare against supplied answers or the reviewer's own label (ReviewerJudge) and, with no recorded answers, record "unavailable". So circularity and selection bias stay untested and the plan does not say they are deferred. One recorded deferral naming both populations, or a task that evaluates them, closes it. | plan-input:11 "Reconciliation the plan must carry"; plan-input:16 "fresh findings that were not in the 318, plus findings a reviewer called minor that later proved real"; plan:54; plan:66; plan:180 "ReviewerJudge (the reviewer's own label read through the scale map as 0 or 1)"; plan:203; plan:208 "classifier=unavailable"; plan:22 | provenance: V1 F6; second-population note from fault-finder INV-010
+
+F10 | MAJOR | blocking true | missing-requirement | No task reports how many rows had each code-supplied input (the required-item list, the constraint lines, the verified evidence) for the M, C and E questions, as the reconciliation requires, and no task builds the code that supplies those inputs. Task 16 reads "findings plus a judge answers file" and prints a disagreement matrix, so with the judges the plan builds every count would be zero and the measurement that must precede enabling any "M or C is Y" row cannot happen inside the plan. The restriction itself is stated (plan:23, 135), so an executor is already told not to ask M, C or E without inputs; what is missing is the count and the supplier, not the rule. | plan-input:15 "only when code supplies ... and report how many rows had each"; plan:203; plan:138; plan:180; plan:183; plan:23; plan:135 | provenance: V2 F4 (row-count limb only; the enforcement limb is non-blocking because plan:23, 135 and 197 forbid the behaviour); supplier note from fault-finder INV-011
+
+F11 | MAJOR | blocking true | missing-requirement | The QA-agent template holds the same fail-by-label verdict bullet as rf-qa and rf-qa-qualitative, three lines above the definition that Task 34 replaces, and neither Task 34 nor the strict T2 of Task 39 touches or detects it. After Phase 5 the template carries the v2 digest and a "FAIL if any CRITICAL or IMPORTANT issue exists" bullet together, and every QA agent generated from the template inherits the conflict. | src/superclaude/templates/documents/agent_template_qa.md:158 "**FAIL** — Any CRITICAL or IMPORTANT issue exists"; src/superclaude/templates/documents/agent_template_qa.md:161 (the definition Task 34 replaces); plan:405 (Task 34 names lines 161, 85 and 333); plan:408-410; plan:459 | origin: fault-finder INV-001
+
+F12 | MAJOR | blocking true | contradiction | The plan says the old definition still decides every gate outcome during stage 2, but the sweep that Task 22 wires at Gate 5 turns an open Medium row into Blocking "at that gate", and nothing marks the stage 2 sweep as record-only. Under the legacy rule a Medium finding never fails a review, so a live sweep would change a gate outcome while the plan is still supposed to be in shadow mode; the test that no gate outcome changes (T12) covers only the classifier. Copying Task 22's wording into Task 21 (the fix for F3) would spread the same change to every /task run. The plan has to say whether the stage 2 sweep records or promotes. | plan:250 "becomes Blocking at that gate"; plan:261 "The old definition still decides every gate outcome"; plan:273; plan:192; plan:197; src/superclaude/output-styles/pragmatic.md:230 "A Medium finding is a warning: it never fails a review"; spec:946 "reviewers emit `rests_on` while the old definition still decides" | origin: fault-finder INV-002
+
+F13 | MEDIUM | blocking false | other | Acceptance checks pin line numbers or a path that the task's own edit or the repository contradicts. Task 26 replaces two bullets with a multi-line fenced digest and then requires "Line 227 ... and line 228 are unchanged" (the cap cannot stay on line 227); Task 21 adds reviewer-brief text above line 252 and then requires grep to print lines 252 and 361 (not forced if the edit is made in place on the existing single lines, but fragile); Task 22 adds a Gate 5 step at line 415 and then pins lines 488-490; Task 26 greps hooks/hooks.json at the repository root, which does not exist (the file is src/superclaude/hooks/hooks.json, and plugins/superclaude/hooks/hooks.json also exists). Each pin states what it protects, so the fix is mechanical (pin by text, correct the path), but per-task QA that runs the literal command will fail the check. | plan:320 "Line 227 (the cap) and line 228 are unchanged word for word"; plan:266 "still prints lines 252 and 361"; plan:277 "lines 488-490"; plan:321 `grep -n "pragmatic" hooks/hooks.json`; src/superclaude/hooks/hooks.json:173 "pragmatic-subagent.js"; src/superclaude/skills/task/SKILL.md:248 (reviewer brief text above 252); src/superclaude/skills/tech-research/SKILL.md:415 "Gate 5: Anti-Omission" | provenance: V2 F7 (downgraded to non-blocking by the debate)
+
+F14 | MEDIUM | blocking false | other | The Task 24 pin on pragmatic.md lines 225-231 ("unchanged in this stage") has no stage signal and no retirement: Task 26 rewrites lines 225, 226 and 229 and moves 230-231, Task 26 runs only the tests listed in Task 31, and Task 31's list omits tests/skills/test_review_brief_rests_on.py, so a plain pin goes red at Task 26 and no later check runs it. The plan's words "before Task 26" bound the intent (a test that is skipped when the pragmatic.md registry row is v2 would satisfy it), so a red test is not forced; card 1's statement that the pin is bounded and sound holds only if that guard is written. Fix: say the test is keyed to the registry row, or add it to Task 31. | plan:295 "lines 225 to 231 is unchanged"; plan:299 "A test fails if `src/superclaude/output-styles/pragmatic.md` line 225 changes before Task 26"; plan:316; plan:372 (Task 31 list); plan:462 | provenance: V2 F8; contradicts V1 Checked bullet 4
+
+F15 | MEDIUM | blocking false | missing-requirement | L3 (three choices at the cap) is applied at task/SKILL.md:258 only. The spec lists the L3 sites as rf-qa.md:402-415 and task/SKILL.md:258 and 372; after Tasks 27 and 30 the task skill keeps a plain "HALT and escalate" at lines 372 and 409 and rf-qa.md:402 keeps one too, so one skill would show two cap behaviours; Task 30's check "The escalation text lists the three choices" passes on line 258 alone. The spec does not say at which stage L3 applies (spec:947 omits it), so this is not a clear wrong result. | spec:272 "`rf-qa.md:402-415` [E]; `task/SKILL.md:258` [V], `372` [E]"; plan:361; plan:366; plan:328; src/superclaude/skills/task/SKILL.md:372 "6. **Escalation:** After 2 fix cycles (3 reviews), HALT and escalate to the user"; src/superclaude/skills/task/SKILL.md:409; src/superclaude/agents/rf-qa.md:402 "HALT and escalate to the user" | origin: fault-finder INV-003
+
+F16 | MEDIUM | blocking false | unpassable-check | Task 31 changes the two cap and sweep fixtures, but test_ej requires each fixture to be byte-identical to a plan table under .dev/review-severity-rule/ (cap-edits.yaml and sweep-edits.yaml, both tracked), and Task 31 names neither, so its own criterion (the six test files pass) fails until the executor also edits those tables or relaxes the test; the plan does not say which. A related check cannot pass either: Task 30 requires that the task skill "still" holds the text "at most 2 fix cycles (3 reviews), then escalate to the user with the open blocking findings", but task/SKILL.md words it "After 2 fix cycles (3 reviews), HALT and escalate to the user with the open blocking findings" at 258, 372 and 409, and CANONICAL_CAP_TEXT is asserted against the output style only. | tests/skills/test_review_severity_rule.py:275 "def test_ej_fixtures_are_byte_copies_of_the_plan_tables"; tests/skills/fixtures/review_severity_cap_edits.yaml:888 (C-107 for task/SKILL.md); tests/skills/fixtures/review_severity_cap_edits.yaml:912 (C-110); plan:372; plan:375; plan:376; plan:365; tests/skills/test_review_severity_rule.py:215; tests/skills/test_review_severity_rule.py:228-230 | origin: fault-finder INV-008 (the plan:365 phrase check was surfaced in the debate and verified on disk)
+
+F17 | MINOR | blocking false | other | Two wording slips. Task 11's acceptance says "exactly the 11 carriers" while the task adds seven more rows (two own-scale rows and five installed-only rows). Task 33 says Task 34 removes the six stage 4 files from the allow-list, but Task 34 has no such step; only Task 36 removes four of them, and the two template files stay allow-listed, which fails nothing because they hold no phrase after Task 34. | plan:150 "exactly the 11 carriers"; plan:146; plan:151; plan:399 "so Task 36 and Task 34 remove them from it"; plan:405-410; plan:426 | provenance: V2 F9
+
+### Checked
+- Every citation in F1 to F17 was re-read by the orchestrator on disk on 2026-11-15 (plan lines, spec lines, repository files and tests); 5 code lines, 8 FAIL bullets, the hooks.json location and the task skill cap sentences were confirmed with Grep or Read.
+- plan:20, 21, 22, 23 and 197 do state the owner gates, the owner decisions, the not-built list and the classifier restrictions; those parts of the plan are correct as written (card 1 and card 2).
+- The 11 definition carriers of spec 10.1 match Task 11 (card 2). The merge rule appears on 13 lines in 10 files plus auggie:228 (card 2). pragmatic.md lines 221-231 hold the text cited by Tasks 24 and 26 (card 2).
+- The cap text lines named by Tasks 22, 36 and 37 and the existing test files named by the plan exist (card 2 Glob; fault-finder spot check of 8 counts and 13 test files).
+- Every "Depends on" line was checked against task order: no cycles and no forward dependency; three prerequisites are implicit (Tasks 21 and 22 on Tasks 14 and 16, Task 26 on Tasks 7, 11 and 19, Task 34 has no line); not listed as findings (LOW).
+- The classifier no-authority constraint (plan:23, 197) and the stated M, C and E restriction (plan:135) hold as written; the review of F10 concerns the missing count and supplier only.
+- Static review only; no tests were run and no file outside the adversarial/ output folder was modified.
+
+### Self-report
+```
+confidence: 0.80
+reviewer_model_self_report: debate-orchestrator (claude-gw-tier1b), merging reviewer-1 (haiku class, analyzer) and reviewer-2 (opus class, qa) after a standard-depth adversarial debate with advocates run on the opposite classes
+note: F8, F9 and F10 are blocking because both advocates and the shared test criterion agree; the orchestrator's own first reading was that they were owner-gated or deferrable, so treat these three as the most judgment-dependent blocking calls
+```
+
+## Changes NOT Being Made (with rationale)
+
+| Diff Point | Non-Base Approach | Rationale for Keeping Base |
+|------------|-------------------|---------------------------|
+| S-002 | V1's all-MAJOR/all-blocking severity spread | V2 grades two findings non-blocking; Round 2 puts F13 to F17 non-blocking |
+| C-008 enforcement limb | V2 F4 claim that nothing enforces the M, C and E restriction | plan:23, 135, 197 forbid the behaviour; kept only the row-count limb as F10 |
+| C-010 audit limb | V2 F6 claim that the 8.2 audit needs a task | spec:665 audit frame is the pilot window; plan:20 gates Phase 5 on it |
+| V2 F3 M12 consequence | "the pilot's FAIL-count metric (M12) shows no change for this agent" | spec:974 defines M12 on rf-qa FAIL count only |
+| V2 F3 count | "7 PASS/FAIL bullet pairs" | Grep: 8 bullets; corrected |
+| V1 Checked bullet 4 | Task 24 pin "sound" | no stage signal or retirement; kept as F14 non-blocking |
+| INV-012, INV-013, INV-014 | LOW fault-finder items | Not carried: only HIGH and MEDIUM items with verified citations are carried |
+| Advocate-surfaced N1 | task skill cap phrase | LOW; carried only as evidence inside F16 |
+
+## Risk Summary
+
+| Change # | Risk | Impact if Failed | Rollback |
+|----------|------|------------------|----------|
+| 1-7 | Low | wrong citation in a blocking finding | re-read the line and fix the finding text in merge-log |
+| 8-10 | Medium | owner-gated items over-graded | change the `blocking` field to false and note in Self-report |
+| 11 | Medium | a fault-finder contradiction misread | drop F12 or mark non-blocking |
+| 12 | Low | non-blocking items missed | none needed |
+
+## Review Status
+- [x] Auto-approved (default)
+- [ ] User-approved (--interactive)
+- Approved by: auto
+- Approval timestamp: 2026-11-15

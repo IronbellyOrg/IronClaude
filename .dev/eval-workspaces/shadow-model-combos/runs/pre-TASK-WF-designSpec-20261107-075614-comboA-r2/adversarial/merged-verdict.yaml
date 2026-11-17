@@ -1,0 +1,31 @@
+# merged-verdict.yaml — copied from sc-adversarial return-contract.yaml + merged-output.md (EV-1; never synthesized)
+merge_method: adversarial
+verdict: blocking-findings-present
+convergence_score: 1.0
+base_variant: "opus:refactorer"
+status: success
+unresolved_conflicts: 0
+fallback_mode: false
+failure_stage: null
+invocation_method: skill-direct
+unaddressed_invariants: []
+artifacts_dir: .dev/eval-workspaces/shadow-model-combos/runs/pre-TASK-WF-designSpec-20261107-075614-comboA-r2/adversarial/adversarial
+merged_output_path: .dev/eval-workspaces/shadow-model-combos/runs/pre-TASK-WF-designSpec-20261107-075614-comboA-r2/adversarial/merged-output.md
+source_cards:
+  - panel/cards/reviewer-1.md
+  - panel/cards/reviewer-2.md
+  - panel/cards/reviewer-3.md
+merged_findings:
+  - {id: MF1, severity: MAJOR, blocking: true,  category: missing-requirement, confidence: 0.85, claim: "draft_guard_unavailable halt reports released (fold None, no-record branch); no task places the halt override, no AC tests it"}
+  - {id: MF2, severity: MAJOR, blocking: true,  category: contradiction,       confidence: 0.80, claim: "Fold type unpinned: dict prose + attribute reads + Task 5 subscript AC; two implementers can pass their own ACs with incompatible modules"}
+  - {id: MF3, severity: MAJOR, blocking: true,  category: unpassable-check,    confidence: 0.80, claim: "resume_decision row 4 re-entry lacks cycle_id/target_sha/applied_edits and no expected action/cause; contract unimplementable as stated"}
+  - {id: MF4, severity: MAJOR, blocking: true,  category: missing-requirement, confidence: 0.75, claim: "user_override settle sets no disabled_cause; fold and status ACs tested separately so wrong merge_guard value ships"}
+  - {id: MF5, severity: MINOR, blocking: false, category: missing-requirement, confidence: 0.70, claim: "Byte-identical pins compare recorded start-text only; within-sentence edits after the prefix pass Task 10's AC"}
+  - {id: MF6, severity: MINOR, blocking: false, category: missing-requirement, confidence: 0.65, claim: "ready not_applied -> RELEASE_PENDING-when-failed-release-preceded fold variant untested (AC tests HELD only)"}
+  - {id: MF7, severity: MINOR, blocking: false, category: missing-requirement, confidence: 0.70, claim: "Tasks 9/10/12/13 consume pre-build-gate.md without Depends on: Task 1 (spec:363 rule; Task 8 declares it directly)"}
+  - {id: MF8, severity: MINOR, blocking: false, category: contradiction,       confidence: 0.55, claim: "Task 9 body allows a classification entry its own AC's exception list (Tasks 2,5,7,8) excludes"}
+  - {id: MF9, severity: MINOR, blocking: false, category: contradiction,       confidence: 0.70, claim: "Release-gate list G4/G5 in Constraints and Task 12 vs five gates (G1 live, G2 live, G4, G5, G6) at plan:24/spec:326"}
+  - {id: MF10, severity: MINOR, blocking: false, category: missing-requirement, confidence: 0.70, claim: "No file:NNN rule for new protocol prose stated in two places but no AC tests it"}
+  - {id: MF11, severity: MINOR, blocking: false, category: contradiction,       confidence: 0.60, claim: "Resume reconcile-at-any-ordinal (spec:58) vs row-2 REPORT_HELD precedence (spec:164); vacuous below ordinal 3, unnoted"}
+evidence_note:
+  - {id: EN1, from: "reviewer-2 F1", claim: "Pass-2 matrix omits 3 requirement-bearing spans (loop-guard enumeration, state-machine overlay, public exports); covered by Tasks 2/10/5; coverage measures the extraction, not the spec body"}

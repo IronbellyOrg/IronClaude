@@ -1,0 +1,13 @@
+== grep (each pattern expected to match nothing)
+none: question_fixture=
+HITS for _question_fixture:
+tests/observe/test_collector.py:662:def test_a_fixture_source_has_no_question_fixture(fake_clock):
+none: question_fixture:
+none: _question_index
+none: SYNTHETIC question cycles
+== pytest
+.                                                                        [100%]
+
+============================= 685 passed in 22.52s =============================
+== ruff
+All checks passed!

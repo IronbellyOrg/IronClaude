@@ -1,0 +1,254 @@
+# Pass 2 requirements-analyst rows for source.md (stage 1 plan request)
+rows:
+  - id: INF-001
+    quote: 'This stage creates new files only (the skill folder, new CLI modules, new tests, one doctor check); it edits no review-loop carrier.'
+    citation: .dev/tasks/to-do/TASK-WF-blockerStage1-20261116-030154/source.md:3
+  - id: INF-002
+    quote: 'Generate it only after the owner has read the stage 0 package''s `./artifacts/stage0-summary-for-owner.md` and said go in chat'
+    citation: .dev/tasks/to-do/TASK-WF-blockerStage1-20261116-030154/source.md:3
+  - id: INF-003
+    quote: 'and after the stage ledger row for stage 0 has the package id'
+    citation: .dev/tasks/to-do/TASK-WF-blockerStage1-20261116-030154/source.md:3
+  - id: INF-004
+    quote: 'Reuse Tasks 11 to 25 of the revised 46-task plan `TASK-WF-loosenBlockerRev-20261115-210254` (Phase 2, stage 1; found by that folder name under `.dev/tasks/to-do/`), renumbered 1 onward.'
+    citation: .dev/tasks/to-do/TASK-WF-blockerStage1-20261116-030154/source.md:7
+  - id: INF-005
+    quote: 'Read its `## Constraints` and carry over what applies to stage 1: spec and PF naming, owner-decision defaults, the not-built list'
+    citation: .dev/tasks/to-do/TASK-WF-blockerStage1-20261116-030154/source.md:7
+  - id: INF-006
+    quote: 'the classifier facts (M, C and E run only with code-supplied inputs; the "M or C is Y gives BLOCKING" row is never enabled; confidence is an ordinal band)'
+    citation: .dev/tasks/to-do/TASK-WF-blockerStage1-20261116-030154/source.md:7
+  - id: INF-007
+    quote: 'pins by content, `src/superclaude/` as source of truth with `make sync-dev`, UV only'
+    citation: .dev/tasks/to-do/TASK-WF-blockerStage1-20261116-030154/source.md:7
+  - id: INF-008
+    quote: 'The stage 0 package''s evidence (inventory freeze, availability counts, spec reconciliation) is read by package id.'
+    citation: .dev/tasks/to-do/TASK-WF-blockerStage1-20261116-030154/source.md:7
+  - id: INF-009
+    quote: 'State this package is stage 1: new files only, no carrier edited, every registry `digest` row stays `legacy`.'
+    citation: .dev/tasks/to-do/TASK-WF-blockerStage1-20261116-030154/source.md:11
+  - id: INF-010
+    quote: 'The next package (stage 2) starts only after the owner''s go in chat.'
+    citation: .dev/tasks/to-do/TASK-WF-blockerStage1-20261116-030154/source.md:11
+  - id: INF-011
+    quote: 'Drop the base plan''s Phase 3 to 5 gate prose.'
+    citation: .dev/tasks/to-do/TASK-WF-blockerStage1-20261116-030154/source.md:11
+  - id: INF-012
+    quote: 'The "Merge-rule allow-list" section lists files by path and never writes the three merge-rule phrases or the old definition sentence.'
+    citation: .dev/tasks/to-do/TASK-WF-blockerStage1-20261116-030154/source.md:12
+  - id: INF-013
+    quote: 'At stage 1 it lists the auggie file, `refs/rule.md` and the six stage 4 files.'
+    citation: .dev/tasks/to-do/TASK-WF-blockerStage1-20261116-030154/source.md:12
+  - id: INF-014
+    quote: 'Say in the task that the plugin mirror is added in stage 4, not here.'
+    citation: .dev/tasks/to-do/TASK-WF-blockerStage1-20261116-030154/source.md:12
+  - id: INF-015
+    quote: '`refs/rule.md` holds the GR5 sentence with the phrase `highest severity` (allow-listed)'
+    citation: .dev/tasks/to-do/TASK-WF-blockerStage1-20261116-030154/source.md:13
+  - id: INF-016
+    quote: 'never quotes the old definition sentence "Grade every review finding as blocking or minor" outside the digest''s own fence history'
+    citation: .dev/tasks/to-do/TASK-WF-blockerStage1-20261116-030154/source.md:13
+  - id: INF-017
+    quote: 'state this as an acceptance line (`grep` of the old sentence over the skill folder prints nothing)'
+    citation: .dev/tasks/to-do/TASK-WF-blockerStage1-20261116-030154/source.md:13
+  - id: INF-018
+    quote: 'No file under `src/superclaude/skills/sc-review-severity/` cites a `.dev/` or `./artifacts/` path (acceptance: `grep -rn "\.dev/\|artifacts/" src/superclaude/skills/sc-review-severity` prints nothing).'
+    citation: .dev/tasks/to-do/TASK-WF-blockerStage1-20261116-030154/source.md:14
+  - id: INF-019
+    quote: 'State the M, C and E input rule in words.'
+    citation: .dev/tasks/to-do/TASK-WF-blockerStage1-20261116-030154/source.md:14
+  - id: INF-020
+    quote: 'Keep exactly 11 `digest` rows, 1 `canonical`, 2 `pointer-only`, 5 `installed-only` (19 rows).'
+    citation: .dev/tasks/to-do/TASK-WF-blockerStage1-20261116-030154/source.md:15
+  - id: INF-021
+    quote: 'Say the analysis template is not a carrier row (merge-rule text only in stage 4).'
+    citation: .dev/tasks/to-do/TASK-WF-blockerStage1-20261116-030154/source.md:15
+  - id: INF-022
+    quote: 'T3''s `src/superclaude` check applies to `digest` and `canonical` rows only'
+    citation: .dev/tasks/to-do/TASK-WF-blockerStage1-20261116-030154/source.md:16
+  - id: INF-023
+    quote: '`pointer-only` and `installed-only` rows are checked for pointer order only, and a `pointer-only` row only once its pointer is present'
+    citation: .dev/tasks/to-do/TASK-WF-blockerStage1-20261116-030154/source.md:16
+  - id: INF-024
+    quote: 'the test never reads `~/.claude`'
+    citation: .dev/tasks/to-do/TASK-WF-blockerStage1-20261116-030154/source.md:16
+  - id: INF-025
+    quote: 'T2 is non-strict (strict only in stage 4).'
+    citation: .dev/tasks/to-do/TASK-WF-blockerStage1-20261116-030154/source.md:16
+  - id: INF-026
+    quote: 'Acceptance includes a temporary-tree test of each exemption.'
+    citation: .dev/tasks/to-do/TASK-WF-blockerStage1-20261116-030154/source.md:16
+  - id: INF-027
+    quote: 'that a later task of the same package makes false get an end point ("until Task N").'
+    citation: .dev/tasks/to-do/TASK-WF-blockerStage1-20261116-030154/source.md:17
+  - id: INF-028
+    quote: 'New final task: stage 1 exit summary for the owner.'
+    citation: .dev/tasks/to-do/TASK-WF-blockerStage1-20261116-030154/source.md:18
+  - id: INF-029
+    quote: 'Write `./artifacts/stage1-summary-for-owner.md`: for each task its artifact or file and its observed test result (the commands run and their pass counts)'
+    citation: .dev/tasks/to-do/TASK-WF-blockerStage1-20261116-030154/source.md:18
+  - id: INF-030
+    quote: 'the list of files created'
+    citation: .dev/tasks/to-do/TASK-WF-blockerStage1-20261116-030154/source.md:18
+  - id: INF-031
+    quote: 'a statement that no carrier was edited (`git diff --stat` over carriers is empty)'
+    citation: .dev/tasks/to-do/TASK-WF-blockerStage1-20261116-030154/source.md:18
+  - id: INF-032
+    quote: 'the open items, and the sentence that the owner''s go for stage 2 is given in chat and not by this file'
+    citation: .dev/tasks/to-do/TASK-WF-blockerStage1-20261116-030154/source.md:18
+  - id: INF-033
+    quote: 'No edit of any carrier (`pragmatic.md`, agents, templates, rule prompts, task skill, tech-research, WORKER-CONTRACT) and no stage 2 to 4 task.'
+    citation: .dev/tasks/to-do/TASK-WF-blockerStage1-20261116-030154/source.md:22
+  - id: INF-034
+    quote: 'Do not change `sc-implement-protocol/refs/qa.md`, the own-scale primitives, the cap of 2 fix cycles or the 35 percent target.'
+    citation: .dev/tasks/to-do/TASK-WF-blockerStage1-20261116-030154/source.md:22
+  - id: INF-035
+    quote: 'No Jev call, key or account.'
+    citation: .dev/tasks/to-do/TASK-WF-blockerStage1-20261116-030154/source.md:22
+  - id: INF-036
+    quote: 'Applied to the plan in place (plan file name, slug and frontmatter unchanged; still 16 tasks, 4 phases).'
+    citation: .dev/tasks/to-do/TASK-WF-blockerStage1-20261116-030154/source.md:26
+  - id: INF-037
+    quote: 'This section supersedes the older lines above where they differ'
+    citation: .dev/tasks/to-do/TASK-WF-blockerStage1-20261116-030154/source.md:26
+  - id: INF-038
+    quote: 'until Task 10 adds an importer, `grep -rln "follow_ups" src/superclaude/cli/review` lists only `follow_ups.py`'
+    citation: .dev/tasks/to-do/TASK-WF-blockerStage1-20261116-030154/source.md:28
+  - id: INF-039
+    quote: 'from Task 10 on the only other files it may list are `classifier_inputs.py`, `classify_cmd.py` and `safety_route.py`'
+    citation: .dev/tasks/to-do/TASK-WF-blockerStage1-20261116-030154/source.md:28
+  - id: INF-040
+    quote: 'Task 3: the stoprule and `finding-grader` row is marked `installed-only`'
+    citation: .dev/tasks/to-do/TASK-WF-blockerStage1-20261116-030154/source.md:29
+  - id: INF-041
+    quote: 'cites no `.dev/` path, and is exempt from the exists-in-repository line'
+    citation: .dev/tasks/to-do/TASK-WF-blockerStage1-20261116-030154/source.md:29
+  - id: INF-042
+    quote: 'Task 15''s T4 carries the same exemption (OD10 stays undecided).'
+    citation: .dev/tasks/to-do/TASK-WF-blockerStage1-20261116-030154/source.md:29
+  - id: INF-043
+    quote: 'Task 3''s allow-list section also lists `cli/roadmap/remediate_parser.py` and `cli/pipeline/fmea_classifier.py` as `allowed`'
+    citation: .dev/tasks/to-do/TASK-WF-blockerStage1-20261116-030154/source.md:30
+  - id: INF-044
+    quote: '`follow-ups.md` stays a separate file, no mapping to `review-ledger/1` rows, `ledger.py` untouched'
+    citation: .dev/tasks/to-do/TASK-WF-blockerStage1-20261116-030154/source.md:31
+  - id: INF-045
+    quote: 'the audit verdict decides whether a mapping is ever added'
+    citation: .dev/tasks/to-do/TASK-WF-blockerStage1-20261116-030154/source.md:31
+  - id: INF-046
+    quote: 'the "ledger adapters" are `follow_ups.py`, `classifier_inputs.py` and the classifier column writing of `classify_cmd.py`'
+    citation: .dev/tasks/to-do/TASK-WF-blockerStage1-20261116-030154/source.md:31
+  - id: INF-047
+    quote: 'Task 16 reports the audit verdict to the owner.'
+    citation: .dev/tasks/to-do/TASK-WF-blockerStage1-20261116-030154/source.md:31
+  - id: INF-048
+    quote: '`ledger.py` is added to the not-built list.'
+    citation: .dev/tasks/to-do/TASK-WF-blockerStage1-20261116-030154/source.md:31
+  - id: INF-049
+    quote: 'Task 3 fixes the table columns (`family`, `defining file`, `labels`, `model`, `file kind`), the `LABEL=Outcome;` pair format, the path root (relative to `src/superclaude/`, no prefix)'
+    citation: .dev/tasks/to-do/TASK-WF-blockerStage1-20261116-030154/source.md:32
+  - id: INF-050
+    quote: 'the `none` value for a row without a native label (skipped by T4''s label check) and `installed-only` rows'
+    citation: .dev/tasks/to-do/TASK-WF-blockerStage1-20261116-030154/source.md:32
+  - id: INF-051
+    quote: 'Tasks 9, 12 and 15 gain `Depends on: Task 3`.'
+    citation: .dev/tasks/to-do/TASK-WF-blockerStage1-20261116-030154/source.md:32
+  - id: INF-052
+    quote: 'Task 10 depends on Task 7 and Task 9.'
+    citation: .dev/tasks/to-do/TASK-WF-blockerStage1-20261116-030154/source.md:33
+  - id: INF-053
+    quote: '`run_questions(judge, finding, allowed)` is assigned to Task 9 and `questions_to_ask(inputs)` to Task 10'
+    citation: .dev/tasks/to-do/TASK-WF-blockerStage1-20261116-030154/source.md:33
+  - id: INF-054
+    quote: 'Task 11''s M, C and E test uses only functions of Tasks 9 and 10.'
+    citation: .dev/tasks/to-do/TASK-WF-blockerStage1-20261116-030154/source.md:33
+  - id: INF-055
+    quote: 'The second half of T12 ("except through the safety route") moves to Task 13, which now depends on Task 9 as well.'
+    citation: .dev/tasks/to-do/TASK-WF-blockerStage1-20261116-030154/source.md:33
+  - id: INF-056
+    quote: 'Task 2''s grep uses the full path'
+    citation: .dev/tasks/to-do/TASK-WF-blockerStage1-20261116-030154/source.md:34
+  - id: INF-057
+    quote: 'Task 12 names the seven review subcommands present today and says `lint` and `estimate` are optional names without modules'
+    citation: .dev/tasks/to-do/TASK-WF-blockerStage1-20261116-030154/source.md:34
+  - id: INF-058
+    quote: 'Task 4 defines `sweep-flagged` as a ninth state'
+    citation: .dev/tasks/to-do/TASK-WF-blockerStage1-20261116-030154/source.md:34
+  - id: INF-059
+    quote: 'the installed reference names no rollout stage'
+    citation: .dev/tasks/to-do/TASK-WF-blockerStage1-20261116-030154/source.md:34
+  - id: INF-060
+    quote: 'Task 3 lists `skills/task/SKILL.md`, `skills/task-builder/` and `agents/rf-task-builder.md` as `exempt-by-retirement` (path only)'
+    citation: .dev/tasks/to-do/TASK-WF-blockerStage1-20261116-030154/source.md:35
+  - id: INF-061
+    quote: 'the exemption ends when the retirement removes the file'
+    citation: .dev/tasks/to-do/TASK-WF-blockerStage1-20261116-030154/source.md:35
+  - id: INF-062
+    quote: 'Task 16''s carrier diff adds the task-builder folder.'
+    citation: .dev/tasks/to-do/TASK-WF-blockerStage1-20261116-030154/source.md:35
+  - id: INF-063
+    quote: '`/sc:implement`''s final review step records and prints only, the offer stays with the top-level session and the consent-bound filing path (OD15)'
+    citation: .dev/tasks/to-do/TASK-WF-blockerStage1-20261116-030154/source.md:36
+  - id: INF-064
+    quote: '`tech-research` writes the ledger and neither sweeps nor offers'
+    citation: .dev/tasks/to-do/TASK-WF-blockerStage1-20261116-030154/source.md:36
+  - id: INF-065
+    quote: '`sc-implement-protocol` joins the not-edited list and the Task 16 diff.'
+    citation: .dev/tasks/to-do/TASK-WF-blockerStage1-20261116-030154/source.md:36
+  - id: INF-066
+    quote: 'Task 3 no longer says a plugin mirror comes in stage 4'
+    citation: .dev/tasks/to-do/TASK-WF-blockerStage1-20261116-030154/source.md:37
+  - id: INF-067
+    quote: 'Task 6''s canonical row has no plugin surface'
+    citation: .dev/tasks/to-do/TASK-WF-blockerStage1-20261116-030154/source.md:37
+  - id: INF-068
+    quote: 'Task 16 diff adds `plugins`.'
+    citation: .dev/tasks/to-do/TASK-WF-blockerStage1-20261116-030154/source.md:37
+  - id: INF-069
+    quote: 'Registry counts unchanged: 11 `digest`, 1 `canonical`, 2 `pointer-only`, 5 `installed-only` (19 rows).'
+    citation: .dev/tasks/to-do/TASK-WF-blockerStage1-20261116-030154/source.md:37
+  - id: INF-070
+    quote: 'Task 7: the line is now `grep -rln --include=''*.py'' --exclude-dir=__pycache__ "follow_ups" src/superclaude/cli/review` and says "lists no file other than" in both sentences'
+    citation: .dev/tasks/to-do/TASK-WF-blockerStage1-20261116-030154/source.md:44
+  - id: INF-071
+    quote: 'Task 3 fixes three grammar rules: a lowercase `family` key (12 keys named), a `Conditional` outcome token (spec-panel MAJOR), and ` + ` between several `defining file` paths.'
+    citation: .dev/tasks/to-do/TASK-WF-blockerStage1-20261116-030154/source.md:45
+  - id: INF-072
+    quote: 'Task 9 names the lookup key (the ledger row''s `origin`, else the finding''s `source`) and gives UNSET for an unknown family, an unlisted label or a `Conditional` label (test in Task 11).'
+    citation: .dev/tasks/to-do/TASK-WF-blockerStage1-20261116-030154/source.md:45
+  - id: INF-073
+    quote: 'Task 7 adds `earlier_decisions(rows, identity)` with a test.'
+    citation: .dev/tasks/to-do/TASK-WF-blockerStage1-20261116-030154/source.md:46
+  - id: INF-074
+    quote: 'The offer step that calls it belongs to the stage 2 package (cross-stage fact for its plan).'
+    citation: .dev/tasks/to-do/TASK-WF-blockerStage1-20261116-030154/source.md:46
+  - id: INF-075
+    quote: 'Task 10 adds the M absence-by-name precheck and the decision-basis excerpts (spec section 4.3, with Option Q at upstream gates)'
+    citation: .dev/tasks/to-do/TASK-WF-blockerStage1-20261116-030154/source.md:47
+  - id: INF-076
+    quote: '`questions_to_ask` returns S and W always, and M, C, E and D only with their inputs.'
+    citation: .dev/tasks/to-do/TASK-WF-blockerStage1-20261116-030154/source.md:47
+  - id: INF-077
+    quote: 'Task 12 writes the verdict for every finding to `classifier-results.json` and to the ledger row''s `classifier` column only when a row exists'
+    citation: .dev/tasks/to-do/TASK-WF-blockerStage1-20261116-030154/source.md:48
+  - id: INF-078
+    quote: 'Task 7 adds `update_field(row_id, field, value, expected_revision)`.'
+    citation: .dev/tasks/to-do/TASK-WF-blockerStage1-20261116-030154/source.md:48
+  - id: INF-079
+    quote: 'Task 4 writes the pr-submit exception without the gitignored-folder path and names no `src/superclaude/` file'
+    citation: .dev/tasks/to-do/TASK-WF-blockerStage1-20261116-030154/source.md:50
+  - id: INF-080
+    quote: 'Task 6 repeats both folder greps once `registry.yaml` exists.'
+    citation: .dev/tasks/to-do/TASK-WF-blockerStage1-20261116-030154/source.md:50
+  - id: INF-081
+    quote: 'Task 7''s importer list has the end point "until the stage 2 package adds its own importer"'
+    citation: .dev/tasks/to-do/TASK-WF-blockerStage1-20261116-030154/source.md:53
+  - id: INF-082
+    quote: 'Tasks 9, 10, 12 and 13 gain a `make lint` acceptance line.'
+    citation: .dev/tasks/to-do/TASK-WF-blockerStage1-20261116-030154/source.md:53
+  - id: INF-083
+    quote: 'a later `write` or `update_field` never clears a ledger''s capture state or a row''s tags (the stage 2 package tests it)'
+    citation: .dev/tasks/to-do/TASK-WF-blockerStage1-20261116-030154/source.md:54
+  - id: INF-084
+    quote: 'Task 15 names the strict switch of T2 as the constant `STRICT_T2` (default `False`); the stage 4 package sets it `True`.'
+    citation: .dev/tasks/to-do/TASK-WF-blockerStage1-20261116-030154/source.md:55

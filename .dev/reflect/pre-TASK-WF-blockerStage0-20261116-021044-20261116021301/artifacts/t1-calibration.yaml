@@ -1,0 +1,24 @@
+calibrator_class: sonnet            # blind calibrator (confidence-calibrator agent, model sonnet); disjoint from reviewer classes {haiku, opus}
+calibrator_diversity: full
+calibrator_ran_in_parallel_with_reviewers: true   # parsed-sparse pre-filter forces Tier 2 regardless of C, so the order does not change the tier
+calibrated_C: 0.68
+dimensions:
+  citation_grounding: 0.85
+  coverage_completeness: 0.65
+  deviation_classification_clarity: 0.60
+  risk_surface_coverage: 0.65
+  recommendation_actionability: 0.65
+observation_confidence:
+  O1_phase_shape: 0.80
+  O2_reuse_risk: 0.50
+  O3_independence_risk: 0.85
+  O4_scope_risk: 0.55
+  O5_frame_risk: 0.70
+  O6_sizing_risk: 0.75
+calibrator_corrections_to_t1_card:
+  - "The matrix is noisy: INF-001, INF-007 and INF-018 matched Task 7 but belong to the Constraints, Task 9 and Task 10; the 15 of 18 figure overstates coverage."
+  - "Recommendation 3 (stage ledger file must exist) is moot: stage-requests/README.md exists and holds the ledger."
+  - "No stale base-plan task numbers were found in the plan (O2 looks unrealized)."
+calibrator_new_observations:
+  - "source.md line 13 says to keep the constraint that .dev/tasks/ is always staged and never described as never staged; the plan's Constraints block has no such line (source requirement not carried into the plan)."
+  - "Task 4's 1908 grades from 3 agents is a heavy workload, and its dependency on Task 1 has no stated reason."

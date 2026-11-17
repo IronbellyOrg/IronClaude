@@ -1,0 +1,12 @@
+before (HEAD a98541153) on docs/designs/issue-watcher.md:
+claim-only again: 0
+no launch-level guard: 0
+SUPERSEDED: 1
+never assigns: 1
+second agent: 3
+after:
+claim-only again: 3
+no launch-level guard: 1
+SUPERSEDED: 1
+never assigns: 2
+second agent: 0

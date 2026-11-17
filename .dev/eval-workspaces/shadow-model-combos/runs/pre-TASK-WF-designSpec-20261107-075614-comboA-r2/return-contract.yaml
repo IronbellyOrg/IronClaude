@@ -1,0 +1,143 @@
+contract_version: "1.8.0"
+status: success
+mode: pre
+tier_reached: 2
+report_path: /home/coder/workspaces/worktrees/IronClaude/brainstorm-reflect-panel/.dev/eval-workspaces/shadow-model-combos/runs/pre-TASK-WF-designSpec-20261107-075614-comboA-r2/REPORT.md
+audit_log_path: /home/coder/workspaces/worktrees/IronClaude/brainstorm-reflect-panel/.dev/eval-workspaces/shadow-model-combos/runs/pre-TASK-WF-designSpec-20261107-075614-comboA-r2/audit.log
+confidence_calibrated: 0.767
+escalation_rule_matched: null        # --tier 2 hard pin (§5.1); no rubric row fired
+onboarding_ran: false
+
+# UC-1
+coverage_pct: null                    # parsed-only denominator 0 (spec labels FR-1..FR-23, outside ID_REGEX)
+coverage_pct_union: 1.0               # post-T1-semantic-resolution (deterministic floor 0.5778; 19 floor-unmapped rows all resolved; panel pressure-tested)
+coverage_undefined: false
+coverage_degraded: parsed-sparse
+unmapped_requirements: []
+unmapped_requirements_union: []
+best_practice_grade: null             # not computed this run (shadow measurement run; no external best-practice lookup at Tier 2 beyond spec grounding)
+implementation_coverage_pct: null     # FR-1 kind-guard never fired (no abstract polymorphic symbol in scope)
+missing_implementations: []
+hierarchy_slice_path: null
+hierarchy_coverage_pct: null
+
+# Input integrity
+input_sha256:
+  tasklist: 044809e3a963fad395cfbe0988bece975650a3adf17176893665d92338bd3481
+  spec: a865f397468a076c9c070c031f807b44d9cccd91059b2ad5efb1b926090ba10a
+input_tree_sha256: 53a70facf88577bd1334e6ac20805570803a9bd5d4ff151dfac977e068e81daf
+input_tree_file_count: 2
+input_tree_snapshot_path: /home/coder/workspaces/worktrees/IronClaude/brainstorm-reflect-panel/.dev/eval-workspaces/shadow-model-combos/runs/pre-TASK-WF-designSpec-20261107-075614-comboA-r2/artifacts/input-snapshot.yaml
+input_drift_detected: false
+input_drift_diff: null
+
+# Hallucination guard
+citations_total: 46
+citations_revalidated: 46
+citations_dropped: 0
+citations_dropped_extrapolated: 0
+citations_inferred: 0
+citation_budget_policy: full_reread
+evidence_validator_ran: true
+citation_revalidation_at_promotion: false
+
+# Tier 2 artifacts
+reviewer_cards:
+  - .dev/eval-workspaces/shadow-model-combos/runs/pre-TASK-WF-designSpec-20261107-075614-comboA-r2/reviewer-cards/reviewer-1-card.md
+  - .dev/eval-workspaces/shadow-model-combos/runs/pre-TASK-WF-designSpec-20261107-075614-comboA-r2/reviewer-cards/reviewer-2-card.md
+  - .dev/eval-workspaces/shadow-model-combos/runs/pre-TASK-WF-designSpec-20261107-075614-comboA-r2/reviewer-cards/reviewer-3-card.md
+adversarial_artifacts_dir: .dev/eval-workspaces/shadow-model-combos/runs/pre-TASK-WF-designSpec-20261107-075614-comboA-r2/adversarial/adversarial
+adversarial_convergence_score: 1.0
+adversarial_unavailable: false
+merge_method: adversarial
+t2_model_class_diversity: full
+t2_vendor_diversity: single
+t2_effective_diversity: model-only
+calibrator_diversity: degraded
+
+# Tier 3 (not offered)
+remediation_offered: false
+remediation_accepted: null
+task_file_path: null
+remediation_task_path: null
+remediation_plan_path: null
+handoff_memory_key: null
+
+# Asymmetric-cost flags
+cannot_validate_without_user_input: false
+regression_present: false
+unauthorized_deviation_present: false
+blocked_by_low_confidence: false
+spec_is_wrong: false
+user_decision_required: false
+needs_human_decision: false
+
+per_task_verdicts: []                 # UC-1
+interaction_effects_scanned: false    # UC-2 only
+interaction_effects_findings: 0
+
+# Budget
+budget_forced_tier_downgrade: false
+budget_forced_stop: false
+budget_check_skipped: true
+forced_tier: null
+
+# Promotion (UC-2 only)
+promotion_action: not-applicable
+promotion_adapter: null
+promotion_source: null
+promotion_destination: null
+promotion_log_path: null
+promotion_gate_passed: null
+promotion_skip_reason: null
+promotion_fail_reason: null
+promotion_override_used: null
+promotion_rollback_command: null
+promotion_checkpoint_path: null
+promotion_cross_fs: false
+promotion_pending: false
+
+# --- telemetry ---
+reviewer_models: ["claude-gw-tier1b[1m] (sonnet launch; resolution pin claude-sonnet-5-5)", "claude-gw-tier4[1m] (haiku launch; resolution pin claude-haiku-5-5; env HAIKU=claude-gw-tier2[1m])", "claude-gw-tier1a[1m] (opus launch; resolution pin claude-opus-5-5)"]
+reviewer_personas: [analyzer, qa, refactorer]
+reviewer_vendors: [anthropic-gateway, anthropic-gateway, anthropic-gateway]
+degraded_components: []
+fallback_path: null
+executor_class_source: unknown
+executor_class_resolved: false
+executor_exclusion_degraded: false
+memory_hits: 2
+memory_misses: 0
+memory_retention_actions: 0
+verify_blocked: false
+verify_blocked_reason: null
+verify_timeout_hit: false
+verify_flaky_suspected: false
+verify_timeout_default: 120
+verify_invocations_path: .dev/eval-workspaces/shadow-model-combos/runs/pre-TASK-WF-designSpec-20261107-075614-comboA-r2/verify-logs/invocations.yaml
+handoff_memory_written: false
+handoff_payload_size_bytes: 0
+handoff_persist_failed: false
+type_hierarchy_invoked: false
+summarize_changes_invoked: false
+references_extended_info_used: false
+telemetry:
+  t2_engine_requested: shadow
+  t2_engine_effective: shadow
+  panel_fallback_reason: null
+  t2_floor_unmet: false
+  identity_source: requested-pinned
+  identity_mismatch_suspected: true   # reviewer-2 (haiku pin) self-reported "OpenAI GPT"; expected under combo A (HAIKU env = tier2 alias)
+  judge_identity: "claude-gw-tier3 orchestrator session (inline sc-adversarial debate, skill-direct)"
+  judge_class_collision: unknown      # the adversarial return contract names no separate judge record
+  debate_skipped_similar: false
+  cluster_agreement: 1.0
+  calibration_coverage: "13/13"
+  panel_parity: true                  # recomputable from panel/cards headers + panel/resolution.json
+  anchor_replaced: false
+  manifest_path: .dev/eval-workspaces/shadow-model-combos/runs/pre-TASK-WF-designSpec-20261107-075614-comboA-r2/panel/manifest.json
+  reviewers_requested: 3
+  reviewers_resolved: 3
+  reviewers_complete: 3
+  panel_shortfall_2_of_3: false
+  findings_block_compliance_rate: 0.6667   # 2/3 first-parse per the authoritative cluster parser; 3/3 after 1 bounded re-ask

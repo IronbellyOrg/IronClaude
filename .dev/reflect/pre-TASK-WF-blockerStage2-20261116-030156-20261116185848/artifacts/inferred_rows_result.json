@@ -1,0 +1,200 @@
+[
+ {
+  "id": "INF-001",
+  "source": "inferred",
+  "citation": "source.md:11",
+  "quote_ok": true,
+  "best_item": "Constraints",
+  "ratio": 1.0,
+  "match_method": "containment"
+ },
+ {
+  "id": "INF-002",
+  "source": "inferred",
+  "citation": "source.md:12",
+  "quote_ok": true,
+  "best_item": "Constraints",
+  "ratio": 0.857,
+  "match_method": "containment"
+ },
+ {
+  "id": "INF-003",
+  "source": "inferred",
+  "citation": "source.md:13",
+  "quote_ok": true,
+  "best_item": "Task 7",
+  "ratio": 1.0,
+  "match_method": "containment"
+ },
+ {
+  "id": "INF-004",
+  "source": "inferred",
+  "citation": "source.md:14",
+  "quote_ok": true,
+  "best_item": "Task 8",
+  "ratio": 1.0,
+  "match_method": "containment"
+ },
+ {
+  "id": "INF-005",
+  "source": "inferred",
+  "citation": "source.md:14",
+  "quote_ok": true,
+  "best_item": "Task 8",
+  "ratio": 1.0,
+  "match_method": "containment"
+ },
+ {
+  "id": "INF-006",
+  "source": "inferred",
+  "citation": "source.md:15",
+  "quote_ok": true,
+  "best_item": "Constraints",
+  "ratio": 0.818,
+  "match_method": "containment"
+ },
+ {
+  "id": "INF-007",
+  "source": "inferred",
+  "citation": "source.md:19",
+  "quote_ok": true,
+  "best_item": "Constraints",
+  "ratio": 1.0,
+  "match_method": "containment"
+ },
+ {
+  "id": "INF-008",
+  "source": "inferred",
+  "citation": "source.md:19",
+  "quote_ok": true,
+  "best_item": "Constraints",
+  "ratio": 0.714,
+  "match_method": "containment"
+ },
+ {
+  "id": "INF-009",
+  "source": "inferred",
+  "citation": "source.md:27",
+  "quote_ok": true,
+  "best_item": "Constraints",
+  "ratio": 0.429,
+  "match_method": "none"
+ },
+ {
+  "id": "INF-010",
+  "source": "inferred",
+  "citation": "source.md:28",
+  "quote_ok": true,
+  "best_item": "Task 3",
+  "ratio": 0.875,
+  "match_method": "containment"
+ },
+ {
+  "id": "INF-011",
+  "source": "inferred",
+  "citation": "source.md:29",
+  "quote_ok": true,
+  "best_item": "Constraints",
+  "ratio": 0.688,
+  "match_method": "containment"
+ },
+ {
+  "id": "INF-012",
+  "source": "inferred",
+  "citation": "source.md:30",
+  "quote_ok": true,
+  "best_item": "Constraints",
+  "ratio": 1.0,
+  "match_method": "containment"
+ },
+ {
+  "id": "INF-013",
+  "source": "inferred",
+  "citation": "source.md:31",
+  "quote_ok": true,
+  "best_item": "Constraints",
+  "ratio": 0.875,
+  "match_method": "containment"
+ },
+ {
+  "id": "INF-014",
+  "source": "inferred",
+  "citation": "source.md:69",
+  "quote_ok": true,
+  "best_item": "Task 8",
+  "ratio": 1.0,
+  "match_method": "containment"
+ },
+ {
+  "id": "INF-015",
+  "source": "inferred",
+  "citation": "source.md:70",
+  "quote_ok": true,
+  "best_item": "Task 7",
+  "ratio": 0.871,
+  "match_method": "containment"
+ },
+ {
+  "id": "INF-016",
+  "source": "inferred",
+  "citation": "source.md:71",
+  "quote_ok": true,
+  "best_item": "Task 5",
+  "ratio": 0.781,
+  "match_method": "containment"
+ },
+ {
+  "id": "INF-017",
+  "source": "inferred",
+  "citation": "source.md:72",
+  "quote_ok": true,
+  "best_item": "Task 4",
+  "ratio": 0.867,
+  "match_method": "containment"
+ },
+ {
+  "id": "INF-018",
+  "source": "inferred",
+  "citation": "source.md:76",
+  "quote_ok": true,
+  "best_item": "Task 2",
+  "ratio": 0.941,
+  "match_method": "containment"
+ },
+ {
+  "id": "INF-019",
+  "source": "inferred",
+  "citation": "source.md:78",
+  "quote_ok": true,
+  "best_item": "Task 3",
+  "ratio": 1.0,
+  "match_method": "containment"
+ },
+ {
+  "id": "INF-020",
+  "source": "inferred",
+  "citation": "source.md:87",
+  "quote_ok": true,
+  "best_item": "Constraints",
+  "ratio": 1.0,
+  "match_method": "containment"
+ },
+ {
+  "id": "INF-021",
+  "source": "inferred",
+  "citation": "source.md:88",
+  "quote_ok": true,
+  "best_item": "Constraints",
+  "ratio": 0.75,
+  "match_method": "containment"
+ },
+ {
+  "id": "INF-022",
+  "source": "inferred",
+  "citation": "source.md:89",
+  "quote_ok": true,
+  "best_item": "Task 2",
+  "ratio": 0.5,
+  "match_method": "none"
+ }
+]

@@ -24,13 +24,13 @@ The MVP (R0, R1) needs exactly one live source.
 
 ## Candidate message verb (behind QUESTION-OBSERVATION only)
 
-`check --all --types question --run <runId> --json`, for one named Run, is a candidate, never an available source, until the open items in `release-gates.md` (QUESTION-OBSERVATION: not passed) are recorded. Not used in R0 or R1: `check --peek`, the candidate `check --all`, `inbox`. Unfiltered `check --all` and `--peek` are not allowed in any R2 argv; plain `check`, `--ack` and `run-use` are never run.
+`check --all --types question --run <runId> --json`, for one named Run, is an available source only under the owner-written record `.dev/issues/409/owner-pass-record-20261112.md` (QUESTION-OBSERVATION: passed 2026-11-12; the open items in `release-gates.md` stay open). Not used in R0 or R1: `check --peek`, the candidate `check --all`, `inbox`. Unfiltered `check --all` and `--peek` are not allowed in any R2 argv; plain `check`, `--ack` and `run-use` are never run.
 
 ## Seen on probe Runs and the coordinator's own Run only
 
 Source: `RESEARCH-REPORT-phase2-gate.md` (REPORT, in `.dev/tasks/to-do/TASK-RESEARCH-phase2-gate-20261111-200400/`, evidence files 01 to 27) and `.dev/issues/409/owner-decisions-20261111.md` (OWNER). Probe Runs A `run_c1badaa6576b` and B `run_14cfcbd8edf2`, 2026-11-11. These facts were observed there and nowhere else; they are not verified for any other Run.
 
-- Envelope `{id, ok, result:{acknowledged, count, messages[], runId}, _meta}`; message row keys `id` (`msg_...`), `run_id`, `delivery_contract`, `from_handle`, `to_handle`, `subject`, `body`, `type`, `priority`, `thread_id`, `payload`, `created_at`, `delivered_at` (REPORT 2.2, evidence file 03).
+- Envelope `{id, ok, result:{acknowledged, count, messages[], runId}, _meta}`; message row keys `id` (`msg_...`), `run_id`, `delivery_contract`, `from_handle`, `to_handle`, `subject`, `body`, `type`, `priority`, `thread_id`, `payload`, `created_at`, `delivered_at` (REPORT 2.2, evidence file 03). On the coordinator's own Run `run_93bfa00cae2b` (read 2026-11-17) the `payload` of 39 of 41 questions is a JSON string with `dispatchId`, `taskId`, `question` and `options`; this is still UNVERIFIED for any other Run or host.
 - `--types question` filters on the server side (REPORT, evidence file 24), and the 100-row cap applies after the type filter (OWNER, own Run: 41 rows).
 - `check --all` returns at most 100 rows, newest first, with no total, `hasMore` or truncation field (evidence file 14); `check --peek` returns the oldest 100 first and hides acknowledged rows (evidence files 12, 15). `--all` rows carry no read marker.
 - A read from a caller bound to another Run answers `{"ok":false,"error":{"code":"consumer_fenced", ...}}` (exit status 1, "Nothing changed"); a caller with no terminal identity answers `no_active_terminal` (evidence files 01, 17 to 19).

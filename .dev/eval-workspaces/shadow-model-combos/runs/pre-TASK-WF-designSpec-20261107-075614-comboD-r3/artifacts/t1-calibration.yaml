@@ -1,0 +1,13 @@
+card: t1-card.md
+calibrator_class: opus
+calibrator_model_served_self_report: gpt-6-luna
+calibrator_diversity: degraded   # reviewers use sonnet, haiku, opus; all classes used once; highest capability class (opus) picked per rubric example C
+rubric: refs/reflection-rubric.md (5 dimensions)
+dimensions:
+  citation_grounding: 0.90
+  coverage_completeness: 0.70
+  deviation_classification_clarity: 0.30
+  risk_surface_coverage: 0.90
+  recommendation_actionability: 0.65
+calibrated_confidence_C: 0.69
+notes: no citation mismatches in 8+ spot checks; the card gives no self-reported confidence

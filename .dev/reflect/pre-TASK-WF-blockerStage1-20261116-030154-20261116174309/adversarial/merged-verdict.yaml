@@ -1,0 +1,26 @@
+merge_method: adversarial
+verdict: NEEDS-REVISION
+convergence_score: 1.0
+base_variant: "opus:refactorer"
+source_cards:
+  - reviewer-cards/reviewer-1-card.md
+  - reviewer-cards/reviewer-2-card.md
+  - reviewer-cards/reviewer-3-card.md
+merged_review_card: adversarial/merged-review-card.md
+adversarial_artifacts_dir: adversarial/adversarial/
+findings_total: 10
+findings_blocking: 1
+findings_non_blocking: 9
+blocking_findings:
+  - "M-F1 Task 7 grep acceptance line (PLAN:125) also lists .pyc files, so it fails after Task 7's own test run"
+judge_scorer_class: sonnet
+judge_class_collision: true
+invariant_probe:
+  total: 13
+  high_unaddressed: 0
+  medium_unaddressed: 2
+  low_unaddressed: 7
+debate_points: 22
+debate_unanimous: 21
+debate_majority: 1
+generated_at: 2026-11-16T18:35:00Z

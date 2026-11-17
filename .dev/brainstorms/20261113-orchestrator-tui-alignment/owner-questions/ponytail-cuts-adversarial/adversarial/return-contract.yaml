@@ -1,0 +1,15 @@
+return_contract:
+  merged_output_path: "/home/coder/workspaces/worktrees/IronClaude/issue-339-orchestrator-mode/.dev/brainstorms/20261113-orchestrator-tui-alignment/owner-questions/ponytail-cuts-adversarial/final-cut-list.md"
+  convergence_score: 1.0   # majority-or-compatible rule, 31 of 31; strict identical-winner agreement was 6 of 22 contested points
+  artifacts_dir: "/home/coder/workspaces/worktrees/IronClaude/issue-339-orchestrator-mode/.dev/brainstorms/20261113-orchestrator-tui-alignment/owner-questions/ponytail-cuts-adversarial/adversarial/"
+  status: "partial"        # completed with warnings: condensed scoring, single evaluator, agents could not write files
+  base_variant: "sonnet:security"
+  unresolved_conflicts: 0
+  fallback_mode: true      # orchestrator wrote the artifacts and ran the merge itself
+  failure_stage: null
+  invocation_method: "skill-direct"
+  unaddressed_invariants: []   # Round 2.5 skipped at depth quick
+  notes:
+    - "Command had no --compare, --source or --pipeline; mapped to Mode B with a source file built from the triage."
+    - "Advocate and variant replies were truncated and resent; no content dropped."
+    - "Two numeric facts remain UNVERIFIED: the questions-panel deletion size and the 4,000-line and 13-file savings."

@@ -1,0 +1,24 @@
+selected_tier: 2
+fired_rule_number: 0            # hard override §5.1: --tier 2 pin; no §5.3 row evaluated (parsed-sparse pre-filter would independently force T2)
+coverage_degraded: "parsed-sparse"   # Step 1B.2b: inferred 14 > parsed 0; 8th consecutive run in this workspace
+surface_unreached: null
+composite_score: 3.5
+per_signal_breakdown:
+  scope_size: 0.5        # 1 source file + its dev mirror
+  task_count: 1.0        # 3 tasks
+  blast_radius: 0.5      # one command file, but installed to every user via superclaude install
+  spec_density: 1.0      # 7 labeled requirements + 14 inferred rows
+  ambiguity_signals: 0.5 # archived-package vantage + bundled PR
+escalation_reason: "hard pin --tier 2; parsed-sparse (0 parsed / 14 inferred) independently forces T2"
+t2_engine_requested: shadow
+t2_engine_effective: shadow
+panel_fallback_reason: null
+aliases:
+  opus: claude-gw-tier1a[1m]
+  sonnet: claude-gw-tier1b[1m]
+  haiku: claude-gw-tier2[1m]
+alias_count: 3
+t2_model_class_diversity: full
+t2_vendor_diversity: single        # warn-only §4 step 0.6; all aliases resolve to one vendor
+executor_class_source: unknown
+executor_class_resolved: false     # fail-open per §7.1; WARN emitted in report header

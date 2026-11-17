@@ -1167,6 +1167,15 @@ def test_pr4_prompt_no_pr_tokens_outside_the_worktree_prohibition_and_submit(
         assert token not in common, token
 
 
+def test_pr16_worktree_prompt_never_tells_the_agent_to_wait_for_approved(
+    tmp_path: Path,
+) -> None:
+    # Q39: the plain `approved` reply no longer releases a worktree-level agent.
+    worktree = render(tmp_path, "worktree")[1].read_text()
+    assert "`approved`" not in worktree and "replying approved" not in worktree
+    assert "only by running the printed implement command" in worktree
+
+
 def test_prompt_unusable_template_is_reported_not_raised(tmp_path: Path) -> None:
     proc, out = render(tmp_path, "full", template=tmp_path / "missing.md")
     data = json.loads(proc.stdout)
@@ -2451,3 +2460,42 @@ def test_pr425_round3_a_symlinked_prompt_blocks_the_launch(
     data = run_launch(fake_orca, git_repo, issue_dir)
     assert data["status"] == "failed" and "symlink" in data["detail"]
     assert no_launch_happened(fake_orca, issue_dir)
+
+
+# --- pending: the launch record of a coordinator-started worker (Plan B Task 15) ---
+
+
+def _pending_dir(home: Path) -> Path:
+    return home / ".claude" / "state" / "launch-level" / "pending"
+
+
+def test_pending_writes_one_private_record_and_prints_its_nonce(home: Path) -> None:
+    env = dict(os.environ, HOME=str(home))
+    env.pop("CLAUDE_CONFIG_DIR", None)
+    data = run_json("pending", "--level", "worktree", env=env)
+    nonce = data["nonce"]
+    assert data == {"ok": True, "nonce": nonce, "level": "worktree"}
+    assert re.fullmatch(r"[0-9a-f]{32}", nonce)
+    record = _pending_dir(home) / nonce
+    assert record.read_text() == "worktree"
+    assert stat.S_IMODE(record.stat().st_mode) == 0o600
+    assert stat.S_IMODE(_pending_dir(home).stat().st_mode) == 0o700
+    assert [p.name for p in _pending_dir(home).iterdir()] == [nonce]
+
+
+def test_a_second_pending_call_prints_a_different_nonce(home: Path) -> None:
+    env = dict(os.environ, HOME=str(home))
+    first = run_json("pending", "--level", "worktree", env=env)["nonce"]
+    second = run_json("pending", "--level", "full", env=env)["nonce"]
+    assert first != second
+    assert sorted(p.name for p in _pending_dir(home).iterdir()) == sorted(
+        [first, second]
+    )
+
+
+def test_pending_refuses_a_level_outside_the_guard_words(home: Path) -> None:
+    proc = run_script(
+        "pending", "--level", "approved", env=dict(os.environ, HOME=str(home))
+    )
+    assert proc.returncode == 2
+    assert not _pending_dir(home).exists()

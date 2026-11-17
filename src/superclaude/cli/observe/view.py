@@ -79,6 +79,24 @@ QUESTIONS_KEYS_LINE = (
     "Up/Down j/k move workers  Enter detail  Esc back  / filter  h historical  "
     "m mark rows  e export all  q quit"
 )
+# With the R3 question link on the keys line also names n/p (the link-off line is unchanged).
+QUESTIONS_LINK_KEYS_LINE = QUESTIONS_KEYS_LINE + "  n/p question"
+# R3 Decision Desk (one stacked block under the question list); literals defined once.
+DESK_TITLE = "DECISION DESK"
+DESK_UNKNOWN_SCOPE = "affected scope unknown"
+DESK_WORKTREE_NOTE = (
+    "worktree is evidence for this one session; other sessions in it are not inferred "
+    "affected"
+)
+DESK_NOT_FOUND = "dispatch not found in the collected worker rows"
+DESK_PARTIAL = "oldest rows were not read"
+DESK_NO_READ = "link not checked: no worker read yet"
+DESK_NOT_REOBSERVED = "not reobserved"
+DESK_NO_TEXT = "question text not given"
+DESK_EVICTED = "selected {qid} no longer in source window"
+DESK_HIDDEN = "decision desk hidden: terminal too short"
+DESK_SELECTED_HIDDEN = "selected question not shown"
+DESK_TEXT_LINES = 4  # the question text wraps to at most this many desk lines
 UNAVAILABLE = "unavailable (no source)"
 ABSENT_IN_SOURCE = "unknown (absent in source)"
 PARTIAL_CAP_TEXT = (
@@ -125,6 +143,9 @@ class Session:
     mark_wall_time: float | None = None
     marked: bool = False  # True once the user pressed ``m``
     inspector_scroll: int = 0  # inspector fields scrolled off the top (d/u keys)
+    selected_question: tuple | None = (
+        None  # (Run id, message id); only with the link on
+    )
 
 
 @dataclass(frozen=True)
@@ -190,6 +211,32 @@ class QuestionLine:
     created_at: Any  # source text or UNKNOWN (exports)
     age_seconds: Any  # number or UNKNOWN (exports)
     in_window: bool
+    # R3 (link switch on; every field below keeps its default with the switch off)
+    screen_text: str = (
+        ""  # like ``text`` with the payload question in place of the subject
+    )
+    ask: str = ""  # the sanitized payload question text, "" when none
+    dispatch_id: str = ""  # a verified dispatch id, "" when unlinked
+    link: str = ""  # "linked", the reason it is unlinked, or "" (switch off)
+    selected: bool = False
+    key: tuple = ()  # (Run id, message id): the selection identity
+    age_text: str = ""  # "5s", "unknown" ...
+    lead: str = ""  # age and, when the question left the window, the bracketed state
+    shown: str = ""  # the question text shown on screen: ``ask``, else the subject
+
+
+@dataclass(frozen=True)
+class DeskView:
+    """The Decision Desk for the selected question (R3): evidence, never an inferred scope."""
+
+    qid: str
+    age_text: str
+    ask: str  # the full question text, or the "not given" wording
+    link: str
+    session_fields: tuple[
+        tuple[str, str], ...
+    ]  # empty unless linked to a collected row
+    notes: tuple[str, ...]
 
 
 @dataclass(frozen=True)
@@ -206,7 +253,6 @@ class QuestionsPanel:
     counts_line: str
     caveat_line: str  # the source has no read marker
     header_cell: str  # the freshness-strip cell, with the same state words
-    count_text: str  # the count as a phrase, never a bare number when it may be partial
     lines: tuple[QuestionLine, ...]  # oldest created first
     empty_text: str | None
     window_full_text: str | None
@@ -218,6 +264,11 @@ class QuestionsPanel:
     retained: int
     evicted: int
     window_full: bool
+
+    @property
+    def link_on(self) -> bool:
+        """True for a read whose questions carry a link state (every Task 2 value is non-empty)."""
+        return any(line.link for line in self.lines)
 
     def window(
         self, capacity: int | None
@@ -283,6 +334,9 @@ class View:
     help_line: str
     inspector_scroll: int = 0
     questions: QuestionsPanel | None = None  # None unless R2 questions are on
+    desk: DeskView | None = (
+        None  # None unless the link is on and a question is selected
+    )
 
     def window(self, capacity: int | None) -> Window:
         """The rows that fit ``capacity`` lines, always including the selected visible row."""
@@ -586,7 +640,9 @@ def _source_counts_text(snapshot: Any) -> str:
     return "source counts: " + " / ".join(parts)
 
 
-def _questions_panel(result: Any, clock: Any) -> QuestionsPanel | None:
+def _questions_panel(
+    result: Any, clock: Any, selected_question: tuple | None = None
+) -> QuestionsPanel | None:
     """The coordinator-questions panel, or None when the question source is off."""
     qstate = getattr(result, "question_state", "OFF")
     if qstate == "OFF":
@@ -676,17 +732,29 @@ def _questions_panel(result: Any, clock: Any) -> QuestionsPanel | None:
                 seconds = clock.wall() - epoch
                 shown_age = format_age(seconds)
             # State first, then the subject: only the end of a line is ever clipped.
-            parts = [shown_age]
+            lead = [shown_age]
             if not record.in_window:
-                parts.append(f"[{record.status_text}]")
-            parts += [text_of(q.subject), QUESTIONS_REASON]
+                lead.append(f"[{record.status_text}]")
+            # R3: the payload question replaces the subject on screen only (text stays subject).
+            ask = q.ask if isinstance(q.ask, str) and q.ask.strip() else ""
+            shown = ask or text_of(q.subject)
             built.append(
                 QuestionLine(
                     qid=text_of(q.qid),
-                    text="  ".join(parts),
+                    text="  ".join(lead + [text_of(q.subject), QUESTIONS_REASON]),
                     created_at=q.created_at,
                     age_seconds=seconds,
                     in_window=record.in_window,
+                    screen_text="  ".join(lead + [shown, QUESTIONS_REASON]),
+                    ask=ask,
+                    dispatch_id=q.dispatch_id if isinstance(q.dispatch_id, str) else "",
+                    link=q.link,
+                    selected=selected_question is not None
+                    and record.key == selected_question,
+                    key=record.key,
+                    age_text=shown_age,
+                    lead="  ".join(lead),
+                    shown=shown,
                 )
             )
         lines = tuple(built)
@@ -729,7 +797,6 @@ def _questions_panel(result: Any, clock: Any) -> QuestionsPanel | None:
         counts_line=counts_line,
         caveat_line=QUESTIONS_NO_MARKER,
         header_cell=header_cell,
-        count_text=open_text,
         lines=lines,
         empty_text=empty_text,
         window_full_text=QUESTIONS_WINDOW_FULL if window_full else None,
@@ -741,6 +808,69 @@ def _questions_panel(result: Any, clock: Any) -> QuestionsPanel | None:
         retained=count_retained,
         evicted=evicted,
         window_full=window_full,
+    )
+
+
+def _desk(
+    panel: QuestionsPanel | None,
+    selected: tuple | None,
+    all_rows: tuple[RowView, ...],
+    *,
+    has_snapshot: bool,
+    partial: bool,
+    worker_state: str,
+    as_of: str,
+) -> DeskView | None:
+    """The Decision Desk, or None unless the link is on and a question is selected (R3).
+
+    The join is exact: the question's verified ``dispatch_id`` against ``raw.dispatch_id`` of a
+    collected row. The worktree id is shown as evidence about that one session; no other
+    session is ever listed or counted from it (AC-7).
+    """
+    if panel is None or selected is None or not panel.link_on:
+        return None
+    line = next((ln for ln in panel.lines if ln.key == selected), None)
+    if line is None:  # evicted from the retained set: the identity stays selected
+        qid = text_of(selected[-1]) if selected else "unknown"
+        return DeskView(qid, "", "", "", (), (DESK_EVICTED.format(qid=qid),))
+    notes: list[str] = []
+    fields: tuple[tuple[str, str], ...] = ()
+    if line.link == "linked":
+        row = next(
+            (rv for rv in all_rows if rv.raw.dispatch_id == line.dispatch_id), None
+        )
+        if row is not None:
+            fields = (
+                ("dispatchId", row.dispatch_id),
+                ("workerState", row.worker_state),
+                ("dispatchStatus", row.dispatch_status),
+                ("terminalState", row.terminal_state),
+                ("outcome", row.outcome),
+                ("nextAction.kind", row.next_action),
+                ("liveness", row.liveness),
+                ("evidence age", row.evidence_age),
+                ("resource.worktreeId", _field(row.raw, "worktree_id")),
+            )
+            notes.append(DESK_WORKTREE_NOTE)
+            if not row.raw.reobserved:
+                notes.append(DESK_NOT_REOBSERVED)
+        elif not has_snapshot:
+            notes.append(DESK_NO_READ)
+        else:
+            notes.append(DESK_NOT_FOUND)
+            if partial:
+                notes.append(DESK_PARTIAL)
+        if has_snapshot and worker_state in ("STALE", "FAILED"):
+            notes.append(f"worker list {worker_state}; values as of {as_of}")
+    else:
+        notes += [DESK_UNKNOWN_SCOPE, line.link]
+    return DeskView(
+        qid=line.qid,
+        age_text=line.age_text,
+        ask=line.ask or DESK_NO_TEXT,
+        link=line.link,
+        session_fields=fields,
+        notes=tuple(notes),
     )
 
 
@@ -791,7 +921,7 @@ def build_view(result: Any, session: Session, clock: Any) -> View:
     header1 = "  ".join(header_parts)
 
     fresh_cell, age = _freshness(result, clock, state)
-    panel = _questions_panel(result, clock)
+    panel = _questions_panel(result, clock, session.selected_question)
     # The questions cell uses the same state words as the worker-list cell (F07).
     messages_cell = MESSAGES_CELL if panel is None else panel.header_cell
     cells = [fresh_cell, messages_cell]
@@ -913,9 +1043,20 @@ def build_view(result: Any, session: Session, clock: Any) -> View:
         inspector=selected_view.inspector
         if session.focus == "inspector" and selected_view is not None
         else None,
-        help_line=KEYS_LINE if panel is None else QUESTIONS_KEYS_LINE,
+        help_line=KEYS_LINE
+        if panel is None
+        else (QUESTIONS_LINK_KEYS_LINE if panel.link_on else QUESTIONS_KEYS_LINE),
         inspector_scroll=session.inspector_scroll,
         questions=panel,
+        desk=_desk(
+            panel,
+            session.selected_question,
+            all_rows,
+            has_snapshot=snapshot is not None,
+            partial=bool(partial),
+            worker_state=state,
+            as_of=as_of,
+        ),
     )
 
 
@@ -970,6 +1111,21 @@ def _move(session: Session, view: View, step: int) -> Session:
     return replace(
         session, selected=row.identity, selected_row=row.raw, inspector_scroll=0
     )
+
+
+def _move_question(session: Session, panel: QuestionsPanel, step: int) -> Session:
+    """``n`` (step 1) and ``p`` (-1): oldest first, stopping at the ends; none selected starts at an end."""
+    keys = [line.key for line in panel.lines]
+    index = (
+        keys.index(session.selected_question)
+        if session.selected_question in keys
+        else None
+    )
+    if index is None:  # nothing selected, or the selection left the retained set
+        target = 0 if step > 0 else len(keys) - 1
+    else:
+        target = min(max(index + step, 0), len(keys) - 1)
+    return replace(session, selected_question=keys[target], inspector_scroll=0)
 
 
 def inspector_line_bound(fields: tuple[tuple[str, str], ...]) -> int:
@@ -1029,6 +1185,14 @@ def apply_key(
     if name == "escape" and inspecting:
         return replace(session, focus="list", inspector_scroll=0), Effect.NONE
     if not inspecting:
+        panel = view.questions
+        if panel is not None and panel.link_on and panel.lines:  # R3: list focus only
+            if char in ("n", "p"):
+                return _move_question(
+                    session, panel, 1 if char == "n" else -1
+                ), Effect.NONE
+            if name == "escape" and session.selected_question is not None:
+                return replace(session, selected_question=None), Effect.NONE
         if name == "enter" and view.selected is not None:
             return replace(session, focus="inspector", inspector_scroll=0), Effect.NONE
         if char == "/":

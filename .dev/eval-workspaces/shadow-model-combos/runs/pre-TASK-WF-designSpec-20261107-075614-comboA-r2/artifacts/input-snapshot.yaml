@@ -1,0 +1,12 @@
+input_tree_sha256: 53a70facf88577bd1334e6ac20805570803a9bd5d4ff151dfac977e068e81daf
+file_count: 2
+file_list:
+  - path: input/TASK-WF-designSpec-20261107-075614/TASK-WF-designSpec-20261107-075614.md
+    sha256: 044809e3a963fad395cfbe0988bece975650a3adf17176893665d92338bd3481
+  - path: input/TASK-WF-designSpec-20261107-075614/source.md
+    sha256: a865f397468a076c9c070c031f807b44d9cccd91059b2ad5efb1b926090ba10a
+# serialization: sha256(json.dumps(sorted([{path,sha256}]), sort_keys=True)); paths relative to .dev/eval-workspaces/shadow-model-combos
+# scope note: tree = the two --spec/--tasklist inputs only, matching comboA-r1's convention.
+#   Repo files named in the plan body (src/superclaude/pr_submit/*, tests/*) are plan SUBJECTS
+#   (grounding material read at Wave 1A), not linked input documents, so item (3) link-following
+#   does not pull them in. Interpretation recorded for cross-run comparability.

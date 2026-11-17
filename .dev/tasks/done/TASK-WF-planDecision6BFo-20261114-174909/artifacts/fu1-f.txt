@@ -1,0 +1,3 @@
+f: sessions dir entries now: 4; newest: 89c83f29-372
+f: worker's ask and reply worked, so no guard blocked the worker
+(entries newer than worker start listed above; none means unchanged)

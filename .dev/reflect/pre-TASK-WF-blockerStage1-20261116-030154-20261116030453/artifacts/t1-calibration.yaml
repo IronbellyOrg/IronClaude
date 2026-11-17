@@ -1,0 +1,27 @@
+calibrator_class: opus            # blind confidence-calibrator agent (model opus); every reviewer class is also in use, so the disjoint set is empty
+calibrator_diversity: degraded
+calibrator_ran_in_parallel_with_reviewers: true   # parsed-sparse pre-filter and rule 4 force Tier 2 regardless of C
+calibrated_C: 0.71
+dimensions:
+  citation_grounding: 0.85
+  coverage_completeness: 0.75
+  deviation_classification_clarity: 0.35   # the calibrator scored UC-1 observations against the UC-2 four-class taxonomy; the card has no deviation classes by design
+  risk_surface_coverage: 0.85
+  recommendation_actionability: 0.75
+per_finding_confidence:
+  O1_task7_grep_falsified_by_later_tasks: 0.80
+  O2_stoprule_defining_file_not_in_repo: 0.75
+  O3_allow_list_narrower_than_scan: 0.85
+  O4_acceptance_weaker_than_request: 0.25
+  O5_mirror_not_resynced: 0.50
+  O6_scale_map_table_shape_open: 0.45
+  O7_sweep_flagged_state_not_in_spec: 0.60
+  O8_ledger_adapters_no_task: 0.50
+calibrator_corrections_to_t1_card:
+  - "O3: remediate_parser.py:365 also holds the phrase (capitalised: 'Higher severity wins'); the card names lines 55 and 301 only."
+  - "O7: the sweep-flagged rule is written at PLAN:72 (Task 4 body); PLAN:78 is the acceptance line that checks it."
+  - "O4 is overstated: source.md:13 itself contains the carve-out ('outside the digest's own fence history'), and PLAN:49 adds that the digest does not quote the old sentence, so the check in effect still requires a grep that prints nothing."
+  - "O5 is weaker than stated: PLAN:25 already says to run make sync-dev after editing; the gap is only that no task checks it at the end."
+calibrator_new_observation:
+  - "O3 is stronger than stated: PLAN:22 puts severity code under cli/**/*.py out of scope while the T5 scan (SPEC:920) still covers all of src/; SPEC:845 says the scan's allow-list is the scale-map rows and SPEC:748 puts remediate_parser.py in one of those rows; fmea_classifier.py has no scale-map row at all; stage3-request.md:14 itself fixes the narrow list, so the stage 3 request needs the same fix."
+unverified_by_calibrator: "directory listings, the .dev/experiments copy of the stoprule rubric, the claim that safety_route.py names follow_ups, and the 11-carrier grep (the calibrator has Read only)"

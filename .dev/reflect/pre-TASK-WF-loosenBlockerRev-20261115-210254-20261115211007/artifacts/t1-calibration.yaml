@@ -1,0 +1,22 @@
+calibrator_class: sonnet            # blind calibrator (confidence-calibrator agent, model sonnet); disjoint from reviewer classes {haiku, opus}
+calibrator_diversity: full
+calibrator_ran_in_parallel_with_reviewers: true   # parsed-sparse pre-filter forces Tier 2 regardless of C, so the order does not change the tier
+calibrated_C: 0.70
+dimensions:
+  citation_grounding: 0.78
+  coverage_completeness: 0.70
+  deviation_classification_clarity: 0.50
+  risk_surface_coverage: 0.68
+  recommendation_actionability: 0.82
+per_finding_confidence:
+  O1_self_trip_scale_map_vs_task40_scan: 0.85
+  O2_task46_copy_then_add_canonical_row: 0.70
+  O3_gate_risk_no_owner_go_check: 0.55
+  O4_evidence_risk_line_numbers: 0.45
+  O5_dependency_risk_spec_cited_not_restated: 0.50
+calibrator_corrections_to_t1_card:
+  - "T1 card said Task 41 carries no dependency on the earlier phase's last task; Task 41 does depend on Task 40 (calibrator: true). The gate-risk point stands for Tasks 26 and 31."
+  - "Source has six '###' headings, not seven (T1 card header wording)."
+  - "Mechanical coverage 0.714 is overstated: INF-003, INF-016, INF-020 and INF-023 matched the wrong task by the containment rule."
+calibrator_new_observation:
+  - "Task 40 requires every allow-list file to exist and names the plugin mirror of rule.md, but the mirror does not exist until Task 46; the existence test would fail between Task 40 and Task 46."

@@ -11,27 +11,15 @@ from __future__ import annotations
 import json
 import os
 import tempfile
-from importlib import resources
 from pathlib import Path
 from typing import Any
-
-from jsonschema import Draft7Validator
 
 from superclaude.cli.observe.sanitize import sanitize
 from superclaude.cli.observe.view import ORDER_UNKNOWN_FLAG, UNKNOWN, RowView, View
 
 SCHEMA_VERSION = 1
-SCHEMA_PACKAGE = "superclaude.cli.observe"
-SCHEMA_FILE = "snapshot.schema.json"
 SNAPSHOT_NAME = "snapshot.json"
 UNKNOWN_TEXT = "UNKNOWN"  # the snapshot spelling of a missing value
-
-SCHEMA: dict = json.loads(
-    resources.files(SCHEMA_PACKAGE).joinpath(SCHEMA_FILE).read_text(encoding="utf-8")
-)
-Draft7Validator.check_schema(
-    SCHEMA
-)  # a broken schema fails at import, not in the field
 
 # snapshot key (dotted for nesting) -> attribute of the typed row
 _TEXT_FIELDS = (
@@ -110,7 +98,17 @@ def _question_lines(view: View) -> list[str]:
     lines.append(panel.disclosure)
     lines.append(panel.counts_line)
     lines.append(panel.caveat_line)
-    lines.extend(f"{q.qid} | {q.text}" for q in panel.lines)  # every question, none cut
+    # every question, none cut; with the link switch on the line ends in its dispatch id and
+    # link state, and never carries the question text (screen-only)
+    lines.extend(
+        f"{q.qid} | {q.text}"
+        + (
+            f" | dispatchId={q.dispatch_id or 'unknown'} | link={q.link}"
+            if q.link
+            else ""
+        )
+        for q in panel.lines
+    )
     lines.extend(
         text
         for text in (panel.empty_text, panel.window_full_text, *panel.notes)

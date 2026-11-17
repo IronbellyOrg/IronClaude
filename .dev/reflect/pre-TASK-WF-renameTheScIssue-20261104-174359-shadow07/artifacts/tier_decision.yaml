@@ -1,0 +1,15 @@
+selected_tier: 2
+fired_rule_number: null            # hard override --tier 2 (5.1); rubric concurs (C 0.82 < 0.85 rule 6; parsed-sparse pre-filter)
+coverage_degraded: parsed-sparse
+surface_unreached: null
+composite_score: 6.0
+per_signal_breakdown:
+  scope_size: 1        # 11 source files but all small text edits
+  task_count: 1        # 4 tasks
+  blast_radius: 2      # /sc:issue surface + pre-commit verify-sync hook
+  spec_density: 1      # 1-line prose spec, 5 inferred reqs
+  ambiguity_signals: 1 # parsed-sparse + substring-AC ambiguity
+escalation_reason: "tier pinned by --tier 2; rubric concurs: C=0.82 < 0.85 (rule 6) and parsed-sparse pre-filter forbids T1 stop"
+t2_engine_requested: shadow
+t2_engine_effective: shadow
+panel_fallback_reason: null

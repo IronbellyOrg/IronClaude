@@ -1,0 +1,19 @@
+return_contract:
+  merged_output_path: "/home/coder/workspaces/worktrees/IronClaude/brainstorm-reflect-panel/.dev/tasks/to-do/TASK-RESEARCH-review-panel-run2-20261114-075454/reviews/adversarial/process-redesign-modules/merged-output.md"
+  convergence_score: 0.9655   # 28 of 29 diff points agreed; threshold 0.80; status BLOCKED_BY_INVARIANTS
+  artifacts_dir: "/home/coder/workspaces/worktrees/IronClaude/brainstorm-reflect-panel/.dev/tasks/to-do/TASK-RESEARCH-review-panel-run2-20261114-075454/reviews/adversarial/process-redesign-modules/adversarial/"
+  status: "partial"   # pipeline completed; 2 HIGH UNADDRESSED invariants block convergence at depth=standard (no Round 3)
+  base_variant: "variant-1 (Proposal A; default model, default persona)"
+  unresolved_conflicts: 1   # S-004; residual non-diff disagreements D-1, D-2, D-5, D-6, D-7 are recorded in merged-output.md Appendix A.2
+  fallback_mode: false
+  failure_stage: null
+  invocation_method: "task-agent"
+  unaddressed_invariants:
+    - id: "INV-001"
+      category: "state_variables"
+      assumption: "`observed` has one writer (the new entry point, computed only from parsed rows); the reflect skill still tells the orchestrator to write `panel/coverage.json` itself, and the two Round 2 lists differ on whether the writer computes `observed`."
+      severity: "HIGH"
+    - id: "INV-019"
+      category: "sufficiency_challenge"
+      assumption: "The built-now set alone makes process-catchable defects get examined; by gate trace no module declares cards before G-2 and G-3, no brief renderer exists and the slot key list stays closed, so the set is dormant until prose wiring."
+      severity: "HIGH"

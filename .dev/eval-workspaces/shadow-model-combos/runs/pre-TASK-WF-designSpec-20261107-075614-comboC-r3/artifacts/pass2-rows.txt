@@ -1,0 +1,34 @@
+INF-001 | source.md:6 | containment ['Task 12'] 1.0 | default on at `--monitor 3` via `--merge-guard {draft,off}`
+INF-002 | source.md:6 | containment ['Task 8'] 0.8889 | release when the fix push is confirmed on the PR head, before replies and the re-trigger
+INF-003 | source.md:6 | containment ['Constraints'] 0.7778 | an unreadable timeline or an exit with unpublished fixes keeps the PR draft and reports
+INF-004 | source.md:51 | containment ['Task 10'] 1.0 | No new `MonitorState`.
+INF-005 | source.md:75 | containment ['Constraints'] 0.8571 | No `gh` or `git` word on any line, comments included (F6).
+INF-006 | source.md:112 | containment ['Task 4'] 0.75 | maps, first match wins
+INF-007 | source.md:118 | containment ['Task 4'] 0.8 | observed = read.transitions - guard.baseline
+INF-008 | source.md:140 | none [] 0.0 | `HALT_UNAVAILABLE(timeline_unreadable)`
+INF-009 | source.md:156 | containment ['Task 4'] 0.75 | `push_completed` and `read.head_sha == target_sha`
+INF-010 | source.md:166 | containment ['Task 4'] 1.0 | re-enter `release_decision` with `push_completed=True`
+INF-011 | source.md:175 | containment ['Task 2'] 1.0 | Add to `EventType` in `models.py` (43 to 45
+INF-012 | source.md:184 | containment ['Task 3'] 0.75 | `idempotency_key` = `guard:<run_id>:<cycle_id>:<to>:a<k>`
+INF-013 | source.md:201 | containment ['Task 3'] 0.8333 | the whole record is erased (the fold returns `None`
+INF-014 | source.md:208 | containment ['Task 3'] 0.8333 | `original_is_draft` is never read from GitHub after the first record
+INF-015 | source.md:214 | containment ['Task 6'] 1.0 | `DEFAULT_MERGE_GUARD = "draft"`
+INF-016 | source.md:216 | none [] 0.4 | Effective only at `--monitor 3`; accepted and inert below.
+INF-017 | source.md:221 | containment ['Task 7'] 1.0 | Modelled on `scripts/retrigger-review.sh`
+INF-019 | source.md:234 | none [] 0.5714 | Exit codes: 0 success; 1 `gh` failure or failed verification
+INF-020 | source.md:240 | containment ['Task 8'] 0.75 | Loaded lazily at L3 Wave 3, Wave 6 and Wave 8.
+INF-021 | source.md:241 | containment ['Constraints'] 1.0 | No new python fence
+INF-022 | source.md:242 | containment ['Task 2'] 1.0 | update it to 45 and name `draft_guard_requested` and `draft_guard_settled`
+INF-023 | source.md:247 | containment ['Task 9'] 1.0 | PR #N is still mergeable; this run's fixes are local only.
+INF-024 | source.md:251 | containment ['Task 8'] 0.7143 | `fix_cycle_id` gives guard-enabled cycles an explicit id
+INF-025 | source.md:255 | containment ['Constraints'] 1.0 | needs one entry in `WRITE_VERB_CLASSIFICATION`
+INF-026 | source.md:270 | containment ['Task 11'] 0.8333 | Acceptance trace (must appear in this order in the run log)
+INF-027 | source.md:301 | containment ['Constraints'] 1.0 | Run `make sync-dev` at the end of every task that edits a file under `src/superclaude/skills/`
+INF-028 | source.md:301 | containment ['Task 13'] 1.0 | the final task runs the FULL suite
+INF-029 | source.md:322 | containment ['Task 9'] 0.7778 | protocol assertions that the Wave 0 bullet names `--resume`, is not gated on L3 or `draft`
+INF-030 | source.md:326 | containment ['Task 1'] 0.8333 | No task makes a live PR call, and the run that opens the PR must not enable the feature (`--merge-guard off`).
+INF-031 | source.md:362 | containment ['Constraints'] 1.0 | Cite tests and constants by symbol name
+INF-032 | source.md:363 | none [] 0.3333 | Declare dependencies completely, one `Depends on:` line per dependency
+INF-033 | source.md:377 | containment ['Task 11'] 0.6 | scenario tests import only helpers and fixtures from `test_set_draft_state.py`, never `test_*` functions
+INF-034 | source.md:244 | containment ['Task 12'] 1.0 | `--merge-guard {draft,off}` in the argument-hint and the Options table
+INF-035 | source.md:245 | containment ['Task 4'] 0.6667 | Flag row and a paragraph

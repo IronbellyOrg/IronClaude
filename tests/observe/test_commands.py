@@ -31,9 +31,14 @@ from superclaude.cli.observe.commands import (
     observe_group,
     run_loop,
 )
-from superclaude.cli.observe.export import SCHEMA
 from superclaude.cli.observe.view import GAP_NOTICE, Key
-from tests.observe.conftest import FakeDiscover, FakeRunner, make_envelope, make_rows
+from tests.observe.conftest import (
+    SCHEMA,
+    FakeDiscover,
+    FakeRunner,
+    make_envelope,
+    make_rows,
+)
 
 VALIDATOR = Draft7Validator(SCHEMA)
 KEYS_MODULE = "superclaude.cli.observe.keys"
@@ -600,6 +605,7 @@ from tests.observe.conftest import (  # noqa: E402
     QRUN,
     make_question_envelope,
     make_question_rows,
+    question_payload,
     routed_runner_responses,
 )
 
@@ -616,11 +622,9 @@ def messages_in(argv_log):
 
 
 def test_t56_with_the_guard_off_questions_is_refused_and_no_orca_call_is_made(
-    fake_clock, argv_log
+    fake_clock, argv_log, monkeypatch
 ):
-    assert (
-        commands.QUESTION_GATE_PASSED is False
-    )  # ships OFF until the owner's record exists
+    monkeypatch.setattr(commands, "QUESTION_GATE_PASSED", False)
     runner = question_runner(argv_log)
     deps = deps_for(fake_clock, runner=runner, discover=FakeDiscover(argv_log))
     code, out = once(Options(once=True, run_id=QRUN, questions=True), deps)
@@ -636,7 +640,10 @@ def test_t56_with_the_guard_off_questions_is_refused_and_no_orca_call_is_made(
     )
 
 
-def test_the_interactive_path_is_refused_too_with_the_guard_off(fake_clock, argv_log):
+def test_the_interactive_path_is_refused_too_with_the_guard_off(
+    fake_clock, argv_log, monkeypatch
+):
+    monkeypatch.setattr(commands, "QUESTION_GATE_PASSED", False)
     runner = question_runner(argv_log)
     deps = deps_for(fake_clock, runner=runner, discover=FakeDiscover(argv_log))
     assert execute(Options(run_id=QRUN, questions=True), deps) != 0
@@ -737,8 +744,138 @@ def test_help_states_the_one_run_rule_the_disclosure_and_that_run_use_is_never_r
     assert "one named Run" in flat
 
 
-def test_the_guard_constant_is_a_literal_false_with_a_comment_naming_the_gate_record():
+def test_the_guard_is_true_only_with_a_cited_owner_record_that_exists():
     text = Path(commands.__file__).read_text(encoding="utf-8")
-    assert len(re.findall(r"^QUESTION_GATE_PASSED = (True|False)$", text, re.M)) == 1
-    assert "QUESTION_GATE_PASSED = False" in text
+    found = re.findall(r"^QUESTION_GATE_PASSED = (True|False)(.*)$", text, re.M)
+    assert len(found) == 1 and (found[0][0] == "True") is commands.QUESTION_GATE_PASSED
+    if commands.QUESTION_GATE_PASSED:  # no True without a cited, existing owner record
+        record = re.search(r"owner record: (\S+)", found[0][1])
+        assert record, "the guard is True but no owner record is cited"
+        root = Path(__file__).resolve().parents[2]
+        assert (root / record.group(1)).is_file()
     assert "release-gates.md" in text and "Task 18" in text
+
+
+# -- R3: the QUESTION-LINK guard and the link switch on both Collector paths (T65) -----------------------
+
+
+def test_the_link_guard_is_true_only_with_the_recorded_gate_pass():
+    text = Path(commands.__file__).read_text(encoding="utf-8")
+    found = re.findall(r"^QUESTION_LINK_PASSED = (True|False)(.*)$", text, re.M)
+    assert len(found) == 1 and (found[0][0] == "True") is commands.QUESTION_LINK_PASSED
+    if commands.QUESTION_LINK_PASSED:  # no True without the recorded gate section
+        gates = Path(__file__).resolve().parents[2] / (
+            ".dev/issues/409/bmad/spec-orca-observer/release-gates.md"
+        )
+        body = gates.read_text(encoding="utf-8")
+        assert "## QUESTION-LINK" in body and "QUESTION-LINK: passed" in body
+        assert "release-gates.md" in found[0][1] and "QUESTION-LINK" in found[0][1]
+
+
+def _spy_collectors(monkeypatch):
+    """Collector subclass that remembers every instance, so a test can read its result."""
+    built = []
+
+    class Spy(Collector):
+        def __init__(self, *args, **kwargs):
+            super().__init__(*args, **kwargs)
+            self.link_kwarg = kwargs.get("link")
+            built.append(self)
+
+    monkeypatch.setattr(commands, "Collector", Spy)
+    return built
+
+
+def linked_runner(argv_log, dispatch="disp_linked"):
+    rows = make_question_rows(
+        2, payload=question_payload(dispatch, "Which branch do we ship?")
+    )
+    return question_runner(argv_log, rows)
+
+
+def test_once_passes_the_link_switch_to_its_collector(
+    fake_clock, argv_log, monkeypatch
+):
+    built = _spy_collectors(monkeypatch)
+    deps = deps_for(
+        fake_clock, runner=linked_runner(argv_log), discover=FakeDiscover(argv_log)
+    )
+    code, _ = once(Options(once=True, run_id=QRUN, questions=True), deps)
+    assert code == 0 and [c.link_kwarg for c in built] == [True]
+    result = built[0].latest()
+    records = result.questions.records
+    assert {r.question.ask for r in records} == {"Which branch do we ship?"}
+    assert {r.question.link for r in records} == {"linked"}
+    # the read itself is unchanged: one message call without --peek, one worker-list call
+    message = messages_in(argv_log)
+    assert len(message) == 1 and "--peek" not in message[0]
+    assert len([a for a in argv_log if a[1:3] == ["orchestration", "worker-list"]]) == 1
+
+
+def test_once_record_question_lines_carry_the_link_suffix_and_never_the_text(
+    fake_clock, argv_log
+):
+    deps = deps_for(
+        fake_clock, runner=linked_runner(argv_log), discover=FakeDiscover(argv_log)
+    )
+    code, out = once(Options(once=True, run_id=QRUN, questions=True), deps)
+    question_lines = [ln for ln in out.splitlines() if ln.startswith("msg_")]
+    assert code == 0 and len(question_lines) == 2
+    for ln in question_lines:
+        assert re.fullmatch(
+            r"msg_\w+ \| .* \| dispatchId=disp_linked \| link=linked", ln
+        )
+    assert "Which branch do we ship?" not in out  # screen-only
+    assert len(messages_in(argv_log)) == 1 and "--peek" not in messages_in(argv_log)[0]
+
+
+def test_once_with_a_width_shows_the_question_text_on_screen(fake_clock, argv_log):
+    deps = deps_for(
+        fake_clock,
+        runner=linked_runner(argv_log),
+        discover=FakeDiscover(argv_log),
+        size=lambda: (160, 50),
+    )
+    code, out = once(Options(once=True, run_id=QRUN, questions=True, width=116), deps)
+    assert code == 0 and all(cell_len(l) <= 116 for l in out.splitlines())
+    assert "Which branch do we ship?" in out and "synthetic question" not in out
+
+
+def test_the_interactive_path_passes_the_link_switch_too(
+    fake_clock, argv_log, monkeypatch, tmp_path
+):
+    built = _spy_collectors(monkeypatch)
+    start = time.monotonic()
+    keys = ScriptedKeys([], gate=lambda: time.monotonic() - start > 0.1)
+    deps = Deps(
+        clock=fake_clock,
+        runner=linked_runner(argv_log),
+        discover=FakeDiscover(argv_log),
+        key_source=keys,
+        screen_factory=FakeScreen,
+        state_directory=tmp_path,
+        interval=0.005,
+        size=lambda: (160, 40),
+        encoding="utf-8",
+        env={},
+    )
+    assert execute(Options(run_id=QRUN, questions=True), deps) == 0
+    assert [c.link_kwarg for c in built] == [True]
+    assert live_threads() == []
+
+
+def test_the_link_switch_is_off_without_questions_or_with_the_guard_closed(
+    fake_clock, argv_log, monkeypatch
+):
+    built = _spy_collectors(monkeypatch)
+    deps = deps_for(
+        fake_clock, runner=linked_runner(argv_log), discover=FakeDiscover(argv_log)
+    )
+    once(Options(once=True, run_id=QRUN), deps)
+    monkeypatch.setattr(commands, "QUESTION_LINK_PASSED", False)
+    deps = deps_for(
+        fake_clock, runner=linked_runner(argv_log), discover=FakeDiscover(argv_log)
+    )
+    once(Options(once=True, run_id=QRUN, questions=True), deps)
+    assert [c.link_kwarg for c in built] == [False, False]
+    assert {r.question.link for r in built[1].latest().questions.records} == {""}

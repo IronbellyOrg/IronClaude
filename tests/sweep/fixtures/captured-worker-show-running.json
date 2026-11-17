@@ -1,0 +1,212 @@
+{
+  "id": "00000000-0000-4000-8000-000000000055",
+  "ok": true,
+  "result": {
+    "dispatch": {
+      "id": "ctx_6c922cf310da",
+      "runId": "run_93bfa00cae2b",
+      "taskId": "task_8d42d8c40c95",
+      "task_id": "task_8d42d8c40c95",
+      "contractVersion": 1,
+      "assigneeHandle": "term_00000000-0000-4000-8000-000000000056",
+      "assigneePaneKey": "00000000-0000-4000-8000-000000000057:00000000-0000-4000-8000-000000000058",
+      "processIncarnation": "00000000-0000-4000-8000-000000000059::/home/user/workspaces/worktrees/IronClaude/claim-handoff-b@@15c6cdb5:00000000-0000-4000-8000-000000000060",
+      "capabilityRevokedAt": null,
+      "retryOfDispatchId": null,
+      "creatorDispatchId": null,
+      "hostScope": {
+        "kind": "local",
+        "hostId": "local"
+      },
+      "status": "dispatched",
+      "failureCount": 0,
+      "lastFailure": null,
+      "terminationReason": null,
+      "depth": 1,
+      "dispatchedAt": "2026-11-16 21:49:56",
+      "completedAt": null,
+      "createdAt": "2026-11-16 21:49:56",
+      "lastHeartbeatAt": "2026-11-16T22:03:47Z"
+    },
+    "worker": {
+      "dispatchId": "ctx_6c922cf310da",
+      "runtimeEpoch": "00000000-0000-4000-8000-000000000061",
+      "state": "ready",
+      "stage": "input_accepted",
+      "worktreeId": "00000000-0000-4000-8000-000000000059::/home/user/workspaces/worktrees/IronClaude/claim-handoff-b",
+      "agentTerminalHandle": "term_00000000-0000-4000-8000-000000000056",
+      "setupState": "not_applicable",
+      "effects": [
+        {
+          "kind": "worktree",
+          "action": "reused",
+          "id": "00000000-0000-4000-8000-000000000059::/home/user/workspaces/worktrees/IronClaude/claim-handoff-b"
+        },
+        {
+          "kind": "setup",
+          "action": "not_applicable",
+          "state": "not_applicable"
+        },
+        {
+          "kind": "terminal",
+          "role": "agent",
+          "action": "created",
+          "id": "term_00000000-0000-4000-8000-000000000056",
+          "surface": "background",
+          "warning": "Terminal term_00000000-0000-4000-8000-000000000056 is running, but Orca could not make it discoverable. Run `orca terminal focus --terminal term_00000000-0000-4000-8000-000000000056` to reveal and focus it."
+        },
+        {
+          "kind": "dispatch_input",
+          "role": "agent",
+          "id": "term_00000000-0000-4000-8000-000000000056",
+          "state": "accepted"
+        }
+      ],
+      "residualResources": [
+        {
+          "kind": "terminal",
+          "role": "agent",
+          "action": "created",
+          "id": "term_00000000-0000-4000-8000-000000000056",
+          "surface": "background",
+          "warning": "Terminal term_00000000-0000-4000-8000-000000000056 is running, but Orca could not make it discoverable. Run `orca terminal focus --terminal term_00000000-0000-4000-8000-000000000056` to reveal and focus it."
+        }
+      ],
+      "startOptions": {
+        "worktree": "path:/home/user/workspaces/worktrees/IronClaude/claim-handoff-b",
+        "mode": {
+          "mode": "terminal",
+          "preferred": "terminal",
+          "reason": "user_default",
+          "detail": "Started a terminal agent worker, the default for new agent tabs in your settings."
+        },
+        "resolvedWorktreeId": "00000000-0000-4000-8000-000000000059::/home/user/workspaces/worktrees/IronClaude/claim-handoff-b",
+        "name": null,
+        "repo": null,
+        "baseBranch": null,
+        "terminal": null,
+        "agent": "claude",
+        "launch": {
+          "requested": {
+            "agent": "claude",
+            "model": "claude-gw-tier1b[1m]",
+            "effort": null
+          },
+          "effective": {
+            "agent": "claude",
+            "model": "claude-gw-tier1b[1m]",
+            "effort": null
+          }
+        },
+        "timeoutMs": 60000,
+        "setup": "not_applicable",
+        "setupSource": "existing_worktree"
+      },
+      "lastError": null,
+      "createdAt": "2026-11-16 21:49:56",
+      "updatedAt": "2026-11-16 21:50:52"
+    },
+    "projection": {
+      "id": "ctx_6c922cf310da",
+      "dispatchId": "ctx_6c922cf310da",
+      "taskId": "task_8d42d8c40c95",
+      "runId": "run_93bfa00cae2b",
+      "role": "worker",
+      "parent": null,
+      "provider": {
+        "id": "claude",
+        "model": null
+      },
+      "host": {
+        "kind": "local",
+        "id": "local"
+      },
+      "workspace": {
+        "id": "00000000-0000-4000-8000-000000000059::/home/user/workspaces/worktrees/IronClaude/claim-handoff-b",
+        "kind": "folder_or_worktree"
+      },
+      "stage": {
+        "worker": "ready",
+        "dispatch": "dispatched",
+        "detail": "input_accepted",
+        "activity": "working"
+      },
+      "outcome": "in_progress",
+      "liveness": {
+        "verdict": "live",
+        "observedAt": 1794866820853,
+        "source": "agent_status"
+      },
+      "evidence": {
+        "durable": true,
+        "liveStatus": "fresh",
+        "lastObservedAt": 1794866820853
+      },
+      "resource": {
+        "state": "user_owned",
+        "id": "wtr_f53bcc65c8cd",
+        "ownerDispatchId": "ctx_6c922cf310da",
+        "releaseState": "retained",
+        "terminalState": "retained"
+      },
+      "nextAction": {
+        "kind": "none",
+        "argv": []
+      },
+      "attention": {
+        "categories": [],
+        "requiresAction": false
+      }
+    },
+    "terminal": {
+      "handle": "term_00000000-0000-4000-8000-000000000056",
+      "ptyId": "00000000-0000-4000-8000-000000000059::/home/user/workspaces/worktrees/IronClaude/claim-handoff-b@@15c6cdb5",
+      "incarnationId": "00000000-0000-4000-8000-000000000060",
+      "orphaned": false,
+      "worktreeId": "00000000-0000-4000-8000-000000000059::/home/user/workspaces/worktrees/IronClaude/claim-handoff-b",
+      "worktreePath": "/home/user/workspaces/worktrees/IronClaude/claim-handoff-b",
+      "branch": "refs/heads/ironbelly/remove-approved-route",
+      "tabId": "00000000-0000-4000-8000-000000000057",
+      "leafId": "00000000-0000-4000-8000-000000000058",
+      "title": "<text removed>",
+      "connected": true,
+      "writable": true,
+      "lastOutputAt": 1794867650627,
+      "preview": "<text removed>",
+      "executionHostId": "local",
+      "agentIdentity": "claude",
+      "paneRuntimeId": -1,
+      "rendererGraphEpoch": 0,
+      "agentWait": null
+    },
+    "observation": {
+      "status": "live",
+      "exactWorker": true,
+      "agentWait": null
+    },
+    "terminalResource": {
+      "id": "wtr_f53bcc65c8cd",
+      "ownershipState": "user_owned",
+      "releaseState": "retained",
+      "retainedReason": "user_takeover",
+      "terminalHandle": "term_00000000-0000-4000-8000-000000000056",
+      "worktreeId": "00000000-0000-4000-8000-000000000059::/home/user/workspaces/worktrees/IronClaude/claim-handoff-b",
+      "endpointId": "00000000-0000-4000-8000-000000000061",
+      "endpointIncarnation": "00000000-0000-4000-8000-000000000059::/home/user/workspaces/worktrees/IronClaude/claim-handoff-b@@15c6cdb5:00000000-0000-4000-8000-000000000060",
+      "originDispatchId": "ctx_6c922cf310da",
+      "ownerDispatchId": "ctx_6c922cf310da",
+      "releaseRequestedAt": null,
+      "releaseCompletedAt": null,
+      "releaseError": null,
+      "recoveryAttemptCount": 0,
+      "lastRecoveryAt": null,
+      "archive": {
+        "source": null,
+        "status": null
+      }
+    }
+  },
+  "_meta": {
+    "runtimeId": "00000000-0000-4000-8000-000000000061"
+  }
+}

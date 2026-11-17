@@ -1,0 +1,24 @@
+# Wave 5 evidence-validator gate (agent evidence-validator, sonnet class, fresh instance, read-only; full re-read of every citation bullet of the merged card, population is below 20 per finding group but 55 in total, so full_reread)
+validator_ran: true
+citation_budget_policy: full_reread
+merged_card_citation_bullets: 55
+merged_card_verified: 54
+merged_card_dropped: 1
+dropped:
+  - finding: F8
+    citation: 'PLAN:45 "Record the output of `git status --short -- src tests plugins` now"'
+    reason: "the quote is on line 45 but that line is Task 1's tree-record line; F8 is about the registry row and the fence, which line 45 does not state"
+    action: "bullet removed from the merged card; F8 keeps PLAN:78 as its citation"
+inline_mismatches:
+  - finding: F6
+    note: 'the "(cf. Critical Rule #6)" text is on rf-qa-qualitative.md:612, not :611; the finding body now says so'
+  - finding: F14
+    note: 'the validator reported that source.md has no Revision 3 section; refuted by the orchestrator: source.md has 69 lines and "## Revision 3 (2026-11-16)" is at line 43; no change'
+inferred_requirement_rows:
+  total: 45
+  verified: 45        # each quote is a substring of its cited source.md line (script re-check at Wave 5)
+  dropped: 0
+citations_total: 100  # 55 card bullets + 45 inferred-requirement rows
+citations_revalidated: 100
+citations_dropped: 1
+zero_drop_flag: false

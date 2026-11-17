@@ -1,0 +1,23 @@
+# sc:adversarial return contract (Mode A, --depth standard, --focus correctness,risk,test-coverage), slot X-15 tasklist-medium-and-fidelity-vocab
+# status is "partial": all 5 steps ran and the merge succeeded (10 of 10 planned changes applied), but convergence is BLOCKED_BY_INVARIANTS
+# (diff-point agreement 32 of 37 = 0.8649, above the 0.80 threshold; 2 HIGH UNADDRESSED invariants from Round 2.5: INV-017, INV-018).
+# Flagged for user review per the no_convergence handling. 12 MEDIUM and 3 LOW UNADDRESSED invariants are listed in invariant-probe.md.
+return_contract:
+  merged_output_path: "/home/coder/workspaces/worktrees/IronClaude/brainstorm-reflect-panel/.dev/tasks/to-do/TASK-RESEARCH-review-panel-run2-20261114-075454/reviews/adversarial/tasklist-medium-and-fidelity-vocab/merged-output.md"
+  convergence_score: 0.86   # 32 / 37 = 0.8649
+  artifacts_dir: "/home/coder/workspaces/worktrees/IronClaude/brainstorm-reflect-panel/.dev/tasks/to-do/TASK-RESEARCH-review-panel-run2-20261114-075454/reviews/adversarial/tasklist-medium-and-fidelity-vocab/adversarial"
+  status: "partial"
+  base_variant: "variant-2 (Proposal B; default model, default persona)"
+  unresolved_conflicts: 5   # C-001, C-007, C-012, C-013, C-014 (advocates' final positions differ on the point's own content)
+  fallback_mode: false
+  failure_stage: null
+  invocation_method: "task-agent"
+  unaddressed_invariants:
+    - id: "INV-017"
+      category: "sufficiency_challenge"
+      assumption: "'Nothing loosens before measurement, so H+ is behaviour-preserving': H+'s grading block lands immediately and routes its Low class (insufficient detail, ambiguity, estimate, equivalent method, formatting, wording) away from SK:1439, :1537, :1571, :1608 and :1614, which count Medium today; FC(H+) is measured only after the block has landed"
+      severity: "HIGH"
+    - id: "INV-018"
+      category: "sufficiency_challenge"
+      assumption: "'A grading block + tie-break-up + dedup-highest makes the High|Medium (or Medium|Low) boundary safe': SK:1608 re-runs the full Stage 7 set with fresh agents and F_k, SK:1610 and SK:1611 compare separate samples; dedup (SK:1410) acts inside one run on disjoint slices (SK:1357-1366), so it cannot reduce between-sample variance"
+      severity: "HIGH"

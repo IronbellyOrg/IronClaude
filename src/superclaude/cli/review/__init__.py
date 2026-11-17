@@ -26,6 +26,8 @@ for _name in (
     "cluster_cmd",
     "verify_cmd",
     "manifest_cmd",
+    "safety_cmd",
+    "fixcheck_cmd",
 ):
     try:
         _module = importlib.import_module(f"{__name__}.{_name}")

@@ -1,0 +1,553 @@
+{
+  "agreement_clusters": [
+    "C3",
+    "C11"
+  ],
+  "blocking_clusters": 2,
+  "calibration_coverage": {
+    "calibrated_findings": 12,
+    "clustered_findings": 12
+  },
+  "cards": [
+    {
+      "block_state": "complete",
+      "card": "reviewer-1.md",
+      "errors": [],
+      "reviewer_id": "reviewer-1",
+      "state": "complete"
+    },
+    {
+      "block_state": "complete",
+      "card": "reviewer-2.md",
+      "errors": [],
+      "reviewer_id": "reviewer-2",
+      "state": "complete"
+    },
+    {
+      "block_state": "complete",
+      "card": "reviewer-3.md",
+      "errors": [],
+      "reviewer_id": "reviewer-3",
+      "state": "complete"
+    }
+  ],
+  "chained": [],
+  "citations": {
+    "malformed": 0,
+    "resolved": 36,
+    "unresolved": 0
+  },
+  "cluster_agreement": 0.32567049808429116,
+  "clusters": [
+    {
+      "blocking_all": false,
+      "blocking_any": false,
+      "chained": false,
+      "claim": "Task 9 requires the Wave 0 bullet to say 'at L3 with --merge-guard off' and 'no draft call is made', yet its test must show no L3/draft condition. Both the plan and the spec carry this contradiction, so the test must target gating wording only.",
+      "cluster_id": "C1",
+      "disputed": true,
+      "member_scores": [
+        0.88
+      ],
+      "members": [
+        {
+          "blocking": false,
+          "deviation_class": null,
+          "finding_confidence": 0.88,
+          "fp": "c97bf79891af3efb3a45188fe70da7287d2c45d950d2f9b880a488fae76e7d5b",
+          "id": "F1",
+          "ordinal": 1,
+          "primary_citation": {
+            "index": 0,
+            "line_end": 140,
+            "line_start": 137,
+            "path": ".dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/TASK-WF-designSpec-20261107-075614.md",
+            "role": "plan",
+            "status": "resolved"
+          },
+          "refs_norm": [
+            "INF-031"
+          ],
+          "reviewer_id": "reviewer-1"
+        }
+      ],
+      "representative": {
+        "id": "F1",
+        "reviewer_id": "reviewer-1"
+      },
+      "reviewers": [
+        "reviewer-1"
+      ],
+      "support": 0.33716475095785436,
+      "uncalibrated": false
+    },
+    {
+      "blocking_all": false,
+      "blocking_any": false,
+      "chained": false,
+      "claim": "No task or acceptance criterion pins the draft_guard_requested/settled payload fields or the idempotency_key format guard:<run_id>:<cycle_id>:<to>:a<k> (k = 1 + prior same cycle/direction requests). Task 8 omits spec 4.2 and 4.4, so the SKILL writer and the Task 3 fold/matcher could diverge.",
+      "cluster_id": "C2",
+      "disputed": true,
+      "member_scores": [
+        0.78
+      ],
+      "members": [
+        {
+          "blocking": false,
+          "deviation_class": null,
+          "finding_confidence": 0.78,
+          "fp": "4f6f7c3e16c89cd0b7d90098cf9974d0cbe34574122cee2a5d131d01cb727e2b",
+          "id": "F2",
+          "ordinal": 1,
+          "primary_citation": {
+            "index": 1,
+            "line_end": 124,
+            "line_start": 124,
+            "path": ".dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/TASK-WF-designSpec-20261107-075614.md",
+            "role": "plan",
+            "status": "resolved"
+          },
+          "refs_norm": [
+            "INF-021",
+            "INF-034"
+          ],
+          "reviewer_id": "reviewer-1"
+        }
+      ],
+      "representative": {
+        "id": "F2",
+        "reviewer_id": "reviewer-1"
+      },
+      "reviewers": [
+        "reviewer-1"
+      ],
+      "support": 0.29885057471264365,
+      "uncalibrated": false
+    },
+    {
+      "blocking_all": true,
+      "blocking_any": true,
+      "chained": false,
+      "claim": "Wave 0 bullet must carry no L3 condition, yet must print the off line only at L3. Plan line 140 fails any L3 wording, so the required behaviour cannot pass its own test.",
+      "cluster_id": "C3",
+      "disputed": true,
+      "member_scores": [
+        0.78
+      ],
+      "members": [
+        {
+          "blocking": true,
+          "deviation_class": null,
+          "finding_confidence": 0.78,
+          "fp": "d58d4ac74a43e2ce9d8864551459d3f00179171aa4c6187dfb118739fdd1cfbc",
+          "id": "F1",
+          "ordinal": 2,
+          "primary_citation": {
+            "index": 0,
+            "line_end": 137,
+            "line_start": 137,
+            "path": ".dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/TASK-WF-designSpec-20261107-075614.md",
+            "role": "plan",
+            "status": "resolved"
+          },
+          "refs_norm": [
+            "INF-006",
+            "INF-007"
+          ],
+          "reviewer_id": "reviewer-2"
+        }
+      ],
+      "representative": {
+        "id": "F1",
+        "reviewer_id": "reviewer-2"
+      },
+      "reviewers": [
+        "reviewer-2"
+      ],
+      "support": 0.29885057471264365,
+      "uncalibrated": false
+    },
+    {
+      "blocking_all": false,
+      "blocking_any": false,
+      "chained": false,
+      "claim": "Engage notes must carry auto_merge_armed, but Task 4 asserts only action, reason and cause, and no task makes the SKILL or ref surface it, although converting to draft disarms auto-merge.",
+      "cluster_id": "C4",
+      "disputed": true,
+      "member_scores": [
+        0.77
+      ],
+      "members": [
+        {
+          "blocking": false,
+          "deviation_class": null,
+          "finding_confidence": 0.77,
+          "fp": "929dca47101b99581522654814f0f26853dbfdbc871ca0a6b78bae23c6aed4c6",
+          "id": "F3",
+          "ordinal": 2,
+          "primary_citation": {
+            "index": 1,
+            "line_end": 73,
+            "line_start": 73,
+            "path": ".dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/TASK-WF-designSpec-20261107-075614.md",
+            "role": "plan",
+            "status": "resolved"
+          },
+          "refs_norm": [],
+          "reviewer_id": "reviewer-2"
+        }
+      ],
+      "representative": {
+        "id": "F3",
+        "reviewer_id": "reviewer-2"
+      },
+      "reviewers": [
+        "reviewer-2"
+      ],
+      "support": 0.2950191570881226,
+      "uncalibrated": false
+    },
+    {
+      "blocking_all": false,
+      "blocking_any": false,
+      "chained": false,
+      "claim": "Spec requires guard, push triad and rereview_requested to share one cycle_id, which held_cycle_published depends on after a crash. No criterion checks cycle_id equality; plan line 170 checks order only.",
+      "cluster_id": "C5",
+      "disputed": true,
+      "member_scores": [
+        0.76
+      ],
+      "members": [
+        {
+          "blocking": false,
+          "deviation_class": null,
+          "finding_confidence": 0.76,
+          "fp": "5c860a6592c0f8acc0fce9a3b309a6b729c9b6965ba92828e90b8fbcfccc3e67",
+          "id": "F4",
+          "ordinal": 2,
+          "primary_citation": {
+            "index": 1,
+            "line_end": 170,
+            "line_start": 170,
+            "path": ".dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/TASK-WF-designSpec-20261107-075614.md",
+            "role": "plan",
+            "status": "resolved"
+          },
+          "refs_norm": [
+            "INF-049"
+          ],
+          "reviewer_id": "reviewer-2"
+        }
+      ],
+      "representative": {
+        "id": "F4",
+        "reviewer_id": "reviewer-2"
+      },
+      "reviewers": [
+        "reviewer-2"
+      ],
+      "support": 0.2911877394636015,
+      "uncalibrated": false
+    },
+    {
+      "blocking_all": false,
+      "blocking_any": false,
+      "chained": false,
+      "claim": "Spec says a first skip also sets original_is_draft, but the fold criterion checks only disabled_cause for the already_draft skip, so a fold that drops the field still passes.",
+      "cluster_id": "C6",
+      "disputed": true,
+      "member_scores": [
+        0.72
+      ],
+      "members": [
+        {
+          "blocking": false,
+          "deviation_class": null,
+          "finding_confidence": 0.72,
+          "fp": "e5d70b9f4b783b6a3bf9cb15df897548d0cb4a49dba99fe60e8fa77ed40500bc",
+          "id": "F7",
+          "ordinal": 2,
+          "primary_citation": {
+            "index": 1,
+            "line_end": 60,
+            "line_start": 60,
+            "path": ".dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/TASK-WF-designSpec-20261107-075614.md",
+            "role": "plan",
+            "status": "resolved"
+          },
+          "refs_norm": [
+            "INF-010"
+          ],
+          "reviewer_id": "reviewer-2"
+        }
+      ],
+      "representative": {
+        "id": "F7",
+        "reviewer_id": "reviewer-2"
+      },
+      "reviewers": [
+        "reviewer-2"
+      ],
+      "support": 0.2758620689655172,
+      "uncalibrated": false
+    },
+    {
+      "blocking_all": false,
+      "blocking_any": false,
+      "chained": false,
+      "claim": "Spec requires byte-identical checks of the pinned S5a and Wave 6 sentences against full string constants; plan line 154 uses only a start-text constant, so it cannot catch a change later in the sentence.",
+      "cluster_id": "C7",
+      "disputed": true,
+      "member_scores": [
+        0.75
+      ],
+      "members": [
+        {
+          "blocking": false,
+          "deviation_class": null,
+          "finding_confidence": 0.75,
+          "fp": "929dca47101b99581522654814f0f26853dbfdbc871ca0a6b78bae23c6aed4c6",
+          "id": "F8",
+          "ordinal": 2,
+          "primary_citation": {
+            "index": 1,
+            "line_end": 154,
+            "line_start": 154,
+            "path": ".dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/TASK-WF-designSpec-20261107-075614.md",
+            "role": "plan",
+            "status": "resolved"
+          },
+          "refs_norm": [],
+          "reviewer_id": "reviewer-2"
+        }
+      ],
+      "representative": {
+        "id": "F8",
+        "reviewer_id": "reviewer-2"
+      },
+      "reviewers": [
+        "reviewer-2"
+      ],
+      "support": 0.28735632183908044,
+      "uncalibrated": false
+    },
+    {
+      "blocking_all": false,
+      "blocking_any": false,
+      "chained": false,
+      "claim": "Spec makes --to idempotent in both directions, and resume re-issues --to ready. Acceptance tests only the draft-side no-op, so a --to ready that calls gh on an already-ready PR passes.",
+      "cluster_id": "C8",
+      "disputed": true,
+      "member_scores": [
+        0.78
+      ],
+      "members": [
+        {
+          "blocking": false,
+          "deviation_class": null,
+          "finding_confidence": 0.78,
+          "fp": "929dca47101b99581522654814f0f26853dbfdbc871ca0a6b78bae23c6aed4c6",
+          "id": "F10",
+          "ordinal": 2,
+          "primary_citation": {
+            "index": 1,
+            "line_end": 111,
+            "line_start": 111,
+            "path": ".dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/TASK-WF-designSpec-20261107-075614.md",
+            "role": "plan",
+            "status": "resolved"
+          },
+          "refs_norm": [],
+          "reviewer_id": "reviewer-2"
+        }
+      ],
+      "representative": {
+        "id": "F10",
+        "reviewer_id": "reviewer-2"
+      },
+      "reviewers": [
+        "reviewer-2"
+      ],
+      "support": 0.29885057471264365,
+      "uncalibrated": false
+    },
+    {
+      "blocking_all": false,
+      "blocking_any": false,
+      "chained": false,
+      "claim": "Spec requires the PR body to state the release gate plainly. The plan records it only in the Task 1 record or command text; no task or criterion checks a PR body, so the statement may never reach the PR.",
+      "cluster_id": "C9",
+      "disputed": true,
+      "member_scores": [
+        0.7
+      ],
+      "members": [
+        {
+          "blocking": false,
+          "deviation_class": null,
+          "finding_confidence": 0.7,
+          "fp": "e3d4c81c0afe3fe42af4a1a79f5c14f3d0f92b336ce05e7ed2c1c64c02bf07a2",
+          "id": "F11",
+          "ordinal": 2,
+          "primary_citation": {
+            "index": 1,
+            "line_end": 33,
+            "line_start": 33,
+            "path": ".dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/TASK-WF-designSpec-20261107-075614.md",
+            "role": "plan",
+            "status": "resolved"
+          },
+          "refs_norm": [
+            "INF-055"
+          ],
+          "reviewer_id": "reviewer-2"
+        }
+      ],
+      "representative": {
+        "id": "F11",
+        "reviewer_id": "reviewer-2"
+      },
+      "reviewers": [
+        "reviewer-2"
+      ],
+      "support": 0.268199233716475,
+      "uncalibrated": false
+    },
+    {
+      "blocking_all": false,
+      "blocking_any": false,
+      "chained": false,
+      "claim": "Spec says engage also runs for CI-fix cycles from Wave 8 with kind ci. The scenario list has no CI-fix case, and the Wave 8 check (plan line 153) only asserts that a sentence exists.",
+      "cluster_id": "C10",
+      "disputed": true,
+      "member_scores": [
+        0.71
+      ],
+      "members": [
+        {
+          "blocking": false,
+          "deviation_class": null,
+          "finding_confidence": 0.71,
+          "fp": "68cd9d5dfb21244b184380adca41b303447ea2ead0d63bbb410d47f6b4cdf7d0",
+          "id": "F12",
+          "ordinal": 2,
+          "primary_citation": {
+            "index": 1,
+            "line_end": 166,
+            "line_start": 166,
+            "path": ".dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/TASK-WF-designSpec-20261107-075614.md",
+            "role": "plan",
+            "status": "resolved"
+          },
+          "refs_norm": [
+            "INF-001"
+          ],
+          "reviewer_id": "reviewer-2"
+        }
+      ],
+      "representative": {
+        "id": "F12",
+        "reviewer_id": "reviewer-2"
+      },
+      "reviewers": [
+        "reviewer-2"
+      ],
+      "support": 0.27203065134099613,
+      "uncalibrated": false
+    },
+    {
+      "blocking_all": true,
+      "blocking_any": true,
+      "chained": false,
+      "claim": "Task 8 directs the protocol ref to mint the cycle id, while Task 10 also directs the Wave 3 bullet to mint it. This risks violating the spec's exactly-one-source requirement.",
+      "cluster_id": "C11",
+      "disputed": true,
+      "member_scores": [
+        0.92
+      ],
+      "members": [
+        {
+          "blocking": true,
+          "deviation_class": null,
+          "finding_confidence": 0.92,
+          "fp": "105568d2333ad0c80dea43976509548c913d8aa09a6c1f653072df70706a2ffc",
+          "id": "F1",
+          "ordinal": 3,
+          "primary_citation": {
+            "index": 0,
+            "line_end": 124,
+            "line_start": 124,
+            "path": ".dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/TASK-WF-designSpec-20261107-075614.md",
+            "role": "plan",
+            "status": "resolved"
+          },
+          "refs_norm": [
+            "INF-046"
+          ],
+          "reviewer_id": "reviewer-3"
+        }
+      ],
+      "representative": {
+        "id": "F1",
+        "reviewer_id": "reviewer-3"
+      },
+      "reviewers": [
+        "reviewer-3"
+      ],
+      "support": 0.3524904214559387,
+      "uncalibrated": false
+    },
+    {
+      "blocking_all": false,
+      "blocking_any": false,
+      "chained": false,
+      "claim": "Task 12 edits the protocol test file also edited by Tasks 9 and 10, but does not depend on them; parallel execution can cause conflicting edits or run checks against incomplete tests.",
+      "cluster_id": "C12",
+      "disputed": true,
+      "member_scores": [
+        0.95
+      ],
+      "members": [
+        {
+          "blocking": false,
+          "deviation_class": null,
+          "finding_confidence": 0.95,
+          "fp": "c0f1098fdf3fba1f426af22fdc8fba4c0e66b4a0752cf03d70125192e607b650",
+          "id": "F2",
+          "ordinal": 3,
+          "primary_citation": {
+            "index": 0,
+            "line_end": 137,
+            "line_start": 132,
+            "path": ".dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/TASK-WF-designSpec-20261107-075614.md",
+            "role": "plan",
+            "status": "resolved"
+          },
+          "refs_norm": [
+            "INF-057"
+          ],
+          "reviewer_id": "reviewer-3"
+        }
+      ],
+      "representative": {
+        "id": "F2",
+        "reviewer_id": "reviewer-3"
+      },
+      "reviewers": [
+        "reviewer-3"
+      ],
+      "support": 0.3639846743295019,
+      "uncalibrated": false
+    }
+  ],
+  "complete_reviewers": [
+    "reviewer-1",
+    "reviewer-2",
+    "reviewer-3"
+  ],
+  "invalid_reviewers": [],
+  "problems": [],
+  "uncalibrated": [],
+  "uncalibrated_findings": [],
+  "valid_blocks": 3
+}

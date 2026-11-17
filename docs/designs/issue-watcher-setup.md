@@ -167,6 +167,8 @@ Do not edit the issue after you re-approve it (section 6).
 
 ## 6. Setup order for each issue
 
+**First, a coordinator.** The watcher's claim runs `--pipeline none`: it assigns the issue, posts its comments and stops, and a person-opened coordinator starts the plan-writing worker. Nothing starts for a claimed issue while the coordinator is down, so a coordinator must be running before the cron entry of section 8.7 is installed and before you approve any issue. The coordinator's rules are in `src/superclaude/core/WORKER-CONTRACT.md` (section 4, "Issue pipeline duties"); the first live test and its record are in `docs/designs/issue-pipeline-fu1.md`.
+
 For each open issue you want the watcher to pick up, do these three steps in this order. The order matters because the approval has to be later than the trigger.
 
 1. Assign the issue to the owner, which means the GitHub login the watcher runs as, and nobody else. The watcher accepts an issue only when the assignee set is exactly that one login. An issue with no assignee is skipped as `unassigned`; one with any other assignee, alone or in addition, is skipped as `assigned_other`.
@@ -268,6 +270,8 @@ Wire up the alert of section 12. No real cycle has completed yet, so `status` ex
 ### 8.5 The live-test record
 
 The live test (follow-up FU-1, section 14) must have passed, and its record `docs/designs/issue-watcher-live-test.md` must be committed. You write that file; the implementation does not.
+
+The coordinator handoff has its own first live test, run by you and recorded in `docs/designs/issue-pipeline-fu1.md` (one `RECORDED:` line for each of the preconditions a to k, and the line `RUN BY OWNER:`). It needs: a separate live-test grant for the one test issue, a reachable Orca, a named owner of the watcher worktree, and your acceptance for that one issue, given in chat and recorded by the agent (you write no file), which must cover the loss of the launch-level guard itself (the worker runs with no block on commit, push, merge, GitHub writes or `/sc:implement`; you write that issue's text). Before any other issue runs through the flow, the guard is changed for a bound worker (`docs/designs/issue-pipeline-guard-g2.md`).
 
 ### 8.6 Set enabled
 
@@ -568,7 +572,7 @@ These rules hold from the moment `enabled` is `true`:
 - **Run one enabled workspace per GitHub login** (OD-8 of the design). The local record cannot see another workspace, so two enabled workspaces on one login could launch the same issue twice. Every audit line carries `host`, so a double enablement shows up as lines from two hosts for one `login`. Every workspace also multiplies the GitHub calls. By the design's proposed figures, one workspace makes 2 calls in an idle cycle (24 an hour, 0.48% of the 5,000-an-hour limit) and at most 37 in a busy one.
 - **Leave an approved issue alone.** Any edit to the title or body, or a comment by someone other than the watcher's login, made at or after the approval time makes the issue `edited_after_approval`, and anyone who can comment can cause that (risk R17). The issue waits until you apply the approval label again: remove it, wait a few seconds, and add it back as one of the approvers (section 5).
 - **Change the approvers file deliberately.** It is the only list of who can approve. After each edit, run `check-config` and compare the modification time and the count with your notes (section 3; risk R10).
-- **Expect sessions to stay open.** A launched session runs until it ends (risk R7 of the design). The watcher starts at most one session per cycle and at most 6 in 24 hours, so look at the open sessions now and then. Since 2026-11-14 each of those claim sessions also starts a second agent in worktree `issue-<N>` (the claim's default `worktree` level). Risk to monitor: the watcher's caps count only its own launches, not these second agents, so the number of open sessions can be higher than the caps suggest.
+- **Expect sessions to stay open.** A launched session runs until it ends (risk R7 of the design). The watcher starts at most one session per cycle and at most 6 in 24 hours, so look at the open sessions now and then. Since 2026-11-17 each of those claim sessions ends after its comments (`--pipeline none`) and the coordinator, not the watcher, starts the worker in worktree `issue-<N>` (before that date the claim started a governed agent of its own at the default `worktree` level, superseded). Risk to monitor: the watcher's caps count only its own launches, not the workers a coordinator starts, so the number of open sessions can be higher than the caps suggest (see `docs/designs/issue-pipeline-fu1.md`).
 - **Check `status` regularly.** It lists `stale` entries (section 11) and shows the day cap used.
 
 To remove the trigger label from a claimed issue (42 here):
@@ -626,7 +630,7 @@ The launch command carries no permission flag; a test pins it to its 12 elements
 
 - **Default: no override.** Do not add a permission flag or a default argument to the launch.
 - **A bypass mode needs your written acceptance.** Any mode that skips permission prompts is allowed only after you have accepted the risk in writing. This runbook suggests recording that acceptance in the live-test record.
-- **Owner acceptance recorded 2026-11-14.** The owner's written words: "Yes, first test session runs with permission checks off". It names the first test session only. The claim now starts a second agent (design decision D2, superseded 2026-11-14); whether this acceptance also covers that second agent is not confirmed, so it is not assumed to.
+- **Owner acceptance recorded 2026-11-14.** The owner's written words: "Yes, first test session runs with permission checks off". It names the first test session only. Since 2026-11-17 the first session is the claim, which ends after its comments (design decision D2, superseded 2026-11-14 and again 2026-11-17), and the second session is a worker the coordinator starts, with no launch-level guard for the one test issue (owner decision Q34, guard G1). This acceptance is not assumed to cover that worker or the loss of the guard: give your acceptance for both in chat, where the agent records it in `docs/designs/issue-pipeline-fu1.md`; see section 8.5.
 - **Record the mode you saw.** Owner check: the design asks to trace whether Orca applies its own default arguments to a launched agent (follow-up FU-6). Read the mode off the session in the live test and do not assume it.
 - **Do not add a second approver before FU-6.** Per-actor permission checks inside the launched session are not built.
 

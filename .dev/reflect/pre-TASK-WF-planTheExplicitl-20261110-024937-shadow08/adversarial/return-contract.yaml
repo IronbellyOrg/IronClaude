@@ -1,0 +1,12 @@
+return_contract:
+  artifacts_dir: /home/coder/workspaces/worktrees/IronClaude/brainstorm-reflect-panel/.dev/reflect/pre-TASK-WF-planTheExplicitl-20261110-024937-shadow08/adversarial
+  convergence_score: 1.0
+  merge_method: adversarial
+  judge_identity: claude-gw-tier3
+  status: success
+  merged_output_path: /home/coder/workspaces/worktrees/IronClaude/brainstorm-reflect-panel/.dev/reflect/pre-TASK-WF-planTheExplicitl-20261110-024937-shadow08/adversarial/merged-verdict.md
+  kept_finding_count: 3
+  unresolved_conflicts: 0
+  base_variant: null
+  fallback_mode: false
+  failure_stage: null

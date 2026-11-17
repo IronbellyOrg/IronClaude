@@ -1,0 +1,581 @@
+{
+  "agreement_clusters": [
+    "C1",
+    "C2",
+    "C3"
+  ],
+  "blocking_clusters": 3,
+  "calibration_coverage": {
+    "calibrated_findings": 17,
+    "clustered_findings": 17
+  },
+  "cards": [
+    {
+      "block_state": "complete",
+      "card": "reviewer-1.md",
+      "errors": [],
+      "reviewer_id": "reviewer-1",
+      "state": "complete"
+    },
+    {
+      "block_state": "complete",
+      "card": "reviewer-2.md",
+      "errors": [],
+      "reviewer_id": "reviewer-2",
+      "state": "complete"
+    },
+    {
+      "block_state": "complete",
+      "card": "reviewer-3.md",
+      "errors": [],
+      "reviewer_id": "reviewer-3",
+      "state": "complete"
+    }
+  ],
+  "chained": [],
+  "citations": {
+    "malformed": 0,
+    "resolved": 46,
+    "unresolved": 5
+  },
+  "cluster_agreement": 0.9328358208955224,
+  "clusters": [
+    {
+      "blocking_all": true,
+      "blocking_any": true,
+      "chained": false,
+      "claim": "Plan:37 says text inside double quotes is never a command word, but bash executes $(...) and backticks inside double quotes (x=\"$(python3 -c 1)\"). Following the rule lets a bare python call through. AMD-03/AMD-04 reversed it, and the shipped scanner scans substitutions inside dq.",
+      "cluster_id": "C1",
+      "disputed": false,
+      "member_scores": [
+        0.9,
+        0.8,
+        0.8
+      ],
+      "members": [
+        {
+          "blocking": true,
+          "deviation_class": null,
+          "finding_confidence": 0.9,
+          "fp": "5dd3c55cf313a2cb01788e6f665fe50d1823d740a364f4ebb2563bd4ed2a5dab",
+          "id": "R1-F1",
+          "ordinal": 1,
+          "primary_citation": {
+            "index": 0,
+            "line_end": 37,
+            "line_start": 37,
+            "path": ".dev/tasks/done/TASK-WF-implementIronbel-20261104-130647/TASK-WF-implementIronbel-20261104-130647.md",
+            "role": "plan",
+            "status": "resolved"
+          },
+          "refs_norm": [
+            "AMD-03",
+            "AMD-04"
+          ],
+          "reviewer_id": "reviewer-1"
+        },
+        {
+          "blocking": true,
+          "deviation_class": null,
+          "finding_confidence": 0.8,
+          "fp": "08894d0ad06d9387fcba3f8d0a4f9b50d2b477d6c65eff569ce3a46cd73a79bf",
+          "id": "R2-F2",
+          "ordinal": 2,
+          "primary_citation": {
+            "index": 0,
+            "line_end": 37,
+            "line_start": 37,
+            "path": ".dev/tasks/done/TASK-WF-implementIronbel-20261104-130647/TASK-WF-implementIronbel-20261104-130647.md",
+            "role": "plan",
+            "status": "resolved"
+          },
+          "refs_norm": [
+            "AMD-03"
+          ],
+          "reviewer_id": "reviewer-2"
+        },
+        {
+          "blocking": true,
+          "deviation_class": null,
+          "finding_confidence": 0.8,
+          "fp": "5dd3c55cf313a2cb01788e6f665fe50d1823d740a364f4ebb2563bd4ed2a5dab",
+          "id": "R3-F2",
+          "ordinal": 3,
+          "primary_citation": {
+            "index": 0,
+            "line_end": 37,
+            "line_start": 37,
+            "path": ".dev/tasks/done/TASK-WF-implementIronbel-20261104-130647/TASK-WF-implementIronbel-20261104-130647.md",
+            "role": "plan",
+            "status": "resolved"
+          },
+          "refs_norm": [
+            "AMD-03",
+            "AMD-04"
+          ],
+          "reviewer_id": "reviewer-3"
+        }
+      ],
+      "representative": {
+        "id": "R1-F1",
+        "reviewer_id": "reviewer-1"
+      },
+      "reviewers": [
+        "reviewer-1",
+        "reviewer-2",
+        "reviewer-3"
+      ],
+      "support": 0.9328358208955223,
+      "uncalibrated": false
+    },
+    {
+      "blocking_all": true,
+      "blocking_any": true,
+      "chained": false,
+      "claim": "Task 3 adds a PreToolUse Bash registration but the plan never mentions the existing test that asserts no Bash-matcher PreToolUse registration. Task 4's AC does not run tests/hooks/, so the plan breaks an existing test and has no check that would catch it. AMD-01 fixed it.",
+      "cluster_id": "C2",
+      "disputed": false,
+      "member_scores": [
+        0.8,
+        0.82,
+        0.85
+      ],
+      "members": [
+        {
+          "blocking": true,
+          "deviation_class": null,
+          "finding_confidence": 0.8,
+          "fp": "425f95a4f96c6db8dedb1f6cecdd73e1a7ac2bbeb9ace4e296bf82b4dccf89d0",
+          "id": "R1-F2",
+          "ordinal": 1,
+          "primary_citation": {
+            "index": 0,
+            "line_end": 73,
+            "line_start": 73,
+            "path": ".dev/tasks/done/TASK-WF-implementIronbel-20261104-130647/TASK-WF-implementIronbel-20261104-130647.md",
+            "role": "plan",
+            "status": "resolved"
+          },
+          "refs_norm": [
+            "AMD-01"
+          ],
+          "reviewer_id": "reviewer-1"
+        },
+        {
+          "blocking": true,
+          "deviation_class": null,
+          "finding_confidence": 0.82,
+          "fp": "425f95a4f96c6db8dedb1f6cecdd73e1a7ac2bbeb9ace4e296bf82b4dccf89d0",
+          "id": "R2-F3",
+          "ordinal": 2,
+          "primary_citation": {
+            "index": 0,
+            "line_end": 73,
+            "line_start": 73,
+            "path": ".dev/tasks/done/TASK-WF-implementIronbel-20261104-130647/TASK-WF-implementIronbel-20261104-130647.md",
+            "role": "plan",
+            "status": "resolved"
+          },
+          "refs_norm": [
+            "AMD-01"
+          ],
+          "reviewer_id": "reviewer-2"
+        },
+        {
+          "blocking": true,
+          "deviation_class": null,
+          "finding_confidence": 0.85,
+          "fp": "425f95a4f96c6db8dedb1f6cecdd73e1a7ac2bbeb9ace4e296bf82b4dccf89d0",
+          "id": "R3-F3",
+          "ordinal": 3,
+          "primary_citation": {
+            "index": 0,
+            "line_end": 73,
+            "line_start": 73,
+            "path": ".dev/tasks/done/TASK-WF-implementIronbel-20261104-130647/TASK-WF-implementIronbel-20261104-130647.md",
+            "role": "plan",
+            "status": "resolved"
+          },
+          "refs_norm": [
+            "AMD-01"
+          ],
+          "reviewer_id": "reviewer-3"
+        }
+      ],
+      "representative": {
+        "id": "R3-F3",
+        "reviewer_id": "reviewer-3"
+      },
+      "reviewers": [
+        "reviewer-1",
+        "reviewer-2",
+        "reviewer-3"
+      ],
+      "support": 0.9216417910447762,
+      "uncalibrated": false
+    },
+    {
+      "blocking_all": false,
+      "blocking_any": true,
+      "chained": false,
+      "claim": "Plan AC requires `;` in both a blocked and an allowed case, but the allowed table lists only && and | chains (no `;`). The plan fails its own criterion as written; AMD-02 had to add the allowed `;` cases.",
+      "cluster_id": "C3",
+      "disputed": true,
+      "member_scores": [
+        0.8,
+        0.88,
+        0.85
+      ],
+      "members": [
+        {
+          "blocking": false,
+          "deviation_class": null,
+          "finding_confidence": 0.8,
+          "fp": "e9249508f93cbeb97d85ee977005c0add73b920f17511442eeb92390339dfd03",
+          "id": "R1-F3",
+          "ordinal": 1,
+          "primary_citation": {
+            "index": 0,
+            "line_end": 64,
+            "line_start": 64,
+            "path": ".dev/tasks/done/TASK-WF-implementIronbel-20261104-130647/TASK-WF-implementIronbel-20261104-130647.md",
+            "role": "plan",
+            "status": "resolved"
+          },
+          "refs_norm": [
+            "AMD-02"
+          ],
+          "reviewer_id": "reviewer-1"
+        },
+        {
+          "blocking": true,
+          "deviation_class": null,
+          "finding_confidence": 0.88,
+          "fp": "e9249508f93cbeb97d85ee977005c0add73b920f17511442eeb92390339dfd03",
+          "id": "R2-F1",
+          "ordinal": 2,
+          "primary_citation": {
+            "index": 0,
+            "line_end": 64,
+            "line_start": 64,
+            "path": ".dev/tasks/done/TASK-WF-implementIronbel-20261104-130647/TASK-WF-implementIronbel-20261104-130647.md",
+            "role": "plan",
+            "status": "resolved"
+          },
+          "refs_norm": [
+            "AMD-02"
+          ],
+          "reviewer_id": "reviewer-2"
+        },
+        {
+          "blocking": true,
+          "deviation_class": null,
+          "finding_confidence": 0.85,
+          "fp": "e9249508f93cbeb97d85ee977005c0add73b920f17511442eeb92390339dfd03",
+          "id": "R3-F1",
+          "ordinal": 3,
+          "primary_citation": {
+            "index": 0,
+            "line_end": 64,
+            "line_start": 64,
+            "path": ".dev/tasks/done/TASK-WF-implementIronbel-20261104-130647/TASK-WF-implementIronbel-20261104-130647.md",
+            "role": "plan",
+            "status": "resolved"
+          },
+          "refs_norm": [
+            "AMD-02"
+          ],
+          "reviewer_id": "reviewer-3"
+        }
+      ],
+      "representative": {
+        "id": "R2-F1",
+        "reviewer_id": "reviewer-2"
+      },
+      "reviewers": [
+        "reviewer-1",
+        "reviewer-2",
+        "reviewer-3"
+      ],
+      "support": 0.9440298507462687,
+      "uncalibrated": false
+    },
+    {
+      "blocking_all": false,
+      "blocking_any": false,
+      "chained": false,
+      "claim": "Constraints line 20 says the live fresh-session check is 'Task 6', but Task 6 is the changelog entry and the live check is Task 7. M-CONSTRAINTS recorded the correction.",
+      "cluster_id": "C4",
+      "disputed": false,
+      "member_scores": [
+        0.9,
+        0.65,
+        0.9
+      ],
+      "members": [
+        {
+          "blocking": false,
+          "deviation_class": null,
+          "finding_confidence": 0.9,
+          "fp": "c5fa8ed6c3fc258af1475f104a0e3ecb43d906b4326d3e72e171edac4809ac3e",
+          "id": "R1-F4",
+          "ordinal": 1,
+          "primary_citation": {
+            "index": 0,
+            "line_end": 20,
+            "line_start": 20,
+            "path": ".dev/tasks/done/TASK-WF-implementIronbel-20261104-130647/TASK-WF-implementIronbel-20261104-130647.md",
+            "role": "plan",
+            "status": "resolved"
+          },
+          "refs_norm": [],
+          "reviewer_id": "reviewer-1"
+        },
+        {
+          "blocking": false,
+          "deviation_class": null,
+          "finding_confidence": 0.65,
+          "fp": "c5fa8ed6c3fc258af1475f104a0e3ecb43d906b4326d3e72e171edac4809ac3e",
+          "id": "R1-F5",
+          "ordinal": 1,
+          "primary_citation": {
+            "index": 0,
+            "line_end": 106,
+            "line_start": 106,
+            "path": ".dev/tasks/done/TASK-WF-implementIronbel-20261104-130647/TASK-WF-implementIronbel-20261104-130647.md",
+            "role": "plan",
+            "status": "resolved"
+          },
+          "refs_norm": [],
+          "reviewer_id": "reviewer-1"
+        },
+        {
+          "blocking": false,
+          "deviation_class": null,
+          "finding_confidence": 0.9,
+          "fp": "c5fa8ed6c3fc258af1475f104a0e3ecb43d906b4326d3e72e171edac4809ac3e",
+          "id": "R3-F4",
+          "ordinal": 3,
+          "primary_citation": {
+            "index": 0,
+            "line_end": 20,
+            "line_start": 20,
+            "path": ".dev/tasks/done/TASK-WF-implementIronbel-20261104-130647/TASK-WF-implementIronbel-20261104-130647.md",
+            "role": "plan",
+            "status": "resolved"
+          },
+          "refs_norm": [],
+          "reviewer_id": "reviewer-3"
+        }
+      ],
+      "representative": {
+        "id": "R1-F4",
+        "reviewer_id": "reviewer-1"
+      },
+      "reviewers": [
+        "reviewer-1",
+        "reviewer-3"
+      ],
+      "support": 0.6716417910447761,
+      "uncalibrated": false
+    },
+    {
+      "blocking_all": false,
+      "blocking_any": false,
+      "chained": false,
+      "claim": "Task 7 uses bypassPermissions with a prompt asking the model to run a command it may refuse or rewrite. The AC 'shows the Bash tool call for the command' is not guaranteed, and the plan has no refusal-or-rewrite-is-blocked rule. AMD-08 changed the flags.",
+      "cluster_id": "C5",
+      "disputed": true,
+      "member_scores": [
+        0.7,
+        0.55
+      ],
+      "members": [
+        {
+          "blocking": false,
+          "deviation_class": null,
+          "finding_confidence": 0.7,
+          "fp": "5d136c4c11dbfeacf79ba5b35f8e5614c5d69515c12e97fe626206b37dd9f2e2",
+          "id": "R2-F4",
+          "ordinal": 2,
+          "primary_citation": {
+            "index": 0,
+            "line_end": 124,
+            "line_start": 124,
+            "path": ".dev/tasks/done/TASK-WF-implementIronbel-20261104-130647/TASK-WF-implementIronbel-20261104-130647.md",
+            "role": "plan",
+            "status": "resolved"
+          },
+          "refs_norm": [
+            "AMD-08"
+          ],
+          "reviewer_id": "reviewer-2"
+        },
+        {
+          "blocking": false,
+          "deviation_class": null,
+          "finding_confidence": 0.55,
+          "fp": "5d136c4c11dbfeacf79ba5b35f8e5614c5d69515c12e97fe626206b37dd9f2e2",
+          "id": "R3-F5",
+          "ordinal": 3,
+          "primary_citation": {
+            "index": 0,
+            "line_end": 124,
+            "line_start": 124,
+            "path": ".dev/tasks/done/TASK-WF-implementIronbel-20261104-130647/TASK-WF-implementIronbel-20261104-130647.md",
+            "role": "plan",
+            "status": "resolved"
+          },
+          "refs_norm": [
+            "AMD-08"
+          ],
+          "reviewer_id": "reviewer-3"
+        }
+      ],
+      "representative": {
+        "id": "R2-F4",
+        "reviewer_id": "reviewer-2"
+      },
+      "reviewers": [
+        "reviewer-2",
+        "reviewer-3"
+      ],
+      "support": 0.46641791044776115,
+      "uncalibrated": false
+    },
+    {
+      "blocking_all": false,
+      "blocking_any": false,
+      "chained": false,
+      "claim": "Task 3 AC says git diff of both hooks.json shows only the addition, but plan:25 admits plugins hooks.json already drifts from src in unrelated entries. The check is ambiguous in a shared worktree and no hunk-level baseline is given.",
+      "cluster_id": "C6",
+      "disputed": true,
+      "member_scores": [
+        0.55
+      ],
+      "members": [
+        {
+          "blocking": false,
+          "deviation_class": null,
+          "finding_confidence": 0.55,
+          "fp": "c5fa8ed6c3fc258af1475f104a0e3ecb43d906b4326d3e72e171edac4809ac3e",
+          "id": "R2-F5",
+          "ordinal": 2,
+          "primary_citation": {
+            "index": 0,
+            "line_end": 80,
+            "line_start": 80,
+            "path": ".dev/tasks/done/TASK-WF-implementIronbel-20261104-130647/TASK-WF-implementIronbel-20261104-130647.md",
+            "role": "plan",
+            "status": "resolved"
+          },
+          "refs_norm": [],
+          "reviewer_id": "reviewer-2"
+        }
+      ],
+      "representative": {
+        "id": "R2-F5",
+        "reviewer_id": "reviewer-2"
+      },
+      "reviewers": [
+        "reviewer-2"
+      ],
+      "support": 0.20522388059701493,
+      "uncalibrated": false
+    },
+    {
+      "blocking_all": false,
+      "blocking_any": false,
+      "chained": false,
+      "claim": "Constraints line 20 (INF-008) says the live fresh-session check is in Task 6, but Task 6 is the changelog entry and the live check is Task 7. M-CONSTRAINTS corrected this only as an amendment.",
+      "cluster_id": "C7",
+      "disputed": true,
+      "member_scores": [
+        0.88
+      ],
+      "members": [
+        {
+          "blocking": false,
+          "deviation_class": null,
+          "finding_confidence": 0.88,
+          "fp": "6d27152b6f81af307a2284f7a0da23271380f3f0596343c11b6680e12219f448",
+          "id": "R2-F6",
+          "ordinal": 2,
+          "primary_citation": {
+            "index": 0,
+            "line_end": 20,
+            "line_start": 20,
+            "path": ".dev/tasks/done/TASK-WF-implementIronbel-20261104-130647/TASK-WF-implementIronbel-20261104-130647.md",
+            "role": "plan",
+            "status": "resolved"
+          },
+          "refs_norm": [
+            "INF-008"
+          ],
+          "reviewer_id": "reviewer-2"
+        }
+      ],
+      "representative": {
+        "id": "R2-F6",
+        "reviewer_id": "reviewer-2"
+      },
+      "reviewers": [
+        "reviewer-2"
+      ],
+      "support": 0.3283582089552239,
+      "uncalibrated": false
+    },
+    {
+      "blocking_all": false,
+      "blocking_any": false,
+      "chained": false,
+      "claim": "Plan:41 and the Task 2 timing case size the check at ~100 KB and never say the command is fed via stdin; the 128 KB awk -v/env limit is uncovered, so the case cannot catch it. AMD-06 added a ~200 KB stdin case.",
+      "cluster_id": "C8",
+      "disputed": true,
+      "member_scores": [
+        0.6
+      ],
+      "members": [
+        {
+          "blocking": false,
+          "deviation_class": null,
+          "finding_confidence": 0.6,
+          "fp": "949ab7a2c2c090fb67537b1d29a3e15549312758b70aa6fae53fe49d127933db",
+          "id": "R3-F6",
+          "ordinal": 3,
+          "primary_citation": {
+            "index": 0,
+            "line_end": 60,
+            "line_start": 60,
+            "path": ".dev/tasks/done/TASK-WF-implementIronbel-20261104-130647/TASK-WF-implementIronbel-20261104-130647.md",
+            "role": "plan",
+            "status": "resolved"
+          },
+          "refs_norm": [
+            "AMD-06"
+          ],
+          "reviewer_id": "reviewer-3"
+        }
+      ],
+      "representative": {
+        "id": "R3-F6",
+        "reviewer_id": "reviewer-3"
+      },
+      "reviewers": [
+        "reviewer-3"
+      ],
+      "support": 0.22388059701492535,
+      "uncalibrated": false
+    }
+  ],
+  "complete_reviewers": [
+    "reviewer-1",
+    "reviewer-2",
+    "reviewer-3"
+  ],
+  "invalid_reviewers": [],
+  "problems": [],
+  "uncalibrated": [],
+  "uncalibrated_findings": [],
+  "valid_blocks": 3
+}

@@ -1636,21 +1636,82 @@ def test_a_list_row_with_no_show_keeps_the_show_only_fields_unknown():
     assert obs.agent_wait_present is False
 
 
-def test_parse_worker_show_reads_no_agent_wait_field_until_its_names_are_captured():
-    # Open item 6: no live ``agentWait`` name was captured, so nothing is read from either
-    # place it might sit, and no wait time is guessed from any key (FIN-F1).
-    wait = {"since": "2026-11-08T10:00:00Z", "kind": "question"}
-    show = {
-        "dispatch": {"id": DISPATCH, "status": "dispatched"},
-        "projection": {"agentWait": wait},
-        "agentWait": wait,
+def test_a_captured_running_worker_reads_live_in_progress_and_a_null_agent_wait():
+    result = _captured("captured-worker-show-running.json")["result"]
+
+    obs = probes.parse_worker_show(RUN, {"dispatchId": "ctx_6c922cf310da"}, result)
+
+    assert obs.liveness_verdict == "live"
+    assert (
+        obs.status == "dispatched"
+    )  # dispatch.status; the word in_progress is outcome
+    assert obs.outcome == "in_progress"
+    assert obs.agent_wait_present is True
+    assert obs.agent_wait is None
+    assert obs.agent_wait_since is None
+
+
+def test_a_captured_finished_worker_has_no_agent_wait_key():
+    result = _captured("captured-worker-show-1.json")["result"]
+
+    obs = probes.parse_worker_show(RUN, {"dispatchId": DISPATCH}, result)
+
+    assert obs.agent_wait_present is False and obs.agent_wait is None
+
+
+def test_agent_wait_is_read_from_observation_then_terminal():
+    base = {"dispatch": {"id": DISPATCH}}
+    from_terminal = {**base, "terminal": {"agentWait": None}}
+    both = {
+        **base,
+        "observation": {"agentWait": "obs-value"},
+        "terminal": {"agentWait": "term-value"},
     }
+    # An observation block without the key falls through to the terminal block.
+    fall_through = {
+        **base,
+        "observation": {"status": "live"},
+        "terminal": {"agentWait": None},
+    }
+
+    for show, present, value in (
+        (from_terminal, True, None),
+        (both, True, "obs-value"),  # observation wins
+        (fall_through, True, None),
+        (base, False, None),  # neither block has the key
+        ({**base, "observation": [], "terminal": "x"}, False, None),  # wrong shapes
+        ({**base, "projection": {"agentWait": "x"}, "agentWait": "x"}, False, None),
+    ):
+        obs = probes.parse_worker_show(RUN, {"dispatchId": DISPATCH}, show)
+        assert (obs.agent_wait_present, obs.agent_wait) == (present, value), show
+        assert obs.agent_wait_since is None  # no captured field names a wait time
+
+
+def test_a_null_observation_agent_wait_wins_over_a_non_null_terminal_one():
+    # A live worker: the observation says "not waiting" (present, null), so the terminal
+    # block's stale non-null value must not be read as a wait.
+    result = _captured("captured-worker-show-running.json")["result"]
+    show = {
+        **result,
+        "observation": {**result["observation"], "agentWait": None},
+        "terminal": {**result.get("terminal", {}), "agentWait": "term-value"},
+    }
+
+    obs = probes.parse_worker_show(RUN, {"dispatchId": "ctx_6c922cf310da"}, show)
+
+    assert obs.agent_wait_present is True
+    assert obs.agent_wait is None
+
+
+def test_a_non_null_agent_wait_is_kept_as_found():
+    # What a waiting worker really shows was never captured (UNVERIFIED): this dict is a
+    # made-up stand-in that only proves the value is passed through, not its meaning.
+    wait = {"since": "2026-11-08T10:00:00Z", "kind": "question"}
+    show = {"dispatch": {"id": DISPATCH}, "observation": {"agentWait": wait}}
 
     obs = probes.parse_worker_show(RUN, {"dispatchId": DISPATCH}, show)
 
-    assert obs.agent_wait is None
-    assert obs.agent_wait_present is False
-    assert obs.agent_wait_since is None
+    assert obs.agent_wait == wait and obs.agent_wait_present is True
 
 
 def test_one_missing_and_one_extra_worker_show_key_raise_nothing():

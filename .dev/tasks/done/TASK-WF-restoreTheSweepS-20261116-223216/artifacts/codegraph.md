@@ -1,0 +1,1 @@
+codegraph: index_state=fresh access=mcp checked_at=2026-11-16T22:34:54Z worktree_root=/home/coder/workspaces/worktrees/IronClaude/sweep-working-fix projectPath=/home/coder/workspaces/worktrees/IronClaude/sweep-working-fix

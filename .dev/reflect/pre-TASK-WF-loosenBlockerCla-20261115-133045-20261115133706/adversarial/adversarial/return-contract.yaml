@@ -1,0 +1,52 @@
+return_contract:
+  merged_output_path: ".dev/reflect/pre-TASK-WF-loosenBlockerCla-20261115-133045-20261115133706/adversarial/merged-review-card.md"
+  convergence_score: 0.83            # 19 of 23 diff points agreed by both advocates after Round 2 (0.826); the 4 undebated structural points were resolved by the orchestrator
+  artifacts_dir: ".dev/reflect/pre-TASK-WF-loosenBlockerCla-20261115-133045-20261115133706/adversarial/adversarial/"
+  status: "success"
+  base_variant: "opus:qa"            # Variant 2 (reviewer-2 card); advocate for V1 ran as opus, advocate for V2 ran as haiku
+  unresolved_conflicts: 0
+  fallback_mode: false
+  failure_stage: null
+  invocation_method: "task-agent"
+  unaddressed_invariants:            # HIGH UNADDRESSED items of the invariant probe; both are carried into the merged card as findings
+    - id: "INV-001"
+      category: "sufficiency_challenge"
+      assumption: "Rewriting rf-qa-qualitative's label-based FAIL bullets removes every FAIL-by-label bullet beside a v2 digest (agent_template_qa.md:158 holds one that Task 34 does not touch)"
+      severity: "HIGH"
+      resolution: "carried into merged-review-card.md as F11 (origin: fault-finder)"
+    - id: "INV-002"
+      category: "guard_conditions"
+      assumption: "The stage 2 final-gate sweep is a shadow observer consistent with 'the old definition still decides every gate outcome' (plan:250, 261, 273)"
+      severity: "HIGH"
+      resolution: "carried into merged-review-card.md as F12 (origin: fault-finder)"
+
+# Counts in the merged card
+merged_findings:
+  total: 17
+  blocking: 12                       # F1-F12
+  non_blocking: 5                    # F13-F17
+
+# Run-specific settlements requested by the caller (details in debate-transcript.md and refactor-plan.md)
+settlements:
+  a_task24_pin: "Card 2 is right on the defect (no stage signal, Task 31 list omits the test, Task 26 runs only Task 31 tests), card 1 is right only on intent (plan:299 'before Task 26'); non-blocking (F14)"
+  b_task33_allow_list: "Yes: fmea_classifier.py:304,323 and remediate_parser.py:55,301,365 hold the phrases and are not in the allow-list (plan:394, 399); blocking (F5)"
+  c_line_pins_and_hooks: "hooks/hooks.json does not exist at the repo root (src/superclaude/hooks/hooks.json:173 and plugins/superclaude/hooks/hooks.json do); Task 26 cannot keep the cap on line 227; Task 21 and 22 pins are fragile but not forced; each pin states its content, so non-blocking (F13)"
+  d_one_pass_owner_go: "Yes: plan:20 lets Phases 1 to 3 run in one pass while spec:945 requires 'stage 0 result written; owner go' before stage 1; blocking, harm lands in stage 2 (F4)"
+  e_severity_rule: "Blocking when the plan literally leaves (i) an unmeetable requirement whose fix needs a design decision the plan does not make, or (ii) a silent wrong or missing result; non-blocking for wording, mechanical coordinate or path errors with stated intent, missing extra checks where the plan forbids the behaviour, or owner-left items"
+
+artifacts:
+  - variant-1-original.md
+  - variant-2-original.md
+  - diff-analysis.md
+  - debate/_advocate-brief-common.md
+  - debate/round1-advocate-1-opus.md
+  - debate/round1-advocate-2-haiku.md
+  - debate/round2-advocate-1-opus.md
+  - debate/round2-advocate-2-haiku.md
+  - debate/round25-fault-finder.md
+  - debate-transcript.md
+  - invariant-probe.md
+  - base-selection.md
+  - refactor-plan.md
+  - merge-log.md
+  - return-contract.yaml

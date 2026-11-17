@@ -1,0 +1,53 @@
+input_tree_sha256: 931e0eea4870fc250c1c1e3403ff5f0ce8d2805965e566c6de3515de0447dfe7
+file_count: 25
+file_list:
+  - path: .dev/tasks/done/TASK-WF-devGuideFenceFix-20261104-204854/TASK-WF-devGuideFenceFix-20261104-204854.md
+    sha256: 8999ead77830401369737b922f9594aac00c9c032eab0afedd5ab00efc87afd7
+  - path: .dev/tasks/done/TASK-WF-devGuideFenceFix-20261104-204854/artifacts/changed-files.txt
+    sha256: 3d574c5f3aa49e6f570e248eba55d3844ce375fd31c8ab45a39356e9b7e4f023
+  - path: .dev/tasks/done/TASK-WF-devGuideFenceFix-20261104-204854/artifacts/dash-check.txt
+    sha256: f49d971345bc1ff3e71f253cec1f856b3196fac05c342982ee67801009c05a32
+  - path: .dev/tasks/done/TASK-WF-devGuideFenceFix-20261104-204854/artifacts/fence-after.txt
+    sha256: 37f7355c7351a48a268a5eb449ee3113ad003e2d440ccbe81fc91e0d0c86e2a7
+  - path: .dev/tasks/done/TASK-WF-devGuideFenceFix-20261104-204854/artifacts/fence-before.txt
+    sha256: 3d8912fb1431392b23d2af585c9844baaefa35b1e037e8be62f2e8aa1ff14876
+  - path: .dev/tasks/done/TASK-WF-devGuideFenceFix-20261104-204854/artifacts/fence-check.py
+    sha256: 46b0d5248594313abc983c8844f57c8859cf4d0815960d252fd5f1f1bbed93b3
+  - path: .dev/tasks/done/TASK-WF-devGuideFenceFix-20261104-204854/artifacts/fence-t1.txt
+    sha256: 50e5c173c36c3a7596794d562bb9eda82406d42612bc28e9439e8e9d98e124b4
+  - path: .dev/tasks/done/TASK-WF-devGuideFenceFix-20261104-204854/artifacts/guide-before.md
+    sha256: 73a171c649791d58415067a8896c346e79bf99190d4936cfe3a3c1665c528e6e
+  - path: .dev/tasks/done/TASK-WF-devGuideFenceFix-20261104-204854/artifacts/guide-diff.txt
+    sha256: 33b3e50fe6aa6f64e8b4953d0eaa109b3a7d0e6b9541b06d55c50d3f5b5e6bce
+  - path: .dev/tasks/done/TASK-WF-devGuideFenceFix-20261104-204854/artifacts/pytest-docs.txt
+    sha256: d975e9262e0a3331c8af8bb739c56d1fbf71d8194d8c89205e2421b6e074ec70
+  - path: .dev/tasks/done/TASK-WF-devGuideFenceFix-20261104-204854/artifacts/retries/T1/prompt-1-2.md
+    sha256: deee651faed89d4b933274f48f46f241e87511bbfa61a4d190c954244aab58ed
+  - path: .dev/tasks/done/TASK-WF-devGuideFenceFix-20261104-204854/artifacts/retries/T1/q0-head
+    sha256: dc624e1319f7d0ba1a46e77969770af9f6afbea43da853adaaaf3f9ae91902e8
+  - path: .dev/tasks/done/TASK-WF-devGuideFenceFix-20261104-204854/artifacts/retries/T2/prompt-1-2.md
+    sha256: 6ee2f55f5fb175927efa0ab830b2a437640d72a3019578a195fc7f51df479037
+  - path: .dev/tasks/done/TASK-WF-devGuideFenceFix-20261104-204854/artifacts/retries/T2/q0-head
+    sha256: dc624e1319f7d0ba1a46e77969770af9f6afbea43da853adaaaf3f9ae91902e8
+  - path: .dev/tasks/done/TASK-WF-devGuideFenceFix-20261104-204854/artifacts/superseded-prompts/README.md
+    sha256: 8b1cfbbee5d5a6dcbf2d3cad1ba06f2b288fc558ac3f611f7f7fe3e6db1ed542
+  - path: .dev/tasks/done/TASK-WF-devGuideFenceFix-20261104-204854/artifacts/superseded-prompts/T1-prompt-1-1.md
+    sha256: 442899fb474377bcfca78f0e0ffe5bddd3ad494c352f5816822ad43711aa9b25
+  - path: .dev/tasks/done/TASK-WF-devGuideFenceFix-20261104-204854/artifacts/superseded-prompts/T2-prompt-1-1.md
+    sha256: b33ae3e8a16d491cc97da2e3945d16e10cf4e3ce04e3895a561e7f815dd631df
+  - path: .dev/tasks/done/TASK-WF-devGuideFenceFix-20261104-204854/artifacts/t1-baseline-cmp.txt
+    sha256: ec6a837b7a0724b8fd93f8f555fd8d5daf4d2b212fcda149ff1ae0bdedbf1c8e
+  - path: .dev/tasks/done/TASK-WF-devGuideFenceFix-20261104-204854/artifacts/t1-diff.txt
+    sha256: 50b8335975797415083e509e031065d68b1558feca86cf8dd5889c6c9f5b7870
+  - path: .dev/tasks/done/TASK-WF-devGuideFenceFix-20261104-204854/progress.md
+    sha256: 655c28af95c54fda6b6a7c42273c5f6bae6933b87c6fa94e4224ff86e1209746
+  - path: .dev/tasks/done/TASK-WF-devGuideFenceFix-20261104-204854/return-contract.yaml
+    sha256: 853ae3d1ef671a44f86e9cac605d34cb17d7adfec65efc216b4f27ddfcbec67f
+  - path: .dev/tasks/done/TASK-WF-devGuideFenceFix-20261104-204854/source.md
+    sha256: 9d195ad170cb33717f7a2c56eb98461f4c991b541842c898c19b3752427b6814
+  - path: .dev/tasks/done/TASK-WF-devGuideRefactor-20261104-135403/artifacts/t8-fence-check.py
+    sha256: 46b0d5248594313abc983c8844f57c8859cf4d0815960d252fd5f1f1bbed93b3
+  - path: .dev/tasks/done/TASK-WF-devGuideRefactor-20261104-135403/artifacts/t8-stale-fences.txt
+    sha256: e03e81996832a9365d8d78c1150eaad00fa6e1bbf2adba5ab2c1718beaf31ae1
+  - path: docs/developer-guide/SuperClaude-Developer-Guide-Commands-Skills-Agents.md
+    sha256: 32d1d546c6d31a25bfc4a09b3e81bfbef90bd89f3204bf3413b1f4790c73fe80

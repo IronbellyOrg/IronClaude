@@ -1,0 +1,13 @@
+calibrator_class: sonnet            # confidence-calibrator agents, model sonnet; reviewer classes are {haiku, opus}, so the sets are disjoint
+calibrator_diversity: full
+executor_class: sonnet              # collides with the calibrator class (executor/calibrator are not required to be disjoint by section 11.3; executor vs reviewers is)
+reviewer-1:
+  C: 0.76
+  dimensions: {citation_grounding: 0.92, coverage_completeness: 0.65, deviation_classification_clarity: 0.80, risk_surface_coverage: 0.65, recommendation_actionability: 0.80}
+  per_finding: {F1: 0.82, F2: 0.88, F3: 0.80, F4: 0.80}
+  calibrator_note: "reviewer checked about 3 of 46 tasks deeply; Task 13 allow-list text never mentions the plugin mirror"
+reviewer-2:
+  C: 0.80
+  dimensions: {citation_grounding: 0.85, coverage_completeness: 0.75, deviation_classification_clarity: 0.85, risk_surface_coverage: 0.80, recommendation_actionability: 0.75}
+  per_finding: {F1: 0.88, F2: 0.82, F3: 0.78, F4: 0.82, F5: 0.60, F6: 0.40}
+  calibrator_note: "F3's mirror half is firm; whether scale-map.md literally holds the phrases depends on executor wording (the plan's Task 13 text says the section 'names the files allowed to contain the phrases'). F6 unverified: the calibrator saw no coverage matrix in the plan file (it is in the reflect run's artifacts)."

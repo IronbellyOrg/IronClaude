@@ -1,0 +1,123 @@
+merge_method: adversarial
+verdict: "no blocking findings; 11 merged findings, all non-blocking (1 MAJOR, 10 MINOR)"
+convergence_score: 0.8261
+base_variant: "variant-2 (reviewer-2, qa lens, haiku class)"
+judge_identity: unknown
+adversarial_unavailable: false
+source_cards:
+  - reviewer-cards/reviewer-1-card.md
+  - reviewer-cards/reviewer-2-card.md
+  - reviewer-cards/reviewer-3-card.md
+blocking_findings: 0
+merged_findings:
+  - id: M1
+    severity: MAJOR
+    blocking: false
+    category: missing-requirement
+    claim: "Task 8 builds the ref from spec sections 3, 4.1, 4.5, 4.6 and 5, but spec 4.5 says the ref covers sections 3 and 4.1 to 4.4. The event fields and the idempotency_key format are in 4.2, and no AC checks that the ref states them."
+    source_cards: ["reviewer-1 F4, orchestrator"]
+    citations:
+      - {role: plan, path: .dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/TASK-WF-designSpec-20261107-075614.md, line_start: 124, line_end: 124}
+      - {role: spec, path: .dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/source.md, line_start: 240, line_end: 240}
+      - {role: spec, path: .dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/source.md, line_start: 184, line_end: 184}
+      - {role: plan, path: .dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/TASK-WF-designSpec-20261107-075614.md, line_start: 127, line_end: 130}
+  - id: M2
+    severity: MINOR
+    blocking: false
+    category: missing-requirement
+    claim: "No task owns the mapping from the --read JSON (isDraft, headRefOid, autoMergeRequest) to the GuardRead fields; Task 7's AC checks key presence only, not the boolean type the spec example shows for autoMergeRequest."
+    source_cards: ["reviewer-1 F3 F7"]
+    citations:
+      - {role: spec, path: .dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/source.md, line_start: 88, line_end: 90}
+      - {role: spec, path: .dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/source.md, line_start: 230, line_end: 230}
+      - {role: plan, path: .dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/TASK-WF-designSpec-20261107-075614.md, line_start: 111, line_end: 111}
+      - {role: plan, path: .dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/TASK-WF-designSpec-20261107-075614.md, line_start: 56, line_end: 56}
+  - id: M3
+    severity: MINOR
+    blocking: false
+    category: missing-requirement
+    claim: "Resume row 4 re-enters release_decision, but resume_decision's signature has no target_sha, applied_edits or cycle_id and no task says where the caller gets them. Both entries already have a completed push, so the open risk is the head check."
+    source_cards: ["reviewer-1 F5"]
+    citations:
+      - {role: spec, path: .dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/source.md, line_start: 109, line_end: 109}
+      - {role: spec, path: .dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/source.md, line_start: 166, line_end: 166}
+      - {role: plan, path: .dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/TASK-WF-designSpec-20261107-075614.md, line_start: 77, line_end: 77}
+  - id: M4
+    severity: MINOR
+    blocking: false
+    category: missing-requirement
+    claim: "The guard cycle id is reused by the push triad and rereview_requested only in Task 8 prose; no AC checks that the same id reaches push_completed, so held_cycle_published could miss a normal push after a crash."
+    source_cards: ["reviewer-1 F1"]
+    citations:
+      - {role: plan, path: .dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/TASK-WF-designSpec-20261107-075614.md, line_start: 124, line_end: 124}
+      - {role: plan, path: .dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/TASK-WF-designSpec-20261107-075614.md, line_start: 127, line_end: 127}
+      - {role: spec, path: .dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/source.md, line_start: 251, line_end: 251}
+  - id: M5
+    severity: MINOR
+    blocking: false
+    category: missing-requirement
+    claim: "The spec requires the request event to be appended and fsynced before the draft call; Task 8 states it in prose, but no AC or scenario test can observe that order, so a ref that calls first would pass."
+    source_cards: ["reviewer-1 F2"]
+    citations:
+      - {role: spec, path: .dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/source.md, line_start: 178, line_end: 178}
+      - {role: plan, path: .dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/TASK-WF-designSpec-20261107-075614.md, line_start: 124, line_end: 124}
+      - {role: plan, path: .dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/TASK-WF-designSpec-20261107-075614.md, line_start: 128, line_end: 128}
+  - id: M6
+    severity: MINOR
+    blocking: false
+    category: missing-requirement
+    claim: "Task 11's first AC requires only that twelve test names exist; its prose never lists the release-failure retry, the unreadable-timeline-never-readies case or the moved-head case, so named stubs pass."
+    source_cards: ["reviewer-2 F1"]
+    citations:
+      - {role: plan, path: .dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/TASK-WF-designSpec-20261107-075614.md, line_start: 166, line_end: 173}
+      - {role: spec, path: .dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/source.md, line_start: 305, line_end: 320}
+  - id: M7
+    severity: MINOR
+    blocking: false
+    category: unpassable-check
+    claim: "Task 1 records only the literal start text of the S5a and Wave 6 pre-push sentences, while Task 10 calls the check byte-identical; a prefix constant cannot detect an edit inside the sentence, though the existing pins cover most wording."
+    source_cards: ["reviewer-3 F1"]
+    citations:
+      - {role: plan, path: .dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/TASK-WF-designSpec-20261107-075614.md, line_start: 33, line_end: 38}
+      - {role: plan, path: .dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/TASK-WF-designSpec-20261107-075614.md, line_start: 154, line_end: 154}
+      - {role: plan, path: .dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/TASK-WF-designSpec-20261107-075614.md, line_start: 21, line_end: 21}
+  - id: M8
+    severity: MINOR
+    blocking: false
+    category: unpassable-check
+    claim: "Task 7 adds the script to _RESOLUTION_SCRIPTS only after reading the list's purpose, but its AC says the script passes that list's origin-URL tests; if the purpose check says no, the AC has nothing to run."
+    source_cards: ["reviewer-2 F3, reviewer-3 F2"]
+    citations:
+      - {role: plan, path: .dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/TASK-WF-designSpec-20261107-075614.md, line_start: 108, line_end: 108}
+      - {role: plan, path: .dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/TASK-WF-designSpec-20261107-075614.md, line_start: 113, line_end: 114}
+  - id: M9
+    severity: MINOR
+    blocking: false
+    category: missing-requirement
+    claim: "The constraint that protocol prose carries no file:NNN pointers has no AC: Task 8's AC tests src/superclaude, fences and gh scope only."
+    source_cards: ["reviewer-2 F2"]
+    citations:
+      - {role: plan, path: .dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/TASK-WF-designSpec-20261107-075614.md, line_start: 23, line_end: 23}
+      - {role: plan, path: .dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/TASK-WF-designSpec-20261107-075614.md, line_start: 128, line_end: 128}
+      - {role: spec, path: .dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/source.md, line_start: 369, line_end: 369}
+  - id: M10
+    severity: MINOR
+    blocking: false
+    category: unpassable-check
+    claim: "Task 9 requires the Wave 0 bullet to carry the L3/off line yet to name no L3 condition; the AC fails the bullet when it names an L3 or draft condition, so the test scope is ambiguous."
+    source_cards: ["reviewer-2 F4"]
+    citations:
+      - {role: plan, path: .dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/TASK-WF-designSpec-20261107-075614.md, line_start: 137, line_end: 141}
+      - {role: spec, path: .dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/source.md, line_start: 241, line_end: 241}
+  - id: M11
+    severity: MINOR
+    blocking: false
+    category: other
+    claim: "Task 3's AC for next_cycle_number uses fix-1 and fix-2 only, so a count-based build also returns 3; the spec's highest-plus-one rule (a log holding only fix-5) is untested."
+    source_cards: ["reviewer-1 F6"]
+    citations:
+      - {role: plan, path: .dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/TASK-WF-designSpec-20261107-075614.md, line_start: 59, line_end: 59}
+      - {role: spec, path: .dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/source.md, line_start: 102, line_end: 102}
+dropped_findings:
+  - {source: "reviewer-1 F8", reason: "refuted by the Task 4 per-row AC (plan line 73); conceded by its author"}
+  - {source: "reviewer-1 F9", reason: "runtime property no static test can assert; cosmetic"}

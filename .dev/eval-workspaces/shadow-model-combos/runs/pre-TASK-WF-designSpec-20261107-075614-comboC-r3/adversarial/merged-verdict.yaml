@@ -1,0 +1,22 @@
+merge_method: adversarial
+verdict: "findings reported, none blocking"
+convergence_score: 0.9333
+base_variant: "reviewer-3 (refactorer, opus class)"
+source_cards:
+  - reviewer-cards/reviewer-1-card.md
+  - reviewer-cards/reviewer-2-card.md
+  - reviewer-cards/reviewer-3-card.md
+merged_output_path: adversarial/adversarial/merged-output.md
+adversarial_artifacts_dir: adversarial/adversarial
+judge_identity: "orchestrator session claude-gw-tier1b[1m]"
+judge_class: sonnet
+judge_class_collision: true
+unresolved_conflicts: 1
+unaddressed_invariants: []
+merged_findings:
+  total: 10
+  blocking: 0
+  major: 2
+  minor: 8
+  ids: [M1, M2, M3, M4, M5, M6, M7, M8, M9, M10]
+  major_ids: [M1, M6]

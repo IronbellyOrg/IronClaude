@@ -1,0 +1,41 @@
+# sc:adversarial return contract, Mode A, depth standard, conflict C05 (who-judges-blocking).
+# Final values for this run. The return_contract block follows the skill's field list exactly;
+# supporting detail sits below it under `details:` so a consumer of the block is not affected.
+return_contract:
+  merged_output_path: "/home/coder/workspaces/worktrees/IronClaude/brainstorm-reflect-panel/.dev/tasks/to-do/TASK-RESEARCH-review-panel-unify-20261113-155942/reviews/adversarial/who-judges-blocking/proposal-merged.md"
+  convergence_score: 0.909   # 30 of 33 debate points with a determinate agreed outcome; threshold 0.80; BLOCKED_BY_INVARIANTS
+  artifacts_dir: "/home/coder/workspaces/worktrees/IronClaude/brainstorm-reflect-panel/.dev/tasks/to-do/TASK-RESEARCH-review-panel-unify-20261113-155942/reviews/adversarial/who-judges-blocking/adversarial"
+  status: "partial"          # completed all 5 steps; convergence blocked by 11 HIGH unaddressed invariants; flagged for user review
+  base_variant: "B (Option D of C05: blind grader after clustering, staged behind a replay gate)"
+  unresolved_conflicts: 3    # C-005, C-012, X-002 (agreed-open); see details.unresolved_conflict_ids
+  fallback_mode: false       # advocates, fault-finder, scorers, re-evaluator, plan reviewer and merge-executor were spawned as separate agents
+  failure_stage: null
+  invocation_method: "task-agent"   # this run was launched as an agent that executed the skill's protocol
+  unaddressed_invariants:
+    - {id: "INV-001", category: "state_variables", assumption: "M5 frozen decisions close the one-non-blocking-re-report-clears-a-row hole while M1 keeps the veto live", severity: "HIGH"}
+    - {id: "INV-004", category: "guard_conditions", assumption: "M2's certify-at-round-1, later-rounds-inherit rule keeps a PASS meaning that two valid reviewers looked", severity: "HIGH"}
+    - {id: "INV-005", category: "guard_conditions", assumption: "M3's unresolved-anchor-is-never-effective-blocking-until-a-resolver-re-reads-it fits the verdict machinery", severity: "HIGH"}
+    - {id: "INV-011", category: "collection_boundaries", assumption: "Grading one representative claim per cluster and freezing it (M5) is safe once D6 and same_defect are tightened", severity: "HIGH"}
+    - {id: "INV-014", category: "interaction_effects", assumption: "D1, D5, the M3 evidence gate, M9 partial-reviewer abstention and the M2 degrade rule compose", severity: "HIGH"}
+    - {id: "INV-019", category: "sufficiency_challenge", assumption: "M12: fixing D1, D5, D6 plus the paired replay alone decides between the veto and the grader", severity: "HIGH"}
+    - {id: "INV-020", category: "sufficiency_challenge", assumption: "The E2 replay can validate certification, frozen decisions and clearing (M2, M5, M9)", severity: "HIGH"}
+    - {id: "INV-021", category: "sufficiency_challenge", assumption: "M4 affirmative demotion with a named criterion alone fixes the fail-open grader", severity: "HIGH"}
+    - {id: "INV-023", category: "sufficiency_challenge", assumption: "Shadow counts (overruled, promoted, singleton_blockers) make the choice checkable after rollout", severity: "HIGH"}
+    - {id: "INV-024", category: "sufficiency_challenge", assumption: "M2 degrade rule alone resolves a PASS certified on a thin panel", severity: "HIGH"}
+    - {id: "INV-025", category: "sufficiency_challenge", assumption: "M3 evidence gate alone resolves wrong blockers without losing real ones", severity: "HIGH"}
+
+details:
+  unresolved_conflict_ids: ["C-005", "C-012", "X-002"]
+  qualified_assumptions: ["A-001 (60%)", "A-003 (58%)", "A-007 (60%)"]
+  invariant_probe: {total: 25, addressed: 2, unaddressed_high: 11, unaddressed_medium: 10, unaddressed_low: 2, file: "invariant-probe.md"}
+  convergence_gate: {diff_point_alignment: 0.909, threshold: 0.80, taxonomy_coverage: "L1 5/5, L2 18/18, L3 10/10", invariant_gate: "BLOCKED_BY_INVARIANTS", rounds: "Round 1 parallel, Round 2 sequential, Round 2.5 invariant probe; Round 3 not run at depth standard"}
+  base_selection:
+    base: "Variant B (Option D)"
+    scores: {variant_a_combined: 0.9091, variant_b_combined: 0.8810, margin: 0.0281, quant_a: 0.9848, quant_b: 0.9954, qual_a: "25/30", qual_b: "23/30"}
+    tiebreaker: "applied (margin under 5%); level 1 debate performance, diff points won B 6 vs A 2"
+    note: "Variant A led the combined score; Variant B won on the tiebreaker. Selection is robust to the four disputed rubric verdicts and to the IC count (see base-selection.md sensitivity analysis) but depends on the level-1 tiebreak."
+  position_bias: {pairs: 60, disagreements: 4, re_evaluated: 4}
+  plan_review: {reviewer: "independent general-purpose agent", verdict: "APPROVE WITH CHANGES", findings: 22, blocker: 1, major: 12, minor: 9, applied: 22}
+  merge: {changes_planned: 20, applied: 20, skipped: 0, failed: 0, post_merge_references: "744 scanned, 744 resolved, 0 broken", orchestrator_validation: "structure, 25 INV rows, 33 debate-point rows, provenance tags (52), rejected-claim scan all re-checked by the orchestrator"}
+  review_required: true
+  artifacts: ["diff-analysis.md", "debate-transcript.md", "invariant-probe.md", "base-selection.md", "refactor-plan.md", "merge-log.md", "variant-1-original.md", "variant-2-original.md", "return-contract.yaml"]

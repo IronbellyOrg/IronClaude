@@ -1,0 +1,438 @@
+{
+  "content_sha256": "b9e9e6ceae0395e16f307261d1c809d0a2b44a6e4caf76c4c8661a4e35820bea",
+  "variants": {
+    "V1": {
+      "dc": 1.0,
+      "dc_ref_breakdown": {
+        "M": 5,
+        "item": 4,
+        "objection": 1,
+        "section": 4
+      },
+      "dc_resolved_refs": 14,
+      "dc_total_refs": 14,
+      "dc_unresolved": [],
+      "h2_count": 8,
+      "ic": 0.9487,
+      "ic_claims_tagged": 39,
+      "ic_contradiction_ids": [
+        "X-004",
+        "X-010"
+      ],
+      "ic_contradictions": 2,
+      "quant_score": 0.9605,
+      "rc": 0.9667,
+      "rc_matched": 29,
+      "rc_topics": [
+        {
+          "basis": "id",
+          "id": "T01",
+          "matched": true,
+          "topic": "CO-19 served model from transcript"
+        },
+        {
+          "basis": "id",
+          "id": "T02",
+          "matched": true,
+          "topic": "CO-20 memory writer / study switch"
+        },
+        {
+          "basis": "id",
+          "id": "T03",
+          "matched": true,
+          "topic": "CO-11 adapter home (installed-path)"
+        },
+        {
+          "basis": "id",
+          "id": "T04",
+          "matched": true,
+          "topic": "C-S10 strata list"
+        },
+        {
+          "basis": "id",
+          "id": "T05",
+          "matched": true,
+          "topic": "FX-16 spec-shaped telemetry fields"
+        },
+        {
+          "basis": "id",
+          "id": "T06",
+          "matched": true,
+          "topic": "FX-19 lost-update / serialising"
+        },
+        {
+          "basis": "id",
+          "id": "T07",
+          "matched": true,
+          "topic": "OQ-19 reviewer model actually used"
+        },
+        {
+          "basis": "id",
+          "id": "T08",
+          "matched": true,
+          "topic": "OQ-21 adapter home"
+        },
+        {
+          "basis": "id",
+          "id": "T09",
+          "matched": true,
+          "topic": "OQ-23 real manifest race"
+        },
+        {
+          "basis": "id",
+          "id": "T10",
+          "matched": true,
+          "topic": "INV-F installed-path rule"
+        },
+        {
+          "basis": "id",
+          "id": "T11",
+          "matched": true,
+          "topic": "INV-H no document text"
+        },
+        {
+          "basis": "id",
+          "id": "T12",
+          "matched": true,
+          "topic": "INV-A contract field names"
+        },
+        {
+          "basis": "id",
+          "id": "T13",
+          "matched": true,
+          "topic": "INV-L shadow changes no verdict"
+        },
+        {
+          "basis": "keyword",
+          "id": "T14",
+          "matched": true,
+          "topic": "served model never from orchestrator"
+        },
+        {
+          "basis": "keyword",
+          "id": "T15",
+          "matched": true,
+          "topic": "cost on one row per agent attempt"
+        },
+        {
+          "basis": null,
+          "id": "T16",
+          "matched": false,
+          "topic": "two labelled cost bases"
+        },
+        {
+          "basis": "keyword",
+          "id": "T17",
+          "matched": true,
+          "topic": "concurrent writes serialised"
+        },
+        {
+          "basis": "keyword",
+          "id": "T18",
+          "matched": true,
+          "topic": "no document text in telemetry (mechanism)"
+        },
+        {
+          "basis": "keyword",
+          "id": "T19",
+          "matched": true,
+          "topic": "strata module list"
+        },
+        {
+          "basis": "keyword",
+          "id": "T20",
+          "matched": true,
+          "topic": "memory writer owner and study switch"
+        },
+        {
+          "basis": "keyword",
+          "id": "T21",
+          "matched": true,
+          "topic": "PR code review effect"
+        },
+        {
+          "basis": "keyword",
+          "id": "T22",
+          "matched": true,
+          "topic": "rf-qa effect"
+        },
+        {
+          "basis": "keyword",
+          "id": "T23",
+          "matched": true,
+          "topic": "pre-registered test or measurement"
+        },
+        {
+          "basis": "keyword",
+          "id": "T24",
+          "matched": true,
+          "topic": "strongest objection answered"
+        },
+        {
+          "basis": "keyword",
+          "id": "T25",
+          "matched": true,
+          "topic": "consistency with C-01/C-02/C-03"
+        },
+        {
+          "basis": "keyword",
+          "id": "T26",
+          "matched": true,
+          "topic": "null fallback, identity_source stays requested-pinned"
+        },
+        {
+          "basis": "keyword",
+          "id": "T27",
+          "matched": true,
+          "topic": "non-reviewer agent roles covered"
+        },
+        {
+          "basis": "keyword",
+          "id": "T28",
+          "matched": true,
+          "topic": "contract 1.8.0 untouched"
+        },
+        {
+          "basis": "keyword",
+          "id": "T29",
+          "matched": true,
+          "topic": "SKILL edit fence"
+        },
+        {
+          "basis": "keyword",
+          "id": "T30",
+          "matched": true,
+          "topic": "adapter replay on the 15 E1 logs"
+        }
+      ],
+      "rc_total": 30,
+      "sc": 0.8889,
+      "sc_max_h2": 9,
+      "sr": 1.0,
+      "sr_concrete_statements": 130,
+      "sr_total_substantive_statements": 161,
+      "sr_vague_statements": 0
+    },
+    "V2": {
+      "dc": 1.0,
+      "dc_ref_breakdown": {
+        "B-NN": 10,
+        "objection": 3,
+        "section": 3
+      },
+      "dc_resolved_refs": 16,
+      "dc_total_refs": 16,
+      "dc_unresolved": [],
+      "h2_count": 9,
+      "ic": 0.8718,
+      "ic_claims_tagged": 39,
+      "ic_contradiction_ids": [
+        "X-002",
+        "X-003",
+        "X-007",
+        "X-008",
+        "X-009"
+      ],
+      "ic_contradictions": 5,
+      "quant_score": 0.9579,
+      "rc": 0.9667,
+      "rc_matched": 29,
+      "rc_topics": [
+        {
+          "basis": "id",
+          "id": "T01",
+          "matched": true,
+          "topic": "CO-19 served model from transcript"
+        },
+        {
+          "basis": "id",
+          "id": "T02",
+          "matched": true,
+          "topic": "CO-20 memory writer / study switch"
+        },
+        {
+          "basis": "id",
+          "id": "T03",
+          "matched": true,
+          "topic": "CO-11 adapter home (installed-path)"
+        },
+        {
+          "basis": "id",
+          "id": "T04",
+          "matched": true,
+          "topic": "C-S10 strata list"
+        },
+        {
+          "basis": "id",
+          "id": "T05",
+          "matched": true,
+          "topic": "FX-16 spec-shaped telemetry fields"
+        },
+        {
+          "basis": "id",
+          "id": "T06",
+          "matched": true,
+          "topic": "FX-19 lost-update / serialising"
+        },
+        {
+          "basis": null,
+          "id": "T07",
+          "matched": false,
+          "topic": "OQ-19 reviewer model actually used"
+        },
+        {
+          "basis": "keyword",
+          "id": "T08",
+          "matched": true,
+          "topic": "OQ-21 adapter home"
+        },
+        {
+          "basis": "id",
+          "id": "T09",
+          "matched": true,
+          "topic": "OQ-23 real manifest race"
+        },
+        {
+          "basis": "id",
+          "id": "T10",
+          "matched": true,
+          "topic": "INV-F installed-path rule"
+        },
+        {
+          "basis": "id",
+          "id": "T11",
+          "matched": true,
+          "topic": "INV-H no document text"
+        },
+        {
+          "basis": "id",
+          "id": "T12",
+          "matched": true,
+          "topic": "INV-A contract field names"
+        },
+        {
+          "basis": "id",
+          "id": "T13",
+          "matched": true,
+          "topic": "INV-L shadow changes no verdict"
+        },
+        {
+          "basis": "keyword",
+          "id": "T14",
+          "matched": true,
+          "topic": "served model never from orchestrator"
+        },
+        {
+          "basis": "keyword",
+          "id": "T15",
+          "matched": true,
+          "topic": "cost on one row per agent attempt"
+        },
+        {
+          "basis": "keyword",
+          "id": "T16",
+          "matched": true,
+          "topic": "two labelled cost bases"
+        },
+        {
+          "basis": "keyword",
+          "id": "T17",
+          "matched": true,
+          "topic": "concurrent writes serialised"
+        },
+        {
+          "basis": "keyword",
+          "id": "T18",
+          "matched": true,
+          "topic": "no document text in telemetry (mechanism)"
+        },
+        {
+          "basis": "keyword",
+          "id": "T19",
+          "matched": true,
+          "topic": "strata module list"
+        },
+        {
+          "basis": "keyword",
+          "id": "T20",
+          "matched": true,
+          "topic": "memory writer owner and study switch"
+        },
+        {
+          "basis": "keyword",
+          "id": "T21",
+          "matched": true,
+          "topic": "PR code review effect"
+        },
+        {
+          "basis": "keyword",
+          "id": "T22",
+          "matched": true,
+          "topic": "rf-qa effect"
+        },
+        {
+          "basis": "keyword",
+          "id": "T23",
+          "matched": true,
+          "topic": "pre-registered test or measurement"
+        },
+        {
+          "basis": "keyword",
+          "id": "T24",
+          "matched": true,
+          "topic": "strongest objection answered"
+        },
+        {
+          "basis": "keyword",
+          "id": "T25",
+          "matched": true,
+          "topic": "consistency with C-01/C-02/C-03"
+        },
+        {
+          "basis": "keyword",
+          "id": "T26",
+          "matched": true,
+          "topic": "null fallback, identity_source stays requested-pinned"
+        },
+        {
+          "basis": "keyword",
+          "id": "T27",
+          "matched": true,
+          "topic": "non-reviewer agent roles covered"
+        },
+        {
+          "basis": "keyword",
+          "id": "T28",
+          "matched": true,
+          "topic": "contract 1.8.0 untouched"
+        },
+        {
+          "basis": "keyword",
+          "id": "T29",
+          "matched": true,
+          "topic": "SKILL edit fence"
+        },
+        {
+          "basis": "keyword",
+          "id": "T30",
+          "matched": true,
+          "topic": "adapter replay on the 15 E1 logs"
+        }
+      ],
+      "rc_total": 30,
+      "sc": 1.0,
+      "sc_max_h2": 9,
+      "sr": 1.0,
+      "sr_concrete_statements": 117,
+      "sr_total_substantive_statements": 134,
+      "sr_vague_statements": 0
+    }
+  },
+  "weights": {
+    "DC": 0.15,
+    "IC": 0.25,
+    "RC": 0.3,
+    "SC": 0.15,
+    "SR": 0.15
+  }
+}

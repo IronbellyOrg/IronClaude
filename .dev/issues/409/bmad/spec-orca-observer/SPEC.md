@@ -63,7 +63,7 @@ Pain to solve. One human supervising 5-10 Orca orchestrators and 50-100 sessions
   - **success:** Marking never lowers the open count; source loss never closes a question; the panel is labelled "bounded best effort; coverage unknown" (T10-T12, T19, T46, T51).
 - **CAP-12**
   - **intent:** After QUESTION-LINK passes (R3), a supervisor can see, for one selected question, the affected sessions with their worker-list evidence (Decision Desk).
-  - **success:** Affected rows come only from an authoritative message-to-`dispatchId`/`worktreeId` mapping verified on this host; otherwise the desk reads "affected scope unknown".
+  - **success:** Affected rows come only from an authoritative message-to-`dispatchId`/`worktreeId` mapping verified on this host; otherwise the desk reads "affected scope unknown". The built desk shows the one linked session and reads "affected scope unknown" for any question it cannot link.
 
 ## Constraints
 
@@ -71,7 +71,7 @@ Pain to solve. One human supervising 5-10 Orca orchestrators and 50-100 sessions
 - Deterministic, bounded collection: no LLM in the loop, fixed 15 s cycle, at most 5 subprocesses per cycle and 8 MiB output per call.
 - Every fact keeps its evidence label; anything unchecked is UNVERIFIED; no Orca API field is invented. The source-to-dashboard schema is PROPOSED, not an Orca contract (`unverified-register.md`).
 - Unknown is never rendered as 0, false, `-` or blank. Source loss never closes a question, lowers an open count or turns a value into `failed`.
-- Staged releases with data gates (`release-gates.md`). DIRECTION-SELECTED is not shown to have passed; owner to say (owner-decisions-20261108.md item 1). Until the owner confirms a production-integration reading the stricter one applies: offline R0 work only. Issue 409 does not authorize production code changes or deployment.
+- Staged releases with data gates (`release-gates.md`). DIRECTION-SELECTED passed 2026-11-16 (`.dev/issues/409/owner-direction-record-20261116.md`), which also authorizes running the tool as a command and reading the real system. Issue 409 does not authorize production code changes or deployment.
 - Stack is Python + Rich as a `superclaude observe`-style subcommand in the IronClaude repo; the key-reader spike comes first; Textual replaces Rich only if the spike fails, never both (`stack.md`).
 - No dependency on TUIBBS, no AGPL code copied, and the design prototype (`canvas.py`) is never imported.
 - R1 output (screen, text export, snapshot) contains no message bodies, prompts, file contents or credentials; raw source output never goes into logs, fixtures or exports.
@@ -101,9 +101,9 @@ Pain to solve. One human supervising 5-10 Orca orchestrators and 50-100 sessions
 - Which production-integration reading applies (1: registering the command or any live subprocess outside the fake runner; 2: wiring into the shipped product)?
 - Final command name (recommended `superclaude observe`)?
 - Fallback date for QUESTION-OBSERVATION?
-- Sample capture and acquisition permission for live reads (open owner decision 6)?
+- Decided 2026-11-11 (`.dev/issues/409/owner-decisions-20261111.md`): sample capture and acquisition permission for live reads (open owner decision 6); granted for one named Run, `--types question`, never `run-use`.
 - Message-content exposure (open owner decision 7)?
-- What identifies a human question (open owner decision 8)?
+- Decided 2026-11-11 (`.dev/issues/409/owner-decisions-20261111.md`): what identifies a human question (open owner decision 8); coordinator questions only, messages of type `question`.
 - Multi-observer restriction (open owner decision 9)?
 - Licence opinion before any Go screen reads the snapshot?
 - Does TUIBBS become the staff platform?

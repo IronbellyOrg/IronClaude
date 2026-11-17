@@ -1,0 +1,158 @@
+contract_version: "1.8.0"
+status: partial
+mode: pre
+tier_reached: 2
+report_path: /home/coder/workspaces/worktrees/IronClaude/brainstorm-reflect-panel/.dev/reflect/pre-TASK-WF-devGuideFenceFix-20261104-204854-shadow12/REPORT.md
+audit_log_path: /home/coder/workspaces/worktrees/IronClaude/brainstorm-reflect-panel/.dev/reflect/pre-TASK-WF-devGuideFenceFix-20261104-204854-shadow12/audit.log
+confidence_calibrated: 0.57
+escalation_rule_matched: null
+onboarding_ran: false
+coverage_pct: null
+coverage_pct_union: 1.0
+coverage_undefined: false
+coverage_degraded: parsed-sparse
+unmapped_requirements: []
+unmapped_requirements_union: []
+best_practice_grade: null
+implementation_coverage_pct: null
+missing_implementations: []
+hierarchy_slice_path: null
+hierarchy_coverage_pct: null
+tasklist_completion_pct: null
+deviation_count_by_class: {authorized: 0, necessary: 0, drift: 0, regression: 0}
+deviation_register_path: null
+grounding_gaps_path: /home/coder/workspaces/worktrees/IronClaude/brainstorm-reflect-panel/.dev/reflect/pre-TASK-WF-devGuideFenceFix-20261104-204854-shadow12/grounding-gaps.yaml
+hunk_to_declaration_map_path: null
+third_party_api_grounding: []
+third_party_api_verified: false
+verification_ran: false
+verification_invocations: 0
+verification_failures: 0
+verification_regressions_detected: 0
+verification_skip_reason: null
+runtime_surface_requirements: []
+runtime_surface_sweep_ran: false
+runtime_surface_ledger_path: null
+runtime_surface_unreached: 0
+runtime_surface_degraded: false
+unreached_surfaces: []
+reachability_gate_ran: false
+reachability_ledger_path: null
+reachability_requirements_scanned: 0
+reachability_unreachable: 0
+reachability_unproven: 0
+reachability_real_boot_ran: false
+reachability_skip_reason: null
+reuse_sweep_ran: false
+reuse_audit_path: null
+reuse_miss_blocking: 0
+reuse_miss_advisory: 0
+reuse_verdict_count_by_type: {reuse_by_import: 0, mirror_shape: 0, extract_shared: 0, distinct: 0}
+reuse_grounding_gap_count: 0
+neighbour_search_sampled: false
+neighbour_search_degraded: false
+max_overlap_score: null
+input_sha256:
+  tasklist: 8999ead77830401369737b922f9594aac00c9c032eab0afedd5ab00efc87afd7
+  spec: 9d195ad170cb33717f7a2c56eb98461f4c991b541842c898c19b3752427b6814
+input_tree_sha256: 931e0eea4870fc250c1c1e3403ff5f0ce8d2805965e566c6de3515de0447dfe7
+input_tree_file_count: 25
+input_tree_snapshot_path: /home/coder/workspaces/worktrees/IronClaude/brainstorm-reflect-panel/.dev/reflect/pre-TASK-WF-devGuideFenceFix-20261104-204854-shadow12/artifacts/input-snapshot.yaml
+input_drift_detected: false
+input_drift_diff: null
+citations_total: 13
+citations_revalidated: 13
+citations_dropped: 1
+citations_dropped_extrapolated: 0
+citations_inferred: 0
+citation_budget_policy: full_reread
+evidence_validator_ran: true
+citation_revalidation_at_promotion: false
+reviewer_cards:
+  - /home/coder/workspaces/worktrees/IronClaude/brainstorm-reflect-panel/.dev/reflect/pre-TASK-WF-devGuideFenceFix-20261104-204854-shadow12/reviewer-cards/reviewer-1-card.md
+  - /home/coder/workspaces/worktrees/IronClaude/brainstorm-reflect-panel/.dev/reflect/pre-TASK-WF-devGuideFenceFix-20261104-204854-shadow12/reviewer-cards/reviewer-2-card.md
+  - /home/coder/workspaces/worktrees/IronClaude/brainstorm-reflect-panel/.dev/reflect/pre-TASK-WF-devGuideFenceFix-20261104-204854-shadow12/reviewer-cards/reviewer-3-card.md
+adversarial_artifacts_dir: /home/coder/workspaces/worktrees/IronClaude/brainstorm-reflect-panel/.dev/reflect/pre-TASK-WF-devGuideFenceFix-20261104-204854-shadow12/adversarial
+adversarial_convergence_score: 1.0
+adversarial_unavailable: false
+merge_method: adversarial
+t2_model_class_diversity: full
+t2_vendor_diversity: single
+t2_effective_diversity: model-only
+calibrator_diversity: degraded
+remediation_offered: false
+remediation_accepted: null
+task_file_path: null
+remediation_task_path: null
+remediation_plan_path: null
+handoff_memory_key: null
+cannot_validate_without_user_input: false
+regression_present: false
+unauthorized_deviation_present: false
+blocked_by_low_confidence: false
+spec_is_wrong: false
+user_decision_required: false
+needs_human_decision: false
+per_task_verdicts: []
+interaction_effects_scanned: false
+interaction_effects_findings: 0
+budget_forced_tier_downgrade: false
+budget_forced_stop: false
+budget_check_skipped: true
+forced_tier: null
+promotion_action: not-applicable
+promotion_adapter: null
+promotion_source: null
+promotion_destination: null
+promotion_log_path: null
+promotion_gate_passed: null
+promotion_skip_reason: null
+promotion_fail_reason: null
+promotion_override_used: null
+promotion_rollback_command: null
+promotion_checkpoint_path: null
+promotion_cross_fs: false
+promotion_pending: false
+telemetry:
+  t2_engine_requested: shadow
+  t2_engine_effective: shadow
+  panel_fallback_reason: null
+  t2_floor_unmet: false
+  identity_source: requested-pinned
+  identity_mismatch_suspected: false
+  judge_identity: inline-orchestrator-gw-tier3
+  judge_class_collision: unknown
+  debate_skipped_similar: false
+  cluster_agreement: 1.0
+  calibration_coverage: "0/0"
+  panel_parity: true
+  anchor_replaced: false
+  manifest_path: /home/coder/workspaces/worktrees/IronClaude/brainstorm-reflect-panel/.dev/reflect/pre-TASK-WF-devGuideFenceFix-20261104-204854-shadow12/panel/manifest.json
+  reviewers_requested: 3
+  reviewers_resolved: 3
+  reviewers_complete: 3
+  panel_shortfall_2_of_3: false
+  findings_block_compliance_rate: 1.0
+reviewer_models: [claude-sonnet-5-5, claude-haiku-5-5, claude-opus-5-5]
+reviewer_personas: [analyzer, qa, refactorer]
+reviewer_vendors: [anthropic, anthropic, anthropic]
+degraded_components: [calibrator-diversity, vendor-diversity-single, executor-class-unknown]
+fallback_path: null
+executor_class_source: unknown
+executor_class_resolved: false
+executor_exclusion_degraded: false
+memory_hits: 2
+memory_misses: 0
+memory_retention_actions: 0
+verify_blocked: false
+verify_blocked_reason: null
+verify_timeout_hit: false
+verify_flaky_suspected: false
+verify_timeout_default: 120
+verify_invocations_path: /home/coder/workspaces/worktrees/IronClaude/brainstorm-reflect-panel/.dev/reflect/pre-TASK-WF-devGuideFenceFix-20261104-204854-shadow12/verify-logs/invocations.yaml
+handoff_memory_written: false
+handoff_payload_size_bytes: 0
+handoff_persist_failed: false
+type_hierarchy_invoked: false
+summarize_changes_invoked: false
+references_extended_info_used: false

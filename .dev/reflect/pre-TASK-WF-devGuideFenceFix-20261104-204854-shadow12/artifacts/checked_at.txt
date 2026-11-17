@@ -1,0 +1,1 @@
+2026-11-13T02:24:38Z codegraph index_state=fresh checked_at=2026-11-13T02:24:38Z worktree_root=/home/coder/workspaces/worktrees/IronClaude/brainstorm-reflect-panel projectPath=/home/coder/workspaces/worktrees/IronClaude/brainstorm-reflect-panel

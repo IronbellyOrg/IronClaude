@@ -1,0 +1,565 @@
+{
+  "agreement_clusters": [],
+  "blocking_clusters": 0,
+  "calibration_coverage": {
+    "calibrated_findings": 20,
+    "clustered_findings": 20
+  },
+  "cards": [
+    {
+      "block_state": "complete",
+      "card": "reviewer-1.md",
+      "errors": [],
+      "reviewer_id": "reviewer-1",
+      "state": "complete"
+    },
+    {
+      "block_state": "complete",
+      "card": "reviewer-2.md",
+      "errors": [],
+      "reviewer_id": "reviewer-2",
+      "state": "complete"
+    },
+    {
+      "block_state": "complete",
+      "card": "reviewer-3.md",
+      "errors": [],
+      "reviewer_id": "reviewer-3",
+      "state": "complete"
+    }
+  ],
+  "chained": [
+    "C2"
+  ],
+  "citations": {
+    "malformed": 0,
+    "resolved": 22,
+    "unresolved": 22
+  },
+  "cluster_agreement": 1.0,
+  "clusters": [
+    {
+      "blocking_all": false,
+      "blocking_any": false,
+      "chained": false,
+      "claim": "Task 2's acceptance criterion disables Codex when override keys are absent, directly reversing A0's shipped-value fallback semantics.",
+      "cluster_id": "C1",
+      "disputed": false,
+      "member_scores": [
+        0.85,
+        0.88
+      ],
+      "members": [
+        {
+          "blocking": false,
+          "deviation_class": null,
+          "finding_confidence": 0.85,
+          "fp": "1475ea83d3789d9328b3ddaa325427487cc9f84020838048275b60bc52cef7cc",
+          "id": "F1",
+          "ordinal": 1,
+          "primary_citation": {
+            "index": 0,
+            "line_end": 44,
+            "line_start": 44,
+            "path": ".dev/tasks/done/TASK-WF-implementTheDesi-20261031-182028/TASK-WF-implementTheDesi-20261031-182028.md",
+            "role": "plan",
+            "status": "resolved"
+          },
+          "refs_norm": [],
+          "reviewer_id": "reviewer-1"
+        },
+        {
+          "blocking": false,
+          "deviation_class": null,
+          "finding_confidence": 0.88,
+          "fp": "1475ea83d3789d9328b3ddaa325427487cc9f84020838048275b60bc52cef7cc",
+          "id": "F1",
+          "ordinal": 2,
+          "primary_citation": {
+            "index": 0,
+            "line_end": 44,
+            "line_start": 44,
+            "path": ".dev/tasks/done/TASK-WF-implementTheDesi-20261031-182028/TASK-WF-implementTheDesi-20261031-182028.md",
+            "role": "plan",
+            "status": "resolved"
+          },
+          "refs_norm": [],
+          "reviewer_id": "reviewer-2"
+        }
+      ],
+      "representative": {
+        "id": "F1",
+        "reviewer_id": "reviewer-2"
+      },
+      "reviewers": [
+        "reviewer-1",
+        "reviewer-2"
+      ],
+      "support": 0.6705426356589147,
+      "uncalibrated": false
+    },
+    {
+      "blocking_all": false,
+      "blocking_any": false,
+      "chained": true,
+      "claim": "Task 7 defines completion and watermark freshness using only marker updated_at, allowing tests to reject a fresh completing review that A1 explicitly accepts.",
+      "cluster_id": "C2",
+      "disputed": false,
+      "member_scores": [
+        0.85,
+        0.85,
+        0.86,
+        0.85,
+        0.7
+      ],
+      "members": [
+        {
+          "blocking": false,
+          "deviation_class": null,
+          "finding_confidence": 0.85,
+          "fp": "1475ea83d3789d9328b3ddaa325427487cc9f84020838048275b60bc52cef7cc",
+          "id": "F2",
+          "ordinal": 1,
+          "primary_citation": {
+            "index": 0,
+            "line_end": 91,
+            "line_start": 91,
+            "path": ".dev/tasks/done/TASK-WF-implementTheDesi-20261031-182028/TASK-WF-implementTheDesi-20261031-182028.md",
+            "role": "plan",
+            "status": "resolved"
+          },
+          "refs_norm": [],
+          "reviewer_id": "reviewer-1"
+        },
+        {
+          "blocking": false,
+          "deviation_class": null,
+          "finding_confidence": 0.85,
+          "fp": "1475ea83d3789d9328b3ddaa325427487cc9f84020838048275b60bc52cef7cc",
+          "id": "F3",
+          "ordinal": 1,
+          "primary_citation": {
+            "index": 0,
+            "line_end": 95,
+            "line_start": 95,
+            "path": ".dev/tasks/done/TASK-WF-implementTheDesi-20261031-182028/TASK-WF-implementTheDesi-20261031-182028.md",
+            "role": "plan",
+            "status": "resolved"
+          },
+          "refs_norm": [],
+          "reviewer_id": "reviewer-1"
+        },
+        {
+          "blocking": false,
+          "deviation_class": null,
+          "finding_confidence": 0.86,
+          "fp": "1475ea83d3789d9328b3ddaa325427487cc9f84020838048275b60bc52cef7cc",
+          "id": "F2",
+          "ordinal": 2,
+          "primary_citation": {
+            "index": 0,
+            "line_end": 91,
+            "line_start": 91,
+            "path": ".dev/tasks/done/TASK-WF-implementTheDesi-20261031-182028/TASK-WF-implementTheDesi-20261031-182028.md",
+            "role": "plan",
+            "status": "resolved"
+          },
+          "refs_norm": [],
+          "reviewer_id": "reviewer-2"
+        },
+        {
+          "blocking": false,
+          "deviation_class": null,
+          "finding_confidence": 0.85,
+          "fp": "1475ea83d3789d9328b3ddaa325427487cc9f84020838048275b60bc52cef7cc",
+          "id": "F3",
+          "ordinal": 2,
+          "primary_citation": {
+            "index": 0,
+            "line_end": 95,
+            "line_start": 95,
+            "path": ".dev/tasks/done/TASK-WF-implementTheDesi-20261031-182028/TASK-WF-implementTheDesi-20261031-182028.md",
+            "role": "plan",
+            "status": "resolved"
+          },
+          "refs_norm": [],
+          "reviewer_id": "reviewer-2"
+        },
+        {
+          "blocking": false,
+          "deviation_class": null,
+          "finding_confidence": 0.7,
+          "fp": "1475ea83d3789d9328b3ddaa325427487cc9f84020838048275b60bc52cef7cc",
+          "id": "F8",
+          "ordinal": 2,
+          "primary_citation": {
+            "index": 0,
+            "line_end": 91,
+            "line_start": 91,
+            "path": ".dev/tasks/done/TASK-WF-implementTheDesi-20261031-182028/TASK-WF-implementTheDesi-20261031-182028.md",
+            "role": "plan",
+            "status": "resolved"
+          },
+          "refs_norm": [],
+          "reviewer_id": "reviewer-2"
+        }
+      ],
+      "representative": {
+        "id": "F2",
+        "reviewer_id": "reviewer-2"
+      },
+      "reviewers": [
+        "reviewer-1",
+        "reviewer-2"
+      ],
+      "support": 0.6627906976744186,
+      "uncalibrated": false
+    },
+    {
+      "blocking_all": false,
+      "blocking_any": false,
+      "chained": false,
+      "claim": "Task 4 fixes the old `_thread_findings` signature without A1's `completed_at` keyword or A6's `reviews` input, so Task 7 has no way to pass Codex its later-of completion time; shipped classifier.py:355-363 added both outside the plan.",
+      "cluster_id": "C3",
+      "disputed": false,
+      "member_scores": [
+        0.7,
+        0.85
+      ],
+      "members": [
+        {
+          "blocking": false,
+          "deviation_class": null,
+          "finding_confidence": 0.7,
+          "fp": "1475ea83d3789d9328b3ddaa325427487cc9f84020838048275b60bc52cef7cc",
+          "id": "F4",
+          "ordinal": 1,
+          "primary_citation": {
+            "index": 0,
+            "line_end": 61,
+            "line_start": 61,
+            "path": ".dev/tasks/done/TASK-WF-implementTheDesi-20261031-182028/TASK-WF-implementTheDesi-20261031-182028.md",
+            "role": "plan",
+            "status": "resolved"
+          },
+          "refs_norm": [],
+          "reviewer_id": "reviewer-1"
+        },
+        {
+          "blocking": false,
+          "deviation_class": null,
+          "finding_confidence": 0.85,
+          "fp": "1475ea83d3789d9328b3ddaa325427487cc9f84020838048275b60bc52cef7cc",
+          "id": "F1",
+          "ordinal": 3,
+          "primary_citation": {
+            "index": 0,
+            "line_end": 61,
+            "line_start": 61,
+            "path": ".dev/tasks/done/TASK-WF-implementTheDesi-20261031-182028/TASK-WF-implementTheDesi-20261031-182028.md",
+            "role": "plan",
+            "status": "resolved"
+          },
+          "refs_norm": [],
+          "reviewer_id": "reviewer-3"
+        }
+      ],
+      "representative": {
+        "id": "F1",
+        "reviewer_id": "reviewer-3"
+      },
+      "reviewers": [
+        "reviewer-1",
+        "reviewer-3"
+      ],
+      "support": 0.6007751937984496,
+      "uncalibrated": false
+    },
+    {
+      "blocking_all": false,
+      "blocking_any": false,
+      "chained": false,
+      "claim": "Task 8's wait-outcome signatures lack A2's already-absent input, and its AC keeps an inactive Codex pending until Augment settles or the silence deadline, contradicting A2 (absent or no-identity reviewer is absent at once); shipped code added `absent` (reviewers.py:337, 375).",
+      "cluster_id": "C4",
+      "disputed": false,
+      "member_scores": [
+        0.75,
+        0.8,
+        0.55,
+        0.85
+      ],
+      "members": [
+        {
+          "blocking": false,
+          "deviation_class": null,
+          "finding_confidence": 0.75,
+          "fp": "1475ea83d3789d9328b3ddaa325427487cc9f84020838048275b60bc52cef7cc",
+          "id": "F5",
+          "ordinal": 1,
+          "primary_citation": {
+            "index": 0,
+            "line_end": 102,
+            "line_start": 102,
+            "path": ".dev/tasks/done/TASK-WF-implementTheDesi-20261031-182028/TASK-WF-implementTheDesi-20261031-182028.md",
+            "role": "plan",
+            "status": "resolved"
+          },
+          "refs_norm": [],
+          "reviewer_id": "reviewer-1"
+        },
+        {
+          "blocking": false,
+          "deviation_class": null,
+          "finding_confidence": 0.8,
+          "fp": "1475ea83d3789d9328b3ddaa325427487cc9f84020838048275b60bc52cef7cc",
+          "id": "F4",
+          "ordinal": 2,
+          "primary_citation": {
+            "index": 0,
+            "line_end": 102,
+            "line_start": 102,
+            "path": ".dev/tasks/done/TASK-WF-implementTheDesi-20261031-182028/TASK-WF-implementTheDesi-20261031-182028.md",
+            "role": "plan",
+            "status": "resolved"
+          },
+          "refs_norm": [],
+          "reviewer_id": "reviewer-2"
+        },
+        {
+          "blocking": false,
+          "deviation_class": null,
+          "finding_confidence": 0.55,
+          "fp": "1475ea83d3789d9328b3ddaa325427487cc9f84020838048275b60bc52cef7cc",
+          "id": "F9",
+          "ordinal": 2,
+          "primary_citation": {
+            "index": 0,
+            "line_end": 106,
+            "line_start": 105,
+            "path": ".dev/tasks/done/TASK-WF-implementTheDesi-20261031-182028/TASK-WF-implementTheDesi-20261031-182028.md",
+            "role": "plan",
+            "status": "resolved"
+          },
+          "refs_norm": [],
+          "reviewer_id": "reviewer-2"
+        },
+        {
+          "blocking": false,
+          "deviation_class": null,
+          "finding_confidence": 0.85,
+          "fp": "1475ea83d3789d9328b3ddaa325427487cc9f84020838048275b60bc52cef7cc",
+          "id": "F2",
+          "ordinal": 3,
+          "primary_citation": {
+            "index": 0,
+            "line_end": 106,
+            "line_start": 102,
+            "path": ".dev/tasks/done/TASK-WF-implementTheDesi-20261031-182028/TASK-WF-implementTheDesi-20261031-182028.md",
+            "role": "plan",
+            "status": "resolved"
+          },
+          "refs_norm": [],
+          "reviewer_id": "reviewer-3"
+        }
+      ],
+      "representative": {
+        "id": "F2",
+        "reviewer_id": "reviewer-3"
+      },
+      "reviewers": [
+        "reviewer-1",
+        "reviewer-2",
+        "reviewer-3"
+      ],
+      "support": 0.9302325581395349,
+      "uncalibrated": false
+    },
+    {
+      "blocking_all": false,
+      "blocking_any": false,
+      "chained": false,
+      "claim": "No task carries Amendment A4: the `timestamp` field on `rereview_requested`, the resume watermark from it, reuse of the dangling push's `cycle_id`, and `pending_retriggers` on every S5a/S5 resume. Task 12 says only 'per-reviewer watermark', so a resume could post re-triggers twice.",
+      "cluster_id": "C5",
+      "disputed": false,
+      "member_scores": [
+        0.7,
+        0.68,
+        0.76,
+        0.72,
+        0.78,
+        0.55
+      ],
+      "members": [
+        {
+          "blocking": false,
+          "deviation_class": null,
+          "finding_confidence": 0.7,
+          "fp": "1475ea83d3789d9328b3ddaa325427487cc9f84020838048275b60bc52cef7cc",
+          "id": "F6",
+          "ordinal": 1,
+          "primary_citation": {
+            "index": 0,
+            "line_end": 147,
+            "line_start": 147,
+            "path": ".dev/tasks/done/TASK-WF-implementTheDesi-20261031-182028/TASK-WF-implementTheDesi-20261031-182028.md",
+            "role": "plan",
+            "status": "resolved"
+          },
+          "refs_norm": [],
+          "reviewer_id": "reviewer-1"
+        },
+        {
+          "blocking": false,
+          "deviation_class": null,
+          "finding_confidence": 0.68,
+          "fp": "1475ea83d3789d9328b3ddaa325427487cc9f84020838048275b60bc52cef7cc",
+          "id": "F5",
+          "ordinal": 2,
+          "primary_citation": {
+            "index": 0,
+            "line_end": 147,
+            "line_start": 147,
+            "path": ".dev/tasks/done/TASK-WF-implementTheDesi-20261031-182028/TASK-WF-implementTheDesi-20261031-182028.md",
+            "role": "plan",
+            "status": "resolved"
+          },
+          "refs_norm": [],
+          "reviewer_id": "reviewer-2"
+        },
+        {
+          "blocking": false,
+          "deviation_class": null,
+          "finding_confidence": 0.76,
+          "fp": "1475ea83d3789d9328b3ddaa325427487cc9f84020838048275b60bc52cef7cc",
+          "id": "F6",
+          "ordinal": 2,
+          "primary_citation": {
+            "index": 0,
+            "line_end": 151,
+            "line_start": 147,
+            "path": ".dev/tasks/done/TASK-WF-implementTheDesi-20261031-182028/TASK-WF-implementTheDesi-20261031-182028.md",
+            "role": "plan",
+            "status": "resolved"
+          },
+          "refs_norm": [],
+          "reviewer_id": "reviewer-2"
+        },
+        {
+          "blocking": false,
+          "deviation_class": null,
+          "finding_confidence": 0.72,
+          "fp": "1475ea83d3789d9328b3ddaa325427487cc9f84020838048275b60bc52cef7cc",
+          "id": "F7",
+          "ordinal": 2,
+          "primary_citation": {
+            "index": 0,
+            "line_end": 151,
+            "line_start": 147,
+            "path": ".dev/tasks/done/TASK-WF-implementTheDesi-20261031-182028/TASK-WF-implementTheDesi-20261031-182028.md",
+            "role": "plan",
+            "status": "resolved"
+          },
+          "refs_norm": [],
+          "reviewer_id": "reviewer-2"
+        },
+        {
+          "blocking": false,
+          "deviation_class": null,
+          "finding_confidence": 0.78,
+          "fp": "1475ea83d3789d9328b3ddaa325427487cc9f84020838048275b60bc52cef7cc",
+          "id": "F3",
+          "ordinal": 3,
+          "primary_citation": {
+            "index": 0,
+            "line_end": 147,
+            "line_start": 147,
+            "path": ".dev/tasks/done/TASK-WF-implementTheDesi-20261031-182028/TASK-WF-implementTheDesi-20261031-182028.md",
+            "role": "plan",
+            "status": "resolved"
+          },
+          "refs_norm": [],
+          "reviewer_id": "reviewer-3"
+        },
+        {
+          "blocking": false,
+          "deviation_class": null,
+          "finding_confidence": 0.55,
+          "fp": "1475ea83d3789d9328b3ddaa325427487cc9f84020838048275b60bc52cef7cc",
+          "id": "F5",
+          "ordinal": 3,
+          "primary_citation": {
+            "index": 0,
+            "line_end": 150,
+            "line_start": 150,
+            "path": ".dev/tasks/done/TASK-WF-implementTheDesi-20261031-182028/TASK-WF-implementTheDesi-20261031-182028.md",
+            "role": "plan",
+            "status": "resolved"
+          },
+          "refs_norm": [],
+          "reviewer_id": "reviewer-3"
+        }
+      ],
+      "representative": {
+        "id": "F3",
+        "reviewer_id": "reviewer-3"
+      },
+      "reviewers": [
+        "reviewer-1",
+        "reviewer-2",
+        "reviewer-3"
+      ],
+      "support": 0.868217054263566,
+      "uncalibrated": false
+    },
+    {
+      "blocking_all": false,
+      "blocking_any": false,
+      "chained": false,
+      "claim": "Task 1 names a test that no longer exists and Tasks 1, 10 and 14 fix absolute counts of 41; the repo now has 45 (test_run_log.py:171-175, refs/loop-guard.md:86). Run today these ACs fail or push the executor to lower the count; check +2 from baseline instead.",
+      "cluster_id": "C6",
+      "disputed": true,
+      "member_scores": [
+        0.45
+      ],
+      "members": [
+        {
+          "blocking": false,
+          "deviation_class": null,
+          "finding_confidence": 0.45,
+          "fp": "1475ea83d3789d9328b3ddaa325427487cc9f84020838048275b60bc52cef7cc",
+          "id": "F4",
+          "ordinal": 3,
+          "primary_citation": {
+            "index": 0,
+            "line_end": 35,
+            "line_start": 32,
+            "path": ".dev/tasks/done/TASK-WF-implementTheDesi-20261031-182028/TASK-WF-implementTheDesi-20261031-182028.md",
+            "role": "plan",
+            "status": "resolved"
+          },
+          "refs_norm": [],
+          "reviewer_id": "reviewer-3"
+        }
+      ],
+      "representative": {
+        "id": "F4",
+        "reviewer_id": "reviewer-3"
+      },
+      "reviewers": [
+        "reviewer-3"
+      ],
+      "support": 0.1744186046511628,
+      "uncalibrated": false
+    }
+  ],
+  "complete_reviewers": [
+    "reviewer-1",
+    "reviewer-2",
+    "reviewer-3"
+  ],
+  "invalid_reviewers": [],
+  "problems": [],
+  "uncalibrated": [],
+  "uncalibrated_findings": [],
+  "valid_blocks": 3
+}

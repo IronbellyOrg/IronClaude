@@ -1,0 +1,22 @@
+calibrator_class: opus   # degraded: all three available classes (sonnet, haiku, opus) are reviewers; rule picks the highest-capability class not used by most reviewers (each used once)
+calibrator_diversity: degraded
+calibrator_ran_in_parallel: true
+blind: true   # each calibrator got one card path and the rubric only
+reviewer_1:
+  persona: analyzer
+  model_class: sonnet
+  calibrated_C: 0.81
+  dimensions: {citation_grounding: 0.92, coverage_completeness: 0.85, deviation_classification_clarity: 0.85, risk_surface_coverage: 0.85, recommendation_actionability: 0.60}
+  per_finding_confidence: {F1: 0.85, F2: 0.85, F3: 0.75, F4: 0.60, F5: 0.70, F6: 0.65, F7: 0.60, F8: 0.50, F9: 0.60}
+reviewer_2:
+  persona: qa
+  model_class: haiku
+  calibrated_C: 0.74   # card self-report was 0.91
+  dimensions: {citation_grounding: 0.90, coverage_completeness: 0.85, deviation_classification_clarity: 0.70, risk_surface_coverage: 0.75, recommendation_actionability: 0.50}
+  per_finding_confidence: {D1: 0.55, D2: 0.85, D3: 0.70, D4: 0.70}
+reviewer_3:
+  persona: refactorer
+  model_class: opus
+  calibrated_C: 0.81
+  dimensions: {citation_grounding: 0.88, coverage_completeness: 0.80, deviation_classification_clarity: 0.85, risk_surface_coverage: 0.80, recommendation_actionability: 0.72}
+  per_finding_confidence: {F1: 0.82, F2: 0.65, F3: 0.68, F4: 0.70, F5: 0.45}

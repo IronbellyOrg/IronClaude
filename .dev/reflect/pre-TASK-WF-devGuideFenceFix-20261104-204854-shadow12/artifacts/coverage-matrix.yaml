@@ -1,0 +1,18 @@
+parsed_count: 0
+inferred_count: 9
+coverage_pct: null
+coverage_pct_union: 1.0
+coverage_degraded: parsed-sparse
+unmapped_requirements: []
+unmapped_requirements_union: []
+S_dev_density: 0.0
+rows:
+  - {requirement_id: INF-001, source: inferred, quote: "make each affected outer fence four backticks, opening and closing, so the inner three-backtick blocks nest correctly", citation: ".dev/tasks/done/TASK-WF-devGuideFenceFix-20261104-204854/source.md:7", matched_task_ids: [Task 1, Task 2], match_method: containment}
+  - {requirement_id: INF-002, source: inferred, quote: "The six outer fences (guide line numbers as of 2026-11-04, after the refactor)", citation: ".dev/tasks/done/TASK-WF-devGuideFenceFix-20261104-204854/source.md:9-18", matched_task_ids: [Task 1, Task 2], match_method: containment}
+  - {requirement_id: INF-003, source: inferred, quote: "Confirm each pair by reading the guide before editing; if a line number has moved, find the pair by its template and say so in the task notes.", citation: ".dev/tasks/done/TASK-WF-devGuideFenceFix-20261104-204854/source.md:20", matched_task_ids: [Task 1, Task 2], match_method: containment}
+  - {requirement_id: INF-004, source: inferred, quote: "Re-use the existing fence-state script ... (copy it into this plan's package ./artifacts/, do not edit the archived copy) and run it with uv run python -I on the guide before and after the edits.", citation: ".dev/tasks/done/TASK-WF-devGuideFenceFix-20261104-204854/source.md:24", matched_task_ids: [Task 1, Task 2], match_method: containment}
+  - {requirement_id: INF-005, source: inferred, quote: "After the edits its \"Inner fence closes outer fence\" section prints none, the headings ### 2.2 ... and ### Example 3: ... are outside any fence, and Appendix B and Appendix C keep the state they have today", citation: ".dev/tasks/done/TASK-WF-devGuideFenceFix-20261104-204854/source.md:24", matched_task_ids: [Task 1, Task 2], match_method: containment}
+  - {requirement_id: INF-006, source: inferred, quote: "changes exactly the twelve fence lines above and nothing else; save that diff under ./artifacts/", citation: ".dev/tasks/done/TASK-WF-devGuideFenceFix-20261104-204854/source.md:25", matched_task_ids: [Task 1, Task 2], match_method: containment}
+  - {requirement_id: INF-007, source: inferred, quote: "uv run pytest tests/docs -q passes.", citation: ".dev/tasks/done/TASK-WF-devGuideFenceFix-20261104-204854/source.md:26", matched_task_ids: [Task 2], match_method: containment}
+  - {requirement_id: INF-008, source: inferred, quote: "Any other line of the guide, including prose and the inner code blocks. Any other file.", citation: ".dev/tasks/done/TASK-WF-devGuideFenceFix-20261104-204854/source.md:30-31", matched_task_ids: [Task 2], match_method: containment}
+  - {requirement_id: INF-009, source: inferred, quote: "No em dash and no en dash in changed lines. .dev/tasks/ is always staged ... commit only when the user asks.", citation: ".dev/tasks/done/TASK-WF-devGuideFenceFix-20261104-204854/source.md:36-37", matched_task_ids: [Task 2], match_method: containment}

@@ -1,0 +1,243 @@
+# UC-1 coverage matrix (Step 1B.0 two-pass; Pass 1 = 0 parsed ids, Pass 2 = 26 inferred rows)
+parsed_count: 0
+inferred_count: 26
+coverage_pct: null  # parsed-only; parsed_total is 0
+coverage_pct_union: 0.8846
+matched_union: 23
+total_union: 26
+coverage_degraded: parsed-sparse
+rows:
+  - id: INF-001
+    source: inferred
+    spec_citation: source.md:11
+    quote: "The digest goes into four templates: `agent_template_qa.md`, `skill_template.md`, `01_mdtm_template_generic_task.md` and `02_mdtm_template_complex_task.md`."
+    quote_verbatim_in_cited_line: true
+    best_task: Task 1
+    containment_ratio: 0.875
+    constraints_ratio: 0.25
+    match_method: containment
+  - id: INF-002
+    source: inferred
+    spec_citation: source.md:11
+    quote: "`agent_template_analysis.md` gets the merge-rule text only (no digest, no registry row, no fence)."
+    quote_verbatim_in_cited_line: true
+    best_task: Task 1
+    containment_ratio: 1.0
+    constraints_ratio: 0.625
+    match_method: containment
+  - id: INF-003
+    source: inferred
+    spec_citation: source.md:11
+    quote: "The registry keeps exactly 11 `digest` rows."
+    quote_verbatim_in_cited_line: true
+    best_task: Task 1
+    containment_ratio: 1.0
+    constraints_ratio: 1.0
+    match_method: containment
+  - id: INF-004
+    source: inferred
+    spec_citation: source.md:11
+    quote: "Acceptance: \"four template files hold exactly one digest\", the analysis template holds none and no `more severe rating` text, and `agent_template_qa.md` holds none of the \"Any CRITICAL or IMPORTANT issue exists\" FAIL bullet unless it is listed as a kept mechanical gate in `refs/scale-map.md`."
+    quote_verbatim_in_cited_line: true
+    best_task: Task 1
+    containment_ratio: 0.857
+    constraints_ratio: 0.607
+    match_method: containment
+  - id: INF-005
+    source: inferred
+    spec_citation: source.md:11
+    quote: "Remove `agent_template_qa.md` and `agent_template_analysis.md` from the scan allow-list in the same change."
+    quote_verbatim_in_cited_line: true
+    best_task: Task 1
+    containment_ratio: 0.857
+    constraints_ratio: 0.571
+    match_method: containment
+  - id: INF-006
+    source: inferred
+    spec_citation: source.md:12
+    quote: "As the base text, with the two `pointer-only` rows left at `pointer-only` and the cap sentences kept by content."
+    quote_verbatim_in_cited_line: true
+    best_task: Task 4
+    containment_ratio: 0.6
+    constraints_ratio: 0.8
+    match_method: containment
+  - id: INF-007
+    source: inferred
+    spec_citation: source.md:13
+    quote: "As the base text; the existing `src/superclaude/examples/...` mention in `commands/spec-panel.md` and its twins stays, since T3 does not check `pointer-only` rows for that path."
+    quote_verbatim_in_cited_line: true
+    best_task: Task 4
+    containment_ratio: 0.643
+    constraints_ratio: 0.643
+    match_method: containment
+  - id: INF-008
+    source: inferred
+    spec_citation: source.md:15
+    quote: "State this is stage 4 and the last package; strict T2 is switched on here. Acceptance lines that a later task of this package makes false get an end point."
+    quote_verbatim_in_cited_line: true
+    best_task: Task 5
+    containment_ratio: 0.529
+    constraints_ratio: 0.882
+    match_method: none
+  - id: INF-009
+    source: inferred
+    spec_citation: source.md:16
+    quote: "Write `./artifacts/stage4-summary-for-owner.md`: per carrier the digest state and the test that pins it, the final scan and parity results, and the revert command per row (the spec's three-step revert), ending with the sentence that a second audit window is observed by the owner or operator and is not a task of this package."
+    quote_verbatim_in_cited_line: true
+    best_task: Task 6
+    containment_ratio: 0.962
+    constraints_ratio: 0.731
+    match_method: containment
+  - id: INF-010
+    source: inferred
+    spec_citation: source.md:20
+    quote: "No change to `sc-implement-protocol/refs/qa.md`, the own-scale primitives, the severity code under `src/superclaude/cli/**/*.py`, the cap of 2 fix cycles or the 35 percent target. No Jev call, key or account."
+    quote_verbatim_in_cited_line: true
+    best_task: Task 3
+    containment_ratio: 0.278
+    constraints_ratio: 0.778
+    match_method: none
+  - id: INF-011
+    source: inferred
+    spec_citation: source.md:28
+    quote: "The summary check is now: exists and quotes RT1, RT2 and M12."
+    quote_verbatim_in_cited_line: true
+    best_task: Task 1
+    containment_ratio: 0.625
+    constraints_ratio: 0.5
+    match_method: containment
+  - id: INF-012
+    source: inferred
+    spec_citation: source.md:33
+    quote: "Tasks 1 and 3 name the \"Merge-rule allow-list\" section of `refs/scale-map.md` and add a grep check, because the scan test only checks that listed files exist."
+    quote_verbatim_in_cited_line: true
+    best_task: Task 1
+    containment_ratio: 0.75
+    constraints_ratio: 0.875
+    match_method: containment
+  - id: INF-013
+    source: inferred
+    spec_citation: source.md:36
+    quote: "Tasks 1 and 2 pin the digest's closing cap sentence by content in every digest carrier, and Task 2 checks that `follow-up candidates` left `document_review_loop_prompts.md` and `follow-up ledger` replaced it."
+    quote_verbatim_in_cited_line: true
+    best_task: Task 2
+    containment_ratio: 0.611
+    constraints_ratio: 0.556
+    match_method: containment
+  - id: INF-014
+    source: inferred
+    spec_citation: source.md:38
+    quote: "Task 5 runs `git grep -n \"review-severity:digest\" -- src plugins` and the old-sentence grep before the strict switch, records the output in `./artifacts/strict-t2-hits.md`, and rewords or exempts any hit outside a `digest` or `canonical` file."
+    quote_verbatim_in_cited_line: true
+    best_task: Task 5
+    containment_ratio: 0.773
+    constraints_ratio: 0.364
+    match_method: containment
+  - id: INF-015
+    source: inferred
+    spec_citation: source.md:40
+    quote: "The old Task 4 (consumer line in `task-builder/SKILL.md` and the two MDTM templates) is dropped, and `rf-task-builder.md` is not edited."
+    quote_verbatim_in_cited_line: true
+    best_task: Task 1
+    containment_ratio: 0.636
+    constraints_ratio: 0.727
+    match_method: containment
+  - id: INF-016
+    source: inferred
+    spec_citation: source.md:42
+    quote: "No mirror folder, parity test, plugin registry row or plugin reverse scan."
+    quote_verbatim_in_cited_line: true
+    best_task: Task 6
+    containment_ratio: 0.667
+    constraints_ratio: 0.778
+    match_method: containment
+  - id: INF-017
+    source: inferred
+    spec_citation: source.md:51
+    quote: "Task 1 rewrites the two live lines of `agent_template_qa.md` (the NO LENIENCY principle near line 100, \"Report honestly\" near line 339)."
+    quote_verbatim_in_cited_line: true
+    best_task: Task 1
+    containment_ratio: 0.929
+    constraints_ratio: 0.714
+    match_method: containment
+  - id: INF-018
+    source: inferred
+    spec_citation: source.md:51
+    quote: "Task 2 rewrites principle 8 in all four rule prompts, the \"When in doubt, fail the item\" bullet in three (the recruiting prompt has none, so it is dropped there) and the `BE STRICT` \"almost right or close enough\" bullet in three (found while reading, same defect, flagged in the plan as not in the stage 3 hand-over)."
+    quote_verbatim_in_cited_line: true
+    best_task: Task 2
+    containment_ratio: 0.786
+    constraints_ratio: 0.643
+    match_method: containment
+  - id: INF-019
+    source: inferred
+    spec_citation: source.md:52
+    quote: "Task 5 now says what strict means (any tracked file under `src/` that holds the old definition sentence fails, registered or not), names the switch (stage 1 names none: read it from the test file, else a `strict` parameter plus module constant `STRICT_T2`), and adds a temporary-tree case where a registered `digest` file with the old sentence fails with the switch on and passes with it off."
+    quote_verbatim_in_cited_line: true
+    best_task: Task 5
+    containment_ratio: 0.794
+    constraints_ratio: 0.559
+    match_method: containment
+  - id: INF-020
+    source: inferred
+    spec_citation: source.md:53
+    quote: "One Constraints bullet records that the roadmap and tech-research cap-line pointers of spec section 10.5 are not edited here (stage 2 owns the tech-research file and pins its cap sentences; the roadmap cap already says \"open blocking findings\"; not in the spec's stage 4 exit condition), and Task 6 lists them as an open item with a check."
+    quote_verbatim_in_cited_line: true
+    best_task: Task 1
+    containment_ratio: 0.552
+    constraints_ratio: 0.897
+    match_method: none
+  - id: INF-021
+    source: inferred
+    spec_citation: source.md:54
+    quote: "Task 1 names the S5 bullet (\"On a CRITICAL / IMPORTANT / MINOR scale, CRITICAL and IMPORTANT findings are blocking ...\", live at line 140 of `agent_template_qa.md`, 831, 647 and 658 in the other three) and adds `grep -rn \"CRITICAL and IMPORTANT findings are blocking\" src/superclaude/templates` printing nothing."
+    quote_verbatim_in_cited_line: true
+    best_task: Task 1
+    containment_ratio: 0.846
+    constraints_ratio: 0.5
+    match_method: containment
+  - id: INF-022
+    source: inferred
+    spec_citation: source.md:55
+    quote: "Task 4 also amends the Contract bullet's `artifacts` clause to list `follow-ups.md` when written, keeping \"paths git ignores are left out (WC-4)\" and \"improved-spec.md\" that `_check_f1_clause` and the spec-panel expectations of `test_worker_contract.py` need, and places the new Follow-up ledger line after the Contract bullet without a backticked `artifacts`."
+    quote_verbatim_in_cited_line: true
+    best_task: Task 4
+    containment_ratio: 0.741
+    constraints_ratio: 0.37
+    match_method: containment
+  - id: INF-023
+    source: inferred
+    spec_citation: source.md:56
+    quote: "Task 5's final run adds `tests/unit/test_cli_doctor.py` and `tests/cli/test_install_retired_mcp.py` (both exist)."
+    quote_verbatim_in_cited_line: true
+    best_task: Task 5
+    containment_ratio: 0.714
+    constraints_ratio: 0.571
+    match_method: containment
+  - id: INF-024
+    source: inferred
+    spec_citation: source.md:57
+    quote: "The stage 3 completion check names the ledger line: a latest `FINAL: issues` line means archive-blocked and fails; `FINAL: pass` in to-do passes."
+    quote_verbatim_in_cited_line: true
+    best_task: Task 1
+    containment_ratio: 0.867
+    constraints_ratio: 0.533
+    match_method: containment
+  - id: INF-025
+    source: inferred
+    spec_citation: source.md:58
+    quote: "The Rule 6 read is now an `awk` over the `## Critical Rules` block that prints one line; the label is the bold words of that line."
+    quote_verbatim_in_cited_line: true
+    best_task: Task 1
+    containment_ratio: 0.857
+    constraints_ratio: 0.571
+    match_method: containment
+  - id: INF-026
+    source: inferred
+    spec_citation: source.md:59
+    quote: "The retired-carrier check in Task 5 uses `git status --porcelain -- src plugins`; Task 6 lists the edited files afterwards."
+    quote_verbatim_in_cited_line: true
+    best_task: Task 5
+    containment_ratio: 0.786
+    constraints_ratio: 0.5
+    match_method: containment

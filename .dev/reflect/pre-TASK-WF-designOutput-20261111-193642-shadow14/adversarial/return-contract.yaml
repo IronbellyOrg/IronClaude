@@ -1,0 +1,17 @@
+return_contract:
+  merged_output_path: .dev/reflect/pre-TASK-WF-designOutput-20261111-193642-shadow14/merged-output.md
+  convergence_score: 0.96
+  artifacts_dir: .dev/reflect/pre-TASK-WF-designOutput-20261111-193642-shadow14/adversarial
+  status: completed
+  base_variant: variant-1-original.md (reviewer-1 card, analyzer/sonnet, combined score 0.83)
+  unresolved_conflicts:
+    - "D3 (MF-3) category: advocates 1/2 held advisory-vantage 'other', advocate 3 held unpassable-check plan defect; resolved to unpassable-check by the panel's own tightened A-005 rule with dissent recorded in merged-output.md provenance"
+  fallback_mode: false
+  failure_stage: null
+  invocation_method: task-agent
+  unaddressed_invariants:
+    - "IP-3: corroboration policy applied inconsistently (D1/D2 rose to .80 via cross-card agreement; MF-4/MF-5 frozen at .70 by the no-inflation rule); combined severity of the item-7 pair assessed MINOR but not re-derived"
+    - "IP-5: uniform-MINOR calibration inverted between shipped absence (MF-5 .70) and plan-wording contradiction (MF-2 .80); confidence values preserved as card property, not repaired post-hoc"
+    - "IP-6: MF-10 drop-guard and MF-5 scope the same shipped fallback collection; cross-linked but guards not unified"
+    - "A-003 stands: no cited file:line re-verified by the panel or the merge; every merged finding carries the evidence-validator flag"
+judge_model_self_report: claude-gw-tier3[1m] (debate-orchestrator agent; the Tier-2 reviewer cards' own self-reports are preserved verbatim in merged-output.md)

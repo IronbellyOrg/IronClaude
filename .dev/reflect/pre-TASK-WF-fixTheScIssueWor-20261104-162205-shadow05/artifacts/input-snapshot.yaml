@@ -1,0 +1,17 @@
+input_tree_sha256: 14db0f571ab6cfba60e3b034b45693472c7ec6e9ed8d120c22915650c715628f
+file_count: 7
+file_list:
+  - path: .dev/tasks/done/TASK-WF-fixTheScIssueWor-20261104-162205/source.md
+    sha256: fbc456a11caa4f40b0b7ddca18dbda78c9680c4ff68e9d9b478e3246a5680da0
+  - path: .dev/tasks/done/TASK-WF-fixTheScIssueWor-20261104-162205/TASK-WF-fixTheScIssueWor-20261104-162205.md
+    sha256: 4db972275acfb0beacb89c875202d30cac4ad31711015fe91da03be7d63b4468
+  - path: src/superclaude/agents/issue-worker-t1.md
+    sha256: 4e2e4df2fcf8f11e27f34c1ce867901bbcacdb5fc29b34d5687debd1e6353784
+  - path: src/superclaude/agents/issue-worker-t2.md
+    sha256: 62a07c6a294dafc746e1298202b5ae0ffc072fc6dd3977f0b13279613d7733b5
+  - path: src/superclaude/agents/issue-worker-t3.md
+    sha256: 89e774e657e9c08e6f49936fc07389d481c10091d787fa816222aefed0e623f9
+  - path: tests/skills/test_issue_worker_agents.py
+    sha256: 0ffec3dba3c9f2acfbbcbc0d7e787bdafa9b0815cee3f468c448f07396564330
+  - path: src/superclaude/skills/sc-issue-protocol/SKILL.md
+    sha256: 159e8eae67dda93b5e0ed77738ff02d0bc3afadf00350a597eee1a5f57c6c7e5

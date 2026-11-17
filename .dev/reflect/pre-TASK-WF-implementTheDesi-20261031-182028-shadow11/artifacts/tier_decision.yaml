@@ -1,0 +1,15 @@
+selected_tier: 2
+fired_rule_number: 4            # S_domains(4) >= 3 escalates; hard pin --tier 2 (s5.1) also active
+coverage_degraded: null
+surface_unreached: null
+composite_score: 7.4
+per_signal_breakdown:
+  scope_size: 1        # 15 tasks (0-2 scale: >10 items = 1)
+  task_count: 2        # 15 tasks with cross-task deps
+  blast_radius: 2      # core package + skill + refs + command + docs + changelog
+  spec_density: 1      # union density 0.20
+  ambiguity_signals: 2 # three plan-vs-amendment contradictions + partial rows
+escalation_reason: "--tier 2 pinned; rubric concurs (multi-domain, contradiction signals)"
+t2_engine_requested: shadow
+t2_engine_effective: shadow
+panel_fallback_reason: null

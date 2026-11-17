@@ -1,0 +1,12 @@
+merge_method: adversarial
+status: success
+convergence_score: 0.90
+base_variant: card-1-analyzer
+verdict: PASS
+blocking_findings: 0
+medium_findings: 3
+minor_findings: 4
+resolved_points: 9
+total_points: 10
+invariant_probe: {total: 9, unaddressed: 4, high_unaddressed: 0, medium_unaddressed: 1}
+unresolved_conflicts: 0

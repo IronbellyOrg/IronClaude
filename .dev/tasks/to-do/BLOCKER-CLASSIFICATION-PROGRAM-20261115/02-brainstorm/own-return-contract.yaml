@@ -1,0 +1,38 @@
+# sc:brainstorm own contract (stable block + telemetry). With --report-dir the worker contract is return-contract.yaml in the same folder.
+contract_version: "1.0"
+status: success
+seed_brief_path: ".dev/tasks/to-do/BLOCKER-CLASSIFICATION-PROGRAM-20261115/02-brainstorm/seed-brief.md"
+merged_output_path: ".dev/tasks/to-do/BLOCKER-CLASSIFICATION-PROGRAM-20261115/02-brainstorm/merged-requirements.md"
+convergence_score: 1.0
+adversarial_artifacts_dir: ".dev/tasks/to-do/BLOCKER-CLASSIFICATION-PROGRAM-20261115/02-brainstorm/nested/adversarial-1/adversarial/"
+domain: architecture
+proposal_count: 3
+enrichment_used:
+  - source: codebase
+    quality_tier: primary          # three read-only Grep/Read agents plus one augment_code_search call
+  - source: research-light
+    quality_tier: skipped          # jev-uses.md (live TypeSafe docs) was supplied as the research input
+  - source: research-deep
+    quality_tier: skipped          # tech-research has no Unattended mode
+handoff_action: none
+handoff_output_path: null
+unresolved_conflicts:
+  - 'The adversarial invariant gate was BLOCKED_BY_INVARIANTS (9 HIGH unaddressed items: INV-001, 007, 008, 009, 015, 023, 026, 027, 034). Depth standard has no Round 3 and the run is unattended, so the items were resolved through the refactoring plan and re-checked in the merged spec (Appendix A), not re-debated. The adversarial contract status is partial for that reason.'
+  - 'Conformity caveat: the Round 2 agreement of 61 of 61 points (Round 1: 55 of 61) was reached by sequential rebuttals in which later advocates saw earlier ones; the fault-finder flagged five points (C-017, A-006, C-010, X-003, S-009) as agreed in the vote without a checked reason. The plan took a stated position on each. Treat 1.0 as majority-rule agreement, not independent agreement.'
+  - 'Skill conflict, not fixed here (this run edits no skill): sc-brainstorm-protocol (refs/agent-spec-builder.md) serializes agent instructions in single quotes, while sc-adversarial-protocol (SKILL.md Mode B parsing and refs/agent-specs.md line 69-73) requires double quotes and says STOP otherwise. The orchestrator normalized the quoting and went on.'
+# telemetry (non-stable)
+wave_durations_ms:                 # approximate, from file modification times; the clock of this host
+  wave_0: 60000
+  wave_1: 300000
+  wave_2a: 300000
+  wave_2b: 60000
+  wave_3: 6960000
+  wave_4: 60000
+token_usage:
+  note: "sum of subagent_tokens in the agent notifications (about 5.1 million over 22 sub-agents: 3 enrichment, 3 variants, 1 diff analysis, 3 Round 1, 3 Round 2, 1 invariant probe, 2 scorers, 1 plan draft, 1 plan review, 1 merge, plus the adversarial orchestration by this session); cumulative per agent, not billing"
+agent_spec: "opus:architect:'prioritize maintainability and extension scaffolding for architecture domain',sonnet:analyzer:'focus on root-cause analysis and evidence-based reasoning for architecture',haiku:backend:'focus on API contracts, data integrity, idempotency, and operational concerns'"
+enrichment_artifact_sizes:
+  codebase-context: "three files under enrichment/ (rule-copies-and-tests.md, severity-models-and-loops.md, follow-up-and-issue-mechanisms.md)"
+extra_inputs:
+  - ".dev/tasks/to-do/BLOCKER-CLASSIFICATION-PROGRAM-20261115/02-brainstorm/jev-uses.md (Jev validation requested by the owner; revised to version 2 after the debate)"
+  - ".dev/tasks/to-do/BLOCKER-CLASSIFICATION-PROGRAM-20261115/02-brainstorm/blocker_truth_table_sketch.py (version 2: 6,400 combinations, three property checks, 0 violations)"

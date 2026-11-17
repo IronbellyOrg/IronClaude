@@ -1,0 +1,19 @@
+selected_tier: 2
+fired_rule_number: 6              # rubric rule that fires on its own (C < 0.85); the --tier 2 pin (5.1 hard override) and the parsed-sparse pre-filter also force Tier 2
+coverage_degraded: parsed-sparse
+surface_unreached: null
+composite_score: 9
+per_signal_breakdown:
+  scope_size: 2
+  task_count: 2
+  blast_radius: 2
+  spec_density: 2
+  ambiguity_signals: 1
+escalation_reason: "--tier 2 pin (hard override); rubric also escalates: C=0.64 < 0.85 (rule 6), coverage_degraded parsed-sparse (0 parsed ids, 90 inferred rows)"
+confidence_calibrated: 0.64
+S_scope: 13
+S_domains: 3
+S_dev_density: 0.1778
+t2_engine_requested: shadow
+t2_engine_effective: shadow
+panel_fallback_reason: null

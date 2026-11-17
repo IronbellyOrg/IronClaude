@@ -1,0 +1,14 @@
+Scores:
+
+- Citation grounding: 0.85
+- Coverage completeness: 0.60
+- Deviation-classification clarity: 0.50
+- Risk surface coverage: 0.55
+- Recommendation actionability: 0.45
+- C (mean): 0.59
+
+- **Citation grounding (0.85):** I read the cited spec and plan. The plan and spec line cites for F1 to F9 hold up, for example plan lines 137, 140, 169, 200 and spec lines 59, 230, 241, 315, 319. Two things hold it back. The coverage-matrix numbers (86, 84, 70, 0.8333) cannot be checked from the card. F3 overstates: Task 1 O1 and Task 8 do ask for a single minted cycle id.
+- **Coverage completeness (0.60):** The card reports 70 of 84 requirements mapped, but it never names the 14 unmapped ones. It only says most are "lexical misses". Several spec areas get no mention, including the FR-12 to FR-14 toggle classification, the guard_status mapping, and the flag and doc tasks.
+- **Classification clarity (0.50):** Six of the nine findings are tagged "other". Several overlap categories: F5 is a spec gap but is labelled "other", and F6, F8 and F9 are also "other" although they are plan-text inaccuracies. Only T1-F1 to T1-F4 get a distinct type.
+- **Risk surface coverage (0.55):** It raises the engage-failure then HOLD path (F5) and the missing retry and cycle_id checks (F2, F3). It does not mention the regression-class traps the plan itself centres on. These are the stale `WRITE_VERB_CLASSIFICATION` entries, the pinned `SKILL.md` sentences and the `CORE_PURE_FILES` purity test. It also never judges whether the dependency ordering between tasks is sound.
+- **Recommendation actionability (0.45):** Each finding names a plan line and a task. But almost none states a fix, such as which criterion to add or which sentence to reword, so there is nothing concrete to check afterwards. T1-F8 is the exception, since the correction is implied.

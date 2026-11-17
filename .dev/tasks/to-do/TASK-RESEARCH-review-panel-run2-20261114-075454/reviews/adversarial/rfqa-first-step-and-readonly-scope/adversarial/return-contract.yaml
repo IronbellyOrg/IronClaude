@@ -1,0 +1,41 @@
+# sc:adversarial return contract (Mode A, --depth standard, --focus correctness,risk,test-coverage)
+# status is "partial": all 5 steps ran and the merge succeeded (11 of 11 planned changes applied, post-merge validation PASS),
+# but convergence is BLOCKED_BY_INVARIANTS: diff-point agreement 25 of 30 = 0.8333 at text level (30 of 30 on outcome label),
+# above the 0.80 threshold, with 6 HIGH UNADDRESSED invariants from Round 2.5 and 5 points whose hybrid wording stays split.
+# Standard depth has no Round 3, so none was resolved. Flagged for user review per the no_convergence handling.
+# 9 MEDIUM and 1 LOW UNADDRESSED invariants are listed in invariant-probe.md.
+return_contract:
+  merged_output_path: "/home/coder/workspaces/worktrees/IronClaude/brainstorm-reflect-panel/.dev/tasks/to-do/TASK-RESEARCH-review-panel-run2-20261114-075454/reviews/adversarial/rfqa-first-step-and-readonly-scope/merged-output.md"
+  convergence_score: 0.83
+  artifacts_dir: "/home/coder/workspaces/worktrees/IronClaude/brainstorm-reflect-panel/.dev/tasks/to-do/TASK-RESEARCH-review-panel-run2-20261114-075454/reviews/adversarial/rfqa-first-step-and-readonly-scope/adversarial"
+  status: "partial"
+  base_variant: "variant-2 (Proposal B; default model, default persona)"
+  unresolved_conflicts: 5   # C-002, C-006, C-008, A-001, A-004 (same outcome label, contradicting hybrid texts)
+  fallback_mode: false
+  failure_stage: null
+  invocation_method: "task-agent"
+  unaddressed_invariants:
+    - id: "INV-002"
+      category: "guard_conditions"
+      assumption: "The lens-identity check (a report whose first line names another lens is a blocker) reliably detects a mis-dispatched reviewer, the only defence left against N1's failure once persistence is keyed by slot"
+      severity: "HIGH"
+    - id: "INV-009"
+      category: "collection_boundaries"
+      assumption: "Executor persistence 'to the dispatched slot's path' gives each returned report a unique path (partition instances of one lens share the same lens-named path; no slot id exists in /task)"
+      severity: "HIGH"
+    - id: "INV-012"
+      category: "interaction_effects"
+      assumption: "Moving persistence to the executor and adding hash and lens-line checks to step 10 protects the gate's consolidation and its proceed decision (step 10 runs after steps 6-9)"
+      severity: "HIGH"
+    - id: "INV-015"
+      category: "sufficiency_challenge"
+      assumption: "'The executor persists each returned report unedited to the dispatched slot's path and records its sha256' resolves the fidelity of the persisted report to the returned text"
+      severity: "HIGH"
+    - id: "INV-016"
+      category: "sufficiency_challenge"
+      assumption: "Arm 0 (current lens agents) versus arm 1a (new agent, same lens text, prose consolidation) isolates the read-only effect, so 'arm 1a passes' means 'read-only costs no recall'"
+      severity: "HIGH"
+    - id: "INV-017"
+      category: "sufficiency_challenge"
+      assumption: "'Standard lenses get pre-computed counts in the brief where they used Bash' lets arm 1a's result transfer to production (no changed gate step adds a pre-computation step)"
+      severity: "HIGH"

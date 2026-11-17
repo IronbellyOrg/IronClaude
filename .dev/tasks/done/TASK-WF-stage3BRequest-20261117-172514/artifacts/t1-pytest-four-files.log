@@ -1,0 +1,6 @@
+tests/cli/reflect/test_reviewer_brief_constraints.py ...                 [  9%]
+tests/agents/test_codegraph_rosters.py ..........                        [ 21%]
+tests/skills/test_review_severity_rule.py .............................. [ 58%]
+..................................                                       [100%]
+
+============================== 82 passed in 3.57s ==============================

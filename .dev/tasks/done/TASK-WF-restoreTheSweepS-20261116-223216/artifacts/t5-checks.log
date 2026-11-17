@@ -1,0 +1,9 @@
+== uv run pytest tests/sweep -q
+
+============================= 649 passed in 4.23s ==============================
+== uv run ruff check src/superclaude/cli/sweep tests/sweep
+All checks passed!
+== make verify-sync
+✅ All components in sync.
+== git status --short | grep -c .claude
+0

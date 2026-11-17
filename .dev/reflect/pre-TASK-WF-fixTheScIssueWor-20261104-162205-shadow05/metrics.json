@@ -1,0 +1,46 @@
+{
+  "metrics_schema_version": "1.0",
+  "run_id": "2026-11-13T01:12:00Z-pre-fix-sc-issue-worker-shadow05",
+  "skill": "sc-reflect",
+  "skill_version": "1.8.0",
+  "mode": "pre",
+  "tier_reached": 2,
+  "status": "success",
+  "wave_durations_ms": {"wave_0": 30000, "wave_1": 180000, "wave_2": 5000, "wave_3": 360000, "wave_4": 660000, "wave_5": 420000, "wave_6": 0, "wave_7": 0},
+  "wall_clock_ms": 4550000,
+  "token_usage": {"claude_orchestration": 90000, "claude_agents": 430000, "auggie_offloaded": 0, "total": 520000},
+  "calibration": {
+    "calibrator_diversity": "degraded",
+    "calibrated_confidence_initial": 0.87,
+    "calibrated_confidence_final": 0.87,
+    "calibration_delta": 0.0
+  },
+  "ensemble": {
+    "t2_model_class_diversity": "full",
+    "t2_vendor_diversity": "single",
+    "t2_effective_diversity": "model-only",
+    "reviewer_count": 3,
+    "executor_class_resolved": false,
+    "executor_exclusion_degraded": false
+  },
+  "evidence_validator": {
+    "ran": true,
+    "citations_total": 21,
+    "citations_revalidated": 21,
+    "citations_dropped": 0,
+    "citations_dropped_extrapolated": 0,
+    "drop_rate": 0.0,
+    "budget_policy": "full_reread"
+  },
+  "deviation_counts": {"authorized": 0, "necessary": 0, "drift": 0, "regression": 0, "total": 0},
+  "adversarial": {
+    "convergence_score": 1.0,
+    "merge_method": "adversarial",
+    "adversarial_unavailable": false,
+    "fallback_path": null
+  },
+  "promotion": {"action": "not-applicable", "gate_conditions_passed": 0, "gate_conditions_total": 9, "cross_fs": false},
+  "degraded_components": ["calibrator-diversity"],
+  "input_drift_detected": false,
+  "needs_human_decision": false
+}
