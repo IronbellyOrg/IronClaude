@@ -60,15 +60,11 @@ def test_a_prompt_with_the_marker_binds_the_worker_and_one_without_does_not(tmp_
     [
         HEARTBEAT,
         ASK,
-        HEARTBEAT + " --to run:run_93bf",
-        ASK + " --to run:run_93bf",
         HEARTBEAT + ' --body "the plan is ready for approval"',
         HEARTBEAT + ' --phase "<short: investigating|implementing|reviewing|waiting>"',
         "orca orchestration ask --from term_1d62 --question 'may I proceed? (yes or no)'",
         "orca orchestration send --type worker_done --subject done --outcome succeeded",
         HEARTBEAT + ' --body "ready; please approve (issue 9) & reply"',
-        HEARTBEAT + ' --to "run:run_93bf"',
-        ASK + " --to=run:run_93bf",
         HEARTBEAT + " --body 'do not use --to dispatch:x'",
         HEARTBEAT + " --json",
         "/usr/local/bin/" + HEARTBEAT,
@@ -110,6 +106,17 @@ def test_a_command_with_very_many_orca_words_is_blocked_inside_the_time_limit(
 @pytest.mark.parametrize(
     "command",
     [
+        # a bound worker passes no --to at all: the Orca default is its own coordinator
+        HEARTBEAT + " --to run:run_93bf",
+        ASK + " --to run:run_93bf",
+        HEARTBEAT + ' --to "run:run_93bf"',
+        ASK + " --to=run:run_93bf",
+        HEARTBEAT + " --to=run:run_93bf",
+        ASK + ' --to "run:run_93bf"',
+        HEARTBEAT + " --To run:r1",
+        ASK + " --To run:r1",
+        HEARTBEAT + " --TO=run:r1",
+        ASK + " --TO=run:r1",
         HEARTBEAT + " --to dispatch:ctx_other",
         HEARTBEAT + ' --to "@all"',
         HEARTBEAT + " --to @idle",

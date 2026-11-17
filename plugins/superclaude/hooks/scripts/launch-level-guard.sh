@@ -497,15 +497,14 @@ if [ "$LL_BRANCH" = tool ]; then
                 done
             done
             [ "$LL_CL$LL_CF" = 11 ] && LL_CLASSES+='ESCAPE '
-            # G2 (issue-pipeline-guard-g2.md section 5): a bound worker may message only its
-            # coordinator. ws is not the real argument list (quotes are gone, a quoted ; | ( starts
+            # G2 (issue-pipeline-guard-g2.md section 5): a bound worker passes no --to, so Orca
+            # sends to the worker's own coordinator Run (its default). ws is not the real argument list (quotes are gone, a quoted ; | ( starts
             # a segment), so the raw command must be one orca send|ask call of plain words and quoted
             # strings with no expansion, and every argument an option or an option's value.
             if [ "$LL_SA" = 1 ]; then
                 LL_RE_TOK='([A-Za-z0-9_.:=@/+-]+|"[^"$`\\]*"|'\''[^'\'']*'\'')'
                 LL_RE_CALL="^ *([A-Za-z0-9_.@+/-]*/)?orca +orchestration +(send|ask)(( +${LL_RE_TOK})*) *\$"
                 LL_RE_ARG="^ +${LL_RE_TOK}( .*|)\$"
-                LL_RE_RUN='^run:[A-Za-z0-9_-]+$'
                 LL_SBAD=1
                 # shortcut: 8192 bytes and 64 arguments at most, so the check ends inside the hook's 5 s limit; raise only with a timing test.
                 if [ "${#cmd}" -le 8192 ] && [[ $cmd != *$'\n'* ]] && [[ $cmd =~ $LL_RE_CALL ]]; then
@@ -518,11 +517,6 @@ if [ "$LL_BRANCH" = tool ]; then
                         fi
                         LL_A=${BASH_REMATCH[1]} LL_SREST=${BASH_REMATCH[2]}
                         case $LL_A in \"* | \'*) LL_A=${LL_A:1:${#LL_A}-2} ;; esac
-                        if [ "$LL_WANT" = to ]; then
-                            LL_WANT=
-                            [[ $LL_A =~ $LL_RE_RUN ]] || LL_SBAD=1
-                            continue
-                        fi
                         if [ "$LL_WANT" = value ] && [[ $LL_A != -* ]]; then
                             LL_WANT=
                             continue
@@ -530,9 +524,7 @@ if [ "$LL_BRANCH" = tool ]; then
                         LL_L=${LL_A,,} # an option name in any case is read as its lower-case form
                         LL_WANT= LL_SN=${LL_L%%=*}
                         case $LL_L in
-                        --to) LL_WANT=to ;;
-                        --to=*) [[ ${LL_A#*=} =~ $LL_RE_RUN ]] || LL_SBAD=1 ;;
-                        --to* | --run* | --environment* | --pairing-code*) LL_SBAD=1 ;; # another run or another Orca server
+                        --to* | --run* | --environment* | --pairing-code*) LL_SBAD=1 ;; # any address, another run or another Orca server
                         --?*)
                             # a name Orca could read as --to or --run (--=, --t, --r, --ru) is ESCAPE
                             if [[ "--to" == "$LL_SN"* || "--run" == "$LL_SN"* ]]; then
@@ -543,7 +535,6 @@ if [ "$LL_BRANCH" = tool ]; then
                         *) LL_SBAD=1 ;; # a bare word, a short -x option, or a lone --
                         esac
                     done
-                    [ "$LL_WANT" = to ] && LL_SBAD=1 # --to with no value
                 fi
                 [ "$LL_SBAD" = 1 ] && LL_CLASSES+='ESCAPE '
             fi
