@@ -363,7 +363,6 @@ def test_guide_is_not_an_at_import_anywhere():
 # recommendation must include it. Each row that steps through one of these commands
 # lists the flag as mandatory on that step, so /sc:recommend always emits it.
 _MANDATORY_FLAGS = {
-    "/sc:auggie-review": "--no-post-pr",
     "/sc:reflect --mode post": "--no-promote",
 }
 
@@ -1018,20 +1017,18 @@ def test_pr_monitor_ceiling_is_conditional_and_each_branch_has_one_exact_value()
         for entry in row["mandatory_flags"].split(";")
     }
     expected = {
-        "6a": ("0", "creation-only or review App absent/uncertain"),
-        "6b": ("1", "proposals without source edits"),
-        "6c": ("2", "local fixes without publication"),
-        "6d": ("3", "requested/authorized full loop"),
+        "3a": ("0", "creation-only or review App absent/uncertain"),
+        "3b": ("1", "proposals without source edits"),
+        "3c": ("2", "local fixes without publication"),
+        "3d": ("3", "requested/authorized full loop"),
     }
     for label, (ordinal, condition) in expected.items():
         assert condition in steps[label]
         assert re.findall(r"--monitor\s+(\d+)", steps[label]) == [ordinal]
         assert mandatory[label] == f"--monitor {ordinal}"
         assert _TOKEN_RE.findall(steps[label]) == ["sc:pr-submit"]
-    assert "6" not in mandatory, "No unconditional monitor ceiling on all branches"
-    assert "--no-post-pr" in mandatory["4"]
-    assert "--no-remediation-offer" in mandatory["4"]
-    assert "choose exactly one 6 branch and one monitor ordinal" in row["notes"]
+    assert "3" not in mandatory, "No unconditional monitor ceiling on all branches"
+    assert "choose exactly one 3 branch and one monitor ordinal" in row["notes"]
     assert "3 is the current command default" in row["notes"]
     assert "can commit/push/retrigger/reply/resolve" in row["notes"]
     assert "stronger-project-policy conflict" in row["notes"]
@@ -1163,14 +1160,10 @@ def test_explicit_cleanup_controls_and_pr_attachment_do_not_gain_default_actions
 def test_grouped_required_flags_still_use_exact_flag_tokens():
     """Grouping two required controls cannot hide a missing or lookalike flag."""
     row = next(r for r in _routing_rows() if r["id"] == "review-pr")
-    entry = next(
-        item for item in row["mandatory_flags"].split(";") if item.startswith("4:")
+    assert not any(
+        item.strip().startswith("4:") for item in row["mandatory_flags"].split(";")
     )
-    required = _FLAG_RE.findall(entry.partition(":")[2])
-    assert required == ["--no-post-pr", "--no-remediation-offer"]
-    source = _command_text("sc:auggie-review")
-    assert source is not None
-    assert all(flag in source for flag in required)
+    assert not any("`/sc:auggie-review" in step for step in _steps(row).values())
     assert "--no-post-pr" not in _FLAG_RE.findall("--no-post-pr-lookalike")
 
 
